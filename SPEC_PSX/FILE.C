@@ -1,5 +1,7 @@
 #include "FILE.H"
 
+#include "SPECIFIC.H"
+
 #include <stdio.h>
 
 int FILE_Load(char* szFileName, void* pDest)

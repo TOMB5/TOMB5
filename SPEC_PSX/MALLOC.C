@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 char* malloc_ptr = NULL;
 int malloc_used = 0;
@@ -15,12 +16,12 @@ char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];//Memory Address 0xE3DC0
 void init_game_malloc()
 {
 	memset(malloc_buffer, GAME_MALLOC_BUFFER_SIZE-gfScriptLen, 0);
-	malloc_ptr = &malloc_buffer;
+	malloc_ptr = &malloc_buffer[0];
 }
 
 char* game_malloc(int size)
 {
-	int alignedSize = size + 3 & -4;
+	int alignedSize = size + 3 & -4;//?
 
 	if (alignedSize > GAME_MALLOC_BUFFER_SIZE)
 	{
