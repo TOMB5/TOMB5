@@ -9,7 +9,7 @@
 char* malloc_ptr = NULL;
 int malloc_used = 0;
 int malloc_free = GAME_MALLOC_BUFFER_SIZE;
-int script_malloc_size = 0;
+int script_malloc_size = 0;//?
 char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];//Memory Address 0xE3DC0
 
 void init_game_malloc()
@@ -37,7 +37,6 @@ char* game_malloc(int size)
 		return ptr;
 	}
 
-	
 	return NULL;
 }
 
