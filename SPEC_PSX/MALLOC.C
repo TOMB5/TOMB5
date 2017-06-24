@@ -13,29 +13,34 @@ int malloc_free = GAME_MALLOC_BUFFER_SIZE;
 int script_malloc_size = 0;//?
 char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];//Memory Address 0xE3DC0
 
-void init_game_malloc()
+#pragma warning (disable : 4996)//sprintf
+
+void init_game_malloc()//5E79C, 5F4F8
 {
-	memset(malloc_buffer, GAME_MALLOC_BUFFER_SIZE-gfScriptLen, 0);
+	memset(malloc_buffer + gfScriptLen, GAME_MALLOC_BUFFER_SIZE - gfScriptLen, 0);
 	malloc_ptr = &malloc_buffer[0];
 }
 
-char* game_malloc(int size)
+char* game_malloc(int size)//5E7E8, 5F544
 {
-	int alignedSize = size + 3 & -4;//?
+	size = (size + 3) & -4;
 
-	if (alignedSize > GAME_MALLOC_BUFFER_SIZE)
-	{
-		char buf[80];
-		sprintf(buf, "game_malloc() out of space (needs %d only got %d)", size, GAME_MALLOC_BUFFER_SIZE - (malloc_ptr - malloc_buffer));
-		S_ExitSystem(buf);
-	}
-	else
+	if (malloc_free > size)
 	{
 		char* ptr = malloc_ptr;
+
+		gfScriptLen += size;//?
 		malloc_ptr += size;
 		malloc_used += size;
 		malloc_free -= size;
+
 		return ptr;
+	}
+	else
+	{
+		char buf[80];
+		sprintf(buf, "game_malloc() out of space(needs %d only got %d", size, malloc_free);
+		S_ExitSystem(buf);
 	}
 
 	return NULL;
