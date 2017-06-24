@@ -29,10 +29,9 @@ char* game_malloc(int size)//5E7E8, 5F544
 	{
 		char* ptr = malloc_ptr;
 
-		gfScriptLen += size;//?
+		malloc_free -= size;
 		malloc_ptr += size;
 		malloc_used += size;
-		malloc_free -= size;
 
 		return ptr;
 	}
@@ -61,5 +60,19 @@ void show_game_malloc_totals()
 		{
 			printf("---->Total Memory Used %dK of %dK<----", malloc_used / 1024, malloc_used + malloc_free / 1024);
 		}
+	}
+}
+
+void dump_game_malloc()
+{
+	FILE* fileHandle = fopen("DUMP.BIN", "w");
+
+	if (fileHandle != NULL)
+	{
+		fwrite(&malloc_buffer[0], 1, GAME_MALLOC_BUFFER_SIZE, fileHandle);
+	}
+	else
+	{
+		printf("Failed to dump memory!\n");
 	}
 }

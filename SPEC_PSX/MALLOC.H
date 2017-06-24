@@ -14,4 +14,6 @@ extern int malloc_free;
 extern int script_malloc_size;
 extern char malloc_buffer[1085440];
 
+void dump_game_malloc();
+
 #endif
