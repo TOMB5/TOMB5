@@ -45,14 +45,16 @@ char* game_malloc(int size)//5E7E8, 5F544
 	return NULL;
 }
 
-void game_free(int size)
+void game_free(int size)//5E85C, 5F590
 {
-	size += 3;
-	size &= -4;
-	//TODO
+	size = (size + 3) & -4;
+
+	malloc_free  += size;
+	malloc_ptr -= size;
+	malloc_used -= size;
 }
 
-void show_game_malloc_totals()
+void show_game_malloc_totals()//5E894, * 
 {
 	if (malloc_used >= 0)
 	{
