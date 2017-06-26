@@ -49,7 +49,7 @@ void game_free(int size)//5E85C, 5F590
 {
 	size = (size + 3) & -4;
 
-	malloc_free  += size;
+	malloc_free += size;
 	malloc_ptr -= size;
 	malloc_used -= size;
 }
