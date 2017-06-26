@@ -1,10 +1,15 @@
 #include "GAMEFLOW.H"
 
+#include "DRAW.H"
+
 #include "../SPEC_PSX/FILE.H"
 #include "../SPEC_PSX/MALLOC.H"
 
 #include <stdint.h>
 #include <string.h>
+
+//Temp
+#include <assert.h>
 
 unsigned char gfGameMode;
 unsigned char gfNumMips;
@@ -38,11 +43,11 @@ unsigned char gfResetHubDest;
 char gfUVRotate;
 char gfLayer1Vel;
 char gfLayer2Vel;
-//struct CVECTOR gfLayer1Col;
-//struct CVECTOR gfLayer2Col;
+struct CVECTOR gfLayer1Col;
+struct CVECTOR gfLayer2Col;
 unsigned long GameTimer;
 //struct PHD_VECTOR gfLensFlare;
-//struct CVECTOR gfLensFlareColour;
+struct CVECTOR gfLensFlareColour;
 unsigned char gfMirrorRoom;
 unsigned char gfMips[8];
 char title_controls_locked_out;
@@ -63,13 +68,99 @@ void DoGameflow()//10F5C, 10FD8
 	unsigned char n;
 
 	LoadGameflow();
-
+	
 #ifndef _DEBUG
 	//0 = Eidos Logo FMV
 	//1 = TRC Intro FMV
-	int fmvIndex = 0;
 	S_PlayFMV(0);
 	S_PlayFMV(1);
+#endif
+
+#if 1
+	struct GAMEFLOW* v1 = Gameflow;
+
+	num_fmvs = 0;
+	fmv_to_play[0] = 0;
+	fmv_to_play[1] = 0;
+
+	//? Since when did gf flags store the current level?
+	//FIXME!
+	int v0 = *(int*)v1;
+	v0 >>= 2;
+	v0 &= 1;
+	v0 = v0 < 1 ? 1 : 0;
+
+	gfCurrentLevel = v0;
+
+	//Current level's script offset
+	unsigned short* scriptOffsetPtr = gfScriptOffset + (gfCurrentLevel & 0xFF);
+
+	unsigned int s0 = 0x000A0000;//?
+	unsigned char* sequenceCommand = gfScriptWad + *scriptOffsetPtr;
+
+	while (1)//?
+	{
+		int op = *sequenceCommand - 0x80;
+		sequenceCommand++;
+		switch (op)
+		{
+		case 2://IB = 113D8, 11488
+			gfLevelFlags = (sequenceCommand[0] | (sequenceCommand[1] << 8));
+			DoTitle(sequenceCommand[2], sequenceCommand[3]);//a3[2]unconfirmed
+			break;
+		case 3://11048
+			break;
+		case 5://112B8
+			gfResidentCut[0] = *sequenceCommand;
+			sequenceCommand += 1;
+			break;
+		case 6://112CC
+			gfResidentCut[1] = *sequenceCommand;
+			sequenceCommand += 1;
+			break;
+		case 7:
+			gfResidentCut[2] = *sequenceCommand;
+			sequenceCommand += 1;
+			break;
+		case 8://112F4
+			gfResidentCut[3] = *sequenceCommand;
+			sequenceCommand += 1;
+			break;
+		case 9://1107C
+		{
+			int a2 = 10;//?
+			int a1 = 10;//?
+
+			LightningRGB[0] = *sequenceCommand;
+			LightningRGBs[0] = *sequenceCommand;
+			gfLayer2Col.r = *sequenceCommand;
+			sequenceCommand += 1;
+			
+#ifdef _DEBUG
+		//internal beta is 0x2E
+		//GameTimer = 0x2E;
+#endif
+			LightningRGB[1] = *sequenceCommand;//*a3++;?
+			LightningRGBs[1] = *sequenceCommand;//*a3++;?
+			gfLayer2Col.g = *sequenceCommand;//*a3++;?
+			sequenceCommand += 1;
+
+			GameTimer = 44;
+			GlobalRoomNumber = *sequenceCommand;
+			GLOBAL_gunflash_meshptr = *sequenceCommand;
+			gfLayer1Col.cd = *sequenceCommand;
+			sequenceCommand += 1;
+
+			gfLayer1Vel = *sequenceCommand;
+			sequenceCommand += 1;
+			break;
+		}
+		default://11550
+			assert(1);
+			break;
+		}
+	}
+
 #endif
 
 	dump_game_malloc();
@@ -299,7 +390,7 @@ void QuickControlPhase()
 {
 }
 
-void DoTitle(unsigned char Name, unsigned char Audio)
+void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4
 { 
 } 
 
