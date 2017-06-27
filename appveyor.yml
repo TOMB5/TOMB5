@@ -32,8 +32,9 @@ before_build:
   
 artifacts:
    - path: BUILD\$(configuration)\*.exe
+     name: Binaries
 #  - path: TOMB5.zip
-    name: Binaries
+
   
 #after_build:
 #  - 7z a TOMB5.zip %APPVEYOR_BUILD_FOLDER%\BUILD\%configuration%\TOMB5.EXE
