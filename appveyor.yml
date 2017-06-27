@@ -19,12 +19,12 @@ build:
   verbosity: minimal
   
 before_build:
-  cmd: cd c:\projects\TOMB5
-  cmd: md BUILD
-  cmd: cd BUILD
+  - cmd: cd c:\projects\TOMB5
+  - cmd: md BUILD
+  - cmd: cd BUILD
   
-  cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
-  cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
-  cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
+  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
+  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
+  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
   
 build: off
