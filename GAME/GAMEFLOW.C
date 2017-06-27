@@ -1,6 +1,6 @@
 #include "GAMEFLOW.H"
 
-#include "DRAW.H"
+//#include "DRAW.H"
 
 #include "../SPEC_PSX/FILE.H"
 #include "../SPEC_PSX/MALLOC.H"
@@ -68,7 +68,7 @@ void DoGameflow()//10F5C, 10FD8
 	unsigned char n;
 
 	LoadGameflow();
-	
+
 #ifndef _DEBUG
 	//0 = Eidos Logo FMV
 	//1 = TRC Intro FMV
@@ -131,23 +131,23 @@ void DoGameflow()//10F5C, 10FD8
 			int a2 = 10;//?
 			int a1 = 10;//?
 
-			LightningRGB[0] = *sequenceCommand;
-			LightningRGBs[0] = *sequenceCommand;
+			///LightningRGB[0] = *sequenceCommand;
+			///LightningRGBs[0] = *sequenceCommand;
 			gfLayer2Col.r = *sequenceCommand;
 			sequenceCommand += 1;
-			
+
 #ifdef _DEBUG
-		//internal beta is 0x2E
-		//GameTimer = 0x2E;
+			//internal beta is 0x2E
+			//GameTimer = 0x2E;
 #endif
-			LightningRGB[1] = *sequenceCommand;//*a3++;?
-			LightningRGBs[1] = *sequenceCommand;//*a3++;?
+			///LightningRGB[1] = *sequenceCommand;//*a3++;?
+			///LightningRGBs[1] = *sequenceCommand;//*a3++;?
 			gfLayer2Col.g = *sequenceCommand;//*a3++;?
 			sequenceCommand += 1;
 
 			GameTimer = 44;
-			GlobalRoomNumber = *sequenceCommand;
-			GLOBAL_gunflash_meshptr = *sequenceCommand;
+			///GlobalRoomNumber = *sequenceCommand;
+			///GLOBAL_gunflash_meshptr = *sequenceCommand;
 			gfLayer1Col.cd = *sequenceCommand;
 			sequenceCommand += 1;
 
@@ -391,8 +391,8 @@ void QuickControlPhase()
 }
 
 void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4
-{ 
-} 
+{
+}
 
 void DoLevel(unsigned char Name, unsigned char Audio)
 {

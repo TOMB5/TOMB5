@@ -38,7 +38,7 @@ struct GAMEFLOW
 
 struct STRINGHEADER
 {
-	unsigned short nStrings; 
+	unsigned short nStrings;
 	unsigned short nPSXStrings;
 	unsigned short nPCStrings;
 	unsigned short StringWadLen;
@@ -59,7 +59,6 @@ extern unsigned short dels_cutseq_player;
 extern char Chris_Menu;
 extern unsigned char gfLegendTime;
 extern unsigned char bDoCredits;
-static unsigned char gfCutNumber;
 extern unsigned char gfInitialiseGame;
 extern long nframes;
 extern unsigned char gfNumPickups;
@@ -91,11 +90,6 @@ extern char title_controls_locked_out;
 extern long gfScriptLen;
 extern unsigned char gfLegend;
 extern unsigned char gfWadNames[40];
-static unsigned short* gfScriptOffset;
-static unsigned char* gfScriptWad;
-static char* gfExtensions;
-static int gfStatus;
-static unsigned long OldSP;
 extern unsigned char gfPickups[16];
 extern unsigned char gfTakeaways[16];
 
