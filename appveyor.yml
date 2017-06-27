@@ -20,7 +20,7 @@ build:
   
 platform:
   - Win32
-  - x64
+  #- x64
   
 before_build:
   - cmd: cd c:\projects\TOMB5
