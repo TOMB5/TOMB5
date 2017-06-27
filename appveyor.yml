@@ -33,4 +33,6 @@ before_build:
 artifacts:
 - path: BUILD\$(configuration)\*.exe
   name: Binaries
+  type: WebDeployPackage
+  
 #build: off
