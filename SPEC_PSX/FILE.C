@@ -6,7 +6,7 @@
 
 #pragma warning (disable : 4996)//fopen
 
-int FILE_Load(char* szFileName, void* pDest)
+int FILE_Load(char* szFileName, void* pDest)//, 5E5D8
 {
 	printf("Open\n");
 	FILE* fileHandle = fopen(szFileName, "rb");
@@ -36,13 +36,12 @@ int FILE_Load(char* szFileName, void* pDest)
 	return 0;
 }
 
-int FILE_Read(void* pDest, int nItemSize, int nItems, int nHandle)
+int FILE_Read(void* pDest, int nItemSize, int nItems, FILE* nHandle)//5E6A8, 
 {
-	//TODO
-	return -1;
+	return fread(pDest, nItemSize, nItems, nHandle);
 }
 
-unsigned long FILE_Length(char* szFileName)
+unsigned long FILE_Length(char* szFileName)//5E60C, 5E578
 {
 	unsigned long dwFileSize = -1;
 
