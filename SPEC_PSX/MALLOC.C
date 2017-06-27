@@ -17,8 +17,10 @@ char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];//Memory Address 0xE3DC0
 
 void init_game_malloc()//5E79C, 5F4F8
 {
-	memset(malloc_buffer + gfScriptLen, GAME_MALLOC_BUFFER_SIZE - gfScriptLen, 0);
-	malloc_ptr = &malloc_buffer[0];
+	malloc_used = gfScriptLen;
+	malloc_free = GAME_MALLOC_BUFFER_SIZE - gfScriptLen;
+	malloc_ptr = &malloc_buffer[gfScriptLen];
+	memset(malloc_ptr, GAME_MALLOC_BUFFER_SIZE - gfScriptLen, 0);
 }
 
 char* game_malloc(int size)//5E7E8, 5F544
