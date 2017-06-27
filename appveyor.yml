@@ -31,8 +31,6 @@ before_build:
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
   
 artifacts:
-- path: C:\projects\TOMB5\BUILD\Debug\TOMB5.exe
-  name: Debug
-- path: C:\projects\TOMB5\BUILD\Release\TOMB5.exe
-  name: Release
+- path: BUILD
+  name: Binaries
 #build: off
