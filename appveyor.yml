@@ -31,6 +31,6 @@ before_build:
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
   
 artifacts:
-- path: BUILD
+- path: BUILD\$(configuration)\*.exe
   name: Binaries
 #build: off
