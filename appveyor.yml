@@ -35,6 +35,6 @@ artifacts:
     name: TOMB5
   
 after_build:
-  - 7z a TOMB5.zip %APPVEYOR_BUILD_FOLDER%\BUILD\$(configuration)\TOMB5.EXE
+  - 7z a TOMB5.zip %APPVEYOR_BUILD_FOLDER%\BUILD\%configuration%\TOMB5.EXE
   
 #build: off
