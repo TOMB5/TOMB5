@@ -1,14 +1,20 @@
 #include "GAMEFLOW.H"
 
 //#include "DRAW.H"
+//#include "NEWINV2.H"
+//#include "SAVEGAME.H"
+//#include "TOMB4FX.H"
 
+//#include "../SPEC_PSX/CD.H"
 #include "../SPEC_PSX/FILE.H"
 #include "../SPEC_PSX/MALLOC.H"
+#//include "../SPEC_PSX/ROOMLOAD.H"
 
 #include <stdint.h>
 #include <string.h>
 
 //Temp
+#include "../SPEC_PSX/LOAD_LEV.H"
 #include <assert.h>
 
 unsigned char gfGameMode;
@@ -69,7 +75,7 @@ void DoGameflow()//10F5C, 10FD8
 
 	LoadGameflow();
 
-#ifndef _DEBUG
+#ifdef PSX
 	//0 = Eidos Logo FMV
 	//1 = TRC Intro FMV
 	S_PlayFMV(0);
@@ -131,8 +137,8 @@ void DoGameflow()//10F5C, 10FD8
 			int a2 = 10;//?
 			int a1 = 10;//?
 
-			///LightningRGB[0] = *sequenceCommand;
-			///LightningRGBs[0] = *sequenceCommand;
+		///	LightningRGB[0] = *sequenceCommand;
+		///	LightningRGBs[0] = *sequenceCommand;
 			gfLayer2Col.r = *sequenceCommand;
 			sequenceCommand += 1;
 
@@ -140,14 +146,14 @@ void DoGameflow()//10F5C, 10FD8
 			//internal beta is 0x2E
 			//GameTimer = 0x2E;
 #endif
-			///LightningRGB[1] = *sequenceCommand;//*a3++;?
-			///LightningRGBs[1] = *sequenceCommand;//*a3++;?
+		///	LightningRGB[1] = *sequenceCommand;//*a3++;?
+		///	LightningRGBs[1] = *sequenceCommand;//*a3++;?
 			gfLayer2Col.g = *sequenceCommand;//*a3++;?
 			sequenceCommand += 1;
 
 			GameTimer = 44;
-			///GlobalRoomNumber = *sequenceCommand;
-			///GLOBAL_gunflash_meshptr = *sequenceCommand;
+		///	GlobalRoomNumber = *sequenceCommand;
+			//			GLOBAL_gunflash_meshptr = *sequenceCommand;
 			gfLayer1Col.cd = *sequenceCommand;
 			sequenceCommand += 1;
 
@@ -169,7 +175,7 @@ void DoGameflow()//10F5C, 10FD8
 void LoadGameflow()//102E0, 102B0
 {
 	int len = FILE_Length("SCRIPT.DAT");
-	unsigned char* s = game_malloc(len);
+	char* s = game_malloc(len);
 	FILE_Load("SCRIPT.DAT", s);
 
 	Gameflow = (struct GAMEFLOW*)s;
@@ -178,21 +184,21 @@ void LoadGameflow()//102E0, 102B0
 	gfExtensions = s;
 	s += 0x28;
 
-	gfFilenameOffset = s;
+	gfFilenameOffset = (unsigned short*)s;
 	s += Gameflow->nFileNames * sizeof(unsigned short);
 
 	gfFilenameWad = s;
 	s += Gameflow->FileNameLen;
 
-	gfScriptOffset = s;
+	gfScriptOffset = (unsigned short*)s;
 	s += Gameflow->nLevels * sizeof(unsigned short);
 
 	gfScriptLen = len;
-	gfScriptWad = s;
+	gfScriptWad = (unsigned char*)s;
 	s += Gameflow->ScriptLen;
 
 	//Align
-	gfStringOffset = (char*)((uintptr_t)(s + 3) & (uintptr_t)-4);
+	gfStringOffset = (unsigned short*)(char*)((uintptr_t)(s + 3) & (uintptr_t)-4);
 
 	int i = 0;
 
@@ -208,19 +214,19 @@ void LoadGameflow()//102E0, 102B0
 	//Safer code (no inf loop).
 	for (i = 0; i < 8; i++)
 	{
-		if (FILE_Length(s) != -1)
+		if (FILE_Length((char*)s) != -1)
 		{
 			break;
 		}
 
 		//Null terminated
-		s += strlen(s) + 1;
+		s += strlen((char*)s) + 1;
 	}
 #endif
 
 	Gameflow->Language = i;
 
-	FILE_Load(s, gfStringOffset);
+	FILE_Load((char*)s, gfStringOffset);
 
 	struct STRINGHEADER sh;
 	memcpy(&sh, gfStringOffset, sizeof(struct STRINGHEADER));
@@ -236,7 +242,7 @@ void LoadGameflow()//102E0, 102B0
 
 	if (sh.nStrings + sh.nPSXStrings != 0)
 	{
-		unsigned char* stringPtr = gfStringOffset + sh.nStrings + sh.nPSXStrings;
+		unsigned char* stringPtr = (unsigned char*)(gfStringOffset + sh.nStrings + sh.nPSXStrings);//s?
 
 		for (i = 0; i < sh.nStrings + sh.nPSXStrings; i++)
 		{
