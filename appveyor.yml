@@ -30,4 +30,9 @@ before_build:
   - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
   
+artifacts:
+- path: C:\projects\TOMB5\BUILD\Debug\TOMB5.exe
+  name: Debug
+- path: C:\projects\TOMB5\BUILD\Release\TOMB5.exe
+  name: Release
 #build: off
