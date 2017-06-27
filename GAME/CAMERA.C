@@ -1,5 +1,6 @@
 #include "CAMERA.H"
 
+#include "../SPEC_PSX/3D_GEN.H"
 #include "GAMEFLOW.H"
 #include "LARA.H"
 
@@ -58,9 +59,29 @@ void InitialiseCamera()//25AAC
 	camera.target.room_number = nframes;
 	camera.pos.room_number = nframes;
 	
-	//AlterFOV();
+	AlterFOV(16380);
 	
-	int a0 = 16380;
 	UseForcedFixedCamera = 0;
 	//CalculateCamera();
+}
+
+void AlterFOV(short fov)//77BD8, 79C1C
+{
+	short a0 = fov;
+	//CurrentFov = a0; //Spotcam.h
+	short v0 = a0;
+	a0 <<= 16;
+	a0 <<= 31;
+	v0 += a0;
+	v0 >>= 3;
+	v0 &= 0x3FFC;
+	//int a1 = rcossin_tbl;//?
+	int a1 = 0;
+	a1 += v0;
+	//a0 = a1[2];
+	//v0 = a1[0];
+	a0 <<= 8;
+	a0 /= v0;
+	///ctc2	$a0, $26 //?unknown instruction
+	//phd_persp = a0;
 }

@@ -122,5 +122,6 @@ extern struct GAME_VECTOR last_ideal;
 extern struct GAME_VECTOR last_target;
 
 void InitialiseCamera();
+void AlterFOV(short fov);
 
 #endif
