@@ -18,6 +18,10 @@ clone_folder: c:\projects\TOMB5
 build:
   verbosity: minimal
   
+platform:
+  - x86
+  - x64
+  
 before_build:
   - cmd: cd c:\projects\TOMB5
   - cmd: md BUILD
