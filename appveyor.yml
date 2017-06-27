@@ -31,7 +31,7 @@ before_build:
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
   
 artifacts:
-  - path: TOMB5.zip
+  - path: BUILD\%configuration%\TOMB5.zip
     name: TOMB5
   
 after_build:
