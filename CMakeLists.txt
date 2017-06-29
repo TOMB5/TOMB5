@@ -43,10 +43,8 @@ ${PLATFORM_SPECIFIC_SRCS}
 
 set_target_properties(
 TOMB5
-PROPERTIES OUTPUT_NAME "MAIN.EXE"
+PROPERTIES OUTPUT_NAME "MAIN"
 )
-
-
 
 #This will be a console application, alter linker subsystem accordingly or main method won't be found
 if(WIN32)
