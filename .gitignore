@@ -5,4 +5,5 @@
 *.idb
 
 /OUTPUT/*
+/BUILD/*
 /x64/*

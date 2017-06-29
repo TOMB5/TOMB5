@@ -1,57 +1,51 @@
 cmake_minimum_required (VERSION 2.6)
+
 project (TOMB5)
-
-#set(CMAKE_CXX_STARNDARD 11)
-
-MESSAGE(STATUS "PROJECT_SOURCE_DIR: " ${PROJECT_SOURCE_DIR})
 
 #Platform override
 set(PLATFORM_PSX 0 CACHE BOOL "Tomb Raider: 5 PlayStation")
-set(PLATFORM_PSXPC 0 CACHE BOOL "Tomb Raider: 5 PlayStation (PC)")
+set(PLATFORM_PSXPC 1 CACHE BOOL "Tomb Raider: 5 PlayStation (PC)")
 set(PLATFORM_PC 0 CACHE BOOL "Tomb Raider: 5 PC")
-
-file(GLOB_RECURSE TOMB5_SRCS "GAME/*.h" "GAME/*.c" "SPEC_PSX/*.h" "SPEC_PSX/*.c")
-
-#Exe
-add_executable(
-TOMB5
-WIN32
-${TOMB5_SRCS}
-)
 
 #Platform specific
 if (PLATFORM_PSX)
-set_target_properties(
-TOMB5
-PROPERTIES OUTPUT_NAME "MAIN.EXE"
-)
-add_definitions(-DPSX)
-#Recursively add all source files (.h, .cpp)
-#file(GLOB_RECURSE TOMB5_SRCS "GAME/*.h" "GAME/*.c" "SPEC_PSX/*.h" "SPEC_PSX/*.c")
+	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PSX")
+	add_definitions(-DPSX)
 endif (PLATFORM_PSX)
 
 if (PLATFORM_PSXPC)
-set_target_properties(
-TOMB5
-PROPERTIES OUTPUT_NAME "MAIN.EXE"
-)
-add_definitions(-DPSXPC)
-
-#Recursively add all source files (.h, .cpp)
-#file(GLOB_RECURSE TOMB5_SRCS "GAME/*.h" "GAME/*.c" "SPEC_PSXPC/*.h" "SPEC_PSXPC/*.c")
-
+	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PSXPC")
+	add_definitions(-DPSXPC)
 endif (PLATFORM_PSXPC)
 
 if (PLATFORM_PC)
+	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PC")
+	set(PLATFORM_SPECIFIC_DIR "SPEC_PC/")
+	add_definitions(-DPC)
+endif (PLATFORM_PC)
+
+#Setup platform specific include folder
+include_directories(${PLATFORM_SPECIFIC_DIR})
+
+##Add all GAME/SPEC* source files recursively.
+file(GLOB_RECURSE GAME_SRCS "GAME/*.h" "GAME/*.c")
+file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${PLATFORM_SPECIFIC_DIR}/*.c  ${PLATFORM_SPECIFIC_DIR}/*.h)
+		 
+#MESSAGE(STATUS "GAME_SRCS: " ${GAME_SRCS})
+#MESSAGE(STATUS "PLATFORM_SPECIFIC_SRCS: " ${PLATFORM_SPECIFIC_SRCS})
+
+add_executable(
+TOMB5
+WIN32
+${GAME_SRCS}
+${PLATFORM_SPECIFIC_SRCS}
+)
+
 set_target_properties(
 TOMB5
 PROPERTIES OUTPUT_NAME "MAIN.EXE"
 )
-add_definitions(-DPC)
 
-#Recursively add all source files (.h, .cpp)
-#file(GLOB_RECURSE TOMB5_SRCS "GAME/*.h" "GAME/*.c" "SPEC_PC/*.h" "SPEC_PC/*.c")
-endif (PLATFORM_PC)
 
 
 #This will be a console application, alter linker subsystem accordingly or main method won't be found
@@ -63,6 +57,3 @@ if(WIN32)
    set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:CONSOLE")
    set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:CONSOLE")
 endif(WIN32)
-
-MESSAGE(STATUS "TARGET_FILE_NAME: " ${TARGET_FILE_NAME})
-
