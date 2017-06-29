@@ -5,7 +5,7 @@
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "PROFILE.H"
-#include "SPUSOUND.H"
+//#include "SPUSOUND.H"
 
 #include "../GAME/GAMEFLOW.H"
 //#include "../GAME/TEXT.H"
