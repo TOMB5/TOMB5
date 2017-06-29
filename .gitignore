@@ -7,3 +7,5 @@
 /OUTPUT/*
 /BUILD/*
 /x64/*
+/SPEC_PSX/*
+/SPEC_PC/*
