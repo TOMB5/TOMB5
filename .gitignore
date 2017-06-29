@@ -1,0 +1,8 @@
+*.tlog
+*.layout
+*.sdf
+*.opendb
+*.idb
+
+/OUTPUT/*
+/x64/*
