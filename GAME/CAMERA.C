@@ -4,7 +4,7 @@
 #include "LARA.H"
 #include "SPOTCAM.H"
 
-#include "../SPEC_PSX/3D_GEN.H"
+#include "3D_GEN.H"
 
 long BinocularRange;
 long BinocularOn;
