@@ -5,16 +5,16 @@
 //#include "SAVEGAME.H"
 //#include "TOMB4FX.H"
 
-//#include "../SPEC_PSX/CD.H"
-#include "../SPEC_PSX/FILE.H"
-#include "../SPEC_PSX/MALLOC.H"
-#//include "../SPEC_PSX/ROOMLOAD.H"
+//#include "CD.H"
+#include "FILE.H"
+#include "MALLOC.H"
+#//include "ROOMLOAD.H"
 
 #include <stdint.h>
 #include <string.h>
 
 //Temp
-#include "../SPEC_PSX/LOAD_LEV.H"
+#include "LOAD_LEV.H"
 #include <assert.h>
 
 unsigned char gfGameMode;
