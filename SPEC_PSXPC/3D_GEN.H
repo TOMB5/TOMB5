@@ -15,4 +15,5 @@ extern struct PHD_3DPOS viewer;
 extern struct VECTOR3D CamPos;
 extern struct VECTOR3D CamTgt;
 
+void phd_InitWindow(int view_angle);
 #endif
