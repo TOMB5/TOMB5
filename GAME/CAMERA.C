@@ -205,7 +205,8 @@ void AlterFOV(short fov)//77BD8, 79C1C
 {
 	CurrentFov = fov;
 
-	short* rcossin_ptr =  &rcossin_tbl[(((fov + (fov << 47)) >> 3) & 0x3FFC) / sizeof(short)];
-	phd_persp = (rcossin_ptr[2] << 8) / rcossin_ptr[0];
+	short* rcossin_ptr = &rcossin_tbl[((fov + ((fov << 16) >> 31) >> 3) & 0x3FFC) /sizeof(short)];
+	phd_persp = ((rcossin_ptr[1] << 8) / rcossin_ptr[0]);
 	///ctc2	$a0, $26 //?unknown instruction
 }
+
