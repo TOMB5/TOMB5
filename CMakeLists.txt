@@ -28,7 +28,7 @@ endif (PLATFORM_PC)
 #Setup platform specific include folder
 include_directories(${PLATFORM_SPECIFIC_DIR})
 
-##Add all GAME/SPEC* source files recursively.
+#Add all GAME/SPEC* source files recursively.
 file(GLOB_RECURSE GAME_SRCS "GAME/*.H" "GAME/*.C")
 file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${PLATFORM_SPECIFIC_DIR}/*.C  ${PLATFORM_SPECIFIC_DIR}/*.H)
 		 

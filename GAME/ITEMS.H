@@ -3,29 +3,29 @@
 
 struct PHD_3DPOS
 {
-	long x_pos; // size=0, offset=0
-	long y_pos; // size=0, offset=4
-	long z_pos; // size=0, offset=8
-	short x_rot; // size=0, offset=12
-	short y_rot; // size=0, offset=14
-	short z_rot; // size=0, offset=16
+	long x_pos;
+	long y_pos;
+	long z_pos;
+	short x_rot;
+	short y_rot;
+	short z_rot;
 };
 
 struct ILIGHT
 {
-	short x; // size=0, offset=0
-	short y; // size=0, offset=2
-	short z; // size=0, offset=4
-	short pad1; // size=0, offset=6
-	unsigned char r; // size=0, offset=8
-	unsigned char g; // size=0, offset=9
-	unsigned char b; // size=0, offset=10
-	unsigned char pad; // size=0, offset=11
+	short x;
+	short y;
+	short z;
+	short pad1;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char pad;
 };
 
 struct ITEM_LIGHT
 {
-	struct ILIGHT Light[4]; // size=48, offset=0
+	struct ILIGHT Light[4];
 };
 
 struct ITEM_INFO
@@ -73,5 +73,10 @@ struct ITEM_INFO
 	short TOSSPAD; // size=0, offset=142
 };
 
+extern int level_items;
+extern short next_item_free;
+extern short next_item_active;
+extern short GlobalPulleyFrigItem;
+extern struct ITEM_INFO* items;
 
 #endif
