@@ -6,8 +6,6 @@ short next_item_active;
 short GlobalPulleyFrigItem;
 struct ITEM_INFO* items;
 
-#define MAX_NUM_ITEMS (256)
-
 void InitialiseItemArray(int numitems)//418E8, 41D3C
 {
 	next_item_active = -1;
@@ -21,7 +19,7 @@ void InitialiseItemArray(int numitems)//418E8, 41D3C
 
 	if ((level_items + 1) < numitems)
 	{
-		for (int i = (level_items + 1); i < MAX_NUM_ITEMS; i++, item++)
+		for (int i = (level_items + 1); i < numitems; i++, item++)
 		{
 			item->next_item = i;
 
