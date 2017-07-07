@@ -10,17 +10,15 @@
 char* malloc_ptr = NULL;
 int malloc_used = 0;
 int malloc_free = GAME_MALLOC_BUFFER_SIZE;
-int script_malloc_size = 0;//?
-char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];//Memory Address 0xE3DC0
-
-#pragma warning (disable : 4996)//sprintf
+int script_malloc_size = 0;
+char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];
 
 void init_game_malloc()//5E79C, 5F4F8
 {
 	malloc_used = gfScriptLen;
 	malloc_free = GAME_MALLOC_BUFFER_SIZE - gfScriptLen;
 	malloc_ptr = &malloc_buffer[gfScriptLen];
-	memset(malloc_ptr, GAME_MALLOC_BUFFER_SIZE - gfScriptLen, 0);
+	memset(malloc_ptr, 0, GAME_MALLOC_BUFFER_SIZE - gfScriptLen);
 }
 
 char* game_malloc(int size)//5E7E8, 5F544
@@ -74,6 +72,7 @@ void dump_game_malloc()
 	if (fileHandle != NULL)
 	{
 		fwrite(&malloc_buffer[0], 1, GAME_MALLOC_BUFFER_SIZE, fileHandle);
+		fclose(fileHandle);
 	}
 	else
 	{
