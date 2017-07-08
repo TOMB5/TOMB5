@@ -12,7 +12,7 @@
 #ifdef PSX
 	#define XA_FILE_NAME "\XA%d.XA;1"
 #else
-	#define XA_FILE_NAME "\XA%d.XA"
+	#define XA_FILE_NAME "XA%d.XA"
 #endif
 
 unsigned short XATrackClip[136];
@@ -52,16 +52,9 @@ void InitNewCDSystem()//5DDE8, 5E264(<)
 
 #else
 	FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
-
-	if (fileHandle != NULL)
-	{
-		fread(&gwHeader, sizeof(GAMEWAD_header), 1, fileHandle);
-		fclose(fileHandle);
-	}
-	else
-	{
-		assert(0);
-	}
+	assert(fileHandle);
+	fread(&gwHeader, sizeof(GAMEWAD_header), 1, fileHandle);
+	fclose(fileHandle);
 
 	//FIXME: Likely ret of CdPosToInt(); this const should be fine though.
 	gwAlignment = 24;
@@ -83,7 +76,7 @@ void InitNewCDSystem()//5DDE8, 5E264(<)
 		fseek(fileHandle, 0, SEEK_END);
 
 		XATrackList[i][0] = -1;//FIXME: This value is returned by CdPosToInt(); register is v0. It returns the LBA of the XA file on disc.
-		XATrackList[i][1] = XATrackList[i][0] + ((ftell(fileHandle) + 0x7FF) / CD_SECTOR_SIZE);//FIXME: Not const 2146304, $sp[0x814]
+		XATrackList[i][1] = XATrackList[i][0] + ((ftell(fileHandle) + 0x7FF) / CD_SECTOR_SIZE);
 
 		fclose(fileHandle);
 	}
