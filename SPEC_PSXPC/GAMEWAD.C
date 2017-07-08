@@ -35,19 +35,20 @@ void GAMEWAD_Load(int fileSize, char* ptr)//*, 5E414(<)
 		FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
 		fseek(fileHandle, dword_A5620 * CD_SECTOR_SIZE, SEEK_SET);
 
-#if 0 //FIXME: I'm not sure why CdReadSync is reading a completely different file entry (6), possible hardcoded sector? see CdRead();
+#if 1 //FIXME: I'm not sure why CdReadSync is reading a completely different file entry (6), possible hardcoded sector? see CdRead();
+		char* tmpptr = malloc_ptr;
 		while (numBlocksToRead > 0)
 		{
 			//jal sub_69DE8 //CdReadSync(?);
 
 			//Illegal did not game malloc?
-			fread(malloc_ptr, 1, CD_SECTOR_SIZE, fileHandle);
+			tmpptr += fread(tmpptr, 1, CD_SECTOR_SIZE, fileHandle);
 			numBlocksToRead--;
 		}
 #endif
 
 		fclose(fileHandle);
-
+		dump_game_malloc();
 		dword_A5620 += numBlocksToRead;
 
 		if ((fileSize & 0x7FF) != 0)

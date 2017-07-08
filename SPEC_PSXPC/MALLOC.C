@@ -1,6 +1,6 @@
 #include "MALLOC.H"
 
-#include "../GAME/GAMEFLOW.H"
+#include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 
 #include <stdlib.h>

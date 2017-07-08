@@ -1,6 +1,6 @@
 #include "3D_GEN.H"
 
-#include "../GAME/CAMERA.H"
+#include "CAMERA.H"
 
 #include <assert.h>
 

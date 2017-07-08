@@ -12,7 +12,7 @@ extern char* malloc_ptr;
 extern int malloc_used;
 extern int malloc_free;
 extern int script_malloc_size;
-extern char malloc_buffer[1085440];
+extern char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];
 
 void dump_game_malloc();
 

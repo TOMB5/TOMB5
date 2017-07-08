@@ -25,11 +25,14 @@ if (PLATFORM_PC)
 	add_definitions(-DPC)
 endif (PLATFORM_PC)
 
-#Setup platform specific include folder
+string(CONCAT GAME_CODE_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/GAME")
+
+#Setup platform specific / game code include folder
 include_directories(${PLATFORM_SPECIFIC_DIR})
+include_directories(${GAME_CODE_DIR})
 
 #Add all GAME/SPEC* source files recursively.
-file(GLOB_RECURSE GAME_SRCS "GAME/*.H" "GAME/*.C")
+file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
 file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${PLATFORM_SPECIFIC_DIR}/*.C  ${PLATFORM_SPECIFIC_DIR}/*.H)
 		 
 #MESSAGE(STATUS "GAME_SRCS: " ${GAME_SRCS})
