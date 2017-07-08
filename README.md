@@ -10,7 +10,7 @@ This project may be abandoned at any time, use this product at your own risk.
 
 ## What is this?
 
-This repository contains decompiled code for the game Tomb Raider: Chronicles. All decompiled code is based off the PlayStation version. The goal is to decompile as much as possible since the original source code is reportedly lost. It is not expected for code to be 1:1 to the original game. Debugging the original PlayStation version at a later phase will help map out any existing bugs.
+This repository contains decompiled code for the game Tomb Raider: Chronicles. All decompiled code is based off the PlayStation version. The goal is to decompile as much as possible since the original source code is reportedly lost. It is not expected for code to be 1:1 to the original game. Debugging the original PlayStation version at a later phase will help map out any existing bugs. All information (variable and method names) have been obtained from debugging symbols (.SYM, .MAP).
 
 ## What are the current goals?
 
@@ -26,4 +26,4 @@ I will not accept pull requests which drastically alter the structure/architectu
 
 If you're able to code in C/C++ please feel free to contact me. I can assign you tasks to prevent collisions with my local code which is not pushed yet. I'm typically looking for pull requests which resolve bugs, finish existing decompiled methods, improve readability or introduce new decompiled methods.
 
-Feel free to contact me on this * [Discord channel](https://discord.gg/KYSx8Q7)
+Feel free to contact me on this: [Discord channel](https://discord.gg/KYSx8Q7)
