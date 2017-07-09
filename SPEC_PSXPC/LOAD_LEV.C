@@ -7,7 +7,14 @@
 #include "PROFILE.H"
 
 #include <assert.h>
+
+#if 0
 #include <limits>
+#endif
+
+#ifndef SHRT_MAX
+#define SHRT_MAX 32767
+#endif
 
 unsigned char LtLoadingBarEnabled;
 unsigned char LoadingBarEnabled;
@@ -79,7 +86,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	GAMEWAD_InitialiseFileEntry(UNKNOWN_00);
 
 	//Why?
-	unsigned long int* tmpptr = (unsigned long*) gfx;
+	unsigned long* tmpptr = (unsigned long*) gfx;
 	for (int i = 0; i < LOADING_SCREEN_IMG_SIZE / sizeof(unsigned long); i++)
 	{
 		tmpptr[i] |= (SHRT_MAX + 1) << 16 | (SHRT_MAX + 1);
