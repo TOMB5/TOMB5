@@ -4,7 +4,7 @@
 #ifdef PSX
 	#define GAMEWAD_FILENAME "\\GAMEWAD.OBJ;1"
 #else
-	#define GAMEWAD_FILENAME "DATA\\GAMEWAD.OBJ"
+	#define GAMEWAD_FILENAME "GAMEWAD.OBJ"
 #endif
 
 int GAMEWAD_InitialiseFileEntry(int fileID);
@@ -27,7 +27,7 @@ struct GAMEWAD_header
 
 extern struct GAMEWAD_header gwHeader;
 
-extern int gwAlignment;
+extern int gwLba;
 extern int dword_A563C;
 extern int dword_A5620;
 
