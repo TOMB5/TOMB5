@@ -4,6 +4,8 @@
 #include "FILE.H"
 #include "MALLOC.H"
 
+#include <assert.h>
+
 struct GAMEWAD_header gwHeader;
 
 int gwLba = 0;
@@ -38,8 +40,8 @@ void GAMEWAD_Load(int fileSize, char* ptr)//*, 5E414(<)
 		//jal sub_69C4C //CdRead(?, ?, ?);
 
 		FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
+		assert(fileHandle);
 		fseek(fileHandle, dword_A5620 * CD_SECTOR_SIZE, SEEK_SET);
-
 		for(int i = 0; i < numSectorsToRead; i++)
 		{
 			//jal sub_69DE8 //CdReadSync(?);
@@ -48,8 +50,6 @@ void GAMEWAD_Load(int fileSize, char* ptr)//*, 5E414(<)
 
 		fclose(fileHandle);
 		
-		dump_game_malloc();
-
 		dword_A5620 += numSectorsToRead;
 
 		if ((fileSize & 0x7FF) != 0)
