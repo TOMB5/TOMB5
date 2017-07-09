@@ -67,7 +67,7 @@ void show_game_malloc_totals()//5E894, *
 
 void dump_game_malloc()
 {
-	FILE* fileHandle = fopen("DUMP.BIN", "w");
+	FILE* fileHandle = fopen("DUMP.BIN", "wb");
 
 	if (fileHandle != NULL)
 	{
