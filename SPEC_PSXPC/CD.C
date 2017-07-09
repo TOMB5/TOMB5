@@ -56,8 +56,8 @@ void InitNewCDSystem()//5DDE8, 5E264(<)
 	fread(&gwHeader, sizeof(GAMEWAD_header), 1, fileHandle);
 	fclose(fileHandle);
 
-	//FIXME: Likely ret of CdPosToInt(); this const should be fine though.
-	gwAlignment = 24;
+	//FIXME: CdPosToInt(); returns LBA for GAMEWAD.OBJ on disc.
+	gwLba = 24;
 
 #ifdef PSX
 	//jal sub_66270 //CdPosToInt();
