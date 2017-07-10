@@ -1,6 +1,6 @@
 #include "SOUND.H"
 
-#define MAX_SOUND_SLOTS 24
+#include "SPECIFIC.H"
 
 int sound_active;
 short* sample_lut;
@@ -9,7 +9,7 @@ struct SoundSlot LaSlot[MAX_SOUND_SLOTS];
 
 void SayNo()
 {
-	int fx; // $a0
+//	int fx; // $a0
 }
 
 void SOUND_Stop()//920A4, ?

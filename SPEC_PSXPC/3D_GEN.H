@@ -1,7 +1,7 @@
 #ifndef THREED_GEN_H
 #define THREED_GEN_H
 
-#include "../GAME/ITEMS.H"
+#include "ITEMS.H"
 
 extern long phd_left;
 extern long phd_right;
@@ -15,4 +15,5 @@ extern struct PHD_3DPOS viewer;
 extern struct VECTOR3D CamPos;
 extern struct VECTOR3D CamTgt;
 
+void phd_InitWindow(int view_angle);
 #endif

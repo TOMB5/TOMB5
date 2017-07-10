@@ -3,6 +3,9 @@
 *.sdf
 *.opendb
 *.idb
+*.map
+*.mak
+*.sym
 
 /OUTPUT/*
 /BUILD/*

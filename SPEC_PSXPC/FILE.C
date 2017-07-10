@@ -4,8 +4,6 @@
 
 #include <stdio.h>
 
-#pragma warning (disable : 4996)//fopen
-
 int FILE_Load(char* szFileName, void* pDest)//, 5E5D8
 {
 	printf("Open\n");

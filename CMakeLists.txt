@@ -16,22 +16,23 @@ if (PLATFORM_PSX)
 endif (PLATFORM_PSX)
 
 if (PLATFORM_PSXPC)
-	MESSAGE(STATUS "PLATFORM_PSXPC: TRUE" ${PLATFORM_PSXPC})
 	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PSXPC")
 	add_definitions(-DPSXPC)
 endif (PLATFORM_PSXPC)
 
 if (PLATFORM_PC)
 	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PC")
-	set(PLATFORM_SPECIFIC_DIR "SPEC_PC/")
 	add_definitions(-DPC)
 endif (PLATFORM_PC)
 
-#Setup platform specific include folder
-include_directories(${PLATFORM_SPECIFIC_DIR})
+string(CONCAT GAME_CODE_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/GAME")
 
-##Add all GAME/SPEC* source files recursively.
-file(GLOB_RECURSE GAME_SRCS "GAME/*.H" "GAME/*.C")
+#Setup platform specific / game code include folder
+include_directories(${PLATFORM_SPECIFIC_DIR})
+include_directories(${GAME_CODE_DIR})
+
+#Add all GAME/SPEC* source files recursively.
+file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
 file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${PLATFORM_SPECIFIC_DIR}/*.C  ${PLATFORM_SPECIFIC_DIR}/*.H)
 		 
 #MESSAGE(STATUS "GAME_SRCS: " ${GAME_SRCS})
@@ -49,11 +50,9 @@ PROPERTIES OUTPUT_NAME "MAIN"
 )
 
 #This will be a console application, alter linker subsystem accordingly or main method won't be found
-if(WIN32)
+if(MSVC)
    set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
-   set_target_properties(TOMB5 PROPERTIES COMPILE_DEFINITIONS_DEBUG "_CONSOLE")
    set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
-   set_target_properties(TOMB5 PROPERTIES COMPILE_DEFINITIONS_RELWITHDEBINFO "_CONSOLE")
    set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:CONSOLE")
    set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:CONSOLE")
-endif(WIN32)
+endif(MSVC)

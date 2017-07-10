@@ -1,6 +1,6 @@
 #include "MALLOC.H"
 
-#include "../GAME/GAMEFLOW.H"
+#include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 
 #include <stdlib.h>
@@ -10,17 +10,19 @@
 char* malloc_ptr = NULL;
 int malloc_used = 0;
 int malloc_free = GAME_MALLOC_BUFFER_SIZE;
-int script_malloc_size = 0;//?
-char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];//Memory Address 0xE3DC0
+int script_malloc_size = 0;
+char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];
 
-#pragma warning (disable : 4996)//sprintf
-
+/*
+ * 
+ * Note: Once the gameflow script is loaded it's always in malloc_buffer regardless.
+ */
 void init_game_malloc()//5E79C, 5F4F8
 {
 	malloc_used = gfScriptLen;
 	malloc_free = GAME_MALLOC_BUFFER_SIZE - gfScriptLen;
 	malloc_ptr = &malloc_buffer[gfScriptLen];
-	memset(malloc_ptr, GAME_MALLOC_BUFFER_SIZE - gfScriptLen, 0);
+	memset(malloc_ptr, 0, GAME_MALLOC_BUFFER_SIZE - gfScriptLen);
 }
 
 char* game_malloc(int size)//5E7E8, 5F544
@@ -69,11 +71,12 @@ void show_game_malloc_totals()//5E894, *
 
 void dump_game_malloc()
 {
-	FILE* fileHandle = fopen("DUMP.BIN", "w");
+	FILE* fileHandle = fopen("DUMP.BIN", "wb");
 
 	if (fileHandle != NULL)
 	{
 		fwrite(&malloc_buffer[0], 1, GAME_MALLOC_BUFFER_SIZE, fileHandle);
+		fclose(fileHandle);
 	}
 	else
 	{
