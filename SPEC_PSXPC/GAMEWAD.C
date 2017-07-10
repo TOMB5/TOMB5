@@ -31,6 +31,10 @@ void GAMEWAD_Load(int fileSize, char* ptr)//*, 5E414(<)
 {
 	//jal sub_5E650 //DEL_ChangeCDMode(?);
 
+	FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
+	assert(fileHandle);
+	fseek(fileHandle, dword_A5620 * CD_SECTOR_SIZE, SEEK_SET);
+
 	int numSectorsToRead = fileSize / CD_SECTOR_SIZE;
 
 	if (numSectorsToRead != 0)
@@ -39,24 +43,36 @@ void GAMEWAD_Load(int fileSize, char* ptr)//*, 5E414(<)
 		//jal sub_6956C //CdControlF(0);
 		//jal sub_69C4C //CdRead(?, ?, ?);
 
-		FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
-		assert(fileHandle);
-		fseek(fileHandle, dword_A5620 * CD_SECTOR_SIZE, SEEK_SET);
 		for(int i = 0; i < numSectorsToRead; i++)
 		{
 			//jal sub_69DE8 //CdReadSync(?);
 			ptr += fread(ptr, 1, CD_SECTOR_SIZE, fileHandle);
 		}
-
-		fclose(fileHandle);
 		
 		dword_A5620 += numSectorsToRead;
-
-		if ((fileSize & 0x7FF) != 0)
-		{
-			//0x5E4B4
-		}
-
-		//0x5E528
 	}
+
+	//Another chunk that is not multiple of 2048 bytes exists, read it
+	if ((fileSize & 0x7FF) != 0)
+	{
+
+#ifdef PSX
+		//jal sub_6915C //CdIntToPos(?, ?);
+		//jal sub_6956C //CdControlF(?);
+		//jal sub_69C4C //CdRead(?, ?, ?);
+		//jal sub_69DE8 //CdReadSync(?);
+#endif
+
+		ptr += fread(ptr, 1, fileSize - (numSectorsToRead * CD_SECTOR_SIZE), fileHandle);
+		fclose(fileHandle);
+		dword_A5620++;
+	}
+
+	fclose(fileHandle);
+}
+
+//Looks like seek
+void GAMEWAD_SeekCurrent(int size /*$a0*/)//*, 5E54C(<)
+{
+	dword_A5620 = dword_A563C + (size / CD_SECTOR_SIZE);
 }

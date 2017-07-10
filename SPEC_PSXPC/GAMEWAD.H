@@ -4,12 +4,14 @@
 #define NUM_BITS_IN_BYTE 8
 
 //Image properties for the loading screen seen when the game is loading.
+//Do not change these unless the image dimensions or pixel format of the bitmap in GAMEWAD.OBJ has been changed.
 #define LOADING_SCREEN_IMG_BPP 16
 #define LOADING_SCREEN_IMG_WIDTH 512
 #define LOADING_SCREEN_IMG_HEIGHT 256
 #define LOADING_SCREEN_IMG_SIZE LOADING_SCREEN_IMG_WIDTH * LOADING_SCREEN_IMG_HEIGHT * (LOADING_SCREEN_IMG_BPP / NUM_BITS_IN_BYTE)
 
 //Image properties for the loading "disc" seen when the game is loading.
+//Do not change these unless the image dimensions or pixel format of the bitmap in GAMEWAD.OBJ has been changed.
 #define LOADING_DISC_IMG_BPP 16
 #define LOADING_DISC_IMG_WIDTH 64
 #define LOADING_DISC_IMG_HEIGHT 64
@@ -18,8 +20,9 @@
 //Cleanly named gamewad file indices
 enum gw_files
 {
-	UNKNOWN_00,
+	UNKNOWN_00,//Dummy init to 0
 	CUTSEQ,
+	SETUP,
 	TITLE,
 	ANDREA1,
 	ANDREA2,
@@ -37,7 +40,6 @@ enum gw_files
 	GIBBY,
 	DEL,
 	TOM,
-	UNKNOWN_19,
 	UNKNOWN_20,
 	UNKNOWN_21,
 	UNKNOWN_22,
@@ -81,6 +83,7 @@ enum gw_files
 
 int GAMEWAD_InitialiseFileEntry(int fileID);
 void GAMEWAD_Load(int fileSize, char* ptr);
+void GAMEWAD_SeekCurrent(int size);
 
 #pragma pack(push, 1)
 

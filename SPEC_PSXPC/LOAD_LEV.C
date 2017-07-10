@@ -74,16 +74,25 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	//?
 	dword_A5EE0 = 0;
 
+	//We're going to allocate enough memory for the loading screen background picture and loading disc image
+	//The result pointer is later used as the base to read the loading screen/disc bitmap from GAMEWAD.OBJ on disk.
 	char* gfx = game_malloc(LOADING_SCREEN_IMG_SIZE + LOADING_DISC_IMG_SIZE);
 	if (dword_A33F6 == 0)
 	{
-		assert(0);
+		//assert(0);
 	}
 
 	int fileSize = GAMEWAD_InitialiseFileEntry(UNKNOWN_41 + Gameflow->Language);
 
+	//Request the loading screen/disc bitmaps to be read into gfx ptr.
+	//We don't actually pass the file ID or offset since this is already cached by the previous GAMEWAD_InitialiseFileEntry call.
 	GAMEWAD_Load(fileSize, gfx);
-	GAMEWAD_InitialiseFileEntry(UNKNOWN_00);
+
+	//Init read request cache?
+	GAMEWAD_InitialiseFileEntry(file_number + SETUP);
+
+	//Seek gamewad pos
+	GAMEWAD_SeekCurrent(LOADING_SCREEN_IMG_SIZE + LOADING_DISC_IMG_SIZE);
 
 	//Why?
 	unsigned long* tmpptr = (unsigned long*) gfx;
@@ -101,7 +110,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	unsigned short* gfx2 = (unsigned short*)gfx;
 	
 	//Why?
-	for (int x = 0; x < LOADING_DISC_IMG_WIDTH; x++, gfx2 += ((LOADING_SCREEN_IMG_WIDTH + LOADING_DISC_IMG_WIDTH + 60) / 2))
+	for (int x = 0; x < LOADING_DISC_IMG_WIDTH; x++, gfx2 += (LOADING_SCREEN_IMG_WIDTH + LOADING_DISC_IMG_WIDTH + 60) / sizeof(unsigned short))
 	{
 		for (int y = 0; y < LOADING_DISC_IMG_HEIGHT; y++, cdgfx++, gfx2++)
 		{
