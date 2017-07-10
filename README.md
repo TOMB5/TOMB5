@@ -18,7 +18,7 @@ Current goals include decompiling all code up until the title screen sequence, e
 
 ## Usage
 
-Assuming you have compiled the most recent code or downloaded the latest binaries from appveyor (artifacts). Simply put your Tomb Raider: Chronicles PlayStation disc into your PC. At this point you'll need to copy all the files from the root to the same folder as MAIN.EXE.
+Assuming you have compiled the most recent code or downloaded the latest binaries from appveyor (artifacts). Simply put your Tomb Raider: Chronicles PlayStation disc into your PC. At this point you'll need to copy all the files from the root to the same folder as MAIN.EXE. The codebase is currently based off the final NTSC version of Tomb Raider: Chronicles. This means that other localised versions may not be supported.
 
 ## How long will this take?
 
