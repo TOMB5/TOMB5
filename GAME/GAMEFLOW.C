@@ -56,7 +56,8 @@ char gfLayer2Vel;
 struct CVECTOR gfLayer1Col;
 struct CVECTOR gfLayer2Col;
 unsigned long GameTimer;
-//struct PHD_VECTOR gfLensFlare;
+//
+struct PHD_VECTOR gfLensFlare;
 struct CVECTOR gfLensFlareColour;
 unsigned char gfMirrorRoom;
 unsigned char gfMips[8];

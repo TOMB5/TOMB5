@@ -1,6 +1,39 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
+#include "CAMERA.H"
+
+struct CHARDEF
+{
+	unsigned char u;
+	unsigned char v;
+	unsigned char w;
+	unsigned char h;
+	char YOffset;
+	unsigned char TopShade;
+	unsigned char BottomShade;
+};
+
+struct ROPE_STRUCT
+{
+	struct PHD_VECTOR Segment[24];
+	struct PHD_VECTOR Velocity[24];
+	struct PHD_VECTOR NormalisedSegment[24];
+	struct PHD_VECTOR MeshSegment[24];
+	struct PHD_VECTOR Position;
+	long SegmentLength;
+	short Active;
+	short Coiled;
+};
+
+struct PENDULUM
+{
+	struct PHD_VECTOR Position;
+	struct PHD_VECTOR Velocity;
+	int node;
+	struct ROPE_STRUCT* Rope;
+};
+
 extern int flipeffect;
 extern int fliptimer;
 extern unsigned char ShatterSounds[18][10];

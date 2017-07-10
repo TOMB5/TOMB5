@@ -1,10 +1,11 @@
 #include "ITEMS.H"
 
+#include "CONTROL.H"
+
 int level_items;
 short next_item_free;
 short next_item_active;
 short GlobalPulleyFrigItem;
-struct ITEM_INFO* items;
 
 void InitialiseItemArray(int numitems)//418E8, 41D3C
 {

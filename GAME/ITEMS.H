@@ -77,6 +77,5 @@ extern int level_items;
 extern short next_item_free;
 extern short next_item_active;
 extern short GlobalPulleyFrigItem;
-extern struct ITEM_INFO* items;
 
 #endif

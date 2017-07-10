@@ -1,5 +1,7 @@
 #include "CONTROL.H"
 
+#include "LARA2GUN.H"
+
 int flipeffect;
 int fliptimer;
 unsigned char ShatterSounds[18][10];
