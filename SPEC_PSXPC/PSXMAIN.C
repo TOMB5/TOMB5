@@ -1,14 +1,14 @@
 #include <assert.h>
 
-//#include "CD.H"
+#include "CD.H"
 //#include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "PROFILE.H"
 //#include "SPUSOUND.H"
 
-#include "../GAME/GAMEFLOW.H"
-//#include "../GAME/TEXT.H"
+#include "GAMEFLOW.H"
+//#include "TEXT.H"
 
 unsigned long dword_9A884 = 0;
 
@@ -72,6 +72,8 @@ int main()//10064, 10064
 	GPU_GetScreenPosition();
 	ProfileInit();
 #endif
+
+	InitNewCDSystem();
 	init_game_malloc();
 	//InitFont();
 	//SOUND_Init();

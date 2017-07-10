@@ -7,6 +7,7 @@ struct DISPLAYPU
 	short object_number;
 };
 
+int FlashIt();
 void InitialisePickUpDisplay();
 
 extern int health_bar_timer;

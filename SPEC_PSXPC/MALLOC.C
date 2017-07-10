@@ -13,6 +13,10 @@ int malloc_free = GAME_MALLOC_BUFFER_SIZE;
 int script_malloc_size = 0;
 char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];
 
+/*
+ * 
+ * Note: Once the gameflow script is loaded it's always in malloc_buffer regardless.
+ */
 void init_game_malloc()//5E79C, 5F4F8
 {
 	malloc_used = gfScriptLen;

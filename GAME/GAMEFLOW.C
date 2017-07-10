@@ -1,14 +1,18 @@
 #include "GAMEFLOW.H"
 
-//#include "DRAW.H"
-//#include "NEWINV2.H"
-//#include "SAVEGAME.H"
-//#include "TOMB4FX.H"
-
-//#include "CD.H"
+#include "3D_GEN.H"
+#include "CAMERA.H"
+#include "CD.H"
+#include "DRAW.H"
 #include "FILE.H"
+#include "HEALTH.H"
 #include "MALLOC.H"
-#//include "ROOMLOAD.H"
+#include "NEWINV2.H"
+#include "ROOMLOAD.H"
+#include "SAVEGAME.H"
+#include "SOUND.H"
+#include "SPOTCAM.H"
+#include "TOMB4FX.H"
 
 #include <stdint.h>
 #include <string.h>
@@ -74,7 +78,6 @@ void DoGameflow()//10F5C, 10FD8
 	unsigned char n;
 
 	LoadGameflow();
-
 #ifdef PSX
 	//0 = Eidos Logo FMV
 	//1 = TRC Intro FMV
@@ -100,8 +103,6 @@ void DoGameflow()//10F5C, 10FD8
 
 	//Current level's script offset
 	unsigned short* scriptOffsetPtr = gfScriptOffset + (gfCurrentLevel & 0xFF);
-
-	unsigned int s0 = 0x000A0000;//?
 	unsigned char* sequenceCommand = gfScriptWad + *scriptOffsetPtr;
 
 	while (1)//?
@@ -137,8 +138,8 @@ void DoGameflow()//10F5C, 10FD8
 			int a2 = 10;//?
 			int a1 = 10;//?
 
-		///	LightningRGB[0] = *sequenceCommand;
-		///	LightningRGBs[0] = *sequenceCommand;
+			LightningRGB[0] = *sequenceCommand;
+			LightningRGBs[0] = *sequenceCommand;
 			gfLayer2Col.r = *sequenceCommand;
 			sequenceCommand += 1;
 
@@ -146,13 +147,13 @@ void DoGameflow()//10F5C, 10FD8
 			//internal beta is 0x2E
 			//GameTimer = 0x2E;
 #endif
-		///	LightningRGB[1] = *sequenceCommand;//*a3++;?
-		///	LightningRGBs[1] = *sequenceCommand;//*a3++;?
+			LightningRGB[1] = *sequenceCommand;//*a3++;?
+			LightningRGBs[1] = *sequenceCommand;//*a3++;?
 			gfLayer2Col.g = *sequenceCommand;//*a3++;?
 			sequenceCommand += 1;
 
 			GameTimer = 44;
-		///	GlobalRoomNumber = *sequenceCommand;
+			GlobalRoomNumber = *sequenceCommand;
 			//			GLOBAL_gunflash_meshptr = *sequenceCommand;
 			gfLayer1Col.cd = *sequenceCommand;
 			sequenceCommand += 1;
@@ -169,7 +170,6 @@ void DoGameflow()//10F5C, 10FD8
 
 #endif
 
-	dump_game_malloc();
 }
 
 void LoadGameflow()//102E0, 102B0
@@ -239,6 +239,8 @@ void LoadGameflow()//102E0, 102B0
 #else
 	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 315, sh.StringWadLen + sh.PSXStringWadLen);
 #endif
+
+	gfScriptLen += ((((sh.nStrings + sh.nPSXStrings) * sizeof(unsigned short) + (sh.StringWadLen + sh.PSXStringWadLen)) + 3) & -4);
 
 	if (sh.nStrings + sh.nPSXStrings != 0)
 	{
@@ -398,6 +400,84 @@ void QuickControlPhase()
 
 void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4
 {
+
+#if 1
+	int i;
+	struct GAMEFLOW* v1 = Gameflow;
+
+	int at = 0x000A0000;//?
+	CreditsDone = 0;
+	CanLoad = 0;
+
+	int v0 = ((*(int*)Gameflow) << 1) & 1;
+
+	//beq 10648
+	if (v0 == 0)
+	{
+		//TODO
+	}
+
+	int a0 = 0;//?param?
+	int s1 = a0 & 0xFF;
+
+	//a0 = 1;
+#ifdef PSX
+	mcOpen();
+#endif
+
+	struct savegame_info* s0 = &savegame;
+	a0 = s0->Level.Timer;
+
+	int a1 = 0;
+
+	num_fmvs = 0;
+	fmv_to_play[0] = 0;
+	fmv_to_play[1] = 0;
+
+	XAMasterVolume = s0->VolumeCD;
+
+	sizeof(struct STATS);
+	memset(&savegame.Level, 0, sizeof(struct STATS));
+
+	a0 = s0->Game.Timer;
+	a1 = 0;
+	memset(&savegame.Game, 0, sizeof(struct STATS));
+
+	S_LoadLevelFile(s1);//check param
+
+						//move	$a0, $s1
+	GLOBAL_lastinvitem = -1;
+	dels_cutseq_player = 0;
+	InitSpotCamSequences();
+	title_controls_locked_out = 0;
+	InitialisePickUpDisplay();
+
+	phd_InitWindow(90);
+	SOUND_Stop();
+	//IsAtmospherePlaying = 0;//control.h
+	///S_SetReverbType();
+	a0 = 1;
+	InitialiseCamera();
+	v0 = bDoCredits;
+
+	//bnez	$v0, loc_10730//bdocredits
+	a0 = 0x20;
+	///trigger_title_spotcam();
+	a0 = 1;
+	ScreenFadedOut = 0;
+	ScreenFade = 0;
+	dScreenFade = 0;
+	ScreenFadeBack = 0;
+	ScreenFadeSpeed = 8;
+	ScreenFading = 0;
+	//j	loc_10764
+
+	///Retail 0x001088C - jal sub_645E0 DrawPhaseGame renders screen
+#else
+
+	dump_game_malloc();
+	assert(0);
+#endif
 }
 
 void DoLevel(unsigned char Name, unsigned char Audio)

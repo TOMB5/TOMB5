@@ -3,6 +3,10 @@
 
 #include "CAMERA.H"
 
+void InitSpotCamSequences();
+
+#pragma pack(push,1)
+
 struct SPOTCAM
 {
 	long x;
@@ -27,6 +31,8 @@ struct QUAKE_CAM
 	struct GAME_VECTOR spos;
 	struct GAME_VECTOR epos;
 };
+
+#pragma pack(pop)
 
 extern int bUseSpotCam;
 extern int bDisableLaraControl;
