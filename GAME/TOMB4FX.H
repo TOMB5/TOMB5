@@ -1,0 +1,41 @@
+#ifndef TOMB4FX_H
+#define TOMB4FX_H
+
+extern char flare_table[121]; // offset 0x92A6C
+extern char LaserSightActive; // offset 0xA09FC
+extern char LaserSightCol; // offset 0xA09FD
+extern long next_fire_spark; // offset 0xA0A0C
+extern long next_smoke_spark; // offset 0xA0A10
+extern long next_gunshell; // offset 0xA0A18
+extern long next_bubble; // offset 0xA0A1C
+extern long next_drip; // offset 0xA0A20
+extern long next_blood; // offset 0xA0A14
+extern struct NODEOFFSET_INFO NodeOffsets[16]; // offset 0xA0A24
+extern short FlashFadeR; // offset 0xA0A04
+extern short FlashFadeG; // offset 0xA0A06
+extern short FlashFadeB; // offset 0xA0A08
+extern short FlashFader; // offset 0xA0A0A
+extern short ScreenFade; // offset 0xA09F0
+extern short dScreenFade; // offset 0xA09F2
+extern short ScreenFadeSpeed; // offset 0xA09F4
+extern short ScreenFadeBack; // offset 0xA09F6
+extern short ScreenFadedOut; // offset 0xA09F8
+extern short ScreenFading; // offset 0xA09FA
+extern short FadeScreenHeight; // offset 0xA09FE
+extern short DestFadeScreenHeight; // offset 0xA0A00
+extern short FadeClipSpeed; // offset 0xA0A02
+extern long LaserSightX; // offset 0xA3268
+extern long LaserSightY; // offset 0xA326C
+extern long LaserSightZ; // offset 0xA3270
+extern struct GUNFLASH_STRUCT Gunflashes[4]; // offset 0xA31D8
+extern struct PHD_VECTOR NodeVectors[16]; // offset 0xA3274
+extern struct FIRE_SPARKS fire_spark[20]; // offset 0xA94FC
+extern struct SMOKE_SPARKS smoke_spark[32]; // offset 0xA8F7C
+extern struct GUNSHELL_STRUCT Gunshells[24]; // offset 0xA7DFC
+extern struct BLOOD_STRUCT blood[32]; // offset 0xA88FC
+extern struct BUBBLE_STRUCT Bubbles[40]; // offset 0xA80FC
+extern struct DRIP_STRUCT Drips[32]; // offset 0xA85FC
+extern struct SHOCKWAVE_STRUCT ShockWaves[16]; // offset 0xA7C3C
+extern struct FIRE_LIST fires[32]; // offset 0xA8D7C
+
+#endif

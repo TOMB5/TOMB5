@@ -1,0 +1,14 @@
+*.tlog
+*.layout
+*.sdf
+*.opendb
+*.idb
+*.map
+*.mak
+*.sym
+
+/OUTPUT/*
+/BUILD/*
+/x64/*
+/SPEC_PSX/*
+/SPEC_PC/*

@@ -1,8 +1,9 @@
 #ifndef LOAD_LEV_H
 #define LOAD_LEV_H
 
-void LOAD_DrawEnable();
+void LOAD_DrawEnable(unsigned char isEnabled);
 void LOAD_Stop();
+void LOAD_Start(int file_number);
 
 extern unsigned char LtLoadingBarEnabled;
 extern unsigned char LoadingBarEnabled;

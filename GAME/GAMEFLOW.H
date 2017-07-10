@@ -1,14 +1,7 @@
 #ifndef GAMEFLOW_H
 #define GAMEFLOW_H
 
-//PSYQ
-struct CVECTOR {
-	unsigned char r; // size=0, offset=0
-	unsigned char g; // size=0, offset=1
-	unsigned char b; // size=0, offset=2
-	unsigned char cd; // size=0, offset=3
-};
-
+#include "PSXTYPES.H"
 
 void DoGameflow();
 void LoadGameflow();
