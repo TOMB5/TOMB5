@@ -16,6 +16,10 @@ This repository contains decompiled code for the game Tomb Raider: Chronicles. A
 
 Current goals include decompiling all code up until the title screen sequence, ensuring it's fully correct then proceeding to decompiling in-game code. At this point in time the most critically required parts of code reside within the "GAME" folder.
 
+## Usage
+
+Assuming you have compiled the most recent code or downloaded the latest binaries from appveyor (artifacts). Simply put your Tomb Raider: Chronicles PlayStation disc into your PC. At this point you'll need to copy all the files from the root to the same folder as MAIN.EXE.
+
 ## How long will this take?
 
 Depending on the amount of contributors it could take years.
