@@ -78,8 +78,8 @@ unsigned char gfTakeaways[16];
 
 void DoGameflow()//10F5C, 10FD8
 {
-	unsigned char *gf;
-	unsigned char n;
+	//unsigned char *gf;
+	//unsigned char n;
 
 	LoadGameflow();
 #ifdef PSX
@@ -406,7 +406,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4
 {
 
 #if 1
-	int i;
+	//int i;
 	struct GAMEFLOW* v1 = Gameflow;
 
 	int at = 0x000A0000;//?

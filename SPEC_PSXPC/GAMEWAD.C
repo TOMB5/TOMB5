@@ -1,16 +1,9 @@
 #include "GAMEWAD.H"
 
 #include "CD.H"
-#include "FILE.H"
-#include "MALLOC.H"
 
+#include <stdio.h>
 #include <assert.h>
-
-struct GAMEWAD_header gwHeader;
-
-int gwLba = 0;
-static int gwReaderStartSector = 0;
-static int gwReaderCurrentSector = 0;
 
 /*
  * [FUNCTIONALITY]
@@ -23,6 +16,18 @@ static int gwReaderCurrentSector = 0;
  * @PARAM - [fileID] index into GAMEWAD_header.entries you wish to seek to.
  * @RETURN - Filesize of the gamewad entry in bytes.
  */
+
+//Retains all game data file positions.
+struct GAMEWAD_header gwHeader;
+
+//LBA for the GAMEWAD.OBJ file on disc.
+int gwLba = 0;
+
+//Start sector for the current gamewad file entry.
+static int gwReaderStartSector = 0;
+
+//Current sector for the gamewad file entry, updated as data is read from disk.
+static int gwReaderCurrentSector = 0;
 
 int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
 {
@@ -107,6 +112,7 @@ void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
  * @PARAM - [offset] the number of bytes you wish to seek (not in sectors).
  * @RETURN - Nothing.
  */
+
 void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<)
 {
 	gwReaderCurrentSector = gwReaderStartSector + (offset / CD_SECTOR_SIZE);

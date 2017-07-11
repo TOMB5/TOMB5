@@ -44,6 +44,7 @@ struct QUAKE_CAM quakecam;
 
 void InitSpotCamSequences()//374B8, 379B8
 {
+#if 0
 	int s; // $a2
 	int cc; // $a3
 	int n; // $a1
@@ -102,4 +103,5 @@ void InitSpotCamSequences()//374B8, 379B8
 			v1111[0] = t0;
 		}
 	}
+#endif
 }
