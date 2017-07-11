@@ -119,7 +119,5 @@ void GAMEWAD_Seek(int offset);
 
 extern struct GAMEWAD_header gwHeader;
 extern int gwLba;
-extern int dword_A563C;
-extern int dword_A5620;
 
 #endif

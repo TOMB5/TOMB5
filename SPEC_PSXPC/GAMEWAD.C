@@ -9,19 +9,19 @@
 struct GAMEWAD_header gwHeader;
 
 int gwLba = 0;
-int dword_A563C;
-int dword_A5620;
+static int gwReaderStartSector = 0;
+static int gwReaderCurrentSector = 0;
 
 /*
  * [FUNCTIONALITY]
  * GAMEWAD_header is already in the memory at this point, we loaded it during InitNewCDSystem() (See CD.C)
- * This method initialises the GAMEWAD read offset for a specific gamewad entry.
+ * This method initialises the GAMEWAD read sector for a specific gamewad entry.
  * File ID indices must match GAMEWAD.OBJ, see gw_files enum (GAMEWAD.H)
  * Note: A File ID of "NONE" or 0 will initialise the reader position back to 0.
  *
  * [USAGE]
  * @PARAM - [fileID] index into GAMEWAD_header.entries you wish to seek to.
- * @RETURN - Filesize of the gamewad entry.
+ * @RETURN - Filesize of the gamewad entry in bytes.
  */
 
 int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
@@ -33,9 +33,9 @@ int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
 	int relativeFileSector = gwHeader.entries[fileID].fileOffset / CD_SECTOR_SIZE;
 
 #ifdef PSX
-	dword_A5620 = dword_A563C = gwLba + relativeFileSector;
+	gwReaderCurrentSector = gwReaderStartSector = gwLba + relativeFileSector;
 #else
-	dword_A5620 = dword_A563C = relativeFileSector;
+	gwReaderCurrentSector = gwReaderStartSector = relativeFileSector;
 #endif
 
 	return gwHeader.entries[fileID].fileSize;
@@ -58,27 +58,30 @@ void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
 
 	FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
 	assert(fileHandle);
-	fseek(fileHandle, dword_A5620 * CD_SECTOR_SIZE, SEEK_SET);
+	fseek(fileHandle, gwReaderCurrentSector * CD_SECTOR_SIZE, SEEK_SET);
 
 	int numSectorsToRead = fileSize / CD_SECTOR_SIZE;
 
 	if (numSectorsToRead != 0)
 	{
+#ifdef PSX
 		//jal sub_6915C //CdIntToPos(?, ?);
 		//jal sub_6956C //CdControlF(0);
 		//jal sub_69C4C //CdRead(?, ?, ?);
-
+#endif
 		for(int i = 0; i < numSectorsToRead; i++)
 		{
+#ifdef PSX
 			//jal sub_69DE8 //CdReadSync(?);
+#endif
 			ptr += fread(ptr, 1, CD_SECTOR_SIZE, fileHandle);
 		}
 		
-		dword_A5620 += numSectorsToRead;
+		gwReaderCurrentSector += numSectorsToRead;
 	}
 
 	//Another chunk that is not multiple of 2048 bytes exists, read it
-	if ((fileSize & 0x7FF) != 0)
+	if ((fileSize & 0x7FF) != 0)//%
 	{
 
 #ifdef PSX
@@ -90,7 +93,7 @@ void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
 
 		ptr += fread(ptr, 1, fileSize - (numSectorsToRead * CD_SECTOR_SIZE), fileHandle);
 		fclose(fileHandle);
-		dword_A5620++;
+		gwReaderCurrentSector++;
 	}
 
 	fclose(fileHandle);
@@ -101,10 +104,10 @@ void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
  * Seeks from the gamewad reader's current position.
  * Note: Negative numbers will allow backwards traversal.
  * [USAGE]
- * @PARAM - [offset] the number of bytes you wish to seek.
+ * @PARAM - [offset] the number of bytes you wish to seek (not in sectors).
  * @RETURN - Nothing.
  */
 void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<)
 {
-	dword_A5620 = dword_A563C + (offset / CD_SECTOR_SIZE);
+	gwReaderCurrentSector = gwReaderStartSector + (offset / CD_SECTOR_SIZE);
 }
