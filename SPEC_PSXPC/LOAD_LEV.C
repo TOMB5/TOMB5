@@ -82,17 +82,18 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 		//assert(0);
 	}
 
-	int fileSize = GAMEWAD_InitialiseFileEntry(UNKNOWN_41 + Gameflow->Language);
+	//UNKNOWN_41 is the first loading screen image, simply add Gameflow->Language to the base to load language specific load screens.
+	int fileSize = GAMEWAD_InitialiseReaderPosition(UNKNOWN_41 + Gameflow->Language);
 
 	//Request the loading screen/disc bitmaps to be read into gfx ptr.
 	//We don't actually pass the file ID or offset since this is already cached by the previous GAMEWAD_InitialiseFileEntry call.
-	GAMEWAD_Load(fileSize, gfx);
+	GAMEWAD_Read(fileSize, gfx);
 
-	//Init read request cache?
-	GAMEWAD_InitialiseFileEntry(file_number + TITLE);
+	//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
+	GAMEWAD_InitialiseReaderPosition(file_number + TITLE);
 
-	//Seek gamewad pos
-	GAMEWAD_SeekCurrent(LOADING_SCREEN_IMG_SIZE + LOADING_DISC_IMG_SIZE);
+	//We will skip past the loading screen and disc image data so on the next read call we're ready to read SETUP.MOD
+	GAMEWAD_Seek(LOADING_SCREEN_IMG_SIZE + LOADING_DISC_IMG_SIZE);
 
 	//Why?
 	unsigned long* tmpptr = (unsigned long*) gfx;

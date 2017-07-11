@@ -2,6 +2,7 @@
 
 #include "3D_GEN.H"
 #include "CAMERA.H"
+#include "CONTROL.H"
 #include "CD.H"
 #include "DRAW.H"
 #include "FILE.H"
@@ -20,6 +21,8 @@
 //Temp
 #include "LOAD_LEV.H"
 #include <assert.h>
+
+#define GF_SCRIPT_FILENAME "SCRIPT.DAT"
 
 unsigned char gfGameMode;
 unsigned char gfNumMips;
@@ -175,9 +178,9 @@ void DoGameflow()//10F5C, 10FD8
 
 void LoadGameflow()//102E0, 102B0
 {
-	int len = FILE_Length("SCRIPT.DAT");
+	int len = FILE_Length(GF_SCRIPT_FILENAME);
 	char* s = game_malloc(len);
-	FILE_Load("SCRIPT.DAT", s);
+	FILE_Load(GF_SCRIPT_FILENAME, s);
 
 	Gameflow = (struct GAMEFLOW*)s;
 	s += sizeof(struct GAMEFLOW);
@@ -213,7 +216,7 @@ void LoadGameflow()//102E0, 102B0
 	}
 #else
 	//Safer code (no inf loop).
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < MAX_GF_LANGUAGES; i++)
 	{
 		if (FILE_Length((char*)s) != -1)
 		{
@@ -410,7 +413,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4
 	CreditsDone = 0;
 	CanLoad = 0;
 
-	int v0 = ((*(int*)Gameflow) << 1) & 1;
+	int v0 = ((*(int*) Gameflow) << 1) & 1;
 
 	//beq 10648
 	if (v0 == 0)
@@ -446,7 +449,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4
 
 	S_LoadLevelFile(s1);//check param
 
-						//move	$a0, $s1
+	//move	$a0, $s1
 	GLOBAL_lastinvitem = -1;
 	dels_cutseq_player = 0;
 	InitSpotCamSequences();
@@ -455,7 +458,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4
 
 	phd_InitWindow(90);
 	SOUND_Stop();
-	//IsAtmospherePlaying = 0;//control.h
+	IsAtmospherePlaying = 0;
 	///S_SetReverbType();
 	a0 = 1;
 	InitialiseCamera();

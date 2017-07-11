@@ -130,7 +130,8 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	int a0 = Name;
 	int s0 = a0 + 2;//+2 because first entry is setup.mod and second is cutseq.jiz
 	
-	GAMEWAD_InitialiseFileEntry(Name + TITLE);
+	//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
+	GAMEWAD_InitialiseReaderPosition(Name + TITLE);
 	
 	a0 = 0;
 	//jal sub_6B144 //ResetCallback();
@@ -151,7 +152,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	//addiu	$a0, $s0, 0x1000 //looks like the ptr?
 	
 	//FIXME should switch offset 0x6E5
-	GAMEWAD_Load(SETUP_MOD_FILE_SIZE, setupBuff); //jal sub_5E414 //Loads setup.mod to ptr 0xB2940
+	GAMEWAD_Read(SETUP_MOD_FILE_SIZE, setupBuff); //jal sub_5E414 //Loads setup.mod to ptr 0xB2940
 	
 	//a0 = SetupPtr;
 	//lw	$a1, 0x1000($s0)

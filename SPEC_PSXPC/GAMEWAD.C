@@ -12,10 +12,24 @@ int gwLba = 0;
 int dword_A563C;
 int dword_A5620;
 
-int GAMEWAD_InitialiseFileEntry(int fileID /*$a0*/)//*, 5E3C0(<)
+/*
+ * [FUNCTIONALITY]
+ * GAMEWAD_header is already in the memory at this point, we loaded it during InitNewCDSystem() (See CD.C)
+ * This method initialises the GAMEWAD read offset for a specific gamewad entry.
+ * File ID indices must match GAMEWAD.OBJ, see gw_files enum (GAMEWAD.H)
+ * Note: A File ID of "NONE" or 0 will initialise the reader position back to 0.
+ *
+ * [USAGE]
+ * @PARAM - [fileID] index into GAMEWAD_header.entries you wish to seek to.
+ * @RETURN - Filesize of the gamewad entry.
+ */
+
+int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
 {
 	//DEL_ChangeCDMode(0);
 
+	//Converting to multiples CD_SECTOR_SIZE since PSX legacy CD routines require the number of sectors to be read
+	//Not the actual file size of the file itself.
 	int relativeFileSector = gwHeader.entries[fileID].fileOffset / CD_SECTOR_SIZE;
 
 #ifdef PSX
@@ -27,7 +41,18 @@ int GAMEWAD_InitialiseFileEntry(int fileID /*$a0*/)//*, 5E3C0(<)
 	return gwHeader.entries[fileID].fileSize;
 }
 
-void GAMEWAD_Load(int fileSize, char* ptr)//*, 5E414(<)
+/*
+ * [FUNCTIONALITY]
+ * It is assumed that prior to calling this you have initialised the gamewad
+ * reader's position to the file entry you wish to read see (GAMEWAD_InitialiseReaderPosition)
+ * This method reads data from GAMEWAD.OBJ from it's last read position.
+ *
+ * [USAGE]
+ * @PARAM - [fileSize] the number of bytes you wish to read [ptr] the initialised memory location the data is read to. 
+ * @RETURN - Nothing.
+ */
+
+void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
 {
 	//jal sub_5E650 //DEL_ChangeCDMode(?);
 
@@ -71,8 +96,15 @@ void GAMEWAD_Load(int fileSize, char* ptr)//*, 5E414(<)
 	fclose(fileHandle);
 }
 
-//Looks like seek
-void GAMEWAD_SeekCurrent(int size /*$a0*/)//*, 5E54C(<)
+/*
+ * [FUNCTIONALITY]
+ * Seeks from the gamewad reader's current position.
+ * Note: Negative numbers will allow backwards traversal.
+ * [USAGE]
+ * @PARAM - [offset] the number of bytes you wish to seek.
+ * @RETURN - Nothing.
+ */
+void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<)
 {
-	dword_A5620 = dword_A563C + (size / CD_SECTOR_SIZE);
+	dword_A5620 = dword_A563C + (offset / CD_SECTOR_SIZE);
 }

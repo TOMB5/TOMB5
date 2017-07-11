@@ -3,7 +3,7 @@
 
 #define NUM_BITS_IN_BYTE 8
 
-//Image properties for the loading screen seen when the game is loading.
+//Image properties for the loading screens seen when the game is loading.
 //Do not change these unless the image dimensions or pixel format of the bitmap in GAMEWAD.OBJ has been changed.
 #define LOADING_SCREEN_IMG_BPP 16
 #define LOADING_SCREEN_IMG_WIDTH 512
@@ -17,9 +17,23 @@
 #define LOADING_DISC_IMG_HEIGHT 64
 #define LOADING_DISC_IMG_SIZE LOADING_DISC_IMG_WIDTH * LOADING_DISC_IMG_HEIGHT * (LOADING_DISC_IMG_BPP / NUM_BITS_IN_BYTE)
 
+//The number of file entries stored in GAMEWAD.OBJ.
+//If this is changed, ensure that GAMEWAD.OBJ is recompiled ensuring the size  of GAMEWAD_header does not surpass 512 bytes.
+#define NUM_GAMEWAD_FILE_ENTRIES 51
+
+//Maximum size of the GAMEWAD header struct.
+#define GAMEWAD_HEADER_MAX_LENGTH 512
+
+//Filename for PSX "GAMEWAD" that is a container storing all levelfiles and load screens.
+#ifdef PSX
+	#define GAMEWAD_FILENAME "\\GAMEWAD.OBJ;1"
+#else
+	#define GAMEWAD_FILENAME "GAMEWAD.OBJ"
+#endif
+
 //Cleanly named gamewad file indices
 //RESERVED_* are file entry indices that are null/unused.
-//UNKNOWN_* are file entry indices which are not null but the data itself has not been discovered
+//UNKNOWN_* are file entry indices which are not null but the data itself has not been discovered.
 enum gw_files
 {
 	NONE,//Used to initialise Gamewad offset to 0.
@@ -75,19 +89,9 @@ enum gw_files
 	UNKNOWN_50  //4bpp  TR4 Logo         (ENG)  256x58
 };
 
-
-#ifdef PSX
-	#define GAMEWAD_FILENAME "\\GAMEWAD.OBJ;1"
-#else
-	#define GAMEWAD_FILENAME "GAMEWAD.OBJ"
-#endif
-
-int GAMEWAD_InitialiseFileEntry(int fileID);
-void GAMEWAD_Load(int fileSize, char* ptr);
-void GAMEWAD_SeekCurrent(int size);
-
 #pragma pack(push, 1)
 
+//If changed update GAMEWAD_ENTRYSIZE to the size of this struct.
 struct GAMEWAD_entry
 {
 	int fileOffset;
@@ -96,13 +100,24 @@ struct GAMEWAD_entry
 
 struct GAMEWAD_header
 {
-	struct GAMEWAD_entry entries[64];
+	struct GAMEWAD_entry entries[NUM_GAMEWAD_FILE_ENTRIES];
+	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * sizeof(GAMEWAD_entry))];
 };
 
 #pragma pack(pop)
 
-extern struct GAMEWAD_header gwHeader;
+#define GAMEWAD_ENTRYSIZE 8
 
+//If you recieve this warning, make sure you have recompiled GAMEWAD.OBJ since the header size is greater than retail files.
+#if (NUM_GAMEWAD_FILE_ENTRIES * GAMEWAD_ENTRYSIZE) - GAMEWAD_HEADER_MAX_LENGTH > GAMEWAD_HEADER_MAX_LENGTH
+	#pragma message("Warning: Gamewad header size exceeds limit!")
+#endif
+
+int GAMEWAD_InitialiseReaderPosition(int fileID);
+void GAMEWAD_Read(int fileSize, char* ptr);
+void GAMEWAD_Seek(int offset);
+
+extern struct GAMEWAD_header gwHeader;
 extern int gwLba;
 extern int dword_A563C;
 extern int dword_A5620;

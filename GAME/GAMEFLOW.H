@@ -41,6 +41,19 @@ struct STRINGHEADER
 
 #pragma pack(pop)
 
+enum gf_languages
+{
+	ENGLISH,
+	FRENCH,
+	GERMAN,
+	ITALIAN,
+	SPANISH,
+	US,
+	JAPAN,
+	DUTCH,
+	MAX_GF_LANGUAGES
+};
+
 extern unsigned char gfGameMode;
 extern unsigned char gfNumMips;
 extern int scroll_pos;
