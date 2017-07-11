@@ -89,7 +89,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	GAMEWAD_Load(fileSize, gfx);
 
 	//Init read request cache?
-	GAMEWAD_InitialiseFileEntry(file_number + SETUP);
+	GAMEWAD_InitialiseFileEntry(file_number + TITLE);
 
 	//Seek gamewad pos
 	GAMEWAD_SeekCurrent(LOADING_SCREEN_IMG_SIZE + LOADING_DISC_IMG_SIZE);

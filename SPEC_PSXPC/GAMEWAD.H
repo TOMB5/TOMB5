@@ -18,13 +18,14 @@
 #define LOADING_DISC_IMG_SIZE LOADING_DISC_IMG_WIDTH * LOADING_DISC_IMG_HEIGHT * (LOADING_DISC_IMG_BPP / NUM_BITS_IN_BYTE)
 
 //Cleanly named gamewad file indices
+//RESERVED_* are file entry indices that are null/unused.
+//UNKNOWN_* are file entry indices which are not null but the data itself has not been discovered
 enum gw_files
 {
-	UNKNOWN_00,//Dummy init to 0
+	NONE,//Used to initialise Gamewad offset to 0.
 	CUTSEQ,
-	SETUP,
 	TITLE,
-	ANDREA1,
+	ANDREA1,//Guessed
 	ANDREA2,
 	ANDREA3,
 	JOBY2,
@@ -33,45 +34,45 @@ enum gw_files
 	JOBY5,
 	ANDY1,
 	ANDY2,
+	ANDY3,
 	RICH1,
 	RICH2,
 	RICHCUT2,
-	RICH3,
-	GIBBY,
-	DEL,
-	TOM,
-	UNKNOWN_20,
-	UNKNOWN_21,
-	UNKNOWN_22,
-	UNKNOWN_23,
-	UNKNOWN_24,
-	UNKNOWN_25,
-	UNKNOWN_26,
-	UNKNOWN_27,
-	UNKNOWN_28,
-	UNKNOWN_29,
-	UNKNOWN_30,
-	UNKNOWN_31,
-	UNKNOWN_32,
-	UNKNOWN_33,
-	UNKNOWN_34,
-	UNKNOWN_35,
-	UNKNOWN_36,
-	UNKNOWN_37,
-	UNKNOWN_38,
-	UNKNOWN_39,
-	UNKNOWN_40,
-	UNKNOWN_41,
-	UNKNOWN_42,
-	UNKNOWN_43,
-	UNKNOWN_44,
-	UNKNOWN_45,
-	UNKNOWN_46,
-	UNKNOWN_47,
-	UNKNOWN_48,
-	UNKNOWN_49,
-	UNKNOWN_50,
-	UNKNOWN_51
+	RICH3,//End Guessed
+	RESERVED_17,
+	RESERVED_18,
+	RESERVED_19,
+	RESERVED_20,
+	RESERVED_21,
+	RESERVED_22,
+	RESERVED_23,
+	RESERVED_24,
+	RESERVED_25,
+	RESERVED_26,
+	RESERVED_27,
+	RESERVED_28,
+	RESERVED_29,
+	UNKNOWN_30, //16bpp TR5 Extras Storyboards (ENG) 512x
+	UNKNOWN_31, //16bpp TRN Extras Storyboards 512x
+	UNKNOWN_32, //16bpp TR5 Extras Storyboards (ENG) 512x
+	RESERVED_33,
+	RESERVED_34,
+	RESERVED_35,
+	RESERVED_36,
+	RESERVED_37,
+	RESERVED_38,
+	RESERVED_39,
+	RESERVED_40,
+	UNKNOWN_41, //16bpp TR5 Legal Screen (ENG)  512x256 & 16bpp Loading CD (64x64)
+	UNKNOWN_42, //16bpp TR4 Legal Screen (FR)   512x256 & 16bpp Placeholder loading CD (64x64)
+	UNKNOWN_43, //16bpp TR4 Legal Screen (US)   512x256 & 16bpp Placeholder loading CD (64x64)
+	UNKNOWN_44, //16bpp TR4 Legal Screen (ENG)  512x256 & 16bpp Placeholder loading CD (64x64)
+	UNKNOWN_45, //16bpp TR4 Legal Screen (ENG)  512x256 & 16bpp Placeholder loading CD (64x64)
+	UNKNOWN_46, //16bpp TR5 Legal Screen (ENG)  512x256 & 16bpp Loading CD (64x64)
+	UNKNOWN_47, //16bpp TR4 Legal Screen (US)   512x256 & 16bpp Placeholder loading CD (64x64)
+	UNKNOWN_48, //16bpp TR4 Legal Screen (ENG)  512x256 & 16bpp Placeholder loading CD (64x64)
+	UNKNOWN_49, //4bpp  TR4 Logo         (FR)   256x58
+	UNKNOWN_50  //4bpp  TR4 Logo         (ENG)  256x58
 };
 
 

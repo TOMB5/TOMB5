@@ -130,7 +130,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	int a0 = Name;
 	int s0 = a0 + 2;//+2 because first entry is setup.mod and second is cutseq.jiz
 	
-	GAMEWAD_InitialiseFileEntry(Name + SETUP);
+	GAMEWAD_InitialiseFileEntry(Name + TITLE);
 	
 	a0 = 0;
 	//jal sub_6B144 //ResetCallback();
