@@ -74,7 +74,6 @@ char* game_malloc(int size)//5E7E8(<), 5F544
  * Note: Usage should be seen as stack functionality, always free the last block of memory you allocated (LIFO).
  * [USAGE]
  * @PARAM - [size] The amount of memory you wish to "free".
- * @RETURN - None.
  */
 
 void game_free(int size)//5E85C(<), 5F590
@@ -89,9 +88,6 @@ void game_free(int size)//5E85C(<), 5F590
 /*
  * [FUNCTIONALITY] - show_game_malloc_totals.
  * Prints the amount of free/used malloc_buffer memory to stdio in Kilobytes.
- * [USAGE]
- * @PARAM - None.
- * @RETURN - None.
  */
 
 void show_game_malloc_totals()//5E894(<), * 
@@ -109,9 +105,6 @@ void show_game_malloc_totals()//5E894(<), *
  * [FUNCTIONALITY] - dump_game_malloc.
  * Dumps the entire malloc_buffer to a file named "DUMP.BIN"
  * This is typically used to inspect malloc_buffer memory and compare to PS1.
- * [USAGE]
- * @PARAM - None.
- * @RETURN - None.
  */
 
 void dump_game_malloc()//*, *

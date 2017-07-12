@@ -54,7 +54,6 @@ int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
  *
  * [USAGE]
  * @PARAM - [fileSize] the number of bytes you wish to read [ptr] the initialised memory location the data is read to. 
- * @RETURN - Nothing.
  */
 
 void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
@@ -110,7 +109,6 @@ void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
  * Note: Negative numbers will allow backwards traversal.
  * [USAGE]
  * @PARAM - [offset] the number of bytes you wish to seek (not in sectors).
- * @RETURN - Nothing.
  */
 
 void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<)
