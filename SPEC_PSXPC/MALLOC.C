@@ -14,10 +14,16 @@ int script_malloc_size = 0;
 char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];
 
 /*
- * 
+ * [FUNCTIONALITY] - init_game_malloc.
+ * Resets malloc_buffer and all allocation stats back to their default values.
+ * Note: The entire malloc_buffer is zero initialised.
  * Note: Once the gameflow script is loaded it's always in malloc_buffer regardless.
+ * [USAGE]
+ * @PARAM - [size] The amount of memory you wish to "allocate".
+ * @RETURN - [ptr] Pointer to the memory block you just "allocated".
  */
-void init_game_malloc()//5E79C, 5F4F8
+
+void init_game_malloc()//5E79C(<), 5F4F8
 {
 	malloc_used = gfScriptLen;
 	malloc_free = GAME_MALLOC_BUFFER_SIZE - gfScriptLen;
@@ -25,7 +31,18 @@ void init_game_malloc()//5E79C, 5F4F8
 	memset(malloc_ptr, 0, GAME_MALLOC_BUFFER_SIZE - gfScriptLen);
 }
 
-char* game_malloc(int size)//5E7E8, 5F544
+/*
+ * [FUNCTIONALITY] - game_malloc.
+ * "Allocates" memory from our malloc_buffer declared on the stack.
+ * Note: Memory that is "allocated" is not zero initialised.
+ * Note: If you run out of memory the application will exit.
+ * Note: Usage should be seen as stack functionality, always free the last block of memory you allocated (LIFO).
+ * [USAGE]
+ * @PARAM - [size] The amount of memory you wish to "allocate".
+ * @RETURN - [ptr] Pointer to the memory block you just "allocated".
+ */
+
+char* game_malloc(int size)//5E7E8(<), 5F544
 {
 	size = (size + 3) & -4;
 
@@ -49,7 +66,18 @@ char* game_malloc(int size)//5E7E8, 5F544
 	return NULL;
 }
 
-void game_free(int size)//5E85C, 5F590
+/*
+ * [FUNCTIONALITY] - game_free.
+ * "Frees" memory from malloc_buffer.
+ * Note: Memory that is freed is not zero initialised.
+ * Note: There is no error checking so ensure you do not free more memory than the buffer can hold.
+ * Note: Usage should be seen as stack functionality, always free the last block of memory you allocated (LIFO).
+ * [USAGE]
+ * @PARAM - [size] The amount of memory you wish to "free".
+ * @RETURN - None.
+ */
+
+void game_free(int size)//5E85C(<), 5F590
 {
 	size = (size + 3) & -4;
 
@@ -58,7 +86,15 @@ void game_free(int size)//5E85C, 5F590
 	malloc_used -= size;
 }
 
-void show_game_malloc_totals()//5E894, * 
+/*
+ * [FUNCTIONALITY] - show_game_malloc_totals.
+ * Prints the amount of free/used malloc_buffer memory to stdio in Kilobytes.
+ * [USAGE]
+ * @PARAM - None.
+ * @RETURN - None.
+ */
+
+void show_game_malloc_totals()//5E894(<), * 
 {
 	if (malloc_used >= 0)
 	{
@@ -69,7 +105,16 @@ void show_game_malloc_totals()//5E894, *
 	}
 }
 
-void dump_game_malloc()
+/*
+ * [FUNCTIONALITY] - dump_game_malloc.
+ * Dumps the entire malloc_buffer to a file named "DUMP.BIN"
+ * This is typically used to inspect malloc_buffer memory and compare to PS1.
+ * [USAGE]
+ * @PARAM - None.
+ * @RETURN - None.
+ */
+
+void dump_game_malloc()//*, *
 {
 	FILE* fileHandle = fopen("DUMP.BIN", "wb");
 

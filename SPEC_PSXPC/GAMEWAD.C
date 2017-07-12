@@ -5,8 +5,20 @@
 #include <stdio.h>
 #include <assert.h>
 
+//Retains all game data file positions.
+struct GAMEWAD_header gwHeader;
+
+//LBA for the GAMEWAD.OBJ file on disc, this is retrieved by InitNewCDSystem() (See CD.C)
+int gwLba = 0;
+
+//Start sector for the current gamewad file entry.
+static int gwReaderStartSector = 0;
+
+//Current sector for the gamewad file entry, updated as data is read from disk.
+static int gwReaderCurrentSector = 0;
+
 /*
- * [FUNCTIONALITY]
+ * [FUNCTIONALITY] - GAMEWAD_InitialiseReaderPosition.
  * GAMEWAD_header is already in the memory at this point, we loaded it during InitNewCDSystem() (See CD.C)
  * This method initialises the GAMEWAD read sector for a specific gamewad entry.
  * File ID indices must match GAMEWAD.OBJ, see gw_files enum (GAMEWAD.H)
@@ -16,18 +28,6 @@
  * @PARAM - [fileID] index into GAMEWAD_header.entries you wish to seek to.
  * @RETURN - Filesize of the gamewad entry in bytes.
  */
-
-//Retains all game data file positions.
-struct GAMEWAD_header gwHeader;
-
-//LBA for the GAMEWAD.OBJ file on disc.
-int gwLba = 0;
-
-//Start sector for the current gamewad file entry.
-static int gwReaderStartSector = 0;
-
-//Current sector for the gamewad file entry, updated as data is read from disk.
-static int gwReaderCurrentSector = 0;
 
 int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
 {
@@ -47,10 +47,10 @@ int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
 }
 
 /*
- * [FUNCTIONALITY]
+ * [FUNCTIONALITY] - GAMEWAD_Read
  * It is assumed that prior to calling this you have initialised the gamewad
  * reader's position to the file entry you wish to read see (GAMEWAD_InitialiseReaderPosition)
- * This method reads data from GAMEWAD.OBJ from it's last read position.
+ * This method reads data from GAMEWAD.OBJ at it's last read position.
  *
  * [USAGE]
  * @PARAM - [fileSize] the number of bytes you wish to read [ptr] the initialised memory location the data is read to. 
@@ -105,7 +105,7 @@ void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
 }
 
 /*
- * [FUNCTIONALITY]
+ * [FUNCTIONALITY] - GAMEWAD_Seek
  * Seeks from the gamewad reader's current position.
  * Note: Negative numbers will allow backwards traversal.
  * [USAGE]

@@ -63,7 +63,7 @@ void InitNewCDSystem()//5DDE8, 5E264(<)
 	//jal sub_66270 //CdPosToInt();
 #endif
 
-	char buf[10];
+	char buf[10];//FIXME
 	for (int i = 0; i < NUM_XA_FILES; i++)
 	{
 		sprintf(buf, XA_FILE_NAME, i + 1);

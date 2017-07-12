@@ -13,7 +13,7 @@
 #endif
 
 #ifndef SHRT_MAX
-#define SHRT_MAX 32767
+	#define SHRT_MAX 32767
 #endif
 
 unsigned char LtLoadingBarEnabled;

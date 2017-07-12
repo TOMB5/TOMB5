@@ -65,7 +65,10 @@ int main()//10064, 10064
 	PadStartCom();
 	CdInit();
 	CdSetDebug();
+#endif
 	InitNewCDSystem();
+	
+#ifdef PSX
 	CDDA_SetMasterVolume();
 	GPU_UseOrderingTables();
 	GPU_UsePolygonBuffers();
@@ -73,7 +76,6 @@ int main()//10064, 10064
 	ProfileInit();
 #endif
 
-	InitNewCDSystem();
 	init_game_malloc();
 	//InitFont();
 	//SOUND_Init();
