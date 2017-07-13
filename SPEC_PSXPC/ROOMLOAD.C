@@ -23,7 +23,7 @@ struct PSXSPRITESTRUCT* GLOBAL_default_sprites_ptr;
 struct PSXTEXTI* AnimatingWaterfalls[6];
 int AnimatingWaterfallsV[6];
 unsigned long envmap_data[6];
-unsigned long* RelocPtr[128];
+unsigned long RelocPtr[128];
 
 //FIXME (Retail)
 int dword_800A5F04 = 0;
@@ -162,7 +162,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	//lw	$v0, 0x38C4($gp)
 	//lw	$v1, 0x14($v0)
 	//jalr	$v1
-	sub_B3B50();
+	RelocateLevel();
 	//a0 = s1;
 
 	LOAD_Stop();

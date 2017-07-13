@@ -1,8 +1,11 @@
 #include "SETUP.H"
 
 #include "CONTROL.H"
+#include "DRAW.H"
 #include "GAMEWAD.H"
+#include "LOAD_LEV.H"
 #include "MALLOC.H"
+#include "ROOMLOAD.H"
 
 #include <assert.h>
 
@@ -11,95 +14,213 @@ char setupBuff[SETUP_MOD_FILE_SIZE];
 char dword_A3C18;
 int dword_A616C;
 int dword_A6F0C = 0;
+int dword_A6E90;
+int dword_A5620;
+short dword_A6090;
+int dword_A60BC;
 
-void sub_B3B50()//?, B3B50(<)
+#define PSX_HEADER_LENGTH 228
+
+/*
+ * [FUNCTIONALITY] - RelocateLevel.
+ * Relocates all game data pointers from the level file to be loaded back into the engine.
+ * Note: The GAMEWAD reader must be initialised to a level file entry.
+ * Note: The GAMEWAD reader's position must point to the level file data.
+ * Note: This code is part of the SETUP.MOD module.
+ */
+
+void RelocateLevel()//?, B3B50(<)
 {
-	struct PSXHeader psxHeader;
-	int v0 = 0x1F0000;
-	int s5 = v0 - 0x1630;
-	int a0 = s5;
-	int a1 = 0xE4;//228, sizeof level file header
-	v0 = 0x000A0000;
+	unsigned long* s5 = &RelocPtr[0];
+	int v00 = 0x000A0000;//?
 	
-	/*
-	sw sp
-	*/
-	
-	//0xB3B90
-	//jal sub_5E414
-	//v0_0x28B9 = 0;
+	//(char*)0xA28B9 = 0;
 
-	//it's not loaded properly into buff cause GAMEWAD_Load is unfinished todo
-	
 	//Read up the PSX file header into buff.
-	GAMEWAD_Read(sizeof(PSXHeader), (char*)&psxHeader); //seems to pass 0xE4 as size
+	GAMEWAD_Read(PSX_HEADER_LENGTH, (char*)&RelocPtr);
 
-	//The level file's header is now loaded
-	v0 = 0x000A0000;
-	//s7 is psxHeader;
+	LaraDrawType = ((unsigned short)RelocPtr[12]) & 7;
+	WeatherType = (RelocPtr[12] << 3) & 3;
+	dword_A3C18 = (RelocPtr[12] >> 5) & 3;
 
-	unsigned short v1 = psxHeader.unk12;
-	a1 = 0x000A0000;
-	v1 &= 7;
-	LaraDrawType = v1;
-
-	a0 = *(int*)&psxHeader.unk12;
-	v1 = 0x000A0000;
-	v0 = a0 << 3;
-	v0 &= 3;
-	a0 <<= 5;
-	WeatherType = v0;
-
-	v0 = psxHeader.unk09;
-	a0 &= 3;
-
-	if (v0 != 0)
+	if (RelocPtr[9] != 0)
 	{
-		//?
-		dword_A3C18 = a0;
+		dword_A616C = 0;
+
+		//Possibly num sounds and sound ptrs
+		char* ptr = game_malloc(RelocPtr[9] * sizeof(unsigned long));
+		GAMEWAD_Read(RelocPtr[9] * sizeof(unsigned long), ptr);
+
+		//Soundwad
+		ptr = game_malloc(RelocPtr[10]);
+		GAMEWAD_Read(RelocPtr[10], ptr);
+
+		//unsigned long a0 = RelocPtr[9];
+		//unsigned long a3 = RelocPtr[10];
+
+		//Send audio to SPU?
+		//a2 = s0;
+		//sub_B3974(RelocPtr[9], RelocPtr[10], ptr);
+
+		//dword_A616C = v0;//FIXME v0 is 1 from where?
+		
+		//Free audio data from malloc_buffer
+		game_free(RelocPtr[9] * sizeof(unsigned long));
+		game_free(RelocPtr[10]);
 	}
 
-	a0 = v0 << 2;
+	///0xB3C44
+	//? 2 tpages?
+	char* ptr = game_malloc(0x40000);
+	
+	int v1 = 0x200;
+	int v0 = 0x100;
 
-	int s2 = 0x000A0000;
-	dword_A616C = 0;
-	char* s11 = game_malloc(a0);//jal sub_5F544
+	for (int s4 = 1; s4 > -1; s4--)
+	{
+		char* a0 = ptr;
 
-	a1 = psxHeader.unk09;
+		GAMEWAD_Read(0x40000, ptr);
 
-	//0xB3C44
-	char* a00 = s11;
+		LOAD_DrawEnable(0);//jal sub_5FFA8
 
-	GAMEWAD_Read(a1 << 2, a00);
+#ifdef PSX
+	//4bit textures
+	//LoadImage(ptr); //jal sub_6B1C4
+	//DrawSync(0); //jal sub_6B144
+#endif
 
-	a0 = psxHeader.soundWadSize;
+		LOAD_DrawEnable(1);//jal sub_5FFA8
 
-	char* v00 = game_malloc(a0);
+		v0 += 0x100;
+	}
+	//loop end 0xB3CBC
+	game_free(0x40000);//0xB3CC4
 
-	char* s0 = v00;
+	unsigned long a0 = RelocPtr[26];//0x50868
+	unsigned short a1 = RelocPtr[11];//0x100
+	int a2 = dword_A5620;//todo 0x803 find sw or init
+	dword_A6090 = RelocPtr[11];
+	dump_game_malloc();
 
-	a1 = psxHeader.soundWadSize;
-	a00 = s0;
+	dword_A60BC = a2;
 
-	GAMEWAD_Read(a1, s0);
-	//Above is jal at 0xB3C0C
+	char* a00 = game_malloc(RelocPtr[26]);
+
+	unsigned long a11 = RelocPtr[26];
+
+	//frames = v0;//A25F4, A3FF8
+
+	//fixme loading wrong data
+	GAMEWAD_Read(a0, a00);
+
+	AnimFileLen = RelocPtr[26];
+	char* s00 = game_malloc(RelocPtr[14]);//0x7FEE0
+
+	//s0 = v0
+	a1 = RelocPtr[14];
+	GAMEWAD_Read(RelocPtr[14], s00);
 
 	dump_game_malloc();
 
-	char* a11 = s11;
+	unsigned short a000 = *(((unsigned short*)&RelocPtr[11])+1);
 
-	a0 = psxHeader.unk09;
-	int a3 = psxHeader.soundWadSize;
+	int s4 = 0;
 
-	sub_B3974(&psxHeader, s11);
+	room = (struct room_info*)s00;
+	
 
-	int test = 0;
-	test++;
+	v1 = a000 << 16;
+	v1 >>= 16;//why?
 
+	v0 = v1 << 2;
+	v0 += v1;
+	v0 <<= 4;
+	s00 += v0;
+
+	number_rooms = a0;//A4030 = 
+
+	//number_rooms = v1
+	if (v1 > 0)
+	{
+		//a3 = s1 //"
+		//t4 = v0;//0x000A
+		int t2 = 0;
+		int t1 = 0;
+		int t0 = 0;
+
+		//TODO for loop each room
+		//but why? is the data stored elsewhere?
+		{
+		char* a11 = s00;
+		struct room_info* v0 = room;
+		a11 += 4;
+		v0 = (struct room_info*)((char*) v0 + t0);
+		int t3 = *(int*) v0;//word 0x5d4
+		int a2 = t1;
+		v0->data = (short*) s00;
+
+		s00 += t3;
+		//filling buffer with ptrs
+		//FIXME? iter num tpages?
+		for (int t33 = 23; t33 >= 0; t33--)
+		{
+			v0 = room;
+
+			v1 = *(int*) a11;
+
+			v0 = (struct room_info*)((char*) v0 + a2);//useless
+
+			a0 = *(int*) v0;
+
+			t3--;
+
+			v1 += a0;
+			*(int*) a11 = v1;
+			a11 += 4;
+		}//0xB3AC bgez
+
+		//0xB3DB0
+		int test2 = 0;
+		test2++;
+
+		t1 += 0x50;
+		struct room_info* v11 = room;
+		short v0000 = number_rooms;
+
+		v1 += t2;
+		t3 = (unsigned long) v11->door;
+		t0 += 0x50;
+		v11->door = (short*) s00;
+		s00 += t3;
+
+		t3 = (unsigned long) v11->floor;
+		s4 += 1;//should be 0
+		v11->floor = (struct FLOOR_INFO*)s00;
+		s00 += t3;
+
+		t3 = (unsigned long) v11->light;
+		t2 += 0x50;//should be 0
+		v11->light = (struct LIGHTINFO*)s00;
+		s00 += t3;
+
+		t3 = (unsigned long) v11->mesh;
+		v11->mesh = (struct MESH_INFO*)s00;
+		s00 += t3;
+	}//bne 0xB3E00
+	
+	}
+
+	//0xB3E0C
+
+	
+	//0xB4730 is end jalr v0
 }
 
-void sub_B3974(struct PSXHeader* psxHeader, char* ptr)
+//Possibly send audio data to SPU
+void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr)
 {
+#if 0
 	int s2 = psxHeader->unk09;
 	char* s5 = ptr;//ptr to script end in gamemalloc
 	char* s3 = NULL;//TODO: ptr to last gamemalloc alloc
@@ -116,6 +237,7 @@ void sub_B3974(struct PSXHeader* psxHeader, char* ptr)
 		int v00 = 0x000A0000;
 		if (v0 != 0)
 		{
+			assert(0);
 			//0xB39B8
 		}
 
@@ -124,12 +246,47 @@ void sub_B3974(struct PSXHeader* psxHeader, char* ptr)
 		int s4 = v0;
 		if (v1 != 0)
 		{
+			assert(0);
 			//0xB39D0
 		}
+		//possible memcpy
 		//jal sub_71164
+
+		int s0 = 0x000A000;
+		v1 = -1;
+
+		if (v0 == v1)
+		{
+			//j 0xB39BC
+		}
+
+		dword_A6E90 = v0;
+		int a0 = 1;
+		//jal 0x70CE0
+
+		a0 = dword_A6E90;
+		//jal 0x7259C
+
+		//a0 = s3;//malloc_ptr
+		//a1 = s1;
+		//jal 0x72690
+		a0 = 1;
+		//jal 0x70CE0
+		if (s2 <= 0)
+		{
+			//jal0xB3A50
+		}
+
+		//0xB3A3A
+		for (int i = 0; i, 0; i++)
+		{
+			//load word from game_malloc
+			//LadwSampleAddr[i] = *game_malloc+i*sizeof(unsigned int);
+		}
+
 
 	}
 
 	//0xB39BC
-
+#endif
 }

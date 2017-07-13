@@ -1,15 +1,15 @@
 #include "SPUSOUND.H"
 
-extern short DepthTable[5];
-extern short CurrentReverb;
-extern int LnSamplesLoaded;
-extern long LlVABAddr;
-extern struct SpuVoiceAttr sva;
-extern unsigned char LabSampleType[24];
-extern unsigned char LabFreeChannel[24];
+short DepthTable[5];
+short CurrentReverb;
+int LnSamplesLoaded;
+long LlVABAddr;
+struct SpuVoiceAttr sva;
+unsigned char LabSampleType[24];
+unsigned char LabFreeChannel[24];
 extern int LnFreeChannels;
 static unsigned char LabSPUMallocArea[16];
-extern unsigned long LadwSampleAddr[256];
+unsigned long LadwSampleAddr[256];
 
 void SPU_Init()
 {
