@@ -56,6 +56,13 @@ void LOAD_DrawEnable(unsigned char isEnabled)//5F2C8, 5FFA8
 
 void LOAD_Start(int file_number)//602AC, 60DEC(<)
 {
+	unsigned long* tmpptr = NULL;
+	char* gfx = NULL;
+	unsigned short* cdgfx = NULL;
+	unsigned short* gfx2 = NULL;
+	int fileSize = 0;
+	unsigned short dat = 0;
+
 #ifdef PSX
 	//jal sub_6B144 //DrawSync(0);
 	//jal sub_6A1FC //VSync(0);
@@ -76,14 +83,14 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 
 	//We're going to allocate enough memory for the loading screen background picture and loading disc image
 	//The result pointer is later used as the base to read the loading screen/disc bitmap from GAMEWAD.OBJ on disk.
-	char* gfx = game_malloc(LOADING_SCREEN_IMG_SIZE + LOADING_DISC_IMG_SIZE);
+	gfx = game_malloc(LOADING_SCREEN_IMG_SIZE + LOADING_DISC_IMG_SIZE);
 	if (dword_A33F6 == 0)
 	{
 		//assert(0);
 	}
 
 	//UNKNOWN_41 is the first loading screen image, simply add Gameflow->Language to the base to load language specific load screens.
-	int fileSize = GAMEWAD_InitialiseReaderPosition(UNKNOWN_41 + Gameflow->Language);
+	fileSize = GAMEWAD_InitialiseReaderPosition(UNKNOWN_41 + Gameflow->Language);
 
 	//Request the loading screen/disc bitmaps to be read into gfx ptr.
 	//We don't actually pass the file ID or offset since this is already cached by the previous GAMEWAD_InitialiseFileEntry call.
@@ -96,7 +103,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	GAMEWAD_Seek(LOADING_SCREEN_IMG_SIZE + LOADING_DISC_IMG_SIZE);
 
 	//Why?
-	unsigned long* tmpptr = (unsigned long*) gfx;
+	tmpptr = (unsigned long*) gfx;
 	for (int i = 0; i < LOADING_SCREEN_IMG_SIZE / sizeof(unsigned long); i++)
 	{
 		tmpptr[i] |= (SHRT_MAX + 1) << 16 | (SHRT_MAX + 1);
@@ -107,15 +114,15 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	//jal sub_6B144 //DrawSync();
 #endif
 
-	unsigned short* cdgfx = (unsigned short*)(gfx + LOADING_SCREEN_IMG_SIZE);
-	unsigned short* gfx2 = (unsigned short*)gfx;
+	cdgfx = (unsigned short*)(gfx + LOADING_SCREEN_IMG_SIZE);
+	gfx2 = (unsigned short*)gfx;
 	
 	//Why?
 	for (int x = 0; x < LOADING_DISC_IMG_WIDTH; x++, gfx2 += (LOADING_SCREEN_IMG_WIDTH + LOADING_DISC_IMG_WIDTH + 60) / sizeof(unsigned short))
 	{
 		for (int y = 0; y < LOADING_DISC_IMG_HEIGHT; y++, cdgfx++, gfx2++)
 		{
-			unsigned short dat = *cdgfx;
+			dat = *cdgfx;
 
 			if (dat == 0)
 			{
@@ -165,8 +172,7 @@ void LOAD_Stop()//60434, 60FB4
 	db.current_buffer = 0;
 	db.current_buffer = 1;
 
-#if _DEBUG
-	//Internal Beta
+#ifdef INTERNAL
 	ProfileDraw = 1;
 #endif
 

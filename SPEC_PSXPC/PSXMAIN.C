@@ -66,8 +66,11 @@ int main()//10064, 10064
 	CdInit();
 	CdSetDebug();
 #endif
+
+#ifndef INTERNAL
 	InitNewCDSystem();
-	
+#endif
+
 #ifdef PSX
 	CDDA_SetMasterVolume();
 	GPU_UseOrderingTables();

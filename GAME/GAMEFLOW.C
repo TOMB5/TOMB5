@@ -147,16 +147,17 @@ void DoGameflow()//10F5C, 10FD8
 			gfLayer2Col.r = *sequenceCommand;
 			sequenceCommand += 1;
 
-#ifdef _DEBUG
-			//internal beta is 0x2E
-			//GameTimer = 0x2E;
+#ifdef INTERNAL
+			GameTimer = 46;
+#else
+			GameTimer = 44;
 #endif
 			LightningRGB[1] = *sequenceCommand;//*a3++;?
 			LightningRGBs[1] = *sequenceCommand;//*a3++;?
 			gfLayer2Col.g = *sequenceCommand;//*a3++;?
 			sequenceCommand += 1;
 
-			GameTimer = 44;
+			
 			GlobalRoomNumber = *sequenceCommand;
 			//			GLOBAL_gunflash_meshptr = *sequenceCommand;
 			gfLayer1Col.cd = *sequenceCommand;
@@ -236,10 +237,8 @@ void LoadGameflow()//102E0, 102B0
 	memcpy(&sh, gfStringOffset, sizeof(struct STRINGHEADER));
 	memcpy(gfStringOffset, gfStringOffset + (sizeof(struct STRINGHEADER) / sizeof(unsigned short)), (sh.nStrings + sh.nPSXStrings) * sizeof(unsigned short));
 
-#ifdef _DEBUG
-	//Internal Beta
-	//memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 317, sh.StringWadLen + sh.PSXStringWadLen);
-	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 315, sh.StringWadLen + sh.PSXStringWadLen);
+#ifdef INTERNAL
+	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 317, sh.StringWadLen + sh.PSXStringWadLen);
 #else
 	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 315, sh.StringWadLen + sh.PSXStringWadLen);
 #endif

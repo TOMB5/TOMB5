@@ -44,11 +44,14 @@ void init_game_malloc()//5E79C(<), 5F4F8
 
 char* game_malloc(int size)//5E7E8(<), 5F544
 {
+	char buf[80];
+	char* ptr = NULL;
+
 	size = (size + 3) & -4;
 
 	if (malloc_free > size)
 	{
-		char* ptr = malloc_ptr;
+		ptr = malloc_ptr;
 
 		malloc_free -= size;
 		malloc_ptr += size;
@@ -56,13 +59,13 @@ char* game_malloc(int size)//5E7E8(<), 5F544
 
 		return ptr;
 	}
+#ifdef INTERNAL
 	else
-	{
-		char buf[80];
+	{		
 		sprintf(buf, "game_malloc() out of space(needs %d only got %d", size, malloc_free);
 		S_ExitSystem(buf);
 	}
-
+#endif
 	return NULL;
 }
 
@@ -92,6 +95,7 @@ void game_free(int size)//5E85C(<), 5F590
 
 void show_game_malloc_totals()//5E894(<), * 
 {
+#ifdef INTERNAL
 	if (malloc_used >= 0)
 	{
 		if (malloc_used + malloc_free >= 0)
@@ -99,6 +103,7 @@ void show_game_malloc_totals()//5E894(<), *
 			printf("---->Total Memory Used %dK of %dK<----", malloc_used / 1024, malloc_used + malloc_free / 1024);
 		}
 	}
+#endif
 }
 
 /*
@@ -109,8 +114,9 @@ void show_game_malloc_totals()//5E894(<), *
 
 void dump_game_malloc()//*, *
 {
-	FILE* fileHandle = fopen("DUMP.BIN", "wb");
+	FILE* fileHandle = NULL;
 
+	fileHandle = fopen("DUMP.BIN", "wb");
 	if (fileHandle != NULL)
 	{
 		fwrite(&malloc_buffer[0], 1, GAME_MALLOC_BUFFER_SIZE, fileHandle);

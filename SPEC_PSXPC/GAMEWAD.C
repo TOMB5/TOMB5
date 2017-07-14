@@ -58,9 +58,12 @@ int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
 
 void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
 {
+	FILE* fileHandle = NULL;
+	int i;
+
 	//jal sub_5E650 //DEL_ChangeCDMode(?);
 
-	FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
+	fileHandle = fopen(GAMEWAD_FILENAME, "rb");
 	assert(fileHandle);
 	fseek(fileHandle, gwReaderCurrentSector * CD_SECTOR_SIZE, SEEK_SET);
 
@@ -73,7 +76,7 @@ void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
 		//jal sub_6956C //CdControlF(0);
 		//jal sub_69C4C //CdRead(?, ?, ?);
 #endif
-		for(int i = 0; i < numSectorsToRead; i++)
+		for(i = 0; i < numSectorsToRead; i++)
 		{
 #ifdef PSX
 			//jal sub_69DE8 //CdReadSync(?);
