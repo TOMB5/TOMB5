@@ -66,7 +66,7 @@ char* game_malloc(int size)//5E7E8(<), 5F544
 		S_ExitSystem(buf);
 	}
 #endif
-	return NULL;
+	return ptr;
 }
 
 /*
@@ -119,7 +119,7 @@ void dump_game_malloc()//*, *
 	fileHandle = fopen("DUMP.BIN", "wb");
 	if (fileHandle != NULL)
 	{
-		fwrite(&malloc_buffer[0], 1, GAME_MALLOC_BUFFER_SIZE, fileHandle);
+		fwrite(&malloc_buffer[0], sizeof(char), GAME_MALLOC_BUFFER_SIZE, fileHandle);
 		fclose(fileHandle);
 	}
 	else

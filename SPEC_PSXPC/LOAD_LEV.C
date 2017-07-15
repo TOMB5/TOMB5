@@ -60,9 +60,9 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	char* gfx = NULL;
 	unsigned short* cdgfx = NULL;
 	unsigned short* gfx2 = NULL;
-	int fileSize = 0;
-	unsigned short dat = 0;
-
+	int fileSize, x, y;
+	unsigned short dat;
+	
 #ifdef PSX
 	//jal sub_6B144 //DrawSync(0);
 	//jal sub_6A1FC //VSync(0);
@@ -83,7 +83,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 
 	//We're going to allocate enough memory for the loading screen background picture and loading disc image
 	//The result pointer is later used as the base to read the loading screen/disc bitmap from GAMEWAD.OBJ on disk.
-	gfx = game_malloc(LOADING_SCREEN_IMG_SIZE + LOADING_DISC_IMG_SIZE);
+	gfx = game_malloc(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 	if (dword_A33F6 == 0)
 	{
 		//assert(0);
@@ -100,7 +100,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	GAMEWAD_InitialiseReaderPosition(file_number + TITLE);
 
 	//We will skip past the loading screen and disc image data so on the next read call we're ready to read SETUP.MOD
-	GAMEWAD_Seek(LOADING_SCREEN_IMG_SIZE + LOADING_DISC_IMG_SIZE);
+	GAMEWAD_Seek(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 
 	//Why?
 	tmpptr = (unsigned long*) gfx;
@@ -118,9 +118,9 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	gfx2 = (unsigned short*)gfx;
 	
 	//Why?
-	for (int x = 0; x < LOADING_DISC_IMG_WIDTH; x++, gfx2 += (LOADING_SCREEN_IMG_WIDTH + LOADING_DISC_IMG_WIDTH + 60) / sizeof(unsigned short))
+	for (x = 0; x < LOADING_CD_IMG_WIDTH; x++, gfx2 += (LOADING_SCREEN_IMG_WIDTH + LOADING_CD_IMG_WIDTH + 60) / sizeof(unsigned short))
 	{
-		for (int y = 0; y < LOADING_DISC_IMG_HEIGHT; y++, cdgfx++, gfx2++)
+		for (y = 0; y < LOADING_CD_IMG_HEIGHT; y++, cdgfx++, gfx2++)
 		{
 			dat = *cdgfx;
 
@@ -136,13 +136,11 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 		}
 	}
 
-	dump_game_malloc();
-
-	int a0 = 0xA5FD0;//pScreenDimensions {shrt unk, shrt h, shrt w}
+	//int a0 = 0xA5FD0;//pScreenDimensions {shrt unk, shrt h, shrt w}
 	//jal sub_6B1C4 //StoreImage(s2); frame buffer
 	//sub_6B144 //DrawSync(0);
 
-	game_free(LOADING_SCREEN_IMG_SIZE + LOADING_DISC_IMG_SIZE);
+	game_free(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 
 	LOAD_DrawEnable(1);
 

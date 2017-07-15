@@ -10,12 +10,12 @@
 #define LOADING_SCREEN_IMG_HEIGHT 256
 #define LOADING_SCREEN_IMG_SIZE LOADING_SCREEN_IMG_WIDTH * LOADING_SCREEN_IMG_HEIGHT * (LOADING_SCREEN_IMG_BPP / NUM_BITS_IN_BYTE)
 
-//Image properties for the loading "disc" seen when the game is loading.
+//Image properties for the loading "cd" seen when the game is loading.
 //Do not change these unless the image dimensions or pixel format of the bitmap in GAMEWAD.OBJ has been changed.
-#define LOADING_DISC_IMG_BPP 16
-#define LOADING_DISC_IMG_WIDTH 64
-#define LOADING_DISC_IMG_HEIGHT 64
-#define LOADING_DISC_IMG_SIZE LOADING_DISC_IMG_WIDTH * LOADING_DISC_IMG_HEIGHT * (LOADING_DISC_IMG_BPP / NUM_BITS_IN_BYTE)
+#define LOADING_CD_IMG_BPP 16
+#define LOADING_CD_IMG_WIDTH 64
+#define LOADING_CD_IMG_HEIGHT 64
+#define LOADING_CD_IMG_SIZE LOADING_CD_IMG_WIDTH * LOADING_CD_IMG_HEIGHT * (LOADING_CD_IMG_BPP / NUM_BITS_IN_BYTE)
 
 //The number of file entries stored in GAMEWAD.OBJ.
 //If this is changed, ensure that GAMEWAD.OBJ is recompiled ensuring the size  of GAMEWAD_header does not surpass 512 bytes.

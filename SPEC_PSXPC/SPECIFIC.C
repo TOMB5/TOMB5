@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <assert.h>
+
 static struct REQUESTER PauseReq;
 static struct REQUESTER AdjustReq;
 static struct REQUESTER QuitReq;
@@ -26,6 +28,14 @@ void S_ExitSystem(char* exit_message)
 {
 	printf(exit_message);
 	exit(EXIT_FAILURE);
+}
+
+void S_Warn(char* warning_message)
+{
+	printf(warning_message);
+#ifndef NDEBUG
+	assert(0);
+#endif
 }
 
 void S_SoundStopAllSamples()//91D34
