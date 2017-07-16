@@ -118,3 +118,13 @@ void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<)
 {
 	gwReaderCurrentSector = gwReaderStartSector + (offset / CD_SECTOR_SIZE);
 }
+
+/*
+ * [FUNCTIONALITY] - GAMEWAD_InitialisePositionToStart
+ * Initialises the gamewad reader's position back to it's initial file entry position.
+ */
+
+void GAMEWAD_InitialisePositionToStart()
+{
+	gwReaderCurrentSector = gwReaderStartSector;
+}
