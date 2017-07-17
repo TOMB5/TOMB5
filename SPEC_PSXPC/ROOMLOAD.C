@@ -25,7 +25,7 @@ struct PSXSPRITESTRUCT* GLOBAL_default_sprites_ptr;
 struct PSXTEXTI* AnimatingWaterfalls[6];
 int AnimatingWaterfallsV[6];
 unsigned long envmap_data[6];
-unsigned long RelocPtr[128];
+unsigned long* RelocPtr[128];
 
 //FIXME (Retail)
 int dword_800A5F04 = 0;

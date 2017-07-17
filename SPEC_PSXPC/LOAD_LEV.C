@@ -6,6 +6,7 @@
 #include "MALLOC.H"
 #include "PROFILE.H"
 
+#include <stddef.h>
 #include <assert.h>
 
 #if 0
@@ -62,7 +63,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	unsigned short* gfx2 = NULL;
 	int fileSize, x, y;
 	unsigned short dat;
-	
+
 #ifdef PSX
 	//jal sub_6B144 //DrawSync(0);
 	//jal sub_6A1FC //VSync(0);
@@ -116,7 +117,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 
 	cdgfx = (unsigned short*)(gfx + LOADING_SCREEN_IMG_SIZE);
 	gfx2 = (unsigned short*)gfx;
-	
+
 	//Why?
 	for (x = 0; x < LOADING_CD_IMG_WIDTH; x++, gfx2 += (LOADING_SCREEN_IMG_WIDTH + LOADING_CD_IMG_WIDTH + 60) / sizeof(unsigned short))
 	{

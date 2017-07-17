@@ -1,7 +1,7 @@
 #ifndef MALLOC_H
 #define MALLOC_H
 
-#define GAME_MALLOC_BUFFER_SIZE 1085440
+#define GAME_MALLOC_BUFFER_SIZE (1024*1024) + (1024*36)
 
 void init_game_malloc();
 char* game_malloc(int size);

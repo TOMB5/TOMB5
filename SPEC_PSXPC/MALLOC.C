@@ -23,7 +23,7 @@ char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];
  * @RETURN - [ptr] Pointer to the memory block you just "allocated".
  */
 
-void init_game_malloc()//5E79C(<), 5F4F8
+void init_game_malloc()//5E79C(<), 5F4F8(<)
 {
 	malloc_used = gfScriptLen;
 	malloc_free = GAME_MALLOC_BUFFER_SIZE - gfScriptLen;
@@ -42,7 +42,7 @@ void init_game_malloc()//5E79C(<), 5F4F8
  * @RETURN - [ptr] Pointer to the memory block you just "allocated".
  */
 
-char* game_malloc(int size)//5E7E8(<), 5F544
+char* game_malloc(int size)//5E7E8(<), 5F544(<?)
 {
 	char buf[80];
 	char* ptr = NULL;
@@ -79,7 +79,7 @@ char* game_malloc(int size)//5E7E8(<), 5F544
  * @PARAM - [size] The amount of memory you wish to "free".
  */
 
-void game_free(int size)//5E85C(<), 5F590
+void game_free(int size)//5E85C(<), 5F590(<)
 {
 	size = (size + 3) & -4;
 

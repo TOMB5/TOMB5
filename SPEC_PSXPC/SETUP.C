@@ -1,12 +1,15 @@
 #include "SETUP.H"
 
+#include "BOX.H"
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "GAMEWAD.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
+#include "LOT.H"
 #include "MALLOC.H"
 #include "ROOMLOAD.H"
+#include "SPOTCAM.H"
 
 #include <assert.h>
 #include <stddef.h>
@@ -30,8 +33,25 @@ int* dword_A60F8;
 int* dword_A4014;
 int* dword_A3FFC;
 int* dword_A4038;
+int* dword_A6170;
+int* dword_A5FF8;
+int* dword_A50FC;
+int* dword_A5370;
+int* dword_A5374;
+int* dword_AD390;
+short dword_A6178;
+int dword_A50F0;
+short dword_A6174;
+int dword_3EE4;
+
+int dword_A33D0[512];//FIXME
+char objects[32360];
+char dword_1EF1D0[0x780];
 
 #define PSX_HEADER_LENGTH 228
+
+//FIXME find original struct!
+unsigned long LevelRelocPtr[128];
 
 /*
  * [FUNCTIONALITY] - RelocateLevel.
@@ -40,47 +60,45 @@ int* dword_A4038;
  * Note: The GAMEWAD reader's position must point to the level file data.
  * Note: This code is part of the SETUP.MOD module.
  */
-
 void RelocateLevel()//?, B3B50(<)
 {
 	char* ptr = NULL;
-	unsigned long size;
-	int i, j;
+	unsigned int size, i, j;
 
 	InItemControlLoop = 0;
 
-	//Read up the PSX file header into buff.
-	GAMEWAD_Read(PSX_HEADER_LENGTH, (char*) &RelocPtr);
+	//Read up the PSX file header into RelocPtr buff.
+	GAMEWAD_Read(PSX_HEADER_LENGTH, (char*) &LevelRelocPtr);
 
-	LaraDrawType = RelocPtr[12] & 7;
-	WeatherType = (RelocPtr[12] << 3) & 3;
-	dword_A3C18 = (RelocPtr[12] >> 5) & 3;//?
+	LaraDrawType = LevelRelocPtr[12] & 7;
+	WeatherType = (LevelRelocPtr[12] << 3) & 3;
+	dword_A3C18 = (LevelRelocPtr[12] >> 5) & 3;//?
 
 	//We only want to send sound effect audio data if there are sound effects!
-	if (RelocPtr[9] != 0)
+	if (LevelRelocPtr[9] != 0)
 	{
 		dword_A616C = 0;//?
 
 		//Allocate enough memory to store the sound pointers
-		ptr = game_malloc(RelocPtr[9] * sizeof(unsigned long));
+		ptr = game_malloc(LevelRelocPtr[9] * sizeof(unsigned long));
 
 		//Reading in soundpointers
-		GAMEWAD_Read(RelocPtr[9] * sizeof(unsigned long), ptr);
+		GAMEWAD_Read(LevelRelocPtr[9] * sizeof(unsigned long), ptr);
 
 		//Allocating enough memory for the 8000hz vag soundwad
-		ptr = game_malloc(RelocPtr[10]);
+		ptr = game_malloc(LevelRelocPtr[10]);
 
-		GAMEWAD_Read(RelocPtr[10], ptr);
+		GAMEWAD_Read(LevelRelocPtr[10], ptr);
 
-		//unsigned long a0 = RelocPtr[9];
-		//unsigned long a3 = RelocPtr[10];
+		//unsigned long a0 = LevelRelocPtr[9];
+		//unsigned long a3 = LevelRelocPtr[10];
 
 		//Send audio to SPU?
-		//sub_B3974(RelocPtr[9], RelocPtr[10], ptr);
+		//sub_B3974(LevelRelocPtr[9], LevelRelocPtr[10], ptr);
 
 		//Free audio data from malloc_buffer
-		game_free(RelocPtr[9] * sizeof(unsigned long));
-		game_free(RelocPtr[10]);
+		game_free(LevelRelocPtr[9] * sizeof(unsigned long));
+		game_free(LevelRelocPtr[10]);
 	}
 
 	//? 2 tpages?
@@ -109,18 +127,18 @@ void RelocateLevel()//?, B3B50(<)
 
 	game_free(0x40000);
 
-	dword_A6090 = RelocPtr[11];//FIXME LHU
+	dword_A6090 = LevelRelocPtr[11];//FIXME LHU
 	dword_A60BC = dword_A5620;//FIXME = 0x803! sw @sub_60D20 > $gp(38A8)
 
-	AnimFileLen = RelocPtr[26];
+	AnimFileLen = LevelRelocPtr[26];
 	ptr = game_malloc(AnimFileLen);
 	frames = (short*) ptr;
 	GAMEWAD_Read(AnimFileLen, ptr);
 
-	ptr = game_malloc(RelocPtr[14]);
-	GAMEWAD_Read(RelocPtr[14], ptr);
+	ptr = game_malloc(LevelRelocPtr[14]);
+	GAMEWAD_Read(LevelRelocPtr[14], ptr);
 
-	number_rooms = *(((unsigned short*) &RelocPtr[11]) + 1);//0xB3D28
+	number_rooms = *(((unsigned short*) &LevelRelocPtr[11]) + 1);//0xB3D28
 
 	room = (struct room_info*)ptr;
 
@@ -130,175 +148,282 @@ void RelocateLevel()//?, B3B50(<)
 	{
 		for (i = 0; i < number_rooms; i++)
 		{
-			int* a1 = (int*) &ptr[4];
-
 			struct room_info* r = &room[i];
 
-			size = (int) r->data;
+			size = (unsigned int) r->data;
 			r->data = (short*) ptr;
 			ptr += size;
 
-			//Floor data
 			///@TODO Unknown const 24.
-			for (j = 0; j < 24; j++, a1++)
+			int* a1 = (int*) &ptr[4];
+			for (j = 0; j < 24; j++)
 			{
-				*a1 += *(int*) r;
+				a1[j] += *(int*) r;//CHECKME possibly broken by refactor
 			}
 
-			size = (unsigned long) r->door;
+			size = (unsigned int) r->door;
 			r->door = (short*) ptr;
 			ptr += size;
 
-			size = (unsigned long) r->floor;
+			size = (unsigned int) r->floor;
 			r->floor = (struct FLOOR_INFO*)ptr;
 			ptr += size;
 
-			size = (unsigned long) r->light;
+			size = (unsigned int) r->light;
 			r->light = (struct LIGHTINFO*)ptr;
 			ptr += size;
 
-			size = (unsigned long) r->mesh;
+			size = (unsigned int) r->mesh;
 			r->mesh = (struct MESH_INFO*)ptr;
 			ptr += size;
 		}
 	}
+
 	dword_A60B0 = (int*) ptr;//?
-	ptr += RelocPtr[15];
+	ptr += LevelRelocPtr[15];
 
 	dword_A3CF4 = (int*) ptr;//?
 	ptr += 0x5B4;//?
 
 	dword_A3B50 = (int*) ptr;//?
-	ptr += RelocPtr[16];
+	ptr += LevelRelocPtr[16];
 
 	dword_A60F8 = (int*) ptr;//?
-	ptr += RelocPtr[17];
+	ptr += LevelRelocPtr[17];
 
-	mesh_base = (short*) ptr;//?
-	ptr += RelocPtr[19];
+	mesh_base = (short*) ptr;
+	ptr += LevelRelocPtr[19];
 
-	meshes = (short**) ptr;//?
-	ptr += RelocPtr[20];
+	meshes = (short**) ptr;
+	ptr += LevelRelocPtr[20];
 
 	anims = (struct ANIM_STRUCT*)ptr;
-	ptr += RelocPtr[21];
+	ptr += LevelRelocPtr[21];
 
 	dword_A4014 = (int*) ptr;//?
-	ptr += RelocPtr[22];
+	ptr += LevelRelocPtr[22];
 
 	dword_A3FFC = (int*) ptr;//?
-	ptr += RelocPtr[23];
+	ptr += LevelRelocPtr[23];
 
 	dword_A4038 = (int*) ptr;//?
-	ptr += RelocPtr[24];
+	ptr += LevelRelocPtr[24];
 
-	v1 = RelocPtr[25];
+	v1 = LevelRelocPtr[25];
 	bones = (long*) ptr;
+	ptr += LevelRelocPtr[25];
 
-	//^Verified^***************************************************************
-
-#if 0
-	v0 = *(short*) &RelocPtr[18];
-	v0 *= 2;
-
-	//END
-	char* s00 = ptr;
-
-	if (v0 > 0)
+	if ((LevelRelocPtr[18] & 0xFFFF) > 0)//CHECK
 	{
-		short** dbug;
-		for (int i = 0; i < RelocPtr[18] * sizeof(short); i++)
+		//Relocating mesh ptrs
+		for (i = 0; i < (LevelRelocPtr[18] & 0xFFFF) * sizeof(short); i++)
 		{
-			short* a11 = mesh_base;
+			//Ptr to current mesh ptr
+			int* meshPointer = (int*) &meshes[i];
 
-			short** a00 = meshes;
+			//Extract mesh ptr base offset
+			int v000 = meshPointer[0];//?
 
-			short v000 = (short) *a00;//?
-
-			v1 = v000 << 0x1F;
-			v000 += v1;
-			v000 >>= 1;
-			v000 <= 1;
-			short* v0000 = v000 + a11;
-
-			*a00 = v0000;//ILLEGAL
-
-			v1 = *(short*) &RelocPtr[18];
-			v1 <<= 1;
-			//v1 = v1 < s4 ? 1 : 0;
-
-			a00 += 4;
-			dbug = a00;///@critical fix me, illegal ptr
+			*meshPointer += *meshPointer >> 0x1F;
+			*meshPointer >>= 1;//&?
+			*meshPointer <<= 1;
+			*meshPointer += (int) mesh_base;
 		}
 
-
-		v0 = *(((short*) (&RelocPtr[18])) + 1);
+		v0 = *(((short*) (&LevelRelocPtr[18])) + 1);
 
 		if (v0 > 0)//blez 0xB3F14
 		{
-			short* a111111 = frames;//fixme bad ptr
-			struct ANIM_STRUCT* a000000 = anims;
-
-			for (int i = 0; i < *(((short*) (&RelocPtr[18])) + 1); i++, a000000++)
+			//Relocate anim frame ptrs
+			for (int i = 0; i < *(((short*) (&LevelRelocPtr[18])) + 1); i++)
 			{
-				short* v00000 = frames + *(int*) a000000;
-				//*(int*) a000000 = *(int*) v00000;
-
-			}//bne 0xB3F4C
+				short* currentAnimFrame = frames + *(int*) &anims[i];
+				*(int*) &anims[i] = *(int*) currentAnimFrame;
+			}
 		}
 
-		v1 = RelocPtr[30];
 		int a0 = 0x9000;
-		//0xA6170 = s00 sw
-		v0 = RelocPtr[27];
-		short t3 = RelocPtr[47];
-		int t2 = RelocPtr[38];
+		dword_A6170 = (int*) ptr;
+		ptr += LevelRelocPtr[30];
 
-		s00 += v1;///@fixme illegal ptr SHOULD NOW POINT TO OBJ TEXTRS!
+		v0 = LevelRelocPtr[27];
+		short t3 = LevelRelocPtr[47];//FIXME lhu
+		int t2 = LevelRelocPtr[38];
 
 		/*
 		 * Object Textures
 		 */
-		psxtextinfo = (struct PSXTEXTSTRUCT*)s00;
-		s00 += v0;
+		psxtextinfo = (struct PSXTEXTSTRUCT*)ptr;
+		ptr += LevelRelocPtr[27];
 
-		v1 = RelocPtr[28];
-		int a3 = RelocPtr[31];
-		psxspriteinfo = (struct PSXSPRITESTRUCT*)s00;
-		s00 += v1;
+		psxspriteinfo = (struct PSXSPRITESTRUCT*)ptr;
+		ptr += LevelRelocPtr[28];
 
-		v1 = RelocPtr[29];
+		dword_A5FF8 = (int*) ptr;
+		ptr += LevelRelocPtr[29];
 
-		//sw A5FF8 s00
-		s00 += v1;
+		dword_A50FC = (int*) ptr;
+		ptr += LevelRelocPtr[31];
 
-		//sw A50FC s00
-		s00 += a3;
+		dword_A5370 = (int*) ptr;
+		ptr += 0x384;//TODO unknown const *actually, this is size of sound map indices!
 
-		//sw A5370 s00
-		s00 += 0x384;
+		dword_A5374 = (int*) ptr;
+		ptr += LevelRelocPtr[32];//0xB3FD0
 
-		v1 = RelocPtr[32];
-		//sw A5374 s00
+		ptr += 0x9000;//TODO unknown const
 
-		a3 >>= 4;
-		s00 += v1;
+		v0 = t3 << 16;
+		v0 >>= 16;
+		int a3 = LevelRelocPtr[31] >> 4;
 
-		items = (struct ITEM_INFO*)s00;
+		AIObjects = (struct AIOBJECT*)ptr;
 
-		s00 += a0;
+		v1 = v0 << 1;
+		v1 += v0;
+		v1 <<= 3;
+		ptr += v1;
 
-		int testing9 = 0;
-		testing9++;
+		boxes = (struct box_info*)ptr;
+		ptr += LevelRelocPtr[36];
 
-		v0 = t3;
+		dword_AD390 = (int*) ptr;
+		ptr += LevelRelocPtr[37];
 
-		//0xBFE4
+		ground_zone[0][0] = (short*) ptr;
+		ptr += LevelRelocPtr[38];
 
-	}
-//0xB4730 is end jalr v0
+		ground_zone[1][0] = (short*) ptr;
+		ptr += LevelRelocPtr[39];
+
+		ground_zone[2][0] = (short*) ptr;
+		ptr += LevelRelocPtr[40];
+
+		ground_zone[3][0] = (short*) ptr;
+		ptr += LevelRelocPtr[41];
+
+		ground_zone[4][0] = (short*) ptr;
+		ptr += LevelRelocPtr[42];
+
+		ground_zone[0][1] = (short*) ptr;
+		ptr += LevelRelocPtr[38];
+
+		ground_zone[1][1] = (short*) ptr;
+		ptr += LevelRelocPtr[39];
+
+		ground_zone[2][1] = (short*) ptr;
+		ptr += LevelRelocPtr[40];
+
+		ground_zone[3][1] = (short*) ptr;
+		ptr += LevelRelocPtr[41];
+
+		ground_zone[4][1] = (short*) ptr;
+		ptr += LevelRelocPtr[42];
+
+		dword_A6178 = LevelRelocPtr[13];//FIXME LHU @ RELOCPTR
+		dword_A50F0 = LevelRelocPtr[31] >> 4;
+		dword_A6174 = LevelRelocPtr[13];//FIXME LHU
+
+		level_items = LevelRelocPtr[13];
+		nAIObjects = LevelRelocPtr[47];//FIXME LHU
+
+		number_boxes = LevelRelocPtr[35];
+
+		if (number_boxes > 0)
+		{
+			//Set blocked flag on each overlapping box that is last in list.
+			for (i = 0; i < number_boxes; i++)
+			{
+				if (boxes[i].overlap_index & OVERLAP_LAST)
+				{
+					boxes[i].overlap_index |= OVERLAP_BLOCKED;
+				}
+			}
+		}
+
+		//^Verified^***************************************************************
+
+		//0x1F2480 objects FIXME unknown type
+		int a11 = 0x7E68;
+		int s4 = 63;
+		dword_A33D0[25] = (int) ptr;
+		ptr += LevelRelocPtr[45];
+
+		int a2 = LevelRelocPtr[43];
+		short a33 = LevelRelocPtr[44];
+
+		SpotCam = (struct SPOTCAM*) ptr;
+		dword_3EE4 = LevelRelocPtr[43];//?
+
+		number_spotcams = LevelRelocPtr[44];
+		number_cameras = LevelRelocPtr[43];
+
+		GAMEWAD_Read(32360, &objects[0]);
+
+		for (i = 0; i < 63; i++)
+		{
+			RelocPtr[i] = NULL;
+		}
+
+		if (LevelRelocPtr[48] != 0)
+		{
+			GAMEWAD_ReaderPositionToCurrent();
+			GAMEWAD_Read(0x780, &dword_1EF1D0[0]);
+
+			if (LevelRelocPtr[48] > 0)
+			{
+#if 0
+				int s4 = 0;//0xB4184
+				//v0 = 0x1F0000
+				//s7 = v0 - 0x630;
+				for (i = 0; i < LevelRelocPtr[48]; i++)//s4 is i
+				{
+					unsigned long* v0 = &LevelRelocPtr[s4];
+					t3 = *(char*) &v0[49];//0xF
+					int s0 = t3 * sizeof(unsigned int);
+					s0 += t3;
+					s0 *= 4;//0x12C
+					char* tmp = &dword_1EF1D0[s0];
+
+					int s3 = *(int*) &tmp[4];
+					a0 = s3;
+					char* s2 = game_malloc(s3);//@S3/a0
+
+					a0 = *(int*) &tmp[0];
+					GAMEWAD_Seek(a0);
+					GAMEWAD_Read(s3, s2);
+
+					s3 = *(int*) &tmp[12];
+					s2 = game_malloc(s3);
+					a0 = *(int*) &tmp[8];
+					GAMEWAD_Seek(a0);
+					GAMEWAD_Read(s3, s2);//5E414
+
+					//0xB41F4
+					char* a00 = s2;
+					//RelocateModule(s2); //Probably ai code
+					game_free(s3);
+
+					int s4 = 0;
+					s4++;
+
+					int* v00 = (int*) tmp[10];//7
+					int v11 = LevelRelocPtr[48];//5
+					//v00 <<= 2;
+					//v00 += s7;
+
+					v00[0] = (int) s2;
+				}
 #endif
-}
+
+			}
+
+		}//0xB4228
+
+		int testing3 = 0;
+		testing3++;
+	}
+}//0xB4730 is end jalr v0
 
 //Possibly send audio data to SPU
 void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr)

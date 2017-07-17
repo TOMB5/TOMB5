@@ -81,6 +81,6 @@ extern struct PSXSPRITESTRUCT* GLOBAL_default_sprites_ptr;
 extern struct PSXTEXTI* AnimatingWaterfalls[6];
 extern int AnimatingWaterfallsV[6];
 extern unsigned long envmap_data[6];
-extern unsigned long RelocPtr[128];
+extern unsigned long* RelocPtr[128];
 
 #endif
