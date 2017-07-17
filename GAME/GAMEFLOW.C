@@ -4,14 +4,18 @@
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "CD.H"
+#include "DELTAPAK.H"
 #include "DRAW.H"
+#include "DRAWPHAS.H"
 #include "FILE.H"
 #include "HEALTH.H"
 #include "MALLOC.H"
 #include "NEWINV2.H"
+#include "PSXINPUT.H"
 #include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
+#include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
 
@@ -237,6 +241,8 @@ void LoadGameflow()//102E0, 102B0
 	memcpy(&sh, gfStringOffset, sizeof(struct STRINGHEADER));
 	memcpy(gfStringOffset, gfStringOffset + (sizeof(struct STRINGHEADER) / sizeof(unsigned short)), (sh.nStrings + sh.nPSXStrings) * sizeof(unsigned short));
 
+	gfStringWad = (char*)(gfStringOffset + (sh.nStrings + sh.nPSXStrings));
+
 #ifdef INTERNAL
 	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 317, sh.StringWadLen + sh.PSXStringWadLen);
 #else
@@ -399,88 +405,214 @@ void LoadGameflow()//102E0, 102B0
 
 void QuickControlPhase()
 {
+	S_Warn("[QuickControlPhase] - Unimplemented!\n!");
 }
 
-void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4
+void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4(<)
 {
-
-#if 1
 	//int i;
-	struct GAMEFLOW* v1 = Gameflow;
-
-	int at = 0x000A0000;//?
 	CreditsDone = 0;
 	CanLoad = 0;
 
-	int v0 = ((*(int*) Gameflow) << 1) & 1;
+	int a0 = Name;//most likely
 
-	//beq 10648
-	if (v0 == 0)
+	if (Gameflow->LoadSaveEnabled)
 	{
-		//TODO
+		int s1 = a0 & 0xFF;
+		a0 = 1;
+#ifdef PSX
+		mcOpen();
+#endif
 	}
 
-	int a0 = 0;//?param?
-	int s1 = a0 & 0xFF;
-
-	//a0 = 1;
-#ifdef PSX
-	mcOpen();
-#endif
-
-	struct savegame_info* s0 = &savegame;
-	a0 = s0->Level.Timer;
-
-	int a1 = 0;
+	int s1 = 0;//?
 
 	num_fmvs = 0;
-	fmv_to_play[0] = 0;
 	fmv_to_play[1] = 0;
+	fmv_to_play[0] = 0;
 
-	XAMasterVolume = s0->VolumeCD;
+	XAMasterVolume = savegame.VolumeCD;
 
-	sizeof(struct STATS);
 	memset(&savegame.Level, 0, sizeof(struct STATS));
-
-	a0 = s0->Game.Timer;
-	a1 = 0;
 	memset(&savegame.Game, 0, sizeof(struct STATS));
 
-	S_LoadLevelFile(s1);//check param
+	S_LoadLevelFile(a0);
 
-	//move	$a0, $s1
 	GLOBAL_lastinvitem = -1;
 	dels_cutseq_player = 0;
+
 	InitSpotCamSequences();
+
 	title_controls_locked_out = 0;
+
 	InitialisePickUpDisplay();
 
 	phd_InitWindow(90);
+
 	SOUND_Stop();
+
 	IsAtmospherePlaying = 0;
-	///S_SetReverbType();
-	a0 = 1;
+	//S_SetReverbType(1);
+
 	InitialiseCamera();
-	v0 = bDoCredits;
 
-	//bnez	$v0, loc_10730//bdocredits
-	a0 = 0x20;
-	///trigger_title_spotcam();
-	a0 = 1;
-	ScreenFadedOut = 0;
-	ScreenFade = 0;
-	dScreenFade = 0;
-	ScreenFadeBack = 0;
-	ScreenFadeSpeed = 8;
-	ScreenFading = 0;
-	//j	loc_10764
+	if (!bDoCredits)
+	{
+		//Ugly hardcoded start camera id
+		trigger_title_spotcam(32);
+		ScreenFadedOut = 0;
+		ScreenFade = 0;
+		dScreenFade = 0;
+		ScreenFadeBack = 0;
+		ScreenFadeSpeed = 8;
+		ScreenFading = 0;
 
-	///Retail 0x001088C - jal sub_645E0 DrawPhaseGame renders screen
-#else
-
-	dump_game_malloc();
-	assert(0);
+		//j 10730
+#ifndef INTERNAL
+		int a0 = 2;
 #endif
+		struct ITEM_INFO* v1 = lara_item;//?
+		bUseSpotCam = 1;
+		gfGameMode = 1;
+
+//#ifdef INTERNAL
+		show_game_malloc_totals();
+		a0 = 2;//?
+//#endif
+
+		gfLevelComplete = 0;
+		nframes = 2;
+		int a1 = 0;//second arg?
+		gfStatus = ControlPhase(0, 0);//@args todo @ret v0
+		JustLoaded = 0;
+
+		int v0 = 0x001F0000;
+
+		///@HACK (ControlPhase unimpl)
+		gfStatus = 0;
+		if (gfStatus == 0)
+		{
+#ifdef INTERNAL
+			int s2 = v0 - 0x2240;
+			int s0 = 1;
+#else
+			int s0 = v0 - 0x630;
+#endif
+
+			while (gfStatus == 0)
+			{
+#ifdef PSX
+				GPU_BeginScene();
+#endif
+
+				if (bDoCredits)
+				{
+					//0x10790
+
+				}//0x107CC
+
+				if (GLOBAL_playing_cutseq == 0)
+				{
+					if (!bDoCredits)
+					{
+						if (ScreenFading == 0)
+						{
+							if (cutseq_num == 0)
+							{
+#ifdef INTERNAL
+								long v00 = RawPad & 0x201;
+								if (RawPad & 0x201 == 0x201)//Debug Cheat?
+								{
+									dels_cutseq_selector_flag = 0;///@FIXME $s0, !0
+								}//0x10868
+
+								/*Merge vvvvvvvvvvvvvv*/
+								int* v1 = &s2[0x34];//buff?
+								CreditsDone = 1;
+								int v0 = *v1;
+								//a0 = s1;
+								//jalr $v0 ///@critical unknown module
+
+								gfStatus = v0;//v0 is ret of jalr v0
+
+								bnez	$v0, loc_10A24
+
+#else
+								/*With Me ^^^^^^^^^^^^^*/
+								//int* v1 = &s0[0x34];//buff?
+								///byte_A3FF0 = 1; //Credits done?
+								//int v0 = *v1;
+								//a0 = s1;
+								//	jalr	$v0 ///@critical unknown module //0x1081C!! Setup.mod?
+								//	sw	$v0, 0x11B8($gp)//TODO gfStatus?
+
+								///@FIXME temp
+								v0 = 0;
+								if (v0 == 0)
+								{
+
+									if (GLOBAL_playing_cutseq != 0)
+									{
+										///@RETAIL, loc_10844
+										///@INTERNAL loc_108A4
+										S_Warn("[DoTitle] - Reached unimplemented condition!\n");
+									}
+
+								}//0x109C8
+#endif
+							}//0x10830
+
+						}//0x10830
+
+					}//0x10830
+
+				}//0x10844
+
+				 ///@loc_1088C (IB - loc_108EC)
+				nframes = DrawPhaseGame();
+
+				unsigned char v11 = PadConnected;
+				if (PadConnected == 0)//0x108A0
+				{
+					int x = 256;
+					int y = 128;
+
+					//int a2 = 3; //?
+
+#ifdef INTERNAL
+					char* controllerRemovedString = gfStringWad + gfStringOffset[221];
+#else
+					char* controllerRemovedString = gfStringWad + gfStringOffset[219];
+#endif
+					//int v0 = 4096;//?
+
+					///PrintString(x, y, controllerRemovedString); //FIXME: IDA did not dump me :-)
+					printf("%s\n", controllerRemovedString);
+
+				}//0x108CC
+
+				handle_cutseq_triggering(Name);
+
+				///@TODO figure const.
+				if (gfGameMode == 2)//0x108DC
+				{
+					S_Warn("[DoTitle] - Unimplemented condition!");
+
+				}//0x10948
+
+				QuickControlPhase();
+
+				///@TODO figure const.
+				if (gfGameMode == 2)//0x10958
+				{
+					S_Warn("[DoTitle] - Unimplemented condition!");
+					//0x10960
+				}//0x109B8
+			}
+
+		}//0x109C8
+
+	}//106EC
 }
 
 void DoLevel(unsigned char Name, unsigned char Audio)

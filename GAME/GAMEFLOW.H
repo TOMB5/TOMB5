@@ -20,6 +20,7 @@ struct GAMEFLOW
 	unsigned long Language : 3;
 	unsigned long DemoDisc : 1;
 	unsigned long Unused : 24;
+
 	unsigned long InputTimeout;
 	unsigned char SecurityTag;
 	unsigned char nLevels;

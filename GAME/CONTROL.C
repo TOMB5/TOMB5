@@ -1,6 +1,7 @@
 #include "CONTROL.H"
 
 #include "LARA2GUN.H"
+#include "SPECIFIC.H"
 
 int flipeffect;
 int fliptimer;
@@ -70,3 +71,9 @@ short los_rooms[20];
 char globoncuttrig;
 short ItemNewRooms[256][2];
 struct CHARDEF CharDef[106];
+
+long ControlPhase(long nframes, int demo_mode)
+{
+	S_Warn("[ControlPhase] - Unimplemented!\n");
+	return -1;
+}

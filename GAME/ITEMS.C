@@ -7,12 +7,18 @@ short next_item_free;
 short next_item_active;
 short GlobalPulleyFrigItem;
 
-void InitialiseItemArray(int numitems)//418E8, 41D3C
+void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<)
 {
 	next_item_active = -1;
 
 	struct ITEM_INFO* item = &items[0];
 	
+#if 0
+	int a2 = level_items;
+	int a1 = level_items;
+	int v0 = ((a2 << 3) + level_items) << 4;
+#endif
+
 	//FIXME: Ugly
 	item = (struct ITEM_INFO*)(char*)item + (((level_items << 3) + level_items) << 4);
 

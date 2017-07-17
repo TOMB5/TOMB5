@@ -34,7 +34,7 @@ void S_Warn(char* warning_message)
 {
 	printf(warning_message);
 #ifndef NDEBUG
-	assert(0);
+	//assert(0);
 #endif
 }
 

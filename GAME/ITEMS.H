@@ -77,5 +77,4 @@ extern int level_items;
 extern short next_item_free;
 extern short next_item_active;
 extern short GlobalPulleyFrigItem;
-
 #endif
