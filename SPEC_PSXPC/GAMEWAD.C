@@ -56,7 +56,7 @@ int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
  * @PARAM - [fileSize] the number of bytes you wish to read [ptr] the initialised memory location the data is read to. 
  */
 
-void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
+void GAMEWAD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<)
 {
 	FILE* fileHandle = NULL;
 	int i;
@@ -120,11 +120,11 @@ void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<)
 }
 
 /*
- * [FUNCTIONALITY] - GAMEWAD_InitialisePositionToStart
- * Initialises the gamewad reader's position back to it's initial file entry position.
+ * [FUNCTIONALITY] - GAMEWAD_ReaderPositionToCurrent
+ * Updates the gamewad reader's start sector to current. 
  */
 
-void GAMEWAD_InitialisePositionToStart()
+void GAMEWAD_ReaderPositionToCurrent()//*, 5E564(<)
 {
-	gwReaderCurrentSector = gwReaderStartSector;
+	gwReaderStartSector = gwReaderCurrentSector;
 }

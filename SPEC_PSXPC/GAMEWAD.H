@@ -116,7 +116,7 @@ struct GAMEWAD_header
 int GAMEWAD_InitialiseReaderPosition(int fileID);
 void GAMEWAD_Read(int fileSize, char* ptr);
 void GAMEWAD_Seek(int offset);
-void GAMEWAD_InitialisePositionToStart();
+void GAMEWAD_ReaderPositionToCurrent();
 
 extern struct GAMEWAD_header gwHeader;
 extern int gwLba;
