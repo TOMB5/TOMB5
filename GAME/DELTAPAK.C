@@ -73,5 +73,5 @@ void trigger_title_spotcam(int num)
 
 void handle_cutseq_triggering(int name)
 {
-	S_Warn("[trigger_title_spotcam] - Unimplemented!\n");
+	S_Warn("[handle_cutseq_triggering] - Unimplemented!\n");
 }
