@@ -149,13 +149,13 @@ void RelocateLevel()//?, B3B50(<)
 		for (i = 0; i < number_rooms; i++)
 		{
 			struct room_info* r = &room[i];
+			int* a1 = (int*) &ptr[4];
 
 			size = (unsigned int) r->data;
 			r->data = (short*) ptr;
 			ptr += size;
 
 			///@TODO Unknown const 24.
-			int* a1 = (int*) &ptr[4];
 			for (j = 0; j < 24; j++)
 			{
 				a1[j] += *(int*) r;//CHECKME possibly broken by refactor
@@ -220,11 +220,7 @@ void RelocateLevel()//?, B3B50(<)
 		{
 			//Ptr to current mesh ptr
 			int* meshPointer = (int*) &meshes[i];
-
-			//Extract mesh ptr base offset
-			int v000 = meshPointer[0];//?
-
-			*meshPointer += *meshPointer >> 0x1F;
+			*meshPointer >>= 0x1F;
 			*meshPointer >>= 1;//&?
 			*meshPointer <<= 1;
 			*meshPointer += (int) mesh_base;
