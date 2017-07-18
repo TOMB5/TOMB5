@@ -223,7 +223,7 @@ void RelocateLevel()//?, B3B50(<)
 			*meshPointer >>= 0x1F;
 			*meshPointer >>= 1;//&?
 			*meshPointer <<= 1;
-			*meshPointer += (int) mesh_base;
+			*meshPointer += *(int*) mesh_base;
 		}
 
 		v0 = *(((short*) (&LevelRelocPtr[18])) + 1);
