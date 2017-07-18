@@ -151,7 +151,7 @@ void RelocateLevel()//?, B3B50(<)
 			struct room_info* r = &room[i];
 			int* a1 = (int*) &ptr[4];
 
-			size = (unsigned int) r->data;
+			size = *(unsigned int*) &r->data;
 			r->data = (short*) ptr;
 			ptr += size;
 
@@ -161,19 +161,19 @@ void RelocateLevel()//?, B3B50(<)
 				a1[j] += *(int*) r;//CHECKME possibly broken by refactor
 			}
 
-			size = (unsigned int) r->door;
+			size = *(unsigned int*) &r->door;
 			r->door = (short*) ptr;
 			ptr += size;
 
-			size = (unsigned int) r->floor;
+			size = *(unsigned int*) &r->floor;
 			r->floor = (struct FLOOR_INFO*)ptr;
 			ptr += size;
 
-			size = (unsigned int) r->light;
+			size = *(unsigned int*) &r->light;
 			r->light = (struct LIGHTINFO*)ptr;
 			ptr += size;
 
-			size = (unsigned int) r->mesh;
+			size = *(unsigned int*) &r->mesh;
 			r->mesh = (struct MESH_INFO*)ptr;
 			ptr += size;
 		}
@@ -342,7 +342,7 @@ void RelocateLevel()//?, B3B50(<)
 		//0x1F2480 objects FIXME unknown type
 		int a11 = 0x7E68;
 		int s4 = 63;
-		dword_A33D0[25] = (int) ptr;
+		dword_A33D0[25] = *(int*) ptr;
 		ptr += LevelRelocPtr[45];
 
 		int a2 = LevelRelocPtr[43];
