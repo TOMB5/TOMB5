@@ -267,6 +267,7 @@ void RelocateLevel()//?, B3B50(<)
 		dword_A5374 = (int*) ptr;
 		ptr += LevelRelocPtr[32];//0xB3FD0
 
+		items = (struct ITEM_INFO*)ptr;
 		ptr += 0x9000;//TODO unknown const
 
 		v0 = t3 << 16;
