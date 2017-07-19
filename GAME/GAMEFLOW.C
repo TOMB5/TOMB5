@@ -436,7 +436,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4(<)
 	memset(&savegame.Level, 0, sizeof(struct STATS));
 	memset(&savegame.Game, 0, sizeof(struct STATS));
 
-	S_LoadLevelFile(a0);
+	S_LoadLevelFile(Name);
 
 	GLOBAL_lastinvitem = -1;
 	dels_cutseq_player = 0;
