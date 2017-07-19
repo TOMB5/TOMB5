@@ -1,6 +1,12 @@
 #include "DELTAPAK.H"
 
+#include "CONTROL.H"
+#include "ITEMS.H"
+#include "OBJECTS.H"
 #include "SPECIFIC.H"
+#include "SPOTCAM.H"
+
+#include <stddef.h>
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45];
 unsigned short crane_pistols_info[11];
@@ -66,12 +72,136 @@ int cutseq_malloc_free;
 unsigned short old_lara_holster;
 short temp_rotation_buffer[160];
 
-void trigger_title_spotcam(int num)
+void trigger_title_spotcam(int num)//32904, 32D9C
 {
-	S_Warn("[trigger_title_spotcam] - Unimplemented!\n");
+	struct ITEM_INFO* item;//v0
+	int s2 = num;
+
+	jobyfrigger = 0;
+	int v0 = 4;
+
+	if (num == 1)
+	{
+		item = ResetCutanimate(ANIMATING10);
+		item->pos.x_pos = 59904;
+		item->pos.y_pos = 0;
+		item->pos.z_pos = 42496;
+		item->room_number = 0;
+
+		item = ResetCutanimate(ANIMATING11);
+		item->pos.x_pos = 59904;
+		item->pos.y_pos = 0;
+		item->pos.z_pos = 42496;
+		item->room_number = 0;
+
+		v0 = 2;
+		if (num == 1)
+		{
+			int a0 = 83;
+			int a1 = 0;
+			//S_CDPlay(short track /*$s0*/, int mode /*$s1*/);
+
+			if (s2 == 2)//0x32EB0(r)
+			{
+				S_Warn("[trigger_title_spotcam] - Unimplemented condition!\n");
+			}//0x32EC8(r)
+
+			if (s2 == 3)//0x32EC8
+			{
+				S_Warn("[trigger_title_spotcam] - Unimplemented condition!\n");
+			}//032EE0
+
+			if (s2 == 4)
+			{
+				S_Warn("[trigger_title_spotcam] - Unimplemented condition!\n");
+			}
+
+			a0 = s2 << 0x10;
+			a0 >>= 0x10;
+			InitialiseSpotCam(a0);
+
+
+		}//0x32A18
+
+	}//32968
+
+		
+	
+}
+
+struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
+{
+#if 1
+	struct ITEM_INFO* item; // $s1
+
+	int a0 = objnum;//guessed
+	int s0 = a0;
+
+	item = find_a_fucking_item(objnum);
+
+	//char* a00 = &objects[0];
+	s0 <<= 6;
+	s0 += a0;
+
+	//s1 = v0;//?
+	//v1 = s0[0x26];
+	//v0 = &anims[0];
+	//a2 = &items[0];
+	//s1[0x14] = v1;//short store
+	//v1 <<= 16;
+	//v1 >>=16;
+	//a1 = v1 << 2;
+	//a1 += v1;
+	//a1 <<= 3;
+	//a1 += v0;
+	//a2 = s1 - a2;
+	//v0 = a2 << 3;
+	//v0 -= a2;
+	//v1 = v0 << 6;
+	//v0 += v1;
+	//v0 <<= 3;
+	//v0 += a2;
+	//a0 = v0 << 15;
+	//a0 -= v0;
+	//a0 <<= 3;
+	//a0 += a2;
+	//a0 <<= 12;
+	//v0 = a1[0x18]//short
+	//a0 >>= 16;
+	//s1[0x16] = v0; //store half
+	//RemoveActiveItem(short item_num /*$a0*/)
+	//v0 = s1;
+	//v1 = s1[0x28]//half
+	//a0 = s1[0x84]//word
+	//v1 &= 0xC1FF;
+	//s1[0x28] = v1;//half
+	//v1 = -7;
+	//a0 &= v1;
+	//s1[0x84] = a0//word
+#endif
+	return item;
 }
 
 void handle_cutseq_triggering(int name)
 {
 	S_Warn("[handle_cutseq_triggering] - Unimplemented!\n");
+}
+
+
+struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
+{
+	int i;
+
+	if (level_items > 0)
+	{
+		for (i = 0; i < level_items; i++)
+		{
+			if (items[i].object_number == object_number)
+			{
+				return &items[i];
+			}
+		}
+	}
+
+	return NULL;
 }

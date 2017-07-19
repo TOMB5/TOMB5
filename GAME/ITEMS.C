@@ -38,3 +38,8 @@ void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<)
 	//Last
 	item->next_item = -1;
 }
+
+void RemoveActiveItem(short item_num)
+{
+	//short linknum; // $v1
+}

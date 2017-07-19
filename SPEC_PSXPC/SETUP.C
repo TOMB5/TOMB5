@@ -321,12 +321,12 @@ void RelocateLevel()//?, B3B50(<)
 		dword_A50F0 = LevelRelocPtr[31] >> 4;
 		dword_A6174 = LevelRelocPtr[13];//FIXME LHU
 
-		level_items = LevelRelocPtr[13];
+		level_items = *(((unsigned short*) &LevelRelocPtr[12]) + 1);
 		nAIObjects = LevelRelocPtr[47];//FIXME LHU
 
 		number_boxes = LevelRelocPtr[35];
 
-		if (number_boxes > 0)
+		if (number_boxes > 0)//0xB40B4
 		{
 			//Set blocked flag on each overlapping box that is last in list.
 			for (i = 0; i < number_boxes; i++)

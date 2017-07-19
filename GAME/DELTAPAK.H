@@ -130,5 +130,7 @@ extern short temp_rotation_buffer[160];
 
 void trigger_title_spotcam(int num);
 void handle_cutseq_triggering(int name);
+struct ITEM_INFO* ResetCutanimate(int objnum);
+struct ITEM_INFO* find_a_fucking_item(int object_number);
 
 #endif

@@ -1,5 +1,7 @@
 #include "SPOTCAM.H"
 
+#include "SPECIFIC.H"
+
 int bUseSpotCam;
 int bDisableLaraControl;
 int bTrackCamInit;
@@ -83,4 +85,9 @@ void InitSpotCamSequences()//374B8(<), 379B8(<)
 			SpotRemap[s] = ce;
 		}
 	}
+}
+
+void InitialiseSpotCam(short Sequence /*$s0*/)
+{
+	S_Warn("[InitialiseSpotCam] - Unimplemented!\n");
 }

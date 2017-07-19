@@ -126,20 +126,16 @@ void DoGameflow()//10F5C, 10FD8
 		case 3://11048
 			break;
 		case 5://112B8
-			gfResidentCut[0] = *sequenceCommand;
-			sequenceCommand += 1;
+			gfResidentCut[0] = *sequenceCommand++;
 			break;
 		case 6://112CC
-			gfResidentCut[1] = *sequenceCommand;
-			sequenceCommand += 1;
+			gfResidentCut[1] = *sequenceCommand++;
 			break;
 		case 7:
-			gfResidentCut[2] = *sequenceCommand;
-			sequenceCommand += 1;
+			gfResidentCut[2] = *sequenceCommand++;
 			break;
 		case 8://112F4
-			gfResidentCut[3] = *sequenceCommand;
-			sequenceCommand += 1;
+			gfResidentCut[3] = *sequenceCommand++;
 			break;
 		case 9://1107C
 		{
@@ -148,27 +144,21 @@ void DoGameflow()//10F5C, 10FD8
 
 			LightningRGB[0] = *sequenceCommand;
 			LightningRGBs[0] = *sequenceCommand;
-			gfLayer2Col.r = *sequenceCommand;
-			sequenceCommand += 1;
+			gfLayer2Col.r = *sequenceCommand++;
 
 #ifdef INTERNAL
 			GameTimer = 46;
 #else
 			GameTimer = 44;
 #endif
-			LightningRGB[1] = *sequenceCommand;//*a3++;?
-			LightningRGBs[1] = *sequenceCommand;//*a3++;?
-			gfLayer2Col.g = *sequenceCommand;//*a3++;?
-			sequenceCommand += 1;
+			LightningRGB[1] = *sequenceCommand;
+			LightningRGBs[1] = *sequenceCommand;
+			gfLayer2Col.g = *sequenceCommand++;
 
-			
 			GlobalRoomNumber = *sequenceCommand;
-			//			GLOBAL_gunflash_meshptr = *sequenceCommand;
-			gfLayer1Col.cd = *sequenceCommand;
-			sequenceCommand += 1;
-
-			gfLayer1Vel = *sequenceCommand;
-			sequenceCommand += 1;
+			//GLOBAL_gunflash_meshptr = *sequenceCommand;
+			gfLayer1Col.cd = *sequenceCommand++;
+			gfLayer1Vel = *sequenceCommand++;
 			break;
 		}
 		default://11550
@@ -284,9 +274,6 @@ void LoadGameflow()//102E0, 102B0
 
 				switch (op)
 				{
-				case 0:
-					sequenceCommand += 1;
-					break;
 				case 1:
 					gfLevelNames[i] = *sequenceCommand;
 					sequenceCommand += 5;
@@ -299,6 +286,7 @@ void LoadGameflow()//102E0, 102B0
 				case 3:
 					endOfSequence = 1;
 					break;
+				case 0:
 				case 4:
 				case 5:
 				case 6:
@@ -459,7 +447,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4(<)
 	if (!bDoCredits)
 	{
 		//Ugly hardcoded start camera id
-		trigger_title_spotcam(32);
+		trigger_title_spotcam(1);
 		ScreenFadedOut = 0;
 		ScreenFade = 0;
 		dScreenFade = 0;
@@ -483,7 +471,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4(<)
 		gfLevelComplete = 0;
 		nframes = 2;
 		int a1 = 0;//second arg?
-		gfStatus = ControlPhase(0, 0);//@args todo @ret v0
+		gfStatus = ControlPhase(nframes, 0);//@args todo @ret v0
 		JustLoaded = 0;
 
 		int v0 = 0x001F0000;
