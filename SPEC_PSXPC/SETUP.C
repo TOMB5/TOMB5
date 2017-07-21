@@ -331,9 +331,9 @@ void RelocateLevel()//?, B3B50(<)
 			//Set blocked flag on each overlapping box that is last in list.
 			for (i = 0; i < number_boxes; i++)
 			{
-				if (boxes[i].overlap_index & OVERLAP_LAST)
+				if (boxes[i].overlap_index & BOX_LAST)
 				{
-					boxes[i].overlap_index |= OVERLAP_BLOCKED;
+					boxes[i].overlap_index |= BOX_BLOCKED;
 				}
 			}
 		}

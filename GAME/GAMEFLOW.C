@@ -15,6 +15,7 @@
 #include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
+#include "SPUSOUND.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
@@ -80,7 +81,7 @@ static unsigned long OldSP;
 unsigned char gfPickups[16];
 unsigned char gfTakeaways[16];
 
-void DoGameflow()//10F5C, 10FD8
+void DoGameflow()//10F5C(<), 10FD8(<)
 {
 	//unsigned char *gf;
 	//unsigned char n;
@@ -93,21 +94,12 @@ void DoGameflow()//10F5C, 10FD8
 	S_PlayFMV(1);
 #endif
 
-#if 1
-	struct GAMEFLOW* v1 = Gameflow;
-
 	num_fmvs = 0;
 	fmv_to_play[0] = 0;
 	fmv_to_play[1] = 0;
 
-	//? Since when did gf flags store the current level?
-	//FIXME!
-	int v0 = *(int*)v1;
-	v0 >>= 2;
-	v0 &= 1;
-	v0 = v0 < 1 ? 1 : 0;
-
-	gfCurrentLevel = v0;
+	//The game's title is disabled in Gameflow script. Automatically override the level id to 1 (skip it).
+	gfCurrentLevel = Gameflow->TitleEnabled == 0 ? 1 : 0;
 
 	//Current level's script offset
 	unsigned short* scriptOffsetPtr = gfScriptOffset + (gfCurrentLevel & 0xFF);
@@ -166,9 +158,6 @@ void DoGameflow()//10F5C, 10FD8
 			break;
 		}
 	}
-
-#endif
-
 }
 
 void LoadGameflow()//102E0, 102B0
@@ -440,7 +429,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4(<)
 	SOUND_Stop();
 
 	IsAtmospherePlaying = 0;
-	//S_SetReverbType(1);
+	S_SetReverbType(1);
 
 	InitialiseCamera();
 
@@ -559,7 +548,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4(<)
 				 ///@loc_1088C (IB - loc_108EC)
 				nframes = DrawPhaseGame();
 
-				unsigned char v11 = PadConnected;
 				if (PadConnected == 0)//0x108A0
 				{
 					int x = 256;

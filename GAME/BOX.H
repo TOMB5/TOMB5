@@ -1,8 +1,8 @@
 #ifndef BOX_H
 #define BOX_H
 
-#define OVERLAP_BLOCKED (1 << 14)
-#define OVERLAP_LAST    (1 << 15)
+#define BOX_BLOCKED (1 << 14)
+#define BOX_LAST    (1 << 15)
 
 struct box_info
 {
@@ -16,7 +16,7 @@ struct box_info
 
 extern int number_boxes;
 extern struct box_info* boxes;
-extern unsigned short *overlap;
+extern unsigned short* overlap;
 extern short* ground_zone[5][2];
 extern unsigned short testclip;
 extern unsigned short loops;

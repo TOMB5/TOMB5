@@ -72,6 +72,9 @@ int cutseq_malloc_free;
 unsigned short old_lara_holster;
 short temp_rotation_buffer[160];
 
+#define WORLD_UNITS_PER_SECTOR 1024
+#define SECTOR_TO_WORLD(S) ((S) > (0) ? ((S * WORLD_UNITS_PER_SECTOR) + (WORLD_UNITS_PER_SECTOR / 2)) : (0))
+
 void trigger_title_spotcam(int num)//32904, 32D9C
 {
 	struct ITEM_INFO* item;//v0
@@ -80,18 +83,21 @@ void trigger_title_spotcam(int num)//32904, 32D9C
 	jobyfrigger = 0;
 	int v0 = 4;
 
-	if (num == 1)
+	if (num == 1)//Church seq
 	{
+		//Man holding umbrella at church area (TITLE.TRC)
 		item = ResetCutanimate(ANIMATING10);
-		item->pos.x_pos = 59904;
-		item->pos.y_pos = 0;
-		item->pos.z_pos = 42496;
+
+		item->pos.x_pos = SECTOR_TO_WORLD(58);
+		item->pos.y_pos = SECTOR_TO_WORLD(0);
+		item->pos.z_pos = SECTOR_TO_WORLD(41);
 		item->room_number = 0;
 
+		//Female walking with man holding umbrella, church area (TITLE.TRC)
 		item = ResetCutanimate(ANIMATING11);
-		item->pos.x_pos = 59904;
-		item->pos.y_pos = 0;
-		item->pos.z_pos = 42496;
+		item->pos.x_pos = SECTOR_TO_WORLD(58);
+		item->pos.y_pos = SECTOR_TO_WORLD(0);
+		item->pos.z_pos = SECTOR_TO_WORLD(41);
 		item->room_number = 0;
 
 		v0 = 2;
@@ -139,9 +145,10 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 
 	item = find_a_fucking_item(objnum);
 
-	//char* a00 = &objects[0];
+	//actually probably a table storing all initial item anims/frames?
+	//char* a00 = &objects[0]; //FIXME needs init
 	s0 <<= 6;
-	s0 += a0;
+	//char* s00 = &objects[s0];
 
 	//s1 = v0;//?
 	//v1 = s0[0x26];
@@ -169,7 +176,7 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 	//v0 = a1[0x18]//short
 	//a0 >>= 16;
 	//s1[0x16] = v0; //store half
-	//RemoveActiveItem(short item_num /*$a0*/)
+	RemoveActiveItem(0);
 	//v0 = s1;
 	//v1 = s1[0x28]//half
 	//a0 = s1[0x84]//word
@@ -182,7 +189,7 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 	return item;
 }
 
-void handle_cutseq_triggering(int name)
+void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 {
 	S_Warn("[handle_cutseq_triggering] - Unimplemented!\n");
 }
