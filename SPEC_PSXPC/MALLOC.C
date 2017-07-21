@@ -18,9 +18,6 @@ char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];
  * Resets malloc_buffer and all allocation stats back to their default values.
  * Note: The entire malloc_buffer is zero initialised.
  * Note: Once the gameflow script is loaded it's always in malloc_buffer regardless.
- * [USAGE]
- * @PARAM - [size] The amount of memory you wish to "allocate".
- * @RETURN - [ptr] Pointer to the memory block you just "allocated".
  */
 
 void init_game_malloc()//5E79C(<), 5F4F8(<)

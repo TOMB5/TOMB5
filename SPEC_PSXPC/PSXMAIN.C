@@ -1,14 +1,13 @@
 #include <assert.h>
 
 #include "CD.H"
+#include "GAMEFLOW.H"
 //#include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "PROFILE.H"
 //#include "SPUSOUND.H"
-
-#include "GAMEFLOW.H"
-//#include "TEXT.H"
+#include "TEXT.H"
 
 unsigned long dword_9A884 = 0;
 
@@ -80,7 +79,7 @@ int main()//10064, 10064
 #endif
 
 	init_game_malloc();
-	//InitFont();
+	InitFont();
 	//SOUND_Init();
 	DoGameflow();
 	return 0;
