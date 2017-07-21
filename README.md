@@ -10,7 +10,7 @@ This project may be abandoned at any time, use this product at your own risk.
 
 ## What is this?
 
-This repository contains decompiled code for the game Tomb Raider: Chronicles. All decompiled code is based off the PlayStation version. The goal is to decompile as much as possible since the original source code is reportedly lost. It is not expected for code to be 1:1 to the original game. Debugging the original PlayStation version at a later phase will help map out any existing bugs. All information (variable and method names) have been obtained from debugging symbols (.SYM, .MAP).
+This repository contains decompiled code for the game Tomb Raider: Chronicles. All decompiled code is based off the PlayStation version. The goal is to decompile as much as possible since the original source code is reportedly lost. It is not expected for decompiled code to be 1:1 with the original source code. However, functionality it will be the same, further debugging the original PlayStation version at a later phase will help map out any existing bugs. All information (variable and method names) have been obtained from debugging symbols (.SYM, .MAP) and TRosettastone 3.0.
 
 ## What are the current goals?
 
@@ -18,7 +18,7 @@ Current goals include decompiling all code up until the title screen sequence, e
 
 ## Usage
 
-Assuming you have compiled the most recent code or downloaded the latest binaries from appveyor (artifacts). Simply put your Tomb Raider: Chronicles PlayStation disc into your PC. At this point you'll need to copy all the files from the root to the same folder as MAIN.EXE. The codebase is currently based off the final NTSC version of Tomb Raider: Chronicles. This means that other localised versions may not be supported.
+Assuming you have compiled the most recent code or downloaded the latest binaries from appveyor (artifacts). Simply put your Tomb Raider: Chronicles PlayStation disc into your PC. At this point you'll need to copy all the files from the root of the CD to the same folder as MAIN.EXE. The codebase is currently based off the final NTSC version of Tomb Raider: Chronicles. This means that other localised versions may not be supported.
 
 ## How long will this take?
 
