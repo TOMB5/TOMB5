@@ -23,12 +23,13 @@ void InitFont()//115EC(<), 1169C(<)
 {
 	int i, j;
 	unsigned short r, g, b;
+	unsigned char fr, fg, fb;
 
 	for(i = 0; i < 10; i++)
 	{
-		int t9 = 0;
-		int t8 = 0;
-		int t7 = 0;
+		r = 0;
+		g = 0;
+		b = 0;
 
 		int t5 = ShadeFromTo[i][0].b << 4;
 		int t4 = ShadeFromTo[i][0].g << 4;
@@ -36,32 +37,32 @@ void InitFont()//115EC(<), 1169C(<)
 
 		for (j = 0; j < 16; j++)
 		{
-			r = ((t3 >> 4) + (t7 >> 4)) & 0xFFFF;
-			g = ((t4 >> 4) + (t8 >> 4)) & 0xFFFF;
-			b = ((t5 >> 4) + (t9 >> 4)) & 0xFFFF;
+			fr = ((t3 >> 4) + (r >> 4)) & 0xFFFF;
+			fg = ((t4 >> 4) + (g >> 4)) & 0xFFFF;
+			fb = ((t5 >> 4) + (b >> 4)) & 0xFFFF;
 
-			if (r > 0x100)
+			if (fr > 0x100)
 			{
-				r = 0xFF;
+				fr = 0xFF;
 			}
 
-			if (g > 0x100)
+			if (fg > 0x100)
 			{
-				g = 0xFF;
+				fg = 0xFF;
 			}
 
-			if (b > 0x100)
+			if (fb > 0x100)
 			{
-				b = 0xFF;
+				fb = 0xFF;
 			}
 
-			FontShades[i][j].r = r;
-			FontShades[i][j].g = g;
-			FontShades[i][j].b = b;
+			FontShades[i][j].r = fr;
+			FontShades[i][j].g = fg;
+			FontShades[i][j].b = fb;
 
-			t7 += ShadeFromTo[i][1].r;
-			t8 += ShadeFromTo[i][1].g;
-			t9 += ShadeFromTo[i][1].b;
+			r += ShadeFromTo[i][1].r;
+			g += ShadeFromTo[i][1].g;
+			b += ShadeFromTo[i][1].b;
 
 			t3 += -ShadeFromTo[i][0].r;
 			t4 += -ShadeFromTo[i][0].g;
