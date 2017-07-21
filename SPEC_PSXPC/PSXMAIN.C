@@ -6,6 +6,7 @@
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "PROFILE.H"
+#include "SOUND.H"
 //#include "SPUSOUND.H"
 #include "TEXT.H"
 
@@ -80,7 +81,7 @@ int main()//10064, 10064
 
 	init_game_malloc();
 	InitFont();
-	//SOUND_Init();
+	SOUND_Init();
 	DoGameflow();
 	return 0;
 }
