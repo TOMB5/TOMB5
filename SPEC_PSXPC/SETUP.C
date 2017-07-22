@@ -506,7 +506,88 @@ void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr)
 }
 
 //?
+//Relocate initial object frame ptrs, see ResetCutanimate()
 void sub_B96EC(int unk)
 {
+	char* a0 = &objects[0];
+	int s0 = 0x02000000;
+	short t7 = 10;
+	int t6 = -16384;
+	int t4 = 0xFEFFFFFF;
+	int a1 = 459;//max?
+	int t3 = 0xFFFDFFFF;
+	int t2 = 0xDFFFFFFF;
+	int t1 = 0xFFBFFFFF;
+	int t0 = 0xFFDFFFFF;
+	int a3 = 0xFFEFFFFF;
+	int a2 = 0xFFF70000;
+	short* t5 = frames;
+	a2 |= 0xFFFF;
 
+	///@TODO sizeof object = 64;
+	//@TODO count of objects = 459
+	for (int i = 0; i < a1; i++)
+	{
+		int v0 = *(int*) &a0[48];//0x00010000
+		int v1 = *(int*) &a0[8];//0
+		*(int*) &a0[12] = 0;
+		*(int*) &a0[32] = 0;
+		*(int*) &a0[16] = 0;
+		*(int*) &a0[28] = 0;
+		*(int*) &a0[24] = 0;
+		*(int*) &a0[20] = 0;
+		*(short*) &a0[42] = 0;
+		*(short*) &a0[44] = t7;
+		*(short*) &a0[46] = 0;
+		*(short*) &a0[40] = t6 & 0xFFFF;//0xc000
+		*(int*) &a0[56] = 0;
+		*(int*) &a0[52] = 0;
+		*(short*) &a0[36] = 0;
+
+		v0 |= s0;
+		v0 &= t4;
+		v0 &= t3;
+		v0 &= t2;
+		v0 &= t1;
+		v0 &= t0;
+		v0 &= a3;
+		v0 &= a2;//0x02010000
+
+		int* v11 = ((int*) t5) + v1;
+
+		*(int*) &a0[48] = v0;
+		*(int**) &a0[8] = v11;//check
+
+		a0 += 0x40;
+	}
+
+	//sub_B5328();
+
+	//sub_B84F0();
+
+	//sub_B7E04();
+
+	//InitialiseHair() //3AC70, 3B170
+
+	//sub_BA81C
+
+	//0xB97FC
+
+	int test = 0;
+	test++;
 }//0xB996C
+
+void sub_B5328()
+{
+
+}
+
+void sub_B84F0()
+{
+
+}
+
+void sub_B7E04()
+{
+
+}
