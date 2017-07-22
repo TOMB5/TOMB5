@@ -52,7 +52,7 @@ enum gf_languages
 	US,
 	JAPAN,
 	DUTCH,
-	MAX_GF_LANGUAGES
+	NUM_GF_LANGUAGES
 };
 
 extern unsigned char gfGameMode;

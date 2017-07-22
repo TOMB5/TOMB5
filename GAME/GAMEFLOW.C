@@ -200,7 +200,7 @@ void LoadGameflow()//102E0, 102B0
 	}
 #else
 	//Safer code (no inf loop).
-	for (i = 0; i < MAX_GF_LANGUAGES; i++)
+	for (i = 0; i < NUM_GF_LANGUAGES; i++)
 	{
 		if (FILE_Length((char*)s) != -1)
 		{

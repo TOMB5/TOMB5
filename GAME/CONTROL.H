@@ -104,5 +104,8 @@ extern short ItemNewRooms[256][2];
 extern struct CHARDEF CharDef[106];
 
 long ControlPhase(long nframes, int demo_mode);
+long GetRandomControl();
+long GetRandomDraw();
+void AddRoomFlipItems(struct room_info* r);
 
 #endif

@@ -47,6 +47,7 @@ int dword_3EE4;
 int dword_A33D0[512];//FIXME
 char objects[32360];
 char dword_1EF1D0[0x780];
+char dword_1EF9D0[2048 * 64];//fixme unknown size
 
 #define PSX_HEADER_LENGTH 228
 
@@ -158,7 +159,7 @@ void RelocateLevel()//?, B3B50(<)
 			///@TODO Unknown const 24.
 			for (j = 0; j < 24; j++)
 			{
-				a1[j] += *(int*) r;//CHECKME possibly broken by refactor
+				a1[j] += *(int*) r;
 			}
 
 			size = *(unsigned int*) &r->door;
@@ -365,61 +366,69 @@ void RelocateLevel()//?, B3B50(<)
 		if (LevelRelocPtr[48] != 0)
 		{
 			GAMEWAD_ReaderPositionToCurrent();
-			GAMEWAD_Read(0x780, &dword_1EF1D0[0]);
+			GAMEWAD_Read(0x780, &dword_1EF1D0[0]);//FIXME levelRelocPtr?
 
 			if (LevelRelocPtr[48] > 0)
 			{
-#if 0
-				int s4 = 0;//0xB4184
-				//v0 = 0x1F0000
-				//s7 = v0 - 0x630;
-				for (i = 0; i < LevelRelocPtr[48]; i++)//s4 is i
+				for (i = 0; i < LevelRelocPtr[48]; i++)
 				{
-					unsigned long* v0 = &LevelRelocPtr[s4];
-					t3 = *(char*) &v0[49];//0xF
-					int s0 = t3 * sizeof(unsigned int);
+					char* s7 = &dword_1EF9D0[0];//FIXME: levelRelocPtr?
+					char* v0 = ((char*) &LevelRelocPtr[0]) + i;
+					char t3 = v0[196];
+					int s0 = t3 << 2;
 					s0 += t3;
-					s0 *= 4;//0x12C
-					char* tmp = &dword_1EF1D0[s0];
+					s0 <<= 2;
 
-					int s3 = *(int*) &tmp[4];
-					a0 = s3;
-					char* s2 = game_malloc(s3);//@S3/a0
+					char* s00 = &dword_1EF1D0[s0];
+					int s3 = *(int*) &s00[4];
+					int a00 = s3;
+					char* v00 = game_malloc(a00);
 
-					a0 = *(int*) &tmp[0];
-					GAMEWAD_Seek(a0);
-					GAMEWAD_Read(s3, s2);
+					a00 = *(int*) &s00[0];//0x21800
+					GAMEWAD_Seek(a00);
 
-					s3 = *(int*) &tmp[12];
-					s2 = game_malloc(s3);
-					a0 = *(int*) &tmp[8];
-					GAMEWAD_Seek(a0);
-					GAMEWAD_Read(s3, s2);//5E414
+					char* s22 = v00;
+					char* a000 = s22;
+					GAMEWAD_Read(s3, s22);
 
-					//0xB41F4
-					char* a00 = s2;
-					//RelocateModule(s2); //Probably ai code
+					s3 = *(int*) &s00[12];//0x15C
+
+					char* s11 = game_malloc(s3);
+
+					a00 = *(int*) &s00[8];//0x24000
+
+					GAMEWAD_Seek(a00);
+
+					GAMEWAD_Read(s3, s11);
+
+					//RelocateModule(s11);
+
 					game_free(s3);
 
-					int s4 = 0;
-					s4++;
+					int v000 = *(int*) &s00[16];
+					int v111 = LevelRelocPtr[48];
+					v000 <<= 2;
 
-					int* v00 = (int*) tmp[10];//7
-					int v11 = LevelRelocPtr[48];//5
-					//v00 <<= 2;
-					//v00 += s7;
-
-					v00[0] = (int) s2;
+					char* v0000 = &s7[v000];
+					*(int*) v0000 = (int) s22;
 				}
-#endif
-
 			}
-
 		}//0xB4228
 
+		 //a0 = 1;
+		 //jal sub_424D0 ??
+		 //a0 = 1;
+		 //jal sub_4E2A4 ??
+
+		s4 = 0;
+		sub_B96EC(0);//0xB4238
+
+		int testtt = 0;
+		testtt++;
 		int testing3 = 0;
 		testing3++;
 	}
+
 }//0xB4730 is end jalr v0
 
 //Possibly send audio data to SPU
@@ -495,3 +504,9 @@ void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr)
 	//0xB39BC
 #endif
 }
+
+//?
+void sub_B96EC(int unk)
+{
+
+}//0xB996C
