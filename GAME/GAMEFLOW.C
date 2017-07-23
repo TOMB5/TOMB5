@@ -380,9 +380,25 @@ void LoadGameflow()//102E0, 102B0
 	}
 }
 
-void QuickControlPhase()
+void QuickControlPhase()//10274(<), 10264(<)
 {
-	S_Warn("[QuickControlPhase] - Unimplemented!\n!");
+#ifdef INTERNAL
+	ProfileRGB(255, 255, 255);
+#endif
+
+#ifdef PSX
+	//OldSP = SetSp(0x1F8003E0);
+#endif
+
+	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
+
+#ifdef PSX
+	SetSp(OldSP);
+#endif
+
+#ifdef INTERNAL
+	ProfileRGB(0, 0, 0);
+#endif
 }
 
 void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4(<)
