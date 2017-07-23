@@ -87,7 +87,7 @@ enum title_spotcam_sequences
 	PYRAMID_SEQUENCE
 };
 
-void trigger_title_spotcam(int num)//32904, 32D9C
+void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 {
 	struct ITEM_INFO* item;
 
@@ -156,19 +156,35 @@ void trigger_title_spotcam(int num)//32904, 32D9C
 	 */
 	if (num == OUTSIDE_CHURCH_SEQUENCE)
 	{
+#ifdef INTERNAL//second arg is prob a def.
 		S_CDPlay(83, 1);
+#else
+		S_CDPlay(83, 0);
+#endif
 	}
 	else if (num == INSIDE_CHURCH_SEQUENCE)
 	{
+#ifdef INTERNAL
 		S_CDPlay(87, 1);
+#else
+		S_CDPlay(87, 0);
+#endif
 	}
 	else if (num == HOUSE_SEQUENCE)
 	{
+#ifdef INTERNAL
 		S_CDPlay(86, 1);
+#else
+		S_CDPlay(86, 0);
+#endif
 	}
 	else if (num == PYRAMID_SEQUENCE)
 	{
+#ifdef INTERNAL
 		S_CDPlay(91, 1);
+#else
+		S_CDPlay(91, 0);
+#endif
 	}
 
 	InitialiseSpotCam(num);

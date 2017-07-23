@@ -464,9 +464,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4(<)
 		JustLoaded = 0;
 
 		int v0 = 0x001F0000;
-
-		///@HACK (ControlPhase unimpl)
-		gfStatus = 0;
 		if (gfStatus == 0)
 		{
 #ifdef INTERNAL

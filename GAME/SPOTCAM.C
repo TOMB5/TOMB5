@@ -87,7 +87,7 @@ void InitSpotCamSequences()//374B8(<), 379B8(<)
 	}
 }
 
-void InitialiseSpotCam(short Sequence /*$s0*/)
+void InitialiseSpotCam(short Sequence /*$s0*/)//37648, 37B48
 {
 	S_Warn("[InitialiseSpotCam] - Unimplemented!\n");
 }

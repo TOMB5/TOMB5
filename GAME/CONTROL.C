@@ -2,6 +2,7 @@
 
 #include "DELTAPAK.H"
 #include "GAMEFLOW.H"
+#include "GPU.H"
 #include "NEWINV2.H"
 #include "LARA.H"
 #include "LARA2GUN.H"
@@ -9,6 +10,10 @@
 #include "PSXINPUT.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
+#include "TOMB4FX.H"
+
+#include <stdio.h>
+#include <assert.h>
 
 int flipeffect;
 int fliptimer;
@@ -84,110 +89,269 @@ long ControlPhase(long nframes, int demo_mode)//1D538, 1D6CC
 	int a0 = SlowMotion;
 	int s6 = demo_mode;
 
-	if (v0 != 0)
+	if (SlowMotion == 0)
 	{
-		//0x1D6FC(IB)
-	}//0x1D748 (IB)
-
-		
-	v0 = SlowMoFrameCount;//FIXME 0x10
-	int v1 = SlowMoFrameCount;//^
-
-	if (v0 < 0x11)//1D754
+		SlowMotion--;
+		if (SlowMoFrameCount < 40)
+		{
+			//loc_1D5C8
+			SlowMoFrameCount++;
+		}//loc_1D5CC
+	}
+	else//loc_1D5B4
 	{
-		v0 = v1 - 1;
+		if (SlowMoFrameCount > 17)
+		{
+			//loc_1D5C8
+			SlowMoFrameCount--;
+		}
+	}
 
-	}//1D7AC
+	//loc_1D5CC
+	v0 = SlowMoFrameCount;
+	v0 <<= 16;
+	v0 >>= 19;
 
-	v0 = v1 - 1;
+	if (nframes < v0)
+	{
+		while (s0 < v0)
+		{
+
+			//loc_1D5E8:
+#ifdef PSX
+			VSync(0);
+#endif
+			s0++;
+		}
+	}
+
+	//loc_1D60C
+	int frameCountTemp = 2;//$s0
+	GnLastFrameCount = 0;
+
+	//loc_1D618
 	RegeneratePickups();
 
-	if (s0 < 0xB)//0x!D7B8
+	if (frameCountTemp > 11)
 	{
+		frameCountTemp = 10;;
+	}
 
-	}//0x1D7C4
-
-	v0 = bTrackCamInit;
-
-	if (v0 != 0)//0x1D7D0
+	//loc_1D630
+	if (bTrackCamInit != 0)
 	{
+		bUseSpotCam = 0;
+	}
 
-	}//0x1D7E0
+	//loc_1D64C
+	framecount += frameCountTemp;
+	SetDebounce = 1;
 
-	v0 = framecount;
-	v1 = 1;
-	SetDebounce = v1;
-
-	v0 += s0;
-	framecount = v0;
-
-	if (v0 > 0)//0x1D7F4
+	if (framecount <= 0)
 	{
-		v0 = -1;
-		v1 = GLOBAL_enterinventory;//-1
+		//loc_1E3B8
+		return -1;
+	}
 
-		if (v1 == v0)//0x1D808
+	if (GLOBAL_enterinventory != -1)
+	{
+		return 0;
+	}
+
+	//loc_1D684
+	GlobalCounter++;
+	///UpdateSky();
+	S_UpdateInput();
+
+	if (bDisableLaraControl != 0)
+	{
+		//Not title
+		if (gfCurrentLevel != 0)
 		{
-			v0 = 0;
-			int s4 = -1;
-			int s3 = 1;
-			v0 = GlobalCounter;//0
-			v0++;
-			GlobalCounter = v0;
+			dbinput = 0;
+		}
 
-			///UpdateSky(); //? external module
-			S_UpdateInput();
+		//loc_1D6D4
+		input &= 0x200;
+	}
 
-			v0 = bDisableLaraControl;//1, 0x1D844
-			if (v0 != 0)
+	//loc_1D6EC
+	//Cutseq playing? lock controls to 0?
+	if (cutseq_trig != 0)
+	{
+		input = 0;
+	}
+
+	//loc_1D708
+	SetDebounce = 0;
+
+	if (gfLevelComplete)
+	{
+		return 3;
+	}
+
+	if (reset_flag != 0)
+	{
+		reset_flag = 0;
+		return 1;
+	}
+
+	if (lara.death_count > 91)
+	{
+		//loc_1D5A0
+		reset_flag = 0;
+		//S_Death();
+		assert(0);//find ret val.
+		return -1;//FIXME, s2?
+	}
+
+	if (demo_mode != 0)
+	{
+		if (PadConnected != 0 && ScreenFading == 0)
+		{
+			int x = 256;
+			int y = 230;
+
+			char* str = &gfStringWad[gfStringOffset[176]];///@TODO retail ver.
+			printf("%s\n", str);
+			//PrintString(x, y, str); //TODO IDA didn't dump me :-)
+		}
+
+		//loc_1D7A0
+		if (input == -1)
+		{
+			input = 0;
+			Motors[0] = 0;
+			Motors[1] = 0;
+		}
+
+	}//loc_1D7D4
+	else
+	{
+		if (gfGameMode != 1 && Gameflow->CheatEnabled)
+		{
+			if (input == 0)
 			{
-				v0 = gfCurrentLevel;
-				if (v0 != 0)//0x1D858
+				if (Gameflow->InputTimeout > NoInput)
 				{
+					NoInput++;
+					return 1;
+				}
 
-				}//0x1D868
+				NoInput++;
 
-				v0 = input;
-				v0 &= 0x200;
-				input = v0;
-
-			}//0x1D880
-
-			v0 = cutseq_trig;
-			if (v0 != 0)//0x1D88C
+			}//1D844
+			else
 			{
+				input = 0;
+			}
+		}//loc_1D848
+	}
 
-			}//0x1D89C
+	//1D848
+	if (InGameCnt < 4)
+	{
+		InGameCnt++;
+	}
 
-			SetDebounce = 0;
+	//loc_1D860
+	if ((input & 0x200) == 0 && SniperCamActive != 0 && bUseSpotCam != 0 && bTrackCamInit != 0 && lara_item->current_anim_state != 2 || lara.hit_direction == 0x67 && lara.LitTorch == 0 && input & 0x2000 != 0 && lara_item->anim_number != 0xDE && lara_item->goal_anim_state != 0x47)
+	{
+		//loc_1D9D0
+		input |= 0x200;
 
-			v0 = 3;
-			if (gfLevelComplete == 0)//0x1D8A8
+		if (BinocularRange == 0)
+		{
+			//loc_1DA80
+			if (SniperCamActive == 0 || bUseSpotCam == 0)
 			{
-				v0 = reset_flag;
-				if (v0 == 0)
-				{
-					struct lara_info* v00 = &lara;
-					short a0 = lara.death_count;
+				input &= 0xFFFFFDFF;
+			}//loc_1DABC
+		}
+		else if (LaserSight != 0)
+		{
+			BinocularRange = 0;
+			LaserSight = 0;
 
-					//s2 = v0;
-					if (a0 < 0x5B)
-					{
-						///@LAST 0x001D8D8
-					}//0x1D734
+			AlterFOV(16380);
 
-				}//j 0x1D728
+			lara_item->mesh_bits = -1;
+			camera.type = (enum camera_type)BinocularOldCamera;
 
-			}//0x1E5D0
+			lara.head_x_rot = 0;
+			lara.head_y_rot = 0;
+			lara.torso_x_rot = 0;
+			lara.torso_y_rot = 0;
 
-		}//0x1E5D0
+			BinocularOn = -8;
+			camera.bounce = 0;
+			input &= 0xFFFFFDFF;
+			lara.look = 0;//check
+		}
 
-		v0 = 0;
+		v0 = BinocularRange;
+	}
+	else
+	{
+		//loc_1D920
+		if (BinocularRange == 0)
+		{
+			if (lara.gun_type != 5 && (lara.gun_type > 6 && lara.gun_type != 6) || (lara.gun_type == 2 && (lara.sixshooter_type_carried & 4)) == 0 || lara.gun_status != 4)
+			{
+				v0 = BinocularRange;
 
-	}//0x1E5CC
+			}//0x1D990
+			else //loc_1D990
+			{
+				lara.has_fired = 1;
+				BinocularRange = 128;
+				LaserSight = 1;
+				BinocularOldCamera = camera.old_type;
+			}
+		}
+	}
 
-	v0 = -1;
+	//loc_1DAD0 ****************
+	int v1 = 0;
+	if (BinocularRange != 0)
+	{
+		if (LaserSight != 0)
+		{
+			//loc_1DB28
+			if ((gfLevelFlags & 0x80) == 0)
+			{
+				v1 = 1;
+			}
+			//loc_1DB40
+		}
+		
+		if ((gfLevelFlags & 0x80) != 0)
+		{
+			if ((inputBusy & 0x40) != 0)
+			{
+				//loc_1DB40
+				v1 = 1;
+			}
+		}//1DB44
 
+	}//loc_1DB44
+
+	InfraRed = v1;
+
+	//lui	$s5, 0x1F
+	//ClearDynamics();	
+	//ClearFires();
+
+	int a1 = next_item_active;
+	//GotLaraSpheres = 0;
+	//InItemControlLoop = s3;
+	//lui	$v0, 0x1F
+	
+	///beq	$a1, $s4, loc_1DBE8	
+	///addiu	$s1, $v0, 0x2490
+	///sll	$v0, $a1, 3
+
+	//end loc_1E3BC
 	S_Warn("[ControlPhase] - Unimplemented!\n");
 	return -1;
 }
