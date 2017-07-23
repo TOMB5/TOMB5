@@ -14,4 +14,6 @@ void sub_B5328();
 void sub_B84F0();
 void sub_B7E04();
 
+extern char objects[32360];
+
 #endif

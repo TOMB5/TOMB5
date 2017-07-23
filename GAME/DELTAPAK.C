@@ -1,5 +1,6 @@
 #include "DELTAPAK.H"
 
+#include "CD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "ITEMS.H"
@@ -77,19 +78,28 @@ short temp_rotation_buffer[160];
 #define WORLD_UNITS_PER_SECTOR 1024
 #define SECTOR_TO_WORLD(S) ((S) > (0) ? ((S * WORLD_UNITS_PER_SECTOR) + (WORLD_UNITS_PER_SECTOR / 2)) : (0))
 
+enum title_spotcam_sequences
+{
+	NONE,
+	OUTSIDE_CHURCH_SEQUENCE,
+	INSIDE_CHURCH_SEQUENCE,
+	HOUSE_SEQUENCE,
+	PYRAMID_SEQUENCE
+};
+
 void trigger_title_spotcam(int num)//32904, 32D9C
 {
-	struct ITEM_INFO* item;//v0
-	int s2 = num;
+	struct ITEM_INFO* item;
 
 	jobyfrigger = 0;
-	int v0 = 4;
 
-	if (num == 1)//Church seq
+	if (num == OUTSIDE_CHURCH_SEQUENCE)
 	{
+		/*
+		 * Resetting all outside church sequence animatings to their original positions/animations.
+		 */
 		//Man holding umbrella at church area (TITLE.TRC)
 		item = ResetCutanimate(ANIMATING10);
-
 		item->pos.x_pos = SECTOR_TO_WORLD(58);
 		item->pos.y_pos = SECTOR_TO_WORLD(0);
 		item->pos.z_pos = SECTOR_TO_WORLD(41);
@@ -102,40 +112,68 @@ void trigger_title_spotcam(int num)//32904, 32D9C
 		item->pos.z_pos = SECTOR_TO_WORLD(41);
 		item->room_number = 0;
 
-		v0 = 2;
-		if (num == 1)
-		{
-			int a0 = 83;
-			int a1 = 0;
-			//S_CDPlay(short track /*$s0*/, int mode /*$s1*/);
+	}
+	else if (num == PYRAMID_SEQUENCE)
+	{
+		/*
+		 * Resetting all pyramid sequence animatings to their original positions/animations.
+		 */
+		jobyfrigger = 1;
 
-			if (s2 == 2)//0x32EB0(r)
-			{
-				S_Warn("[trigger_title_spotcam] - Unimplemented condition!\n");
-			}//0x32EC8(r)
+		//Stone slab being pulled on slope outside pyramid entrance.
+		ResetCutanimate(ANIMATING4);
 
-			if (s2 == 3)//0x32EC8
-			{
-				S_Warn("[trigger_title_spotcam] - Unimplemented condition!\n");
-			}//032EE0
+		//Jeep
+		item = ResetCutanimate(ANIMATING7);
+		item->pos.x_pos = SECTOR_TO_WORLD(31);
+		item->pos.y_pos = SECTOR_TO_WORLD(0);
+		item->pos.z_pos = SECTOR_TO_WORLD(88);
+		item->room_number = 104;
 
-			if (s2 == 4)
-			{
-				S_Warn("[trigger_title_spotcam] - Unimplemented condition!\n");
-			}
+		//Jeep
+		ResetCutanimate(ANIMATING8);
 
-			a0 = s2 << 0x10;
-			a0 >>= 0x10;
-			InitialiseSpotCam(a0);
+		//Tomb Raider 4 Guide
+		item = ResetCutanimate(ANIMATING9);
+		item->pos.x_pos = SECTOR_TO_WORLD(30);
+		item->pos.y_pos = SECTOR_TO_WORLD(0);
+		item->pos.z_pos = SECTOR_TO_WORLD(89);
+		item->room_number = 61;
 
+		//Voncroy
+		ResetCutanimate(ANIMATING12);
 
-		}//0x32A18
+		//Tomb Raider 4 guides pulling stone slab (ANIMATING4).
+		ResetCutanimate(ANIMATING13);
+		ResetCutanimate(ANIMATING14);
+		ResetCutanimate(ANIMATING15);
 
-	}//32968
+	}//0x32A00
 
-		
-	
-}
+	/*
+	 * Each flyby sequence should play it's own unique music.
+	 * Here we alter the music for the current flyby sequence.
+	 */
+	if (num == OUTSIDE_CHURCH_SEQUENCE)
+	{
+		S_CDPlay(83, 1);
+	}
+	else if (num == INSIDE_CHURCH_SEQUENCE)
+	{
+		S_CDPlay(87, 1);
+	}
+	else if (num == HOUSE_SEQUENCE)
+	{
+		S_CDPlay(86, 1);
+	}
+	else if (num == PYRAMID_SEQUENCE)
+	{
+		S_CDPlay(91, 1);
+	}
+
+	InitialiseSpotCam(num);
+
+}//32968
 
 struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 {
@@ -162,7 +200,6 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 {
 	S_Warn("[handle_cutseq_triggering] - Unimplemented!\n");
 }
-
 
 struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
 {

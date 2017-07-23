@@ -3,6 +3,7 @@
 
 void cbvsync();
 void InitNewCDSystem();
+void S_CDPlay(short track, int mode);
 
 extern unsigned short XATrackClip[136];
 extern short XAFadeRate;
