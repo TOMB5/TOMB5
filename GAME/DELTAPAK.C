@@ -1,8 +1,10 @@
 #include "DELTAPAK.H"
 
 #include "CONTROL.H"
+#include "DRAW.H"
 #include "ITEMS.H"
 #include "OBJECTS.H"
+#include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 
@@ -140,51 +142,18 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 #if 1
 	struct ITEM_INFO* item; // $s1
 
-	int a0 = objnum;//guessed
-	int s0 = a0;
-
 	item = find_a_fucking_item(objnum);
 
-	//actually probably a table storing all initial item anims/frames?
-	//char* a00 = &objects[0]; //FIXME needs init
-	s0 <<= 6;
-	//char* s00 = &objects[s0];
+	item->anim_number = *(short*) &objects[(objnum << 6) + 38];//0x237, basically objects[objnum]+38
+	item->frame_number = anims[item->anim_number].frame_base;
+	RemoveActiveItem((int) (item - &items[0]));//index into items passed?
 
-	//s1 = v0;//?
-	//v1 = s0[0x26];
-	//v0 = &anims[0];
-	//a2 = &items[0];
-	//s1[0x14] = v1;//short store
-	//v1 <<= 16;
-	//v1 >>=16;
-	//a1 = v1 << 2;
-	//a1 += v1;
-	//a1 <<= 3;
-	//a1 += v0;
-	//a2 = s1 - a2;
-	//v0 = a2 << 3;
-	//v0 -= a2;
-	//v1 = v0 << 6;
-	//v0 += v1;
-	//v0 <<= 3;
-	//v0 += a2;
-	//a0 = v0 << 15;
-	//a0 -= v0;
-	//a0 <<= 3;
-	//a0 += a2;
-	//a0 <<= 12;
-	//v0 = a1[0x18]//short
-	//a0 >>= 16;
-	//s1[0x16] = v0; //store half
-	RemoveActiveItem(0);
-	//v0 = s1;
-	//v1 = s1[0x28]//half
-	//a0 = s1[0x84]//word
-	//v1 &= 0xC1FF;
-	//s1[0x28] = v1;//half
-	//v1 = -7;
-	//a0 &= v1;
-	//s1[0x84] = a0//word
+	item->flags &= 0xC1FF;
+#if 0
+	int test = *(int*) item->active;
+	test &= -7;
+	*(int*) item->active = test;
+#endif
 #endif
 	return item;
 }
