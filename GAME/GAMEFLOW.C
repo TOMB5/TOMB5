@@ -656,7 +656,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 #endif
 
 	}//loc_10A58 @FIXME original game has infinite loop if XAVolume != 0
-
+	assert(0);//temporary
 }
 
 void DoLevel(unsigned char Name, unsigned char Audio)

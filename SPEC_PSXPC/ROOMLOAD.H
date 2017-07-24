@@ -3,7 +3,10 @@
 
 #include "PSXTYPES.H"
 
-struct FLOOR_INFO {
+#pragma pack(push, 1)
+
+struct FLOOR_INFO
+{
 	unsigned short index; // size=0, offset=0
 	unsigned short fx : 4; // offset=2.0
 	unsigned short box : 11; // offset=2.4
@@ -67,6 +70,8 @@ struct room_info
 	short flipped_room;
 	unsigned short flags;
 };
+
+#pragma pack(pop)
 
 void S_LoadLevelFile(int Name);
 

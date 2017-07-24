@@ -6,7 +6,7 @@ unsigned char wanky_secrets_table[18]; // offset 0x92BD4
 short options_table[99]; // offset 0x933B8
 short optmessages[11]; // offset 0x93480
 //struct COMBINELIST dels_handy_combine_table[24]; // offset 0x93498
-int GLOBAL_enterinventory; // offset 0xA0B30
+int GLOBAL_enterinventory = -1; // offset 0xA0B30
 int GLOBAL_inventoryitemchosen; // offset 0xA0B34
 int GLOBAL_lastinvitem; // offset 0xA0B2C
 short examine_mode; // offset 0xA0B28

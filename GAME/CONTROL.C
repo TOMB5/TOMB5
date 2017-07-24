@@ -1,6 +1,7 @@
 #include "CONTROL.H"
 
 #include "DELTAPAK.H"
+#include "DRAWPHAS.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "NEWINV2.H"
@@ -24,7 +25,7 @@ unsigned short GlobalCounter;
 char TriggerTimer;
 int reset_flag;
 short SlowMotion;
-short SlowMoFrameCount;
+short SlowMoFrameCount = 16;
 unsigned char InItemControlLoop;
 short ItemNewRoomNo;
 short SmashedMeshCount;
@@ -82,7 +83,7 @@ char globoncuttrig;
 short ItemNewRooms[256][2];
 struct CHARDEF CharDef[106];
 
-long ControlPhase(long nframes, int demo_mode)//1D538, 1D6CC
+long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 {
 	int s0 = nframes;
 	int v0 = SlowMotion;
@@ -91,60 +92,73 @@ long ControlPhase(long nframes, int demo_mode)//1D538, 1D6CC
 
 	if (SlowMotion == 0)
 	{
-		SlowMotion--;
-		if (SlowMoFrameCount < 40)
+		//******************** VERIFIED v
+
+		if (SlowMoFrameCount > 16)
 		{
-			//loc_1D5C8
-			SlowMoFrameCount++;
-		}//loc_1D5CC
-	}
-	else//loc_1D5B4
-	{
-		if (SlowMoFrameCount > 17)
-		{
-			//loc_1D5C8
 			SlowMoFrameCount--;
 		}
-	}
 
-	//loc_1D5CC
-	v0 = SlowMoFrameCount;//check
-	v0 <<= 16;
-	v0 >>= 19;
+		RegeneratePickups();
 
-	if (nframes < v0)
-	{
-		while (s0 < v0)
+		if (nframes > 11)
 		{
-
-			//loc_1D5E8:
-#ifdef PSX
-			VSync(0);
-#endif
-			s0++;
+			nframes = 10;
 		}
+
+		if (bTrackCamInit != 0)
+		{
+			bUseSpotCam = 0;
+		}
+		//******************** VERIFIED ^
 	}
-
-	//loc_1D60C
-	int frameCountTemp = 2;//$s0
-	GnLastFrameCount = 0;
-
-	//loc_1D618
-	RegeneratePickups();
-
-	if (frameCountTemp > 11)
+	else
 	{
-		frameCountTemp = 10;;
-	}
+		//******************** NOT VERIFIED v
+		SlowMotion--;
 
-	//loc_1D630
-	if (bTrackCamInit != 0)
-	{
-		bUseSpotCam = 0;
+		if (SlowMoFrameCount > 39)
+		{
+			SlowMoFrameCount = 1;
+		}
+		
+		//loc_1D5CC
+		if (!(((SlowMoFrameCount << 16) >> 19) < nframes))
+		{
+			while (((SlowMoFrameCount << 16) >> 19) < nframes)
+			{
+#ifdef PSX
+				VSync(0);
+#endif
+				nframes++;
+			}
+		}
+
+		//loc_1D60C
+		nframes = 2;
+		GnLastFrameCount = 0;
+
+		//What?
+		if (nframes > 10)
+		{
+			nframes = 10;
+		}//loc_1D630
+
+
+		//loc_1D618
+		RegeneratePickups();
+
+		if (bTrackCamInit != 0)
+		{
+			bUseSpotCam = 0;
+		}
+
+		//******************** NOT VERIFIED^
 	}
 
 	//loc_1D64C
-	framecount += frameCountTemp;
+	//******************** VERIFIED v
+	framecount += nframes;
 	SetDebounce = 1;
 
 	if (framecount <= 0)
@@ -158,11 +172,14 @@ long ControlPhase(long nframes, int demo_mode)//1D538, 1D6CC
 		return 0;
 	}
 
+	//******************** VERIFIED ^
+
 	//loc_1D684
 	GlobalCounter++;
-	///UpdateSky();
+	UpdateSky();
 	S_UpdateInput();
 
+	assert(0);//temporary
 	if (bDisableLaraControl != 0)
 	{
 		//Not title

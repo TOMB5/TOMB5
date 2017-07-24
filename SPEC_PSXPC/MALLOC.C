@@ -107,7 +107,7 @@ void show_game_malloc_totals()//5E894(<), *
 		total += 1023;
 	}
 
-	printf("---->Total Memory Used %dK of %dK<----", used / 1024, total / 1024);
+	printf("---->Total Memory Used %dK of %dK<----\n", used / 1024, total / 1024);
 }
 
 /*

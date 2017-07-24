@@ -1,6 +1,23 @@
 #ifndef PSXINPUT_H
 #define PSXINPUT_H
 
+#define L2       (1 << 0)
+#define R2       (1 << 1)
+#define L1       (1 << 2)
+#define R1       (1 << 3)
+#define TRIANGLE (1 << 4)
+#define CIRCLE   (1 << 5)
+#define CROSS    (1 << 6)
+#define SQUARE   (1 << 7)
+#define SELECT   (1 << 8)
+#define UNK_9    (1 << 9)
+#define UNK_10   (1 << 10)
+#define START    (1 << 11)
+#define UP       (1 << 12)
+#define RIGHT    (1 << 13)
+#define DOWN     (1 << 14)
+#define LEFT     (1 << 15)
+
 struct pad_configs
 {
 	unsigned long pad_L2;

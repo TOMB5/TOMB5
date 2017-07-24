@@ -2,5 +2,6 @@
 #define DRAWPHAS_H
 
 extern long DrawPhaseGame();
+extern void UpdateSky();
 
 #endif
