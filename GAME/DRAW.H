@@ -1,6 +1,25 @@
 #ifndef DRAW_H
 #define DRAW_H
 
+struct ANIM_STRUCT
+{
+	short* frame_ptr;
+	short interpolation;
+	short current_anim_state;
+	long velocity;
+	long acceleration;
+	long Xvelocity;
+	long Xacceleration;
+	short frame_base;
+	short frame_end;
+	short jump_anim_num;
+	short jump_frame_num;
+	short number_changes;
+	short change_index;
+	short number_commands;
+	short command_index;
+};
+
 extern short LightningSFXDelay;
 extern struct room_info* room;
 extern short number_rooms;

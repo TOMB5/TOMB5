@@ -6,18 +6,22 @@
 
 int FILE_Load(char* szFileName, void* pDest)//, 5E5D8
 {
+	FILE* fileHandle = NULL;
+	long dwFileSize = 0;
+	unsigned long dwBytesRead = 0;
+
 	printf("Open\n");
-	FILE* fileHandle = fopen(szFileName, "rb");
+	fileHandle = fopen(szFileName, "rb");
 
 	if (fileHandle != NULL)
 	{
 		printf("Seek\n");
 		fseek(fileHandle, 0, SEEK_END);
-		long dwFileSize = ftell(fileHandle);
+		dwFileSize = ftell(fileHandle);
 		fseek(fileHandle, 0, SEEK_SET);
 
 		printf("Read\n");
-		unsigned long dwBytesRead = fread(pDest, 1, dwFileSize, fileHandle);
+		dwBytesRead = fread(pDest, 1, dwFileSize, fileHandle);
 
 		printf("Close\n");
 		fclose(fileHandle);
@@ -41,10 +45,11 @@ int FILE_Read(void* pDest, int nItemSize, int nItems, FILE* nHandle)//5E6A8,
 
 unsigned long FILE_Length(char* szFileName)//5E60C, 5E578
 {
+	FILE* fileHandle = NULL;
 	unsigned long dwFileSize = -1;
 
 	printf("Open\n");
-	FILE* fileHandle = fopen(szFileName, "rb");
+	fileHandle = fopen(szFileName, "rb");
 
 	if (fileHandle != NULL)
 	{

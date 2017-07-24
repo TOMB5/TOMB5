@@ -83,4 +83,6 @@ extern char friggrimmer2; // offset 0xA36E4
 extern char oldLaraBusy; // offset 0xA3774
 extern struct MENUTHANG current_options[3]; // offset 0xA3740
 
+extern int S_CallInventory2();
+
 #endif

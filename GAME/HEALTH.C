@@ -13,32 +13,15 @@ int FlashIt()//3AD2C, 3B22C
 	static int flash_state;
 	static int flash_count;
 
-#if 0//Illegal pointer ($gp+0x548)
-	int v0 = 0x548;
+	flash_count--;
 
-	if (v0 != 0)
+	if (flash_count != 0)
 	{
-		addiu	$v0, -1
-			sw	$v0, 0x548($gp)
-			j	loc_3AD5C
-			nop
-	}
-	else
-	{
-	loc_3AD48:
-		lw	$v0, 0x544($gp)
-			li	$v1, 5
-			sw	$v1, 0x548($gp)
-			xori	$v0, 1
-			sw	$v0, 0x544($gp)
+		flash_count = 5;
+		flash_state ^= 1;
 	}
 
-	loc_3AD5C :
-	lw	$v0, 0x544($gp)
-		jr	$ra
-		nop
-#endif
-		return -1;
+	return flash_state;
 }
 
 void InitialisePickUpDisplay()//3B580, 3B9DC

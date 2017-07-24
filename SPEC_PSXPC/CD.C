@@ -2,6 +2,7 @@
 
 #include "FILE.H"
 #include "GAMEWAD.H"
+#include "SPECIFIC.H"
 
 #include <stdio.h>
 #include <assert.h>
@@ -33,10 +34,10 @@ static int XATrackList[17][2];
 
 void /*$ra*/ cbvsync()
 { // line 2, offset 0x5d884
-	int ret; // $a1
-	unsigned char io[8]; // stack offset -16
+	//int ret; // $a1
+	//unsigned char io[8]; // stack offset -16
 	{ // line 86, offset 0x5daec
-		int cnt; // $v0
+		//int cnt; // $v0
 	} // line 93, offset 0x5db20
 } // line 120, offset 0x5dc10
 
@@ -63,7 +64,7 @@ void InitNewCDSystem()//5DDE8, 5E264(<)
 	//jal sub_66270 //CdPosToInt();
 #endif
 
-	char buf[10];
+	char buf[10];//FIXME
 	for (int i = 0; i < NUM_XA_FILES; i++)
 	{
 		sprintf(buf, XA_FILE_NAME, i + 1);
@@ -87,4 +88,16 @@ void InitNewCDSystem()//5DDE8, 5E264(<)
 	XATrack = -1;
 #endif
 
+}
+
+//Play audio track
+void S_CDPlay(short track, int mode)
+{
+	//unsigned char param[4];
+	S_Warn("[S_CDPlay] - unimplemented!\n");
+}
+
+void S_CDStop()
+{
+	S_Warn("[S_CDStop] - unimplemented!\n");
 }

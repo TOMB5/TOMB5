@@ -1,6 +1,5 @@
 #include "PSXINPUT.H"
 
-#if 0
 static struct pad_configs pad_cons[5];
 unsigned char DualShock;
 unsigned char PadConnected;
@@ -25,7 +24,9 @@ struct GouraudBarColourSet airBarColourSet;
 struct GouraudBarColourSet dashBarColourSet;
 
 void S_UpdateInput()//5F628, 6038C
-{ // line 2, offset 0x5f628
+{
+#if 0
+	// line 2, offset 0x5f628
 	int state; // $s1
 	unsigned char type; // $s2
 	unsigned long in; // $s0
@@ -82,7 +83,6 @@ void S_UpdateInput()//5F628, 6038C
 #endif
 	}
 
-
+#endif
 } // line 474, offset 0x600cc
 
-#endif

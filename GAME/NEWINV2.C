@@ -1,11 +1,12 @@
 #include "NEWINV2.H"
 
+#include "SPECIFIC.H"
 //struct INVOBJ inventry_objects_list[100]; // offset 0x92BE8
 unsigned char wanky_secrets_table[18]; // offset 0x92BD4
 short options_table[99]; // offset 0x933B8
 short optmessages[11]; // offset 0x93480
 //struct COMBINELIST dels_handy_combine_table[24]; // offset 0x93498
-int GLOBAL_enterinventory; // offset 0xA0B30
+int GLOBAL_enterinventory = -1; // offset 0xA0B30
 int GLOBAL_inventoryitemchosen; // offset 0xA0B34
 int GLOBAL_lastinvitem; // offset 0xA0B2C
 short examine_mode; // offset 0xA0B28
@@ -81,3 +82,22 @@ char friggrimmer; // offset 0xA36D4
 char friggrimmer2; // offset 0xA36E4
 char oldLaraBusy; // offset 0xA3774
 //struct MENUTHANG current_options[3]; // offset 0xA3740
+
+int S_CallInventory2()
+{
+	S_Warn("[S_CallInventory2] - Unimplemented!\n");
+#if 0
+	short flag; // $s2
+	int return_value; // $s3
+	{ // line 291, offset 0x3bd3c
+		int val; // $s0
+	} // line 335, offset 0x3be20
+	{ // line 387, offset 0x3bf3c
+		short room_number; // stack offset -32
+		struct ITEM_INFO *item; // $s0
+		int val; // $a1
+	} // line 415, offset 0x3c000
+#endif
+
+	return -1;
+}
