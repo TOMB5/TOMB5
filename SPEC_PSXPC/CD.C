@@ -96,3 +96,8 @@ void S_CDPlay(short track, int mode)
 	//unsigned char param[4];
 	S_Warn("[S_CDPlay] - unimplemented!\n");
 }
+
+void S_CDStop()
+{
+	S_Warn("[S_CDStop] - unimplemented!\n");
+}

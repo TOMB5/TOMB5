@@ -38,4 +38,7 @@ extern struct DRIP_STRUCT Drips[32]; // offset 0xA85FC
 extern struct SHOCKWAVE_STRUCT ShockWaves[16]; // offset 0xA7C3C
 extern struct FIRE_LIST fires[32]; // offset 0xA8D7C
 
+void SetFadeClip(short height, short speed);
+void SetScreenFadeOut(long fadespeed, long fadeback);
+
 #endif

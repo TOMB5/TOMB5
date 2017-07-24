@@ -108,7 +108,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538, 1D6CC
 	}
 
 	//loc_1D5CC
-	v0 = SlowMoFrameCount;
+	v0 = SlowMoFrameCount;//check
 	v0 <<= 16;
 	v0 >>= 19;
 
@@ -232,7 +232,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538, 1D6CC
 		{
 			if (input == 0)
 			{
-				if (Gameflow->InputTimeout > NoInput)
+				if (Gameflow->InputTimeout > NoInput)//bad check
 				{
 					NoInput++;
 					return 1;

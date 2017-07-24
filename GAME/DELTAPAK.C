@@ -3,12 +3,17 @@
 #include "CD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
+#include "GAMEFLOW.H"
 #include "ITEMS.H"
+#include "LARA.H"
 #include "OBJECTS.H"
+#include "PROFILE.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
+#include "TOMB4FX.H"
 
+#include <assert.h>
 #include <stddef.h>
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45];
@@ -214,7 +219,196 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 
 void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 {
-	S_Warn("[handle_cutseq_triggering] - Unimplemented!\n");
+	int s1 = name;//guessed, moved but not used
+	
+	if (cutseq_num == 0)
+	{
+		int a1 = 0;//Must confirm initial value.
+		if (cutseq_trig == 0)
+		{
+			if (lara.gun_status == 0)
+			{
+				if (lara.gun_type == 7)
+				{
+					a1 = -1;
+				}//loc_2C448
+			}
+			else
+			{
+				//loc_2C41C
+				if (lara.gun_type != 1)
+				{
+					lara.gun_status = 3;
+				}
+
+				//loc_2C430
+				if (lara.gun_status != 1)
+				{
+					lara.gun_status = 3;
+				}
+
+				//loc_2C444
+				a1 = -1;
+			}
+
+			//loc_2C448
+			//loc_2C454
+			for (int i = 0; i < 9; i++)//TODO const
+			{
+				cutseq_meshswapbits[i] = 0;
+				cutseq_meshbits[i] = a1;
+			}
+
+			cutseq_trig = 1;
+			cutseq_busy_timeout = 50;
+
+			//Not title
+			if (gfCurrentLevel != 0)
+			{
+				SetFadeClip(28, 1);
+			}
+
+			//loc_2C494
+			if (ScreenFadedOut == 0)
+			{
+				//Not title
+				if (gfCurrentLevel != 0)
+				{
+					XAReqVolume = 0;
+				}
+
+				//loc_2C4C8
+				SetScreenFadeOut(16, 0);
+			}
+
+			//loc_2C4D0
+#ifdef INTERNAL
+			ProfileDraw = 0;
+#endif
+		}
+		else
+		{
+			if (cutseq_num == 1)
+			{
+				struct ITEM_INFO* v00 = lara_item;
+				int v1 = ScreenFadedOut;
+				int a0 = v00->current_anim_state;
+				int a1 = 0;
+
+				if (ScreenFadedOut != 0)
+				{
+					cutseq_busy_timeout--;
+
+					if ((cutseq_busy_timeout & 0xFF) == 0)
+					{
+						cutseq_busy_timeout = 0;
+						a1 = 1;
+
+					}//j loc_2C588
+					else
+					{
+						//loc_2C52C
+						if (lara.gun_status != 1 && lara.gun_status == 0 && lara.flare_control_left != 0)
+						{
+							//loc_2C55C
+
+							if ((lara_item->current_anim_state - 80) > 2 ||
+								(lara_item->current_anim_state - 80) != 84 ||
+								(lara_item->current_anim_state - 80) != 85 ||
+								(lara_item->current_anim_state - 80) == 86)
+							{
+								//2C584
+								a1 = 1;
+							}
+
+						}
+						//loc_2C584 - may merge
+						a1 = 1;
+					}
+				}
+
+				//loc_2C588
+				if (a1 == 0)
+				{
+					//loc_2CA50 cpy
+					return;
+				}
+
+				lara.IsClimbing = 0;
+				lara.flare_age = 0;
+
+				if ((gfLevelFlags & 1))
+				{
+
+					lara.gun_type = 0;
+					lara.request_gun_type = 0;
+					lara.last_gun_type = 0;
+
+					if (((*(int*) &objects[0x53B0]) & 1) != 0 && lara.pistols_type_carried != 0)
+					{
+						//loc_2C5FC
+						lara.last_gun_type = 1;
+					}
+					else
+					{
+						//loc_2C5F4
+						lara.last_gun_type = 0;
+					}
+
+					//loc_2C600
+					if ((gfLevelFlags & 0x80) != 0)
+					{
+						if (((*(int*) &objects[0x5670]) & 0x10000) != 0)
+						{
+							if ((objects[0x5670 + 0x121] & 1) != 0)
+							{
+								int v0000 = 5;
+								///TODO:
+								assert(0);
+							}//loc_2C644
+						}//loc_2C648
+
+					}//loc_2C644
+
+					//assert(0);//intentional, not finished!
+					S_Warn("[handle_cutseq_triggering] - Unimplemented condition! loc_2C644\n");
+
+				}//loc_2C6E4
+
+			}//loc_2C79C
+			
+			if (gfCurrentLevel != 3)
+			{
+				//2C7DC
+				if (gfCurrentLevel == 4 && ScreenFadedOut != 0)
+				{
+					if (gfCurrentLevel != 0)
+					{
+						S_CDStop();
+
+					}//loc_2C818
+
+					//loc_2C818
+					assert(0);//Data is malformed in IDA output, also jalr	$v0 must be debugged on emu.
+
+				}//loc_2CA50
+
+			}///@CHECK does jump to loc_2CA50 at end?
+			else
+			{
+				SetScreenFadeOut(16, 1);
+
+				if (gfCurrentLevel != 0)
+				{
+					XAReqVolume = 0;
+				}//loc_2C7D0
+
+				//loc_2C7D0
+				cutseq_trig = 4;
+			}//loc_2CA50
+		}
+	}
+	return;
 }
 
 struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
