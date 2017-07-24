@@ -410,7 +410,7 @@ void RelocateLevel()//?, B3B50(<)
 					v000 <<= 2;
 
 					char* v0000 = &s7[v000];
-					*(int*) v0000 = (int) s22;
+					*(int**) v0000 = (int*)s22;
 				}
 			}
 		}//0xB4228
