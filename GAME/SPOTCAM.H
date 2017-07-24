@@ -3,8 +3,6 @@
 
 #include "CAMERA.H"
 
-void InitSpotCamSequences();
-
 #pragma pack(push,1)
 
 struct SPOTCAM
@@ -75,5 +73,8 @@ extern struct PHD_VECTOR InitialCameraTarget;
 extern struct PHD_VECTOR LaraFixedPosition;
 extern short InitialCameraRoom;
 extern struct QUAKE_CAM quakecam;
+
+void InitSpotCamSequences();
+void InitialiseSpotCam(short Sequence);
 
 #endif

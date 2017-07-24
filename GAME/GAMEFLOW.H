@@ -20,6 +20,7 @@ struct GAMEFLOW
 	unsigned long Language : 3;
 	unsigned long DemoDisc : 1;
 	unsigned long Unused : 24;
+
 	unsigned long InputTimeout;
 	unsigned char SecurityTag;
 	unsigned char nLevels;
@@ -40,6 +41,19 @@ struct STRINGHEADER
 };
 
 #pragma pack(pop)
+
+enum gf_languages
+{
+	ENGLISH,
+	FRENCH,
+	GERMAN,
+	ITALIAN,
+	SPANISH,
+	US,
+	JAPAN,
+	DUTCH,
+	NUM_GF_LANGUAGES
+};
 
 extern unsigned char gfGameMode;
 extern unsigned char gfNumMips;

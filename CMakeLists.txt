@@ -7,6 +7,9 @@ set(PLATFORM_PSX 0 CACHE BOOL "Tomb Raider: 5 PlayStation")
 set(PLATFORM_PSXPC 1 CACHE BOOL "Tomb Raider: 5 PlayStation (PC)")
 set(PLATFORM_PC 0 CACHE BOOL "Tomb Raider: 5 PC")
 
+#Internal Beta
+set(INTERNAL 0 CACHE BOOL "Internal")
+
 #MESSAGE(STATUS "PLATFORM_PSXPC: TRUE" ${PLATFORM_PSXPC})
 
 #Platform specific
@@ -18,12 +21,18 @@ endif (PLATFORM_PSX)
 if (PLATFORM_PSXPC)
 	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PSXPC")
 	add_definitions(-DPSXPC)
+	#add_library(SETUP SHARED ${PLATFORM_SPECIFIC_DIR}/SETUP.C ${PLATFORM_SPECIFIC_DIR}/GAMEWAD.C ${PLATFORM_SPECIFIC_DIR}/MALLOC.C ${PLATFORM_SPECIFIC_DIR}/LOAD_LEV.C ${PLATFORM_SPECIFIC_DIR}/ROOMLOAD.C ...)
 endif (PLATFORM_PSXPC)
 
 if (PLATFORM_PC)
 	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PC")
 	add_definitions(-DPC)
 endif (PLATFORM_PC)
+
+#Internal beta pre-processor definition
+if (INTERNAL)
+	add_definitions(-DINTERNAL)
+endif (INTERNAL)
 
 string(CONCAT GAME_CODE_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/GAME")
 
@@ -51,6 +60,7 @@ PROPERTIES OUTPUT_NAME "MAIN"
 
 #This will be a console application, alter linker subsystem accordingly or main method won't be found
 if(MSVC)
+   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
    set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
    set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
    set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:CONSOLE")

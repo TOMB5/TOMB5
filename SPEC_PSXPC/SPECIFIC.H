@@ -28,5 +28,6 @@ extern short AnimatingTexturesV[16][8][3];
 
 void S_SoundStopAllSamples();
 void S_ExitSystem(char* exit_message);
+void S_Warn(char* warning_message);
 
 #endif

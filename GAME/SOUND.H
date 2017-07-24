@@ -6,6 +6,7 @@
 #define MAX_SOUND_SLOTS 24
 
 void SayNo();
+void SOUND_Init();
 void SOUND_Stop();
 
 struct SAMPLE_INFO

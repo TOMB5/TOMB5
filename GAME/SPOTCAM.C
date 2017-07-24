@@ -1,5 +1,7 @@
 #include "SPOTCAM.H"
 
+#include "SPECIFIC.H"
+
 int bUseSpotCam;
 int bDisableLaraControl;
 int bTrackCamInit;
@@ -42,64 +44,50 @@ struct PHD_VECTOR LaraFixedPosition;
 short InitialCameraRoom;
 struct QUAKE_CAM quakecam;
 
-void InitSpotCamSequences()//374B8, 379B8
+void InitSpotCamSequences()//374B8(<), 379B8(<)
 {
-	int s; // $a2
-	int cc; // $a3
-	int n; // $a1
-	int ce; // $t0
+	int s, cc, n, ce;
 
-	short a1 = number_spotcams;// number_spotcams;
+	n = number_spotcams;
 	bTrackCamInit = 0;
 
-	if (a1 != 0)
+	//Current camera
+	cc = 1;
+
+	if (n != 0)
 	{
-		int a3 = 1;
-		int t0 = 0;
-		
-		int t3 = 0x000A0000;
-		struct SPOTCAM *a0 = SpotCam;
+		ce = 0;
+		struct SPOTCAM* sc = SpotCam;
 
-		char a2 = 0;// a0->sequence;
+		s = sc->sequence;
 
-		if (a3 < a1)
+		if (cc < n)
 		{
-			unsigned char* t2 = &CameraCnt[0];
-			unsigned char* t1 = &SpotRemap[0];
+			sc++;
+			n--;
 
-			a0++;
-			a1 -= 1;//?not required?
-
-			//loc_374F8:
-			for (int i = 0; i < a1; i++)
+			for (int i = 0; i < n; i++, sc++)
 			{
-				unsigned char v00 = a0->sequence;
+				cc++;
 
-				//loc_37510
-				int t0 = 0;//fixme
-
-				unsigned char* v000 = &t2[t0];//fixme why take a0 sequence then add
-
-				if (v00 != a2)
+				if (sc->sequence != s)
 				{
-					a3 += 1;
-					v000[0] = a3;//byte not int, fixme
-					a3 = 0;
-					v000 = &t1[a2];
-					v000[0] = t0;//byte not int, fix me!
-					t0++;
-					a2 = a0->sequence;
+					CameraCnt[ce] = cc;
+					cc = 1;
+
+					SpotRemap[s] = ce++;
+
+					s = sc->sequence;
 				}
 			}
 
-
-			a0++;
-			//loc_37534
-			char* v0000 = (char*)&current_spline_camera;//ptr?
-			v0000 = &v0000[t0];//index into current_spline_camera
-			unsigned char* v1111 = &SpotRemap[a2];
-			v0000[0] = a3;
-			v1111[0] = t0;
+			CameraCnt[ce] = cc;
+			SpotRemap[s] = ce;
 		}
 	}
+}
+
+void InitialiseSpotCam(short Sequence /*$s0*/)//37648, 37B48
+{
+	S_Warn("[InitialiseSpotCam] - Unimplemented!\n");
 }

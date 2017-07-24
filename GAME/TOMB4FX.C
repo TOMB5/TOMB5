@@ -1,5 +1,6 @@
 #include "TOMB4FX.H"
 
+#include "SPECIFIC.H"
 char flare_table[121]; // offset 0x92A6C
 char LaserSightActive; // offset 0xA09FC
 char LaserSightCol; // offset 0xA09FD
@@ -36,3 +37,13 @@ long LaserSightZ; // offset 0xA3270
 //struct DRIP_STRUCT Drips[32]; // offset 0xA85FC
 //struct SHOCKWAVE_STRUCT ShockWaves[16]; // offset 0xA7C3C
 //struct FIRE_LIST fires[32]; // offset 0xA8D7C
+
+void SetFadeClip(short height, short speed)
+{
+	S_Warn("[SetFadeClip] - Unimplemented!");
+}
+
+void SetScreenFadeOut(long fadespeed, long fadeback)
+{
+	S_Warn("[SetScreenFadeOut] - Unimplemented!");
+}

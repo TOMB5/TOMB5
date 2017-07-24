@@ -2,15 +2,21 @@
 
 #include "3D_GEN.H"
 #include "CAMERA.H"
+#include "CONTROL.H"
 #include "CD.H"
+#include "DELTAPAK.H"
 #include "DRAW.H"
+#include "DRAWPHAS.H"
 #include "FILE.H"
 #include "HEALTH.H"
 #include "MALLOC.H"
 #include "NEWINV2.H"
+#include "PSXINPUT.H"
 #include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
+#include "SPUSOUND.H"
+#include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
 
@@ -20,6 +26,8 @@
 //Temp
 #include "LOAD_LEV.H"
 #include <assert.h>
+
+#define GF_SCRIPT_FILENAME "SCRIPT.DAT"
 
 unsigned char gfGameMode;
 unsigned char gfNumMips;
@@ -73,10 +81,10 @@ static unsigned long OldSP;
 unsigned char gfPickups[16];
 unsigned char gfTakeaways[16];
 
-void DoGameflow()//10F5C, 10FD8
+void DoGameflow()//10F5C(<), 10FD8(<)
 {
-	unsigned char *gf;
-	unsigned char n;
+	//unsigned char *gf;
+	//unsigned char n;
 
 	LoadGameflow();
 #ifdef PSX
@@ -86,21 +94,12 @@ void DoGameflow()//10F5C, 10FD8
 	S_PlayFMV(1);
 #endif
 
-#if 1
-	struct GAMEFLOW* v1 = Gameflow;
-
 	num_fmvs = 0;
 	fmv_to_play[0] = 0;
 	fmv_to_play[1] = 0;
 
-	//? Since when did gf flags store the current level?
-	//FIXME!
-	int v0 = *(int*)v1;
-	v0 >>= 2;
-	v0 &= 1;
-	v0 = v0 < 1 ? 1 : 0;
-
-	gfCurrentLevel = v0;
+	//The game's title is disabled in Gameflow script. Automatically override the level id to 1 (skip it).
+	gfCurrentLevel = Gameflow->TitleEnabled == 0 ? 1 : 0;
 
 	//Current level's script offset
 	unsigned short* scriptOffsetPtr = gfScriptOffset + (gfCurrentLevel & 0xFF);
@@ -119,20 +118,16 @@ void DoGameflow()//10F5C, 10FD8
 		case 3://11048
 			break;
 		case 5://112B8
-			gfResidentCut[0] = *sequenceCommand;
-			sequenceCommand += 1;
+			gfResidentCut[0] = *sequenceCommand++;
 			break;
 		case 6://112CC
-			gfResidentCut[1] = *sequenceCommand;
-			sequenceCommand += 1;
+			gfResidentCut[1] = *sequenceCommand++;
 			break;
 		case 7:
-			gfResidentCut[2] = *sequenceCommand;
-			sequenceCommand += 1;
+			gfResidentCut[2] = *sequenceCommand++;
 			break;
 		case 8://112F4
-			gfResidentCut[3] = *sequenceCommand;
-			sequenceCommand += 1;
+			gfResidentCut[3] = *sequenceCommand++;
 			break;
 		case 9://1107C
 		{
@@ -141,26 +136,21 @@ void DoGameflow()//10F5C, 10FD8
 
 			LightningRGB[0] = *sequenceCommand;
 			LightningRGBs[0] = *sequenceCommand;
-			gfLayer2Col.r = *sequenceCommand;
-			sequenceCommand += 1;
+			gfLayer2Col.r = *sequenceCommand++;
 
-#ifdef _DEBUG
-			//internal beta is 0x2E
-			//GameTimer = 0x2E;
-#endif
-			LightningRGB[1] = *sequenceCommand;//*a3++;?
-			LightningRGBs[1] = *sequenceCommand;//*a3++;?
-			gfLayer2Col.g = *sequenceCommand;//*a3++;?
-			sequenceCommand += 1;
-
+#ifdef INTERNAL
+			GameTimer = 46;
+#else
 			GameTimer = 44;
-			GlobalRoomNumber = *sequenceCommand;
-			//			GLOBAL_gunflash_meshptr = *sequenceCommand;
-			gfLayer1Col.cd = *sequenceCommand;
-			sequenceCommand += 1;
+#endif
+			LightningRGB[1] = *sequenceCommand;
+			LightningRGBs[1] = *sequenceCommand;
+			gfLayer2Col.g = *sequenceCommand++;
 
-			gfLayer1Vel = *sequenceCommand;
-			sequenceCommand += 1;
+			GlobalRoomNumber = *sequenceCommand;
+			//GLOBAL_gunflash_meshptr = *sequenceCommand;
+			gfLayer1Col.cd = *sequenceCommand++;
+			gfLayer1Vel = *sequenceCommand++;
 			break;
 		}
 		default://11550
@@ -168,16 +158,13 @@ void DoGameflow()//10F5C, 10FD8
 			break;
 		}
 	}
-
-#endif
-
 }
 
 void LoadGameflow()//102E0, 102B0
 {
-	int len = FILE_Length("SCRIPT.DAT");
+	int len = FILE_Length(GF_SCRIPT_FILENAME);
 	char* s = game_malloc(len);
-	FILE_Load("SCRIPT.DAT", s);
+	FILE_Load(GF_SCRIPT_FILENAME, s);
 
 	Gameflow = (struct GAMEFLOW*)s;
 	s += sizeof(struct GAMEFLOW);
@@ -213,7 +200,7 @@ void LoadGameflow()//102E0, 102B0
 	}
 #else
 	//Safer code (no inf loop).
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < NUM_GF_LANGUAGES; i++)
 	{
 		if (FILE_Length((char*)s) != -1)
 		{
@@ -233,10 +220,10 @@ void LoadGameflow()//102E0, 102B0
 	memcpy(&sh, gfStringOffset, sizeof(struct STRINGHEADER));
 	memcpy(gfStringOffset, gfStringOffset + (sizeof(struct STRINGHEADER) / sizeof(unsigned short)), (sh.nStrings + sh.nPSXStrings) * sizeof(unsigned short));
 
-#ifdef _DEBUG
-	//Internal Beta
-	//memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 317, sh.StringWadLen + sh.PSXStringWadLen);
-	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 315, sh.StringWadLen + sh.PSXStringWadLen);
+	gfStringWad = (char*)(gfStringOffset + (sh.nStrings + sh.nPSXStrings));
+
+#ifdef INTERNAL
+	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 317, sh.StringWadLen + sh.PSXStringWadLen);
 #else
 	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 315, sh.StringWadLen + sh.PSXStringWadLen);
 #endif
@@ -276,9 +263,6 @@ void LoadGameflow()//102E0, 102B0
 
 				switch (op)
 				{
-				case 0:
-					sequenceCommand += 1;
-					break;
 				case 1:
 					gfLevelNames[i] = *sequenceCommand;
 					sequenceCommand += 5;
@@ -291,6 +275,7 @@ void LoadGameflow()//102E0, 102B0
 				case 3:
 					endOfSequence = 1;
 					break;
+				case 0:
 				case 4:
 				case 5:
 				case 6:
@@ -395,90 +380,283 @@ void LoadGameflow()//102E0, 102B0
 	}
 }
 
-void QuickControlPhase()
+void QuickControlPhase()//10274(<), 10264(<)
 {
+#ifdef INTERNAL
+	ProfileRGB(255, 255, 255);
+#endif
+
+#ifdef PSX
+	//OldSP = SetSp(0x1F8003E0);
+#endif
+
+	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
+
+#ifdef PSX
+	SetSp(OldSP);
+#endif
+
+#ifdef INTERNAL
+	ProfileRGB(0, 0, 0);
+#endif
 }
 
-void DoTitle(unsigned char Name, unsigned char Audio)//10604, 105C4
+void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 {
-
-#if 1
-	int i;
-	struct GAMEFLOW* v1 = Gameflow;
-
-	int at = 0x000A0000;//?
+	//int i;
 	CreditsDone = 0;
 	CanLoad = 0;
 
-	int v0 = ((*(int*)Gameflow) << 1) & 1;
+	int a0 = Name;//most likely
 
-	//beq 10648
-	if (v0 == 0)
+	if (Gameflow->LoadSaveEnabled)
 	{
-		//TODO
+		int s1 = a0 & 0xFF;
+#ifdef PSX
+		mcOpen(1);
+#endif
 	}
 
-	int a0 = 0;//?param?
-	int s1 = a0 & 0xFF;
-
-	//a0 = 1;
-#ifdef PSX
-	mcOpen();
-#endif
-
-	struct savegame_info* s0 = &savegame;
-	a0 = s0->Level.Timer;
-
-	int a1 = 0;
+	int s1 = 0;//?
 
 	num_fmvs = 0;
-	fmv_to_play[0] = 0;
 	fmv_to_play[1] = 0;
+	fmv_to_play[0] = 0;
 
-	XAMasterVolume = s0->VolumeCD;
+	XAMasterVolume = savegame.VolumeCD;
 
-	sizeof(struct STATS);
 	memset(&savegame.Level, 0, sizeof(struct STATS));
-
-	a0 = s0->Game.Timer;
-	a1 = 0;
 	memset(&savegame.Game, 0, sizeof(struct STATS));
 
-	S_LoadLevelFile(s1);//check param
+	S_LoadLevelFile(Name);
 
-						//move	$a0, $s1
 	GLOBAL_lastinvitem = -1;
 	dels_cutseq_player = 0;
+
 	InitSpotCamSequences();
+
 	title_controls_locked_out = 0;
+
 	InitialisePickUpDisplay();
 
 	phd_InitWindow(90);
+
 	SOUND_Stop();
-	//IsAtmospherePlaying = 0;//control.h
-	///S_SetReverbType();
-	a0 = 1;
+
+	IsAtmospherePlaying = 0;
+	S_SetReverbType(1);
+
 	InitialiseCamera();
-	v0 = bDoCredits;
 
-	//bnez	$v0, loc_10730//bdocredits
-	a0 = 0x20;
-	///trigger_title_spotcam();
-	a0 = 1;
-	ScreenFadedOut = 0;
-	ScreenFade = 0;
-	dScreenFade = 0;
-	ScreenFadeBack = 0;
-	ScreenFadeSpeed = 8;
-	ScreenFading = 0;
-	//j	loc_10764
+	if (!bDoCredits)
+	{
+		//Ugly hardcoded start camera id
+		trigger_title_spotcam(1);
+		ScreenFadedOut = 0;
+		ScreenFade = 0;
+		dScreenFade = 0;
+		ScreenFadeBack = 0;
+		ScreenFadeSpeed = 8;
+		ScreenFading = 0;
+	}
+	else
+	{
+		//loc_106EC
+		cutseq_num = 28;
+		SetFadeClip(1, 1);
+		ScreenFadedOut = 1;
+		ScreenFade = -1;
+		dScreenFade = -1;
 
-	///Retail 0x001088C - jal sub_645E0 DrawPhaseGame renders screen
-#else
-
-	dump_game_malloc();
-	assert(0);
+#ifndef INTERNAL
+		S_CDPlay(111, 1);
 #endif
+	}
+	//j 10730
+#ifndef INTERNAL
+	a0 = 2;
+#endif
+	struct ITEM_INFO* v1 = lara_item;//?
+	bUseSpotCam = 1;
+	gfGameMode = 1;
+
+	//#ifdef INTERNAL
+	show_game_malloc_totals();
+	a0 = 2;//?
+//#endif
+
+	gfLevelComplete = 0;
+	nframes = 2;
+	int a1 = 0;//second arg?
+	gfStatus = ControlPhase(nframes, 0);//@args todo @ret v0
+	JustLoaded = 0;
+
+	int v0 = 0x001F0000;
+	if (gfStatus == 0)
+	{
+#ifdef INTERNAL
+		int s2 = v0 - 0x2240;
+		int s0 = 1;
+#else
+		int s0 = v0 - 0x630;
+#endif
+
+		while (gfStatus == 0)
+		{
+#ifdef PSX
+			GPU_BeginScene();
+#endif
+
+			if (bDoCredits)
+			{
+				//0x10790
+
+			}//0x107CC
+
+			if (GLOBAL_playing_cutseq == 0 && !bDoCredits && ScreenFading == 0 && cutseq_num == 0)
+			{
+
+#ifdef INTERNAL
+				long v00 = RawPad & 0x201;
+				if (RawPad & 0x201 == 0x201)//Debug Cheat?
+				{
+					dels_cutseq_selector_flag = 0;///@FIXME $s0, !0
+				}//0x10868
+
+				/*Merge vvvvvvvvvvvvvv*/
+				int* v1 = &s2[0x34];//buff?
+				CreditsDone = 1;
+				int v0 = *v1;
+				//a0 = s1;
+				//jalr $v0 ///@critical unknown module
+
+				gfStatus = v0;//v0 is ret of jalr v0
+
+				bnez	$v0, loc_10A24
+
+#else
+				/*With Me ^^^^^^^^^^^^^*/
+				//int* v1 = &s0[0x34];//buff?
+				///byte_A3FF0 = 1; //Credits done?
+				//int v0 = *v1;
+				//a0 = s1;
+				//	jalr	$v0 ///@critical unknown module //0x1081C!! Setup.mod?
+				//	sw	$v0, 0x11B8($gp)//TODO gfStatus?
+
+				///@FIXME temp
+				v0 = 0;
+				if (v0 == 0)
+				{
+
+					if (GLOBAL_playing_cutseq != 0)
+					{
+						///@RETAIL, loc_10844
+						///@INTERNAL loc_108A4
+						S_Warn("[DoTitle] - Reached unimplemented condition!\n");
+					}
+
+				}//0x109C8
+#endif
+
+
+			}//0x10844
+
+			 ///@loc_1088C (IB - loc_108EC)
+			nframes = DrawPhaseGame();
+
+			if (PadConnected == 0)//0x108A0
+			{
+				int x = 256;
+				int y = 128;
+
+				//int a2 = 3; //?
+
+#ifdef INTERNAL
+				char* controllerRemovedString = gfStringWad + gfStringOffset[221];
+#else
+				char* controllerRemovedString = gfStringWad + gfStringOffset[219];
+#endif
+				//int v0 = 4096;//?
+
+				///PrintString(x, y, controllerRemovedString); //FIXME: IDA did not dump me :-)
+				printf("%s\n", controllerRemovedString);
+
+			}//0x108CC
+
+			handle_cutseq_triggering(Name);
+
+			///@TODO figure const.
+			if (gfGameMode == 2)//0x108DC
+			{
+				if ((dbinput & 0x100) == 0 && GLOBAL_enterinventory != -1)
+				{
+					//loc_10910
+					if (cutseq_trig == 0 && lara_item->hit_points > 0)
+					{
+						S_CallInventory2();
+					}
+				}
+
+			}
+			//0x10948
+			QuickControlPhase();
+
+			if (gfGameMode == 2 && ScreenFadedOut != 0)
+			{
+				InitialiseItemArray(256);//TODO const
+
+				if (number_rooms > 0)
+				{
+					for (int i = 0; i < number_rooms; i++)
+					{
+						room[i].item_number = -1;
+					}
+				}//loc_109B0
+
+#ifdef INTERNAL
+				gfGameMode = s0;//loc_10A10
+#else
+				gfGameMode = 1;
+#endif
+			}
+
+			//loc_109B8
+			if (XAFadeRate == 0)
+			{
+				//loc_10778
+			}
+		}
+
+	}//0x109C8
+
+	Motors[0] = 0;
+	Motors[1] = 0;
+	
+	if (!Gameflow->LoadSaveEnabled)
+	{
+		//mcClose();
+	}
+
+	//loc_109FC
+	XAReqVolume = 0;
+
+	if (XAVolume == 0)
+	{
+		NoInput = 0;
+		S_SoundStopAllSamples();
+		S_CDStop();
+
+		bUseSpotCam = 0;
+		bDisableLaraControl = 0;
+#ifndef INTERNAL
+		if (gfLevelComplete == 1 && gfStatus != 2)
+		{
+			//sub_5E7A0(1, 2);//a1, a0
+		}
+#endif
+
+	}//loc_10A58 @FIXME original game has infinite loop if XAVolume != 0
+	assert(0);//temporary
 }
 
 void DoLevel(unsigned char Name, unsigned char Audio)
