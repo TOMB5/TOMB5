@@ -18,12 +18,9 @@ char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];
  * Resets malloc_buffer and all allocation stats back to their default values.
  * Note: The entire malloc_buffer is zero initialised.
  * Note: Once the gameflow script is loaded it's always in malloc_buffer regardless.
- * [USAGE]
- * @PARAM - [size] The amount of memory you wish to "allocate".
- * @RETURN - [ptr] Pointer to the memory block you just "allocated".
  */
 
-void init_game_malloc()//5E79C(<), 5F4F8
+void init_game_malloc()//5E79C(<), 5F4F8(<) (F)
 {
 	malloc_used = gfScriptLen;
 	malloc_free = GAME_MALLOC_BUFFER_SIZE - gfScriptLen;
@@ -42,13 +39,16 @@ void init_game_malloc()//5E79C(<), 5F4F8
  * @RETURN - [ptr] Pointer to the memory block you just "allocated".
  */
 
-char* game_malloc(int size)//5E7E8(<), 5F544
+char* game_malloc(int size)//5E7E8(<), 5F544(<) (F)
 {
+	char buf[80];
+	char* ptr = NULL;
+
 	size = (size + 3) & -4;
 
 	if (malloc_free > size)
 	{
-		char* ptr = malloc_ptr;
+		ptr = malloc_ptr;
 
 		malloc_free -= size;
 		malloc_ptr += size;
@@ -56,14 +56,14 @@ char* game_malloc(int size)//5E7E8(<), 5F544
 
 		return ptr;
 	}
+#ifdef INTERNAL
 	else
-	{
-		char buf[80];
+	{		
 		sprintf(buf, "game_malloc() out of space(needs %d only got %d", size, malloc_free);
 		S_ExitSystem(buf);
 	}
-
-	return NULL;
+#endif
+	return ptr;
 }
 
 /*
@@ -76,7 +76,7 @@ char* game_malloc(int size)//5E7E8(<), 5F544
  * @PARAM - [size] The amount of memory you wish to "free".
  */
 
-void game_free(int size)//5E85C(<), 5F590
+void game_free(int size)//5E85C(<), 5F590(<) (F)
 {
 	size = (size + 3) & -4;
 
@@ -90,15 +90,24 @@ void game_free(int size)//5E85C(<), 5F590
  * Prints the amount of free/used malloc_buffer memory to stdio in Kilobytes.
  */
 
-void show_game_malloc_totals()//5E894(<), * 
+void show_game_malloc_totals()//5E894(<), * (F)
 {
-	if (malloc_used >= 0)
+	int total;
+	int used;
+
+	used = malloc_used + 1023;
+	if (used < 0)
 	{
-		if (malloc_used + malloc_free >= 0)
-		{
-			printf("---->Total Memory Used %dK of %dK<----", malloc_used / 1024, malloc_used + malloc_free / 1024);
-		}
+		used += 1023;
 	}
+
+	total = malloc_used + malloc_free;
+	if (total < 0)
+	{
+		total += 1023;
+	}
+
+	printf("---->Total Memory Used %dK of %dK<----\n", used / 1024, total / 1024);
 }
 
 /*
@@ -109,11 +118,12 @@ void show_game_malloc_totals()//5E894(<), *
 
 void dump_game_malloc()//*, *
 {
-	FILE* fileHandle = fopen("DUMP.BIN", "wb");
+	FILE* fileHandle = NULL;
 
+	fileHandle = fopen("DUMP.BIN", "wb");
 	if (fileHandle != NULL)
 	{
-		fwrite(&malloc_buffer[0], 1, GAME_MALLOC_BUFFER_SIZE, fileHandle);
+		fwrite(&malloc_buffer[0], sizeof(char), GAME_MALLOC_BUFFER_SIZE, fileHandle);
 		fclose(fileHandle);
 	}
 	else

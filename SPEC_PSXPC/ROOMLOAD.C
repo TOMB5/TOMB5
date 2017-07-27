@@ -9,6 +9,8 @@
 #include "LOAD_LEV.H"
 #include "SETUP.H"
 
+#include <assert.h>
+
 #include <stdio.h>
 #include <string.h>
 
@@ -23,7 +25,7 @@ struct PSXSPRITESTRUCT* GLOBAL_default_sprites_ptr;
 struct PSXTEXTI* AnimatingWaterfalls[6];
 int AnimatingWaterfallsV[6];
 unsigned long envmap_data[6];
-unsigned long RelocPtr[128];
+unsigned long* RelocPtr[128];
 
 //FIXME (Retail)
 int dword_800A5F04 = 0;
@@ -32,7 +34,7 @@ int dword_800A60D8 = 0;
 
 void S_LoadLevelFile(int Name)//60188, 60D54(<)
 {
-#if 0 //Internal beta
+#ifdef INTERNAL
 	char buf[80];
 	unsigned long* mod;
 	FILE* file;
@@ -114,6 +116,8 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	PCopen();
 #else
 	file = fopen((const char*)file, buf);
+	assert(file);
+	fclose(file);
 #endif
 
 	a2 = 0;
@@ -122,6 +126,8 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 
 	///a1 = v1[0x14];
 	//Appears to execute code within SETUP.mod to serialise the level file?
+
+	RelocateLevel();
 
 	a0 = v0;
 	LOAD_Stop();

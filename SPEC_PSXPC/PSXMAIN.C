@@ -1,14 +1,14 @@
 #include <assert.h>
 
 #include "CD.H"
+#include "GAMEFLOW.H"
 //#include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "PROFILE.H"
+#include "SOUND.H"
 //#include "SPUSOUND.H"
-
-#include "GAMEFLOW.H"
-//#include "TEXT.H"
+#include "TEXT.H"
 
 unsigned long dword_9A884 = 0;
 
@@ -66,8 +66,11 @@ int main()//10064, 10064
 	CdInit();
 	CdSetDebug();
 #endif
+
+#ifndef INTERNAL
 	InitNewCDSystem();
-	
+#endif
+
 #ifdef PSX
 	CDDA_SetMasterVolume();
 	GPU_UseOrderingTables();
@@ -77,8 +80,8 @@ int main()//10064, 10064
 #endif
 
 	init_game_malloc();
-	//InitFont();
-	//SOUND_Init();
+	InitFont();
+	SOUND_Init();
 	DoGameflow();
 	return 0;
 }

@@ -2,6 +2,7 @@
 
 #include "FILE.H"
 #include "GAMEWAD.H"
+#include "SPECIFIC.H"
 
 #include <stdio.h>
 #include <assert.h>
@@ -87,4 +88,16 @@ void InitNewCDSystem()//5DDE8, 5E264(<)
 	XATrack = -1;
 #endif
 
+}
+
+//Play audio track
+void S_CDPlay(short track, int mode)
+{
+	//unsigned char param[4];
+	S_Warn("[S_CDPlay] - unimplemented!\n");
+}
+
+void S_CDStop()
+{
+	S_Warn("[S_CDStop] - unimplemented!\n");
 }

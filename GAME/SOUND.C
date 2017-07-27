@@ -12,6 +12,16 @@ void SayNo()
 //	int fx; // $a0
 }
 
+void SOUND_Init()//920DC, 94128
+{
+	for (int i = 0; i < MAX_SOUND_SLOTS; i++)
+	{
+		LaSlot[i].nSampleInfo = -1;
+	}
+
+	sound_active = 1;
+}
+
 void SOUND_Stop()//920A4, ?
 {
 	if (sound_active != 0)

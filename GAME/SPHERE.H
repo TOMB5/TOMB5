@@ -9,4 +9,9 @@ struct SPHERE
 	long r;
 };
 
+extern char GotLaraSpheres;
+extern int NumLaraSpheres;
+extern struct SPHERE LaraSpheres[15];
+extern struct SPHERE Slist[34];
+
 #endif

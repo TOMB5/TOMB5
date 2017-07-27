@@ -1,6 +1,7 @@
 #include "PSXINPUT.H"
 
-#if 0
+#include "CONTROL.H"
+
 static struct pad_configs pad_cons[5];
 unsigned char DualShock;
 unsigned char PadConnected;
@@ -24,8 +25,13 @@ struct GouraudBarColourSet poisonBarColourSet;
 struct GouraudBarColourSet airBarColourSet;
 struct GouraudBarColourSet dashBarColourSet;
 
+int dword_A1894;
+int dword_A1890;
+
 void S_UpdateInput()//5F628, 6038C
-{ // line 2, offset 0x5f628
+{
+#if 0
+	// line 2, offset 0x5f628
 	int state; // $s1
 	unsigned char type; // $s2
 	unsigned long in; // $s0
@@ -40,49 +46,56 @@ void S_UpdateInput()//5F628, 6038C
 	{ // line 353, offset 0x5fe70
 		static int send; // offset 0x18
 	} // line 374, offset 0x5fed4
+#endif
 
-
-
-	int v0 = SayNoCount;
-	int s0 = 0;
-	int a0 = 0;
-
-	if (v0 != 0)
+	if (SayNoCount != 0)
 	{
-		///PadGetState();
-		a0 = 0;
-		a0 = 0;
-		int a1 = 1;
-		int a2 = 0;
+		SayNoCount--;
+	}//loc_5F650
 
-		///PadInfoMode();
+	//loc_5F650
 
-		int s1 = v0;
-
-		if (s1 == 0)
-		{
-#if 0
-				sw	$zero, 0x3FC4($gp)
-				sb	$zero, 0x12D2($gp)
-				sw	$zero, 0x3F6C($gp)
-				sw	$zero, 0x3FC8($gp)
-				sw	$zero, 0x12E0($gp)
-				sw	$zero, 0x12DC($gp)
-				sh	$zero, 0x12DA($gp)
-				j	loc_600CC
+#ifdef PSX
+	PadGetState(0);
 #endif
-		}
-#if 0
-			andi	$s2, $v0, 0xFF
-			li	$v0, 4
-			beq	$s2, $v0, loc_5F6AC
-			li	$v0, 7
-			beq	$s2, $v0, loc_5F6AC
-			nop
+
+	int a0 = 0;
+	int a1 = 1;
+	int a2 = 0;
+	
+	int v0 = 0;
+	int s1 = v0;
+#ifdef PSX
+	s1 = v0;
+	PadInfoMode();
 #endif
+
+	int s2 = v0 & 0xFF;
+	if (s1 == 0 || (s2 != 4) || (s2 != 2))
+	{
+		//loc_5F688
+		RawPad = 0;
+		PadConnected = 0;
+		RawEdge = 0;
+		input = 0;
+		dword_A1894 = 0;//pause_db?
+		dword_A1890 = 0;//option_db?
+		reset_count = 0;
+
+		//loc_600CC
+		return;
 	}
 
+	//loc_5F6AC
+	if (SetDebounce != 0)
+	{
+		dbinput = inputBusy;
+		RawEdge = RawPad;
 
-} // line 474, offset 0x600cc
+	}//loc_5F6D0
 
-#endif
+	//loc_5F6D0
+	v0 = GPad1.data.pad;
+	PadConnected = 1;
+
+}

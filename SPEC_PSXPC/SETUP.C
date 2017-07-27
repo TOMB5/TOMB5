@@ -1,13 +1,21 @@
 #include "SETUP.H"
 
+#include "BOX.H"
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "GAMEWAD.H"
+#include "GPU.H"
 #include "LOAD_LEV.H"
+#include "LOT.H"
 #include "MALLOC.H"
 #include "ROOMLOAD.H"
+#include "SPOTCAM.H"
 
 #include <assert.h>
+#include <stddef.h>
+
+//temp
+#include <stdio.h>
 
 char setupBuff[SETUP_MOD_FILE_SIZE];
 
@@ -18,8 +26,33 @@ int dword_A6E90;
 int dword_A5620;
 short dword_A6090;
 int dword_A60BC;
+int* dword_A60B0;
+int* dword_A3CF4;
+int* dword_A3B50;
+int* dword_A60F8;
+int* dword_A4014;
+int* dword_A3FFC;
+int* dword_A4038;
+int* dword_A6170;
+int* dword_A5FF8;
+int* dword_A50FC;
+int* dword_A5370;
+int* dword_A5374;
+int* dword_AD390;
+short dword_A6178;
+int dword_A50F0;
+short dword_A6174;
+int dword_3EE4;
+
+int dword_A33D0[512];//FIXME
+char objects[32360];
+char dword_1EF1D0[0x780];
+char dword_1EF9D0[2048 * 64];//fixme unknown size
 
 #define PSX_HEADER_LENGTH 228
+
+//FIXME find original struct!
+unsigned long LevelRelocPtr[128];
 
 /*
  * [FUNCTIONALITY] - RelocateLevel.
@@ -28,194 +61,400 @@ int dword_A60BC;
  * Note: The GAMEWAD reader's position must point to the level file data.
  * Note: This code is part of the SETUP.MOD module.
  */
-
 void RelocateLevel()//?, B3B50(<)
 {
-	unsigned long* s5 = &RelocPtr[0];
-	int v00 = 0x000A0000;//?
-	
-	//(char*)0xA28B9 = 0;
+	char* ptr = NULL;
+	unsigned int size, i, j;
 
-	//Read up the PSX file header into buff.
-	GAMEWAD_Read(PSX_HEADER_LENGTH, (char*)&RelocPtr);
+	InItemControlLoop = 0;
 
-	LaraDrawType = ((unsigned short)RelocPtr[12]) & 7;
-	WeatherType = (RelocPtr[12] << 3) & 3;
-	dword_A3C18 = (RelocPtr[12] >> 5) & 3;
+	//Read up the PSX file header into RelocPtr buff.
+	GAMEWAD_Read(PSX_HEADER_LENGTH, (char*) &LevelRelocPtr);
 
-	if (RelocPtr[9] != 0)
+	LaraDrawType = LevelRelocPtr[12] & 7;
+	WeatherType = (LevelRelocPtr[12] << 3) & 3;
+	dword_A3C18 = (LevelRelocPtr[12] >> 5) & 3;//?
+
+	//We only want to send sound effect audio data if there are sound effects!
+	if (LevelRelocPtr[9] != 0)
 	{
-		dword_A616C = 0;
+		dword_A616C = 0;//?
 
-		//Possibly num sounds and sound ptrs
-		char* ptr = game_malloc(RelocPtr[9] * sizeof(unsigned long));
-		GAMEWAD_Read(RelocPtr[9] * sizeof(unsigned long), ptr);
+		//Allocate enough memory to store the sound pointers
+		ptr = game_malloc(LevelRelocPtr[9] * sizeof(unsigned long));
 
-		//Soundwad
-		ptr = game_malloc(RelocPtr[10]);
-		GAMEWAD_Read(RelocPtr[10], ptr);
+		//Reading in soundpointers
+		GAMEWAD_Read(LevelRelocPtr[9] * sizeof(unsigned long), ptr);
 
-		//unsigned long a0 = RelocPtr[9];
-		//unsigned long a3 = RelocPtr[10];
+		//Allocating enough memory for the 8000hz vag soundwad
+		ptr = game_malloc(LevelRelocPtr[10]);
+
+		GAMEWAD_Read(LevelRelocPtr[10], ptr);
+
+		//unsigned long a0 = LevelRelocPtr[9];
+		//unsigned long a3 = LevelRelocPtr[10];
 
 		//Send audio to SPU?
-		//a2 = s0;
-		//sub_B3974(RelocPtr[9], RelocPtr[10], ptr);
+		//sub_B3974(LevelRelocPtr[9], LevelRelocPtr[10], ptr);
 
-		//dword_A616C = v0;//FIXME v0 is 1 from where?
-		
 		//Free audio data from malloc_buffer
-		game_free(RelocPtr[9] * sizeof(unsigned long));
-		game_free(RelocPtr[10]);
+		game_free(LevelRelocPtr[9] * sizeof(unsigned long));
+		game_free(LevelRelocPtr[10]);
 	}
 
-	///0xB3C44
 	//? 2 tpages?
-	char* ptr = game_malloc(0x40000);
-	
+	ptr = game_malloc(0x40000);
+
 	int v1 = 0x200;
 	int v0 = 0x100;
 
-	for (int s4 = 1; s4 > -1; s4--)
+	///@TODO Unknown const 2.
+	for (int i = 0; i < 2; i++)
 	{
-		char* a0 = ptr;
-
 		GAMEWAD_Read(0x40000, ptr);
 
-		LOAD_DrawEnable(0);//jal sub_5FFA8
+		LOAD_DrawEnable(0);
 
 #ifdef PSX
-	//4bit textures
-	//LoadImage(ptr); //jal sub_6B1C4
-	//DrawSync(0); //jal sub_6B144
+		//4bit textures?
+		//LoadImage(ptr); //jal sub_6B1C4
+		//DrawSync(0); //jal sub_6B144
 #endif
 
-		LOAD_DrawEnable(1);//jal sub_5FFA8
+		LOAD_DrawEnable(1);
 
-		v0 += 0x100;
+		//v0 += 0x100; //?
 	}
-	//loop end 0xB3CBC
-	game_free(0x40000);//0xB3CC4
 
-	unsigned long a0 = RelocPtr[26];//0x50868
-	unsigned short a1 = RelocPtr[11];//0x100
-	int a2 = dword_A5620;//todo 0x803 find sw or init
-	dword_A6090 = RelocPtr[11];
-	dump_game_malloc();
+	game_free(0x40000);
 
-	dword_A60BC = a2;
+	dword_A6090 = LevelRelocPtr[11];//FIXME LHU
+	dword_A60BC = dword_A5620;//FIXME = 0x803! sw @sub_60D20 > $gp(38A8)
 
-	char* a00 = game_malloc(RelocPtr[26]);
+	AnimFileLen = LevelRelocPtr[26];
+	ptr = game_malloc(AnimFileLen);
+	frames = (short*) ptr;
+	GAMEWAD_Read(AnimFileLen, ptr);
 
-	unsigned long a11 = RelocPtr[26];
+	ptr = game_malloc(LevelRelocPtr[14]);
+	GAMEWAD_Read(LevelRelocPtr[14], ptr);
 
-	//frames = v0;//A25F4, A3FF8
+	number_rooms = *(((unsigned short*) &LevelRelocPtr[11]) + 1);//0xB3D28
 
-	//fixme loading wrong data
-	GAMEWAD_Read(a0, a00);
+	room = (struct room_info*)ptr;
 
-	AnimFileLen = RelocPtr[26];
-	char* s00 = game_malloc(RelocPtr[14]);//0x7FEE0
+	ptr += ((number_rooms * sizeof(unsigned long)) + number_rooms) * 16;//16 sizeof room_header?
 
-	//s0 = v0
-	a1 = RelocPtr[14];
-	GAMEWAD_Read(RelocPtr[14], s00);
-
-	dump_game_malloc();
-
-	unsigned short a000 = *(((unsigned short*)&RelocPtr[11])+1);
-
-	int s4 = 0;
-
-	room = (struct room_info*)s00;
-	
-
-	v1 = a000 << 16;
-	v1 >>= 16;//why?
-
-	v0 = v1 << 2;
-	v0 += v1;
-	v0 <<= 4;
-	s00 += v0;
-
-	number_rooms = a0;//A4030 = 
-
-	//number_rooms = v1
-	if (v1 > 0)
+	if (number_rooms > 0)
 	{
-		//a3 = s1 //"
-		//t4 = v0;//0x000A
-		int t2 = 0;
-		int t1 = 0;
-		int t0 = 0;
-
-		//TODO for loop each room
-		//but why? is the data stored elsewhere?
+		for (i = 0; i < number_rooms; i++)
 		{
-		char* a11 = s00;
-		struct room_info* v0 = room;
-		a11 += 4;
-		v0 = (struct room_info*)((char*) v0 + t0);
-		int t3 = *(int*) v0;//word 0x5d4
-		int a2 = t1;
-		v0->data = (short*) s00;
+			struct room_info* r = &room[i];
+			int* a1 = (int*) &ptr[4];
 
-		s00 += t3;
-		//filling buffer with ptrs
-		//FIXME? iter num tpages?
-		for (int t33 = 23; t33 >= 0; t33--)
-		{
-			v0 = room;
+			size = *(unsigned int*) &r->data;
+			r->data = (short*) ptr;
+			ptr += size;
 
-			v1 = *(int*) a11;
+			///@TODO Unknown const 24.
+			for (j = 0; j < 24; j++)
+			{
+				a1[j] += *(int*) r;
+			}
 
-			v0 = (struct room_info*)((char*) v0 + a2);//useless
+			size = *(unsigned int*) &r->door;
+			r->door = (short*) ptr;
+			ptr += size;
 
-			a0 = *(int*) v0;
+			size = *(unsigned int*) &r->floor;
+			r->floor = (struct FLOOR_INFO*)ptr;
+			ptr += size;
 
-			t3--;
+			size = *(unsigned int*) &r->light;
+			r->light = (struct LIGHTINFO*)ptr;
+			ptr += size;
 
-			v1 += a0;
-			*(int*) a11 = v1;
-			a11 += 4;
-		}//0xB3AC bgez
-
-		//0xB3DB0
-		int test2 = 0;
-		test2++;
-
-		t1 += 0x50;
-		struct room_info* v11 = room;
-		short v0000 = number_rooms;
-
-		v1 += t2;
-		t3 = (unsigned long) v11->door;
-		t0 += 0x50;
-		v11->door = (short*) s00;
-		s00 += t3;
-
-		t3 = (unsigned long) v11->floor;
-		s4 += 1;//should be 0
-		v11->floor = (struct FLOOR_INFO*)s00;
-		s00 += t3;
-
-		t3 = (unsigned long) v11->light;
-		t2 += 0x50;//should be 0
-		v11->light = (struct LIGHTINFO*)s00;
-		s00 += t3;
-
-		t3 = (unsigned long) v11->mesh;
-		v11->mesh = (struct MESH_INFO*)s00;
-		s00 += t3;
-	}//bne 0xB3E00
-	
+			size = *(unsigned int*) &r->mesh;
+			r->mesh = (struct MESH_INFO*)ptr;
+			ptr += size;
+		}
 	}
 
-	//0xB3E0C
+	dword_A60B0 = (int*) ptr;//?
+	ptr += LevelRelocPtr[15];
 
-	
-	//0xB4730 is end jalr v0
-}
+	dword_A3CF4 = (int*) ptr;//?
+	ptr += 0x5B4;//?
+
+	dword_A3B50 = (int*) ptr;//?
+	ptr += LevelRelocPtr[16];
+
+	dword_A60F8 = (int*) ptr;//?
+	ptr += LevelRelocPtr[17];
+
+	mesh_base = (short*) ptr;
+	ptr += LevelRelocPtr[19];
+
+	meshes = (short**) ptr;
+	ptr += LevelRelocPtr[20];
+
+	anims = (struct ANIM_STRUCT*)ptr;
+	ptr += LevelRelocPtr[21];
+
+	dword_A4014 = (int*) ptr;//?
+	ptr += LevelRelocPtr[22];
+
+	dword_A3FFC = (int*) ptr;//?
+	ptr += LevelRelocPtr[23];
+
+	dword_A4038 = (int*) ptr;//?
+	ptr += LevelRelocPtr[24];
+
+	v1 = LevelRelocPtr[25];
+	bones = (long*) ptr;
+	ptr += LevelRelocPtr[25];
+
+	if ((LevelRelocPtr[18] & 0xFFFF) > 0)//CHECK
+	{
+		//Relocating mesh ptrs
+		for (i = 0; i < (LevelRelocPtr[18] & 0xFFFF) * sizeof(short); i++)
+		{
+			//Ptr to current mesh ptr
+			int* meshPointer = (int*) &meshes[i];
+			*meshPointer >>= 0x1F;
+			*meshPointer >>= 1;//&?
+			*meshPointer <<= 1;
+			*meshPointer += *(int*) mesh_base;
+		}
+
+		v0 = *(((short*) (&LevelRelocPtr[18])) + 1);
+
+		if (v0 > 0)//blez 0xB3F14
+		{
+			//Relocate anim frame ptrs
+			for (int i = 0; i < *(((short*) (&LevelRelocPtr[18])) + 1); i++)
+			{
+				short* currentAnimFrame = frames + *(int*) &anims[i];
+				*(int*) &anims[i] = *(int*) currentAnimFrame;
+			}
+		}
+
+		int a0 = 0x9000;
+		dword_A6170 = (int*) ptr;
+		ptr += LevelRelocPtr[30];
+
+		v0 = LevelRelocPtr[27];
+		short t3 = LevelRelocPtr[47];//FIXME lhu
+		int t2 = LevelRelocPtr[38];
+
+		/*
+		 * Object Textures
+		 */
+		psxtextinfo = (struct PSXTEXTSTRUCT*)ptr;
+		ptr += LevelRelocPtr[27];
+
+		psxspriteinfo = (struct PSXSPRITESTRUCT*)ptr;
+		ptr += LevelRelocPtr[28];
+
+		dword_A5FF8 = (int*) ptr;
+		ptr += LevelRelocPtr[29];
+
+		dword_A50FC = (int*) ptr;
+		ptr += LevelRelocPtr[31];
+
+		dword_A5370 = (int*) ptr;
+		ptr += 0x384;//TODO unknown const *actually, this is size of sound map indices!
+
+		dword_A5374 = (int*) ptr;
+		ptr += LevelRelocPtr[32];//0xB3FD0
+
+		items = (struct ITEM_INFO*)ptr;
+		ptr += 0x9000;//TODO unknown const
+
+		v0 = t3 << 16;
+		v0 >>= 16;
+		int a3 = LevelRelocPtr[31] >> 4;
+
+		AIObjects = (struct AIOBJECT*)ptr;
+
+		v1 = v0 << 1;
+		v1 += v0;
+		v1 <<= 3;
+		ptr += v1;
+
+		boxes = (struct box_info*)ptr;
+		ptr += LevelRelocPtr[36];
+
+		dword_AD390 = (int*) ptr;
+		ptr += LevelRelocPtr[37];
+
+		ground_zone[0][0] = (short*) ptr;
+		ptr += LevelRelocPtr[38];
+
+		ground_zone[1][0] = (short*) ptr;
+		ptr += LevelRelocPtr[39];
+
+		ground_zone[2][0] = (short*) ptr;
+		ptr += LevelRelocPtr[40];
+
+		ground_zone[3][0] = (short*) ptr;
+		ptr += LevelRelocPtr[41];
+
+		ground_zone[4][0] = (short*) ptr;
+		ptr += LevelRelocPtr[42];
+
+		ground_zone[0][1] = (short*) ptr;
+		ptr += LevelRelocPtr[38];
+
+		ground_zone[1][1] = (short*) ptr;
+		ptr += LevelRelocPtr[39];
+
+		ground_zone[2][1] = (short*) ptr;
+		ptr += LevelRelocPtr[40];
+
+		ground_zone[3][1] = (short*) ptr;
+		ptr += LevelRelocPtr[41];
+
+		ground_zone[4][1] = (short*) ptr;
+		ptr += LevelRelocPtr[42];
+
+		dword_A6178 = LevelRelocPtr[13];//FIXME LHU @ RELOCPTR
+		dword_A50F0 = LevelRelocPtr[31] >> 4;
+		dword_A6174 = LevelRelocPtr[13];//FIXME LHU
+
+		level_items = *(((unsigned short*) &LevelRelocPtr[12]) + 1);
+		nAIObjects = LevelRelocPtr[47];//FIXME LHU
+
+		number_boxes = LevelRelocPtr[35];
+
+		if (number_boxes > 0)//0xB40B4
+		{
+			//Set blocked flag on each overlapping box that is last in list.
+			for (i = 0; i < number_boxes; i++)
+			{
+				if (boxes[i].overlap_index & BOX_LAST)
+				{
+					boxes[i].overlap_index |= BOX_BLOCKED;
+				}
+			}
+		}
+
+		//^Verified^***************************************************************
+
+		//0x1F2480 objects FIXME unknown type
+		int a11 = 0x7E68;
+		int s4 = 63;
+		dword_A33D0[25] = *(int*) ptr;
+		ptr += LevelRelocPtr[45];
+
+		int a2 = LevelRelocPtr[43];
+		short a33 = LevelRelocPtr[44];
+
+		SpotCam = (struct SPOTCAM*) ptr;
+		dword_3EE4 = LevelRelocPtr[43];//?
+
+		number_spotcams = LevelRelocPtr[44];
+		number_cameras = LevelRelocPtr[43];
+
+		GAMEWAD_Read(32360, &objects[0]);
+
+		for (i = 0; i < 63; i++)
+		{
+			RelocPtr[i] = NULL;
+		}
+
+		if (LevelRelocPtr[48] != 0)
+		{
+			GAMEWAD_ReaderPositionToCurrent();
+			GAMEWAD_Read(0x780, &dword_1EF1D0[0]);//FIXME levelRelocPtr?
+
+			if (LevelRelocPtr[48] > 0)
+			{
+				for (i = 0; i < LevelRelocPtr[48]; i++)
+				{
+					char* s7 = &dword_1EF9D0[0];//FIXME: levelRelocPtr?
+					char* v0 = ((char*) &LevelRelocPtr[0]) + i;
+					char t3 = v0[196];
+					int s0 = t3 << 2;
+					s0 += t3;
+					s0 <<= 2;
+
+					char* s00 = &dword_1EF1D0[s0];
+					int s3 = *(int*) &s00[4];
+					int a00 = s3;
+					char* v00 = game_malloc(a00);
+
+					a00 = *(int*) &s00[0];//0x21800
+					GAMEWAD_Seek(a00);
+
+					char* s22 = v00;
+					char* a000 = s22;
+					GAMEWAD_Read(s3, s22);
+
+					s3 = *(int*) &s00[12];//0x15C
+
+					char* s11 = game_malloc(s3);
+
+					a00 = *(int*) &s00[8];//0x24000
+
+					GAMEWAD_Seek(a00);
+
+					GAMEWAD_Read(s3, s11);
+
+					//RelocateModule(s11);
+
+					game_free(s3);
+
+					int v000 = *(int*) &s00[16];
+					int v111 = LevelRelocPtr[48];
+					v000 <<= 2;
+
+					char* v0000 = &s7[v000];
+					*(int**) v0000 = (int*)s22;
+				}
+			}
+		}//0xB4228
+
+		 //a0 = 1;
+		 //jal sub_424D0 ??
+		 //a0 = 1;
+		 //jal sub_4E2A4 ??
+
+		s4 = 0;
+		sub_B96EC(0);//0xB4238
+
+		//jal 0xBB498
+
+		InitialiseItemArray(256);
+		//v1--;
+
+		int a0000 = level_items;//0x26
+
+		if (level_items > 0)
+		{
+			///baddie_slots[0].joint_rotation[0] = -1;//?
+			//sll a0, s4 ,0x10
+
+			for (int i = 0; i < level_items; i++)
+			{
+				InitialiseItem(i);
+			}
+		}//0xB4284
+
+
+
+		struct ITEM_INFO* temp = items;
+		temp++;
+		///@CRITICAL
+		//0xB4268 inits items
+
+		int testtt = 0;
+		testtt++;
+		int testing3 = 0;
+		testing3++;
+	}
+
+}//0xB4730 is end jalr v0
 
 //Possibly send audio data to SPU
 void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr)
@@ -289,4 +528,91 @@ void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr)
 
 	//0xB39BC
 #endif
+}
+
+//?
+//Relocate initial object frame ptrs, see ResetCutanimate()
+void sub_B96EC(int unk)
+{
+	char* a0 = &objects[0];
+	int s0 = 0x02000000;
+	short t7 = 10;
+	int t6 = -16384;
+	int t4 = 0xFEFFFFFF;
+	int a1 = 459;//max?
+	int t3 = 0xFFFDFFFF;
+	int t2 = 0xDFFFFFFF;
+	int t1 = 0xFFBFFFFF;
+	int t0 = 0xFFDFFFFF;
+	int a3 = 0xFFEFFFFF;
+	int a2 = 0xFFF70000;
+	short* t5 = frames;
+	a2 |= 0xFFFF;
+
+	///@TODO sizeof object = 64;
+	//@TODO count of objects = 459
+	for (int i = 0; i < a1; i++)
+	{
+		int v0 = *(int*) &a0[48];//0x00010000
+		int v1 = *(int*) &a0[8];//0
+		*(int*) &a0[12] = 0;
+		*(int*) &a0[32] = 0;
+		*(int*) &a0[16] = 0;
+		*(int*) &a0[28] = 0;
+		*(int*) &a0[24] = 0;
+		*(int*) &a0[20] = 0;
+		*(short*) &a0[42] = 0;
+		*(short*) &a0[44] = t7;
+		*(short*) &a0[46] = 0;
+		*(short*) &a0[40] = t6 & 0xFFFF;//0xc000
+		*(int*) &a0[56] = 0;
+		*(int*) &a0[52] = 0;
+		*(short*) &a0[36] = 0;
+
+		v0 |= s0;
+		v0 &= t4;
+		v0 &= t3;
+		v0 &= t2;
+		v0 &= t1;
+		v0 &= t0;
+		v0 &= a3;
+		v0 &= a2;//0x02010000
+
+		int* v11 = ((int*) t5) + v1;
+
+		*(int*) &a0[48] = v0;
+		*(int**) &a0[8] = v11;//check
+
+		a0 += 0x40;
+	}
+
+	//sub_B5328();
+
+	//sub_B84F0();
+
+	//sub_B7E04();
+
+	//InitialiseHair() //3AC70, 3B170
+
+	//sub_BA81C
+
+	//0xB97FC
+
+	int test = 0;
+	test++;
+}//0xB996C
+
+void sub_B5328()
+{
+
+}
+
+void sub_B84F0()
+{
+
+}
+
+void sub_B7E04()
+{
+
 }

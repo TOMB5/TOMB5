@@ -3,7 +3,10 @@
 
 #include "PSXTYPES.H"
 
-struct FLOOR_INFO {
+#pragma pack(push, 1)
+
+struct FLOOR_INFO
+{
 	unsigned short index; // size=0, offset=0
 	unsigned short fx : 4; // offset=2.0
 	unsigned short box : 11; // offset=2.4
@@ -68,6 +71,8 @@ struct room_info
 	unsigned short flags;
 };
 
+#pragma pack(pop)
+
 void S_LoadLevelFile(int Name);
 
 extern long AnimFilePos;
@@ -81,6 +86,6 @@ extern struct PSXSPRITESTRUCT* GLOBAL_default_sprites_ptr;
 extern struct PSXTEXTI* AnimatingWaterfalls[6];
 extern int AnimatingWaterfallsV[6];
 extern unsigned long envmap_data[6];
-extern unsigned long RelocPtr[128];
+extern unsigned long* RelocPtr[128];
 
 #endif

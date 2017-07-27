@@ -29,7 +29,7 @@ static int gwReaderCurrentSector = 0;
  * @RETURN - Filesize of the gamewad entry in bytes.
  */
 
-int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
+int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<) (F)
 {
 	//DEL_ChangeCDMode(0);
 
@@ -56,11 +56,14 @@ int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
  * @PARAM - [fileSize] the number of bytes you wish to read [ptr] the initialised memory location the data is read to. 
  */
 
-void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
+void GAMEWAD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 {
+	FILE* fileHandle = NULL;
+	int i;
+
 	//jal sub_5E650 //DEL_ChangeCDMode(?);
 
-	FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
+	fileHandle = fopen(GAMEWAD_FILENAME, "rb");
 	assert(fileHandle);
 	fseek(fileHandle, gwReaderCurrentSector * CD_SECTOR_SIZE, SEEK_SET);
 
@@ -73,7 +76,7 @@ void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
 		//jal sub_6956C //CdControlF(0);
 		//jal sub_69C4C //CdRead(?, ?, ?);
 #endif
-		for(int i = 0; i < numSectorsToRead; i++)
+		for(i = 0; i < numSectorsToRead; i++)
 		{
 #ifdef PSX
 			//jal sub_69DE8 //CdReadSync(?);
@@ -111,7 +114,17 @@ void GAMEWAD_Read(int fileSize, char* ptr)//*, 5E414(<)
  * @PARAM - [offset] the number of bytes you wish to seek (not in sectors).
  */
 
-void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<)
+void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<) (F)
 {
 	gwReaderCurrentSector = gwReaderStartSector + (offset / CD_SECTOR_SIZE);
+}
+
+/*
+ * [FUNCTIONALITY] - GAMEWAD_ReaderPositionToCurrent
+ * Updates the gamewad reader's start sector to current. 
+ */
+
+void GAMEWAD_ReaderPositionToCurrent()//*, 5E564(<) (F)
+{
+	gwReaderStartSector = gwReaderCurrentSector;
 }

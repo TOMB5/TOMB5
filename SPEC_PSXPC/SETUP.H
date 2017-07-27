@@ -9,4 +9,11 @@ extern char setupBuff[SETUP_MOD_FILE_SIZE];
 
 void RelocateLevel();
 void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr);
+void sub_B96EC(int unk);
+void sub_B5328();
+void sub_B84F0();
+void sub_B7E04();
+
+extern char objects[32360];
+
 #endif

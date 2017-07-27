@@ -1,34 +1,212 @@
 #include "ITEMS.H"
 
 #include "CONTROL.H"
+#include "DRAW.H"
+#include "OBJECTS.H"
+#include "ROOMLOAD.H"
+#include "SETUP.H"
+#include "SPECIFIC.H"
+
+#include <stddef.h>
+#include <assert.h>
 
 int level_items;
 short next_item_free;
 short next_item_active;
 short GlobalPulleyFrigItem;
 
-void InitialiseItemArray(int numitems)//418E8, 41D3C
+void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
 {
-	next_item_active = -1;
-
-	struct ITEM_INFO* item = &items[0];
+	int i;
+	struct ITEM_INFO* item;
 	
-	//FIXME: Ugly
-	item = (struct ITEM_INFO*)(char*)item + (((level_items << 3) + level_items) << 4);
-
+	item = &items[level_items];
+	next_item_active = -1;
 	next_item_free = level_items;
 
-	if ((level_items + 1) < numitems)
+	if (level_items + 1 < numitems)
 	{
-		for (int i = (level_items + 1); i < numitems; i++, item++)
+		for (i = level_items + 1; i < numitems; i++, item++)
 		{
 			item->next_item = i;
-
-			//FIXME: Union flags.
-			*(int*)item->active &= -2;
+			item->meshswap_meshbits &= -2;
 		}
 	}
-	
-	//Last
+
 	item->next_item = -1;
+	return;
+}
+
+void InitialiseItem(short item_num)//41BEC(<), 42040
+{
+	struct ITEM_INFO* item;
+	struct room_info* r;
+	struct FLOOR_INFO* floor;
+	
+	item = &items[item_num];
+	item->anim_number = *(short*) &objects[(item->object_number << 6) + 0x26];
+	item->frame_number = anims[item->anim_number].frame_base;
+
+	item->required_anim_state = 0;
+	item->pos.z_rot = 0;
+	item->pos.x_rot = 0;
+	item->fallspeed = 0;
+	item->speed = 0;
+	item->item_flags[3] = 0;
+	item->item_flags[2] = 0;
+	item->item_flags[1] = 0;
+	item->item_flags[0] = 0;
+
+	item->meshswap_meshbits &= -7;
+	item->meshswap_meshbits &= -2;
+	item->meshswap_meshbits &= -129;
+	item->meshswap_meshbits &= -15873;
+	item->meshswap_meshbits &= -16385;
+	item->meshswap_meshbits &= -65;
+	item->meshswap_meshbits &= -17;
+	item->meshswap_meshbits &= -9;
+
+	item->goal_anim_state = anims[item->anim_number].current_anim_state;
+	item->current_anim_state = anims[item->anim_number].current_anim_state;
+
+	item->meshswap_meshbits |= 0x20;
+	item->meshswap_meshbits &= -257;
+	item->timer = 0;
+
+	item->hit_points = *(short*) &objects[(item->object_number << 6) + 0x28];
+
+	
+	if ((item->object_number - HK_ITEM) < UZI_ANIM || item->object_number == CROSSBOW_ITEM || item->object_number == REVOLVER_ITEM)
+	{
+		item->mesh_bits = 1;
+	}
+	else
+	{
+		item->mesh_bits = -1;
+	}
+
+	item->touch_bits = 0;
+	item->after_death = 0;
+	item->fired_weapon = 0;
+	item->data = NULL;
+
+	if ((item->flags & 0x100))
+	{
+		item->flags &= ~0x100;
+		item->meshswap_meshbits |= 6;
+	}
+	else if (((*(int*) &objects[(item->object_number << 6) + 0x30]) >> 17) & 1)
+	{
+		item->meshswap_meshbits |= 6;
+	}
+
+	if ((item->flags & 0x3E00) == 0x3E00)
+	{
+		item->flags &= ~0x3E00;
+		item->flags |= 0x4000;
+		AddActiveItem(item_num);
+		item->meshswap_meshbits &= -7;
+		item->meshswap_meshbits |= 2;
+	}
+
+	r = &room[item->room_number];
+
+	item->next_item = r->item_number;
+	r->item_number = item_num;
+
+	floor = &r->floor[((item->pos.z_pos - r->z) / 1024) + (((item->pos.x_pos - r->x) / 1024) * r->x_size)];
+
+	item->floor = floor->floor * 256;
+	item->box_number = floor->box;
+
+	if ((*(int*) &objects[(item->object_number << 6) + 0xC]) != 0)
+	{
+		S_Warn("[InitialiseItem] - Unimplemented condition!\n");
+		//jalr *(int*) &objects[(item->object_number << 6) + 0xC];
+	}
+
+	item->il.Light[3].pad = 0;
+	
+	return;
+}
+
+void RemoveActiveItem(short item_num)//41E98, 422EC
+{
+	short linknum; // $v1
+	struct ITEM_INFO* a1 = &items[item_num];
+	//int a2 = *(int*)a1->active;
+
+	short test = 1;
+	test &= -2;
+
+	int v0 = -2;
+	if (!a1->active)///@FIXME wrong flags, must finish InitialiseItem();
+	{
+		linknum = next_item_active;
+		
+		a1->meshswap_meshbits &= -2;
+
+		if (next_item_active == (item_num << 3))//check
+		{
+			next_item_active = a1->next_active;
+		}
+		else
+		{
+			//loc_41F08
+			int v0 = -1;
+			int v1 = next_item_active;
+
+			if (next_item_active != -1)
+			{
+#if 0
+				assert(0);
+				int a3 = -1;
+				int v0 = v1 << 3;
+
+				//loc_41F1C
+				
+				struct ITEM_INFO* a1 = &items[next_item_active];
+				
+				while (v1 != -1)
+				{
+					v1 = a1->next_active;
+
+					if (v1 == item_num)
+					{
+						//loc_41EF0
+					}
+				}
+#endif
+			}
+
+			//loc_41F1C
+		}
+
+	}//locret_41EE8
+
+	return;
+}
+
+void AddActiveItem(short item_num)//41FEC(<), 42440(<)
+{
+	struct ITEM_INFO* item;
+
+	item = &items[item_num];
+
+	item->flags |= 0x20;
+
+	if (*(int*) &objects[(item->object_number << 6) + 0x10] == 0)
+	{
+		item->meshswap_meshbits &= -7;
+		return;
+	}
+
+	if (!(item->active))
+	{
+		item->active = 1;
+		item->next_active = next_item_active;
+		next_item_active = item_num;
+	}
+
+	return;
 }
