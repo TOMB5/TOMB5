@@ -29,7 +29,7 @@
 
 #define GF_SCRIPT_FILENAME "SCRIPT.DAT"
 
-unsigned char gfGameMode;
+unsigned char gfGameMode = 1;
 unsigned char gfNumMips;
 int scroll_pos;
 char DEL_playingamefmv;
@@ -480,10 +480,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	bUseSpotCam = 1;
 	gfGameMode = 1;
 
-	//#ifdef INTERNAL
+#if 1 //def INTERNAL
 	show_game_malloc_totals();
 	a0 = 2;//?
-//#endif
+#endif
 
 	gfLevelComplete = 0;
 	nframes = 2;

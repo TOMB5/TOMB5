@@ -423,6 +423,31 @@ void RelocateLevel()//?, B3B50(<)
 		s4 = 0;
 		sub_B96EC(0);//0xB4238
 
+		//jal 0xBB498
+
+		InitialiseItemArray(256);
+		//v1--;
+
+		int a0000 = level_items;//0x26
+
+		if (level_items > 0)
+		{
+			///baddie_slots[0].joint_rotation[0] = -1;//?
+			//sll a0, s4 ,0x10
+
+			for (int i = 0; i < level_items; i++)
+			{
+				InitialiseItem(i);
+			}
+		}//0xB4284
+
+
+
+		struct ITEM_INFO* temp = items;
+		temp++;
+		///@CRITICAL
+		//0xB4268 inits items
+
 		int testtt = 0;
 		testtt++;
 		int testing3 = 0;

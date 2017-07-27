@@ -20,7 +20,7 @@ char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];
  * Note: Once the gameflow script is loaded it's always in malloc_buffer regardless.
  */
 
-void init_game_malloc()//5E79C(<), 5F4F8(<)
+void init_game_malloc()//5E79C(<), 5F4F8(<) (F)
 {
 	malloc_used = gfScriptLen;
 	malloc_free = GAME_MALLOC_BUFFER_SIZE - gfScriptLen;
@@ -39,7 +39,7 @@ void init_game_malloc()//5E79C(<), 5F4F8(<)
  * @RETURN - [ptr] Pointer to the memory block you just "allocated".
  */
 
-char* game_malloc(int size)//5E7E8(<), 5F544(<?)
+char* game_malloc(int size)//5E7E8(<), 5F544(<) (F)
 {
 	char buf[80];
 	char* ptr = NULL;
@@ -76,7 +76,7 @@ char* game_malloc(int size)//5E7E8(<), 5F544(<?)
  * @PARAM - [size] The amount of memory you wish to "free".
  */
 
-void game_free(int size)//5E85C(<), 5F590(<)
+void game_free(int size)//5E85C(<), 5F590(<) (F)
 {
 	size = (size + 3) & -4;
 
@@ -90,7 +90,7 @@ void game_free(int size)//5E85C(<), 5F590(<)
  * Prints the amount of free/used malloc_buffer memory to stdio in Kilobytes.
  */
 
-void show_game_malloc_totals()//5E894(<), * 
+void show_game_malloc_totals()//5E894(<), * (F)
 {
 	int total;
 	int used;

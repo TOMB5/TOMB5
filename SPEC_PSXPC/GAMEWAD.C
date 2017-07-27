@@ -29,7 +29,7 @@ static int gwReaderCurrentSector = 0;
  * @RETURN - Filesize of the gamewad entry in bytes.
  */
 
-int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
+int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<) (F)
 {
 	//DEL_ChangeCDMode(0);
 
@@ -56,7 +56,7 @@ int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<)
  * @PARAM - [fileSize] the number of bytes you wish to read [ptr] the initialised memory location the data is read to. 
  */
 
-void GAMEWAD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<)
+void GAMEWAD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 {
 	FILE* fileHandle = NULL;
 	int i;
@@ -114,7 +114,7 @@ void GAMEWAD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<)
  * @PARAM - [offset] the number of bytes you wish to seek (not in sectors).
  */
 
-void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<)
+void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<) (F)
 {
 	gwReaderCurrentSector = gwReaderStartSector + (offset / CD_SECTOR_SIZE);
 }
@@ -124,7 +124,7 @@ void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<)
  * Updates the gamewad reader's start sector to current. 
  */
 
-void GAMEWAD_ReaderPositionToCurrent()//*, 5E564(<)
+void GAMEWAD_ReaderPositionToCurrent()//*, 5E564(<) (F)
 {
 	gwReaderStartSector = gwReaderCurrentSector;
 }

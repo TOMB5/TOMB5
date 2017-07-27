@@ -9,7 +9,9 @@
 #include "LARA2GUN.H"
 #include "PICKUP.H"
 #include "PSXINPUT.H"
+#include "SETUP.H"
 #include "SPECIFIC.H"
+#include "SPHERE.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
 
@@ -82,6 +84,8 @@ short los_rooms[20];
 char globoncuttrig;
 short ItemNewRooms[256][2];
 struct CHARDEF CharDef[106];
+
+char byte_A3660;
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 {
@@ -179,7 +183,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	UpdateSky();
 	S_UpdateInput();
 
-	assert(0);//temporary
+	//FIXME: bDisableLaraControl should be 1, it's altered in trigger_title_spotcam
 	if (bDisableLaraControl != 0)
 	{
 		//Not title
@@ -201,7 +205,6 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 	//loc_1D708
 	SetDebounce = 0;
-
 	if (gfLevelComplete)
 	{
 		return 3;
@@ -266,11 +269,14 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	}
 
 	//1D848
+#if 1//def INTERNAL
 	if (InGameCnt < 4)
 	{
 		InGameCnt++;
 	}
+#endif
 
+#if 1//def INTERNAL
 	//loc_1D860
 	if ((input & 0x200) == 0 && SniperCamActive != 0 && bUseSpotCam != 0 && bTrackCamInit != 0 && lara_item->current_anim_state != 2 || lara.hit_direction == 0x67 && lara.LitTorch == 0 && input & 0x2000 != 0 && lara_item->anim_number != 0xDE && lara_item->goal_anim_state != 0x47)
 	{
@@ -327,6 +333,60 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 			}
 		}
 	}
+#else
+	///@HACK ********************************************************************************
+	PadConnected = 1;
+
+	//loc_1D9EC
+	if ((input & 0x2000) == 0)
+	{
+		if (PadConnected == 0)
+		{
+			assert(0);
+
+			//andi	$v0, $a0, 0xFF
+				if (gfGameMode == 0)
+				{
+					if (gfGameMode > 3)
+					{
+						assert(0);
+						//addiu	$v0, $a0, 1
+						//addiu	$v0, $s2, 0x71E8
+						//lh	$v1, 0x1A($v0)
+						//nop
+						//bnez	$v1, loc_1DA5C
+						//andi	$v0, $a0, 0xFF
+
+						//loc_1DA3C:
+						Motors[0] = 0;
+						Motors[1] = 0;
+						//jal	sub_62190
+						return 0;
+					}
+					else
+					{
+						//loc_1DA68
+					}
+
+
+				}//loc_1DA5C
+			
+				
+
+		}//loc_1DA5C
+
+		a0 = byte_A3660;
+		if (InGameCnt > 3)
+		{
+			assert(0);
+		}
+
+		//loc_1DA6C
+
+	}
+#endif
+	
+
 
 	//loc_1DAD0 ****************
 	int v1 = 0;
@@ -360,22 +420,41 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	//ClearFires();
 
 	int a1 = next_item_active;
-	//GotLaraSpheres = 0;
-	//InItemControlLoop = s3;
-	//lui	$v0, 0x1F
-	
-	///beq	$a1, $s4, loc_1DBE8	
-	///addiu	$s1, $v0, 0x2490
-	///sll	$v0, $a1, 3
+	GotLaraSpheres = 0;
+	InItemControlLoop = 1;
+
+	if (next_item_active != -1)//illegal -2
+	{
+		char* s1 = &objects[16];
+		int v000 = ((next_item_active << 3) + next_item_active << 4);
+
+		//loc_1DB80
+		struct ITEM_INFO* a0000 = &items[next_item_active];
+		int v1111 = a0000->after_death;
+		int s0000 = a0000->next_active;
+		v1111 = v1111 < 0x80 ? 1 : 0;
+
+		if (v1111 == 0)
+		{
+
+		}//loc_1DBB4
+		
+		//move	$a0, $a1
+		//KillItem();
+		//move	$a1, $s0
+		//j	loc_1DBE0
+
+		assert(0);
+	}//loc_1DBE8
 
 	//end loc_1E3BC
 	S_Warn("[ControlPhase] - Unimplemented!\n");
-	return -1;
+	return 0;
 }
 
 long rand_1 = 0xD371F947;
 
-long GetRandomControl()//5E9F0, 926F8
+long GetRandomControl()//5E9F0, 926F8 (F)
 {
 	rand_1 = (rand_1 * 0x41C64E6D) + 0x3039;
 	return (rand_1 >> 16) & 0x7FFF;
@@ -383,16 +462,10 @@ long GetRandomControl()//5E9F0, 926F8
 
 long rand_2 = 0xD371F947;
 
-long GetRandomDraw()//5EA18, 5F6F8
+long GetRandomDraw()//5EA18, 5F6F8 (F)
 {
 	rand_2 = (rand_2 * 0x41C64E6D) + 0x3039;
 	return (rand_2 >> 16) * 0x7FFF;
-#if 0//?
-		jr	$ra
-		sw	$a0, 0x188($gp)
-		jr	$ra
-		sw	$a0, 0x18C($gp)
-#endif
 }
 
 void AddRoomFlipItems(struct room_info *r /*$a0*/)//1FA0C, 
