@@ -122,7 +122,8 @@ extern struct GAME_VECTOR last_ideal;
 extern struct GAME_VECTOR last_target;
 extern short rcossin_tbl[];
 
-void InitialiseCamera();
-void AlterFOV(short fov);
+extern void InitialiseCamera();
+extern void AlterFOV(short fov);
+extern void CalculateCamera();
 
 #endif

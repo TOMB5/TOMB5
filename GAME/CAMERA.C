@@ -2,9 +2,12 @@
 
 #include "GAMEFLOW.H"
 #include "LARA.H"
+#include "SPECIFIC.H"
 #include "SPOTCAM.H"
 
 #include "3D_GEN.H"
+
+#include <stddef.h>
 
 long BinocularRange;
 long BinocularOn;
@@ -167,38 +170,39 @@ short rcossin_tbl[] =
 	0
 };
 
-void InitialiseCamera()//25AAC
+void InitialiseCamera()//25AAC, 25CB8 (F)
 {
-#if 0
-	last_target.x = lara_item->pos.x_pos;
-	camera.target.x = lara_item->pos.x_pos;
-	camera.shift = lara_item->pos.y_pos - 1024;
-	camera.fixed_camera = lara_item->pos.y_pos - 1024;
-	camera.target.y = lara_item->pos.y_pos - 1024;
-
-	last_target.z = lara_item->pos.x_rot;
-
-	camera.target.z = lara_item->pos.x_rot;
+	camera.pos.x = lara_item->pos.x_pos;
 	camera.pos.y = lara_item->pos.y_pos - 1024;
+	camera.pos.z = lara_item->pos.z_pos - 100;
+	camera.pos.room_number = lara_item->room_number;
+
+	camera.target.x = lara_item->pos.x_pos;
+	camera.target.y = lara_item->pos.y_pos - 1024;
+	camera.target.z = lara_item->pos.z_pos;
+	camera.target.room_number = lara_item->room_number;
+
+	last_target.x = lara_item->pos.x_pos;
+	last_target.y = lara_item->pos.y_pos - 1024;
+	last_target.z = lara_item->pos.z_pos;
+	last_target.room_number = lara_item->room_number;
+	
+	camera.shift = lara_item->pos.y_pos - 1024;
 	camera.target_distance = 1536;
 	camera.number_frames = 1;
 	camera.speed = 1;
 	camera.flags = 1;
-	camera.pos.x = lara_item->pos.x_pos;
-	camera.pos.z = lara_item->pos.x_rot - 100;
-	camera.item->floor = 0;
+	camera.item = NULL;
 	camera.type = CHASE_CAMERA;
+	camera.bounce = 0;
 	camera.number = -1;
 	camera.fixed_camera = 0;
 
-	last_target.room_number = nframes;//CHECK @a2 lhu
-	camera.target.room_number = nframes;
-	camera.pos.room_number = nframes;
-#endif
 	AlterFOV(16380);
-	
 	UseForcedFixedCamera = 0;
-	//CalculateCamera();
+
+	CalculateCamera();
+	return;
 }
 
 void AlterFOV(short fov)//77BD8, 79C1C
@@ -206,7 +210,12 @@ void AlterFOV(short fov)//77BD8, 79C1C
 	CurrentFov = fov;
 
 	short* rcossin_ptr = &rcossin_tbl[((fov + ((fov << 16) >> 31) >> 3) & 0x3FFC) / sizeof(short)];
+	//short* rcossin_ptr = &rcossin_tbl[((fov + ((fov << 16) >> 31) >> 3) & 0x3FFC) / sizeof(short)];
 	phd_persp = ((rcossin_ptr[1] << 8) / rcossin_ptr[0]);
 	///ctc2	$a0, $26 //?unknown instruction
 }
 
+void CalculateCamera()
+{
+	S_Warn("[CalculateCamera] - Unimplemented!\n");
+}
