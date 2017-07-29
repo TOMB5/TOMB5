@@ -3,6 +3,12 @@
 
 #include "CAMERA.H"
 
+#define LARA_DRAW_TYPE_NORMAL   1
+#define LARA_DRAW_TYPE_YOUNG    2
+#define LARA_DRAW_TYPE_BUNHEAD  3
+#define LARA_DRAW_TYPE_OFFICE   4
+#define LARA_DRAW_TYPE_ARTIC    5
+
 struct lara_arm
 {
 	short *frame_base; // size=0, offset=0

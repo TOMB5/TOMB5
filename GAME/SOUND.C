@@ -9,6 +9,7 @@ struct SoundSlot LaSlot[MAX_SOUND_SLOTS];
 
 void SayNo()
 {
+	S_Warn("[SayNo] - Unimplemented!\n");
 //	int fx; // $a0
 }
 

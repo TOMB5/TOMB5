@@ -140,8 +140,9 @@ void RemoveActiveItem(short item_num)//41E98, 422EC
 	test &= -2;
 
 	int v0 = -2;
-	if (!a1->active)///@FIXME wrong flags, must finish InitialiseItem();
+	if (a1->active)///@FIXME wrong flags, must finish InitialiseItem();
 	{
+		assert(0);
 		linknum = next_item_active;
 		
 		a1->meshswap_meshbits &= -2;
@@ -194,8 +195,8 @@ void AddActiveItem(short item_num)//41FEC(<), 42440(<)
 	item = &items[item_num];
 
 	item->flags |= 0x20;
-
-	if (*(int*) &objects[(item->object_number << 6) + 0x10] == 0)
+	int test = item->object_number << 6;
+	if (*(int*) &objects[(item->object_number << 6) + 0x10] == 0)//Bug: Always zero due to incomplete level data relocation
 	{
 		item->meshswap_meshbits &= -7;
 		return;

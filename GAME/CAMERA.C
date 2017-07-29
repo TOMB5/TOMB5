@@ -1,12 +1,19 @@
 #include "CAMERA.H"
 
+#include "CD.H"
+#include "DELTAPAK.H"
+#include "DRAW.H"
 #include "GAMEFLOW.H"
 #include "LARA.H"
+#include "OBJECTS.H"
+#include "SAVEGAME.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 
 #include "3D_GEN.H"
 
+#include <assert.h>
+#include <math.h>
 #include <stddef.h>
 
 long BinocularRange;
@@ -165,13 +172,15 @@ short rcossin_tbl[] =
 	4088, 251, 4089, 245, 4089, 239, 4089, 232, 4090, 226, 4090, 220, 4090, 214, 4091, 207,
 	4091, 201, 4091, 195, 4092, 188, 4092, 182, 4092, 176, 4092, 170, 4093, 163, 4093, 157,
 	4093, 151, 4093, 144, 4094, 138, 4094, 132, 4094, 126, 4094, 119, 4094, 113, 4095, 107,
-	4095, 101, 4095, 94, 4095, 88, 4095, 82, 4095, 75, 4095, 69, 4096, 63, 4096, 57,
-	4096, 50, 4096, 44, 4096, 38, 4096, 31, 4096, 25, 4096, 19, 4096, 13, 4096, 6,
+	4095, 101, 4095,  94, 4095,  88, 4095,  82, 4095,  75, 4095,  69, 4096,  63, 4096,  57,
+	4096, 50,  4096,  44, 4096,  38, 4096,  31, 4096,  25, 4096,  19, 4096,  13, 4096,   6,
 	0
 };
 
 void InitialiseCamera()//25AAC, 25CB8 (F)
 {
+	//We won't actually use this yet since lara_item is not inited.
+	return;
 	camera.pos.x = lara_item->pos.x_pos;
 	camera.pos.y = lara_item->pos.y_pos - 1024;
 	camera.pos.z = lara_item->pos.z_pos - 100;
@@ -215,7 +224,467 @@ void AlterFOV(short fov)//77BD8, 79C1C
 	///ctc2	$a0, $26 //?unknown instruction
 }
 
-void CalculateCamera()
+void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-	S_Warn("[CalculateCamera] - Unimplemented!\n");
+	//We don't actually use this since lara_item is not inited.
+	//Also, GetBoundsAccurate is not implemented.
+	return;
+
+	struct ITEM_INFO* item;
+	short* bounds;
+	short tilt;
+	short change;
+	long shift;
+	long fixed_camera;
+	long y;
+	long gotit;
+	struct OBJECT_VECTOR* fixed;
+	struct PHD_VECTOR v;
+
+	SniperOverlay = 0;
+	camerasnaps = 0;
+
+	CamOldPos.x = camera.pos.x;
+	CamOldPos.y = camera.pos.y;
+	CamOldPos.z = camera.pos.z;
+
+	if (BinocularRange > 0)
+	{
+		BinocularOn = 1;
+		BinocularCamera(lara_item);
+
+		if (BinocularRange > 0)
+		{
+			return;
+		}
+	}
+
+	//loc_27E14
+	if (BinocularOn == 1)
+	{
+		BinocularOn = -8;
+	}
+
+	//loc_27E28
+	camera.type = FIXED_CAMERA;
+	if (!UseForcedFixedCamera && camera.old_type != FIXED_CAMERA)
+	{
+		camera.speed = 1;
+	}
+
+	//loc_27E4C
+	if (gfCurrentLevel == 1 && XATrack == 51)
+	{
+		if (camera.underwater > 0 && GLOBAL_playing_cutseq == 0 && savegame.VolumeCD > 0)
+		{
+			CDDA_SetMasterVolume(savegame.VolumeCD);
+		}
+
+		//loc_27EBC
+		TLFlag = 1;
+	}
+	else
+	{
+		//loc_27EC8
+		if (TLFlag != 1 || camera.underwater == 0)
+		{
+			//loc_27EEC
+			TLFlag = 0;
+		}
+		else
+		{
+			camera.underwater = 0;
+		}
+	}
+
+	//loc_27EF0
+	if (gfCurrentLevel != 6)
+	{
+		//Camera is in a water room, play water sound effect.
+		if (room[camera.pos.room_number].flags & 1)
+		{
+			//SoundEffect(0, 60, 2);//a0, a1, a2
+			if (camera.underwater > 0)
+			{
+				if (GLOBAL_playing_cutseq == 0 && TLFlag == 0)
+				{
+					CDDA_SetMasterVolume(savegame.VolumeCD / 16);
+				}
+
+				//loc_27F88
+				camera.underwater = 1;
+			}
+		}
+		else
+		{
+			//loc_27F94
+			if (camera.underwater > 0)
+			{
+				if (GLOBAL_playing_cutseq == 0 && TLFlag == 0 && savegame.VolumeCD > 0)
+				{
+					CDDA_SetMasterVolume(savegame.VolumeCD);
+				}
+
+				//loc_27FE4
+				camera.underwater = 0;
+			}
+		}
+	}
+
+	//loc_27FE8
+	if (camera.type == CINEMATIC_CAMERA)
+	{
+		do_new_cutscene_camera();
+		return;
+	}
+
+	//loc_28008
+	fixed_camera = 0;//$s5
+	if (camera.item != NULL)
+	{
+		if (camera.type == FIXED_CAMERA || camera.type == HEAVY_CAMERA)
+		{
+			//loc_2802C
+			fixed_camera = 1;
+		}
+	}
+
+	//^ VERIFIED
+	//loc_28030
+   //If fixed camera is not enabled, always point the camera at lara.
+   //Otherwise it's pointed at the camera's item;
+	if (fixed_camera == 0)
+	{
+		item = lara_item;
+	}
+	else
+	{
+		item = camera.item;
+	}
+
+	//loc_28040
+	//bounds = GetBoundsAccurate(item);
+	y = (item->pos.y_pos + ((bounds[2] + bounds[3]) / 2)) - 256;//$s4
+
+	if (camera.item != NULL && fixed_camera == 0)
+	{
+		//Dist
+		//FIXME: long mSqrt(long); , check args
+		shift = sqrt((camera.item->pos.z_pos - item->pos.z_pos) * (camera.item->pos.z_pos - item->pos.z_pos) + (camera.item->pos.x_pos - item->pos.x_pos) * (camera.item->pos.x_pos - item->pos.x_pos));
+
+		//FIXME: phd_atan_asm(); , check args
+		change = atan2((item->pos.z_pos - camera.item->pos.z_pos), (item->pos.x_pos - camera.item->pos.x_pos)) - camera.item->pos.y_rot;
+		change *= 65536;
+
+		//bounds = GetBoundsAccurate(camera.item);
+		//FIXME: phd_atan_asm(); , check args $a0, $a1
+		//phd_atan_asm(shift, (camera.item->pos.y_pos + ((((bounds[2] + bounds[3]) + (bounds[2] + bounds[3])) >> 31) >> 1)) - y); 
+
+		int v0 = atan2(shift, (camera.item->pos.y_pos + ((((bounds[2] + bounds[3]) + (bounds[2] + bounds[3])) >> 31) >> 1)) - y);
+		v0 <<= 16;
+		tilt = v0 >> 17;//a3
+
+		int v1 = change >> 17;
+
+		v0 = ((change >> 17) + 9099) & 0xFFFF;
+		v0 = v0 < 0x4717 ? 1 : 0;
+		if (v0 != 0)
+		{
+			S_Warn("[CalculateCamera] - Unimplemented case!\n");
+			assert(0);//unfinished case
+			v0 = tilt < -0x3C6D ? 1 : 0;
+			if (v0 == 0)
+			{
+				v0 = tilt < 0x3C6D ? 1 : 0;
+				if (v0 != 0)
+				{
+					struct lara_info* a2 = &lara;
+					int a1 = lara.water_surface_dist;
+					v1 -= a1;
+					v1 <<= 16;
+					change = v1 >> 16;
+					
+					int a0 = change < 0x2D9 ? 1 : 0;
+					int t0 = v0;
+
+					if (a0 == 0)
+					{
+						v0 = a1 + 0x2D8;
+					}
+					else
+					{
+						//loc_28178
+#if 0
+						slti	$v0, $s0, -0x2D8
+						bnez	$v0, loc_28188
+						addiu	$v0, $a1, -0x2D8
+						addu	$v0, $s0, $a1
+#endif
+					}
+
+					//loc_28188
+#if 0
+					loc_28188:
+							 sh	$v0, 0xA8($a2)
+								 addiu	$a1, $t0, 0x57DC
+								 lhu	$a0, 0xAA($a1)
+								 lhu	$v1, 0xA8($a1)
+								 subu	$v0, $a3, $a0
+								 sll	$v0, 16
+								 sra	$s0, $v0, 16
+								 slti	$v0, $s0, 0x2D9
+								 bnez	$v0, loc_281B8
+								 sh	$v1, 0xAE($a1)
+								 j	loc_281C8
+								 addiu	$v0, $a0, 0x2D8
+
+								 loc_281B8:
+							 slti	$v0, $s0, -0x2D8
+								 bnez	$v0, loc_281C8
+								 addiu	$v0, $a0, -0x2D8
+								 addu	$v0, $s0, $a0
+
+								 loc_281C8 :
+							 sh	$v0, 0xAA($a1)
+								 addiu	$v1, $t0, 0x57DC
+								 lhu	$a0, 0xAA($v1)
+								 lw	$a1, 0x1E44($gp)
+								 li	$v0, 2
+								 sw	$v0, 0x1E08($gp)
+								 sh	$a0, 0xB0($v1)
+								 lw	$v0, 0x84($a1)
+								 nop
+								 ori	$v0, 0x40
+								 sw	$v0, 0x84($a1)
+#endif
+
+				}//loc_281F4
+			}//loc_281F4
+		}//loc_281F4
+	}
+
+	//loc_281F4
+	if ((camera.type - LOOK_CAMERA) < 2)
+	{
+		if (camera.type == COMBAT_CAMERA)
+		{
+			last_target.x = camera.target.x;
+			last_target.y = camera.target.y;
+			last_target.z = camera.target.z;
+			last_target.room_number = camera.target.room_number;
+		}
+
+		//loc_28234
+		camera.target.room_number = item->room_number;
+
+		if (camera.fixed_camera == 0 && BinocularOn < 0)
+		{
+			//loc_28258
+			camera.target.y = y;
+			camera.speed = 1;
+		}
+		else
+		{
+			//loc_28268
+			camera.target.y = ((y - camera.target.y) / 4) + camera.target.y;
+
+			if (camera.type == LOOK_CAMERA)
+			{
+				//loc_28290
+				camera.speed = 4;
+			}
+			else
+			{
+				//loc_28290
+				camera.speed = 8;
+			}
+		}
+
+		//loc_28294
+		camera.fixed_camera = 0;
+
+		if (camera.type == LOOK_CAMERA)
+		{
+			LookCamera(item);
+		}
+		else
+		{
+			CombatCamera(item);
+		}
+	}
+	else
+	{
+		////loc_282C8
+		last_target.x = camera.target.x;
+		last_target.y = camera.target.y;
+		last_target.z = camera.target.z;
+		last_target.room_number = camera.target.room_number;
+
+		y = camera.target.y;//$s4
+
+		camera.target.room_number = item->room_number;
+
+		gotit = 0;
+		if (camera.type != CHASE_CAMERA && camera.flags != 3)
+		{
+			fixed = &camera.fixed[camera.number];//a0
+
+			SniperCamActive = fixed->flags & 3;
+
+			//Look at lara joint 7.
+			if (fixed->flags & 2)
+			{
+				v.x = 0;
+				v.y = 0;
+				v.z = 0;
+
+				//v = GetLaraJointPos(7);//$a1
+
+				camera.target.x = v.z;
+				camera.target.y = v.y;
+				camera.target.z = v.x;
+
+				gotit = 1;
+			}
+		}
+
+		//loc_28370
+		if (gotit == 0)
+		{
+			int v1 = (((bounds[0] + bounds[4]) + bounds[4]) + bounds[5]) / 4;
+			camera.target.x = ((rcossin_tbl[((item->pos.y_rot >> 2) & 0x3FFC) / sizeof(short)] * v1) >> 12) + item->pos.x_pos;
+			camera.target.z = ((rcossin_tbl[(((item->pos.y_rot >> 3) | 1) << 1) / sizeof(short)] * v1) >> 12) + item->pos.z_pos;
+
+			if (item->object_number == LARA)
+			{
+				ConfirmCameraTargetPos();
+			}
+		}
+
+		//loc_28418
+		if (camera.fixed_camera != fixed_camera)
+		{
+			SniperCount = 30;
+			camera.fixed_camera = 1;
+			camera.speed = 1;
+		}
+		else
+		{
+			//loc_28440
+			camera.fixed_camera = 0;
+		}
+
+		//loc_28444
+		if (camera.speed != 1 && camera.old_type != LOOK_CAMERA && BinocularOn >= 0)
+		{
+			if (TargetSnaps < 9)
+			{
+				//loc_28494
+				camera.target.x = ((camera.target.x - last_target.x) / 4) + camera.target.x;
+				camera.target.y = ((camera.target.y - last_target.y) / 4) + camera.target.y;
+				camera.target.z = ((camera.target.z - last_target.z) / 4) + last_target.z;
+			}
+			else
+			{
+				TargetSnaps = 0;
+			}
+		}
+
+		//loc_284DC
+		//GetFloor(camera.target.x, camera.target.y, camera.target.z, camera.target.room_number);//$a0, $a1, $a2, $a3
+
+		long v0 = camera.target.x - last_target.x;
+		if (v0 < 0)
+		{
+			v0 = -v0;
+		}
+
+		//loc_28510
+		if (v0 < 4)
+		{
+			int v00 = camera.target.y - last_target.y;
+
+			if (v00 < 0)
+			{
+				v00 = -v00;
+			}
+
+			//loc_28560:
+			if (v00 < 4)
+			{
+				camera.target.x = last_target.x;
+				camera.target.y = last_target.y;
+				camera.target.z = last_target.z;
+			}
+
+		}
+
+		//loc_28578
+		if (camera.type != CHASE_CAMERA)
+		{
+			if (camera.flags != 3)
+			{
+				FixedCamera();
+			}
+		}//loc_28598
+		else
+		{
+			ChaseCamera(item);
+		}
+	}
+
+	//loc_285B0
+	camera.fixed_camera = fixed_camera;
+	camera.last = camera.number;
+
+	if (camera.type == HEAVY_CAMERA && camera.timer != -1)
+	{
+		return;
+	}
+
+	//loc_285DC
+	camera.speed = 10;
+	camera.type = CHASE_CAMERA;
+	camera.number = -1;
+
+	camera.target_elevation = 0;
+	camera.target_angle = 0;
+	camera.target_distance = 1536;
+	camera.flags = 0;
+
+	camera.lara_node = -1;
+	camera.last_item = item;
+	camera.item = NULL;
+
+	return;
+}
+
+void LookCamera(struct ITEM_INFO* item)
+{
+	S_Warn("[LookCamera] - Unimplemented!\n");
+}
+
+void CombatCamera(struct ITEM_INFO* item)
+{
+	S_Warn("[CombatCamera] - Unimplemented!\n");
+}
+
+void FixedCamera()
+{
+	S_Warn("[FixedCamera] - Unimplemented!\n");
+}
+
+void ChaseCamera(struct ITEM_INFO* item)
+{
+	S_Warn("[ChaseCamera] - Unimplemented!\n");
+}
+
+void BinocularCamera(struct ITEM_INFO* item)
+{
+	S_Warn("[BinocularCamera] - Unimplemented!\n");
+}
+
+void ConfirmCameraTargetPos()
+{
+	S_Warn("[ConfirmCameraTargetPos] - Unimplemented!\n");
 }

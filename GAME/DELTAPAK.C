@@ -101,7 +101,7 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 	if (num == OUTSIDE_CHURCH_SEQUENCE)
 	{
 		/*
-		 * Resetting all outside church sequence animatings to their original positions/animations.
+		 * Resetting all outside church sequence animatings to their original position & animation.
 		 */
 		//Man holding umbrella at church area (TITLE.TRC)
 		item = ResetCutanimate(ANIMATING10);
@@ -205,7 +205,7 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 
 	item->anim_number = *(short*) &objects[(objnum << 6) + 38];//0x237, basically objects[objnum]+38
 	item->frame_number = anims[item->anim_number].frame_base;
-	RemoveActiveItem((int) (item - &items[0]));//index into items passed?
+	RemoveActiveItem(item - items);
 
 	item->flags &= 0xC1FF;
 #if 0
@@ -427,4 +427,9 @@ struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
 	}
 
 	return NULL;
+}
+
+void do_new_cutscene_camera()
+{
+	S_Warn("[do_new_cutscene_camera] - Unimplemented!\n");
 }

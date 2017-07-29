@@ -421,7 +421,7 @@ void RelocateLevel()//?, B3B50(<)
 		 //jal sub_4E2A4 ??
 
 		s4 = 0;
-		sub_B96EC(0);//0xB4238
+		sub_B96EC(0);//0xB4238 - crucial.
 
 		//jal 0xBB498
 
@@ -452,7 +452,7 @@ void RelocateLevel()//?, B3B50(<)
 		testtt++;
 		int testing3 = 0;
 		testing3++;
-	}
+	}//FIXME bad brace
 
 }//0xB4730 is end jalr v0
 
