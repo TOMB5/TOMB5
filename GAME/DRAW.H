@@ -1,8 +1,9 @@
 #ifndef DRAW_H
 #define DRAW_H
 
-#include "ROOMLOAD.H"
+#include "ITEMS.H"
 #include "PSXTYPES.H"
+#include "ROOMLOAD.H"
 
 struct ANIM_STRUCT
 {
@@ -97,5 +98,8 @@ extern struct door_vbuf vbufdoor[4];
 extern short Sback_gun;
 extern short* SRhandPtr;
 extern short* SLhandPtr;
+
+long GetFrames(struct ITEM_INFO* item, short** unknown, long* unknown_2);
+short* GetBoundsAccurate(struct ITEM_INFO* item);
 
 #endif

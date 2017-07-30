@@ -1,32 +1,33 @@
 #include "TOMB4FX.H"
 
 #include "SPECIFIC.H"
-char flare_table[121]; // offset 0x92A6C
-char LaserSightActive; // offset 0xA09FC
-char LaserSightCol; // offset 0xA09FD
-long next_fire_spark; // offset 0xA0A0C
-long next_smoke_spark; // offset 0xA0A10
-long next_gunshell; // offset 0xA0A18
-long next_bubble; // offset 0xA0A1C
-long next_drip; // offset 0xA0A20
-long next_blood; // offset 0xA0A14
+
+char flare_table[121];
+char LaserSightActive;
+char LaserSightCol;
+long next_fire_spark;
+long next_smoke_spark;
+long next_gunshell;
+long next_bubble;
+long next_drip;
+long next_blood;
 //struct NODEOFFSET_INFO NodeOffsets[16]; // offset 0xA0A24
-short FlashFadeR; // offset 0xA0A04
-short FlashFadeG; // offset 0xA0A06
-short FlashFadeB; // offset 0xA0A08
-short FlashFader; // offset 0xA0A0A
-short ScreenFade; // offset 0xA09F0
-short dScreenFade; // offset 0xA09F2
-short ScreenFadeSpeed; // offset 0xA09F4
-short ScreenFadeBack; // offset 0xA09F6
-short ScreenFadedOut; // offset 0xA09F8
-short ScreenFading; // offset 0xA09FA
-short FadeScreenHeight; // offset 0xA09FE
-short DestFadeScreenHeight; // offset 0xA0A00
-short FadeClipSpeed; // offset 0xA0A02
-long LaserSightX; // offset 0xA3268
-long LaserSightY; // offset 0xA326C
-long LaserSightZ; // offset 0xA3270
+short FlashFadeR;
+short FlashFadeG;
+short FlashFadeB;
+short FlashFader;
+short ScreenFade;
+short dScreenFade;
+short ScreenFadeSpeed;
+short ScreenFadeBack;
+short ScreenFadedOut;
+short ScreenFading;
+short FadeScreenHeight;
+short DestFadeScreenHeight;
+short FadeClipSpeed;
+long LaserSightX;
+long LaserSightY;
+long LaserSightZ;
 //struct GUNFLASH_STRUCT Gunflashes[4]; // offset 0xA31D8
 //struct PHD_VECTOR NodeVectors[16]; // offset 0xA3274
 //struct FIRE_SPARKS fire_spark[20]; // offset 0xA94FC

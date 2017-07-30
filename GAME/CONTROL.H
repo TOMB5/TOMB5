@@ -103,9 +103,12 @@ extern char globoncuttrig;
 extern short ItemNewRooms[256][2];
 extern struct CHARDEF CharDef[106];
 
-long ControlPhase(long nframes, int demo_mode);
-long GetRandomControl();
-long GetRandomDraw();
-void AddRoomFlipItems(struct room_info* r);
+extern long ControlPhase(long nframes, int demo_mode);
+extern long GetRandomControl();
+extern long GetRandomDraw();
+extern void AddRoomFlipItems(struct room_info* r);
+extern void KillMoveItems();
+extern void KillMoveEffects();
+extern void KillEverything();
 
 #endif

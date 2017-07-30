@@ -363,7 +363,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	}
 
 	//loc_28040
-	//bounds = GetBoundsAccurate(item);
+	bounds = GetBoundsAccurate(item);
 	y = (item->pos.y_pos + ((bounds[2] + bounds[3]) / 2)) - 256;//$s4
 
 	if (camera.item != NULL && fixed_camera == 0)
@@ -376,7 +376,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		change = atan2((item->pos.z_pos - camera.item->pos.z_pos), (item->pos.x_pos - camera.item->pos.x_pos)) - camera.item->pos.y_rot;
 		change *= 65536;
 
-		//bounds = GetBoundsAccurate(camera.item);
+		bounds = GetBoundsAccurate(camera.item);
 		//FIXME: phd_atan_asm(); , check args $a0, $a1
 		//phd_atan_asm(shift, (camera.item->pos.y_pos + ((((bounds[2] + bounds[3]) + (bounds[2] + bounds[3])) >> 31) >> 1)) - y); 
 
