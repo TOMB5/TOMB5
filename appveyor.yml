@@ -22,6 +22,12 @@ platform:
   - Win32
   #- x64
   
+install:
+  - set SDL2_URL="https://www.libsdl.org/release/SDL2-devel-2.0.5-VC.zip"
+  - appveyor DownloadFile %SDL2_URL% -FileName SDL2.zip
+  - 7z x SDL2.zip -o C:\projects\TOMB5\EXTERNAL\
+  - set SDL2=C:\projects\TOMB5\EXTERNAL\SDL2-2.0.5\;%SDL2%
+  
 before_build:
   - cmd: cd c:\projects\TOMB5
   - cmd: md BUILD
