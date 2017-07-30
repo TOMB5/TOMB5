@@ -44,6 +44,6 @@ artifacts:
      name: Binaries
   
 after_build:
-  - 7z a TOMB5.zip \%configuration%\
+  - 7z a TOMB5.zip "%configuration%\"
   
 #build: off
