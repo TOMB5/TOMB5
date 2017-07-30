@@ -36,41 +36,6 @@ struct LIGHTINFO {
 	short Cutoff; // size=0, offset=30
 };
 
-struct room_info
-{
-	short* data;
-	short* door;
-	struct FLOOR_INFO* floor;
-	struct LIGHTINFO* light;
-	struct MESH_INFO* mesh;
-	long x;
-	long y;
-	long z;
-	long minfloor;
-	long maxceiling;
-	short x_size;
-	short y_size;
-	struct CVECTOR ambient;
-	short num_lights;
-	short num_meshes;
-	unsigned char ReverbType;
-	unsigned char FlipNumber;
-	char MeshEffect;
-	char bound_active;
-	short left;
-	short right;
-	short top;
-	short bottom;
-	short test_left;
-	short test_right;
-	short test_top;
-	short test_bottom;
-	short item_number;
-	short fx_number;
-	short flipped_room;
-	unsigned short flags;
-};
-
 #pragma pack(pop)
 
 void S_LoadLevelFile(int Name);

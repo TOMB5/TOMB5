@@ -128,9 +128,10 @@ extern int cutseq_malloc_free;
 extern unsigned short old_lara_holster;
 extern short temp_rotation_buffer[160];
 
-void trigger_title_spotcam(int num);
-void handle_cutseq_triggering(int name);
-struct ITEM_INFO* ResetCutanimate(int objnum);
-struct ITEM_INFO* find_a_fucking_item(int object_number);
+extern void trigger_title_spotcam(int num);
+extern void handle_cutseq_triggering(int name);
+extern struct ITEM_INFO* ResetCutanimate(int objnum);
+extern struct ITEM_INFO* find_a_fucking_item(int object_number);
+extern void do_new_cutscene_camera();
 
 #endif

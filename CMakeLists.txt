@@ -12,6 +12,11 @@ set(INTERNAL 0 CACHE BOOL "Internal")
 
 #MESSAGE(STATUS "PLATFORM_PSXPC: TRUE" ${PLATFORM_PSXPC})
 
+#Tell CMAKE where to find the additional modules this project requires.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
+
+find_package(SDL2 REQUIRED)
+
 #Platform specific
 if (PLATFORM_PSX)
 	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PSX")
@@ -40,6 +45,9 @@ string(CONCAT GAME_CODE_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/GAME")
 include_directories(${PLATFORM_SPECIFIC_DIR})
 include_directories(${GAME_CODE_DIR})
 
+#Additional library include directories
+include_directories(${SDL2_INCLUDE_DIR})
+
 #Add all GAME/SPEC* source files recursively.
 file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
 file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${PLATFORM_SPECIFIC_DIR}/*.C  ${PLATFORM_SPECIFIC_DIR}/*.H)
@@ -52,6 +60,9 @@ TOMB5
 ${GAME_SRCS}
 ${PLATFORM_SPECIFIC_SRCS}
 )
+
+#Add SDL2 as a link library
+target_link_libraries(TOMB5 ${SDL2_LIBRARY})
 
 set_target_properties(
 TOMB5

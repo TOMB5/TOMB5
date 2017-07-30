@@ -122,7 +122,14 @@ extern struct GAME_VECTOR last_ideal;
 extern struct GAME_VECTOR last_target;
 extern short rcossin_tbl[];
 
-void InitialiseCamera();
-void AlterFOV(short fov);
+extern void InitialiseCamera();
+extern void AlterFOV(short fov);
+extern void CalculateCamera();
+extern void BinocularCamera(struct ITEM_INFO* item);
+extern void LookCamera(struct ITEM_INFO* item);
+extern void CombatCamera(struct ITEM_INFO* item);
+extern void FixedCamera();
+extern void ChaseCamera(struct ITEM_INFO* item);
+extern void ConfirmCameraTargetPos();
 
 #endif

@@ -19,7 +19,7 @@ static struct CVECTOR ShadeFromTo[10][2] =
 	128,   0,   0,  0,  64,    0,  0,  0
 };
 
-void InitFont()//115EC(<), 1169C(<)
+void InitFont()//115EC(<), 1169C(<) (F)
 {
 	int i, j;
 	unsigned short r, g, b;

@@ -16,4 +16,5 @@ extern struct VECTOR3D CamPos;
 extern struct VECTOR3D CamTgt;
 
 void phd_InitWindow(int view_angle);
+long mGetAngle(long x, long z, long tx, long tz);
 #endif

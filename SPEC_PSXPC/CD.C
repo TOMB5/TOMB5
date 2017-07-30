@@ -101,3 +101,8 @@ void S_CDStop()
 {
 	S_Warn("[S_CDStop] - unimplemented!\n");
 }
+
+void CDDA_SetMasterVolume(int nVolume)
+{
+	S_Warn("[CDDA_SetMasterVolume] - unimplemented!\n");
+}
