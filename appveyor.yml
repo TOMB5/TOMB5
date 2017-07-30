@@ -29,7 +29,7 @@ install:
   - set SDL2=C:\projects\TOMB5\EXTERNAL\SDL2-2.0.5
   
 before_build:
-  - cmd: cd c:\projects\TOMB5
+  - cmd: cd %clone_folder%
   - cmd: md BUILD
   - cmd: cd BUILD
   
@@ -38,12 +38,13 @@ before_build:
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
   
 artifacts:
-   - path: BUILD\$(configuration)\*.exe
+   - path: BUILD\$(configuration)\*.zip
      name: Binaries
 #  - path: TOMB5.zip
 
   
-#after_build:
-#  - 7z a TOMB5.zip %APPVEYOR_BUILD_FOLDER%\BUILD\%configuration%\TOMB5.EXE
+after_build:
+  - cmd: for /R %clone_folder%\EXTERNAL\ %%f in (*.dll) do copy %%f %clone_folder%\BUILD\
+  - 7z a TOMB5.zip %clone_folder%\BUILD\%configuration%\TOMB5.EXE
   
 #build: off
