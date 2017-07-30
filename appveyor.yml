@@ -40,11 +40,10 @@ before_build:
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
   
 artifacts:
-   - path: BUILD\$(configuration)\*.zip
+   - path: BUILD\*.zip
      name: Binaries
   
 after_build:
-  - cmd: cd %clone_folder%\BUILD\%configuration%\
-  - 7z a TOMB5.zip %clone_folder%\BUILD\%configuration%\
+  - 7z a TOMB5.zip \%configuration%
   
 #build: off
