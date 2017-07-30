@@ -32,7 +32,7 @@ before_build:
   - cmd: cd %clone_folder%
   - cmd: md BUILD
   - cmd: cd BUILD
-  
+  - cmd: copy C:\projects\TOMB5\EXTERNAL\SDL2-2.0.5\lib\x86\SDL2.dll %clone_folder%\BUILD\%configuration%
   - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
   - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
@@ -42,7 +42,6 @@ artifacts:
      name: Binaries
   
 after_build:
-  - cmd: copy C:\projects\TOMB5\EXTERNAL\SDL2-2.0.5\lib\x86\SDL2.dll %clone_folder%\BUILD\%configuration%\
   - cmd: cd %clone_folder%\BUILD\%configuration%\
   - 7z a TOMB5.zip %clone_folder%\BUILD\%configuration%\
   
