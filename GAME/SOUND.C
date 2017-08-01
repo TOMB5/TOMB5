@@ -1,5 +1,6 @@
 #include "SOUND.H"
 
+#include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 
 int sound_active;
@@ -9,8 +10,20 @@ struct SoundSlot LaSlot[MAX_SOUND_SLOTS];
 
 void SayNo()
 {
-	S_Warn("[SayNo] - Unimplemented!\n");
-//	int fx; // $a0
+	int fx = 2;
+
+	if (Gameflow->Language == FRENCH)
+	{
+		fx = 348;
+	}
+	else if (Gameflow->Language == JAPAN)
+	{
+		fx = 349;
+	}
+
+	//SoundEffect(fx, 0, 2); //$a0, $a1, $a2
+
+	return;
 }
 
 void SOUND_Init()//920DC, 94128
