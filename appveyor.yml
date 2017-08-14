@@ -14,7 +14,7 @@ configuration:
 - Release
 
 clone_folder: c:\projects\TOMB5
-lib_folder: %clone_folder%\EXTERNAL
+#lib_folder: %clone_folder%\EXTERNAL
 
 build:
   verbosity: minimal
