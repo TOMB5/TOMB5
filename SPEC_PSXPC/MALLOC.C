@@ -1,7 +1,6 @@
 #include "MALLOC.H"
 
 #include "GAMEFLOW.H"
-#include "SPECIFIC.H"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,7 +40,10 @@ void init_game_malloc()//5E79C(<), 5F4F8(<) (F)
 
 char* game_malloc(int size)//5E7E8(<), 5F544(<) (F)
 {
+#ifdef INTERNAL
 	char buf[80];
+#endif
+
 	char* ptr = NULL;
 
 	size = (size + 3) & -4;

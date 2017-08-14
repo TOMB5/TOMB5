@@ -40,7 +40,6 @@ void SetSp()
 
 int main(int argc, char* args[])//10064, 10064
 {
-	SDL_Init(0);
 #ifdef PSX
 	ResetCallback();
 	//SPU_Init();
@@ -79,6 +78,9 @@ int main(int argc, char* args[])//10064, 10064
 	GPU_UseOrderingTables();
 	GPU_UsePolygonBuffers();
 	GPU_GetScreenPosition();
+#endif
+
+#ifdef INTERNAL
 	ProfileInit();
 #endif
 

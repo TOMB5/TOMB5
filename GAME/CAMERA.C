@@ -4,7 +4,6 @@
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
-#include "LARA.H"
 #include "OBJECTS.H"
 #include "SAVEGAME.H"
 #include "SPECIFIC.H"

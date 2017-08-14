@@ -39,11 +39,11 @@ void AlertNearbyGuards(ITEM_INFO* item)//24D20(<), 24F2C(<)
 			continue;
 		}
 
-		x = ((target->pos.x_pos - item->pos.x_pos) / 64) * ((target->pos.x_pos - item->pos.x_pos) / 64);
-		y = ((target->pos.y_pos - item->pos.y_pos) / 64) * ((target->pos.y_pos - item->pos.y_pos) / 64);
-		z = ((target->pos.z_pos - item->pos.z_pos) / 64) * ((target->pos.z_pos - item->pos.z_pos) / 64);
+		x = (target->pos.x_pos - item->pos.x_pos) / 64;
+		y = (target->pos.y_pos - item->pos.y_pos) / 64;
+		z = (target->pos.z_pos - item->pos.z_pos) / 64;
 
-		distance = x + y + z;
+		distance = (x * x) + (y * y) + (z * z);
 
 		//Though the item is not in the same room.
 		//If the distance between them is < 0x1F40, alert the guards!
