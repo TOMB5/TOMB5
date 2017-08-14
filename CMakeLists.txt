@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 
 project (TOMB5)
 
-#Platform override
+#User input, used to switch current platform specific code.
 set(PLATFORM_PSX 0 CACHE BOOL "Tomb Raider: 5 PlayStation")
 set(PLATFORM_PSXPC 1 CACHE BOOL "Tomb Raider: 5 PlayStation (PC)")
 set(PLATFORM_PC 0 CACHE BOOL "Tomb Raider: 5 PC")
@@ -16,8 +16,9 @@ set(INTERNAL 0 CACHE BOOL "Internal")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
 
 find_package(SDL2 REQUIRED)
+find_package(OpenGL)
 
-#Platform specific
+#Create platform specific code directory string
 if (PLATFORM_PSX)
 	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PSX")
 	add_definitions(-DPSX)
@@ -61,8 +62,12 @@ ${GAME_SRCS}
 ${PLATFORM_SPECIFIC_SRCS}
 )
 
-#Add SDL2 as a link library
-target_link_libraries(TOMB5 ${SDL2_LIBRARY})
+#Link against required libraries
+target_link_libraries(
+TOMB5
+${SDL2_LIBRARY}
+${OPENGL_gl_LIBRARY}
+)
 
 set_target_properties(
 TOMB5
