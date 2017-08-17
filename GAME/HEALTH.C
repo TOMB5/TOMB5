@@ -35,7 +35,8 @@ int FlashIt()//3AD2C, 3B22C
 
 void InitialisePickUpDisplay()//3B580, 3B9DC
 { 
-	for (int i = 7; i > -1; i--)
+	int i;
+	for (i = 7; i > -1; i--)
 	{
 		pickups[i].life = -1;
 	}

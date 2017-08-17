@@ -218,6 +218,7 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 
 void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 {
+	int i;
 	int s1 = name;//guessed, moved but not used
 	
 	if (cutseq_num == 0)
@@ -252,7 +253,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 
 			//loc_2C448
 			//loc_2C454
-			for (int i = 0; i < 9; i++)//TODO const
+			for (i = 0; i < 9; i++)//TODO const
 			{
 				cutseq_meshswapbits[i] = 0;
 				cutseq_meshbits[i] = a1;

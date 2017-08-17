@@ -24,6 +24,7 @@ void InitFont()//115EC(<), 1169C(<) (F)
 	int i, j;
 	unsigned short r, g, b;
 	unsigned char fr, fg, fb;
+	int t3, t4, t5;
 
 	for(i = 0; i < 10; i++)
 	{
@@ -31,9 +32,9 @@ void InitFont()//115EC(<), 1169C(<) (F)
 		g = 0;
 		b = 0;
 
-		int t5 = ShadeFromTo[i][0].b << 4;
-		int t4 = ShadeFromTo[i][0].g << 4;
-		int t3 = ShadeFromTo[i][0].r << 4;
+		t5 = ShadeFromTo[i][0].b << 4;
+		t4 = ShadeFromTo[i][0].g << 4;
+		t3 = ShadeFromTo[i][0].r << 4;
 
 		for (j = 0; j < 16; j++)
 		{

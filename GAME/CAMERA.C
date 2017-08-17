@@ -12,7 +12,9 @@
 #include "3D_GEN.H"
 
 #include <assert.h>
+#ifndef PSX
 #include <math.h>
+#endif
 #include <stddef.h>
 
 long BinocularRange;
@@ -215,16 +217,19 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 
 void AlterFOV(short fov)//77BD8, 79C1C
 {
+#ifndef PSX
 	CurrentFov = fov;
 
 	short* rcossin_ptr = &rcossin_tbl[((fov + ((fov << 16) >> 31) >> 3) & 0x3FFC) / sizeof(short)];
 	//short* rcossin_ptr = &rcossin_tbl[((fov + ((fov << 16) >> 31) >> 3) & 0x3FFC) / sizeof(short)];
 	phd_persp = ((rcossin_ptr[1] << 8) / rcossin_ptr[0]);
 	///ctc2	$a0, $26 //?unknown instruction
+#endif
 }
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
+#ifndef PSX
 	//We don't actually use this since lara_item is not inited.
 	//Also, GetBoundsAccurate is not implemented.
 	return;
@@ -654,7 +659,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	camera.lara_node = -1;
 	camera.last_item = item;
 	camera.item = NULL;
-
+#endif
 	return;
 }
 

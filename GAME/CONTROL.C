@@ -94,6 +94,8 @@ char byte_A3660;
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 {
+#ifndef PSX
+
 	int s0 = nframes;
 	int v0 = SlowMotion;
 	int a0 = SlowMotion;
@@ -658,6 +660,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	//ret 0
 
 	//loc_1E3BC:
+#endif
 	return 0;
 }
 

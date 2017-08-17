@@ -134,11 +134,11 @@ void RemoveActiveItem(short item_num)//41E98, 422EC
 	short linknum; // $v1
 	struct ITEM_INFO* a1 = &items[item_num];
 	//int a2 = *(int*)a1->active;
-
+	int v0;
 	short test = 1;
 	test &= -2;
 
-	int v0 = -2;
+	v0 = -2;
 	if (a1->active)///@FIXME wrong flags, must finish InitialiseItem();
 	{
 		assert(0);
@@ -194,7 +194,7 @@ void AddActiveItem(short item_num)//41FEC(<), 42440(<)
 	item = &items[item_num];
 
 	item->flags |= 0x20;
-	int test = item->object_number << 6;
+	//int test = item->object_number << 6;
 	if (*(int*) &objects[(item->object_number << 6) + 0x10] == 0)//Bug: Always zero due to incomplete level data relocation
 	{
 		item->meshswap_meshbits &= -7;

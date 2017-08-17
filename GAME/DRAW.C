@@ -45,11 +45,13 @@ short* SLhandPtr;
 long GetFrames(struct ITEM_INFO* item/*$a0*/, short** unknown/*a1*/, long* unknown_2/*$a2*/)//8582C
 {
 	struct ANIM_STRUCT* anim = &anims[item->anim_number];
-	
+	int t3;
+	short* t4;
+
 	unknown_2[0] = anim->interpolation;
 
-	int t3 = ((item->frame_number - anim->frame_base) / anim->interpolation) * anim->interpolation >> 8;
-	short* t4 = &anim->frame_ptr[t3];
+	t3 = ((item->frame_number - anim->frame_base) / anim->interpolation) * anim->interpolation >> 8;
+	t4 = &anim->frame_ptr[t3];
 
 	unknown[0] = &anim->frame_ptr[t3];
 	unknown[1] = &t4[anim->interpolation >> 8];
@@ -73,7 +75,8 @@ short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8,
 {
 	short* var_10[2];//$a1
 	long var_8[2];//$a2
-
+	short* a2;
+	int a1;
 	if (GetFrames(item, &var_10[0], &var_8[0]) == 0)
 	{
 		return NULL;// t4;//? Well you can tell this was written by hand in mips, smh, nice optimisation
@@ -81,8 +84,8 @@ short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8,
 	
 
 	//loc_8591C
-	short* a2 = &interpolated_bounds[0];
-	int a1 = 6;
+	a2 = &interpolated_bounds[0];
+	a1 = 6;
 
 	//loc_85928
 #if 0//Error, t5 = unknown, t4 = unknown. probably gonna have to ref

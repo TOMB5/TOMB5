@@ -28,7 +28,9 @@ void SayNo()
 
 void SOUND_Init()//920DC, 94128
 {
-	for (int i = 0; i < MAX_SOUND_SLOTS; i++)
+	int i;
+
+	for (i = 0; i < MAX_SOUND_SLOTS; i++)
 	{
 		LaSlot[i].nSampleInfo = -1;
 	}
@@ -38,9 +40,11 @@ void SOUND_Init()//920DC, 94128
 
 void SOUND_Stop()//920A4, ?
 {
+	int i;
+
 	if (sound_active != 0)
 	{
-		for (int i = 0; i < MAX_SOUND_SLOTS; i++)
+		for (i = 0; i < MAX_SOUND_SLOTS; i++)
 		{
 			LaSlot[i].nSampleInfo = -1;
 		}

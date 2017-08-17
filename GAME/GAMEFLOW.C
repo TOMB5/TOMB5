@@ -22,7 +22,9 @@
 #include "TOMB4FX.H"
 
 #include <assert.h>
+#ifndef PSX
 #include <stdint.h>
+#endif
 #include <string.h>
 
 #define GF_SCRIPT_FILENAME "SCRIPT.DAT"
@@ -81,11 +83,12 @@ unsigned char gfTakeaways[16];
 
 void DoGameflow()//10F5C(<), 10FD8(<)
 {
+#ifndef PSX
 	//unsigned char *gf;
 	//unsigned char n;
 
 	LoadGameflow();
-#ifdef PSX
+#if 0//def PSX
 	//0 = Eidos Logo FMV
 	//1 = TRC Intro FMV
 	S_PlayFMV(0);
@@ -156,12 +159,18 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 			break;
 		}
 	}
+#endif
 }
 
 void LoadGameflow()//102E0, 102B0
 {
+#ifndef PSX
 	int len = FILE_Length(GF_SCRIPT_FILENAME);
 	char* s = game_malloc(len);
+	int j = 0;
+	int i = 0;
+	struct STRINGHEADER sh;
+
 	FILE_Load(GF_SCRIPT_FILENAME, s);
 
 	Gameflow = (struct GAMEFLOW*)s;
@@ -185,8 +194,6 @@ void LoadGameflow()//102E0, 102B0
 
 	//Align
 	gfStringOffset = (unsigned short*)(char*)((uintptr_t)(s + 3) & (uintptr_t)-4);
-
-	int i = 0;
 
 #ifdef CORE_UNSAFE
 	//This is original code, unsafe (if no lang loc files exist on disk)
@@ -214,7 +221,6 @@ void LoadGameflow()//102E0, 102B0
 
 	FILE_Load((char*)s, gfStringOffset);
 
-	struct STRINGHEADER sh;
 	memcpy(&sh, gfStringOffset, sizeof(struct STRINGHEADER));
 	memcpy(gfStringOffset, gfStringOffset + (sizeof(struct STRINGHEADER) / sizeof(unsigned short)), (sh.nStrings + sh.nPSXStrings) * sizeof(unsigned short));
 
@@ -237,7 +243,7 @@ void LoadGameflow()//102E0, 102B0
 			int stringLength = (gfStringOffset[i + 1] - gfStringOffset[i]) - 1;
 			if (stringLength > 0)
 			{
-				for (int j = 0; j < stringLength; j++)
+				for (j = 0; j < stringLength; j++)
 				{
 					stringPtr[j] ^= 0xA5;
 				}
@@ -376,6 +382,7 @@ void LoadGameflow()//102E0, 102B0
 			}
 		}
 	}
+#endif
 }
 
 void QuickControlPhase()//10274(<), 10264(<)
@@ -384,13 +391,13 @@ void QuickControlPhase()//10274(<), 10264(<)
 	ProfileRGB(255, 255, 255);
 #endif
 
-#ifdef PSX
+#if 0 //def PSX
 	//OldSP = SetSp(0x1F8003E0);
 #endif
 
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
 
-#ifdef PSX
+#if 0 //def PSX
 	SetSp(OldSP);
 #endif
 
@@ -401,6 +408,7 @@ void QuickControlPhase()//10274(<), 10264(<)
 
 void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 {
+#ifndef PSX
 	//int i;
 	CreditsDone = 0;
 	CanLoad = 0;
@@ -448,7 +456,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	if (!bDoCredits)
 	{
-		//Ugly hardcoded start camera id
 		trigger_title_spotcam(1);
 		ScreenFadedOut = 0;
 		ScreenFade = 0;
@@ -621,10 +628,12 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	Motors[0] = 0;
 	Motors[1] = 0;
 	
+#if 0
 	if (!Gameflow->LoadSaveEnabled)
 	{
 		//mcClose();
 	}
+#endif
 
 	//loc_109FC
 	XAReqVolume = 0;
@@ -637,15 +646,17 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 		bUseSpotCam = 0;
 		bDisableLaraControl = 0;
+
 #ifndef INTERNAL
-		if (gfLevelComplete == 1 && gfStatus != 2)
-		{
+		//if (gfLevelComplete == 1 && gfStatus != 2)
+		//{
 			//sub_5E7A0(1, 2);//a1, a0
-		}
+		//}
 #endif
 
 	}//loc_10A58 @FIXME original game has infinite loop if XAVolume != 0
-	assert(0);//temporary
+	//assert(0);//temporary
+#endif
 }
 
 void DoLevel(unsigned char Name, unsigned char Audio)

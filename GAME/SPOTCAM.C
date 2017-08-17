@@ -11,8 +11,11 @@
 #include "SWITCH.H"
 #include "TOMB4FX.H"
 
-#include <cassert>
-#include <math.h>
+#include <assert.h>
+
+#ifndef PSX
+	#include <math.h>
+#endif
 
 #define MULFP(A, B) ((A % B) << 16) | ((A * B) >> 16)
 #define DIVFP(A, B) (A / (B >> 8)) << 8
@@ -127,6 +130,7 @@ void InitSpotCamSequences()//374B8(<), 379B8(<) (F)
 
 void InitialiseSpotCam(short Sequence)//37648, 37B48
 {
+#ifndef PSX
 	struct SPOTCAM* s;
 	int cn;
 	int sp;
@@ -431,11 +435,13 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48
 	quakecam.spos.box_number = 0;
 
 	//loc_37EAC
+#endif
 	return;
 }
 
 void CalculateSpotCams()//
 {
+#ifndef PSX
 	long cpx;
 	long cpy;
 	long cpz;
@@ -1041,7 +1047,6 @@ void CalculateSpotCams()//
 
 
 	}//loc_39160
-#if 0
 #endif
 	S_Warn("[CalculateSpotCams] - Unimplemented!\n");
 }//loc_39160
@@ -1052,6 +1057,7 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 	long* k;
 	long c1;
 	long c2;
+	int ret;
 
 	c2 = nk - 3;
 	x = MULFP(x, c2 << 16);
@@ -1066,7 +1072,7 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 	x -= span << 16;
 	k = &knots[span];
 
-	int ret = (((k[1] + (k[1] >> 1)) + (k[0] ^ -1) >> 2) - k[2] + (k[2] >> 1)) + (k[3] >> 1);
+	ret = (((k[1] + (k[1] >> 1)) + (k[0] ^ -1) >> 2) - k[2] + (k[2] >> 1)) + (k[3] >> 1);
 	ret = MULTEMP(ret, x) + (((k[0] - ((k[1] << 1) + (k[1] >> 1))) + (k[2] << 1) - (k[3] >> 1)) - (k[3] >> 1)) + (k[2] >> 1);
 	ret = MULTEMP(ret, x) + (k[0] ^ -1) >> 2;
 	return MULTEMP(ret, x) + k[1];
