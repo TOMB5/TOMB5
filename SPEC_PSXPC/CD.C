@@ -99,5 +99,12 @@ void S_CDStop()
 
 void CDDA_SetMasterVolume(int nVolume)
 {
-	S_Warn("[CDDA_SetMasterVolume] - unimplemented!\n");
+	XAMasterVolume = nVolume;
+	CDDA_SetVolume(nVolume);
+}
+
+void CDDA_SetVolume(int nVolume)
+{
+	struct SpuCommonAttr attr; // stack offset -48
+	S_Warn("[CDDA_SetVolume] - Unimplemented!\n");
 }
