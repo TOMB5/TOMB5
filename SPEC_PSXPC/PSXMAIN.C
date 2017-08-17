@@ -10,6 +10,8 @@
 //#include "SPUSOUND.H"
 #include "TEXT.H"
 
+#include <SDL.h>
+
 unsigned long dword_9A884 = 0;
 
 void VSyncFunc()
@@ -36,7 +38,7 @@ void SetSp()
 
 }
 
-int main()//10064, 10064
+int main(int argc, char* args[])//10064, 10064
 {
 #ifdef PSX
 	ResetCallback();
@@ -76,6 +78,9 @@ int main()//10064, 10064
 	GPU_UseOrderingTables();
 	GPU_UsePolygonBuffers();
 	GPU_GetScreenPosition();
+#endif
+
+#ifdef INTERNAL
 	ProfileInit();
 #endif
 

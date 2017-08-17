@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 
 project (TOMB5)
 
-#Platform override
+#User input, used to switch current platform specific code.
 set(PLATFORM_PSX 0 CACHE BOOL "Tomb Raider: 5 PlayStation")
 set(PLATFORM_PSXPC 1 CACHE BOOL "Tomb Raider: 5 PlayStation (PC)")
 set(PLATFORM_PC 0 CACHE BOOL "Tomb Raider: 5 PC")
@@ -12,7 +12,13 @@ set(INTERNAL 0 CACHE BOOL "Internal")
 
 #MESSAGE(STATUS "PLATFORM_PSXPC: TRUE" ${PLATFORM_PSXPC})
 
-#Platform specific
+#Tell CMAKE where to find the additional modules this project requires.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
+
+find_package(SDL2 REQUIRED)
+find_package(OpenGL)
+
+#Create platform specific code directory string
 if (PLATFORM_PSX)
 	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PSX")
 	add_definitions(-DPSX)
@@ -40,6 +46,9 @@ string(CONCAT GAME_CODE_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/GAME")
 include_directories(${PLATFORM_SPECIFIC_DIR})
 include_directories(${GAME_CODE_DIR})
 
+#Additional library include directories
+include_directories(${SDL2_INCLUDE_DIR})
+
 #Add all GAME/SPEC* source files recursively.
 file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
 file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${PLATFORM_SPECIFIC_DIR}/*.C  ${PLATFORM_SPECIFIC_DIR}/*.H)
@@ -51,6 +60,13 @@ add_executable(
 TOMB5
 ${GAME_SRCS}
 ${PLATFORM_SPECIFIC_SRCS}
+)
+
+#Link against required libraries
+target_link_libraries(
+TOMB5
+${SDL2_LIBRARY}
+${OPENGL_gl_LIBRARY}
 )
 
 set_target_properties(

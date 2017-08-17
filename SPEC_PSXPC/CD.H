@@ -1,10 +1,13 @@
 #ifndef CD_H
 #define CD_H
 
-void cbvsync();
-void InitNewCDSystem();
-void S_CDPlay(short track, int mode);
-void S_CDStop();
+#define CD_SECTOR_SIZE (2048)
+
+extern void cbvsync();
+extern void InitNewCDSystem();
+extern void S_CDPlay(short track, int mode);
+extern void S_CDStop();
+extern void CDDA_SetMasterVolume(int nVolume);
 
 extern unsigned short XATrackClip[136];
 extern short XAFadeRate;
@@ -19,7 +22,5 @@ extern short XAReqTrack;
 extern char XAFlag;
 extern char XAWait;
 extern int XAStartPos;
-
-#define CD_SECTOR_SIZE (2048)
 
 #endif

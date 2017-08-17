@@ -14,6 +14,7 @@ configuration:
 - Release
 
 clone_folder: c:\projects\TOMB5
+#lib_folder: %clone_folder%\EXTERNAL
 
 build:
   verbosity: minimal
@@ -22,22 +23,28 @@ platform:
   - Win32
   #- x64
   
+install:
+  - set SDL2_URL="https://www.libsdl.org/release/SDL2-devel-2.0.5-VC.zip"
+  - appveyor DownloadFile %SDL2_URL% -FileName SDL2.zip
+  - 7z x SDL2.zip -oC:\projects\TOMB5\EXTERNAL\
+  - set SDL2=C:\projects\TOMB5\EXTERNAL\SDL2-2.0.5
+  
 before_build:
-  - cmd: cd c:\projects\TOMB5
+  - cmd: cd %clone_folder%
+  #- cmd: dir /s
   - cmd: md BUILD
   - cmd: cd BUILD
-  
+  - cmd: md %configuration%
+  - cmd: copy "C:\projects\TOMB5\EXTERNAL\SDL2-2.0.5\lib\x86\SDL2.dll" "%configuration%\"
   - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
   - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
   
 artifacts:
-   - path: BUILD\$(configuration)\*.exe
+   - path: BUILD\*.zip
      name: Binaries
-#  - path: TOMB5.zip
-
   
-#after_build:
-#  - 7z a TOMB5.zip %APPVEYOR_BUILD_FOLDER%\BUILD\%configuration%\TOMB5.EXE
+after_build:
+  - 7z a TOMB5.zip "%configuration%\"
   
 #build: off

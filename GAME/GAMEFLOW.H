@@ -3,44 +3,11 @@
 
 #include "PSXTYPES.H"
 
-void DoGameflow();
-void LoadGameflow();
-void QuickControlPhase();
-void DoTitle(unsigned char Name, unsigned char Audio);
-void DoLevel(unsigned char Name, unsigned char Audio);
-
-#pragma pack(push, 1)
-
-struct GAMEFLOW
-{
-	unsigned long CheatEnabled : 1;
-	unsigned long LoadSaveEnabled : 1;
-	unsigned long TitleEnabled : 1;
-	unsigned long PlayAnyLevel : 1;
-	unsigned long Language : 3;
-	unsigned long DemoDisc : 1;
-	unsigned long Unused : 24;
-
-	unsigned long InputTimeout;
-	unsigned char SecurityTag;
-	unsigned char nLevels;
-	unsigned char nFileNames;
-	unsigned char Pad;
-	unsigned short FileNameLen;
-	unsigned short ScriptLen;
-};
-
-struct STRINGHEADER
-{
-	unsigned short nStrings;
-	unsigned short nPSXStrings;
-	unsigned short nPCStrings;
-	unsigned short StringWadLen;
-	unsigned short PSXStringWadLen;
-	unsigned short PCStringWadLen;
-};
-
-#pragma pack(pop)
+extern void DoGameflow();
+extern void LoadGameflow();
+extern void QuickControlPhase();
+extern void DoTitle(unsigned char Name, unsigned char Audio);
+extern void DoLevel(unsigned char Name, unsigned char Audio);
 
 enum gf_languages
 {

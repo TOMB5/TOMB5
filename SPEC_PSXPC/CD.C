@@ -1,6 +1,5 @@
 #include "CD.H"
 
-#include "FILE.H"
 #include "GAMEWAD.H"
 #include "SPECIFIC.H"
 
@@ -100,4 +99,9 @@ void S_CDPlay(short track, int mode)
 void S_CDStop()
 {
 	S_Warn("[S_CDStop] - unimplemented!\n");
+}
+
+void CDDA_SetMasterVolume(int nVolume)
+{
+	S_Warn("[CDDA_SetMasterVolume] - unimplemented!\n");
 }

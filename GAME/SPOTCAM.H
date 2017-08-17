@@ -3,34 +3,7 @@
 
 #include "CAMERA.H"
 
-#pragma pack(push,1)
-
-struct SPOTCAM
-{
-	long x;
-	long y;
-	long z;
-	long tx;
-	long ty;
-	long tz;
-	unsigned char sequence;
-	unsigned char camera;
-	short fov;
-	short roll;
-	short timer;
-	short speed;
-	short flags;
-	short room_number;
-	short pad;
-};
-
-struct QUAKE_CAM
-{
-	struct GAME_VECTOR spos;
-	struct GAME_VECTOR epos;
-};
-
-#pragma pack(pop)
+#include "PSXTYPES.H"
 
 extern int bUseSpotCam;
 extern int bDisableLaraControl;
@@ -74,7 +47,9 @@ extern struct PHD_VECTOR LaraFixedPosition;
 extern short InitialCameraRoom;
 extern struct QUAKE_CAM quakecam;
 
-void InitSpotCamSequences();
-void InitialiseSpotCam(short Sequence);
+extern void InitSpotCamSequences();
+extern void InitialiseSpotCam(short Sequence);
+extern void CalculateSpotCams();
+extern long Spline(long x /*$s3*/, long* knots /*$s4*/, int nk /*$s2*/);
 
 #endif
