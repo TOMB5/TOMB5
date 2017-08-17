@@ -3,9 +3,10 @@
 
 #include "PSXTYPES.H"
 
-void LOAD_DrawEnable(unsigned char isEnabled);
-void LOAD_Stop();
-void LOAD_Start(int file_number);
+extern void LOAD_DrawEnable(unsigned char isEnabled);
+extern void LOAD_Stop();
+extern void LOAD_Start(int file_number);
+extern void LOAD_VSyncHandler();
 
 extern unsigned char LtLoadingBarEnabled;
 extern unsigned char LoadingBarEnabled;

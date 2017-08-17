@@ -1,7 +1,7 @@
 #include "LOAD_LEV.H"
 
 #include "GAMEWAD.H"
-#include "GAMEFLOW.H"1
+#include "GAMEFLOW.H"
 #include "GPU.H"
 #include "MALLOC.H"
 
@@ -48,6 +48,34 @@ int dword_AD920 = 0;
 int dword_A33F6 = 0;
 char dword_A33F5 = 0;
 int dword_A5EE0 = 0;
+
+void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
+{
+	if (LtLoadingBarEnabled != 0)
+	{
+		//loc_5F08C
+		GPU_BeginScene();
+
+		int a0 = 0x1B8;
+		int a1 = 0xC8;
+		int a2 = 0x40;
+
+		if (_first_time_ever)
+		{
+			a0 += 0x18;
+			a1 += 8;
+			a2 = 0x30;
+		}
+
+		//loc_5F0B4
+		//draw_rotate_sprite(a0, a1, a2);
+		db.current_buffer ^= 1;
+		GnLastFrameCount = 0;
+		//DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);
+	}
+
+	return;
+}
 
 void LOAD_DrawEnable(unsigned char isEnabled)//5F2C8, 5FFA8
 {
