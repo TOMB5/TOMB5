@@ -3,8 +3,6 @@
 #include "GAMEWAD.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
-#include "MALLOC.H"
-#include "PROFILE.H"
 
 #include <stddef.h>
 #include <assert.h>
@@ -21,14 +19,14 @@ unsigned char LtLoadingBarEnabled;
 unsigned char LoadingBarEnabled;
 unsigned char _first_time_ever;
 short DelRotAng;
-//struct STASHEDOBJ* cur_stashed_object;
-//struct STASHEDDAT* cur_stashed_matrix;
+struct STASHEDOBJ* cur_stashed_object;
+struct STASHEDDAT* cur_stashed_matrix;
 int num_objects_stashed;
-//struct STASHEDOBJ stashed_objects_list[128];
-//struct STASHEDDAT stashed_matrix_list[240];
+struct STASHEDOBJ stashed_objects_list[128];
+struct STASHEDDAT stashed_matrix_list[240];
 unsigned char char_anim;
 unsigned char OurSqrt[1024];
-//struct WATERTAB WaterTable[22][64];
+struct WATERTAB WaterTable[22][64];
 struct MATRIX3D* Matrix;
 unsigned short SqrtTable[210];
 unsigned short ScalarTable[198];

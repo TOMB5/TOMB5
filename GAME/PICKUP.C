@@ -1,7 +1,5 @@
 #include "PICKUP.H"
 
-#include "ITEMS.H"
-
 void RegeneratePickups()//515AC, 51A10
 {
 	struct ITEM_INFO* item;

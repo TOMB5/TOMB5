@@ -1,8 +1,11 @@
 #include "3D_GEN.H"
 
 #include "CAMERA.H"
+#include "GPU.H"
 #include "LOAD_LEV.H"
+#include "SPECIFIC.H"
 
+#include <SDL.h>
 #include <assert.h>
 
 long phd_left;
@@ -14,8 +17,9 @@ long w2v_matrix[12];
 long* phd_mxptr;
 long matrix_stack[24];
 struct PHD_3DPOS viewer;
-//struct VECTOR3D CamPos;
-//struct VECTOR3D CamTgt;
+struct VECTOR3D CamPos;
+struct VECTOR3D CamTgt;
+
 
 void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 {
@@ -43,6 +47,17 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 		a0 = phd_persp;
 		//SetGeomScreen();
 	}
+
+	if (SDL_Init(SDL_INIT_VIDEO) == 0)
+	{
+		g_window = SDL_CreateWindow("TOMB5", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 512, 240, SDL_WINDOW_OPENGL);
+	}
+	else
+	{
+		S_ExitSystem("Error: Failed to initialise SDL\n");
+	}
+
+	SDL_GLContext context = SDL_GL_CreateContext(g_window);
 }
 
 long mGetAngle(long x/*$a1*/, long z/*$a0*/, long tx/*$a3*/, long tz/*$a2*/)//77678(<), 796BC(<)

@@ -1,9 +1,5 @@
 #include "ROOMLOAD.H"
 
-#include "GAMEFLOW.H"
-
-#include "FILE.H"
-#include "MALLOC.H"
 #include "GAMEWAD.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
@@ -145,7 +141,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	init_game_malloc();
 	
 	a0 = s0;
-	LOAD_Start(Name);//FIXME incorrect ptr returning
+	LOAD_Start(Name);//FIXME incorRECTTRC ptr returning
 
 	int v0 = 0x000A0000;
 	int v1 = 0x000B0000;

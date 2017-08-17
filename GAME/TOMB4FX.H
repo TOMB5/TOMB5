@@ -1,6 +1,8 @@
 #ifndef TOMB4FX_H
 #define TOMB4FX_H
 
+#include "PSXTYPES.H"
+
 extern char flare_table[121]; // offset 0x92A6C
 extern char LaserSightActive; // offset 0xA09FC
 extern char LaserSightCol; // offset 0xA09FD
@@ -38,7 +40,7 @@ extern struct DRIP_STRUCT Drips[32]; // offset 0xA85FC
 extern struct SHOCKWAVE_STRUCT ShockWaves[16]; // offset 0xA7C3C
 extern struct FIRE_LIST fires[32]; // offset 0xA8D7C
 
-void SetFadeClip(short height, short speed);
-void SetScreenFadeOut(long fadespeed, long fadeback);
-
+extern void SetFadeClip(short height, short speed);
+extern void SetScreenFadeOut(long fadespeed, long fadeback);
+extern void SetScreenFadeIn(long fadespeed);
 #endif

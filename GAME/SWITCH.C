@@ -20,7 +20,7 @@ void TestTriggersAtXYZ(long x, long y, long z, short room_number, int heavy, int
 	move	$a1, $s4
 	move	$a2, $s3
 	move	$a3, $s2
-	jal	sub_78C74//GetHeight($v0, x, y, z);
+	jal	sub_78C74//GetHeight($v0@GetFloor();, x, y, z);
 #endif
 
 
