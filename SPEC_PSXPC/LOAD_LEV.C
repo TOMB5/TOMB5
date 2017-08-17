@@ -1,8 +1,9 @@
 #include "LOAD_LEV.H"
 
 #include "GAMEWAD.H"
-#include "GAMEFLOW.H"
+#include "GAMEFLOW.H"1
 #include "GPU.H"
+#include "MALLOC.H"
 
 #include <stddef.h>
 #include <assert.h>
