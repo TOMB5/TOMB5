@@ -1,38 +1,7 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
-#include "CAMERA.H"
-
-struct CHARDEF
-{
-	unsigned char u;
-	unsigned char v;
-	unsigned char w;
-	unsigned char h;
-	char YOffset;
-	unsigned char TopShade;
-	unsigned char BottomShade;
-};
-
-struct ROPE_STRUCT
-{
-	struct PHD_VECTOR Segment[24];
-	struct PHD_VECTOR Velocity[24];
-	struct PHD_VECTOR NormalisedSegment[24];
-	struct PHD_VECTOR MeshSegment[24];
-	struct PHD_VECTOR Position;
-	long SegmentLength;
-	short Active;
-	short Coiled;
-};
-
-struct PENDULUM
-{
-	struct PHD_VECTOR Position;
-	struct PHD_VECTOR Velocity;
-	int node;
-	struct ROPE_STRUCT* Rope;
-};
+#include "PSXTYPES.H"
 
 extern int flipeffect;
 extern int fliptimer;
@@ -103,9 +72,13 @@ extern char globoncuttrig;
 extern short ItemNewRooms[256][2];
 extern struct CHARDEF CharDef[106];
 
-long ControlPhase(long nframes, int demo_mode);
-long GetRandomControl();
-long GetRandomDraw();
-void AddRoomFlipItems(struct room_info* r);
+extern long ControlPhase(long nframes, int demo_mode);
+extern long GetRandomControl();
+extern long GetRandomDraw();
+extern void AddRoomFlipItems(struct room_info* r);
+extern void KillMoveItems();
+extern void KillMoveEffects();
+extern void KillEverything();
+extern void TestTriggers(short* data, int heavy, int HeavyFlags);
 
 #endif

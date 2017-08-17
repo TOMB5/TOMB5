@@ -1,6 +1,8 @@
 #ifndef LOAD_LEV_H
 #define LOAD_LEV_H
 
+#include "PSXTYPES.H"
+
 void LOAD_DrawEnable(unsigned char isEnabled);
 void LOAD_Stop();
 void LOAD_Start(int file_number);

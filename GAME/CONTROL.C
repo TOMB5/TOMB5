@@ -1,19 +1,26 @@
 #include "CONTROL.H"
 
+#include "3D_GEN.H"
+#include "BOX.H"
 #include "DELTAPAK.H"
 #include "DRAWPHAS.H"
+#include "EFFECTS.H"
+#include "EFFECT2.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
+#include "ITEMS.H"
 #include "NEWINV2.H"
 #include "LARA.H"
-#include "LARA2GUN.H"
+#include "LOAD_LEV.H"
 #include "PICKUP.H"
 #include "PSXINPUT.H"
+#include "SETUP.H"
+#include "SOUND.H"
 #include "SPECIFIC.H"
+#include "SPHERE.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
 
-#include <stdio.h>
 #include <assert.h>
 
 int flipeffect;
@@ -83,6 +90,8 @@ char globoncuttrig;
 short ItemNewRooms[256][2];
 struct CHARDEF CharDef[106];
 
+char byte_A3660;
+
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 {
 	int s0 = nframes;
@@ -123,9 +132,9 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		}
 		
 		//loc_1D5CC
-		if (!(((SlowMoFrameCount << 16) >> 19) < nframes))
+		if (!((SlowMoFrameCount / 8) < nframes))
 		{
-			while (((SlowMoFrameCount << 16) >> 19) < nframes)
+			while ((SlowMoFrameCount / 8) < nframes)
 			{
 #ifdef PSX
 				VSync(0);
@@ -179,7 +188,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	UpdateSky();
 	S_UpdateInput();
 
-	assert(0);//temporary
+	//FIXME: bDisableLaraControl should be 1, it's altered in trigger_title_spotcam
 	if (bDisableLaraControl != 0)
 	{
 		//Not title
@@ -201,7 +210,6 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 	//loc_1D708
 	SetDebounce = 0;
-
 	if (gfLevelComplete)
 	{
 		return 3;
@@ -226,12 +234,8 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	{
 		if (PadConnected != 0 && ScreenFading == 0)
 		{
-			int x = 256;
-			int y = 230;
-
-			char* str = &gfStringWad[gfStringOffset[176]];///@TODO retail ver.
-			printf("%s\n", str);
-			//PrintString(x, y, str); //TODO IDA didn't dump me :-)
+			///@TODO retail ver string offset index
+			PrintString(256, 230, &gfStringWad[gfStringOffset[176]]); //TODO IDA didn't dump me :-)
 		}
 
 		//loc_1D7A0
@@ -266,11 +270,14 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	}
 
 	//1D848
+#if 1//def INTERNAL
 	if (InGameCnt < 4)
 	{
 		InGameCnt++;
 	}
+#endif
 
+#if 1//def INTERNAL
 	//loc_1D860
 	if ((input & 0x200) == 0 && SniperCamActive != 0 && bUseSpotCam != 0 && bTrackCamInit != 0 && lara_item->current_anim_state != 2 || lara.hit_direction == 0x67 && lara.LitTorch == 0 && input & 0x2000 != 0 && lara_item->anim_number != 0xDE && lara_item->goal_anim_state != 0x47)
 	{
@@ -327,7 +334,59 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 			}
 		}
 	}
+#else
+	///@HACK ********************************************************************************
+	PadConnected = 1;
 
+	//loc_1D9EC
+	if ((input & 0x2000) == 0)
+	{
+		if (PadConnected == 0)
+		{
+			assert(0);
+
+			//andi	$v0, $a0, 0xFF
+				if (gfGameMode == 0)
+				{
+					if (gfGameMode > 3)
+					{
+						assert(0);
+						//addiu	$v0, $a0, 1
+						//addiu	$v0, $s2, 0x71E8
+						//lh	$v1, 0x1A($v0)
+						//nop
+						//bnez	$v1, loc_1DA5C
+						//andi	$v0, $a0, 0xFF
+
+						//loc_1DA3C:
+						Motors[0] = 0;
+						Motors[1] = 0;
+						//jal	sub_62190
+						return 0;
+					}
+					else
+					{
+						//loc_1DA68
+					}
+
+
+				}//loc_1DA5C
+			
+				
+
+		}//loc_1DA5C
+
+		a0 = byte_A3660;
+		if (InGameCnt > 3)
+		{
+			assert(0);
+		}
+
+		//loc_1DA6C
+
+	}
+#endif
+	
 	//loc_1DAD0 ****************
 	int v1 = 0;
 	if (BinocularRange != 0)
@@ -351,7 +410,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 			}
 		}//1DB44
 
-	}//loc_1DB44
+	}//loc_1DB44, 1DD50
 
 	InfraRed = v1;
 
@@ -359,23 +418,306 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	//ClearDynamics();	
 	//ClearFires();
 
-	int a1 = next_item_active;
-	//GotLaraSpheres = 0;
-	//InItemControlLoop = s3;
-	//lui	$v0, 0x1F
-	
-	///beq	$a1, $s4, loc_1DBE8	
-	///addiu	$s1, $v0, 0x2490
-	///sll	$v0, $a1, 3
+	int a1 = next_item_active;//FIXME illegal value, should be 1F, check &objects looks like pointer not setup, continue setup.c
+	GotLaraSpheres = 0;
+	InItemControlLoop = 1;
 
-	//end loc_1E3BC
-	S_Warn("[ControlPhase] - Unimplemented!\n");
-	return -1;
+	if (next_item_active != -1)//illegal -2
+	{
+		char* s1 = &objects[16];
+		int v000 = ((next_item_active << 3) + next_item_active << 4);
+
+		//loc_1DB80
+		struct ITEM_INFO* a0000 = &items[next_item_active];
+		int v1111 = a0000->after_death;
+		int s0000 = a0000->next_active;
+		v1111 = v1111 < 0x80 ? 1 : 0;
+
+		if (v1111 == 0)
+		{
+
+		}//loc_1DBB4
+		
+		//move	$a0, $a1
+		//KillItem();
+		//move	$a1, $s0
+		//j	loc_1DBE0
+
+		assert(0);
+	}//loc_1DBE8, 1DDF4
+
+	InItemControlLoop = 0;
+
+	KillMoveItems();
+
+	int a11111 = next_fx_active;
+
+	InItemControlLoop = 1;
+
+	if (next_fx_active != -1)//-1 on first call
+	{
+		S_Warn("[ControlPhase] -Unimplemented condition!\n");
+	}
+
+	//loc_1DC60
+	InItemControlLoop = 0;
+
+	KillMoveEffects();
+
+	if (KillEverythingFlag != 0)
+	{
+		KillEverything();
+	}
+
+	//loc_1DC88
+	if (SmokeCountL != 0)
+	{
+		SmokeCountL--;
+	}
+
+	//loc_1DCA4
+	if (SmokeCountR != 0)
+	{
+		SmokeCountR--;
+	}
+
+	//loc_1DCC0
+	if (SplashCount != 0)
+	{
+		SplashCount--;
+	}
+
+	//loc_1DCDC
+	if (WeaponDelay != 0)
+	{
+		WeaponDelay--;
+	}
+
+	//loc_1DCF0
+
+	struct lara_info* s000000000000000 = &lara;
+
+	if (lara.burn && !(wibble & 0x7F))
+	{
+		AlertNearbyGuards(lara_item);
+		//lw	$v0, 0x44($s0)
+		//li	$v1, 0xFFFFEFFF
+		//and	$v0, $v1
+		//sw	$v0, 0x44($s0)
+
+	}//loc_1DD40
+
+	XSoff1 += 150;
+	YSoff1 += 230;
+	ZSoff1 += 660;
+
+	XSoff2 += 270;
+	YSoff2 += 440;
+	ZSoff2 += 160;
+
+	////a000 = lara;
+
+	if (lara.poisoned)
+	{
+		if (GLOBAL_playing_cutseq == 0)
+		{
+			assert(0);
+		}//loc_1DE90
+	}
+	
+	//loc_1DE84
+	int v000 = GLOBAL_playing_cutseq;
+	//a1 = lara
+
+	//loc_1DE90
+	lara.skelebob = 0;
+	InItemControlLoop = 1;
+	
+	if (GLOBAL_playing_cutseq == 0 && gfGameMode == 0)
+	{
+		assert(0);
+#if 0
+			lui	$v1, 0xFFFE
+			li	$v1, 0xFFFEFFFF
+			lw	$v0, 0x44($a1)
+			move	$a0, $zero
+			and	$v0, $v1
+			jal	sub_4A838
+			sw	$v0, 0x44($a1)
+			lbu	$v1, 0x1C58($gp)
+			li	$v0, 5
+			bne	$v1, $v0, loc_1DEF4
+			addiu	$v0, $s5, -0x2240
+			lw	$v1, 0x18($v0)
+			nop
+			lw	$a0, 0($v1)
+			nop
+			jalr	$a0
+			nop
+#endif
+	}
+	//loc_1DEF4
+	InItemControlLoop = 0;
+
+	KillMoveItems();
+
+	if ((gfLevelFlags & 0x80) && bUseSpotCam == 0)
+	{
+		//v0 = lara_item;
+		assert(0);
+	}
+	
+	//loc_1DF7C
+	if (GLOBAL_inventoryitemchosen != -1)
+	{
+		SayNo();
+		GLOBAL_inventoryitemchosen = 1;
+	}
+	
+	//loc_1DFA0
+	if (GLOBAL_playing_cutseq == 0)//TODO
+	{
+		if (LaraDrawType != 5)
+		{
+			//HairControl(0, 0, 0);
+
+			if ((gfLevelFlags) & 1)
+			{
+				//HairControl(0, 1, 2);
+			}
+		}
+		//loc_1DFF4
+		if (GLOBAL_playing_cutseq == 0)//redudant
+		{
+			if (bUseSpotCam != 0)
+			{
+				CalculateSpotCams();
+				//j loc_1E054
+			}//loc_1E02C
+			CalculateCamera();
+		}//loc_1E044
+
+	}//loc_1E044
+	
+	camera.type = CINEMATIC_CAMERA;
+	CalculateCamera();
+
+	//loc_1E054
+#if 0 //TODO debug output once tabs are inited
+	camera.pos.z = 0x6A00;
+	camera.pos.x = 0xCE00;
+	camera.target.x = 0xD158;
+	camera.target.z = 0x6BEE;
+#endif
+	int v000000 = mGetAngle(camera.pos.x, camera.pos.z, camera.target.x, camera.target.z);
+	v000000 >>= 4;
+	CamRot.vy = v000000 & 0xFFF;
+	int v11111 = wibble;
+
+	//TriggerLaraDrips();
+
+	int t1 = v000000;
+	if (SmashedMeshCount > 0)
+	{
+		//TODO
+	}
+	
+	//loc_1E15C
+#if 0
+	UpdateSparks();
+	//addiu	$s0, $s5, -0x2240
+	UpdateFireSparks();
+	UpdateSmokeSparks();
+	UpdateBubbles();
+	UpdateSplashes();
+	UpdateDebris();
+	UpdateBlood();
+	UpdateDrips();
+	UpdateGunShells();
+
+	//lw	$v0, 0x24($s0)
+	//beqz	$v0, loc_1E1C4
+	//lw	$v0, 0x14($v0)
+	//jalr	$v0
+
+#endif
+
+#if 0
+	loc_1E1C4:
+	lw	$v0, 0x54($s0)
+	nop
+	beqz	$v0, loc_1E1E4
+	nop
+	lw	$v0, 4($v0)
+	nop
+	jalr	$v0
+	nop
+#endif
+	
+	//loc_1E3B8:
+	//ret 0
+
+	//loc_1E3BC:
+	return 0;
+}
+
+
+void KillMoveItems()//1D420, 
+{
+	short nex; // $v0
+	nex = ItemNewRoomNo;//v0
+
+	if (nex > 0)
+	{
+		short s1 = 0x10000;
+		short* s0 = (short*)&ItemNewRooms[0];
+
+		while (nex >> 16 < ItemNewRoomNo)
+		{
+			//loc_1D444
+			if (s0[0] & 0x8000)
+			{
+				//KillItem(s0[0] & 0x7FFF);
+			}//loc_1D468
+			else
+			{
+				//ItemNewRoom(s0[1]);
+			}
+
+			nex = s1;
+
+			//loc_1D478
+			s1 += 0x10000;
+			s0 += sizeof(short*);
+		}
+	}//loc_1D494
+		
+
+
+		//loc_1D494:
+		ItemNewRoomNo = 0;
+	S_Warn("[KillMoveItems] - Unimplemented!\n");
+}
+
+void KillMoveEffects()//1D4AC, 
+{
+	//short nex; // $v0
+	S_Warn("[KillMoveEffects] - Unimplemented!\n");
+}
+
+void KillEverything()
+{
+	S_Warn("[KillEverything] - Unimplemented!\n");
+}
+
+void TestTriggers(short* data, int heavy, int HeavyFlags)
+{
+	S_Warn("[TestTriggers] - Unimplemented!\n!");
 }
 
 long rand_1 = 0xD371F947;
 
-long GetRandomControl()//5E9F0, 926F8
+long GetRandomControl()//5E9F0, 926F8 (F)
 {
 	rand_1 = (rand_1 * 0x41C64E6D) + 0x3039;
 	return (rand_1 >> 16) & 0x7FFF;
@@ -383,16 +725,10 @@ long GetRandomControl()//5E9F0, 926F8
 
 long rand_2 = 0xD371F947;
 
-long GetRandomDraw()//5EA18, 5F6F8
+long GetRandomDraw()//5EA18, 5F6F8 (F)
 {
 	rand_2 = (rand_2 * 0x41C64E6D) + 0x3039;
 	return (rand_2 >> 16) * 0x7FFF;
-#if 0//?
-		jr	$ra
-		sw	$a0, 0x188($gp)
-		jr	$ra
-		sw	$a0, 0x18C($gp)
-#endif
 }
 
 void AddRoomFlipItems(struct room_info *r /*$a0*/)//1FA0C, 

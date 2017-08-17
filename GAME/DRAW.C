@@ -1,5 +1,7 @@
 #include "DRAW.H"
 
+#include <stddef.h>
+
 short LightningSFXDelay;
 struct room_info* room;
 short number_rooms;
@@ -7,7 +9,7 @@ long* bones;
 struct ANIM_STRUCT* anims;
 struct RANGE_STRUCT* ranges;
 struct CHANGE_STRUCT* changes;
-short* *meshes;
+short** meshes;
 short* commands;
 short* frames;
 short* binoculars_mesh_ptr;
@@ -39,3 +41,67 @@ short HorizonClip;
 short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;
+
+long GetFrames(struct ITEM_INFO* item/*$a0*/, short** unknown/*a1*/, long* unknown_2/*$a2*/)//8582C
+{
+	struct ANIM_STRUCT* anim = &anims[item->anim_number];
+	
+	unknown_2[0] = anim->interpolation;
+
+	int t3 = ((item->frame_number - anim->frame_base) / anim->interpolation) * anim->interpolation >> 8;
+	short* t4 = &anim->frame_ptr[t3];
+
+	unknown[0] = &anim->frame_ptr[t3];
+	unknown[1] = &t4[anim->interpolation >> 8];
+	if (anim->interpolation == 0)
+	{
+		return 0;
+	}
+
+	t3 = ((item->frame_number - anim->frame_base) / anim->interpolation) * anim->interpolation;
+
+	if (!(anim->frame_end < (t3 + anim->interpolation)))
+	{
+		return (t3 + anim->interpolation) - anim->interpolation;
+	}
+
+	unknown_2[0] = anim->frame_end - anim->interpolation;
+	return (item->frame_number - anim->frame_base) / anim->interpolation;
+}
+
+short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 
+{
+	short* var_10[2];//$a1
+	long var_8[2];//$a2
+
+	if (GetFrames(item, &var_10[0], &var_8[0]) == 0)
+	{
+		return NULL;// t4;//? Well you can tell this was written by hand in mips, smh, nice optimisation
+	}
+	
+
+	//loc_8591C
+	short* a2 = &interpolated_bounds[0];
+	int a1 = 6;
+
+	//loc_85928
+#if 0//Error, t5 = unknown, t4 = unknown. probably gonna have to ref
+	lh	$v0, 0($t5)
+	lh	$a0, 0($t4)
+	addiu	$a1, -1
+	subu	$v0, $a0
+	mult	$v0, $t0
+	mflo	$v1
+	addiu	$t5, 2
+	addiu	$t4, 2
+	div	$v1, $a3
+	addiu	$a2, 2
+	mflo	$v0
+	addu	$a0, $v0
+	bnez	$a1, loc_85928
+	sh	$a0, -2($a2)
+	addiu	$v0, $a2, -0xC
+#endif
+
+	return NULL;
+}

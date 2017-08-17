@@ -1,24 +1,7 @@
 #ifndef DRAW_H
 #define DRAW_H
 
-struct ANIM_STRUCT
-{
-	short* frame_ptr;
-	short interpolation;
-	short current_anim_state;
-	long velocity;
-	long acceleration;
-	long Xvelocity;
-	long Xacceleration;
-	short frame_base;
-	short frame_end;
-	short jump_anim_num;
-	short jump_frame_num;
-	short number_changes;
-	short change_index;
-	short number_commands;
-	short command_index;
-};
+#include "PSXTYPES.H"
 
 extern short LightningSFXDelay;
 extern struct room_info* room;
@@ -59,5 +42,8 @@ extern struct door_vbuf vbufdoor[4];
 extern short Sback_gun;
 extern short* SRhandPtr;
 extern short* SLhandPtr;
+
+long GetFrames(struct ITEM_INFO* item, short** unknown, long* unknown_2);
+short* GetBoundsAccurate(struct ITEM_INFO* item);
 
 #endif

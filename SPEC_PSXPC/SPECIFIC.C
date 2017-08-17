@@ -1,5 +1,7 @@
 #include "SPECIFIC.H"
 
+#include "GPU.H"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -53,5 +55,9 @@ void S_SoundStopAllSamples()//91D34
 		}
 #endif
 	}
+}
 
+long S_DumpScreen()
+{
+	return GPU_FlipNoIdle();
 }

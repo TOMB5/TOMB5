@@ -1,11 +1,12 @@
 #include "NEWINV2.H"
 
 #include "SPECIFIC.H"
-//struct INVOBJ inventry_objects_list[100]; // offset 0x92BE8
+
+struct INVOBJ inventry_objects_list[100]; // offset 0x92BE8
 unsigned char wanky_secrets_table[18]; // offset 0x92BD4
 short options_table[99]; // offset 0x933B8
 short optmessages[11]; // offset 0x93480
-//struct COMBINELIST dels_handy_combine_table[24]; // offset 0x93498
+struct COMBINELIST dels_handy_combine_table[24]; // offset 0x93498
 int GLOBAL_enterinventory = -1; // offset 0xA0B30
 int GLOBAL_inventoryitemchosen; // offset 0xA0B34
 int GLOBAL_lastinvitem; // offset 0xA0B2C
@@ -73,7 +74,7 @@ static char StashedCurrentGrenadeGunAmmoType; // offset 0xA36D2
 static char StashedCurrentCrossBowAmmoType; // offset 0xA36D3
 char current_selected_option; // offset 0xA36E0
 char Stashedcurrent_selected_option; // offset 0xA36DC
-//struct AMMOLIST ammo_object_list[3]; // offset 0xA3784
+struct AMMOLIST ammo_object_list[3]; // offset 0xA3784
 char ammo_selector_flag; // offset 0xA3728
 char num_ammo_slots; // offset 0xA3758
 char *current_ammo_type; // offset 0xA3700
@@ -81,7 +82,7 @@ int OBJLIST_SPACING; // offset 0xA3798
 char friggrimmer; // offset 0xA36D4
 char friggrimmer2; // offset 0xA36E4
 char oldLaraBusy; // offset 0xA3774
-//struct MENUTHANG current_options[3]; // offset 0xA3740
+struct MENUTHANG current_options[3]; // offset 0xA3740
 
 int S_CallInventory2()
 {
