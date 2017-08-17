@@ -106,13 +106,13 @@ void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
 void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
 {
 	struct SpuCommonAttr attr;
-
-	attr.mask = 0x2C0;
+	
 	attr.cd.volume.left = nVolume * 64;
 	attr.cd.volume.right = nVolume * 64;
-	attr.cd.mix = 1;
 
 #ifdef PSX
+	attr.mask = SPU_COMMON_CDVOLL | SPU_COMMON_CDVOLR | SPU_COMMON_CDMIX;
+	attr.cd.mix = SPU_ON;
 	SpuSetCommonAttr(&attr);
 #endif
 }
