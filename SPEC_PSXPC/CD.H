@@ -8,6 +8,7 @@ extern void InitNewCDSystem();
 extern void S_CDPlay(short track, int mode);
 extern void S_CDStop();
 extern void CDDA_SetMasterVolume(int nVolume);
+extern void CDDA_SetVolume(int nVolume);
 
 extern unsigned short XATrackClip[136];
 extern short XAFadeRate;

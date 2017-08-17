@@ -97,14 +97,22 @@ void S_CDStop()
 	S_Warn("[S_CDStop] - unimplemented!\n");
 }
 
-void CDDA_SetMasterVolume(int nVolume)
+void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
 {
 	XAMasterVolume = nVolume;
 	CDDA_SetVolume(nVolume);
 }
 
-void CDDA_SetVolume(int nVolume)
+void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
 {
-	struct SpuCommonAttr attr; // stack offset -48
-	S_Warn("[CDDA_SetVolume] - Unimplemented!\n");
+	struct SpuCommonAttr attr;
+
+	attr.mask = 0x2C0;
+	attr.cd.volume.left = nVolume * 64;
+	attr.cd.volume.right = nVolume * 64;
+	attr.cd.mix = 1;
+
+#ifdef PSX
+	SpuSetCommonAttr(&attr);
+#endif
 }
