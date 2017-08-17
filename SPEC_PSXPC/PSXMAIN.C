@@ -2,7 +2,7 @@
 
 #include "CD.H"
 #include "GAMEFLOW.H"
-//#include "GPU.H"
+#include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "PROFILE.H"
@@ -14,23 +14,20 @@
 
 unsigned long dword_9A884 = 0;
 
-void VSyncFunc()
+void VSyncFunc()//10000(<), 10000(<) (F)
 {
-#if 0
 	cbvsync();
 
-	if (LoadingBarEnabled == 0)
+	if (LoadingBarEnabled != 0)
 	{
-		//LOAD_VSyncHandler();
+		LOAD_VSyncHandler();
+	}
 
-		GnFrameCounter++;
-		GnLastFrameCount++;
-	}
-	else
-	{
-		//LOAD_VSyncHandler();
-	}
-#endif
+	//loc_1002C
+	GnFrameCounter++;
+	GnLastFrameCount++;
+
+	return;
 }
 
 void SetSp()

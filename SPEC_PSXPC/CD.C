@@ -31,14 +31,10 @@ static char XARepeat;
 int XAStartPos;
 static int XATrackList[17][2];
 
-void /*$ra*/ cbvsync()
-{ // line 2, offset 0x5d884
-	//int ret; // $a1
-	//unsigned char io[8]; // stack offset -16
-	{ // line 86, offset 0x5daec
-		//int cnt; // $v0
-	} // line 93, offset 0x5db20
-} // line 120, offset 0x5dc10
+void cbvsync()
+{
+	S_Warn("[cbvsync] - Unimplemented!\n");
+}
 
 void InitNewCDSystem()//5DDE8, 5E264(<)
 {
