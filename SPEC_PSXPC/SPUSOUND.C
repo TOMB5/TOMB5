@@ -1,5 +1,7 @@
 #include "SPUSOUND.H"
 
+#include "SPECIFIC.H"
+
 short DepthTable[5];
 short CurrentReverb;
 int LnSamplesLoaded;
@@ -13,7 +15,7 @@ unsigned long LadwSampleAddr[256];
 
 void SPU_Init()
 {
-
+	S_Warn("[SPU_Init] - Unimplemented!\n");
 }
 
 void S_SetReverbType(int Reverb /*$a0*/)//91CF4, *

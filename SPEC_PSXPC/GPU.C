@@ -23,6 +23,10 @@ void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68, 5F1C8
 {
 }
 
+void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)
+{
+}
+
 void GPU_BeginScene()
 {
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -43,6 +47,19 @@ int GPU_FlipNoIdle()//5E078, 5F264
 
 	//ret LnFlipFrame
 	return 0;
+}
+
+void GPU_GetScreenPosition(short x, short y)
+{
+}
+
+void GPU_ClearVRAM()
+{
+}
+
+void GPU_FlipToBuffer(int unknown)
+{
+	//unknown is probably db.current_buffer flip index
 }
 
 void GPU_EndScene()

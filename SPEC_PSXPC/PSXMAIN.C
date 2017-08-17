@@ -6,13 +6,13 @@
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "PROFILE.H"
+#include "SAVEGAME.H"
 #include "SOUND.H"
-//#include "SPUSOUND.H"
+#include "SPECIFIC.H"
+#include "SPUSOUND.H"
 #include "TEXT.H"
 
 #include <SDL.h>
-
-unsigned long dword_9A884 = 0;
 
 void VSyncFunc()//10000(<), 10000(<) (F)
 {
@@ -35,51 +35,74 @@ void SetSp()
 
 }
 
-int main(int argc, char* args[])//10064, 10064
+int main(int argc, char* args[])//10064(<), 10064(!)
 {
 #ifdef PSX
+	SetSp(0x801FFFE0);
+
 	ResetCallback();
-	//SPU_Init();
-	//ResetGraph();
-	//SetGraphDebug();
-	//InitGeom();
-	int height = 240;// li	$s1, 0xF0
-	int width = 512;//li	$a3, 0x200
-	SetDefDrawEnv();
-	height = 240;//li	$a2, 0xF0
-	width = 512;//li	$a3, 0x200
-	SetDefDrawEnv();
-	SetDefDispEnv();
-	SetDefDispEnv();// jal	sub_68408
-	GPU_ClearVRAM();
-	GPU_FlipToBuffer();
-	SetDispMask();
-	VSyncCallback();
-	VSync();
-	DrawSync();
-	PutDispEnv();
-	MemCardInit();
-	PadInitDirect();
-	PadSetAct();
-	PadStartCom();
-	CdInit();
-	CdSetDebug();
 #endif
 
-#ifndef INTERNAL
-	InitNewCDSystem();
-#endif
+	SPU_Init();
 
 #ifdef PSX
-	CDDA_SetMasterVolume();
-	GPU_UseOrderingTables();
-	GPU_UsePolygonBuffers();
-	GPU_GetScreenPosition();
+	ResetGraph(0);
+	SetGraphDebug(0);
+	InitGeom();
+	SetDefDrawEnv(&db.draw[0], 0, 0, 512, 240);
+	SetDefDrawEnv(&db.draw[1], 0, 240, 512, 240);
+
+	SetDefDispEnv(&db.disp[0], 0, 240, 512, 240);
+	SetDefDispEnv(&db.disp[1], 0, 0, 512, 240);
 #endif
 
-#ifdef INTERNAL
-	ProfileInit();
+	db.draw[0].dtd = 1;
+	db.draw[0].isbg = 1;
+	db.draw[1].dtd = 1;
+	db.draw[1].isbg = 1;
+
+	GPU_ClearVRAM();
+	GPU_FlipToBuffer(0);
+
+#ifdef PSX
+	SetDispMask(1);
+	VSyncCallback(&VSyncFunc);
+	VSync(0);
+	DrawSync(0);
+
+	PutDispEnv(&db.disp[db.current_buffer]);
+
+	MemCardInit(1);
+
+	PadInitDirect(GPad1, GPad2);
+
+	PadSetAct(0, &Motors[0], 2);
+
+	PadStartCom();
+
+	CdInit(0);//check arg
+	CdSetDebug(0);
 #endif
+
+	InitNewCDSystem();
+	CDDA_SetMasterVolume(192);
+
+	GPU_UseOrderingTables(&GadwOrderingTables[0], 2564);
+	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], 26130);
+
+	GPU_GetScreenPosition(savegame.ScreenX, savegame.ScreenY);
+
+#ifdef INTERNAL
+	ProfileInit(1);
+	ProfileDraw = 1;
+#endif
+
+	savegame.VolumeCD = 204;
+	savegame.VolumeFX = 255;
+	savegame.ControlOption = 0;
+	savegame.AutoTarget = 1;
+	savegame.VibrateOn = 0;
+	SoundFXVolume = 255;
 
 	init_game_malloc();
 	InitFont();
