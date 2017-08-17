@@ -10,6 +10,7 @@
 #include "GPU.H"
 #include "HEALTH.H"
 #include "ITEMS.H"
+#include "MALLOC.H"
 #include "NEWINV2.H"
 #include "PSXINPUT.H"
 #include "ROOMLOAD.H"
