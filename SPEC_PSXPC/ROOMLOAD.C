@@ -3,6 +3,7 @@
 #include "GAMEWAD.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
+#include "MALLOC.H"
 #include "SETUP.H"
 
 #include <assert.h>
