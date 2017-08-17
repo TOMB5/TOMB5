@@ -1,14 +1,11 @@
 #ifndef HEALTH_H
 #define HEALTH_H
 
-struct DISPLAYPU
-{
-	short life;
-	short object_number;
-};
+#include "PSXTYPES.H"
 
-int FlashIt();
-void InitialisePickUpDisplay();
+extern int FlashIt();
+extern void InitialisePickUpDisplay();
+extern void DrawGameInfo(int timed);
 
 extern int health_bar_timer;
 extern char PoisonFlag;

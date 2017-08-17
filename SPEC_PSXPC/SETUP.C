@@ -5,6 +5,7 @@
 #include "DRAW.H"
 #include "GAMEWAD.H"
 #include "GPU.H"
+#include "ITEMS.H"
 #include "LOAD_LEV.H"
 #include "LOT.H"
 #include "MALLOC.H"
@@ -14,8 +15,6 @@
 #include <assert.h>
 #include <stddef.h>
 
-//temp
-#include <stdio.h>
 
 char setupBuff[SETUP_MOD_FILE_SIZE];
 

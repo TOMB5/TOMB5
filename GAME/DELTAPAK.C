@@ -7,7 +7,6 @@
 #include "ITEMS.H"
 #include "LARA.H"
 #include "OBJECTS.H"
-#include "PROFILE.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"

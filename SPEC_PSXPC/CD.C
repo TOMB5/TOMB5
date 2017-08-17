@@ -1,6 +1,5 @@
 #include "CD.H"
 
-#include "FILE.H"
 #include "GAMEWAD.H"
 #include "SPECIFIC.H"
 

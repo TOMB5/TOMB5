@@ -1,28 +1,36 @@
 #include "DRAWPHAS.H"
 
 #include "3D_GEN.H"
+#include "CONTROL.H"
+#include "DELTAPAK.H"
 #include "DRAWSPKS.H"
+#include "GPU.H"
+#include "HEALTH.H"
 #include "LARA.H"
 #include "LOAD_LEV.H"
 #include "SPECIFIC.H"
+#include "SPOTCAM.H"
+#include "TOMB4FX.H"
 
-long DrawPhaseGame()//63F04, 
+#include <stdio.h>
+
+long DrawPhaseGame()//63F04, 645E0
 {
-	short scalarx; // $a3
-	short scalary; // $t0
-	short scalarz; // $t1
+	short scalarx = 0; // $a3
+	short scalary = 0; // $t0
+	short scalarz = 0; // $t1
 
 	mQuickW2VMatrix();
 
 	struct lara_info* a1 = &lara;
-	
+
 	if (lara.poisoned != lara.dpoisoned)
 	{
 		if (lara.dpoisoned > 4096)
 		{
 			lara.dpoisoned = 4096;
 		}
-		
+
 		//loc_63F44
 		lara.poisoned = ((lara.poisoned - lara.dpoisoned) >> 4) + lara.poisoned;
 
@@ -31,23 +39,135 @@ long DrawPhaseGame()//63F04,
 		if (temp < 0)
 		{
 			temp = -temp;
-		}//loc_63F74
+		}
 
+		//loc_63F74
 		if (temp < 16)
 		{
 			lara.poisoned = lara.dpoisoned;
 		}
 
-	}//loc_63F88
-
-	//a2 = 0x000A000
-	/*
+	}
 	
+	//loc_63F88
+	struct lara_info* a2 = &lara;
 
+	int a3;
 
-	*/
+	if (lara.poisoned > 255)
+	{
+		short* t0 = &rcossin_tbl[0];
+
+		int a3 = rcossin_tbl[(((XSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((XSoff2 >> 2) & 0x3FFC) / sizeof(short))];
+/*
+		short scalarx = 0; // $a3
+		short scalary = 0; // $t0
+		short scalarz = 0; // $t1
+		*/
+
+		a3 >>= 2;
+		a3 *= -256;
+
+		int a22 = rcossin_tbl[(((YSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((YSoff2 >> 2) & 0x3FFC) / sizeof(short))];
+		a22 >>= 2;
+		a22 *= -256;
+
+		int v1111111 = rcossin_tbl[(((ZSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((ZSoff2 >> 2) & 0x3FFC) / sizeof(short))];
+		v1111111 >>= 2;	
+		v1111111 *= -256;
+
+		a3 <<= 3;
+		a3 >>= 16;
+		a22 <<= 3;
+		scalary = a22 >> 16;
+		v1111111 <<= 3;
+		scalarz = v1111111 >> 16;
+	}
+	else
+	{
+		//loc_64088
+		scalarx = 0;
+		scalary = 0;
+		scalarz = 0;
+	}
+
+	//loc_64090
+	//underwater v0
+	if (camera.underwater > 0)
+	{
+#if 0
+		short* a1 = &rcossin_tbl[0];
+		int v00 = (GlobalCounter & 0x3F) << 8;
+		int a22 = GlobalCounter;
+
+		short* v000 = &rcossin_tbl[v00 / sizeof(short)];
+		int v111 = v000[0];
+		int v0000 = ((a22 - 16) & 0x3F) << 8;
+#endif
+	}
+
+	//loc_64130
+	if (scalarx == 0 && scalary == 0 && scalarz != 0)
+	{
+		//loc_64148
+		if (GLOBAL_playing_cutseq == 0)
+		{
+			//ScaleCurrentMatrix(1, scalarx + 4096, scalary + 4096, scalarz + 4096);
+		}
+	}
+
+	//loc_6416C
+	//CalcLaraMatrices(0);
+	//mPushUnitMatrix();
+	//CalcLaraMatrices(1);
+	//mPopMatrix();
+
+	if (GLOBAL_playing_cutseq != 0)
+	{
+		//frigup_lara();
+	}
+
+	//loc_641A8
+	//SetLaraUnderwaterNodes();
+	//Fade();
+
+	if (SniperOverlay != 0)
+	{
+		//loc_641F4:
+
+	}
+
+	//loc_6424C
+	if (FlashFader != 0)
+	{
+		//DrawFlash();
+		FlashFader -= 2;
+	}
+
+	//loc_64280
+	DrawRooms(camera.pos.room_number);
+
+	if (WB_room != -1)
+	{
+		//SortOutWreckingBallDraw();
+	}
+
+	//loc_642AC
+	DrawGameInfo(1);
+
+	//loc_643C4
+	GPU_EndScene();
+	//S_DumpScreen();
+	//camera.number_frames = v0;
+	//S_AnimateTextures(v0);
+	//FIXME return numFrames;
 	S_Warn("[DrawPhaseGame] - Unimplemented!\n");
-	return 2;//hack
+	return 2;//hack, retail returns 5, sub 61320
+}
+
+void DrawRooms(short current_room)
+{
+	S_Warn("[DrawRooms] - Unimplemented!\n");
 }
 
 void UpdateSky()
@@ -100,4 +220,9 @@ void mQuickW2VMatrix()
 	CamGTE.m20 = w2v_matrix[8];
 	CamGTE.m21 = w2v_matrix[9];
 	CamGTE.m22 = w2v_matrix[10];
+}
+
+void PrintString(long x, long y, char* string)
+{
+	printf("PrintString - X:%d Y:%d - %s\n", x, y, string);
 }

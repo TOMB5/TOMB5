@@ -1,14 +1,7 @@
 #ifndef HAIR_H
 #define HAIR_H
 
-#include "ITEMS.H"
-#include "CAMERA.H"
-
-struct HAIR_STRUCT
-{
-	struct PHD_3DPOS pos;
-	struct PHD_VECTOR vel;
-};
+#include "PSXTYPES.H"
 
 void InitialiseHair();
 

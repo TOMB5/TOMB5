@@ -3,7 +3,6 @@
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "OBJECTS.H"
-#include "ROOMLOAD.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
 
@@ -208,6 +207,14 @@ void AddActiveItem(short item_num)//41FEC(<), 42440(<)
 		item->next_active = next_item_active;
 		next_item_active = item_num;
 	}
+
+	return;
+}
+
+void KillItem(short item_num)//41950
+{
+	short linknum;
+	struct ITEM_INFO* item;
 
 	return;
 }

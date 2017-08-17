@@ -1,7 +1,5 @@
 #include "DRAW.H"
 
-#include "ITEMS.H"
-
 #include <stddef.h>
 
 short LightningSFXDelay;

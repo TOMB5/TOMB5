@@ -1,6 +1,8 @@
 #ifndef CD_H
 #define CD_H
 
+#define CD_SECTOR_SIZE (2048)
+
 extern void cbvsync();
 extern void InitNewCDSystem();
 extern void S_CDPlay(short track, int mode);
@@ -20,7 +22,5 @@ extern short XAReqTrack;
 extern char XAFlag;
 extern char XAWait;
 extern int XAStartPos;
-
-#define CD_SECTOR_SIZE (2048)
 
 #endif

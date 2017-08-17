@@ -1,6 +1,8 @@
 #ifndef NEWINV2_H
 #define NEWINV2_H
 
+#include "PSXTYPES.H"
+
 extern struct INVOBJ inventry_objects_list[100]; // offset 0x92BE8
 extern unsigned char wanky_secrets_table[18]; // offset 0x92BD4
 extern short options_table[99]; // offset 0x933B8
@@ -51,26 +53,6 @@ extern unsigned char go_deselect; // offset 0xA379C
 extern unsigned char ammo_active; // offset 0xA377C
 extern char bullshitbollox; // offset 0xA37A4
 extern char _bullshitbollox; // offset 0xA37A0
-//static unsigned short AmountShotGunAmmo1; // offset 0xA36B8
-//static unsigned short AmountShotGunAmmo2; // offset 0xA36BA
-//static unsigned short AmountHKAmmo1; // offset 0xA36BC
-//static unsigned short AmountCrossBowAmmo1; // offset 0xA36BE
-//static unsigned short AmountCrossBowAmmo2; // offset 0xA36C0
-//static unsigned short AmountUziAmmo; // offset 0xA36C2
-//static unsigned short AmountRevolverAmmo; // offset 0xA36C4
-//static unsigned short AmountPistolsAmmo; // offset 0xA36C6
-//static char CurrentPistolsAmmoType; // offset 0xA36C8
-//static char CurrentUziAmmoType; // offset 0xA36C9
-//static char CurrentRevolverAmmoType; // offset 0xA36CA
-//static char CurrentShotGunAmmoType; // offset 0xA36CB
-//static char CurrentGrenadeGunAmmoType; // offset 0xA36CC
-//static char CurrentCrossBowAmmoType; // offset 0xA36CD
-//static char StashedCurrentPistolsAmmoType; // offset 0xA36CE
-//static char StashedCurrentUziAmmoType; // offset 0xA36CF
-//static char StashedCurrentRevolverAmmoType; // offset 0xA36D0
-//static char StashedCurrentShotGunAmmoType; // offset 0xA36D1
-//static char StashedCurrentGrenadeGunAmmoType; // offset 0xA36D2
-//static char StashedCurrentCrossBowAmmoType; // offset 0xA36D3
 extern char current_selected_option; // offset 0xA36E0
 extern char Stashedcurrent_selected_option; // offset 0xA36DC
 extern struct AMMOLIST ammo_object_list[3]; // offset 0xA3784

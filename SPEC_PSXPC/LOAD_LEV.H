@@ -1,34 +1,11 @@
 #ifndef LOAD_LEV_H
 #define LOAD_LEV_H
 
+#include "PSXTYPES.H"
+
 void LOAD_DrawEnable(unsigned char isEnabled);
 void LOAD_Stop();
 void LOAD_Start(int file_number);
-
-struct MATRIX3D
-{
-	short m00;
-	short m01;
-	short m02;
-	short m10;
-	short m11;
-	short m12;
-	short m20;
-	short m21;
-	short m22;
-	short pad;
-	long tx;
-	long ty;
-	long tz;
-};
-
-struct SVECTOR
-{
-	short vx;
-	short vy;
-	short vz;
-	short pad;
-};
 
 extern unsigned char LtLoadingBarEnabled;
 extern unsigned char LoadingBarEnabled;

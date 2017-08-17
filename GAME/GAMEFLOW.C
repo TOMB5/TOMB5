@@ -1,14 +1,15 @@
 #include "GAMEFLOW.H"
 
 #include "3D_GEN.H"
-#include "CAMERA.H"
 #include "CONTROL.H"
 #include "CD.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "DRAWPHAS.H"
 #include "FILE.H"
+#include "GPU.H"
 #include "HEALTH.H"
+#include "ITEMS.H"
 #include "MALLOC.H"
 #include "NEWINV2.H"
 #include "PSXINPUT.H"
@@ -20,12 +21,9 @@
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
 
+#include <assert.h>
 #include <stdint.h>
 #include <string.h>
-
-//Temp
-#include "LOAD_LEV.H"
-#include <assert.h>
 
 #define GF_SCRIPT_FILENAME "SCRIPT.DAT"
 
@@ -503,9 +501,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 		while (gfStatus == 0)
 		{
-#ifdef PSX
 			GPU_BeginScene();
-#endif
 
 			if (bDoCredits)
 			{
@@ -566,21 +562,14 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 			if (PadConnected == 0)//0x108A0
 			{
-				int x = 256;
-				int y = 128;
-
 				//int a2 = 3; //?
 
 #ifdef INTERNAL
-				char* controllerRemovedString = gfStringWad + gfStringOffset[221];
+				PrintString(256, 128, gfStringWad + gfStringOffset[221]);
 #else
-				char* controllerRemovedString = gfStringWad + gfStringOffset[219];
+				PrintString(256, 128, gfStringWad + gfStringOffset[219]);
 #endif
 				//int v0 = 4096;//?
-
-				///PrintString(x, y, controllerRemovedString); //FIXME: IDA did not dump me :-)
-				printf("%s\n", controllerRemovedString);
-
 			}//0x108CC
 
 			handle_cutseq_triggering(Name);
