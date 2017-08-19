@@ -19,6 +19,6 @@ struct object
 	char placeholder[64];
 };
 
-extern char objects[32360];
+extern char objects[32360];//FIXME looks like struct object_info
 
 #endif

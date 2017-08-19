@@ -1,18 +1,26 @@
-#include <assert.h>
-
 #include "CD.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
+#include "MEMCARD.H"
 #include "PROFILE.H"
+#include "PSXINPUT.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
 #include "SPECIFIC.H"
 #include "SPUSOUND.H"
 #include "TEXT.H"
 
-#include <SDL.h>
+#ifdef PSX
+	#include <sys/types.h>
+	#include <LIBAPI.H>
+	#include <LIBCD.H>
+	#include <LIBETC.H>
+	#include <LIBGTE.H>
+	#include <LIBGPU.H>
+	#include <LIBPAD.H>
+#endif
 
 void VSyncFunc()//10000(<), 10000(<) (F)
 {
@@ -28,11 +36,6 @@ void VSyncFunc()//10000(<), 10000(<) (F)
 	GnLastFrameCount++;
 
 	return;
-}
-
-void SetSp()
-{
-
 }
 
 int main(int argc, char* args[])//10064(<), 10064(!)
@@ -74,13 +77,13 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 
 	MemCardInit(1);
 
-	PadInitDirect(GPad1, GPad2);
+	PadInitDirect(&GPad1.transStatus, &GPad2.transStatus);
 
 	PadSetAct(0, &Motors[0], 2);
 
 	PadStartCom();
 
-	CdInit(0);//check arg
+	CdInit();
 	CdSetDebug(0);
 #endif
 

@@ -85,6 +85,35 @@ void InitNewCDSystem()//5DDE8, 5E264(<)
 
 }
 
+void DEL_ChangeCDMode(int mode)//5DEB0(<), ?
+{
+	unsigned char param[4];
+
+	if (mode == 0 && current_cd_mode != 0)
+	{
+		current_cd_mode = 0;
+		//param[0] = 0x80;
+		//CdControlB(0xE, &param[0], 0);
+		//VSync(3);
+	}
+	else if (mode == 1 && current_cd_mode != mode)
+	{
+		//loc_5DEF8
+		current_cd_mode = mode;
+	}
+	else if (mode == 2 && current_cd_mode != mode)
+	{
+		//loc_5DF20
+		current_cd_mode = mode;
+		//param[0] = 0x80;
+		//CdControlB(0xE, &param[0], 0);
+		//VSync(3);
+	}
+
+	//loc_5DF58
+	return;
+}
+
 //Play audio track
 void S_CDPlay(short track, int mode)
 {

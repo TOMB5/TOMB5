@@ -124,7 +124,7 @@ long DrawPhaseGame()//63F04, 645E0
 
 	if (GLOBAL_playing_cutseq != 0)
 	{
-		//frigup_lara();
+		//frigup_lara();//frig af :lennyface:
 	}
 
 	//loc_641A8

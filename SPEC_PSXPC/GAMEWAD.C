@@ -5,10 +5,10 @@
 #include <stdio.h>
 #include <assert.h>
 
-//Retains all game data file positions.
+//Holds all game data file positions or offsets in GAMEWAD.OBJ.
 struct GAMEWAD_header gwHeader;
 
-//LBA for the GAMEWAD.OBJ file on disc, this is retrieved by InitNewCDSystem() (See CD.C)
+//LBA for the GAMEWAD.OBJ file on disc, this is set by InitNewCDSystem(), CDPosToInt() (See CD.C)
 int gwLba = 0;
 
 //Start sector for the current gamewad file entry.
@@ -121,7 +121,7 @@ void GAMEWAD_Seek(int offset /*$a0*/)//*, 5E54C(<) (F)
 
 /*
  * [FUNCTIONALITY] - GAMEWAD_ReaderPositionToCurrent
- * Updates the gamewad reader's start sector to current. 
+ * Updates the gamewad reader's start sector to current reader position. 
  */
 
 void GAMEWAD_ReaderPositionToCurrent()//*, 5E564(<) (F)

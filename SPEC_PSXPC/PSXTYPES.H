@@ -3,20 +3,23 @@
 
 
 // 4 enums
-enum mood_type : int {
+enum mood_type
+{
 	BORED_MOOD = 0,
 	ATTACK_MOOD = 1,
 	ESCAPE_MOOD = 2,
 	STALK_MOOD = 3,
 };
-enum zone_type : int {
+enum zone_type
+{
 	SKELLY_ZONE = 0,
 	BASIC_ZONE = 1,
 	CROC_ZONE = 2,
 	HUMAN_ZONE = 3,
 	FLYER_ZONE = 4,
 };
-enum camera_type : int {
+enum camera_type
+{
 	CHASE_CAMERA = 0,
 	FIXED_CAMERA = 1,
 	LOOK_CAMERA = 2,
@@ -24,7 +27,8 @@ enum camera_type : int {
 	CINEMATIC_CAMERA = 4,
 	HEAVY_CAMERA = 5,
 };
-enum target_type : int {
+enum target_type
+{
 	NO_TARGET = 0,
 	PRIME_TARGET = 1,
 	SECONDARY_TARGET = 2,
@@ -291,6 +295,7 @@ struct fake77
 	struct AnalogController analog; // size=6, offset=0
 };
 
+#ifndef PSX
 // 136 structs
 struct TCB {
 	long status; // size=0, offset=0
@@ -298,6 +303,7 @@ struct TCB {
 	unsigned long reg[40]; // size=160, offset=8
 	long system[6]; // size=24, offset=168
 };
+
 struct EXEC {
 	unsigned long pc0; // size=0, offset=0
 	unsigned long gp0; // size=0, offset=4
@@ -323,6 +329,9 @@ struct DIRENTRY {
 	long head; // size=0, offset=32
 	char system[4]; // size=4, offset=36
 };
+
+#endif
+
 struct VECTOR {
 	long vx; // size=0, offset=0
 	long vy; // size=0, offset=4

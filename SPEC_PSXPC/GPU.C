@@ -1,5 +1,6 @@
 #include "GPU.H"
 
+#include "PROFILE.H"
 #include <SDL.h>
 #include <SDL_opengl.h>
 
@@ -51,11 +52,50 @@ int GPU_FlipNoIdle()//5E078, 5F264
 
 void GPU_GetScreenPosition(short x, short y)
 {
+	int test;
+	test++;
+#if 0
+	if (ProfileDraw)
+	{
+		ProfileRGB(255, 255, 255);
+		ProfileAddOT(&db.ot);
+	}
+
+	//loc_5E0B0
+	DrawSync(0);
+
+	if (ProfileDraw)
+	{
+		ProfileAddDrawOT(&db.ot);
+	}
+
+	//loc_5E0D8
+	//TODO
+#endif
 }
 
-void GPU_ClearVRAM()
+void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<)
 {
+	int test;
+	test++;
+#if 0
+	DrawSync(0);
+	VSync(0);
+	clear_a_rect(0);
+	clear_a_rect(0x100);
+	clear_a_rect(0x200);
+	clear_a_rect(0);
+	DrawSync(0);
+	VSync(0);
+#endif
 }
+
+#if 0
+void clear_a_rect(int unknown)//5F334, ?
+{
+	ClearImage(unknown, 0, 0x30, 0);
+}
+#endif
 
 void GPU_FlipToBuffer(int unknown)
 {
