@@ -1,16 +1,18 @@
 #include "CD.H"
 
+#include "CONTROL.H"
 #include "GAMEWAD.H"
 #include "SPECIFIC.H"
 
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 
 //Number of XA files on disc (XA1-17.XA)
 #define NUM_XA_FILES 17
 
 #ifdef PSX
-	#define XA_FILE_NAME "\XA%d.XA;1"
+	#define XA_FILE_NAME "\\XA%d.XA;1"
 #else
 	#define XA_FILE_NAME "XA%d.XA"
 #endif
@@ -220,47 +222,58 @@ void cbvsync()//5D884(<), 5DD00(<)
 	return;
 }
 
-void InitNewCDSystem()//5DDE8, 5E264(<)
-{
 #ifdef PSX
 	struct CdlFILE fp;
-	int test;
-	unsigned char param[8];//FIXME incorrect
+#endif
+
+void InitNewCDSystem()//5DDE8, 5E264(<) (F)
+{
+	char buf[10];
+	int i = 0;
+	long local_wadfile_header[512];
+#ifdef PSX
+	
+
 	DEL_ChangeCDMode(0);
 	
-	if (CdSearchFile(&fp, GAMEWAD_FILENAME))
-	{
-		printf("FOUND:%s\n", GAMEWAD_FILENAME);
-	}
-	
-	CdControlB(CdlSetloc, &param, 0);//6956C
-	CdRead(1, &gwHeader, 0x80); //69C4C
-	//..
-	//jal sub_5F6AC //memcpy(&gwHeader, sizeof(GAMEWAD_header);
+	CdSearchFile(&fp, GAMEWAD_FILENAME);
+	CdControlB(CdlSetloc, &fp, 0);//6956C
+	CdRead(1, &local_wadfile_header, 0x80); //69C4C
 
-	test = 0xDEAD;
-	test++;
+	while (CdReadSync(1, 0) > 0)
+	{
+		VSync(0);
+	}
+
+	memcpy(&gwHeader, &local_wadfile_header, 512);//5F6AC
+
+	gwLba = CdPosToInt(&fp.pos);//66270
+
 #else
+
 	FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
 	assert(fileHandle);
-	fread(&gwHeader, sizeof(GAMEWAD_header), 1, fileHandle);
+	fread(&local_wadfile_header, sizeof(GAMEWAD_header), 1, fileHandle);
 	fclose(fileHandle);
+
+	memcpy(&gwHeader, &local_wadfile_header, sizeof(GAMEWAD_header));//5F6AC
 
 	//FIXME: CdPosToInt(); returns LBA for GAMEWAD.OBJ on disc.
 	gwLba = 24;
 
-#ifdef PSX
-	//jal sub_66270 //CdPosToInt();
 #endif
 
-	char buf[10];//FIXME
-	for (int i = 0; i < NUM_XA_FILES; i++)
+	//loc_5E2E8
+	for (i = 0; i < NUM_XA_FILES; i++)
 	{
 		sprintf(buf, XA_FILE_NAME, i + 1);
 
 #ifdef PSX
-		//jal sub_662F0 //CdSearchFile(&fp, buf);
-#endif
+		CdSearchFile(&fp, buf);
+
+		XATrackList[i][0] = CdPosToInt(&fp.pos);
+		XATrackList[i][1] = XATrackList[i][0] + ((fp.size + 0x7FF) / CD_SECTOR_SIZE);
+#else
 		FILE* fileHandle = fopen(buf, "rb");
 		assert(fileHandle);
 		fseek(fileHandle, 0, SEEK_END);
@@ -269,14 +282,13 @@ void InitNewCDSystem()//5DDE8, 5E264(<)
 		XATrackList[i][1] = XATrackList[i][0] + ((ftell(fileHandle) + 0x7FF) / CD_SECTOR_SIZE);
 
 		fclose(fileHandle);
+#endif
 	}
 
 	XAFlag = 0;
 	XAVolume = 0;
 	XAReqTrack = -1;
 	XATrack = -1;
-#endif
-
 }
 
 void DEL_ChangeCDMode(int mode)//5DEB0(<), ?
@@ -286,9 +298,11 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), ?
 	if (mode == 0 && current_cd_mode != 0)
 	{
 		current_cd_mode = 0;
-		//param[0] = 0x80;
-		//CdControlB(0xE, &param[0], 0);
-		//VSync(3);
+#ifdef PSX
+		param[0] = CdlModeSpeed;
+		CdControlB(CdlSetmode, param, 0);
+		VSync(3);
+#endif
 	}
 	else if (mode == 1 && current_cd_mode != mode)
 	{
@@ -299,9 +313,11 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), ?
 	{
 		//loc_5DF20
 		current_cd_mode = mode;
-		//param[0] = 0x80;
-		//CdControlB(0xE, &param[0], 0);
-		//VSync(3);
+#ifdef PSX
+		param[0] = CdlModeSpeed;
+		CdControlB(CdlSetmode, param, 0);
+		VSync(3);
+#endif
 	}
 
 	//loc_5DF58
