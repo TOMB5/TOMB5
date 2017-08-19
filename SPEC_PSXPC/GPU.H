@@ -3,7 +3,9 @@
 
 #include "PSXTYPES.H"
 
-#include <SDL.h>
+#ifndef PSX
+	#include <SDL.h>
+#endif
 
 extern unsigned long GnFrameCounter;
 extern unsigned long GnLastFrameCount;
@@ -24,8 +26,10 @@ extern void GPU_EndScene();
 extern int GPU_FlipNoIdle();
 extern void GPU_GetScreenPosition(short x, short y);
 extern void GPU_ClearVRAM();
-extern void GPU_FlipToBuffer(int unknown);
+extern void GPU_FlipToBuffer(int buffer_index);
 
-extern SDL_Window* g_window;
+#ifndef PSX
+	extern SDL_Window* g_window;
+#endif
 
 #endif

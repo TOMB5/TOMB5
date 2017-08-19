@@ -20,6 +20,7 @@
 	#include <LIBGTE.H>
 	#include <LIBGPU.H>
 	#include <LIBPAD.H>
+	#include <stdio.h>
 #endif
 
 void VSyncFunc()//10000(<), 10000(<) (F)
@@ -40,9 +41,9 @@ void VSyncFunc()//10000(<), 10000(<) (F)
 
 int main(int argc, char* args[])//10064(<), 10064(!)
 {
+	
 #ifdef PSX
 	SetSp(0x801FFFE0);
-
 	ResetCallback();
 #endif
 

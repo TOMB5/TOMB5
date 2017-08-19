@@ -79,6 +79,7 @@ void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<)
 	int test;
 	test++;
 #if 0
+	//RECT r;
 	DrawSync(0);
 	VSync(0);
 	clear_a_rect(0);
@@ -90,21 +91,33 @@ void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<)
 #endif
 }
 
-#if 0
-void clear_a_rect(int unknown)//5F334, ?
+#ifdef PSX
+void clear_a_rect(RECT* rect)//5F334, ?
 {
-	ClearImage(unknown, 0, 0x30, 0);
+	ClearImage(rect, 0, 0, 0);
 }
 #endif
 
-void GPU_FlipToBuffer(int unknown)
+void GPU_FlipToBuffer(int buffer_index)
 {
-	//unknown is probably db.current_buffer flip index
+#ifdef PSX
+	DrawSync(0);
+	VSync(0);
+
+	PutDispEnv(&db.disp[buffer_index]);
+
+	db.current_buffer = buffer_index;
+
+	PutDrawEnv(&db.draw[buffer_index]);
+
+#endif
 }
 
 void GPU_EndScene()
 {
 	//int nPolys;
 	//static int nWorstPolys;
+#ifndef PSX
 	SDL_GL_SwapWindow(g_window);
+#endif
 }
