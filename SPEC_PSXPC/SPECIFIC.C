@@ -25,6 +25,9 @@ unsigned short nAnimUVRanges;
 int GtSFXEnabled;
 short AnimatingTexturesV[16][8][3];
 
+#ifndef EXIT_FAILURE
+	#define EXIT_FAILURE 1
+#endif
 
 void S_ExitSystem(char* exit_message)
 {

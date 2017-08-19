@@ -30,6 +30,7 @@ int dword_A1890;
 
 void S_UpdateInput()//5F628, 6038C
 {
+	int a0, a1, a2, v0, s1, s2;
 #if 0
 	// line 2, offset 0x5f628
 	int state; // $s1
@@ -59,18 +60,18 @@ void S_UpdateInput()//5F628, 6038C
 	PadGetState(0);
 #endif
 
-	int a0 = 0;
-	int a1 = 1;
-	int a2 = 0;
+	a0 = 0;
+	a1 = 1;
+	a2 = 0;
 	
-	int v0 = 0;
-	int s1 = v0;
+	v0 = 0;
+	s1 = v0;
 #ifdef PSX
 	s1 = v0;
 	PadInfoMode();
 #endif
 
-	int s2 = v0 & 0xFF;
+	s2 = v0 & 0xFF;
 	if (s1 == 0 || (s2 != 4) || (s2 != 2))
 	{
 		//loc_5F688

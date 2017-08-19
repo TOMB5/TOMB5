@@ -58,6 +58,7 @@ int GAMEWAD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<) (F)
 
 void GAMEWAD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 {
+#ifndef PSX
 	FILE* fileHandle = NULL;
 	int i;
 
@@ -104,6 +105,7 @@ void GAMEWAD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 	}
 
 	fclose(fileHandle);
+#endif
 }
 
 /*

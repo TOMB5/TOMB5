@@ -31,6 +31,8 @@ int dword_800A60D8 = 0;
 
 void S_LoadLevelFile(int Name)//60188, 60D54(<)
 {
+	int a0, a1, s0, v0, v1;
+	unsigned long* s00;
 #ifdef INTERNAL
 	char buf[80];
 	unsigned long* mod;
@@ -130,8 +132,8 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	LOAD_Stop();
 #else
 
-	int a0 = Name;
-	int s0 = a0 + 2;//+2 because first entry is setup.mod and second is cutseq.jiz
+	a0 = Name;
+	s0 = a0 + 2;//+2 because first entry is setup.mod and second is cutseq.jiz
 	
 	//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
 	GAMEWAD_InitialiseReaderPosition(Name + TITLE);
@@ -144,11 +146,11 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	a0 = s0;
 	LOAD_Start(Name);//FIXME incorRECTTRC ptr returning
 
-	int v0 = 0x000A0000;
-	int v1 = 0x000B0000;
+	v0 = 0x000A0000;
+	v1 = 0x000B0000;
 
-	unsigned long* s00 = db.poly_buffer[0];
-	int a1 = dword_800AD724;//illegal value
+	s00 = db.poly_buffer[0];
+	a1 = dword_800AD724;//illegal value
 	v0 = s0 + 0x1008;//OurSqrt?
 	//SetupPtr = v0;///@FIXME illegal ptr
 

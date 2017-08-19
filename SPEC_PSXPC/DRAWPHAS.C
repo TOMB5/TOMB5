@@ -16,13 +16,16 @@
 
 long DrawPhaseGame()//63F04, 645E0
 {
+#ifndef PSX
 	short scalarx = 0; // $a3
 	short scalary = 0; // $t0
 	short scalarz = 0; // $t1
+	struct lara_info* a1;
+	struct lara_info* a2;
 
 	mQuickW2VMatrix();
 
-	struct lara_info* a1 = &lara;
+	a1 = &lara;
 
 	if (lara.poisoned != lara.dpoisoned)
 	{
@@ -50,14 +53,12 @@ long DrawPhaseGame()//63F04, 645E0
 	}
 	
 	//loc_63F88
-	struct lara_info* a2 = &lara;
+	a2 = &lara;
 
 	int a3;
 
 	if (lara.poisoned > 255)
 	{
-		short* t0 = &rcossin_tbl[0];
-
 		int a3 = rcossin_tbl[(((XSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((XSoff2 >> 2) & 0x3FFC) / sizeof(short))];
 /*
 		short scalarx = 0; // $a3
@@ -162,6 +163,7 @@ long DrawPhaseGame()//63F04, 645E0
 	//S_AnimateTextures(v0);
 	//FIXME return numFrames;
 	S_Warn("[DrawPhaseGame] - Unimplemented!\n");
+#endif
 	return 2;//hack, retail returns 5, sub 61320
 }
 

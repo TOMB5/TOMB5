@@ -51,14 +51,15 @@ int dword_A5EE0 = 0;
 
 void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
 {
+	int a0, a1, a2;
 	if (LtLoadingBarEnabled != 0)
 	{
 		//loc_5F08C
 		GPU_BeginScene();
 
-		int a0 = 0x1B8;
-		int a1 = 0xC8;
-		int a2 = 0x40;
+		a0 = 0x1B8;
+		a1 = 0xC8;
+		a2 = 0x40;
 
 		if (_first_time_ever)
 		{
@@ -88,7 +89,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	char* gfx = NULL;
 	unsigned short* cdgfx = NULL;
 	unsigned short* gfx2 = NULL;
-	int fileSize, x, y;
+	int fileSize, x, y, i;
 	unsigned short dat;
 
 #ifdef PSX
@@ -132,7 +133,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 
 	//Why?
 	tmpptr = (unsigned long*) gfx;
-	for (int i = 0; i < LOADING_SCREEN_IMG_SIZE / sizeof(unsigned long); i++)
+	for (i = 0; i < LOADING_SCREEN_IMG_SIZE / sizeof(unsigned long); i++)
 	{
 		tmpptr[i] |= (SHRT_MAX + 1) << 16 | (SHRT_MAX + 1);
 	}
@@ -184,7 +185,7 @@ void LOAD_Stop()//60434, 60FB4
 
 	db.draw[1].dtd = 1;
 
-#ifdef PSX
+#if 0//def PSX
 	GPU_UseOrderingTables();
 #endif
 

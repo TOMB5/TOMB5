@@ -31,21 +31,215 @@ static char XARepeat;
 int XAStartPos;
 static int XATrackList[17][2];
 
-void cbvsync()
+#ifdef PSX
+	#include <sys/types.h>
+	#include <LIBCD.H>
+	#include <LIBSPU.H>
+#endif
+
+void cbvsync()//5D884(<), 5DD00(<)
 {
-	S_Warn("[cbvsync] - Unimplemented!\n");
+	int ret;//$a1
+	unsigned char io[8];//$sp-16
+	int cnt;//$v0
+
+	switch (XAFlag - 1)
+	{
+	case 0:
+	{
+		if (XAVolume == 0)
+		{
+			XAFlag++;
+		}
+
+		goto dflt;
+		break;
+	}
+	case 1:
+	{
+		cnt = XATrack = XAReqTrack;
+		if (XAReqTrack < 0)
+		{
+			cnt += 7;
+		}
+
+		//loc_5D8F8
+		io[0] = 1;
+		io[1] = XATrack & 7;
+
+		XAStartPos = XATrackList[cnt][0];
+		XAEndPos = XATrackList[cnt][1] + XATrackClip[XAReqTrack];
+		XACurPos = XAStartPos;
+
+#ifdef PSX
+		CdControlF(0xD, &io);
+#endif
+		XAFlag++;
+
+		//loc_5D8D8
+		goto dflt;
+
+		break;
+	}
+	case 2:
+	{
+		//loc_5D980
+		XAReplay();
+		XAReqVolume = XAMasterVolume;
+		XAFlag++;
+
+		goto dflt;
+
+		break;
+	}
+	case 3:
+	{
+		//loc_5D9AC
+		if (XAVolume == XAMasterVolume)
+		{
+			XAFlag++;
+			XAWait = 60;
+		}
+
+		goto dflt;
+
+		break;
+	}
+	case 4:
+	{
+		//loc_5D9E0
+		if (XAWait == 0)
+		{
+			XAFlag++;
+		}
+
+		XAWait--;
+
+		goto dflt;
+
+		break;
+	}
+	case 5:
+	{
+		//loc_5DA18
+#ifdef PSX
+		VSync(-1);
+#endif
+		if (XAFlag & 7)
+		{
+#ifdef PSX
+			ret = CdSync(0, &io[0]);
+			if (ret == 5)
+			{
+				XAReplay();
+			}
+			else if (ret == 2)
+			{
+				if (XACurPos < XAEndPos)
+				{
+					//loc_5DAEC
+					if (CdLastCom() == 0x11);
+					{
+						cnt = CdPosToInt(&io[5]);
+
+						if (cnt > 0)
+						{
+							XACurPos = cnt;
+						}
+
+						CdControlF(&io[5], 0);
+					}
+				}
+				else if (XARepeat == 0)
+				{
+					//loc_5DA84
+					if (CurrentAtmosphere == 0)
+					{
+						CdControlB(9, 0, 0);
+						XAFlag = 7;
+					}
+					else
+					{
+						//loc_5DAB8
+						XAVolume = 0;
+						XARepeat = 1;
+						XAFlag = ret;
+						XAReqTrack = CurrentAtmosphere;
+						CDDA_SetVolume(0);
+						IsAtmospherePlaying = 1;
+					}
+				}
+				else
+				{
+					XAReplay();
+				}
+			}
+
+			goto dflt;
+#endif
+		}
+
+		break;
+	}
+	default:
+
+	dflt:
+		//def_5D8B8
+		if (XAVolume < XAReqVolume)
+		{
+			XAVolume += XAFadeRate;
+			if (XAVolume < XAReqVolume)
+			{
+				XAVolume = XAReqVolume;
+			}//loc_5DB78
+
+			CDDA_SetVolume(XAVolume);
+		}
+		else
+		{
+			//loc_5DB94
+			if (XAReqVolume < XAVolume)
+			{
+				XAVolume -= XAFadeRate;
+				if (!(XAReqVolume < XAVolume))
+				{
+					XAVolume = XAReqVolume;
+				}
+
+				//loc_5DBEC
+				CDDA_SetVolume(XAVolume);
+
+			}//loc_5DC00
+		}
+
+		//loc_5DC00
+		break;
+	}
+
+	//loc_5DC00
+	return;
 }
 
 void InitNewCDSystem()//5DDE8, 5E264(<)
 {
 #ifdef PSX
-	//jal sub_5E650 //DEL_ChangeCDMode(0);
-	//jal sub_662F0 //CdSearchFile(&fp, GAMEWAD_FILENAME);
-	//jal sub_6956C //CdControlF();
-	//jal sub_69C4C //CdRead();
+	struct CdlFILE fp;
+	int test;
+	unsigned char param[8];//FIXME incorrect
+	DEL_ChangeCDMode(0);
+	
+	if (CdSearchFile(&fp, GAMEWAD_FILENAME))
+	{
+		printf("FOUND:%s\n", GAMEWAD_FILENAME);
+	}
+	
+	CdControlB(CdlSetloc, &param, 0);//6956C
+	CdRead(1, &gwHeader, 0x80); //69C4C
 	//..
 	//jal sub_5F6AC //memcpy(&gwHeader, sizeof(GAMEWAD_header);
 
+	test = 0xDEAD;
+	test++;
 #else
 	FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
 	assert(fileHandle);
@@ -144,4 +338,10 @@ void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
 	attr.cd.mix = SPU_ON;
 	SpuSetCommonAttr(&attr);
 #endif
+}
+
+void XAReplay()//5D838, ?
+{
+	struct CdlLOC loc;
+	S_Warn("[XAReplay] - unimplemented!\n");
 }

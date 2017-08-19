@@ -62,6 +62,8 @@ unsigned long LevelRelocPtr[128];
  */
 void RelocateLevel()//?, B3B50(<)
 {
+#ifndef PSX
+
 	char* ptr = NULL;
 	unsigned int size, i, j;
 
@@ -453,6 +455,8 @@ void RelocateLevel()//?, B3B50(<)
 		testing3++;
 	}//FIXME bad brace
 
+#endif
+
 }//0xB4730 is end jalr v0
 
 //Possibly send audio data to SPU
@@ -533,6 +537,7 @@ void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr)
 //Relocate initial object frame ptrs, see ResetCutanimate()
 void sub_B96EC(int unk)
 {
+#ifndef PSX
 	char* a0 = &objects[0];
 	int s0 = 0x02000000;
 	short t7 = 10;
@@ -596,9 +601,10 @@ void sub_B96EC(int unk)
 	//sub_BA81C
 
 	//0xB97FC
-
+#endif
 	int test = 0;
 	test++;
+
 }//0xB996C
 
 void sub_B5328()

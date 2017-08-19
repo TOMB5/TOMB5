@@ -5,6 +5,15 @@
 
 #ifndef PSX
 	#include <SDL.h>
+#else
+	#include <sys/types.h>
+	#include <LIBAPI.H>
+	#include <LIBCD.H>
+	#include <LIBETC.H>
+	#include <LIBGTE.H>
+	#include <LIBGPU.H>
+	#include <LIBPAD.H>
+	#include <stdio.h>
 #endif
 
 extern unsigned long GnFrameCounter;
@@ -24,10 +33,14 @@ extern void GPU_UsePolygonBuffers(unsigned long* pBuffers , int nPBSize);
 extern void GPU_BeginScene();
 extern void GPU_EndScene();
 extern int GPU_FlipNoIdle();
+extern void GPU_SyncBothScreens();
 extern void GPU_GetScreenPosition(short x, short y);
 extern void GPU_ClearVRAM();
 extern void GPU_FlipToBuffer(int buffer_index);
-
+extern void GPU_GetScreenPosition(short x, short y);
+#ifdef PSX
+extern void clear_a_rect(RECT* rect);
+#endif
 #ifndef PSX
 	extern SDL_Window* g_window;
 #endif

@@ -120,6 +120,7 @@ void show_game_malloc_totals()//5E894(<), * (F)
 
 void dump_game_malloc()//*, *
 {
+#ifndef PSX
 	FILE* fileHandle = NULL;
 
 	fileHandle = fopen("DUMP.BIN", "wb");
@@ -132,4 +133,5 @@ void dump_game_malloc()//*, *
 	{
 		printf("Failed to dump memory!\n");
 	}
+#endif
 }

@@ -1,8 +1,11 @@
 #include "GPU.H"
 
 #include "PROFILE.H"
-#include <SDL.h>
-#include <SDL_opengl.h>
+
+#ifndef PSX
+	#include <SDL.h>
+	#include <SDL_opengl.h>
+#endif
 
 unsigned long GnFrameCounter = 0;
 unsigned long GnLastFrameCount = 0;
@@ -17,19 +20,31 @@ static int LnFlipFrame;
 unsigned long GadwOrderingTables[5128];
 unsigned long GadwPolygonBuffers[52260];
 
-SDL_Window* g_window = NULL;
-
+#ifndef PSX
+	SDL_Window* g_window = NULL;
+#endif
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68, 5F1C8
 {
+	int test = 0;
+	test++;
 }
 
 void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)
 {
+	int test = 0;
+	test++;
+}
+
+void GPU_SyncBothScreens()
+{
+	int test = 0;
+	test++;
 }
 
 void GPU_BeginScene()
 {
+#ifndef PSX
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	
 	SDL_Event event;
@@ -41,6 +56,10 @@ void GPU_BeginScene()
 			exit(0);
 		}
 	}
+#else
+	int test = 0;
+	test++;
+#endif
 }
 
 int GPU_FlipNoIdle()//5E078, 5F264
@@ -52,7 +71,7 @@ int GPU_FlipNoIdle()//5E078, 5F264
 
 void GPU_GetScreenPosition(short x, short y)
 {
-	int test;
+	int test = 0;
 	test++;
 #if 0
 	if (ProfileDraw)
@@ -76,7 +95,7 @@ void GPU_GetScreenPosition(short x, short y)
 
 void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<)
 {
-	int test;
+	int test = 0;
 	test++;
 #if 0
 	//RECT r;

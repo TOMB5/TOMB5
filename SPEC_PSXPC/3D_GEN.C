@@ -5,7 +5,9 @@
 #include "LOAD_LEV.H"
 #include "SPECIFIC.H"
 
+#ifndef PSX
 #include <SDL.h>
+#endif
 #include <assert.h>
 
 long phd_left;
@@ -25,6 +27,7 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 {
 	int v0 = (((((((view_angle << 1) + view_angle) << 3) - view_angle << 2) - view_angle) >> 3) & 0x1FFE);
 	int a0 = (v0 + 1) << 1;
+	int a1 = 0;
 
 	short* a00 = (short*)(char*)(&rcossin_tbl[0]) + a0;
 	short* v00 = (short*)(char*)(&rcossin_tbl[0]) + (v0 * 2);
@@ -43,11 +46,12 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 		phd_bottom = 239;
 		phd_mxptr = &matrix_stack[0];
 		//SetGeomOffset();
-		int a1 = 120;
+		a1 = 120;
 		a0 = phd_persp;
 		//SetGeomScreen();
 	}
 
+#ifndef PSX
 	if (SDL_Init(SDL_INIT_VIDEO) == 0)
 	{
 		g_window = SDL_CreateWindow("TOMB5", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 512, 240, SDL_WINDOW_OPENGL);
@@ -58,6 +62,7 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 	}
 
 	SDL_GLContext context = SDL_GL_CreateContext(g_window);
+#endif
 }
 
 long mGetAngle(long x/*$a1*/, long z/*$a0*/, long tx/*$a3*/, long tz/*$a2*/)//77678(<), 796BC(<)
@@ -67,9 +72,12 @@ long mGetAngle(long x/*$a1*/, long z/*$a0*/, long tx/*$a3*/, long tz/*$a2*/)//77
 	int t1 = tx - x;
 	int at = t0 | t1;
 	int v0 = 0;
+	int a0 = 0;
+	int a1 = 0;
+
 	if (at != 0)
 	{
-		int a0 = 0x90000;
+		a0 = 0x90000;
 		if (t0 < 0)
 		{
 			v0 |= 0x10;
@@ -85,7 +93,7 @@ long mGetAngle(long x/*$a1*/, long z/*$a0*/, long tx/*$a3*/, long tz/*$a2*/)//77
 		}
 
 		//796F0
-		int a1 = 0x90000;
+		a1 = 0x90000;
 		if (t0 < t1)
 		{
 			v0 += 4;

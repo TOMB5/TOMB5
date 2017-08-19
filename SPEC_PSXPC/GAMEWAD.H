@@ -89,7 +89,9 @@ enum gw_files
 	UNKNOWN_50  //4bpp  TR4 Logo         (ENG)  256x58
 };
 
-#pragma pack(push, 1)
+#ifndef PSX
+	#pragma pack(push, 1)
+#endif
 
 //If changed update GAMEWAD_ENTRYSIZE to the size of this struct.
 struct GAMEWAD_entry
@@ -98,19 +100,28 @@ struct GAMEWAD_entry
 	int fileSize;
 };
 
+#define GAMEWAD_ENTRYSIZE 8
+
 struct GAMEWAD_header
 {
 	struct GAMEWAD_entry entries[NUM_GAMEWAD_FILE_ENTRIES];
+#ifdef PSX
+	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * GAMEWAD_ENTRYSIZE)];
+#else
 	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * sizeof(GAMEWAD_entry))];
+#endif
 };
 
-#pragma pack(pop)
+#ifndef PSX
+	#pragma pack(pop)
+#endif
 
-#define GAMEWAD_ENTRYSIZE 8
 
 //If you recieve this warning, make sure you have recompiled GAMEWAD.OBJ since the header size is greater than retail files.
 #if (NUM_GAMEWAD_FILE_ENTRIES * GAMEWAD_ENTRYSIZE) - GAMEWAD_HEADER_MAX_LENGTH > GAMEWAD_HEADER_MAX_LENGTH
-	#pragma message("Warning: Gamewad header size exceeds limit!")
+	#ifndef PSX
+		#pragma message("Warning: Gamewad header size exceeds limit!")
+	#endif
 #endif
 
 int GAMEWAD_InitialiseReaderPosition(int fileID);
