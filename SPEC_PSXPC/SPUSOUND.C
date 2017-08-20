@@ -59,3 +59,46 @@ void S_SetReverbType(int Reverb /*$a0*/)//91CF4, *
 		//jal	sub_6B850 //SpuSetReverb(1); //SPU_ON
 	}
 }
+
+int SPU_UpdateStatus()
+{
+	int i = 0;
+	char status[NUM_SPU_CHANNELS];
+
+#ifdef PSX
+	SpuGetAllKeysStatus(&status);
+
+	//loc_9161C
+	for (i = 0; i < NUM_SPU_CHANNELS; i++)
+	{
+		if ((status[i] - 1) < 2 && LabSampleType[i] != 0)
+		{
+			SPU_FreeChannel(i);
+		}
+	}
+#endif
+	return LnFreeChannels;
+}
+
+unsigned char SPU_AllocChannel()
+{
+	if (LnFreeChannels == 0)
+	{
+		if (SPU_UpdateStatus() != 0)
+		{
+			LnFreeChannels = -1;
+			return;
+		}
+	}
+
+	//loc_915DC
+	LnFreeChannels--;
+	
+	return LabFreeChannel[LnFreeChannels];
+}
+
+#if 0
+void SPU_FreeSamples()//62610, 
+{
+}
+#endif
