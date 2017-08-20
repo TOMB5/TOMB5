@@ -39,13 +39,13 @@ struct DRIP_STRUCT Drips[32]; // offset 0xA85FC
 struct SHOCKWAVE_STRUCT ShockWaves[16]; // offset 0xA7C3C
 struct FIRE_LIST fires[32]; // offset 0xA8D7C
 
-void SetFadeClip(short height, short speed)
+void SetFadeClip(short height, short speed)//34A8C(<), 34F8C(<) (F)
 {
 	DestFadeScreenHeight = height;
 	FadeClipSpeed = speed;
 }
 
-void SetScreenFadeOut(long fadespeed, long fadeback)
+void SetScreenFadeOut(long fadespeed, long fadeback)//34B14(<), 35014(<) (F)
 {
 	if (!ScreenFading)
 	{
@@ -58,7 +58,7 @@ void SetScreenFadeOut(long fadespeed, long fadeback)
 	}
 }
 
-void SetScreenFadeIn(long fadespeed)
+void SetScreenFadeIn(long fadespeed)//34B48(<), 35048(<) (F)
 {
 	if(!ScreenFading)
 	{
