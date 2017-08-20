@@ -62,10 +62,18 @@ unsigned long LevelRelocPtr[128];
  */
 void RelocateLevel()//?, B3B50(<)
 {
-#ifndef PSX
 
 	char* ptr = NULL;
 	unsigned int size, i, j;
+	int a0, a00, t2, v1, v0, a3, v000, v111, a11, s4, a2, a33, s3, s0;
+	short t3;
+	char* v0000;
+	char* v00;
+	short* currentAnimFrame;
+	char* s00;
+	char* s22;
+	char* s11;
+	char* a000;
 
 	InItemControlLoop = 0;
 
@@ -106,11 +114,11 @@ void RelocateLevel()//?, B3B50(<)
 	//? 2 tpages?
 	ptr = game_malloc(0x40000);
 
-	int v1 = 0x200;
-	int v0 = 0x100;
+	v1 = 0x200;
+	v0 = 0x100;
 
 	///@TODO Unknown const 2.
-	for (int i = 0; i < 2; i++)
+	for (i = 0; i < 2; i++)
 	{
 		CD_Read(0x40000, ptr);
 
@@ -233,20 +241,20 @@ void RelocateLevel()//?, B3B50(<)
 		if (v0 > 0)//blez 0xB3F14
 		{
 			//Relocate anim frame ptrs
-			for (int i = 0; i < *(((short*) (&LevelRelocPtr[18])) + 1); i++)
+			for (i = 0; i < *(((short*) (&LevelRelocPtr[18])) + 1); i++)
 			{
-				short* currentAnimFrame = frames + *(int*) &anims[i];
+				currentAnimFrame = frames + *(int*) &anims[i];
 				*(int*) &anims[i] = *(int*) currentAnimFrame;
 			}
 		}
 
-		int a0 = 0x9000;
+		a0 = 0x9000;
 		dword_A6170 = (int*) ptr;
 		ptr += LevelRelocPtr[30];
 
 		v0 = LevelRelocPtr[27];
-		short t3 = LevelRelocPtr[47];//FIXME lhu
-		int t2 = LevelRelocPtr[38];
+		t3 = LevelRelocPtr[47];//FIXME lhu
+		t2 = LevelRelocPtr[38];
 
 		/*
 		 * Object Textures
@@ -274,7 +282,7 @@ void RelocateLevel()//?, B3B50(<)
 
 		v0 = t3 << 16;
 		v0 >>= 16;
-		int a3 = LevelRelocPtr[31] >> 4;
+		a3 = LevelRelocPtr[31] >> 4;
 
 		AIObjects = (struct AIOBJECT*)ptr;
 
@@ -343,13 +351,13 @@ void RelocateLevel()//?, B3B50(<)
 		//^Verified^***************************************************************
 
 		//0x1F2480 objects FIXME unknown type
-		int a11 = 0x7E68;
-		int s4 = 63;
+		a11 = 0x7E68;
+		s4 = 63;
 		dword_A33D0[25] = *(int*) ptr;
 		ptr += LevelRelocPtr[45];
 
-		int a2 = LevelRelocPtr[43];
-		short a33 = LevelRelocPtr[44];
+		a2 = LevelRelocPtr[43];
+		a33 = LevelRelocPtr[44];
 
 		SpotCam = (struct SPOTCAM*) ptr;
 		dword_3EE4 = LevelRelocPtr[43];//?
@@ -376,25 +384,25 @@ void RelocateLevel()//?, B3B50(<)
 					char* s7 = &dword_1EF9D0[0];//FIXME: levelRelocPtr?
 					char* v0 = ((char*) &LevelRelocPtr[0]) + i;
 					char t3 = v0[196];
-					int s0 = t3 << 2;
+					s0 = t3 << 2;
 					s0 += t3;
 					s0 <<= 2;
 
-					char* s00 = &dword_1EF1D0[s0];
-					int s3 = *(int*) &s00[4];
-					int a00 = s3;
-					char* v00 = game_malloc(a00);
+					s00 = &dword_1EF1D0[s0];
+					s3 = *(int*) &s00[4];
+					a00 = s3;
+					v00 = game_malloc(a00);
 
 					a00 = *(int*) &s00[0];//0x21800
 					CD_Seek(a00);
 
-					char* s22 = v00;
-					char* a000 = s22;
+					s22 = v00;
+					a000 = s22;
 					CD_Read(s3, s22);
 
 					s3 = *(int*) &s00[12];//0x15C
 
-					char* s11 = game_malloc(s3);
+					s11 = game_malloc(s3);
 
 					a00 = *(int*) &s00[8];//0x24000
 
@@ -406,11 +414,11 @@ void RelocateLevel()//?, B3B50(<)
 
 					game_free(s3);
 
-					int v000 = *(int*) &s00[16];
-					int v111 = LevelRelocPtr[48];
+					v000 = *(int*) &s00[16];
+					v111 = LevelRelocPtr[48];
 					v000 <<= 2;
 
-					char* v0000 = &s7[v000];
+					v0000 = &s7[v000];
 					*(int**) v0000 = (int*)s22;
 				}
 			}
@@ -429,23 +437,22 @@ void RelocateLevel()//?, B3B50(<)
 		InitialiseItemArray(256);
 		//v1--;
 
-		int a0000 = level_items;//0x26
-
 		if (level_items > 0)
 		{
 			///baddie_slots[0].joint_rotation[0] = -1;//?
 			//sll a0, s4 ,0x10
 
-			for (int i = 0; i < level_items; i++)
+			for (i = 0; i < level_items; i++)
 			{
 				InitialiseItem(i);
 			}
 		}//0xB4284
 
 
-
+#ifndef PSX
 		struct ITEM_INFO* temp = items;
 		temp++;
+
 		///@CRITICAL
 		//0xB4268 inits items
 
@@ -453,15 +460,17 @@ void RelocateLevel()//?, B3B50(<)
 		testtt++;
 		int testing3 = 0;
 		testing3++;
-	}//FIXME bad brace
-
 #endif
+	}//FIXME bad brace
 
 }//0xB4730 is end jalr v0
 
 //Possibly send audio data to SPU
 void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr)
 {
+	int dummy = 0;
+
+	dummy++;
 #if 0
 	int s2 = psxHeader->unk09;
 	char* s5 = ptr;//ptr to script end in gamemalloc
@@ -537,7 +546,6 @@ void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr)
 //Relocate initial object frame ptrs, see ResetCutanimate()
 void sub_B96EC(int unk)
 {
-#ifndef PSX
 	char* a0 = &objects[0];
 	int s0 = 0x02000000;
 	short t7 = 10;
@@ -551,14 +559,16 @@ void sub_B96EC(int unk)
 	int a3 = 0xFFEFFFFF;
 	int a2 = 0xFFF70000;
 	short* t5 = frames;
+	int v0, v1, i;
+	int* v11;
 	a2 |= 0xFFFF;
 
 	///@TODO sizeof object = 64;
 	//@TODO count of objects = 459
-	for (int i = 0; i < a1; i++)
+	for (i = 0; i < a1; i++)
 	{
-		int v0 = *(int*) &a0[48];//0x00010000
-		int v1 = *(int*) &a0[8];//0
+		v0 = *(int*) &a0[48];//0x00010000
+		v1 = *(int*) &a0[8];//0
 		*(int*) &a0[12] = 0;
 		*(int*) &a0[32] = 0;
 		*(int*) &a0[16] = 0;
@@ -582,7 +592,7 @@ void sub_B96EC(int unk)
 		v0 &= a3;
 		v0 &= a2;//0x02010000
 
-		int* v11 = ((int*) t5) + v1;
+		v11 = ((int*) t5) + v1;
 
 		*(int*) &a0[48] = v0;
 		*(int**) &a0[8] = v11;//check
@@ -601,9 +611,6 @@ void sub_B96EC(int unk)
 	//sub_BA81C
 
 	//0xB97FC
-#endif
-	int test = 0;
-	test++;
 
 }//0xB996C
 

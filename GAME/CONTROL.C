@@ -94,12 +94,20 @@ char byte_A3660;
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 {
-#ifndef PSX
-
 	int s0 = nframes;
 	int v0 = SlowMotion;
 	int a0 = SlowMotion;
 	int s6 = demo_mode;
+	int t1;
+	int v000000;
+	int v11111;
+	int v000;
+	char* s1;
+	int a11111;
+	int v1111;
+	int s0000;
+	int a1;
+	int v1;
 
 	if (SlowMotion == 0)
 	{
@@ -390,7 +398,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 #endif
 	
 	//loc_1DAD0 ****************
-	int v1 = 0;
+	v1 = 0;
 	if (BinocularRange != 0)
 	{
 		if (LaserSight != 0)
@@ -420,19 +428,18 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	//ClearDynamics();	
 	//ClearFires();
 
-	int a1 = next_item_active;//FIXME illegal value, should be 1F, check &objects looks like pointer not setup, continue setup.c
+	a1 = next_item_active;//FIXME illegal value, should be 1F, check &objects looks like pointer not setup, continue setup.c
 	GotLaraSpheres = 0;
 	InItemControlLoop = 1;
 
 	if (next_item_active != -1)//illegal -2
 	{
-		char* s1 = &objects[16];
-		int v000 = ((next_item_active << 3) + next_item_active << 4);
+		s1 = &objects[16];
+		v000 = ((next_item_active << 3) + next_item_active << 4);
 
 		//loc_1DB80
-		struct ITEM_INFO* a0000 = &items[next_item_active];
-		int v1111 = a0000->after_death;
-		int s0000 = a0000->next_active;
+		v1111 = items[next_item_active].after_death;
+		s0000 = items[next_item_active].next_active;
 		v1111 = v1111 < 0x80 ? 1 : 0;
 
 		if (v1111 == 0)
@@ -452,7 +459,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 	KillMoveItems();
 
-	int a11111 = next_fx_active;
+	a11111 = next_fx_active;
 
 	InItemControlLoop = 1;
 
@@ -497,7 +504,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 	//loc_1DCF0
 
-	struct lara_info* s000000000000000 = &lara;
+	///struct lara_info* s000000000000000 = &lara;
 
 	if (lara.burn && !(wibble & 0x7F))
 	{
@@ -528,7 +535,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	}
 	
 	//loc_1DE84
-	int v000 = GLOBAL_playing_cutseq;
+	v000 = GLOBAL_playing_cutseq;
 	//a1 = lara
 
 	//loc_1DE90
@@ -611,14 +618,14 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	camera.target.x = 0xD158;
 	camera.target.z = 0x6BEE;
 #endif
-	int v000000 = mGetAngle(camera.pos.x, camera.pos.z, camera.target.x, camera.target.z);
+	v000000 = mGetAngle(camera.pos.x, camera.pos.z, camera.target.x, camera.target.z);
 	v000000 >>= 4;
 	CamRot.vy = v000000 & 0xFFF;
-	int v11111 = wibble;
+	v11111 = wibble;
 
 	//TriggerLaraDrips();
 
-	int t1 = v000000;
+	t1 = v000000;
 	if (SmashedMeshCount > 0)
 	{
 		//TODO
@@ -660,7 +667,6 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	//ret 0
 
 	//loc_1E3BC:
-#endif
 	return 0;
 }
 

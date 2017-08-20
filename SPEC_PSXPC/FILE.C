@@ -56,9 +56,9 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8
 		printf("FILE_Load: '%s' Could not open!\n", szFileName);
 	}
 
-	gwReaderCurrentSector = CdPosToInt(&fp.pos); //sw	$v0, 0x2E0C($gp)
+	cdCurrentSector = CdPosToInt(&fp.pos); //sw	$v0, 0x2E0C($gp)
 	printf("Read Size: %i\n", fp.size);
-	GAMEWAD_Read(fp.size, pDest);
+	CD_Read(fp.size, pDest);
 
 	return fp.size;
 #endif
