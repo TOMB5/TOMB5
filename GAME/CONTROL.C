@@ -714,11 +714,6 @@ void KillMoveEffects()//1D4AC,
 	S_Warn("[KillMoveEffects] - Unimplemented!\n");
 }
 
-void KillEverything()
-{
-	S_Warn("[KillEverything] - Unimplemented!\n");
-}
-
 void TestTriggers(short* data, int heavy, int HeavyFlags)
 {
 	S_Warn("[TestTriggers] - Unimplemented!\n!");

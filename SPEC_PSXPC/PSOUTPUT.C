@@ -1,6 +1,17 @@
 #include "PSOUTPUT.H"
+#include "PSXTYPES.H"
+#include "SPECIFIC.H"
 
 static struct VIBRATION vib[2];
+
+
+void VibratePad()//604EC, 61064
+{
+#if 0
+	int i;
+	struct VIBRATION *v;
+#endif
+}
 
 void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int len)//604A4, 6101C
 {
@@ -31,10 +42,3 @@ void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int 
 #endif
 }
 
-void VibratePad()
-{
-#if 0
-	int i;
-	struct VIBRATION *v;
-#endif
-}

@@ -30,7 +30,34 @@ short AnimatingTexturesV[16][8][3];
 	#define EXIT_FAILURE 1
 #endif
 
-void S_ExitSystem(char* exit_message)
+void DisplayStatsUCunt()//61928, 625A8
+{
+	S_Warn("[DisplayStatsUCunt] - Unimplemented!\n");
+}
+
+short S_Death()//61658, 622C8
+{
+	S_Warn("[S_Death] - Unimplemented!\n");
+	return 0;
+}
+
+void gInit()//615CC, 6210C
+{
+	S_Warn("[gInit] - Unimplemented!\n");
+}
+
+int DoPauseMenu()//60F34, 61A68
+{
+	S_Warn("[DoPauseMenu] - Unimplemented!\n");
+	return 0;
+}
+
+void DisplayConfig(int x, int y)//6080C, 61340
+{
+	S_Warn("[DisplayConfig] - Unimplemented!\n");
+}
+
+void S_ExitSystem(char* exit_message)//607C8, *
 {
 	printf(exit_message);
 	exit(EXIT_FAILURE);
@@ -44,7 +71,7 @@ void S_Warn(char* warning_message)
 #endif
 }
 
-int S_SoundStopAllSamples()//91D34
+int S_SoundStopAllSamples()//91D34, 93D80
 {
 	int ret;
 
@@ -65,7 +92,12 @@ int S_SoundStopAllSamples()//91D34
 #endif
 }
 
-long S_DumpScreen()
+long S_DumpScreen()//607A8, 61320
 {
 	return GPU_FlipNoIdle();
+}
+
+void S_control_screen_position()//6068C, 61204
+{
+	S_Warn("[S_control_screen_position] - Unimplemented!\n");
 }

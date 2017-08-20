@@ -1,9 +1,16 @@
 #include "LOT.H"
+#include "SPECIFIC.H"
 
 int slots_used;
 short nAIObjects;
 struct AIOBJECT* AIObjects;
 struct creature_info* baddie_slots;
+
+void CreateZone(struct ITEM_INFO *item)//4E330, 4E794
+{
+	S_Warn("[CreateZone] - Unimplemented!\n");
+}
+
 
 //Only called when enemy is triggered
 void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0
@@ -156,4 +163,20 @@ void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0
 
 #endif
 
+}
+
+int EnableBaddieAI(short item_number, int Always)//4DF0C, 4E370
+{
+	S_Warn("[EnableBaddieAI] - Unimplemented!\n");
+	return 0;
+}
+
+void DisableBaddieAI(short item_num)//4DEC0, 4E324
+{
+	S_Warn("[DisableBaddieAI] - Unimplemented!\n");
+}
+
+void InitialiseLOTarray(int allocmem)//4DE40, 4E2A4
+{
+	S_Warn("[InitialiseLOTarray] - Unimplemented!\n");
 }

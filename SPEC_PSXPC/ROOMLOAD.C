@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "SPECIFIC.H"
 
 long AnimFilePos;
 long AnimFileLen;
@@ -175,3 +176,9 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	LOAD_Stop();
 #endif
 }
+
+void ReloadAnims(int name, long len)//600E4, 60D20
+{
+	S_Warn("[ReloadAnims] - Unimplemented!\n");
+}
+

@@ -45,13 +45,19 @@ void SPU_Init()//62650(<), 62D34(<) (F)
 	return;
 }
 
+void SPU_FreeSamples()//62610, 62CF4
+{
+	S_Warn("[SPU_FreeSamples] - Unimplemented!\n");
+}
+
+
 void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
 {
 	LabSampleType[channel_index] = 0;
 	LabFreeChannel[LnFreeChannels++] = channel_index;
 }
 
-void S_SetReverbType(int Reverb /*$a0*/)//91CF4, *
+void S_SetReverbType(int Reverb /*$a0*/)//91CF4, 93D40
 {
 	if (Reverb != CurrentReverb)
 	{
@@ -62,7 +68,7 @@ void S_SetReverbType(int Reverb /*$a0*/)//91CF4, *
 }
 
 
-int SPU_UpdateStatus()
+int SPU_UpdateStatus()//915FC, 93640
 {
 	int i = 0;
 	char status[MAX_SOUND_SLOTS];
@@ -82,7 +88,7 @@ int SPU_UpdateStatus()
 	return LnFreeChannels;
 }
 
-unsigned char SPU_AllocChannel()
+unsigned char SPU_AllocChannel()//915B0, 935F4
 {
 	if (LnFreeChannels == 0)
 	{
@@ -97,9 +103,3 @@ unsigned char SPU_AllocChannel()
 	
 	return LabFreeChannel[LnFreeChannels];
 }
-
-#if 0
-void SPU_FreeSamples()//62610, 
-{
-}
-#endif
