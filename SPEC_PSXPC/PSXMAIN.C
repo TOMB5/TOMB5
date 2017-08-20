@@ -11,6 +11,8 @@
 #include "SPECIFIC.H"
 #include "SPUSOUND.H"
 #include "TEXT.H"
+// ugly hack
+#undef main
 
 #ifdef PSX
 	#include <sys/types.h>
