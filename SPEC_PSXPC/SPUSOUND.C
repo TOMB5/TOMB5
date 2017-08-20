@@ -60,6 +60,7 @@ void S_SetReverbType(int Reverb /*$a0*/)//91CF4, *
 	}
 }
 
+
 int SPU_UpdateStatus()
 {
 	int i = 0;
@@ -86,8 +87,7 @@ unsigned char SPU_AllocChannel()
 	{
 		if (SPU_UpdateStatus() != 0)
 		{
-			LnFreeChannels = -1;
-			return;
+			return -1;
 		}
 	}
 
