@@ -41,15 +41,15 @@ struct FIRE_LIST fires[32]; // offset 0xA8D7C
 
 void SetFadeClip(short height, short speed)
 {
-	S_Warn("[SetFadeClip] - Unimplemented!");
+	S_Warn("[SetFadeClip] - Unimplemented!\n");
 }
 
 void SetScreenFadeOut(long fadespeed, long fadeback)
 {
-	S_Warn("[SetScreenFadeOut] - Unimplemented!");
+	S_Warn("[SetScreenFadeOut] - Unimplemented!\n");
 }
 
 void SetScreenFadeIn(long fadespeed)
 {
-	S_Warn("[SetScreenFadeIn] - Unimplemented!");
+	S_Warn("[SetScreenFadeIn] - Unimplemented!\n");
 }

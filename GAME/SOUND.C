@@ -49,6 +49,6 @@ void SOUND_Stop()//920A4, ?
 			LaSlot[i].nSampleInfo = -1;
 		}
 
-		//S_SoundStopAllSamples();
+		S_SoundStopAllSamples();
 	}
 }

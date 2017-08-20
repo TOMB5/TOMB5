@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define GAME_MALLOC_BUFFER_SIZE (1024*1024) + (1024*36)
+
 char* malloc_ptr = NULL;
 int malloc_used = 0;
 int malloc_free = GAME_MALLOC_BUFFER_SIZE;

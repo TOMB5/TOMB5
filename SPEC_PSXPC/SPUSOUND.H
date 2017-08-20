@@ -3,8 +3,6 @@
 
 #include "PSXTYPES.H"
 
-#define NUM_SPU_CHANNELS 24
-
 extern short DepthTable[5];
 extern short CurrentReverb;
 extern int LnSamplesLoaded;

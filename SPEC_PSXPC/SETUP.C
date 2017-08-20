@@ -2,8 +2,8 @@
 
 #include "BOX.H"
 #include "CONTROL.H"
+#include "CD.H"
 #include "DRAW.H"
-#include "GAMEWAD.H"
 #include "GPU.H"
 #include "ITEMS.H"
 #include "LOAD_LEV.H"
@@ -70,7 +70,7 @@ void RelocateLevel()//?, B3B50(<)
 	InItemControlLoop = 0;
 
 	//Read up the PSX file header into RelocPtr buff.
-	GAMEWAD_Read(PSX_HEADER_LENGTH, (char*) &LevelRelocPtr);
+	CD_Read(PSX_HEADER_LENGTH, (char*) &LevelRelocPtr);
 
 	LaraDrawType = LevelRelocPtr[12] & 7;
 	WeatherType = (LevelRelocPtr[12] << 3) & 3;
@@ -85,12 +85,12 @@ void RelocateLevel()//?, B3B50(<)
 		ptr = game_malloc(LevelRelocPtr[9] * sizeof(unsigned long));
 
 		//Reading in soundpointers
-		GAMEWAD_Read(LevelRelocPtr[9] * sizeof(unsigned long), ptr);
+		CD_Read(LevelRelocPtr[9] * sizeof(unsigned long), ptr);
 
 		//Allocating enough memory for the 8000hz vag soundwad
 		ptr = game_malloc(LevelRelocPtr[10]);
 
-		GAMEWAD_Read(LevelRelocPtr[10], ptr);
+		CD_Read(LevelRelocPtr[10], ptr);
 
 		//unsigned long a0 = LevelRelocPtr[9];
 		//unsigned long a3 = LevelRelocPtr[10];
@@ -112,7 +112,7 @@ void RelocateLevel()//?, B3B50(<)
 	///@TODO Unknown const 2.
 	for (int i = 0; i < 2; i++)
 	{
-		GAMEWAD_Read(0x40000, ptr);
+		CD_Read(0x40000, ptr);
 
 		LOAD_DrawEnable(0);
 
@@ -135,10 +135,10 @@ void RelocateLevel()//?, B3B50(<)
 	AnimFileLen = LevelRelocPtr[26];
 	ptr = game_malloc(AnimFileLen);
 	frames = (short*) ptr;
-	GAMEWAD_Read(AnimFileLen, ptr);
+	CD_Read(AnimFileLen, ptr);
 
 	ptr = game_malloc(LevelRelocPtr[14]);
-	GAMEWAD_Read(LevelRelocPtr[14], ptr);
+	CD_Read(LevelRelocPtr[14], ptr);
 
 	number_rooms = *(((unsigned short*) &LevelRelocPtr[11]) + 1);//0xB3D28
 
@@ -357,7 +357,7 @@ void RelocateLevel()//?, B3B50(<)
 		number_spotcams = LevelRelocPtr[44];
 		number_cameras = LevelRelocPtr[43];
 
-		GAMEWAD_Read(32360, &objects[0]);
+		CD_Read(32360, &objects[0]);
 
 		for (i = 0; i < 63; i++)
 		{
@@ -366,8 +366,8 @@ void RelocateLevel()//?, B3B50(<)
 
 		if (LevelRelocPtr[48] != 0)
 		{
-			GAMEWAD_ReaderPositionToCurrent();
-			GAMEWAD_Read(0x780, &dword_1EF1D0[0]);//FIXME levelRelocPtr?
+			CD_ReaderPositionToCurrent();
+			CD_Read(0x780, &dword_1EF1D0[0]);//FIXME levelRelocPtr?
 
 			if (LevelRelocPtr[48] > 0)
 			{
@@ -386,11 +386,11 @@ void RelocateLevel()//?, B3B50(<)
 					char* v00 = game_malloc(a00);
 
 					a00 = *(int*) &s00[0];//0x21800
-					GAMEWAD_Seek(a00);
+					CD_Seek(a00);
 
 					char* s22 = v00;
 					char* a000 = s22;
-					GAMEWAD_Read(s3, s22);
+					CD_Read(s3, s22);
 
 					s3 = *(int*) &s00[12];//0x15C
 
@@ -398,9 +398,9 @@ void RelocateLevel()//?, B3B50(<)
 
 					a00 = *(int*) &s00[8];//0x24000
 
-					GAMEWAD_Seek(a00);
+					CD_Seek(a00);
 
-					GAMEWAD_Read(s3, s11);
+					CD_Read(s3, s11);
 
 					//RelocateModule(s11);
 

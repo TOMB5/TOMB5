@@ -1,6 +1,6 @@
 #include "ROOMLOAD.H"
 
-#include "GAMEWAD.H"
+#include "CD.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
@@ -136,11 +136,12 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	s0 = a0 + 2;//+2 because first entry is setup.mod and second is cutseq.jiz
 	
 	//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
-	GAMEWAD_InitialiseReaderPosition(Name + TITLE);
+	CD_InitialiseReaderPosition(Name + TITLE);
 	
 	a0 = 0;
-	//jal sub_6B144 //ResetCallback();
-	
+#ifdef PSX
+	ResetCallback();
+#endif
 	init_game_malloc();
 	
 	a0 = s0;
@@ -157,7 +158,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	//addiu	$a0, $s0, 0x1000 //looks like the ptr?
 	
 	//FIXME should switch offset 0x6E5
-	GAMEWAD_Read(SETUP_MOD_FILE_SIZE, setupBuff); //jal sub_5E414 //Loads setup.mod to ptr 0xB2940
+	CD_Read(SETUP_MOD_FILE_SIZE, setupBuff); //jal sub_5E414 //Loads setup.mod to ptr 0xB2940
 	
 	//a0 = SetupPtr;
 	//lw	$a1, 0x1000($s0)
@@ -167,6 +168,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	//lw	$v0, 0x38C4($gp)
 	//lw	$v1, 0x14($v0)
 	//jalr	$v1
+	printf("RELOCATE LEVEL\n");
 	RelocateLevel();
 	//a0 = s1;
 

@@ -84,7 +84,7 @@ short temp_rotation_buffer[160];
 
 enum title_spotcam_sequences
 {
-	NONE,
+	FIRST,
 	OUTSIDE_CHURCH_SEQUENCE,
 	INSIDE_CHURCH_SEQUENCE,
 	HOUSE_SEQUENCE,

@@ -441,12 +441,7 @@ struct TEXTURE {
 	unsigned char v3; // size=0, offset=13
 	unsigned short wclut; // size=0, offset=14
 };
-struct CdlLOC {
-	unsigned char minute; // size=0, offset=0
-	unsigned char second; // size=0, offset=1
-	unsigned char sector; // size=0, offset=2
-	unsigned char track; // size=0, offset=3
-};
+
 struct ILIGHT {
 	short x; // size=0, offset=0
 	short y; // size=0, offset=2
@@ -1686,11 +1681,6 @@ struct VECTOR3D {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
 	long z; // size=0, offset=8
-};
-struct CdlFILE {
-	struct CdlLOC pos; // size=4, offset=0
-	unsigned long size; // size=0, offset=4
-	char name[16]; // size=16, offset=8
 };
 struct SpuCommonAttr {
 	unsigned long mask; // size=0, offset=0

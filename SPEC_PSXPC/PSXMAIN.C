@@ -21,6 +21,8 @@
 	#include <LIBGPU.H>
 	#include <LIBPAD.H>
 	#include <stdio.h>
+#else
+	#include <SDL.h>
 #endif
 
 void VSyncFunc()//10000(<), 10000(<) (F)
@@ -93,7 +95,6 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 
 	GPU_UseOrderingTables(&GadwOrderingTables[0], 2564);
 	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], 26130);
-
 	GPU_GetScreenPosition(savegame.ScreenX, savegame.ScreenY);
 
 #ifdef INTERNAL

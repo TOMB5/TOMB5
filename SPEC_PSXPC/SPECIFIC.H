@@ -14,7 +14,7 @@ extern unsigned short nAnimUVRanges;
 extern int GtSFXEnabled;
 extern short AnimatingTexturesV[16][8][3];
 
-extern void S_SoundStopAllSamples();
+extern int S_SoundStopAllSamples();
 extern void S_ExitSystem(char* exit_message);
 extern void S_Warn(char* warning_message);
 extern long S_DumpScreen();

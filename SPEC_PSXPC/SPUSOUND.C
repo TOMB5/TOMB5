@@ -1,5 +1,6 @@
 #include "SPUSOUND.H"
 
+#include "SOUND.H"
 #include "SPECIFIC.H"
 
 #ifdef PSX
@@ -12,8 +13,8 @@ short CurrentReverb;
 int LnSamplesLoaded;
 long LlVABAddr;
 struct SpuVoiceAttr sva;
-unsigned char LabSampleType[NUM_SPU_CHANNELS];
-unsigned char LabFreeChannel[NUM_SPU_CHANNELS];
+unsigned char LabSampleType[MAX_SOUND_SLOTS];
+unsigned char LabFreeChannel[MAX_SOUND_SLOTS];
 int LnFreeChannels;
 static unsigned char LabSPUMallocArea[16];
 unsigned long LadwSampleAddr[256];
@@ -34,7 +35,7 @@ void SPU_Init()//62650(<), 62D34(<) (F)
 	LnFreeChannels = 0;
 
 	//loc_626B4
-	while (i < NUM_SPU_CHANNELS)
+	while (i < MAX_SOUND_SLOTS)
 	{
 		SPU_FreeChannel(i++);
 	}
@@ -64,13 +65,13 @@ void S_SetReverbType(int Reverb /*$a0*/)//91CF4, *
 int SPU_UpdateStatus()
 {
 	int i = 0;
-	char status[NUM_SPU_CHANNELS];
+	char status[MAX_SOUND_SLOTS];
 
 #ifdef PSX
 	SpuGetAllKeysStatus(&status);
 
 	//loc_9161C
-	for (i = 0; i < NUM_SPU_CHANNELS; i++)
+	for (i = 0; i < MAX_SOUND_SLOTS; i++)
 	{
 		if ((status[i] - 1) < 2 && LabSampleType[i] != 0)
 		{

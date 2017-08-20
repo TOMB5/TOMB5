@@ -1,6 +1,7 @@
 #include "SPECIFIC.H"
 
 #include "GPU.H"
+#include "SOUND.H"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,21 +44,25 @@ void S_Warn(char* warning_message)
 #endif
 }
 
-void S_SoundStopAllSamples()//91D34
+int S_SoundStopAllSamples()//91D34
 {
-	if (GtSFXEnabled != 0)
-	{
-#if 0
-		int a1 = -1;
-		int a0 = 0;
-		//SpuSetKey();
+	int ret;
 
-		while (GtSFXEnabled != 24)
-		{
-			//SPU_UpdateStatus();
-		}
-#endif
+	if (GtSFXEnabled == 0)
+	{
+		return 0;
 	}
+
+#ifdef PSX
+	SpuSetKey(0, 0xFFFFFF);
+
+	do
+	{
+		ret = SPU_UpdateStatus();
+	} while (ret != MAX_SOUND_SLOTS);
+	
+	return ret;
+#endif
 }
 
 long S_DumpScreen()
