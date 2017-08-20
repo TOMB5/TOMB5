@@ -217,14 +217,13 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 
 void AlterFOV(short fov)//77BD8, 79C1C
 {
-#ifndef PSX
+	short* rcossin_ptr;
 	CurrentFov = fov;
 
-	short* rcossin_ptr = &rcossin_tbl[((fov + ((fov << 16) >> 31) >> 3) & 0x3FFC) / sizeof(short)];
+	rcossin_ptr = &rcossin_tbl[((fov + ((fov << 16) >> 31) >> 3) & 0x3FFC) / sizeof(short)];
 	//short* rcossin_ptr = &rcossin_tbl[((fov + ((fov << 16) >> 31) >> 3) & 0x3FFC) / sizeof(short)];
 	phd_persp = ((rcossin_ptr[1] << 8) / rcossin_ptr[0]);
 	///ctc2	$a0, $26 //?unknown instruction
-#endif
 }
 
 void CalculateCamera()//27DA0(<), 27FAC(!)

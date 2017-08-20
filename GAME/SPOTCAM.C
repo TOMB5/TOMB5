@@ -130,10 +130,10 @@ void InitSpotCamSequences()//374B8(<), 379B8(<) (F)
 
 void InitialiseSpotCam(short Sequence)//37648, 37B48
 {
-#ifndef PSX
 	struct SPOTCAM* s;
 	int cn;
 	int sp;
+	int i;
 
 #if 1//HACK///@HACK************************************************************************************
 	lara_item = find_a_fucking_item(LARA);
@@ -193,7 +193,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48
 	if (SpotRemap[Sequence] != 0)
 	{
 		//loc_377C0
-		for (int i = 0; i < SpotRemap[Sequence]; i++)
+		for (i = 0; i < SpotRemap[Sequence]; i++)
 		{
 			current_spline_camera += CameraCnt[i];
 		}
@@ -245,7 +245,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48
 		{
 			s = &SpotCam[first_camera];
 			//loc_37960
-			for (int i = 1; i < current_camera_cnt + 1; i++, s++)
+			for (i = 1; i < current_camera_cnt + 1; i++, s++)
 			{
 				camera_xposition[i] = s->x;
 				camera_yposition[i] = s->y;
@@ -435,13 +435,11 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48
 	quakecam.spos.box_number = 0;
 
 	//loc_37EAC
-#endif
 	return;
 }
 
 void CalculateSpotCams()//
 {
-#ifndef PSX
 	long cpx;
 	long cpy;
 	long cpz;
@@ -474,6 +472,31 @@ void CalculateSpotCams()//
 	int ctype;
 	int cn;
 	struct CAMERA_INFO Backup;
+	struct SPOTCAM* v1111111;
+	struct SPOTCAM* v1;
+	int v0;
+	int s2;//sp?
+	int s5;
+	int s0;
+	int a00;
+	int a11;
+	int a22;
+	int a33;
+	int v11;
+	int t00;
+	int v00;
+	int fp;
+	int s6;
+	int s7;
+	int s11;
+	int s00;
+	int v000;
+	int v111;
+	int a000;
+	int a0;
+	int a111;
+	int a222;
+	struct SPOTCAM* a1;
 
 	if (bDisableLaraControl != 0)
 	{
@@ -533,14 +556,14 @@ void CalculateSpotCams()//
 	}
 
 	//loc_380F8
-	struct SPOTCAM* v1 = s;
-	int v0 = s->flags;
-	int s2 = 0;//sp?
+	v1 = s;
+	v0 = s->flags;
+	s2 = 0;//sp?
 	if (s->flags & 8)
 	{
-		int fp = 0;//cp
+		fp = 0;//cp
 		lx = lara_item->pos.x_pos;
-		int s6 = 0x2000;//cs?
+		s6 = 0x2000;//cs?
 		ly = lara_item->pos.y_pos;
 		i = 0;
 		lz = lara_item->pos.z_pos;
@@ -548,14 +571,14 @@ void CalculateSpotCams()//
 		//loc_38144
 		while (i < 8)
 		{
-			int s5 = 0;
-			int s7 = s6 >> 1;
+			s5 = 0;
+			s7 = s6 >> 1;
 			i++;
 
 			//loc_38158
 			while (s5 < 8)
 			{
-				int a00 = s2;
+				a00 = s2;
 				cx = Spline(0, &camera_xposition[0], spline_cnt);
 				cy = Spline(0, &camera_yposition[0], spline_cnt);
 				cz = Spline(0, &camera_zposition[0], spline_cnt);
@@ -596,23 +619,23 @@ void CalculateSpotCams()//
 		}
 
 		//loc_38228
-		int v0 = current_spline_position;
-		struct SPOTCAM* a1 = s;
-		int v1 = fp - v0;
-		v1 >>= 5;
-		int a0 = a1->flags;
-		v0 += v1;
+		v0 = current_spline_position;
+		a1 = s;
+		v11 = fp - v0;
+		v11 >>= 5;
+		a0 = a1->flags;
+		v0 += v11;
 
 		current_spline_position = v0;
 
-		v1 = fp - v0;
+		v11 = fp - v0;
 		if (a1->flags & 1)
 		{
-			if (v1 > 0 || 0x8000 < v1)
+			if (v11 > 0 || 0x8000 < v11)
 			{
 				//loc_38284
-				v1 = -fp;
-				if (v1 < 0x8000)
+				v11 = -fp;
+				if (v11 < 0x8000)
 				{
 					//loc_38298
 					current_spline_position = fp;
@@ -622,7 +645,7 @@ void CalculateSpotCams()//
 
 		//loc_3829C
 		v0 = current_spline_position;
-		v1 = 0x00010000;
+		v11 = 0x00010000;
 		if (v0 < 0)
 		{
 			current_spline_position = 0;
@@ -630,10 +653,10 @@ void CalculateSpotCams()//
 		}
 
 		//loc_382B4
-		v0 = v1 < v0 ? 1 : 0;
-		if (v1 < v0)
+		v0 = v11 < v0 ? 1 : 0;
+		if (v11 < v0)
 		{
-			current_spline_position = v1;
+			current_spline_position = v11;
 		}
 	}//loc_382D0
 	else if (spotcam_timer == 0)
@@ -692,11 +715,11 @@ void CalculateSpotCams()//
 	}
 	
 	//loc_38420
-	int v000 = ctx;
-	int a000 = cpx;
-	int a111 = cpy;
-	int a222 = cpz;
-	int v111 = cty;
+	v000 = ctx;
+	a000 = cpx;
+	a111 = cpy;
+	a222 = cpz;
+	v111 = cty;
 
 	camera.target.x = ctx;
 	camera.target.y = cty;
@@ -729,16 +752,16 @@ void CalculateSpotCams()//
 
 	if (quakecam.spos.box_number != 0)
 	{
-		int v00 = sqrt((camera.pos.x - quakecam.epos.x) * (camera.pos.x - quakecam.epos.x) + (camera.pos.y - quakecam.epos.y) * (camera.pos.y - quakecam.epos.y) + (camera.pos.z - quakecam.epos.z) * (camera.pos.z - quakecam.epos.z));
-		int a11 = quakecam.epos.box_number;
-		int v11 = v00;
+		v00 = sqrt((camera.pos.x - quakecam.epos.x) * (camera.pos.x - quakecam.epos.x) + (camera.pos.y - quakecam.epos.y) * (camera.pos.y - quakecam.epos.y) + (camera.pos.z - quakecam.epos.z) * (camera.pos.z - quakecam.epos.z));
+		a11 = quakecam.epos.box_number;
+		v11 = v00;
 
 		if (v11 < a11)
 		{
 			v11 -= a11;
-			int s00 = quakecam.spos.room_number;
+			s00 = quakecam.spos.room_number;
 			v00 = quakecam.epos.room_number;
-			int s11 = v00 - s00;
+			s11 = v00 - s00;
 			s11 *= v11;
 			v00 = s11 / a11;
 
@@ -792,13 +815,13 @@ void CalculateSpotCams()//
 		}//loc_38650
 	}//loc_38650
 
-	int a00 = camera.pos.x;
-	int a11 = camera.pos.y;
-	int a22 = camera.pos.z;
-	int a33 = camera.target.x;
-	int v11 = camera.target.y;
-	int t00 = camera.target.z;
-	int v00 = croll;
+	a00 = camera.pos.x;
+	a11 = camera.pos.y;
+	a22 = camera.pos.z;
+	a33 = camera.target.x;
+	v11 = camera.target.y;
+	t00 = camera.target.z;
+	v00 = croll;
 #if 0
 	//loc_38650:
 
@@ -939,14 +962,14 @@ void CalculateSpotCams()//
 		v00 = first_camera;
 		current_spline_position = 0;
 
-		int s0 = current_spline_camera - 1;
+		s0 = current_spline_camera - 1;
 		if (current_spline_camera == first_camera)
 		{
 			s0 = last_camera;
 		}
 		
 		//loc_389BC
-		int s5 = 1;
+		s5 = 1;
 		if (!spline_from_camera)
 		{
 			spline_from_camera = 0;
@@ -969,7 +992,7 @@ void CalculateSpotCams()//
 			}
 			
 			//loc_38A24
-			struct SPOTCAM* v1111111 = &SpotCam[current_spline_camera];
+			v1111111 = &SpotCam[current_spline_camera];
 			s5 = 0;
 			if (SpotCam[current_spline_camera].flags & 0x80)
 			{
@@ -1047,7 +1070,6 @@ void CalculateSpotCams()//
 
 
 	}//loc_39160
-#endif
 	S_Warn("[CalculateSpotCams] - Unimplemented!\n");
 }//loc_39160
 

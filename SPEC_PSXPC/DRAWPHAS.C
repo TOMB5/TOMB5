@@ -16,12 +16,15 @@
 
 long DrawPhaseGame()//63F04, 645E0
 {
-#ifndef PSX
 	short scalarx = 0; // $a3
 	short scalary = 0; // $t0
 	short scalarz = 0; // $t1
 	struct lara_info* a1;
 	struct lara_info* a2;
+	int temp;
+	int a3;
+	int a22;
+	int v1111111;
 
 	mQuickW2VMatrix();
 
@@ -37,7 +40,7 @@ long DrawPhaseGame()//63F04, 645E0
 		//loc_63F44
 		lara.poisoned = ((lara.poisoned - lara.dpoisoned) >> 4) + lara.poisoned;
 
-		int temp = ((lara.poisoned - lara.dpoisoned) >> 4);
+		temp = ((lara.poisoned - lara.dpoisoned) >> 4);
 
 		if (temp < 0)
 		{
@@ -55,11 +58,9 @@ long DrawPhaseGame()//63F04, 645E0
 	//loc_63F88
 	a2 = &lara;
 
-	int a3;
-
 	if (lara.poisoned > 255)
 	{
-		int a3 = rcossin_tbl[(((XSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((XSoff2 >> 2) & 0x3FFC) / sizeof(short))];
+		a3 = rcossin_tbl[(((XSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((XSoff2 >> 2) & 0x3FFC) / sizeof(short))];
 /*
 		short scalarx = 0; // $a3
 		short scalary = 0; // $t0
@@ -69,11 +70,11 @@ long DrawPhaseGame()//63F04, 645E0
 		a3 >>= 2;
 		a3 *= -256;
 
-		int a22 = rcossin_tbl[(((YSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((YSoff2 >> 2) & 0x3FFC) / sizeof(short))];
+		a22 = rcossin_tbl[(((YSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((YSoff2 >> 2) & 0x3FFC) / sizeof(short))];
 		a22 >>= 2;
 		a22 *= -256;
 
-		int v1111111 = rcossin_tbl[(((ZSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((ZSoff2 >> 2) & 0x3FFC) / sizeof(short))];
+		v1111111 = rcossin_tbl[(((ZSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((ZSoff2 >> 2) & 0x3FFC) / sizeof(short))];
 		v1111111 >>= 2;	
 		v1111111 *= -256;
 
@@ -163,7 +164,6 @@ long DrawPhaseGame()//63F04, 645E0
 	//S_AnimateTextures(v0);
 	//FIXME return numFrames;
 	S_Warn("[DrawPhaseGame] - Unimplemented!\n");
-#endif
 	return 2;//hack, retail returns 5, sub 61320
 }
 
