@@ -3,8 +3,6 @@
 
 #include "PSXTYPES.H"
 
-extern void S_LoadLevelFile(int Name);
-
 extern long AnimFilePos;
 extern long AnimFileLen;
 extern short* floor_data;
@@ -17,5 +15,8 @@ extern struct PSXTEXTI* AnimatingWaterfalls[6];
 extern int AnimatingWaterfallsV[6];
 extern unsigned long envmap_data[6];
 extern unsigned long* RelocPtr[128];
+
+extern void S_LoadLevelFile(int Name);
+extern void ReloadAnims(int name, long len);
 
 #endif

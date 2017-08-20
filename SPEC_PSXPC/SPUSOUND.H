@@ -14,6 +14,7 @@ extern int LnFreeChannels;
 extern unsigned long LadwSampleAddr[256];
 
 extern void SPU_Init();
+extern void SPU_FreeSamples();
 extern void S_SetReverbType(int Reverb);
 extern void SPU_FreeChannel(int channel_index);
 extern int SPU_UpdateStatus();

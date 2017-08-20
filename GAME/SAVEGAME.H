@@ -10,4 +10,14 @@ extern char JustLoaded;
 extern char* MGSaveGamePtr;
 extern struct savegame_info savegame;
 
+extern void sgRestoreGame();
+extern void sgSaveGame();
+extern void RestoreLevelData(int FullSave);
+extern void SaveLevelData(int FullSave);
+extern void RestoreLaraData(int FullSave);
+extern void SaveLaraData();
+extern int CheckSumValid(char *buffer);
+extern void ReadSG(void *pointer, int size);
+extern void WriteSG(void *pointer, int size);
+
 #endif

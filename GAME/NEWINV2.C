@@ -84,7 +84,335 @@ char friggrimmer2; // offset 0xA36E4
 char oldLaraBusy; // offset 0xA3774
 struct MENUTHANG current_options[3]; // offset 0xA3740
 
-int S_CallInventory2()
+void do_playstation_button_prompts_v1()//416E0, 41B34
+{
+	S_Warn("[do_playstation_button_prompts_v1] - Unimplemented!\n");
+}
+
+void S_DrawPickup(short object_number)//41608, 41A5C
+{
+	S_Warn("[S_DrawPickup] - Unimplemented!\n");
+}
+
+void dels_give_lara_guns_cheat()//41470, 418C4
+{
+	S_Warn("[dels_give_lara_guns_cheat] - Unimplemented!\n");
+}
+
+void dels_give_lara_items_cheat()//41324, 41778
+{
+	S_Warn("[dels_give_lara_items_cheat] - Unimplemented!\n");
+}
+
+void do_stats_mode()//412BC, 41710
+{
+	S_Warn("[do_stats_mode] - Unimplemented!\n");
+}
+
+void do_examine_mode()//411C4, 41618
+{
+	S_Warn("[do_examine_mode] - Unimplemented!\n");
+}
+
+void do_keypad_mode()//40B54, 40FA8
+{
+	S_Warn("[do_keypad_mode] - Unimplemented!\n");
+}
+
+void init_keypad_mode()//40B2C, 40F80
+{
+	S_Warn("[init_keypad_mode] - Unimplemented!\n");
+}
+
+int convert_invobj_to_obj(int obj)//40B08, 40F5C
+{
+	S_Warn("[convert_invobj_to_obj] - Unimplemented!\n");
+	return 0;
+}
+
+int convert_obj_to_invobj(short obj)//40AC4, 40F18
+{
+	S_Warn("[convert_obj_to_invobj] - Unimplemented!\n");
+	return 0;
+}
+
+void remove_inventory_item(short object_number)//4097C, 40DD0
+{
+	S_Warn("[remove_inventory_item] - Unimplemented!\n");
+}
+
+int have_i_got_object(short object_number)//4086C, 40CC0
+{
+	S_Warn("[have_i_got_object] - Unimplemented!\n");
+	return 0;
+}
+
+void NailInvItem(short objnum)//40584, 409D8
+{
+	S_Warn("[NailInvItem] - Unimplemented!\n");
+}
+
+void DEL_picked_up_object(short objnum)//3FEB0, 40304
+{
+	S_Warn("[DEL_picked_up_object] - Unimplemented!\n");
+}
+
+void use_current_item()//3F9A0, 3FDF4
+{
+	S_Warn("[use_current_item] - Unimplemented!\n");
+}
+
+void setup_objectlist_startposition2(short newobj)//3F938, 3FD8C
+{
+	S_Warn("[setup_objectlist_startposition2] - Unimplemented!\n");
+}
+
+void setup_objectlist_startposition(short newobj)//3F8F0, 3FD44
+{
+	S_Warn("[setup_objectlist_startposition] - Unimplemented!\n");
+}
+
+void combine_clothbottle(int flag)//3F8D0, 3FD24
+{
+	S_Warn("[combine_clothbottle] - Unimplemented!\n");
+}
+
+void combine_PickupItem4(int flag)//3F8AC, 3FD00
+{
+	S_Warn("[combine_PickupItem4] - Unimplemented!\n");
+}
+
+void combine_PickupItem3(int flag)//3F888, 3FCDC
+{
+	S_Warn("[combine_PickupItem3] - Unimplemented!\n");
+}
+
+void combine_PickupItem2(int flag)//3F864, 3FCB8
+{
+	S_Warn("[combine_PickupItem2] - Unimplemented!\n");
+}
+
+void combine_PickupItem1(int flag)//3F840, 3FC94
+{
+	S_Warn("[combine_PickupItem1] - Unimplemented!\n");
+}
+
+void combine_KeyItem8(int flag)//3F81C, 3FC70
+{
+	S_Warn("[combine_KeyItem8] - Unimplemented!\n");
+}
+
+void combine_KeyItem7(int flag)//3F7F8, 3FC4C
+{
+	S_Warn("[combine_KeyItem7] - Unimplemented!\n");
+}
+
+void combine_KeyItem6(int flag)//3F7D4, 3FC28
+{
+	S_Warn("[combine_KeyItem6] - Unimplemented!\n");
+}
+
+void combine_KeyItem5(int flag)//3F7B0, 3FC04
+{
+	S_Warn("[combine_KeyItem5] - Unimplemented!\n");
+}
+
+void combine_KeyItem4(int flag)//3F78C, 3FBE0
+{
+	S_Warn("[combine_KeyItem4] - Unimplemented!\n");
+}
+
+void combine_KeyItem3(int flag)//3F768, 3FBBC
+{
+	S_Warn("[combine_KeyItem3] - Unimplemented!\n");
+}
+
+void combine_KeyItem2(int flag)//3F744, 3FB98
+{
+	S_Warn("[combine_KeyItem2] - Unimplemented!\n");
+}
+
+void combine_KeyItem1(int flag)//3F720, 3FB74
+{
+	S_Warn("[combine_KeyItem1] - Unimplemented!\n");
+}
+
+void combine_PuzzleItem8(int flag)//3F700, 3FB54
+{
+	S_Warn("[combine_PuzzleItem8] - Unimplemented!\n");
+}
+
+void combine_PuzzleItem7(int flag)//3F6E0, 3FB34
+{
+	S_Warn("[combine_PuzzleItem7] - Unimplemented!\n");
+}
+
+void combine_PuzzleItem6(int flag)//3F6C0, 3FB14
+{
+	S_Warn("[combine_PuzzleItem6] - Unimplemented!\n");
+}
+
+void combine_PuzzleItem5(int flag)//3F6A0, 3FAF4
+{
+	S_Warn("[combine_PuzzleItem5] - Unimplemented!\n");
+}
+
+void combine_PuzzleItem4(int flag)//3F680, 3FAD4
+{
+	S_Warn("[combine_PuzzleItem4] - Unimplemented!\n");
+}
+
+void combine_PuzzleItem3(int flag)//3F660, 3FAB4
+{
+	S_Warn("[combine_PuzzleItem3] - Unimplemented!\n");
+}
+
+void combine_PuzzleItem2(int flag)//3F640, 3FA94
+{
+	S_Warn("[combine_PuzzleItem2] - Unimplemented!\n");
+}
+
+void combine_PuzzleItem1(int flag)//3F620, 3FA74
+{
+	S_Warn("[combine_PuzzleItem1] - Unimplemented!\n");
+}
+
+void combine_crossbow_lasersight(int flag)//3F590, 3F9E4
+{
+	S_Warn("[combine_crossbow_lasersight] - Unimplemented!\n");
+}
+
+void combine_revolver_lasersight(int flag)//3F500, 3F954
+{
+	S_Warn("[combine_revolver_lasersight] - Unimplemented!\n");
+}
+
+void combine_HK_SILENCER(int flag)//3F4C0, 3F914
+{
+	S_Warn("[combine_HK_SILENCER] - Unimplemented!\n");
+}
+
+void seperate_object(short obj)//3F424, 3F878
+{
+	S_Warn("[seperate_object] - Unimplemented!\n");
+}
+
+void combine_these_two_objects(short obj1, short obj2)//3F348, 3F79C
+{
+	S_Warn("[combine_these_two_objects] - Unimplemented!\n");
+}
+
+int do_these_objects_combine(int obj1, int obj2)//3F2DC, 3F730
+{
+	S_Warn("[do_these_objects_combine] - Unimplemented!\n");
+	return 0;
+}
+
+int have_i_got_item(short obj)//3F29C, 3F6F0
+{
+	S_Warn("[have_i_got_item] - Unimplemented!\n");
+	return 0;
+}
+
+int is_item_currently_combinable(short obj)//3F200, 3F654
+{
+	S_Warn("[is_item_currently_combinable] - Unimplemented!\n");
+	return 0;
+}
+
+void update_laras_weapons_status()//3F13C, 3F590
+{
+	S_Warn("[update_laras_weapons_status] - Unimplemented!\n");
+}
+
+void spinback(unsigned short *cock)//3F094, 3F4E8
+{
+	S_Warn("[spinback] - Unimplemented!\n");
+}
+
+void draw_ammo_selector()//3EDDC, 3F230
+{
+	S_Warn("[draw_ammo_selector] - Unimplemented!\n");
+}
+
+void fade_ammo_selector()//3ED08, 3F15C
+{
+	S_Warn("[fade_ammo_selector] - Unimplemented!\n");
+}
+
+void setup_ammo_selector()//3E9F8, 3EE4C
+{
+	S_Warn("[setup_ammo_selector] - Unimplemented!\n");
+}
+
+void handle_inventry_menu()//3DF44, 3E398
+{
+	S_Warn("[handle_inventry_menu] - Unimplemented!\n");
+}
+
+void handle_object_changeover(int ringnum)//3DF18, 3E36C
+{
+	S_Warn("[handle_object_changeover] - Unimplemented!\n");
+}
+
+void draw_current_object_list(int ringnum)//3D350, 3D7A4
+{
+	S_Warn("[draw_current_object_list] - Unimplemented!\n");
+}
+
+void insert_object_into_list(int num)//3D2C4, 3D718
+{
+	S_Warn("[insert_object_into_list] - Unimplemented!\n");
+}
+
+void construct_object_list()//3CC80, 3D0D4
+{
+	S_Warn("[construct_object_list] - Unimplemented!\n");
+}
+
+void insert_object_into_list_v2(int num)//3CB90, 3CFE4
+{
+	S_Warn("[insert_object_into_list_v2] - Unimplemented!\n");
+}
+
+void construct_combine_object_list()//3C940, 3CD94
+{
+	S_Warn("[construct_combine_object_list] - Unimplemented!\n");
+}
+
+int go_and_save_game()//3C920, 3CD74
+{
+	S_Warn("[go_and_save_game] - Unimplemented!\n");
+	return 0;
+}
+
+int go_and_load_game()//3C900, 3CD54
+{
+	S_Warn("[go_and_load_game] - Unimplemented!\n");
+	return 0;
+}
+
+void DrawInventoryItemMe(struct ITEM_INFO *item, long shade, int overlay, int shagflag)//3C6A0, 3CAF4
+{
+	S_Warn("[DrawInventoryItemMe] - Unimplemented!\n");
+}
+
+void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay)//3C43C, 3C890
+{
+	S_Warn("[DrawThreeDeeObject2D] - Unimplemented!\n");
+}
+
+void do_debounced_joystick_poo()//3C224, 3C678
+{
+	S_Warn("[do_debounced_joystick_poo] - Unimplemented!\n");
+}
+
+void init_new_inventry()//3C024, 3C478
+{
+	S_Warn("[init_new_inventry] - Unimplemented!\n");
+}
+
+int S_CallInventory2()//3B7A8, 3BC04
 {
 	S_Warn("[S_CallInventory2] - Unimplemented!\n");
 #if 0

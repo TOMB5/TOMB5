@@ -78,7 +78,6 @@ extern long GetRandomDraw();
 extern void AddRoomFlipItems(struct room_info* r);
 extern void KillMoveItems();
 extern void KillMoveEffects();
-extern void KillEverything();
 extern void TestTriggers(short* data, int heavy, int HeavyFlags);
 
 #endif
