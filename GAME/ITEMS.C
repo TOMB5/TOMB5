@@ -219,7 +219,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 
 short CreateItem()//41BAC(<), 42000(<) (F)
 {
-	if (next_item_free == 0xFFFFFFFF) return -1;
+	if (next_item_free == -1) return -1;
 
 	int item_num = next_item_free;
 
