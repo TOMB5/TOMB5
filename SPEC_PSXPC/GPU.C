@@ -26,14 +26,18 @@ unsigned long GadwPolygonBuffers[52260];
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68, 5F1C8
 {
-	int test = 0;
-	test++;
+	db.order_table[0] = (unsigned long*)((long)pBuffers & 0xFFFFFF);
+	db.order_table[1] = (unsigned long*)((long)((nOTSize << 2) + pBuffers) & 0xFFFFFF);
+	db.nOTSize = nOTSize;
+	db.pickup_order_table[0] = (unsigned long*)((long)&GadwOrderingTables_V2[  0] & 0xFFFFFF);
+	db.pickup_order_table[1] = (unsigned long*)((long)&GadwOrderingTables_V2[256] & 0xFFFFFF);
 }
 
 void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)
 {
-	int test = 0;
-	test++;
+	db.nPBSize = nPBSize;
+	db.poly_buffer[0] = (unsigned long*)((long)pBuffers & 0xFFFFFF);
+	db.poly_buffer[1] = (unsigned long*)((long)((nPBSize << 2) + pBuffers) & 0xFFFFFF);
 }
 
 void GPU_SyncBothScreens()
@@ -56,9 +60,14 @@ void GPU_BeginScene()
 			exit(0);
 		}
 	}
-#else
-	int test = 0;
-	test++;
+#else	
+	db.ot = db.order_table[db.current_buffer];
+	db.polyptr = (char*)db.order_table[db.current_buffer];
+	db.curpolybuf = (char*)db.order_table[db.current_buffer];
+	int v1 = (char*)&loc_19640; // v1 == 0x19640 in the beta, loc_19640 is a label in the middle of lara_as_turn_r()
+	db.polybuf_limit = (char*)db.poly_buffer[db.current_buffer] + v1;
+	ClearOTagR();
+	db.pickup_ot = db.pickup_order_table[db.current_buffer];
 #endif
 }
 

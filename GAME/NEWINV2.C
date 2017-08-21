@@ -316,9 +316,18 @@ void combine_revolver_lasersight(int flag)//3F500, 3F954
 	S_Warn("[combine_revolver_lasersight] - Unimplemented!\n");
 }
 
-void combine_HK_SILENCER(int flag)//3F4C0, 3F914
+void combine_HK_SILENCER(int flag)//3F4C0(<), 3F914(<) (F)
 {
-	S_Warn("[combine_HK_SILENCER] - Unimplemented!\n");
+	if(flag == 0)
+	{
+		lara.silencer = 0;
+		lara.hk_type_carried |= 2;
+	}
+	else
+	{
+		lara.silencer = 1;
+		lara.hk_type_carried &= 0xFD;
+	}
 }
 
 void seperate_object(short obj)//3F424, 3F878
