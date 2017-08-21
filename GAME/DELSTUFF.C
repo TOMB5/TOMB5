@@ -6,15 +6,18 @@ struct MATRIX3D lara_matrices[15];
 struct CVECTOR LaraNodeAmbient[2];
 short *GLaraShadowframe;
 unsigned char LaraNodeUnderwater[15];
-long LaraGlobalClipFlag;
+long LaraGlobalClipFlag = -1;
+
 char lara_underwater_skin_sweetness_table[15] =
 {
 	0, 2, 3, 0, 5, 6, 7, 9, 0xA, 0xB, 0xC, 0xD, 0xE, 8, 0
 };
+
 int lara_mesh_sweetness_table[15] =
 {
 	0, 1, 2, 3, 4, 5, 6, 7, 0xE, 8, 9, 0xA, 0xB, 0xC, 0xD
 };
+
 unsigned char SkinUseMatrix[14][2] =
 {
 	{ 0xFF, 0xFF },
@@ -32,6 +35,7 @@ unsigned char SkinUseMatrix[14][2] =
 	{ 0xFF, 0xFF },
 	{ 0xFF, 0xFF }
 };
+
 char NodesToStashToScratch[14][2] =
 {
 	{ 1, 3 },
@@ -49,6 +53,7 @@ char NodesToStashToScratch[14][2] =
 	{ 0x19, 0x1A },
 	{ 0x10, 0x1B }
 };
+
 char NodesToStashFromScratch[15][4] =
 {
 	{ 0, 1, 2, -1 },
@@ -67,6 +72,7 @@ char NodesToStashFromScratch[15][4] =
 	{ 0x18, 0x19, -1, 0 },
 	{ 0x1A, -1, 0, 0 }
 };
+
 char HairRotScratchVertNums[5][12] =
 {
 	{ 4, 5, 6, 7, -1, 0, 0, 0, 0, 0, 0, 0 },
