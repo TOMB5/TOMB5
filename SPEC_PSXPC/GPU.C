@@ -5,6 +5,8 @@
 #ifndef PSX
 	#include <SDL.h>
 	#include <SDL_opengl.h>
+#else
+	#include <LIBGPU.H>
 #endif
 
 unsigned long GnFrameCounter = 0;
@@ -24,10 +26,16 @@ unsigned long GadwPolygonBuffers[52260];
 	SDL_Window* g_window = NULL;
 #endif
 
-void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68, 5F1C8
+void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
 {
-	int test = 0;
-	test++;
+#ifdef PSX
+	//Should be safe to use 32-bit ptrs tho
+	db.order_table[0] = (unsigned long*)((unsigned long) pBuffers & 0xFFFFFF);
+	db.order_table[1] = (unsigned long*)((unsigned long) &pBuffers[nOTSize] & 0xFFFFFF);
+	db.nOTSize = nOTSize;
+	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2 & 0xFFFFFF);
+	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256] & 0xFFFFFF);
+#endif
 }
 
 void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)
@@ -42,9 +50,20 @@ void GPU_SyncBothScreens()
 	test++;
 }
 
-void GPU_BeginScene()
+void GPU_BeginScene()//5F0F0(<), 5FDD0(<) 
 {
-#ifndef PSX
+#ifdef PSX
+	db.ot = db.order_table[db.current_buffer];
+	db.polyptr = db.poly_buffer[db.current_buffer];
+	db.curpolybuf = db.poly_buffer[db.current_buffer];
+
+	//db.polybuf_limit = db.poly_buffer[db.current_buffer] + &loc_19640;//Illegal
+	
+	ClearOTagR(&db.order_table[db.current_buffer], db.nOTSize);
+
+	db.pickup_ot = db.pickup_order_table[db.current_buffer];
+#else
+
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	
 	SDL_Event event;
@@ -56,9 +75,6 @@ void GPU_BeginScene()
 			exit(0);
 		}
 	}
-#else
-	int test = 0;
-	test++;
 #endif
 }
 
