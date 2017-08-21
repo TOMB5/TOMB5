@@ -3,7 +3,6 @@
 
 #include "PSXTYPES.H"
 
-
 extern long BinocularRange;
 extern long BinocularOn;
 extern long BinocularOldCamera;

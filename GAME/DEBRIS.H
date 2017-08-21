@@ -1,6 +1,8 @@
 #ifndef DEBRIS_H
 #define DEBRIS_H
 
+#include "PSXTYPES.H"
+
 extern struct DEBRIS_STRUCT debris[128];
 extern short DebrisFlags;
 extern long next_debris;

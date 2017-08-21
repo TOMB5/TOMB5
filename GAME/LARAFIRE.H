@@ -1,6 +1,8 @@
 #ifndef LARAFIRE_H
 #define LARAFIRE_H
 
+#include "PSXTYPES.H"
+
 extern struct GAME_VECTOR bum_vdest;
 extern struct GAME_VECTOR bum_vsrc;
 extern struct PHD_3DPOS bum_view;
