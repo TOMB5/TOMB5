@@ -8,7 +8,10 @@
 	#include <LIBSPU.H>
 #endif
 
-short DepthTable[5];
+short DepthTable[5] =
+{
+	0x0000, 0x0000, 0x1000, 0x0010, 0x1800
+};
 short CurrentReverb;
 int LnSamplesLoaded;
 long LlVABAddr;
