@@ -14,6 +14,14 @@
 
 #include <stdio.h>
 
+long StoreBoxes = -1;
+struct GAME_VECTOR LaraPos;
+struct PSXTEXTI* MonitorScreenTI;
+unsigned char MonitorScreenU0;
+unsigned char MonitorHold;
+short MonitorOff;
+short MonitorOff2;
+
 long DrawPhaseGame()//63F04, 645E0
 {
 	short scalarx = 0; // $a3
