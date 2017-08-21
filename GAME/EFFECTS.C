@@ -4,7 +4,7 @@
 #include "GAMEFLOW.H"
 #include "LARA.H"
 
-long wf;
+long wf = 256;
 short next_fx_free;
 short next_fx_active;
 int number_sound_effects;
