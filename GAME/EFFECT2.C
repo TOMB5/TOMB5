@@ -29,9 +29,9 @@ void ControlSmokeEmitter(short item_number)//338B8, 33DB8
 	S_Warn("[ControlSmokeEmitter] - Unimplemented!\n");
 }
 
-void KillEverything()//338AC, 33DAC
+void KillEverything()//338AC(<), 33DAC(<) (F)
 {
-	S_Warn("[KillEverything] - Unimplemented!\n");
+	KillEverythingFlag = 0;
 }
 
 void KillAllCurrentItems(short item_number)//3389C, 33D9C

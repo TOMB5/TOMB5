@@ -1,5 +1,8 @@
 #include "EFFECTS.H"
 #include "SPECIFIC.H"
+#include "CONTROL.H"
+#include "GAMEFLOW.H"
+#include "LARA.H"
 
 long wf;
 short next_fx_free;
@@ -78,19 +81,19 @@ void reset_hair(struct ITEM_INFO *item)//39A84, 39F84
 	S_Warn("[reset_hair] - Unimplemented!\n");
 }
 
-void invisibility_off(struct ITEM_INFO *item)//39A6C, 39F6C
+void invisibility_off(struct ITEM_INFO *item)//39A6C(<), 39F6C(<) (F)
 {
-	S_Warn("[invisibility_off] - Unimplemented!\n");
+	item->status = 1;
 }
 
-void invisibility_on(struct ITEM_INFO *item)//39A58, 39F58
+void invisibility_on(struct ITEM_INFO *item)//39A58(<), 39F58(<) (F)
 {
-	S_Warn("[invisibility_on] - Unimplemented!\n");
+	item->status = 3;
 }
 
-void SetFog(struct ITEM_INFO *item)//39A44, 39F44
+void SetFog(struct ITEM_INFO *item)//39A44(<), 39F44(<) (F)
 {
-	S_Warn("[SetFog] - Unimplemented!\n");
+	flipeffect = 0xFFFFFFFF;
 }
 
 void shoot_left_gun(struct ITEM_INFO *item)//39A34, 39F34
@@ -118,9 +121,11 @@ void ResetTest(struct ITEM_INFO *item)//39738, 39C38
 	S_Warn("[ResetTest] - Unimplemented!\n");
 }
 
-void LaraLocationPad(struct ITEM_INFO *item)//39710, 39C10
+void LaraLocationPad(struct ITEM_INFO *item)//39710(<), 39C10(<) (F)
 {
-	S_Warn("[LaraLocationPad] - Unimplemented!\n");
+	flipeffect = 0xFFFFFFFF;
+	lara.location = TriggerTimer;
+	lara.locationPad = TriggerTimer;
 }
 
 void LaraLocation(struct ITEM_INFO *item)//396D0, 39BD0
@@ -138,14 +143,14 @@ void SwapCrowbar(struct ITEM_INFO *item)//39638, 39B38
 	S_Warn("[SwapCrowbar] - Unimplemented!\n");
 }
 
-void ActivateKey(struct ITEM_INFO *item)//39624, 39B24
+void ActivateKey(struct ITEM_INFO *item)//39624(<), 39B24(<) (F)
 {
-	S_Warn("[ActivateKey] - Unimplemented!\n");
+	KeyTriggerActive = 1;
 }
 
-void ActivateCamera(struct ITEM_INFO *item)//39610, 39B10
+void ActivateCamera(struct ITEM_INFO *item)//39610(<), 39B10(<) (F)
 {
-	S_Warn("[ActivateCamera] - Unimplemented!\n");
+	KeyTriggerActive = 2;
 }
 
 void PoseidonSFX(struct ITEM_INFO *item)//395E0, 39AE0
@@ -168,14 +173,15 @@ void floor_shake_effect(struct ITEM_INFO *item)//39410, 39910
 	S_Warn("[floor_shake_effect] - Unimplemented!\n");
 }
 
-void turn180_effect(struct ITEM_INFO *item)//393F4, 398F4
+void turn180_effect(struct ITEM_INFO *item)//393F4(<), 398F4(<) (F)
 {
-	S_Warn("[turn180_effect] - Unimplemented!\n");
+	item->pos.y_rot -= 0x8000;
+	item->pos.x_rot = -item->pos.x_rot;
 }
 
-void finish_level_effect(struct ITEM_INFO *item)//393D4, 398D4
+void finish_level_effect(struct ITEM_INFO *item)//393D4(<), 398D4(<) (F)
 {
-	S_Warn("[finish_level_effect] - Unimplemented!\n");
+	gfLevelComplete = gfCurrentLevel + 1;
 }
 
 void void_effect(struct ITEM_INFO *item)//393CC, 398CC
