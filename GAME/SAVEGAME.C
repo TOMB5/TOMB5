@@ -1,4 +1,6 @@
 #include "SAVEGAME.H"
+
+#include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 
 char FromTitle;
@@ -8,9 +10,16 @@ static int SGcount;
 static char* SGpoint;
 struct savegame_info savegame;
 
-void sgRestoreGame()//55B88, 55FEC
+void sgRestoreGame()//55B88, 55FEC (F)
 {
-	S_Warn("[sgRestoreGame] - Unimplemented!\n");
+	SGcount = 0;
+	SGpoint = &MGSaveGamePtr[436];
+
+	GameTimer = savegame.Game.Timer;
+	gfCurrentLevel = savegame.CurrentLevel;
+
+	RestoreLevelData(1);
+	RestoreLaraData(1);
 }
 
 void sgSaveGame()//55AF8, 55F5C
