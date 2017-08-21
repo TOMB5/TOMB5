@@ -1,7 +1,9 @@
 #include "LARAFLAR.H"
+
 #include "SPECIFIC.H"
 #include "LARA.H"
-#include <cstddef>
+
+#include <stddef.h>
 
 void FlareControl(short item_number)//4A418, 4A87C
 {

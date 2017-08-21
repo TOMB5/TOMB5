@@ -93,7 +93,7 @@ void invisibility_on(struct ITEM_INFO *item)//39A58(<), 39F58(<) (F)
 
 void SetFog(struct ITEM_INFO *item)//39A44(<), 39F44(<) (F)
 {
-	flipeffect = 0xFFFFFFFF;
+	flipeffect = -1;
 }
 
 void shoot_left_gun(struct ITEM_INFO *item)//39A34, 39F34
@@ -123,7 +123,7 @@ void ResetTest(struct ITEM_INFO *item)//39738, 39C38
 
 void LaraLocationPad(struct ITEM_INFO *item)//39710(<), 39C10(<) (F)
 {
-	flipeffect = 0xFFFFFFFF;
+	flipeffect = -1;
 	lara.location = TriggerTimer;
 	lara.locationPad = TriggerTimer;
 }
