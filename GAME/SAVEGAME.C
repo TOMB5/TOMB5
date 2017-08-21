@@ -4,7 +4,7 @@
 #include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 
-#include <string>
+#include <string.h>
 
 char FromTitle;
 char JustLoaded;
@@ -28,7 +28,7 @@ void sgRestoreGame()//55B88, 55FEC (F)
 void sgSaveGame()//55AF8(<), 55F5C(<)
 {
 
-	SGpoint = &MGSaveGamePtr[436];
+	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
 	SGcount = 0;
 	savegame.CurrentLevel = gfCurrentLevel;
 	SaveLevelData(1);
@@ -93,6 +93,5 @@ void WriteSG(char* pointer, int size)//536A0, 53B04
 			*SGpoint++ = *pointer++;
 		}
 	}
-	S_Warn("[WriteSG] - Unimplemented!\n");
 }
 
