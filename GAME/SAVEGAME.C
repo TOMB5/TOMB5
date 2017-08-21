@@ -52,9 +52,20 @@ int CheckSumValid(char* buffer)//53720, 53B84
 	return (*(short*) buffer[0]) ^ (*(short*) buffer[7678]) < 1 ? 1 : 0;
 }
 
-void ReadSG(void *pointer, int size)//536E0, 53B44
+void ReadSG(char* pointer, int size)//536E0, 53B44 (F)
 {
-	S_Warn("[ReadSG] - Unimplemented!\n");
+	SGcount += size;
+	
+	if (size > 0)
+	{
+		while (size > 0)
+		{
+			*pointer++ = *SGpoint++;
+			size--;
+		}
+	}
+
+	return;
 }
 
 void WriteSG(void *pointer, int size)//536A0, 53B04
