@@ -1,6 +1,8 @@
 #ifndef CD_H
 #define CD_H
 
+#include "PSXTYPES.H"
+
 #ifdef PSX
 	#include <sys/types.h>
 	#include <libcd.h>

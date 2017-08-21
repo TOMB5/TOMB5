@@ -3,7 +3,6 @@
 
 #include "PSXTYPES.H"
 
-
 extern struct CUTSEQ_ROUTINES cutseq_control_routines[45];
 extern unsigned short crane_pistols_info[11];
 extern unsigned short craneguard_pistols_info[7];

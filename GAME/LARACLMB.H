@@ -1,6 +1,8 @@
 #ifndef LARACLMB_H
 #define LARACLMB_H
 
+#include "PSXTYPES.H"
+
 extern short GetClimbTrigger(long x, long y, long z, short room_number);
 extern void lara_col_climbend(struct ITEM_INFO *item, struct COLL_INFO *coll);
 extern void lara_as_climbend(struct ITEM_INFO *item, struct COLL_INFO *coll);

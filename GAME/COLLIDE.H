@@ -1,6 +1,8 @@
 #ifndef COLLIDE_H
 #define COLLIDE_H
 
+#include "PSXTYPES.H"
+
 extern long zfront;
 extern long xfront;
 extern short GlobalCollisionBounds[6];

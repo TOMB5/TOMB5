@@ -3,7 +3,6 @@
 
 #include "PSXTYPES.H"
 
-
 extern long wibble;
 extern long SplashCount;
 extern long KillEverythingFlag;

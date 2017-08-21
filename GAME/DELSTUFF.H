@@ -1,6 +1,8 @@
 #ifndef DELSTUFF_H
 #define DELSTUFF_H
 
+#include "PSXTYPES.H"
+
 extern struct MATRIX3D lara_joint_matrices[15];
 extern struct MATRIX3D lara_matrices[15];
 extern struct CVECTOR LaraNodeAmbient[2];
