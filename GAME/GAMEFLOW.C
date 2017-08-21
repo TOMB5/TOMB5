@@ -11,6 +11,7 @@
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "MALLOC.H"
+#include "MEMCARD.H"
 #include "NEWINV2.H"
 #include "PSXINPUT.H"
 #include "ROOMLOAD.H"
@@ -433,9 +434,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	if (Gameflow->LoadSaveEnabled)
 	{
 		s1 = a0 & 0xFF;
-#if 0 //def PSX
 		mcOpen(1);
-#endif
 	}
 
 	s1 = 0;//?
@@ -644,12 +643,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	Motors[0] = 0;
 	Motors[1] = 0;
 	
-#if 0
 	if (!Gameflow->LoadSaveEnabled)
 	{
-		//mcClose();
+		mcClose();
 	}
-#endif
 
 	//loc_109FC
 	XAReqVolume = 0;
