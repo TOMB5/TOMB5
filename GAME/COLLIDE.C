@@ -4,7 +4,11 @@
 long zfront;
 long xfront;
 short GlobalCollisionBounds[6];
-char LM[15];
+
+char LM[] =
+{
+	0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 8
+};
 
 void TestForObjectOnLedge(struct ITEM_INFO *item, struct COLL_INFO *coll)//2A940, 2AB68
 {
