@@ -23,7 +23,7 @@
 
 #include <assert.h>
 
-int flipeffect;
+int flipeffect = -1;
 int fliptimer;
 unsigned char ShatterSounds[18][10] =
 {
