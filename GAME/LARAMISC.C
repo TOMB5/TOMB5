@@ -30,6 +30,8 @@ void InitialiseLaraAnims(struct ITEM_INFO *item)//4B340, 4B7A4
 
 void InitialiseLaraLoad(short item_num)//4B308, 4B76C
 {
+	
+
 	S_Warn("[InitialiseLaraLoad] - Unimplemented!\n");
 }
 

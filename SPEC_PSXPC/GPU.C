@@ -33,15 +33,16 @@ void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C
 	db.order_table[0] = (unsigned long*)((unsigned long) pBuffers & 0xFFFFFF);
 	db.order_table[1] = (unsigned long*)((unsigned long) &pBuffers[nOTSize] & 0xFFFFFF);
 	db.nOTSize = nOTSize;
-	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2 & 0xFFFFFF);
+	db.pickup_order_table[0] = (unsigned long*)((unsigned long)GadwOrderingTables_V2 & 0xFFFFFF);
 	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256] & 0xFFFFFF);
 #endif
 }
 
 void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)
 {
-	int test = 0;
-	test++;
+	db.nPBSize = nPBSize;
+	db.poly_buffer[0] = (unsigned long*)((unsigned long)pBuffers & 0xFFFFFF);
+	db.poly_buffer[1] = (unsigned long*)((unsigned long)&pBuffers[nPBSize] & 0xFFFFFF);
 }
 
 void GPU_SyncBothScreens()

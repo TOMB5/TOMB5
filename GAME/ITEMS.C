@@ -14,25 +14,113 @@ short next_item_free;
 short next_item_active;
 short GlobalPulleyFrigItem;
 
-void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
+void EffectNewRoom(short fx_num, short room_number)//42320, 42774
 {
-	int i;
-	struct ITEM_INFO* item;
-	
-	item = &items[level_items];
-	next_item_active = -1;
-	next_item_free = level_items;
+	S_Warn("[EffectNewRoom] - Unimplemented!\\n");
+}
 
-	if (level_items + 1 < numitems)
+void KillEffect(short fx_num)//42178, 425CC
+{
+	S_Warn("[KillEffect] - Unimplemented!\\n");
+}
+
+short CreateEffect(short room_num)//420E0, 42534
+{
+	S_Warn("[CreateEffect] - Unimplemented!\\n");
+	return 0;
+}
+
+void InitialiseFXArray(int allocmem)//4207C, 424D0
+{
+	S_Warn("[InitialiseFXArray] - Unimplemented!\\n");
+}
+
+
+void AddActiveItem(short item_num)//41FEC(<), 42440(<)
+{
+	struct ITEM_INFO* item;
+
+	item = &items[item_num];
+
+	item->flags |= 0x20;
+	//int test = item->object_number << 6;
+	if (*(int*)&objects[(item->object_number << 6) + 0x10] == 0)//Bug: Always zero due to incomplete level data relocation
 	{
-		for (i = level_items + 1; i < numitems; i++, item++)
-		{
-			item->next_item = i;
-			item->meshswap_meshbits &= -2;
-		}
+		item->meshswap_meshbits &= -7;
+		return;
 	}
 
-	item->next_item = -1;
+	if (!(item->active))
+	{
+		item->active = 1;
+		item->next_active = next_item_active;
+		next_item_active = item_num;
+	}
+
+	return;
+}
+
+void RemoveDrawnItem(short item_num)//41F48, 4239C
+{
+	S_Warn("[RemoveDrawnItem] - Unimplemented!\\n");
+}
+
+
+void RemoveActiveItem(short item_num)//41E98, 422EC
+{
+	short linknum; // $v1
+	struct ITEM_INFO* a1 = &items[item_num];
+	//int a2 = *(int*)a1->active;
+	int v0;
+	short test = 1;
+	test &= -2;
+
+	v0 = -2;
+	if (a1->active)///@FIXME wrong flags, must finish InitialiseItem();
+	{
+		assert(0);
+		linknum = next_item_active;
+
+		a1->meshswap_meshbits &= -2;
+
+		if (next_item_active == (item_num << 3))//check
+		{
+			next_item_active = a1->next_active;
+		}
+		else
+		{
+			//loc_41F08
+			int v0 = -1;
+			int v1 = next_item_active;
+
+			if (next_item_active != -1)
+			{
+#if 0
+				assert(0);
+				int a3 = -1;
+				int v0 = v1 << 3;
+
+				//loc_41F1C
+
+				struct ITEM_INFO* a1 = &items[next_item_active];
+
+				while (v1 != -1)
+				{
+					v1 = a1->next_active;
+
+					if (v1 == item_num)
+					{
+						//loc_41EF0
+					}
+				}
+#endif
+			}
+
+			//loc_41F1C
+		}
+
+	}//locret_41EE8
+
 	return;
 }
 
@@ -129,92 +217,45 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	return;
 }
 
-void RemoveActiveItem(short item_num)//41E98, 422EC
+short CreateItem()//41BAC(<), 42000(<) (F)
 {
-	short linknum; // $v1
-	struct ITEM_INFO* a1 = &items[item_num];
-	//int a2 = *(int*)a1->active;
-	int v0;
-	short test = 1;
-	test &= -2;
+	if (next_item_free == -1) return -1;
 
-	v0 = -2;
-	if (a1->active)///@FIXME wrong flags, must finish InitialiseItem();
-	{
-		assert(0);
-		linknum = next_item_active;
-		
-		a1->meshswap_meshbits &= -2;
+	int item_num = next_item_free;
 
-		if (next_item_active == (item_num << 3))//check
-		{
-			next_item_active = a1->next_active;
-		}
-		else
-		{
-			//loc_41F08
-			int v0 = -1;
-			int v1 = next_item_active;
-
-			if (next_item_active != -1)
-			{
-#if 0
-				assert(0);
-				int a3 = -1;
-				int v0 = v1 << 3;
-
-				//loc_41F1C
-				
-				struct ITEM_INFO* a1 = &items[next_item_active];
-				
-				while (v1 != -1)
-				{
-					v1 = a1->next_active;
-
-					if (v1 == item_num)
-					{
-						//loc_41EF0
-					}
-				}
-#endif
-			}
-
-			//loc_41F1C
-		}
-
-	}//locret_41EE8
-
-	return;
+	int offset = ((next_item_free << 3) + next_item_free) << 4;
+	ITEM_INFO* tmp = (ITEM_INFO*)((char*)items + offset); // TODO: find a way to use array access instead
+	tmp->flags = 0;
+	next_item_free = tmp->next_item;
+	return item_num;
 }
 
-void AddActiveItem(short item_num)//41FEC(<), 42440(<)
-{
-	struct ITEM_INFO* item;
-
-	item = &items[item_num];
-
-	item->flags |= 0x20;
-	//int test = item->object_number << 6;
-	if (*(int*) &objects[(item->object_number << 6) + 0x10] == 0)//Bug: Always zero due to incomplete level data relocation
-	{
-		item->meshswap_meshbits &= -7;
-		return;
-	}
-
-	if (!(item->active))
-	{
-		item->active = 1;
-		item->next_active = next_item_active;
-		next_item_active = item_num;
-	}
-
-	return;
-}
-
-void KillItem(short item_num)//41950
+void KillItem(short item_num)//41950, 41DA4
 {
 	short linknum;
 	struct ITEM_INFO* item;
 
+	return;
+}
+
+void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
+{
+	int i;
+	struct ITEM_INFO* item;
+
+	item = &items[level_items];
+	next_item_active = -1;
+	next_item_free = level_items;
+
+	if (level_items + 1 < numitems)
+	{
+		for (i = level_items + 1; i < numitems; i++, item++)
+		{
+			item->next_item = i;
+			item->meshswap_meshbits &= -2;
+		}
+	}
+
+	item->next_item = -1;
 	return;
 }
