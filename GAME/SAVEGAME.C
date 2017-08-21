@@ -38,10 +38,9 @@ void SaveLaraData()//53738, 53B9C
 	S_Warn("[SaveLaraData] - Unimplemented!\n");
 }
 
-int CheckSumValid(char *buffer)//53720, 53B84
+int CheckSumValid(char *buffer)//53720(<), 53B84(<) (F)
 {
-	S_Warn("[CheckSumValid] - Unimplemented!\n");
-	return 0;
+	return *(short*)buffer ^ *(short*)(buffer + 0x1DFE) < 1;
 }
 
 void ReadSG(void *pointer, int size)//536E0, 53B44

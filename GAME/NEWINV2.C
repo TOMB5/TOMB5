@@ -1,6 +1,7 @@
 #include "NEWINV2.H"
 
 #include "SPECIFIC.H"
+#include "LARA.H"
 
 struct INVOBJ inventry_objects_list[100]; // offset 0x92BE8
 unsigned char wanky_secrets_table[18]; // offset 0x92BD4
@@ -119,9 +120,16 @@ void do_keypad_mode()//40B54, 40FA8
 	S_Warn("[do_keypad_mode] - Unimplemented!\n");
 }
 
-void init_keypad_mode()//40B2C, 40F80
+void init_keypad_mode()//40B2C(<), 40F80(<) (F)
 {
-	S_Warn("[init_keypad_mode] - Unimplemented!\n");
+	keypadx = 0;
+	keypady = 0;
+	keypadnuminputs = 0;
+	keypadinputs[0] = 0;
+	keypadinputs[1] = 0;
+	keypadinputs[2] = 0;
+	keypadinputs[3] = 0;
+	keypadpause = 0;
 }
 
 int convert_invobj_to_obj(int obj)//40B08, 40F5C
@@ -172,109 +180,130 @@ void setup_objectlist_startposition(short newobj)//3F8F0, 3FD44
 	S_Warn("[setup_objectlist_startposition] - Unimplemented!\n");
 }
 
-void combine_clothbottle(int flag)//3F8D0, 3FD24
+void combine_clothbottle(int flag)//3F8D0(<), 3FD24(<) (F)
 {
-	S_Warn("[combine_clothbottle] - Unimplemented!\n");
+	lara.wetcloth = 2;
+	lara.bottle--;
 }
 
-void combine_PickupItem4(int flag)//3F8AC, 3FD00
+void combine_PickupItem4(int flag)//3F8AC(<), 3FD00(<) (F)
 {
-	S_Warn("[combine_PickupItem4] - Unimplemented!\n");
+	lara.pickupitems |= 8;
+	lara.pickupitemscombo &= 0xFF3F;
 }
 
-void combine_PickupItem3(int flag)//3F888, 3FCDC
+void combine_PickupItem3(int flag)//3F888(<), 3FCDC(<) (F)
 {
-	S_Warn("[combine_PickupItem3] - Unimplemented!\n");
+	lara.pickupitems |= 4;
+	lara.pickupitemscombo &= 0xFFCF;
 }
 
-void combine_PickupItem2(int flag)//3F864, 3FCB8
+void combine_PickupItem2(int flag)//3F864(<), 3FCB8(<) (F)
 {
-	S_Warn("[combine_PickupItem2] - Unimplemented!\n");
+	lara.pickupitems |= 2;
+	lara.pickupitemscombo &= 0xFFF3;
 }
 
-void combine_PickupItem1(int flag)//3F840, 3FC94
+void combine_PickupItem1(int flag)//3F840(<), 3FC94(<) (F)
 {
-	S_Warn("[combine_PickupItem1] - Unimplemented!\n");
+	lara.pickupitems |= 1;
+	lara.pickupitemscombo &= 0xFFFC;
 }
 
-void combine_KeyItem8(int flag)//3F81C, 3FC70
+void combine_KeyItem8(int flag)//3F81C(<), 3FC70(<) (F)
 {
-	S_Warn("[combine_KeyItem8] - Unimplemented!\n");
+	lara.keyitems |= 128;
+	lara.keyitemscombo &= 0x3FFF;
 }
 
-void combine_KeyItem7(int flag)//3F7F8, 3FC4C
+void combine_KeyItem7(int flag)//3F7F8(<), 3FC4C(<) (F)
 {
-	S_Warn("[combine_KeyItem7] - Unimplemented!\n");
+	lara.keyitems |= 64;
+	lara.keyitemscombo &= 0xCFFF;
 }
 
-void combine_KeyItem6(int flag)//3F7D4, 3FC28
+void combine_KeyItem6(int flag)//3F7D4(<), 3FC28(<) (F)
 {
-	S_Warn("[combine_KeyItem6] - Unimplemented!\n");
+	lara.keyitems |= 32;
+	lara.keyitemscombo &= 0xF3FF;
 }
 
-void combine_KeyItem5(int flag)//3F7B0, 3FC04
+void combine_KeyItem5(int flag)//3F7B0(<), 3FC04(<) (F)
 {
-	S_Warn("[combine_KeyItem5] - Unimplemented!\n");
+	lara.keyitems |= 16;
+	lara.keyitemscombo &= 0xFCFF;
 }
 
-void combine_KeyItem4(int flag)//3F78C, 3FBE0
+void combine_KeyItem4(int flag)//3F78C(<), 3FBE0(<) (F)
 {
-	S_Warn("[combine_KeyItem4] - Unimplemented!\n");
+	lara.keyitems |= 8;
+	lara.keyitemscombo &= 0xFF3F;
 }
 
-void combine_KeyItem3(int flag)//3F768, 3FBBC
+void combine_KeyItem3(int flag)//3F768(<), 3FBBC(<) (F)
 {
-	S_Warn("[combine_KeyItem3] - Unimplemented!\n");
+	lara.keyitems |= 4;
+	lara.keyitemscombo &= 0xFFCF;
 }
 
-void combine_KeyItem2(int flag)//3F744, 3FB98
+void combine_KeyItem2(int flag)//3F744(<), 3FB98(<) (F)
 {
-	S_Warn("[combine_KeyItem2] - Unimplemented!\n");
+	lara.keyitems |= 2;
+	lara.keyitemscombo &= 0xFFF3;
 }
 
-void combine_KeyItem1(int flag)//3F720, 3FB74
+void combine_KeyItem1(int flag)//3F720(<), 3FB74(<) (F)
 {
-	S_Warn("[combine_KeyItem1] - Unimplemented!\n");
+	lara.keyitems |= 1;
+	lara.keyitemscombo &= 0xFFFC;
 }
 
-void combine_PuzzleItem8(int flag)//3F700, 3FB54
+void combine_PuzzleItem8(int flag)//3F700(<), 3FB54(<) (F)
 {
-	S_Warn("[combine_PuzzleItem8] - Unimplemented!\n");
+	lara.puzzleitems[7] = 1;
+	lara.puzzleitemscombo &= 0x3FFF;
 }
 
-void combine_PuzzleItem7(int flag)//3F6E0, 3FB34
+void combine_PuzzleItem7(int flag)//3F6E0(<), 3FB34(<) (F)
 {
-	S_Warn("[combine_PuzzleItem7] - Unimplemented!\n");
+	lara.puzzleitems[6] = 1;
+	lara.puzzleitemscombo &= 0xCFFF;
 }
 
-void combine_PuzzleItem6(int flag)//3F6C0, 3FB14
+void combine_PuzzleItem6(int flag)//3F6C0(<), 3FB14(<) (F)
 {
-	S_Warn("[combine_PuzzleItem6] - Unimplemented!\n");
+	lara.puzzleitems[5] = 1;
+	lara.puzzleitemscombo &= 0xF3FF;
 }
 
-void combine_PuzzleItem5(int flag)//3F6A0, 3FAF4
+void combine_PuzzleItem5(int flag)//3F6A0(<), 3FAF4(<) (F)
 {
-	S_Warn("[combine_PuzzleItem5] - Unimplemented!\n");
+	lara.puzzleitems[4] = 1;
+	lara.puzzleitemscombo &= 0xFCFF;
 }
 
-void combine_PuzzleItem4(int flag)//3F680, 3FAD4
+void combine_PuzzleItem4(int flag)//3F680(<), 3FAD4(<) (F)
 {
-	S_Warn("[combine_PuzzleItem4] - Unimplemented!\n");
+	lara.puzzleitems[3] = 1;
+	lara.puzzleitemscombo &= 0xFF3F;
 }
 
-void combine_PuzzleItem3(int flag)//3F660, 3FAB4
+void combine_PuzzleItem3(int flag)//3F660(<), 3FAB4(<) (F)
 {
-	S_Warn("[combine_PuzzleItem3] - Unimplemented!\n");
+	lara.puzzleitems[2] = 1;
+	lara.puzzleitemscombo &= 0xFFCF;
 }
 
-void combine_PuzzleItem2(int flag)//3F640, 3FA94
+void combine_PuzzleItem2(int flag)//3F640(<), 3FA94(<) (F)
 {
-	S_Warn("[combine_PuzzleItem2] - Unimplemented!\n");
+	lara.puzzleitems[1] = 1;
+	lara.puzzleitemscombo &= 0xFFF3;
 }
 
-void combine_PuzzleItem1(int flag)//3F620, 3FA74
+void combine_PuzzleItem1(int flag)//3F620(<), 3FA74(<) (F)
 {
-	S_Warn("[combine_PuzzleItem1] - Unimplemented!\n");
+	lara.puzzleitems[0] = 1;
+	lara.puzzleitemscombo &= 0xFFFC;
 }
 
 void combine_crossbow_lasersight(int flag)//3F590, 3F9E4

@@ -1,14 +1,25 @@
 #include "LARAFLAR.H"
 #include "SPECIFIC.H"
+#include "LARA.H"
+#include <cstddef>
 
 void FlareControl(short item_number)//4A418, 4A87C
 {
 	S_Warn("[FlareControl] - Unimplemented!\n");
 }
 
-void ready_flare()//4A3E4, 4A848
+void ready_flare()//4A3E4(<), 4A848(<) (F)
 {
-	S_Warn("[ready_flare] - Unimplemented!\n");
+	lara.gun_status = 0;
+	lara.left_arm.z_rot = 0;
+	lara.left_arm.y_rot = 0;
+	lara.left_arm.x_rot = 0;
+	lara.right_arm.z_rot = 0;
+	lara.right_arm.y_rot = 0;
+	lara.right_arm.x_rot = 0;
+	lara.right_arm.lock = 0;
+	lara.left_arm.lock = 0;
+	lara.target = NULL;
 }
 
 void undraw_flare_meshes()//4A3BC, 4A820

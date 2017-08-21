@@ -224,9 +224,10 @@ void lara_as_waterout(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AEE4, 1B
 	S_Warn("[lara_as_waterout] - Unimplemented!\n");
 }
 
-void lara_as_gymnast(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AEC8, 1AFFC
+void lara_as_gymnast(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AEC8(<), 1AFFC(<) (F)
 {
-	S_Warn("[lara_as_gymnast] - Unimplemented!\n");
+	item->hit_status = 0;
+	item->collidable = 0;
 }
 
 void lara_as_fastdive(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AE4C, 1AF80
@@ -339,9 +340,10 @@ void lara_as_fastturn(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A5F8, 1A
 	S_Warn("[lara_as_fastturn] - Unimplemented!\n");
 }
 
-void lara_as_null(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A5DC, 1A710
+void lara_as_null(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A5DC(<), 1A710(<) (F)
 {
-	S_Warn("[lara_as_null] - Unimplemented!\n");
+	item->hit_status = 0;
+	item->collidable = 0;
 }
 
 void lara_as_back(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A4F0, 1A624
@@ -485,9 +487,12 @@ void lara_col_upjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1853C, 186
 	S_Warn("[lara_col_upjump] - Unimplemented!\n");
 }
 
-void lara_as_upjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1851C, 18650
+void lara_as_upjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1851C(<), 18650(<) (F)
 {
-	S_Warn("[lara_as_upjump] - Unimplemented!\n");
+	if (item->fallspeed >= 132)
+	{
+		item->goal_anim_state = 9;
+	}
 }
 
 void lara_col_stop(struct ITEM_INFO *item, struct COLL_INFO *coll)//18444, 18578
