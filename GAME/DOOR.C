@@ -1,15 +1,19 @@
 #include "DOOR.H"
+
+#include "PSXTYPES.H"
 #include "SPECIFIC.H"
 
+static struct PHD_VECTOR DoubleDoorPos;
+static struct PHD_VECTOR PullDoorPos;
+static struct PHD_VECTOR PushDoorPos;
+static struct PHD_VECTOR KickDoorPos;
+static struct PHD_VECTOR UnderwaterDoorPos;
+static struct PHD_VECTOR CrowbarDoorPos;
+static short PushPullKickDoorBounds[12];
+static short UnderwaterDoorBounds[12];
+static short CrowbarDoorBounds[12];
+long ClosedDoors[32];
 char LiftDoor;
-long ClosedDoors[32] =
-{
-	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 
-	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 
-	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 
-	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 
-	0x00000000, 0x00000000, 0x00000000, 0x00000000
-};
 
 void ProcessClosedDoors()//2BDE8, 2C110
 {
