@@ -58,18 +58,26 @@ void ReadSG(char* pointer, int size)//536E0, 53B44 (F)
 	
 	if (size > 0)
 	{
-		while (size > 0)
+		while (size-- > 0)
 		{
 			*pointer++ = *SGpoint++;
-			size--;
 		}
 	}
 
 	return;
 }
 
-void WriteSG(void *pointer, int size)//536A0, 53B04
+void WriteSG(char* pointer, int size)//536A0, 53B04
 {
+	SGcount += size;
+
+	if (size > 0)
+	{
+		while (size-- > 0)
+		{
+			*SGpoint++ = *pointer++;
+		}
+	}
 	S_Warn("[WriteSG] - Unimplemented!\n");
 }
 

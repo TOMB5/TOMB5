@@ -18,6 +18,6 @@ extern void RestoreLaraData(int FullSave);
 extern void SaveLaraData();
 extern int CheckSumValid(char *buffer);
 extern void ReadSG(char* pointer, int size);
-extern void WriteSG(void *pointer, int size);
+extern void WriteSG(char* pointer, int size);
 
 #endif
