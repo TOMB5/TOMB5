@@ -1,7 +1,10 @@
 #include "SAVEGAME.H"
 
+#include "CONTROL.H"
 #include "GAMEFLOW.H"
 #include "SPECIFIC.H"
+
+#include <string>
 
 char FromTitle;
 char JustLoaded;
@@ -13,7 +16,7 @@ struct savegame_info savegame;
 void sgRestoreGame()//55B88, 55FEC (F)
 {
 	SGcount = 0;
-	SGpoint = &MGSaveGamePtr[436];
+	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
 
 	GameTimer = savegame.Game.Timer;
 	gfCurrentLevel = savegame.CurrentLevel;
@@ -22,9 +25,21 @@ void sgRestoreGame()//55B88, 55FEC (F)
 	RestoreLaraData(1);
 }
 
-void sgSaveGame()//55AF8, 55F5C
+void sgSaveGame()//55AF8(<), 55F5C(<)
 {
-	S_Warn("[sgSaveGame] - Unimplemented!\n");
+
+	SGpoint = &MGSaveGamePtr[436];
+	SGcount = 0;
+	savegame.CurrentLevel = gfCurrentLevel;
+	SaveLevelData(1);
+	savegame.Game.Timer = GameTimer;
+	SaveLaraData();
+
+	MGSaveGamePtr[7678] = GetRandomControl();
+	memcpy(&MGSaveGamePtr, &savegame, sizeof(savegame_info));
+	savegame.Checksum = GameTimer;
+
+	return;
 }
 
 void RestoreLevelData(int FullSave)//54B08, 54F6C
