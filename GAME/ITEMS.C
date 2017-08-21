@@ -219,14 +219,13 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 
 short CreateItem()//41BAC(<), 42000(<) (F)
 {
+	short item_num = 0;
+
 	if (next_item_free == -1) return -1;
 
-	int item_num = next_item_free;
-
-	int offset = ((next_item_free << 3) + next_item_free) << 4;
-	ITEM_INFO* tmp = (ITEM_INFO*)((char*)items + offset); // TODO: find a way to use array access instead
-	tmp->flags = 0;
-	next_item_free = tmp->next_item;
+	item_num = next_item_free;
+	items[next_item_free].flags = 0;
+	next_item_free = items[next_item_free].next_item;
 	return item_num;
 }
 
