@@ -41,6 +41,7 @@ extern struct SHOCKWAVE_STRUCT ShockWaves[16]; // offset 0xA7C3C
 extern struct FIRE_LIST fires[32]; // offset 0xA8D7C
 
 extern void SetFadeClip(short height, short speed);
+extern void UpdateFadeClip();
 extern void SetScreenFadeOut(long fadespeed, long fadeback);
 extern void SetScreenFadeIn(long fadespeed);
 #endif

@@ -45,6 +45,24 @@ void SetFadeClip(short height, short speed)//34A8C(<), 34F8C(<) (F)
 	FadeClipSpeed = speed;
 }
 
+void UpdateFadeClip()//34A9C(<), 34F9C(<)
+{
+	if (DestFadeScreenHeight < FadeScreenHeight)
+	{
+		if (DestFadeScreenHeight < FadeScreenHeight - FadeClipSpeed)
+		{
+			FadeScreenHeight = DestFadeScreenHeight;
+		}
+	}
+	else if(FadeScreenHeight < DestFadeScreenHeight)
+	{
+		if(DestFadeScreenHeight < FadeScreenHeight + FadeClipSpeed)
+		{
+			FadeScreenHeight = DestFadeScreenHeight;
+		}
+	}
+}
+
 void SetScreenFadeOut(long fadespeed, long fadeback)//34B14(<), 35014(<) (F)
 {
 	if (!ScreenFading)

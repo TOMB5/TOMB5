@@ -1,6 +1,8 @@
 #ifndef LARATWOGUN_H
 #define LARATWOGUN_H
 
+#include "PSXTYPES.H"
+
 extern void AnimatePistols(int weapon_type);
 extern void PistolHandler(int weapon_type);
 extern void undraw_pistol_mesh_right(int weapon_type);

@@ -1,6 +1,8 @@
 #ifndef FLMTORCH_H
 #define FLMTORCH_H
 
+#include "PSXTYPES.H"
+
 extern short torchroom;
 
 extern void FlameTorchControl(short item_number);

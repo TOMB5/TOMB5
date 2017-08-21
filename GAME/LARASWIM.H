@@ -1,6 +1,8 @@
 #ifndef LARASWIM_H
 #define LARASWIM_H
 
+#include "PSXTYPES.H"
+
 extern struct SUBSUIT_INFO subsuit;
 extern char SubHitCount;
 

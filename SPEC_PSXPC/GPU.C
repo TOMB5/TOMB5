@@ -5,6 +5,8 @@
 #ifndef PSX
 	#include <SDL.h>
 	#include <SDL_opengl.h>
+#else
+	#include <LIBGPU.H>
 #endif
 
 unsigned long GnFrameCounter = 0;
@@ -24,20 +26,23 @@ unsigned long GadwPolygonBuffers[52260];
 	SDL_Window* g_window = NULL;
 #endif
 
-void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68, 5F1C8
+void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
 {
-	db.order_table[0] = (unsigned long*)((long)pBuffers & 0xFFFFFF);
-	db.order_table[1] = (unsigned long*)((long)((nOTSize << 2) + pBuffers) & 0xFFFFFF);
+#ifdef PSX
+	//Should be safe to use 32-bit ptrs tho
+	db.order_table[0] = (unsigned long*)((unsigned long) pBuffers & 0xFFFFFF);
+	db.order_table[1] = (unsigned long*)((unsigned long) &pBuffers[nOTSize] & 0xFFFFFF);
 	db.nOTSize = nOTSize;
-	db.pickup_order_table[0] = (unsigned long*)((long)&GadwOrderingTables_V2[  0] & 0xFFFFFF);
-	db.pickup_order_table[1] = (unsigned long*)((long)&GadwOrderingTables_V2[256] & 0xFFFFFF);
+	db.pickup_order_table[0] = (unsigned long*)((unsigned long)GadwOrderingTables_V2 & 0xFFFFFF);
+	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256] & 0xFFFFFF);
+#endif
 }
 
 void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)
 {
 	db.nPBSize = nPBSize;
-	db.poly_buffer[0] = (unsigned long*)((long)pBuffers & 0xFFFFFF);
-	db.poly_buffer[1] = (unsigned long*)((long)((nPBSize << 2) + pBuffers) & 0xFFFFFF);
+	db.poly_buffer[0] = (unsigned long*)((unsigned long)pBuffers & 0xFFFFFF);
+	db.poly_buffer[1] = (unsigned long*)((unsigned long)&pBuffers[nPBSize] & 0xFFFFFF);
 }
 
 void GPU_SyncBothScreens()
@@ -46,9 +51,20 @@ void GPU_SyncBothScreens()
 	test++;
 }
 
-void GPU_BeginScene()
+void GPU_BeginScene()//5F0F0(<), 5FDD0(<) 
 {
-#ifndef PSX
+#ifdef PSX
+	db.ot = db.order_table[db.current_buffer];
+	db.polyptr = db.poly_buffer[db.current_buffer];
+	db.curpolybuf = db.poly_buffer[db.current_buffer];
+
+	//db.polybuf_limit = db.poly_buffer[db.current_buffer] + &loc_19640;//Illegal
+	
+	ClearOTagR(&db.order_table[db.current_buffer], db.nOTSize);
+
+	db.pickup_ot = db.pickup_order_table[db.current_buffer];
+#else
+
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	
 	SDL_Event event;
@@ -60,14 +76,6 @@ void GPU_BeginScene()
 			exit(0);
 		}
 	}
-#else	
-	db.ot = db.order_table[db.current_buffer];
-	db.polyptr = (char*)db.order_table[db.current_buffer];
-	db.curpolybuf = (char*)db.order_table[db.current_buffer];
-	int v1 = (char*)&loc_19640; // v1 == 0x19640 in the beta, loc_19640 is a label in the middle of lara_as_turn_r()
-	db.polybuf_limit = (char*)db.poly_buffer[db.current_buffer] + v1;
-	ClearOTagR();
-	db.pickup_ot = db.pickup_order_table[db.current_buffer];
 #endif
 }
 

@@ -1,6 +1,8 @@
 #ifndef LARAFLAR_H
 #define LARAFLAR_H
 
+#include "PSXTYPES.H"
+
 extern void FlareControl(short item_number);
 extern void ready_flare();
 extern void undraw_flare_meshes();
