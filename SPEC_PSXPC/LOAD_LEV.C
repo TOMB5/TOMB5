@@ -4,6 +4,7 @@
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "MALLOC.H"
+#include "PROFILE.H"
 
 #include <stddef.h>
 #include <assert.h>
@@ -435,32 +436,25 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	dword_A33F5 = 1;
 }
 
-void LOAD_Stop()//60434, 60FB4
+void LOAD_Stop()//60434(<), 60FB4(<) (F)
 {
 	LOAD_DrawEnable(0);
 
+	LoadingBarEnabled = 0;
+
 	db.draw[1].isbg = 1;
 	db.draw[0].isbg = 1;
-
 	db.draw[1].dtd = 1;
-
-#if 0//def PSX_VERSION
-	GPU_UseOrderingTables();
-#endif
-
-	//FIXME: v1 (1) May be changed in GPU_UseOrderingTables, must clarify
 	db.draw[0].dtd = 1;
 
-#ifdef PSX_VERSION
-	GPU_SyncBothScreens();//5F374, 60054
-#endif
-
+	GPU_UseOrderingTables(&GadwOrderingTables[0], 2564);
 	db.current_buffer = 0;
+
+	GPU_SyncBothScreens();
 	db.current_buffer = 1;
 
 #ifdef INTERNAL
 	ProfileDraw = 1;
-#endif
-
 	_first_time_ever = 0;
+#endif
 }

@@ -1239,8 +1239,4 @@ struct FOOTPRINT {
 	short Active; // size=0, offset=14
 };
 
-
-
-
-
 #endif

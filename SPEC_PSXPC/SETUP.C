@@ -45,9 +45,12 @@ int dword_3EE4;
 
 int dword_A33D0[512];//FIXME
 
-struct object_container the_container;
-struct object_info* objects = the_container.the_objects;
-struct static_info* static_objects = the_container.the_static_objects;
+struct object_container objects_raw;
+struct object_info* objects = &objects_raw.m_objects[0];
+struct static_info* static_objects = &objects_raw.m_static_objects[0];
+extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
+extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
+
 
 char dword_1EF1D0[0x780];
 char dword_1EF9D0[2048 * 64];//fixme unknown size
@@ -376,8 +379,12 @@ void RelocateLevel()//?, B3B50(<)
 		number_cameras = LevelRelocPtr[43];
 
 		printf("MARKER_1*****************\n");
-		CD_Read(32360, (char*)&objects[0]);
 
+#ifdef PSXPC
+		CD_Read(sizeof(objects_raw), (char*) &objects_raw);
+#else
+		CD_Read(32360, (char*) &objects_raw);
+#endif
 		for (i = 0; i < 63; i++)
 		{
 			RelocPtr[i] = NULL;
