@@ -44,7 +44,11 @@ short dword_A6174;
 int dword_3EE4;
 
 int dword_A33D0[512];//FIXME
-object_info objects[505];
+
+struct object_container the_container;
+struct object_info* objects = the_container.the_objects;
+struct static_info* static_objects = the_container.the_static_objects;
+
 char dword_1EF1D0[0x780];
 char dword_1EF9D0[2048 * 64];//fixme unknown size
 
