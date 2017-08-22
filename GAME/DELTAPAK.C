@@ -267,17 +267,17 @@ enum title_spotcam_sequences
 	PYRAMID_SEQUENCE
 };
 
-void andy11_end()
+void andy11_end()//32D6C, 3326C
 {
 	S_Warn("[andy11_end] - Unimplemented!\\n");
 }
 
-void andy11_control()
+void andy11_control()//32C70, 33108
 {
 	S_Warn("[andy11_control] - Unimplemented!\\n");
 }
 
-void andy11_init()
+void andy11_init()//32C20, 330B8
 {
 	S_Warn("[andy11_init] - Unimplemented!\\n");
 }
@@ -418,34 +418,34 @@ void CutLaraBubbles()
 	S_Warn("[CutLaraBubbles] - Unimplemented!\\n");
 }
 
-void swampy_end()
+void swampy_end()//3271C, 32BB4
 {
 	S_Warn("[swampy_end] - Unimplemented!\\n");
 }
 
-void swampy_control()
+void swampy_control()//326EC, 32B84
 {
 	S_Warn("[swampy_control] - Unimplemented!\\n");
 }
 
-void swampy_init()
+void swampy_init()//32608, 32AA0
 {
 	S_Warn("[swampy_init] - Unimplemented!\\n");
 }
 
-void monk2_end()
+void monk2_end()//325F4(<), 32A8C(<) (F)
 {
-	S_Warn("[monk2_end] - Unimplemented!\\n");
+	lara_item->mesh_bits = 0xFFFFFFFF;
 }
 
-void monk2_control()
+void monk2_control()//324E4, 3297C
 {
 	S_Warn("[monk2_control] - Unimplemented!\\n");
 }
 
-void monk2_init()
+void monk2_init()//324D4(<), 3296C(<) (F)
 {
-	S_Warn("[monk2_init] - Unimplemented!\\n");
+	cutrot = 1;
 }
 
 void do_pierre_gun_meshswap()
@@ -453,19 +453,18 @@ void do_pierre_gun_meshswap()
 	S_Warn("[do_pierre_gun_meshswap] - Unimplemented!\\n");
 }
 
-void andrea4_end()
+void andrea4_end()//32464, 328FC
 {
 	S_Warn("[andrea4_end] - Unimplemented!\\n");
 }
 
-void andrea4_control()
+void andrea4_control()//323C8, 32860
 {
 	S_Warn("[andrea4_control] - Unimplemented!\\n");
 }
 
-void andrea4_init()
+void andrea4_init()//323C0(<), 32858(<) (F)
 {
-	S_Warn("[andrea4_init] - Unimplemented!\\n");
 }
 
 void joby7_end()
@@ -483,17 +482,17 @@ void joby7_init()
 	S_Warn("[joby7_init] - Unimplemented!\\n");
 }
 
-void andy10_end()
+void andy10_end()//3202C, 324C4
 {
 	S_Warn("[andy10_end] - Unimplemented!\\n");
 }
 
-void andy10_control()
+void andy10_control()//31E9C, 32334
 {
 	S_Warn("[andy10_control] - Unimplemented!\\n");
 }
 
-void andy10_init()
+void andy10_init()//31D58, 321F0
 {
 	S_Warn("[andy10_init] - Unimplemented!\\n");
 }
@@ -503,32 +502,31 @@ void do_chalk_meshswap()
 	S_Warn("[do_chalk_meshswap] - Unimplemented!\\n");
 }
 
-void andy8_end()
+void andy8_end()//31CF8, 32190
 {
 	S_Warn("[andy8_end] - Unimplemented!\\n");
 }
 
-void andy8_control()
+void andy8_control()//31C3C, 320D4
 {
 	S_Warn("[andy8_control] - Unimplemented!\\n");
 }
 
-void andy8_init()
+void andy8_init()//31C34(<), 320CC(<) (F)
 {
-	S_Warn("[andy8_init] - Unimplemented!\\n");
 }
 
-void andy9_end()
+void andy9_end()//31C08, 320A0
 {
 	S_Warn("[andy9_end] - Unimplemented!\\n");
 }
 
-void andy9_control()
+void andy9_control()//31BA4, 31FD4
 {
 	S_Warn("[andy9_control] - Unimplemented!\\n");
 }
 
-void andy9_init()
+void andy9_init()//31B7C, 31FAC
 {
 	S_Warn("[andy9_init] - Unimplemented!\\n");
 }
@@ -538,62 +536,62 @@ void TriggerDelBrownSmoke(long x, long y, long z)
 	S_Warn("[TriggerDelBrownSmoke] - Unimplemented!\\n");
 }
 
-void cossack_end()
+void cossack_end()//31998, 31DC8
 {
 	S_Warn("[cossack_end] - Unimplemented!\\n");
 }
 
-void cossack_control()
+void cossack_control()//3178C, 31BBC
 {
 	S_Warn("[cossack_control] - Unimplemented!\\n");
 }
 
-void cossack_init()
+void cossack_init()//31784(<), 31BB4(<) (F)
 {
-	S_Warn("[cossack_init] - Unimplemented!\\n");
+	return;
 }
 
-void andy7_end()
+void andy7_end()//31754, 31B84
 {
 	S_Warn("[andy7_end] - Unimplemented!\\n");
 }
 
-void andy7_control()
+void andy7_control()//31704, 31B34
 {
 	S_Warn("[andy7_control] - Unimplemented!\\n");
 }
 
-void andy7_init()
+void andy7_init()//316F4(<), 31B24(<) (F)
 {
-	S_Warn("[andy7_init] - Unimplemented!\\n");
+	cutrot = 1;
 }
 
-void andypew_end()
+void andypew_end()//316C0, 31AF0
 {
 	S_Warn("[andypew_end] - Unimplemented!\\n");
 }
 
-void andypew_control()
+void andypew_control()//316B8(<), 31AE8(<) (F)
 {
-	S_Warn("[andypew_control] - Unimplemented!\\n");
+	return;
 }
 
-void andypew_init()
+void andypew_init()//31698, 31AC8
 {
 	S_Warn("[andypew_init] - Unimplemented!\\n");
 }
 
-void andy6_end()
+void andy6_end()//31690(<), 31AC0(<) (F)
 {
-	S_Warn("[andy6_end] - Unimplemented!\\n");
+	return;
 }
 
-void andy6_control()
+void andy6_control()//315F8, 319B4
 {
 	S_Warn("[andy6_control] - Unimplemented!\\n");
 }
 
-void andy6_init()
+void andy6_init()//30D84, 31104
 {
 	S_Warn("[andy6_init] - Unimplemented!\\n");
 }
@@ -788,34 +786,34 @@ void joby5_init()
 	S_Warn("[joby5_init] - Unimplemented!\\n");
 }
 
-void andrea2_end()
+void andrea2_end()//2FFD4, 30354
 {
 	S_Warn("[andrea2_end] - Unimplemented!\\n");
 }
 
-void andrea2_control()
+void andrea2_control()//2FCDC, 3005C
 {
 	S_Warn("[andrea2_control] - Unimplemented!\\n");
 }
 
-void andrea2_init()
+void andrea2_init()//2FCC0(<), 30040(<) (F)
 {
-	S_Warn("[andrea2_init] - Unimplemented!\\n");
+	cutseq_meshbits[1] &= 0x7FFFFFFF;
 }
 
-void andrea1_end()
+void andrea1_end()//2FC94, 30014
 {
 	S_Warn("[andrea1_end] - Unimplemented!\\n");
 }
 
-void andrea1_control()
+void andrea1_control()//2FB58, 2FED8
 {
 	S_Warn("[andrea1_control] - Unimplemented!\\n");
 }
 
-void andrea1_init()
+void andrea1_init()//2FB50(<), 2FED0(<) (F)
 {
-	S_Warn("[andrea1_init] - Unimplemented!\\n");
+	return;
 }
 
 void joby4_end()
@@ -878,47 +876,47 @@ void hamgate_init()
 	S_Warn("[hamgate_init] - Unimplemented!\\n");
 }
 
-void andy1_end()
+void andy1_end()//2F408, 2F74C
 {
 	S_Warn("[andy1_end] - Unimplemented!\\n");
 }
 
-void andy1_control()
+void andy1_control()//2F39C, 2F6A8
 {
 	S_Warn("[andy1_control] - Unimplemented!\\n");
 }
 
-void andy1_init()
+void andy1_init()//2F37C, 2F688
 {
 	S_Warn("[andy1_init] - Unimplemented!\\n");
 }
 
-void joby3_end()
+void joby3_end()//2F374(<), 2F680(<) (F)
 {
-	S_Warn("[joby3_end] - Unimplemented!\\n");
+	return;
 }
 
-void joby3_control()
+void joby3_control()//2F304, 2F610
 {
 	S_Warn("[joby3_control] - Unimplemented!\\n");
 }
 
-void joby3_init()
+void joby3_init()//2F2FC(<), 2F608(<) (F)
 {
-	S_Warn("[joby3_init] - Unimplemented!\\n");
+	return;
 }
 
-void joby2_end()
+void joby2_end()//2F2B8, 2F5C4
 {
 	S_Warn("[joby2_end] - Unimplemented!\\n");
 }
 
-void joby2_control()
+void joby2_control()//2F114, 2F420
 {
 	S_Warn("[joby2_control] - Unimplemented!\\n");
 }
 
-void joby2_init()
+void joby2_init()//2F0C0, 2F3CC
 {
 	S_Warn("[joby2_init] - Unimplemented!\\n");
 }
@@ -1013,47 +1011,48 @@ void special1_init()
 	S_Warn("[special1_init] - Unimplemented!\\n");
 }
 
-void richcut3_control()
+void richcut3_control()//2E594, 2E8A0
 {
 	S_Warn("[richcut3_control] - Unimplemented!\\n");
 }
 
-void richcut3_end()
+void richcut3_end()//2E54C, 2E858
 {
 	S_Warn("[richcut3_end] - Unimplemented!\\n");
 }
 
-void richcut3_init()
+void richcut3_init()//2E514, 2E820
 {
 	S_Warn("[richcut3_init] - Unimplemented!\\n");
 }
 
-void richcut2_control()
+void richcut2_control()//2E4EC, 2E77C
 {
 	S_Warn("[richcut2_control] - Unimplemented!\\n");
 }
 
-void richcut2_end()
+void richcut2_end()//2E4D8(<), 2E768(<) (F)
 {
-	S_Warn("[richcut2_end] - Unimplemented!\\n");
+	lara_item->mesh_bits = 0xFFFFFFFF;
 }
 
-void richcut2_init()
+void richcut2_init()//2E4C0(<), 2E750(<) (F)
 {
-	S_Warn("[richcut2_init] - Unimplemented!\\n");
+	cutrot = 1;
+	lara_item->mesh_bits = 0;
 }
 
-void richcut1_control()
+void richcut1_control()//2E3D8, 2E668
 {
 	S_Warn("[richcut1_control] - Unimplemented!\\n");
 }
 
-void richcut1_end()
+void richcut1_end()//2E3A0, 2E630
 {
 	S_Warn("[richcut1_end] - Unimplemented!\\n");
 }
 
-void richcut1_init()
+void richcut1_init()//2E26C, 2E4FC
 {
 	S_Warn("[richcut1_init] - Unimplemented!\\n");
 }
