@@ -431,22 +431,6 @@ struct SpuStVoiceAttr {
 
 
 
-struct RTDECODE {
-	unsigned long length; // size=0, offset=0
-	unsigned long off; // size=0, offset=4
-	unsigned short counter; // size=0, offset=8
-	unsigned short data; // size=0, offset=10
-	unsigned char decodetype; // size=0, offset=12
-	unsigned char packmethod; // size=0, offset=13
-	unsigned short padfuck; // size=0, offset=14
-};
-struct ACTORME {
-	int offset; // size=0, offset=0
-	short objslot; // size=0, offset=4
-	short nodes; // size=0, offset=6
-};
-
-
 
 struct static_info {
 	short mesh_number; // size=0, offset=0

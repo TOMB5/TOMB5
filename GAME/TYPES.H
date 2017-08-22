@@ -662,6 +662,23 @@ struct SPARKS {
 	unsigned char RoomNumber; // size=0, offset=50
 	unsigned char NodeNumber; // size=0, offset=51
 };
+struct ACTORME {
+	int offset; // size=0, offset=0
+	short objslot; // size=0, offset=4
+	short nodes; // size=0, offset=6
+};
+
+struct RTDECODE {
+	unsigned long length; // size=0, offset=0
+	unsigned long off; // size=0, offset=4
+	unsigned short counter; // size=0, offset=8
+	unsigned short data; // size=0, offset=10
+	unsigned char decodetype; // size=0, offset=12
+	unsigned char packmethod; // size=0, offset=13
+	unsigned short padfuck; // size=0, offset=14
+};
+
+
 struct PACKNODE {
 	short xrot_run; // size=0, offset=0
 	short yrot_run; // size=0, offset=2
@@ -1221,6 +1238,9 @@ struct FOOTPRINT {
 	short YRot; // size=0, offset=12
 	short Active; // size=0, offset=14
 };
+
+
+
 
 
 #endif
