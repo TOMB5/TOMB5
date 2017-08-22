@@ -15,7 +15,7 @@
 #include <assert.h>
 #include <stddef.h>
 
-struct CUTSEQ_ROUTINES cutseq_control_routines[45]; /*=
+struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
 	{ NULL, NULL, NULL },
 	{ stealth3_start, NULL, stealth3_end },
@@ -62,7 +62,7 @@ struct CUTSEQ_ROUTINES cutseq_control_routines[45]; /*=
 	{ monk2_init, monk2_control, monk2_end },
 	{ swampy_init, swampy_control, swampy_end },
 	{ andy11_init, andy11_control, andy11_end },
-};*/
+};
 unsigned short crane_pistols_info[11] =
 {
 	0x8035, 0x3D80, 0x803D, 0xC580, 0x81C5, 0xCF81, 0x81CF, 0xEA81, 0x81EA, 0x3181, 
@@ -267,6 +267,48 @@ enum title_spotcam_sequences
 	PYRAMID_SEQUENCE
 };
 
+void andy11_end()
+{
+	S_Warn("[andy11_end] - Unimplemented!\\n");
+}
+
+void andy11_control()
+{
+	S_Warn("[andy11_control] - Unimplemented!\\n");
+}
+
+void andy11_init()
+{
+	S_Warn("[andy11_init] - Unimplemented!\\n");
+}
+
+void Cutanimate(int objnum)
+{
+	S_Warn("[Cutanimate] - Unimplemented!\\n");
+}
+
+
+struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
+{
+#if 1
+	struct ITEM_INFO* item; // $s1
+
+	item = find_a_fucking_item(objnum);
+
+	item->anim_number = *(short*)&objects[(objnum << 6) + 38];//0x237, basically objects[objnum]+38
+	item->frame_number = anims[item->anim_number].frame_base;
+	RemoveActiveItem(item - items);
+
+	item->flags &= 0xC1FF;
+#if 0
+	int test = *(int*)item->active;
+	test &= -7;
+	*(int*)item->active = test;
+#endif
+#endif
+	return item;
+}
+
 void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 {
 	struct ITEM_INFO* item;
@@ -371,32 +413,804 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 
 }//32968
 
-struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
+void CutLaraBubbles()
 {
-#if 1
-	struct ITEM_INFO* item; // $s1
+	S_Warn("[CutLaraBubbles] - Unimplemented!\\n");
+}
 
-	item = find_a_fucking_item(objnum);
+void swampy_end()
+{
+	S_Warn("[swampy_end] - Unimplemented!\\n");
+}
 
-	item->anim_number = *(short*) &objects[(objnum << 6) + 38];//0x237, basically objects[objnum]+38
-	item->frame_number = anims[item->anim_number].frame_base;
-	RemoveActiveItem(item - items);
+void swampy_control()
+{
+	S_Warn("[swampy_control] - Unimplemented!\\n");
+}
 
-	item->flags &= 0xC1FF;
-#if 0
-	int test = *(int*) item->active;
-	test &= -7;
-	*(int*) item->active = test;
-#endif
-#endif
-	return item;
+void swampy_init()
+{
+	S_Warn("[swampy_init] - Unimplemented!\\n");
+}
+
+void monk2_end()
+{
+	S_Warn("[monk2_end] - Unimplemented!\\n");
+}
+
+void monk2_control()
+{
+	S_Warn("[monk2_control] - Unimplemented!\\n");
+}
+
+void monk2_init()
+{
+	S_Warn("[monk2_init] - Unimplemented!\\n");
+}
+
+void do_pierre_gun_meshswap()
+{
+	S_Warn("[do_pierre_gun_meshswap] - Unimplemented!\\n");
+}
+
+void andrea4_end()
+{
+	S_Warn("[andrea4_end] - Unimplemented!\\n");
+}
+
+void andrea4_control()
+{
+	S_Warn("[andrea4_control] - Unimplemented!\\n");
+}
+
+void andrea4_init()
+{
+	S_Warn("[andrea4_init] - Unimplemented!\\n");
+}
+
+void joby7_end()
+{
+	S_Warn("[joby7_end] - Unimplemented!\\n");
+}
+
+void joby7_control()
+{
+	S_Warn("[joby7_control] - Unimplemented!\\n");
+}
+
+void joby7_init()
+{
+	S_Warn("[joby7_init] - Unimplemented!\\n");
+}
+
+void andy10_end()
+{
+	S_Warn("[andy10_end] - Unimplemented!\\n");
+}
+
+void andy10_control()
+{
+	S_Warn("[andy10_control] - Unimplemented!\\n");
+}
+
+void andy10_init()
+{
+	S_Warn("[andy10_init] - Unimplemented!\\n");
+}
+
+void do_chalk_meshswap()
+{
+	S_Warn("[do_chalk_meshswap] - Unimplemented!\\n");
+}
+
+void andy8_end()
+{
+	S_Warn("[andy8_end] - Unimplemented!\\n");
+}
+
+void andy8_control()
+{
+	S_Warn("[andy8_control] - Unimplemented!\\n");
+}
+
+void andy8_init()
+{
+	S_Warn("[andy8_init] - Unimplemented!\\n");
+}
+
+void andy9_end()
+{
+	S_Warn("[andy9_end] - Unimplemented!\\n");
+}
+
+void andy9_control()
+{
+	S_Warn("[andy9_control] - Unimplemented!\\n");
+}
+
+void andy9_init()
+{
+	S_Warn("[andy9_init] - Unimplemented!\\n");
+}
+
+void TriggerDelBrownSmoke(long x, long y, long z)
+{
+	S_Warn("[TriggerDelBrownSmoke] - Unimplemented!\\n");
+}
+
+void cossack_end()
+{
+	S_Warn("[cossack_end] - Unimplemented!\\n");
+}
+
+void cossack_control()
+{
+	S_Warn("[cossack_control] - Unimplemented!\\n");
+}
+
+void cossack_init()
+{
+	S_Warn("[cossack_init] - Unimplemented!\\n");
+}
+
+void andy7_end()
+{
+	S_Warn("[andy7_end] - Unimplemented!\\n");
+}
+
+void andy7_control()
+{
+	S_Warn("[andy7_control] - Unimplemented!\\n");
+}
+
+void andy7_init()
+{
+	S_Warn("[andy7_init] - Unimplemented!\\n");
+}
+
+void andypew_end()
+{
+	S_Warn("[andypew_end] - Unimplemented!\\n");
+}
+
+void andypew_control()
+{
+	S_Warn("[andypew_control] - Unimplemented!\\n");
+}
+
+void andypew_init()
+{
+	S_Warn("[andypew_init] - Unimplemented!\\n");
+}
+
+void andy6_end()
+{
+	S_Warn("[andy6_end] - Unimplemented!\\n");
+}
+
+void andy6_control()
+{
+	S_Warn("[andy6_control] - Unimplemented!\\n");
+}
+
+void andy6_init()
+{
+	S_Warn("[andy6_init] - Unimplemented!\\n");
+}
+
+void joby8_end()
+{
+	S_Warn("[joby8_end] - Unimplemented!\\n");
+}
+
+void joby8_control()
+{
+	S_Warn("[joby8_control] - Unimplemented!\\n");
+}
+
+void joby8_init()
+{
+	S_Warn("[joby8_init] - Unimplemented!\\n");
+}
+
+void joby6_end()
+{
+	S_Warn("[joby6_end] - Unimplemented!\\n");
+}
+
+void joby6_control()
+{
+	S_Warn("[joby6_control] - Unimplemented!\\n");
+}
+
+void joby6_init()
+{
+	S_Warn("[joby6_init] - Unimplemented!\\n");
+}
+
+void andy5_end()
+{
+	S_Warn("[andy5_end] - Unimplemented!\\n");
+}
+
+void andy5_control()
+{
+	S_Warn("[andy5_control] - Unimplemented!\\n");
+}
+
+void andy5_init()
+{
+	S_Warn("[andy5_init] - Unimplemented!\\n");
+}
+
+void andrea3b_end()
+{
+	S_Warn("[andrea3b_end] - Unimplemented!\\n");
+}
+
+void andrea3b_control()
+{
+	S_Warn("[andrea3b_control] - Unimplemented!\\n");
+}
+
+void andrea3b_init()
+{
+	S_Warn("[andrea3b_init] - Unimplemented!\\n");
+}
+
+void andrea3_end()
+{
+	S_Warn("[andrea3_end] - Unimplemented!\\n");
+}
+
+void andrea3_control()
+{
+	S_Warn("[andrea3_control] - Unimplemented!\\n");
+}
+
+void andrea3_init()
+{
+	S_Warn("[andrea3_init] - Unimplemented!\\n");
+}
+
+void do_clanger_meshswap()
+{
+	S_Warn("[do_clanger_meshswap] - Unimplemented!\\n");
+}
+
+void andy4b_end()
+{
+	S_Warn("[andy4b_end] - Unimplemented!\\n");
+}
+
+void andy4b_control()
+{
+	S_Warn("[andy4b_control] - Unimplemented!\\n");
+}
+
+void andy4b_init()
+{
+	S_Warn("[andy4b_init] - Unimplemented!\\n");
+}
+
+void andy4_end()
+{
+	S_Warn("[andy4_end] - Unimplemented!\\n");
+}
+
+void andy4_control()
+{
+	S_Warn("[andy4_control] - Unimplemented!\\n");
+}
+
+void andy4_init()
+{
+	S_Warn("[andy4_init] - Unimplemented!\\n");
+}
+
+void richcut4_end()
+{
+	S_Warn("[richcut4_end] - Unimplemented!\\n");
+}
+
+void richcut4_control()
+{
+	S_Warn("[richcut4_control] - Unimplemented!\\n");
+}
+
+void richcut4_init()
+{
+	S_Warn("[richcut4_init] - Unimplemented!\\n");
+}
+
+void joby10_end()
+{
+	S_Warn("[joby10_end] - Unimplemented!\\n");
+}
+
+void joby10_control()
+{
+	S_Warn("[joby10_control] - Unimplemented!\\n");
+}
+
+void joby10_init()
+{
+	S_Warn("[joby10_init] - Unimplemented!\\n");
+}
+
+void joby9_end()
+{
+	S_Warn("[joby9_end] - Unimplemented!\\n");
+}
+
+void joby9_control()
+{
+	S_Warn("[joby9_control] - Unimplemented!\\n");
+}
+
+void joby9_init()
+{
+	S_Warn("[joby9_init] - Unimplemented!\\n");
+}
+
+void do_catapult_meshswap()
+{
+	S_Warn("[do_catapult_meshswap] - Unimplemented!\\n");
+}
+
+void andy3_end()
+{
+	S_Warn("[andy3_end] - Unimplemented!\\n");
+}
+
+void andy3_control()
+{
+	S_Warn("[andy3_control] - Unimplemented!\\n");
+}
+
+void andy3_init()
+{
+	S_Warn("[andy3_init] - Unimplemented!\\n");
+}
+
+void joby5_end()
+{
+	S_Warn("[joby5_end] - Unimplemented!\\n");
+}
+
+void joby5_control()
+{
+	S_Warn("[joby5_control] - Unimplemented!\\n");
+}
+
+void joby5_init()
+{
+	S_Warn("[joby5_init] - Unimplemented!\\n");
+}
+
+void andrea2_end()
+{
+	S_Warn("[andrea2_end] - Unimplemented!\\n");
+}
+
+void andrea2_control()
+{
+	S_Warn("[andrea2_control] - Unimplemented!\\n");
+}
+
+void andrea2_init()
+{
+	S_Warn("[andrea2_init] - Unimplemented!\\n");
+}
+
+void andrea1_end()
+{
+	S_Warn("[andrea1_end] - Unimplemented!\\n");
+}
+
+void andrea1_control()
+{
+	S_Warn("[andrea1_control] - Unimplemented!\\n");
+}
+
+void andrea1_init()
+{
+	S_Warn("[andrea1_init] - Unimplemented!\\n");
+}
+
+void joby4_end()
+{
+	S_Warn("[joby4_end] - Unimplemented!\\n");
+}
+
+void joby4_control()
+{
+	S_Warn("[joby4_control] - Unimplemented!\\n");
+}
+
+void joby4_init()
+{
+	S_Warn("[joby4_init] - Unimplemented!\\n");
+}
+
+void DelTorchFlames(struct PHD_VECTOR *pos)
+{
+	S_Warn("[DelTorchFlames] - Unimplemented!\\n");
+}
+
+void setup_preist_meshswap()
+{
+	S_Warn("[setup_preist_meshswap] - Unimplemented!\\n");
+}
+
+void andy2_end()
+{
+	S_Warn("[andy2_end] - Unimplemented!\\n");
+}
+
+void andy2_control()
+{
+	S_Warn("[andy2_control] - Unimplemented!\\n");
+}
+
+void andy2_init()
+{
+	S_Warn("[andy2_init] - Unimplemented!\\n");
+}
+
+void do_hammer_meshswap()
+{
+	S_Warn("[do_hammer_meshswap] - Unimplemented!\\n");
+}
+
+void hamgate_end()
+{
+	S_Warn("[hamgate_end] - Unimplemented!\\n");
+}
+
+void hamgate_control()
+{
+	S_Warn("[hamgate_control] - Unimplemented!\\n");
+}
+
+void hamgate_init()
+{
+	S_Warn("[hamgate_init] - Unimplemented!\\n");
+}
+
+void andy1_end()
+{
+	S_Warn("[andy1_end] - Unimplemented!\\n");
+}
+
+void andy1_control()
+{
+	S_Warn("[andy1_control] - Unimplemented!\\n");
+}
+
+void andy1_init()
+{
+	S_Warn("[andy1_init] - Unimplemented!\\n");
+}
+
+void joby3_end()
+{
+	S_Warn("[joby3_end] - Unimplemented!\\n");
+}
+
+void joby3_control()
+{
+	S_Warn("[joby3_control] - Unimplemented!\\n");
+}
+
+void joby3_init()
+{
+	S_Warn("[joby3_init] - Unimplemented!\\n");
+}
+
+void joby2_end()
+{
+	S_Warn("[joby2_end] - Unimplemented!\\n");
+}
+
+void joby2_control()
+{
+	S_Warn("[joby2_control] - Unimplemented!\\n");
+}
+
+void joby2_init()
+{
+	S_Warn("[joby2_init] - Unimplemented!\\n");
+}
+
+void TriggerDelSmoke(long x, long y, long z, int sizeme)
+{
+	S_Warn("[TriggerDelSmoke] - Unimplemented!\\n");
+}
+
+void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR *pos, int direction, int speed)
+{
+	S_Warn("[TriggerActorBlood] - Unimplemented!\\n");
+}
+
+void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR *vec)
+{
+	S_Warn("[GetActorJointAbsPosition] - Unimplemented!\\n");
+}
+
+void deal_with_actor_shooting(unsigned short *shootdata, int actornum, int nodenum, struct PHD_VECTOR *pos)
+{
+	S_Warn("[deal_with_actor_shooting] - Unimplemented!\\n");
+}
+
+void stealth3_end()
+{
+	S_Warn("[stealth3_end] - Unimplemented!\\n");
+}
+
+void stealth3_start()
+{
+	S_Warn("[stealth3_start] - Unimplemented!\\n");
+}
+
+void special4_end()
+{
+	S_Warn("[special4_end] - Unimplemented!\\n");
+}
+
+void special4_control()
+{
+	S_Warn("[special4_control] - Unimplemented!\\n");
+}
+
+void special4_init()
+{
+	S_Warn("[special4_init] - Unimplemented!\\n");
+}
+
+void special3_end()
+{
+	S_Warn("[special3_end] - Unimplemented!\\n");
+}
+
+void special3_control()
+{
+	S_Warn("[special3_control] - Unimplemented!\\n");
+}
+
+void special3_init()
+{
+	S_Warn("[special3_init] - Unimplemented!\\n");
+}
+
+void special2_end()
+{
+	S_Warn("[special2_end] - Unimplemented!\\n");
+}
+
+void special2_control()
+{
+	S_Warn("[special2_control] - Unimplemented!\\n");
+}
+
+void special2_init()
+{
+	S_Warn("[special2_init] - Unimplemented!\\n");
+}
+
+void special1_end()
+{
+	S_Warn("[special1_end] - Unimplemented!\\n");
+}
+
+void special1_control()
+{
+	S_Warn("[special1_control] - Unimplemented!\\n");
+}
+
+void special1_init()
+{
+	S_Warn("[special1_init] - Unimplemented!\\n");
+}
+
+void richcut3_control()
+{
+	S_Warn("[richcut3_control] - Unimplemented!\\n");
+}
+
+void richcut3_end()
+{
+	S_Warn("[richcut3_end] - Unimplemented!\\n");
+}
+
+void richcut3_init()
+{
+	S_Warn("[richcut3_init] - Unimplemented!\\n");
+}
+
+void richcut2_control()
+{
+	S_Warn("[richcut2_control] - Unimplemented!\\n");
+}
+
+void richcut2_end()
+{
+	S_Warn("[richcut2_end] - Unimplemented!\\n");
+}
+
+void richcut2_init()
+{
+	S_Warn("[richcut2_init] - Unimplemented!\\n");
+}
+
+void richcut1_control()
+{
+	S_Warn("[richcut1_control] - Unimplemented!\\n");
+}
+
+void richcut1_end()
+{
+	S_Warn("[richcut1_end] - Unimplemented!\\n");
+}
+
+void richcut1_init()
+{
+	S_Warn("[richcut1_init] - Unimplemented!\\n");
+}
+
+void cranecut_control()
+{
+	S_Warn("[cranecut_control] - Unimplemented!\\n");
+}
+
+void cranecut_end()
+{
+	S_Warn("[cranecut_end] - Unimplemented!\\n");
+}
+
+void cranecut_init()
+{
+	S_Warn("[cranecut_init] - Unimplemented!\\n");
+}
+
+
+struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
+{
+	int i;
+
+	if (level_items > 0)
+	{
+		for (i = 0; i < level_items; i++)
+		{
+			if (items[i].object_number == object_number)
+			{
+				return &items[i];
+			}
+		}
+	}
+
+	return NULL;
+}
+
+void handle_actor_chatting(int speechslot, int node, int slot, int objslot, short *ranges)
+{
+	S_Warn("[handle_actor_chatting] - Unimplemented!\\n");
+}
+
+void handle_lara_chatting(short *ranges)
+{
+	S_Warn("[handle_lara_chatting] - Unimplemented!\\n");
+}
+
+void DelsHandyTeleportLara(int x, int y, int z, int yrot)
+{
+	S_Warn("[DelsHandyTeleportLara] - Unimplemented!\\n");
+}
+
+void init_resident_cutseq(int num)
+{
+	S_Warn("[init_resident_cutseq] - Unimplemented!\\n");
+}
+
+void init_cutseq_actors(char *data, int resident)
+{
+	S_Warn("[init_cutseq_actors] - Unimplemented!\\n");
+}
+
+int Load_and_Init_Cutseq(int num)
+{
+	S_Warn("[Load_and_Init_Cutseq] - Unimplemented!\\n");
+	return 0;
+}
+
+struct ITEM_INFO *cutseq_restore_item(int num)
+{
+	S_Warn("[*cutseq_restore_item] - Unimplemented!\\n");
+	return NULL;
+}
+
+void cutseq_kill_item(int num)
+{
+	S_Warn("[cutseq_kill_item] - Unimplemented!\\n");
+}
+
+void deal_with_pistols(unsigned short *shootdata)
+{
+	S_Warn("[deal_with_pistols] - Unimplemented!\\n");
+}
+
+void trigger_weapon_dynamics(int left_or_right)
+{
+	S_Warn("[trigger_weapon_dynamics] - Unimplemented!\\n");
+}
+
+void cutseq_shoot_pistols(int left_or_right)
+{
+	S_Warn("[cutseq_shoot_pistols] - Unimplemented!\\n");
+}
+
+void cutseq_removelara_hk()
+{
+	S_Warn("[cutseq_removelara_hk] - Unimplemented!\\n");
+}
+
+void cutseq_givelara_hk()
+{
+	S_Warn("[cutseq_givelara_hk] - Unimplemented!\\n");
+}
+
+void cutseq_removelara_pistols()
+{
+	S_Warn("[cutseq_removelara_pistols] - Unimplemented!\\n");
+}
+
+void cutseq_givelara_pistols()
+{
+	S_Warn("[cutseq_givelara_pistols] - Unimplemented!\\n");
+}
+
+void CalculateObjectLightingLaraCutSeq()
+{
+	S_Warn("[CalculateObjectLightingLaraCutSeq] - Unimplemented!\\n");
+}
+
+void finish_cutseq(int name)
+{
+	S_Warn("[finish_cutseq] - Unimplemented!\\n");
+}
+
+void *cutseq_malloc(int size)
+{
+	S_Warn("[*cutseq_malloc] - Unimplemented!\\n");
+	return NULL;
+}
+
+void init_cutseq_malloc()
+{
+	S_Warn("[init_cutseq_malloc] - Unimplemented!\\n");
+}
+
+void frigup_lara()
+{
+	S_Warn("[frigup_lara] - Unimplemented!\\n");
+}
+
+void InitPackNodes(struct NODELOADHEADER *lnode, struct PACKNODE *pnode, char *packed, int numnodes)
+{
+	S_Warn("[InitPackNodes] - Unimplemented!\\n");
+}
+
+
+void do_new_cutscene_camera()
+{
+	S_Warn("[do_new_cutscene_camera] - Unimplemented!\n");
 }
 
 void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 {
 	int i;
 	int s1 = name;//guessed, moved but not used
-	
+
 	if (cutseq_num == 0)
 	{
 		int a1 = 0;//Must confirm initial value.
@@ -520,7 +1334,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 					lara.request_gun_type = 0;
 					lara.last_gun_type = 0;
 
-					if (((*(int*) &objects[0x53B0]) & 1) != 0 && lara.pistols_type_carried != 0)
+					if (((*(int*)&objects[0x53B0]) & 1) != 0 && lara.pistols_type_carried != 0)
 					{
 						//loc_2C5FC
 						lara.last_gun_type = 1;
@@ -534,7 +1348,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 					//loc_2C600
 					if ((gfLevelFlags & 0x80) != 0)
 					{
-						if (((*(int*) &objects[0x5670]) & 0x10000) != 0)
+						if (((*(int*)&objects[0x5670]) & 0x10000) != 0)
 						{
 							if ((objects[0x5670 + 0x121] & 1) != 0)
 							{
@@ -546,13 +1360,13 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 
 					}//loc_2C644
 
-					//assert(0);//intentional, not finished!
+					 //assert(0);//intentional, not finished!
 					S_Warn("[handle_cutseq_triggering] - Unimplemented condition! loc_2C644\n");
 
 				}//loc_2C6E4
 
 			}//loc_2C79C
-			
+
 			if (gfCurrentLevel != 3)
 			{
 				//2C7DC
@@ -564,7 +1378,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 
 					}//loc_2C818
 
-					//loc_2C818
+					 //loc_2C818
 					assert(0);//Data is malformed in IDA output, also jalr	$v0 must be debugged on emu.
 
 				}//loc_2CA50
@@ -579,7 +1393,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 					XAReqVolume = 0;
 				}//loc_2C7D0
 
-				//loc_2C7D0
+				 //loc_2C7D0
 				cutseq_trig = 4;
 			}//loc_2CA50
 		}
@@ -587,25 +1401,9 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 	return;
 }
 
-struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
-{
-	int i;
 
-	if (level_items > 0)
-	{
-		for (i = 0; i < level_items; i++)
-		{
-			if (items[i].object_number == object_number)
-			{
-				return &items[i];
-			}
-		}
-	}
 
-	return NULL;
-}
 
-void do_new_cutscene_camera()
-{
-	S_Warn("[do_new_cutscene_camera] - Unimplemented!\n");
-}
+
+
+
