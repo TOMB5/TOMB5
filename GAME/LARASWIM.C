@@ -17,9 +17,9 @@ long GetWaterDepth(long x, long y, long z, short room_number)//4CA38, 4CE9C
 	return 0;
 }
 
-void lara_col_waterroll(struct ITEM_INFO *item, struct COLL_INFO *coll)//4CA18, 4CE7C
+void lara_col_waterroll(struct ITEM_INFO *item, struct COLL_INFO *coll)//4CA18(<), 4CE7C(<) (F)
 {
-	S_Warn("[lara_col_waterroll] - Unimplemented!\n");
+	LaraSwimCollision(item, coll);
 }
 
 void lara_col_uwdeath(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C980, 4CDE4
@@ -27,29 +27,29 @@ void lara_col_uwdeath(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C980, 4C
 	S_Warn("[lara_col_uwdeath] - Unimplemented!\n");
 }
 
-void lara_col_dive(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C960, 4CDC4
+void lara_col_dive(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C960(<), 4CDC4(<) (F)
 {
-	S_Warn("[lara_col_dive] - Unimplemented!\n");
+	LaraSwimCollision(item, coll);
 }
 
-void lara_col_tread(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C940, 4CDA4
+void lara_col_tread(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C940(<), 4CDA4(<) (F)
 {
-	S_Warn("[lara_col_tread] - Unimplemented!\n");
+	LaraSwimCollision(item, coll);
 }
 
-void lara_col_glide(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C920, 4CD84
+void lara_col_glide(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C920(<), 4CD84(<) (F)
 {
-	S_Warn("[lara_col_glide] - Unimplemented!\n");
+	LaraSwimCollision(item, coll);
 }
 
-void lara_col_swim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C900, 4CD64
+void lara_col_swim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C900(<), 4CD64(<) (F)
 {
-	S_Warn("[lara_col_swim] - Unimplemented!\n");
+	LaraSwimCollision(item, coll);
 }
 
-void lara_as_waterroll(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C8F8, 4CD5C
+void lara_as_waterroll(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C8F8(<), 4CD5C(<) (F)
 {
-	S_Warn("[lara_as_waterroll] - Unimplemented!\n");
+	item->fallspeed = 0;
 }
 
 void lara_as_uwdeath(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C884, 4CCE8

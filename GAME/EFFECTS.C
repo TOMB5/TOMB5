@@ -4,6 +4,7 @@
 #include "CONTROL.H"
 #include "GAMEFLOW.H"
 #include "LARA.H"
+#include "HAIR.H"
 
 long wf = 256;
 short next_fx_free;
@@ -77,39 +78,46 @@ void ClearSpidersPatch(struct ITEM_INFO *item)//39AA4, 39FA4
 	S_Warn("[ClearSpidersPatch] - Unimplemented!\n");
 }
 
-void reset_hair(struct ITEM_INFO *item)//39A84, 39F84
+void reset_hair(struct ITEM_INFO *item)//39A84(<), 39F84(<) (F)
 {
-	S_Warn("[reset_hair] - Unimplemented!\n");
+	InitialiseHair();
+	return;
 }
 
 void invisibility_off(struct ITEM_INFO *item)//39A6C(<), 39F6C(<) (F)
 {
 	item->status = 1;
+	return;
 }
 
 void invisibility_on(struct ITEM_INFO *item)//39A58(<), 39F58(<) (F)
 {
 	item->status = 3;
+	return;
 }
 
 void SetFog(struct ITEM_INFO *item)//39A44(<), 39F44(<) (F)
 {
 	flipeffect = -1;
+	return;
 }
 
-void shoot_left_gun(struct ITEM_INFO *item)//39A34, 39F34
+void shoot_left_gun(struct ITEM_INFO *item)//39A34(<), 39F34(<) (F)
 {
-	S_Warn("[shoot_left_gun] - Unimplemented!\n");
+	lara.left_arm.flash_gun = 3;
+	return;
 }
 
-void shoot_right_gun(struct ITEM_INFO *item)//39A24, 39F24
+void shoot_right_gun(struct ITEM_INFO *item)//39A24(<), 39F24(<) (F)
 {
-	S_Warn("[shoot_right_gun] - Unimplemented!\n");
+	lara.right_arm.flash_gun = 3;
+	return;
 }
 
-void lara_hands_free(struct ITEM_INFO *item)//39A18, 39F18
+void lara_hands_free(struct ITEM_INFO *item)//39A18(<), 39F18(<) (F)
 {
-	S_Warn("[lara_hands_free] - Unimplemented!\n");
+	lara.gun_status = 0;
+	return;
 }
 
 void KillActiveBaddies(struct ITEM_INFO *item)//39938, 39E38
@@ -127,6 +135,7 @@ void LaraLocationPad(struct ITEM_INFO *item)//39710(<), 39C10(<) (F)
 	flipeffect = -1;
 	lara.location = TriggerTimer;
 	lara.locationPad = TriggerTimer;
+	return;
 }
 
 void LaraLocation(struct ITEM_INFO *item)//396D0, 39BD0
@@ -178,16 +187,18 @@ void turn180_effect(struct ITEM_INFO *item)//393F4(<), 398F4(<) (F)
 {
 	item->pos.y_rot -= 32768;
 	item->pos.x_rot = -item->pos.x_rot;
+	return;
 }
 
 void finish_level_effect(struct ITEM_INFO *item)//393D4(<), 398D4(<) (F)
 {
 	gfLevelComplete = gfCurrentLevel + 1;
+	return;
 }
 
-void void_effect(struct ITEM_INFO *item)//393CC, 398CC
+void void_effect(struct ITEM_INFO *item)//393CC(<), 398CC(<) (F)
 {
-	S_Warn("[void_effect] - Unimplemented!\n");
+	return;
 }
 
 void WaterFall(short item_number)//39294, 39794

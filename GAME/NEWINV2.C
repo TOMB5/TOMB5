@@ -2,6 +2,7 @@
 
 #include "SPECIFIC.H"
 #include "LARA.H"
+#include "LOADSAVE.H"
 
 struct INVOBJ inventry_objects_list[100] = // offset 0x92BE8
 {
@@ -281,10 +282,9 @@ void init_keypad_mode()//40B2C(<), 40F80(<) (F)
 	keypadpause = 0;
 }
 
-int convert_invobj_to_obj(int obj)//40B08, 40F5C
+int convert_invobj_to_obj(int obj)//40B08(<), 40F5C(<) (F)
 {
-	S_Warn("[convert_invobj_to_obj] - Unimplemented!\n");
-	return 0;
+	return inventry_objects_list[obj].object_number;
 }
 
 int convert_obj_to_invobj(short obj)//40AC4, 40F18
@@ -567,16 +567,14 @@ void construct_combine_object_list()//3C940, 3CD94
 	S_Warn("[construct_combine_object_list] - Unimplemented!\n");
 }
 
-int go_and_save_game()//3C920, 3CD74
+int go_and_save_game()//3C920(<), 3CD74(<) (F)
 {
-	S_Warn("[go_and_save_game] - Unimplemented!\n");
-	return 0;
+	return SaveGame();
 }
 
-int go_and_load_game()//3C900, 3CD54
+int go_and_load_game()//3C900(<), 3CD54(<) (F)
 {
-	S_Warn("[go_and_load_game] - Unimplemented!\n");
-	return 0;
+	return LoadGame();
 }
 
 void DrawInventoryItemMe(struct ITEM_INFO *item, long shade, int overlay, int shagflag)//3C6A0, 3CAF4

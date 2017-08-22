@@ -14,6 +14,8 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include "ROOMLOAD.H"
+#include "HEALTH.H"
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
@@ -299,7 +301,7 @@ short temp_rotation_buffer[160];
 
 void andy11_end()//32D6C, 3326C
 {
-	S_Warn("[andy11_end] - Unimplemented!\\n");
+	cutseq_restore_item(ANIMATING15);
 }
 
 void andy11_control()//32C70, 33108
@@ -325,7 +327,7 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 
 	item = find_a_fucking_item(objnum);
 
-	item->anim_number = *(short*)&objects[(objnum << 6) + 38];//0x237, basically objects[objnum]+38
+	item->anim_number = objects[objnum].anim_index;//0x237, basically objects[objnum]+38
 	item->frame_number = anims[item->anim_number].frame_base;
 	RemoveActiveItem(item - items);
 
@@ -467,9 +469,9 @@ void do_pierre_gun_meshswap()
 	S_Warn("[do_pierre_gun_meshswap] - Unimplemented!\\n");
 }
 
-void andrea4_end()//32464, 328FC
+void andrea4_end()//32464(<), 328FC(<) (F)
 {
-	S_Warn("[andrea4_end] - Unimplemented!\\n");
+	cutseq_removelara_pistols();
 }
 
 void andrea4_control()//323C8, 32860
@@ -540,9 +542,10 @@ void andy9_control()//31BA4, 31FD4
 	S_Warn("[andy9_control] - Unimplemented!\\n");
 }
 
-void andy9_init()//31B7C, 31FAC
+void andy9_init()//31B7C(<), 31FAC(<) (F)
 {
-	S_Warn("[andy9_init] - Unimplemented!\\n");
+	cutseq_kill_item(ANIMATING15);
+	lara_item->mesh_bits = 0;
 }
 
 void TriggerDelBrownSmoke(long x, long y, long z)
@@ -590,9 +593,9 @@ void andypew_control()//316B8(<), 31AE8(<) (F)
 	return;
 }
 
-void andypew_init()//31698, 31AC8
+void andypew_init()//31698(<), 31AC8(<) (F)
 {
-	S_Warn("[andypew_init] - Unimplemented!\\n");
+	cutseq_kill_item(PUZZLE_HOLE2);
 }
 
 void andy6_end()//31690(<), 31AC0(<) (F)
@@ -605,9 +608,10 @@ void andy6_control()//315F8, 319B4
 	S_Warn("[andy6_control] - Unimplemented!\\n");
 }
 
-void andy6_init()//30D84, 31104
+void andy6_init()//30D84(<), 31104(<) (F)
 {
-	S_Warn("[andy6_init] - Unimplemented!\\n");
+	cutrot = 1;
+	setup_preist_meshswap();
 }
 
 void joby8_end()
@@ -640,49 +644,52 @@ void joby6_init()
 	S_Warn("[joby6_init] - Unimplemented!\\n");
 }
 
-void andy5_end()
+void andy5_end()//30F28(<), 312A8(<) (F)
 {
-	S_Warn("[andy5_end] - Unimplemented!\\n");
+	cutseq_restore_item(PUZZLE_HOLE2);
+	return;
 }
 
-void andy5_control()
+void andy5_control()//30DA4, 31124
 {
 	S_Warn("[andy5_control] - Unimplemented!\\n");
 }
 
-void andy5_init()
+void andy5_init()//30D84(<), 31104(<) (F)
 {
-	S_Warn("[andy5_init] - Unimplemented!\\n");
+	cutseq_kill_item(PUZZLE_HOLE2);
+	return;
 }
 
-void andrea3b_end()
+void andrea3b_end()//30C54, 30FD4
 {
 	S_Warn("[andrea3b_end] - Unimplemented!\\n");
 }
 
-void andrea3b_control()
+void andrea3b_control()//30B08, 30E88
 {
 	S_Warn("[andrea3b_control] - Unimplemented!\\n");
 }
 
-void andrea3b_init()
+void andrea3b_init()//30A1C, 30D9C
 {
 	S_Warn("[andrea3b_init] - Unimplemented!\\n");
 }
 
-void andrea3_end()
+void andrea3_end()//30904, 30C84
 {
 	S_Warn("[andrea3_end] - Unimplemented!\\n");
 }
 
-void andrea3_control()
+void andrea3_control()//30870, 30BF0
 {
 	S_Warn("[andrea3_control] - Unimplemented!\\n");
 }
 
-void andrea3_init()
+void andrea3_init()//30850, 30BD0
 {
-	S_Warn("[andrea3_init] - Unimplemented!\\n");
+	cutseq_givelara_pistols();
+	return;
 }
 
 void do_clanger_meshswap()
@@ -690,34 +697,36 @@ void do_clanger_meshswap()
 	S_Warn("[do_clanger_meshswap] - Unimplemented!\\n");
 }
 
-void andy4b_end()
+void andy4b_end()//307EC, 30B6C
 {
 	S_Warn("[andy4b_end] - Unimplemented!\\n");
 }
 
-void andy4b_control()
+void andy4b_control()//30710, 30A90
 {
 	S_Warn("[andy4b_control] - Unimplemented!\\n");
 }
 
-void andy4b_init()
+void andy4b_init()//306F0(<), 30A70(<) (F)
 {
-	S_Warn("[andy4b_init] - Unimplemented!\\n");
+	cutseq_kill_item(ANIMATING5_MIP);
+	return;
 }
 
-void andy4_end()
+void andy4_end()//306B4, 30A34
 {
 	S_Warn("[andy4_end] - Unimplemented!\\n");
 }
 
-void andy4_control()
+void andy4_control()//305BC, 3093C
 {
 	S_Warn("[andy4_control] - Unimplemented!\\n");
 }
 
-void andy4_init()
+void andy4_init()//3059C(<), 3091C(<) (F)
 {
-	S_Warn("[andy4_init] - Unimplemented!\\n");
+	cutseq_kill_item(ANIMATING5_MIP);
+	return;
 }
 
 void richcut4_end()
@@ -735,34 +744,38 @@ void richcut4_init()
 	S_Warn("[richcut4_init] - Unimplemented!\\n");
 }
 
-void joby10_end()
+void joby10_end()//303AC, 3072C
 {
 	S_Warn("[joby10_end] - Unimplemented!\\n");
 }
 
-void joby10_control()
+void joby10_control()//30338, 306B8
 {
 	S_Warn("[joby10_control] - Unimplemented!\\n");
 }
 
-void joby10_init()
+void joby10_init()//30318(<), 30698(<) (F)
 {
-	S_Warn("[joby10_init] - Unimplemented!\\n");
+	cutseq_kill_item(CRANE_GUY_MIP);
+	return;
 }
 
-void joby9_end()
+void joby9_end()//302F0(<), 30670(<) (F)
 {
-	S_Warn("[joby9_end] - Unimplemented!\\n");
+	cutseq_restore_item(CRANE_GUY_MIP);
+	AddDisplayPickup(KEY_ITEM7);
+	return;
 }
 
-void joby9_control()
+void joby9_control()//302A0, 30620
 {
 	S_Warn("[joby9_control] - Unimplemented!\\n");
 }
 
-void joby9_init()
+void joby9_init()//30280(<), 30600(<) (F)
 {
-	S_Warn("[joby9_init] - Unimplemented!\\n");
+	cutseq_kill_item(CRANE_GUY_MIP);
+	return;
 }
 
 void do_catapult_meshswap()
@@ -800,9 +813,10 @@ void joby5_init()
 	S_Warn("[joby5_init] - Unimplemented!\\n");
 }
 
-void andrea2_end()//2FFD4, 30354
+void andrea2_end()//2FFD4(<), 30354(<) (F)
 {
-	S_Warn("[andrea2_end] - Unimplemented!\\n");
+	lara.pickupitems &= 0xFFFD;
+	return;
 }
 
 void andrea2_control()//2FCDC, 3005C
@@ -830,19 +844,22 @@ void andrea1_init()//2FB50(<), 2FED0(<) (F)
 	return;
 }
 
-void joby4_end()
+void joby4_end()//2FB04, 2FE84
 {
 	S_Warn("[joby4_end] - Unimplemented!\\n");
 }
 
-void joby4_control()
+void joby4_control()//2FA0C, 2FD8C
 {
 	S_Warn("[joby4_control] - Unimplemented!\\n");
 }
 
-void joby4_init()
+void joby4_init()//2F9E4(<), 2FD64(<) (F)
 {
-	S_Warn("[joby4_init] - Unimplemented!\\n");
+	cutseq_kill_item(DOOR_TYPE1);
+	cutseq_kill_item(DOOR_TYPE5);
+	cutrot = 0;
+	return;
 }
 
 void DelTorchFlames(struct PHD_VECTOR *pos)
@@ -850,24 +867,27 @@ void DelTorchFlames(struct PHD_VECTOR *pos)
 	S_Warn("[DelTorchFlames] - Unimplemented!\\n");
 }
 
-void setup_preist_meshswap()
+void setup_preist_meshswap()//2F694(<), 2FA14(<) (F)
 {
-	S_Warn("[setup_preist_meshswap] - Unimplemented!\\n");
+	meshes[objects[SAILOR_MIP].mesh_index + 0x10] = meshes[objects[MESHSWAP3].mesh_index + 0x10];
+	cutseq_meshswapbits[1] |= 0x100;
+	return;
 }
 
-void andy2_end()
+void andy2_end()//2F668, 2F9E8
 {
 	S_Warn("[andy2_end] - Unimplemented!\\n");
 }
 
-void andy2_control()
+void andy2_control()//2F5D0, 2F914
 {
 	S_Warn("[andy2_control] - Unimplemented!\\n");
 }
 
-void andy2_init()
+void andy2_init()//2F5B0(<), 2F8F4(<) (F)
 {
-	S_Warn("[andy2_init] - Unimplemented!\\n");
+	setup_preist_meshswap();
+	return;
 }
 
 void do_hammer_meshswap()
@@ -900,9 +920,10 @@ void andy1_control()//2F39C, 2F6A8
 	S_Warn("[andy1_control] - Unimplemented!\\n");
 }
 
-void andy1_init()//2F37C, 2F688
+void andy1_init()//2F37C(<), 2F688(<) (F)
 {
-	S_Warn("[andy1_init] - Unimplemented!\\n");
+	cutseq_kill_item(ANIMATING2);
+	return;
 }
 
 void joby3_end()//2F374(<), 2F680(<) (F)
@@ -1048,12 +1069,14 @@ void richcut2_control()//2E4EC, 2E77C
 void richcut2_end()//2E4D8(<), 2E768(<) (F)
 {
 	lara_item->mesh_bits = 0xFFFFFFFF;
+	return;
 }
 
 void richcut2_init()//2E4C0(<), 2E750(<) (F)
 {
 	cutrot = 1;
 	lara_item->mesh_bits = 0;
+	return;
 }
 
 void richcut1_control()//2E3D8, 2E668
@@ -1136,15 +1159,45 @@ int Load_and_Init_Cutseq(int num)
 	return 0;
 }
 
-struct ITEM_INFO *cutseq_restore_item(int num)
+struct ITEM_INFO *cutseq_restore_item(int num)//2D738(<), 2DA20(<)
 {
-	S_Warn("[*cutseq_restore_item] - Unimplemented!\\n");
+	int i;
+	if(level_items > 0)
+	{
+		for(i = 0; i < numnailed; i++)
+		{
+			if(items[i].object_number == num)
+			{
+				items[i].status = old_status_flags[numnailed];
+				items[i].flags = old_status_flags2[numnailed];
+				numnailed++;
+
+				return items + i;
+			}
+		}
+	}
+
 	return NULL;
 }
 
-void cutseq_kill_item(int num)
+void cutseq_kill_item(int num)//2D69C(<), 2D984(<) (F)
 {
-	S_Warn("[cutseq_kill_item] - Unimplemented!\\n");
+	int i;
+	if(level_items > 0)
+	{
+		for (i = 0; i < level_items; i++) {
+			if (items[i].object_number == num)
+			{
+				old_status_flags2[numnailed] = items[i].flags;
+				old_status_flags[numnailed] = items[i].status;
+				numnailed++;
+
+				items[i].status = 3;
+				items[i].flags &= 0xFFFFC1FF;
+				items[i].flags |= 0x20;
+			}			
+		}
+	}
 }
 
 void deal_with_pistols(unsigned short *shootdata)
@@ -1198,9 +1251,12 @@ void *cutseq_malloc(int size)
 	return NULL;
 }
 
-void init_cutseq_malloc()
+void init_cutseq_malloc()//2D110(<), 2D430(<) (F)
 {
-	S_Warn("[init_cutseq_malloc] - Unimplemented!\\n");
+	cutseq_malloc_used = 0;
+	cutseq_malloc_ptr = (char*)frames;
+	cutseq_malloc_free = AnimFileLen;
+	return;
 }
 
 void frigup_lara()
@@ -1361,9 +1417,9 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 					//loc_2C600
 					if ((gfLevelFlags & 0x80) != 0)
 					{
-						if (((*(int*)&objects[0x5670]) & 0x10000) != 0)
+						if ((objects[345].bite_offset & 0x10000) != 0)
 						{
-							if ((objects[0x5670 + 0x121] & 1) != 0)
+							//if ((objects[0x5670 + 0x121] & 1) != 0)
 							{
 								int v0000 = 5;
 								///TODO:

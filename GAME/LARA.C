@@ -1,6 +1,7 @@
 #include "LARA.H"
 
 #include "SPECIFIC.H"
+#include "PSXINPUT.H"
 
 static short LeftClimbTab[4] = // offset 0xA0638
 {
@@ -23,9 +24,12 @@ void lara_as_pbleapoff(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D244, 1
 	S_Warn("[lara_as_pbleapoff] - Unimplemented!\n");
 }
 
-void lara_as_parallelbars(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D220, 1D3B4
+void lara_as_parallelbars(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D220(<), 1D3B4(<) (F)
 {
-	S_Warn("[lara_as_parallelbars] - Unimplemented!\n");
+	if((input & 0x40) == 0)
+	{
+		item->goal_anim_state = 0x81;
+	}
 }
 
 void lara_as_trfall(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D03C, 1D1D0
@@ -123,9 +127,11 @@ void lara_col_backjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C130, 1
 	S_Warn("[lara_col_backjump] - Unimplemented!\n");
 }
 
-void lara_col_slide(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C108, 1C23C
+void lara_col_slide(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C108(<), 1C23C(<) (F)
 {
-	S_Warn("[lara_col_slide] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot;
+	lara_slide_slope(item, coll);
+	return;
 }
 
 void lara_col_stepleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C0E8, 1C21C
@@ -299,9 +305,12 @@ void lara_as_pushblock(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AA04, 1
 	S_Warn("[lara_as_pushblock] - Unimplemented!\n");
 }
 
-void lara_as_slideback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A9E0, 1AB14
+void lara_as_slideback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A9E0(<), 1AB14(<) (F)
 {
-	S_Warn("[lara_as_slideback] - Unimplemented!\n");
+	if((input & 0x11) == 0x10)
+	{
+		item->goal_anim_state = 0x19;
+	}
 }
 
 void lara_as_fallback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1959C, 196D0
@@ -351,8 +360,9 @@ void lara_as_fastturn(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A5F8, 1A
 
 void lara_as_null(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A5DC(<), 1A710(<) (F)
 {
-	item->hit_status = 0;
-	item->collidable = 0;
+	coll->enable_baddie_push = 0; // todo maybe it's item instead of coll
+	coll->enable_spaz = 0;
+	return;
 }
 
 void lara_as_back(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A4F0, 1A624
@@ -365,9 +375,9 @@ void lara_as_compress(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A35C, 1A
 	S_Warn("[lara_as_compress] - Unimplemented!\n");
 }
 
-void lara_as_splat(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A340, 1A474
+void lara_as_splat(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A340(<), 1A474(<) (F)
 {
-	S_Warn("[lara_as_splat] - Unimplemented!\n");
+	lara.look = 0;
 }
 
 void lara_as_intcornerr(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A2EC, 1A420
@@ -431,9 +441,9 @@ int CanLaraHangSideways(struct ITEM_INFO *item, struct COLL_INFO *coll, short an
 	return 0;
 }
 
-void lara_void_func(struct ITEM_INFO *item, struct COLL_INFO *coll)//19928, 19A5C
+void lara_void_func(struct ITEM_INFO *item, struct COLL_INFO *coll)//19928(<), 19A5C(<) (F)
 {
-	S_Warn("[lara_void_func] - Unimplemented!\n");
+	return;
 }
 
 void lara_as_fastfall(struct ITEM_INFO *item, struct COLL_INFO *coll)//198BC, 199F0
@@ -671,10 +681,9 @@ short TestMonkeyLeft(struct ITEM_INFO *item, struct COLL_INFO *coll)//160CC, 162
 	return 0;
 }
 
-short GetDirOctant(long rot)//160B4, 161E8
+short GetDirOctant(long rot)//160B4(<), 161E8(<) (F)
 {
-	S_Warn("[GetDirOctant] - Unimplemented!\n");
-	return 0;
+	return (rot < 0 ? -rot : rot) - 0x2000 < 0x4001; // todo: use ABS
 }
 
 void MonkeySwingSnap(struct ITEM_INFO *item, struct COLL_INFO *coll)//1605C, 16190

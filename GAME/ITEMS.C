@@ -43,7 +43,7 @@ void AddActiveItem(short item_num)//41FEC(<), 42440(<)
 
 	item->flags |= 0x20;
 	//int test = item->object_number << 6;
-	if (*(int*)&objects[(item->object_number << 6) + 0x10] == 0)//Bug: Always zero due to incomplete level data relocation
+	if (objects[item->object_number ].control == 0)//Bug: Always zero due to incomplete level data relocation
 	{
 		item->meshswap_meshbits &= -7;
 		return;
@@ -129,7 +129,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	struct FLOOR_INFO* floor;
 	
 	item = &items[item_num];
-	item->anim_number = *(short*) &objects[(item->object_number << 6) + 0x26];
+	item->anim_number = objects[item->object_number].anim_index;
 	item->frame_number = anims[item->anim_number].frame_base;
 
 	item->required_anim_state = 0;
@@ -158,7 +158,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->meshswap_meshbits &= -257;
 	item->timer = 0;
 
-	item->hit_points = *(short*) &objects[(item->object_number << 6) + 0x28];
+	item->hit_points = objects[item->object_number].hit_points;
 
 	
 	if ((item->object_number - HK_ITEM) < UZI_ANIM || item->object_number == CROSSBOW_ITEM || item->object_number == REVOLVER_ITEM)
@@ -180,7 +180,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 		item->flags &= ~0x100;
 		item->meshswap_meshbits |= 6;
 	}
-	else if (((*(int*) &objects[(item->object_number << 6) + 0x30]) >> 17) & 1)
+	else if ((objects[item->object_number].bite_offset >> 17) & 1)
 	{
 		item->meshswap_meshbits |= 6;
 	}
@@ -204,7 +204,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->floor = floor->floor * 256;
 	item->box_number = floor->box;
 
-	if ((*(int*) &objects[(item->object_number << 6) + 0xC]) != 0)
+	if (objects[item->object_number].initialise != 0)
 	{
 		S_Warn("[InitialiseItem] - Unimplemented condition!\n");
 		//jalr *(int*) &objects[(item->object_number << 6) + 0xC];

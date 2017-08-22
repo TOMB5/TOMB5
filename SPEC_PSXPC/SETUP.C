@@ -44,7 +44,11 @@ short dword_A6174;
 int dword_3EE4;
 
 int dword_A33D0[512];//FIXME
-char objects[32360];
+
+struct object_container the_container;
+struct object_info* objects = the_container.the_objects;
+struct static_info* static_objects = the_container.the_static_objects;
+
 char dword_1EF1D0[0x780];
 char dword_1EF9D0[2048 * 64];//fixme unknown size
 
@@ -372,7 +376,7 @@ void RelocateLevel()//?, B3B50(<)
 		number_cameras = LevelRelocPtr[43];
 
 		printf("MARKER_1*****************\n");
-		CD_Read(32360, &objects[0]);
+		CD_Read(32360, (char*)&objects[0]);
 
 		for (i = 0; i < 63; i++)
 		{
@@ -556,7 +560,7 @@ void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr)
 //Relocate initial object frame ptrs, see ResetCutanimate()
 void sub_B96EC(int unk)
 {
-	char* a0 = &objects[0];
+	char* a0 = (char*)&objects[0];
 	int s0 = 0x02000000;
 	short t7 = 10;
 	int t6 = -16384;
