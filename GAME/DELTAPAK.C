@@ -327,7 +327,7 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 
 	item = find_a_fucking_item(objnum);
 
-	item->anim_number = *(short*)&objects[(objnum << 6) + 38];//0x237, basically objects[objnum]+38
+	item->anim_number = objects[objnum].anim_index;//0x237, basically objects[objnum]+38
 	item->frame_number = anims[item->anim_number].frame_base;
 	RemoveActiveItem(item - items);
 
@@ -647,6 +647,7 @@ void joby6_init()
 void andy5_end()//30F28(<), 312A8(<) (F)
 {
 	cutseq_restore_item(PUZZLE_HOLE2);
+	return;
 }
 
 void andy5_control()//30DA4, 31124
@@ -657,6 +658,7 @@ void andy5_control()//30DA4, 31124
 void andy5_init()//30D84(<), 31104(<) (F)
 {
 	cutseq_kill_item(PUZZLE_HOLE2);
+	return;
 }
 
 void andrea3b_end()//30C54, 30FD4
@@ -687,6 +689,7 @@ void andrea3_control()//30870, 30BF0
 void andrea3_init()//30850, 30BD0
 {
 	cutseq_givelara_pistols();
+	return;
 }
 
 void do_clanger_meshswap()
@@ -707,6 +710,7 @@ void andy4b_control()//30710, 30A90
 void andy4b_init()//306F0(<), 30A70(<) (F)
 {
 	cutseq_kill_item(ANIMATING5_MIP);
+	return;
 }
 
 void andy4_end()//306B4, 30A34
@@ -722,6 +726,7 @@ void andy4_control()//305BC, 3093C
 void andy4_init()//3059C(<), 3091C(<) (F)
 {
 	cutseq_kill_item(ANIMATING5_MIP);
+	return;
 }
 
 void richcut4_end()
@@ -752,12 +757,14 @@ void joby10_control()//30338, 306B8
 void joby10_init()//30318(<), 30698(<) (F)
 {
 	cutseq_kill_item(CRANE_GUY_MIP);
+	return;
 }
 
 void joby9_end()//302F0(<), 30670(<) (F)
 {
 	cutseq_restore_item(CRANE_GUY_MIP);
 	AddDisplayPickup(KEY_ITEM7);
+	return;
 }
 
 void joby9_control()//302A0, 30620
@@ -768,6 +775,7 @@ void joby9_control()//302A0, 30620
 void joby9_init()//30280(<), 30600(<) (F)
 {
 	cutseq_kill_item(CRANE_GUY_MIP);
+	return;
 }
 
 void do_catapult_meshswap()
@@ -808,6 +816,7 @@ void joby5_init()
 void andrea2_end()//2FFD4(<), 30354(<) (F)
 {
 	lara.pickupitems &= 0xFFFD;
+	return;
 }
 
 void andrea2_control()//2FCDC, 3005C
@@ -850,6 +859,7 @@ void joby4_init()//2F9E4(<), 2FD64(<) (F)
 	cutseq_kill_item(DOOR_TYPE1);
 	cutseq_kill_item(DOOR_TYPE5);
 	cutrot = 0;
+	return;
 }
 
 void DelTorchFlames(struct PHD_VECTOR *pos)
@@ -859,13 +869,9 @@ void DelTorchFlames(struct PHD_VECTOR *pos)
 
 void setup_preist_meshswap()//2F694(<), 2FA14(<) (F)
 {
-	object_info* objtest = (object_info*)objects;
-	/*short a0 = *(short*)(v1 + 0xd82);
-	short v0 = *(short*)(v1 + 0x65c2);*/
-	short a0 = objtest[SAILOR_MIP].mesh_index;
-	short v0 = objtest[MESHSWAP3].mesh_index;
-	meshes[a0 + 0x10] = meshes[v0 + 0x10];
+	meshes[objects[SAILOR_MIP].mesh_index + 0x10] = meshes[objects[MESHSWAP3].mesh_index + 0x10];
 	cutseq_meshswapbits[1] |= 0x100;
+	return;
 }
 
 void andy2_end()//2F668, 2F9E8
@@ -881,6 +887,7 @@ void andy2_control()//2F5D0, 2F914
 void andy2_init()//2F5B0(<), 2F8F4(<) (F)
 {
 	setup_preist_meshswap();
+	return;
 }
 
 void do_hammer_meshswap()
@@ -916,6 +923,7 @@ void andy1_control()//2F39C, 2F6A8
 void andy1_init()//2F37C(<), 2F688(<) (F)
 {
 	cutseq_kill_item(ANIMATING2);
+	return;
 }
 
 void joby3_end()//2F374(<), 2F680(<) (F)
@@ -1061,12 +1069,14 @@ void richcut2_control()//2E4EC, 2E77C
 void richcut2_end()//2E4D8(<), 2E768(<) (F)
 {
 	lara_item->mesh_bits = 0xFFFFFFFF;
+	return;
 }
 
 void richcut2_init()//2E4C0(<), 2E750(<) (F)
 {
 	cutrot = 1;
 	lara_item->mesh_bits = 0;
+	return;
 }
 
 void richcut1_control()//2E3D8, 2E668
@@ -1151,9 +1161,10 @@ int Load_and_Init_Cutseq(int num)
 
 struct ITEM_INFO *cutseq_restore_item(int num)//2D738(<), 2DA20(<)
 {
+	int i;
 	if(level_items > 0)
 	{
-		for(int i = 0; i < numnailed; i++)
+		for(i = 0; i < numnailed; i++)
 		{
 			if(items[i].object_number == num)
 			{
@@ -1171,9 +1182,10 @@ struct ITEM_INFO *cutseq_restore_item(int num)//2D738(<), 2DA20(<)
 
 void cutseq_kill_item(int num)//2D69C(<), 2D984(<) (F)
 {
+	int i;
 	if(level_items > 0)
 	{
-		for (int i = 0; i < level_items; i++) {
+		for (i = 0; i < level_items; i++) {
 			if (items[i].object_number == num)
 			{
 				old_status_flags2[numnailed] = items[i].flags;
@@ -1239,12 +1251,12 @@ void *cutseq_malloc(int size)
 	return NULL;
 }
 
-void init_cutseq_malloc()
+void init_cutseq_malloc()//2D110(<), 2D430(<) (F)
 {
 	cutseq_malloc_used = 0;
 	cutseq_malloc_ptr = (char*)frames;
 	cutseq_malloc_free = AnimFileLen;
-	S_Warn("[init_cutseq_malloc] - Unimplemented!\\n");
+	return;
 }
 
 void frigup_lara()
@@ -1405,9 +1417,9 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 					//loc_2C600
 					if ((gfLevelFlags & 0x80) != 0)
 					{
-						if (((*(int*)&objects[0x5670]) & 0x10000) != 0)
+						if ((objects[345].bite_offset & 0x10000) != 0)
 						{
-							if ((objects[0x5670 + 0x121] & 1) != 0)
+							//if ((objects[0x5670 + 0x121] & 1) != 0)
 							{
 								int v0000 = 5;
 								///TODO:

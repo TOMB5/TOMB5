@@ -81,36 +81,43 @@ void ClearSpidersPatch(struct ITEM_INFO *item)//39AA4, 39FA4
 void reset_hair(struct ITEM_INFO *item)//39A84(<), 39F84(<) (F)
 {
 	InitialiseHair();
+	return;
 }
 
 void invisibility_off(struct ITEM_INFO *item)//39A6C(<), 39F6C(<) (F)
 {
 	item->status = 1;
+	return;
 }
 
 void invisibility_on(struct ITEM_INFO *item)//39A58(<), 39F58(<) (F)
 {
 	item->status = 3;
+	return;
 }
 
 void SetFog(struct ITEM_INFO *item)//39A44(<), 39F44(<) (F)
 {
 	flipeffect = -1;
+	return;
 }
 
 void shoot_left_gun(struct ITEM_INFO *item)//39A34(<), 39F34(<) (F)
 {
 	lara.left_arm.flash_gun = 3;
+	return;
 }
 
 void shoot_right_gun(struct ITEM_INFO *item)//39A24(<), 39F24(<) (F)
 {
 	lara.right_arm.flash_gun = 3;
+	return;
 }
 
 void lara_hands_free(struct ITEM_INFO *item)//39A18(<), 39F18(<) (F)
 {
 	lara.gun_status = 0;
+	return;
 }
 
 void KillActiveBaddies(struct ITEM_INFO *item)//39938, 39E38
@@ -128,6 +135,7 @@ void LaraLocationPad(struct ITEM_INFO *item)//39710(<), 39C10(<) (F)
 	flipeffect = -1;
 	lara.location = TriggerTimer;
 	lara.locationPad = TriggerTimer;
+	return;
 }
 
 void LaraLocation(struct ITEM_INFO *item)//396D0, 39BD0
@@ -179,11 +187,13 @@ void turn180_effect(struct ITEM_INFO *item)//393F4(<), 398F4(<) (F)
 {
 	item->pos.y_rot -= 32768;
 	item->pos.x_rot = -item->pos.x_rot;
+	return;
 }
 
 void finish_level_effect(struct ITEM_INFO *item)//393D4(<), 398D4(<) (F)
 {
 	gfLevelComplete = gfCurrentLevel + 1;
+	return;
 }
 
 void void_effect(struct ITEM_INFO *item)//393CC(<), 398CC(<) (F)

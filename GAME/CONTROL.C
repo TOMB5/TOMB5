@@ -562,7 +562,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 	if (next_item_active != -1)//illegal -2
 	{
-		s1 = &objects[16];
+		s1 = (char*)&objects[16]; // todo this value (16) may be wrong, check it plz
 		v000 = ((next_item_active << 3) + next_item_active << 4);
 
 		//loc_1DB80

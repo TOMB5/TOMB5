@@ -17,8 +17,7 @@ void InitialiseHair()//3AC70, 3B170
 	long* bone;
 	struct HAIR_STRUCT* hptr;
 
-	//bone = &bones[objects[HAIR].bone_index];
-	bone = &bones[*(long*) objects + (HAIR * 64 + 4)];//TODO: ugly hack, objects incorrect type
+	bone = &bones[objects[HAIR].bone_index];
 
 	j = 0;
 
@@ -55,7 +54,6 @@ void InitialiseHair()//3AC70, 3B170
 		}
 
 		j++;
-		//bone = &bones[objects[HAIR].bone_index];
-		bone = &bones[*(long*) objects + (HAIR * 64 + 4)];//TODO: ugly hack, objects incorrect type
+		bone = &bones[objects[HAIR].bone_index];
 	}
 }

@@ -131,6 +131,7 @@ void lara_col_slide(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C108(<), 1
 {
 	lara.move_angle = item->pos.y_rot;
 	lara_slide_slope(item, coll);
+	return;
 }
 
 void lara_col_stepleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C0E8, 1C21C
@@ -361,6 +362,7 @@ void lara_as_null(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A5DC(<), 1A7
 {
 	coll->enable_baddie_push = 0; // todo maybe it's item instead of coll
 	coll->enable_spaz = 0;
+	return;
 }
 
 void lara_as_back(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A4F0, 1A624

@@ -3,6 +3,7 @@
 
 //FIXME: Not same as original
 #define SETUP_MOD_FILE_SIZE (42012)
+#include "PSXTYPES.H"
 extern char setupBuff[SETUP_MOD_FILE_SIZE];
 
 //extern unsigned long *RelocPtr[128]; // offset 0x1EDDC0 original game
@@ -19,6 +20,6 @@ struct object
 	char placeholder[64];
 };
 
-extern char objects[32360];//FIXME looks like struct object_info
+extern object_info objects[505];//FIXME looks like struct object_info
 
 #endif
