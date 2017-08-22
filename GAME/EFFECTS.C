@@ -97,19 +97,19 @@ void SetFog(struct ITEM_INFO *item)//39A44(<), 39F44(<) (F)
 	flipeffect = -1;
 }
 
-void shoot_left_gun(struct ITEM_INFO *item)//39A34, 39F34
+void shoot_left_gun(struct ITEM_INFO *item)//39A34(<), 39F34(<) (F)
 {
-	S_Warn("[shoot_left_gun] - Unimplemented!\n");
+	lara.left_arm.flash_gun = 3;
 }
 
-void shoot_right_gun(struct ITEM_INFO *item)//39A24, 39F24
+void shoot_right_gun(struct ITEM_INFO *item)//39A24(<), 39F24(<) (F)
 {
-	S_Warn("[shoot_right_gun] - Unimplemented!\n");
+	lara.right_arm.flash_gun = 3;
 }
 
-void lara_hands_free(struct ITEM_INFO *item)//39A18, 39F18
+void lara_hands_free(struct ITEM_INFO *item)//39A18(<), 39F18(<) (F)
 {
-	S_Warn("[lara_hands_free] - Unimplemented!\n");
+	lara.gun_status = 0;
 }
 
 void KillActiveBaddies(struct ITEM_INFO *item)//39938, 39E38
@@ -185,9 +185,9 @@ void finish_level_effect(struct ITEM_INFO *item)//393D4(<), 398D4(<) (F)
 	gfLevelComplete = gfCurrentLevel + 1;
 }
 
-void void_effect(struct ITEM_INFO *item)//393CC, 398CC
+void void_effect(struct ITEM_INFO *item)//393CC(<), 398CC(<) (F)
 {
-	S_Warn("[void_effect] - Unimplemented!\n");
+	return;
 }
 
 void WaterFall(short item_number)//39294, 39794

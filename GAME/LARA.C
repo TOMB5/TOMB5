@@ -351,8 +351,8 @@ void lara_as_fastturn(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A5F8, 1A
 
 void lara_as_null(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A5DC(<), 1A710(<) (F)
 {
-	item->hit_status = 0;
-	item->collidable = 0;
+	coll->enable_baddie_push = 0; // todo maybe it's item instead of coll
+	coll->enable_spaz = 0;
 }
 
 void lara_as_back(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A4F0, 1A624
@@ -365,9 +365,9 @@ void lara_as_compress(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A35C, 1A
 	S_Warn("[lara_as_compress] - Unimplemented!\n");
 }
 
-void lara_as_splat(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A340, 1A474
+void lara_as_splat(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A340(<), 1A474(<) (F)
 {
-	S_Warn("[lara_as_splat] - Unimplemented!\n");
+	lara.look = 0;
 }
 
 void lara_as_intcornerr(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A2EC, 1A420
@@ -431,9 +431,9 @@ int CanLaraHangSideways(struct ITEM_INFO *item, struct COLL_INFO *coll, short an
 	return 0;
 }
 
-void lara_void_func(struct ITEM_INFO *item, struct COLL_INFO *coll)//19928, 19A5C
+void lara_void_func(struct ITEM_INFO *item, struct COLL_INFO *coll)//19928(<), 19A5C(<) (F)
 {
-	S_Warn("[lara_void_func] - Unimplemented!\n");
+	return;
 }
 
 void lara_as_fastfall(struct ITEM_INFO *item, struct COLL_INFO *coll)//198BC, 199F0
@@ -671,10 +671,9 @@ short TestMonkeyLeft(struct ITEM_INFO *item, struct COLL_INFO *coll)//160CC, 162
 	return 0;
 }
 
-short GetDirOctant(long rot)//160B4, 161E8
+short GetDirOctant(long rot)//160B4(<), 161E8(<) (F)
 {
-	S_Warn("[GetDirOctant] - Unimplemented!\n");
-	return 0;
+	return (rot < 0 ? -rot : rot) - 0x2000 < 0x4001; // todo: use ABS
 }
 
 void MonkeySwingSnap(struct ITEM_INFO *item, struct COLL_INFO *coll)//1605C, 16190

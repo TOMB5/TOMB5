@@ -47,9 +47,9 @@ void lara_col_swim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C900, 4CD64
 	S_Warn("[lara_col_swim] - Unimplemented!\n");
 }
 
-void lara_as_waterroll(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C8F8, 4CD5C
+void lara_as_waterroll(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C8F8(<), 4CD5C(<) (F)
 {
-	S_Warn("[lara_as_waterroll] - Unimplemented!\n");
+	item->fallspeed = 0;
 }
 
 void lara_as_uwdeath(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C884, 4CCE8

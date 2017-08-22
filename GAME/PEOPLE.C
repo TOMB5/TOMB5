@@ -20,10 +20,9 @@ short GunHit(long x, long y, long z, short speed, int yrot, int room_number)//50
 	return 0;
 }
 
-short GunShot(long x, long y, long z, short speed, int yrot, int room_number)//50A34, 50E98
+short GunShot(long x, long y, long z, short speed, int yrot, int room_number)//50A34(<), 50E98(<) (F)
 {
-	S_Warn("[GunShot] - Unimplemented!\n");
-	return 0;
+	return -1;
 }
 
 int Targetable(struct ITEM_INFO *item, struct AI_info *info)//508EC, 50D50

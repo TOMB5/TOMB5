@@ -8,9 +8,9 @@ short GetClimbTrigger(long x, long y, long z, short room_number)//46E38, 4729C
 	return 0;
 }
 
-void lara_col_climbend(struct ITEM_INFO *item, struct COLL_INFO *coll)//46E30, 47294
+void lara_col_climbend(struct ITEM_INFO *item, struct COLL_INFO *coll)//46E30(<), 47294(<) (F)
 {
-	S_Warn("[lara_col_climbend] - Unimplemented!\n");
+	return;
 }
 
 void lara_as_climbend(struct ITEM_INFO *item, struct COLL_INFO *coll)//46DF8, 4725C
