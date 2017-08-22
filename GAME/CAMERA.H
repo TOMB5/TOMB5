@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern long BinocularRange;
 extern long BinocularOn;

@@ -1,7 +1,7 @@
 #ifndef TRAPS_H
 #define TRAPS_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern short SPDETyoffs[8];
 extern unsigned char Flame3xzoffs[16][2];

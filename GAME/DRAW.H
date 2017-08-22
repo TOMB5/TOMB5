@@ -1,7 +1,7 @@
 #ifndef DRAW_H
 #define DRAW_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern short LightningSFXDelay;
 extern struct room_info* room;

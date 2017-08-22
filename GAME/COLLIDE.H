@@ -1,7 +1,7 @@
 #ifndef COLLIDE_H
 #define COLLIDE_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern long zfront;
 extern long xfront;

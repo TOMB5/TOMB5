@@ -1,7 +1,7 @@
 #ifndef NEWINV2_H
 #define NEWINV2_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern struct INVOBJ inventry_objects_list[100]; // offset 0x92BE8
 extern unsigned char wanky_secrets_table[18]; // offset 0x92BD4

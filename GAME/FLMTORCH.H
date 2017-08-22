@@ -1,7 +1,7 @@
 #ifndef FLMTORCH_H
 #define FLMTORCH_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern short torchroom;
 

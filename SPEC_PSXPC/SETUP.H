@@ -3,7 +3,7 @@
 
 //FIXME: Not same as original
 #define SETUP_MOD_FILE_SIZE (42012)
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 #include "OBJECTS.H"
 extern char setupBuff[SETUP_MOD_FILE_SIZE];
 

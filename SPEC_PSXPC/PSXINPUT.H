@@ -1,7 +1,7 @@
 #ifndef PSXINPUT_H
 #define PSXINPUT_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 #define P_L2       (1 << 0)
 #define P_R2       (1 << 1)

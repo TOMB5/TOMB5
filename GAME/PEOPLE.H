@@ -1,7 +1,7 @@
 #ifndef PEOPLE_H
 #define PEOPLE_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern int ShotLara(struct ITEM_INFO *item, struct AI_info *info, struct BITE_INFO *gun, short extra_rotation, int damage);
 extern short GunMiss(long x, long y, long z, short speed, int yrot, int room_number);

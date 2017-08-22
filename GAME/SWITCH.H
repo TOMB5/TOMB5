@@ -1,7 +1,7 @@
 #ifndef SWITCH_H
 #define SWITCH_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern unsigned char SequenceUsed[6];
 extern unsigned char SequenceResults[3][3][3];

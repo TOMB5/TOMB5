@@ -3,7 +3,7 @@
 
 #include "LARA.H"
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern char FromTitle;
 extern char JustLoaded;

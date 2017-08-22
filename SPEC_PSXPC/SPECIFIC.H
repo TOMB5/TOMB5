@@ -1,7 +1,7 @@
 #ifndef SPECIFIC_H
 #define SPECIFIC_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern unsigned short AnimComp;
 extern short AnimatingTexturesVOffset;

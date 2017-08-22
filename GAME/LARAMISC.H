@@ -1,7 +1,7 @@
 #ifndef LARAMISC_H
 #define LARAMISC_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern char* states[131];
 extern char* quadrant_names[4];

@@ -1,7 +1,7 @@
 #ifndef EFFECT2_H
 #define EFFECT2_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern long wibble;
 extern long SplashCount;

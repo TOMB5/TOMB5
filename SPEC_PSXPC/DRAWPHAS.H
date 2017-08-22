@@ -1,7 +1,7 @@
 #ifndef DRAWPHAS_H
 #define DRAWPHAS_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern long DrawPhaseGame();
 extern void UpdateSky();

@@ -1,6 +1,6 @@
 #include "PSOUTPUT.H"
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 #include "SPECIFIC.H"
 
 static struct VIBRATION vib[2];
