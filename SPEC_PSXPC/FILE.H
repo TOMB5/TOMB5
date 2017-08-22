@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 int FILE_Load(char* szFileName, void* pDest);
-#ifndef PSX
+#ifdef PSXPC_VERSION
 int FILE_Read(void* pDest, int nItemSize, int nItems, FILE* nHandle);//5E6A8, 
 #else
 int FILE_Read(void* pDest, int nItemSize, int nItems, int nHandle);//5E6A8, 

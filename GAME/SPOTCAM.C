@@ -13,7 +13,7 @@
 
 #include <assert.h>
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	#include <math.h>
 #endif
 

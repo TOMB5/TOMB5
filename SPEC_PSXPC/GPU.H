@@ -3,7 +3,7 @@
 
 #include "PSXTYPES.H"
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	#include <SDL.h>
 #else
 	#include <sys/types.h>
@@ -38,10 +38,10 @@ extern void GPU_GetScreenPosition(short x, short y);
 extern void GPU_ClearVRAM();
 extern void GPU_FlipToBuffer(int buffer_index);
 extern void GPU_GetScreenPosition(short x, short y);
-#ifdef PSX
+#ifdef PSX_VERSION
 extern void clear_a_rect(RECT* rect);
 #endif
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	extern SDL_Window* g_window;
 #endif
 

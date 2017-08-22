@@ -3,7 +3,7 @@
 
 #include "PSXTYPES.H"
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	#include <sys/types.h>
 	#include <libcd.h>
 #endif
@@ -34,7 +34,7 @@
 #define GAMEWAD_HEADER_MAX_LENGTH 512
 
 //Filename for PSX "GAMEWAD" that is a container storing all levelfiles and load screens.
-#ifdef PSX
+#ifdef PSX_VERSION
 #define GAMEWAD_FILENAME "\\GAMEWAD.OBJ;1"
 #else
 #define GAMEWAD_FILENAME "GAMEWAD.OBJ"
@@ -98,7 +98,7 @@ enum gw_files
 	UNKNOWN_50  //4bpp  TR4 Logo         (ENG)  256x58
 };
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 #pragma pack(push, 1)
 #endif
 
@@ -114,23 +114,23 @@ struct GAMEWAD_entry
 struct GAMEWAD_header
 {
 	struct GAMEWAD_entry entries[NUM_GAMEWAD_FILE_ENTRIES];
-#ifdef PSX
+#ifdef PSX_VERSION
 	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * GAMEWAD_ENTRYSIZE)];
 #else
 	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * sizeof(GAMEWAD_entry))];
 #endif
 };
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 #pragma pack(pop)
 #endif
 
 
 //If you recieve this warning, make sure you have recompiled GAMEWAD.OBJ since the header size is greater than retail files.
 #if (NUM_GAMEWAD_FILE_ENTRIES * GAMEWAD_ENTRYSIZE) - GAMEWAD_HEADER_MAX_LENGTH > GAMEWAD_HEADER_MAX_LENGTH
-#ifndef PSX
-#pragma message("Warning: Gamewad header size exceeds limit!")
-#endif
+	#ifdef PSXPC_VERSION
+		#pragma message("Warning: Gamewad header size exceeds limit!")
+	#endif
 #endif
 
 int CD_InitialiseReaderPosition(int fileID);
@@ -166,7 +166,7 @@ extern char XAFlag;
 extern char XAWait;
 extern int XAStartPos;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	extern CdlFILE fp;
 #endif
 

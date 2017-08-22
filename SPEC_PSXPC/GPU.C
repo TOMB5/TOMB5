@@ -2,7 +2,7 @@
 
 #include "PROFILE.H"
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	#include <SDL.h>
 	#include <SDL_opengl.h>
 #else
@@ -22,7 +22,7 @@ static int LnFlipFrame;
 unsigned long GadwOrderingTables[5128];
 unsigned long GadwPolygonBuffers[52260];
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	SDL_Window* g_window = NULL;
 #endif
 
