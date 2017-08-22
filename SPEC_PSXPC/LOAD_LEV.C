@@ -330,7 +330,6 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
 
 		//loc_5F0B4
 		//draw_rotate_sprite(a0, a1, a2);
-		db.current_buffer ^= 1;
 		GnLastFrameCount = 0;
 		//DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);
 	}
@@ -352,20 +351,6 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	int fileSize, x, y, i;
 	unsigned short dat;
 
-#ifdef PSX_VERSION
-	//jal sub_6B144 //DrawSync(0);
-	//jal sub_6A1FC //VSync(0);
-	//jal sub_5F1C8 //GPU_UseOrderingTables(dword_AD920);
-#endif
-
-	db.draw[0].isbg = 0;
-	db.draw[1].isbg = 0;
-	db.draw[0].dtd = 0;
-	db.draw[1].dtd = 0;
-
-#ifdef PSX_VERSION
-	//jal sub_6B440 //PutDispEnv(&db.draw[0]);
-#endif
 
 	//?
 	dword_A5EE0 = 0;
@@ -397,11 +382,6 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	{
 		tmpptr[i] |= (SHRT_MAX + 1) << 16 | (SHRT_MAX + 1);
 	}
-
-#ifdef PSX_VERSION
-	//jal sub_6B1C4 //StoreImage(); //frame buffer (gfx, LOADING_SCREEN_IMG_SIZE)
-	//jal sub_6B144 //DrawSync();
-#endif
 
 	cdgfx = (unsigned short*)(gfx + LOADING_SCREEN_IMG_SIZE);
 	gfx2 = (unsigned short*)gfx;
@@ -442,16 +422,9 @@ void LOAD_Stop()//60434(<), 60FB4(<) (F)
 
 	LoadingBarEnabled = 0;
 
-	db.draw[1].isbg = 1;
-	db.draw[0].isbg = 1;
-	db.draw[1].dtd = 1;
-	db.draw[0].dtd = 1;
-
 	GPU_UseOrderingTables(&GadwOrderingTables[0], 2564);
-	db.current_buffer = 0;
 
 	GPU_SyncBothScreens();
-	db.current_buffer = 1;
 
 #ifdef INTERNAL
 	ProfileDraw = 1;

@@ -1,4 +1,4 @@
-#include "PSXINPUT.H"
+#include "PSXPCINPUT.H"
 
 #include "CONTROL.H"
 
@@ -109,7 +109,7 @@ void S_UpdateInput()//5F628, 6038C
 	}//loc_5F6D0
 
 	//loc_5F6D0
-	v0 = GPad1.data.pad;
+//	v0 = GPad1.data.pad;
 	PadConnected = 1;
 
 }

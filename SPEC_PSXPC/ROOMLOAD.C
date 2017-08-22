@@ -140,9 +140,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	CD_InitialiseReaderPosition(Name + TITLE);
 	
 	a0 = 0;
-#ifdef PSX_VERSION
-	ResetCallback();
-#endif
+
 	init_game_malloc();
 	
 	a0 = s0;
@@ -151,7 +149,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	v0 = 0x000A0000;
 	v1 = 0x000B0000;
 
-	s00 = db.poly_buffer[0];
+	//s00 = db.poly_buffer[0];
 	a1 = dword_800AD724;//illegal value
 	v0 = s0 + 0x1008;//OurSqrt?
 	//SetupPtr = v0;///@FIXME illegal ptr

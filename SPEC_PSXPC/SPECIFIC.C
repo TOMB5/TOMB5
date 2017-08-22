@@ -35,10 +35,6 @@ unsigned short nAnimUVRanges;
 int GtSFXEnabled;
 short AnimatingTexturesV[16][8][3];
 
-#ifdef PSX_VERSION
-	#define EXIT_FAILURE 1
-#endif
-
 void DisplayStatsUCunt()//61928(<), 625A8(<) (F)
 {
 	Requester(&StatisticsReq);
@@ -88,15 +84,6 @@ int S_SoundStopAllSamples()//91D34, 93D80
 	{
 		return 0;
 	}
-
-#ifdef PSX_VERSION
-	SpuSetKey(0, 0xFFFFFF);
-
-	do
-	{
-		ret = SPU_UpdateStatus();
-	} while (ret != MAX_SOUND_SLOTS);
-#endif
 
 	return ret;
 }

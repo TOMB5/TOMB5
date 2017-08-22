@@ -136,19 +136,12 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 	mcStatus = 4;
 	mcActualStatus = 0;
 
-#ifdef PSX_VERSION
-	MemCardStart();
-#endif
-
 	if (sync != 0)
 	{
 		for (i = 0; i < 4; i++)
 		{
 			//loc_62084
 			mcGetStatus();
-#ifdef PSX_VERSION
-			VSync(0);
-#endif
 		}
 	}
 
@@ -158,13 +151,7 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 
 void mcClose()//620AC
 {
-#ifdef PSX_VERSION
-	MemCardStop();
-
-	mcInit = 0;
-#else
 	S_Warn("[mcClose] - Unimplemented\n");
-#endif
 
 	return;
 }
@@ -366,18 +353,7 @@ long mcFormat()//622D8(<), 629BC(<) (F)
 	unsigned long cmd;
 	unsigned long res;
 
-#ifdef PSX_VERSION
-	MemCardSync(0, &cmd, &res);
-
-	res = MemCardFormat(0);
-	if (res == 0)
-	{
-		mcActualStatus = 0;
-		mcDir();
-	}
-#else
 	S_Warn("[mcFormat] - Unimplemented!\n");
-#endif
 
 	//loc_6230C
 	return res;
