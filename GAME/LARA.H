@@ -1,7 +1,7 @@
 #ifndef LARA_H
 #define LARA_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 #define LARA_DRAW_TYPE_NORMAL   1
 #define LARA_DRAW_TYPE_YOUNG    2

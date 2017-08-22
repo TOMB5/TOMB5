@@ -1,7 +1,7 @@
 #ifndef HEALTH_H
 #define HEALTH_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern void AddDisplayPickup(short object_number);
 extern void DrawPickups(int timed);

@@ -1,7 +1,7 @@
 #ifndef DOOR_H
 #define DOOR_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern char LiftDoor;
 extern long ClosedDoors[32];

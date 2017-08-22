@@ -1,7 +1,7 @@
 #ifndef MISSILE_H
 #define MISSILE_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern struct ITEM_LIGHT fxil;
 

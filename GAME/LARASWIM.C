@@ -1,6 +1,6 @@
 #include "LARASWIM.H"
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 #include "SPECIFIC.H"
 
 struct SUBSUIT_INFO subsuit;

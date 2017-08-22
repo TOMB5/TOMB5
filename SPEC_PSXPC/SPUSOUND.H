@@ -1,7 +1,7 @@
 #ifndef SPUSOUND_H
 #define SPUSOUND_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern short DepthTable[5];
 extern short CurrentReverb;

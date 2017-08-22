@@ -1,7 +1,7 @@
 #ifndef OBJLIGHT_H
 #define OBJLIGHT_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern struct FOOTPRINT FootPrint[32];
 extern int FootPrintNum;

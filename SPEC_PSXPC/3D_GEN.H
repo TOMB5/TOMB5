@@ -1,7 +1,7 @@
 #ifndef THREED_GEN_H
 #define THREED_GEN_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern long phd_left;
 extern long phd_right;

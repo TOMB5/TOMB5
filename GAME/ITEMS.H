@@ -1,7 +1,7 @@
 #ifndef ITEMS_H
 #define ITEMS_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern int level_items;
 extern short next_item_free;

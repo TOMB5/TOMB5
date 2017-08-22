@@ -1,7 +1,7 @@
 #ifndef GPU_H
 #define GPU_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 #ifdef PSXPC_VERSION
 	#include <SDL.h>

@@ -1,7 +1,7 @@
 #ifndef DELTAPAK_H
 #define DELTAPAK_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern struct CUTSEQ_ROUTINES cutseq_control_routines[45];
 extern unsigned short crane_pistols_info[11];

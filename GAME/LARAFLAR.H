@@ -1,7 +1,7 @@
 #ifndef LARAFLAR_H
 #define LARAFLAR_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern void FlareControl(short item_number);
 extern void ready_flare();

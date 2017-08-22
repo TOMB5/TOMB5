@@ -1,7 +1,7 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 /**************************************************************************************/
 /*                                                                                    */

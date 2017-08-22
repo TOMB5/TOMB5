@@ -1,7 +1,7 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern long Requester(struct REQUESTER *r);
 

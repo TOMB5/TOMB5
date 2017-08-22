@@ -1,7 +1,7 @@
 #ifndef THREEDEE_OBJ_H
 #define THREEDEE_OBJ_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern struct TSV tsv_buffer[512];
 

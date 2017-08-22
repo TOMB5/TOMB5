@@ -1,7 +1,7 @@
 #ifndef PICKUP_H
 #define PICKUP_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern struct PHD_VECTOR OldPickupPos;
 extern unsigned char RPickups[16];

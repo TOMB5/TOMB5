@@ -1,7 +1,7 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern char GotLaraSpheres;
 extern int NumLaraSpheres;

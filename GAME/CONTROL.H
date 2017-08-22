@@ -1,7 +1,7 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern int flipeffect;
 extern int fliptimer;

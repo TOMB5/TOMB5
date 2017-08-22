@@ -1,7 +1,7 @@
 #ifndef LOAD_LEV_H
 #define LOAD_LEV_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern void LOAD_DrawEnable(unsigned char isEnabled);
 extern void LOAD_Stop();

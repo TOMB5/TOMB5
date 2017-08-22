@@ -1,7 +1,7 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern char ProfileDraw;
 extern int numprof;

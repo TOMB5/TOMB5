@@ -1,6 +1,6 @@
 #include "TEXT.H"
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 char AccentTable[46][2] =
 {

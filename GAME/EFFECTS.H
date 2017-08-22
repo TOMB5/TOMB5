@@ -1,7 +1,7 @@
 #ifndef EFFECTS_H
 #define EFFECTS_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern long wf;
 extern short next_fx_free;

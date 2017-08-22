@@ -1,6 +1,6 @@
 #include "DOOR.H"
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 #include "SPECIFIC.H"
 
 static struct PHD_VECTOR DoubleDoorPos = { 0, 0, 0xDC };
