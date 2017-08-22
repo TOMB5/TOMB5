@@ -15,6 +15,11 @@
 #ifdef PSXPC_VERSION
 	#include <math.h>
 #endif
+
+#ifdef PSX_VERSION
+	#include <INLINE_O.H>
+#endif
+
 #include <stddef.h>
 
 long BinocularRange;

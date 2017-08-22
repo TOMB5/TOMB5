@@ -295,7 +295,7 @@ struct fake77
 	struct AnalogController analog; // size=6, offset=0
 };
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 // 136 structs
 struct TCB {
 	long status; // size=0, offset=0

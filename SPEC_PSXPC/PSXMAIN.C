@@ -15,7 +15,7 @@
 // ugly hack
 #undef main
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	#include <sys/types.h>
 	#include <LIBAPI.H>
 	#include <LIBCD.H>

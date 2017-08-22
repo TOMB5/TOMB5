@@ -30,7 +30,7 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 	if (rcossin_tbl[(((((((view_angle * 2) + view_angle) * 8) - view_angle) * 4) - view_angle) / 8) & 0x1FFE] == 0)
 	{
 #ifdef PSX_VERSION
-		_asm("break 7")
+		__asm__ volatile ("break 7");
 #endif
 	}
 

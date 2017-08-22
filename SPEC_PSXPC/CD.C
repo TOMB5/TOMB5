@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	#include <sys/types.h>
 	#include <LIBCD.H>
 	#include <LIBSPU.H>
@@ -19,7 +19,7 @@
 //Number of XA files on disc (XA1-17.XA)
 #define NUM_XA_FILES 17
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	#define XA_FILE_NAME "\\XA%d.XA;1"
 #else
 	#define XA_FILE_NAME "XA%d.XA"
@@ -73,7 +73,7 @@ static int cdStartSector = 0;
 //Current sector for the gamewad file entry, updated as data is read from disk.
 int cdCurrentSector = 0;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	CdlFILE fp;
 #endif
 
