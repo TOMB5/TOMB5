@@ -3,7 +3,9 @@
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "OBJECTS.H"
+#ifndef PC_VERSION
 #include "SETUP.H"
+#endif
 #include "SPECIFIC.H"
 
 #include <stddef.h>

@@ -1,6 +1,6 @@
 #include "CAMERA.H"
 
-#include "CD.H"
+
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
@@ -9,7 +9,10 @@
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 
+#ifndef PC_VERSION
 #include "3D_GEN.H"
+#include "CD.H"
+#endif
 
 #include <assert.h>
 #ifdef PSXPC_VERSION
@@ -222,6 +225,7 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 
 void AlterFOV(short fov)//77BD8(<), 79C1C(<)
 {
+#ifndef PC_VERSION
 	CurrentFov = fov;
 
 	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
@@ -229,7 +233,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<)
 #ifdef PSX_VERSION
 	gte_SetGeomScreen(phd_persp);
 #endif
-
+#endif
 	return;
 }
 

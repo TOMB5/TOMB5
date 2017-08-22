@@ -2,7 +2,9 @@
 
 #include "DELTAPAK.H"
 #include "DRAW.H"
+#ifndef PC_VERSION
 #include "DRAWPHAS.H"
+#endif
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "SPOTCAM.H"

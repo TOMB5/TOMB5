@@ -2,7 +2,9 @@
 
 #include "DRAW.H"
 #include "OBJECTS.H"
+#ifndef PC_VERSION
 #include "SETUP.H"
+#endif
 
 int hair_wind;
 int hair_wind_angle = 2048;

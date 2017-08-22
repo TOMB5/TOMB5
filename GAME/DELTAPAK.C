@@ -1,21 +1,24 @@
 #include "DELTAPAK.H"
 
-#include "CD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
 #include "ITEMS.H"
 #include "LARA.H"
 #include "OBJECTS.H"
-#include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
 
 #include <assert.h>
 #include <stddef.h>
-#include "ROOMLOAD.H"
 #include "HEALTH.H"
+
+#ifndef PC_VERSION
+#include "ROOMLOAD.H"
+#include "SETUP.H"
+#include "CD.H"
+#endif
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
@@ -343,6 +346,7 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 
 void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 {
+#ifndef PC_VERSION
 	struct ITEM_INFO* item;
 
 	jobyfrigger = 0;
@@ -426,7 +430,7 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 	}
 
 	InitialiseSpotCam(num);
-
+#endif
 }//32968
 
 void CutLaraBubbles()
@@ -1253,9 +1257,11 @@ void *cutseq_malloc(int size)
 
 void init_cutseq_malloc()//2D110(<), 2D430(<) (F)
 {
+#ifndef PC_VERSION
 	cutseq_malloc_used = 0;
 	cutseq_malloc_ptr = (char*)frames;
 	cutseq_malloc_free = AnimFileLen;
+#endif
 	return;
 }
 
@@ -1277,6 +1283,7 @@ void do_new_cutscene_camera()
 
 void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 {
+#ifndef PC_VERSION
 	int i;
 	int s1 = name;//guessed, moved but not used
 
@@ -1467,6 +1474,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 			}//loc_2CA50
 		}
 	}
+#endif
 	return;
 }
 

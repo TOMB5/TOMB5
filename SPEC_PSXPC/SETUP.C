@@ -45,11 +45,7 @@ int dword_3EE4;
 
 int dword_A33D0[512];//FIXME
 
-struct object_container objects_raw;
-struct object_info* objects = &objects_raw.m_objects[0];
-struct static_info* static_objects = &objects_raw.m_static_objects[0];
-extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
-extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
+
 
 
 char dword_1EF1D0[0x780];

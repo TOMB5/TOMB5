@@ -4,6 +4,12 @@
 struct BITE_INFO EnemyBites[9];
 int AnimatingWaterfallsVOffset;
 
+struct object_container objects_raw;
+struct object_info* objects = &objects_raw.m_objects[0];
+struct static_info* static_objects = &objects_raw.m_static_objects[0];
+extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
+extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
+
 void HybridCollision(short item_num, struct ITEM_INFO *laraitem, struct COLL_INFO *coll)
 {
 	S_Warn("[HybridCollision] - Unimplemented!\\n");

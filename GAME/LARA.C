@@ -1,7 +1,9 @@
 #include "LARA.H"
 
 #include "SPECIFIC.H"
+#ifndef PC_VERSION
 #include "PSXINPUT.H"
+#endif
 
 static short LeftClimbTab[4] = // offset 0xA0638
 {
@@ -26,10 +28,12 @@ void lara_as_pbleapoff(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D244, 1
 
 void lara_as_parallelbars(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D220(<), 1D3B4(<) (F)
 {
+#ifndef PC_VERSION
 	if((input & 0x40) == 0)
 	{
 		item->goal_anim_state = 0x81;
 	}
+#endif
 }
 
 void lara_as_trfall(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D03C, 1D1D0
@@ -307,10 +311,12 @@ void lara_as_pushblock(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AA04, 1
 
 void lara_as_slideback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A9E0(<), 1AB14(<) (F)
 {
+#ifndef PC_VERSION
 	if((input & 0x11) == 0x10)
 	{
 		item->goal_anim_state = 0x19;
 	}
+#endif
 }
 
 void lara_as_fallback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1959C, 196D0

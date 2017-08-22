@@ -1,25 +1,27 @@
 #include "CONTROL.H"
-
-#include "3D_GEN.H"
 #include "BOX.H"
 #include "DELTAPAK.H"
-#include "DRAWPHAS.H"
 #include "EFFECTS.H"
 #include "EFFECT2.H"
 #include "GAMEFLOW.H"
-#include "GPU.H"
 #include "ITEMS.H"
 #include "NEWINV2.H"
 #include "LARA.H"
-#include "LOAD_LEV.H"
 #include "PICKUP.H"
-#include "PSXINPUT.H"
-#include "SETUP.H"
 #include "SOUND.H"
 #include "SPECIFIC.H"
 #include "SPHERE.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
+
+#ifndef PC_VERSION
+#include "3D_GEN.H"
+#include "DRAWPHAS.H"
+#include "GPU.H"
+#include "LOAD_LEV.H"
+#include "PSXINPUT.H"
+#include "SETUP.H"
+#endif
 
 #include <assert.h>
 
@@ -222,6 +224,7 @@ char byte_A3660;
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 {
+#ifdef PSXPC_VERSION
 	int s0 = nframes;
 	int v0 = SlowMotion;
 	int a0 = SlowMotion;
@@ -795,6 +798,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	//ret 0
 
 	//loc_1E3BC:
+#endif
 	return 0;
 }
 

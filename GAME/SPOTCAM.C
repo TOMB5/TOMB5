@@ -5,7 +5,9 @@
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "OBJECTS.H"
+#ifndef PC_VERSION
 #include "PSXINPUT.H"
+#endif
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "SWITCH.H"
@@ -13,7 +15,7 @@
 
 #include <assert.h>
 
-#ifdef PSXPC_VERSION
+#if defined(PSXPC_VERSION) || defined(PC_VERSION)
 	#include <math.h>
 #endif
 
@@ -440,6 +442,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48
 
 void CalculateSpotCams()//
 {
+#ifndef PC_VERSION
 	long cpx;
 	long cpy;
 	long cpz;
@@ -663,6 +666,7 @@ void CalculateSpotCams()//
 	{
 		current_spline_position += cspeed;
 	}
+
 
 	//loc_382F4
 	if (!(input & 0x200))
@@ -1070,6 +1074,7 @@ void CalculateSpotCams()//
 
 
 	}//loc_39160
+#endif
 	S_Warn("[CalculateSpotCams] - Unimplemented!\n");
 }//loc_39160
 

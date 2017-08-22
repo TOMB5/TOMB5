@@ -2,7 +2,9 @@
 
 #include "SPECIFIC.H"
 #include "LARA.H"
+#ifndef PC_VERSION
 #include "LOADSAVE.H"
+#endif
 
 struct INVOBJ inventry_objects_list[100] = // offset 0x92BE8
 {
@@ -569,12 +571,20 @@ void construct_combine_object_list()//3C940, 3CD94
 
 int go_and_save_game()//3C920(<), 3CD74(<) (F)
 {
+#ifndef PC_VERSION
 	return SaveGame();
+#else
+	return 0;
+#endif
 }
 
 int go_and_load_game()//3C900(<), 3CD54(<) (F)
 {
+#ifndef PC_VERSION
 	return LoadGame();
+#else
+	return 0;
+#endif
 }
 
 void DrawInventoryItemMe(struct ITEM_INFO *item, long shade, int overlay, int shagflag)//3C6A0, 3CAF4
