@@ -24,7 +24,7 @@
 
 #include <assert.h>
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	#include <stdint.h>
 #endif
 
@@ -67,7 +67,6 @@ char gfLayer2Vel;
 struct CVECTOR gfLayer1Col;
 struct CVECTOR gfLayer2Col;
 unsigned long GameTimer;
-//
 struct PHD_VECTOR gfLensFlare;
 struct CVECTOR gfLensFlareColour;
 unsigned char gfMirrorRoom;
@@ -84,8 +83,8 @@ static unsigned long OldSP;
 unsigned char gfPickups[16];
 unsigned char gfTakeaways[16];
 
-#ifdef PSX
-typedef unsigned int uintptr_t;
+#ifdef PSX_VERSION
+	typedef unsigned int uintptr_t;
 #endif
 
 void DoGameflow()//10F5C(<), 10FD8(<)
@@ -405,13 +404,13 @@ void QuickControlPhase()//10274(<), 10264(<)
 	ProfileRGB(255, 255, 255);
 #endif
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	OldSP = SetSp(0x1F8003E0);
 #endif
 
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	SetSp(OldSP);
 #endif
 
@@ -448,8 +447,9 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	memset(&savegame.Level, 0, sizeof(struct STATS));
 	memset(&savegame.Game, 0, sizeof(struct STATS));
 
-	printf("S_LoadLevelFile\n");
 	S_LoadLevelFile(Name);
+
+	printf("Finished loading level!************************\n");
 
 	GLOBAL_lastinvitem = -1;
 	dels_cutseq_player = 0;
@@ -459,6 +459,8 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	title_controls_locked_out = 0;
 
 	InitialisePickUpDisplay();
+	printf("InitialisePickUpDisplay!************************\n");
+
 
 	phd_InitWindow(90);
 
@@ -466,8 +468,11 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	IsAtmospherePlaying = 0;
 	S_SetReverbType(1);
+	printf("SETREVERBTYPE!************************\n");
 
 	InitialiseCamera();
+
+	printf("INITIALISED CAMERA!************************\n");
 
 	if (!bDoCredits)
 	{

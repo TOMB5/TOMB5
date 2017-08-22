@@ -93,7 +93,6 @@ void SwitchControl(short item_number)//5623C, 566DC
 	S_Warn("[SwitchControl] - Unimplemented!\n");
 }
 
-
 void TestTriggersAtXYZ(long x, long y, long z, short room_number, int heavy, int flags)//561A8(<), 56648(<)
 {
 	int s4 = x;
@@ -137,4 +136,3 @@ int SwitchTrigger(short item_num, short timer)//55DE4, 56284
 	S_Warn("[SwitchTrigger] - Unimplemented!\n");
 	return 0;
 }
-

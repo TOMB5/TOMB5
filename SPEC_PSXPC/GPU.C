@@ -9,11 +9,11 @@
 	#include <LIBGPU.H>
 #endif
 
-unsigned long GnFrameCounter = 0;
-unsigned long GnLastFrameCount = 0;
+unsigned long GnFrameCounter = 19;
+unsigned long GnLastFrameCount = 19;
 struct PSXTEXTSTRUCT* psxtextinfo;
 struct PSXSPRITESTRUCT* psxspriteinfo;
-int rgbscaleme;
+int rgbscaleme = 256;
 int gfx_debugging_mode;
 struct DB_STRUCT db;
 struct MMTEXTURE* RoomTextInfo;
@@ -28,7 +28,7 @@ unsigned long GadwPolygonBuffers[52260];
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
 {
-#ifdef PSX
+#ifdef PSX_VERSION
 	//Should be safe to use 32-bit ptrs tho
 	db.order_table[0] = (unsigned long*)((unsigned long) pBuffers & 0xFFFFFF);
 	db.order_table[1] = (unsigned long*)((unsigned long) &pBuffers[nOTSize] & 0xFFFFFF);
@@ -53,7 +53,7 @@ void GPU_SyncBothScreens()
 
 void GPU_BeginScene()//5F0F0(<), 5FDD0(<) 
 {
-#ifdef PSX
+#ifdef PSX_VERSION
 	db.ot = db.order_table[db.current_buffer];
 	db.polyptr = db.poly_buffer[db.current_buffer];
 	db.curpolybuf = db.poly_buffer[db.current_buffer];
@@ -127,7 +127,7 @@ void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<)
 #endif
 }
 
-#ifdef PSX
+#ifdef PSX_VERSION
 void clear_a_rect(RECT* rect)//5F334, ?
 {
 	ClearImage(rect, 0, 0, 0);
@@ -136,7 +136,7 @@ void clear_a_rect(RECT* rect)//5F334, ?
 
 void GPU_FlipToBuffer(int buffer_index)
 {
-#ifdef PSX
+#ifdef PSX_VERSION
 	DrawSync(0);
 	VSync(0);
 
@@ -153,7 +153,7 @@ void GPU_EndScene()
 {
 	//int nPolys;
 	//static int nWorstPolys;
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	SDL_GL_SwapWindow(g_window);
 #endif
 }

@@ -1,4 +1,5 @@
 #include "LOT.H"
+
 #include "SPECIFIC.H"
 
 int slots_used;
@@ -10,7 +11,6 @@ void CreateZone(struct ITEM_INFO *item)//4E330, 4E794
 {
 	S_Warn("[CreateZone] - Unimplemented!\n");
 }
-
 
 //Only called when enemy is triggered
 void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0

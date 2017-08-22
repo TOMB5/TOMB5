@@ -1,6 +1,7 @@
 #include "MALLOC.H"
 
 #include "GAMEFLOW.H"
+#include "SPECIFIC.H"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -42,9 +43,9 @@ void init_game_malloc()//5E79C(<), 5F4F8(<) (F)
 
 char* game_malloc(int size)//5E7E8(<), 5F544(<) (F)
 {
-#ifdef INTERNAL
+//#ifdef INTERNAL
 	char buf[80];
-#endif
+//#endif
 
 	char* ptr = NULL;
 
@@ -60,13 +61,13 @@ char* game_malloc(int size)//5E7E8(<), 5F544(<) (F)
 
 		return ptr;
 	}
-#ifdef INTERNAL
+//#ifdef INTERNAL
 	else
 	{		
 		sprintf(buf, "game_malloc() out of space(needs %d only got %d", size, malloc_free);
 		S_ExitSystem(buf);
 	}
-#endif
+//#endif
 	return ptr;
 }
 
@@ -122,7 +123,7 @@ void show_game_malloc_totals()//5E894(<), * (F)
 
 void dump_game_malloc()//*, *
 {
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	FILE* fileHandle = NULL;
 
 	fileHandle = fopen("DUMP.BIN", "wb");

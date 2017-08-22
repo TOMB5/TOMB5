@@ -31,7 +31,7 @@ void VSyncFunc()//10000(<), 10000(<) (F)
 {
 	cbvsync();
 
-	if (LoadingBarEnabled != 0)
+	if (LoadingBarEnabled)
 	{
 		LOAD_VSyncHandler();
 	}
@@ -46,14 +46,12 @@ void VSyncFunc()//10000(<), 10000(<) (F)
 int main(int argc, char* args[])//10064(<), 10064(!)
 {
 	
-#ifdef PSX
+#ifdef PSX_VERSION
 	SetSp(0x801FFFE0);
 	ResetCallback();
-#endif
 
 	SPU_Init();
 
-#ifdef PSX
 	ResetGraph(0);
 	SetGraphDebug(0);
 	InitGeom();
@@ -72,7 +70,7 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 	GPU_ClearVRAM();
 	GPU_FlipToBuffer(0);
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	SetDispMask(1);
 	VSyncCallback(&VSyncFunc);
 	VSync(0);

@@ -12,7 +12,7 @@
 
 int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8
 {
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	FILE* fileHandle = NULL;
 	long dwFileSize = 0;
 	unsigned long dwBytesRead = 0;
@@ -21,7 +21,7 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8
 	unsigned long dwFileSize = -1;
 #endif
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	printf("Open\n");
 	fileHandle = fopen(szFileName, "rb");
 
@@ -64,7 +64,7 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8
 #endif
 }
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 int FILE_Read(void* pDest, int nItemSize, int nItems, FILE* nHandle)//5E6A8, 
 {
 	return fread(pDest, nItemSize, nItems, nHandle);
@@ -79,7 +79,7 @@ int FILE_Read(void* pDest, int nItemSize, int nItems, int nHandle)//5E6A8,
 
 unsigned long FILE_Length(char* szFileName)//5E60C, 5E578
 {
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	FILE* fileHandle = NULL;
 	unsigned long dwFileSize = -1;
 

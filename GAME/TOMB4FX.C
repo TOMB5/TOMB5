@@ -14,6 +14,7 @@ char flare_table[121] =
 	0x18, 0x04, 0x1A, 0x1F, 0x08, 0x28, 0x70, 0x03, 0x1B, 0x0B, 0x08, 0x10, 0x00, 0x0A, 
 	0x1D, 0x1E, 0x10, 0x10, 0x18, 0x11, 0x1F, 0x1D, 0xFF
 };
+
 char LaserSightActive;
 char LaserSightCol;
 long next_fire_spark;
@@ -22,6 +23,7 @@ long next_gunshell;
 long next_bubble;
 long next_drip;
 long next_blood;
+
 struct NODEOFFSET_INFO NodeOffsets[16] = // offset 0xA0A24
 {
 	{ -0x10, 0x28, 0xA0, -0xE, 0 },
@@ -41,6 +43,7 @@ struct NODEOFFSET_INFO NodeOffsets[16] = // offset 0xA0A24
 	{ 0 },
 	{ 0 }
 };
+
 short FlashFadeR;
 short FlashFadeG;
 short FlashFadeB;

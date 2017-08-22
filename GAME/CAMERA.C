@@ -12,8 +12,8 @@
 #include "3D_GEN.H"
 
 #include <assert.h>
-#ifndef PSX
-#include <math.h>
+#ifdef PSXPC_VERSION
+	#include <math.h>
 #endif
 #include <stddef.h>
 
@@ -228,7 +228,7 @@ void AlterFOV(short fov)//77BD8, 79C1C
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	//We don't actually use this since lara_item is not inited.
 	//Also, GetBoundsAccurate is not implemented.
 	return;

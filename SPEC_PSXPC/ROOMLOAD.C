@@ -63,7 +63,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	int a1 = 0;
 	int a2 = 0;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	PCOpen();
 #else
 	file = fopen("DATA\\SETUP.MOD", "rb");
@@ -78,7 +78,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	//	FILE_Read();
 	///a3 = s00;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	PCclose();
 #else
 	fclose(file);
@@ -112,7 +112,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 
 	a1 = 0;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	PCopen();
 #else
 	file = fopen((const char*)file, buf);
@@ -140,7 +140,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	CD_InitialiseReaderPosition(Name + TITLE);
 	
 	a0 = 0;
-#ifdef PSX
+#ifdef PSX_VERSION
 	ResetCallback();
 #endif
 	init_game_malloc();
@@ -171,6 +171,8 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	//jalr	$v1
 	printf("RELOCATE LEVEL\n");
 	RelocateLevel();
+
+	printf("END RELOCATE LEVEL\n");
 	//a0 = s1;
 
 	LOAD_Stop();
@@ -181,4 +183,3 @@ void ReloadAnims(int name, long len)//600E4, 60D20
 {
 	S_Warn("[ReloadAnims] - Unimplemented!\n");
 }
-

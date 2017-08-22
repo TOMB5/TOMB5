@@ -16,7 +16,7 @@ struct savegame_info savegame;
 void sgRestoreGame()//55B88, 55FEC (F)
 {
 	SGcount = 0;
-#ifndef PSX//PSX compiler hates sizeof, not possible in C
+#ifdef PSXPC_VERSION//PSX compiler hates sizeof, not possible in C
 	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
 #else
 	SGpoint = &MGSaveGamePtr[436];
@@ -30,7 +30,7 @@ void sgRestoreGame()//55B88, 55FEC (F)
 
 void sgSaveGame()//55AF8(<), 55F5C(<)
 {
-#ifndef PSX//PSX compiler hates sizeof, not possible in C
+#ifdef PSXPC_VERSION//PSX compiler hates sizeof, not possible in C
 	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
 #else
 	SGpoint = &MGSaveGamePtr[436];
@@ -42,7 +42,7 @@ void sgSaveGame()//55AF8(<), 55F5C(<)
 	SaveLaraData();
 
 	MGSaveGamePtr[7678] = GetRandomControl();
-#ifndef PSX//PSX compiler hates sizeof, not possible in C
+#ifdef PSXPC_VERSION//PSX compiler hates sizeof, not possible in C
 	memcpy(&MGSaveGamePtr, &savegame, sizeof(savegame_info));
 #else
 	memcpy(&MGSaveGamePtr, &savegame, 436);
@@ -104,4 +104,3 @@ void WriteSG(char* pointer, int size)//536A0, 53B04
 		}
 	}
 }
-

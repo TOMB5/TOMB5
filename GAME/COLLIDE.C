@@ -1,4 +1,5 @@
 #include "COLLIDE.H"
+
 #include "SPECIFIC.H"
 
 long zfront;

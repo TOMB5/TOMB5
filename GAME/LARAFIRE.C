@@ -1,4 +1,5 @@
 #include "LARAFIRE.H"
+
 #include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 
@@ -7,6 +8,7 @@ struct GAME_VECTOR bum_vsrc;
 struct PHD_3DPOS bum_view;
 struct ITEM_INFO *TargetList[8];
 struct ITEM_INFO *LastTargets[8];
+
 struct WEAPON_INFO weapons[9] =
 {
 	{ { 0x0000, 0x0000, 0x0000, 0x0000 },{ 0x0000, 0x0000, 0x0000, 0x0000 },{ 0x0000, 0x0000, 0x0000, 0x0000 }, 0x0000, 0x0000, 0x0000, 0x0000, 0x00, 0x00, 0x00, 0x00, 0x0000 },

@@ -1,10 +1,12 @@
 #include "FLMTORCH.H"
+
 #include "SPECIFIC.H"
 
 static short FireBounds[12] =
 {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xE400
 };
+
 short torchroom = 255;
 
 void FlameTorchControl(short item_number)//3A8F4, 3ADF4

@@ -1099,6 +1099,3 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 	ret = MULTEMP(ret, x) + (k[0] ^ -1) >> 2;
 	return MULTEMP(ret, x) + k[1];
 }
-
-
-

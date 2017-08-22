@@ -12,6 +12,7 @@ short DepthTable[5] =
 {
 	0x0000, 0x0000, 0x1000, 0x0010, 0x1800
 };
+
 short CurrentReverb;
 int LnSamplesLoaded;
 long LlVABAddr;
@@ -25,7 +26,7 @@ unsigned long LadwSampleAddr[256];
 void SPU_Init()//62650(<), 62D34(<) (F)
 {
 	int i = 0;//$s0
-#ifdef PSX
+#ifdef PSX_VERSION
 	SpuInit();
 	SpuInitMalloc(1, LabSPUMallocArea);
 	SpuSetTransferMode(0);
@@ -53,7 +54,6 @@ void SPU_FreeSamples()//62610, 62CF4
 	S_Warn("[SPU_FreeSamples] - Unimplemented!\n");
 }
 
-
 void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
 {
 	LabSampleType[channel_index] = 0;
@@ -70,13 +70,12 @@ void S_SetReverbType(int Reverb /*$a0*/)//91CF4, 93D40
 	}
 }
 
-
 int SPU_UpdateStatus()//915FC, 93640
 {
 	int i = 0;
 	char status[MAX_SOUND_SLOTS];
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	SpuGetAllKeysStatus(&status);
 
 	//loc_9161C

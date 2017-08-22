@@ -1,4 +1,5 @@
 #include "EFFECTS.H"
+
 #include "SPECIFIC.H"
 #include "CONTROL.H"
 #include "GAMEFLOW.H"
@@ -175,7 +176,7 @@ void floor_shake_effect(struct ITEM_INFO *item)//39410, 39910
 
 void turn180_effect(struct ITEM_INFO *item)//393F4(<), 398F4(<) (F)
 {
-	item->pos.y_rot -= 0x8000;
+	item->pos.y_rot -= 32768;
 	item->pos.x_rot = -item->pos.x_rot;
 }
 

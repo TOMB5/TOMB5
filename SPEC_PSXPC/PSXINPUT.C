@@ -10,14 +10,17 @@ static struct pad_configs pad_cons[5] =
 	{ 0x20000000, 0x40000000, 0x20, 0x80, 0x200, 0x40, 0x10, 0x1000 },
 	{ 0x1000, 0x20, 0x10, 0x40, 0x40000000, 0x200, 0x20000000, 0x80 }
 };
+
 unsigned char DualShock;
 unsigned char PadConnected;
 short reset_count;
 char SayNoCount;
+
 static unsigned char align[6] =
 {
 	0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xFF
 };
+
 long input;
 long dbinput;
 long dbinput2;
@@ -66,7 +69,7 @@ void S_UpdateInput()//5F628, 6038C
 
 	//loc_5F650
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	PadGetState(0);
 #endif
 
@@ -76,7 +79,7 @@ void S_UpdateInput()//5F628, 6038C
 	
 	v0 = 0;
 	s1 = v0;
-#ifdef PSX
+#ifdef PSX_VERSION
 	s1 = v0;
 	PadInfoMode();
 #endif
