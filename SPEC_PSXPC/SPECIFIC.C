@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "REQUEST.H"
 
 
 static struct REQUESTER PauseReq = { 0xA4, 0x08, 0x03, 0x00, 0x05, 0x08, 0x03, 0x0A, 0x00, { 0xDE, 0xDF, 0xE0, 0x00, 0x00 } };
@@ -38,9 +39,9 @@ short AnimatingTexturesV[16][8][3];
 	#define EXIT_FAILURE 1
 #endif
 
-void DisplayStatsUCunt()//61928, 625A8
+void DisplayStatsUCunt()//61928(<), 625A8(<) (F)
 {
-	S_Warn("[DisplayStatsUCunt] - Unimplemented!\n");
+	Requester(&StatisticsReq);
 }
 
 short S_Death()//61658, 622C8
@@ -100,7 +101,7 @@ int S_SoundStopAllSamples()//91D34, 93D80
 	return ret;
 }
 
-long S_DumpScreen()//607A8, 61320
+long S_DumpScreen()//607A8(<), 61320(<) (F)
 {
 	return GPU_FlipNoIdle();
 }

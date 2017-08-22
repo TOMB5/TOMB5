@@ -14,6 +14,8 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include "ROOMLOAD.H"
+#include "HEALTH.H"
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
@@ -299,7 +301,7 @@ short temp_rotation_buffer[160];
 
 void andy11_end()//32D6C, 3326C
 {
-	S_Warn("[andy11_end] - Unimplemented!\\n");
+	cutseq_restore_item(ANIMATING15);
 }
 
 void andy11_control()//32C70, 33108
@@ -467,9 +469,9 @@ void do_pierre_gun_meshswap()
 	S_Warn("[do_pierre_gun_meshswap] - Unimplemented!\\n");
 }
 
-void andrea4_end()//32464, 328FC
+void andrea4_end()//32464(<), 328FC(<) (F)
 {
-	S_Warn("[andrea4_end] - Unimplemented!\\n");
+	cutseq_removelara_pistols();
 }
 
 void andrea4_control()//323C8, 32860
@@ -540,9 +542,10 @@ void andy9_control()//31BA4, 31FD4
 	S_Warn("[andy9_control] - Unimplemented!\\n");
 }
 
-void andy9_init()//31B7C, 31FAC
+void andy9_init()//31B7C(<), 31FAC(<) (F)
 {
-	S_Warn("[andy9_init] - Unimplemented!\\n");
+	cutseq_kill_item(ANIMATING15);
+	lara_item->mesh_bits = 0;
 }
 
 void TriggerDelBrownSmoke(long x, long y, long z)
@@ -590,9 +593,9 @@ void andypew_control()//316B8(<), 31AE8(<) (F)
 	return;
 }
 
-void andypew_init()//31698, 31AC8
+void andypew_init()//31698(<), 31AC8(<) (F)
 {
-	S_Warn("[andypew_init] - Unimplemented!\\n");
+	cutseq_kill_item(PUZZLE_HOLE2);
 }
 
 void andy6_end()//31690(<), 31AC0(<) (F)
@@ -605,9 +608,10 @@ void andy6_control()//315F8, 319B4
 	S_Warn("[andy6_control] - Unimplemented!\\n");
 }
 
-void andy6_init()//30D84, 31104
+void andy6_init()//30D84(<), 31104(<) (F)
 {
-	S_Warn("[andy6_init] - Unimplemented!\\n");
+	cutrot = 1;
+	setup_preist_meshswap();
 }
 
 void joby8_end()
@@ -750,9 +754,10 @@ void joby10_init()//30318(<), 30698(<) (F)
 	cutseq_kill_item(CRANE_GUY_MIP);
 }
 
-void joby9_end()//302F0, 30670
+void joby9_end()//302F0(<), 30670(<) (F)
 {
-	S_Warn("[joby9_end] - Unimplemented!\\n");
+	cutseq_restore_item(CRANE_GUY_MIP);
+	AddDisplayPickup(KEY_ITEM7);
 }
 
 void joby9_control()//302A0, 30620
@@ -830,19 +835,21 @@ void andrea1_init()//2FB50(<), 2FED0(<) (F)
 	return;
 }
 
-void joby4_end()
+void joby4_end()//2FB04, 2FE84
 {
 	S_Warn("[joby4_end] - Unimplemented!\\n");
 }
 
-void joby4_control()
+void joby4_control()//2FA0C, 2FD8C
 {
 	S_Warn("[joby4_control] - Unimplemented!\\n");
 }
 
-void joby4_init()
+void joby4_init()//2F9E4(<), 2FD64(<) (F)
 {
-	S_Warn("[joby4_init] - Unimplemented!\\n");
+	cutseq_kill_item(DOOR_TYPE1);
+	cutseq_kill_item(DOOR_TYPE5);
+	cutrot = 0;
 }
 
 void DelTorchFlames(struct PHD_VECTOR *pos)
@@ -1234,6 +1241,9 @@ void *cutseq_malloc(int size)
 
 void init_cutseq_malloc()
 {
+	cutseq_malloc_used = 0;
+	cutseq_malloc_ptr = (char*)frames;
+	cutseq_malloc_free = AnimFileLen;
 	S_Warn("[init_cutseq_malloc] - Unimplemented!\\n");
 }
 

@@ -4,6 +4,7 @@
 #include "CONTROL.H"
 #include "GAMEFLOW.H"
 #include "LARA.H"
+#include "HAIR.H"
 
 long wf = 256;
 short next_fx_free;
@@ -77,9 +78,9 @@ void ClearSpidersPatch(struct ITEM_INFO *item)//39AA4, 39FA4
 	S_Warn("[ClearSpidersPatch] - Unimplemented!\n");
 }
 
-void reset_hair(struct ITEM_INFO *item)//39A84, 39F84
+void reset_hair(struct ITEM_INFO *item)//39A84(<), 39F84(<) (F)
 {
-	S_Warn("[reset_hair] - Unimplemented!\n");
+	InitialiseHair();
 }
 
 void invisibility_off(struct ITEM_INFO *item)//39A6C(<), 39F6C(<) (F)

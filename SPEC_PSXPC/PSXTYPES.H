@@ -1868,4 +1868,8 @@ struct POLY_FT4 {
 	unsigned short pad2; // size=0, offset=38
 };
 
+typedef void *SpuIRQCallbackProc;
+typedef void *SpuTransferCallbackProc;
+typedef void *SpuStCallbackProc;
+
 #endif

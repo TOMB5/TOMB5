@@ -4,6 +4,8 @@
 #include "LARA.H"
 
 #include <stddef.h>
+#include "SETUP.H"
+#include "DRAW.H"
 
 void FlareControl(short item_number)//4A418, 4A87C
 {
@@ -26,12 +28,12 @@ void ready_flare()//4A3E4(<), 4A848(<) (F)
 
 void undraw_flare_meshes()//4A3BC, 4A820
 {
-	S_Warn("[undraw_flare_meshes] - Unimplemented!\n");
+	lara.mesh_ptrs[13] = meshes[((object_info*)objects)[0].mesh_index + 0x68];
 }
 
-void draw_flare_meshes()//4A394, 4A7F8
+void draw_flare_meshes()//4A394(<), 4A7F8(<) (F)
 {
-	S_Warn("[draw_flare_meshes] - Unimplemented!\n");
+	lara.mesh_ptrs[13] = meshes[((object_info*)objects)[448].mesh_index + 0x68];
 }
 
 void undraw_flare()//4A108, 4A56C

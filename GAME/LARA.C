@@ -1,6 +1,7 @@
 #include "LARA.H"
 
 #include "SPECIFIC.H"
+#include "PSXINPUT.H"
 
 static short LeftClimbTab[4] = // offset 0xA0638
 {
@@ -23,9 +24,12 @@ void lara_as_pbleapoff(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D244, 1
 	S_Warn("[lara_as_pbleapoff] - Unimplemented!\n");
 }
 
-void lara_as_parallelbars(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D220, 1D3B4
+void lara_as_parallelbars(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D220(<), 1D3B4(<) (F)
 {
-	S_Warn("[lara_as_parallelbars] - Unimplemented!\n");
+	if((input & 0x40) == 0)
+	{
+		item->goal_anim_state = 0x81;
+	}
 }
 
 void lara_as_trfall(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D03C, 1D1D0
@@ -123,9 +127,10 @@ void lara_col_backjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C130, 1
 	S_Warn("[lara_col_backjump] - Unimplemented!\n");
 }
 
-void lara_col_slide(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C108, 1C23C
+void lara_col_slide(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C108(<), 1C23C(<) (F)
 {
-	S_Warn("[lara_col_slide] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot;
+	lara_slide_slope(item, coll);
 }
 
 void lara_col_stepleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C0E8, 1C21C
@@ -299,9 +304,12 @@ void lara_as_pushblock(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AA04, 1
 	S_Warn("[lara_as_pushblock] - Unimplemented!\n");
 }
 
-void lara_as_slideback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A9E0, 1AB14
+void lara_as_slideback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A9E0(<), 1AB14(<) (F)
 {
-	S_Warn("[lara_as_slideback] - Unimplemented!\n");
+	if((input & 0x11) == 0x10)
+	{
+		item->goal_anim_state = 0x19;
+	}
 }
 
 void lara_as_fallback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1959C, 196D0
