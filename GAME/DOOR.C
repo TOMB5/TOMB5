@@ -3,15 +3,24 @@
 #include "PSXTYPES.H"
 #include "SPECIFIC.H"
 
-static struct PHD_VECTOR DoubleDoorPos;
-static struct PHD_VECTOR PullDoorPos;
-static struct PHD_VECTOR PushDoorPos;
-static struct PHD_VECTOR KickDoorPos;
-static struct PHD_VECTOR UnderwaterDoorPos;
-static struct PHD_VECTOR CrowbarDoorPos;
-static short PushPullKickDoorBounds[12];
-static short UnderwaterDoorBounds[12];
-static short CrowbarDoorBounds[12];
+static struct PHD_VECTOR DoubleDoorPos = { 0, 0, 0xDC };
+static struct PHD_VECTOR PullDoorPos = { 0xFFFFFF37, 0, 0x142 };
+static struct PHD_VECTOR PushDoorPos = { 0xC9, 0, 0xFFFFFD42 };
+static struct PHD_VECTOR KickDoorPos = { 0, 0, 0xFFFFFC6B };
+static struct PHD_VECTOR UnderwaterDoorPos = { 0xFFFFFF05, 0xFFFFFDE4, 0xFFFFFFD2 };
+static struct PHD_VECTOR CrowbarDoorPos = { 0xFFFFFE64, 0, 0x100 };
+static short PushPullKickDoorBounds[12] =
+{
+	0xFE80, 0x80FE, 0x0180, 0x0001, 0x0000, 0x0000, 0x0000, 0x0000, 0xFC00, 0x00FC, 0x0200, 0xE402
+};
+static short UnderwaterDoorBounds[12] =
+{
+	0xFF00, 0x00FF, 0x0100, 0x0001, 0xFC00, 0x00FC, 0x0000, 0x0000, 0xFC00, 0x00FC, 0x0000, 0x2000
+};
+static short CrowbarDoorBounds[12] =
+{
+	0xFE00, 0x00FE, 0x0200, 0x0002, 0xFC00, 0x00FC, 0x0000, 0x0000, 0x0000, 0x0000, 0x0200, 0x2002
+};
 long ClosedDoors[32];
 char LiftDoor;
 

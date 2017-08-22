@@ -5,7 +5,12 @@
 	#include <windows.h>
 #endif
 
-static struct SCALE scales[3];
+static struct SCALE scales[3] =
+{
+	{ 0x104, 0, 2 },
+	{ 0x82, 1, 3 },
+	{ 0x41, 2, 5 }
+};
 char ProfileDraw;
 int numprof;
 static unsigned long EHbl;

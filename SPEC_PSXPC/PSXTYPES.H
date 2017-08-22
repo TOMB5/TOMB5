@@ -1596,7 +1596,7 @@ struct MENUTHANG {
 	char *text; // size=0, offset=4
 };
 struct COMBINELIST {
-	void(*combine_routine)(); // size=0, offset=0
+	void(*combine_routine)(int flag); // size=0, offset=0
 	short item1; // size=0, offset=4
 	short item2; // size=0, offset=6
 	short combined_item; // size=0, offset=8
