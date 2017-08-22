@@ -605,5 +605,3 @@ void CD_ReaderPositionToCurrent()//*, 5E564(<) (F)
 {
 	cdStartSector = cdCurrentSector;
 }
-
-

@@ -2,7 +2,7 @@
 
 #include "SPECIFIC.H"
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	#include <LIBMCRD.H>
 #endif
 
@@ -14,51 +14,44 @@ char mcFileNames[7][20];
 int mcFileLengths[7];
 static unsigned char mcActualStatus;
 
+int dword_A1AA0 = 0x2A;//init me 0x2a? looks like name string
+
 void mcDir()//61EE8
 {
 	int i; // $s3
 	int j; // $s4
 	int k; // $s1
-	struct DIRENTRY* dir;
+	struct DIRENTRY* dir;// $s2
 
 #if 0
-
-	sub_61EE8:
-
-			 var_20 = -0x20
-				 var_1C = -0x1C
-				 var_18 = -0x18
-				 var_14 = -0x14
-				 var_10 = -0x10
-				 var_C = -0xC
-				 var_8 = -8
-				 var_4 = -4
-
-				 addiu	$sp, -0x30
-				 move	$a0, $zero
-				 la	$a1, dword_A1AA0
-				 lui	$v0, 0x1F
-				 sw	$s2, 0x30 + var_10($sp)
-				 addiu	$s2, $v0, -0x3240
-				 move	$a2, $s2
-				 sw	$s0, 0x30 + var_18($sp)
-				 li	$s0, 0xF
-				 addiu	$a3, $gp, 0x41E0
-				 sw	$ra, 0x30 + var_4($sp)
-				 sw	$s4, 0x30 + var_8($sp)
-				 sw	$s3, 0x30 + var_C($sp)
-				 sw	$s1, 0x30 + var_14($sp)
-				 sw	$zero, 0x30 + var_20($sp)
-				 jal	sub_6B08C
-				 sw	$s0, 0x30 + var_1C($sp)
-				 move	$s4, $zero
-				 move	$s3, $zero
-				 lw	$v0, 0x41E0($gp)
-				 sb	$s0, 0x41DC($gp)
-				 beqz	$v0, loc_62028
-				 move	$s1, $zero
-				 move	$s0, $s2
-				 addiu	$s2, $gp, 0x41E4
+	int a0 = 0;
+	int a1 = dword_A1AA0;
+				 
+				
+	//lui	$v0, 0x001F0000
+	//sw	$s2, 0x30 + var_10($sp)
+	struct TSV* a2 = &tsv_buffer[0];
+	
+	//sw	$s0, 0x30 + var_18($sp)
+	int s0 = 0xF;
+	a3 = &mcNumFiles;
+	//sw	$ra, 0x30 + var_4($sp)
+	//sw	$s4, 0x30 + var_8($sp)
+	//sw	$s3, 0x30 + var_C($sp)
+	//sw	$s1, 0x30 + var_14($sp)
+	//sw	$zero, 0x30 + var_20($sp)
+				
+	MemCardGetDirentry(0, dword_A1AA0, &tsv_buffer[0], &mcNumFiles, 0, 0);//	jal	sub_6B08C
+	//sw	$s0, 0x30 + var_1C($sp)
+	int s4 = 0;//j
+	int s3 = 0;//i
+	
+	lw	$v0, 0x41E0($gp)
+	sb	$s0, 0x41DC($gp)
+	beqz	$v0, loc_62028
+	move	$s1, $zero
+	move	$s0, $s2
+	addiu	$s2, $gp, 0x41E4
 
 				 loc_61F50:
 			 lw	$v0, 0x18($s0)
@@ -143,7 +136,7 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 	mcStatus = 4;
 	mcActualStatus = 0;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	MemCardStart();
 #endif
 
@@ -153,7 +146,7 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 		{
 			//loc_62084
 			mcGetStatus();
-#ifdef PSX
+#ifdef PSX_VERSION
 			VSync(0);
 #endif
 		}
@@ -165,7 +158,7 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 
 void mcClose()//620AC
 {
-#ifdef PSX
+#ifdef PSX_VERSION
 	MemCardStop();
 
 	mcInit = 0;
@@ -183,42 +176,41 @@ unsigned char mcGetStatus()//620CC,
 	unsigned long res; // stack offset -12
 #if 0
 
-	sub_620CC:
 
-			 var_10 = -0x10
-				 var_C = -0xC
-				 var_8 = -8
-				 var_4 = -4
+	int a0 = 1;
 
-				 addiu	$sp, -0x20
-				 li	$a0, 1
-				 addiu	$a1, $sp, 0x20 + var_10
-				 addiu	$a2, $sp, 0x20 + var_C
-				 sw	$ra, 0x20 + var_4($sp)
-				 jal	sub_6B2FC
-				 sw	$s0, 0x20 + var_8($sp)
-				 move	$a0, $v0
-				 beqz	$a0, loc_62130
-				 li	$v0, 3
-				 bgtz	$a0, loc_62110
-				 li	$v0, 1
-				 li	$v0, 0xFFFFFFFF
-				 beq	$a0, $v0, loc_62120
-				 nop
-				 j	loc_622C4
-				 nop
+	//addiu	$a1, $sp, 0x20 + var_10
+	//addiu	$a2, $sp, 0x20 + var_C
+	//sw	$ra, 0x20 + var_4($sp)
 
-				 loc_62110 :
-			 beq	$a0, $v0, loc_62178
-				 li	$v0, 2
-				 j	loc_622C4
-				 nop
+	int v0 = 3;
+	stat = MemCardSync(a0, &cmd, &res);
+	if (stat != 0)
+	{
+		if (stat < 0)
+		{
+			if (stat == -1)
+			{
+				//loc_62120
+				MemCardExist(0);
+			}// j	loc_622C4 else on outer most brace
+		}
+		
+		//loc_62110
+		v0 = 2;
+		if (stat == 1)
+		{
+			//loc_62178
 
-				 loc_62120 :
-			 jal	sub_6A360
-				 move	$a0, $zero
-				 j	loc_622C4
-				 nop
+		}//j	loc_622C4
+
+	}//loc_62130
+
+	//sw	$s0, 0x20 + var_8($sp)
+
+				
+				
+
 
 				 loc_62130 :
 			 lw	$v1, 0x20 + var_10($sp)
@@ -374,7 +366,7 @@ long mcFormat()//622D8(<), 629BC(<) (F)
 	unsigned long cmd;
 	unsigned long res;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	MemCardSync(0, &cmd, &res);
 
 	res = MemCardFormat(0);

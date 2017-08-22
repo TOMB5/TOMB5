@@ -6,8 +6,9 @@
 #include "SPECIFIC.H"
 
 #ifndef PSX
-#include <SDL.h>
+	#include <SDL.h>
 #endif
+
 #include <assert.h>
 
 long phd_left;

@@ -84,7 +84,7 @@ unsigned char gfPickups[16];
 unsigned char gfTakeaways[16];
 
 #ifdef PSX_VERSION
-typedef unsigned int uintptr_t;
+	typedef unsigned int uintptr_t;
 #endif
 
 void DoGameflow()//10F5C(<), 10FD8(<)

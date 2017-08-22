@@ -1,8 +1,8 @@
 #include "SETUP.H"
 
 #include "BOX.H"
-#include "CONTROL.H"
 #include "CD.H"
+#include "CONTROL.H"
 #include "DRAW.H"
 #include "GPU.H"
 #include "ITEMS.H"
@@ -14,7 +14,7 @@
 
 #include <assert.h>
 #include <stddef.h>
-
+#include <stdio.h>
 
 char setupBuff[SETUP_MOD_FILE_SIZE];
 
@@ -76,9 +76,10 @@ void RelocateLevel()//?, B3B50(<)
 	char* a000;
 
 	InItemControlLoop = 0;
-
+	dump_game_malloc();
 	//Read up the PSX file header into RelocPtr buff.
 	CD_Read(PSX_HEADER_LENGTH, (char*) &LevelRelocPtr);
+	printf("PSX HDR: %i\n", LevelRelocPtr[0]);
 
 	LaraDrawType = LevelRelocPtr[12] & 7;
 	WeatherType = (LevelRelocPtr[12] << 3) & 3;
@@ -93,11 +94,13 @@ void RelocateLevel()//?, B3B50(<)
 		ptr = game_malloc(LevelRelocPtr[9] * sizeof(unsigned long));
 
 		//Reading in soundpointers
+		printf("MARKER_10*****************\n");
 		CD_Read(LevelRelocPtr[9] * sizeof(unsigned long), ptr);
 
 		//Allocating enough memory for the 8000hz vag soundwad
 		ptr = game_malloc(LevelRelocPtr[10]);
 
+		printf("MARKER_9*****************\n");
 		CD_Read(LevelRelocPtr[10], ptr);
 
 		//unsigned long a0 = LevelRelocPtr[9];
@@ -120,6 +123,7 @@ void RelocateLevel()//?, B3B50(<)
 	///@TODO Unknown const 2.
 	for (i = 0; i < 2; i++)
 	{
+		printf("MARKER_8*****************\n");
 		CD_Read(0x40000, ptr);
 
 		LOAD_DrawEnable(0);
@@ -143,11 +147,13 @@ void RelocateLevel()//?, B3B50(<)
 	AnimFileLen = LevelRelocPtr[26];
 	ptr = game_malloc(AnimFileLen);
 	frames = (short*) ptr;
+	printf("MARKER_7*****************\n");
 	CD_Read(AnimFileLen, ptr);
 
 	ptr = game_malloc(LevelRelocPtr[14]);
+	printf("MARKER_6*****************\n");
 	CD_Read(LevelRelocPtr[14], ptr);
-
+	printf("MARKER_6_1*****************\n");
 	number_rooms = *(((unsigned short*) &LevelRelocPtr[11]) + 1);//0xB3D28
 
 	room = (struct room_info*)ptr;
@@ -365,6 +371,7 @@ void RelocateLevel()//?, B3B50(<)
 		number_spotcams = LevelRelocPtr[44];
 		number_cameras = LevelRelocPtr[43];
 
+		printf("MARKER_1*****************\n");
 		CD_Read(32360, &objects[0]);
 
 		for (i = 0; i < 63; i++)
@@ -374,9 +381,10 @@ void RelocateLevel()//?, B3B50(<)
 
 		if (LevelRelocPtr[48] != 0)
 		{
+			printf("MARKER_2*****************\n");
 			CD_ReaderPositionToCurrent();
 			CD_Read(0x780, &dword_1EF1D0[0]);//FIXME levelRelocPtr?
-
+			printf("MARKER_3*****************\n");
 			if (LevelRelocPtr[48] > 0)
 			{
 				for (i = 0; i < LevelRelocPtr[48]; i++)
@@ -398,6 +406,7 @@ void RelocateLevel()//?, B3B50(<)
 
 					s22 = v00;
 					a000 = s22;
+					printf("MARKER_4*****************\n");
 					CD_Read(s3, s22);
 
 					s3 = *(int*) &s00[12];//0x15C
@@ -408,6 +417,7 @@ void RelocateLevel()//?, B3B50(<)
 
 					CD_Seek(a00);
 
+					printf("MARKER_5*****************\n");
 					CD_Read(s3, s11);
 
 					//RelocateModule(s11);
@@ -449,7 +459,7 @@ void RelocateLevel()//?, B3B50(<)
 		}//0xB4284
 
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 		struct ITEM_INFO* temp = items;
 		temp++;
 

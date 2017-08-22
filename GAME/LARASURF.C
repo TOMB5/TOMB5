@@ -1,4 +1,5 @@
 #include "LARASURF.H"
+
 #include "SPECIFIC.H"
 
 void lara_col_surfright(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD90, 4E1F4

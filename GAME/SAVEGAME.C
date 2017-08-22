@@ -104,4 +104,3 @@ void WriteSG(char* pointer, int size)//536A0, 53B04
 		}
 	}
 }
-

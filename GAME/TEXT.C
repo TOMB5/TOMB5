@@ -51,6 +51,7 @@ char AccentTable[46][2] =
 	{ 0x7B, 0x20 },
 	{ 0x7B, 0x20 }
 };
+
 unsigned char PulseCnt;
 unsigned char ScaleFlag;
 

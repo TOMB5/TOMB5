@@ -183,4 +183,3 @@ void ReloadAnims(int name, long len)//600E4, 60D20
 {
 	S_Warn("[ReloadAnims] - Unimplemented!\n");
 }
-

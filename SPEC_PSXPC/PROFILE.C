@@ -11,6 +11,7 @@ static struct SCALE scales[3] =
 	{ 0x82, 1, 3 },
 	{ 0x41, 2, 5 }
 };
+
 char ProfileDraw;
 int numprof;
 static unsigned long EHbl;
@@ -47,7 +48,6 @@ void ProfileStartCount()//61A0C, *
 {
 	S_Warn("[ProfileStartCount] - Unimplemented!\n");
 }
-
 
 void ProfileInit(int scale)//61978, ?
 {

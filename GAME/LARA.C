@@ -1,14 +1,17 @@
 #include "LARA.H"
+
 #include "SPECIFIC.H"
 
 static short LeftClimbTab[4] = // offset 0xA0638
 {
 	0x0200, 0x0002, 0x0400, 0x0004
 };
+
 static short RightClimbTab[4] = // offset 0xA0640
 {
 	0x0800, 0x0008, 0x0100, 0x0001
 };
+
 short angle; // offset 0xA0650
 short elevation; // offset 0xA0652
 struct ITEM_INFO* lara_item; // offset 0xA2048

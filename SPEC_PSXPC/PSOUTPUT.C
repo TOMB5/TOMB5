@@ -1,4 +1,5 @@
 #include "PSOUTPUT.H"
+
 #include "PSXTYPES.H"
 #include "SPECIFIC.H"
 
@@ -41,4 +42,3 @@ void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int 
 		sh	$v1, 2($a0)
 #endif
 }
-

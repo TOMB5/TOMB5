@@ -867,63 +867,63 @@ void AddRoomFlipItems(struct room_info *r /*$a0*/)//1FA0C,
 {
 #if 0
 
-sub_1FA0C:
+	sub_1FA0C:
 
 			 lh	$s1, 0x48($a0)
-			 li	$v0, 0xFFFFFFFF
-			 beq	$s1, $v0, loc_1FAB8
-			 li	$s3, 0x86
+				 li	$v0, 0xFFFFFFFF
+				 beq	$s1, $v0, loc_1FAB8
+				 li	$s3, 0x86
 
-			 loc_1FA34:
-		 sll	$a1, $s1, 3
-			 addu	$v0, $a1, $s1
-			 lw	$v1, 0x1B38($gp)
-			 sll	$v0, 4
-			 addu	$s0, $v1, $v0
-			 lh	$a0, 0xC($s0)
-			 nop
-			 bne	$a0, $s3, loc_1FA70
-			 move	$s2, $a1
-			 lh	$v0, 0x36($s0)
-			 nop
-			 beqz	$v0, loc_1FA70
-			 move	$a0, $s0
-			 jal	sub_1E3E4
-			 li	$a1, 0xFFFFFC00
+				 loc_1FA34 :
+				 sll	$a1, $s1, 3
+				 addu	$v0, $a1, $s1
+				 lw	$v1, 0x1B38($gp)
+				 sll	$v0, 4
+				 addu	$s0, $v1, $v0
+				 lh	$a0, 0xC($s0)
+				 nop
+				 bne	$a0, $s3, loc_1FA70
+				 move	$s2, $a1
+				 lh	$v0, 0x36($s0)
+				 nop
+				 beqz	$v0, loc_1FA70
+				 move	$a0, $s0
+				 jal	sub_1E3E4
+				 li	$a1, 0xFFFFFC00
 
-			 loc_1FA70:
-		 lh	$v1, 0xC($s0)
-			 li	$v0, 0x87
-			 bne	$v1, $v0, loc_1FA9C
+				 loc_1FA70:
+			 lh	$v1, 0xC($s0)
+				 li	$v0, 0x87
+				 bne	$v1, $v0, loc_1FA9C
+				 addu	$v0, $s2, $s1
+				 lh	$v0, 0x36($s0)
+				 nop
+				 beqz	$v0, loc_1FA98
+				 move	$a0, $s0
+				 jal	sub_1E3E4
+				 li	$a1, 0xFFFFF800
+
+				 loc_1FA98:
 			 addu	$v0, $s2, $s1
-			 lh	$v0, 0x36($s0)
-			 nop
-			 beqz	$v0, loc_1FA98
-			 move	$a0, $s0
-			 jal	sub_1E3E4
-			 li	$a1, 0xFFFFF800
 
-			 loc_1FA98:
-		 addu	$v0, $s2, $s1
+				 loc_1FA9C :
+			 lw	$v1, 0x1B38($gp)
+				 sll	$v0, 4
+				 addu	$v0, $v1
+				 lh	$s1, 0x1A($v0)
+				 li	$v1, 0xFFFFFFFF
+				 bne	$s1, $v1, loc_1FA34
+				 nop
 
-			 loc_1FA9C :
-		 lw	$v1, 0x1B38($gp)
-			 sll	$v0, 4
-			 addu	$v0, $v1
-			 lh	$s1, 0x1A($v0)
-			 li	$v1, 0xFFFFFFFF
-			 bne	$s1, $v1, loc_1FA34
-			 nop
-
-			 loc_1FAB8 :
-		 lw	$ra, 0x28 + var_8($sp)
-			 lw	$s3, 0x28 + var_C($sp)
-			 lw	$s2, 0x28 + var_10($sp)
-			 lw	$s1, 0x28 + var_14($sp)
-			 lw	$s0, 0x28 + var_18($sp)
-			 jr	$ra
-			 addiu	$sp, 0x28
-			 # End of function sub_1FA0C
+				 loc_1FAB8 :
+			 lw	$ra, 0x28 + var_8($sp)
+				 lw	$s3, 0x28 + var_C($sp)
+				 lw	$s2, 0x28 + var_10($sp)
+				 lw	$s1, 0x28 + var_14($sp)
+				 lw	$s0, 0x28 + var_18($sp)
+				 jr	$ra
+				 addiu	$sp, 0x28
+				 # End of function sub_1FA0C
 
 #endif
-			 }
+}

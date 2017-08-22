@@ -1,4 +1,5 @@
 #include "OBJLIGHT.H"
+
 #include "SPECIFIC.H"
 
 struct FOOTPRINT FootPrint[32];

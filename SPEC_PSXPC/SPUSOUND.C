@@ -12,6 +12,7 @@ short DepthTable[5] =
 {
 	0x0000, 0x0000, 0x1000, 0x0010, 0x1800
 };
+
 short CurrentReverb;
 int LnSamplesLoaded;
 long LlVABAddr;
@@ -53,7 +54,6 @@ void SPU_FreeSamples()//62610, 62CF4
 	S_Warn("[SPU_FreeSamples] - Unimplemented!\n");
 }
 
-
 void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
 {
 	LabSampleType[channel_index] = 0;
@@ -69,7 +69,6 @@ void S_SetReverbType(int Reverb /*$a0*/)//91CF4, 93D40
 		//jal	sub_6B850 //SpuSetReverb(1); //SPU_ON
 	}
 }
-
 
 int SPU_UpdateStatus()//915FC, 93640
 {

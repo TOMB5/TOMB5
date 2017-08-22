@@ -1,17 +1,21 @@
 #include "PICKUP.H"
+
 #include "SPECIFIC.H"
 
 struct PHD_VECTOR OldPickupPos;
 unsigned char RPickups[16];
 unsigned char NumRPickups;
+
 short SearchOffsets[4] =
 {
 	0x00A0, 0x6000, 0x0060, 0xA000
 };
+
 short SearchAnims[4] =
 {
 	0x01D0, 0xD101, 0x01D1, 0xD201
 };
+
 short SearchCollectFrames[4] =
 {
 	0x00B4, 0x6400, 0x0064, 0x9900
@@ -28,7 +32,6 @@ void CollectCarriedItems(struct ITEM_INFO* item)//5339C, 53800
 	short pickup_number; // $s1
 
 #if 0
-
 		//move	$s3, $a0
 		pickup_number = item->carried_item;
 		int v0 = -1;
@@ -99,7 +102,6 @@ void PickUpCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll
 	S_Warn("[PickUpCollision] - Unimplemented!\n");
 }
 
-
 void RegeneratePickups()//515AC, 51A10
 {
 	struct ITEM_INFO* item;
@@ -123,4 +125,3 @@ void PuzzleDone(struct ITEM_INFO *item, short item_num)//51004, 51468
 {
 	S_Warn("[PuzzleDone] - Unimplemented!\n");
 }
-

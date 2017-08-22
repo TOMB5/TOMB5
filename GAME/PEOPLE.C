@@ -1,4 +1,5 @@
 #include "PEOPLE.H"
+
 #include "SPECIFIC.H"
 
 int ShotLara(struct ITEM_INFO *item, struct AI_info *info, struct BITE_INFO *gun, short extra_rotation, int damage)//50C74, 510D8

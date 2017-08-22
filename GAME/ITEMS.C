@@ -35,7 +35,6 @@ void InitialiseFXArray(int allocmem)//4207C, 424D0
 	S_Warn("[InitialiseFXArray] - Unimplemented!\\n");
 }
 
-
 void AddActiveItem(short item_num)//41FEC(<), 42440(<)
 {
 	struct ITEM_INFO* item;
@@ -64,7 +63,6 @@ void RemoveDrawnItem(short item_num)//41F48, 4239C
 {
 	S_Warn("[RemoveDrawnItem] - Unimplemented!\\n");
 }
-
 
 void RemoveActiveItem(short item_num)//41E98, 422EC
 {

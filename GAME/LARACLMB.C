@@ -1,4 +1,5 @@
 #include "LARACLMB.H"
+
 #include "SPECIFIC.H"
 
 short GetClimbTrigger(long x, long y, long z, short room_number)//46E38, 4729C
