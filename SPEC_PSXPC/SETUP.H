@@ -23,11 +23,15 @@ struct object
 
 struct object_container
 {
-	struct object_info the_objects[NUMBER_OBJECTS];
-	struct static_info the_static_objects[NUMBER_STATIC_OBJECTS];
+	struct object_info m_objects[NUMBER_OBJECTS];
+	struct static_info m_static_objects[NUMBER_STATIC_OBJECTS];
+	char m_SkinVertNums[480];
+	char m_ScratchVertNums[480];
 };
-extern struct object_container the_container;
+
 extern object_info* objects;
 extern static_info* static_objects;
+extern char* SkinVertNums;
+extern char* ScratchVertNums;
 
 #endif
