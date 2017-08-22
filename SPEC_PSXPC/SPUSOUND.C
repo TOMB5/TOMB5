@@ -25,7 +25,7 @@ unsigned long LadwSampleAddr[256];
 void SPU_Init()//62650(<), 62D34(<) (F)
 {
 	int i = 0;//$s0
-#ifdef PSX
+#ifdef PSX_VERSION
 	SpuInit();
 	SpuInitMalloc(1, LabSPUMallocArea);
 	SpuSetTransferMode(0);
@@ -76,7 +76,7 @@ int SPU_UpdateStatus()//915FC, 93640
 	int i = 0;
 	char status[MAX_SOUND_SLOTS];
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	SpuGetAllKeysStatus(&status);
 
 	//loc_9161C

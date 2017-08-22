@@ -1,4 +1,6 @@
 #include "3D_OBJ.H"
+
+#include "GPU.H"
 #include "SPECIFIC.H"
 
 struct TSV tsv_buffer[512];

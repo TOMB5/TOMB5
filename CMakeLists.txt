@@ -21,18 +21,18 @@ find_package(OpenGL)
 #Create platform specific code directory string
 if (PLATFORM_PSX)
 	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PSX")
-	add_definitions(-DPSX)
+	add_definitions(-DPSX_VERSION)
 endif (PLATFORM_PSX)
 
 if (PLATFORM_PSXPC)
 	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PSXPC")
-	add_definitions(-DPSXPC)
+	add_definitions(-DPSXPC_VERSION)
 	#add_library(SETUP SHARED ${PLATFORM_SPECIFIC_DIR}/SETUP.C ${PLATFORM_SPECIFIC_DIR}/GAMEWAD.C ${PLATFORM_SPECIFIC_DIR}/MALLOC.C ${PLATFORM_SPECIFIC_DIR}/LOAD_LEV.C ${PLATFORM_SPECIFIC_DIR}/ROOMLOAD.C ...)
 endif (PLATFORM_PSXPC)
 
 if (PLATFORM_PC)
 	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PC")
-	add_definitions(-DPC)
+	add_definitions(-DPC_VERSION)
 endif (PLATFORM_PC)
 
 #Internal beta pre-processor definition

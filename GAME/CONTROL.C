@@ -274,7 +274,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		{
 			while ((SlowMoFrameCount / 8) < nframes)
 			{
-#ifdef PSX
+#ifdef PSX_VERSION
 				VSync(0);
 #endif
 				nframes++;

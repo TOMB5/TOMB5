@@ -66,7 +66,7 @@ void S_UpdateInput()//5F628, 6038C
 
 	//loc_5F650
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	PadGetState(0);
 #endif
 
@@ -76,7 +76,7 @@ void S_UpdateInput()//5F628, 6038C
 	
 	v0 = 0;
 	s1 = v0;
-#ifdef PSX
+#ifdef PSX_VERSION
 	s1 = v0;
 	PadInfoMode();
 #endif

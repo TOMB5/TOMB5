@@ -111,7 +111,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 		XAEndPos = XATrackList[cnt][1] + XATrackClip[XAReqTrack];
 		XACurPos = XAStartPos;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 		CdControlF(0xD, &io);
 #endif
 		XAFlag++;
@@ -162,12 +162,12 @@ void cbvsync()//5D884(<), 5DD00(<)
 	case 5:
 	{
 		//loc_5DA18
-#ifdef PSX
+#ifdef PSX_VERSION
 		VSync(-1);
 #endif
 		if (XAFlag & 7)
 		{
-#ifdef PSX
+#ifdef PSX_VERSION
 			ret = CdSync(0, &io[0]);
 			if (ret == 5)
 			{
@@ -262,11 +262,11 @@ void cbvsync()//5D884(<), 5DD00(<)
 
 void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 {
-	
 	char buf[10];
 	int i = 0;
 	long local_wadfile_header[512];
-#ifdef PSX
+
+#ifdef PSX_VERSION
 	DEL_ChangeCDMode(0);
 	
 	CdSearchFile(&fp, GAMEWAD_FILENAME);//662F0
@@ -301,7 +301,7 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 	{
 		sprintf(buf, XA_FILE_NAME, i + 1);
 
-#ifdef PSX
+#ifdef PSX_VERSION
 		CdSearchFile(&fp, buf);
 
 		XATrackList[i][0] = CdPosToInt(&fp.pos);
@@ -324,29 +324,45 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 	XATrack = -1;
 }
 
-void DEL_ChangeCDMode(int mode)//5DEB0(<), ?
+void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650
 {
 	unsigned char param[4];
 
-	if (mode == 0 && current_cd_mode != 0)
+	if (mode == 0)
 	{
+		if (current_cd_mode == 0)
+		{
+			return;
+		}
+		
 		current_cd_mode = 0;
-#ifdef PSX
+
+#ifdef PSX_VERSION
 		param[0] = CdlModeSpeed;
 		CdControlB(CdlSetmode, param, 0);
 		VSync(3);
 #endif
 	}
-	else if (mode == 1 && current_cd_mode != mode)
+	else if (mode == 1)
 	{
 		//loc_5DEF8
+		if (current_cd_mode == mode)
+		{
+			return;
+		}
+		
 		current_cd_mode = mode;
 	}
-	else if (mode == 2 && current_cd_mode != mode)
+	else if (mode == 2)
 	{
 		//loc_5DF20
+		if (current_cd_mode == mode)
+		{
+			return;
+		}
+
 		current_cd_mode = mode;
-#ifdef PSX
+#ifdef PSX_VERSION
 		param[0] = CdlModeSpeed;
 		CdControlB(CdlSetmode, param, 0);
 		VSync(3);
@@ -360,7 +376,7 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), ?
 //Play audio track
 void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<)
 {
-#ifdef PSX
+#ifdef PSX_VERSION
 	unsigned char param[4];
 
 	if (XATrack == -1)
@@ -403,7 +419,7 @@ void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<)
 
 void S_CDStop()//5DCD0(<), 5E14C(<)
 {
-#ifdef PSX
+#ifdef PSX_VERSION
 		XAFlag = 0;
 
 		CdControlB(CdlPause, 0, 0);
@@ -431,7 +447,7 @@ void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
 	attr.cd.volume.left = nVolume * 64;
 	attr.cd.volume.right = nVolume * 64;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	attr.mask = SPU_COMMON_CDVOLL | SPU_COMMON_CDVOLR | SPU_COMMON_CDMIX;
 	attr.cd.mix = SPU_ON;
 	SpuSetCommonAttr(&attr);
@@ -440,7 +456,7 @@ void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
 
 void XAReplay()//5D838(<), 5DCB4(<)
 {
-#ifdef PSX
+#ifdef PSX_VERSION
 	CdlLOC loc;
 
 	CdIntToPos(XAStartPos, &loc);
@@ -475,7 +491,7 @@ int CD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<) (F)
 	//Not the actual file size of the file itself.
 	int relativeFileSector = gwHeader.entries[fileID].fileOffset / CD_SECTOR_SIZE;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	DEL_ChangeCDMode(0);
 	cdCurrentSector = cdStartSector = gwLba + relativeFileSector;
 #else
@@ -501,7 +517,7 @@ void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 	int numSectorsToRead;
 	unsigned char param[4];
 
-#ifndef PSX
+#ifndef PSX_VERSION
 	FILE* fileHandle = NULL;
 
 	fileHandle = fopen(GAMEWAD_FILENAME, "rb");
@@ -513,9 +529,14 @@ void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 
 	numSectorsToRead = fileSize / CD_SECTOR_SIZE;
 
+	if (numSectorsToRead > 1)
+	{
+		printf("%i\n", 0xDEAD, "DEAD!!!\n");
+	}
+
 	if (numSectorsToRead != 0)
 	{
-#ifdef PSX
+#ifdef PSX_VERSION
 		CdIntToPos(cdCurrentSector, &fp.pos);//6915C
 		CdControlB(CdlSetloc, &fp, 0);//sub_6956C
 		CdRead(numSectorsToRead, ptr, 0x80);
@@ -538,7 +559,7 @@ void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 	if ((fileSize & 0x7FF) != 0)//%
 	{
 
-#ifdef PSX
+#ifdef PSX_VERSION
 		printf("Last chunk! Sector %i\n", fp.pos);
 		CdIntToPos(cdCurrentSector, &fp.pos);//6915C
 		CdControlB(CdlSetloc, &fp, 0);//sub_6956C
@@ -557,7 +578,7 @@ void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 		cdCurrentSector++;
 	}
 
-#ifndef PSX
+#ifdef PC_VERSION
 	fclose(fileHandle);
 #endif
 }

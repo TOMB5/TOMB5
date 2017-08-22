@@ -258,14 +258,11 @@ short temp_rotation_buffer[160];
 #define WORLD_UNITS_PER_SECTOR 1024
 #define SECTOR_TO_WORLD(S) ((S) > (0) ? ((S * WORLD_UNITS_PER_SECTOR) + (WORLD_UNITS_PER_SECTOR / 2)) : (0))
 
-enum title_spotcam_sequences
-{
-	FIRST,
-	OUTSIDE_CHURCH_SEQUENCE,
-	INSIDE_CHURCH_SEQUENCE,
-	HOUSE_SEQUENCE,
-	PYRAMID_SEQUENCE
-};
+#ifdef INTERNAL
+	#define CD_PLAY_MODE 1
+#else
+	#define CD_PLAY_MODE 0
+#endif
 
 void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 {
@@ -273,7 +270,7 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 
 	jobyfrigger = 0;
 
-	if (num == OUTSIDE_CHURCH_SEQUENCE)
+	if (num == 1)
 	{
 		/*
 		 * Resetting all outside church sequence animatings to their original position & animation.
@@ -293,7 +290,7 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 		item->room_number = 0;
 
 	}
-	else if (num == PYRAMID_SEQUENCE)
+	else if (num == 4)
 	{
 		/*
 		 * Resetting all pyramid sequence animatings to their original positions/animations.
@@ -334,37 +331,21 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 	 * Each flyby sequence should play it's own unique music.
 	 * Here we alter the music for the current flyby sequence.
 	 */
-	if (num == OUTSIDE_CHURCH_SEQUENCE)
+	if (num == 1)
 	{
-#ifdef INTERNAL//second arg is prob a def.
-		S_CDPlay(83, 1);
-#else
-		S_CDPlay(83, 0);
-#endif
+		S_CDPlay(83, CD_PLAY_MODE);
 	}
-	else if (num == INSIDE_CHURCH_SEQUENCE)
+	else if (num == 2)
 	{
-#ifdef INTERNAL
-		S_CDPlay(87, 1);
-#else
-		S_CDPlay(87, 0);
-#endif
+		S_CDPlay(87, CD_PLAY_MODE);
 	}
-	else if (num == HOUSE_SEQUENCE)
+	else if (num == 3)
 	{
-#ifdef INTERNAL
-		S_CDPlay(86, 1);
-#else
-		S_CDPlay(86, 0);
-#endif
+		S_CDPlay(86, CD_PLAY_MODE);
 	}
-	else if (num == PYRAMID_SEQUENCE)
+	else if (num == 4)
 	{
-#ifdef INTERNAL
-		S_CDPlay(91, 1);
-#else
-		S_CDPlay(91, 0);
-#endif
+		S_CDPlay(91, CD_PLAY_MODE);
 	}
 
 	InitialiseSpotCam(num);

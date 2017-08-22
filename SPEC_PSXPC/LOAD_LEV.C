@@ -347,7 +347,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	int fileSize, x, y, i;
 	unsigned short dat;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	//jal sub_6B144 //DrawSync(0);
 	//jal sub_6A1FC //VSync(0);
 	//jal sub_5F1C8 //GPU_UseOrderingTables(dword_AD920);
@@ -358,7 +358,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	db.draw[0].dtd = 0;
 	db.draw[1].dtd = 0;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	//jal sub_6B440 //PutDispEnv(&db.draw[0]);
 #endif
 
@@ -393,7 +393,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 		tmpptr[i] |= (SHRT_MAX + 1) << 16 | (SHRT_MAX + 1);
 	}
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	//jal sub_6B1C4 //StoreImage(); //frame buffer (gfx, LOADING_SCREEN_IMG_SIZE)
 	//jal sub_6B144 //DrawSync();
 #endif
@@ -440,14 +440,14 @@ void LOAD_Stop()//60434, 60FB4
 
 	db.draw[1].dtd = 1;
 
-#if 0//def PSX
+#if 0//def PSX_VERSION
 	GPU_UseOrderingTables();
 #endif
 
 	//FIXME: v1 (1) May be changed in GPU_UseOrderingTables, must clarify
 	db.draw[0].dtd = 1;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	GPU_SyncBothScreens();//5F374, 60054
 #endif
 

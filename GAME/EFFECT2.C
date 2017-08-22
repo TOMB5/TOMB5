@@ -1,14 +1,17 @@
 #include "EFFECT2.H"
+
 #include "SPECIFIC.H"
 
 long wibble;
 long SplashCount;
 long KillEverythingFlag;
 long next_spark;
-unsigned char TES_extra_tab[6] =
+
+unsigned char TES_extra_tab[] =
 {
 	0x00, 0x04, 0x07, 0x0A, 0x00, 0x00
 };
+
 long DeadlyBounds[6];
 struct SPLASH_STRUCT splashes[4];
 struct RIPPLE_STRUCT ripples[32];

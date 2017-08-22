@@ -51,7 +51,7 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 		//SetGeomScreen();
 	}
 
-#ifndef PSX
+#ifdef PSXPC_VERSION
 	if (SDL_Init(SDL_INIT_VIDEO) == 0)
 	{
 		g_window = SDL_CreateWindow("TOMB5", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 512, 240, SDL_WINDOW_OPENGL);

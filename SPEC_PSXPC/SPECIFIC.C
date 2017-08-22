@@ -87,16 +87,16 @@ int S_SoundStopAllSamples()//91D34, 93D80
 		return 0;
 	}
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	SpuSetKey(0, 0xFFFFFF);
 
 	do
 	{
 		ret = SPU_UpdateStatus();
 	} while (ret != MAX_SOUND_SLOTS);
-	
-	return ret;
 #endif
+
+	return ret;
 }
 
 long S_DumpScreen()//607A8, 61320
