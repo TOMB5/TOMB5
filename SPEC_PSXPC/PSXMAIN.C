@@ -1,3 +1,4 @@
+#include "3D_GEN.H"
 #include "CD.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
@@ -55,11 +56,11 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 	ResetGraph(0);
 	SetGraphDebug(0);
 	InitGeom();
-	SetDefDrawEnv(&db.draw[0], 0, 0, 512, 240);
-	SetDefDrawEnv(&db.draw[1], 0, 240, 512, 240);
+	SetDefDrawEnv(&db.draw[0], 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	SetDefDrawEnv(&db.draw[1], 0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	SetDefDispEnv(&db.disp[0], 0, 240, 512, 240);
-	SetDefDispEnv(&db.disp[1], 0, 0, 512, 240);
+	SetDefDispEnv(&db.disp[0], 0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
+	SetDefDispEnv(&db.disp[1], 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 #endif
 
 	db.draw[0].dtd = 1;
