@@ -65,14 +65,11 @@ ${GAME_SRCS}
 ${PLATFORM_SPECIFIC_SRCS}
 )
 
-
 #Link against required libraries
 target_link_libraries(
 TOMB5
-if (PLATFORM_PSXPC)
 ${SDL2_LIBRARY}
 ${OPENGL_gl_LIBRARY}
-endif (PLATFORM_PSXPC)
 )
 
 set_target_properties(
