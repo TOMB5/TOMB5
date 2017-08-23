@@ -1176,4 +1176,21 @@ struct FOOTPRINT {
 	short Active; // size=0, offset=14
 };
 
+struct static_info {
+	short mesh_number; // size=0, offset=0
+	short flags; // size=0, offset=2
+	short x_minp; // size=0, offset=4
+	short x_maxp; // size=0, offset=6
+	short y_minp; // size=0, offset=8
+	short y_maxp; // size=0, offset=10
+	short z_minp; // size=0, offset=12
+	short z_maxp; // size=0, offset=14
+	short x_minc; // size=0, offset=16
+	short x_maxc; // size=0, offset=18
+	short y_minc; // size=0, offset=20
+	short y_maxc; // size=0, offset=22
+	short z_minc; // size=0, offset=24
+	short z_maxc; // size=0, offset=26
+};
+
 #endif

@@ -291,6 +291,18 @@ enum trigobj_types {
 extern struct BITE_INFO EnemyBites[9];
 extern int AnimatingWaterfallsVOffset;
 
+
+struct object_container
+{
+	struct object_info m_objects[NUMBER_OBJECTS];
+	struct static_info m_static_objects[NUMBER_STATIC_OBJECTS];
+	char m_SkinVertNums[480];
+	char m_ScratchVertNums[480];
+};
+
+extern object_info* objects;
+extern static_info* static_objects;
+
 extern void HybridCollision(short item_num, struct ITEM_INFO *laraitem, struct COLL_INFO *coll);
 extern void DrawBaddieGunFlash(struct ITEM_INFO *item);
 extern void CutsceneRopeControl(short item_number);

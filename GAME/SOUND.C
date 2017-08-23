@@ -49,6 +49,8 @@ void SOUND_Stop()//920A4, 940F0
 			LaSlot[i].nSampleInfo = -1;
 		}
 
+#ifndef PC_VERSION
 		S_SoundStopAllSamples();
+#endif
 	}
 }

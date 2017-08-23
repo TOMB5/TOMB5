@@ -4,85 +4,91 @@
 struct BITE_INFO EnemyBites[9];
 int AnimatingWaterfallsVOffset;
 
+struct object_container objects_raw;
+struct object_info* objects = &objects_raw.m_objects[0];
+struct static_info* static_objects = &objects_raw.m_static_objects[0];
+extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
+extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
+
 void HybridCollision(short item_num, struct ITEM_INFO *laraitem, struct COLL_INFO *coll)
 {
-	S_Warn("[HybridCollision] - Unimplemented!\\n");
+	S_Warn("[HybridCollision] - Unimplemented!\n");
 }
 
 void DrawBaddieGunFlash(struct ITEM_INFO *item)
 {
-	S_Warn("[DrawBaddieGunFlash] - Unimplemented!\\n");
+	S_Warn("[DrawBaddieGunFlash] - Unimplemented!\n");
 }
 
 void CutsceneRopeControl(short item_number)
 {
-	S_Warn("[CutsceneRopeControl] - Unimplemented!\\n");
+	S_Warn("[CutsceneRopeControl] - Unimplemented!\n");
 }
 
 void ControlXRayMachine(short item_number)
 {
-	S_Warn("[ControlXRayMachine] - Unimplemented!\\n");
+	S_Warn("[ControlXRayMachine] - Unimplemented!\n");
 }
 
 void ParallelBarsCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll)
 {
-	S_Warn("[ParallelBarsCollision] - Unimplemented!\\n");
+	S_Warn("[ParallelBarsCollision] - Unimplemented!\n");
 }
 
 void TightRopeCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll)
 {
-	S_Warn("[TightRopeCollision] - Unimplemented!\\n");
+	S_Warn("[TightRopeCollision] - Unimplemented!\n");
 }
 
 void ControlWaterfall(short item_number)
 {
-	S_Warn("[ControlWaterfall] - Unimplemented!\\n");
+	S_Warn("[ControlWaterfall] - Unimplemented!\n");
 }
 
 void AnimateWaterfalls()
 {
-	S_Warn("[AnimateWaterfalls] - Unimplemented!\\n");
+	S_Warn("[AnimateWaterfalls] - Unimplemented!\n");
 }
 
 void ControlTriggerTriggerer(short item_number)
 {
-	S_Warn("[ControlTriggerTriggerer] - Unimplemented!\\n");
+	S_Warn("[ControlTriggerTriggerer] - Unimplemented!\n");
 }
 
 void PoleCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll)
 {
-	S_Warn("[PoleCollision] - Unimplemented!\\n");
+	S_Warn("[PoleCollision] - Unimplemented!\n");
 }
 
 void ControlAnimatingSlots(short item_number)
 {
-	S_Warn("[ControlAnimatingSlots] - Unimplemented!\\n");
+	S_Warn("[ControlAnimatingSlots] - Unimplemented!\n");
 }
 
 void BridgeTilt2Ceiling(struct ITEM_INFO *item, long x, long y, long z, long *height)
 {
-	S_Warn("[BridgeTilt2Ceiling] - Unimplemented!\\n");
+	S_Warn("[BridgeTilt2Ceiling] - Unimplemented!\n");
 }
 
 void BridgeTilt2Floor(struct ITEM_INFO *item, long x, long y, long z, long *height)
 {
-	S_Warn("[BridgeTilt2Floor] - Unimplemented!\\n");
+	S_Warn("[BridgeTilt2Floor] - Unimplemented!\n");
 }
 
 void BridgeTilt1Ceiling(struct ITEM_INFO *item, long x, long y, long z, long *height)
 {
-	S_Warn("[BridgeTilt1Ceiling] - Unimplemented!\\n");
+	S_Warn("[BridgeTilt1Ceiling] - Unimplemented!\n");
 }
 
 long GetOffset(struct ITEM_INFO *item, long x, long z)
 {
-	S_Warn("[GetOffset] - Unimplemented!\\n");
+	S_Warn("[GetOffset] - Unimplemented!\n");
 	return 0;
 }
 
 void BridgeTilt1Floor(struct ITEM_INFO *item, long x, long y, long z, long *height)
 {
-	S_Warn("[BridgeTilt1Floor] - Unimplemented!\\n");
+	S_Warn("[BridgeTilt1Floor] - Unimplemented!\n");
 }
 
 void BridgeFlatCeiling(struct ITEM_INFO *item, long x, long y, long z, long *height)
@@ -97,12 +103,12 @@ void BridgeFlatCeiling(struct ITEM_INFO *item, long x, long y, long z, long *hei
 		*v0 = v1;
 	}
 #endif
-	S_Warn("[BridgeFlatCeiling] - Unimplemented!\\n");
+	S_Warn("[BridgeFlatCeiling] - Unimplemented!\n");
 }
 
 void BridgeFlatFloor(struct ITEM_INFO *item, long x, long y, long z, long *height)
 {
-	S_Warn("[BridgeFlatFloor] - Unimplemented!\\n");
+	S_Warn("[BridgeFlatFloor] - Unimplemented!\n");
 }
 
 void SmashObjectControl(short item_number)//4EEF8(<), 4F35C(<) (F)
@@ -112,10 +118,10 @@ void SmashObjectControl(short item_number)//4EEF8(<), 4F35C(<) (F)
 
 void SmashObject(short item_number)//4EDB0, 4F214
 {
-	S_Warn("[SmashObject] - Unimplemented!\\n");
+	S_Warn("[SmashObject] - Unimplemented!\n");
 }
 
 void EarthQuake(short item_number)
 {
-	S_Warn("[EarthQuake] - Unimplemented!\\n");
+	S_Warn("[EarthQuake] - Unimplemented!\n");
 }

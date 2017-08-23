@@ -1,6 +1,6 @@
 #include "CAMERA.H"
 
-#include "CD.H"
+
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
@@ -9,7 +9,10 @@
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 
+#ifndef PC_VERSION
 #include "3D_GEN.H"
+#include "CD.H"
+#endif
 
 #include <assert.h>
 

@@ -1,17 +1,11 @@
 #include "GAMEFLOW.H"
 
-#include "3D_GEN.H"
 #include "CONTROL.H"
-#include "CD.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
-#include "DRAWPHAS.H"
-#include "FILE.H"
-#include "GPU.H"
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "MALLOC.H"
-#include "MEMCARD.H"
 #include "NEWINV2.H"
 #if PSXPC_VERSION
 	#include "PSXPCINPUT.H"
@@ -21,10 +15,21 @@
 #include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
-#include "SPUSOUND.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
+
+#ifndef PC_VERSION
+#include "3D_GEN.H"
+#include "CD.H"
+#include "DRAWPHAS.H"
+#include "FILE.H"
+#include "GPU.H"
+#include "MEMCARD.H"
+#include "PSXINPUT.H"
+#include "ROOMLOAD.H"
+#include "SPUSOUND.H"
+#endif
 
 #include <assert.h>
 #if PSXPC_VERSION
@@ -36,6 +41,7 @@ typedef unsigned int uintptr_t;
 #endif
 
 #include <string.h>
+#include <cstdio>
 
 #define GF_SCRIPT_FILENAME "SCRIPT.DAT"
 
@@ -175,6 +181,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 
 void LoadGameflow()//102E0, 102B0
 {
+#ifndef PC_VERSION
 	int len = FILE_Length(GF_SCRIPT_FILENAME);
 	char* s = game_malloc(len);
 	int j = 0;
@@ -399,6 +406,7 @@ void LoadGameflow()//102E0, 102B0
 			}
 		}
 	}
+#endif
 }
 
 void QuickControlPhase()//10274(<), 10264(<)
@@ -416,6 +424,7 @@ void QuickControlPhase()//10274(<), 10264(<)
 
 void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 {
+#ifndef PC_VERSION
 	int i, a0, a1, s0, s1, s2, v0;
 
 	printf("DoTitle\n");
@@ -669,6 +678,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	}//loc_10A58 @FIXME original game has infinite loop if XAVolume != 0
 	//assert(0);//temporary
+#endif
 }
 
 void DoLevel(unsigned char Name, unsigned char Audio)
