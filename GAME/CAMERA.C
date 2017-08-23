@@ -17,6 +17,10 @@
 	#include <math.h>
 #endif
 
+#if PSX_VERSION
+#include <INLINE_C.H>
+#endif
+
 #include <stddef.h>
 
 long BinocularRange;

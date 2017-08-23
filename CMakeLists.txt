@@ -16,10 +16,10 @@ set(INTERNAL 0 CACHE BOOL "Internal")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
 
 #Required libs for PLATFORM_PSXPC
-if(PLATFORM_PSXPC)
+if (PLATFORM_PSXPC)
 	find_package(SDL2 REQUIRED)
 	find_package(OpenGL)
-endif(PLATFORM_PSXPC)
+endif (PLATFORM_PSXPC)
 
 #Create platform specific code directory string
 if (PLATFORM_PSX)
@@ -69,10 +69,10 @@ ${PLATFORM_SPECIFIC_SRCS}
 #Link against required libraries
 target_link_libraries(
 TOMB5
-if(PLATFORM_PSXPC)
+if (PLATFORM_PSXPC)
 ${SDL2_LIBRARY}
 ${OPENGL_gl_LIBRARY}
-endif(PLATFORM_PSXPC)
+endif (PLATFORM_PSXPC)
 )
 
 set_target_properties(
