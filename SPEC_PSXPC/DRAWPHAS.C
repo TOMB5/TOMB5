@@ -14,15 +14,29 @@
 
 #include <stdio.h>
 
+long StoreBoxes = -1;
+struct GAME_VECTOR LaraPos;
+struct PSXTEXTI* MonitorScreenTI;
+unsigned char MonitorScreenU0;
+unsigned char MonitorHold;
+short MonitorOff;
+short MonitorOff2;
+
 long DrawPhaseGame()//63F04, 645E0
 {
 	short scalarx = 0; // $a3
 	short scalary = 0; // $t0
 	short scalarz = 0; // $t1
+	struct lara_info* a1;
+	struct lara_info* a2;
+	int temp;
+	int a3;
+	int a22;
+	int v1111111;
 
 	mQuickW2VMatrix();
 
-	struct lara_info* a1 = &lara;
+	a1 = &lara;
 
 	if (lara.poisoned != lara.dpoisoned)
 	{
@@ -34,7 +48,7 @@ long DrawPhaseGame()//63F04, 645E0
 		//loc_63F44
 		lara.poisoned = ((lara.poisoned - lara.dpoisoned) >> 4) + lara.poisoned;
 
-		int temp = ((lara.poisoned - lara.dpoisoned) >> 4);
+		temp = ((lara.poisoned - lara.dpoisoned) >> 4);
 
 		if (temp < 0)
 		{
@@ -50,15 +64,11 @@ long DrawPhaseGame()//63F04, 645E0
 	}
 	
 	//loc_63F88
-	struct lara_info* a2 = &lara;
-
-	int a3;
+	a2 = &lara;
 
 	if (lara.poisoned > 255)
 	{
-		short* t0 = &rcossin_tbl[0];
-
-		int a3 = rcossin_tbl[(((XSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((XSoff2 >> 2) & 0x3FFC) / sizeof(short))];
+		a3 = rcossin_tbl[(((XSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((XSoff2 >> 2) & 0x3FFC) / sizeof(short))];
 /*
 		short scalarx = 0; // $a3
 		short scalary = 0; // $t0
@@ -68,11 +78,11 @@ long DrawPhaseGame()//63F04, 645E0
 		a3 >>= 2;
 		a3 *= -256;
 
-		int a22 = rcossin_tbl[(((YSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((YSoff2 >> 2) & 0x3FFC) / sizeof(short))];
+		a22 = rcossin_tbl[(((YSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((YSoff2 >> 2) & 0x3FFC) / sizeof(short))];
 		a22 >>= 2;
 		a22 *= -256;
 
-		int v1111111 = rcossin_tbl[(((ZSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((ZSoff2 >> 2) & 0x3FFC) / sizeof(short))];
+		v1111111 = rcossin_tbl[(((ZSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((ZSoff2 >> 2) & 0x3FFC) / sizeof(short))];
 		v1111111 >>= 2;	
 		v1111111 *= -256;
 
@@ -124,7 +134,7 @@ long DrawPhaseGame()//63F04, 645E0
 
 	if (GLOBAL_playing_cutseq != 0)
 	{
-		//frigup_lara();
+		//frigup_lara();//frig af :lennyface:
 	}
 
 	//loc_641A8
@@ -175,51 +185,9 @@ void UpdateSky()
 	S_Warn("[UpdateSky] - Unimplemented!\n");
 }
 
-
 void mQuickW2VMatrix()
 {
-	MatrixSP = 0;
-	Matrix = &MatrixStack[0];
-
-	Matrix->m00 = phd_mxptr[1];
-	Matrix->m01 = phd_mxptr[0];
-	Matrix->m02 = phd_mxptr[4];
-	Matrix->m10 = phd_mxptr[2];
-	Matrix->m11 = phd_mxptr[6];
-	Matrix->m12 = phd_mxptr[5];
-	Matrix->m20 = phd_mxptr[9];
-	Matrix->m21 = phd_mxptr[8];
-
-#if 0
-	ctc2	$at, $0
-	ctc2	$a1, $1
-	ctc2	$a3, $2
-	ctc2	$t1, $3
-#endif
-
-	Matrix->m22 = phd_mxptr[10];
-	Matrix->tx = phd_mxptr[3];
-	Matrix->ty = phd_mxptr[7];
-	Matrix->tz = phd_mxptr[11];
-
-#if 0 
-	ctc2	$at, $4
-	ctc2	$v0, $5
-	ctc2	$a1, $6
-	ctc2	$a2, $7
-#endif
-
-	CamGTE.m00 = w2v_matrix[0];
-	CamGTE.m01 = w2v_matrix[1];
-	CamGTE.m02 = w2v_matrix[2];
-
-	CamGTE.m10 = w2v_matrix[4];
-	CamGTE.m11 = w2v_matrix[5];
-	CamGTE.m12 = w2v_matrix[6];
-
-	CamGTE.m20 = w2v_matrix[8];
-	CamGTE.m21 = w2v_matrix[9];
-	CamGTE.m22 = w2v_matrix[10];
+	S_Warn("[mQuickW2VMatrix] - Unimplemented!\n");
 }
 
 void PrintString(long x, long y, char* string)

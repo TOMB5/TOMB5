@@ -1,24 +1,24 @@
 #ifndef PSXINPUT_H
 #define PSXINPUT_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
-#define L2       (1 << 0)
-#define R2       (1 << 1)
-#define L1       (1 << 2)
-#define R1       (1 << 3)
-#define TRIANGLE (1 << 4)
-#define CIRCLE   (1 << 5)
-#define CROSS    (1 << 6)
-#define SQUARE   (1 << 7)
-#define SELECT   (1 << 8)
-#define UNK_9    (1 << 9)
-#define UNK_10   (1 << 10)
-#define START    (1 << 11)
-#define UP       (1 << 12)
-#define RIGHT    (1 << 13)
-#define DOWN     (1 << 14)
-#define LEFT     (1 << 15)
+#define P_L2       (1 << 0)
+#define P_R2       (1 << 1)
+#define P_L1       (1 << 2)
+#define P_R1       (1 << 3)
+#define P_TRIANGLE (1 << 4)
+#define P_CIRCLE   (1 << 5)
+#define P_CROSS    (1 << 6)
+#define P_SQUARE   (1 << 7)
+#define P_SELECT   (1 << 8)
+#define P_UNK_9    (1 << 9)
+#define P_UNK_10   (1 << 10)
+#define P_START    (1 << 11)
+#define P_UP       (1 << 12)
+#define P_RIGHT    (1 << 13)
+#define P_DOWN     (1 << 14)
+#define P_LEFT     (1 << 15)
 
 extern unsigned char DualShock;
 extern unsigned char PadConnected;

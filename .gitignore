@@ -6,6 +6,7 @@
 *.map
 *.mak
 *.sym
+*.cpe
 
 /OUTPUT/*
 /BUILD/*

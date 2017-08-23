@@ -1,8 +1,7 @@
 #ifndef EFFECT2_H
 #define EFFECT2_H
 
-#include "PSXTYPES.H"
-
+#include "SPECTYPES.H"
 
 extern long wibble;
 extern long SplashCount;
@@ -21,5 +20,15 @@ extern long SmokeWindZ;
 extern long SmokeCountL;
 extern long SmokeCountR;
 extern struct SPARKS spark[128];
+extern short angle;
+
+extern void ControlEnemyMissile(short fx_number);
+extern void ControlSmokeEmitter(short item_number);
+extern void KillEverything();
+extern void KillAllCurrentItems(short item_number);
+extern void TriggerDartSmoke(long x, long y, long z, long xv, long zv, long hit);
+extern void TriggerWaterfallMist(long x, long y, long z, long angle);
+extern void TriggerSuperJetFlame(struct ITEM_INFO *item, long yvel, long deadly);
+extern void DetatchSpark(long num, long type);
 
 #endif

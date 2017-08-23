@@ -11,8 +11,9 @@
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "MALLOC.H"
+#include "MEMCARD.H"
 #include "NEWINV2.H"
-#include "PSXINPUT.H"
+#include "PSXPCINPUT.H"
 #include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
@@ -39,8 +40,8 @@ char Chris_Menu;
 unsigned char gfLegendTime;
 unsigned char bDoCredits;
 static unsigned char gfCutNumber;
-unsigned char gfInitialiseGame;
-long nframes;
+unsigned char gfInitialiseGame = 1;
+long nframes = 1;
 unsigned char gfNumPickups;
 unsigned char gfNumTakeaways;
 char CanLoad;
@@ -62,7 +63,6 @@ char gfLayer2Vel;
 struct CVECTOR gfLayer1Col;
 struct CVECTOR gfLayer2Col;
 unsigned long GameTimer;
-//
 struct PHD_VECTOR gfLensFlare;
 struct CVECTOR gfLensFlareColour;
 unsigned char gfMirrorRoom;
@@ -83,9 +83,13 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 {
 	//unsigned char *gf;
 	//unsigned char n;
+	int op;
+	unsigned short* scriptOffsetPtr;
+	unsigned char* sequenceCommand;
 
+	printf("LOADGAMEFLOW\n");
 	LoadGameflow();
-#ifdef PSX
+#if 0//def PSX
 	//0 = Eidos Logo FMV
 	//1 = TRC Intro FMV
 	S_PlayFMV(0);
@@ -100,12 +104,12 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	gfCurrentLevel = Gameflow->TitleEnabled == 0 ? 1 : 0;
 
 	//Current level's script offset
-	unsigned short* scriptOffsetPtr = gfScriptOffset + (gfCurrentLevel & 0xFF);
-	unsigned char* sequenceCommand = gfScriptWad + *scriptOffsetPtr;
+	scriptOffsetPtr = gfScriptOffset + (gfCurrentLevel & 0xFF);
+	sequenceCommand = gfScriptWad + *scriptOffsetPtr;
 
 	while (1)//?
 	{
-		int op = *sequenceCommand - 0x80;
+		op = *sequenceCommand - 0x80;
 		sequenceCommand++;
 		switch (op)
 		{
@@ -162,8 +166,19 @@ void LoadGameflow()//102E0, 102B0
 {
 	int len = FILE_Length(GF_SCRIPT_FILENAME);
 	char* s = game_malloc(len);
+	int j = 0;
+	int i = 0;
+	struct STRINGHEADER sh;
+
+	unsigned char* sequenceCommand;
+	int endOfSequence;
+	unsigned char op;
+
+	printf("[LoadGameflow] - Script len = %i\n", len);
+
 	FILE_Load(GF_SCRIPT_FILENAME, s);
 
+	printf("Loaded GF! %i\n",*(int*)s);
 	Gameflow = (struct GAMEFLOW*)s;
 	s += sizeof(struct GAMEFLOW);
 
@@ -185,8 +200,6 @@ void LoadGameflow()//102E0, 102B0
 
 	//Align
 	gfStringOffset = (unsigned short*)(char*)((uintptr_t)(s + 3) & (uintptr_t)-4);
-
-	int i = 0;
 
 #ifdef CORE_UNSAFE
 	//This is original code, unsafe (if no lang loc files exist on disk)
@@ -214,7 +227,6 @@ void LoadGameflow()//102E0, 102B0
 
 	FILE_Load((char*)s, gfStringOffset);
 
-	struct STRINGHEADER sh;
 	memcpy(&sh, gfStringOffset, sizeof(struct STRINGHEADER));
 	memcpy(gfStringOffset, gfStringOffset + (sizeof(struct STRINGHEADER) / sizeof(unsigned short)), (sh.nStrings + sh.nPSXStrings) * sizeof(unsigned short));
 
@@ -237,7 +249,7 @@ void LoadGameflow()//102E0, 102B0
 			int stringLength = (gfStringOffset[i + 1] - gfStringOffset[i]) - 1;
 			if (stringLength > 0)
 			{
-				for (int j = 0; j < stringLength; j++)
+				for (j = 0; j < stringLength; j++)
 				{
 					stringPtr[j] ^= 0xA5;
 				}
@@ -249,14 +261,14 @@ void LoadGameflow()//102E0, 102B0
 
 	if (Gameflow->nLevels != 0)
 	{
-		unsigned char* sequenceCommand = gfScriptWad;
+		sequenceCommand = gfScriptWad;
 		for (i = 0; i < Gameflow->nLevels; i++)
 		{
-			int endOfSequence = 0;
+			endOfSequence = 0;
 
 			while (!endOfSequence)
 			{
-				unsigned char op = *sequenceCommand - 0x80;
+				op = *sequenceCommand - 0x80;
 				sequenceCommand++;
 
 				switch (op)
@@ -384,15 +396,7 @@ void QuickControlPhase()//10274(<), 10264(<)
 	ProfileRGB(255, 255, 255);
 #endif
 
-#ifdef PSX
-	//OldSP = SetSp(0x1F8003E0);
-#endif
-
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
-
-#ifdef PSX
-	SetSp(OldSP);
-#endif
 
 #ifdef INTERNAL
 	ProfileRGB(0, 0, 0);
@@ -401,21 +405,22 @@ void QuickControlPhase()//10274(<), 10264(<)
 
 void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 {
-	//int i;
+	int i, a0, a1, s0, s1, s2, v0;
+
+	printf("DoTitle\n");
+
 	CreditsDone = 0;
 	CanLoad = 0;
 
-	int a0 = Name;//most likely
+	a0 = Name;//most likely
 
 	if (Gameflow->LoadSaveEnabled)
 	{
-		int s1 = a0 & 0xFF;
-#ifdef PSX
+		s1 = a0 & 0xFF;
 		mcOpen(1);
-#endif
 	}
 
-	int s1 = 0;//?
+	s1 = 0;//?
 
 	num_fmvs = 0;
 	fmv_to_play[1] = 0;
@@ -428,6 +433,8 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	S_LoadLevelFile(Name);
 
+	printf("Finished loading level!************************\n");
+
 	GLOBAL_lastinvitem = -1;
 	dels_cutseq_player = 0;
 
@@ -436,6 +443,8 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	title_controls_locked_out = 0;
 
 	InitialisePickUpDisplay();
+	printf("InitialisePickUpDisplay!************************\n");
+
 
 	phd_InitWindow(90);
 
@@ -443,12 +452,14 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	IsAtmospherePlaying = 0;
 	S_SetReverbType(1);
+	printf("SETREVERBTYPE!************************\n");
 
 	InitialiseCamera();
 
+	printf("INITIALISED CAMERA!************************\n");
+
 	if (!bDoCredits)
 	{
-		//Ugly hardcoded start camera id
 		trigger_title_spotcam(1);
 		ScreenFadedOut = 0;
 		ScreenFade = 0;
@@ -474,7 +485,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 #ifndef INTERNAL
 	a0 = 2;
 #endif
-	struct ITEM_INFO* v1 = lara_item;//?
+	///struct ITEM_INFO* v1 = lara_item;//?
 	bUseSpotCam = 1;
 	gfGameMode = 1;
 
@@ -485,18 +496,18 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	gfLevelComplete = 0;
 	nframes = 2;
-	int a1 = 0;//second arg?
+	a1 = 0;//second arg?
 	gfStatus = ControlPhase(nframes, 0);//@args todo @ret v0
 	JustLoaded = 0;
 
-	int v0 = 0x001F0000;
+	v0 = 0x001F0000;
 	if (gfStatus == 0)
 	{
 #ifdef INTERNAL
-		int s2 = v0 - 0x2240;
-		int s0 = 1;
+		s2 = v0 - 0x2240;
+		s0 = 1;
 #else
-		int s0 = v0 - 0x630;
+		s0 = v0 - 0x630;
 #endif
 
 		while (gfStatus == 0)
@@ -596,7 +607,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 				if (number_rooms > 0)
 				{
-					for (int i = 0; i < number_rooms; i++)
+					for (i = 0; i < number_rooms; i++)
 					{
 						room[i].item_number = -1;
 					}
@@ -623,7 +634,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	
 	if (!Gameflow->LoadSaveEnabled)
 	{
-		//mcClose();
+		mcClose();
 	}
 
 	//loc_109FC
@@ -637,15 +648,16 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 		bUseSpotCam = 0;
 		bDisableLaraControl = 0;
+
 #ifndef INTERNAL
-		if (gfLevelComplete == 1 && gfStatus != 2)
-		{
+		//if (gfLevelComplete == 1 && gfStatus != 2)
+		//{
 			//sub_5E7A0(1, 2);//a1, a0
-		}
+		//}
 #endif
 
 	}//loc_10A58 @FIXME original game has infinite loop if XAVolume != 0
-	assert(0);//temporary
+	//assert(0);//temporary
 }
 
 void DoLevel(unsigned char Name, unsigned char Audio)
