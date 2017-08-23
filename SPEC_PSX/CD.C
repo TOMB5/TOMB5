@@ -66,6 +66,32 @@ int cdCurrentSector = 0;
 
 CdlFILE fp;
 
+void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
+{
+	SpuCommonAttr attr;
+	
+	attr.cd.volume.left = nVolume * 64;
+	attr.cd.volume.right = nVolume * 64;
+	attr.mask = SPU_COMMON_CDVOLL | SPU_COMMON_CDVOLR | SPU_COMMON_CDMIX;
+	attr.cd.mix = SPU_ON;
+	
+	SpuSetCommonAttr(&attr);
+}
+
+void XAReplay()//5D838(<), 5DCB4(<)
+{
+	CdlLOC loc;
+
+	CdIntToPos(XAStartPos, &loc);
+	
+	if (CdControl(0x1B, &loc, 0) == 1)
+	{
+		XACurPos = XAStartPos;
+	}
+
+	return;
+}
+
 void cbvsync()//5D884(<), 5DD00(<)
 {
 	int ret;//$a1
@@ -230,6 +256,96 @@ void cbvsync()//5D884(<), 5DD00(<)
 	return;
 }
 
+void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<)
+{
+	unsigned char param[4];
+
+	if (XATrack == -1)
+	{
+		param[0] = 0xC8;
+		CdControlB(CdlSetmode, &param[0], 0);
+		VSync(3);
+		CdControlB(0x9, 0, 0);
+		DEL_ChangeCDMode(1);
+	}
+
+	//loc_5DC70
+	if (XATrack != track)
+	{
+		if (XAReqTrack != track)
+		{
+			XAReqTrack = track;
+			XARepeat = mode;
+
+			if (XAFlag != 0)
+			{
+				XAFlag = 1;
+				XAReqVolume = 0;
+			}
+			else
+			{
+				//loc_5DCB4
+				XAFlag = 2;
+			}
+		}
+	}
+	
+	//loc_5DCBC
+	return;
+}
+
+void S_CDStop()//5DCD0(<), 5E14C(<)
+{
+	XAFlag = 0;
+
+	CdControlB(CdlPause, 0, 0);
+
+	XAReqTrack = -1;
+	XATrack = -1;
+
+	DEL_ChangeCDMode(0);
+	return;
+}
+
+void S_CDPause()//5DD14(<), 5E190(<) (F)
+{
+	if(XATrack > 0)
+	{
+		CdControlF(CdlPause, 0);
+	}
+
+	return;
+}
+
+void S_CDRestart()
+{
+	if(XATrack >= 0 && XAFlag != 7)
+	{
+		CdControlF(CdlReadS, 0);
+	}
+
+	return;
+}
+
+void S_StartSyncedAudio(int nTrack)//5DD78(<)
+{
+	IsAtmospherePlaying = 0;
+	
+	S_CDPlay(nTrack, 0);
+
+	while(XAFlag < 4) {}
+	
+	VSync(29);
+
+	return;
+}
+
+void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
+{
+	XAMasterVolume = nVolume;
+	CDDA_SetVolume(nVolume);
+}
+
 void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 {
 	char buf[10];
@@ -311,100 +427,6 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650
 	}
 
 	//loc_5DF58
-	return;
-}
-
-//Play audio track
-void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<)
-{
-	unsigned char param[4];
-
-	if (XATrack == -1)
-	{
-		param[0] = 0xC8;
-		CdControlB(CdlSetmode, &param[0], 0);
-		VSync(3);
-		CdControlB(0x9, 0, 0);
-		DEL_ChangeCDMode(1);
-	}
-
-	//loc_5DC70
-	if (XATrack != track)
-	{
-		if (XAReqTrack != track)
-		{
-			XAReqTrack = track;
-			XARepeat = mode;
-
-			if (XAFlag != 0)
-			{
-				XAFlag = 1;
-				XAReqVolume = 0;
-			}
-			else
-			{
-				//loc_5DCB4
-				XAFlag = 2;
-			}
-		}
-	}
-	
-	//loc_5DCBC
-	return;
-}
-
-void S_CDStop()//5DCD0(<), 5E14C(<)
-{
-	XAFlag = 0;
-
-	CdControlB(CdlPause, 0, 0);
-
-	XAReqTrack = -1;
-	XATrack = -1;
-
-	DEL_ChangeCDMode(0);
-	return;
-}
-
-void S_CDPause()//5DD14(<), 5E190(<) (F)
-{
-	if(XATrack > 0)
-	{
-		CdControlF(CdlPause, 0);
-	}
-
-	return;
-}
-
-void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
-{
-	XAMasterVolume = nVolume;
-	CDDA_SetVolume(nVolume);
-}
-
-void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
-{
-	SpuCommonAttr attr;
-	
-	attr.cd.volume.left = nVolume * 64;
-	attr.cd.volume.right = nVolume * 64;
-	attr.mask = SPU_COMMON_CDVOLL | SPU_COMMON_CDVOLR | SPU_COMMON_CDMIX;
-	attr.cd.mix = SPU_ON;
-	
-	SpuSetCommonAttr(&attr);
-}
-
-void XAReplay()//5D838(<), 5DCB4(<)
-{
-	CdlLOC loc;
-
-	CdIntToPos(XAStartPos, &loc);
-	
-	if (CdControl(0x1B, &loc, 0) == 1)
-	{
-		XACurPos = XAStartPos;
-	}
-
 	return;
 }
 

@@ -90,9 +90,9 @@ long iAmbientR;
 long iAmbientG;
 long iAmbientB;
 
-long atanOctantTab[8] =
+long atanOctantTab [] =
 {
-	0x00000000, 0xFFFFC000, 0xFFFF0001, 0x0000C000, 0xFFFF8000, 0x00004000, 0x00008000, 0xFFFF4000
+	0, -16384, -65535, 49152, -32768, 16384, 32768, -49152
 };
 
 short atanTab[2050] =

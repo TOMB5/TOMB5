@@ -63,6 +63,27 @@ static int cdStartSector = 0;
 //Current sector for the gamewad file entry, updated as data is read from disk.
 int cdCurrentSector = 0;
 
+void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
+{
+	S_Warn("[CDDA_SetVolume] - Unimplemented!\n");
+}
+
+void XAReplay()//5D838(<), 5DCB4(<)
+{
+#if 0
+	struct CdlLOC loc;
+	CdIntToPos(XAStartPos, &loc);
+
+	if(CdControl(0x1B, &loc, 0) == 1)
+	{
+		XACurPos = XAStartPos;
+	}
+
+#endif
+
+	return;
+}
+
 void cbvsync()//5D884(<), 5DD00(<)
 {
 	int ret;//$a1
@@ -352,17 +373,6 @@ void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
 {
 	XAMasterVolume = nVolume;
 	CDDA_SetVolume(nVolume);
-}
-
-void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
-{
-	S_Warn("[CDDA_SetVolume] - Unimplemented!\n");
-}
-
-void XAReplay()//5D838(<), 5DCB4(<)
-{
-	S_Warn("[XAReplay] - unimplemented!\n");
-	return;
 }
 
 /*
