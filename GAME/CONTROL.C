@@ -13,7 +13,7 @@
 #include "LARA.H"
 #include "LOAD_LEV.H"
 #include "PICKUP.H"
-#include "PSXINPUT.H"
+#include "PSXPCINPUT.H"
 #include "SETUP.H"
 #include "SOUND.H"
 #include "SPECIFIC.H"

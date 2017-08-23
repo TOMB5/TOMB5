@@ -5,12 +5,6 @@
 #include "LOAD_LEV.H"
 #include "SPECIFIC.H"
 
-#ifdef PSXPC_VERSION
-	#include <SDL.h>
-#else
-	#include <LIBGTE.H>
-#endif
-
 #include <assert.h>
 
 long phd_left;
@@ -29,9 +23,7 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 {
 	if (rcossin_tbl[(((((((view_angle * 2) + view_angle) * 8) - view_angle) * 4) - view_angle) / 8) & 0x1FFE] == 0)
 	{
-#ifdef PSX_VERSION
-		__asm__ volatile ("break 7");
-#endif
+		assert(0);
 	}
 
 	//loc_5D7B0
@@ -42,12 +34,6 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 	phd_bottom = SCREEN_HEIGHT - 1;
 	phd_mxptr = &matrix_stack[0];
 
-#ifdef PSX_VERSION
-	SetGeomOffset(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-	SetGeomScreen(phd_persp);
-#endif
-
-#ifdef PSXPC_VERSION
 	if (SDL_Init(SDL_INIT_VIDEO) == 0)
 	{
 		g_window = SDL_CreateWindow("TOMB5", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
@@ -58,7 +44,6 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 	}
 
 	SDL_GLContext context = SDL_GL_CreateContext(g_window);
-#endif
 }
 
 long mGetAngle(long x/*$a1*/, long z/*$a0*/, long tx/*$a3*/, long tz/*$a2*/)//77678(<), 796BC(<)

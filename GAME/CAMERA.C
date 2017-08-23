@@ -12,13 +12,7 @@
 #include "3D_GEN.H"
 
 #include <assert.h>
-#ifdef PSXPC_VERSION
-	#include <math.h>
-#endif
-
-#ifdef PSX_VERSION
-	#include <INLINE_O.H>
-#endif
+#include <math.h>
 
 #include <stddef.h>
 
@@ -226,16 +220,11 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<)
 
 	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
 
-#ifdef PSX_VERSION
-	gte_SetGeomScreen(phd_persp);
-#endif
-
 	return;
 }
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#ifdef PSXPC_VERSION
 	//We don't actually use this since lara_item is not inited.
 	//Also, GetBoundsAccurate is not implemented.
 	return;
@@ -665,7 +654,6 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	camera.lara_node = -1;
 	camera.last_item = item;
 	camera.item = NULL;
-#endif
 	return;
 }
 

@@ -1,7 +1,7 @@
 #include "LARA.H"
 
 #include "SPECIFIC.H"
-#include "PSXINPUT.H"
+#include "PSXPCINPUT.H"
 
 static short LeftClimbTab[4] = // offset 0xA0638
 {

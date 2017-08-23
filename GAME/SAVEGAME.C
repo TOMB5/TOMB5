@@ -16,11 +16,8 @@ struct savegame_info savegame;
 void sgRestoreGame()//55B88, 55FEC (F)
 {
 	SGcount = 0;
-#ifdef PSXPC_VERSION//PSX compiler hates sizeof, not possible in C
 	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
-#else
-	SGpoint = &MGSaveGamePtr[436];
-#endif
+
 	GameTimer = savegame.Game.Timer;
 	gfCurrentLevel = savegame.CurrentLevel;
 
@@ -30,23 +27,18 @@ void sgRestoreGame()//55B88, 55FEC (F)
 
 void sgSaveGame()//55AF8(<), 55F5C(<)
 {
-#ifdef PSXPC_VERSION//PSX compiler hates sizeof, not possible in C
 	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
-#else
-	SGpoint = &MGSaveGamePtr[436];
-#endif
 	SGcount = 0;
+
 	savegame.CurrentLevel = gfCurrentLevel;
 	SaveLevelData(1);
+
 	savegame.Game.Timer = GameTimer;
 	SaveLaraData();
 
 	MGSaveGamePtr[7678] = GetRandomControl();
-#ifdef PSXPC_VERSION//PSX compiler hates sizeof, not possible in C
 	memcpy(&MGSaveGamePtr, &savegame, sizeof(savegame_info));
-#else
-	memcpy(&MGSaveGamePtr, &savegame, 436);
-#endif
+
 	savegame.Checksum = GameTimer;
 
 	return;

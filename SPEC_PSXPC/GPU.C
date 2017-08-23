@@ -1,13 +1,10 @@
 #include "GPU.H"
 
 #include "PROFILE.H"
+#include "SPECIFIC.H"
 
-#ifdef PSXPC_VERSION
-	#include <SDL.h>
-	#include <SDL_opengl.h>
-#else
-	#include <LIBGPU.H>
-#endif
+#include <SDL.h>
+#include <SDL_opengl.h>
 
 unsigned long GnFrameCounter = 19;
 unsigned long GnLastFrameCount = 19;
@@ -15,34 +12,22 @@ struct PSXTEXTSTRUCT* psxtextinfo;
 struct PSXSPRITESTRUCT* psxspriteinfo;
 int rgbscaleme = 256;
 int gfx_debugging_mode;
-struct DB_STRUCT db;
 struct MMTEXTURE* RoomTextInfo;
 unsigned long GadwOrderingTables_V2[512];
 static int LnFlipFrame;
 unsigned long GadwOrderingTables[5128];
 unsigned long GadwPolygonBuffers[52260];
 
-#ifdef PSXPC_VERSION
-	SDL_Window* g_window = NULL;
-#endif
+SDL_Window* g_window = NULL;
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
 {
-#ifdef PSX_VERSION
-	//Should be safe to use 32-bit ptrs tho
-	db.order_table[0] = (unsigned long*)((unsigned long) pBuffers & 0xFFFFFF);
-	db.order_table[1] = (unsigned long*)((unsigned long) &pBuffers[nOTSize] & 0xFFFFFF);
-	db.nOTSize = nOTSize;
-	db.pickup_order_table[0] = (unsigned long*)((unsigned long)GadwOrderingTables_V2 & 0xFFFFFF);
-	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256] & 0xFFFFFF);
-#endif
+	S_Warn("[GPU_UseOrderingTables] - Unimplemented!\n");
 }
 
 void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)
 {
-	db.nPBSize = nPBSize;
-	db.poly_buffer[0] = (unsigned long*)((unsigned long)pBuffers & 0xFFFFFF);
-	db.poly_buffer[1] = (unsigned long*)((unsigned long)&pBuffers[nPBSize] & 0xFFFFFF);
+	S_Warn("[GPU_UsePolygonBuffers] - Unimplemented!\n");
 }
 
 void GPU_SyncBothScreens()
@@ -53,18 +38,6 @@ void GPU_SyncBothScreens()
 
 void GPU_BeginScene()//5F0F0(<), 5FDD0(<) 
 {
-#ifdef PSX_VERSION
-	db.ot = db.order_table[db.current_buffer];
-	db.polyptr = db.poly_buffer[db.current_buffer];
-	db.curpolybuf = db.poly_buffer[db.current_buffer];
-
-	//db.polybuf_limit = db.poly_buffer[db.current_buffer] + &loc_19640;//Illegal
-	
-	ClearOTagR(&db.order_table[db.current_buffer], db.nOTSize);
-
-	db.pickup_ot = db.pickup_order_table[db.current_buffer];
-#else
-
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	
 	SDL_Event event;
@@ -76,7 +49,6 @@ void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
 			exit(0);
 		}
 	}
-#endif
 }
 
 int GPU_FlipNoIdle()//5E078, 5F264
@@ -127,33 +99,12 @@ void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<)
 #endif
 }
 
-#ifdef PSX_VERSION
-void clear_a_rect(RECT* rect)//5F334, ?
-{
-	ClearImage(rect, 0, 0, 0);
-}
-#endif
-
 void GPU_FlipToBuffer(int buffer_index)
 {
-#ifdef PSX_VERSION
-	DrawSync(0);
-	VSync(0);
-
-	PutDispEnv(&db.disp[buffer_index]);
-
-	db.current_buffer = buffer_index;
-
-	PutDrawEnv(&db.draw[buffer_index]);
-
-#endif
+	S_Warn("[GPU_FlipToBuffer] - Unimplemented!\n");
 }
 
 void GPU_EndScene()
 {
-	//int nPolys;
-	//static int nWorstPolys;
-#ifdef PSXPC_VERSION
 	SDL_GL_SwapWindow(g_window);
-#endif
 }
