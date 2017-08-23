@@ -1,7 +1,9 @@
 #include "PROFILE.H"
 #include "SPECIFIC.H"
 
-#include <windows.h>
+#ifdef WIN32 || WIN64
+	#include <windows.h>
+#endif
 
 static struct SCALE scales[3] =
 {
