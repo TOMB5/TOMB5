@@ -158,196 +158,145 @@ void mcClose()//620AC
 	return;
 }
 
-unsigned char mcGetStatus()//620CC, 
+unsigned char mcGetStatus()//620CC(<), ? (F)
 {
-	long stat; // $a0
-	unsigned long cmd; // stack offset -16
-	unsigned long res; // stack offset -12
-#if 0
+	long stat;
+	unsigned long cmd;
+	unsigned long res;
 
-
-	int a0 = 1;
-
-	//addiu	$a1, $sp, 0x20 + var_10
-	//addiu	$a2, $sp, 0x20 + var_C
-	//sw	$ra, 0x20 + var_4($sp)
-
-	int v0 = 3;
-	stat = MemCardSync(a0, &cmd, &res);
-	if (stat != 0)
+	stat = MemCardSync(1, &cmd, &res);
+	
+	//Locked, Asynchronous memory card function is running.
+	if (stat == 0)
 	{
-		if (stat < 0)
+		//loc_62130
+		if(cmd == McFuncReadFile)
 		{
-			if (stat == -1)
-			{
-				//loc_62120
-				MemCardExist(0);
-			}// j	loc_622C4 else on outer most brace
+			return mcStatus = 5;
 		}
-		
+		else if(cmd == McFuncWriteData)
+		{
+			//loc_62150
+			return mcStatus = 6;
+		}
+		else if(cmd == McFuncAccept)
+		{
+			//loc_62164
+			return mcStatus = 4;
+		}
+	}
+	else if(stat > 0)
+	{
 		//loc_62110
-		v0 = 2;
-		if (stat == 1)
+		if(stat == 1)
 		{
 			//loc_62178
-
-		}//j	loc_622C4
-
-	}//loc_62130
-
-	//sw	$s0, 0x20 + var_8($sp)
-
+			if(cmd == McFuncAccept)
+			{
+				//loc_62210
+				if(res == 3)
+				{
+					//loc_62248
+					mcDir();
+					mcActualStatus = 0;
+					mcStatus = 0;
+				}
+				else if(res > 3)
+				{
+					//loc_62238
+					if(res == 4)
+					{
+						//loc_6225C
+						mcActualStatus = mcStatus = cmd;
+					}
+					else
+					{
+						mcActualStatus = mcStatus = 3;
+					}
+				}
+				else if(res == 0)
+				{
+					//loc_6228C
+					mcStatus = 0;
+				}
+				else
+				{
+					mcActualStatus = mcStatus = 3;
+				}
 				
+				return 3;
+			}
+			else if(cmd > McFuncAccept)
+			{
+				//loc_621A0
+				if(cmd == McFuncReadFile)
+				{
+					//loc_6227C
+					if(res != 0)
+					{
+						//loc_622B8
+						MemCardAccept(0);
+						mcStatus = 3;
+					}
+					else
+					{
+						//loc_6228C
+						mcStatus = 0;
+					}
+					
+					return res;
+				}
+				else if(cmd == McFuncWriteData)
+				{
+					//loc_62298
+					if(res != 0)
+					{
+						MemCardAccept(0);
+						mcStatus = 3;
+					}
+					else
+					{
+						mcStatus = 0;
+					}
+					
+					return res;
+				}
 				
-
-
-				 loc_62130 :
-			 lw	$v1, 0x20 + var_10($sp)
-				 nop
-				 bne	$v1, $v0, loc_62150
-				 li	$v0, 6
-				 li	$v0, 5
-				 sb	$v0, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62150 :
-			 bne	$v1, $v0, loc_62164
-				 li	$v0, 2
-				 sb	$v1, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62164 :
-			 bne	$v1, $v0, loc_622C4
-				 li	$v0, 4
-				 sb	$v0, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62178 :
-			 lw	$v1, 0x20 + var_10($sp)
-				 nop
-				 beq	$v1, $v0, loc_62210
-				 sltiu	$v0, $v1, 3
-				 beqz	$v0, loc_621A0
-				 li	$s0, 3
-				 beq	$v1, $a0, loc_621B8
-				 nop
-				 j	loc_622C4
-				 nop
-
-				 loc_621A0 :
-			 beq	$v1, $s0, loc_6227C
-				 li	$v0, 6
-				 beq	$v1, $v0, loc_62298
-				 nop
-				 j	loc_622C4
-				 nop
-
-				 loc_621B8 :
-			 lw	$v1, 0x20 + var_C($sp)
-				 nop
-				 beqz	$v1, loc_621D8
-				 li	$v0, 3
-				 beq	$v1, $v0, loc_621EC
-				 li	$v0, 1
-				 j	loc_62204
-				 nop
-
-				 loc_621D8 :
-			 lbu	$v0, 0x41D8($gp)
-				 nop
-				 sb	$v0, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_621EC :
-			 jal	sub_6A6E4
-				 move	$a0, $zero
-				 li	$v1, 4
-				 sb	$v1, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62204 :
-			 sb	$v0, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62210 :
-			 lw	$a0, 0x20 + var_C($sp)
-				 li	$v0, 3
-				 beq	$a0, $v0, loc_62248
-				 sltiu	$v0, $a0, 4
-				 beqz	$v0, loc_62238
-				 li	$v0, 4
-				 beqz	$a0, loc_6228C
-				 li	$v0, 3
-				 j	loc_6226C
-				 nop
-
-				 loc_62238 :
-			 beq	$a0, $v0, loc_6225C
-				 li	$v0, 3
-				 j	loc_6226C
-				 nop
-
-				 loc_62248 :
-			 jal	sub_61EE8
-				 nop
-				 sb	$zero, 0x41D8($gp)
-				 j	loc_6228C
-				 nop
-
-				 loc_6225C :
-			 sb	$v1, 0x4270($gp)
-				 sb	$v1, 0x41D8($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_6226C :
-			 sb	$v0, 0x4270($gp)
-				 sb	$v0, 0x41D8($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_6227C :
-			 lw	$v0, 0x20 + var_C($sp)
-				 nop
-				 bnez	$v0, loc_622B8
-				 nop
-
-				 loc_6228C :
-			 sb	$zero, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62298 :
-			 lw	$v0, 0x20 + var_C($sp)
-				 nop
-				 bnez	$v0, loc_622B8
-				 nop
-				 jal	sub_61EE8
-				 nop
-				 j	loc_6228C
-				 nop
-
-				 loc_622B8 :
-			 jal	sub_6A6E4
-				 move	$a0, $zero
-				 sb	$s0, 0x4270($gp)
-
-				 loc_622C4 :
-				 lbu	$v0, 0x4270($gp)
-				 lw	$ra, 0x20 + var_4($sp)
-				 lw	$s0, 0x20 + var_8($sp)
-				 jr	$ra
-				 addiu	$sp, 0x20
-				 # End of function sub_620CC
-#endif
-
-				 return -1;
+				return 6;
+			}
+			else if(cmd == stat)
+			{
+				//loc_621B8
+				if(res == 0)
+				{
+					//loc_621D8
+					return mcStatus = mcActualStatus;
+				}
+				else if(res == 3)
+				{
+					//loc_621EC
+					MemCardAccept(0);
+					mcStatus = 4;
+					return 1;
+				}
+				else
+				{
+					//loc_62204
+					mcStatus = 1;
+					return 1;
+				}
+			}
+		}
+		
+		return 2;
+	}
+	else if(stat == -1)
+	{
+		//loc_62120
+		MemCardExist(0);
+	}
+	
+	return -1;
 }
 
 long mcFormat()//622D8(<), 629BC(<) (F)
