@@ -223,6 +223,10 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<)
 
 	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
 
+#if PSX_VERSION
+	gte_SetGeomScreen(phd_persp);
+#endif
+
 	return;
 }
 

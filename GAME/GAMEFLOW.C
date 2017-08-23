@@ -407,7 +407,15 @@ void QuickControlPhase()//10274(<), 10264(<)
 	ProfileRGB(255, 255, 255);
 #endif
 
+#ifdef PSX_VERSION		
+	OldSP = SetSp(0x1F8003E0);
+#endif
+
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
+
+#ifdef PSX_VERSION
+	SetSp(OldSP);
+#endif
 
 #ifdef INTERNAL
 	ProfileRGB(0, 0, 0);
