@@ -1,7 +1,7 @@
 #ifndef THREED_GEN_H
 #define THREED_GEN_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern long phd_left;
 extern long phd_right;
@@ -17,5 +17,8 @@ extern struct VECTOR3D CamTgt;
 
 extern void phd_InitWindow(int view_angle);
 extern long mGetAngle(long x, long z, long tx, long tz);
+
+#define SCREEN_WIDTH 512
+#define SCREEN_HEIGHT 240
 
 #endif

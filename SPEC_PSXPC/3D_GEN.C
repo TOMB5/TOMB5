@@ -5,7 +5,6 @@
 #include "LOAD_LEV.H"
 #include "SPECIFIC.H"
 
-#include <SDL.h>
 #include <assert.h>
 
 long phd_left;
@@ -20,37 +19,24 @@ struct PHD_3DPOS viewer;
 struct VECTOR3D CamPos;
 struct VECTOR3D CamTgt;
 
-
 void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 {
-	int v0 = (((((((view_angle << 1) + view_angle) << 3) - view_angle << 2) - view_angle) >> 3) & 0x1FFE);
-	int a0 = (v0 + 1) << 1;
-
-	short* a00 = (short*)(char*)(&rcossin_tbl[0]) + a0;
-	short* v00 = (short*)(char*)(&rcossin_tbl[0]) + (v0 * 2);
-
-	if (v00[0] == 0)
+	if (rcossin_tbl[(((((((view_angle * 2) + view_angle) * 8) - view_angle) * 4) - view_angle) / 8) & 0x1FFE] == 0)
 	{
 		assert(0);
 	}
-	else
-	{
-		a0 = 256;
-		phd_right = 511;
-		phd_persp = (a00[0] << 8) / v00[0];
-		phd_left = 0;
-		phd_top = 0;
-		phd_bottom = 239;
-		phd_mxptr = &matrix_stack[0];
-		//SetGeomOffset();
-		int a1 = 120;
-		a0 = phd_persp;
-		//SetGeomScreen();
-	}
+
+	//loc_5D7B0
+	phd_right = SCREEN_WIDTH - 1;
+	phd_persp = (rcossin_tbl[((((((((view_angle * 2) + view_angle) * 8) - view_angle) * 4) - view_angle) / 8) & 0x1FFE) + 1] << 8) / rcossin_tbl[(((((((view_angle * 2) + view_angle) * 8) - view_angle) * 4) - view_angle) / 8) & 0x1FFE];
+	phd_left = 0;
+	phd_top = 0;
+	phd_bottom = SCREEN_HEIGHT - 1;
+	phd_mxptr = &matrix_stack[0];
 
 	if (SDL_Init(SDL_INIT_VIDEO) == 0)
 	{
-		g_window = SDL_CreateWindow("TOMB5", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 512, 240, SDL_WINDOW_OPENGL);
+		g_window = SDL_CreateWindow("TOMB5", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
 	}
 	else
 	{
@@ -67,9 +53,12 @@ long mGetAngle(long x/*$a1*/, long z/*$a0*/, long tx/*$a3*/, long tz/*$a2*/)//77
 	int t1 = tx - x;
 	int at = t0 | t1;
 	int v0 = 0;
+	int a0 = 0;
+	int a1 = 0;
+
 	if (at != 0)
 	{
-		int a0 = 0x90000;
+		a0 = 0x90000;
 		if (t0 < 0)
 		{
 			v0 |= 0x10;
@@ -85,7 +74,7 @@ long mGetAngle(long x/*$a1*/, long z/*$a0*/, long tx/*$a3*/, long tz/*$a2*/)//77
 		}
 
 		//796F0
-		int a1 = 0x90000;
+		a1 = 0x90000;
 		if (t0 < t1)
 		{
 			v0 += 4;

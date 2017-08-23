@@ -1,10 +1,13 @@
 #include "MALLOC.H"
 
 #include "GAMEFLOW.H"
+#include "SPECIFIC.H"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#define GAME_MALLOC_BUFFER_SIZE (1024*1024) + (1024*36)
 
 char* malloc_ptr = NULL;
 int malloc_used = 0;
@@ -40,9 +43,9 @@ void init_game_malloc()//5E79C(<), 5F4F8(<) (F)
 
 char* game_malloc(int size)//5E7E8(<), 5F544(<) (F)
 {
-#ifdef INTERNAL
+//#ifdef INTERNAL
 	char buf[80];
-#endif
+//#endif
 
 	char* ptr = NULL;
 
@@ -58,13 +61,13 @@ char* game_malloc(int size)//5E7E8(<), 5F544(<) (F)
 
 		return ptr;
 	}
-#ifdef INTERNAL
+//#ifdef INTERNAL
 	else
 	{		
 		sprintf(buf, "game_malloc() out of space(needs %d only got %d", size, malloc_free);
 		S_ExitSystem(buf);
 	}
-#endif
+//#endif
 	return ptr;
 }
 

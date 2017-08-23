@@ -9,7 +9,7 @@ If you're able to code in C/C++ please feel free to contact me. I can assign you
 1. MIPS Programmer/Interpreter - Translate TR5 MIPS Disassembled output back to C. 
 2. Platform Programmer (Mac) - (Maintain and ensure that the code compiles under Mac OSX).
 3. Platform Programmer (Linux) - (Maintain and ensure that the code compiles under Linux).
-4. General Debugger - Debug existing code gameplay, compare to the original game to ensure code is functioning correctly.
+4. General Debugger - Debug existing gameplay code, compare to the original game to ensure code is functioning correctly.
 5. General Programmer - Clean existing code to improve readability without changing the structure, improve code documentation.
 
 Feel free to contact me on this: [Discord channel](https://discord.gg/KYSx8Q7)

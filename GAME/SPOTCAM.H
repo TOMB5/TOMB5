@@ -3,7 +3,7 @@
 
 #include "CAMERA.H"
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern int bUseSpotCam;
 extern int bDisableLaraControl;

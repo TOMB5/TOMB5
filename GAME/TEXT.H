@@ -1,7 +1,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 extern char AccentTable[46][2];
 extern unsigned char PulseCnt;

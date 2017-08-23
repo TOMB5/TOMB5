@@ -1,10 +1,16 @@
 #include "FILE.H"
 
+#include "CD.H"
 #include "SPECIFIC.H"
+
+#ifdef PSX
+	#include <sys/types.h>
+	#include <libcd.h>
+#endif
 
 #include <stdio.h>
 
-int FILE_Load(char* szFileName, void* pDest)//, 5E5D8
+int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8
 {
 	FILE* fileHandle = NULL;
 	long dwFileSize = 0;
@@ -26,7 +32,7 @@ int FILE_Load(char* szFileName, void* pDest)//, 5E5D8
 		printf("Close\n");
 		fclose(fileHandle);
 
-		return dwBytesRead;
+		
 	}
 	else
 	{
@@ -35,7 +41,7 @@ int FILE_Load(char* szFileName, void* pDest)//, 5E5D8
 		printf("Can't open file");//?
 	}
 
-	return 0;
+	return dwBytesRead;
 }
 
 int FILE_Read(void* pDest, int nItemSize, int nItems, FILE* nHandle)//5E6A8, 

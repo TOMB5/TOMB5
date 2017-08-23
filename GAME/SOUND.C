@@ -8,7 +8,7 @@ short* sample_lut;
 struct SAMPLE_INFO* sample_infos;
 struct SoundSlot LaSlot[MAX_SOUND_SLOTS];
 
-void SayNo()
+void SayNo()//55BE0, 56044
 {
 	int fx = 2;
 
@@ -28,7 +28,9 @@ void SayNo()
 
 void SOUND_Init()//920DC, 94128
 {
-	for (int i = 0; i < MAX_SOUND_SLOTS; i++)
+	int i;
+
+	for (i = 0; i < MAX_SOUND_SLOTS; i++)
 	{
 		LaSlot[i].nSampleInfo = -1;
 	}
@@ -36,15 +38,17 @@ void SOUND_Init()//920DC, 94128
 	sound_active = 1;
 }
 
-void SOUND_Stop()//920A4, ?
+void SOUND_Stop()//920A4, 940F0
 {
+	int i;
+
 	if (sound_active != 0)
 	{
-		for (int i = 0; i < MAX_SOUND_SLOTS; i++)
+		for (i = 0; i < MAX_SOUND_SLOTS; i++)
 		{
 			LaSlot[i].nSampleInfo = -1;
 		}
 
-		//S_SoundStopAllSamples();
+		S_SoundStopAllSamples();
 	}
 }

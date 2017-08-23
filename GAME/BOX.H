@@ -1,7 +1,7 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 #define BOX_BLOCKED (1 << 14)
 #define BOX_LAST    (1 << 15)

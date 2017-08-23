@@ -1,3 +1,8 @@
+#ifndef OBJECTS_H
+#define OBJECTS_H
+
+#include "SPECTYPES.H"
+
 /**************************************************************************************/
 /*                                                                                    */
 /* Available object types: this file is used by room, anim and sprite editors         */
@@ -282,3 +287,30 @@ enum trigger_types {
 enum trigobj_types {
 	TO_OBJECT, TO_CAMERA, TO_SINK, TO_FLIPMAP, TO_FLIPON, TO_FLIPOFF, TO_TARGET, TO_FINISH, TO_CD, TO_FLIPEFFECT, TO_SECRET, TO_BODYBAG, TO_FLYBY, TO_CUTSCENE
 };
+
+extern struct BITE_INFO EnemyBites[9];
+extern int AnimatingWaterfallsVOffset;
+
+extern void HybridCollision(short item_num, struct ITEM_INFO *laraitem, struct COLL_INFO *coll);
+extern void DrawBaddieGunFlash(struct ITEM_INFO *item);
+extern void CutsceneRopeControl(short item_number);
+extern void ControlXRayMachine(short item_number);
+extern void ParallelBarsCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll);
+extern void TightRopeCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll);
+extern void ControlWaterfall(short item_number);
+extern void AnimateWaterfalls();
+extern void ControlTriggerTriggerer(short item_number);
+extern void PoleCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll);
+extern void ControlAnimatingSlots(short item_number);
+extern void BridgeTilt2Ceiling(struct ITEM_INFO *item, long x, long y, long z, long *height);
+extern void BridgeTilt2Floor(struct ITEM_INFO *item, long x, long y, long z, long *height);
+extern void BridgeTilt1Ceiling(struct ITEM_INFO *item, long x, long y, long z, long *height);
+extern long GetOffset(struct ITEM_INFO *item, long x, long z);
+extern void BridgeTilt1Floor(struct ITEM_INFO *item, long x, long y, long z, long *height);
+extern void BridgeFlatCeiling(struct ITEM_INFO *item, long x, long y, long z, long *height);
+extern void BridgeFlatFloor(struct ITEM_INFO *item, long x, long y, long z, long *height);
+extern void SmashObjectControl(short item_number);
+extern void SmashObject(short item_number);
+extern void EarthQuake(short item_number);
+
+#endif
