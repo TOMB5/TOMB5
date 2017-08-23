@@ -1,4 +1,4 @@
-#include "PSXINPUT.H"
+#include "PSXPCINPUT.H"
 
 #include "CONTROL.H"
 
@@ -30,8 +30,8 @@ long RawEdge;
 unsigned char Motors[2];
 long LaraLookY;
 long LaraLookX;
-struct ControllerPacket GPad1;
-struct ControllerPacket GPad2;
+//struct ControllerPacket GPad1;
+//struct ControllerPacket GPad2;
 unsigned long Edge2;
 struct GouraudBarColourSet healthBarColourSet;
 struct GouraudBarColourSet poisonBarColourSet;
@@ -109,7 +109,7 @@ void S_UpdateInput()//5F628, 6038C
 	}//loc_5F6D0
 
 	//loc_5F6D0
-	v0 = GPad1.data.pad;
+//	v0 = GPad1.data.pad;
 	PadConnected = 1;
 
 }

@@ -1,10 +1,6 @@
 #include "PROFILE.H"
 #include "SPECIFIC.H"
 
-#ifdef WIN32 || WIN64
-	#include <windows.h>
-#endif
-
 static struct SCALE scales[3] =
 {
 	{ 0x104, 0, 2 },

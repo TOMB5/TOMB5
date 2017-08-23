@@ -2,6 +2,8 @@
 
 #include "SPECIFIC.H"
 
+#include <LIBMCRD.H>
+
 unsigned char mcInit;
 unsigned char mcStatus;
 unsigned long mcNumFiles;
@@ -132,12 +134,15 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 	mcStatus = 4;
 	mcActualStatus = 0;
 
+	MemCardStart();
+
 	if (sync != 0)
 	{
 		for (i = 0; i < 4; i++)
 		{
 			//loc_62084
 			mcGetStatus();
+			VSync(0);
 		}
 	}
 
@@ -147,8 +152,9 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 
 void mcClose()//620AC
 {
-	S_Warn("[mcClose] - Unimplemented\n");
-
+	MemCardStop();
+	mcInit = 0;
+	
 	return;
 }
 
@@ -349,7 +355,14 @@ long mcFormat()//622D8(<), 629BC(<) (F)
 	unsigned long cmd;
 	unsigned long res;
 
-	S_Warn("[mcFormat] - Unimplemented!\n");
+	MemCardSync(0, &cmd, &res);
+
+	res = MemCardFormat(0);
+	if (res == 0)
+	{
+		mcActualStatus = 0;
+		mcDir();
+	}
 
 	//loc_6230C
 	return res;

@@ -4,13 +4,33 @@
 #include "TYPES.H"
 
 #include <sys/types.h>
+#include <LIBGTE.H>
+#include <LIBGPU.H>
 
-struct room_info {
-	short *data; // size=0, offset=0
-	short *door; // size=0, offset=4
-	struct FLOOR_INFO *floor; // size=8, offset=8
-	struct LIGHTINFO *light; // size=32, offset=12
-	struct MESH_INFO *mesh; // size=20, offset=16
+struct DB_STRUCT
+{
+	int current_buffer;
+	unsigned long* ot;
+	char* polyptr;
+	char* curpolybuf;
+	char* polybuf_limit;
+	int nOTSize;
+	int nPBSize;
+	unsigned long* order_table[2];
+	unsigned long* poly_buffer[2];
+	unsigned long* pickup_ot;
+	unsigned long* pickup_order_table[2];
+	DRAWENV draw[2];
+	DISPENV disp[2];
+};
+
+struct room_info
+{
+	short* data; // size=0, offset=0
+	short* door; // size=0, offset=4
+	struct FLOOR_INFO* floor; // size=8, offset=8
+	struct LIGHTINFO* light; // size=32, offset=12
+	struct MESH_INFO* mesh; // size=20, offset=16
 	long x; // size=0, offset=20
 	long y; // size=0, offset=24
 	long z; // size=0, offset=28
@@ -30,13 +50,13 @@ struct room_info {
 	short top; // size=0, offset=60
 	short bottom; // size=0, offset=62
 	short test_left; // size=0, offset=64
-	short test_right; // size=0, offset=66
-	short test_top; // size=0, offset=68
-	short test_bottom; // size=0, offset=70
-	short item_number; // size=0, offset=72
-	short fx_number; // size=0, offset=74
-	short flipped_room; // size=0, offset=76
-	unsigned short flags; // size=0, offset=78
+	short test_right;
+	short test_top;
+	short test_bottom;
+	short item_number;
+	short fx_number;
+	short flipped_room;
+	unsigned short flags;
 };
 
 struct object_info {
@@ -166,14 +186,12 @@ struct TSV
 	unsigned long rgz;
 };
 
-#if 0
 struct ControllerPacket
 {
 	unsigned char transStatus;
 	unsigned char dataFormat;
-	struct fake76 data;
+	//struct fake76 data;
 };
-#endif
 
 struct pad_configs
 {

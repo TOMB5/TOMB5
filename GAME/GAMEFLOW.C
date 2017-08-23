@@ -7,6 +7,12 @@
 #include "ITEMS.H"
 #include "MALLOC.H"
 #include "NEWINV2.H"
+#if PSXPC_VERSION
+	#include "PSXPCINPUT.H"
+#elif PSX_VERSION
+	#include "PSXINPUT.H"
+#endif
+#include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -26,9 +32,12 @@
 #endif
 
 #include <assert.h>
-
-#ifdef PSXPC_VERSION
+#if PSXPC_VERSION
 	#include <stdint.h>
+#endif
+
+#if PSX_VERSION
+typedef unsigned int uintptr_t;
 #endif
 
 #include <string.h>
@@ -86,10 +95,6 @@ static int gfStatus;
 static unsigned long OldSP;
 unsigned char gfPickups[16];
 unsigned char gfTakeaways[16];
-
-#ifdef PSX_VERSION
-	typedef unsigned int uintptr_t;
-#endif
 
 void DoGameflow()//10F5C(<), 10FD8(<)
 {
@@ -410,15 +415,7 @@ void QuickControlPhase()//10274(<), 10264(<)
 	ProfileRGB(255, 255, 255);
 #endif
 
-#ifdef PSX_VERSION
-	OldSP = SetSp(0x1F8003E0);
-#endif
-
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
-
-#ifdef PSX_VERSION
-	SetSp(OldSP);
-#endif
 
 #ifdef INTERNAL
 	ProfileRGB(0, 0, 0);

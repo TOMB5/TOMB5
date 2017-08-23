@@ -3,11 +3,6 @@
 #include "SOUND.H"
 #include "SPECIFIC.H"
 
-#ifdef PSX_VERSION
-	#include <sys/types.h>
-	#include <LIBSPU.H>
-#endif
-
 short DepthTable[5] =
 {
 	0x0000, 0x0000, 0x1000, 0x0010, 0x1800
@@ -16,7 +11,6 @@ short DepthTable[5] =
 short CurrentReverb;
 int LnSamplesLoaded;
 long LlVABAddr;
-struct SpuVoiceAttr sva;
 unsigned char LabSampleType[MAX_SOUND_SLOTS];
 unsigned char LabFreeChannel[MAX_SOUND_SLOTS];
 int LnFreeChannels;
@@ -25,27 +19,7 @@ unsigned long LadwSampleAddr[256];
 
 void SPU_Init()//62650(<), 62D34(<) (F)
 {
-	int i = 0;//$s0
-#ifdef PSX_VERSION
-	SpuInit();
-	SpuInitMalloc(1, LabSPUMallocArea);
-	SpuSetTransferMode(0);
-	SpuSetCommonMasterVolume(0x3FFF, 0x3FFF);
-	SpuSetReverbModeType(0x103);
-	SpuSetReverbModeDepth(0x1FFF, 0x1FFF);
-	SpuSetReverbVoice(1, -1);
-	SpuSetReverb(1);
-
-	LnFreeChannels = 0;
-
-	//loc_626B4
-	while (i < MAX_SOUND_SLOTS)
-	{
-		SPU_FreeChannel(i++);
-	}
-#else
 	S_Warn("[SPU_Init] - Unimplemented!\n");
-#endif
 	return;
 }
 
@@ -65,10 +39,6 @@ void S_SetReverbType(int Reverb)//91CF4, 93D40
 	if (Reverb != CurrentReverb)
 	{
 		CurrentReverb = Reverb;
-#ifdef PSX
-		SpuSetReverbModeDepth(DepthTable[Reverb], DepthTable[Reverb]);
-		SpuSetReverb(1); //SPU_ON
-#endif
 	}
 }
 
@@ -77,18 +47,6 @@ int SPU_UpdateStatus()//915FC, 93640
 	int i = 0;
 	char status[MAX_SOUND_SLOTS];
 
-#ifdef PSX_VERSION
-	SpuGetAllKeysStatus(&status);
-
-	//loc_9161C
-	for (i = 0; i < MAX_SOUND_SLOTS; i++)
-	{
-		if ((status[i] - 1) < 2 && LabSampleType[i] != 0)
-		{
-			SPU_FreeChannel(i);
-		}
-	}
-#endif
 	return LnFreeChannels;
 }
 

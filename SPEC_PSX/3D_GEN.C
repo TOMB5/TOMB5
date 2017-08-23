@@ -4,8 +4,10 @@
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "SPECIFIC.H"
+#include "TYPES.H"
 
 #include <assert.h>
+#include <LIBGTE.H>
 
 long phd_left;
 long phd_right;
@@ -23,7 +25,7 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 {
 	if (rcossin_tbl[(((((((view_angle * 2) + view_angle) * 8) - view_angle) * 4) - view_angle) / 8) & 0x1FFE] == 0)
 	{
-		assert(0);
+		__asm__ volatile ("break 7");
 	}
 
 	//loc_5D7B0
@@ -34,21 +36,12 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 	phd_bottom = SCREEN_HEIGHT - 1;
 	phd_mxptr = &matrix_stack[0];
 
-	if (SDL_Init(SDL_INIT_VIDEO) == 0)
-	{
-		g_window = SDL_CreateWindow("TOMB5", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
-	}
-	else
-	{
-		S_ExitSystem("Error: Failed to initialise SDL\n");
-	}
-
-	SDL_GLContext context = SDL_GL_CreateContext(g_window);
+	SetGeomOffset(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+	SetGeomScreen(phd_persp);
 }
 
 long mGetAngle(long x/*$a1*/, long z/*$a0*/, long tx/*$a3*/, long tz/*$a2*/)//77678(<), 796BC(<)
 {
-
 	int t0 = tz - z;
 	int t1 = tx - x;
 	int at = t0 | t1;

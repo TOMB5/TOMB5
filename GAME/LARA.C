@@ -1,7 +1,9 @@
 #include "LARA.H"
 
 #include "SPECIFIC.H"
-#ifndef PC_VERSION
+#if PSXPC_VERSION
+#include "PSXPCINPUT.H"
+#elif PSX_VERSION
 #include "PSXINPUT.H"
 #endif
 

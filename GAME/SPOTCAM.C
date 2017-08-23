@@ -5,8 +5,10 @@
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "OBJECTS.H"
-#ifndef PC_VERSION
-#include "PSXINPUT.H"
+#if PSXPC_VERSION
+	#include "PSXPCINPUT.H"
+#elif PSX_VERSION
+	#include "PSXINPUT.H"
 #endif
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"

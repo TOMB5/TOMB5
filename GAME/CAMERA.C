@@ -15,12 +15,9 @@
 #endif
 
 #include <assert.h>
-#ifdef PSXPC_VERSION
-	#include <math.h>
-#endif
 
-#ifdef PSX_VERSION
-	#include <INLINE_O.H>
+#if PSXPC_VERSION || PC_VERSION
+	#include <math.h>
 #endif
 
 #include <stddef.h>
@@ -225,25 +222,18 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 
 void AlterFOV(short fov)//77BD8(<), 79C1C(<)
 {
-#ifndef PC_VERSION
 	CurrentFov = fov;
 
 	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
 
-#ifdef PSX_VERSION
-	gte_SetGeomScreen(phd_persp);
-#endif
-#endif
 	return;
 }
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#ifdef PSXPC_VERSION
-	//We don't actually use this since lara_item is not inited.
+	//lara_item is not inited.
 	//Also, GetBoundsAccurate is not implemented.
-	return;
-
+#if 0
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;

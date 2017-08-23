@@ -12,21 +12,15 @@
 #include "SPECIFIC.H"
 #include "SPUSOUND.H"
 #include "TEXT.H"
-// ugly hack
-#undef main
 
-#ifdef PSX_VERSION
-	#include <sys/types.h>
-	#include <LIBAPI.H>
-	#include <LIBCD.H>
-	#include <LIBETC.H>
-	#include <LIBGTE.H>
-	#include <LIBGPU.H>
-	#include <LIBPAD.H>
-	#include <stdio.h>
-#else
-	#include <SDL.h>
-#endif
+#include <sys/types.h>
+#include <LIBAPI.H>
+#include <LIBCD.H>
+#include <LIBETC.H>
+#include <LIBGTE.H>
+#include <LIBGPU.H>
+#include <LIBPAD.H>
+#include <stdio.h>
 
 void VSyncFunc()//10000(<), 10000(<) (F)
 {
@@ -46,8 +40,6 @@ void VSyncFunc()//10000(<), 10000(<) (F)
 
 int main(int argc, char* args[])//10064(<), 10064(!)
 {
-	
-#ifdef PSX_VERSION
 	SetSp(0x801FFFE0);
 	ResetCallback();
 
@@ -56,12 +48,12 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 	ResetGraph(0);
 	SetGraphDebug(0);
 	InitGeom();
+	
 	SetDefDrawEnv(&db.draw[0], 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	SetDefDrawEnv(&db.draw[1], 0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	SetDefDispEnv(&db.disp[0], 0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
 	SetDefDispEnv(&db.disp[1], 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-#endif
 
 	db.draw[0].dtd = 1;
 	db.draw[0].isbg = 1;
@@ -71,9 +63,9 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 	GPU_ClearVRAM();
 	GPU_FlipToBuffer(0);
 
-#ifdef PSX_VERSION
 	SetDispMask(1);
 	VSyncCallback(&VSyncFunc);
+	
 	VSync(0);
 	DrawSync(0);
 
@@ -82,14 +74,11 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 	MemCardInit(1);
 
 	PadInitDirect(&GPad1.transStatus, &GPad2.transStatus);
-
 	PadSetAct(0, &Motors[0], 2);
-
 	PadStartCom();
 
 	CdInit();
 	CdSetDebug(0);
-#endif
 
 	InitNewCDSystem();
 	CDDA_SetMasterVolume(192);

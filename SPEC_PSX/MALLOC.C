@@ -123,16 +123,5 @@ void show_game_malloc_totals()//5E894(<), * (F)
 
 void dump_game_malloc()//*, *
 {
-	FILE* fileHandle = NULL;
-
-	fileHandle = fopen("DUMP.BIN", "wb");
-	if (fileHandle != NULL)
-	{
-		fwrite(&malloc_buffer[0], sizeof(char), GAME_MALLOC_BUFFER_SIZE, fileHandle);
-		fclose(fileHandle);
-	}
-	else
-	{
-		printf("Failed to dump memory!\n");
-	}
+	return;
 }

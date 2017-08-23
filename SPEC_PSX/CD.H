@@ -3,6 +3,9 @@
 
 #include "SPECTYPES.H"
 
+#include <sys/types.h>
+#include <libcd.h>
+
 #define CD_SECTOR_SIZE (2048)
 
 #define NUM_BITS_IN_BYTE 8
@@ -29,7 +32,7 @@
 #define GAMEWAD_HEADER_MAX_LENGTH 512
 
 //Filename for PSX "GAMEWAD" that is a container storing all levelfiles and load screens.
-#define GAMEWAD_FILENAME "GAMEWAD.OBJ"
+#define GAMEWAD_FILENAME "\\GAMEWAD.OBJ;1"
 
 //Cleanly named gamewad file indices
 //RESERVED_* are file entry indices that are null/unused.
@@ -89,8 +92,6 @@ enum gw_files
 	UNKNOWN_50  //4bpp  TR4 Logo         (ENG)  256x58
 };
 
-#pragma pack(push, 1)
-
 //If changed update GAMEWAD_ENTRYSIZE to the size of this struct.
 struct GAMEWAD_entry
 {
@@ -98,19 +99,13 @@ struct GAMEWAD_entry
 	int fileSize;
 };
 
+#define GAMEWAD_ENTRYSIZE 8
+
 struct GAMEWAD_header
 {
 	struct GAMEWAD_entry entries[NUM_GAMEWAD_FILE_ENTRIES];
-	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * sizeof(GAMEWAD_entry))];
+	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * GAMEWAD_ENTRYSIZE)];
 };
-
-#pragma pack(pop)
-
-
-//If you recieve this warning, make sure you have recompiled GAMEWAD.OBJ since the header size is greater than retail files.
-#if (NUM_GAMEWAD_FILE_ENTRIES * GAMEWAD_ENTRYSIZE) - GAMEWAD_HEADER_MAX_LENGTH > GAMEWAD_HEADER_MAX_LENGTH
-		#pragma message("Warning: Gamewad header size exceeds limit!")
-#endif
 
 int CD_InitialiseReaderPosition(int fileID);
 void CD_Read(int fileSize, char* ptr);
@@ -126,6 +121,7 @@ extern void cbvsync();
 extern void InitNewCDSystem();
 extern void S_CDPlay(short track, int mode);
 extern void S_CDStop();
+extern void S_CDPause();
 extern void CDDA_SetMasterVolume(int nVolume);
 extern void CDDA_SetVolume(int nVolume);
 extern void DEL_ChangeCDMode(int mode);
@@ -144,5 +140,7 @@ extern short XAReqTrack;
 extern char XAFlag;
 extern char XAWait;
 extern int XAStartPos;
+
+extern CdlFILE fp;
 
 #endif

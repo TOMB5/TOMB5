@@ -5,9 +5,11 @@
 #include "GPU.H"
 #include "MALLOC.H"
 #include "PROFILE.H"
+#include "TYPES.H"
 
-#include <stddef.h>
 #include <assert.h>
+#include <stddef.h>
+#include <LIBGTE.H>
 
 #if 0
 #include <limits>
@@ -80,7 +82,7 @@ unsigned short ScalarTable[198] =
 };
 
 struct MATRIX3D iMatrixStack[32];
-struct SVECTOR CamRot;
+SVECTOR CamRot;
 struct MATRIX3D* iMatrix;
 unsigned short MatrixSP;
 struct MATRIX3D MatrixStack[32];
@@ -330,6 +332,7 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
 
 		//loc_5F0B4
 		//draw_rotate_sprite(a0, a1, a2);
+		db.current_buffer ^= 1;
 		GnLastFrameCount = 0;
 		//DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);
 	}
@@ -351,6 +354,18 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	int fileSize, x, y, i;
 	unsigned short dat;
 
+	DrawSync(0);
+	VSync(0);
+	//GPU_UseOrderingTables(dword_AD920);
+
+	db.draw[0].isbg = 0;
+	db.draw[1].isbg = 0;
+	db.draw[0].dtd = 0;
+	db.draw[1].dtd = 0;
+
+#ifdef PSX_VERSION
+	//jal sub_6B440 //PutDispEnv(&db.draw[0]);
+#endif
 
 	//?
 	dword_A5EE0 = 0;
@@ -383,6 +398,9 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 		tmpptr[i] |= (SHRT_MAX + 1) << 16 | (SHRT_MAX + 1);
 	}
 
+	//jal sub_6B1C4 //StoreImage(); //frame buffer (gfx, LOADING_SCREEN_IMG_SIZE)
+	DrawSync(0);
+
 	cdgfx = (unsigned short*)(gfx + LOADING_SCREEN_IMG_SIZE);
 	gfx2 = (unsigned short*)gfx;
 
@@ -407,7 +425,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 
 	//int a0 = 0xA5FD0;//pScreenDimensions {shrt unk, shrt h, shrt w}
 	//jal sub_6B1C4 //StoreImage(s2); frame buffer
-	//sub_6B144 //DrawSync(0);
+	DrawSync(0);
 
 	game_free(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 
@@ -422,9 +440,16 @@ void LOAD_Stop()//60434(<), 60FB4(<) (F)
 
 	LoadingBarEnabled = 0;
 
+	db.draw[1].isbg = 1;
+	db.draw[0].isbg = 1;
+	db.draw[1].dtd = 1;
+	db.draw[0].dtd = 1;
+
 	GPU_UseOrderingTables(&GadwOrderingTables[0], 2564);
+	db.current_buffer = 0;
 
 	GPU_SyncBothScreens();
+	db.current_buffer = 1;
 
 #ifdef INTERNAL
 	ProfileDraw = 1;
