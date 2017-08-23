@@ -2,10 +2,6 @@
 
 #include "SPECIFIC.H"
 
-#ifdef PSX_VERSION
-	#include <LIBMCRD.H>
-#endif
-
 unsigned char mcInit;
 unsigned char mcStatus;
 unsigned long mcNumFiles;

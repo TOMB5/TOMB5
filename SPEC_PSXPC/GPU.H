@@ -3,18 +3,7 @@
 
 #include "SPECTYPES.H"
 
-#ifdef PSXPC_VERSION
-	#include <SDL.h>
-#else
-	#include <sys/types.h>
-	#include <LIBAPI.H>
-	#include <LIBCD.H>
-	#include <LIBETC.H>
-	#include <LIBGTE.H>
-	#include <LIBGPU.H>
-	#include <LIBPAD.H>
-	#include <stdio.h>
-#endif
+#include <SDL.h>
 
 extern unsigned long GnFrameCounter;
 extern unsigned long GnLastFrameCount;
@@ -38,11 +27,6 @@ extern void GPU_GetScreenPosition(short x, short y);
 extern void GPU_ClearVRAM();
 extern void GPU_FlipToBuffer(int buffer_index);
 extern void GPU_GetScreenPosition(short x, short y);
-#ifdef PSX_VERSION
-extern void clear_a_rect(RECT* rect);
-#endif
-#ifdef PSXPC_VERSION
-	extern SDL_Window* g_window;
-#endif
+extern SDL_Window* g_window;
 
 #endif
