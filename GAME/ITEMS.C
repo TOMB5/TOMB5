@@ -18,23 +18,23 @@ short GlobalPulleyFrigItem;
 
 void EffectNewRoom(short fx_num, short room_number)//42320, 42774
 {
-	S_Warn("[EffectNewRoom] - Unimplemented!\\n");
+	S_Warn("[EffectNewRoom] - Unimplemented!\n");
 }
 
 void KillEffect(short fx_num)//42178, 425CC
 {
-	S_Warn("[KillEffect] - Unimplemented!\\n");
+	S_Warn("[KillEffect] - Unimplemented!\n");
 }
 
 short CreateEffect(short room_num)//420E0, 42534
 {
-	S_Warn("[CreateEffect] - Unimplemented!\\n");
+	S_Warn("[CreateEffect] - Unimplemented!\n");
 	return 0;
 }
 
 void InitialiseFXArray(int allocmem)//4207C, 424D0
 {
-	S_Warn("[InitialiseFXArray] - Unimplemented!\\n");
+	S_Warn("[InitialiseFXArray] - Unimplemented!\n");
 }
 
 void AddActiveItem(short item_num)//41FEC(<), 42440(<)
@@ -63,7 +63,7 @@ void AddActiveItem(short item_num)//41FEC(<), 42440(<)
 
 void RemoveDrawnItem(short item_num)//41F48, 4239C
 {
-	S_Warn("[RemoveDrawnItem] - Unimplemented!\\n");
+	S_Warn("[RemoveDrawnItem] - Unimplemented!\n");
 }
 
 void RemoveActiveItem(short item_num)//41E98, 422EC

@@ -22,12 +22,12 @@ short CurrentPickup = 0;
 
 void AddDisplayPickup(short object_number)
 {
-	S_Warn("[AddDisplayPickup] - Unimplemented!\\n");
+	S_Warn("[AddDisplayPickup] - Unimplemented!\n");
 }
 
 void DrawPickups(int timed)
 {
-	S_Warn("[DrawPickups] - Unimplemented!\\n");
+	S_Warn("[DrawPickups] - Unimplemented!\n");
 }
 
 void InitialisePickUpDisplay()//3B580, 3B9DC
@@ -46,12 +46,12 @@ void InitialisePickUpDisplay()//3B580, 3B9DC
 
 void DrawAirBar(int flash_state)
 {
-	S_Warn("[DrawAirBar] - Unimplemented!\\n");
+	S_Warn("[DrawAirBar] - Unimplemented!\n");
 }
 
 void DrawHealthBar(int flash_state)
 {
-	S_Warn("[DrawHealthBar] - Unimplemented!\\n");
+	S_Warn("[DrawHealthBar] - Unimplemented!\n");
 }
 
 void DrawGameInfo(int timed)///TODO jr ra retail
