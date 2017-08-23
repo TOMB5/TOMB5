@@ -1,6 +1,9 @@
 #include "SPECIFIC.H"
 
+#include "CAMERA.H"
+#include "CD.H"
 #include "GPU.H"
+#include "PROFILE.H"
 #include "REQUEST.H"
 #include "SOUND.H"
 
@@ -34,9 +37,7 @@ unsigned short nAnimUVRanges;
 int GtSFXEnabled;
 short AnimatingTexturesV[16][8][3];
 
-#ifdef PSX_VERSION
-	#define EXIT_FAILURE 1
-#endif
+#define EXIT_FAILURE 1
 
 void DisplayStatsUCunt()//61928(<), 625A8(<) (F)
 {
@@ -49,9 +50,30 @@ short S_Death()//61658, 622C8
 	return 0;
 }
 
-void gInit()//615CC, 6210C
+void gInit()//615CC(<), 6210C(<) (F)
 {
-	S_Warn("[gInit] - Unimplemented!\n");
+	SOUND_Stop();
+	XAFadeRate = 32;
+	XAReqVolume = 0;
+
+#if INTERNAL
+	ProfileDraw = 0;
+#endif
+	CreateMonoScreen();
+
+	if(XAVolume != 0)
+	{
+		do
+		{
+			XAReqVolume = 0;
+		}while(XAVolume != 0);
+	}
+	
+	S_CDPause();
+	S_SetReverbType(1);
+	camera.number_frames = 2;
+
+	return;
 }
 
 int DoPauseMenu()//60F34, 61A68
@@ -81,21 +103,12 @@ void S_Warn(char* warning_message)
 
 int S_SoundStopAllSamples()//91D34, 93D80
 {
-	int ret;
-
 	if (GtSFXEnabled == 0)
 	{
 		return 0;
 	}
 
-	SpuSetKey(0, 0xFFFFFF);
-
-	do
-	{
-		ret = SPU_UpdateStatus();
-	} while (ret != MAX_SOUND_SLOTS);
-
-	return ret;
+	return SPU_StopAll();
 }
 
 long S_DumpScreen()//607A8(<), 61320(<) (F)

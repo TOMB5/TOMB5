@@ -354,11 +354,9 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 	int fileSize, x, y, i;
 	unsigned short dat;
 
-#ifdef PSX_VERSION
-	//jal sub_6B144 //DrawSync(0);
-	//jal sub_6A1FC //VSync(0);
-	//jal sub_5F1C8 //GPU_UseOrderingTables(dword_AD920);
-#endif
+	DrawSync(0);
+	VSync(0);
+	//GPU_UseOrderingTables(dword_AD920);
 
 	db.draw[0].isbg = 0;
 	db.draw[1].isbg = 0;
@@ -400,10 +398,8 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 		tmpptr[i] |= (SHRT_MAX + 1) << 16 | (SHRT_MAX + 1);
 	}
 
-#ifdef PSX_VERSION
 	//jal sub_6B1C4 //StoreImage(); //frame buffer (gfx, LOADING_SCREEN_IMG_SIZE)
-	//jal sub_6B144 //DrawSync();
-#endif
+	DrawSync(0);
 
 	cdgfx = (unsigned short*)(gfx + LOADING_SCREEN_IMG_SIZE);
 	gfx2 = (unsigned short*)gfx;
@@ -429,7 +425,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 
 	//int a0 = 0xA5FD0;//pScreenDimensions {shrt unk, shrt h, shrt w}
 	//jal sub_6B1C4 //StoreImage(s2); frame buffer
-	//sub_6B144 //DrawSync(0);
+	DrawSync(0);
 
 	game_free(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 

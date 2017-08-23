@@ -80,8 +80,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 		{
 			XAFlag++;
 		}
-
-		goto dflt;
+		
 		break;
 	}
 	case 1:
@@ -104,9 +103,6 @@ void cbvsync()//5D884(<), 5DD00(<)
 		
 		XAFlag++;
 
-		//loc_5D8D8
-		goto dflt;
-
 		break;
 	}
 	case 2:
@@ -115,9 +111,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 		XAReplay();
 		XAReqVolume = XAMasterVolume;
 		XAFlag++;
-
-		goto dflt;
-
+		
 		break;
 	}
 	case 3:
@@ -128,9 +122,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 			XAFlag++;
 			XAWait = 60;
 		}
-
-		goto dflt;
-
+		
 		break;
 	}
 	case 4:
@@ -142,9 +134,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 		}
 
 		XAWait--;
-
-		goto dflt;
-
+		
 		break;
 	}
 	case 5:
@@ -200,45 +190,40 @@ void cbvsync()//5D884(<), 5DD00(<)
 					XAReplay();
 				}
 			}
-
-			goto dflt;
 		}
 
 		break;
 	}
 	default:
+		break;
+	}
 
-	dflt:
-		//def_5D8B8
+	//def_5D8B8
+	if (XAVolume < XAReqVolume)
+	{
+		XAVolume += XAFadeRate;
 		if (XAVolume < XAReqVolume)
 		{
-			XAVolume += XAFadeRate;
-			if (XAVolume < XAReqVolume)
+			XAVolume = XAReqVolume;
+		}//loc_5DB78
+
+		CDDA_SetVolume(XAVolume);
+	}
+	else
+	{
+		//loc_5DB94
+		if (XAReqVolume < XAVolume)
+		{
+			XAVolume -= XAFadeRate;
+			if (!(XAReqVolume < XAVolume))
 			{
 				XAVolume = XAReqVolume;
-			}//loc_5DB78
+			}
 
+			//loc_5DBEC
 			CDDA_SetVolume(XAVolume);
-		}
-		else
-		{
-			//loc_5DB94
-			if (XAReqVolume < XAVolume)
-			{
-				XAVolume -= XAFadeRate;
-				if (!(XAReqVolume < XAVolume))
-				{
-					XAVolume = XAReqVolume;
-				}
 
-				//loc_5DBEC
-				CDDA_SetVolume(XAVolume);
-
-			}//loc_5DC00
-		}
-
-		//loc_5DC00
-		break;
+		}//loc_5DC00
 	}
 
 	//loc_5DC00
@@ -378,6 +363,16 @@ void S_CDStop()//5DCD0(<), 5E14C(<)
 	XATrack = -1;
 
 	DEL_ChangeCDMode(0);
+	return;
+}
+
+void S_CDPause()//5DD14(<), 5E190(<) (F)
+{
+	if(XATrack > 0)
+	{
+		CdControlF(CdlPause, 0);
+	}
+
 	return;
 }
 

@@ -6,10 +6,13 @@
 #include <sys/types.h>
 #include <LIBSPU.H>
 
-short DepthTable[5] =
+short DepthTable[] =
 {
 	0x0000, 0x0000, 0x1000, 0x0010, 0x1800
 };
+
+//Number of times SPU malloc can be called.
+#define MAX_SPU_MALLOC_CALLS 1
 
 short CurrentReverb;
 int LnSamplesLoaded;
@@ -18,36 +21,47 @@ SpuVoiceAttr sva;
 unsigned char LabSampleType[MAX_SOUND_SLOTS];
 unsigned char LabFreeChannel[MAX_SOUND_SLOTS];
 int LnFreeChannels;
-static unsigned char LabSPUMallocArea[16];
+static unsigned char LabSPUMallocArea[SPU_MALLOC_RECSIZ * (MAX_SPU_MALLOC_CALLS + 1)];
 unsigned long LadwSampleAddr[256];
 
-void SPU_Init()//62650(<), 62D34(<) (F)
+
+void SPU_FreeSamples()//62610, 62CF4
 {
-	int i = 0;
+	SPU_StopAll();
 	
-	SpuInit();
-	SpuInitMalloc(1, LabSPUMallocArea);
-	SpuSetTransferMode(0);
-	SpuSetCommonMasterVolume(0x3FFF, 0x3FFF);
-	SpuSetReverbModeType(0x103);
-	SpuSetReverbModeDepth(0x1FFF, 0x1FFF);
-	SpuSetReverbVoice(1, -1);
-	SpuSetReverb(1);
-
-	LnFreeChannels = 0;
-
-	//loc_626B4
-	while (i < MAX_SOUND_SLOTS)
+	if(LnSamplesLoaded != 0)
 	{
-		SPU_FreeChannel(i++);
+		SpuFree(LlVABAddr);
 	}
+
+	LlVABAddr = 0;
+	LnSamplesLoaded = 0;
 	
 	return;
 }
 
-void SPU_FreeSamples()//62610, 62CF4
+void SPU_Init()//62650(<), 62D34(<) (F)
 {
-	S_Warn("[SPU_FreeSamples] - Unimplemented!\n");
+	int nChannel;
+	
+	SpuInit();
+	SpuInitMalloc(MAX_SPU_MALLOC_CALLS, LabSPUMallocArea);
+	SpuSetTransferMode(SPU_TRANSFER_BY_DMA);
+	SpuSetCommonMasterVolume(0x3FFF, 0x3FFF);
+	SpuSetReverbModeType(SPU_REV_MODE_STUDIO_B | SPU_REV_MODE_CLEAR_WA);
+	SpuSetReverbModeDepth(0x1FFF, 0x1FFF);
+	SpuSetReverbVoice(SPU_ON, SPU_ALLCH);
+	SpuSetReverb(SPU_ON);
+
+	LnFreeChannels = 0;
+
+	//loc_626B4
+	while (nChannel < MAX_SOUND_SLOTS)
+	{
+		SPU_FreeChannel(nChannel++);
+	}
+	
+	return;
 }
 
 void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
@@ -65,6 +79,21 @@ void S_SetReverbType(int Reverb)//91CF4, 93D40
 		SpuSetReverbModeDepth(DepthTable[Reverb], DepthTable[Reverb]);
 		SpuSetReverb(SPU_ON);
 	}
+}
+
+void SPU_StopAll()
+{
+	int ret;
+
+	SpuSetKey(SPU_OFF, SPU_ALLCH);
+	
+	do
+	{
+		ret = SPU_UpdateStatus();
+	}
+	while (ret != MAX_SOUND_SLOTS);
+	
+	return ret;
 }
 
 int SPU_UpdateStatus()//915FC, 93640
