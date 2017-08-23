@@ -11,7 +11,7 @@ short* ground_zone[5][2];
 unsigned short testclip;
 unsigned short loops;
 
-void AlertNearbyGuards(ITEM_INFO* item)//24D20(<), 24F2C(<)
+void AlertNearbyGuards(struct ITEM_INFO* item)//24D20(<), 24F2C(<)
 {
 	int slot = 4;
 	struct creature_info* cinfo = baddie_slots;
@@ -20,9 +20,10 @@ void AlertNearbyGuards(ITEM_INFO* item)//24D20(<), 24F2C(<)
 	long y = 0;
 	long z = 0;
 	long distance = 0;
+	int i = 0;
 
 	//loc_24D3C
-	for (int i = 0; i < slot; i++)
+	for (i = 0; i < slot; i++)
 	{
 		if (cinfo->item_num == -1)
 		{

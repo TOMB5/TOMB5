@@ -1,8 +1,6 @@
 #ifndef MALLOC_H
 #define MALLOC_H
 
-#define GAME_MALLOC_BUFFER_SIZE (1024*1024) + (1024*36)
-
 extern void init_game_malloc();
 extern char* game_malloc(int size);
 extern void game_free(int size);
@@ -13,6 +11,6 @@ extern char* malloc_ptr;
 extern int malloc_used;
 extern int malloc_free;
 extern int script_malloc_size;
-extern char malloc_buffer[GAME_MALLOC_BUFFER_SIZE];
+extern char malloc_buffer[];
 
 #endif

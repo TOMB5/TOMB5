@@ -1,6 +1,6 @@
 #include "ROOMLOAD.H"
 
-#include "GAMEWAD.H"
+#include "CD.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "SPECIFIC.H"
 
 long AnimFilePos;
 long AnimFileLen;
@@ -31,6 +32,8 @@ int dword_800A60D8 = 0;
 
 void S_LoadLevelFile(int Name)//60188, 60D54(<)
 {
+	int a0, a1, s0, v0, v1;
+	unsigned long* s00;
 #ifdef INTERNAL
 	char buf[80];
 	unsigned long* mod;
@@ -60,7 +63,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	int a1 = 0;
 	int a2 = 0;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	PCOpen();
 #else
 	file = fopen("DATA\\SETUP.MOD", "rb");
@@ -75,7 +78,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	//	FILE_Read();
 	///a3 = s00;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	PCclose();
 #else
 	fclose(file);
@@ -109,7 +112,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 
 	a1 = 0;
 
-#ifdef PSX
+#ifdef PSX_VERSION
 	PCopen();
 #else
 	file = fopen((const char*)file, buf);
@@ -130,32 +133,31 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	LOAD_Stop();
 #else
 
-	int a0 = Name;
-	int s0 = a0 + 2;//+2 because first entry is setup.mod and second is cutseq.jiz
+	a0 = Name;
+	s0 = a0 + 2;//+2 because first entry is setup.mod and second is cutseq.jiz
 	
 	//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
-	GAMEWAD_InitialiseReaderPosition(Name + TITLE);
+	CD_InitialiseReaderPosition(Name + TITLE);
 	
 	a0 = 0;
-	//jal sub_6B144 //ResetCallback();
-	
+
 	init_game_malloc();
 	
 	a0 = s0;
 	LOAD_Start(Name);//FIXME incorRECTTRC ptr returning
 
-	int v0 = 0x000A0000;
-	int v1 = 0x000B0000;
+	v0 = 0x000A0000;
+	v1 = 0x000B0000;
 
-	unsigned long* s00 = db.poly_buffer[0];
-	int a1 = dword_800AD724;//illegal value
+	//s00 = db.poly_buffer[0];
+	a1 = dword_800AD724;//illegal value
 	v0 = s0 + 0x1008;//OurSqrt?
 	//SetupPtr = v0;///@FIXME illegal ptr
 
 	//addiu	$a0, $s0, 0x1000 //looks like the ptr?
 	
 	//FIXME should switch offset 0x6E5
-	GAMEWAD_Read(SETUP_MOD_FILE_SIZE, setupBuff); //jal sub_5E414 //Loads setup.mod to ptr 0xB2940
+	CD_Read(SETUP_MOD_FILE_SIZE, setupBuff); //jal sub_5E414 //Loads setup.mod to ptr 0xB2940
 	
 	//a0 = SetupPtr;
 	//lw	$a1, 0x1000($s0)
@@ -165,9 +167,17 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	//lw	$v0, 0x38C4($gp)
 	//lw	$v1, 0x14($v0)
 	//jalr	$v1
+	printf("RELOCATE LEVEL\n");
 	RelocateLevel();
+
+	printf("END RELOCATE LEVEL\n");
 	//a0 = s1;
 
 	LOAD_Stop();
 #endif
+}
+
+void ReloadAnims(int name, long len)//600E4, 60D20
+{
+	S_Warn("[ReloadAnims] - Unimplemented!\n");
 }

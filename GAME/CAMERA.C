@@ -13,6 +13,7 @@
 
 #include <assert.h>
 #include <math.h>
+
 #include <stddef.h>
 
 long BinocularRange;
@@ -213,14 +214,13 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 	return;
 }
 
-void AlterFOV(short fov)//77BD8, 79C1C
+void AlterFOV(short fov)//77BD8(<), 79C1C(<)
 {
 	CurrentFov = fov;
 
-	short* rcossin_ptr = &rcossin_tbl[((fov + ((fov << 16) >> 31) >> 3) & 0x3FFC) / sizeof(short)];
-	//short* rcossin_ptr = &rcossin_tbl[((fov + ((fov << 16) >> 31) >> 3) & 0x3FFC) / sizeof(short)];
-	phd_persp = ((rcossin_ptr[1] << 8) / rcossin_ptr[0]);
-	///ctc2	$a0, $26 //?unknown instruction
+	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
+
+	return;
 }
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
@@ -654,7 +654,6 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	camera.lara_node = -1;
 	camera.last_item = item;
 	camera.item = NULL;
-
 	return;
 }
 

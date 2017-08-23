@@ -1,7 +1,7 @@
 #ifndef HAIR_H
 #define HAIR_H
 
-#include "PSXTYPES.H"
+#include "SPECTYPES.H"
 
 void InitialiseHair();
 
