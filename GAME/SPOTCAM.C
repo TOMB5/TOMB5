@@ -5,7 +5,11 @@
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "OBJECTS.H"
-#include "PSXPCINPUT.H"
+#if PSXPC_VERSION
+	#include "PSXPCINPUT.H"
+#elif PSX_VERSION
+	#include "PSXINPUT.H"
+#endif
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "SWITCH.H"
@@ -13,7 +17,9 @@
 
 #include <assert.h>
 
-#include <math.h>
+#if PSXPC_VERSION
+	#include <math.h>
+#endif
 
 #define MULFP(A, B) ((A % B) << 16) | ((A * B) >> 16)
 #define DIVFP(A, B) (A / (B >> 8)) << 8

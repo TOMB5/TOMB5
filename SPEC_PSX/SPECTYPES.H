@@ -24,12 +24,13 @@ struct DB_STRUCT
 	DISPENV disp[2];
 };
 
-struct room_info {
-	short *data; // size=0, offset=0
-	short *door; // size=0, offset=4
-	struct FLOOR_INFO *floor; // size=8, offset=8
-	struct LIGHTINFO *light; // size=32, offset=12
-	struct MESH_INFO *mesh; // size=20, offset=16
+struct room_info
+{
+	short* data; // size=0, offset=0
+	short* door; // size=0, offset=4
+	struct FLOOR_INFO* floor; // size=8, offset=8
+	struct LIGHTINFO* light; // size=32, offset=12
+	struct MESH_INFO* mesh; // size=20, offset=16
 	long x; // size=0, offset=20
 	long y; // size=0, offset=24
 	long z; // size=0, offset=28
@@ -49,13 +50,13 @@ struct room_info {
 	short top; // size=0, offset=60
 	short bottom; // size=0, offset=62
 	short test_left; // size=0, offset=64
-	short test_right; // size=0, offset=66
-	short test_top; // size=0, offset=68
-	short test_bottom; // size=0, offset=70
-	short item_number; // size=0, offset=72
-	short fx_number; // size=0, offset=74
-	short flipped_room; // size=0, offset=76
-	unsigned short flags; // size=0, offset=78
+	short test_right;
+	short test_top;
+	short test_bottom;
+	short item_number;
+	short fx_number;
+	short flipped_room;
+	unsigned short flags;
 };
 
 struct object_info {
@@ -185,14 +186,12 @@ struct TSV
 	unsigned long rgz;
 };
 
-#if 0
 struct ControllerPacket
 {
 	unsigned char transStatus;
 	unsigned char dataFormat;
-	struct fake76 data;
+	//struct fake76 data;
 };
-#endif
 
 struct pad_configs
 {
@@ -291,33 +290,6 @@ struct PACKEDNAME
 	unsigned short Slot;
 	unsigned char Level;
 	unsigned char Pad;
-};
-
-struct savegame_info {
-	
-	short Checksum; // size=0, offset=0
-	unsigned short VolumeCD; // size=0, offset=2
-	unsigned short VolumeFX; // size=0, offset=4
-	short ScreenX; // size=0, offset=6
-	short ScreenY; // size=0, offset=8
-	unsigned char ControlOption; // size=0, offset=10
-	unsigned char VibrateOn; // size=0, offset=11
-	unsigned char AutoTarget; // size=0, offset=12
-	struct lara_info Lara; // size=352, offset=16
-	STATS Level; // size=20, offset=368
-	STATS Game; // size=20, offset=388
-	short WeaponObject; // size=0, offset=408
-	short WeaponAnim; // size=0, offset=410
-	short WeaponFrame; // size=0, offset=412
-	short WeaponCurrent; // size=0, offset=414
-	short WeaponGoal; // size=0, offset=416
-	unsigned long CutSceneTriggered1; // size=0, offset=420
-	unsigned long CutSceneTriggered2; // size=0, offset=424
-	char GameComplete; // size=0, offset=428
-	unsigned char CurrentLevel; // size=0, offset=429
-	unsigned char CampaignSecrets[4]; // size=4, offset=430
-	unsigned char TLCount; // size=0, offset=
-	
 };
 
 #endif

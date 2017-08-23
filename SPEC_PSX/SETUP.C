@@ -11,7 +11,6 @@
 #include "MALLOC.H"
 #include "ROOMLOAD.H"
 #include "SPOTCAM.H"
-#include "TYPES.H"
 
 #include <assert.h>
 #include <stddef.h>

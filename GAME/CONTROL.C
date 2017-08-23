@@ -13,7 +13,11 @@
 #include "LARA.H"
 #include "LOAD_LEV.H"
 #include "PICKUP.H"
+#if PSXPC_VERSION
 #include "PSXPCINPUT.H"
+#elif PSX_VERSION
+#include "PSXINPUT.H"
+#endif
 #include "SETUP.H"
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -930,7 +934,9 @@ void AddRoomFlipItems(struct room_info *r /*$a0*/)//1FA0C,
 
 void ClearFires()//8B1C8(<), 8D20C(<) (F)
 {
-	for (int i = 0; i <= 32; i++)
+	int i;
+
+	for ( i = 0; i <= 32; i++)
 	{
 		fires[i].on = 0;
 	}

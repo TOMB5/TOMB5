@@ -4,11 +4,12 @@
 #include "SPECIFIC.H"
 
 #include <assert.h>
-#include <LIBCD.H>
-#include <LIBSPU.H>
 #include <string.h>
 #include <stdio.h>
+
 #include <sys/types.h>
+#include <LIBCD.H>
+#include <LIBSPU.H>
 
 //Number of XA files on disc (XA1-17.XA)
 #define NUM_XA_FILES 17
@@ -388,7 +389,7 @@ void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
 
 void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
 {
-	struct SpuCommonAttr attr;
+	SpuCommonAttr attr;
 	
 	attr.cd.volume.left = nVolume * 64;
 	attr.cd.volume.right = nVolume * 64;

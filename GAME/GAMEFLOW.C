@@ -13,7 +13,11 @@
 #include "MALLOC.H"
 #include "MEMCARD.H"
 #include "NEWINV2.H"
-#include "PSXPCINPUT.H"
+#if PSXPC_VERSION
+	#include "PSXPCINPUT.H"
+#elif PSX_VERSION
+	#include "PSXINPUT.H"
+#endif
 #include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
@@ -23,7 +27,14 @@
 #include "TOMB4FX.H"
 
 #include <assert.h>
-#include <stdint.h>
+#if PSXPC_VERSION
+	#include <stdint.h>
+#endif
+
+#if PSX_VERSION
+typedef unsigned int uintptr_t;
+#endif
+
 #include <string.h>
 
 #define GF_SCRIPT_FILENAME "SCRIPT.DAT"

@@ -12,7 +12,10 @@
 #include "3D_GEN.H"
 
 #include <assert.h>
-#include <math.h>
+
+#if PSXPC_VERSION || PC_VERSION
+	#include <math.h>
+#endif
 
 #include <stddef.h>
 
@@ -225,10 +228,9 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<)
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-	//We don't actually use this since lara_item is not inited.
+	//lara_item is not inited.
 	//Also, GetBoundsAccurate is not implemented.
-	return;
-
+#if 0
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -654,6 +656,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	camera.lara_node = -1;
 	camera.last_item = item;
 	camera.item = NULL;
+#endif
 	return;
 }
 

@@ -14,7 +14,7 @@ short DepthTable[5] =
 short CurrentReverb;
 int LnSamplesLoaded;
 long LlVABAddr;
-struct SpuVoiceAttr sva;
+SpuVoiceAttr sva;
 unsigned char LabSampleType[MAX_SOUND_SLOTS];
 unsigned char LabFreeChannel[MAX_SOUND_SLOTS];
 int LnFreeChannels;
