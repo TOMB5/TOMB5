@@ -945,6 +945,7 @@ void ClearFires()//8B1C8(<), 8D20C(<) (F)
 int is_object_in_room(int roomnumber, int objnumber)
 {
 	S_Warn("[is_object_in_room] - Unimplemented!\\n");
+	return 0;
 }
 
 void NeatAndTidyTriggerCutscene(int value, int timer)
@@ -989,16 +990,19 @@ void InterpolateAngle(short dest, short *src, short *diff, short speed)
 int CheckGuardOnTrigger()
 {
 	S_Warn("[CheckGuardOnTrigger] - Unimplemented!\\n");
+	return 0;
 }
 
 int ExplodeItemNode(struct ITEM_INFO *item, int Node, int NoXZVel, long bits)
 {
 	S_Warn("[ExplodeItemNode] - Unimplemented!\\n");
+	return 0;
 }
 
 int GetTargetOnLOS(struct GAME_VECTOR *src, struct GAME_VECTOR *dest, int DrawTarget, int firing)
 {
 	S_Warn("[GetTargetOnLOS] - Unimplemented!\\n");
+	return 0;
 }
 
 void FireCrossBowFromLaserSight(struct GAME_VECTOR *src, struct GAME_VECTOR *target)
@@ -1039,6 +1043,7 @@ void RefreshCamera(short type, short *data)
 long GetWaterHeight(long x, long y, long z, short room_number)
 {
 	S_Warn("[GetWaterHeight] - Unimplemented!\\n");
+	return 0;
 }
 
 void AlterFloorHeight(struct ITEM_INFO *item, int height)
