@@ -1,20 +1,24 @@
 #include "LARASURF.H"
 
 #include "SPECIFIC.H"
+#include "LARA.H"
 
-void lara_col_surfright(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD90, 4E1F4
+void lara_col_surfright(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD90(<), 4E1F4(<) (F)
 {
-	S_Warn("[lara_col_surfright] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot + 16384;
+	LaraSurfaceCollision(item, coll);
 }
 
-void lara_col_surfleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD64, 4E1C8
+void lara_col_surfleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD64(<), 4E1C8(<) (F)
 {
-	S_Warn("[lara_col_surfleft] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot - 16384;
+	LaraSurfaceCollision(item, coll);
 }
 
-void lara_col_surfback(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD38, 4E19C
+void lara_col_surfback(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD38(<), 4E19C(<) (F)
 {
-	S_Warn("[lara_col_surfback] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot - 32768;
+	LaraSurfaceCollision(item, coll);
 }
 
 void lara_col_surfswim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DCE8, 4E14C

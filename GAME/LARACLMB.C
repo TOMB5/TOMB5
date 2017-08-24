@@ -1,6 +1,7 @@
 #include "LARACLMB.H"
 
 #include "SPECIFIC.H"
+#include "CAMERA.H"
 
 short GetClimbTrigger(long x, long y, long z, short room_number)//46E38, 4729C
 {
@@ -13,9 +14,12 @@ void lara_col_climbend(struct ITEM_INFO *item, struct COLL_INFO *coll)//46E30(<)
 	return;
 }
 
-void lara_as_climbend(struct ITEM_INFO *item, struct COLL_INFO *coll)//46DF8, 4725C
+void lara_as_climbend(struct ITEM_INFO *item, struct COLL_INFO *coll)//46DF8(<), 4725C(<) (F)
 {
-	S_Warn("[lara_as_climbend] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.flags = 1;
+	camera.target_angle = -8190;
 }
 
 void lara_col_climbdown(struct ITEM_INFO *item, struct COLL_INFO *coll)//46BD0, 47034
@@ -23,9 +27,11 @@ void lara_col_climbdown(struct ITEM_INFO *item, struct COLL_INFO *coll)//46BD0, 
 	S_Warn("[lara_col_climbdown] - Unimplemented!\n");
 }
 
-void lara_as_climbdown(struct ITEM_INFO *item, struct COLL_INFO *coll)//46BA4, 47008
+void lara_as_climbdown(struct ITEM_INFO *item, struct COLL_INFO *coll)//46BA4(<), 47008(<) (F)
 {
-	S_Warn("[lara_as_climbdown] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.target_elevation = -8190;
 }
 
 void lara_col_climbing(struct ITEM_INFO *item, struct COLL_INFO *coll)//469B0, 46E14
@@ -33,9 +39,11 @@ void lara_col_climbing(struct ITEM_INFO *item, struct COLL_INFO *coll)//469B0, 4
 	S_Warn("[lara_col_climbing] - Unimplemented!\n");
 }
 
-void lara_as_climbing(struct ITEM_INFO *item, struct COLL_INFO *coll)//46984, 46DE8
+void lara_as_climbing(struct ITEM_INFO *item, struct COLL_INFO *coll)//46984(<), 46DE8(<) (F)
 {
-	S_Warn("[lara_as_climbing] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.target_elevation = 5460;
 }
 
 void lara_col_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//46908, 46D6C

@@ -3,6 +3,10 @@
 
 #include "SPECTYPES.H"
 
+#ifndef ABS
+#define ABS(x) (((x)<0)?(-(x)):(x))
+#endif
+
 // 4 enums
 enum mood_type
 {

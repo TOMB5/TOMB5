@@ -81,4 +81,25 @@ extern void KillMoveEffects();
 extern void TestTriggers(short* data, int heavy, int HeavyFlags);
 extern void ClearFires();
 
+extern int is_object_in_room(int roomnumber, int objnumber);
+extern void NeatAndTidyTriggerCutscene(int value, int timer);
+extern int CheckCutPlayed(int num);
+extern void SetCutNotPlayed(int num);
+extern void SetCutPlayed(int num);
+extern void InitCutPlayed();
+extern void ResetGuards();
+extern void InterpolateAngle(short dest, short *src, short *diff, short speed);
+extern int CheckGuardOnTrigger();
+extern int ExplodeItemNode(struct ITEM_INFO *item, int Node, int NoXZVel, long bits);
+extern int GetTargetOnLOS(struct GAME_VECTOR *src, struct GAME_VECTOR *dest, int DrawTarget, int firing);
+extern void FireCrossBowFromLaserSight(struct GAME_VECTOR *src, struct GAME_VECTOR *target);
+extern void TriggerNormalCDTrack(short value, short flags, short type);
+extern void TriggerCDTrack(short value, short flags, short type);
+extern void RemoveRoomFlipItems(struct room_info *r);
+extern void FlipMap(int FlipNumber);
+extern void _TestTriggers(short *data, int heavy, int HeavyFlags);
+extern void RefreshCamera(short type, short *data);
+extern long GetWaterHeight(long x, long y, long z, short room_number);
+extern void AlterFloorHeight(struct ITEM_INFO *item, int height);
+
 #endif
