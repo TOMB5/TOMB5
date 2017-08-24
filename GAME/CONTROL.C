@@ -340,14 +340,14 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		}
 
 		//loc_1D6D4
-		input &= 0x200;
+		input &= IN_LOOK;
 	}
 
 	//loc_1D6EC
 	//Cutseq playing? lock controls to 0?
 	if (cutseq_trig != 0)
 	{
-		input = 0;
+		input = IN_NONE;
 	}
 
 	//loc_1D708
@@ -383,7 +383,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		//loc_1D7A0
 		if (input == -1)
 		{
-			input = 0;
+			input = IN_NONE;
 			Motors[0] = 0;
 			Motors[1] = 0;
 		}
@@ -393,7 +393,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	{
 		if (gfGameMode != 1 && Gameflow->CheatEnabled)
 		{
-			if (input == 0)
+			if (input == IN_NONE)
 			{
 				if (Gameflow->InputTimeout > NoInput)//bad check
 				{
@@ -406,7 +406,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 			}//1D844
 			else
 			{
-				input = 0;
+				input = IN_NONE;
 			}
 		}//loc_1D848
 	}
@@ -421,17 +421,17 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 #if 1//def INTERNAL
 	//loc_1D860
-	if ((input & 0x200) == 0 && SniperCamActive != 0 && bUseSpotCam != 0 && bTrackCamInit != 0 && lara_item->current_anim_state != 2 || lara.hit_direction == 0x67 && lara.LitTorch == 0 && input & 0x2000 != 0 && lara_item->anim_number != 0xDE && lara_item->goal_anim_state != 0x47)
+	if ((input & IN_LOOK) == 0 && SniperCamActive != 0 && bUseSpotCam != 0 && bTrackCamInit != 0 && lara_item->current_anim_state != STATE_LARA_STOP || lara.hit_direction == 0x67 && lara.LitTorch == 0 && (input & IN_PAUSE) != 0 && lara_item->anim_number != ANIMATION_LARA_CROUCH_IDLE && lara_item->goal_anim_state != STATE_LARA_CROUCH_IDLE)
 	{
 		//loc_1D9D0
-		input |= 0x200;
+		input |= IN_LOOK;
 
 		if (BinocularRange == 0)
 		{
 			//loc_1DA80
 			if (SniperCamActive == 0 || bUseSpotCam == 0)
 			{
-				input &= 0xFFFFFDFF;
+				input &= ~IN_LOOK;
 			}//loc_1DABC
 		}
 		else if (LaserSight != 0)
@@ -451,7 +451,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 			BinocularOn = -8;
 			camera.bounce = 0;
-			input &= 0xFFFFFDFF;
+			input &= ~IN_LOOK;
 			lara.look = 0;//check
 		}
 
@@ -940,4 +940,113 @@ void ClearFires()//8B1C8(<), 8D20C(<) (F)
 	{
 		fires[i].on = 0;
 	}
+}
+
+int is_object_in_room(int roomnumber, int objnumber)
+{
+	S_Warn("[is_object_in_room] - Unimplemented!\\n");
+	return 0;
+}
+
+void NeatAndTidyTriggerCutscene(int value, int timer)
+{
+	S_Warn("[NeatAndTidyTriggerCutscene] - Unimplemented!\\n");
+}
+
+int CheckCutPlayed(int num)//20E34, 21040
+{
+	if (num < 32)
+		return _CutSceneTriggered1 & (1 << num);
+	else
+		return _CutSceneTriggered2 & (1 << (num - 32));
+}
+
+void SetCutNotPlayed(int num)
+{
+	S_Warn("[SetCutNotPlayed] - Unimplemented!\\n");
+}
+
+void SetCutPlayed(int num)
+{
+	S_Warn("[SetCutPlayed] - Unimplemented!\\n");
+}
+
+void InitCutPlayed()//20D90, 20F9C
+{
+	_CutSceneTriggered1 = 0;
+	_CutSceneTriggered2 = 0;
+}
+
+void ResetGuards()
+{
+	S_Warn("[ResetGuards] - Unimplemented!\\n");
+}
+
+void InterpolateAngle(short dest, short *src, short *diff, short speed)
+{
+	S_Warn("[InterpolateAngle] - Unimplemented!\\n");
+}
+
+int CheckGuardOnTrigger()
+{
+	S_Warn("[CheckGuardOnTrigger] - Unimplemented!\\n");
+	return 0;
+}
+
+int ExplodeItemNode(struct ITEM_INFO *item, int Node, int NoXZVel, long bits)
+{
+	S_Warn("[ExplodeItemNode] - Unimplemented!\\n");
+	return 0;
+}
+
+int GetTargetOnLOS(struct GAME_VECTOR *src, struct GAME_VECTOR *dest, int DrawTarget, int firing)
+{
+	S_Warn("[GetTargetOnLOS] - Unimplemented!\\n");
+	return 0;
+}
+
+void FireCrossBowFromLaserSight(struct GAME_VECTOR *src, struct GAME_VECTOR *target)
+{
+	S_Warn("[FireCrossBowFromLaserSight] - Unimplemented!\\n");
+}
+
+void TriggerNormalCDTrack(short value, short flags, short type)
+{
+	S_Warn("[TriggerNormalCDTrack] - Unimplemented!\\n");
+}
+
+void TriggerCDTrack(short value, short flags, short type)
+{
+	S_Warn("[TriggerCDTrack] - Unimplemented!\\n");
+}
+
+void RemoveRoomFlipItems(struct room_info *r)
+{
+	S_Warn("[RemoveRoomFlipItems] - Unimplemented!\\n");
+}
+
+void FlipMap(int FlipNumber)
+{
+	S_Warn("[FlipMap] - Unimplemented!\\n");
+}
+
+void _TestTriggers(short *data, int heavy, int HeavyFlags)
+{
+	S_Warn("[_TestTriggers] - Unimplemented!\\n");
+}
+
+void RefreshCamera(short type, short *data)
+{
+	S_Warn("[RefreshCamera] - Unimplemented!\\n");
+}
+
+long GetWaterHeight(long x, long y, long z, short room_number)
+{
+	S_Warn("[GetWaterHeight] - Unimplemented!\\n");
+	return 0;
+}
+
+void AlterFloorHeight(struct ITEM_INFO *item, int height)
+{
+	S_Warn("[AlterFloorHeight] - Unimplemented!\\n");
 }

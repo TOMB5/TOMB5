@@ -3,6 +3,28 @@
 
 #include "SPECTYPES.H"
 
+// guessed, some may be wrong on PSX
+enum input_buttons
+{
+	IN_NONE = 0,
+	IN_UP = (1 << 0),
+	IN_DOWN = (1 << 1),
+	IN_LEFT = (1 << 2),
+	IN_RIGHT = (1 << 3),
+	IN_JUMP = (1 << 4),
+	IN_DRAW = (1 << 5), // Space / Triangle
+	IN_ACTION = (1 << 6), // Ctrl / X
+	IN_WALK = (1 << 7), // Shift / R1
+	IN_OPTION = (1 << 8),
+	IN_LOOK = (1 << 9),
+	IN_LSTEP = (1 << 10),
+	IN_RSTEP = (1 << 11),
+	IN_ROLL = (1 << 12), // End / O
+	IN_PAUSE = (1 << 13),
+	IN_SAVE = (1 << 22), // F5
+	IN_LOAD = (1 << 23)  // F6
+};
+
 extern int flipeffect;
 extern int fliptimer;
 extern unsigned char ShatterSounds[18][10];
@@ -80,5 +102,26 @@ extern void KillMoveItems();
 extern void KillMoveEffects();
 extern void TestTriggers(short* data, int heavy, int HeavyFlags);
 extern void ClearFires();
+
+extern int is_object_in_room(int roomnumber, int objnumber);
+extern void NeatAndTidyTriggerCutscene(int value, int timer);
+extern int CheckCutPlayed(int num);
+extern void SetCutNotPlayed(int num);
+extern void SetCutPlayed(int num);
+extern void InitCutPlayed();
+extern void ResetGuards();
+extern void InterpolateAngle(short dest, short *src, short *diff, short speed);
+extern int CheckGuardOnTrigger();
+extern int ExplodeItemNode(struct ITEM_INFO *item, int Node, int NoXZVel, long bits);
+extern int GetTargetOnLOS(struct GAME_VECTOR *src, struct GAME_VECTOR *dest, int DrawTarget, int firing);
+extern void FireCrossBowFromLaserSight(struct GAME_VECTOR *src, struct GAME_VECTOR *target);
+extern void TriggerNormalCDTrack(short value, short flags, short type);
+extern void TriggerCDTrack(short value, short flags, short type);
+extern void RemoveRoomFlipItems(struct room_info *r);
+extern void FlipMap(int FlipNumber);
+extern void _TestTriggers(short *data, int heavy, int HeavyFlags);
+extern void RefreshCamera(short type, short *data);
+extern long GetWaterHeight(long x, long y, long z, short room_number);
+extern void AlterFloorHeight(struct ITEM_INFO *item, int height);
 
 #endif

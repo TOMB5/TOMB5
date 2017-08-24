@@ -1,6 +1,10 @@
 #include "LARA.H"
 
 #include "SPECIFIC.H"
+#include "CAMERA.H"
+#include "CONTROL.H"
+#include "EFFECTS.H"
+#include "COLLIDE.H"
 #if PSXPC_VERSION
 #include "PSXPCINPUT.H"
 #elif PSX_VERSION
@@ -30,9 +34,9 @@ void lara_as_pbleapoff(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D244, 1
 
 void lara_as_parallelbars(struct ITEM_INFO *item, struct COLL_INFO *coll)//1D220(<), 1D3B4(<) (F)
 {
-	if((input & 0x40) == 0)
+	if(!(input & IN_ACTION))
 	{
-		item->goal_anim_state = 0x81;
+		item->goal_anim_state = STATE_LARA_BARS_JUMP;
 	}
 }
 
@@ -76,9 +80,15 @@ void lara_col_jumper(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C860, 1C9
 	S_Warn("[lara_col_jumper] - Unimplemented!\n");
 }
 
-void lara_default_col(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C80C, 1C940
+void lara_default_col(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C80C(<), 1C940(<) (F)
 {
-	S_Warn("[lara_default_col] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot;
+	coll->bad_pos = 384;
+	coll->bad_neg = -384;
+	coll->bad_ceiling = 0;
+	coll->slopes_are_pits = 1;
+	coll->slopes_are_walls = 1;
+	GetLaraCollisionInfo(item, coll);
 }
 
 void lara_col_wade(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C61C, 1C750
@@ -106,9 +116,10 @@ void lara_col_roll(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C2B0, 1C3E4
 	S_Warn("[lara_col_roll] - Unimplemented!\n");
 }
 
-void lara_col_slideback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C284, 1C3B8
+void lara_col_slideback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C284(<), 1C3B8(<) (F)
 {
-	S_Warn("[lara_col_slideback] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot - ANGLE180;
+	lara_slide_slope(item, coll);
 }
 
 void lara_col_fallback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C1B4, 1C2E8
@@ -116,31 +127,33 @@ void lara_col_fallback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C1B4, 1
 	S_Warn("[lara_col_fallback] - Unimplemented!\n");
 }
 
-void lara_col_leftjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C188, 1C2BC
+void lara_col_leftjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C188(<), 1C2BC(<) (F)
 {
-	S_Warn("[lara_col_leftjump] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot - ANGLE90;
+	lara_col_jumper(item, coll);
 }
 
-void lara_col_rightjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C15C, 1C290
+void lara_col_rightjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C15C(<), 1C290(<) (F)
 {
-	S_Warn("[lara_col_rightjump] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot + ANGLE90;
+	lara_col_jumper(item, coll);
 }
 
-void lara_col_backjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C130, 1C264
+void lara_col_backjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C130(<), 1C264(<) (F)
 {
-	S_Warn("[lara_col_backjump] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot - ANGLE180;
+	lara_col_jumper(item, coll);
 }
 
 void lara_col_slide(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C108(<), 1C23C(<) (F)
 {
 	lara.move_angle = item->pos.y_rot;
 	lara_slide_slope(item, coll);
-	return;
 }
 
-void lara_col_stepleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C0E8, 1C21C
+void lara_col_stepleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//1C0E8(<), 1C21C(<) (F)
 {
-	S_Warn("[lara_col_stepleft] - Unimplemented!\n");
+	lara_col_stepright(item, coll);
 }
 
 void lara_col_stepright(struct ITEM_INFO *item, struct COLL_INFO *coll)//1BFB0, 1C0E4
@@ -158,9 +171,9 @@ void lara_col_compress(struct ITEM_INFO *item, struct COLL_INFO *coll)//1BD30, 1
 	S_Warn("[lara_col_compress] - Unimplemented!\n");
 }
 
-void lara_col_land(struct ITEM_INFO *item, struct COLL_INFO *coll)//1BD10, 1BE44
+void lara_col_land(struct ITEM_INFO *item, struct COLL_INFO *coll)//1BD10(<), 1BE44(<) (F)
 {
-	S_Warn("[lara_col_land] - Unimplemented!\n");
+	lara_col_stop(item, coll);
 }
 
 void lara_col_splat(struct ITEM_INFO *item, struct COLL_INFO *coll)//1BC74, 1BDA8
@@ -178,9 +191,9 @@ void lara_col_death(struct ITEM_INFO *item, struct COLL_INFO *coll)//1BADC, 1BC1
 	S_Warn("[lara_col_death] - Unimplemented!\n");
 }
 
-void lara_col_turn_l(struct ITEM_INFO *item, struct COLL_INFO *coll)//1BABC, 1BBF0
+void lara_col_turn_l(struct ITEM_INFO *item, struct COLL_INFO *coll)//1BABC(<), 1BBF0(<) (F)
 {
-	S_Warn("[lara_col_turn_l] - Unimplemented!\n");
+	lara_col_turn_r(item, coll);
 }
 
 void lara_col_turn_r(struct ITEM_INFO *item, struct COLL_INFO *coll)//1B9C4, 1BAF8
@@ -193,9 +206,9 @@ void lara_col_fastback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1B89C, 1
 	S_Warn("[lara_col_fastback] - Unimplemented!\n");
 }
 
-void lara_col_pose(struct ITEM_INFO *item, struct COLL_INFO *coll)//1B87C, 1B9B0
+void lara_col_pose(struct ITEM_INFO *item, struct COLL_INFO *coll)//1B87C(<), 1B9B0(<) (F)
 {
-	S_Warn("[lara_col_pose] - Unimplemented!\n");
+	lara_col_stop(item, coll);
 }
 
 void lara_col_run(struct ITEM_INFO *item, struct COLL_INFO *coll)//1B64C, 1B780
@@ -218,9 +231,11 @@ void lara_col_turnswitch(struct ITEM_INFO *item, struct COLL_INFO *coll)//1B1B4,
 	S_Warn("[lara_col_turnswitch] - Unimplemented!\n");
 }
 
-void lara_as_controlledl(struct ITEM_INFO *item, struct COLL_INFO *coll)//1B180, 1B2B4
+void lara_as_controlledl(struct ITEM_INFO *item, struct COLL_INFO *coll)//1B180(<), 1B2B4(<) (F)
 {
-	S_Warn("[lara_as_controlledl] - Unimplemented!\n");
+	lara.look = 0;
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
 }
 
 void lara_as_controlled(struct ITEM_INFO *item, struct COLL_INFO *coll)//1B0FC, 1B230
@@ -238,30 +253,41 @@ void lara_as_wade(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AF10, 1B044
 	S_Warn("[lara_as_wade] - Unimplemented!\n");
 }
 
-void lara_as_waterout(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AEE4, 1B018
+void lara_as_waterout(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AEE4(<), 1B018(<) (F)
 {
-	S_Warn("[lara_as_waterout] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.flags = 1;
 }
 
 void lara_as_gymnast(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AEC8(<), 1AFFC(<) (F)
 {
-	item->hit_status = 0;
-	item->collidable = 0;
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
 }
 
-void lara_as_fastdive(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AE4C, 1AF80
+void lara_as_fastdive(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AE4C(<), 1AF80(<) (F)
 {
-	S_Warn("[lara_as_fastdive] - Unimplemented!\n");
+	if (input & IN_ROLL && item->goal_anim_state == STATE_LARA_SWANDIVE_END)
+		item->goal_anim_state = STATE_LARA_JUMP_ROLL;
+	coll->enable_baddie_push = 1;
+	coll->enable_spaz = 0;
+	item->speed = (item->speed * 95) / 100;
 }
 
-void lara_as_swandive(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AE08, 1AF3C
+void lara_as_swandive(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AE08(<), 1AF3C(<) (F)
 {
-	S_Warn("[lara_as_swandive] - Unimplemented!\n");
+	coll->enable_baddie_push = 1;
+	coll->enable_spaz = 0;
+	if (item->fallspeed > LARA_FREEFALL_SPEED && item->goal_anim_state != STATE_LARA_UNDERWATER_DIVING)
+		item->goal_anim_state = STATE_LARA_SWANDIVE_END;
 }
 
-void lara_as_special(struct ITEM_INFO *item, struct COLL_INFO *coll)//1ADDC, 1AF10
+void lara_as_special(struct ITEM_INFO *item, struct COLL_INFO *coll)//1ADDC(<), 1AF10(<) (F)
 {
-	S_Warn("[lara_as_special] - Unimplemented!\n");
+	camera.flags = 1;
+	camera.target_angle = 170 * TRDEGREE;
+	camera.target_elevation = -25 * TRDEGREE;
 }
 
 void lara_as_usepuzzle(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AD18, 1AE4C
@@ -269,19 +295,36 @@ void lara_as_usepuzzle(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AD18, 1
 	S_Warn("[lara_as_usepuzzle] - Unimplemented!\n");
 }
 
-void lara_as_usekey(struct ITEM_INFO *item, struct COLL_INFO *coll)//1ACBC, 1ADF0
+void lara_as_usekey(struct ITEM_INFO *item, struct COLL_INFO *coll)//1ACBC(<), 1ADF0(<) (F)
 {
-	S_Warn("[lara_as_usekey] - Unimplemented!\n");
+	lara.look = 0;
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.target_angle = -ANGLE80;
+	camera.target_elevation = -4550;
+	camera.target_distance = 1024;
 }
 
-void lara_as_switchoff(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AC54, 1AD88
+void lara_as_switchoff(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AC54(<), 1AD88(<) (F)
 {
-	S_Warn("[lara_as_switchoff] - Unimplemented!\n");
+	lara.look = 0;
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.target_angle = ANGLE80;
+	camera.target_elevation = -ANGLE25;
+	camera.target_distance = 1024;
+	camera.speed = 6;
 }
 
-void lara_as_switchon(struct ITEM_INFO *item, struct COLL_INFO *coll)//1ABEC, 1AD20
+void lara_as_switchon(struct ITEM_INFO *item, struct COLL_INFO *coll)//1ABEC(<), 1AD20(<) (F)
 {
-	S_Warn("[lara_as_switchon] - Unimplemented!\n");
+	lara.look = 0;
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.target_angle = ANGLE80;
+	camera.target_elevation = -ANGLE25;
+	camera.target_distance = 1024;
+	camera.speed = 6;
 }
 
 void lara_as_pickupflare(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AB5C, 1AC90
@@ -289,47 +332,95 @@ void lara_as_pickupflare(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AB5C,
 	S_Warn("[lara_as_pickupflare] - Unimplemented!\n");
 }
 
-void lara_as_pickup(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AB00, 1AC34
+void lara_as_pickup(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AB00(<), 1AC34(<) (F)
 {
-	S_Warn("[lara_as_pickup] - Unimplemented!\n");
+	lara.look = 0;
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.target_angle = -ANGLE130;
+	camera.target_elevation = -2730;
+	camera.target_distance = 1024;
 }
 
-void lara_as_ppready(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AABC, 1ABF0
+void lara_as_ppready(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AABC(<), 1ABF0(<) (F)
 {
-	S_Warn("[lara_as_ppready] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.target_angle = 75 * TRDEGREE;
+	if(!(input & IN_ACTION))
+		item->goal_anim_state = STATE_LARA_STOP;
 }
 
-void lara_as_pullblock(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AA60, 1AB94
+void lara_as_pullblock(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AA60(<), 1AB94(<) (F)
 {
-	S_Warn("[lara_as_pullblock] - Unimplemented!\n");
+	lara.look = 0;
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.flags = 1;
+	camera.target_angle = ANGLE35;
+	camera.target_elevation = -4550;
 }
 
-void lara_as_pushblock(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AA04, 1AB38
+void lara_as_pushblock(struct ITEM_INFO *item, struct COLL_INFO *coll)//1AA04(<), 1AB38(<) (F)
 {
-	S_Warn("[lara_as_pushblock] - Unimplemented!\n");
+	lara.look = 0;
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.flags = 1;
+	camera.target_angle = ANGLE90;
+	camera.target_elevation = -4550;
 }
 
 void lara_as_slideback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A9E0(<), 1AB14(<) (F)
 {
-	if((input & 0x11) == 0x10)
+	if ((input & IN_JUMP) && !(input & IN_UP))
 	{
-		item->goal_anim_state = 0x19;
+		item->goal_anim_state = STATE_LARA_JUMP_BACK;
 	}
 }
 
-void lara_as_fallback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1959C, 196D0
+void lara_as_fallback(struct ITEM_INFO *item, struct COLL_INFO *coll)//1959C(<), 196D0(<) (F)
 {
-	S_Warn("[lara_as_fallback] - Unimplemented!\n");
+	if (item->fallspeed > LARA_FREEFALL_SPEED)
+		item->goal_anim_state = STATE_LARA_FREEFALL;
+
+	if (input & IN_ACTION)
+		if (!lara.gun_status)
+			item->goal_anim_state = STATE_LARA_REACH;
 }
 
-void lara_as_leftjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A92C, 1AA60
+void lara_as_leftjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A92C(<), 1AA60(<) (F)
 {
-	S_Warn("[lara_as_leftjump] - Unimplemented!\n");
+	lara.look = 0;
+	if (item->fallspeed <= LARA_FREEFALL_SPEED)
+	{
+		if (input & IN_RIGHT)
+		{
+			if (item->goal_anim_state != STATE_LARA_STOP)
+				item->goal_anim_state = STATE_LARA_JUMP_ROLL;
+		}
+	}
+	else
+	{
+		item->goal_anim_state = STATE_LARA_FREEFALL;
+	}
 }
 
-void lara_as_rightjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A8C4, 1A9F8
+void lara_as_rightjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A8C4(<), 1A9F8(<) (F)
 {
-	S_Warn("[lara_as_rightjump] - Unimplemented!\n");
+	lara.look = 0;
+	if(item->fallspeed <= LARA_FREEFALL_SPEED)
+	{
+		if(input & IN_LEFT)
+		{
+			if (item->goal_anim_state != STATE_LARA_STOP)
+				item->goal_anim_state = STATE_LARA_JUMP_ROLL;
+		}
+	}
+	else
+	{
+		item->goal_anim_state = STATE_LARA_FREEFALL;
+	}
 }
 
 void lara_as_backjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A854, 1A988
@@ -337,9 +428,12 @@ void lara_as_backjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A854, 1A
 	S_Warn("[lara_as_backjump] - Unimplemented!\n");
 }
 
-void lara_as_slide(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A824, 1A958
+void lara_as_slide(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A824(<), 1A958(<) (F)
 {
-	S_Warn("[lara_as_slide] - Unimplemented!\n");
+	if ((input & IN_JUMP) && !(input & IN_DOWN))
+	{
+		item->goal_anim_state = STATE_LARA_STOP;
+	}
 }
 
 void lara_as_stepleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A750, 1A884
@@ -352,9 +446,9 @@ void lara_as_stepright(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A67C, 1
 	S_Warn("[lara_as_stepright] - Unimplemented!\n");
 }
 
-void lara_col_fastturn(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A65C, 1A790
+void lara_col_fastturn(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A65C(<), 1A790(<) (F)
 {
-	S_Warn("[lara_col_fastturn] - Unimplemented!\n");
+	lara_col_stop(item, coll);
 }
 
 void lara_as_fastturn(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A5F8, 1A72C
@@ -384,24 +478,40 @@ void lara_as_splat(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A340(<), 1A
 	lara.look = 0;
 }
 
-void lara_as_intcornerr(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A2EC, 1A420
+void lara_as_intcornerr(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A2EC(<), 1A420(<) (F)
 {
-	S_Warn("[lara_as_intcornerr] - Unimplemented!\n");
+	camera.lara_node = 8;
+	camera.target_elevation = 33 * TRDEGREE;
+	SetCornerAnim(item, coll, ANGLE90,
+		item->anim_number == ANIMATION_LARA_HANG_AROUND_RIGHT_INNER_END ||
+		item->anim_number == ANIMATION_LARA_LADDER_AROUND_RIGHT_INNER_END);
 }
 
-void lara_as_intcornerl(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A298, 1A3CC
+void lara_as_intcornerl(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A298(<), 1A3CC(<) (F)
 {
-	S_Warn("[lara_as_intcornerl] - Unimplemented!\n");
+	camera.lara_node = 8;
+	camera.target_elevation = 33 * TRDEGREE;
+	SetCornerAnim(item, coll, -ANGLE90,
+		item->anim_number == ANIMATION_LARA_HANG_AROUND_LEFT_INNER_END ||
+		item->anim_number == ANIMATION_LARA_LADDER_AROUND_LEFT_INNER_END);
 }
 
-void lara_as_extcornerr(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A244, 1A378
+void lara_as_extcornerr(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A244(<), 1A378(<) (F)
 {
-	S_Warn("[lara_as_extcornerr] - Unimplemented!\n");
+	camera.lara_node = 8;
+	camera.target_elevation = 33 * TRDEGREE;
+	SetCornerAnim(item, coll, -ANGLE90,
+		item->anim_number == ANIMATION_LARA_HANG_AROUND_RIGHT_OUTER_END ||
+		item->anim_number == ANIMATION_LARA_LADDER_AROUND_RIGHT_OUTER_END);
 }
 
-void lara_as_extcornerl(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A1F0, 1A324
+void lara_as_extcornerl(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A1F0(<), 1A324(<) (F)
 {
-	S_Warn("[lara_as_extcornerl] - Unimplemented!\n");
+	camera.lara_node = 8;
+	camera.target_elevation = 33 * TRDEGREE;
+	SetCornerAnim(item, coll, ANGLE90, 
+		item->anim_number == ANIMATION_LARA_HANG_AROUND_LEFT_OUTER_END || 
+		item->anim_number == ANIMATION_LARA_LADDER_AROUND_LEFT_OUTER_END);
 }
 
 void SetCornerAnim(struct ITEM_INFO *item, struct COLL_INFO *coll, short rot, short flip)//1A090, 1A1C4
@@ -409,24 +519,40 @@ void SetCornerAnim(struct ITEM_INFO *item, struct COLL_INFO *coll, short rot, sh
 	S_Warn("[SetCornerAnim] - Unimplemented!\n");
 }
 
-void lara_col_hangright(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A038, 1A16C
+void lara_col_hangright(struct ITEM_INFO *item, struct COLL_INFO *coll)//1A038(<), 1A16C(<) (F)
 {
-	S_Warn("[lara_col_hangright] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot + ANGLE90;
+	coll->radius = 102;
+	LaraHangTest(item, coll);
+	lara.move_angle = item->pos.y_rot + ANGLE90;
 }
 
-void lara_as_hangright(struct ITEM_INFO *item, struct COLL_INFO *coll)//19FEC, 1A120
+void lara_as_hangright(struct ITEM_INFO *item, struct COLL_INFO *coll)//19FEC(<), 1A120(<) (F)
 {
-	S_Warn("[lara_as_hangright] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.target_angle = 0;
+	camera.target_elevation = -ANGLE45;
+	if (!(input & (IN_RIGHT | IN_RSTEP)))
+		item->goal_anim_state = STATE_LARA_HANG;
 }
 
-void lara_col_hangleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//19F94, 1A0C8
+void lara_col_hangleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//19F94(<), 1A0C8(<) (F)
 {
-	S_Warn("[lara_col_hangleft] - Unimplemented!\n");
+	lara.move_angle = item->pos.y_rot - ANGLE90;
+	coll->radius = 102;
+	LaraHangTest(item, coll);
+	lara.move_angle = item->pos.y_rot - ANGLE90;
 }
 
-void lara_as_hangleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//19F48, 1A07C
+void lara_as_hangleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//19F48(<), 1A07C(<) (F)
 {
-	S_Warn("[lara_as_hangleft] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.target_angle = 0;
+	camera.target_elevation = -ANGLE45;
+	if (!(input & (IN_LEFT | IN_LSTEP)))
+		item->goal_anim_state = STATE_LARA_HANG;
 }
 
 void lara_col_hang(struct ITEM_INFO *item, struct COLL_INFO *coll)//19AC8, 19BFC
@@ -436,7 +562,22 @@ void lara_col_hang(struct ITEM_INFO *item, struct COLL_INFO *coll)//19AC8, 19BFC
 
 void lara_as_hang(struct ITEM_INFO *item, struct COLL_INFO *coll)//19A28, 19B5C
 {
-	S_Warn("[lara_as_hang] - Unimplemented!\n");
+	lara.IsClimbing = 0;
+	if (item->hit_points > 0)
+	{
+		if (input & IN_LOOK)
+			LookUpDown();
+
+		coll->enable_baddie_push = 0;
+		coll->enable_spaz = 0;
+
+		camera.target_angle = 0;
+		camera.target_elevation = -ANGLE45;
+	}
+	else
+	{
+		item->goal_anim_state = STATE_LARA_STOP;
+	}
 }
 
 int CanLaraHangSideways(struct ITEM_INFO *item, struct COLL_INFO *coll, short angle)//19930, 19A64
@@ -450,9 +591,11 @@ void lara_void_func(struct ITEM_INFO *item, struct COLL_INFO *coll)//19928(<), 1
 	return;
 }
 
-void lara_as_fastfall(struct ITEM_INFO *item, struct COLL_INFO *coll)//198BC, 199F0
+void lara_as_fastfall(struct ITEM_INFO *item, struct COLL_INFO *coll)//198BC(<), 199F0(<) (F)
 {
-	S_Warn("[lara_as_fastfall] - Unimplemented!\n");
+	item->speed = (item->speed * 95) / 100;
+	if (item->fallspeed == 154)
+		SoundEffect(30, &item->pos, 0);
 }
 
 void lara_as_death(struct ITEM_INFO *item, struct COLL_INFO *coll)//19830, 19964
@@ -490,9 +633,11 @@ void lara_col_reach(struct ITEM_INFO *item, struct COLL_INFO *coll)//18D0C, 18E4
 	S_Warn("[lara_col_reach] - Unimplemented!\n");
 }
 
-void lara_as_reach(struct ITEM_INFO *item, struct COLL_INFO *coll)//18CE0, 18E14
+void lara_as_reach(struct ITEM_INFO *item, struct COLL_INFO *coll)//18CE0(<), 18E14(<) (F)
 {
-	S_Warn("[lara_as_reach] - Unimplemented!\n");
+	camera.target_angle = 85 * TRDEGREE;
+	if (item->fallspeed > LARA_FREEFALL_SPEED)
+		item->goal_anim_state = STATE_LARA_FREEFALL;
 }
 
 void lara_col_forwardjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//18B88, 18CBC
@@ -512,9 +657,9 @@ void lara_col_upjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1853C, 186
 
 void lara_as_upjump(struct ITEM_INFO *item, struct COLL_INFO *coll)//1851C(<), 18650(<) (F)
 {
-	if (item->fallspeed >= 132)
+	if (item->fallspeed > LARA_FREEFALL_SPEED)
 	{
-		item->goal_anim_state = 9;
+		item->goal_anim_state = STATE_LARA_FREEFALL;
 	}
 }
 
@@ -543,14 +688,42 @@ void lara_col_ropefwd(struct ITEM_INFO *item, struct COLL_INFO *coll)//17B74, 17
 	S_Warn("[lara_col_ropefwd] - Unimplemented!\n");
 }
 
-void lara_as_roper(struct ITEM_INFO *item, struct COLL_INFO *coll)//17B14, 17C48
+void lara_as_roper(struct ITEM_INFO *item, struct COLL_INFO *coll)//17B14(<), 17C48(<) (F)
 {
-	S_Warn("[lara_as_roper] - Unimplemented!\n");
+	if (input & IN_ACTION)
+	{
+		if (input & IN_LEFT)
+		{
+			*((short*)lara.RopeFrame) -= 256;
+		}
+		else
+		{
+			item->goal_anim_state = STATE_LARA_ROPE_IDLE;
+		}
+	}
+	else
+	{
+		FallFromRope(item);
+	}
 }
 
-void lara_as_ropel(struct ITEM_INFO *item, struct COLL_INFO *coll)//17AB4, 17BE8
+void lara_as_ropel(struct ITEM_INFO *item, struct COLL_INFO *coll)//17AB4(<), 17BE8(<) (F)
 {
-	S_Warn("[lara_as_ropel] - Unimplemented!\n");
+	if (input & IN_ACTION)
+	{
+		if (input & IN_LEFT)
+		{
+			*((short*)lara.RopeFrame) += 256;
+		}
+		else
+		{
+			item->goal_anim_state = STATE_LARA_ROPE_IDLE;
+		}
+	}
+	else
+	{
+		FallFromRope(item);
+	}
 }
 
 void lara_col_rope(struct ITEM_INFO *item, struct COLL_INFO *coll)//179A8, 17ADC
@@ -558,9 +731,13 @@ void lara_col_rope(struct ITEM_INFO *item, struct COLL_INFO *coll)//179A8, 17ADC
 	S_Warn("[lara_col_rope] - Unimplemented!\n");
 }
 
-void lara_as_rope(struct ITEM_INFO *item, struct COLL_INFO *coll)//17958, 17A8C
+void lara_as_rope(struct ITEM_INFO *item, struct COLL_INFO *coll)//17958(<), 17A8C(<) (F)
 {
-	S_Warn("[lara_as_rope] - Unimplemented!\n");
+	if (!(input & IN_ACTION))
+		FallFromRope(item);
+
+	if (input & IN_LOOK)
+		LookUpDown();
 }
 
 void ApplyVelocityToRope(int node, unsigned short angle, unsigned short n)//178E4, 17A18
@@ -593,14 +770,24 @@ void lara_col_poleup(struct ITEM_INFO *item, struct COLL_INFO *coll)//170D8, 172
 	S_Warn("[lara_col_poleup] - Unimplemented!\n");
 }
 
-void lara_as_poleright(struct ITEM_INFO *item, struct COLL_INFO *coll)//1707C, 171B0
+void lara_as_poleright(struct ITEM_INFO *item, struct COLL_INFO *coll)//1707C(<), 171B0(<) (F)
 {
-	S_Warn("[lara_as_poleright] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	if (!(input & IN_RIGHT) || !(input & IN_ACTION) || (input & (IN_UP | IN_DOWN)) || item->hit_points <= 0)
+		item->goal_anim_state = STATE_LARA_POLE_IDLE;
+	else
+		item->pos.y_rot -= 256;
 }
 
-void lara_as_poleleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//17020, 17154
+void lara_as_poleleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//17020(<), 17154(<) (F)
 {
-	S_Warn("[lara_as_poleleft] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	if (!(input & IN_LEFT) || !(input & IN_ACTION) || (input & (IN_UP | IN_DOWN)) || item->hit_points <= 0)
+		item->goal_anim_state = STATE_LARA_POLE_IDLE;
+	else
+		item->pos.y_rot += 256;
 }
 
 void lara_col_polestat(struct ITEM_INFO *item, struct COLL_INFO *coll)//16DFC, 16F30
@@ -613,14 +800,24 @@ void lara_col_monkey180(struct ITEM_INFO *item, struct COLL_INFO *coll)//16DDC, 
 	S_Warn("[lara_col_monkey180] - Unimplemented!\n");
 }
 
-void lara_as_monkey180(struct ITEM_INFO *item, struct COLL_INFO *coll)//16DB8, 16EEC
+void lara_as_monkey180(struct ITEM_INFO *item, struct COLL_INFO *coll)//16DB8(<), 16EEC(<) (F)
 {
-	S_Warn("[lara_as_monkey180] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
 }
 
-void lara_as_hangturnr(struct ITEM_INFO *item, struct COLL_INFO *coll)//16D64, 16E98
+void lara_as_hangturnr(struct ITEM_INFO *item, struct COLL_INFO *coll)//16D64(<), 16E98(<) (F)
 {
-	S_Warn("[lara_as_hangturnr] - Unimplemented!\n");
+	if (item->hit_points <= 0
+		|| (camera.target_elevation = 1820, 
+			lara.torso_y_rot = 0, 
+			lara.torso_x_rot = 0, 
+			item->pos.y_rot += ANGLE1P5, 
+			!(input & IN_RIGHT)))
+	{
+		item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
+	}
 }
 
 void lara_col_hangturnlr(struct ITEM_INFO *item, struct COLL_INFO *coll)//16C94, 16DC8
@@ -628,9 +825,17 @@ void lara_col_hangturnlr(struct ITEM_INFO *item, struct COLL_INFO *coll)//16C94,
 	S_Warn("[lara_col_hangturnlr] - Unimplemented!\n");
 }
 
-void lara_as_hangturnl(struct ITEM_INFO *item, struct COLL_INFO *coll)//16C40, 16D74
+void lara_as_hangturnl(struct ITEM_INFO *item, struct COLL_INFO *coll)//16C40(<), 16D74(<) (F)
 {
-	S_Warn("[lara_as_hangturnl] - Unimplemented!\n");
+	if (item->hit_points <= 0
+		|| (camera.target_elevation = 1820, 
+			lara.torso_y_rot = 0,
+			lara.torso_x_rot = 0, 
+			item->pos.y_rot -= ANGLE1P5, 
+			!(input & IN_LEFT)))
+	{
+		item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
+	}
 }
 
 void lara_col_monkeyr(struct ITEM_INFO *item, struct COLL_INFO *coll)//16B9C, 16CD0
@@ -673,21 +878,72 @@ void lara_as_hang2(struct ITEM_INFO *item, struct COLL_INFO *coll)//1630C, 16440
 	S_Warn("[lara_as_hang2] - Unimplemented!\n");
 }
 
-short TestMonkeyRight(struct ITEM_INFO *item, struct COLL_INFO *coll)//161EC, 16320
+short TestMonkeyRight(struct ITEM_INFO *item, struct COLL_INFO *coll)//161EC(<), 16320(<) (F)
 {
-	S_Warn("[TestMonkeyRight] - Unimplemented!\n");
+	short oct;
+	coll->bad_pos = 32512;
+	coll->bad_neg = -384;
+	coll->bad_ceiling = 0;
+	lara.move_angle = item->pos.y_rot + ANGLE90;
+	coll->slopes_are_walls = 0;
+	coll->facing = lara.move_angle;
+	coll->radius = 100;
+	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 600);
+	if (ABS(coll->mid_ceiling - coll->front_ceiling) > 50)
+		return 0;
+	if (!coll->coll_type)
+		return 1;
+	oct = GetDirOctant(item->pos.y_rot);
+	if (oct)
+	{
+		if (oct != 1)
+			return 1;
+		if (coll->coll_type != 1 && coll->coll_type != 4 && coll->coll_type != 2)
+			return 1;
+	}
+	else if(coll->coll_type != 1)
+	{
+		return 1;
+	}
+
 	return 0;
 }
 
-short TestMonkeyLeft(struct ITEM_INFO *item, struct COLL_INFO *coll)//160CC, 16200
+short TestMonkeyLeft(struct ITEM_INFO *item, struct COLL_INFO *coll)//160CC(<), 16200(<) (F)
 {
-	S_Warn("[TestMonkeyLeft] - Unimplemented!\n");
+	short oct;
+	coll->bad_pos = 32512;
+	coll->bad_neg = -32512;
+	coll->bad_ceiling = 0;
+	lara.move_angle = item->pos.y_rot - ANGLE90;
+	coll->slopes_are_walls = 0;
+	coll->facing = lara.move_angle;
+	coll->radius = 100;
+	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 600);
+	if (ABS(coll->mid_ceiling - coll->front_ceiling) > 50)
+		return 0;
+	if (!coll->coll_type)
+		return 1;
+	oct = GetDirOctant(item->pos.y_rot);
+	if(oct)
+	{
+		if (oct != 1)
+			return 1;
+		if (coll->coll_type != 4 && coll->coll_type != 2)
+			return 1;
+	}
+	else
+	{
+		if (coll->coll_type != 1 && coll->coll_type != 2)
+			return 1;
+	}
+
 	return 0;
 }
 
 short GetDirOctant(long rot)//160B4(<), 161E8(<) (F)
 {
-	return (rot < 0 ? -rot : rot) - 0x2000 < 0x4001; // todo: use ABS
+	return ABS(rot) >= ANGLE45 && ABS(rot) <= ANGLE135;
 }
 
 void MonkeySwingSnap(struct ITEM_INFO *item, struct COLL_INFO *coll)//1605C, 16190
@@ -705,9 +961,13 @@ void lara_col_dashdive(struct ITEM_INFO *item, struct COLL_INFO *coll)//15E5C, 1
 	S_Warn("[lara_col_dashdive] - Unimplemented!\n");
 }
 
-void lara_as_dashdive(struct ITEM_INFO *item, struct COLL_INFO *coll)//15E1C, 15F50
+void lara_as_dashdive(struct ITEM_INFO *item, struct COLL_INFO *coll)//15E1C(<), 15F50(<) (F)
 {
-	S_Warn("[lara_as_dashdive] - Unimplemented!\n");
+	if (item->goal_anim_state != STATE_LARA_DEATH && 
+		item->goal_anim_state != STATE_LARA_STOP && 
+		item->goal_anim_state != STATE_LARA_RUN_FORWARD && 
+		item->fallspeed > LARA_FREEFALL_SPEED)
+		item->goal_anim_state = STATE_LARA_FREEFALL;
 }
 
 void lara_col_dash(struct ITEM_INFO *item, struct COLL_INFO *coll)//15C50, 15D84
@@ -742,7 +1002,7 @@ void lara_as_all4turnr(struct ITEM_INFO *item, struct COLL_INFO *coll)//15484, 1
 
 void lara_col_all4turnlr(struct ITEM_INFO *item, struct COLL_INFO *coll)//153FC, 15530
 {
-	S_Warn("[lara_col_all4turnlr] - Unimplemented!\n");
+	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 400);
 }
 
 void lara_as_all4turnl(struct ITEM_INFO *item, struct COLL_INFO *coll)//15390, 154C4
@@ -785,14 +1045,20 @@ void lara_col_ducklr(struct ITEM_INFO *item, struct COLL_INFO *coll)//14534, 145
 	S_Warn("[lara_col_ducklr] - Unimplemented!\n");
 }
 
-void lara_as_duckr(struct ITEM_INFO *item, struct COLL_INFO *coll)//144E0, 14590
+void lara_as_duckr(struct ITEM_INFO *item, struct COLL_INFO *coll)//144E0(<), 14590(<) (F)
 {
-	S_Warn("[lara_as_duckr] - Unimplemented!\n");
+	coll->enable_spaz = 0;
+	if ((input & 0x20000004) != 0x20000004 || item->hit_points <= 0)
+		item->goal_anim_state = STATE_LARA_CROUCH_IDLE;
+	item->pos.y_rot += ANGLE1P5;
 }
 
-void lara_as_duckl(struct ITEM_INFO *item, struct COLL_INFO *coll)//1448C, 1453C
+void lara_as_duckl(struct ITEM_INFO *item, struct COLL_INFO *coll)//1448C(<), 1453C(<) (F)
 {
-	S_Warn("[lara_as_duckl] - Unimplemented!\n");
+	coll->enable_spaz = 0;
+	if ((input & 0x20000004) != 0x20000004 || item->hit_points <= 0)
+		item->goal_anim_state = STATE_LARA_CROUCH_IDLE;
+	item->pos.y_rot -= ANGLE1P5;
 }
 
 void LaraAboveWater(struct ITEM_INFO *item, struct COLL_INFO *coll)//14228, 142D8
@@ -933,7 +1199,10 @@ short LaraFloorFront(struct ITEM_INFO *item, short ang, long dist)//117B0, 11860
 	return 0;
 }
 
-void GetLaraCollisionInfo(struct ITEM_INFO *item, struct COLL_INFO *coll)//11764, 11814
+void GetLaraCollisionInfo(struct ITEM_INFO *item, struct COLL_INFO *coll)//11764(<), 11814(<) (F)
 {
-	S_Warn("[GetLaraCollisionInfo] - Unimplemented!\n");
+	coll->facing = lara.move_angle;
+	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 762);
 }
+
+

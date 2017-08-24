@@ -57,3 +57,17 @@ void LaraBaddieCollision(struct ITEM_INFO *laraitem, struct COLL_INFO *coll)//29
 {
 	S_Warn("[LaraBaddieCollision] - Unimplemented!\n");
 }
+
+void ShiftItem(struct ITEM_INFO *item, struct COLL_INFO *coll)//7BEEC, 7DF30
+{
+	item->pos.x_pos += coll->shift.x;
+	item->pos.y_pos += coll->shift.y;
+	item->pos.z_pos += coll->shift.z;
+	coll->shift.x = coll->shift.y = coll->shift.z = 0;
+}
+
+int GetCollisionInfo(struct COLL_INFO *coll, long xpos, long ypos, long zpos, short room_number, long objheight)
+{
+	S_Warn("[GetCollisionInfo] - Unimplemented!\\n");
+	return 0;
+}

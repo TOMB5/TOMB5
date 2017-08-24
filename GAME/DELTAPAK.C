@@ -1371,10 +1371,10 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 						{
 							//loc_2C55C
 
-							if ((lara_item->current_anim_state - 80) > 2 ||
-								(lara_item->current_anim_state - 80) != 84 ||
-								(lara_item->current_anim_state - 80) != 85 ||
-								(lara_item->current_anim_state - 80) == 86)
+							if ((lara_item->current_anim_state) > STATE_LARA_MONKEYSWING_TURN_LEFT ||
+								(lara_item->current_anim_state) != 164 ||
+								(lara_item->current_anim_state) != 165 ||
+								(lara_item->current_anim_state) == 166)
 							{
 								//2C584
 								a1 = 1;

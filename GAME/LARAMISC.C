@@ -1,6 +1,8 @@
 #include "LARAMISC.H"
 
 #include "SPECIFIC.H"
+#include "LARA.H"
+#include "CONTROL.H"
 
 char* states[131] =
 {
@@ -77,7 +79,7 @@ void InitialiseLaraAnims(struct ITEM_INFO *item)//4B340, 4B7A4
 
 void InitialiseLaraLoad(short item_num)//4B308, 4B76C
 {
-		S_Warn("[InitialiseLaraLoad] - Unimplemented!\n");
+	S_Warn("[InitialiseLaraLoad] - Unimplemented!\n");
 }
 
 void LaraControl(short item_number)//4A838, 4AC9C

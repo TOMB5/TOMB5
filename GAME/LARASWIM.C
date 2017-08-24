@@ -2,6 +2,8 @@
 
 #include "SPECTYPES.H"
 #include "SPECIFIC.H"
+#include "PSXPCINPUT.H"
+#include "CONTROL.H"
 
 struct SUBSUIT_INFO subsuit;
 char SubHitCount;
@@ -59,7 +61,10 @@ void lara_as_uwdeath(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C884, 4CC
 
 void lara_as_dive(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C854, 4CCB8
 {
-	S_Warn("[lara_as_dive] - Unimplemented!\n");
+	if (input & IN_UP)
+	{
+		item->pos.x_rot -= TRDEGREE;
+	}
 }
 
 void lara_as_tread(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C730, 4CB94
