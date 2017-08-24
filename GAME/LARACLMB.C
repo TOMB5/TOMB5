@@ -2,6 +2,9 @@
 
 #include "SPECIFIC.H"
 #include "CAMERA.H"
+#include "LARA.H"
+#include "CONTROL.H"
+#include "PSXPCINPUT.H"
 
 short GetClimbTrigger(long x, long y, long z, short room_number)//46E38, 4729C
 {
@@ -51,9 +54,14 @@ void lara_col_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//46908,
 	S_Warn("[lara_col_climbright] - Unimplemented!\n");
 }
 
-void lara_as_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//468B8, 46D1C
+void lara_as_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//468B8(<), 46D1C(<) (F)
 {
-	S_Warn("[lara_as_climbright] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.target_angle = ANGLE30;
+	camera.target_elevation = -ANGLE15;
+	if (!(input & (IN_RIGHT | IN_RSTEP)))
+		item->goal_anim_state = STATE_LARA_LADDER_IDLE;
 }
 
 void lara_col_climbleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//46834, 46C98
@@ -61,9 +69,14 @@ void lara_col_climbleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//46834, 
 	S_Warn("[lara_col_climbleft] - Unimplemented!\n");
 }
 
-void lara_as_climbleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//467E4, 46C48
+void lara_as_climbleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//467E4(<), 46C48(<) (F)
 {
-	S_Warn("[lara_as_climbleft] - Unimplemented!\n");
+	coll->enable_baddie_push = 0;
+	coll->enable_spaz = 0;
+	camera.target_angle = -ANGLE30;
+	camera.target_elevation = -ANGLE15;
+	if (!(input & (IN_LEFT | IN_LSTEP)))
+		item->goal_anim_state = STATE_LARA_LADDER_IDLE;
 }
 
 void lara_col_climbstnc(struct ITEM_INFO *item, struct COLL_INFO *coll)//464E8, 4694C

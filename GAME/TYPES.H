@@ -7,12 +7,27 @@
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif
 
-#define TRDEGREE 182 // (65536 / 360) ~ 182.0444...
-#define ANGLE30 5460
+// (65536 / 360) ~ 182.0444...
+#define TRDEGREE (65536.0/360)
+// actually 273.0666...
+#define ANGLE1P5 273
+// actually 2730.666...
+#define ANGLE15 2731
+// actually 4551.111...
+#define ANGLE25 4551
+// actually 5461.333...
+#define ANGLE30 5461 
+// actually 6371.555...
+#define ANGLE35 6372 
 #define ANGLE45 8192
+// actually 14563.555...
+#define ANGLE80 14564
 #define ANGLE90 16384
+// actually 23665.777...
+#define ANGLE130 23666
 #define ANGLE135 24576
 #define ANGLE180 32768
+#define ANGLE225 40960
 #define ANGLE270 49152
 #define ANGLE360 65536
 

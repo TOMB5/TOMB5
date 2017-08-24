@@ -47,5 +47,6 @@ extern void finish_level_effect(struct ITEM_INFO *item);
 extern void void_effect(struct ITEM_INFO *item);
 extern void WaterFall(short item_number);
 extern void SoundEffects();
+extern void SoundEffect(int arg1, struct PHD_3DPOS *pos, int arg2);
 
 #endif

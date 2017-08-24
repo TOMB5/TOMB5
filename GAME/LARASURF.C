@@ -21,9 +21,12 @@ void lara_col_surfback(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD38(<)
 	LaraSurfaceCollision(item, coll);
 }
 
-void lara_col_surfswim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DCE8, 4E14C
+void lara_col_surfswim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DCE8(<), 4E14C(<) (F)
 {
-	S_Warn("[lara_col_surfswim] - Unimplemented!\n");
+	coll->bad_neg = -384;
+	lara.move_angle = item->pos.y_rot;
+	LaraSurfaceCollision(item, coll);
+	LaraTestWaterClimbOut(item, coll);
 }
 
 void lara_as_surftread(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DBA0, 4E004
