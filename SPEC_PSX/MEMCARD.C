@@ -1,5 +1,7 @@
 #include "MEMCARD.H"
 
+#include "3D_OBJ.H"
+#include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 
 #include <LIBMCRD.H>
@@ -12,116 +14,45 @@ char mcFileNames[7][20];
 int mcFileLengths[7];
 static unsigned char mcActualStatus;
 
-int dword_A1AA0 = 0x2A;//init me 0x2a? looks like name string
-
-void mcDir()//61EE8
+void mcDir()//61EE8(<), 625CC(<)
 {
-	int i; // $s3
-	int j; // $s4
-	int k; // $s1
-	struct DIRENTRY* dir;// $s2
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	struct DIRENTRY* dir = (struct DIRENTRY*)&tsv_buffer[0];
 
-#if 0
-	int a0 = 0;
-	int a1 = dword_A1AA0;
-				 
-				
-	//lui	$v0, 0x001F0000
-	//sw	$s2, 0x30 + var_10($sp)
-	struct TSV* a2 = &tsv_buffer[0];
+	MemCardGetDirentry(0, "*", dir, &mcNumFiles, 0, 0);
+
+	mcBlocksFree = 15;
 	
-	//sw	$s0, 0x30 + var_18($sp)
-	int s0 = 0xF;
-	a3 = &mcNumFiles;
-	//sw	$ra, 0x30 + var_4($sp)
-	//sw	$s4, 0x30 + var_8($sp)
-	//sw	$s3, 0x30 + var_C($sp)
-	//sw	$s1, 0x30 + var_14($sp)
-	//sw	$zero, 0x30 + var_20($sp)
-				
-	MemCardGetDirentry(0, dword_A1AA0, &tsv_buffer[0], &mcNumFiles, 0, 0);//	jal	sub_6B08C
-	//sw	$s0, 0x30 + var_1C($sp)
-	int s4 = 0;//j
-	int s3 = 0;//i
-	
-	lw	$v0, 0x41E0($gp)
-	sb	$s0, 0x41DC($gp)
-	beqz	$v0, loc_62028
-	move	$s1, $zero
-	move	$s0, $s2
-	addiu	$s2, $gp, 0x41E4
-
-				 loc_61F50:
-			 lw	$v0, 0x18($s0)
-				 nop
-				 addiu	$v1, $v0, 0x1FFF
-				 bgez	$v1, loc_61F68
-				 move	$a1, $s0
-				 addiu	$v1, $v0, 0x3FFE
-
-				 loc_61F68:
-			 sra	$v1, 13
-				 lbu	$v0, 0x41DC($gp)
-				 lw	$a0, dword_800A202C
-				 subu	$v0, $v1
-				 sb	$v0, 0x41DC($gp)
-				 lhu	$v1, 0x194($a0)
-				 lw	$a0, dword_800A203C
-				 li	$a2, 0xC
-				 jal	sub_68A84
-				 addu	$a0, $v1
-				 bnez	$v0, loc_62014
-				 nop
-				 lwl	$v0, 3($s0)
-				 lwr	$v0, 0($s0)
-				 lwl	$v1, 7($s0)
-				 lwr	$v1, 4($s0)
-				 lwl	$a0, 0xB($s0)
-				 lwr	$a0, 8($s0)
-				 lwl	$a1, 0xF($s0)
-				 lwr	$a1, 0xC($s0)
-				 swl	$v0, 3($s2)
-				 swr	$v0, 0($s2)
-				 swl	$v1, 7($s2)
-				 swr	$v1, 4($s2)
-				 swl	$a0, 0xB($s2)
-				 swr	$a0, 8($s2)
-				 swl	$a1, 0xF($s2)
-				 swr	$a1, 0xC($s2)
-				 lwl	$v0, 0x13($s0)
-				 lwr	$v0, 0x10($s0)
-				 nop
-				 swl	$v0, 0x13($s2)
-				 swr	$v0, 0x10($s2)
-				 addiu	$s2, 0x14
-				 sll	$v0, $s4, 2
-				 addiu	$s4, 1
-				 addiu	$s1, 1
-				 addiu	$v1, $gp, 0x4274
-				 lw	$a0, 0x18($s0)
-				 addu	$v0, $v1
-				 sw	$a0, 0($v0)
-
-				 loc_62014:
-			 lw	$v0, 0x41E0($gp)
-				 addiu	$s3, 1
-				 sltu	$v0, $s3, $v0
-				 bnez	$v0, loc_61F50
-				 addiu	$s0, 0x28
-
-				 loc_62028 :
-				 lw	$ra, 0x30 + var_4($sp)
-				 lw	$s4, 0x30 + var_8($sp)
-				 lw	$s3, 0x30 + var_C($sp)
-				 lw	$s2, 0x30 + var_10($sp)
-				 sw	$s1, 0x41E0($gp)
-				 lw	$s1, 0x30 + var_14($sp)
-				 lw	$s0, 0x30 + var_18($sp)
-				 jr	$ra
-				 addiu	$sp, 0x30
-				 # End of function sub_61EE8
+	if(mcNumFiles > 0)
+	{
+		//loc_61F50
+		for(i = 0; i < mcNumFiles; i++, j++, k++, dir++)
+		{
+			//loc_61F68
+			mcBlocksFree -= dir->size + 0x1FFF < 0 ? dir->size + 0x3FFE : dir->size + 0x1FFF;
+			
+#if INTERNAL
+			if(strncmp(gfStringWad[gfStringOffset[202]], dir->name, 12) == 0)
+#else
+			if(strncmp(gfStringWad[gfStringOffset[200]], dir->name, 12) == 0)
 #endif
-
+			{
+				mcFileNames[i][0] = *(int*)dir->name;
+				mcFileNames[i][4] = *(int*)dir->name+4;
+				mcFileNames[i][8] = *(int*)dir->name+8;
+				mcFileNames[i][12] = *(int*)dir->name+12;
+				mcFileNames[i][16] = *(int*)dir->name+16;
+				
+				mcFileLengths[j] = dir->size;
+			}
+		}
+	}//loc_62028
+	
+	//loc_62028
+	mcNumFiles = k;//k
+	return;
 }
 
 void mcOpen(int sync)//6204C(<), 62730(<) (F)

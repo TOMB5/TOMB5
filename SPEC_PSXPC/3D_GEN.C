@@ -48,9 +48,9 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 
 long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
 {
-	int dx = tx - x;
-	int dz = tz - z;
-	long table_index = 0;
+	long dx = tx - x;
+	long dz = tz - z;
+	short table_index = 0;
 	long result_angle = 0;
 	long temp = 0;
 
