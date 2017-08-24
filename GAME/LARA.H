@@ -9,6 +9,8 @@
 #define LARA_DRAW_TYPE_OFFICE   4
 #define LARA_DRAW_TYPE_ARTIC    5
 
+#define LARA_FREEFALL_SPEED 131
+
 enum lara_anim_state
 {
 	STATE_LARA_WALK_FORWARD = 0,

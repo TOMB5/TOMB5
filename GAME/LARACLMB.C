@@ -19,7 +19,7 @@ void lara_as_climbend(struct ITEM_INFO *item, struct COLL_INFO *coll)//46DF8(<),
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
 	camera.flags = 1;
-	camera.target_angle = -8190;
+	camera.target_angle = -ANGLE45;
 }
 
 void lara_col_climbdown(struct ITEM_INFO *item, struct COLL_INFO *coll)//46BD0, 47034
@@ -31,7 +31,7 @@ void lara_as_climbdown(struct ITEM_INFO *item, struct COLL_INFO *coll)//46BA4(<)
 {
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_elevation = -8190;
+	camera.target_elevation = -ANGLE45;
 }
 
 void lara_col_climbing(struct ITEM_INFO *item, struct COLL_INFO *coll)//469B0, 46E14
@@ -43,7 +43,7 @@ void lara_as_climbing(struct ITEM_INFO *item, struct COLL_INFO *coll)//46984(<),
 {
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_elevation = 5460;
+	camera.target_elevation = ANGLE30;
 }
 
 void lara_col_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//46908, 46D6C

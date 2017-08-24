@@ -3,6 +3,28 @@
 
 #include "SPECTYPES.H"
 
+// guessed, some may be wrong on PSX
+enum input_buttons
+{
+	IN_NONE = 0,
+	IN_UP = (1 << 0),
+	IN_DOWN = (1 << 1),
+	IN_LEFT = (1 << 2),
+	IN_RIGHT = (1 << 3),
+	IN_JUMP = (1 << 4),
+	IN_DRAW = (1 << 5), // Space / Triangle
+	IN_ACTION = (1 << 6), // Ctrl / X
+	IN_WALK = (1 << 7), // Shift / R1
+	IN_OPTION = (1 << 8),
+	IN_LOOK = (1 << 9),
+	IN_LSTEP = (1 << 10),
+	IN_RSTEP = (1 << 11),
+	IN_ROLL = (1 << 12), // End / O
+	IN_PAUSE = (1 << 13),
+	IN_SAVE = (1 << 22), // F5
+	IN_LOAD = (1 << 23)  // F6
+};
+
 extern int flipeffect;
 extern int fliptimer;
 extern unsigned char ShatterSounds[18][10];

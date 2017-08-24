@@ -669,13 +669,13 @@ void CalculateSpotCams()//
 	}
 
 	//loc_382F4
-	if (!(input & 0x200))
+	if (!(input & IN_LOOK))
 	{
 		dword_A0AC4 = 0;
 	}
 	
 	//loc_38310
-	if (!(s->flags & 0x200) && (input & 0x200) && gfGameMode != 1)
+	if (!(s->flags & 0x200) && (input & IN_LOOK) && gfGameMode != 1)
 	{
 		if (s->flags & 8)
 		{

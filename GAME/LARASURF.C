@@ -5,19 +5,19 @@
 
 void lara_col_surfright(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD90(<), 4E1F4(<) (F)
 {
-	lara.move_angle = item->pos.y_rot + 16384;
+	lara.move_angle = item->pos.y_rot + ANGLE90;
 	LaraSurfaceCollision(item, coll);
 }
 
 void lara_col_surfleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD64(<), 4E1C8(<) (F)
 {
-	lara.move_angle = item->pos.y_rot - 16384;
+	lara.move_angle = item->pos.y_rot - ANGLE90;
 	LaraSurfaceCollision(item, coll);
 }
 
 void lara_col_surfback(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD38(<), 4E19C(<) (F)
 {
-	lara.move_angle = item->pos.y_rot - 32768;
+	lara.move_angle = item->pos.y_rot - ANGLE180;
 	LaraSurfaceCollision(item, coll);
 }
 

@@ -7,6 +7,16 @@
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif
 
+#define TRDEGREE 182 // (65536 / 360) ~ 182.0444...
+#define ANGLE30 5460
+#define ANGLE45 8192
+#define ANGLE90 16384
+#define ANGLE135 24576
+#define ANGLE180 32768
+#define ANGLE270 49152
+#define ANGLE360 65536
+
+
 // 4 enums
 enum mood_type
 {

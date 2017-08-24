@@ -340,14 +340,14 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		}
 
 		//loc_1D6D4
-		input &= 0x200;
+		input &= IN_LOOK;
 	}
 
 	//loc_1D6EC
 	//Cutseq playing? lock controls to 0?
 	if (cutseq_trig != 0)
 	{
-		input = 0;
+		input = IN_NONE;
 	}
 
 	//loc_1D708
@@ -383,7 +383,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		//loc_1D7A0
 		if (input == -1)
 		{
-			input = 0;
+			input = IN_NONE;
 			Motors[0] = 0;
 			Motors[1] = 0;
 		}
@@ -393,7 +393,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	{
 		if (gfGameMode != 1 && Gameflow->CheatEnabled)
 		{
-			if (input == 0)
+			if (input == IN_NONE)
 			{
 				if (Gameflow->InputTimeout > NoInput)//bad check
 				{
@@ -406,7 +406,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 			}//1D844
 			else
 			{
-				input = 0;
+				input = IN_NONE;
 			}
 		}//loc_1D848
 	}
@@ -421,17 +421,17 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 #if 1//def INTERNAL
 	//loc_1D860
-	if ((input & 0x200) == 0 && SniperCamActive != 0 && bUseSpotCam != 0 && bTrackCamInit != 0 && lara_item->current_anim_state != STATE_LARA_STOP || lara.hit_direction == 0x67 && lara.LitTorch == 0 && input & 0x2000 != 0 && lara_item->anim_number != ANIMATION_LARA_CROUCH_IDLE && lara_item->goal_anim_state != STATE_LARA_CROUCH_IDLE)
+	if ((input & IN_LOOK) == 0 && SniperCamActive != 0 && bUseSpotCam != 0 && bTrackCamInit != 0 && lara_item->current_anim_state != STATE_LARA_STOP || lara.hit_direction == 0x67 && lara.LitTorch == 0 && (input & IN_PAUSE) != 0 && lara_item->anim_number != ANIMATION_LARA_CROUCH_IDLE && lara_item->goal_anim_state != STATE_LARA_CROUCH_IDLE)
 	{
 		//loc_1D9D0
-		input |= 0x200;
+		input |= IN_LOOK;
 
 		if (BinocularRange == 0)
 		{
 			//loc_1DA80
 			if (SniperCamActive == 0 || bUseSpotCam == 0)
 			{
-				input &= 0xFFFFFDFF;
+				input &= ~IN_LOOK;
 			}//loc_1DABC
 		}
 		else if (LaserSight != 0)
@@ -451,7 +451,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 			BinocularOn = -8;
 			camera.bounce = 0;
-			input &= 0xFFFFFDFF;
+			input &= ~IN_LOOK;
 			lara.look = 0;//check
 		}
 
@@ -952,9 +952,12 @@ void NeatAndTidyTriggerCutscene(int value, int timer)
 	S_Warn("[NeatAndTidyTriggerCutscene] - Unimplemented!\\n");
 }
 
-int CheckCutPlayed(int num)
+int CheckCutPlayed(int num)//20E34, 21040
 {
-	S_Warn("[CheckCutPlayed] - Unimplemented!\\n");
+	if (num < 32)
+		return _CutSceneTriggered1 & (1 << num);
+	else
+		return _CutSceneTriggered2 & (1 << (num - 32));
 }
 
 void SetCutNotPlayed(int num)
