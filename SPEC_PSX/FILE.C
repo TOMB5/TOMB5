@@ -23,7 +23,7 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8
 
 	cdCurrentSector = CdPosToInt(&fp.pos); //sw	$v0, 0x2E0C($gp)
 	printf("Read Size: %i\n", fp.size);
-	CD_Read(fp.size, pDest);
+	CD_Read(pDest, fp.size);
 
 	return fp.size;
 }

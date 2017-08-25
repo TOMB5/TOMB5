@@ -1,6 +1,7 @@
 #include "LOAD_LEV.H"
 
 #include "CD.H"
+#include "DRAW.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "MALLOC.H"
@@ -21,7 +22,7 @@
 
 unsigned char LtLoadingBarEnabled;
 unsigned char LoadingBarEnabled;
-unsigned char _first_time_ever;
+unsigned char _first_time_ever = 1;
 short DelRotAng;
 struct STASHEDOBJ* cur_stashed_object;
 struct STASHEDDAT* cur_stashed_matrix;
@@ -310,33 +311,34 @@ short atanTab[] =
 int dword_AD920 = 0;
 int dword_A33F6 = 0;
 char dword_A33F5 = 0;
-int dword_A5EE0 = 0;
 
 void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
 {
 	int a0, a1, a2;
-	if (LtLoadingBarEnabled != 0)
+	if (!LtLoadingBarEnabled)
 	{
-		//loc_5F08C
-		GPU_BeginScene();
-
-		a0 = 0x1B8;
-		a1 = 0xC8;
-		a2 = 0x40;
-
-		if (_first_time_ever)
-		{
-			a0 += 0x18;
-			a1 += 8;
-			a2 = 0x30;
-		}
-
-		//loc_5F0B4
-		//draw_rotate_sprite(a0, a1, a2);
-		db.current_buffer ^= 1;
-		GnLastFrameCount = 0;
-		//DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);
+		return;
 	}
+
+	//loc_5F08C
+	GPU_BeginScene();
+
+	a0 = 0x1B8;
+	a1 = 0xC8;
+	a2 = 0x40;
+
+	if (_first_time_ever)
+	{
+		a0 += 0x18;
+		a1 += 8;
+		a2 = 0x30;
+	}
+
+	//loc_5F0B4
+	draw_rotate_sprite(a0, a1, a2);
+	db.current_buffer ^= 1;
+	GnLastFrameCount = 0;
+	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);
 
 	return;
 }
@@ -346,77 +348,88 @@ void LOAD_DrawEnable(unsigned char isEnabled)//5F2C8, 5FFA8
 	LtLoadingBarEnabled = isEnabled;
 }
 
-void LOAD_Start(int file_number)//602AC, 60DEC(<)
+void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 {
-	unsigned long* tmpptr = NULL;
 	char* gfx = NULL;
-	unsigned short* cdgfx = NULL;
 	unsigned short* gfx2 = NULL;
-	int fileSize, x, y, i;
-	unsigned short dat;
+	unsigned short* cdgfx = NULL;
+	int x = 0;
+	int y = 0;
+	unsigned long* tmpptr = NULL;
+	int file = 0;
+	unsigned short dat = NULL;
+#if INTERNAL
+	ProfileDraw = 0;
+#endif
 
 	DrawSync(0);
 	VSync(0);
-	//GPU_UseOrderingTables(dword_AD920);
+
+	GPU_UseOrderingTables(&GadwOrderingTables[0], 1);
 
 	db.draw[0].isbg = 0;
 	db.draw[1].isbg = 0;
 	db.draw[0].dtd = 0;
 	db.draw[1].dtd = 0;
 
-#ifdef PSX_VERSION
-	//jal sub_6B440 //PutDispEnv(&db.draw[0]);
-#endif
-
-	//?
-	dword_A5EE0 = 0;
+	db.current_buffer = 0;
+	PutDispEnv(&db.disp[1]);
 
 	//We're going to allocate enough memory for the loading screen background picture and loading disc image
 	//The result pointer is later used as the base to read the loading screen/disc bitmap from GAMEWAD.OBJ on disk.
 	gfx = game_malloc(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
-	if (dword_A33F6 == 0)
+	cdgfx = (unsigned short*) &gfx[LOADING_SCREEN_IMG_SIZE];
+	gfx2 = (unsigned short*) &gfx[0x4000];//256*256 rect icrm
+
+#if INTERNAL
+	file = PCopen("data\\loadpic.raw", 0, file);
+	FILE_Read(gfx, 1, LOADING_SCREEN_IMG_SIZE);
+	PCclose(file);
+#else
+	if (_first_time_ever)
 	{
-		//assert(0);
+		//UNKNOWN_41 is the first loading screen image, simply add Gameflow->Language to the base to load language specific load screens.
+		CD_InitialiseReaderPosition(UNKNOWN_41 + Gameflow->Language);
+
+		//Request the loading screen/disc bitmaps to be read into gfx ptr.
+		//We don't actually pass the file ID or offset since this is already cached by the previous GAMEWAD_InitialiseFileEntry call.
+		CD_Read(gfx, LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
+
+		//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
+		CD_InitialiseReaderPosition(file_number);
+
+		//We will skip past the loading screen and disc image data so on the next read call we're ready to read SETUP.MOD
+		CD_Seek(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 	}
+	else
+	{
+		//loc_60EC4
+		CD_Read(gfx, LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
+	}
+#endif
 
-	//UNKNOWN_41 is the first loading screen image, simply add Gameflow->Language to the base to load language specific load screens.
-	fileSize = CD_InitialiseReaderPosition(UNKNOWN_41 + Gameflow->Language);
-
-	//Request the loading screen/disc bitmaps to be read into gfx ptr.
-	//We don't actually pass the file ID or offset since this is already cached by the previous GAMEWAD_InitialiseFileEntry call.
-	CD_Read(fileSize, gfx);
-
-	//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
-	CD_InitialiseReaderPosition(file_number + TITLE);
-
-	//We will skip past the loading screen and disc image data so on the next read call we're ready to read SETUP.MOD
-	CD_Seek(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
-
-	//Why?
 	tmpptr = (unsigned long*) gfx;
-	for (i = 0; i < LOADING_SCREEN_IMG_SIZE / sizeof(unsigned long); i++)
+
+	for (x = 0; x < LOADING_SCREEN_IMG_SIZE / 4; x++)
 	{
-		tmpptr[i] |= (SHRT_MAX + 1) << 16 | (SHRT_MAX + 1);
+		*tmpptr++ |= 0x80008000;
 	}
 
-	//jal sub_6B1C4 //StoreImage(); //frame buffer (gfx, LOADING_SCREEN_IMG_SIZE)
+	LoadImage(&db.disp[1].disp, gfx);
 	DrawSync(0);
 
-	cdgfx = (unsigned short*)(gfx + LOADING_SCREEN_IMG_SIZE);
-	gfx2 = (unsigned short*)gfx;
-
-	//Why?
-	for (x = 0; x < LOADING_CD_IMG_WIDTH; x++, gfx2 += (LOADING_SCREEN_IMG_WIDTH + LOADING_CD_IMG_WIDTH + 60) / sizeof(unsigned short))
+	//loc_603AC
+	for(y = 0; y < LOADING_CD_IMG_HEIGHT; y++, gfx2 += 448)
 	{
-		for (y = 0; y < LOADING_CD_IMG_HEIGHT; y++, cdgfx++, gfx2++)
+		//loc_603B4
+		for (x = 0; x < LOADING_CD_IMG_WIDTH; x++, gfx2++, dat = *cdgfx++)
 		{
-			dat = *cdgfx;
-
 			if (dat == 0)
 			{
-				dat = (SHRT_MAX + 1);
+				*gfx2 = 0x8000;
 			}
 
+			//loc_603C8
 			if (dat == 0xFC1F)
 			{
 				*gfx2 = 0;
@@ -424,15 +437,21 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<)
 		}
 	}
 
-	//int a0 = 0xA5FD0;//pScreenDimensions {shrt unk, shrt h, shrt w}
-	//jal sub_6B1C4 //StoreImage(s2); frame buffer
+	//loc_603D4
+	LoadImage(&db.disp[0].disp, *gfx);
 	DrawSync(0);
-
 	game_free(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 
+#if !INTERNAL
 	LOAD_DrawEnable(1);
+	LoadingBarEnabled = 1;
+#endif
 
-	dword_A33F5 = 1;
+	while (1)
+	{
+		VSync(0);
+		printf("Testing Loading Bar!");
+	}
 }
 
 void LOAD_Stop()//60434(<), 60FB4(<) (F)

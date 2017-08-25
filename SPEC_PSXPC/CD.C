@@ -408,7 +408,7 @@ int CD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<) (F)
 * @PARAM - [fileSize] the number of bytes you wish to read [ptr] the memory location the data is read to.
 */
 
-void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
+void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
 {
 	int i;
 	int numSectorsToRead;
@@ -426,7 +426,7 @@ void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 	{
 		for (i = 0; i < numSectorsToRead; i++)
 		{
-			ptr += fread(ptr, 1, CD_SECTOR_SIZE, fileHandle);
+			pDest += fread(pDest, 1, CD_SECTOR_SIZE, fileHandle);
 		}
 
 		cdCurrentSector += numSectorsToRead;
@@ -435,10 +435,7 @@ void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 	//Another chunk that is not multiple of 2048 bytes exists, read it
 	if ((fileSize & 0x7FF) != 0)//%
 	{
-		ptr += fread(ptr, 1, fileSize - (numSectorsToRead * CD_SECTOR_SIZE), fileHandle);
-
-		fclose(fileHandle);
-
+		pDest += fread(pDest, 1, fileSize - (numSectorsToRead * CD_SECTOR_SIZE), fileHandle);
 		cdCurrentSector++;
 	}
 
