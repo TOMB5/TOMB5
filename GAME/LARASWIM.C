@@ -8,6 +8,8 @@
 #endif
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
+#include "LARA.H"
+#include "DRAW.H"
 
 struct SUBSUIT_INFO subsuit;
 char SubHitCount;
