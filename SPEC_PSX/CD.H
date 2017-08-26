@@ -141,6 +141,4 @@ extern char XAFlag;
 extern char XAWait;
 extern int XAStartPos;
 
-extern CdlFILE fp;
-
 #endif

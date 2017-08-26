@@ -64,8 +64,6 @@ static int cdStartSector = 0;
 //Current sector for the gamewad file entry, updated as data is read from disk.
 int cdCurrentSector = 0;
 
-CdlFILE fp;
-
 void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
 {
 	SpuCommonAttr attr;
@@ -348,6 +346,7 @@ void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
 
 void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 {
+	CdlFILE fp;
 	char buf[10];
 	int i = 0;
 	long local_wadfile_header[512];
@@ -466,6 +465,7 @@ int CD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<) (F)
 
 void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
 {
+	CdlFILE fp;
 	int i;
 	int numSectorsToRead;
 	unsigned char param[4];
@@ -474,20 +474,16 @@ void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
 
 	numSectorsToRead = fileSize / CD_SECTOR_SIZE;
 
-	if (numSectorsToRead > 1)
-	{
-		printf("%i\n", 0xDEAD, "DEAD!!!\n");
-	}
-
 	if (numSectorsToRead != 0)
 	{
-		CdIntToPos(cdCurrentSector, &fp.pos);//6915C
-		CdControlB(CdlSetloc, &fp, 0);//sub_6956C
+		CdIntToPos(cdCurrentSector, &fp.pos);
+		CdControlB(CdlSetloc, &fp, 0);
+
 		CdRead(numSectorsToRead, pDest, 0x80);
 
 		while (CdReadSync(1, 0) > 0)
 		{
-			VSync(0);//6A1FC
+			VSync(0);
 		}
 
 		cdCurrentSector += numSectorsToRead;
@@ -496,17 +492,15 @@ void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
 	//Another chunk that is not multiple of 2048 bytes exists, read it
 	if ((fileSize & 0x7FF) != 0)//%
 	{
-		printf("Last chunk! Sector %i\n", fp.pos);
-		CdIntToPos(cdCurrentSector, &fp.pos);//6915C
-		CdControlB(CdlSetloc, &fp, 0);//sub_6956C
-		CdRead(1, pDest, 0x80);//jal sub_69C4C //CdRead(?, ?, ?);
+		pDest += numSectorsToRead * 2048;
+		CdIntToPos(cdCurrentSector, &fp.pos);
+		CdControlB(CdlSetloc, &fp, 0);
+		CdRead(1, pDest, 0x80);
 
 		while (CdReadSync(1, 0) > 0)
 		{
 			VSync(0);//6A1FC
 		}
-		printf("CD SYNCED\n", fp.pos);
-		
 		cdCurrentSector++;
 	}
 }

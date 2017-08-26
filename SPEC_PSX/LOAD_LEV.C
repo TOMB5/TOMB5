@@ -358,6 +358,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	unsigned long* tmpptr = NULL;
 	int file = 0;
 	unsigned short dat = NULL;
+
 #if INTERNAL
 	ProfileDraw = 0;
 #endif
@@ -446,12 +447,6 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	LOAD_DrawEnable(1);
 	LoadingBarEnabled = 1;
 #endif
-
-	while (1)
-	{
-		VSync(0);
-		printf("Testing Loading Bar!");
-	}
 }
 
 void LOAD_Stop()//60434(<), 60FB4(<) (F)

@@ -7,8 +7,9 @@
 #include <libcd.h>
 #include <stdio.h>
 
-int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8
+int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 {
+	CdlFILE fp;
 	char buf[10];
 	unsigned long dwFileSize = -1;
 	
@@ -16,25 +17,24 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8
 
 	sprintf(buf, "\\%s;1", szFileName);
 
-	if (CdSearchFile(&fp, buf) == 0)
-	{
-		printf("FILE_Load: '%s' Could not open!\n", szFileName);
-	}
+	CdSearchFile(&fp, buf);
 
-	cdCurrentSector = CdPosToInt(&fp.pos); //sw	$v0, 0x2E0C($gp)
-	printf("Read Size: %i\n", fp.size);
+	cdCurrentSector = CdPosToInt(&fp.pos);
 	CD_Read(pDest, fp.size);
 
 	return fp.size;
 }
-
 int FILE_Read(void* pDest, int nItemSize, int nItems, int nHandle)//5E6A8, 
 {
+	int a1 = nItemSize * nItems;
+
+	//int	PCread(int fd, char *buff, int len);
 	return 0;
 }
 
-unsigned long FILE_Length(char* szFileName)//5E60C, 5E578
+unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
 {
+	CdlFILE fp;
 	char buf[10];
 	unsigned long dwFileSize = -1;
 
@@ -46,12 +46,10 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578
 		dwFileSize = fp.size;
 	}
 
-	printf("%s, len = %i\n", buf, dwFileSize);
-
 	return dwFileSize;
 }
 
 void RelocateModule(unsigned long Module, unsigned long* RelocData)
 {
-	//TODO
+	return;
 }
