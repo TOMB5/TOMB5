@@ -16,8 +16,6 @@
 #include <stddef.h>
 #include <stdio.h>
 
-char setupBuff[SETUP_MOD_FILE_SIZE];
-
 char dword_A3C18;
 int dword_A616C;
 int dword_A6F0C = 0;
@@ -43,17 +41,11 @@ int dword_A50F0;
 short dword_A6174;
 int dword_3EE4;
 
-int dword_A33D0[512];//FIXME
-
 struct object_container objects_raw;
 struct object_info* objects = &objects_raw.m_objects[0];
 struct static_info* static_objects = &objects_raw.m_static_objects[0];
 extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
 extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
-
-
-char dword_1EF1D0[0x780];
-char dword_1EF9D0[2048 * 64];//fixme unknown size
 
 #define PSX_HEADER_LENGTH 228
 
@@ -81,9 +73,20 @@ void RelocateLevel()//?, B3B50(<)
 	char* s22;
 	char* s11;
 	char* a000;
+	int* a1;
+	///@CRITICAL! PSX version always runs out of memory, check game malloc stats,
+	///Ensure same memory is available for retail gam.
+	///If it isn't then a free is missing before this is called
+	///Otherwise, a free is missing in this piece of code (more likely)
 
 	InItemControlLoop = 0;
 	dump_game_malloc();
+
+	///DEBUG PSX
+	printf("************* Debug PSX game memory usage! Should be 6k\n");
+	show_game_malloc_totals();
+
+
 	//Read up the PSX file header into RelocPtr buff.
 	CD_Read((char*) &LevelRelocPtr, PSX_HEADER_LENGTH);
 	printf("PSX HDR: %i\n", LevelRelocPtr[0]);
@@ -98,11 +101,11 @@ void RelocateLevel()//?, B3B50(<)
 		dword_A616C = 0;//?
 
 		//Allocate enough memory to store the sound pointers
-		ptr = game_malloc(LevelRelocPtr[9] * sizeof(unsigned long));
+		ptr = game_malloc(LevelRelocPtr[9] * 4);
 
 		//Reading in soundpointers
 		printf("MARKER_10*****************\n");
-		CD_Read(ptr, LevelRelocPtr[9] * sizeof(unsigned long));
+		CD_Read(ptr, LevelRelocPtr[9] * 4);
 
 		//Allocating enough memory for the 8000hz vag soundwad
 		ptr = game_malloc(LevelRelocPtr[10]);
@@ -117,7 +120,7 @@ void RelocateLevel()//?, B3B50(<)
 		//sub_B3974(LevelRelocPtr[9], LevelRelocPtr[10], ptr);
 
 		//Free audio data from malloc_buffer
-		game_free(LevelRelocPtr[9] * sizeof(unsigned long));
+		game_free(LevelRelocPtr[9] * 4);
 		game_free(LevelRelocPtr[10]);
 	}
 
@@ -165,14 +168,14 @@ void RelocateLevel()//?, B3B50(<)
 
 	room = (struct room_info*)ptr;
 
-	ptr += ((number_rooms * sizeof(unsigned long)) + number_rooms) * 16;//16 sizeof room_header?
+	ptr += ((number_rooms * 4) + number_rooms) * 16;//16 sizeof room_header?
 
 	if (number_rooms > 0)
 	{
 		for (i = 0; i < number_rooms; i++)
 		{
 			struct room_info* r = &room[i];
-			int* a1 = (int*) &ptr[4];
+			a1 = (int*) &ptr[4];
 
 			size = *(unsigned int*) &r->data;
 			r->data = (short*) ptr;
@@ -239,7 +242,7 @@ void RelocateLevel()//?, B3B50(<)
 	if ((LevelRelocPtr[18] & 0xFFFF) > 0)//CHECK
 	{
 		//Relocating mesh ptrs
-		for (i = 0; i < (LevelRelocPtr[18] & 0xFFFF) * sizeof(short); i++)
+		for (i = 0; i < (LevelRelocPtr[18] & 0xFFFF) * 2; i++)
 		{
 			//Ptr to current mesh ptr
 			int* meshPointer = (int*) &meshes[i];
@@ -366,7 +369,7 @@ void RelocateLevel()//?, B3B50(<)
 		//0x1F2480 objects FIXME unknown type
 		a11 = 0x7E68;
 		s4 = 63;
-		dword_A33D0[25] = *(int*) ptr;
+		////dword_A33D0[25] = *(int*) ptr;
 		ptr += LevelRelocPtr[45];
 
 		a2 = LevelRelocPtr[43];
@@ -390,6 +393,7 @@ void RelocateLevel()//?, B3B50(<)
 			RelocPtr[i] = NULL;
 		}
 
+#if 0
 		if (LevelRelocPtr[48] != 0)
 		{
 			printf("MARKER_2*****************\n");
@@ -444,6 +448,7 @@ void RelocateLevel()//?, B3B50(<)
 				}
 			}
 		}//0xB4228
+#endif
 
 		 //a0 = 1;
 		 //jal sub_424D0 ??

@@ -69,7 +69,7 @@ unsigned long LevelRelocPtr[128];
  */
 void RelocateLevel()//?, B3B50(<)
 {
-
+	show_game_malloc_totals();
 	char* ptr = NULL;
 	unsigned int size, i, j;
 	int a0, a00, t2, v1, v0, a3, v000, v111, a11, s4, a2, a33, s3, s0;
