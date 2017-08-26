@@ -3,6 +3,9 @@
 #include "SPECIFIC.H"
 #include "LARA.H"
 #include "CONTROL.H"
+#include "DRAW.H"
+#include "LARASWIM.H"
+#include "PSXPCINPUT.H"
 
 char* states[131] =
 {
@@ -87,9 +90,29 @@ void LaraControl(short item_number)//4A838, 4AC9C
 	S_Warn("[LaraControl] - Unimplemented!\n");
 }
 
-void LaraCheat(struct ITEM_INFO *item, struct COLL_INFO *coll)//4A790, 4ABF4
+void LaraCheat(struct ITEM_INFO *item, struct COLL_INFO *coll)//4A790(<), 4ABF4(<) (F)
 {
-	S_Warn("[LaraCheat] - Unimplemented!\n");
+	lara_item->hit_points = 1000;
+	LaraUnderWater(item, coll);
+	if (input & IN_WALK)
+	{
+		if (!(input & IN_LOOK))
+		{
+			lara.water_status = 0;
+			item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
+			item->anim_number = ANIMATION_LARA_STAY_SOLID;
+			item->pos.z_rot = 0;
+			item->pos.x_rot = 0;
+			lara.torso_y_rot = 0;
+			lara.torso_x_rot = 0;
+			lara.head_y_rot = 0;
+			lara.head_x_rot = 0;
+			lara.gun_status = 0;
+			LaraInitialiseMeshes();
+			lara.mesh_effects = 0;
+			lara_item->hit_points = cheat_hit_points;
+		}
+	}
 }
 
 void LaraInitialiseMeshes()//4A684, 4AAE8

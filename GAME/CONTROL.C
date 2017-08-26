@@ -1050,3 +1050,21 @@ void AlterFloorHeight(struct ITEM_INFO *item, int height)
 {
 	S_Warn("[AlterFloorHeight] - Unimplemented!\\n");
 }
+
+short GetHeight(FLOOR_INFO *floor, int x, int y, int z)
+{
+	S_Warn("[GetHeight] - Unimplemented!\\n");
+	return 0;
+}
+
+FLOOR_INFO *GetFloor(int x, int y, int z, short *room_number)
+{
+	S_Warn("[GetFloor] - Unimplemented!\\n");
+	return NULL;
+}
+
+short GetCeiling(FLOOR_INFO *floor, int x, int y, int z)
+{
+	S_Warn("[GetCeiling] - Unimplemented!\\n");
+	return 0;
+}

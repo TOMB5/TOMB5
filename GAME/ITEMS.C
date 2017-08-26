@@ -256,3 +256,8 @@ void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
 	item->next_item = -1;
 	return;
 }
+
+void ItemNewRoom(short item_num, short room_number)
+{
+	S_Warn("[ItemNewRoom] - Unimplemented!\\n");
+}

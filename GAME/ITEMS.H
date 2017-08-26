@@ -19,5 +19,6 @@ extern void InitialiseItem(short item_num);
 extern short CreateItem();
 extern void KillItem(short item_num);
 extern void InitialiseItemArray(int numitems);
+extern void ItemNewRoom(short item_num, short room_number);
 
 #endif

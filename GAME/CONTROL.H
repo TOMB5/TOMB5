@@ -123,5 +123,8 @@ extern void _TestTriggers(short *data, int heavy, int HeavyFlags);
 extern void RefreshCamera(short type, short *data);
 extern long GetWaterHeight(long x, long y, long z, short room_number);
 extern void AlterFloorHeight(struct ITEM_INFO *item, int height);
+extern short GetHeight(FLOOR_INFO *floor, int x, int y, int z);
+extern FLOOR_INFO *GetFloor(int x, int y, int z, short *room_number);
+extern short GetCeiling(FLOOR_INFO *floor, int x, int y, int z);
 
 #endif
