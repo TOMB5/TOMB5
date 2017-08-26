@@ -85,7 +85,7 @@ void RelocateLevel()//?, B3B50(<)
 	InItemControlLoop = 0;
 	dump_game_malloc();
 	//Read up the PSX file header into RelocPtr buff.
-	CD_Read(PSX_HEADER_LENGTH, (char*) &LevelRelocPtr);
+	CD_Read((char*) &LevelRelocPtr, PSX_HEADER_LENGTH);
 	printf("PSX HDR: %i\n", LevelRelocPtr[0]);
 
 	LaraDrawType = LevelRelocPtr[12] & 7;
@@ -102,13 +102,13 @@ void RelocateLevel()//?, B3B50(<)
 
 		//Reading in soundpointers
 		printf("MARKER_10*****************\n");
-		CD_Read(LevelRelocPtr[9] * sizeof(unsigned long), ptr);
+		CD_Read(ptr, LevelRelocPtr[9] * sizeof(unsigned long));
 
 		//Allocating enough memory for the 8000hz vag soundwad
 		ptr = game_malloc(LevelRelocPtr[10]);
 
 		printf("MARKER_9*****************\n");
-		CD_Read(LevelRelocPtr[10], ptr);
+		CD_Read(ptr, LevelRelocPtr[10]);
 
 		//unsigned long a0 = LevelRelocPtr[9];
 		//unsigned long a3 = LevelRelocPtr[10];
@@ -131,7 +131,7 @@ void RelocateLevel()//?, B3B50(<)
 	for (i = 0; i < 2; i++)
 	{
 		printf("MARKER_8*****************\n");
-		CD_Read(0x40000, ptr);
+		CD_Read(ptr, 0x40000);
 
 		LOAD_DrawEnable(0);
 
@@ -155,11 +155,11 @@ void RelocateLevel()//?, B3B50(<)
 	ptr = game_malloc(AnimFileLen);
 	frames = (short*) ptr;
 	printf("MARKER_7*****************\n");
-	CD_Read(AnimFileLen, ptr);
+	CD_Read(ptr, AnimFileLen);
 
 	ptr = game_malloc(LevelRelocPtr[14]);
 	printf("MARKER_6*****************\n");
-	CD_Read(LevelRelocPtr[14], ptr);
+	CD_Read(ptr, LevelRelocPtr[14]);
 	printf("MARKER_6_1*****************\n");
 	number_rooms = *(((unsigned short*) &LevelRelocPtr[11]) + 1);//0xB3D28
 
@@ -383,7 +383,7 @@ void RelocateLevel()//?, B3B50(<)
 #ifdef PSXPC
 		CD_Read(sizeof(objects_raw), (char*) &objects_raw);
 #else
-		CD_Read(32360, (char*) &objects_raw);
+		CD_Read((char*) &objects_raw, 32360);
 #endif
 		for (i = 0; i < 63; i++)
 		{
@@ -394,7 +394,7 @@ void RelocateLevel()//?, B3B50(<)
 		{
 			printf("MARKER_2*****************\n");
 			CD_ReaderPositionToCurrent();
-			CD_Read(0x780, &dword_1EF1D0[0]);//FIXME levelRelocPtr?
+			CD_Read(&dword_1EF1D0[0], 0x780);//FIXME levelRelocPtr?
 			printf("MARKER_3*****************\n");
 			if (LevelRelocPtr[48] > 0)
 			{
@@ -418,7 +418,7 @@ void RelocateLevel()//?, B3B50(<)
 					s22 = v00;
 					a000 = s22;
 					printf("MARKER_4*****************\n");
-					CD_Read(s3, s22);
+					CD_Read(s22, s3);
 
 					s3 = *(int*) &s00[12];//0x15C
 
@@ -429,7 +429,7 @@ void RelocateLevel()//?, B3B50(<)
 					CD_Seek(a00);
 
 					printf("MARKER_5*****************\n");
-					CD_Read(s3, s11);
+					CD_Read(s11, s3);
 
 					//RelocateModule(s11);
 

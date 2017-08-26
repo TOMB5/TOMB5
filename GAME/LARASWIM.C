@@ -1,11 +1,13 @@
 #include "LARASWIM.H"
 
-#include "SPECTYPES.H"
-#include "SPECIFIC.H"
-#include "PSXPCINPUT.H"
 #include "CONTROL.H"
-#include "LARA.H"
-#include "DRAW.H"
+#if PSX_VERSION
+	#include "PSXINPUT.H"
+#else
+	#include "PSXPCINPUT.H"
+#endif
+#include "SPECIFIC.H"
+#include "SPECTYPES.H"
 
 struct SUBSUIT_INFO subsuit;
 char SubHitCount;

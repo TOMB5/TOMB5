@@ -84,7 +84,7 @@ void XAReplay()//5D838(<), 5DCB4(<)
 
 	CdIntToPos(XAStartPos, &loc);
 	
-	if (CdControl(0x1B, &loc, 0) == 1)
+	if (CdControl(CdlReadS, &loc, 0) == 1)
 	{
 		XACurPos = XAStartPos;
 	}
@@ -125,7 +125,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 		XAEndPos = XATrackList[cnt][1] + XATrackClip[XAReqTrack];
 		XACurPos = XAStartPos;
 
-		CdControlF(0xD, &io);
+		CdControlF(CdlSetfilter, &io);
 		
 		XAFlag++;
 
@@ -197,7 +197,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 					//loc_5DA84
 					if (CurrentAtmosphere == 0)
 					{
-						CdControlB(9, 0, 0);
+						CdControlB(CdlPause, 0, 0);
 						XAFlag = 7;
 					}
 					else
@@ -265,7 +265,7 @@ void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<)
 		param[0] = 0xC8;
 		CdControlB(CdlSetmode, &param[0], 0);
 		VSync(3);
-		CdControlB(0x9, 0, 0);
+		CdControlB(CdlPause, 0, 0);
 		DEL_ChangeCDMode(1);
 	}
 
@@ -464,7 +464,7 @@ int CD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<) (F)
 * @PARAM - [fileSize] the number of bytes you wish to read [ptr] the memory location the data is read to.
 */
 
-void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
+void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
 {
 	int i;
 	int numSectorsToRead;
@@ -483,7 +483,7 @@ void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 	{
 		CdIntToPos(cdCurrentSector, &fp.pos);//6915C
 		CdControlB(CdlSetloc, &fp, 0);//sub_6956C
-		CdRead(numSectorsToRead, ptr, 0x80);
+		CdRead(numSectorsToRead, pDest, 0x80);
 
 		while (CdReadSync(1, 0) > 0)
 		{
@@ -499,7 +499,7 @@ void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 		printf("Last chunk! Sector %i\n", fp.pos);
 		CdIntToPos(cdCurrentSector, &fp.pos);//6915C
 		CdControlB(CdlSetloc, &fp, 0);//sub_6956C
-		CdRead(1, ptr, 0x80);//jal sub_69C4C //CdRead(?, ?, ?);
+		CdRead(1, pDest, 0x80);//jal sub_69C4C //CdRead(?, ?, ?);
 
 		while (CdReadSync(1, 0) > 0)
 		{

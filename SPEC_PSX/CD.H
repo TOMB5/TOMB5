@@ -108,7 +108,7 @@ struct GAMEWAD_header
 };
 
 int CD_InitialiseReaderPosition(int fileID);
-void CD_Read(int fileSize, char* ptr);
+void CD_Read(char* pDest, int fileSize);
 void CD_Seek(int offset);
 void CD_ReaderPositionToCurrent();
 

@@ -144,7 +144,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	init_game_malloc();
 	
 	a0 = s0;
-	LOAD_Start(Name);//FIXME incorRECTTRC ptr returning
+	LOAD_Start(Name + TITLE);//FIXME incorRECTTRC ptr returning
 
 	v0 = 0x000A0000;
 	v1 = 0x000B0000;
@@ -157,7 +157,7 @@ void S_LoadLevelFile(int Name)//60188, 60D54(<)
 	//addiu	$a0, $s0, 0x1000 //looks like the ptr?
 	
 	//FIXME should switch offset 0x6E5
-	CD_Read(SETUP_MOD_FILE_SIZE, setupBuff); //jal sub_5E414 //Loads setup.mod to ptr 0xB2940
+	CD_Read(setupBuff, SETUP_MOD_FILE_SIZE); //jal sub_5E414 //Loads setup.mod to ptr 0xB2940
 	
 	//a0 = SetupPtr;
 	//lw	$a1, 0x1000($s0)
