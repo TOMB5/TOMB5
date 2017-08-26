@@ -215,3 +215,8 @@ void SoundEffect(int arg1, struct PHD_3DPOS *pos, int arg2)
 {
 	S_Warn("[SoundEffect] - Unimplemented!\n");
 }
+
+void StopSoundEffect(int arg1)
+{
+	S_Warn("[StopSoundEffect] - Unimplemented!\\n");
+}

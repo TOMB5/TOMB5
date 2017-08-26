@@ -49,9 +49,14 @@ void lara_as_climbing(struct ITEM_INFO *item, struct COLL_INFO *coll)//46984(<),
 	camera.target_elevation = ANGLE30;
 }
 
-void lara_col_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//46908, 46D6C
+void lara_col_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//46908(<), 46D6C(<) (F)
 {
-	S_Warn("[lara_col_climbright] - Unimplemented!\n");
+	if (!LaraCheckForLetGo(item, coll))
+	{
+		lara.move_angle = item->pos.y_rot + ANGLE90;
+		LaraDoClimbLeftRight(item, coll, 
+			LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, (int *)&coll), (int)coll); // todo it may be wrong af
+	}
 }
 
 void lara_as_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//468B8(<), 46D1C(<) (F)
@@ -64,9 +69,14 @@ void lara_as_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//468B8(<
 		item->goal_anim_state = STATE_LARA_LADDER_IDLE;
 }
 
-void lara_col_climbleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//46834, 46C98
+void lara_col_climbleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//46834(<), 46C98(<) (F)
 {
-	S_Warn("[lara_col_climbleft] - Unimplemented!\n");
+	if (!LaraCheckForLetGo(item, coll))
+	{
+		lara.move_angle = item->pos.y_rot - ANGLE90;
+		LaraDoClimbLeftRight(item, coll,
+			LaraTestClimbPos(item, coll->radius, -(coll->radius + 120), -512, 512, (int *)&coll), (int)coll); // todo it may be wrong af
+	}
 }
 
 void lara_as_climbleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//467E4(<), 46C48(<) (F)

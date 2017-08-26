@@ -4,6 +4,8 @@
 #include "SPECIFIC.H"
 #include "PSXPCINPUT.H"
 #include "CONTROL.H"
+#include "LARA.H"
+#include "DRAW.H"
 
 struct SUBSUIT_INFO subsuit;
 char SubHitCount;
@@ -24,9 +26,19 @@ void lara_col_waterroll(struct ITEM_INFO *item, struct COLL_INFO *coll)//4CA18(<
 	LaraSwimCollision(item, coll);
 }
 
-void lara_col_uwdeath(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C980, 4CDE4
+void lara_col_uwdeath(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C980(<), 4CDE4(<) (F)
 {
-	S_Warn("[lara_col_uwdeath] - Unimplemented!\n");
+	int wh;
+	item->hit_points = -1;
+	lara.air = -1;
+	lara.gun_status = 1;
+	wh = GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
+	if (wh != -32512)
+	{
+		if (wh < item->pos.y_pos - 100)
+			item->pos.y_pos -= 5;
+	}
+	LaraSwimCollision(item, coll);
 }
 
 void lara_col_dive(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C960(<), 4CDC4(<) (F)
@@ -54,9 +66,25 @@ void lara_as_waterroll(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C8F8(<)
 	item->fallspeed = 0;
 }
 
-void lara_as_uwdeath(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C884, 4CCE8
+void lara_as_uwdeath(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C884(<), 4CCE8(<) (F)
 {
-	S_Warn("[lara_as_uwdeath] - Unimplemented!\n");
+	lara.look = 0;
+
+	item->fallspeed -= 8;
+	if (item->fallspeed <= 0)
+		item->fallspeed = 0;
+
+	if(item->pos.x_rot < -ANGLE2 || item->pos.x_rot > ANGLE2)
+	{
+		if (item->pos.x_rot >= 0)
+			item->pos.x_rot -= ANGLE2;
+		else
+			item->pos.x_rot += ANGLE2;
+	}
+	else
+	{
+		item->pos.x_rot = 0;
+	}
 }
 
 void lara_as_dive(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C854, 4CCB8
@@ -72,14 +100,78 @@ void lara_as_tread(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C730, 4CB94
 	S_Warn("[lara_as_tread] - Unimplemented!\n");
 }
 
-void lara_as_glide(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C634, 4CA98
+void lara_as_glide(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C634(<), 4CA98(<) (F)
 {
-	S_Warn("[lara_as_glide] - Unimplemented!\n");
+	if (item->hit_points <= 0)
+	{
+		item->goal_anim_state = STATE_LARA_WATER_DEATH;
+		return;
+	}
+
+	if (input & IN_ROLL)
+	{
+		if (LaraDrawType != 5)
+		{
+			item->current_anim_state = STATE_LARA_UNDERWATER_TURNAROUND;
+			item->anim_number = ANIMATION_LARA_UNDERWATER_ROLL_BEGIN;
+			item->frame_number = anims[ANIMATION_LARA_UNDERWATER_ROLL_BEGIN].frame_base;
+			return;
+		}
+	}
+	else if (LaraDrawType != 5)
+	{
+		SwimTurn(item);
+	}
+	else
+	{
+		SwimTurnSubsuit(item);
+	}
+
+	if (input & IN_JUMP)
+		item->goal_anim_state = STATE_LARA_UNDERWATER_FORWARD;
+
+	item->fallspeed -= 6;
+	if (item->fallspeed < 0)
+		item->fallspeed = 0;
+
+	if (item->fallspeed <= 133)
+		item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
 }
 
-void lara_as_swim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C548, 4C9AC
+void lara_as_swim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C548(<), 4C9AC(<) (F)
 {
-	S_Warn("[lara_as_swim] - Unimplemented!\n");
+	if (item->hit_points <= 0)
+	{
+		item->goal_anim_state = STATE_LARA_WATER_DEATH;
+		return;
+	}
+
+	if (input & IN_ROLL)
+	{
+		if (LaraDrawType != 5)
+		{
+			item->current_anim_state = STATE_LARA_UNDERWATER_TURNAROUND;
+			item->anim_number = ANIMATION_LARA_UNDERWATER_ROLL_BEGIN;
+			item->frame_number = anims[ANIMATION_LARA_UNDERWATER_ROLL_BEGIN].frame_base;
+			return;
+		}
+	}
+	else if (LaraDrawType != 5)
+	{
+		SwimTurn(item);
+	}
+	else
+	{
+		SwimTurnSubsuit(item);
+	}
+
+	item->fallspeed += 8;
+
+	if (item->fallspeed > 200)
+		item->fallspeed = 200;
+
+	if (!(input & IN_JUMP))
+		item->goal_anim_state = STATE_LARA_UNDERWATER_INERTIA;
 }
 
 void lara_as_swimcheat(struct ITEM_INFO *item, struct COLL_INFO *coll)//4C3A8, 4C80C
@@ -102,9 +194,31 @@ void SwimTurnSubsuit(struct ITEM_INFO *item)//4BBDC, 4C040
 	S_Warn("[SwimTurnSubsuit] - Unimplemented!\n");
 }
 
-void SwimTurn(struct ITEM_INFO *item)//4BAF4, 4BF58
+void SwimTurn(struct ITEM_INFO *item)//4BAF4(<), 4BF58(<) (F)
 {
-	S_Warn("[SwimTurn] - Unimplemented!\n");
+	if (input & IN_UP)
+	{
+		item->pos.x_rot -= 364;
+	}
+	else if (input & IN_DOWN)
+	{
+		item->pos.x_rot += 364;
+	}
+
+	if (input & IN_LEFT)
+	{
+		lara.turn_rate -= 409;
+		if (lara.turn_rate < -1092)
+			lara.turn_rate = -1092;
+		item->pos.z_rot -= 546;
+	}
+	else if (input & IN_RIGHT)
+	{
+		lara.turn_rate += 409;
+		if (lara.turn_rate > 1092)
+			lara.turn_rate = 1092;
+		item->pos.z_rot -= 546;
+	}
 }
 
 void LaraSwimCollision(struct ITEM_INFO *item, struct COLL_INFO *coll)//4B608, 4BA6C

@@ -1,6 +1,10 @@
 #include "COLLIDE.H"
 
 #include "SPECIFIC.H"
+#include "LARA.H"
+#include "CONTROL.H"
+#include "ITEMS.H"
+#include <cstddef>
 
 long zfront;
 long xfront;
@@ -58,7 +62,7 @@ void LaraBaddieCollision(struct ITEM_INFO *laraitem, struct COLL_INFO *coll)//29
 	S_Warn("[LaraBaddieCollision] - Unimplemented!\n");
 }
 
-void ShiftItem(struct ITEM_INFO *item, struct COLL_INFO *coll)//7BEEC, 7DF30
+void ShiftItem(struct ITEM_INFO *item, struct COLL_INFO *coll)//7BEEC(<), 7DF30(<) (F)
 {
 	item->pos.x_pos += coll->shift.x;
 	item->pos.y_pos += coll->shift.y;
@@ -70,4 +74,16 @@ int GetCollisionInfo(struct COLL_INFO *coll, long xpos, long ypos, long zpos, sh
 {
 	S_Warn("[GetCollisionInfo] - Unimplemented!\\n");
 	return 0;
+}
+
+void UpdateLaraRoom(ITEM_INFO* item, int height)//7C58C(<), 7E5D0(<) (F)
+{
+	short room_number = item->room_number;
+	FLOOR_INFO* floor = GetFloor(item->pos.x_pos, item->pos.y_pos + height, item->pos.z_pos, &room_number);
+
+	item->floor = GetHeight(floor, item->pos.x_pos, item->pos.y_pos + height, item->pos.z_pos);
+	if (item->room_number != room_number)
+	{
+		ItemNewRoom(lara.item_number, room_number);
+	}
 }

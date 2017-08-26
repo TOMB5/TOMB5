@@ -674,6 +674,9 @@ extern struct ITEM_INFO *lara_item; // offset 0xA2048
 extern unsigned short DashTimer; // offset 0xA2044
 extern struct lara_info lara; // offset 0xA57DC
 
+extern void(*lara_control_routines[])(ITEM_INFO *item, COLL_INFO *coll);
+extern void(*lara_collision_routines[])(ITEM_INFO *item, COLL_INFO *coll);
+
 extern void lara_as_pbleapoff(struct ITEM_INFO *item, struct COLL_INFO *coll);
 extern void lara_as_parallelbars(struct ITEM_INFO *item, struct COLL_INFO *coll);
 extern void lara_as_trfall(struct ITEM_INFO *item, struct COLL_INFO *coll);
