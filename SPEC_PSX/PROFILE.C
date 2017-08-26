@@ -1,6 +1,8 @@
 #include "PROFILE.H"
 #include "SPECIFIC.H"
 
+#include <LIBAPI.H>
+
 static struct SCALE scales[3] =
 {
 	{ 0x104, 0, 2 },
@@ -35,9 +37,15 @@ void ProfileAddOT(unsigned long *ot)//61A90, *
 	S_Warn("[ProfileAddOT] - Unimplemented!\n");
 }
 
-void ProfileReadCount()//61A48, *
+void ProfileReadCount()//61A48(<), *
 {
-	S_Warn("[ProfileReadCount] - Unimplemented!\n");
+	int lastCount = currentCount;
+
+	currentCount = GetRCnt(0xF2000001);
+
+	finalCount = currentCount - lastCount / divisor;
+
+	return;
 }
 
 void ProfileStartCount()//61A0C, *
@@ -45,40 +53,29 @@ void ProfileStartCount()//61A0C, *
 	S_Warn("[ProfileStartCount] - Unimplemented!\n");
 }
 
-void ProfileInit(int scale)//61978, ?
+void ProfileInit(int scale)//61978, ? (F)
 {
-#if 0//WIN32 || WIN64
-	struct SCALE* s = &scales[scale];
-	int v1 = s->xgrid;
-	int v0 = s->nummarks;
-	int a1 = s->scalefactor;
-
-	grid = v1;
-	nummarks = v0;
-	divisor = a1;
+	grid = scales[scale].xgrid;
+	nummarks = scales[scale].nummarks;
+	divisor = scales[scale].scalefactor;
+	
 	EnterCriticalSection();
 
-	li	$a0, 0xF2000001
-	li	$a1, 2
-	li	$a2, 0x2000
-	jal	sub_6A224
-	move	$a3, $zero
-	sw	$v0, 0x40C0($gp)
-	jal	sub_6A214
-	move	$a0, $v0
-	li	$a0, 0xF2000001
-	li	$a1, 0xFA00
-	jal	sub_6A0D8
-	li	$a2, 0x1000
-	lui	$a0, 6
-	DrawSyncCallback((void*) ProfileCallBack);
+	EHbl = OpenEvent(0xF2000001, 2, 0x2000, 0);
+
+	EnableEvent(EHbl);
+
+	SetRCnt(0xF2000001, 0xFA00, 0x1000);
+
+	DrawSyncCallback(&ProfileCallBack);
+
 	ExitCriticalSection();
+
 	return;
-#endif
 }
 
-void ProfileCallBack()//6194C, *
+void ProfileCallBack()//6194C, * (F)
 {
-	S_Warn("[ProfileCallBack] - Unimplemented!\n");
+	drawCount = GetRCnt(0xF2000001) / divisor;
+	return;
 }
-
