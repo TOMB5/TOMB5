@@ -17,11 +17,7 @@ struct savegame_info savegame;
 void sgRestoreGame()//55B88, 55FEC (F)
 {
 	SGcount = 0;
-#ifdef PSX_VERSION
-	SGpoint = &MGSaveGamePtr[436];
-#else
-	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
-#endif
+	SGpoint = &MGSaveGamePtr[sizeof(struct savegame_info)];
 	GameTimer = savegame.Game.Timer;
 	gfCurrentLevel = savegame.CurrentLevel;
 
@@ -31,12 +27,7 @@ void sgRestoreGame()//55B88, 55FEC (F)
 
 void sgSaveGame()//55AF8(<), 55F5C(<)
 {
-#ifdef PSX_VERSION
-	SGpoint = &MGSaveGamePtr[436];
-#else
-	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
-#endif
-
+	SGpoint = &MGSaveGamePtr[sizeof(struct savegame_info)];
 	SGcount = 0;
 
 	savegame.CurrentLevel = gfCurrentLevel;
@@ -47,11 +38,7 @@ void sgSaveGame()//55AF8(<), 55F5C(<)
 
 	MGSaveGamePtr[7678] = GetRandomControl();
 	
-#ifdef PSX_VERSION
-	memcpy(&MGSaveGamePtr, &savegame, 436);
-#else
-	memcpy(&MGSaveGamePtr, &savegame, sizeof(savegame_info));
-#endif
+	memcpy(&MGSaveGamePtr, &savegame, sizeof(struct savegame_info));
 	savegame.Checksum = GameTimer;
 
 	return;

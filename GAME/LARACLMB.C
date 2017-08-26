@@ -66,7 +66,7 @@ void lara_col_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//46908(
 	{
 		lara.move_angle = item->pos.y_rot + ANGLE90;
 		LaraDoClimbLeftRight(item, coll, 
-			LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, (int *)coll), shift); // todo it may be wrong af
+			//LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, (int *)coll), shift); // todo it may be wrong af
 	}
 }
 
@@ -86,7 +86,7 @@ void lara_col_climbleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//46834(<
 	{
 		lara.move_angle = item->pos.y_rot - ANGLE90;
 		LaraDoClimbLeftRight(item, coll,
-			LaraTestClimbPos(item, coll->radius, -(coll->radius + 120), -512, 512, (int *)&coll), (int)coll); // todo it may be wrong af
+			//LaraTestClimbPos(item, coll->radius, -(coll->radius + 120), -512, 512, (int *)&coll), (int)coll); // todo it may be wrong af
 	}
 }
 

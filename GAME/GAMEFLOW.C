@@ -98,7 +98,6 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	unsigned short* scriptOffsetPtr;
 	unsigned char* sequenceCommand;
 
-	printf("LOADGAMEFLOW\n");
 	LoadGameflow();
 #if 0//def PSX
 	//0 = Eidos Logo FMV
@@ -426,8 +425,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 {
 	int i, a0, a1, s0, s1, s2, v0;
 
-	printf("DoTitle\n");
-
 	CreditsDone = 0;
 	CanLoad = 0;
 
@@ -452,8 +449,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	S_LoadLevelFile(Name);
 
-	printf("Finished loading level!************************\n");
-
 	GLOBAL_lastinvitem = -1;
 	dels_cutseq_player = 0;
 
@@ -462,8 +457,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	title_controls_locked_out = 0;
 
 	InitialisePickUpDisplay();
-	printf("InitialisePickUpDisplay!************************\n");
-
 
 	phd_InitWindow(90);
 
@@ -471,11 +464,8 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	IsAtmospherePlaying = 0;
 	S_SetReverbType(1);
-	printf("SETREVERBTYPE!************************\n");
 
 	InitialiseCamera();
-
-	printf("INITIALISED CAMERA!************************\n");
 
 	if (!bDoCredits)
 	{
