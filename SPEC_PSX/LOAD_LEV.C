@@ -466,7 +466,7 @@ void LOAD_Stop()//60434(<), 60FB4(<) (F)
 	GPU_SyncBothScreens();
 	db.current_buffer = 1;
 
-#ifdef INTERNAL
+#if INTERNAL
 	ProfileDraw = 1;
 	_first_time_ever = 0;
 #endif

@@ -150,7 +150,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 			LightningRGBs[0] = *sequenceCommand;
 			gfLayer2Col.r = *sequenceCommand++;
 
-#ifdef INTERNAL
+#if INTERNAL
 			GameTimer = 46;
 #else
 			GameTimer = 44;
@@ -184,11 +184,8 @@ void LoadGameflow()//102E0, 102B0
 	int endOfSequence;
 	unsigned char op;
 
-	printf("[LoadGameflow] - Script len = %i\n", len);
-
 	FILE_Load(GF_SCRIPT_FILENAME, s);
 
-	printf("Loaded GF! %i\n",*(int*)s);
 	Gameflow = (struct GAMEFLOW*)s;
 	s += sizeof(struct GAMEFLOW);
 
@@ -211,7 +208,7 @@ void LoadGameflow()//102E0, 102B0
 	//Align
 	gfStringOffset = (unsigned short*)(char*)((uintptr_t)(s + 3) & (uintptr_t)-4);
 
-#ifdef CORE_UNSAFE
+#if CORE_UNSAFE
 	//This is original code, unsafe (if no lang loc files exist on disk)
 	while (FILE_Length(s) == -1)
 	{
@@ -242,7 +239,7 @@ void LoadGameflow()//102E0, 102B0
 
 	gfStringWad = (char*)(gfStringOffset + (sh.nStrings + sh.nPSXStrings));
 
-#ifdef INTERNAL
+#if INTERNAL
 	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 317, sh.StringWadLen + sh.PSXStringWadLen);
 #else
 	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 315, sh.StringWadLen + sh.PSXStringWadLen);
@@ -402,21 +399,21 @@ void LoadGameflow()//102E0, 102B0
 
 void QuickControlPhase()//10274(<), 10264(<)
 {
-#ifdef INTERNAL
+#if INTERNAL && PSX_VERSION
 	ProfileRGB(255, 255, 255);
 #endif
 
-#ifdef PSX_VERSION		
+#if PSX_VERSION
 	OldSP = SetSp(0x1F8003E0);
 #endif
 
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
 
-#ifdef PSX_VERSION
+#if PSX_VERSION
 	SetSp(OldSP);
 #endif
 
-#ifdef INTERNAL
+#if INTERNAL && PSX_VERSION
 	ProfileRGB(0, 0, 0);
 #endif
 }
@@ -512,7 +509,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	v0 = 0x001F0000;
 	if (gfStatus == 0)
 	{
-#ifdef INTERNAL
+#if INTERNAL
 		s2 = v0 - 0x2240;
 		s0 = 1;
 #else
@@ -532,7 +529,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 			if (GLOBAL_playing_cutseq == 0 && !bDoCredits && ScreenFading == 0 && cutseq_num == 0)
 			{
 
-#ifdef INTERNAL
+#if INTERNAL
 				long v00 = RawPad & 0x201;
 				if (RawPad & 0x201 == 0x201)//Debug Cheat?
 				{
@@ -584,7 +581,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 			{
 				//int a2 = 3; //?
 
-#ifdef INTERNAL
+#if INTERNAL
 				PrintString(256, 128, gfStringWad + gfStringOffset[221]);
 #else
 				PrintString(256, 128, gfStringWad + gfStringOffset[219]);
@@ -622,7 +619,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 					}
 				}//loc_109B0
 
-#ifdef INTERNAL
+#if INTERNAL
 				gfGameMode = s0;//loc_10A10
 #else
 				gfGameMode = 1;

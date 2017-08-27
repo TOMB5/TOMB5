@@ -5,7 +5,14 @@
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "LARASWIM.H"
-#include "PSXPCINPUT.H"
+
+#if PC_VERSION
+	#include "PCINPUT.H"
+#elif PSXPC_VERSION
+	#include "PSXPCINPUT.H"
+#elif PSX_VERSION
+	#include "PSXINPUT.H"
+#endif
 
 char* states[131] =
 {

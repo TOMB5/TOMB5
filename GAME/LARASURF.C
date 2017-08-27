@@ -1,10 +1,19 @@
 #include "LARASURF.H"
 
-#include "SPECIFIC.H"
-#include "LARA.H"
-#include "DRAW.H"
-#include "PSXPCINPUT.H"
 #include "CONTROL.H"
+#include "DRAW.H"
+#include "LARA.H"
+
+#if PC_VERSION
+	#include "PCINPUT.H"	
+#elif PSXPC_VERSION
+	#include "PSXPCINPUT.H"
+#elif PSX_VERSION
+	#include "PSXINPUT.H"
+#endif
+
+#include "SPECIFIC.H"
+
 
 void lara_col_surftread(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DDBC(<), 4E220(<) (F)
 {

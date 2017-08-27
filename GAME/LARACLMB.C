@@ -58,6 +58,7 @@ void lara_col_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//46908(
 	S_Warn("[lara_col_climbright] - Unimplemented!\n");
 	return;
 
+#if 0
 	// DAMN IT why is this casting pointers to int and then treating the ints as pos vectors fml
 	// todo someone needs to decompile this (at least the functions calls)
 	// they seem wrong af both on psx mips and pc asm / pseudocode
@@ -68,6 +69,7 @@ void lara_col_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//46908(
 		//LaraDoClimbLeftRight(item, coll, 
 			//LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, (int *)coll), shift); // todo it may be wrong af
 	}
+#endif
 }
 
 void lara_as_climbright(struct ITEM_INFO *item, struct COLL_INFO *coll)//468B8(<), 46D1C(<) (F)

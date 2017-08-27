@@ -138,7 +138,7 @@ void RelocateLevel()//?, B3B50(<)
 
 		LOAD_DrawEnable(0);
 
-#ifdef PSX
+#if PSX_VERSION
 		//4bit textures?
 		//LoadImage(ptr); //jal sub_6B1C4
 		//DrawSync(0); //jal sub_6B144
@@ -383,7 +383,7 @@ void RelocateLevel()//?, B3B50(<)
 
 		printf("MARKER_1*****************\n");
 
-#ifdef PSXPC
+#if PSXPC_VERSION
 		CD_Read(sizeof(objects_raw), (char*) &objects_raw);
 #else
 		CD_Read((char*) &objects_raw, 32360);
@@ -475,7 +475,7 @@ void RelocateLevel()//?, B3B50(<)
 		}//0xB4284
 
 
-#ifdef PSXPC_VERSION
+#if PSXPC_VERSION
 		struct ITEM_INFO* temp = items;
 		temp++;
 

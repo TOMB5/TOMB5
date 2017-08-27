@@ -43,7 +43,7 @@ void init_game_malloc()//5E79C(<), 5F4F8(<) (F)
 
 char* game_malloc(int size)//5E7E8(<), 5F544(<) (F)
 {
-//#ifdef INTERNAL
+//#if INTERNAL
 	char buf[80];
 //#endif
 
@@ -61,7 +61,7 @@ char* game_malloc(int size)//5E7E8(<), 5F544(<) (F)
 
 		return ptr;
 	}
-//#ifdef INTERNAL
+//#if INTERNAL
 	else
 	{		
 		sprintf(buf, "game_malloc() out of space(needs %d only got %d", size, malloc_free);

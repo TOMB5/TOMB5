@@ -126,7 +126,5 @@ unsigned char SPU_AllocChannel()//915B0, 935F4
 	}
 
 	//loc_915DC
-	LnFreeChannels--;
-	
-	return LabFreeChannel[LnFreeChannels];
+	return LabFreeChannel[--LnFreeChannels];
 }

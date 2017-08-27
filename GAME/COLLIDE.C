@@ -1,10 +1,11 @@
 #include "COLLIDE.H"
 
-#include "SPECIFIC.H"
-#include "LARA.H"
 #include "CONTROL.H"
 #include "ITEMS.H"
-#include <cstddef>
+#include "LARA.H"
+#include "SPECIFIC.H"
+
+#include <stddef.h>
 
 long zfront;
 long xfront;
@@ -76,10 +77,10 @@ int GetCollisionInfo(struct COLL_INFO *coll, long xpos, long ypos, long zpos, sh
 	return 0;
 }
 
-void UpdateLaraRoom(ITEM_INFO* item, int height)//7C58C(<), 7E5D0(<) (F)
+void UpdateLaraRoom(struct ITEM_INFO* item, int height)//7C58C(<), 7E5D0(<) (F)
 {
 	short room_number = item->room_number;
-	FLOOR_INFO* floor = GetFloor(item->pos.x_pos, item->pos.y_pos + height, item->pos.z_pos, &room_number);
+	struct FLOOR_INFO* floor = GetFloor(item->pos.x_pos, item->pos.y_pos + height, item->pos.z_pos, &room_number);
 
 	item->floor = GetHeight(floor, item->pos.x_pos, item->pos.y_pos + height, item->pos.z_pos);
 	if (item->room_number != room_number)

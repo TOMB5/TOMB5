@@ -119,4 +119,6 @@ void InitFont()//115EC(<), 1169C(<) (F)
 			t5 += -ShadeFromTo[i][0].b;
 		}
 	}
+
+	return;
 }

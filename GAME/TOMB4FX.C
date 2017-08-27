@@ -75,6 +75,8 @@ void SetFadeClip(short height, short speed)//34A8C(<), 34F8C(<) (F)
 {
 	DestFadeScreenHeight = height;
 	FadeClipSpeed = speed;
+
+	return;
 }
 
 void UpdateFadeClip()//34A9C(<), 34F9C(<)
@@ -93,6 +95,8 @@ void UpdateFadeClip()//34A9C(<), 34F9C(<)
 			FadeScreenHeight = DestFadeScreenHeight;
 		}
 	}
+
+	return;
 }
 
 void SetScreenFadeOut(long fadespeed, long fadeback)//34B14(<), 35014(<) (F)
@@ -106,6 +110,8 @@ void SetScreenFadeOut(long fadespeed, long fadeback)//34B14(<), 35014(<) (F)
 		ScreenFadeBack = fadeback;
 		ScreenFadedOut = 0;
 	}
+
+	return;
 }
 
 void SetScreenFadeIn(long fadespeed)//34B48(<), 35048(<) (F)
@@ -118,4 +124,6 @@ void SetScreenFadeIn(long fadespeed)//34B48(<), 35048(<) (F)
 		ScreenFadeSpeed = fadespeed;
 		ScreenFadedOut = 0;
 	}
+
+	return;
 }

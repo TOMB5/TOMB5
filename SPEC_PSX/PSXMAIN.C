@@ -87,7 +87,7 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], 26130);
 	GPU_GetScreenPosition(&savegame.ScreenX, &savegame.ScreenY);
 
-#ifdef INTERNAL
+#if INTERNAL
 	ProfileInit(1);
 	ProfileDraw = 1;
 #endif
