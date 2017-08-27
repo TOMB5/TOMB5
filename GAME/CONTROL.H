@@ -69,7 +69,9 @@ enum flipeffects
 	FE_TUT_HINT_9 = 55,
 	FE_TUT_HINT_10 = 56,
 	FE_TUT_HINT_11 = 57,
-	FE_TUT_HINT_12 = 58
+	FE_TUT_HINT_12 = 58,
+
+	NUM_FLIPEFFECTS
 };
 
 extern int flipeffect;

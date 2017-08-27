@@ -72,6 +72,20 @@ enum target_type
 	SECONDARY_TARGET = 2,
 };
 
+enum room_flags
+{
+	RF_FILL_WATER = (1 << 0),			    // 0x0000
+	RF_SKYBOX_VISIBLE = (1 << 3),		    // 0x0008   speeds up rendering if no rendered room has this
+	RF_WIND_BLOWS_PONYTAIL = (1 << 5),	    // 0x0020   also some particles
+	RF_UNKNOWN_6 = (1 << 6),			    // 0x0040   used in official levels, no apparent effects
+	RF_HIDE_GLOBAL_LENS_FLARE = (1 << 7),   // 0x0080   TRLE "NL"
+	RF_CAUSTICS_EFFECT = (1 << 8),		    // 0x0100   TRLE "M"
+	RF_WATER_REFLECTIVITY = (1 << 9),	    // 0x0200   TRLE "R"
+	RF_NGLE_SNOW = (1 << 10),			    // 0x0400   unused
+	RF_NGLE_RAIN = (1 << 11),			    // 0x0800   TRLE "D"
+	RF_NGLE_COLD = (1 << 12)			    // 0x1000   TRLE "P"
+};
+
 struct VECTOR {
 	long vx; // size=0, offset=0
 	long vy; // size=0, offset=4
