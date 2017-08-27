@@ -481,7 +481,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	PadConnected = 1;
 
 	//loc_1D9EC
-	if ((input & 0x2000) == 0)
+	if ((input & IN_PAUSE) == 0)
 	{
 		if (PadConnected == 0)
 		{
@@ -536,14 +536,14 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		if (LaserSight != 0)
 		{
 			//loc_1DB28
-			if ((gfLevelFlags & 0x80) == 0)
+			if ((gfLevelFlags & GF_LVOP_TRAIN) == 0)
 			{
 				v1 = 1;
 			}
 			//loc_1DB40
 		}
 		
-		if ((gfLevelFlags & 0x80) != 0)
+		if ((gfLevelFlags & GF_LVOP_TRAIN) != 0)
 		{
 			if ((inputBusy & 0x40) != 0)
 			{
@@ -702,7 +702,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 	KillMoveItems();
 
-	if ((gfLevelFlags & 0x80) && bUseSpotCam == 0)
+	if ((gfLevelFlags & GF_LVOP_TRAIN) && bUseSpotCam == 0)
 	{
 		//v0 = lara_item;
 		assert(0);
@@ -722,7 +722,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		{
 			//HairControl(0, 0, 0);
 
-			if ((gfLevelFlags) & 1)
+			if ((gfLevelFlags) & GF_LVOP_YOUNG_LARA)
 			{
 				//HairControl(0, 1, 2);
 			}

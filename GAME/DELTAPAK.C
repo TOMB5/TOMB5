@@ -1396,7 +1396,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 				lara.IsClimbing = 0;
 				lara.flare_age = 0;
 
-				if ((gfLevelFlags & 1))
+				if ((gfLevelFlags & GF_LVOP_YOUNG_LARA))
 				{
 
 					lara.gun_type = 0;
@@ -1415,7 +1415,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 					}
 
 					//loc_2C600
-					if ((gfLevelFlags & 0x80) != 0)
+					if ((gfLevelFlags & GF_LVOP_TRAIN) != 0)
 					{
 						if ((objects[345].bite_offset & 0x10000) != 0)
 						{

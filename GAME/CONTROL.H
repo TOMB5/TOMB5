@@ -6,23 +6,23 @@
 // guessed, some may be wrong on PSX
 enum input_buttons
 {
-	IN_NONE = 0,
-	IN_UP = (1 << 0),
-	IN_DOWN = (1 << 1),
-	IN_LEFT = (1 << 2),
-	IN_RIGHT = (1 << 3),
-	IN_JUMP = (1 << 4),
-	IN_DRAW = (1 << 5), // Space / Triangle
-	IN_ACTION = (1 << 6), // Ctrl / X
-	IN_WALK = (1 << 7), // Shift / R1
-	IN_OPTION = (1 << 8),
-	IN_LOOK = (1 << 9),
-	IN_LSTEP = (1 << 10),
-	IN_RSTEP = (1 << 11),
-	IN_ROLL = (1 << 12), // End / O
-	IN_PAUSE = (1 << 13),
-	IN_SAVE = (1 << 22), // F5
-	IN_LOAD = (1 << 23)  // F6
+	IN_NONE = 0,								// 0x000000
+	IN_UP = (1 << 0),							// 0x000001
+	IN_DOWN = (1 << 1),							// 0x000002
+	IN_LEFT = (1 << 2),							// 0x000004
+	IN_RIGHT = (1 << 3),						// 0x000008
+	IN_JUMP = (1 << 4),							// 0x000010
+	IN_DRAW = (1 << 5), // Space / Triangle		// 0x000020
+	IN_ACTION = (1 << 6), // Ctrl / X			// 0x000040
+	IN_WALK = (1 << 7), // Shift / R1			// 0x000080
+	IN_OPTION = (1 << 8),						// 0x000100
+	IN_LOOK = (1 << 9),							// 0x000200
+	IN_LSTEP = (1 << 10),						// 0x000400
+	IN_RSTEP = (1 << 11),						// 0x000800
+	IN_ROLL = (1 << 12), // End / O				// 0x001000
+	IN_PAUSE = (1 << 13),						// 0x002000
+	IN_SAVE = (1 << 22), // F5					// 0x400000
+	IN_LOAD = (1 << 23)  // F6					// 0x800000
 };
 
 extern int flipeffect;

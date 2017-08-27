@@ -128,6 +128,27 @@ enum gf_commands
 	GF_LOSE_ITEM_AT_STARTUP = 0xDA
 };
 
+// used in `levelOptions` and `titleOptions` parameters of GF_LEVEL and GF_TITLE_LEVEL, respectively
+enum gf_level_options
+{
+	GF_LVOP_YOUNG_LARA = (1 << 0),				// 0x0001
+	GF_LVOP_WEATHER = (1 << 1),					// 0x0002
+	GF_LVOP_HORIZON = (1 << 2),					// 0x0004
+	GF_LVOP_HORIZON_PAIR = (1 << 3),			// 0x0008
+	GF_LVOP_LAYER2_USED = (1 << 4),				// 0x0010
+	GF_LVOP_STARFIELD = (1 << 5),				// 0x0020
+	GF_LVOP_LIGHTNING = (1 << 6),				// 0x0040
+	GF_LVOP_TRAIN = (1 << 7),					// 0x0080
+	GF_LVOP_PULSE = (1 << 8),					// 0x0100
+	GF_LVOP_COL_ADD_HORIZON = (1 << 9),			// 0x0200
+	GF_LVOP_RESETHUB_USED = (1 << 10),			// 0x0400
+	GF_LVOP_COL_ADD_HORIZON_PAIR = (1 << 11),	// 0x0800
+	GF_LVOP_TIMER = (1 << 12),					// 0x1000
+	GF_LVOP_MIRROR_USED = (1 << 13),			// 0x2000
+	GF_LVOP_REMOVE_AMULET = (1 << 14),			// 0x4000
+	GF_LVOP_NO_LEVEL = (1 << 15)				// 0x8000
+};
+
 extern unsigned char gfGameMode;
 extern unsigned char gfNumMips;
 extern int scroll_pos;
