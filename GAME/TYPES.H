@@ -86,6 +86,17 @@ enum room_flags
 	RF_NGLE_COLD = (1 << 12)			    // 0x1000   TRLE "P"
 };
 
+enum reverb_type
+{
+	RVB_OUTSIDE,	   // 0x00   no reverberation
+	RVB_SMALL_ROOM,	   // 0x01   little reverberation
+	RVB_MEDIUM_ROOM,   // 0x02 
+	RVB_LARGE_ROOM,	   // 0x03
+	RVB_PIPE,		   // 0x04   highest reverberation, almost never used
+					  
+	NUM_REVERB_TYPES  
+};
+
 struct VECTOR {
 	long vx; // size=0, offset=0
 	long vy; // size=0, offset=4
