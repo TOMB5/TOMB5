@@ -119,29 +119,29 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 
 	while (1)//?
 	{
-		op = *sequenceCommand - 0x80;
+		op = *sequenceCommand;
 		sequenceCommand++;
 		switch (op)
 		{
-		case 2://IB = 113D8, 11488
+		case GF_TITLE_LEVEL://IB = 113D8, 11488
 			gfLevelFlags = (sequenceCommand[0] | (sequenceCommand[1] << 8));
 			DoTitle(sequenceCommand[2], sequenceCommand[3]);//a3[2]unconfirmed
 			break;
-		case 3://11048
+		case GF_LEVEL_DATA_END://11048
 			break;
-		case 5://112B8
+		case GF_RESIDENTCUT1://112B8
 			gfResidentCut[0] = *sequenceCommand++;
 			break;
-		case 6://112CC
+		case GF_RESIDENTCUT2://112CC
 			gfResidentCut[1] = *sequenceCommand++;
 			break;
-		case 7:
+		case GF_RESIDENTCUT3:
 			gfResidentCut[2] = *sequenceCommand++;
 			break;
-		case 8://112F4
+		case GF_RESIDENTCUT4://112F4
 			gfResidentCut[3] = *sequenceCommand++;
 			break;
-		case 9://1107C
+		case GF_LAYER1://1107C
 		{
 			int a2 = 10;//?
 			int a1 = 10;//?
@@ -275,117 +275,130 @@ void LoadGameflow()//102E0, 102B0
 
 			while (!endOfSequence)
 			{
-				op = *sequenceCommand - 0x80;
+				op = *sequenceCommand;
 				sequenceCommand++;
 
 				switch (op)
 				{
-				case 1:
+				case GF_LEVEL:
 					gfLevelNames[i] = *sequenceCommand;
 					sequenceCommand += 5;
 					break;
-				case 2:
-				case 9:
-				case 10:
+
+				case GF_TITLE_LEVEL:
+
+				case GF_LAYER1:
+				case GF_LAYER2:
 					sequenceCommand += 4;
 					break;
-				case 3:
+
+				case GF_LEVEL_DATA_END:
 					endOfSequence = 1;
 					break;
-				case 0:
-				case 4:
-				case 5:
-				case 6:
-				case 7:
-				case 8:
-				case 11:
-				case 12:
-				case 16:
-				case 17:
+
+				case GF_FMV:
+				case GF_CUT:
+
+				case GF_RESIDENTCUT1:
+				case GF_RESIDENTCUT2:
+				case GF_RESIDENTCUT3:
+				case GF_RESIDENTCUT4:
+
+				case GF_UV_ROTATE:
+				case GF_LEGEND:
+				case GF_ANIMATING_MIP:
+				case GF_RESET_HUB:
 					sequenceCommand += 1;
 					break;
-				case 13:
+				case GF_LENS_FLARE:
 					sequenceCommand += 9;
 					break;
-				case 14:
+				case GF_MIRROR:
 					sequenceCommand += 5;
 					break;
-				case 15:
+				case GF_FOG:
 					sequenceCommand += 3;
 					break;
-				case 18:
-				case 19:
-				case 20:
-				case 21:
-				case 22:
-				case 23:
-				case 24:
-				case 25:
-				case 26:
-				case 27:
-				case 28:
-				case 29:
-				case 30:
-				case 31:
-				case 32:
-				case 33:
-				case 34:
-				case 35:
-				case 36:
-				case 37:
-				case 38:
-				case 39:
-				case 40:
-				case 41:
-				case 42:
-				case 43:
-				case 44:
-				case 45:
-				case 46:
-				case 47:
-				case 48:
-				case 49:
-				case 50:
-				case 51:
-				case 52:
-				case 53:
-				case 54:
-				case 55:
-				case 56:
-				case 57:
-				case 58:
-				case 59:
-				case 60:
-				case 61:
-				case 62:
-				case 63:
-				case 64:
-				case 65:
-				case 66:
-				case 67:
-				case 68:
-				case 69:
-				case 70:
-				case 71:
-				case 72:
-				case 73:
-				case 74:
-				case 75:
-				case 76:
-				case 77:
-				case 78:
-				case 79:
-				case 80:
-				case 81:
-				case 82:
-				case 83:
-				case 84:
-				case 85:
-				case 86:
-				case 87:
-				case 88:
-				case 89:
-				case 90:
+
+				case GF_KEY_ITEM1:
+				case GF_KEY_ITEM2:
+				case GF_KEY_ITEM3:
+				case GF_KEY_ITEM4:
+				case GF_KEY_ITEM5:
+				case GF_KEY_ITEM6:
+				case GF_KEY_ITEM7:
+				case GF_KEY_ITEM8:
+				case GF_KEY_ITEM9:
+				case GF_KEY_ITEM10:
+				case GF_KEY_ITEM11:
+				case GF_KEY_ITEM12:
+
+				case GF_PUZZLE_ITEM1:
+				case GF_PUZZLE_ITEM2:
+				case GF_PUZZLE_ITEM3:
+				case GF_PUZZLE_ITEM4:
+				case GF_PUZZLE_ITEM5:
+				case GF_PUZZLE_ITEM6:
+				case GF_PUZZLE_ITEM7:
+				case GF_PUZZLE_ITEM8:
+				case GF_PUZZLE_ITEM9:
+				case GF_PUZZLE_ITEM10:
+				case GF_PUZZLE_ITEM11:
+				case GF_PUZZLE_ITEM12:
+
+				case GF_PICKUP_ITEM1:
+				case GF_PICKUP_ITEM2:
+				case GF_PICKUP_ITEM3:
+				case GF_PICKUP_ITEM4:
+				case GF_EXAMINE1:
+				case GF_EXAMINE2:
+				case GF_EXAMINE3:
+
+				case GF_KEY_ITEM1_COMBO1:
+				case GF_KEY_ITEM1_COMBO2:
+				case GF_KEY_ITEM2_COMBO1:
+				case GF_KEY_ITEM2_COMBO2:
+				case GF_KEY_ITEM3_COMBO1:
+				case GF_KEY_ITEM3_COMBO2:
+				case GF_KEY_ITEM4_COMBO1:
+				case GF_KEY_ITEM4_COMBO2:
+				case GF_KEY_ITEM5_COMBO1:
+				case GF_KEY_ITEM5_COMBO2:
+				case GF_KEY_ITEM6_COMBO1:
+				case GF_KEY_ITEM6_COMBO2:
+				case GF_KEY_ITEM7_COMBO1:
+				case GF_KEY_ITEM7_COMBO2:
+				case GF_KEY_ITEM8_COMBO1:
+				case GF_KEY_ITEM8_COMBO2:
+
+				case GF_PUZZLE_ITEM1_COMBO1:
+				case GF_PUZZLE_ITEM1_COMBO2:
+				case GF_PUZZLE_ITEM2_COMBO1:
+				case GF_PUZZLE_ITEM2_COMBO2:
+				case GF_PUZZLE_ITEM3_COMBO1:
+				case GF_PUZZLE_ITEM3_COMBO2:
+				case GF_PUZZLE_ITEM4_COMBO1:
+				case GF_PUZZLE_ITEM4_COMBO2:
+				case GF_PUZZLE_ITEM5_COMBO1:
+				case GF_PUZZLE_ITEM5_COMBO2:
+				case GF_PUZZLE_ITEM6_COMBO1:
+				case GF_PUZZLE_ITEM6_COMBO2:
+				case GF_PUZZLE_ITEM7_COMBO1:
+				case GF_PUZZLE_ITEM7_COMBO2:
+				case GF_PUZZLE_ITEM8_COMBO1:
+				case GF_PUZZLE_ITEM8_COMBO2:
+
+				case GF_PICKUP_ITEM1_COMBO1:
+				case GF_PICKUP_ITEM1_COMBO2:
+				case GF_PICKUP_ITEM2_COMBO1:
+				case GF_PICKUP_ITEM2_COMBO2:
+				case GF_PICKUP_ITEM3_COMBO1:
+				case GF_PICKUP_ITEM3_COMBO2:
+				case GF_PICKUP_ITEM4_COMBO1:
+				case GF_PICKUP_ITEM4_COMBO2:
+
+				case GF_GIVE_ITEM_AT_STARTUP:
+				case GF_LOSE_ITEM_AT_STARTUP:
 					sequenceCommand += 2;
 					break;
 				default:
