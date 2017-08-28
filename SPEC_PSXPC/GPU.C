@@ -58,7 +58,7 @@ int GPU_FlipNoIdle()//5E078, 5F264
 	return 0;
 }
 
-void GPU_GetScreenPosition(short *x, short *y)
+void GPU_GetScreenPosition(short* x, short* y)
 {
 	int test = 0;
 	test++;

@@ -183,7 +183,7 @@ char combine_type_flag; // offset 0xA373C
 short combine_obj1; // offset 0xA3720
 short combine_obj2; // offset 0xA3724
 char menu_active; // offset 0xA36F0
-struct RINGME *rings[2]; // offset 0xA372C
+struct RINGME* rings[2]; // offset 0xA372C
 char loading_or_saving; // offset 0xA3778
 char use_the_bitch; // offset 0xA36FC
 unsigned char left_debounce; // offset 0xA3760
@@ -228,7 +228,7 @@ char Stashedcurrent_selected_option; // offset 0xA36DC
 struct AMMOLIST ammo_object_list[3]; // offset 0xA3784
 char ammo_selector_flag; // offset 0xA3728
 char num_ammo_slots; // offset 0xA3758
-char *current_ammo_type; // offset 0xA3700
+char* current_ammo_type; // offset 0xA3700
 int OBJLIST_SPACING; // offset 0xA3798
 char friggrimmer; // offset 0xA36D4
 char friggrimmer2; // offset 0xA36E4
@@ -512,7 +512,7 @@ void update_laras_weapons_status()//3F13C, 3F590
 	S_Warn("[update_laras_weapons_status] - Unimplemented!\n");
 }
 
-void spinback(unsigned short *cock)//3F094, 3F4E8
+void spinback(unsigned short* cock)//3F094, 3F4E8
 {
 	S_Warn("[spinback] - Unimplemented!\n");
 }

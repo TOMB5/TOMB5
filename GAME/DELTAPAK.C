@@ -862,7 +862,7 @@ void joby4_init()//2F9E4(<), 2FD64(<) (F)
 	return;
 }
 
-void DelTorchFlames(struct PHD_VECTOR *pos)
+void DelTorchFlames(struct PHD_VECTOR* pos)
 {
 	S_Warn("[DelTorchFlames] - Unimplemented!\\n");
 }
@@ -961,17 +961,17 @@ void TriggerDelSmoke(long x, long y, long z, int sizeme)
 	S_Warn("[TriggerDelSmoke] - Unimplemented!\\n");
 }
 
-void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR *pos, int direction, int speed)
+void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* pos, int direction, int speed)
 {
 	S_Warn("[TriggerActorBlood] - Unimplemented!\\n");
 }
 
-void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR *vec)
+void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR* vec)
 {
 	S_Warn("[GetActorJointAbsPosition] - Unimplemented!\\n");
 }
 
-void deal_with_actor_shooting(unsigned short *shootdata, int actornum, int nodenum, struct PHD_VECTOR *pos)
+void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, struct PHD_VECTOR* pos)
 {
 	S_Warn("[deal_with_actor_shooting] - Unimplemented!\\n");
 }
@@ -1128,12 +1128,12 @@ struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
 	return NULL;
 }
 
-void handle_actor_chatting(int speechslot, int node, int slot, int objslot, short *ranges)
+void handle_actor_chatting(int speechslot, int node, int slot, int objslot, short* ranges)
 {
 	S_Warn("[handle_actor_chatting] - Unimplemented!\\n");
 }
 
-void handle_lara_chatting(short *ranges)
+void handle_lara_chatting(short* ranges)
 {
 	S_Warn("[handle_lara_chatting] - Unimplemented!\\n");
 }
@@ -1148,7 +1148,7 @@ void init_resident_cutseq(int num)
 	S_Warn("[init_resident_cutseq] - Unimplemented!\\n");
 }
 
-void init_cutseq_actors(char *data, int resident)
+void init_cutseq_actors(char* data, int resident)
 {
 	S_Warn("[init_cutseq_actors] - Unimplemented!\\n");
 }
@@ -1159,7 +1159,7 @@ int Load_and_Init_Cutseq(int num)
 	return 0;
 }
 
-struct ITEM_INFO *cutseq_restore_item(int num)//2D738(<), 2DA20(<)
+struct ITEM_INFO* cutseq_restore_item(int num)//2D738(<), 2DA20(<)
 {
 	int i;
 	if(level_items > 0)
@@ -1200,7 +1200,7 @@ void cutseq_kill_item(int num)//2D69C(<), 2D984(<) (F)
 	}
 }
 
-void deal_with_pistols(unsigned short *shootdata)
+void deal_with_pistols(unsigned short* shootdata)
 {
 	S_Warn("[deal_with_pistols] - Unimplemented!\\n");
 }
@@ -1245,7 +1245,7 @@ void finish_cutseq(int name)
 	S_Warn("[finish_cutseq] - Unimplemented!\\n");
 }
 
-void *cutseq_malloc(int size)
+void* cutseq_malloc(int size)
 {
 	S_Warn("[*cutseq_malloc] - Unimplemented!\\n");
 	return NULL;
@@ -1264,7 +1264,7 @@ void frigup_lara()
 	S_Warn("[frigup_lara] - Unimplemented!\\n");
 }
 
-void InitPackNodes(struct NODELOADHEADER *lnode, struct PACKNODE *pnode, char *packed, int numnodes)
+void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* packed, int numnodes)
 {
 	S_Warn("[InitPackNodes] - Unimplemented!\\n");
 }

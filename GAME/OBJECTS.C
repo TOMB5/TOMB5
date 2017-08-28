@@ -24,12 +24,12 @@ void ControlXRayMachine(short item_number)
 	S_Warn("[ControlXRayMachine] - Unimplemented!\\n");
 }
 
-void ParallelBarsCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)
+void ParallelBarsCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
 {
 	S_Warn("[ParallelBarsCollision] - Unimplemented!\\n");
 }
 
-void TightRopeCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)
+void TightRopeCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
 {
 	S_Warn("[TightRopeCollision] - Unimplemented!\\n");
 }
@@ -49,7 +49,7 @@ void ControlTriggerTriggerer(short item_number)
 	S_Warn("[ControlTriggerTriggerer] - Unimplemented!\\n");
 }
 
-void PoleCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)
+void PoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
 {
 	S_Warn("[PoleCollision] - Unimplemented!\\n");
 }
@@ -59,17 +59,17 @@ void ControlAnimatingSlots(short item_number)
 	S_Warn("[ControlAnimatingSlots] - Unimplemented!\\n");
 }
 
-void BridgeTilt2Ceiling(struct ITEM_INFO* item, long x, long y, long z, long *height)
+void BridgeTilt2Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)
 {
 	S_Warn("[BridgeTilt2Ceiling] - Unimplemented!\\n");
 }
 
-void BridgeTilt2Floor(struct ITEM_INFO* item, long x, long y, long z, long *height)
+void BridgeTilt2Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)
 {
 	S_Warn("[BridgeTilt2Floor] - Unimplemented!\\n");
 }
 
-void BridgeTilt1Ceiling(struct ITEM_INFO* item, long x, long y, long z, long *height)
+void BridgeTilt1Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)
 {
 	S_Warn("[BridgeTilt1Ceiling] - Unimplemented!\\n");
 }
@@ -80,12 +80,12 @@ long GetOffset(struct ITEM_INFO* item, long x, long z)
 	return 0;
 }
 
-void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long *height)
+void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)
 {
 	S_Warn("[BridgeTilt1Floor] - Unimplemented!\\n");
 }
 
-void BridgeFlatCeiling(struct ITEM_INFO* item, long x, long y, long z, long *height)
+void BridgeFlatCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)
 {
 #if 0
 	int v1 = item->pos.y_pos;
@@ -100,7 +100,7 @@ void BridgeFlatCeiling(struct ITEM_INFO* item, long x, long y, long z, long *hei
 	S_Warn("[BridgeFlatCeiling] - Unimplemented!\\n");
 }
 
-void BridgeFlatFloor(struct ITEM_INFO* item, long x, long y, long z, long *height)
+void BridgeFlatFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)
 {
 	S_Warn("[BridgeFlatFloor] - Unimplemented!\\n");
 }

@@ -1833,7 +1833,7 @@ int LaraTestClimbStance(struct ITEM_INFO* item, struct COLL_INFO* coll)//11F78, 
 	return 0;
 }
 
-int LaraTestEdgeCatch(struct ITEM_INFO* item, struct COLL_INFO* coll, long *edge)//11E60, 11F10
+int LaraTestEdgeCatch(struct ITEM_INFO* item, struct COLL_INFO* coll, long* edge)//11E60, 11F10
 {
 	S_Warn("[LaraTestEdgeCatch] - Unimplemented!\n");
 	return 0;

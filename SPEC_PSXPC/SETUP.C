@@ -285,7 +285,7 @@ void RelocateLevel()//?, B3B50(<)
 		ptr += LevelRelocPtr[31];
 
 		dword_A5370 = (int*) ptr;
-		ptr += 0x384;//TODO unknown const *actually, this is size of sound map indices!
+		ptr += 0x384;//TODO unknown const* actually, this is size of sound map indices!
 
 		dword_A5374 = (int*) ptr;
 		ptr += LevelRelocPtr[32];//0xB3FD0

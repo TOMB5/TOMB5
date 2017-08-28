@@ -33,7 +33,7 @@ extern char combine_type_flag; // offset 0xA373C
 extern short combine_obj1; // offset 0xA3720
 extern short combine_obj2; // offset 0xA3724
 extern char menu_active; // offset 0xA36F0
-extern struct RINGME *rings[2]; // offset 0xA372C
+extern struct RINGME* rings[2]; // offset 0xA372C
 extern char loading_or_saving; // offset 0xA3778
 extern char use_the_bitch; // offset 0xA36FC
 extern unsigned char left_debounce; // offset 0xA3760
@@ -58,7 +58,7 @@ extern char Stashedcurrent_selected_option; // offset 0xA36DC
 extern struct AMMOLIST ammo_object_list[3]; // offset 0xA3784
 extern char ammo_selector_flag; // offset 0xA3728
 extern char num_ammo_slots; // offset 0xA3758
-extern char *current_ammo_type; // offset 0xA3700
+extern char* current_ammo_type; // offset 0xA3700
 extern int OBJLIST_SPACING; // offset 0xA3798
 extern char friggrimmer; // offset 0xA36D4
 extern char friggrimmer2; // offset 0xA36E4
@@ -112,7 +112,7 @@ extern int do_these_objects_combine(int obj1, int obj2);
 extern int have_i_got_item(short obj);
 extern int is_item_currently_combinable(short obj);
 extern void update_laras_weapons_status();
-extern void spinback(unsigned short *cock);
+extern void spinback(unsigned short* cock);
 extern void draw_ammo_selector();
 extern void fade_ammo_selector();
 extern void setup_ammo_selector();

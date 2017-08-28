@@ -82,8 +82,8 @@ char title_controls_locked_out;
 long gfScriptLen = 0;
 unsigned char gfLegend;
 unsigned char gfWadNames[40];
-static unsigned short *gfScriptOffset;
-static unsigned char *gfScriptWad;
+static unsigned short* gfScriptOffset;
+static unsigned char* gfScriptWad;
 static char* gfExtensions;
 static int gfStatus;
 static unsigned long OldSP;
@@ -92,7 +92,7 @@ unsigned char gfTakeaways[16];
 
 void DoGameflow()//10F5C(<), 10FD8(<)
 {
-	//unsigned char *gf;
+	//unsigned char* gf;
 	//unsigned char n;
 	int op;
 	unsigned short* scriptOffsetPtr;

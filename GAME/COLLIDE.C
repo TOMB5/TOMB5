@@ -31,13 +31,13 @@ void GenericSphereBoxCollision(short item_num, struct ITEM_INFO* laraitem, struc
 	S_Warn("[GenericSphereBoxCollision] - Unimplemented!\n");
 }
 
-int ItemPushLaraStatic(struct ITEM_INFO* laraitem, short *bounds, struct PHD_3DPOS *pos, struct COLL_INFO* coll)//2A2D8, 2A500
+int ItemPushLaraStatic(struct ITEM_INFO* laraitem, short* bounds, struct PHD_3DPOS* pos, struct COLL_INFO* coll)//2A2D8, 2A500
 {
 	S_Warn("[ItemPushLaraStatic] - Unimplemented!\n");
 	return 0;
 }
 
-int TestBoundsCollideStatic(short *bounds, struct PHD_3DPOS *pos, long radius)//2A140, 2A368
+int TestBoundsCollideStatic(short* bounds, struct PHD_3DPOS* pos, long radius)//2A140, 2A368
 {
 	S_Warn("[TestBoundsCollideStatic] - Unimplemented!\n");
 	return 0;

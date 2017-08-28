@@ -6,7 +6,7 @@
 extern struct MATRIX3D lara_joint_matrices[15];
 extern struct MATRIX3D lara_matrices[15];
 extern struct CVECTOR LaraNodeAmbient[2];
-extern short *GLaraShadowframe;
+extern short* GLaraShadowframe;
 extern unsigned char LaraNodeUnderwater[15];
 extern long LaraGlobalClipFlag;
 extern char lara_underwater_skin_sweetness_table[15];

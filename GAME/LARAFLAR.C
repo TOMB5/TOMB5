@@ -67,7 +67,7 @@ void DoFlareInHand(int flare_age)//49984, 49DE8
 	S_Warn("[DoFlareInHand] - Unimplemented!\n");
 }
 
-int DoFlareLight(struct PHD_VECTOR *pos, int flare_age)//49708, 49B6C
+int DoFlareLight(struct PHD_VECTOR* pos, int flare_age)//49708, 49B6C
 {
 	S_Warn("[DoFlareLight] - Unimplemented!\n");
 	return 0;

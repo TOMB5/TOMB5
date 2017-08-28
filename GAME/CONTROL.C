@@ -567,7 +567,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	if (next_item_active != -1)//illegal -2
 	{
 		s1 = (char*)&objects[16]; // todo this value (16) may be wrong, check it plz
-		v000 = ((next_item_active << 3) + next_item_active << 4);
+		v000 = ((next_item_active << 3) + (next_item_active << 4));
 
 		//loc_1DB80
 		v1111 = items[next_item_active].after_death;
@@ -867,7 +867,7 @@ long GetRandomDraw()//5EA18, 5F6F8 (F)
 	return (rand_2 >> 16) * 0x7FFF;
 }
 
-void AddRoomFlipItems(struct room_info *r /*$a0*/)//1FA0C, 
+void AddRoomFlipItems(struct room_info* r /*$a0*/)//1FA0C, 
 {
 #if 0
 
@@ -982,7 +982,7 @@ void ResetGuards()
 	S_Warn("[ResetGuards] - Unimplemented!\\n");
 }
 
-void InterpolateAngle(short dest, short *src, short *diff, short speed)
+void InterpolateAngle(short dest, short* src, short* diff, short speed)
 {
 	S_Warn("[InterpolateAngle] - Unimplemented!\\n");
 }
@@ -999,13 +999,13 @@ int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)
 	return 0;
 }
 
-int GetTargetOnLOS(struct GAME_VECTOR *src, struct GAME_VECTOR *dest, int DrawTarget, int firing)
+int GetTargetOnLOS(struct GAME_VECTOR* src, struct GAME_VECTOR* dest, int DrawTarget, int firing)
 {
 	S_Warn("[GetTargetOnLOS] - Unimplemented!\\n");
 	return 0;
 }
 
-void FireCrossBowFromLaserSight(struct GAME_VECTOR *src, struct GAME_VECTOR *target)
+void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* target)
 {
 	S_Warn("[FireCrossBowFromLaserSight] - Unimplemented!\\n");
 }
@@ -1020,7 +1020,7 @@ void TriggerCDTrack(short value, short flags, short type)
 	S_Warn("[TriggerCDTrack] - Unimplemented!\\n");
 }
 
-void RemoveRoomFlipItems(struct room_info *r)
+void RemoveRoomFlipItems(struct room_info* r)
 {
 	S_Warn("[RemoveRoomFlipItems] - Unimplemented!\\n");
 }
@@ -1030,12 +1030,12 @@ void FlipMap(int FlipNumber)
 	S_Warn("[FlipMap] - Unimplemented!\\n");
 }
 
-void _TestTriggers(short *data, int heavy, int HeavyFlags)
+void _TestTriggers(short* data, int heavy, int HeavyFlags)
 {
 	S_Warn("[_TestTriggers] - Unimplemented!\\n");
 }
 
-void RefreshCamera(short type, short *data)
+void RefreshCamera(short type, short* data)
 {
 	S_Warn("[RefreshCamera] - Unimplemented!\\n");
 }
@@ -1051,19 +1051,19 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)
 	S_Warn("[AlterFloorHeight] - Unimplemented!\\n");
 }
 
-short GetHeight(struct FLOOR_INFO *floor, int x, int y, int z)
+short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
 {
 	S_Warn("[GetHeight] - Unimplemented!\\n");
 	return 0;
 }
 
-struct FLOOR_INFO *GetFloor(int x, int y, int z, short *room_number)
+struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)
 {
 	S_Warn("[GetFloor] - Unimplemented!\\n");
 	return NULL;
 }
 
-short GetCeiling(struct FLOOR_INFO *floor, int x, int y, int z)
+short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 {
 	S_Warn("[GetCeiling] - Unimplemented!\\n");
 	return 0;

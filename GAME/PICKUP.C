@@ -21,7 +21,7 @@ short SearchCollectFrames[4] =
 	0x00B4, 0x0064, 0x0099, 0x0053
 };
 
-void MonitorScreenCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)//53428, 5388C
+void MonitorScreenCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//53428, 5388C
 {
 	S_Warn("[MonitorScreenCollision] - Unimplemented!\n");
 }
@@ -60,7 +60,7 @@ void CollectCarriedItems(struct ITEM_INFO* item)//5339C, 53800
 #endif
 }
 
-void SearchObjectCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)//53080, 534E4
+void SearchObjectCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//53080, 534E4
 {
 	S_Warn("[SearchObjectCollision] - Unimplemented!\n");
 }
@@ -82,22 +82,22 @@ int KeyTrigger(short item_num)//52C14, 53078
 	return 0;
 }
 
-void PuzzleHoleCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)//52520, 52984
+void PuzzleHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52520, 52984
 {
 	S_Warn("[PuzzleHoleCollision] - Unimplemented!\n");
 }
 
-void PuzzleDoneCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)//524C8, 5292C
+void PuzzleDoneCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//524C8, 5292C
 {
 	S_Warn("[PuzzleDoneCollision] - Unimplemented!\n");
 }
 
-void KeyHoleCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)//52188, 525EC
+void KeyHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52188, 525EC
 {
 	S_Warn("[KeyHoleCollision] - Unimplemented!\n");
 }
 
-void PickUpCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)//516C8, 51B2C
+void PickUpCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//516C8, 51B2C
 {
 	S_Warn("[PickUpCollision] - Unimplemented!\n");
 }
@@ -107,7 +107,7 @@ void RegeneratePickups()//515AC, 51A10
 	struct ITEM_INFO* item;
 	short objnum; // $v1
 	short lp; // $v1
-	short *ammo; // $v0
+	short* ammo; // $v0
 }
 
 void AnimatingPickUp(short item_number)//51450, 518B4
@@ -115,7 +115,7 @@ void AnimatingPickUp(short item_number)//51450, 518B4
 	S_Warn("[AnimatingPickUp] - Unimplemented!\n");
 }
 
-short *FindPlinth(struct ITEM_INFO* item)//51200, 51664
+short* FindPlinth(struct ITEM_INFO* item)//51200, 51664
 {
 	S_Warn("[FindPlinth] - Unimplemented!\n");
 	return 0;

@@ -6,11 +6,11 @@
 #include <sys/types.h>
 
 struct room_info {
-	short *data; // size=0, offset=0
-	short *door; // size=0, offset=4
-	struct FLOOR_INFO *floor; // size=8, offset=8
-	struct LIGHTINFO *light; // size=32, offset=12
-	struct MESH_INFO *mesh; // size=20, offset=16
+	short* data; // size=0, offset=0
+	short* door; // size=0, offset=4
+	struct FLOOR_INFO* floor; // size=8, offset=8
+	struct LIGHTINFO* light; // size=32, offset=12
+	struct MESH_INFO* mesh; // size=20, offset=16
 	long x; // size=0, offset=20
 	long y; // size=0, offset=24
 	long z; // size=0, offset=28
@@ -43,7 +43,7 @@ struct object_info {
 	short nmeshes; // size=0, offset=0
 	short mesh_index; // size=0, offset=2
 	long bone_index; // size=0, offset=4
-	short *frame_base; // size=0, offset=8
+	short* frame_base; // size=0, offset=8
 	void(*initialise)(); // size=0, offset=12
 	void(*control)(); // size=0, offset=16
 	void(*floor)(); // size=0, offset=20

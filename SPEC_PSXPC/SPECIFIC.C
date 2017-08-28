@@ -30,7 +30,7 @@ struct REQUESTER SettingsReq = { 0xE0, 0x08, 0x05, 0x00, 0x05, 0x00, 0x03, 0x03,
 struct REQUESTER ConfigReq = { 0xE7, 0x08, 0x03, 0x01, 0x05, 0x00, 0x00, 0x02, 0x01,{ 0xED, 0xE8, 0xE9, 0x00, 0x00 } };
 unsigned char SoundFXVolume;
 unsigned short nAnimTextureRanges;
-unsigned short *AnimTextureRanges;
+unsigned short* AnimTextureRanges;
 unsigned short nAnimUVRanges;
 int GtSFXEnabled;
 short AnimatingTexturesV[16][8][3];

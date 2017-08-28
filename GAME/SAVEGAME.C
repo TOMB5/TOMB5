@@ -64,7 +64,7 @@ void SaveLaraData()//53738, 53B9C
 	S_Warn("[SaveLaraData] - Unimplemented!\n");
 }
 
-int CheckSumValid(char *buffer)//53720(<), 53B84(<) (F)
+int CheckSumValid(char* buffer)//53720(<), 53B84(<) (F)
 {
 	return *(short*)buffer ^ *(short*)(buffer + 0x1DFE) < 1;
 }

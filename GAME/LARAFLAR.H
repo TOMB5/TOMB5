@@ -13,6 +13,6 @@ extern void set_flare_arm(int frame);
 extern void CreateFlare(short object, int thrown);
 extern void DrawFlareInAir(struct ITEM_INFO* item);
 extern void DoFlareInHand(int flare_age);
-extern int DoFlareLight(struct PHD_VECTOR *pos, int flare_age);
+extern int DoFlareLight(struct PHD_VECTOR* pos, int flare_age);
 
 #endif

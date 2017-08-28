@@ -112,7 +112,7 @@ void lara_as_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//463F0, 4
 	S_Warn("[lara_as_climbstnc] - Unimplemented!\n");
 }
 
-int LaraTestClimbPos(struct ITEM_INFO* item, int front, int right, int origin, int height, int *shift)//462F8, 4675C
+int LaraTestClimbPos(struct ITEM_INFO* item, int front, int right, int origin, int height, int* shift)//462F8, 4675C
 {
 	S_Warn("[LaraTestClimbPos] - Unimplemented!\n");
 	return 0;
@@ -135,13 +135,13 @@ int LaraClimbLeftCornerTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//45A
 	return 0;
 }
 
-int LaraTestClimb(int x, int y, int z, int xfront, int zfront, int item_height, int item_room, int *shift)//457F0, 45C54
+int LaraTestClimb(int x, int y, int z, int xfront, int zfront, int item_height, int item_room, int* shift)//457F0, 45C54
 {
 	S_Warn("[LaraTestClimb] - Unimplemented!\n");
 	return 0;
 }
 
-int LaraTestClimbUpPos(struct ITEM_INFO* item, int front, int right, int *shift, int *ledge)//45530, 45994
+int LaraTestClimbUpPos(struct ITEM_INFO* item, int front, int right, int* shift, int* ledge)//45530, 45994
 {
 	S_Warn("[LaraTestClimbUpPos] - Unimplemented!\n");
 	return 0;

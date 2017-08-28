@@ -17,7 +17,7 @@ void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0
 {
 #if 0
 	int i; // $s1
-	struct creature_info *creature; // $s0
+	struct creature_info* creature; // $s0
 
 	int a2 = 3;
 	int v0 = a1 << 3;//a1 param?

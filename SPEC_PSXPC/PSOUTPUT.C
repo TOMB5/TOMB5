@@ -10,14 +10,14 @@ void VibratePad()//604EC, 61064
 {
 #if 0
 	int i;
-	struct VIBRATION *v;
+	struct VIBRATION* v;
 #endif
 }
 
 void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int len)//604A4, 6101C
 {
 #if 0
-	struct VIBRATION *v;
+	struct VIBRATION* v;
 
 	int a0;
 	a0 <<= 16;

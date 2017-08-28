@@ -674,7 +674,7 @@ enum lara_anim
 
 extern short angle; // offset 0xA0650
 extern short elevation; // offset 0xA0652
-extern struct ITEM_INFO *lara_item; // offset 0xA2048
+extern struct ITEM_INFO* lara_item; // offset 0xA2048
 extern unsigned short DashTimer; // offset 0xA2044
 extern struct lara_info lara; // offset 0xA57DC
 
@@ -847,11 +847,11 @@ extern void LaraCollideStop(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern int TestWall(struct ITEM_INFO* item, long front, long right, long down);
 extern int TestLaraVault(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern int LaraTestClimbStance(struct ITEM_INFO* item, struct COLL_INFO* coll);
-extern int LaraTestEdgeCatch(struct ITEM_INFO* item, struct COLL_INFO* coll, long *edge);
+extern int LaraTestEdgeCatch(struct ITEM_INFO* item, struct COLL_INFO* coll, long* edge);
 extern int LaraDeflectEdgeDuck(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern int LaraDeflectEdge(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern int LaraHitCeiling(struct ITEM_INFO* item, struct COLL_INFO* coll);
-extern int LaraLandedBad(struct ITEM_INFO *l, struct COLL_INFO* coll);
+extern int LaraLandedBad(struct ITEM_INFO* l, struct COLL_INFO* coll);
 extern int LaraFallen(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h);

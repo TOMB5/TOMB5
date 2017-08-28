@@ -168,7 +168,7 @@ extern char CanLoad;
 extern struct GAMEFLOW* Gameflow;
 extern unsigned short* gfStringOffset;
 extern char* gfStringWad;
-extern unsigned short *gfFilenameOffset;
+extern unsigned short* gfFilenameOffset;
 extern char* gfFilenameWad;
 extern unsigned char gfCurrentLevel;
 extern unsigned char gfLevelComplete;
