@@ -142,6 +142,7 @@ extern short los_rooms[20];
 extern char globoncuttrig;
 extern short ItemNewRooms[256][2];
 extern struct CHARDEF CharDef[106];
+extern long input;
 
 extern long ControlPhase(long nframes, int demo_mode);
 extern long GetRandomControl();

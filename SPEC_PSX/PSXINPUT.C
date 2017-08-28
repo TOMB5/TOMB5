@@ -21,7 +21,6 @@ static unsigned char align[6] =
 	0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xFF
 };
 
-long input;
 long dbinput;
 long dbinput2;
 long inputBusy;

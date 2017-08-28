@@ -222,6 +222,8 @@ struct CHARDEF CharDef[106] =
 	{ 0x7E, 0, 0x29, 0xD, -0xA, 6, 0xB }
 };
 
+long input;
+
 char byte_A3660;
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
@@ -803,47 +805,42 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 }
 
 
-void KillMoveItems()//1D420, 
+void KillMoveItems()//1D420(<), 1D5B4(<) (F)
 {
-	short nex; // $v0
-	nex = ItemNewRoomNo;//v0
+	short nex;
 
-	if (nex > 0)
+	if (ItemNewRoomNo > 0)
 	{
-		short s1 = 0x10000;
-		short* s0 = (short*)&ItemNewRooms[0];
-
-		while (nex >> 16 < ItemNewRoomNo)
+		for(nex = 0; nex < ItemNewRoomNo; nex++)
 		{
-			//loc_1D444
-			if (s0[0] & 0x8000)
-			{
-				//KillItem(s0[0] & 0x7FFF);
-			}//loc_1D468
+			if (ItemNewRooms[nex][0] & 0x8000)
+				KillItem(ItemNewRooms[nex][0] & 0x7FFF);
 			else
-			{
-				//ItemNewRoom(s0[1]);
-			}
+				ItemNewRoom(ItemNewRooms[nex][0], ItemNewRooms[nex][1]);
 
-			nex = s1;
-
-			//loc_1D478
-			s1 += 0x10000;
-			s0 += sizeof(short*);
 		}
-	}//loc_1D494
-		
+	}
 
-
-		//loc_1D494:
-		ItemNewRoomNo = 0;
-	S_Warn("[KillMoveItems] - Unimplemented!\n");
+	ItemNewRoomNo = 0;
 }
 
-void KillMoveEffects()//1D4AC, 
+void KillMoveEffects()//1D4AC(<), 1D640(<) (F) 
 {
-	//short nex; // $v0
-	S_Warn("[KillMoveEffects] - Unimplemented!\n");
+	short nex;
+
+	if (ItemNewRoomNo > 0)
+	{
+		for (nex = 0; nex < ItemNewRoomNo; nex++)
+		{
+			if (ItemNewRooms[nex][0] & 0x8000)
+				KillEffect(ItemNewRooms[nex][0] & 0x7FFF);
+			else
+				EffectNewRoom(ItemNewRooms[nex][0], ItemNewRooms[nex][1]);
+
+		}
+	}
+
+	ItemNewRoomNo = 0;
 }
 
 void TestTriggers(short* data, int heavy, int HeavyFlags)
