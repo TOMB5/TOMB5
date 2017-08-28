@@ -15,7 +15,7 @@
 #include "SPECIFIC.H"
 
 
-void lara_col_surftread(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DDBC(<), 4E220(<) (F)
+void lara_col_surftread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DDBC(<), 4E220(<) (F)
 {
 	if (item->goal_anim_state == STATE_LARA_UNDERWATER_FORWARD)
 	{
@@ -30,25 +30,25 @@ void lara_col_surftread(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DDBC(<
 	LaraSurfaceCollision(item, coll);
 }
 
-void lara_col_surfright(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD90(<), 4E1F4(<) (F)
+void lara_col_surfright(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DD90(<), 4E1F4(<) (F)
 {
 	lara.move_angle = item->pos.y_rot + ANGLE90;
 	LaraSurfaceCollision(item, coll);
 }
 
-void lara_col_surfleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD64(<), 4E1C8(<) (F)
+void lara_col_surfleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DD64(<), 4E1C8(<) (F)
 {
 	lara.move_angle = item->pos.y_rot - ANGLE90;
 	LaraSurfaceCollision(item, coll);
 }
 
-void lara_col_surfback(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DD38(<), 4E19C(<) (F)
+void lara_col_surfback(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DD38(<), 4E19C(<) (F)
 {
 	lara.move_angle = item->pos.y_rot - ANGLE180;
 	LaraSurfaceCollision(item, coll);
 }
 
-void lara_col_surfswim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DCE8(<), 4E14C(<) (F)
+void lara_col_surfswim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DCE8(<), 4E14C(<) (F)
 {
 	coll->bad_neg = -384;
 	lara.move_angle = item->pos.y_rot;
@@ -56,12 +56,12 @@ void lara_col_surfswim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DCE8(<)
 	LaraTestWaterClimbOut(item, coll);
 }
 
-void lara_as_surftread(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DBA0, 4E004
+void lara_as_surftread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DBA0, 4E004
 {
 	S_Warn("[lara_as_surftread] - Unimplemented!\n");
 }
 
-void lara_as_surfright(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DAF8, 4DF5C
+void lara_as_surfright(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DAF8, 4DF5C
 {
 	if (item->hit_points > 0)
 	{
@@ -90,7 +90,7 @@ void lara_as_surfright(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DAF8, 4
 	}
 }
 
-void lara_as_surfleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DA50(<), 4DEB4(<) (F)
+void lara_as_surfleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DA50(<), 4DEB4(<) (F)
 {
 	if (item->hit_points > 0)
 	{
@@ -119,7 +119,7 @@ void lara_as_surfleft(struct ITEM_INFO *item, struct COLL_INFO *coll)//4DA50(<),
 	}
 }
 
-void lara_as_surfback(struct ITEM_INFO *item, struct COLL_INFO *coll)//4D9A8(<), 4DE0C(<) (F)
+void lara_as_surfback(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D9A8(<), 4DE0C(<) (F)
 {
 	if (item->hit_points > 0)
 	{
@@ -148,7 +148,7 @@ void lara_as_surfback(struct ITEM_INFO *item, struct COLL_INFO *coll)//4D9A8(<),
 	}
 }
 
-void lara_as_surfswim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4D8E4(<), 4DD48(<) (F)
+void lara_as_surfswim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D8E4(<), 4DD48(<) (F)
 {
 	if (item->hit_points > 0)
 	{
@@ -178,23 +178,23 @@ void lara_as_surfswim(struct ITEM_INFO *item, struct COLL_INFO *coll)//4D8E4(<),
 	}
 }
 
-void LaraSurface(struct ITEM_INFO *item, struct COLL_INFO *coll)//4D684, 4DAE8
+void LaraSurface(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D684, 4DAE8
 {
 	S_Warn("[LaraSurface] - Unimplemented!\n");
 }
 
-void LaraSurfaceCollision(struct ITEM_INFO *item, struct COLL_INFO *coll)//4D4F0, 4D954
+void LaraSurfaceCollision(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D4F0, 4D954
 {
 	S_Warn("[LaraSurfaceCollision] - Unimplemented!\n");
 }
 
-int LaraTestWaterClimbOut(struct ITEM_INFO *item, struct COLL_INFO *coll)//4D22C, 4D690
+int LaraTestWaterClimbOut(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D22C, 4D690
 {
 	S_Warn("[LaraTestWaterClimbOut] - Unimplemented!\n");
 	return 0;
 }
 
-int LaraTestWaterStepOut(struct ITEM_INFO *item, struct COLL_INFO *coll)//4D100, 4D564
+int LaraTestWaterStepOut(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D100, 4D564
 {
 	S_Warn("[LaraTestWaterStepOut] - Unimplemented!\n");
 	return 0;

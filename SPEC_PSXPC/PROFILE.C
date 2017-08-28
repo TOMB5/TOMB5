@@ -24,7 +24,7 @@ static short drawCount;
 static short profile_xcnt;
 struct COCKSUCK ProfileInfo[32];
 
-void ProfileAddDrawOT(unsigned long *ot)//61D1C, *
+void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 {
 	S_Warn("[ProfileAddDrawOT] - Unimplemented!\n");
 }
@@ -34,7 +34,7 @@ void ProfileRGB(int r, int g, int b)//61C94, *
 	S_Warn("[ProfileRGB] - Unimplemented!\n");
 }
 
-void ProfileAddOT(unsigned long *ot)//61A90, *
+void ProfileAddOT(unsigned long* ot)//61A90, *
 {
 	S_Warn("[ProfileAddOT] - Unimplemented!\n");
 }

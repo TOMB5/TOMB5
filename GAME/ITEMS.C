@@ -175,9 +175,9 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->fired_weapon = 0;
 	item->data = NULL;
 
-	if ((item->flags & 0x100))
+	if ((item->flags & IFLAG_INVISIBLE))
 	{
-		item->flags &= ~0x100;
+		item->flags &= ~IFLAG_INVISIBLE;
 		item->meshswap_meshbits |= 6;
 	}
 	else if ((objects[item->object_number].bite_offset >> 17) & 1)
@@ -185,9 +185,9 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 		item->meshswap_meshbits |= 6;
 	}
 
-	if ((item->flags & 0x3E00) == 0x3E00)
+	if ((item->flags & IFLAG_ACTIVATION_MASK) == IFLAG_ACTIVATION_MASK)
 	{
-		item->flags &= ~0x3E00;
+		item->flags &= ~IFLAG_ACTIVATION_MASK;
 		item->flags |= 0x4000;
 		AddActiveItem(item_num);
 		item->meshswap_meshbits &= -7;

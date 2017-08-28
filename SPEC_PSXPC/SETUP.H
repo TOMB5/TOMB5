@@ -7,7 +7,7 @@
 #include "OBJECTS.H"
 extern char setupBuff[SETUP_MOD_FILE_SIZE];
 
-//extern unsigned long *RelocPtr[128]; // offset 0x1EDDC0 original game
+//extern unsigned long* RelocPtr[128]; // offset 0x1EDDC0 original game
 
 extern void RelocateLevel();
 extern void sub_B3974(unsigned long numSounds, unsigned long soundWadSize, char* ptr);

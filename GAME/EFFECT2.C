@@ -55,7 +55,7 @@ void TriggerWaterfallMist(long x, long y, long z, long angle)//331B4, 336B4
 	S_Warn("[TriggerWaterfallMist] - Unimplemented!\n");
 }
 
-void TriggerSuperJetFlame(struct ITEM_INFO *item, long yvel, long deadly)//32EAC, 333AC
+void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly)//32EAC, 333AC
 {
 	S_Warn("[TriggerSuperJetFlame] - Unimplemented!\n");
 }

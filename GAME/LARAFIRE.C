@@ -6,8 +6,8 @@
 struct GAME_VECTOR bum_vdest;
 struct GAME_VECTOR bum_vsrc;
 struct PHD_3DPOS bum_view;
-struct ITEM_INFO *TargetList[8];
-struct ITEM_INFO *LastTargets[8];
+struct ITEM_INFO* TargetList[8];
+struct ITEM_INFO* LastTargets[8];
 
 struct WEAPON_INFO weapons[9] =
 {
@@ -22,7 +22,7 @@ struct WEAPON_INFO weapons[9] =
 	{ { 0xEAAC, 0x1554, 0xD8E6, 0x271A },{ 0xEAAC, 0x1554, 0xD8E6, 0x271A },{ 0xEAAC, 0x1554, 0xD8E6, 0x271A }, 0x071C, 0x05B0, 0x0190, 0x2000, 0x03, 0x00, 0x02, 0x00, 0x002B },
 };
 
-short *get_current_ammo_pointer(int num)//4965C, 49AC0
+short* get_current_ammo_pointer(int num)//4965C, 49AC0
 {
 	S_Warn("[get_current_ammo_pointer] - Unimplemented!\n");
 	return 0;
@@ -45,33 +45,33 @@ int WeaponObject(int weapon_type)//48898, 48CFC
 	return 0;
 }
 
-void HitTarget(struct ITEM_INFO *item, struct GAME_VECTOR *hitpos, int damage, int grenade)//486E0, 48B44
+void HitTarget(struct ITEM_INFO* item, struct GAME_VECTOR* hitpos, int damage, int grenade)//486E0, 48B44
 {
 	S_Warn("[HitTarget] - Unimplemented!\n");
 }
 
-int FireWeapon(int weapon_type, struct ITEM_INFO *target, struct ITEM_INFO *src, short *angles)//48328, 4878C
+int FireWeapon(int weapon_type, struct ITEM_INFO* target, struct ITEM_INFO* src, short* angles)//48328, 4878C
 {
 	S_Warn("[FireWeapon] - Unimplemented!\n");
 	return 0;
 }
 
-void AimWeapon(struct WEAPON_INFO *winfo, struct lara_arm *arm)//4826C, 486D0
+void AimWeapon(struct WEAPON_INFO* winfo, struct lara_arm* arm)//4826C, 486D0
 {
 	S_Warn("[AimWeapon] - Unimplemented!\n");
 }
 
-void find_target_point(struct ITEM_INFO *item, struct GAME_VECTOR *target)//48150, 485B4
+void find_target_point(struct ITEM_INFO* item, struct GAME_VECTOR* target)//48150, 485B4
 {
 	S_Warn("[find_target_point] - Unimplemented!\n");
 }
 
-void LaraGetNewTarget(struct WEAPON_INFO *winfo)//47B28, 47F8C
+void LaraGetNewTarget(struct WEAPON_INFO* winfo)//47B28, 47F8C
 {
 	S_Warn("[LaraGetNewTarget] - Unimplemented!\n");
 }
 
-void LaraTargetInfo(struct WEAPON_INFO *winfo)//4789C, 47D00
+void LaraTargetInfo(struct WEAPON_INFO* winfo)//4789C, 47D00
 {
 	S_Warn("[LaraTargetInfo] - Unimplemented!\n");
 }

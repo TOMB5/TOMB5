@@ -24,7 +24,7 @@ void DoFlameTorch()//3A3CC, 3A8CC
 	S_Warn("[DoFlameTorch] - Unimplemented!\n");
 }
 
-void FireCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll)//3A068, 3A568
+void FireCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//3A068, 3A568
 {
 	S_Warn("[FireCollision] - Unimplemented!\n");
 }

@@ -42,7 +42,7 @@ void draw_pistols(int weapon_type)
 	S_Warn("[draw_pistols] - Unimplemented!\n");
 }
 
-void set_arm_info(struct lara_arm *arm, int frame)
+void set_arm_info(struct lara_arm* arm, int frame)
 {
 	S_Warn("[set_arm_info] - Unimplemented!\n");
 }

@@ -7,7 +7,7 @@ short nAIObjects;
 struct AIOBJECT* AIObjects;
 struct creature_info* baddie_slots;
 
-void CreateZone(struct ITEM_INFO *item)//4E330, 4E794
+void CreateZone(struct ITEM_INFO* item)//4E330, 4E794
 {
 	S_Warn("[CreateZone] - Unimplemented!\n");
 }
@@ -17,7 +17,7 @@ void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0
 {
 #if 0
 	int i; // $s1
-	struct creature_info *creature; // $s0
+	struct creature_info* creature; // $s0
 
 	int a2 = 3;
 	int v0 = a1 << 3;//a1 param?

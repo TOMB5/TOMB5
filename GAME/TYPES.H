@@ -72,6 +72,31 @@ enum target_type
 	SECONDARY_TARGET = 2,
 };
 
+enum room_flags
+{
+	RF_FILL_WATER = (1 << 0),			    // 0x0000
+	RF_SKYBOX_VISIBLE = (1 << 3),		    // 0x0008   speeds up rendering if no rendered room has this
+	RF_WIND_BLOWS_PONYTAIL = (1 << 5),	    // 0x0020   also some particles
+	RF_UNKNOWN_6 = (1 << 6),			    // 0x0040   used in official levels, no apparent effects
+	RF_HIDE_GLOBAL_LENS_FLARE = (1 << 7),   // 0x0080   TRLE "NL"
+	RF_CAUSTICS_EFFECT = (1 << 8),		    // 0x0100   TRLE "M"
+	RF_WATER_REFLECTIVITY = (1 << 9),	    // 0x0200   TRLE "R"
+	RF_UNKNOWN_10 = (1 << 10),			    // 0x0400   NGLE uses it for snow
+	RF_TRLE_D = (1 << 11),					// 0x0800   NGLE uses it for rain
+	RF_TRLE_P = (1 << 12)					// 0x1000   NGLE uses it for cold rooms
+};
+
+enum reverb_type
+{
+	RVB_OUTSIDE,	   // 0x00   no reverberation
+	RVB_SMALL_ROOM,	   // 0x01   little reverberation
+	RVB_MEDIUM_ROOM,   // 0x02 
+	RVB_LARGE_ROOM,	   // 0x03
+	RVB_PIPE,		   // 0x04   highest reverberation, almost never used
+					  
+	NUM_REVERB_TYPES  
+};
+
 struct VECTOR {
 	long vx; // size=0, offset=0
 	long vy; // size=0, offset=4
@@ -144,7 +169,7 @@ struct ITEM_INFO {
 	short after_death; // size=0, offset=48
 	unsigned short fired_weapon; // size=0, offset=50
 	short item_flags[4]; // size=8, offset=52
-	void *data; // size=0, offset=60
+	void* data; // size=0, offset=60
 	struct PHD_3DPOS pos; // size=20, offset=64
 	struct ITEM_LIGHT il; // size=48, offset=84
 	unsigned long active : 1; // offset=132.0
@@ -215,7 +240,7 @@ struct FX_INFO {
 	short flag2; // size=0, offset=40
 };
 struct lara_arm {
-	short *frame_base; // size=0, offset=0
+	short* frame_base; // size=0, offset=0
 	short frame_number; // size=0, offset=4
 	short anim_number; // size=0, offset=6
 	short lock; // size=0, offset=8
@@ -231,7 +256,7 @@ struct box_node {
 	short box_number; // size=0, offset=6
 };
 struct lot_info {
-	struct box_node *node; // size=8, offset=0
+	struct box_node* node; // size=8, offset=0
 	short head; // size=0, offset=4
 	short tail; // size=0, offset=6
 	unsigned short search_number; // size=0, offset=8
@@ -263,7 +288,7 @@ struct creature_info {
 	unsigned short jump_ahead : 1; // offset=12.6
 	unsigned short monkey_ahead : 1; // offset=12.7
 	enum mood_type mood; // size=4, offset=16
-	struct ITEM_INFO *enemy; // size=144, offset=20
+	struct ITEM_INFO* enemy; // size=144, offset=20
 	struct ITEM_INFO ai_target; // size=144, offset=24
 	short pad; // size=0, offset=168
 	short item_num; // size=0, offset=170
@@ -327,10 +352,10 @@ struct lara_info {
 	unsigned short Fired : 1; // offset=70.0
 	long water_surface_dist; // size=0, offset=72
 	struct PHD_VECTOR last_pos; // size=12, offset=76
-	struct FX_INFO *spaz_effect; // size=44, offset=88
+	struct FX_INFO* spaz_effect; // size=44, offset=88
 	int mesh_effects; // size=0, offset=92
-	short *mesh_ptrs[15]; // size=60, offset=96
-	struct ITEM_INFO *target; // size=144, offset=156
+	short* mesh_ptrs[15]; // size=60, offset=96
+	struct ITEM_INFO* target; // size=144, offset=156
 	short target_angles[2]; // size=4, offset=160
 	short turn_rate; // size=0, offset=164
 	short move_angle; // size=0, offset=166
@@ -343,7 +368,7 @@ struct lara_info {
 	struct lara_arm left_arm; // size=20, offset=180
 	struct lara_arm right_arm; // size=20, offset=200
 	unsigned short holster; // size=0, offset=220
-	struct creature_info *creature; // size=228, offset=224
+	struct creature_info* creature; // size=228, offset=224
 	long CornerX; // size=0, offset=228
 	long CornerZ; // size=0, offset=232
 	char RopeSegment; // size=0, offset=236
@@ -358,7 +383,7 @@ struct lara_info {
 	unsigned short RopeFrameRate; // size=0, offset=256
 	unsigned short RopeY; // size=0, offset=258
 	long RopePtr; // size=0, offset=260
-	void *GeneralPtr; // size=0, offset=264
+	void* GeneralPtr; // size=0, offset=264
 	int RopeOffset; // size=0, offset=268
 	unsigned long RopeDownVel; // size=0, offset=272
 	char RopeFlag; // size=0, offset=276
@@ -507,7 +532,7 @@ struct PENDULUM {
 	struct PHD_VECTOR Position; // size=12, offset=0
 	struct PHD_VECTOR Velocity; // size=12, offset=12
 	int node; // size=0, offset=24
-	struct ROPE_STRUCT *Rope; // size=1172, offset=28
+	struct ROPE_STRUCT* Rope; // size=1172, offset=28
 };
 
 struct RAT_STRUCT {
@@ -591,7 +616,7 @@ struct COLL_INFO {
 	short facing; // size=0, offset=118
 	short quadrant; // size=0, offset=120
 	short coll_type; // size=0, offset=122
-	short *trigger; // size=0, offset=124
+	short* trigger; // size=0, offset=124
 	char tilt_x; // size=0, offset=128
 	char tilt_z; // size=0, offset=129
 	char hit_by_baddie; // size=0, offset=130
@@ -604,7 +629,7 @@ struct COLL_INFO {
 	unsigned short hit_ceiling : 1; // offset=132.6
 };
 struct ANIM_STRUCT {
-	short *frame_ptr; // size=0, offset=0
+	short* frame_ptr; // size=0, offset=0
 	short interpolation; // size=0, offset=4
 	short current_anim_state; // size=0, offset=6
 	long velocity; // size=0, offset=8
@@ -689,9 +714,9 @@ struct PACKNODE {
 	unsigned long xlength; // size=0, offset=60
 	unsigned long ylength; // size=0, offset=64
 	unsigned long zlength; // size=0, offset=68
-	char *xpacked; // size=0, offset=72
-	char *ypacked; // size=0, offset=76
-	char *zpacked; // size=0, offset=80
+	char* xpacked; // size=0, offset=72
+	char* ypacked; // size=0, offset=76
+	char* zpacked; // size=0, offset=80
 };
 struct NODELOADHEADER {
 	short xkey; // size=0, offset=0
@@ -703,7 +728,7 @@ struct NODELOADHEADER {
 	short zlength; // size=0, offset=12
 };
 struct RESIDENT_THING {
-	char *packed_data; // size=0, offset=0
+	char* packed_data; // size=0, offset=0
 };
 struct NEW_CUTSCENE {
 	short numactors; // size=0, offset=0
@@ -721,7 +746,7 @@ struct CUTSEQ_ROUTINES {
 	void(*end_func)(); // size=0, offset=8
 };
 struct DOORPOS_DATA {
-	struct FLOOR_INFO *floor; // size=8, offset=0
+	struct FLOOR_INFO* floor; // size=8, offset=0
 	struct FLOOR_INFO data; // size=8, offset=4
 	short block; // size=0, offset=12
 };
@@ -731,15 +756,15 @@ struct DOOR_DATA {
 	struct DOORPOS_DATA d2; // size=16, offset=32
 	struct DOORPOS_DATA d2flip; // size=16, offset=48
 	short Opened; // size=0, offset=64
-	short *dptr1; // size=0, offset=68
-	short *dptr2; // size=0, offset=72
-	short *dptr3; // size=0, offset=76
-	short *dptr4; // size=0, offset=80
+	short* dptr1; // size=0, offset=68
+	short* dptr2; // size=0, offset=72
+	short* dptr3; // size=0, offset=76
+	short* dptr4; // size=0, offset=80
 	char dn1; // size=0, offset=84
 	char dn2; // size=0, offset=85
 	char dn3; // size=0, offset=86
 	char dn4; // size=0, offset=87
-	struct ITEM_INFO *item; // size=144, offset=88
+	struct ITEM_INFO* item; // size=144, offset=88
 };
 struct CHANGE_STRUCT {
 	short goal_anim_state; // size=0, offset=0
@@ -815,16 +840,16 @@ struct CAMERA_INFO {
 	short timer; // size=0, offset=84
 	short speed; // size=0, offset=86
 	short targetspeed; // size=0, offset=88
-	struct ITEM_INFO *item; // size=144, offset=92
-	struct ITEM_INFO *last_item; // size=144, offset=96
-	struct OBJECT_VECTOR *fixed; // size=16, offset=100
+	struct ITEM_INFO* item; // size=144, offset=92
+	struct ITEM_INFO* last_item; // size=144, offset=96
+	struct OBJECT_VECTOR* fixed; // size=16, offset=100
 	int mike_at_lara; // size=0, offset=104
 	struct PHD_VECTOR mike_pos; // size=12, offset=108
 };
 struct SHATTER_ITEM {
 	struct SPHERE Sphere; // size=16, offset=0
-	struct ITEM_LIGHT *il; // size=48, offset=16
-	short *meshp; // size=0, offset=20
+	struct ITEM_LIGHT* il; // size=48, offset=16
+	short* meshp; // size=0, offset=20
 	long Bit; // size=0, offset=24
 	short YRot; // size=0, offset=28
 	short Flags; // size=0, offset=30
@@ -841,7 +866,7 @@ struct OLD_CAMERA {
 	struct PHD_VECTOR t; // size=12, offset=56
 };
 struct DEBRIS_STRUCT {
-	void *TextInfo; // size=0, offset=0
+	void* TextInfo; // size=0, offset=0
 	long x; // size=0, offset=4
 	long y; // size=0, offset=8
 	long z; // size=0, offset=12
@@ -1151,7 +1176,7 @@ struct AMMOLIST {
 };
 struct MENUTHANG {
 	int type; // size=0, offset=0
-	char *text; // size=0, offset=4
+	char* text; // size=0, offset=4
 };
 struct COMBINELIST {
 	void(*combine_routine)(int flag); // size=0, offset=0

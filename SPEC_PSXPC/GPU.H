@@ -23,10 +23,10 @@ extern void GPU_BeginScene();
 extern void GPU_EndScene();
 extern int GPU_FlipNoIdle();
 extern void GPU_SyncBothScreens();
-extern void GPU_GetScreenPosition(short x, short y);
+extern void GPU_GetScreenPosition(short* x, short* y);
 extern void GPU_ClearVRAM();
 extern void GPU_FlipToBuffer(int buffer_index);
-extern void GPU_GetScreenPosition(short x, short y);
+extern void GPU_SetScreenPosition(short x, short y);
 extern SDL_Window* g_window;
 
 #endif
