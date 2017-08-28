@@ -764,7 +764,7 @@ struct DOOR_DATA {
 	char dn2; // size=0, offset=85
 	char dn3; // size=0, offset=86
 	char dn4; // size=0, offset=87
-	struct ITEM_INFO *item; // size=144, offset=88
+	struct ITEM_INFO* item; // size=144, offset=88
 };
 struct CHANGE_STRUCT {
 	short goal_anim_state; // size=0, offset=0
@@ -840,7 +840,7 @@ struct CAMERA_INFO {
 	short timer; // size=0, offset=84
 	short speed; // size=0, offset=86
 	short targetspeed; // size=0, offset=88
-	struct ITEM_INFO *item; // size=144, offset=92
+	struct ITEM_INFO* item; // size=144, offset=92
 	struct ITEM_INFO *last_item; // size=144, offset=96
 	struct OBJECT_VECTOR *fixed; // size=16, offset=100
 	int mike_at_lara; // size=0, offset=104

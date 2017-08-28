@@ -57,7 +57,7 @@ void CreateFlare(short object, int thrown)//49BBC, 4A020
 	S_Warn("[CreateFlare] - Unimplemented!\n");
 }
 
-void DrawFlareInAir(struct ITEM_INFO *item)//49A8C, 49EF0
+void DrawFlareInAir(struct ITEM_INFO* item)//49A8C, 49EF0
 {
 	S_Warn("[DrawFlareInAir] - Unimplemented!\n");
 }

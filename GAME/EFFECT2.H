@@ -28,7 +28,7 @@ extern void KillEverything();
 extern void KillAllCurrentItems(short item_number);
 extern void TriggerDartSmoke(long x, long y, long z, long xv, long zv, long hit);
 extern void TriggerWaterfallMist(long x, long y, long z, long angle);
-extern void TriggerSuperJetFlame(struct ITEM_INFO *item, long yvel, long deadly);
+extern void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly);
 extern void DetatchSpark(long num, long type);
 
 #endif

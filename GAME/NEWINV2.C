@@ -577,7 +577,7 @@ int go_and_load_game()//3C900(<), 3CD54(<) (F)
 	return LoadGame();
 }
 
-void DrawInventoryItemMe(struct ITEM_INFO *item, long shade, int overlay, int shagflag)//3C6A0, 3CAF4
+void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int shagflag)//3C6A0, 3CAF4
 {
 	S_Warn("[DrawInventoryItemMe] - Unimplemented!\n");
 }
@@ -608,7 +608,7 @@ int S_CallInventory2()//3B7A8, 3BC04
 	} // line 335, offset 0x3be20
 	{ // line 387, offset 0x3bf3c
 		short room_number; // stack offset -32
-		struct ITEM_INFO *item; // $s0
+		struct ITEM_INFO* item; // $s0
 		int val; // $a1
 	} // line 415, offset 0x3c000
 #endif

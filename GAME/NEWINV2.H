@@ -125,7 +125,7 @@ extern void insert_object_into_list_v2(int num);
 extern void construct_combine_object_list();
 extern int go_and_save_game();
 extern int go_and_load_game();
-extern void DrawInventoryItemMe(struct ITEM_INFO *item, long shade, int overlay, int shagflag);
+extern void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int shagflag);
 extern void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay);
 extern void do_debounced_joystick_poo();
 extern void init_new_inventry();

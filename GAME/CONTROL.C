@@ -993,7 +993,7 @@ int CheckGuardOnTrigger()
 	return 0;
 }
 
-int ExplodeItemNode(struct ITEM_INFO *item, int Node, int NoXZVel, long bits)
+int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)
 {
 	S_Warn("[ExplodeItemNode] - Unimplemented!\\n");
 	return 0;
@@ -1046,7 +1046,7 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 	return 0;
 }
 
-void AlterFloorHeight(struct ITEM_INFO *item, int height)
+void AlterFloorHeight(struct ITEM_INFO* item, int height)
 {
 	S_Warn("[AlterFloorHeight] - Unimplemented!\\n");
 }

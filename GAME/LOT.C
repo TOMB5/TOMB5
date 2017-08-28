@@ -7,7 +7,7 @@ short nAIObjects;
 struct AIOBJECT* AIObjects;
 struct creature_info* baddie_slots;
 
-void CreateZone(struct ITEM_INFO *item)//4E330, 4E794
+void CreateZone(struct ITEM_INFO* item)//4E330, 4E794
 {
 	S_Warn("[CreateZone] - Unimplemented!\n");
 }

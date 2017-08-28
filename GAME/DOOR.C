@@ -38,17 +38,17 @@ void SequenceDoorControl(short item_number)//2BC28, 2BF50
 	S_Warn("[SequenceDoorControl] - Unimplemented!\n");
 }
 
-void UnderwaterDoorCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll)//2BA38, 2BD60
+void UnderwaterDoorCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)//2BA38, 2BD60
 {
 	S_Warn("[UnderwaterDoorCollision] - Unimplemented!\n");
 }
 
-void DoubleDoorCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll)//2B854, 2BB7C
+void DoubleDoorCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)//2B854, 2BB7C
 {
 	S_Warn("[DoubleDoorCollision] - Unimplemented!\n");
 }
 
-void PushPullKickDoorCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll)//2B5A0, 2B8C8
+void PushPullKickDoorCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)//2B5A0, 2B8C8
 {
 	S_Warn("[PushPullKickDoorCollision] - Unimplemented!\n");
 }
@@ -58,7 +58,7 @@ void PushPullKickDoorControl(short item_number)//2B508, 2B830
 	S_Warn("[PushPullKickDoorControl] - Unimplemented!\n");
 }
 
-void DoorCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO *coll)//2B150, 2B478
+void DoorCollision(short item_num, struct ITEM_INFO *l, struct COLL_INFO* coll)//2B150, 2B478
 {
 	S_Warn("[DoorCollision] - Unimplemented!\n");
 }

@@ -10,7 +10,7 @@ void TriggerGrapplingEffect(long x, long y, long z)
 	S_Warn("[TriggerGrapplingEffect] - Unimplemented!\n");
 }
 
-void DoGrenadeDamageOnBaddie(struct ITEM_INFO *baddie, struct ITEM_INFO *item)
+void DoGrenadeDamageOnBaddie(struct ITEM_INFO *baddie, struct ITEM_INFO* item)
 {
 	S_Warn("[DoGrenadeDamageOnBaddie] - Unimplemented!\n");
 }
@@ -35,7 +35,7 @@ void ControlCrossbow(short item_number)
 	S_Warn("[ControlCrossbow] - Unimplemented!\n");
 }
 
-void CrossbowHitSwitchType78(struct ITEM_INFO *item, struct ITEM_INFO *target, int MustHitLastNode)
+void CrossbowHitSwitchType78(struct ITEM_INFO* item, struct ITEM_INFO *target, int MustHitLastNode)
 {
 	S_Warn("[CrossbowHitSwitchType78] - Unimplemented!\n");
 }

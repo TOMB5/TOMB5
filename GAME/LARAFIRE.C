@@ -45,7 +45,7 @@ int WeaponObject(int weapon_type)//48898, 48CFC
 	return 0;
 }
 
-void HitTarget(struct ITEM_INFO *item, struct GAME_VECTOR *hitpos, int damage, int grenade)//486E0, 48B44
+void HitTarget(struct ITEM_INFO* item, struct GAME_VECTOR *hitpos, int damage, int grenade)//486E0, 48B44
 {
 	S_Warn("[HitTarget] - Unimplemented!\n");
 }
@@ -61,7 +61,7 @@ void AimWeapon(struct WEAPON_INFO *winfo, struct lara_arm *arm)//4826C, 486D0
 	S_Warn("[AimWeapon] - Unimplemented!\n");
 }
 
-void find_target_point(struct ITEM_INFO *item, struct GAME_VECTOR *target)//48150, 485B4
+void find_target_point(struct ITEM_INFO* item, struct GAME_VECTOR *target)//48150, 485B4
 {
 	S_Warn("[find_target_point] - Unimplemented!\n");
 }
