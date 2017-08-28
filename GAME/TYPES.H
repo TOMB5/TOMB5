@@ -81,9 +81,9 @@ enum room_flags
 	RF_HIDE_GLOBAL_LENS_FLARE = (1 << 7),   // 0x0080   TRLE "NL"
 	RF_CAUSTICS_EFFECT = (1 << 8),		    // 0x0100   TRLE "M"
 	RF_WATER_REFLECTIVITY = (1 << 9),	    // 0x0200   TRLE "R"
-	RF_NGLE_SNOW = (1 << 10),			    // 0x0400   unused
-	RF_NGLE_RAIN = (1 << 11),			    // 0x0800   TRLE "D"
-	RF_NGLE_COLD = (1 << 12)			    // 0x1000   TRLE "P"
+	RF_UNKNOWN_10 = (1 << 10),			    // 0x0400   NGLE uses it for snow
+	RF_TRLE_D = (1 << 11),					// 0x0800   NGLE uses it for rain
+	RF_TRLE_P = (1 << 12)					// 0x1000   NGLE uses it for cold rooms
 };
 
 enum reverb_type
