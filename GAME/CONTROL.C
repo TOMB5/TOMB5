@@ -814,9 +814,13 @@ void KillMoveItems()//1D420(<), 1D5B4(<) (F)
 		for(nex = 0; nex < ItemNewRoomNo; nex++)
 		{
 			if (ItemNewRooms[nex][0] & 0x8000)
+			{
 				KillItem(ItemNewRooms[nex][0] & 0x7FFF);
+			}
 			else
+			{
 				ItemNewRoom(ItemNewRooms[nex][0], ItemNewRooms[nex][1]);
+			}
 
 		}
 	}
@@ -833,9 +837,13 @@ void KillMoveEffects()//1D4AC(<), 1D640(<) (F)
 		for (nex = 0; nex < ItemNewRoomNo; nex++)
 		{
 			if (ItemNewRooms[nex][0] & 0x8000)
+			{
 				KillEffect(ItemNewRooms[nex][0] & 0x7FFF);
+			}
 			else
+			{
 				EffectNewRoom(ItemNewRooms[nex][0], ItemNewRooms[nex][1]);
+			}
 
 		}
 	}
