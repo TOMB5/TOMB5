@@ -1810,9 +1810,36 @@ void lara_slide_slope(struct ITEM_INFO* item, struct COLL_INFO* coll)//127BC, 12
 	S_Warn("[lara_slide_slope] - Unimplemented!\n");
 }
 
-void LaraCollideStop(struct ITEM_INFO* item, struct COLL_INFO* coll)//126F0, 127A0
+void LaraCollideStop(struct ITEM_INFO* item, struct COLL_INFO* coll)//126F0(<), 127A0(<) (F)
 {
-	S_Warn("[LaraCollideStop] - Unimplemented!\n");
+	switch (coll->old_anim_state)
+	{
+	case STATE_LARA_STOP:
+	case STATE_LARA_TURN_RIGHT_SLOW:
+	case STATE_LARA_TURN_LEFT_SLOW:
+	case STATE_LARA_TURN_FAST:
+		item->current_anim_state = coll->old_anim_state;
+		item->anim_number = coll->old_anim_number;
+		item->frame_number = coll->old_frame_number;
+		if (input & IN_LEFT)
+		{
+			item->goal_anim_state = STATE_LARA_TURN_LEFT_SLOW;
+		}
+		else if (input & IN_RIGHT)
+		{
+			item->goal_anim_state = STATE_LARA_TURN_RIGHT_SLOW;
+		}
+		else
+		{
+			item->goal_anim_state = STATE_LARA_STOP;
+		}
+		AnimateLara(item);
+		break;
+	default:
+		item->anim_number = ANIMATION_LARA_STAY_SOLID;
+		item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
+		break;
+	}
 }
 
 int TestWall(struct ITEM_INFO* item, long front, long right, long down)//12550, 12600
@@ -1956,3 +1983,9 @@ int GetLaraJointPos(int arg1, int arg2)
 	S_Warn("[GetLaraJointPos] - Unimplemented!\\n");
 	return 0;
 }
+
+void AnimateLara(struct ITEM_INFO* item)
+{
+	S_Warn("[AnimateLara] - Unimplemented!\\n");
+}
+

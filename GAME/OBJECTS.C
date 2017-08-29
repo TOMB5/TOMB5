@@ -1,5 +1,8 @@
 #include "OBJECTS.H"
 #include "SPECIFIC.H"
+#include "CONTROL.H"
+#include "EFFECTS.H"
+#include <cstddef>
 
 struct BITE_INFO EnemyBites[9];
 int AnimatingWaterfallsVOffset;
@@ -34,9 +37,31 @@ void TightRopeCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* c
 	S_Warn("[TightRopeCollision] - Unimplemented!\\n");
 }
 
-void ControlWaterfall(short item_number)
+void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 {
-	S_Warn("[ControlWaterfall] - Unimplemented!\\n");
+	struct ITEM_INFO* item = &items[item_number];
+	TriggerActive(item);
+
+	if (item_number != 0)
+	{
+		item->status = 1;
+
+		if (item->trigger_flags == 0x29C)
+		{
+			SoundEffect(344, &item->pos, NULL);
+		}
+		else if (item->trigger_flags == 0x309)
+		{
+			SoundEffect(79, &item->pos, NULL);
+		}
+	}
+	else
+	{
+		if (item->trigger_flags == 2 || item->trigger_flags == 0x29C)
+		{
+			item->status = 3;
+		}
+	}
 }
 
 void AnimateWaterfalls()
