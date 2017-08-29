@@ -1951,4 +1951,7 @@ void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 762);
 }
 
-
+int GetLaraJointPos(int arg1, int arg2)
+{
+	S_Warn("[GetLaraJointPos] - Unimplemented!\\n");
+}

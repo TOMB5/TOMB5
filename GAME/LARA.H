@@ -857,5 +857,6 @@ extern int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h);
 extern short LaraFloorFront(struct ITEM_INFO* item, short ang, long dist);
 extern void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll);
+extern int GetLaraJointPos(int arg1, int arg2);
 
 #endif
