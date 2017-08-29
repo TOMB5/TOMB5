@@ -73,7 +73,7 @@ void ShiftItem(struct ITEM_INFO* item, struct COLL_INFO* coll)//7BEEC(<), 7DF30(
 
 int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)
 {
-	S_Warn("[GetCollisionInfo] - Unimplemented!\\n");
+	S_Warn("[GetCollisionInfo] - Unimplemented!\n");
 	return 0;
 }
 

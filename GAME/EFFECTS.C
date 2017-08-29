@@ -218,5 +218,5 @@ void SoundEffect(int arg1, struct PHD_3DPOS* pos, void* arg2)
 
 void StopSoundEffect(int arg1)
 {
-	S_Warn("[StopSoundEffect] - Unimplemented!\\n");
+	S_Warn("[StopSoundEffect] - Unimplemented!\n");
 }

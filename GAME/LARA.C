@@ -1980,12 +1980,12 @@ void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764
 
 int GetLaraJointPos(int arg1, int arg2)
 {
-	S_Warn("[GetLaraJointPos] - Unimplemented!\\n");
+	S_Warn("[GetLaraJointPos] - Unimplemented!\n");
 	return 0;
 }
 
 void AnimateLara(struct ITEM_INFO* item)
 {
-	S_Warn("[AnimateLara] - Unimplemented!\\n");
+	S_Warn("[AnimateLara] - Unimplemented!\n");
 }
 

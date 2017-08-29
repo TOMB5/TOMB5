@@ -111,5 +111,5 @@ void GPU_EndScene()
 
 void GPU_SetScreenPosition(short x, short y)
 {
-	S_Warn("[GPU_SetScreenPosition] - Unimplemented!\\n");
+	S_Warn("[GPU_SetScreenPosition] - Unimplemented!\n");
 }
