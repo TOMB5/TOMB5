@@ -134,7 +134,7 @@ enum gf_level_options
 	GF_LVOP_YOUNG_LARA = (1 << 0),				// 0x0001
 	GF_LVOP_WEATHER = (1 << 1),					// 0x0002
 	GF_LVOP_HORIZON = (1 << 2),					// 0x0004
-	GF_LVOP_HORIZON_PAIR = (1 << 3),			// 0x0008
+	GF_LVOP_LAYER1_USED = (1 << 3),				// 0x0008
 	GF_LVOP_LAYER2_USED = (1 << 4),				// 0x0010
 	GF_LVOP_STARFIELD = (1 << 5),				// 0x0020
 	GF_LVOP_LIGHTNING = (1 << 6),				// 0x0040
@@ -142,7 +142,7 @@ enum gf_level_options
 	GF_LVOP_PULSE = (1 << 8),					// 0x0100
 	GF_LVOP_COL_ADD_HORIZON = (1 << 9),			// 0x0200
 	GF_LVOP_RESETHUB_USED = (1 << 10),			// 0x0400
-	GF_LVOP_COL_ADD_HORIZON_PAIR = (1 << 11),	// 0x0800
+	GF_LVOP_LENSFLARE_USED = (1 << 11),			// 0x0800
 	GF_LVOP_TIMER = (1 << 12),					// 0x1000
 	GF_LVOP_MIRROR_USED = (1 << 13),			// 0x2000
 	GF_LVOP_REMOVE_AMULET = (1 << 14),			// 0x4000
