@@ -1954,4 +1954,5 @@ void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764
 int GetLaraJointPos(int arg1, int arg2)
 {
 	S_Warn("[GetLaraJointPos] - Unimplemented!\\n");
+	return 0;
 }

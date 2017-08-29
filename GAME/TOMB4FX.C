@@ -135,6 +135,7 @@ void SetScreenFadeIn(long fadespeed)//34B48(<), 35048(<) (F)
 int GetFreeDrip()
 {
 	S_Warn("[GetFreeDrip] - Unimplemented!\\n");
+	return 0;
 
 #if 0
 	int var_8, var_C, var_10;
