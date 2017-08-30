@@ -222,8 +222,6 @@ struct CHARDEF CharDef[106] =
 	{ 0x7E, 0, 0x29, 0xD, -0xA, 6, 0xB }
 };
 
-long input;
-
 char byte_A3660;
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC

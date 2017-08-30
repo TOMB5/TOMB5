@@ -24,6 +24,7 @@ extern unsigned char DualShock;
 extern unsigned char PadConnected;
 extern short reset_count;
 extern char SayNoCount;
+extern long input;
 extern long dbinput;
 extern long dbinput2;
 extern long inputBusy;
