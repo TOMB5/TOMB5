@@ -185,7 +185,7 @@ void floor_shake_effect(struct ITEM_INFO* item)//39410, 39910
 
 void turn180_effect(struct ITEM_INFO* item)//393F4(<), 398F4(<) (F)
 {
-	item->pos.y_rot -= 32768;
+	item->pos.y_rot -= ANGLE180;
 	item->pos.x_rot = -item->pos.x_rot;
 	return;
 }
@@ -211,12 +211,12 @@ void SoundEffects()//39190, 39690
 	S_Warn("[SoundEffects] - Unimplemented!\n");
 }
 
-void SoundEffect(int arg1, struct PHD_3DPOS* pos, int arg2)
+void SoundEffect(int arg1, struct PHD_3DPOS* pos, void* arg2)
 {
 	S_Warn("[SoundEffect] - Unimplemented!\n");
 }
 
 void StopSoundEffect(int arg1)
 {
-	S_Warn("[StopSoundEffect] - Unimplemented!\\n");
+	S_Warn("[StopSoundEffect] - Unimplemented!\n");
 }

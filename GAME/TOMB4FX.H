@@ -44,4 +44,5 @@ extern void SetFadeClip(short height, short speed);
 extern void UpdateFadeClip();
 extern void SetScreenFadeOut(long fadespeed, long fadeback);
 extern void SetScreenFadeIn(long fadespeed);
+extern int GetFreeDrip();
 #endif

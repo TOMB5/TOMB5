@@ -28,15 +28,15 @@ extern void GameClose()
 	free(dword_E5C2EC);
 	free(dword_E5C2AC);*/
 
-	S_Warn("[GameClose] - Unimplemented!\\n");
+	S_Warn("[GameClose] - Unimplemented!\n");
 }
 
 extern char GameInitialise()
 {
-	S_Warn("[GameInitialise] - Unimplemented!\\n");
+	S_Warn("[GameInitialise] - Unimplemented!\n");
 }
 
 extern int GameMain(int a1, int a2)
 {
-	S_Warn("[GameMain] - Unimplemented!\\n");
+	S_Warn("[GameMain] - Unimplemented!\n");
 }
