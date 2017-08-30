@@ -84,19 +84,36 @@ void ControlAnimatingSlots(short item_number)
 	S_Warn("[ControlAnimatingSlots] - Unimplemented!\n");
 }
 
-void BridgeTilt2Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)
+void BridgeTilt2Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F0FC(<), 4F560(<) (F)
 {
-	S_Warn("[BridgeTilt2Ceiling] - Unimplemented!\n");
+	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 1);
+
+	if (level >= y)
+	{
+		*height = level;
+	}
 }
 
-void BridgeTilt2Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)
+void BridgeTilt2Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F090(<), 4F4F4(<) (F)
 {
-	S_Warn("[BridgeTilt2Floor] - Unimplemented!\n");
+	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 1);
+
+	if (level >= y)
+	{
+		*height = level;
+		height_type = 0;
+		OnObject = 1;
+	}
 }
 
-void BridgeTilt1Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)
+void BridgeTilt1Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F038(<), 4F49C(<) (F)
 {
-	S_Warn("[BridgeTilt1Ceiling] - Unimplemented!\n");
+	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 2);
+
+	if (level >= y)
+	{
+		*height = level;
+	}
 }
 
 long GetOffset(struct ITEM_INFO* item, long x, long z)
@@ -105,29 +122,34 @@ long GetOffset(struct ITEM_INFO* item, long x, long z)
 	return 0;
 }
 
-void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)
+void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EFCC(<), 4F430(<) (F)
 {
-	S_Warn("[BridgeTilt1Floor] - Unimplemented!\n");
-}
+	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 2);
 
-void BridgeFlatCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)
-{
-#if 0
-	int v1 = item->pos.y_pos;
-	y = v1 < y ? 1 : 0;
-	if(y != 0)
+	if (level >= y)
 	{
-		v1 += 0x100;
-		int v0 = arg_10;
-		*v0 = v1;
+		*height = level;
+		height_type = 0;
+		OnObject = 1;
 	}
-#endif
-	S_Warn("[BridgeFlatCeiling] - Unimplemented!\n");
 }
 
-void BridgeFlatFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)
+void BridgeFlatCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EF58(<), 4F3BC(<) (F)
 {
-	S_Warn("[BridgeFlatFloor] - Unimplemented!\n");
+	if (item->pos.y_pos >= y)
+	{
+		*height = item->pos.y_pos + 256;
+	}
+}
+
+void BridgeFlatFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EF1C(<), 4F380(<) (F)
+{
+	if (item->pos.y_pos >= y)
+	{
+		*height = item->pos.y_pos;
+		height_type = 0;
+		OnObject = 1;
+	}
 }
 
 void SmashObjectControl(short item_number)//4EEF8(<), 4F35C(<) (F)
