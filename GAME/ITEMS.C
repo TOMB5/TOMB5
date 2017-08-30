@@ -142,14 +142,16 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->item_flags[1] = 0;
 	item->item_flags[0] = 0;
 
-	item->meshswap_meshbits &= -7;
+	/*item->meshswap_meshbits &= -7;
 	item->meshswap_meshbits &= -2;
 	item->meshswap_meshbits &= -129;
 	item->meshswap_meshbits &= -15873;
 	item->meshswap_meshbits &= -16385;
 	item->meshswap_meshbits &= -65;
 	item->meshswap_meshbits &= -17;
-	item->meshswap_meshbits &= -9;
+	item->meshswap_meshbits &= -9;*/
+
+	item->meshswap_meshbits &= 0xFFFFFFFF;
 
 	item->goal_anim_state = anims[item->anim_number].current_anim_state;
 	item->current_anim_state = anims[item->anim_number].current_anim_state;

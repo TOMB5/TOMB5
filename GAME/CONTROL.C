@@ -874,7 +874,7 @@ void ClearFires()//8B1C8(<), 8D20C(<) (F)
 {
 	int i;
 
-	for ( i = 0; i <= 32; i++)
+	for (i = 0; i < 32; i++)
 	{
 		fires[i].on = 0;
 	}

@@ -405,7 +405,7 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 	}//0x32A00
 
 	/*
-	 * Each flyby sequence should play it's own unique music.
+	 * Each flyby sequence should play its own unique music.
 	 * Here we alter the music for the current flyby sequence.
 	 */
 	if (num == 1)
