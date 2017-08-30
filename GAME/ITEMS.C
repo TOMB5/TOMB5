@@ -249,7 +249,7 @@ void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
 		for (i = level_items + 1; i < numitems; i++, item++)
 		{
 			item->next_item = i;
-			item->meshswap_meshbits &= -2;
+			item->active = 0;
 		}
 	}
 
