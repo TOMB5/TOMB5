@@ -1319,7 +1319,63 @@ void cutseq_kill_item(int num)//2D69C(<), 2D984(<) (F)
 
 void deal_with_pistols(unsigned short* shootdata)
 {
-	S_Warn("[deal_with_pistols] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+	int f;
+	short dat;
+
+	f = GLOBAL_cutseq_frame;
+
+	while (1)
+	{
+		dat = *shootdata;
+		++shootdata;
+
+		if (dat == -1)
+			break;
+
+		if (f == (dat & CPI_FRAME_MASK))
+		{
+			if (dat & CPI_SHOOT_LEFT)
+				cutseq_shoot_pistols(14);
+			if (dat & CPI_SHOOT_RIGHT)
+				cutseq_shoot_pistols(11);
+		}
+	}
+	if (SmokeCountL || SmokeCountR)
+	{
+		lara.mesh_ptrs[LM_HEAD] = meshes[objects[LARA_SCREAM].mesh_index + 28];
+		if (SmokeCountL)
+		{
+			pos.x = 4;
+			pos.y = 128;
+			pos.z = 40;
+			GetLaraJointPos(&pos, 14);
+			TriggerGunSmoke(pos.x, pos.y, pos.z, 0, 0, 0, 0, SmokeWeapon, SmokeCountL);
+		}
+		if (SmokeCountR)
+		{
+			pos.x = -16;
+			pos.y = 128;
+			pos.z = 40;
+			GetLaraJointPos(&pos, 11);
+			TriggerGunSmoke(pos.x, pos.y, pos.z, 0, 0, 0, 0, SmokeWeapon, SmokeCountR);
+		}
+	}
+	else
+	{
+		lara.mesh_ptrs[LM_HEAD] = meshes[objects[LARA].mesh_index + 28];
+	}
+
+	if (lara.left_arm.flash_gun)
+	{
+		--lara.left_arm.flash_gun;
+		trigger_weapon_dynamics(14);
+	}
+	if (lara.right_arm.flash_gun)
+	{
+		--lara.right_arm.flash_gun;
+		trigger_weapon_dynamics(11);
+	}
 }
 
 void trigger_weapon_dynamics(int left_or_right)//2D3E4(<), 2D6CC(<) (F)
@@ -1331,7 +1387,7 @@ void trigger_weapon_dynamics(int left_or_right)//2D3E4(<), 2D6CC(<) (F)
 	pos.x = (GetRandomControl() & 0xFF) - 128;
 	pos.y = (GetRandomControl() & 0x7F) - 63;
 	pos.z = (GetRandomControl() & 0xFF) - 128;
-	GetLaraJointPos((int)&pos, left_or_right);
+	GetLaraJointPos(&pos, left_or_right);
 	v1 = (GetRandomControl() & 0x3F);
 	v2 = (GetRandomControl() & 0x1F) + 128;
 	v3 = (GetRandomControl() & 0x3F);

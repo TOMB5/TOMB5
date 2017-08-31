@@ -59,7 +59,7 @@ void lara_as_trpose(struct ITEM_INFO* item, struct COLL_INFO* coll)//1CDE8(<), 1
 	GetTighRopeFallOff(127);
 	if (lara_item->current_anim_state != STATE_LARA_TIGHTROPE_BALANCING_LEFT)
 	{
-		if (lara.num_crossbow_ammo1 & 0xFF00)
+		if (lara.TightRopeFall)
 		{
 			if (GetRandomControl() & 1)
 				item->goal_anim_state = STATE_LARA_TIGHTROPE_BALANCING_RIGHT;
@@ -1193,10 +1193,10 @@ void lara_as_climbrope(struct ITEM_INFO* item, struct COLL_INFO* coll)//17D9C(<)
 		{
 			item->frame_number = anims[item->anim_number].frame_base;
 
-			lara.CornerX -= 2;
+			lara.RopeSegment -= 2;
 		}
 
-		if (!(input & IN_UP) || ((lara.CornerX >> 16) & 0xFF) <= 4)
+		if (!(input & IN_UP) || ((lara.RopeSegment >> 16) & 0xFF) <= 4)
 			item->goal_anim_state = STATE_LARA_ROPE_IDLE;
 	}
 }
@@ -1212,7 +1212,7 @@ void lara_as_roper(struct ITEM_INFO* item, struct COLL_INFO* coll)//17B14(<), 17
 	{
 		if (input & IN_LEFT)
 		{
-			*((short*)lara.RopeFrame) -= 256;
+			lara.RopeY -= 256;
 		}
 		else
 		{
@@ -1231,7 +1231,7 @@ void lara_as_ropel(struct ITEM_INFO* item, struct COLL_INFO* coll)//17AB4(<), 17
 	{
 		if (input & IN_LEFT)
 		{
-			*((short*)lara.RopeFrame) += 256;
+			lara.RopeY += 256;
 		}
 		else
 		{
@@ -1978,7 +1978,7 @@ void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 762);
 }
 
-int GetLaraJointPos(int arg1, int arg2)
+int GetLaraJointPos(struct PHD_VECTOR* arg1, int arg2)
 {
 	S_Warn("[GetLaraJointPos] - Unimplemented!\n");
 	return 0;

@@ -3,6 +3,13 @@
 
 #include "SPECTYPES.H"
 
+enum cutseq_pistols_info
+{
+	CPI_FRAME_MASK = 0x3FFF,
+	CPI_SHOOT_LEFT = 0x8000,
+	CPI_SHOOT_RIGHT = 0x4000
+};
+
 extern struct CUTSEQ_ROUTINES cutseq_control_routines[45];
 extern unsigned short crane_pistols_info[11];
 extern unsigned short craneguard_pistols_info[7];
