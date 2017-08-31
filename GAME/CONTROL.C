@@ -1049,3 +1049,9 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 	}
 }
 
+void IsRoomOutside(long x, long y, long z)
+{
+	S_Warn("[IsRoomOutside] - Unimplemented!\\n");
+}
+
+

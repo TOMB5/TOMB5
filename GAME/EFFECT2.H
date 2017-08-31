@@ -30,5 +30,7 @@ extern void TriggerDartSmoke(long x, long y, long z, long xv, long zv, long hit)
 extern void TriggerWaterfallMist(long x, long y, long z, long angle);
 extern void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly);
 extern void DetatchSpark(long num, long type);
+extern void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int arg7, int arg8, int arg9);
+extern void TriggerDynamic(long x, long y, long z, int a4, int a5, int a6, int a7);
 
 #endif

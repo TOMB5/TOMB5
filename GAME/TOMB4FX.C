@@ -196,3 +196,9 @@ int GetFreeDrip()
 #endif
 
 }
+
+long GetFreeSmokeSpark()
+{
+	S_Warn("[GetFreeSmokeSpark] - Unimplemented!\\n");
+	return 0;
+}

@@ -16,6 +16,7 @@
 #include <stddef.h>
 #include "ROOMLOAD.H"
 #include "HEALTH.H"
+#include "EFFECT2.H"
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
@@ -1216,9 +1217,36 @@ void handle_lara_chatting(short* ranges)//2DD00(<), 2DF90(<) (F)
 	}
 }
 
-void DelsHandyTeleportLara(int x, int y, int z, int yrot)
+void DelsHandyTeleportLara(int x, int y, int z, int yrot)//2DC14(<), 2DEA4(<) (F)
 {
-	S_Warn("[DelsHandyTeleportLara] - Unimplemented!\n");
+	lara_item->pos.x_pos = x;
+	lara_item->pos.y_pos = y;
+	lara_item->pos.z_pos = z;
+
+	lara.head_x_rot = 0;
+	lara.head_y_rot = 0;
+	lara.torso_x_rot = 0;
+	lara.torso_y_rot = 0;
+
+	lara_item->pos.x_rot = 0;
+	lara_item->pos.y_rot = yrot;
+	lara_item->pos.z_rot = 0;
+
+	IsRoomOutside(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos);
+	if (IsRoomOutsideNo != lara_item->room_number)
+		ItemNewRoom(lara.item_number, IsRoomOutsideNo);
+
+	lara_item->goal_anim_state = STATE_LARA_STOP;
+	lara_item->current_anim_state = STATE_LARA_STOP;
+	lara_item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
+	lara_item->anim_number = ANIMATION_LARA_STAY_SOLID;
+
+	lara_item->speed = 0;
+	lara_item->fallspeed = 0;
+	lara_item->gravity_status = 0;
+
+	lara.gun_status = 0;
+	camera.fixed_camera = 1;
 }
 
 void init_resident_cutseq(int num)//2DB8C(<), 2DE1C(<) (F)
@@ -1227,7 +1255,7 @@ void init_resident_cutseq(int num)//2DB8C(<), 2DE1C(<) (F)
 
 	GLOBAL_cutme = (NEW_CUTSCENE*)packed;
 
-	if ((cutseq_num << 5) != 0)
+	if (cutseq_num <= 4)
 	{
 		GLOBAL_cutme->orgx = (lara_item->pos.x_pos & 0xFFFFFC00) + 512;
 		GLOBAL_cutme->orgy = lara_item->pos.y_pos;
@@ -1294,9 +1322,20 @@ void deal_with_pistols(unsigned short* shootdata)
 	S_Warn("[deal_with_pistols] - Unimplemented!\n");
 }
 
-void trigger_weapon_dynamics(int left_or_right)
+void trigger_weapon_dynamics(int left_or_right)//2D3E4(<), 2D6CC(<) (F)
 {
-	S_Warn("[trigger_weapon_dynamics] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+	int v1, v2;
+	char v3;
+
+	pos.x = (GetRandomControl() & 0xFF) - 128;
+	pos.y = (GetRandomControl() & 0x7F) - 63;
+	pos.z = (GetRandomControl() & 0xFF) - 128;
+	GetLaraJointPos((int)&pos, left_or_right);
+	v1 = (GetRandomControl() & 0x3F);
+	v2 = (GetRandomControl() & 0x1F) + 128;
+	v3 = (GetRandomControl() & 0x3F);
+	TriggerDynamic(pos.x, pos.y, pos.z, 10, v3 + 192, v2, v1);
 }
 
 void cutseq_shoot_pistols(int left_or_right)
