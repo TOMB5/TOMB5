@@ -27,17 +27,16 @@ Therefore, operations on bit-fields are mostly bitwise ANDs and ORs (for clearin
 
 <table>
  <tr><th>Structure</th><th>Operation</th><th>Value</th><th>Result</th></tr>
- <tr><td rowspan=3>`ITEM_INFO`</td><td rowspan=2>And assign</td><td>`0xFFF9`</td><td>`item.status = 0;`</td></tr>
- <tr><td>`0xFFF7`</td><td>`item.gravity_status = 0;`</td></tr>
- <tr><td>Or assign</td><td>2</td><td>`item.status = 1;`</td></tr>
- <tr><td rowspan=4>`lara_info`</td><td rowspan=2>And check</td><td>`0x40`</td><td>`lara.CanMonkeySwing`</td></tr>
- <tr><td>`0x20`</td><td>`lara.IsMoving`</td></tr>
- <tr><td rowspan=2>And assign</td><td>`0xFFFB`</td><td>`lara.look = 0;`</td></tr>
- <tr><td>`0xDFFF`</td><td>`lara.Busy = 0;`</td>
- <tr><td rowspan=4>`COLL_INFO`</td><td rowspan=3>And assign</td><td>`0xFFCF`</td><td>`coll.enable_spaz = 0;
-coll.enable_baddie_push = 0;`</td></tr>
- <tr><td>`0xFFDF`</td><td>`coll.enable_spaz = 0;`</td></tr>
- <tr><td>`0xFFEF`</td><td>`coll.enable_baddie_push = 0;`</td></tr>
- <tr><td>Or assign</td><td>`0x10`</td><td>`coll.enable_baddie_push = 1;`</td></tr>
- 
+ <tr><td rowspan=3><pre>ITEM_INFO</pre></td><td rowspan=2>And assign</td><td><pre>0xFFF9</pre></td><td><pre>item.status = 0;</pre></td></tr>
+ <tr><td><pre>0xFFF7</pre></td><td><pre>item.gravity_status = 0;</pre></td></tr>
+ <tr><td>Or assign</td><td>2</td><td><pre>item.status = 1;</pre></td></tr>
+ <tr><td rowspan=4><pre>lara_info</pre></td><td rowspan=2>And check</td><td><pre>0x40</pre></td><td><pre>lara.CanMonkeySwing</pre></td></tr>
+ <tr><td><pre>0x20</pre></td><td><pre>lara.IsMoving</pre></td></tr>
+ <tr><td rowspan=2>And assign</td><td><pre>0xFFFB</pre></td><td><pre>lara.look = 0;</pre></td></tr>
+ <tr><td><pre>0xDFFF</pre></td><td><pre>lara.Busy = 0;</pre></td>
+ <tr><td rowspan=4><pre>COLL_INFO</pre></td><td rowspan=3>And assign</td><td><pre>0xFFCF</pre></td><td><pre>coll.enable_spaz = 0;
+coll.enable_baddie_push = 0;</pre></td></tr>
+ <tr><td><pre>0xFFDF</pre></td><td><pre>coll.enable_spaz = 0;</pre></td></tr>
+ <tr><td><pre>0xFFEF</pre></td><td><pre>coll.enable_baddie_push = 0;</pre></td></tr>
+ <tr><td>Or assign</td><td><pre>0x10</pre></td><td><pre>coll.enable_baddie_push = 1;</pre></td></tr>
 </table>
