@@ -26,7 +26,7 @@ void lara_as_climbend(struct ITEM_INFO* item, struct COLL_INFO* coll)//46DF8(<),
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
 	camera.flags = 1;
-	camera.target_angle = -ANGLE45;
+	camera.target_angle = -(45 * TRDEGREE);
 }
 
 void lara_col_climbdown(struct ITEM_INFO* item, struct COLL_INFO* coll)//46BD0, 47034
@@ -38,7 +38,7 @@ void lara_as_climbdown(struct ITEM_INFO* item, struct COLL_INFO* coll)//46BA4(<)
 {
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_elevation = -ANGLE45;
+	camera.target_elevation = -(45 * TRDEGREE);
 }
 
 void lara_col_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//469B0, 46E14
@@ -50,7 +50,7 @@ void lara_as_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//46984(<),
 {
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_elevation = ANGLE30;
+	camera.target_elevation = (30 * TRDEGREE);
 }
 
 void lara_col_climbright(struct ITEM_INFO* item, struct COLL_INFO* coll)//46908(<), 46D6C(<) (F)
@@ -65,7 +65,7 @@ void lara_col_climbright(struct ITEM_INFO* item, struct COLL_INFO* coll)//46908(
 	int shift;
 	if (!LaraCheckForLetGo(item, coll))
 	{
-		lara.move_angle = item->pos.y_rot + ANGLE90;
+		lara.move_angle = item->pos.y_rot + (90 * TRDEGREE);
 		//LaraDoClimbLeftRight(item, coll, 
 			//LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, (int *)coll), shift); // todo it may be wrong af
 	}
@@ -76,8 +76,8 @@ void lara_as_climbright(struct ITEM_INFO* item, struct COLL_INFO* coll)//468B8(<
 {
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_angle = ANGLE30;
-	camera.target_elevation = -ANGLE15;
+	camera.target_angle = (30 * TRDEGREE);
+	camera.target_elevation = -(15 * TRDEGREE);
 	if (!(input & (IN_RIGHT | IN_RSTEP)))
 		item->goal_anim_state = STATE_LARA_LADDER_IDLE;
 }
@@ -86,7 +86,7 @@ void lara_col_climbleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//46834(<
 {
 	if (!LaraCheckForLetGo(item, coll))
 	{
-		lara.move_angle = item->pos.y_rot - ANGLE90;
+		lara.move_angle = item->pos.y_rot - (90 * TRDEGREE);
 		//LaraDoClimbLeftRight(item, coll,
 			//LaraTestClimbPos(item, coll->radius, -(coll->radius + 120), -512, 512, (int *)&coll), (int)coll); // todo it may be wrong af
 	}
@@ -96,8 +96,8 @@ void lara_as_climbleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//467E4(<)
 {
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_angle = -ANGLE30;
-	camera.target_elevation = -ANGLE15;
+	camera.target_angle = -(30 * TRDEGREE);
+	camera.target_elevation = -(15 * TRDEGREE);
 	if (!(input & (IN_LEFT | IN_LSTEP)))
 		item->goal_anim_state = STATE_LARA_LADDER_IDLE;
 }

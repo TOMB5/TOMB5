@@ -320,9 +320,8 @@ void Cutanimate(int objnum)
 }
 
 
-struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
+struct ITEM_INFO* ResetCutanimate(int objnum)//32A80(<), 32F18(<) (F)
 {
-#if 1
 	struct ITEM_INFO* item; // $s1
 
 	item = find_a_fucking_item(objnum);
@@ -332,12 +331,8 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80, 32F18
 	RemoveActiveItem(item - items);
 
 	item->flags &= 0xC1FF;
-#if 0
-	int test = *(int*)item->active;
-	test &= -7;
-	*(int*)item->active = test;
-#endif
-#endif
+	item->status = 0;
+
 	return item;
 }
 
@@ -439,13 +434,31 @@ void swampy_end()//3271C, 32BB4
 	S_Warn("[swampy_end] - Unimplemented!\n");
 }
 
-void swampy_control()//326EC, 32B84
+void swampy_control()//326EC(<), 32B84(<) (F)
 {
-	S_Warn("[swampy_control] - Unimplemented!\n");
+	if (GLOBAL_cutseq_frame >= 385 && GLOBAL_cutseq_frame <= 396)
+		CutLaraBubbles();
 }
 
 void swampy_init()//32608, 32AA0
 {
+#if 0
+	struct ITEM_INFO* item = find_a_fucking_item(GREEN_TEETH);
+
+	if (item)
+	{
+		int a1 = (int)(void*)items;
+		a1 = (int)(void*)item - a1;
+		auto v0 = (a1 << 3) - a1;
+		//auto v1 = v0 << 6;
+		//auto a0 = ((((v0 << 15) - v0) << 3) + a1) >> 4;
+		//auto a0 = ((262136 * ((((v0 + (v0 << 6))) << 3) + a1)) + a1) >> 4;
+		auto a0 = ((262136 * ((520 * ((a1 << 3) - a1)) + a1)) + a1) >> 4;
+	}
+
+	lara.water_status = 1;
+#endif
+
 	S_Warn("[swampy_init] - Unimplemented!\n");
 }
 

@@ -21,7 +21,7 @@ void lara_col_surftread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DDBC(<
 	{
 		item->goal_anim_state = STATE_LARA_UNDERWATER_DIVING;
 		item->anim_number = ANIMATION_LARA_FREE_FALL_TO_UNDERWATER_ALTERNATE;
-		item->pos.x_rot = -ANGLE45;
+		item->pos.x_rot = -(45 * TRDEGREE);
 		item->frame_number = anims[ANIMATION_LARA_FREE_FALL_TO_UNDERWATER_ALTERNATE].frame_base;
 		item->fallspeed = 80;
 		lara.water_status = 1;
@@ -32,19 +32,19 @@ void lara_col_surftread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DDBC(<
 
 void lara_col_surfright(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DD90(<), 4E1F4(<) (F)
 {
-	lara.move_angle = item->pos.y_rot + ANGLE90;
+	lara.move_angle = item->pos.y_rot + (90 * TRDEGREE);
 	LaraSurfaceCollision(item, coll);
 }
 
 void lara_col_surfleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DD64(<), 4E1C8(<) (F)
 {
-	lara.move_angle = item->pos.y_rot - ANGLE90;
+	lara.move_angle = item->pos.y_rot - (90 * TRDEGREE);
 	LaraSurfaceCollision(item, coll);
 }
 
 void lara_col_surfback(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DD38(<), 4E19C(<) (F)
 {
-	lara.move_angle = item->pos.y_rot - ANGLE180;
+	lara.move_angle = item->pos.y_rot - (180 * TRDEGREE);
 	LaraSurfaceCollision(item, coll);
 }
 
@@ -68,11 +68,11 @@ void lara_as_surfright(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DAF8, 4
 		lara.dive_count = 0;
 		if (input & IN_LEFT)
 		{
-			item->pos.y_rot -= ANGLE2;
+			item->pos.y_rot -= (2 * TRDEGREE);
 		}
 		else if (input & IN_RIGHT)
 		{
-			item->pos.y_rot += ANGLE2;
+			item->pos.y_rot += (2 * TRDEGREE);
 		}
 
 		if (!(input & IN_RSTEP))
@@ -97,11 +97,11 @@ void lara_as_surfleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DA50(<),
 		lara.dive_count = 0;
 		if (input & IN_LEFT)
 		{
-			item->pos.y_rot -= ANGLE2;
+			item->pos.y_rot -= (2 * TRDEGREE);
 		}
 		else if (input & IN_RIGHT)
 		{
-			item->pos.y_rot += ANGLE2;
+			item->pos.y_rot += (2 * TRDEGREE);
 		}
 
 		if (!(input & IN_LSTEP))
@@ -126,11 +126,11 @@ void lara_as_surfback(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D9A8(<),
 		lara.dive_count = 0;
 		if (input & IN_LEFT)
 		{
-			item->pos.y_rot -= ANGLE2;
+			item->pos.y_rot -= (2 * TRDEGREE);
 		}
 		else if (input & IN_RIGHT)
 		{
-			item->pos.y_rot += ANGLE2;
+			item->pos.y_rot += (2 * TRDEGREE);
 		}
 
 		if (!(input & IN_DOWN))
@@ -156,11 +156,11 @@ void lara_as_surfswim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D8E4(<),
 
 		if (input & IN_LEFT)
 		{
-			item->pos.y_rot -= ANGLE4;
+			item->pos.y_rot -= (4 * TRDEGREE);
 		}
 		else if (input & IN_RIGHT)
 		{
-			item->pos.y_rot += ANGLE4;
+			item->pos.y_rot += (4 * TRDEGREE);
 		}
 
 		if (!(input & IN_UP))

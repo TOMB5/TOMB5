@@ -144,12 +144,12 @@ void CreatureTilt(struct ITEM_INFO* item, short angle)//24418(<), 24624(<) (F)
 {
 	angle = (angle << 2) - item->pos.z_rot;
 	
-	if(angle < -ANGLE3)
-		angle = -ANGLE3;
-	else if (angle > ANGLE3)
-		angle = ANGLE3;
+	if(angle < -(3 * TRDEGREE))
+		angle = -(3 * TRDEGREE);
+	else if (angle > (3 * TRDEGREE))
+		angle = (3 * TRDEGREE);
 
-	if (ABS(item->pos.z_rot) - ANGLE15 > ANGLE15)
+	if (ABS(item->pos.z_rot) - (15 * TRDEGREE) > (15 * TRDEGREE))
 	{
 		angle >>= 1;
 	}
