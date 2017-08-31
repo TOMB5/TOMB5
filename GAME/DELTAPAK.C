@@ -306,8 +306,45 @@ void andy11_end()//32D6C, 3326C
 
 void andy11_control()//32C70, 33108
 {
-	S_Warn("[andy11_control] - Unimplemented!\n");
-}
+	if (GLOBAL_cutseq_frame == 2112 ||
+		GLOBAL_cutseq_frame == 2660 ||
+		GLOBAL_cutseq_frame == 3082 ||
+		GLOBAL_cutseq_frame == 3626 ||
+		GLOBAL_cutseq_frame == 4002 ||
+		GLOBAL_cutseq_frame == 4064 ||
+		GLOBAL_cutseq_frame == 4118 ||
+		GLOBAL_cutseq_frame == 4366 ||
+		GLOBAL_cutseq_frame == 4789 ||
+		GLOBAL_cutseq_frame == 5390)
+	{
+		lara_item->mesh_bits = -1;
+	}
+
+	if (GLOBAL_cutseq_frame == 2164 ||
+		GLOBAL_cutseq_frame == 2863 ||
+		GLOBAL_cutseq_frame == 3534 ||
+		GLOBAL_cutseq_frame == 3915 ||
+		GLOBAL_cutseq_frame == 4064 ||
+		GLOBAL_cutseq_frame == 4158 ||
+		GLOBAL_cutseq_frame == 4569 ||
+		GLOBAL_cutseq_frame == 5076)
+	{
+		lara_item->mesh_bits = 0;
+	}
+
+	if (GLOBAL_cutseq_frame == 3082)
+	{
+		cutseq_meshbits[5] |= 0x80000000;
+	}
+	else if (GLOBAL_cutseq_frame == 2660)
+	{
+		cutseq_meshbits[2] &= 0x7FFFFFFFu;
+	}
+
+#if PC_VERSION
+	S_Warn("[andy11_control] - Unimplemented end of function!\n");
+#endif
+} 
 
 void andy11_init()//32C20, 330B8
 {
@@ -1146,9 +1183,37 @@ void handle_actor_chatting(int speechslot, int node, int slot, int objslot, shor
 	S_Warn("[handle_actor_chatting] - Unimplemented!\n");
 }
 
-void handle_lara_chatting(short* ranges)
+void handle_lara_chatting(short* ranges)//2DD00(<), 2DF90(<) (F)
 {
-	S_Warn("[handle_lara_chatting] - Unimplemented!\n");
+	short* poo = ranges; // original variable name
+	int r1, r2, rndme;
+
+	lara_chat_cnt = (lara_chat_cnt - 1) & 1;
+
+	while (1)
+	{
+		r1 = poo[0];
+		r2 = poo[1];
+
+		if (r1 == -1)
+		{
+			lara.mesh_ptrs[LM_HEAD] = meshes[objects[LARA_SKIN].mesh_index + 28];
+			return;
+		}
+
+		if (GLOBAL_cutseq_frame >= r1 && GLOBAL_cutseq_frame <= r2)
+		{
+			break;
+		}
+
+		poo += 2;
+	}
+
+	if (lara_chat_cnt == 0)
+	{
+		rndme = objects[(GetRandomControl() & 3) + LARA_SPEECH_HEAD1].mesh_index;
+		lara.mesh_ptrs[LM_HEAD] = meshes[rndme + 28];
+	}
 }
 
 void DelsHandyTeleportLara(int x, int y, int z, int yrot)
@@ -1156,9 +1221,20 @@ void DelsHandyTeleportLara(int x, int y, int z, int yrot)
 	S_Warn("[DelsHandyTeleportLara] - Unimplemented!\n");
 }
 
-void init_resident_cutseq(int num)
+void init_resident_cutseq(int num)//2DB8C(<), 2DE1C(<) (F)
 {
-	S_Warn("[init_resident_cutseq] - Unimplemented!\n");
+	char* packed = cutseq_resident_addresses[num].packed_data;
+
+	GLOBAL_cutme = (NEW_CUTSCENE*)packed;
+
+	if ((cutseq_num << 5) != 0)
+	{
+		GLOBAL_cutme->orgx = (lara_item->pos.x_pos & 0xFFFFFC00) + 512;
+		GLOBAL_cutme->orgy = lara_item->pos.y_pos;
+		GLOBAL_cutme->orgz = (lara_item->pos.z_pos & 0xFFFFFC00) + 512;
+	}
+
+	init_cutseq_actors(packed, 1);
 }
 
 void init_cutseq_actors(char* data, int resident)

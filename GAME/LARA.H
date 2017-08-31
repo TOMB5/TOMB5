@@ -671,6 +671,25 @@ enum lara_anim
 	NUM_LARA_ANIMS
 };
 
+enum lara_mesh
+{
+	LM_HIPS = 0,
+	LM_LTHIGH = 1,
+	LM_LSHIN = 2,
+	LM_LFOOT = 3,
+	LM_RTHIGH = 4,
+	LM_RSHIN = 5,
+	LM_RFOOT = 6,
+	LM_TORSO = 7,
+	LM_RINARM = 8,
+	LM_ROUTARM = 9,
+	LM_RHAND = 10,
+	LM_LINARM = 11,
+	LM_LOUTARM = 12,
+	LM_LHAND = 13,
+	LM_HEAD = 14
+};
+
 
 extern short angle; // offset 0xA0650
 extern short elevation; // offset 0xA0652
