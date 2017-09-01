@@ -1,6 +1,10 @@
 #include "TOMB4FX.H"
 
 #include "SPECIFIC.H"
+#include "EFFECT2.H"
+#include "LARA.H"
+#include "DELSTUFF.H"
+#include "CONTROL.H"
 
 char flare_table[121] =
 {
@@ -75,6 +79,8 @@ void SetFadeClip(short height, short speed)//34A8C(<), 34F8C(<) (F)
 {
 	DestFadeScreenHeight = height;
 	FadeClipSpeed = speed;
+
+	return;
 }
 
 void UpdateFadeClip()//34A9C(<), 34F9C(<)
@@ -93,6 +99,8 @@ void UpdateFadeClip()//34A9C(<), 34F9C(<)
 			FadeScreenHeight = DestFadeScreenHeight;
 		}
 	}
+
+	return;
 }
 
 void SetScreenFadeOut(long fadespeed, long fadeback)//34B14(<), 35014(<) (F)
@@ -106,6 +114,8 @@ void SetScreenFadeOut(long fadespeed, long fadeback)//34B14(<), 35014(<) (F)
 		ScreenFadeBack = fadeback;
 		ScreenFadedOut = 0;
 	}
+
+	return;
 }
 
 void SetScreenFadeIn(long fadespeed)//34B48(<), 35048(<) (F)
@@ -118,4 +128,113 @@ void SetScreenFadeIn(long fadespeed)//34B48(<), 35048(<) (F)
 		ScreenFadeSpeed = fadespeed;
 		ScreenFadedOut = 0;
 	}
+
+	return;
+}
+
+int GetFreeDrip()
+{
+	S_Warn("[GetFreeDrip] - Unimplemented!\n");
+	return 0;
+
+#if 0
+	int var_8, var_C, var_10;
+
+	if ((wibble & 0xF) != 0) return;
+
+	auto t6 = 0xE;
+
+	auto t7 = &lara.wet[14];
+
+	loc_8CEB4:
+
+	auto t8 = t7[0];
+
+	auto v0 = &LaraNodeUnderwater[0];
+
+	v0 += t6;
+
+	if (t8 == 0) goto loc_8CFC4;
+
+	v0 = v0[0];
+
+	if (v0 != 0) goto loc_8CFC4;
+
+	v0 = GetRandomControl();
+
+	v0 &= 0x1FF;
+
+	if (v0 >= t8) goto loc_8CFC4;
+
+	v0 &= 0x1F;
+
+	v0 -= 0x10;
+
+	v0 = GetRandomControl();
+	var_10 = v0;
+
+	v0 &= 0xF;
+
+	v0 += 0x10;
+
+	v0 = GetRandomControl();
+	var_C = v0;
+	v0 &= 0x1F;
+	v0 -= 0x10;
+
+	auto a0 = &var_10;
+
+	auto a1 = t6;
+
+	var_8 = GetLaraJointPos((int)a0, a1);
+
+
+	loc_8CFC4:
+	t6--;
+	t7--;
+	if (t6 >= 0) goto loc_8CEB4;
+#endif
+
+}
+
+int GetFreeSmokeSpark()
+{
+	S_Warn("[GetFreeSmokeSpark] - Unimplemented!\n");
+	return 0;
+}
+
+int GetFreeSpark()
+{
+	S_Warn("[GetFreeSpark] - Unimplemented!\n");
+	return 0;
+}
+
+int GetFreeBubble()//8BEAC(<), 8DEF0(<) (F)
+{
+	struct BUBBLE_STRUCT* bub = &Bubbles[next_bubble];
+	int bub_num = next_bubble;
+
+	while (bub->size != 0)
+	{
+		if (bub_num == 39)
+		{
+			bub = &Bubbles[0];
+			bub_num = 0;
+		}
+		else
+		{
+			bub_num++;
+			bub++;
+		}
+
+		if (++bub_num >= 40)
+		{
+			break;
+		}
+	}
+
+	next_bubble = bub_num + 1;
+	if (bub_num + 1 >= 40)
+		next_bubble = 0;
+	return bub_num;
 }

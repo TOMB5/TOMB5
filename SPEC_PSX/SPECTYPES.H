@@ -1,0 +1,295 @@
+#ifndef SPECTYPES_H
+#define SPECTYPES_H
+
+#include "TYPES.H"
+
+#include <sys/types.h>
+#include <LIBGTE.H>
+#include <LIBGPU.H>
+
+struct DB_STRUCT
+{
+	int current_buffer;
+	unsigned long* ot;
+	char* polyptr;
+	char* curpolybuf;
+	char* polybuf_limit;
+	int nOTSize;
+	int nPBSize;
+	unsigned long* order_table[2];
+	unsigned long* poly_buffer[2];
+	unsigned long* pickup_ot;
+	unsigned long* pickup_order_table[2];
+	DRAWENV draw[2];
+	DISPENV disp[2];
+};
+
+struct room_info
+{
+	short* data; // size=0, offset=0
+	short* door; // size=0, offset=4
+	struct FLOOR_INFO* floor; // size=8, offset=8
+	struct LIGHTINFO* light; // size=32, offset=12
+	struct MESH_INFO* mesh; // size=20, offset=16
+	long x; // size=0, offset=20
+	long y; // size=0, offset=24
+	long z; // size=0, offset=28
+	long minfloor; // size=0, offset=32
+	long maxceiling; // size=0, offset=36
+	short x_size; // size=0, offset=40
+	short y_size; // size=0, offset=42
+	CVECTOR ambient; // size=4, offset=44
+	short num_lights; // size=0, offset=48
+	short num_meshes; // size=0, offset=50
+	unsigned char ReverbType; // size=0, offset=52
+	unsigned char FlipNumber; // size=0, offset=53
+	char MeshEffect; // size=0, offset=54
+	char bound_active; // size=0, offset=55
+	short left; // size=0, offset=56
+	short right; // size=0, offset=58
+	short top; // size=0, offset=60
+	short bottom; // size=0, offset=62
+	short test_left; // size=0, offset=64
+	short test_right;
+	short test_top;
+	short test_bottom;
+	short item_number;
+	short fx_number;
+	short flipped_room;
+	unsigned short flags;
+};
+
+struct object_info {
+	short nmeshes; // size=0, offset=0
+	short mesh_index; // size=0, offset=2
+	long bone_index; // size=0, offset=4
+	short *frame_base; // size=0, offset=8
+	void(*initialise)(); // size=0, offset=12
+	void(*control)(); // size=0, offset=16
+	void(*floor)(); // size=0, offset=20
+	void(*ceiling)(); // size=0, offset=24
+	void(*draw_routine)(); // size=0, offset=28
+	void(*collision)(); // size=0, offset=32
+	short object_mip; // size=0, offset=36
+	short anim_index; // size=0, offset=38
+	short hit_points; // size=0, offset=40
+	short pivot_length; // size=0, offset=42
+	short radius; // size=0, offset=44
+	short shadow_size; // size=0, offset=46
+	unsigned short bite_offset; // size=0, offset=48
+	unsigned short loaded : 1; // offset=50.0
+	unsigned short intelligent : 1; // offset=50.1
+	unsigned short non_lot : 1; // offset=50.2
+	unsigned short save_position : 1; // offset=50.3
+	unsigned short save_hitpoints : 1; // offset=50.4
+	unsigned short save_flags : 1; // offset=50.5
+	unsigned short save_anim : 1; // offset=50.6
+	unsigned short semi_transparent : 1; // offset=50.7
+	unsigned short water_creature : 1; // offset=51.0
+	unsigned short using_drawanimating_item : 1; // offset=51.1
+	unsigned short HitEffect : 2; // offset=51.2
+	unsigned short undead : 1; // offset=51.4
+	unsigned short save_mesh : 1; // offset=51.5
+	void(*draw_routine_extra)(); // size=0, offset=52
+	unsigned long explodable_meshbits; // size=0, offset=56
+	unsigned long padfuck; // size=0, offset=60
+};
+
+struct TEXTURE
+{
+	unsigned char u0;
+	unsigned char v0;
+	unsigned short clut;
+	unsigned char u1;
+	unsigned char v1;
+	unsigned short tpage;
+	unsigned char u2;
+	unsigned char v2;
+	unsigned char id[2];
+	unsigned char u3;
+	unsigned char v3;
+	unsigned short wclut;
+};
+
+struct static_info
+{
+	short mesh_number;
+	short flags;
+	short x_minp;
+	short x_maxp;
+	short y_minp;
+	short y_maxp;
+	short z_minp;
+	short z_maxp;
+	short x_minc;
+	short x_maxc;
+	short y_minc;
+	short y_maxc;
+	short z_minc;
+	short z_maxc;
+};
+
+struct PSXTEXTI
+{
+	unsigned char u0;
+	unsigned char v0;
+	unsigned short clut;
+	unsigned char u1;
+	unsigned char v1;
+	unsigned short tpage;
+	unsigned char u2;
+	unsigned char v2;
+	unsigned char codeGT4;
+	unsigned char codeGT3;
+	unsigned char u3;
+	unsigned char v3;
+	unsigned short pad3;
+};
+
+struct VECTOR3D
+{
+	long x;
+	long y;
+	long z;
+};
+
+struct PSXTEXTSTRUCT
+{
+	unsigned long u0v0clut;
+	unsigned long u1v1tpage;
+	unsigned long u2v2pad;
+	unsigned long u3v3pad;
+};
+
+struct PSXSPRITESTRUCT
+{
+	short x1;
+	short y1;
+	short x2;
+	short y2;
+	unsigned short clut;
+	unsigned short tpage;
+	unsigned char u1;
+	unsigned char v1;
+	unsigned char u2;
+	unsigned char v2;
+};
+
+struct MMTEXTURE
+{
+	struct TEXTURE t[3];
+};
+
+struct TSV
+{
+	unsigned long xy;
+	unsigned long rgz;
+};
+
+struct ControllerPacket
+{
+	unsigned char transStatus;
+	unsigned char dataFormat;
+	//struct fake76 data;
+};
+
+struct pad_configs
+{
+	unsigned long pad_L2;
+	unsigned long pad_R2;
+	unsigned long pad_L1;
+	unsigned long pad_R1;
+	unsigned long pad_triangle;
+	unsigned long pad_square; 
+	unsigned long pad_circle;
+	unsigned long pad_cross;
+};
+
+struct GouraudBarColourSet
+{
+	unsigned char abLeftRed[5];
+	unsigned char abLeftGreen[5];
+	unsigned char abLeftBlue[5];
+	unsigned char abRightRed[5];
+	unsigned char abRightGreen[5];
+	unsigned char abRightBlue[5];
+};
+
+struct STASHEDOBJ
+{
+	short clip;
+	short numnodestodraw;
+	struct ITEM_INFO* item;
+	short* frmptr0;
+};
+
+struct STASHEDDAT
+{
+	short* mesh;
+	char matrix[32];
+};
+
+struct WATERTAB
+{
+	char shimmer;
+	char choppy;
+	unsigned char random;
+	unsigned char abs;
+};
+
+struct VIBRATION
+{
+	short Rate;
+	short Len;
+	short Lev;
+	short Acc;
+	short Dec;
+	short Sus;
+	short Flag;
+	short Vib;
+};
+
+struct REQUESTER
+{
+	unsigned short TitleTxt;
+	unsigned short TitleCol : 5;
+	unsigned short nOptions : 3;
+	unsigned short CursorPos : 3;
+	unsigned short OptionCol : 5;
+	unsigned long JustifyL : 5;
+	unsigned long JustifyR : 5;
+	unsigned long Arrows : 5;
+	unsigned long Ignore : 5;
+	unsigned short OptionTxt[5];
+};
+
+struct SCALE
+{
+	short xgrid;
+	char scalefactor;
+	char nummarks;
+};
+
+struct COCKSUCK
+{
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char pad;
+	short finalcnt;
+	short profile_xcnt;
+};
+
+struct PACKEDNAME
+{
+	char Name[12];
+	unsigned char Days;
+	unsigned char Hours;
+	unsigned char Min;
+	unsigned char Sec;
+	unsigned short Slot;
+	unsigned char Level;
+	unsigned char Pad;
+};
+
+#endif
