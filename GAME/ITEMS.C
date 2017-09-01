@@ -182,7 +182,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 		item->flags &= ~IFLAG_INVISIBLE;
 		item->meshswap_meshbits |= 6;
 	}
-	else if ((objects[item->object_number].bite_offset >> 17) & 1)
+	else if (objects[item->object_number].intelligent)
 	{
 		item->meshswap_meshbits |= 6;
 	}

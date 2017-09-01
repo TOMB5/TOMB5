@@ -5,6 +5,13 @@
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "HAIR.H"
+#include "SETUP.H"
+#include "DRAW.H"
+#include <cstddef>
+#include "DELTAPAK.H"
+#include "ITEMS.H"
+#include "CAMERA.H"
+#include "LOT.H"
 
 long wf = 256;
 short next_fx_free;
@@ -120,9 +127,36 @@ void lara_hands_free(struct ITEM_INFO* item)//39A18(<), 39F18(<) (F)
 	return;
 }
 
-void KillActiveBaddies(struct ITEM_INFO* item)//39938, 39E38
+void KillActiveBaddies(struct ITEM_INFO* item)//39938(<), 39E38(<) (F)
 {
-	S_Warn("[KillActiveBaddies] - Unimplemented!\n");
+	struct ITEM_INFO* target_item;
+	short item_num;
+
+	if (next_item_active != -1)
+	{
+		item_num = next_item_active;
+
+		do
+		{
+			target_item = &items[item_num];
+
+			if (objects[target_item->object_number].intelligent)
+			{
+				target_item->status = 3;
+
+				if ((int)item != 0xABCDEF)
+				{
+					RemoveActiveItem(item_num);
+					DisableBaddieAI(item_num);
+					target_item->flags |= IFLAG_INVISIBLE;
+				}
+			}
+
+			item_num = target_item->next_active;
+		} while (item_num != -1);
+	}
+
+	flipeffect = -1;
 }
 
 void ResetTest(struct ITEM_INFO* item)//39738, 39C38
@@ -133,24 +167,36 @@ void ResetTest(struct ITEM_INFO* item)//39738, 39C38
 void LaraLocationPad(struct ITEM_INFO* item)//39710(<), 39C10(<) (F)
 {
 	flipeffect = -1;
+
 	lara.location = TriggerTimer;
 	lara.locationPad = TriggerTimer;
-	return;
 }
 
-void LaraLocation(struct ITEM_INFO* item)//396D0, 39BD0
+void LaraLocation(struct ITEM_INFO* item)//396D0(<), 39BD0(<) (F)
 {
-	S_Warn("[LaraLocation] - Unimplemented!\n");
+	flipeffect = -1;
+
+	lara.location = TriggerTimer;
+	if (lara.highest_location < TriggerTimer)
+		lara.highest_location = TriggerTimer;
 }
 
-void ExplosionFX(struct ITEM_INFO* item)//39694, 39B94
+void ExplosionFX(struct ITEM_INFO* item)//39694(<), 39B94(<) (F)
 {
-	S_Warn("[ExplosionFX] - Unimplemented!\n");
+	SoundEffect(105, NULL, NULL);
+	camera.bounce = -75;
+	flipeffect = -1;
 }
 
-void SwapCrowbar(struct ITEM_INFO* item)//39638, 39B38
+void SwapCrowbar(struct ITEM_INFO* item)//39638(<), 39B38(<) (F)
 {
-	S_Warn("[SwapCrowbar] - Unimplemented!\n");
+	short* tmp = meshes[objects[LARA].mesh_index + 20];
+
+	if (lara.mesh_ptrs[LM_RHAND] == tmp)
+	{
+		lara.mesh_ptrs[LM_RHAND] = meshes[objects[CROWBAR_ANIM].mesh_index + 20];
+	}
+	else lara.mesh_ptrs[LM_RHAND] = tmp;
 }
 
 void ActivateKey(struct ITEM_INFO* item)//39624(<), 39B24(<) (F)
@@ -163,19 +209,34 @@ void ActivateCamera(struct ITEM_INFO* item)//39610(<), 39B10(<) (F)
 	KeyTriggerActive = 2;
 }
 
-void PoseidonSFX(struct ITEM_INFO* item)//395E0, 39AE0
+void PoseidonSFX(struct ITEM_INFO* item)//395E0(<), 39AE0(<) (F)
 {
-	S_Warn("[PoseidonSFX] - Unimplemented!\n");
+	SoundEffect(238, NULL, NULL);
+	flipeffect = -1;
 }
 
-void RubbleFX(struct ITEM_INFO* item)//39534, 39A34
+void RubbleFX(struct ITEM_INFO* item)//39534(<), 39A34(<) (F)
 {
-	S_Warn("[RubbleFX] - Unimplemented!\n");
+	struct ITEM_INFO* eq = find_a_fucking_item(EARTHQUAKE);
+
+	if (eq)
+	{
+		AddActiveItem(eq - items);
+		eq->status = 1;
+		eq->flags |= IFLAG_ACTIVATION_MASK;
+	}
+	else
+	{
+		camera.bounce = -150;
+	}
+
+	flipeffect = -1;
 }
 
-void SoundFlipEffect(struct ITEM_INFO* item)//39500, 39A00
+void SoundFlipEffect(struct ITEM_INFO* item)//39500(<), 39A00(<) (F)
 {
-	S_Warn("[SoundFlipEffect] - Unimplemented!\n");
+	SoundEffect(TriggerTimer, NULL, NULL);
+	flipeffect = -1;
 }
 
 void floor_shake_effect(struct ITEM_INFO* item)//39410, 39910

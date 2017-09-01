@@ -966,7 +966,7 @@ void RemoveRoomFlipItems(struct room_info* r)//1F938(<), 1FB4C(<) (F)
 	{
 		if (items[item_num].flags & 0x100)
 		{
-			if (objects[items[item_num].object_number].bite_offset & 0x20000)
+			if (objects[items[item_num].object_number].intelligent)
 			{
 				if (items[item_num].hit_points <= 0 && items[item_num].hit_points != -16384)
 				{

@@ -913,9 +913,73 @@ void joby4_init()//2F9E4(<), 2FD64(<) (F)
 	return;
 }
 
-void DelTorchFlames(struct PHD_VECTOR* pos)
+void DelTorchFlames(struct PHD_VECTOR* pos)//2F6E4(<), 2FA64(<) (F)
 {
-	S_Warn("[DelTorchFlames] - Unimplemented!\n");
+	long x, y, z, size;
+	struct SPARKS* sptr;
+
+	y = pos->y;
+	z = pos->z;
+	x = pos->x;
+
+	sptr = &spark[GetFreeSpark()];
+	sptr->On = 1;
+	sptr->sR = -1;
+	sptr->sB = 48;
+	sptr->sG = (GetRandomControl() & 0x1F) + 48;
+	sptr->dR = (GetRandomControl() & 0x3F) - 64;
+	sptr->dB = 32;
+	sptr->dG = (GetRandomControl() & 0x3F) + -128;
+	sptr->FadeToBlack = 8;
+	sptr->ColFadeSpeed = (GetRandomControl() & 3) + 16;
+	sptr->TransType = 2;
+	sptr->Life = sptr->sLife = (GetRandomControl() & 7) + 32;
+	sptr->x = x;	
+	sptr->y = y;
+	sptr->z = z;
+	sptr->Xvel = (GetRandomControl() & 0xFF) - 128;
+	sptr->Yvel = -((GetRandomControl() & 0xF) + 16);
+	sptr->Zvel = GetRandomControl() - 128;
+	sptr->Friction = 51;
+	sptr->Gravity = -16 - (GetRandomControl() & 0x1F);
+	sptr->Flags = -32230;
+	sptr->MaxYvel = -16 - (GetRandomControl() & 7);
+	sptr->RotAng = GetRandomControl() & 0xFFF;
+	sptr->Scalar = 2;
+	sptr->RotAdd = (GetRandomControl() & 0x1F) - 16;
+	size = (GetRandomControl() & 0xF) + 16;
+	sptr->sSize = size;
+	sptr->Size = size;
+	sptr->dSize = size >> 4;
+
+	sptr = &spark[GetFreeSpark()];
+	sptr->On = 1;
+	sptr->sR = (GetRandomControl() & 0x3F) - 64;
+	sptr->sG = (GetRandomControl() & 0x3F) - 64;
+	sptr->sB = (GetRandomControl() & 0xF) + 16;
+	sptr->ColFadeSpeed = 8;
+	sptr->FadeToBlack = 8;	
+	sptr->dR = sptr->sR >> 2;
+	sptr->dG = sptr->sG >> 2;
+	sptr->dB = sptr->sB >> 2;
+	sptr->TransType = 2;
+	sptr->Life = sptr->sLife = (GetRandomControl() & 0xF) + 24;
+	sptr->x = (GetRandomControl() & 0x3F) + x - 32;
+	sptr->y = (GetRandomControl() & 0x3F) + y - 32;
+	sptr->Friction = 51;
+	sptr->MaxYvel = 0;
+	sptr->Flags = -32230;
+	sptr->Scalar = 2;
+	sptr->z = (GetRandomControl() & 0x3F) + z - 32;
+	size = (GetRandomControl() & 0xF) + 16;
+	sptr->dSize = size;
+	sptr->sSize = size >> 1;
+	sptr->Size = size >> 1;
+	sptr->Gravity = -((GetRandomControl() & 0x1F) + 16);
+	sptr->Yvel = -22;
+	sptr->Xvel = GetRandomControl() - 128;
+	sptr->Zvel = (GetRandomControl() & 0xFF) - 128;
+	sptr->dSize = sptr->dSize + (sptr->dSize >> 2);
 }
 
 void setup_preist_meshswap()//2F694(<), 2FA14(<) (F)
@@ -1601,7 +1665,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 					//loc_2C600
 					if ((gfLevelFlags & GF_LVOP_TRAIN) != 0)
 					{
-						if ((objects[345].bite_offset & 0x10000) != 0)
+						if (objects[345].loaded)
 						{
 							//if ((objects[0x5670 + 0x121] & 1) != 0)
 							{

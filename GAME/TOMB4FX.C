@@ -202,3 +202,9 @@ long GetFreeSmokeSpark()
 	S_Warn("[GetFreeSmokeSpark] - Unimplemented!\\n");
 	return 0;
 }
+
+long GetFreeSpark()
+{
+	S_Warn("[GetFreeSpark] - Unimplemented!\\n");
+	return 0;
+}
