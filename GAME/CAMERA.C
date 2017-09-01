@@ -12,7 +12,14 @@
 #include "3D_GEN.H"
 
 #include <assert.h>
-#include <math.h>
+
+#if PSXPC_VERSION || PC_VERSION
+	#include <math.h>
+#endif
+
+#if PSX_VERSION
+#include <INLINE_C.H>
+#endif
 
 #include <stddef.h>
 
@@ -182,21 +189,21 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 	//We won't actually use this yet since lara_item is not inited.
 	return;
 	camera.pos.x = lara_item->pos.x_pos;
-	camera.pos.y = lara_item->pos.y_pos - 1024;
+	camera.pos.y = lara_item->pos.y_pos - SECTOR;
 	camera.pos.z = lara_item->pos.z_pos - 100;
 	camera.pos.room_number = lara_item->room_number;
 
 	camera.target.x = lara_item->pos.x_pos;
-	camera.target.y = lara_item->pos.y_pos - 1024;
+	camera.target.y = lara_item->pos.y_pos - SECTOR;
 	camera.target.z = lara_item->pos.z_pos;
 	camera.target.room_number = lara_item->room_number;
 
 	last_target.x = lara_item->pos.x_pos;
-	last_target.y = lara_item->pos.y_pos - 1024;
+	last_target.y = lara_item->pos.y_pos - SECTOR;
 	last_target.z = lara_item->pos.z_pos;
 	last_target.room_number = lara_item->room_number;
 	
-	camera.shift = lara_item->pos.y_pos - 1024;
+	camera.shift = lara_item->pos.y_pos - SECTOR;
 	camera.target_distance = 1536;
 	camera.number_frames = 1;
 	camera.speed = 1;
@@ -220,15 +227,18 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<)
 
 	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
 
+#if PSX_VERSION
+	gte_SetGeomScreen(phd_persp);
+#endif
+
 	return;
 }
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-	//We don't actually use this since lara_item is not inited.
+	//lara_item is not inited.
 	//Also, GetBoundsAccurate is not implemented.
-	return;
-
+#if 0
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -363,7 +373,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 
 	//loc_28040
 	bounds = GetBoundsAccurate(item);
-	y = (item->pos.y_pos + ((bounds[2] + bounds[3]) / 2)) - 256;//$s4
+	y = (item->pos.y_pos + ((bounds[2] + bounds[3]) / 2)) - CLICK;//$s4
 
 	if (camera.item != NULL && fixed_camera == 0)
 	{
@@ -654,6 +664,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	camera.lara_node = -1;
 	camera.last_item = item;
 	camera.item = NULL;
+#endif
 	return;
 }
 

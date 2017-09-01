@@ -63,6 +63,27 @@ static int cdStartSector = 0;
 //Current sector for the gamewad file entry, updated as data is read from disk.
 int cdCurrentSector = 0;
 
+void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
+{
+	S_Warn("[CDDA_SetVolume] - Unimplemented!\n");
+}
+
+void XAReplay()//5D838(<), 5DCB4(<)
+{
+#if 0
+	struct CdlLOC loc;
+	CdIntToPos(XAStartPos, &loc);
+
+	if(CdControl(0x1B, &loc, 0) == 1)
+	{
+		XACurPos = XAStartPos;
+	}
+
+#endif
+
+	return;
+}
+
 void cbvsync()//5D884(<), 5DD00(<)
 {
 	int ret;//$a1
@@ -354,17 +375,6 @@ void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
 	CDDA_SetVolume(nVolume);
 }
 
-void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
-{
-	S_Warn("[CDDA_SetVolume] - Unimplemented!\n");
-}
-
-void XAReplay()//5D838(<), 5DCB4(<)
-{
-	S_Warn("[XAReplay] - unimplemented!\n");
-	return;
-}
-
 /*
 * [FUNCTIONALITY] - CD_InitialiseReaderPosition.
 * GAMEWAD_header is already in the memory at this point, we loaded it during InitNewCDSystem() (See CD.C)
@@ -398,7 +408,7 @@ int CD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<) (F)
 * @PARAM - [fileSize] the number of bytes you wish to read [ptr] the memory location the data is read to.
 */
 
-void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
+void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
 {
 	int i;
 	int numSectorsToRead;
@@ -416,7 +426,7 @@ void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 	{
 		for (i = 0; i < numSectorsToRead; i++)
 		{
-			ptr += fread(ptr, 1, CD_SECTOR_SIZE, fileHandle);
+			pDest += fread(pDest, 1, CD_SECTOR_SIZE, fileHandle);
 		}
 
 		cdCurrentSector += numSectorsToRead;
@@ -425,10 +435,7 @@ void CD_Read(int fileSize/*$s1*/, char* ptr/*$a0*/)//*, 5E414(<) (F)
 	//Another chunk that is not multiple of 2048 bytes exists, read it
 	if ((fileSize & 0x7FF) != 0)//%
 	{
-		ptr += fread(ptr, 1, fileSize - (numSectorsToRead * CD_SECTOR_SIZE), fileHandle);
-
-		fclose(fileHandle);
-
+		pDest += fread(pDest, 1, fileSize - (numSectorsToRead * CD_SECTOR_SIZE), fileHandle);
 		cdCurrentSector++;
 	}
 

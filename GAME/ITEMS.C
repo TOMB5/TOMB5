@@ -8,6 +8,8 @@
 
 #include <stddef.h>
 #include <assert.h>
+#include "EFFECTS.H"
+#include "MALLOC.H"
 
 int level_items;
 short next_item_free;
@@ -16,23 +18,53 @@ short GlobalPulleyFrigItem;
 
 void EffectNewRoom(short fx_num, short room_number)//42320, 42774
 {
-	S_Warn("[EffectNewRoom] - Unimplemented!\\n");
+	S_Warn("[EffectNewRoom] - Unimplemented!\n");
 }
 
 void KillEffect(short fx_num)//42178, 425CC
 {
-	S_Warn("[KillEffect] - Unimplemented!\\n");
+	S_Warn("[KillEffect] - Unimplemented!\n");
 }
 
-short CreateEffect(short room_num)//420E0, 42534
+short CreateEffect(short room_num)//420E0(<), 42534(<) (F)
 {
-	S_Warn("[CreateEffect] - Unimplemented!\\n");
-	return 0;
+	struct room_info* r;
+	struct FX_INFO* fx;
+	short fx_num = next_fx_free;
+
+	if (next_fx_free != -1)
+	{
+		fx = &effects[next_fx_free];
+		next_fx_free = fx->object_number;
+		r = &room[room_num];
+		fx->room_number = room_num;
+		fx->next_fx = r->fx_number;
+		r->fx_number = fx_num;
+		fx->next_active = next_fx_active;
+		next_fx_active = fx_num;
+		fx->shade = WHITE555;
+	}
+
+	return fx_num;
 }
 
-void InitialiseFXArray(int allocmem)//4207C, 424D0
+void InitialiseFXArray(int allocmem)//4207C(<), 424D0(<) (F)
 {
-	S_Warn("[InitialiseFXArray] - Unimplemented!\\n");
+	int i;
+	struct FX_INFO* fx;
+
+	if (allocmem)
+		effects = (struct FX_INFO*)game_malloc(24 * sizeof(struct FX_INFO));
+
+	fx = effects;
+	next_fx_active = -1;
+	next_fx_free = 0;
+	for (i = 1; i <= 24; i++)
+	{
+		fx->next_fx = i++;
+		++fx;
+	}
+	fx->next_fx = -1;
 }
 
 void AddActiveItem(short item_num)//41FEC(<), 42440(<)
@@ -61,7 +93,7 @@ void AddActiveItem(short item_num)//41FEC(<), 42440(<)
 
 void RemoveDrawnItem(short item_num)//41F48, 4239C
 {
-	S_Warn("[RemoveDrawnItem] - Unimplemented!\\n");
+	S_Warn("[RemoveDrawnItem] - Unimplemented!\n");
 }
 
 void RemoveActiveItem(short item_num)//41E98, 422EC
@@ -142,14 +174,16 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->item_flags[1] = 0;
 	item->item_flags[0] = 0;
 
-	item->meshswap_meshbits &= -7;
+	/*item->meshswap_meshbits &= -7;
 	item->meshswap_meshbits &= -2;
 	item->meshswap_meshbits &= -129;
 	item->meshswap_meshbits &= -15873;
 	item->meshswap_meshbits &= -16385;
 	item->meshswap_meshbits &= -65;
 	item->meshswap_meshbits &= -17;
-	item->meshswap_meshbits &= -9;
+	item->meshswap_meshbits &= -9;*/
+
+	item->meshswap_meshbits &= 0xFFFFFFFF;
 
 	item->goal_anim_state = anims[item->anim_number].current_anim_state;
 	item->current_anim_state = anims[item->anim_number].current_anim_state;
@@ -175,19 +209,19 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->fired_weapon = 0;
 	item->data = NULL;
 
-	if ((item->flags & 0x100))
+	if ((item->flags & IFLAG_INVISIBLE))
 	{
-		item->flags &= ~0x100;
+		item->flags &= ~IFLAG_INVISIBLE;
 		item->meshswap_meshbits |= 6;
 	}
-	else if ((objects[item->object_number].bite_offset >> 17) & 1)
+	else if (objects[item->object_number].intelligent)
 	{
 		item->meshswap_meshbits |= 6;
 	}
 
-	if ((item->flags & 0x3E00) == 0x3E00)
+	if ((item->flags & IFLAG_ACTIVATION_MASK) == IFLAG_ACTIVATION_MASK)
 	{
-		item->flags &= ~0x3E00;
+		item->flags &= ~IFLAG_ACTIVATION_MASK;
 		item->flags |= 0x4000;
 		AddActiveItem(item_num);
 		item->meshswap_meshbits &= -7;
@@ -199,7 +233,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->next_item = r->item_number;
 	r->item_number = item_num;
 
-	floor = &r->floor[((item->pos.z_pos - r->z) / 1024) + (((item->pos.x_pos - r->x) / 1024) * r->x_size)];
+	floor = &r->floor[((item->pos.z_pos - r->z) / SECTOR) + (((item->pos.x_pos - r->x) / SECTOR) * r->x_size)];
 
 	item->floor = floor->floor * 256;
 	item->box_number = floor->box;
@@ -249,10 +283,15 @@ void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
 		for (i = level_items + 1; i < numitems; i++, item++)
 		{
 			item->next_item = i;
-			item->meshswap_meshbits &= -2;
+			item->active = 0;
 		}
 	}
 
 	item->next_item = -1;
 	return;
+}
+
+void ItemNewRoom(short item_num, short room_number)
+{
+	S_Warn("[ItemNewRoom] - Unimplemented!\n");
 }

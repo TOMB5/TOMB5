@@ -13,6 +13,8 @@
 #include "TOMB4FX.H"
 
 #include <stdio.h>
+#include "DRAW.H"
+#include "GAMEFLOW.H"
 
 long StoreBoxes = -1;
 struct GAME_VECTOR LaraPos;
@@ -180,14 +182,79 @@ void DrawRooms(short current_room)
 	S_Warn("[DrawRooms] - Unimplemented!\n");
 }
 
-void UpdateSky()
+void UpdateSky()//7CE88(<), 7EECC(<) (F)
 {
-	S_Warn("[UpdateSky] - Unimplemented!\n");
+	if (gfLevelFlags & GF_LVOP_LAYER1_USED)
+	{
+		SkyPos += gfLayer1Vel;
+		if (SkyPos >= 0 && SkyPos <= 9728)
+		{
+			SkyPos += 9728;
+		}
+		else
+		{
+			SkyPos -= 9728;
+		}
+	}
+
+	if (gfLevelFlags & GF_LVOP_LAYER2_USED)
+	{
+		SkyPos2 += gfLayer2Vel;
+		if (SkyPos2 >= 0 && SkyPos2 <= 9728)
+		{
+			SkyPos2 += 9728;
+		}
+		else 
+		{
+			SkyPos2 -= 9728;
+		}
+	}
 }
 
-void mQuickW2VMatrix()
+void mQuickW2VMatrix()//77AEC, 79B30
 {
-	S_Warn("[mQuickW2VMatrix] - Unimplemented!\n");
+	MatrixSP = 0;
+	Matrix = &MatrixStack[0];
+
+	Matrix->m00 = phd_mxptr[1];
+	Matrix->m01 = phd_mxptr[0];
+	Matrix->m02 = phd_mxptr[4];
+	Matrix->m10 = phd_mxptr[2];
+	Matrix->m11 = phd_mxptr[6];
+	Matrix->m12 = phd_mxptr[5];
+	Matrix->m20 = phd_mxptr[9];
+	Matrix->m21 = phd_mxptr[8];
+
+#if 0
+	ctc2	$at, $0
+		ctc2	$a1, $1
+		ctc2	$a3, $2
+		ctc2	$t1, $3
+#endif
+
+		Matrix->m22 = phd_mxptr[10];
+	Matrix->tx = phd_mxptr[3];
+	Matrix->ty = phd_mxptr[7];
+	Matrix->tz = phd_mxptr[11];
+
+#if 0 
+	ctc2	$at, $4
+		ctc2	$v0, $5
+		ctc2	$a1, $6
+		ctc2	$a2, $7
+#endif
+
+	CamGTE.m00 = w2v_matrix[0];
+	CamGTE.m01 = w2v_matrix[1];
+	CamGTE.m02 = w2v_matrix[2];
+
+	CamGTE.m10 = w2v_matrix[4];
+	CamGTE.m11 = w2v_matrix[5];
+	CamGTE.m12 = w2v_matrix[6];
+
+	CamGTE.m20 = w2v_matrix[8];
+	CamGTE.m21 = w2v_matrix[9];
+	CamGTE.m22 = w2v_matrix[10];
 }
 
 void PrintString(long x, long y, char* string)
