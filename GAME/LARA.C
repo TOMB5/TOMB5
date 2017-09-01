@@ -233,13 +233,13 @@ void lara_col_roll(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C2B0, 1C3E4
 
 void lara_col_slideback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C284(<), 1C3B8(<) (F)
 {
-	lara.move_angle = item->pos.y_rot - (180 * TRDEG);
+	lara.move_angle = item->pos.y_rot - ANGLE(180);
 	lara_slide_slope(item, coll);
 }
 
 void lara_col_fallback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C1B4(<), 1C2E8(<) (F)
 {
-	lara.move_angle = item->pos.y_rot -(180 * TRDEG);
+	lara.move_angle = item->pos.y_rot - ANGLE(180);
 
 	coll->bad_pos = 32512;
 	coll->bad_neg = -384;
@@ -265,19 +265,19 @@ void lara_col_fallback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C1B4(<)
 
 void lara_col_leftjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C188(<), 1C2BC(<) (F)
 {
-	lara.move_angle = item->pos.y_rot - (90 * TRDEG);
+	lara.move_angle = item->pos.y_rot - ANGLE(90);
 	lara_col_jumper(item, coll);
 }
 
 void lara_col_rightjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C15C(<), 1C290(<) (F)
 {
-	lara.move_angle = item->pos.y_rot + (90 * TRDEG);
+	lara.move_angle = item->pos.y_rot + ANGLE(90);
 	lara_col_jumper(item, coll);
 }
 
 void lara_col_backjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C130(<), 1C264(<) (F)
 {
-	lara.move_angle = item->pos.y_rot - (180 * TRDEG);
+	lara.move_angle = item->pos.y_rot - ANGLE(180);
 	lara_col_jumper(item, coll);
 }
 
@@ -396,7 +396,7 @@ void lara_col_turnswitch(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B1B4(
 	{
 		if (item->anim_number == ANIMATION_LARA_ROUND_HANDLE_PUSH_LEFT_CONTINUE)
 		{
-			item->pos.y_rot -= (90 * TRDEG);
+			item->pos.y_rot -= ANGLE(90);
 
 			item->anim_number = ANIMATION_LARA_ROUND_HANDLE_PUSH_LEFT_END;
 			item->frame_number = anims[ANIMATION_LARA_ROUND_HANDLE_PUSH_LEFT_END].frame_base;
@@ -404,7 +404,7 @@ void lara_col_turnswitch(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B1B4(
 
 		if (item->anim_number == ANIMATION_LARA_ROUND_HANDLE_PUSH_RIGHT_CONTINUE)
 		{
-			item->pos.y_rot += (90 * TRDEG);
+			item->pos.y_rot += ANGLE(90);
 
 			item->anim_number = ANIMATION_LARA_ROUND_HANDLE_PUSH_RIGHT_END;
 			item->frame_number = anims[ANIMATION_LARA_ROUND_HANDLE_PUSH_RIGHT_END].frame_base;
@@ -475,8 +475,8 @@ void lara_as_swandive(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AE08(<),
 void lara_as_special(struct ITEM_INFO* item, struct COLL_INFO* coll)//1ADDC(<), 1AF10(<) (F)
 {
 	camera.flags = 1;
-	camera.target_angle = 170 * TRDEG;
-	camera.target_elevation = -25 * TRDEG;
+	camera.target_angle = ANGLE(170);
+	camera.target_elevation = ANGLE(-25);
 }
 
 void lara_as_usepuzzle(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AD18(<), 1AE4C(<) (F)
@@ -486,9 +486,9 @@ void lara_as_usepuzzle(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AD18(<)
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
 
-	camera.target_angle = -(80 * TRDEG);
-	camera.target_elevation = -(25 * TRDEG);
-	camera.target_distance = 1024;
+	camera.target_angle = ANGLE(-80);
+	camera.target_elevation = ANGLE(-25);
+	camera.target_distance = SECTOR;
 
 	if (item->frame_number == anims[item->anim_number].frame_end)
 	{
@@ -506,9 +506,9 @@ void lara_as_usekey(struct ITEM_INFO* item, struct COLL_INFO* coll)//1ACBC(<), 1
 	lara.look = 0;
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_angle = -(80 * TRDEG);
+	camera.target_angle = ANGLE(-80);
 	camera.target_elevation = -4550;
-	camera.target_distance = 1024;
+	camera.target_distance = SECTOR;
 }
 
 void lara_as_switchoff(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AC54(<), 1AD88(<) (F)
@@ -516,9 +516,9 @@ void lara_as_switchoff(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AC54(<)
 	lara.look = 0;
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_angle = (80 * TRDEG);
-	camera.target_elevation = -(25 * TRDEG);
-	camera.target_distance = 1024;
+	camera.target_angle = ANGLE(80);
+	camera.target_elevation = ANGLE(-25);
+	camera.target_distance = SECTOR;
 	camera.speed = 6;
 }
 
@@ -527,9 +527,9 @@ void lara_as_switchon(struct ITEM_INFO* item, struct COLL_INFO* coll)//1ABEC(<),
 	lara.look = 0;
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_angle = (80 * TRDEG);
-	camera.target_elevation = -(25 * TRDEG);
-	camera.target_distance = 1024;
+	camera.target_angle = ANGLE(80);
+	camera.target_elevation = ANGLE(-25);
+	camera.target_distance = SECTOR;
 	camera.speed = 6;
 }
 
@@ -538,9 +538,9 @@ void lara_as_pickupflare(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB5C(
 	lara.look = 0;
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_angle = (130 * TRDEG);
-	camera.target_elevation = -(15 * TRDEG);
-	camera.target_distance = 1024;
+	camera.target_angle = ANGLE(130);
+	camera.target_elevation = ANGLE(-15);
+	camera.target_distance = SECTOR;
 	if (item->frame_number = anims[item->anim_number].frame_end - 1)
 		lara.gun_status = 0;
 }
@@ -550,16 +550,16 @@ void lara_as_pickup(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB00(<), 1
 	lara.look = 0;
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_angle = -(130 * TRDEG);
-	camera.target_elevation = -(15 * TRDEG);
-	camera.target_distance = 1024;
+	camera.target_angle = ANGLE(-130);
+	camera.target_elevation = ANGLE(-15);
+	camera.target_distance = SECTOR;
 }
 
 void lara_as_ppready(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AABC(<), 1ABF0(<) (F)
 {
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.target_angle = 75 * TRDEG;
+	camera.target_angle = ANGLE(75);
 	if(!(input & IN_ACTION))
 		item->goal_anim_state = STATE_LARA_STOP;
 }
@@ -570,7 +570,7 @@ void lara_as_pullblock(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AA60(<)
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
 	camera.flags = 1;
-	camera.target_angle = (35 * TRDEG);
+	camera.target_angle = ANGLE(35);
 	camera.target_elevation = -4550;
 }
 
@@ -580,7 +580,7 @@ void lara_as_pushblock(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AA04(<)
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
 	camera.flags = 1;
-	camera.target_angle = (90 * TRDEG);
+	camera.target_angle = ANGLE(90);
 	camera.target_elevation = -4550;
 }
 
@@ -638,7 +638,7 @@ void lara_as_rightjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A8C4(<)
 
 void lara_as_backjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A854(<), 1A988(<) (F)
 {
-	camera.target_angle = (135 * TRDEG);
+	camera.target_angle = ANGLE(135);
 	if(item->fallspeed <= LARA_FREEFALL_SPEED)
 	{
 		if(item->goal_anim_state == STATE_LARA_RUN_FORWARD)
@@ -809,8 +809,8 @@ void lara_as_splat(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A340(<), 1A
 void lara_as_intcornerr(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A2EC(<), 1A420(<) (F)
 {
 	camera.lara_node = 8;
-	camera.target_elevation = 33 * TRDEG;
-	SetCornerAnim(item, coll, (90 * TRDEG),
+	camera.target_elevation = ANGLE(33);
+	SetCornerAnim(item, coll, ANGLE(90),
 		item->anim_number == ANIMATION_LARA_HANG_AROUND_RIGHT_INNER_END ||
 		item->anim_number == ANIMATION_LARA_LADDER_AROUND_RIGHT_INNER_END);
 }
@@ -818,8 +818,8 @@ void lara_as_intcornerr(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A2EC(<
 void lara_as_intcornerl(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A298(<), 1A3CC(<) (F)
 {
 	camera.lara_node = 8;
-	camera.target_elevation = 33 * TRDEG;
-	SetCornerAnim(item, coll, -(90 * TRDEG),
+	camera.target_elevation = ANGLE(33);
+	SetCornerAnim(item, coll, ANGLE(-90),
 		item->anim_number == ANIMATION_LARA_HANG_AROUND_LEFT_INNER_END ||
 		item->anim_number == ANIMATION_LARA_LADDER_AROUND_LEFT_INNER_END);
 }
@@ -827,8 +827,8 @@ void lara_as_intcornerl(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A298(<
 void lara_as_extcornerr(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A244(<), 1A378(<) (F)
 {
 	camera.lara_node = 8;
-	camera.target_elevation = 33 * TRDEG;
-	SetCornerAnim(item, coll, -(90 * TRDEG),
+	camera.target_elevation = ANGLE(33);
+	SetCornerAnim(item, coll, ANGLE(-90),
 		item->anim_number == ANIMATION_LARA_HANG_AROUND_RIGHT_OUTER_END ||
 		item->anim_number == ANIMATION_LARA_LADDER_AROUND_RIGHT_OUTER_END);
 }
@@ -836,8 +836,8 @@ void lara_as_extcornerr(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A244(<
 void lara_as_extcornerl(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A1F0(<), 1A324(<) (F)
 {
 	camera.lara_node = 8;
-	camera.target_elevation = 33 * TRDEG;
-	SetCornerAnim(item, coll, (90 * TRDEG), 
+	camera.target_elevation = ANGLE(33);
+	SetCornerAnim(item, coll, ANGLE(90), 
 		item->anim_number == ANIMATION_LARA_HANG_AROUND_LEFT_OUTER_END || 
 		item->anim_number == ANIMATION_LARA_LADDER_AROUND_LEFT_OUTER_END);
 }
@@ -849,10 +849,10 @@ void SetCornerAnim(struct ITEM_INFO* item, struct COLL_INFO* coll, short rot, sh
 
 void lara_col_hangright(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A038(<), 1A16C(<) (F)
 {
-	lara.move_angle = item->pos.y_rot + (90 * TRDEG);
+	lara.move_angle = item->pos.y_rot + ANGLE(90);
 	coll->radius = 102;
 	LaraHangTest(item, coll);
-	lara.move_angle = item->pos.y_rot + (90 * TRDEG);
+	lara.move_angle = item->pos.y_rot + ANGLE(90);
 }
 
 void lara_as_hangright(struct ITEM_INFO* item, struct COLL_INFO* coll)//19FEC(<), 1A120(<) (F)
@@ -860,17 +860,17 @@ void lara_as_hangright(struct ITEM_INFO* item, struct COLL_INFO* coll)//19FEC(<)
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
 	camera.target_angle = 0;
-	camera.target_elevation = -(45 * TRDEG);
+	camera.target_elevation = ANGLE(-45);
 	if (!(input & (IN_RIGHT | IN_RSTEP)))
 		item->goal_anim_state = STATE_LARA_HANG;
 }
 
 void lara_col_hangleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//19F94(<), 1A0C8(<) (F)
 {
-	lara.move_angle = item->pos.y_rot - (90 * TRDEG);
+	lara.move_angle = item->pos.y_rot - ANGLE(90);
 	coll->radius = 102;
 	LaraHangTest(item, coll);
-	lara.move_angle = item->pos.y_rot - (90 * TRDEG);
+	lara.move_angle = item->pos.y_rot - ANGLE(90);
 }
 
 void lara_as_hangleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//19F48(<), 1A07C(<) (F)
@@ -878,7 +878,7 @@ void lara_as_hangleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//19F48(<),
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
 	camera.target_angle = 0;
-	camera.target_elevation = -(45 * TRDEG);
+	camera.target_elevation = ANGLE(-45);
 	if (!(input & (IN_LEFT | IN_LSTEP)))
 		item->goal_anim_state = STATE_LARA_HANG;
 }
@@ -900,7 +900,7 @@ void lara_as_hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//19A28, 19B5C
 		coll->enable_spaz = 0;
 
 		camera.target_angle = 0;
-		camera.target_elevation = -(45 * TRDEG);
+		camera.target_elevation = ANGLE(-45);
 	}
 	else
 	{
@@ -935,7 +935,7 @@ void lara_as_death(struct ITEM_INFO* item, struct COLL_INFO* coll)//19830(<), 19
 	{
 		BinocularRange = 0;
 		LaserSight = 0;
-		AlterFOV((80 * TRDEG));
+		AlterFOV(ANGLE(80));
 		lara_item->mesh_bits = -1;
 		lara.Busy = 0;
 	}
@@ -1110,7 +1110,7 @@ void lara_col_reach(struct ITEM_INFO* item, struct COLL_INFO* coll)//18D0C, 18E4
 
 void lara_as_reach(struct ITEM_INFO* item, struct COLL_INFO* coll)//18CE0(<), 18E14(<) (F)
 {
-	camera.target_angle = 85 * TRDEG;
+	camera.target_angle = ANGLE(85);
 	if (item->fallspeed > LARA_FREEFALL_SPEED)
 		item->goal_anim_state = STATE_LARA_FREEFALL;
 }
@@ -1187,7 +1187,7 @@ void lara_as_climbrope(struct ITEM_INFO* item, struct COLL_INFO* coll)//17D9C(<)
 	}
 	else
 	{
-		camera.target_angle = (30 * TRDEG);
+		camera.target_angle = ANGLE(30);
 		
 		if(anims[item->anim_number].frame_end == item->frame_number)
 		{
@@ -1300,7 +1300,7 @@ void lara_col_poleup(struct ITEM_INFO* item, struct COLL_INFO* coll)//170D8(<), 
 
 	if (item->pos.y_pos - 
 		GetCeiling(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_num),
-		item->pos.x_pos, item->pos.y_pos, item->pos.z_pos) < 1024)
+		item->pos.x_pos, item->pos.y_pos, item->pos.z_pos) < SECTOR)
 		item->goal_anim_state = STATE_LARA_POLE_IDLE;
 }
 
@@ -1347,7 +1347,7 @@ void lara_as_hangturnr(struct ITEM_INFO* item, struct COLL_INFO* coll)//16D64(<)
 		|| (camera.target_elevation = 1820, 
 			lara.torso_y_rot = 0, 
 			lara.torso_x_rot = 0, 
-			item->pos.y_rot += (1.5 * TRDEG), 
+			item->pos.y_rot += ANGLE(1.5), 
 			!(input & IN_RIGHT)))
 	{
 		item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
@@ -1383,7 +1383,7 @@ void lara_as_hangturnl(struct ITEM_INFO* item, struct COLL_INFO* coll)//16C40(<)
 		|| (camera.target_elevation = 1820, 
 			lara.torso_y_rot = 0,
 			lara.torso_x_rot = 0, 
-			item->pos.y_rot -= (1.5 * TRDEG), 
+			item->pos.y_rot -= ANGLE(1.5), 
 			!(input & IN_LEFT)))
 	{
 		item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
@@ -1425,12 +1425,12 @@ void lara_as_monkeyr(struct ITEM_INFO* item, struct COLL_INFO* coll)//16B24(<), 
 		if (input & IN_RSTEP)
 		{
 			item->goal_anim_state = STATE_LARA_MONKEYSWING_RIGHT;
-			camera.target_elevation = (10 * TRDEG);
+			camera.target_elevation = ANGLE(10);
 		}
 		else
 		{
 			item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
-			camera.target_elevation = (10 * TRDEG);
+			camera.target_elevation = ANGLE(10);
 		}
 	}
 	else
@@ -1474,12 +1474,12 @@ void lara_as_monkeyl(struct ITEM_INFO* item, struct COLL_INFO* coll)//16A0C(<), 
 		if (input & IN_LSTEP)
 		{
 			item->goal_anim_state = STATE_LARA_MONKEYSWING_LEFT;
-			camera.target_elevation = (10 * TRDEG);
+			camera.target_elevation = ANGLE(10);
 		}
 		else
 		{
 			item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
-			camera.target_elevation = (10 * TRDEG);
+			camera.target_elevation = ANGLE(10);
 		}
 	}
 	else
@@ -1519,7 +1519,7 @@ void lara_as_hang2(struct ITEM_INFO* item, struct COLL_INFO* coll)//1630C(<), 16
 				MonkeySwingFall(item);
 
 			camera.target_angle = 0;
-			camera.target_elevation = -(45 * TRDEG);
+			camera.target_elevation = ANGLE(-45);
 		}
 
 		if (input & IN_LOOK)
@@ -1537,7 +1537,7 @@ short TestMonkeyRight(struct ITEM_INFO* item, struct COLL_INFO* coll)//161EC(<),
 	coll->bad_pos = 32512;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 0;
-	lara.move_angle = item->pos.y_rot + (90 * TRDEG);
+	lara.move_angle = item->pos.y_rot + ANGLE(90);
 	coll->slopes_are_walls = 0;
 	coll->facing = lara.move_angle;
 	coll->radius = 100;
@@ -1551,10 +1551,10 @@ short TestMonkeyRight(struct ITEM_INFO* item, struct COLL_INFO* coll)//161EC(<),
 	{
 		if (oct != 1)
 			return 1;
-		if (coll->coll_type != 1 && coll->coll_type != 4 && coll->coll_type != 2)
+		if (coll->coll_type != CT_FRONT && coll->coll_type != CT_RIGHT && coll->coll_type != CT_LEFT)
 			return 1;
 	}
-	else if(coll->coll_type != 1)
+	else if(coll->coll_type != CT_FRONT)
 	{
 		return 1;
 	}
@@ -1568,7 +1568,7 @@ short TestMonkeyLeft(struct ITEM_INFO* item, struct COLL_INFO* coll)//160CC(<), 
 	coll->bad_pos = 32512;
 	coll->bad_neg = -32512;
 	coll->bad_ceiling = 0;
-	lara.move_angle = item->pos.y_rot - (90 * TRDEG);
+	lara.move_angle = item->pos.y_rot - ANGLE(90);
 	coll->slopes_are_walls = 0;
 	coll->facing = lara.move_angle;
 	coll->radius = 100;
@@ -1582,12 +1582,12 @@ short TestMonkeyLeft(struct ITEM_INFO* item, struct COLL_INFO* coll)//160CC(<), 
 	{
 		if (oct != 1)
 			return 1;
-		if (coll->coll_type != 4 && coll->coll_type != 2)
+		if (coll->coll_type != CT_RIGHT && coll->coll_type != CT_LEFT)
 			return 1;
 	}
 	else
 	{
-		if (coll->coll_type != 1 && coll->coll_type != 2)
+		if (coll->coll_type != CT_FRONT && coll->coll_type != CT_LEFT)
 			return 1;
 	}
 
@@ -1596,7 +1596,7 @@ short TestMonkeyLeft(struct ITEM_INFO* item, struct COLL_INFO* coll)//160CC(<), 
 
 short GetDirOctant(long rot)//160B4(<), 161E8(<) (F)
 {
-	return ABS(rot) >= (45 * TRDEG) && ABS(rot) <= (135 * TRDEG);
+	return ABS(rot) >= ANGLE(45) && ABS(rot) <= ANGLE(135);
 }
 
 void MonkeySwingSnap(struct ITEM_INFO* item, struct COLL_INFO* coll)//1605C(<), 16190(<) (F)
@@ -1670,8 +1670,8 @@ void lara_as_all4turnr(struct ITEM_INFO* item, struct COLL_INFO* coll)//15484(<)
 			coll->enable_baddie_push = 1,
 			lara.torso_y_rot = 0,
 			lara.torso_x_rot = 0,
-			camera.target_elevation = -23 * TRDEG,
-			item->pos.y_rot += (1.5 * TRDEG),
+			camera.target_elevation = ANGLE(-23),
+			item->pos.y_rot += ANGLE(1.5),
 			!(input & IN_RIGHT)))
 	{
 		item->goal_anim_state = STATE_LARA_CRAWL_IDLE;
@@ -1690,8 +1690,8 @@ void lara_as_all4turnl(struct ITEM_INFO* item, struct COLL_INFO* coll)//15390(<)
 			coll->enable_baddie_push = 1,
 			lara.torso_y_rot = 0,
 			lara.torso_x_rot = 0,
-			camera.target_elevation = -23 * TRDEG,
-			item->pos.y_rot -= (1.5 * TRDEG),
+			camera.target_elevation = ANGLE(-23),
+			item->pos.y_rot -= ANGLE(1.5),
 			!(input & IN_LEFT)))
 	{
 		item->goal_anim_state = STATE_LARA_CRAWL_IDLE;
@@ -1738,7 +1738,7 @@ void lara_as_duckr(struct ITEM_INFO* item, struct COLL_INFO* coll)//144E0(<), 14
 	coll->enable_spaz = 0;
 	if ((input & 0x20000004) != 0x20000004 || item->hit_points <= 0)
 		item->goal_anim_state = STATE_LARA_CROUCH_IDLE;
-	item->pos.y_rot += (1.5 * TRDEG);
+	item->pos.y_rot += ANGLE(1.5);
 }
 
 void lara_as_duckl(struct ITEM_INFO* item, struct COLL_INFO* coll)//1448C(<), 1453C(<) (F)
@@ -1746,7 +1746,7 @@ void lara_as_duckl(struct ITEM_INFO* item, struct COLL_INFO* coll)//1448C(<), 14
 	coll->enable_spaz = 0;
 	if ((input & 0x20000004) != 0x20000004 || item->hit_points <= 0)
 		item->goal_anim_state = STATE_LARA_CROUCH_IDLE;
-	item->pos.y_rot -= (1.5 * TRDEG);
+	item->pos.y_rot -= ANGLE(1.5);
 }
 
 void LaraAboveWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//14228, 142D8
@@ -1874,7 +1874,7 @@ int LaraDeflectEdgeDuck(struct ITEM_INFO* item, struct COLL_INFO* coll)//11DC0, 
 
 int LaraDeflectEdge(struct ITEM_INFO* item, struct COLL_INFO* coll)//11D18(<), 11DC8(<) (F)
 {
-	if (coll->coll_type == 1 || coll->coll_type == 16)
+	if (coll->coll_type == CT_FRONT || coll->coll_type == CT_TOP_FRONT)
 	{
 		ShiftItem(item, coll);
 
@@ -1884,18 +1884,18 @@ int LaraDeflectEdge(struct ITEM_INFO* item, struct COLL_INFO* coll)//11D18(<), 1
 
 		return 1;
 	}
-	else if (coll->coll_type == 2)
+	else if (coll->coll_type == CT_LEFT)
 	{
 		ShiftItem(item, coll);
-		item->pos.y_rot += (5 * TRDEG);
+		item->pos.y_rot += ANGLE(5);
 		return 0;
 	}
 	else
 	{
-		if (coll->coll_type == 4)
+		if (coll->coll_type == CT_RIGHT)
 		{
 			ShiftItem(item, coll);
-			item->pos.y_rot -= (5 * TRDEG);
+			item->pos.y_rot -= ANGLE(5);
 		}
 		return 0;
 	}
@@ -1903,7 +1903,7 @@ int LaraDeflectEdge(struct ITEM_INFO* item, struct COLL_INFO* coll)//11D18(<), 1
 
 int LaraHitCeiling(struct ITEM_INFO* item, struct COLL_INFO* coll)//11C94, 11D44
 {
-	if (coll->coll_type == 8 || coll->coll_type == 32)
+	if (coll->coll_type == CT_TOP || coll->coll_type == CT_CLAMP)
 	{
 		item->pos.x_pos = coll->old.x;
 		item->pos.y_pos = coll->old.y;

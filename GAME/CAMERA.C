@@ -189,21 +189,21 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 	//We won't actually use this yet since lara_item is not inited.
 	return;
 	camera.pos.x = lara_item->pos.x_pos;
-	camera.pos.y = lara_item->pos.y_pos - 1024;
+	camera.pos.y = lara_item->pos.y_pos - SECTOR;
 	camera.pos.z = lara_item->pos.z_pos - 100;
 	camera.pos.room_number = lara_item->room_number;
 
 	camera.target.x = lara_item->pos.x_pos;
-	camera.target.y = lara_item->pos.y_pos - 1024;
+	camera.target.y = lara_item->pos.y_pos - SECTOR;
 	camera.target.z = lara_item->pos.z_pos;
 	camera.target.room_number = lara_item->room_number;
 
 	last_target.x = lara_item->pos.x_pos;
-	last_target.y = lara_item->pos.y_pos - 1024;
+	last_target.y = lara_item->pos.y_pos - SECTOR;
 	last_target.z = lara_item->pos.z_pos;
 	last_target.room_number = lara_item->room_number;
 	
-	camera.shift = lara_item->pos.y_pos - 1024;
+	camera.shift = lara_item->pos.y_pos - SECTOR;
 	camera.target_distance = 1536;
 	camera.number_frames = 1;
 	camera.speed = 1;
@@ -373,7 +373,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 
 	//loc_28040
 	bounds = GetBoundsAccurate(item);
-	y = (item->pos.y_pos + ((bounds[2] + bounds[3]) / 2)) - 256;//$s4
+	y = (item->pos.y_pos + ((bounds[2] + bounds[3]) / 2)) - CLICK;//$s4
 
 	if (camera.item != NULL && fixed_camera == 0)
 	{

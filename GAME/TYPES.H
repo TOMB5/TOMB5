@@ -8,9 +8,15 @@
 #endif
 
 // (65536 / 360) ~ 182.0444...
-#define TRDEG (65536.0/360)
+//#define TRDEG (65536.0/360)
+#define ANGLE(x) ((x) * 65536.0 / 360.0)
 
 #define RGB555(r, g, b) (((r) << 10) | ((g) << 5) | (b))
+
+#define SECTOR 1024
+#define CLICK 256
+
+#define SECTOR_TO_WORLD(S) ((S) > (0) ? ((S * SECTOR) + (SECTOR / 2)) : (0))
 
 #define WHITE555 RGB555(16, 16, 16)
 #define BLACK555 RGB555( 0,  0,  0)

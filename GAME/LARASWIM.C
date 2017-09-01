@@ -78,12 +78,12 @@ void lara_as_uwdeath(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C884(<), 
 	if (item->fallspeed <= 0)
 		item->fallspeed = 0;
 
-	if(item->pos.x_rot < -(2 * TRDEG) || item->pos.x_rot > (2 * TRDEG))
+	if(item->pos.x_rot < ANGLE(-2) || item->pos.x_rot > ANGLE(2))
 	{
 		if (item->pos.x_rot >= 0)
-			item->pos.x_rot -= (2 * TRDEG);
+			item->pos.x_rot -= ANGLE(2);
 		else
-			item->pos.x_rot += (2 * TRDEG);
+			item->pos.x_rot += ANGLE(2);
 	}
 	else
 	{
@@ -95,7 +95,7 @@ void lara_as_dive(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C854, 4CCB8
 {
 	if (input & IN_UP)
 	{
-		item->pos.x_rot -= TRDEG;
+		item->pos.x_rot -= ANGLE(1);
 	}
 }
 

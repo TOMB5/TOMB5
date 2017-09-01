@@ -291,9 +291,6 @@ int cutseq_malloc_free;
 unsigned short old_lara_holster;
 short temp_rotation_buffer[160];
 
-#define WORLD_UNITS_PER_SECTOR 1024
-#define SECTOR_TO_WORLD(S) ((S) > (0) ? ((S * WORLD_UNITS_PER_SECTOR) + (WORLD_UNITS_PER_SECTOR / 2)) : (0))
-
 #if INTERNAL
 	#define CD_PLAY_MODE 1
 #else

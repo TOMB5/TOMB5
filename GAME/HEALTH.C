@@ -65,7 +65,7 @@ void DrawGameInfo(int timed)///TODO jr ra retail
 
 	if (GLOBAL_playing_cutseq == 0 || bDisableLaraControl == 0)
 	{
-		sprintf(sbuf, "Room:%d X:%d Y:%d Z:%d", lara_item->room_number, (lara_item->pos.x_pos - room[lara_item->room_number].x) / 1024, (lara_item->pos.y_pos - room[lara_item->room_number].minfloor) / 256, (lara_item->pos.z_pos - room[lara_item->room_number].z) / 1024);
+		sprintf(sbuf, "Room:%d X:%d Y:%d Z:%d", lara_item->room_number, (lara_item->pos.x_pos - room[lara_item->room_number].x) / SECTOR, (lara_item->pos.y_pos - room[lara_item->room_number].minfloor) / CLICK, (lara_item->pos.z_pos - room[lara_item->room_number].z) / SECTOR);
 		PrintString(256, 24, sbuf);
 
 		if (gfGameMode == 1)
