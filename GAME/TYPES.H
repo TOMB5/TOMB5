@@ -8,39 +8,20 @@
 #endif
 
 // (65536 / 360) ~ 182.0444...
-#define TRDEGREE (65536.0/360)
-// actually 273.0666...
-#define ANGLE1P5 273
-// actually 364.0888...
-#define ANGLE2 364
-// actually 546.1333...
-#define ANGLE3 546
-// actually 728.1777...
-#define ANGLE4 728
-// actually 910.222...
-#define ANGLE5 910
-// actually 1820.444...
-#define ANGLE10 1820
-// actually 2730.666...
-#define ANGLE15 2731
-// actually 4551.111...
-#define ANGLE25 4551
-// actually 5461.333...
-#define ANGLE30 5461 
-// actually 6371.555...
-#define ANGLE35 6372 
-#define ANGLE45 8192
-// actually 14563.555...
-#define ANGLE80 14564
-#define ANGLE90 16384
-// actually 23665.777...
-#define ANGLE130 23666
-#define ANGLE135 24576
-#define ANGLE180 32768
-#define ANGLE225 40960
-#define ANGLE270 49152
-#define ANGLE360 65536
+//#define TRDEG (65536.0/360)
+#define ANGLE(x) ((x) * 65536.0 / 360.0)
 
+#define RGB555(r, g, b) (((r) << 10) | ((g) << 5) | (b))
+
+#define SECTOR 1024
+#define CLICK 256
+
+#define SECTOR_TO_WORLD(S) ((S) > (0) ? ((S * SECTOR) + (SECTOR / 2)) : (0))
+
+#define WHITE555 RGB555(16, 16, 16)
+#define BLACK555 RGB555( 0,  0,  0)
+
+#define PSXENGINE (PSXPC_VERSION || PSX_VERSION)
 
 // 4 enums
 enum mood_type

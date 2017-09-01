@@ -29,12 +29,12 @@ void ready_flare()//4A3E4(<), 4A848(<) (F)
 
 void undraw_flare_meshes()//4A3BC, 4A820
 {
-	lara.mesh_ptrs[13] = meshes[objects[LARA].mesh_index + 0x68];
+	lara.mesh_ptrs[LM_LHAND] = meshes[objects[LARA].mesh_index + 0x68];
 }
 
 void draw_flare_meshes()//4A394(<), 4A7F8(<) (F)
 {
-	lara.mesh_ptrs[13] = meshes[objects[FLARE_ANIM].mesh_index + 0x68];
+	lara.mesh_ptrs[LM_LHAND] = meshes[objects[FLARE_ANIM].mesh_index + 0x68];
 }
 
 void undraw_flare()//4A108, 4A56C

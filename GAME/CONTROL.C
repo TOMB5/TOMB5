@@ -891,7 +891,7 @@ void NeatAndTidyTriggerCutscene(int value, int timer)
 	S_Warn("[NeatAndTidyTriggerCutscene] - Unimplemented!\n");
 }
 
-int CheckCutPlayed(int num)//20E34, 21040
+int CheckCutPlayed(int num)//20E34(<), 21040(<) (F)
 {
 	if (num < 32)
 		return _CutSceneTriggered1 & (1 << num);
@@ -899,14 +899,20 @@ int CheckCutPlayed(int num)//20E34, 21040
 		return _CutSceneTriggered2 & (1 << (num - 32));
 }
 
-void SetCutNotPlayed(int num)
+void SetCutNotPlayed(int num)//20DEC(<), 20FF8(<) (F)
 {
-	S_Warn("[SetCutNotPlayed] - Unimplemented!\n");
+	if (num < 32)
+		_CutSceneTriggered1 &= ~(1 << num);
+	else
+		_CutSceneTriggered2 &= ~(1 << (num - 32));
 }
 
-void SetCutPlayed(int num)
+void SetCutPlayed(int num)//20DA0(<), 20FAC(<) (F)
 {
-	S_Warn("[SetCutPlayed] - Unimplemented!\n");
+	if (num < 32)
+		_CutSceneTriggered1 |= 1 << num;
+	else
+		_CutSceneTriggered2 |= 1 << (num - 32);
 }
 
 void InitCutPlayed()//20D90, 20F9C
@@ -966,7 +972,7 @@ void RemoveRoomFlipItems(struct room_info* r)//1F938(<), 1FB4C(<) (F)
 	{
 		if (items[item_num].flags & 0x100)
 		{
-			if (objects[items[item_num].object_number].bite_offset & 0x20000)
+			if (objects[items[item_num].object_number].intelligent)
 			{
 				if (items[item_num].hit_points <= 0 && items[item_num].hit_points != -16384)
 				{
@@ -1038,14 +1044,20 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 			switch (items[item_num].object_number)
 			{
 			case RAISING_BLOCK1:
-				AlterFloorHeight(&items[item_num], -1024);
+				AlterFloorHeight(&items[item_num], -SECTOR);
 				break;
 
 			case RAISING_BLOCK2:
-				AlterFloorHeight(&items[item_num], -2048);
+				AlterFloorHeight(&items[item_num], -2 * SECTOR);
 				break;
 			}
 		}
 	}
 }
+
+void IsRoomOutside(long x, long y, long z)
+{
+	S_Warn("[IsRoomOutside] - Unimplemented!\n");
+}
+
 

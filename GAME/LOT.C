@@ -1,6 +1,8 @@
 #include "LOT.H"
 
 #include "SPECIFIC.H"
+#include "malloc.h"
+#include "BOX.H"
 
 int slots_used;
 short nAIObjects;
@@ -176,7 +178,22 @@ void DisableBaddieAI(short item_num)//4DEC0, 4E324
 	S_Warn("[DisableBaddieAI] - Unimplemented!\n");
 }
 
-void InitialiseLOTarray(int allocmem)//4DE40, 4E2A4
+void InitialiseLOTarray(int allocmem)//4DE40(<), 4E2A4(<) (F)
 {
-	S_Warn("[InitialiseLOTarray] - Unimplemented!\n");
+	int i;
+
+	if (allocmem)
+		baddie_slots = (struct creature_info *)game_malloc(5 * sizeof(struct creature_info));
+	
+	for (i = 0; i < 5; i++)
+	{
+		baddie_slots[i].item_num = -1;
+
+		if (allocmem)
+		{
+			baddie_slots[i].LOT.node = (struct box_node*)game_malloc(number_boxes * sizeof(struct box_node));
+		}
+	}
+
+	slots_used = 0;
 }

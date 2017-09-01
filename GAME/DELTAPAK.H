@@ -3,6 +3,13 @@
 
 #include "SPECTYPES.H"
 
+enum cutseq_pistols_info
+{
+	CPI_FRAME_MASK = 0x3FFF,
+	CPI_SHOOT_LEFT = 0x8000,
+	CPI_SHOOT_RIGHT = 0x4000
+};
+
 extern struct CUTSEQ_ROUTINES cutseq_control_routines[45];
 extern unsigned short crane_pistols_info[11];
 extern unsigned short craneguard_pistols_info[7];
@@ -34,6 +41,12 @@ extern short lara_chat_ranges_andy7[14];
 extern short lara_chat_ranges_joby7[10];
 extern short lara_chat_ranges_andrea4[22];
 extern short pierre_chat_ranges4[48];
+extern short lara_chat_ranges_andy9[6];
+extern short lara_chat_ranges_andy1[14];
+extern short lara_chat_ranges_andy2[8];
+extern short lara_chat_ranges_joby8[20];
+extern short lara_chat_ranges_andy6[8];
+extern short lara_chat_ranges_andy11[28];
 extern int cuntercunter;
 extern char jobyfrigger;
 extern int cutrot;

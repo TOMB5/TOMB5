@@ -196,3 +196,45 @@ int GetFreeDrip()
 #endif
 
 }
+
+int GetFreeSmokeSpark()
+{
+	S_Warn("[GetFreeSmokeSpark] - Unimplemented!\n");
+	return 0;
+}
+
+int GetFreeSpark()
+{
+	S_Warn("[GetFreeSpark] - Unimplemented!\n");
+	return 0;
+}
+
+int GetFreeBubble()//8BEAC(<), 8DEF0(<) (F)
+{
+	struct BUBBLE_STRUCT* bub = &Bubbles[next_bubble];
+	int bub_num = next_bubble;
+
+	while (bub->size != 0)
+	{
+		if (bub_num == 39)
+		{
+			bub = &Bubbles[0];
+			bub_num = 0;
+		}
+		else
+		{
+			bub_num++;
+			bub++;
+		}
+
+		if (++bub_num >= 40)
+		{
+			break;
+		}
+	}
+
+	next_bubble = bub_num + 1;
+	if (bub_num + 1 >= 40)
+		next_bubble = 0;
+	return bub_num;
+}

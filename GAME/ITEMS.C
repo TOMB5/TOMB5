@@ -8,6 +8,8 @@
 
 #include <stddef.h>
 #include <assert.h>
+#include "EFFECTS.H"
+#include "MALLOC.H"
 
 int level_items;
 short next_item_free;
@@ -24,15 +26,45 @@ void KillEffect(short fx_num)//42178, 425CC
 	S_Warn("[KillEffect] - Unimplemented!\n");
 }
 
-short CreateEffect(short room_num)//420E0, 42534
+short CreateEffect(short room_num)//420E0(<), 42534(<) (F)
 {
-	S_Warn("[CreateEffect] - Unimplemented!\n");
-	return 0;
+	struct room_info* r;
+	struct FX_INFO* fx;
+	short fx_num = next_fx_free;
+
+	if (next_fx_free != -1)
+	{
+		fx = &effects[next_fx_free];
+		next_fx_free = fx->object_number;
+		r = &room[room_num];
+		fx->room_number = room_num;
+		fx->next_fx = r->fx_number;
+		r->fx_number = fx_num;
+		fx->next_active = next_fx_active;
+		next_fx_active = fx_num;
+		fx->shade = WHITE555;
+	}
+
+	return fx_num;
 }
 
-void InitialiseFXArray(int allocmem)//4207C, 424D0
+void InitialiseFXArray(int allocmem)//4207C(<), 424D0(<) (F)
 {
-	S_Warn("[InitialiseFXArray] - Unimplemented!\n");
+	int i;
+	struct FX_INFO* fx;
+
+	if (allocmem)
+		effects = (struct FX_INFO*)game_malloc(24 * sizeof(struct FX_INFO));
+
+	fx = effects;
+	next_fx_active = -1;
+	next_fx_free = 0;
+	for (i = 1; i <= 24; i++)
+	{
+		fx->next_fx = i++;
+		++fx;
+	}
+	fx->next_fx = -1;
 }
 
 void AddActiveItem(short item_num)//41FEC(<), 42440(<)
@@ -182,7 +214,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 		item->flags &= ~IFLAG_INVISIBLE;
 		item->meshswap_meshbits |= 6;
 	}
-	else if ((objects[item->object_number].bite_offset >> 17) & 1)
+	else if (objects[item->object_number].intelligent)
 	{
 		item->meshswap_meshbits |= 6;
 	}
@@ -201,7 +233,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->next_item = r->item_number;
 	r->item_number = item_num;
 
-	floor = &r->floor[((item->pos.z_pos - r->z) / 1024) + (((item->pos.x_pos - r->x) / 1024) * r->x_size)];
+	floor = &r->floor[((item->pos.z_pos - r->z) / SECTOR) + (((item->pos.x_pos - r->x) / SECTOR) * r->x_size)];
 
 	item->floor = floor->floor * 256;
 	item->box_number = floor->box;
