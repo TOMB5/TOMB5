@@ -149,6 +149,6 @@ void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, 
 
 void TriggerDynamic(long x, long y, long z, int a4, int a5, int a6, int a7)
 {
-	S_Warn("[TriggerDynamic] - Unimplemented!\\n");
+	S_Warn("[TriggerDynamic] - Unimplemented!\n");
 }
 

@@ -339,9 +339,7 @@ void andy11_control()//32C70, 33108
 		cutseq_meshbits[2] &= 0x7FFFFFFFu;
 	}
 
-#if PC_VERSION
 	S_Warn("[andy11_control] - Unimplemented end of function!\n");
-#endif
 } 
 
 void andy11_init()//32C20, 330B8

@@ -199,13 +199,13 @@ int GetFreeDrip()
 
 int GetFreeSmokeSpark()
 {
-	S_Warn("[GetFreeSmokeSpark] - Unimplemented!\\n");
+	S_Warn("[GetFreeSmokeSpark] - Unimplemented!\n");
 	return 0;
 }
 
 int GetFreeSpark()
 {
-	S_Warn("[GetFreeSpark] - Unimplemented!\\n");
+	S_Warn("[GetFreeSpark] - Unimplemented!\n");
 	return 0;
 }
 
