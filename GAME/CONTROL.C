@@ -891,7 +891,7 @@ void NeatAndTidyTriggerCutscene(int value, int timer)
 	S_Warn("[NeatAndTidyTriggerCutscene] - Unimplemented!\n");
 }
 
-int CheckCutPlayed(int num)//20E34, 21040
+int CheckCutPlayed(int num)//20E34(<), 21040(<) (F)
 {
 	if (num < 32)
 		return _CutSceneTriggered1 & (1 << num);
@@ -899,14 +899,20 @@ int CheckCutPlayed(int num)//20E34, 21040
 		return _CutSceneTriggered2 & (1 << (num - 32));
 }
 
-void SetCutNotPlayed(int num)
+void SetCutNotPlayed(int num)//20DEC(<), 20FF8(<) (F)
 {
-	S_Warn("[SetCutNotPlayed] - Unimplemented!\n");
+	if (num < 32)
+		_CutSceneTriggered1 &= ~(1 << num);
+	else
+		_CutSceneTriggered2 &= ~(1 << (num - 32));
 }
 
-void SetCutPlayed(int num)
+void SetCutPlayed(int num)//20DA0(<), 20FAC(<) (F)
 {
-	S_Warn("[SetCutPlayed] - Unimplemented!\n");
+	if (num < 32)
+		_CutSceneTriggered1 |= 1 << num;
+	else
+		_CutSceneTriggered2 |= 1 << (num - 32);
 }
 
 void InitCutPlayed()//20D90, 20F9C

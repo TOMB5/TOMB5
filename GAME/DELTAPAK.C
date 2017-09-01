@@ -17,6 +17,9 @@
 #include "ROOMLOAD.H"
 #include "HEALTH.H"
 #include "EFFECT2.H"
+#include "NEWINV2.H"
+#include "LOT.H"
+#include "LARA2GUN.H"
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
@@ -342,29 +345,34 @@ void andy11_control()//32C70, 33108
 	S_Warn("[andy11_control] - Unimplemented end of function!\n");
 } 
 
-void andy11_init()//32C20, 330B8
+void andy11_init()//32C20(<), 330B8(<) (F)
 {
-	S_Warn("[andy11_init] - Unimplemented!\n");
+	cutseq_kill_item(ANIMATING15);
+	lara_item->mesh_bits = 0;
+	cutseq_meshbits[4] &= 0xFFF07FFF;
+	cutseq_meshbits[5] &= 0x7FFFFFFFu;
 }
 
-void Cutanimate(int objnum)
+void Cutanimate(int objnum)//32B50(<), 32FE8(<) (F)
 {
-	S_Warn("[Cutanimate] - Unimplemented!\n");
-}
+	struct ITEM_INFO* item = find_a_fucking_item(objnum);
 
+	item->anim_number = objects[objnum].anim_index;
+	item->frame_number = anims[item->anim_number].frame_base;
+	AddActiveItem(item - items);
+	item->status = 1;
+	item->flags |= IFLAG_ACTIVATION_MASK;
+}
 
 struct ITEM_INFO* ResetCutanimate(int objnum)//32A80(<), 32F18(<) (F)
 {
-	struct ITEM_INFO* item; // $s1
+	struct ITEM_INFO* item = find_a_fucking_item(objnum);
 
-	item = find_a_fucking_item(objnum);
-
-	item->anim_number = objects[objnum].anim_index;//0x237, basically objects[objnum]+38
+	item->anim_number = objects[objnum].anim_index;
 	item->frame_number = anims[item->anim_number].frame_base;
-	RemoveActiveItem(item - items);
-
-	item->flags &= 0xC1FF;
+	RemoveActiveItem(item - items);	
 	item->status = 0;
+	item->flags &= 0xC1FF;
 
 	return item;
 }
@@ -462,9 +470,19 @@ void CutLaraBubbles()
 	S_Warn("[CutLaraBubbles] - Unimplemented!\n");
 }
 
-void swampy_end()//3271C, 32BB4
+void swampy_end()//3271C(<), 32BB4(<) (F)
 {
-	S_Warn("[swampy_end] - Unimplemented!\n");
+	SetCutNotPlayed(43);
+	AddActiveItem(find_a_fucking_item(GREEN_TEETH) - items);
+	DelsHandyTeleportLara(42477, 12456, 55982, 28953);
+	lara.water_status = 1;
+	lara_item->pos.x_rot = ANGLE(-29);
+	lara_item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
+	lara_item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
+	lara_item->frame_number = anims[ANIMATION_LARA_UNDERWATER_IDLE].frame_base;
+	lara_item->anim_number = ANIMATION_LARA_UNDERWATER_IDLE;
+	if (lara.air > 200)
+		lara.air = 200;
 }
 
 void swampy_control()//326EC(<), 32B84(<) (F)
@@ -473,26 +491,21 @@ void swampy_control()//326EC(<), 32B84(<) (F)
 		CutLaraBubbles();
 }
 
-void swampy_init()//32608, 32AA0
+void swampy_init()//32608(<), 32AA0(<) (F)
 {
-#if 0
 	struct ITEM_INFO* item = find_a_fucking_item(GREEN_TEETH);
+
+	cutrot = 0;
 
 	if (item)
 	{
-		int a1 = (int)(void*)items;
-		a1 = (int)(void*)item - a1;
-		auto v0 = (a1 << 3) - a1;
-		//auto v1 = v0 << 6;
-		//auto a0 = ((((v0 << 15) - v0) << 3) + a1) >> 4;
-		//auto a0 = ((262136 * ((((v0 + (v0 << 6))) << 3) + a1)) + a1) >> 4;
-		auto a0 = ((262136 * ((520 * ((a1 << 3) - a1)) + a1)) + a1) >> 4;
+		item->status = 3;
+		RemoveActiveItem(item - items);
+		DisableBaddieAI(item - items);
+		item->flags |= IFLAG_INVISIBLE;
 	}
 
 	lara.water_status = 1;
-#endif
-
-	S_Warn("[swampy_init] - Unimplemented!\n");
 }
 
 void monk2_end()//325F4(<), 32A8C(<) (F)
@@ -500,9 +513,57 @@ void monk2_end()//325F4(<), 32A8C(<) (F)
 	lara_item->mesh_bits = 0xFFFFFFFF;
 }
 
-void monk2_control()//324E4, 3297C
+void monk2_control()//324E4(<), 3297C(<) (F)
 {
-	S_Warn("[monk2_control] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+	int f;
+
+	if (GLOBAL_cutseq_frame == 70)
+	{
+		lara_item->mesh_bits = 0;
+	}
+	else
+	{
+		if (GLOBAL_cutseq_frame < 630 || GLOBAL_cutseq_frame >= 720)
+		{
+			f = cut_seethrough;
+		}
+		else
+		{
+			f = cut_seethrough;
+			if (cut_seethrough > 32)
+			{
+				f = cut_seethrough - 4;
+				cut_seethrough -= 4;
+			}
+		}
+		if (GLOBAL_cutseq_frame == 740)
+		{
+			cut_seethrough = 128;
+		}
+		else if (GLOBAL_cutseq_frame >= 940)
+		{
+			if (f > 0)
+			{
+				cut_seethrough = f - 4;
+				if (f - 4 < 0)
+					cut_seethrough = 0;
+			}
+			else
+			{
+				if (f < 0)
+					cut_seethrough = 0;
+			}
+		}
+	}
+
+	pos.x = 0;
+	pos.y = 0;
+	pos.z = 0;
+	GetActorJointAbsPosition(1, 0, &pos);
+
+	TriggerDynamic(pos.x, pos.y, pos.z, 10,
+		GetRandomControl() & 0xF, (GetRandomControl() & 0x1F) + 16, (GetRandomControl() & 0x3F) + 128);
 }
 
 void monk2_init()//324D4(<), 3296C(<) (F)
@@ -510,9 +571,10 @@ void monk2_init()//324D4(<), 3296C(<) (F)
 	cutrot = 1;
 }
 
-void do_pierre_gun_meshswap()
+void do_pierre_gun_meshswap()//32484(<), 3291C(<) (F)
 {
-	S_Warn("[do_pierre_gun_meshswap] - Unimplemented!\n");
+	meshes[objects[PIERRE].mesh_index + 23] = meshes[objects[MESHSWAP2].mesh_index + 22];
+	cutseq_meshswapbits[1] |= 0x800;
 }
 
 void andrea4_end()//32464(<), 328FC(<) (F)
@@ -520,33 +582,72 @@ void andrea4_end()//32464(<), 328FC(<) (F)
 	cutseq_removelara_pistols();
 }
 
-void andrea4_control()//323C8, 32860
+void andrea4_control()//323C8(<), 32860(<) (F)
 {
-	S_Warn("[andrea4_control] - Unimplemented!\n");
+	switch (GLOBAL_cutseq_frame)
+	{
+	case 3134:
+		cutseq_givelara_pistols();
+		undraw_pistol_mesh_left(1);
+		break;
+	case 3169:
+		cutseq_givelara_pistols();
+		break;
+	case 3173:
+		do_pierre_gun_meshswap();
+		break;
+	}
+
+	handle_lara_chatting(lara_chat_ranges_andrea4);
+	handle_actor_chatting(23, 8, 1, 47, pierre_chat_ranges4);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
 void andrea4_init()//323C0(<), 32858(<) (F)
 {
 }
 
-void joby7_end()
+void joby7_end()//32328(<), 327C0(<) (F)
 {
-	S_Warn("[joby7_end] - Unimplemented!\n");
+	lara_item->mesh_bits = -1;
+	cutseq_restore_item(ANIMATING2);
+	AddDisplayPickup(PICKUP_ITEM1);
+	DelsHandyTeleportLara(30049, 17583, 69794, -13706);
+	lara.water_status = 1;
+	lara_item->pos.x_rot = 1090;
+	lara_item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
+	lara_item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
+	lara_item->frame_number = anims[ANIMATION_LARA_UNDERWATER_IDLE].frame_base;
+	lara_item->anim_number = ANIMATION_LARA_UNDERWATER_IDLE;
+	lara.Anxiety = 80;
 }
 
-void joby7_control()
+void joby7_control()//3210C, 325A4
 {
 	S_Warn("[joby7_control] - Unimplemented!\n");
 }
 
-void joby7_init()
+void joby7_init()//320D0, 32568
 {
 	S_Warn("[joby7_init] - Unimplemented!\n");
 }
 
-void andy10_end()//3202C, 324C4
+void andy10_end()//3202C(<), 324C4(<) (F)
 {
-	S_Warn("[andy10_end] - Unimplemented!\n");
+	lara_item->mesh_bits = -1;
+	SetCutPlayed(43);
+	Cutanimate(ANIMATING12);
+	Cutanimate(ANIMATING13);
+	FlipMap(7);
+	DelsHandyTeleportLara(SECTOR_TO_WORLD(38), SECTOR_TO_WORLD(14.5), SECTOR_TO_WORLD(47), 0);
+	lara.water_status = 1;
+	lara_item->pos.x_rot = ANGLE(-29);
+	lara_item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
+	lara_item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
+	lara_item->frame_number = anims[ANIMATION_LARA_UNDERWATER_IDLE].frame_base;
+	lara_item->anim_number = ANIMATION_LARA_UNDERWATER_IDLE;
+	NailInvItem(PUZZLE_ITEM2);
+	disable_horizon = 0;
 }
 
 void andy10_control()//31E9C, 32334
