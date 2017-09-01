@@ -21,6 +21,7 @@
 #include "NEWINV2.H"
 #include "LOT.H"
 #include "LARA2GUN.H"
+#include "LARA1GUN.H"
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
@@ -852,9 +853,40 @@ void andy9_init()//31B7C(<), 31FAC(<) (F)
 	lara_item->mesh_bits = 0;
 }
 
-void TriggerDelBrownSmoke(long x, long y, long z)
+void TriggerDelBrownSmoke(long x, long y, long z)//319D0(<), 31E00(<) (F)
 {
-	S_Warn("[TriggerDelBrownSmoke] - Unimplemented!\n");
+	struct SPARKS* sptr;
+	long size;
+
+	sptr = &spark[GetFreeSpark()];
+	sptr->On = 1;
+	sptr->sR = 50;
+	sptr->sG = 45;
+	sptr->sB = 40;
+	sptr->dR = 40;
+	sptr->dG = 35;
+	sptr->dB = 30;
+	sptr->ColFadeSpeed = 2;
+	sptr->FadeToBlack = 5;
+	sptr->TransType = 2;
+	sptr->Life = sptr->sLife = (GetRandomControl() & 7) + 20;
+	sptr->x = (GetRandomControl() & 0x7F) + x - 63;
+	sptr->y = (GetRandomControl() & 0x7F) + y - 63;
+	sptr->z = (GetRandomControl() & 0x7F) + z - 63;
+	sptr->Xvel = ((GetRandomControl() & 0xFFF) - 2048) >> 2;
+	sptr->Yvel = (GetRandomControl() & 0xFF) - 128;
+	sptr->Friction = 2;
+	sptr->Flags = 538;
+	sptr->Zvel = ((GetRandomControl() & 0xFFF) - 2048) >> 2;
+	sptr->RotAng = GetRandomControl() & 0xFFF;
+	sptr->Scalar = 2;
+	sptr->RotAdd = (GetRandomControl() & 0xF) + 16;
+	sptr->Gravity = -3 - (GetRandomControl() & 3);
+	sptr->MaxYvel = -4 - (GetRandomControl() & 3);
+	size = (GetRandomControl() & 0x1F) + 40;
+	sptr->dSize = size;
+	sptr->sSize = size >> 2;
+	sptr->Size = size >> 2;
 }
 
 void cossack_end()//31998(<), 31DC8(<) (F)
@@ -1352,24 +1384,104 @@ void joby3_init()//2F2FC(<), 2F608(<) (F)
 	return;
 }
 
-void joby2_end()//2F2B8, 2F5C4
+void joby2_end()//2F2B8(<), 2F5C4(<) (F)
 {
-	S_Warn("[joby2_end] - Unimplemented!\n");
+	lara_item->mesh_bits = -1;
+	DelsHandyTeleportLara(22905, -4608, 45415, -16730);
+	cutseq_kill_item(ANIMATING6);
 }
 
-void joby2_control()//2F114, 2F420
+void joby2_control()//2F114(<), 2F420(<) (F)
 {
-	S_Warn("[joby2_control] - Unimplemented!\n");
+	switch (GLOBAL_cutseq_frame)
+	{
+	case 176:
+		lara_item->mesh_bits = 0;
+		cutseq_meshbits[3] |= 0x80000000;
+		cutseq_meshbits[4] |= 0x80000000;
+		break;
+	case 1622:
+		lara_item->mesh_bits = -1;
+		cutseq_meshbits[1] &= 0x7FFFFFFFu;
+		cutseq_meshbits[2] &= 0x7FFFFFFFu;
+		cutseq_meshbits[3] &= 0x7FFFFFFFu;
+		cutseq_meshbits[4] &= 0x7FFFFFFFu;
+		cutseq_meshbits[5] &= 0x7FFFFFFFu;
+		cutseq_meshbits[6] &= 0x7FFFFFFFu;
+		disable_horizon = 1;
+		break;
+	case 1822:
+		lara_item->mesh_bits = 0;
+		disable_horizon = 0;
+		cutseq_meshbits[1] |= 0x80000000;
+		cutseq_meshbits[2] |= 0x80000000;
+		cutseq_meshbits[3] |= 0x80000000;
+		cutseq_meshbits[4] |= 0x80000000;
+		break;
+	case 254:
+		disable_horizon = 0;
+		break;
+	case 1485:
+		cutseq_meshbits[1] |= 0x80000000;
+		cutseq_meshbits[2] |= 0x80000000;
+		cutseq_meshbits[6] |= 0x80000000;
+		break;
+	}
+	handle_actor_chatting(21, 2, 3, 427, admiral_chat_ranges_joby2);
+	handle_actor_chatting(23, 3, 4, 433, sergie_chat_ranges_joby2);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
-void joby2_init()//2F0C0, 2F3CC
+void joby2_init()//2F0C0(<), 2F3CC(<) (F)
 {
-	S_Warn("[joby2_init] - Unimplemented!\n");
+	disable_horizon = 1;
+	cutseq_meshbits[1] &= 0x7FFFFFFFu;
+	cutseq_meshbits[2] &= 0x7FFFFFFFu;
+	cutseq_meshbits[3] &= 0x7FFFFFFFu;
+	cutseq_meshbits[4] &= 0x7FFFFFFFu;
+	cutseq_meshbits[6] &= 0x7FFFFFFFu;
 }
 
-void TriggerDelSmoke(long x, long y, long z, int sizeme)
+void TriggerDelSmoke(long x, long y, long z, int sizeme)//2EED8(<), 2F1E4(<) (F)
 {
-	S_Warn("[TriggerDelSmoke] - Unimplemented!\n");
+	struct SPARKS* sptr;
+	long size, dx, dz;
+
+	dx = lara_item->pos.x_pos - x;
+	dz = lara_item->pos.z_pos - z;
+	if (dx >= -16 * SECTOR && dx <= 16 * SECTOR && 
+		dz >= -16 * SECTOR && dz <= 16 * SECTOR)
+	{
+		sptr = &spark[GetFreeSpark()];
+		sptr->On = 1;
+		sptr->sR = -128;
+		sptr->sG = -128;
+		sptr->sB = -128;
+		sptr->dR = 64;
+		sptr->dG = 64;
+		sptr->dB = 64;
+		sptr->ColFadeSpeed = 2;
+		sptr->FadeToBlack = 8;
+		sptr->TransType = 2;
+		sptr->Life = sptr->sLife = (GetRandomControl() & 3) + 11;
+		sptr->x = (GetRandomControl() & 0x1FF) + x - 256;
+		sptr->y = (GetRandomControl() & 0x1FF) + y - 256;
+		sptr->z = (GetRandomControl() & 0x1FF) + z - 256;
+		sptr->Xvel = ((GetRandomControl() & 0xFFF) - 2048) >> 2;
+		sptr->Yvel = (GetRandomControl() & 0xFF) - 128;
+		sptr->Friction = 2;
+		sptr->Flags = 538;
+		sptr->Zvel = ((GetRandomControl() & 0xFFF) - 2048) >> 2;
+		sptr->RotAng = GetRandomControl() & 0xFFF;
+		sptr->Scalar = 2;
+		sptr->RotAdd = (GetRandomControl() & 0xF) + 16;
+		sptr->Gravity = -3 - (GetRandomControl() & 3);
+		sptr->MaxYvel = -4 - (GetRandomControl() & 3);
+		size = sizeme + (GetRandomControl() & 0x1F);
+		sptr->dSize = size;
+		sptr->sSize = size >> 2;
+		sptr->Size = size>> 2;
+	}
 }
 
 void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* pos, int direction, int speed)
@@ -1490,36 +1602,139 @@ void richcut2_init()//2E4C0(<), 2E750(<) (F)
 	return;
 }
 
-void richcut1_control()//2E3D8, 2E668
+void richcut1_control()//2E3D8(<), 2E668(<) (F)
 {
-	S_Warn("[richcut1_control] - Unimplemented!\n");
+	struct ITEM_INFO* item;
+	int f = GLOBAL_cutseq_frame;
+
+	if (f == 101 || f == 493 || f == 673)
+		lara_item->mesh_bits = 0;
+
+	if (f == 208 || f == 580 || f == 810)
+		lara_item->mesh_bits = -1;
+
+	if (f == 840)
+	{
+		item = find_a_fucking_item(CLOSED_DOOR2);
+		AddActiveItem(item - items);
+		item->status = 3;
+		item->flags |= IFLAG_ACTIVATION_MASK;
+	}
 }
 
-void richcut1_end()//2E3A0, 2E630
+void richcut1_end()//2E3A0(<), 2E630(<) (F)
 {
-	S_Warn("[richcut1_end] - Unimplemented!\n");
+	DelsHandyTeleportLara(34504, -1 * SECTOR, 54799, -29215);
+	cutseq_removelara_hk();
+	cutrot = 1;
 }
 
-void richcut1_init()//2E26C, 2E4FC
+void richcut1_init()//2E26C(<), 2E4FC(<) (F)
 {
-	S_Warn("[richcut1_init] - Unimplemented!\n");
+	short item_num, nex;
+	struct ITEM_INFO* item;
+
+	item_num = room[lara_item->room_number].item_number;
+
+	if (item_num != -1)
+	{
+		do
+		{
+			item = &items[item_num];
+
+			nex = item->next_item;
+
+			if (item->object_number == 69)
+			{
+				item->status = 6;
+				RemoveActiveItem(item - items);
+				DisableBaddieAI(item - items);
+				item->flags |= IFLAG_INVISIBLE;
+			}
+
+			item_num = nex;
+		} while (nex != -1);
+	}
+
+	cutseq_givelara_hk();
+	cutrot = 1;
 }
 
-void cranecut_control()
+void cranecut_control()//2E0B8(<), 2E348(<) (F)
 {
-	S_Warn("[cranecut_control] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+	int n, f;
+
+	f = GLOBAL_cutseq_frame;
+
+	switch (f)
+	{
+	case 74:
+		lara_item->mesh_bits = 0;
+		break;
+	case 124:
+		lara_item->mesh_bits = -1;
+		break;
+	case 801:
+		cutseq_meshbits[1] &= 0x7FFFFFFFu;
+		break;
+	case 850:
+		cutseq_removelara_pistols();
+		break;
+	case 1301:
+		cutseq_meshbits[5] |= 0x80000000;
+		FlipMap(1);
+		break;
+	}
+	deal_with_pistols(crane_pistols_info);
+	pos.x = 12;
+	pos.y = 200;
+	pos.z = 60;
+	deal_with_actor_shooting(craneguard_pistols_info, 1, 13, &pos);
+	if (f >= 456 && f <= 462)
+	{
+		pos.x = 0;
+		pos.y = 0;
+		pos.z = 0;
+		TriggerActorBlood(1, 2, &pos, 0, 1);
+		pos.x = 0;
+		pos.y = 0;
+		pos.z = 0;
+		TriggerActorBlood(1, 5, &pos, 0, 1);
+	}
+	if (f >= 1455 && f <= 1495)
+	{
+		pos.x = 1400;
+		pos.y = 900;
+		pos.z = 512;
+		GetActorJointAbsPosition(5, 0, &pos);
+		for (n = 0; n < 2800; n += 175)
+		{
+			TriggerDelSmoke(pos.x, pos.y, n + pos.z, f - 1367);
+		}
+	}
 }
 
-void cranecut_end()
+void cranecut_end()//2E020(<), 2E2B0(<) (F)
 {
-	S_Warn("[cranecut_end] - Unimplemented!\n");
+	struct ITEM_INFO* item = cutseq_restore_item(424);
+	RemoveActiveItem(item - items);
+	item->flags &= 0xC1FFu;
+	cutseq_restore_item(ANIMATING16);
+	cutseq_restore_item(WRECKING_BALL);
+	DelsHandyTeleportLara(58543, -4 * SECTOR, 34972, ANGLE(-90));
 }
 
-void cranecut_init()
+void cranecut_init()//2DFA0(<), 2E230(<) (F)
 {
-	S_Warn("[cranecut_init] - Unimplemented!\n");
+	cutseq_kill_item(ANIMATING5);
+	cutseq_kill_item(ANIMATING16);
+	cutseq_kill_item(WRECKING_BALL);
+	cutseq_kill_item(ANIMATING4);
+	cutseq_givelara_pistols();
+	meshes[objects[ANIMATING4].mesh_index + 26] = meshes[objects[BLUE_GUARD].mesh_index + 26];
+	cutseq_meshbits[5] &= 0x7FFFFFFFu;
 }
-
 
 struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
 {
@@ -1539,9 +1754,40 @@ struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
 	return NULL;
 }
 
-void handle_actor_chatting(int speechslot, int node, int slot, int objslot, short* ranges)
+void handle_actor_chatting(int speechslot, int node, int slot, int objslot, short* ranges)//2DDF0(<), 2E080(<) (F)
 {
-	S_Warn("[handle_actor_chatting] - Unimplemented!\n");
+	int r1, r2, f, rnd;
+
+	f = GLOBAL_cutseq_frame;
+	rnd = GetRandomControl() & 1;
+
+	while(1)
+	{
+		r1 = ranges[0];
+		r2 = ranges[1];
+
+		if (r1 == -1)
+		{
+			cutseq_meshswapbits[slot] &= ~(1 << node);
+			return;
+		}
+
+		if (f >= r1 && f <= r2)
+			break;
+
+		ranges += 2;
+	}
+
+	if (!actor_chat_cnt)
+	{
+		cutseq_meshswapbits[slot] |= 1 << node;
+		meshes[2 * (node + objects[objslot].mesh_index) + 1] = meshes[2 * node + objects[speechslot + rnd].mesh_index];
+		
+		if ((GetRandomControl() & 7) >= 6)
+		{
+			cutseq_meshswapbits[slot] &= ~(1 << node);
+		}
+	}
 }
 
 void handle_lara_chatting(short* ranges)//2DD00(<), 2DF90(<) (F)
@@ -1754,29 +2000,37 @@ void trigger_weapon_dynamics(int left_or_right)//2D3E4(<), 2D6CC(<) (F)
 	TriggerDynamic(pos.x, pos.y, pos.z, 10, v3 + 192, v2, v1);
 }
 
-void cutseq_shoot_pistols(int left_or_right)
+void cutseq_shoot_pistols(int left_or_right)//2D360, 2D648
 {
 	S_Warn("[cutseq_shoot_pistols] - Unimplemented!\n");
 }
 
-void cutseq_removelara_hk()
+void cutseq_removelara_hk()//2D328(<), 2D610(<) (F)
 {
-	S_Warn("[cutseq_removelara_hk] - Unimplemented!\n");
+	undraw_shotgun_meshes(5);
+	lara.gun_type = 0;
+	lara.request_gun_type = 0;
+	lara.gun_status = 0;
+	lara.last_gun_type = 5;
 }
 
-void cutseq_givelara_hk()
+void cutseq_givelara_hk()//2D308(<), 2D5F0(<) (F)
 {
-	S_Warn("[cutseq_givelara_hk] - Unimplemented!\n");
+	draw_shotgun_meshes(5);
 }
 
-void cutseq_removelara_pistols()
+void cutseq_removelara_pistols()//2D2D8(<), 2D5C0(<) (F)
 {
-	S_Warn("[cutseq_removelara_pistols] - Unimplemented!\n");
+	undraw_pistol_mesh_left(1);
+	undraw_pistol_mesh_right(1);
+	lara.holster = old_lara_holster;
 }
 
-void cutseq_givelara_pistols()
+void cutseq_givelara_pistols()//2D2A0(<), 2D588(<) (F)
 {
-	S_Warn("[cutseq_givelara_pistols] - Unimplemented!\n");
+	old_lara_holster = lara.holster;
+	lara.holster = 13;
+	draw_pistol_meshes(1);
 }
 
 void CalculateObjectLightingLaraCutSeq()
