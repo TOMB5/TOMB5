@@ -3,6 +3,13 @@
 
 #include "SPECTYPES.H"
 
+enum cutseq_pistols_info
+{
+	CPI_FRAME_MASK = 0x3FFF,
+	CPI_SHOOT_LEFT = 0x8000,
+	CPI_SHOOT_RIGHT = 0x4000
+};
+
 extern struct CUTSEQ_ROUTINES cutseq_control_routines[45];
 extern unsigned short crane_pistols_info[11];
 extern unsigned short craneguard_pistols_info[7];
@@ -34,6 +41,12 @@ extern short lara_chat_ranges_andy7[14];
 extern short lara_chat_ranges_joby7[10];
 extern short lara_chat_ranges_andrea4[22];
 extern short pierre_chat_ranges4[48];
+extern short lara_chat_ranges_andy9[6];
+extern short lara_chat_ranges_andy1[14];
+extern short lara_chat_ranges_andy2[8];
+extern short lara_chat_ranges_joby8[20];
+extern short lara_chat_ranges_andy6[8];
+extern short lara_chat_ranges_andy11[28];
 extern int cuntercunter;
 extern char jobyfrigger;
 extern int cutrot;
@@ -71,7 +84,7 @@ extern void andy11_end();
 extern void andy11_control();
 extern void andy11_init();
 extern void Cutanimate(int objnum);
-extern struct ITEM_INFO *ResetCutanimate(int objnum);
+extern struct ITEM_INFO* ResetCutanimate(int objnum);
 extern void trigger_title_spotcam(int num);
 extern void CutLaraBubbles();
 extern void swampy_end();
@@ -157,7 +170,7 @@ extern void andrea1_init();
 extern void joby4_end();
 extern void joby4_control();
 extern void joby4_init();
-extern void DelTorchFlames(struct PHD_VECTOR *pos);
+extern void DelTorchFlames(struct PHD_VECTOR* pos);
 extern void setup_preist_meshswap();
 extern void andy2_end();
 extern void andy2_control();
@@ -176,9 +189,9 @@ extern void joby2_end();
 extern void joby2_control();
 extern void joby2_init();
 extern void TriggerDelSmoke(long x, long y, long z, int sizeme);
-extern void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR *pos, int direction, int speed);
-extern void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR *vec);
-extern void deal_with_actor_shooting(unsigned short *shootdata, int actornum, int nodenum, struct PHD_VECTOR *pos);
+extern void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* pos, int direction, int speed);
+extern void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR* vec);
+extern void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, struct PHD_VECTOR* pos);
 extern void stealth3_end();
 extern void stealth3_start();
 extern void special4_end();
@@ -205,16 +218,16 @@ extern void richcut1_init();
 extern void cranecut_control();
 extern void cranecut_end();
 extern void cranecut_init();
-extern struct ITEM_INFO *find_a_fucking_item(int object_number); 
-extern void handle_actor_chatting(int speechslot, int node, int slot, int objslot, short *ranges);
-extern void handle_lara_chatting(short *ranges);
+extern struct ITEM_INFO* find_a_fucking_item(int object_number); 
+extern void handle_actor_chatting(int speechslot, int node, int slot, int objslot, short* ranges);
+extern void handle_lara_chatting(short* ranges);
 extern void DelsHandyTeleportLara(int x, int y, int z, int yrot);
 extern void init_resident_cutseq(int num);
-extern void init_cutseq_actors(char *data, int resident);
+extern void init_cutseq_actors(char* data, int resident);
 extern int Load_and_Init_Cutseq(int num);
-extern struct ITEM_INFO *cutseq_restore_item(int num);
+extern struct ITEM_INFO* cutseq_restore_item(int num);
 extern void cutseq_kill_item(int num);
-extern void deal_with_pistols(unsigned short *shootdata);
+extern void deal_with_pistols(unsigned short* shootdata);
 extern void trigger_weapon_dynamics(int left_or_right);
 extern void cutseq_shoot_pistols(int left_or_right);
 extern void cutseq_removelara_hk();
@@ -223,10 +236,10 @@ extern void cutseq_removelara_pistols();
 extern void cutseq_givelara_pistols();
 extern void CalculateObjectLightingLaraCutSeq();
 extern void finish_cutseq(int name);
-extern void *cutseq_malloc(int size);
+extern void* cutseq_malloc(int size);
 extern void init_cutseq_malloc();
 extern void frigup_lara();
-extern void InitPackNodes(struct NODELOADHEADER *lnode, struct PACKNODE *pnode, char *packed, int numnodes);
+extern void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* packed, int numnodes);
 extern void do_new_cutscene_camera();
 extern void handle_cutseq_triggering(int name);
 

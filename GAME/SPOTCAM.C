@@ -5,7 +5,11 @@
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "OBJECTS.H"
-#include "PSXPCINPUT.H"
+#if PSXPC_VERSION
+	#include "PSXPCINPUT.H"
+#elif PSX_VERSION
+	#include "PSXINPUT.H"
+#endif
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "SWITCH.H"
@@ -13,7 +17,9 @@
 
 #include <assert.h>
 
-#include <math.h>
+#if PSXPC_VERSION
+	#include <math.h>
+#endif
 
 #define MULFP(A, B) ((A % B) << 16) | ((A * B) >> 16)
 #define DIVFP(A, B) (A / (B >> 8)) << 8
@@ -208,7 +214,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48
 	last_camera = current_spline_camera + (CameraCnt[SpotRemap[Sequence]] + -1);
 	current_camera_cnt = CameraCnt[SpotRemap[Sequence]];
 
-	if ((s->flags & 0x400) || gfGameMode == 1)
+	if ((s->flags & SCF_DISABLE_LARA_CONTROLS) || gfGameMode == 1)
 	{
 		//loc_37868
 		bDisableLaraControl = 1;
@@ -219,7 +225,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48
 	}
 
 	//loc_37888
-	if (s->flags & 8)
+	if (s->flags & SCF_TRACKING_CAM)
 	{
 		camera_xposition[0] = SpotCam[first_camera].x;
 		camera_yposition[0] = SpotCam[first_camera].y;
@@ -329,13 +335,13 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48
 			}
 
 			//loc_37C4C
-			if (s->flags & 0x4000)
+			if (s->flags & SCF_ACTIVATE_HEAVY_TRIGGERS)
 			{
 				bCheckTrigger = 1;
 			}
 
 			//loc_37C64
-			if (s->flags & 2)
+			if (s->flags & SCF_VIGNETTE)
 			{
 				if (s->timer < 0)
 				{
@@ -348,7 +354,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48
 			}
 
 			//loc_37CA8
-			if (s->flags & 0x10)
+			if (s->flags & SCF_HIDE_LARA)
 			{
 				SCNoDrawLara = 1;
 			}//loc_37EA8
@@ -424,7 +430,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48
 	}
 
 	//loc_37E90
-	if (s->flags & 0x10)
+	if (s->flags & SCF_HIDE_LARA)
 	{
 		SCNoDrawLara = 1;
 	}
@@ -528,7 +534,7 @@ void CalculateSpotCams()//
 	croll = Spline(0, &camera_roll[0], spline_cnt);
 	cfov = Spline(0, &camera_fov[0], spline_cnt);
 
-	if (SpotCam[current_spline_camera].flags & 0x1000 && current_spline_camera != CameraFade)
+	if (SpotCam[current_spline_camera].flags & SCF_SCREEN_FADE_IN && current_spline_camera != CameraFade)
 	{
 		CameraFade = current_spline_camera;
 
@@ -542,7 +548,7 @@ void CalculateSpotCams()//
 	}
 
 	//loc_38084
-	if (SpotCam[current_spline_camera].flags & 0x2000 && CameraFade != current_spline_camera)
+	if (SpotCam[current_spline_camera].flags & SCF_SCREEN_FADE_OUT && CameraFade != current_spline_camera)
 	{
 		if (gfCurrentLevel != 0)
 		{
@@ -663,15 +669,15 @@ void CalculateSpotCams()//
 	}
 
 	//loc_382F4
-	if (!(input & 0x200))
+	if (!(input & IN_LOOK))
 	{
 		dword_A0AC4 = 0;
 	}
 	
 	//loc_38310
-	if (!(s->flags & 0x200) && (input & 0x200) && gfGameMode != 1)
+	if (!(s->flags & SCF_DISABLE_BREAKOUT) && (input & IN_LOOK) && gfGameMode != 1)
 	{
-		if (s->flags & 8)
+		if (s->flags & SCF_TRACKING_CAM)
 		{
 			if (dword_A0AC4 == 0)
 			{
@@ -891,19 +897,19 @@ void CalculateSpotCams()//
 		}
 
 		//loc_38814
-		if (SpotCam[current_spline_camera].flags & 0x10)
+		if (SpotCam[current_spline_camera].flags & SCF_HIDE_LARA)
 		{
 			SCNoDrawLara = 1;
 		}
 
 		//loc_38844
-		if (SpotCam[current_spline_camera].flags & 0x4000)
+		if (SpotCam[current_spline_camera].flags & SCF_ACTIVATE_HEAVY_TRIGGERS)
 		{
 			bCheckTrigger = 1;
 		}
 
 		//loc_3885C
-		if (SpotCam[current_spline_camera].flags & 0x100)
+		if (SpotCam[current_spline_camera].flags & SCF_STOP_MOVEMENT)
 		{
 			if (quakecam.spos.box_number == 0 && SpotCam[current_spline_camera].timer != -1)
 			{
@@ -977,13 +983,13 @@ void CalculateSpotCams()//
 		else
 		{
 			//loc_389DC
-			if (SpotCam[current_spline_camera].flags & 0x800)
+			if (SpotCam[current_spline_camera].flags & SCF_REENABLE_LARA_CONTROLS)
 			{
 				bDisableLaraControl = 0;
 			}
 
 			//loc_38A0C
-			if (SpotCam[current_spline_camera].flags & 0x400)
+			if (SpotCam[current_spline_camera].flags & SCF_DISABLE_LARA_CONTROLS)
 			{
 				SetFadeClip(16, 1);
 				bDisableLaraControl = 1;
@@ -992,7 +998,7 @@ void CalculateSpotCams()//
 			//loc_38A24
 			v1111111 = &SpotCam[current_spline_camera];
 			s5 = 0;
-			if (SpotCam[current_spline_camera].flags & 0x80)
+			if (SpotCam[current_spline_camera].flags & SCF_CUT_TO_CAM)
 			{
 				current_spline_camera = (SpotCam[current_spline_camera].timer & 0xF) + first_camera;
 

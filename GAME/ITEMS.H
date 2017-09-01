@@ -3,6 +3,14 @@
 
 #include "SPECTYPES.H"
 
+enum item_flags
+{
+	IFLAG_CLEAR_BODY = (1 << 7), // 0x0080
+	IFLAG_INVISIBLE = (1 << 8),  // 0x0100
+
+	IFLAG_ACTIVATION_MASK = 0x3E00 // bits 9-13
+};
+
 extern int level_items;
 extern short next_item_free;
 extern short next_item_active;
@@ -19,5 +27,6 @@ extern void InitialiseItem(short item_num);
 extern short CreateItem();
 extern void KillItem(short item_num);
 extern void InitialiseItemArray(int numitems);
+extern void ItemNewRoom(short item_num, short room_number);
 
 #endif

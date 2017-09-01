@@ -46,75 +46,55 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 	SDL_GLContext context = SDL_GL_CreateContext(g_window);
 }
 
-long mGetAngle(long x/*$a1*/, long z/*$a0*/, long tx/*$a3*/, long tz/*$a2*/)//77678(<), 796BC(<)
+long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
 {
+	long dx = tx - x;
+	long dz = tz - z;
+	short table_index = 0;
+	long result_angle = 0;
+	long temp = 0;
 
-	int t0 = tz - z;
-	int t1 = tx - x;
-	int at = t0 | t1;
-	int v0 = 0;
-	int a0 = 0;
-	int a1 = 0;
-
-	if (at != 0)
+	if ((dx | dz) != 0)
 	{
-		a0 = 0x90000;
-		if (t0 < 0)
+		if (dx < 0)
 		{
-			v0 |= 0x10;
-			t0 = -t0;
+			table_index |= 0x10;//FIXME: += (4);
+			dx = -dx;
 		}
 
 		//0x796E0
-		a0 |= 0x5FD4;
-		if (t1 < 0)
+		if (dz < 0)
 		{
-			v0 += 8;
-			t1 = -t1;
+			table_index += 2;
+			dz = -dz;
 		}
 
 		//796F0
-		a1 = 0x90000;
-		if (t0 < t1)
+		if (dx < dz)
 		{
-			v0 += 4;
-			at = t0;
-			t0 = t1;
-			t1 = at;
+			table_index += 1;
+			temp = dx;
+			dx = dz;
+			dz = temp;
 		}
 		
 		//7970C
-		at = t1 >> 0x10;
-
-		while (t1 >> 0x10 != 0)
+		while ((dz / 65536) != 0)
 		{
-			t0 <<= 1;
-			t1 <<= 1;
+			dx /= 2;
+			dz /= 2;
 		}
 
 		//79724
-		t1 <<= 0xB;
-		t1 /= t0;
-		a1 |= 0x5FB4;
-		a1 += v0;
-		t0 = t1;
-		t1 = atanOctantTab[v0 / 4];
+		result_angle = atanTab[(dz * 2048) / dx];
+		result_angle += atanOctantTab[table_index];
 
-		t0 = atanTab[t0];
-
-		t0 += t1;
-
-		v0 = t0;
-		if (t0 < 0)
+		if (result_angle < 0)
 		{
-			v0 = 0 - t0;
-			v0 = 0 - v0;
-			return v0;
+			result_angle = -result_angle;
 		}//79760
-
-		return t0;
 
 	}//79760
 
-	return 0;
+	return -result_angle & 0xFFFF;
 }

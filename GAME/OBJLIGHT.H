@@ -3,6 +3,17 @@
 
 #include "SPECTYPES.H"
 
+enum light_type
+{
+	LT_SUN,
+	LT_LIGHT,
+	LT_SPOT,
+	LT_SHADOW,
+	LT_FOG_BULB,
+
+	NUM_LIGHT_TYPES
+};
+
 extern struct FOOTPRINT FootPrint[32];
 extern int FootPrintNum;
 

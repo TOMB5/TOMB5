@@ -91,7 +91,7 @@ void S_UpdateInput()//5F628, 6038C
 		RawPad = 0;
 		PadConnected = 0;
 		RawEdge = 0;
-		input = 0;
+		input = IN_NONE;
 		dword_A1894 = 0;//pause_db?
 		dword_A1890 = 0;//option_db?
 		reset_count = 0;
