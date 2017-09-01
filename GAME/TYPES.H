@@ -21,6 +21,8 @@
 #define WHITE555 RGB555(16, 16, 16)
 #define BLACK555 RGB555( 0,  0,  0)
 
+#define PSXENGINE (PSXPC_VERSION || PSX_VERSION)
+
 // 4 enums
 enum mood_type
 {

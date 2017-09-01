@@ -256,6 +256,40 @@ short pierre_chat_ranges4[48] =
 	0x0D3E, 0x0D62, 0x0E3A, 0x0E53, 0x0F16, 0x0F1C, 0xFFFF, 0xFFFF
 };
 
+short lara_chat_ranges_andy9[6] =
+{
+	0x041A, 0x043A, 0x0F2C, 0x0F7F, 0xFFFF, 0xFFFF
+};
+
+short lara_chat_ranges_andy1[14] =
+{
+	0x0312, 0x0333, 0x054B, 0x0555, 0x056D, 0x0588, 0x0868, 0x087D, 0x0C25, 0x0C55, 
+	0x0C6A, 0x0C74, 0xFFFF, 0xFFFF
+};
+
+short lara_chat_ranges_andy2[8] =
+{
+	0x05BA, 0x05D2, 0x05E5, 0x05FB, 0x07D9, 0x07FD, 0xFFFF, 0xFFFF
+};
+
+short lara_chat_ranges_joby8[20] =
+{
+	0x03BC, 0x042D, 0x04ED, 0x053A, 0x0550, 0x0597, 0x05AB, 0x05BE, 0x05CD, 0x05E0, 
+	0x05F6, 0x0620, 0x070C, 0x072F, 0x0897, 0x08CF, 0x0913, 0x0940, 0xFFFF, 0xFFFF
+};
+
+short lara_chat_ranges_andy6[8] =
+{
+	0x02C8, 0x02D7, 0x02EF, 0x0303, 0x034C, 0x037A, 0xFFFF, 0xFFFF
+};
+
+short lara_chat_ranges_andy11[28] =
+{
+	0x083F, 0x0851, 0x0CB0, 0x0CC6, 0x0CD5, 0x0CEA, 0x0CF9, 0x0D15, 0x0D1F, 0x0D35, 
+	0x0D3E, 0x0D50, 0x0D6B, 0x0DBE, 0x0E5B, 0x0E6C, 0x0E8B, 0x0EA2, 0x1021, 0x103A, 
+	0x12E3, 0x12F7, 0x1510, 0x152F, 0x16F2, 0x1715, 0xFFFF, 0xFFFF
+};
+
 int cuntercunter;
 char jobyfrigger;
 int cutrot;
@@ -627,9 +661,11 @@ void joby7_control()//3210C, 325A4
 	S_Warn("[joby7_control] - Unimplemented!\n");
 }
 
-void joby7_init()//320D0, 32568
+void joby7_init()//320D0(<), 32568(<) (F)
 {
-	S_Warn("[joby7_init] - Unimplemented!\n");
+	lara_item->mesh_bits = 0;
+	cutseq_kill_item(ANIMATING2);
+	cutseq_meshbits[6] &= 0x7FFFFFFF;
 }
 
 void andy10_end()//3202C(<), 324C4(<) (F)
@@ -650,38 +686,136 @@ void andy10_end()//3202C(<), 324C4(<) (F)
 	disable_horizon = 0;
 }
 
-void andy10_control()//31E9C, 32334
+void andy10_control()//31E9C(<), 32334(<) (F)
 {
-	S_Warn("[andy10_control] - Unimplemented!\n");
+	if (GLOBAL_cutseq_frame == 1250)
+	{
+		cutseq_meshbits[8] &= 0xE0;
+		TriggerDynamic(GLOBAL_cutme->orgx, GLOBAL_cutme->orgy, GLOBAL_cutme->orgz, 31, 255, 255, 255);
+		return;
+	}
+	
+	if (GLOBAL_cutseq_frame == 902)
+	{
+		cutseq_meshbits[1] |= 0x80000000;
+		cutseq_meshbits[2] |= 0x80000000;
+		cutseq_meshbits[3] |= 0x80000000;
+		cutseq_meshbits[4] &= 0x7FFFFFFFu;
+		cutseq_meshbits[5] |= 0x80000000;
+		cutseq_meshbits[6] |= 0x80000000;
+	}
+	else if (GLOBAL_cutseq_frame == 338 || GLOBAL_cutseq_frame == 775)
+	{
+		lara_item->mesh_bits = 0;
+	}
+	else if (GLOBAL_cutseq_frame == 747)
+	{
+		lara_item->mesh_bits = -1;
+		TriggerDynamic(GLOBAL_cutme->orgx, GLOBAL_cutme->orgy, GLOBAL_cutme->orgz, 31, 255, 255, 255);
+		return;
+	}
+	else if (GLOBAL_cutseq_frame == 1574)
+	{
+		cutseq_meshbits[4] &= 0x7FFFFFFFu;
+	}
+	
+	if (GLOBAL_cutseq_frame == 338 || GLOBAL_cutseq_frame == 1030)
+	{
+		cutseq_meshbits[4] |= 0x80000000;
+	}
+	else if(GLOBAL_cutseq_frame == 1603)
+	{
+		cutseq_meshbits[1] &= 0x7FFFFFFFu;
+	}
+	else if(GLOBAL_cutseq_frame == 1624)
+	{
+		cutseq_meshbits[2] &= 0x7FFFFFFFu;
+	}
+	else if(GLOBAL_cutseq_frame == 854)
+	{
+		cutseq_meshbits[7] &= 0x7FFFFFFFu;
+	}
+
+	TriggerDynamic(GLOBAL_cutme->orgx, GLOBAL_cutme->orgy, GLOBAL_cutme->orgz, 31, 255, 255, 255);
 }
 
-void andy10_init()//31D58, 321F0
+void andy10_init()//31D58(<), 321F0(<) (F)
 {
-	S_Warn("[andy10_init] - Unimplemented!\n");
+	struct ITEM_INFO* item;
+
+	cutseq_kill_item(ANIMATING4);
+	cutseq_kill_item(ANIMATING5);
+	cutseq_kill_item(ANIMATING14);
+	
+	cutseq_meshbits[1] &= 0x7FFFFFFFu;
+	cutseq_meshbits[2] &= 0x7FFFFFFFu;
+	cutseq_meshbits[3] &= 0x7FFFFFFFu;
+	cutseq_meshbits[4] &= 0x7FFFFFFFu;
+	cutseq_meshbits[5] &= 0x7FFFFFFFu;
+	cutseq_meshbits[6] &= 0x7FFFFFFFu;
+	
+	item = find_a_fucking_item(GREEN_TEETH);
+	item->status = 3;
+	RemoveActiveItem(item - items);
+	DisableBaddieAI(item - items);
+	item->flags |= IFLAG_INVISIBLE;
+	lara.water_status = 1;
+	FlipMap(7);
+	disable_horizon = 1;
 }
 
-void do_chalk_meshswap()
+void do_chalk_meshswap()//31D24(<), 321BC(<) (F)
 {
-	S_Warn("[do_chalk_meshswap] - Unimplemented!\n");
+	short* temp = lara.mesh_ptrs[LM_RHAND];
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[MAFIA_MIP].mesh_index + 20];
+	meshes[objects[MAFIA_MIP].mesh_index + 80] = temp;
 }
 
 void andy8_end()//31CF8, 32190
 {
-	S_Warn("[andy8_end] - Unimplemented!\n");
+	SetCutPlayed(36);
+
+	do_chalk_meshswap();
+
+	lara.puzzleitems[0] = 0;
 }
 
-void andy8_control()//31C3C, 320D4
+void andy8_control()//31C3C(<), 320D4(<) (F)
 {
-	S_Warn("[andy8_control] - Unimplemented!\n");
+	struct ITEM_INFO* item = find_a_fucking_item(ANIMATING16);
+
+	item->flags |= 0x20u;
+	switch (GLOBAL_cutseq_frame)
+	{
+	case 311:
+		item->mesh_bits = 2;
+		break;
+	case 701:
+		item->mesh_bits = 4;
+		break;
+	case 831:
+		item->mesh_bits = 8;
+		break;
+	case 1244:
+		lara_item->mesh_bits = 0;
+		break;
+	case 1476:
+		lara_item->mesh_bits = -1;
+		break;
+	case 145:
+		do_chalk_meshswap();
+		break;
+	}
 }
 
 void andy8_init()//31C34(<), 320CC(<) (F)
 {
 }
 
-void andy9_end()//31C08, 320A0
+void andy9_end()//31C08(<), 320A0(<) (F)
 {
-	S_Warn("[andy9_end] - Unimplemented!\n");
+	cutseq_restore_item(ANIMATING15);
+	lara_item->mesh_bits = -1;
 }
 
 void andy9_control()//31BA4, 31FD4
