@@ -29,12 +29,12 @@ void ready_flare()//4A3E4(<), 4A848(<) (F)
 
 void undraw_flare_meshes()//4A3BC, 4A820
 {
-	lara.mesh_ptrs[13] = meshes[objects[LARA].mesh_index + 0x68];
+	lara.mesh_ptrs[LM_LHAND] = meshes[objects[LARA].mesh_index + 0x68];
 }
 
 void draw_flare_meshes()//4A394(<), 4A7F8(<) (F)
 {
-	lara.mesh_ptrs[13] = meshes[objects[FLARE_ANIM].mesh_index + 0x68];
+	lara.mesh_ptrs[LM_LHAND] = meshes[objects[FLARE_ANIM].mesh_index + 0x68];
 }
 
 void undraw_flare()//4A108, 4A56C
@@ -57,7 +57,7 @@ void CreateFlare(short object, int thrown)//49BBC, 4A020
 	S_Warn("[CreateFlare] - Unimplemented!\n");
 }
 
-void DrawFlareInAir(struct ITEM_INFO *item)//49A8C, 49EF0
+void DrawFlareInAir(struct ITEM_INFO* item)//49A8C, 49EF0
 {
 	S_Warn("[DrawFlareInAir] - Unimplemented!\n");
 }
@@ -67,7 +67,7 @@ void DoFlareInHand(int flare_age)//49984, 49DE8
 	S_Warn("[DoFlareInHand] - Unimplemented!\n");
 }
 
-int DoFlareLight(struct PHD_VECTOR *pos, int flare_age)//49708, 49B6C
+int DoFlareLight(struct PHD_VECTOR* pos, int flare_age)//49708, 49B6C
 {
 	S_Warn("[DoFlareLight] - Unimplemented!\n");
 	return 0;

@@ -6,6 +6,6 @@
 extern struct ITEM_LIGHT fxil;
 
 extern void ControlBodyPart(short fx_number);
-extern int ExplodeFX(struct FX_INFO *fx, int NoXZVel, long bits);
+extern int ExplodeFX(struct FX_INFO* fx, int NoXZVel, long bits);
 
 #endif

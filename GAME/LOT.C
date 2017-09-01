@@ -1,13 +1,15 @@
 #include "LOT.H"
 
 #include "SPECIFIC.H"
+#include "malloc.h"
+#include "BOX.H"
 
 int slots_used;
 short nAIObjects;
 struct AIOBJECT* AIObjects;
 struct creature_info* baddie_slots;
 
-void CreateZone(struct ITEM_INFO *item)//4E330, 4E794
+void CreateZone(struct ITEM_INFO* item)//4E330, 4E794
 {
 	S_Warn("[CreateZone] - Unimplemented!\n");
 }
@@ -17,7 +19,7 @@ void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0
 {
 #if 0
 	int i; // $s1
-	struct creature_info *creature; // $s0
+	struct creature_info* creature; // $s0
 
 	int a2 = 3;
 	int v0 = a1 << 3;//a1 param?
@@ -176,7 +178,22 @@ void DisableBaddieAI(short item_num)//4DEC0, 4E324
 	S_Warn("[DisableBaddieAI] - Unimplemented!\n");
 }
 
-void InitialiseLOTarray(int allocmem)//4DE40, 4E2A4
+void InitialiseLOTarray(int allocmem)//4DE40(<), 4E2A4(<) (F)
 {
-	S_Warn("[InitialiseLOTarray] - Unimplemented!\n");
+	int i;
+
+	if (allocmem)
+		baddie_slots = (struct creature_info *)game_malloc(5 * sizeof(struct creature_info));
+	
+	for (i = 0; i < 5; i++)
+	{
+		baddie_slots[i].item_num = -1;
+
+		if (allocmem)
+		{
+			baddie_slots[i].LOT.node = (struct box_node*)game_malloc(number_boxes * sizeof(struct box_node));
+		}
+	}
+
+	slots_used = 0;
 }

@@ -37,7 +37,7 @@ long outside_right;
 long outside_top;
 long outside_bottom;
 short HorizonClip;
-//struct door_vbuf vbufdoor[4];
+struct door_vbuf vbufdoor[4];
 short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;

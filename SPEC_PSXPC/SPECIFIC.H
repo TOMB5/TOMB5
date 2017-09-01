@@ -9,7 +9,7 @@ extern struct REQUESTER SettingsReq;
 extern struct REQUESTER ConfigReq;
 extern unsigned char SoundFXVolume;
 extern unsigned short nAnimTextureRanges;
-extern unsigned short *AnimTextureRanges;
+extern unsigned short* AnimTextureRanges;
 extern unsigned short nAnimUVRanges;
 extern int GtSFXEnabled;
 extern short AnimatingTexturesV[16][8][3];

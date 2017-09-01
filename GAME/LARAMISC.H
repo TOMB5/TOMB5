@@ -15,11 +15,11 @@ extern struct COLL_INFO mycoll;
 extern short cheat_hit_points;
 
 extern void GetLaraDeadlyBounds();
-extern void DelAlignLaraToRope(struct ITEM_INFO *item);
-extern void InitialiseLaraAnims(struct ITEM_INFO *item);
+extern void DelAlignLaraToRope(struct ITEM_INFO* item);
+extern void InitialiseLaraAnims(struct ITEM_INFO* item);
 extern void InitialiseLaraLoad(short item_num);
 extern void LaraControl(short item_number);
-extern void LaraCheat(struct ITEM_INFO *item, struct COLL_INFO *coll);
+extern void LaraCheat(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern void LaraInitialiseMeshes();
 
 #endif

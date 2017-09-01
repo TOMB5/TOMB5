@@ -16,7 +16,7 @@ extern void RestoreLevelData(int FullSave);
 extern void SaveLevelData(int FullSave);
 extern void RestoreLaraData(int FullSave);
 extern void SaveLaraData();
-extern int CheckSumValid(char *buffer);
+extern int CheckSumValid(char* buffer);
 extern void ReadSG(char* pointer, int size);
 extern void WriteSG(char* pointer, int size);
 

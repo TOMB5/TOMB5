@@ -3,6 +3,77 @@
 
 #include "SPECTYPES.H"
 
+// guessed, some may be wrong on PSX
+enum input_buttons
+{
+	IN_NONE = 0,								// 0x000000
+	IN_UP = (1 << 0),							// 0x000001
+	IN_DOWN = (1 << 1),							// 0x000002
+	IN_LEFT = (1 << 2),							// 0x000004
+	IN_RIGHT = (1 << 3),						// 0x000008
+	IN_JUMP = (1 << 4),							// 0x000010
+	IN_DRAW = (1 << 5), // Space / Triangle		// 0x000020
+	IN_ACTION = (1 << 6), // Ctrl / X			// 0x000040
+	IN_WALK = (1 << 7), // Shift / R1			// 0x000080
+	IN_OPTION = (1 << 8),						// 0x000100
+	IN_LOOK = (1 << 9),							// 0x000200
+	IN_LSTEP = (1 << 10),						// 0x000400
+	IN_RSTEP = (1 << 11),						// 0x000800
+	IN_ROLL = (1 << 12), // End / O				// 0x001000
+	IN_PAUSE = (1 << 13),						// 0x002000
+	IN_SAVE = (1 << 22), // F5					// 0x400000
+	IN_LOAD = (1 << 23)  // F6					// 0x800000
+};
+
+enum flipeffects
+{
+	FE_ROTATE_180 = 0,
+	FE_FLOOR_SHAKE = 1,
+	FE_FLOOD_FX = 2,
+	FE_LARA_BUBBLES = 3,
+	FE_FINISH_LEVEL = 4,
+
+	FE_ACTIVATE_CAMERA = 5,
+	FE_ACTIVATE_KEY = 6,
+
+	FE_RUBBLE_FX = 7,
+	FE_SWAP_CROWBAR = 8,
+
+	FE_TIMER_FIELD_FX = 10,
+	FE_EXPLOSION_FX = 11,
+	FE_LARA_HANDSFREE = 12,
+
+	FE_SHOOT_RIGHTGUN = 16,
+	FE_SHOOT_LEFTGUN = 17,
+
+	FE_INV_ON = 21,
+	FE_INV_OFF = 22,
+
+	FE_RESET_HAIR = 26,
+	FE_SETFOG = 28,
+	FE_LARALOCATION = 30,
+	FE_RESET_TEST = 31,
+	FE_FOOTPRINT_FX = 32,
+	FE_CLEAR_SPIDERS_PATCH = 33,
+	FE_LARALOCATIONPAD = 45,
+	FE_KILLACTIVEBADDIES = 46,
+
+	FE_TUT_HINT_1 = 47,
+	FE_TUT_HINT_2 = 48,
+	FE_TUT_HINT_3 = 49,
+	FE_TUT_HINT_4 = 50,
+	FE_TUT_HINT_5 = 51,
+	FE_TUT_HINT_6 = 52,
+	FE_TUT_HINT_7 = 53,
+	FE_TUT_HINT_8 = 54,
+	FE_TUT_HINT_9 = 55,
+	FE_TUT_HINT_10 = 56,
+	FE_TUT_HINT_11 = 57,
+	FE_TUT_HINT_12 = 58,
+
+	NUM_FLIPEFFECTS
+};
+
 extern int flipeffect;
 extern int fliptimer;
 extern unsigned char ShatterSounds[18][10];
@@ -80,5 +151,32 @@ extern void KillMoveItems();
 extern void KillMoveEffects();
 extern void TestTriggers(short* data, int heavy, int HeavyFlags);
 extern void ClearFires();
+
+extern int is_object_in_room(int roomnumber, int objnumber);
+extern void NeatAndTidyTriggerCutscene(int value, int timer);
+extern int CheckCutPlayed(int num);
+extern void SetCutNotPlayed(int num);
+extern void SetCutPlayed(int num);
+extern void InitCutPlayed();
+extern void ResetGuards();
+extern void InterpolateAngle(short dest, short* src, short* diff, short speed);
+extern int CheckGuardOnTrigger();
+extern int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits);
+extern int GetTargetOnLOS(struct GAME_VECTOR* src, struct GAME_VECTOR* dest, int DrawTarget, int firing);
+extern void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* target);
+extern void TriggerNormalCDTrack(short value, short flags, short type);
+extern void TriggerCDTrack(short value, short flags, short type);
+extern void RemoveRoomFlipItems(struct room_info* r);
+extern void FlipMap(int FlipNumber);
+extern void _TestTriggers(short* data, int heavy, int HeavyFlags);
+extern void RefreshCamera(short type, short* data);
+extern long GetWaterHeight(long x, long y, long z, short room_number);
+extern void AlterFloorHeight(struct ITEM_INFO* item, int height);
+extern short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z);
+extern struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number);
+extern short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z);
+extern int TriggerActive(struct ITEM_INFO* item);
+extern void AddRoomFlipItems(struct room_info* r);
+extern void IsRoomOutside(long x, long y, long z);
 
 #endif

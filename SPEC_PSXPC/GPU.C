@@ -58,7 +58,7 @@ int GPU_FlipNoIdle()//5E078, 5F264
 	return 0;
 }
 
-void GPU_GetScreenPosition(short x, short y)
+void GPU_GetScreenPosition(short* x, short* y)
 {
 	int test = 0;
 	test++;
@@ -107,4 +107,9 @@ void GPU_FlipToBuffer(int buffer_index)
 void GPU_EndScene()
 {
 	SDL_GL_SwapWindow(g_window);
+}
+
+void GPU_SetScreenPosition(short x, short y)
+{
+	S_Warn("[GPU_SetScreenPosition] - Unimplemented!\n");
 }

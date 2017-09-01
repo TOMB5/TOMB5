@@ -3,6 +3,7 @@
 #include "CONTROL.H"
 #include "GAMEFLOW.H"
 #include "SPECIFIC.H"
+#include "TYPES.H"
 
 #include <string.h>
 
@@ -16,8 +17,7 @@ struct savegame_info savegame;
 void sgRestoreGame()//55B88, 55FEC (F)
 {
 	SGcount = 0;
-	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
-
+	SGpoint = &MGSaveGamePtr[sizeof(struct savegame_info)];
 	GameTimer = savegame.Game.Timer;
 	gfCurrentLevel = savegame.CurrentLevel;
 
@@ -27,7 +27,7 @@ void sgRestoreGame()//55B88, 55FEC (F)
 
 void sgSaveGame()//55AF8(<), 55F5C(<)
 {
-	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
+	SGpoint = &MGSaveGamePtr[sizeof(struct savegame_info)];
 	SGcount = 0;
 
 	savegame.CurrentLevel = gfCurrentLevel;
@@ -37,8 +37,8 @@ void sgSaveGame()//55AF8(<), 55F5C(<)
 	SaveLaraData();
 
 	MGSaveGamePtr[7678] = GetRandomControl();
-	memcpy(&MGSaveGamePtr, &savegame, sizeof(savegame_info));
-
+	
+	memcpy(&MGSaveGamePtr, &savegame, sizeof(struct savegame_info));
 	savegame.Checksum = GameTimer;
 
 	return;
@@ -64,7 +64,7 @@ void SaveLaraData()//53738, 53B9C
 	S_Warn("[SaveLaraData] - Unimplemented!\n");
 }
 
-int CheckSumValid(char *buffer)//53720(<), 53B84(<) (F)
+int CheckSumValid(char* buffer)//53720(<), 53B84(<) (F)
 {
 	return *(short*)buffer ^ *(short*)(buffer + 0x1DFE) < 1;
 }
