@@ -542,7 +542,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 			if (GLOBAL_playing_cutseq == 0 && !bDoCredits && ScreenFading == 0 && cutseq_num == 0)
 			{
 
-#if INTERNAL
+#if 0//INTERNAL
 				long v00 = RawPad & 0x201;
 				if (RawPad & 0x201 == 0x201)//Debug Cheat?
 				{

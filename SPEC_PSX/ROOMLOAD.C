@@ -25,11 +25,6 @@ int AnimatingWaterfallsV[6];
 unsigned long envmap_data[6];
 unsigned long* RelocPtr[128];
 
-//FIXME (Retail)
-int dword_800A5F04 = 0;
-int dword_800AD724 = 0;
-int dword_800A60D8 = 0;
-
 void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 {
 	char buf[80];
@@ -70,10 +65,14 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 		
 	len = FILE_Length(buff);
 
-	PCopen(buff, 0, 0);
+	file = PCopen(buff, 0, 0);
+
+	RelocateLevel(file);
+#else
+	RelocateLevel();
 #endif
 
-	RelocateLevel(); //jalr SetupPtr[5](len);, retail a0 = s1? len?
+	 //jalr SetupPtr[5](len);, retail a0 = s1? len?
 
 	LOAD_Stop();
 }

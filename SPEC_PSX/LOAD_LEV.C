@@ -423,23 +423,27 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	for(y = 0; y < LOADING_CD_IMG_HEIGHT; y++, gfx2 += 448)
 	{
 		//loc_603B4
-		for (x = 0; x < LOADING_CD_IMG_WIDTH; x++, gfx2++, dat = *cdgfx++)
+		for (x = 0; x < LOADING_CD_IMG_WIDTH; x++, gfx2++)
 		{
+			dat = *cdgfx++;
+
 			if (dat == 0)
 			{
-				*gfx2 = 0x8000;
+				dat = 0x8000;
 			}
 
 			//loc_603C8
 			if (dat == 0xFC1F)
 			{
-				*gfx2 = 0;
+				dat = 0;
 			}
+
+			*gfx2 = dat;
 		}
 	}
 
 	//loc_603D4
-	LoadImage(&db.disp[0].disp, *gfx);
+	LoadImage(&db.disp[0].disp, gfx);
 	DrawSync(0);
 	game_free(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 
