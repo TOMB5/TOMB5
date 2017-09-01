@@ -43,7 +43,7 @@ void ProfileReadCount()//61A48(<), *
 
 	currentCount = GetRCnt(0xF2000001);
 
-	finalCount = currentCount - lastCount / divisor;
+	finalCount = (currentCount - lastCount) / divisor;
 
 	return;
 }

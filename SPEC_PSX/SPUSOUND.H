@@ -5,6 +5,8 @@
 
 #include <LIBSPU.H>
 
+#define MAX_NUM_SOUND_EFFECTS 256
+
 extern short DepthTable[5];
 extern short CurrentReverb;
 extern int LnSamplesLoaded;

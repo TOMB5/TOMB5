@@ -1,6 +1,7 @@
 #include "LOAD_LEV.H"
 
 #include "CD.H"
+#include "FILE.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "MALLOC.H"
@@ -9,6 +10,7 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
 
 #if 0
 #include <limits>
@@ -350,7 +352,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	int x = 0;
 	int y = 0;
 	unsigned long* tmpptr;
-	int file;
+	FILE* file;
 	unsigned short dat = 0;
 
 #if INTERNAL
@@ -364,9 +366,9 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	gfx2 = (unsigned short*) &gfx[0x4000];
 
 #if INTERNAL
-	file = PCopen("data\\loadpic.raw", 0, file);
-	FILE_Read(gfx, 1, LOADING_SCREEN_IMG_SIZE);
-	PCclose(file);
+	file = fopen("data\\loadpic.raw", "rb");
+	FILE_Read(gfx, 1, LOADING_SCREEN_IMG_SIZE, file);
+	fclose(file);
 #else
 	if (_first_time_ever)
 	{
@@ -401,18 +403,22 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	for(y = 0; y < LOADING_CD_IMG_HEIGHT; y++, gfx2 += 448)
 	{
 		//loc_603B4
-		for (x = 0; x < LOADING_CD_IMG_WIDTH; x++, gfx2++, dat = *cdgfx++)
+		for (x = 0; x < LOADING_CD_IMG_WIDTH; x++, gfx2++)
 		{
+			dat = *cdgfx++;
+
 			if (dat == 0)
 			{
-				*gfx2 = 0x8000;
+				dat = 0x8000;
 			}
 
 			//loc_603C8
 			if (dat == 0xFC1F)
 			{
-				*gfx2 = 0;
+				dat = 0;
 			}
+
+			*gfx2 = dat;
 		}
 	}
 

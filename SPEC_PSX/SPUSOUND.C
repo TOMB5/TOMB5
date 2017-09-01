@@ -22,7 +22,7 @@ unsigned char LabSampleType[MAX_SOUND_SLOTS];
 unsigned char LabFreeChannel[MAX_SOUND_SLOTS];
 int LnFreeChannels;
 static unsigned char LabSPUMallocArea[SPU_MALLOC_RECSIZ * (MAX_SPU_MALLOC_CALLS + 1)];
-unsigned long LadwSampleAddr[256];
+unsigned long LadwSampleAddr[MAX_NUM_SOUND_EFFECTS];
 
 
 void SPU_FreeSamples()//62610, 62CF4
