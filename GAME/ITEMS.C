@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <assert.h>
 #include "EFFECTS.H"
+#include "malloc.h"
 
 int level_items;
 short next_item_free;
@@ -47,9 +48,23 @@ short CreateEffect(short room_num)//420E0(<), 42534(<) (F)
 	return fx_num;
 }
 
-void InitialiseFXArray(int allocmem)//4207C, 424D0
+void InitialiseFXArray(int allocmem)//4207C(<), 424D0(<) (F)
 {
-	S_Warn("[InitialiseFXArray] - Unimplemented!\n");
+	int i;
+	struct FX_INFO* fx;
+
+	if (allocmem)
+		effects = (FX_INFO*)game_malloc(24 * sizeof(FX_INFO));
+
+	fx = effects;
+	next_fx_active = -1;
+	next_fx_free = 0;
+	for (i = 1; i <= 24; i++)
+	{
+		fx->next_fx = i++;
+		++fx;
+	}
+	fx->next_fx = -1;
 }
 
 void AddActiveItem(short item_num)//41FEC(<), 42440(<)
