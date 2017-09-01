@@ -9,7 +9,7 @@
 #include <stddef.h>
 #include <assert.h>
 #include "EFFECTS.H"
-#include "malloc.h"
+#include "MALLOC.H"
 
 int level_items;
 short next_item_free;
@@ -54,7 +54,7 @@ void InitialiseFXArray(int allocmem)//4207C(<), 424D0(<) (F)
 	struct FX_INFO* fx;
 
 	if (allocmem)
-		effects = (FX_INFO*)game_malloc(24 * sizeof(FX_INFO));
+		effects = (struct FX_INFO*)game_malloc(24 * sizeof(struct FX_INFO));
 
 	fx = effects;
 	next_fx_active = -1;

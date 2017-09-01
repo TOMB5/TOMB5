@@ -181,23 +181,18 @@ void DisableBaddieAI(short item_num)//4DEC0, 4E324
 void InitialiseLOTarray(int allocmem)//4DE40(<), 4E2A4(<) (F)
 {
 	int i;
-	struct creature_info* creature;
 
 	if (allocmem)
-		baddie_slots = (creature_info *)game_malloc(5 * sizeof(creature_info));
-
-	creature = baddie_slots;
-
+		baddie_slots = (struct creature_info *)game_malloc(5 * sizeof(struct creature_info));
+	
 	for (i = 0; i < 5; i++)
 	{
-		creature->item_num = -1;
+		baddie_slots[i].item_num = -1;
 
 		if (allocmem)
 		{
-			creature->LOT.node = (box_node*)game_malloc(number_boxes * sizeof(box_node));
+			baddie_slots[i].LOT.node = (struct box_node*)game_malloc(number_boxes * sizeof(struct box_node));
 		}
-
-		creature++;
 	}
 
 	slots_used = 0;
