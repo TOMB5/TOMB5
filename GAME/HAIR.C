@@ -28,7 +28,7 @@ void InitialiseHair()//3AC70, 3B170
 		hptr = &hairs[j][0];
 
 		hptr->pos.y_rot = 0;
-		hptr->pos.x_rot = -(90 * TRDEGREE);
+		hptr->pos.x_rot = -(90 * TRDEG);
 		first_hair[j] = 1;
 
 		i = 5;
@@ -40,7 +40,7 @@ void InitialiseHair()//3AC70, 3B170
 			hptr->pos.y_pos = bone[2];
 			hptr->pos.z_pos = bone[3];
 
-			hptr->pos.x_rot = -(90 * TRDEGREE);
+			hptr->pos.x_rot = -(90 * TRDEG);
 			hptr->pos.z_rot = 0;
 			hptr->pos.y_rot = 0;
 

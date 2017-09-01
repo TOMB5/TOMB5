@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 #include <assert.h>
+#include "EFFECTS.H"
 
 int level_items;
 short next_item_free;
@@ -24,10 +25,26 @@ void KillEffect(short fx_num)//42178, 425CC
 	S_Warn("[KillEffect] - Unimplemented!\n");
 }
 
-short CreateEffect(short room_num)//420E0, 42534
+short CreateEffect(short room_num)//420E0(<), 42534(<) (F)
 {
-	S_Warn("[CreateEffect] - Unimplemented!\n");
-	return 0;
+	struct room_info* r;
+	struct FX_INFO* fx;
+	short fx_num = next_fx_free;
+
+	if (next_fx_free != -1)
+	{
+		fx = &effects[next_fx_free];
+		next_fx_free = fx->object_number;
+		r = &room[room_num];
+		fx->room_number = room_num;
+		fx->next_fx = r->fx_number;
+		r->fx_number = fx_num;
+		fx->next_active = next_fx_active;
+		next_fx_active = fx_num;
+		fx->shade = WHITE555;
+	}
+
+	return fx_num;
 }
 
 void InitialiseFXArray(int allocmem)//4207C, 424D0

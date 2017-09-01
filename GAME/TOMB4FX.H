@@ -45,7 +45,8 @@ extern void UpdateFadeClip();
 extern void SetScreenFadeOut(long fadespeed, long fadeback);
 extern void SetScreenFadeIn(long fadespeed);
 extern int GetFreeDrip();
-extern long GetFreeSmokeSpark();
-extern long GetFreeSpark();
+extern int GetFreeSmokeSpark();
+extern int GetFreeSpark();
+extern int GetFreeBubble();
 
 #endif
