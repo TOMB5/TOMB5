@@ -70,7 +70,7 @@ void DetatchSpark(long num, long type)//32D8C, 3328C
 	S_Warn("[DetatchSpark] - Unimplemented!\n");
 }
 
-void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, int a8, int a9)
+void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, int a8, int a9)//8D6D4(<), 8F718(<) (F)
 {
 	struct SMOKE_SPARKS* spark = &smoke_spark[GetFreeSmokeSpark()];
 	unsigned char life, size;

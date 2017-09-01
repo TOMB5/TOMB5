@@ -5,6 +5,7 @@
 #include "LARA.H"
 #include "DELSTUFF.H"
 #include "CONTROL.H"
+#include "DRAW.H"
 
 char flare_table[121] =
 {
@@ -237,4 +238,29 @@ int GetFreeBubble()//8BEAC(<), 8DEF0(<) (F)
 	if (bub_num + 1 >= 40)
 		next_bubble = 0;
 	return bub_num;
+}
+
+void CreateBubble(struct PHD_VECTOR* pos, short room_num, int a3, int a4, int flags, int xv, int yv, int zv)//8BF14(<), 8DF58(<) (F)
+{
+	struct BUBBLE_STRUCT* v9;
+	long size;
+
+	GetFloor(pos->x, pos->y, pos->z, &room_num);
+
+	if (room[room_num].flags & RF_FILL_WATER)
+	{
+		v9 = &Bubbles[GetFreeBubble()];
+		v9->pos = *pos;
+		v9->room_number = room_num;
+		v9->speed = GetRandomControl() + 64;
+		v9->shade = 0;
+		size = 2 * (a3 + (a4 & GetRandomControl()));
+		v9->size = size;
+		v9->dsize = 16 * size;
+		v9->vel = (GetRandomControl() & 0x1F) + 32;
+		v9->Flags = flags;
+		v9->Xvel = xv;
+		v9->Yvel = yv;
+		v9->Zvel = zv;
+	}
 }

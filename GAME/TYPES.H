@@ -57,7 +57,7 @@ enum target_type
 
 enum room_flags
 {
-	RF_FILL_WATER = (1 << 0),			    // 0x0000
+	RF_FILL_WATER = (1 << 0),			    // 0x0001
 	RF_SKYBOX_VISIBLE = (1 << 3),		    // 0x0008   speeds up rendering if no rendered room has this
 	RF_WIND_BLOWS_PONYTAIL = (1 << 5),	    // 0x0020   also some particles
 	RF_UNKNOWN_6 = (1 << 6),			    // 0x0040   used in official levels, no apparent effects

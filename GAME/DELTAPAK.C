@@ -500,9 +500,31 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 
 }//32968
 
-void CutLaraBubbles()
+void CutLaraBubbles()//327F8(<), 32C90(<) (F)
 {
-	S_Warn("[CutLaraBubbles] - Unimplemented!\n");
+	struct PHD_VECTOR offset;
+	struct PHD_VECTOR pos;
+	int i; 
+	short roomnum; 
+
+	offset.x = 0;
+	offset.y = -4;
+	offset.z = 64;
+	GetLaraJointPos(&offset, 8);
+	roomnum = camera.pos.room_number;
+	IsRoomOutsideNo = -1;
+	IsRoomOutside(offset.x, offset.y, offset.z);
+	if (IsRoomOutsideNo != -1)
+	{
+		roomnum = IsRoomOutsideNo;
+	}
+	for (i = 0; i < 2; i++)
+	{
+		pos.x = (GetRandomControl() & 0x3F) + offset.x - 32;
+		pos.y = (GetRandomControl() & 0x3F) + offset.y - 32;
+		pos.z = (GetRandomControl() & 0x3F) + offset.z - 32;
+		CreateBubble(&pos, roomnum, 7, 8, 0, 0, -96, 0);
+	}
 }
 
 void swampy_end()//3271C(<), 32BB4(<) (F)
@@ -835,9 +857,10 @@ void TriggerDelBrownSmoke(long x, long y, long z)
 	S_Warn("[TriggerDelBrownSmoke] - Unimplemented!\n");
 }
 
-void cossack_end()//31998, 31DC8
+void cossack_end()//31998(<), 31DC8(<) (F)
 {
-	S_Warn("[cossack_end] - Unimplemented!\n");
+	DelsHandyTeleportLara(SECTOR_TO_WORLD(75.75), SECTOR_TO_WORLD(4.75), SECTOR_TO_WORLD(36.5), 0);
+	SetCutNotPlayed(36);
 }
 
 void cossack_control()//3178C, 31BBC
@@ -1080,19 +1103,25 @@ void andy3_init()
 	S_Warn("[andy3_init] - Unimplemented!\n");
 }
 
-void joby5_end()
+void joby5_end()//30144, 304C4
 {
-	S_Warn("[joby5_end] - Unimplemented!\n");
+	cutseq_restore_item(ANIMATING3);
+	cutseq_restore_item(ANIMATING4);
+	DelsHandyTeleportLara(SECTOR_TO_WORLD(60), -SECTOR_TO_WORLD(1.25), SECTOR_TO_WORLD(54), ANGLE(-180));
+	lara_item->mesh_bits = -1;
 }
 
-void joby5_control()
+void joby5_control()//30034, 303B4
 {
 	S_Warn("[joby5_control] - Unimplemented!\n");
 }
 
-void joby5_init()
+void joby5_init()//2FFF0(<), 30370(<) (F)
 {
-	S_Warn("[joby5_init] - Unimplemented!\n");
+	cutseq_kill_item(ANIMATING3);
+	cutseq_kill_item(ANIMATING4);
+	cutseq_meshbits[2] &= 0x7FFFFFFFu;
+	cutseq_meshbits[4] &= 0x7FFFFFFFu;
 }
 
 void andrea2_end()//2FFD4(<), 30354(<) (F)
@@ -1111,14 +1140,47 @@ void andrea2_init()//2FCC0(<), 30040(<) (F)
 	cutseq_meshbits[1] &= 0x7FFFFFFF;
 }
 
-void andrea1_end()//2FC94, 30014
+void andrea1_end()//2FC94(<), 30014(<) (F)
 {
-	S_Warn("[andrea1_end] - Unimplemented!\n");
+	lara_item->mesh_bits = -1;
+	lara.pickupitems &= 0xFFFEu;
 }
 
-void andrea1_control()//2FB58, 2FED8
+void andrea1_control()//2FB58(<), 2FED8(<) (F)
 {
-	S_Warn("[andrea1_control] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+	struct ITEM_INFO* item;
+
+	switch (GLOBAL_cutseq_frame)
+	{
+	case 330:
+		item = find_a_fucking_item(ANIMATING10);
+		item->flags |= 0x20u;
+		item->mesh_bits = item->mesh_bits & 0xFFFFFFFD | 4;
+		break;
+	case 452:
+		cutseq_givelara_pistols();
+		break;
+	case 580:
+		undraw_pistol_mesh_left(1);
+		break;
+	case 603:
+		undraw_pistol_mesh_right(1);
+		lara.holster = old_lara_holster;
+		break;
+	case 705:
+		lara_item->mesh_bits = 0;
+		break;
+	}
+
+	pos.x = -50;
+	pos.y = 200;
+	pos.z = 0;
+	deal_with_actor_shooting(larson_pistols_info1, 1, 14, &pos);
+	handle_lara_chatting(lara_chat_ranges_andrea1);
+	handle_actor_chatting(21, 8, 1, 45, larson_chat_ranges1);
+	handle_actor_chatting(23, 8, 2, 419, pierre_chat_ranges1);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
 void andrea1_init()//2FB50(<), 2FED0(<) (F)
@@ -1126,9 +1188,12 @@ void andrea1_init()//2FB50(<), 2FED0(<) (F)
 	return;
 }
 
-void joby4_end()//2FB04, 2FE84
+void joby4_end()//2FB04(<), 2FE84(<) (F)
 {
-	S_Warn("[joby4_end] - Unimplemented!\n");
+	lara_item->mesh_bits = -1;
+	cutseq_restore_item(DOOR_TYPE1);
+	cutseq_restore_item(DOOR_TYPE5);
+	DelsHandyTeleportLara(57950, 8960, 53760, ANGLE(90));
 }
 
 void joby4_control()//2FA0C, 2FD8C

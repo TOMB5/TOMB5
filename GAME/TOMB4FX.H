@@ -48,5 +48,6 @@ extern int GetFreeDrip();
 extern int GetFreeSmokeSpark();
 extern int GetFreeSpark();
 extern int GetFreeBubble();
+extern void CreateBubble(struct PHD_VECTOR* pos, short room_num, int a3, int a4, int a5, int a6, int a7, int a8);
 
 #endif
