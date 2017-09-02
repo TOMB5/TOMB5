@@ -3,25 +3,26 @@
 #include "CD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
+#include "EFFECT2.H"
 #include "GAMEFLOW.H"
+#include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
+#include "LARA1GUN.H"
+#include "LARA2GUN.H"
+#include "LOT.H"
+#include "NEWINV2.H"
 #include "OBJECTS.H"
 #include "PROFILE.H"
+#include "ROOMLOAD.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
+#include "TYPES.H"
 
 #include <assert.h>
 #include <stddef.h>
-#include "ROOMLOAD.H"
-#include "HEALTH.H"
-#include "EFFECT2.H"
-#include "NEWINV2.H"
-#include "LOT.H"
-#include "LARA2GUN.H"
-#include "LARA1GUN.H"
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
@@ -2320,7 +2321,7 @@ void init_resident_cutseq(int num)//2DB8C(<), 2DE1C(<) (F)
 {
 	char* packed = cutseq_resident_addresses[num].packed_data;
 
-	GLOBAL_cutme = (NEW_CUTSCENE*)packed;
+	GLOBAL_cutme = (struct NEW_CUTSCENE*)packed;
 
 	if (cutseq_num <= 4)
 	{

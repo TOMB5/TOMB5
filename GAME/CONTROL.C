@@ -1272,7 +1272,7 @@ int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)
 	return 0;
 }
 
-int ClipTarget(GAME_VECTOR* start, GAME_VECTOR* target, FLOOR_INFO* floor)
+int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor)
 {
 	S_Warn("[ClipTarget] - Unimplemented!\n");
 	return 0;

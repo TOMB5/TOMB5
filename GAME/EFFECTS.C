@@ -1,17 +1,19 @@
 #include "EFFECTS.H"
 
-#include "SPECIFIC.H"
-#include "CONTROL.H"
-#include "GAMEFLOW.H"
-#include "LARA.H"
-#include "HAIR.H"
-#include "SETUP.H"
-#include "DRAW.H"
-#include <cstddef>
-#include "DELTAPAK.H"
-#include "ITEMS.H"
 #include "CAMERA.H"
+#include "CONTROL.H"
+#include "DELTAPAK.H"
+#include "DRAW.H"
+#include "GAMEFLOW.H"
+#include "HAIR.H"
+#include "ITEMS.H"
+#include "LARA.H"
 #include "LOT.H"
+#include "SETUP.H"
+#include "SPECIFIC.H"
+
+#include <stddef.h>
+
 
 long wf = 256;
 short next_fx_free;
