@@ -184,6 +184,6 @@ extern int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z);
-extern int ClipTarget(GAME_VECTOR* start, GAME_VECTOR* target, FLOOR_INFO* floor);
+extern int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor);
 
 #endif

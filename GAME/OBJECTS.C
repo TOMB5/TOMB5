@@ -2,7 +2,7 @@
 #include "SPECIFIC.H"
 #include "CONTROL.H"
 #include "EFFECTS.H"
-#include <cstddef>
+#include <stddef.h>
 
 struct BITE_INFO EnemyBites[9];
 int AnimatingWaterfallsVOffset;
