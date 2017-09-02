@@ -272,7 +272,7 @@ void SoundEffects()//39190, 39690
 	S_Warn("[SoundEffects] - Unimplemented!\n");
 }
 
-void SoundEffect(int arg1, struct PHD_3DPOS* pos, void* arg2)
+void SoundEffect(short arg1, struct PHD_3DPOS* pos, void* arg2)
 {
 	S_Warn("[SoundEffect] - Unimplemented!\n");
 }

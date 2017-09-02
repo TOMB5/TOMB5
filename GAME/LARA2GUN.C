@@ -1,6 +1,10 @@
 #include "LARA2GUN.H"
 
 #include "SPECIFIC.H"
+#include "LARA.H"
+#include "LARAFIRE.H"
+#include "SETUP.H"
+#include "DRAW.H"
 
 void AnimatePistols(int weapon_type)
 {
@@ -12,14 +16,40 @@ void PistolHandler(int weapon_type)
 	S_Warn("[PistolHandler] - Unimplemented!\n");
 }
 
-void undraw_pistol_mesh_right(int weapon_type)
+void undraw_pistol_mesh_right(int weapon_type)//44968(<), 44DCC(<) (F)
 {
-	S_Warn("[undraw_pistol_mesh_right] - Unimplemented!\n");
+	WeaponObject(weapon_type);
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[LARA].mesh_index + 20];
+	switch (weapon_type)
+	{
+	case 1:
+		lara.holster = 14;
+		break;
+	case 3:
+		lara.holster = 15;
+		break;
+	case 2:
+		lara.holster = 16;
+		break;
+	}
 }
 
-void undraw_pistol_mesh_left(int weapon_type)
+void undraw_pistol_mesh_left(int weapon_type)//448F0(<), 44D54(<) (F)
 {
-	S_Warn("[undraw_pistol_mesh_left] - Unimplemented!\n");
+	if(weapon_type != 2)
+	{
+		WeaponObject(weapon_type);
+		lara.mesh_ptrs[LM_LHAND] = meshes[objects[LARA].mesh_index + 26];
+		switch (weapon_type)
+		{
+		case 1:
+			lara.holster = 14;
+			break;
+		case 3:
+			lara.holster = 15;
+			break;
+		}
+	}
 }
 
 void draw_pistol_meshes(int weapon_type)

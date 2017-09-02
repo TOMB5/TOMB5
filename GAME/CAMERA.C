@@ -225,7 +225,11 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<)
 {
 	CurrentFov = fov;
 
-	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
+	if (fov == 0)
+	{
+		S_Warn("[AlterFOV] - fov == 0 -> divide by zero because spotcam is empty\n");
+	}
+	else phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
 
 #if PSX_VERSION
 	gte_SetGeomScreen(phd_persp);
