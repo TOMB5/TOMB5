@@ -41,5 +41,11 @@ extern void CombatCamera(struct ITEM_INFO* item);
 extern void FixedCamera();
 extern void ChaseCamera(struct ITEM_INFO* item);
 extern void ConfirmCameraTargetPos();
+extern void ScreenShake(struct ITEM_INFO *item, short MaxVal, short MaxDist);
+extern void UpdateCameraElevation();
+extern void LaraTorch(struct PHD_VECTOR *Soffset, struct PHD_VECTOR *Eoffset, short yrot, long brightness);
+extern long mgLOS(struct GAME_VECTOR *start, struct GAME_VECTOR *target, long push);
+extern long CameraCollisionBounds(struct GAME_VECTOR *ideal, long push, long yfirst);
+extern void MoveCamera(struct GAME_VECTOR *ideal, int speed);
 
 #endif

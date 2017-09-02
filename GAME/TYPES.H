@@ -7,6 +7,14 @@
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif
 
+#ifndef MIN
+#define MIN(x, y) (((x)<(y))?(x):(y))
+#endif
+
+#ifndef MAX
+#define MAX(x, y) (((x)>(y))?(x):(y))
+#endif
+
 // (65536 / 360) ~ 182.0444...
 //#define TRDEG (65536.0/360)
 #define ANGLE(x) ((x) * 65536.0 / 360.0)

@@ -312,3 +312,13 @@ void TriggerBlood(int x, int y, int z, int direction, int speed)
 {
 	S_Warn("[TriggerBlood] - Unimplemented!\\n");
 }
+
+void TriggerExplosionBubble(int x, int y, int z, short room_num)
+{
+	S_Warn("[TriggerExplosionBubble] - Unimplemented!\\n");
+}
+
+void TriggerExplosionSparks(int x, int y, int z, int a4, int a5, int a6, short room_no)
+{
+	S_Warn("[TriggerExplosionSparks] - Unimplemented!\\n");
+}
