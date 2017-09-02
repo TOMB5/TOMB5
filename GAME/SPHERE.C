@@ -15,7 +15,7 @@ int TestCollision(struct ITEM_INFO* item, struct ITEM_INFO* laraitem)//55C3C, 56
 
 int GetSpheres(struct ITEM_INFO *item, struct SPHERE *sptr, int worldspace)
 {
-	S_Warn("[GetSpheres] - Unimplemented!\\n");
+	S_Warn("[GetSpheres] - Unimplemented!\n");
 	return 0;
 }
 

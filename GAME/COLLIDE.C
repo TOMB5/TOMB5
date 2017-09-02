@@ -91,18 +91,18 @@ void UpdateLaraRoom(struct ITEM_INFO* item, int height)//7C58C(<), 7E5D0(<) (F)
 
 void ObjectCollision(short item_num, struct ITEM_INFO* lara_item, struct COLL_INFO* coll)
 {
-	S_Warn("[ObjectCollision] - Unimplemented!\\n");
+	S_Warn("[ObjectCollision] - Unimplemented!\n");
 }
 
 int TestLaraPosition(short* bounds, struct ITEM_INFO* item, struct ITEM_INFO* lara_item)
 {
-	S_Warn("[TestLaraPosition] - Unimplemented!\\n");
+	S_Warn("[TestLaraPosition] - Unimplemented!\n");
 	return 0;
 }
 
 int MoveLaraPosition(struct PHD_VECTOR* vector, struct ITEM_INFO* item, struct ITEM_INFO* lara_item)
 {
-	S_Warn("[MoveLaraPosition] - Unimplemented!\\n");
+	S_Warn("[MoveLaraPosition] - Unimplemented!\n");
 	return 0;
 }
 
