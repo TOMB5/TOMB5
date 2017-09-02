@@ -292,6 +292,19 @@ short lara_chat_ranges_andy11[28] =
 	0x12E3, 0x12F7, 0x1510, 0x152F, 0x16F2, 0x1715, 0xFFFF, 0xFFFF
 };
 
+short priest_chat_ranges_andy6[18] =
+{
+	0x0208, 0x02A0, 0x0319, 0x0338, 0x039C, 0x03AA, 0x03B4, 0x03D1, 0x03E0, 0x0471, 
+	0x047F, 0x04AD, 0x04C4, 0x0512, 0x051D, 0x0565, 0xFFFF, 0xFFFF
+};
+
+short priest_chat_ranges_andy2[24] =
+{
+	0x00EF, 0x014B, 0x02E0, 0x0321, 0x0332, 0x0367, 0x050D, 0x051B, 0x052C, 0x059D,
+	0x069A, 0x06B4, 0x06C8, 0x074E, 0x0765, 0x07B8, 0x083D, 0x086B, 0x087D, 0x08EF, 
+	0x0916, 0x0980, 0xFFFF, 0xFFFF
+};
+
 int cuntercunter;
 char jobyfrigger;
 int cutrot;
@@ -792,10 +805,10 @@ void do_chalk_meshswap()//31D24(<), 321BC(<) (F)
 {
 	short* temp = lara.mesh_ptrs[LM_RHAND];
 	lara.mesh_ptrs[LM_RHAND] = meshes[objects[MAFIA_MIP].mesh_index + 20];
-	meshes[objects[MAFIA_MIP].mesh_index + 80] = temp;
+	meshes[objects[MAFIA_MIP].mesh_index + 20] = temp;
 }
 
-void andy8_end()//31CF8, 32190
+void andy8_end()//31CF8(<), 32190(<) (F)
 {
 	SetCutPlayed(36);
 
@@ -895,9 +908,78 @@ void cossack_end()//31998(<), 31DC8(<) (F)
 	SetCutNotPlayed(36);
 }
 
-void cossack_control()//3178C, 31BBC
+void cossack_control()//3178C(<), 31BBC(<) (F)
 {
-	S_Warn("[cossack_control] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+	int n;
+	int f = GLOBAL_cutseq_frame;
+
+	if (f == 98
+		|| f == 344
+		|| f == 743
+		|| f == 1263)
+	{
+		lara_item->mesh_bits = 0;
+	}
+	if (f == 281 || f == 468 || f == 901 || f == 1339)
+	{
+		lara_item->mesh_bits = -1;
+	}
+	if (f == 156)
+	{
+		pos.x = 0;
+		pos.y = 120;
+		pos.z = 0;
+		GetActorJointAbsPosition(1, 17, &pos);
+		for (n = 0; n < 7; n++)
+		{
+			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
+		}
+	}
+	else if (f == 157)
+	{
+		pos.x = 0;
+		pos.y = 120;
+		pos.z = 0;
+		GetActorJointAbsPosition(1, 13, &pos);
+		for (n = 0; n < 7; n++)
+		{
+			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
+		}
+	}
+	else
+	{
+		if (f >= 581 && f <= 620)
+		{
+			pos.z = 0;
+			pos.y = 0;
+			pos.x = 0;
+			GetLaraJointPos(&pos, 11);
+			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
+
+			pos.z = 0;
+			pos.y = 0;
+			pos.x = 0;
+			GetLaraJointPos(&pos, 14);
+			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
+		}
+		if (f >= 1110 && f <= 1125)
+		{
+			pos.z = 0;
+			pos.y = 0;
+			pos.x = 0;
+			GetLaraJointPos(&pos, 11);
+			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
+		}
+		if (f >= 1111 && f <= 1126)
+		{
+			pos.z = 0;
+			pos.y = 0;
+			pos.x = 0;
+			GetLaraJointPos(&pos, 4);
+			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
+		}
+	}
 }
 
 void cossack_init()//31784(<), 31BB4(<) (F)
@@ -905,14 +987,16 @@ void cossack_init()//31784(<), 31BB4(<) (F)
 	return;
 }
 
-void andy7_end()//31754, 31B84
+void andy7_end()//31754(<), 31B84(<) (F)
 {
-	S_Warn("[andy7_end] - Unimplemented!\n");
+	DelsHandyTeleportLara(78336, 5503, 41658, 0);
 }
 
-void andy7_control()//31704, 31B34
+void andy7_control()//31704(<), 31B34(<) (F)
 {
-	S_Warn("[andy7_control] - Unimplemented!\n");
+	handle_lara_chatting(lara_chat_ranges_andy7);
+	handle_actor_chatting(21, 2, 1, 54, priest_chat_ranges_andy7);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
 void andy7_init()//316F4(<), 31B24(<) (F)
@@ -920,9 +1004,10 @@ void andy7_init()//316F4(<), 31B24(<) (F)
 	cutrot = 1;
 }
 
-void andypew_end()//316C0, 31AF0
+void andypew_end()//316C0(<), 31AF0(<) (F)
 {
-	S_Warn("[andypew_end] - Unimplemented!\n");
+	cutseq_restore_item(PUZZLE_HOLE2);
+	DelsHandyTeleportLara(45556, 7680, 23415, -32768);
 }
 
 void andypew_control()//316B8(<), 31AE8(<) (F)
@@ -940,9 +1025,30 @@ void andy6_end()//31690(<), 31AC0(<) (F)
 	return;
 }
 
-void andy6_control()//315F8, 319B4
+void andy6_control()//315F8(<), 319B4(<) (F)
 {
-	S_Warn("[andy6_control] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+
+	if (GLOBAL_cutseq_frame == 900)
+	{
+		lara_item->mesh_bits = 0;
+	}
+	else if (GLOBAL_cutseq_frame == 1401)
+	{
+		lara_item->mesh_bits = -1;
+	}
+	pos.x = 0;
+	pos.y = 48;
+	pos.z = 240;
+	GetActorJointAbsPosition(1, 8, &pos);
+	TriggerDynamic(pos.x, pos.y, pos.z, 
+		12 - (GetRandomControl() & 1), 
+		(GetRandomControl() & 0x3F) + 192, 
+		(GetRandomControl() & 0x1F) + 96, 0);
+	DelTorchFlames(&pos);
+	handle_lara_chatting(lara_chat_ranges_andy6);
+	handle_actor_chatting(21, 2, 1, 54, priest_chat_ranges_andy6);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
 void andy6_init()//30D84(<), 31104(<) (F)
@@ -951,34 +1057,59 @@ void andy6_init()//30D84(<), 31104(<) (F)
 	setup_preist_meshswap();
 }
 
-void joby8_end()
+void joby8_end()//315A0(<), 3195C(<) (F)
 {
-	S_Warn("[joby8_end] - Unimplemented!\n");
+	DelsHandyTeleportLara(58880, 5120, 76288, 0);
 }
 
-void joby8_control()
+void joby8_control()//310E0, 31460
 {
 	S_Warn("[joby8_control] - Unimplemented!\n");
 }
 
-void joby8_init()
+void joby8_init()//31024(<), 313A4(<) (F)
 {
-	S_Warn("[joby8_init] - Unimplemented!\n");
+	short room_number = lara_item->room_number;
+
+	cutseq_kill_item(DOOR_TYPE4);
+	cutseq_kill_item(ANIMATING16);
+	lara_item->mesh_bits = 0x81FF01FFu;
+	GetHeight(
+		GetFloor(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, &room_number), 
+		lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos);
+	TestTriggers(trigger_index, 1, 0);
+	cutseq_meshswapbits[7] = 128;
+	cutseq_meshbits[2] &= 0x7FFFFFFFu;	
+	cutseq_meshbits[3] &= 0x7FFFFFFFu;
+	cutseq_meshbits[4] &= 0x7FFFFFFFu;
+	cutrot = 0;
 }
 
-void joby6_end()
+void joby6_end()//30FEC(<), 3136C(<) (F)
 {
-	S_Warn("[joby6_end] - Unimplemented!\n");
+	lara_item->mesh_bits = -1;
+	lara.mesh_ptrs[LM_HIPS] = meshes[objects[LARA].mesh_index];
 }
 
-void joby6_control()
+void joby6_control()//30FA0(<), 31320(<) (F)
 {
-	S_Warn("[joby6_control] - Unimplemented!\n");
+	if (GLOBAL_cutseq_frame == 542)
+	{
+		lara_item->mesh_bits = 0x81FF01FFu;
+		lara.mesh_ptrs[LM_HIPS] = meshes[objects[MESHSWAP3].mesh_index];
+	}
 }
 
-void joby6_init()
+void joby6_init()//30F48(<), 312C8(<) (F)
 {
-	S_Warn("[joby6_init] - Unimplemented!\n");
+	cutseq_kill_item(ANIMATING10);
+	cutseq_kill_item(ANIMATING10_MIP);
+	cutseq_kill_item(ANIMATING16);
+	cutseq_kill_item(DOOR_TYPE4);
+	cutseq_kill_item(PUZZLE_DONE3);
+	cutseq_kill_item(PUZZLE_DONE4);
+	cutseq_kill_item(PUZZLE_HOLE3);
+	cutseq_kill_item(PUZZLE_HOLE4);
 }
 
 void andy5_end()//30F28(<), 312A8(<) (F)
@@ -987,9 +1118,56 @@ void andy5_end()//30F28(<), 312A8(<) (F)
 	return;
 }
 
-void andy5_control()//30DA4, 31124
+void andy5_control()//30DA4(<), 31124(<) (F)
 {
-	S_Warn("[andy5_control] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+	int f = GLOBAL_cutseq_frame;
+
+	if (f >= 310)
+	{
+		if (f < 350)
+		{
+			if (cut_seethrough > 32)
+				cut_seethrough -= 4;
+		}
+		else if (f <= 450)
+		{
+			cut_seethrough += 8;
+
+			if (cut_seethrough > 128) // todo check this if it doesn't work
+			{
+				cut_seethrough = 128;
+			}
+		}		
+	}
+
+	if (f == 451)
+	{
+		cut_seethrough = 128;
+	}
+	else if (f >= 1100)
+	{
+		cut_seethrough -= 4;
+		if (cut_seethrough < 0)
+			cut_seethrough = 0;
+	}
+
+	pos.x = 0;
+	pos.y = 0;
+	pos.z = 0;
+
+	if (f >= 1100)
+	{
+		if (!cut_seethrough)
+			return GetActorJointAbsPosition(1, 0, &pos);
+		f = cut_seethrough + (GetRandomControl() & 0x1F);
+	}
+	else
+	{
+		f = (GetRandomControl() & 0x3F) + 128;
+	}
+
+	return TriggerDynamic(pos.x, pos.y, pos.z, 10, GetRandomControl() & 0xF, (GetRandomControl() & 0x1F) + 16, f);
 }
 
 void andy5_init()//30D84(<), 31104(<) (F)
@@ -998,50 +1176,170 @@ void andy5_init()//30D84(<), 31104(<) (F)
 	return;
 }
 
-void andrea3b_end()//30C54, 30FD4
+void andrea3b_end()//30C54(<), 30FD4(<) (F)
 {
-	S_Warn("[andrea3b_end] - Unimplemented!\n");
+	struct ITEM_INFO* item;
+	int i;
+
+	disable_horizon = 0;
+	cutseq_removelara_pistols();
+
+	if (level_items > 0)
+	{
+		for (i = 0; i < level_items; i++)
+		{
+			item = &items[i];
+			if (item->object_number == HYDRA)
+			{
+				item->status = 1;
+				item->flags |= IFLAG_INVISIBLE;
+				AddActiveItem(item - items);
+				EnableBaddieAI(item - items, 1);
+			}
+		}
+	}
+
+	DelsHandyTeleportLara(56846, 0, 26986, -15360);
 }
 
-void andrea3b_control()//30B08, 30E88
+void andrea3b_control()//30B08(<), 30E88(<) (F)
 {
-	S_Warn("[andrea3b_control] - Unimplemented!\n");
+	int f = GLOBAL_cutseq_frame;
+	
+	cutseq_meshbits[4] = -1;
+
+	if (f == 301 || f == 639 || f == 781)
+	{
+		lara_item->mesh_bits = 0;
+	}
+	else if (f == 512 || f == 692 || f == 1084)
+	{
+		lara_item->mesh_bits = -1;
+	}
+	else if (f == 1191)
+	{
+		cutseq_meshbits[1] &= 0x7FFFFFFFu;
+		cutseq_meshbits[2] |= 0x80000000;
+		cutseq_meshbits[3] |= 0x80000000;
+		cutseq_meshbits[4] |= 0x80000000;
+	}
+	else if (f == 550)
+	{
+		cutseq_meshbits[2] = -1;
+		cutseq_meshbits[3] = -1;
+	}
+	else if (f == 1150)
+	{
+		cutseq_meshbits[2] &= 0x7FFFFFFFu;
+		cutseq_meshbits[3] &= 0x7FFFFFFFu;
+		cutseq_meshbits[4] &= 0x7FFFFFFFu;
+	}
+
+	handle_lara_chatting(lara_chat_ranges_andrea3b);
+	handle_actor_chatting(21, 8, 1, 45, larson_chat_ranges3b);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
-void andrea3b_init()//30A1C, 30D9C
+void andrea3b_init()//30A1C(<), 30D9C(<) (F)
 {
-	S_Warn("[andrea3b_init] - Unimplemented!\n");
+	struct ITEM_INFO* item;
+
+	cutseq_givelara_pistols();
+	cutseq_kill_item(ANIMATING10);
+
+	cutseq_meshbits[2] = 0x80000F00u;
+	cutseq_meshbits[3] = 0x80000F00u;
+	cutseq_meshbits[4] = 0x80000F00u;
+
+	item = find_a_fucking_item(LARSON);
+	item->status = 3;
+	RemoveActiveItem(item - items);
+	DisableBaddieAI(item - items);
+	item->flags |= IFLAG_INVISIBLE;
+	disable_horizon = 1;
 }
 
-void andrea3_end()//30904, 30C84
+void andrea3_end()//30904(<), 30C84(<) (F)
 {
-	S_Warn("[andrea3_end] - Unimplemented!\n");
+	struct ITEM_INFO* item;
+
+	cutseq_removelara_pistols();
+
+	item = find_a_fucking_item(LARSON);
+	item->anim_number = objects[LARSON].anim_index;
+	item->flags |= IFLAG_INVISIBLE;
+	item->frame_number = anims[objects[LARSON].anim_index].frame_base;
+	item->status = 1;
+
+	AddActiveItem(item - items);
+	EnableBaddieAI(item - items, 1);
+
+	DelsHandyTeleportLara(55808, 0, 30208, -32768);
 }
 
-void andrea3_control()//30870, 30BF0
+void andrea3_control()//30870(<), 30BF0(<) (F)
 {
-	S_Warn("[andrea3_control] - Unimplemented!\n");
+	if (GLOBAL_cutseq_frame == 332)
+	{
+		lara_item->mesh_bits = 0;
+	}
+	else if (GLOBAL_cutseq_frame == 421)
+	{
+		lara_item->mesh_bits = -1;
+	}
+
+	deal_with_pistols(andrea3_pistols_info);
+	handle_lara_chatting(lara_chat_ranges_andrea3);
+	handle_actor_chatting(21, 8, 1, 45, larson_chat_ranges3);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
-void andrea3_init()//30850, 30BD0
+void andrea3_init()//30850(<), 30BD0(<) (F)
 {
 	cutseq_givelara_pistols();
 	return;
 }
 
-void do_clanger_meshswap()
+void do_clanger_meshswap()//3081C(<), 30B9C(<) (F)
 {
-	S_Warn("[do_clanger_meshswap] - Unimplemented!\n");
+	short* temp = lara.mesh_ptrs[LM_RHAND];
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[MESHSWAP2].mesh_index + 20];
+	meshes[objects[MESHSWAP2].mesh_index + 20] = temp;
 }
 
-void andy4b_end()//307EC, 30B6C
+void andy4b_end()//307EC(<), 30B6C(<) (F)
 {
-	S_Warn("[andy4b_end] - Unimplemented!\n");
+	DelsHandyTeleportLara(43543, 5376, 47285, -32768);
+	lara.puzzleitems[2] = 0;
 }
 
-void andy4b_control()//30710, 30A90
+void andy4b_control()//30710(<), 30A90(<) (F)
 {
-	S_Warn("[andy4b_control] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+	int n, actor;
+	int f = GLOBAL_cutseq_frame;
+
+	if (GLOBAL_cutseq_frame == 510 || GLOBAL_cutseq_frame == 662)
+	{
+		do_clanger_meshswap();
+	}
+
+	if (f == 697 || f == 708 || f == 723 || f == 735)
+	{
+		if (f == 708) actor = 2;
+		else if (f == 697) actor = 3;
+		else if (f == 735) actor = 4;
+		else actor = 1;
+
+		for (n = 0; n < 16; n++)
+		{
+			pos.z = 0;
+			pos.y = 0;
+			pos.x = 0;
+			GetActorJointAbsPosition(actor, 0, &pos);
+			TriggerDelSmoke(pos.x, pos.y, pos.z, 88);
+		}
+	}
 }
 
 void andy4b_init()//306F0(<), 30A70(<) (F)
@@ -1050,14 +1348,44 @@ void andy4b_init()//306F0(<), 30A70(<) (F)
 	return;
 }
 
-void andy4_end()//306B4, 30A34
+void andy4_end()//306B4(<), 30A34(<) (F)
 {
-	S_Warn("[andy4_end] - Unimplemented!\n");
+	cutseq_restore_item(ANIMATING5_MIP);
+	DelsHandyTeleportLara(43484, 5376, 50626, 0);
+	SetCutNotPlayed(10);
 }
 
-void andy4_control()//305BC, 3093C
+void andy4_control()//305BC(<), 3093C(<) (F)
 {
-	S_Warn("[andy4_control] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+	int n;
+
+	if (GLOBAL_cutseq_frame == 733)
+	{
+		for (n = 0; n < 8; n++)
+		{
+			pos.x = 0;
+			pos.y = 0;
+			pos.z = 0;
+			GetActorJointAbsPosition(1, 0, &pos);
+			TriggerDelSmoke(pos.x, pos.y, pos.z, 88);
+			pos.x = 0;
+			pos.y = 0;
+			pos.z = 0;
+			GetActorJointAbsPosition(2, 0, &pos);
+			TriggerDelSmoke(pos.x, pos.y, pos.z, 88);
+			GetActorJointAbsPosition(3, 0, &pos); // todo weird
+			pos.x = 0;
+			pos.y = 0;
+			pos.z = 0;
+			TriggerDelSmoke(0, 0, 0, 88);
+			pos.x = 0;
+			pos.y = 0;
+			pos.z = 0;
+			GetActorJointAbsPosition(4, 0, &pos);
+			TriggerDelSmoke(pos.x, pos.y, pos.z, 88);
+		}
+	}
 }
 
 void andy4_init()//3059C(<), 3091C(<) (F)
@@ -1066,29 +1394,75 @@ void andy4_init()//3059C(<), 3091C(<) (F)
 	return;
 }
 
-void richcut4_end()
+void richcut4_end()//30560(<), 308E0(<) (F)
 {
-	S_Warn("[richcut4_end] - Unimplemented!\n");
+	find_a_fucking_item(SAILOR_MIP)->mesh_bits = -1;
+	DelsHandyTeleportLara(35328, 0, 35328, -16384);
+	lara_item->mesh_bits = -1;
 }
 
-void richcut4_control()
+void richcut4_control()//30478(<), 307F8(<) (F)
 {
-	S_Warn("[richcut4_control] - Unimplemented!\n");
+	struct ITEM_INFO* item;
+	int f = GLOBAL_cutseq_frame;
+
+	if (f >= 300 && f <= 312)
+	{
+		item = find_a_fucking_item(SAILOR_MIP);
+		if (!(f & 1))
+			item->mesh_bits &= ~(1 << (8 - ((f - 300) >> 1)));
+	}
+	
+	if (f != 308)
+	{
+		if (f == 534)
+		{
+			cutseq_meshswapbits[1] &= 0xFFFFFEFF;
+			cutseq_meshbits[2] &= 0xFFFFFFDF;
+		}
+		else if (f == 557)
+		{
+			cutseq_meshswapbits[1] &= 0xFFFFFFDF;
+			cutseq_meshbits[2] &= 0xFFFFFFFB;
+		}
+	}
+	else
+	{
+		cutseq_meshbits[2] |= 4;
+	}
 }
 
-void richcut4_init()
+void richcut4_init()//303E0(<), 30760(<) (F)
 {
-	S_Warn("[richcut4_init] - Unimplemented!\n");
+	cutrot = 3;
+	// todo maybe it's 10,16 (on psx) instead of 11,17 (on pc)
+	meshes[objects[TWOGUN].mesh_index + 11] = meshes[objects[MAFIA2_MIP].mesh_index + 10];
+	cutseq_meshswapbits[1] |= 0x20u;
+	meshes[objects[TWOGUN].mesh_index + 17] = meshes[objects[MAFIA2_MIP].mesh_index + 16];
+	cutseq_meshbits[2] &= 0xFFFFFFFB;
+	cutseq_meshswapbits[1] |= 0x100;
+	lara_item->mesh_bits = 0;
 }
 
-void joby10_end()//303AC, 3072C
+void joby10_end()//303AC(<), 3072C(<) (F)
 {
-	S_Warn("[joby10_end] - Unimplemented!\n");
+	cutseq_restore_item(CRANE_GUY_MIP);
+	DelsHandyTeleportLara(58267, -3072, 48676, -16578);
 }
 
-void joby10_control()//30338, 306B8
+void joby10_control()//30338(<), 306B8(<) (F)
 {
-	S_Warn("[joby10_control] - Unimplemented!\n");
+	struct ITEM_INFO* item;
+
+	if (GLOBAL_cutseq_frame == 3235)
+	{
+		item = find_a_fucking_item(HYDRA_MIP);
+		item->status = 0;
+	}
+
+	handle_lara_chatting(lara_chat_ranges_joby10);
+	handle_actor_chatting(21, 2, 1, 56, admiral_chat_ranges_joby10);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
 void joby10_init()//30318(<), 30698(<) (F)
@@ -1104,9 +1478,11 @@ void joby9_end()//302F0(<), 30670(<) (F)
 	return;
 }
 
-void joby9_control()//302A0, 30620
+void joby9_control()//302A0(<), 30620(<) (F)
 {
-	S_Warn("[joby9_control] - Unimplemented!\n");
+	handle_lara_chatting(lara_chat_ranges_joby9);
+	handle_actor_chatting(21, 2, 1, 56, admiral_chat_ranges_joby9);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
 void joby9_init()//30280(<), 30600(<) (F)
@@ -1115,27 +1491,39 @@ void joby9_init()//30280(<), 30600(<) (F)
 	return;
 }
 
-void do_catapult_meshswap()
+void do_catapult_meshswap()//3024C(<), 305CC(<) (F)
 {
-	S_Warn("[do_catapult_meshswap] - Unimplemented!\n");
+	short* temp = lara.mesh_ptrs[LM_LHAND];
+	lara.mesh_ptrs[LM_LHAND] = meshes[objects[CROW_MIP].mesh_index + 26];
+	meshes[objects[CROW_MIP].mesh_index + 26] = temp;
 }
 
-void andy3_end()
+void andy3_end()//30208(<), 30588(<) (F)
 {
-	S_Warn("[andy3_end] - Unimplemented!\n");
+	FlipMap(2);
+	do_catapult_meshswap();
+	lara.puzzleitems[1] = 0;
+	DelsHandyTeleportLara(55902, 8448, 53349, -32768);
 }
 
-void andy3_control()
+void andy3_control()//301DC, 3055C
 {
-	S_Warn("[andy3_control] - Unimplemented!\n");
+	if (GLOBAL_cutseq_frame == 240)
+		do_catapult_meshswap();
 }
 
-void andy3_init()
+void andy3_init()//3018C(<), 3050C(<) (F)
 {
-	S_Warn("[andy3_init] - Unimplemented!\n");
+	cutseq_kill_item(SWAT_PLUS_MIP);
+	cutseq_kill_item(BLUE_GUARD_MIP);
+	cutseq_kill_item(TWOGUN_MIP);
+	cutseq_kill_item(DOG_MIP);
+	cutseq_kill_item(LARSON_MIP);
+	cutseq_kill_item(PIERRE_MIP);
+	cutseq_kill_item(MAFIA_MIP);
 }
 
-void joby5_end()//30144, 304C4
+void joby5_end()//30144(<), 304C4(<) (F)
 {
 	cutseq_restore_item(ANIMATING3);
 	cutseq_restore_item(ANIMATING4);
@@ -1143,9 +1531,34 @@ void joby5_end()//30144, 304C4
 	lara_item->mesh_bits = -1;
 }
 
-void joby5_control()//30034, 303B4
+void joby5_control()//30034(<), 303B4() (F)
 {
-	S_Warn("[joby5_control] - Unimplemented!\n");
+	int f = GLOBAL_cutseq_frame;
+
+	if (f == 144)
+	{
+		lara_item->mesh_bits = 0;
+	}
+	else if (f == 436)
+	{
+		cutseq_meshbits[2] |= 0x80000000;
+	}
+	else if (f == 1796)
+	{
+		cutseq_meshbits[4] &= 0x7FFFFFFF;
+	}
+	else if (f == 2175)
+	{
+		cutseq_meshbits[1] &= 0x7FFFFFFFu;
+	}
+	else if (f == 151 || f == 2330)
+	{
+		cutseq_meshbits[4] |= 0x80000000;
+	}
+
+	handle_actor_chatting(21, 2, 3, 56, admiral_chat_ranges_joby5);
+	handle_actor_chatting(23, 3, 4, 58, sergie_chat_ranges_joby5);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
 void joby5_init()//2FFF0(<), 30370(<) (F)
@@ -1312,19 +1725,33 @@ void DelTorchFlames(struct PHD_VECTOR* pos)//2F6E4(<), 2FA64(<) (F)
 
 void setup_preist_meshswap()//2F694(<), 2FA14(<) (F)
 {
-	meshes[objects[SAILOR_MIP].mesh_index + 0x10] = meshes[objects[MESHSWAP3].mesh_index + 0x10];
+	meshes[objects[SAILOR_MIP].mesh_index + 0x10] = meshes[objects[MESHSWAP3].mesh_index + 0x10]; // todo the first one maybe 17 (0x11) instead of 16 (0x10)
 	cutseq_meshswapbits[1] |= 0x100;
 	return;
 }
 
-void andy2_end()//2F668, 2F9E8
+void andy2_end()//2F668(<), 2F9E8(<) (F)
 {
-	S_Warn("[andy2_end] - Unimplemented!\n");
+	DelsHandyTeleportLara(32289, 6271, 48635, 5661);
 }
 
-void andy2_control()//2F5D0, 2F914
+void andy2_control()//2F5D0(<), 2F914(<) (F)
 {
-	S_Warn("[andy2_control] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+
+	pos.x = 0;
+	pos.y = 48;
+	pos.z = 240;
+	GetActorJointAbsPosition(1, 8, &pos);
+	TriggerDynamic(pos.x, pos.y, pos.z, 
+		12 - (GetRandomControl() & 1), 
+		(GetRandomControl() & 0x3F) + 192, 
+		(GetRandomControl() & 0x1F) + 96, 0);
+	DelTorchFlames(&pos);
+
+	handle_lara_chatting(lara_chat_ranges_andy2);
+	handle_actor_chatting(21, 2, 1, 54, priest_chat_ranges_andy2);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
 void andy2_init()//2F5B0(<), 2F8F4(<) (F)
@@ -1333,29 +1760,48 @@ void andy2_init()//2F5B0(<), 2F8F4(<) (F)
 	return;
 }
 
-void do_hammer_meshswap()
+void do_hammer_meshswap()//2F57C(<), 2F8C0(<) (F)
 {
-	S_Warn("[do_hammer_meshswap] - Unimplemented!\n");
+	short* temp = lara.mesh_ptrs[LM_RHAND];
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[MESHSWAP3].mesh_index + 20];
+	meshes[objects[MESHSWAP3].mesh_index + 20] = temp;
 }
 
-void hamgate_end()
+void hamgate_end()//2F534(<), 2F878(<) (F)
 {
-	S_Warn("[hamgate_end] - Unimplemented!\n");
+	struct ITEM_INFO* item = find_a_fucking_item(DOOR_TYPE1);
+	item->status = 1;
+	DelsHandyTeleportLara(31232, -3328, 48344, 0);
 }
 
-void hamgate_control()
+void hamgate_control()//2F4D0(<), 2F814(<) (F)
 {
-	S_Warn("[hamgate_control] - Unimplemented!\n");
+	int f = GLOBAL_cutseq_frame;
+
+	if (f == 14 || f == 269)
+		do_hammer_meshswap();
+
+	if (f == 442)
+	{
+		cutseq_meshbits[3] &= 0x7FFFFFFFu;
+		cutseq_meshbits[2] |= 2;
+	}
 }
 
-void hamgate_init()
+void hamgate_init()//2F434(<), 2F778(<) (F)
 {
-	S_Warn("[hamgate_init] - Unimplemented!\n");
+	struct ITEM_INFO* item = find_a_fucking_item(DOOR_TYPE1);
+	AddActiveItem(item - items);
+	item->flags |= IFLAG_ACTIVATION_MASK;
+	item->mesh_bits = 3;
+	item->status = 3;
+	cutseq_meshbits[2] &= 0xFFFFFFFD;
+	cutrot = 0;
 }
 
-void andy1_end()//2F408, 2F74C
+void andy1_end()//2F408(<), 2F74C(<) (F)
 {
-	S_Warn("[andy1_end] - Unimplemented!\n");
+	DelsHandyTeleportLara(63508, 9710, 65464, 949);
 }
 
 void andy1_control()//2F39C, 2F6A8
@@ -1374,9 +1820,22 @@ void joby3_end()//2F374(<), 2F680(<) (F)
 	return;
 }
 
-void joby3_control()//2F304, 2F610
+void joby3_control()//2F304(<), 2F610(<) (F)
 {
-	S_Warn("[joby3_control] - Unimplemented!\n");
+	if (GLOBAL_cutseq_frame == 583)
+	{
+		lara_item->mesh_bits = 0;
+	}
+	else if (GLOBAL_cutseq_frame == 765)
+	{
+		lara_item->mesh_bits = -1;
+	}
+	else if (GLOBAL_cutseq_frame == 1299)
+	{
+		FlipMap(3);
+	}
+
+	handle_lara_chatting(lara_chat_ranges_joby3);
 }
 
 void joby3_init()//2F2FC(<), 2F608(<) (F)
@@ -1427,6 +1886,7 @@ void joby2_control()//2F114(<), 2F420(<) (F)
 		cutseq_meshbits[6] |= 0x80000000;
 		break;
 	}
+
 	handle_actor_chatting(21, 2, 3, 427, admiral_chat_ranges_joby2);
 	handle_actor_chatting(23, 3, 4, 433, sergie_chat_ranges_joby2);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
@@ -1484,9 +1944,10 @@ void TriggerDelSmoke(long x, long y, long z, int sizeme)//2EED8(<), 2F1E4(<) (F)
 	}
 }
 
-void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* pos, int direction, int speed)
+void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* pos, int direction, int speed)//2EE84(<), 2F190(<) (F)
 {
-	S_Warn("[TriggerActorBlood] - Unimplemented!\n");
+	GetActorJointAbsPosition(actornum, nodenum, pos);
+	TriggerBlood(pos->x, pos->y, pos->z, direction >> 4, speed);
 }
 
 void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR* vec)
@@ -1499,72 +1960,72 @@ void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int noden
 	S_Warn("[deal_with_actor_shooting] - Unimplemented!\n");
 }
 
-void stealth3_end()
+void stealth3_end()//2E99C, 2ECA8
 {
 	S_Warn("[stealth3_end] - Unimplemented!\n");
 }
 
-void stealth3_start()
+void stealth3_start()//2E824, 2EB30
 {
 	S_Warn("[stealth3_start] - Unimplemented!\n");
 }
 
-void special4_end()
+void special4_end()//2E7F4, 2EB00
 {
 	S_Warn("[special4_end] - Unimplemented!\n");
 }
 
-void special4_control()
+void special4_control()//2E7C4, 2EAD0
 {
 	S_Warn("[special4_control] - Unimplemented!\n");
 }
 
-void special4_init()
+void special4_init()//2E794, 2EAA0
 {
 	S_Warn("[special4_init] - Unimplemented!\n");
 }
 
-void special3_end()
+void special3_end()//2E764, 2EA70
 {
 	S_Warn("[special3_end] - Unimplemented!\n");
 }
 
-void special3_control()
+void special3_control()//2E734, 2EA40
 {
 	S_Warn("[special3_control] - Unimplemented!\n");
 }
 
-void special3_init()
+void special3_init()//2E704, 2EA10
 {
 	S_Warn("[special3_init] - Unimplemented!\n");
 }
 
-void special2_end()
+void special2_end()//2E6D4, 2E9E0
 {
 	S_Warn("[special2_end] - Unimplemented!\n");
 }
 
-void special2_control()
+void special2_control()//2E6A4, 2E9B0
 {
 	S_Warn("[special2_control] - Unimplemented!\n");
 }
 
-void special2_init()
+void special2_init()//2E674, 2E980
 {
 	S_Warn("[special2_init] - Unimplemented!\n");
 }
 
-void special1_end()
+void special1_end()//2E644, 2E950
 {
 	S_Warn("[special1_end] - Unimplemented!\n");
 }
 
-void special1_control()
+void special1_control()//2E614, 2E920
 {
 	S_Warn("[special1_control] - Unimplemented!\n");
 }
 
-void special1_init()
+void special1_init()//2E5E4, 2E8F0
 {
 	S_Warn("[special1_init] - Unimplemented!\n");
 }

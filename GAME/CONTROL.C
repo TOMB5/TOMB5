@@ -28,6 +28,7 @@
 #include <assert.h>
 #include "DRAW.H"
 #include "ROOMLOAD.H"
+#include "DEBRIS.H"
 
 int flipeffect = -1;
 int fliptimer;
@@ -939,10 +940,44 @@ int CheckGuardOnTrigger()
 	return 0;
 }
 
-int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)
+int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)//207DC(<), 209F0(<) (F)
 {
-	S_Warn("[ExplodeItemNode] - Unimplemented!\n");
-	return 0;
+	struct object_info* object;
+	short* meshp;
+	short num;
+
+	if (item->mesh_bits & (1 << Node))
+	{
+		if (item->object_number != SWITCH_TYPE7 || gfCurrentLevel != 7 && gfCurrentLevel != 4)
+		{
+			num = bits;
+			if (bits == 256)
+				num = -64;
+		}
+		else
+		{
+			SoundEffect(168, &item->pos, NULL);
+			num = bits;
+		}
+		GetSpheres(item, Slist, 3);
+		object = &objects[item->object_number];
+		ShatterItem.YRot = item->pos.y_rot;
+		meshp = meshes[object->mesh_index + 2 * Node];
+		ShatterItem.Bit = 1 << Node;
+		ShatterItem.meshp = meshp;
+		ShatterItem.Sphere.x = Slist[Node].x;
+		ShatterItem.Sphere.y = Slist[Node].y;
+		ShatterItem.Sphere.z = Slist[Node].z;
+		ShatterItem.il = &item->il;
+		ShatterItem.Flags = item->object_number != CROSSBOW_BOLT ? 0 : 0x400;
+		ShatterObject(&ShatterItem, 0, num, item->room_number, NoXZVel);
+		item->mesh_bits &= ~ShatterItem.Bit;
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 int GetTargetOnLOS(struct GAME_VECTOR* src, struct GAME_VECTOR* dest, int DrawTarget, int firing)
@@ -1083,10 +1118,10 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 				floor = &r->floor[((z - r->z) >> 10) + r->x_size * ((x - r->x) >> 10)];
 				if (y >= floor->ceiling << 8)
 					break;
-			} while (floor->sky_room != -1);
+			} while (floor->sky_room != 0xFF);
 		}
 	}
-	else if (floor->pit_room != -1)
+	else if (floor->pit_room != 0xFF)
 	{
 		while (1)
 		{
@@ -1096,16 +1131,16 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 			*room_number = floor->pit_room;
 			r = &room[floor->pit_room];
 			tmp = ((z - r->z) >> 10) + r->x_size * ((x - r->x) >> 10);
-			if (ABS(tmp) > 1048576)
+			/*if (ABS(tmp) > 1048576)
 			{
 				S_Warn("[GetFloor] - sector num too big -> probably room array not initialized\n");
 				S_Warn("[GetFloor] - returning or the vc runtime will shit brixes\n");
 				return floor;
-			}
+			}*/
 			floor = &r->floor[tmp];
 			if (y < r->floor[tmp].floor << 8)
 				break;
-			if (floor->pit_room == -1)
+			if (floor->pit_room == 0xFF)
 				return &r->floor[tmp];
 		}
 	}

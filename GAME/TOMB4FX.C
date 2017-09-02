@@ -264,3 +264,51 @@ void CreateBubble(struct PHD_VECTOR* pos, short room_num, int a3, int a4, int fl
 		v9->Zvel = zv;
 	}
 }
+
+void TriggerShatterSmoke(int x, int y, int z)//8AA14(<), 8CA58(<) (F)
+{
+	struct SMOKE_SPARKS* smoke;
+
+	smoke = &smoke_spark[GetFreeSmokeSpark()];
+	smoke->On = 1;
+	smoke->sShade = 0;
+	smoke->ColFadeSpeed = 4;
+	smoke->dShade = (GetRandomControl() & 0x1F) + 64;
+	smoke->FadeToBlack = 24 - (GetRandomControl() & 7);
+	smoke->TransType = 2;
+	smoke->Life = smoke->sLife = (GetRandomControl() & 7) + 48;
+	smoke->x = (GetRandomControl() & 0x1F) + x - 16;
+	smoke->y = (GetRandomControl() & 0x1F) + y - 16;
+	smoke->z = (GetRandomControl() & 0x1F) + z - 16;
+	smoke->Xvel = 2 * (GetRandomControl() & 0x1FF) - 512;
+	smoke->Yvel = 2 * (GetRandomControl() & 0x1FF) - 512;
+	smoke->Zvel = 2 * (GetRandomControl() & 0x1FF) - 512;
+	smoke->Friction = 7;
+	if (GetRandomControl() & 1)
+	{
+		smoke->Flags = 16;
+		smoke->RotAng = GetRandomControl() & 0xFFF;
+		if (GetRandomControl() & 1)
+			smoke->RotAdd = -64 - (GetRandomControl() & 0x3F);
+		else
+			smoke->RotAdd = (GetRandomControl() & 0x3F) + 64;
+	}
+	else if (room[lara_item->room_number].flags & RF_WIND_BLOWS_PONYTAIL)
+	{
+		smoke->Flags = 256;
+	}
+	else
+	{
+		smoke->Flags = 0;
+	}
+	smoke->Gravity = -4 - (GetRandomControl() & 3);
+	smoke->MaxYvel = -4 - (GetRandomControl() & 3);
+	smoke->dSize = (GetRandomControl() & 0x3F) + 64;
+	smoke->sSize = smoke->dSize >> 3;
+	smoke->Size = smoke->dSize >> 3;
+}
+
+void TriggerBlood(int x, int y, int z, int direction, int speed)
+{
+	S_Warn("[TriggerBlood] - Unimplemented!\\n");
+}

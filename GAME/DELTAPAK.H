@@ -47,6 +47,8 @@ extern short lara_chat_ranges_andy2[8];
 extern short lara_chat_ranges_joby8[20];
 extern short lara_chat_ranges_andy6[8];
 extern short lara_chat_ranges_andy11[28];
+extern short priest_chat_ranges_andy6[18];
+extern short priest_chat_ranges_andy2[24];
 extern int cuntercunter;
 extern char jobyfrigger;
 extern int cutrot;
