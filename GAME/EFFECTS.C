@@ -185,7 +185,7 @@ void LaraLocation(struct ITEM_INFO* item)//396D0(<), 39BD0(<) (F)
 
 void ExplosionFX(struct ITEM_INFO* item)//39694(<), 39B94(<) (F)
 {
-	SoundEffect(105, NULL, NULL);
+	SoundEffect(105, NULL, 0);
 	camera.bounce = -75;
 	flipeffect = -1;
 }
@@ -213,7 +213,7 @@ void ActivateCamera(struct ITEM_INFO* item)//39610(<), 39B10(<) (F)
 
 void PoseidonSFX(struct ITEM_INFO* item)//395E0(<), 39AE0(<) (F)
 {
-	SoundEffect(238, NULL, NULL);
+	SoundEffect(238, NULL, 0);
 	flipeffect = -1;
 }
 
@@ -237,7 +237,7 @@ void RubbleFX(struct ITEM_INFO* item)//39534(<), 39A34(<) (F)
 
 void SoundFlipEffect(struct ITEM_INFO* item)//39500(<), 39A00(<) (F)
 {
-	SoundEffect(TriggerTimer, NULL, NULL);
+	SoundEffect(TriggerTimer, NULL, 0);
 	flipeffect = -1;
 }
 
@@ -274,7 +274,7 @@ void SoundEffects()//39190, 39690
 	S_Warn("[SoundEffects] - Unimplemented!\n");
 }
 
-void SoundEffect(short arg1, struct PHD_3DPOS* pos, void* arg2)
+void SoundEffect(short arg1, struct PHD_3DPOS* pos, int arg2)
 {
 	S_Warn("[SoundEffect] - Unimplemented!\n");
 }

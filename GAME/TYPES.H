@@ -1,8 +1,6 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "SPECTYPES.H"
-
 #ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif
@@ -455,7 +453,7 @@ struct savegame_info
 	char GameComplete; // size=0, offset=428
 	unsigned char CurrentLevel; // size=0, offset=429
 	unsigned char CampaignSecrets[4]; // size=4, offset=430
-	unsigned char TLCount; // size=0, offset=
+	unsigned char TLCount; // size=0, offset=434
 };
 
 struct MATRIX3D {

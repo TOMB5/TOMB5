@@ -6,6 +6,11 @@
 #include "TYPES.H"
 
 #include <string.h>
+#include "SETUP.H"
+#include "malloc.h"
+#include "TRAPS.H"
+#include "ITEMS.H"
+#include "ROOMLOAD.H"
 
 char FromTitle;
 char JustLoaded;
@@ -54,14 +59,106 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 	S_Warn("[SaveLevelData] - Unimplemented!\n");
 }
 
-void RestoreLaraData(int FullSave)//538D0, 53D34
+void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 {
+	struct ITEM_INFO* item;
+	char flag;
+	int i;
+
+	if (!FullSave)
+	{
+		savegame.Lara.item_number = lara.item_number;
+		if (savegame.Lara.IsMoving)
+		{
+			savegame.Lara.IsMoving = 0;
+			savegame.Lara.gun_status = 0;
+		}
+	}
+	memcpy(&lara, &savegame.Lara, sizeof(lara));
+	lara.target = NULL;
+	lara.spaz_effect = NULL;
+	lara.right_arm.frame_base = (short*)((char*)lara.right_arm.frame_base + (unsigned int)objects[PISTOLS_ANIM].frame_base);
+	lara.left_arm.frame_base = (short*)((char *)lara.left_arm.frame_base + (unsigned int)objects[PISTOLS_ANIM].frame_base);
+	lara.GeneralPtr = (char *)lara.GeneralPtr + (unsigned int)malloc_buffer;
+	if (lara.burn)
+	{
+		lara.burn = 0;
+		flag = 0;
+		if (lara.BurnSmoke)
+		{
+			lara.BurnSmoke = 0;
+			flag = 1;
+		}
+		LaraBurn();
+		if (flag)
+		{
+			lara.BurnSmoke = 1;
+		}
+	}
+	if (lara.weapon_item != -1)
+	{
+		lara.weapon_item = CreateItem();
+		item = &items[lara.weapon_item];
+		item->object_number = savegame.WeaponObject;
+		item->anim_number = savegame.WeaponAnim;
+		item->frame_number = savegame.WeaponFrame;
+		item->current_anim_state = savegame.WeaponCurrent;
+		item->goal_anim_state = savegame.WeaponGoal;
+		item->status = 1;
+		item->room_number = 255;
+	}
+	
+	for (int i = 0; i < 15; i++)
+	{
+		lara.mesh_ptrs[i] = (short*)((char*)mesh_base + (int)lara.mesh_ptrs[i]);
+	}
+
+	_CutSceneTriggered1 = savegame.CutSceneTriggered1;
+	_CutSceneTriggered2 = savegame.CutSceneTriggered2;
+
 	S_Warn("[RestoreLaraData] - Unimplemented!\n");
 }
 
-void SaveLaraData()//53738, 53B9C
+void SaveLaraData()//53738(<), 53B9C(<) (F)
 {
-	S_Warn("[SaveLaraData] - Unimplemented!\n");
+	struct ITEM_INFO* item;
+	int i;
+
+	for (int i = 0; i < 15; i++)
+	{
+		lara.mesh_ptrs[i] = (short*)((char*)lara.mesh_ptrs[i] - (int)mesh_base);
+	}
+
+	lara.left_arm.frame_base = (short*)((char *)lara.left_arm.frame_base - (unsigned int)objects[PISTOLS_ANIM].frame_base);
+	lara.right_arm.frame_base = (short*)((char *)lara.right_arm.frame_base - (unsigned int)objects[PISTOLS_ANIM].frame_base);
+	lara.GeneralPtr = (char *)lara.GeneralPtr - (unsigned int)malloc_buffer;
+	memcpy(&savegame.Lara, &lara, sizeof(savegame.Lara));
+	
+	for (int i = 0; i < 15; i++)
+	{
+		lara.mesh_ptrs[i] = (short*)((char*)mesh_base + (int)lara.mesh_ptrs[i]);
+	}
+
+	lara.left_arm.frame_base = (short*)((char *)lara.left_arm.frame_base + (unsigned int)objects[PISTOLS_ANIM].frame_base);
+	lara.right_arm.frame_base = (short*)((char *)lara.right_arm.frame_base + (unsigned int)objects[PISTOLS_ANIM].frame_base);
+	lara.GeneralPtr = (char *)lara.GeneralPtr + (unsigned int)malloc_buffer;
+
+	if (lara.weapon_item == -1)
+	{
+		savegame.CutSceneTriggered1 = _CutSceneTriggered1;
+		savegame.CutSceneTriggered2 = _CutSceneTriggered2;
+	}
+	else
+	{
+		item = &items[lara.weapon_item];
+		savegame.WeaponObject = item->object_number;
+		savegame.WeaponAnim = item->anim_number;
+		savegame.WeaponFrame = item->frame_number;
+		savegame.WeaponCurrent = item->current_anim_state;
+		savegame.WeaponGoal = item->goal_anim_state;
+		savegame.CutSceneTriggered1 = _CutSceneTriggered1;
+		savegame.CutSceneTriggered2 = _CutSceneTriggered2;
+	}
 }
 
 int CheckSumValid(char* buffer)//53720(<), 53B84(<) (F)

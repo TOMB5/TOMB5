@@ -48,11 +48,11 @@ void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 
 		if (item->trigger_flags == 0x29C)
 		{
-			SoundEffect(344, &item->pos, NULL);
+			SoundEffect(344, &item->pos, 0);
 		}
 		else if (item->trigger_flags == 0x309)
 		{
-			SoundEffect(79, &item->pos, NULL);
+			SoundEffect(79, &item->pos, 0);
 		}
 	}
 	else

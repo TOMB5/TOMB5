@@ -11,14 +11,14 @@ extern void DoLevel(unsigned char Name, unsigned char Audio);
 
 enum gf_languages
 {
-	ENGLISH,
-	FRENCH,
-	GERMAN,
-	ITALIAN,
-	SPANISH,
-	US,
-	JAPAN,
-	DUTCH,
+	LNG_ENGLISH,
+	LNG_FRENCH,
+	LNG_GERMAN,
+	LNG_ITALIAN,
+	LNG_SPANISH,
+	LNG_US,
+	LNG_JAPAN,
+	LNG_DUTCH,
 	NUM_GF_LANGUAGES
 };
 
