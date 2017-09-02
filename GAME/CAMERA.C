@@ -720,11 +720,13 @@ void LaraTorch(struct PHD_VECTOR *Soffset, struct PHD_VECTOR *Eoffset, short yro
 long mgLOS(struct GAME_VECTOR *start, struct GAME_VECTOR *target, long push)
 {
 	S_Warn("[mgLOS] - Unimplemented!\\n");
+	return 0;
 }
 
 long CameraCollisionBounds(struct GAME_VECTOR *ideal, long push, long yfirst)
 {
 	S_Warn("[CameraCollisionBounds] - Unimplemented!\\n");
+	return 0;
 }
 
 void MoveCamera(struct GAME_VECTOR *ideal, int speed)

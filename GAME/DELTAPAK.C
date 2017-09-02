@@ -24,6 +24,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include "CODEWAD.H"
+#include "HAIR.H"
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
@@ -791,7 +792,7 @@ void joby7_control()//3210C(<), 325A4(<) (F)
 	d.z = -128;
 	GetActorJointAbsPosition(1, 7, &d);
 	LaraTorch(&s, &d, 0, 255);
-	RelocFunc_28();
+	RelocFunc_010();
 	handle_actor_chatting(17, 14, 1, 44, lara_chat_ranges_joby7);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
@@ -2089,64 +2090,68 @@ void stealth3_start()//2E824, 2EB30
 	S_Warn("[stealth3_start] - Unimplemented!\n");
 }
 
-void special4_end()//2E7F4, 2EB00
+void special4_end()//2E7F4(<), 2EB00(<) (F)
 {
-	S_Warn("[special4_end] - Unimplemented!\n");
+	RelocFunc_026();
 }
 
-void special4_control()//2E7C4, 2EAD0
+void special4_control()//2E7C4(<), 2EAD0(<) (F)
 {
-	S_Warn("[special4_control] - Unimplemented!\n");
+	RelocFunc_025();
 }
 
-void special4_init()//2E794, 2EAA0
+void special4_init()//2E794(<), 2EAA0(<) (F)
 {
-	S_Warn("[special4_init] - Unimplemented!\n");
+	cutrot = 0;
+	RelocFunc_024();
 }
 
-void special3_end()//2E764, 2EA70
+void special3_end()//2E764(<), 2EA70(<) (F)
 {
-	S_Warn("[special3_end] - Unimplemented!\n");
+	RelocFunc_023();
 }
 
-void special3_control()//2E734, 2EA40
+void special3_control()//2E734(<), 2EA40(<) (F)
 {
-	S_Warn("[special3_control] - Unimplemented!\n");
+	RelocFunc_022();
 }
 
-void special3_init()//2E704, 2EA10
+void special3_init()//2E704(<), 2EA10(<) (F)
 {
-	S_Warn("[special3_init] - Unimplemented!\n");
+	cutrot = 0;
+	RelocFunc_021();
 }
 
-void special2_end()//2E6D4, 2E9E0
+void special2_end()//2E6D4(<), 2E9E0(<) (F)
 {
-	S_Warn("[special2_end] - Unimplemented!\n");
+	RelocFunc_020();
 }
 
-void special2_control()//2E6A4, 2E9B0
+void special2_control()//2E6A4(<), 2E9B0(<) (F)
 {
-	S_Warn("[special2_control] - Unimplemented!\n");
+	RelocFunc_019();
 }
 
-void special2_init()//2E674, 2E980
+void special2_init()//2E674(<), 2E980(<) (F)
 {
-	S_Warn("[special2_init] - Unimplemented!\n");
+	cutrot = 0;
+	RelocFunc_018();
 }
 
-void special1_end()//2E644, 2E950
+void special1_end()//2E644(<), 2E950(<) (F)
 {
-	S_Warn("[special1_end] - Unimplemented!\n");
+	RelocFunc_017();
 }
 
-void special1_control()//2E614, 2E920
+void special1_control()//2E614(<), 2E920(<) (F)
 {
-	S_Warn("[special1_control] - Unimplemented!\n");
+	RelocFunc_016();
 }
 
-void special1_init()//2E5E4, 2E8F0
+void special1_init()//2E5E4(<), 2E8F0(<) (F)
 {
-	S_Warn("[special1_init] - Unimplemented!\n");
+	cutrot = 0;
+	RelocFunc_015();
 }
 
 void richcut3_control()//2E594(<), 2E8A0(<) (F)
@@ -2640,14 +2645,49 @@ void CalculateObjectLightingLaraCutSeq()
 	S_Warn("[CalculateObjectLightingLaraCutSeq] - Unimplemented!\n");
 }
 
-void finish_cutseq(int name)
+void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
 {
-	S_Warn("[finish_cutseq] - Unimplemented!\n");
+#if PC_VERSION
+	GLOBAL_playing_cutseq = 0;
+#endif
+
+	if (cutseq_resident_addresses[cutseq_num].packed_data == NULL)
+	{
+#if INTERNAL
+		ProfileDraw = 0;
+		DrawSync(0);
+		VSync(0);
+#endif
+
+		ReloadAnims(name, cutseq_malloc_used);
+	}
+
+#if INTERNAL
+	ProfileDraw = 1;
+	DrawSync(0);
+	VSync(0);
+#endif
+
+	InitialiseHair();
 }
 
-void* cutseq_malloc(int size)
+void* cutseq_malloc(int size)//2D134(<), 2D454(<) (F)
 {
-	S_Warn("[*cutseq_malloc] - Unimplemented!\n");
+	char* ptr;
+
+	size = (size + 3) & -4;
+
+	if(cutseq_malloc_free >= size)
+	{		
+		ptr = cutseq_malloc_ptr;
+
+		cutseq_malloc_free -= size;
+		cutseq_malloc_ptr += size;
+		cutseq_malloc_used += size;
+		
+		return ptr;
+	}
+
 	return NULL;
 }
 
@@ -2803,7 +2843,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 					lara.request_gun_type = 0;
 					lara.last_gun_type = 0;
 
-					if (((*(int*)&objects[0x53B0]) & 1) != 0 && lara.pistols_type_carried != 0)
+					if (objects[PISTOLS_ITEM].loaded && lara.pistols_type_carried != 0)
 					{
 						//loc_2C5FC
 						lara.last_gun_type = 1;
@@ -2817,7 +2857,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 					//loc_2C600
 					if ((gfLevelFlags & GF_LVOP_TRAIN) != 0)
 					{
-						if (objects[345].loaded)
+						if (objects[HK_ITEM].loaded)
 						{
 							//if ((objects[0x5670 + 0x121] & 1) != 0)
 							{
