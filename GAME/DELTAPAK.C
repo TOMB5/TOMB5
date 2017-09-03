@@ -1,10 +1,12 @@
 #include "DELTAPAK.H"
 
 #include "CD.H"
+#include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "EFFECT2.H"
 #include "GAMEFLOW.H"
+#include "HAIR.H"
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
@@ -23,8 +25,8 @@
 
 #include <assert.h>
 #include <stddef.h>
-#include "CODEWAD.H"
-#include "HAIR.H"
+
+
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {

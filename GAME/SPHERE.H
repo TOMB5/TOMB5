@@ -9,6 +9,6 @@ extern struct SPHERE LaraSpheres[15];
 extern struct SPHERE Slist[34];
 
 extern int TestCollision(struct ITEM_INFO* item, struct ITEM_INFO* laraitem);
-extern int GetSpheres(struct ITEM_INFO *item, struct SPHERE *sptr, int worldspace);
+extern int GetSpheres(struct ITEM_INFO* item, struct SPHERE* sptr, int worldspace);
 
 #endif

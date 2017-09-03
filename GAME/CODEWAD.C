@@ -1,9 +1,8 @@
 #include "CODEWAD.H"
-
-#include "TYPES.H"
-#include "DELTAPAK.H"
 #include "CONTROL.H"
+#include "DELTAPAK.H"
 #include "SPECIFIC.H"
+#include "TYPES.H"
 
 void RelocFunc_006()
 {

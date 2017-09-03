@@ -115,8 +115,6 @@ void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 
 	_CutSceneTriggered1 = savegame.CutSceneTriggered1;
 	_CutSceneTriggered2 = savegame.CutSceneTriggered2;
-
-	S_Warn("[RestoreLaraData] - Unimplemented!\n");
 }
 
 void SaveLaraData()//53738(<), 53B9C(<) (F)
