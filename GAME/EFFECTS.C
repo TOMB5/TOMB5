@@ -146,7 +146,7 @@ void KillActiveBaddies(struct ITEM_INFO* item)//39938(<), 39E38(<) (F)
 			{
 				target_item->status = 3;
 
-				if ((int)item != 0xABCDEF)
+				if (*(int*)&item != 0xABCDEF)
 				{
 					RemoveActiveItem(item_num);
 					DisableBaddieAI(item_num);

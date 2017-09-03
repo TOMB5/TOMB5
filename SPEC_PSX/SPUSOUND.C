@@ -42,7 +42,7 @@ void SPU_FreeSamples()//62610, 62CF4
 
 void SPU_Init()//62650(<), 62D34(<) (F)
 {
-	int nChannel;
+	int nChannel = 0;
 	
 	SpuInit();
 	SpuInitMalloc(MAX_SPU_MALLOC_CALLS, LabSPUMallocArea);
