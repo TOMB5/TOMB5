@@ -5,10 +5,13 @@
 #include "CD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
+#include "DOOR.H"
 #include "EFFECTS.H"
 #include "FILE.H"
 #include "GPU.H"
+#include "HAIR.H"
 #include "ITEMS.H"
+#include "LARAMISC.H"
 #include "LOAD_LEV.H"
 #include "LOT.H"
 #include "MALLOC.H"
@@ -57,7 +60,7 @@ void RelocateLevel()
 	InItemControlLoop = 0;
 
 #if INTERNAL
-	if (*(int*) &level != PSX_FILE_VERSION)
+	if (level->objectVersion != PSX_FILE_VERSION)
 	{
 		printf("Wrong Version Number!!!\n");
 		printf("Game Ver: %d  Level Ver: %d\n", OBJECT_VERSION, level->objectVersion);
@@ -219,7 +222,6 @@ void RelocateLevel()
 		}
 
 	}//B40C0, B401C
-
 	 
 	floor_data = (short*)ptr;
 	ptr += level->floorDataLength;
@@ -267,7 +269,7 @@ void RelocateLevel()
 	{
 		for (i = 0; i < level->numAnims; i++)
 		{
-			*(int*) &anims[i].frame_ptr += (int) frames;
+			*(int*) &anims[i].frame_ptr += *(int*)&frames;
 		}
 	}
 
@@ -397,7 +399,7 @@ void RelocateLevel()
 
 #if INTERNAL
 				fseek(nHandle, relocationPtr[0], 0);
-				FILE_Read(ptr, 1, relocationPtr[1]), nHandle);
+				FILE_Read(ptr, 1, relocationPtr[1], nHandle);
 #else
 				CD_Seek(relocationPtr[0]);
 				CD_Read(ptr, relocationPtr[1]);
@@ -426,13 +428,11 @@ void RelocateLevel()
 
 	InitialiseFXArray(1);
 	InitialiseLOTarray(1);
-
 	//000B4558, 000B4448
-	sub_B96EC(0);//fixme no arg
-
-	//sub_BB498();
-
+	InitialiseObjects();//TODO
+	InitialiseClosedDoors();
 	InitialiseItemArray(256);
+
 	GlobalPulleyFrigItem = -1;
 
 	if (level_items > 0)
@@ -441,7 +441,75 @@ void RelocateLevel()
 		{
 			InitialiseItem(i);
 		}
-	}//B45AC
+	}
+	
+	//B45AC
+	sub_B9DA8();
+
+#if 0
+	if (number_rooms > 0)
+	{
+		//t5 = room
+		//t3 = room.num_meshes
+		//t6 = room.mesh
+		
+		if (room.mesh > 0)//num meshes?
+		{
+			//s2 = boxes
+			//a3 = room.mesh[0].x;
+			//t0 = room.x
+			//v1 = room.x_size;
+			//v0 = ((a3 - t0) / 1024) * room.x_size;
+			//a1 = room.mesh[0].z;
+			//a2 =room.z
+			//a0 = room.floor
+			//t8 = room.x_size
+			//v1 = (a1 - a2) / 1024;
+			//v1 += v0;
+			//v1 <<= 3;
+			//t1 = a0 + v1;
+			//v0 = $2(t1)
+			//s0 = a1;
+			//v0 >>= 1;//box index shift?
+			//v0 &= 0x3FF8;
+			//v0 += s2;//box index
+			//v1 = $6(v0);
+			
+			//v1 &= 0x4000
+			if (!(v1 & 0x4000))
+			{
+				//s1 = a0;
+				//v1 = gfCurrentLevel;
+				//v0 = 4;
+
+				if (s4 == 0x13 || s4 == 0x17 || s4 = 0x10 && gfCurrentLevel == 4)
+				{
+					//0xB4448
+				}
+				else
+				{
+					//0xB4358
+				}
+
+			}//b4448
+
+
+			//end loop is 0xB444C
+		}
+
+	}//B478C
+#endif
+
+	//sub_B9EA0(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
+
+	//sub_B3A7C(0xB)
+
+	GLOBAL_default_sprites_ptr = &psxspriteinfo[objects[DEFAULT_SPRITES].mesh_index];
+	GLOBAL_gunflash_meshptr = meshes[objects[GUN_FLASH].mesh_index];
+
+	if (objects[SEARCH_OBJECT1].bite_offset & 1)
+	{
+	}//0xB451C
 
 }//0xB4730 is end jalr v0
 
@@ -490,87 +558,108 @@ long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, l
 
 //?
 //Relocate initial object frame ptrs, see ResetCutanimate()
-void sub_B96EC(int unk)
+void InitialiseObjects()//?(<), B96EC(<)
 {
-	char* a0 = (char*)&objects[0];
-	int s0 = 0x02000000;
-	short t7 = 10;
-	int t6 = -16384;
-	int t4 = 0xFEFFFFFF;
-	int a1 = 459;//max?
-	int t3 = 0xFFFDFFFF;
-	int t2 = 0xDFFFFFFF;
-	int t1 = 0xFFBFFFFF;
-	int t0 = 0xFFDFFFFF;
-	int a3 = 0xFFEFFFFF;
-	int a2 = 0xFFF70000;
-	short* t5 = frames;
-	int v0, v1, i;
-	int* v11;
-	a2 |= 0xFFFF;
+	int i;
 
-	///@TODO sizeof object = 64;
-	//@TODO count of objects = 459
-	for (i = 0; i < a1; i++)
+	struct object_info* dbg;
+
+	for (i = 0; i < NUMBER_OBJECTS; i++)
 	{
-		v0 = *(int*) &a0[48];//0x00010000
-		v1 = *(int*) &a0[8];//0
-		*(int*) &a0[12] = 0;
-		*(int*) &a0[32] = 0;
-		*(int*) &a0[16] = 0;
-		*(int*) &a0[28] = 0;
-		*(int*) &a0[24] = 0;
-		*(int*) &a0[20] = 0;
-		*(short*) &a0[42] = 0;
-		*(short*) &a0[44] = t7;
-		*(short*) &a0[46] = 0;
-		*(short*) &a0[40] = t6 & 0xFFFF;//0xc000
-		*(int*) &a0[56] = 0;
-		*(int*) &a0[52] = 0;
-		*(short*) &a0[36] = 0;
+		objects[i].initialise = 0;
+		objects[i].collision = 0;
+		objects[i].control = 0;
+		objects[i].draw_routine = 0;
+		objects[i].ceiling = 0;
+		objects[i].floor = 0;
+		objects[i].pivot_length = 0;
+		objects[i].radius = 10;
+		objects[i].shadow_size = 0;
+		objects[i].hit_points = -16384;
+		objects[i].explodable_meshbits = 0;
+		objects[i].draw_routine_extra = 0;
+		objects[i].object_mip = 0;
 
-		v0 |= s0;
-		v0 &= t4;
-		v0 &= t3;
-		v0 &= t2;
-		v0 &= t1;
-		v0 &= t0;
-		v0 &= a3;
-		v0 &= a2;//0x02010000
+		//TODO: Properly toggle bitfields.
+		*(int*)&objects[i].bite_offset |= 0x02000000;
+		*(int*)&objects[i].bite_offset &= 0xFEFFFFFF;
+		*(int*)&objects[i].bite_offset &= 0xFFFDFFFF;
+		*(int*)&objects[i].bite_offset &= 0xDFFFFFFF;
+		*(int*)&objects[i].bite_offset &= 0xFFBFFFFF;
+		*(int*)&objects[i].bite_offset &= 0xFFDFFFFF;
+		*(int*)&objects[i].bite_offset &= 0xFFEFFFFF;
+		*(int*)&objects[i].bite_offset &= 0xFFF70000;
 
-		v11 = ((int*) t5) + v1;
-
-		*(int*) &a0[48] = v0;
-		*(int**) &a0[8] = v11;//check
-
-		a0 += 0x40;
+		*(int*)&objects[i].frame_base += (int) frames;
+		dbg = &objects[i];
 	}
 
-	//sub_B5328();
+	sub_B5328();
+	sub_B84F0();
+	sub_B7E04();
+	InitialiseHair();
+	//sub_BA81C();
 
-	//sub_B84F0();
 
-	//sub_B7E04();
-
-	//InitialiseHair() //3AC70, 3B170
-
-	//sub_BA81C
-
-	//0xB97FC
+#if 0
+		
+#endif
 
 }//0xB996C
 
 void sub_B5328()
 {
+	struct object_info* object = &objects_raw.m_objects[LARA];
 
+	object->shadow_size = 160;
+	object->initialise = &InitialiseLaraLoad;
+	object->hit_points = 1000;
+	object->draw_routine = NULL;
+	*(int*) &object->bite_offset &= 0xFDFFFFFF;
+	*(int*) &object->bite_offset |= 0x00100000;
+	*(int*) &object->bite_offset |= 0x80000;
+	*(int*) &object->bite_offset |= 0x00200000;
+	*(int*) &object->bite_offset |= 0x00400000;
+
+	//t0 += 0x7C0
+	object = &objects_raw.m_objects[HAIR];
+
+	if (*(int*) &object->bite_offset & 0x10000)
+	{
+		//? Illegal
+		//a3 = 0xFFEFFFFF;
+		//lui a0, 0xF3FF
+		//lhu v0, 0x866(a3);//!
+		//object->anim_index = v0;
+
+		//TODO
+	}
+
+	//TODO
 }
-
 void sub_B84F0()
 {
 
 }
 
 void sub_B7E04()
+{
+
+}
+
+void InitialiseClosedDoors()//?(<), BB498(<)
+{
+	int i;
+
+	for (i = 0; i < 32; i++)
+	{
+		ClosedDoors[i] = 0;
+	}
+
+	return;
+}
+
+void sub_B9DA8()
 {
 
 }
