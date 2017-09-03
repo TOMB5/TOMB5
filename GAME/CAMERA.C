@@ -701,3 +701,35 @@ void ConfirmCameraTargetPos()
 {
 	S_Warn("[ConfirmCameraTargetPos] - Unimplemented!\n");
 }
+
+void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)
+{
+	S_Warn("[ScreenShake] - Unimplemented!\n");
+}
+
+void UpdateCameraElevation()
+{
+	S_Warn("[UpdateCameraElevation] - Unimplemented!\n");
+}
+
+void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, short yrot, long brightness)
+{
+	S_Warn("[LaraTorch] - Unimplemented!\n");
+}
+
+long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)
+{
+	S_Warn("[mgLOS] - Unimplemented!\n");
+	return 0;
+}
+
+long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)
+{
+	S_Warn("[CameraCollisionBounds] - Unimplemented!\n");
+	return 0;
+}
+
+void MoveCamera(struct GAME_VECTOR* ideal, int speed)
+{
+	S_Warn("[MoveCamera] - Unimplemented!\n");
+}

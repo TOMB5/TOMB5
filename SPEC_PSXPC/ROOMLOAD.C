@@ -34,7 +34,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	int len;
 	FILE* file;
 
-#if! INTERNAL
+#if !INTERNAL
 	//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
 	CD_InitialiseReaderPosition(Name + TITLE);
 #endif
