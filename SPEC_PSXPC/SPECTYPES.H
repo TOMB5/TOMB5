@@ -44,7 +44,7 @@ struct object_info {
 	short mesh_index; // size=0, offset=2
 	long bone_index; // size=0, offset=4
 	short* frame_base; // size=0, offset=8
-	void(*initialise)(); // size=0, offset=12
+	void(*initialise); // size=0, offset=12
 	void(*control)(); // size=0, offset=16
 	void(*floor)(); // size=0, offset=20
 	void(*ceiling)(); // size=0, offset=24
