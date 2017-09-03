@@ -146,12 +146,14 @@ void KillActiveBaddies(struct ITEM_INFO* item)//39938(<), 39E38(<) (F)
 			{
 				target_item->status = 3;
 
+#if 0//TODO Linux does not like cast from ptr to int.
 				if ((int)item != 0xABCDEF)
 				{
 					RemoveActiveItem(item_num);
 					DisableBaddieAI(item_num);
 					target_item->flags |= IFLAG_INVISIBLE;
 				}
+#endif
 			}
 
 			item_num = target_item->next_active;
