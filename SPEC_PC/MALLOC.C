@@ -45,10 +45,10 @@ void game_free(int size)
 
 void show_game_malloc_totals()
 {
-	S_Warn("[show_game_malloc_totals] - Unimplemented!\\n");
+	S_Warn("[show_game_malloc_totals] - Unimplemented!\n");
 }
 
 void dump_game_malloc()
 {
-	S_Warn("[dump_game_malloc] - Unimplemented!\\n");
+	S_Warn("[dump_game_malloc] - Unimplemented!\n");
 }

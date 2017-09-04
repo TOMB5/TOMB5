@@ -10,6 +10,8 @@
 #include <ddraw.h>
 #include <dsound.h>
 #include "GAME.H"
+#include <d3d.h>
+#include "SOUND.H"
 
 int dword_876C48 = 0;
 HWND hWnd;
@@ -45,7 +47,7 @@ BYTE byte_D9AC2B;
 DWORD dword_D9ABFD;
 uint32 dword_D9ABF9;
 DWORD dword_86B9A4;
-DWORD dword_86B9A8;
+LPDIRECTDRAW4 iface_DirectDraw;
 
 
 unsigned thread_id;
@@ -54,16 +56,15 @@ void* dword_E916E0;
 DWORD dword_876C40;
 DWORD dword_D9AC2C;
 
-DWORD dword_86BA30;
+LPDIRECT3D3 iface_D3D3;
 
 DWORD dword_86B9AC;
 DWORD dword_D9AB68;
 
 HKEY hKey;
 LPSTR Class;
-LPDWORD dwDisposition;
+DWORD dwDisposition;
 
-HKEY hKey;
 DWORD opt_DD;
 DWORD opt_D3D;
 DWORD opt_VMode;
@@ -80,39 +81,40 @@ DWORD dword_D9AC1B;
 DWORD dword_D9AC1F;
 DWORD dword_D9AC27;
 
-WORD opt_Key0;
-WORD opt_Key1;
-WORD opt_Key2;
-WORD opt_Key3;
-WORD opt_Key4;
-WORD opt_Key5;
-WORD opt_Key6;
-WORD opt_Key7;
-WORD opt_Key8;
-WORD opt_Key9;
-WORD opt_Key10;
-WORD opt_Key11;
-WORD opt_Key12;
-WORD opt_Key13;
-WORD opt_Key14;
-WORD opt_Key15;
-WORD opt_Key16;
+WORD opt_Key0  = 200   ;
+WORD opt_Key1 = 208	   ;
+WORD opt_Key2 = 203	   ;
+WORD opt_Key3 = 205	   ;
+WORD opt_Key4 = 52	   ;
+WORD opt_Key5 = 53	   ;
+WORD opt_Key6 = 54	   ;
+WORD opt_Key7 = 184	   ;
+WORD opt_Key8 = 157	   ;
+WORD opt_Key9 = 57	   ;
+WORD opt_Key10 = 51	   ;
+WORD opt_Key11 = 82	   ;
+WORD opt_Key12 = 207   ;
+WORD opt_Key13 = 1	   ;
+WORD opt_Key14 = 211   ;
+WORD opt_Key15 = 209   ;
+WORD opt_Key16 = 25	   ;
 
-DWORD opt_JDck;
-DWORD opt_JDsh;
-DWORD opt_JWlk;
-DWORD opt_JJmp;
-DWORD opt_JAct;
-DWORD opt_JDrw;
-DWORD opt_JFlr;
-DWORD opt_JLok;
-DWORD opt_JRol;
-DWORD opt_JInv;
 
-DWORD opt_MusicVolume;
-DWORD opt_SFXVolume;
+DWORD opt_JDck = 5;
+DWORD opt_JDsh = 3;
+DWORD opt_JWlk = 4;
+DWORD opt_JJmp = 0;
+DWORD opt_JAct = 1;
+DWORD opt_JDrw = 2;
+DWORD opt_JFlr = 9;
+DWORD opt_JLok = 6;
+DWORD opt_JRol = 7;
+DWORD opt_JInv = 8;
+
+DWORD opt_MusicVolume = 40;
+DWORD opt_SFXVolume = 80;
 DWORD opt_ControlMethod;
-DWORD opt_SoundQuality;
+DWORD opt_SoundQuality = 1;
 DWORD opt_AutoTarget;
 DWORD opt_WindowX;
 DWORD opt_WindowY;
@@ -122,6 +124,32 @@ HGDIOBJ gdiobject;
 DWORD dword_D9AB70;
 DWORD dword_57A094;
 DWORD dword_57A084;
+
+BYTE byte_511894[] =
+{
+	0x82, 0xE9, 0x8A, 0xE8, 0x88, 0xEA, 0x94, 0xF6, 0x85, 0xE0, 0xA0, 0xE1, 0xA2, 0xF3
+};
+
+BYTE unk_5118A2[5] = { 0 };
+DWORD  numSoundCards;
+DWORD dword_D9AB74;
+DWORD dword_57A08C;
+BYTE byte_57A09A;
+BYTE byte_57A09B;
+DWORD dword_57A09C;
+BYTE byte_511892;
+DWORD BumpBitCount;
+DWORD BumpDU;
+DWORD BumpDV;
+
+DWORD dword_D9AB91;
+
+DWORD NumSamples[] = { 11025, 22050, 44100 };
+DWORD dword_86CC7C;
+LPDIRECTSOUND iface_DS;
+LPDIRECTSOUNDBUFFER DSSoundBuffer;
+
+//DEFINE_GUID(IID_IDirect3D3, 0xBB223240, 0xE72B, 0x11D0, 0xA9, 0xB4, 0x00, 0xAA, 0x00, 0xC0, 0x99, 0x3E);
 
 HWND SendMsg(HWND hWnd, LPARAM lParam)
 {
@@ -300,6 +328,7 @@ void InitConsole()
 	FILE* hf_out = _fdopen(hCrt, "w");
 	setvbuf(hf_out, NULL, _IONBF, 1);
 	*stdout = *hf_out;
+	setbuf(stdout, NULL);
 
 	HANDLE handle_in = GetStdHandle(STD_INPUT_HANDLE);
 	hCrt = _open_osfhandle((long)handle_in, _O_TEXT);
@@ -1487,16 +1516,14 @@ signed int __cdecl sub_40179E(int a1)
 	return result;
 }
 
-int __cdecl DXDDCreate(GUID *lpGUID, LPVOID* a2)
+int __cdecl DXDDCreate(GUID *lpGUID, LPDIRECTDRAW4* a2)
 {
-	int v2; // ecx@0
 	HRESULT v3; // eax@1
 	int v4; // eax@2
 	int v5; // eax@3
 	int result; // eax@5
 	LPDIRECTDRAW lpDD; // [sp+10h] [bp-4h]@1
 
-	lpDD = (LPDIRECTDRAW)v2;
 	sub_4DEB10(2, "DXDDCreate");
 	v3 = DirectDrawCreate(lpGUID, &lpDD, 0);
 	if (sub_40179E(v3))
@@ -1508,11 +1535,9 @@ int __cdecl DXDDCreate(GUID *lpGUID, LPVOID* a2)
 	{
 		v4 = lpDD->lpVtbl->QueryInterface(lpDD, &IID_IDirectDraw4, a2);
 
-		//v4 = (*(int(__stdcall **)(LPDIRECTDRAW, void *, int))lpDD->lpVtbl)(lpDD, IID_IDirectDraw4, a2);
 		sub_40179E(v4);
 		if (lpDD)
 		{
-			//v5 = (*((int(__stdcall **)(LPDIRECTDRAW))lpDD->lpVtbl + 2))(lpDD);
 			v5 = lpDD->lpVtbl->Release(lpDD);
 			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "DirectDraw", lpDD, v5);
 			lpDD = 0;
@@ -1525,11 +1550,6 @@ int __cdecl DXDDCreate(GUID *lpGUID, LPVOID* a2)
 		result = 1;
 	}
 	return result;
-}
-
-BOOL __cdecl sub_402FA9(int a1, int a2, int a3)
-{
-	S_Warn("[sub_402FA9] - Unimplemented!\n");
 }
 
 unsigned int __cdecl sub_49F9C0(unsigned int a1, _BYTE *a2, _BYTE *a3)
@@ -1565,7 +1585,7 @@ unsigned int __cdecl sub_4016B3(int a1, int a2, int a3)
 	return sub_49F9C0(a1, (_BYTE *)a2, (_BYTE *)a3);
 }
 
-signed int __stdcall sub_401CBC(int a1, int a2)
+signed long __stdcall sub_401CBC(LPDDSURFACEDESC2 a1, int a2)
 {
 	int v2; // esi@1
 	char *v3; // eax@1
@@ -1606,13 +1626,13 @@ signed int __stdcall sub_401CBC(int a1, int a2)
 	return 1;
 }
 
-signed int __cdecl sub_4028B5(int(__stdcall ***a1)(_DWORD, _DWORD, _DWORD), int a2)
+signed int __cdecl DXD3DCreate(LPDIRECTDRAW4 a1, IDirect3D3** a2)
 {
-	/*int v2; // eax@1
+	int v2; // eax@1
 	signed int result; // eax@2
 
 	sub_4DEB10(2, "DXD3DCreate");
-	v2 = (**a1)(a1, &unk_502A10, a2);
+	v2 = a1->lpVtbl->QueryInterface(a1, &IID_IDirect3D3, a2);
 	if (sub_40179E(v2))
 	{
 		sub_4DEB10(1, "DXD3DCreate Failed");
@@ -1623,10 +1643,7 @@ signed int __cdecl sub_4028B5(int(__stdcall ***a1)(_DWORD, _DWORD, _DWORD), int 
 		sub_4DEB10(5, "DXD3DCreate Successful");
 		result = 1;
 	}
-	return result;*/
-
-	S_Warn("[DXD3DCreate] - Unimplemented!\n");
-	return 0;
+	return result;
 }
 
 signed int __cdecl sub_40206D(int a1)
@@ -1663,19 +1680,48 @@ signed int __cdecl sub_40206D(int a1)
 	return result;
 }
 
-BOOL __cdecl DXSetCooperativeLevel(int a1, int a2, int a3)
+BOOL __cdecl DXSetCooperativeLevel(LPDIRECTDRAW4 a1, HWND a2, int a3)
 {
-	S_Warn("[DXSetCooperativeLevel] - Unimplemented!\\n");
-	return FALSE;
+	static const char* flags[] = 
+	{
+		"fullscreen",		  //    1
+		"allowreboot",		  //    2
+		"nowindowchanges",	  //    4
+		"normal",			  //    8
+		"exclusive",		  //   16
+		"",					  //   32
+		"allowmodex",		  //   64
+		"setfocuswindow",	  //  128
+		"setdevicewindow",	  //  256
+		"createdevicewindow", //  512
+		"multithreaded",	  // 1024
+		"fpusetup",			  // 2048
+	};
+
+	char v120[1024];
+	strcpy(v120, "DXSetCooperativeLevel - ");
+
+	for (int i = 0; i < 12; i++)
+	{
+		if (a3 & (1 << i))
+		{
+			strcat(v120, flags[i]);
+			strcat(v120, " ");
+		}
+	}
+
+	sub_4DEB10(2, v120);
+	int v7 = a1->lpVtbl->SetCooperativeLevel(a1, a2, a3);
+	return sub_40179E(v7) == 0;
 }
 
-signed int __cdecl DXCreateSurface(int a1, int a2, int a3)
+signed int __cdecl DXCreateSurface(LPDIRECTDRAW4 a1, LPDDSURFACEDESC2 a2, LPDIRECTDRAWSURFACE4* a3)
 {
 	int v3; // eax@1
 	signed int result; // eax@2
 
 	sub_4DEB10(2, "DXCreateSurface");
-	v3 = (*(int(__stdcall **)(int, int, int, _DWORD))(*(_DWORD *)a1 + 24))(a1, a2, a3, 0);
+	v3 = a1->lpVtbl->CreateSurface(a1, a2, a3, 0);
 	if (sub_40179E(v3))
 	{
 		sub_4DEB10(1, "DXCreateSurface Failed");
@@ -1688,13 +1734,13 @@ signed int __cdecl DXCreateSurface(int a1, int a2, int a3)
 	return result;
 }
 
-signed int __cdecl DXCreateD3DDevice(int a1, char a2, int a3, int a4, int a5, int a6, int a7)
+signed int __cdecl DXCreateD3DDevice(LPDIRECT3D3 a1, const IID a2, LPDIRECTDRAWSURFACE4 a6, LPDIRECT3DDEVICE3* a7)
 {
 	int v7; // eax@1
 	signed int result; // eax@2
 
 	sub_4DEB10(2, "DXCreateD3DDevice");
-	v7 = (*(int(__stdcall **)(int, char *, int, int, _DWORD))(*(_DWORD *)a1 + 32))(a1, &a2, a6, a7, 0);
+	v7 = a1->lpVtbl->CreateDevice(a1, &a2, a6, a7, 0);
 	if (sub_40179E(v7))
 	{
 		sub_4DEB10(1, "DXCreateD3DDevice Failed");
@@ -1708,13 +1754,13 @@ signed int __cdecl DXCreateD3DDevice(int a1, char a2, int a3, int a4, int a5, in
 	return result;
 }
 
-BOOL __cdecl DXSetVideoMode(int a1, int a2, int a3, int a4)
+BOOL __cdecl DXSetVideoMode(LPDIRECTDRAW4 a1, int a2, int a3, int a4)
 {
 	int v4; // eax@1
 
 	sub_4DEB10(2, "DXSetVideoMode");
 	sub_4DEB10(5, "SetDisplayMode - %dx%dx%d", a2, a3, a4);
-	v4 = (*(int(__stdcall **)(int, int, int, int, _DWORD, _DWORD))(*(_DWORD *)a1 + 84))(a1, a2, a3, a4, 0, 0);
+	v4 = a1->lpVtbl->SetDisplayMode(a1, a2, a3, a4, 0, 0);
 	return sub_40179E(v4) == 0;
 }
 
@@ -1817,7 +1863,7 @@ signed int __stdcall sub_402FDB(int a1, int a2)
 	return 1;
 }
 
-signed int __stdcall sub_402ECD(int a1, const CHAR *lpString2, const CHAR *a3, int a4, const void *a5, int a6)
+signed long __stdcall sub_402ECD(GUID* a1, CHAR *lpString2, CHAR *a3, LPD3DDEVICEDESC a4, LPD3DDEVICEDESC a5, void* a6)
 {
 	int v6; // esi@1
 	char *v7; // eax@1
@@ -1839,21 +1885,20 @@ signed int __stdcall sub_402ECD(int a1, const CHAR *lpString2, const CHAR *a3, i
 	char *v23; // eax@12
 	int v24; // ecx@16
 	int v25; // eax@20
-	int v26; // eax@22
+	LPDIRECTDRAWSURFACE4 v26; // eax@22
 	int v27; // eax@25
 	int v28; // eax@26
 	int v29; // eax@30
 	int v30; // eax@32
-	int v32; // [sp+10h] [bp-88h]@17
-	int v33; // [sp+14h] [bp-84h]@18
+	LPDIRECTDRAWSURFACE4 v32; // [sp+10h] [bp-88h]@17
+	LPDIRECT3DDEVICE3 v33; // [sp+14h] [bp-84h]@18
 	int v34; // [sp+18h] [bp-80h]@10
-	int v35; // [sp+1Ch] [bp-7Ch]@17
-	int v36; // [sp+20h] [bp-78h]@17
-	int v37; // [sp+84h] [bp-14h]@17
+	DDSURFACEDESC2 v35; // [sp+1Ch] [bp-7Ch]@17
 
-	v6 = *(_DWORD *)(a6 + 1582);
-	v7 = sub_401A7D(*(void **)(a6 + 1586), *(_DWORD *)(a6 + 1582), 0x19Au);
-	*(_DWORD *)(a6 + 1586) = v7;
+	D3DDevice** DevList = (D3DDevice**)Context;
+	v6 = *(_DWORD *)((int)a6 + 1582);
+	v7 = sub_401A7D(*(void **)((int)a6 + 1586), *(_DWORD *)((int)a6 + 1582), 0x19Au);
+	*(_DWORD *)((int)a6 + 1586) = v7;
 	v8 = (int)&v7[410 * v6];
 	if (a1)
 	{
@@ -1872,10 +1917,10 @@ signed int __stdcall sub_402ECD(int a1, const CHAR *lpString2, const CHAR *a3, i
 	lstrcpyA((LPSTR)(v8 + 30), lpString2);
 	lstrcpyA((LPSTR)v8, a3);
 	sub_4DEB10(5, "Found - %s", lpString2);
-	if (*(_DWORD *)(a4 + 4))
+	if (a4->dwFlags)
 	{
 		*(_DWORD *)(v8 + 382) = 1;
-		qmemcpy((void *)(v8 + 130), (const void *)a4, 0xFCu);
+		qmemcpy((void *)(v8 + 130), a4, 0xFCu);
 	}
 	else
 	{
@@ -1908,20 +1953,20 @@ signed int __stdcall sub_402ECD(int a1, const CHAR *lpString2, const CHAR *a3, i
 	sub_4DEB10(5, "Finding Compatible Display Modes");
 	v18 = 0;
 	*(_DWORD *)(v8 + 386) = 0;
-	v19 = *(_DWORD *)(a6 + 1574);
+	v19 = *(_DWORD *)((int)a6 + 1574);
 	v34 = 0;
 	if (v19 > 0)
 	{
 		do
 		{
 			v20 = a6;
-			if (sub_40206D(*(_DWORD *)(v18 + *(_DWORD *)(a6 + 1578) + 8)) & *(_DWORD *)(v8 + 286))
+			if (sub_40206D(*(_DWORD *)(v18 + *(_DWORD *)((int)a6 + 1578) + 8)) & *(_DWORD *)(v8 + 286))
 			{
 				v21 = sub_401A7D(*(void **)(v8 + 390), *(_DWORD *)(v8 + 386), 0x96u);
 				v22 = *(_DWORD *)(v8 + 386);
 				*(_DWORD *)(v8 + 390) = v21;
 				v23 = &v21[150 * v22];
-				qmemcpy(v23, (const void *)(*(_DWORD *)(a6 + 1578) + v18), 0x96u);
+				qmemcpy(v23, (const void *)(*(_DWORD *)((int)a6 + 1578) + v18), 0x96u);
 				if (*((_DWORD *)v23 + 4))
 					sub_4DEB10(3, "%d x %d - %d Bit - Palette", *(_DWORD *)v23, *((_DWORD *)v23 + 1), *((_DWORD *)v23 + 2));
 				else
@@ -1944,27 +1989,24 @@ signed int __stdcall sub_402ECD(int a1, const CHAR *lpString2, const CHAR *a3, i
 	}
 	sub_4DEB10(5, "Enumerate Texture Formats");
 	memset(&v35, 0, 0x7Cu);
-	v35 = 124;
-	v36 = 1;
-	v37 = 8704;
-	DXSetCooperativeLevel(*(int *)dword_86B9A8, dword_86B9A4, 21);
-	DXCreateSurface(*(int *)dword_86B9A8, (int)&v35, (int)&v32);
+	v35.dwSize = 124;
+	v35.dwFlags = 1;
+	v35.ddsCaps.dwCaps = 8704;
+	DXSetCooperativeLevel(iface_DirectDraw, dword_86B9A4, 21);
+	DXCreateSurface(iface_DirectDraw, &v35, &v32);
 	if (v32)
 	{
 		DXCreateD3DDevice(
-			dword_86BA30,
-			*(_DWORD *)(v8 + 114),
-			*(_DWORD *)(v8 + 118),
-			*(_DWORD *)(v8 + 122),
-			*(_DWORD *)(v8 + 126),
+			iface_D3D3,
+			*(IID*)(v8 + 114),
 			v32,
-			(int)&v33);
+			&v33);
 		if (v33)
 			goto LABEL_35;
 		sub_4DEB10(1, "Create D3DDevice Failed");
 		if (v32)
 		{
-			v25 = (*(int(__stdcall **)(int))(*(_DWORD *)v32 + 8))(v32);
+			v25 = v32->lpVtbl->Release(v32);
 			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "DirectDrawSurface", v32, v25);
 			v32 = 0;
 		}
@@ -1973,22 +2015,19 @@ signed int __stdcall sub_402ECD(int a1, const CHAR *lpString2, const CHAR *a3, i
 			sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "DirectDrawSurface");
 		}
 		DXSetVideoMode(
-			*(int *)dword_86B9A8,
+			iface_DirectDraw,
 			**(_DWORD **)(v8 + 390),
 			*(_DWORD *)(*(_DWORD *)(v8 + 390) + 4),
 			*(_DWORD *)(*(_DWORD *)(v8 + 390) + 8));
-		DXCreateSurface(*(int *)dword_86B9A8, (int)&v35, (int)&v32);
+		DXCreateSurface(iface_DirectDraw, &v35, &v32);
 		v26 = v32;
 		if (v32)
 		{
 			DXCreateD3DDevice(
-				dword_86BA30,
-				*(_DWORD *)(v8 + 114),
-				*(_DWORD *)(v8 + 118),
-				*(_DWORD *)(v8 + 122),
-				*(_DWORD *)(v8 + 126),
+				iface_D3D3,
+				*(IID *)(v8 + 114),
 				v32,
-				(int)&v33);
+				&v33);
 			v26 = v32;
 		}
 		if (v33)
@@ -1996,11 +2035,11 @@ signed int __stdcall sub_402ECD(int a1, const CHAR *lpString2, const CHAR *a3, i
 		LABEL_35:
 			*(_DWORD *)(v8 + 394) = 0;
 			sub_4DEB10(2, "DXEnumTextureFormats");
-			v27 = (*(int(__stdcall **)(int, void *, int))(*(_DWORD *)v33 + 32))(v33, &sub_401019, v8);
+			v27 = v33->lpVtbl->EnumTextureFormats(v33, &sub_401019, v8);
 			sub_40179E(v27);
 			if (v33)
 			{
-				v28 = (*(int(__stdcall **)(int))(*(_DWORD *)v33 + 8))(v33);
+				v28 = v33->lpVtbl->Release(v33);
 				sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "D3DDevice", v33, v28);
 				v33 = 0;
 			}
@@ -2012,7 +2051,7 @@ signed int __stdcall sub_402ECD(int a1, const CHAR *lpString2, const CHAR *a3, i
 		}
 		if (v26)
 		{
-			v29 = (*(int(__stdcall **)(int))(*(_DWORD *)v26 + 8))(v26);
+			v29 = v26->lpVtbl->Release(v26);
 			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "DirectDrawSurface", v32, v29);
 			v32 = 0;
 		}
@@ -2021,20 +2060,20 @@ signed int __stdcall sub_402ECD(int a1, const CHAR *lpString2, const CHAR *a3, i
 			sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "DirectDrawSurface");
 		}
 	}
-	DXSetCooperativeLevel(*(int *)dword_86B9A8, dword_86B9A4, 8);
+	DXSetCooperativeLevel(iface_DirectDraw, dword_86B9A4, 8);
 	sub_4DEB10(5, "Enumerating ZBuffer Formats");
 	sub_4DEB10(2, "DXEnumZBufferFormats");
-	v30 = (*(int(__stdcall **)(int, int, int(__stdcall *)(int, int), int))(*(_DWORD *)dword_86BA30 + 40))(
-		dword_86BA30,
+	v30 = iface_D3D3->lpVtbl->EnumZBufferFormats(
+		iface_D3D3,
 		v8 + 114,
 		sub_402FDB,
 		v8);
 	sub_40179E(v30);
-	++*(_DWORD *)(a6 + 1582);
+	++*(_DWORD *)((int)a6 + 1582);
 	return 1;
 }
 
-signed int __stdcall Callback(GUID *lpGUID, LPSTR lpString2, LPSTR a3, LPVOID a4)
+signed int __stdcall DXEnumDirectDraw(GUID *lpGUID, LPSTR lpString2, LPSTR a3, LPVOID a4)
 {
 	int v4; // esi@1
 	char* v5; // eax@1
@@ -2054,12 +2093,8 @@ signed int __stdcall Callback(GUID *lpGUID, LPSTR lpString2, LPSTR a3, LPVOID a4
 	v6 = v5 + 1590 * v4;
 	if (lpGUID)
 	{
-		v7 = v6 + 114;
 		*(_DWORD *)(v6 + 110) = (DWORD)v6 + 114;
-		*(_DWORD *)v7 = lpGUID->Data1;
-		*(_DWORD *)(v7 + 4) = *(_DWORD *)&lpGUID->Data2;
-		*(_DWORD *)(v7 + 8) = *(_DWORD *)&lpGUID->Data4[0];
-		*(_DWORD *)(v7 + 12) = *(_DWORD *)&lpGUID->Data4[4];
+		*(GUID *)(v6 + 114) = *lpGUID;
 	}
 	else
 	{
@@ -2068,10 +2103,10 @@ signed int __stdcall Callback(GUID *lpGUID, LPSTR lpString2, LPSTR a3, LPVOID a4
 	lstrcpyA((LPSTR)(v6 + 30), lpString2);
 	lstrcpyA((LPSTR)v6, a3);
 	sub_4DEB10(5, "Obtaining Information For %s", lpString2);
-	if (DXDDCreate(lpGUID, (LPVOID*)dword_86B9A8))
+	if (DXDDCreate(lpGUID, &iface_DirectDraw))
 	{
-		v8 = (*(int(__stdcall **)(_DWORD, int, _DWORD))(**(_DWORD **)dword_86B9A8 + 108))(
-			*(_DWORD *)dword_86B9A8,
+		v8 = iface_DirectDraw->lpVtbl->GetDeviceIdentifier(
+			iface_DirectDraw,
 			(int)v6 + 510,
 			0);
 		sub_40179E(v8);
@@ -2087,43 +2122,43 @@ signed int __stdcall Callback(GUID *lpGUID, LPSTR lpString2, LPSTR a3, LPVOID a4
 		memset((void *)(v6 + 130), 0, 0x17Cu);
 		*(_DWORD *)(v6 + 130) = 380;
 		sub_4DEB10(5, "Getting Device Capabilities");
-		v9 = (*(int(__stdcall **)(_DWORD, int, _DWORD))(**(_DWORD **)dword_86B9A8 + 44))(
-			*(_DWORD *)dword_86B9A8,
+		v9 = iface_DirectDraw->lpVtbl->GetCaps(
+			iface_DirectDraw,
 			(int)v6 + 130,
 			0);
 		sub_40179E(v9);
 		sub_4DEB10(5, "Enumerating Display Modes");
-		sub_402FA9(*(_DWORD *)dword_86B9A8, 0, 77);
+		DXSetCooperativeLevel(iface_DirectDraw, 0, 77);
 		sub_4DEB10(2, "DXEnumDisplayModes");
-		v10 = (*(int(__stdcall **)(_DWORD, _DWORD, _DWORD, int, void *))(**(_DWORD **)dword_86B9A8 + 32))(
-			*(_DWORD *)dword_86B9A8,
+		v10 = iface_DirectDraw->lpVtbl->EnumDisplayModes(
+			iface_DirectDraw,
 			0,
 			0,
 			v6,
 			&sub_401CBC);
 		sub_40179E(v10);
-		if (sub_4028B5(*(_DWORD *)dword_86B9A8, &dword_86BA30))
+		if (DXD3DCreate(iface_DirectDraw, &iface_D3D3))
 		{
 			sub_4DEB10(2, "DXEnumDirect3D");
-			v11 = (*(int(__stdcall **)(int, void *, int))(*(_DWORD *)dword_86BA30 + 12))(dword_86BA30, &sub_402ECD, v6);
+			v11 = iface_D3D3->lpVtbl->EnumDevices(iface_D3D3, &sub_402ECD, v6);
 			sub_40179E(v11);
-			if (dword_86BA30)
+			if (iface_D3D3)
 			{
-				v12 = (*(int(__stdcall **)(int))(*(_DWORD *)dword_86BA30 + 8))(dword_86BA30);
-				sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Direct3D", dword_86BA30, v12);
-				dword_86BA30 = 0;
+				v12 = iface_D3D3->lpVtbl->Release(iface_D3D3);
+				sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Direct3D", iface_D3D3, v12);
+				iface_D3D3 = 0;
 			}
 			else
 			{
 				sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "Direct3D");
 			}
 		}
-		sub_402FA9(*(_DWORD *)dword_86B9A8, 0, 8);
-		if (*(_DWORD *)dword_86B9A8)
+		DXSetCooperativeLevel(iface_DirectDraw, 0, 8);
+		if (iface_DirectDraw)
 		{
-			v13 = (*(int(__stdcall **)(_DWORD))(**(_DWORD **)dword_86B9A8 + 8))(*(_DWORD *)dword_86B9A8);
-			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "DirectDraw", *(_DWORD *)dword_86B9A8, v13);
-			*(_DWORD *)dword_86B9A8 = 0;
+			v13 = iface_DirectDraw->lpVtbl->Release(iface_DirectDraw);
+			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "DirectDraw", iface_DirectDraw, v13);
+			iface_DirectDraw = 0;
 			++*(_DWORD *)a4;
 			return 1;
 		}
@@ -2133,7 +2168,7 @@ signed int __stdcall Callback(GUID *lpGUID, LPSTR lpString2, LPSTR a3, LPVOID a4
 	return 1;
 }
 
-signed int __stdcall DXEnumDirectSound(int a1, const CHAR *lpString2, const CHAR *a3, int a4)
+signed int __stdcall DXEnumDirectSound(GUID* a1, const CHAR *lpString2, const CHAR *a3, int a4)
 {
 	int v4; // edi@1
 	char *v5; // eax@1
@@ -2147,12 +2182,8 @@ signed int __stdcall DXEnumDirectSound(int a1, const CHAR *lpString2, const CHAR
 	v6 = (int)&v5[130 * v4];
 	if (a1)
 	{
-		v7 = v6 + 114;
 		*(_DWORD *)(v6 + 110) = v6 + 114;
-		*(_DWORD *)v7 = *(_DWORD *)a1;
-		*(_DWORD *)(v7 + 4) = *(_DWORD *)(a1 + 4);
-		*(_DWORD *)(v7 + 8) = *(_DWORD *)(a1 + 8);
-		*(_DWORD *)(v7 + 12) = *(_DWORD *)(a1 + 12);
+		*(GUID *)(v6 + 114) = *a1;
 	}
 	else
 	{
@@ -2173,7 +2204,7 @@ signed int __cdecl DXInitialise(void *lpContext, int a2)
 	sub_4DEB10(2, "DXInitialise");
 	dword_86B9A4 = a2;
 	sub_4DEB10(5, "Enumerating DirectDraw Devices");
-	v2 = DirectDrawEnumerateA(Callback, lpContext);
+	v2 = DirectDrawEnumerateA(DXEnumDirectDraw, lpContext);
 	sub_40179E(v2);
 	v3 = DirectSoundEnumerateA(DXEnumDirectSound, lpContext);
 	sub_40179E(v3);
@@ -2187,9 +2218,79 @@ int sub_402CD4(HWND hWnd, HINSTANCE hInstance)
 	return 1;
 }
 
-void DXDSCreate()
+char __cdecl SetSoundOutputFormat(int a1, char a2)
 {
-	S_Warn("[DXDSCreate] - Unimplemented!\n");
+	int v2; // eax@4
+	char result; // al@5
+	WAVEFORMATEX v4; // [sp+4h] [bp-14h]@3
+
+	if ((a2 || dword_86CC7C != a1)
+		&& (dword_86CC7C = a1,
+			v4.wFormatTag = 1,
+			v4.nChannels = 2,
+			v4.nSamplesPerSec = a1,
+			v4.nAvgBytesPerSec = 4 * a1,
+			v4.nBlockAlign = 4,
+			v4.wBitsPerSample = 16,
+			v4.cbSize = 0,
+			S_SoundStopAllSamples(),
+			DSSoundBuffer)
+		&& (v2 = DSSoundBuffer->lpVtbl->SetFormat(DSSoundBuffer, &v4), sub_40179E(v2)))
+	{
+		sub_4DEB10(1, "Can't set sound output format to %d", v4.nSamplesPerSec);
+		result = 0;
+	}
+	else
+	{
+		result = 1;
+	}
+	return result;
+}
+
+char DXSetOutputFormat()
+{
+	int v0; // eax@1
+	char result; // al@2
+	DSBUFFERDESC v2; // [sp+4h] [bp-24h]@1
+
+
+	sub_4DEB10(2, "DXSetOutputFormat");
+	memset(&v2, 0, 0x24u);
+	v2.dwSize = 36;
+	v2.dwFlags = 1;
+	v0 = iface_DS->lpVtbl->CreateSoundBuffer(iface_DS, &v2, &DSSoundBuffer, 0);
+	if (sub_40179E(v0))
+	{
+		sub_4DEB10(1, "Can't Get Primary Sound Buffer");
+		result = 0;
+	}
+	else
+	{
+		SetSoundOutputFormat(NumSamples[opt_SoundQuality], 0);
+		DSSoundBuffer->lpVtbl->Play(DSSoundBuffer, 0, 0, 1);
+		result = 1;
+	}
+	return result;
+}
+
+int DXDSCreate()
+{
+	int v0; // eax@1
+	int v1; // eax@1
+	signed int result; // eax@1
+
+	sub_4DEB10(2, "DXDSCreate");
+	v0 = DirectSoundCreate(
+		*(LPGUID *)(*(_DWORD *)(dword_86B9AC + 12) + 130 * *(_DWORD *)(dword_86B9AC + 36) + 110),
+		&iface_DS,
+		0);
+	sub_40179E(v0);
+	v1 = iface_DS->lpVtbl->SetCooperativeLevel(iface_DS, hWnd, 3);
+	sub_40179E(v1);
+	DXSetOutputFormat();
+	result = 1;
+	sound_active = 1;
+	return result;
 }
 
 void InitACM()
@@ -2351,7 +2452,7 @@ int __cdecl sub_4026FD(HWND hDlg, HWND hWnd)
 
 char sub_402F77()
 {
-	int v0; // eax@8
+	/*int v0; // eax@8
 	int v1; // eax@9
 	int v2; // edx@13
 	int v3; // ecx@13
@@ -2458,7 +2559,9 @@ char sub_402F77()
 	{
 		result = 0;
 	}
-	return result;
+	return result;*/
+	S_Warn("[sub_402F77] - Unimplemented!\n");
+	return 0;
 }
 
 char *__cdecl sub_401C9E(const char *a1, char *a2)
@@ -2489,7 +2592,7 @@ char *__cdecl sub_401C9E(const char *a1, char *a2)
 			if (v5 >= 128)
 			{
 				v6 = 0;
-				v7 = &unk_511894;
+				v7 = byte_511894;
 				while (v5 != *v7)
 				{
 					v7 += 2;
@@ -2500,7 +2603,7 @@ char *__cdecl sub_401C9E(const char *a1, char *a2)
 						goto LABEL_8;
 					}
 				}
-				v5 = byte_511895[2 * v6];
+				v5 = byte_511894[2 * v6 + 1];
 			}
 		LABEL_8:
 			*v3++ = v5;
@@ -2510,6 +2613,123 @@ char *__cdecl sub_401C9E(const char *a1, char *a2)
 		*v3 = 0;
 	}
 	return result;
+}
+
+LRESULT __cdecl sub_4018F2(HWND hDlg, HWND hWnd)
+{
+	int v2; // eax@1
+	int v3; // esi@1
+	int v4; // ebp@2
+	HWND v5; // eax@5
+	HWND v6; // eax@5
+
+	SendMessageA(hWnd, 0x14Bu, 0, 0);
+	v2 = numSoundCards;
+	v3 = 0;
+	if (numSoundCards > 0)
+	{
+		v4 = 0;
+		do
+		{
+			SendMessageA(hWnd, 0x143u, 0, dword_D9AB74 + v4 + 30);
+			v2 = numSoundCards;
+			++v3;
+			v4 += 130;
+		} while (v3 <  numSoundCards);
+	}
+	dword_57A08C = 0;
+	if (!v2)
+	{
+		SendMessageA(hWnd, 0x143u, 0, (LPARAM)&gfStringWad[gfStringOffset[285]]);
+		v5 = GetDlgItem(hDlg, 1018);
+		EnableWindow(v5, 0);
+		v6 = GetDlgItem(hDlg, 1018);
+		SendMessageA(v6, 0xF1u, 1u, 0);
+		EnableWindow(hWnd, 0);
+	}
+	return SendMessageA(hWnd, 0x14Eu, 0, 0);
+}
+
+char __cdecl sub_402DF1(HWND hDlg)
+{
+	HWND v1; // eax@1
+	BYTE v2; // al@1
+	HWND v3; // eax@1
+	BYTE v4; // al@1
+	HWND v5; // eax@1
+	LRESULT v6; // ST10_4@1
+	HWND v7; // eax@1
+	BYTE v8; // al@1
+	HWND v9; // eax@1
+	BYTE v10; // al@1
+	HWND v11; // eax@1
+	BYTE v12; // al@1
+	HWND v13; // eax@1
+	LRESULT v14; // eax@1
+	HWND v15; // eax@1
+	LRESULT v16; // eax@1
+	HWND v17; // eax@1
+	LRESULT v18; // eax@1
+	HWND v19; // eax@1
+	LRESULT v20; // eax@1
+	HWND v21; // eax@1
+	LRESULT v22; // eax@1
+	HWND v23; // eax@1
+	LRESULT v24; // eax@1
+	HWND v25; // eax@1
+	LRESULT v26; // eax@1
+	HWND v27; // eax@1
+	LRESULT v28; // eax@1
+	HWND v29; // eax@1
+	LRESULT v30; // eax@1
+
+	sub_402964("System");
+	v1 = GetDlgItem(hDlg, 1000);
+	v2 = SendMessageA(v1, 0x147u, 0, 0);
+	sub_4029B9("DD", v2);
+	v3 = GetDlgItem(hDlg, 1003);
+	v4 = SendMessageA(v3, 0x147u, 0, 0);
+	sub_4029B9("D3D", v4);
+	v5 = GetDlgItem(hDlg, 1004);
+	v6 = SendMessageA(v5, 0x147u, 0, 0);
+	v7 = GetDlgItem(hDlg, 1004);
+	v8 = SendMessageA(v7, 0x150u, v6, 0);
+	sub_4029B9("VMode", v8);
+	v9 = GetDlgItem(hDlg, 1005);
+	v10 = SendMessageA(v9, 0x147u, 0, 0);
+	sub_4029B9("DS", v10);
+	v11 = GetDlgItem(hDlg, 1006);
+	v12 = SendMessageA(v11, 0x147u, 0, 0);
+	sub_4029B9("TFormat", v12);
+	v13 = GetDlgItem(hDlg, 1012);
+	v14 = SendMessageA(v13, 0xF0u, 0, 0);
+	sub_402B94("Filter", v14 != 0);
+	v15 = GetDlgItem(hDlg, 1016);
+	v16 = SendMessageA(v15, 0xF0u, 0, 0);
+	sub_402B94("BumpMap", v16 != 0);
+	v17 = GetDlgItem(hDlg, 1010);
+	v18 = SendMessageA(v17, 0xF0u, 0, 0);
+	sub_402B94("HardWare", v18 != 0);
+	v19 = GetDlgItem(hDlg, 1018);
+	v20 = SendMessageA(v19, 0xF0u, 0, 0);
+	sub_402B94("DisableSound", v20 != 0);
+	v21 = GetDlgItem(hDlg, 1014);
+	v22 = SendMessageA(v21, 0xF0u, 0, 0);
+	sub_402B94("TextLow", v22 != 0);
+	v23 = GetDlgItem(hDlg, 1015);
+	v24 = SendMessageA(v23, 0xF0u, 0, 0);
+	sub_402B94("BumpLow", v24 != 0);
+	v25 = GetDlgItem(hDlg, 1025);
+	v26 = SendMessageA(v25, 0xF0u, 0, 0);
+	sub_402B94("Window", v26 != 0);
+	v27 = GetDlgItem(hDlg, 1029);
+	v28 = SendMessageA(v27, 0xF0u, 0, 0);
+	sub_402B94("Volumetric", v28 != 0);
+	v29 = GetDlgItem(hDlg, 1030);
+	v30 = SendMessageA(v29, 0xF0u, 0, 0);
+	sub_402B94("NoFMV", v30 != 0);
+	sub_402B94("Setup", 1);
+	return 1;
 }
 
 signed int __stdcall DialogFunc(HWND hDlg, int msg, unsigned int wParam, int lParam)
@@ -2808,6 +3028,46 @@ BOOL  sub_402C34()
 	return result;
 }
 
+int sub_401424()
+{
+	/*int result; // eax@1
+
+	dword_D99DA4 = 0;
+	result = *(_DWORD *)(*(_DWORD *)(dword_86B9AC + 8) + 1590 * *(_DWORD *)(dword_86B9AC + 16) + 1586)
+		+ 410 * *(_DWORD *)(dword_86B9AC + 20);
+	if (0x600000 & *(_DWORD *)(result + 374))
+	{
+		if (*(_WORD *)(result + 378) >= 3u)
+		{
+			dword_D99D7C = 0;
+			(*(void(__stdcall **)(int, int(__stdcall *)(int, int), void *))(*(_DWORD *)dword_D9AB99 + 32))(
+				dword_D9AB99,
+				sub_402AB3,
+				&unk_D99D80);
+			result = dword_D99D7C;
+			if (dword_D99D7C)
+			{
+				sub_4DEB10(5, "Bump bit count 0x%X", *(_DWORD *)BumpBitCount);
+				sub_4DEB10(5, "Bump DU %X", *(_DWORD *)BumpDU);
+				sub_4DEB10(5, "Bump DV %X", *(_DWORD *)BumpDV);
+				result = *(_DWORD *)BumpBitCount;
+				if (*(_DWORD *)BumpBitCount == 16)
+					dword_D99DA4 = 1;
+			}
+		}
+	}
+	return result;*/
+
+	S_Warn("[sub_401424] - Unimplemented!\n");
+	return 0;
+}
+
+signed int __cdecl sub_402B2B(int a1, int a2, int a3, int a4, DWORD *a5, HWND a6, DWORD dwStyle)
+{
+	S_Warn("[sub_402B2B] - Unimplemented!\n");
+	return 0;
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	InitConsole();
@@ -2929,11 +3189,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			*(_DWORD *)(v11 + 150 * *(_DWORD *)(dword_86B9AC + 24) + 4),
 			*(_DWORD *)(v11 + 150 * *(_DWORD *)(dword_86B9AC + 24) + 8),
 			dword_D9AC27,
-			(int)&dword_D9AB91,
+			&dword_D9AB91,
 			hWnd,
-			(DWORD)&unk_C00000))
+			0xC00000))
 		{
-			MessageBoxA(0, (LPCSTR)(dword_E5C310 + dword_E5C2B8[47].PSXStringWadLen), Caption, 0);
+			MessageBoxA(0, &gfStringWad[gfStringOffset[286]], Caption, 0);
 			return 0;
 		}
 		sub_401424();

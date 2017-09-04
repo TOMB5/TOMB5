@@ -72,7 +72,7 @@ int LoadFile(char* szFileName, void** pDest)
 
 int FILE_Read(void* pDest, int nItemSize, int nItems, FILE* nHandle)
 {
-	S_Warn("[FILE_Read] - Unimplemented!\\n");
+	S_Warn("[FILE_Read] - Unimplemented!\n");
 	return 0;
 }
 

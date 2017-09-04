@@ -99,6 +99,8 @@ if(PLATFORM_PC)
       TOMB5
       ddraw.lib
       dxguid.lib
+      dsound.lib
+      d3dx.lib
       )
    endif(MSVC)
 endif(PLATFORM_PC)

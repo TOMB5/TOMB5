@@ -8,12 +8,12 @@ short* mesh_base;
 
 void S_LoadLevelFile(int Name)
 {
-	S_Warn("[S_LoadLevelFile] - Unimplemented!\\n");
+	S_Warn("[S_LoadLevelFile] - Unimplemented!\n");
 }
 
 void FreeLevel()
 {
-	S_Warn("[FreeLevel] - Unimplemented!\\n");
+	S_Warn("[FreeLevel] - Unimplemented!\n");
 }
 
 

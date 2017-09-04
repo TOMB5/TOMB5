@@ -3,5 +3,5 @@
 
 void S_CDPlay(short track, int mode)
 {
-	S_Warn("[S_CDPlay] - Unimplemented!\\n");
+	S_Warn("[S_CDPlay] - Unimplemented!\n");
 }

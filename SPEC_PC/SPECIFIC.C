@@ -13,6 +13,23 @@ void S_Warn(char* warning_message)
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
 	sprintf(buf, "[%d:%d:%d] %s", tm.tm_hour, tm.tm_min, tm.tm_sec, warning_message);
+	/*char buf1[512];
+	strcpy(buf1, buf);
+	int len = strlen(buf1);
+	if (buf1[len - 1] == '\n')
+	{
+		buf1[len - 1] = '\r';
+		buf1[len] = '\n';
+		buf1[len + 1] = 0;
+	}*/
+
+	int len = strlen(buf);
+	if (buf[len - 1] != '\n')
+	{
+		buf[len] = '\n';
+		buf[len + 1] = 0;
+	}
+
 	OutputDebugString(buf);
 	printf(buf);
 }
@@ -34,6 +51,10 @@ HWND sub_4DEB10(char a1, char* format, ...)
 	va_list va; // [sp+414h] [bp+Ch]@1
 
 	va_start(va, format);
+	vsprintf(v13, format, va);
+	char buf[0x40C];
+	sprintf(buf, "[DBLOG] %s", v13);
+	S_Warn(buf);
 	result = FindWindowA(ClassName, WindowName);
 	hWnd = result;
 	if (result)
@@ -43,8 +64,7 @@ HWND sub_4DEB10(char a1, char* format, ...)
 		result = (HWND)sub_4DEA20(v3);
 		v4 = result;
 		if (result)
-		{
-			vsprintf(v13, format, va);
+		{			
 			v5 = (char *)v4 + dword_E4ACB8;
 			*v5 = a1;
 			v6 = v5 + 1;
@@ -91,6 +111,6 @@ HWND sub_4DEB10(char a1, char* format, ...)
 
 int S_SoundStopAllSamples()
 {
-	S_Warn("[S_SoundStopAllSamples] - Unimplemented!\\n");
+	S_Warn("[S_SoundStopAllSamples] - Unimplemented!\n");
 	return 0;
 }
