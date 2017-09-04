@@ -2,6 +2,8 @@
 #include "SPECIFIC.H"
 #include "MALLOC.H"
 #include "OBJECTS.H"
+#include "GAMEFLOW.H"
+#include "ROOMLOAD.H"
 
 struct object_info objects[NUMBER_OBJECTS];
 struct static_info static_objects[NUMBER_STATIC_OBJECTS];
@@ -12,7 +14,7 @@ void GameClose()
 
 	sub_4DEB10(2, "GameClose");
 	sub_402F8B();
-	j_FreeLevel();
+	FreeLevel();
 	if (dword_D9AAC8)
 	{
 		v0 = (*(int(__stdcall **)(int))(*(_DWORD *)dword_D9AAC8 + 8))(dword_D9AAC8);
@@ -29,8 +31,8 @@ void GameClose()
 	if (dword_57A008)
 		free(dword_57A008);
 	free(malloc_buffer);
-	free(dword_E5C2EC);
-	free(dword_E5C2AC);*/
+	free(gfScriptFile);
+	free(gfStringOffset);*/
 
 	S_Warn("[GameClose] - Unimplemented!\n");
 }

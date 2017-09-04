@@ -1,7 +1,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "WINMAIN.H"
 #include "SPECTYPES.H"
 
 extern struct object_info objects[];

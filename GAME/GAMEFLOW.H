@@ -193,5 +193,6 @@ extern unsigned char gfLegend;
 extern unsigned char gfWadNames[40];
 extern unsigned char gfPickups[16];
 extern unsigned char gfTakeaways[16];
+extern char* gfScriptFile;
 
 #endif

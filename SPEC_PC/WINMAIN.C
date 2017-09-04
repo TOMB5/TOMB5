@@ -31,7 +31,6 @@ UINT dword_E4ACB0;
 uint8 byte_57A098;
 uint8 byte_D9AC23;
 uint8 byte_D9AC19;
-DWORD dword_D9AC30;
 const char* String = "UM_DBLOGOUT";
 const char* SubKey = "Software\\Core\\DBlog";
 const char* ValueName = "CmdLine";
@@ -76,6 +75,53 @@ BYTE opt_DisableSound;
 BYTE opt_Volumetric;
 BYTE opt_NoFMV;
 BYTE opt_Setup;
+
+DWORD dword_D9AC1B;
+DWORD dword_D9AC1F;
+DWORD dword_D9AC27;
+
+WORD opt_Key0;
+WORD opt_Key1;
+WORD opt_Key2;
+WORD opt_Key3;
+WORD opt_Key4;
+WORD opt_Key5;
+WORD opt_Key6;
+WORD opt_Key7;
+WORD opt_Key8;
+WORD opt_Key9;
+WORD opt_Key10;
+WORD opt_Key11;
+WORD opt_Key12;
+WORD opt_Key13;
+WORD opt_Key14;
+WORD opt_Key15;
+WORD opt_Key16;
+
+DWORD opt_JDck;
+DWORD opt_JDsh;
+DWORD opt_JWlk;
+DWORD opt_JJmp;
+DWORD opt_JAct;
+DWORD opt_JDrw;
+DWORD opt_JFlr;
+DWORD opt_JLok;
+DWORD opt_JRol;
+DWORD opt_JInv;
+
+DWORD opt_MusicVolume;
+DWORD opt_SFXVolume;
+DWORD opt_ControlMethod;
+DWORD opt_SoundQuality;
+DWORD opt_AutoTarget;
+DWORD opt_WindowX;
+DWORD opt_WindowY;
+
+HGDIOBJ gdiobject;
+
+DWORD dword_D9AB70;
+DWORD dword_57A094;
+DWORD dword_57A084;
 
 HWND SendMsg(HWND hWnd, LPARAM lParam)
 {
@@ -2233,6 +2279,75 @@ char __cdecl sub_401FAA(LPCSTR lpValueName, int a2, BYTE a3)
 	}
 	return result;
 }
+char __cdecl sub_4017B7(HWND hDlg, HWND hWnd, char a3)
+{
+	S_Warn("[sub_4017B7] - Unimplemented!\n");
+	return 0;
+}
+
+int __cdecl sub_40199C(HWND hDlg, HWND hWnd)
+{
+	int v2; // esi@1
+	int v3; // eax@1
+	int v4; // edi@2
+	HWND v5; // eax@4
+
+	SendMessageA(hWnd, 0x14Bu, 0, 0);
+	v2 = 0;
+	v3 = dword_D9AB70 + 1590 * dword_57A094;
+	if (*(_DWORD *)(v3 + 1582) > 0)
+	{
+		v4 = 0;
+		do
+		{
+			SendMessageA(hWnd, 0x143u, 0, *(_DWORD *)(v3 + 1586) + v4 + 30);
+			++v2;
+			v4 += 410;
+			v3 = dword_D9AB70 + 1590 * dword_57A094;
+		} while (v2 < *(_DWORD *)(v3 + 1582));
+	}
+	SendMessageA(hWnd, 0x14Eu, 1u, 0);
+	dword_57A084 = 1;
+	v5 = GetDlgItem(hDlg, 1004);
+	return sub_4017B7(hDlg, v5, 1);
+}
+
+int __cdecl sub_4026FD(HWND hDlg, HWND hWnd)
+{
+	int v2; // eax@1
+	int v3; // edi@1
+	int v4; // esi@2
+	HWND v5; // eax@4
+	CHAR v7; // [sp+10h] [bp-100h]@3
+
+	SendMessageA(hWnd, 0x14Bu, 0, 0);
+	v2 = dword_D9AB68;
+	v3 = 0;
+	if (dword_D9AB68 > 0)
+	{
+		v4 = 0;
+		do
+		{
+			wsprintfA(
+				&v7,
+				"%s - %s (%d.%d.%02d.%04d)",
+				v4 + dword_D9AB70 + 1022,
+				v4 + dword_D9AB70 + 510,
+				*(_DWORD *)(v4 + dword_D9AB70 + 1538) >> 16,
+				*(_WORD *)(v4 + dword_D9AB70 + 1538),
+				*(_DWORD *)(v4 + dword_D9AB70 + 1534) >> 16,
+				*(_WORD *)(v4 + dword_D9AB70 + 1534));
+			SendMessageA(hWnd, 0x143u, 0, (LPARAM)&v7);
+			v2 = dword_D9AB68;
+			++v3;
+			v4 += 1590;
+		} while (v3 < dword_D9AB68);
+	}
+	SendMessageA(hWnd, 0x14Eu, v2 - 1, 0);
+	dword_57A094 = dword_D9AB68 - 1;
+	v5 = GetDlgItem(hDlg, 1003);
+	return sub_40199C(hDlg, v5);
+}
 
 char sub_402F77()
 {
@@ -2282,68 +2397,413 @@ char sub_402F77()
 				LOBYTE(v1) = dword_D9AC27 | 1;
 			dword_D9AC27 = v1;
 		}
-		j_j_j____CxxRestoreUnhandledExceptionFilter__YAXXZ();
-		sub_402964(aGame);
-		sub_402806(aKey0, (DWORD)&Type + 1, word_516C3C[0]);
+		sub_402964("Game");
+		sub_402806("Key0", (DWORD)&Type + 1, opt_Key0);
 		word_516C60[0] = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey1, (DWORD)&Type + 1, word_516C3E);
+		sub_402806("Key1", (DWORD)&Type + 1, opt_Key1);
 		word_516C62 = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey2, (DWORD)&Type + 1, word_516C40);
+		sub_402806("Key2", (DWORD)&Type + 1, opt_Key2);
 		word_516C64 = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey3, (DWORD)&Type + 1, word_516C42);
+		sub_402806("Key3", (DWORD)&Type + 1, opt_Key3);
 		word_516C66 = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey4, (DWORD)&Type + 1, word_516C44);
+		sub_402806("Key4", (DWORD)&Type + 1, opt_Key4);
 		word_516C68 = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey5, (DWORD)&Type + 1, word_516C46);
+		sub_402806("Key5", (DWORD)&Type + 1, opt_Key5);
 		word_516C6A = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey6, (DWORD)&Type + 1, word_516C48);
+		sub_402806("Key6", (DWORD)&Type + 1, opt_Key6);
 		word_516C6C = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey7, (DWORD)&Type + 1, word_516C4A);
+		sub_402806("Key7", (DWORD)&Type + 1, opt_Key7);
 		word_516C6E = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey8, (DWORD)&Type + 1, word_516C4C);
+		sub_402806("Key8", (DWORD)&Type + 1, opt_Key8);
 		word_516C70 = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey9, (DWORD)&Type + 1, word_516C4E);
+		sub_402806("Key9", (DWORD)&Type + 1, opt_Key9);
 		word_516C72 = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey10, (DWORD)&Type + 1, word_516C50);
+		sub_402806("Key10", (DWORD)&Type + 1, opt_Key10);
 		word_516C74 = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey11, (DWORD)&Type + 1, word_516C52);
+		sub_402806("Key11", (DWORD)&Type + 1, opt_Key11);
 		word_516C76 = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey12, (DWORD)&Type + 1, word_516C54);
+		sub_402806("Key12", (DWORD)&Type + 1, opt_Key12);
 		word_516C78 = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey13, (DWORD)&Type + 1, word_516C56);
+		sub_402806("Key13", (DWORD)&Type + 1, opt_Key13);
 		word_516C7A = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey14, (DWORD)&Type + 1, word_516C58);
+		sub_402806("Key14", (DWORD)&Type + 1, opt_Key14);
 		word_516C7C = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey15, (DWORD)&Type + 1, word_516C5A);
+		sub_402806("Key15", (DWORD)&Type + 1, opt_Key15);
 		word_516C7E = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey16, (DWORD)&Type + 1, word_516C5C);
+		sub_402806("Key16", (DWORD)&Type + 1, opt_Key16);
 		word_516C80 = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aKey17, (DWORD)&Type + 1, word_516C5E);
+		sub_402806("Key17", (DWORD)&Type + 1, opt_Key17);
 		word_516C82 = *(_WORD *)((char *)&Type + 1);
-		sub_402806(aJdck, (DWORD)&Data, 5);
-		sub_402806(aJdsh, (DWORD)&dword_516AF4, 3);
-		sub_402806(aJwlk, (DWORD)&dword_516AF8, 4);
-		sub_402806(aJjmp, (DWORD)&dword_516AFC, 0);
-		sub_402806(aJact, (DWORD)&dword_516B00, 1);
-		sub_402806(aJdrw, (DWORD)&dword_516B04, 2);
-		sub_402806(aJflr, (DWORD)&dword_516B08, 9);
-		sub_402806(aJlok, (DWORD)&dword_516B0C, 6);
-		sub_402806(aJrol, (DWORD)&dword_516B10, 7);
-		sub_402806(aJinv, (DWORD)&dword_516B14, 8);
-		sub_402806(aMusicvolume, (DWORD)&dword_517B68, 80);
-		sub_402806(aSfxvolume, (DWORD)&dword_517B6C, 90);
-		sub_402806(aControlmethod, (DWORD)&dword_8FBDA8, 0);
-		sub_402806(aSoundquality, (DWORD)&dword_517B70, 1);
-		sub_402806(aAutotarget, (DWORD)&dword_D9AC30, 1);
-		sub_402806(aWindowx, (DWORD)&X, 0);
-		sub_402806(aWindowy, (DWORD)&Y, 0);
-		j_j_j____CxxRestoreUnhandledExceptionFilter__YAXXZ();
+		sub_402806("JDck", (DWORD)&opt_JDck, 5);
+		sub_402806("JDsh", (DWORD)&opt_JDsh, 3);
+		sub_402806("JWlk", (DWORD)&opt_JWlk, 4);
+		sub_402806("JJmp", (DWORD)&opt_JJmp, 0);
+		sub_402806("JAct", (DWORD)&opt_JAct, 1);
+		sub_402806("JDrw", (DWORD)&opt_JDrw, 2);
+		sub_402806("JFlr", (DWORD)&opt_JFlr, 9);
+		sub_402806("JLok", (DWORD)&opt_JLok, 6);
+		sub_402806("JRol", (DWORD)&opt_JRol, 7);
+		sub_402806("JInv", (DWORD)&opt_JInv, 8);
+		sub_402806("MusicVolume", (DWORD)&opt_MusicVolume, 80);
+		sub_402806("SFXVolume", (DWORD)&opt_SFXVolume, 90);
+		sub_402806("ControlMethod", (DWORD)&opt_ControlMethod, 0);
+		sub_402806("SoundQuality", (DWORD)&opt_SoundQuality, 1);
+		sub_402806("AutoTarget", (DWORD)&opt_AutoTarget, 1);
+		sub_402806("WindowX", (DWORD)&opt_WindowX, 0);
+		sub_402806("WindowY", (DWORD)&opt_WindowY, 0);
 		sub_402D10(v3, v2);
 		result = opt_Setup;
 	}
 	else
 	{
 		result = 0;
+	}
+	return result;
+}
+
+char *__cdecl sub_401C9E(const char *a1, char *a2)
+{
+	const char *v2; // ebp@1
+	char *v3; // esi@1
+	unsigned int v4; // kr04_4@1
+	char v5; // bl@3
+	int v6; // ecx@4
+	_BYTE *v7; // eax@4
+	char *result; // eax@9
+	int v9; // [sp+10h] [bp+4h]@2
+
+	v2 = a1;
+	v3 = a2;
+	v4 = strlen(a1) + 1;
+	if ((signed int)(v4 - 1) <= 0)
+	{
+		result = a2;
+		*a2 = 0;
+	}
+	else
+	{
+		v9 = v4 - 1;
+		do
+		{
+			v5 = *v2++;
+			if (v5 >= 128)
+			{
+				v6 = 0;
+				v7 = &unk_511894;
+				while (v5 != *v7)
+				{
+					v7 += 2;
+					++v6;
+					if ((signed int)v7 >= (signed int)&unk_5118A2)
+					{
+						sub_4DEB10(1, "Reqd : %x", v5);
+						goto LABEL_8;
+					}
+				}
+				v5 = byte_511895[2 * v6];
+			}
+		LABEL_8:
+			*v3++ = v5;
+			--v9;
+		} while (v9);
+		result = a2;
+		*v3 = 0;
+	}
+	return result;
+}
+
+signed int __stdcall DialogFunc(HWND hDlg, int msg, unsigned int wParam, int lParam)
+{
+	signed int result; // eax@11
+	HWND v5; // eax@16
+	HWND v6; // eax@16
+	HWND v7; // esi@22
+	HWND(__stdcall *v8)(HWND, int); // edi@22
+	HWND v9; // eax@22
+	HWND v10; // eax@25
+	HWND v11; // ebx@28
+	HWND v12; // esi@28
+	HWND v13; // eax@32
+	HWND v14; // eax@34
+	HWND v15; // eax@36
+	HWND v16; // eax@38
+	HWND v17; // eax@40
+	HGDIOBJ v18; // ST10_4@43
+	HWND v19; // eax@43
+	HGDIOBJ v20; // ST10_4@43
+	HWND v21; // eax@43
+	HGDIOBJ v22; // ST10_4@43
+	HWND v23; // eax@43
+	HGDIOBJ v24; // ST10_4@43
+	HWND v25; // eax@43
+	HGDIOBJ v26; // ST10_4@43
+	HWND v27; // eax@43
+	char *v28; // ST10_4@44
+	HWND v29; // eax@44
+	char *v30; // ST10_4@44
+	HWND v31; // eax@44
+	char *v32; // ST10_4@44
+	HWND v33; // eax@44
+	char *v34; // ST10_4@44
+	HWND v35; // eax@44
+	char *v36; // ST10_4@44
+	HWND v37; // eax@44
+	char *v38; // ST10_4@44
+	HWND v39; // eax@44
+	char *v40; // ST10_4@44
+	HWND v41; // eax@44
+	char *v42; // ST10_4@44
+	HWND v43; // eax@44
+	char *v44; // ST10_4@44
+	HWND v45; // eax@44
+	char *v46; // ST10_4@44
+	HWND v47; // eax@44
+	char *v48; // ST10_4@44
+	HWND v49; // eax@44
+	char *v50; // ST10_4@44
+	HWND v51; // eax@44
+	char *v52; // ST10_4@44
+	HWND v53; // eax@44
+	char *v54; // ST10_4@44
+	HWND v55; // eax@44
+	char *v56; // ST10_4@44
+	HWND v57; // eax@44
+	char *v58; // ST10_4@44
+	HWND v59; // eax@44
+	char *v60; // ST10_4@44
+	HWND v61; // eax@44
+	char *v62; // ST10_4@44
+	HWND v63; // eax@44
+	HWND v64; // eax@44
+	HWND v65; // eax@44
+	WPARAM v66; // [sp-8h] [bp-114h]@20
+	char v67; // [sp-4h] [bp-110h]@22
+	char v68; // [sp+Ch] [bp-100h]@44
+
+	if (msg == 272)
+	{
+		sub_4DEB10(6, "WM_INITDIALOG");
+		if ((*(_BYTE *)Gameflow & 0x70) == 96)
+		{
+			v18 = GetStockObject(13);
+			gdiobject = v18;
+			v19 = GetDlgItem(hDlg, 1000);
+			SendMessageA(v19, 0x30u, 0, (LPARAM)v18);
+			v20 = gdiobject;
+			v21 = GetDlgItem(hDlg, 1003);
+			SendMessageA(v21, 0x30u, 0, (LPARAM)v20);
+			v22 = gdiobject;
+			v23 = GetDlgItem(hDlg, 1004);
+			SendMessageA(v23, 0x30u, 0, (LPARAM)v22);
+			v24 = gdiobject;
+			v25 = GetDlgItem(hDlg, 1006);
+			SendMessageA(v25, 0x30u, 0, (LPARAM)v24);
+			v26 = gdiobject;
+			v27 = GetDlgItem(hDlg, 1005);
+			SendMessageA(v27, 0x30u, 0, (LPARAM)v26);
+		}
+		v28 = sub_401C9E(&gfStringWad[gfStringOffset[266]], &v68);
+		v29 = GetDlgItem(hDlg, 1001);
+		SendMessageA(v29, 0xCu, 0, (LPARAM)v28);
+		v30 = sub_401C9E(&gfStringWad[gfStringOffset[267]], &v68);
+		v31 = GetDlgItem(hDlg, 1002);
+		SendMessageA(v31, 0xCu, 0, (LPARAM)v30);
+		v32 = sub_401C9E(&gfStringWad[gfStringOffset[270]], &v68);
+		v33 = GetDlgItem(hDlg, 1);
+		SendMessageA(v33, 0xCu, 0, (LPARAM)v32);
+		v34 = sub_401C9E(&gfStringWad[gfStringOffset[271]], &v68);
+		v35 = GetDlgItem(hDlg, 2);
+		SendMessageA(v35, 0xCu, 0, (LPARAM)v34);
+		v36 = sub_401C9E(&gfStringWad[gfStringOffset[268]], &v68);
+		v37 = GetDlgItem(hDlg, 1009);
+		SendMessageA(v37, 0xCu, 0, (LPARAM)v36);
+		v38 = sub_401C9E(&gfStringWad[gfStringOffset[275]], &v68);
+		v39 = GetDlgItem(hDlg, 1012);
+		SendMessageA(v39, 0xCu, 0, (LPARAM)v38);
+		v40 = sub_401C9E(&gfStringWad[gfStringOffset[276]], &v68);
+		v41 = GetDlgItem(hDlg, 1016);
+		SendMessageA(v41, 0xCu, 0, (LPARAM)v40);
+		v42 = sub_401C9E(&gfStringWad[gfStringOffset[272]], &v68);
+		v43 = GetDlgItem(hDlg, 1010);
+		SendMessageA(v43, 0xCu, 0, (LPARAM)v42);
+		v44 = sub_401C9E(&gfStringWad[gfStringOffset[273]], &v68);
+		v45 = GetDlgItem(hDlg, 1011);
+		SendMessageA(v45, 0xCu, 0, (LPARAM)v44);
+		v46 = sub_401C9E(&gfStringWad[gfStringOffset[279]], &v68);
+		v47 = GetDlgItem(hDlg, 1017);
+		SendMessageA(v47, 0xCu, 0, (LPARAM)v46);
+		v48 = sub_401C9E(&gfStringWad[gfStringOffset[280]], &v68);
+		v49 = GetDlgItem(hDlg, 1018);
+		SendMessageA(v49, 0xCu, 0, (LPARAM)v48);
+		v50 = sub_401C9E(&gfStringWad[gfStringOffset[277]], &v68);
+		v51 = GetDlgItem(hDlg, 1014);
+		SendMessageA(v51, 0xCu, 0, (LPARAM)v50);
+		v52 = sub_401C9E(&gfStringWad[gfStringOffset[278]], &v68);
+		v53 = GetDlgItem(hDlg, 1015);
+		SendMessageA(v53, 0xCu, 0, (LPARAM)v52);
+		v54 = sub_401C9E(&gfStringWad[gfStringOffset[269]], &v68);
+		v55 = GetDlgItem(hDlg, 1013);
+		SendMessageA(v55, 0xCu, 0, (LPARAM)v54);
+		v56 = sub_401C9E(&gfStringWad[gfStringOffset[283]], &v68);
+		v57 = GetDlgItem(hDlg, 1025);
+		SendMessageA(v57, 0xCu, 0, (LPARAM)v56);
+		v58 = sub_401C9E(&gfStringWad[gfStringOffset[284]], &v68);
+		v59 = GetDlgItem(hDlg, 1023);
+		SendMessageA(v59, 0xCu, 0, (LPARAM)v58);
+		v60 = sub_401C9E(&gfStringWad[gfStringOffset[274]], &v68);
+		v61 = GetDlgItem(hDlg, 1029);
+		SendMessageA(v61, 0xCu, 0, (LPARAM)v60);
+		v62 = sub_401C9E(&gfStringWad[gfStringOffset[307]], &v68);
+		v63 = GetDlgItem(hDlg, 1030);
+		SendMessageA(v63, 0xCu, 0, (LPARAM)v62);
+		v64 = GetDlgItem(hDlg, 1000);
+		sub_4026FD(hDlg, v64);
+		v65 = GetDlgItem(hDlg, 1005);
+		sub_4018F2(hDlg, v65);
+		return 1;
+	}
+	if (msg != 273)
+		return 0;
+	if ((signed int)(unsigned __int16)wParam > 1011)
+	{
+		switch ((unsigned __int16)wParam)
+		{
+		case 0x3FAu:
+			if (wParam >> 16)
+				return 0;
+			v11 = GetDlgItem(hDlg, (unsigned __int16)wParam);
+			v12 = GetDlgItem(hDlg, 1005);
+			if (SendMessageA(v11, 0xF0u, 0, 0))
+			{
+				EnableWindow(v12, 0);
+				result = 0;
+			}
+			else
+			{
+				EnableWindow(v12, 1);
+				result = 0;
+			}
+			return result;
+		case 0x3F6u:
+			if (wParam >> 16)
+				return 0;
+			v7 = hDlg;
+			v8 = GetDlgItem;
+			v13 = GetDlgItem(hDlg, 1014);
+			byte_57A09A = SendMessageA(v13, 0xF0u, 0, 0) != 0;
+			break;
+		case 0x3F8u:
+			if (wParam >> 16)
+				return 0;
+			v7 = hDlg;
+			v8 = GetDlgItem;
+			v14 = GetDlgItem(hDlg, 1016);
+			byte_57A09B = SendMessageA(v14, 0xF0u, 0, 0) != 0;
+			break;
+		case 0x405u:
+			if (wParam >> 16)
+				return 0;
+			v7 = hDlg;
+			v8 = GetDlgItem;
+			v15 = GetDlgItem(hDlg, 1029);
+			LOBYTE(dword_57A09C) = SendMessageA(v15, 0xF0u, 0, 0) != 0;
+			break;
+		case 0x3F4u:
+			if (wParam >> 16)
+				return 0;
+			v7 = hDlg;
+			v8 = GetDlgItem;
+			v16 = GetDlgItem(hDlg, 1012);
+			byte_511892 = SendMessageA(v16, 0xF0u, 0, 0) != 0;
+			break;
+		default:
+			return 0;
+		}
+		v67 = 0;
+		goto LABEL_40;
+	}
+	if ((unsigned __int16)wParam == 1011)
+	{
+		if (wParam >> 16)
+			return 0;
+		dword_57A084 = 0;
+		v66 = 0;
+		goto LABEL_25;
+	}
+	if ((signed int)(unsigned __int16)wParam > 1000)
+	{
+		if ((unsigned __int16)wParam == 1003)
+		{
+			if (wParam >> 16 != 1)
+				return 0;
+			v7 = hDlg;
+			v8 = GetDlgItem;
+			v9 = GetDlgItem(hDlg, 1003);
+			dword_57A084 = SendMessageA(v9, 0x147u, 0, 0);
+			v67 = 1;
+		LABEL_40:
+			v17 = v8(v7, 1004);
+			sub_4017B7(v7, v17, v67);
+			return 0;
+		}
+		if ((unsigned __int16)wParam != 1010 || wParam >> 16)
+			return 0;
+		dword_57A084 = 1;
+		v66 = 1;
+	LABEL_25:
+		v7 = hDlg;
+		v8 = GetDlgItem;
+		v10 = GetDlgItem(hDlg, 1003);
+		SendMessageA(v10, 0x14Eu, v66, 0);
+		v67 = 1;
+		goto LABEL_40;
+	}
+	if ((unsigned __int16)wParam == 1000)
+	{
+		if (wParam >> 16 == 1)
+		{
+			v5 = GetDlgItem(hDlg, 1000);
+			dword_57A094 = SendMessageA(v5, 0x147u, 0, 0);
+			v6 = GetDlgItem(hDlg, 1003);
+			sub_40199C(hDlg, v6);
+			return 0;
+		}
+		return 0;
+	}
+	if ((unsigned __int16)wParam != 1)
+	{
+		if ((unsigned __int16)wParam == 2)
+		{
+			if (gdiobject)
+				DeleteObject(gdiobject);
+			EndDialog(hDlg, 0);
+			return 1;
+		}
+		return 0;
+	}
+	if (gdiobject)
+		DeleteObject(gdiobject);
+	sub_402DF1(hDlg);
+	EndDialog(hDlg, 1);
+	return 1;
+}
+
+BOOL  sub_402C34()
+{
+	INT_PTR v0; // esi@1
+	BOOL result; // al@2
+
+	ShowCursor(1);
+	v0 = DialogBoxParamA(hinst, (LPCSTR)0x6D, 0, DialogFunc, 0);
+	ShowCursor(0);
+	if (v0 == -1)
+	{
+		MessageBoxA(0, "Unable To Initialise Dialog", Class, 0);
+		result = 0;
+	}
+	else
+	{
+		result = v0 != 0;
 	}
 	return result;
 }
@@ -2374,7 +2834,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	byte_57A098 = 0;
 	byte_D9AC23 = sub_4D22D0() != 0;
 	byte_D9AC19 = 0;
-	dword_D9AC30 = 0;
+	opt_AutoTarget = 0;
 	sub_4DEC40(1);
 	v4 = FindWindowA(ClassName, WindowName);
 	if (v4)
@@ -2446,14 +2906,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			if (!(unsigned __int8)sub_402C34())
 			{
-				free(dword_E5C2EC);
-				free(dword_E5C2AC);
+				free(gfScriptFile);
+				free(gfStringOffset);
 				WinClose();
 				return 0;
 			}
 			sub_402F77();
 		}
-		SetWindowPos(hWnd, 0, *(int *)&X, *(int *)&Y, 0, 0, 5u);
+		SetWindowPos(hWnd, 0, *(int *)&opt_WindowX, *(int *)&opt_WindowY, 0, 0, 5u);
 		v9 = GetDesktopWindow();
 		v10 = GetDC(v9);
 		dword_D9AC2C = GetDeviceCaps(v10, 12);
