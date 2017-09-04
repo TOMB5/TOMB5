@@ -6,11 +6,16 @@
 #include "TYPES.H"
 
 #include <string.h>
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
 #include "SETUP.H"
+#endif
 #include "malloc.h"
 #include "TRAPS.H"
 #include "ITEMS.H"
 #include "ROOMLOAD.H"
+#include "OBJECTS.H"
 
 char FromTitle;
 char JustLoaded;

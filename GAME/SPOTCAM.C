@@ -6,9 +6,11 @@
 #include "LARA.H"
 #include "OBJECTS.H"
 #if PSXPC_VERSION
-	#include "PSXPCINPUT.H"
+#include "PSXPCINPUT.H"
 #elif PSX_VERSION
-	#include "PSXINPUT.H"
+#include "PSXINPUT.H"
+#elif PC_VERSION
+#include "PCINPUT.H"
 #endif
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
@@ -17,7 +19,7 @@
 
 #include <assert.h>
 
-#if PSXPC_VERSION
+#if PSXPC_VERSION || PC_VERSION
 	#include <math.h>
 #endif
 

@@ -3,8 +3,13 @@
 #include "SPECIFIC.H"
 #include "LARA.H"
 #include "LARAFIRE.H"
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
 #include "SETUP.H"
+#endif
 #include "DRAW.H"
+#include "OBJECTS.H"
 
 void AnimatePistols(int weapon_type)
 {

@@ -87,3 +87,18 @@ if(PLATFORM_PSXPC)
       set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:CONSOLE")
    endif(MSVC)
 endif(PLATFORM_PSXPC)
+
+if(PLATFORM_PC)
+   if(MSVC)
+      add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:WINDOWS")
+      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:WINDOWS")
+      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
+      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS")
+      target_link_libraries(
+      TOMB5
+      ddraw.lib
+      dxguid.lib
+      )
+   endif(MSVC)
+endif(PLATFORM_PC)

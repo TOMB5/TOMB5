@@ -3,7 +3,13 @@
 #include "SPECIFIC.H"
 #include "LARA.H"
 #include "DRAW.H"
+#if PSXPC_VERSION
 #include "PSXPCINPUT.H"
+#elif PSX_VERSION
+#include "PSXINPUT.H"
+#elif PC_VERSION
+#include "PCINPUT.H"
+#endif
 #include "CONTROL.H"
 #include "SWITCH.H"
 #include "COLLIDE.H"

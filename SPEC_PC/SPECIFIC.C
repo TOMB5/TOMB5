@@ -3,23 +3,21 @@
 #include <SDKDDKVer.h>
 #include <windows.h>
 #include <winbase.h>
-#include <cstdio>
+#include <stdio.h>
 #include "WINMAIN.H"
+#include <time.h>
 
 void S_Warn(char* warning_message)
 {
-	OutputDebugString(warning_message);
-	printf(warning_message);
+	char buf[512];
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+	sprintf(buf, "[%d:%d:%d] %s", tm.tm_hour, tm.tm_min, tm.tm_sec, warning_message);
+	OutputDebugString(buf);
+	printf(buf);
 }
 
-void PrintString(long x, long y, char* string)
-{
-	char* buf = (char*)malloc(strlen(string) + 64);
-	sprintf(buf, "PrintString - X:%d Y:%d - %s\n", x, y, string);
-	S_Warn(buf);
-}
-
-HWND SendMessageDB(char a1, char* format, ...)
+HWND sub_4DEB10(char a1, char* format, ...)
 {
 	HWND result; // eax@1
 	void *v3; // eax@2
@@ -32,7 +30,7 @@ HWND SendMessageDB(char a1, char* format, ...)
 	signed int v10; // edi@4
 	char v11; // al@5
 	HWND hWnd; // [sp+4h] [bp-404h]@1
-	char v13; // [sp+8h] [bp-400h]@3
+	char v13[0x40C]; // [sp+8h] [bp-400h]@3
 	va_list va; // [sp+414h] [bp+Ch]@1
 
 	va_start(va, format);
@@ -46,12 +44,12 @@ HWND SendMessageDB(char a1, char* format, ...)
 		v4 = result;
 		if (result)
 		{
-			vsprintf(&v13, format, va);
+			vsprintf(v13, format, va);
 			v5 = (char *)v4 + dword_E4ACB8;
 			*v5 = a1;
 			v6 = v5 + 1;
-			v7 = &v13;
-			v8 = strlen(&v13) + 1;
+			v7 = v13;
+			v8 = strlen(v13) + 1;
 			v9 = 1;
 			if (v8 > 0)
 			{
@@ -89,4 +87,10 @@ HWND SendMessageDB(char a1, char* format, ...)
 		}
 	}
 	return result;
+}
+
+int S_SoundStopAllSamples()
+{
+	S_Warn("[S_SoundStopAllSamples] - Unimplemented!\\n");
+	return 0;
 }

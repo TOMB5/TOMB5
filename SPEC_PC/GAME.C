@@ -1,8 +1,12 @@
 #include "GAME.H"
 #include "SPECIFIC.H"
-#include "../GAME/MALLOC.H"
+#include "MALLOC.H"
+#include "OBJECTS.H"
 
-extern void GameClose()
+struct object_info objects[NUMBER_OBJECTS];
+struct static_info static_objects[NUMBER_STATIC_OBJECTS];
+
+void GameClose()
 {
 	/*int v0; // eax@2
 
@@ -31,12 +35,14 @@ extern void GameClose()
 	S_Warn("[GameClose] - Unimplemented!\n");
 }
 
-extern char GameInitialise()
+char GameInitialise()
 {
 	S_Warn("[GameInitialise] - Unimplemented!\n");
+	return 0;
 }
 
-extern int GameMain(int a1, int a2)
+unsigned __stdcall GameMain(void* data)
 {
 	S_Warn("[GameMain] - Unimplemented!\n");
+	return 0;
 }

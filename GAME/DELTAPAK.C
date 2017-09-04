@@ -15,17 +15,20 @@
 #include "LOT.H"
 #include "NEWINV2.H"
 #include "OBJECTS.H"
-#include "PROFILE.H"
 #include "ROOMLOAD.H"
-#include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
 
+#if !PC_VERSION
+#include "PROFILE.H"
+#include "SETUP.H"
+#endif
+
 #include <assert.h>
 #include <stddef.h>
-
+#include "GAME.H"
 
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
@@ -2651,7 +2654,7 @@ void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
 {
 #if PC_VERSION
 	GLOBAL_playing_cutseq = 0;
-#endif
+#else
 
 	if (cutseq_resident_addresses[cutseq_num].packed_data == NULL)
 	{
@@ -2668,6 +2671,8 @@ void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
 	ProfileDraw = 1;
 	DrawSync(0);
 	VSync(0);
+#endif
+
 #endif
 
 	InitialiseHair();
@@ -2719,6 +2724,9 @@ void do_new_cutscene_camera()
 
 void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 {
+#if PC_VERSION
+	S_Warn("[handle_cutseq_triggering] - Unimplemented!\n");
+#else
 	int i;
 	int s1 = name;//guessed, moved but not used
 
@@ -2909,6 +2917,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 			}//loc_2CA50
 		}
 	}
+#endif
 	return;
 }
 

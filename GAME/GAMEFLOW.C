@@ -7,11 +7,9 @@
 #include "DRAW.H"
 #include "DRAWPHAS.H"
 #include "FILE.H"
-#include "GPU.H"
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "MALLOC.H"
-#include "MEMCARD.H"
 #include "NEWINV2.H"
 #if PSXPC_VERSION
 	#include "PSXPCINPUT.H"
@@ -21,7 +19,7 @@
 #include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
-#include "SPUSOUND.H"
+
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
@@ -31,11 +29,18 @@
 	#include <stdint.h>
 #endif
 
+#if !PC_VERSION
+#include "GPU.H"
+#include "MEMCARD.H"
+#include "SPUSOUND.H"
+#endif
+
 #if PSX_VERSION
 typedef unsigned int uintptr_t;
 #endif
 
 #include <string.h>
+#include "LOT.H"
 
 #define GF_SCRIPT_FILENAME "SCRIPT.DAT"
 
@@ -174,17 +179,27 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 
 void LoadGameflow()//102E0, 102B0
 {
+	char* s = NULL;
+#if PC_VERSION
+	void* tmp;
+	LoadFile(GF_SCRIPT_FILENAME, &s);
+#else
 	int len = FILE_Length(GF_SCRIPT_FILENAME);
-	char* s = game_malloc(len);
+	s = game_malloc(len);
+#endif
 	int j = 0;
 	int i = 0;
 	struct STRINGHEADER sh;
+
+	int num_strings, wad_len;
 
 	unsigned char* sequenceCommand;
 	int endOfSequence;
 	unsigned char op;
 
+#if !PC_VERSION
 	FILE_Load(GF_SCRIPT_FILENAME, s);
+#endif
 
 	Gameflow = (struct GAMEFLOW*)s;
 	s += sizeof(struct GAMEFLOW);
@@ -201,7 +216,9 @@ void LoadGameflow()//102E0, 102B0
 	gfScriptOffset = (unsigned short*)s;
 	s += Gameflow->nLevels * sizeof(unsigned short);
 
+#if !PC_VERSION
 	gfScriptLen = len;
+#endif
 	gfScriptWad = (unsigned char*)s;
 	s += Gameflow->ScriptLen;
 
@@ -220,7 +237,12 @@ void LoadGameflow()//102E0, 102B0
 	//Safer code (no inf loop).
 	for (i = 0; i < NUM_GF_LANGUAGES; i++)
 	{
+#if PC_VERSION
+		gfStringOffset = NULL;
+		if (LoadFile((char*)s, &gfStringOffset))
+#else
 		if (FILE_Length((char*)s) != -1)
+#endif
 		{
 			break;
 		}
@@ -232,28 +254,40 @@ void LoadGameflow()//102E0, 102B0
 
 	Gameflow->Language = i;
 
+#if !PC_VERSION
 	FILE_Load((char*)s, gfStringOffset);
-
-	memcpy(&sh, gfStringOffset, sizeof(struct STRINGHEADER));
-	memcpy(gfStringOffset, gfStringOffset + (sizeof(struct STRINGHEADER) / sizeof(unsigned short)), (sh.nStrings + sh.nPSXStrings) * sizeof(unsigned short));
-
-	gfStringWad = (char*)(gfStringOffset + (sh.nStrings + sh.nPSXStrings));
-
-#if INTERNAL
-	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 317, sh.StringWadLen + sh.PSXStringWadLen);
-#else
-	memcpy(gfStringOffset + (sh.nStrings + sh.nPSXStrings), gfStringOffset + 315, sh.StringWadLen + sh.PSXStringWadLen);
 #endif
 
-	gfScriptLen += ((((sh.nStrings + sh.nPSXStrings) * sizeof(unsigned short) + (sh.StringWadLen + sh.PSXStringWadLen)) + 3) & -4);
+	memcpy(&sh, gfStringOffset, sizeof(struct STRINGHEADER));
 
-	if (sh.nStrings + sh.nPSXStrings != 0)
+#if PC_VERSION
+	num_strings = sh.nStrings + sh.nPSXStrings + sh.nPCStrings;
+	wad_len = sh.StringWadLen + sh.PSXStringWadLen + sh.PCStringWadLen;
+#else
+	num_strings = sh.nStrings + sh.nPSXStrings;
+	wad_len = sh.StringWadLen + sh.PSXStringWadLen;
+#endif
+
+	memcpy(gfStringOffset, gfStringOffset + (sizeof(struct STRINGHEADER) / sizeof(unsigned short)), num_strings * sizeof(unsigned short));
+
+	gfStringWad = (char*)(gfStringOffset + num_strings);
+
+#if INTERNAL
+	memcpy(gfStringOffset + num_strings, gfStringOffset + 317, wad_len);
+#else
+	memcpy(gfStringOffset + num_strings, gfStringOffset + 315, wad_len);
+#endif
+
+	gfScriptLen += (((num_strings * sizeof(unsigned short) + wad_len) + 3) & -4);
+
+	if (num_strings != 0)
 	{
-		unsigned char* stringPtr = (unsigned char*)(gfStringOffset + sh.nStrings + sh.nPSXStrings);//s?
+		unsigned char* stringPtr = (unsigned char*)(gfStringOffset + num_strings);//s?
 
-		for (i = 0; i < sh.nStrings + sh.nPSXStrings; i++)
+		for (i = 0; i < num_strings; i++)
 		{
-			int stringLength = (gfStringOffset[i + 1] - gfStringOffset[i]) - 1;
+			int next = i + 1 == num_strings ? wad_len : gfStringOffset[i + 1];
+			int stringLength = (next - gfStringOffset[i]) - 1;
 			if (stringLength > 0)
 			{
 				for (j = 0; j < stringLength; j++)
@@ -440,11 +474,13 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	a0 = Name;//most likely
 
+#if !PC_VERSION
 	if (Gameflow->LoadSaveEnabled)
 	{
 		s1 = a0 & 0xFF;
 		mcOpen(1);
 	}
+#endif
 
 	s1 = 0;//?
 
@@ -452,7 +488,9 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	fmv_to_play[1] = 0;
 	fmv_to_play[0] = 0;
 
+#if !PC_VERSION
 	XAMasterVolume = savegame.VolumeCD;
+#endif
 
 	memset(&savegame.Level, 0, sizeof(struct STATS));
 	memset(&savegame.Game, 0, sizeof(struct STATS));
@@ -466,14 +504,23 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	title_controls_locked_out = 0;
 
-	InitialisePickUpDisplay();
+#if PC_VERSION
+	InitialiseFXArray(1);
+	InitialiseLOTarray(1);
+#endif
 
+	InitialisePickUpDisplay();
+	
+#if !PC_VERSION
 	phd_InitWindow(90);
+#endif
 
 	SOUND_Stop();
 
 	IsAtmospherePlaying = 0;
+#if !PC_VERSION
 	S_SetReverbType(1);
+#endif
 
 	InitialiseCamera();
 
@@ -519,6 +566,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	gfStatus = ControlPhase(nframes, 0);//@args todo @ret v0
 	JustLoaded = 0;
 
+#if !PC_VERSION
 	v0 = 0x001F0000;
 	if (gfStatus == 0)
 	{
@@ -677,6 +725,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	}//loc_10A58 @FIXME original game has infinite loop if XAVolume != 0
 	//assert(0);//temporary
+#endif
 }
 
 void DoLevel(unsigned char Name, unsigned char Audio)

@@ -3,7 +3,11 @@
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "OBJECTS.H"
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
 #include "SETUP.H"
+#endif
 #include "SPECIFIC.H"
 
 #include <stddef.h>

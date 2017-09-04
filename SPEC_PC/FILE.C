@@ -3,25 +3,87 @@
 
 FILE *FileOpen(const char *filename)
 {
-	FILE *v1; // esi@1
-	char v3; // [sp+Ch] [bp-50h]@1
-	char v4; // [sp+Dh] [bp-4Fh]@1
-	char v5; // [sp+Eh] [bp-4Eh]@1
+	FILE *fp;
+	char fn[80]; 
 
-	memset(&v3, 0, 80u);
-	v3 = 0;
-	v4 = 0;
-	v5 = 0;
-	strcat(&v3, filename);
-	sub_4DEB10(5, "FileOpen - %s", &v3);
-	v1 = fopen(&v3, "rb");
-	if (!v1)
-		sub_4DEB10(1, "Unable To Open %s", &v3);
-	return v1;
+	memset(&fn, 0, 80u);
+	fn[0] = 0;
+	fn[1] = 0;
+	fn[2] = 0;
+	strcat(fn, filename);
+
+	sub_4DEB10(5, "FileOpen - %s", fn);
+	fp = fopen(fn, "rb");
+	if (!fp)
+		sub_4DEB10(1, "Unable To Open %s", fn);
+
+	return fp;
 }
 
 int FileClose(FILE *fp)
 {
 	sub_4DEB10(2, "FileClose");
 	return fclose(fp);
+}
+
+size_t fread_ex(void *ptr, size_t size, size_t count, FILE *stream)
+{
+	size_t ret;
+
+	_lock_file(stream);
+	ret = fread(ptr, size, count, stream);
+	_unlock_file(stream);
+
+	return ret;
+}
+
+int LoadFile(char* szFileName, void** pDest)
+{
+	FILE* fp;
+	int len, read;
+
+	sub_4DEB10(2, "LoadFile");
+	sub_4DEB10(5, "File - %s", szFileName);
+
+	fp = FileOpen(szFileName);
+	if (!fp)
+		return 0;
+
+	len = FileLength(fp);
+
+	if (!*pDest)
+		*pDest = malloc(len);
+
+	read = fread_ex(*pDest, 1, len, fp);
+
+	sub_4DEB10(5, "Read - %d FileSize - %d", read, len);
+
+	if (read != len)
+	{
+		sub_4DEB10(1, "Error Reading File");
+		FileClose(fp);
+		free(*pDest);
+		return 0;
+	}
+
+	FileClose(fp);
+	return len;
+}
+
+int FILE_Read(void* pDest, int nItemSize, int nItems, FILE* nHandle)
+{
+	S_Warn("[FILE_Read] - Unimplemented!\\n");
+	return 0;
+}
+
+
+unsigned long FileLength(FILE* nHandle)
+{
+	unsigned long ret;
+
+	fseek(nHandle, 0, SEEK_END);
+	ret = ftell(nHandle);
+	fseek(nHandle, 0, SEEK_SET);
+
+	return ret;
 }

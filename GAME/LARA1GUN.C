@@ -1,10 +1,15 @@
 #include "LARA1GUN.H"
 
 #include "SPECIFIC.H"
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
 #include "SETUP.H"
+#endif
 #include "DRAW.H"
 #include "LARA.H"
 #include "LARAFIRE.H"
+#include "OBJECTS.H"
 
 char HKTimer;
 char HKShotsFired;

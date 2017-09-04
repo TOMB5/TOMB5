@@ -4,8 +4,8 @@
 
 extern void S_Warn(char* warning_message);
 
-extern void PrintString(long x, long y, char* string);
-
 extern HWND sub_4DEB10(char a1, char* format, ...);
+
+extern int S_SoundStopAllSamples();
 
 #endif
