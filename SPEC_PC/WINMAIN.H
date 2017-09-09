@@ -120,10 +120,9 @@ struct dxcontext_s
 	DWORD curTexFormat; // pos 28 s 4
 	DWORD field2; // pos 32 s 4
 	DWORD curSoundCard; // pos 36 s 4
-} dxctx;
 
-struct dxcrcontext_s
-{
+	BYTE fieldspacer;
+
 	LPDIRECTDRAW4 ddraw; // pos 0 s 4  D9AB91
 	LPDIRECT3D3 d3d; // pos 4 s 4
 	LPDIRECT3DDEVICE3 d3d_dev; // pos 8 s 4
@@ -153,14 +152,14 @@ struct dxcrcontext_s
 	HWND dword_D9ABF5; // pos 100 s 4
 	DWORD dword_D9ABF9; // pos 104 s 4
 	DWORD dword_D9ABFD; // pos 108 s 4
-} dxcrctx;
+} dxctx;
 
 LPDIRECT3DVERTEXBUFFER vertexBuffer;
 
 LPDIRECT3D3 iface_D3D3;
 LPDIRECTDRAW4 iface_DirectDraw;
 struct dxcontext_s* ptr_ctx;
-struct dxcrcontext_s* ptr_crctx;
+struct dxcontext_s* ptr_crctx;
 extern HKEY hKey;
 extern BYTE opt_BumpMap;
 extern BYTE opt_Filter;

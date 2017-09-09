@@ -12,5 +12,6 @@ extern int malloc_used;
 extern int malloc_free;
 extern int script_malloc_size;
 extern char* malloc_buffer;
+extern int malloc_size;
 
 #endif

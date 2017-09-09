@@ -1726,7 +1726,7 @@ char DXSetOutputFormat()
 	memset(&v2, 0, 0x24u);
 	v2.dwSize = 36;
 	v2.dwFlags = 1;
-	v0 = dxcrctx.dsound->lpVtbl->CreateSoundBuffer(dxcrctx.dsound, &v2, &DSSoundBuffer, 0);
+	v0 = dxctx.dsound->lpVtbl->CreateSoundBuffer(dxctx.dsound, &v2, &DSSoundBuffer, 0);
 	if (sub_40179E(v0))
 	{
 		sub_4DEB10(1, "Can't Get Primary Sound Buffer");
@@ -1750,10 +1750,10 @@ int DXDSCreate()
 	sub_4DEB10(2, "DXDSCreate");
 	v0 = DirectSoundCreate(
 		ptr_ctx->soundCards[ptr_ctx->curSoundCard].field1,
-		&dxcrctx.dsound,
+		&dxctx.dsound,
 		0);
 	sub_40179E(v0);
-	v1 = dxcrctx.dsound->lpVtbl->SetCooperativeLevel(dxcrctx.dsound, hWnd, 3);
+	v1 = dxctx.dsound->lpVtbl->SetCooperativeLevel(dxctx.dsound, hWnd, 3);
 	sub_40179E(v1);
 	DXSetOutputFormat();
 	result = 1;
@@ -2612,8 +2612,8 @@ char sub_402F77()
 		ReadRegDword("ControlMethod", &opt_ControlMethod, 0);
 		ReadRegDword("SoundQuality", &opt_SoundQuality, 1);
 		ReadRegDword("AutoTarget", &opt_AutoTarget, 1);
-		ReadRegDword("WindowX", &dxcrctx.windowPos.left, 0);
-		ReadRegDword("WindowY", &dxcrctx.windowPos.top, 0);
+		ReadRegDword("WindowX", &dxctx.windowPos.left, 0);
+		ReadRegDword("WindowY", &dxctx.windowPos.top, 0);
 		sub_402D10();
 		result = opt_Setup;
 	}
@@ -3304,7 +3304,7 @@ signed int __cdecl DXCreateViewport(LPDIRECT3D3 a1, LPDIRECT3DDEVICE3 a2, DWORD 
 	return result;
 }
 
-signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcrcontext_s *a5, HWND a6, DWORD dwStyle)
+signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_s *a5, HWND a6, DWORD dwStyle)
 {
 
 	signed int v7; // edi@1
@@ -3335,8 +3335,8 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcrcontex
 	sub_4DEB10(2, "DXCreate");
 	ptr_crctx = a5;
 	a5->flags = flags;
-	dxcrctx.dword_D9ABF5 = a6;
-	dxcrctx.dword_D9ABE1 = dwStyle;
+	dxctx.dword_D9ABF5 = a6;
+	dxctx.dword_D9ABE1 = dwStyle;
 	if (flags & 0x40)
 		v7 = 1;
 	CloseDirectX();
@@ -3691,7 +3691,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 			sub_402F77();
 		}
-		SetWindowPos(hWnd, 0, dxcrctx.windowPos.left, dxcrctx.windowPos.top, 0, 0, 5u);
+		SetWindowPos(hWnd, 0, dxctx.windowPos.left, dxctx.windowPos.top, 0, 0, 5u);
 		v9 = GetDesktopWindow();
 		v10 = GetDC(v9);
 		dword_D9AC2C = GetDeviceCaps(v10, 12);
@@ -3705,7 +3705,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			v11[ptr_ctx->curDispMode].height,
 			v11[ptr_ctx->curDispMode].depth,
 			dword_D9AC27,
-			&dxcrctx,
+			&dxctx,
 			hWnd,
 			WS_CAPTION))
 		{

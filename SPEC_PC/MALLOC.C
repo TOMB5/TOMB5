@@ -4,13 +4,24 @@
 #include "SPECIFIC.H"
 #include "WINMAIN.H"
 
+#define GAME_MALLOC_BUFFER_SIZE 5000000
+
 char* malloc_ptr;
 int malloc_used;
 int malloc_free;
 int script_malloc_size;
 char* malloc_buffer;
+int malloc_size;
 
-void init_game_malloc();
+void init_game_malloc()
+{
+	char* buf = malloc(GAME_MALLOC_BUFFER_SIZE);
+	malloc_buffer = buf;
+	malloc_size = GAME_MALLOC_BUFFER_SIZE;
+	malloc_ptr = buf;
+	malloc_free = GAME_MALLOC_BUFFER_SIZE;
+	malloc_used = 0;
+}
 
 char* game_malloc(int size)
 {
