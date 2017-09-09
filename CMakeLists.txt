@@ -95,12 +95,19 @@ if(PLATFORM_PC)
       set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:WINDOWS")
       set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
       set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS")
-      target_link_libraries(
-      TOMB5
-      ddraw.lib
-      dxguid.lib
-      dsound.lib
-      d3dx.lib
-      )
+      #include_directories($\(WindowsSDK_IncludePath\))
+      #include_directories($\(DXSDK_DIR\)include)
+      #link_directories(\\$\(WindowsSDK_LibraryPath_x86\))
+      #link_directories(\\$\(DXSDK_DIR\)lib\\x86)
+      #target_link_libraries(
+      #TOMB5
+      #ddraw.lib
+      #dxguid.lib
+      #dsound.lib
+      #d3dx9.lib
+      #dinput.lib
+      #)
+      #set(CMAKE_CXX_FLAGS "/TC")
+      #set(CMAKE_C_FLAGS "/TC")
    endif(MSVC)
 endif(PLATFORM_PC)

@@ -2,53 +2,19 @@
 #define WINMAIN_H
 #undef __cplusplus
 #include <windows.h>
-typedef unsigned int uint;
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned long ulong;
+#include <dsound.h>
+#include "SPECTYPES.H"
+#include <dinput.h>
+#include <d3d.h>
 
-typedef          char   int8;
-typedef   signed char   sint8;
-typedef unsigned char   uint8;
-typedef          short  int16;
-typedef   signed short  sint16;
-typedef unsigned short  uint16;
-typedef          int    int32;
-typedef   signed int    sint32;
-typedef unsigned int    uint32;
-#define _BYTE  uint8
-#define _WORD  uint16
-#define _DWORD uint32
-#define _QWORD uint64
-#define LOBYTE(x)   (*((_BYTE*)&(x)))   // low byte
-#define LOWORD(x)   (*((_WORD*)&(x)))   // low word
-#define LODWORD(x)  (*((_DWORD*)&(x)))  // low dword
-#define HIBYTE(x)   (*((_BYTE*)&(x)+1))
-#define HIWORD(x)   (*((_WORD*)&(x)+1))
-#define HIDWORD(x)  (*((_DWORD*)&(x)+1))
-#define BYTEn(x, n)   (*((_BYTE*)&(x)+n))
-#define WORDn(x, n)   (*((_WORD*)&(x)+n))
-#define SLOBYTE(x)   (*((int8*)&(x)))
-#define SLOWORD(x)   (*((int16*)&(x)))
-#define SLODWORD(x)  (*((int32*)&(x)))
-#define SHIBYTE(x)   (*((int8*)&(x)+1))
-#define SHIWORD(x)   (*((int16*)&(x)+1))
-#define SHIDWORD(x)  (*((int32*)&(x)+1))
-#define SBYTEn(x, n)   (*((int8*)&(x)+n))
-#define SWORDn(x, n)   (*((int16*)&(x)+n))
-#define NULL 0
-
-inline void *qmemcpy(void *dst, const void *src, size_t cnt)
+#pragma pack(push, 1)
+struct sound_shit
 {
-	char *out = (char *)dst;
-	const char *in = (const char *)src;
-	while (cnt > 0)
-	{
-		*out++ = *in++;
-		--cnt;
-	}
-	return dst;
-}
+	LPDIRECTSOUNDBUFFER buf; // pos 0 s 4
+	DWORD field1; // pos 4 s 8
+	DWORD field2; // pos 8 s 4
+};
+#pragma pop
 
 extern const char* ClassName;
 extern const char* WindowName;
@@ -56,19 +22,152 @@ extern LPARAM dword_E4ACB8;
 extern HANDLE dword_E4ACA4;
 extern UINT dword_E4ACAC;
 
+#pragma pack(push, 1)
+struct sound_shit samples[32];
+
+struct dispmode
+{
+	DWORD width; // pos 0 s 4
+	DWORD height; // pos 4 s 4
+	DWORD depth; // pos 8 s 4
+	DWORD mipMapCount; // pos 12 s 4
+	DWORD isIndexed8; // pos 16 s 4
+	DDSURFACEDESC2 surfaceDesc; // pos 20 s 124
+	BYTE bitsR; // pos 144 s 1
+	BYTE bitsG; // pos 145 s 1
+	BYTE bitsB; // pos 146 s 1
+	BYTE offsetR; // pos 147 s 1
+	BYTE offsetG; // pos 148 s 1
+	BYTE offsetB; // pos 149 s 1
+};
+
+struct acceltexformatinfo
+{
+	char pad1[32]; // pos 0 s 32
+	DWORD depth; // pos 32 s 4
+	DWORD field1; // pos 36 s 4
+	DWORD field2; // pos 40 s 4
+	BYTE bitsR; // pos 44 s 1
+	BYTE bitsG; // pos 45 s 1
+	BYTE bitsB; // pos 46 s 1
+	BYTE bitsA; // pos 47 s 1
+	BYTE offsetR; // pos 48 s 1
+	BYTE offsetG; // pos 49 s 1
+	BYTE offsetB; // pos 50 s 1
+	BYTE offsetA; // pos 51 s 1
+};
+
+struct zBufFormat
+{
+	DDPIXELFORMAT pixFormat; // pos 0 s 32
+	DWORD depth; // pos 32 s 4
+};
+
+struct acceladapt
+{
+	char name[30]; // pos 0 s 30
+	char description[80]; // pos 30 s 80
+	GUID* field1; // pos 110 s 4
+	GUID guid; // pos 114 s 16
+	D3DDEVICEDESC deviceDesc; // pos 130 s 252
+	DWORD field2; // pos 382 s 4
+	DWORD numDispModes; // pos 386 s 4
+	struct dispmode* displayModes; // pos 390 s 4
+	DWORD numTexFormats; // pos 394 s 4
+	struct acceltexformatinfo* texFormats; // pos 398 s 4
+	DWORD numZbufFormats; // pos 402 s 4
+	struct zBufFormat* zBufFormats; // pos 406 s 4
+};
+
+struct gfxadapt
+{
+	char driverName[30]; // pos 0 s 30
+	char driverDesc[80]; // pos 30 s 80
+	GUID* field3; // pos 110 s 4
+	GUID guid; // pos 114 s 16
+	DDCAPS capabilities; // pos 130 s 380
+	char driverDllName[512]; // pos 510 s 512
+	char deviceName[512]; // pos 1022 s 4
+	WORD versionRevision; // pos 1534 s 2
+	WORD versionBuild; // pos 1536 s 2
+	WORD versionMinor; // pos 1538 s 2
+	WORD versionMajor; // pos 1540 s 2
+	char pad4[32]; // pos 1542 s 32
+	DWORD numDispModes; // pos 1574 s 4
+	struct dispmode* displayModes; // pos 1578 s 4
+	DWORD numAccelAdapters; // pos 1582 s 4
+	struct acceladapt* accelAdapters; // pos 1586 s 4
+};
+
+struct soundcard
+{
+	char name[30]; // pos 0 s 30
+	char description[80]; // pos 30 s 80
+	GUID* field1; // pos 110 s 4
+	GUID guid; // pos 114 s 16
+};
+#pragma pop
+
+struct dxcontext_s
+{
+	DWORD numGraphicsAdapters; // pos 0 s 4  D9AB68
+	DWORD numSoundCards; // pos 4 s 4
+	struct gfxadapt* graphicsAdapters; // pos 8 s 4
+	struct soundcard* soundCards; // pos 12 s 4
+	DWORD curGfxAdapt; // pos 16 s 4
+	DWORD curAccelAdapt; // pos 20 s 4
+	DWORD curDispMode; // pos 24 s 4
+	DWORD curTexFormat; // pos 28 s 4
+	DWORD field2; // pos 32 s 4
+	DWORD curSoundCard; // pos 36 s 4
+} dxctx;
+
+struct dxcrcontext_s
+{
+	LPDIRECTDRAW4 ddraw; // pos 0 s 4  D9AB91
+	LPDIRECT3D3 d3d; // pos 4 s 4
+	LPDIRECT3DDEVICE3 d3d_dev; // pos 8 s 4
+	LPDIRECT3DDEVICE3 d3d_dev_bis; // pos 12 s 4
+
+	LPDIRECTDRAWSURFACE4 buf_primary; // pos 16 s 4
+	LPDIRECTDRAWSURFACE4 buf_back; // pos 20 s 4
+	LPDIRECTDRAWSURFACE4 buf_z; // pos 24 s 4
+	LPDIRECT3DVIEWPORT3 viewport; // pos 28 s 4
+
+	LPDIRECTSOUND dsound; // pos 32 s 4
+	DWORD width; // pos 36 s 4
+	DWORD height; // pos 40 s 4
+
+	RECT stru_D9ABBD; // pos 44 s 16
+
+	RECT windowPos; // pos 60 s 16
+
+	DWORD flags; // pos 76 s 4
+
+	DWORD dword_D9ABE1; // pos 80 s 4
+	DWORD dword_D9ABE5; // pos 84 s 4
+	LPDIRECTINPUT7A dinput; // pos 88 s 4
+	LPDIRECTINPUTDEVICEA dinput_keyboard; // pos 92 s 4
+
+	LPDIRECTINPUTDEVICEA dinput_other; // pos 96 s 4
+	HWND dword_D9ABF5; // pos 100 s 4
+	DWORD dword_D9ABF9; // pos 104 s 4
+	DWORD dword_D9ABFD; // pos 108 s 4
+} dxcrctx;
+
+LPDIRECT3DVERTEXBUFFER vertexBuffer;
+
+LPDIRECT3D3 iface_D3D3;
+LPDIRECTDRAW4 iface_DirectDraw;
+struct dxcontext_s* ptr_ctx;
+struct dxcrcontext_s* ptr_crctx;
 extern HKEY hKey;
-extern DWORD opt_DD;
-extern DWORD opt_D3D;
-extern DWORD opt_VMode;
-extern DWORD opt_TFormat;
-extern DWORD opt_DS;
 extern BYTE opt_BumpMap;
 extern BYTE opt_Filter;
 extern BYTE opt_DisableSound;
 extern BYTE opt_Volumetric;
 extern BYTE opt_NoFMV;
 extern BYTE opt_Setup;
-
 extern HWND SendMsg(HWND hWnd, LPARAM lParam);
 extern int WinProcMsg();
 extern char* WinProcessCommandLine(char *a1);

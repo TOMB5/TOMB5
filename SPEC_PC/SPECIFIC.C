@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "WINMAIN.H"
 #include <time.h>
+#include <dsound.h>
 
 void S_Warn(char* warning_message)
 {
@@ -51,7 +52,7 @@ HWND sub_4DEB10(char a1, char* format, ...)
 	va_list va; // [sp+414h] [bp+Ch]@1
 
 	va_start(va, format);
-	vsprintf(v13, format, va);
+	vsnprintf(v13, sizeof(v13), format, va);
 	char buf[0x40C];
 	sprintf(buf, "[DBLOG] %s", v13);
 	S_Warn(buf);
@@ -109,8 +110,38 @@ HWND sub_4DEB10(char a1, char* format, ...)
 	return result;
 }
 
+int __cdecl StopSample(int snum)
+{
+	int result; // eax@1
+	int v2; // esi@2
+	LPDIRECTSOUNDBUFFER buf; // edi@2
+	int v4; // eax@3
+	int v5; // eax@3
+
+	result = snum;
+	if (snum >= 0)
+	{
+		v2 = snum;
+		buf = samples[snum].buf;
+		if (buf)
+		{
+			v4 = buf->lpVtbl->Stop(buf);
+			sub_40179E(v4);
+			v5 = buf->lpVtbl->Release(buf);
+			result = sub_40179E(v5);
+			samples[v2].field2 = 0;
+			samples[v2].buf = 0;
+		}
+	}
+	return result;
+}
+
 int S_SoundStopAllSamples()
 {
-	S_Warn("[S_SoundStopAllSamples] - Unimplemented!\n");
-	return 0;
+	int result;
+
+	for (int i = 0; i < 32; i++)
+		result = StopSample(i);
+
+	return result;
 }

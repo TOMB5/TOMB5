@@ -4,6 +4,8 @@
 #include "OBJECTS.H"
 #include "GAMEFLOW.H"
 #include "ROOMLOAD.H"
+#include "WINMAIN.H"
+#include "ERROR.H"
 
 struct object_info objects[NUMBER_OBJECTS];
 struct static_info static_objects[NUMBER_STATIC_OBJECTS];
@@ -32,13 +34,23 @@ void GameClose()
 		free(dword_57A008);
 	free(malloc_buffer);
 	free(gfScriptFile);
-	free(gfStringOffset);*/
-
+	free(gfStringOffset);
+	*/
 	S_Warn("[GameClose] - Unimplemented!\n");
 }
 
 char GameInitialise()
 {
+	D3DVERTEXBUFFERDESC vb;
+	sub_4DEB10(2, "GameInitialise");
+	vb.dwCaps = 0;
+	vb.dwSize = 16;
+	vb.dwFVF = 452;
+	vb.dwNumVertices = 0x2000;
+	int res = ptr_crctx->d3d->lpVtbl->CreateVertexBuffer(ptr_crctx->d3d, &vb, &vertexBuffer, 4, 0);
+	sub_40179E(res);
+	init_game_malloc();
+
 	S_Warn("[GameInitialise] - Unimplemented!\n");
 	return 0;
 }
