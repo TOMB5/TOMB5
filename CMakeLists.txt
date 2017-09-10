@@ -54,7 +54,7 @@ include_directories(${SDL2_INCLUDE_DIR})
 
 #Add all GAME/SPEC* source files recursively.
 file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
-file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${PLATFORM_SPECIFIC_DIR}/*.C  ${PLATFORM_SPECIFIC_DIR}/*.H)
+file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${PLATFORM_SPECIFIC_DIR}/*.C  ${PLATFORM_SPECIFIC_DIR}/*.H ${PLATFORM_SPECIFIC_DIR}/*.cur ${PLATFORM_SPECIFIC_DIR}/*.RC)
 		 
 #MESSAGE(STATUS "GAME_SRCS: " ${GAME_SRCS})
 #MESSAGE(STATUS "PLATFORM_SPECIFIC_SRCS: " ${PLATFORM_SPECIFIC_SRCS})
@@ -99,15 +99,16 @@ if(PLATFORM_PC)
       #include_directories($\(DXSDK_DIR\)include)
       #link_directories(\\$\(WindowsSDK_LibraryPath_x86\))
       #link_directories(\\$\(DXSDK_DIR\)lib\\x86)
-      #target_link_libraries(
-      #TOMB5
-      #ddraw.lib
-      #dxguid.lib
-      #dsound.lib
-      #d3dx9.lib
-      #dinput.lib
-      #)
-      #set(CMAKE_CXX_FLAGS "/TC")
-      #set(CMAKE_C_FLAGS "/TC")
+     # target_link_libraries(
+     # TOMB5
+     # ddraw.lib
+     # dxguid.lib
+     # dsound.lib
+     # d3dx9.lib
+     # dinput.lib
+     # )
+      set(CMAKE_CXX_FLAGS "-TC -U __cplusplus")
+      set(CMAKE_C_FLAGS "-TC -U __cplusplus")
+
    endif(MSVC)
 endif(PLATFORM_PC)

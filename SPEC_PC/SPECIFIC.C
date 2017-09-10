@@ -7,6 +7,33 @@
 #include "WINMAIN.H"
 #include <time.h>
 #include <dsound.h>
+#include "PCSOUND.H"
+#include "ERROR.H"
+
+HANDLE Handles;
+HANDLE dword_579FA4;
+int XATrack = -1;
+void* dword_579FD4;
+BYTE byte_579FE4;
+DWORD dword_579FD8;
+DWORD dword_579E4C;
+BYTE byte_57A01C;
+FILE* stream;
+DWORD dword_579E30;
+DWORD dword_57A018;
+DWORD dword_510B18 = 7;
+
+signed int __cdecl sub_4D30E0(_WORD *a1)
+{
+	signed int result; // eax@1
+	__int16 v2; // [sp+0h] [bp-8h]@0
+
+	result = 0;
+	if (HIBYTE(v2) & 3 || (v2 & 0x3F) != 63 || HIBYTE(v2) & 0xC)
+		result = 1;
+	*a1 = v2;
+	return result;
+}
 
 void S_Warn(char* warning_message)
 {

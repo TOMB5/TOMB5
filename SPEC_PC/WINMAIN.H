@@ -7,14 +7,7 @@
 #include <dinput.h>
 #include <d3d.h>
 
-#pragma pack(push, 1)
-struct sound_shit
-{
-	LPDIRECTSOUNDBUFFER buf; // pos 0 s 4
-	DWORD field1; // pos 4 s 8
-	DWORD field2; // pos 8 s 4
-};
-#pragma pop
+
 
 extern const char* ClassName;
 extern const char* WindowName;
@@ -23,7 +16,7 @@ extern HANDLE dword_E4ACA4;
 extern UINT dword_E4ACAC;
 
 #pragma pack(push, 1)
-struct sound_shit samples[32];
+
 
 struct dispmode
 {
@@ -143,28 +136,53 @@ struct dxcontext_s
 
 	DWORD flags; // pos 76 s 4
 
-	DWORD dword_D9ABE1; // pos 80 s 4
+	DWORD dxWndStyle; // pos 80 s 4
 	DWORD dword_D9ABE5; // pos 84 s 4
 	LPDIRECTINPUT7A dinput; // pos 88 s 4
 	LPDIRECTINPUTDEVICEA dinput_keyboard; // pos 92 s 4
 
 	LPDIRECTINPUTDEVICEA dinput_other; // pos 96 s 4
-	HWND dword_D9ABF5; // pos 100 s 4
+	HWND dxWndHwnd; // pos 100 s 4
 	DWORD dword_D9ABF9; // pos 104 s 4
 	DWORD dword_D9ABFD; // pos 108 s 4
+
+	DWORD dword_D9AC01;
+	HANDLE hObject; // D9AC05
+
+	DWORD dword_D9AC09;
+	DWORD dword_D9AC0D;
+	DWORD dword_D9AC11;
+
+	HACCEL hAccTable;
+	uint8 byte_D9AC19;
+	BYTE opt_BumpMap;
+	DWORD dword_D9AC1B;
+	DWORD dword_D9AC1F;
+	uint8 byte_D9AC23;
+	BYTE opt_Filter;
+	BYTE opt_Volumetric;
+	BYTE opt_DisableSound;
+	DWORD dword_D9AC27;
+	BYTE byte_D9AC2B;
+	DWORD dword_D9AC2C;
+	DWORD opt_AutoTarget;
+	DWORD dword_D9AC34;
+	DWORD dword_D9AC38;
 } dxctx;
 
 LPDIRECT3DVERTEXBUFFER vertexBuffer;
+void* dword_D9AB34;
 
+DWORD dword_D9AB18;
+DWORD dword_D9ADE8;
+WORD word_C713D0;
+WORD word_D6866C;
+WORD word_C717E4;
+WORD word_C713D8;
 LPDIRECT3D3 iface_D3D3;
 LPDIRECTDRAW4 iface_DirectDraw;
 struct dxcontext_s* ptr_ctx;
-struct dxcontext_s* ptr_crctx;
 extern HKEY hKey;
-extern BYTE opt_BumpMap;
-extern BYTE opt_Filter;
-extern BYTE opt_DisableSound;
-extern BYTE opt_Volumetric;
 extern BYTE opt_NoFMV;
 extern BYTE opt_Setup;
 extern HWND SendMsg(HWND hWnd, LPARAM lParam);

@@ -24,6 +24,8 @@
 #include "FILE.H"
 #include "CONTROL.H"
 #include "CD.H"
+#include "PCSOUND.H"
+#include "CAMERA.H"
 #pragma comment (lib, "Msacm32.lib")
 #pragma comment (lib, "ddraw.lib")
 #pragma comment (lib, "dxguid.lib")
@@ -34,12 +36,10 @@
 
 int dword_876C48 = 0;
 HWND hWnd;
-HACCEL hAccTable;
 const char* Name = "Tomb Raider Chronicles";
 const char* ClassName = "DBLogWindowClass";
 const char* WindowName = "DBLog Server";
 UINT Msg;
-HANDLE hObject;
 WNDCLASSA WndClass;
 HINSTANCE hinst;
 HANDLE hThread;
@@ -50,8 +50,7 @@ UINT dword_E4ACA8;
 UINT dword_E4ACAC;
 UINT dword_E4ACB0;
 uint8 byte_57A098;
-uint8 byte_D9AC23;
-uint8 byte_D9AC19;
+
 const char* String = "UM_DBLOGOUT";
 const char* SubKey = "Software\\Core\\DBlog";
 const char* ValueName = "CmdLine";
@@ -62,33 +61,61 @@ DWORD dword_D9AB24;
 DWORD dword_D9AB20;
 DWORD dword_D9AB28;
 
-BYTE byte_D9AC2B;
-DWORD dword_D9ABFD;
-uint32 dword_D9ABF9;
+
+
 HWND dword_86B9A4;
 
 
 
 unsigned thread_id;
-DWORD dword_D9ABDD;
 void* dword_E916E0;
 DWORD dword_876C40;
-DWORD dword_D9AC2C;
+
 
 HKEY hKey;
 LPSTR Class;
 DWORD dwDisposition;
 
-BYTE opt_BumpMap;
-BYTE opt_Filter;
-BYTE opt_DisableSound;
-BYTE opt_Volumetric;
+DWORD dword_55D29C;
+WORD word_55D218;
+DWORD dword_55D164;
+WORD word_55D234;
+WORD word_55D240;
+WORD word_55D1E8;
+DWORD dword_55D1B0;
+DWORD dword_55D1B4;
+DWORD dword_55D21C;
+float flt_55D22C;
+DWORD dword_55D1F4;
+float flt_55D230;
+float flt_55D250;
+DWORD dword_55DA3C;
+DWORD dword_55D204;
+float flt_55D664;
+DWORD dword_51D0A8;
+DWORD dword_55D20C;
+float flt_51D160;
+float flt_55DA34;
+float flt_51D14C;
+float flt_55DA40;
+float flt_55D228;
+float flt_55D24C;
+float flt_55D238;
+float flt_51D158;
+float flt_55DA38;
+float flt_55D668;
+float flt_55D25C;
+float flt_51D150;
+float flt_51D154;
+float flt_55D220;
+float flt_55D268;
+float flt_51D15C;
+
 BYTE opt_NoFMV;
 BYTE opt_Setup;
 
-DWORD dword_D9AC1B;
-DWORD dword_D9AC1F;
-DWORD dword_D9AC27;
+
+
 
 WORD opt_Keys[18] =
 {
@@ -119,7 +146,7 @@ DWORD opt_MusicVolume = 40;
 DWORD opt_SFXVolume = 80;
 DWORD opt_ControlMethod;
 DWORD opt_SoundQuality = 1;
-DWORD opt_AutoTarget;
+
 
 HGDIOBJ gdiobject;
 
@@ -140,35 +167,17 @@ BYTE opt_BilinearFiltering;
 DWORD BumpBitCount;
 DWORD BumpDU;
 DWORD BumpDV;
-
+DWORD dword_874968;
 DWORD NumSamples[] = { 11025, 22050, 44100 };
 DWORD dword_86CC7C;
 LPDIRECTSOUNDBUFFER DSSoundBuffer;
-
-struct _RTL_CRITICAL_SECTION CriticalSection;
-BYTE ACMInited;
-HACMDRIVERID hadid;
-HACMDRIVER had;
-BYTE* bufSource;
-void* ptr;
-WAVEFORMATEX pwfxDst;
-WAVEFORMATEX pwfxSrc = { WAVE_FORMAT_ADPCM, 2, 44100, 44359, 2048, 4, 0x20 };
-DWORD bufLockLength;
-LPDIRECTSOUNDBUFFER other_buf;
-LPDIRECTSOUNDNOTIFY notify_thing;
-DWORD bufMaxLength;
-HACMSTREAM has;
-BYTE* buf_lockAudioPtr1;
-DWORD buf_lockAudioBytes1;
-DWORD pdwOutputBytes;
-ACMSTREAMHEADER acmHeader1;
-ACMSTREAMHEADER acmHeader2;
-ACMSTREAMHEADER acmHeader3;
-ACMSTREAMHEADER acmHeader4;
+int* phd_mxptr; // 12 ints
+int other_matrix_shit[12];
+D3DMATRIX transform_world;
+D3DMATRIX transform_projection;
+D3DMATRIX transform_view;
 
 
-
-DWORD dword_D9AB74;
 DWORD dword_57A088;
 DWORD dword_57A090;
 
@@ -183,20 +192,29 @@ WORD word_86B9B0[32];
 
 DWORD dword_86BA48;
 
-HANDLE Handles;
-HANDLE dword_579FA4;
+
 HANDLE dword_579FA8;
 
-int XATrack = -1;
-void* dword_579FD4;
-BYTE byte_579FE4;
-DWORD dword_579FD8;
-DWORD dword_579E4C;
-BYTE byte_57A01C;
-FILE* stream;
-DWORD dword_579E30;
-DWORD dword_57A018;
-DWORD dword_510B18 = 7;
+float flt_50A438 = 12288.0;
+float flt_50A43C = 20480.0;
+float flt_50A444 = 2048.0;
+
+WORD word_507AC0[844] = 
+{
+	0x0004, 0x000D, 0xFFF5, 0x0B00, 0xC4CE, 0x3EC4, 0xE8EA, 0x3E68, 0x0007, 0x0005, 0xFFF6, 0x0501, 0xA4B1, 0x3EA4, 0xD0EE, 0x3DD0, 0x000E, 0x000C, 0xFFF6, 0x0B01, 0x9C91, 0x3E9C, 0x98B3, 0x3E18, 0x000A, 0x000E, 0xFFF6, 0x0D01, 0xD6DC, 0x3F56, 0xD068, 0x3D50, 0x000F, 0x000C, 0xFFF7, 0x0C02, 0xA0B2, 0x3E20, 0xD0EE, 0x3DD0, 0x000E, 0x000C, 0xFFF6, 0x0B01, 0x9EA1, 0x3F1E, 0xE4C9, 0x3E64, 0x0005, 0x0005, 0xFFF5, 0x0400, 0xCCCD, 0x3F4C, 0x9C91, 0x3E1C, 0x0006, 0x0010, 0xFFF4, 0x0D00, 0x8872, 0x3E08, 0xA0B2, 0x3E20, 0x0006, 0x0010, 0xFFF5, 0x0E00, 0xB8BF, 0x3F38, 0xED0B, 0x3E6C, 0x0005, 0x0005, 0xFFF5, 0x0400, 0xB0F2, 0x3DB0, 0xA0B2, 0x3E20, 0x000B, 0x000B, 0xFFF7, 0x0B02, 0xB2AF, 0x3F32, 0xED0B, 0x3E6C, 0x0005, 0x0005, 0xFFFE, 0x0C08, 0xD4CC, 0x3ED4, 0xF0E9, 0x3E70, 0x0008, 0x0003, 0xFFFC, 0x0906, 0xE4EB, 0x3EE4, 0xF0E9, 0x3E70, 0x0005, 0x0004, 0xFFFE, 0x0B08, 0xD4DC, 0x3F54, 0x98B3, 0x3E18, 0x0009, 0x000F, 0xFFF4, 0x0C00, 0xB0AF, 0x3EB0, 0xC4CE, 0x3E44, 0x000A, 0x000A, 0xFFF8, 0x0B03, 0xC8CD, 0x3F48, 0xDCCA, 0x3E5C, 0x0006, 0x000A, 0xFFF8, 0x0B03, 0xB8AE, 0x3E38, 0xD0EE, 0x3E50, 0x0009, 0x000A, 0xFFF8, 0x0B03, 0xB0AF, 0x3EB0, 0x98B3, 0x3E18, 0x0008, 0x000B, 0xFFF8, 0x0C03, 0xF8E8, 0x3E78, 0xA0B2, 0x3E20, 0x000B, 0x000B, 0xFFF8, 0x0C03, 0x8E93, 0x3F0E, 0xC0AD, 0x3E40, 0x0009, 0x000C, 0xFFF7, 0x0C02, 0xE8EA, 0x3F68, 0xC8AC, 0x3E48, 0x0009, 0x000B, 0xFFF7, 0x0B02, 0xF0E9, 0x3EF0, 0xBCCF, 0x3E3C, 0x0009, 0x000C, 0xFFF7, 0x0C02, 0xB0F2, 0x3DB0, 0xCCCD, 0x3E4C, 0x0009, 0x000B, 0xFFF7, 0x0B02, 0xDCEC, 0x3EDC, 0xC4CE, 0x3E44, 0x0009, 0x000B, 0xFFF8, 0x0C03, 0x9891, 0x3F18, 0xE4C9, 0x3E64, 0x0005, 0x0009, 0xFFF9, 0x0B04, 0x8883, 0x3F08, 0xE4C9, 0x3E64, 0x0005, 0x000A, 0xFFF9, 0x0C04, 0xB2AF, 0x3F32, 0xA0B2, 0x3E20, 0x000C, 0x000A, 0xFFF8, 0x0B03, 0xD2CC, 0x3F52, 0xD4CC, 0x3E54, 0x000B, 0x0007, 0xFFF9, 0x0904, 0xF0E9, 0x3F70, 0xA0B2, 0x3E20, 0x000C, 0x000A, 0xFFF8, 0x0B03, 0xC0F0, 0x3D40, 0x9C91, 0x3E1C, 0x000A, 0x000D, 0xFFF5, 0x0B00, 0x8494, 0x3E84, 0xD068, 0x3D50, 0x0010, 0x000E, 0xFFF6, 0x0D01, 0x8284, 0x3F02, 0xD068, 0x3D50, 0x000E, 0x000D, 0xFFF5, 0x0B00, 0xD6DC, 0x3F56, 0xC8AC, 0x3DC8, 0x000D, 0x000D, 0xFFF5, 0x0B00, 0x8484, 0x3F04, 0x8C93, 0x3E0C, 0x000B, 0x000D, 0xFFF5, 0x0B00, 0x0000, 0x0000, 0xD0EE, 0x3DD0, 0x000D, 0x000D, 0xFFF5, 0x0B00, 0xE0EB, 0x3D60, 0xD0EE, 0x3DD0, 0x000D, 0x000D, 0xFFF5, 0x0B00, 0x8494, 0x3E84, 0xD8A9, 0x3DD8, 0x000C, 0x000D, 0xFFF5, 0x0B00, 0xB6AE, 0x3F36, 0xD8A9, 0x3DD8, 0x000C, 0x000D, 0xFFF5, 0x0B00, 0xC8CD, 0x3F48, 0xD068, 0x3D50, 0x000E, 0x000D, 0xFFF5, 0x0B00, 0xDEDB, 0x3F5E, 0xD8ED, 0x3E58, 0x0005, 0x000D, 0xFFF5, 0x0B00, 0xE0EB, 0x3E60, 0xD0EE, 0x3E50, 0x0005, 0x0010, 0xFFF5, 0x0E00, 0xE6EB, 0x3F66, 0xF16F, 0x3D70, 0x000D, 0x000D, 0xFFF5, 0x0B00, 0x9093, 0x3F10, 0x8C93, 0x3E0C, 0x000B, 0x000D, 0xFFF5, 0x0B00, 0xC0AD, 0x3E40, 0xD068, 0x3D50, 0x0012, 0x000D, 0xFFF5, 0x0B00, 0x9093, 0x3F10, 0xD068, 0x3D50, 0x000E, 0x000D, 0xFFF5, 0x0B00, 0xD8ED, 0x3E58, 0xD0EE, 0x3DD0, 0x000C, 0x000D, 0xFFF5, 0x0B00, 0xC8CD, 0x3F48, 0xD0EE, 0x3DD0, 0x000C, 0x000D, 0xFFF5, 0x0B00, 0xF0E9, 0x3F70, 0x0000, 0x0000, 0x000E, 0x000F, 0xFFF5, 0x0D00, 0x9EA1, 0x3F1E, 0xD068, 0x3D50, 0x000E, 0x000D, 0xFFF5, 0x0B00, 0x9CA2, 0x3F1C, 0x8C93, 0x3E0C, 0x000B, 0x000D, 0xFFF5, 0x0B00, 0xACB0, 0x3F2C, 0xD068, 0x3D50, 0x000E, 0x000D, 0xFFF5, 0x0B00, 0xC4CE, 0x3EC4, 0xD068, 0x3D50, 0x000F, 0x000D, 0xFFF5, 0x0B00, 0xA4B1, 0x3EA4, 0xD068, 0x3D50, 0x000F, 0x000D, 0xFFF5, 0x0B00, 0xC0F0, 0x3DC0, 0xD068, 0x3D50, 0x0017, 0x000D, 0xFFF5, 0x0B00, 0xBABF, 0x3F3A, 0xD068, 0x3D50, 0x000D, 0x000E, 0xFFF5, 0x0C00, 0xE4EB, 0x3EE4, 0xD068, 0x3D50, 0x000F, 0x000D, 0xFFF5, 0x0B00, 0xE4EB, 0x3F64, 0xE0EB, 0x3DE0, 0x000C, 0x000D, 0xFFF5, 0x0B00, 0xF8E8, 0x3E78, 0xF0E9, 0x3E70, 0x0006, 0x0004, 0xFFFC, 0x0906, 0xF8F9, 0x3F78, 0xED0B, 0x3E6C, 0x0006, 0x0004, 0xFFFC, 0x0906, 0xB0AF, 0x3EB0, 0xED0B, 0x3E6C, 0x0008, 0x0004, 0xFFFC, 0x0906, 0x8E93, 0x3F0E, 0xF0E9, 0x3E70, 0x0007, 0x0003, 0xFFFD, 0x0907, 0xF0E9, 0x3EF0, 0xED0B, 0x3E6C, 0x0008, 0x0004, 0xFFFC, 0x0906, 0xF2FA, 0x3F72, 0xED0B, 0x3E6C, 0x0005, 0x0005, 0xFFF5, 0x0400, 0xC4CE, 0x3EC4, 0xC4CE, 0x3E44, 0x000B, 0x0009, 0xFFF9, 0x0B04, 0xC0CF, 0x3EC0, 0x8C93, 0x3E0C, 0x000B, 0x000E, 0xFFF4, 0x0B00, 0x9093, 0x3E90, 0xD0EE, 0x3E50, 0x0009, 0x0009, 0xFFF9, 0x0B04, 0x0000, 0x0000, 0x9C91, 0x3E1C, 0x000B, 0x000C, 0xFFF6, 0x0B01, 0xA4A0, 0x3F24, 0xD0EE, 0x3E50, 0x0009, 0x0009, 0xFFF9, 0x0B04, 0xA8B1, 0x3F28, 0x98B3, 0x3E18, 0x000A, 0x000E, 0xFFF4, 0x0B00, 0xF0E9, 0x3EF0, 0x8C93, 0x3E0C, 0x000C, 0x000C, 0xFFF9, 0x0E04, 0xD8CB, 0x3ED8, 0x8C93, 0x3E0C, 0x000B, 0x000E, 0xFFF4, 0x0B00, 0xC2BD, 0x3F42, 0xD8A9, 0x3DD8, 0x0006, 0x000C, 0xFFF6, 0x0B01, 0xA0B2, 0x3E20, 0xCCCD, 0x3E4C, 0x0006, 0x0010, 0xFFF6, 0x0E01, 0xE0EB, 0x3DE0, 0xD0EE, 0x3DD0, 0x000C, 0x000E, 0xFFF4, 0x0B00, 0xA4B1, 0x3EA4, 0xD0EE, 0x3E50, 0x0006, 0x000D, 0xFFF5, 0x0B00, 0xC0CF, 0x3EC0, 0xD0EE, 0x3DD0, 0x0012, 0x0009, 0xFFF9, 0x0B04, 0x9891, 0x3F18, 0xC0AD, 0x3E40, 0x000C, 0x0009, 0xFFF9, 0x0B04, 0xF8E8, 0x3E78, 0xCCCD, 0x3E4C, 0x000A, 0x0009, 0xFFF9, 0x0B04, 0xF4F9, 0x3F74, 0xF16F, 0x3D70, 0x000B, 0x000D, 0xFFF9, 0x0E04, 0xD0EE, 0x3E50, 0x9C91, 0x3E1C, 0x000A, 0x000D, 0xFFF9, 0x0E04, 0xA0F5, 0x3D20, 0xD0EE, 0x3E50, 0x000A, 0x0009, 0xFFF9, 0x0B04, 0xBEBE, 0x3F3E, 0xD0EE, 0x3E50, 0x0009, 0x0009, 0xFFF9, 0x0B04, 0x0000, 0x0000, 0xCCCD, 0x3E4C, 0x0009, 0x000B, 0xFFF7, 0x0B02, 0xB2AF, 0x3F32, 0xC8AC, 0x3E48, 0x000B, 0x0009, 0xFFF9, 0x0B04, 0x8284, 0x3F02, 0xC0AD, 0x3E40, 0x000C, 0x0009, 0xFFF9, 0x0B04, 0x8484, 0x3F04, 0xD0EE, 0x3DD0, 0x0012, 0x0009, 0xFFF9, 0x0B04, 0xF2FA, 0x3F72, 0xC8AC, 0x3E48, 0x000B, 0x0009, 0xFFF9, 0x0B04, 0xA0B2, 0x3E20, 0x98B3, 0x3E18, 0x000B, 0x000D, 0xFFF9, 0x0E04, 0xE8EA, 0x3F68, 0xA490, 0x3E24, 0x0008, 0x0009, 0xFFF9, 0x0B04, 0xDEDB, 0x3F5E, 0xA490, 0x3E24, 0x0009, 0x000D, 0xFFF9, 0x0E04, 0x8284, 0x3F02, 0xE4C9, 0x3E64, 0x0006, 0x0009, 0xFFF9, 0x0B04, 0xC2BD, 0x3F42, 0x9C91, 0x3E1C, 0x000A, 0x000D, 0xFFF6, 0x0C01, 0x8073, 0x3E00, 0xE0EB, 0x3E60, 0x0005, 0x000C, 0xFFF6, 0x0B01, 0x0000, 0x0000, 0xD068, 0x3D50, 0x0018, 0x000D, 0xFFF6, 0x0B06, 0xC0BE, 0x3F40, 0x0000, 0x0000, 0x0018, 0x000D, 0xFFF6, 0x0B06, 0xA8B1, 0x3F28, 0x0000, 0x0000, 0x0018, 0x000D, 0xFFF6, 0x0B06, 0xD8DC, 0x3F58, 0x0000, 0x0000, 0x0018, 0x000D, 0xFFF6, 0x0B06, 0x9692, 0x3F16, 0xD0EE, 0x3DD0, 0x0012, 0x0009, 0xFFF8, 0x0B06, 0xA8B1, 0x3F28, 0xD0EE, 0x3DD0, 0x000D, 0x000C, 0xFFF7, 0x0B06, 0xE4EB, 0x3EE4, 0xD0EE, 0x3DD0, 0x0012, 0x0009, 0xFFF8, 0x0B06, 0xF0E9, 0x3F70, 0xE0EB, 0x3DE0, 0x000D, 0x000C, 0xFFF7, 0x0B06, 0x0000, 0x0000, 0x0000, 0x0000, 0x0029, 0x000D, 0xFFF6, 0x0B06, 0xA8B1, 0x3EA8, 0x0000, 0x0000, 0x0029, 0x000D, 0xFFF6, 0x0B06, 0xA8B1, 0x3E28, 0x0000, 0x0000, 0x0029, 0x000D, 0xFFF6, 0x0B06, 0xFD09, 0x3EFC, 0x0000, 0x0000, 0x0029, 0x000D, 0xFFF6, 0x0B06
+};
+
+BYTE byte_50A0FD[79] =
+{
+	0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x00, 0x80, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA0, 0x00, 0x00, 0x00, 0x50, 0x00, 0x80, 0x80, 0x80, 0x00, 0x10, 0x10, 0x10, 0x00, 0xC0, 0x80, 0x40, 0x00, 0x40, 0x10, 0x00, 0x00, 0x10, 0x10, 0x10, 0x00, 0x80, 0x80, 0x80, 0x00, 0xE0, 0xC0, 0x00, 0x00, 0x40, 0x20, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00
+};
+DWORD dword_50A14C = 1;
+WORD word_E4DEC8[849];
+DWORD dword_E4DEA8;
+DWORD dword_E4DC40;
+DWORD dword_E4DEA4;
+
+
 
 //DEFINE_GUID(IID_IDirect3D3, 0xBB223240, 0xE72B, 0x11D0, 0xA9, 0xB4, 0x00, 0xAA, 0x00, 0xC0, 0x99, 0x3E);
 
@@ -223,7 +241,7 @@ int WinProcMsg()
 	do
 	{
 		GetMessageA(&Msg, 0, 0, 0);
-		if (!TranslateAcceleratorA(hWnd, hAccTable, &Msg))
+		if (!TranslateAcceleratorA(hWnd, ptr_ctx->hAccTable, &Msg))
 		{
 			TranslateMessage(&Msg);
 			DispatchMessageA(&Msg);
@@ -521,48 +539,584 @@ char FindGameDrive()
 	return result;
 }
 
-void sub_4018AC(signed int a1)
+signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_s *a5, HWND a6, DWORD dwStyle);
+
+signed int DXToggleFullScreen()
 {
-	/*signed int v1; // esi@1
+	struct dispmode* v0; // eax@2
+	signed int result; // eax@2
+	struct dispmode* v2; // eax@3
+
+	sub_4DEB10(2, "DXToggleFullScreen");
+	if (ptr_ctx->flags & 2)
+	{
+		sub_4DEB10(5, "Switching To Full Screen");
+		ptr_ctx->flags ^= 2u;
+		ptr_ctx->flags |= 0x41u;
+		ptr_ctx->flags |= 0x40u;
+		ptr_ctx->d3d->lpVtbl->EvictManagedTextures(ptr_ctx->d3d);
+		v0 = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+			.accelAdapters[ptr_ctx->curAccelAdapt]
+			.displayModes[ptr_ctx->curDispMode];
+		DXCreate(
+			v0->width,
+			v0->height,
+			v0->depth,
+			ptr_ctx->flags,
+			ptr_ctx,
+			ptr_ctx->dxWndHwnd,
+			ptr_ctx->dxWndStyle);
+		ptr_ctx->flags ^= 0x40u;
+		result = 1;
+	}
+	else
+	{
+		sub_4DEB10(5, "Switching To A Window");
+		ptr_ctx->flags ^= 1u;
+		ptr_ctx->flags |= 0x42u;
+		ptr_ctx->d3d->lpVtbl->EvictManagedTextures(ptr_ctx->d3d);
+		v2 = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+			.accelAdapters[ptr_ctx->curAccelAdapt]
+		.displayModes[ptr_ctx->curDispMode];
+		DXCreate(
+			v2->width,
+			v2->height,
+			v2->depth,
+			ptr_ctx->flags,
+			ptr_ctx,
+			ptr_ctx->dxWndHwnd,
+			ptr_ctx->dxWndStyle);
+		ptr_ctx->flags ^= 0x40u;
+		result = 1;
+	}
+	return result;
+}
+
+int HWInitialise()
+{
+	sub_4DEB10(2, "HWInitialise");
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 2, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 3, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 4, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 5, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 6, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 7, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_TEXCOORDINDEX, 0);
+
+	if (ptr_ctx->opt_Filter)
+	{
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MIPFILTER, D3DTFP_NONE);
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+	}
+	else
+	{
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MAGFILTER, D3DTFG_POINT);
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MINFILTER, D3DTFN_POINT);
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MIPFILTER, D3DTFP_NONE);
+	}
+
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_TEXCOORDINDEX, 0);
+
+
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_SPECULARENABLE, TRUE);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_CULLMODE, D3DCULL_NONE);
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ZENABLE, TRUE));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ZWRITEENABLE, TRUE));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_TEXTUREPERSPECTIVE, TRUE));
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_TEXTUREMAPBLEND, D3DTBLEND_MODULATEALPHA);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_FILLMODE, D3DFILL_SOLID);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_DITHERENABLE, TRUE);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ALPHAREF, 0);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ALPHAFUNC, D3DCMP_NOTEQUAL);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+
+
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_AMBIENT, 0));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_COLORVERTEX, 0));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_COLORMODEL, D3DCOLOR_RGB));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_FOGMODE, D3DFOG_LINEAR));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_FOGSTART, LODWORD(flt_50A438)));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_FOGEND, LODWORD(flt_50A43C)));
+
+
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_FOGCOLOR, RGBA_MAKE(0, 0, 0, 255));
+	return ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_FOGENABLE, TRUE);
+}
+
+void __cdecl sub_401E47(LPD3DMATRIX a1)
+{
+	a1->_11 = 1.0;
+	a1->_12 = 0.0;
+	a1->_13 = 0.0;
+	a1->_14 = 0.0;
+	a1->_21 = 0.0;
+	a1->_22 = 1.0;
+	a1->_23 = 0.0;
+	a1->_24 = 0.0;
+	a1->_31 = 0.0;
+	a1->_32 = 0.0;
+	a1->_33 = 1.0;
+	a1->_34 = 0.0;
+	a1->_41 = 0.0;
+	a1->_42 = 0.0;
+	a1->_43 = 0.0;
+	a1->_44 = 1.0;
+}
+
+void sub_401D84()
+{
+	sub_401E47(&transform_world);
+	sub_401E47(&transform_projection);
+	transform_projection._22 = -1.0;
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetTransform(ptr_ctx->d3d_dev, D3DTRANSFORMSTATE_WORLD, &transform_world));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetTransform(ptr_ctx->d3d_dev, D3DTRANSFORMSTATE_PROJECTION, &transform_projection));
+}
+
+void sub_402BAD()
+{
+	int* v0 = phd_mxptr;
+	sub_401E47(&transform_view);
+	transform_view._11 = (double)v0[0] / 16384.0;
+	transform_view._12 = (double)v0[4] / 16384.0;
+	transform_view._13 = (double)v0[8] / 16384.0;
+	transform_view._21 = (double)v0[1] / 16384.0;
+	transform_view._22 = (double)v0[5] / 16384.0;
+	transform_view._23 = (double)v0[9] / 16384.0;
+	transform_view._31 = (double)v0[2] / 16384.0;
+	transform_view._32 = (double)v0[6] / 16384.0;
+	transform_view._33 = (double)v0[10] / 16384.0;
+	transform_view._41 = (double)v0[3] / 16384.0;
+	transform_view._42 = (double)v0[7] / 16384.0;
+	transform_view._43 = (double)v0[11] / 16384.0;
+}
+
+HMODULE GetKernel32()
+{
+	return GetModuleHandleA("kernel32.dll");
+}
+
+FARPROC sub_4DB931(HMODULE a1)
+{
+	return GetProcAddress(a1, "Sleep");
+}
+
+FARPROC GetSleepFunc()
+{
+	HMODULE v0; // eax@1
+
+	v0 = GetKernel32();
+	return sub_4DB931(v0);
+}
+
+void Sleep1ms()
+{
+	FARPROC v0; // eax@1
+
+	v0 = GetSleepFunc();
+	((void(__stdcall *)(_DWORD))v0)(1);
+}
+
+void __fastcall sub_4DA111(_DWORD *a1)
+{
+	do
+	{
+		Sleep1ms();
+	} while (*a1);
+}
+
+void __fastcall sub_4D8F51(_DWORD *a1)
+{
+	do
+	{
+		Sleep1ms();
+	} while (!*a1);
+}
+
+void sub_4D3211()
+{
+	sub_4DA111(&ptr_ctx->dword_D9ABF9);
+}
+
+void sub_4D31D1()
+{
+	sub_4D8F51(&ptr_ctx->dword_D9ABF9);
+}
+
+void __cdecl sub_402563(signed int a1, signed int a2)
+{
+	double v3; // st7@1
+	double v4; // st7@1
+
+	dword_55D21C = a1;
+	dword_55D1F4 = a2;
+	flt_55D228 = (double)a2;
+	flt_55D24C = (double)a1;
+	flt_55D238 = flt_55D268 / flt_55D24C;
+	flt_51D158 = (double)a1 / 16384.0;
+	flt_55DA38 = (double)a2 / 16384.0;
+	flt_55D668 = flt_51D15C / flt_51D158;
+	flt_55D25C = flt_50A444 / flt_51D158;
+	v3 = flt_55DA38 * flt_51D158 * 0.99000001 / (flt_51D158 - flt_55DA38);
+	flt_51D150 = 1 / 200.0 - v3 / flt_51D158;
+	v4 = -v3;
+	flt_51D154 = v4;
+	flt_55D220 = v4 / flt_50A444;
+}
+
+int __cdecl sub_4017E9(int a1, int a2, signed int width, signed int a4, int a5, int a6, int a7)
+{
+	int result; // eax@1
+
+	dword_55D29C = width;
+	word_55D218 = width - 1;
+	dword_55D164 = a4;
+	word_55D234 = a1;
+	word_55D240 = a4 - 1;
+	word_55D1E8 = a2;
+	dword_55D1B0 = width / 2;
+	dword_55D1B4 = a4 / 2;
+	dword_55D21C = a5 << 14;
+	flt_55D22C = (double)(width / 2);
+	dword_55D1F4 = a6 << 14;
+	flt_55D230 = (double)(a4 / 2);
+	AlterFOV(ANGLE(a7));
+	sub_402563(dword_55D21C, dword_55D1F4);
+	flt_55D250 = (double)word_55D234;
+	dword_55DA3C = word_55D218;
+	result = word_55D218 + 1;
+	dword_55D204 = word_55D240;
+	flt_55D664 = (double)word_55D1E8;
+	dword_51D0A8 = a2;
+	dword_55D20C = a1;
+	flt_51D160 = (double)result;
+	phd_mxptr = other_matrix_shit;
+	flt_55DA34 = (double)(word_55D240 + 1);
+	flt_51D14C = flt_51D160 - flt_55D250;
+	flt_55DA40 = flt_55DA34 - flt_55D664;
+	return result;
+}
+
+int DXChangeVideoMode()
+{
+	int v0; // esi@1
+
+	sub_4DEB10(2, "DXChangeVideoMode");
+	ptr_ctx->flags |= 0x40u;
+	ptr_ctx->d3d->lpVtbl->EvictManagedTextures(ptr_ctx->d3d);
+	v0 = DXCreate(
+		0,
+		0,
+		0,
+		ptr_ctx->flags,
+		ptr_ctx,
+		ptr_ctx->dxWndHwnd,
+		ptr_ctx->dxWndStyle);
+	ptr_ctx->flags ^= 0x40u;
+	sub_4DEB10(2, "Exited DXChangeVideoMode %d", v0);
+	return v0;
+}
+
+int __cdecl sub_40198D(int a1, int *a2, int *a3)
+{
+	int v3; // ebp@1
+	int v4; // ebx@1
+	int v5; // esi@1
+	int v6; // eax@2
+	int v7; // edi@5
+	int v8; // ecx@8
+	int result; // eax@34
+
+	v3 = 0;
+	v4 = 0;
+	v5 = 0;
+	if (BYTE2(a1) - 128 <= 0)
+	{
+		v6 = 2 * BYTE2(a1);
+	}
+	else
+	{
+		v5 = (BYTE2(a1) - 128) >> 1;
+		v6 = 255;
+	}
+	if (BYTE1(a1) - 128 <= 0)
+	{
+		v7 = 2 * BYTE1(a1);
+	}
+	else
+	{
+		v4 = (BYTE1(a1) - 128) >> 1;
+		v7 = 255;
+	}
+	if ((unsigned __int8)a1 - 128 <= 0)
+	{
+		v8 = 2 * (unsigned __int8)a1;
+	}
+	else
+	{
+		v3 = ((unsigned __int8)a1 - 128) >> 1;
+		v8 = 255;
+	}
+	if (v6 <= 255)
+	{
+		if (v6 < 0)
+			v6 = 0;
+	}
+	else
+	{
+		v6 = 255;
+	}
+	if (v7 <= 255)
+	{
+		if (v7 < 0)
+			v7 = 0;
+	}
+	else
+	{
+		v7 = 255;
+	}
+	if (v8 <= 255)
+	{
+		if (v8 < 0)
+			v8 = 0;
+	}
+	else
+	{
+		v8 = 255;
+	}
+	if (v5 <= 255)
+	{
+		if (v5 < 0)
+			v5 = 0;
+	}
+	else
+	{
+		v5 = 255;
+	}
+	if (v4 <= 255)
+	{
+		if (v4 < 0)
+			v4 = 0;
+	}
+	else
+	{
+		v4 = 255;
+	}
+	if (v3 <= 255)
+	{
+		if (v3 < 0)
+			v3 = 0;
+	}
+	else
+	{
+		v3 = 255;
+	}
+	result = v8 | ((v7 | (v6 << 8)) << 8);
+	*a2 = result;
+	*a3 = v3 | ((v4 | (v5 << 8)) << 8);
+	return result;
+}
+
+signed __int64 sub_402DD3()
+{
+	BYTE *v0; // edi@1
+	BYTE v1; // ST3C_1@2
+	BYTE v2; // ST38_1@2
+	BYTE v3; // al@2
+	unsigned __int8 v4; // ST40_1@2
+	BYTE v5; // dl@2
+	signed int v6; // ebx@2
+	int v7; // ebp@2
+	signed int v8; // ecx@2
+	char *v9; // esi@2
+	signed int v10; // eax@2
+	int v11; // eax@3
+	int v12; // edx@3
+	int v13; // ecx@3
+	signed int v14; // eax@9
+	char v15; // dh@9
+	signed int v16; // eax@9
+	__int16 v17; // dx@9
+	int v18; // eax@9
+	BOOL v19; // zf@9
+	signed int v20; // esi@11
+	signed int v21; // eax@12
+	__int16 v22; // dx@13
+	__int16 v23; // cx@13
+	double v24; // st7@15
+	signed __int64 v25; // rax@16
+	signed __int64 result; // rax@17
+	signed int v27; // [sp+10h] [bp-50h]@2
+	signed int v28; // [sp+14h] [bp-4Ch]@2
+	signed int v29; // [sp+18h] [bp-48h]@2
+	signed int v30; // [sp+1Ch] [bp-44h]@2
+	int v31; // [sp+20h] [bp-40h]@2
+	int v32; // [sp+24h] [bp-3Ch]@2
+	char *v33; // [sp+28h] [bp-38h]@1
+	signed int v34; // [sp+28h] [bp-38h]@2
+	int v35; // [sp+44h] [bp-1Ch]@9
+	int v36; // [sp+48h] [bp-18h]@9
+	int v37; // [sp+4Ch] [bp-14h]@2
+	int v38; // [sp+50h] [bp-10h]@2
+	int v39; // [sp+54h] [bp-Ch]@2
+	float v40; // [sp+58h] [bp-8h]@2
+	int v41; // [sp+5Ch] [bp-4h]@2
+
+	v33 = (char *)&word_E4DEC8[844] + 1;
+	v0 = byte_50A0FD;
+	do
+	{
+		v1 = *v0;
+		v2 = v0[1];
+		v3 = v0[5];
+		v4 = *(v0 - 1);
+		v5 = v0[3];
+		v38 = (unsigned __int8)v0[4];
+		v37 = (unsigned __int8)v3;
+		v41 = -v4;
+		LODWORD(v40) = -(unsigned __int8)v1;
+		v6 = 0;
+		v7 = (unsigned __int8)v5;
+		v8 = 16 * (unsigned __int8)v1;
+		v39 = -(unsigned __int8)v2;
+		v9 = v33;
+		v10 = 16 * (unsigned __int8)v2;
+		v29 = 0;
+		v27 = 0;
+		v30 = 0;
+		v28 = 16 * v4;
+		v32 = 16 * (unsigned __int8)v1;
+		v31 = 16 * (unsigned __int8)v2;
+		v34 = 16;
+		do
+		{
+			v11 = (v6 >> 4) + (v10 >> 4);
+			v12 = (v27 >> 4) + (v8 >> 4);
+			v13 = (v29 >> 4) + (v28 >> 4);
+			if ((unsigned __int16)v11 > 0xFFu)
+				LOWORD(v11) = 255;
+			if ((unsigned __int16)v12 > 0xFFu)
+				LOWORD(v12) = 255;
+			if ((unsigned __int16)v13 > 0xFFu)
+				LOWORD(v13) = 255;
+			sub_40198D((unsigned __int16)v13 | (((unsigned __int16)v12 | ((unsigned __int16)v11 << 8)) << 8), &v35, &v36);
+			v14 = v35;
+			v15 = BYTE1(v35);
+			v9[1] = v35;
+			*v9 = v15;
+			*(v9 - 1) = v14 >> 16;
+			v16 = v36;
+			v17 = v36;
+			v9[2] = -1;
+			v9[5] = v17;
+			v9[4] = HIBYTE(v17);
+			v9[3] = v16 >> 16;
+			v6 = v37 + v30;
+			v18 = v38;
+			v9[6] = -1;
+			v27 += v18;
+			v10 = v39 + v31;
+			v8 = LODWORD(v40) + v32;
+			v28 += v41;
+			v9 += 8;
+			v29 += v7;
+			v19 = v34 == 1;
+			v30 = v6;
+			v31 += v39;
+			v32 += LODWORD(v40);
+			--v34;
+		} while (!v19);
+		v0 += 8;
+		v33 = v9;
+	} while (v0 < &byte_50A0FD[80] + 1);
+	v20 = 0;
+	if (dword_50A14C)
+	{
+		v21 = 0;
+		do
+		{
+			v22 = word_507AC0[v21];
+			word_E4DEC8[v21 + 1] = word_507AC0[v21 + 1];
+			v23 = word_507AC0[v21 + 2];
+			word_E4DEC8[v21] = v22;
+			word_E4DEC8[v21 + 2] = v23;
+			v21 += 8;
+		} while (v21 < 848);
+		dword_50A14C = 0;
+	}
+	v41 = word_55D240;
+	v40 = (double)word_55D218;
+	v24 = (double)word_55D240;
+	do
+	{
+		v41 = word_E4DEC8[v20 + 1];
+		v25 = (signed __int64)((double)v41 * v24 / 240.0);
+		v41 = word_E4DEC8[v20];
+		word_507AC0[v20 + 1] = v25;
+		word_507AC0[v20] = (signed __int64)((double)v41 * v40 / 512.0);
+		v41 = word_E4DEC8[v20 + 2];
+		word_507AC0[v20 + 2] = (signed __int64)((double)v41 * v24 / 240.0);
+		v20 += 8;
+	} while (v20 < 848);
+	result = (signed __int64)(v24 * 0.058333334);
+	dword_E4DEA8 = result;
+	dword_E4DC40 = result;
+	dword_E4DEA4 = 6;
+	return result;
+}
+
+void __cdecl sub_4018AC(signed int param)
+{
+	signed int v1; // esi@1
 	int v2; // edi@10
 	int v3; // ebx@11
 	int v4; // eax@11
 	int v5; // ecx@11
-	int v6; // edi@13
-	int v7; // ecx@13
+	struct dispmode* v7; // ecx@13
 	int v8; // ecx@16
-	int v9; // ecx@17
-	int v10; // ebx@27
-	int v11; // ebx@29
+	struct dispmode* v9; // ecx@17
+	struct dispmode* v10; // ebx@27
+	struct dispmode* v11; // ebx@29
 	HCURSOR v12; // eax@41
 	int v13; // [sp+Ch] [bp+4h]@10
 
-	v1 = a1;
-	if (a1 == 8)
+	v1 = param;
+	if (param == 8)
 	{
-		if (!byte_D9AC2B
-			&& *(_DWORD *)(*(_DWORD *)(dword_86B9AC + 8) + 1590 * *(_DWORD *)(dword_86B9AC + 16) + 138) & 0x80000
+		if (!ptr_ctx->byte_D9AC2B
+			&& ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].capabilities.dwCaps2 & DDSCAPS2_STEREOSURFACELEFT
 			&& !dword_874968)
 		{
-			sub_4DEB10(6, aKa_altenter);
-			sub_4DEB10(5, aHanggamethread);
-			while (dword_D9ABF9)
+			sub_4DEB10(6, "KA_ALTENTER");
+			sub_4DEB10(5, "HangGameThread");
+			while (ptr_ctx->dword_D9ABF9)
 				;
-			dword_D9ABFD = 1;
-			while (!dword_D9ABF9)
+			ptr_ctx->dword_D9ABFD = 1;
+			while (!ptr_ctx->dword_D9ABF9)
 				;
 			SuspendThread(hThread);
-			sub_4DEB10(5, aGameThreadSusp);
-			j_nullsub_22();
-			sub_401DD9();
-			j_HWInitialise();
-			j_nullsub_24();
+			sub_4DEB10(5, "Game Thread Suspended");
+			//j_nullsub_22();
+			DXToggleFullScreen();
+			HWInitialise();
+			//j_nullsub_24();
 			sub_401D84();
 			sub_402BAD();
 			ResumeThread(hThread);
-			dword_D9ABFD = 0;
-			sub_4DEB10(5, aGameThreadResu);
-			if (dword_D9ABDD & 1)
+			ptr_ctx->dword_D9ABFD = 0;
+			sub_4DEB10(5, "Game Thread Resumed");
+			if (ptr_ctx->flags & 1)
 			{
 				SetCursor(0);
 				ShowCursor(0);
@@ -575,48 +1129,49 @@ void sub_4018AC(signed int a1)
 			}
 		}
 	}
-	else if (a1 > 40000 && a1 <= 40002 && !dword_874968 && !byte_D9AC2B)
+	else if (param > 40000 && param <= 40002 && !dword_874968 && !ptr_ctx->byte_D9AC2B)
 	{
-		sub_4DEB10(5, aChangeVideoMod);
-		sub_4DEB10(5, aHanggamethread);
-		if (dword_D9ABF9)
+		sub_4DEB10(5, "Change Video Mode");
+		sub_4DEB10(5, "HangGameThread");
+		if (ptr_ctx->dword_D9ABF9)
 			sub_4D3211();
-		dword_D9ABFD = 1;
-		if (!dword_D9ABF9)
+		ptr_ctx->dword_D9ABFD = 1;
+		if (!ptr_ctx->dword_D9ABF9)
 			sub_4D31D1();
 		SuspendThread(hThread);
-		sub_4DEB10(5, aGameThreadSusp);
-		v2 = *(_DWORD *)&dword_D9AB80;
-		v13 = *(_DWORD *)&dword_D9AB80;
+		sub_4DEB10(5, "Game Thread Suspended");
+		v2 = ptr_ctx->curDispMode;
+		v13 = ptr_ctx->curDispMode;
 		if (v1 == 40001)
 		{
-			v3 = dword_86B9AC;
-			v4 = *(_DWORD *)&dword_D9AB80 + 1;
-			*(_DWORD *)&dword_D9AB80 = v4;
-			v5 = *(_DWORD *)(*(_DWORD *)(*(_DWORD *)(dword_86B9AC + 8) + 1590 * *(_DWORD *)(dword_86B9AC + 16) + 1586)
-				+ 410 * *(_DWORD *)(dword_86B9AC + 20)
-				+ 386);
+			v3 = ptr_ctx;
+			v4 = ptr_ctx->curDispMode + 1;
+			ptr_ctx->curDispMode = v4;
+			v5 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+				.accelAdapters[ptr_ctx->curAccelAdapt]
+				.numDispModes;
 			if (v4 >= v5)
 			{
 				v4 = v5 - 1;
-				*(_DWORD *)&dword_D9AB80 = v5 - 1;
+				ptr_ctx->curDispMode = v5 - 1;
 			}
-			v6 = 150 * v2;
-			v7 = *(_DWORD *)(*(_DWORD *)(1590 * dword_D9AB78 + *(_DWORD *)(dword_86B9AC + 8) + 1586) + 410 * dword_D9AB7C + 390);
-			if (*(_DWORD *)(v7 + 150 * v4 + 8) != *(_DWORD *)(v6 + v7 + 8))
+			v7 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt].displayModes;
+			if (v7[v4].depth != v7[v2].depth)
 			{
 				while (1)
 				{
-					*(_DWORD *)&dword_D9AB80 = ++v4;
-					v8 = *(_DWORD *)(dword_86B9AC + 8);
-					if (v4 >= *(_DWORD *)(*(_DWORD *)(v8 + 1590 * *(_DWORD *)(v3 + 16) + 1586) + 410 * *(_DWORD *)(v3 + 20) + 386))
+					ptr_ctx->curDispMode = ++v4;
+					v8 = *(_DWORD *)(ptr_ctx + 8);
+					if (v4 >= ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+						.accelAdapters[ptr_ctx->curAccelAdapt]
+						.numDispModes)
 						break;
-					v9 = *(_DWORD *)(*(_DWORD *)(1590 * dword_D9AB78 + v8 + 1586) + 410 * dword_D9AB7C + 390);
-					if (*(_DWORD *)(v9 + 150 * v4 + 8) == *(_DWORD *)(v6 + v9 + 8))
+					v9 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt].displayModes;
+					if (v9[4].depth == v9[v2].depth)
 						goto LABEL_18;
-					v3 = dword_86B9AC;
+					v3 = ptr_ctx;
 				}
-				*(_DWORD *)&dword_D9AB80 = v13;
+				ptr_ctx->curDispMode = v13;
 				goto LABEL_23;
 			}
 		LABEL_18:
@@ -624,56 +1179,56 @@ void sub_4018AC(signed int a1)
 		}
 		else
 		{
-			v4 = *(_DWORD *)&dword_D9AB80 - 1;
-			*(_DWORD *)&dword_D9AB80 = v4;
+			v4 = ptr_ctx->curDispMode - 1;
+			ptr_ctx->curDispMode = v4;
 			if (v4 < 0)
 			{
 				v4 = 0;
-				*(_DWORD *)&dword_D9AB80 = 0;
+				ptr_ctx->curDispMode = 0;
 			}
-			v10 = *(_DWORD *)(*(_DWORD *)(1590 * dword_D9AB78 + *(_DWORD *)(dword_86B9AC + 8) + 1586)
-				+ 410 * dword_D9AB7C
-				+ 390);
-			if (*(_DWORD *)(v10 + 150 * v4 + 8) != *(_DWORD *)(150 * v2 + v10 + 8))
+			v10 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+				.accelAdapters[ptr_ctx->curAccelAdapt]
+				.displayModes;
+			if (v10[v4].depth != v10[v2].depth)
 			{
 				while (1)
 				{
-					*(_DWORD *)&dword_D9AB80 = --v4;
+					ptr_ctx->curDispMode = --v4;
 					if (v4 < 0)
 						break;
-					v11 = *(_DWORD *)(*(_DWORD *)(1590 * dword_D9AB78 + *(_DWORD *)(dword_86B9AC + 8) + 1586)
-						+ 410 * dword_D9AB7C
-						+ 390);
-					if (*(_DWORD *)(v11 + 150 * v4 + 8) == *(_DWORD *)(150 * v2 + v11 + 8))
+					v11 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+						.accelAdapters[ptr_ctx->curAccelAdapt]
+						.displayModes;
+					if (v11[v4].depth == v11[v2].depth)
 						goto LABEL_19;
 				}
-				*(_DWORD *)&dword_D9AB80 = v2;
+				ptr_ctx->curDispMode = v2;
 				goto LABEL_23;
 			}
 		}
 	LABEL_19:
 		if (v2 != v4)
 		{
-			j_nullsub_22();
-			if (!sub_401857())
+			//j_nullsub_22();
+			if (!DXChangeVideoMode())
 			{
-				*(_DWORD *)&dword_D9AB80 = v2;
-				sub_401857();
+				ptr_ctx->curDispMode = v2;
+				DXChangeVideoMode();
 			}
-			j_HWInitialise();
-			j_nullsub_24();
-			sub_4017E9(0, 0, *(_DWORD *)dword_D9ABB5, dword_D9ABB9, 20, 20480, 80);
+			HWInitialise();
+			//j_nullsub_24();
+			sub_4017E9(0, 0, ptr_ctx->width, ptr_ctx->height, 20, 20480, 80);
 			sub_402DD3();
 			sub_401D84();
 			sub_402BAD();
 		}
 	LABEL_23:
 		ResumeThread(hThread);
-		dword_D9ABFD = 0;
-		sub_4DEB10(5, aGameThreadResu);
+		ptr_ctx->dword_D9ABFD = 0;
+		sub_4DEB10(5, "Game Thread Resumed");
 		dword_D9AD9C = 120;
 		return;
-	}*/
+	}
 }
 
 int DXMove(int xLeft, int yTop)
@@ -681,148 +1236,158 @@ int DXMove(int xLeft, int yTop)
 	int result; // eax@1
 
 	sub_4DEB10(2, "DXMove : x %d y %d", xLeft, yTop);
-	result = ptr_crctx;
-	if (ptr_crctx)
+	result = ptr_ctx;
+	if (ptr_ctx)
 	{
-		if (!(ptr_crctx->flags & 1))
+		if (!(ptr_ctx->flags & 1))
 			result = SetRect(
-			&ptr_crctx->windowPos,
+			&ptr_ctx->windowPos,
 				xLeft,
 				yTop,
-				xLeft + ptr_crctx->width,
-				yTop + ptr_crctx->height);
+				xLeft + ptr_ctx->width,
+				yTop + ptr_ctx->height);
 	}
 	return result;
 }
 
-FARPROC sub_4DB931(HMODULE a1)
+void sub_4D3191()
 {
-	return GetProcAddress(a1, "Sleep");
+	sub_4DA111(&ptr_ctx->dword_D9ABF9);
 }
 
-HMODULE sub_4DB911()
+void sub_4CF191()
 {
-	return GetModuleHandleA("kernel32.dll");
+	sub_4D8F51(&ptr_ctx->dword_D9ABF9);
 }
 
-FARPROC sub_4DA6F1()
+void __cdecl sub_4027DE(void *a1, int a2)
 {
-	HMODULE v0; // eax@1
-
-	v0 = sub_4DB911();
-	return sub_4DB931(v0);
-}
-
-void sub_4DA6D1()
-{
-	FARPROC v0; // eax@1
-
-	v0 = sub_4DA6F1();
-	((void(__stdcall *)(_DWORD))v0)(1);
-}
-
-int sub_4DA111(_DWORD *a1)
-{
-	_DWORD *v1; // ST00_4@1
-	int result; // eax@1
-
-	do
+	byte_57A01C = 1;
+	EnterCriticalSection(&CriticalSection);
+	LeaveCriticalSection(&CriticalSection);
+	if (!stream)
+		goto LABEL_17;
+	if (a2 != XATrack || a2 == -1)
 	{
-		v1 = a1;
-		sub_4DA6D1();
-		a1 = v1;
-		result = *v1;
-	} while (*v1);
-	return result;
-}
-
-int sub_4D3191()
-{
-	return sub_4DA111(&dword_D9ABF9);
-}
-
-int __fastcall sub_4D8F51(_DWORD *a1)
-{
-	_DWORD *v1; // ST00_4@1
-	int result; // eax@1
-
-	do
+		sub_4DEB10(0, "Not Current Track %d", a2);
+		goto LABEL_17;
+	}
+	memset(a1, 0, 0x5800u);
+	if (!stream)
 	{
-		v1 = a1;
-		sub_4DA6D1();
-		a1 = v1;
-		result = *v1;
-	} while (!*v1);
-	return result;
+	LABEL_17:
+		byte_57A01C = 0;
+		byte_579FE4 = 0;
+		return;
+	}
+	fread_ex(a1, 1u, 0x5800u, stream);
+	if (!stream /*|| !(stream->_flag & 0x10)*/) // TODO MAY BREAK
+		goto LABEL_9;
+	if (dword_579E30 == 1)
+	{
+		fseek(stream, 90, 0);
+	LABEL_9:
+		byte_57A01C = 0;
+		byte_579FE4 = 1;
+		return;
+	}
+	if (++dword_57A018 <= 8)
+		goto LABEL_9;
+	dword_57A018 = 0;
+	if (dword_579E30 == 2)
+	{
+		byte_57A01C = 0;
+		byte_579FE4 = 0;
+		ResetSoundThings();
+	}
+	else
+	{
+		if (!CurrentAtmosphere || IsAtmospherePlaying)
+			goto LABEL_9;
+		byte_57A01C = 0;
+		byte_579FE4 = 0;
+		ResetSoundThings();
+		S_CDPlay((unsigned __int8)CurrentAtmosphere, 1);
+	}
 }
 
-int sub_4CF191()
+int __cdecl sub_40286A(int a1)
 {
-	return sub_4D8F51(&dword_D9ABF9);
+	LPDIRECTINPUTDEVICEA result; // eax@1
+
+	result = ptr_ctx->dinput_other;
+	if (result)
+	{
+		if (a1)
+			result = result->lpVtbl->Acquire(ptr_ctx->dinput_other);
+		else
+			result = result->lpVtbl->Unacquire(result);
+	}
+	return result;
 }
 
 LRESULT __stdcall sub_401E8D(HWND hWnd, unsigned int Msg, int wParam, void *lParam)
 {
 	if (Msg > 0x10)
 	{
-		if (Msg == 273)
+		if (Msg == WM_COMMAND)
 		{
 			sub_4DEB10(6, "WM_COMMAND");
 			sub_4018AC((unsigned __int16)wParam);
 		}
 		else
 		{
-			if (Msg == 512)
+			if (Msg == WM_MOUSEFIRST)
 			{
 				dword_D9AB24 = (signed __int16)lParam;
 				dword_D9AB20 = SHIWORD(lParam);
 				dword_D9AB28 = wParam;
 				return DefWindowProcA(hWnd, 0x200u, wParam, (LPARAM)lParam);
 			}
-			if (Msg == 0x8000)
+			if (Msg == WM_APP)
 			{
-				//sub_4027DE(lParam, wParam); TODO
+				sub_4027DE(lParam, wParam);
 				return 0;
 			}
 		}
 		return DefWindowProcA(hWnd, Msg, wParam, (LPARAM)lParam);
 	}
-	if (Msg == 16)
+	if (Msg == WM_CLOSE)
 	{
 		sub_4DEB10(6, "WM_CLOSE");
 		byte_D9ADEC = 1;
 		PostQuitMessage(0);
 		return DefWindowProcA(hWnd, 0x10u, wParam, (LPARAM)lParam);
 	}
-	if (Msg == 1)
+	if (Msg == WM_CREATE)
 	{
 		dword_D9AD9C = 0;
 		sub_4DEB10(6, "WM_CREATE");
 		return DefWindowProcA(hWnd, 1u, wParam, (LPARAM)lParam);
 	}
-	if (Msg == 3)
+	if (Msg == WM_MOVE)
 	{
 		sub_4DEB10(6, "WM_MOVE");
 		DXMove((signed __int16)lParam, SHIWORD(lParam));
 		return DefWindowProcA(hWnd, 3u, wParam, (LPARAM)lParam);
 	}
-	if (Msg != 6)
+	if (Msg != WM_ACTIVATE)
 		return DefWindowProcA(hWnd, Msg, wParam, (LPARAM)lParam);
 	sub_4DEB10(6, "WM_ACTIVATE");
 	if (byte_D9ADEC)
 		return DefWindowProcA(hWnd, Msg, wParam, (LPARAM)lParam);
-	if (byte_D9AC2B)
+	if (ptr_ctx->byte_D9AC2B)
 		return 0;
 	if ((_WORD)wParam)
 	{
 		if ((signed int)(unsigned __int16)wParam > 0 && (signed int)(unsigned __int16)wParam <= 2)
 		{
 			sub_4DEB10(6, "WM_ACTIVE");
-			if (byte_D9AC19)
+			if (ptr_ctx->byte_D9AC19)
 			{
-				//sub_40286A(1);
+				sub_40286A(1);
 				ResumeThread(hThread);
-				dword_D9ABFD = 0;
+				ptr_ctx->dword_D9ABFD = 0;
 				sub_4DEB10(5, "Game Thread Resumed");
 				return 0;
 			}
@@ -831,14 +1396,14 @@ LRESULT __stdcall sub_401E8D(HWND hWnd, unsigned int Msg, int wParam, void *lPar
 	else
 	{
 		sub_4DEB10(6, "WM_INACTIVE");
-		if (byte_D9AC19)
+		if (ptr_ctx->byte_D9AC19)
 		{
-			//sub_40286A(0);
+			sub_40286A(0);
 			sub_4DEB10(5, "HangGameThread");
-			if (dword_D9ABF9)
+			if (ptr_ctx->dword_D9ABF9)
 				sub_4D3191();
-			dword_D9ABFD = 1;
-			if (!dword_D9ABF9)
+			ptr_ctx->dword_D9ABFD = 1;
+			if (!ptr_ctx->dword_D9ABF9)
 				sub_4CF191();
 			SuspendThread(hThread);
 			sub_4DEB10(5, "Game Thread Suspended");
@@ -869,11 +1434,11 @@ char *__cdecl sub_401A7D(void *a1, int a2, size_t a3)
 
 BOOL __stdcall sub_401FE6(LPCDIDEVICEINSTANCEA a1, LPVOID a2)
 {
-	return ptr_crctx->dinput->lpVtbl->CreateDeviceEx(
-		ptr_crctx->dinput,
+	return ptr_ctx->dinput->lpVtbl->CreateDeviceEx(
+		ptr_ctx->dinput,
 		&a1->guidInstance,
 		&IID_IDirectInputDevice2A,
-		&ptr_crctx->dinput_other,
+		&ptr_ctx->dinput_other,
 		0) < 0;
 }
 
@@ -1285,7 +1850,7 @@ signed long __stdcall sub_402ECD(GUID* a1, CHAR *devDesc, CHAR *devName, LPD3DDE
 	{
 		v8->field2 = 0;
 		qmemcpy(&v8->deviceDesc, a5, 0xFCu);
-		if (byte_D9AC23)
+		if (ptr_ctx->byte_D9AC23)
 		{
 			char* aCoreDesignMmxH = "Core Design MMX Hardware Card Emulation";
 			v11 = strlen(aCoreDesignMmxH) + 1;
@@ -1567,7 +2132,7 @@ signed int __cdecl DXInitialise(void *lpContext, HWND hwnd)
 	sub_40179E(v2);
 	v3 = DirectSoundEnumerateA(DXEnumDirectSound, lpContext);
 	sub_40179E(v3);
-	ptr_ctx = (struct dxcontext_s*)lpContext;
+	//ptr_ctx = (struct dxcontext_s*)lpContext;
 	return 1;
 }
 
@@ -1585,8 +2150,8 @@ BOOL __stdcall sub_402E3C(LPCDIDEVICEOBJECTINSTANCEA a1, LPVOID a2)
 	v4.dwObj = v2;
 	v5 = -1000;
 	v6 = 1000;
-	return ptr_crctx->dinput_other->lpVtbl->SetProperty(
-		ptr_crctx->dinput_other,
+	return ptr_ctx->dinput_other->lpVtbl->SetProperty(
+		ptr_ctx->dinput_other,
 		4,
 		&v4) >= 0;
 }
@@ -1610,7 +2175,7 @@ int sub_402CD4(HWND hWnd, HINSTANCE hInstance)
 	LPDIRECTINPUTA hinst;
 	v2 = DirectInputCreateA(hInstance, 0x700u, &hinst, 0);
 	sub_40179E(v2);
-	hinst->lpVtbl->QueryInterface(hinst, &IID_IDirectInput2A, &ptr_crctx->dinput);
+	hinst->lpVtbl->QueryInterface(hinst, &IID_IDirectInput2A, &ptr_ctx->dinput);
 	if (hinst)
 	{
 		v3 = hinst->lpVtbl->Release(hinst);
@@ -1621,13 +2186,13 @@ int sub_402CD4(HWND hWnd, HINSTANCE hInstance)
 	{
 		sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "DirectInput");
 	}
-	v4 = ptr_crctx->dinput->lpVtbl->CreateDevice(
-		ptr_crctx->dinput,
+	v4 = ptr_ctx->dinput->lpVtbl->CreateDevice(
+		ptr_ctx->dinput,
 		&GUID_SysKeyboard,
 		&v14,
 		0);
 	sub_40179E(v4);
-	v14->lpVtbl->QueryInterface(v14, &IID_IDirectInputDevice2A, &ptr_crctx->dinput_keyboard);
+	v14->lpVtbl->QueryInterface(v14, &IID_IDirectInputDevice2A, &ptr_ctx->dinput_keyboard);
 	if (v14)
 	{
 		v5 = v14->lpVtbl->Release(v14);
@@ -1638,46 +2203,46 @@ int sub_402CD4(HWND hWnd, HINSTANCE hInstance)
 	{
 		sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "Keyboard");
 	}
-	v6 = ptr_crctx->dinput_keyboard->lpVtbl->SetCooperativeLevel(
-		ptr_crctx->dinput_keyboard,
+	v6 = ptr_ctx->dinput_keyboard->lpVtbl->SetCooperativeLevel(
+		ptr_ctx->dinput_keyboard,
 		hWnd,
 		10);
 	sub_40211C(v6);
-	v7 = ptr_crctx->dinput_keyboard->lpVtbl->SetDataFormat(
-		ptr_crctx->dinput_keyboard,
+	v7 = ptr_ctx->dinput_keyboard->lpVtbl->SetDataFormat(
+		ptr_ctx->dinput_keyboard,
 		&c_dfDIKeyboard);
 	sub_40211C(v7);
-	v8 = ptr_crctx->dinput_keyboard->lpVtbl->Acquire(ptr_crctx->dinput_keyboard);
+	v8 = ptr_ctx->dinput_keyboard->lpVtbl->Acquire(ptr_ctx->dinput_keyboard);
 	sub_40211C(v8);
 	memset(byte_86BB8C, 0, 0x100u);
 	memset(&unk_86BC8C[0], 0, 0x100u);
 	dword_86BA48 = 0;
 	memset(&word_86B9B0[0], 0, 0x40u);
-	v9 = ptr_crctx->dinput->lpVtbl->EnumDevices(
-		ptr_crctx->dinput,
+	v9 = ptr_ctx->dinput->lpVtbl->EnumDevices(
+		ptr_ctx->dinput,
 			4,
 			sub_401FE6,
 			0,
 			1);
 	sub_40211C(v9);
-	result = ptr_crctx->dinput_other;
+	result = ptr_ctx->dinput_other;
 	if (result)
 	{
 		v11 = result->lpVtbl->SetDataFormat(result, &c_dfDIJoystick);
 		sub_40211C(v11);
-		v12 = ptr_crctx->dinput_other->lpVtbl->SetCooperativeLevel(
-			ptr_crctx->dinput_other,
+		v12 = ptr_ctx->dinput_other->lpVtbl->SetCooperativeLevel(
+			ptr_ctx->dinput_other,
 			hWnd,
 			5);
 		sub_40211C(v12);
 		v15.dwSize = 44;
-		ptr_crctx->dinput_other->lpVtbl->GetCapabilities(ptr_crctx->dinput_other, &v15);
-		ptr_crctx->dinput_other->lpVtbl->EnumObjects(
-			ptr_crctx->dinput_other,
+		ptr_ctx->dinput_other->lpVtbl->GetCapabilities(ptr_ctx->dinput_other, &v15);
+		ptr_ctx->dinput_other->lpVtbl->EnumObjects(
+			ptr_ctx->dinput_other,
 			sub_402E3C,
 			hWnd,
 			3);
-		v13 = ptr_crctx->dinput_other->lpVtbl->Acquire(ptr_crctx->dinput_other);
+		v13 = ptr_ctx->dinput_other->lpVtbl->Acquire(ptr_ctx->dinput_other);
 		result = sub_40211C(v13);
 	}
 	return result;
@@ -1781,81 +2346,7 @@ int __stdcall fnCallback(HACMDRIVERID arghadid, int a2, int a3)
 	return result;
 }
 
-char sub_402E5A()
-{
-	char result; // al@1
 
-	result = ACMInited;
-	if (ACMInited)
-	{
-		result = (char)stream;
-		if (stream)
-		{
-			memset(ptr, 0, 0x37000u);
-			other_buf->lpVtbl->Stop(other_buf);
-			other_buf->lpVtbl->SetCurrentPosition(other_buf, 0);
-			while (byte_57A01C)
-				;
-			result = fclose(stream);
-			stream = 0;
-			dword_57A018 = 0;
-			dword_510B18 = 7;
-			XATrack = -1;
-		}
-	}
-	return result;
-}
-
-void __cdecl sub_4027DE(void *a1, int a2)
-{
-	byte_57A01C = 1;
-	EnterCriticalSection(&CriticalSection);
-	LeaveCriticalSection(&CriticalSection);
-	if (!stream)
-		goto LABEL_17;
-	if (a2 != XATrack || a2 == -1)
-	{
-		sub_4DEB10(0, "Not Current Track %d", a2);
-		goto LABEL_17;
-	}
-	memset(a1, 0, 0x5800u);
-	if (!stream)
-	{
-	LABEL_17:
-		byte_57A01C = 0;
-		byte_579FE4 = 0;
-		return;
-	}
-	fread_ex(a1, 1u, 0x5800u, stream);
-	if (!stream /*|| !(stream->_flag & 0x10)*/) // TODO MAY BREAK
-		goto LABEL_9;
-	if (dword_579E30 == 1)
-	{
-		fseek(stream, 90, 0);
-	LABEL_9:
-		byte_57A01C = 0;
-		byte_579FE4 = 1;
-		return;
-	}
-	if (++dword_57A018 <= 8)
-		goto LABEL_9;
-	dword_57A018 = 0;
-	if (dword_579E30 == 2)
-	{
-		byte_57A01C = 0;
-		byte_579FE4 = 0;
-		sub_402E5A();
-	}
-	else
-	{
-		if (!CurrentAtmosphere || IsAtmospherePlaying)
-			goto LABEL_9;
-		byte_57A01C = 0;
-		byte_579FE4 = 0;
-		sub_402E5A();
-		S_CDPlay((unsigned __int8)CurrentAtmosphere, 1);
-	}
-}
 
 int StartAddress()
 {
@@ -2008,8 +2499,8 @@ void InitACM()
 			| DSBCAPS_GETCURRENTPOSITION2;
 			v9.dwBufferBytes = 358336;
 			v9.lpwfxFormat = &pwfxDst;
-			int o = ptr_crctx->dsound->lpVtbl->CreateSoundBuffer(
-				ptr_crctx->dsound,
+			int o = ptr_ctx->dsound->lpVtbl->CreateSoundBuffer(
+				ptr_ctx->dsound,
 					&v9,
 					&other_buf,
 					0);
@@ -2541,34 +3032,34 @@ char sub_402F77()
 		ReadRegByte("Setup", (int)&opt_Setup, 0);
 		if (opt_Setup)
 		{
-			dword_D9AC1B = 256;
-			dword_D9AC1F = 256;
-			dword_D9AC27 = 32;
+			ptr_ctx->dword_D9AC1B = 256;
+			ptr_ctx->dword_D9AC1F = 256;
+			ptr_ctx->dword_D9AC27 = 32;
 			ReadRegDword("DD", &ptr_ctx->curGfxAdapt, 0);
 			ReadRegDword("D3D", &ptr_ctx->curAccelAdapt, 0);
 			ReadRegDword("VMode", &ptr_ctx->curDispMode, 0);
 			ReadRegDword("TFormat", &ptr_ctx->curTexFormat, 0);
 			ReadRegDword("DS", &ptr_ctx->curSoundCard, 0);
-			ReadRegByte("BumpMap", &opt_BumpMap, 1);
-			ReadRegByte("Filter", &opt_Filter, 1);
-			ReadRegByte("DisableSound", &opt_DisableSound, 0);
+			ReadRegByte("BumpMap", &ptr_ctx->opt_BumpMap, 1);
+			ReadRegByte("Filter", &ptr_ctx->opt_Filter, 1);
+			ReadRegByte("DisableSound", &ptr_ctx->opt_DisableSound, 0);
 #ifdef FORCE_NO_SOUND
-			opt_DisableSound = 1;
+			ptr_ctx->opt_DisableSound = 1;
 #endif
-			ReadRegByte("Volumetric", &opt_Volumetric, 1);
+			ReadRegByte("Volumetric", &ptr_ctx->opt_Volumetric, 1);
 			ReadRegByte("NoFMV", &opt_NoFMV, 0);
 			ReadRegByte("TextLow", (int)&Type, 0);
 			if ((_BYTE)Type)
-				dword_D9AC1B = 128;
+				ptr_ctx->dword_D9AC1B = 128;
 			ReadRegByte("BumpLow", (int)&Type, 0);
 			if ((_BYTE)Type)
-				dword_D9AC1F = 128;
+				ptr_ctx->dword_D9AC1F = 128;
 			ReadRegByte("HardWare", (int)&Type, 1);
 			if ((_BYTE)Type)
 			{
-				v0 = dword_D9AC27;
-				LOBYTE(v0) = dword_D9AC27 | 0x90;
-				dword_D9AC27 = v0;
+				v0 = ptr_ctx->dword_D9AC27;
+				LOBYTE(v0) = ptr_ctx->dword_D9AC27 | 0x90;
+				ptr_ctx->dword_D9AC27 = v0;
 			}
 			/*ReadRegByte("Window", (int)&Type, 0);
 			v1 = dword_D9AC27;
@@ -2611,7 +3102,7 @@ char sub_402F77()
 		ReadRegDword("SFXVolume", &opt_SFXVolume, 90);
 		ReadRegDword("ControlMethod", &opt_ControlMethod, 0);
 		ReadRegDword("SoundQuality", &opt_SoundQuality, 1);
-		ReadRegDword("AutoTarget", &opt_AutoTarget, 1);
+		ReadRegDword("AutoTarget", &ptr_ctx->opt_AutoTarget, 1);
 		ReadRegDword("WindowX", &dxctx.windowPos.left, 0);
 		ReadRegDword("WindowY", &dxctx.windowPos.top, 0);
 		sub_402D10();
@@ -2693,7 +3184,7 @@ LRESULT __cdecl sub_4018F2(HWND hDlg, HWND hWnd)
 		v4 = 0;
 		do
 		{
-			SendMessageA(hWnd, CB_ADDSTRING, 0, dword_D9AB74 + v4 + 30);
+			SendMessageA(hWnd, CB_ADDSTRING, 0, ptr_ctx->soundCards[v4].description);
 			v2 = dxctx.numSoundCards;
 			++v3;
 			v4 += 130;
@@ -3118,8 +3609,8 @@ int sub_401424()
 		if (result->deviceDesc.wMaxTextureBlendStages >= 3u)
 		{
 			dword_D99D7C = 0;
-			ptr_crctx->d3d_dev->lpVtbl->EnumTextureFormats(
-				ptr_crctx->d3d_dev,
+			ptr_ctx->d3d_dev->lpVtbl->EnumTextureFormats(
+				ptr_ctx->d3d_dev,
 				sub_402AB3,
 				&unk_D99D80[0]);
 			result = dword_D99D7C;
@@ -3156,84 +3647,84 @@ HWND CloseDirectX()
 	int v14; // eax@22
 
 	sub_4DEB10(2, "CloseDirectX");
-	result = (HWND)ptr_crctx;
-	if (ptr_crctx)
+	result = (HWND)ptr_ctx;
+	if (ptr_ctx)
 	{
-		v1 = ptr_crctx->ddraw;
-		v2 = ptr_crctx->viewport;
+		v1 = ptr_ctx->ddraw;
+		v2 = ptr_ctx->viewport;
 		if (v2)
 		{
 			v3 = v2->lpVtbl->Release(v2);
-			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Viewport", ptr_crctx->viewport, v3);
-			ptr_crctx->viewport = 0;
+			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Viewport", ptr_ctx->viewport, v3);
+			ptr_ctx->viewport = 0;
 		}
 		else
 		{
 			sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "Viewport");
 		}
-		v4 = ptr_crctx->d3d_dev;
+		v4 = ptr_ctx->d3d_dev;
 		if (v4)
 		{
-			v5 = v4->lpVtbl->Release(ptr_crctx->d3d_dev);
-			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Direct3DDevice", ptr_crctx->d3d_dev, v5);
-			ptr_crctx->d3d_dev = 0;
+			v5 = v4->lpVtbl->Release(ptr_ctx->d3d_dev);
+			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Direct3DDevice", ptr_ctx->d3d_dev, v5);
+			ptr_ctx->d3d_dev = 0;
 		}
 		else
 		{
 			sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "Direct3DDevice");
 		}
-		v6 = ptr_crctx->buf_z;
+		v6 = ptr_ctx->buf_z;
 		if (v6)
 		{
-			v7 = v6->lpVtbl->Release(ptr_crctx->buf_z);
-			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Z Buffer", ptr_crctx->buf_z, v7);
-			ptr_crctx->buf_z = 0;
+			v7 = v6->lpVtbl->Release(ptr_ctx->buf_z);
+			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Z Buffer", ptr_ctx->buf_z, v7);
+			ptr_ctx->buf_z = 0;
 		}
 		else
 		{
 			sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "Z Buffer");
 		}
-		v8 = ptr_crctx->buf_back;
+		v8 = ptr_ctx->buf_back;
 		if (v8)
 		{
-			v9 = v8->lpVtbl->Release(ptr_crctx->buf_back);
-			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Back Buffer", ptr_crctx->buf_back, v9);
-			ptr_crctx->buf_back = 0;
+			v9 = v8->lpVtbl->Release(ptr_ctx->buf_back);
+			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Back Buffer", ptr_ctx->buf_back, v9);
+			ptr_ctx->buf_back = 0;
 		}
 		else
 		{
 			sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "Back Buffer");
 		}
-		v10 = ptr_crctx->buf_primary;
+		v10 = ptr_ctx->buf_primary;
 		if (v10)
 		{
-			v11 = v10->lpVtbl->Release(ptr_crctx->buf_primary);
-			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Primary Buffer", ptr_crctx->buf_primary, v11);
-			ptr_crctx->buf_primary = 0;
+			v11 = v10->lpVtbl->Release(ptr_ctx->buf_primary);
+			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Primary Buffer", ptr_ctx->buf_primary, v11);
+			ptr_ctx->buf_primary = 0;
 		}
 		else
 		{
 			sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "Primary Buffer");
 		}
-		result = (HWND)ptr_crctx;
-		if (!(ptr_crctx->flags & 0x40))
+		result = (HWND)ptr_ctx;
+		if (!(ptr_ctx->flags & 0x40))
 		{
-			if (ptr_crctx->ddraw)
+			if (ptr_ctx->ddraw)
 			{
-				v12 = ptr_crctx->ddraw->lpVtbl->Release(ptr_crctx->ddraw);
-				sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "DirectDraw", ptr_crctx->ddraw, v12);
-				ptr_crctx->ddraw = 0;
+				v12 = ptr_ctx->ddraw->lpVtbl->Release(ptr_ctx->ddraw);
+				sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "DirectDraw", ptr_ctx->ddraw, v12);
+				ptr_ctx->ddraw = 0;
 			}
 			else
 			{
 				sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "DirectDraw");
 			}
-			v13 = ptr_crctx->d3d;
+			v13 = ptr_ctx->d3d;
 			if (v13)
 			{
-				v14 = v13->lpVtbl->Release(ptr_crctx->d3d);
-				result = sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Direct3D", ptr_crctx->d3d, v14);
-				ptr_crctx->d3d = 0;
+				v14 = v13->lpVtbl->Release(ptr_ctx->d3d);
+				result = sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Direct3D", ptr_ctx->d3d, v14);
+				ptr_ctx->d3d = 0;
 			}
 			else
 			{
@@ -3333,10 +3824,10 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_
 
 	v7 = 0;
 	sub_4DEB10(2, "DXCreate");
-	ptr_crctx = a5;
+	//ptr_ctx = a5;
 	a5->flags = flags;
-	dxctx.dword_D9ABF5 = a6;
-	dxctx.dword_D9ABE1 = dwStyle;
+	dxctx.dxWndHwnd = a6;
+	dxctx.dxWndStyle = dwStyle;
 	if (flags & 0x40)
 		v7 = 1;
 	CloseDirectX();
@@ -3344,12 +3835,12 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_
 	{
 		if (!DXDDCreate(
 			ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].field3,
-			&ptr_crctx->ddraw))
+			&ptr_ctx->ddraw))
 		{
 			CloseDirectX();
 			return 0;
 		}
-		if (!DXD3DCreate(ptr_crctx->ddraw, &ptr_crctx->d3d))
+		if (!DXD3DCreate(ptr_ctx->ddraw, &ptr_ctx->d3d))
 		{
 			CloseDirectX();
 			return 0;
@@ -3359,8 +3850,8 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_
 	v9 = v22 != 0 ? 19 : 8;
 	if (flags & 0x20)
 		v9 |= 0x800u;
-	ptr_crctx->dword_D9ABE5 = v9;
-	if (!DXSetCooperativeLevel(ptr_crctx->ddraw, a6, v9))
+	ptr_ctx->dword_D9ABE5 = v9;
+	if (!DXSetCooperativeLevel(ptr_ctx->ddraw, a6, v9))
 	{
 		CloseDirectX();
 		return 0;
@@ -3371,7 +3862,7 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_
 			.accelAdapters[ptr_ctx->curAccelAdapt]
 			.displayModes;
 		DXSetVideoMode(
-			ptr_crctx->ddraw,
+			ptr_ctx->ddraw,
 			v10[ptr_ctx->curDispMode].width,
 			v10[ptr_ctx->curDispMode].height,
 			v10[ptr_ctx->curDispMode].depth);
@@ -3403,7 +3894,7 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_
 			a2a.ddsCaps.dwCaps = 25088;
 		}
 		sub_4DEB10(3, "Create Primary Surface");
-		if (!DXCreateSurface(ptr_crctx->ddraw, &a2a, &ptr_crctx->buf_primary))
+		if (!DXCreateSurface(ptr_ctx->ddraw, &a2a, &ptr_ctx->buf_primary))
 		{
 			CloseDirectX();
 			return 0;
@@ -3412,30 +3903,30 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_
 		{
 			sub_4DEB10(3, "Get Attached Back Buffer");
 			a2a.ddsCaps.dwCaps = 4;
-			ptr_crctx->buf_primary->lpVtbl->GetAttachedSurface(
-				ptr_crctx->buf_primary,
+			ptr_ctx->buf_primary->lpVtbl->GetAttachedSurface(
+				ptr_ctx->buf_primary,
 				&a2a.ddsCaps,
-				&ptr_crctx->buf_back);
+				&ptr_ctx->buf_back);
 		}
 		else
 		{
-			ptr_crctx->buf_back = ptr_crctx->buf_primary;
+			ptr_ctx->buf_back = ptr_ctx->buf_primary;
 		}
-		ptr_crctx->width = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+		ptr_ctx->width = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
 			.accelAdapters[ptr_ctx->curAccelAdapt]
 			.displayModes[ptr_ctx->curDispMode]
 			.width;
-		ptr_crctx->height = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+		ptr_ctx->height = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
 			.accelAdapters[ptr_ctx->curAccelAdapt]
 			.displayModes[ptr_ctx->curDispMode]
 			.height;
-		ptr_crctx->stru_D9ABBD.top = 0;
-		ptr_crctx->stru_D9ABBD.left = 0;
-		ptr_crctx->stru_D9ABBD.right = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+		ptr_ctx->stru_D9ABBD.top = 0;
+		ptr_ctx->stru_D9ABBD.left = 0;
+		ptr_ctx->stru_D9ABBD.right = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
 			.accelAdapters[ptr_ctx->curAccelAdapt]
 			.displayModes[ptr_ctx->curDispMode]
 			.width;
-		ptr_crctx->stru_D9ABBD.bottom = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+		ptr_ctx->stru_D9ABBD.bottom = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
 			.accelAdapters[ptr_ctx->curAccelAdapt]
 			.displayModes[ptr_ctx->curDispMode]
 			.height;
@@ -3455,22 +3946,22 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_
 			.height;
 		AdjustWindowRect(&Rect, dwStyle, 0);
 		SetWindowPos(a6, 0, 0, 0, Rect.right - Rect.left, Rect.bottom - Rect.top, 6u);
-		GetClientRect(a6, &ptr_crctx->stru_D9ABBD);
-		GetClientRect(a6, &ptr_crctx->windowPos);
-		ClientToScreen(a6, (LPPOINT)&ptr_crctx->windowPos.left);
-		ClientToScreen(a6, (LPPOINT)&ptr_crctx->windowPos.right);
-		ptr_crctx->width = ptr_crctx->stru_D9ABBD.right;
-		ptr_crctx->height = ptr_crctx->stru_D9ABBD.bottom;
-		sub_4DEB10(5, "w %d h %d", ptr_crctx->width, ptr_crctx->height);
+		GetClientRect(a6, &ptr_ctx->stru_D9ABBD);
+		GetClientRect(a6, &ptr_ctx->windowPos);
+		ClientToScreen(a6, (LPPOINT)&ptr_ctx->windowPos.left);
+		ClientToScreen(a6, (LPPOINT)&ptr_ctx->windowPos.right);
+		ptr_ctx->width = ptr_ctx->stru_D9ABBD.right;
+		ptr_ctx->height = ptr_ctx->stru_D9ABBD.bottom;
+		sub_4DEB10(5, "w %d h %d", ptr_ctx->width, ptr_ctx->height);
 		a2a.dwFlags = 1;
 		a2a.ddsCaps.dwCaps = 512;
-		if (!DXCreateSurface(ptr_crctx->ddraw, &a2a, &ptr_crctx->buf_primary))
+		if (!DXCreateSurface(ptr_ctx->ddraw, &a2a, &ptr_ctx->buf_primary))
 		{
 			CloseDirectX();
 			return 0;
 		}
-		v12 = ptr_crctx->ddraw->lpVtbl->CreateClipper(
-			ptr_crctx->ddraw,
+		v12 = ptr_ctx->ddraw->lpVtbl->CreateClipper(
+			ptr_ctx->ddraw,
 			0,
 			&hDC_,
 			0);
@@ -3481,8 +3972,8 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_
 		}
 		v13 = hDC_->lpVtbl->SetHWnd(hDC_, 0, a6);
 		sub_40179E(v13);
-		v14 = ptr_crctx->buf_primary->lpVtbl->SetClipper(
-			ptr_crctx->buf_primary,
+		v14 = ptr_ctx->buf_primary->lpVtbl->SetClipper(
+			ptr_ctx->buf_primary,
 			hDC_);
 		sub_40179E(v14);
 		if (hDC_)
@@ -3496,13 +3987,13 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_
 			sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "Clipper");
 		}
 		a2a.dwFlags = 7;
-		a2a.dwWidth = ptr_crctx->width;
-		a2a.dwHeight = ptr_crctx->height;
+		a2a.dwWidth = ptr_ctx->width;
+		a2a.dwHeight = ptr_ctx->height;
 		a2a.ddsCaps.dwCaps = 8256;
-		v16 = ptr_crctx->ddraw->lpVtbl->CreateSurface(
-			ptr_crctx->ddraw,
+		v16 = ptr_ctx->ddraw->lpVtbl->CreateSurface(
+			ptr_ctx->ddraw,
 			&a2a,
-			&ptr_crctx->buf_back,
+			&ptr_ctx->buf_back,
 			0);
 		if (sub_40179E(v16))
 		{
@@ -3518,53 +4009,53 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_
 		a2a.dwSize = 124;
 		a2a.dwFlags = DDSD_PIXELFORMAT | DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS;
 		a2a.ddsCaps.dwCaps = DDCAPS_OVERLAYSTRETCH | DDCAPS_READSCANLINE;
-		a2a.dwWidth = ptr_crctx->width;
-		a2a.dwHeight = ptr_crctx->height;
+		a2a.dwWidth = ptr_ctx->width;
+		a2a.dwHeight = ptr_ctx->height;
 		qmemcpy(
 			&a2a.ddpfPixelFormat,
 			&ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
 			.accelAdapters[ptr_ctx->curAccelAdapt]
 			.zBufFormats->pixFormat,
 			sizeof(a2a.ddpfPixelFormat));
-		v11 = ptr_crctx->ddraw->lpVtbl->CreateSurface(
-			ptr_crctx->ddraw,
+		v11 = ptr_ctx->ddraw->lpVtbl->CreateSurface(
+			ptr_ctx->ddraw,
 			&a2a,
-			&ptr_crctx->buf_z,
+			&ptr_ctx->buf_z,
 			0);
 		if (sub_40179E(v11))
 		{
 			CloseDirectX();
 			return 0;
 		}
-		v17 = ptr_crctx->buf_back->lpVtbl->AddAttachedSurface(
-			ptr_crctx->buf_back,
-			ptr_crctx->buf_z);
+		v17 = ptr_ctx->buf_back->lpVtbl->AddAttachedSurface(
+			ptr_ctx->buf_back,
+			ptr_ctx->buf_z);
 		sub_40179E(v17);
-		sub_4DEB10(3, "ZBuffer Created %x", ptr_crctx->buf_z);*/
+		sub_4DEB10(3, "ZBuffer Created %x", ptr_ctx->buf_z);*/
 	}
 	v18 = ptr_ctx->graphicsAdapters;
 	if (DXCreateD3DDevice(
-		ptr_crctx->d3d,
+		ptr_ctx->d3d,
 		ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
 		.accelAdapters[ptr_ctx->curAccelAdapt]
 		.guid,
-		ptr_crctx->buf_back,
-		&ptr_crctx->d3d_dev))
+		ptr_ctx->buf_back,
+		&ptr_ctx->d3d_dev))
 	{
-		ptr_crctx->d3d_dev_bis = ptr_crctx->d3d_dev;
+		ptr_ctx->d3d_dev_bis = ptr_ctx->d3d_dev;
 		if (DXCreateViewport(
-			ptr_crctx->d3d,
-			ptr_crctx->d3d_dev,
-			ptr_crctx->width,
-			ptr_crctx->height,
-			&ptr_crctx->viewport))
+			ptr_ctx->d3d,
+			ptr_ctx->d3d_dev,
+			ptr_ctx->width,
+			ptr_ctx->height,
+			&ptr_ctx->viewport))
 		{
-			v19 = ptr_crctx->d3d_dev->lpVtbl->SetRenderTarget(
-				ptr_crctx->d3d_dev,
-				ptr_crctx->buf_back,
+			v19 = ptr_ctx->d3d_dev->lpVtbl->SetRenderTarget(
+				ptr_ctx->d3d_dev,
+				ptr_ctx->buf_back,
 				0);
 			sub_40179E(v19);
-			if (!(ptr_crctx->flags & 0x80))
+			if (!(ptr_ctx->flags & 0x80))
 				sub_40193D();
 			result = 1;
 		}
@@ -3609,10 +4100,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int v19; // [sp+44h] [bp-6Ch]@25
 	int v20; // [sp+84h] [bp-2Ch]@25
 
+	ptr_ctx = &dxctx;
+
 	byte_57A098 = 0;
-	byte_D9AC23 = sub_4D22D0() != 0;
-	byte_D9AC19 = 0;
-	opt_AutoTarget = 0;
+	ptr_ctx->byte_D9AC23 = sub_4D22D0() != 0;
+	ptr_ctx->byte_D9AC19 = 0;
+	ptr_ctx->opt_AutoTarget = 0;
 	sub_4DEC40(1);
 	v4 = FindWindowA(ClassName, WindowName);
 	if (v4)
@@ -3634,7 +4127,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	v6 = _CrtSetDbgFlag(-1);
 	LOBYTE(v6) = v6 | 0x24;
 	_CrtSetDbgFlag(v6);
-	if (!(unsigned __int8)WinRunCheck(Name, "MainGameWindow", &hObject))
+	if (!(unsigned __int8)WinRunCheck(Name, "MainGameWindow", &ptr_ctx->hObject))
 	{
 		FindGameDrive();
 		LoadGameflow();
@@ -3694,17 +4187,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		SetWindowPos(hWnd, 0, dxctx.windowPos.left, dxctx.windowPos.top, 0, 0, 5u);
 		v9 = GetDesktopWindow();
 		v10 = GetDC(v9);
-		dword_D9AC2C = GetDeviceCaps(v10, 12);
+		ptr_ctx->dword_D9AC2C = GetDeviceCaps(v10, 12);
 		ReleaseDC(v9, v10);
-		dword_D9ABFD = 0;
-		dword_D9ABF9 = 0;
-		byte_D9AC2B = 0;
+		ptr_ctx->dword_D9ABFD = 0;
+		ptr_ctx->dword_D9ABF9 = 0;
+		ptr_ctx->byte_D9AC2B = 0;
 		v11 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt].displayModes;
 		if (!DXCreate(
 			v11[ptr_ctx->curDispMode].width,
 			v11[ptr_ctx->curDispMode].height,
 			v11[ptr_ctx->curDispMode].depth,
-			dword_D9AC27,
+			ptr_ctx->dword_D9AC27,
 			&dxctx,
 			hWnd,
 			WS_CAPTION))
@@ -3715,14 +4208,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		sub_401424();
 		UpdateWindow(hWnd);
 		ShowWindow(hWnd, nShowCmd);
-		if (dword_D9ABDD & 1)
+		if (ptr_ctx->flags & 1)
 		{
 			SetCursor(0);
 			ShowCursor(0);
 		}
 		sub_402CD4(hWnd, hinst);
-		hAccTable = LoadAcceleratorsA(hInstance, (LPCSTR)0x65);
-		if (!opt_DisableSound)
+		ptr_ctx->hAccTable = LoadAcceleratorsA(hInstance, (LPCSTR)0x65);
+		if (!ptr_ctx->opt_DisableSound)
 		{
 			DXDSCreate();
 			InitACM();
@@ -3742,7 +4235,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		v13 = desktopHwnd;
 		desktopDC = GetDC(desktopHwnd);
 		v18 = 148;
-		v20 = dword_D9AC2C;
+		v20 = ptr_ctx->dword_D9AC2C;
 		ReleaseDC(v13, desktopDC);
 		v19 = 0x40000;
 		ChangeDisplaySettingsA((DEVMODEA *)&v17[0], 0);
