@@ -143,7 +143,7 @@ struct dxcontext_s
 
 	LPDIRECTINPUTDEVICEA dinput_other; // pos 96 s 4
 	HWND dxWndHwnd; // pos 100 s 4
-	DWORD dword_D9ABF9; // pos 104 s 4
+	DWORD isInScene; // pos 104 s 4
 	DWORD dword_D9ABFD; // pos 108 s 4
 
 	DWORD dword_D9AC01;
@@ -169,10 +169,12 @@ struct dxcontext_s
 	DWORD dword_D9AC34;
 	DWORD dword_D9AC38;
 } dxctx;
-
+extern void __fastcall sub_4DA111(_DWORD *a1);
 LPDIRECT3DVERTEXBUFFER vertexBuffer;
 void* dword_D9AB34;
-
+BYTE byte_86BBB4;
+extern HWND hWnd;
+extern DWORD dword_876C40;
 DWORD dword_D9AB18;
 DWORD dword_D9ADE8;
 WORD word_C713D0;
@@ -181,6 +183,17 @@ WORD word_C717E4;
 WORD word_C713D8;
 LPDIRECT3D3 iface_D3D3;
 LPDIRECTDRAW4 iface_DirectDraw;
+DWORD dword_D9BB8C;
+DWORD dword_D9BB88;
+DWORD GnFrameCounter;
+int(*ptr_EndScene)(void);
+int(*ptr_BeginScene)();
+int(*dword_876C14)(float*, float*, float*);
+int(*dword_876C08)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
+int(*dword_876C10)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
+int(*dword_876C04)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
+int(*dword_876BFC)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
+struct acceltexformatinfo*(*dword_876C00)(_DWORD, _DWORD, _DWORD);
 struct dxcontext_s* ptr_ctx;
 extern HKEY hKey;
 extern BYTE opt_NoFMV;
@@ -193,5 +206,8 @@ extern HWND WinClose();
 extern int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd);
 extern HANDLE sub_4DEA40(LPCSTR lpName);
 extern LPVOID sub_4DEA20(HANDLE hFileMappingObject);
+extern int HWInitialise();
+extern int __cdecl sub_4017E9(int a1, int a2, signed int width, signed int a4, int a5, int a6, int a7);
+extern signed __int64 sub_402DD3();
 
 #endif

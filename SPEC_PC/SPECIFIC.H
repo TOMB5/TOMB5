@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include "SPECTYPES.H"
+#include <stdint.h>
 struct _RTL_CRITICAL_SECTION CriticalSection;
 
 extern void S_Warn(char* warning_message);
@@ -11,8 +12,10 @@ extern HWND sub_4DEB10(char a1, char* format, ...);
 
 
 extern signed int __cdecl sub_4D30E0(_WORD *a1);
-
+extern char TIME_Init();
+extern inline void memset32(void *buf, uint32_t n, int32_t c);
 extern int S_SoundStopAllSamples();
+extern int sub_4D1A40();
 extern BYTE* bufSource;
 extern void* ptr;
 extern HANDLE Handles;
@@ -27,4 +30,5 @@ extern FILE* stream;
 extern DWORD dword_579E30;
 extern DWORD dword_57A018;
 extern DWORD dword_510B18;
+extern __int64 qword_D9AAB0;
 #endif

@@ -32,3 +32,12 @@
 #define _APS_NEXT_SYMED_VALUE           116
 #endif
 #endif
+
+#define IDR_ACCEL1 101
+#define IDR_VKADD 40001
+#define IDR_VKESCAPE 40003
+#define IDR_VKRETURN 8
+#define IDR_VKSUBTRACT 40002
+
+#define IDC_ARROW 104
+#define IDC_BLANK 128

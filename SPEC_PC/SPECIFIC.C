@@ -9,6 +9,7 @@
 #include <dsound.h>
 #include "PCSOUND.H"
 #include "ERROR.H"
+#include <stdint.h>
 
 HANDLE Handles;
 HANDLE dword_579FA4;
@@ -170,5 +171,61 @@ int S_SoundStopAllSamples()
 	for (int i = 0; i < 32; i++)
 		result = StopSample(i);
 
+	return result;
+}
+LARGE_INTEGER PerformanceCount;
+BOOL sub_401069()
+{
+	return QueryPerformanceCounter(&PerformanceCount);
+}
+
+char TIME_Init()
+{
+	char result; // al@2
+	LARGE_INTEGER Frequency; // [sp+0h] [bp-8h]@1
+
+	sub_4DEB10(2, "TIME_Init");
+	if (QueryPerformanceFrequency(&Frequency))
+	{
+		qword_D9AAB0 = Frequency.QuadPart / 60;
+		sub_401069();
+		result = 1;
+	}
+	else
+	{
+		result = 0;
+	}
+	return result;
+}
+
+__int64 qword_D9AAB0;
+
+inline void memset32(void *buf, uint32_t n, int32_t c)
+{
+	__asm {
+		mov ecx, n
+		mov eax, c
+		mov edi, buf
+		rep stosd
+	}
+}
+#define __PAIR__(high, low) (((uint64_t)(high)<<sizeof(high)*8) | low)
+int sub_4D1A40()
+{
+	__int64 v0; // rax@1
+	DWORD v1; // edi@1
+	unsigned int v2; // kr00_4@1
+	DWORD v3; // kr04_4@1
+	int result; // eax@1
+	LARGE_INTEGER PerformanceCount__; // [sp+10h] [bp-8h]@1
+
+	QueryPerformanceCounter(&PerformanceCount__);
+	v0 = qword_D9AAB0 * ((PerformanceCount__.QuadPart - PerformanceCount.QuadPart) / qword_D9AAB0);
+	v2 = qword_D9AAB0 * (unsigned __int64)((PerformanceCount__.QuadPart - PerformanceCount.QuadPart) / qword_D9AAB0);
+	v3 = PerformanceCount.LowPart;
+	v1 = v0 + PerformanceCount.LowPart;
+	result = (PerformanceCount__.QuadPart - PerformanceCount.QuadPart) / qword_D9AAB0;
+	PerformanceCount.LowPart = v1;
+	PerformanceCount.HighPart = (__PAIR__(PerformanceCount.HighPart, v2) + __PAIR__(HIDWORD(v0), v3)) >> 32;
 	return result;
 }

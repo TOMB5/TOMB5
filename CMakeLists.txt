@@ -9,7 +9,7 @@ set(PLATFORM_PC 0 CACHE BOOL "Tomb Raider: 5 PC")
 
 #Internal Beta
 set(INTERNAL 0 CACHE BOOL "Internal")
-
+add_definitions(-TC -U__cplusplus)
 #MESSAGE(STATUS "PLATFORM_PSXPC: TRUE" ${PLATFORM_PSXPC})
 
 #Tell CMAKE where to find the additional modules this project requires.
@@ -107,8 +107,8 @@ if(PLATFORM_PC)
      # d3dx9.lib
      # dinput.lib
      # )
-      set(CMAKE_CXX_FLAGS "-TC -U __cplusplus")
-      set(CMAKE_C_FLAGS "-TC -U __cplusplus")
-
+      #set(CMAKE_CXX_FLAGS "-TC -U __cplusplus")
+      #set(CMAKE_C_FLAGS "-TC -U __cplusplus")
+      
    endif(MSVC)
 endif(PLATFORM_PC)
