@@ -12,17 +12,17 @@ FILE *FileOpen(const char *filename)
 	fn[2] = 0;
 	strcat(fn, filename);
 
-	sub_4DEB10(5, "FileOpen - %s", fn);
+	Log(5, "FileOpen - %s", fn);
 	fp = fopen(fn, "rb");
 	if (!fp)
-		sub_4DEB10(1, "Unable To Open %s", fn);
+		Log(1, "Unable To Open %s", fn);
 
 	return fp;
 }
 
 int FileClose(FILE *fp)
 {
-	sub_4DEB10(2, "FileClose");
+	Log(2, "FileClose");
 	return fclose(fp);
 }
 
@@ -42,8 +42,8 @@ int LoadFile(char* szFileName, void** pDest)
 	FILE* fp;
 	int len, read;
 
-	sub_4DEB10(2, "LoadFile");
-	sub_4DEB10(5, "File - %s", szFileName);
+	Log(2, "LoadFile");
+	Log(5, "File - %s", szFileName);
 
 	fp = FileOpen(szFileName);
 	if (!fp)
@@ -56,11 +56,11 @@ int LoadFile(char* szFileName, void** pDest)
 
 	read = fread_ex(*pDest, 1, len, fp);
 
-	sub_4DEB10(5, "Read - %d FileSize - %d", read, len);
+	Log(5, "Read - %d FileSize - %d", read, len);
 
 	if (read != len)
 	{
-		sub_4DEB10(1, "Error Reading File");
+		Log(1, "Error Reading File");
 		FileClose(fp);
 		free(*pDest);
 		return 0;

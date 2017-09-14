@@ -30,7 +30,7 @@ char* game_malloc(int size)
 	size = (size + 3) & -4;
 	if (size > malloc_free)
 	{
-		sub_4DEB10(0, "OUT OF MEMORY");
+		Log(0, "OUT OF MEMORY");
 		result = NULL;
 	}
 	else

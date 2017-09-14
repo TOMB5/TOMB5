@@ -809,7 +809,7 @@ signed int __cdecl sub_40211C(int a1)
 	if (a1 < 0)
 	{
 		v2 = sub_401168(a1);
-		sub_4DEB10(1, "ERROR : %s", v2);
+		Log(1, "ERROR : %s", v2);
 		result = a1;
 	}
 	else
@@ -827,7 +827,7 @@ signed int __cdecl sub_40179E(int a1)
 	if (a1 < 0)
 	{
 		v2 = sub_401C94(a1);
-		sub_4DEB10(1, "ERROR : %s", v2);
+		Log(1, "ERROR : %s", v2);
 		result = 1;
 	}
 	else

@@ -86,6 +86,9 @@ enum reverb_type
 	NUM_REVERB_TYPES  
 };
 
+#if PC_VERSION
+#pragma pack(push, 1)
+#endif
 struct VECTOR {
 	long vx; // size=0, offset=0
 	long vy; // size=0, offset=4
@@ -222,26 +225,7 @@ struct lot_info {
 	struct PHD_VECTOR target; // size=12, offset=28
 	enum zone_type zone; // size=4, offset=40
 };
-struct creature_info {
-	short joint_rotation[4]; // size=8, offset=0
-	short maximum_turn; // size=0, offset=8
-	short flags; // size=0, offset=10
-	unsigned short alerted : 1; // offset=12.0
-	unsigned short head_left : 1; // offset=12.1
-	unsigned short head_right : 1; // offset=12.2
-	unsigned short reached_goal : 1; // offset=12.3
-	unsigned short hurt_by_lara : 1; // offset=12.4
-	unsigned short patrol2 : 1; // offset=12.5
-	unsigned short jump_ahead : 1; // offset=12.6
-	unsigned short monkey_ahead : 1; // offset=12.7
-	enum mood_type mood; // size=4, offset=16
-	struct ITEM_INFO* enemy; // size=144, offset=20
-	struct ITEM_INFO ai_target; // size=144, offset=24
-	short pad; // size=0, offset=168
-	short item_num; // size=0, offset=170
-	struct PHD_VECTOR target; // size=12, offset=172
-	struct lot_info LOT; // size=44, offset=184
-};
+
 struct ROPE_STRUCT {
 	struct PHD_VECTOR Segment[24]; // size=288, offset=0
 	struct PHD_VECTOR Velocity[24]; // size=288, offset=288
@@ -1184,5 +1168,7 @@ struct FOOTPRINT {
 	short YRot; // size=0, offset=12
 	short Active; // size=0, offset=14
 };
-
+#if PC_VERSION
+#pragma pop
+#endif
 #endif

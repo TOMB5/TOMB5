@@ -3,8 +3,8 @@
 
 #include "SPECTYPES.H"
 
-#define BOX_BLOCKED (1 << 14)
-#define BOX_LAST    (1 << 15)
+#define BOX_BLOCKED (1 << 14) // unpassable for other enemies, always set for movable blocks & closed doors
+#define BOX_LAST    (1 << 15) // unpassable by large enemies (T-Rex, Centaur, etc), always set behind doors
 
 extern int number_boxes;
 extern struct box_info* boxes;

@@ -39,8 +39,18 @@ BYTE* bufSource;
 void* ptr;
 WAVEFORMATEX pwfxDst;
 extern WAVEFORMATEX pwfxSrc;
-
+extern WAVEFORMATEX stru_86BEC8;
+extern ACMSTREAMHEADER stru_86BE70;
+void* dword_86CC78;
+void* dword_86BEDC;
+MMRESULT dword_86BEC4;
+LPDIRECTSOUNDBUFFER* dword_86BEF0;
+int* dword_86BEF4;
+DWORD numSampleInfos;
 extern char ResetSoundThings();
 extern void FreeSoundThings();
+extern void StreamOpen();
+extern char __cdecl DXCreateSampleADPCM(char *a1, int a2, int a3, int a4);
+extern char StreamClose();
 
 #endif

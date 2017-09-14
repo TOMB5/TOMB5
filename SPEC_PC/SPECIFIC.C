@@ -23,6 +23,8 @@ FILE* stream;
 DWORD dword_579E30;
 DWORD dword_57A018;
 DWORD dword_510B18 = 7;
+unsigned short *AnimTextureRanges; // offset 0xA4670
+unsigned short nAnimUVRanges; // offset 0xA4660
 
 signed int __cdecl sub_4D30E0(_WORD *a1)
 {
@@ -63,7 +65,7 @@ void S_Warn(char* warning_message)
 	printf(buf);
 }
 
-HWND sub_4DEB10(char a1, char* format, ...)
+HWND Log(char a1, char* format, ...)
 {
 	HWND result; // eax@1
 	void *v3; // eax@2
@@ -184,7 +186,7 @@ char TIME_Init()
 	char result; // al@2
 	LARGE_INTEGER Frequency; // [sp+0h] [bp-8h]@1
 
-	sub_4DEB10(2, "TIME_Init");
+	Log(2, "TIME_Init");
 	if (QueryPerformanceFrequency(&Frequency))
 	{
 		qword_D9AAB0 = Frequency.QuadPart / 60;

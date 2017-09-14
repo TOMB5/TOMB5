@@ -17,18 +17,18 @@ void GameClose()
 {
 	int v0; // eax@2
 
-	sub_4DEB10(2, "GameClose");
+	Log(2, "GameClose");
 	FreeSoundThings();
 	FreeLevel();
 	if (vertexBuffer)
 	{
 		v0 = vertexBuffer->lpVtbl->Release(vertexBuffer);
-		sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Dest VB", vertexBuffer, v0);
+		Log(4, "Released %s @ %x - RefCnt = %d", "Dest VB", vertexBuffer, v0);
 		vertexBuffer = 0;
 	}
 	else
 	{
-		sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "Dest VB");
+		Log(1, "%s Attempt To Release NULL Ptr", "Dest VB");
 	}
 	free(dword_D9AB34);
 	if (ptr)
@@ -72,7 +72,7 @@ signed int sub_40215D()
 char GameInitialise()
 {
 	D3DVERTEXBUFFERDESC vb;
-	sub_4DEB10(2, "GameInitialise");
+	Log(2, "GameInitialise");
 	vb.dwCaps = 0;
 	vb.dwSize = 16;
 	vb.dwFVF = 452;
@@ -109,7 +109,7 @@ void sub_4D34C1()
 int BeginScene()
 {
 	if (ptr_ctx->isInScene)
-		sub_4DEB10(1, "Already In Scene");
+		Log(1, "Already In Scene");
 	ptr_ctx->isInScene = 1;
 	ptr_ctx->dword_D9AC01 = 0;
 	if (ptr_ctx->dword_D9ABFD)
@@ -273,13 +273,13 @@ int sub_40162C()
 		TakeScreenshot(ptr_ctx->buf_back, "Tomb");
 	if (ptr_ctx->buf_primary->lpVtbl->IsLost(ptr_ctx->buf_primary))
 	{
-		sub_4DEB10(3, "Restored Primary Buffer");
+		Log(3, "Restored Primary Buffer");
 		v0 = ptr_ctx->buf_primary->lpVtbl->Restore(ptr_ctx->buf_primary);
 		sub_40179E(v0);
 	}
 	if (ptr_ctx->buf_back->lpVtbl->IsLost(ptr_ctx->buf_back))
 	{
-		sub_4DEB10(3, "Restored Back Buffer");
+		Log(3, "Restored Back Buffer");
 		v1 = ptr_ctx->buf_back->lpVtbl->Restore(ptr_ctx->buf_back);
 		sub_40179E(v1);
 	}
@@ -384,7 +384,7 @@ unsigned __stdcall GameMain(void* data)
 {
 	signed int v1; // esi@2
 
-	sub_4DEB10(2, "GameMain");
+	Log(2, "GameMain");
 	if (GameInitialise())
 	{
 		sub_4A7EE0();
