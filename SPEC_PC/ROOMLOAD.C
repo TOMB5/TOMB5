@@ -32,6 +32,8 @@ DWORD dword_51CAC0[32];
 #define AllocRead(d, s, n) Alloc(d, s, n);OnlyRead(d, s, n)
 #define OnlyRead(d, s, n) readBytes(d, sizeof(struct s) * n)
 
+#define AddPtr(p, t, n) p = (t*)((char*)(p) + (ptrdiff_t)(n)); 
+
 inline uint8_t readByte()
 {
 	const uint8_t ret = *(uint8_t*)lvDataPtr;
@@ -231,9 +233,162 @@ void LoadBoxes()
 
 DWORD dword_7E7FE8;
 DWORD NumRoomLights;
+/*#pragma pack(push, 1)
+struct room_data
+{
+	uint32_t Separator;     // 0xCDCDCDCD (4 bytes)
+
+	uint32_t EndSDOffset;
+	uint32_t StartSDOffset;
+
+	uint32_t Separator2;     // Either 0 or 0xCDCDCDCD
+
+	uint32_t EndPortalOffset;
+
+	struct    // 20 bytes
+	{
+		int32_t x;             // X-offset of room (world coordinates)
+		int32_t y;             // Y-offset of room (world coordinates) - only in TR5
+		int32_t z;             // Z-offset of room (world coordinates)
+		int32_t yBottom;
+		int32_t yTop;
+	} room_info;
+
+	uint16_t NumZSectors;
+	uint16_t NumXSectors;
+
+	struct CVECTOR RoomColour;   // In ARGB format!
+
+	uint16_t NumLights;
+	uint16_t NumStaticMeshes;
+
+	uint8_t  ReverbInfo;
+	uint8_t  AlternateGroup;
+	uint8_t MeshEffect;
+	uint8_t BoundActive;
+
+	short left; // size=0, offset=56
+	short right; // size=0, offset=58
+	short top; // size=0, offset=60
+	short bottom; // size=0, offset=62
+
+	short test_left; // size=0, offset=64
+	short test_right; // size=0, offset=66
+	short test_top; // size=0, offset=68
+	short test_bottom; // size=0, offset=70
+
+	short item_number; // size=0, offset=72
+	short fx_number; // size=0, offset=74
+
+	uint16_t AlternateRoom;
+	uint16_t Flags;
+
+	uint32_t Unknown1;
+	uint32_t Unknown2;     // Always 0
+	uint32_t Unknown3;     // Always 0
+
+	uint32_t Separator4;    // 0xCDCDCDCD
+
+	uint16_t Unknown4;
+	uint16_t Unknown5;
+
+	float RoomX;
+	float RoomY;
+	float RoomZ;
+
+	uint32_t Separator5[4]; // Always 0xCDCDCDCD
+	uint32_t Separator6;    // 0 for normal rooms and 0xCDCDCDCD for null rooms
+	uint32_t Separator7;    // Always 0xCDCDCDCD
+
+	uint32_t NumRoomTriangles;
+	uint32_t NumRoomRectangles;
+
+	uint32_t Separator8;     // Always 0
+
+	uint32_t LightDataSize;
+	uint32_t NumLights2;    // Always same as NumLights
+
+	uint32_t Unknown6;
+
+	int32_t RoomYTop;
+	int32_t RoomYBottom;
+
+	uint32_t NumLayers;
+
+	uint32_t LayerOffset;
+	uint32_t VerticesOffset;
+	uint32_t PolyOffset;
+	uint32_t PolyOffset2;   // Same as PolyOffset
+
+	uint32_t NumVertices;
+
+	uint32_t Separator9[4];  // Always 0xCDCDCDCD
+};
+#pragma pop*/
+void ReadRoom(struct room_info *rooms, /*tr5_room*/struct room_info *roomData)
+{
+	AddPtr(roomData->door, short, roomData + 1);
+	AddPtr(roomData->floor, struct FLOOR_INFO, roomData + 1);
+	AddPtr(roomData->light, struct LIGHTINFO, roomData + 1);
+	AddPtr(roomData->mesh, struct MESH_INFO, roomData + 1);
+	AddPtr(roomData->Separator4, void, roomData + 1);	
+	AddPtr(roomData->LayerOffset, struct tr5_room_layer, roomData + 1);
+	AddPtr(roomData->PolyOffset, void, roomData + 1);
+	AddPtr(roomData->PolyOffset2, void, roomData + 1);
+	AddPtr(roomData->VerticesOffset, struct tr5_room_vertex, roomData + 1);
+
+	roomData->LightDataSize += (uint32_t)(roomData + 1);
+
+	if ((uint8_t)roomData->door & 1)
+	{
+		Log(0, "%X", roomData->door);
+		roomData->door = 0;
+	}
+
+	char* polyOff = roomData->PolyOffset;
+	char* polyOff2 = roomData->PolyOffset2;
+	char* vertOff = (char*)roomData->VerticesOffset;
+
+	for(int i = 0; i < roomData->NumLayers; i++)
+	{
+		roomData->LayerOffset[i].PolyOffset = polyOff;
+		roomData->LayerOffset[i].PolyOffset2 = polyOff2;
+		roomData->LayerOffset[i].VerticesOffset = vertOff;
+
+		polyOff += sizeof(struct tr4_mesh_face3) * roomData->LayerOffset[i].NumLayerTriangles +
+			sizeof(struct tr4_mesh_face4) * roomData->LayerOffset[i].NumLayerRectangles;
+
+		polyOff2 += 4 * roomData->LayerOffset[i].NumLayerVertices; // todo find what struct this is
+
+		vertOff += sizeof(struct tr5_room_vertex) * roomData->LayerOffset[i].NumLayerVertices;
+	}
+
+	qmemcpy(rooms, roomData, sizeof(struct room_info));
+
+	if (rooms->num_lights > NumRoomLights)
+		NumRoomLights = rooms->num_lights;
+}
 
 short sub_4916C0()
 {
+	readDword(); // read unused value
+
+	int numRooms = readDword(); // todo maybe it's 16 so it'll explode
+	Alloc(room, room_info, numRooms);
+
+	for (int i = 0; i < numRooms; i++)
+	{
+		readDword(); // XELA landmark
+
+		int roomDataSize = readDword();
+		char* roomData;
+		AllocReadT(roomData, char, roomDataSize);
+
+		ReadRoom(&room[i], roomData);
+	}
+
+	number_rooms = numRooms;
+
 	S_Warn("[sub_4916C0] - Unimplemented!\\n");
 	return 0;
 }

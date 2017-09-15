@@ -3,6 +3,7 @@
 
 #include "TYPES.H"
 #include <stddef.h>
+#include <stdint.h>
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
@@ -182,7 +183,47 @@ struct room_info {
 	short fx_number; // size=0, offset=74
 	short flipped_room; // size=0, offset=76
 	unsigned short flags; // size=0, offset=78
-	char pad[128];
+
+	uint32_t Unknown1;
+	uint32_t Unknown2;     // Always 0
+	uint32_t Unknown3;     // Always 0
+
+	uint32_t Separator;    // 0xCDCDCDCD
+
+	uint16_t Unknown4;
+	uint16_t Unknown5;
+
+	float RoomX;
+	float RoomY;
+	float RoomZ;
+
+	uint32_t Separator1[4]; // Always 0xCDCDCDCD
+	uint32_t Separator2;    // 0 for normal rooms and 0xCDCDCDCD for null rooms
+	uint32_t Separator3;    // Always 0xCDCDCDCD
+
+	uint32_t NumRoomTriangles;
+	uint32_t NumRoomRectangles;
+
+	void* Separator4;     // Always 0
+
+	uint32_t LightDataSize;
+	uint32_t NumLights2;    // Always same as NumLights
+
+	uint32_t Unknown6;
+
+	int32_t RoomYTop;
+	int32_t RoomYBottom;
+
+	uint32_t NumLayers;
+
+	struct tr5_room_layer* LayerOffset;
+	struct tr5_room_vertex* VerticesOffset;
+	void* PolyOffset;
+	void* PolyOffset2;   // Same as PolyOffset
+
+	uint32_t NumVertices;
+
+	uint32_t Separator5[4];  // Always 0xCDCDCDCD
 };
 
 
@@ -249,6 +290,60 @@ struct creature_info {
 	short item_num; // size=0, offset=170
 	struct PHD_VECTOR target; // size=12, offset=172
 	struct lot_info LOT; // size=44, offset=184
+};
+
+struct tr4_mesh_face3    // 10 bytes
+{
+	uint16_t Vertices[3];
+	uint16_t Texture;
+	uint16_t Effects;    // TR4-5 ONLY: alpha blending and environment mapping strength
+};
+
+struct tr4_mesh_face4    // 12 bytes
+{
+	uint16_t Vertices[4];
+	uint16_t Texture;
+	uint16_t Effects;
+};
+
+struct tr5_room_layer   // 56 bytes
+{
+	uint32_t NumLayerVertices;   // Number of vertices in this layer (4 bytes)
+	uint16_t UnknownL1;
+	uint16_t NumLayerRectangles; // Number of rectangles in this layer (2 bytes)
+	uint16_t NumLayerTriangles;  // Number of triangles in this layer (2 bytes)
+	uint16_t UnknownL2;
+
+	uint16_t Filler;             // Always 0
+	uint16_t Filler2;            // Always 0
+
+								 // The following 6 floats define the bounding box for the layer
+
+	float    LayerBoundingBoxX1;
+	float    LayerBoundingBoxY1;
+	float    LayerBoundingBoxZ1;
+	float    LayerBoundingBoxX2;
+	float    LayerBoundingBoxY2;
+	float    LayerBoundingBoxZ2;
+
+	uint32_t Filler3;     // Always 0 (4 bytes)
+	void* VerticesOffset;
+	void* PolyOffset;
+	void* PolyOffset2;
+};
+
+struct tr5_vertex   // 12 bytes
+{
+	float x;
+	float y;
+	float z;
+};
+
+struct tr5_room_vertex  // 28 bytes
+{
+	struct tr5_vertex Vertex;     // Vertex is now floating-point
+	struct tr5_vertex Normal;
+	uint32_t Colour;     // 32-bit colour
 };
 #pragma pop
 

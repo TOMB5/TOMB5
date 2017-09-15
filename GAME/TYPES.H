@@ -75,6 +75,26 @@ enum room_flags
 	RF_TRLE_P = (1 << 12)					// 0x1000   NGLE uses it for cold rooms
 };
 
+enum material_index
+{
+	MAT_MUD,
+	MAT_SNOW,
+	MAT_SAND,
+	MAT_GRAVEL,
+	MAT_ICE,
+	MAT_WATER,		 // Unused
+	MAT_STONE,		 // Unused
+	MAT_WOOD,
+	MAT_METAL,
+	MAT_MARBLE,
+	MAT_GRASS,		 // Same SFX as sand
+	MAT_CONCRETE,	 // Same SFX as stone
+	MAT_OLD_WOOD,	 // Same SFX as wood
+	MAT_OLD_METAL,	 // Same SFX as metal
+
+	NUM_MATERIALS
+};
+
 enum reverb_type
 {
 	RVB_OUTSIDE,	   // 0x00   no reverberation
