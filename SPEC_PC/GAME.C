@@ -9,6 +9,7 @@
 #include "PCSOUND.H"
 #include <process.h>
 #include "SOUND.H"
+#include "GPU.H"
 
 struct object_info objects[NUMBER_OBJECTS];
 struct static_info static_objects[NUMBER_STATIC_OBJECTS];

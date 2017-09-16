@@ -231,3 +231,9 @@ int sub_4D1A40()
 	PerformanceCount.HighPart = (__PAIR__(PerformanceCount.HighPart, v2) + __PAIR__(HIDWORD(v0), v3)) >> 32;
 	return result;
 }
+
+char __cdecl Decompress(void* buf, void* compressed, int compSize, int uncompSize)
+{
+	S_Warn("[Decompress] - Unimplemented!\n");
+	return 0;
+}

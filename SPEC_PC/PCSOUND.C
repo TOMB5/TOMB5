@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include "ERROR.H"
 #include "WINMAIN.H"
+#include "GPU.H"
+#include "SOUND.H"
 
 WAVEFORMATEX pwfxSrc = { WAVE_FORMAT_ADPCM, 2, 44100, 44359, 2048, 4, 0x20 };
 WAVEFORMATEX stru_516400 = { WAVE_FORMAT_ADPCM, 1, 22050, 11155, 512, 4, 0x20 };
@@ -198,4 +200,249 @@ char __cdecl DXCreateSampleADPCM(char *a1, int a2, int a3, int a4)
 		result = 0;
 	}
 	return result;
+}
+
+
+char __cdecl SetSoundOutputFormat(int a1, char a2)
+{
+	int v2; // eax@4
+	char result; // al@5
+	WAVEFORMATEX v4; // [sp+4h] [bp-14h]@3
+
+	if ((a2 || dword_86CC7C != a1)
+		&& (dword_86CC7C = a1,
+			v4.wFormatTag = 1,
+			v4.nChannels = 2,
+			v4.nSamplesPerSec = a1,
+			v4.nAvgBytesPerSec = 4 * a1,
+			v4.nBlockAlign = 4,
+			v4.wBitsPerSample = 16,
+			v4.cbSize = 0,
+			S_SoundStopAllSamples(),
+			DSSoundBuffer)
+		&& (v2 = DSSoundBuffer->lpVtbl->SetFormat(DSSoundBuffer, &v4), sub_40179E(v2)))
+	{
+		Log(1, "Can't set sound output format to %d", v4.nSamplesPerSec);
+		result = 0;
+	}
+	else
+	{
+		result = 1;
+	}
+	return result;
+}
+
+char DXSetOutputFormat()
+{
+	int v0; // eax@1
+	char result; // al@2
+	DSBUFFERDESC v2; // [sp+4h] [bp-24h]@1
+
+
+	Log(2, "DXSetOutputFormat");
+	memset(&v2, 0, 0x24u);
+	v2.dwSize = 36;
+	v2.dwFlags = 1;
+	v0 = dxctx.dsound->lpVtbl->CreateSoundBuffer(dxctx.dsound, &v2, &DSSoundBuffer, 0);
+	if (sub_40179E(v0))
+	{
+		Log(1, "Can't Get Primary Sound Buffer");
+		result = 0;
+	}
+	else
+	{
+		SetSoundOutputFormat(NumSamples[opt_SoundQuality], 0);
+		DSSoundBuffer->lpVtbl->Play(DSSoundBuffer, 0, 0, 1);
+		result = 1;
+	}
+	return result;
+}
+
+int DXDSCreate()
+{
+	int v0; // eax@1
+	int v1; // eax@1
+	signed int result; // eax@1
+
+	Log(2, "DXDSCreate");
+	v0 = DirectSoundCreate(
+		ptr_ctx->soundCards[ptr_ctx->curSoundCard].field1,
+		&dxctx.dsound,
+		0);
+	sub_40179E(v0);
+	v1 = dxctx.dsound->lpVtbl->SetCooperativeLevel(dxctx.dsound, hWnd, 3);
+	sub_40179E(v1);
+	DXSetOutputFormat();
+	result = 1;
+	sound_active = 1;
+	return result;
+}
+
+
+int SetupNotifications()
+{
+	int v0; // edi@1
+	char *v1; // esi@1
+	signed int v2; // ebx@1
+	HANDLE v3; // edx@2
+	int v4; // esi@5
+	int result; // eax@6
+	DWORD ThreadId; // [sp+Ch] [bp-2Ch]@3
+	int v7; // [sp+10h] [bp-28h]@1
+	HANDLE v8; // [sp+14h] [bp-24h]@1
+	char v9[16]; // [sp+18h] [bp-20h]@1
+	int v10; // [sp+28h] [bp-10h]@3
+	int v11; // [sp+30h] [bp-8h]@3
+	HANDLE v12; // [sp+34h] [bp-4h]@3
+
+	v0 = bufMaxLength;
+	Handles = CreateEventA(0, 0, 0, 0);
+	dword_579FA4 = CreateEventA(0, 0, 0, 0);
+	v7 = v0;
+	v8 = Handles;
+	Log(8, "Set notifies for position %lu", v0);
+	v1 = v9;
+	v2 = 3;
+	do
+	{
+		v3 = Handles;
+		*(_DWORD *)v1 = v0 + *((_DWORD *)v1 - 2);
+		*((_DWORD *)v1 + 1) = v3;
+		Log(8, "Set notifies for positions %lu", *(_DWORD *)v1);
+		v1 += 8;
+		--v2;
+	} while (v2);
+	v11 = -1;
+	--v10;
+	v12 = dword_579FA4;
+	dword_579FA8 = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)StartAddress, 0, 0, &ThreadId);
+	if (!dword_579FA8)
+		Log(1, "Create Notification Thread failed");
+	v4 = (*((int(__stdcall **)(_DWORD, _DWORD, _DWORD))notify_thing->lpVtbl + 3))(notify_thing, 5, &v7);
+	if (v4)
+	{
+		CloseHandle(Handles);
+		CloseHandle(dword_579FA4);
+		result = v4;
+		dword_579FA4 = 0;
+		Handles = 0;
+	}
+	else
+	{
+		Log(8, "Setup Notifications OK");
+		result = 0;
+	}
+	return result;
+}
+
+
+void InitACM()
+{
+	unsigned int v3; // esi@1
+	int v5; // eax@5
+	int v6; // eax@5
+	int v7; // [sp+0h] [bp-2Ch]@0
+	LPDIRECTSOUNDNOTIFY *notify_shit; // [sp+4h] [bp-28h]@5
+	DWORD cbwfx = 0;
+	DSBUFFERDESC v9; // [sp+8h] [bp-24h]@5
+
+	v3 = acmGetVersion();
+	InitializeCriticalSection(&CriticalSection);
+	ACMInited = 0;
+	Log(8, "ACM Version %u.%.02u", v3 >> 24, (unsigned __int8)(v3 >> 16));
+	acmDriverEnum(fnCallback, 0, 0);
+	if (hadid)
+	{
+		if (acmDriverOpen(&had, hadid, 0))
+		{
+			Log(1, "*** Failed To Open Driver MS-ADPCM Driver ***");
+		}
+		else
+		{
+			bufSource = (BYTE *)malloc(22528u);
+			ptr = malloc(225280u);
+			pwfxDst.wFormatTag = WAVE_FORMAT_PCM;
+			acmMetrics(NULL, ACM_METRIC_MAX_SIZE_FORMAT, &cbwfx);
+			pwfxSrc.cbSize = 2;
+			int gg = acmFormatSuggest(had, &pwfxSrc, &pwfxDst, cbwfx, ACM_FORMATSUGGESTF_WFORMATTAG);
+			memset(&v9, 0, 36u);
+			bufLockLength = 358336;
+			bufMaxLength = 89584;
+			v9.dwSize = 36;
+			v9.dwFlags = DSBCAPS_LOCSOFTWARE
+				| DSBCAPS_CTRLFREQUENCY
+				| DSBCAPS_CTRLPAN
+				| DSBCAPS_CTRLVOLUME
+				| DSBCAPS_CTRLPOSITIONNOTIFY
+				| DSBCAPS_GETCURRENTPOSITION2;
+			v9.dwBufferBytes = 358336;
+			v9.lpwfxFormat = &pwfxDst;
+			int o = ptr_ctx->dsound->lpVtbl->CreateSoundBuffer(
+				ptr_ctx->dsound,
+				&v9,
+				&other_buf,
+				0);
+			notify_shit = &notify_thing;
+			other_buf->lpVtbl->QueryInterface(
+				other_buf,
+				&IID_IDirectSoundNotify,
+				&notify_thing);
+			SetupNotifications();
+			acmStreamOpen(&has, had, &pwfxSrc, &pwfxDst, 0, 0, 0, 0);
+			acmStreamSize(has, 22528u, &pdwOutputBytes, 0);
+			notify_shit = 0;
+			v5 = other_buf->lpVtbl->Lock(
+				other_buf,
+				0,
+				bufLockLength,
+				&buf_lockAudioPtr1,
+				&buf_lockAudioBytes1,
+				0,
+				0,
+				0);
+			sub_40179E(v5);
+			memset(buf_lockAudioPtr1, 0, bufLockLength);
+			memset(&acmHeader1, 0, sizeof(acmHeader1));
+			memset(&acmHeader2, 0, sizeof(acmHeader2));
+			memset(&acmHeader3, 0, sizeof(acmHeader3));
+			memset(&acmHeader4, 0, sizeof(acmHeader4));
+			acmHeader1.pbSrc = bufSource;
+			acmHeader2.pbSrc = bufSource;
+			acmHeader3.pbSrc = bufSource;
+			acmHeader4.pbSrc = bufSource;
+			acmHeader1.cbDstLength = pdwOutputBytes;
+			acmHeader2.cbDstLength = pdwOutputBytes;
+			acmHeader2.pbDst = &buf_lockAudioPtr1[bufMaxLength];
+			acmHeader3.cbDstLength = pdwOutputBytes;
+			acmHeader4.cbDstLength = pdwOutputBytes;
+			acmHeader1.cbStruct = 84;
+			acmHeader1.cbSrcLength = 22528;
+			acmHeader1.pbDst = buf_lockAudioPtr1;
+			acmHeader2.cbStruct = 84;
+			acmHeader2.cbSrcLength = 22528;
+			acmHeader3.cbStruct = 84;
+			acmHeader3.cbSrcLength = 22528;
+			acmHeader3.pbDst = &buf_lockAudioPtr1[2 * bufMaxLength];
+			acmHeader4.cbStruct = 84;
+			acmHeader4.cbSrcLength = 22528;
+			acmHeader4.pbDst = &buf_lockAudioPtr1[3 * bufMaxLength];
+			acmStreamPrepareHeader(has, &acmHeader1, 0);
+			acmStreamPrepareHeader(has, &acmHeader2, 0);
+			acmStreamPrepareHeader(has, &acmHeader3, 0);
+			acmStreamPrepareHeader(has, &acmHeader4, 0);
+			notify_shit = 0;
+			v6 = other_buf->lpVtbl->Unlock(
+				other_buf,
+				buf_lockAudioPtr1,
+				bufLockLength,
+				0,
+				0);
+			sub_40179E(v6);
+			ACMInited = 1;
+		}
+	}
+	else
+	{
+		Log(1, "*** Unable To Locate MS-ADPCM Driver ***");
+	}
 }

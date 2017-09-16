@@ -14,6 +14,11 @@
 #include "SOUND.H"
 #include "PCSOUND.H"
 #include "FILE.H"
+#include <process.h>
+#include "LOT.H"
+#include "WINMAIN.H"
+#include "ERROR.H"
+#include "GPU.H"
 
 long AnimFilePos;
 long AnimFileLen;
@@ -24,26 +29,19 @@ char* lvDataPtr;
 DWORD num_items;
 DWORD dword_51CAC0[32];
 
-#define AllocT(d, s, n) d = (s*)game_malloc(sizeof(s) * n)
-#define AllocReadT(d, s, n) AllocT(d, s, n);OnlyReadT(d, s, n)
-#define OnlyReadT(d, s, n) readBytes(d, sizeof(s) * n)
+#define AllocT(d, s, n) d = (s*)game_malloc(sizeof(s) * (n))
+#define AllocReadT(d, s, n) AllocT(d, s, (n));OnlyReadT(d, s, (n))
+#define OnlyReadT(d, s, n) readBytes(d, sizeof(s) * (n))
 
-#define Alloc(d, s, n) d = (struct s*)game_malloc(sizeof(struct s) * n)
-#define AllocRead(d, s, n) Alloc(d, s, n);OnlyRead(d, s, n)
-#define OnlyRead(d, s, n) readBytes(d, sizeof(struct s) * n)
+#define Alloc(d, s, n) d = (struct s*)game_malloc(sizeof(struct s) * (n))
+#define AllocRead(d, s, n) Alloc(d, s, (n));OnlyRead(d, s, (n))
+#define OnlyRead(d, s, n) readBytes(d, sizeof(struct s) * (n))
 
 #define AddPtr(p, t, n) p = (t*)((char*)(p) + (ptrdiff_t)(n)); 
 
 inline uint8_t readByte()
 {
 	const uint8_t ret = *(uint8_t*)lvDataPtr;
-	lvDataPtr += 1;
-	return ret;
-}
-
-inline int8_t readSByte()
-{
-	const int8_t ret = *(int8_t*)lvDataPtr;
 	lvDataPtr += 1;
 	return ret;
 }
@@ -55,13 +53,6 @@ inline uint16_t readWord()
 	return ret;
 }
 
-inline int16_t readSWord()
-{
-	const int16_t ret = *(int16_t*)lvDataPtr;
-	lvDataPtr += 2;
-	return ret;
-}
-
 inline uint32_t readDword()
 {
 	const uint32_t ret = *(uint32_t*)lvDataPtr;
@@ -69,10 +60,17 @@ inline uint32_t readDword()
 	return ret;
 }
 
-inline int32_t readSDword()
+inline uint16_t freadWord()
 {
-	const int32_t ret = *(int32_t*)lvDataPtr;
-	lvDataPtr += 4;
+	uint16_t ret;
+	fread_ex(&ret, 2, 1, fp_level);
+	return ret;
+}
+
+inline uint32_t freadDword()
+{
+	uint32_t ret;
+	fread_ex(&ret, 4, 1, fp_level);
 	return ret;
 }
 
@@ -80,6 +78,13 @@ inline void readBytes(void* dst, unsigned int count)
 {
 	qmemcpy(dst, lvDataPtr, count);
 	lvDataPtr += count;
+}
+
+inline void freadBytes(unsigned int count)
+{
+	void* buf = malloc(count);
+	fread_ex(buf, 1, count, fp_level);
+	free(buf);
 }
 
 void FreeItemsShit(int num)
@@ -369,7 +374,7 @@ void ReadRoom(struct room_info *rooms, /*tr5_room*/struct room_info *roomData)
 		NumRoomLights = rooms->num_lights;
 }
 
-short sub_4916C0()
+void ReadRooms()
 {
 	readDword(); // read unused value
 
@@ -388,17 +393,225 @@ short sub_4916C0()
 	}
 
 	number_rooms = numRooms;
-
-	S_Warn("[sub_4916C0] - Unimplemented!\\n");
-	return 0;
 }
+
+DWORD dword_EEF4AC;
 
 int sub_4774D0()
 {
-	S_Warn("[sub_4774D0] - Unimplemented!\\n");
-	return 0;
-}
 
+	int v0; // ebp@1
+	char *v1; // eax@1
+	int v2; // eax@1
+	int v3; // esi@2
+	char *v4; // edx@2
+	signed int v5; // ebx@8
+	struct room_info *v6; // eax@9
+	int v7; // ecx@10
+	int v8; // edx@10
+	int v9; // esi@11
+	signed int v10; // edi@11
+	int v11; // eax@23
+	int v12; // ecx@23
+	BOOL v13; // sf@33
+	unsigned __int8 v14; // of@33
+	_BYTE *v15; // esi@35
+	int v16; // ecx@35
+	int result; // eax@35
+	int v18; // edi@36
+	unsigned int v19; // edx@37
+	_BYTE *v20; // ebx@37
+	unsigned __int8 v21; // al@37
+	char *v22; // eax@43
+	int v23; // ecx@45
+	BOOL v24; // zf@53
+	signed int v25; // [sp+10h] [bp-118h]@6
+	unsigned int v26; // [sp+10h] [bp-118h]@35
+	signed int v27; // [sp+14h] [bp-114h]@8
+	int v28; // [sp+14h] [bp-114h]@36
+	int v29; // [sp+18h] [bp-110h]@1
+	int v30; // [sp+18h] [bp-110h]@36
+	signed int v31; // [sp+1Ch] [bp-10Ch]@10
+	signed int v32; // [sp+1Ch] [bp-10Ch]@36
+	signed int v33; // [sp+20h] [bp-108h]@7
+	signed int v34; // [sp+24h] [bp-104h]@10
+	char v35[256]; // [sp+28h] [bp-100h]@1
+
+	v0 = 0;
+	v29 = 0;
+	OutsideRoomOffsets = (__int16 *)game_malloc(1458);
+	v1 = game_malloc(46656);
+	dword_EEF4AC = (int)v1;
+	memset(v1, 0xFFu, 0xB640u);
+	memset(v35, 0, 0xFCu);
+	*(_WORD *)&v35[252] = 0;
+	v35[254] = 0;
+	v2 = number_rooms;
+	if (number_rooms > 0)
+	{
+		v3 = number_rooms;
+		v4 = (char *)&room->flipped_room;
+		do
+		{
+			if (*(_WORD *)v4 != -1)
+				v35[*(_WORD *)v4] = 1;
+			v4 += 208;
+			--v3;
+		} while (v3);
+	}
+	v25 = 0;
+	do
+	{
+		v33 = 0;
+		do
+		{
+			v5 = 0;
+			v27 = 0;
+			if (v2 > 0)
+			{
+				do
+				{
+					v6 = &room[v5];
+					if (!v35[v5])
+					{
+						v7 = (v6->z >> 10) + 1;
+						v8 = (v6->x >> 10) + 1;
+						v31 = 0;
+						v34 = 4;
+						do
+						{
+							v9 = v33;
+							v10 = 0;
+							while (v9 < v7 || v9 >= v6->x_size + v7 - 2 || v0 < v8 || v0 >= v6->y_size + v8 - 2)
+							{
+								++v10;
+								++v9;
+								if (v10 >= 4)
+									goto LABEL_19;
+							}
+							v31 = 1;
+						LABEL_19:
+							++v0;
+							--v34;
+						} while (v34);
+						if (v31)
+						{
+							v5 = v27;
+							if (v27 == 255)
+								printf("ERROR : Room 255 fuckeroony - go tell Chris");
+							v0 = v25;
+							v11 = dword_EEF4AC + (((v33 >> 2) + 27 * (v25 >> 2)) << 6);
+							v12 = 0;
+							while (*(_BYTE *)(v11 + v12) != -1)
+							{
+								if (++v12 >= 64)
+									goto LABEL_29;
+							}
+							*(_BYTE *)(v11 + v12) = v27;
+							if (v12 > v29)
+								v29 = v12;
+						LABEL_29:
+							if (v12 == 64)
+								printf("ERROR : Buffer shittage - go tell Chris");
+						}
+						else
+						{
+							v0 = v25;
+							v5 = v27;
+						}
+					}
+					v2 = number_rooms;
+					v27 = ++v5;
+				} while (v5 < number_rooms);
+			}
+			v14 = __OFSUB__(v33 + 4, 108);
+			v13 = v33 - 104 < 0;
+			v33 += 4;
+		} while (v13 ^ v14);
+		v0 += 4;
+		v25 = v0;
+	} while (v0 < 108);
+	v15 = (_BYTE *)dword_EEF4AC;
+	v16 = 0;
+	v26 = dword_EEF4AC;
+	result = 0;
+	do
+	{
+		v18 = v16;
+		v30 = result;
+		v28 = v16;
+		v32 = 27;
+		do
+		{
+			v19 = 0;
+			v20 = (_BYTE *)(result + dword_EEF4AC);
+			v21 = *(_BYTE *)(result + dword_EEF4AC);
+			if (v21 == -1)
+				goto LABEL_57;
+			do
+				++v19;
+			while (v20[v19] != -1);
+			if (v19)
+			{
+				if (v19 == 1)
+				{
+					*(__int16 *)((char *)OutsideRoomOffsets + v18) = v21 | 0x8000;
+				}
+				else
+				{
+					v22 = (char *)dword_EEF4AC;
+					if (dword_EEF4AC >= (unsigned int)v15)
+						goto LABEL_50;
+					while (memcmp(v22, v20, v19))
+					{
+						v23 = 0;
+						if (*v22 != -1)
+						{
+							do
+								++v23;
+							while (v22[v23] != -1);
+						}
+						v15 = (_BYTE *)v26;
+						v22 += v23 + 1;
+						if ((unsigned int)v22 >= v26)
+						{
+							v18 = v28;
+							goto LABEL_50;
+						}
+					}
+					v18 = v28;
+					*(__int16 *)((char *)OutsideRoomOffsets + v28) = (_WORD)v22 - dword_EEF4AC;
+					v15 = (_BYTE *)v26;
+					if ((unsigned int)v22 >= v26)
+					{
+					LABEL_50:
+						*(__int16 *)((char *)OutsideRoomOffsets + v18) = (_WORD)v15 - dword_EEF4AC;
+						do
+						{
+							*v15++ = *v20++;
+							--v19;
+						} while (v19);
+						*v15++ = -1;
+						v26 = (unsigned int)v15;
+					}
+				}
+			}
+			else
+			{
+			LABEL_57:
+				*(__int16 *)((char *)OutsideRoomOffsets + v18) = -1;
+			}
+			result = v30 + 64;
+			v18 += 2;
+			v24 = v32 == 1;
+			v30 += 64;
+			v28 = v18;
+			--v32;
+		} while (!v24);
+		v16 = v18;
+	} while (result < 46656);
+	return result;
+}
 
 void LoadRooms()
 {
@@ -408,7 +621,7 @@ void LoadRooms()
 	NumRoomLights = 0;
 	dword_7E7FE8 = 0;
 
-	sub_4916C0();
+	ReadRooms();
 	sub_4774D0();
 
 	int numFloorData = readDword();
@@ -467,6 +680,521 @@ void LoadSamples()
 	}
 
 	StreamClose();
+}
+
+void LoadAIObjects()
+{
+	int num = readDword();
+
+	if (num != 0)
+	{
+		nAIObjects = num;
+		AllocRead(AIObjects, AIOBJECT, nAIObjects);
+	}
+}
+
+DWORD dword_D9A868;
+DWORD dword_D99DA8;
+DWORD dword_D99DAC;
+DWORD dword_D99DC0;
+DWORD dword_D99DC4;
+void* texbuf;
+BYTE* byte_D99DCC;
+DWORD dword_874968;
+
+void sub_491DA0(int a1, int a2, int a3, int a4)
+{
+	S_Warn("[sub_491DA0] - Unimplemented!\n");
+}
+
+float flt_8BBD94;
+float flt_8BBD90;
+DWORD dword_8BBD64;
+DWORD dword_8FBDC0;
+
+int __cdecl sub_4B1A40(int a1)
+{
+	int result; // eax@1
+
+	result = a1;
+	LODWORD(flt_8BBD94) = 0;
+	dword_8BBD64 = a1;
+	LODWORD(flt_8BBD90) = 0;
+	dword_8FBDC0 = 1;
+	return result;
+}
+
+void sub_4B1A80()
+{
+	flt_8BBD94 = 100.0 / (double)dword_8BBD64 + flt_8BBD94;
+}
+
+void LoadDemoData()
+{
+	uint16_t numDemoData = readWord();
+	// no demo data anymore, count is always 0
+}
+
+int numMeshes;
+int numAnims;
+
+void LoadObjects()
+{
+	Log(1, "LoadObjects");
+
+	memset(objects, 0, sizeof objects);
+	memset(static_objects, 0, sizeof static_objects);
+
+	int numMeshWords = readDword();
+	AllocReadT(mesh_base, short, 2 * numMeshWords);
+
+	int numMeshPtrs = readDword();
+	AllocReadT(meshes, short*, numMeshPtrs);
+
+	for(int i = 0; i < numMeshPtrs; i++)
+	{
+		meshes[i] = &mesh_base[(int)meshes[i] / 2];
+	}
+
+	numMeshes = numMeshPtrs;
+
+	numAnims = readDword();
+	AllocRead(anims, ANIM_STRUCT, numAnims);
+
+	int numChanges = readDword();
+	AllocRead(changes, CHANGE_STRUCT, numChanges);
+
+	int numDisps = readDword();
+	AllocRead(ranges, RANGE_STRUCT, numDisps);
+
+	int numAnimCmds = readDword();
+	AllocReadT(commands, short, numAnimCmds);
+
+	int numBones = readDword();
+	AllocReadT(bones, long, numBones);
+
+	int numFrames = readDword();
+	AllocReadT(frames, short, numFrames);
+
+	for (int i = 0; i < numAnims; i++)
+	{
+		AddPtr(anims[i].frame_ptr, short, frames);
+	}
+
+	int numModels = readDword();
+
+	for (int i = 0; i < numModels; i++)
+	{
+		int obj = readDword();
+
+		objects[obj].nmeshes = readWord();
+		objects[obj].mesh_index = readWord();
+		objects[obj].bone_index = readDword();
+		objects[obj].frame_base = readDword();
+		objects[obj].anim_index = readWord();
+
+		objects[obj].loaded = 1;
+	}
+
+	S_Warn("[LoadObjects] - End unimplemented!\n");
+}
+
+void* dword_875144;
+DWORD useCompression = 1;
+
+void sub_403297(LPDDSURFACEDESC2 a1, LPDIRECTDRAWSURFACE4 a2, int a3, int a4)
+{
+	S_Warn("[sub_403297] - Unimplemented!\n");
+}
+
+_DWORD *__cdecl sub_4D0450(signed int a1, signed int a2, int a3, int a4, void(__cdecl *a5)(int *, int *, int *, int *), int a6)
+{
+	int v6; // eax@9
+	_WORD *v7; // edx@9
+	_BYTE *v8; // edi@10
+	unsigned int *v9; // ebx@11
+	void(__cdecl *v10)(int *, int *, int *, int *); // ebp@11
+	struct dxcontext_s *v11; // esi@11
+	unsigned int v12; // eax@13
+	unsigned int v13; // edx@13
+	struct acceltexformatinfo *v14; // ecx@15
+	int v15; // eax@15
+	unsigned int v16; // edx@15
+	unsigned int v17; // ebp@15
+	int v18; // eax@15
+	unsigned int v19; // edx@15
+	unsigned int v20; // eax@16
+	BOOL v21; // cf@20
+	DWORD v22; // ebx@23
+	int v23; // ebp@24
+	DWORD v24; // edi@24
+	DWORD v25; // ecx@25
+	int v26; // esi@26
+	char *v27; // eax@26
+	__int16 v28; // di@27
+	DWORD v29; // ebx@31
+	int v30; // ebp@32
+	DWORD v31; // edi@32
+	DWORD v32; // ecx@33
+	int v33; // esi@34
+	char *v34; // eax@34
+	int v35; // edi@35
+	int v36; // eax@37
+	LPDIRECTDRAWSURFACE4 a3a; // [sp+1Ch] [bp-A4h]@1
+	int v39; // [sp+20h] [bp-A0h]@11
+	int v40; // [sp+24h] [bp-9Ch]@10
+	DWORD v41; // [sp+28h] [bp-98h]@12
+	int v42; // [sp+2Ch] [bp-94h]@11
+	int v43; // [sp+30h] [bp-90h]@13
+	int v44; // [sp+34h] [bp-8Ch]@13
+	int v45; // [sp+38h] [bp-88h]@10
+	int v46; // [sp+3Ch] [bp-84h]@13
+	int v47; // [sp+40h] [bp-80h]@13
+	struct _DDSURFACEDESC2 a2a; // [sp+44h] [bp-7Ch]@1
+
+	memset(&a2a, 0, sizeof(a2a));
+	a3a = 0;
+	a2a.dwSize = 124;
+	a2a.dwWidth = a1;
+	a2a.dwHeight = a2;
+	if (a1 < 32 || a2 < 32)
+		a3 = 0;
+	qmemcpy(
+		&a2a.ddpfPixelFormat,
+		&ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt].texFormats[ptr_ctx->curTexFormat],
+		sizeof(a2a.ddpfPixelFormat));
+	a2a.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+	a2a.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+	if (ptr_ctx->flags & 0x80)
+		a2a.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
+	else
+		a2a.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_SYSTEMMEMORY;
+	if (a3)
+	{
+		a2a.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT | DDSD_MIPMAPCOUNT;
+		a2a.dwMipMapCount = a3 + 1;
+		a2a.ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;
+	}
+	DXCreateSurface(dxctx.ddraw, &a2a, &a3a);
+	v6 = a3a->lpVtbl->Lock(a3a, 0, &a2a, 2048, 0);
+	sub_40179E(v6);
+	if (a6)
+	{
+		if (a6 == 2)
+		{
+			v22 = 0;
+			v39 = 256 / a1;
+			v7 = a2a.lpSurface;
+			if (a2a.dwHeight)
+			{
+				v23 = a4;
+				v24 = a2a.dwWidth;
+				v40 = 256 / a2 << 9;
+				do
+				{
+					v25 = 0;
+					if (v24)
+					{
+						v26 = 2 * v39;
+						v27 = (char *)v23;
+						do
+						{
+							v28 = *(_WORD *)v27;
+							v27 += v26;
+							*v7 = v28;
+							v24 = a2a.dwWidth;
+							++v7;
+							++v25;
+						} while (v25 < a2a.dwWidth);
+					}
+					++v22;
+					v23 += v40;
+				} while (v22 < a2a.dwHeight);
+			}
+		}
+		else if (a6 == 1)
+		{
+			v29 = 0;
+			v39 = 256 / a1;
+			v7 = a2a.lpSurface;
+			if (a2a.dwHeight)
+			{
+				v30 = a4;
+				v31 = a2a.dwWidth;
+				v40 = 256 / a2 << 10;
+				do
+				{
+					v32 = 0;
+					if (v31)
+					{
+						v33 = 4 * v39;
+						v34 = (char *)v30;
+						do
+						{
+							v35 = *(_DWORD *)v34;
+							v34 += v33;
+							*(_DWORD *)v7 = v35;
+							v31 = a2a.dwWidth;
+							v7 += 2;
+							++v32;
+						} while (v32 < a2a.dwWidth);
+					}
+					++v29;
+					v30 += v40;
+				} while (v29 < a2a.dwHeight);
+			}
+		}
+	}
+	else
+	{
+		v8 = a2a.lpSurface;
+		v45 = 0;
+		v40 = 256 / a1;
+		v7 = (_WORD *)(256 % a2);
+		if (a2a.dwHeight)
+		{
+			v9 = (unsigned int *)a4;
+			v10 = a5;
+			v11 = ptr_ctx;
+			v42 = a4;
+			v39 = 256 / a2 << 10;
+			do
+			{
+				v41 = 0;
+				if (a2a.dwWidth)
+				{
+					do
+					{
+						v12 = *v9;
+						v13 = *v9;
+						LOBYTE(v46) = *v9 >> 24;
+						LOBYTE(v43) = v13 >> 16;
+						LOBYTE(v44) = BYTE1(v12);
+						LOBYTE(v47) = v12;
+						if (v10)
+						{
+							v10(&v43, &v44, &v47, &v46);
+							v11 = ptr_ctx;
+						}
+						v14 = v11->graphicsAdapters[v11->curGfxAdapt].accelAdapters[v11->curAccelAdapt].texFormats;
+						v15 = (int)&v14[v11->curTexFormat];
+						v16 = ((unsigned int)(unsigned __int8)v46 >> (8 - *(_BYTE *)(v15 + 47)) << *(_BYTE *)(v15 + 51)) | ((unsigned int)(unsigned __int8)v44 >> (8 - *(_BYTE *)(v15 + 45)) << *(_BYTE *)(v15 + 49)) | ((unsigned int)(unsigned __int8)v47 >> (8 - v14[v11->curTexFormat].bitsB) << *(_BYTE *)(v15 + 50));
+						v17 = (unsigned int)(unsigned __int8)v43 >> (8 - *(_BYTE *)(v15 + 44));
+						LOBYTE(v14) = *(_BYTE *)(v15 + 48);
+						v18 = *(_DWORD *)(v15 + 32);
+						v19 = (v17 << (char)v14) | v16;
+						if (v18 > 0)
+						{
+							v20 = (unsigned int)(v18 + 7) >> 3;
+							do
+							{
+								*v8++ = v19;
+								v19 >>= 8;
+								--v20;
+							} while (v20);
+							v11 = ptr_ctx;
+						}
+						v10 = a5;
+						++v41;
+						v9 += v40;
+					} while (v41 < a2a.dwWidth);
+				}
+				v7 = (_WORD *)v39;
+				v9 = (unsigned int *)(v39 + v42);
+				v21 = v45++ + 1 < a2a.dwHeight;
+				v42 += v39;
+			} while (v21);
+		}
+	}
+	v36 = a3a->lpVtbl->Unlock(a3a, 0);
+	sub_40179E(v36);
+	if (a3)
+		sub_403297(&a2a, a3a, a4, a3);
+	return a3a;
+}
+void LoadTextures(int numRoom, int numObj, int numBump)
+{
+	Log(2, "LoadTextures");
+
+	dword_875144 = lvDataPtr;
+	dword_D9A868 = 1;
+
+	int v85 = 0;
+	int depth = 4;
+
+	struct acceltexformatinfo* texf = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+		.accelAdapters[ptr_ctx->curAccelAdapt]
+		.texFormats[ptr_ctx->curTexFormat];
+
+	if (texf->bitsR == 5 && texf->bitsG == 5 && texf->bitsB == 5 && texf->bitsA == 1)
+	{
+		v85 = 2;
+		depth = 2;
+
+		int uncomp32 = freadDword();
+		int comp32 = freadDword();
+		if (useCompression)
+			fseek(fp_level, comp32, SEEK_CUR);
+		else
+			fseek(fp_level, uncomp32, SEEK_CUR);
+
+		int uncomp16 = freadDword();
+		int comp16 = freadDword();
+		texbuf = malloc(comp16);
+		lvDataPtr = malloc(uncomp16);
+
+		if (useCompression)
+		{
+			fread_ex(texbuf, comp16, 1, fp_level);
+			Decompress(lvDataPtr, texbuf, comp16, uncomp16);
+		}
+		else
+		{
+			fread_ex(lvDataPtr, uncomp16, 1, fp_level);
+		}
+	}
+	else
+	{
+		if (texf->bitsR == 8 && texf->bitsG == 8 && texf->bitsB == 8 && texf->bitsA == 8)
+			v85 = 1;
+
+		int uncomp32 = freadDword();
+		int comp32 = freadDword();
+		texbuf = malloc(comp32);
+		lvDataPtr = malloc(uncomp32);
+
+		if (useCompression)
+		{
+			fread_ex(texbuf, comp32, 1, fp_level);
+			Decompress(lvDataPtr, texbuf, comp32, uncomp32);
+
+			int uncomp16 = freadDword();
+			int comp16 = freadDword();
+			fseek(fp_level, comp16, SEEK_CUR);
+		}
+		else
+		{
+			fread_ex(lvDataPtr, comp32, 1, fp_level);
+
+			int uncomp16 = freadDword();
+			int comp16 = freadDword();
+			fseek(fp_level, uncomp16, SEEK_CUR);
+		}
+	}
+
+	free(texbuf);
+
+	Log(5, "RTPages %d", numRoom);
+
+	int szRoom = numRoom * depth * TEXTURE_SIZE;
+	void* bufRoom;
+	AllocReadT(bufRoom, char, szRoom);
+	sub_4B1A80();
+
+	if (numRoom > 0)
+	{
+		
+	}
+}
+
+void LoadLevel(const char* filename)
+{
+	Log(5, "Begin LoadLevel");
+
+	FreeLevel();
+
+	dword_D9A868 = 1;
+	dword_D99DA8 = 0;
+	dword_D99DAC = 0;
+	dword_D99DC0 = 0;
+	dword_D99DC4 = 0;
+	byte_D99DCC[0] = 0;
+	texbuf = NULL;
+
+	lvDataPtr = 0;
+	fp_level = FileOpen(filename);
+
+	if (fp_level)
+	{
+		int version = freadDword();
+		int numRoomTex = freadWord();
+		int numObjTex = freadWord();
+		int numBumpTex = freadWord();
+
+		sub_4B1A40(numObjTex + numBumpTex + numRoomTex + 20);
+		sub_4B1A80();
+
+		Log(7, "Process Level Data");
+		LoadTextures(numRoomTex, numObjTex, numBumpTex);
+
+		LaraDrawType = freadWord() + 1;
+		WeatherType = freadWord();
+		freadBytes(28); // padding
+
+		int uncompSize = readDword();
+		int compSize = readDword();
+		lvDataPtr = malloc(uncompSize);
+		fread_ex(lvDataPtr, uncompSize, 1, fp_level);
+
+		Log(5, "Rooms");
+		LoadRooms();
+		sub_4B1A80();
+
+		Log(5, "Objects");
+		LoadObjects();
+		sub_4B1A80();
+
+		LoadSprites();
+		sub_4B1A80();
+
+		LoadCameras();
+		sub_4B1A80();
+
+		LoadSoundEffects();
+		sub_4B1A80();
+
+		LoadBoxes();
+		sub_4B1A80();
+
+		LoadAnimatedTextures();
+		sub_4B1A80();
+
+		LoadTextureInfos();
+		sub_4B1A80();
+
+		char* backup = lvDataPtr;
+		int numItems = readDword();
+		lvDataPtr += 24 * numItems;
+
+		LoadAIObjects();
+		char* backup2 = lvDataPtr;
+		lvDataPtr = backup;
+
+		LoadItems();
+		lvDataPtr = backup2;
+
+		sub_4B1A80();
+		sub_4B1A80();
+
+		LoadDemoData();
+		sub_4B1A80();
+
+		if (ACMInited && !ptr_ctx->opt_DisableSound)
+			LoadSamples();
+
+		free(lvDataPtr);
+
+		sub_4B1A80();
+
+		S_Warn("[LoadLevel] - End unimplemented!\n");
+
+		LABEL_20:
+		FileClose(fp_level);
+	}
+
+	sub_491DA0(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
+	dword_874968 = 0;
+	_endthreadex(1u);
 }
 
 void S_LoadLevelFile(int Name)

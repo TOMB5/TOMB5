@@ -52,5 +52,7 @@ extern void FreeSoundThings();
 extern void StreamOpen();
 extern char __cdecl DXCreateSampleADPCM(char *a1, int a2, int a3, int a4);
 extern char StreamClose();
+extern int DXDSCreate();
+extern void InitACM();
 
 #endif

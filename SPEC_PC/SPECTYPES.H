@@ -85,6 +85,16 @@ typedef unsigned int    uint32;
 #define SWORD6(x)   SWORDn(x,  6)
 #define SWORD7(x)   SWORDn(x,  7)
 
+inline int8_t __SETS__(int32_t x)
+{
+	return (int8_t)(x < 0);
+}
+
+inline int8_t __OFSUB__(int32_t x, int32_t y)
+{
+	return (__SETS__(x) ^ __SETS__(y)) & (__SETS__(x) ^ __SETS__(x - y));
+}
+
 inline void *qmemcpy(void *dst, const void *src, size_t cnt)
 {
 	char *out = (char *)dst;

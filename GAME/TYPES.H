@@ -29,6 +29,8 @@
 
 #define PSXENGINE (PSXPC_VERSION || PSX_VERSION)
 
+#define TEXTURE_SIZE (256 * 256)
+
 // 4 enums
 enum mood_type
 {
