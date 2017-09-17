@@ -54,5 +54,9 @@ extern char __cdecl DXCreateSampleADPCM(char *a1, int a2, int a3, int a4);
 extern char StreamClose();
 extern int DXDSCreate();
 extern void InitACM();
-
+extern DWORD opt_MusicVolume;
+extern DWORD opt_SFXVolume;
+extern DWORD opt_ControlMethod;
+extern DWORD opt_SoundQuality;
+extern DWORD dword_874968;
 #endif

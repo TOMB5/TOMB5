@@ -1,11 +1,14 @@
 #include "PCINPUT.H"
 #include "GPU.H"
 #include "ERROR.H"
-#include <dinput.h>
-#pragma comment (lib, "dinput.lib")
+
 long input;
 long inputBusy;
+BYTE byte_86BB8C[256];
+BYTE unk_86BC8C[256];
+WORD word_86B9B0[32];
 
+DWORD dword_86BA48;
 BOOL __stdcall sub_401FE6(LPCDIDEVICEINSTANCEA a1, LPVOID a2)
 {
 	return ptr_ctx->dinput->lpVtbl->CreateDeviceEx(

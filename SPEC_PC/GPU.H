@@ -1,9 +1,8 @@
 #ifndef GPU_H
 #define GPU_H
-
+#include "PCINPUT.H"
 #include <d3d.h>
 #include <dsound.h>
-#include <dinput.h>
 #include "SPECIFIC.H"
 #pragma pack(push, 1)
 struct dispmode
@@ -167,4 +166,6 @@ extern signed int __cdecl DXInitialise(void *lpContext, HWND hwnd);
 extern int sub_401424();
 extern int DXChangeVideoMode();
 extern int DXMove(int xLeft, int yTop);
+extern signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_s *a5, HWND a6, DWORD dwStyle);
+extern signed int __cdecl DXCreateSurface(LPDIRECTDRAW4 a1, LPDDSURFACEDESC2 a2, LPDIRECTDRAWSURFACE4* a3);
 #endif

@@ -4,7 +4,6 @@
 #include <windows.h>
 #include <dsound.h>
 #include "SPECTYPES.H"
-#include <dinput.h>
 #include <d3d.h>
 
 

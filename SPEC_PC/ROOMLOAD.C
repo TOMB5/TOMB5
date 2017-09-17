@@ -622,7 +622,7 @@ void LoadRooms()
 	dword_7E7FE8 = 0;
 
 	ReadRooms();
-	sub_4774D0();
+	//sub_4774D0();
 
 	int numFloorData = readDword();
 	AllocReadT(floor_data, short, numFloorData);
@@ -746,7 +746,7 @@ void LoadObjects()
 	memset(static_objects, 0, sizeof static_objects);
 
 	int numMeshWords = readDword();
-	AllocReadT(mesh_base, short, 2 * numMeshWords);
+	AllocReadT(mesh_base, short, numMeshWords);
 
 	int numMeshPtrs = readDword();
 	AllocReadT(meshes, short*, numMeshPtrs);
@@ -792,6 +792,8 @@ void LoadObjects()
 		objects[obj].bone_index = readDword();
 		objects[obj].frame_base = readDword();
 		objects[obj].anim_index = readWord();
+
+		readWord(); // alignment, always 0xFFEF
 
 		objects[obj].loaded = 1;
 	}
@@ -1097,6 +1099,15 @@ void LoadTextures(int numRoom, int numObj, int numBump)
 	}
 }
 
+void LoadSprites()
+{
+	Log(2, "LoadSprites");
+
+	readDword(); // SPR\0
+
+	int numSpr = readDword();
+}
+
 void LoadLevel(const char* filename)
 {
 	Log(5, "Begin LoadLevel");
@@ -1108,7 +1119,7 @@ void LoadLevel(const char* filename)
 	dword_D99DAC = 0;
 	dword_D99DC0 = 0;
 	dword_D99DC4 = 0;
-	byte_D99DCC[0] = 0;
+	//byte_D99DCC[0] = 0;
 	texbuf = NULL;
 
 	lvDataPtr = 0;
@@ -1126,13 +1137,13 @@ void LoadLevel(const char* filename)
 
 		Log(7, "Process Level Data");
 		LoadTextures(numRoomTex, numObjTex, numBumpTex);
-
+		fseek(fp_level, 0x319acf, SEEK_SET);
 		LaraDrawType = freadWord() + 1;
 		WeatherType = freadWord();
 		freadBytes(28); // padding
-
-		int uncompSize = readDword();
-		int compSize = readDword();
+		Log(0, "%x", ftell(fp_level));
+		int uncompSize = freadDword();
+		int compSize = freadDword();
 		lvDataPtr = malloc(uncompSize);
 		fread_ex(lvDataPtr, uncompSize, 1, fp_level);
 
@@ -1159,7 +1170,7 @@ void LoadLevel(const char* filename)
 		LoadAnimatedTextures();
 		sub_4B1A80();
 
-		LoadTextureInfos();
+		//LoadTextureInfos();
 		sub_4B1A80();
 
 		char* backup = lvDataPtr;
@@ -1197,8 +1208,123 @@ void LoadLevel(const char* filename)
 	_endthreadex(1u);
 }
 
+BYTE byte_87B81C;
+DWORD dword_8751CC;
+DWORD dword_8751C8;
+
+const char* screens[] =
+{
+	"SCREENS\\STORY1.STR",
+	"SCREENS\\NXG.STR",
+	"SCREENS\\STORY2.STR",
+	"SCREENS\\GALLERY.STR",
+	"SCREENS\\SCREENS.STR"
+};
+
+LPDIRECTDRAWSURFACE4 surf_screen;
+
+void LoadScreen(int a2, int num)
+{
+	FILE *v3; // esi@2
+	int v4; // ST24_4@3
+	void *v5; // ebx@3
+	DWORD v6; // edx@3
+	__int16 *v7; // ecx@3
+	signed int v8; // esi@3
+	__int16 v9; // ax@4
+	DDPIXELFORMAT v10; // [sp+8h] [bp-9Ch]@1
+	DDSURFACEDESC2 a2a; // [sp+28h] [bp-7Ch]@1
+
+	memset(&a2a, 0, sizeof(a2a));
+	memset(&v10, 0, sizeof(v10));
+	a2a.dwSize = 124;
+	a2a.dwWidth = 640;
+	a2a.dwHeight = 480;
+	v10.dwSize = 32;
+	v10.dwFlags = DDPF_RGB;
+	v10.dwRGBBitCount = 16;
+	v10.dwRBitMask = 0xF800;
+	v10.dwGBitMask = 0x7E0;
+	v10.dwBBitMask = 0x1F;
+	v10.dwRGBAlphaBitMask = 0;
+	qmemcpy(&a2a.ddpfPixelFormat, &v10, sizeof(a2a.ddpfPixelFormat));
+	a2a.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+	a2a.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+	if (DXCreateSurface(ptr_ctx->ddraw, &a2a, &surf_screen) && (v3 = FileOpen(screens[num])) != 0)
+	{
+		v5 = malloc(0x96000u);
+		fseek(v3, 614400 * a2, 0);
+		fread_ex(v5, 0x96000u, 1u, v3);
+		fclose(v3);
+		memset(&a2a, 0, sizeof(a2a));
+		a2a.dwSize = 124;
+		surf_screen->lpVtbl->Lock(surf_screen, NULL, &a2a, DDLOCK_WAIT | DDLOCK_NOSYSLOCK, 0);
+		v6 = a2a.lpSurface;
+		v7 = (__int16 *)v5;
+		v8 = 307200;
+		do
+		{
+			v9 = *v7;
+			++v7;
+			v6 += 2;
+			--v8;
+			*(_WORD *)(v6 - 2) = v9 & 0x1F | 2 * (v9 & 0xFFE0);
+		} while (v8);
+		surf_screen->lpVtbl->Unlock(surf_screen, NULL);
+		free(v5);
+		byte_87B81C = 1;
+	}
+	else
+	{
+		Log(0, "WHORE!");
+	}
+}
+
+_DWORD *sub_49D220()
+{
+	S_Warn("[sub_49D220] - Unimplemented!\n");
+	return 0;
+}
+
+void sub_4BA100()
+{
+	S_Warn("[sub_4BA100] - Unimplemented!\n");
+}
+
 void S_LoadLevelFile(int Name)
 {
+	Log(2, "S_LoadLevelFile");
+
+	if (!byte_87B81C)
+	{
+		int v1 = Name;
+		if (!Name)
+		{
+			if (dword_8751CC)
+			{
+				v1 = dword_8751C8++ % 3 + 15;
+			}
+			else
+			{
+				dword_8751CC = 1;
+				v1 = -2;
+			}
+		}
+		LoadScreen(v1 + 2, 4);
+	}
+
+	char filename[80];
+	strcpy(filename, &gfFilenameWad[gfFilenameOffset[Name]]);
+	dword_8FBDC0 = 0;
+	strcat(filename, ".TRC");
+	LoadLevel(filename);
+	for(int i = 0; i < 4; i++)
+	{
+		ptr_BeginScene();
+		sub_49D220();
+		sub_4BA100();
+	}
+
 	S_Warn("[S_LoadLevelFile] - Unimplemented!\n");
 }
 

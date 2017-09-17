@@ -9,12 +9,24 @@
 #include "WINMAIN.H"
 #include "GPU.H"
 #include "SOUND.H"
-
+#include "CONTROL.H"
+#include "CD.H"
+#include "FILE.H"
+#pragma comment (lib, "Msacm32.lib")
+#pragma comment (lib, "dsound.lib")
 WAVEFORMATEX pwfxSrc = { WAVE_FORMAT_ADPCM, 2, 44100, 44359, 2048, 4, 0x20 };
 WAVEFORMATEX stru_516400 = { WAVE_FORMAT_ADPCM, 1, 22050, 11155, 512, 4, 0x20 };
 WAVEFORMATEX stru_86BEC8;
 ACMSTREAMHEADER stru_86BE70;
-
+DWORD dword_874968;
+DWORD NumSamples[] = { 11025, 22050, 44100 };
+DWORD dword_86CC7C;
+LPDIRECTSOUNDBUFFER DSSoundBuffer;
+DWORD opt_MusicVolume = 40;
+DWORD opt_SFXVolume = 80;
+DWORD opt_ControlMethod;
+DWORD opt_SoundQuality = 1;
+HANDLE dword_579FA8;
 char ResetSoundThings()
 {
 	char result; // al@1
@@ -275,6 +287,130 @@ int DXDSCreate()
 	DXSetOutputFormat();
 	result = 1;
 	sound_active = 1;
+	return result;
+}
+
+void __cdecl sub_4027DE(void *a1, int a2)
+{
+	byte_57A01C = 1;
+	EnterCriticalSection(&CriticalSection);
+	LeaveCriticalSection(&CriticalSection);
+	if (!stream)
+		goto LABEL_17;
+	if (a2 != XATrack || a2 == -1)
+	{
+		Log(0, "Not Current Track %d", a2);
+		goto LABEL_17;
+	}
+	memset(a1, 0, 0x5800u);
+	if (!stream)
+	{
+	LABEL_17:
+		byte_57A01C = 0;
+		byte_579FE4 = 0;
+		return;
+	}
+	fread_ex(a1, 1u, 0x5800u, stream);
+	if (!stream /*|| !(stream->_flag & 0x10)*/) // TODO MAY BREAK
+		goto LABEL_9;
+	if (dword_579E30 == 1)
+	{
+		fseek(stream, 90, 0);
+	LABEL_9:
+		byte_57A01C = 0;
+		byte_579FE4 = 1;
+		return;
+	}
+	if (++dword_57A018 <= 8)
+		goto LABEL_9;
+	dword_57A018 = 0;
+	if (dword_579E30 == 2)
+	{
+		byte_57A01C = 0;
+		byte_579FE4 = 0;
+		ResetSoundThings();
+	}
+	else
+	{
+		if (!CurrentAtmosphere || IsAtmospherePlaying)
+			goto LABEL_9;
+		byte_57A01C = 0;
+		byte_579FE4 = 0;
+		ResetSoundThings();
+		S_CDPlay((unsigned __int8)CurrentAtmosphere, 1);
+	}
+}
+
+int StartAddress()
+{
+	DWORD i; // esi@1
+	int v1; // eax@10
+	DWORD v3; // [sp+34h] [bp-8h]@10
+	void* v4; // [sp+38h] [bp-4h]@10
+
+	for (i = WaitForMultipleObjects(2u, &Handles, 0, 0xFFFFFFFF);
+		i != -1;
+		i = WaitForMultipleObjects(2u, &Handles, 0, 0xFFFFFFFF))
+	{
+		EnterCriticalSection(&CriticalSection);
+		if (!i && other_buf)
+		{
+			qmemcpy(bufSource, dword_579FD4, 0x5800u);
+			if (XATrack == -1)
+				memset(bufSource, 0, 0x5800u);
+			else
+				sub_4027DE(dword_579FD4, XATrack);
+			if (byte_579FE4)
+			{
+				dword_579FD4 = (char *)dword_579FD4 + 22528;
+				if ((signed int)dword_579FD4 >= (signed int)ptr + 225280)
+					dword_579FD4 = ptr;
+				other_buf->lpVtbl->Lock(
+					other_buf,
+					dword_579FD8,
+					bufMaxLength,
+					&v4,
+					&v3,
+					0,
+					0,
+					0);
+				acmStreamConvert(has, &acmHeader1 + dword_579E4C, 4u);
+				other_buf->lpVtbl->Unlock(
+					other_buf,
+					v4,
+					v3,
+					0,
+					0);
+				v1 = v3 + dword_579FD8;
+				dword_579FD8 += v3;
+				if (dword_579FD8 >= (unsigned int)bufLockLength)
+					dword_579FD8 = v1 - bufLockLength;
+				dword_579E4C = ((_BYTE)dword_579E4C + 1) & 3;
+			}
+		}
+		LeaveCriticalSection(&CriticalSection);
+		if (!other_buf)
+			break;
+	}
+	return 0;
+}
+int __stdcall fnCallback(HACMDRIVERID arghadid, int a2, int a3)
+{
+	int result; // eax@2
+	struct tACMDRIVERDETAILSA padd; // [sp+Ch] [bp-398h]@1
+
+	memset(&padd, 0, sizeof(padd));
+	padd.cbStruct = 920;
+	acmDriverDetailsA(arghadid, &padd, 0);
+	if (!strcmp(padd.szShortName, "MS-ADPCM"))
+	{
+		hadid = arghadid;
+		result = 0;
+	}
+	else
+	{
+		result = 1;
+	}
 	return result;
 }
 

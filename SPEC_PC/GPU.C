@@ -8,7 +8,10 @@ DWORD BumpBitCount;
 DWORD BumpDU;
 DWORD BumpDV;
 HWND dword_86B9A4;
+#pragma comment (lib, "ddraw.lib")
+#pragma comment (lib, "dxguid.lib")
 
+#pragma comment (lib, "d3dx9.lib")
 char *__cdecl sub_401A7D(void *a1, int a2, size_t a3)
 {
 	unsigned int v3; // esi@2
@@ -28,6 +31,33 @@ char *__cdecl sub_401A7D(void *a1, int a2, size_t a3)
 	return result;
 }
 
+unsigned int __cdecl sub_49F9C0(unsigned int a1, _BYTE *a2, _BYTE *a3)
+{
+	unsigned int result; // eax@1
+	char i; // cl@1
+	char v5; // cl@3
+
+	result = a1;
+	for (i = 0; !(result & 1); ++i)
+		result >>= 1;
+	*a2 = i;
+	v5 = 0;
+	if (result & 1)
+	{
+		do
+		{
+			result >>= 1;
+			++v5;
+		} while (result & 1);
+		result = (unsigned int)a3;
+		*a3 = v5;
+	}
+	else
+	{
+		*a3 = 0;
+	}
+	return result;
+}
 
 
 unsigned int __cdecl sub_4016B3(int a1, int a2, int a3)
@@ -89,6 +119,8 @@ int __cdecl DXDDCreate(GUID *lpGUID, LPDIRECTDRAW4* a2)
 	}
 	return result;
 }
+
+
 
 int DXChangeVideoMode()
 {

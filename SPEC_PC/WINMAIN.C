@@ -1,7 +1,7 @@
 #undef __cplusplus
 #define FORCE_NO_SOUND
 
-#define DIRECTINPUT_VERSION 0x0700
+
 #include "WINMAIN.H"
 #include "SPECIFIC.H"
 #include <stdio.h>
@@ -28,11 +28,8 @@
 #include "CAMERA.H"
 #include "GPU.H"
 #include "PCINPUT.H"
-#pragma comment (lib, "Msacm32.lib")
-#pragma comment (lib, "ddraw.lib")
-#pragma comment (lib, "dxguid.lib")
-#pragma comment (lib, "dsound.lib")
-#pragma comment (lib, "d3dx9.lib")
+
+
 
 
 
@@ -144,10 +141,7 @@ DWORD opt_JLok = 6;
 DWORD opt_JRol = 7;
 DWORD opt_JInv = 8;
 
-DWORD opt_MusicVolume = 40;
-DWORD opt_SFXVolume = 80;
-DWORD opt_ControlMethod;
-DWORD opt_SoundQuality = 1;
+
 
 
 HGDIOBJ gdiobject;
@@ -164,10 +158,7 @@ BYTE opt_LowQualityBumpMap;
 DWORD opt_VolumetricFog;
 BYTE opt_BilinearFiltering;
 
-DWORD dword_874968;
-DWORD NumSamples[] = { 11025, 22050, 44100 };
-DWORD dword_86CC7C;
-LPDIRECTSOUNDBUFFER DSSoundBuffer;
+
 int* phd_mxptr; // 12 ints
 int other_matrix_shit[12];
 D3DMATRIX transform_world;
@@ -182,14 +173,10 @@ DWORD dword_57A090;
 
 
 
-BYTE byte_86BB8C[256];
-BYTE unk_86BC8C[256];
-WORD word_86B9B0[32];
-
-DWORD dword_86BA48;
 
 
-HANDLE dword_579FA8;
+
+
 
 float flt_50A438 = 12288.0;
 float flt_50A43C = 20480.0;
@@ -534,7 +521,6 @@ char FindGameDrive()
 	return result;
 }
 
-signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_s *a5, HWND a6, DWORD dwStyle);
 
 signed int DXToggleFullScreen()
 {
@@ -1217,57 +1203,6 @@ void sub_4CF191()
 	sub_4D8F51(&ptr_ctx->isInScene);
 }
 
-void __cdecl sub_4027DE(void *a1, int a2)
-{
-	byte_57A01C = 1;
-	EnterCriticalSection(&CriticalSection);
-	LeaveCriticalSection(&CriticalSection);
-	if (!stream)
-		goto LABEL_17;
-	if (a2 != XATrack || a2 == -1)
-	{
-		Log(0, "Not Current Track %d", a2);
-		goto LABEL_17;
-	}
-	memset(a1, 0, 0x5800u);
-	if (!stream)
-	{
-	LABEL_17:
-		byte_57A01C = 0;
-		byte_579FE4 = 0;
-		return;
-	}
-	fread_ex(a1, 1u, 0x5800u, stream);
-	if (!stream /*|| !(stream->_flag & 0x10)*/) // TODO MAY BREAK
-		goto LABEL_9;
-	if (dword_579E30 == 1)
-	{
-		fseek(stream, 90, 0);
-	LABEL_9:
-		byte_57A01C = 0;
-		byte_579FE4 = 1;
-		return;
-	}
-	if (++dword_57A018 <= 8)
-		goto LABEL_9;
-	dword_57A018 = 0;
-	if (dword_579E30 == 2)
-	{
-		byte_57A01C = 0;
-		byte_579FE4 = 0;
-		ResetSoundThings();
-	}
-	else
-	{
-		if (!CurrentAtmosphere || IsAtmospherePlaying)
-			goto LABEL_9;
-		byte_57A01C = 0;
-		byte_579FE4 = 0;
-		ResetSoundThings();
-		S_CDPlay((unsigned __int8)CurrentAtmosphere, 1);
-	}
-}
-
 int __cdecl sub_40286A(int a1)
 {
 	LPDIRECTINPUTDEVICEA result; // eax@1
@@ -1371,113 +1306,13 @@ LRESULT __stdcall sub_401E8D(HWND hWnd, unsigned int Msg, int wParam, void *lPar
 
 
 
-unsigned int __cdecl sub_49F9C0(unsigned int a1, _BYTE *a2, _BYTE *a3)
-{
-	unsigned int result; // eax@1
-	char i; // cl@1
-	char v5; // cl@3
-
-	result = a1;
-	for (i = 0; !(result & 1); ++i)
-		result >>= 1;
-	*a2 = i;
-	v5 = 0;
-	if (result & 1)
-	{
-		do
-		{
-			result >>= 1;
-			++v5;
-		} while (result & 1);
-		result = (unsigned int)a3;
-		*a3 = v5;
-	}
-	else
-	{
-		*a3 = 0;
-	}
-	return result;
-}
 
 
 
 
 
-int __stdcall fnCallback(HACMDRIVERID arghadid, int a2, int a3)
-{
-	int result; // eax@2
-	struct tACMDRIVERDETAILSA padd; // [sp+Ch] [bp-398h]@1
-
-	memset(&padd, 0, sizeof(padd));
-	padd.cbStruct = 920;
-	acmDriverDetailsA(arghadid, &padd, 0);
-	if (!strcmp(padd.szShortName, "MS-ADPCM"))
-	{
-		hadid = arghadid;
-		result = 0;
-	}
-	else
-	{
-		result = 1;
-	}
-	return result;
-}
 
 
-
-int StartAddress()
-{
-	DWORD i; // esi@1
-	int v1; // eax@10
-	DWORD v3; // [sp+34h] [bp-8h]@10
-	void* v4; // [sp+38h] [bp-4h]@10
-
-	for (i = WaitForMultipleObjects(2u, &Handles, 0, 0xFFFFFFFF);
-		i != -1;
-		i = WaitForMultipleObjects(2u, &Handles, 0, 0xFFFFFFFF))
-	{
-		EnterCriticalSection(&CriticalSection);
-		if (!i && other_buf)
-		{
-			qmemcpy(bufSource, dword_579FD4, 0x5800u);
-			if (XATrack == -1)
-				memset(bufSource, 0, 0x5800u);
-			else
-				sub_4027DE(dword_579FD4, XATrack);
-			if (byte_579FE4)
-			{
-				dword_579FD4 = (char *)dword_579FD4 + 22528;
-				if ((signed int)dword_579FD4 >= (signed int)ptr + 225280)
-					dword_579FD4 = ptr;
-				other_buf->lpVtbl->Lock(
-					other_buf,
-					dword_579FD8,
-					bufMaxLength,
-					&v4,
-					&v3,
-					0,
-					0,
-					0);
-				acmStreamConvert(has, &acmHeader1 + dword_579E4C, 4u);
-				other_buf->lpVtbl->Unlock(
-					other_buf,
-					v4,
-					v3,
-					0,
-					0);
-				v1 = v3 + dword_579FD8;
-				dword_579FD8 += v3;
-				if (dword_579FD8 >= (unsigned int)bufLockLength)
-					dword_579FD8 = v1 - bufLockLength;
-				dword_579E4C = ((_BYTE)dword_579E4C + 1) & 3;
-			}
-		}
-		LeaveCriticalSection(&CriticalSection);
-		if (!other_buf)
-			break;
-	}
-	return 0;
-}
 
 LSTATUS __cdecl sub_4029B9(LPCSTR lpValueName, BYTE Data)
 {
