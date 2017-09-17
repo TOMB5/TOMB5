@@ -1,18 +1,19 @@
 #include "PICKUP.H"
 
-#include "SPECIFIC.H"
-#include "LARA.H"
-#include "DRAW.H"
-#if PSXPC_VERSION
-#include "PSXPCINPUT.H"
-#elif PSX_VERSION
-#include "PSXINPUT.H"
-#elif PC_VERSION
-#include "PCINPUT.H"
-#endif
-#include "CONTROL.H"
-#include "SWITCH.H"
 #include "COLLIDE.H"
+#include "CONTROL.H"
+#include "DRAW.H"
+#include "LARA.H"
+#if PC_VERSION
+	#include "PCINPUT.H"
+#elif PSX_VERSION
+	#include "PSXINPUT.H"
+#elif PSXPC_VERSION
+	#include "PSXPCINPUT.H"
+#endif
+#include "SPECIFIC.H"
+#include "SWITCH.H"
+
 
 struct PHD_VECTOR OldPickupPos;
 unsigned char RPickups[16];

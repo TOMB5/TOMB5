@@ -571,31 +571,31 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	//ClearDynamics();	
 	ClearFires();
 
-	a1 = next_item_active;//FIXME illegal value, should be 1F, check &objects looks like pointer not setup, continue setup.c
+	item_num = next_item_active;//FIXME illegal value, should be 1F, check &objects looks like pointer not setup, continue setup.c
 	GotLaraSpheres = 0;
 	InItemControlLoop = 1;
 
-	if (next_item_active != -1)//illegal -2
+	if (item_num != -1)
 	{
-		s1 = (char*)&objects[16]; // todo this value (16) may be wrong, check it plz
-		v000 = ((next_item_active << 3) + (next_item_active << 4));
-
 		//loc_1DB80
-		v1111 = items[next_item_active].after_death;
-		s0000 = items[next_item_active].next_active;
-		v1111 = v1111 < 0x80 ? 1 : 0;
-
-		if (v1111 == 0)
+		while (items[item_num].next_active != -1)
 		{
+			if (items[item_num].after_death > 127)
+			{
+				KillItem(item_num);
+			}
+			else
+			{
+				//loc_1DBB4
+				if (objects[items[item_num].object_number].control != 0)
+				{
+					//SayNo();//Delete me testing call here
+				}
+			}
 
-		}//loc_1DBB4
-		
-		//move	$a0, $a1
-		//KillItem();
-		//move	$a1, $s0
-		//j	loc_1DBE0
+			item_num++;
+		} 
 
-		assert(0);
 	}//loc_1DBE8, 1DDF4
 
 	InItemControlLoop = 0;
@@ -874,12 +874,22 @@ long GetRandomControl()//5E9F0, 926F8 (F)
 	return (rand_1 >> 16) & 0x7FFF;
 }
 
+void SeedRandomControl(long seed)
+{
+	rand_1 = seed;
+}
+
 long rand_2 = 0xD371F947;
 
 long GetRandomDraw()//5EA18, 5F6F8 (F)
 {
 	rand_2 = (rand_2 * 0x41C64E6D) + 0x3039;
 	return (rand_2 >> 16) * 0x7FFF;
+}
+
+void SeedRandomDraw(long seed)
+{
+	rand_2 = seed;
 }
 
 void ClearFires()//8B1C8(<), 8D20C(<) (F)

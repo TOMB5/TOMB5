@@ -1,16 +1,21 @@
 #include "ROOMLOAD.H"
 
 #include "CD.H"
+#include "FILE.H"
+#include "GAMEFLOW.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "SETUP.H"
+#include "SPECIFIC.H"
 
 #include <assert.h>
-
 #include <stdio.h>
 #include <string.h>
-#include "SPECIFIC.H"
+
+#if INTERNAL
+	#include <LIBSN.H>
+#endif
 
 long AnimFilePos;
 long AnimFileLen;
@@ -60,12 +65,12 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	RelocateModule(SetupPtr, &SetupPtr[1024]);
 
 #if INTERNAL
-	strcpy(buff, gfFilenameWad[gfFilenameOffset[Name]]);
-	strcat(buff, ".PSX");
+	strcpy(buf, gfFilenameWad[gfFilenameOffset[Name]]);
+	strcat(buf, ".PSX");
 		
-	len = FILE_Length(buff);
+	len = FILE_Length(buf);
 
-	file = PCopen(buff, 0, 0);
+	file = PCopen(buf, 0, 0);
 
 	RelocateLevel(file);
 #else

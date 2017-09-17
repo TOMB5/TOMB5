@@ -21,6 +21,9 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
+#if INTERNAL
+	#include <LIBSN.H>
+#endif
 #include <LIBSPU.H>
 #include <LIBGTE.H>
 
@@ -398,7 +401,7 @@ void RelocateLevel()
 
 #if INTERNAL
 				PClseek(nHandle, relocationPtr[0], 0);
-				FILE_Read(ptr, 1, relocationPtr[1]), nHandle);
+				FILE_Read(ptr, 1, relocationPtr[1], nHandle);
 #else
 				CD_Seek(relocationPtr[0]);
 				CD_Read(ptr, relocationPtr[1]);

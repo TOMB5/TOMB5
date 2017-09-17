@@ -2,8 +2,14 @@
 
 #include "CONTROL.H"
 #include "GAMEFLOW.H"
+#include "ITEMS.H"
+#include "MALLOC.H"
+#include "ROOMLOAD.H"
+#include "SETUP.H"
 #include "SPECIFIC.H"
+#include "TRAPS.H"
 #include "TYPES.H"
+
 
 #include <string.h>
 #ifdef PC_VERSION
@@ -11,11 +17,6 @@
 #else
 #include "SETUP.H"
 #endif
-#include "malloc.h"
-#include "TRAPS.H"
-#include "ITEMS.H"
-#include "ROOMLOAD.H"
-#include "OBJECTS.H"
 
 char FromTitle;
 char JustLoaded;
@@ -113,7 +114,7 @@ void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 		item->room_number = 255;
 	}
 	
-	for (int i = 0; i < 15; i++)
+	for (i = 0; i < 15; i++)
 	{
 		lara.mesh_ptrs[i] = (short*)((char*)mesh_base + (int)lara.mesh_ptrs[i]);
 	}
@@ -127,7 +128,7 @@ void SaveLaraData()//53738(<), 53B9C(<) (F)
 	struct ITEM_INFO* item;
 	int i;
 
-	for (int i = 0; i < 15; i++)
+	for (i = 0; i < 15; i++)
 	{
 		lara.mesh_ptrs[i] = (short*)((char*)lara.mesh_ptrs[i] - (int)mesh_base);
 	}
@@ -137,7 +138,7 @@ void SaveLaraData()//53738(<), 53B9C(<) (F)
 	lara.GeneralPtr = (char *)lara.GeneralPtr - (unsigned int)malloc_buffer;
 	memcpy(&savegame.Lara, &lara, sizeof(savegame.Lara));
 	
-	for (int i = 0; i < 15; i++)
+	for (i = 0; i < 15; i++)
 	{
 		lara.mesh_ptrs[i] = (short*)((char*)mesh_base + (int)lara.mesh_ptrs[i]);
 	}
