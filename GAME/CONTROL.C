@@ -237,6 +237,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 #if PC_VERSION
 	S_Warn("[ControlPhase] - Unimplemented!\n");
 #else
+	short item_num;
 	int s0 = nframes;
 	int v0 = SlowMotion;
 	int a0 = SlowMotion;

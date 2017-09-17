@@ -9,7 +9,6 @@ set(PLATFORM_PC 0 CACHE BOOL "Tomb Raider: 5 PC")
 
 #Internal Beta
 set(INTERNAL 0 CACHE BOOL "Internal")
-add_definitions(-TC -U__cplusplus)
 #MESSAGE(STATUS "PLATFORM_PSXPC: TRUE" ${PLATFORM_PSXPC})
 
 #Tell CMAKE where to find the additional modules this project requires.
@@ -95,6 +94,7 @@ if(PLATFORM_PC)
       set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:WINDOWS")
       set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
       set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS")
+      add_definitions(-TC -U__cplusplus)
       #include_directories($\(WindowsSDK_IncludePath\))
       #include_directories($\(DXSDK_DIR\)include)
       #link_directories(\\$\(WindowsSDK_LibraryPath_x86\))

@@ -21,14 +21,16 @@
 #include "TOMB4FX.H"
 #include "TYPES.H"
 
-#if !PC_VERSION
+#if PC_VERSION
+#include "GAME.H"
+#else
 #include "PROFILE.H"
 #include "SETUP.H"
 #endif
 
 #include <assert.h>
 #include <stddef.h>
-#include "GAME.H"
+
 #include "DRAWPHAS.H"
 
 
