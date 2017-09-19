@@ -5,6 +5,7 @@
 #include "LARA.H"
 #include "DELSTUFF.H"
 #include "CONTROL.H"
+#include "DRAW.H"
 
 char flare_table[121] =
 {
@@ -237,4 +238,87 @@ int GetFreeBubble()//8BEAC(<), 8DEF0(<) (F)
 	if (bub_num + 1 >= 40)
 		next_bubble = 0;
 	return bub_num;
+}
+
+void CreateBubble(struct PHD_VECTOR* pos, short room_num, int a3, int a4, int flags, int xv, int yv, int zv)//8BF14(<), 8DF58(<) (F)
+{
+	struct BUBBLE_STRUCT* v9;
+	long size;
+
+	GetFloor(pos->x, pos->y, pos->z, &room_num);
+
+	if (room[room_num].flags & RF_FILL_WATER)
+	{
+		v9 = &Bubbles[GetFreeBubble()];
+		v9->pos = *pos;
+		v9->room_number = room_num;
+		v9->speed = GetRandomControl() + 64;
+		v9->shade = 0;
+		size = 2 * (a3 + (a4 & GetRandomControl()));
+		v9->size = size;
+		v9->dsize = 16 * size;
+		v9->vel = (GetRandomControl() & 0x1F) + 32;
+		v9->Flags = flags;
+		v9->Xvel = xv;
+		v9->Yvel = yv;
+		v9->Zvel = zv;
+	}
+}
+
+void TriggerShatterSmoke(int x, int y, int z)//8AA14(<), 8CA58(<) (F)
+{
+	struct SMOKE_SPARKS* smoke;
+
+	smoke = &smoke_spark[GetFreeSmokeSpark()];
+	smoke->On = 1;
+	smoke->sShade = 0;
+	smoke->ColFadeSpeed = 4;
+	smoke->dShade = (GetRandomControl() & 0x1F) + 64;
+	smoke->FadeToBlack = 24 - (GetRandomControl() & 7);
+	smoke->TransType = 2;
+	smoke->Life = smoke->sLife = (GetRandomControl() & 7) + 48;
+	smoke->x = (GetRandomControl() & 0x1F) + x - 16;
+	smoke->y = (GetRandomControl() & 0x1F) + y - 16;
+	smoke->z = (GetRandomControl() & 0x1F) + z - 16;
+	smoke->Xvel = 2 * (GetRandomControl() & 0x1FF) - 512;
+	smoke->Yvel = 2 * (GetRandomControl() & 0x1FF) - 512;
+	smoke->Zvel = 2 * (GetRandomControl() & 0x1FF) - 512;
+	smoke->Friction = 7;
+	if (GetRandomControl() & 1)
+	{
+		smoke->Flags = 16;
+		smoke->RotAng = GetRandomControl() & 0xFFF;
+		if (GetRandomControl() & 1)
+			smoke->RotAdd = -64 - (GetRandomControl() & 0x3F);
+		else
+			smoke->RotAdd = (GetRandomControl() & 0x3F) + 64;
+	}
+	else if (room[lara_item->room_number].flags & RF_WIND_BLOWS_PONYTAIL)
+	{
+		smoke->Flags = 256;
+	}
+	else
+	{
+		smoke->Flags = 0;
+	}
+	smoke->Gravity = -4 - (GetRandomControl() & 3);
+	smoke->MaxYvel = -4 - (GetRandomControl() & 3);
+	smoke->dSize = (GetRandomControl() & 0x3F) + 64;
+	smoke->sSize = smoke->dSize >> 3;
+	smoke->Size = smoke->dSize >> 3;
+}
+
+void TriggerBlood(int x, int y, int z, int direction, int speed)
+{
+	S_Warn("[TriggerBlood] - Unimplemented!\n");
+}
+
+void TriggerExplosionBubble(int x, int y, int z, short room_num)
+{
+	S_Warn("[TriggerExplosionBubble] - Unimplemented!\n");
+}
+
+void TriggerExplosionSparks(int x, int y, int z, int a4, int a5, int a6, short room_no)
+{
+	S_Warn("[TriggerExplosionSparks] - Unimplemented!\n");
 }

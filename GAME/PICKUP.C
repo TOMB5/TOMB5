@@ -1,10 +1,25 @@
 #include "PICKUP.H"
 
+#include "COLLIDE.H"
+#include "CONTROL.H"
+#include "DRAW.H"
+#include "LARA.H"
+#if PC_VERSION
+	#include "PCINPUT.H"
+#elif PSX_VERSION
+	#include "PSXINPUT.H"
+#elif PSXPC_VERSION
+	#include "PSXPCINPUT.H"
+#endif
 #include "SPECIFIC.H"
+#include "SWITCH.H"
+
 
 struct PHD_VECTOR OldPickupPos;
 unsigned char RPickups[16];
 unsigned char NumRPickups;
+short MSBounds[12];
+struct PHD_VECTOR MSPos;
 
 short SearchOffsets[4] =
 {
@@ -21,9 +36,59 @@ short SearchCollectFrames[4] =
 	0x00B4, 0x0064, 0x0099, 0x0053
 };
 
-void MonitorScreenCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//53428, 5388C
+void MonitorScreenCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//53428(<), 5388C(<) (F)
 {
-	S_Warn("[MonitorScreenCollision] - Unimplemented!\n");
+	struct ITEM_INFO* item;
+	short* bounds;
+
+	item = &items[item_num];
+	if (l->anim_number == 197 && l->frame_number == anims[197].frame_base + 24)
+		TestTriggersAtXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 1, 0);
+
+	if ((!(input & 0x40)
+		|| l->current_anim_state != 2
+		|| l->anim_number != 103
+		|| lara.gun_status
+		|| item->status != 0)
+		&& (!lara.IsMoving || lara.GeneralPtr != (void *)item_num))
+	{
+		ObjectCollision(item_num, l, coll);
+	}
+	else
+	{
+		bounds = GetBoundsAccurate(item);
+		MSBounds[0] = bounds[0] - 256;
+		MSBounds[1] = bounds[1] + 256;
+		MSBounds[4] = bounds[4] - 512;
+		MSBounds[5] = bounds[5] + 512;
+		MSPos.z = bounds[4] - 256;
+		if (TestLaraPosition(MSBounds, item, l))
+		{
+			if (MoveLaraPosition(&MSPos, item, l))
+			{
+				l->current_anim_state = 40;
+				l->anim_number = 197;
+				l->frame_number = anims[197].frame_base;
+				lara.IsMoving = 0;
+				lara.head_y_rot = 0;
+				lara.head_x_rot = 0;
+				lara.torso_y_rot = 0;
+				lara.torso_x_rot = 0;
+				lara.gun_status = 1;
+				item->flags |= 0x20u;
+				item->status = 1;
+			}
+			else
+			{
+				lara.GeneralPtr = (void *)item_num;
+			}
+		}
+		else if (lara.IsMoving && lara.GeneralPtr == (void *)item_num)
+		{
+			lara.IsMoving = 0;
+			lara.gun_status = 0;
+		}
+	}
 }
 
 void CollectCarriedItems(struct ITEM_INFO* item)//5339C, 53800

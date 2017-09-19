@@ -26,6 +26,9 @@
 #include "TOMB4FX.H"
 
 #include <assert.h>
+#include "DRAW.H"
+#include "ROOMLOAD.H"
+#include "DEBRIS.H"
 
 int flipeffect = -1;
 int fliptimer;
@@ -226,6 +229,7 @@ char byte_A3660;
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 {
+	short item_num;
 	int s0 = nframes;
 	int v0 = SlowMotion;
 	int a0 = SlowMotion;
@@ -560,31 +564,31 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	//ClearDynamics();	
 	ClearFires();
 
-	a1 = next_item_active;//FIXME illegal value, should be 1F, check &objects looks like pointer not setup, continue setup.c
+	item_num = next_item_active;//FIXME illegal value, should be 1F, check &objects looks like pointer not setup, continue setup.c
 	GotLaraSpheres = 0;
 	InItemControlLoop = 1;
 
-	if (next_item_active != -1)//illegal -2
+	if (item_num != -1)
 	{
-		s1 = (char*)&objects[16]; // todo this value (16) may be wrong, check it plz
-		v000 = ((next_item_active << 3) + (next_item_active << 4));
-
 		//loc_1DB80
-		v1111 = items[next_item_active].after_death;
-		s0000 = items[next_item_active].next_active;
-		v1111 = v1111 < 0x80 ? 1 : 0;
-
-		if (v1111 == 0)
+		while (items[item_num].next_active != -1)
 		{
+			if (items[item_num].after_death > 127)
+			{
+				KillItem(item_num);
+			}
+			else
+			{
+				//loc_1DBB4
+				if (objects[items[item_num].object_number].control != 0)
+				{
+					//SayNo();//Delete me testing call here
+				}
+			}
 
-		}//loc_1DBB4
-		
-		//move	$a0, $a1
-		//KillItem();
-		//move	$a1, $s0
-		//j	loc_1DBE0
+			item_num++;
+		} 
 
-		assert(0);
 	}//loc_1DBE8, 1DDF4
 
 	InItemControlLoop = 0;
@@ -862,12 +866,22 @@ long GetRandomControl()//5E9F0, 926F8 (F)
 	return (rand_1 >> 16) & 0x7FFF;
 }
 
+void SeedRandomControl(long seed)
+{
+	rand_1 = seed;
+}
+
 long rand_2 = 0xD371F947;
 
 long GetRandomDraw()//5EA18, 5F6F8 (F)
 {
 	rand_2 = (rand_2 * 0x41C64E6D) + 0x3039;
 	return (rand_2 >> 16) * 0x7FFF;
+}
+
+void SeedRandomDraw(long seed)
+{
+	rand_2 = seed;
 }
 
 void ClearFires()//8B1C8(<), 8D20C(<) (F)
@@ -937,10 +951,44 @@ int CheckGuardOnTrigger()
 	return 0;
 }
 
-int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)
+int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)//207DC(<), 209F0(<) (F)
 {
-	S_Warn("[ExplodeItemNode] - Unimplemented!\n");
-	return 0;
+	struct object_info* object;
+	short* meshp;
+	short num;
+
+	if (item->mesh_bits & (1 << Node))
+	{
+		if (item->object_number != SWITCH_TYPE7 || gfCurrentLevel != 7 && gfCurrentLevel != 4)
+		{
+			num = bits;
+			if (bits == 256)
+				num = -64;
+		}
+		else
+		{
+			SoundEffect(168, &item->pos, 0);
+			num = bits;
+		}
+		GetSpheres(item, Slist, 3);
+		object = &objects[item->object_number];
+		ShatterItem.YRot = item->pos.y_rot;
+		meshp = meshes[object->mesh_index + 2 * Node];
+		ShatterItem.Bit = 1 << Node;
+		ShatterItem.meshp = meshp;
+		ShatterItem.Sphere.x = Slist[Node].x;
+		ShatterItem.Sphere.y = Slist[Node].y;
+		ShatterItem.Sphere.z = Slist[Node].z;
+		ShatterItem.il = &item->il;
+		ShatterItem.Flags = item->object_number != CROSSBOW_BOLT ? 0 : 0x400;
+		ShatterObject(&ShatterItem, 0, num, item->room_number, NoXZVel);
+		item->mesh_bits &= ~ShatterItem.Bit;
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 int GetTargetOnLOS(struct GAME_VECTOR* src, struct GAME_VECTOR* dest, int DrawTarget, int firing)
@@ -1015,10 +1063,100 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
 	return 0;
 }
 
-struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)
+struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 7A998(<) (F)
 {
-	S_Warn("[GetFloor] - Unimplemented!\n");
-	return NULL;
+	struct room_info* r;
+	struct FLOOR_INFO* floor;
+	int y_floor, x_floor, next_room;
+	int tmp;
+
+	for (r = &room[*room_number]; ; r = &room[next_room])
+	{
+		x_floor = (z - r->z) >> 10;
+		y_floor = (x - r->x) >> 10;
+
+		if (x_floor <= 0)
+		{
+			x_floor = 0;
+			if (y_floor < 1)
+			{
+				y_floor = 1;
+			}
+			else if (y_floor > r->y_size - 2)
+			{
+				y_floor = r->y_size - 2;
+			}
+		}
+		else if (x_floor >= r->x_size - 1)
+		{
+			x_floor = r->x_size - 1;
+			if (y_floor < 1)
+			{
+				y_floor = 1;
+			}
+			else if (y_floor > r->y_size - 2)
+			{
+				y_floor = r->y_size - 2;
+			}
+		}
+		else if (y_floor < 0)
+		{
+			y_floor = 0;
+		}
+		else if (y_floor >= r->y_size)
+		{
+			y_floor = r->y_size - 1;
+		}
+
+		floor = &r->floor[x_floor + y_floor * r->x_size];
+		next_room = GetDoor(floor);
+		if (next_room == 255)
+			break;
+		*room_number = next_room;
+	}
+
+	if (y < floor->floor << 8)
+	{
+		if (y < floor->ceiling << 8 && floor->sky_room != -1)
+		{
+			do
+			{
+				tmp = CheckNoColCeilingTriangle(floor, x, z);
+				if (tmp == 1 || tmp == -1 && y >= r->maxceiling)
+					break;
+				*room_number = floor->sky_room;
+				r = &room[floor->sky_room];
+				floor = &r->floor[((z - r->z) >> 10) + r->x_size * ((x - r->x) >> 10)];
+				if (y >= floor->ceiling << 8)
+					break;
+			} while (floor->sky_room != 0xFF);
+		}
+	}
+	else if (floor->pit_room != 0xFF)
+	{
+		while (1)
+		{
+			tmp = CheckNoColFloorTriangle(floor, x, z);
+			if (tmp == 1 || tmp == -1 && y < r->minfloor)
+				break;
+			*room_number = floor->pit_room;
+			r = &room[floor->pit_room];
+			tmp = ((z - r->z) >> 10) + r->x_size * ((x - r->x) >> 10);
+			/*if (ABS(tmp) > 1048576)
+			{
+				S_Warn("[GetFloor] - sector num too big -> probably room array not initialized\n");
+				S_Warn("[GetFloor] - returning or the vc runtime will shit brixes\n");
+				return floor;
+			}*/
+			floor = &r->floor[tmp];
+			if (y < r->floor[tmp].floor << 8)
+				break;
+			if (floor->pit_room == 0xFF)
+				return &r->floor[tmp];
+		}
+	}
+
+	return floor;
 }
 
 short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
@@ -1058,6 +1196,97 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 void IsRoomOutside(long x, long y, long z)
 {
 	S_Warn("[IsRoomOutside] - Unimplemented!\n");
+}
+
+short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
+{
+	int type, fixtype;
+	short* data;
+
+	if (!floor->index)
+		return 255;
+
+	type = floor_data[floor->index];
+	data = &floor_data[floor->index + 1];
+
+	fixtype = type & 0x1F;
+	if (fixtype == 2 || fixtype == 7 || fixtype == 8 || fixtype == 12 || fixtype == 11 || fixtype == 14 || fixtype == 13)
+	{
+		if (type & 0x8000)
+			return 255;
+		type = data[1];
+		data += 2;
+	}
+
+	fixtype = type & 0x1F;
+	if (fixtype == 3 || fixtype == 9 || fixtype == 10 || fixtype == 16 || fixtype == 15 || fixtype == 18 || fixtype == 17)
+	{
+		if (type & 0x8000)
+			return 255;
+		type = data[1];
+		data += 2;
+	}
+
+	if ((type & 0x1F) == 1)
+		return *data;
+	return 255;
+}
+
+int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(<) (F)
+{
+	struct FLOOR_INFO* floor;
+	int los1, los2;
+
+	if ((ABS(target->z - start->z)) > (ABS(target->x - start->x)))
+	{
+		los1 = xLOS(start, target);
+		los2 = zLOS(start, target);
+	}
+	else
+	{
+		los1 = zLOS(start, target);
+		los2 = xLOS(start, target);
+	}
+
+	if (los2)
+	{
+		floor = GetFloor(target->x, target->y, target->z, &target->room_number);
+
+		if (ClipTarget(start, target, floor) || los1 == 1 || los2 == 1)
+			return 1;
+	}
+
+	return 0;
+}
+
+int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
+{
+	S_Warn("[xLOS] - Unimplemented!\n");
+	return 0;
+}
+
+int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
+{
+	S_Warn("[zLOS] - Unimplemented!\n");
+	return 0;
+}
+
+int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)
+{
+	S_Warn("[CheckNoColCeilingTriangle] - Unimplemented!\n");
+	return 0;
+}
+
+int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)
+{
+	S_Warn("[CheckNoColFloorTriangle] - Unimplemented!\n");
+	return 0;
+}
+
+int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor)
+{
+	S_Warn("[ClipTarget] - Unimplemented!\n");
+	return 0;
 }
 
 

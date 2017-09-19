@@ -18,7 +18,7 @@ struct room_info {
 	long maxceiling; // size=0, offset=36
 	short x_size; // size=0, offset=40
 	short y_size; // size=0, offset=42
-	CVECTOR ambient; // size=4, offset=44
+	struct CVECTOR ambient; // size=4, offset=44
 	short num_lights; // size=0, offset=48
 	short num_meshes; // size=0, offset=50
 	unsigned char ReverbType; // size=0, offset=52
@@ -44,7 +44,7 @@ struct object_info {
 	short mesh_index; // size=0, offset=2
 	long bone_index; // size=0, offset=4
 	short* frame_base; // size=0, offset=8
-	void(*initialise)(); // size=0, offset=12
+	void(*initialise); // size=0, offset=12
 	void(*control)(); // size=0, offset=16
 	void(*floor)(); // size=0, offset=20
 	void(*ceiling)(); // size=0, offset=24

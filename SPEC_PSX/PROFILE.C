@@ -27,12 +27,23 @@ void ProfileAddDrawOT(unsigned long *ot)//61D1C, *
 	S_Warn("[ProfileAddDrawOT] - Unimplemented!\n");
 }
 
-void ProfileRGB(int r, int g, int b)//61C94, *
+void ProfileRGB(int r, int g, int b)//61C94, * (F)
 {
-	S_Warn("[ProfileRGB] - Unimplemented!\n");
+	ProfileReadCount();
+
+	ProfileInfo[numprof].r = r;
+	ProfileInfo[numprof].g = g;
+	ProfileInfo[numprof].b = b;
+
+	ProfileInfo[numprof].finalcnt = finalCount;
+	ProfileInfo[numprof].profile_xcnt = profile_xcnt;
+
+	profile_xcnt += finalCount;
+	numprof++;
+	return;
 }
 
-void ProfileAddOT(unsigned long *ot)//61A90, *
+void ProfileAddOT(unsigned long* ot)//61A90, *
 {
 	S_Warn("[ProfileAddOT] - Unimplemented!\n");
 }
@@ -50,7 +61,14 @@ void ProfileReadCount()//61A48(<), *
 
 void ProfileStartCount()//61A0C, *
 {
-	S_Warn("[ProfileStartCount] - Unimplemented!\n");
+	ResetRCnt(0xF2000001);
+	StartRCnt(0xF2000001);
+
+	profile_xcnt = 25;
+	currentCount = 0;
+	numprof = 0;
+
+	return;
 }
 
 void ProfileInit(int scale)//61978, ? (F)
