@@ -43,7 +43,7 @@ void S_Warn(char* warning_message)
 	char buf[512];
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
-	sprintf(buf, "[%d:%d:%d] %s", tm.tm_hour, tm.tm_min, tm.tm_sec, warning_message);
+	sprintf(buf, "[%02d:%02d:%02d] %s", tm.tm_hour, tm.tm_min, tm.tm_sec, warning_message);
 	/*char buf1[512];
 	strcpy(buf1, buf);
 	int len = strlen(buf1);
@@ -68,7 +68,7 @@ void S_Warn(char* warning_message)
 HWND Log(char a1, char* format, ...)
 {
 	HWND result; // eax@1
-	void *v3; // eax@2
+	void* v3; // eax@2
 	HWND v4; // esi@2
 	char *v5; // esi@3
 	char *v6; // esi@3
@@ -202,7 +202,7 @@ char TIME_Init()
 
 __int64 qword_D9AAB0;
 
-inline void memset32(void *buf, uint32_t n, int32_t c)
+inline void memset32(void* buf, uint32_t n, int32_t c)
 {
 	__asm {
 		mov ecx, n

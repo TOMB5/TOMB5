@@ -37,7 +37,11 @@ extern short LastSequence;
 extern short CurrentFov;
 extern short spotcam_loopcnt;
 extern short number_spotcams;
+#if PC_VERSION
+extern struct SPOTCAM SpotCam[255];
+#else
 extern struct SPOTCAM* SpotCam;
+#endif
 extern unsigned char CameraCnt[16];
 extern unsigned char SpotRemap[16];
 extern long current_spline_position;

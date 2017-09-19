@@ -95,7 +95,7 @@ inline int8_t __OFSUB__(int32_t x, int32_t y)
 	return (__SETS__(x) ^ __SETS__(y)) & (__SETS__(x) ^ __SETS__(x - y));
 }
 
-inline void *qmemcpy(void *dst, const void *src, size_t cnt)
+inline void* qmemcpy(void* dst, const void* src, size_t cnt)
 {
 	char *out = (char *)dst;
 	const char *in = (const char *)src;
@@ -354,6 +354,19 @@ struct tr5_room_vertex  // 28 bytes
 	struct tr5_vertex Vertex;     // Vertex is now floating-point
 	struct tr5_vertex Normal;
 	uint32_t Colour;     // 32-bit colour
+};
+
+struct SPRITE_STRUCT // 24 bytes
+{
+	uint16_t tile;
+	uint8_t x;
+	uint8_t y;
+	uint16_t width;
+	uint16_t height;
+	float left;
+	float top;
+	float right;
+	float bottom;
 };
 #pragma pop
 

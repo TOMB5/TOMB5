@@ -60,7 +60,11 @@ short LastSequence;
 short CurrentFov;
 short spotcam_loopcnt;
 short number_spotcams;
+#if PC_VERSION
+struct SPOTCAM SpotCam[255];
+#else
 struct SPOTCAM* SpotCam;
+#endif
 unsigned char CameraCnt[16];
 unsigned char SpotRemap[16];
 long current_spline_position;

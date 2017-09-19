@@ -19,6 +19,9 @@
 #include "WINMAIN.H"
 #include "ERROR.H"
 #include "GPU.H"
+#include "HAIR.H"
+#include "SWITCH.H"
+#include "PICKUP.H"
 
 long AnimFilePos;
 long AnimFileLen;
@@ -26,8 +29,18 @@ short* floor_data;
 short* mesh_base;
 FILE* fp_level;
 char* lvDataPtr;
+char* lvDataPtr_orig; // debug purposes shhh
 DWORD num_items;
 DWORD dword_51CAC0[32];
+DWORD numLvlMeshes;
+struct mesh_vbuf_s
+{
+	char pad[30]; // pos 0 size 30
+	LPDIRECT3DVERTEXBUFFER vbuf; // pos 30 size 4
+	char pad2[36]; // pos 34 size 36
+};
+struct mesh_vbuf_s** mesh_vbufs;
+struct SPRITE_STRUCT* sprites;
 
 #define AllocT(d, s, n) d = (s*)game_malloc(sizeof(s) * (n))
 #define AllocReadT(d, s, n) AllocT(d, s, (n));OnlyReadT(d, s, (n))
@@ -38,6 +51,8 @@ DWORD dword_51CAC0[32];
 #define OnlyRead(d, s, n) readBytes(d, sizeof(struct s) * (n))
 
 #define AddPtr(p, t, n) p = (t*)((char*)(p) + (ptrdiff_t)(n)); 
+
+#define LogCurPos() Log(2, "current pos: %08x", 0x319af7 + (int)(lvDataPtr - lvDataPtr_orig))
 
 inline uint8_t readByte()
 {
@@ -177,6 +192,7 @@ void LoadItems()
 
 void LoadAnimatedTextures()
 {
+	LogCurPos();
 	const int numAnimTex = readDword();
 	AllocReadT(AnimTextureRanges, uint16_t, numAnimTex);
 
@@ -186,7 +202,7 @@ void LoadAnimatedTextures()
 void LoadSoundEffects()
 {
 	Log(2, "LoadSoundEffects");
-
+	LogCurPos();
 	number_sound_effects = readDword();
 	Log(8, "Number of SFX %d", number_sound_effects);
 
@@ -199,28 +215,29 @@ void LoadSoundEffects()
 void LoadCameras()
 {
 	Log(2, "LoadCameras");
-
+	LogCurPos();
 	number_cameras = readDword();
 
 	if (number_cameras != 0)
 	{
 		AllocRead(camera.fixed, OBJECT_VECTOR, number_cameras);
 	}
-
-	number_spotcams = readWord();
+	LogCurPos();
+	number_spotcams = readDword();
 
 	if (number_spotcams != 0)
 	{
 		OnlyRead(SpotCam, SPOTCAM, number_spotcams);
+		LogCurPos();
 	}
 }
 
 void LoadBoxes()
 {
 	Log(2, "LoadBoxes");
-
+	LogCurPos();
 	number_boxes = readDword();
-	AllocRead(boxes, box_info, 8);
+	AllocRead(boxes, box_info, number_boxes);
 
 	int numOverlaps = readDword();
 	AllocReadT(overlap, uint16_t, numOverlaps);
@@ -738,6 +755,125 @@ void LoadDemoData()
 int numMeshes;
 int numAnims;
 
+int sub_456AE0()
+{
+	S_Warn("[sub_456AE0] - Unimplemented!\n");
+	return 0;
+}
+
+void __cdecl sub_42B900(int a1)
+{
+	S_Warn("[sub_42B900] - Unimplemented!\n");
+}
+
+signed int sub_4737C0()
+{
+	
+}
+
+__int16 sub_476360()
+{
+	
+}
+
+char sub_475D40()
+{
+	
+}
+
+int sub_43D8B0()
+{
+	
+}
+
+void sub_473600()
+{
+	for (int i = 0; i < NUMBER_OBJECTS; i++)
+	{
+		objects[i].initialise = NULL;
+		objects[i].collision = NULL;
+		objects[i].control = NULL;
+
+		objects[i].intelligent = 0;
+		objects[i].save_position = 0;
+		objects[i].save_hitpoints = 0;
+		objects[i].save_flags = 0;
+		objects[i].save_anim = 0;
+		objects[i].water_creature = 0;
+		objects[i].save_mesh = 0;
+		objects[i].using_drawanimating_item = 1;
+
+		objects[i].draw_routine = sub_42B900;
+		objects[i].ceiling = NULL;
+		objects[i].floor = NULL;
+
+		objects[i].pivot_length = 0;
+		objects[i].radius = 10;
+		objects[i].shadow_size = 0;
+		objects[i].hit_points = -16384;
+		objects[i].explodable_meshbits = NULL;
+		objects[i].draw_routine_extra = NULL;
+
+		AddPtr(objects[i].frame_base, short*, frames);
+
+		objects[i].object_mip = 0;
+	}
+
+	sub_4737C0();
+	sub_476360();
+	sub_475D40();
+	InitialiseHair();
+	sub_43D8B0();
+
+	SequenceUsed[0] = 0;
+	SequenceUsed[1] = 0;
+	SequenceUsed[2] = 0;
+	SequenceUsed[3] = 0;
+	SequenceUsed[4] = 0;
+	SequenceUsed[5] = 0;
+
+	NumRPickups = 0;
+
+	CurrentSequence = 0;
+
+	SequenceResults[0][1][2] = 0;
+	SequenceResults[0][2][1] = 1;
+	SequenceResults[1][0][2] = 2;
+	SequenceResults[1][2][0] = 3;
+	SequenceResults[2][0][1] = 4;
+	SequenceResults[2][1][0] = 5;
+
+	for(int i = 0; i < gfNumMips; i++)
+	{
+		const int mip = (gfMips[i] & 0xF0) << 6;
+		const int index = (gfMips[i] & 0xF) << 7;
+		objects[ANIMATING1 + 2 * index].object_mip = mip;
+	}
+
+	if (objects[RAT].loaded)
+		Rats = (struct RAT_STRUCT*)game_malloc(832); // todo find size
+
+	if (objects[BAT].loaded)
+		Bats = (struct BAT_STRUCT*)game_malloc(1920);
+
+	if (objects[SPIDER].loaded)
+		Spiders = (struct SPIDER_STRUCT*)game_malloc(1664);
+}
+
+void ProcessMeshData(int nmeshes)
+{
+	Log(2, "ProcessMeshData %d", nmeshes);
+
+	numLvlMeshes = nmeshes;
+
+	AllocT(mesh_vbufs, struct mesh_vbuf_s*, nmeshes);
+	mesh_base = (short*)malloc_ptr;
+
+	Log(2, "[ProcessMeshData] - Unimplemented!\n");
+
+	Log(2, "End ProcessMeshData");
+}
+
 void LoadObjects()
 {
 	Log(1, "LoadObjects");
@@ -749,9 +885,10 @@ void LoadObjects()
 	AllocReadT(mesh_base, short, numMeshWords);
 
 	int numMeshPtrs = readDword();
-	AllocReadT(meshes, short*, numMeshPtrs);
+	AllocT(meshes, short*, 2 * numMeshPtrs);
+	OnlyReadT(meshes, short*, numMeshPtrs);
 
-	for(int i = 0; i < numMeshPtrs; i++)
+	for (int i = 0; i < numMeshPtrs; i++)
 	{
 		meshes[i] = &mesh_base[(int)meshes[i] / 2];
 	}
@@ -761,6 +898,7 @@ void LoadObjects()
 	numAnims = readDword();
 	AllocRead(anims, ANIM_STRUCT, numAnims);
 
+	LogCurPos();
 	int numChanges = readDword();
 	AllocRead(changes, CHANGE_STRUCT, numChanges);
 
@@ -798,7 +936,61 @@ void LoadObjects()
 		objects[obj].loaded = 1;
 	}
 
-	S_Warn("[LoadObjects] - End unimplemented!\n");
+	if (LaraDrawType != LARA_DIVESUIT)
+		sub_456AE0();
+
+	for (int i = 0; i < NUMBER_OBJECTS; i++)
+	{
+		objects[i].mesh_index *= 2;
+	}
+
+	// DUPLICATE THE ITEMS
+	// before:   meshes = [1, 2, 3, 4, 5, ?, ?, ?, ?, ?]
+	// qmemcpy:  meshes = [1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
+	// for loop: meshes = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5]
+
+	qmemcpy(&meshes[numMeshes], &meshes[0], sizeof(short*) * numMeshes);
+
+	for (int i = 0; i < numMeshes; i++)
+	{
+		meshes[2 * i] = meshes[numMeshes + i];
+		meshes[2 * i + 1] = meshes[numMeshes + i];
+	}
+
+	sub_473600();
+	sub_43E380();
+
+	int numStatics = readDword();
+
+	for (int i = 0; i < numStatics; i++)
+	{
+		int meshID = readDword();
+
+		static_objects[meshID].mesh_number = readWord();
+
+		static_objects[meshID].x_minp = readWord();
+		static_objects[meshID].x_maxp = readWord();
+		static_objects[meshID].y_minp = readWord();
+		static_objects[meshID].y_maxp = readWord();
+		static_objects[meshID].z_minp = readWord();
+		static_objects[meshID].z_maxp = readWord();
+
+		static_objects[meshID].x_minc = readWord();
+		static_objects[meshID].x_maxc = readWord();
+		static_objects[meshID].y_minc = readWord();
+		static_objects[meshID].y_maxc = readWord();
+		static_objects[meshID].z_minc = readWord();
+		static_objects[meshID].z_maxc = readWord();
+
+		static_objects[meshID].flags = readWord();
+	}
+
+	for (int i = 0; i < NUMBER_STATIC_OBJECTS; i++)
+	{
+		static_objects[i].mesh_number *= 2;
+	}
+
+	ProcessMeshData(2 * numMeshes);
 }
 
 void* dword_875144;
@@ -809,13 +1001,13 @@ void sub_403297(LPDDSURFACEDESC2 a1, LPDIRECTDRAWSURFACE4 a2, int a3, int a4)
 	S_Warn("[sub_403297] - Unimplemented!\n");
 }
 
-_DWORD *__cdecl sub_4D0450(signed int a1, signed int a2, int a3, int a4, void(__cdecl *a5)(int *, int *, int *, int *), int a6)
+_DWORD* __cdecl sub_4D0450(signed int a1, signed int a2, int a3, int a4, void(__cdecl* a5)(int *, int *, int *, int *), int a6)
 {
 	int v6; // eax@9
-	_WORD *v7; // edx@9
-	_BYTE *v8; // edi@10
-	unsigned int *v9; // ebx@11
-	void(__cdecl *v10)(int *, int *, int *, int *); // ebp@11
+	_WORD* v7; // edx@9
+	_BYTE* v8; // edi@10
+	unsigned int* v9; // ebx@11
+	void(__cdecl* v10)(int *, int *, int *, int *); // ebp@11
 	struct dxcontext_s *v11; // esi@11
 	unsigned int v12; // eax@13
 	unsigned int v13; // edx@13
@@ -1104,8 +1296,42 @@ void LoadSprites()
 	Log(2, "LoadSprites");
 
 	readDword(); // SPR\0
-
+	LogCurPos();
 	int numSpr = readDword();
+
+	Alloc(sprites, SPRITE_STRUCT, numSpr);
+
+	for (int i = 0; i < numSpr; i++)
+	{
+		sprites[i].tile = readWord() + 1;
+		sprites[i].x = readByte();
+		sprites[i].y = readByte();
+		sprites[i].width = readWord();
+		sprites[i].height = readWord();
+		sprites[i].left = (readWord() + 1) / 256.0;
+		sprites[i].top = (readWord() + 1) / 256.0;
+		sprites[i].right = (readWord() - 1) / 256.0;
+		sprites[i].bottom = (readWord() - 1) / 256.0;
+	}
+
+	int numSprSeqs = readDword();
+
+	for (int i = 0; i < numSprSeqs; i++)
+	{
+		int spriteID = readDword();
+		short negLength = readWord();
+		short offset = readWord();
+		if (spriteID >= NUMBER_OBJECTS)
+		{
+			static_objects[spriteID - 460].mesh_number = offset;
+		}
+		else
+		{
+			objects[spriteID].nmeshes = negLength;
+			objects[spriteID].mesh_index = offset;
+			objects[spriteID].loaded = 1;
+		}
+	}
 }
 
 void LoadLevel(const char* filename)
@@ -1145,6 +1371,8 @@ void LoadLevel(const char* filename)
 		int uncompSize = freadDword();
 		int compSize = freadDword();
 		lvDataPtr = malloc(uncompSize);
+		lvDataPtr_orig = lvDataPtr;
+		Log(0, "%x", ftell(fp_level));
 		fread_ex(lvDataPtr, uncompSize, 1, fp_level);
 
 		Log(5, "Rooms");
@@ -1225,9 +1453,9 @@ LPDIRECTDRAWSURFACE4 surf_screen;
 
 void LoadScreen(int a2, int num)
 {
-	FILE *v3; // esi@2
+	FILE* v3; // esi@2
 	int v4; // ST24_4@3
-	void *v5; // ebx@3
+	void* v5; // ebx@3
 	DWORD v6; // edx@3
 	__int16 *v7; // ecx@3
 	signed int v8; // esi@3

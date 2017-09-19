@@ -94,7 +94,9 @@ static int gfStatus;
 static unsigned long OldSP;
 unsigned char gfPickups[16];
 unsigned char gfTakeaways[16];
+#if PC_VERSION
 char* gfScriptFile;
+#endif
 
 void DoGameflow()//10F5C(<), 10FD8(<)
 {
@@ -182,7 +184,6 @@ void LoadGameflow()//102E0, 102B0
 {
 	char* s = NULL;
 #if PC_VERSION
-	void* tmp;
 	LoadFile(GF_SCRIPT_FILENAME, &s);
 #else
 	int len = FILE_Length(GF_SCRIPT_FILENAME);
@@ -198,11 +199,11 @@ void LoadGameflow()//102E0, 102B0
 	int endOfSequence;
 	unsigned char op;
 
-#if !PC_VERSION
+#if PC_VERSION
+	gfScriptFile = s;
+#else
 	FILE_Load(GF_SCRIPT_FILENAME, s);
 #endif
-
-	gfScriptFile = s;
 
 	Gameflow = (struct GAMEFLOW*)s;
 	s += sizeof(struct GAMEFLOW);

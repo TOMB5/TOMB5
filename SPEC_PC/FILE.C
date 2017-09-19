@@ -1,9 +1,9 @@
 #include "FILE.H"
 #include "SPECIFIC.H"
 
-FILE *FileOpen(const char *filename)
+FILE* FileOpen(const char *filename)
 {
-	FILE *fp;
+	FILE* fp;
 	char fn[80]; 
 
 	memset(&fn, 0, 80u);
@@ -20,13 +20,13 @@ FILE *FileOpen(const char *filename)
 	return fp;
 }
 
-int FileClose(FILE *fp)
+int FileClose(FILE* fp)
 {
 	Log(2, "FileClose");
 	return fclose(fp);
 }
 
-size_t fread_ex(void *ptr, size_t size, size_t count, FILE *stream)
+size_t fread_ex(void* ptr, size_t size, size_t count, FILE* stream)
 {
 	size_t ret;
 
