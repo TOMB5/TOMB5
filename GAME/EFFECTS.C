@@ -1,17 +1,19 @@
 #include "EFFECTS.H"
 
-#include "SPECIFIC.H"
-#include "CONTROL.H"
-#include "GAMEFLOW.H"
-#include "LARA.H"
-#include "HAIR.H"
-#include "SETUP.H"
-#include "DRAW.H"
-#include <cstddef>
-#include "DELTAPAK.H"
-#include "ITEMS.H"
 #include "CAMERA.H"
+#include "CONTROL.H"
+#include "DELTAPAK.H"
+#include "DRAW.H"
+#include "GAMEFLOW.H"
+#include "HAIR.H"
+#include "ITEMS.H"
+#include "LARA.H"
 #include "LOT.H"
+#include "SETUP.H"
+#include "SPECIFIC.H"
+
+#include <stddef.h>
+
 
 long wf = 256;
 short next_fx_free;
@@ -144,7 +146,7 @@ void KillActiveBaddies(struct ITEM_INFO* item)//39938(<), 39E38(<) (F)
 			{
 				target_item->status = 3;
 
-				if ((int)item != 0xABCDEF)
+				if (*(int*)&item != 0xABCDEF)
 				{
 					RemoveActiveItem(item_num);
 					DisableBaddieAI(item_num);
@@ -183,7 +185,7 @@ void LaraLocation(struct ITEM_INFO* item)//396D0(<), 39BD0(<) (F)
 
 void ExplosionFX(struct ITEM_INFO* item)//39694(<), 39B94(<) (F)
 {
-	SoundEffect(105, NULL, NULL);
+	SoundEffect(105, NULL, 0);
 	camera.bounce = -75;
 	flipeffect = -1;
 }
@@ -211,7 +213,7 @@ void ActivateCamera(struct ITEM_INFO* item)//39610(<), 39B10(<) (F)
 
 void PoseidonSFX(struct ITEM_INFO* item)//395E0(<), 39AE0(<) (F)
 {
-	SoundEffect(238, NULL, NULL);
+	SoundEffect(238, NULL, 0);
 	flipeffect = -1;
 }
 
@@ -235,7 +237,7 @@ void RubbleFX(struct ITEM_INFO* item)//39534(<), 39A34(<) (F)
 
 void SoundFlipEffect(struct ITEM_INFO* item)//39500(<), 39A00(<) (F)
 {
-	SoundEffect(TriggerTimer, NULL, NULL);
+	SoundEffect(TriggerTimer, NULL, 0);
 	flipeffect = -1;
 }
 
@@ -272,7 +274,7 @@ void SoundEffects()//39190, 39690
 	S_Warn("[SoundEffects] - Unimplemented!\n");
 }
 
-void SoundEffect(int arg1, struct PHD_3DPOS* pos, void* arg2)
+void SoundEffect(short arg1, struct PHD_3DPOS* pos, int arg2)
 {
 	S_Warn("[SoundEffect] - Unimplemented!\n");
 }

@@ -7,6 +7,10 @@
 #include <libcd.h>
 #include <stdio.h>
 
+#if INTERNAL
+	#include <libsn.h>
+#endif
+
 int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 {
 	CdlFILE fp;
@@ -24,13 +28,14 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 
 	return fp.size;
 }
-int FILE_Read(void* pDest, int nItemSize, int nItems, int nHandle)//5E6A8, 
-{
-	int a1 = nItemSize * nItems;
 
-	//int	PCread(int fd, char *buff, int len);
-	return 0;
+#if INTERNAL
+int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ?
+{
+	int nAmount = nItems * nItemSize;
+	return PCread(nHandle, pDest, nAmount);
 }
+#endif
 
 unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
 {

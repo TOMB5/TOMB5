@@ -30,7 +30,7 @@ extern long* bones;
 extern struct ANIM_STRUCT* anims;
 extern struct RANGE_STRUCT* ranges;
 extern struct CHANGE_STRUCT* changes;
-extern short* *meshes;
+extern short** meshes;
 extern short* commands;
 extern short* frames;
 extern short* binoculars_mesh_ptr;

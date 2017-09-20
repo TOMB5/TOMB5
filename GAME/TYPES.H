@@ -1,10 +1,16 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "SPECTYPES.H"
-
 #ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
+#endif
+
+#ifndef MIN
+#define MIN(x, y) (((x)<(y))?(x):(y))
+#endif
+
+#ifndef MAX
+#define MAX(x, y) (((x)>(y))?(x):(y))
 #endif
 
 // (65536 / 360) ~ 182.0444...
@@ -57,7 +63,7 @@ enum target_type
 
 enum room_flags
 {
-	RF_FILL_WATER = (1 << 0),			    // 0x0000
+	RF_FILL_WATER = (1 << 0),			    // 0x0001
 	RF_SKYBOX_VISIBLE = (1 << 3),		    // 0x0008   speeds up rendering if no rendered room has this
 	RF_WIND_BLOWS_PONYTAIL = (1 << 5),	    // 0x0020   also some particles
 	RF_UNKNOWN_6 = (1 << 6),			    // 0x0040   used in official levels, no apparent effects
@@ -447,7 +453,7 @@ struct savegame_info
 	char GameComplete; // size=0, offset=428
 	unsigned char CurrentLevel; // size=0, offset=429
 	unsigned char CampaignSecrets[4]; // size=4, offset=430
-	unsigned char TLCount; // size=0, offset=
+	unsigned char TLCount; // size=0, offset=434
 };
 
 struct MATRIX3D {

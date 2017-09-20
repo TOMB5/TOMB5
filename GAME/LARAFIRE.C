@@ -39,10 +39,23 @@ int WeaponObjectMesh(int weapon_type)//488F4, 48D58
 	return 0;
 }
 
-int WeaponObject(int weapon_type)//48898, 48CFC
+int WeaponObject(int weapon_type)//48898(<), 48CFC(<) (F)
 {
-	S_Warn("[WeaponObject] - Unimplemented!\n");
-	return 0;
+	switch (weapon_type)
+	{
+	case 2:
+		return 6;
+	case 3:
+		return 2;
+	case 4:
+		return 3;
+	case 5:
+		return 5;
+	case 6:
+		return 4;
+	default:
+		return 1;
+	}
 }
 
 void HitTarget(struct ITEM_INFO* item, struct GAME_VECTOR* hitpos, int damage, int grenade)//486E0, 48B44

@@ -17,10 +17,12 @@ extern void RelocateLevel();
 #endif
 
 extern long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize);
-extern void sub_B96EC(int unk);
+extern void InitialiseObjects();
 extern void sub_B5328();
 extern void sub_B84F0();
 extern void sub_B7E04();
+extern void InitialiseClosedDoors();
+extern void sub_B9DA8();
 
 struct object_container
 {

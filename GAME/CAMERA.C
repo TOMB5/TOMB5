@@ -225,7 +225,11 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<)
 {
 	CurrentFov = fov;
 
-	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
+	if (fov == 0)
+	{
+		S_Warn("[AlterFOV] - fov == 0 -> divide by zero because spotcam is empty\n");
+	}
+	else phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
 
 #if PSX_VERSION
 	gte_SetGeomScreen(phd_persp);
@@ -696,4 +700,36 @@ void BinocularCamera(struct ITEM_INFO* item)
 void ConfirmCameraTargetPos()
 {
 	S_Warn("[ConfirmCameraTargetPos] - Unimplemented!\n");
+}
+
+void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)
+{
+	S_Warn("[ScreenShake] - Unimplemented!\n");
+}
+
+void UpdateCameraElevation()
+{
+	S_Warn("[UpdateCameraElevation] - Unimplemented!\n");
+}
+
+void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, short yrot, long brightness)
+{
+	S_Warn("[LaraTorch] - Unimplemented!\n");
+}
+
+long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)
+{
+	S_Warn("[mgLOS] - Unimplemented!\n");
+	return 0;
+}
+
+long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)
+{
+	S_Warn("[CameraCollisionBounds] - Unimplemented!\n");
+	return 0;
+}
+
+void MoveCamera(struct GAME_VECTOR* ideal, int speed)
+{
+	S_Warn("[MoveCamera] - Unimplemented!\n");
 }
