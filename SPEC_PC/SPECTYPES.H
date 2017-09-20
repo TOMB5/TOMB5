@@ -368,6 +368,28 @@ struct SPRITE_STRUCT // 24 bytes
 	float right;
 	float bottom;
 };
+
+struct tr_object_texture_vert // 4 bytes
+{
+	uint8_t Xcoordinate; // 1 if Xpixel is the low value, 255 if Xpixel is the high value in the object texture
+	uint8_t Xpixel;
+	uint8_t Ycoordinate; // 1 if Ypixel is the low value, 255 if Ypixel is the high value in the object texture
+	uint8_t Ypixel;
+};
+
+struct tr4_object_texture // 38 bytes
+{
+	uint16_t               Attribute;
+	uint16_t               TileAndFlag;
+	uint16_t               NewFlags;
+
+	struct tr_object_texture_vert Vertices[4]; // The four corners of the texture
+
+	uint32_t               OriginalU;
+	uint32_t               OriginalV;
+	uint32_t               Width;     // Actually width-1
+	uint32_t               Height;    // Actually height-1
+};
 #pragma pop
 
 #endif

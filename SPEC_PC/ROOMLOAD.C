@@ -43,16 +43,16 @@ struct mesh_vbuf_s** mesh_vbufs;
 struct SPRITE_STRUCT* sprites;
 
 #define AllocT(d, s, n) d = (s*)game_malloc(sizeof(s) * (n))
-#define AllocReadT(d, s, n) AllocT(d, s, (n));OnlyReadT(d, s, (n))
-#define OnlyReadT(d, s, n) readBytes(d, sizeof(s) * (n))
+#define AllocReadT(d, s, n) AllocT((d), s, (n));OnlyReadT((d), s, (n))
+#define OnlyReadT(d, s, n) readBytes((d), sizeof(s) * (n))
 
 #define Alloc(d, s, n) d = (struct s*)game_malloc(sizeof(struct s) * (n))
-#define AllocRead(d, s, n) Alloc(d, s, (n));OnlyRead(d, s, (n))
-#define OnlyRead(d, s, n) readBytes(d, sizeof(struct s) * (n))
+#define AllocRead(d, s, n) Alloc((d), s, (n));OnlyRead((d), s, (n))
+#define OnlyRead(d, s, n) readBytes((d), sizeof(struct s) * (n))
 
 #define AddPtr(p, t, n) p = (t*)((char*)(p) + (ptrdiff_t)(n)); 
 
-#define LogCurPos() Log(2, "current pos: %08x", 0x319af7 + (int)(lvDataPtr - lvDataPtr_orig))
+//#define LogCurPos() Log(2, "current pos: %08x", 0x319af7 + (int)(lvDataPtr - lvDataPtr_orig))
 
 inline uint8_t readByte()
 {
@@ -192,7 +192,6 @@ void LoadItems()
 
 void LoadAnimatedTextures()
 {
-	LogCurPos();
 	const int numAnimTex = readDword();
 	AllocReadT(AnimTextureRanges, uint16_t, numAnimTex);
 
@@ -202,7 +201,7 @@ void LoadAnimatedTextures()
 void LoadSoundEffects()
 {
 	Log(2, "LoadSoundEffects");
-	LogCurPos();
+
 	number_sound_effects = readDword();
 	Log(8, "Number of SFX %d", number_sound_effects);
 
@@ -215,34 +214,81 @@ void LoadSoundEffects()
 void LoadCameras()
 {
 	Log(2, "LoadCameras");
-	LogCurPos();
+
 	number_cameras = readDword();
 
 	if (number_cameras != 0)
 	{
 		AllocRead(camera.fixed, OBJECT_VECTOR, number_cameras);
 	}
-	LogCurPos();
+
 	number_spotcams = readDword();
 
 	if (number_spotcams != 0)
 	{
 		OnlyRead(SpotCam, SPOTCAM, number_spotcams);
-		LogCurPos();
 	}
 }
 
 void LoadBoxes()
 {
 	Log(2, "LoadBoxes");
-	LogCurPos();
+
 	number_boxes = readDword();
 	AllocRead(boxes, box_info, number_boxes);
 
 	int numOverlaps = readDword();
 	AllocReadT(overlap, uint16_t, numOverlaps);
 
-	S_Warn("[LoadBoxes] - Zone loading unimplemented!\n");
+#if FALSE
+	short** v3 = ground_zone[4];
+	int v4 = number_boxes;
+	int v13;
+	do
+	{
+		int v5 = 2 * v4;
+		short** v6 = v3 - 8;
+		int v21 = 4;
+		do
+		{
+			short* v7 = (short*)game_malloc(v5);
+			void* v8 = lvDataPtr;
+			unsigned int v9 = 2 * number_boxes;
+			char v10 = 2 * number_boxes;
+			*v6 = v7;
+			v9 >>= 2;
+			qmemcpy(v7, v8, 4 * v9);
+			char* v12 = (char*)v8 + 4 * v9;
+			short* v11 = &v7[2 * v9];
+			LOBYTE(v9) = v10;
+			v13 = v21;
+			qmemcpy(v11, v12, v9 & 3);
+			v6 += 2;
+			v5 = 2 * number_boxes;
+			lvDataPtr = (char*)lvDataPtr + 2 * number_boxes;
+			--v21;
+		} while (v13 != 1);
+
+		char* v14 = (char*)game_malloc(2 * number_boxes);
+		void* v15 = lvDataPtr;
+		unsigned int v16 = 2 * number_boxes;
+		*v3 = (short*)v14;
+		qmemcpy(v14, v15, v16);
+		++v3;
+	} while ((int)v3 < (int)(ground_zone + 5 * 2));
+#endif
+	// todo may not work, but gives the same result as code (Core) above on ideone
+	for (int i = 0; i < 5; i++)
+	{
+		AllocReadT(ground_zone[i][0], short, number_boxes);
+	}
+	// weird workaround because Core's code seem to only read half of the zones
+	for (int i = 0; i < 5; i++)
+	{
+		short* tmp;
+		AllocReadT(tmp, short, number_boxes);
+		game_free(number_boxes * sizeof(short));
+	}
 
 	for (int i = 0; i < number_boxes; i++)
 	{
@@ -898,7 +944,6 @@ void LoadObjects()
 	numAnims = readDword();
 	AllocRead(anims, ANIM_STRUCT, numAnims);
 
-	LogCurPos();
 	int numChanges = readDword();
 	AllocRead(changes, CHANGE_STRUCT, numChanges);
 
@@ -1296,7 +1341,7 @@ void LoadSprites()
 	Log(2, "LoadSprites");
 
 	readDword(); // SPR\0
-	LogCurPos();
+
 	int numSpr = readDword();
 
 	Alloc(sprites, SPRITE_STRUCT, numSpr);
@@ -1332,6 +1377,18 @@ void LoadSprites()
 			objects[spriteID].loaded = 1;
 		}
 	}
+}
+
+void LoadTextureInfos()
+{
+	Log(2, "LoadTextureInfos");
+
+	readDword(); // TEX\0
+
+	int numObjTex = readDword();
+	Log(5, "Texture Infos : %d", numObjTex);
+
+
 }
 
 void LoadLevel(const char* filename)
@@ -1398,7 +1455,7 @@ void LoadLevel(const char* filename)
 		LoadAnimatedTextures();
 		sub_4B1A80();
 
-		//LoadTextureInfos();
+		LoadTextureInfos();
 		sub_4B1A80();
 
 		char* backup = lvDataPtr;
