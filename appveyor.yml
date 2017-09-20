@@ -4,6 +4,7 @@ branches:
   only:
   - master
 #  - appveyor
+  - appveyor-testbranch
   
 skip_tags: true
 
