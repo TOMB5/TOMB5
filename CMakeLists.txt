@@ -17,6 +17,13 @@ string(CONCAT GAME_CODE_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/GAME")
 file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
 
 #Treat each platform specific directory as a sub-project.
-add_subdirectory(SPEC_PC)
-add_subdirectory(SPEC_PSX)
+#Note: Travis/Appveyor ci only build PSXPC for now.
+IF(NOT DEFINED ENV{TRAVIS} OR NOT DEFINED ENV{APPVEYOR})
+	add_subdirectory(SPEC_PSX)
+	add_subdirectory(SPEC_PC)
+	#add_subdirectory(SPEC_PS2)
+	#add_subdirectory(SPEC_CE)
+endif()
+
+#Default
 add_subdirectory(SPEC_PSXPC)

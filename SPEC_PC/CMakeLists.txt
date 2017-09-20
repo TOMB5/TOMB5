@@ -8,18 +8,15 @@ get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR}
 #Platform specific defs
 add_definitions(-DPC_VERSION)
 
-#Create platform specific code directory string
-string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-
 #Setup platform specific / game code include folder
-include_directories(${PLATFORM_SPECIFIC_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${GAME_CODE_DIR})
 
 #Additional library include directories
 include_directories(${SDL2_INCLUDE_DIR})
 
 #Recursively locate the source files for SPEC_PC.
-file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAKE_CURRENT_SOURCE_DIR}/*.H ${PLATFORM_SPECIFIC_DIR}/*.CUR ${PLATFORM_SPECIFIC_DIR}/*.RC)
+file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAKE_CURRENT_SOURCE_DIR}/*.H ${CMAKE_CURRENT_SOURCE_DIR}/*.CUR ${CMAKE_CURRENT_SOURCE_DIR}/*.RC)
 
 #Group solution source files to correct folders.
 source_group("GAME" FILES ${GAME_SRCS})
