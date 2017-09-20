@@ -11,10 +11,6 @@ set(INTERNAL 0 CACHE BOOL "Internal")
 #Platform specific defs
 add_definitions(-DPSX_VERSION)
 
-#Find required libs for PSX
-find_package(SDL2 REQUIRED)
-find_package(OpenGL REQUIRED)
-
 #Setup platform specific / game code include folder
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${GAME_CODE_DIR})
@@ -37,11 +33,9 @@ ${PLATFORM_SPECIFIC_SRCS}
 )
 
 #Link against required libraries
-target_link_libraries(
-${PROJECT_NAME}
-${SDL2_LIBRARY}
-${OPENGL_gl_LIBRARY}
-)
+#target_link_libraries(
+#${PROJECT_NAME}
+#)
 
 set_target_properties(
 ${PROJECT_NAME}
