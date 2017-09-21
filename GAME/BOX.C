@@ -1,6 +1,7 @@
 #include "BOX.H"
 
 #include "CONTROL.H"
+#include "DRAW.H"
 #include "LOT.H"
 #include "SPECIFIC.H"
 
@@ -11,9 +12,35 @@ short* ground_zone[5][2];
 unsigned short testclip;
 unsigned short loops;
 
-void DropBaddyPickups(struct ITEM_INFO* item)
+void DropBaddyPickups(struct ITEM_INFO* item)//259BC(<), 25BC8(<)
 {
-	S_Warn("[DropBaddyPickups] - Unimplemented!\n");
+	short pickup_number;
+	short room_number;
+	struct ITEM_INFO* pickup;
+
+	pickup_number = item->carried_item;
+
+	if (pickup_number == -1)
+	{
+		return;
+	}
+
+	do
+	{
+		pickup = &items[pickup_number];
+		pickup->pos.x_pos = (item->pos.x_pos & 0xFFFFFC00) | 0x200;
+		pickup->pos.z_pos = (item->pos.z_pos & 0xFFFFFC00) | 0x200;
+		room_number = item->room_number;
+
+		pickup->pos.y_pos = GetHeight(GetFloor(pickup->pos.x_pos, item->pos.y_pos, pickup->pos.z_pos, &room_number), pickup->pos.x_pos, item->pos.y_pos, pickup->pos.z_pos);
+		pickup->pos.y_pos -= GetBoundsAccurate(item)[3];
+
+		//pickup->pos.y_pos -= bounds[3]; //old
+#if 0
+		ItemNewRoom(pickup_number, item->room_number);
+#endif
+
+	} while (pickup_number != -1);
 }
 
 int MoveCreature3DPos(struct PHD_3DPOS* srcpos, struct PHD_3DPOS* destpos, int velocity, short angdif, int angadd)
