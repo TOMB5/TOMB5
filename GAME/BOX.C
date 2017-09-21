@@ -5,6 +5,8 @@
 #include "LOT.H"
 #include "SPECIFIC.H"
 
+#include <stddef.h>
+
 int number_boxes;
 struct box_info* boxes;
 unsigned short* overlap;
@@ -269,9 +271,17 @@ int CreatureActive(short item_number)
 	return 0;
 }
 
-void InitialiseCreature(short item_number)
+void InitialiseCreature(short item_number)//21800, ?
 {
-	S_Warn("[InitialiseCreature] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_number];
+
+	item->hit_status = 1;
+	item->data = NULL;
+	item->draw_room = (((item->pos.z_pos - room[item->room_number].z) / 1024) & 0xFF) | (((item->pos.x_pos - room[item->room_number].mesh->x) / 4) & 0xFF00);
+	item->TOSSPAD = item->pos.y_rot & 0xE000;
+	item->item_flags[2] = item->room_number | (item->pos.y_pos - room->minfloor);
+
+	return;
 }
 
 int StalkBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)
