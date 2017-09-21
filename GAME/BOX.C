@@ -265,13 +265,28 @@ void CreatureAIInfo(struct ITEM_INFO* item, struct AI_info* info)
 	S_Warn("[CreatureAIInfo] - Unimplemented!\n");
 }
 
-int CreatureActive(short item_number)
+int CreatureActive(short item_number)//218B0(<), ?
 {
-	S_Warn("[CreatureActive] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_number];
+
+	if (item->flags & 0x8000)
+	{
+		if (item->status != 3)
+		{
+			return 1;
+		}
+
+		if (EnableBaddieAI(item_number, 0) != 0)
+		{
+			item->status = 2;
+			return 1;
+		}
+	}
+
 	return 0;
 }
 
-void InitialiseCreature(short item_number)//21800, ?
+void InitialiseCreature(short item_number)//21800(<), ?
 {
 	struct ITEM_INFO* item = &items[item_number];
 
