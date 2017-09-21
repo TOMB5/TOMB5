@@ -291,7 +291,51 @@ void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
 	return;
 }
 
-void ItemNewRoom(short item_num, short room_number)
+void ItemNewRoom(short item_num, short room_number)//7C608(<), 7E64C(<)
 {
-	S_Warn("[ItemNewRoom] - Unimplemented!\n");
+	struct room_info* r;
+	struct ITEM_INFO* item;
+	long item_number;
+
+	if (InItemControlLoop)
+	{
+		ItemNewRooms[ItemNewRoomNo][0] = item_num;
+		ItemNewRooms[ItemNewRoomNo][1] = room_number;
+		ItemNewRoomNo++;
+		return;
+	}
+
+	//loc_7C648
+	item = &items[item_num];
+
+	if (item->room_number != 255)
+	{
+		r = &room[item->room_number];
+		item_number = r->item_number;
+
+		if (r->item_number == item->next_item)
+		{
+			r->item_number = item->next_item;
+		}
+		else
+		{
+			//loc_7C698
+			if(r->item_number != -1)
+			{
+				while (items[item_number].next_item != item->next_item)
+				{
+					item_number = items[item_number].next_item;
+				}
+			}
+		}
+	}
+	
+	//loc_7C6C4
+	r = &room[room_number];
+
+	item->room_number = room_number;
+	item->next_item = r->item_number;
+	r->item_number = item_num;
+
+	return;
 }
