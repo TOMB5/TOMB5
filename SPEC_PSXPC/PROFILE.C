@@ -1,7 +1,7 @@
 #include "PROFILE.H"
 #include "SPECIFIC.H"
 
-#ifdef WIN32 || WIN64
+#if WIN32 || WIN64
 	#include <windows.h>
 #endif
 

@@ -255,10 +255,10 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 
 	FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
 	assert(fileHandle);
-	fread(&local_wadfile_header, sizeof(GAMEWAD_header), 1, fileHandle);
+	fread(&local_wadfile_header, sizeof(struct GAMEWAD_header), 1, fileHandle);
 	fclose(fileHandle);
 
-	memcpy(&gwHeader, &local_wadfile_header, sizeof(GAMEWAD_header));//5F6AC
+	memcpy(&gwHeader, &local_wadfile_header, sizeof(struct GAMEWAD_header));//5F6AC
 
 	//FIXME: CdPosToInt(); returns LBA for GAMEWAD.OBJ on disc.
 	gwLba = 24;

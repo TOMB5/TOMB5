@@ -94,7 +94,7 @@ void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
 	strcat(buf, ".PSX");
 	file = fopen(buf, "rb");
 
-	fseek(file, AnimFilePos, SEEK_END);
+	fseek(file, AnimFilePos, SEEK_SET);
 	FILE_Read((char*) frames, 1, len, file);
 
 	fclose(file);

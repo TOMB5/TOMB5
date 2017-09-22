@@ -145,7 +145,9 @@ extern struct CHARDEF CharDef[106];
 
 extern long ControlPhase(long nframes, int demo_mode);
 extern long GetRandomControl();
+extern void SeedRandomControl(long seed);
 extern long GetRandomDraw();
+extern void SeedRandomDraw(long seed);
 extern void AddRoomFlipItems(struct room_info* r);
 extern void KillMoveItems();
 extern void KillMoveEffects();
