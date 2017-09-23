@@ -5,13 +5,17 @@
 #include "ITEMS.H"
 #include "MALLOC.H"
 #include "ROOMLOAD.H"
-#include "SETUP.H"
 #include "SPECIFIC.H"
 #include "TRAPS.H"
 #include "TYPES.H"
 
 
 #include <string.h>
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
 
 char FromTitle;
 char JustLoaded;

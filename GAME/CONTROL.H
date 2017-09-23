@@ -97,8 +97,13 @@ extern int framecount;
 extern long rand_2;
 extern struct ITEM_INFO* items;
 extern int flip_status;
+#if PC_VERSION
+extern int flipmap[255];
+extern int flip_stats[255];
+#else
 extern int flipmap[10];
 extern int flip_stats[10];
+#endif
 extern int height_type;
 extern int tiltxoff;
 extern int tiltyoff;
@@ -145,7 +150,9 @@ extern struct CHARDEF CharDef[106];
 
 extern long ControlPhase(long nframes, int demo_mode);
 extern long GetRandomControl();
+extern void SeedRandomControl(long seed);
 extern long GetRandomDraw();
+extern void SeedRandomDraw(long seed);
 extern void AddRoomFlipItems(struct room_info* r);
 extern void KillMoveItems();
 extern void KillMoveEffects();

@@ -15,66 +15,72 @@
 #include "LOT.H"
 #include "NEWINV2.H"
 #include "OBJECTS.H"
-#include "PROFILE.H"
 #include "ROOMLOAD.H"
-#include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
 
+#if PC_VERSION
+#include "GAME.H"
+#else
+#include "PROFILE.H"
+#include "SETUP.H"
+#endif
+
 #include <assert.h>
 #include <stddef.h>
 
+#include "DRAWPHAS.H"
 
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
-	{ NULL, NULL, NULL },
-	{ stealth3_start, NULL, stealth3_end },
-	{ stealth3_start, NULL, stealth3_end },
-	{ stealth3_start, NULL, stealth3_end },
-	{ stealth3_start, NULL, stealth3_end },
-	{ joby6_init, joby6_control, joby6_end },
-	{ andy5_init, andy5_control, andy5_end },
-	{ andrea3b_init, andrea3b_control, andrea3b_end },
-	{ andrea3_init, andrea3_control, andrea3_end },
-	{ andy4b_init, andy4b_control, andy4b_end },
-	{ andy4_init, andy4_control, andy4_end },
-	{ richcut4_init, richcut4_control, richcut4_end },
-	{ joby10_init, joby10_control, joby10_end },
-	{ joby9_init, joby9_control, joby9_end },
-	{ andy3_init, andy3_control, andy3_end },
-	{ joby5_init, joby5_control, joby5_end },
-	{ andrea2_init, andrea2_control, andrea2_end },
-	{ andrea1_init, andrea1_control, andrea1_end },
-	{ joby4_init, joby4_control, joby4_end },
-	{ andy2_init, andy2_control, andy2_end },
-	{ hamgate_init, hamgate_control, hamgate_end },
-	{ andy1_init, andy1_control, andy1_end },
-	{ joby3_init, joby3_control, joby3_end },
-	{ richcut3_init, richcut3_control, richcut3_end },
-	{ richcut1_init, richcut1_control, richcut1_end },
-	{ joby2_init, joby2_control, joby2_end },
-	{ richcut2_init, richcut2_control, richcut2_end },
-	{ cranecut_init, cranecut_control, cranecut_end },
-	{ special1_init, special1_control, special1_end },
-	{ special2_init, special2_control, special2_end },
-	{ special3_init, special3_control, special3_end },
-	{ special4_init, special4_control, special4_end },
-	{ joby8_init, joby8_control, joby8_end },
-	{ andy6_init, andy6_control, andy6_end },
-	{ andypew_init, andypew_control, andypew_end },
-	{ andy7_init, andy7_control, andy7_end },
-	{ cossack_init, cossack_control, cossack_end },
-	{ andy9_init, andy9_control, andy9_end },
-	{ andy8_init, andy8_control, andy8_end },
-	{ andy10_init, andy10_control, andy10_end },
-	{ joby7_init, joby7_control, joby7_end },
-	{ andrea4_init, andrea4_control, andrea4_end },
-	{ monk2_init, monk2_control, monk2_end },
-	{ swampy_init, swampy_control, swampy_end },
-	{ andy11_init, andy11_control, andy11_end },
+	{ NULL, NULL, NULL },								  // 
+	{ stealth3_start, NULL, stealth3_end },				  // 
+	{ stealth3_start, NULL, stealth3_end },				  // 
+	{ stealth3_start, NULL, stealth3_end },				  // 
+	{ stealth3_start, NULL, stealth3_end },				  // 
+	{ joby6_init, joby6_control, joby6_end },			  // JOBY6 (into suit)
+	{ andy5_init, andy5_control, andy5_end },			  // ANDY5 (monk)
+	{ andrea3b_init, andrea3b_control, andrea3b_end },	  // ANDREA3b (snakes)
+	{ andrea3_init, andrea3_control, andrea3_end },		  // ANDREA3 (larson shootout)
+	{ andy4b_init, andy4b_control, andy4b_end },		  // ANDY4b (imps2)
+	{ andy4_init, andy4_control, andy4_end },			  // ANDY4 (imps1)
+	{ richcut4_init, richcut4_control, richcut4_end },	  // RICHCUT4 (twogun kits up)
+	{ joby10_init, joby10_control, joby10_end },		  // JOBY10 (lara & admiral 2)
+	{ joby9_init, joby9_control, joby9_end },			  // JOBY9 (lara & admiral 1)
+	{ andy3_init, andy3_control, andy3_end },			  // ANDY3 (catapault)
+	{ joby5_init, joby5_control, joby5_end },			  // JOBY5 (periscope)
+	{ andrea2_init, andrea2_control, andrea2_end },		  // ANDREA2
+	{ andrea1_init, andrea1_control, andrea1_end },		  // ANDREA1
+	{ joby4_init, joby4_control, joby4_end },			  // Joby4 (lara+navyboyz+admiral)
+	{ andy2_init, andy2_control, andy2_end },			  // Andy2 (priest + younglara)
+	{ hamgate_init, hamgate_control, hamgate_end },		  // Rich1 (hammer gate thing)
+	{ andy1_init, andy1_control, andy1_end },			  // Andy1 (hangman + younglara)
+	{ joby3_init, joby3_control, joby3_end },			  // Joby Cut 3 (Lara Jump+Sailor)
+	{ richcut3_init, richcut3_control, richcut3_end },	  // Rich Cut 3 (Lara+Gun)
+	{ richcut1_init, richcut1_control, richcut1_end },	  // Rich Cut 1 (Lara+Guard)
+	{ joby2_init, joby2_control, joby2_end },			  // Joby Cut 2 (Admiral+Sergie+Sailors)
+	{ richcut2_init, richcut2_control, richcut2_end },	  // Rich Cut 2 (Voncroy etc)
+	{ cranecut_init, cranecut_control, cranecut_end },	  // Joby Crane Cut
+	{ special1_init, special1_control, special1_end },	  // 
+	{ special2_init, special2_control, special2_end },	  // 
+	{ special3_init, special3_control, special3_end },	  // 
+	{ special4_init, special4_control, special4_end },	  // 
+	{ joby8_init, joby8_control, joby8_end },			  // JOBY8 (out of suit)
+	{ andy6_init, andy6_control, andy6_end },			  // ANDY6 (white hair priest)
+	{ andypew_init, andypew_control, andypew_end },		  // ANDYPEW (!)
+	{ andy7_init, andy7_control, andy7_end },			  // ANDY7 (white hair priest2)
+	{ cossack_init, cossack_control, cossack_end },		  // COSSACK (phil)
+	{ andy9_init, andy9_control, andy9_end },			  // ANDY9 (priest/cossack)
+	{ andy8_init, andy8_control, andy8_end },			  // ANDY8 (chalk)
+	{ andy10_init, andy10_control, andy10_end },		  // ANDY10 (SWAMPY)
+	{ joby7_init, joby7_control, joby7_end },			  // JOBY7 (Underwater)
+	{ andrea4_init, andrea4_control, andrea4_end },		  // ANDREA4 (lara/pierre)
+	{ monk2_init, monk2_control, monk2_end },			  // MONK2
+	{ swampy_init, swampy_control, swampy_end },		  // SWAMPY
+	{ andy11_init, andy11_control, andy11_end },		  // ANDY11 (long one!)
 };
 
 unsigned short crane_pistols_info[11] =
@@ -1754,7 +1760,25 @@ void joby4_end()//2FB04(<), 2FE84(<) (F)
 
 void joby4_control()//2FA0C, 2FD8C
 {
-	S_Warn("[joby4_control] - Unimplemented!\n");
+	int f = GLOBAL_cutseq_frame;
+	if (GLOBAL_cutseq_frame <= 130)
+	{
+		PrintString(256, 200, &gfStringWad[2]); // todo maybe wrong on pc
+	}
+	if (f == 575)
+	{
+		cutseq_meshbits[5] &= 0x7FFFFFFFu;
+	}
+	else
+	{
+		if (f == 769 || f == 1966)
+			lara_item->mesh_bits = 0;
+		if (f == 1593)
+			lara_item->mesh_bits = -1;
+	}
+	handle_lara_chatting(lara_chat_ranges_joby4);
+	handle_actor_chatting(21, 2, 3, 56, admiral_chat_ranges_joby4);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
 void joby4_init()//2F9E4(<), 2FD64(<) (F)
@@ -2651,7 +2675,7 @@ void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
 {
 #if PC_VERSION
 	GLOBAL_playing_cutseq = 0;
-#endif
+#else
 
 	if (cutseq_resident_addresses[cutseq_num].packed_data == NULL)
 	{
@@ -2668,6 +2692,8 @@ void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
 	ProfileDraw = 1;
 	DrawSync(0);
 	VSync(0);
+#endif
+
 #endif
 
 	InitialiseHair();
@@ -2719,6 +2745,9 @@ void do_new_cutscene_camera()
 
 void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 {
+#if PC_VERSION
+	S_Warn("[handle_cutseq_triggering] - Unimplemented!\n");
+#else
 	int i;
 	int s1 = name;//guessed, moved but not used
 
@@ -2909,6 +2938,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 			}//loc_2CA50
 		}
 	}
+#endif
 	return;
 }
 

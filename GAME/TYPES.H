@@ -29,6 +29,8 @@
 
 #define PSXENGINE (PSXPC_VERSION || PSX_VERSION)
 
+#define TEXTURE_PAGE (256 * 256)
+
 // 4 enums
 enum mood_type
 {
@@ -75,6 +77,26 @@ enum room_flags
 	RF_TRLE_P = (1 << 12)					// 0x1000   NGLE uses it for cold rooms
 };
 
+enum material_index
+{
+	MAT_MUD,
+	MAT_SNOW,
+	MAT_SAND,
+	MAT_GRAVEL,
+	MAT_ICE,
+	MAT_WATER,		 // Unused
+	MAT_STONE,		 // Unused
+	MAT_WOOD,
+	MAT_METAL,
+	MAT_MARBLE,
+	MAT_GRASS,		 // Same SFX as sand
+	MAT_CONCRETE,	 // Same SFX as stone
+	MAT_OLD_WOOD,	 // Same SFX as wood
+	MAT_OLD_METAL,	 // Same SFX as metal
+
+	NUM_MATERIALS
+};
+
 enum reverb_type
 {
 	RVB_OUTSIDE,	   // 0x00   no reverberation
@@ -86,6 +108,24 @@ enum reverb_type
 	NUM_REVERB_TYPES  
 };
 
+enum lara_draw_type
+{
+	LARA_NORMAL = 1,
+	LARA_CATSUIT = 4,
+	LARA_DIVESUIT = 5,
+	LARA_INVISIBLE = 7
+};
+
+enum weather_type
+{
+	WEATHER_NORMAL = 0,
+	WEATHER_RAIN = 1,
+	WEATHER_SNOW = 2
+};
+
+#if PC_VERSION
+#pragma pack(push, 1)
+#endif
 struct VECTOR {
 	long vx; // size=0, offset=0
 	long vy; // size=0, offset=4
@@ -133,49 +173,7 @@ struct ITEM_LIGHT {
 	struct ILIGHT Light[4]; // size=48, offset=0
 };
 
-struct ITEM_INFO {
-	long floor; // size=0, offset=0
-	unsigned long touch_bits; // size=0, offset=4
-	unsigned long mesh_bits; // size=0, offset=8
-	short object_number; // size=0, offset=12
-	short current_anim_state; // size=0, offset=14
-	short goal_anim_state; // size=0, offset=16
-	short required_anim_state; // size=0, offset=18
-	short anim_number; // size=0, offset=20
-	short frame_number; // size=0, offset=22
-	short room_number; // size=0, offset=24
-	short next_item; // size=0, offset=26
-	short next_active; // size=0, offset=28
-	short speed; // size=0, offset=30
-	short fallspeed; // size=0, offset=32
-	short hit_points; // size=0, offset=34
-	unsigned short box_number; // size=0, offset=36
-	short timer; // size=0, offset=38
-	short flags; // size=0, offset=40
-	short shade; // size=0, offset=42
-	short trigger_flags; // size=0, offset=44
-	short carried_item; // size=0, offset=46
-	short after_death; // size=0, offset=48
-	unsigned short fired_weapon; // size=0, offset=50
-	short item_flags[4]; // size=8, offset=52
-	void* data; // size=0, offset=60
-	struct PHD_3DPOS pos; // size=20, offset=64
-	struct ITEM_LIGHT il; // size=48, offset=84
-	unsigned long active : 1; // offset=132.0
-	unsigned long status : 2; // offset=132.1
-	unsigned long gravity_status : 1; // offset=132.3
-	unsigned long hit_status : 1; // offset=132.4
-	unsigned long collidable : 1; // offset=132.5
-	unsigned long looked_at : 1; // offset=132.6
-	unsigned long dynamic_light : 1; // offset=132.7
-	unsigned long poisoned : 1; // offset=133.0
-	unsigned long ai_bits : 5; // offset=133.1
-	unsigned long really_active : 1; // offset=133.6
-	unsigned long InDrawRoom : 1; // offset=133.7
-	unsigned long meshswap_meshbits; // size=0, offset=136
-	short draw_room; // size=0, offset=140
-	short TOSSPAD; // size=0, offset=142
-};
+
 
 struct FLOOR_INFO {
 	unsigned short index; // size=0, offset=0
@@ -264,26 +262,7 @@ struct lot_info {
 	struct PHD_VECTOR target; // size=12, offset=28
 	enum zone_type zone; // size=4, offset=40
 };
-struct creature_info {
-	short joint_rotation[4]; // size=8, offset=0
-	short maximum_turn; // size=0, offset=8
-	short flags; // size=0, offset=10
-	unsigned short alerted : 1; // offset=12.0
-	unsigned short head_left : 1; // offset=12.1
-	unsigned short head_right : 1; // offset=12.2
-	unsigned short reached_goal : 1; // offset=12.3
-	unsigned short hurt_by_lara : 1; // offset=12.4
-	unsigned short patrol2 : 1; // offset=12.5
-	unsigned short jump_ahead : 1; // offset=12.6
-	unsigned short monkey_ahead : 1; // offset=12.7
-	enum mood_type mood; // size=4, offset=16
-	struct ITEM_INFO* enemy; // size=144, offset=20
-	struct ITEM_INFO ai_target; // size=144, offset=24
-	short pad; // size=0, offset=168
-	short item_num; // size=0, offset=170
-	struct PHD_VECTOR target; // size=12, offset=172
-	struct lot_info LOT; // size=44, offset=184
-};
+
 struct ROPE_STRUCT {
 	struct PHD_VECTOR Segment[24]; // size=288, offset=0
 	struct PHD_VECTOR Velocity[24]; // size=288, offset=288
@@ -1226,5 +1205,7 @@ struct FOOTPRINT {
 	short YRot; // size=0, offset=12
 	short Active; // size=0, offset=14
 };
-
+#if PC_VERSION
+#pragma pop
+#endif
 #endif

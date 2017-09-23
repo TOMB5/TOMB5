@@ -687,7 +687,9 @@ enum lara_mesh
 	LM_LINARM = 11,
 	LM_LOUTARM = 12,
 	LM_LHAND = 13,
-	LM_HEAD = 14
+	LM_HEAD = 14,
+
+	NUM_LARA_MESHES
 };
 
 
