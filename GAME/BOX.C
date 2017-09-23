@@ -265,8 +265,8 @@ int ValidBox(struct ITEM_INFO* item, short zone_number, short box_number)//222A4
 		return 0;
 	}
 
-	if ((item->pos.z_pos > (box->left * 1024)) || ((box->right * 1024) > item->pos.z_pos) ||
-		(item->pos.x_pos > (box->top * 1024)) || ((box->bottom * 1024) > item->pos.x_pos))
+	if ((item->pos.z_pos > (box->left * 1024)) || ((box->right  * 1024) > item->pos.z_pos) ||
+		(item->pos.x_pos > (box->top  * 1024)) || ((box->bottom * 1024) > item->pos.x_pos))
 	{
 		return 1;
 	}
@@ -274,9 +274,13 @@ int ValidBox(struct ITEM_INFO* item, short zone_number, short box_number)//222A4
 	return 0;
 }
 
-int EscapeBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)
+int EscapeBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)//221C4(<), ?
 {
-	S_Warn("[EscapeBox] - Unimplemented!\n");
+	struct box_info *box; // $a0
+	long x; // $a3
+	long z; // $a2
+
+
 	return 0;
 }
 
@@ -285,10 +289,34 @@ void TargetBox(struct lot_info* LOT, short box_number)
 	S_Warn("[TargetBox] - Unimplemented!\n");
 }
 
-int UpdateLOT(struct lot_info* LOT, int expansion)
+int UpdateLOT(struct lot_info* LOT, int expansion)//22034(<), ?
 {
-	S_Warn("[UpdateLOT] - Unimplemented!\n");
-	return 0;
+	struct box_node* expand;
+
+	if (LOT->required_box != 0x7FF && LOT->required_box != LOT->target_box)
+	{
+		LOT->target_box = LOT->required_box;
+		expand = &LOT->node[LOT->required_box];
+		
+		if (expand->next_expansion == 0x7FF && LOT->tail != LOT->required_box)
+		{
+			expand->next_expansion = LOT->head;
+
+			if (LOT->head == LOT->node[LOT->required_box].next_expansion)
+			{
+				LOT->tail = LOT->target_box;
+			}//0x220B8
+
+			LOT->head = LOT->target_box;
+
+		}//0x220C4
+
+		LOT->search_number++;
+		expand->search_number = LOT->search_number;
+		expand->exit_box = 0x7FF;
+	}//220DC
+
+	return SearchLOT(LOT, expansion);
 }
 
 int SearchLOT(struct lot_info* LOT, int expansion)
