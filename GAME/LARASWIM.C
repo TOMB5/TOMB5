@@ -1,10 +1,12 @@
 #include "LARASWIM.H"
 
 #include "CONTROL.H"
-#if PSX_VERSION
-	#include "PSXINPUT.H"
-#else
-	#include "PSXPCINPUT.H"
+#if PSXPC_VERSION
+#include "PSXPCINPUT.H"
+#elif PSX_VERSION
+#include "PSXINPUT.H"
+#elif PC_VERSION
+#include "PCINPUT.H"
 #endif
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
@@ -114,7 +116,7 @@ void lara_as_glide(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C634(<), 4C
 
 	if (input & IN_ROLL)
 	{
-		if (LaraDrawType != 5)
+		if (LaraDrawType != LARA_DIVESUIT)
 		{
 			item->current_anim_state = STATE_LARA_UNDERWATER_TURNAROUND;
 			item->anim_number = ANIMATION_LARA_UNDERWATER_ROLL_BEGIN;
@@ -122,7 +124,7 @@ void lara_as_glide(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C634(<), 4C
 			return;
 		}
 	}
-	else if (LaraDrawType != 5)
+	else if (LaraDrawType != LARA_DIVESUIT)
 	{
 		SwimTurn(item);
 	}
@@ -152,7 +154,7 @@ void lara_as_swim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C548(<), 4C9
 
 	if (input & IN_ROLL)
 	{
-		if (LaraDrawType != 5)
+		if (LaraDrawType != LARA_DIVESUIT)
 		{
 			item->current_anim_state = STATE_LARA_UNDERWATER_TURNAROUND;
 			item->anim_number = ANIMATION_LARA_UNDERWATER_ROLL_BEGIN;
@@ -160,7 +162,7 @@ void lara_as_swim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C548(<), 4C9
 			return;
 		}
 	}
-	else if (LaraDrawType != 5)
+	else if (LaraDrawType != LARA_DIVESUIT)
 	{
 		SwimTurn(item);
 	}

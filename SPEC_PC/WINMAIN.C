@@ -1,6 +1,10 @@
+#undef __cplusplus
+#define FORCE_NO_SOUND
+
+
 #include "WINMAIN.H"
 #include "SPECIFIC.H"
-#include <cstdio>
+#include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
 #include <crtdbg.h>
@@ -9,12 +13,205 @@
 #include <mm3dnow.h>
 #include <ddraw.h>
 #include <dsound.h>
+#include "GAME.H"
+#include <d3d.h>
+#include "SOUND.H"
+#include "resource.h"
 
+#include "ERROR.H"
+#include "MMREG.H"
+#include "MSAcm.h"
+#include "FILE.H"
+#include "CONTROL.H"
+#include "CD.H"
+#include "PCSOUND.H"
+#include "CAMERA.H"
+#include "GPU.H"
+#include "PCINPUT.H"
+
+
+
+
+
+int dword_876C48 = 0;
+HWND hWnd;
+const char* Name = "Tomb Raider Chronicles";
+const char* ClassName = "DBLogWindowClass";
+const char* WindowName = "DBLog Server";
+UINT Msg;
+WNDCLASSA WndClass;
+HINSTANCE hinst;
+HANDLE hThread;
+const char* Caption = "Tomb Raider";
+LPARAM dword_E4ACB8;
+HANDLE dword_E4ACA4;
+UINT dword_E4ACA8;
+UINT dword_E4ACAC;
+UINT dword_E4ACB0;
+uint8 byte_57A098;
+
+const char* String = "UM_DBLOGOUT";
+const char* SubKey = "Software\\Core\\DBlog";
+const char* ValueName = "CmdLine";
+char GameDrive;
+BYTE byte_D9ADEC;
+DWORD dword_D9AD9C;
+DWORD dword_D9AB24;
+DWORD dword_D9AB20;
+DWORD dword_D9AB28;
+
+
+
+
+
+
+
+unsigned thread_id;
+void* dword_E916E0;
+DWORD dword_876C40;
+
+
+HKEY hKey;
+LPSTR Class;
+DWORD dwDisposition;
+
+DWORD dword_55D29C;
+WORD word_55D218;
+DWORD dword_55D164;
+WORD word_55D234;
+WORD word_55D240;
+WORD word_55D1E8;
+DWORD dword_55D1B0;
+DWORD dword_55D1B4;
+DWORD dword_55D21C;
+float flt_55D22C;
+DWORD dword_55D1F4;
+float flt_55D230;
+float flt_55D250;
+DWORD dword_55DA3C;
+DWORD dword_55D204;
+float flt_55D664;
+DWORD dword_51D0A8;
+DWORD dword_55D20C;
+float flt_51D160;
+float flt_55DA34;
+float flt_51D14C;
+float flt_55DA40;
+float flt_55D228;
+float flt_55D24C;
+float flt_55D238;
+float flt_51D158;
+float flt_55DA38;
+float flt_55D668;
+float flt_55D25C;
+float flt_51D150;
+float flt_51D154;
+float flt_55D220;
+float flt_55D268;
+float flt_51D15C;
+
+BYTE opt_NoFMV;
+BYTE opt_Setup;
+
+
+
+
+WORD opt_Keys[18] =
+{
+	0x00C8, 0x00D0, 0x00CB, 0x00CD, 0x0034, 0x0035, 0x0036, 0x00B8, 0x009D, 0x0039, 
+	0x0033, 0x0052, 0x00CF, 0x0001, 0x00D3, 0x00D1, 0x0019, 0x001C
+};
+
+WORD opt_Keys2[18] =
+{
+	0x00C8, 0x00D0, 0x00CB, 0x00CD, 0x0034, 0x0035, 0x0036, 0x00B8, 0x009D, 0x0039,
+	0x0033, 0x0052, 0x00CF, 0x0001, 0x00D3, 0x00D1, 0x0019, 0x001C
+};
+
+DWORD dword_878C4C[18] = { 0 };
+
+DWORD opt_JDck = 5;
+DWORD opt_JDsh = 3;
+DWORD opt_JWlk = 4;
+DWORD opt_JJmp = 0;
+DWORD opt_JAct = 1;
+DWORD opt_JDrw = 2;
+DWORD opt_JFlr = 9;
+DWORD opt_JLok = 6;
+DWORD opt_JRol = 7;
+DWORD opt_JInv = 8;
+
+
+
+
+HGDIOBJ gdiobject;
+
+BYTE byte_511894[] =
+{
+	0x82, 0xE9, 0x8A, 0xE8, 0x88, 0xEA, 0x94, 0xF6, 0x85, 0xE0, 0xA0, 0xE1, 0xA2, 0xF3
+};
+
+BYTE unk_5118A2[5] = { 0 };
+DWORD dword_57A08C;
+BYTE opt_LowQualityTextures;
+BYTE opt_LowQualityBumpMap;
+DWORD opt_VolumetricFog;
+BYTE opt_BilinearFiltering;
+
+
+int* phd_mxptr; // 12 ints
+int other_matrix_shit[12];
+D3DMATRIX transform_world;
+D3DMATRIX transform_projection;
+D3DMATRIX transform_view;
+
+
+DWORD dword_57A088;
+DWORD dword_57A090;
+
+
+
+
+
+
+
+
+
+
+float flt_50A438 = 12288.0;
+float flt_50A43C = 20480.0;
+float flt_50A444 = 2048.0;
+
+WORD word_507AC0[844] = 
+{
+	0x0004, 0x000D, 0xFFF5, 0x0B00, 0xC4CE, 0x3EC4, 0xE8EA, 0x3E68, 0x0007, 0x0005, 0xFFF6, 0x0501, 0xA4B1, 0x3EA4, 0xD0EE, 0x3DD0, 0x000E, 0x000C, 0xFFF6, 0x0B01, 0x9C91, 0x3E9C, 0x98B3, 0x3E18, 0x000A, 0x000E, 0xFFF6, 0x0D01, 0xD6DC, 0x3F56, 0xD068, 0x3D50, 0x000F, 0x000C, 0xFFF7, 0x0C02, 0xA0B2, 0x3E20, 0xD0EE, 0x3DD0, 0x000E, 0x000C, 0xFFF6, 0x0B01, 0x9EA1, 0x3F1E, 0xE4C9, 0x3E64, 0x0005, 0x0005, 0xFFF5, 0x0400, 0xCCCD, 0x3F4C, 0x9C91, 0x3E1C, 0x0006, 0x0010, 0xFFF4, 0x0D00, 0x8872, 0x3E08, 0xA0B2, 0x3E20, 0x0006, 0x0010, 0xFFF5, 0x0E00, 0xB8BF, 0x3F38, 0xED0B, 0x3E6C, 0x0005, 0x0005, 0xFFF5, 0x0400, 0xB0F2, 0x3DB0, 0xA0B2, 0x3E20, 0x000B, 0x000B, 0xFFF7, 0x0B02, 0xB2AF, 0x3F32, 0xED0B, 0x3E6C, 0x0005, 0x0005, 0xFFFE, 0x0C08, 0xD4CC, 0x3ED4, 0xF0E9, 0x3E70, 0x0008, 0x0003, 0xFFFC, 0x0906, 0xE4EB, 0x3EE4, 0xF0E9, 0x3E70, 0x0005, 0x0004, 0xFFFE, 0x0B08, 0xD4DC, 0x3F54, 0x98B3, 0x3E18, 0x0009, 0x000F, 0xFFF4, 0x0C00, 0xB0AF, 0x3EB0, 0xC4CE, 0x3E44, 0x000A, 0x000A, 0xFFF8, 0x0B03, 0xC8CD, 0x3F48, 0xDCCA, 0x3E5C, 0x0006, 0x000A, 0xFFF8, 0x0B03, 0xB8AE, 0x3E38, 0xD0EE, 0x3E50, 0x0009, 0x000A, 0xFFF8, 0x0B03, 0xB0AF, 0x3EB0, 0x98B3, 0x3E18, 0x0008, 0x000B, 0xFFF8, 0x0C03, 0xF8E8, 0x3E78, 0xA0B2, 0x3E20, 0x000B, 0x000B, 0xFFF8, 0x0C03, 0x8E93, 0x3F0E, 0xC0AD, 0x3E40, 0x0009, 0x000C, 0xFFF7, 0x0C02, 0xE8EA, 0x3F68, 0xC8AC, 0x3E48, 0x0009, 0x000B, 0xFFF7, 0x0B02, 0xF0E9, 0x3EF0, 0xBCCF, 0x3E3C, 0x0009, 0x000C, 0xFFF7, 0x0C02, 0xB0F2, 0x3DB0, 0xCCCD, 0x3E4C, 0x0009, 0x000B, 0xFFF7, 0x0B02, 0xDCEC, 0x3EDC, 0xC4CE, 0x3E44, 0x0009, 0x000B, 0xFFF8, 0x0C03, 0x9891, 0x3F18, 0xE4C9, 0x3E64, 0x0005, 0x0009, 0xFFF9, 0x0B04, 0x8883, 0x3F08, 0xE4C9, 0x3E64, 0x0005, 0x000A, 0xFFF9, 0x0C04, 0xB2AF, 0x3F32, 0xA0B2, 0x3E20, 0x000C, 0x000A, 0xFFF8, 0x0B03, 0xD2CC, 0x3F52, 0xD4CC, 0x3E54, 0x000B, 0x0007, 0xFFF9, 0x0904, 0xF0E9, 0x3F70, 0xA0B2, 0x3E20, 0x000C, 0x000A, 0xFFF8, 0x0B03, 0xC0F0, 0x3D40, 0x9C91, 0x3E1C, 0x000A, 0x000D, 0xFFF5, 0x0B00, 0x8494, 0x3E84, 0xD068, 0x3D50, 0x0010, 0x000E, 0xFFF6, 0x0D01, 0x8284, 0x3F02, 0xD068, 0x3D50, 0x000E, 0x000D, 0xFFF5, 0x0B00, 0xD6DC, 0x3F56, 0xC8AC, 0x3DC8, 0x000D, 0x000D, 0xFFF5, 0x0B00, 0x8484, 0x3F04, 0x8C93, 0x3E0C, 0x000B, 0x000D, 0xFFF5, 0x0B00, 0x0000, 0x0000, 0xD0EE, 0x3DD0, 0x000D, 0x000D, 0xFFF5, 0x0B00, 0xE0EB, 0x3D60, 0xD0EE, 0x3DD0, 0x000D, 0x000D, 0xFFF5, 0x0B00, 0x8494, 0x3E84, 0xD8A9, 0x3DD8, 0x000C, 0x000D, 0xFFF5, 0x0B00, 0xB6AE, 0x3F36, 0xD8A9, 0x3DD8, 0x000C, 0x000D, 0xFFF5, 0x0B00, 0xC8CD, 0x3F48, 0xD068, 0x3D50, 0x000E, 0x000D, 0xFFF5, 0x0B00, 0xDEDB, 0x3F5E, 0xD8ED, 0x3E58, 0x0005, 0x000D, 0xFFF5, 0x0B00, 0xE0EB, 0x3E60, 0xD0EE, 0x3E50, 0x0005, 0x0010, 0xFFF5, 0x0E00, 0xE6EB, 0x3F66, 0xF16F, 0x3D70, 0x000D, 0x000D, 0xFFF5, 0x0B00, 0x9093, 0x3F10, 0x8C93, 0x3E0C, 0x000B, 0x000D, 0xFFF5, 0x0B00, 0xC0AD, 0x3E40, 0xD068, 0x3D50, 0x0012, 0x000D, 0xFFF5, 0x0B00, 0x9093, 0x3F10, 0xD068, 0x3D50, 0x000E, 0x000D, 0xFFF5, 0x0B00, 0xD8ED, 0x3E58, 0xD0EE, 0x3DD0, 0x000C, 0x000D, 0xFFF5, 0x0B00, 0xC8CD, 0x3F48, 0xD0EE, 0x3DD0, 0x000C, 0x000D, 0xFFF5, 0x0B00, 0xF0E9, 0x3F70, 0x0000, 0x0000, 0x000E, 0x000F, 0xFFF5, 0x0D00, 0x9EA1, 0x3F1E, 0xD068, 0x3D50, 0x000E, 0x000D, 0xFFF5, 0x0B00, 0x9CA2, 0x3F1C, 0x8C93, 0x3E0C, 0x000B, 0x000D, 0xFFF5, 0x0B00, 0xACB0, 0x3F2C, 0xD068, 0x3D50, 0x000E, 0x000D, 0xFFF5, 0x0B00, 0xC4CE, 0x3EC4, 0xD068, 0x3D50, 0x000F, 0x000D, 0xFFF5, 0x0B00, 0xA4B1, 0x3EA4, 0xD068, 0x3D50, 0x000F, 0x000D, 0xFFF5, 0x0B00, 0xC0F0, 0x3DC0, 0xD068, 0x3D50, 0x0017, 0x000D, 0xFFF5, 0x0B00, 0xBABF, 0x3F3A, 0xD068, 0x3D50, 0x000D, 0x000E, 0xFFF5, 0x0C00, 0xE4EB, 0x3EE4, 0xD068, 0x3D50, 0x000F, 0x000D, 0xFFF5, 0x0B00, 0xE4EB, 0x3F64, 0xE0EB, 0x3DE0, 0x000C, 0x000D, 0xFFF5, 0x0B00, 0xF8E8, 0x3E78, 0xF0E9, 0x3E70, 0x0006, 0x0004, 0xFFFC, 0x0906, 0xF8F9, 0x3F78, 0xED0B, 0x3E6C, 0x0006, 0x0004, 0xFFFC, 0x0906, 0xB0AF, 0x3EB0, 0xED0B, 0x3E6C, 0x0008, 0x0004, 0xFFFC, 0x0906, 0x8E93, 0x3F0E, 0xF0E9, 0x3E70, 0x0007, 0x0003, 0xFFFD, 0x0907, 0xF0E9, 0x3EF0, 0xED0B, 0x3E6C, 0x0008, 0x0004, 0xFFFC, 0x0906, 0xF2FA, 0x3F72, 0xED0B, 0x3E6C, 0x0005, 0x0005, 0xFFF5, 0x0400, 0xC4CE, 0x3EC4, 0xC4CE, 0x3E44, 0x000B, 0x0009, 0xFFF9, 0x0B04, 0xC0CF, 0x3EC0, 0x8C93, 0x3E0C, 0x000B, 0x000E, 0xFFF4, 0x0B00, 0x9093, 0x3E90, 0xD0EE, 0x3E50, 0x0009, 0x0009, 0xFFF9, 0x0B04, 0x0000, 0x0000, 0x9C91, 0x3E1C, 0x000B, 0x000C, 0xFFF6, 0x0B01, 0xA4A0, 0x3F24, 0xD0EE, 0x3E50, 0x0009, 0x0009, 0xFFF9, 0x0B04, 0xA8B1, 0x3F28, 0x98B3, 0x3E18, 0x000A, 0x000E, 0xFFF4, 0x0B00, 0xF0E9, 0x3EF0, 0x8C93, 0x3E0C, 0x000C, 0x000C, 0xFFF9, 0x0E04, 0xD8CB, 0x3ED8, 0x8C93, 0x3E0C, 0x000B, 0x000E, 0xFFF4, 0x0B00, 0xC2BD, 0x3F42, 0xD8A9, 0x3DD8, 0x0006, 0x000C, 0xFFF6, 0x0B01, 0xA0B2, 0x3E20, 0xCCCD, 0x3E4C, 0x0006, 0x0010, 0xFFF6, 0x0E01, 0xE0EB, 0x3DE0, 0xD0EE, 0x3DD0, 0x000C, 0x000E, 0xFFF4, 0x0B00, 0xA4B1, 0x3EA4, 0xD0EE, 0x3E50, 0x0006, 0x000D, 0xFFF5, 0x0B00, 0xC0CF, 0x3EC0, 0xD0EE, 0x3DD0, 0x0012, 0x0009, 0xFFF9, 0x0B04, 0x9891, 0x3F18, 0xC0AD, 0x3E40, 0x000C, 0x0009, 0xFFF9, 0x0B04, 0xF8E8, 0x3E78, 0xCCCD, 0x3E4C, 0x000A, 0x0009, 0xFFF9, 0x0B04, 0xF4F9, 0x3F74, 0xF16F, 0x3D70, 0x000B, 0x000D, 0xFFF9, 0x0E04, 0xD0EE, 0x3E50, 0x9C91, 0x3E1C, 0x000A, 0x000D, 0xFFF9, 0x0E04, 0xA0F5, 0x3D20, 0xD0EE, 0x3E50, 0x000A, 0x0009, 0xFFF9, 0x0B04, 0xBEBE, 0x3F3E, 0xD0EE, 0x3E50, 0x0009, 0x0009, 0xFFF9, 0x0B04, 0x0000, 0x0000, 0xCCCD, 0x3E4C, 0x0009, 0x000B, 0xFFF7, 0x0B02, 0xB2AF, 0x3F32, 0xC8AC, 0x3E48, 0x000B, 0x0009, 0xFFF9, 0x0B04, 0x8284, 0x3F02, 0xC0AD, 0x3E40, 0x000C, 0x0009, 0xFFF9, 0x0B04, 0x8484, 0x3F04, 0xD0EE, 0x3DD0, 0x0012, 0x0009, 0xFFF9, 0x0B04, 0xF2FA, 0x3F72, 0xC8AC, 0x3E48, 0x000B, 0x0009, 0xFFF9, 0x0B04, 0xA0B2, 0x3E20, 0x98B3, 0x3E18, 0x000B, 0x000D, 0xFFF9, 0x0E04, 0xE8EA, 0x3F68, 0xA490, 0x3E24, 0x0008, 0x0009, 0xFFF9, 0x0B04, 0xDEDB, 0x3F5E, 0xA490, 0x3E24, 0x0009, 0x000D, 0xFFF9, 0x0E04, 0x8284, 0x3F02, 0xE4C9, 0x3E64, 0x0006, 0x0009, 0xFFF9, 0x0B04, 0xC2BD, 0x3F42, 0x9C91, 0x3E1C, 0x000A, 0x000D, 0xFFF6, 0x0C01, 0x8073, 0x3E00, 0xE0EB, 0x3E60, 0x0005, 0x000C, 0xFFF6, 0x0B01, 0x0000, 0x0000, 0xD068, 0x3D50, 0x0018, 0x000D, 0xFFF6, 0x0B06, 0xC0BE, 0x3F40, 0x0000, 0x0000, 0x0018, 0x000D, 0xFFF6, 0x0B06, 0xA8B1, 0x3F28, 0x0000, 0x0000, 0x0018, 0x000D, 0xFFF6, 0x0B06, 0xD8DC, 0x3F58, 0x0000, 0x0000, 0x0018, 0x000D, 0xFFF6, 0x0B06, 0x9692, 0x3F16, 0xD0EE, 0x3DD0, 0x0012, 0x0009, 0xFFF8, 0x0B06, 0xA8B1, 0x3F28, 0xD0EE, 0x3DD0, 0x000D, 0x000C, 0xFFF7, 0x0B06, 0xE4EB, 0x3EE4, 0xD0EE, 0x3DD0, 0x0012, 0x0009, 0xFFF8, 0x0B06, 0xF0E9, 0x3F70, 0xE0EB, 0x3DE0, 0x000D, 0x000C, 0xFFF7, 0x0B06, 0x0000, 0x0000, 0x0000, 0x0000, 0x0029, 0x000D, 0xFFF6, 0x0B06, 0xA8B1, 0x3EA8, 0x0000, 0x0000, 0x0029, 0x000D, 0xFFF6, 0x0B06, 0xA8B1, 0x3E28, 0x0000, 0x0000, 0x0029, 0x000D, 0xFFF6, 0x0B06, 0xFD09, 0x3EFC, 0x0000, 0x0000, 0x0029, 0x000D, 0xFFF6, 0x0B06
+};
+
+BYTE byte_50A0FD[80] =
+{
+	0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x00, 0x80, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA0, 0x00, 0x00, 0x00, 0x50, 0x00, 0x80, 0x80, 0x80, 0x00, 0x10, 0x10, 0x10, 0x00, 0xC0, 0x80, 0x40, 0x00, 0x40, 0x10, 0x00, 0x00, 0x10, 0x10, 0x10, 0x00, 0x80, 0x80, 0x80, 0x00, 0xE0, 0xC0, 0x00, 0x00, 0x40, 0x20, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x01
+};
+WORD word_E4DEC8[1908];
+DWORD dword_E4DEA8;
+DWORD dword_E4DC40;
+DWORD dword_E4DEA4;
+
+
+
+//DEFINE_GUID(IID_IDirect3D3, 0xBB223240, 0xE72B, 0x11D0, 0xA9, 0xB4, 0x00, 0xAA, 0x00, 0xC0, 0x99, 0x3E);
 
 HWND SendMsg(HWND hWnd, LPARAM lParam)
 {
-	S_Warn("[SendMsg] - Unimplemented!\n");
-	return NULL;
+	HWND result; // eax@1
+
+	do
+	{
+		result = (HWND)PostMessageA(hWnd, dword_E4ACA8, 0, lParam);
+		if (result)
+			break;
+		result = FindWindowA(ClassName, WindowName);
+	} while (result);
+	return result;
 }
 
 int WinProcMsg()
@@ -22,11 +219,11 @@ int WinProcMsg()
 	int result; // eax@4
 	struct tagMSG Msg; // [sp+10h] [bp-1Ch]@2
 
-	sub_4DEB10(2, "WinProcMsg");
+	Log(2, "WinProcMsg");
 	do
 	{
 		GetMessageA(&Msg, 0, 0, 0);
-		if (!TranslateAcceleratorA(hWnd, hAccTable, &Msg))
+		if (!TranslateAcceleratorA(hWnd, ptr_ctx->hAccTable, &Msg))
 		{
 			TranslateMessage(&Msg);
 			DispatchMessageA(&Msg);
@@ -36,8 +233,10 @@ int WinProcMsg()
 	return result;
 }
 
-/*char *WinProcessCommandLine(char *a1)
+char *WinProcessCommandLine(char *a1)
 {
+	S_Warn("[WinProcessCommandLine] - Unimplemented!\n");
+#if 0
 	int(__cdecl **v1)(int); // esi@1
 	unsigned int v2; // esi@3
 	int(__cdecl **v3)(int); // esi@7
@@ -56,7 +255,7 @@ int WinProcMsg()
 	int v16; // [sp+18h] [bp-8h]@8
 	int v17; // [sp+1Ch] [bp-4h]@8
 
-	sub_4DEB10(2, "WinProcessCommandLine");
+	Log(2, "WinProcessCommandLine");
 	v1 = &off_51184D;
 	do
 	{
@@ -138,12 +337,29 @@ int WinProcMsg()
 		v3 = (int(__cdecl **)(int))((char *)v3 + 45);
 	} while ((signed int)v3 < (signed int)&unk_5118A7);
 	return result;
-}*/
+#endif
+	return 0;
+}
 
 char WinRunCheck(const CHAR *lpName, const CHAR *lpClassName, HANDLE *mutex)
 {
-	S_Warn("[WinRunCheck] - Unimplemented!\n");
-	return 0;
+	HWND v3; // eax@2
+	char result; // al@4
+
+	Log(2, "WinRunCheck");
+	*mutex = CreateMutexA(0, 1, lpName);
+	if (GetLastError() == 183)
+	{
+		v3 = FindWindowA(lpClassName, lpName);
+		if (v3)
+			SendMessageA(v3, WM_ACTIVATE, 0, 0);
+		result = 1;
+	}
+	else
+	{
+		result = 0;
+	}
+	return result;
 }
 
 HWND WinClose()
@@ -161,12 +377,16 @@ void InitConsole()
 	FILE* hf_out = _fdopen(hCrt, "w");
 	setvbuf(hf_out, NULL, _IONBF, 1);
 	*stdout = *hf_out;
+	setbuf(stdout, NULL);
 
 	HANDLE handle_in = GetStdHandle(STD_INPUT_HANDLE);
 	hCrt = _open_osfhandle((long)handle_in, _O_TEXT);
 	FILE* hf_in = _fdopen(hCrt, "r");
 	setvbuf(hf_in, NULL, _IONBF, 128);
 	*stdin = *hf_in;
+
+	freopen("CONOUT$", "w", stdout);
+	freopen("CONIN$", "r", stdin);
 }
 
 HANDLE sub_4DEA40(LPCSTR lpName)
@@ -263,21 +483,21 @@ char FindGameDrive()
 	unsigned int v0; // ebx@1
 	HANDLE v1; // eax@4
 	char result; // al@6
-	CHAR String1; // [sp+Ch] [bp-18h]@1
-	CHAR FileName[4]; // [sp+14h] [bp-10h]@1
+	CHAR String1[8]; // [sp+Ch] [bp-18h]@1
+	CHAR FileName[14]; // [sp+14h] [bp-10h]@1
 
 	strcpy(FileName, "c:\\script.dat");
 	v0 = GetLogicalDrives();
 	GameDrive = 'A';
-	lstrcpyA(&String1, "A:\\");
+	lstrcpyA(String1, "A:\\");
 	if (v0)
 	{
 		while (1)
 		{
 			if (v0 & 1)
 			{
-				String1 = GameDrive;
-				if (GetDriveTypeA(&String1) == 3)
+				String1[0] = GameDrive;
+				if (GetDriveTypeA(String1) == 3 || GetDriveTypeA(String1) == 5)
 				{
 					FileName[0] = GameDrive;
 					v1 = CreateFileA(FileName, 0x80000000, 0, 0, 3u, 0x80u, 0);
@@ -301,178 +521,171 @@ char FindGameDrive()
 	return result;
 }
 
-void sub_4018AC(signed int a1)
-{
-	/*signed int v1; // esi@1
-	int v2; // edi@10
-	int v3; // ebx@11
-	int v4; // eax@11
-	int v5; // ecx@11
-	int v6; // edi@13
-	int v7; // ecx@13
-	int v8; // ecx@16
-	int v9; // ecx@17
-	int v10; // ebx@27
-	int v11; // ebx@29
-	HCURSOR v12; // eax@41
-	int v13; // [sp+Ch] [bp+4h]@10
 
-	v1 = a1;
-	if (a1 == 8)
+signed int DXToggleFullScreen()
+{
+	struct dispmode* v0; // eax@2
+	signed int result; // eax@2
+	struct dispmode* v2; // eax@3
+
+	Log(2, "DXToggleFullScreen");
+	if (ptr_ctx->flags & 2)
 	{
-		if (!byte_D9AC2B
-			&& *(_DWORD *)(*(_DWORD *)(dword_86B9AC + 8) + 1590 * *(_DWORD *)(dword_86B9AC + 16) + 138) & 0x80000
-			&& !dword_874968)
-		{
-			sub_4DEB10(6, aKa_altenter);
-			sub_4DEB10(5, aHanggamethread);
-			while (dword_D9ABF9)
-				;
-			dword_D9ABFD = 1;
-			while (!dword_D9ABF9)
-				;
-			SuspendThread(hThread);
-			sub_4DEB10(5, aGameThreadSusp);
-			j_nullsub_22();
-			sub_401DD9();
-			j_HWInitialise();
-			j_nullsub_24();
-			sub_401D84();
-			sub_402BAD();
-			ResumeThread(hThread);
-			dword_D9ABFD = 0;
-			sub_4DEB10(5, aGameThreadResu);
-			if (dword_D9ABDD & 1)
-			{
-				SetCursor(0);
-				ShowCursor(0);
-			}
-			else
-			{
-				v12 = LoadCursorA(hinst, (LPCSTR)0x68);
-				SetCursor(v12);
-				ShowCursor(1);
-			}
-		}
+		Log(5, "Switching To Full Screen");
+		ptr_ctx->flags ^= 2u;
+		ptr_ctx->flags |= 0x41u;
+		ptr_ctx->flags |= 0x40u;
+		ptr_ctx->d3d->lpVtbl->EvictManagedTextures(ptr_ctx->d3d);
+		v0 = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+			.accelAdapters[ptr_ctx->curAccelAdapt]
+			.displayModes[ptr_ctx->curDispMode];
+		DXCreate(
+			v0->width,
+			v0->height,
+			v0->depth,
+			ptr_ctx->flags,
+			ptr_ctx,
+			ptr_ctx->dxWndHwnd,
+			ptr_ctx->dxWndStyle);
+		ptr_ctx->flags ^= 0x40u;
+		result = 1;
 	}
-	else if (a1 > 40000 && a1 <= 40002 && !dword_874968 && !byte_D9AC2B)
+	else
 	{
-		sub_4DEB10(5, aChangeVideoMod);
-		sub_4DEB10(5, aHanggamethread);
-		if (dword_D9ABF9)
-			sub_4D3211();
-		dword_D9ABFD = 1;
-		if (!dword_D9ABF9)
-			sub_4D31D1();
-		SuspendThread(hThread);
-		sub_4DEB10(5, aGameThreadSusp);
-		v2 = *(_DWORD *)&dword_D9AB80;
-		v13 = *(_DWORD *)&dword_D9AB80;
-		if (v1 == 40001)
-		{
-			v3 = dword_86B9AC;
-			v4 = *(_DWORD *)&dword_D9AB80 + 1;
-			*(_DWORD *)&dword_D9AB80 = v4;
-			v5 = *(_DWORD *)(*(_DWORD *)(*(_DWORD *)(dword_86B9AC + 8) + 1590 * *(_DWORD *)(dword_86B9AC + 16) + 1586)
-				+ 410 * *(_DWORD *)(dword_86B9AC + 20)
-				+ 386);
-			if (v4 >= v5)
-			{
-				v4 = v5 - 1;
-				*(_DWORD *)&dword_D9AB80 = v5 - 1;
-			}
-			v6 = 150 * v2;
-			v7 = *(_DWORD *)(*(_DWORD *)(1590 * dword_D9AB78 + *(_DWORD *)(dword_86B9AC + 8) + 1586) + 410 * dword_D9AB7C + 390);
-			if (*(_DWORD *)(v7 + 150 * v4 + 8) != *(_DWORD *)(v6 + v7 + 8))
-			{
-				while (1)
-				{
-					*(_DWORD *)&dword_D9AB80 = ++v4;
-					v8 = *(_DWORD *)(dword_86B9AC + 8);
-					if (v4 >= *(_DWORD *)(*(_DWORD *)(v8 + 1590 * *(_DWORD *)(v3 + 16) + 1586) + 410 * *(_DWORD *)(v3 + 20) + 386))
-						break;
-					v9 = *(_DWORD *)(*(_DWORD *)(1590 * dword_D9AB78 + v8 + 1586) + 410 * dword_D9AB7C + 390);
-					if (*(_DWORD *)(v9 + 150 * v4 + 8) == *(_DWORD *)(v6 + v9 + 8))
-						goto LABEL_18;
-					v3 = dword_86B9AC;
-				}
-				*(_DWORD *)&dword_D9AB80 = v13;
-				goto LABEL_23;
-			}
-		LABEL_18:
-			v2 = v13;
-		}
-		else
-		{
-			v4 = *(_DWORD *)&dword_D9AB80 - 1;
-			*(_DWORD *)&dword_D9AB80 = v4;
-			if (v4 < 0)
-			{
-				v4 = 0;
-				*(_DWORD *)&dword_D9AB80 = 0;
-			}
-			v10 = *(_DWORD *)(*(_DWORD *)(1590 * dword_D9AB78 + *(_DWORD *)(dword_86B9AC + 8) + 1586)
-				+ 410 * dword_D9AB7C
-				+ 390);
-			if (*(_DWORD *)(v10 + 150 * v4 + 8) != *(_DWORD *)(150 * v2 + v10 + 8))
-			{
-				while (1)
-				{
-					*(_DWORD *)&dword_D9AB80 = --v4;
-					if (v4 < 0)
-						break;
-					v11 = *(_DWORD *)(*(_DWORD *)(1590 * dword_D9AB78 + *(_DWORD *)(dword_86B9AC + 8) + 1586)
-						+ 410 * dword_D9AB7C
-						+ 390);
-					if (*(_DWORD *)(v11 + 150 * v4 + 8) == *(_DWORD *)(150 * v2 + v11 + 8))
-						goto LABEL_19;
-				}
-				*(_DWORD *)&dword_D9AB80 = v2;
-				goto LABEL_23;
-			}
-		}
-	LABEL_19:
-		if (v2 != v4)
-		{
-			j_nullsub_22();
-			if (!sub_401857())
-			{
-				*(_DWORD *)&dword_D9AB80 = v2;
-				sub_401857();
-			}
-			j_HWInitialise();
-			j_nullsub_24();
-			sub_4017E9(0, 0, *(_DWORD *)dword_D9ABB5, dword_D9ABB9, 20, 20480, 80);
-			sub_402DD3();
-			sub_401D84();
-			sub_402BAD();
-		}
-	LABEL_23:
-		ResumeThread(hThread);
-		dword_D9ABFD = 0;
-		sub_4DEB10(5, aGameThreadResu);
-		dword_D9AD9C = 120;
-		return;
-	}*/
-}
-
-int DXMove(int xLeft, int yTop)
-{
-	int result; // eax@1
-
-	sub_4DEB10(2, "DXMove : x %d y %d", xLeft, yTop);
-	result = dword_86BD94;
-	if (dword_86BD94)
-	{
-		if (!(*(_BYTE *)(dword_86BD94 + 76) & 1))
-			result = SetRect(
-			(LPRECT)(dword_86BD94 + 60),
-				xLeft,
-				yTop,
-				xLeft + *(_DWORD *)(dword_86BD94 + 36),
-				yTop + *(_DWORD *)(dword_86BD94 + 40));
+		Log(5, "Switching To A Window");
+		ptr_ctx->flags ^= 1u;
+		ptr_ctx->flags |= 0x42u;
+		ptr_ctx->d3d->lpVtbl->EvictManagedTextures(ptr_ctx->d3d);
+		v2 = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+			.accelAdapters[ptr_ctx->curAccelAdapt]
+		.displayModes[ptr_ctx->curDispMode];
+		DXCreate(
+			v2->width,
+			v2->height,
+			v2->depth,
+			ptr_ctx->flags,
+			ptr_ctx,
+			ptr_ctx->dxWndHwnd,
+			ptr_ctx->dxWndStyle);
+		ptr_ctx->flags ^= 0x40u;
+		result = 1;
 	}
 	return result;
+}
+
+int HWInitialise()
+{
+	Log(2, "HWInitialise");
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 2, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 3, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 4, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 5, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 6, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 7, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_TEXCOORDINDEX, 0);
+
+	if (ptr_ctx->opt_Filter)
+	{
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MIPFILTER, D3DTFP_NONE);
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+	}
+	else
+	{
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MAGFILTER, D3DTFG_POINT);
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MINFILTER, D3DTFN_POINT);
+		ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_MIPFILTER, D3DTFP_NONE);
+	}
+
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+	ptr_ctx->d3d_dev->lpVtbl->SetTextureStageState(ptr_ctx->d3d_dev, 0, D3DTSS_TEXCOORDINDEX, 0);
+
+
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_SPECULARENABLE, TRUE);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_CULLMODE, D3DCULL_NONE);
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ZENABLE, TRUE));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ZWRITEENABLE, TRUE));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_TEXTUREPERSPECTIVE, TRUE));
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_TEXTUREMAPBLEND, D3DTBLEND_MODULATEALPHA);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_FILLMODE, D3DFILL_SOLID);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_DITHERENABLE, TRUE);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ALPHAREF, 0);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ALPHAFUNC, D3DCMP_NOTEQUAL);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+
+
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_AMBIENT, 0));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_COLORVERTEX, 0));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_COLORMODEL, D3DCOLOR_RGB));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_FOGMODE, D3DFOG_LINEAR));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_FOGSTART, LODWORD(flt_50A438)));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetLightState(ptr_ctx->d3d_dev, D3DLIGHTSTATE_FOGEND, LODWORD(flt_50A43C)));
+
+
+	ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_FOGCOLOR, RGBA_MAKE(0, 0, 0, 255));
+	return ptr_ctx->d3d_dev->lpVtbl->SetRenderState(ptr_ctx->d3d_dev, D3DRENDERSTATE_FOGENABLE, TRUE);
+}
+
+void __cdecl sub_401E47(LPD3DMATRIX a1)
+{
+	a1->_11 = 1.0;
+	a1->_12 = 0.0;
+	a1->_13 = 0.0;
+	a1->_14 = 0.0;
+	a1->_21 = 0.0;
+	a1->_22 = 1.0;
+	a1->_23 = 0.0;
+	a1->_24 = 0.0;
+	a1->_31 = 0.0;
+	a1->_32 = 0.0;
+	a1->_33 = 1.0;
+	a1->_34 = 0.0;
+	a1->_41 = 0.0;
+	a1->_42 = 0.0;
+	a1->_43 = 0.0;
+	a1->_44 = 1.0;
+}
+
+void sub_401D84()
+{
+	sub_401E47(&transform_world);
+	sub_401E47(&transform_projection);
+	transform_projection._22 = -1.0;
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetTransform(ptr_ctx->d3d_dev, D3DTRANSFORMSTATE_WORLD, &transform_world));
+	sub_40179E(ptr_ctx->d3d_dev->lpVtbl->SetTransform(ptr_ctx->d3d_dev, D3DTRANSFORMSTATE_PROJECTION, &transform_projection));
+}
+
+void sub_402BAD()
+{
+	int* v0 = phd_mxptr;
+	sub_401E47(&transform_view);
+	transform_view._11 = (double)v0[0] / 16384.0;
+	transform_view._12 = (double)v0[4] / 16384.0;
+	transform_view._13 = (double)v0[8] / 16384.0;
+	transform_view._21 = (double)v0[1] / 16384.0;
+	transform_view._22 = (double)v0[5] / 16384.0;
+	transform_view._23 = (double)v0[9] / 16384.0;
+	transform_view._31 = (double)v0[2] / 16384.0;
+	transform_view._32 = (double)v0[6] / 16384.0;
+	transform_view._33 = (double)v0[10] / 16384.0;
+	transform_view._41 = (double)v0[3] / 16384.0;
+	transform_view._42 = (double)v0[7] / 16384.0;
+	transform_view._43 = (double)v0[11] / 16384.0;
+}
+
+HMODULE GetKernel32()
+{
+	return GetModuleHandleA("kernel32.dll");
 }
 
 FARPROC sub_4DB931(HMODULE a1)
@@ -480,1107 +693,1644 @@ FARPROC sub_4DB931(HMODULE a1)
 	return GetProcAddress(a1, "Sleep");
 }
 
-HMODULE sub_4DB911()
-{
-	return GetModuleHandleA("kernel32.dll");
-}
-
-FARPROC sub_4DA6F1()
+FARPROC GetSleepFunc()
 {
 	HMODULE v0; // eax@1
 
-	v0 = sub_4DB911();
+	v0 = GetKernel32();
 	return sub_4DB931(v0);
 }
 
-void sub_4DA6D1()
+void Sleep1ms()
 {
 	FARPROC v0; // eax@1
 
-	v0 = sub_4DA6F1();
+	v0 = GetSleepFunc();
 	((void(__stdcall *)(_DWORD))v0)(1);
 }
 
-int sub_4DA111(_DWORD *a1)
+void __fastcall sub_4DA111(_DWORD *a1)
 {
-	_DWORD *v1; // ST00_4@1
-	int result; // eax@1
-
 	do
 	{
-		v1 = a1;
-		sub_4DA6D1();
-		a1 = v1;
-		result = *v1;
-	} while (*v1);
+		Sleep1ms();
+	} while (*a1);
+}
+
+void __fastcall sub_4D8F51(_DWORD *a1)
+{
+	do
+	{
+		Sleep1ms();
+	} while (!*a1);
+}
+
+void sub_4D3211()
+{
+	sub_4DA111(&ptr_ctx->isInScene);
+}
+
+void sub_4D31D1()
+{
+	sub_4D8F51(&ptr_ctx->isInScene);
+}
+
+void __cdecl sub_402563(signed int a1, signed int a2)
+{
+	double v3; // st7@1
+	double v4; // st7@1
+
+	dword_55D21C = a1;
+	dword_55D1F4 = a2;
+	flt_55D228 = (double)a2;
+	flt_55D24C = (double)a1;
+	flt_55D238 = flt_55D268 / flt_55D24C;
+	flt_51D158 = (double)a1 / 16384.0;
+	flt_55DA38 = (double)a2 / 16384.0;
+	flt_55D668 = flt_51D15C / flt_51D158;
+	flt_55D25C = flt_50A444 / flt_51D158;
+	v3 = flt_55DA38 * flt_51D158 * 0.99000001 / (flt_51D158 - flt_55DA38);
+	flt_51D150 = 1 / 200.0 - v3 / flt_51D158;
+	v4 = -v3;
+	flt_51D154 = v4;
+	flt_55D220 = v4 / flt_50A444;
+}
+
+int __cdecl sub_4017E9(int a1, int a2, signed int width, signed int a4, int a5, int a6, int a7)
+{
+	int result; // eax@1
+
+	dword_55D29C = width;
+	word_55D218 = width - 1;
+	dword_55D164 = a4;
+	word_55D234 = a1;
+	word_55D240 = a4 - 1;
+	word_55D1E8 = a2;
+	dword_55D1B0 = width / 2;
+	dword_55D1B4 = a4 / 2;
+	dword_55D21C = a5 << 14;
+	flt_55D22C = (double)(width / 2);
+	dword_55D1F4 = a6 << 14;
+	flt_55D230 = (double)(a4 / 2);
+	AlterFOV(ANGLE(a7));
+	sub_402563(dword_55D21C, dword_55D1F4);
+	flt_55D250 = (double)word_55D234;
+	dword_55DA3C = word_55D218;
+	result = word_55D218 + 1;
+	dword_55D204 = word_55D240;
+	flt_55D664 = (double)word_55D1E8;
+	dword_51D0A8 = a2;
+	dword_55D20C = a1;
+	flt_51D160 = (double)result;
+	phd_mxptr = other_matrix_shit;
+	flt_55DA34 = (double)(word_55D240 + 1);
+	flt_51D14C = flt_51D160 - flt_55D250;
+	flt_55DA40 = flt_55DA34 - flt_55D664;
 	return result;
 }
 
-int sub_4D3191()
-{
-	return sub_4DA111(&dword_D9ABF9);
-}
 
-int __fastcall sub_4D8F51(_DWORD *a1)
+int __cdecl sub_40198D(int a1, int *a2, int *a3)
 {
-	_DWORD *v1; // ST00_4@1
-	int result; // eax@1
+	int v3; // ebp@1
+	int v4; // ebx@1
+	int v5; // esi@1
+	int v6; // eax@2
+	int v7; // edi@5
+	int v8; // ecx@8
+	int result; // eax@34
 
-	do
+	v3 = 0;
+	v4 = 0;
+	v5 = 0;
+	if (BYTE2(a1) - 128 <= 0)
 	{
-		v1 = a1;
-		sub_4DA6D1();
-		a1 = v1;
-		result = *v1;
-	} while (!*v1);
+		v6 = 2 * BYTE2(a1);
+	}
+	else
+	{
+		v5 = (BYTE2(a1) - 128) >> 1;
+		v6 = 255;
+	}
+	if (BYTE1(a1) - 128 <= 0)
+	{
+		v7 = 2 * BYTE1(a1);
+	}
+	else
+	{
+		v4 = (BYTE1(a1) - 128) >> 1;
+		v7 = 255;
+	}
+	if ((unsigned __int8)a1 - 128 <= 0)
+	{
+		v8 = 2 * (unsigned __int8)a1;
+	}
+	else
+	{
+		v3 = ((unsigned __int8)a1 - 128) >> 1;
+		v8 = 255;
+	}
+	if (v6 <= 255)
+	{
+		if (v6 < 0)
+			v6 = 0;
+	}
+	else
+	{
+		v6 = 255;
+	}
+	if (v7 <= 255)
+	{
+		if (v7 < 0)
+			v7 = 0;
+	}
+	else
+	{
+		v7 = 255;
+	}
+	if (v8 <= 255)
+	{
+		if (v8 < 0)
+			v8 = 0;
+	}
+	else
+	{
+		v8 = 255;
+	}
+	if (v5 <= 255)
+	{
+		if (v5 < 0)
+			v5 = 0;
+	}
+	else
+	{
+		v5 = 255;
+	}
+	if (v4 <= 255)
+	{
+		if (v4 < 0)
+			v4 = 0;
+	}
+	else
+	{
+		v4 = 255;
+	}
+	if (v3 <= 255)
+	{
+		if (v3 < 0)
+			v3 = 0;
+	}
+	else
+	{
+		v3 = 255;
+	}
+	result = v8 | ((v7 | (v6 << 8)) << 8);
+	*a2 = result;
+	*a3 = v3 | ((v4 | (v5 << 8)) << 8);
 	return result;
 }
 
-int sub_4CF191()
+signed __int64 sub_402DD3()
 {
-	return sub_4D8F51(&dword_D9ABF9);
+	BYTE *v0; // edi@1
+	BYTE v1; // ST3C_1@2
+	BYTE v2; // ST38_1@2
+	BYTE v3; // al@2
+	unsigned __int8 v4; // ST40_1@2
+	BYTE v5; // dl@2
+	signed int v6; // ebx@2
+	int v7; // ebp@2
+	signed int v8; // ecx@2
+	char *v9; // esi@2
+	signed int v10; // eax@2
+	int v11; // eax@3
+	int v12; // edx@3
+	int v13; // ecx@3
+	signed int v14; // eax@9
+	char v15; // dh@9
+	signed int v16; // eax@9
+	__int16 v17; // dx@9
+	int v18; // eax@9
+	BOOL v19; // zf@9
+	signed int v20; // esi@11
+	signed int v21; // eax@12
+	__int16 v22; // dx@13
+	__int16 v23; // cx@13
+	double v24; // st7@15
+	signed __int64 v25; // rax@16
+	signed __int64 result; // rax@17
+	signed int v27; // [sp+10h] [bp-50h]@2
+	signed int v28; // [sp+14h] [bp-4Ch]@2
+	signed int v29; // [sp+18h] [bp-48h]@2
+	signed int v30; // [sp+1Ch] [bp-44h]@2
+	int v31; // [sp+20h] [bp-40h]@2
+	int v32; // [sp+24h] [bp-3Ch]@2
+	char *v33; // [sp+28h] [bp-38h]@1
+	signed int v34; // [sp+28h] [bp-38h]@2
+	int v35; // [sp+44h] [bp-1Ch]@9
+	int v36; // [sp+48h] [bp-18h]@9
+	int v37; // [sp+4Ch] [bp-14h]@2
+	int v38; // [sp+50h] [bp-10h]@2
+	int v39; // [sp+54h] [bp-Ch]@2
+	float v40; // [sp+58h] [bp-8h]@2
+	int v41; // [sp+5Ch] [bp-4h]@2
+
+	v33 = (char *)&word_E4DEC8[844] + 1;
+	v0 = byte_50A0FD;
+	do
+	{
+		v1 = *v0;
+		v2 = v0[1];
+		v3 = v0[5];
+		v4 = *(v0 - 1);
+		v5 = v0[3];
+		v38 = (unsigned __int8)v0[4];
+		v37 = (unsigned __int8)v3;
+		v41 = -v4;
+		LODWORD(v40) = -(unsigned __int8)v1;
+		v6 = 0;
+		v7 = (unsigned __int8)v5;
+		v8 = 16 * (unsigned __int8)v1;
+		v39 = -(unsigned __int8)v2;
+		v9 = v33;
+		v10 = 16 * (unsigned __int8)v2;
+		v29 = 0;
+		v27 = 0;
+		v30 = 0;
+		v28 = 16 * v4;
+		v32 = 16 * (unsigned __int8)v1;
+		v31 = 16 * (unsigned __int8)v2;
+		v34 = 16;
+		do
+		{
+			v11 = (v6 >> 4) + (v10 >> 4);
+			v12 = (v27 >> 4) + (v8 >> 4);
+			v13 = (v29 >> 4) + (v28 >> 4);
+			if ((unsigned __int16)v11 > 0xFFu)
+				LOWORD(v11) = 255;
+			if ((unsigned __int16)v12 > 0xFFu)
+				LOWORD(v12) = 255;
+			if ((unsigned __int16)v13 > 0xFFu)
+				LOWORD(v13) = 255;
+			sub_40198D((unsigned __int16)v13 | (((unsigned __int16)v12 | ((unsigned __int16)v11 << 8)) << 8), &v35, &v36);
+			v14 = v35;
+			v15 = BYTE1(v35);
+			v9[1] = v35;
+			*v9 = v15;
+			*(v9 - 1) = v14 >> 16;
+			v16 = v36;
+			v17 = v36;
+			v9[2] = -1;
+			v9[5] = v17;
+			v9[4] = HIBYTE(v17);
+			v9[3] = v16 >> 16;
+			v6 = v37 + v30;
+			v18 = v38;
+			v9[6] = -1;
+			v27 += v18;
+			v10 = v39 + v31;
+			v8 = LODWORD(v40) + v32;
+			v28 += v41;
+			v9 += 8;
+			v29 += v7;
+			v19 = v34 == 1;
+			v30 = v6;
+			v31 += v39;
+			v32 += LODWORD(v40);
+			--v34;
+		} while (!v19);
+		v0 += 8;
+		v33 = v9;
+	} while (v0 < &byte_50A0FD[80] + 1);
+	v20 = 0;
+	if (*(_DWORD *)&byte_50A0FD[79])
+	{
+		v21 = 0;
+		do
+		{
+			v22 = word_507AC0[v21];
+			word_E4DEC8[v21 + 1] = word_507AC0[v21 + 1];
+			v23 = word_507AC0[v21 + 2];
+			word_E4DEC8[v21] = v22;
+			word_E4DEC8[v21 + 2] = v23;
+			v21 += 8;
+		} while (v21 < 848);
+		*(_DWORD *)&byte_50A0FD[79] = 0;
+	}
+	v41 = word_55D240;
+	v40 = (double)word_55D218;
+	v24 = (double)word_55D240;
+	do
+	{
+		v41 = word_E4DEC8[v20 + 1];
+		v25 = (signed __int64)((double)v41 * v24 / 240.0);
+		v41 = word_E4DEC8[v20];
+		word_507AC0[v20 + 1] = v25;
+		word_507AC0[v20] = (signed __int64)((double)v41 * v40 / 512.0);
+		v41 = word_E4DEC8[v20 + 2];
+		word_507AC0[v20 + 2] = (signed __int64)((double)v41 * v24 / 240.0);
+		v20 += 8;
+	} while (v20 < 848);
+	result = (signed __int64)(v24 * 0.058333334);
+	dword_E4DEA8 = result;
+	dword_E4DC40 = result;
+	dword_E4DEA4 = 6;
+	return result;
+}
+
+void __cdecl sub_4018AC(signed int param)
+{
+	signed int v1; // esi@1
+	int v2; // edi@10
+	int v3; // ebx@11
+	int v4; // eax@11
+	int v5; // ecx@11
+	struct dispmode* v7; // ecx@13
+	int v8; // ecx@16
+	struct dispmode* v9; // ecx@17
+	struct dispmode* v10; // ebx@27
+	struct dispmode* v11; // ebx@29
+	HCURSOR v12; // eax@41
+	int v13; // [sp+Ch] [bp+4h]@10
+
+	v1 = param;
+	if (param == 8)
+	{
+		if (!ptr_ctx->byte_D9AC2B
+			&& ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].capabilities.dwCaps2 & DDSCAPS2_STEREOSURFACELEFT
+			&& !dword_874968)
+		{
+			Log(6, "KA_ALTENTER");
+			Log(5, "HangGameThread");
+			while (ptr_ctx->isInScene)
+				;
+			ptr_ctx->dword_D9ABFD = 1;
+			while (!ptr_ctx->isInScene)
+				;
+			SuspendThread(hThread);
+			Log(5, "Game Thread Suspended");
+			//j_nullsub_22();
+			DXToggleFullScreen();
+			HWInitialise();
+			//j_nullsub_24();
+			sub_401D84();
+			sub_402BAD();
+			ResumeThread(hThread);
+			ptr_ctx->dword_D9ABFD = 0;
+			Log(5, "Game Thread Resumed");
+			if (ptr_ctx->flags & 1)
+			{
+				SetCursor(0);
+				ShowCursor(0);
+			}
+			else
+			{
+				v12 = LoadCursorA(hinst, (LPCSTR)IDC_ARROW);
+				SetCursor(v12);
+				ShowCursor(1);
+			}
+		}
+	}
+	else if (param > 40000 && param <= 40002 && !dword_874968 && !ptr_ctx->byte_D9AC2B)
+	{
+		Log(5, "Change Video Mode");
+		Log(5, "HangGameThread");
+		if (ptr_ctx->isInScene)
+			sub_4D3211();
+		ptr_ctx->dword_D9ABFD = 1;
+		if (!ptr_ctx->isInScene)
+			sub_4D31D1();
+		SuspendThread(hThread);
+		Log(5, "Game Thread Suspended");
+		v2 = ptr_ctx->curDispMode;
+		v13 = ptr_ctx->curDispMode;
+		if (v1 == IDR_VKADD)
+		{
+			v3 = ptr_ctx;
+			v4 = ptr_ctx->curDispMode + 1;
+			ptr_ctx->curDispMode = v4;
+			v5 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+				.accelAdapters[ptr_ctx->curAccelAdapt]
+				.numDispModes;
+			if (v4 >= v5)
+			{
+				v4 = v5 - 1;
+				ptr_ctx->curDispMode = v5 - 1;
+			}
+			v7 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt].displayModes;
+			if (v7[v4].depth != v7[v2].depth)
+			{
+				while (1)
+				{
+					ptr_ctx->curDispMode = ++v4;
+					v8 = *(_DWORD *)(ptr_ctx + 8);
+					if (v4 >= ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+						.accelAdapters[ptr_ctx->curAccelAdapt]
+						.numDispModes)
+						break;
+					v9 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt].displayModes;
+					if (v9[4].depth == v9[v2].depth)
+						goto LABEL_18;
+					v3 = ptr_ctx;
+				}
+				ptr_ctx->curDispMode = v13;
+				goto LABEL_23;
+			}
+		LABEL_18:
+			v2 = v13;
+		}
+		else
+		{
+			v4 = ptr_ctx->curDispMode - 1;
+			ptr_ctx->curDispMode = v4;
+			if (v4 < 0)
+			{
+				v4 = 0;
+				ptr_ctx->curDispMode = 0;
+			}
+			v10 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+				.accelAdapters[ptr_ctx->curAccelAdapt]
+				.displayModes;
+			if (v10[v4].depth != v10[v2].depth)
+			{
+				while (1)
+				{
+					ptr_ctx->curDispMode = --v4;
+					if (v4 < 0)
+						break;
+					v11 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+						.accelAdapters[ptr_ctx->curAccelAdapt]
+						.displayModes;
+					if (v11[v4].depth == v11[v2].depth)
+						goto LABEL_19;
+				}
+				ptr_ctx->curDispMode = v2;
+				goto LABEL_23;
+			}
+		}
+	LABEL_19:
+		if (v2 != v4)
+		{
+			//j_nullsub_22();
+			if (!DXChangeVideoMode())
+			{
+				ptr_ctx->curDispMode = v2;
+				DXChangeVideoMode();
+			}
+			HWInitialise();
+			//j_nullsub_24();
+			sub_4017E9(0, 0, ptr_ctx->width, ptr_ctx->height, 20, 20480, 80);
+			sub_402DD3();
+			sub_401D84();
+			sub_402BAD();
+		}
+	LABEL_23:
+		ResumeThread(hThread);
+		ptr_ctx->dword_D9ABFD = 0;
+		Log(5, "Game Thread Resumed");
+		dword_D9AD9C = 120;
+		return;
+	}
+}
+
+void sub_4D3191()
+{
+	sub_4DA111(&ptr_ctx->isInScene);
+}
+
+void sub_4CF191()
+{
+	sub_4D8F51(&ptr_ctx->isInScene);
+}
+
+int __cdecl sub_40286A(int a1)
+{
+	LPDIRECTINPUTDEVICEA result; // eax@1
+
+	result = ptr_ctx->dinput_other;
+	if (result)
+	{
+		if (a1)
+			result = result->lpVtbl->Acquire(ptr_ctx->dinput_other);
+		else
+			result = result->lpVtbl->Unacquire(result);
+	}
+	return result;
 }
 
 LRESULT __stdcall sub_401E8D(HWND hWnd, unsigned int Msg, int wParam, void *lParam)
 {
 	if (Msg > 0x10)
 	{
-		if (Msg == 273)
+		if (Msg == WM_COMMAND)
 		{
-			sub_4DEB10(6, "WM_COMMAND");
+			Log(6, "WM_COMMAND");
 			sub_4018AC((unsigned __int16)wParam);
 		}
 		else
 		{
-			if (Msg == 512)
+			if (Msg == WM_MOUSEFIRST)
 			{
 				dword_D9AB24 = (signed __int16)lParam;
 				dword_D9AB20 = SHIWORD(lParam);
 				dword_D9AB28 = wParam;
 				return DefWindowProcA(hWnd, 0x200u, wParam, (LPARAM)lParam);
 			}
-			if (Msg == 0x8000)
+			if (Msg == WM_APP)
 			{
-				//sub_4027DE(lParam, wParam); TODO
+				sub_4027DE(lParam, wParam);
 				return 0;
 			}
 		}
 		return DefWindowProcA(hWnd, Msg, wParam, (LPARAM)lParam);
 	}
-	if (Msg == 16)
+	if (Msg == WM_CLOSE)
 	{
-		sub_4DEB10(6, "WM_CLOSE");
+		Log(6, "WM_CLOSE");
 		byte_D9ADEC = 1;
 		PostQuitMessage(0);
 		return DefWindowProcA(hWnd, 0x10u, wParam, (LPARAM)lParam);
 	}
-	if (Msg == 1)
+	if (Msg == WM_CREATE)
 	{
 		dword_D9AD9C = 0;
-		sub_4DEB10(6, "WM_CREATE");
+		Log(6, "WM_CREATE");
 		return DefWindowProcA(hWnd, 1u, wParam, (LPARAM)lParam);
 	}
-	if (Msg == 3)
+	if (Msg == WM_MOVE)
 	{
-		sub_4DEB10(6, "WM_MOVE");
+		Log(6, "WM_MOVE");
 		DXMove((signed __int16)lParam, SHIWORD(lParam));
 		return DefWindowProcA(hWnd, 3u, wParam, (LPARAM)lParam);
 	}
-	if (Msg != 6)
+	if (Msg != WM_ACTIVATE)
 		return DefWindowProcA(hWnd, Msg, wParam, (LPARAM)lParam);
-	sub_4DEB10(6, "WM_ACTIVATE");
+	Log(6, "WM_ACTIVATE");
 	if (byte_D9ADEC)
 		return DefWindowProcA(hWnd, Msg, wParam, (LPARAM)lParam);
-	if (byte_D9AC2B)
+	if (ptr_ctx->byte_D9AC2B)
 		return 0;
 	if ((_WORD)wParam)
 	{
 		if ((signed int)(unsigned __int16)wParam > 0 && (signed int)(unsigned __int16)wParam <= 2)
 		{
-			sub_4DEB10(6, "WM_ACTIVE");
-			if (byte_D9AC19)
+			Log(6, "WM_ACTIVE");
+			if (ptr_ctx->byte_D9AC19)
 			{
-				//sub_40286A(1);
+				sub_40286A(1);
 				ResumeThread(hThread);
-				dword_D9ABFD = 0;
-				sub_4DEB10(5, "Game Thread Resumed");
+				ptr_ctx->dword_D9ABFD = 0;
+				Log(5, "Game Thread Resumed");
 				return 0;
 			}
 		}
 	}
 	else
 	{
-		sub_4DEB10(6, "WM_INACTIVE");
-		if (byte_D9AC19)
+		Log(6, "WM_INACTIVE");
+		if (ptr_ctx->byte_D9AC19)
 		{
-			//sub_40286A(0);
-			sub_4DEB10(5, "HangGameThread");
-			if (dword_D9ABF9)
+			sub_40286A(0);
+			Log(5, "HangGameThread");
+			if (ptr_ctx->isInScene)
 				sub_4D3191();
-			dword_D9ABFD = 1;
-			if (!dword_D9ABF9)
+			ptr_ctx->dword_D9ABFD = 1;
+			if (!ptr_ctx->isInScene)
 				sub_4CF191();
 			SuspendThread(hThread);
-			sub_4DEB10(5, "Game Thread Suspended");
+			Log(5, "Game Thread Suspended");
 		}
 	}
 	return 0;
 }
 
-char *__cdecl sub_401A7D(void *a1, int a2, size_t a3)
-{
-	unsigned int v3; // esi@2
-	char *result; // eax@2
 
-	if (a2)
-	{
-		v3 = a3;
-		result = (char *)realloc(a1, a3 * (a2 + 1));
-	}
-	else
-	{
-		v3 = a3;
-		result = (char *)malloc(a3);
-	}
-	memset(&result[v3 * a2], 0, v3);
-	return result;
+
+
+
+
+
+
+
+
+
+LSTATUS __cdecl sub_4029B9(LPCSTR lpValueName, BYTE Data)
+{
+	return RegSetValueExA(hKey, lpValueName, 0, 4u, &Data, 4u);
 }
 
-char *__cdecl sub_401C94(signed int a1)
+char __cdecl ReadRegDword(LPCSTR lpValueName, DWORD* Type, BYTE Data)
 {
-	char *result; // eax@16
-
-	if (a1 > -2005532081)
+	_DWORD *v3; // edi@1
+	char result; // al@4
+	int v5; // esi@5
+	DWORD cbData; // [sp+Ch] [bp-4h]@1
+	DWORD dwType = 0;
+	v3 = Type;
+	cbData = 4;
+	if (RegQueryValueExA(hKey, lpValueName, 0, &dwType, (LPBYTE)Type, &cbData) || (int)Type != 4 || cbData != 4)
 	{
-		if (a1 > -2005531929)
-		{
-			if (a1 > -2005530624)
-			{
-				if (a1 > -2005530590)
-				{
-					if (a1 <= -2005401500)
-					{
-						if (a1 == -2005401500)
-							return aTheSpecifiedWa;
-						if (a1 > -2005401590)
-						{
-							if (a1 == -2005401570)
-								return aTheBufferContr;
-							if (a1 == -2005401550)
-								return aThisFunctionIs;
-							if (a1 == -2005401530)
-								return aTheCallerDoesN;
-						}
-						else
-						{
-							if (a1 == -2005401590)
-								return aTheRequestFail;
-							if (a1 == -2005530589)
-								return aTooManyPrimiti;
-							if (a1 == -2005530588)
-								return aInvalidMatrix;
-							if (a1 == -2005530586)
-								return aConflictingT_0;
-						}
-						return aUndefinedError;
-					}
-					if (a1 <= -2005401440)
-					{
-						if (a1 == -2005401440)
-							return aAnotherApplica;
-						if (a1 == -2005401480)
-							return aNoSoundDriverI;
-						if (a1 == -2005401470)
-							return aTheObjectIsAlr;
-						if (a1 == -2005401450)
-							return aTheBufferMemor;
-						return aUndefinedError;
-					}
-					if (a1 == -2005401430)
-					{
-						result = aTheIdirectsoun;
-					}
-					else
-					{
-						if (a1)
-							return aUndefinedError;
-						result = aTheRequestComp;
-					}
-				}
-				else if (a1 == -2005530590)
-				{
-					result = aUnsupportedTex;
-				}
-				else
-				{
-					switch (a1)
-					{
-					case -2005530622:
-						result = aColorkeyAttach;
-						break;
-					case -2005530594:
-						result = aConflictingTex;
-						break;
-					case -2005530591:
-						result = aConflictingRen;
-						break;
-					case -2005530601:
-						result = aStencilBufferN;
-						break;
-					case -2005530595:
-						result = aTooManyOperati;
-						break;
-					case -2005530596:
-						result = aUnsupportedAlp;
-						break;
-					case -2005530597:
-						result = aUnsupportedA_0;
-						break;
-					case -2005530598:
-						result = aUnsupportedCol;
-						break;
-					case -2005530599:
-						result = aUnsupportedC_0;
-						break;
-					case -2005530593:
-						result = aUnsupportedFac;
-						break;
-					case -2005530611:
-						result = aVertexBufferCr;
-						break;
-					case -2005530610:
-						result = aVertexBufferLo;
-						break;
-					case -2005530612:
-						result = aVertexBufferOp;
-						break;
-					case -2005530600:
-						result = aWrongTextureFo;
-						break;
-					case -2005530602:
-						result = aZbufferNotPres;
-						break;
-					default:
-						return aUndefinedError;
-					}
-				}
-			}
-			else if (a1 == -2005530624)
-			{
-				result = aInvalidVertexF;
-			}
-			else
-			{
-				switch (a1)
-				{
-				case -2005531902:
-					result = aAlreadyInBegin;
-					break;
-				case -2005531928:
-					result = aInvalidPalette;
-					break;
-				case -2005531922:
-					result = aLightSetFailed;
-					break;
-				case -2005531921:
-					result = aLightHasViewpo;
-					break;
-				case -2005531920:
-					result = aLightNotInThis;
-					break;
-				case -2005531897:
-					result = aNoCurrentViewp;
-					break;
-				case -2005531901:
-					result = aNotInBeginScen;
-					break;
-				case -2005531900:
-					result = aNoViewports;
-					break;
-				case -2005531910:
-					result = aBeginSceneFail;
-					break;
-				case -2005531909:
-					result = aEndSceneFailed;
-					break;
-				case -2005531912:
-					result = aSceneInScene;
-					break;
-				case -2005531911:
-					result = aSceneNotInScen;
-					break;
-				case -2005531925:
-					result = aSurfaceNotInVi;
-					break;
-				case -2005531899:
-					result = aViewportDataNo;
-					break;
-				case -2005531898:
-					result = aViewportHasNoD;
-					break;
-				case -2005531927:
-					result = aZbufferNeedsSy;
-					break;
-				case -2005531926:
-					result = aZbufferNeedsVi;
-					break;
-				default:
-					return aUndefinedError;
-				}
-			}
-		}
-		else if (a1 == -2005531929)
-		{
-			result = aMaterialGetDat;
-		}
-		else
-		{
-			switch (a1)
-			{
-			case -2005532032:
-				result = aAnAttemptToPag;
-				break;
-			case -2005532012:
-				result = aAnAttemptToP_0;
-				break;
-			case -2005532052:
-				result = aADeviceContext;
-				break;
-			case -2005531973:
-				result = aSurfacesCreate;
-				break;
-			case -2005531981:
-				result = aTheDataHasExpi;
-				break;
-			case -2005532080:
-				result = aTheRequestedOp;
-				break;
-			case -2005531982:
-				result = aThereIsMoreDat;
-				break;
-			case -2005532070:
-				result = aAnAttemptWas_5;
-				break;
-			case -2005532042:
-				result = aAnAttemptWas_6;
-				break;
-			case -2005532072:
-				result = aTheDeviceDoesN;
-				break;
-			case -2005532071:
-				result = aTheSurfaceIsAn;
-				break;
-			case -2005531992:
-				result = aAnAttemptIsM_0;
-				break;
-			case -2005531977:
-				result = aTheVideoPortIs;
-				break;
-			case -2005531972:
-				result = aBadMajorVersio;
-				break;
-			case -2005531971:
-				result = aBadMinorVersio;
-				break;
-			case -2005531965:
-				result = aDeviceAggregat;
-				break;
-			case -2005531955:
-				result = aExecuteClipped;
-				break;
-			case -2005531962:
-				result = aExecuteCreateF;
-				break;
-			case -2005531961:
-				result = aExecuteDestroy;
-				break;
-			case -2005531956:
-				result = aExecuteFailed;
-				break;
-			case -2005531960:
-				result = aExecuteLockFai;
-				break;
-			case -2005531958:
-				result = aExecuteLocked;
-				break;
-			case -2005531957:
-				result = aExecuteNotLock;
-				break;
-			case -2005531959:
-				result = aExecuteUnlockF;
-				break;
-			case -2005531966:
-				result = aInitFailed;
-				break;
-			case -2005531967:
-				result = aInvalidDevice;
-				break;
-			case -2005531937:
-				result = aInvalidCurrent;
-				break;
-			case -2005531936:
-				result = aInvalidPrimiti;
-				break;
-			case -2005531933:
-				result = aInvalidRampTex;
-				break;
-			case -2005531935:
-				result = aInvalidVertexT;
-				break;
-			case -2005531932:
-				result = aMaterialCreate;
-				break;
-			case -2005531931:
-				result = aMaterialDestro;
-				break;
-			case -2005531930:
-				result = aMaterialSetDat;
-				break;
-			case -2005531942:
-				result = aMatrixCreateFa;
-				break;
-			case -2005531941:
-				result = aMatrixDestroyF;
-				break;
-			case -2005531939:
-				result = aMatrixGetDataF;
-				break;
-			case -2005531940:
-				result = aMatrixSetDataF;
-				break;
-			case -2005531938:
-				result = aSetViewportDat;
-				break;
-			case -2005531934:
-				result = aBadTextureSize;
-				break;
-			case -2005531951:
-				result = aTextureCreateF;
-				break;
-			case -2005531950:
-				result = aTextureDestroy;
-				break;
-			case -2005531943:
-				result = aTextureGetSurf;
-				break;
-			case -2005531947:
-				result = aTextureLoadFai;
-				break;
-			case -2005531949:
-			case -2005531945:
-				result = aTextureLockFai;
-				break;
-			case -2005531952:
-				result = aTextureNoSuppo;
-				break;
-			case -2005531944:
-				result = aTextureNotLock;
-				break;
-			case -2005531946:
-				result = aTextureSwapFai;
-				break;
-			case -2005531948:
-				result = aTextureUnlockF;
-				break;
-			default:
-				return aUndefinedError;
-			}
-		}
-	}
-	else
-	{
-		if (a1 == -2005532081)
-			return aTheOperation_8;
-		if (a1 > -2005532288)
-		{
-			switch (a1)
-			{
-			case -2005532098:
-				result = aADirectdrawcli;
-				break;
-			case -2005532087:
-				result = aWindowsCanNotC;
-				break;
-			case -2005532089:
-				result = aPrimaryAnd3DSu;
-				break;
-			case -2005532237:
-				result = aAccessToThisSu;
-				break;
-			case -2005532105:
-				result = aAnAttemptWas_1;
-				break;
-			case -2005532272:
-				result = aNoSourceColorK;
-				break;
-			case -2005532110:
-				result = aADirectdrawObj;
-				break;
-			case -2005532091:
-				result = aAnAttemptWas_2;
-				break;
-			case -2005532101:
-				result = aTheDirectdrawC;
-				break;
-			case -2005532102:
-				result = aDirectdrawIsPr;
-				break;
-			case -2005532084:
-				result = aTheSurfaceCann;
-				break;
-			case -2005532111:
-				result = aTheGloballyUni;
-				break;
-			case -2005532093:
-				result = aThePositionOfT;
-				break;
-			case -2005532151:
-				result = aTheSpecifiedSt;
-				break;
-			case -2005532097:
-				result = aNoBlitterHardw;
-				break;
-			case -2005532104:
-				result = aNoDirectdrawcl;
-				break;
-			case -2005532086:
-				result = aNoDcHasEverBee;
-				break;
-			case -2005532096:
-				result = aNoDirectdrawRa;
-				break;
-			case -2005532109:
-				result = aHardwareOnlyDi;
-				break;
-			case -2005532107:
-				result = aSoftwareEmulat;
-				break;
-			case -2005532103:
-				result = aClipperNotific;
-				break;
-			case -2005532094:
-				result = aTheIdirectdraw;
-				break;
-			case -2005532100:
-				result = aNoPaletteObjec;
-				break;
-			case -2005532099:
-				result = aThereIsNoHardw;
-				break;
-			case -2005532092:
-				result = aAnOverlayCompo;
-				break;
-			case -2005532090:
-				result = aAnAttemptHasBe;
-				break;
-			case -2005532088:
-				result = aAnAttemptIsMad;
-				break;
-			case -2005532083:
-				result = aTheSurfaceBein;
-				break;
-			case -2005532095:
-				result = aTheIdirectdr_0;
-				break;
-			case -2005532285:
-				result = aAccessToThisPa;
-				break;
-			case -2005532108:
-				result = aThisProcessHas;
-				break;
-			case -2005532106:
-				result = aTheRegionPasse;
-				break;
-			case -2005532262:
-				result = aAnAttemptWas_3;
-				break;
-			case -2005532252:
-				result = aAnAttemptWas_4;
-				break;
-			case -2005532242:
-				result = aAccessToTheSur;
-				break;
-			case -2005532232:
-				result = aAccessToTheS_0;
-				break;
-			case -2005532222:
-				result = aAccessToTheS_1;
-				break;
-			case -2005532212:
-				result = aTheRequestedSu;
-				break;
-			case -2005532202:
-				result = aTheHeightReque;
-				break;
-			case -2005532192:
-				result = aTheSizeRequest;
-				break;
-			case -2005532182:
-				result = aTheWidthReques;
-				break;
-			case -2005532162:
-				result = aTheFourccForma;
-				break;
-			case -2005532152:
-				result = aTheBitmaskInTh;
-				break;
-			case -2005532082:
-				result = aTheDisplayIsCu;
-				break;
-			case -2005532135:
-				result = aAVerticalBlank;
-				break;
-			case -2005532132:
-				result = aThePreviousBli;
-				break;
-			case -2005532085:
-				result = aThisSurfaceCan;
-				break;
-			case -2005532112:
-				result = aTheProvidedR_0;
-				break;
-			default:
-				return aUndefinedError;
-			}
-		}
-		else
-		{
-			if (a1 == -2005532288)
-				return aAnAttemptWas_0;
-			if (a1 > -2005532462)
-			{
-				switch (a1)
-				{
-				case -2005532457:
-					result = aTheSurfaceDoes;
-					break;
-				case -2005532452:
-					result = aTheOperation_0;
-					break;
-				case -2005532460:
-					result = aACreateFunctio;
-					break;
-				case -2005532450:
-					result = aDirectdrawSupp;
-					break;
-				case -2005532447:
-					result = aTheOperationRe;
-					break;
-				case -2005532442:
-					result = aFlippingVisibl;
-					break;
-				case -2005532432:
-					result = aNoGdiIsPresent;
-					break;
-				case -2005532422:
-					result = aTheOperation_1;
-					break;
-				case -2005532412:
-					result = aTheOperation_2;
-					break;
-				case -2005532392:
-					result = aTheOperation_3;
-					break;
-				case -2005532382:
-					result = aTheOperation_4;
-					break;
-				case -2005532362:
-					result = aTheOperation_5;
-					break;
-				case -2005532356:
-					result = aTheDirectdraws;
-					break;
-				case -2005532355:
-					result = aTheDirectdra_0;
-					break;
-				case -2005532352:
-					result = aTheDirectdra_1;
-					break;
-				case -2005532342:
-					result = aTheOperation_6;
-					break;
-				case -2005532417:
-					result = aTheRequestedIt;
-					break;
-				case -2005532337:
-					result = aTheOperation_7;
-					break;
-				case -2005532332:
-					result = aTheOperationTo;
-					break;
-				case -2005532322:
-					result = aTheOverlaySurf;
-					break;
-				case -2005532312:
-					result = aTheHardwareNee;
-					break;
-				case -2005532292:
-					result = aDirectdrawDo_2;
-					break;
-				case -2005532402:
-					result = aOperationCould;
-					break;
-				case -2005532290:
-					result = aTheHardwareDoe;
-					break;
-				default:
-					return aUndefinedError;
-				}
-			}
-			else
-			{
-				if (a1 == -2005532462)
-					return aTheOperationCa;
-				if (a1 > (signed int)0x8876005A)
-				{
-					switch (a1)
-					{
-					case -2005532577:
-						result = aThePrimarySurf;
-						break;
-					case -2005532572:
-						result = aOneOrMoreOfT_0;
-						break;
-					case -2005532562:
-						result = aDirectdrawDo_0;
-						break;
-					case -2005532552:
-						result = aDirectdrawDo_1;
-						break;
-					case -2005532542:
-						result = aDirectdrawRece;
-						break;
-					case -2005532527:
-						result = aThePixelFormat;
-						break;
-					case -2005532522:
-						result = aTheProvidedRec;
-						break;
-					case -2005532512:
-						result = aOneOrMoreSurfa;
-						break;
-					case -2005532502:
-						result = aNo3DHardwareOr;
-						break;
-					case -2005532492:
-						result = aNoAlphaAcceler;
-						break;
-					case -2005532467:
-						result = aNoClipListIsAv;
-						break;
-					default:
-						return aUndefinedError;
-					}
-				}
-				else
-				{
-					if (a1 == 0x8876005A)
-						return aTheHeightOfThe;
-					if (a1 <= (signed int)0x80070057)
-					{
-						if (a1 == 0x80070057)
-							return aOneOrMoreOfThe;
-						if (a1 > (signed int)0x80040110)
-						{
-							if (a1 == 0x800401F0)
-								return aAnAttemptWasMa;
-							if (a1 == 0x8007000E)
-								return aDirectdrawDoes;
-						}
-						else
-						{
-							if (a1 == 0x80040110)
-								return aTheObjectDoesN;
-							if (a1 == 0x80004001)
-								return aTheOperationIs;
-							if (a1 == 0x80004002)
-								return aTheRequestedCo;
-							if (a1 == 0x80004005)
-								return aThereIsAnUndef;
-						}
-						return aUndefinedError;
-					}
-					switch (a1)
-					{
-					case 0x88760005:
-						result = aTheObjectHasAl;
-						break;
-					case 0x8876000A:
-						result = aASurfaceCannot;
-						break;
-					case 0x88760014:
-						result = aASurfaceCann_0;
-						break;
-					case 0x88760028:
-						result = aNoSupportIsCur;
-						break;
-					case 0x88760037:
-						result = aAnExceptionWas;
-						break;
-					default:
-						return aUndefinedError;
-					}
-				}
-			}
-		}
-	}
-	return result;
-}
-
-signed int __cdecl sub_40179E(int a1)
-{
-	signed int result; // eax@2
-	char* v2; // eax@3
-
-	if (a1 < 0)
-	{
-		v2 = sub_401C94(a1);
-		sub_4DEB10(1, "ERROR : %s", v2);
-		result = 1;
-	}
-	else
-	{
-		result = 0;
-	}
-	return result;
-}
-
-int __cdecl DXDDCreate(GUID *lpGUID, LPVOID* a2)
-{
-	int v2; // ecx@0
-	HRESULT v3; // eax@1
-	int v4; // eax@2
-	int v5; // eax@3
-	int result; // eax@5
-	LPDIRECTDRAW lpDD; // [sp+10h] [bp-4h]@1
-
-	lpDD = (LPDIRECTDRAW)v2;
-	sub_4DEB10(2, "DXDDCreate");
-	v3 = DirectDrawCreate(lpGUID, &lpDD, 0);
-	if (sub_40179E(v3))
-	{
-		sub_4DEB10(1, "DXDDCreate Failed");
+		v5 = Data;
+		sub_4029B9(lpValueName, Data);
+		*v3 = v5;
 		result = 0;
 	}
 	else
 	{
-		v4 = lpDD->lpVtbl->QueryInterface(lpDD, &IID_IDirectDraw4, a2);
-
-		//v4 = (*(int(__stdcall **)(LPDIRECTDRAW, void *, int))lpDD->lpVtbl)(lpDD, IID_IDirectDraw4, a2);
-		sub_40179E(v4);
-		if (lpDD)
-		{
-			v5 = (*((int(__stdcall **)(LPDIRECTDRAW))lpDD->lpVtbl + 2))(lpDD);
-			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "DirectDraw", lpDD, v5);
-			lpDD = 0;
-		}
-		else
-		{
-			sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "DirectDraw");
-		}
-		sub_4DEB10(5, "DXDDCreate Successful");
 		result = 1;
 	}
 	return result;
 }
 
-BOOL __cdecl sub_402FA9(int a1, int a2, int a3)
+BOOL __cdecl sub_4020A9(LPCSTR lpSubKey)
 {
-	S_Warn("[sub_402FA9] - Unimplemented!\n");
+	return RegCreateKeyExA(HKEY_CURRENT_USER, lpSubKey, 0, Class, 0, 0xF003Fu, 0, &hKey, &dwDisposition) == 0;
 }
 
-unsigned int __cdecl sub_49F9C0(unsigned int a1, _BYTE *a2, _BYTE *a3)
+int __cdecl sub_402964(char* a1)
 {
-	unsigned int result; // eax@1
-	char i; // cl@1
-	char v5; // cl@3
+	int result; // eax@2
+	CHAR SubKey[256]; // [sp+0h] [bp-100h]@2
 
-	result = a1;
-	for (i = 0; !(result & 1); ++i)
-		result >>= 1;
-	*a2 = i;
-	v5 = 0;
-	if (result & 1)
+	if (a1)
 	{
+		sprintf(&SubKey, "%s\\%s", "Software\\Core Design\\Tomb Raider Chronicles", a1);
+		result = sub_4020A9(&SubKey);
+	}
+	else
+	{
+		result = sub_4020A9("Software\\Core Design\\Tomb Raider Chronicles");
+	}
+	return result;
+}
+
+LSTATUS __cdecl sub_402B94(LPCSTR lpValueName, BYTE Data)
+{
+	*(_DWORD *)&Data = (unsigned __int8)Data;
+	return RegSetValueExA(hKey, lpValueName, 0, 4u, &Data, 4u);
+}
+
+char __cdecl ReadRegByte(LPCSTR lpValueName, BYTE* buf, BYTE defaultVal)
+{
+	const CHAR *v3; // esi@1
+	char result; // al@4
+	BYTE v5; // bl@5
+	DWORD cbData; // [sp+4h] [bp-8h]@1
+	BYTE Data[4]; // [sp+8h] [bp-4h]@1
+
+	v3 = lpValueName;
+	cbData = 4;
+	if (RegQueryValueExA(hKey, lpValueName, 0, (LPDWORD)&lpValueName, Data, &cbData)
+		|| lpValueName != (LPCSTR)4
+		|| cbData != 4)
+	{
+		v5 = defaultVal;
+		sub_402B94(v3, defaultVal);
+		*(_BYTE *)buf = v5;
+		result = 0;
+	}
+	else
+	{
+		*(_BYTE *)buf = *(_DWORD *)Data != 0;
+		result = 1;
+	}
+	return result;
+}
+
+int __cdecl LoadTextureFormats(HWND hDlg, HWND hWnd)
+{
+	HWND v2; // eax@1
+	HWND v3; // eax@1
+	struct acceladapt* result; // eax@1
+	struct acceltexformatinfo* v5; // eax@3
+	int depth; // esi@3
+	int bitsB; // ebx@3
+	int bitsR; // edi@3
+	HWND v9; // eax@9
+	_BYTE v10[5]; // [sp+13h] [bp-39h]@1
+	int v11; // [sp+18h] [bp-34h]@2
+	int bitsG; // [sp+1Ch] [bp-30h]@3
+	int bitsA; // [sp+20h] [bp-2Ch]@3
+	CHAR v14[40]; // [sp+24h] [bp-28h]@3
+
+	SendMessageA(hWnd, CB_RESETCONTENT, 0, 0);
+	v2 = GetDlgItem(hDlg, IDC_TEXRES);
+	EnableWindow(v2, 1);
+	v3 = GetDlgItem(hDlg, IDC_SOFTWARE);
+	v10[4] = 0;
+	*(_DWORD *)v10 = SendMessageA(v3, BM_GETCHECK, 0, 0) != 0;
+	result = &dxctx.graphicsAdapters[opt_GraphicsAdapter].accelAdapters[opt_AccelAdapter];
+	if (result->numTexFormats > 0)
+	{
+		v11 = 0;
 		do
 		{
-			result >>= 1;
-			++v5;
-		} while (result & 1);
-		result = (unsigned int)a3;
-		*a3 = v5;
-	}
-	else
-	{
-		*a3 = 0;
+			v5 = &result->texFormats[v11];
+			depth = v5->depth;
+			bitsB = v5->bitsB;
+			bitsR = v5->bitsR;
+			bitsG = v5->bitsG;
+			bitsA = v5->bitsA;
+			wsprintfA(v14, "%d %s RGBA %d%d%d%d", v5->depth, &gfStringWad[gfStringOffset[281]], bitsR, bitsG, bitsB, bitsA);
+			SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)v14);
+			if (v10[0])
+			{
+				if (depth == 32 && bitsR == 8 && bitsB == 8 && bitsG == 8 && bitsA == 8)
+				{
+					SendMessageA(hWnd, CB_SETCURSEL, *(WPARAM *)&v10[1], 0);
+					dword_57A088 = *(_DWORD *)&v10[1];
+					v9 = GetDlgItem(hDlg, IDC_TEXRES);
+					EnableWindow(v9, 0);
+				}
+			}
+			else if (depth != 16 || bitsR != 5 || bitsB != 5 || bitsG != 5 || bitsA != 1)
+			{
+				SendMessageA(hWnd, CB_SETCURSEL, 0, 0);
+				dword_57A088 = 0;
+			}
+			else
+			{
+				SendMessageA(hWnd, CB_SETCURSEL, *(WPARAM *)&v10[1], 0);
+				dword_57A088 = *(_DWORD *)&v10[1];
+			}
+			++*(_DWORD *)&v10[1];
+			v11++;
+			result = &dxctx.graphicsAdapters[opt_GraphicsAdapter].accelAdapters[opt_AccelAdapter];
+		} while (*(_DWORD *)&v10[1] < result->numTexFormats);
 	}
 	return result;
 }
 
-unsigned int __cdecl sub_4016B3(int a1, int a2, int a3)
+char __cdecl LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 {
-	return sub_49F9C0(a1, (_BYTE *)a2, (_BYTE *)a3);
-}
+	HWND v3; // edi@2
+	HWND v5; // eax@2
+	HWND v7; // eax@3
+	HWND v8; // eax@4
+	HWND v9; // eax@4
+	int v10; // ecx@5
+	struct acceladapt* v11; // eax@5
+	struct dispmode* v12; // eax@7
+	int res_w; // edx@7
+	int res_h; // ebx@7
+	signed int res_bit; // eax@7
+	int v16; // edx@18
+	int v17; // edx@20
+	struct acceladapt* v18; // eax@20
+	LPARAM v19; // ebx@20
+	HWND v20; // eax@24
+	HWND v22; // eax@24
+	HWND v23; // eax@25
+	WPARAM v24; // ST10_4@26
+	HWND v25; // eax@26
+	HWND v26; // eax@27
+	HWND v27; // eax@28
+	WPARAM v28; // ST10_4@29
+	HWND v29; // eax@29
+	HWND v30; // eax@30
+	HWND v31; // eax@31
+	WPARAM v32; // ST10_4@32
+	HWND v33; // eax@32
+	HWND v34; // eax@33
+	HWND v35; // eax@34
+	WPARAM v36; // ST10_4@35
+	HWND v37; // eax@35
+	HWND v38; // eax@36
+	HWND v39; // eax@36
+	HWND v40; // eax@37
+	HWND v41; // eax@37
+	HWND v42; // eax@39
+	HWND v43; // eax@39
+	char result; // al@40
+	HWND v45; // eax@41
+	HWND v46; // [sp-10h] [bp-60h]@12
+	WPARAM v47; // [sp-8h] [bp-58h]@2
+	WPARAM v48; // [sp-8h] [bp-58h]@12
+	LPARAM lParam; // [sp+10h] [bp-40h]@5
+	int v50; // [sp+18h] [bp-38h]@6
+	int v51; // [sp+1Ch] [bp-34h]@7
+	signed int v52; // [sp+20h] [bp-30h]@7
+	int wParam; // [sp+24h] [bp-2Ch]@1
+	CHAR var28[44]; // [sp+28h] [bp-28h]@8
+	BOOL hDlga; // [sp+54h] [bp+4h]@4
 
-signed int __stdcall sub_401CBC(int a1, int a2)
-{
-	int v2; // esi@1
-	char *v3; // eax@1
-	int v4; // ebx@1
-	int v5; // edx@1
-
-	v2 = *(_DWORD *)(a2 + 1574);
-	v3 = sub_401A7D(*(void **)(a2 + 1578), *(_DWORD *)(a2 + 1574), 0x96u);
-	*(_DWORD *)(a2 + 1578) = (DWORD)v3;
-	v4 = (int)&v3[150 * v2];
-	*(_DWORD *)v4 = *(_DWORD *)(a1 + 12);
-	*(_DWORD *)(v4 + 4) = *(_DWORD *)(a1 + 8);
-	*(_DWORD *)(v4 + 8) = *(_DWORD *)(a1 + 84);
-	v5 = (*(_DWORD *)(a1 + 76) >> 5) & 1;
-	*(_DWORD *)(v4 + 16) = v5;
-	*(_DWORD *)(v4 + 12) = *(_DWORD *)(a1 + 24);
-	qmemcpy((void *)(v4 + 20), (const void *)a1, 0x7Cu);
-	if (v5)
+	wParam = 0;
+	if (opt_AccelAdapter)
 	{
-		sub_4DEB10(3, "%d x %d - %d Bit - Palette", *(_DWORD *)v4, *(_DWORD *)(v4 + 4), *(_DWORD *)(v4 + 8));
+		v3 = hDlg;
+		v5 = GetDlgItem(hDlg, IDC_HARDACCEL);
+		SendMessageA(v5, BM_SETCHECK, 1u, 0);
+		v47 = 0;
 	}
 	else
 	{
-		sub_4016B3(*(_DWORD *)(a1 + 88), v4 + 147, v4 + 144);
-		sub_4016B3(*(_DWORD *)(a1 + 92), v4 + 148, v4 + 145);
-		sub_4016B3(*(_DWORD *)(a1 + 96), v4 + 149, v4 + 146);
-		sub_4DEB10(
-			3,
-			"%d x %d - %d Bit - %d%d%d",
-			*(_DWORD *)v4,
-			*(_DWORD *)(v4 + 4),
-			*(_DWORD *)(v4 + 8),
-			*(_BYTE *)(v4 + 144),
-			*(_BYTE *)(v4 + 145),
-			*(_BYTE *)(v4 + 146));
+		v3 = hDlg;
+		v7 = GetDlgItem(hDlg, IDC_HARDACCEL);
+		SendMessageA(v7, BM_SETCHECK, 0, 0);
+		v47 = 1;
 	}
-	++*(_DWORD *)(a2 + 1574);
+	v8 = GetDlgItem(v3, IDC_SOFTWARE);
+	SendMessageA(v8, BM_SETCHECK, v47, 0);
+	v9 = GetDlgItem(v3, IDC_SOFTWARE);
+	hDlga = SendMessageA(v9, BM_GETCHECK, 0, 0) != 0;
+	if (a3)
+	{
+		SendMessageA(hWnd, CB_RESETCONTENT, 0, 0);
+		v10 = opt_GraphicsAdapter;
+		lParam = 0;
+		v11 = &dxctx.graphicsAdapters[opt_GraphicsAdapter].accelAdapters[opt_AccelAdapter];
+		if (v11->numDispModes > 0)
+		{
+			v50 = 0;
+			do
+			{
+				v12 = &v11->displayModes[v50];
+				res_w = v12->width;
+				res_h = v12->height;
+				res_bit = v12->depth;
+				v51 = res_w;
+				v52 = res_bit;
+				if (res_bit <= 8)
+				{
+					v16 = opt_AccelAdapter;
+					goto LABEL_20;
+				}
+				wsprintfA(var28, "%dx%d %d %s", res_w, res_h, res_bit, &gfStringWad[gfStringOffset[281]]);
+				SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)var28);
+				SendMessageA(hWnd, CB_SETITEMDATA, wParam, lParam);
+				if (hDlga)
+				{
+					if (v51 != 320 || res_h != 240 || v52 != 16)
+						goto LABEL_18;
+					v48 = wParam;
+					v46 = hWnd;
+				}
+				else
+				{
+					if (v51 != 640 || res_h != 480 || v52 != 16)
+						goto LABEL_18;
+					v48 = wParam;
+					v46 = hWnd;
+				}
+				SendMessageA(v46, CB_SETCURSEL, v48, 0);
+				dword_57A090 = wParam;
+			LABEL_18:
+				v16 = opt_AccelAdapter;
+				v10 = opt_GraphicsAdapter;
+				++wParam;
+			LABEL_20:
+				v50++;
+				++lParam;
+				v18 = dxctx.graphicsAdapters[v10].accelAdapters;
+				v19 = v18[v16].numDispModes;
+				v11 = &v18[v16];
+			} while (lParam < v19);
+		}
+	}
+	else
+	{
+		v10 = opt_GraphicsAdapter;
+	}
+	if (dxctx.graphicsAdapters[v10].capabilities.dwCaps2 & DDCAPS2_CANRENDERWINDOWED)
+	{
+		v23 = GetDlgItem(v3, IDC_WINDOWED);
+		EnableWindow(v23, 1);
+	}
+	else
+	{
+		v20 = GetDlgItem(v3, IDC_WINDOWED);
+		EnableWindow(v20, 0);
+		v22 = GetDlgItem(v3, IDC_WINDOWED);
+		SendMessageA(v22, BM_SETCHECK, 0, 0);
+	}
+	v24 = (unsigned __int8)opt_BilinearFiltering;
+	v25 = GetDlgItem(v3, IDC_BILINEAR);
+	SendMessageA(v25, BM_SETCHECK, v24, 0);
+	if (hDlga)
+	{
+		v26 = GetDlgItem(v3, IDC_VOLUMEFOG);
+		EnableWindow(v26, 0);
+		opt_VolumetricFog = 0;
+	}
+	else
+	{
+		v27 = GetDlgItem(v3, IDC_VOLUMEFOG);
+		EnableWindow(v27, 1);
+	}
+	v28 = (unsigned __int8)opt_VolumetricFog;
+	v29 = GetDlgItem(v3, IDC_VOLUMEFOG);
+	SendMessageA(v29, BM_SETCHECK, v28, 0);
+	if (hDlga)
+	{
+		v30 = GetDlgItem(v3, IDC_BUMPMAP);
+		EnableWindow(v30, 0);
+		opt_LowQualityBumpMap = 0;
+	}
+	else
+	{
+		v31 = GetDlgItem(v3, IDC_BUMPMAP);
+		EnableWindow(v31, 1);
+	}
+	v32 = (unsigned __int8)opt_LowQualityBumpMap;
+	v33 = GetDlgItem(v3, IDC_BUMPMAP);
+	SendMessageA(v33, BM_SETCHECK, v32, 0);
+	if (hDlga)
+	{
+		v34 = GetDlgItem(v3, IDC_LOWTEXT);
+		EnableWindow(v34, 0);
+		opt_LowQualityTextures = 0;
+	}
+	else
+	{
+		v35 = GetDlgItem(v3, IDC_LOWTEXT);
+		EnableWindow(v35, 1);
+	}
+	v36 = (unsigned __int8)opt_LowQualityTextures;
+	v37 = GetDlgItem(v3, IDC_LOWTEXT);
+	SendMessageA(v37, BM_SETCHECK, v36, 0);
+	if (opt_LowQualityTextures)
+	{
+		v38 = GetDlgItem(v3, IDC_LOWBUMP);
+		SendMessageA(v38, BM_SETCHECK, 1u, 0);
+		v39 = GetDlgItem(v3, IDC_LOWBUMP);
+		EnableWindow(v39, 0);
+	}
+	else
+	{
+		v40 = GetDlgItem(v3, IDC_LOWBUMP);
+		EnableWindow(v40, 1);
+		v41 = GetDlgItem(v3, IDC_LOWBUMP);
+		SendMessageA(v41, BM_SETCHECK, 0, 0);
+	}
+	if (!opt_LowQualityBumpMap)
+	{
+		v42 = GetDlgItem(v3, IDC_LOWBUMP);
+		SendMessageA(v42, BM_SETCHECK, 0, 0);
+		v43 = GetDlgItem(v3, IDC_LOWBUMP);
+		EnableWindow(v43, 0);
+	}
+	result = a3;
+	if (a3)
+	{
+		v45 = GetDlgItem(v3, IDC_TEXRES);
+		result = LoadTextureFormats(v3, v45);
+	}
+	return result;
+
+	S_Warn("[sub_4017B7] - Unimplemented!\n");
+	return 0;
+}
+
+int __cdecl LoadAccelAdapters(HWND hDlg, HWND hWnd)
+{
+	int v2; // esi@1
+	struct gfxadapt* v3; // eax@1
+	int v4; // edi@2
+	HWND v5; // eax@4
+
+	SendMessageA(hWnd, CB_RESETCONTENT, 0, 0);
+	v2 = 0;
+	v3 = &dxctx.graphicsAdapters[opt_GraphicsAdapter];
+	if (v3->numAccelAdapters > 0)
+	{
+		v4 = 0;
+		do
+		{
+			SendMessageA(hWnd, CB_ADDSTRING, 0, v3->accelAdapters[v4].description);
+			++v2;
+			v4++;
+			v3 = &dxctx.graphicsAdapters[opt_GraphicsAdapter];
+		} while (v2 < v3->numAccelAdapters);
+	}
+	SendMessageA(hWnd, CB_SETCURSEL, 1u, 0);
+	opt_AccelAdapter = 1;
+	v5 = GetDlgItem(hDlg, IDC_RESOLUTION);
+	return LoadResolutions(hDlg, v5, 1);
+}
+
+int __cdecl LoadGraphicsAdapters(HWND hDlg, HWND hWnd)
+{
+	int v2; // eax@1
+	int v3; // edi@1
+	int v4; // esi@2
+	HWND v5; // eax@4
+	CHAR v7[256]; // [sp+10h] [bp-100h]@3
+
+	SendMessageA(hWnd, CB_RESETCONTENT, 0, 0);
+	v2 = dxctx.numGraphicsAdapters;
+	v3 = 0;
+	if (dxctx.numGraphicsAdapters > 0)
+	{
+		v4 = 0;
+		do
+		{
+			wsprintfA(
+				v7,
+				"%s - %s (%d.%d.%02d.%04d)",
+				dxctx.graphicsAdapters[v4].deviceName,
+				dxctx.graphicsAdapters[v4].driverDllName,
+				dxctx.graphicsAdapters[v4].versionMajor,
+				dxctx.graphicsAdapters[v4].versionMinor,
+				dxctx.graphicsAdapters[v4].versionBuild,
+				dxctx.graphicsAdapters[v4].versionRevision);
+			SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)v7);
+			v2 = dxctx.numGraphicsAdapters;
+			++v3;
+			v4++;
+		} while (v3 < dxctx.numGraphicsAdapters);
+	}
+	SendMessageA(hWnd, CB_SETCURSEL, v2 - 1, 0);
+	opt_GraphicsAdapter = dxctx.numGraphicsAdapters - 1;
+	v5 = GetDlgItem(hDlg, IDC_OUTSETTINGS);
+	return LoadAccelAdapters(hDlg, v5);
+}
+
+void sub_402D10()
+{
+	for(int i = 0; i < 18; i++)
+	{
+		dword_878C4C[i] = 0;
+
+		for(int j = 0; j < 18; j++)
+		{
+			if (opt_Keys[i] == opt_Keys2[j])
+			{
+				dword_878C4C[i] = 1;
+				break;
+			}
+		}
+	}
+}
+
+char sub_402F77()
+{
+	int v0; // eax@8
+	int v1; // eax@9
+	int v2; // edx@13
+	int v3; // ecx@13
+	char result; // al@13
+	DWORD Type; // [sp+3h] [bp-5h]@3
+	DWORD Type2;
+
+	if ((unsigned __int8)sub_402964("System"))
+	{
+		ReadRegByte("Setup", (int)&opt_Setup, 0);
+		if (opt_Setup)
+		{
+			ptr_ctx->dword_D9AC1B = 256;
+			ptr_ctx->dword_D9AC1F = 256;
+			ptr_ctx->dword_D9AC27 = 32;
+			ReadRegDword("DD", &ptr_ctx->curGfxAdapt, 0);
+			ReadRegDword("D3D", &ptr_ctx->curAccelAdapt, 0);
+			ReadRegDword("VMode", &ptr_ctx->curDispMode, 0);
+			ReadRegDword("TFormat", &ptr_ctx->curTexFormat, 0);
+			ReadRegDword("DS", &ptr_ctx->curSoundCard, 0);
+			ReadRegByte("BumpMap", &ptr_ctx->opt_BumpMap, 1);
+			ReadRegByte("Filter", &ptr_ctx->opt_Filter, 1);
+			ReadRegByte("DisableSound", &ptr_ctx->opt_DisableSound, 0);
+#ifdef FORCE_NO_SOUND
+			ptr_ctx->opt_DisableSound = 1;
+#endif
+			ReadRegByte("Volumetric", &ptr_ctx->opt_Volumetric, 1);
+			ReadRegByte("NoFMV", &opt_NoFMV, 0);
+			ReadRegByte("TextLow", (int)&Type, 0);
+			if ((_BYTE)Type)
+				ptr_ctx->dword_D9AC1B = 128;
+			ReadRegByte("BumpLow", (int)&Type, 0);
+			if ((_BYTE)Type)
+				ptr_ctx->dword_D9AC1F = 128;
+			ReadRegByte("HardWare", (int)&Type, 1);
+			if ((_BYTE)Type)
+			{
+				v0 = ptr_ctx->dword_D9AC27;
+				LOBYTE(v0) = ptr_ctx->dword_D9AC27 | 0x90;
+				ptr_ctx->dword_D9AC27 = v0;
+			}
+			/*ReadRegByte("Window", (int)&Type, 0);
+			v1 = dword_D9AC27;
+			if ((_BYTE)Type)
+				LOBYTE(v1) = dword_D9AC27 | 2;
+			else
+				LOBYTE(v1) = dword_D9AC27 | 1;
+			dword_D9AC27 = v1;*/
+		}
+		sub_402964("Game");
+		ReadRegDword("Key0", &opt_Keys2[0], opt_Keys[0]);
+		ReadRegDword("Key1", &opt_Keys2[1], opt_Keys[1]);
+		ReadRegDword("Key2", &opt_Keys2[2], opt_Keys[2]);
+		ReadRegDword("Key3", &opt_Keys2[3], opt_Keys[3]);
+		ReadRegDword("Key4", &opt_Keys2[4], opt_Keys[4]);
+		ReadRegDword("Key5", &opt_Keys2[5], opt_Keys[5]);
+		ReadRegDword("Key6", &opt_Keys2[6], opt_Keys[6]);
+		ReadRegDword("Key7", &opt_Keys2[7], opt_Keys[7]);
+		ReadRegDword("Key8", &opt_Keys2[8], opt_Keys[8]);
+		ReadRegDword("Key9", &opt_Keys2[9], opt_Keys[9]);
+		ReadRegDword("Key10", &opt_Keys2[10], opt_Keys[10]);
+		ReadRegDword("Key11", &opt_Keys2[11], opt_Keys[11]);
+		ReadRegDword("Key12", &opt_Keys2[12], opt_Keys[12]);
+		ReadRegDword("Key13", &opt_Keys2[13], opt_Keys[13]);
+		ReadRegDword("Key14", &opt_Keys2[14], opt_Keys[14]);
+		ReadRegDword("Key15", &opt_Keys2[15], opt_Keys[15]);
+		ReadRegDword("Key16", &opt_Keys2[16], opt_Keys[16]);
+		ReadRegDword("Key17", &opt_Keys2[17], opt_Keys[17]);
+		ReadRegDword("JDck", &opt_JDck, 5);
+		ReadRegDword("JDsh", &opt_JDsh, 3);
+		ReadRegDword("JWlk", &opt_JWlk, 4);
+		ReadRegDword("JJmp", &opt_JJmp, 0);
+		ReadRegDword("JAct", &opt_JAct, 1);
+		ReadRegDword("JDrw", &opt_JDrw, 2);
+		ReadRegDword("JFlr", &opt_JFlr, 9);
+		ReadRegDword("JLok", &opt_JLok, 6);
+		ReadRegDword("JRol", &opt_JRol, 7);
+		ReadRegDword("JInv", &opt_JInv, 8);
+		ReadRegDword("MusicVolume", &opt_MusicVolume, 80);
+		ReadRegDword("SFXVolume", &opt_SFXVolume, 90);
+		ReadRegDword("ControlMethod", &opt_ControlMethod, 0);
+		ReadRegDword("SoundQuality", &opt_SoundQuality, 1);
+		ReadRegDword("AutoTarget", &ptr_ctx->opt_AutoTarget, 1);
+		ReadRegDword("WindowX", &dxctx.windowPos.left, 0);
+		ReadRegDword("WindowY", &dxctx.windowPos.top, 0);
+		sub_402D10();
+		result = opt_Setup;
+	}
+	else
+	{
+		result = 0;
+	}
+	return result;
+	S_Warn("[sub_402F77] - Unimplemented!\n");
+	return 0;
+}
+
+char *__cdecl sub_401C9E(const char *a1, char *a2)
+{
+	const char *v2; // ebp@1
+	char *v3; // esi@1
+	unsigned int v4; // kr04_4@1
+	char v5; // bl@3
+	int v6; // ecx@4
+	_BYTE *v7; // eax@4
+	char *result; // eax@9
+	int v9; // [sp+10h] [bp+4h]@2
+
+	v2 = a1;
+	v3 = a2;
+	v4 = strlen(a1) + 1;
+	if ((signed int)(v4 - 1) <= 0)
+	{
+		result = a2;
+		*a2 = 0;
+	}
+	else
+	{
+		v9 = v4 - 1;
+		do
+		{
+			v5 = *v2++;
+			if (v5 >= 128)
+			{
+				v6 = 0;
+				v7 = byte_511894;
+				while (v5 != *v7)
+				{
+					v7 += 2;
+					++v6;
+					if ((signed int)v7 >= (signed int)&unk_5118A2)
+					{
+						Log(1, "Reqd : %x", v5);
+						goto LABEL_8;
+					}
+				}
+				v5 = byte_511894[2 * v6 + 1];
+			}
+		LABEL_8:
+			*v3++ = v5;
+			--v9;
+		} while (v9);
+		result = a2;
+		*v3 = 0;
+	}
+	return result;
+}
+
+LRESULT __cdecl sub_4018F2(HWND hDlg, HWND hWnd)
+{
+	int v2; // eax@1
+	int v3; // esi@1
+	int v4; // ebp@2
+	HWND v5; // eax@5
+	HWND v6; // eax@5
+
+	SendMessageA(hWnd, CB_RESETCONTENT, 0, 0);
+	v2 = dxctx.numSoundCards;
+	v3 = 0;
+	if (dxctx.numSoundCards > 0)
+	{
+		v4 = 0;
+		do
+		{
+			SendMessageA(hWnd, CB_ADDSTRING, 0, ptr_ctx->soundCards[v4].description);
+			v2 = dxctx.numSoundCards;
+			++v3;
+			v4 += 130;
+		} while (v3 <  dxctx.numSoundCards);
+	}
+	dword_57A08C = 0;
+	if (!v2)
+	{
+		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)&gfStringWad[gfStringOffset[285]]);
+		v5 = GetDlgItem(hDlg, IDC_NOSOUND);
+		EnableWindow(v5, 0);
+		v6 = GetDlgItem(hDlg, IDC_NOSOUND);
+		SendMessageA(v6, BM_SETCHECK, 1u, 0);
+		EnableWindow(hWnd, 0);
+	}
+	return SendMessageA(hWnd, CB_SETCURSEL, 0, 0);
+}
+
+char __cdecl sub_402DF1(HWND hDlg)
+{
+	HWND v1; // eax@1
+	BYTE v2; // al@1
+	HWND v3; // eax@1
+	BYTE v4; // al@1
+	HWND v5; // eax@1
+	LRESULT v6; // ST10_4@1
+	HWND v7; // eax@1
+	BYTE v8; // al@1
+	HWND v9; // eax@1
+	BYTE v10; // al@1
+	HWND v11; // eax@1
+	BYTE v12; // al@1
+	HWND v13; // eax@1
+	LRESULT v14; // eax@1
+	HWND v15; // eax@1
+	LRESULT v16; // eax@1
+	HWND v17; // eax@1
+	LRESULT v18; // eax@1
+	HWND v19; // eax@1
+	LRESULT v20; // eax@1
+	HWND v21; // eax@1
+	LRESULT v22; // eax@1
+	HWND v23; // eax@1
+	LRESULT v24; // eax@1
+	HWND v25; // eax@1
+	LRESULT v26; // eax@1
+	HWND v27; // eax@1
+	LRESULT v28; // eax@1
+	HWND v29; // eax@1
+	LRESULT v30; // eax@1
+
+	sub_402964("System");
+	v1 = GetDlgItem(hDlg, IDC_GFXADAPTER);
+	v2 = SendMessageA(v1, CB_GETCURSEL, 0, 0);
+	sub_4029B9("DD", v2);
+	v3 = GetDlgItem(hDlg, IDC_OUTSETTINGS);
+	v4 = SendMessageA(v3, CB_GETCURSEL, 0, 0);
+	sub_4029B9("D3D", v4);
+	v5 = GetDlgItem(hDlg, IDC_RESOLUTION);
+	v6 = SendMessageA(v5, CB_GETCURSEL, 0, 0);
+	v7 = GetDlgItem(hDlg, IDC_RESOLUTION);
+	v8 = SendMessageA(v7, CB_GETITEMDATA, v6, 0);
+	sub_4029B9("VMode", v8);
+	v9 = GetDlgItem(hDlg, IDC_SNDADAPTER);
+	v10 = SendMessageA(v9, CB_GETCURSEL, 0, 0);
+	sub_4029B9("DS", v10);
+	v11 = GetDlgItem(hDlg, IDC_TEXRES);
+	v12 = SendMessageA(v11, CB_GETCURSEL, 0, 0);
+	sub_4029B9("TFormat", v12);
+	v13 = GetDlgItem(hDlg, IDC_BILINEAR);
+	v14 = SendMessageA(v13, BM_GETCHECK, 0, 0);
+	sub_402B94("Filter", v14 != 0);
+	v15 = GetDlgItem(hDlg, IDC_BUMPMAP);
+	v16 = SendMessageA(v15, BM_GETCHECK, 0, 0);
+	sub_402B94("BumpMap", v16 != 0);
+	v17 = GetDlgItem(hDlg, IDC_HARDACCEL);
+	v18 = SendMessageA(v17, BM_GETCHECK, 0, 0);
+	sub_402B94("HardWare", v18 != 0);
+	v19 = GetDlgItem(hDlg, IDC_NOSOUND);
+	v20 = SendMessageA(v19, BM_GETCHECK, 0, 0);
+	sub_402B94("DisableSound", v20 != 0);
+	v21 = GetDlgItem(hDlg, IDC_LOWTEXT);
+	v22 = SendMessageA(v21, BM_GETCHECK, 0, 0);
+	sub_402B94("TextLow", v22 != 0);
+	v23 = GetDlgItem(hDlg, IDC_LOWBUMP);
+	v24 = SendMessageA(v23, BM_GETCHECK, 0, 0);
+	sub_402B94("BumpLow", v24 != 0);
+	v25 = GetDlgItem(hDlg, IDC_WINDOWED);
+	v26 = SendMessageA(v25, BM_GETCHECK, 0, 0);
+	sub_402B94("Window", v26 != 0);
+	v27 = GetDlgItem(hDlg, IDC_VOLUMEFOG);
+	v28 = SendMessageA(v27, BM_GETCHECK, 0, 0);
+	sub_402B94("Volumetric", v28 != 0);
+	v29 = GetDlgItem(hDlg, IDC_NOFMV);
+	v30 = SendMessageA(v29, BM_GETCHECK, 0, 0);
+	sub_402B94("NoFMV", v30 != 0);
+	sub_402B94("Setup", 1);
 	return 1;
 }
 
-signed int __stdcall Callback(GUID *lpGUID, LPSTR lpString2, LPSTR a3, LPVOID a4)
+signed int __stdcall DialogFunc(HWND hDlg, int msg, unsigned int wParam, int lParam)
 {
-	int v4; // esi@1
-	char* v5; // eax@1
-	char* v6; // esi@1
-	char* v7; // eax@3
-	int v8; // eax@5
-	int v9; // eax@5
-	int v10; // eax@5
-	int v11; // eax@6
-	int v12; // eax@7
-	int v13; // eax@10
+	signed int result; // eax@11
+	HWND v5; // eax@16
+	HWND v6; // eax@16
+	HWND v7; // esi@22
+	HWND(__stdcall *v8)(HWND, int); // edi@22
+	HWND v9; // eax@22
+	HWND v10; // eax@25
+	HWND v11; // ebx@28
+	HWND v12; // esi@28
+	HWND v13; // eax@32
+	HWND v14; // eax@34
+	HWND v15; // eax@36
+	HWND v16; // eax@38
+	HWND v17; // eax@40
+	HGDIOBJ v18; // ST10_4@43
+	HWND v19; // eax@43
+	HGDIOBJ v20; // ST10_4@43
+	HWND v21; // eax@43
+	HGDIOBJ v22; // ST10_4@43
+	HWND v23; // eax@43
+	HGDIOBJ v24; // ST10_4@43
+	HWND v25; // eax@43
+	HGDIOBJ v26; // ST10_4@43
+	HWND v27; // eax@43
+	char *v28; // ST10_4@44
+	HWND v29; // eax@44
+	char *v30; // ST10_4@44
+	HWND v31; // eax@44
+	char *v32; // ST10_4@44
+	HWND v33; // eax@44
+	char *v34; // ST10_4@44
+	HWND v35; // eax@44
+	char *v36; // ST10_4@44
+	HWND v37; // eax@44
+	char *v38; // ST10_4@44
+	HWND v39; // eax@44
+	char *v40; // ST10_4@44
+	HWND v41; // eax@44
+	char *v42; // ST10_4@44
+	HWND v43; // eax@44
+	char *v44; // ST10_4@44
+	HWND v45; // eax@44
+	char *v46; // ST10_4@44
+	HWND v47; // eax@44
+	char *v48; // ST10_4@44
+	HWND v49; // eax@44
+	char *v50; // ST10_4@44
+	HWND v51; // eax@44
+	char *v52; // ST10_4@44
+	HWND v53; // eax@44
+	char *v54; // ST10_4@44
+	HWND v55; // eax@44
+	char *v56; // ST10_4@44
+	HWND v57; // eax@44
+	char *v58; // ST10_4@44
+	HWND v59; // eax@44
+	char *v60; // ST10_4@44
+	HWND v61; // eax@44
+	char *v62; // ST10_4@44
+	HWND v63; // eax@44
+	HWND v64; // eax@44
+	HWND v65; // eax@44
+	WPARAM v66; // [sp-8h] [bp-114h]@20
+	char v67[16]; // [sp-4h] [bp-110h]@22
+	char v68[256]; // [sp+Ch] [bp-100h]@44
 
-	sub_4DEB10(2, "DXEnumDirectDraw");
-	v4 = *(_DWORD *)a4;
-	v5 = sub_401A7D(*(void **)((char*)a4 + 8), *(_DWORD *)a4, 0x636u);
-	*(_DWORD *)((char*)a4 + 8) = (_DWORD)v5;
-	v6 = v5 + 1590 * v4;
-	if (lpGUID)
+	if (msg == 272)
 	{
-		v7 = v6 + 114;
-		*(_DWORD *)(v6 + 110) = (DWORD)v6 + 114;
-		*(_DWORD *)v7 = lpGUID->Data1;
-		*(_DWORD *)(v7 + 4) = *(_DWORD *)&lpGUID->Data2;
-		*(_DWORD *)(v7 + 8) = *(_DWORD *)&lpGUID->Data4[0];
-		*(_DWORD *)(v7 + 12) = *(_DWORD *)&lpGUID->Data4[4];
-	}
-	else
-	{
-		*(_DWORD *)(v6 + 110) = 0;
-	}
-	lstrcpyA((LPSTR)(v6 + 30), lpString2);
-	lstrcpyA((LPSTR)v6, a3);
-	sub_4DEB10(5, "Obtaining Information For %s", lpString2);
-	if (DXDDCreate(lpGUID, (LPVOID*)dword_86B9A8))
-	{
-		v8 = (*(int(__stdcall **)(_DWORD, int, _DWORD))(**(_DWORD **)dword_86B9A8 + 108))(
-			*(_DWORD *)dword_86B9A8,
-			(int)v6 + 510,
-			0);
-		sub_40179E(v8);
-		sub_4DEB10(
-			5,
-			"Found - %s\r\nDriver %s Version %d.%d.%d.%d",
-			v6 + 1022,
-			v6 + 510,
-			*(_DWORD *)(v6 + 1538) >> 16,
-			*(_WORD *)(v6 + 1538),
-			*(_DWORD *)(v6 + 1534) >> 16,
-			*(_WORD *)(v6 + 1534));
-		memset((void *)(v6 + 130), 0, 0x17Cu);
-		*(_DWORD *)(v6 + 130) = 380;
-		sub_4DEB10(5, "Getting Device Capabilities");
-		v9 = (*(int(__stdcall **)(_DWORD, int, _DWORD))(**(_DWORD **)dword_86B9A8 + 44))(
-			*(_DWORD *)dword_86B9A8,
-			(int)v6 + 130,
-			0);
-		sub_40179E(v9);
-		sub_4DEB10(5, "Enumerating Display Modes");
-		sub_402FA9(*(_DWORD *)dword_86B9A8, 0, 77);
-		sub_4DEB10(2, "DXEnumDisplayModes");
-		v10 = (*(int(__stdcall **)(_DWORD, _DWORD, _DWORD, int, void *))(**(_DWORD **)dword_86B9A8 + 32))(
-			*(_DWORD *)dword_86B9A8,
-			0,
-			0,
-			v6,
-			&sub_401CBC);
-		sub_40179E(v10);
-		if (sub_4028B5(*(_DWORD *)dword_86B9A8, &dword_86BA30))
+		Log(6, "WM_INITDIALOG");
+		if (Gameflow->Language == LNG_JAPAN)
 		{
-			sub_4DEB10(2, "DXEnumDirect3D");
-			v11 = (*(int(__stdcall **)(int, void *, int))(*(_DWORD *)dword_86BA30 + 12))(dword_86BA30, &sub_402ECD, v6);
-			sub_40179E(v11);
-			if (dword_86BA30)
+			v18 = GetStockObject(13);
+			gdiobject = v18;
+			v19 = GetDlgItem(hDlg, IDC_GFXADAPTER);
+			SendMessageA(v19, WM_SETFONT, 0, (LPARAM)v18);
+			v20 = gdiobject;
+			v21 = GetDlgItem(hDlg, IDC_OUTSETTINGS);
+			SendMessageA(v21, WM_SETFONT, 0, (LPARAM)v20);
+			v22 = gdiobject;
+			v23 = GetDlgItem(hDlg, IDC_RESOLUTION);
+			SendMessageA(v23, WM_SETFONT, 0, (LPARAM)v22);
+			v24 = gdiobject;
+			v25 = GetDlgItem(hDlg, IDC_TEXRES);
+			SendMessageA(v25, WM_SETFONT, 0, (LPARAM)v24);
+			v26 = gdiobject;
+			v27 = GetDlgItem(hDlg, IDC_SNDADAPTER);
+			SendMessageA(v27, WM_SETFONT, 0, (LPARAM)v26);
+		}
+		v28 = sub_401C9E(&gfStringWad[gfStringOffset[266]], v68);
+		v29 = GetDlgItem(hDlg, 1001);
+		SendMessageA(v29, WM_SETTEXT, 0, (LPARAM)v28);
+		v30 = sub_401C9E(&gfStringWad[gfStringOffset[267]], v68);
+		v31 = GetDlgItem(hDlg, 1002);
+		SendMessageA(v31, WM_SETTEXT, 0, (LPARAM)v30);
+		v32 = sub_401C9E(&gfStringWad[gfStringOffset[270]], v68);
+		v33 = GetDlgItem(hDlg, IDOK);
+		SendMessageA(v33, WM_SETTEXT, 0, (LPARAM)v32);
+		v34 = sub_401C9E(&gfStringWad[gfStringOffset[271]], v68);
+		v35 = GetDlgItem(hDlg, IDCANCEL);
+		SendMessageA(v35, WM_SETTEXT, 0, (LPARAM)v34);
+		v36 = sub_401C9E(&gfStringWad[gfStringOffset[268]], v68);
+		v37 = GetDlgItem(hDlg, 1009);
+		SendMessageA(v37, WM_SETTEXT, 0, (LPARAM)v36);
+		v38 = sub_401C9E(&gfStringWad[gfStringOffset[275]], v68);
+		v39 = GetDlgItem(hDlg, IDC_BILINEAR);
+		SendMessageA(v39, WM_SETTEXT, 0, (LPARAM)v38);
+		v40 = sub_401C9E(&gfStringWad[gfStringOffset[276]], v68);
+		v41 = GetDlgItem(hDlg, IDC_BUMPMAP);
+		SendMessageA(v41, WM_SETTEXT, 0, (LPARAM)v40);
+		v42 = sub_401C9E(&gfStringWad[gfStringOffset[272]], v68);
+		v43 = GetDlgItem(hDlg, IDC_HARDACCEL);
+		SendMessageA(v43, WM_SETTEXT, 0, (LPARAM)v42);
+		v44 = sub_401C9E(&gfStringWad[gfStringOffset[273]], v68);
+		v45 = GetDlgItem(hDlg, IDC_SOFTWARE);
+		SendMessageA(v45, WM_SETTEXT, 0, (LPARAM)v44);
+		v46 = sub_401C9E(&gfStringWad[gfStringOffset[279]], v68);
+		v47 = GetDlgItem(hDlg, 1017);
+		SendMessageA(v47, WM_SETTEXT, 0, (LPARAM)v46);
+		v48 = sub_401C9E(&gfStringWad[gfStringOffset[280]], v68);
+		v49 = GetDlgItem(hDlg, IDC_NOSOUND);
+		SendMessageA(v49, WM_SETTEXT, 0, (LPARAM)v48);
+		v50 = sub_401C9E(&gfStringWad[gfStringOffset[277]], v68);
+		v51 = GetDlgItem(hDlg, IDC_LOWTEXT);
+		SendMessageA(v51, WM_SETTEXT, 0, (LPARAM)v50);
+		v52 = sub_401C9E(&gfStringWad[gfStringOffset[278]], v68);
+		v53 = GetDlgItem(hDlg, IDC_LOWBUMP);
+		SendMessageA(v53, WM_SETTEXT, 0, (LPARAM)v52);
+		v54 = sub_401C9E(&gfStringWad[gfStringOffset[269]], v68);
+		v55 = GetDlgItem(hDlg, 1013);
+		SendMessageA(v55, WM_SETTEXT, 0, (LPARAM)v54);
+		v56 = sub_401C9E(&gfStringWad[gfStringOffset[283]], v68);
+		v57 = GetDlgItem(hDlg, IDC_WINDOWED);
+		SendMessageA(v57, WM_SETTEXT, 0, (LPARAM)v56);
+		v58 = sub_401C9E(&gfStringWad[gfStringOffset[284]], v68);
+		v59 = GetDlgItem(hDlg, 1023);
+		SendMessageA(v59, WM_SETTEXT, 0, (LPARAM)v58);
+		v60 = sub_401C9E(&gfStringWad[gfStringOffset[274]], v68);
+		v61 = GetDlgItem(hDlg, IDC_VOLUMEFOG);
+		SendMessageA(v61, WM_SETTEXT, 0, (LPARAM)v60);
+		v62 = sub_401C9E(&gfStringWad[gfStringOffset[307]], v68);
+		v63 = GetDlgItem(hDlg, IDC_NOFMV);
+		SendMessageA(v63, WM_SETTEXT, 0, (LPARAM)v62);
+		v64 = GetDlgItem(hDlg, IDC_GFXADAPTER);
+		LoadGraphicsAdapters(hDlg, v64);
+		v65 = GetDlgItem(hDlg, IDC_SNDADAPTER);
+		sub_4018F2(hDlg, v65);
+		return 1;
+	}
+	if (msg != WM_COMMAND)
+		return 0;
+	if ((signed int)(unsigned __int16)wParam > IDC_SOFTWARE)
+	{
+		switch ((unsigned __int16)wParam)
+		{
+		case IDC_NOSOUND:
+			if (wParam >> 16)
+				return 0;
+			v11 = GetDlgItem(hDlg, (unsigned __int16)wParam);
+			v12 = GetDlgItem(hDlg, IDC_SNDADAPTER);
+			if (SendMessageA(v11, BM_GETCHECK, 0, 0))
 			{
-				v12 = (*(int(__stdcall **)(int))(*(_DWORD *)dword_86BA30 + 8))(dword_86BA30);
-				sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "Direct3D", dword_86BA30, v12);
-				dword_86BA30 = 0;
+				EnableWindow(v12, 0);
+				result = 0;
 			}
 			else
 			{
-				sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "Direct3D");
+				EnableWindow(v12, 1);
+				result = 0;
 			}
+			return result;
+		case IDC_LOWTEXT:
+			if (wParam >> 16)
+				return 0;
+			v7 = hDlg;
+			v8 = GetDlgItem;
+			v13 = GetDlgItem(hDlg, IDC_LOWTEXT);
+			opt_LowQualityTextures = SendMessageA(v13, BM_GETCHECK, 0, 0) != 0;
+			break;
+		case IDC_BUMPMAP:
+			if (wParam >> 16)
+				return 0;
+			v7 = hDlg;
+			v8 = GetDlgItem;
+			v14 = GetDlgItem(hDlg, IDC_BUMPMAP);
+			opt_LowQualityBumpMap = SendMessageA(v14, BM_GETCHECK, 0, 0) != 0;
+			break;
+		case IDC_VOLUMEFOG:
+			if (wParam >> 16)
+				return 0;
+			v7 = hDlg;
+			v8 = GetDlgItem;
+			v15 = GetDlgItem(hDlg, IDC_VOLUMEFOG);
+			LOBYTE(opt_VolumetricFog) = SendMessageA(v15, BM_GETCHECK, 0, 0) != 0;
+			break;
+		case IDC_BILINEAR:
+			if (wParam >> 16)
+				return 0;
+			v7 = hDlg;
+			v8 = GetDlgItem;
+			v16 = GetDlgItem(hDlg, IDC_BILINEAR);
+			opt_BilinearFiltering = SendMessageA(v16, BM_GETCHECK, 0, 0) != 0;
+			break;
+		default:
+			return 0;
 		}
-		sub_402FA9(*(_DWORD *)dword_86B9A8, 0, 8);
-		if (*(_DWORD *)dword_86B9A8)
+		v67[0] = 0;
+		goto LABEL_40;
+	}
+	if ((unsigned __int16)wParam == IDC_SOFTWARE)
+	{
+		if (wParam >> 16)
+			return 0;
+		opt_AccelAdapter = 0;
+		v66 = 0;
+		goto LABEL_25;
+	}
+	if ((signed int)(unsigned __int16)wParam > IDC_GFXADAPTER)
+	{
+		if ((unsigned __int16)wParam == IDC_OUTSETTINGS)
 		{
-			v13 = (*(int(__stdcall **)(_DWORD))(**(_DWORD **)dword_86B9A8 + 8))(*(_DWORD *)dword_86B9A8);
-			sub_4DEB10(4, "Released %s @ %x - RefCnt = %d", "DirectDraw", *(_DWORD *)dword_86B9A8, v13);
-			*(_DWORD *)dword_86B9A8 = 0;
-			++*(_DWORD *)a4;
+			if (wParam >> 16 != 1)
+				return 0;
+			v7 = hDlg;
+			v8 = GetDlgItem;
+			v9 = GetDlgItem(hDlg, IDC_OUTSETTINGS);
+			opt_AccelAdapter = SendMessageA(v9, CB_GETCURSEL, 0, 0);
+			v67[0] = 1;
+		LABEL_40:
+			v17 = v8(v7, IDC_RESOLUTION);
+			LoadResolutions(v7, v17, v67[0]);
+			return 0;
+		}
+		if ((unsigned __int16)wParam != IDC_HARDACCEL || wParam >> 16)
+			return 0;
+		opt_AccelAdapter = 1;
+		v66 = 1;
+	LABEL_25:
+		v7 = hDlg;
+		v8 = GetDlgItem;
+		v10 = GetDlgItem(hDlg, IDC_OUTSETTINGS);
+		SendMessageA(v10, CB_SETCURSEL, v66, 0);
+		v67[0] = 1;
+		goto LABEL_40;
+	}
+	if ((unsigned __int16)wParam == IDC_GFXADAPTER)
+	{
+		if (wParam >> 16 == 1)
+		{
+			v5 = GetDlgItem(hDlg, IDC_GFXADAPTER);
+			opt_GraphicsAdapter = SendMessageA(v5, CB_GETCURSEL, 0, 0);
+			v6 = GetDlgItem(hDlg, IDC_OUTSETTINGS);
+			LoadAccelAdapters(hDlg, v6);
+			return 0;
+		}
+		return 0;
+	}
+	if ((unsigned __int16)wParam != 1)
+	{
+		if ((unsigned __int16)wParam == 2)
+		{
+			if (gdiobject)
+				DeleteObject(gdiobject);
+			EndDialog(hDlg, 0);
 			return 1;
 		}
-		sub_4DEB10(1, "%s Attempt To Release NULL Ptr", "DirectDraw");
+		return 0;
 	}
-	++*(_DWORD *)a4;
+	if (gdiobject)
+		DeleteObject(gdiobject);
+	sub_402DF1(hDlg);
+	EndDialog(hDlg, 1);
 	return 1;
 }
 
-signed int __cdecl DXInitialise(void *lpContext, int a2)
+BOOL  InitSetupDialog()
 {
-	HRESULT v2; // eax@1
-	HRESULT v3; // eax@1
+	INT_PTR v0; // esi@1
+	BOOL result; // al@2
 
-	sub_4DEB10(2, "DXInitialise");
-	dword_86B9A4 = a2;
-	sub_4DEB10(5, "Enumerating DirectDraw Devices");
-	v2 = DirectDrawEnumerateA(Callback, lpContext);
-	sub_40179E(v2);
-	v3 = DirectSoundEnumerateA(sub_4020AE, lpContext);
-	sub_40179E(v3);
-	dword_86B9AC = (int)lpContext;
-	return 1;
+	ShowCursor(1);
+	v0 = DialogBoxParamA(hinst, (LPCSTR)IDD_SETUP, 0, DialogFunc, 0);
+	ShowCursor(0);
+	if (v0 == -1)
+	{
+		MessageBoxA(0, "Unable To Initialise Dialog", Class, 0);
+		result = 0;
+	}
+	else
+	{
+		result = v0 != 0;
+	}
+	return result;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	InitConsole();
+
+	memset(&dxctx, 0, sizeof(dxctx));
 
 	//S_Warn("[WinMain] - Unimplemented!\n");
 
@@ -1590,21 +2340,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HWND v8; // eax@8
 	HWND v9; // esi@15
 	HDC v10; // edi@15
-	int v11; // ecx@15
-	HWND v12; // eax@25
+	struct dispmode* v11; // ecx@15
+	HWND desktopHwnd; // eax@25
 	HWND v13; // esi@25
-	HDC v14; // eax@25
+	HDC desktopDC; // eax@25
 	HWND v15; // eax@25
 	struct tagRECT Rect; // [sp+Ch] [bp-A4h]@8
-	char v17; // [sp+1Ch] [bp-94h]@25
+	char v17[36]; // [sp+1Ch] [bp-94h]@25
 	__int16 v18; // [sp+40h] [bp-70h]@25
 	int v19; // [sp+44h] [bp-6Ch]@25
 	int v20; // [sp+84h] [bp-2Ch]@25
 
+	ptr_ctx = &dxctx;
+
 	byte_57A098 = 0;
-	byte_D9AC23 = sub_4D22D0() != 0;
-	byte_D9AC19 = 0;
-	dword_D9AC30 = 0;
+	ptr_ctx->byte_D9AC23 = sub_4D22D0() != 0;
+	ptr_ctx->byte_D9AC19 = 0;
+	ptr_ctx->opt_AutoTarget = 0;
 	sub_4DEC40(1);
 	v4 = FindWindowA(ClassName, WindowName);
 	if (v4)
@@ -1620,13 +2372,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	sub_4DEA50("Windows Message", 0x800080, 0);
 	sub_4DEA50("Level Info", 0x8000FF, 0);
 	sub_4DEA50("Sound", 32896, 0);
-	sub_4DEB10(5, "Launching - %s", Name);
-	sub_4DEB10(2, "WinMain");
+	Log(5, "Launching - %s", Name);
+	Log(2, "WinMain");
 	_CrtSetReportMode(0, 2);
 	v6 = _CrtSetDbgFlag(-1);
 	LOBYTE(v6) = v6 | 0x24;
 	_CrtSetDbgFlag(v6);
-	if (!(unsigned __int8)WinRunCheck(Name, "MainGameWindow", &hObject))
+	if (!(unsigned __int8)WinRunCheck(Name, "MainGameWindow", &ptr_ctx->hObject))
 	{
 		FindGameDrive();
 		LoadGameflow();
@@ -1641,10 +2393,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		WndClass.lpfnWndProc = (WNDPROC)sub_401E8D;
 		WndClass.cbClsExtra = 0;
 		WndClass.cbWndExtra = 0;
-		WndClass.hCursor = LoadCursorA(hinst, (LPCSTR)0x68);
+		WndClass.hCursor = LoadCursorA(hinst, (LPCSTR)IDC_ARROW);
 		if (!RegisterClassA(&WndClass))
 		{
-			sub_4DEB10(1, "Unable To Register Window Class");
+			Log(1, "Unable To Register Window Class");
 			return 0;
 		}
 		Rect.left = 0;
@@ -1653,7 +2405,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Rect.bottom = 480;
 		AdjustWindowRect(&Rect, WS_CAPTION, 0);
 		v8 = CreateWindowExA(
-			0x40000u,
+			WS_EX_APPWINDOW,
 			"MainGameWindow",
 			Name,
 			WS_CAPTION,
@@ -1668,63 +2420,61 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		hWnd = v8;
 		if (!v8)
 		{
-			sub_4DEB10(1, "Unable To Create Window");
+			Log(1, "Unable To Create Window");
 			return 0;
 		}
-		DXInitialise(&dword_D9AB68, (int)v8);
+		DXInitialise(&dxctx, v8);
 		if (byte_57A098 || !(unsigned __int8)sub_402F77())
 		{
-			if (!(unsigned __int8)sub_402C34())
+			if (!(unsigned __int8)InitSetupDialog())
 			{
-				free(dword_E5C2EC);
-				free(dword_E5C2AC);
+				free(gfScriptFile);
+				free(gfStringOffset);
 				WinClose();
 				return 0;
 			}
 			sub_402F77();
 		}
-		SetWindowPos(hWnd, 0, *(int *)&X, *(int *)&Y, 0, 0, 5u);
+		SetWindowPos(hWnd, 0, dxctx.windowPos.left, dxctx.windowPos.top, 0, 0, 5u);
 		v9 = GetDesktopWindow();
 		v10 = GetDC(v9);
-		dword_D9AC2C = GetDeviceCaps(v10, 12);
+		ptr_ctx->dword_D9AC2C = GetDeviceCaps(v10, 12);
 		ReleaseDC(v9, v10);
-		dword_D9ABFD = 0;
-		dword_D9ABF9 = 0;
-		byte_D9AC2B = 0;
-		v11 = *(_DWORD *)(*(_DWORD *)(*(_DWORD *)(dword_86B9AC + 8) + 1590 * *(_DWORD *)(dword_86B9AC + 16) + 1586)
-			+ 410 * *(_DWORD *)(dword_86B9AC + 20)
-			+ 390);
-		if (!sub_402B2B(
-			*(_DWORD *)(v11 + 150 * *(_DWORD *)(dword_86B9AC + 24)),
-			*(_DWORD *)(v11 + 150 * *(_DWORD *)(dword_86B9AC + 24) + 4),
-			*(_DWORD *)(v11 + 150 * *(_DWORD *)(dword_86B9AC + 24) + 8),
-			dword_D9AC27,
-			(int)&dword_D9AB91,
+		ptr_ctx->dword_D9ABFD = 0;
+		ptr_ctx->isInScene = 0;
+		ptr_ctx->byte_D9AC2B = 0;
+		v11 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt].displayModes;
+		if (!DXCreate(
+			v11[ptr_ctx->curDispMode].width,
+			v11[ptr_ctx->curDispMode].height,
+			v11[ptr_ctx->curDispMode].depth,
+			ptr_ctx->dword_D9AC27,
+			&dxctx,
 			hWnd,
-			(DWORD)&unk_C00000))
+			WS_CAPTION))
 		{
-			MessageBoxA(0, (LPCSTR)(dword_E5C310 + dword_E5C2B8[47].PSXStringWadLen), Caption, 0);
+			MessageBoxA(0, &gfStringWad[gfStringOffset[286]], Caption, 0);
 			return 0;
 		}
 		sub_401424();
 		UpdateWindow(hWnd);
 		ShowWindow(hWnd, nShowCmd);
-		if (dword_D9ABDD & 1)
+		if (ptr_ctx->flags & 1)
 		{
 			SetCursor(0);
 			ShowCursor(0);
 		}
-		sub_402CD4((int)hWnd, hinst);
-		hAccTable = LoadAcceleratorsA(hInstance, (LPCSTR)0x65);
-		if (!byte_D9AC26)
+		sub_402CD4(hWnd, hinst);
+		ptr_ctx->hAccTable = LoadAcceleratorsA(hInstance, (LPCSTR)0x65);
+		if (!ptr_ctx->opt_DisableSound)
 		{
-			sub_402EA5();
-			sub_40171C();
+			DXDSCreate();
+			InitACM();
 		}
-		dword_E916E0 = 0;
+		dword_E916E0 = NULL;
 		dword_876C40 = 1;
 		dword_876C48 = 0;
-		hThread = (HANDLE)_beginthreadex(0, 0, (int)GameMain, 0, 0, &dword_876C50);
+		hThread = (HANDLE)_beginthreadex(0, 0, GameMain, 0, 0, &thread_id);
 		WinProcMsg();
 		dword_876C48 = 1;
 		while (dword_876C40)
@@ -1732,14 +2482,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		if (dword_E916E0)
 			free(dword_E916E0);
 		WinClose();
-		v12 = GetDesktopWindow();
-		v13 = v12;
-		v14 = GetDC(v12);
+		desktopHwnd = GetDesktopWindow();
+		v13 = desktopHwnd;
+		desktopDC = GetDC(desktopHwnd);
 		v18 = 148;
-		v20 = dword_D9AC2C;
-		ReleaseDC(v13, v14);
+		v20 = ptr_ctx->dword_D9AC2C;
+		ReleaseDC(v13, desktopDC);
 		v19 = 0x40000;
-		ChangeDisplaySettingsA((DEVMODEA *)&v17, 0);
+		ChangeDisplaySettingsA((DEVMODEA *)&v17[0], 0);
 		v15 = FindWindowA(ClassName, WindowName);
 		if (v15)
 			PostMessageA(v15, Msg, 4u, 0);

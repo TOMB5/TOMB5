@@ -9,7 +9,6 @@ set(PLATFORM_PC 0 CACHE BOOL "Tomb Raider: 5 PC")
 
 #Internal Beta
 set(INTERNAL 0 CACHE BOOL "Internal")
-
 #MESSAGE(STATUS "PLATFORM_PSXPC: TRUE" ${PLATFORM_PSXPC})
 
 #Tell CMAKE where to find the additional modules this project requires.
@@ -54,7 +53,7 @@ include_directories(${SDL2_INCLUDE_DIR})
 
 #Add all GAME/SPEC* source files recursively.
 file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
-file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${PLATFORM_SPECIFIC_DIR}/*.C  ${PLATFORM_SPECIFIC_DIR}/*.H)
+file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${PLATFORM_SPECIFIC_DIR}/*.C  ${PLATFORM_SPECIFIC_DIR}/*.H ${PLATFORM_SPECIFIC_DIR}/*.cur ${PLATFORM_SPECIFIC_DIR}/*.RC)
 		 
 #MESSAGE(STATUS "GAME_SRCS: " ${GAME_SRCS})
 #MESSAGE(STATUS "PLATFORM_SPECIFIC_SRCS: " ${PLATFORM_SPECIFIC_SRCS})
@@ -87,3 +86,29 @@ if(PLATFORM_PSXPC)
       set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:CONSOLE")
    endif(MSVC)
 endif(PLATFORM_PSXPC)
+
+if(PLATFORM_PC)
+   if(MSVC)
+      add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:WINDOWS")
+      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:WINDOWS")
+      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
+      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS")
+      add_definitions(-TC -U__cplusplus)
+      #include_directories($\(WindowsSDK_IncludePath\))
+      #include_directories($\(DXSDK_DIR\)include)
+      #link_directories(\\$\(WindowsSDK_LibraryPath_x86\))
+      #link_directories(\\$\(DXSDK_DIR\)lib\\x86)
+     # target_link_libraries(
+     # TOMB5
+     # ddraw.lib
+     # dxguid.lib
+     # dsound.lib
+     # d3dx9.lib
+     # dinput.lib
+     # )
+      #set(CMAKE_CXX_FLAGS "-TC -U __cplusplus")
+      #set(CMAKE_C_FLAGS "-TC -U __cplusplus")
+      
+   endif(MSVC)
+endif(PLATFORM_PC)

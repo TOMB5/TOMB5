@@ -1,6 +1,7 @@
 #include "CAMERA.H"
-
+#if !PC_VERSION
 #include "CD.H"
+#endif
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"

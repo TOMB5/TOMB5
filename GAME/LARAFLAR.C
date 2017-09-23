@@ -4,7 +4,11 @@
 #include "LARA.H"
 
 #include <stddef.h>
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
 #include "SETUP.H"
+#endif
 #include "DRAW.H"
 #include "OBJECTS.H"
 

@@ -101,7 +101,7 @@ struct GAMEWAD_entry
 struct GAMEWAD_header
 {
 	struct GAMEWAD_entry entries[NUM_GAMEWAD_FILE_ENTRIES];
-	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * sizeof(GAMEWAD_entry))];
+	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * sizeof(struct GAMEWAD_entry))];
 };
 
 #pragma pack(pop)

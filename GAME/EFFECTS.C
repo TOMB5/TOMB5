@@ -9,10 +9,15 @@
 #include "ITEMS.H"
 #include "LARA.H"
 #include "LOT.H"
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
 #include "SETUP.H"
+#endif
 #include "SPECIFIC.H"
 
 #include <stddef.h>
+#include "OBJECTS.H"
 
 
 long wf = 256;

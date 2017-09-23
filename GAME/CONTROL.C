@@ -7,18 +7,22 @@
 #include "EFFECTS.H"
 #include "EFFECT2.H"
 #include "GAMEFLOW.H"
-#include "GPU.H"
 #include "ITEMS.H"
 #include "NEWINV2.H"
 #include "LARA.H"
-#include "LOAD_LEV.H"
 #include "PICKUP.H"
 #if PSXPC_VERSION
 #include "PSXPCINPUT.H"
 #elif PSX_VERSION
 #include "PSXINPUT.H"
 #endif
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
 #include "SETUP.H"
+#include "GPU.H"
+#include "LOAD_LEV.H"
+#endif
 #include "SOUND.H"
 #include "SPECIFIC.H"
 #include "SPHERE.H"
@@ -29,6 +33,7 @@
 #include "DRAW.H"
 #include "ROOMLOAD.H"
 #include "DEBRIS.H"
+#include "OBJECTS.H"
 
 int flipeffect = -1;
 int fliptimer;
@@ -71,8 +76,13 @@ int number_los_rooms;
 int framecount;
 struct ITEM_INFO* items;
 int flip_status;
+#if PC_VERSION
+int flipmap[255];
+int flip_stats[255];
+#else
 int flipmap[10];
 int flip_stats[10];
+#endif
 int height_type;
 int tiltxoff;
 int tiltyoff;
@@ -229,6 +239,9 @@ char byte_A3660;
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 {
+#if PC_VERSION
+	S_Warn("[ControlPhase] - Unimplemented!\n");
+#else
 	short item_num;
 	int s0 = nframes;
 	int v0 = SlowMotion;
@@ -803,6 +816,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	//ret 0
 
 	//loc_1E3BC:
+#endif
 	return 0;
 }
 

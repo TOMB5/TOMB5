@@ -12,8 +12,10 @@
 #include "SPECIFIC.H"
 #include "SPUSOUND.H"
 #include "TEXT.H"
-
 #include <SDL.h>
+
+// SDL breaks build on PSX
+#undef main
 
 void VSyncFunc()//10000(<), 10000(<) (F)
 {

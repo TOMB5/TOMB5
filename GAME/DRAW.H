@@ -3,26 +3,6 @@
 
 #include "SPECTYPES.H"
 
-enum material_index
-{
-	MAT_MUD,
-	MAT_SNOW,
-	MAT_SAND,
-	MAT_GRAVEL,
-	MAT_ICE,
-	MAT_WATER,
-	MAT_STONE,
-	MAT_WOOD,
-	MAT_METAL,
-	MAT_MARBLE,
-	MAT_GRASS,
-	MAT_CONCRETE,
-	MAT_OLD_WOOD,
-	MAT_OLD_METAL,
-
-	NUM_MATERIALS
-};
-
 extern short LightningSFXDelay;
 extern struct room_info* room;
 extern short number_rooms;

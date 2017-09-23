@@ -3,10 +3,12 @@
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "LARA.H"
-#if PSX_VERSION
-	#include "PSXINPUT.H"
-#else
-	#include "PSXPCINPUT.H"
+#if PSXPC_VERSION
+#include "PSXPCINPUT.H"
+#elif PSX_VERSION
+#include "PSXINPUT.H"
+#elif PC_VERSION
+#include "PCINPUT.H"
 #endif
 #include "SPECIFIC.H"
 
