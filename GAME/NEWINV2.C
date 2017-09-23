@@ -557,7 +557,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		}
 		else if (objnum >= PUZZLE_ITEM1 && objnum <= PUZZLE_ITEM8)
 		{
-			++*((_BYTE *)&lara.mesh_ptrs[LM_RFOOT] + objnum); // todo: this seems horribly wrong
+			++*((unsigned char *)&lara.mesh_ptrs[LM_RFOOT] + objnum); // todo: this seems horribly wrong
 		}
 		else if (objnum >= PUZZLE_ITEM1_COMBO1 && objnum <= PUZZLE_ITEM8_COMBO2)
 		{
