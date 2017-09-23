@@ -72,7 +72,7 @@ short SameZone(struct creature_info* creature, struct ITEM_INFO* target_item)//2
 	r = &room[target_item->room_number];
 	target_item->box_number = r->floor[(target_item->pos.z_pos - r->z) / 1024 + ((target_item->pos.x_pos - r->x) / 1024) * r->x_size].box;
 	
-	return (zone[item->box_number] ^ zone[target_item->box_number]) < 1 ? 1 : 0;
+	return (zone[item->box_number] == zone[target_item->box_number]);
 }
 
 void FindAITargetObject(struct creature_info* creature, short obj_num)
@@ -244,9 +244,33 @@ void GetCreatureMood(struct ITEM_INFO* item, struct AI_info* info, int violent)
 	S_Warn("[GetCreatureMood] - Unimplemented!\n");
 }
 
-int ValidBox(struct ITEM_INFO* item, short zone_number, short box_number)
+int ValidBox(struct ITEM_INFO* item, short zone_number, short box_number)//222A4(<), ?
 {
-	S_Warn("[ValidBox] - Unimplemented!\n");
+	struct box_info* box;
+	struct creature_info* creature;
+	short* zone;
+
+	creature = (struct creature_info*)item->data;
+	zone = ground_zone[creature->LOT.zone][flip_status];
+
+	if (creature->LOT.fly == 0 && zone[box_number] != zone_number)
+	{
+		return 0;
+	}
+
+	box = &boxes[box_number];
+
+	if (box->overlap_index & creature->LOT.block_mask)
+	{
+		return 0;
+	}
+
+	if ((item->pos.z_pos > (box->left * 1024)) || ((box->right * 1024) > item->pos.z_pos) ||
+		(item->pos.x_pos > (box->top * 1024)) || ((box->bottom * 1024) > item->pos.x_pos))
+	{
+		return 1;
+	}
+
 	return 0;
 }
 
