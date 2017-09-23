@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
-project (PCTOMB5)
+project (TombRaiderChronicles_PC${TARGET_ARCH})
 
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
@@ -34,8 +34,8 @@ ${PLATFORM_SPECIFIC_SRCS}
 #)
 
 set_target_properties(
-${PROJECT_NAME}
-PROPERTIES OUTPUT_NAME "PCTOMB5"
+${PROJECT_NAME} PROPERTIES OUTPUT_NAME "PCTOMB5"
+${PROJECT_NAME} PROPERTIES FOLDER "Build Targets/Windows"
 )
 
 if(MSVC)

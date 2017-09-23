@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
-project (PSXTOMB5)
+project (TombRaiderChronicles_PSX${TARGET_ARCH})
 
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
@@ -38,8 +38,8 @@ ${PLATFORM_SPECIFIC_SRCS}
 #)
 
 set_target_properties(
-${PROJECT_NAME}
-PROPERTIES OUTPUT_NAME "MAIN"
+${PROJECT_NAME} PROPERTIES OUTPUT_NAME "MAIN"
+${PROJECT_NAME} PROPERTIES FOLDER "Build Targets/PlayStation"
 )
 
 #This will be a console application, alter linker subsystem accordingly or main method won't be found
