@@ -2,6 +2,7 @@
 
 #include "CONTROL.H"
 #include "DRAW.H"
+#include "ITEMS.H"
 #include "LOT.H"
 #include "SPECIFIC.H"
 
@@ -38,9 +39,8 @@ void DropBaddyPickups(struct ITEM_INFO* item)//259BC(<), 25BC8(<)
 		pickup->pos.y_pos -= GetBoundsAccurate(item)[3];
 
 		//pickup->pos.y_pos -= bounds[3]; //old
-#if 0
+
 		ItemNewRoom(pickup_number, item->room_number);
-#endif
 
 	} while (pickup_number != -1);
 }
@@ -56,10 +56,23 @@ void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)
 	S_Warn("[CreatureYRot] - Unimplemented!\n");
 }
 
-short SameZone(struct creature_info* creature, struct ITEM_INFO* target_item)
+short SameZone(struct creature_info* creature, struct ITEM_INFO* target_item)//255F8(<), ?
 {
-	S_Warn("[SameZone] - Unimplemented!\n");
-	return 0;
+	struct room_info* r;
+	short* zone;
+	struct ITEM_INFO* item;
+
+	item = &items[creature->item_num];
+
+	zone = ground_zone[creature->LOT.zone][flip_status];
+
+	r = &room[item->room_number];
+	item->box_number = r->floor[((item->pos.z_pos - r->z) / 1024) + ((item->pos.x_pos - r->x) / 1024) * r->x_size].box;
+
+	r = &room[target_item->room_number];
+	target_item->box_number = r->floor[(target_item->pos.z_pos - r->z) / 1024 + ((target_item->pos.x_pos - r->x) / 1024) * r->x_size].box;
+	
+	return (zone[item->box_number] ^ zone[target_item->box_number]) < 1 ? 1 : 0;
 }
 
 void FindAITargetObject(struct creature_info* creature, short obj_num)
