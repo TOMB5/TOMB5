@@ -1,6 +1,7 @@
 #include "ROOMLOAD.H"
 
 #include "CD.H"
+#include "DRAW.H"
 #include "FILE.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
@@ -79,9 +80,28 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	 //jalr SetupPtr[5](len);, retail a0 = s1? len?
 
 	LOAD_Stop();
+
+	return;
 }
 
-void ReloadAnims(int name, long len)//600E4, 60D20
+void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
 {
-	S_Warn("[ReloadAnims] - Unimplemented!\n");
+#if INTERNAL
+	FILE* file;
+	char buf[80];
+
+	strcpy(buf, &gfFilenameWad[gfFilenameOffset[name]]);
+	strcat(buf, ".PSX");
+	file = fopen(buf, "rb");
+
+	fseek(file, AnimFilePos, SEEK_SET);
+	FILE_Read((char*) frames, 1, len, file);
+
+	fclose(file);
+#else
+	cdCurrentSector = AnimFilePos;
+	CD_Read((char*) frames, len);
+#endif
+
+	return;
 }

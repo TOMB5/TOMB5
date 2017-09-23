@@ -14,7 +14,6 @@
 #include "TEXT.H"
 
 #include <SDL.h>
-#undef main
 
 void VSyncFunc()//10000(<), 10000(<) (F)
 {
