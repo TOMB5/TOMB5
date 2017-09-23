@@ -389,6 +389,22 @@ struct tr4_object_texture // 38 bytes
 	uint32_t               OriginalV;
 	uint32_t               Width;     // Actually width-1
 	uint32_t               Height;    // Actually height-1
+
+	uint16_t Padding;
+};
+
+struct OBJECT_TEXTURE_VERT
+{
+	float x;
+	float y;
+};
+
+struct OBJECT_TEXTURE
+{
+	uint16_t attribute;
+	uint16_t tile_and_flag;
+	uint16_t new_flags;
+	struct OBJECT_TEXTURE_VERT vertices[4];
 };
 #pragma pop
 

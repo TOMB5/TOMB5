@@ -76,8 +76,13 @@ int number_los_rooms;
 int framecount;
 struct ITEM_INFO* items;
 int flip_status;
+#if PC_VERSION
+int flipmap[255];
+int flip_stats[255];
+#else
 int flipmap[10];
 int flip_stats[10];
+#endif
 int height_type;
 int tiltxoff;
 int tiltyoff;

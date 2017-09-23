@@ -22,6 +22,9 @@
 #include "HAIR.H"
 #include "SWITCH.H"
 #include "PICKUP.H"
+#include "TOMB4FX.H"
+#include "DELTAPAK.H"
+#include "LARA.H"
 
 long AnimFilePos;
 long AnimFileLen;
@@ -35,13 +38,21 @@ DWORD dword_51CAC0[32];
 DWORD numLvlMeshes;
 struct mesh_vbuf_s
 {
-	char pad[30]; // pos 0 size 30
+	char pad0[4]; // pos 0 size 4
+	short* field1; // pos 4 size 4  APPARENTLY object texture index
+	char pad[22]; // pos 8 size 22
 	LPDIRECT3DVERTEXBUFFER vbuf; // pos 30 size 4
 	char pad2[36]; // pos 34 size 36
 };
 struct mesh_vbuf_s** mesh_vbufs;
 struct SPRITE_STRUCT* sprites;
-
+struct OBJECT_TEXTURE* object_textures;
+struct OBJECT_TEXTURE* waterfall_textures[6];
+float waterfall_y[6];
+void* dword_87B0F0;
+void* dword_87B0F4;
+struct OBJECT_TEXTURE* dword_87497C;
+float flt_874980;
 #define AllocT(d, s, n) d = (s*)game_malloc(sizeof(s) * (n))
 #define AllocReadT(d, s, n) AllocT((d), s, (n));OnlyReadT((d), s, (n))
 #define OnlyReadT(d, s, n) readBytes((d), sizeof(s) * (n))
@@ -756,7 +767,7 @@ void LoadAIObjects()
 	}
 }
 
-DWORD dword_D9A868;
+DWORD numTpages;
 DWORD dword_D99DA8;
 DWORD dword_D99DAC;
 DWORD dword_D99DC0;
@@ -1256,7 +1267,7 @@ void LoadTextures(int numRoom, int numObj, int numBump)
 	Log(2, "LoadTextures");
 
 	dword_875144 = lvDataPtr;
-	dword_D9A868 = 1;
+	numTpages = 1;
 
 	int v85 = 0;
 	int depth = 4;
@@ -1325,7 +1336,7 @@ void LoadTextures(int numRoom, int numObj, int numBump)
 
 	Log(5, "RTPages %d", numRoom);
 
-	int szRoom = numRoom * depth * TEXTURE_SIZE;
+	int szRoom = numRoom * depth * TEXTURE_PAGE;
 	void* bufRoom;
 	AllocReadT(bufRoom, char, szRoom);
 	sub_4B1A80();
@@ -1379,6 +1390,13 @@ void LoadSprites()
 	}
 }
 
+void AdjustUV(int numTex)
+{
+	Log(2, "AdjustUV");
+
+	S_Warn("[AdjustUV] - Unimplemented!\n");
+}
+
 void LoadTextureInfos()
 {
 	Log(2, "LoadTextureInfos");
@@ -1388,7 +1406,134 @@ void LoadTextureInfos()
 	int numObjTex = readDword();
 	Log(5, "Texture Infos : %d", numObjTex);
 
+	Alloc(object_textures, OBJECT_TEXTURE, numObjTex);
 
+	struct tr4_object_texture tex;
+	for (int i = 0; i < numObjTex; i++)
+	{
+		OnlyRead(&tex, tr4_object_texture, 1);
+
+		object_textures[i].attribute = tex.Attribute;
+		object_textures[i].tile_and_flag = tex.TileAndFlag & 0x7FFF;
+		object_textures[i].new_flags = tex.NewFlags & 0x7FFF;
+
+		for(int j = 0; j < 4; j++)
+		{
+			object_textures[i].vertices[j].x = tex.Vertices[j].Xpixel / 256.0;
+			object_textures[i].vertices[j].y = tex.Vertices[j].Ypixel / 256.0;
+		}
+	}
+
+	AdjustUV(numObjTex);
+
+	Log(5, "Created %d Texture Pages", numTpages - 1);
+}
+
+void sub_4A6AB0()
+{
+	S_Warn("[sub_4A6AB0] - Unimplemented!\n");
+}
+
+void sub_4A9C10()
+{
+	if (NumRoomLights > 21)
+	{
+		Log(1, "MAX Room Lights of %d Exceeded - %d", 21, NumRoomLights);
+	}
+
+	dword_87B0F0 = game_malloc(168 * NumRoomLights);
+	dword_87B0F4 = game_malloc(2688); // todo find the struct
+}
+
+void sub_4779E0()
+{
+	cutseq_num = 0;
+	cutseq_trig = 0;
+	GLOBAL_playing_cutseq = 0;
+	GLOBAL_cutseq_frame = 0;
+	SetFadeClip(0, 1);
+}
+
+int unknown_libname_1()
+{
+	S_Warn("[unknown_libname_1] - Unimplemented!\n");
+	return 0;
+}
+
+void sub_490590()
+{
+	S_Warn("[sub_490590] - Unimplemented!\n");
+}
+
+void sub_4BFD70()
+{
+	S_Warn("[sub_4BFD70] - Unimplemented!\n");
+}
+
+void sub_4779B0()
+{
+	S_Warn("[sub_4779B0] - Unimplemented!\n");
+}
+
+void InitBinocularGraphics()
+{
+	S_Warn("[InitBinocularGraphics] - Unimplemented!\n");
+}
+
+void InitTargetGraphics()
+{
+	S_Warn("[InitTargetGraphics] - Unimplemented!\n");
+}
+
+void sub_477880()
+{
+	memset(flipmap, 0, 255 * sizeof(int));
+	memset(flip_stats, 0, 255 * sizeof(int));
+	flipeffect = -1;
+	memset(cd_flags, 0, 136);
+	flip_status = 0;
+	IsAtmospherePlaying = 0;
+	camera.underwater = 0;
+}
+
+void __cdecl sub_456900(struct ITEM_INFO *item)
+{
+	if (room[item->room_number].flags & RF_FILL_WATER)
+	{
+		lara.water_status = 1;
+		item->fallspeed = 0;
+		item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
+		item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
+		item->anim_number = ANIMATION_LARA_UNDERWATER_IDLE;
+		item->frame_number = anims[ANIMATION_LARA_UNDERWATER_IDLE].frame_base;
+	}
+	else
+	{
+		lara.water_status = 0;
+		item->goal_anim_state = STATE_LARA_STOP;
+		item->current_anim_state = STATE_LARA_STOP;
+		item->anim_number = ANIMATION_LARA_STAY_SOLID;
+		item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
+	}
+}
+
+void sub_473210(int a1)
+{
+	if (lara.item_number != -1)
+	{
+		lara_item->data = &lara;
+		*(_DWORD *)&lara_item->pad[5468] &= 0xFFFFFFDF;
+		if (a1)
+		{
+			
+		}
+
+	}
+}
+
+void sub_4778F0()
+{
+	
 }
 
 void LoadLevel(const char* filename)
@@ -1397,7 +1542,7 @@ void LoadLevel(const char* filename)
 
 	FreeLevel();
 
-	dword_D9A868 = 1;
+	numTpages = 1;
 	dword_D99DA8 = 0;
 	dword_D99DAC = 0;
 	dword_D99DC0 = 0;
@@ -1478,14 +1623,67 @@ void LoadLevel(const char* filename)
 		if (ACMInited && !ptr_ctx->opt_DisableSound)
 			LoadSamples();
 
-		free(lvDataPtr);
+		free(lvDataPtr_orig);
 
 		sub_4B1A80();
 
-		S_Warn("[LoadLevel] - End unimplemented!\n");
+		for(int i = WATERFALL1; i <= WATERFALLSS2; i++)
+		{
+			if (objects[i].loaded)
+			{
+				struct OBJECT_TEXTURE* tex = &object_textures[mesh_vbufs[objects[i].mesh_index]->field1[4]];
+				waterfall_textures[i] = tex;
+				waterfall_y[i] = tex->vertices[0].y;
+			}
+		}
+
+		sub_4B1A80();
+
+		sub_4A6AB0();
+		sub_4B1A80();
+
+		sub_4A9C10();
+		//j_nullsub_24();
+		sub_4778F0();
+		sub_4B1A80();
+		SetFadeClip(0, 1);
+		sub_4779E0();
+
+		if (gfCurrentLevel == 1)
+			find_a_fucking_item(ANIMATING10)->mesh_bits = 11;
+
+		if (gfCurrentLevel == 10)
+			find_a_fucking_item(ANIMATING16)->mesh_bits = 1;
+
+		if (objects[MONITOR_SCREEN].loaded)
+		{
+			short* mesh = meshes[objects[MONITOR_SCREEN].mesh_index];
+			int v12 = *((int*)mesh + 4);
+			int v13 = mesh[7];
+			int v10 = 0;
+			if (v13 > 0)
+			{
+				BYTE* v14 = (BYTE*)(v12 + 10);
+
+				while (!(*v14 & 1))
+				{
+					v10++;
+					v14 += 12;
+					if (v10 >= v13)
+						goto LABEL_20;
+				}
+				int v15 = 3 * v10;
+				*(BYTE*)(v12 + 4 * v15 + 10) &= 0xFE;
+				dword_87497C = &object_textures[*(WORD*)(v12 + 4 * v15 + 8) & 0x7FFF];
+				flt_874980 = dword_87497C->vertices[0].x;
+			}
+		}
 
 		LABEL_20:
 		FileClose(fp_level);
+		unknown_libname_1();
+		sub_490590();
+		sub_4BFD70();
 	}
 
 	sub_491DA0(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);

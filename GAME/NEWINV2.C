@@ -3,6 +3,11 @@
 #include "SPECIFIC.H"
 #include "LARA.H"
 #include "LOADSAVE.H"
+#include "OBJECTS.H"
+#include "GAMEFLOW.H"
+#include "CONTROL.H"
+#include "SAVEGAME.H"
+#include "CD.H"
 
 struct INVOBJ inventry_objects_list[100] = // offset 0x92BE8
 {
@@ -287,10 +292,15 @@ int convert_invobj_to_obj(int obj)//40B08(<), 40F5C(<) (F)
 	return inventry_objects_list[obj].object_number;
 }
 
-int convert_obj_to_invobj(short obj)//40AC4, 40F18
+int convert_obj_to_invobj(short obj)//40AC4(<), 40F18() (F)
 {
-	S_Warn("[convert_obj_to_invobj] - Unimplemented!\n");
-	return 0;
+	for(int i = 0; i < 100; i++)
+	{
+		if (inventry_objects_list[i].object_number == obj)
+			return i;
+	}
+
+	return 27;
 }
 
 void remove_inventory_item(short object_number)//4097C, 40DD0
@@ -311,7 +321,249 @@ void NailInvItem(short objnum)//40584, 409D8
 
 void DEL_picked_up_object(short objnum)//3FEB0, 40304
 {
-	S_Warn("[DEL_picked_up_object] - Unimplemented!\n");
+	switch (objnum)
+	{
+	case UZI_ITEM:
+		if (!(lara.uzis_type_carried & 1))
+			lara.uzis_type_carried = 9;
+
+		if (lara.num_uzi_ammo != -1)
+			lara.num_uzi_ammo += 30;
+
+		return;
+
+	case PISTOLS_ITEM:
+		if (!(lara.pistols_type_carried & 1))
+			lara.pistols_type_carried = 9;
+
+		lara.num_pistols_ammo = -1;
+
+		return;
+
+	case SHOTGUN_ITEM:
+		if (!(lara.shotgun_type_carried & 1))
+			lara.shotgun_type_carried = 9;
+
+		if (lara.num_shotgun_ammo1 != -1)
+			lara.num_shotgun_ammo1 += 36;
+
+		return;
+
+	case REVOLVER_ITEM:
+		if (!(lara.sixshooter_type_carried & 1))
+			lara.sixshooter_type_carried = 9;
+
+		if (lara.num_revolver_ammo != -1)
+			lara.num_revolver_ammo += 6;
+
+		return;
+
+	case CROSSBOW_ITEM:
+		if (gfCurrentLevel < 11 || gfCurrentLevel > 14)
+		{
+			if (!(lara.crossbow_type_carried & 1))
+				lara.crossbow_type_carried = 9;
+
+			if (lara.num_crossbow_ammo1 != -1)
+				lara.num_crossbow_ammo1 += 10;
+		}
+		else
+		{
+			lara.crossbow_type_carried = 13;
+			lara.num_crossbow_ammo2 = 0;
+		}
+
+		return;
+
+	case HK_ITEM:
+		SetCutNotPlayed(23);
+
+		if (!(lara.hk_type_carried & 1))
+			lara.hk_type_carried = 9;
+
+		if (gfCurrentLevel != 12)
+			if (lara.num_hk_ammo1 != -1)
+				lara.num_hk_ammo1 += 30;
+
+		return;
+
+	case SHOTGUN_AMMO1_ITEM:
+		if (lara.num_shotgun_ammo1 != -1)
+			lara.num_shotgun_ammo1 += 36;
+
+		return;
+
+	case SHOTGUN_AMMO2_ITEM:
+		if (lara.num_shotgun_ammo2 != -1)
+			lara.num_shotgun_ammo2 += 36;
+
+		return;
+
+	case HK_AMMO_ITEM:
+		if (lara.num_hk_ammo1 != -1)
+			lara.num_hk_ammo1 += 30;
+
+		return;
+
+	case CROSSBOW_AMMO1_ITEM:
+		if (lara.num_crossbow_ammo1 != -1)
+			++lara.num_crossbow_ammo1;
+
+		return;
+
+	case CROSSBOW_AMMO2_ITEM:
+		if (lara.num_crossbow_ammo2 != -1)
+			lara.num_crossbow_ammo2 += 10;
+
+		return;
+
+	case REVOLVER_AMMO_ITEM:
+		if (lara.num_revolver_ammo != -1)
+			lara.num_revolver_ammo += 6;
+
+		return;
+
+	case UZI_AMMO_ITEM:
+		if (lara.num_uzi_ammo != -1)
+			lara.num_uzi_ammo += 30;
+
+		return;
+
+	case FLARE_INV_ITEM:
+		if (lara.num_flares != -1)
+			lara.num_flares += 12;
+
+		return;
+
+	case SILENCER_ITEM:
+		if (!((lara.uzis_type_carried |
+			(lara.pistols_type_carried |
+				lara.shotgun_type_carried |
+				lara.sixshooter_type_carried |
+				lara.crossbow_type_carried |
+				lara.hk_type_carried)) & 2))
+			lara.silencer = 1;
+
+		return;
+
+	case LASERSIGHT_ITEM:
+		if (!((lara.uzis_type_carried |
+			(lara.pistols_type_carried |
+				lara.shotgun_type_carried |
+				lara.sixshooter_type_carried |
+				lara.crossbow_type_carried |
+				lara.hk_type_carried)) & 2))
+			lara.lasersight = 1;
+
+		return;
+
+	case BIGMEDI_ITEM:
+		if (lara.num_large_medipack != -1)
+			++lara.num_large_medipack;
+
+		return;
+
+	case SMALLMEDI_ITEM:
+		if (lara.num_small_medipack != -1)
+			++lara.num_small_medipack;
+
+		return;
+
+	case BINOCULARS_ITEM:
+		lara.binoculars = 1;
+
+		return;
+
+	case PICKUP_ITEM4:
+		IsAtmospherePlaying = 0;
+
+		S_CDPlay(6, 0);
+
+		lara.pickupitems |= 8u;
+
+		++savegame.Level.Secrets;
+		++savegame.Game.Secrets;
+
+		if (gfCurrentLevel >= 11u && gfCurrentLevel <= 14u)
+		{
+			++savegame.CampaignSecrets[3];
+		}
+		else if (gfCurrentLevel >= 4u && gfCurrentLevel <= 7u)
+		{
+			++savegame.CampaignSecrets[2];
+		}
+		else if (gfCurrentLevel >= 1u && gfCurrentLevel <= 3u)
+		{
+			++savegame.CampaignSecrets[0];
+		}
+		else if (gfCurrentLevel >= 8u && gfCurrentLevel <= 10u)
+		{
+			++savegame.CampaignSecrets[1];
+		}
+
+		return;
+
+	case CROWBAR_ITEM:
+		lara.crowbar = 1;
+
+		return;
+
+	case EXAMINE1:
+		lara.examine1 = 1;
+
+		return;
+
+	case EXAMINE2:
+		lara.examine2 = 1;
+
+		return;
+
+	case EXAMINE3:
+		lara.examine3 = 1;
+
+		return;
+
+	case WET_CLOTH:
+		lara.wetcloth = 2;
+
+		return;
+
+	case CLOTH:
+		lara.wetcloth = 1;
+
+		return;
+
+	case BOTTLE:
+		lara.bottle++;
+
+		return;
+
+	default:
+		if (objnum >= PICKUP_ITEM1 && objnum <= PICKUP_ITEM3)
+		{
+			lara.pickupitems |= 1 << (objnum + 36);
+		}
+		else if (objnum >= PICKUP_ITEM1_COMBO1 && objnum <= PICKUP_ITEM4_COMBO2)
+		{
+			lara.pickupitemscombo |= 1 << (objnum + 32);
+		}
+		else if (objnum >= KEY_ITEM1 && objnum <= KEY_ITEM8)
+		{
+			lara.keyitems |= 1 << (objnum + 60);
+		}
+		else if (objnum >= KEY_ITEM1_COMBO1 && objnum <= KEY_ITEM8_COMBO2)
+		{
+			lara.keyitemscombo |= 1 << (objnum + 52);
+		}
+		else if (objnum >= PUZZLE_ITEM1 && objnum <= PUZZLE_ITEM8)
+		{
+			++*((_BYTE *)&lara.mesh_ptrs[LM_RFOOT] + objnum); // todo: this seems horribly wrong
+		}
+		else if (objnum >= PUZZLE_ITEM1_COMBO1 && objnum <= PUZZLE_ITEM8_COMBO2)
+		{
+			lara.puzzleitemscombo |= 1 << (objnum + 76);
+		}
+	}
 }
 
 void use_current_item()//3F9A0, 3FDF4
