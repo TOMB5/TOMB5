@@ -91,7 +91,6 @@ short AIGuard(struct creature_info* creature)
 	return 0;
 }
 
-
 void AlertNearbyGuards(struct ITEM_INFO* item)//24D20(<), 24F2C(<)
 {
 	int slot = 4;
@@ -284,9 +283,27 @@ int EscapeBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)
 	return 0;
 }
 
-void TargetBox(struct lot_info* LOT, short box_number)
+void TargetBox(struct lot_info* LOT, short box_number)//220F4(<), ?
 {
-	S_Warn("[TargetBox] - Unimplemented!\n");
+	struct box_info* box;
+
+	box = &boxes[box_number & 0x7FF];
+
+	LOT->required_box = box_number & 0x7FF;
+
+	LOT->target.z = (((((box->right - box->left) - 1) * GetRandomControl()) / 32) + (box->left * 1024)) + 512;
+	LOT->target.x = (((((box->bottom - box->top) - 1) * GetRandomControl()) / 32) + (box->top * 1024)) + 512;
+
+	if (LOT->fly == 0)
+	{
+		LOT->target.y = box->height;
+	}
+	else
+	{
+		LOT->target.y = box->height - 1152;
+	}
+
+	return;
 }
 
 int UpdateLOT(struct lot_info* LOT, int expansion)//22034(<), ?
