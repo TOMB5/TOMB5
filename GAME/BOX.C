@@ -287,9 +287,10 @@ void TargetBox(struct lot_info* LOT, short box_number)//220F4(<), ?
 {
 	struct box_info* box;
 
-	box = &boxes[box_number & 0x7FF];
+	box_number &= 0x7FF;
+	box = &boxes[box_number];
 
-	LOT->required_box = box_number & 0x7FF;
+	LOT->required_box = box_number;
 
 	LOT->target.z = (((((box->right - box->left) - 1) * GetRandomControl()) / 32) + (box->left * 1024)) + 512;
 	LOT->target.x = (((((box->bottom - box->top) - 1) * GetRandomControl()) / 32) + (box->top * 1024)) + 512;
@@ -328,8 +329,7 @@ int UpdateLOT(struct lot_info* LOT, int expansion)//22034(<), ?
 
 		}//0x220C4
 
-		LOT->search_number++;
-		expand->search_number = LOT->search_number;
+		expand->search_number = ++LOT->search_number;
 		expand->exit_box = 0x7FF;
 	}//220DC
 

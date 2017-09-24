@@ -69,9 +69,32 @@ void RifleHandler(int weapon_type)
 	S_Warn("[RifleHandler] - Unimplemented!\n");
 }
 
-void ready_shotgun(int weapon_type)//424E0, 42934
+void ready_shotgun(int weapon_type)//424E0(<), 42934(<) (F)
 {
-	S_Warn("[ready_shotgun] - Unimplemented!\n");
+	struct object_info* object;
+
+	lara.gun_status = 4;
+	lara.left_arm.z_rot = 0;
+	lara.left_arm.y_rot = 0;
+	lara.left_arm.x_rot = 0;
+
+	lara.right_arm.z_rot = 0;
+	lara.right_arm.x_rot = 0;
+	lara.right_arm.y_rot = 0;
+
+	lara.right_arm.frame_number = 0;
+	lara.left_arm.frame_number = 0;
+
+	lara.right_arm.lock = 0;
+	lara.left_arm.lock = 0;
+	lara.target = NULL;
+
+	object = &objects[WeaponObject(weapon_type)];//v1
+
+	lara.right_arm.frame_base = object->frame_base;
+	lara.left_arm.frame_base = object->frame_base;
+
+	return;
 }
 
 void undraw_shotgun_meshes(int weapon_type)//42498(<), 428EC(<) (F)
