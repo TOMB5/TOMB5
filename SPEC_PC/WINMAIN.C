@@ -1205,7 +1205,7 @@ void sub_4CF191()
 
 int __cdecl sub_40286A(int a1)
 {
-	LPDIRECTINPUTDEVICEA result; // eax@1
+	LPDIRECTINPUTDEVICE2A result; // eax@1
 
 	result = ptr_ctx->dinput_other;
 	if (result)

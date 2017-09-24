@@ -1688,7 +1688,7 @@ void LoadLevel(const char* filename)
 
 	sub_491DA0(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
 	dword_874968 = 0;
-	_endthreadex(1u);
+	//_endthreadex(1u); todo what
 }
 
 BYTE byte_87B81C;
@@ -1772,6 +1772,28 @@ _DWORD *sub_49D220()
 void sub_4BA100()
 {
 	S_Warn("[sub_4BA100] - Unimplemented!\n");
+}
+
+void sub_4D3D90(_DWORD *a1, _DWORD *a2)
+{
+	*a1 = dword_D9BB8C;
+	*a2 = dword_D9BB88;
+}
+
+void sub_4ACAB0()
+{
+	if (dxctx.flags & 0x80)
+	{
+		ptr_ctx->buf_back->lpVtbl->Blt(ptr_ctx->buf_back, NULL, surf_screen, NULL, DDBLT_WAIT, 0);
+	}
+	else
+	{
+		DDSURFACEDESC2 surf;
+		memset(&surf, 0, sizeof(surf));
+		surf_screen->lpVtbl->Lock(surf_screen, NULL, &surf, DDLOCK_WAIT | DDLOCK_NOSYSLOCK, NULL);
+
+
+	}
 }
 
 void S_LoadLevelFile(int Name)
