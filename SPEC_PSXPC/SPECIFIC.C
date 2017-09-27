@@ -1,12 +1,15 @@
 #include "SPECIFIC.H"
 
 #include "GPU.H"
+#include "PSXPCINPUT.H"
+#include "REQUEST.H"
 #include "SOUND.H"
+#include "SAVEGAME.H"
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "REQUEST.H"
+
 
 
 static struct REQUESTER PauseReq = { 0xA4, 0x08, 0x03, 0x00, 0x05, 0x08, 0x03, 0x0A, 0x00, { 0xDE, 0xDF, 0xE0, 0x00, 0x00 } };
@@ -93,7 +96,50 @@ long S_DumpScreen()//607A8(<), 61320(<) (F)
 	return GPU_FlipNoIdle();
 }
 
-void S_control_screen_position()//6068C, 61204
+void S_control_screen_position()//6068C(<), 61204(<)
 {
-	S_Warn("[S_control_screen_position] - Unimplemented!\n");
+	if (input & 1)
+	{
+		savegame.ScreenY--;
+
+		if ((savegame.ScreenY << 16) < 0)
+		{
+			savegame.ScreenY = 0;
+		}
+	}
+	else if (input & 2)
+	{
+		//loc_606D0
+		savegame.ScreenY++;
+
+		if (savegame.ScreenY > 40)
+		{
+			savegame.ScreenY = 40;
+		}
+	}
+
+	//loc_60708
+	if (input & 4)
+	{
+		savegame.ScreenX--;
+
+		if (savegame.ScreenX < -10)
+		{
+			savegame.ScreenX = -10;
+		}
+
+	}
+	else if (input & 8)
+	{
+		//loc_60750
+		savegame.ScreenX++;
+
+		if (savegame.ScreenX > 32)
+		{
+			savegame.ScreenX = 32;
+		}
+	}
+
+	//loc_60784
+	GPU_SetScreenPosition(savegame.ScreenX, savegame.ScreenY);
 }
