@@ -212,3 +212,13 @@ void GPU_EndScene()//5DFDC(<), ?(!)
 #endif
 	return;
 }
+
+void GPU_SetScreenPosition(short x, short y)//5F360(<), 60040(<)
+{
+	db.disp[0].screen.x = x;
+	db.disp[0].screen.y = y;
+	db.disp[1].screen.x = x;
+	db.disp[1].screen.y = y;
+
+	return;
+}
