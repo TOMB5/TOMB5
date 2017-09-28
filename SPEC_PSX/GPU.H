@@ -33,6 +33,9 @@ extern void GPU_SyncBothScreens();
 extern void GPU_ClearVRAM();
 extern void GPU_FlipToBuffer(int buffer_index);
 extern void GPU_GetScreenPosition(short* x, short* y);
+extern void GPU_SetScreenPosition(short x, short y);
 extern void clear_a_rect(RECT* r);
+extern long OptimiseOTagR(unsigned long* ot, int nOTSize);
+extern void draw_rotate_sprite(long a0, long a1, long a2);
 
 #endif
