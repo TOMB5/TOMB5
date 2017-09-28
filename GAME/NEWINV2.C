@@ -8,8 +8,116 @@
 #include "CONTROL.H"
 #include "SAVEGAME.H"
 #include "CD.H"
+#include "LARA2GUN.H"
+#include "LARA1GUN.H"
 
-struct INVOBJ inventry_objects_list[100] = // offset 0x92BE8
+enum invobj_types // update this whenever inventry_objects_list is modified
+{
+	INV_UZI_ITEM = 0,
+	INV_PISTOLS_ITEM = 1,
+	INV_SHOTGUN_ITEM = 2,
+	INV_REVOLVER_ITEM1 = 3,
+	INV_REVOLVER_ITEM2 = 4,
+	INV_CROSSBOW_AMMO2_ITEM1 = 5,
+	INV_CROSSBOW_AMMO2_ITEM2 = 6,
+	INV_HK_ITEM1 = 7,
+	INV_HK_ITEM2 = 8,
+	INV_SHOTGUN_AMMO1_ITEM = 9,
+	INV_SHOTGUN_AMMO2_ITEM = 10,
+	INV_HK_AMMO_ITEM1 = 11,
+	INV_HK_AMMO_ITEM2 = 12,
+	INV_HK_AMMO_ITEM3 = 13,
+	INV_HK_AMMO_ITEM4 = 14,
+	INV_CROSSBOW_AMMO2_ITEM3 = 15,
+	INV_CROSSBOW_AMMO2_ITEM4 = 16,
+	INV_REVOLVER_AMMO_ITEM = 17,
+	INV_UZI_AMMO_ITEM = 18,
+	INV_PISTOLS_AMMO_ITEM = 19,
+	INV_LASERSIGHT_ITEM = 20,
+	INV_SILENCER_ITEM = 21,
+	INV_BIGMEDI_ITEM = 22,
+	INV_SMALLMEDI_ITEM = 23,
+	INV_BINOCULARS_ITEM = 24,
+	INV_FLARE_INV_ITEM = 25,
+	INV_COMPASS_ITEM = 26,
+	INV_MEMCARD_LOAD_INV_ITEM = 27,
+	INV_MEMCARD_SAVE_INV_ITEM = 28,
+	INV_PUZZLE_ITEM1 = 29,
+	INV_PUZZLE_ITEM2 = 30,
+	INV_PUZZLE_ITEM3 = 31,
+	INV_PUZZLE_ITEM4 = 32,
+	INV_PUZZLE_ITEM5 = 33,
+	INV_PUZZLE_ITEM6 = 34,
+	INV_PUZZLE_ITEM7 = 35,
+	INV_PUZZLE_ITEM8 = 36,
+	INV_PUZZLE_ITEM1_COMBO1 = 37,
+	INV_PUZZLE_ITEM1_COMBO2 = 38,
+	INV_PUZZLE_ITEM2_COMBO1 = 39,
+	INV_PUZZLE_ITEM2_COMBO2 = 40,
+	INV_PUZZLE_ITEM3_COMBO1 = 41,
+	INV_PUZZLE_ITEM3_COMBO2 = 42,
+	INV_PUZZLE_ITEM4_COMBO1 = 43,
+	INV_PUZZLE_ITEM4_COMBO2 = 44,
+	INV_PUZZLE_ITEM5_COMBO1 = 45,
+	INV_PUZZLE_ITEM5_COMBO2 = 46,
+	INV_PUZZLE_ITEM6_COMBO1 = 47,
+	INV_PUZZLE_ITEM6_COMBO2 = 48,
+	INV_PUZZLE_ITEM7_COMBO1 = 49,
+	INV_PUZZLE_ITEM7_COMBO2 = 50,
+	INV_PUZZLE_ITEM8_COMBO1 = 51,
+	INV_PUZZLE_ITEM8_COMBO2 = 52,
+	INV_KEY_ITEM1 = 53,
+	INV_KEY_ITEM2 = 54,
+	INV_KEY_ITEM3 = 55,
+	INV_KEY_ITEM4 = 56,
+	INV_KEY_ITEM5 = 57,
+	INV_KEY_ITEM6 = 58,
+	INV_KEY_ITEM7 = 59,
+	INV_KEY_ITEM8 = 60,
+	INV_KEY_ITEM1_COMBO1 = 61,
+	INV_KEY_ITEM1_COMBO2 = 62,
+	INV_KEY_ITEM2_COMBO1 = 63,
+	INV_KEY_ITEM2_COMBO2 = 64,
+	INV_KEY_ITEM3_COMBO1 = 65,
+	INV_KEY_ITEM3_COMBO2 = 66,
+	INV_KEY_ITEM4_COMBO1 = 67,
+	INV_KEY_ITEM4_COMBO2 = 68,
+	INV_KEY_ITEM5_COMBO1 = 69,
+	INV_KEY_ITEM5_COMBO2 = 70,
+	INV_KEY_ITEM6_COMBO1 = 71,
+	INV_KEY_ITEM6_COMBO2 = 72,
+	INV_KEY_ITEM7_COMBO1 = 73,
+	INV_KEY_ITEM7_COMBO2 = 74,
+	INV_KEY_ITEM8_COMBO1 = 75,
+	INV_KEY_ITEM8_COMBO2 = 76,
+	INV_PICKUP_ITEM1 = 77,
+	INV_PICKUP_ITEM2 = 78,
+	INV_PICKUP_ITEM3 = 79,
+	INV_PICKUP_ITEM4 = 80,
+	INV_PICKUP_ITEM1_COMBO1 = 81,
+	INV_PICKUP_ITEM1_COMBO2 = 82,
+	INV_PICKUP_ITEM2_COMBO1 = 83,
+	INV_PICKUP_ITEM2_COMBO2 = 84,
+	INV_PICKUP_ITEM3_COMBO1 = 85,
+	INV_PICKUP_ITEM3_COMBO2 = 86,
+	INV_PICKUP_ITEM4_COMBO1 = 87,
+	INV_PICKUP_ITEM4_COMBO2 = 88,
+	INV_BURNING_TORCH_ITEM = 89,
+	INV_CROWBAR_ITEM = 90,
+	INV_EXAMINE1 = 91,
+	INV_EXAMINE2 = 92,
+	INV_EXAMINE3 = 93,
+	INV_WET_CLOTH = 94,
+	INV_CROSSBOW_ITEM = 95,
+	INV_CROSSBOW_AMMO1_ITEM = 96,
+	INV_CLOTH = 97,
+	INV_BOTTLE = 98,
+	INV_PUZZLE_HOLE8 = 99,
+
+	NUM_INV_OBJECTS
+};
+
+struct INVOBJ inventry_objects_list[NUM_INV_OBJECTS] = // offset 0x92BE8
 {
 	{ 0x150, -4, 0x3E8, 0x4000, 0x6000, 0x4000, 2, 0x51, -1 },
 	{ 0x14E, 6, 0x3E8, 0x4000, -0x52B4, -0x42C0, 2, 0x52, -1 },
@@ -707,14 +815,44 @@ void combine_PuzzleItem1(int flag)//3F620(<), 3FA74(<) (F)
 	lara.puzzleitemscombo &= 0xFFFC;
 }
 
-void combine_crossbow_lasersight(int flag)//3F590, 3F9E4
+void combine_crossbow_lasersight(int flag)//3F590, 3F9E4 (F)
 {
-	S_Warn("[combine_crossbow_lasersight] - Unimplemented!\n");
+	if (flag)
+	{
+		lara.lasersight = 1;
+		lara.crossbow_type_carried &= ~4;
+	}
+	else
+	{
+		lara.lasersight = 0;
+		lara.crossbow_type_carried |= 4;
+	}
+
+	if (lara.gun_status && lara.gun_type == 6)
+	{
+		undraw_shotgun_meshes(6);
+		draw_shotgun_meshes(6);
+	}
 }
 
-void combine_revolver_lasersight(int flag)//3F500, 3F954
+void combine_revolver_lasersight(int flag)//3F500, 3F954 (F)
 {
-	S_Warn("[combine_revolver_lasersight] - Unimplemented!\n");
+	if (flag)
+	{
+		lara.lasersight = 1;
+		lara.sixshooter_type_carried &= ~4;
+	}
+	else
+	{
+		lara.lasersight = 0;
+		lara.sixshooter_type_carried |= 4;
+	}
+
+	if (lara.gun_status && lara.gun_type == 2)
+	{
+		undraw_pistol_mesh_right(2);
+		draw_pistol_meshes(2);
+	}
 }
 
 void combine_HK_SILENCER(int flag)//3F4C0(<), 3F914(<) (F)
@@ -727,7 +865,7 @@ void combine_HK_SILENCER(int flag)//3F4C0(<), 3F914(<) (F)
 	else
 	{
 		lara.silencer = 1;
-		lara.hk_type_carried &= 0xFD;
+		lara.hk_type_carried &= ~2;
 	}
 }
 
@@ -779,9 +917,90 @@ void fade_ammo_selector()//3ED08, 3F15C
 	S_Warn("[fade_ammo_selector] - Unimplemented!\n");
 }
 
-void setup_ammo_selector()//3E9F8, 3EE4C
+void setup_ammo_selector()//3E9F8, 3EE4C (F)
 {
-	S_Warn("[setup_ammo_selector] - Unimplemented!\n");
+	int num = 0;
+	int opts = options_table[rings[0]->current_object_list[rings[0]->curobjinlist].invitem];
+	ammo_selector_flag = 0;
+	num_ammo_slots = 0;
+	if (!rings[1]->ringactive)
+	{
+		ammo_object_list[2].yrot = 0;
+		ammo_object_list[1].yrot = 0;
+		ammo_object_list[0].yrot = 0;
+		if (opts & 0x4FC0)
+		{
+			ammo_selector_flag = 1;
+			ammo_selector_fade_dir = 1;
+			if (HIBYTE(opts) & 2)
+			{
+				ammo_object_list[0].invitem = 18;
+				ammo_object_list[0].amount = AmountUziAmmo;
+				num = 1;
+				num_ammo_slots = 1;
+				current_ammo_type = &CurrentUziAmmoType;
+			}
+			if (HIBYTE(opts) & 4)
+			{
+				num = 1;
+				ammo_object_list[0].invitem = 19;
+				ammo_object_list[0].amount = -1;
+				num_ammo_slots = 1;
+				current_ammo_type = &CurrentPistolsAmmoType;
+			}
+			if (HIBYTE(opts) & 8)
+			{
+				num = 1;
+				ammo_object_list[0].invitem = 17;
+				ammo_object_list[0].amount = AmountRevolverAmmo;
+				num_ammo_slots = 1;
+				current_ammo_type = &CurrentRevolverAmmoType;
+			}
+			if (opts & 0x80)
+			{
+				current_ammo_type = &CurrentCrossBowAmmoType;
+				ammo_object_list[num].invitem = 15;
+				ammo_object_list[num].amount = AmountCrossBowAmmo1;
+				num++;
+				ammo_object_list[num].invitem = 16;
+				ammo_object_list[num].amount = AmountCrossBowAmmo2;
+				num++;
+				num_ammo_slots = num;
+			}
+			if (HIBYTE(opts) & 1)
+			{
+				current_ammo_type = &CurrentGrenadeGunAmmoType;
+				ammo_object_list[num].invitem = 11;
+				ammo_object_list[num].amount = AmountHKAmmo1;
+				num++;
+				ammo_object_list[num].invitem = 12;
+				ammo_object_list[num].amount = AmountHKAmmo1;
+				num++;
+				ammo_object_list[num].invitem = 13;
+				ammo_object_list[num].amount = AmountHKAmmo1;
+				num++;
+				num_ammo_slots = num;
+			}
+			if (opts & 0x40)
+			{
+				current_ammo_type = &CurrentShotGunAmmoType;
+				ammo_object_list[num].invitem = 9;
+				ammo_object_list[num].amount = AmountShotGunAmmo1;
+				num++;
+				ammo_object_list[num].invitem = 10;
+				ammo_object_list[num].amount = AmountShotGunAmmo2;
+				num++;
+				num_ammo_slots = num;
+			}
+			if (HIBYTE(opts) & 0x40)
+			{
+				ammo_object_list[0].invitem = 96;
+				ammo_object_list[0].amount = AmountCrossBowAmmo1;
+				num_ammo_slots = 1;
+				current_ammo_type = &CurrentCrossBowAmmoType;
+			}
+		}
+	}
 }
 
 void handle_inventry_menu()//3DF44, 3E398
@@ -789,9 +1008,11 @@ void handle_inventry_menu()//3DF44, 3E398
 	S_Warn("[handle_inventry_menu] - Unimplemented!\n");
 }
 
-void handle_object_changeover(int ringnum)//3DF18, 3E36C
+void handle_object_changeover(int ringnum)//3DF18, 3E36C (F)
 {
-	S_Warn("[handle_object_changeover] - Unimplemented!\n");
+	current_selected_option = 0;
+	menu_active = 1;
+	setup_ammo_selector();
 }
 
 void draw_current_object_list(int ringnum)//3D350, 3D7A4
@@ -799,13 +1020,141 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 	S_Warn("[draw_current_object_list] - Unimplemented!\n");
 }
 
-void insert_object_into_list(int num)//3D2C4, 3D718
+void insert_object_into_list(int num)//3D2C4(<), 3D718(<) (F)
 {
-	S_Warn("[insert_object_into_list] - Unimplemented!\n");
+	rings[0]->current_object_list[rings[0]->numobjectsinlist].invitem = num;
+	rings[0]->current_object_list[rings[0]->numobjectsinlist].yrot = 0;
+	rings[0]->current_object_list[rings[0]->numobjectsinlist].bright = 32;
+	rings[0]->numobjectsinlist++;
 }
 
 void construct_object_list()//3CC80, 3D0D4
 {
+	rings[0]->numobjectsinlist = 0;
+	for(int i = 0; i < 100; i++)
+	{
+		rings[0]->current_object_list[i].invitem = -1;
+	}
+
+	CurrentPistolsAmmoType = 0;
+	CurrentUziAmmoType = 0;
+	CurrentRevolverAmmoType = 0;
+	CurrentShotGunAmmoType = 0;
+	CurrentGrenadeGunAmmoType = 0;
+	CurrentCrossBowAmmoType = 0;
+
+	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA))
+	{
+		if (lara.pistols_type_carried & 1)
+			insert_object_into_list(1);
+
+		if (lara.uzis_type_carried & 1)
+		{
+			insert_object_into_list(0);
+		}
+		else if (AmountUziAmmo)
+		{
+			insert_object_into_list(18);
+		}
+
+		if (lara.sixshooter_type_carried & 1)
+		{
+			if (lara.sixshooter_type_carried & 4)
+				insert_object_into_list(4);
+			else
+				insert_object_into_list(3);
+		}
+		else if (AmountRevolverAmmo)
+		{
+			insert_object_into_list(17);
+		}
+
+		if (lara.shotgun_type_carried & 1)
+		{
+			insert_object_into_list(2);
+			if (lara.shotgun_type_carried & 0x10)
+				CurrentShotGunAmmoType = 1;
+		}
+		else
+		{
+			if (AmountShotGunAmmo1)
+				insert_object_into_list(9);
+			if (AmountShotGunAmmo2)
+				insert_object_into_list(10);
+		}
+
+		if (lara.hk_type_carried & 1)
+		{
+			if (lara.hk_type_carried & 2)
+				insert_object_into_list(8);
+			else
+				insert_object_into_list(7);
+
+			if (lara.hk_type_carried & 0x10)
+			{
+				CurrentGrenadeGunAmmoType = 1;
+			}
+			else if (lara.hk_type_carried & 0x20)
+			{
+				CurrentGrenadeGunAmmoType = 2;
+			}
+		}
+		else if (AmountHKAmmo1)
+		{
+			insert_object_into_list(14);
+		}
+
+		if (lara.crossbow_type_carried & 1)
+		{
+			if (gfCurrentLevel < 0xBu || gfCurrentLevel > 0xEu)
+			{
+				if (lara.crossbow_type_carried & 4)
+					insert_object_into_list(6);
+				else
+					insert_object_into_list(5);
+
+				if (lara.crossbow_type_carried & 0x10)
+					CurrentCrossBowAmmoType = 1;
+			}
+			else
+			{
+				insert_object_into_list(95);
+				CurrentCrossBowAmmoType = 0;
+			}
+		}
+		else if (gfCurrentLevel < 0xBu || gfCurrentLevel > 0xEu)
+		{
+			if (AmountCrossBowAmmo1)
+				insert_object_into_list(15);
+
+			if (AmountCrossBowAmmo2)
+				insert_object_into_list(16);
+		}
+		else if (AmountCrossBowAmmo1)
+		{
+			insert_object_into_list(96);
+		}
+
+		if (lara.lasersight)
+			insert_object_into_list(20);
+
+		if (lara.silencer)
+			insert_object_into_list(21);
+
+		if (lara.binoculars)
+			insert_object_into_list(24);
+
+		if (lara.num_flares)
+			insert_object_into_list(25);
+	}
+	insert_object_into_list(26);
+	if (lara.num_small_medipack)
+		insert_object_into_list(23);
+	if (lara.num_large_medipack)
+		insert_object_into_list(22);
+	if (lara.crowbar)
+		insert_object_into_list(90);
+
 	S_Warn("[construct_object_list] - Unimplemented!\n");
 }
 
