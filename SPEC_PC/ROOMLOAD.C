@@ -1774,7 +1774,7 @@ void sub_4BA100()
 	S_Warn("[sub_4BA100] - Unimplemented!\n");
 }
 
-void sub_4D3D90(_DWORD *a1, _DWORD *a2)
+void sub_4D3D90(int *a1, int *a2)
 {
 	*a1 = dword_D9BB8C;
 	*a2 = dword_D9BB88;
@@ -1790,10 +1790,21 @@ void sub_4ACAB0()
 	{
 		DDSURFACEDESC2 surf;
 		memset(&surf, 0, sizeof(surf));
+		surf.dwSize = 124;
 		surf_screen->lpVtbl->Lock(surf_screen, NULL, &surf, DDLOCK_WAIT | DDLOCK_NOSYSLOCK, NULL);
 
+		int w, h;
+		sub_4D3D90(&w, &h);
 
+		S_Warn("[sub_4ACAB0] - Unimplemented condition!\n");
+
+		surf_screen->lpVtbl->Unlock(surf_screen, NULL);
 	}
+}
+
+void sub_4BA090(signed int a1, float **a2)
+{
+	S_Warn("[sub_4BA090] - Unimplemented!\n");
 }
 
 void S_LoadLevelFile(int Name)
@@ -1828,6 +1839,8 @@ void S_LoadLevelFile(int Name)
 		ptr_BeginScene();
 		sub_49D220();
 		sub_4BA100();
+		sub_4ACAB0();
+		//sub_4BA090();
 	}
 
 	S_Warn("[S_LoadLevelFile] - Unimplemented!\n");
