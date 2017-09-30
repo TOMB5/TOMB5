@@ -51,9 +51,23 @@ int MoveCreature3DPos(struct PHD_3DPOS* srcpos, struct PHD_3DPOS* destpos, int v
 	return 0;
 }
 
-void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)
+void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)//25738(<), ?
 {
-	S_Warn("[CreatureYRot] - Unimplemented!\n");
+	if (angadd < angle)
+	{
+		srcpos->y_rot += angadd;
+		return;
+	}//0x25768
+
+	if (angle < -angadd)
+	{
+		srcpos->y_rot -= angadd;
+		return;
+	}//0x25788
+
+	srcpos->y_rot += angle;
+
+	return;
 }
 
 short SameZone(struct creature_info* creature, struct ITEM_INFO* target_item)//255F8(<), ?
