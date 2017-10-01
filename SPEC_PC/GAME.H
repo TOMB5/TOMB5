@@ -10,5 +10,6 @@ extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
 extern void GameClose();
 extern char GameInitialise();
 extern unsigned __stdcall GameMain(void* data);
+extern void sub_4D3150();
 
 #endif

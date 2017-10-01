@@ -31,6 +31,10 @@
 
 #define TEXTURE_PAGE (256 * 256)
 
+#ifndef CLAMP
+#define CLAMP(x, a, b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
+#endif
+
 // 4 enums
 enum mood_type
 {

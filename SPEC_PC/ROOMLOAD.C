@@ -1807,10 +1807,6 @@ void sub_4BA090(signed int a1, float **a2)
 	S_Warn("[sub_4BA090] - Unimplemented!\n");
 }
 
-void sub_4D3150()
-{
-	;
-}
 
 void S_LoadLevelFile(int Name)
 {
@@ -1848,7 +1844,7 @@ void S_LoadLevelFile(int Name)
 		//sub_4BA090();
 
 
-		sub_4D3150()
+		sub_4D3150();
 	}
 
 	S_Warn("[S_LoadLevelFile] - Unimplemented!\n");

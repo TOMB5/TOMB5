@@ -10,6 +10,8 @@
 #include "CD.H"
 #include "LARA2GUN.H"
 #include "LARA1GUN.H"
+#include "../SPEC_PSX/PSXINPUT.H"
+#include "EFFECTS.H"
 
 enum invobj_types // update this whenever inventry_objects_list is modified
 {
@@ -360,17 +362,40 @@ void S_DrawPickup(short object_number)//41608, 41A5C
 
 void dels_give_lara_guns_cheat()//41470, 418C4
 {
+#if PC_VERSION
+	; // null sub
+#else
 	S_Warn("[dels_give_lara_guns_cheat] - Unimplemented!\n");
+#endif
 }
 
 void dels_give_lara_items_cheat()//41324, 41778
 {
+#if PC_VERSION
+	; // null sub
+#else
 	S_Warn("[dels_give_lara_items_cheat] - Unimplemented!\n");
+#endif
 }
 
 void do_stats_mode()//412BC, 41710
 {
+#if PC_VERSION
+	stats_mode += 8;
+	if (stats_mode > 0x80)
+		stats_mode = 0x80;
+
+	DisplayStatusUCunt();
+
+	if (go_deselect)
+	{
+		SoundEffect(0x6D, 0, 2);
+		go_deselect = 0;
+		stats_mode = 0;
+	}
+#else
 	S_Warn("[do_stats_mode] - Unimplemented!\n");
+#endif
 }
 
 void do_examine_mode()//411C4, 41618
@@ -902,8 +927,42 @@ void update_laras_weapons_status()//3F13C, 3F590
 	S_Warn("[update_laras_weapons_status] - Unimplemented!\n");
 }
 
-void spinback(unsigned short* cock)//3F094, 3F4E8
+void spinback(unsigned short* cock)//3F094, 3F4E8 (F)
 {
+	unsigned short val = *cock;
+	unsigned short val2;
+	if (val)
+	{
+		if (val <= ANGLE(180))
+		{
+			if (val < ANGLE(5))
+				val = ANGLE(5);
+
+			if (val > ANGLE(90))
+				val = ANGLE(90);
+
+			val2 = val - (val >> 3);
+
+			if (val2 > ANGLE(180))
+				val2 = ANGLE(0);
+		}
+		else
+		{
+			if (-(short)val < ANGLE(5))
+				val = ANGLE(5);
+
+			if (-(short)val > ANGLE(90))
+				val = ANGLE(90);
+
+			val2 = ((unsigned short)-(short)val >> 3) + val;
+
+			if (val2 < ANGLE(180))
+				val2 = ANGLE(0);
+		}
+
+		*cock = val2;
+	}
+
 	S_Warn("[spinback] - Unimplemented!\n");
 }
 
@@ -1188,9 +1247,100 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	S_Warn("[DrawThreeDeeObject2D] - Unimplemented!\n");
 }
 
-void do_debounced_joystick_poo()//3C224, 3C678
+void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 {
-	S_Warn("[do_debounced_joystick_poo] - Unimplemented!\n");
+	go_left = 0;
+	go_right = 0;
+	go_up = 0;
+	go_down = 0;
+	go_select = 0;
+	go_deselect = 0;
+
+	if (input & IN_LEFT)
+	{
+		if (left_repeat >= 8u)
+			go_left = 1;
+		else
+			++left_repeat;
+		if (!left_debounce)
+			go_left = 1;
+		left_debounce = 1;
+	}
+	else
+	{
+		left_debounce = 0;
+		left_repeat = 0;
+	}
+
+	if (input & IN_RIGHT)
+	{
+		if (right_repeat >= 8u)
+			go_right = 1;
+		else
+			++right_repeat;
+		if (!right_debounce)
+			go_right = 1;
+		right_debounce = 1;
+	}
+	else
+	{
+		right_debounce = 0;
+		right_repeat = 0;
+	}
+
+	if (input & IN_UP)
+	{
+		if (!up_debounce)
+			go_up = 1;
+		up_debounce = 1;
+	}
+	else
+	{
+		up_debounce = 0;
+	}
+
+	if (input & IN_DOWN)
+	{
+		if (!down_debounce)
+			go_down = 1;
+		down_debounce = 1;
+	}
+	else
+	{
+		down_debounce = 0;
+	}
+
+#if PC_VERSION
+	if (input & IN_ACTION || input & IN_UNK20)
+#else
+	if (input & IN_JUMP)
+#endif
+	{
+		select_debounce = 1;
+	}
+	else
+	{
+		if (select_debounce == 1 && !friggrimmer)
+			go_select = 1;
+		select_debounce = 0;
+		friggrimmer = 0;
+	}
+
+#if PC_VERSION
+	if (input & IN_UNK21)
+#else
+	if (input & IN_DRAW)
+#endif
+	{
+		deselect_debounce = 1;
+	}
+	else
+	{
+		if (deselect_debounce == 1 && !friggrimmer2)
+			go_deselect = 1;
+		deselect_debounce = 0;
+		friggrimmer2 = 0;
+	}
 }
 
 void init_new_inventry()//3C024, 3C478

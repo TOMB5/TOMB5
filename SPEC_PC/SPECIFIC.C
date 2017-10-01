@@ -237,3 +237,8 @@ char __cdecl Decompress(void* buf, void* compressed, int compSize, int uncompSiz
 	S_Warn("[Decompress] - Unimplemented!\n");
 	return 0;
 }
+
+void DisplayStatusUCunt()
+{
+	S_Warn("[DisplayStatusUCunt] - Unimplemented!\n");
+}
