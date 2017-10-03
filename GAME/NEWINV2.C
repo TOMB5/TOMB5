@@ -399,7 +399,7 @@ void S_DrawPickup(short object_number)//41608, 41A5C
 	S_Warn("[S_DrawPickup] - Unimplemented!\n");
 }
 
-void dels_give_lara_guns_cheat()//41470, 418C4
+void dels_give_lara_guns_cheat()//41470, 418C4 (F)
 {
 #if PC_VERSION
 	; // null sub
@@ -465,7 +465,7 @@ void dels_give_lara_guns_cheat()//41470, 418C4
 #endif
 }
 
-void dels_give_lara_items_cheat()//41324, 41778
+void dels_give_lara_items_cheat()//41324, 41778 (F)
 {
 #if PC_VERSION
 	; // null sub
@@ -517,7 +517,6 @@ void dels_give_lara_items_cheat()//41324, 41778
 
 void do_stats_mode()//412BC, 41710
 {
-#if PC_VERSION
 	stats_mode += 8;
 	if (stats_mode > 0x80)
 		stats_mode = 0x80;
@@ -530,9 +529,6 @@ void do_stats_mode()//412BC, 41710
 		go_deselect = 0;
 		stats_mode = 0;
 	}
-#else
-	S_Warn("[do_stats_mode] - Unimplemented!\n");
-#endif
 }
 
 void do_examine_mode()//411C4, 41618
@@ -575,9 +571,32 @@ int convert_obj_to_invobj(short obj)//40AC4(<), 40F18() (F)
 	return 27;
 }
 
-void remove_inventory_item(short object_number)//4097C, 40DD0
+void remove_inventory_item(short object_number)//4097C, 40DD0 (F)
 {
-	S_Warn("[remove_inventory_item] - Unimplemented!\n");
+	if (object_number >= PICKUP_ITEM1 && object_number <= PICKUP_ITEM3)
+	{
+		lara.pickupitems &= ~(1 << (object_number - PICKUP_ITEM1));
+	}
+	else if (object_number >= PICKUP_ITEM1_COMBO1 && object_number <= PICKUP_ITEM4_COMBO2)
+	{
+		lara.pickupitemscombo &= ~(1 << (object_number - PICKUP_ITEM1_COMBO1));
+	}
+	else if (object_number >= KEY_ITEM1 && object_number <= KEY_ITEM8)
+	{
+		lara.keyitems &= ~(1 << (object_number - KEY_ITEM1));
+	}
+	else if (object_number >= KEY_ITEM1_COMBO1 && object_number <= KEY_ITEM8_COMBO2)
+	{
+		lara.keyitemscombo &= ~(1 << (object_number - KEY_ITEM1_COMBO1));
+	}
+	else if (object_number >= PUZZLE_ITEM1 && object_number <= PUZZLE_ITEM8)
+	{
+		lara.puzzleitems[object_number - PUZZLE_ITEM1]--;
+	}
+	else if (object_number >= PUZZLE_ITEM1_COMBO1 && object_number <= PUZZLE_ITEM8_COMBO2)
+	{
+		lara.puzzleitemscombo &= ~(1 << (object_number - PUZZLE_ITEM1_COMBO1));
+	}
 }
 
 int have_i_got_object(short object_number)//4086C, 40CC0 (F)
@@ -620,7 +639,102 @@ int have_i_got_object(short object_number)//4086C, 40CC0 (F)
 
 void NailInvItem(short objnum)//40584, 409D8
 {
-	S_Warn("[NailInvItem] - Unimplemented!\n");
+	switch (objnum)
+	{
+	case UZI_ITEM:
+		lara.uzis_type_carried = 0;
+		lara.num_uzi_ammo = 0;
+		break;
+	case PISTOLS_ITEM:
+		lara.holster = 13;
+		lara.pistols_type_carried = 0;
+		lara.gun_status = 0;
+		lara.last_gun_type = 0;
+		lara.gun_type = 0;
+		lara.request_gun_type = 0;
+		break;
+	case SHOTGUN_ITEM:
+		lara.shotgun_type_carried = 0;
+		lara.num_shotgun_ammo1 = 0;
+		break;
+	case REVOLVER_ITEM:
+		lara.sixshooter_type_carried = 0;
+		lara.num_revolver_ammo = 0;
+		break;
+	case CROSSBOW_ITEM:
+		lara.crossbow_type_carried = 0;
+		lara.num_crossbow_ammo1 = 0;
+		break;
+	case HK_ITEM:
+		lara.hk_type_carried = 0;
+		lara.num_hk_ammo1 = 0;
+		break;
+	case FLARE_INV_ITEM:
+		lara.num_flares = 0;
+		break;
+	case SILENCER_ITEM:
+		lara.silencer = 0;
+		break;
+	case LASERSIGHT_ITEM:
+		lara.lasersight = 0;
+		break;
+	case BIGMEDI_ITEM:
+		lara.num_large_medipack = 0;
+		break;
+	case SMALLMEDI_ITEM:
+		lara.num_small_medipack = 0;
+		break;
+	case BINOCULARS_ITEM:
+		lara.binoculars = 0;
+		break;
+	case CROWBAR_ITEM:
+		lara.crowbar = 0;
+		break;
+	case EXAMINE1:
+		lara.examine1 = 0;
+		break;
+	case EXAMINE2:
+		lara.examine2 = 0;
+		break;
+	case EXAMINE3:
+		lara.examine3 = 0;
+		break;
+	case WET_CLOTH:
+		lara.wetcloth = 0;
+		break;
+	case CLOTH:
+		lara.wetcloth = 0;
+		break;
+	case BOTTLE:
+		lara.bottle = 0;
+		break;
+	default:
+		if (objnum >= PICKUP_ITEM1 && objnum <= PICKUP_ITEM3)
+		{
+			lara.pickupitems &= ~(1 << (objnum - PICKUP_ITEM1));
+		}
+		else if (objnum >= PICKUP_ITEM1_COMBO1 && objnum <= PICKUP_ITEM4_COMBO2)
+		{
+			lara.pickupitemscombo &= ~(1 << (objnum - PICKUP_ITEM1_COMBO1));
+		}
+		else if (objnum >= KEY_ITEM1 && objnum <= KEY_ITEM8)
+		{
+			lara.keyitems &= ~(1 << (objnum - KEY_ITEM1));
+		}
+		else if (objnum >= KEY_ITEM1_COMBO1 && objnum <= KEY_ITEM8_COMBO2)
+		{
+			lara.keyitemscombo &= ~(1 << (objnum - KEY_ITEM1_COMBO1));
+		}
+		else if (objnum >= PUZZLE_ITEM1 && objnum <= PUZZLE_ITEM8)
+		{
+			lara.puzzleitems[objnum - PUZZLE_ITEM1] = 0;
+		}
+		else if (objnum >= PUZZLE_ITEM1_COMBO1 && objnum <= PUZZLE_ITEM8_COMBO2)
+		{
+			lara.puzzleitemscombo &= ~(1 << (objnum - PUZZLE_ITEM1_COMBO1));
+		}
+		break;
+	}
 }
 
 void DEL_picked_up_object(short objnum)//3FEB0, 40304
@@ -1072,12 +1186,34 @@ void combine_HK_SILENCER(int flag)//3F4C0(<), 3F914(<) (F)
 
 void seperate_object(short obj)//3F424, 3F878
 {
-	S_Warn("[seperate_object] - Unimplemented!\n");
+	int n;
+
+	for (n = 0; n < 24; n++)
+	{
+		if (dels_handy_combine_table[n].combined_item == obj)
+			break;
+	}
+
+	dels_handy_combine_table[n].combine_routine(1);
+	construct_object_list();
+	setup_objectlist_startposition(dels_handy_combine_table[n].item1);
 }
 
 void combine_these_two_objects(short obj1, short obj2)//3F348, 3F79C
 {
-	S_Warn("[combine_these_two_objects] - Unimplemented!\n");
+	int n;
+
+	for(n = 0; n < 24; n++)
+	{
+		if (dels_handy_combine_table[n].item1 == obj1 &&
+			dels_handy_combine_table[n].item2 == obj2)
+			break;
+	}
+
+	dels_handy_combine_table[n].combine_routine(0);
+	construct_object_list();
+	setup_objectlist_startposition(dels_handy_combine_table[n].combined_item);
+	handle_object_changeover(0);
 }
 
 int do_these_objects_combine(int obj1, int obj2)//3F2DC, 3F730
