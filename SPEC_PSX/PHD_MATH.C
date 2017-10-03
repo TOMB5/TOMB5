@@ -60,6 +60,8 @@ void mPushUnitMatrix()
 
 void mLoadMatrix(struct MATRIX3D* m)
 {
+	gte_SetRotMatrix(m);
+	gte_SetTransMatrix(m);
 	return;
 }
 
