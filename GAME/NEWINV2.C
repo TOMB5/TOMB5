@@ -360,7 +360,7 @@ void do_playstation_button_prompts_v1()//416E0, 41B34
 {
 	if (examine_mode)
 	{
-		auto i = rings[0]->current_object_list[rings[0]->curobjinlist].invitem;
+		//auto i = rings[0]->current_object_list[rings[0]->curobjinlist].invitem;
 		// to be continued
 	}
 	else
