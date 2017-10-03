@@ -462,7 +462,6 @@ void dels_give_lara_guns_cheat()//41470, 418C4
 			lara.silencer = 1;
 		}
 	}
-	S_Warn("[dels_give_lara_guns_cheat] - Unimplemented!\n");
 #endif
 }
 
@@ -471,7 +470,48 @@ void dels_give_lara_items_cheat()//41324, 41778
 #if PC_VERSION
 	; // null sub
 #else
-	S_Warn("[dels_give_lara_items_cheat] - Unimplemented!\n");
+	if(objects[CROWBAR_ITEM].loaded)
+	{
+		lara.crowbar = 1;
+	}
+
+	for(int i = 0; i < 8; i++)
+	{
+		if(objects[PUZZLE_ITEM1 + i].loaded)
+		{
+			lara.puzzleitems[i] = 1;
+		}
+	}
+
+	for(int i = 0; i < 8; i++)
+	{
+		if(objects[KEY_ITEM1 + i].loaded)
+		{
+			lara.keyitems |= 1 << i;
+		}
+	}
+
+	for(int i = 0; i < 4; i++)
+	{
+		if(objects[PICKUP_ITEM1 + i].loaded)
+		{
+			lara.pickupitems |= 1 << i;
+		}
+	}
+
+	lara.puzzleitemscombo = 0;
+	lara.keyitemscombo = 0;
+	lara.pickupitemscombo = 0;
+
+	if(gfCurrentLevel == LVL5_SUBMARINE)
+	{
+		lara.puzzleitems[0] = 0;
+	}
+
+	if(gfCurrentLevel == LVL5_OLD_MILL)
+	{
+		lara.puzzleitems[2] = 0;
+	}
 #endif
 }
 
