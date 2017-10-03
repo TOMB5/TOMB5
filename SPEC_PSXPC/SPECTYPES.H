@@ -1,6 +1,8 @@
 #ifndef SPECTYPES_H
 #define SPECTYPES_H
 
+#define INPUT_H "PSXPCINPUT.H"
+
 #include "TYPES.H"
 
 #include <sys/types.h>

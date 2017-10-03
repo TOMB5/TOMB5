@@ -10,7 +10,7 @@
 #include "CD.H"
 #include "LARA2GUN.H"
 #include "LARA1GUN.H"
-#include "../SPEC_PSX/PSXINPUT.H"
+#include INPUT_H
 #include "EFFECTS.H"
 #include "CAMERA.H"
 
@@ -353,6 +353,39 @@ struct MENUTHANG current_options[3]; // offset 0xA3740
 
 void do_playstation_button_prompts_v1()//416E0, 41B34
 {
+	if (examine_mode)
+	{
+		auto i = rings[0]->current_object_list[rings[0]->curobjinlist].invitem;
+		// to be continued
+	}
+	else
+	{
+		if (stats_mode)
+		{
+			
+		}
+		else
+		{
+			if (ammo_active)
+			{
+				
+			}
+			else
+			{
+				if (GLOBAL_invkeypadmode)
+				{
+					
+				}
+				else
+				{
+					if(rings[1]->ringactive)
+					{
+						
+					}
+				}
+			}
+		}
+	}
 	S_Warn("[do_playstation_button_prompts_v1] - Unimplemented!\n");
 }
 
@@ -363,9 +396,10 @@ void S_DrawPickup(short object_number)//41608, 41A5C
 
 void dels_give_lara_guns_cheat()//41470, 418C4
 {
-#if PC_VERSION
+#if !PC_VERSION
 	; // null sub
 #else
+	//objects[FLARE_INV_ITEM]
 	S_Warn("[dels_give_lara_guns_cheat] - Unimplemented!\n");
 #endif
 }

@@ -22,11 +22,7 @@
 #endif
 #include "NEWINV2.H"
 #include "PICKUP.H"
-#if PSXPC_VERSION
-#include "PSXPCINPUT.H"
-#elif PSX_VERSION
-#include "PSXINPUT.H"
-#endif
+#include INPUT_H
 #include "ROOMLOAD.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "SETUP.H"
