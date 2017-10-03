@@ -193,17 +193,14 @@ void LoadGameflow()//102E0, 102B0
 	unsigned char op;
 
 #if PSX_VERSION || PSXPC_VERSION
-	FILE_Length(GF_SCRIPT_FILENAME);
+	len = FILE_Length(GF_SCRIPT_FILENAME);
 	s = game_malloc(len);
-#else
-	LoadFile(GF_SCRIPT_FILENAME, &s);
+	FILE_Load(GF_SCRIPT_FILENAME, s);
 #endif
 
-
 #if PC_VERSION
+	LoadFile(GF_SCRIPT_FILENAME, &s);
 	gfScriptFile = s;
-#else
-	FILE_Load(GF_SCRIPT_FILENAME, s);
 #endif
 
 	Gameflow = (struct GAMEFLOW*)s;
