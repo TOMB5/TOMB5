@@ -4,13 +4,7 @@
 #include "DRAW.H"
 #include "LARA.H"
 
-#if PC_VERSION
-	#include "PCINPUT.H"	
-#elif PSXPC_VERSION
-	#include "PSXPCINPUT.H"
-#elif PSX_VERSION
-	#include "PSXINPUT.H"
-#endif
+#include INPUT_H
 
 #include "SPECIFIC.H"
 #include "COLLIDE.H"

@@ -3,13 +3,7 @@
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "LARA.H"
-#if PSXPC_VERSION
-#include "PSXPCINPUT.H"
-#elif PSX_VERSION
-#include "PSXINPUT.H"
-#elif PC_VERSION
-#include "PCINPUT.H"
-#endif
+#include INPUT_H
 #include "SPECIFIC.H"
 
 short GetClimbTrigger(long x, long y, long z, short room_number)//46E38, 4729C

@@ -18,11 +18,7 @@
 #include "ITEMS.H"
 #include "MALLOC.H"
 #include "NEWINV2.H"
-#if PSXPC_VERSION
-	#include "PSXPCINPUT.H"
-#elif PSX_VERSION
-	#include "PSXINPUT.H"
-#endif
+#include INPUT_H
 #include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"

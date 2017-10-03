@@ -6,13 +6,7 @@
 #include "EFFECTS.H"
 #include "COLLIDE.H"
 #include "DRAW.H"
-#if PSXPC_VERSION
-#include "PSXPCINPUT.H"
-#elif PSX_VERSION
-#include "PSXINPUT.H"
-#elif PC_VERSION
-#include "PCINPUT.H"
-#endif
+#include INPUT_H
 
 static short LeftClimbTab[4] = // offset 0xA0638
 {
