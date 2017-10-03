@@ -538,7 +538,7 @@ void CalculateSpotCams()//
 	{
 		CameraFade = current_spline_camera;
 
-		if (gfCurrentLevel != 0)
+		if (gfCurrentLevel != LVL5_TITLE)
 		{
 			ScreenFadedOut = 0;
 			ScreenFade = 255;
@@ -550,7 +550,7 @@ void CalculateSpotCams()//
 	//loc_38084
 	if (SpotCam[current_spline_camera].flags & SCF_SCREEN_FADE_OUT && CameraFade != current_spline_camera)
 	{
-		if (gfCurrentLevel != 0)
+		if (gfCurrentLevel != LVL5_TITLE)
 		{
 			ScreenFadedOut = 0;
 			ScreenFade = 0;

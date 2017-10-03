@@ -181,7 +181,7 @@ void LoadItems()
 			struct FLOOR_INFO* floor = &room[r].floor[sec];
 
 			if (!(boxes[floor->box].overlap_index & 0x4000)
-				&& !(gfCurrentLevel == 4 && (r == 19 || r == 23 || r == 16)))
+				&& !(gfCurrentLevel == LVL5_BASE && (r == 19 || r == 23 || r == 16)))
 			{
 				int fl = floor->floor << 2;
 				struct static_info* st = &static_objects[mesh->static_number];
@@ -1649,10 +1649,10 @@ void LoadLevel(const char* filename)
 		SetFadeClip(0, 1);
 		sub_4779E0();
 
-		if (gfCurrentLevel == 1)
+		if (gfCurrentLevel == LVL5_STREETS_OF_ROME)
 			find_a_fucking_item(ANIMATING10)->mesh_bits = 11;
 
-		if (gfCurrentLevel == 10)
+		if (gfCurrentLevel == LVL5_OLD_MILL)
 			find_a_fucking_item(ANIMATING16)->mesh_bits = 1;
 
 		if (objects[MONITOR_SCREEN].loaded)

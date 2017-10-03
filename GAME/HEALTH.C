@@ -25,7 +25,7 @@ void AddDisplayPickup(short object_number)//3B6F4, ?
 
 
 	//a1 = gfCurrentLevel
-	if (gfCurrentLevel == 5)
+	if (gfCurrentLevel == LVL5_SUBMARINE)
 	{
 
 	}//loc_3B728

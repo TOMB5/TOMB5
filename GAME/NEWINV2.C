@@ -13,6 +13,11 @@
 #include INPUT_H
 #include "EFFECTS.H"
 #include "CAMERA.H"
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
 
 enum invobj_types // update this whenever inventry_objects_list is modified
 {
@@ -396,10 +401,67 @@ void S_DrawPickup(short object_number)//41608, 41A5C
 
 void dels_give_lara_guns_cheat()//41470, 418C4
 {
-#if !PC_VERSION
+#if PC_VERSION
 	; // null sub
 #else
-	//objects[FLARE_INV_ITEM]
+	if(objects[FLARE_INV_ITEM].loaded)
+	{
+		lara.num_flares = -1;
+	}
+
+	lara.num_small_medipack = -1;
+	lara.num_large_medipack = -1;
+
+	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA))
+	{
+		if (objects[PISTOLS_ITEM].loaded)
+		{
+			lara.num_shotgun_ammo1 = -1;
+			lara.num_shotgun_ammo2 = -1;
+			lara.shotgun_type_carried |= 1;
+		}
+
+		if (objects[REVOLVER_ITEM].loaded)
+		{
+			lara.num_revolver_ammo = -1;
+			lara.sixshooter_type_carried |= 1;
+		}
+
+		if (objects[CROSSBOW_ITEM].loaded)
+		{
+			lara.num_crossbow_ammo1 = -1;
+			lara.num_crossbow_ammo2 = -1;
+			lara.crossbow_type_carried |= 1;
+		}
+
+		if (gfCurrentLevel < LVL5_GIBBY_LEVEL)
+		{
+			lara.crossbow_type_carried = 0xD;
+			lara.num_crossbow_ammo2 = 0;
+		}
+
+		if (objects[HK_ITEM].loaded)
+		{
+			lara.num_hk_ammo1 = -1;
+			lara.hk_type_carried |= 1;
+		}
+
+		if(objects[UZI_ITEM].loaded)
+		{
+			lara.num_uzi_ammo = -1;
+			lara.uzis_type_carried |= 1;
+		}
+
+		if(objects[LASERSIGHT_ITEM].loaded)
+		{
+			lara.lasersight = 1;
+		}
+
+		if(objects[SILENCER_ITEM].loaded)
+		{
+			lara.silencer = 1;
+		}
+	}
 	S_Warn("[dels_give_lara_guns_cheat] - Unimplemented!\n");
 #endif
 }
@@ -561,18 +623,18 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		return;
 
 	case CROSSBOW_ITEM:
-		if (gfCurrentLevel < 11 || gfCurrentLevel > 14)
+		if (gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT)
+		{
+			lara.crossbow_type_carried = 13;
+			lara.num_crossbow_ammo2 = 0;
+		}
+		else
 		{
 			if (!(lara.crossbow_type_carried & 1))
 				lara.crossbow_type_carried = 9;
 
 			if (lara.num_crossbow_ammo1 != -1)
 				lara.num_crossbow_ammo1 += 10;
-		}
-		else
-		{
-			lara.crossbow_type_carried = 13;
-			lara.num_crossbow_ammo2 = 0;
 		}
 
 		return;
@@ -583,7 +645,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		if (!(lara.hk_type_carried & 1))
 			lara.hk_type_carried = 9;
 
-		if (gfCurrentLevel != 12)
+		if (gfCurrentLevel != LVL5_ESCAPE_WITH_THE_IRIS)
 			if (lara.num_hk_ammo1 != -1)
 				lara.num_hk_ammo1 += 30;
 
@@ -685,19 +747,19 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		++savegame.Level.Secrets;
 		++savegame.Game.Secrets;
 
-		if (gfCurrentLevel >= 11u && gfCurrentLevel <= 14u)
+		if (gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT)
 		{
 			++savegame.CampaignSecrets[3];
 		}
-		else if (gfCurrentLevel >= 4u && gfCurrentLevel <= 7u)
+		else if (gfCurrentLevel >= LVL5_BASE && gfCurrentLevel <= LVL5_SINKING_SUBMARINE)
 		{
 			++savegame.CampaignSecrets[2];
 		}
-		else if (gfCurrentLevel >= 1u && gfCurrentLevel <= 3u)
+		else if (gfCurrentLevel >= LVL5_STREETS_OF_ROME && gfCurrentLevel <= LVL5_COLOSSEUM)
 		{
 			++savegame.CampaignSecrets[0];
 		}
-		else if (gfCurrentLevel >= 8u && gfCurrentLevel <= 10u)
+		else if (gfCurrentLevel >= LVL5_GALLOWS_TREE && gfCurrentLevel <= LVL5_OLD_MILL)
 		{
 			++savegame.CampaignSecrets[1];
 		}
@@ -1272,7 +1334,12 @@ void construct_object_list()//3CC80, 3D0D4
 
 		if (lara.crossbow_type_carried & 1)
 		{
-			if (gfCurrentLevel < 0xBu || gfCurrentLevel > 0xEu)
+			if (gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT)
+			{
+				insert_object_into_list(INV_CROSSBOW_ITEM);
+				CurrentCrossBowAmmoType = 0;
+			}
+			else
 			{
 				if (lara.crossbow_type_carried & 4)
 					insert_object_into_list(INV_CROSSBOW_AMMO2_ITEM2);
@@ -1282,23 +1349,21 @@ void construct_object_list()//3CC80, 3D0D4
 				if (lara.crossbow_type_carried & 0x10)
 					CurrentCrossBowAmmoType = 1;
 			}
-			else
+		}
+		else if (gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT)
+		{
+			if (AmountCrossBowAmmo1)
 			{
-				insert_object_into_list(INV_CROSSBOW_ITEM);
-				CurrentCrossBowAmmoType = 0;
+				insert_object_into_list(INV_CROSSBOW_AMMO1_ITEM);
 			}
 		}
-		else if (gfCurrentLevel < 0xBu || gfCurrentLevel > 0xEu)
+		else
 		{
 			if (AmountCrossBowAmmo1)
 				insert_object_into_list(INV_CROSSBOW_AMMO2_ITEM3);
 
 			if (AmountCrossBowAmmo2)
 				insert_object_into_list(INV_CROSSBOW_AMMO2_ITEM4);
-		}
-		else if (AmountCrossBowAmmo1)
-		{
-			insert_object_into_list(INV_CROSSBOW_AMMO1_ITEM);
 		}
 
 		if (lara.lasersight)

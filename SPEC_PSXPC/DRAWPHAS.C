@@ -211,7 +211,7 @@ long DrawPhaseGame()//63F04(<), 645E0(<)
 #if INTERNAL//GC change?
 	S_AnimateTextures(camera.number_frames);
 #else
-	if (gfCurrentLevel == 13)
+	if (gfCurrentLevel == LVL5_SECURITY_BREACH)
 	{
 		//v0 = $gp+11A4//Unknown! A39B8
 		//v0 += 1
