@@ -79,7 +79,7 @@ void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 			savegame.Lara.gun_status = 0;
 		}
 	}
-	memcpy(&lara, &savegame.Lara, sizeof(lara));
+	memcpy(&lara, &savegame.Lara, sizeof(struct lara_info));
 	lara.target = NULL;
 	lara.spaz_effect = NULL;
 	lara.right_arm.frame_base = (short*)((char*)lara.right_arm.frame_base + (unsigned int)objects[PISTOLS_ANIM].frame_base);

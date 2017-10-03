@@ -1763,7 +1763,7 @@ void joby4_control()//2FA0C, 2FD8C
 	int f = GLOBAL_cutseq_frame;
 	if (GLOBAL_cutseq_frame <= 130)
 	{
-		PrintString(256, 200, &gfStringWad[2]); // todo maybe wrong on pc
+		PrintString(256, 200, 0, &gfStringWad[2]); // todo maybe wrong on pc , @Gh0stBlade check third arg!
 	}
 	if (f == 575)
 	{

@@ -18,8 +18,19 @@ short PickupY = 0;
 short PickupVel = 0;
 short CurrentPickup = 0;
 
-void AddDisplayPickup(short object_number)
+void AddDisplayPickup(short object_number)//3B6F4, ?
 {
+	struct DISPLAYPU *pu; // $v1
+	long lp; // $a1
+
+
+	//a1 = gfCurrentLevel
+	if (gfCurrentLevel == 5)
+	{
+
+	}//loc_3B728
+
+	
 	S_Warn("[AddDisplayPickup] - Unimplemented!\n");
 }
 
@@ -66,7 +77,7 @@ void DrawGameInfo(int timed)///TODO jr ra retail
 	if (GLOBAL_playing_cutseq == 0 || bDisableLaraControl == 0)
 	{
 		sprintf(sbuf, "Room:%d X:%d Y:%d Z:%d", lara_item->room_number, (lara_item->pos.x_pos - room[lara_item->room_number].x) / SECTOR, (lara_item->pos.y_pos - room[lara_item->room_number].minfloor) / CLICK, (lara_item->pos.z_pos - room[lara_item->room_number].z) / SECTOR);
-		PrintString(256, 24, sbuf);
+		PrintString(256, 24, 0, sbuf);///@FIXME check arg 3
 
 		if (gfGameMode == 1)
 		{
@@ -99,9 +110,7 @@ int FlashIt()//3AD2C, 3B22C
 	static int flash_state;
 	static int flash_count;
 
-	flash_count--;
-
-	if (flash_count != 0)
+	if (--flash_count != 0)
 	{
 		flash_count = 5;
 		flash_state ^= 1;

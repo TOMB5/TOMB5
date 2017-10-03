@@ -4,7 +4,6 @@
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
-#include "MEMCARD.H"
 #include "PROFILE.H"
 #include "PSXINPUT.H"
 #include "SAVEGAME.H"
@@ -16,7 +15,6 @@
 #include <sys/types.h>
 #include <LIBAPI.H>
 #include <LIBCD.H>
-#include <LIBETC.H>
 #include <LIBGTE.H>
 #include <LIBGPU.H>
 #include <LIBPAD.H>
@@ -74,7 +72,7 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 	MemCardInit(1);
 
 	PadInitDirect(&GPad1.transStatus, &GPad2.transStatus);
-	PadSetAct(0, &Motors[0], 2);
+	PadSetAct(0, &Motors[0], sizeof(Motors));
 	PadStartCom();
 
 	CdInit();

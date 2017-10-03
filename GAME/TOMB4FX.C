@@ -322,3 +322,8 @@ void TriggerExplosionSparks(int x, int y, int z, int a4, int a5, int a6, short r
 {
 	S_Warn("[TriggerExplosionSparks] - Unimplemented!\n");
 }
+
+void Fade()
+{
+	S_Warn("[Fade] - Unimplemented!\n");
+}

@@ -6,6 +6,7 @@
 #include "LOT.H"
 #include "SPECIFIC.H"
 
+#include <assert.h>
 #include <stddef.h>
 
 int number_boxes;
@@ -51,9 +52,23 @@ int MoveCreature3DPos(struct PHD_3DPOS* srcpos, struct PHD_3DPOS* destpos, int v
 	return 0;
 }
 
-void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)
+void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)//25738(<), ?
 {
-	S_Warn("[CreatureYRot] - Unimplemented!\n");
+	if (angadd < angle)
+	{
+		srcpos->y_rot += angadd;
+		return;
+	}//0x25768
+
+	if (angle < -angadd)
+	{
+		srcpos->y_rot -= angadd;
+		return;
+	}//0x25788
+
+	srcpos->y_rot += angle;
+
+	return;
 }
 
 short SameZone(struct creature_info* creature, struct ITEM_INFO* target_item)//255F8(<), ?
@@ -85,10 +100,47 @@ void GetAITarget(struct creature_info* creature)
 	S_Warn("[GetAITarget] - Unimplemented!\n");
 }
 
-short AIGuard(struct creature_info* creature)
+short AIGuard(struct creature_info* creature)//24DF0(<), ?
 {
-	S_Warn("[AIGuard] - Unimplemented!\n");
-	return 0;
+	int random;
+
+	if (items[creature->item_num].ai_bits & 5)
+	{
+		return 0;
+	}
+
+	random = GetRandomControl();
+
+	if (random < 256)
+	{
+		creature->alerted = 1;
+		creature->head_left = 1;
+	}
+	else if (random < 284)
+	{
+		creature->head_left = 1;
+		creature->patrol2 = 0;
+	}
+	else if (random < 512)
+	{
+		creature->monkey_ahead = 0;
+		creature->head_right = 1;
+	}
+
+	//0x24E98
+	if (creature->alerted && creature->head_left)
+	{
+		return 0;
+	}
+	else if (creature->alerted)
+	{
+		//a0 = (*(int*)&creature->alerted)
+		//return (a0 << 12) & 0x4000;//???
+		assert(0);
+		return 0;
+	}//0x24EB4
+	
+	return -16384;
 }
 
 void AlertNearbyGuards(struct ITEM_INFO* item)//24D20(<), 24F2C(<)

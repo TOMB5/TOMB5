@@ -102,3 +102,15 @@ void RelocFunc_026()
 	S_Warn("[RelocFunc_026] - Unimplemented!\n");
 }
 
+long sub_1BE988()
+{
+	S_Warn("[sub_1BE988] - Unimplemented!\n");
+	return 0;
+}
+
+long sub_1BDF88(long levelID)
+{
+	S_Warn("[sub_1BDF88] - Unimplemented!\n");
+	return 0;
+}
+
