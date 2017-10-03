@@ -4,7 +4,9 @@
 #include "OBJECTS.H"
 #include "SPECTYPES.H"
 
+#if INTERNAL
 #include <stdio.h>
+#endif
 
 #ifndef PSX_FILE_VERSION
 	#define PSX_FILE_VERSION OBJECT_VERSION * -1
@@ -23,6 +25,19 @@ extern void sub_B84F0();
 extern void sub_B7E04();
 extern void InitialiseClosedDoors();
 extern void sub_B9DA8();
+extern void sub_B4A40();
+extern void InitialiseSqrtTable();
+extern void InitialiseAnimatedTextures();
+extern void InitialiseFootPrints();
+extern void InitialiseBinocularGraphics();
+extern void InitialiseTargetGraphics();
+extern void InitialiseFlipMaps();
+extern void sub_B4EE4(long keep_carried_items);
+extern void sub_B9974();
+extern void InitialiseCutseq();
+extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3);
+extern long sub_BA0DC(unsigned char a0);
+extern long sub_BA148(unsigned char a0);
 
 struct object_container
 {
@@ -132,7 +147,6 @@ struct Level
 	//0xE0
 	long unk57;
 };
-
 
 extern struct object_info* objects;
 extern struct static_info* static_objects;
