@@ -12,9 +12,6 @@ add_definitions(-DPC_VERSION)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${GAME_CODE_DIR})
 
-#Additional library include directories
-include_directories(${SDL2_INCLUDE_DIR})
-
 #Recursively locate the source files for SPEC_PC.
 file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAKE_CURRENT_SOURCE_DIR}/*.H ${CMAKE_CURRENT_SOURCE_DIR}/*.CUR ${CMAKE_CURRENT_SOURCE_DIR}/*.RC)
 
