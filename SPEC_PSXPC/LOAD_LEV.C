@@ -352,10 +352,10 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	int x = 0;
 	int y = 0;
 	unsigned long* tmpptr;
-	FILE* file;
 	unsigned short dat = 0;
 
 #if INTERNAL
+	FILE* file;
 	ProfileDraw = 0;
 #endif
 

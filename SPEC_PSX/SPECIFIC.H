@@ -24,5 +24,6 @@ extern void S_ExitSystem(char* exit_message);
 extern void S_Warn(char* warning_message);
 extern long S_DumpScreen();
 extern void S_control_screen_position();
+extern void S_AnimateTextures(long num_frames);
 
 #endif

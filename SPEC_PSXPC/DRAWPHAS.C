@@ -3,6 +3,7 @@
 #include "3D_GEN.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
+#include "DELSTUFF.H"
 #include "DRAW.H"
 #include "DRAWSPKS.H"
 #include "DOOR.H"
@@ -11,6 +12,7 @@
 #include "HEALTH.H"
 #include "LARA.H"
 #include "LOAD_LEV.H"
+#include "PHD_MATH.H"
 #include "PROFILE.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
@@ -27,7 +29,7 @@ unsigned char MonitorHold;
 short MonitorOff;
 short MonitorOff2;
 
-long DrawPhaseGame()//63F04, 645E0
+long DrawPhaseGame()//63F04(<), 645E0(<)
 {
 	short scalarx = 0; // $a3
 	short scalary = 0; // $t0
@@ -41,8 +43,6 @@ long DrawPhaseGame()//63F04, 645E0
 
 	mQuickW2VMatrix();
 
-	a1 = &lara;
-
 	if (lara.poisoned != lara.dpoisoned)
 	{
 		if (lara.dpoisoned > 4096)
@@ -50,14 +50,10 @@ long DrawPhaseGame()//63F04, 645E0
 			lara.dpoisoned = 4096;
 		}
 
-		//loc_63F44
-		lara.poisoned = ((lara.poisoned - lara.dpoisoned) >> 4) + lara.poisoned;
-
-		temp = ((lara.poisoned - lara.dpoisoned) >> 4);
-
+		temp = (lara.dpoisoned - lara.poisoned);
 		if (temp < 0)
 		{
-			temp = -temp;
+			temp = -(lara.dpoisoned - lara.poisoned);//temp @ a0
 		}
 
 		//loc_63F74
@@ -65,16 +61,20 @@ long DrawPhaseGame()//63F04, 645E0
 		{
 			lara.poisoned = lara.dpoisoned;
 		}
-
 	}
-	
-	//loc_63F88
-	a2 = &lara;
 
-	if (lara.poisoned > 255)
+	//loc_63F88
+	if (lara.poisoned < 256)
+	{
+		//loc_64088
+		scalary = 0;
+		scalarz = 0;
+		scalarx = 0;
+	}
+	else
 	{
 		a3 = rcossin_tbl[(((XSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((XSoff2 >> 2) & 0x3FFC) / sizeof(short))];
-/*
+		/*
 		short scalarx = 0; // $a3
 		short scalary = 0; // $t0
 		short scalarz = 0; // $t1
@@ -88,7 +88,7 @@ long DrawPhaseGame()//63F04, 645E0
 		a22 *= -256;
 
 		v1111111 = rcossin_tbl[(((ZSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((ZSoff2 >> 2) & 0x3FFC) / sizeof(short))];
-		v1111111 >>= 2;	
+		v1111111 >>= 2;
 		v1111111 *= -256;
 
 		a3 <<= 3;
@@ -97,13 +97,6 @@ long DrawPhaseGame()//63F04, 645E0
 		scalary = a22 >> 16;
 		v1111111 <<= 3;
 		scalarz = v1111111 >> 16;
-	}
-	else
-	{
-		//loc_64088
-		scalarx = 0;
-		scalary = 0;
-		scalarz = 0;
 	}
 
 	//loc_64090
@@ -122,40 +115,48 @@ long DrawPhaseGame()//63F04, 645E0
 	}
 
 	//loc_64130
-	if (scalarx == 0 && scalary == 0 && scalarz != 0)
+	if (scalarx == 0 && scalary == 0 && scalarz != 0 && GLOBAL_playing_cutseq == 0)
 	{
 		//loc_64148
 		if (GLOBAL_playing_cutseq == 0)
 		{
-			//ScaleCurrentMatrix(1, scalarx + 4096, scalary + 4096, scalarz + 4096);
+			ScaleCurrentMatrix(1, scalarx + 4096, scalary + 4096, scalarz + 4096);
 		}
 	}
 
 	//loc_6416C
-	//CalcLaraMatrices(0);
-	//mPushUnitMatrix();
-	//CalcLaraMatrices(1);
-	//mPopMatrix();
+	CalcLaraMatrices(0);
+	mPushUnitMatrix();
+	CalcLaraMatrices(1);
+	mPopMatrix();
 
 	if (GLOBAL_playing_cutseq != 0)
 	{
-		//frigup_lara();//frig af :lennyface:
+		frigup_lara();
 	}
 
 	//loc_641A8
-	//SetLaraUnderwaterNodes();
-	//Fade();
+	SetLaraUnderwaterNodes();
+	Fade();
 
-	if (SniperOverlay != 0)
+	if (BinocularRange == 0 && SCOverlay == 0 && SniperOverlay != 0)
 	{
-		//loc_641F4:
+		//loc_641F4
+		DrawBinoculars();
 
+		if (InfraRed)
+		{
+#if PSX_VERSION
+			DrawPsxTile(0, 0xF00200, 0x62202000, 2);//@a1 = 8bit window height 16bit window width
+			DrawPsxTile(0, 0xF00200, 0x62000020, 1);//@a1 = 8bit window height 16bit window width
+#endif
+		}
 	}
 
 	//loc_6424C
 	if (FlashFader != 0)
 	{
-		//DrawFlash();
+		DrawFlash();
 		FlashFader -= 2;
 	}
 
@@ -164,20 +165,70 @@ long DrawPhaseGame()//63F04, 645E0
 
 	if (WB_room != -1)
 	{
-		//SortOutWreckingBallDraw();
+		SortOutWreckingBallDraw();
 	}
 
 	//loc_642AC
 	DrawGameInfo(1);
 
+	if (BinocularRange == 0 || SniperOverlay == 0 && SCOverlay != 0)
+	{
+		//loc_642F0
+		if (LaserSight != 0 || SCOverlay != 0 && SniperOverlay != 0)
+		{
+			//loc_6432C
+#if PSX_VERSION
+			insert_psx_clip_window(0x64, 0x17, 0x138, 0xC4);
+#endif
+			if (SniperOverlay != 0)
+			{
+				MGDrawSprite(0x100, 0x78, 0xE, 0, 4, 4, 0x80);
+			}//loc_643C4
+		}
+		else
+		{
+#if PSX_VERSION
+			//loc_64380
+			insert_psx_clip_window(0x21, 0x17, 0x1C0, 0xC2);
+#endif
+		}
+	}
+	else
+	{
+		//loc_64398
+		if (FadeScreenHeight != 0)
+		{
+#if PSX_VERSION
+			insert_psx_clip_window(0, FadeScreenHeight, 0x200, 0xF0, FadeScreenHeight * 2);
+#endif
+		}//loc_643C4
+	}
+
 	//loc_643C4
 	GPU_EndScene();
-	//S_DumpScreen();
-	//camera.number_frames = v0;
-	//S_AnimateTextures(v0);
-	//FIXME return numFrames;
-	S_Warn("[DrawPhaseGame] - Unimplemented!\n");
-	return 2;//hack, retail returns 5, sub 61320
+	camera.number_frames = S_DumpScreen();
+
+#if INTERNAL//GC change?
+	S_AnimateTextures(camera.number_frames);
+#else
+	if (gfCurrentLevel == 13)
+	{
+		//v0 = $gp+11A4//Unknown! A39B8
+		//v0 += 1
+		//v0 &= 3;
+		//if(v0 == 0)
+		{
+			S_AnimateTextures(camera.number_frames);
+		}
+	}
+	else
+	{
+		S_AnimateTextures(camera.number_frames);
+	}
+
+#endif
+	
+	return camera.number_frames;
 }
 
 void DrawRooms(short current_room)//643FC, 64B1C
@@ -266,7 +317,7 @@ void SortOutWreckingBallDraw()//64E78(<), 65528(<)
 	}
 
 	//loc_64EBC
-	assert(0);
+	//assert(0);
 	//v1 = &RelocPtr[31];
 	//a0 = WB_Item
 	//a1 = v1[1];
@@ -275,10 +326,11 @@ void SortOutWreckingBallDraw()//64E78(<), 65528(<)
 	WB_room = -1;
 
 	//loc_64EE8
+	S_Warn("[SortOutWreckingBallDraw] - Unimplemented!\n");
 	return;
 }
 
-void MGDrawSprite(int x /*$a0*/, int y /*$a1*/, int def /*$a2*/, int z /*$a3*/, int xs /*stack 16*/, int ys /*stack 20*/, long rgb /*stack 24*/)//64EF8, 
+void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)//64EF8, 
 {
 	struct POLY_FT4* polyft4;//t0
 	struct PSXSPRITESTRUCT* pSpriteInfo;//a0
@@ -371,4 +423,14 @@ void mQuickW2VMatrix()//77AEC, 79B30
 void PrintString(long x, long y, long unk, char* string)
 {
 	printf("PrintString - X:%d Y:%d C:%d - %s\n", x, y, unk, string);
+}
+
+void DrawBinoculars()
+{
+	S_Warn("[DrawBinoculars] - Unimplemented!\n");
+}
+
+void DrawFlash()
+{
+	S_Warn("[DrawFlash] - Unimplemented!\n");
 }

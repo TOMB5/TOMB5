@@ -143,3 +143,8 @@ void S_control_screen_position()//6068C(<), 61204(<)
 	//loc_60784
 	GPU_SetScreenPosition(savegame.ScreenX, savegame.ScreenY);
 }
+
+void S_AnimateTextures(long num_frames)
+{
+	S_Warn("[S_AnimateTextures] - Unimplemented!\n");
+}

@@ -1991,3 +1991,7 @@ void AnimateLara(struct ITEM_INFO* item)
 	S_Warn("[AnimateLara] - Unimplemented!\n");
 }
 
+void SetLaraUnderwaterNodes()
+{
+	S_Warn("[SetLaraUnderwaterNodes] - Unimplemented!\n");
+}

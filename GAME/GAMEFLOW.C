@@ -618,9 +618,9 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 			if (PadConnected == 0)
 			{
 #if INTERNAL
-				PrintString(256, 128, 3, gfStringWad + gfStringOffset[221]);
+				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[221]]);
 #else
-				PrintString(256, 128, 3, gfStringWad + gfStringOffset[219]);
+				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[219]]);
 #endif
 			}
 #endif

@@ -53,5 +53,6 @@ extern void TriggerShatterSmoke(int x, int y, int z);
 extern void TriggerBlood(int x, int y, int z, int direction, int speed);
 extern void TriggerExplosionBubble(int x, int y, int z, short room_num);
 extern void TriggerExplosionSparks(int x, int y, int z, int a4, int a5, int a6, short room_no);
+extern void Fade();
 
 #endif
