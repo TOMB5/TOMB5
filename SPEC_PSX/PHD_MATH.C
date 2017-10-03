@@ -58,9 +58,14 @@ void mPushUnitMatrix()
 	S_Warn("[mPushUnitMatrix] - Unimplemented!\n");
 }
 
-void mPopMatrix()
+void mLoadMatrix(struct MATRIX3D* m)
 {
-	S_Warn("[mPopMatrix] - Unimplemented!\n");
+	return;
+}
+
+void mPopMatrix()//76520(<), (<)
+{
+	mLoadMatrix(--Matrix);
 }
 
 void mSetTrans(long x, long y, long z)//76AF4(<), 78B38(<) 
