@@ -3,25 +3,33 @@
 #include "3D_GEN.H"
 #include "BOX.H"
 #include "DELTAPAK.H"
+#include "DEBRIS.H"
+#include "DRAW.H"
 #include "DRAWPHAS.H"
 #include "EFFECTS.H"
 #include "EFFECT2.H"
+#if PC_VERSION
+	#include "GAME.H"
+#endif
 #include "GAMEFLOW.H"
+#if PSX_VERSION || PSXPC_VERSION
+#include "GPU.H"
+#endif
 #include "ITEMS.H"
-#include "NEWINV2.H"
 #include "LARA.H"
+#if PSX_VERSION || PSXPC_VERSION
+#include "LOAD_LEV.H"
+#endif
+#include "NEWINV2.H"
 #include "PICKUP.H"
 #if PSXPC_VERSION
 #include "PSXPCINPUT.H"
 #elif PSX_VERSION
 #include "PSXINPUT.H"
 #endif
-#ifdef PC_VERSION
-#include "GAME.H"
-#else
+#include "ROOMLOAD.H"
+#if PSX_VERSION || PSXPC_VERSION
 #include "SETUP.H"
-#include "GPU.H"
-#include "LOAD_LEV.H"
 #endif
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -30,10 +38,6 @@
 #include "TOMB4FX.H"
 
 #include <assert.h>
-#include "DRAW.H"
-#include "ROOMLOAD.H"
-#include "DEBRIS.H"
-#include "OBJECTS.H"
 
 int flipeffect = -1;
 int fliptimer;
@@ -394,7 +398,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		if (PadConnected != 0 && ScreenFading == 0)
 		{
 			///@TODO retail ver string offset index
-			PrintString(256, 230, &gfStringWad[gfStringOffset[176]]); //TODO IDA didn't dump me :-)
+			PrintString(256, 230, 0, &gfStringWad[gfStringOffset[176]]); //TODO IDA didn't dump me :-) ///@FIXME check arg 3
 		}
 
 		//loc_1D7A0

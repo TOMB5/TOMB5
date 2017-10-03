@@ -7,7 +7,7 @@ extern long DrawPhaseGame();
 extern void UpdateSky();
 extern void mQuickW2VMatrix();
 extern void DrawRooms(short current_room);
-extern void PrintString(long x, long y, char* string);
+extern void PrintString(long x, long y, long unk, char* string);
 
 extern long StoreBoxes;
 extern struct GAME_VECTOR LaraPos;

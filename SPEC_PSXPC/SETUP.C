@@ -920,7 +920,7 @@ void InitialiseSqrtTable()//?(<), B4D14(<)
 
 	for (i = 0; i < 1024; i++)
 	{
-		OurSqrt[i] = phd_sqrt_asm(i);
+		OurSqrt[i] = 0;// phd_sqrt_asm(i);
 	}
 
 	return;

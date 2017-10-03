@@ -5,18 +5,19 @@
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "DRAWSPKS.H"
+#include "DOOR.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "HEALTH.H"
 #include "LARA.H"
 #include "LOAD_LEV.H"
+#include "PROFILE.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
 
+#include <assert.h>
 #include <stdio.h>
-#include "DRAW.H"
-#include "GAMEFLOW.H"
 
 long StoreBoxes = -1;
 struct GAME_VECTOR LaraPos;
@@ -179,9 +180,117 @@ long DrawPhaseGame()//63F04, 645E0
 	return 2;//hack, retail returns 5, sub 61320
 }
 
-void DrawRooms(short current_room)
+void DrawRooms(short current_room)//643FC, 64B1C
 {
+	struct room_info* r; // $a0
+	{ // line 146, offset 0x649b8
+		short old_anim; // $t4
+		short old_frame; // $t5
+		short old_left_arm[2]; // stack offset -40
+		short old_right_arm[2]; // stack offset -32
+		short* old_arm_anim[2]; // stack offset -24
+	} // line 197, offset 0x64b40
+	{ // line 230, offset 0x64c24
+		struct GAME_VECTOR sp; // stack offset -40
+	} // line 264, offset 0x64d70
+
+#if INTERNAL
+	ProfileRGB(255, 255, 255);
+#endif
+
+	//v1 = 0x1FF;
+	CurrentRoom = current_room;
+	r = &room[current_room];
+	//a1 = r->flags;
+	//v0 = 0x1FF;
+	r->test_left = 0;
+	phd_left = 0;
+
+	r->test_top = 0;
+	phd_top = 0;
+
+	r->test_right = 511;
+	phd_right = 511;
+
+	r->test_bottom = 239;
+	phd_bottom = 239;
+
+	outside = r->flags & 8;
+
+	if (r->flags & 1)
+	{
+		camera_underwater = 0xFFFF0000;
+	}
+	else
+	{
+		camera_underwater = 0;
+	}
+	
+
+	//loc_644A8
+	//S_SetupClutAdder()
+	//move	$a0, $a2
+	//mPushMatrix();
+	//mSetTrans(0, 0, 0);
+	//mTranslateXYZ(-CamPos.x, -CamPos.y, -CamPos.z);
+	//GetRoomBoundsAsm(current_room);
+	ProcessClosedDoors();
+
+	/*
+	lw	$v0, dword_800A25F0
+	nop
+	beqz	$v0, loc_64878
+	*/
+	if (outside)
+	{
+
+	}//loc_64878
+
 	S_Warn("[DrawRooms] - Unimplemented!\n");
+}
+
+void SortOutWreckingBallDraw()//64E78(<), 65528(<)
+{
+	long lp; // $v1
+
+	if (number_draw_rooms > 0)
+	{
+		for (lp = 0; lp < number_draw_rooms; lp++)
+		{
+			//loc_64EA0
+			if (draw_rooms[lp] == WB_room)
+			{
+				return;
+			}
+		}
+	}
+
+	//loc_64EBC
+	assert(0);
+	//v1 = &RelocPtr[31];
+	//a0 = WB_Item
+	//a1 = v1[1];
+	//jalr a1(WB_Item)
+
+	WB_room = -1;
+
+	//loc_64EE8
+	return;
+}
+
+void MGDrawSprite(int x /*$a0*/, int y /*$a1*/, int def /*$a2*/, int z /*$a3*/, int xs /*stack 16*/, int ys /*stack 20*/, long rgb /*stack 24*/)//64EF8, 
+{
+	struct POLY_FT4* polyft4;//t0
+	struct PSXSPRITESTRUCT* pSpriteInfo;//a0
+
+	//t3 = &db;
+	def *= 16;
+	z *= 4;
+	//t1 = xs;
+	//t2 = ys;
+	//t4 = rgb
+
+
 }
 
 void UpdateSky()//7CE88(<), 7EECC(<) (F)
@@ -259,7 +368,7 @@ void mQuickW2VMatrix()//77AEC, 79B30
 	CamGTE.m22 = w2v_matrix[10];
 }
 
-void PrintString(long x, long y, char* string)
+void PrintString(long x, long y, long unk, char* string)
 {
-	printf("PrintString - X:%d Y:%d - %s\n", x, y, string);
+	printf("PrintString - X:%d Y:%d C:%d - %s\n", x, y, unk, string);
 }

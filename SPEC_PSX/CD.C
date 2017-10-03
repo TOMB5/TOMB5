@@ -16,6 +16,8 @@
 
 #define XA_FILE_NAME "\\XA%d.XA;1"
 
+#define CDS "CDS!" + __TIMESTAMP__ + " ."
+
 unsigned short XATrackClip[] =//Probably used for XA audio start/end pos of each track
 {
 	0xFF00, 0xFF00, 0xFE80, 0xFF00, 0xFF00, 0xFF00, 0xFF00, 0xFF80,
@@ -96,9 +98,9 @@ void cbvsync()//5D884(<), 5DD00(<)
 	unsigned char io[8];//$sp-16
 	int cnt;//$v0
 
-	switch (XAFlag - 1)
+	switch (XAFlag)
 	{
-	case 0:
+	case 1:
 	{
 		if (XAVolume == 0)
 		{
@@ -107,7 +109,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 		
 		break;
 	}
-	case 1:
+	case 2:
 	{
 		cnt = XATrack = XAReqTrack;
 		if (XAReqTrack < 0)
@@ -129,7 +131,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 
 		break;
 	}
-	case 2:
+	case 3:
 	{
 		//loc_5D980
 		XAReplay();
@@ -138,7 +140,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 		
 		break;
 	}
-	case 3:
+	case 4:
 	{
 		//loc_5D9AC
 		if (XAVolume == XAMasterVolume)
@@ -149,7 +151,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 		
 		break;
 	}
-	case 4:
+	case 5:
 	{
 		//loc_5D9E0
 		if (XAWait == 0)
@@ -161,7 +163,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 		
 		break;
 	}
-	case 5:
+	case 6:
 	{
 		//loc_5DA18
 		VSync(-1);
@@ -254,40 +256,44 @@ void cbvsync()//5D884(<), 5DD00(<)
 	return;
 }
 
-void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<)
+void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F)
 {
 	unsigned char param[4];
 
 	if (XATrack == -1)
 	{
 		param[0] = 0xC8;
-		CdControlB(CdlSetmode, &param[0], 0);
+		CdControlB(CdlSetmode, &param[0], NULL);
 		VSync(3);
-		CdControlB(CdlPause, 0, 0);
+		CdControlB(CdlPause, NULL, NULL);
 		DEL_ChangeCDMode(1);
 	}
 
 	//loc_5DC70
-	if (XATrack != track)
+	if (XATrack == track)
 	{
-		if (XAReqTrack != track)
-		{
-			XAReqTrack = track;
-			XARepeat = mode;
-
-			if (XAFlag != 0)
-			{
-				XAFlag = 1;
-				XAReqVolume = 0;
-			}
-			else
-			{
-				//loc_5DCB4
-				XAFlag = 2;
-			}
-		}
+		return;
 	}
-	
+
+	if (XAReqTrack == track)
+	{
+		return;
+	}
+
+	XAReqTrack = track;
+	XARepeat = mode;
+
+	if (XAFlag != 0)
+	{
+		XAFlag = 1;
+		XAReqVolume = 0;
+	}
+	else
+	{
+		//loc_5DCB4
+		XAFlag = 2;
+	}
+
 	//loc_5DCBC
 	return;
 }
@@ -325,7 +331,7 @@ void S_CDRestart()
 	return;
 }
 
-void S_StartSyncedAudio(int nTrack)//5DD78(<)
+void S_StartSyncedAudio(int nTrack)//5DD78(<), 5E1F4(<)
 {
 	IsAtmospherePlaying = 0;
 	

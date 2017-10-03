@@ -294,7 +294,9 @@ int convert_invobj_to_obj(int obj)//40B08(<), 40F5C(<) (F)
 
 int convert_obj_to_invobj(short obj)//40AC4(<), 40F18() (F)
 {
-	for(int i = 0; i < 100; i++)
+	int i;
+
+	for(i = 0; i < 100; i++)
 	{
 		if (inventry_objects_list[i].object_number == obj)
 			return i;
