@@ -1241,7 +1241,13 @@ int have_i_got_item(short obj)//3F29C, 3F6F0 (F)
 
 int is_item_currently_combinable(short obj)//3F200, 3F654
 {
-	S_Warn("[is_item_currently_combinable] - Unimplemented!\n");
+	for (int n = 0; n < 24; n++)
+	{
+		if ((dels_handy_combine_table[n].item1 != obj || !have_i_got_item(dels_handy_combine_table[n].item2)) &&
+			(dels_handy_combine_table[n].item2 != obj || !have_i_got_item(dels_handy_combine_table[n].item1)))
+			return 1;
+	}
+
 	return 0;
 }
 
