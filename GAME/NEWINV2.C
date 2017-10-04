@@ -1681,7 +1681,66 @@ void insert_object_into_list_v2(int num)//3CB90, 3CFE4
 
 void construct_combine_object_list()//3C940, 3CD94
 {
-	S_Warn("[construct_combine_object_list] - Unimplemented!\n");
+	rings[1]->numobjectsinlist = 0;
+	for (int i = 0; i < 100; i++)
+	{
+		rings[1]->current_object_list[i].invitem = -1;
+	}
+
+	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA))
+	{
+		if (lara.sixshooter_type_carried & 1)
+		{
+			if (lara.sixshooter_type_carried & 4)
+				insert_object_into_list_v2(INV_REVOLVER_ITEM2);
+			else
+				insert_object_into_list_v2(INV_REVOLVER_ITEM1);
+		}
+
+		if (lara.hk_type_carried & 1)
+			insert_object_into_list_v2(INV_HK_ITEM1);
+
+		if (lara.crossbow_type_carried & 1 && !(gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT))
+		{
+			if (lara.crossbow_type_carried & 4)
+				insert_object_into_list_v2(INV_CROSSBOW_AMMO2_ITEM2);
+			else
+				insert_object_into_list_v2(INV_CROSSBOW_AMMO2_ITEM1);
+		}
+
+		if (lara.lasersight)
+			insert_object_into_list_v2(INV_LASERSIGHT_ITEM);
+
+		if (lara.silencer)
+			insert_object_into_list_v2(INV_SILENCER_ITEM);
+	}
+
+	for (int i = 0; i < 16; i++)
+	{
+		if (lara.puzzleitemscombo & (1 << i))
+			insert_object_into_list_v2(INV_PUZZLE_ITEM1_COMBO1 + i);
+	}
+
+	for (int i = 0; i < 16; i++)
+	{
+		if (lara.keyitemscombo & (1 << i))
+			insert_object_into_list_v2(INV_KEY_ITEM1_COMBO1 + i);
+	}
+
+	for (int i = 0; i < 8; i++)
+	{
+		if (lara.pickupitemscombo & (1 << i))
+			insert_object_into_list_v2(INV_PICKUP_ITEM1_COMBO1 + i);
+	}
+
+	if (lara.wetcloth == 1)
+		insert_object_into_list_v2(INV_CLOTH);
+	if (lara.bottle)
+		insert_object_into_list_v2(INV_BOTTLE);
+
+	rings[1]->objlistmovement = 0;
+	rings[1]->curobjinlist = 0;
+	rings[1]->ringactive = 0;
 }
 
 int go_and_save_game()//3C920(<), 3CD74(<) (F)
