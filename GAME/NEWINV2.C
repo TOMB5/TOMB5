@@ -467,6 +467,8 @@ void dels_give_lara_guns_cheat()//41470, 418C4 (F)
 
 void dels_give_lara_items_cheat()//41324, 41778 (F)
 {
+	int i;
+
 #if PC_VERSION
 	; // null sub
 #else
@@ -475,7 +477,7 @@ void dels_give_lara_items_cheat()//41324, 41778 (F)
 		lara.crowbar = 1;
 	}
 
-	for(int i = 0; i < 8; i++)
+	for(i = 0; i < 8; i++)
 	{
 		if(objects[PUZZLE_ITEM1 + i].loaded)
 		{
@@ -483,7 +485,7 @@ void dels_give_lara_items_cheat()//41324, 41778 (F)
 		}
 	}
 
-	for(int i = 0; i < 8; i++)
+	for(i = 0; i < 8; i++)
 	{
 		if(objects[KEY_ITEM1 + i].loaded)
 		{
@@ -491,7 +493,7 @@ void dels_give_lara_items_cheat()//41324, 41778 (F)
 		}
 	}
 
-	for(int i = 0; i < 4; i++)
+	for(i = 0; i < 4; i++)
 	{
 		if(objects[PICKUP_ITEM1 + i].loaded)
 		{
@@ -984,7 +986,9 @@ void use_current_item()//3F9A0, 3FDF4
 
 void setup_objectlist_startposition2(short newobj)//3F938, 3FD8C (F)
 {
-	for (int i = 0; i < 100; i++)
+	int i;
+
+	for (i = 0; i < 100; i++)
 	{
 		if (inventry_objects_list[rings[0]->current_object_list[i].invitem].object_number == newobj)
 		{
@@ -995,7 +999,9 @@ void setup_objectlist_startposition2(short newobj)//3F938, 3FD8C (F)
 
 void setup_objectlist_startposition(short newobj)//3F8F0, 3FD44 (F)
 {
-	for(int i = 0; i < 100; i++)
+	int i;
+
+	for(i = 0; i < 100; i++)
 	{
 		if (rings[0]->current_object_list[i].invitem == newobj)
 		{
@@ -1218,7 +1224,9 @@ void combine_these_two_objects(short obj1, short obj2)//3F348, 3F79C
 
 int do_these_objects_combine(int obj1, int obj2)//3F2DC, 3F730
 {
-	for (int n = 0; n < 24; n++)
+	int n;
+
+	for (n = 0; n < 24; n++)
 	{
 		if (dels_handy_combine_table[n].item1 == obj1 &&
 			dels_handy_combine_table[n].item2 == obj2)
@@ -1230,7 +1238,9 @@ int do_these_objects_combine(int obj1, int obj2)//3F2DC, 3F730
 
 int have_i_got_item(short obj)//3F29C, 3F6F0 (F)
 {
-	for(int i = 0; i < 100; i++)
+	int i;
+
+	for(i = 0; i < 100; i++)
 	{
 		if (rings[0]->current_object_list[i].invitem == obj)
 			return 1;
@@ -1241,7 +1251,9 @@ int have_i_got_item(short obj)//3F29C, 3F6F0 (F)
 
 int is_item_currently_combinable(short obj)//3F200, 3F654
 {
-	for (int n = 0; n < 24; n++)
+	int n;
+
+	for (n = 0; n < 24; n++)
 	{
 		if ((dels_handy_combine_table[n].item1 != obj || !have_i_got_item(dels_handy_combine_table[n].item2)) &&
 			(dels_handy_combine_table[n].item2 != obj || !have_i_got_item(dels_handy_combine_table[n].item1)))
@@ -1470,8 +1482,10 @@ void insert_object_into_list(int num)//3D2C4(<), 3D718(<) (F)
 
 void construct_object_list()//3CC80, 3D0D4
 {
+	int i;
+
 	rings[0]->numobjectsinlist = 0;
-	for(int i = 0; i < 100; i++)
+	for(i = 0; i < 100; i++)
 	{
 		rings[0]->current_object_list[i].invitem = -1;
 	}
@@ -1598,37 +1612,37 @@ void construct_object_list()//3CC80, 3D0D4
 	if (lara.crowbar)
 		insert_object_into_list(INV_CROWBAR_ITEM);
 
-	for (int i = 0; i < 8; i++)
+	for (i = 0; i < 8; i++)
 	{
 		if (lara.puzzleitems[i])
 			insert_object_into_list(INV_PUZZLE_ITEM1 + i);
 	}
 
-	for (int i = 0; i < 16; i++)
+	for (i = 0; i < 16; i++)
 	{
 		if (lara.puzzleitemscombo & (1 << i))
 			insert_object_into_list(INV_PUZZLE_ITEM1_COMBO1 + i);
 	}
 
-	for (int i = 0; i < 8; i++)
+	for (i = 0; i < 8; i++)
 	{
 		if (lara.keyitems & (1 << i))
 			insert_object_into_list(INV_KEY_ITEM1 + i);
 	}
 
-	for (int i = 0; i < 16; i++)
+	for (i = 0; i < 16; i++)
 	{
 		if (lara.keyitemscombo & (1 << i))
 			insert_object_into_list(INV_KEY_ITEM1_COMBO1 + i);
 	}
 
-	for (int i = 0; i < 4; i++)
+	for (i = 0; i < 4; i++)
 	{
 		if (lara.pickupitems & (1 << i))
 			insert_object_into_list(INV_PICKUP_ITEM1 + i);
 	}
 
-	for (int i = 0; i < 8; i++)
+	for (i = 0; i < 8; i++)
 	{
 		if (lara.pickupitemscombo & (1 << i))
 			insert_object_into_list(INV_PICKUP_ITEM1_COMBO1 + i);
@@ -1681,8 +1695,10 @@ void insert_object_into_list_v2(int num)//3CB90, 3CFE4
 
 void construct_combine_object_list()//3C940, 3CD94
 {
+	int i;
+
 	rings[1]->numobjectsinlist = 0;
-	for (int i = 0; i < 100; i++)
+	for (i = 0; i < 100; i++)
 	{
 		rings[1]->current_object_list[i].invitem = -1;
 	}
@@ -1715,19 +1731,19 @@ void construct_combine_object_list()//3C940, 3CD94
 			insert_object_into_list_v2(INV_SILENCER_ITEM);
 	}
 
-	for (int i = 0; i < 16; i++)
+	for (i = 0; i < 16; i++)
 	{
 		if (lara.puzzleitemscombo & (1 << i))
 			insert_object_into_list_v2(INV_PUZZLE_ITEM1_COMBO1 + i);
 	}
 
-	for (int i = 0; i < 16; i++)
+	for (i = 0; i < 16; i++)
 	{
 		if (lara.keyitemscombo & (1 << i))
 			insert_object_into_list_v2(INV_KEY_ITEM1_COMBO1 + i);
 	}
 
-	for (int i = 0; i < 8; i++)
+	for (i = 0; i < 8; i++)
 	{
 		if (lara.pickupitemscombo & (1 << i))
 			insert_object_into_list_v2(INV_PICKUP_ITEM1_COMBO1 + i);
