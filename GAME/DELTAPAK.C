@@ -2090,6 +2090,24 @@ void TriggerDelSmoke(long x, long y, long z, int sizeme)//2EED8(<), 2F1E4(<) (F)
 	}
 }
 
+void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)
+{
+	for(int i = 0; i < 32; i++)
+	{
+		if (!(ripples[i].flags & 1))
+		{
+			ripples[i].flags = 0x31;
+			ripples[i].init = 1;
+			ripples[i].life = (GetRandomControl() & 7) - 16;
+			ripples[i].size = sizeme;
+			ripples[i].x = (GetRandomControl() & 0x3F) + x - 32;
+			ripples[i].y = y;
+			ripples[i].z = (GetRandomControl() & 0x3F) + z - 32;
+			return;
+		}
+	}
+}
+
 void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* pos, int direction, int speed)//2EE84(<), 2F190(<) (F)
 {
 	GetActorJointAbsPosition(actornum, nodenum, pos);
