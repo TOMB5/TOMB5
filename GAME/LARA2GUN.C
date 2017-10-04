@@ -11,6 +11,14 @@
 #include "DRAW.H"
 #include "OBJECTS.H"
 
+static struct PISTOL_DEF PistolTable[4] =
+{
+	{ LARA, 0, 0, 0, 0 },
+	{ PISTOLS_ANIM, 4, 5, 0xD, 0x18 },
+	{ REVOLVER_ANIM , 7, 8, 0xF, 0x1D },
+	{ UZI_ANIM, 4, 5, 0xD, 0x18 }
+};
+
 void AnimatePistols(int weapon_type)
 {
 	S_Warn("[AnimatePistols] - Unimplemented!\n");

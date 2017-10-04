@@ -18,8 +18,8 @@ static short RightClimbTab[4] = // offset 0xA0640
 	0x0800, 0x0100, 0x0200, 0x0400
 };
 
-short angle; // offset 0xA0650
-short elevation; // offset 0xA0652
+short angle = 0; // offset 0xA0650
+short elevation = 57346; // offset 0xA0652
 struct ITEM_INFO* lara_item; // offset 0xA2048
 unsigned short DashTimer; // offset 0xA2044
 struct lara_info lara; // offset 0xA57DC

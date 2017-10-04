@@ -52,7 +52,7 @@ char AccentTable[46][2] =
 	{ 0x7E, 0x20 }
 };
 
-unsigned char PulseCnt;
+unsigned char PulseCnt = 0;
 unsigned char ScaleFlag;
 
 struct CVECTOR FontShades[10][16];

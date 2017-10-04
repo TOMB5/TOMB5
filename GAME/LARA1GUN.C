@@ -11,10 +11,8 @@
 #include "LARAFIRE.H"
 #include "OBJECTS.H"
 
-#include <stddef.h>
-
-char HKTimer;
-char HKShotsFired;
+char HKTimer = 0;
+char HKShotsFired = 0;
 
 void TriggerGrapplingEffect(long x, long y, long z)
 {

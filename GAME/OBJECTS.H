@@ -289,7 +289,7 @@ enum trigobj_types {
 };
 
 extern struct BITE_INFO EnemyBites[9];
-extern int AnimatingWaterfallsVOffset;
+extern int AnimatingWaterfallsVOffset; // offset 0xA1268
 
 extern void HybridCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
 extern void DrawBaddieGunFlash(struct ITEM_INFO* item);

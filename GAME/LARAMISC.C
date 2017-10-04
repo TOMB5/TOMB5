@@ -61,10 +61,10 @@ char* htypes[4] =
 	"WALL", "SMALL_SLOPE", "BIG_SLOPE", "DIAGONAL"
 };
 
-static struct COLL_INFO* coll;
-short SubsuitAir;
+static struct COLL_INFO *coll = &mycoll; // offset 0xA0B8C
+short SubsuitAir = 0; // offset 0xA122E
 struct COLL_INFO mycoll;
-short cheat_hit_points;
+short cheat_hit_points; // offset 0xA3828
 
 void GetLaraDeadlyBounds()//4B408, 4B86C
 {

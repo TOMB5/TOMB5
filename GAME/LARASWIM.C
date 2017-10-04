@@ -8,7 +8,7 @@
 #include "DRAW.H"
 
 struct SUBSUIT_INFO subsuit;
-char SubHitCount;
+char SubHitCount = 0;
 
 void LaraWaterCurrent(struct COLL_INFO* coll)//4CD34, 4D198
 {

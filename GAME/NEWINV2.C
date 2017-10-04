@@ -280,18 +280,18 @@ struct COMBINELIST dels_handy_combine_table[24] = // offset 0x93498
 };
 
 int GLOBAL_enterinventory = -1; // offset 0xA0B30
-int GLOBAL_inventoryitemchosen; // offset 0xA0B34
-int GLOBAL_lastinvitem; // offset 0xA0B2C
-short examine_mode; // offset 0xA0B28
-short stats_mode; // offset 0xA0B2A
-int GLOBAL_invkeypadmode; // offset 0xA0B38
-int GLOBAL_invkeypadcombination; // offset 0xA0B3C
-unsigned char keypadx; // offset 0xA0B40
-unsigned char keypady; // offset 0xA0B41
-unsigned char keypadnuminputs; // offset 0xA0B42
-unsigned char keypadpause; // offset 0xA0B43
-short inventry_xpos; // offset 0xA0B44
-short inventry_ypos; // offset 0xA0B46
+int GLOBAL_inventoryitemchosen = -1; // offset 0xA0B34
+int GLOBAL_lastinvitem = -1; // offset 0xA0B2C
+short examine_mode = 0; // offset 0xA0B28
+short stats_mode = 0; // offset 0xA0B2A
+int GLOBAL_invkeypadmode = 0; // offset 0xA0B38
+int GLOBAL_invkeypadcombination = 0; // offset 0xA0B3C
+unsigned char keypadx = 0; // offset 0xA0B40
+unsigned char keypady = 0; // offset 0xA0B41
+unsigned char keypadnuminputs = 0; // offset 0xA0B42
+unsigned char keypadpause = 0; // offset 0xA0B43
+short inventry_xpos = 0; // offset 0xA0B44
+short inventry_ypos = 0; // offset 0xA0B46
 unsigned char keypadinputs[4]; // offset 0xA3780
 short ammo_selector_fade_val; // offset 0xA3710
 short ammo_selector_fade_dir; // offset 0xA371C

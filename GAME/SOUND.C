@@ -5,7 +5,7 @@
 #include "EFFECTS.H"
 #include <stddef.h>
 
-int sound_active;
+int sound_active = 0;
 short* sample_lut;
 struct SAMPLE_INFO* sample_infos;
 struct SoundSlot LaSlot[MAX_SOUND_SLOTS];
