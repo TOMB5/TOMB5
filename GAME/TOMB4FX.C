@@ -6,6 +6,7 @@
 #include "DELSTUFF.H"
 #include "CONTROL.H"
 #include "DRAW.H"
+#include "CAMERA.H"
 
 char flare_table[121] =
 {
@@ -308,9 +309,43 @@ void TriggerShatterSmoke(int x, int y, int z)//8AA14(<), 8CA58(<) (F)
 	smoke->Size = smoke->dSize >> 3;
 }
 
-void TriggerBlood(int x, int y, int z, int direction, int speed)
+int GetFreeBlood()
 {
-	S_Warn("[TriggerBlood] - Unimplemented!\n");
+	S_Warn("[GetFreeBlood] - Unimplemented!\n");
+	return 0;
+}
+
+void TriggerBlood(int x, int y, int z, int a4, int num)
+{
+	for(int i = 0; i < num; i++)
+	{
+		struct BLOOD_STRUCT* bptr = &blood[GetFreeBlood()];
+		bptr->On = 1;
+		bptr->sShade = 0;
+		bptr->ColFadeSpeed = 4;
+		bptr->FadeToBlack = 8;
+		bptr->dShade = (GetRandomControl() & 0x3F) + 48;
+		bptr->Life = bptr->sLife = (GetRandomControl() & 7) + 24;
+		bptr->x = (GetRandomControl() & 0x1F) + x - 16;
+		bptr->y = (GetRandomControl() & 0x1F) + y - 16;
+		bptr->z = (GetRandomControl() & 0x1F) + z - 16;
+		int a = (a4 == -1
+			? GetRandomControl() & 0xFFFF
+			: (GetRandomControl() & 0x1F) + a4 - 16) & 0xFFF;
+		int b = GetRandomControl() & 0xF;
+		bptr->Zvel = b * rcossin_tbl[2 * a + 1] >> 7;
+		bptr->Xvel = -(b * rcossin_tbl[2 * a]) >> 7;
+		bptr->Friction = 4;
+		bptr->Yvel = -((GetRandomControl() & 0xFF) + 128);
+		bptr->RotAng = GetRandomControl() & 0xFFF;
+		bptr->RotAdd = (GetRandomControl() & 0x3F) + 64;
+		if (GetRandomControl() & 1)
+			bptr->RotAdd = -bptr->RotAdd;
+		bptr->Gravity = (GetRandomControl() & 0x1F) + 31;
+		int size = (GetRandomControl() & 7) + 8;
+		bptr->sSize = bptr->Size = size;
+		bptr->dSize = size >> 2;
+	}
 }
 
 void TriggerExplosionBubble(int x, int y, int z, short room_num)

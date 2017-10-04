@@ -280,7 +280,7 @@ struct COMBINELIST dels_handy_combine_table[24] = // offset 0x93498
 };
 
 int GLOBAL_enterinventory = -1; // offset 0xA0B30
-int GLOBAL_inventoryitemchosen; // offset 0xA0B34
+int GLOBAL_inventoryitemchosen = -1; // offset 0xA0B34
 int GLOBAL_lastinvitem; // offset 0xA0B2C
 short examine_mode; // offset 0xA0B28
 short stats_mode; // offset 0xA0B2A
