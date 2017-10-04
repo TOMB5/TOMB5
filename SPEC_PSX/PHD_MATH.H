@@ -14,5 +14,6 @@ extern void setrot(struct MATRIX3D* m, long m00, long m02, long m11, long m20, l
 extern void mTranslateXYZ(long x, long y, long z);
 extern void mTranslateAbsXYZ(long x, long y, long z);
 extern void mRotY(long ry);
+extern void mCopyMatrix(struct MATRIX3D m);
 
 #endif

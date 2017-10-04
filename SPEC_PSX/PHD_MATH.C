@@ -110,3 +110,8 @@ void mRotY(long ry)
 {
 	S_Warn("[mRotY] - Unimplemented!\n");
 }
+
+void mCopyMatrix(struct MATRIX3D m)
+{
+	S_Warn("[mCopyMatrix] - Unimplemented!\n");
+}

@@ -170,3 +170,19 @@ void S_AnimateTextures(long num_frames)
 {
 	S_Warn("[S_AnimateTextures] - Unimplemented!\n");
 }
+
+void S_SetupClutAdder(long unk)
+{
+	__asm__ volatile ("ctc2	$4, $28;");
+	S_Warn("[S_SetupClutAdder] - Unimplemented!\n");
+}
+
+void S_DrawFootPrints()
+{
+	S_Warn("[S_DrawFootPrints] - Unimplemented!\n");
+}
+
+void S_DrawSparks()
+{
+	S_Warn("[S_DrawSparks] - Unimplemented!\n");
+}

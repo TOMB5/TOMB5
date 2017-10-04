@@ -125,3 +125,13 @@ void DrawFlatSky_ASM(struct CVECTOR colour, short pos, long flags)
 {
 	S_Warn("[DrawFlatSky_ASM] - Unimplemented!\n");
 }
+
+void DrawMoon()
+{
+	S_Warn("[DrawMoon] - Unimplemented!\n");
+}
+
+void DrawGunflashes()
+{
+	S_Warn("[DrawGunflashes] - Unimplemented!\n");
+}
