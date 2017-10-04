@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "..\SPEC_PSX\SPECIFIC.H"
 
 
 
@@ -147,4 +148,19 @@ void S_control_screen_position()//6068C(<), 61204(<)
 void S_AnimateTextures(long num_frames)
 {
 	S_Warn("[S_AnimateTextures] - Unimplemented!\n");
+}
+
+void S_SetupClutAdder(long unk)
+{
+	S_Warn("[S_SetupClutAdder] - Unimplemented!\n");
+}
+
+void S_DrawFootPrints()
+{
+	S_Warn("[S_DrawFootPrints] - Unimplemented!\n");
+}
+
+void S_DrawSparks()
+{
+	S_Warn("[S_DrawSparks] - Unimplemented!\n");
 }

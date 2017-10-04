@@ -5,6 +5,7 @@
 
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <stdlib.h>
 
 unsigned long GnFrameCounter = 19;
 unsigned long GnLastFrameCount = 19;
@@ -36,10 +37,10 @@ void GPU_SyncBothScreens()
 	test++;
 }
 
-void GPU_BeginScene()//5F0F0(<), 5FDD0(<) 
+void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
 {
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-	
+
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{

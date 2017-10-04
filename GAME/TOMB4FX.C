@@ -362,3 +362,8 @@ void Fade()
 {
 	S_Warn("[Fade] - Unimplemented!\n");
 }
+
+void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb)
+{
+	S_Warn("[SetUpLensFlare] - Unimplemented!\n");
+}

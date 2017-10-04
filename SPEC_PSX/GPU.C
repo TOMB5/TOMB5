@@ -86,6 +86,7 @@ void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
 	return;
 }
 
+int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 {
 #if INTERNAL
 	if (ProfileDraw)
@@ -192,6 +193,7 @@ void clear_a_rect(RECT* r)//5F334(<), 60014(<) (F)
 	return;
 }
 
+//@Gh0stblade - Not sure why this is so unoptimal, we can basically &disp[db.current_buffer]... double check code.
 void GPU_FlipToBuffer(int buffer_index)//5F3C8
 {
 	DISPENV* disp;
