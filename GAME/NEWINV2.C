@@ -1218,7 +1218,13 @@ void combine_these_two_objects(short obj1, short obj2)//3F348, 3F79C
 
 int do_these_objects_combine(int obj1, int obj2)//3F2DC, 3F730
 {
-	S_Warn("[do_these_objects_combine] - Unimplemented!\n");
+	for (int n = 0; n < 24; n++)
+	{
+		if (dels_handy_combine_table[n].item1 == obj1 &&
+			dels_handy_combine_table[n].item2 == obj2)
+			return 1;
+	}
+
 	return 0;
 }
 
