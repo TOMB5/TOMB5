@@ -521,7 +521,7 @@ void do_stats_mode()//412BC, 41710
 	if (stats_mode > 0x80)
 		stats_mode = 0x80;
 
-	DisplayStatusUCunt();
+	DisplayStatsUCunt();
 
 	if (go_deselect)
 	{

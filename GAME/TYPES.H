@@ -13,6 +13,10 @@
 #define MAX(x, y) (((x)>(y))?(x):(y))
 #endif
 
+#ifndef NULL
+#define NULL 0
+#endif
+
 // (65536 / 360) ~ 182.0444...
 //#define TRDEG (65536.0/360)
 #define ANGLE(x) ((x) * 65536.0 / 360.0)

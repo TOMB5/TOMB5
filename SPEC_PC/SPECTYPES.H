@@ -41,7 +41,6 @@ typedef unsigned int    uint32;
 #define SHIDWORD(x)  (*((int32*)&(x)+1))
 #define SBYTEn(x, n)   (*((int8*)&(x)+n))
 #define SWORDn(x, n)   (*((int16*)&(x)+n))
-#define NULL 0
 #define BYTE1(x)   BYTEn(x,  1)         // byte 1 (counting from 0)
 #define BYTE2(x)   BYTEn(x,  2)
 #define BYTE3(x)   BYTEn(x,  3)
