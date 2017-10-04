@@ -1281,7 +1281,6 @@ void update_laras_weapons_status()//3F13C, 3F590 (F)
 		else
 			lara.crossbow_type_carried |= 8;
 	}
-	S_Warn("[update_laras_weapons_status] - Unimplemented!\n");
 }
 
 void spinback(unsigned short* cock)//3F094, 3F4E8 (F)
@@ -1319,8 +1318,6 @@ void spinback(unsigned short* cock)//3F094, 3F4E8 (F)
 
 		*cock = val2;
 	}
-
-	S_Warn("[spinback] - Unimplemented!\n");
 }
 
 void draw_ammo_selector()//3EDDC, 3F230
@@ -1330,7 +1327,34 @@ void draw_ammo_selector()//3EDDC, 3F230
 
 void fade_ammo_selector()//3ED08, 3F15C
 {
-	S_Warn("[fade_ammo_selector] - Unimplemented!\n");
+	if (rings[0]->ringactive && (right_repeat >= 8 || left_repeat >= 8))
+	{
+		ammo_selector_fade_val = 0;
+	}
+	else if (ammo_selector_fade_dir == 1)
+	{
+		if (ammo_selector_fade_val < 128)
+		{
+			ammo_selector_fade_val += 32;
+		}
+		if (ammo_selector_fade_val > 128)
+		{
+			ammo_selector_fade_val = 128;
+			ammo_selector_fade_dir = 0;
+		}
+	}
+	else if (ammo_selector_fade_dir == 2)
+	{
+		if (ammo_selector_fade_val > 0)
+		{
+			ammo_selector_fade_val -= 32;
+		}
+		if (ammo_selector_fade_val < 0)
+		{
+			ammo_selector_fade_val = 0;
+			ammo_selector_fade_dir = 0;
+		}
+	}
 }
 
 void setup_ammo_selector()//3E9F8, 3EE4C (F)
