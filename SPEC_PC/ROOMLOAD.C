@@ -181,7 +181,7 @@ void LoadItems()
 			struct FLOOR_INFO* floor = &room[r].floor[sec];
 
 			if (!(boxes[floor->box].overlap_index & 0x4000)
-				&& !(gfCurrentLevel == 4 && (r == 19 || r == 23 || r == 16)))
+				&& !(gfCurrentLevel == LVL5_BASE && (r == 19 || r == 23 || r == 16)))
 			{
 				int fl = floor->floor << 2;
 				struct static_info* st = &static_objects[mesh->static_number];
@@ -1649,10 +1649,10 @@ void LoadLevel(const char* filename)
 		SetFadeClip(0, 1);
 		sub_4779E0();
 
-		if (gfCurrentLevel == 1)
+		if (gfCurrentLevel == LVL5_STREETS_OF_ROME)
 			find_a_fucking_item(ANIMATING10)->mesh_bits = 11;
 
-		if (gfCurrentLevel == 10)
+		if (gfCurrentLevel == LVL5_OLD_MILL)
 			find_a_fucking_item(ANIMATING16)->mesh_bits = 1;
 
 		if (objects[MONITOR_SCREEN].loaded)
@@ -1688,7 +1688,7 @@ void LoadLevel(const char* filename)
 
 	sub_491DA0(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
 	dword_874968 = 0;
-	_endthreadex(1u);
+	//_endthreadex(1u); todo what
 }
 
 BYTE byte_87B81C;
@@ -1774,6 +1774,40 @@ void sub_4BA100()
 	S_Warn("[sub_4BA100] - Unimplemented!\n");
 }
 
+void sub_4D3D90(int *a1, int *a2)
+{
+	*a1 = dword_D9BB8C;
+	*a2 = dword_D9BB88;
+}
+
+void sub_4ACAB0()
+{
+	if (dxctx.flags & 0x80)
+	{
+		ptr_ctx->buf_back->lpVtbl->Blt(ptr_ctx->buf_back, NULL, surf_screen, NULL, DDBLT_WAIT, 0);
+	}
+	else
+	{
+		DDSURFACEDESC2 surf;
+		memset(&surf, 0, sizeof(surf));
+		surf.dwSize = 124;
+		surf_screen->lpVtbl->Lock(surf_screen, NULL, &surf, DDLOCK_WAIT | DDLOCK_NOSYSLOCK, NULL);
+
+		int w, h;
+		sub_4D3D90(&w, &h);
+
+		S_Warn("[sub_4ACAB0] - Unimplemented condition!\n");
+
+		surf_screen->lpVtbl->Unlock(surf_screen, NULL);
+	}
+}
+
+void sub_4BA090(signed int a1, float **a2)
+{
+	S_Warn("[sub_4BA090] - Unimplemented!\n");
+}
+
+
 void S_LoadLevelFile(int Name)
 {
 	Log(2, "S_LoadLevelFile");
@@ -1806,6 +1840,11 @@ void S_LoadLevelFile(int Name)
 		ptr_BeginScene();
 		sub_49D220();
 		sub_4BA100();
+		sub_4ACAB0();
+		//sub_4BA090();
+
+
+		sub_4D3150();
 	}
 
 	S_Warn("[S_LoadLevelFile] - Unimplemented!\n");

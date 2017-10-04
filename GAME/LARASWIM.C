@@ -1,13 +1,7 @@
 #include "LARASWIM.H"
 
 #include "CONTROL.H"
-#if PSXPC_VERSION
-#include "PSXPCINPUT.H"
-#elif PSX_VERSION
-#include "PSXINPUT.H"
-#elif PC_VERSION
-#include "PCINPUT.H"
-#endif
+#include INPUT_H
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
 #include "LARA.H"

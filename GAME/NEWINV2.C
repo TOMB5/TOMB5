@@ -8,109 +8,225 @@
 #include "CONTROL.H"
 #include "SAVEGAME.H"
 #include "CD.H"
+#include "LARA2GUN.H"
+#include "LARA1GUN.H"
+#include INPUT_H
+#include "EFFECTS.H"
+#include "CAMERA.H"
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
 
-struct INVOBJ inventry_objects_list[100] = // offset 0x92BE8
+enum invobj_types // update this whenever inventry_objects_list is modified
 {
-	{ 0x150, -4, 0x3E8, 0x4000, 0x6000, 0x4000, 2, 0x51, -1 },
-	{ 0x14E, 6, 0x3E8, 0x4000, -0x52B4, -0x42C0, 2, 0x52, -1 },
-	{ 0x152, -6, 0x280, -0x8000, -0x4000, 0x2000, 2, 0x53, 1 },
-	{ 0x15B, 0, 0x320, 0x4000, 0x2AAA, 0x3BC2, 2, 0x54, 1 },
-	{ 0x15B, 0, 0x320, 0x4000, 0x2AAA, 0x3BC2, 2, 0x55, 7 },
-	{ 0x157, 0, 0x44C, 0x4000, -0x1000, 0, 2, 0x4D, -1 },
-	{ 0x157, 0, 0x44C, 0x4000, -0x1000, 0, 2, 0x4D, -1 },
-	{ 0x159, 0, 0x320, 0, -0x4000, 0, 2, 0x59, 1 },
-	{ 0x159, 0, 0x320, 0, -0x4000, 0, 2, 0x5A, -1 },
-	{ 0x153, 0, 0x1F4, 0x4000, 0, 0, 2, 0x5B, -1 },
-	{ 0x154, 0, 0x1F4, 0x4000, 0, 0, 2, 0x5C, -1 },
-	{ 0x15A, 3, 0x320, 0x4000, 0, 0, 2, 0x5D, 2 },
-	{ 0x15A, 3, 0x320, 0x4000, 0, 0, 2, 0x5E, 4 },
-	{ 0x15A, 3, 0x320, 0x4000, 0, 0, 2, 0x5F, 8 },
-	{ 0x15A, 3, 0x320, 0x4000, 0, 0, 2, 0x60, 1 },
-	{ 0x157, 0, 0x44C, 0x4000, -0x1000, 0, 2, 0x4D, -1 },
-	{ 0x157, 0, 0x44C, 0x4000, -0x1000, 0, 2, 0x4D, -1 },
-	{ 0x15C, 0, 0x2BC, 0x4000, -0xBB8, 0, 2, 0x61, -1 },
-	{ 0x151, 5, 0x2BC, 0, 0x1508, 0, 2, 0x62, -1 },
-	{ 0x14F, 4, 0x2BC, 0, 0x4000, 0, 2, 0x63, -1 },
-	{ 0x15F, 2, 0x2BC, 0x4000, 0x7D0, 0, 2, 0x64, -1 },
-	{ 0x161, 1, 0x384, 0, 0x7D0, 0, 2, 0x65, -1 },
-	{ 0x15D, 2, 0x320, 0, 0, 0, 2, 0x66, -1 },
-	{ 0x15E, 0, 0x200, 0, 0x5000, 0, 2, 0x67, -1 },
-	{ 0x160, -1, 0x2BC, 0x1000, 0x7D0, 0, 2, 0x68, -1 },
-	{ 0x163, 2, 0x44C, 0x4000, 0, 0, 2, 0x6A, -1 },
-	{ 0x164, 2, 0x44C, -0x8000, 0, 0, 2, 0x6B, -1 },
-	{ 0x165, 2, 0xFA0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0x166, 2, 0xFA0, 0, 0, 0, 2, 0x6D, -1 },
-	{ 0xAC, 0xE, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xAD, 0xE, 0x258, 0, -0x4000, 0, 2, 0x6C, -1 },
-	{ 0xAE, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xAF, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xB0, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xB1, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xB2, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xB3, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xB4, 0x12, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xB5, 0x12, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xB6, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xB7, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xB8, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xB9, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xBA, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xBB, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xBC, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xBD, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xBE, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xBF, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xC0, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xC1, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xC2, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xC3, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xC4, 0xE, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xC5, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xC6, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xC7, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xC8, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xC9, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xCA, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xCB, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xCC, 0x12, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xCD, 0x12, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xCE, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xCF, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xD0, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xD1, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xD2, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xD3, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xD4, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xD5, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xD6, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xD7, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xD8, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xD9, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xDA, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xDB, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xDC, 0xE, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xDD, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xDE, 8, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xDF, 2, 0x320, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xE0, 0xE, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xE1, 0xE, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xE2, 0xE, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xE3, 0xE, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xE4, 0xE, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xE5, 0xE, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xE6, 0xE, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xE7, 0xE, 0x4B0, 0, 0, 0, 2, 0x6C, -1 },
-	{ 0xF1, 0xE, 0x4B0, 0, 0x4000, 0, 2, 0x6C, -1 },
-	{ 0xF0, 4, 0x76C, 0, 0x4000, 0, 2, 0x6E, -1 },
-	{ 0xE8, 4, 0x514, 0, 0x4000, 0, 2, 0x6C, -1 },
-	{ 0xE9, 0xE, 0x4B0, 0, 0x4000, 0, 2, 0x6C, -1 },
-	{ 0xEA, 0xE, 0x4B0, 0, 0x4000, 0, 2, 0x6C, -1 },
-	{ 0xED, -0xC, 0x200, 0x4000, 0x3000, 0x5000, 2, 0x4E, -1 },
-	{ 0x155, 0, 0x384, 0x2000, 0x1800, 0, 2, 0x4C, 1 },
-	{ 0x156, 0, 0x44C, 0x4000, -0x1000, 0, 2, 0x4D, -1 },
-	{ 0xEC, -0xC, 0x200, 0x4000, 0x3000, 0x5000, 2, 0x4F, -1 },
-	{ 0xEB, 0x12, 0x320, -0x4000, 0, 0, 2, 0x50, -1 },
-	{ 0xF9, -0xA, 0x180, -0x4000, 0x6800, -0x4000, 0xA, 0x50, -1 }
+	INV_UZI_ITEM = 0,
+	INV_PISTOLS_ITEM = 1,
+	INV_SHOTGUN_ITEM = 2,
+	INV_REVOLVER_ITEM1 = 3,
+	INV_REVOLVER_ITEM2 = 4,
+	INV_CROSSBOW_AMMO2_ITEM1 = 5,
+	INV_CROSSBOW_AMMO2_ITEM2 = 6,
+	INV_HK_ITEM1 = 7,
+	INV_HK_ITEM2 = 8,
+	INV_SHOTGUN_AMMO1_ITEM = 9,
+	INV_SHOTGUN_AMMO2_ITEM = 10,
+	INV_HK_AMMO_ITEM1 = 11,
+	INV_HK_AMMO_ITEM2 = 12,
+	INV_HK_AMMO_ITEM3 = 13,
+	INV_HK_AMMO_ITEM4 = 14,
+	INV_CROSSBOW_AMMO2_ITEM3 = 15,
+	INV_CROSSBOW_AMMO2_ITEM4 = 16,
+	INV_REVOLVER_AMMO_ITEM = 17,
+	INV_UZI_AMMO_ITEM = 18,
+	INV_PISTOLS_AMMO_ITEM = 19,
+	INV_LASERSIGHT_ITEM = 20,
+	INV_SILENCER_ITEM = 21,
+	INV_BIGMEDI_ITEM = 22,
+	INV_SMALLMEDI_ITEM = 23,
+	INV_BINOCULARS_ITEM = 24,
+	INV_FLARE_INV_ITEM = 25,
+	INV_COMPASS_ITEM = 26,
+	INV_MEMCARD_LOAD_INV_ITEM = 27,
+	INV_MEMCARD_SAVE_INV_ITEM = 28,
+	INV_PUZZLE_ITEM1 = 29,
+	INV_PUZZLE_ITEM2 = 30,
+	INV_PUZZLE_ITEM3 = 31,
+	INV_PUZZLE_ITEM4 = 32,
+	INV_PUZZLE_ITEM5 = 33,
+	INV_PUZZLE_ITEM6 = 34,
+	INV_PUZZLE_ITEM7 = 35,
+	INV_PUZZLE_ITEM8 = 36,
+	INV_PUZZLE_ITEM1_COMBO1 = 37,
+	INV_PUZZLE_ITEM1_COMBO2 = 38,
+	INV_PUZZLE_ITEM2_COMBO1 = 39,
+	INV_PUZZLE_ITEM2_COMBO2 = 40,
+	INV_PUZZLE_ITEM3_COMBO1 = 41,
+	INV_PUZZLE_ITEM3_COMBO2 = 42,
+	INV_PUZZLE_ITEM4_COMBO1 = 43,
+	INV_PUZZLE_ITEM4_COMBO2 = 44,
+	INV_PUZZLE_ITEM5_COMBO1 = 45,
+	INV_PUZZLE_ITEM5_COMBO2 = 46,
+	INV_PUZZLE_ITEM6_COMBO1 = 47,
+	INV_PUZZLE_ITEM6_COMBO2 = 48,
+	INV_PUZZLE_ITEM7_COMBO1 = 49,
+	INV_PUZZLE_ITEM7_COMBO2 = 50,
+	INV_PUZZLE_ITEM8_COMBO1 = 51,
+	INV_PUZZLE_ITEM8_COMBO2 = 52,
+	INV_KEY_ITEM1 = 53,
+	INV_KEY_ITEM2 = 54,
+	INV_KEY_ITEM3 = 55,
+	INV_KEY_ITEM4 = 56,
+	INV_KEY_ITEM5 = 57,
+	INV_KEY_ITEM6 = 58,
+	INV_KEY_ITEM7 = 59,
+	INV_KEY_ITEM8 = 60,
+	INV_KEY_ITEM1_COMBO1 = 61,
+	INV_KEY_ITEM1_COMBO2 = 62,
+	INV_KEY_ITEM2_COMBO1 = 63,
+	INV_KEY_ITEM2_COMBO2 = 64,
+	INV_KEY_ITEM3_COMBO1 = 65,
+	INV_KEY_ITEM3_COMBO2 = 66,
+	INV_KEY_ITEM4_COMBO1 = 67,
+	INV_KEY_ITEM4_COMBO2 = 68,
+	INV_KEY_ITEM5_COMBO1 = 69,
+	INV_KEY_ITEM5_COMBO2 = 70,
+	INV_KEY_ITEM6_COMBO1 = 71,
+	INV_KEY_ITEM6_COMBO2 = 72,
+	INV_KEY_ITEM7_COMBO1 = 73,
+	INV_KEY_ITEM7_COMBO2 = 74,
+	INV_KEY_ITEM8_COMBO1 = 75,
+	INV_KEY_ITEM8_COMBO2 = 76,
+	INV_PICKUP_ITEM1 = 77,
+	INV_PICKUP_ITEM2 = 78,
+	INV_PICKUP_ITEM3 = 79,
+	INV_PICKUP_ITEM4 = 80,
+	INV_PICKUP_ITEM1_COMBO1 = 81,
+	INV_PICKUP_ITEM1_COMBO2 = 82,
+	INV_PICKUP_ITEM2_COMBO1 = 83,
+	INV_PICKUP_ITEM2_COMBO2 = 84,
+	INV_PICKUP_ITEM3_COMBO1 = 85,
+	INV_PICKUP_ITEM3_COMBO2 = 86,
+	INV_PICKUP_ITEM4_COMBO1 = 87,
+	INV_PICKUP_ITEM4_COMBO2 = 88,
+	INV_BURNING_TORCH_ITEM = 89,
+	INV_CROWBAR_ITEM = 90,
+	INV_EXAMINE1 = 91,
+	INV_EXAMINE2 = 92,
+	INV_EXAMINE3 = 93,
+	INV_WET_CLOTH = 94,
+	INV_CROSSBOW_ITEM = 95,
+	INV_CROSSBOW_AMMO1_ITEM = 96,
+	INV_CLOTH = 97,
+	INV_BOTTLE = 98,
+	INV_PUZZLE_HOLE8 = 99,
+
+	NUM_INV_OBJECTS
+};
+
+struct INVOBJ inventry_objects_list[NUM_INV_OBJECTS] = // offset 0x92BE8
+{
+	{ UZI_ITEM, -4, 1000, ANGLE(90), ANGLE(135), ANGLE(90), 2, 81, -1 },
+	{ PISTOLS_ITEM, 6, 1000, ANGLE(90), -21172, -17088, 2, 82, -1 },
+	{ SHOTGUN_ITEM, -6, 640, ANGLE(-180), ANGLE(-90), ANGLE(45), 2, 83, 1 },
+	{ REVOLVER_ITEM, 0, 800, ANGLE(90), ANGLE(60), 15298, 2, 84, 1 },
+	{ REVOLVER_ITEM, 0, 800, ANGLE(90), ANGLE(60), 15298, 2, 85, 7 },
+	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, 77, -1 },
+	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, 77, -1 },
+	{ HK_ITEM, 0, 800, ANGLE(0), ANGLE(-90), ANGLE(0), 2, 89, 1 },
+	{ HK_ITEM, 0, 800, ANGLE(0), ANGLE(-90), ANGLE(0), 2, 90, -1 },
+	{ SHOTGUN_AMMO1_ITEM, 0, 500, ANGLE(90), ANGLE(0), ANGLE(0), 2, 91, -1 },
+	{ SHOTGUN_AMMO2_ITEM, 0, 500, ANGLE(90), ANGLE(0), ANGLE(0), 2, 92, -1 },
+	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, 93, 2 },
+	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, 94, 4 },
+	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, 95, 8 },
+	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, 96, 1 },
+	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, 77, -1 },
+	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, 77, -1 },
+	{ REVOLVER_AMMO_ITEM, 0, 700, ANGLE(90), -3000, ANGLE(0), 2, 97, -1 },
+	{ UZI_AMMO_ITEM, 5, 700, ANGLE(0), 5384, ANGLE(0), 2, 98, -1 },
+	{ PISTOLS_AMMO_ITEM, 4, 700, ANGLE(0), ANGLE(90), ANGLE(0), 2, 99, -1 },
+	{ LASERSIGHT_ITEM, 2, 700, ANGLE(90), 2000, ANGLE(0), 2, 100, -1 },
+	{ SILENCER_ITEM, 1, 900, ANGLE(0), 2000, ANGLE(0), 2, 101, -1 },
+	{ BIGMEDI_ITEM, 2, 800, ANGLE(0), ANGLE(0), ANGLE(0), 2, 102, -1 },
+	{ SMALLMEDI_ITEM, 0, 512, ANGLE(0), ANGLE(112.5), ANGLE(0), 2, 103, -1 },
+	{ BINOCULARS_ITEM, -1, 700, ANGLE(22.5), 2000, ANGLE(0), 2, 104, -1 },
+	{ FLARE_INV_ITEM, 2, 1100, ANGLE(90), ANGLE(0), ANGLE(0), 2, 106, -1 },
+	{ COMPASS_ITEM, 2, 1100, ANGLE(-180), ANGLE(0), ANGLE(0), 2, 107, -1 },
+	{ MEMCARD_LOAD_INV_ITEM, 2, 4000, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ MEMCARD_SAVE_INV_ITEM, 2, 4000, ANGLE(0), ANGLE(0), ANGLE(0), 2, 109, -1 },
+	{ PUZZLE_ITEM1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM2, 14, 600, ANGLE(0), ANGLE(-90), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM3, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM4, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM5, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM6, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM7, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM8, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM1_COMBO1, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM1_COMBO2, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM2_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM2_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM3_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM3_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM4_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM4_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM5_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM5_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM6_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM6_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM7_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM7_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM8_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PUZZLE_ITEM8_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM3, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM4, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM5, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM6, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM7, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM8, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM1_COMBO1, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM1_COMBO2, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM2_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM2_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM3_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM3_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM4_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM4_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM5_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM5_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM6_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM6_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM7_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM7_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM8_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ KEY_ITEM8_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM3, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM4, 2, 800, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM1_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM1_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM2_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM2_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM3_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM3_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM4_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ PICKUP_ITEM4_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
+	{ BURNING_TORCH_ITEM, 14, 1200, ANGLE(0), ANGLE(90), ANGLE(0), 2, 108, -1 },
+	{ CROWBAR_ITEM, 4, 1900, ANGLE(0), ANGLE(90), ANGLE(0), 2, 110, -1 },
+	{ EXAMINE1, 4, 1300, ANGLE(0), ANGLE(90), ANGLE(0), 2, 108, -1 },
+	{ EXAMINE2, 14, 1200, ANGLE(0), ANGLE(90), ANGLE(0), 2, 108, -1 },
+	{ EXAMINE3, 14, 1200, ANGLE(0), ANGLE(90), ANGLE(0), 2, 108, -1 },
+	{ WET_CLOTH, -12, 512, ANGLE(90), ANGLE(67.5), ANGLE(112.5), 2, 78, -1 },
+	{ CROSSBOW_ITEM, 0, 900, ANGLE(45), 6144, ANGLE(0), 2, 76, 1 },
+	{ CROSSBOW_AMMO1_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, 77, -1 },
+	{ CLOTH, -12, 512, ANGLE(90), ANGLE(67.5), ANGLE(112.5), 2, 79, -1 },
+	{ BOTTLE, 18, 800, ANGLE(-90), ANGLE(0), ANGLE(0), 2, 80, -1 },
+	{ PUZZLE_HOLE8, -10, 384, ANGLE(-90), 26624, ANGLE(-90), 10, 80, -1 },
 };
 unsigned char wanky_secrets_table[18] = // offset 0x92BD4
 {
@@ -242,6 +358,39 @@ struct MENUTHANG current_options[3]; // offset 0xA3740
 
 void do_playstation_button_prompts_v1()//416E0, 41B34
 {
+	if (examine_mode)
+	{
+		//auto i = rings[0]->current_object_list[rings[0]->curobjinlist].invitem;
+		// to be continued
+	}
+	else
+	{
+		if (stats_mode)
+		{
+			
+		}
+		else
+		{
+			if (ammo_active)
+			{
+				
+			}
+			else
+			{
+				if (GLOBAL_invkeypadmode)
+				{
+					
+				}
+				else
+				{
+					if(rings[1]->ringactive)
+					{
+						
+					}
+				}
+			}
+		}
+	}
 	S_Warn("[do_playstation_button_prompts_v1] - Unimplemented!\n");
 }
 
@@ -250,19 +399,136 @@ void S_DrawPickup(short object_number)//41608, 41A5C
 	S_Warn("[S_DrawPickup] - Unimplemented!\n");
 }
 
-void dels_give_lara_guns_cheat()//41470, 418C4
+void dels_give_lara_guns_cheat()//41470, 418C4 (F)
 {
-	S_Warn("[dels_give_lara_guns_cheat] - Unimplemented!\n");
+#if PC_VERSION
+	; // null sub
+#else
+	if(objects[FLARE_INV_ITEM].loaded)
+	{
+		lara.num_flares = -1;
+	}
+
+	lara.num_small_medipack = -1;
+	lara.num_large_medipack = -1;
+
+	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA))
+	{
+		if (objects[PISTOLS_ITEM].loaded)
+		{
+			lara.num_shotgun_ammo1 = -1;
+			lara.num_shotgun_ammo2 = -1;
+			lara.shotgun_type_carried |= 1;
+		}
+
+		if (objects[REVOLVER_ITEM].loaded)
+		{
+			lara.num_revolver_ammo = -1;
+			lara.sixshooter_type_carried |= 1;
+		}
+
+		if (objects[CROSSBOW_ITEM].loaded)
+		{
+			lara.num_crossbow_ammo1 = -1;
+			lara.num_crossbow_ammo2 = -1;
+			lara.crossbow_type_carried |= 1;
+		}
+
+		if (gfCurrentLevel < LVL5_GIBBY_LEVEL)
+		{
+			lara.crossbow_type_carried = 0xD;
+			lara.num_crossbow_ammo2 = 0;
+		}
+
+		if (objects[HK_ITEM].loaded)
+		{
+			lara.num_hk_ammo1 = -1;
+			lara.hk_type_carried |= 1;
+		}
+
+		if(objects[UZI_ITEM].loaded)
+		{
+			lara.num_uzi_ammo = -1;
+			lara.uzis_type_carried |= 1;
+		}
+
+		if(objects[LASERSIGHT_ITEM].loaded)
+		{
+			lara.lasersight = 1;
+		}
+
+		if(objects[SILENCER_ITEM].loaded)
+		{
+			lara.silencer = 1;
+		}
+	}
+#endif
 }
 
-void dels_give_lara_items_cheat()//41324, 41778
+void dels_give_lara_items_cheat()//41324, 41778 (F)
 {
-	S_Warn("[dels_give_lara_items_cheat] - Unimplemented!\n");
+#if PC_VERSION
+	; // null sub
+#else
+	if(objects[CROWBAR_ITEM].loaded)
+	{
+		lara.crowbar = 1;
+	}
+
+	for(int i = 0; i < 8; i++)
+	{
+		if(objects[PUZZLE_ITEM1 + i].loaded)
+		{
+			lara.puzzleitems[i] = 1;
+		}
+	}
+
+	for(int i = 0; i < 8; i++)
+	{
+		if(objects[KEY_ITEM1 + i].loaded)
+		{
+			lara.keyitems |= 1 << i;
+		}
+	}
+
+	for(int i = 0; i < 4; i++)
+	{
+		if(objects[PICKUP_ITEM1 + i].loaded)
+		{
+			lara.pickupitems |= 1 << i;
+		}
+	}
+
+	lara.puzzleitemscombo = 0;
+	lara.keyitemscombo = 0;
+	lara.pickupitemscombo = 0;
+
+	if(gfCurrentLevel == LVL5_SUBMARINE)
+	{
+		lara.puzzleitems[0] = 0;
+	}
+
+	if(gfCurrentLevel == LVL5_OLD_MILL)
+	{
+		lara.puzzleitems[2] = 0;
+	}
+#endif
 }
 
 void do_stats_mode()//412BC, 41710
 {
-	S_Warn("[do_stats_mode] - Unimplemented!\n");
+	stats_mode += 8;
+	if (stats_mode > 0x80)
+		stats_mode = 0x80;
+
+	DisplayStatsUCunt();
+
+	if (go_deselect)
+	{
+		SoundEffect(0x6D, 0, 2);
+		go_deselect = 0;
+		stats_mode = 0;
+	}
 }
 
 void do_examine_mode()//411C4, 41618
@@ -305,20 +571,170 @@ int convert_obj_to_invobj(short obj)//40AC4(<), 40F18() (F)
 	return 27;
 }
 
-void remove_inventory_item(short object_number)//4097C, 40DD0
+void remove_inventory_item(short object_number)//4097C, 40DD0 (F)
 {
-	S_Warn("[remove_inventory_item] - Unimplemented!\n");
+	if (object_number >= PICKUP_ITEM1 && object_number <= PICKUP_ITEM3)
+	{
+		lara.pickupitems &= ~(1 << (object_number - PICKUP_ITEM1));
+	}
+	else if (object_number >= PICKUP_ITEM1_COMBO1 && object_number <= PICKUP_ITEM4_COMBO2)
+	{
+		lara.pickupitemscombo &= ~(1 << (object_number - PICKUP_ITEM1_COMBO1));
+	}
+	else if (object_number >= KEY_ITEM1 && object_number <= KEY_ITEM8)
+	{
+		lara.keyitems &= ~(1 << (object_number - KEY_ITEM1));
+	}
+	else if (object_number >= KEY_ITEM1_COMBO1 && object_number <= KEY_ITEM8_COMBO2)
+	{
+		lara.keyitemscombo &= ~(1 << (object_number - KEY_ITEM1_COMBO1));
+	}
+	else if (object_number >= PUZZLE_ITEM1 && object_number <= PUZZLE_ITEM8)
+	{
+		lara.puzzleitems[object_number - PUZZLE_ITEM1]--;
+	}
+	else if (object_number >= PUZZLE_ITEM1_COMBO1 && object_number <= PUZZLE_ITEM8_COMBO2)
+	{
+		lara.puzzleitemscombo &= ~(1 << (object_number - PUZZLE_ITEM1_COMBO1));
+	}
 }
 
-int have_i_got_object(short object_number)//4086C, 40CC0
+int have_i_got_object(short object_number)//4086C, 40CC0 (F)
 {
-	S_Warn("[have_i_got_object] - Unimplemented!\n");
+	if (object_number >= PICKUP_ITEM1 && object_number <= PICKUP_ITEM3)
+	{
+		return lara.pickupitems & 1 << (object_number - PICKUP_ITEM1);
+	}
+	if (object_number >= PICKUP_ITEM1_COMBO1 && object_number <= PICKUP_ITEM4_COMBO2)
+	{
+		return lara.pickupitemscombo & 1 << (object_number - PICKUP_ITEM1_COMBO1);
+	}
+	if (object_number >= KEY_ITEM1 && object_number <= KEY_ITEM8)
+	{
+		return lara.keyitems & 1 << (object_number - KEY_ITEM1);
+	}
+	if (object_number >= KEY_ITEM1_COMBO1 && object_number <= KEY_ITEM8_COMBO2)
+	{
+		return lara.keyitemscombo & 1 << (object_number - KEY_ITEM1_COMBO1);
+	}
+	if (object_number >= PUZZLE_ITEM1 && object_number <= PUZZLE_ITEM8)
+	{
+		return lara.puzzleitems[object_number - PUZZLE_ITEM1];
+	}
+	if (object_number >= PUZZLE_ITEM1_COMBO1 && object_number <= PUZZLE_ITEM8_COMBO2)
+	{
+		return lara.puzzleitemscombo & 1 << (object_number - PUZZLE_ITEM1_COMBO1);
+	}
+	if (object_number == CROWBAR_ITEM)
+	{
+		return lara.crowbar;
+	}
+	if (object_number == WET_CLOTH)
+	{
+		return lara.wetcloth & 2;
+	}
+
 	return 0;
 }
 
 void NailInvItem(short objnum)//40584, 409D8
 {
-	S_Warn("[NailInvItem] - Unimplemented!\n");
+	switch (objnum)
+	{
+	case UZI_ITEM:
+		lara.uzis_type_carried = 0;
+		lara.num_uzi_ammo = 0;
+		break;
+	case PISTOLS_ITEM:
+		lara.holster = 13;
+		lara.pistols_type_carried = 0;
+		lara.gun_status = 0;
+		lara.last_gun_type = 0;
+		lara.gun_type = 0;
+		lara.request_gun_type = 0;
+		break;
+	case SHOTGUN_ITEM:
+		lara.shotgun_type_carried = 0;
+		lara.num_shotgun_ammo1 = 0;
+		break;
+	case REVOLVER_ITEM:
+		lara.sixshooter_type_carried = 0;
+		lara.num_revolver_ammo = 0;
+		break;
+	case CROSSBOW_ITEM:
+		lara.crossbow_type_carried = 0;
+		lara.num_crossbow_ammo1 = 0;
+		break;
+	case HK_ITEM:
+		lara.hk_type_carried = 0;
+		lara.num_hk_ammo1 = 0;
+		break;
+	case FLARE_INV_ITEM:
+		lara.num_flares = 0;
+		break;
+	case SILENCER_ITEM:
+		lara.silencer = 0;
+		break;
+	case LASERSIGHT_ITEM:
+		lara.lasersight = 0;
+		break;
+	case BIGMEDI_ITEM:
+		lara.num_large_medipack = 0;
+		break;
+	case SMALLMEDI_ITEM:
+		lara.num_small_medipack = 0;
+		break;
+	case BINOCULARS_ITEM:
+		lara.binoculars = 0;
+		break;
+	case CROWBAR_ITEM:
+		lara.crowbar = 0;
+		break;
+	case EXAMINE1:
+		lara.examine1 = 0;
+		break;
+	case EXAMINE2:
+		lara.examine2 = 0;
+		break;
+	case EXAMINE3:
+		lara.examine3 = 0;
+		break;
+	case WET_CLOTH:
+		lara.wetcloth = 0;
+		break;
+	case CLOTH:
+		lara.wetcloth = 0;
+		break;
+	case BOTTLE:
+		lara.bottle = 0;
+		break;
+	default:
+		if (objnum >= PICKUP_ITEM1 && objnum <= PICKUP_ITEM3)
+		{
+			lara.pickupitems &= ~(1 << (objnum - PICKUP_ITEM1));
+		}
+		else if (objnum >= PICKUP_ITEM1_COMBO1 && objnum <= PICKUP_ITEM4_COMBO2)
+		{
+			lara.pickupitemscombo &= ~(1 << (objnum - PICKUP_ITEM1_COMBO1));
+		}
+		else if (objnum >= KEY_ITEM1 && objnum <= KEY_ITEM8)
+		{
+			lara.keyitems &= ~(1 << (objnum - KEY_ITEM1));
+		}
+		else if (objnum >= KEY_ITEM1_COMBO1 && objnum <= KEY_ITEM8_COMBO2)
+		{
+			lara.keyitemscombo &= ~(1 << (objnum - KEY_ITEM1_COMBO1));
+		}
+		else if (objnum >= PUZZLE_ITEM1 && objnum <= PUZZLE_ITEM8)
+		{
+			lara.puzzleitems[objnum - PUZZLE_ITEM1] = 0;
+		}
+		else if (objnum >= PUZZLE_ITEM1_COMBO1 && objnum <= PUZZLE_ITEM8_COMBO2)
+		{
+			lara.puzzleitemscombo &= ~(1 << (objnum - PUZZLE_ITEM1_COMBO1));
+		}
+		break;
+	}
 }
 
 void DEL_picked_up_object(short objnum)//3FEB0, 40304
@@ -361,18 +777,18 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		return;
 
 	case CROSSBOW_ITEM:
-		if (gfCurrentLevel < 11 || gfCurrentLevel > 14)
+		if (gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT)
+		{
+			lara.crossbow_type_carried = 13;
+			lara.num_crossbow_ammo2 = 0;
+		}
+		else
 		{
 			if (!(lara.crossbow_type_carried & 1))
 				lara.crossbow_type_carried = 9;
 
 			if (lara.num_crossbow_ammo1 != -1)
 				lara.num_crossbow_ammo1 += 10;
-		}
-		else
-		{
-			lara.crossbow_type_carried = 13;
-			lara.num_crossbow_ammo2 = 0;
 		}
 
 		return;
@@ -383,7 +799,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		if (!(lara.hk_type_carried & 1))
 			lara.hk_type_carried = 9;
 
-		if (gfCurrentLevel != 12)
+		if (gfCurrentLevel != LVL5_ESCAPE_WITH_THE_IRIS)
 			if (lara.num_hk_ammo1 != -1)
 				lara.num_hk_ammo1 += 30;
 
@@ -473,7 +889,6 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 
 	case BINOCULARS_ITEM:
 		lara.binoculars = 1;
-
 		return;
 
 	case PICKUP_ITEM4:
@@ -486,19 +901,19 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		++savegame.Level.Secrets;
 		++savegame.Game.Secrets;
 
-		if (gfCurrentLevel >= 11u && gfCurrentLevel <= 14u)
+		if (gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT)
 		{
 			++savegame.CampaignSecrets[3];
 		}
-		else if (gfCurrentLevel >= 4u && gfCurrentLevel <= 7u)
+		else if (gfCurrentLevel >= LVL5_BASE && gfCurrentLevel <= LVL5_SINKING_SUBMARINE)
 		{
 			++savegame.CampaignSecrets[2];
 		}
-		else if (gfCurrentLevel >= 1u && gfCurrentLevel <= 3u)
+		else if (gfCurrentLevel >= LVL5_STREETS_OF_ROME && gfCurrentLevel <= LVL5_COLOSSEUM)
 		{
 			++savegame.CampaignSecrets[0];
 		}
-		else if (gfCurrentLevel >= 8u && gfCurrentLevel <= 10u)
+		else if (gfCurrentLevel >= LVL5_GALLOWS_TREE && gfCurrentLevel <= LVL5_OLD_MILL)
 		{
 			++savegame.CampaignSecrets[1];
 		}
@@ -507,32 +922,26 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 
 	case CROWBAR_ITEM:
 		lara.crowbar = 1;
-
 		return;
 
 	case EXAMINE1:
 		lara.examine1 = 1;
-
 		return;
 
 	case EXAMINE2:
 		lara.examine2 = 1;
-
 		return;
 
 	case EXAMINE3:
 		lara.examine3 = 1;
-
 		return;
 
 	case WET_CLOTH:
 		lara.wetcloth = 2;
-
 		return;
 
 	case CLOTH:
 		lara.wetcloth = 1;
-
 		return;
 
 	case BOTTLE:
@@ -543,27 +952,27 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 	default:
 		if (objnum >= PICKUP_ITEM1 && objnum <= PICKUP_ITEM3)
 		{
-			lara.pickupitems |= 1 << (objnum + 36);
+			lara.pickupitems |= 1 << (objnum - PICKUP_ITEM1);
 		}
 		else if (objnum >= PICKUP_ITEM1_COMBO1 && objnum <= PICKUP_ITEM4_COMBO2)
 		{
-			lara.pickupitemscombo |= 1 << (objnum + 32);
+			lara.pickupitemscombo |= 1 << (objnum - PICKUP_ITEM1_COMBO1);
 		}
 		else if (objnum >= KEY_ITEM1 && objnum <= KEY_ITEM8)
 		{
-			lara.keyitems |= 1 << (objnum + 60);
+			lara.keyitems |= 1 << (objnum - KEY_ITEM1);
 		}
 		else if (objnum >= KEY_ITEM1_COMBO1 && objnum <= KEY_ITEM8_COMBO2)
 		{
-			lara.keyitemscombo |= 1 << (objnum + 52);
+			lara.keyitemscombo |= 1 << (objnum - KEY_ITEM1_COMBO1);
 		}
 		else if (objnum >= PUZZLE_ITEM1 && objnum <= PUZZLE_ITEM8)
 		{
-			++*((unsigned char *)&lara.mesh_ptrs[LM_RFOOT] + objnum); // todo: this seems horribly wrong
+			lara.puzzleitems[objnum - PUZZLE_ITEM1]++;
 		}
 		else if (objnum >= PUZZLE_ITEM1_COMBO1 && objnum <= PUZZLE_ITEM8_COMBO2)
 		{
-			lara.puzzleitemscombo |= 1 << (objnum + 76);
+			lara.puzzleitemscombo |= 1 << (objnum - PUZZLE_ITEM1_COMBO1);
 		}
 	}
 }
@@ -573,14 +982,26 @@ void use_current_item()//3F9A0, 3FDF4
 	S_Warn("[use_current_item] - Unimplemented!\n");
 }
 
-void setup_objectlist_startposition2(short newobj)//3F938, 3FD8C
+void setup_objectlist_startposition2(short newobj)//3F938, 3FD8C (F)
 {
-	S_Warn("[setup_objectlist_startposition2] - Unimplemented!\n");
+	for (int i = 0; i < 100; i++)
+	{
+		if (inventry_objects_list[rings[0]->current_object_list[i].invitem].object_number == newobj)
+		{
+			rings[0]->curobjinlist = i;
+		}
+	}
 }
 
-void setup_objectlist_startposition(short newobj)//3F8F0, 3FD44
+void setup_objectlist_startposition(short newobj)//3F8F0, 3FD44 (F)
 {
-	S_Warn("[setup_objectlist_startposition] - Unimplemented!\n");
+	for(int i = 0; i < 100; i++)
+	{
+		if (rings[0]->current_object_list[i].invitem == newobj)
+		{
+			rings[0]->curobjinlist = i;
+		}
+	}
 }
 
 void combine_clothbottle(int flag)//3F8D0(<), 3FD24(<) (F)
@@ -709,14 +1130,44 @@ void combine_PuzzleItem1(int flag)//3F620(<), 3FA74(<) (F)
 	lara.puzzleitemscombo &= 0xFFFC;
 }
 
-void combine_crossbow_lasersight(int flag)//3F590, 3F9E4
+void combine_crossbow_lasersight(int flag)//3F590, 3F9E4 (F)
 {
-	S_Warn("[combine_crossbow_lasersight] - Unimplemented!\n");
+	if (flag)
+	{
+		lara.lasersight = 1;
+		lara.crossbow_type_carried &= ~4;
+	}
+	else
+	{
+		lara.lasersight = 0;
+		lara.crossbow_type_carried |= 4;
+	}
+
+	if (lara.gun_status && lara.gun_type == 6)
+	{
+		undraw_shotgun_meshes(6);
+		draw_shotgun_meshes(6);
+	}
 }
 
-void combine_revolver_lasersight(int flag)//3F500, 3F954
+void combine_revolver_lasersight(int flag)//3F500, 3F954 (F)
 {
-	S_Warn("[combine_revolver_lasersight] - Unimplemented!\n");
+	if (flag)
+	{
+		lara.lasersight = 1;
+		lara.sixshooter_type_carried &= ~4;
+	}
+	else
+	{
+		lara.lasersight = 0;
+		lara.sixshooter_type_carried |= 4;
+	}
+
+	if (lara.gun_status && lara.gun_type == 2)
+	{
+		undraw_pistol_mesh_right(2);
+		draw_pistol_meshes(2);
+	}
 }
 
 void combine_HK_SILENCER(int flag)//3F4C0(<), 3F914(<) (F)
@@ -729,46 +1180,144 @@ void combine_HK_SILENCER(int flag)//3F4C0(<), 3F914(<) (F)
 	else
 	{
 		lara.silencer = 1;
-		lara.hk_type_carried &= 0xFD;
+		lara.hk_type_carried &= ~2;
 	}
 }
 
 void seperate_object(short obj)//3F424, 3F878
 {
-	S_Warn("[seperate_object] - Unimplemented!\n");
+	int n;
+
+	for (n = 0; n < 24; n++)
+	{
+		if (dels_handy_combine_table[n].combined_item == obj)
+			break;
+	}
+
+	dels_handy_combine_table[n].combine_routine(1);
+	construct_object_list();
+	setup_objectlist_startposition(dels_handy_combine_table[n].item1);
 }
 
 void combine_these_two_objects(short obj1, short obj2)//3F348, 3F79C
 {
-	S_Warn("[combine_these_two_objects] - Unimplemented!\n");
+	int n;
+
+	for(n = 0; n < 24; n++)
+	{
+		if (dels_handy_combine_table[n].item1 == obj1 &&
+			dels_handy_combine_table[n].item2 == obj2)
+			break;
+	}
+
+	dels_handy_combine_table[n].combine_routine(0);
+	construct_object_list();
+	setup_objectlist_startposition(dels_handy_combine_table[n].combined_item);
+	handle_object_changeover(0);
 }
 
 int do_these_objects_combine(int obj1, int obj2)//3F2DC, 3F730
 {
-	S_Warn("[do_these_objects_combine] - Unimplemented!\n");
+	for (int n = 0; n < 24; n++)
+	{
+		if (dels_handy_combine_table[n].item1 == obj1 &&
+			dels_handy_combine_table[n].item2 == obj2)
+			return 1;
+	}
+
 	return 0;
 }
 
-int have_i_got_item(short obj)//3F29C, 3F6F0
+int have_i_got_item(short obj)//3F29C, 3F6F0 (F)
 {
-	S_Warn("[have_i_got_item] - Unimplemented!\n");
+	for(int i = 0; i < 100; i++)
+	{
+		if (rings[0]->current_object_list[i].invitem == obj)
+			return 1;
+	}
+
 	return 0;
 }
 
 int is_item_currently_combinable(short obj)//3F200, 3F654
 {
-	S_Warn("[is_item_currently_combinable] - Unimplemented!\n");
+	for (int n = 0; n < 24; n++)
+	{
+		if ((dels_handy_combine_table[n].item1 != obj || !have_i_got_item(dels_handy_combine_table[n].item2)) &&
+			(dels_handy_combine_table[n].item2 != obj || !have_i_got_item(dels_handy_combine_table[n].item1)))
+			return 1;
+	}
+
 	return 0;
 }
 
-void update_laras_weapons_status()//3F13C, 3F590
+void update_laras_weapons_status()//3F13C, 3F590 (F)
 {
-	S_Warn("[update_laras_weapons_status] - Unimplemented!\n");
+	if(lara.shotgun_type_carried & 1)
+	{
+		lara.shotgun_type_carried &= 0xC7;
+		if (CurrentShotGunAmmoType != 0)
+			lara.shotgun_type_carried |= 0x10;
+		else
+			lara.shotgun_type_carried |= 8;
+	}
+
+	if (lara.hk_type_carried & 1)
+	{
+		lara.hk_type_carried &= 0xC7;
+		if (CurrentGrenadeGunAmmoType == 0)
+			lara.hk_type_carried |= 8;
+		else if (CurrentGrenadeGunAmmoType == 1)
+			lara.hk_type_carried |= 0x10;
+		else
+			lara.hk_type_carried |= 0x20;
+	}
+
+	if (lara.crossbow_type_carried & 1)
+	{
+		lara.crossbow_type_carried &= 0xC7;
+		if (CurrentCrossBowAmmoType != 0)
+			lara.crossbow_type_carried |= 0x10;
+		else
+			lara.crossbow_type_carried |= 8;
+	}
 }
 
-void spinback(unsigned short* cock)//3F094, 3F4E8
+void spinback(unsigned short* cock)//3F094, 3F4E8 (F)
 {
-	S_Warn("[spinback] - Unimplemented!\n");
+	unsigned short val = *cock;
+	unsigned short val2;
+	if (val)
+	{
+		if (val <= ANGLE(180))
+		{
+			if (val < ANGLE(5))
+				val = ANGLE(5);
+
+			if (val > ANGLE(90))
+				val = ANGLE(90);
+
+			val2 = val - (val >> 3);
+
+			if (val2 > ANGLE(180))
+				val2 = ANGLE(0);
+		}
+		else
+		{
+			if (-(short)val < ANGLE(5))
+				val = ANGLE(5);
+
+			if (-(short)val > ANGLE(90))
+				val = ANGLE(90);
+
+			val2 = ((unsigned short)-(short)val >> 3) + val;
+
+			if (val2 < ANGLE(180))
+				val2 = ANGLE(0);
+		}
+
+		*cock = val2;
+	}
 }
 
 void draw_ammo_selector()//3EDDC, 3F230
@@ -778,12 +1327,120 @@ void draw_ammo_selector()//3EDDC, 3F230
 
 void fade_ammo_selector()//3ED08, 3F15C
 {
-	S_Warn("[fade_ammo_selector] - Unimplemented!\n");
+	if (rings[0]->ringactive && (right_repeat >= 8 || left_repeat >= 8))
+	{
+		ammo_selector_fade_val = 0;
+	}
+	else if (ammo_selector_fade_dir == 1)
+	{
+		if (ammo_selector_fade_val < 128)
+		{
+			ammo_selector_fade_val += 32;
+		}
+		if (ammo_selector_fade_val > 128)
+		{
+			ammo_selector_fade_val = 128;
+			ammo_selector_fade_dir = 0;
+		}
+	}
+	else if (ammo_selector_fade_dir == 2)
+	{
+		if (ammo_selector_fade_val > 0)
+		{
+			ammo_selector_fade_val -= 32;
+		}
+		if (ammo_selector_fade_val < 0)
+		{
+			ammo_selector_fade_val = 0;
+			ammo_selector_fade_dir = 0;
+		}
+	}
 }
 
-void setup_ammo_selector()//3E9F8, 3EE4C
+void setup_ammo_selector()//3E9F8, 3EE4C (F)
 {
-	S_Warn("[setup_ammo_selector] - Unimplemented!\n");
+	int num = 0;
+	int opts = options_table[rings[0]->current_object_list[rings[0]->curobjinlist].invitem];
+	ammo_selector_flag = 0;
+	num_ammo_slots = 0;
+	if (!rings[1]->ringactive)
+	{
+		ammo_object_list[2].yrot = 0;
+		ammo_object_list[1].yrot = 0;
+		ammo_object_list[0].yrot = 0;
+		if (opts & 0x4FC0)
+		{
+			ammo_selector_flag = 1;
+			ammo_selector_fade_dir = 1;
+			if (opts & 0x200)
+			{
+				ammo_object_list[0].invitem = 18;
+				ammo_object_list[0].amount = AmountUziAmmo;
+				num = 1;
+				num_ammo_slots = 1;
+				current_ammo_type = &CurrentUziAmmoType;
+			}
+			if (opts & 0x400)
+			{
+				num = 1;
+				ammo_object_list[0].invitem = 19;
+				ammo_object_list[0].amount = -1;
+				num_ammo_slots = 1;
+				current_ammo_type = &CurrentPistolsAmmoType;
+			}
+			if (opts & 0x800)
+			{
+				num = 1;
+				ammo_object_list[0].invitem = 17;
+				ammo_object_list[0].amount = AmountRevolverAmmo;
+				num_ammo_slots = 1;
+				current_ammo_type = &CurrentRevolverAmmoType;
+			}
+			if (opts & 0x80)
+			{
+				current_ammo_type = &CurrentCrossBowAmmoType;
+				ammo_object_list[num].invitem = 15;
+				ammo_object_list[num].amount = AmountCrossBowAmmo1;
+				num++;
+				ammo_object_list[num].invitem = 16;
+				ammo_object_list[num].amount = AmountCrossBowAmmo2;
+				num++;
+				num_ammo_slots = num;
+			}
+			if (opts & 0x100)
+			{
+				current_ammo_type = &CurrentGrenadeGunAmmoType;
+				ammo_object_list[num].invitem = 11;
+				ammo_object_list[num].amount = AmountHKAmmo1;
+				num++;
+				ammo_object_list[num].invitem = 12;
+				ammo_object_list[num].amount = AmountHKAmmo1;
+				num++;
+				ammo_object_list[num].invitem = 13;
+				ammo_object_list[num].amount = AmountHKAmmo1;
+				num++;
+				num_ammo_slots = num;
+			}
+			if (opts & 0x40)
+			{
+				current_ammo_type = &CurrentShotGunAmmoType;
+				ammo_object_list[num].invitem = 9;
+				ammo_object_list[num].amount = AmountShotGunAmmo1;
+				num++;
+				ammo_object_list[num].invitem = 10;
+				ammo_object_list[num].amount = AmountShotGunAmmo2;
+				num++;
+				num_ammo_slots = num;
+			}
+			if (opts & 0x4000)
+			{
+				ammo_object_list[0].invitem = 96;
+				ammo_object_list[0].amount = AmountCrossBowAmmo1;
+				num_ammo_slots = 1;
+				current_ammo_type = &CurrentCrossBowAmmoType;
+			}
+		}
+	}
 }
 
 void handle_inventry_menu()//3DF44, 3E398
@@ -791,9 +1448,11 @@ void handle_inventry_menu()//3DF44, 3E398
 	S_Warn("[handle_inventry_menu] - Unimplemented!\n");
 }
 
-void handle_object_changeover(int ringnum)//3DF18, 3E36C
+void handle_object_changeover(int ringnum)//3DF18, 3E36C (F)
 {
-	S_Warn("[handle_object_changeover] - Unimplemented!\n");
+	current_selected_option = 0;
+	menu_active = 1;
+	setup_ammo_selector();
 }
 
 void draw_current_object_list(int ringnum)//3D350, 3D7A4
@@ -801,24 +1460,287 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 	S_Warn("[draw_current_object_list] - Unimplemented!\n");
 }
 
-void insert_object_into_list(int num)//3D2C4, 3D718
+void insert_object_into_list(int num)//3D2C4(<), 3D718(<) (F)
 {
-	S_Warn("[insert_object_into_list] - Unimplemented!\n");
+	rings[0]->current_object_list[rings[0]->numobjectsinlist].invitem = num;
+	rings[0]->current_object_list[rings[0]->numobjectsinlist].yrot = 0;
+	rings[0]->current_object_list[rings[0]->numobjectsinlist].bright = 32;
+	rings[0]->numobjectsinlist++;
 }
 
 void construct_object_list()//3CC80, 3D0D4
 {
-	S_Warn("[construct_object_list] - Unimplemented!\n");
+	rings[0]->numobjectsinlist = 0;
+	for(int i = 0; i < 100; i++)
+	{
+		rings[0]->current_object_list[i].invitem = -1;
+	}
+
+	CurrentPistolsAmmoType = 0;
+	CurrentUziAmmoType = 0;
+	CurrentRevolverAmmoType = 0;
+	CurrentShotGunAmmoType = 0;
+	CurrentGrenadeGunAmmoType = 0;
+	CurrentCrossBowAmmoType = 0;
+
+	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA))
+	{
+		if (lara.pistols_type_carried & 1)
+			insert_object_into_list(INV_PISTOLS_ITEM);
+
+		if (lara.uzis_type_carried & 1)
+		{
+			insert_object_into_list(INV_UZI_ITEM);
+		}
+		else if (AmountUziAmmo)
+		{
+			insert_object_into_list(INV_UZI_AMMO_ITEM);
+		}
+
+		if (lara.sixshooter_type_carried & 1)
+		{
+			if (lara.sixshooter_type_carried & 4)
+				insert_object_into_list(INV_REVOLVER_ITEM2);
+			else
+				insert_object_into_list(INV_REVOLVER_ITEM1);
+		}
+		else if (AmountRevolverAmmo)
+		{
+			insert_object_into_list(INV_REVOLVER_AMMO_ITEM);
+		}
+
+		if (lara.shotgun_type_carried & 1)
+		{
+			insert_object_into_list(INV_SHOTGUN_ITEM);
+			if (lara.shotgun_type_carried & 0x10)
+				CurrentShotGunAmmoType = 1;
+		}
+		else
+		{
+			if (AmountShotGunAmmo1)
+				insert_object_into_list(INV_SHOTGUN_AMMO1_ITEM);
+			if (AmountShotGunAmmo2)
+				insert_object_into_list(INV_SHOTGUN_AMMO2_ITEM);
+		}
+
+		if (lara.hk_type_carried & 1)
+		{
+			if (lara.hk_type_carried & 2)
+				insert_object_into_list(INV_HK_ITEM2);
+			else
+				insert_object_into_list(INV_HK_ITEM1);
+
+			if (lara.hk_type_carried & 0x10)
+			{
+				CurrentGrenadeGunAmmoType = 1;
+			}
+			else if (lara.hk_type_carried & 0x20)
+			{
+				CurrentGrenadeGunAmmoType = 2;
+			}
+		}
+		else if (AmountHKAmmo1)
+		{
+			insert_object_into_list(INV_HK_AMMO_ITEM4);
+		}
+
+		if (lara.crossbow_type_carried & 1)
+		{
+			if (gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT)
+			{
+				insert_object_into_list(INV_CROSSBOW_ITEM);
+				CurrentCrossBowAmmoType = 0;
+			}
+			else
+			{
+				if (lara.crossbow_type_carried & 4)
+					insert_object_into_list(INV_CROSSBOW_AMMO2_ITEM2);
+				else
+					insert_object_into_list(INV_CROSSBOW_AMMO2_ITEM1);
+
+				if (lara.crossbow_type_carried & 0x10)
+					CurrentCrossBowAmmoType = 1;
+			}
+		}
+		else if (gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT)
+		{
+			if (AmountCrossBowAmmo1)
+			{
+				insert_object_into_list(INV_CROSSBOW_AMMO1_ITEM);
+			}
+		}
+		else
+		{
+			if (AmountCrossBowAmmo1)
+				insert_object_into_list(INV_CROSSBOW_AMMO2_ITEM3);
+
+			if (AmountCrossBowAmmo2)
+				insert_object_into_list(INV_CROSSBOW_AMMO2_ITEM4);
+		}
+
+		if (lara.lasersight)
+			insert_object_into_list(INV_LASERSIGHT_ITEM);
+
+		if (lara.silencer)
+			insert_object_into_list(INV_SILENCER_ITEM);
+
+		if (lara.binoculars)
+			insert_object_into_list(INV_BINOCULARS_ITEM);
+
+		if (lara.num_flares)
+			insert_object_into_list(INV_FLARE_INV_ITEM);
+	}
+	insert_object_into_list(INV_COMPASS_ITEM);
+	if (lara.num_small_medipack)
+		insert_object_into_list(INV_SMALLMEDI_ITEM);
+	if (lara.num_large_medipack)
+		insert_object_into_list(INV_BIGMEDI_ITEM);
+	if (lara.crowbar)
+		insert_object_into_list(INV_CROWBAR_ITEM);
+
+	for (int i = 0; i < 8; i++)
+	{
+		if (lara.puzzleitems[i])
+			insert_object_into_list(INV_PUZZLE_ITEM1 + i);
+	}
+
+	for (int i = 0; i < 16; i++)
+	{
+		if (lara.puzzleitemscombo & (1 << i))
+			insert_object_into_list(INV_PUZZLE_ITEM1_COMBO1 + i);
+	}
+
+	for (int i = 0; i < 8; i++)
+	{
+		if (lara.keyitems & (1 << i))
+			insert_object_into_list(INV_KEY_ITEM1 + i);
+	}
+
+	for (int i = 0; i < 16; i++)
+	{
+		if (lara.keyitemscombo & (1 << i))
+			insert_object_into_list(INV_KEY_ITEM1_COMBO1 + i);
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (lara.pickupitems & (1 << i))
+			insert_object_into_list(INV_PICKUP_ITEM1 + i);
+	}
+
+	for (int i = 0; i < 8; i++)
+	{
+		if (lara.pickupitemscombo & (1 << i))
+			insert_object_into_list(INV_PICKUP_ITEM1_COMBO1 + i);
+	}
+
+	if (lara.examine1)
+		insert_object_into_list(INV_EXAMINE1);
+	if (lara.examine2)
+		insert_object_into_list(INV_EXAMINE2);
+	if (lara.examine3)
+		insert_object_into_list(INV_EXAMINE3);
+	if (lara.wetcloth == 2)
+		insert_object_into_list(INV_WET_CLOTH);
+	if (lara.wetcloth == 1)
+		insert_object_into_list(INV_CLOTH);
+	if (lara.bottle)
+		insert_object_into_list(INV_BOTTLE);
+
+	if (Gameflow->LoadSaveEnabled)
+	{
+		insert_object_into_list(INV_MEMCARD_LOAD_INV_ITEM);
+		insert_object_into_list(INV_MEMCARD_SAVE_INV_ITEM);
+	}
+
+	rings[0]->objlistmovement = 0;
+	rings[0]->curobjinlist = 0;
+	rings[0]->ringactive = 1;
+
+	rings[1]->objlistmovement = 0;
+	rings[1]->curobjinlist = 0;
+	rings[1]->ringactive = 0;
+
+	handle_object_changeover(0);
+
+	ammo_active = 0;
 }
 
 void insert_object_into_list_v2(int num)//3CB90, 3CFE4
 {
-	S_Warn("[insert_object_into_list_v2] - Unimplemented!\n");
+	if (options_table[num] & 9)
+	{
+		if (rings[0]->current_object_list[rings[0]->curobjinlist].invitem != num)
+		{
+			rings[1]->current_object_list[rings[1]->numobjectsinlist].invitem = num;
+			rings[1]->current_object_list[rings[1]->numobjectsinlist].yrot = 0;
+			rings[1]->current_object_list[rings[1]->numobjectsinlist++].bright = 32;
+		}
+	}
 }
 
 void construct_combine_object_list()//3C940, 3CD94
 {
-	S_Warn("[construct_combine_object_list] - Unimplemented!\n");
+	rings[1]->numobjectsinlist = 0;
+	for (int i = 0; i < 100; i++)
+	{
+		rings[1]->current_object_list[i].invitem = -1;
+	}
+
+	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA))
+	{
+		if (lara.sixshooter_type_carried & 1)
+		{
+			if (lara.sixshooter_type_carried & 4)
+				insert_object_into_list_v2(INV_REVOLVER_ITEM2);
+			else
+				insert_object_into_list_v2(INV_REVOLVER_ITEM1);
+		}
+
+		if (lara.hk_type_carried & 1)
+			insert_object_into_list_v2(INV_HK_ITEM1);
+
+		if (lara.crossbow_type_carried & 1 && !(gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT))
+		{
+			if (lara.crossbow_type_carried & 4)
+				insert_object_into_list_v2(INV_CROSSBOW_AMMO2_ITEM2);
+			else
+				insert_object_into_list_v2(INV_CROSSBOW_AMMO2_ITEM1);
+		}
+
+		if (lara.lasersight)
+			insert_object_into_list_v2(INV_LASERSIGHT_ITEM);
+
+		if (lara.silencer)
+			insert_object_into_list_v2(INV_SILENCER_ITEM);
+	}
+
+	for (int i = 0; i < 16; i++)
+	{
+		if (lara.puzzleitemscombo & (1 << i))
+			insert_object_into_list_v2(INV_PUZZLE_ITEM1_COMBO1 + i);
+	}
+
+	for (int i = 0; i < 16; i++)
+	{
+		if (lara.keyitemscombo & (1 << i))
+			insert_object_into_list_v2(INV_KEY_ITEM1_COMBO1 + i);
+	}
+
+	for (int i = 0; i < 8; i++)
+	{
+		if (lara.pickupitemscombo & (1 << i))
+			insert_object_into_list_v2(INV_PICKUP_ITEM1_COMBO1 + i);
+	}
+
+	if (lara.wetcloth == 1)
+		insert_object_into_list_v2(INV_CLOTH);
+	if (lara.bottle)
+		insert_object_into_list_v2(INV_BOTTLE);
+
+	rings[1]->objlistmovement = 0;
+	rings[1]->curobjinlist = 0;
+	rings[1]->ringactive = 0;
 }
 
 int go_and_save_game()//3C920(<), 3CD74(<) (F)
@@ -841,14 +1763,194 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	S_Warn("[DrawThreeDeeObject2D] - Unimplemented!\n");
 }
 
-void do_debounced_joystick_poo()//3C224, 3C678
+void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 {
-	S_Warn("[do_debounced_joystick_poo] - Unimplemented!\n");
+	go_left = 0;
+	go_right = 0;
+	go_up = 0;
+	go_down = 0;
+	go_select = 0;
+	go_deselect = 0;
+
+	if (input & IN_LEFT)
+	{
+		if (left_repeat >= 8u)
+			go_left = 1;
+		else
+			++left_repeat;
+		if (!left_debounce)
+			go_left = 1;
+		left_debounce = 1;
+	}
+	else
+	{
+		left_debounce = 0;
+		left_repeat = 0;
+	}
+
+	if (input & IN_RIGHT)
+	{
+		if (right_repeat >= 8u)
+			go_right = 1;
+		else
+			++right_repeat;
+		if (!right_debounce)
+			go_right = 1;
+		right_debounce = 1;
+	}
+	else
+	{
+		right_debounce = 0;
+		right_repeat = 0;
+	}
+
+	if (input & IN_UP)
+	{
+		if (!up_debounce)
+			go_up = 1;
+		up_debounce = 1;
+	}
+	else
+	{
+		up_debounce = 0;
+	}
+
+	if (input & IN_DOWN)
+	{
+		if (!down_debounce)
+			go_down = 1;
+		down_debounce = 1;
+	}
+	else
+	{
+		down_debounce = 0;
+	}
+
+#if PC_VERSION
+	if (input & IN_ACTION || input & IN_UNK20)
+#else
+	if (input & IN_JUMP)
+#endif
+	{
+		select_debounce = 1;
+	}
+	else
+	{
+		if (select_debounce == 1 && !friggrimmer)
+			go_select = 1;
+		select_debounce = 0;
+		friggrimmer = 0;
+	}
+
+#if PC_VERSION
+	if (input & IN_UNK21)
+#else
+	if (input & IN_DRAW)
+#endif
+	{
+		deselect_debounce = 1;
+	}
+	else
+	{
+		if (deselect_debounce == 1 && !friggrimmer2)
+			go_deselect = 1;
+		deselect_debounce = 0;
+		friggrimmer2 = 0;
+	}
 }
 
-void init_new_inventry()//3C024, 3C478
+void init_new_inventry()//3C024, 3C478 (F)
 {
-	S_Warn("[init_new_inventry] - Unimplemented!\n");
+	examine_mode = 0;
+	stats_mode = 0;
+
+	AlterFOV(ANGLE(80));
+
+	lara.Busy = 0;
+
+	GLOBAL_inventoryitemchosen = -1;
+
+	left_debounce = 0;
+	right_debounce = 0;
+	up_debounce = 0;
+	down_debounce = 0;
+
+	go_left = 0;
+	go_right = 0;
+	go_up = 0;
+	go_down = 0;
+
+	select_debounce = 0;
+	deselect_debounce = 0;
+
+	go_select = 0;
+	go_deselect = 0;
+
+	left_repeat = 0;
+	right_repeat = 0;
+
+	loading_or_saving = 0;
+	use_the_bitch = 0;
+
+	if (lara.num_shotgun_ammo1 == -1)
+		AmountShotGunAmmo1 = -1;
+	else
+		AmountShotGunAmmo1 = lara.num_shotgun_ammo1 / 6;
+
+	if (lara.num_shotgun_ammo2 == -1)
+		AmountShotGunAmmo2 = -1;
+	else
+		AmountShotGunAmmo2 = lara.num_shotgun_ammo2 / 6;
+
+	AmountHKAmmo1 = lara.num_hk_ammo1;
+	AmountCrossBowAmmo1 = lara.num_crossbow_ammo1;
+	AmountCrossBowAmmo2 = lara.num_crossbow_ammo2;
+	AmountUziAmmo = lara.num_uzi_ammo;
+	AmountRevolverAmmo = lara.num_revolver_ammo;
+	AmountPistolsAmmo = lara.num_pistols_ammo;
+
+	construct_object_list();
+
+	if (GLOBAL_enterinventory == -1)
+	{
+		if (GLOBAL_lastinvitem != -1)
+		{
+			if (have_i_got_item(GLOBAL_lastinvitem))
+				setup_objectlist_startposition(GLOBAL_lastinvitem);
+
+			GLOBAL_lastinvitem = -1;
+		}
+	}
+	else if (GLOBAL_enterinventory == 0xDEADBEEF)
+	{
+		GLOBAL_invkeypadmode = 1;
+		init_keypad_mode();
+		GLOBAL_enterinventory = -1;
+	}
+	else
+	{
+		if (have_i_got_object(GLOBAL_enterinventory))
+			setup_objectlist_startposition2(GLOBAL_enterinventory);
+
+		GLOBAL_enterinventory = -1;
+	}
+
+	ammo_selector_fade_val = 0;
+	ammo_selector_fade_dir = 0;
+
+	combine_ring_fade_val = 0;
+	combine_ring_fade_dir = 0;
+
+	combine_type_flag = 0;
+	seperate_type_flag = 0;
+
+	combine_obj1 = 0;
+	combine_obj2 = 0;
+
+	normal_ring_fade_val = 128;
+	normal_ring_fade_dir = 0;
+
+	handle_object_changeover(0);
 }
 
 int S_CallInventory2()//3B7A8, 3BC04

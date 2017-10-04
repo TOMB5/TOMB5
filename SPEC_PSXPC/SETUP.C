@@ -635,7 +635,7 @@ void RelocateLevel()
 		000B4A24 24040001 addiu   a0, 0, $1
 		000B4A28 3C07000A lui     a3, $A
 #endif
-	if (gfCurrentLevel == 12)
+	if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
 	{
 		inventry_objects_list[7].yoff = 4;
 		inventry_objects_list[7].yrot = -16384;
@@ -664,7 +664,7 @@ void RelocateLevel()
 
 	inventry_objects_list[8].flags = 0;
 
-	if (gfCurrentLevel == 0)
+	if (gfCurrentLevel == LVL5_TITLE)
 	{
 		MGSaveGamePtr = game_malloc(8192);
 		FromTitle = 1;
@@ -784,12 +784,12 @@ void InitialiseObjects()//?(<), B96EC(<)
 		}
 	}//0xB98B8
 
-	if (gfCurrentLevel == 1)
+	if (gfCurrentLevel == LVL5_STREETS_OF_ROME)
 	{
 		find_a_fucking_item(ANIMATING10);
 	}
 
-	if (gfCurrentLevel == 10)
+	if (gfCurrentLevel == LVL5_OLD_MILL)
 	{
 		find_a_fucking_item(ANIMATING16)->mesh_bits = 0;
 	}//B98F0
@@ -890,7 +890,7 @@ void sub_B9DA8()//?(<), B9DA8(<)
 	InitialiseTargetGraphics();
 	InitialiseFlipMaps();
 
-	if (gfCurrentLevel == 11 || gfCurrentLevel == 4 ||gfCurrentLevel == 8 || gfCurrentLevel == 1 && gfInitialiseGame != 0)
+	if (gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE ||gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME && gfInitialiseGame != 0)
 	{
 		//B9E50
 		sub_B4EE4(0);

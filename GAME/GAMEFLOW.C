@@ -18,11 +18,7 @@
 #include "ITEMS.H"
 #include "MALLOC.H"
 #include "NEWINV2.H"
-#if PSXPC_VERSION
-	#include "PSXPCINPUT.H"
-#elif PSX_VERSION
-	#include "PSXINPUT.H"
-#endif
+#include INPUT_H
 #include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
@@ -41,6 +37,7 @@ typedef unsigned int uintptr_t;
 #endif
 
 #include <string.h>
+#include "LOT.H"
 
 #define GF_SCRIPT_FILENAME "SCRIPT.DAT"
 
@@ -474,10 +471,12 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	CreditsDone = 0;
 	CanLoad = 0;
 
+#if !PC_VERSION
 	if (Gameflow->LoadSaveEnabled)
 	{
 		mcOpen(1);
 	}
+#endif
 
 	//loc_10648
 	num_fmvs = 0;
@@ -500,14 +499,23 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	title_controls_locked_out = 0;
 
+	#if PC_VERSION
+		 InitialiseFXArray(1);
+		InitialiseLOTarray(1);
+	#endif
+
 	InitialisePickUpDisplay();
 
+#if !PC_VERSION
 	phd_InitWindow(90);
+#endif
 
 	SOUND_Stop();
 
 	IsAtmospherePlaying = 0;
+#if !PC_VERSION
 	S_SetReverbType(1);
+#endif
 
 	InitialiseCamera();
 
@@ -550,6 +558,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	JustLoaded = 0;
 	
+#if !PC_VERSION
 	if (gfStatus == 0)
 	{
 		//loc_107BC, 10778
@@ -683,7 +692,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	bUseSpotCam = 0;
 	bDisableLaraControl = 0;
 	input = 0;
-
+#endif
 }
 
 void DoLevel(unsigned char Name, unsigned char Audio)

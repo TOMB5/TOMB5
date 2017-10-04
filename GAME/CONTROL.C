@@ -22,11 +22,7 @@
 #endif
 #include "NEWINV2.H"
 #include "PICKUP.H"
-#if PSXPC_VERSION
-#include "PSXPCINPUT.H"
-#elif PSX_VERSION
-#include "PSXINPUT.H"
-#endif
+#include INPUT_H
 #include "ROOMLOAD.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "SETUP.H"
@@ -977,7 +973,7 @@ int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)//2
 
 	if (item->mesh_bits & (1 << Node))
 	{
-		if (item->object_number != SWITCH_TYPE7 || gfCurrentLevel != 7 && gfCurrentLevel != 4)
+		if (item->object_number != SWITCH_TYPE7 || gfCurrentLevel != LVL5_SINKING_SUBMARINE && gfCurrentLevel != LVL5_BASE)
 		{
 			num = bits;
 			if (bits == 256)

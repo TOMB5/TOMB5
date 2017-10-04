@@ -13,6 +13,10 @@
 #define MAX(x, y) (((x)>(y))?(x):(y))
 #endif
 
+#ifndef NULL
+#define NULL 0
+#endif
+
 // (65536 / 360) ~ 182.0444...
 //#define TRDEG (65536.0/360)
 #define ANGLE(x) ((x) * 65536.0 / 360.0)
@@ -31,6 +35,11 @@
 
 #define TEXTURE_PAGE (256 * 256)
 
+#ifndef CLAMP
+#define CLAMP(x, a, b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
+#endif
+
+// 4 enums
 enum mood_type
 {
 	BORED_MOOD = 0,

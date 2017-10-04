@@ -5,13 +5,7 @@
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "OBJECTS.H"
-#if PSXPC_VERSION
-#include "PSXPCINPUT.H"
-#elif PSX_VERSION
-#include "PSXINPUT.H"
-#elif PC_VERSION
-#include "PCINPUT.H"
-#endif
+#include INPUT_H
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "SWITCH.H"
@@ -544,7 +538,7 @@ void CalculateSpotCams()//
 	{
 		CameraFade = current_spline_camera;
 
-		if (gfCurrentLevel != 0)
+		if (gfCurrentLevel != LVL5_TITLE)
 		{
 			ScreenFadedOut = 0;
 			ScreenFade = 255;
@@ -556,7 +550,7 @@ void CalculateSpotCams()//
 	//loc_38084
 	if (SpotCam[current_spline_camera].flags & SCF_SCREEN_FADE_OUT && CameraFade != current_spline_camera)
 	{
-		if (gfCurrentLevel != 0)
+		if (gfCurrentLevel != LVL5_TITLE)
 		{
 			ScreenFadedOut = 0;
 			ScreenFade = 0;

@@ -17,6 +17,7 @@ extern inline void memset32(void* buf, uint32_t n, int32_t c);
 extern int S_SoundStopAllSamples();
 extern int sub_4D1A40();
 extern char __cdecl Decompress(void* buf, void* compressed, int compSize, int uncompSize);
+extern void DisplayStatsUCunt();
 extern BYTE* bufSource;
 extern void* ptr;
 extern HANDLE Handles;
