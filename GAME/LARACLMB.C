@@ -6,6 +6,15 @@
 #include INPUT_H
 #include "SPECIFIC.H"
 
+static short LeftIntRightExtTab[4] = // offset 0xA0B7C
+{
+	0x0800, 0x0100, 0x0200, 0x0400
+};
+static short LeftExtRightIntTab[4] = // offset 0xA0B84
+{
+	0x0200, 0x0400, 0x0800, 0x0100
+};
+
 short GetClimbTrigger(long x, long y, long z, short room_number)//46E38, 4729C
 {
 	S_Warn("[GetClimbTrigger] - Unimplemented!\n");

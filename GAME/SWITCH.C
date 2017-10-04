@@ -8,6 +8,36 @@ unsigned char SequenceResults[3][3][3];
 unsigned char Sequences[3];
 unsigned char CurrentSequence;
 
+static short Switch2Bounds[12]; // offset 0xA14B4
+static struct PHD_VECTOR Switch2Position; // offset 0xA14CC
+static short TurnSwitchBoundsA[12]; // offset 0xA14D8
+static struct PHD_VECTOR TurnSwitchPos; // offset 0xA14F0
+static short TurnSwitchBoundsC[12]; // offset 0xA14FC
+static struct PHD_VECTOR TurnSwitchPosA; // offset 0xA1514
+static struct PHD_VECTOR CogSwitchPos; // offset 0xA1520
+static short CogSwitchBounds[12]; // offset 0xA152C
+static struct PHD_VECTOR RailSwitchPos; // offset 0xA1544
+static short RailSwitchBounds[12]; // offset 0xA1550
+static struct PHD_VECTOR RailSwitchPos2; // offset 0xA1568
+static short RailSwitchBounds2[12]; // offset 0xA1574
+static short JumpSwitchBounds[12]; // offset 0xA158C
+static struct PHD_VECTOR JumpSwitchPos; // offset 0xA15A4
+static struct PHD_VECTOR CrowbarPos; // offset 0xA15B0
+static short CrowbarBounds[12]; // offset 0xA15BC
+static struct PHD_VECTOR CrowbarPos2; // offset 0xA15D4
+static short CrowbarBounds2[12]; // offset 0xA15E0
+static short FullBlockSwitchBounds[12]; // offset 0xA15F8
+static struct PHD_VECTOR FullBlockSwitchPos; // offset 0xA1610
+static short PulleyBounds[12]; // offset 0xA161C
+static struct PHD_VECTOR PulleyPos; // offset 0xA1634
+static struct PHD_VECTOR CrowDovePos; // offset 0xA1640
+static short UnderwaterSwitchBounds[12]; // offset 0xA164C
+static short UnderwaterSwitchBounds2[12]; // offset 0xA1664
+static struct PHD_VECTOR UnderwaterSwitchPos; // offset 0xA167C
+static struct PHD_VECTOR UnderwaterSwitchPos2; // offset 0xA1688
+static short SwitchBounds[12]; // offset 0xA1694
+static struct PHD_VECTOR SwitchPos; // offset 0xA16AC
+
 void ProcessExplodingSwitchType8(struct ITEM_INFO* item)//58958, 58DF8
 {
 	S_Warn("[ProcessExplodingSwitchType8] - Unimplemented!\n");

@@ -37,6 +37,11 @@ short SPxzoffs[8] =
 	0x0000, 0x0000, 0x0200, 0x0000, 0x0000, 0x0000, 0xFE00, 0x0000
 };
 
+static struct PHD_VECTOR FloorTrapDoorPos; // offset 0xA16B8
+static short FloorTrapDoorBounds[12]; // offset 0xA16C4
+static struct PHD_VECTOR CeilingTrapDoorPos; // offset 0xA16DC
+static short CeilingTrapDoorBounds[12]; // offset 0xA16E8
+
 void ControlExplosion(short item_number)//5C8BC, 5CD38
 {
 	S_Warn("[ControlExplosion] - Unimplemented!\n");
