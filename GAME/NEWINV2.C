@@ -1372,7 +1372,7 @@ void setup_ammo_selector()//3E9F8, 3EE4C (F)
 		{
 			ammo_selector_flag = 1;
 			ammo_selector_fade_dir = 1;
-			if (HIBYTE(opts) & 2)
+			if (opts & 0x200)
 			{
 				ammo_object_list[0].invitem = 18;
 				ammo_object_list[0].amount = AmountUziAmmo;
@@ -1380,7 +1380,7 @@ void setup_ammo_selector()//3E9F8, 3EE4C (F)
 				num_ammo_slots = 1;
 				current_ammo_type = &CurrentUziAmmoType;
 			}
-			if (HIBYTE(opts) & 4)
+			if (opts & 0x400)
 			{
 				num = 1;
 				ammo_object_list[0].invitem = 19;
@@ -1388,7 +1388,7 @@ void setup_ammo_selector()//3E9F8, 3EE4C (F)
 				num_ammo_slots = 1;
 				current_ammo_type = &CurrentPistolsAmmoType;
 			}
-			if (HIBYTE(opts) & 8)
+			if (opts & 0x800)
 			{
 				num = 1;
 				ammo_object_list[0].invitem = 17;
@@ -1407,7 +1407,7 @@ void setup_ammo_selector()//3E9F8, 3EE4C (F)
 				num++;
 				num_ammo_slots = num;
 			}
-			if (HIBYTE(opts) & 1)
+			if (opts & 0x100)
 			{
 				current_ammo_type = &CurrentGrenadeGunAmmoType;
 				ammo_object_list[num].invitem = 11;
@@ -1432,7 +1432,7 @@ void setup_ammo_selector()//3E9F8, 3EE4C (F)
 				num++;
 				num_ammo_slots = num;
 			}
-			if (HIBYTE(opts) & 0x40)
+			if (opts & 0x4000)
 			{
 				ammo_object_list[0].invitem = 96;
 				ammo_object_list[0].amount = AmountCrossBowAmmo1;
@@ -1646,11 +1646,13 @@ void construct_object_list()//3CC80, 3D0D4
 		insert_object_into_list(INV_CLOTH);
 	if (lara.bottle)
 		insert_object_into_list(INV_BOTTLE);
+
 	if (Gameflow->LoadSaveEnabled)
 	{
 		insert_object_into_list(INV_MEMCARD_LOAD_INV_ITEM);
 		insert_object_into_list(INV_MEMCARD_SAVE_INV_ITEM);
 	}
+
 	rings[0]->objlistmovement = 0;
 	rings[0]->curobjinlist = 0;
 	rings[0]->ringactive = 1;
@@ -1666,7 +1668,15 @@ void construct_object_list()//3CC80, 3D0D4
 
 void insert_object_into_list_v2(int num)//3CB90, 3CFE4
 {
-	S_Warn("[insert_object_into_list_v2] - Unimplemented!\n");
+	if (options_table[num] & 9)
+	{
+		if (rings[0]->current_object_list[rings[0]->curobjinlist].invitem != num)
+		{
+			rings[1]->current_object_list[rings[1]->numobjectsinlist].invitem = num;
+			rings[1]->current_object_list[rings[1]->numobjectsinlist].yrot = 0;
+			rings[1]->current_object_list[rings[1]->numobjectsinlist++].bright = 32;
+		}
+	}
 }
 
 void construct_combine_object_list()//3C940, 3CD94
