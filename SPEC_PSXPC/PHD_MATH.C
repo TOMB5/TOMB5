@@ -59,3 +59,23 @@ void mPopMatrix()
 {
 	S_Warn("[mPopMatrix] - Unimplemented!\n");
 }
+
+void mSetTrans(long x, long y, long z)
+{
+	S_Warn("[mSetTrans] - Unimplemented!\n");
+}
+
+void mTranslateXYZ(long x, long y, long z)
+{
+	S_Warn("[mTranslateXYZ] - Unimplemented!\n");
+}
+
+void mTranslateAbsXYZ(long x, long y, long z)
+{
+	S_Warn("[mTranslateAbsXYZ] - Unimplemented!\n");
+}
+
+void mRotY(long ry)
+{
+	S_Warn("[mRotY] - Unimplemented!\n");
+}

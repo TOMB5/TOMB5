@@ -5,5 +5,9 @@ extern long phd_sqrt_asm(long val);
 extern void ScaleCurrentMatrix(long a0, long sx, long sy, long sz);
 extern void mPushUnitMatrix();
 extern void mPopMatrix();
+extern void mSetTrans(long x, long y, long z);
+extern void mTranslateXYZ(long x, long y, long z);
+extern void mTranslateAbsXYZ(long x, long y, long z);
+extern void mRotY(long ry);
 
 #endif

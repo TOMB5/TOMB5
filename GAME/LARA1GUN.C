@@ -11,6 +11,8 @@
 #include "LARAFIRE.H"
 #include "OBJECTS.H"
 
+#include <stddef.h>
+
 char HKTimer;
 char HKShotsFired;
 

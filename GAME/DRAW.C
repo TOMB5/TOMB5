@@ -1,5 +1,7 @@
 #include "DRAW.H"
 
+#include "SPECIFIC.H"
+
 #include <stddef.h>
 
 short LightningSFXDelay;
@@ -107,4 +109,19 @@ short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8,
 #endif
 
 	return NULL;
+}
+
+void UpdateSkyLightning()
+{
+	S_Warn("[UpdateSkyLightning] - Unimplemented!\n");
+}
+
+void DrawSkyMesh(short* mesh)
+{
+	S_Warn("[DrawSkyMesh] - Unimplemented!\n");
+}
+
+void DrawFlatSky_ASM(struct CVECTOR colour, short pos, long flags)
+{
+	S_Warn("[DrawFlatSky_ASM] - Unimplemented!\n");
 }

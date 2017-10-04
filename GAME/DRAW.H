@@ -43,7 +43,9 @@ extern short Sback_gun;
 extern short* SRhandPtr;
 extern short* SLhandPtr;
 
-long GetFrames(struct ITEM_INFO* item, short** unknown, long* unknown_2);
-short* GetBoundsAccurate(struct ITEM_INFO* item);
-
+extern long GetFrames(struct ITEM_INFO* item, short** unknown, long* unknown_2);
+extern short* GetBoundsAccurate(struct ITEM_INFO* item);
+extern void UpdateSkyLightning();
+extern void DrawSkyMesh(short* mesh);
+extern void DrawFlatSky_ASM(struct CVECTOR colour, short pos, long flags);
 #endif
