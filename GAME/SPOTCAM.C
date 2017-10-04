@@ -42,14 +42,14 @@ long MULTEMP(long A/*$a0*/, long B/*$a1*/)
 	return v1|v0;
 }
 
-int bUseSpotCam;
-int bDisableLaraControl;
-int bTrackCamInit;
-char SCOverlay;
-char SCNoDrawLara;
-char SniperOverlay;
-short spotcam_timer;
-int bCheckTrigger;
+int bUseSpotCam = 0;
+int bDisableLaraControl = 0;
+int bTrackCamInit = 0;
+char SCOverlay = 0;
+char SCNoDrawLara = 0;
+char SniperOverlay = 0;
+short spotcam_timer = 0;
+int bCheckTrigger = 0;
 short LastSequence;
 short CurrentFov;
 short spotcam_loopcnt;
