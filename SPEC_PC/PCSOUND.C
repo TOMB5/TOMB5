@@ -337,7 +337,7 @@ void __cdecl sub_4027DE(void *a1, int a2)
 		byte_57A01C = 0;
 		byte_579FE4 = 0;
 		ResetSoundThings();
-		S_CDPlay((unsigned __int8)CurrentAtmosphere, 1);
+		S_CDPlay(CurrentAtmosphere, 1);
 	}
 }
 

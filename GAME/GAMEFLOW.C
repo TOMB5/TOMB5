@@ -539,7 +539,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 		ScreenFading = 0;
 
 #if !INTERNAL
-		S_CDPlay(111, 1);
+		S_CDPlay(CDA_xa14_ecredits, 1);
 #endif
 	}
 

@@ -32,6 +32,7 @@
 #include <stddef.h>
 
 #include "DRAWPHAS.H"
+#include "SOUND.H"
 
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
@@ -556,19 +557,19 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 	 */
 	if (num == 1)
 	{
-		S_CDPlay(83, CD_PLAY_MODE);
+		S_CDPlay(CDA_xa11_flyby1, CD_PLAY_MODE);
 	}
 	else if (num == 2)
 	{
-		S_CDPlay(87, CD_PLAY_MODE);
+		S_CDPlay(CDA_xa11_flyby2, CD_PLAY_MODE);
 	}
 	else if (num == 3)
 	{
-		S_CDPlay(86, CD_PLAY_MODE);
+		S_CDPlay(CDA_xa11_flyby3, CD_PLAY_MODE);
 	}
 	else if (num == 4)
 	{
-		S_CDPlay(91, CD_PLAY_MODE);
+		S_CDPlay(CDA_xa12_flyby4, CD_PLAY_MODE);
 	}
 
 	InitialiseSpotCam(num);

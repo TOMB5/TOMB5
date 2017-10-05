@@ -5,6 +5,7 @@
 #include "ITEMS.H"
 #include "EFFECTS.H"
 #include "OBJECTS.H"
+#include "CONTROL.H"
 
 short SPDETyoffs[8] =
 {
@@ -122,8 +123,18 @@ void ControlRollingBall(short item_number)//5AE08, 5B284
 
 void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4
 {
-	S_Warn("[LavaBurn] - Unimplemented!\n");
-	return;
+	if (item->hit_points >= 0 && lara.water_status != 3)
+	{
+		short room_number = item->room_number;
+
+		if (item->floor == GetHeight(GetFloor(item->pos.x_pos, 32000, item->pos.z_pos, &room_number),
+			item->pos.x_pos, 32000, item->pos.z_pos))
+		{
+			item->hit_points = -1;
+			item->collidable = TRUE;
+			LaraBurn();
+		}
+	}
 }
 
 void LaraBurn()//5ACE4, 5B160

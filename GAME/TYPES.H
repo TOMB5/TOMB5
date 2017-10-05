@@ -143,7 +143,7 @@ enum weather_type
 };
 
 #if PC_VERSION
-#pragma pack(push, 1)
+
 #endif
 struct VECTOR
 {
@@ -175,7 +175,7 @@ struct PHD_VECTOR
 	long y;
 	long z;
 };
-
+#pragma pack(push, 4)
 struct PHD_3DPOS
 {
 	long x_pos;
@@ -185,7 +185,8 @@ struct PHD_3DPOS
 	short y_rot;
 	short z_rot;
 };
-
+#pragma pop
+#pragma pack(push, 1)
 struct ILIGHT
 {
 	short x;
