@@ -1,6 +1,10 @@
 #include "TRAPS.H"
 
 #include "SPECIFIC.H"
+#include "LARA.H"
+#include "ITEMS.H"
+#include "EFFECTS.H"
+#include "OBJECTS.H"
 
 short SPDETyoffs[8] =
 {
@@ -124,8 +128,15 @@ void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4
 
 void LaraBurn()//5ACE4, 5B160
 {
-	S_Warn("[LaraBurn] - Unimplemented!\n");
-	return;
+	if (!lara.burn && !lara.BurnSmoke)
+	{
+		short fx = CreateEffect(lara_item->room_number);
+		if (fx != -1)
+		{
+			effects[fx].object_number = FLAME;
+			lara.burn = TRUE;
+		}
+	}
 }
 
 void FlameControl(short fx_number)//5AA6C, 5AEE8
