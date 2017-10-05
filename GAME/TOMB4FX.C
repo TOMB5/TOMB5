@@ -7,6 +7,11 @@
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "CAMERA.H"
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
 
 char flare_table[121] =
 {
@@ -367,3 +372,71 @@ void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb)
 {
 	S_Warn("[SetUpLensFlare] - Unimplemented!\n");
 }
+
+int ExplodingDeath2(short item_number, long mesh_bits, short Flags)
+{
+	S_Warn("[ExplodingDeath2] - Unimplemented!\\n");
+}
+
+void DrawLensFlares(struct ITEM_INFO *item)
+{
+	S_Warn("[DrawLensFlares] - Unimplemented!\\n");
+}
+
+void TriggerLightningGlow(long x, long y, long z, long rgb)
+{
+	struct SPARKS* sptr = &spark[GetFreeSpark()];
+	sptr->dG = rgb >> 8;
+	sptr->sG = rgb >> 8;
+	sptr->Life = 4;
+	sptr->sLife = 4;
+	sptr->dR = rgb >> 16;
+	sptr->sR = rgb >> 16;
+	sptr->ColFadeSpeed = 2;
+	sptr->TransType = 2;
+	sptr->x = x;
+	sptr->On = 1;
+	sptr->dB = rgb;
+	sptr->sB = rgb;
+	sptr->FadeToBlack = 0;
+	sptr->y = y;
+	sptr->z = z;
+	sptr->Zvel = 0;
+	sptr->Yvel = 0;
+	sptr->Xvel = 0;
+	sptr->Flags = 10;
+	sptr->Scalar = 3;
+	sptr->MaxYvel = 0;
+	sptr->Def = objects[DEFAULT_SPRITES].mesh_index + 11;
+	sptr->Gravity = 0;
+	long size = (unsigned char)(rgb >> 24) + (GetRandomControl() & 3);
+	sptr->dSize = size;
+	sptr->sSize = size;
+	sptr->Size = size;
+}
+
+void trig_actor_gunflash(struct MATRIX3D *matrix, struct PHD_VECTOR *pos)
+{
+	S_Warn("[trig_actor_gunflash] - Unimplemented!\\n");
+}
+
+void TriggerFenceSparks(long x, long y, long z, long kill, long crane)
+{
+	S_Warn("[TriggerFenceSparks] - Unimplemented!\\n");
+}
+
+void ControlElectricFence(short item_number)
+{
+	S_Warn("[ControlElectricFence] - Unimplemented!\\n");
+}
+
+void ControlTeleporter(short item_number)
+{
+	S_Warn("[ControlTeleporter] - Unimplemented!\\n");
+}
+
+void DrawWeaponMissile(struct ITEM_INFO *item)
+{
+	S_Warn("[DrawWeaponMissile] - Unimplemented!\\n");
+}
+
