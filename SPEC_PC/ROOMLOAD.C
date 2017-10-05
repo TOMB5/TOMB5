@@ -1522,7 +1522,7 @@ void sub_473210(int a1)
 	if (lara.item_number != -1)
 	{
 		lara_item->data = &lara;
-		*(_DWORD *)&lara_item->pad[5468] &= 0xFFFFFFDF;
+		lara_item->looked_at = 0;
 		if (a1)
 		{
 			
