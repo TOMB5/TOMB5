@@ -746,7 +746,7 @@ void InitialiseObjects()//?(<), B96EC(<)
 		objects[i].save_hitpoints = 0;
 		objects[i].save_position = 0;
 
-		*(int*)&objects[i].frame_base += (int) frames;
+		*(int*)&objects[i].frame_base += (ptrdiff_t) frames;
 	}
 
 	sub_B5328();
