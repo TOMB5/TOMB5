@@ -139,7 +139,7 @@ void SaveLaraData()//53738(<), 53B9C(<) (F)
 	
 	for (i = 0; i < 15; i++)
 	{
-		lara.mesh_ptrs[i] = (short*)((char*)mesh_base + (int)lara.mesh_ptrs[i]);
+		lara.mesh_ptrs[i] = (short*)((char*)mesh_base + (ptrdiff_t)lara.mesh_ptrs[i]);
 	}
 
 	lara.left_arm.frame_base = (short*)((char *)lara.left_arm.frame_base + (ptrdiff_t)objects[PISTOLS_ANIM].frame_base);
