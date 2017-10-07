@@ -409,6 +409,28 @@ struct OBJECT_TEXTURE
 	uint16_t new_flags;
 	struct OBJECT_TEXTURE_VERT vertices[4];
 };
+
+struct DRIP_STRUCT
+{
+	long x; // size=0, offset=0
+	long y; // size=0, offset=4
+	long z; // size=0, offset=8
+	unsigned char On; // size=0, offset=12
+	unsigned char R; // size=0, offset=13
+	unsigned char G; // size=0, offset=14
+	unsigned char B; // size=0, offset=15
+	short Yvel; // size=0, offset=16
+	unsigned char Gravity; // size=0, offset=18
+	unsigned char Life; // size=0, offset=19
+	short RoomNumber; // size=0, offset=20
+	unsigned char Outside; // size=0, offset=22
+	unsigned char Pad; // size=0, offset=23
+	char padding[8];
+	unsigned short padding1;
+	char padding2[2];
+	unsigned short padding3;
+	char padding4[2];
+};
 #pragma pop
 
 #endif

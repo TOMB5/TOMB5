@@ -801,7 +801,7 @@ void joby7_control()//3210C(<), 325A4(<) (F)
 	d.z = -128;
 	GetActorJointAbsPosition(1, 7, &d);
 	LaraTorch(&s, &d, 0, 255);
-	RelocFunc_010();
+	RelocFunc_18_10();
 	handle_actor_chatting(17, 14, 1, 44, lara_chat_ranges_joby7);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
@@ -2120,9 +2120,29 @@ void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VE
 	S_Warn("[GetActorJointAbsPosition] - Unimplemented!\n");
 }
 
+void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix)
+{
+	S_Warn("[GrabActorMatrix] - Unimplemented!\n");
+}
+
 void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, struct PHD_VECTOR* pos)
 {
-	S_Warn("[deal_with_actor_shooting] - Unimplemented!\n");
+	for(int i = 0; shootdata[i] != -1; i++)
+	{
+		unsigned short dat = shootdata[i];
+
+		if (GLOBAL_cutseq_frame == dat || GLOBAL_cutseq_frame == dat + 1)
+		{
+			struct MATRIX3D arse;
+			GrabActorMatrix(actornum, nodenum, &arse);
+			trig_actor_gunflash(&arse, pos);
+			GetActorJointAbsPosition(actornum, nodenum, pos);
+			TriggerDynamic(pos->x, pos->y, pos->z, 10,
+				(GetRandomControl() & 0x3F) + 192,
+				(GetRandomControl() & 0x1F) + 128,
+				(GetRandomControl() & 0x3F));
+		}
+	}
 }
 
 void stealth3_end()//2E99C, 2ECA8
@@ -2137,66 +2157,66 @@ void stealth3_start()//2E824, 2EB30
 
 void special4_end()//2E7F4(<), 2EB00(<) (F)
 {
-	RelocFunc_026();
+	RelocFunc_34_34();
 }
 
 void special4_control()//2E7C4(<), 2EAD0(<) (F)
 {
-	RelocFunc_025();
+	RelocFunc_34_30();
 }
 
 void special4_init()//2E794(<), 2EAA0(<) (F)
 {
 	cutrot = 0;
-	RelocFunc_024();
+	RelocFunc_34_2C();
 }
 
 void special3_end()//2E764(<), 2EA70(<) (F)
 {
-	RelocFunc_023();
+	RelocFunc_34_28();
 }
 
 void special3_control()//2E734(<), 2EA40(<) (F)
 {
-	RelocFunc_022();
+	RelocFunc_34_24();
 }
 
 void special3_init()//2E704(<), 2EA10(<) (F)
 {
 	cutrot = 0;
-	RelocFunc_021();
+	RelocFunc_34_20();
 }
 
 void special2_end()//2E6D4(<), 2E9E0(<) (F)
 {
-	RelocFunc_020();
+	RelocFunc_34_1C();
 }
 
 void special2_control()//2E6A4(<), 2E9B0(<) (F)
 {
-	RelocFunc_019();
+	RelocFunc_34_18();
 }
 
 void special2_init()//2E674(<), 2E980(<) (F)
 {
 	cutrot = 0;
-	RelocFunc_018();
+	RelocFunc_34_14();
 }
 
 void special1_end()//2E644(<), 2E950(<) (F)
 {
-	RelocFunc_017();
+	RelocFunc_34_10();
 }
 
 void special1_control()//2E614(<), 2E920(<) (F)
 {
-	RelocFunc_016();
+	RelocFunc_34_0C();
 }
 
 void special1_init()//2E5E4(<), 2E8F0(<) (F)
 {
 	cutrot = 0;
-	RelocFunc_015();
+	RelocFunc_34_08();
 }
 
 void richcut3_control()//2E594(<), 2E8A0(<) (F)

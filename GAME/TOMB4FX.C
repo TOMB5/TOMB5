@@ -7,6 +7,7 @@
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "CAMERA.H"
+#include "EFFECTS.H"
 #ifdef PC_VERSION
 #include "GAME.H"
 #else
@@ -204,6 +205,39 @@ int GetFreeDrip()
 
 }
 
+void TriggerLaraDrips()
+{
+	if (!(wibble & 0xF))
+	{
+		for(int i = 14; i >= 0; i--)
+		{
+			if (lara.wet[i] && !LaraNodeUnderwater[14 - i] && (GetRandomControl() & 0x1FF) < lara.wet[i])
+			{
+				struct PHD_VECTOR pos;
+				pos.x = (GetRandomControl() & 0x1F) - 16;
+				pos.y = (GetRandomControl() & 0xF) + 16;
+				pos.z = (GetRandomControl() & 0x1F) - 16;
+
+				struct DRIP_STRUCT* dptr = &Drips[GetFreeDrip()];
+				GetLaraJointPos(&pos, i);
+				dptr->x = pos.x;
+				dptr->y = pos.y;
+				dptr->z = pos.z;
+				dptr->On = 1;
+				dptr->R = (GetRandomControl() & 7) + 16;
+				dptr->G = (GetRandomControl() & 7) + 24;
+				dptr->B = (GetRandomControl() & 7) + 32;
+				dptr->Yvel = (GetRandomControl() & 0x1F) + 32;
+				dptr->Gravity = (GetRandomControl() & 0x1F) + 32;
+				dptr->Life = (GetRandomControl() & 0x1F) + 8;
+				dptr->RoomNumber = lara_item->room_number;
+
+				lara.wet[i] -= 4;
+			}
+		}
+	}
+}
+
 int GetFreeSmokeSpark()
 {
 	S_Warn("[GetFreeSmokeSpark] - Unimplemented!\n");
@@ -355,12 +389,160 @@ void TriggerBlood(int x, int y, int z, int a4, int num)
 
 void TriggerExplosionBubble(int x, int y, int z, short room_num)
 {
-	S_Warn("[TriggerExplosionBubble] - Unimplemented!\n");
+	int dx = lara_item->pos.x_pos - x;
+	int dz = lara_item->pos.z_pos - z;
+	if (dx >= -16384 && dx <= 16384 && dz >= -16384 && dz <= 16384)
+	{
+		struct SPARKS* sptr = &spark[GetFreeSpark()];
+		sptr->sR = 128;
+		sptr->dR = 128;
+		sptr->dG = 128;
+		sptr->dB = 128;
+		sptr->On = 1;
+		sptr->Life = 24;
+		sptr->sLife = 24;
+		sptr->sG = 64;
+		sptr->sB = 0;
+		sptr->ColFadeSpeed = 8;
+		sptr->FadeToBlack = 12;
+		sptr->TransType = 2;
+		sptr->x = x;
+		sptr->y = y;
+		sptr->z = z;
+		sptr->Xvel = 0;
+		sptr->Yvel = 0;
+		sptr->Zvel = 0;
+		sptr->Friction = 0;
+		sptr->Flags = 2058;
+		sptr->Scalar = 3;
+		sptr->Gravity = 0;
+		sptr->Def = objects[DEFAULT_SPRITES].mesh_index + 13;
+		sptr->MaxYvel = 0;
+		int size = (GetRandomControl() & 7) + 63;
+		sptr->sSize = size >> 1;
+		sptr->Size = size >> 1;
+		sptr->dSize = 2 * size;
+
+		for(int i = 0; i < 8; i++)
+		{
+			struct PHD_VECTOR pos;
+			pos.x = (GetRandomControl() & 0x1FF) + x - 256;
+			pos.y = (GetRandomControl() & 0x7F) + y - 64;
+			pos.z = (GetRandomControl() & 0x1FF) + z - 256;
+			CreateBubble(&pos, room_num, 6, 15, 0, 0, 0, 0);
+		}
+	}
+}
+
+void TriggerExplosionSmokeEnd(int x, int y, int z, int a4)
+{
+	struct SPARKS* sptr = &spark[GetFreeSpark()];
+
+	sptr->On = 1;
+	if (a4)
+	{
+		sptr->sR = 0;
+		sptr->sG = 0;
+		sptr->sB = 0;
+		sptr->dR = 192;
+		sptr->dG = 192;
+		sptr->dB = 208;
+	}
+	else
+	{
+		sptr->dR = 64;
+		sptr->sR = 144;
+		sptr->sG = 144;
+		sptr->sB = 144;
+		sptr->dG = 64;
+		sptr->dB = 64;
+	}
+
+	sptr->ColFadeSpeed = 8;
+	sptr->FadeToBlack = 64;
+	sptr->Life = sptr->sLife = (GetRandomControl() & 0x1F) + 96;
+	if (a4)
+		sptr->TransType = 2;
+	else
+		sptr->TransType = 3;
+	sptr->x = (GetRandomControl() & 0x1F) + x - 16;
+	sptr->y = (GetRandomControl() & 0x1F) + y - 16;
+	sptr->z = (GetRandomControl() & 0x1F) + z - 16;
+	sptr->Xvel = ((GetRandomControl() & 0xFFF) - 2048) >> 2;
+	sptr->Yvel = (GetRandomControl() & 0xFF) - 128;
+	sptr->Zvel = ((GetRandomControl() & 0xFFF) - 2048) >> 2;
+	if (a4)
+	{
+		sptr->Friction = 20;
+		sptr->Yvel >>= 4;
+		sptr->y += 32;
+	}
+	else
+	{
+		sptr->Friction = 6;
+	}
+	sptr->Flags = 538;
+	sptr->RotAng = GetRandomControl() & 0xFFF;
+	if (GetRandomControl() & 1)
+		sptr->RotAdd = -((GetRandomControl() & 0xF) + 16);
+	else
+		sptr->RotAdd = (GetRandomControl() & 0xF) + 16;
+	sptr->Scalar = 3;
+	if (a4)
+	{
+		sptr->MaxYvel = 0;
+		sptr->Gravity = 0;
+	}
+	else
+	{
+		sptr->Gravity = -3 - (GetRandomControl() & 3);
+		sptr->MaxYvel = -4 - (GetRandomControl() & 3);
+	}
+	int size = (GetRandomControl() & 0x1F) + 128;
+	sptr->dSize = size;
+	sptr->sSize = size >> 2;
+	sptr->Size = size >> 2;
 }
 
 void TriggerExplosionSparks(int x, int y, int z, int a4, int a5, int a6, short room_no)
 {
 	S_Warn("[TriggerExplosionSparks] - Unimplemented!\n");
+}
+
+int GetFreeShockwave()
+{
+	for(int i = 0; i < 16; i++)
+	{
+		if (!ShockWaves[i].life)
+			return i;
+	}
+
+	return -1;
+}
+
+void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, int speed, char r, char g, char b, char life, short angle, short flags)
+{
+	int s = GetFreeShockwave();
+
+	if (s != -1)
+	{
+		struct SHOCKWAVE_STRUCT* sptr = &ShockWaves[s];
+
+		sptr->x = pos->x_pos;
+		sptr->y = pos->y_pos;
+		sptr->z = pos->z_pos;
+		sptr->InnerRad = inner_rad;
+		sptr->OuterRad = outer_rad;
+		sptr->XRot = angle;
+		sptr->Flags = flags;
+		sptr->Speed = speed;
+		sptr->r = r;
+		sptr->g = g;
+		sptr->b = b;
+		sptr->life = life;
+
+		SoundEffect(251, &pos, 0);
+	}
 }
 
 void Fade()
@@ -380,7 +562,14 @@ int ExplodingDeath2(short item_number, long mesh_bits, short Flags)
 
 void DrawLensFlares(struct ITEM_INFO *item)
 {
-	S_Warn("[DrawLensFlares] - Unimplemented!\\n");
+	struct GAME_VECTOR pos;
+
+	pos.x = item->pos.x_pos;
+	pos.y = item->pos.y_pos;
+	pos.z = item->pos.z_pos;
+	pos.room_number = item->room_number;
+
+	SetUpLensFlare(0, 0, 0, &pos);
 }
 
 void TriggerLightningGlow(long x, long y, long z, long rgb)

@@ -63,5 +63,6 @@ extern void TriggerFenceSparks(long x, long y, long z, long kill, long crane);
 extern void ControlElectricFence(short item_number);
 extern void ControlTeleporter(short item_number);
 extern void DrawWeaponMissile(struct ITEM_INFO *item);
+extern void TriggerLaraDrips();
 
 #endif
