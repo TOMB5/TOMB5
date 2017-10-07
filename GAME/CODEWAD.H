@@ -14,5 +14,7 @@ extern void RelocFunc_34_28(); // special3_end
 extern void RelocFunc_34_2C(); // special4_init
 extern void RelocFunc_34_30(); // special4_control
 extern void RelocFunc_34_34(); // special4_end
+extern long sub_1BE988();
+extern long sub_1BDF88(long levelID);
 
 #endif
