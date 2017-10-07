@@ -3,6 +3,7 @@
 
 // required for NULL macro because if we define it ourselves it shits brixes
 #include <stdlib.h>
+#include <stddef.h>
 
 #ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
