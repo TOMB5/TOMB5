@@ -541,7 +541,7 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 		sptr->b = b;
 		sptr->life = life;
 
-		SoundEffect(251, &pos, 0);
+		SoundEffect(251, pos, 0);
 	}
 }
 
@@ -558,6 +558,7 @@ void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb)
 int ExplodingDeath2(short item_number, long mesh_bits, short Flags)
 {
 	S_Warn("[ExplodingDeath2] - Unimplemented!\\n");
+	return 0;
 }
 
 void DrawLensFlares(struct ITEM_INFO *item)

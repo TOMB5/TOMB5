@@ -1,6 +1,9 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+// required for NULL macro because if we define it ourselves it shits brixes
+#include <stdlib.h>
+
 #ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif
@@ -11,10 +14,6 @@
 
 #ifndef MAX
 #define MAX(x, y) (((x)>(y))?(x):(y))
-#endif
-
-#ifndef NULL
-#define NULL ((void*)0)
 #endif
 
 #ifndef FALSE
