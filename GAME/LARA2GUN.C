@@ -35,31 +35,31 @@ void undraw_pistol_mesh_right(int weapon_type)//44968(<), 44DCC(<) (F)
 	lara.mesh_ptrs[LM_RHAND] = meshes[objects[LARA].mesh_index + 20];
 	switch (weapon_type)
 	{
-	case 1:
-		lara.holster = 14;
+	case WEAPON_PISTOLS:
+		lara.holster = LARA_HOLSTERS_PISTOLS;
 		break;
-	case 3:
-		lara.holster = 15;
+	case WEAPON_REVOLVER:
+		lara.holster = LARA_HOLSTERS_REVOLVER;
 		break;
-	case 2:
-		lara.holster = 16;
-		break;
+	case WEAPON_UZI:
+		lara.holster = LARA_HOLSTERS_UZIS;
+		break;	
 	}
 }
 
 void undraw_pistol_mesh_left(int weapon_type)//448F0(<), 44D54(<) (F)
 {
-	if(weapon_type != 2)
+	if(weapon_type != WEAPON_REVOLVER)
 	{
 		WeaponObject(weapon_type);
 		lara.mesh_ptrs[LM_LHAND] = meshes[objects[LARA].mesh_index + 26];
 		switch (weapon_type)
 		{
-		case 1:
-			lara.holster = 14;
+		case WEAPON_PISTOLS:
+			lara.holster = LARA_HOLSTERS_PISTOLS;
 			break;
-		case 3:
-			lara.holster = 15;
+		case WEAPON_UZI:
+			lara.holster = LARA_HOLSTERS_UZIS;
 			break;
 		}
 	}
@@ -67,7 +67,13 @@ void undraw_pistol_mesh_left(int weapon_type)//448F0(<), 44D54(<) (F)
 
 void draw_pistol_meshes(int weapon_type)
 {
-	S_Warn("[draw_pistol_meshes] - Unimplemented!\n");
+	lara.holster = LARA_HOLSTERS;
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 20];
+
+	if (weapon_type != WEAPON_REVOLVER)
+	{
+		lara.mesh_ptrs[LM_LHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 26];
+	}
 }
 
 void ready_pistols(int weapon_type)

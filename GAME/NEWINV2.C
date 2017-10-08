@@ -649,7 +649,7 @@ void NailInvItem(short objnum)//40584, 409D8
 		lara.num_uzi_ammo = 0;
 		break;
 	case PISTOLS_ITEM:
-		lara.holster = 13;
+		lara.holster = LARA_HOLSTERS;
 		lara.pistols_type_carried = 0;
 		lara.gun_status = 0;
 		lara.last_gun_type = 0;

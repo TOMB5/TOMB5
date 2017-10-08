@@ -2,6 +2,7 @@
 
 #include "GAMEFLOW.H"
 #include "SPECIFIC.H"
+#include "OBJECTS.H"
 
 struct GAME_VECTOR bum_vdest;
 struct GAME_VECTOR bum_vsrc;
@@ -47,18 +48,18 @@ int WeaponObject(int weapon_type)//48898(<), 48CFC(<) (F)
 {
 	switch (weapon_type)
 	{
-	case 2:
-		return 6;
-	case 3:
-		return 2;
-	case 4:
-		return 3;
-	case 5:
-		return 5;
-	case 6:
-		return 4;
+	case WEAPON_REVOLVER:
+		return REVOLVER_ANIM;
+	case WEAPON_UZI:
+		return UZI_ANIM;
+	case WEAPON_SHOTGUN:
+		return SHOTGUN_ANIM;
+	case WEAPON_HK:
+		return HK_ANIM;
+	case WEAPON_CROSSBOW:
+		return CROSSBOW_ANIM;
 	default:
-		return 1;
+		return PISTOLS_ANIM;
 	}
 }
 

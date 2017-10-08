@@ -288,6 +288,16 @@ enum trigobj_types {
 	TO_OBJECT, TO_CAMERA, TO_SINK, TO_FLIPMAP, TO_FLIPON, TO_FLIPOFF, TO_TARGET, TO_FINISH, TO_CD, TO_FLIPEFFECT, TO_SECRET, TO_BODYBAG, TO_FLYBY, TO_CUTSCENE
 };
 
+enum weapon_types
+{
+	WEAPON_PISTOLS = 1,
+	WEAPON_REVOLVER = 2,
+	WEAPON_UZI = 3,
+	WEAPON_SHOTGUN = 4,
+	WEAPON_HK = 5,
+	WEAPON_CROSSBOW = 6,
+};
+
 extern struct BITE_INFO EnemyBites[9];
 extern int AnimatingWaterfallsVOffset; // offset 0xA1268
 

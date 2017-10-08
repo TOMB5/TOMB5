@@ -2701,7 +2701,7 @@ void cutseq_removelara_pistols()//2D2D8(<), 2D5C0(<) (F)
 void cutseq_givelara_pistols()//2D2A0(<), 2D588(<) (F)
 {
 	old_lara_holster = lara.holster;
-	lara.holster = 13;
+	lara.holster = LARA_HOLSTERS;
 	draw_pistol_meshes(1);
 }
 
