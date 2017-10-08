@@ -30,7 +30,9 @@ extern void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)
 extern void TriggerLaraBlood();
 extern void GenericSphereBoxCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
 extern int ItemPushLaraStatic(struct ITEM_INFO* laraitem, short* bounds, struct PHD_3DPOS* pos, struct COLL_INFO* coll);
+extern int ItemPushLara(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, struct COLL_INFO* coll, int a4, int a5);
 extern int TestBoundsCollideStatic(short* bounds, struct PHD_3DPOS* pos, long radius);
+extern int TestBoundsCollide(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, long radius);
 extern void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
 extern void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
 extern void CreatureCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);

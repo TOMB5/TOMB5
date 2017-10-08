@@ -1,6 +1,10 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+// required for NULL macro because if we define it ourselves it shits brixes
+#include <stdlib.h>
+#include <stddef.h>
+
 #ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif
@@ -13,8 +17,12 @@
 #define MAX(x, y) (((x)>(y))?(x):(y))
 #endif
 
-#ifndef NULL
-#define NULL 0
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef TRUE
+#define TRUE 1
 #endif
 
 // (65536 / 360) ~ 182.0444...
@@ -134,9 +142,6 @@ enum weather_type
 	WEATHER_SNOW = 2
 };
 
-#if PC_VERSION
-#pragma pack(push, 1)
-#endif
 struct VECTOR
 {
 	long vx;
@@ -167,7 +172,9 @@ struct PHD_VECTOR
 	long y;
 	long z;
 };
-
+#if PC_VERSION
+#pragma pack(push, 4)
+#endif
 struct PHD_3DPOS
 {
 	long x_pos;
@@ -177,7 +184,10 @@ struct PHD_3DPOS
 	short y_rot;
 	short z_rot;
 };
-
+#pragma pop
+#if PC_VERSION
+#pragma pack(push, 1)
+#endif
 struct ILIGHT
 {
 	short x;
@@ -1192,23 +1202,6 @@ struct GUNFLASH_STRUCT
 {
 	struct MATRIX3D matrix; // size=32, offset=0
 	short on; // size=0, offset=32
-};
-
-struct DRIP_STRUCT
-{
-	long x; // size=0, offset=0
-	long y; // size=0, offset=4
-	long z; // size=0, offset=8
-	unsigned char On; // size=0, offset=12
-	unsigned char R; // size=0, offset=13
-	unsigned char G; // size=0, offset=14
-	unsigned char B; // size=0, offset=15
-	short Yvel; // size=0, offset=16
-	unsigned char Gravity; // size=0, offset=18
-	unsigned char Life; // size=0, offset=19
-	short RoomNumber; // size=0, offset=20
-	unsigned char Outside; // size=0, offset=22
-	unsigned char Pad; // size=0, offset=23
 };
 
 struct NODEOFFSET_INFO

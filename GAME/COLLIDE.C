@@ -106,3 +106,14 @@ int MoveLaraPosition(struct PHD_VECTOR* vector, struct ITEM_INFO* item, struct I
 	return 0;
 }
 
+int TestBoundsCollide(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, long radius)
+{
+	S_Warn("[TestBoundsCollide] - Unimplemented!\\n");
+	return 0;
+}
+
+int ItemPushLara(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, struct COLL_INFO* coll, int a4, int a5)
+{
+	S_Warn("[ItemPushLara] - Unimplemented!\\n");
+	return 0;
+}

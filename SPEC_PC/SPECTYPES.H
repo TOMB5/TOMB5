@@ -266,7 +266,12 @@ struct ITEM_INFO {
 	void* data; // size=0, offset=60
 	struct PHD_3DPOS pos; // size=20, offset=64
 	struct ITEM_LIGHT il; // size=48, offset=84
-	unsigned long active : 1; // offset=132.0
+	
+	unsigned long meshswap_meshbits; // size=0, offset=136 OFF=132
+	short draw_room; // size=0, offset=140 OFF=136
+	short TOSSPAD; // size=0, offset=142 OFF=138
+	char pad1[5472]; // OFF=140
+	unsigned long active : 1; // offset=132.0 OFF=5610
 	unsigned long status : 2; // offset=132.1
 	unsigned long gravity_status : 1; // offset=132.3
 	unsigned long hit_status : 1; // offset=132.4
@@ -277,10 +282,7 @@ struct ITEM_INFO {
 	unsigned long ai_bits : 5; // offset=133.1
 	unsigned long really_active : 1; // offset=133.6
 	unsigned long InDrawRoom : 1; // offset=133.7
-	unsigned long meshswap_meshbits; // size=0, offset=136
-	short draw_room; // size=0, offset=140
-	short TOSSPAD; // size=0, offset=142
-	char pad[5478];
+	char pad2[8]; // OFF=5614
 };
 struct creature_info {
 	short joint_rotation[4]; // size=8, offset=0
@@ -406,6 +408,28 @@ struct OBJECT_TEXTURE
 	uint16_t tile_and_flag;
 	uint16_t new_flags;
 	struct OBJECT_TEXTURE_VERT vertices[4];
+};
+
+struct DRIP_STRUCT
+{
+	long x; // size=0, offset=0
+	long y; // size=0, offset=4
+	long z; // size=0, offset=8
+	unsigned char On; // size=0, offset=12
+	unsigned char R; // size=0, offset=13
+	unsigned char G; // size=0, offset=14
+	unsigned char B; // size=0, offset=15
+	short Yvel; // size=0, offset=16
+	unsigned char Gravity; // size=0, offset=18
+	unsigned char Life; // size=0, offset=19
+	short RoomNumber; // size=0, offset=20
+	unsigned char Outside; // size=0, offset=22
+	unsigned char Pad; // size=0, offset=23
+	char padding[8];
+	unsigned short padding1;
+	char padding2[2];
+	unsigned short padding3;
+	char padding4[2];
 };
 #pragma pop
 

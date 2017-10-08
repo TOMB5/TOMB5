@@ -46,7 +46,7 @@ struct object_info {
 	short mesh_index; // size=0, offset=2
 	long bone_index; // size=0, offset=4
 	short* frame_base; // size=0, offset=8
-	void(*initialise); // size=0, offset=12
+	void(*initialise)(short); // size=0, offset=12
 	void(*control)(); // size=0, offset=16
 	void(*floor)(); // size=0, offset=20
 	void(*ceiling)(); // size=0, offset=24
@@ -339,6 +339,23 @@ struct creature_info {
 	short item_num; // size=0, offset=170
 	struct PHD_VECTOR target; // size=12, offset=172
 	struct lot_info LOT; // size=44, offset=184
+};
+
+struct DRIP_STRUCT
+{
+	long x; // size=0, offset=0
+	long y; // size=0, offset=4
+	long z; // size=0, offset=8
+	unsigned char On; // size=0, offset=12
+	unsigned char R; // size=0, offset=13
+	unsigned char G; // size=0, offset=14
+	unsigned char B; // size=0, offset=15
+	short Yvel; // size=0, offset=16
+	unsigned char Gravity; // size=0, offset=18
+	unsigned char Life; // size=0, offset=19
+	short RoomNumber; // size=0, offset=20
+	unsigned char Outside; // size=0, offset=22
+	unsigned char Pad; // size=0, offset=23
 };
 
 #endif

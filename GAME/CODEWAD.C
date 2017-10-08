@@ -3,13 +3,11 @@
 #include "DELTAPAK.H"
 #include "SPECIFIC.H"
 #include "TYPES.H"
+#include "OBJECTS.H"
+#include "LARA.H"
+#include "GAMEFLOW.H"
 
-void RelocFunc_006()
-{
-	S_Warn("[RelocFunc_006] - Unimplemented!\n");
-}
-
-void RelocFunc_010()
+void RelocFunc_18_10()
 {
 #if 0
 	struct PHD_VECTOR pos1, pos2;
@@ -42,64 +40,75 @@ void RelocFunc_010()
 	S_Warn("[RelocFunc_28] - Unimplemented!\n");
 }
 
-void RelocFunc_015()
+void RelocFunc_34_08()
 {
 	S_Warn("[RelocFunc_015] - Unimplemented!\n");
 }
 
-void RelocFunc_016()
+void RelocFunc_34_0C()
 {
 	S_Warn("[RelocFunc_016] - Unimplemented!\n");
 }
 
-void RelocFunc_017()
+void RelocFunc_34_10()
 {
 	S_Warn("[RelocFunc_017] - Unimplemented!\n");
 }
 
-void RelocFunc_018()
+void RelocFunc_34_14()
 {
 	S_Warn("[RelocFunc_018] - Unimplemented!\n");
 }
 
-void RelocFunc_019()
+void RelocFunc_34_18()
 {
 	S_Warn("[RelocFunc_019] - Unimplemented!\n");
 }
 
-void RelocFunc_020()
+void RelocFunc_34_1C()
 {
 	S_Warn("[RelocFunc_020] - Unimplemented!\n");
 }
 
-void RelocFunc_021()
+void RelocFunc_34_20()
 {
 	S_Warn("[RelocFunc_021] - Unimplemented!\n");
 }
 
-void RelocFunc_022()
+void RelocFunc_34_24()
 {
 	S_Warn("[RelocFunc_022] - Unimplemented!\n");
 }
 
-void RelocFunc_023()
+void RelocFunc_34_28()
 {
 	S_Warn("[RelocFunc_023] - Unimplemented!\n");
 }
 
-void RelocFunc_024()
+void RelocFunc_34_2C()
 {
 	S_Warn("[RelocFunc_024] - Unimplemented!\n");
 }
 
-void RelocFunc_025()
+void RelocFunc_34_30()
 {
 	S_Warn("[RelocFunc_025] - Unimplemented!\n");
 }
 
-void RelocFunc_026()
+void RelocFunc_34_34()
 {
+#if PC_VERSION && false
+	ResetCutanimate(STROBE_LIGHT);
+	if (!bDoCredits)
+	{
+		trigger_title_spotcam(1);
+		lara_item->mesh_bits = 0;
+}
+	BYTE2(dels_cutseq_player) = 0;
+	title_controls_locked_out = 0;
+#else
 	S_Warn("[RelocFunc_026] - Unimplemented!\n");
+#endif
 }
 
 long sub_1BE988()
@@ -113,4 +122,3 @@ long sub_1BDF88(long levelID)
 	S_Warn("[sub_1BDF88] - Unimplemented!\n");
 	return 0;
 }
-

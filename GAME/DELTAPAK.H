@@ -252,5 +252,6 @@ extern void frigup_lara();
 extern void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* packed, int numnodes);
 extern void do_new_cutscene_camera();
 extern void handle_cutseq_triggering(int name);
+extern void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix);
 
 #endif

@@ -1,6 +1,12 @@
 #include "TRAPS.H"
 
+#include "CONTROL.H"
+#include "EFFECTS.H"
+#include "ITEMS.H"
+#include "LARA.H"
+#include "OBJECTS.H"
 #include "SPECIFIC.H"
+#include "TOMB4FX.H"
 
 short SPDETyoffs[8] =
 {
@@ -118,14 +124,31 @@ void ControlRollingBall(short item_number)//5AE08, 5B284
 
 void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4
 {
-	S_Warn("[LavaBurn] - Unimplemented!\n");
-	return;
+	if (item->hit_points >= 0 && lara.water_status != 3)
+	{
+		short room_number = item->room_number;
+
+		if (item->floor == GetHeight(GetFloor(item->pos.x_pos, 32000, item->pos.z_pos, &room_number),
+			item->pos.x_pos, 32000, item->pos.z_pos))
+		{
+			item->hit_points = -1;
+			item->collidable = TRUE;
+			LaraBurn();
+		}
+	}
 }
 
 void LaraBurn()//5ACE4, 5B160
 {
-	S_Warn("[LaraBurn] - Unimplemented!\n");
-	return;
+	if (!lara.burn && !lara.BurnSmoke)
+	{
+		short fx = CreateEffect(lara_item->room_number);
+		if (fx != -1)
+		{
+			effects[fx].object_number = FLAME;
+			lara.burn = TRUE;
+		}
+	}
 }
 
 void FlameControl(short fx_number)//5AA6C, 5AEE8
@@ -184,8 +207,42 @@ void FallingBlockFloor(struct ITEM_INFO* item, long x, long y, long z, long* hei
 
 void FallingBlock(short item_number)//59558, 599D4
 {
-	S_Warn("[FallingBlock] - Unimplemented!\n");
-	return;
+	struct ITEM_INFO* item = &items[item_number];
+
+	if (item->trigger_flags)
+	{
+		item->trigger_flags--;
+	}
+	else
+	{
+		if (!item->item_flags[0])
+		{
+			item->mesh_bits = -2;
+			ExplodingDeath2(item_number, -1, 15265);
+			item->item_flags[0]++;
+		}
+		else
+		{
+			if (item->item_flags[0] >= 60)
+			{
+				KillItem(item_number);
+			}
+			else
+			{
+				if (item->item_flags[0] >= 52)
+				{
+					item->item_flags[1] += 2;			
+					item->pos.y_pos += item->item_flags[1];
+				}
+				else
+				{
+					if (!(GetRandomControl() % (0x3E - item->item_flags[0])))
+						item->pos.y_pos += (GetRandomControl() & 3) + 1;
+				}
+				item->item_flags[0]++;
+			}
+		}
+	}
 }
 
 void FallingBlockCollision(short item_number, struct ITEM_INFO* l, struct COLL_INFO* coll)//5947C, 598F8
