@@ -557,19 +557,19 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 	 */
 	if (num == 1)
 	{
-		S_CDPlay(CDA_xa11_flyby1, CD_PLAY_MODE);
+		S_CDPlay(CDA_XA11_FLYBY1, CD_PLAY_MODE);
 	}
 	else if (num == 2)
 	{
-		S_CDPlay(CDA_xa11_flyby2, CD_PLAY_MODE);
+		S_CDPlay(CDA_XA11_FLYBY2, CD_PLAY_MODE);
 	}
 	else if (num == 3)
 	{
-		S_CDPlay(CDA_xa11_flyby3, CD_PLAY_MODE);
+		S_CDPlay(CDA_XA11_FLYBY3, CD_PLAY_MODE);
 	}
 	else if (num == 4)
 	{
-		S_CDPlay(CDA_xa12_flyby4, CD_PLAY_MODE);
+		S_CDPlay(CDA_XA12_FLYBY4, CD_PLAY_MODE);
 	}
 
 	InitialiseSpotCam(num);

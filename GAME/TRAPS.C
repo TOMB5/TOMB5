@@ -6,6 +6,7 @@
 #include "LARA.H"
 #include "OBJECTS.H"
 #include "SPECIFIC.H"
+#include "TOMB4FX.H"
 
 short SPDETyoffs[8] =
 {
@@ -206,8 +207,42 @@ void FallingBlockFloor(struct ITEM_INFO* item, long x, long y, long z, long* hei
 
 void FallingBlock(short item_number)//59558, 599D4
 {
-	S_Warn("[FallingBlock] - Unimplemented!\n");
-	return;
+	struct ITEM_INFO* item = &items[item_number];
+
+	if (item->trigger_flags)
+	{
+		item->trigger_flags--;
+	}
+	else
+	{
+		if (!item->item_flags[0])
+		{
+			item->mesh_bits = -2;
+			ExplodingDeath2(item_number, -1, 15265);
+			item->item_flags[0]++;
+		}
+		else
+		{
+			if (item->item_flags[0] >= 60)
+			{
+				KillItem(item_number);
+			}
+			else
+			{
+				if (item->item_flags[0] >= 52)
+				{
+					item->item_flags[1] += 2;			
+					item->pos.y_pos += item->item_flags[1];
+				}
+				else
+				{
+					if (!(GetRandomControl() % (0x3E - item->item_flags[0])))
+						item->pos.y_pos += (GetRandomControl() & 3) + 1;
+				}
+				item->item_flags[0]++;
+			}
+		}
+	}
 }
 
 void FallingBlockCollision(short item_number, struct ITEM_INFO* l, struct COLL_INFO* coll)//5947C, 598F8

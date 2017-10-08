@@ -897,7 +897,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 	case PICKUP_ITEM4:
 		IsAtmospherePlaying = 0;
 
-		S_CDPlay(CDA_xa1_SECRET, 0);
+		S_CDPlay(CDA_XA1_SECRET, 0);
 
 		lara.pickupitems |= 8u;
 

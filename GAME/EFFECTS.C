@@ -35,7 +35,7 @@ void TL_12(struct ITEM_INFO* item)//39E3C, 3A33C
 	if (savegame.TLCount == 11)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa5_TL_12, 0);
+		S_CDPlay(CDA_XA5_TL_12, 0);
 		savegame.TLCount = 12;
 	}
 }
@@ -45,7 +45,7 @@ void TL_11(struct ITEM_INFO* item)//39DF0, 3A2F0
 	if (savegame.TLCount == 10)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa1_TL_10B, 0);
+		S_CDPlay(CDA_XA1_TL_10B, 0);
 		savegame.TLCount = 11;
 	}
 }
@@ -55,7 +55,7 @@ void TL_10(struct ITEM_INFO* item)//39DA4, 3A2A4
 	if (savegame.TLCount == 9)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa2_TL_10A, 0);
+		S_CDPlay(CDA_XA2_TL_10A, 0);
 		savegame.TLCount = 10;
 	}
 }
@@ -65,7 +65,7 @@ void TL_9(struct ITEM_INFO* item)//39D54, 3A254
 	if (savegame.TLCount < 9)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa1_TL_11, 0);
+		S_CDPlay(CDA_XA1_TL_11, 0);
 		savegame.TLCount = 9;
 	}
 }
@@ -75,7 +75,7 @@ void TL_8(struct ITEM_INFO* item)//39D04, 3A204
 	if (savegame.TLCount < 8)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa1_TL_08, 0);
+		S_CDPlay(CDA_XA1_TL_08, 0);
 		savegame.TLCount = 8;
 	}
 }
@@ -85,7 +85,7 @@ void TL_7(struct ITEM_INFO* item)//39CB4, 3A1B4
 	if (savegame.TLCount < 7)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa7_tl_07, 0);
+		S_CDPlay(CDA_XA7_TL_07, 0);
 		savegame.TLCount = 7;
 	}
 }
@@ -95,7 +95,7 @@ void TL_6(struct ITEM_INFO* item)//39C64, 3A164
 	if (savegame.TLCount < 6)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa3_TL_06, 0);
+		S_CDPlay(CDA_XA3_TL_06, 0);
 		savegame.TLCount = 6;
 	}
 }
@@ -105,7 +105,7 @@ void TL_5(struct ITEM_INFO* item)//39C14, 3A114
 	if (savegame.TLCount < 5)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa1_TL_05, 0);
+		S_CDPlay(CDA_XA1_TL_05, 0);
 		savegame.TLCount = 5;
 	}
 }
@@ -115,7 +115,7 @@ void TL_4(struct ITEM_INFO* item)//39BC4, 3A0C4
 	if (savegame.TLCount < 4)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa5_TL_04, 0);
+		S_CDPlay(CDA_XA5_TL_04, 0);
 		savegame.TLCount = 4;
 	}
 }
@@ -125,7 +125,7 @@ void TL_3(struct ITEM_INFO* item)//39B74, 3A074
 	if (savegame.TLCount < 3)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa3_TL_03, 0);
+		S_CDPlay(CDA_XA3_TL_03, 0);
 		savegame.TLCount = 3;
 	}
 }
@@ -135,7 +135,7 @@ void TL_2(struct ITEM_INFO* item)//39B24, 3A024
 	if (savegame.TLCount < 2)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa1_TL_02, 0);
+		S_CDPlay(CDA_XA1_TL_02, 0);
 		savegame.TLCount = 2;
 	}
 }
@@ -145,7 +145,7 @@ void TL_1(struct ITEM_INFO* item)//39AD8, 39FD8
 	if (savegame.TLCount < 1)
 	{
 		IsAtmospherePlaying = 0;
-		S_CDPlay(CDA_xa2_TL_01, 0);
+		S_CDPlay(CDA_XA2_TL_01, 0);
 		savegame.TLCount = 1;
 	}
 }
