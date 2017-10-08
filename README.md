@@ -28,6 +28,6 @@ Feel free to contact me on this: [Discord channel](https://discord.gg/KYSx8Q7)
 
 ## Credits
 
-- Gh0stBlade: main developer
-- zdimension: MIPS and x86 assembly to C translation, SPEC_PC branch main developer
+- Gh0stBlade: Main developer.
+- zdimension: MIPS and x86 assembly to C translation, SPEC_PC branch main developer.
 - [You?](CONTRIBUTING.md)

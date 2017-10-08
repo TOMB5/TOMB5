@@ -207,18 +207,22 @@ int GetFreeDrip()
 
 void TriggerLaraDrips()
 {
+	int i;
+	struct PHD_VECTOR pos;
+	struct DRIP_STRUCT* dptr;
+
 	if (!(wibble & 0xF))
 	{
-		for(int i = 14; i >= 0; i--)
+		for(i = 14; i >= 0; i--)
 		{
 			if (lara.wet[i] && !LaraNodeUnderwater[14 - i] && (GetRandomControl() & 0x1FF) < lara.wet[i])
 			{
-				struct PHD_VECTOR pos;
+				
 				pos.x = (GetRandomControl() & 0x1F) - 16;
 				pos.y = (GetRandomControl() & 0xF) + 16;
 				pos.z = (GetRandomControl() & 0x1F) - 16;
 
-				struct DRIP_STRUCT* dptr = &Drips[GetFreeDrip()];
+				dptr = &Drips[GetFreeDrip()];
 				GetLaraJointPos(&pos, i);
 				dptr->x = pos.x;
 				dptr->y = pos.y;
@@ -356,9 +360,15 @@ int GetFreeBlood()
 
 void TriggerBlood(int x, int y, int z, int a4, int num)
 {
-	for(int i = 0; i < num; i++)
+	int i;
+	struct BLOOD_STRUCT* bptr;
+	int a;
+	int b;
+	int size;
+
+	for(i = 0; i < num; i++)
 	{
-		struct BLOOD_STRUCT* bptr = &blood[GetFreeBlood()];
+		bptr = &blood[GetFreeBlood()];
 		bptr->On = 1;
 		bptr->sShade = 0;
 		bptr->ColFadeSpeed = 4;
@@ -368,10 +378,10 @@ void TriggerBlood(int x, int y, int z, int a4, int num)
 		bptr->x = (GetRandomControl() & 0x1F) + x - 16;
 		bptr->y = (GetRandomControl() & 0x1F) + y - 16;
 		bptr->z = (GetRandomControl() & 0x1F) + z - 16;
-		int a = (a4 == -1
+		a = (a4 == -1
 			? GetRandomControl() & 0xFFFF
 			: (GetRandomControl() & 0x1F) + a4 - 16) & 0xFFF;
-		int b = GetRandomControl() & 0xF;
+		b = GetRandomControl() & 0xF;
 		bptr->Zvel = b * rcossin_tbl[2 * a + 1] >> 7;
 		bptr->Xvel = -(b * rcossin_tbl[2 * a]) >> 7;
 		bptr->Friction = 4;
@@ -381,7 +391,7 @@ void TriggerBlood(int x, int y, int z, int a4, int num)
 		if (GetRandomControl() & 1)
 			bptr->RotAdd = -bptr->RotAdd;
 		bptr->Gravity = (GetRandomControl() & 0x1F) + 31;
-		int size = (GetRandomControl() & 7) + 8;
+		size = (GetRandomControl() & 7) + 8;
 		bptr->sSize = bptr->Size = size;
 		bptr->dSize = size >> 2;
 	}
@@ -389,12 +399,16 @@ void TriggerBlood(int x, int y, int z, int a4, int num)
 
 void TriggerExplosionBubble(int x, int y, int z, short room_num)
 {
+	int i;
+	struct PHD_VECTOR pos;
+	int size;
+	struct SPARKS* sptr;
 	int dx = lara_item->pos.x_pos - x;
 	int dz = lara_item->pos.z_pos - z;
+
 	if (dx >= -16384 && dx <= 16384 && dz >= -16384 && dz <= 16384)
 	{
-		struct SPARKS* sptr = &spark[GetFreeSpark()];
-		int size;
+		sptr = &spark[GetFreeSpark()];
 		sptr->sR = 128;
 		sptr->dR = 128;
 		sptr->dG = 128;
@@ -424,9 +438,8 @@ void TriggerExplosionBubble(int x, int y, int z, short room_num)
 		sptr->Size = size >> 1;
 		sptr->dSize = 2 * size;
 
-		for(int i = 0; i < 8; i++)
+		for(i = 0; i < 8; i++)
 		{
-			struct PHD_VECTOR pos;
 			pos.x = (GetRandomControl() & 0x1FF) + x - 256;
 			pos.y = (GetRandomControl() & 0x7F) + y - 64;
 			pos.z = (GetRandomControl() & 0x1FF) + z - 256;
@@ -512,7 +525,9 @@ void TriggerExplosionSparks(int x, int y, int z, int a4, int a5, int a6, short r
 
 int GetFreeShockwave()
 {
-	for(int i = 0; i < 16; i++)
+	int i;
+
+	for(i = 0; i < 16; i++)
 	{
 		if (!ShockWaves[i].life)
 			return i;
@@ -524,10 +539,11 @@ int GetFreeShockwave()
 void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, int speed, char r, char g, char b, char life, short angle, short flags)
 {
 	int s = GetFreeShockwave();
+	struct SHOCKWAVE_STRUCT* sptr;
 
 	if (s != -1)
 	{
-		struct SHOCKWAVE_STRUCT* sptr = &ShockWaves[s];
+		sptr = &ShockWaves[s];
 
 		sptr->x = pos->x_pos;
 		sptr->y = pos->y_pos;
@@ -576,7 +592,9 @@ void DrawLensFlares(struct ITEM_INFO *item)
 
 void TriggerLightningGlow(long x, long y, long z, long rgb)
 {
+	long size;
 	struct SPARKS* sptr = &spark[GetFreeSpark()];
+
 	sptr->dG = rgb >> 8;
 	sptr->sG = rgb >> 8;
 	sptr->Life = 4;
@@ -600,7 +618,7 @@ void TriggerLightningGlow(long x, long y, long z, long rgb)
 	sptr->MaxYvel = 0;
 	sptr->Def = objects[DEFAULT_SPRITES].mesh_index + 11;
 	sptr->Gravity = 0;
-	long size = (unsigned char)(rgb >> 24) + (GetRandomControl() & 3);
+	size = (unsigned char)(rgb >> 24) + (GetRandomControl() & 3);
 	sptr->dSize = size;
 	sptr->sSize = size;
 	sptr->Size = size;

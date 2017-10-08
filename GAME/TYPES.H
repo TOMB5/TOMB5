@@ -184,8 +184,8 @@ struct PHD_3DPOS
 	short y_rot;
 	short z_rot;
 };
-#pragma pop
 #if PC_VERSION
+#pragma pack(pop)
 #pragma pack(push, 1)
 #endif
 struct ILIGHT

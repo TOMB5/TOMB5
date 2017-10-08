@@ -2093,7 +2093,9 @@ void TriggerDelSmoke(long x, long y, long z, int sizeme)//2EED8(<), 2F1E4(<) (F)
 
 void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)
 {
-	for(int i = 0; i < 32; i++)
+	int i;
+
+	for(i = 0; i < 32; i++)
 	{
 		if (!(ripples[i].flags & 1))
 		{
@@ -2127,13 +2129,16 @@ void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix)
 
 void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, struct PHD_VECTOR* pos)
 {
-	for(int i = 0; shootdata[i] != -1; i++)
+	int i;
+	unsigned short dat;
+	struct MATRIX3D arse;
+
+	for(i = 0; shootdata[i] != -1; i++)
 	{
-		unsigned short dat = shootdata[i];
+		dat = shootdata[i];
 
 		if (GLOBAL_cutseq_frame == dat || GLOBAL_cutseq_frame == dat + 1)
 		{
-			struct MATRIX3D arse;
 			GrabActorMatrix(actornum, nodenum, &arse);
 			trig_actor_gunflash(&arse, pos);
 			GetActorJointAbsPosition(actornum, nodenum, pos);
