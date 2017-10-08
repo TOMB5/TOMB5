@@ -142,9 +142,6 @@ enum weather_type
 	WEATHER_SNOW = 2
 };
 
-#if PC_VERSION
-
-#endif
 struct VECTOR
 {
 	long vx;
@@ -175,7 +172,9 @@ struct PHD_VECTOR
 	long y;
 	long z;
 };
+#if PC_VERSION
 #pragma pack(push, 4)
+#endif
 struct PHD_3DPOS
 {
 	long x_pos;
@@ -186,7 +185,9 @@ struct PHD_3DPOS
 	short z_rot;
 };
 #pragma pop
+#if PC_VERSION
 #pragma pack(push, 1)
+#endif
 struct ILIGHT
 {
 	short x;

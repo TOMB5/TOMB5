@@ -1,11 +1,11 @@
 #include "TRAPS.H"
 
-#include "SPECIFIC.H"
-#include "LARA.H"
-#include "ITEMS.H"
-#include "EFFECTS.H"
-#include "OBJECTS.H"
 #include "CONTROL.H"
+#include "EFFECTS.H"
+#include "ITEMS.H"
+#include "LARA.H"
+#include "OBJECTS.H"
+#include "SPECIFIC.H"
 
 short SPDETyoffs[8] =
 {

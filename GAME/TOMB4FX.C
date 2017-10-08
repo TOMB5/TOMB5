@@ -394,6 +394,7 @@ void TriggerExplosionBubble(int x, int y, int z, short room_num)
 	if (dx >= -16384 && dx <= 16384 && dz >= -16384 && dz <= 16384)
 	{
 		struct SPARKS* sptr = &spark[GetFreeSpark()];
+		int size;
 		sptr->sR = 128;
 		sptr->dR = 128;
 		sptr->dG = 128;
@@ -418,7 +419,7 @@ void TriggerExplosionBubble(int x, int y, int z, short room_num)
 		sptr->Gravity = 0;
 		sptr->Def = objects[DEFAULT_SPRITES].mesh_index + 13;
 		sptr->MaxYvel = 0;
-		int size = (GetRandomControl() & 7) + 63;
+		size = (GetRandomControl() & 7) + 63;
 		sptr->sSize = size >> 1;
 		sptr->Size = size >> 1;
 		sptr->dSize = 2 * size;
@@ -437,7 +438,7 @@ void TriggerExplosionBubble(int x, int y, int z, short room_num)
 void TriggerExplosionSmokeEnd(int x, int y, int z, int a4)
 {
 	struct SPARKS* sptr = &spark[GetFreeSpark()];
-
+	int size;
 	sptr->On = 1;
 	if (a4)
 	{
@@ -498,7 +499,7 @@ void TriggerExplosionSmokeEnd(int x, int y, int z, int a4)
 		sptr->Gravity = -3 - (GetRandomControl() & 3);
 		sptr->MaxYvel = -4 - (GetRandomControl() & 3);
 	}
-	int size = (GetRandomControl() & 0x1F) + 128;
+	size = (GetRandomControl() & 0x1F) + 128;
 	sptr->dSize = size;
 	sptr->sSize = size >> 2;
 	sptr->Size = size >> 2;

@@ -1,5 +1,7 @@
 #include "DELTAPAK.H"
 
+#include "DRAWPHAS.H"
+
 #include "CD.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
@@ -30,8 +32,6 @@
 
 #include <assert.h>
 #include <stddef.h>
-
-#include "DRAWPHAS.H"
 #include "SOUND.H"
 
 
