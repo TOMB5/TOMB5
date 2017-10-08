@@ -9,13 +9,14 @@
 #include "TRAPS.H"
 #include "TYPES.H"
 
-
-#include <string.h>
 #ifdef PC_VERSION
 #include "GAME.H"
 #else
 #include "SETUP.H"
 #endif
+
+#include <stdio.h>
+#include <string.h>
 
 char FromTitle = 0; // offset 0xA14AC
 char JustLoaded = 0; // offset 0xA14AD
@@ -23,6 +24,10 @@ char *MGSaveGamePtr; // offset 0xA3924
 static int SGcount; // offset 0xA391C
 static char *SGpoint; // offset 0xA3920
 struct savegame_info savegame;
+
+#if PSX_VERSION//@HACK not really needed, can just take int.
+	typedef int ptrdiff_t;
+#endif
 
 void sgRestoreGame()//55B88, 55FEC (F)
 {
