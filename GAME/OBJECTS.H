@@ -299,33 +299,45 @@ enum weapon_types {
 };
 
 enum weapon_type_carried {
+	WTYPE_MISSING = 0,
 	WTYPE_PRESENT = 1,
 	WTYPE_SILENCER = 2,
 	WTYPE_LASERSIGHT = 4,
-	WTYPE_AMMO_0 = 8,
-	WTYPE_AMMO_1 = 16,
-	WTYPE_AMMO_2 = 32,
+	WTYPE_AMMO_1 = 8,
+	WTYPE_AMMO_2 = 16,
+	WTYPE_AMMO_3 = 32,
 
-	//WTYPE_DEFAULT = WTYPE_PRESENT | WTYPE_AMMO_0
+	WTYPE_MASK_AMMO = WTYPE_AMMO_1 | WTYPE_AMMO_2 | WTYPE_AMMO_3
 };
 
-enum crossbow_type {
+// TR4
+/*enum crossbow_type {
 	CROSSBOW_NORMAL = 0,
 	CROSSBOW_POISON = 1,
 	CROSSBOW_EXPLOSIVE = 2
-};
+};*/
 
 enum hk_type {
-	HK_SNIPER = 0,
-	HK_BURST = 1,
-	HK_RAPID = 2
+	HK_SNIPER,
+	HK_BURST,
+	HK_RAPID
 };
 
 enum shotgun_shell_type
 {
-	SHELL_NORMAL = 0,
-	SHELL_WIDESHOT = 1
+	SHELL_NORMAL,
+	SHELL_WIDESHOT
 };
+
+enum grappling_type
+{
+	GRAPPLING_TYPE_1,
+	GRAPPLING_TYPE_2,
+	GRAPPLING_TYPE_3
+};
+
+// converts something like HK_SNIPER or SHELL_NORMAL to WTYPE_AMMO_x
+#define WTYPE(x) (1 << (x + 3))
 
 extern struct BITE_INFO EnemyBites[9];
 extern int AnimatingWaterfallsVOffset; // offset 0xA1268
