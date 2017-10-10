@@ -2232,7 +2232,7 @@ void richcut3_control()//2E594(<), 2E8A0(<) (F)
 		cutseq_removelara_hk();
 		lara.back_gun = 0;
 		lara.hk_type_carried = 0;
-		lara.last_gun_type = 0;
+		lara.last_gun_type = WEAPON_NONE;
 	}
 }
 
@@ -2684,22 +2684,22 @@ void cutseq_shoot_pistols(int left_or_right)//2D360, 2D648
 
 void cutseq_removelara_hk()//2D328(<), 2D610(<) (F)
 {
-	undraw_shotgun_meshes(5);
-	lara.gun_type = 0;
-	lara.request_gun_type = 0;
+	undraw_shotgun_meshes(WEAPON_HK);
+	lara.gun_type = WEAPON_NONE;
+	lara.request_gun_type = WEAPON_NONE;
 	lara.gun_status = 0;
-	lara.last_gun_type = 5;
+	lara.last_gun_type = WEAPON_HK;
 }
 
 void cutseq_givelara_hk()//2D308(<), 2D5F0(<) (F)
 {
-	draw_shotgun_meshes(5);
+	draw_shotgun_meshes(WEAPON_HK);
 }
 
 void cutseq_removelara_pistols()//2D2D8(<), 2D5C0(<) (F)
 {
-	undraw_pistol_mesh_left(1);
-	undraw_pistol_mesh_right(1);
+	undraw_pistol_mesh_left(WEAPON_PISTOLS);
+	undraw_pistol_mesh_right(WEAPON_PISTOLS);
 	lara.holster = old_lara_holster;
 }
 
@@ -2707,7 +2707,7 @@ void cutseq_givelara_pistols()//2D2A0(<), 2D588(<) (F)
 {
 	old_lara_holster = lara.holster;
 	lara.holster = LARA_HOLSTERS;
-	draw_pistol_meshes(1);
+	draw_pistol_meshes(WEAPON_PISTOLS);
 }
 
 void CalculateObjectLightingLaraCutSeq()

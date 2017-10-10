@@ -394,7 +394,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		if (PadConnected != 0 && ScreenFading == 0)
 		{
 			///@TODO retail ver string offset index
-			PrintString(256, 230, 0, &gfStringWad[gfStringOffset[176]]); //TODO IDA didn't dump me :-) ///@FIXME check arg 3
+			PrintString(256, 230, 0, &gfStringWad[gfStringOffset[STR_DEMO_MODE]]); //TODO IDA didn't dump me :-) ///@FIXME check arg 3
 		}
 
 		//loc_1D7A0

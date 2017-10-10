@@ -3,6 +3,7 @@
 #include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 #include "OBJECTS.H"
+#include "LARA.H"
 
 struct GAME_VECTOR bum_vdest;
 struct GAME_VECTOR bum_vsrc;
@@ -40,8 +41,21 @@ void DoProperDetection(short item_number, long x, long y, long z, long xv, long 
 
 int WeaponObjectMesh(int weapon_type)//488F4, 48D58
 {
-	S_Warn("[WeaponObjectMesh] - Unimplemented!\n");
-	return 0;
+	switch (weapon_type)
+	{
+	case WEAPON_REVOLVER:
+		return (lara.sixshooter_type_carried & WTYPE_LASERSIGHT) != 0 ? LARA_REVOLVER_LASER : REVOLVER_ANIM;
+	case WEAPON_UZI:
+		return UZI_ANIM;
+	case WEAPON_SHOTGUN:
+		return SHOTGUN_ANIM;
+	case WEAPON_HK:
+		return HK_ANIM;
+	case WEAPON_CROSSBOW:
+		return  (lara.crossbow_type_carried & WTYPE_LASERSIGHT) != 0 ? LARA_CROSSBOW_LASER : CROSSBOW_ANIM;
+	default:
+		return PISTOLS_ANIM;
+	}
 }
 
 int WeaponObject(int weapon_type)//48898(<), 48CFC(<) (F)

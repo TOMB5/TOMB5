@@ -128,106 +128,108 @@ enum invobj_types // update this whenever inventry_objects_list is modified
 
 struct INVOBJ inventry_objects_list[NUM_INV_OBJECTS] = // offset 0x92BE8
 {
-	{ UZI_ITEM, -4, 1000, ANGLE(90), ANGLE(135), ANGLE(90), 2, 81, -1 },
-	{ PISTOLS_ITEM, 6, 1000, ANGLE(90), -21172, -17088, 2, 82, -1 },
-	{ SHOTGUN_ITEM, -6, 640, ANGLE(-180), ANGLE(-90), ANGLE(45), 2, 83, 1 },
-	{ REVOLVER_ITEM, 0, 800, ANGLE(90), ANGLE(60), 15298, 2, 84, 1 },
-	{ REVOLVER_ITEM, 0, 800, ANGLE(90), ANGLE(60), 15298, 2, 85, 7 },
-	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, 77, -1 },
-	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, 77, -1 },
-	{ HK_ITEM, 0, 800, ANGLE(0), ANGLE(-90), ANGLE(0), 2, 89, 1 },
-	{ HK_ITEM, 0, 800, ANGLE(0), ANGLE(-90), ANGLE(0), 2, 90, -1 },
-	{ SHOTGUN_AMMO1_ITEM, 0, 500, ANGLE(90), ANGLE(0), ANGLE(0), 2, 91, -1 },
-	{ SHOTGUN_AMMO2_ITEM, 0, 500, ANGLE(90), ANGLE(0), ANGLE(0), 2, 92, -1 },
-	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, 93, 2 },
-	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, 94, 4 },
-	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, 95, 8 },
-	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, 96, 1 },
-	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, 77, -1 },
-	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, 77, -1 },
-	{ REVOLVER_AMMO_ITEM, 0, 700, ANGLE(90), -3000, ANGLE(0), 2, 97, -1 },
-	{ UZI_AMMO_ITEM, 5, 700, ANGLE(0), 5384, ANGLE(0), 2, 98, -1 },
-	{ PISTOLS_AMMO_ITEM, 4, 700, ANGLE(0), ANGLE(90), ANGLE(0), 2, 99, -1 },
-	{ LASERSIGHT_ITEM, 2, 700, ANGLE(90), 2000, ANGLE(0), 2, 100, -1 },
-	{ SILENCER_ITEM, 1, 900, ANGLE(0), 2000, ANGLE(0), 2, 101, -1 },
-	{ BIGMEDI_ITEM, 2, 800, ANGLE(0), ANGLE(0), ANGLE(0), 2, 102, -1 },
-	{ SMALLMEDI_ITEM, 0, 512, ANGLE(0), ANGLE(112.5), ANGLE(0), 2, 103, -1 },
-	{ BINOCULARS_ITEM, -1, 700, ANGLE(22.5), 2000, ANGLE(0), 2, 104, -1 },
-	{ FLARE_INV_ITEM, 2, 1100, ANGLE(90), ANGLE(0), ANGLE(0), 2, 106, -1 },
-	{ COMPASS_ITEM, 2, 1100, ANGLE(-180), ANGLE(0), ANGLE(0), 2, 107, -1 },
-	{ MEMCARD_LOAD_INV_ITEM, 2, 4000, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ MEMCARD_SAVE_INV_ITEM, 2, 4000, ANGLE(0), ANGLE(0), ANGLE(0), 2, 109, -1 },
-	{ PUZZLE_ITEM1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM2, 14, 600, ANGLE(0), ANGLE(-90), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM3, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM4, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM5, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM6, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM7, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM8, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM1_COMBO1, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM1_COMBO2, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM2_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM2_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM3_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM3_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM4_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM4_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM5_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM5_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM6_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM6_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM7_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM7_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM8_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PUZZLE_ITEM8_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM3, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM4, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM5, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM6, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM7, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM8, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM1_COMBO1, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM1_COMBO2, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM2_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM2_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM3_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM3_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM4_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM4_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM5_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM5_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM6_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM6_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM7_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM7_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM8_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ KEY_ITEM8_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM3, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM4, 2, 800, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM1_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM1_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM2_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM2_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM3_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM3_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM4_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ PICKUP_ITEM4_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, 108, -1 },
-	{ BURNING_TORCH_ITEM, 14, 1200, ANGLE(0), ANGLE(90), ANGLE(0), 2, 108, -1 },
-	{ CROWBAR_ITEM, 4, 1900, ANGLE(0), ANGLE(90), ANGLE(0), 2, 110, -1 },
-	{ EXAMINE1, 4, 1300, ANGLE(0), ANGLE(90), ANGLE(0), 2, 108, -1 },
-	{ EXAMINE2, 14, 1200, ANGLE(0), ANGLE(90), ANGLE(0), 2, 108, -1 },
-	{ EXAMINE3, 14, 1200, ANGLE(0), ANGLE(90), ANGLE(0), 2, 108, -1 },
-	{ WET_CLOTH, -12, 512, ANGLE(90), ANGLE(67.5), ANGLE(112.5), 2, 78, -1 },
-	{ CROSSBOW_ITEM, 0, 900, ANGLE(45), 6144, ANGLE(0), 2, 76, 1 },
-	{ CROSSBOW_AMMO1_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, 77, -1 },
-	{ CLOTH, -12, 512, ANGLE(90), ANGLE(67.5), ANGLE(112.5), 2, 79, -1 },
-	{ BOTTLE, 18, 800, ANGLE(-90), ANGLE(0), ANGLE(0), 2, 80, -1 },
-	{ PUZZLE_HOLE8, -10, 384, ANGLE(-90), 26624, ANGLE(-90), 10, 80, -1 },
+	{ UZI_ITEM, -4, 1000, ANGLE(90), ANGLE(135), ANGLE(90), 2, STR_UZI, -1 },
+	{ PISTOLS_ITEM, 6, 1000, ANGLE(90), -21172, -17088, 2, STR_PISTOLS, -1 },
+	{ SHOTGUN_ITEM, -6, 640, ANGLE(-180), ANGLE(-90), ANGLE(45), 2, STR_SHOTGUN, 1 },
+	{ REVOLVER_ITEM, 0, 800, ANGLE(90), ANGLE(60), 15298, 2, STR_REVOLVER, 1 },
+	{ REVOLVER_ITEM, 0, 800, ANGLE(90), ANGLE(60), 15298, 2, STR_REVOLVER_LASERSIGHT, 7 },
+	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, STR_GRAPPLING_GUN_AMMO, -1 },
+	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, STR_GRAPPLING_GUN_AMMO, -1 },
+	{ HK_ITEM, 0, 800, ANGLE(0), ANGLE(-90), ANGLE(0), 2, STR_HK, 1 },
+	{ HK_ITEM, 0, 800, ANGLE(0), ANGLE(-90), ANGLE(0), 2, STR_HK_SILENCED, -1 },
+	{ SHOTGUN_AMMO1_ITEM, 0, 500, ANGLE(90), ANGLE(0), ANGLE(0), 2, STR_SHOTGUN_NORMAL_AMMO, -1 },
+	{ SHOTGUN_AMMO2_ITEM, 0, 500, ANGLE(90), ANGLE(0), ANGLE(0), 2, STR_SHOTGUN_WIDESHOT_AMMO, -1 },
+	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, STR_HK_SNIPER_MODE, 2 },
+	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, STR_HK_BURST_MODE, 4 },
+	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, STR_HK_RAPID_MODE, 8 },
+	{ HK_AMMO_ITEM, 3, 800, ANGLE(90), ANGLE(0), ANGLE(0), 2, STR_HK_AMMO, 1 },
+	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, STR_GRAPPLING_GUN_AMMO, -1 },
+	{ CROSSBOW_AMMO2_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, STR_GRAPPLING_GUN_AMMO, -1 },
+	{ REVOLVER_AMMO_ITEM, 0, 700, ANGLE(90), -3000, ANGLE(0), 2, STR_REVOLVER_AMMO, -1 },
+	{ UZI_AMMO_ITEM, 5, 700, ANGLE(0), 5384, ANGLE(0), 2, STR_UZI_AMMO, -1 },
+	{ PISTOLS_AMMO_ITEM, 4, 700, ANGLE(0), ANGLE(90), ANGLE(0), 2, STR_PISTOL_AMMO, -1 },
+	{ LASERSIGHT_ITEM, 2, 700, ANGLE(90), 2000, ANGLE(0), 2, STR_LASERSIGHT, -1 },
+	{ SILENCER_ITEM, 1, 900, ANGLE(0), 2000, ANGLE(0), 2, STR_SILENCER, -1 },
+	{ BIGMEDI_ITEM, 2, 800, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LARGE_MEDIPACK, -1 },
+	{ SMALLMEDI_ITEM, 0, 512, ANGLE(0), ANGLE(112.5), ANGLE(0), 2, STR_SMALL_MEDIPACK, -1 },
+	{ BINOCULARS_ITEM, -1, 700, ANGLE(22.5), 2000, ANGLE(0), 2, STR_BINOCULARS, -1 },
+	{ FLARE_INV_ITEM, 2, 1100, ANGLE(90), ANGLE(0), ANGLE(0), 2, STR_FLARES, -1 },
+	{ COMPASS_ITEM, 2, 1100, ANGLE(-180), ANGLE(0), ANGLE(0), 2, STR_TIMEX_TMX, -1 },
+	{ MEMCARD_LOAD_INV_ITEM, 2, 4000, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ MEMCARD_SAVE_INV_ITEM, 2, 4000, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_SAVE, -1 },
+	{ PUZZLE_ITEM1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM2, 14, 600, ANGLE(0), ANGLE(-90), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM3, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM4, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM5, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM6, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM7, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM8, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM1_COMBO1, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM1_COMBO2, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM2_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM2_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM3_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM3_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM4_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM4_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM5_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM5_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM6_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM6_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM7_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM7_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM8_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PUZZLE_ITEM8_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM3, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM4, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM5, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM6, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM7, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM8, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM1_COMBO1, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM1_COMBO2, 18, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM2_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM2_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM3_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM3_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM4_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM4_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM5_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM5_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM6_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM6_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM7_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM7_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM8_COMBO1, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ KEY_ITEM8_COMBO2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM2, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM3, 8, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM4, 2, 800, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM1_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM1_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM2_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM2_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM3_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM3_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM4_COMBO1, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ PICKUP_ITEM4_COMBO2, 14, 1200, ANGLE(0), ANGLE(0), ANGLE(0), 2, STR_LOAD, -1 },
+	{ BURNING_TORCH_ITEM, 14, 1200, ANGLE(0), ANGLE(90), ANGLE(0), 2, STR_LOAD, -1 },
+	{ CROWBAR_ITEM, 4, 1900, ANGLE(0), ANGLE(90), ANGLE(0), 2, STR_CROWBAR, -1 },
+	{ EXAMINE1, 4, 1300, ANGLE(0), ANGLE(90), ANGLE(0), 2, STR_LOAD, -1 },
+	{ EXAMINE2, 14, 1200, ANGLE(0), ANGLE(90), ANGLE(0), 2, STR_LOAD, -1 },
+	{ EXAMINE3, 14, 1200, ANGLE(0), ANGLE(90), ANGLE(0), 2, STR_LOAD, -1 },
+	{ WET_CLOTH, -12, 512, ANGLE(90), ANGLE(67.5), ANGLE(112.5), 2, STR_CHLOROFORM_SOAKED_CLOTH, -1 },
+	{ CROSSBOW_ITEM, 0, 900, ANGLE(45), 6144, ANGLE(0), 2, STR_GRAPPLING_GUN, 1 },
+	{ CROSSBOW_AMMO1_ITEM, 0, 1100, ANGLE(90), ANGLE(-22.5), ANGLE(0), 2, STR_GRAPPLING_GUN_AMMO, -1 },
+	{ CLOTH, -12, 512, ANGLE(90), ANGLE(67.5), ANGLE(112.5), 2, STR_CLOTH, -1 },
+	{ BOTTLE, 18, 800, ANGLE(-90), ANGLE(0), ANGLE(0), 2, STR_BOTTLE_OF_CHLOROFORM, -1 },
+	{ PUZZLE_HOLE8, -10, 384, ANGLE(-90), 26624, ANGLE(-90), 10, STR_BOTTLE_OF_CHLOROFORM, -1 },
+
+
 };
 unsigned char wanky_secrets_table[18] = // offset 0x92BD4
 {
@@ -652,9 +654,9 @@ void NailInvItem(short objnum)//40584, 409D8
 		lara.holster = LARA_HOLSTERS;
 		lara.pistols_type_carried = 0;
 		lara.gun_status = 0;
-		lara.last_gun_type = 0;
-		lara.gun_type = 0;
-		lara.request_gun_type = 0;
+		lara.last_gun_type = WEAPON_NONE;
+		lara.gun_type = WEAPON_NONE;
+		lara.request_gun_type = WEAPON_NONE;
 		break;
 	case SHOTGUN_ITEM:
 		lara.shotgun_type_carried = 0;
@@ -745,7 +747,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 	switch (objnum)
 	{
 	case UZI_ITEM:
-		if (!(lara.uzis_type_carried & 1))
+		if (!(lara.uzis_type_carried & WTYPE_PRESENT))
 			lara.uzis_type_carried = 9;
 
 		if (lara.num_uzi_ammo != -1)
@@ -754,7 +756,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		return;
 
 	case PISTOLS_ITEM:
-		if (!(lara.pistols_type_carried & 1))
+		if (!(lara.pistols_type_carried & WTYPE_PRESENT))
 			lara.pistols_type_carried = 9;
 
 		lara.num_pistols_ammo = -1;
@@ -762,7 +764,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		return;
 
 	case SHOTGUN_ITEM:
-		if (!(lara.shotgun_type_carried & 1))
+		if (!(lara.shotgun_type_carried & WTYPE_PRESENT))
 			lara.shotgun_type_carried = 9;
 
 		if (lara.num_shotgun_ammo1 != -1)
@@ -771,8 +773,8 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		return;
 
 	case REVOLVER_ITEM:
-		if (!(lara.sixshooter_type_carried & 1))
-			lara.sixshooter_type_carried = 9;
+		if (!(lara.sixshooter_type_carried & WTYPE_PRESENT))
+			lara.sixshooter_type_carried = WTYPE_PRESENT | WTYPE_AMMO_0;
 
 		if (lara.num_revolver_ammo != -1)
 			lara.num_revolver_ammo += 6;
@@ -787,8 +789,8 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		}
 		else
 		{
-			if (!(lara.crossbow_type_carried & 1))
-				lara.crossbow_type_carried = 9;
+			if (!(lara.crossbow_type_carried & WTYPE_PRESENT))
+				lara.crossbow_type_carried = WTYPE_PRESENT | WTYPE_AMMO_0;
 
 			if (lara.num_crossbow_ammo1 != -1)
 				lara.num_crossbow_ammo1 += 10;
@@ -799,8 +801,8 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 	case HK_ITEM:
 		SetCutNotPlayed(23);
 
-		if (!(lara.hk_type_carried & 1))
-			lara.hk_type_carried = 9;
+		if (!(lara.hk_type_carried & WTYPE_PRESENT))
+			lara.hk_type_carried = WTYPE_PRESENT | WTYPE_AMMO_0;
 
 		if (gfCurrentLevel != LVL5_ESCAPE_WITH_THE_IRIS)
 			if (lara.num_hk_ammo1 != -1)
@@ -862,7 +864,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 				lara.shotgun_type_carried |
 				lara.sixshooter_type_carried |
 				lara.crossbow_type_carried |
-				lara.hk_type_carried)) & 2))
+				lara.hk_type_carried)) & WTYPE_SILENCER))
 			lara.silencer = 1;
 
 		return;
@@ -873,7 +875,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 				lara.shotgun_type_carried |
 				lara.sixshooter_type_carried |
 				lara.crossbow_type_carried |
-				lara.hk_type_carried)) & 2))
+				lara.hk_type_carried)) & WTYPE_LASERSIGHT))
 			lara.lasersight = 1;
 
 		return;
@@ -1150,10 +1152,10 @@ void combine_crossbow_lasersight(int flag)//3F590, 3F9E4 (F)
 		lara.crossbow_type_carried |= 4;
 	}
 
-	if (lara.gun_status && lara.gun_type == 6)
+	if (lara.gun_status && lara.gun_type == WEAPON_CROSSBOW)
 	{
-		undraw_shotgun_meshes(6);
-		draw_shotgun_meshes(6);
+		undraw_shotgun_meshes(WEAPON_CROSSBOW);
+		draw_shotgun_meshes(WEAPON_CROSSBOW);
 	}
 }
 
@@ -1162,18 +1164,18 @@ void combine_revolver_lasersight(int flag)//3F500, 3F954 (F)
 	if (flag)
 	{
 		lara.lasersight = 1;
-		lara.sixshooter_type_carried &= ~4;
+		lara.sixshooter_type_carried &= ~WTYPE_LASERSIGHT;
 	}
 	else
 	{
 		lara.lasersight = 0;
-		lara.sixshooter_type_carried |= 4;
+		lara.sixshooter_type_carried |= WTYPE_LASERSIGHT;
 	}
 
-	if (lara.gun_status && lara.gun_type == 2)
+	if (lara.gun_status && lara.gun_type == WEAPON_REVOLVER)
 	{
-		undraw_pistol_mesh_right(2);
-		draw_pistol_meshes(2);
+		undraw_pistol_mesh_right(WEAPON_REVOLVER);
+		draw_pistol_meshes(WEAPON_REVOLVER);
 	}
 }
 
@@ -1182,12 +1184,12 @@ void combine_HK_SILENCER(int flag)//3F4C0(<), 3F914(<) (F)
 	if(flag == 0)
 	{
 		lara.silencer = 0;
-		lara.hk_type_carried |= 2;
+		lara.hk_type_carried |= WTYPE_SILENCER;
 	}
 	else
 	{
 		lara.silencer = 1;
-		lara.hk_type_carried &= ~2;
+		lara.hk_type_carried &= ~WTYPE_SILENCER;
 	}
 }
 
@@ -1266,7 +1268,7 @@ int is_item_currently_combinable(short obj)//3F200, 3F654
 
 void update_laras_weapons_status()//3F13C, 3F590 (F)
 {
-	if(lara.shotgun_type_carried & 1)
+	if(lara.shotgun_type_carried & WTYPE_PRESENT)
 	{
 		lara.shotgun_type_carried &= 0xC7;
 		if (CurrentShotGunAmmoType != 0)
@@ -1275,18 +1277,18 @@ void update_laras_weapons_status()//3F13C, 3F590 (F)
 			lara.shotgun_type_carried |= 8;
 	}
 
-	if (lara.hk_type_carried & 1)
+	if (lara.hk_type_carried & WTYPE_PRESENT)
 	{
 		lara.hk_type_carried &= 0xC7;
 		if (CurrentGrenadeGunAmmoType == 0)
-			lara.hk_type_carried |= 8;
+			lara.hk_type_carried |= WTYPE_AMMO_0;
 		else if (CurrentGrenadeGunAmmoType == 1)
-			lara.hk_type_carried |= 0x10;
+			lara.hk_type_carried |= WTYPE_AMMO_1;
 		else
-			lara.hk_type_carried |= 0x20;
+			lara.hk_type_carried |= WTYPE_AMMO_2;
 	}
 
-	if (lara.crossbow_type_carried & 1)
+	if (lara.crossbow_type_carried & WTYPE_PRESENT)
 	{
 		lara.crossbow_type_carried &= 0xC7;
 		if (CurrentCrossBowAmmoType != 0)
@@ -1494,16 +1496,16 @@ void construct_object_list()//3CC80, 3D0D4
 	CurrentPistolsAmmoType = 0;
 	CurrentUziAmmoType = 0;
 	CurrentRevolverAmmoType = 0;
-	CurrentShotGunAmmoType = 0;
+	CurrentShotGunAmmoType = SHELL_NORMAL;
 	CurrentGrenadeGunAmmoType = 0;
 	CurrentCrossBowAmmoType = 0;
 
 	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA))
 	{
-		if (lara.pistols_type_carried & 1)
+		if (lara.pistols_type_carried & WTYPE_PRESENT)
 			insert_object_into_list(INV_PISTOLS_ITEM);
 
-		if (lara.uzis_type_carried & 1)
+		if (lara.uzis_type_carried & WTYPE_PRESENT)
 		{
 			insert_object_into_list(INV_UZI_ITEM);
 		}
@@ -1512,9 +1514,9 @@ void construct_object_list()//3CC80, 3D0D4
 			insert_object_into_list(INV_UZI_AMMO_ITEM);
 		}
 
-		if (lara.sixshooter_type_carried & 1)
+		if (lara.sixshooter_type_carried & WTYPE_PRESENT)
 		{
-			if (lara.sixshooter_type_carried & 4)
+			if (lara.sixshooter_type_carried & WTYPE_LASERSIGHT)
 				insert_object_into_list(INV_REVOLVER_ITEM2);
 			else
 				insert_object_into_list(INV_REVOLVER_ITEM1);
@@ -1524,11 +1526,11 @@ void construct_object_list()//3CC80, 3D0D4
 			insert_object_into_list(INV_REVOLVER_AMMO_ITEM);
 		}
 
-		if (lara.shotgun_type_carried & 1)
+		if (lara.shotgun_type_carried & WTYPE_PRESENT)
 		{
 			insert_object_into_list(INV_SHOTGUN_ITEM);
-			if (lara.shotgun_type_carried & 0x10)
-				CurrentShotGunAmmoType = 1;
+			if (lara.shotgun_type_carried & WTYPE_AMMO_1)
+				CurrentShotGunAmmoType = SHELL_WIDESHOT;
 		}
 		else
 		{
@@ -1538,18 +1540,18 @@ void construct_object_list()//3CC80, 3D0D4
 				insert_object_into_list(INV_SHOTGUN_AMMO2_ITEM);
 		}
 
-		if (lara.hk_type_carried & 1)
+		if (lara.hk_type_carried & WTYPE_PRESENT)
 		{
-			if (lara.hk_type_carried & 2)
+			if (lara.hk_type_carried & WTYPE_SILENCER)
 				insert_object_into_list(INV_HK_ITEM2);
 			else
 				insert_object_into_list(INV_HK_ITEM1);
 
-			if (lara.hk_type_carried & 0x10)
+			if (lara.hk_type_carried & WTYPE_AMMO_1)
 			{
 				CurrentGrenadeGunAmmoType = 1;
 			}
-			else if (lara.hk_type_carried & 0x20)
+			else if (lara.hk_type_carried & WTYPE_AMMO_2)
 			{
 				CurrentGrenadeGunAmmoType = 2;
 			}
@@ -1559,7 +1561,7 @@ void construct_object_list()//3CC80, 3D0D4
 			insert_object_into_list(INV_HK_AMMO_ITEM4);
 		}
 
-		if (lara.crossbow_type_carried & 1)
+		if (lara.crossbow_type_carried & WTYPE_PRESENT)
 		{
 			if (gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT)
 			{
@@ -1568,12 +1570,12 @@ void construct_object_list()//3CC80, 3D0D4
 			}
 			else
 			{
-				if (lara.crossbow_type_carried & 4)
+				if (lara.crossbow_type_carried & WTYPE_LASERSIGHT)
 					insert_object_into_list(INV_CROSSBOW_AMMO2_ITEM2);
 				else
 					insert_object_into_list(INV_CROSSBOW_AMMO2_ITEM1);
 
-				if (lara.crossbow_type_carried & 0x10)
+				if (lara.crossbow_type_carried & WTYPE_AMMO_1)
 					CurrentCrossBowAmmoType = 1;
 			}
 		}
@@ -1706,20 +1708,20 @@ void construct_combine_object_list()//3C940, 3CD94
 
 	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA))
 	{
-		if (lara.sixshooter_type_carried & 1)
+		if (lara.sixshooter_type_carried & WTYPE_PRESENT)
 		{
-			if (lara.sixshooter_type_carried & 4)
+			if (lara.sixshooter_type_carried & WTYPE_LASERSIGHT)
 				insert_object_into_list_v2(INV_REVOLVER_ITEM2);
 			else
 				insert_object_into_list_v2(INV_REVOLVER_ITEM1);
 		}
 
-		if (lara.hk_type_carried & 1)
+		if (lara.hk_type_carried & WTYPE_PRESENT)
 			insert_object_into_list_v2(INV_HK_ITEM1);
 
-		if (lara.crossbow_type_carried & 1 && !(gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT))
+		if (lara.crossbow_type_carried & WTYPE_PRESENT && !(gfCurrentLevel >= LVL5_THIRTEENTH_FLOOR && gfCurrentLevel <= LVL5_RED_ALERT))
 		{
-			if (lara.crossbow_type_carried & 4)
+			if (lara.crossbow_type_carried & WTYPE_LASERSIGHT)
 				insert_object_into_list_v2(INV_CROSSBOW_AMMO2_ITEM2);
 			else
 				insert_object_into_list_v2(INV_CROSSBOW_AMMO2_ITEM1);

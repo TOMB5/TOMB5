@@ -288,14 +288,43 @@ enum trigobj_types {
 	TO_OBJECT, TO_CAMERA, TO_SINK, TO_FLIPMAP, TO_FLIPON, TO_FLIPOFF, TO_TARGET, TO_FINISH, TO_CD, TO_FLIPEFFECT, TO_SECRET, TO_BODYBAG, TO_FLYBY, TO_CUTSCENE
 };
 
-enum weapon_types
-{
+enum weapon_types {
+	WEAPON_NONE = 0,
 	WEAPON_PISTOLS = 1,
 	WEAPON_REVOLVER = 2,
 	WEAPON_UZI = 3,
 	WEAPON_SHOTGUN = 4,
 	WEAPON_HK = 5,
 	WEAPON_CROSSBOW = 6,
+};
+
+enum weapon_type_carried {
+	WTYPE_PRESENT = 1,
+	WTYPE_SILENCER = 2,
+	WTYPE_LASERSIGHT = 4,
+	WTYPE_AMMO_0 = 8,
+	WTYPE_AMMO_1 = 16,
+	WTYPE_AMMO_2 = 32,
+
+	//WTYPE_DEFAULT = WTYPE_PRESENT | WTYPE_AMMO_0
+};
+
+enum crossbow_type {
+	CROSSBOW_NORMAL = 0,
+	CROSSBOW_POISON = 1,
+	CROSSBOW_EXPLOSIVE = 2
+};
+
+enum hk_type {
+	HK_SNIPER = 0,
+	HK_BURST = 1,
+	HK_RAPID = 2
+};
+
+enum shotgun_shell_type
+{
+	SHELL_NORMAL = 0,
+	SHELL_WIDESHOT = 1
 };
 
 extern struct BITE_INFO EnemyBites[9];
