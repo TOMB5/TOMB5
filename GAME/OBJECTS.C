@@ -3,6 +3,10 @@
 #include "CONTROL.H"
 #include "EFFECTS.H"
 #include <stddef.h>
+#include "DRAW.H"
+#include "BOX.H"
+#include "TOMB4FX.H"
+#include "ITEMS.H"
 
 struct BITE_INFO EnemyBites[9] =
 {
@@ -185,9 +189,25 @@ void SmashObjectControl(short item_number)//4EEF8(<), 4F35C(<) (F)
 	SmashObject(item_number << 16);
 }
 
-void SmashObject(short item_number)//4EDB0, 4F214
+void SmashObject(short item_number)//4EDB0, 4F214 (F)
 {
-	S_Warn("[SmashObject] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_number];
+	struct room_info* r = &room[item->room_number];
+	int sector = ((item->pos.z_pos - r->z) >> 10) + r->x_size * ((item->pos.x_pos - r->x) >> 10);
+	struct box_info* box = &boxes[r->floor[sector].box];
+	if (box->overlap_index & BOX_LAST)
+	{
+		box->overlap_index &= ~BOX_BLOCKED;
+	}
+
+	SoundEffect(12, &item->pos, 0);
+	item->collidable = 0;
+	item->mesh_bits = 0xFFFE;
+	ExplodingDeath2(item_number, -1, 257);
+	item->flags |= IFLAG_INVISIBLE;
+	if (item->status == 1)
+		RemoveActiveItem(item_number);
+	item->status = 2;
 }
 
 void EarthQuake(short item_number)

@@ -310,6 +310,13 @@ enum weapon_type_carried {
 	WTYPE_MASK_AMMO = WTYPE_AMMO_1 | WTYPE_AMMO_2 | WTYPE_AMMO_3
 };
 
+enum cloth_type
+{
+	CLOTH_MISSING = 0,
+	CLOTH_DRY = 1,
+	CLOTH_WET = 2
+};
+
 // TR4
 /*enum crossbow_type {
 	CROSSBOW_NORMAL = 0,
@@ -317,20 +324,36 @@ enum weapon_type_carried {
 	CROSSBOW_EXPLOSIVE = 2
 };*/
 
+#define UZI_AMMO_COUNT 30
+#define SHOTGUN_SHELL_COUNT 36
+#define REVOLVER_AMMO_COUNT 6
+#define GRAPPLING_AMMO_COUNT 10
+#define HK_AMMO_COUNT 30
+
+enum pistols_type {
+	PISTOLS_NORMAL
+};
+
+enum uzi_type {
+	UZI_NORMAL
+};
+
+enum revolver_type {
+	REVOLVER_NORMAL
+};
+
 enum hk_type {
 	HK_SNIPER,
 	HK_BURST,
 	HK_RAPID
 };
 
-enum shotgun_shell_type
-{
+enum shotgun_shell_type {
 	SHELL_NORMAL,
 	SHELL_WIDESHOT
 };
 
-enum grappling_type
-{
+enum grappling_type {
 	GRAPPLING_TYPE_1,
 	GRAPPLING_TYPE_2,
 	GRAPPLING_TYPE_3
