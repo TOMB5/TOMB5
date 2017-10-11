@@ -1056,9 +1056,9 @@ void FlipMap(int FlipNumber) // (F)
 			struct room_info temp;
 			struct room_info* flipped = &room[r->flipped_room];
 			RemoveRoomFlipItems(r);
-			qmemcpy(&temp, r, sizeof(struct room_info));
-			qmemcpy(r, flipped, sizeof(struct room_info));
-			qmemcpy(flipped, &temp, sizeof(struct room_info));
+			memcpy(&temp, r, sizeof(struct room_info));
+			memcpy(r, flipped, sizeof(struct room_info));
+			memcpy(flipped, &temp, sizeof(struct room_info));
 			r->flipped_room = flipped->flipped_room;
 			flipped->flipped_room = -1;
 			r->item_number = flipped->item_number;
