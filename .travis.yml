@@ -1,17 +1,42 @@
+os:
+  - linux
+  - osx
+
 dist: trusty
 sudo: required
+
+addons:
+  apt:
+    packages:
+      - libegl1-mesa-dev
+      - libgles2-mesa-dev
+      - libsdl2-dev
 
 language:
   - c
   
 compiler:
   - gcc
-  
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libegl1-mesa-dev
-  - sudo apt-get install -y libgles2-mesa-dev
-  - sudo apt-get install -y libsdl2-dev
+
+env:
+  - TOOLCHAIN=gcc CONFIG=Debug
+  - TOOLCHAIN=gcc CONFIG=Release
+  - TOOLCHAIN=xcode CONFIG=Debug
+  - TOOLCHAIN=xcode CONFIG=Release
+
+matrix:
+  exclude:
+    - os: linux
+      env: TOOLCHAIN=xcode CONFIG=Debug
+    - os: linux
+      env: TOOLCHAIN=xcode CONFIG=Release
+
+#matrix:
+#  include:
+#    - os: osx
+#      before_install:
+#        - brew update
+#        - brew install sdl2
   
 script:
   - mkdir BUILD
