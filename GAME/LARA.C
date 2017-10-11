@@ -98,7 +98,7 @@ void GetTighRopeFallOff(long Regularity)//1CD28, 1CEBC (f)
 
 void LookLeftRight()//1CB80, 1CD14 (F)
 {
-	camera.type = 2;
+	camera.type = LOOK_CAMERA;
 	if (input & IN_LEFT)
 	{
 		input &= ~IN_LEFT;
@@ -127,7 +127,7 @@ void LookLeftRight()//1CB80, 1CD14 (F)
 
 void LookUpDown()//1C9D8, 1CB6C (F)
 {
-	camera.type = 2;
+	camera.type = LOOK_CAMERA;
 	if (input & IN_UP)
 	{
 		input &= ~IN_UP;
@@ -154,9 +154,33 @@ void LookUpDown()//1C9D8, 1CB6C (F)
 		lara.torso_x_rot = lara.head_x_rot;
 }
 
-void ResetLook()//1C920, 1CA54
+void ResetLook()//1C920, 1CA54 (F)
 {
-	S_Warn("[ResetLook] - Unimplemented!\n");
+	if (camera.type != 2)
+	{
+		if (lara.head_x_rot <= ANGLE(-2) || lara.head_x_rot >= ANGLE(2))
+			lara.head_x_rot = lara.head_x_rot / -8 + lara.head_x_rot;
+		else
+			lara.head_x_rot = 0;
+
+		if (lara.head_y_rot <= ANGLE(-2) || lara.head_y_rot >= ANGLE(2))
+			lara.head_y_rot = lara.head_y_rot / -8 + lara.head_y_rot;
+		else
+			lara.head_y_rot = 0;
+
+		if (lara.gun_status == 1 || lara.left_arm.lock || lara.right_arm.lock)
+		{
+			if (!lara.head_x_rot)
+				lara.torso_x_rot = 0;
+			if (!lara.head_y_rot)
+				lara.torso_y_rot = 0;
+		}
+		else
+		{
+			lara.torso_y_rot = lara.head_y_rot;
+			lara.torso_x_rot = lara.head_x_rot;
+		}
+	}
 }
 
 void lara_col_jumper(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C860(<), 1C994(<) (F)

@@ -299,7 +299,9 @@ struct creature_info {
 	enum mood_type mood; // size=4, offset=16
 	struct ITEM_INFO* enemy; // size=144, offset=20
 	struct ITEM_INFO ai_target; // size=144, offset=24
+#if !PC_VERSION
 	short pad; // size=0, offset=168
+#endif
 	short item_num; // size=0, offset=170
 	struct PHD_VECTOR target; // size=12, offset=172
 	struct lot_info LOT; // size=44, offset=184

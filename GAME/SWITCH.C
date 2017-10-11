@@ -3,6 +3,12 @@
 #include "CONTROL.H"
 #include "SPECIFIC.H"
 
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
+
 unsigned char SequenceUsed[6];
 unsigned char SequenceResults[3][3][3];
 unsigned char Sequences[3];
@@ -94,10 +100,16 @@ static short SwitchBounds[12] = // offset 0xA1694
 };
 static struct PHD_VECTOR SwitchPos = { 0, 0, 0 }; // offset 0xA16AC
 
-void ProcessExplodingSwitchType8(struct ITEM_INFO* item)//58958, 58DF8
+void ProcessExplodingSwitchType8(struct ITEM_INFO* item)//58958, 58DF8 (F)
 {
-	S_Warn("[ProcessExplodingSwitchType8] - Unimplemented!\n");
-	return;
+	struct PHD_VECTOR pos;
+	pos.x = 0;
+	pos.y = 0;
+	pos.z = 0;
+	GetJointAbsPosition(item, &pos, 0);
+	TestTriggersAtXYZ(pos.x, pos.y, pos.z, item->room_number, 1, 0);
+	ExplodeItemNode(item, objects[item->object_number].nmeshes - 1, 0, 64);
+	item->mesh_bits |= 1 << ((objects[item->object_number].nmeshes & 0xFF) - 2);
 }
 
 void CrowDoveSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//58740, 58BE0

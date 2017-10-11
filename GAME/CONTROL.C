@@ -34,6 +34,7 @@
 #include "TOMB4FX.H"
 
 #include <assert.h>
+#include "LOT.H"
 
 int flipeffect = -1;
 int fliptimer;
@@ -1032,7 +1033,7 @@ void RemoveRoomFlipItems(struct room_info* r)//1F938(<), 1FB4C(<) (F)
 
 	for (item_num = r->item_number; item_num != -1; item_num = items[item_num].next_item)
 	{
-		if (items[item_num].flags & 0x100)
+		if (items[item_num].flags & IFLAG_INVISIBLE)
 		{
 			if (objects[items[item_num].object_number].intelligent)
 			{
@@ -1045,9 +1046,35 @@ void RemoveRoomFlipItems(struct room_info* r)//1F938(<), 1FB4C(<) (F)
 	}
 }
 
-void FlipMap(int FlipNumber)
+void FlipMap(int FlipNumber) // (F)
 {
-	S_Warn("[FlipMap] - Unimplemented!\n");
+	struct room_info* r = room;
+	for(int i = 0; i < number_rooms; i++, r++)
+	{
+		if (r->flipped_room >= 0 && r->FlipNumber == FlipNumber)
+		{
+			struct room_info temp;
+			struct room_info* flipped = &room[r->flipped_room];
+			RemoveRoomFlipItems(r);
+			qmemcpy(&temp, r, sizeof(struct room_info));
+			qmemcpy(r, flipped, sizeof(struct room_info));
+			qmemcpy(flipped, &temp, sizeof(struct room_info));
+			r->flipped_room = flipped->flipped_room;
+			flipped->flipped_room = -1;
+			r->item_number = flipped->item_number;
+			r->fx_number = flipped->fx_number;
+			AddRoomFlipItems(r);
+		}
+	}
+	flip_stats[FlipNumber] = flip_stats[FlipNumber] == 0;
+	flip_status = flip_stats[FlipNumber] == 0;
+	{
+		struct creature_info* cinfo = baddie_slots;
+		for (int slot = 0; slot < 6; slot++, cinfo++)
+		{
+			cinfo->LOT.target_box = 2047;
+		}
+	}
 }
 
 void _TestTriggers(short* data, int heavy, int HeavyFlags)
@@ -1303,4 +1330,7 @@ int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLO
 	return 0;
 }
 
-
+void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int a3)
+{
+	S_Warn("[GetJointAbsPosition] - Unimplemented!\n");
+}
