@@ -1072,7 +1072,7 @@ void FlipMap(int FlipNumber) // (F)
 		struct creature_info* cinfo = baddie_slots;
 		for (int slot = 0; slot < 6; slot++, cinfo++)
 		{
-			cinfo->LOT.target_box = 2047;
+			cinfo->LOT.target_box = 0x7FF;
 		}
 	}
 }
