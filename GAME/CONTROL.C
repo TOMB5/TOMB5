@@ -32,7 +32,7 @@
 #include "SPHERE.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
-
+#include <string.h>
 #include <assert.h>
 #include "LOT.H"
 
