@@ -1,9 +1,9 @@
 #include "LARAFIRE.H"
 
 #include "GAMEFLOW.H"
-#include "SPECIFIC.H"
-#include "OBJECTS.H"
 #include "LARA.H"
+#include "OBJECTS.H"
+#include "SPECIFIC.H"
 
 struct GAME_VECTOR bum_vdest;
 struct GAME_VECTOR bum_vsrc;

@@ -23,6 +23,12 @@ void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)//2A940
 
 void TriggerLaraBlood()//2A838, 2AA60
 {
+	//int 
+	for(int i = 0; i < 15; i++)
+	{
+		
+	}
+
 	S_Warn("[TriggerLaraBlood] - Unimplemented!\n");
 }
 

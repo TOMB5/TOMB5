@@ -82,7 +82,7 @@ void lara_as_trpose(struct ITEM_INFO* item, struct COLL_INFO* coll)//1CDE8(<), 1
 	}
 }
 
-void GetTighRopeFallOff(long Regularity)//1CD28, 1CEBC (f)
+void GetTighRopeFallOff(long Regularity)//1CD28, 1CEBC (F)
 {
 	if (lara_item->hit_points <= 0 || lara_item->hit_status)
 	{

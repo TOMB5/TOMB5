@@ -20,6 +20,7 @@
 #if PSX_VERSION || PSXPC_VERSION
 #include "LOAD_LEV.H"
 #endif
+#include "LOT.H"
 #include "NEWINV2.H"
 #include "PICKUP.H"
 #include INPUT_H
@@ -32,9 +33,9 @@
 #include "SPHERE.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
+
 #include <string.h>
 #include <assert.h>
-#include "LOT.H"
 
 int flipeffect = -1;
 int fliptimer;
@@ -235,8 +236,6 @@ struct CHARDEF CharDef[106] =
 	{ 0x2A, 0, 0x29, 0xD, -0xA, 6, 0xB },
 	{ 0x7E, 0, 0x29, 0xD, -0xA, 6, 0xB }
 };
-
-char byte_A3660;
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 {
@@ -536,7 +535,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 		}//loc_1DA5C
 
-		a0 = byte_A3660;
+		a0 = camera_ytarget[16];
 		if (InGameCnt > 3)
 		{
 			assert(0);
@@ -868,9 +867,15 @@ void KillMoveEffects()//1D4AC(<), 1D640(<) (F)
 	ItemNewRoomNo = 0;
 }
 
-void TestTriggers(short* data, int heavy, int HeavyFlags)
+void TestTriggers(short* data, int heavy, int HeavyFlags) // (F)
 {
-	S_Warn("[TestTriggers] - Unimplemented!\n!");
+	globoncuttrig = 0;
+	_TestTriggers(data, heavy, HeavyFlags);
+	if (!globoncuttrig)
+	{
+		if (richcutfrigflag)
+			richcutfrigflag = 0;
+	}
 }
 
 long rand_1 = 0xD371F947;
@@ -1049,7 +1054,8 @@ void RemoveRoomFlipItems(struct room_info* r)//1F938(<), 1FB4C(<) (F)
 void FlipMap(int FlipNumber) // (F)
 {
 	struct room_info* r = room;
-	for(int i = 0; i < number_rooms; i++, r++)
+	int i;
+	for(i = 0; i < number_rooms; i++, r++)
 	{
 		if (r->flipped_room >= 0 && r->FlipNumber == FlipNumber)
 		{
@@ -1070,7 +1076,8 @@ void FlipMap(int FlipNumber) // (F)
 	flip_status = flip_stats[FlipNumber] == 0;
 	{
 		struct creature_info* cinfo = baddie_slots;
-		for (int slot = 0; slot < 6; slot++, cinfo++)
+		int slot;
+		for (slot = 0; slot < 6; slot++, cinfo++)
 		{
 			cinfo->LOT.target_box = 0x7FF;
 		}
