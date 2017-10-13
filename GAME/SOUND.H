@@ -380,6 +380,7 @@ enum sound_effects
 	SFX_KEYPAD_7,
 	SFX_KEYPAD_8,
 	SFX_KEYPAD_9,
+		// correct at least up to here
 	SFX_SMALL_FAN,
 	SFX_KLAXON,
 	SFX_LARA_CROSSBOW,

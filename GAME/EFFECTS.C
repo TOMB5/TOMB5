@@ -246,7 +246,7 @@ void LaraLocation(struct ITEM_INFO* item)//396D0(<), 39BD0(<) (F)
 
 void ExplosionFX(struct ITEM_INFO* item)//39694(<), 39B94(<) (F)
 {
-	SoundEffect(105, NULL, 0);
+	SoundEffect(SFX_EXPLOSION1, NULL, 0);
 	camera.bounce = -75;
 	flipeffect = -1;
 }

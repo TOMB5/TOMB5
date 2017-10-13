@@ -7,6 +7,7 @@
 #include "BOX.H"
 #include "TOMB4FX.H"
 #include "ITEMS.H"
+#include "SOUND.H"
 
 struct BITE_INFO EnemyBites[9] =
 {
@@ -84,7 +85,7 @@ void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 		}
 		else if (item->trigger_flags == 0x309)
 		{
-			SoundEffect(79, &item->pos, 0);
+			SoundEffect(SFX_WATERFALL_LOOP, &item->pos, 0);
 		}
 	}
 	else
@@ -200,7 +201,7 @@ void SmashObject(short item_number)//4EDB0, 4F214 (F)
 		box->overlap_index &= ~BOX_BLOCKED;
 	}
 
-	SoundEffect(12, &item->pos, 0);
+	SoundEffect(SFX_SMASH_GLASS, &item->pos, 0);
 	item->collidable = 0;
 	item->mesh_bits = 0xFFFE;
 	ExplodingDeath2(item_number, -1, 257);

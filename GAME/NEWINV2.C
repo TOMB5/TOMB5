@@ -530,7 +530,7 @@ void do_stats_mode()//412BC, 41710
 
 	if (go_deselect)
 	{
-		SoundEffect(0x6D, 0, 2);
+		SoundEffect(SFX_MENU_SELECT, 0, 2);
 		go_deselect = 0;
 		stats_mode = 0;
 	}

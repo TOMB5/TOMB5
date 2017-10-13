@@ -1000,7 +1000,7 @@ void lara_as_fastfall(struct ITEM_INFO* item, struct COLL_INFO* coll)//198BC(<),
 {
 	item->speed = (item->speed * 95) / 100;
 	if (item->fallspeed == 154)
-		SoundEffect(30, &item->pos, 0);
+		SoundEffect(SFX_LARA_FALL, &item->pos, 0);
 }
 
 void lara_as_death(struct ITEM_INFO* item, struct COLL_INFO* coll)//19830(<), 19964(<) (F)
