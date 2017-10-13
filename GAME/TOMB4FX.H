@@ -64,5 +64,6 @@ extern void ControlElectricFence(short item_number);
 extern void ControlTeleporter(short item_number);
 extern void DrawWeaponMissile(struct ITEM_INFO *item);
 extern void TriggerLaraDrips();
+extern void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_number);
 
 #endif

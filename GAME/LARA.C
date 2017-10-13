@@ -7,6 +7,7 @@
 #include "COLLIDE.H"
 #include "DRAW.H"
 #include INPUT_H
+#include "SOUND.H"
 
 static short LeftClimbTab[4] = // offset 0xA0638
 {
@@ -82,24 +83,105 @@ void lara_as_trpose(struct ITEM_INFO* item, struct COLL_INFO* coll)//1CDE8(<), 1
 	}
 }
 
-void GetTighRopeFallOff(long Regularity)//1CD28, 1CEBC
+void GetTighRopeFallOff(long Regularity)//1CD28, 1CEBC (F)
 {
-	S_Warn("[GetTighRopeFallOff] - Unimplemented!\n");
+	if (lara_item->hit_points <= 0 || lara_item->hit_status)
+	{
+		lara_item->goal_anim_state = STATE_LARA_TIGHTROPE_BALANCING_LEFT;
+		lara_item->current_anim_state = STATE_LARA_TIGHTROPE_BALANCING_LEFT;
+		lara_item->anim_number = ANIMATION_LARA_TIGHTROPE_FALL_LEFT;
+		lara_item->frame_number = anims[ANIMATION_LARA_TIGHTROPE_FALL_LEFT].frame_base;
+	}
+
+	if (!lara.TightRopeFall && !(GetRandomControl() & Regularity))
+		lara.TightRopeFall = 2 - ((GetRandomControl() & 0xF) != 0);
 }
 
-void LookLeftRight()//1CB80, 1CD14
+void LookLeftRight()//1CB80, 1CD14 (F)
 {
-	S_Warn("[LookLeftRight] - Unimplemented!\n");
+	camera.type = LOOK_CAMERA;
+	if (input & IN_LEFT)
+	{
+		input &= ~IN_LEFT;
+		if (lara.head_y_rot > ANGLE(-44))
+		{
+			if (BinocularRange)
+				lara.head_y_rot += ANGLE(2) * (BinocularRange - 1792) / 1536;
+			else
+				lara.head_y_rot -= ANGLE(2);
+		}
+	}
+	else if (input & IN_RIGHT)
+	{
+		input &= ~IN_RIGHT;
+		if (lara.head_y_rot < ANGLE(44))
+		{
+			if (BinocularRange)
+				lara.head_y_rot += ANGLE(2) * (1792 - BinocularRange) / 1536;
+			else
+				lara.head_y_rot += ANGLE(2);
+		}
+	}
+	if (lara.gun_status != 1 && !lara.left_arm.lock && !lara.right_arm.lock)
+		lara.torso_y_rot = lara.head_y_rot;
 }
 
-void LookUpDown()//1C9D8, 1CB6C
+void LookUpDown()//1C9D8, 1CB6C (F)
 {
-	S_Warn("[LookUpDown] - Unimplemented!\n");
+	camera.type = LOOK_CAMERA;
+	if (input & IN_UP)
+	{
+		input &= ~IN_UP;
+		if (lara.head_x_rot > ANGLE(-35))
+		{
+			if (BinocularRange)
+				lara.head_x_rot += ANGLE(2) * (BinocularRange - 1792) / 3072;
+			else
+				lara.head_x_rot -= ANGLE(2);
+		}
+	}
+	else if (input & IN_DOWN)
+	{
+		input &= ~IN_DOWN;
+		if (lara.head_x_rot < ANGLE(30))
+		{
+			if (BinocularRange)
+				lara.head_x_rot += ANGLE(2) * (1792 - BinocularRange) / 3072;
+			else
+				lara.head_x_rot += ANGLE(2);
+		}
+	}
+	if (lara.gun_status != 1 && !lara.left_arm.lock && !lara.right_arm.lock)
+		lara.torso_x_rot = lara.head_x_rot;
 }
 
-void ResetLook()//1C920, 1CA54
+void ResetLook()//1C920, 1CA54 (F)
 {
-	S_Warn("[ResetLook] - Unimplemented!\n");
+	if (camera.type != 2)
+	{
+		if (lara.head_x_rot <= ANGLE(-2) || lara.head_x_rot >= ANGLE(2))
+			lara.head_x_rot = lara.head_x_rot / -8 + lara.head_x_rot;
+		else
+			lara.head_x_rot = 0;
+
+		if (lara.head_y_rot <= ANGLE(-2) || lara.head_y_rot >= ANGLE(2))
+			lara.head_y_rot = lara.head_y_rot / -8 + lara.head_y_rot;
+		else
+			lara.head_y_rot = 0;
+
+		if (lara.gun_status == 1 || lara.left_arm.lock || lara.right_arm.lock)
+		{
+			if (!lara.head_x_rot)
+				lara.torso_x_rot = 0;
+			if (!lara.head_y_rot)
+				lara.torso_y_rot = 0;
+		}
+		else
+		{
+			lara.torso_y_rot = lara.head_y_rot;
+			lara.torso_x_rot = lara.head_x_rot;
+		}
+	}
 }
 
 void lara_col_jumper(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C860(<), 1C994(<) (F)
@@ -919,7 +1001,7 @@ void lara_as_fastfall(struct ITEM_INFO* item, struct COLL_INFO* coll)//198BC(<),
 {
 	item->speed = (item->speed * 95) / 100;
 	if (item->fallspeed == 154)
-		SoundEffect(30, &item->pos, 0);
+		SoundEffect(SFX_LARA_FALL, &item->pos, 0);
 }
 
 void lara_as_death(struct ITEM_INFO* item, struct COLL_INFO* coll)//19830(<), 19964(<) (F)

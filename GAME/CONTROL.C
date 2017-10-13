@@ -20,6 +20,7 @@
 #if PSX_VERSION || PSXPC_VERSION
 #include "LOAD_LEV.H"
 #endif
+#include "LOT.H"
 #include "NEWINV2.H"
 #include "PICKUP.H"
 #include INPUT_H
@@ -33,6 +34,7 @@
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
 
+#include <string.h>
 #include <assert.h>
 
 int flipeffect = -1;
@@ -235,8 +237,6 @@ struct CHARDEF CharDef[106] =
 	{ 0x7E, 0, 0x29, 0xD, -0xA, 6, 0xB }
 };
 
-char byte_A3660;
-
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 {
 #if PC_VERSION
@@ -394,7 +394,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		if (PadConnected != 0 && ScreenFading == 0)
 		{
 			///@TODO retail ver string offset index
-			PrintString(256, 230, 0, &gfStringWad[gfStringOffset[176]]); //TODO IDA didn't dump me :-) ///@FIXME check arg 3
+			PrintString(256, 230, 0, &gfStringWad[gfStringOffset[STR_DEMO_MODE]]); //TODO IDA didn't dump me :-) ///@FIXME check arg 3
 		}
 
 		//loc_1D7A0
@@ -535,7 +535,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 		}//loc_1DA5C
 
-		a0 = byte_A3660;
+		a0 = camera_ytarget[16];
 		if (InGameCnt > 3)
 		{
 			assert(0);
@@ -867,9 +867,15 @@ void KillMoveEffects()//1D4AC(<), 1D640(<) (F)
 	ItemNewRoomNo = 0;
 }
 
-void TestTriggers(short* data, int heavy, int HeavyFlags)
+void TestTriggers(short* data, int heavy, int HeavyFlags) // (F)
 {
-	S_Warn("[TestTriggers] - Unimplemented!\n!");
+	globoncuttrig = 0;
+	_TestTriggers(data, heavy, HeavyFlags);
+	if (!globoncuttrig)
+	{
+		if (richcutfrigflag)
+			richcutfrigflag = 0;
+	}
 }
 
 long rand_1 = 0xD371F947;
@@ -981,7 +987,7 @@ int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)//2
 		}
 		else
 		{
-			SoundEffect(168, &item->pos, 0);
+			SoundEffect(SFX_SMASH_METAL, &item->pos, 0);
 			num = bits;
 		}
 		GetSpheres(item, Slist, 3);
@@ -1032,7 +1038,7 @@ void RemoveRoomFlipItems(struct room_info* r)//1F938(<), 1FB4C(<) (F)
 
 	for (item_num = r->item_number; item_num != -1; item_num = items[item_num].next_item)
 	{
-		if (items[item_num].flags & 0x100)
+		if (items[item_num].flags & IFLAG_INVISIBLE)
 		{
 			if (objects[items[item_num].object_number].intelligent)
 			{
@@ -1045,9 +1051,37 @@ void RemoveRoomFlipItems(struct room_info* r)//1F938(<), 1FB4C(<) (F)
 	}
 }
 
-void FlipMap(int FlipNumber)
+void FlipMap(int FlipNumber) // (F)
 {
-	S_Warn("[FlipMap] - Unimplemented!\n");
+	struct room_info* r = room;
+	int i;
+	for(i = 0; i < number_rooms; i++, r++)
+	{
+		if (r->flipped_room >= 0 && r->FlipNumber == FlipNumber)
+		{
+			struct room_info temp;
+			struct room_info* flipped = &room[r->flipped_room];
+			RemoveRoomFlipItems(r);
+			memcpy(&temp, r, sizeof(struct room_info));
+			memcpy(r, flipped, sizeof(struct room_info));
+			memcpy(flipped, &temp, sizeof(struct room_info));
+			r->flipped_room = flipped->flipped_room;
+			flipped->flipped_room = -1;
+			r->item_number = flipped->item_number;
+			r->fx_number = flipped->fx_number;
+			AddRoomFlipItems(r);
+		}
+	}
+	flip_stats[FlipNumber] = flip_stats[FlipNumber] == 0;
+	flip_status = flip_stats[FlipNumber] == 0;
+	{
+		struct creature_info* cinfo = baddie_slots;
+		int slot;
+		for (slot = 0; slot < 6; slot++, cinfo++)
+		{
+			cinfo->LOT.target_box = 0x7FF;
+		}
+	}
 }
 
 void _TestTriggers(short* data, int heavy, int HeavyFlags)
@@ -1303,4 +1337,7 @@ int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLO
 	return 0;
 }
 
-
+void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int a3)
+{
+	S_Warn("[GetJointAbsPosition] - Unimplemented!\n");
+}

@@ -8,6 +8,7 @@
 #include "DRAW.H"
 #include "CAMERA.H"
 #include "EFFECTS.H"
+#include "DELTAPAK.H"
 #ifdef PC_VERSION
 #include "GAME.H"
 #else
@@ -649,3 +650,15 @@ void DrawWeaponMissile(struct ITEM_INFO *item)
 	S_Warn("[DrawWeaponMissile] - Unimplemented!\\n");
 }
 
+void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_number)
+{
+	GetFloor(x, y, z, &room_number);
+	if (room[room_number].flags & RF_FILL_WATER)
+	{
+		TriggerUnderwaterBlood(x, y, z, speed);
+	}
+	else
+	{
+		TriggerBlood(x, y, z, direction, speed);
+	}
+}
