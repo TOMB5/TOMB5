@@ -12,7 +12,7 @@
 
 int health_bar_timer = 0;
 char PoisonFlag = 0;
-struct DISPLAYPU pickups[8];
+DISPLAYPU pickups[8];
 short PickupX = 0;
 short PickupY = 0;
 short PickupVel = 0;
@@ -20,7 +20,7 @@ short CurrentPickup = 0;
 
 void AddDisplayPickup(short object_number)//3B6F4, ?
 {
-	struct DISPLAYPU *pu; // $v1
+	DISPLAYPU *pu; // $v1
 	long lp; // $a1
 
 

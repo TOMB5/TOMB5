@@ -32,16 +32,16 @@
 #include "SPUSOUND.H"
 #include "SWITCH.H"
 #include "TOMB4FX.H"
-#include "TYPES.H"
+#include "SPECTYPES.H"
 
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string>
 
-struct object_container objects_raw;
-struct object_info* objects = &objects_raw.m_objects[0];
-struct static_info* static_objects = &objects_raw.m_static_objects[0];
+object_container objects_raw;
+object_info* objects = &objects_raw.m_objects[0];
+static_info* static_objects = &objects_raw.m_static_objects[0];
 extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
 extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
 
@@ -58,19 +58,19 @@ void RelocateLevel(FILE* nHandle)//?, B3B50(<)
 void RelocateLevel()
 #endif
 {
-	struct Level* level;
+	Level* level;
 	char* ptr = NULL;
 	char* ptr2 = NULL;
 	unsigned int size, i, j;
 	long* relocationPtr = NULL;
 
 #if INTERNAL
-	FILE_Read((char*) &tsv_buffer[0], sizeof(struct Level), 1, nHandle);
+	FILE_Read((char*) &tsv_buffer[0], sizeof(Level), 1, nHandle);
 #else
-	CD_Read((char*) &tsv_buffer[0], sizeof(struct Level));
+	CD_Read((char*) &tsv_buffer[0], sizeof(Level));
 #endif
 	//Not done in original
-	level = (struct Level*)&tsv_buffer[0];
+	level = (Level*)&tsv_buffer[0];
 	InItemControlLoop = 0;
 
 #if INTERNAL
@@ -200,8 +200,8 @@ void RelocateLevel()
 	CD_Read(ptr, level->roomInfoLength);
 #endif
 
-	room = (struct room_info*)ptr;
-	ptr += sizeof(struct room_info) * level->numRooms;
+	room = (room_info*)ptr;
+	ptr += sizeof(room_info) * level->numRooms;
 
 	number_rooms = level->numRooms;
 
@@ -224,15 +224,15 @@ void RelocateLevel()
 			ptr += size;
 
 			size = *(unsigned int*) &room[i].floor;
-			room[i].floor = (struct FLOOR_INFO*) ptr;
+			room[i].floor = (FLOOR_INFO*) ptr;
 			ptr += size;
 
 			size = *(unsigned int*) &room[i].light;
-			room[i].light = (struct LIGHTINFO*) ptr;
+			room[i].light = (LIGHTINFO*) ptr;
 			ptr += size;
 
 			size = *(unsigned int*) &room[i].mesh;
-			room[i].mesh = (struct MESH_INFO*) ptr;
+			room[i].mesh = (MESH_INFO*) ptr;
 			ptr += size;
 		}
 
@@ -256,13 +256,13 @@ void RelocateLevel()
 	meshes = (short**) ptr;
 	ptr += level->meshesLength;
 
-	anims = (struct ANIM_STRUCT*)ptr;
+	anims = (ANIM_STRUCT*)ptr;
 	ptr += level->animsLength;
 
-	changes = (struct CHANGE_STRUCT*)ptr;
+	changes = (CHANGE_STRUCT*)ptr;
 	ptr += level->changesLength;
 
-	ranges = (struct RANGE_STRUCT*)ptr;
+	ranges = (RANGE_STRUCT*)ptr;
 	ptr += level->rangesLength;
 
 	commands = (short*) ptr;
@@ -291,32 +291,32 @@ void RelocateLevel()
 	AnimTextureRanges = (unsigned short*) ptr;
 	ptr += level->animTextureRangesLength;
 
-	psxtextinfo = (struct PSXTEXTSTRUCT*) ptr;
+	psxtextinfo = (PSXTEXTSTRUCT*) ptr;
 	ptr += level->textureInfoLength;
 
-	psxspriteinfo = (struct PSXSPRITESTRUCT*)ptr;
+	psxspriteinfo = (PSXSPRITESTRUCT*)ptr;
 	ptr += level->spriteInfoLength;
 
 	//maybe mip maps
-	RoomTextInfo = (struct MMTEXTURE*)ptr;
+	RoomTextInfo = (MMTEXTURE*)ptr;
 	ptr += level->mmTextureInfoLength;
 
-	sound_effects = (struct OBJECT_VECTOR*)ptr;
+	sound_effects = (OBJECT_VECTOR*)ptr;
 	ptr += level->soundEffectInfoLength;
 
 	sample_lut = (short*) ptr;
 	ptr += 900;//num sound map indices
 
-	sample_infos = (struct SAMPLE_INFO*)ptr;
+	sample_infos = (SAMPLE_INFO*)ptr;
 	ptr += level->sampleInfoLength;
 
-	items = (struct ITEM_INFO*)ptr;
+	items = (ITEM_INFO*)ptr;
 	ptr += 0x9000;
 
-	AIObjects = (struct AIOBJECT*)ptr;
-	ptr += sizeof(struct AIOBJECT) * level->numAIObjects;
+	AIObjects = (AIOBJECT*)ptr;
+	ptr += sizeof(AIOBJECT) * level->numAIObjects;
 
-	boxes = (struct box_info*)ptr;
+	boxes = (box_info*)ptr;
 	ptr += level->boxesLength;
 
 	overlap = (unsigned short*) ptr;
@@ -353,7 +353,7 @@ void RelocateLevel()
 	ptr += level->groundZone5Length;
 
 	nAnimTextureRanges = level->numAnimTextureRanges;
-	number_sound_effects = level->soundEffectInfoLength / sizeof(struct OBJECT_VECTOR);
+	number_sound_effects = level->soundEffectInfoLength / sizeof(OBJECT_VECTOR);
 	nAnimUVRanges = level->numAnimUVRanges;
 	level_items = level->numLevelItems;
 	nAIObjects = level->numAIObjects;
@@ -370,10 +370,10 @@ void RelocateLevel()
 		}
 	}//000B43A4, 000B42F8
 
-	camera.fixed = (struct OBJECT_VECTOR*)ptr;
+	camera.fixed = (OBJECT_VECTOR*)ptr;
 	ptr += level->frameDataLength;
 
-	SpotCam = (struct SPOTCAM*) ptr;
+	SpotCam = (SPOTCAM*) ptr;
 	NumFixedCameras = level->numFixedCameras;
 	number_cameras = level->numFixedCameras;
 	number_spotcams = level->numSpotCameras;
@@ -796,17 +796,17 @@ void InitialiseObjects()//?(<), B96EC(<)
 
 	if (objects[RAT].bite_offset & 0x10000)
 	{
-		Rats = (struct RAT_STRUCT*)game_malloc(sizeof(struct RAT_STRUCT) * 32);
+		Rats = (RAT_STRUCT*)game_malloc(sizeof(RAT_STRUCT) * 32);
 	}//B9914
 
 	if (objects[BAT].bite_offset & 0x10000)
 	{
-		Bats = (struct BAT_STRUCT*)game_malloc(sizeof(struct BAT_STRUCT) * 64);
+		Bats = (BAT_STRUCT*)game_malloc(sizeof(BAT_STRUCT) * 64);
 	}//B9938
 
 	if (objects[SPIDER].bite_offset & 0x10000)
 	{
-		Spiders = (struct SPIDER_STRUCT*)game_malloc(sizeof(struct SPIDER_STRUCT) * 64);
+		Spiders = (SPIDER_STRUCT*)game_malloc(sizeof(SPIDER_STRUCT) * 64);
 	}
 
 }//0xB996C
@@ -814,8 +814,8 @@ void InitialiseObjects()//?(<), B96EC(<)
 //Looks to setup item init ptrs?
 void sub_B5328()
 {
-	sizeof(struct object_info);
-	struct object_info* object = &objects[LARA];
+	sizeof(object_info);
+	object_info* object = &objects[LARA];
 
 	object->shadow_size = 160;
 	object->initialise = &InitialiseLaraLoad;
@@ -1002,7 +1002,7 @@ void InitialiseFootPrints()//?(<), B52FC(<)
 
 void InitialiseBinocularGraphics()//?(<), B4E28(<)
 {
-	sizeof(struct object_info);
+	sizeof(object_info);
 
 #if 0
 	000B5074 3C040020 lui     a0, $20
@@ -1011,7 +1011,7 @@ void InitialiseBinocularGraphics()//?(<), B4E28(<)
 
 	binoculars_mesh_ptr = meshes[objects[BINOCULAR_GRAPHICS].mesh_index];//$a0
 
-	if()//TODO reconstruct struct.
+	if()//TODO reconstruct.
 
 	000B5098 90820008 lbu     v0, $8(a0)
 	000B509C 00000000 nop
@@ -1056,10 +1056,10 @@ void InitialiseTargetGraphics()//(<), B4D64(<)
 	int i;
 	int v0;
 	int v1;
-	struct MESH_STRUCT* mesh;
+	MESH_STRUCT* mesh;
 
 	target_mesh_ptr = meshes[objects[TARGET_GRAPHICS].mesh_index];
-	mesh = (struct MESH_STRUCT*)target_mesh_ptr;
+	mesh = (MESH_STRUCT*)target_mesh_ptr;
 
 	if (mesh->unk03 == 0)
 	{
@@ -1118,8 +1118,8 @@ void sub_B4EE4(long keep_carried_items)
 {
 	return;//************************************************************* temp crashes game cuz unfinished
 	int lara_item_number_backup;
-	struct lara_info lara_backup;
-	sizeof(struct lara_info);
+	lara_info lara_backup;
+	sizeof(lara_info);
 
 	//000B5134 3C02000A lui     v0, $A
 	//s1 = &lara;
@@ -1145,12 +1145,12 @@ void sub_B4EE4(long keep_carried_items)
 	//Should be done in script.
 	if (keep_carried_items == 0)
 	{
-		memset((char*) &lara, 0, sizeof(struct lara_info));
+		memset((char*) &lara, 0, sizeof(lara_info));
 	}
 	else
 	{
-		memcpy(&lara_backup, &lara, sizeof(struct lara_info));
-		memset((char*) &lara, 0, sizeof(struct lara_info));
+		memcpy(&lara_backup, &lara, sizeof(lara_info));
+		memset((char*) &lara, 0, sizeof(lara_info));
 		memcpy(&lara.pistols_type_carried, &lara_backup.pistols_type_carried, 59);
 	}
 

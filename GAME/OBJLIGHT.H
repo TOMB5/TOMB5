@@ -14,7 +14,7 @@ enum light_type
 	NUM_LIGHT_TYPES
 };
 
-extern struct FOOTPRINT FootPrint[32];
+extern FOOTPRINT FootPrint[32];
 extern int FootPrintNum;
 
 extern void ControlBlinker(short item_number);

@@ -13,43 +13,43 @@ static short PickUpBounds[12] = // offset 0xA1338
 	0xFF00, 0x0100, 0xFF38, 0x00C8, 0xFF00, 0x0100, 0xF8E4, 0x071C, 0x0000, 0x0000, 
 	0x0000, 0x0000
 };
-static struct PHD_VECTOR PickUpPosition = { 0, 0, 0xFFFFFF9C }; // offset 0xA1350
+static PHD_VECTOR PickUpPosition = { 0, 0, 0xFFFFFF9C }; // offset 0xA1350
 static short HiddenPickUpBounds[12] = // offset 0xA135C
 {
 	0xFF00, 0x0100, 0xFF9C, 0x0064, 0xFCE0, 0xFF00, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
 	0x0000, 0x0000
 };
-static struct PHD_VECTOR HiddenPickUpPosition = { 0, 0, 0xFFFFFD4E }; // offset 0xA1374
+static PHD_VECTOR HiddenPickUpPosition = { 0, 0, 0xFFFFFD4E }; // offset 0xA1374
 static short CrowbarPickUpBounds[12] = // offset 0xA1380
 {
 	0xFF00, 0x0100, 0xFF9C, 0x0064, 0x00C8, 0x0200, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
 	0x0000, 0x0000
 };
-static struct PHD_VECTOR CrowbarPickUpPosition = { 0, 0, 0xD7 }; // offset 0xA1398
+static PHD_VECTOR CrowbarPickUpPosition = { 0, 0, 0xD7 }; // offset 0xA1398
 static short JobyCrowPickUpBounds[12] = // offset 0xA13A4
 {
 	0xFE00, 0x0000, 0xFF9C, 0x0064, 0x0000, 0x0200, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
 	0x0000, 0x0000
 };
-static struct PHD_VECTOR JobyCrowPickUpPosition = { 0xFFFFFF20, 0, 0xF0 }; // offset 0xA13BC
+static PHD_VECTOR JobyCrowPickUpPosition = { 0xFFFFFF20, 0, 0xF0 }; // offset 0xA13BC
 static short PlinthPickUpBounds[12] = // offset 0xA13C8
 {
 	0xFF00, 0x0100, 0xFD80, 0x0280, 0xFE01, 0x0000, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
 	0x0000, 0x0000
 };
-static struct PHD_VECTOR PlinthPickUpPosition = { 0, 0, 0xFFFFFE34 }; // offset 0xA13E0
+static PHD_VECTOR PlinthPickUpPosition = { 0, 0, 0xFFFFFE34 }; // offset 0xA13E0
 static short PickUpBoundsUW[12] = // offset 0xA13EC
 {
 	0xFE00, 0x0200, 0xFE00, 0x0200, 0xFE00, 0x0200, 0xE002, 0x1FFE, 0xE002, 0x1FFE, 
 	0xE002, 0x1FFE
 };
-static struct PHD_VECTOR PickUpPositionUW = { 0, 0xFFFFFF38, 0xFFFFFEA2 }; // offset 0xA1404
+static PHD_VECTOR PickUpPositionUW = { 0, 0xFFFFFF38, 0xFFFFFEA2 }; // offset 0xA1404
 static short KeyHoleBounds[12] = // offset 0xA1410
 {
 	0xFF00, 0x0100, 0x0000, 0x0000, 0x0000, 0x019C, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
 	0xF8E4, 0x071C
 };
-static struct PHD_VECTOR KeyHolePosition = { 0, 0, 0x138 }; // offset 0xA1428
+static PHD_VECTOR KeyHolePosition = { 0, 0, 0x138 }; // offset 0xA1428
 static short PuzzleBounds[12] = // offset 0xA1434
 {
 	0x0000, 0x0000, 0xFF00, 0x0100, 0x0000, 0x0000, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
@@ -60,7 +60,7 @@ static short SOBounds[12] = // offset 0xA144C
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
 	0xF8E4, 0x071C
 };
-static struct PHD_VECTOR SOPos = { 0, 0, 0 }; // offset 0xA1464
+static PHD_VECTOR SOPos = { 0, 0, 0 }; // offset 0xA1464
 short SearchCollectFrames[4] =
 {
 	0x00B4, 0x0064, 0x0099, 0x0053
@@ -78,14 +78,14 @@ static short MSBounds[12] = // offset 0xA1488
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
 	0xF8E4, 0x071C
 };
-static struct PHD_VECTOR MSPos = { 0, 0, 0 }; // offset 0xA14A0
+static PHD_VECTOR MSPos = { 0, 0, 0 }; // offset 0xA14A0
 unsigned char NumRPickups; // offset 0xA390C
 unsigned char RPickups[16];
-struct PHD_VECTOR OldPickupPos;
+PHD_VECTOR OldPickupPos;
 
-void MonitorScreenCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//53428(<), 5388C(<) (F)
+void MonitorScreenCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)//53428(<), 5388C(<) (F)
 {
-	struct ITEM_INFO* item;
+	ITEM_INFO* item;
 	short* bounds;
 
 	item = &items[item_num];
@@ -138,9 +138,9 @@ void MonitorScreenCollision(short item_num, struct ITEM_INFO* l, struct COLL_INF
 	}
 }
 
-void CollectCarriedItems(struct ITEM_INFO* item)//5339C, 53800
+void CollectCarriedItems(ITEM_INFO* item)//5339C, 53800
 {
-	struct ITEM_INFO* pickup; // $s0
+	ITEM_INFO* pickup; // $s0
 	short pickup_number; // $s1
 
 #if 0
@@ -172,7 +172,7 @@ void CollectCarriedItems(struct ITEM_INFO* item)//5339C, 53800
 #endif
 }
 
-void SearchObjectCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//53080, 534E4
+void SearchObjectCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)//53080, 534E4
 {
 	S_Warn("[SearchObjectCollision] - Unimplemented!\n");
 }
@@ -194,29 +194,29 @@ int KeyTrigger(short item_num)//52C14, 53078
 	return 0;
 }
 
-void PuzzleHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52520, 52984
+void PuzzleHoleCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)//52520, 52984
 {
 	S_Warn("[PuzzleHoleCollision] - Unimplemented!\n");
 }
 
-void PuzzleDoneCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//524C8, 5292C
+void PuzzleDoneCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)//524C8, 5292C
 {
 	S_Warn("[PuzzleDoneCollision] - Unimplemented!\n");
 }
 
-void KeyHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52188, 525EC
+void KeyHoleCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)//52188, 525EC
 {
 	S_Warn("[KeyHoleCollision] - Unimplemented!\n");
 }
 
-void PickUpCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//516C8, 51B2C
+void PickUpCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)//516C8, 51B2C
 {
 	S_Warn("[PickUpCollision] - Unimplemented!\n");
 }
 
 void RegeneratePickups()//515AC, 51A10
 {
-	struct ITEM_INFO* item;
+	ITEM_INFO* item;
 	short objnum; // $v1
 	short lp; // $v1
 	short* ammo; // $v0
@@ -227,13 +227,13 @@ void AnimatingPickUp(short item_number)//51450, 518B4
 	S_Warn("[AnimatingPickUp] - Unimplemented!\n");
 }
 
-short* FindPlinth(struct ITEM_INFO* item)//51200, 51664
+short* FindPlinth(ITEM_INFO* item)//51200, 51664
 {
 	S_Warn("[FindPlinth] - Unimplemented!\n");
 	return 0;
 }
 
-void PuzzleDone(struct ITEM_INFO* item, short item_num)//51004, 51468
+void PuzzleDone(ITEM_INFO* item, short item_num)//51004, 51468
 {
 	S_Warn("[PuzzleDone] - Unimplemented!\n");
 }

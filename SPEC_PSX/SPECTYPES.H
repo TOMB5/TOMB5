@@ -9,7 +9,7 @@
 #include <LIBGTE.H>
 #include <LIBGPU.H>
 
-struct DB_STRUCT
+typedef struct
 {
 	int current_buffer;
 	unsigned long* ot;
@@ -24,15 +24,15 @@ struct DB_STRUCT
 	unsigned long* pickup_order_table[2];
 	DRAWENV draw[2];
 	DISPENV disp[2];
-};
+} DB_STRUCT; 
 
-struct room_info
+typedef struct
 {
 	short* data; // size=0, offset=0
 	short* door; // size=0, offset=4
-	struct FLOOR_INFO* floor; // size=8, offset=8
-	struct LIGHTINFO* light; // size=32, offset=12
-	struct MESH_INFO* mesh; // size=20, offset=16
+	FLOOR_INFO* floor; // size=8, offset=8
+	LIGHTINFO* light; // size=32, offset=12
+	MESH_INFO* mesh; // size=20, offset=16
 	long x; // size=0, offset=20
 	long y; // size=0, offset=24
 	long z; // size=0, offset=28
@@ -59,9 +59,10 @@ struct room_info
 	short fx_number;
 	short flipped_room;
 	unsigned short flags;
-};
+} room_info;
 
-struct object_info {
+typedef struct
+{
 	short nmeshes; // size=0, offset=0
 	short mesh_index; // size=0, offset=2
 	long bone_index; // size=0, offset=4
@@ -95,9 +96,9 @@ struct object_info {
 	void(*draw_routine_extra)(); // size=0, offset=52
 	unsigned long explodable_meshbits; // size=0, offset=56
 	unsigned long padfuck; // size=0, offset=60
-};
+} object_info; 
 
-struct TEXTURE
+typedef struct
 {
 	unsigned char u0;
 	unsigned char v0;
@@ -111,9 +112,9 @@ struct TEXTURE
 	unsigned char u3;
 	unsigned char v3;
 	unsigned short wclut;
-};
+} TEXTURE; 
 
-struct static_info
+typedef struct
 {
 	short mesh_number;
 	short flags;
@@ -129,9 +130,9 @@ struct static_info
 	short y_maxc;
 	short z_minc;
 	short z_maxc;
-};
+} static_info; 
 
-struct PSXTEXTI
+typedef struct
 {
 	unsigned char u0;
 	unsigned char v0;
@@ -146,24 +147,24 @@ struct PSXTEXTI
 	unsigned char u3;
 	unsigned char v3;
 	unsigned short pad3;
-};
+} PSXTEXTI; 
 
-struct VECTOR3D
+typedef struct
 {
 	long x;
 	long y;
 	long z;
-};
+} VECTOR3D; 
 
-struct PSXTEXTSTRUCT
+typedef struct
 {
 	unsigned long u0v0clut;
 	unsigned long u1v1tpage;
 	unsigned long u2v2pad;
 	unsigned long u3v3pad;
-};
+} PSXTEXTSTRUCT; 
 
-struct PSXSPRITESTRUCT
+typedef struct
 {
 	short x1;
 	short y1;
@@ -175,27 +176,27 @@ struct PSXSPRITESTRUCT
 	unsigned char v1;
 	unsigned char u2;
 	unsigned char v2;
-};
+} PSXSPRITESTRUCT; 
 
-struct MMTEXTURE
+typedef struct
 {
-	struct TEXTURE t[3];
-};
+	TEXTURE t[3];
+} MMTEXTURE; 
 
-struct TSV
+typedef struct
 {
 	unsigned long xy;
 	unsigned long rgz;
-};
+} TSV; 
 
-struct ControllerPacket
+typedef struct
 {
 	unsigned char transStatus;
 	unsigned char dataFormat;
-	//struct fake76 data;
-};
+	//fake76 data;
+} ControllerPacket; 
 
-struct pad_configs
+typedef struct
 {
 	unsigned long pad_L2;
 	unsigned long pad_R2;
@@ -205,9 +206,9 @@ struct pad_configs
 	unsigned long pad_square; 
 	unsigned long pad_circle;
 	unsigned long pad_cross;
-};
+} pad_configs; 
 
-struct GouraudBarColourSet
+typedef struct
 {
 	unsigned char abLeftRed[5];
 	unsigned char abLeftGreen[5];
@@ -215,31 +216,31 @@ struct GouraudBarColourSet
 	unsigned char abRightRed[5];
 	unsigned char abRightGreen[5];
 	unsigned char abRightBlue[5];
-};
+} GouraudBarColourSet; 
 
-struct STASHEDOBJ
+typedef struct
 {
 	short clip;
 	short numnodestodraw;
-	struct ITEM_INFO* item;
+	ITEM_INFO* item;
 	short* frmptr0;
-};
+} STASHEDOBJ; 
 
-struct STASHEDDAT
+typedef struct
 {
 	short* mesh;
 	char matrix[32];
-};
+} STASHEDDAT; 
 
-struct WATERTAB
+typedef struct
 {
 	char shimmer;
 	char choppy;
 	unsigned char random;
 	unsigned char abs;
-};
+} WATERTAB; 
 
-struct VIBRATION
+typedef struct
 {
 	short Rate;
 	short Len;
@@ -249,9 +250,9 @@ struct VIBRATION
 	short Sus;
 	short Flag;
 	short Vib;
-};
+} VIBRATION; 
 
-struct REQUESTER
+typedef struct
 {
 	unsigned short TitleTxt;
 	unsigned short TitleCol : 5;
@@ -263,16 +264,16 @@ struct REQUESTER
 	unsigned long Arrows : 5;
 	unsigned long Ignore : 5;
 	unsigned short OptionTxt[5];
-};
+} REQUESTER; 
 
-struct SCALE
+typedef struct
 {
 	short xgrid;
 	char scalefactor;
 	char nummarks;
-};
+} SCALE; 
 
-struct COCKSUCK
+typedef struct
 {
 	unsigned char r;
 	unsigned char g;
@@ -280,9 +281,9 @@ struct COCKSUCK
 	unsigned char pad;
 	short finalcnt;
 	short profile_xcnt;
-};
+} COCKSUCK; 
 
-struct PACKEDNAME
+typedef struct
 {
 	char Name[12];
 	unsigned char Days;
@@ -292,9 +293,10 @@ struct PACKEDNAME
 	unsigned short Slot;
 	unsigned char Level;
 	unsigned char Pad;
-};
+} PACKEDNAME; 
 
-struct ITEM_INFO {
+typedef struct
+{
 	long floor; // size=0, offset=0
 	unsigned long touch_bits; // size=0, offset=4
 	unsigned long mesh_bits; // size=0, offset=8
@@ -320,8 +322,8 @@ struct ITEM_INFO {
 	unsigned short fired_weapon; // size=0, offset=50
 	short item_flags[4]; // size=8, offset=52
 	void* data; // size=0, offset=60
-	struct PHD_3DPOS pos; // size=20, offset=64
-	struct ITEM_LIGHT il; // size=48, offset=84
+	PHD_3DPOS pos; // size=20, offset=64
+	ITEM_LIGHT il; // size=48, offset=84
 	unsigned long active : 1; // offset=132.0
 	unsigned long status : 2; // offset=132.1
 	unsigned long gravity_status : 1; // offset=132.3
@@ -336,9 +338,10 @@ struct ITEM_INFO {
 	unsigned long meshswap_meshbits; // size=0, offset=136
 	short draw_room; // size=0, offset=140
 	short TOSSPAD; // size=0, offset=142
-};
+} ITEM_INFO; 
 
-struct creature_info {
+typedef struct
+{
 	short joint_rotation[4]; // size=8, offset=0
 	short maximum_turn; // size=0, offset=8
 	short flags; // size=0, offset=10
@@ -351,15 +354,15 @@ struct creature_info {
 	unsigned short jump_ahead : 1; // offset=12.6
 	unsigned short monkey_ahead : 1; // offset=12.7
 	enum mood_type mood; // size=4, offset=16
-	struct ITEM_INFO* enemy; // size=144, offset=20
-	struct ITEM_INFO ai_target; // size=144, offset=24
+	ITEM_INFO* enemy; // size=144, offset=20
+	ITEM_INFO ai_target; // size=144, offset=24
 	short pad; // size=0, offset=168
 	short item_num; // size=0, offset=170
-	struct PHD_VECTOR target; // size=12, offset=172
-	struct lot_info LOT; // size=44, offset=184
-};
+	PHD_VECTOR target; // size=12, offset=172
+	lot_info LOT; // size=44, offset=184
+} creature_info; 
 
-struct DRIP_STRUCT
+typedef struct
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -374,6 +377,6 @@ struct DRIP_STRUCT
 	short RoomNumber; // size=0, offset=20
 	unsigned char Outside; // size=0, offset=22
 	unsigned char Pad; // size=0, offset=23
-};
+} DRIP_STRUCT; 
 
 #endif

@@ -25,8 +25,8 @@
 #include <stdio.h>
 
 long StoreBoxes = -1;
-struct GAME_VECTOR LaraPos;
-struct PSXTEXTI* MonitorScreenTI;
+GAME_VECTOR LaraPos;
+PSXTEXTI* MonitorScreenTI;
 unsigned char MonitorScreenU0;
 unsigned char MonitorHold;
 short MonitorOff;
@@ -37,8 +37,8 @@ long DrawPhaseGame()//63F04(<), 645E0(<)
 	short scalarx = 0; // $a3
 	short scalary = 0; // $t0
 	short scalarz = 0; // $t1
-	struct lara_info* a1;
-	struct lara_info* a2;
+	lara_info* a1;
+	lara_info* a2;
 	int temp;
 	int a3;
 	int a22;
@@ -236,13 +236,13 @@ long DrawPhaseGame()//63F04(<), 645E0(<)
 
 void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 {
-	struct room_info* r;
+	room_info* r;
 	short old_anim;
 	short old_frame;
 	short old_left_arm[2];
 	short old_right_arm[2];
 	short* old_arm_anim[2];
-	struct GAME_VECTOR sp;
+	GAME_VECTOR sp;
 
 #if INTERNAL
 	ProfileRGB(255, 255, 255);
@@ -646,8 +646,8 @@ void SortOutWreckingBallDraw()//64E78(<), 65528(<)
 
 void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)//64EF8, 
 {
-	struct POLY_FT4* polyft4;//t0
-	struct PSXSPRITESTRUCT* pSpriteInfo;//a0
+	POLY_FT4* polyft4;//t0
+	PSXSPRITESTRUCT* pSpriteInfo;//a0
 
 	//t3 = &db;
 	def *= 16;
@@ -769,7 +769,7 @@ void DrawCutSeqActors()
 	S_Warn("[DrawCutSeqActors] - Unimplemented!\n");
 }
 
-void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)
+void DrawRoomletListAsmBinocular(long underwater, room_info* r)
 {
 	S_Warn("[DrawRoomletListAsmBinocular] - Unimplemented!\n");
 }

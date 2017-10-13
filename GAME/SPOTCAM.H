@@ -38,9 +38,9 @@ extern short CurrentFov;
 extern short spotcam_loopcnt;
 extern short number_spotcams;
 #if PC_VERSION
-extern struct SPOTCAM SpotCam[255];
+extern SPOTCAM SpotCam[255];
 #else
-extern struct SPOTCAM* SpotCam;
+extern SPOTCAM* SpotCam;
 #endif
 extern unsigned char CameraCnt[16];
 extern unsigned char SpotRemap[16];
@@ -65,11 +65,11 @@ extern short first_camera;
 extern short last_camera;
 extern int spline_from_camera;
 extern int spline_to_camera;
-extern struct PHD_VECTOR InitialCameraPosition;
-extern struct PHD_VECTOR InitialCameraTarget;
-extern struct PHD_VECTOR LaraFixedPosition;
+extern PHD_VECTOR InitialCameraPosition;
+extern PHD_VECTOR InitialCameraTarget;
+extern PHD_VECTOR LaraFixedPosition;
 extern short InitialCameraRoom;
-extern struct QUAKE_CAM quakecam;
+extern QUAKE_CAM quakecam;
 
 extern void InitSpotCamSequences();
 extern void InitialiseSpotCam(short Sequence);

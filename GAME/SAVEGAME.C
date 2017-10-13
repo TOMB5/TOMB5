@@ -7,7 +7,7 @@
 #include "ROOMLOAD.H"
 #include "SPECIFIC.H"
 #include "TRAPS.H"
-#include "TYPES.H"
+#include "SPECTYPES.H"
 
 #ifdef PC_VERSION
 #include "GAME.H"
@@ -23,7 +23,7 @@ char JustLoaded = 0; // offset 0xA14AD
 char *MGSaveGamePtr; // offset 0xA3924
 static int SGcount; // offset 0xA391C
 static char *SGpoint; // offset 0xA3920
-struct savegame_info savegame;
+savegame_info savegame;
 
 #if PSX_VERSION//@HACK not really needed, can just take int.
 	typedef int ptrdiff_t;
@@ -32,7 +32,7 @@ struct savegame_info savegame;
 void sgRestoreGame()//55B88, 55FEC (F)
 {
 	SGcount = 0;
-	SGpoint = &MGSaveGamePtr[sizeof(struct savegame_info)];
+	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
 	GameTimer = savegame.Game.Timer;
 	gfCurrentLevel = savegame.CurrentLevel;
 
@@ -42,7 +42,7 @@ void sgRestoreGame()//55B88, 55FEC (F)
 
 void sgSaveGame()//55AF8(<), 55F5C(<)
 {
-	SGpoint = &MGSaveGamePtr[sizeof(struct savegame_info)];
+	SGpoint = &MGSaveGamePtr[sizeof(savegame_info)];
 	SGcount = 0;
 
 	savegame.CurrentLevel = gfCurrentLevel;
@@ -53,7 +53,7 @@ void sgSaveGame()//55AF8(<), 55F5C(<)
 
 	MGSaveGamePtr[7678] = GetRandomControl();
 	
-	memcpy(&MGSaveGamePtr, &savegame, sizeof(struct savegame_info));
+	memcpy(&MGSaveGamePtr, &savegame, sizeof(savegame_info));
 	savegame.Checksum = GameTimer;
 
 	return;
@@ -71,7 +71,7 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 
 void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 {
-	struct ITEM_INFO* item;
+	ITEM_INFO* item;
 	char flag;
 	int i;
 
@@ -84,7 +84,7 @@ void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 			savegame.Lara.gun_status = 0;
 		}
 	}
-	memcpy(&lara, &savegame.Lara, sizeof(struct lara_info));
+	memcpy(&lara, &savegame.Lara, sizeof(lara_info));
 	lara.target = NULL;
 	lara.spaz_effect = NULL;
 	lara.right_arm.frame_base = (short*)((char*)lara.right_arm.frame_base + (ptrdiff_t)objects[PISTOLS_ANIM].frame_base);
@@ -129,7 +129,7 @@ void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 
 void SaveLaraData()//53738(<), 53B9C(<) (F)
 {
-	struct ITEM_INFO* item;
+	ITEM_INFO* item;
 	int i;
 
 	for (i = 0; i < 15; i++)

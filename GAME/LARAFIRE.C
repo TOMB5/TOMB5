@@ -5,17 +5,17 @@
 #include "OBJECTS.H"
 #include "SPECIFIC.H"
 
-struct GAME_VECTOR bum_vdest;
-struct GAME_VECTOR bum_vsrc;
-struct PHD_3DPOS bum_view;
-struct ITEM_INFO* TargetList[8];
-struct ITEM_INFO* LastTargets[8];
+GAME_VECTOR bum_vdest;
+GAME_VECTOR bum_vsrc;
+PHD_3DPOS bum_view;
+ITEM_INFO* TargetList[8];
+ITEM_INFO* LastTargets[8];
 static short HoldStates[18] =
 {
 	0x0000, 0x0001, 0x0002, 0x0004, 0x0006, 0x0007, 0x0010, 0x0014, 0x0016, 0x0015, 
 	0x0041, 0x0027, 0x0028, 0x0029, 0x0047, 0x0069, 0x006A, 0xFFFF
 };
-struct WEAPON_INFO weapons[9] =
+WEAPON_INFO weapons[9] =
 {
 	{ { ANGLE(0), ANGLE(0), ANGLE(0), ANGLE(0) },{ ANGLE(0), ANGLE(0), ANGLE(0), ANGLE(0) },{ ANGLE(0), ANGLE(0), ANGLE(0), ANGLE(0) }, 0x0000, 0x0000, 0x0000, 0x0000, 0x00, 0x00, 0x00, 0x00, 0x0000 },
 	{ { 54616, ANGLE(60), 54616, ANGLE(60) },{ 34596, ANGLE(60), 50976, ANGLE(80) },{ 54616, ANGLE(170), 50976, ANGLE(80) }, 0x071C, 0x05B0, 0x028A, 0x2000, 0x01, 0x09, 0x03, 0x00, 0x0008 },
@@ -77,33 +77,33 @@ int WeaponObject(int weapon_type)//48898(<), 48CFC(<) (F)
 	}
 }
 
-void HitTarget(struct ITEM_INFO* item, struct GAME_VECTOR* hitpos, int damage, int grenade)//486E0, 48B44
+void HitTarget(ITEM_INFO* item, GAME_VECTOR* hitpos, int damage, int grenade)//486E0, 48B44
 {
 	S_Warn("[HitTarget] - Unimplemented!\n");
 }
 
-int FireWeapon(int weapon_type, struct ITEM_INFO* target, struct ITEM_INFO* src, short* angles)//48328, 4878C
+int FireWeapon(int weapon_type, ITEM_INFO* target, ITEM_INFO* src, short* angles)//48328, 4878C
 {
 	S_Warn("[FireWeapon] - Unimplemented!\n");
 	return 0;
 }
 
-void AimWeapon(struct WEAPON_INFO* winfo, struct lara_arm* arm)//4826C, 486D0
+void AimWeapon(WEAPON_INFO* winfo, lara_arm* arm)//4826C, 486D0
 {
 	S_Warn("[AimWeapon] - Unimplemented!\n");
 }
 
-void find_target_point(struct ITEM_INFO* item, struct GAME_VECTOR* target)//48150, 485B4
+void find_target_point(ITEM_INFO* item, GAME_VECTOR* target)//48150, 485B4
 {
 	S_Warn("[find_target_point] - Unimplemented!\n");
 }
 
-void LaraGetNewTarget(struct WEAPON_INFO* winfo)//47B28, 47F8C
+void LaraGetNewTarget(WEAPON_INFO* winfo)//47B28, 47F8C
 {
 	S_Warn("[LaraGetNewTarget] - Unimplemented!\n");
 }
 
-void LaraTargetInfo(struct WEAPON_INFO* winfo)//4789C, 47D00
+void LaraTargetInfo(WEAPON_INFO* winfo)//4789C, 47D00
 {
 	S_Warn("[LaraTargetInfo] - Unimplemented!\n");
 }

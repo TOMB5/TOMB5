@@ -5,8 +5,8 @@
 
 extern unsigned short AnimComp;
 extern short AnimatingTexturesVOffset;
-extern struct REQUESTER SettingsReq;
-extern struct REQUESTER ConfigReq;
+extern REQUESTER SettingsReq;
+extern REQUESTER ConfigReq;
 extern unsigned char SoundFXVolume;
 extern unsigned short nAnimTextureRanges;
 extern unsigned short* AnimTextureRanges;

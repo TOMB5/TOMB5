@@ -11,6 +11,6 @@ extern void draw_pistol_meshes(int weapon_type);
 extern void ready_pistols(int weapon_type);
 extern void undraw_pistols(int weapon_type);
 extern void draw_pistols(int weapon_type);
-extern void set_arm_info(struct lara_arm* arm, int frame);
+extern void set_arm_info(lara_arm* arm, int frame);
 
 #endif

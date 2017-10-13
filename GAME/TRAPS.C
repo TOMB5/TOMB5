@@ -43,13 +43,13 @@ short SPxzoffs[8] =
 	0x0000, 0x0000, 0x0200, 0x0000, 0x0000, 0x0000, 0xFE00, 0x0000
 };
 
-static struct PHD_VECTOR FloorTrapDoorPos = { 0, 0, 0xFFFFFD71 }; // offset 0xA16B8
+static PHD_VECTOR FloorTrapDoorPos = { 0, 0, 0xFFFFFD71 }; // offset 0xA16B8
 static short FloorTrapDoorBounds[12] = // offset 0xA16C4
 {
 	0xFF00, 0x0100, 0x0000, 0x0000, 0xFC00, 0xFF00, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
 	0xF8E4, 0x071C
 };
-static struct PHD_VECTOR CeilingTrapDoorPos = { 0, 0x420, 0xFFFFFE20 }; // offset 0xA16DC
+static PHD_VECTOR CeilingTrapDoorPos = { 0, 0x420, 0xFFFFFE20 }; // offset 0xA16DC
 static short CeilingTrapDoorBounds[12] = // offset 0xA16E8
 {
 	0xFF00, 0x0100, 0x0000, 0x0384, 0xFD00, 0xFF00, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
@@ -74,7 +74,7 @@ void ControlScaledSpike(short item_number)//5C000, 5C47C
 	return;
 }
 
-int TestBoundsCollideTeethSpikes(struct ITEM_INFO* item)//5BE64, 5C2E0
+int TestBoundsCollideTeethSpikes(ITEM_INFO* item)//5BE64, 5C2E0
 {
 	S_Warn("[TestBoundsCollideTeethSpikes] - Unimplemented!\n");
 	return 0;
@@ -86,31 +86,31 @@ void ControlTwoBlockPlatform(short item_number)//5BC7C, 5C0F8
 	return;
 }
 
-int OnTwoBlockPlatform(struct ITEM_INFO* item, long x, long z)//5BB80, 5BFFC
+int OnTwoBlockPlatform(ITEM_INFO* item, long x, long z)//5BB80, 5BFFC
 {
 	S_Warn("[OnTwoBlockPlatform] - Unimplemented!\n");
 	return 0;
 }
 
-void TwoBlockPlatformCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//5BB08, 5BF84
+void TwoBlockPlatformCeiling(ITEM_INFO* item, long x, long y, long z, long* height)//5BB08, 5BF84
 {
 	S_Warn("[TwoBlockPlatformCeiling] - Unimplemented!\n");
 	return;
 }
 
-void TwoBlockPlatformFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//5BA80, 5BEFC
+void TwoBlockPlatformFloor(ITEM_INFO* item, long x, long y, long z, long* height)//5BA80, 5BEFC
 {
 	S_Warn("[TwoBlockPlatformFloor] - Unimplemented!\n");
 	return;
 }
 
-void DrawScaledSpike(struct ITEM_INFO* item)//5B854, 5BCD0
+void DrawScaledSpike(ITEM_INFO* item)//5B854, 5BCD0
 {
 	S_Warn("[DrawScaledSpike] - Unimplemented!\n");
 	return;
 }
 
-void RollingBallCollision(short item_number, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//5B750, 5BBCC
+void RollingBallCollision(short item_number, ITEM_INFO* laraitem, COLL_INFO* coll)//5B750, 5BBCC
 {
 	S_Warn("[RollingBallCollision] - Unimplemented!\n");
 	return;
@@ -122,7 +122,7 @@ void ControlRollingBall(short item_number)//5AE08, 5B284
 	return;
 }
 
-void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4
+void LavaBurn(ITEM_INFO* item)//5AD78, 5B1F4
 {
 	if (item->hit_points >= 0 && lara.water_status != 3)
 	{
@@ -193,13 +193,13 @@ void FallingCeiling(short item_number)//59720, 59B9C
 	return;
 }
 
-void FallingBlockCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//596D4, 59B50
+void FallingBlockCeiling(ITEM_INFO* item, long x, long y, long z, long* height)//596D4, 59B50
 {
 	S_Warn("[FallingBlockCeiling] - Unimplemented!\n");
 	return;
 }
 
-void FallingBlockFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//59674, 59AF0
+void FallingBlockFloor(ITEM_INFO* item, long x, long y, long z, long* height)//59674, 59AF0
 {
 	S_Warn("[FallingBlockFloor] - Unimplemented!\n");
 	return;
@@ -207,7 +207,7 @@ void FallingBlockFloor(struct ITEM_INFO* item, long x, long y, long z, long* hei
 
 void FallingBlock(short item_number)//59558, 599D4
 {
-	struct ITEM_INFO* item = &items[item_number];
+	ITEM_INFO* item = &items[item_number];
 
 	if (item->trigger_flags)
 	{
@@ -245,25 +245,25 @@ void FallingBlock(short item_number)//59558, 599D4
 	}
 }
 
-void FallingBlockCollision(short item_number, struct ITEM_INFO* l, struct COLL_INFO* coll)//5947C, 598F8
+void FallingBlockCollision(short item_number, ITEM_INFO* l, COLL_INFO* coll)//5947C, 598F8
 {
 	S_Warn("[FallingBlockCollision] - Unimplemented!\n");
 	return;
 }
 
-void TrapDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//593F8, 59874
+void TrapDoorCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)//593F8, 59874
 {
 	S_Warn("[TrapDoorCollision] - Unimplemented!\n");
 	return;
 }
 
-void CeilingTrapDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//5912C, 595A8
+void CeilingTrapDoorCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)//5912C, 595A8
 {
 	S_Warn("[CeilingTrapDoorCollision] - Unimplemented!\n");
 	return;
 }
 
-void FloorTrapDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//58E80, 592FC
+void FloorTrapDoorCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)//58E80, 592FC
 {
 	S_Warn("[FloorTrapDoorCollision] - Unimplemented!\n");
 	return;
@@ -275,13 +275,13 @@ void TrapDoorControl(short item_number)//58D08, 59184
 	return;
 }
 
-void CloseTrapDoor(struct ITEM_INFO* item)//58B68, 59008
+void CloseTrapDoor(ITEM_INFO* item)//58B68, 59008
 {
 	S_Warn("[CloseTrapDoor] - Unimplemented!\n");
 
 }
 
-void OpenTrapDoor(struct ITEM_INFO* item)//58A1C, 58EBC
+void OpenTrapDoor(ITEM_INFO* item)//58A1C, 58EBC
 {
 	S_Warn("[OpenTrapDoor] - Unimplemented!\n");
 	return;

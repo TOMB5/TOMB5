@@ -11,9 +11,9 @@ extern long phd_persp;
 extern long w2v_matrix[12];
 extern long* phd_mxptr;
 extern long matrix_stack[24];
-extern struct PHD_3DPOS viewer;
-extern struct VECTOR3D CamPos;
-extern struct VECTOR3D CamTgt;
+extern PHD_3DPOS viewer;
+extern VECTOR3D CamPos;
+extern VECTOR3D CamTgt;
 
 extern void phd_InitWindow(int view_angle);
 extern long mGetAngle(long x, long z, long tx, long tz);

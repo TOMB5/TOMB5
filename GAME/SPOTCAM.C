@@ -55,9 +55,9 @@ short CurrentFov;
 short spotcam_loopcnt;
 short number_spotcams;
 #if PC_VERSION
-struct SPOTCAM SpotCam[255];
+SPOTCAM SpotCam[255];
 #else
-struct SPOTCAM* SpotCam;
+SPOTCAM* SpotCam;
 #endif
 unsigned char CameraCnt[16];
 unsigned char SpotRemap[16];
@@ -82,11 +82,11 @@ short first_camera;
 short last_camera;
 int spline_from_camera;
 int spline_to_camera;
-struct PHD_VECTOR InitialCameraPosition;
-struct PHD_VECTOR InitialCameraTarget;
-struct PHD_VECTOR LaraFixedPosition;
+PHD_VECTOR InitialCameraPosition;
+PHD_VECTOR InitialCameraTarget;
+PHD_VECTOR LaraFixedPosition;
 short InitialCameraRoom;
-struct QUAKE_CAM quakecam;
+QUAKE_CAM quakecam;
 
 long dword_A0AC4;
 
@@ -134,7 +134,7 @@ void InitSpotCamSequences()//374B8(<), 379B8(<) (F)
 
 void InitialiseSpotCam(short Sequence)//37648, 37B48
 {
-	struct SPOTCAM* s;
+	SPOTCAM* s;
 	int cn;
 	int sp;
 	int i;
@@ -453,7 +453,7 @@ void CalculateSpotCams()//
 	long cspeed;
 	long cfov;
 	long croll;
-	struct SPOTCAM* s;
+	SPOTCAM* s;
 	short spline_cnt;
 	int next_spline_camera;
 	int n;
@@ -475,9 +475,9 @@ void CalculateSpotCams()//
 	int i;//var_2C
 	int ctype;
 	int cn;
-	struct CAMERA_INFO Backup;
-	struct SPOTCAM* v1111111;
-	struct SPOTCAM* v1;
+	CAMERA_INFO Backup;
+	SPOTCAM* v1111111;
+	SPOTCAM* v1;
 	int v0;
 	int s2;//sp?
 	int s5;
@@ -500,7 +500,7 @@ void CalculateSpotCams()//
 	int a0;
 	int a111;
 	int a222;
-	struct SPOTCAM* a1;
+	SPOTCAM* a1;
 
 	if (bDisableLaraControl != 0)
 	{

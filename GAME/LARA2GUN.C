@@ -11,7 +11,7 @@
 #include "DRAW.H"
 #include "OBJECTS.H"
 
-static struct PISTOL_DEF PistolTable[4] =
+static PISTOL_DEF PistolTable[4] =
 {
 	{ LARA, 0, 0, 0, 0 },
 	{ PISTOLS_ANIM, 4, 5, 0xD, 0x18 },
@@ -91,7 +91,7 @@ void draw_pistols(int weapon_type)
 	S_Warn("[draw_pistols] - Unimplemented!\n");
 }
 
-void set_arm_info(struct lara_arm* arm, int frame)
+void set_arm_info(lara_arm* arm, int frame)
 {
 	S_Warn("[set_arm_info] - Unimplemented!\n");
 }

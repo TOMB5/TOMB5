@@ -42,7 +42,7 @@ void S_Warn(char* warning_message)
 {
 	char buf[512];
 	time_t t = time(NULL);
-	struct tm tm = *localtime(&t);
+	tm tm = *localtime(&t);
 	sprintf(buf, "[%02d:%02d:%02d] %s", tm.tm_hour, tm.tm_min, tm.tm_sec, warning_message);
 	/*char buf1[512];
 	strcpy(buf1, buf);

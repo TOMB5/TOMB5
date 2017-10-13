@@ -61,7 +61,7 @@ void CreateFlare(short object, int thrown)//49BBC, 4A020
 	S_Warn("[CreateFlare] - Unimplemented!\n");
 }
 
-void DrawFlareInAir(struct ITEM_INFO* item)//49A8C, 49EF0
+void DrawFlareInAir(ITEM_INFO* item)//49A8C, 49EF0
 {
 	S_Warn("[DrawFlareInAir] - Unimplemented!\n");
 }
@@ -71,7 +71,7 @@ void DoFlareInHand(int flare_age)//49984, 49DE8
 	S_Warn("[DoFlareInHand] - Unimplemented!\n");
 }
 
-int DoFlareLight(struct PHD_VECTOR* pos, int flare_age)//49708, 49B6C
+int DoFlareLight(PHD_VECTOR* pos, int flare_age)//49708, 49B6C
 {
 	S_Warn("[DoFlareLight] - Unimplemented!\n");
 	return 0;

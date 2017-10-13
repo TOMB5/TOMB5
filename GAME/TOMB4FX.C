@@ -37,7 +37,7 @@ long next_bubble = 0;
 long next_drip = 0;
 long next_blood = 0;
 
-struct NODEOFFSET_INFO NodeOffsets[16] = // offset 0xA0A24
+NODEOFFSET_INFO NodeOffsets[16] = // offset 0xA0A24
 {
 	{ -0x10, 0x28, 0xA0, -0xE, 0 },
 	{ -0x10, -8, 0xA0, 0, 0 },
@@ -73,16 +73,16 @@ short FadeClipSpeed;
 long LaserSightX;
 long LaserSightY;
 long LaserSightZ;
-struct GUNFLASH_STRUCT Gunflashes[4]; // offset 0xA31D8
-struct PHD_VECTOR NodeVectors[16]; // offset 0xA3274
-struct FIRE_SPARKS fire_spark[20]; // offset 0xA94FC
-struct SMOKE_SPARKS smoke_spark[32]; // offset 0xA8F7C
-struct GUNSHELL_STRUCT Gunshells[24]; // offset 0xA7DFC
-struct BLOOD_STRUCT blood[32]; // offset 0xA88FC
-struct BUBBLE_STRUCT Bubbles[40]; // offset 0xA80FC
-struct DRIP_STRUCT Drips[32]; // offset 0xA85FC
-struct SHOCKWAVE_STRUCT ShockWaves[16]; // offset 0xA7C3C
-struct FIRE_LIST fires[32]; // offset 0xA8D7C
+GUNFLASH_Gunflashes[4]; // offset 0xA31D8
+PHD_VECTOR NodeVectors[16]; // offset 0xA3274
+FIRE_SPARKS fire_spark[20]; // offset 0xA94FC
+SMOKE_SPARKS smoke_spark[32]; // offset 0xA8F7C
+GUNSHELL_Gunshells[24]; // offset 0xA7DFC
+BLOOD_blood[32]; // offset 0xA88FC
+BUBBLE_Bubbles[40]; // offset 0xA80FC
+DRIP_Drips[32]; // offset 0xA85FC
+SHOCKWAVE_ShockWaves[16]; // offset 0xA7C3C
+FIRE_LIST fires[32]; // offset 0xA8D7C
 
 void SetFadeClip(short height, short speed)//34A8C(<), 34F8C(<) (F)
 {
@@ -209,8 +209,8 @@ int GetFreeDrip()
 void TriggerLaraDrips()
 {
 	int i;
-	struct PHD_VECTOR pos;
-	struct DRIP_STRUCT* dptr;
+	PHD_VECTOR pos;
+	DRIP_STRUCT* dptr;
 
 	if (!(wibble & 0xF))
 	{
@@ -257,7 +257,7 @@ int GetFreeSpark()
 
 int GetFreeBubble()//8BEAC(<), 8DEF0(<) (F)
 {
-	struct BUBBLE_STRUCT* bub = &Bubbles[next_bubble];
+	BUBBLE_STRUCT* bub = &Bubbles[next_bubble];
 	int bub_num = next_bubble;
 
 	while (bub->size != 0)
@@ -285,9 +285,9 @@ int GetFreeBubble()//8BEAC(<), 8DEF0(<) (F)
 	return bub_num;
 }
 
-void CreateBubble(struct PHD_VECTOR* pos, short room_num, int a3, int a4, int flags, int xv, int yv, int zv)//8BF14(<), 8DF58(<) (F)
+void CreateBubble(PHD_VECTOR* pos, short room_num, int a3, int a4, int flags, int xv, int yv, int zv)//8BF14(<), 8DF58(<) (F)
 {
-	struct BUBBLE_STRUCT* v9;
+	BUBBLE_STRUCT* v9;
 	long size;
 
 	GetFloor(pos->x, pos->y, pos->z, &room_num);
@@ -312,7 +312,7 @@ void CreateBubble(struct PHD_VECTOR* pos, short room_num, int a3, int a4, int fl
 
 void TriggerShatterSmoke(int x, int y, int z)//8AA14(<), 8CA58(<) (F)
 {
-	struct SMOKE_SPARKS* smoke;
+	SMOKE_SPARKS* smoke;
 
 	smoke = &smoke_spark[GetFreeSmokeSpark()];
 	smoke->On = 1;
@@ -362,7 +362,7 @@ int GetFreeBlood()
 void TriggerBlood(int x, int y, int z, int a4, int num)
 {
 	int i;
-	struct BLOOD_STRUCT* bptr;
+	BLOOD_STRUCT* bptr;
 	int a;
 	int b;
 	int size;
@@ -401,9 +401,9 @@ void TriggerBlood(int x, int y, int z, int a4, int num)
 void TriggerExplosionBubble(int x, int y, int z, short room_num)
 {
 	int i;
-	struct PHD_VECTOR pos;
+	PHD_VECTOR pos;
 	int size;
-	struct SPARKS* sptr;
+	SPARKS* sptr;
 	int dx = lara_item->pos.x_pos - x;
 	int dz = lara_item->pos.z_pos - z;
 
@@ -451,7 +451,7 @@ void TriggerExplosionBubble(int x, int y, int z, short room_num)
 
 void TriggerExplosionSmokeEnd(int x, int y, int z, int a4)
 {
-	struct SPARKS* sptr = &spark[GetFreeSpark()];
+	SPARKS* sptr = &spark[GetFreeSpark()];
 	int size;
 	sptr->On = 1;
 	if (a4)
@@ -537,10 +537,10 @@ int GetFreeShockwave()
 	return -1;
 }
 
-void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, int speed, char r, char g, char b, char life, short angle, short flags)
+void TriggerShockwave(PHD_3DPOS* pos, short inner_rad, short outer_rad, int speed, char r, char g, char b, char life, short angle, short flags)
 {
 	int s = GetFreeShockwave();
-	struct SHOCKWAVE_STRUCT* sptr;
+	SHOCKWAVE_STRUCT* sptr;
 
 	if (s != -1)
 	{
@@ -568,7 +568,7 @@ void Fade()
 	S_Warn("[Fade] - Unimplemented!\n");
 }
 
-void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb)
+void SetUpLensFlare(long x, long y, long z, GAME_VECTOR* bulb)
 {
 	S_Warn("[SetUpLensFlare] - Unimplemented!\n");
 }
@@ -579,9 +579,9 @@ int ExplodingDeath2(short item_number, long mesh_bits, short Flags)
 	return 0;
 }
 
-void DrawLensFlares(struct ITEM_INFO *item)
+void DrawLensFlares(ITEM_INFO *item)
 {
-	struct GAME_VECTOR pos;
+	GAME_VECTOR pos;
 
 	pos.x = item->pos.x_pos;
 	pos.y = item->pos.y_pos;
@@ -594,7 +594,7 @@ void DrawLensFlares(struct ITEM_INFO *item)
 void TriggerLightningGlow(long x, long y, long z, long rgb)
 {
 	long size;
-	struct SPARKS* sptr = &spark[GetFreeSpark()];
+	SPARKS* sptr = &spark[GetFreeSpark()];
 
 	sptr->dG = rgb >> 8;
 	sptr->sG = rgb >> 8;
@@ -625,7 +625,7 @@ void TriggerLightningGlow(long x, long y, long z, long rgb)
 	sptr->Size = size;
 }
 
-void trig_actor_gunflash(struct MATRIX3D *matrix, struct PHD_VECTOR *pos)
+void trig_actor_gunflash(MATRIX3D *matrix, PHD_VECTOR *pos)
 {
 	S_Warn("[trig_actor_gunflash] - Unimplemented!\\n");
 }
@@ -645,7 +645,7 @@ void ControlTeleporter(short item_number)
 	S_Warn("[ControlTeleporter] - Unimplemented!\\n");
 }
 
-void DrawWeaponMissile(struct ITEM_INFO *item)
+void DrawWeaponMissile(ITEM_INFO *item)
 {
 	S_Warn("[DrawWeaponMissile] - Unimplemented!\\n");
 }

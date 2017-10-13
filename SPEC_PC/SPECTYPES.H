@@ -108,7 +108,8 @@ inline void* qmemcpy(void* dst, const void* src, size_t cnt)
 	return dst;
 }
 #pragma pack(push, 1)
-struct object_info {
+typedef struct 
+{
 	short nmeshes; // size=0, offset=0
 	short mesh_index; // size=0, offset=2
 	long bone_index; // size=0, offset=4
@@ -142,9 +143,9 @@ struct object_info {
 	void(*draw_routine_extra)(); // size=0, offset=52
 	unsigned long explodable_meshbits; // size=0, offset=56
 	unsigned long padfuck; // size=0, offset=60
-};
+} object_info;
 
-struct static_info
+typedef struct
 {
 	short mesh_number;
 	short flags;
@@ -160,14 +161,57 @@ struct static_info
 	short y_maxc;
 	short z_minc;
 	short z_maxc;
-};
+} static_info;
 
-struct room_info {
+typedef struct
+{
+	uint32_t NumLayerVertices;   // Number of vertices in this layer (4 bytes)
+	uint16_t UnknownL1;
+	uint16_t NumLayerRectangles; // Number of rectangles in this layer (2 bytes)
+	uint16_t NumLayerTriangles;  // Number of triangles in this layer (2 bytes)
+	uint16_t UnknownL2;
+
+	uint16_t Filler;             // Always 0
+	uint16_t Filler2;            // Always 0
+
+								 // The following 6 floats define the bounding box for the layer
+
+	float    LayerBoundingBoxX1;
+	float    LayerBoundingBoxY1;
+	float    LayerBoundingBoxZ1;
+	float    LayerBoundingBoxX2;
+	float    LayerBoundingBoxY2;
+	float    LayerBoundingBoxZ2;
+
+	uint32_t Filler3;     // Always 0 (4 bytes)
+	void* VerticesOffset;
+	void* PolyOffset;
+	void* PolyOffset2;
+} tr5_room_layer; // 56 bytes
+
+
+typedef struct
+{
+	float x;
+	float y;
+	float z;
+} tr5_vertex; // 12 bytes
+
+typedef struct
+{
+	tr5_vertex Vertex;     // Vertex is now floating-point
+	tr5_vertex Normal;
+	uint32_t Colour;     // 32-bit colour
+} tr5_room_vertex; // 28 bytes
+
+
+typedef struct
+{
 	short* data; // size=0, offset=0
 	short* door; // size=0, offset=4
-	struct FLOOR_INFO* floor; // size=8, offset=8
-	struct LIGHTINFO* light; // size=32, offset=12
-	struct MESH_INFO* mesh; // size=20, offset=16
+	FLOOR_INFO* floor; // size=8, offset=8
+	LIGHTINFO* light; // size=32, offset=12
+	MESH_INFO* mesh; // size=20, offset=16
 	long x; // size=0, offset=20
 	long y; // size=0, offset=24
 	long z; // size=0, offset=28
@@ -175,7 +219,7 @@ struct room_info {
 	long maxceiling; // size=0, offset=36
 	short x_size; // size=0, offset=40
 	short y_size; // size=0, offset=42
-	struct CVECTOR ambient; // size=4, offset=44
+	CVECTOR ambient; // size=4, offset=44
 	short num_lights; // size=0, offset=48
 	short num_meshes; // size=0, offset=50
 	unsigned char ReverbType; // size=0, offset=52
@@ -227,18 +271,18 @@ struct room_info {
 
 	uint32_t NumLayers;
 
-	struct tr5_room_layer* LayerOffset;
-	struct tr5_room_vertex* VerticesOffset;
+	tr5_room_layer* LayerOffset;
+	tr5_room_vertex* VerticesOffset;
 	void* PolyOffset;
 	void* PolyOffset2;   // Same as PolyOffset
 
 	uint32_t NumVertices;
 
 	uint32_t Separator5[4];  // Always 0xCDCDCDCD
-};
+} room_info;
 
 
-struct ITEM_INFO {
+typedef struct {
 	long floor; // size=0, offset=0
 	unsigned long touch_bits; // size=0, offset=4
 	unsigned long mesh_bits; // size=0, offset=8
@@ -264,8 +308,8 @@ struct ITEM_INFO {
 	unsigned short fired_weapon; // size=0, offset=50
 	short item_flags[4]; // size=8, offset=52
 	void* data; // size=0, offset=60
-	struct PHD_3DPOS pos; // size=20, offset=64
-	struct ITEM_LIGHT il; // size=48, offset=84
+	PHD_3DPOS pos; // size=20, offset=64
+	ITEM_LIGHT il; // size=48, offset=84
 	
 	unsigned long meshswap_meshbits; // size=0, offset=136 OFF=132
 	short draw_room; // size=0, offset=140 OFF=136
@@ -283,8 +327,8 @@ struct ITEM_INFO {
 	unsigned long really_active : 1; // offset=133.6
 	unsigned long InDrawRoom : 1; // offset=133.7
 	char pad2[8]; // OFF=5614
-};
-struct creature_info {
+} ITEM_INFO;
+typedef struct {
 	short joint_rotation[4]; // size=8, offset=0
 	short maximum_turn; // size=0, offset=8
 	short flags; // size=0, offset=10
@@ -297,71 +341,30 @@ struct creature_info {
 	unsigned short jump_ahead : 1; // offset=12.6
 	unsigned short monkey_ahead : 1; // offset=12.7
 	enum mood_type mood; // size=4, offset=16
-	struct ITEM_INFO* enemy; // size=144, offset=20
-	struct ITEM_INFO ai_target; // size=144, offset=24
+	ITEM_INFO* enemy; // size=144, offset=20
+	ITEM_INFO ai_target; // size=144, offset=24
 #if !PC_VERSION
 	short pad; // size=0, offset=168
 #endif
 	short item_num; // size=0, offset=170
-	struct PHD_VECTOR target; // size=12, offset=172
-	struct lot_info LOT; // size=44, offset=184
-};
+	PHD_VECTOR target; // size=12, offset=172
+	lot_info LOT; // size=44, offset=184
+} creature_info;
 
-struct tr4_mesh_face3    // 10 bytes
+typedef struct
 {
 	uint16_t Vertices[3];
 	uint16_t Texture;
 	uint16_t Effects;    // TR4-5 ONLY: alpha blending and environment mapping strength
-};
+} tr4_mesh_face3; // 10 bytes
 
-struct tr4_mesh_face4    // 12 bytes
+typedef struct
 {
 	uint16_t Vertices[4];
 	uint16_t Texture;
 	uint16_t Effects;
-};
-
-struct tr5_room_layer   // 56 bytes
-{
-	uint32_t NumLayerVertices;   // Number of vertices in this layer (4 bytes)
-	uint16_t UnknownL1;
-	uint16_t NumLayerRectangles; // Number of rectangles in this layer (2 bytes)
-	uint16_t NumLayerTriangles;  // Number of triangles in this layer (2 bytes)
-	uint16_t UnknownL2;
-
-	uint16_t Filler;             // Always 0
-	uint16_t Filler2;            // Always 0
-
-								 // The following 6 floats define the bounding box for the layer
-
-	float    LayerBoundingBoxX1;
-	float    LayerBoundingBoxY1;
-	float    LayerBoundingBoxZ1;
-	float    LayerBoundingBoxX2;
-	float    LayerBoundingBoxY2;
-	float    LayerBoundingBoxZ2;
-
-	uint32_t Filler3;     // Always 0 (4 bytes)
-	void* VerticesOffset;
-	void* PolyOffset;
-	void* PolyOffset2;
-};
-
-struct tr5_vertex   // 12 bytes
-{
-	float x;
-	float y;
-	float z;
-};
-
-struct tr5_room_vertex  // 28 bytes
-{
-	struct tr5_vertex Vertex;     // Vertex is now floating-point
-	struct tr5_vertex Normal;
-	uint32_t Colour;     // 32-bit colour
-};
-
-struct SPRITE_STRUCT // 24 bytes
+} tr4_mesh_face4; // 12 bytes
+typedef struct
 {
 	uint16_t tile;
 	uint8_t x;
@@ -372,23 +375,23 @@ struct SPRITE_STRUCT // 24 bytes
 	float top;
 	float right;
 	float bottom;
-};
+} SPRITE_STRUCT; // 24 bytes
 
-struct tr_object_texture_vert // 4 bytes
+typedef struct
 {
 	uint8_t Xcoordinate; // 1 if Xpixel is the low value, 255 if Xpixel is the high value in the object texture
 	uint8_t Xpixel;
 	uint8_t Ycoordinate; // 1 if Ypixel is the low value, 255 if Ypixel is the high value in the object texture
 	uint8_t Ypixel;
-};
+} tr_object_texture_vert; // 4 bytes
 
-struct tr4_object_texture // 38 bytes
+typedef struct
 {
 	uint16_t               Attribute;
 	uint16_t               TileAndFlag;
 	uint16_t               NewFlags;
 
-	struct tr_object_texture_vert Vertices[4]; // The four corners of the texture
+	tr_object_texture_vert Vertices[4]; // The four corners of the texture
 
 	uint32_t               OriginalU;
 	uint32_t               OriginalV;
@@ -396,23 +399,23 @@ struct tr4_object_texture // 38 bytes
 	uint32_t               Height;    // Actually height-1
 
 	uint16_t Padding;
-};
+} tr4_object_texture; // 38 bytes
 
-struct OBJECT_TEXTURE_VERT
+typedef struct
 {
 	float x;
 	float y;
-};
+} OBJECT_TEXTURE_VERT;
 
-struct OBJECT_TEXTURE
+typedef struct
 {
 	uint16_t attribute;
 	uint16_t tile_and_flag;
 	uint16_t new_flags;
-	struct OBJECT_TEXTURE_VERT vertices[4];
-};
+	OBJECT_TEXTURE_VERT vertices[4];
+} OBJECT_TEXTURE;
 
-struct DRIP_STRUCT
+typedef struct
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -432,7 +435,7 @@ struct DRIP_STRUCT
 	char padding2[2];
 	unsigned short padding3;
 	char padding4[2];
-};
+} DRIP_STRUCT;
 #pragma pop
 
 #endif

@@ -93,7 +93,7 @@ enum gw_files
 };
 
 //If changed update GAMEWAD_ENTRYSIZE to the size of this struct.
-struct GAMEWAD_entry
+GAMEWAD_entry
 {
 	int fileOffset;
 	int fileSize;
@@ -101,9 +101,9 @@ struct GAMEWAD_entry
 
 #define GAMEWAD_ENTRYSIZE 8
 
-struct GAMEWAD_header
+GAMEWAD_header
 {
-	struct GAMEWAD_entry entries[NUM_GAMEWAD_FILE_ENTRIES];
+	GAMEWAD_entry entries[NUM_GAMEWAD_FILE_ENTRIES];
 	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * GAMEWAD_ENTRYSIZE)];
 };
 
@@ -112,7 +112,7 @@ void CD_Read(char* pDest, int fileSize);
 void CD_Seek(int offset);
 void CD_ReaderPositionToCurrent();
 
-extern struct GAMEWAD_header gwHeader;
+extern GAMEWAD_header gwHeader;
 extern int gwLba;
 extern int cdCurrentSector;
 

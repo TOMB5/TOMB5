@@ -2,16 +2,16 @@
 
 #include "SPECIFIC.H"
 
-struct DEBRIS_STRUCT debris[128];
+DEBRIS_debris[128];
 short DebrisFlags;
 long next_debris;
 
-void ShatterObject(struct SHATTER_ITEM* ShatterItem, struct MESH_INFO* StaticMesh, short Num, short RoomNumber, int NoXZVel)//36A3C, 36F3C
+void ShatterObject(SHATTER_ITEM* ShatterItem, MESH_INFO* StaticMesh, short Num, short RoomNumber, int NoXZVel)//36A3C, 36F3C
 {
 	S_Warn("[ShatterObject] - Unimplemented!\n");
 }
 
-void TriggerDebris(struct GAME_VECTOR* pos, void* TextInfo, short* Offsets, long* Vels, int rgb)//3675C, 36C5C
+void TriggerDebris(GAME_VECTOR* pos, void* TextInfo, short* Offsets, long* Vels, int rgb)//3675C, 36C5C
 {
 	S_Warn("[TriggerDebris] - Unimplemented!\n");
 }

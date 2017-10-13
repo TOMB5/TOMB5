@@ -3,7 +3,7 @@
 
 #include <LIBAPI.H>
 
-static struct SCALE scales[3] =
+static SCALE scales[3] =
 {
 	{ 0x104, 0, 2 },
 	{ 0x82, 1, 3 },
@@ -20,7 +20,7 @@ static short finalCount;
 static short currentCount;
 static short drawCount;
 static short profile_xcnt;
-struct COCKSUCK ProfileInfo[32];
+COCKSUCK ProfileInfo[32];
 
 void ProfileAddDrawOT(unsigned long *ot)//61D1C, *
 {

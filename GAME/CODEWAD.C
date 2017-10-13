@@ -2,7 +2,7 @@
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "SPECIFIC.H"
-#include "TYPES.H"
+#include "SPECTYPES.H"
 #include "OBJECTS.H"
 #include "LARA.H"
 #include "GAMEFLOW.H"
@@ -10,7 +10,7 @@
 void RelocFunc_18_10()
 {
 #if 0
-	struct PHD_VECTOR pos1, pos2;
+	PHD_VECTOR pos1, pos2;
 	int n;
 
 	for (n = 0; n < 2; n++)

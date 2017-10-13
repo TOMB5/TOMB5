@@ -2,7 +2,7 @@
 
 #include "SPECIFIC.H"
 
-struct FOOTPRINT FootPrint[32];
+FOOTPRINT FootPrint[32];
 int FootPrintNum;
 
 void ControlBlinker(short item_number)//5D660, 5DADC

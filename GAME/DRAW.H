@@ -4,12 +4,12 @@
 #include "SPECTYPES.H"
 
 extern short LightningSFXDelay;
-extern struct room_info* room;
+extern room_info* room;
 extern short number_rooms;
 extern long* bones;
-extern struct ANIM_STRUCT* anims;
-extern struct RANGE_STRUCT* ranges;
-extern struct CHANGE_STRUCT* changes;
+extern ANIM_STRUCT* anims;
+extern RANGE_STRUCT* ranges;
+extern CHANGE_STRUCT* changes;
 extern short** meshes;
 extern short* commands;
 extern short* frames;
@@ -38,16 +38,16 @@ extern long outside_right;
 extern long outside_top;
 extern long outside_bottom;
 extern short HorizonClip;
-extern struct door_vbuf vbufdoor[4];
+extern door_vbuf vbufdoor[4];
 extern short Sback_gun;
 extern short* SRhandPtr;
 extern short* SLhandPtr;
 
-extern long GetFrames(struct ITEM_INFO* item, short** unknown, long* unknown_2);
-extern short* GetBoundsAccurate(struct ITEM_INFO* item);
+extern long GetFrames(ITEM_INFO* item, short** unknown, long* unknown_2);
+extern short* GetBoundsAccurate(ITEM_INFO* item);
 extern void UpdateSkyLightning();
 extern void DrawSkyMesh(short* mesh);
-extern void DrawFlatSky_ASM(struct CVECTOR colour, short pos, long flags);
+extern void DrawFlatSky_ASM(CVECTOR colour, short pos, long flags);
 extern void DrawMoon();
 extern void DrawGunflashes();
 

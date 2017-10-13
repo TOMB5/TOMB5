@@ -20,11 +20,11 @@ enum inv_options
 	OPT_CROSSBOW_TYPE1 = 0x4000
 };
 
-extern struct INVOBJ inventry_objects_list[100]; // offset 0x92BE8
+extern INVOBJ inventry_objects_list[100]; // offset 0x92BE8
 extern unsigned char wanky_secrets_table[18]; // offset 0x92BD4
 extern short options_table[99]; // offset 0x933B8
 extern short optmessages[11]; // offset 0x93480
-extern struct COMBINELIST dels_handy_combine_table[24]; // offset 0x93498
+extern COMBINELIST dels_handy_combine_table[24]; // offset 0x93498
 extern int GLOBAL_enterinventory; // offset 0xA0B30
 extern int GLOBAL_inventoryitemchosen; // offset 0xA0B34
 extern int GLOBAL_lastinvitem; // offset 0xA0B2C
@@ -50,7 +50,7 @@ extern char combine_type_flag; // offset 0xA373C
 extern short combine_obj1; // offset 0xA3720
 extern short combine_obj2; // offset 0xA3724
 extern char menu_active; // offset 0xA36F0
-extern struct RINGME* rings[2]; // offset 0xA372C
+extern RINGME* rings[2]; // offset 0xA372C
 extern char loading_or_saving; // offset 0xA3778
 extern char use_the_bitch; // offset 0xA36FC
 extern unsigned char left_debounce; // offset 0xA3760
@@ -72,7 +72,7 @@ extern char bullshitbollox; // offset 0xA37A4
 extern char _bullshitbollox; // offset 0xA37A0
 extern char current_selected_option; // offset 0xA36E0
 extern char Stashedcurrent_selected_option; // offset 0xA36DC
-extern struct AMMOLIST ammo_object_list[3]; // offset 0xA3784
+extern AMMOLIST ammo_object_list[3]; // offset 0xA3784
 extern char ammo_selector_flag; // offset 0xA3728
 extern char num_ammo_slots; // offset 0xA3758
 extern char* current_ammo_type; // offset 0xA3700
@@ -80,7 +80,7 @@ extern int OBJLIST_SPACING; // offset 0xA3798
 extern char friggrimmer; // offset 0xA36D4
 extern char friggrimmer2; // offset 0xA36E4
 extern char oldLaraBusy; // offset 0xA3774
-extern struct MENUTHANG current_options[3]; // offset 0xA3740
+extern MENUTHANG current_options[3]; // offset 0xA3740
 
 extern void do_playstation_button_prompts_v1();
 extern void S_DrawPickup(short object_number);
@@ -142,7 +142,7 @@ extern void insert_object_into_list_v2(int num);
 extern void construct_combine_object_list();
 extern int go_and_save_game();
 extern int go_and_load_game();
-extern void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int shagflag);
+extern void DrawInventoryItemMe(ITEM_INFO* item, long shade, int overlay, int shagflag);
 extern void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay);
 extern void do_debounced_joystick_poo();
 extern void init_new_inventry();

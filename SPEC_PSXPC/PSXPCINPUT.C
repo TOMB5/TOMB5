@@ -2,7 +2,7 @@
 
 #include "CONTROL.H"
 
-static struct pad_configs pad_cons[5] =
+static pad_configs pad_cons[5] =
 {
 	{ 0x20000000, 0x40000000, 0x200, 0x80, 0x20, 0x10, 0x1000, 0x40 },
 	{ 0x200, 0x80, 0x20000000, 0x40000000, 0x1000, 0x20, 0x40, 0x10 },
@@ -30,13 +30,13 @@ long RawEdge;
 unsigned char Motors[2];
 long LaraLookY;
 long LaraLookX;
-//struct ControllerPacket GPad1;
-//struct ControllerPacket GPad2;
+//ControllerPacket GPad1;
+//ControllerPacket GPad2;
 unsigned long Edge2;
-struct GouraudBarColourSet healthBarColourSet;
-struct GouraudBarColourSet poisonBarColourSet;
-struct GouraudBarColourSet airBarColourSet;
-struct GouraudBarColourSet dashBarColourSet;
+GouraudBarColourSet healthBarColourSet;
+GouraudBarColourSet poisonBarColourSet;
+GouraudBarColourSet airBarColourSet;
+GouraudBarColourSet dashBarColourSet;
 
 int dword_A1894;
 int dword_A1890;

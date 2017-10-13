@@ -19,7 +19,7 @@ void mcDir()//61EE8(<), 625CC(<)
 	int i = 0;
 	int j = 0;
 	int k = 0;
-	struct DIRENTRY* dir = (struct DIRENTRY*)&tsv_buffer[0];
+	DIRENTRY* dir = (DIRENTRY*)&tsv_buffer[0];
 
 	MemCardGetDirentry(0, "*", dir, &mcNumFiles, 0, 0);
 

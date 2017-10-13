@@ -5,7 +5,7 @@
 #include <dsound.h>
 #include "SPECIFIC.H"
 #pragma pack(push, 1)
-struct dispmode
+dispmode
 {
 	DWORD width; // pos 0 s 4
 	DWORD height; // pos 4 s 4
@@ -21,7 +21,7 @@ struct dispmode
 	BYTE offsetB; // pos 149 s 1
 };
 
-struct acceltexformatinfo
+acceltexformatinfo
 {
 	DDPIXELFORMAT format; // pos 0 s 32
 	DWORD depth; // pos 32 s 4
@@ -37,13 +37,13 @@ struct acceltexformatinfo
 	BYTE offsetA; // pos 51 s 1
 };
 
-struct zBufFormat
+zBufFormat
 {
 	DDPIXELFORMAT pixFormat; // pos 0 s 32
 	DWORD depth; // pos 32 s 4
 };
 
-struct acceladapt
+acceladapt
 {
 	char name[30]; // pos 0 s 30
 	char description[80]; // pos 30 s 80
@@ -52,14 +52,14 @@ struct acceladapt
 	D3DDEVICEDESC deviceDesc; // pos 130 s 252
 	DWORD field2; // pos 382 s 4
 	DWORD numDispModes; // pos 386 s 4
-	struct dispmode* displayModes; // pos 390 s 4
+	dispmode* displayModes; // pos 390 s 4
 	DWORD numTexFormats; // pos 394 s 4
-	struct acceltexformatinfo* texFormats; // pos 398 s 4
+	acceltexformatinfo* texFormats; // pos 398 s 4
 	DWORD numZbufFormats; // pos 402 s 4
-	struct zBufFormat* zBufFormats; // pos 406 s 4
+	zBufFormat* zBufFormats; // pos 406 s 4
 };
 
-struct gfxadapt
+gfxadapt
 {
 	char driverName[30]; // pos 0 s 30
 	char driverDesc[80]; // pos 30 s 80
@@ -74,12 +74,12 @@ struct gfxadapt
 	WORD versionMajor; // pos 1540 s 2
 	char pad4[32]; // pos 1542 s 32
 	DWORD numDispModes; // pos 1574 s 4
-	struct dispmode* displayModes; // pos 1578 s 4
+	dispmode* displayModes; // pos 1578 s 4
 	DWORD numAccelAdapters; // pos 1582 s 4
-	struct acceladapt* accelAdapters; // pos 1586 s 4
+	acceladapt* accelAdapters; // pos 1586 s 4
 };
 
-struct soundcard
+soundcard
 {
 	char name[30]; // pos 0 s 30
 	char description[80]; // pos 30 s 80
@@ -88,12 +88,12 @@ struct soundcard
 };
 #pragma pop
 
-struct dxcontext_s
+dxcontext_s
 {
 	DWORD numGraphicsAdapters; // pos 0 s 4  D9AB68
 	DWORD numSoundCards; // pos 4 s 4
-	struct gfxadapt* graphicsAdapters; // pos 8 s 4
-	struct soundcard* soundCards; // pos 12 s 4
+	gfxadapt* graphicsAdapters; // pos 8 s 4
+	soundcard* soundCards; // pos 12 s 4
 	DWORD curGfxAdapt; // pos 16 s 4
 	DWORD curAccelAdapt; // pos 20 s 4
 	DWORD curDispMode; // pos 24 s 4
@@ -156,7 +156,7 @@ struct dxcontext_s
 	DWORD dword_D9AC34;
 	DWORD dword_D9AC38;
 } dxctx;
-struct dxcontext_s* ptr_ctx;
+dxcontext_s* ptr_ctx;
 LPDIRECT3DVERTEXBUFFER vertexBuffer;
 DWORD opt_GraphicsAdapter;
 DWORD opt_AccelAdapter;
@@ -166,6 +166,6 @@ extern signed int __cdecl DXInitialise(void *lpContext, HWND hwnd);
 extern int sub_401424();
 extern int DXChangeVideoMode();
 extern int DXMove(int xLeft, int yTop);
-extern signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_s *a5, HWND a6, DWORD dwStyle);
+extern signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, dxcontext_s *a5, HWND a6, DWORD dwStyle);
 extern signed int __cdecl DXCreateSurface(LPDIRECTDRAW4 a1, LPDDSURFACEDESC2 a2, LPDIRECTDRAWSURFACE4* a3);
 #endif

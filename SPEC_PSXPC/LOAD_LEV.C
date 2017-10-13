@@ -6,7 +6,7 @@
 #include "GPU.H"
 #include "MALLOC.H"
 #include "PROFILE.H"
-#include "TYPES.H"
+#include "SPECTYPES.H"
 
 #include <assert.h>
 #include <stddef.h>
@@ -24,15 +24,15 @@ unsigned char LtLoadingBarEnabled;
 unsigned char LoadingBarEnabled;
 unsigned char _first_time_ever = 1;
 short DelRotAng;
-struct STASHEDOBJ* cur_stashed_object;
-struct STASHEDDAT* cur_stashed_matrix;
+STASHEDOBJ* cur_stashed_object;
+STASHEDDAT* cur_stashed_matrix;
 int num_objects_stashed;
-struct STASHEDOBJ stashed_objects_list[128];
-struct STASHEDDAT stashed_matrix_list[240];
+STASHEDOBJ stashed_objects_list[128];
+STASHEDDAT stashed_matrix_list[240];
 unsigned char char_anim;
 unsigned char OurSqrt[1024];
-struct WATERTAB WaterTable[22][64];
-struct MATRIX3D* Matrix;
+WATERTAB WaterTable[22][64];
+MATRIX3D* Matrix;
 
 unsigned short SqrtTable [] =
 {
@@ -83,11 +83,11 @@ unsigned short ScalarTable [] =
 	0x0808, 0x0804, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
 };
 
-struct MATRIX3D iMatrixStack[32];
+MATRIX3D iMatrixStack[32];
 SVECTOR CamRot;
-struct MATRIX3D* iMatrix;
+MATRIX3D* iMatrix;
 unsigned short MatrixSP;
-struct MATRIX3D MatrixStack[32];
+MATRIX3D MatrixStack[32];
 long iFrac;
 long iRate;
 long iAmbientR;

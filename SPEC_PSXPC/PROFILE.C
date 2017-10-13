@@ -5,7 +5,7 @@
 	#include <windows.h>
 #endif
 
-static struct SCALE scales[3] =
+static SCALE scales[3] =
 {
 	{ 0x104, 0, 2 },
 	{ 0x82, 1, 3 },
@@ -22,7 +22,7 @@ static short finalCount;
 static short currentCount;
 static short drawCount;
 static short profile_xcnt;
-struct COCKSUCK ProfileInfo[32];
+COCKSUCK ProfileInfo[32];
 
 void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 {
@@ -52,7 +52,7 @@ void ProfileStartCount()//61A0C, *
 void ProfileInit(int scale)//61978, ?
 {
 #if 0//WIN32 || WIN64
-	struct SCALE* s = &scales[scale];
+	SCALE* s = &scales[scale];
 	int v1 = s->xgrid;
 	int v0 = s->nummarks;
 	int a1 = s->scalefactor;

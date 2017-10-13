@@ -9,12 +9,12 @@
 
 unsigned long GnFrameCounter = 19;
 unsigned long GnLastFrameCount = 19;
-struct PSXTEXTSTRUCT* psxtextinfo;
-struct PSXSPRITESTRUCT* psxspriteinfo;
+PSXTEXTSTRUCT* psxtextinfo;
+PSXSPRITESTRUCT* psxspriteinfo;
 int rgbscaleme = 256;
 int gfx_debugging_mode;
-struct DB_STRUCT db;
-struct MMTEXTURE* RoomTextInfo;
+DB_db;
+MMTEXTURE* RoomTextInfo;
 unsigned long GadwOrderingTables_V2[512];
 static int LnFlipFrame;
 unsigned long GadwOrderingTables[5128];

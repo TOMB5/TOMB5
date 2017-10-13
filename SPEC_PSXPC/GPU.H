@@ -7,12 +7,12 @@
 
 extern unsigned long GnFrameCounter;
 extern unsigned long GnLastFrameCount;
-extern struct PSXTEXTSTRUCT* psxtextinfo;
-extern struct PSXSPRITESTRUCT* psxspriteinfo;
+extern PSXTEXTSTRUCT* psxtextinfo;
+extern PSXSPRITESTRUCT* psxspriteinfo;
 extern int rgbscaleme;
 extern int gfx_debugging_mode;
-extern struct DB_STRUCT db;
-extern struct MMTEXTURE* RoomTextInfo;
+extern DB_db;
+extern MMTEXTURE* RoomTextInfo;
 extern unsigned long GadwOrderingTables_V2[512];
 extern unsigned long GadwOrderingTables[5128];
 extern unsigned long GadwPolygonBuffers[52260];

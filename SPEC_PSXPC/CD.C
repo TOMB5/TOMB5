@@ -52,7 +52,7 @@ int XAStartPos;
 static int XATrackList[17][2];
 
 //Holds all game data file positions or offsets in GAMEWAD.OBJ.
-struct GAMEWAD_header gwHeader;
+GAMEWAD_header gwHeader;
 
 //LBA for the GAMEWAD.OBJ file on disc, this is set by InitNewCDSystem(), CDPosToInt() (See CD.C)
 int gwLba = 0;
@@ -71,7 +71,7 @@ void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
 void XAReplay()//5D838(<), 5DCB4(<)
 {
 #if 0
-	struct CdlLOC loc;
+	CdlLOC loc;
 	CdIntToPos(XAStartPos, &loc);
 
 	if(CdControl(0x1B, &loc, 0) == 1)
@@ -255,10 +255,10 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 
 	FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
 	assert(fileHandle);
-	fread(&local_wadfile_header, sizeof(struct GAMEWAD_header), 1, fileHandle);
+	fread(&local_wadfile_header, sizeof(GAMEWAD_header), 1, fileHandle);
 	fclose(fileHandle);
 
-	memcpy(&gwHeader, &local_wadfile_header, sizeof(struct GAMEWAD_header));//5F6AC
+	memcpy(&gwHeader, &local_wadfile_header, sizeof(GAMEWAD_header));//5F6AC
 
 	//FIXME: CdPosToInt(); returns LBA for GAMEWAD.OBJ on disc.
 	gwLba = 24;

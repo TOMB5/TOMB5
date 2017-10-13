@@ -3,6 +3,6 @@
 
 #include "SPECTYPES.H"
 
-extern long Requester(struct REQUESTER* r);
+extern long Requester(REQUESTER* r);
 
 #endif

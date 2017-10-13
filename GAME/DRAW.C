@@ -5,12 +5,12 @@
 #include <stddef.h>
 
 short LightningSFXDelay;
-struct room_info* room;
+room_info* room;
 short number_rooms;
 long* bones;
-struct ANIM_STRUCT* anims;
-struct RANGE_STRUCT* ranges;
-struct CHANGE_STRUCT* changes;
+ANIM_STRUCT* anims;
+RANGE_STRUCT* ranges;
+CHANGE_STRUCT* changes;
 short** meshes;
 short* commands;
 short* frames;
@@ -39,14 +39,14 @@ long outside_right;
 long outside_top;
 long outside_bottom;
 short HorizonClip;
-struct door_vbuf vbufdoor[4];
+door_vbuf vbufdoor[4];
 short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;
 
-long GetFrames(struct ITEM_INFO* item/*$a0*/, short** unknown/*a1*/, long* unknown_2/*$a2*/)//8582C
+long GetFrames(ITEM_INFO* item/*$a0*/, short** unknown/*a1*/, long* unknown_2/*$a2*/)//8582C
 {
-	struct ANIM_STRUCT* anim = &anims[item->anim_number];
+	ANIM_STRUCT* anim = &anims[item->anim_number];
 	int t3;
 	short* t4;
 
@@ -73,7 +73,7 @@ long GetFrames(struct ITEM_INFO* item/*$a0*/, short** unknown/*a1*/, long* unkno
 	return (item->frame_number - anim->frame_base) / anim->interpolation;
 }
 
-short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 
+short* GetBoundsAccurate(ITEM_INFO* item/*a0*/)//858F8, 
 {
 	short* var_10[2];//$a1
 	long var_8[2];//$a2
@@ -121,7 +121,7 @@ void DrawSkyMesh(short* mesh)
 	S_Warn("[DrawSkyMesh] - Unimplemented!\n");
 }
 
-void DrawFlatSky_ASM(struct CVECTOR colour, short pos, long flags)
+void DrawFlatSky_ASM(CVECTOR colour, short pos, long flags)
 {
 	S_Warn("[DrawFlatSky_ASM] - Unimplemented!\n");
 }

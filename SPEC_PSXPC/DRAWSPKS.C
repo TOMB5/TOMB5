@@ -8,10 +8,10 @@ long TorchWibble[] =
 	0x0000C6A7, 0x0000926E, 0x0000F168, 0x0000D5C2
 };
 
-struct MATRIX3D CamGTE;
-struct MATRIX3D LightPos;
+MATRIX3D CamGTE;
+MATRIX3D LightPos;
 
-void S_DrawDarts(struct ITEM_INFO* item)
+void S_DrawDarts(ITEM_INFO* item)
 {
 	S_Warn("[S_DrawDarts] - Unimplemented!\n");
 }
