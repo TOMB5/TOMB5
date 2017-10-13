@@ -9,7 +9,7 @@
 #include "ITEMS.H"
 #include "SOUND.H"
 
-BITE_INFO EnemyBites[9] =
+struct BITE_INFO EnemyBites[9] =
 {
 	{ 0x14, -0x5F, 0xF0, 0xD },
 	{ 0x30, 0, 0xB4, -0xB },
@@ -21,8 +21,8 @@ BITE_INFO EnemyBites[9] =
 	{ -0x14, -0x50, 0xBE, -0xA },
 	{ 0xA, -0x3C, 0xC8, 0xD }
 };
-static PHD_VECTOR PolePos = {0, 0, 0xFFFFFF30}; // offset 0xA1238
-static PHD_VECTOR PolePosR = {0, 0, 0}; // offset 0xA1244
+static struct PHD_VECTOR PolePos = {0, 0, 0xFFFFFF30}; // offset 0xA1238
+static struct PHD_VECTOR PolePosR = {0, 0, 0}; // offset 0xA1244
 static short PoleBounds[12] = // offset 0xA1250
 {
 	0xFF00, 0x0100, 0x0000, 0x0000, 0xFE00, 0x0200, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
@@ -34,18 +34,18 @@ static short TightRopeBounds[12] = // offset 0xA126C
 	0xFF00, 0x0100, 0x0000, 0x0000, 0xFF00, 0x0100, 0xF8E4, 0x071C, 0xEAAC, 0x1554,
 	0xF8E4, 0x071C
 };
-static PHD_VECTOR TightRopePos = {0, 0, 0}; // offset 0xA1284
+static struct PHD_VECTOR TightRopePos = {0, 0, 0}; // offset 0xA1284
 static short ParallelBarsBounds[12] = // offset 0xA1290
 {
 	0xFD80, 0x0280, 0x02C0, 0x0340, 0xFFA0, 0x0060, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 0xF8E4, 0x071C
 };
 
-void HybridCollision(short item_num, ITEM_INFO* laraitem, COLL_INFO* coll)
+void HybridCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)
 {
 	S_Warn("[HybridCollision] - Unimplemented!\n");
 }
 
-void DrawBaddieGunFlash(ITEM_INFO* item)
+void DrawBaddieGunFlash(struct ITEM_INFO* item)
 {
 	S_Warn("[DrawBaddieGunFlash] - Unimplemented!\n");
 }
@@ -60,19 +60,19 @@ void ControlXRayMachine(short item_number)
 	S_Warn("[ControlXRayMachine] - Unimplemented!\n");
 }
 
-void ParallelBarsCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)
+void ParallelBarsCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
 {
 	S_Warn("[ParallelBarsCollision] - Unimplemented!\n");
 }
 
-void TightRopeCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)
+void TightRopeCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
 {
 	S_Warn("[TightRopeCollision] - Unimplemented!\n");
 }
 
 void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 {
-	ITEM_INFO* item = &items[item_number];
+	struct ITEM_INFO* item = &items[item_number];
 	TriggerActive(item);
 
 	if (item_number != 0)
@@ -107,7 +107,7 @@ void ControlTriggerTriggerer(short item_number)
 	S_Warn("[ControlTriggerTriggerer] - Unimplemented!\n");
 }
 
-void PoleCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll)
+void PoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
 {
 	S_Warn("[PoleCollision] - Unimplemented!\n");
 }
@@ -117,7 +117,7 @@ void ControlAnimatingSlots(short item_number)
 	S_Warn("[ControlAnimatingSlots] - Unimplemented!\n");
 }
 
-void BridgeTilt2Ceiling(ITEM_INFO* item, long x, long y, long z, long* height)//4F0FC(<), 4F560(<) (F)
+void BridgeTilt2Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F0FC(<), 4F560(<) (F)
 {
 	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 1);
 
@@ -127,7 +127,7 @@ void BridgeTilt2Ceiling(ITEM_INFO* item, long x, long y, long z, long* height)//
 	}
 }
 
-void BridgeTilt2Floor(ITEM_INFO* item, long x, long y, long z, long* height)//4F090(<), 4F4F4(<) (F)
+void BridgeTilt2Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F090(<), 4F4F4(<) (F)
 {
 	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 1);
 
@@ -139,7 +139,7 @@ void BridgeTilt2Floor(ITEM_INFO* item, long x, long y, long z, long* height)//4F
 	}
 }
 
-void BridgeTilt1Ceiling(ITEM_INFO* item, long x, long y, long z, long* height)//4F038(<), 4F49C(<) (F)
+void BridgeTilt1Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F038(<), 4F49C(<) (F)
 {
 	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 2);
 
@@ -149,13 +149,13 @@ void BridgeTilt1Ceiling(ITEM_INFO* item, long x, long y, long z, long* height)//
 	}
 }
 
-long GetOffset(ITEM_INFO* item, long x, long z)
+long GetOffset(struct ITEM_INFO* item, long x, long z)
 {
 	S_Warn("[GetOffset] - Unimplemented!\n");
 	return 0;
 }
 
-void BridgeTilt1Floor(ITEM_INFO* item, long x, long y, long z, long* height)//4EFCC(<), 4F430(<) (F)
+void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EFCC(<), 4F430(<) (F)
 {
 	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 2);
 
@@ -167,7 +167,7 @@ void BridgeTilt1Floor(ITEM_INFO* item, long x, long y, long z, long* height)//4E
 	}
 }
 
-void BridgeFlatCeiling(ITEM_INFO* item, long x, long y, long z, long* height)//4EF58(<), 4F3BC(<) (F)
+void BridgeFlatCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EF58(<), 4F3BC(<) (F)
 {
 	if (item->pos.y_pos >= y)
 	{
@@ -175,7 +175,7 @@ void BridgeFlatCeiling(ITEM_INFO* item, long x, long y, long z, long* height)//4
 	}
 }
 
-void BridgeFlatFloor(ITEM_INFO* item, long x, long y, long z, long* height)//4EF1C(<), 4F380(<) (F)
+void BridgeFlatFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EF1C(<), 4F380(<) (F)
 {
 	if (item->pos.y_pos >= y)
 	{
@@ -192,10 +192,10 @@ void SmashObjectControl(short item_number)//4EEF8(<), 4F35C(<) (F)
 
 void SmashObject(short item_number)//4EDB0, 4F214 (F)
 {
-	ITEM_INFO* item = &items[item_number];
-	room_info* r = &room[item->room_number];
+	struct ITEM_INFO* item = &items[item_number];
+	struct room_info* r = &room[item->room_number];
 	int sector = ((item->pos.z_pos - r->z) >> 10) + r->x_size * ((item->pos.x_pos - r->x) >> 10);
-	box_info* box = &boxes[r->floor[sector].box];
+	struct box_info* box = &boxes[r->floor[sector].box];
 	if (box->overlap_index & BOX_LAST)
 	{
 		box->overlap_index &= ~BOX_BLOCKED;

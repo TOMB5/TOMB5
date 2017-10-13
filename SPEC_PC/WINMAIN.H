@@ -37,7 +37,7 @@ int(*dword_876C08)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
 int(*dword_876C10)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
 int(*dword_876C04)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
 int(*dword_876BFC)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
-acceltexformatinfo*(*dword_876C00)(_DWORD, _DWORD, _DWORD);
+struct acceltexformatinfo*(*dword_876C00)(_DWORD, _DWORD, _DWORD);
 extern HKEY hKey;
 extern BYTE opt_NoFMV;
 extern BYTE opt_Setup;

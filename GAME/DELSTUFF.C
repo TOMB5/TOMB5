@@ -2,9 +2,9 @@
 
 #include "SPECIFIC.H"
 
-MATRIX3D lara_joint_matrices[15];
-MATRIX3D lara_matrices[15];
-CVECTOR LaraNodeAmbient[2];
+struct MATRIX3D lara_joint_matrices[15];
+struct MATRIX3D lara_matrices[15];
+struct CVECTOR LaraNodeAmbient[2];
 short* GLaraShadowframe;
 unsigned char LaraNodeUnderwater[15];
 long LaraGlobalClipFlag = -1;

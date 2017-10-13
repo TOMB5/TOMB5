@@ -36,7 +36,7 @@ char* lvDataPtr_orig; // debug purposes shhh
 DWORD num_items;
 DWORD dword_51CAC0[32];
 DWORD numLvlMeshes;
-mesh_vbuf_s
+struct mesh_vbuf_s
 {
 	char pad0[4]; // pos 0 size 4
 	short* field1; // pos 4 size 4  APPARENTLY object texture index
@@ -44,22 +44,22 @@ mesh_vbuf_s
 	LPDIRECT3DVERTEXBUFFER vbuf; // pos 30 size 4
 	char pad2[36]; // pos 34 size 36
 };
-mesh_vbuf_s** mesh_vbufs;
-SPRITE_STRUCT* sprites;
-OBJECT_TEXTURE* object_textures;
-OBJECT_TEXTURE* waterfall_textures[6];
+struct mesh_vbuf_s** mesh_vbufs;
+struct SPRITE_STRUCT* sprites;
+struct OBJECT_TEXTURE* object_textures;
+struct OBJECT_TEXTURE* waterfall_textures[6];
 float waterfall_y[6];
 void* dword_87B0F0;
 void* dword_87B0F4;
-OBJECT_TEXTURE* dword_87497C;
+struct OBJECT_TEXTURE* dword_87497C;
 float flt_874980;
 #define AllocT(d, s, n) d = (s*)game_malloc(sizeof(s) * (n))
 #define AllocReadT(d, s, n) AllocT((d), s, (n));OnlyReadT((d), s, (n))
 #define OnlyReadT(d, s, n) readBytes((d), sizeof(s) * (n))
 
-#define Alloc(d, s, n) d = (s*)game_malloc(sizeof(s) * (n))
+#define Alloc(d, s, n) d = (struct s*)game_malloc(sizeof(struct s) * (n))
 #define AllocRead(d, s, n) Alloc((d), s, (n));OnlyRead((d), s, (n))
-#define OnlyRead(d, s, n) readBytes((d), sizeof(s) * (n))
+#define OnlyRead(d, s, n) readBytes((d), sizeof(struct s) * (n))
 
 #define AddPtr(p, t, n) p = (t*)((char*)(p) + (ptrdiff_t)(n)); 
 
@@ -118,7 +118,7 @@ void FreeItemsShit(int num)
 	next_item_free = level_items;
 	next_item_active = -1;
 	int v1 = level_items + 1;
-	ITEM_INFO *curItem = &items[level_items];
+	struct ITEM_INFO *curItem = &items[level_items];
 	if (level_items + 1 >= num)
 	{
 		curItem->next_item = -1;
@@ -153,7 +153,7 @@ void LoadItems()
 
 	for (int it = 0; it < num_items; it++)
 	{
-		ITEM_INFO* item = &items[it];
+		struct ITEM_INFO* item = &items[it];
 
 		item->object_number = readWord();
 		item->room_number = readWord();
@@ -173,18 +173,18 @@ void LoadItems()
 
 	for (int r = 0; r < number_rooms; r++)
 	{
-		MESH_INFO* mesh = room[r].mesh;
+		struct MESH_INFO* mesh = room[r].mesh;
 
 		for (int m = 0; m < room[r].num_meshes; m++)
 		{
 			int sec = ((mesh->z - room[r].z) >> 10) + room[r].x_size * ((mesh->x - room[r].x) >> 10);
-			FLOOR_INFO* floor = &room[r].floor[sec];
+			struct FLOOR_INFO* floor = &room[r].floor[sec];
 
 			if (!(boxes[floor->box].overlap_index & 0x4000)
 				&& !(gfCurrentLevel == LVL5_BASE && (r == 19 || r == 23 || r == 16)))
 			{
 				int fl = floor->floor << 2;
-				static_info* st = &static_objects[mesh->static_number];
+				struct static_info* st = &static_objects[mesh->static_number];
 				if (fl <= mesh->y - st->y_maxc + 512 
 					&& fl < mesh->y - st->y_minc)
 				{
@@ -313,7 +313,7 @@ void LoadBoxes()
 DWORD dword_7E7FE8;
 DWORD NumRoomLights;
 /*#pragma pack(push, 1)
-room_data
+struct room_data
 {
 	uint32_t Separator;     // 0xCDCDCDCD (4 bytes)
 
@@ -324,7 +324,7 @@ room_data
 
 	uint32_t EndPortalOffset;
 
-	   // 20 bytes
+	struct    // 20 bytes
 	{
 		int32_t x;             // X-offset of room (world coordinates)
 		int32_t y;             // Y-offset of room (world coordinates) - only in TR5
@@ -336,7 +336,7 @@ room_data
 	uint16_t NumZSectors;
 	uint16_t NumXSectors;
 
-	CVECTOR RoomColour;   // In ARGB format!
+	struct CVECTOR RoomColour;   // In ARGB format!
 
 	uint16_t NumLights;
 	uint16_t NumStaticMeshes;
@@ -404,17 +404,17 @@ room_data
 	uint32_t Separator9[4];  // Always 0xCDCDCDCD
 };
 #pragma pop*/
-void ReadRoom(room_info *rooms, /*tr5_room*/room_info *roomData)
+void ReadRoom(struct room_info *rooms, /*tr5_room*/struct room_info *roomData)
 {
 	AddPtr(roomData->door, short, roomData + 1);
-	AddPtr(roomData->floor, FLOOR_INFO, roomData + 1);
-	AddPtr(roomData->light, LIGHTINFO, roomData + 1);
-	AddPtr(roomData->mesh, MESH_INFO, roomData + 1);
+	AddPtr(roomData->floor, struct FLOOR_INFO, roomData + 1);
+	AddPtr(roomData->light, struct LIGHTINFO, roomData + 1);
+	AddPtr(roomData->mesh, struct MESH_INFO, roomData + 1);
 	AddPtr(roomData->Separator4, void, roomData + 1);	
-	AddPtr(roomData->LayerOffset, tr5_room_layer, roomData + 1);
+	AddPtr(roomData->LayerOffset, struct tr5_room_layer, roomData + 1);
 	AddPtr(roomData->PolyOffset, void, roomData + 1);
 	AddPtr(roomData->PolyOffset2, void, roomData + 1);
-	AddPtr(roomData->VerticesOffset, tr5_room_vertex, roomData + 1);
+	AddPtr(roomData->VerticesOffset, struct tr5_room_vertex, roomData + 1);
 
 	roomData->LightDataSize += (uint32_t)(roomData + 1);
 
@@ -434,15 +434,15 @@ void ReadRoom(room_info *rooms, /*tr5_room*/room_info *roomData)
 		roomData->LayerOffset[i].PolyOffset2 = polyOff2;
 		roomData->LayerOffset[i].VerticesOffset = vertOff;
 
-		polyOff += sizeof(tr4_mesh_face3) * roomData->LayerOffset[i].NumLayerTriangles +
-			sizeof(tr4_mesh_face4) * roomData->LayerOffset[i].NumLayerRectangles;
+		polyOff += sizeof(struct tr4_mesh_face3) * roomData->LayerOffset[i].NumLayerTriangles +
+			sizeof(struct tr4_mesh_face4) * roomData->LayerOffset[i].NumLayerRectangles;
 
-		polyOff2 += 4 * roomData->LayerOffset[i].NumLayerVertices; // todo find what this is
+		polyOff2 += 4 * roomData->LayerOffset[i].NumLayerVertices; // todo find what struct this is
 
-		vertOff += sizeof(tr5_room_vertex) * roomData->LayerOffset[i].NumLayerVertices;
+		vertOff += sizeof(struct tr5_room_vertex) * roomData->LayerOffset[i].NumLayerVertices;
 	}
 
-	qmemcpy(rooms, roomData, sizeof(room_info));
+	qmemcpy(rooms, roomData, sizeof(struct room_info));
 
 	if (rooms->num_lights > NumRoomLights)
 		NumRoomLights = rooms->num_lights;
@@ -480,7 +480,7 @@ int sub_4774D0()
 	int v3; // esi@2
 	char *v4; // edx@2
 	signed int v5; // ebx@8
-	room_info *v6; // eax@9
+	struct room_info *v6; // eax@9
 	int v7; // ecx@10
 	int v8; // edx@10
 	int v9; // esi@11
@@ -908,13 +908,13 @@ void sub_473600()
 	}
 
 	if (objects[RAT].loaded)
-		Rats = (RAT_STRUCT*)game_malloc(832); // todo find size
+		Rats = (struct RAT_STRUCT*)game_malloc(832); // todo find size
 
 	if (objects[BAT].loaded)
-		Bats = (BAT_STRUCT*)game_malloc(1920);
+		Bats = (struct BAT_STRUCT*)game_malloc(1920);
 
 	if (objects[SPIDER].loaded)
-		Spiders = (SPIDER_STRUCT*)game_malloc(1664);
+		Spiders = (struct SPIDER_STRUCT*)game_malloc(1664);
 }
 
 void ProcessMeshData(int nmeshes)
@@ -923,7 +923,7 @@ void ProcessMeshData(int nmeshes)
 
 	numLvlMeshes = nmeshes;
 
-	AllocT(mesh_vbufs, mesh_vbuf_s*, nmeshes);
+	AllocT(mesh_vbufs, struct mesh_vbuf_s*, nmeshes);
 	mesh_base = (short*)malloc_ptr;
 
 	Log(2, "[ProcessMeshData] - Unimplemented!\n");
@@ -1064,10 +1064,10 @@ _DWORD* __cdecl sub_4D0450(signed int a1, signed int a2, int a3, int a4, void(__
 	_BYTE* v8; // edi@10
 	unsigned int* v9; // ebx@11
 	void(__cdecl* v10)(int *, int *, int *, int *); // ebp@11
-	dxcontext_s *v11; // esi@11
+	struct dxcontext_s *v11; // esi@11
 	unsigned int v12; // eax@13
 	unsigned int v13; // edx@13
-	acceltexformatinfo *v14; // ecx@15
+	struct acceltexformatinfo *v14; // ecx@15
 	int v15; // eax@15
 	unsigned int v16; // edx@15
 	unsigned int v17; // ebp@15
@@ -1100,7 +1100,7 @@ _DWORD* __cdecl sub_4D0450(signed int a1, signed int a2, int a3, int a4, void(__
 	int v45; // [sp+38h] [bp-88h]@10
 	int v46; // [sp+3Ch] [bp-84h]@13
 	int v47; // [sp+40h] [bp-80h]@13
-	_DDSURFACEDESC2 a2a; // [sp+44h] [bp-7Ch]@1
+	struct _DDSURFACEDESC2 a2a; // [sp+44h] [bp-7Ch]@1
 
 	memset(&a2a, 0, sizeof(a2a));
 	a3a = 0;
@@ -1272,7 +1272,7 @@ void LoadTextures(int numRoom, int numObj, int numBump)
 	int v85 = 0;
 	int depth = 4;
 
-	acceltexformatinfo* texf = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+	struct acceltexformatinfo* texf = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
 		.accelAdapters[ptr_ctx->curAccelAdapt]
 		.texFormats[ptr_ctx->curTexFormat];
 
@@ -1408,7 +1408,7 @@ void LoadTextureInfos()
 
 	Alloc(object_textures, OBJECT_TEXTURE, numObjTex);
 
-	tr4_object_texture tex;
+	struct tr4_object_texture tex;
 	for (int i = 0; i < numObjTex; i++)
 	{
 		OnlyRead(&tex, tr4_object_texture, 1);
@@ -1496,7 +1496,7 @@ void sub_477880()
 	camera.underwater = 0;
 }
 
-void __cdecl sub_456900(ITEM_INFO *item)
+void __cdecl sub_456900(struct ITEM_INFO *item)
 {
 	if (room[item->room_number].flags & RF_FILL_WATER)
 	{
@@ -1631,7 +1631,7 @@ void LoadLevel(const char* filename)
 		{
 			if (objects[i].loaded)
 			{
-				OBJECT_TEXTURE* tex = &object_textures[mesh_vbufs[objects[i].mesh_index]->field1[4]];
+				struct OBJECT_TEXTURE* tex = &object_textures[mesh_vbufs[objects[i].mesh_index]->field1[4]];
 				waterfall_textures[i] = tex;
 				waterfall_y[i] = tex->vertices[0].y;
 			}

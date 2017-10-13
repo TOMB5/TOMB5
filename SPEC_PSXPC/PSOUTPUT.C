@@ -3,20 +3,20 @@
 #include "SPECTYPES.H"
 #include "SPECIFIC.H"
 
-static VIBRATION vib[2];
+static struct VIBRATION vib[2];
 
 
 void VibratePad()//604EC, 61064
 {
 #if 0
 	int i;
-	VIBRATION* v;
+	struct VIBRATION* v;
 #endif
 }
 
 void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int len)//604A4, 6101C
 {
-	VIBRATION* v = &vib[num];
+	struct VIBRATION* v = &vib[num];
 
 	v->Acc = acc;
 	v->Lev = lev;
@@ -30,14 +30,14 @@ void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int 
 	return;
 
 #if 0
-	VIBRATION* v;
+	struct VIBRATION* v;
 
 	int a0;
 	a0 <<= 16;
 	a0 >>= 12;
 
 
-	VIBRATION* v0 = &vib[0];
+	struct VIBRATION* v0 = &vib[0];
 		addiu	$v0, $gp, 0x4088
 		addu	$a0, $v0
 		sll	$a3, 16

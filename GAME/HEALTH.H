@@ -13,7 +13,7 @@ extern int FlashIt();
 
 extern int health_bar_timer;
 extern char PoisonFlag;
-extern DISPLAYPU pickups[8];
+extern struct DISPLAYPU pickups[8];
 extern short PickupX;
 extern short PickupY;
 extern short PickupVel;

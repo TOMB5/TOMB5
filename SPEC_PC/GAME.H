@@ -4,8 +4,8 @@
 #include "SPECTYPES.H"
 #include "OBJECTS.H"
 
-extern object_info objects[NUMBER_OBJECTS];
-extern static_info static_objects[NUMBER_STATIC_OBJECTS];
+extern struct object_info objects[NUMBER_OBJECTS];
+extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
 
 extern void GameClose();
 extern char GameInitialise();

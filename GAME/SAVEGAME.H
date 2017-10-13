@@ -8,7 +8,7 @@
 extern char FromTitle;
 extern char JustLoaded;
 extern char* MGSaveGamePtr;
-extern savegame_info savegame;
+extern struct savegame_info savegame;
 
 extern void sgRestoreGame();
 extern void sgSaveGame();

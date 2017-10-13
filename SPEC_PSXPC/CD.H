@@ -92,17 +92,17 @@ enum gw_files
 #pragma pack(push, 1)
 
 //If changed update GAMEWAD_ENTRYSIZE to the size of this struct.
-typedef struct
+struct GAMEWAD_entry
 {
 	int fileOffset;
 	int fileSize;
-} GAMEWAD_entry;
+};
 
-typedef struct
+struct GAMEWAD_header
 {
-	GAMEWAD_entry entries[NUM_GAMEWAD_FILE_ENTRIES];
-	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * sizeof(GAMEWAD_entry))];
-} GAMEWAD_header;
+	struct GAMEWAD_entry entries[NUM_GAMEWAD_FILE_ENTRIES];
+	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * sizeof(struct GAMEWAD_entry))];
+};
 
 #pragma pack(pop)
 
@@ -117,7 +117,7 @@ void CD_Read(char* pDest, int fileSize);
 void CD_Seek(int offset);
 void CD_ReaderPositionToCurrent();
 
-extern GAMEWAD_header gwHeader;
+extern struct GAMEWAD_header gwHeader;
 extern int gwLba;
 extern int cdCurrentSector;
 

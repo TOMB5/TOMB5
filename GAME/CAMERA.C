@@ -39,18 +39,18 @@ unsigned char TargetSnaps;
 char TLFlag;
 char LSHKShotsFired;
 char LSHKTimer;
-CAMERA_INFO camera;
+struct CAMERA_INFO camera;
 char UseForcedFixedCamera;
-GAME_VECTOR ForcedFixedCamera;
+struct GAME_VECTOR ForcedFixedCamera;
 long NumFixedCameras;
 int number_cameras;
-PHD_VECTOR CamOldPos;
-SHATTER_ITEM ShatterItem;
-GAME_VECTOR static_lookcamp;
-GAME_VECTOR static_lookcamt;
-OLD_CAMERA old_cam;
-GAME_VECTOR last_ideal;
-GAME_VECTOR last_target;
+struct PHD_VECTOR CamOldPos;
+struct SHATTER_ITEM ShatterItem;
+struct GAME_VECTOR static_lookcamp;
+struct GAME_VECTOR static_lookcamt;
+struct OLD_CAMERA old_cam;
+struct GAME_VECTOR last_ideal;
+struct GAME_VECTOR last_target;
 
 short rcossin_tbl[] =
 {
@@ -244,7 +244,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	//lara_item is not inited.
 	//Also, GetBoundsAccurate is not implemented.
 #if 0
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
 	short change;
@@ -252,8 +252,8 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	long fixed_camera;
 	long y;
 	long gotit;
-	OBJECT_VECTOR* fixed;
-	PHD_VECTOR v;
+	struct OBJECT_VECTOR* fixed;
+	struct PHD_VECTOR v;
 
 	SniperOverlay = 0;
 	camerasnaps = 0;
@@ -412,7 +412,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 				v0 = tilt < 0x3C6D ? 1 : 0;
 				if (v0 != 0)
 				{
-					lara_info* a2 = &lara;
+					struct lara_info* a2 = &lara;
 					int a1 = lara.water_surface_dist;
 					v1 -= a1;
 					v1 <<= 16;
@@ -673,12 +673,12 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	return;
 }
 
-void LookCamera(ITEM_INFO* item)
+void LookCamera(struct ITEM_INFO* item)
 {
 	S_Warn("[LookCamera] - Unimplemented!\n");
 }
 
-void CombatCamera(ITEM_INFO* item)
+void CombatCamera(struct ITEM_INFO* item)
 {
 	S_Warn("[CombatCamera] - Unimplemented!\n");
 }
@@ -688,12 +688,12 @@ void FixedCamera()
 	S_Warn("[FixedCamera] - Unimplemented!\n");
 }
 
-void ChaseCamera(ITEM_INFO* item)
+void ChaseCamera(struct ITEM_INFO* item)
 {
 	S_Warn("[ChaseCamera] - Unimplemented!\n");
 }
 
-void BinocularCamera(ITEM_INFO* item)
+void BinocularCamera(struct ITEM_INFO* item)
 {
 	S_Warn("[BinocularCamera] - Unimplemented!\n");
 }
@@ -703,7 +703,7 @@ void ConfirmCameraTargetPos()
 	S_Warn("[ConfirmCameraTargetPos] - Unimplemented!\n");
 }
 
-void ScreenShake(ITEM_INFO* item, short MaxVal, short MaxDist)
+void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)
 {
 	S_Warn("[ScreenShake] - Unimplemented!\n");
 }
@@ -713,24 +713,24 @@ void UpdateCameraElevation()
 	S_Warn("[UpdateCameraElevation] - Unimplemented!\n");
 }
 
-void LaraTorch(PHD_VECTOR* Soffset, PHD_VECTOR* Eoffset, short yrot, long brightness)
+void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, short yrot, long brightness)
 {
 	S_Warn("[LaraTorch] - Unimplemented!\n");
 }
 
-long mgLOS(GAME_VECTOR* start, GAME_VECTOR* target, long push)
+long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)
 {
 	S_Warn("[mgLOS] - Unimplemented!\n");
 	return 0;
 }
 
-long CameraCollisionBounds(GAME_VECTOR* ideal, long push, long yfirst)
+long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)
 {
 	S_Warn("[CameraCollisionBounds] - Unimplemented!\n");
 	return 0;
 }
 
-void MoveCamera(GAME_VECTOR* ideal, int speed)
+void MoveCamera(struct GAME_VECTOR* ideal, int speed)
 {
 	S_Warn("[MoveCamera] - Unimplemented!\n");
 }

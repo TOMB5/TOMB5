@@ -7,7 +7,7 @@ extern short DepthTable[5];
 extern short CurrentReverb;
 extern int LnSamplesLoaded;
 extern long LlVABAddr;
-extern SpuVoiceAttr sva;
+extern struct SpuVoiceAttr sva;
 extern unsigned char LabSampleType[];
 extern unsigned char LabFreeChannel[];
 extern int LnFreeChannels;

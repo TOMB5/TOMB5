@@ -9,6 +9,6 @@ extern int hair_wind;
 extern int hair_wind_angle;
 extern int hair_dwind_angle;
 extern int first_hair[2];
-extern HAIR_hairs[2][7];
+extern struct HAIR_STRUCT hairs[2][7];
 
 #endif

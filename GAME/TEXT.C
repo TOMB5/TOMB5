@@ -55,9 +55,9 @@ char AccentTable[46][2] =
 unsigned char PulseCnt = 0;
 unsigned char ScaleFlag;
 
-CVECTOR FontShades[10][16];
+struct CVECTOR FontShades[10][16];
 
-static CVECTOR ShadeFromTo[10][2] = 
+static struct CVECTOR ShadeFromTo[10][2] = 
 {
 	128, 128, 128, 0, 128, 128, 128, 0, 128, 128, 128, 0, 128, 128, 128, 0,
 	128, 128, 128, 0, 128, 128, 128, 0, 128,   0,   0, 0,  64,   0,   0, 0,

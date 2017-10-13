@@ -17,7 +17,7 @@ void mcDir()//61EE8
 	int i; // $s3
 	int j; // $s4
 	int k; // $s1
-	DIRENTRY* dir;// $s2
+	struct DIRENTRY* dir;// $s2
 
 #if 0
 	int a0 = 0;
@@ -26,7 +26,7 @@ void mcDir()//61EE8
 				
 	//lui	$v0, 0x001F0000
 	//sw	$s2, 0x30 + var_10($sp)
-	TSV* a2 = &tsv_buffer[0];
+	struct TSV* a2 = &tsv_buffer[0];
 	
 	//sw	$s0, 0x30 + var_18($sp)
 	int s0 = 0xF;

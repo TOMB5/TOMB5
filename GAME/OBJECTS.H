@@ -362,27 +362,27 @@ enum grappling_type {
 // converts something like HK_SNIPER or SHELL_NORMAL to WTYPE_AMMO_x
 #define WTYPE(x) (1 << (x + 3))
 
-extern BITE_INFO EnemyBites[9];
+extern struct BITE_INFO EnemyBites[9];
 extern int AnimatingWaterfallsVOffset; // offset 0xA1268
 
-extern void HybridCollision(short item_num, ITEM_INFO* laraitem, COLL_INFO* coll);
-extern void DrawBaddieGunFlash(ITEM_INFO* item);
+extern void HybridCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
+extern void DrawBaddieGunFlash(struct ITEM_INFO* item);
 extern void CutsceneRopeControl(short item_number);
 extern void ControlXRayMachine(short item_number);
-extern void ParallelBarsCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll);
-extern void TightRopeCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll);
+extern void ParallelBarsCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll);
+extern void TightRopeCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll);
 extern void ControlWaterfall(short item_number);
 extern void AnimateWaterfalls();
 extern void ControlTriggerTriggerer(short item_number);
-extern void PoleCollision(short item_num, ITEM_INFO* l, COLL_INFO* coll);
+extern void PoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll);
 extern void ControlAnimatingSlots(short item_number);
-extern void BridgeTilt2Ceiling(ITEM_INFO* item, long x, long y, long z, long* height);
-extern void BridgeTilt2Floor(ITEM_INFO* item, long x, long y, long z, long* height);
-extern void BridgeTilt1Ceiling(ITEM_INFO* item, long x, long y, long z, long* height);
-extern long GetOffset(ITEM_INFO* item, long x, long z);
-extern void BridgeTilt1Floor(ITEM_INFO* item, long x, long y, long z, long* height);
-extern void BridgeFlatCeiling(ITEM_INFO* item, long x, long y, long z, long* height);
-extern void BridgeFlatFloor(ITEM_INFO* item, long x, long y, long z, long* height);
+extern void BridgeTilt2Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height);
+extern void BridgeTilt2Floor(struct ITEM_INFO* item, long x, long y, long z, long* height);
+extern void BridgeTilt1Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height);
+extern long GetOffset(struct ITEM_INFO* item, long x, long z);
+extern void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long* height);
+extern void BridgeFlatCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height);
+extern void BridgeFlatFloor(struct ITEM_INFO* item, long x, long y, long z, long* height);
 extern void SmashObjectControl(short item_number);
 extern void SmashObject(short item_number);
 extern void EarthQuake(short item_number);

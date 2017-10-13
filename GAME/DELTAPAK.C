@@ -21,7 +21,7 @@
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
-#include "SPECTYPES.H"
+#include "TYPES.H"
 
 #if PC_VERSION
 #include "GAME.H"
@@ -35,7 +35,7 @@
 #include "SOUND.H"
 
 
-CUTSEQ_ROUTINES cutseq_control_routines[45] =
+struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
 	{ NULL, NULL, NULL },								  // 
 	{ stealth3_start, NULL, stealth3_end },				  // 
@@ -381,20 +381,20 @@ short frig_shadow_bbox[6] =
 int cut_seethrough;
 char lara_chat_cnt;
 char actor_chat_cnt;
-NEW_CUTSCENE* GLOBAL_cutme;
+struct NEW_CUTSCENE* GLOBAL_cutme;
 int lastcamnum;
 int GLOBAL_cutseq_frame;
 int GLOBAL_numcutseq_frames;
 int GLOBAL_oldcamtype;
-PACKNODE* camera_pnodes;
-PACKNODE* actor_pnodes[10];
-ITEM_INFO duff_item;
+struct PACKNODE* camera_pnodes;
+struct PACKNODE* actor_pnodes[10];
+struct ITEM_INFO duff_item;
 int numnailed;
 char old_status_flags[32];
 unsigned short old_status_flags2[32];
 unsigned long cutseq_meshbits[10];
 unsigned long cutseq_meshswapbits[10];
-RESIDENT_THING cutseq_resident_addresses[47];
+struct RESIDENT_THING cutseq_resident_addresses[47];
 char* GLOBAL_resident_depack_buffers;
 int cutseq_malloc_used;
 char* cutseq_malloc_ptr;
@@ -466,7 +466,7 @@ void andy11_init()//32C20(<), 330B8(<) (F)
 
 void Cutanimate(int objnum)//32B50(<), 32FE8(<) (F)
 {
-	ITEM_INFO* item = find_a_fucking_item(objnum);
+	struct ITEM_INFO* item = find_a_fucking_item(objnum);
 
 	item->anim_number = objects[objnum].anim_index;
 	item->frame_number = anims[item->anim_number].frame_base;
@@ -475,9 +475,9 @@ void Cutanimate(int objnum)//32B50(<), 32FE8(<) (F)
 	item->flags |= IFLAG_ACTIVATION_MASK;
 }
 
-ITEM_INFO* ResetCutanimate(int objnum)//32A80(<), 32F18(<) (F)
+struct ITEM_INFO* ResetCutanimate(int objnum)//32A80(<), 32F18(<) (F)
 {
-	ITEM_INFO* item = find_a_fucking_item(objnum);
+	struct ITEM_INFO* item = find_a_fucking_item(objnum);
 
 	item->anim_number = objects[objnum].anim_index;
 	item->frame_number = anims[item->anim_number].frame_base;
@@ -490,7 +490,7 @@ ITEM_INFO* ResetCutanimate(int objnum)//32A80(<), 32F18(<) (F)
 
 void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 {
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 
 	jobyfrigger = 0;
 
@@ -578,8 +578,8 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
 
 void CutLaraBubbles()//327F8(<), 32C90(<) (F)
 {
-	PHD_VECTOR offset;
-	PHD_VECTOR pos;
+	struct PHD_VECTOR offset;
+	struct PHD_VECTOR pos;
 	int i; 
 	short roomnum; 
 
@@ -626,7 +626,7 @@ void swampy_control()//326EC(<), 32B84(<) (F)
 
 void swampy_init()//32608(<), 32AA0(<) (F)
 {
-	ITEM_INFO* item = find_a_fucking_item(GREEN_TEETH);
+	struct ITEM_INFO* item = find_a_fucking_item(GREEN_TEETH);
 
 	cutrot = 0;
 
@@ -648,7 +648,7 @@ void monk2_end()//325F4(<), 32A8C(<) (F)
 
 void monk2_control()//324E4(<), 3297C(<) (F)
 {
-	PHD_VECTOR pos;
+	struct PHD_VECTOR pos;
 	int f;
 
 	if (GLOBAL_cutseq_frame == 70)
@@ -757,7 +757,7 @@ void joby7_end()//32328(<), 327C0(<) (F)
 
 void joby7_control()//3210C(<), 325A4(<) (F)
 {
-	PHD_VECTOR s, d;
+	struct PHD_VECTOR s, d;
 	int f, brightme, b;
 	short room_no;
 	
@@ -886,7 +886,7 @@ void andy10_control()//31E9C(<), 32334(<) (F)
 
 void andy10_init()//31D58(<), 321F0(<) (F)
 {
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 
 	cutseq_kill_item(ANIMATING4);
 	cutseq_kill_item(ANIMATING5);
@@ -927,7 +927,7 @@ void andy8_end()//31CF8(<), 32190(<) (F)
 
 void andy8_control()//31C3C(<), 320D4(<) (F)
 {
-	ITEM_INFO* item = find_a_fucking_item(ANIMATING16);
+	struct ITEM_INFO* item = find_a_fucking_item(ANIMATING16);
 
 	item->flags |= 0x20u;
 	switch (GLOBAL_cutseq_frame)
@@ -986,7 +986,7 @@ void andy9_init()//31B7C(<), 31FAC(<) (F)
 
 void TriggerDelBrownSmoke(long x, long y, long z)//319D0(<), 31E00(<) (F)
 {
-	SPARKS* sptr;
+	struct SPARKS* sptr;
 	long size;
 
 	sptr = &spark[GetFreeSpark()];
@@ -1028,7 +1028,7 @@ void cossack_end()//31998(<), 31DC8(<) (F)
 
 void cossack_control()//3178C(<), 31BBC(<) (F)
 {
-	PHD_VECTOR pos;
+	struct PHD_VECTOR pos;
 	int n;
 	int f = GLOBAL_cutseq_frame;
 
@@ -1145,7 +1145,7 @@ void andy6_end()//31690(<), 31AC0(<) (F)
 
 void andy6_control()//315F8(<), 319B4(<) (F)
 {
-	PHD_VECTOR pos;
+	struct PHD_VECTOR pos;
 
 	if (GLOBAL_cutseq_frame == 900)
 	{
@@ -1238,7 +1238,7 @@ void andy5_end()//30F28(<), 312A8(<) (F)
 
 void andy5_control()//30DA4(<), 31124(<) (F)
 {
-	PHD_VECTOR pos;
+	struct PHD_VECTOR pos;
 	int f = GLOBAL_cutseq_frame;
 
 	if (f >= 310)
@@ -1296,7 +1296,7 @@ void andy5_init()//30D84(<), 31104(<) (F)
 
 void andrea3b_end()//30C54(<), 30FD4(<) (F)
 {
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 	int i;
 
 	disable_horizon = 0;
@@ -1360,7 +1360,7 @@ void andrea3b_control()//30B08(<), 30E88(<) (F)
 
 void andrea3b_init()//30A1C(<), 30D9C(<) (F)
 {
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 
 	cutseq_givelara_pistols();
 	cutseq_kill_item(ANIMATING10);
@@ -1379,7 +1379,7 @@ void andrea3b_init()//30A1C(<), 30D9C(<) (F)
 
 void andrea3_end()//30904(<), 30C84(<) (F)
 {
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 
 	cutseq_removelara_pistols();
 
@@ -1433,7 +1433,7 @@ void andy4b_end()//307EC(<), 30B6C(<) (F)
 
 void andy4b_control()//30710(<), 30A90(<) (F)
 {
-	PHD_VECTOR pos;
+	struct PHD_VECTOR pos;
 	int n, actor;
 	int f = GLOBAL_cutseq_frame;
 
@@ -1475,7 +1475,7 @@ void andy4_end()//306B4(<), 30A34(<) (F)
 
 void andy4_control()//305BC(<), 3093C(<) (F)
 {
-	PHD_VECTOR pos;
+	struct PHD_VECTOR pos;
 	int n;
 
 	if (GLOBAL_cutseq_frame == 733)
@@ -1521,7 +1521,7 @@ void richcut4_end()//30560(<), 308E0(<) (F)
 
 void richcut4_control()//30478(<), 307F8(<) (F)
 {
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 	int f = GLOBAL_cutseq_frame;
 
 	if (f >= 300 && f <= 312)
@@ -1570,7 +1570,7 @@ void joby10_end()//303AC(<), 3072C(<) (F)
 
 void joby10_control()//30338(<), 306B8(<) (F)
 {
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 
 	if (GLOBAL_cutseq_frame == 3235)
 	{
@@ -1711,8 +1711,8 @@ void andrea1_end()//2FC94(<), 30014(<) (F)
 
 void andrea1_control()//2FB58(<), 2FED8(<) (F)
 {
-	PHD_VECTOR pos;
-	ITEM_INFO* item;
+	struct PHD_VECTOR pos;
+	struct ITEM_INFO* item;
 
 	switch (GLOBAL_cutseq_frame)
 	{
@@ -1790,10 +1790,10 @@ void joby4_init()//2F9E4(<), 2FD64(<) (F)
 	return;
 }
 
-void DelTorchFlames(PHD_VECTOR* pos)//2F6E4(<), 2FA64(<) (F)
+void DelTorchFlames(struct PHD_VECTOR* pos)//2F6E4(<), 2FA64(<) (F)
 {
 	long x, y, z, size;
-	SPARKS* sptr;
+	struct SPARKS* sptr;
 
 	y = pos->y;
 	z = pos->z;
@@ -1873,7 +1873,7 @@ void andy2_end()//2F668(<), 2F9E8(<) (F)
 
 void andy2_control()//2F5D0(<), 2F914(<) (F)
 {
-	PHD_VECTOR pos;
+	struct PHD_VECTOR pos;
 
 	pos.x = 0;
 	pos.y = 48;
@@ -1905,7 +1905,7 @@ void do_hammer_meshswap()//2F57C(<), 2F8C0(<) (F)
 
 void hamgate_end()//2F534(<), 2F878(<) (F)
 {
-	ITEM_INFO* item = find_a_fucking_item(DOOR_TYPE1);
+	struct ITEM_INFO* item = find_a_fucking_item(DOOR_TYPE1);
 	item->status = 1;
 	DelsHandyTeleportLara(31232, -3328, 48344, 0);
 }
@@ -1926,7 +1926,7 @@ void hamgate_control()//2F4D0(<), 2F814(<) (F)
 
 void hamgate_init()//2F434(<), 2F778(<) (F)
 {
-	ITEM_INFO* item = find_a_fucking_item(DOOR_TYPE1);
+	struct ITEM_INFO* item = find_a_fucking_item(DOOR_TYPE1);
 	AddActiveItem(item - items);
 	item->flags |= IFLAG_ACTIVATION_MASK;
 	item->mesh_bits = 3;
@@ -2051,7 +2051,7 @@ void joby2_init()//2F0C0(<), 2F3CC(<) (F)
 
 void TriggerDelSmoke(long x, long y, long z, int sizeme)//2EED8(<), 2F1E4(<) (F)
 {
-	SPARKS* sptr;
+	struct SPARKS* sptr;
 	long size, dx, dz;
 
 	dx = lara_item->pos.x_pos - x;
@@ -2111,27 +2111,27 @@ void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)
 	}
 }
 
-void TriggerActorBlood(int actornum, unsigned long nodenum, PHD_VECTOR* pos, int direction, int speed)//2EE84(<), 2F190(<) (F)
+void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* pos, int direction, int speed)//2EE84(<), 2F190(<) (F)
 {
 	GetActorJointAbsPosition(actornum, nodenum, pos);
 	TriggerBlood(pos->x, pos->y, pos->z, direction >> 4, speed);
 }
 
-void GetActorJointAbsPosition(int actornum, unsigned long nodenum, PHD_VECTOR* vec)
+void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR* vec)
 {
 	S_Warn("[GetActorJointAbsPosition] - Unimplemented!\n");
 }
 
-void GrabActorMatrix(int actornum, int nodenum, MATRIX3D* matrix)
+void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix)
 {
 	S_Warn("[GrabActorMatrix] - Unimplemented!\n");
 }
 
-void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, PHD_VECTOR* pos)
+void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, struct PHD_VECTOR* pos)
 {
 	int i;
 	unsigned short dat;
-	MATRIX3D arse;
+	struct MATRIX3D arse;
 
 	for(i = 0; shootdata[i] != -1; i++)
 	{
@@ -2238,7 +2238,7 @@ void richcut3_control()//2E594(<), 2E8A0(<) (F)
 
 void richcut3_end()//2E54C(<), 2E858(<) (F)
 {
-	ITEM_INFO* item = find_a_fucking_item(HK_ITEM);
+	struct ITEM_INFO* item = find_a_fucking_item(HK_ITEM);
 
 	if (item)
 	{
@@ -2281,7 +2281,7 @@ void richcut2_init()//2E4C0(<), 2E750(<) (F)
 
 void richcut1_control()//2E3D8(<), 2E668(<) (F)
 {
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 	int f = GLOBAL_cutseq_frame;
 
 	if (f == 101 || f == 493 || f == 673)
@@ -2309,7 +2309,7 @@ void richcut1_end()//2E3A0(<), 2E630(<) (F)
 void richcut1_init()//2E26C(<), 2E4FC(<) (F)
 {
 	short item_num, nex;
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 
 	item_num = room[lara_item->room_number].item_number;
 
@@ -2339,7 +2339,7 @@ void richcut1_init()//2E26C(<), 2E4FC(<) (F)
 
 void cranecut_control()//2E0B8(<), 2E348(<) (F)
 {
-	PHD_VECTOR pos;
+	struct PHD_VECTOR pos;
 	int n, f;
 
 	f = GLOBAL_cutseq_frame;
@@ -2394,7 +2394,7 @@ void cranecut_control()//2E0B8(<), 2E348(<) (F)
 
 void cranecut_end()//2E020(<), 2E2B0(<) (F)
 {
-	ITEM_INFO* item = cutseq_restore_item(424);
+	struct ITEM_INFO* item = cutseq_restore_item(424);
 	RemoveActiveItem(item - items);
 	item->flags &= 0xC1FFu;
 	cutseq_restore_item(ANIMATING16);
@@ -2413,7 +2413,7 @@ void cranecut_init()//2DFA0(<), 2E230(<) (F)
 	cutseq_meshbits[5] &= 0x7FFFFFFFu;
 }
 
-ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
+struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
 {
 	int i;
 
@@ -2536,7 +2536,7 @@ void init_resident_cutseq(int num)//2DB8C(<), 2DE1C(<) (F)
 {
 	char* packed = cutseq_resident_addresses[num].packed_data;
 
-	GLOBAL_cutme = (NEW_CUTSCENE*)packed;
+	GLOBAL_cutme = (struct NEW_CUTSCENE*)packed;
 
 	if (cutseq_num <= 4)
 	{
@@ -2559,7 +2559,7 @@ int Load_and_Init_Cutseq(int num)
 	return 0;
 }
 
-ITEM_INFO* cutseq_restore_item(int num)//2D738(<), 2DA20(<)
+struct ITEM_INFO* cutseq_restore_item(int num)//2D738(<), 2DA20(<)
 {
 	int i;
 	if(level_items > 0)
@@ -2602,7 +2602,7 @@ void cutseq_kill_item(int num)//2D69C(<), 2D984(<) (F)
 
 void deal_with_pistols(unsigned short* shootdata)
 {
-	PHD_VECTOR pos;
+	struct PHD_VECTOR pos;
 	int f;
 	short dat;
 
@@ -2663,7 +2663,7 @@ void deal_with_pistols(unsigned short* shootdata)
 
 void trigger_weapon_dynamics(int left_or_right)//2D3E4(<), 2D6CC(<) (F)
 {
-	PHD_VECTOR pos;
+	struct PHD_VECTOR pos;
 	int v1, v2;
 	char v3;
 
@@ -2776,7 +2776,7 @@ void frigup_lara()
 	S_Warn("[frigup_lara] - Unimplemented!\n");
 }
 
-void InitPackNodes(NODELOADHEADER* lnode, PACKNODE* pnode, char* packed, int numnodes)
+void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* packed, int numnodes)
 {
 	S_Warn("[InitPackNodes] - Unimplemented!\n");
 }
@@ -2864,7 +2864,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 		{
 			if (cutseq_num == 1)
 			{
-				ITEM_INFO* v00 = lara_item;
+				struct ITEM_INFO* v00 = lara_item;
 				int v1 = ScreenFadedOut;
 				int a0 = v00->current_anim_state;
 				int a1 = 0;

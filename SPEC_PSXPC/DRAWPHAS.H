@@ -17,13 +17,13 @@ extern void DrawAllFx();
 extern void InitObjGTE();
 #define WANK3 InitObjGTE
 extern void DrawCutSeqActors();
-extern void DrawRoomletListAsmBinocular(long underwater, room_info* r);
+extern void DrawRoomletListAsmBinocular(long underwater, struct room_info* r);
 extern void GetRoomBoundsAsm(short room_number);
 extern void SetGunFlash(short gun_type);
 
 extern long StoreBoxes;
-extern GAME_VECTOR LaraPos;
-extern PSXTEXTI* MonitorScreenTI;
+extern struct GAME_VECTOR LaraPos;
+extern struct PSXTEXTI* MonitorScreenTI;
 extern unsigned char MonitorScreenU0;
 extern unsigned char MonitorHold;
 extern short MonitorOff;

@@ -58,7 +58,7 @@ long nframes = 1;
 unsigned char gfNumPickups;
 unsigned char gfNumTakeaways;
 char CanLoad;
-GAMEFLOW* Gameflow;
+struct GAMEFLOW* Gameflow;
 unsigned short* gfStringOffset;
 char* gfStringWad;
 unsigned short* gfFilenameOffset;
@@ -73,11 +73,11 @@ unsigned char gfResetHubDest;
 char gfUVRotate;
 char gfLayer1Vel;
 char gfLayer2Vel;
-CVECTOR gfLayer1Col;
-CVECTOR gfLayer2Col;
+struct CVECTOR gfLayer1Col;
+struct CVECTOR gfLayer2Col;
 unsigned long GameTimer;
-PHD_VECTOR gfLensFlare;
-CVECTOR gfLensFlareColour;
+struct PHD_VECTOR gfLensFlare;
+struct CVECTOR gfLensFlareColour;
 unsigned char gfMirrorRoom;
 unsigned char gfMips[8];
 char title_controls_locked_out;
@@ -181,7 +181,7 @@ void LoadGameflow()//102E0, 102B0
 	int len = 0;
 	int j = 0;
 	int i = 0;
-	STRINGHEADER sh;
+	struct STRINGHEADER sh;
 
 	int num_strings, wad_len;
 
@@ -200,8 +200,8 @@ void LoadGameflow()//102E0, 102B0
 	gfScriptFile = s;
 #endif
 
-	Gameflow = (GAMEFLOW*)s;
-	s += sizeof(GAMEFLOW);
+	Gameflow = (struct GAMEFLOW*)s;
+	s += sizeof(struct GAMEFLOW);
 
 	gfExtensions = s;
 	s += 0x28;
@@ -257,7 +257,7 @@ void LoadGameflow()//102E0, 102B0
 	FILE_Load((char*)s, gfStringOffset);
 #endif
 
-	memcpy(&sh, gfStringOffset, sizeof(STRINGHEADER));
+	memcpy(&sh, gfStringOffset, sizeof(struct STRINGHEADER));
 
 #if PC_VERSION
 	num_strings = sh.nStrings + sh.nPSXStrings + sh.nPCStrings;
@@ -267,7 +267,7 @@ void LoadGameflow()//102E0, 102B0
 	wad_len = sh.StringWadLen + sh.PSXStringWadLen;
 #endif
 
-	memcpy(gfStringOffset, gfStringOffset + (sizeof(STRINGHEADER) / sizeof(unsigned short)), num_strings * sizeof(unsigned short));
+	memcpy(gfStringOffset, gfStringOffset + (sizeof(struct STRINGHEADER) / sizeof(unsigned short)), num_strings * sizeof(unsigned short));
 
 	gfStringWad = (char*)(gfStringOffset + num_strings);
 
@@ -487,8 +487,8 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	XAMasterVolume = savegame.VolumeCD;
 #endif
 
-	memset(&savegame.Level, 0, sizeof(STATS));
-	memset(&savegame.Game, 0, sizeof(STATS));
+	memset(&savegame.Level, 0, sizeof(struct STATS));
+	memset(&savegame.Game, 0, sizeof(struct STATS));
 
 	S_LoadLevelFile(Name);
 

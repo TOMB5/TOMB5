@@ -6,10 +6,10 @@
 
 int slots_used;
 short nAIObjects;
-AIOBJECT* AIObjects;
-creature_info* baddie_slots;
+struct AIOBJECT* AIObjects;
+struct creature_info* baddie_slots;
 
-void CreateZone(ITEM_INFO* item)//4E330, 4E794
+void CreateZone(struct ITEM_INFO* item)//4E330, 4E794
 {
 	S_Warn("[CreateZone] - Unimplemented!\n");
 }
@@ -19,7 +19,7 @@ void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0
 {
 #if 0
 	int i; // $s1
-	creature_info* creature; // $s0
+	struct creature_info* creature; // $s0
 
 	int a2 = 3;
 	int v0 = a1 << 3;//a1 param?
@@ -28,7 +28,7 @@ void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0
 	v0 += a1;
 	v0 <<= 2;
 
-	creature_info* creature = &baddie_slots[0];//v1
+	struct creature_info* creature = &baddie_slots[0];//v1
 
 	a0 <<= 16;
 
@@ -39,7 +39,7 @@ void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0
 	v0 = s0 << 3;
 	v0 += s0;
 
-	creature_info* v1 = &items[0];
+	struct creature_info* v1 = &items[0];
 	v0 <<= 4;
 	s1 = v1 + v0;
 
@@ -183,7 +183,7 @@ void InitialiseLOTarray(int allocmem)//4DE40(<), 4E2A4(<) (F)
 	int i;
 
 	if (allocmem)
-		baddie_slots = (creature_info *)game_malloc(5 * sizeof(creature_info));
+		baddie_slots = (struct creature_info *)game_malloc(5 * sizeof(struct creature_info));
 	
 	for (i = 0; i < 5; i++)
 	{
@@ -191,7 +191,7 @@ void InitialiseLOTarray(int allocmem)//4DE40(<), 4E2A4(<) (F)
 
 		if (allocmem)
 		{
-			baddie_slots[i].LOT.node = (box_node*)game_malloc(number_boxes * sizeof(box_node));
+			baddie_slots[i].LOT.node = (struct box_node*)game_malloc(number_boxes * sizeof(struct box_node));
 		}
 	}
 

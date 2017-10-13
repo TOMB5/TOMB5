@@ -3,7 +3,7 @@
 
 #include "SPECTYPES.H"
 
-extern TSV tsv_buffer[512];
+extern struct TSV tsv_buffer[512];
 
 extern void CreateMonoScreen();
 

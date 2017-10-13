@@ -53,7 +53,7 @@ void ScaleCurrentMatrix(long a0, long sx, long sy, long sz)
 	S_Warn("[ScaleCurrentMatrix] - Unimplemented!\n");
 }
 
-void setrot(MATRIX3D* m, long m00, long m02, long m11, long m20, long m22)
+void setrot(struct MATRIX3D* m, long m00, long m02, long m11, long m20, long m22)
 {
 	//TODO not same as original but will do the same for now
 	*(long*) &m->m00 = m00;//t0
@@ -70,7 +70,7 @@ void mPushUnitMatrix()//76534(<), 78578(<)
 	setrot(++Matrix, 4096, 0, 4096, 0, 4096);
 }
 
-void mLoadMatrix(MATRIX3D* m)//7699C(<), 789E0(<)
+void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<)
 {
 	gte_SetRotMatrix(m);
 	gte_SetTransMatrix(m);
@@ -111,7 +111,7 @@ void mRotY(long ry)
 	S_Warn("[mRotY] - Unimplemented!\n");
 }
 
-void mCopyMatrix(MATRIX3D m)
+void mCopyMatrix(struct MATRIX3D m)
 {
 	S_Warn("[mCopyMatrix] - Unimplemented!\n");
 }

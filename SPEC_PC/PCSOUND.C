@@ -114,7 +114,7 @@ void StreamOpen()
 	dword_86BEDC = v1;
 	memset(&stru_86BE70, 0, sizeof(stru_86BE70));
 	stru_86BE70.pbSrc = (char *)v1 + 90;
-	stru_86BE70.cb= 84;
+	stru_86BE70.cbStruct = 84;
 	stru_86BE70.cbSrcLength = 0x40000;
 	stru_86BE70.cbDstLength = 0x40000;
 	stru_86BE70.pbDst = (LPBYTE)dword_86CC78;
@@ -149,9 +149,9 @@ char __cdecl DXCreateSampleADPCM(char *a1, int a2, int a3, int a4)
 	int v6; // eax@7
 	int v7; // eax@9
 	int v8; // eax@11
-	IDirectSoundBuffer *v9; // edx@11
+	struct IDirectSoundBuffer *v9; // edx@11
 	int v10; // eax@11
-	IDirectSoundBuffer *v11; // [sp+44h] [bp-30h]@7
+	struct IDirectSoundBuffer *v11; // [sp+44h] [bp-30h]@7
 	void *v12; // [sp+48h] [bp-2Ch]@9
 	int v13; // [sp+4Ch] [bp-28h]@9
 	DSBUFFERDESC v14; // [sp+50h] [bp-24h]@7
@@ -397,10 +397,10 @@ int StartAddress()
 int __stdcall fnCallback(HACMDRIVERID arghadid, int a2, int a3)
 {
 	int result; // eax@2
-	tACMDRIVERDETAILSA padd; // [sp+Ch] [bp-398h]@1
+	struct tACMDRIVERDETAILSA padd; // [sp+Ch] [bp-398h]@1
 
 	memset(&padd, 0, sizeof(padd));
-	padd.cb= 920;
+	padd.cbStruct = 920;
 	acmDriverDetailsA(arghadid, &padd, 0);
 	if (!strcmp(padd.szShortName, "MS-ADPCM"))
 	{
@@ -551,15 +551,15 @@ void InitACM()
 			acmHeader2.pbDst = &buf_lockAudioPtr1[bufMaxLength];
 			acmHeader3.cbDstLength = pdwOutputBytes;
 			acmHeader4.cbDstLength = pdwOutputBytes;
-			acmHeader1.cb= 84;
+			acmHeader1.cbStruct = 84;
 			acmHeader1.cbSrcLength = 22528;
 			acmHeader1.pbDst = buf_lockAudioPtr1;
-			acmHeader2.cb= 84;
+			acmHeader2.cbStruct = 84;
 			acmHeader2.cbSrcLength = 22528;
-			acmHeader3.cb= 84;
+			acmHeader3.cbStruct = 84;
 			acmHeader3.cbSrcLength = 22528;
 			acmHeader3.pbDst = &buf_lockAudioPtr1[2 * bufMaxLength];
-			acmHeader4.cb= 84;
+			acmHeader4.cbStruct = 84;
 			acmHeader4.cbSrcLength = 22528;
 			acmHeader4.pbDst = &buf_lockAudioPtr1[3 * bufMaxLength];
 			acmStreamPrepareHeader(has, &acmHeader1, 0);

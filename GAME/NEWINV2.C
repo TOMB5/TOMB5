@@ -126,7 +126,7 @@ enum invobj_types // update this whenever inventry_objects_list is modified
 	NUM_INV_OBJECTS
 };
 
-INVOBJ inventry_objects_list[NUM_INV_OBJECTS] = // offset 0x92BE8
+struct INVOBJ inventry_objects_list[NUM_INV_OBJECTS] = // offset 0x92BE8
 {
 	{ UZI_ITEM, -4, 1000, ANGLE(90), ANGLE(135), ANGLE(90), 2, STR_UZI, -1 },
 	{ PISTOLS_ITEM, 6, 1000, ANGLE(90), -21172, -17088, 2, STR_PISTOLS, -1 },
@@ -254,7 +254,7 @@ short optmessages[11] = // offset 0x93480
 	0x003B, 0x003C, 0x003E, 0x003F, 0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x00B2, 0x003D
 };
 
-COMBINELIST dels_handy_combine_table[24] = // offset 0x93498
+struct COMBINELIST dels_handy_combine_table[24] = // offset 0x93498
 {
 	{ combine_revolver_lasersight, 3, 0x14, 4 },
 	{ combine_crossbow_lasersight, 5, 0x14, 6 },
@@ -307,7 +307,7 @@ char combine_type_flag; // offset 0xA373C
 short combine_obj1; // offset 0xA3720
 short combine_obj2; // offset 0xA3724
 char menu_active; // offset 0xA36F0
-RINGME* rings[2]; // offset 0xA372C
+struct RINGME* rings[2]; // offset 0xA372C
 char loading_or_saving; // offset 0xA3778
 char use_the_bitch; // offset 0xA36FC
 unsigned char left_debounce; // offset 0xA3760
@@ -349,7 +349,7 @@ static char StashedCurrentGrenadeGunAmmoType; // offset 0xA36D2
 static char StashedCurrentCrossBowAmmoType; // offset 0xA36D3
 char current_selected_option; // offset 0xA36E0
 char Stashedcurrent_selected_option; // offset 0xA36DC
-AMMOLIST ammo_object_list[3]; // offset 0xA3784
+struct AMMOLIST ammo_object_list[3]; // offset 0xA3784
 char ammo_selector_flag; // offset 0xA3728
 char num_ammo_slots; // offset 0xA3758
 char* current_ammo_type; // offset 0xA3700
@@ -357,7 +357,7 @@ int OBJLIST_SPACING; // offset 0xA3798
 char friggrimmer; // offset 0xA36D4
 char friggrimmer2; // offset 0xA36E4
 char oldLaraBusy; // offset 0xA3774
-MENUTHANG current_options[3]; // offset 0xA3740
+struct MENUTHANG current_options[3]; // offset 0xA3740
 
 void do_playstation_button_prompts_v1()//416E0, 41B34
 {
@@ -1772,7 +1772,7 @@ int go_and_load_game()//3C900(<), 3CD54(<) (F)
 	return LoadGame();
 }
 
-void DrawInventoryItemMe(ITEM_INFO* item, long shade, int overlay, int shagflag)//3C6A0, 3CAF4
+void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int shagflag)//3C6A0, 3CAF4
 {
 	S_Warn("[DrawInventoryItemMe] - Unimplemented!\n");
 }
@@ -1983,7 +1983,7 @@ int S_CallInventory2()//3B7A8, 3BC04
 	} // line 335, offset 0x3be20
 	{ // line 387, offset 0x3bf3c
 		short room_number; // stack offset -32
-		ITEM_INFO* item; // $s0
+		struct ITEM_INFO* item; // $s0
 		int val; // $a1
 	} // line 415, offset 0x3c000
 #endif

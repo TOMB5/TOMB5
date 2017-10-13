@@ -9,7 +9,7 @@
 
 
 #pragma pack(push, 1)
-sound_shit
+struct sound_shit
 {
 	LPDIRECTSOUNDBUFFER buf; // pos 0 s 4
 	DWORD field1; // pos 4 s 8
@@ -17,7 +17,7 @@ sound_shit
 };
 #pragma pop
 void __cdecl sub_4027DE(void *a1, int a2);
-sound_shit samples[32];
+struct sound_shit samples[32];
 
 DWORD bufLockLength;
 LPDIRECTSOUNDBUFFER other_buf;

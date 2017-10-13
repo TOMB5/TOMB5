@@ -7,8 +7,8 @@
 
 int sound_active = 0;
 short* sample_lut;
-SAMPLE_INFO* sample_infos;
-SoundSlot LaSlot[MAX_SOUND_SLOTS];
+struct SAMPLE_INFO* sample_infos;
+struct SoundSlot LaSlot[MAX_SOUND_SLOTS];
 
 void SayNo()//55BE0(<), 56044(<) (F)
 {

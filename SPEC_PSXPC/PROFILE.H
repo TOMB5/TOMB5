@@ -5,7 +5,7 @@
 
 extern char ProfileDraw;
 extern int numprof;
-extern COCKSUCK ProfileInfo[32];
+extern struct COCKSUCK ProfileInfo[32];
 
 extern void ProfileAddDrawOT(unsigned long* ot);
 extern void ProfileRGB(int r, int g, int b);

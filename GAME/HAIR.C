@@ -12,14 +12,14 @@ int hair_wind;
 int hair_wind_angle = 2048;
 int hair_dwind_angle = 2048;
 int first_hair[2];
-HAIR_hairs[2][7];
+struct HAIR_STRUCT hairs[2][7];
 
 void InitialiseHair()//3AC70, 3B170
 {
 	int i;
 	int j;
 	long* bone;
-	HAIR_STRUCT* hptr;
+	struct HAIR_STRUCT* hptr;
 
 	bone = &bones[objects[HAIR].bone_index];
 

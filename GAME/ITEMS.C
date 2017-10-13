@@ -32,8 +32,8 @@ void KillEffect(short fx_num)//42178, 425CC
 
 short CreateEffect(short room_num)//420E0(<), 42534(<) (F)
 {
-	room_info* r;
-	FX_INFO* fx;
+	struct room_info* r;
+	struct FX_INFO* fx;
 	short fx_num = next_fx_free;
 
 	if (next_fx_free != -1)
@@ -55,10 +55,10 @@ short CreateEffect(short room_num)//420E0(<), 42534(<) (F)
 void InitialiseFXArray(int allocmem)//4207C(<), 424D0(<) (F)
 {
 	int i;
-	FX_INFO* fx;
+	struct FX_INFO* fx;
 
 	if (allocmem)
-		effects = (FX_INFO*)game_malloc(24 * sizeof(FX_INFO));
+		effects = (struct FX_INFO*)game_malloc(24 * sizeof(struct FX_INFO));
 
 	fx = effects;
 	next_fx_active = -1;
@@ -73,7 +73,7 @@ void InitialiseFXArray(int allocmem)//4207C(<), 424D0(<) (F)
 
 void AddActiveItem(short item_num)//41FEC(<), 42440(<)
 {
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 
 	item = &items[item_num];
 
@@ -103,7 +103,7 @@ void RemoveDrawnItem(short item_num)//41F48, 4239C
 void RemoveActiveItem(short item_num)//41E98, 422EC
 {
 	short linknum; // $v1
-	ITEM_INFO* a1 = &items[item_num];
+	struct ITEM_INFO* a1 = &items[item_num];
 	//int a2 = *(int*)a1->active;
 	int v0;
 	short test = 1;
@@ -136,7 +136,7 @@ void RemoveActiveItem(short item_num)//41E98, 422EC
 
 				//loc_41F1C
 
-				ITEM_INFO* a1 = &items[next_item_active];
+				struct ITEM_INFO* a1 = &items[next_item_active];
 
 				while (v1 != -1)
 				{
@@ -160,9 +160,9 @@ void RemoveActiveItem(short item_num)//41E98, 422EC
 
 void InitialiseItem(short item_num)//41BEC(<), 42040
 {
-	ITEM_INFO* item;
-	room_info* r;
-	FLOOR_INFO* floor;
+	struct ITEM_INFO* item;
+	struct room_info* r;
+	struct FLOOR_INFO* floor;
 	
 	item = &items[item_num];
 	item->anim_number = objects[item->object_number].anim_index;
@@ -268,7 +268,7 @@ short CreateItem()//41BAC(<), 42000(<) (F)
 void KillItem(short item_num)//41950, 41DA4
 {
 	short linknum;
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 
 	return;
 }
@@ -276,7 +276,7 @@ void KillItem(short item_num)//41950, 41DA4
 void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
 {
 	int i;
-	ITEM_INFO* item;
+	struct ITEM_INFO* item;
 
 	item = &items[level_items];
 	next_item_active = -1;
@@ -297,8 +297,8 @@ void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
 
 void ItemNewRoom(short item_num, short room_number)//7C608(<), 7E64C(<)
 {
-	room_info* r;
-	ITEM_INFO* item;
+	struct room_info* r;
+	struct ITEM_INFO* item;
 	long item_number;
 
 	if (InItemControlLoop)

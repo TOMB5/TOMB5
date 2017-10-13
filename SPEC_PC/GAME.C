@@ -11,8 +11,8 @@
 #include "SOUND.H"
 #include "GPU.H"
 
-object_info objects[NUMBER_OBJECTS];
-static_info static_objects[NUMBER_STATIC_OBJECTS];
+struct object_info objects[NUMBER_OBJECTS];
+struct static_info static_objects[NUMBER_STATIC_OBJECTS];
 
 void GameClose()
 {
@@ -153,7 +153,7 @@ int __cdecl sub_40138E(int a1, int a2, int a3, int a4, int a5, int a6)
 	return 0;
 }
 
-acceltexformatinfo *__cdecl sub_4025D6(int a1, int a2, __int16 a3)
+struct acceltexformatinfo *__cdecl sub_4025D6(int a1, int a2, __int16 a3)
 {
 	S_Warn("[sub_4025D6] - Unimplemented!\\n");
 	return NULL;

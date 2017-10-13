@@ -55,7 +55,7 @@ int XAStartPos;
 static int XATrackList[17][2];
 
 //Holds all game data file positions or offsets in GAMEWAD.OBJ.
-GAMEWAD_header gwHeader;
+struct GAMEWAD_header gwHeader;
 
 //LBA for the GAMEWAD.OBJ file on disc, this is set by InitNewCDSystem(), CDPosToInt() (See CD.C)
 int gwLba = 0;

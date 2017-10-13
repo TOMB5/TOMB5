@@ -3,7 +3,7 @@
 #include "GPU.H"
 #include "SPECIFIC.H"
 
-TSV tsv_buffer[512];
+struct TSV tsv_buffer[512];
 
 void CreateMonoScreen()//5F450, 60130
 {

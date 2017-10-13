@@ -5,10 +5,6 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#ifndef SPECTYPES_H
-#include "SPECTYPES.H"
-#endif
-
 #ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif
@@ -146,40 +142,40 @@ enum weather_type
 	WEATHER_SNOW = 2
 };
 
-typedef struct
+struct VECTOR
 {
 	long vx;
 	long vy;
 	long vz;
 	long pad;
-} VECTOR;
+};
 
-typedef struct
+struct SVECTOR
 {
 	short vx;
 	short vy;
 	short vz;
 	short pad;
-} SVECTOR;
+};
 
-typedef struct
+struct CVECTOR
 {
 	unsigned char r;
 	unsigned char g;
 	unsigned char b;
 	unsigned char cd;
-} CVECTOR;
+};
 
-typedef struct
+struct PHD_VECTOR
 {
 	long x;
 	long y;
 	long z;
-} PHD_VECTOR;
+};
 #if PC_VERSION
 #pragma pack(push, 4)
 #endif
-typedef struct
+struct PHD_3DPOS
 {
 	long x_pos;
 	long y_pos;
@@ -187,12 +183,12 @@ typedef struct
 	short x_rot;
 	short y_rot;
 	short z_rot;
-} PHD_3DPOS;
+};
 #if PC_VERSION
 #pragma pack(pop)
 #pragma pack(push, 1)
 #endif
-typedef struct
+struct ILIGHT
 {
 	short x;
 	short y;
@@ -202,14 +198,14 @@ typedef struct
 	unsigned char g;
 	unsigned char b;
 	unsigned char pad;
-} ILIGHT;
+};
 
-typedef struct
+struct ITEM_LIGHT
 {
-	ILIGHT Light[4];
-} ITEM_LIGHT;
+	struct ILIGHT Light[4];
+};
 
-typedef struct
+struct FLOOR_INFO
 {
 	unsigned short index; // size=0, offset=0
 	unsigned short fx : 4; // offset=2.0
@@ -219,9 +215,9 @@ typedef struct
 	char floor; // size=0, offset=5
 	unsigned char sky_room; // size=0, offset=6
 	char ceiling; // size=0, offset=7
-} FLOOR_INFO;
+};
 
-typedef struct
+struct LIGHTINFO
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -239,9 +235,9 @@ typedef struct
 	short FalloffScale; // size=0, offset=26
 	short Length; // size=0, offset=28
 	short Cutoff; // size=0, offset=30
-} LIGHTINFO;
+};
 
-typedef struct
+struct MESH_INFO
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -250,11 +246,11 @@ typedef struct
 	short shade; // size=0, offset=14
 	short Flags; // size=0, offset=16
 	short static_number; // size=0, offset=18
-} MESH_INFO;
+};
 
-typedef struct
+struct FX_INFO
 {
-	PHD_3DPOS pos; // size=20, offset=0
+	struct PHD_3DPOS pos; // size=20, offset=0
 	short room_number; // size=0, offset=20
 	short object_number; // size=0, offset=22
 	short next_fx; // size=0, offset=24
@@ -266,9 +262,9 @@ typedef struct
 	short shade; // size=0, offset=36
 	short flag1; // size=0, offset=38
 	short flag2; // size=0, offset=40
-} FX_INFO;
+};
 
-typedef struct
+struct lara_arm
 {
 	short* frame_base; // size=0, offset=0
 	short frame_number; // size=0, offset=4
@@ -278,19 +274,19 @@ typedef struct
 	short x_rot; // size=0, offset=12
 	short z_rot; // size=0, offset=14
 	short flash_gun; // size=0, offset=16
-} lara_arm;
+};
 
-typedef struct
+struct box_node
 {
 	short exit_box; // size=0, offset=0
 	unsigned short search_number; // size=0, offset=2
 	short next_expansion; // size=0, offset=4
 	short box_number; // size=0, offset=6
-} box_node;
+};
 
-typedef struct
+struct lot_info
 {
-	box_node* node; // size=8, offset=0
+	struct box_node* node; // size=8, offset=0
 	short head; // size=0, offset=4
 	short tail; // size=0, offset=6
 	unsigned short search_number; // size=0, offset=8
@@ -306,23 +302,22 @@ typedef struct
 	unsigned short is_amphibious : 1; // offset=24.2
 	unsigned short is_jumping : 1; // offset=24.3
 	unsigned short is_monkeying : 1; // offset=24.4
-	PHD_VECTOR target; // size=12, offset=28
+	struct PHD_VECTOR target; // size=12, offset=28
 	enum zone_type zone; // size=4, offset=40
-} lot_info;
+};
 
-typedef struct
+struct ROPE_STRUCT
 {
-	PHD_VECTOR Segment[24]; // size=288, offset=0
-	PHD_VECTOR Velocity[24]; // size=288, offset=288
-	PHD_VECTOR NormalisedSegment[24]; // size=288, offset=576
-	PHD_VECTOR MeshSegment[24]; // size=288, offset=864
-	PHD_VECTOR Position; // size=12, offset=1152
+	struct PHD_VECTOR Segment[24]; // size=288, offset=0
+	struct PHD_VECTOR Velocity[24]; // size=288, offset=288
+	struct PHD_VECTOR NormalisedSegment[24]; // size=288, offset=576
+	struct PHD_VECTOR MeshSegment[24]; // size=288, offset=864
+	struct PHD_VECTOR Position; // size=12, offset=1152
 	long SegmentLength; // size=0, offset=1164
 	short Active; // size=0, offset=1168
 	short Coiled; // size=0, offset=1170
-} ROPE_STRUCT;
-typedef struct
-{
+};
+struct lara_info {
 	short item_number; // size=0, offset=0
 	short gun_status; // size=0, offset=2
 	short gun_type; // size=0, offset=4
@@ -368,11 +363,11 @@ typedef struct
 	unsigned short IsClimbing : 1; // offset=69.7
 	unsigned short Fired : 1; // offset=70.0
 	long water_surface_dist; // size=0, offset=72
-	PHD_VECTOR last_pos; // size=12, offset=76
-	FX_INFO* spaz_effect; // size=44, offset=88
+	struct PHD_VECTOR last_pos; // size=12, offset=76
+	struct FX_INFO* spaz_effect; // size=44, offset=88
 	int mesh_effects; // size=0, offset=92
 	short* mesh_ptrs[15]; // size=60, offset=96
-	ITEM_INFO* target; // size=144, offset=156
+	struct ITEM_INFO* target; // size=144, offset=156
 	short target_angles[2]; // size=4, offset=160
 	short turn_rate; // size=0, offset=164
 	short move_angle; // size=0, offset=166
@@ -382,10 +377,10 @@ typedef struct
 	short torso_y_rot; // size=0, offset=174
 	short torso_x_rot; // size=0, offset=176
 	short torso_z_rot; // size=0, offset=178
-	lara_arm left_arm; // size=20, offset=180
-	lara_arm right_arm; // size=20, offset=200
+	struct lara_arm left_arm; // size=20, offset=180
+	struct lara_arm right_arm; // size=20, offset=200
 	unsigned short holster; // size=0, offset=220
-	creature_info* creature; // size=228, offset=224
+	struct creature_info* creature; // size=228, offset=224
 	long CornerX; // size=0, offset=228
 	long CornerZ; // size=0, offset=232
 	char RopeSegment; // size=0, offset=236
@@ -446,10 +441,9 @@ typedef struct
 	unsigned char TightRopeOff; // size=0, offset=348
 	unsigned char TightRopeFall; // size=0, offset=349
 	unsigned char ChaffTimer; // size=0, offset=350
-} lara_info; 
+};
 
-typedef struct
-{
+struct STATS {
 	unsigned long Timer; // size=0, offset=0
 	unsigned long Distance; // size=0, offset=4
 	unsigned long AmmoUsed; // size=0, offset=8
@@ -457,9 +451,9 @@ typedef struct
 	unsigned short Kills; // size=0, offset=16
 	unsigned char Secrets; // size=0, offset=18
 	unsigned char HealthUsed; // size=0, offset=19
-} STATS; 
+};
 
-typedef struct
+struct savegame_info
 {
 	short Checksum; // size=0, offset=0
 	unsigned short VolumeCD; // size=0, offset=2
@@ -469,9 +463,9 @@ typedef struct
 	unsigned char ControlOption; // size=0, offset=10
 	unsigned char VibrateOn; // size=0, offset=11
 	unsigned char AutoTarget; // size=0, offset=12
-	lara_info Lara; // size=352, offset=16
-	STATS Level; // size=20, offset=368
-	STATS Game; // size=20, offset=388
+	struct lara_info Lara; // size=352, offset=16
+	struct STATS Level; // size=20, offset=368
+	struct STATS Game; // size=20, offset=388
 	short WeaponObject; // size=0, offset=408
 	short WeaponAnim; // size=0, offset=410
 	short WeaponFrame; // size=0, offset=412
@@ -483,9 +477,9 @@ typedef struct
 	unsigned char CurrentLevel; // size=0, offset=429
 	unsigned char CampaignSecrets[4]; // size=4, offset=430
 	unsigned char TLCount; // size=0, offset=434
-} savegame_info;
+};
 
-typedef struct
+struct MATRIX3D
 {
 	short m00; // size=0, offset=0
 	short m01; // size=0, offset=2
@@ -500,9 +494,9 @@ typedef struct
 	long tx; // size=0, offset=20
 	long ty; // size=0, offset=24
 	long tz; // size=0, offset=28
-} MATRIX3D;
+};
 
-typedef struct
+struct GAMEFLOW
 {
 	unsigned long CheatEnabled : 1; // offset=0.0
 	unsigned long LoadSaveEnabled : 1; // offset=0.1
@@ -518,9 +512,9 @@ typedef struct
 	unsigned char Pad; // size=0, offset=11
 	unsigned short FileNameLen; // size=0, offset=12
 	unsigned short ScriptLen; // size=0, offset=14
-} GAMEFLOW;
+};
 
-typedef struct
+struct STRINGHEADER
 {
 	unsigned short nStrings; // size=0, offset=0
 	unsigned short nPSXStrings; // size=0, offset=2
@@ -528,55 +522,55 @@ typedef struct
 	unsigned short StringWadLen; // size=0, offset=6
 	unsigned short PSXStringWadLen; // size=0, offset=8
 	unsigned short PCStringWadLen; // size=0, offset=10
-} STRINGHEADER;
+};
 
-typedef struct
+struct GAME_VECTOR
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
 	long z; // size=0, offset=8
 	short room_number; // size=0, offset=12
 	short box_number; // size=0, offset=14
-} GAME_VECTOR;
+};
 
-typedef struct
+struct OBJECT_VECTOR
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
 	long z; // size=0, offset=8
 	short data; // size=0, offset=12
 	short flags; // size=0, offset=14
-} OBJECT_VECTOR;
+};
 
-typedef struct
+struct SPHERE
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
 	long z; // size=0, offset=8
 	long r; // size=0, offset=12
-} SPHERE;
+};
 
-typedef struct
+struct PENDULUM
 {
-	PHD_VECTOR Position; // size=12, offset=0
-	PHD_VECTOR Velocity; // size=12, offset=12
+	struct PHD_VECTOR Position; // size=12, offset=0
+	struct PHD_VECTOR Velocity; // size=12, offset=12
 	int node; // size=0, offset=24
-	ROPE_STRUCT* Rope; // size=1172, offset=28
-} PENDULUM;
+	struct ROPE_STRUCT* Rope; // size=1172, offset=28
+};
 
-typedef struct
+struct RAT_STRUCT
 {
-	PHD_3DPOS pos; // size=20, offset=0
+	struct PHD_3DPOS pos; // size=20, offset=0
 	short room_number; // size=0, offset=20
 	short speed; // size=0, offset=22
 	short fallspeed; // size=0, offset=24
 	unsigned char On; // size=0, offset=26
 	unsigned char flags; // size=0, offset=27
-} RAT_STRUCT;
+};
 
-typedef struct
+struct BAT_STRUCT
 {
-	PHD_3DPOS pos; // size=20, offset=0
+	struct PHD_3DPOS pos; // size=20, offset=0
 	short room_number; // size=0, offset=20
 	short speed; // size=0, offset=22
 	short Counter; // size=0, offset=24
@@ -585,21 +579,21 @@ typedef struct
 	char ZTarget; // size=0, offset=29
 	unsigned char On; // size=0, offset=30
 	unsigned char flags; // size=0, offset=31
-} BAT_STRUCT;
+};
 
-typedef struct
+struct SPIDER_STRUCT
 {
-	PHD_3DPOS pos; // size=20, offset=0
+	struct PHD_3DPOS pos; // size=20, offset=0
 	short room_number; // size=0, offset=20
 	short speed; // size=0, offset=22
 	short fallspeed; // size=0, offset=24
 	unsigned char On; // size=0, offset=26
 	unsigned char flags; // size=0, offset=27
-} SPIDER_STRUCT;
+};
 
-typedef struct
+struct TWOGUN_INFO
 {
-	PHD_3DPOS pos; // size=20, offset=0
+	struct PHD_3DPOS pos; // size=20, offset=0
 	short life; // size=0, offset=20
 	short coil; // size=0, offset=22
 	short spin; // size=0, offset=24
@@ -611,9 +605,9 @@ typedef struct
 	char g; // size=0, offset=35
 	char b; // size=0, offset=36
 	char fadein; // size=0, offset=37
-} TWOGUN_INFO;
+};
 
-typedef struct
+struct CHARDEF
 {
 	unsigned char u; // size=0, offset=0
 	unsigned char v; // size=0, offset=1
@@ -622,9 +616,9 @@ typedef struct
 	char YOffset; // size=0, offset=4
 	unsigned char TopShade; // size=0, offset=5
 	unsigned char BottomShade; // size=0, offset=6
-} CHARDEF;
+};
 
-typedef struct
+struct COLL_INFO
 {
 	long mid_floor; // size=0, offset=0
 	long mid_ceiling; // size=0, offset=4
@@ -648,8 +642,8 @@ typedef struct
 	long bad_pos; // size=0, offset=76
 	long bad_neg; // size=0, offset=80
 	long bad_ceiling; // size=0, offset=84
-	PHD_VECTOR shift; // size=12, offset=88
-	PHD_VECTOR old; // size=12, offset=100
+	struct PHD_VECTOR shift; // size=12, offset=88
+	struct PHD_VECTOR old; // size=12, offset=100
 	short old_anim_state; // size=0, offset=112
 	short old_anim_number; // size=0, offset=114
 	short old_frame_number; // size=0, offset=116
@@ -667,9 +661,9 @@ typedef struct
 	unsigned short enable_baddie_push : 1; // offset=132.4
 	unsigned short enable_spaz : 1; // offset=132.5
 	unsigned short hit_ceiling : 1; // offset=132.6
-} COLL_INFO;
+};
 
-typedef struct
+struct ANIM_STRUCT
 {
 	short* frame_ptr; // size=0, offset=0
 	short interpolation; // size=0, offset=4
@@ -686,9 +680,9 @@ typedef struct
 	short change_index; // size=0, offset=34
 	short number_commands; // size=0, offset=36
 	short command_index; // size=0, offset=38
-} ANIM_STRUCT;
+};
 
-typedef struct
+struct SPARKS
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -727,16 +721,16 @@ typedef struct
 	unsigned char FxObj; // size=0, offset=49
 	unsigned char RoomNumber; // size=0, offset=50
 	unsigned char NodeNumber; // size=0, offset=51
-} SPARKS;
+};
 
-typedef struct
+struct ACTORME
 {
 	int offset; // size=0, offset=0
 	short objslot; // size=0, offset=4
 	short nodes; // size=0, offset=6
-} ACTORME;
+};
 
-typedef struct
+struct RTDECODE
 {
 	unsigned long length; // size=0, offset=0
 	unsigned long off; // size=0, offset=4
@@ -745,9 +739,9 @@ typedef struct
 	unsigned char decodetype; // size=0, offset=12
 	unsigned char packmethod; // size=0, offset=13
 	unsigned short padfuck; // size=0, offset=14
-} RTDECODE;
+};
 
-typedef struct
+struct PACKNODE
 {
 	short xrot_run; // size=0, offset=0
 	short yrot_run; // size=0, offset=2
@@ -755,18 +749,18 @@ typedef struct
 	short xkey; // size=0, offset=6
 	short ykey; // size=0, offset=8
 	short zkey; // size=0, offset=10
-	RTDECODE decode_x; // size=16, offset=12
-	RTDECODE decode_y; // size=16, offset=28
-	RTDECODE decode_z; // size=16, offset=44
+	struct RTDECODE decode_x; // size=16, offset=12
+	struct RTDECODE decode_y; // size=16, offset=28
+	struct RTDECODE decode_z; // size=16, offset=44
 	unsigned long xlength; // size=0, offset=60
 	unsigned long ylength; // size=0, offset=64
 	unsigned long zlength; // size=0, offset=68
 	char* xpacked; // size=0, offset=72
 	char* ypacked; // size=0, offset=76
 	char* zpacked; // size=0, offset=80
-} PACKNODE;
+};
 
-typedef struct
+struct NODELOADHEADER
 {
 	short xkey; // size=0, offset=0
 	short ykey; // size=0, offset=2
@@ -775,14 +769,14 @@ typedef struct
 	short xlength; // size=0, offset=8
 	short ylength; // size=0, offset=10
 	short zlength; // size=0, offset=12
-} NODELOADHEADER;
+};
 
-typedef struct
+struct RESIDENT_THING
 {
 	char* packed_data; // size=0, offset=0
-} RESIDENT_THING;
+};
 
-typedef struct
+struct NEW_CUTSCENE
 {
 	short numactors; // size=0, offset=0
 	short numframes; // size=0, offset=2
@@ -791,29 +785,29 @@ typedef struct
 	int orgz; // size=0, offset=12
 	int audio_track; // size=0, offset=16
 	int camera_offset; // size=0, offset=20
-	ACTORME actor_data[10]; // size=80, offset=24
-} NEW_CUTSCENE;
+	struct ACTORME actor_data[10]; // size=80, offset=24
+};
 
-typedef struct
+struct CUTSEQ_ROUTINES
 {
 	void(*init_func)(); // size=0, offset=0
 	void(*control_func)(); // size=0, offset=4
 	void(*end_func)(); // size=0, offset=8
-} CUTSEQ_ROUTINES;
+};
 
-typedef struct
+struct DOORPOS_DATA
 {
-	FLOOR_INFO* floor; // size=8, offset=0
-	FLOOR_INFO data; // size=8, offset=4
+	struct FLOOR_INFO* floor; // size=8, offset=0
+	struct FLOOR_INFO data; // size=8, offset=4
 	short block; // size=0, offset=12
-} DOORPOS_DATA;
+};
 
-typedef struct
+struct DOOR_DATA
 {
-	DOORPOS_DATA d1; // size=16, offset=0
-	DOORPOS_DATA d1flip; // size=16, offset=16
-	DOORPOS_DATA d2; // size=16, offset=32
-	DOORPOS_DATA d2flip; // size=16, offset=48
+	struct DOORPOS_DATA d1; // size=16, offset=0
+	struct DOORPOS_DATA d1flip; // size=16, offset=16
+	struct DOORPOS_DATA d2; // size=16, offset=32
+	struct DOORPOS_DATA d2flip; // size=16, offset=48
 	short Opened; // size=0, offset=64
 	short* dptr1; // size=0, offset=68
 	short* dptr2; // size=0, offset=72
@@ -823,39 +817,39 @@ typedef struct
 	char dn2; // size=0, offset=85
 	char dn3; // size=0, offset=86
 	char dn4; // size=0, offset=87
-	ITEM_INFO* item; // size=144, offset=88
-} DOOR_DATA;
+	struct ITEM_INFO* item; // size=144, offset=88
+};
 
-typedef struct
+struct CHANGE_STRUCT
 {
 	short goal_anim_state; // size=0, offset=0
 	short number_ranges; // size=0, offset=2
 	short range_index; // size=0, offset=4
-} CHANGE_STRUCT;
-typedef struct
+};
+struct RANGE_STRUCT
 {
 	short start_frame; // size=0, offset=0
 	short end_frame; // size=0, offset=2
 	short link_anim_num; // size=0, offset=4
 	short link_frame_num; // size=0, offset=6
-} RANGE_STRUCT;
+};
 
-typedef struct
+struct door_vbuf
 {
 	long xv; // size=0, offset=0
 	long yv; // size=0, offset=4
 	long zv; // size=0, offset=8
-} door_vbuf;
+};
 
-typedef struct
+struct BITE_INFO
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
 	long z; // size=0, offset=8
 	long mesh_num; // size=0, offset=12
-} BITE_INFO;
+};
 
-typedef struct
+struct box_info
 {
 	unsigned char left; // size=0, offset=0
 	unsigned char right; // size=0, offset=1
@@ -863,9 +857,9 @@ typedef struct
 	unsigned char bottom; // size=0, offset=3
 	short height; // size=0, offset=4
 	short overlap_index; // size=0, offset=6
-} box_info;
+};
 
-typedef struct
+struct AI_info
 {
 	short zone_number; // size=0, offset=0
 	short enemy_zone; // size=0, offset=2
@@ -875,9 +869,9 @@ typedef struct
 	short angle; // size=0, offset=16
 	short x_angle; // size=0, offset=18
 	short enemy_facing; // size=0, offset=20
-} AI_info;
+};
 
-typedef struct
+struct AIOBJECT
 {
 	short object_number; // size=0, offset=0
 	short room_number; // size=0, offset=2
@@ -888,12 +882,12 @@ typedef struct
 	short flags; // size=0, offset=18
 	short y_rot; // size=0, offset=20
 	short box_number; // size=0, offset=22
-} AIOBJECT;
+};
 
-typedef struct
+struct CAMERA_INFO
 {
-	GAME_VECTOR pos; // size=16, offset=0
-	GAME_VECTOR target; // size=16, offset=16
+	struct GAME_VECTOR pos; // size=16, offset=0
+	struct GAME_VECTOR target; // size=16, offset=16
 	enum camera_type type; // size=4, offset=32
 	enum camera_type old_type; // size=4, offset=36
 	long shift; // size=0, offset=40
@@ -914,24 +908,24 @@ typedef struct
 	short timer; // size=0, offset=84
 	short speed; // size=0, offset=86
 	short targetspeed; // size=0, offset=88
-	ITEM_INFO* item; // size=144, offset=92
-	ITEM_INFO* last_item; // size=144, offset=96
-	OBJECT_VECTOR* fixed; // size=16, offset=100
+	struct ITEM_INFO* item; // size=144, offset=92
+	struct ITEM_INFO* last_item; // size=144, offset=96
+	struct OBJECT_VECTOR* fixed; // size=16, offset=100
 	int mike_at_lara; // size=0, offset=104
-	PHD_VECTOR mike_pos; // size=12, offset=108
-} CAMERA_INFO;
+	struct PHD_VECTOR mike_pos; // size=12, offset=108
+};
 
-typedef struct
+struct SHATTER_ITEM
 {
-	SPHERE Sphere; // size=16, offset=0
-	ITEM_LIGHT* il; // size=48, offset=16
+	struct SPHERE Sphere; // size=16, offset=0
+	struct ITEM_LIGHT* il; // size=48, offset=16
 	short* meshp; // size=0, offset=20
 	long Bit; // size=0, offset=24
 	short YRot; // size=0, offset=28
 	short Flags; // size=0, offset=30
-} SHATTER_ITEM;
+};
 
-typedef struct
+struct OLD_CAMERA
 {
 	short current_anim_state; // size=0, offset=0
 	short goal_anim_state; // size=0, offset=2
@@ -939,12 +933,12 @@ typedef struct
 	short target_angle; // size=0, offset=8
 	short target_elevation; // size=0, offset=10
 	short actual_elevation; // size=0, offset=12
-	PHD_3DPOS pos; // size=20, offset=16
-	PHD_3DPOS pos2; // size=20, offset=36
-	PHD_VECTOR t; // size=12, offset=56
-} OLD_CAMERA;
+	struct PHD_3DPOS pos; // size=20, offset=16
+	struct PHD_3DPOS pos2; // size=20, offset=36
+	struct PHD_VECTOR t; // size=12, offset=56
+};
 
-typedef struct
+struct DEBRIS_STRUCT
 {
 	void* TextInfo; // size=0, offset=0
 	long x; // size=0, offset=4
@@ -965,9 +959,9 @@ typedef struct
 	unsigned char g; // size=0, offset=48
 	unsigned char b; // size=0, offset=49
 	unsigned char Pad[2]; // size=2, offset=50
-} DEBRIS_STRUCT;
+};
 
-typedef struct
+struct SPOTCAM
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -984,15 +978,15 @@ typedef struct
 	short flags; // size=0, offset=34
 	short room_number; // size=0, offset=36
 	short pad; // size=0, offset=38
-} SPOTCAM;
+};
 
-typedef struct
+struct QUAKE_CAM
 {
-	GAME_VECTOR spos; // size=16, offset=0
-	GAME_VECTOR epos; // size=16, offset=16
-} QUAKE_CAM;
+	struct GAME_VECTOR spos; // size=16, offset=0
+	struct GAME_VECTOR epos; // size=16, offset=16
+};
 
-typedef struct
+struct DYNAMIC
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -1005,9 +999,9 @@ typedef struct
 	unsigned char used; // size=0, offset=18
 	unsigned char pad1[1]; // size=1, offset=19
 	long FalloffScale; // size=0, offset=20
-} DYNAMIC;
+};
 
-typedef struct
+struct SP_DYNAMIC
 {
 	unsigned char On; // size=0, offset=0
 	unsigned char Falloff; // size=0, offset=1
@@ -1016,9 +1010,9 @@ typedef struct
 	unsigned char B; // size=0, offset=4
 	unsigned char Flags; // size=0, offset=5
 	unsigned char Pad[2]; // size=2, offset=6
-} SP_DYNAMIC;
+};
 
-typedef struct
+struct SPLASH_STRUCT
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -1038,9 +1032,9 @@ typedef struct
 	short OuterRadVel; // size=0, offset=36
 	char flags; // size=0, offset=38
 	unsigned char life; // size=0, offset=39
-} SPLASH_STRUCT;
+};
 
-typedef struct
+struct RIPPLE_STRUCT
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -1049,9 +1043,9 @@ typedef struct
 	unsigned char life; // size=0, offset=13
 	unsigned char size; // size=0, offset=14
 	unsigned char init; // size=0, offset=15
-} RIPPLE_STRUCT;
+};
 
-typedef struct
+struct SPLASH_SETUP
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -1070,9 +1064,9 @@ typedef struct
 	short OuterSize; // size=0, offset=34
 	short OuterRadVel; // size=0, offset=36
 	short pad3; // size=0, offset=38
-} SPLASH_SETUP;
+};
 
-typedef struct
+struct FIRE_LIST
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -1080,9 +1074,9 @@ typedef struct
 	char on; // size=0, offset=12
 	char size; // size=0, offset=13
 	short room_number; // size=0, offset=14
-} FIRE_LIST;
+};
 
-typedef struct
+struct FIRE_SPARKS
 {
 	short x; // size=0, offset=0
 	short y; // size=0, offset=2
@@ -1115,9 +1109,9 @@ typedef struct
 	unsigned char FadeToBlack; // size=0, offset=37
 	unsigned char sLife; // size=0, offset=38
 	unsigned char Life; // size=0, offset=39
-} FIRE_SPARKS;
+};
 
-typedef struct
+struct SMOKE_SPARKS
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -1148,9 +1142,9 @@ typedef struct
 	unsigned char FxObj; // size=0, offset=41
 	unsigned char NodeNumber; // size=0, offset=42
 	unsigned char mirror; // size=0, offset=43
-} SMOKE_SPARKS;
+};
 
-typedef struct
+struct BLOOD_STRUCT
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -1174,22 +1168,22 @@ typedef struct
 	char sLife; // size=0, offset=33
 	char Life; // size=0, offset=34
 	char Pad; // size=0, offset=35
-} BLOOD_STRUCT;
+};
 
-typedef struct
+struct GUNSHELL_STRUCT
 {
-	PHD_3DPOS pos; // size=20, offset=0
+	struct PHD_3DPOS pos; // size=20, offset=0
 	short fallspeed; // size=0, offset=20
 	short room_number; // size=0, offset=22
 	short speed; // size=0, offset=24
 	short counter; // size=0, offset=26
 	short DirXrot; // size=0, offset=28
 	short object_number; // size=0, offset=30
-} GUNSHELL_STRUCT;
+};
 
-typedef struct
+struct BUBBLE_STRUCT
 {
-	PHD_VECTOR pos; // size=12, offset=0
+	struct PHD_VECTOR pos; // size=12, offset=0
 	short room_number; // size=0, offset=12
 	short speed; // size=0, offset=14
 	short size; // size=0, offset=16
@@ -1202,24 +1196,24 @@ typedef struct
 	short Yvel; // size=0, offset=26
 	short Zvel; // size=0, offset=28
 	short Pad; // size=0, offset=30
-} BUBBLE_STRUCT;
+};
 
-typedef struct
+struct GUNFLASH_STRUCT
 {
-	MATRIX3D matrix; // size=32, offset=0
+	struct MATRIX3D matrix; // size=32, offset=0
 	short on; // size=0, offset=32
-} GUNFLASH_STRUCT;
+};
 
-typedef struct
+struct NODEOFFSET_INFO
 {
 	short x; // size=0, offset=0
 	short y; // size=0, offset=2
 	short z; // size=0, offset=4
 	char mesh_num; // size=0, offset=6
 	unsigned char GotIt; // size=0, offset=7
-} NODEOFFSET_INFO;
+};
 
-typedef struct
+struct SHOCKWAVE_STRUCT
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
@@ -1234,21 +1228,21 @@ typedef struct
 	unsigned char life; // size=0, offset=23
 	short Speed; // size=0, offset=24
 	short Temp; // size=0, offset=26
-} SHOCKWAVE_STRUCT;
+};
 
-typedef struct
+struct HAIR_STRUCT
 {
-	PHD_3DPOS pos; // size=20, offset=0
-	PHD_VECTOR vel; // size=12, offset=20
-} HAIR_STRUCT;
+	struct PHD_3DPOS pos; // size=20, offset=0
+	struct PHD_VECTOR vel; // size=12, offset=20
+};
 
-typedef struct
+struct DISPLAYPU
 {
 	short life; // size=0, offset=0
 	short object_number; // size=0, offset=2
-} DISPLAYPU;
+};
 
-typedef struct
+struct INVOBJ
 {
 	short object_number; // size=0, offset=0
 	short yoff; // size=0, offset=2
@@ -1259,45 +1253,45 @@ typedef struct
 	short flags; // size=0, offset=12
 	short objname; // size=0, offset=14
 	unsigned long meshbits; // size=0, offset=16
-} INVOBJ;
+};
 
-typedef struct
+struct OBJLIST
 {
 	short invitem; // size=0, offset=0
 	unsigned short yrot; // size=0, offset=2
 	unsigned short bright; // size=0, offset=4
-} OBJLIST;
+};
 
-typedef struct
+struct RINGME
 {
-	OBJLIST current_object_list[100]; // size=600, offset=0
+	struct OBJLIST current_object_list[100]; // size=600, offset=0
 	int ringactive; // size=0, offset=600
 	int objlistmovement; // size=0, offset=604
 	int curobjinlist; // size=0, offset=608
 	int numobjectsinlist; // size=0, offset=612
-} RINGME;
+};
 
-typedef struct
+struct AMMOLIST
 {
 	short invitem; // size=0, offset=0
 	short amount; // size=0, offset=2
 	unsigned short yrot; // size=0, offset=4
-} AMMOLIST;
-typedef struct
+};
+struct MENUTHANG
 {
 	int type; // size=0, offset=0
 	char* text; // size=0, offset=4
-} MENUTHANG;
+};
 
-typedef struct
+struct COMBINELIST
 {
 	void(*combine_routine)(int flag); // size=0, offset=0
 	short item1; // size=0, offset=4
 	short item2; // size=0, offset=6
 	short combined_item; // size=0, offset=8
-} COMBINELIST;
+};
 
-typedef struct
+struct WEAPON_INFO
 {
 	short lock_angles[4]; // size=8, offset=0
 	short left_angles[4]; // size=8, offset=8
@@ -1311,27 +1305,27 @@ typedef struct
 	char flash_time; // size=0, offset=34
 	char draw_frame; // size=0, offset=35
 	short sample_num; // size=0, offset=36
-} WEAPON_INFO;
+};
 
-typedef struct
+struct PISTOL_DEF
 {
 	short ObjectNum; // size=0, offset=0
 	char Draw1Anim2; // size=0, offset=2
 	char Draw1Anim; // size=0, offset=3
 	char Draw2Anim; // size=0, offset=4
 	char RecoilAnim; // size=0, offset=5
-} PISTOL_DEF;
+};
 
-typedef struct
+struct SUBSUIT_INFO
 {
 	short XRot; // size=0, offset=0
 	short dXRot; // size=0, offset=2
 	short XRotVel; // size=0, offset=4
 	short Vel[2]; // size=4, offset=6
 	short YVel; // size=0, offset=10
-} SUBSUIT_INFO;
+};
 
-typedef struct
+struct SAMPLE_INFO
 {
 	short number; // size=0, offset=0
 	unsigned char volume; // size=0, offset=2
@@ -1339,9 +1333,9 @@ typedef struct
 	char randomness; // size=0, offset=4
 	char pitch; // size=0, offset=5
 	short flags; // size=0, offset=6
-} SAMPLE_INFO;
+};
 
-typedef struct
+struct SoundSlot
 {
 	int OrigVolume; // size=0, offset=0
 	int nVolume; // size=0, offset=4
@@ -1349,26 +1343,26 @@ typedef struct
 	int nPitch; // size=0, offset=12
 	int nSampleInfo; // size=0, offset=16
 	unsigned long distance; // size=0, offset=20
-	PHD_VECTOR pos; // size=12, offset=24
-} SoundSlot;
+	struct PHD_VECTOR pos; // size=12, offset=24
+};
 
-typedef struct
+struct FOOTPRINT
 {
 	long x; // size=0, offset=0
 	long y; // size=0, offset=4
 	long z; // size=0, offset=8
 	short YRot; // size=0, offset=12
 	short Active; // size=0, offset=14
-} FOOTPRINT;
+};
 
 //Reconstructed, size hint = 8;
-typedef struct//maybe NODEOFFSET_INFO
+struct MESH_STRUCT//maybe NODEOFFSET_INFO
 {
 	short unk00;//0
 	short unk01;//2
 	long unk02;//4
 	unsigned char unk03;//8
-} MESH_STRUCT;
+};
 
 #if PC_VERSION
 #pragma pop

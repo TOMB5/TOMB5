@@ -26,22 +26,22 @@ extern long xfront;
 extern short GlobalCollisionBounds[6];
 extern char LM[15];
 
-extern void TestForObjectOnLedge(ITEM_INFO* item, COLL_INFO* coll);
+extern void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern void TriggerLaraBlood();
-extern void GenericSphereBoxCollision(short item_num, ITEM_INFO* laraitem, COLL_INFO* coll);
-extern int ItemPushLaraStatic(ITEM_INFO* laraitem, short* bounds, PHD_3DPOS* pos, COLL_INFO* coll);
-extern int ItemPushLara(ITEM_INFO* item, ITEM_INFO* laraitem, COLL_INFO* coll, int a4, int a5);
-extern int TestBoundsCollideStatic(short* bounds, PHD_3DPOS* pos, long radius);
-extern int TestBoundsCollide(ITEM_INFO* item, ITEM_INFO* laraitem, long radius);
-extern void TrapCollision(short item_num, ITEM_INFO* laraitem, COLL_INFO* coll);
-extern void AIPickupCollision(short item_num, ITEM_INFO* laraitem, COLL_INFO* coll);
-extern void CreatureCollision(short item_num, ITEM_INFO* laraitem, COLL_INFO* coll);
-extern void LaraBaddieCollision(ITEM_INFO* laraitem, COLL_INFO* coll);
-extern void ShiftItem(ITEM_INFO* item, COLL_INFO* coll);
-extern int GetCollisionInfo(COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight);
-extern void UpdateLaraRoom(ITEM_INFO* item, int height);
-extern void ObjectCollision(short item_num, ITEM_INFO* lara_item, COLL_INFO* coll);
-extern int TestLaraPosition(short* bounds, ITEM_INFO* item, ITEM_INFO* lara_item);
-extern int MoveLaraPosition(PHD_VECTOR* vector, ITEM_INFO* item, ITEM_INFO* lara_item);
+extern void GenericSphereBoxCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
+extern int ItemPushLaraStatic(struct ITEM_INFO* laraitem, short* bounds, struct PHD_3DPOS* pos, struct COLL_INFO* coll);
+extern int ItemPushLara(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, struct COLL_INFO* coll, int a4, int a5);
+extern int TestBoundsCollideStatic(short* bounds, struct PHD_3DPOS* pos, long radius);
+extern int TestBoundsCollide(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, long radius);
+extern void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
+extern void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
+extern void CreatureCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
+extern void LaraBaddieCollision(struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
+extern void ShiftItem(struct ITEM_INFO* item, struct COLL_INFO* coll);
+extern int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight);
+extern void UpdateLaraRoom(struct ITEM_INFO* item, int height);
+extern void ObjectCollision(short item_num, struct ITEM_INFO* lara_item, struct COLL_INFO* coll);
+extern int TestLaraPosition(short* bounds, struct ITEM_INFO* item, struct ITEM_INFO* lara_item);
+extern int MoveLaraPosition(struct PHD_VECTOR* vector, struct ITEM_INFO* item, struct ITEM_INFO* lara_item);
 
 #endif

@@ -569,7 +569,7 @@ void SOUND_Stop();
 
 extern int sound_active;
 extern short* sample_lut;
-extern SAMPLE_INFO* sample_infos;
-extern SoundSlot LaSlot[MAX_SOUND_SLOTS];
+extern struct SAMPLE_INFO* sample_infos;
+extern struct SoundSlot LaSlot[MAX_SOUND_SLOTS];
 
 #endif

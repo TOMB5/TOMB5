@@ -3,21 +3,21 @@
 #include "SPECTYPES.H"
 #include "SPECIFIC.H"
 
-static REQUESTER InsertReq;
-static REQUESTER CheckingReq;
-static REQUESTER FormatReq;
-static REQUESTER OverwriteReq;
-static REQUESTER LoadingReq;
-static REQUESTER SavingReq;
-static REQUESTER FormattingReq;
-static REQUESTER LoadOkReq;
-static REQUESTER LoadErrorReq;
-static REQUESTER SaveOkReq;
-static REQUESTER SaveErrorReq;
-static REQUESTER FormatErrorReq;
-static REQUESTER NotFormatReq;
-static REQUESTER NoSpaceReq;
-static REQUESTER NoGamesReq;
+static struct REQUESTER InsertReq;
+static struct REQUESTER CheckingReq;
+static struct REQUESTER FormatReq;
+static struct REQUESTER OverwriteReq;
+static struct REQUESTER LoadingReq;
+static struct REQUESTER SavingReq;
+static struct REQUESTER FormattingReq;
+static struct REQUESTER LoadOkReq;
+static struct REQUESTER LoadErrorReq;
+static struct REQUESTER SaveOkReq;
+static struct REQUESTER SaveErrorReq;
+static struct REQUESTER FormatErrorReq;
+static struct REQUESTER NotFormatReq;
+static struct REQUESTER NoSpaceReq;
+static struct REQUESTER NoGamesReq;
 
 
 int SaveGame()//62E3C, 63520

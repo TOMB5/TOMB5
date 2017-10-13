@@ -217,7 +217,7 @@ HWND SendMsg(HWND hWnd, LPARAM lParam)
 int WinProcMsg()
 {
 	int result; // eax@4
-	tagMSG Msg; // [sp+10h] [bp-1Ch]@2
+	struct tagMSG Msg; // [sp+10h] [bp-1Ch]@2
 
 	Log(2, "WinProcMsg");
 	do
@@ -449,8 +449,8 @@ char sub_4DEC40(char a1)
 	DWORD Type; // [sp+8h] [bp-460h]@4
 	DWORD cbData; // [sp+Ch] [bp-45Ch]@4
 	DWORD dwDisposition; // [sp+10h] [bp-458h]@2
-	_PROCESS_INFORMATION ProcessInformation; // [sp+14h] [bp-454h]@4
-	_STARTUPINFOA StartupInfo; // [sp+24h] [bp-444h]@4
+	struct _PROCESS_INFORMATION ProcessInformation; // [sp+14h] [bp-454h]@4
+	struct _STARTUPINFOA StartupInfo; // [sp+24h] [bp-444h]@4
 	BYTE Data[0x400]; // [sp+68h] [bp-400h]@4
 
 	dword_E4ACA8 = RegisterWindowMessageA(String);
@@ -524,9 +524,9 @@ char FindGameDrive()
 
 signed int DXToggleFullScreen()
 {
-	dispmode* v0; // eax@2
+	struct dispmode* v0; // eax@2
 	signed int result; // eax@2
-	dispmode* v2; // eax@3
+	struct dispmode* v2; // eax@3
 
 	Log(2, "DXToggleFullScreen");
 	if (ptr_ctx->flags & 2)
@@ -1045,11 +1045,11 @@ void __cdecl sub_4018AC(signed int param)
 	int v3; // ebx@11
 	int v4; // eax@11
 	int v5; // ecx@11
-	dispmode* v7; // ecx@13
+	struct dispmode* v7; // ecx@13
 	int v8; // ecx@16
-	dispmode* v9; // ecx@17
-	dispmode* v10; // ebx@27
-	dispmode* v11; // ebx@29
+	struct dispmode* v9; // ecx@17
+	struct dispmode* v10; // ebx@27
+	struct dispmode* v11; // ebx@29
 	HCURSOR v12; // eax@41
 	int v13; // [sp+Ch] [bp+4h]@10
 
@@ -1401,8 +1401,8 @@ int __cdecl LoadTextureFormats(HWND hDlg, HWND hWnd)
 {
 	HWND v2; // eax@1
 	HWND v3; // eax@1
-	acceladapt* result; // eax@1
-	acceltexformatinfo* v5; // eax@3
+	struct acceladapt* result; // eax@1
+	struct acceltexformatinfo* v5; // eax@3
 	int depth; // esi@3
 	int bitsB; // ebx@3
 	int bitsR; // edi@3
@@ -1469,14 +1469,14 @@ char __cdecl LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 	HWND v8; // eax@4
 	HWND v9; // eax@4
 	int v10; // ecx@5
-	acceladapt* v11; // eax@5
-	dispmode* v12; // eax@7
+	struct acceladapt* v11; // eax@5
+	struct dispmode* v12; // eax@7
 	int res_w; // edx@7
 	int res_h; // ebx@7
 	signed int res_bit; // eax@7
 	int v16; // edx@18
 	int v17; // edx@20
-	acceladapt* v18; // eax@20
+	struct acceladapt* v18; // eax@20
 	LPARAM v19; // ebx@20
 	HWND v20; // eax@24
 	HWND v22; // eax@24
@@ -1684,7 +1684,7 @@ char __cdecl LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 int __cdecl LoadAccelAdapters(HWND hDlg, HWND hWnd)
 {
 	int v2; // esi@1
-	gfxadapt* v3; // eax@1
+	struct gfxadapt* v3; // eax@1
 	int v4; // edi@2
 	HWND v5; // eax@4
 
@@ -2340,12 +2340,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HWND v8; // eax@8
 	HWND v9; // esi@15
 	HDC v10; // edi@15
-	dispmode* v11; // ecx@15
+	struct dispmode* v11; // ecx@15
 	HWND desktopHwnd; // eax@25
 	HWND v13; // esi@25
 	HDC desktopDC; // eax@25
 	HWND v15; // eax@25
-	tagRECT Rect; // [sp+Ch] [bp-A4h]@8
+	struct tagRECT Rect; // [sp+Ch] [bp-A4h]@8
 	char v17[36]; // [sp+1Ch] [bp-94h]@25
 	__int16 v18; // [sp+40h] [bp-70h]@25
 	int v19; // [sp+44h] [bp-6Ch]@25

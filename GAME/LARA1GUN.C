@@ -19,7 +19,7 @@ void TriggerGrapplingEffect(long x, long y, long z)
 	S_Warn("[TriggerGrapplingEffect] - Unimplemented!\n");
 }
 
-void DoGrenadeDamageOnBaddie(ITEM_INFO* baddie, ITEM_INFO* item)
+void DoGrenadeDamageOnBaddie(struct ITEM_INFO* baddie, struct ITEM_INFO* item)
 {
 	S_Warn("[DoGrenadeDamageOnBaddie] - Unimplemented!\n");
 }
@@ -44,12 +44,12 @@ void ControlCrossbow(short item_number)
 	S_Warn("[ControlCrossbow] - Unimplemented!\n");
 }
 
-void CrossbowHitSwitchType78(ITEM_INFO* item, ITEM_INFO* target, int MustHitLastNode)
+void CrossbowHitSwitchType78(struct ITEM_INFO* item, struct ITEM_INFO* target, int MustHitLastNode)
 {
 	S_Warn("[CrossbowHitSwitchType78] - Unimplemented!\n");
 }
 
-void FireCrossbow(PHD_3DPOS* Start)
+void FireCrossbow(struct PHD_3DPOS* Start)
 {
 	S_Warn("[FireCrossbow] - Unimplemented!\n");
 }
@@ -71,7 +71,7 @@ void RifleHandler(int weapon_type)
 
 void ready_shotgun(int weapon_type)//424E0(<), 42934(<) (F)
 {
-	object_info* object;
+	struct object_info* object;
 
 	lara.gun_status = 4;
 	lara.left_arm.z_rot = 0;

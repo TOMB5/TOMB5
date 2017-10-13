@@ -3,7 +3,7 @@
 #include "SPECTYPES.H"
 #include "SPECIFIC.H"
 
-static VIBRATION vib[2];
+static struct VIBRATION vib[2];
 
 
 void VibratePad()//604EC, 61064
@@ -13,7 +13,7 @@ void VibratePad()//604EC, 61064
 
 void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int len)//604A4(<), 6101C(<) (F)
 {
-	VIBRATION* v = &vib[num];
+	struct VIBRATION* v = &vib[num];
 
 	v->Acc = acc;
 	v->Lev = lev;

@@ -4,7 +4,7 @@
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "SPECIFIC.H"
-#include "SPECTYPES.H"
+#include "TYPES.H"
 
 #include <assert.h>
 #include <LIBGTE.H>
@@ -17,9 +17,9 @@ long phd_persp;
 long w2v_matrix[12];
 long* phd_mxptr;
 long matrix_stack[24];
-PHD_3DPOS viewer;
-VECTOR3D CamPos;
-VECTOR3D CamTgt;
+struct PHD_3DPOS viewer;
+struct VECTOR3D CamPos;
+struct VECTOR3D CamTgt;
 
 void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 {

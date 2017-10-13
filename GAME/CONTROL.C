@@ -76,7 +76,7 @@ char GetLaraOnLOS;
 int NoInput;
 int number_los_rooms;
 int framecount;
-ITEM_INFO* items;
+struct ITEM_INFO* items;
 int flip_status;
 #if PC_VERSION
 int flipmap[255];
@@ -101,21 +101,21 @@ int OnObject;
 short* trigger_index;
 char cd_flags[136];
 unsigned char InGameCnt;
-RAT_STRUCT* Rats;
-BAT_STRUCT* Bats;
-SPIDER_STRUCT* Spiders;
-TWOGUN_INFO twogun[4];
+struct RAT_STRUCT* Rats;
+struct BAT_STRUCT* Bats;
+struct SPIDER_STRUCT* Spiders;
+struct TWOGUN_INFO twogun[4];
 int SetDebounce;
 short WB_room;
-ITEM_INFO* WB_item;
+struct ITEM_INFO* WB_item;
 unsigned char HeavyTriggered;
-MESH_INFO* SmashedMesh[16];
+struct MESH_INFO* SmashedMesh[16];
 short SmashedMeshRoom[16];
-PENDULUM CurrentPendulum;
+struct PENDULUM CurrentPendulum;
 char LaraDrawType;
 char WeatherType;
 char RoomDrawType;
-PHD_VECTOR ClosestCoord;
+struct PHD_VECTOR ClosestCoord;
 int ClosestItem;
 int ClosestDist;
 short XSoff1;
@@ -127,7 +127,7 @@ short ZSoff2;
 short los_rooms[20];
 char globoncuttrig;
 short ItemNewRooms[256][2];
-CHARDEF CharDef[106] =
+struct CHARDEF CharDef[106] =
 {
 	{ -0x52, 0x34, 4, 0xD, -0xB, 0, 0xB },
 	{ 0x62, 0x3A, 7, 5, -0xA, 1, 5 },
@@ -653,7 +653,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 	//loc_1DCF0
 
-	///lara_info* s000000000000000 = &lara;
+	///struct lara_info* s000000000000000 = &lara;
 
 	if (lara.burn && !(wibble & 0x7F))
 	{
@@ -971,9 +971,9 @@ int CheckGuardOnTrigger()
 	return 0;
 }
 
-int ExplodeItemNode(ITEM_INFO* item, int Node, int NoXZVel, long bits)//207DC(<), 209F0(<) (F)
+int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)//207DC(<), 209F0(<) (F)
 {
-	object_info* object;
+	struct object_info* object;
 	short* meshp;
 	short num;
 
@@ -1011,13 +1011,13 @@ int ExplodeItemNode(ITEM_INFO* item, int Node, int NoXZVel, long bits)//207DC(<)
 	}
 }
 
-int GetTargetOnLOS(GAME_VECTOR* src, GAME_VECTOR* dest, int DrawTarget, int firing)
+int GetTargetOnLOS(struct GAME_VECTOR* src, struct GAME_VECTOR* dest, int DrawTarget, int firing)
 {
 	S_Warn("[GetTargetOnLOS] - Unimplemented!\n");
 	return 0;
 }
 
-void FireCrossBowFromLaserSight(GAME_VECTOR* src, GAME_VECTOR* target)
+void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* target)
 {
 	S_Warn("[FireCrossBowFromLaserSight] - Unimplemented!\n");
 }
@@ -1032,7 +1032,7 @@ void TriggerCDTrack(short value, short flags, short type)
 	S_Warn("[TriggerCDTrack] - Unimplemented!\n");
 }
 
-void RemoveRoomFlipItems(room_info* r)//1F938(<), 1FB4C(<) (F)
+void RemoveRoomFlipItems(struct room_info* r)//1F938(<), 1FB4C(<) (F)
 {
 	short item_num;
 
@@ -1053,18 +1053,18 @@ void RemoveRoomFlipItems(room_info* r)//1F938(<), 1FB4C(<) (F)
 
 void FlipMap(int FlipNumber) // (F)
 {
-	room_info* r = room;
+	struct room_info* r = room;
 	int i;
 	for(i = 0; i < number_rooms; i++, r++)
 	{
 		if (r->flipped_room >= 0 && r->FlipNumber == FlipNumber)
 		{
-			room_info temp;
-			room_info* flipped = &room[r->flipped_room];
+			struct room_info temp;
+			struct room_info* flipped = &room[r->flipped_room];
 			RemoveRoomFlipItems(r);
-			memcpy(&temp, r, sizeof(room_info));
-			memcpy(r, flipped, sizeof(room_info));
-			memcpy(flipped, &temp, sizeof(room_info));
+			memcpy(&temp, r, sizeof(struct room_info));
+			memcpy(r, flipped, sizeof(struct room_info));
+			memcpy(flipped, &temp, sizeof(struct room_info));
 			r->flipped_room = flipped->flipped_room;
 			flipped->flipped_room = -1;
 			r->item_number = flipped->item_number;
@@ -1075,7 +1075,7 @@ void FlipMap(int FlipNumber) // (F)
 	flip_stats[FlipNumber] = flip_stats[FlipNumber] == 0;
 	flip_status = flip_stats[FlipNumber] == 0;
 	{
-		creature_info* cinfo = baddie_slots;
+		struct creature_info* cinfo = baddie_slots;
 		int slot;
 		for (slot = 0; slot < 6; slot++, cinfo++)
 		{
@@ -1100,21 +1100,21 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 	return 0;
 }
 
-void AlterFloorHeight(ITEM_INFO* item, int height)
+void AlterFloorHeight(struct ITEM_INFO* item, int height)
 {
 	S_Warn("[AlterFloorHeight] - Unimplemented!\n");
 }
 
-short GetHeight(FLOOR_INFO* floor, int x, int y, int z)
+short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
 {
 	S_Warn("[GetHeight] - Unimplemented!\n");
 	return 0;
 }
 
-FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 7A998(<) (F)
+struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 7A998(<) (F)
 {
-	room_info* r;
-	FLOOR_INFO* floor;
+	struct room_info* r;
+	struct FLOOR_INFO* floor;
 	int y_floor, x_floor, next_room;
 	int tmp;
 
@@ -1207,19 +1207,19 @@ FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 7A998(<
 	return floor;
 }
 
-short GetCeiling(FLOOR_INFO* floor, int x, int y, int z)
+short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 {
 	S_Warn("[GetCeiling] - Unimplemented!\n");
 	return 0;
 }
 
-int TriggerActive(ITEM_INFO* item)
+int TriggerActive(struct ITEM_INFO* item)
 {
 	S_Warn("[TriggerActive] - Unimplemented!\n");
 	return 0;
 }
 
-void AddRoomFlipItems(room_info* r)//1FA0C(<), 1FC20(<) (F)
+void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 {
 	short item_num;
 
@@ -1246,7 +1246,7 @@ void IsRoomOutside(long x, long y, long z)
 	S_Warn("[IsRoomOutside] - Unimplemented!\n");
 }
 
-short GetDoor(FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
+short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 {
 	int type, fixtype;
 	short* data;
@@ -1280,9 +1280,9 @@ short GetDoor(FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 	return 255;
 }
 
-int LOS(GAME_VECTOR* start, GAME_VECTOR* target)//79460(<), 7B4A4(<) (F)
+int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(<) (F)
 {
-	FLOOR_INFO* floor;
+	struct FLOOR_INFO* floor;
 	int los1, los2;
 
 	if ((ABS(target->z - start->z)) > (ABS(target->x - start->x)))
@@ -1307,37 +1307,37 @@ int LOS(GAME_VECTOR* start, GAME_VECTOR* target)//79460(<), 7B4A4(<) (F)
 	return 0;
 }
 
-int xLOS(GAME_VECTOR* start, GAME_VECTOR* target)
+int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
 	S_Warn("[xLOS] - Unimplemented!\n");
 	return 0;
 }
 
-int zLOS(GAME_VECTOR* start, GAME_VECTOR* target)
+int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
 	S_Warn("[zLOS] - Unimplemented!\n");
 	return 0;
 }
 
-int CheckNoColCeilingTriangle(FLOOR_INFO* floor, int x, int z)
+int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)
 {
 	S_Warn("[CheckNoColCeilingTriangle] - Unimplemented!\n");
 	return 0;
 }
 
-int CheckNoColFloorTriangle(FLOOR_INFO* floor, int x, int z)
+int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)
 {
 	S_Warn("[CheckNoColFloorTriangle] - Unimplemented!\n");
 	return 0;
 }
 
-int ClipTarget(GAME_VECTOR* start, GAME_VECTOR* target, FLOOR_INFO* floor)
+int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor)
 {
 	S_Warn("[ClipTarget] - Unimplemented!\n");
 	return 0;
 }
 
-void GetJointAbsPosition(ITEM_INFO* item, PHD_VECTOR* pos, int a3)
+void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int a3)
 {
 	S_Warn("[GetJointAbsPosition] - Unimplemented!\n");
 }

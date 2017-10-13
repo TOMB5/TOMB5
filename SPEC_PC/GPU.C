@@ -147,12 +147,12 @@ int DXChangeVideoMode()
 signed long __stdcall sub_401CBC(LPDDSURFACEDESC2 a1, int a2__)
 {
 	int v2; // esi@1
-	dispmode *v3; // eax@1
-	dispmode* v4; // ebx@1
+	struct dispmode *v3; // eax@1
+	struct dispmode* v4; // ebx@1
 	int v5; // edx@1
-	gfxadapt* a2 = (gfxadapt*)a2__;
+	struct gfxadapt* a2 = (struct gfxadapt*)a2__;
 	v2 = a2->numDispModes;
-	v3 = (dispmode*)sub_401A7D(*(void **)&a2->displayModes, a2->numDispModes, 150);
+	v3 = (struct dispmode*)sub_401A7D(*(void **)&a2->displayModes, a2->numDispModes, 150);
 	a2->displayModes = v3;
 	v4 = &v3[v2];
 	v4->width = a1->dwWidth;
@@ -298,8 +298,8 @@ signed int __stdcall sub_401019(LPDDPIXELFORMAT a1, LPVOID a2__)
 {
 	int v2; // eax@1
 	int v3; // esi@3
-	acceltexformatinfo *v4; // eax@3
-	acceltexformatinfo *v5; // ebp@3
+	struct acceltexformatinfo *v4; // eax@3
+	struct acceltexformatinfo *v5; // ebp@3
 	int v6; // eax@3
 	int v7; // eax@7
 	_BYTE *v8; // esi@8
@@ -310,12 +310,12 @@ signed int __stdcall sub_401019(LPDDPIXELFORMAT a1, LPVOID a2__)
 	int v13; // ST08_4@9
 	signed int result; // eax@11
 	int v15; // [sp-10h] [bp-14h]@8
-	acceladapt* a2 = (accelaadapt*)a2__;
+	struct acceladapt* a2 = (struct accelaadapt*)a2__;
 	v2 = a1->dwFlags;
 	if (v2 & 1 && v2 & 0x40)
 	{
 		v3 = a2->numTexFormats;
-		v4 = (acceltexformatinfo*)sub_401A7D(*(void **)&a2->texFormats, a2->numTexFormats, 0x34u);
+		v4 = (struct acceltexformatinfo*)sub_401A7D(*(void **)&a2->texFormats, a2->numTexFormats, 0x34u);
 		a2->texFormats = v4;
 		v5 = &v4[v3];
 		qmemcpy(&v4[v3], a1, 0x20u);
@@ -372,15 +372,15 @@ signed int __stdcall sub_401019(LPDDPIXELFORMAT a1, LPVOID a2__)
 	return result;
 }
 
-signed int __stdcall sub_402FDB(LPDDPIXELFORMAT a1, acceladapt* a2)
+signed int __stdcall sub_402FDB(LPDDPIXELFORMAT a1, struct acceladapt* a2)
 {
 	int v2; // esi@1
-	zBufFormat*v3; // eax@1
-	zBufFormat* v4; // eax@1
+	struct zBufFormat*v3; // eax@1
+	struct zBufFormat* v4; // eax@1
 	int v5; // ST08_4@1
 
 	v2 = a2->numZbufFormats;
-	v3 = (zBufFormat*)sub_401A7D(*(void **)&a2->zBufFormats, a2->numZbufFormats, 36);
+	v3 = (struct zBufFormat*)sub_401A7D(*(void **)&a2->zBufFormats, a2->numZbufFormats, 36);
 	a2->zBufFormats = v3;
 	v4 = &v3[v2];
 	qmemcpy((void *)v4, (const void *)a1, 32);
@@ -429,8 +429,8 @@ signed int __cdecl sub_40206D(int a1)
 signed long __stdcall sub_402ECD(GUID* a1, CHAR *devDesc, CHAR *devName, LPD3DDEVICEDESC a4, LPD3DDEVICEDESC a5, void* a6__)
 {
 	int v6; // esi@1
-	acceladapt *v7; // eax@1
-	acceladapt * v8; // ebp@1
+	struct acceladapt *v7; // eax@1
+	struct acceladapt * v8; // ebp@1
 	GUID* v9; // ecx@3
 	char *v10; // ebx@4
 	unsigned int v11; // ecx@7
@@ -442,10 +442,10 @@ signed long __stdcall sub_402ECD(GUID* a1, CHAR *devDesc, CHAR *devName, LPD3DDE
 	char v17; // al@8
 	int v18; // ebx@10
 	int v19; // eax@10
-	gfxadapt* v20; // edi@11
-	dispmode *v21; // eax@12
+	struct gfxadapt* v20; // edi@11
+	struct dispmode *v21; // eax@12
 	int v22; // ecx@12
-	dispmode *v23; // eax@12
+	struct dispmode *v23; // eax@12
 	int v24; // ecx@16
 	int v25; // eax@20
 	LPDIRECTDRAWSURFACE4 v26; // eax@22
@@ -457,9 +457,9 @@ signed long __stdcall sub_402ECD(GUID* a1, CHAR *devDesc, CHAR *devName, LPD3DDE
 	LPDIRECT3DDEVICE3 v33; // [sp+14h] [bp-84h]@18
 	int v34; // [sp+18h] [bp-80h]@10
 	DDSURFACEDESC2 v35; // [sp+1Ch] [bp-7Ch]@17
-	gfxadapt* a6 = (gfxadapt*)a6__;
+	struct gfxadapt* a6 = (struct gfxadapt*)a6__;
 	v6 = a6->numAccelAdapters;
-	v7 = (acceladapt*)sub_401A7D(*(void **)&a6->accelAdapters, a6->numAccelAdapters, 410);
+	v7 = (struct acceladapt*)sub_401A7D(*(void **)&a6->accelAdapters, a6->numAccelAdapters, 410);
 	a6->accelAdapters = v7;
 	v8 = &v7[v6];
 	if (a1)
@@ -521,7 +521,7 @@ signed long __stdcall sub_402ECD(GUID* a1, CHAR *devDesc, CHAR *devName, LPD3DDE
 			v20 = a6;
 			if (sub_40206D(a6->displayModes[v18].depth) & v8->deviceDesc.dwDeviceRenderBitDepth)
 			{
-				v21 = (dispmode*)sub_401A7D(*(void **)&v8->displayModes, v8->numDispModes, 150);
+				v21 = (struct dispmode*)sub_401A7D(*(void **)&v8->displayModes, v8->numDispModes, 150);
 				v22 = v8->numDispModes;
 				v8->displayModes = v21;
 				v23 = &v21[v22];
@@ -635,8 +635,8 @@ signed long __stdcall sub_402ECD(GUID* a1, CHAR *devDesc, CHAR *devName, LPD3DDE
 signed int __stdcall DXEnumDirectDraw(GUID *lpGUID, LPSTR DriverDescription, LPSTR DriverName, LPVOID Context__)
 {
 	int v4; // esi@1
-	gfxadapt* v5; // eax@1
-	gfxadapt* v6; // esi@1
+	struct gfxadapt* v5; // eax@1
+	struct gfxadapt* v6; // esi@1
 	char* v7; // eax@3
 	int v8; // eax@5
 	int v9; // eax@5
@@ -644,10 +644,10 @@ signed int __stdcall DXEnumDirectDraw(GUID *lpGUID, LPSTR DriverDescription, LPS
 	int v11; // eax@6
 	int v12; // eax@7
 	int v13; // eax@10
-	dxcontext_s* Context = (dxcontext_s*)Context__;
+	struct dxcontext_s* Context = (struct dxcontext_s*)Context__;
 	Log(2, "DXEnumDirectDraw");
 	v4 = Context->numGraphicsAdapters;
-	v5 = (gfxadapt*)sub_401A7D(*(void **)&Context->graphicsAdapters, Context->numGraphicsAdapters, 1590);
+	v5 = (struct gfxadapt*)sub_401A7D(*(void **)&Context->graphicsAdapters, Context->numGraphicsAdapters, 1590);
 	Context->graphicsAdapters = v5;
 	v6 = &v5[v4];
 	if (lpGUID)
@@ -730,13 +730,13 @@ signed int __stdcall DXEnumDirectDraw(GUID *lpGUID, LPSTR DriverDescription, LPS
 signed int __stdcall DXEnumDirectSound(GUID* a1, CHAR *devDesc, CHAR *devName, int a4__)
 {
 	int v4; // edi@1
-	soundcard *v5; // eax@1
-	soundcard* v6; // edi@1
+	struct soundcard *v5; // eax@1
+	struct soundcard* v6; // edi@1
 	int v7; // eax@3
-	dxcontext_s* a4 = (dxcontext_s*)a4__;
+	struct dxcontext_s* a4 = (struct dxcontext_s*)a4__;
 	Log(2, "DXEnumDirectSound");
 	v4 = a4->numSoundCards;
-	v5 = (soundcard*)sub_401A7D(*(void **)&a4->soundCards, a4->numSoundCards, 0x82u);
+	v5 = (struct soundcard*)sub_401A7D(*(void **)&a4->soundCards, a4->numSoundCards, 0x82u);
 	a4->soundCards = v5;
 	v6 = &v5[v4];
 	if (a1)
@@ -767,7 +767,7 @@ signed int __cdecl DXInitialise(void *lpContext, HWND hwnd)
 	sub_40179E(v2);
 	v3 = DirectSoundEnumerateA(DXEnumDirectSound, lpContext);
 	sub_40179E(v3);
-	//ptr_ctx = (dxcontext_s*)lpContext;
+	//ptr_ctx = (struct dxcontext_s*)lpContext;
 	return 1;
 }
 
@@ -791,7 +791,7 @@ signed int __stdcall sub_402AB3(LPDDPIXELFORMAT a1, void *a2)
 
 int sub_401424()
 {
-	acceladapt* result; // eax@1
+	struct acceladapt* result; // eax@1
 
 	dword_D99DA4 = 0;
 	result = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt];
@@ -988,13 +988,13 @@ signed int __cdecl DXCreateViewport(LPDIRECT3D3 a1, LPDIRECT3DDEVICE3 a2, DWORD 
 	return result;
 }
 
-signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, dxcontext_s *a5, HWND a6, DWORD dwStyle)
+signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_s *a5, HWND a6, DWORD dwStyle)
 {
 
 	signed int v7; // edi@1
 	signed int result; // eax@5
 	int v9; // eax@8
-	dispmode* v10; // ecx@13
+	struct dispmode* v10; // ecx@13
 	int v11; // eax@26
 	int v12; // eax@30
 	int v13; // eax@32
@@ -1002,11 +1002,11 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, dxcontext_s *a5, 
 	int v15; // eax@33
 	int v16; // eax@35
 	int v17; // eax@37
-	gfxadapt* v18; // edi@38
+	struct gfxadapt* v18; // edi@38
 	int v19; // eax@42
 	HDC hDC; // [sp+28h] [bp-12Ch]@14
 	IDirectDrawClipper* hDC_;
-	tagRECT Rect; // [sp+2Ch] [bp-128h]@28
+	struct tagRECT Rect; // [sp+2Ch] [bp-128h]@28
 	int v22; // [sp+3Ch] [bp-118h]@8
 	HWND hWnd; // [sp+40h] [bp-114h]@14
 	DDSURFACEDESC2 a2a; // [sp+44h] [bp-110h]@15
