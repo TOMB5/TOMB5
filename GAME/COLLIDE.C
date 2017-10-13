@@ -6,6 +6,7 @@
 #include "SPECIFIC.H"
 
 #include <stddef.h>
+#include "TOMB4FX.H"
 
 long zfront;
 long xfront;
@@ -21,12 +22,24 @@ void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)//2A940
 	S_Warn("[TestForObjectOnLedge] - Unimplemented!\n");
 }
 
-void TriggerLaraBlood()//2A838, 2AA60
+void TriggerLaraBlood()//2A838, 2AA60 (F)
 {
-	//int 
-	for(int i = 0; i < 15; i++)
+	struct PHD_VECTOR vec;
+	int node = 1;
+	int i;
+	for(i = 0; i < 15; i++)
 	{
-		
+		if (node & lara_item->touch_bits)
+		{
+			vec.x = (GetRandomControl() & 0x1F) - 16;
+			vec.y = (GetRandomControl() & 0x1F) - 16;
+			vec.z = (GetRandomControl() & 0x1F) - 16;
+
+			GetLaraJointPos(&vec, LM[i]);
+			DoBloodSplat(vec.x, vec.y, vec.z, (GetRandomControl() & 7) + 8, 2 * GetRandomControl(), lara_item->room_number);
+		}
+
+		node <<= 1;
 	}
 
 	S_Warn("[TriggerLaraBlood] - Unimplemented!\n");

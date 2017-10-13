@@ -253,5 +253,6 @@ extern void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, 
 extern void do_new_cutscene_camera();
 extern void handle_cutseq_triggering(int name);
 extern void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix);
+extern void TriggerUnderwaterBlood(int x, int y, int z, int sizeme);
 
 #endif
