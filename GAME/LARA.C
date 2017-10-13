@@ -7,6 +7,7 @@
 #include "COLLIDE.H"
 #include "DRAW.H"
 #include INPUT_H
+#include "SOUND.H"
 
 static short LeftClimbTab[4] = // offset 0xA0638
 {
