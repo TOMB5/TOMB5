@@ -6,8 +6,16 @@
 #include "LOT.H"
 #include "SPECIFIC.H"
 
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
+
 #include <assert.h>
 #include <stddef.h>
+#include "TOMB4FX.H"
+#include "DELTAPAK.H"
 
 int number_boxes;
 struct box_info* boxes;
@@ -16,34 +24,26 @@ short* ground_zone[5][2];
 unsigned short testclip;
 unsigned short loops;
 
-void DropBaddyPickups(struct ITEM_INFO* item)//259BC(<), 25BC8(<)
+void DropBaddyPickups(struct ITEM_INFO* item)//259BC(<), 25BC8(<) (F)
 {
 	short pickup_number;
 	short room_number;
 	struct ITEM_INFO* pickup;
 
-	pickup_number = item->carried_item;
-
-	if (pickup_number == -1)
-	{
-		return;
-	}
-
-	do
+	for(pickup_number = item->carried_item; pickup_number != -1; pickup_number = pickup->carried_item)
 	{
 		pickup = &items[pickup_number];
 		pickup->pos.x_pos = (item->pos.x_pos & 0xFFFFFC00) | 0x200;
 		pickup->pos.z_pos = (item->pos.z_pos & 0xFFFFFC00) | 0x200;
+
 		room_number = item->room_number;
-
-		pickup->pos.y_pos = GetHeight(GetFloor(pickup->pos.x_pos, item->pos.y_pos, pickup->pos.z_pos, &room_number), pickup->pos.x_pos, item->pos.y_pos, pickup->pos.z_pos);
-		pickup->pos.y_pos -= GetBoundsAccurate(item)[3];
-
-		//pickup->pos.y_pos -= bounds[3]; //old
+		pickup->pos.y_pos = GetHeight(GetFloor(pickup->pos.x_pos, item->pos.y_pos, pickup->pos.z_pos, &room_number), 
+			pickup->pos.x_pos, item->pos.y_pos, pickup->pos.z_pos);
+		pickup->pos.y_pos -= GetBoundsAccurate(pickup)[3];
 
 		ItemNewRoom(pickup_number, item->room_number);
-
-	} while (pickup_number != -1);
+		pickup->flags |= 0x20;
+	}
 }
 
 int MoveCreature3DPos(struct PHD_3DPOS* srcpos, struct PHD_3DPOS* destpos, int velocity, short angdif, int angadd)
@@ -264,7 +264,39 @@ int CreatureAnimation(short item_number, short angle, short tilt)
 
 void CreatureDie(short item_number, int explode)
 {
-	S_Warn("[CreatureDie] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_number];
+	item->hit_points = 0xC000;
+	item->collidable = FALSE;
+	if (explode)
+	{
+		if (objects[item->object_number].HitEffect == 1)
+			ExplodingDeath2(item_number, -1, 258);
+		else
+			ExplodingDeath2(item_number, -1, 256);
+
+		KillItem(item_number);
+	}
+	else
+	{
+		RemoveActiveItem(item_number);
+	}
+
+	DisableBaddieAI(item_number);
+	item->flags |= 0x8000 | IFLAG_INVISIBLE;
+	DropBaddyPickups(item);
+
+	if (item->object_number == SCIENTIST && item->ai_bits == 20)
+	{
+		item = find_a_fucking_item(ROLLINGBALL);
+		if (item)
+		{
+			if (!(item->flags & IFLAG_INVISIBLE))
+			{
+				item->flags |= IFLAG_ACTIVATION_MASK;
+				AddActiveItem(item - items);
+			}
+		}
+	}
 }
 
 int BadFloor(long x, long y, long z, long box_height, long next_height, int room_number, struct lot_info* LOT)

@@ -1,5 +1,6 @@
 #include "NEWINV2.H"
 
+#include "DELTAPAK.H"
 #include "SPECIFIC.H"
 #include "LARA.H"
 #include "LOADSAVE.H"
@@ -799,7 +800,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		return;
 
 	case HK_ITEM:
-		SetCutNotPlayed(23);
+		SetCutNotPlayed(CUT_RICH_CUT_3);
 
 		if (!(lara.hk_type_carried & WTYPE_PRESENT))
 			lara.hk_type_carried = WTYPE_PRESENT | WTYPE(HK_SNIPER);

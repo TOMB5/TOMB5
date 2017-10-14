@@ -605,7 +605,7 @@ void CutLaraBubbles()//327F8(<), 32C90(<) (F)
 
 void swampy_end()//3271C(<), 32BB4(<) (F)
 {
-	SetCutNotPlayed(43);
+	SetCutNotPlayed(CUT_SWAMPY);
 	AddActiveItem(find_a_fucking_item(GREEN_TEETH) - items);
 	DelsHandyTeleportLara(42477, 12456, 55982, 28953);
 	lara.water_status = 1;
@@ -816,7 +816,7 @@ void joby7_init()//320D0(<), 32568(<) (F)
 void andy10_end()//3202C(<), 324C4(<) (F)
 {
 	lara_item->mesh_bits = -1;
-	SetCutPlayed(43);
+	SetCutPlayed(CUT_SWAMPY);
 	Cutanimate(ANIMATING12);
 	Cutanimate(ANIMATING13);
 	FlipMap(7);
@@ -918,7 +918,7 @@ void do_chalk_meshswap()//31D24(<), 321BC(<) (F)
 
 void andy8_end()//31CF8(<), 32190(<) (F)
 {
-	SetCutPlayed(36);
+	SetCutPlayed(CUT_COSSACK);
 
 	do_chalk_meshswap();
 
@@ -1023,7 +1023,7 @@ void TriggerDelBrownSmoke(long x, long y, long z)//319D0(<), 31E00(<) (F)
 void cossack_end()//31998(<), 31DC8(<) (F)
 {
 	DelsHandyTeleportLara(SECTOR_TO_WORLD(75.75), SECTOR_TO_WORLD(4.75), SECTOR_TO_WORLD(36.5), 0);
-	SetCutNotPlayed(36);
+	SetCutNotPlayed(CUT_COSSACK);
 }
 
 void cossack_control()//3178C(<), 31BBC(<) (F)
@@ -1470,7 +1470,7 @@ void andy4_end()//306B4(<), 30A34(<) (F)
 {
 	cutseq_restore_item(ANIMATING5_MIP);
 	DelsHandyTeleportLara(43484, 5376, 50626, 0);
-	SetCutNotPlayed(10);
+	SetCutNotPlayed(CUT_ANDY4);
 }
 
 void andy4_control()//305BC(<), 3093C(<) (F)
