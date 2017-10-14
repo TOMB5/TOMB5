@@ -71,7 +71,7 @@ struct object_info {
 	void(*floor)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=20
 	void(*ceiling)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=24
 	void(*draw_routine)(struct ITEM_INFO* item); // size=0, offset=28
-	void(*collision)(short item_num, struct ITEM_INFO* laraitem, COLL_INFO* coll); // size=0, offset=32
+	void(*collision)(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll); // size=0, offset=32
 	short object_mip; // size=0, offset=36
 	short anim_index; // size=0, offset=38
 	short hit_points; // size=0, offset=40

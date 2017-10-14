@@ -2,7 +2,7 @@
 
 #include "CONTROL.H"
 
-long S_PlayFMV(long sequence, long flag)//*, (<)5E7A0
+int S_PlayFMV(int sequence, int flag)//*, (<)5E7A0
 {
 	//DISPENV disp[2];
 	//s1 = fmv_index

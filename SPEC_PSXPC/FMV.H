@@ -7,6 +7,7 @@ enum fmv
 	FMV_GAME_INTRO
 };
 
-extern long S_PlayFMV(long sequence, long flag);
+extern int S_PlayFMV(int sequence, int flag);
 extern void FMV_InitialiseScreen();
+
 #endif

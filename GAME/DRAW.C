@@ -73,7 +73,7 @@ long GetFrames(struct ITEM_INFO* item/*$a0*/, short** unknown/*a1*/, long* unkno
 	return (item->frame_number - anim->frame_base) / anim->interpolation;
 }
 
-short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 
+short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 8793C
 {
 	short* var_10[2];//$a1
 	long var_8[2];//$a2

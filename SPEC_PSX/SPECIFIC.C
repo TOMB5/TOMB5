@@ -1,17 +1,24 @@
 #include "SPECIFIC.H"
 
+#include "3D_OBJ.H"
 #include "CAMERA.H"
 #include "CD.H"
+#include "CONTROL.H"
+#include "FMV.H"
 #include "GPU.H"
 #include "PROFILE.H"
 #include "PSXINPUT.H"
 #include "REQUEST.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
+#include "SPUSOUND.H"
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <sys\types.h>
+#include <LIBSPU.H>
 
 static struct REQUESTER PauseReq = { 0xA4, 0x08, 0x03, 0x00, 0x05, 0x08, 0x03, 0x0A, 0x00, { 0xDE, 0xDF, 0xE0, 0x00, 0x00 } };
 static struct REQUESTER AdjustReq = { 0xE6, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,{ 0x00, 0x00, 0x00, 0x00, 0x00 } };
@@ -39,7 +46,17 @@ unsigned short nAnimUVRanges;
 int GtSFXEnabled;
 short AnimatingTexturesV[16][8][3];
 
+#ifndef EXIT_FAILURE
 #define EXIT_FAILURE 1
+#endif
+
+void S_Warn(char* warning_message)
+{
+	printf(warning_message);
+#ifndef NDEBUG
+	//assert(0);
+#endif
+}
 
 void DisplayStatsUCunt()//61928(<), 625A8(<) (F)
 {
@@ -95,22 +112,89 @@ void S_ExitSystem(char* exit_message)//607C8, *
 	exit(EXIT_FAILURE);
 }
 
-void S_Warn(char* warning_message)
+int S_SoundPlaySample(int nSample, unsigned short wVol, int nPitch, short wPan, unsigned int distance)
 {
-	printf(warning_message);
-#ifndef NDEBUG
-	//assert(0);
-#endif
+	S_Warn("[S_SoundPlaySample] - Unimplemented!\n");
+	return 0;
 }
 
-int S_SoundStopAllSamples()//91D34, 93D80
+int S_SoundPlaySampleLooped(int nSample, unsigned short wVol, int nPitch, short wPan, unsigned int distance)
 {
+	S_Warn("[S_SoundPlaySampleLooped] - Unimplemented!\n");
+	return 0;
+}
+
+void S_SoundSetPanAndVolume(int handle, short wPan, unsigned short wVolume, unsigned int distance)
+{
+	S_Warn("[S_SoundSetPanAndVolume] - Unimplemented!\n");
+}
+
+void S_SoundStopSample(int handle)//91690(<), 936D4(<)
+{
+	if (GtSFXEnabled == 0)
+	{
+		return;
+	}
+
+	if (LabSampleType[handle] != 0)
+	{
+		SPU_FreeChannel(handle);
+	}
+
+	//loc_916CC
+	SpuSetVoiceVolume(handle, 0, 0);
+	SpuSetKey(SPU_OFF, SPU_0CH);
+}
+
+void S_SoundStopAllSamples()//91D34, 93D80
+{
+	if (GtSFXEnabled == 0)
+	{
+		return;
+	}
+
+	SPU_StopAll();
+}
+
+void S_PauseAllSamples()
+{
+	S_Warn("[S_PauseAllSamples] - Unimplemented!\n");
+}
+
+void S_UnpauseAllSamples()
+{
+	S_Warn("[S_UnpauseAllSamples] - Unimplemented!\n");
+}
+
+int S_SoundSampleIsPlaying(int handle)//916F8(<), 9373C(<)
+{
+	char status;
+
 	if (GtSFXEnabled == 0)
 	{
 		return 0;
 	}
 
-	return SPU_StopAll();
+	status = (char)(SpuGetKeyStatus(1 << handle) -1);
+
+	if (status < 2 || LabSampleType[handle] == 0)
+	{
+		return LabSampleType[handle];
+	}
+
+	SPU_FreeChannel(handle);
+
+	return 0;
+}
+
+void S_SoundSetPitch(int handle, int nPitch)//91768(<), 937AC(<)
+{
+	if (GtSFXEnabled == 0)
+	{
+		return;
+	}
+
+	SpuSetVoicePitch(handle, nPitch / 64);
 }
 
 long S_DumpScreen()//607A8(<), 61320(<) (F)
@@ -129,7 +213,7 @@ void S_control_screen_position()//6068C(<), 61204(<)
 			savegame.ScreenY = 0;
 		}
 	}
-	else if(input & 2)
+	else if (input & 2)
 	{
 		//loc_606D0
 		savegame.ScreenY++;
@@ -173,7 +257,7 @@ void S_AnimateTextures(long num_frames)
 
 void S_SetupClutAdder(long unk)
 {
-	__asm__ volatile ("ctc2	$4, $28;");
+	//__asm__ volatile ("ctc2	$4, $28;");
 	S_Warn("[S_SetupClutAdder] - Unimplemented!\n");
 }
 
@@ -185,4 +269,14 @@ void S_DrawFootPrints()
 void S_DrawSparks()
 {
 	S_Warn("[S_DrawSparks] - Unimplemented!\n");
+}
+
+void S_Pause()
+{
+	S_Warn("[S_Pause] - Unimplemented!\n");
+}
+
+void S_Wait(int nFrames)
+{
+	S_Warn("[S_Wait] - Unimplemented!\n");
 }
