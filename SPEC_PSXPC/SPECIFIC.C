@@ -4,7 +4,7 @@
 #include "CAMERA.H"
 #include "CD.H"
 #include "CONTROL.H"
-#include "FMV.H"
+#include "MOVIE.H"
 #include "GPU.H"
 #include "PROFILE.H"
 #include "PSXPCINPUT.H"
