@@ -2,22 +2,22 @@
 
 #include "CONTROL.H"
 
-long S_PlayFMV(long fmv_index, long a1)//*, (<)5E7A0
+long S_PlayFMV(long sequence, long flag)//*, (<)5E7A0
 {
 	//DISPENV disp[2];
 	//s1 = fmv_index
 	//s2 = a1; //maybe skippable?
 	//v0 = 7;
 	
-	if (fmv_index != 7)
+	if (sequence != 7)
 	{
 		//v0 = 1
-		if (FmvSceneTriggered & (1 << fmv_index))
+		if (FmvSceneTriggered & (1 << sequence))
 		{
 			return 1;
 		}
 
-		FmvSceneTriggered |= (1 << fmv_index);
+		FmvSceneTriggered |= (1 << sequence);
 	}
 	
 	//5E7F8

@@ -16,9 +16,18 @@ enum collision_types
 
 enum height_types
 {
-	HT_WALL = 0,
-	HT_SLOPE_SMALL = 1,
-	HT_SLOPE_BIG = 2
+	WALL,
+	SMALL_SLOPE,
+	BIG_SLOPE,
+	DIAGONAL,
+	SPLIT_TRI
+};
+
+enum headings {
+	NORTH,
+	EAST,
+	SOUTH,
+	WEST
 };
 
 extern long zfront;
