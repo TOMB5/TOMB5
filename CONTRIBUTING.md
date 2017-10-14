@@ -6,8 +6,9 @@ If you're able to code in C/C++ please feel free to contact me. I can assign you
 
 ## Current Positions
 
-- MIPS Programmer/Interpreter - Translate TR5 MIPS Disassembled output back to C. 
-- x86 Programmer/Interpreter - Translate TR5 x86 back to C. 
+- MIPS R3000 Programmer/Interpreter - Translate TR5 PSX MIPS Disassembled output back to C.
+- x86 Programmer/Interpreter - Translate TR5 PC x86 asm back to C. 
+- SH4 Programmer/Interpreter - Translate TR5 Dreamcast SH4 asm back to C. 
 - Platform Programmer (Mac) - (Maintain and ensure that the code compiles under Mac OSX).
 - Platform Programmer (Linux) - (Maintain and ensure that the code compiles under Linux).
 - General Debugger - Debug existing gameplay code, compare to the original game to ensure code is functioning correctly.
