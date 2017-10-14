@@ -9,6 +9,7 @@
 #include "CAMERA.H"
 #include "EFFECTS.H"
 #include "DELTAPAK.H"
+#include "SOUND.H"
 #ifdef PC_VERSION
 #include "GAME.H"
 #else
@@ -559,7 +560,7 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 		sptr->b = b;
 		sptr->life = life;
 
-		SoundEffect(251, pos, 0);
+		SoundEffect(SFX_IMP_STONE_HIT, pos, 0);
 	}
 }
 

@@ -21,7 +21,7 @@ struct BITE_INFO EnemyBites[9] =
 	{ -0x14, -0x50, 0xBE, -0xA },
 	{ 0xA, -0x3C, 0xC8, 0xD }
 };
-static struct PHD_VECTOR PolePos = {0, 0, 0xFFFFFF30}; // offset 0xA1238
+static struct PHD_VECTOR PolePos = {0, 0, -208}; // offset 0xA1238
 static struct PHD_VECTOR PolePosR = {0, 0, 0}; // offset 0xA1244
 static short PoleBounds[12] = // offset 0xA1250
 {
@@ -81,7 +81,7 @@ void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 
 		if (item->trigger_flags == 0x29C)
 		{
-			SoundEffect(344, &item->pos, 0);
+			SoundEffect(SFX_D_METAL_KICKOPEN, &item->pos, 0);
 		}
 		else if (item->trigger_flags == 0x309)
 		{

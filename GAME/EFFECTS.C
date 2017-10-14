@@ -274,7 +274,7 @@ void ActivateCamera(struct ITEM_INFO* item)//39610(<), 39B10(<) (F)
 
 void PoseidonSFX(struct ITEM_INFO* item)//395E0(<), 39AE0(<) (F)
 {
-	SoundEffect(238, NULL, 0);
+	SoundEffect(SFX_J_GRAB_OPEN, NULL, 0);
 	flipeffect = -1;
 }
 
