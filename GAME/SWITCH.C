@@ -240,9 +240,9 @@ void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 					lara.GeneralPtr = (void *)item_num;
 				}
 			}
-			else if (*((_BYTE *)&lara + 68) & 0x20 && lara.GeneralPtr == (void *)item_num)
+			else if (lara.IsMoving && lara.GeneralPtr == (void *)item_num)
 			{
-				*((_WORD *)&lara + 34) &= 0xFFDFu;
+				lara.IsMoving = FALSE;
 				lara.gun_status = 0;
 			}
 			l->pos.y_rot ^= 0x8000u;
