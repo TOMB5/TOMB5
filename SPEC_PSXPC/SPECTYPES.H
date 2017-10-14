@@ -51,7 +51,7 @@ struct object_info {
 	void(*floor)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=20
 	void(*ceiling)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=24
 	void(*draw_routine)(struct ITEM_INFO* item); // size=0, offset=28
-	void(*collision)(short item_num, struct ITEM_INFO* laraitem, COLL_INFO* coll); // size=0, offset=32
+	void(*collision)(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll); // size=0, offset=32
 	short object_mip; // size=0, offset=36
 	short anim_index; // size=0, offset=38
 	short hit_points; // size=0, offset=40
@@ -72,7 +72,7 @@ struct object_info {
 	unsigned short HitEffect : 2; // offset=51.2
 	unsigned short undead : 1; // offset=51.4
 	unsigned short save_mesh : 1; // offset=51.5
-	void(*draw_routine_extra)(); // size=0, offset=52
+	void(*draw_routine_extra)(struct ITEM_INFO* item); // size=0, offset=52
 	unsigned long explodable_meshbits; // size=0, offset=56
 	unsigned long padfuck; // size=0, offset=60
 };

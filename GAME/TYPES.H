@@ -47,6 +47,11 @@
 #define CLAMP(x, a, b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
 #endif
 
+#define RED(rgb) (((rgb) >> 16) & 0xFF)
+#define GREEN(rgb) (((rgb) >> 8) & 0xFF)
+#define BLUE(rgb) ((rgb) & 0xFF)
+#define ALPHA(rgb) (((rgb) >> 24) & 0xFF)
+
 // 4 enums
 enum mood_type
 {
@@ -140,6 +145,17 @@ enum weather_type
 	WEATHER_NORMAL = 0,
 	WEATHER_RAIN = 1,
 	WEATHER_SNOW = 2
+};
+
+enum command_types
+{
+	COMMAND_NULL = 0,
+	COMMAND_MOVE_ORIGIN,
+	COMMAND_JUMP_VELOCITY,
+	COMMAND_ATTACK_READY,
+	COMMAND_DEACTIVATE,
+	COMMAND_SOUND_FX,
+	COMMAND_EFFECT
 };
 
 struct VECTOR

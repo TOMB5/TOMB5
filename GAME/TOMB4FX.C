@@ -596,18 +596,18 @@ void TriggerLightningGlow(long x, long y, long z, long rgb)
 	long size;
 	struct SPARKS* sptr = &spark[GetFreeSpark()];
 
-	sptr->dG = rgb >> 8;
-	sptr->sG = rgb >> 8;
+	sptr->dG = GREEN(rgb);
+	sptr->sG = GREEN(rgb);
 	sptr->Life = 4;
 	sptr->sLife = 4;
-	sptr->dR = rgb >> 16;
-	sptr->sR = rgb >> 16;
+	sptr->dR = RED(rgb);
+	sptr->sR = RED(rgb);
 	sptr->ColFadeSpeed = 2;
 	sptr->TransType = 2;
 	sptr->x = x;
 	sptr->On = 1;
-	sptr->dB = rgb;
-	sptr->sB = rgb;
+	sptr->dB = BLUE(rgb);
+	sptr->sB = BLUE(rgb);
 	sptr->FadeToBlack = 0;
 	sptr->y = y;
 	sptr->z = z;
@@ -619,7 +619,7 @@ void TriggerLightningGlow(long x, long y, long z, long rgb)
 	sptr->MaxYvel = 0;
 	sptr->Def = objects[DEFAULT_SPRITES].mesh_index + 11;
 	sptr->Gravity = 0;
-	size = (unsigned char)(rgb >> 24) + (GetRandomControl() & 3);
+	size = ALPHA(rgb) + (GetRandomControl() & 3);
 	sptr->dSize = size;
 	sptr->sSize = size;
 	sptr->Size = size;
@@ -650,10 +650,10 @@ void DrawWeaponMissile(struct ITEM_INFO *item)
 	S_Warn("[DrawWeaponMissile] - Unimplemented!\\n");
 }
 
-void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_number)
+void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num)
 {
-	GetFloor(x, y, z, &room_number);
-	if (room[room_number].flags & RF_FILL_WATER)
+	GetFloor(x, y, z, &room_num);
+	if (room[room_num].flags & RF_FILL_WATER)
 	{
 		TriggerUnderwaterBlood(x, y, z, speed);
 	}

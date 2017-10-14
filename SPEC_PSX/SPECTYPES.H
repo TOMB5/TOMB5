@@ -92,7 +92,7 @@ struct object_info {
 	unsigned short HitEffect : 2; // offset=51.2
 	unsigned short undead : 1; // offset=51.4
 	unsigned short save_mesh : 1; // offset=51.5
-	void(*draw_routine_extra)(); // size=0, offset=52
+	void(*draw_routine_extra)(struct ITEM_INFO* item); // size=0, offset=52
 	unsigned long explodable_meshbits; // size=0, offset=56
 	unsigned long padfuck; // size=0, offset=60
 };
