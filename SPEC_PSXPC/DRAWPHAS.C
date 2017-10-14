@@ -13,8 +13,8 @@
 #include "HEALTH.H"
 #include "LARA.H"
 #include "LOAD_LEV.H"
+#include "MATHS.H"
 #include "OBJECTS.H"
-#include "PHD_MATH.H"
 #include "ROOMLOAD.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
@@ -646,12 +646,12 @@ void SortOutWreckingBallDraw()//64E78(<), 65528(<)
 
 void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)//64EF8, 
 {
-	struct POLY_FT4* polyft4;//t0
-	struct PSXSPRITESTRUCT* pSpriteInfo;//a0
+	//struct POLY_FT4* polyft4;//t0
+	//struct PSXSPRITESTRUCT* pSpriteInfo;//a0
 
 	//t3 = &db;
-	def *= 16;
-	z *= 4;
+	//def *= 16;
+	//z *= 4;
 	//t1 = xs;
 	//t2 = ys;
 	//t4 = rgb

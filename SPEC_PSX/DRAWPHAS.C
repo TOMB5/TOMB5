@@ -14,11 +14,12 @@
 #include "LARA.H"
 #include "LOAD_LEV.H"
 #include "OBJECTS.H"
-#include "PHD_MATH.H"
+#include "MATHS.H"
 #include "ROOMLOAD.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
+#include "TEXT.H"
 #include "TOMB4FX.H"
 
 #include <INLINE_C.H>
@@ -712,9 +713,31 @@ void mQuickW2VMatrix()
 	//sh	$t2, 0x4058($gp)
 }
 
-void PrintString(long x, long y, long unk, char* string)
+void PrintString(long x, long y, long unk, char* string/*, long unk01*/)//8DB4C, 8FB90
 {
+	//s0 = a0;//x
+	//s4 = a1;//y
+	//s3 = a2 & 0xFF;//unk
+	//s5 = a3;//string
+
+	//at = GnFrameCounter;
+	if (/*(unk01 & 0x2000) && */(GnFrameCounter & 0x10))
+	{
+		return;
+	}
+
+	//loc_8DBA0
+	//ScaleFlag = (unk01 >> 12) & 1;
+
+	//GetStringLength(string, 0, $sp,0x40+var_30);
+	//sub_8DD90();
+
 	printf("PrintString - X:%d Y:%d C:%d - %s\n", x, y, unk, string);
+}
+
+void DrawChar(long a0, long a1, long a3)
+{
+
 }
 
 void DrawBinoculars()

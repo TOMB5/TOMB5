@@ -1,5 +1,5 @@
-#ifndef FMV_H
-#define FMV_H
+#ifndef MOVIE_H
+#define MOVIE_H
 
 enum fmv
 {

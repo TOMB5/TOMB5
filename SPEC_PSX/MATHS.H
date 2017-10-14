@@ -1,5 +1,5 @@
-#ifndef PHD_MATH_H
-#define PHD_MATH_H
+#ifndef MATHS_H
+#define MATHS_H
 
 #include "TYPES.H"
 
