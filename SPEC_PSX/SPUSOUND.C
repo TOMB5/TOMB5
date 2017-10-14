@@ -70,13 +70,13 @@ void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
 	LabFreeChannel[LnFreeChannels++] = channel_index;
 }
 
-void S_SetReverbType(int Reverb)//91CF4, 93D40
+void S_SetReverbType(int reverb)//91CF4, 93D40
 {
-	if (Reverb != CurrentReverb)
+	if (reverb != CurrentReverb)
 	{
-		CurrentReverb = Reverb;
-		
-		SpuSetReverbModeDepth(DepthTable[Reverb], DepthTable[Reverb]);
+		CurrentReverb = reverb;
+
+		SpuSetReverbModeDepth(DepthTable[reverb], DepthTable[reverb]);
 		SpuSetReverb(SPU_ON);
 	}
 }

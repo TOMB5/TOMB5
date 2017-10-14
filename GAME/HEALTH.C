@@ -63,7 +63,7 @@ void DrawHealthBar(int flash_state)
 	S_Warn("[DrawHealthBar] - Unimplemented!\n");
 }
 
-void DrawGameInfo(int timed)///TODO jr ra retail
+void DrawGameInfo(int timed)//3AD68(<), 
 { // line 2, offset 0x3ad68
 	int flash_state; // $s0
 					 //{ // line 17, offset 0x3adac
@@ -74,32 +74,32 @@ void DrawGameInfo(int timed)///TODO jr ra retail
 		int seconds; // $s3
 	} // line 77, offset 0x3b0a0
 
-	if (GLOBAL_playing_cutseq == 0 || bDisableLaraControl == 0)
+	if (GLOBAL_playing_cutseq != 0 || bDisableLaraControl != 0)
 	{
-		sprintf(sbuf, "Room:%d X:%d Y:%d Z:%d", lara_item->room_number, (lara_item->pos.x_pos - room[lara_item->room_number].x) / SECTOR, (lara_item->pos.y_pos - room[lara_item->room_number].minfloor) / CLICK, (lara_item->pos.z_pos - room[lara_item->room_number].z) / SECTOR);
-		PrintString(256, 24, 0, sbuf);///@FIXME check arg 3
+		return;
+	}
+	
+	sprintf(sbuf, "Room:%d X:%d Y:%d Z:%d", lara_item->room_number, (lara_item->pos.x_pos - room[lara_item->room_number].x) / SECTOR, (lara_item->pos.y_pos - room[lara_item->room_number].minfloor) / CLICK, (lara_item->pos.z_pos - room[lara_item->room_number].z) / SECTOR);
+	PrintString(256, 24, 0, sbuf);///@FIXME check arg 3
 
-		if (gfGameMode == 1)
-		{
-			//loc_3B0A0
-			return;
-		}
+	//^Not verified for retail/internal split
 
-		flash_state = FlashIt();
+	if (gfGameMode == 1)
+	{
+		//loc_3B0A0
+		return;
+	}
 
-		//DrawHealthBar(flash_state);
-		//DrawAirBar(flash_state);
-		//DrawPickups(timed);
+	flash_state = FlashIt();
+	DrawHealthBar(flash_state);
+	DrawAirBar(flash_state);
+	DrawPickups(timed);//Arg does not seem right imo
 
-
-		/*
-		Skipped, no need to draw healthbar right now
-		*/
-
-		//loc_3AF14:
-
-
-	}//loc_3B0A0
+	if (DashTimer < 120)
+	{
+		//TODO
+	}//loc_3AF14
+	
 
 	return;
 

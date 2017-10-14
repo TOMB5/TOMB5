@@ -9,7 +9,7 @@
 #include "DRAWPHAS.H"
 #include "FILE.H"
 #if !PC_VERSION
-#include "FMV.H"
+#include "MOVIE.H"
 #include "MEMCARD.H"
 #include "SPUSOUND.H"
 #else
