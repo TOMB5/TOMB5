@@ -10,7 +10,6 @@ extern void S_Warn(char* warning_message);
 
 extern HWND Log(char a1, char* format, ...);
 
-
 extern signed int __cdecl sub_4D30E0(_WORD *a1);
 extern char TIME_Init();
 extern inline void memset32(void* buf, uint32_t n, int32_t c);

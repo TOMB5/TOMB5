@@ -12,6 +12,8 @@
 #include "FMV.H"
 #include "MEMCARD.H"
 #include "SPUSOUND.H"
+#else
+#include "GAME.H"
 #endif
 #include "GPU.H"
 #include "HEALTH.H"
@@ -103,10 +105,17 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	unsigned short* scriptOffsetPtr;
 	unsigned char* sequenceCommand;
 
+#if PSXENGINE
 	LoadGameflow();
+#endif
+
 #if !INTERNAL && PSX_VERSION
 	S_PlayFMV(FMV_COPYRIGHT_INTRO, 0);
 	S_PlayFMV(FMV_GAME_INTRO, 0);
+#endif
+
+#if PC_VERSION
+	do_boot_screen(Gameflow->Language);
 #endif
 
 	num_fmvs = 0;
@@ -168,6 +177,39 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 			gfLayer1Vel = *sequenceCommand++;
 			break;
 		}
+		case GF_FOG:
+			gfUVRotate = *sequenceCommand++;
+			break;
+		case GF_LEGEND:
+			gfLegend = *sequenceCommand++;
+			if (gfGameMode != 4)
+				gfLegendTime = 150;
+			break;
+		case GF_ANIMATING_MIP:
+			gfMips[gfNumMips++] = *sequenceCommand++;
+			break;
+		case GF_GIVE_ITEM_AT_STARTUP:
+			gfPickups[gfNumPickups++] = sequenceCommand[0] | (sequenceCommand[1] << 8);
+			sequenceCommand += 2;
+			break;
+		case GF_LOSE_ITEM_AT_STARTUP:
+			gfTakeaways[gfNumTakeaways++] = sequenceCommand[0] | (sequenceCommand[1] << 8);
+			sequenceCommand += 2;
+			break;
+		case GF_MIRROR:
+			gfMirrorRoom = *sequenceCommand++;
+			gfMirrorZPlane = *(int*)sequenceCommand;
+			sequenceCommand += 4;
+			break;
+		case GF_CUT:
+			gfCutNumber = *sequenceCommand++;
+			break;
+		case GF_RESET_HUB:
+			gfResetHubDest = *sequenceCommand++;
+			break;
+		case GF_FMV:
+			fmv_to_play[num_fmvs++] = *sequenceCommand++;
+			break;
 		default://11550
 			assert(1);
 			break;

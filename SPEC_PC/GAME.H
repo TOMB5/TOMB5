@@ -11,5 +11,6 @@ extern void GameClose();
 extern char GameInitialise();
 extern unsigned __stdcall GameMain(void* data);
 extern void sub_4D3150();
+extern void do_boot_screen(int language);
 
 #endif
