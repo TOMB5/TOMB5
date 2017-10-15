@@ -7,6 +7,8 @@
 #include "OBJECTS.H"
 #include "SPECIFIC.H"
 #include "TOMB4FX.H"
+#include "EFFECT2.H"
+#include "SOUND.H"
 
 short SPDETyoffs[8] =
 {
@@ -163,10 +165,58 @@ void FlameEmitter3Control(short item_number)//5A38C, 5A808
 	return;
 }
 
-void FlameEmitter2Control(short item_number)//5A1BC, 5A638
+void FlameEmitter2Control(short item_number)//5A1BC, 5A638 (F)
 {
-	S_Warn("[FlameEmitter2Control] - Unimplemented!\n");
-	return;
+	struct ITEM_INFO* item = &items[item_number];
+
+	if (TriggerActive(item))
+	{
+		if (item->trigger_flags < 0)
+		{
+			if (item->item_flags[0])
+			{
+				if (item->item_flags[0] == 1)
+				{
+					FlipMap(-item->trigger_flags);
+					flipmap[-item->trigger_flags] ^= 0x3E00u;
+					item->item_flags[0] = 2;
+				}
+			}
+			else
+			{
+				if (item->trigger_flags < -100)
+					item->trigger_flags = item->trigger_flags + 100;
+
+				item->item_flags[0] = 1;
+			}
+		}
+		else
+		{
+			if (item->trigger_flags != 2)
+			{
+				if (item->trigger_flags == 123)
+					AddFire(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 1, item->room_number, item->item_flags[3]);
+				else
+					AddFire(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 1 - item->trigger_flags, item->room_number, item->item_flags[3]);
+			}
+
+			if (item->trigger_flags == 0 || item->trigger_flags == 2)
+			{
+				int r = (GetRandomControl() & 0x3F) + 192;
+				int g = (GetRandomControl() & 0x1F) + 96;
+
+				if (item->item_flags[3])
+				{
+					r = r * item->item_flags[3] >> 8;
+					g = g * item->item_flags[3] >> 8;
+				}
+
+				TriggerDynamic(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 10, r, g, 0);
+			}
+
+			SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &item->pos, 0);
+		}
+	}
 }
 
 void FlameEmitterControl(short item_number)//59D18, 5A194

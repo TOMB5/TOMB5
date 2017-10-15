@@ -914,6 +914,29 @@ void ClearFires()//8B1C8(<), 8D20C(<) (F)
 	}
 }
 
+void AddFire(int x, int y, int z, char size, short room_num, short on)
+{
+	struct FIRE_LIST* fptr = &fires[0];
+
+	while (fptr->on)
+	{
+		fptr++;
+		if (fptr - fires >= 32)
+			return;
+	}
+
+	if (on)
+		fptr->on = on;
+	else
+		fptr->on = 1;
+
+	fptr->x = x;
+	fptr->y = y;
+	fptr->z = z;
+	fptr->size = size;
+	fptr->room_number = room_num;
+}
+
 int is_object_in_room(int roomnumber, int objnumber)
 {
 	S_Warn("[is_object_in_room] - Unimplemented!\n");

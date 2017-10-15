@@ -14,12 +14,12 @@
 #include "SPHERE.H"
 #include "OBJECTS.H"
 
-static struct PHD_VECTOR DoubleDoorPos = { 0, 0, 0xDC };
-static struct PHD_VECTOR PullDoorPos = { 0xFFFFFF37, 0, 0x142 };
-static struct PHD_VECTOR PushDoorPos = { 0xC9, 0, 0xFFFFFD42 };
-static struct PHD_VECTOR KickDoorPos = { 0, 0, 0xFFFFFC6B };
-static struct PHD_VECTOR UnderwaterDoorPos = { 0xFFFFFF05, 0xFFFFFDE4, 0xFFFFFFD2 };
-static struct PHD_VECTOR CrowbarDoorPos = { 0xFFFFFE64, 0, 0x100 };
+static struct PHD_VECTOR DoubleDoorPos = { 0, 0, 220 };
+static struct PHD_VECTOR PullDoorPos = { -201, 0, 322 };
+static struct PHD_VECTOR PushDoorPos = { 201, 0, -702 };
+static struct PHD_VECTOR KickDoorPos = { 0, 0, -917 };
+static struct PHD_VECTOR UnderwaterDoorPos = { -251, -540, -46 };
+static struct PHD_VECTOR CrowbarDoorPos = { -412, 0, 256 };
 
 static short PushPullKickDoorBounds[12] =
 {
@@ -151,7 +151,6 @@ void DoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)/
 			}
 		}
 	}
-	S_Warn("[DoorCollision] - Unimplemented!\n");
 }
 
 void DoorControl(short item_number)//2AD74, 2B09C

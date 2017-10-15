@@ -6,6 +6,7 @@
 #include "MALLOC.H"
 #include "ROOMLOAD.H"
 #include "SPECIFIC.H"
+#include "SWITCH.H"
 #include "TRAPS.H"
 #include "TYPES.H"
 
@@ -17,6 +18,10 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "NEWINV2.H"
+#include "DRAW.H"
+#include "CAMERA.H"
+#include "SPOTCAM.H"
 
 char FromTitle = 0; // offset 0xA14AC
 char JustLoaded = 0; // offset 0xA14AD
@@ -66,7 +71,192 @@ void RestoreLevelData(int FullSave)//54B08, 54F6C
 
 void SaveLevelData(int FullSave)//53AAC, 53F10
 {
+#if PC_VERSION
+	int i;
+	short word = 0;
+	unsigned char byte = 0;
+
+	WriteSG(&FmvSceneTriggered, 4);
+	WriteSG(&GLOBAL_lastinvitem, 4);
+
+	for(i = 0; i < 10; i++)
+	{
+		if (flip_stats[i])
+			word |= 1 << i;
+	}
+	WriteSG(&word, 2);
+
+	for(i = 0; i < 10; i++)
+	{
+		word = flipmap[i] >> 8;
+		WriteSG(&word, 2);
+	}
+
+	WriteSG(&flipeffect, 4);
+	WriteSG(&fliptimer, 4);
+	WriteSG(&flip_status, 4);
+	WriteSG(cd_flags, 136);
+	WriteSG(&CurrentAtmosphere, 1);
+
+	word = 0;
+	if (number_rooms > 0)
+	{
+		int k = 0;
+		for(i = 0; i < number_rooms; i++)
+		{
+			int j;		
+			for (j = 0; j < room[i].num_meshes; j++)
+			{
+				if (room[i].mesh[j].static_number >= 50 && room[i].mesh[j].static_number <= 59)
+				{
+					word |= (room[i].mesh[j].Flags & 1) << k++;
+
+					if (k == 16)
+					{
+						WriteSG(&word, 2);
+						k = 0;
+						word = 0;
+					}
+				}
+			}
+		}
+
+		if (k != 0)
+			WriteSG(&word, 2);
+	}
+
+	WriteSG(&CurrentSequence, 1);
+
+	byte = 0;
+	for (i = 0; i < 6; i++)
+	{
+		byte |= SequenceUsed[i] << i;
+	}
+	WriteSG(&byte, 1);
+
+	for (i = 0; i < number_cameras; i++)
+	{
+		WriteSG(&camera.fixed[i].flags, 2);
+	}
+
+	for(i = 0; i < number_spotcams; i++)
+	{
+		WriteSG(&SpotCam[i].flags, 2);
+	}
+	
+	struct ITEM_INFO* item = &items[0];
+	for(i = 0; i < level_items; i++, item++)
+	{
+		struct object_info* obj = &objects[item->object_number];
+
+		if (item->flags & 0x8000)
+		{
+			word = 0x2000;
+			WriteSG(&word, 2);
+		}
+		else if (item->flags & 0x3F20 || item->object_number == LARA && FullSave)
+		{
+			word = 0x8000;
+
+			if (item->pos.x_rot != 0)
+				word |= 1;
+
+			if (item->pos.z_rot != 0)
+				word |= 2;
+
+			if (item->pos.x_pos & 1)
+				word |= 4;
+
+			if (item->pos.y_pos & 1)
+				word |= 8;
+
+			if (item->pos.z_pos & 1)
+				word |= 0x10;
+
+			if (item->speed != 0)
+				word |= 0x20;
+
+			if (item->fallspeed != 0)
+				word |= 0x40;
+
+			if (item->item_flags[0])
+				word |= 0x80;
+
+			if (item->item_flags[1])
+				word |= 0x100;
+
+			if (item->item_flags[2])
+				word |= 0x200;
+
+			if (item->item_flags[3])
+				word |= 0x400;
+
+			if (item->timer)
+				word |= 0x800;
+
+			if (item->trigger_flags)
+				word |= 0x1000;
+
+			if (obj->save_hitpoints)
+				word |= 0x4000;
+
+			if (obj->save_position)
+			{
+				short packed = item->pos.x_pos >> 1;
+				WriteSG(&packed, 2);
+				packed = item->pos.y_pos >> 1;
+				WriteSG(&packed, 2);
+				packed = item->pos.z_pos >> 1;
+				WriteSG(&packed, 2);
+
+				WriteSG(&item->room_number, 1);
+
+				WriteSG(&item->pos.y_rot, 2);
+
+				if (word & 1)
+					WriteSG(&item->pos.x_rot, 2);
+				if (word & 2)
+					WriteSG(&item->pos.z_rot, 2);
+				if (word & 0x20)
+					WriteSG(&item->speed, 2);
+				if (word & 0x40)
+					WriteSG(&item->fallspeed, 2);
+			}
+
+			if (obj->save_anim)
+			{
+				WriteSG(&item->current_anim_state, 2);
+				WriteSG(&item->goal_anim_state, 2);
+				WriteSG(&item->required_anim_state, 2);
+
+				if (item->object_number == LARA)
+				{
+					WriteSG(&item->anim_number, 2);
+				}
+				else
+				{
+					byte = item->anim_number - obj->anim_index;
+					WriteSG(&byte, 1);
+				}
+
+				WriteSG(&item->frame_number, 2);
+			}
+
+			if (word & 0x4000)
+				WriteSG(&item->hit_points, 2);
+
+			if (obj->save_flags)
+			{
+				int x = item->flags | ((*(unsigned long*)&item->active & 0x7FFF) << 16);
+			}
+		}
+
+	}
+
+#else
+	// todo check for psx
 	S_Warn("[SaveLevelData] - Unimplemented!\n");
+#endif
 }
 
 void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)

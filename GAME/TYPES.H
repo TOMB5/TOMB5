@@ -193,12 +193,12 @@ struct PHD_VECTOR
 #endif
 struct PHD_3DPOS
 {
-	long x_pos;
-	long y_pos;
-	long z_pos;
-	short x_rot;
-	short y_rot;
-	short z_rot;
+	long x_pos; // off 0 [64]
+	long y_pos; // off 4 [68]
+	long z_pos; // off 8 [72]
+	short x_rot; // off 12 [76]
+	short y_rot; // off 14 [78]
+	short z_rot; // off 16 [80]
 };
 #if PC_VERSION
 #pragma pack(pop)
