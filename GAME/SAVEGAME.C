@@ -247,7 +247,7 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 
 			if (obj->save_flags)
 			{
-				int x = item->flags | ((*(unsigned long*)&item->active & 0x7FFF) << 16);
+				//int x = item->flags | ((*(unsigned long*)&item->active & 0x7FFF) << 16);
 			}
 		}
 

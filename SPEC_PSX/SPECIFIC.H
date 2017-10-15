@@ -15,7 +15,7 @@ extern int GtSFXEnabled;
 extern short AnimatingTexturesV[16][8][3];
 
 extern short S_Death();
-extern void S_Warn(char* warning_message);
+extern void S_Warn(const char* warning_message);
 extern void DisplayStatsUCunt();
 extern void gInit();
 extern int DoPauseMenu();

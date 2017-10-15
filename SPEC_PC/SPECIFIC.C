@@ -38,7 +38,7 @@ signed int __cdecl sub_4D30E0(_WORD *a1)
 	return result;
 }
 
-void S_Warn(char* warning_message)
+void S_Warn(const char* warning_message)
 {
 	char buf[512];
 	time_t t = time(NULL);

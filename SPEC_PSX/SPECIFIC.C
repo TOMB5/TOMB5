@@ -50,7 +50,7 @@ short AnimatingTexturesV[16][8][3];
 #define EXIT_FAILURE 1
 #endif
 
-void S_Warn(char* warning_message)
+void S_Warn(const char* warning_message)
 {
 	printf(warning_message);
 #ifndef NDEBUG
