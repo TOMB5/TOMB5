@@ -222,7 +222,7 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 	return;
 }
 
-void AlterFOV(short fov)//77BD8(<), 79C1C(<)
+void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 {
 	CurrentFov = fov;
 

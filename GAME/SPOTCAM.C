@@ -132,7 +132,7 @@ void InitSpotCamSequences()//374B8(<), 379B8(<) (F)
 	return;
 }
 
-void InitialiseSpotCam(short Sequence)//37648, 37B48
+void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 {
 	struct SPOTCAM* s;
 	int cn;

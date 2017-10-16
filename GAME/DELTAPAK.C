@@ -2091,7 +2091,7 @@ void TriggerDelSmoke(long x, long y, long z, int sizeme)//2EED8(<), 2F1E4(<) (F)
 	}
 }
 
-void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)
+void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
 {
 	int i;
 
@@ -2127,7 +2127,7 @@ void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix)
 	S_Warn("[GrabActorMatrix] - Unimplemented!\n");
 }
 
-void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, struct PHD_VECTOR* pos)
+void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, struct PHD_VECTOR* pos)// (F)
 {
 	int i;
 	unsigned short dat;
@@ -2160,65 +2160,65 @@ void stealth3_start()//2E824, 2EB30
 	S_Warn("[stealth3_start] - Unimplemented!\n");
 }
 
-void special4_end()//2E7F4(<), 2EB00(<) (F)
+void special4_end()//2E7F4(<), 2EB00(<)
 {
 	RelocFunc_34_34();
 }
 
-void special4_control()//2E7C4(<), 2EAD0(<) (F)
+void special4_control()//2E7C4(<), 2EAD0(<)
 {
 	RelocFunc_34_30();
 }
 
-void special4_init()//2E794(<), 2EAA0(<) (F)
+void special4_init()//2E794(<), 2EAA0(<)
 {
 	cutrot = 0;
 	RelocFunc_34_2C();
 }
 
-void special3_end()//2E764(<), 2EA70(<) (F)
+void special3_end()//2E764(<), 2EA70(<)
 {
 	RelocFunc_34_28();
 }
 
-void special3_control()//2E734(<), 2EA40(<) (F)
+void special3_control()//2E734(<), 2EA40(<)
 {
 	RelocFunc_34_24();
 }
 
-void special3_init()//2E704(<), 2EA10(<) (F)
+void special3_init()//2E704(<), 2EA10(<)
 {
 	cutrot = 0;
 	RelocFunc_34_20();
 }
 
-void special2_end()//2E6D4(<), 2E9E0(<) (F)
+void special2_end()//2E6D4(<), 2E9E0(<)
 {
 	RelocFunc_34_1C();
 }
 
-void special2_control()//2E6A4(<), 2E9B0(<) (F)
+void special2_control()//2E6A4(<), 2E9B0(<)
 {
 	RelocFunc_34_18();
 }
 
-void special2_init()//2E674(<), 2E980(<) (F)
+void special2_init()//2E674(<), 2E980(<)
 {
 	cutrot = 0;
 	RelocFunc_34_14();
 }
 
-void special1_end()//2E644(<), 2E950(<) (F)
+void special1_end()//2E644(<), 2E950(<)
 {
 	RelocFunc_34_10();
 }
 
-void special1_control()//2E614(<), 2E920(<) (F)
+void special1_control()//2E614(<), 2E920(<)
 {
 	RelocFunc_34_0C();
 }
 
-void special1_init()//2E5E4(<), 2E8F0(<) (F)
+void special1_init()//2E5E4(<), 2E8F0(<)
 {
 	cutrot = 0;
 	RelocFunc_34_08();
@@ -2413,7 +2413,7 @@ void cranecut_init()//2DFA0(<), 2E230(<) (F)
 	cutseq_meshbits[5] &= 0x7FFFFFFFu;
 }
 
-struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<)
+struct ITEM_INFO* find_a_fucking_item(int object_number)//2DF50(<), 2E1E0(<) (F)
 {
 	int i;
 
@@ -2559,7 +2559,7 @@ int Load_and_Init_Cutseq(int num)
 	return 0;
 }
 
-struct ITEM_INFO* cutseq_restore_item(int num)//2D738(<), 2DA20(<)
+struct ITEM_INFO* cutseq_restore_item(int num)//2D738(<), 2DA20(<) (F)
 {
 	int i;
 	if(level_items > 0)
@@ -2600,7 +2600,7 @@ void cutseq_kill_item(int num)//2D69C(<), 2D984(<) (F)
 	}
 }
 
-void deal_with_pistols(unsigned short* shootdata)
+void deal_with_pistols(unsigned short* shootdata)// (F)
 {
 	struct PHD_VECTOR pos;
 	int f;

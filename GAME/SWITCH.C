@@ -172,7 +172,7 @@ void RailSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 	return;
 }
 
-void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//57210, 576B0
+void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//57210, 576B0 (F)
 {
 	struct ITEM_INFO* item = &items[item_num];
 	int flag = 0;
@@ -327,7 +327,7 @@ void SwitchControl(short item_number)//5623C, 566DC
 	return;
 }
 
-void TestTriggersAtXYZ(long x, long y, long z, short room_number, int heavy, int flags)//561A8(<), 56648(<)
+void TestTriggersAtXYZ(long x, long y, long z, short room_number, int heavy, int flags)//561A8(<), 56648(<) (F)
 {
 	GetHeight(GetFloor(x, y, z, &room_number), x, y, z);
 	TestTriggers(trigger_index, heavy, flags);

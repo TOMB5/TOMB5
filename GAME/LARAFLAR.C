@@ -31,7 +31,7 @@ void ready_flare()//4A3E4(<), 4A848(<) (F)
 	lara.target = NULL;
 }
 
-void undraw_flare_meshes()//4A3BC, 4A820
+void undraw_flare_meshes()//4A3BC, 4A820 (F)
 {
 	lara.mesh_ptrs[LM_LHAND] = meshes[objects[LARA].mesh_index + 0x68];
 }

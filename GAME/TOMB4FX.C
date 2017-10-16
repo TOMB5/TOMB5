@@ -93,7 +93,7 @@ void SetFadeClip(short height, short speed)//34A8C(<), 34F8C(<) (F)
 	return;
 }
 
-void UpdateFadeClip()//34A9C(<), 34F9C(<)
+void UpdateFadeClip()//34A9C(<), 34F9C(<) (F)
 {
 	if (DestFadeScreenHeight < FadeScreenHeight)
 	{
@@ -207,7 +207,7 @@ int GetFreeDrip()
 
 }
 
-void TriggerLaraDrips()
+void TriggerLaraDrips()// (F)
 {
 	int i;
 	struct PHD_VECTOR pos;
@@ -360,7 +360,7 @@ int GetFreeBlood()
 	return 0;
 }
 
-void TriggerBlood(int x, int y, int z, int a4, int num)
+void TriggerBlood(int x, int y, int z, int a4, int num)// (F)
 {
 	int i;
 	struct BLOOD_STRUCT* bptr;
@@ -399,7 +399,7 @@ void TriggerBlood(int x, int y, int z, int a4, int num)
 	}
 }
 
-void TriggerExplosionBubble(int x, int y, int z, short room_num)
+void TriggerExplosionBubble(int x, int y, int z, short room_num)// (F)
 {
 	int i;
 	struct PHD_VECTOR pos;
@@ -450,7 +450,7 @@ void TriggerExplosionBubble(int x, int y, int z, short room_num)
 	}
 }
 
-void TriggerExplosionSmokeEnd(int x, int y, int z, int a4)
+void TriggerExplosionSmokeEnd(int x, int y, int z, int a4)// (F)
 {
 	struct SPARKS* sptr = &spark[GetFreeSpark()];
 	int size;
@@ -525,7 +525,7 @@ void TriggerExplosionSparks(int x, int y, int z, int a4, int a5, int a6, short r
 	S_Warn("[TriggerExplosionSparks] - Unimplemented!\n");
 }
 
-int GetFreeShockwave()
+int GetFreeShockwave()// (F)
 {
 	int i;
 
@@ -538,7 +538,7 @@ int GetFreeShockwave()
 	return -1;
 }
 
-void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, int speed, char r, char g, char b, char life, short angle, short flags)
+void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, int speed, char r, char g, char b, char life, short angle, short flags)// (F)
 {
 	int s = GetFreeShockwave();
 	struct SHOCKWAVE_STRUCT* sptr;
@@ -580,7 +580,7 @@ int ExplodingDeath2(short item_number, long mesh_bits, short Flags)
 	return 0;
 }
 
-void DrawLensFlares(struct ITEM_INFO *item)
+void DrawLensFlares(struct ITEM_INFO *item)// (F)
 {
 	struct GAME_VECTOR pos;
 
@@ -592,7 +592,7 @@ void DrawLensFlares(struct ITEM_INFO *item)
 	SetUpLensFlare(0, 0, 0, &pos);
 }
 
-void TriggerLightningGlow(long x, long y, long z, long rgb)
+void TriggerLightningGlow(long x, long y, long z, long rgb)// (F)
 {
 	long size;
 	struct SPARKS* sptr = &spark[GetFreeSpark()];
@@ -651,7 +651,7 @@ void DrawWeaponMissile(struct ITEM_INFO *item)
 	S_Warn("[DrawWeaponMissile] - Unimplemented!\\n");
 }
 
-void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num)
+void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num)// (F)
 {
 	GetFloor(x, y, z, &room_num);
 	if (room[room_num].flags & RF_FILL_WATER)

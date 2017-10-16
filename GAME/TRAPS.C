@@ -124,7 +124,7 @@ void ControlRollingBall(short item_number)//5AE08, 5B284
 	return;
 }
 
-void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4
+void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4 (F)
 {
 	if (item->hit_points >= 0 && lara.water_status != 3)
 	{
@@ -140,7 +140,7 @@ void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4
 	}
 }
 
-void LaraBurn()//5ACE4, 5B160
+void LaraBurn()//5ACE4, 5B160 (F)
 {
 	if (!lara.burn && !lara.BurnSmoke)
 	{
@@ -255,7 +255,7 @@ void FallingBlockFloor(struct ITEM_INFO* item, long x, long y, long z, long* hei
 	return;
 }
 
-void FallingBlock(short item_number)//59558, 599D4
+void FallingBlock(short item_number)//59558, 599D4 (F)
 {
 	struct ITEM_INFO* item = &items[item_number];
 

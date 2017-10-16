@@ -52,7 +52,7 @@ int MoveCreature3DPos(struct PHD_3DPOS* srcpos, struct PHD_3DPOS* destpos, int v
 	return 0;
 }
 
-void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)//25738(<), ?
+void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)//25738(<), ? (F)
 {
 	if (angadd < angle)
 	{
@@ -71,7 +71,7 @@ void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)//25738(<)
 	return;
 }
 
-short SameZone(struct creature_info* creature, struct ITEM_INFO* target_item)//255F8(<), ?
+short SameZone(struct creature_info* creature, struct ITEM_INFO* target_item)//255F8(<), ? (F)
 {
 	struct room_info* r;
 	short* zone;
@@ -143,7 +143,7 @@ short AIGuard(struct creature_info* creature)//24DF0(<), ?
 	return -16384;
 }
 
-void AlertNearbyGuards(struct ITEM_INFO* item)//24D20(<), 24F2C(<)
+void AlertNearbyGuards(struct ITEM_INFO* item)//24D20(<), 24F2C(<) (F)
 {
 	int slot = 4;
 	struct creature_info* cinfo = baddie_slots;
@@ -262,7 +262,7 @@ int CreatureAnimation(short item_number, short angle, short tilt)
 	return 0;
 }
 
-void CreatureDie(short item_number, int explode)
+void CreatureDie(short item_number, int explode)// (F)
 {
 	struct ITEM_INFO* item = &items[item_number];
 	item->hit_points = 0xC000;
@@ -327,7 +327,7 @@ void GetCreatureMood(struct ITEM_INFO* item, struct AI_info* info, int violent)
 	S_Warn("[GetCreatureMood] - Unimplemented!\n");
 }
 
-int ValidBox(struct ITEM_INFO* item, short zone_number, short box_number)//222A4(<), ?
+int ValidBox(struct ITEM_INFO* item, short zone_number, short box_number)//222A4(<), ? (F)
 {
 	struct box_info* box;
 	struct creature_info* creature;
@@ -367,7 +367,7 @@ int EscapeBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)
 	return 0;
 }
 
-void TargetBox(struct lot_info* LOT, short box_number)//220F4(<), ?
+void TargetBox(struct lot_info* LOT, short box_number)//220F4(<), ? (F)
 {
 	struct box_info* box;
 
@@ -391,7 +391,7 @@ void TargetBox(struct lot_info* LOT, short box_number)//220F4(<), ?
 	return;
 }
 
-int UpdateLOT(struct lot_info* LOT, int expansion)//22034(<), ?
+int UpdateLOT(struct lot_info* LOT, int expansion)//22034(<), ? (F)
 {
 	struct box_node* expand;
 
@@ -431,7 +431,7 @@ void CreatureAIInfo(struct ITEM_INFO* item, struct AI_info* info)
 	S_Warn("[CreatureAIInfo] - Unimplemented!\n");
 }
 
-int CreatureActive(short item_number)//218B0(<), ?
+int CreatureActive(short item_number)//218B0(<), ? (F)
 {
 	struct ITEM_INFO* item = &items[item_number];
 
@@ -452,7 +452,7 @@ int CreatureActive(short item_number)//218B0(<), ?
 	return 0;
 }
 
-void InitialiseCreature(short item_number)//21800(<), ?
+void InitialiseCreature(short item_number)//21800(<), ? (F)
 {
 	struct ITEM_INFO* item = &items[item_number];
 

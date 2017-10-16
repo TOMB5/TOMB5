@@ -56,7 +56,7 @@ void lara_as_surftread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DBA0, 4
 	S_Warn("[lara_as_surftread] - Unimplemented!\n");
 }
 
-void lara_as_surfright(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DAF8, 4DF5C
+void lara_as_surfright(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DAF8, 4DF5C (F)
 {
 	if (item->hit_points > 0)
 	{

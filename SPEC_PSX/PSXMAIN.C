@@ -36,7 +36,7 @@ void VSyncFunc()//10000(<), 10000(<) (F)
 	return;
 }
 
-int main(int argc, char* args[])//10064(<), 10064(!)
+int main(int argc, char* args[])//10064(<), 10064(!) (F)
 {
 	SetSp(0x801FFFE0);
 	ResetCallback();

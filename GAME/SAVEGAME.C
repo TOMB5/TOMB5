@@ -379,7 +379,7 @@ void ReadSG(char* pointer, int size)//536E0, 53B44 (F)
 	return;
 }
 
-void WriteSG(char* pointer, int size)//536A0, 53B04
+void WriteSG(char* pointer, int size)//536A0, 53B04 (F)
 {
 	SGcount += size;
 

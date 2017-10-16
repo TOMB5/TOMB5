@@ -10,7 +10,7 @@
 
 struct ITEM_LIGHT fxil;
 
-void ControlBodyPart(short fx_number)//4E600, 4EA64
+void ControlBodyPart(short fx_number)//4E600, 4EA64 (F)
 {
 	struct FX_INFO* fx = &effects[fx_number];
 	int ox = fx->pos.x_pos;

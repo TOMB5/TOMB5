@@ -886,7 +886,7 @@ long GetRandomControl()//5E9F0, 926F8 (F)
 	return (rand_1 >> 16) & 0x7FFF;
 }
 
-void SeedRandomControl(long seed)
+void SeedRandomControl(long seed)// (F)
 {
 	rand_1 = seed;
 }
@@ -899,7 +899,7 @@ long GetRandomDraw()//5EA18, 5F6F8 (F)
 	return (rand_2 >> 16) * 0x7FFF;
 }
 
-void SeedRandomDraw(long seed)
+void SeedRandomDraw(long seed)// (F)
 {
 	rand_2 = seed;
 }
@@ -914,7 +914,7 @@ void ClearFires()//8B1C8(<), 8D20C(<) (F)
 	}
 }
 
-void AddFire(int x, int y, int z, char size, short room_num, short on)
+void AddFire(int x, int y, int z, char size, short room_num, short on)// (F)
 {
 	struct FIRE_LIST* fptr = &fires[0];
 
@@ -972,7 +972,7 @@ void SetCutPlayed(int num)//20DA0(<), 20FAC(<) (F)
 		_CutSceneTriggered2 |= 1 << (num - 32);
 }
 
-void InitCutPlayed()//20D90, 20F9C
+void InitCutPlayed()//20D90, 20F9C (F)
 {
 	_CutSceneTriggered1 = 0;
 	_CutSceneTriggered2 = 0;

@@ -39,7 +39,7 @@ void DoProperDetection(short item_number, long x, long y, long z, long xv, long 
 	S_Warn("[DoProperDetection] - Unimplemented!\n");
 }
 
-int WeaponObjectMesh(int weapon_type)//488F4, 48D58
+int WeaponObjectMesh(int weapon_type)//488F4, 48D58 (F)
 {
 	switch (weapon_type)
 	{
