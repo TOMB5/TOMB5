@@ -378,7 +378,51 @@ int sub_4D1AD0()
 	return result;
 }
 
-
+void __cdecl do_boot_screen(int language)
+{
+	Log(2, "do_boot_screen");
+	switch (language)
+	{
+	case LNG_ENGLISH:
+	case LNG_DUTCH:
+		DDCopyBitmap(dxctx.buf_back, "uk.bmp");
+		sub_4B7DA0();
+		DDCopyBitmap(dxctx.buf_back, "uk.bmp");
+		break;
+	case LNG_FRENCH:
+		DDCopyBitmap(dxctx.buf_back, "france.bmp");
+		sub_4B7DA0();
+		DDCopyBitmap(dxctx.buf_back, "france.bmp");
+		break;
+	case LNG_GERMAN:
+		DDCopyBitmap(dxctx.buf_back, "germany.bmp");
+		sub_4B7DA0();
+		DDCopyBitmap(dxctx.buf_back, "germany.bmp");
+		break;
+	case LNG_ITALIAN:
+		DDCopyBitmap(dxctx.buf_back, "italy.bmp");
+		sub_4B7DA0();
+		DDCopyBitmap(dxctx.buf_back, "italy.bmp");
+		break;
+	case LNG_SPANISH:
+		DDCopyBitmap(dxctx.buf_back, "spain.bmp");
+		sub_4B7DA0();
+		DDCopyBitmap(dxctx.buf_back, "spain.bmp");
+		break;
+	case LNG_US:
+		DDCopyBitmap(dxctx.buf_back, "usa.bmp");
+		sub_4B7DA0();
+		DDCopyBitmap(dxctx.buf_back, "usa.bmp");
+		break;
+	case LNG_JAPAN:
+		DDCopyBitmap(dxctx.buf_back, "japan.bmp");
+		sub_4B7DA0();
+		DDCopyBitmap(dxctx.buf_back, "japan.bmp");
+		break;
+	default:
+		return;
+	}
+}
 
 
 unsigned __stdcall GameMain(void* data)

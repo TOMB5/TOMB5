@@ -1806,8 +1806,9 @@ void sub_4BA090(signed int a1, float **a2)
 {
 	S_Warn("[sub_4BA090] - Unimplemented!\n");
 }
-
-
+DWORD ThreadId;
+DWORD dword_874970;
+DWORD dword_874974;
 void S_LoadLevelFile(int Name)
 {
 	Log(2, "S_LoadLevelFile");
@@ -1846,7 +1847,22 @@ void S_LoadLevelFile(int Name)
 
 		sub_4D3150();
 	}
-
+	/*if (byte_87B81C == 1)
+		sub_4025B3();
+	dword_874968 = 1;
+	dword_874970 = 0;
+	dword_874974 = _beginthreadex(0, 0, LoadLevel, filename, 0, &ThreadId);
+	while (dword_874968)
+	{
+		if (dxctx.flags & 0x80 && dword_8FBDC0)
+			sub_402F0E();
+	}
+	if (dxctx.flags & 0x80 && !sub_402F0E())
+	{
+		while (!sub_402F0E())
+			;
+	}
+	dword_517B88 = 0;*/
 	S_Warn("[S_LoadLevelFile] - Unimplemented!\n");
 }
 

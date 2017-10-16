@@ -65,7 +65,7 @@ void undraw_pistol_mesh_left(int weapon_type)//448F0(<), 44D54(<) (F)
 	}
 }
 
-void draw_pistol_meshes(int weapon_type)
+void draw_pistol_meshes(int weapon_type)// (F)
 {
 	lara.holster = LARA_HOLSTERS;
 	lara.mesh_ptrs[LM_RHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 20];

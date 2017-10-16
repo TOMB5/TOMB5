@@ -1,5 +1,6 @@
 #include "NEWINV2.H"
 
+#include "DELTAPAK.H"
 #include "SPECIFIC.H"
 #include "LARA.H"
 #include "LOADSAVE.H"
@@ -520,7 +521,7 @@ void dels_give_lara_items_cheat()//41324, 41778 (F)
 #endif
 }
 
-void do_stats_mode()//412BC, 41710
+void do_stats_mode()//412BC, 41710 (F)
 {
 	stats_mode += 8;
 	if (stats_mode > 0x80)
@@ -642,7 +643,7 @@ int have_i_got_object(short object_number)//4086C, 40CC0 (F)
 	return 0;
 }
 
-void NailInvItem(short objnum)//40584, 409D8
+void NailInvItem(short objnum)//40584, 409D8 (F)
 {
 	switch (objnum)
 	{
@@ -742,7 +743,7 @@ void NailInvItem(short objnum)//40584, 409D8
 	}
 }
 
-void DEL_picked_up_object(short objnum)//3FEB0, 40304
+void DEL_picked_up_object(short objnum)//3FEB0, 40304 (F)
 {
 	switch (objnum)
 	{
@@ -799,7 +800,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304
 		return;
 
 	case HK_ITEM:
-		SetCutNotPlayed(23);
+		SetCutNotPlayed(CUT_RICH_CUT_3);
 
 		if (!(lara.hk_type_carried & WTYPE_PRESENT))
 			lara.hk_type_carried = WTYPE_PRESENT | WTYPE(HK_SNIPER);
@@ -1193,7 +1194,7 @@ void combine_HK_SILENCER(int flag)//3F4C0(<), 3F914(<) (F)
 	}
 }
 
-void seperate_object(short obj)//3F424, 3F878
+void seperate_object(short obj)//3F424, 3F878 (F)
 {
 	int n;
 
@@ -1208,7 +1209,7 @@ void seperate_object(short obj)//3F424, 3F878
 	setup_objectlist_startposition(dels_handy_combine_table[n].item1);
 }
 
-void combine_these_two_objects(short obj1, short obj2)//3F348, 3F79C
+void combine_these_two_objects(short obj1, short obj2)//3F348, 3F79C (F)
 {
 	int n;
 
@@ -1225,7 +1226,7 @@ void combine_these_two_objects(short obj1, short obj2)//3F348, 3F79C
 	handle_object_changeover(RING_INVENTORY);
 }
 
-int do_these_objects_combine(int obj1, int obj2)//3F2DC, 3F730
+int do_these_objects_combine(int obj1, int obj2)//3F2DC, 3F730 (F)
 {
 	int n;
 
@@ -1252,7 +1253,7 @@ int have_i_got_item(short obj)//3F29C, 3F6F0 (F)
 	return FALSE;
 }
 
-int is_item_currently_combinable(short obj)//3F200, 3F654
+int is_item_currently_combinable(short obj)//3F200, 3F654 (F)
 {
 	int n;
 
@@ -1340,7 +1341,7 @@ void draw_ammo_selector()//3EDDC, 3F230
 	S_Warn("[draw_ammo_selector] - Unimplemented!\n");
 }
 
-void fade_ammo_selector()//3ED08, 3F15C
+void fade_ammo_selector()//3ED08, 3F15C (F)
 {
 	if (rings[RING_INVENTORY]->ringactive && (right_repeat >= 8 || left_repeat >= 8))
 	{
@@ -1483,7 +1484,7 @@ void insert_object_into_list(int num)//3D2C4(<), 3D718(<) (F)
 	rings[RING_INVENTORY]->numobjectsinlist++;
 }
 
-void construct_object_list()//3CC80, 3D0D4
+void construct_object_list()//3CC80, 3D0D4 (F)
 {
 	int i;
 
@@ -1683,7 +1684,7 @@ void construct_object_list()//3CC80, 3D0D4
 	ammo_active = 0;
 }
 
-void insert_object_into_list_v2(int num)//3CB90, 3CFE4
+void insert_object_into_list_v2(int num)//3CB90, 3CFE4 (F)
 {
 	if (options_table[num] & 9)
 	{
@@ -1696,7 +1697,7 @@ void insert_object_into_list_v2(int num)//3CB90, 3CFE4
 	}
 }
 
-void construct_combine_object_list()//3C940, 3CD94
+void construct_combine_object_list()//3C940, 3CD94 (F)
 {
 	int i;
 

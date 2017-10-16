@@ -6,8 +6,16 @@
 #include "LOT.H"
 #include "SPECIFIC.H"
 
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
+
 #include <assert.h>
 #include <stddef.h>
+#include "TOMB4FX.H"
+#include "DELTAPAK.H"
 
 int number_boxes;
 struct box_info* boxes;
@@ -16,34 +24,26 @@ short* ground_zone[5][2];
 unsigned short testclip;
 unsigned short loops;
 
-void DropBaddyPickups(struct ITEM_INFO* item)//259BC(<), 25BC8(<)
+void DropBaddyPickups(struct ITEM_INFO* item)//259BC(<), 25BC8(<) (F)
 {
 	short pickup_number;
 	short room_number;
 	struct ITEM_INFO* pickup;
 
-	pickup_number = item->carried_item;
-
-	if (pickup_number == -1)
-	{
-		return;
-	}
-
-	do
+	for(pickup_number = item->carried_item; pickup_number != -1; pickup_number = pickup->carried_item)
 	{
 		pickup = &items[pickup_number];
 		pickup->pos.x_pos = (item->pos.x_pos & 0xFFFFFC00) | 0x200;
 		pickup->pos.z_pos = (item->pos.z_pos & 0xFFFFFC00) | 0x200;
+
 		room_number = item->room_number;
-
-		pickup->pos.y_pos = GetHeight(GetFloor(pickup->pos.x_pos, item->pos.y_pos, pickup->pos.z_pos, &room_number), pickup->pos.x_pos, item->pos.y_pos, pickup->pos.z_pos);
-		pickup->pos.y_pos -= GetBoundsAccurate(item)[3];
-
-		//pickup->pos.y_pos -= bounds[3]; //old
+		pickup->pos.y_pos = GetHeight(GetFloor(pickup->pos.x_pos, item->pos.y_pos, pickup->pos.z_pos, &room_number), 
+			pickup->pos.x_pos, item->pos.y_pos, pickup->pos.z_pos);
+		pickup->pos.y_pos -= GetBoundsAccurate(pickup)[3];
 
 		ItemNewRoom(pickup_number, item->room_number);
-
-	} while (pickup_number != -1);
+		pickup->flags |= 0x20;
+	}
 }
 
 int MoveCreature3DPos(struct PHD_3DPOS* srcpos, struct PHD_3DPOS* destpos, int velocity, short angdif, int angadd)
@@ -52,7 +52,7 @@ int MoveCreature3DPos(struct PHD_3DPOS* srcpos, struct PHD_3DPOS* destpos, int v
 	return 0;
 }
 
-void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)//25738(<), ?
+void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)//25738(<), ? (F)
 {
 	if (angadd < angle)
 	{
@@ -71,7 +71,7 @@ void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)//25738(<)
 	return;
 }
 
-short SameZone(struct creature_info* creature, struct ITEM_INFO* target_item)//255F8(<), ?
+short SameZone(struct creature_info* creature, struct ITEM_INFO* target_item)//255F8(<), ? (F)
 {
 	struct room_info* r;
 	short* zone;
@@ -143,7 +143,7 @@ short AIGuard(struct creature_info* creature)//24DF0(<), ?
 	return -16384;
 }
 
-void AlertNearbyGuards(struct ITEM_INFO* item)//24D20(<), 24F2C(<)
+void AlertNearbyGuards(struct ITEM_INFO* item)//24D20(<), 24F2C(<) (F)
 {
 	int slot = 4;
 	struct creature_info* cinfo = baddie_slots;
@@ -262,9 +262,41 @@ int CreatureAnimation(short item_number, short angle, short tilt)
 	return 0;
 }
 
-void CreatureDie(short item_number, int explode)
+void CreatureDie(short item_number, int explode)// (F)
 {
-	S_Warn("[CreatureDie] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_number];
+	item->hit_points = 0xC000;
+	item->collidable = FALSE;
+	if (explode)
+	{
+		if (objects[item->object_number].HitEffect == 1)
+			ExplodingDeath2(item_number, -1, 258);
+		else
+			ExplodingDeath2(item_number, -1, 256);
+
+		KillItem(item_number);
+	}
+	else
+	{
+		RemoveActiveItem(item_number);
+	}
+
+	DisableBaddieAI(item_number);
+	item->flags |= 0x8000 | IFLAG_INVISIBLE;
+	DropBaddyPickups(item);
+
+	if (item->object_number == SCIENTIST && item->ai_bits == 20)
+	{
+		item = find_a_fucking_item(ROLLINGBALL);
+		if (item)
+		{
+			if (!(item->flags & IFLAG_INVISIBLE))
+			{
+				item->flags |= IFLAG_ACTIVATION_MASK;
+				AddActiveItem(item - items);
+			}
+		}
+	}
 }
 
 int BadFloor(long x, long y, long z, long box_height, long next_height, int room_number, struct lot_info* LOT)
@@ -295,7 +327,7 @@ void GetCreatureMood(struct ITEM_INFO* item, struct AI_info* info, int violent)
 	S_Warn("[GetCreatureMood] - Unimplemented!\n");
 }
 
-int ValidBox(struct ITEM_INFO* item, short zone_number, short box_number)//222A4(<), ?
+int ValidBox(struct ITEM_INFO* item, short zone_number, short box_number)//222A4(<), ? (F)
 {
 	struct box_info* box;
 	struct creature_info* creature;
@@ -335,7 +367,7 @@ int EscapeBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)
 	return 0;
 }
 
-void TargetBox(struct lot_info* LOT, short box_number)//220F4(<), ?
+void TargetBox(struct lot_info* LOT, short box_number)//220F4(<), ? (F)
 {
 	struct box_info* box;
 
@@ -359,7 +391,7 @@ void TargetBox(struct lot_info* LOT, short box_number)//220F4(<), ?
 	return;
 }
 
-int UpdateLOT(struct lot_info* LOT, int expansion)//22034(<), ?
+int UpdateLOT(struct lot_info* LOT, int expansion)//22034(<), ? (F)
 {
 	struct box_node* expand;
 
@@ -399,7 +431,7 @@ void CreatureAIInfo(struct ITEM_INFO* item, struct AI_info* info)
 	S_Warn("[CreatureAIInfo] - Unimplemented!\n");
 }
 
-int CreatureActive(short item_number)//218B0(<), ?
+int CreatureActive(short item_number)//218B0(<), ? (F)
 {
 	struct ITEM_INFO* item = &items[item_number];
 
@@ -420,7 +452,7 @@ int CreatureActive(short item_number)//218B0(<), ?
 	return 0;
 }
 
-void InitialiseCreature(short item_number)//21800(<), ?
+void InitialiseCreature(short item_number)//21800(<), ? (F)
 {
 	struct ITEM_INFO* item = &items[item_number];
 

@@ -966,7 +966,7 @@ void lara_col_hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//19AC8, 19BFC
 	S_Warn("[lara_col_hang] - Unimplemented!\n");
 }
 
-void lara_as_hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//19A28, 19B5C
+void lara_as_hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//19A28, 19B5C (F)
 {
 	lara.IsClimbing = 0;
 	if (item->hit_points > 0)
@@ -1979,7 +1979,7 @@ int LaraDeflectEdge(struct ITEM_INFO* item, struct COLL_INFO* coll)//11D18(<), 1
 	}
 }
 
-int LaraHitCeiling(struct ITEM_INFO* item, struct COLL_INFO* coll)//11C94, 11D44
+int LaraHitCeiling(struct ITEM_INFO* item, struct COLL_INFO* coll)//11C94, 11D44 (F)
 {
 	if (coll->coll_type == CT_TOP || coll->coll_type == CT_CLAMP)
 	{

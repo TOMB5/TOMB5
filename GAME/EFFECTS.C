@@ -30,7 +30,7 @@ int number_sound_effects;
 struct OBJECT_VECTOR* sound_effects;
 struct FX_INFO* effects;
 
-void TL_12(struct ITEM_INFO* item)//39E3C, 3A33C
+void TL_12(struct ITEM_INFO* item)//39E3C, 3A33C (F)
 {
 	if (savegame.TLCount == 11)
 	{
@@ -40,7 +40,7 @@ void TL_12(struct ITEM_INFO* item)//39E3C, 3A33C
 	}
 }
 
-void TL_11(struct ITEM_INFO* item)//39DF0, 3A2F0
+void TL_11(struct ITEM_INFO* item)//39DF0, 3A2F0 (F)
 {
 	if (savegame.TLCount == 10)
 	{
@@ -50,7 +50,7 @@ void TL_11(struct ITEM_INFO* item)//39DF0, 3A2F0
 	}
 }
 
-void TL_10(struct ITEM_INFO* item)//39DA4, 3A2A4
+void TL_10(struct ITEM_INFO* item)//39DA4, 3A2A4 (F)
 {
 	if (savegame.TLCount == 9)
 	{
@@ -60,7 +60,7 @@ void TL_10(struct ITEM_INFO* item)//39DA4, 3A2A4
 	}
 }
 
-void TL_9(struct ITEM_INFO* item)//39D54, 3A254
+void TL_9(struct ITEM_INFO* item)//39D54, 3A254 (F)
 {
 	if (savegame.TLCount < 9)
 	{
@@ -70,7 +70,7 @@ void TL_9(struct ITEM_INFO* item)//39D54, 3A254
 	}
 }
 
-void TL_8(struct ITEM_INFO* item)//39D04, 3A204
+void TL_8(struct ITEM_INFO* item)//39D04, 3A204 (F)
 {
 	if (savegame.TLCount < 8)
 	{
@@ -80,7 +80,7 @@ void TL_8(struct ITEM_INFO* item)//39D04, 3A204
 	}
 }
 
-void TL_7(struct ITEM_INFO* item)//39CB4, 3A1B4
+void TL_7(struct ITEM_INFO* item)//39CB4, 3A1B4 (F)
 {
 	if (savegame.TLCount < 7)
 	{
@@ -90,7 +90,7 @@ void TL_7(struct ITEM_INFO* item)//39CB4, 3A1B4
 	}
 }
 
-void TL_6(struct ITEM_INFO* item)//39C64, 3A164
+void TL_6(struct ITEM_INFO* item)//39C64, 3A164 (F)
 {
 	if (savegame.TLCount < 6)
 	{
@@ -100,7 +100,7 @@ void TL_6(struct ITEM_INFO* item)//39C64, 3A164
 	}
 }
 
-void TL_5(struct ITEM_INFO* item)//39C14, 3A114
+void TL_5(struct ITEM_INFO* item)//39C14, 3A114 (F)
 {
 	if (savegame.TLCount < 5)
 	{
@@ -110,7 +110,7 @@ void TL_5(struct ITEM_INFO* item)//39C14, 3A114
 	}
 }
 
-void TL_4(struct ITEM_INFO* item)//39BC4, 3A0C4
+void TL_4(struct ITEM_INFO* item)//39BC4, 3A0C4 (F)
 {
 	if (savegame.TLCount < 4)
 	{
@@ -120,7 +120,7 @@ void TL_4(struct ITEM_INFO* item)//39BC4, 3A0C4
 	}
 }
 
-void TL_3(struct ITEM_INFO* item)//39B74, 3A074
+void TL_3(struct ITEM_INFO* item)//39B74, 3A074 (F)
 {
 	if (savegame.TLCount < 3)
 	{
@@ -130,7 +130,7 @@ void TL_3(struct ITEM_INFO* item)//39B74, 3A074
 	}
 }
 
-void TL_2(struct ITEM_INFO* item)//39B24, 3A024
+void TL_2(struct ITEM_INFO* item)//39B24, 3A024 (F)
 {
 	if (savegame.TLCount < 2)
 	{
@@ -140,7 +140,7 @@ void TL_2(struct ITEM_INFO* item)//39B24, 3A024
 	}
 }
 
-void TL_1(struct ITEM_INFO* item)//39AD8, 39FD8
+void TL_1(struct ITEM_INFO* item)//39AD8, 39FD8 (F)
 {
 	if (savegame.TLCount < 1)
 	{
@@ -274,7 +274,7 @@ void ActivateCamera(struct ITEM_INFO* item)//39610(<), 39B10(<) (F)
 
 void PoseidonSFX(struct ITEM_INFO* item)//395E0(<), 39AE0(<) (F)
 {
-	SoundEffect(238, NULL, 0);
+	SoundEffect(SFX_J_GRAB_OPEN, NULL, 0);
 	flipeffect = -1;
 }
 

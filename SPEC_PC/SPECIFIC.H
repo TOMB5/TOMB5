@@ -6,10 +6,9 @@
 #include <stdint.h>
 struct _RTL_CRITICAL_SECTION CriticalSection;
 
-extern void S_Warn(char* warning_message);
+extern void S_Warn(const char* warning_message);
 
 extern HWND Log(char a1, char* format, ...);
-
 
 extern signed int __cdecl sub_4D30E0(_WORD *a1);
 extern char TIME_Init();

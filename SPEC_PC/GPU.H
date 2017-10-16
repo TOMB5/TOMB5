@@ -168,4 +168,8 @@ extern int DXChangeVideoMode();
 extern int DXMove(int xLeft, int yTop);
 extern signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_s *a5, HWND a6, DWORD dwStyle);
 extern signed int __cdecl DXCreateSurface(LPDIRECTDRAW4 a1, LPDDSURFACEDESC2 a2, LPDIRECTDRAWSURFACE4* a3);
+extern int __cdecl sub_4B8780(LPDIRECTDRAWSURFACE4 a3, HGDIOBJ h, int xSrc, int ySrc, int wSrc, int hSrc);
+extern signed int __cdecl LoadBitmapEx(struct IDirectDrawSurface4 *surface, const CHAR *name);
+extern int __cdecl DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char *filename);
+
 #endif

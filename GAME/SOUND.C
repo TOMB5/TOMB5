@@ -12,15 +12,15 @@ struct SoundSlot LaSlot[MAX_SOUND_SLOTS];
 
 void SayNo()//55BE0(<), 56044(<) (F)
 {
-	int fx = 2;
+	int fx = SFX_LARA_NO;
 
 	if (Gameflow->Language == LNG_FRENCH)
 	{
-		fx = 348;
+		fx = SFX_LARA_NO_FRENCH;
 	}
 	else if (Gameflow->Language == LNG_JAPAN)
 	{
-		fx = 349;
+		fx = SFX_LARA_NO_JAPANESE;
 	}
 
 	SoundEffect(fx, NULL, 2);

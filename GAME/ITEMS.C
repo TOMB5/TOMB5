@@ -295,7 +295,7 @@ void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
 	return;
 }
 
-void ItemNewRoom(short item_num, short room_number)//7C608(<), 7E64C(<)
+void ItemNewRoom(short item_num, short room_number)//7C608(<), 7E64C(<) (F)
 {
 	struct room_info* r;
 	struct ITEM_INFO* item;
