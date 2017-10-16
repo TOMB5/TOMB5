@@ -189,8 +189,8 @@ for plat in sorted(platforms.keys()):
 	for file in sorted(platforms[plat].keys()):
 		lines.append("#### " + file)
 
-		for l in sorted(platforms[plat][file].keys(), key=str.lower):
-			lines.append("- [%s] `%s`%s" %("x" if platforms[plat][file][l] else " ", l, comments[l] if l in comments else ""))
+		for func in sorted(platforms[plat][file].keys(), key=str.lower):
+			lines.append("- [%s] `%s`%s" %("x" if platforms[plat][file][func] else " ", func, comments[func] if func in comments else ""))
 
 output = "\n".join(lines)
 
