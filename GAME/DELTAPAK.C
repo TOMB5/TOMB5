@@ -1624,7 +1624,7 @@ void andy3_end()//30208(<), 30588(<) (F)
 	DelsHandyTeleportLara(55902, 8448, 53349, -32768);
 }
 
-void andy3_control()//301DC, 3055C
+void andy3_control()//301DC, 3055C (F)
 {
 	if (GLOBAL_cutseq_frame == 240)
 		do_catapult_meshswap();
