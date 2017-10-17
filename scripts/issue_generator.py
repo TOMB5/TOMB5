@@ -46,8 +46,8 @@
 # = force show warnings, hide hints and don't use clipboard
 
 # increment this plz
-# rev 1
-# 2017-10-16                                                      
+# rev 2
+# 2017-10-17                                                  
 
 
 from urllib.request import urlopen
@@ -81,6 +81,7 @@ AUTO_ADD_MISSING = 	isarg("addmissing", True) 	# If a function is marked (F) in 
 USE_CLIPBOARD = 	isarg("clipboard", True) 	# Copy output into clipboard instead of outputting it to the console
 SHOW_UNIMPL =		isarg("showunimpl", False)	# At the end, output a list of unimplemented (unchecked) functions
 USE_REPR =			isarg("userepr", False)		# Debugging purposes. When outputting a list (e.g. SHOW_UNIMPL), use repr()
+SHOW_ADDED =		isarg("showadded", False)	# Show a plain list of added functions
 
 if not os.path.isfile("README.md"):
 	os.chdir("..")
@@ -230,7 +231,15 @@ else:
 	print(output)
 
 if SHOW_UNIMPL:
+	print("Unimplemented :")
 	if USE_REPR:
 		print(repr([x.split(" // ")[1] for x in unimpl]))
 	else:
 		print("\n".join(unimpl))
+
+if SHOW_ADDED:
+	print("Added :")
+	if USE_REPR:
+		print(repr(added))
+	else:
+		print("\n".join(added))
