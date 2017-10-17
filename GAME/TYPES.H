@@ -31,10 +31,11 @@
 
 #define RGB555(r, g, b) (((r) << 10) | ((g) << 5) | (b))
 
-#define SECTOR 1024
+//#define SECTOR 1024
+#define SECTOR(x) ((x) * 1024)
 #define CLICK 256
 
-#define SECTOR_TO_WORLD(S) ((S) > (0) ? ((S * SECTOR) + (SECTOR / 2)) : (0))
+#define SECTOR_TO_WORLD(S) ((S) > (0) ? SECTOR((S) + 0.5) : (0))
 
 #define WHITE555 RGB555(16, 16, 16)
 #define BLACK555 RGB555( 0,  0,  0)

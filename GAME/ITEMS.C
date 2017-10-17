@@ -237,7 +237,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->next_item = r->item_number;
 	r->item_number = item_num;
 
-	floor = &r->floor[((item->pos.z_pos - r->z) / SECTOR) + (((item->pos.x_pos - r->x) / SECTOR) * r->x_size)];
+	floor = &r->floor[((item->pos.z_pos - r->z) / SECTOR(1)) + (((item->pos.x_pos - r->x) / SECTOR(1)) * r->x_size)];
 
 	item->floor = floor->floor * 256;
 	item->box_number = floor->box;

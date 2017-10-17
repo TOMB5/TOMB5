@@ -2056,8 +2056,8 @@ void TriggerDelSmoke(long x, long y, long z, int sizeme)//2EED8(<), 2F1E4(<) (F)
 
 	dx = lara_item->pos.x_pos - x;
 	dz = lara_item->pos.z_pos - z;
-	if (dx >= -16 * SECTOR && dx <= 16 * SECTOR && 
-		dz >= -16 * SECTOR && dz <= 16 * SECTOR)
+	if (dx >= SECTOR(-16) && dx <= SECTOR(16) && 
+		dz >= SECTOR(-16) && dz <= SECTOR(16))
 	{
 		sptr = &spark[GetFreeSpark()];
 		sptr->On = 1;
@@ -2301,7 +2301,7 @@ void richcut1_control()//2E3D8(<), 2E668(<) (F)
 
 void richcut1_end()//2E3A0(<), 2E630(<) (F)
 {
-	DelsHandyTeleportLara(34504, -1 * SECTOR, 54799, -29215);
+	DelsHandyTeleportLara(34504, SECTOR(-1), 54799, -29215);
 	cutseq_removelara_hk();
 	cutrot = 1;
 }
@@ -2399,7 +2399,7 @@ void cranecut_end()//2E020(<), 2E2B0(<) (F)
 	item->flags &= 0xC1FFu;
 	cutseq_restore_item(ANIMATING16);
 	cutseq_restore_item(WRECKING_BALL);
-	DelsHandyTeleportLara(58543, -4 * SECTOR, 34972, ANGLE(-90));
+	DelsHandyTeleportLara(58543, SECTOR(-4), 34972, ANGLE(-90));
 }
 
 void cranecut_init()//2DFA0(<), 2E230(<) (F)

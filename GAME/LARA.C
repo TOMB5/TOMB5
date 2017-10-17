@@ -566,7 +566,7 @@ void lara_as_usepuzzle(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AD18(<)
 
 	camera.target_angle = ANGLE(-80);
 	camera.target_elevation = ANGLE(-25);
-	camera.target_distance = SECTOR;
+	camera.target_distance = SECTOR(1);
 
 	if (item->frame_number == anims[item->anim_number].frame_end)
 	{
@@ -586,7 +586,7 @@ void lara_as_usekey(struct ITEM_INFO* item, struct COLL_INFO* coll)//1ACBC(<), 1
 	coll->enable_spaz = 0;
 	camera.target_angle = ANGLE(-80);
 	camera.target_elevation = -4550;
-	camera.target_distance = SECTOR;
+	camera.target_distance = SECTOR(1);
 }
 
 void lara_as_switchoff(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AC54(<), 1AD88(<) (F)
@@ -596,7 +596,7 @@ void lara_as_switchoff(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AC54(<)
 	coll->enable_spaz = 0;
 	camera.target_angle = ANGLE(80);
 	camera.target_elevation = ANGLE(-25);
-	camera.target_distance = SECTOR;
+	camera.target_distance = SECTOR(1);
 	camera.speed = 6;
 }
 
@@ -607,7 +607,7 @@ void lara_as_switchon(struct ITEM_INFO* item, struct COLL_INFO* coll)//1ABEC(<),
 	coll->enable_spaz = 0;
 	camera.target_angle = ANGLE(80);
 	camera.target_elevation = ANGLE(-25);
-	camera.target_distance = SECTOR;
+	camera.target_distance = SECTOR(1);
 	camera.speed = 6;
 }
 
@@ -618,7 +618,7 @@ void lara_as_pickupflare(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB5C(
 	coll->enable_spaz = 0;
 	camera.target_angle = ANGLE(130);
 	camera.target_elevation = ANGLE(-15);
-	camera.target_distance = SECTOR;
+	camera.target_distance = SECTOR(1);
 	if (item->frame_number = anims[item->anim_number].frame_end - 1)
 		lara.gun_status = 0;
 }
@@ -630,7 +630,7 @@ void lara_as_pickup(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB00(<), 1
 	coll->enable_spaz = 0;
 	camera.target_angle = ANGLE(-130);
 	camera.target_elevation = ANGLE(-15);
-	camera.target_distance = SECTOR;
+	camera.target_distance = SECTOR(1);
 }
 
 void lara_as_ppready(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AABC(<), 1ABF0(<) (F)
@@ -1378,7 +1378,7 @@ void lara_col_poleup(struct ITEM_INFO* item, struct COLL_INFO* coll)//170D8(<), 
 
 	if (item->pos.y_pos - 
 		GetCeiling(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_num),
-		item->pos.x_pos, item->pos.y_pos, item->pos.z_pos) < SECTOR)
+		item->pos.x_pos, item->pos.y_pos, item->pos.z_pos) < SECTOR(1))
 		item->goal_anim_state = STATE_LARA_POLE_IDLE;
 }
 
