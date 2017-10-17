@@ -2679,7 +2679,16 @@ void trigger_weapon_dynamics(int left_or_right)//2D3E4(<), 2D6CC(<) (F)
 
 void cutseq_shoot_pistols(int left_or_right)//2D360, 2D648
 {
-	S_Warn("[cutseq_shoot_pistols] - Unimplemented!\n");
+	if (left_or_right == 14)
+	{
+		lara.left_arm.flash_gun = 4;
+		SmokeCountL = 16;
+	}
+	else
+	{
+		lara.right_arm.flash_gun = 4;
+		SmokeCountR = 16;
+	}
 }
 
 void cutseq_removelara_hk()//2D328(<), 2D610(<) (F)

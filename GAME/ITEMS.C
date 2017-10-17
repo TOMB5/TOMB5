@@ -71,15 +71,15 @@ void InitialiseFXArray(int allocmem)//4207C(<), 424D0(<) (F)
 	fx->next_fx = -1;
 }
 
-void AddActiveItem(short item_num)//41FEC(<), 42440(<)
+void AddActiveItem(short item_num)//41FEC(<), 42440(<) (F)
 {
 	struct ITEM_INFO* item;
 
 	item = &items[item_num];
 
 	item->flags |= 0x20;
-	//int test = item->object_number << 6;
-	if (objects[item->object_number ].control == 0)//Bug: Always zero due to incomplete level data relocation
+
+	if (objects[item->object_number].control == 0)//Bug: Always zero due to incomplete level data relocation
 	{
 		item->meshswap_meshbits &= -7;
 		return;

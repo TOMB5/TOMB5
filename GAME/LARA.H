@@ -692,6 +692,13 @@ enum lara_mesh
 	NUM_LARA_MESHES
 };
 
+enum lara_draw_type
+{
+	LARA_NORMAL = 1,
+	LARA_CATSUIT = 4,
+	LARA_DIVESUIT = 5,
+	LARA_INVISIBLE = 7
+};
 
 extern short angle; // offset 0xA0650
 extern short elevation; // offset 0xA0652

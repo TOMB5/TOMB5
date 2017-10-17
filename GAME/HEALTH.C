@@ -39,7 +39,7 @@ void DrawPickups(int timed)
 	S_Warn("[DrawPickups] - Unimplemented!\n");
 }
 
-void InitialisePickUpDisplay()//3B580, 3B9DC
+void InitialisePickUpDisplay()//3B580, 3B9DC (F)
 {
 	int i;
 	for (i = 7; i > -1; i--)

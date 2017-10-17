@@ -81,9 +81,10 @@ void InitialiseLaraAnims(struct ITEM_INFO* item)//4B340, 4B7A4
 	S_Warn("[InitialiseLaraAnims] - Unimplemented!\n");
 }
 
-void InitialiseLaraLoad(short item_num)//4B308, 4B76C
+void InitialiseLaraLoad(short item_num)//4B308, 4B76C (F)
 {
-	S_Warn("[InitialiseLaraLoad] - Unimplemented!\n");
+	lara.item_number = item_num;
+	lara_item = &items[item_num];
 }
 
 void LaraControl(short item_number)//4A838, 4AC9C

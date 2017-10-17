@@ -50,10 +50,10 @@ void sgSaveGame()//55AF8(<), 55F5C(<)
 	SGpoint = &MGSaveGamePtr[sizeof(struct savegame_info)];
 	SGcount = 0;
 
-	savegame.CurrentLevel = gfCurrentLevel;
-	SaveLevelData(1);
-
 	savegame.Game.Timer = GameTimer;
+	savegame.CurrentLevel = gfCurrentLevel;
+
+	SaveLevelData(1);
 	SaveLaraData();
 
 	MGSaveGamePtr[7678] = GetRandomControl();

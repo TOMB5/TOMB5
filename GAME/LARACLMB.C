@@ -112,9 +112,42 @@ void lara_col_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//464E8, 
 	S_Warn("[lara_col_climbstnc] - Unimplemented!\n");
 }
 
-void lara_as_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//463F0, 46854
+void lara_as_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//463F0, 46854 (F)
 {
-	S_Warn("[lara_as_climbstnc] - Unimplemented!\n");
+	lara.IsClimbing = TRUE;
+
+	coll->enable_spaz = 0;
+	coll->enable_baddie_push = 0;
+
+	camera.target_elevation = ANGLE(-20);
+
+	if (input & IN_LOOK)
+	{
+		LookUpDown();
+	}
+
+	if (input & IN_LEFT || input & IN_LSTEP)
+	{
+		item->goal_anim_state = STATE_LARA_LADDER_LEFT;
+
+		lara.move_angle = item->pos.y_rot - 0x4000;
+	}
+	else if (input & IN_RIGHT || input & IN_RSTEP)
+	{
+		item->goal_anim_state = STATE_LARA_LADDER_RIGHT;
+
+		lara.move_angle = item->pos.y_rot + ANGLE(90);
+	}
+	else if (input & IN_JUMP)
+	{
+		if (item->anim_number == ANIMATION_LARA_LADDER_IDLE)
+		{
+			item->goal_anim_state = STATE_LARA_JUMP_BACK;
+
+			lara.gun_status = 0;
+			lara.move_angle = item->pos.y_rot + ANGLE(-180);
+		}
+	}
 }
 
 int LaraTestClimbPos(struct ITEM_INFO* item, int front, int right, int origin, int height, int* shift)//462F8, 4675C

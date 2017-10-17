@@ -278,7 +278,7 @@ void lara_col_roll2(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C384, 1C4B
 	S_Warn("[lara_col_roll2] - Unimplemented!\n");
 }
 
-void lara_col_roll(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C2B0, 1C3E4
+void lara_col_roll(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C2B0, 1C3E4 (F)
 {
 	lara.move_angle = item->pos.y_rot;
 
@@ -286,7 +286,7 @@ void lara_col_roll(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C2B0, 1C3E4
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 0;
 
-	item->gravity_status = 0;
+	item->gravity_status = FALSE;
 	item->fallspeed = 0;
 
 	coll->slopes_are_pits = 0;
@@ -380,9 +380,38 @@ void lara_col_back(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BE38, 1BF6C
 	S_Warn("[lara_col_back] - Unimplemented!\n");
 }
 
-void lara_col_compress(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BD30, 1BE64
+void lara_col_compress(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BD30, 1BE64 (F)
 {
-	S_Warn("[lara_col_compress] - Unimplemented!\n");
+	item->fallspeed = 0;
+	item->gravity_status = FALSE;
+
+	coll->bad_pos = 32512;
+	coll->bad_neg = -32512;
+	coll->bad_ceiling = 0;
+
+	GetLaraCollisionInfo(item, coll);
+
+	if (!LaraFallen(item, coll))
+	{
+		if (coll->mid_ceiling > -100)
+		{
+			item->anim_number = ANIMATION_LARA_STAY_SOLID;
+			item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
+			item->goal_anim_state = STATE_LARA_STOP;
+			item->current_anim_state = STATE_LARA_STOP;
+			
+			item->speed = 0;
+			item->fallspeed = 0;
+			item->gravity_status = FALSE;
+
+			item->pos.x_pos = coll->old.x;
+			item->pos.y_pos = coll->old.y;
+			item->pos.z_pos = coll->old.z;
+		}
+
+		if (coll->mid_floor > -256 && coll->mid_floor < 256)
+			item->pos.y_pos += coll->mid_floor;
+	}
 }
 
 void lara_col_land(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BD10(<), 1BE44(<) (F)
@@ -408,9 +437,39 @@ void lara_col_splat(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BC74(<), 1
 		item->pos.y_pos += coll->mid_floor;
 }
 
-void lara_col_fastfall(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BB88, 1BCBC
+void lara_col_fastfall(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BB88, 1BCBC (F)
 {
-	S_Warn("[lara_col_fastfall] - Unimplemented!\n");
+	item->gravity_status = TRUE;
+
+	coll->bad_pos = 32512;
+	coll->bad_neg = -384;
+	coll->bad_ceiling = 192;
+
+	GetLaraCollisionInfo(item, coll);
+	LaraSlideEdgeJump(item, coll);
+
+	if (coll->mid_floor <= 0)
+	{
+		if (LaraLandedBad(item, coll))
+		{
+			item->goal_anim_state = STATE_LARA_DEATH;
+		}
+		else
+		{
+			item->goal_anim_state = STATE_LARA_STOP;
+			item->current_anim_state = STATE_LARA_STOP;
+			item->anim_number = ANIMATION_LARA_LANDING_HARD;
+			item->frame_number = anims[ANIMATION_LARA_LANDING_HARD].frame_base;
+		}
+
+		StopSoundEffect(SFX_LARA_FALL);
+
+		item->fallspeed = 0;
+		item->gravity_status = FALSE;
+
+		if (coll->mid_floor != -32512)
+			item->pos.y_pos += coll->mid_floor;
+	}
 }
 
 void lara_col_death(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BADC(<), 1BC10(<) (F)
@@ -438,9 +497,35 @@ void lara_col_turn_l(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BABC(<), 
 	lara_col_turn_r(item, coll);
 }
 
-void lara_col_turn_r(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B9C4, 1BAF8
+void lara_col_turn_r(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B9C4, 1BAF8 (F)
 {
-	S_Warn("[lara_col_turn_r] - Unimplemented!\n");
+	item->fallspeed = 0;
+	item->gravity_status = FALSE;
+
+	lara.move_angle = item->pos.y_rot;
+
+	coll->slopes_are_walls = 1;
+	coll->slopes_are_pits = 1;
+	coll->bad_pos = 384;
+	coll->bad_neg = -384;
+	coll->bad_ceiling = 0;
+
+	GetLaraCollisionInfo(item, coll);
+
+	if (coll->mid_floor <= 100)
+	{
+		if (!TestLaraSlide(item, coll) && coll->mid_floor != -32512)
+			item->pos.y_pos += coll->mid_floor;
+	}
+	else
+	{
+		item->fallspeed = 0;
+		item->anim_number = ANIMATION_LARA_FREE_FALL_FORWARD;
+		item->frame_number = anims[ANIMATION_LARA_FREE_FALL_FORWARD].frame_base;
+		item->current_anim_state = STATE_LARA_JUMP_FORWARD;
+		item->goal_anim_state = STATE_LARA_JUMP_FORWARD;
+		item->gravity_status = TRUE;
+	}
 }
 
 void lara_col_fastback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B89C, 1B9D0
@@ -510,9 +595,29 @@ void lara_as_controlled(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B0FC(<
 	}
 }
 
-void lara_as_deathslide(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B038, 1B16C
+void lara_as_deathslide(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B038, 1B16C (F)
 {
-	S_Warn("[lara_as_deathslide] - Unimplemented!\n");
+	short room_number = item->room_number;
+
+	camera.target_angle = ANGLE(70);
+
+	GetHeight(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number), 
+		item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+
+	coll->trigger = trigger_index;
+
+	if (!(input & IN_ACTION))
+	{
+		item->goal_anim_state = STATE_LARA_JUMP_FORWARD;
+
+		AnimateLara(item);
+
+		lara_item->gravity_status = TRUE;
+		lara_item->speed = 100;
+		lara_item->fallspeed = 40;
+
+		lara.move_angle = item->pos.y_rot;
+	}
 }
 
 void lara_as_wade(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AF10, 1B044
@@ -1322,9 +1427,43 @@ void lara_as_ropel(struct ITEM_INFO* item, struct COLL_INFO* coll)//17AB4(<), 17
 	}
 }
 
-void lara_col_rope(struct ITEM_INFO* item, struct COLL_INFO* coll)//179A8, 17ADC
+void lara_col_rope(struct ITEM_INFO* item, struct COLL_INFO* coll)//179A8, 17ADC (F)
 {
-	S_Warn("[lara_col_rope] - Unimplemented!\n");
+	if (input & IN_ACTION)
+	{
+		UpdateRopeSwing(item);
+
+		if (input & 0x40000000)
+		{
+			lara.RopeDFrame = (anims[ANIMATION_LARA_ROPE_SWING_FORWARD_SEMIHARD].frame_base + 32) << 8;
+			lara.RopeFrame = lara.RopeDFrame;
+
+			item->goal_anim_state = STATE_LARA_ROPE_SWING;
+		}
+		else if (input & IN_UP && lara.RopeSegment > 4)
+		{
+			item->goal_anim_state = STATE_LARA_ROPE_CLIMB_UP;
+		}
+		else if (input & IN_DOWN && lara.RopeSegment < 21)
+		{
+			item->goal_anim_state = STATE_LARA_ROPE_CLIMB_DOWN;
+
+			lara.RopeFlag = 0;
+			lara.RopeCount = 0;
+		}
+		else if (input & IN_LEFT)
+		{
+			item->goal_anim_state = STATE_LARA_ROPE_TURN_LEFT;
+		}
+		else if (input & IN_RIGHT)
+		{
+			item->goal_anim_state = STATE_LARA_ROPE_TURN_RIGHT;
+		}
+	}
+	else
+	{
+		FallFromRope(item);
+	}
 }
 
 void lara_as_rope(struct ITEM_INFO* item, struct COLL_INFO* coll)//17958(<), 17A8C(<) (F)
@@ -1407,9 +1546,9 @@ void lara_col_polestat(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DFC, 1
 	S_Warn("[lara_col_polestat] - Unimplemented!\n");
 }
 
-void lara_col_monkey180(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DDC, 16F10
+void lara_col_monkey180(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DDC, 16F10 (F)
 {
-	S_Warn("[lara_col_monkey180] - Unimplemented!\n");
+	lara_col_monkeyswing(item, coll);
 }
 
 void lara_as_monkey180(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DB8(<), 16EEC(<) (F)
@@ -1571,9 +1710,43 @@ void lara_col_monkeyswing(struct ITEM_INFO* item, struct COLL_INFO* coll)//16828
 	S_Warn("[lara_col_monkeyswing] - Unimplemented!\n");
 }
 
-void lara_as_monkeyswing(struct ITEM_INFO* item, struct COLL_INFO* coll)//1670C, 16840
+void lara_as_monkeyswing(struct ITEM_INFO* item, struct COLL_INFO* coll)//1670C, 16840 (F)
 {
-	S_Warn("[lara_as_monkeyswing] - Unimplemented!\n");
+	if (item->hit_points > 0)
+	{
+		coll->enable_spaz = 0;
+		coll->enable_baddie_push = 0;
+
+		lara.torso_y_rot = 0;
+		lara.torso_x_rot = 0;
+
+		if (input & IN_LOOK)
+			LookUpDown();
+
+		if (input & IN_UP)
+			item->goal_anim_state = STATE_LARA_MONKEYSWING_FORWARD;
+		else
+			item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
+
+		if (input & IN_LEFT)
+		{
+			lara.turn_rate -= 409;
+
+			if (lara.turn_rate < ANGLE(-3))
+				lara.turn_rate = ANGLE(-3);
+		}
+		else if (input & IN_RIGHT)
+		{
+			lara.turn_rate += 409;
+
+			if (lara.turn_rate > ANGLE(3))
+				lara.turn_rate = ANGLE(3);
+		}
+	}
+	else
+	{
+		item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
+	}
 }
 
 void lara_col_hang2(struct ITEM_INFO* item, struct COLL_INFO* coll)//163DC, 16510
@@ -1756,9 +1929,15 @@ void lara_as_all4turnr(struct ITEM_INFO* item, struct COLL_INFO* coll)//15484(<)
 	}
 }
 
-void lara_col_all4turnlr(struct ITEM_INFO* item, struct COLL_INFO* coll)//153FC, 15530
+void lara_col_all4turnlr(struct ITEM_INFO* item, struct COLL_INFO* coll)//153FC, 15530 (F)
 {
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 400);
+
+	if (!TestLaraSlide(item, coll))
+	{
+		if (coll->mid_floor != -32512 && coll->mid_floor > -256)
+			item->pos.y_pos += coll->mid_floor;
+	}
 }
 
 void lara_as_all4turnl(struct ITEM_INFO* item, struct COLL_INFO* coll)//15390(<), 154C4(<) (F)
@@ -2026,10 +2205,22 @@ int LaraLandedBad(struct ITEM_INFO* item, struct COLL_INFO* coll)//11BD8(<), 11C
 	return 0;
 }
 
-int LaraFallen(struct ITEM_INFO* item, struct COLL_INFO* coll)//11B6C, 11C1C
+int LaraFallen(struct ITEM_INFO* item, struct COLL_INFO* coll)//11B6C, 11C1C (F)
 {
-	S_Warn("[LaraFallen] - Unimplemented!\n");
-	return 0;
+	if (lara.water_status == 4 || coll->mid_floor <= 384)
+	{
+		return 0;
+	}
+	else
+	{
+		item->anim_number = ANIMATION_LARA_FREE_FALL_FORWARD;
+		item->current_anim_state = STATE_LARA_JUMP_FORWARD;
+		item->goal_anim_state = STATE_LARA_JUMP_FORWARD;
+		item->frame_number = anims[ANIMATION_LARA_FREE_FALL_FORWARD].frame_base;
+		item->fallspeed = 0;
+		item->gravity_status = TRUE;
+		return 1;
+	}
 }
 
 int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll)//11998, 11A48
@@ -2038,16 +2229,36 @@ int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll)//11998, 11A48
 	return 0;
 }
 
-short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h)//1189C, 1194C
+short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h)//1189C, 1194C (F)
 {
-	S_Warn("[LaraCeilingFront] - Unimplemented!\n");
-	return 0;
+	short room = item->room_number;
+
+	long x = item->pos.x_pos + ((dist * 4 * rcossin_tbl[(ang >> 3) & 0x1FFE]) >> 14);
+	long y = item->pos.y_pos - h;
+	long z = item->pos.z_pos + ((dist * 4 * rcossin_tbl[(ang >> 3) & 0x1FFE] + 1) >> 14);
+
+	long height = GetHeight(GetFloor(x, y, z, &room), x, y, z);
+
+	if (height != -32512)
+		height += h - item->pos.y_pos;
+
+	return height;
 }
 
-short LaraFloorFront(struct ITEM_INFO* item, short ang, long dist)//117B0, 11860
+short LaraFloorFront(struct ITEM_INFO* item, short ang, long dist)//117B0, 11860 (F)
 {
-	S_Warn("[LaraFloorFront] - Unimplemented!\n");
-	return 0;
+	short room = item->room_number;
+
+	long x = item->pos.x_pos + ((dist * 4 * rcossin_tbl[(ang >> 3) & 0x1FFE]) >> 14);
+	long y = item->pos.y_pos - 762;
+	long z = item->pos.z_pos + ((dist * 4 * rcossin_tbl[(ang >> 3) & 0x1FFE] + 1) >> 14);
+
+	long height = GetHeight(GetFloor(x, y, z, &room), x, y, z);
+
+	if (height != -32512)
+		height -= item->pos.y_pos;
+
+	return height;
 }
 
 void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764(<), 11814(<) (F)

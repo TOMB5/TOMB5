@@ -133,14 +133,6 @@ enum reverb_type
 	NUM_REVERB_TYPES
 };
 
-enum lara_draw_type
-{
-	LARA_NORMAL = 1,
-	LARA_CATSUIT = 4,
-	LARA_DIVESUIT = 5,
-	LARA_INVISIBLE = 7
-};
-
 enum weather_type
 {
 	WEATHER_NORMAL = 0,
