@@ -32,7 +32,7 @@ void PistolHandler(int weapon_type)
 void undraw_pistol_mesh_right(int weapon_type)//44968(<), 44DCC(<) (F)
 {
 	WeaponObject(weapon_type);
-	lara.mesh_ptrs[LM_RHAND] = meshes[objects[LARA].mesh_index + 20];
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[LARA].mesh_index + 2 * LM_RHAND];
 	switch (weapon_type)
 	{
 	case WEAPON_PISTOLS:
@@ -52,7 +52,7 @@ void undraw_pistol_mesh_left(int weapon_type)//448F0(<), 44D54(<) (F)
 	if(weapon_type != WEAPON_REVOLVER)
 	{
 		WeaponObject(weapon_type);
-		lara.mesh_ptrs[LM_LHAND] = meshes[objects[LARA].mesh_index + 26];
+		lara.mesh_ptrs[LM_LHAND] = meshes[objects[LARA].mesh_index + 2 * LM_LHAND];
 		switch (weapon_type)
 		{
 		case WEAPON_PISTOLS:
@@ -68,11 +68,11 @@ void undraw_pistol_mesh_left(int weapon_type)//448F0(<), 44D54(<) (F)
 void draw_pistol_meshes(int weapon_type)// (F)
 {
 	lara.holster = LARA_HOLSTERS;
-	lara.mesh_ptrs[LM_RHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 20];
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 2 * LM_RHAND];
 
 	if (weapon_type != WEAPON_REVOLVER)
 	{
-		lara.mesh_ptrs[LM_LHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 26];
+		lara.mesh_ptrs[LM_LHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 2 * LM_LHAND];
 	}
 }
 

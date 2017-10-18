@@ -6,7 +6,15 @@
 #include "DRAW.H"
 #include "LARASWIM.H"
 
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
+
 #include INPUT_H
+#include "OBJECTS.H"
+#include "GAMEFLOW.H"
 
 char* states[131] =
 {
@@ -117,7 +125,39 @@ void LaraCheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4A790(<), 4ABF4(
 	}
 }
 
-void LaraInitialiseMeshes()//4A684, 4AAE8
+void LaraInitialiseMeshes()//4A684, 4AAE8 (F)
 {
-	S_Warn("[LaraInitialiseMeshes] - Unimplemented!\n");
+	int i;
+	for(i = 0; i < 15; i++)
+	{
+		lara.mesh_ptrs[i] = meshes[objects[LARA].mesh_index + 2 * i] = meshes[objects[LARA_SKIN].mesh_index + 2 * i];
+	}
+
+	if (gfCurrentLevel >= LVL5_GALLOWS_TREE && gfCurrentLevel <= LVL5_OLD_MILL)
+	{
+		lara.mesh_ptrs[LM_TORSO] = meshes[objects[ANIMATING6_MIP].mesh_index + 2 * LM_TORSO];
+	}
+
+	if (lara.gun_type == 5)
+	{
+		lara.back_gun = 5;
+	}
+	else if (!lara.shotgun_type_carried)
+	{
+		if (lara.hk_type_carried)
+		{
+			lara.back_gun = 5;
+		}
+	}
+	else
+	{
+		lara.back_gun = 3;
+	}
+
+	lara.gun_status = 0;
+	lara.left_arm.frame_number = 0;
+	lara.right_arm.frame_number = 0;
+	lara.target = 0;
+	lara.right_arm.lock = 0;
+	lara.left_arm.lock = 0;
 }

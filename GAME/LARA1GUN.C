@@ -100,11 +100,11 @@ void ready_shotgun(int weapon_type)//424E0(<), 42934(<) (F)
 void undraw_shotgun_meshes(int weapon_type)//42498(<), 428EC(<) (F)
 {
 	lara.back_gun = WeaponObject(weapon_type);
-	lara.mesh_ptrs[LM_RHAND] = meshes[objects[LARA].mesh_index + 20];
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[LARA].mesh_index + 2 * LM_RHAND];
 }
 
 void draw_shotgun_meshes(int weapon_type)//42444(<), 42898(<) (F)
 {
 	lara.back_gun = 0;
-	lara.mesh_ptrs[LM_RHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 20];
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 2 * LM_RHAND];
 }
