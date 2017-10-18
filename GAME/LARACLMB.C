@@ -5,6 +5,7 @@
 #include "LARA.H"
 #include INPUT_H
 #include "SPECIFIC.H"
+#include "DRAW.H"
 
 static short LeftIntRightExtTab[4] = // offset 0xA0B7C
 {
@@ -112,9 +113,42 @@ void lara_col_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//464E8, 
 	S_Warn("[lara_col_climbstnc] - Unimplemented!\n");
 }
 
-void lara_as_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//463F0, 46854
+void lara_as_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//463F0, 46854 (F)
 {
-	S_Warn("[lara_as_climbstnc] - Unimplemented!\n");
+	lara.IsClimbing = TRUE;
+
+	coll->enable_spaz = 0;
+	coll->enable_baddie_push = 0;
+
+	camera.target_elevation = ANGLE(-20);
+
+	if (input & IN_LOOK)
+	{
+		LookUpDown();
+	}
+
+	if (input & IN_LEFT || input & IN_LSTEP)
+	{
+		item->goal_anim_state = STATE_LARA_LADDER_LEFT;
+
+		lara.move_angle = item->pos.y_rot - 0x4000;
+	}
+	else if (input & IN_RIGHT || input & IN_RSTEP)
+	{
+		item->goal_anim_state = STATE_LARA_LADDER_RIGHT;
+
+		lara.move_angle = item->pos.y_rot + ANGLE(90);
+	}
+	else if (input & IN_JUMP)
+	{
+		if (item->anim_number == ANIMATION_LARA_LADDER_IDLE)
+		{
+			item->goal_anim_state = STATE_LARA_JUMP_BACK;
+
+			lara.gun_status = 0;
+			lara.move_angle = item->pos.y_rot + ANGLE(-180);
+		}
+	}
 }
 
 int LaraTestClimbPos(struct ITEM_INFO* item, int front, int right, int origin, int height, int* shift)//462F8, 4675C
@@ -152,8 +186,37 @@ int LaraTestClimbUpPos(struct ITEM_INFO* item, int front, int right, int* shift,
 	return 0;
 }
 
-long LaraCheckForLetGo(struct ITEM_INFO* item, struct COLL_INFO* coll)//45434, 45898
+long LaraCheckForLetGo(struct ITEM_INFO* item, struct COLL_INFO* coll)//45434, 45898 (F)
 {
-	S_Warn("[LaraCheckForLetGo] - Unimplemented!\n");
-	return 0;
+	short room_number = item->room_number;
+
+	item->gravity_status = FALSE;
+	item->fallspeed = 0;
+
+	GetHeight(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number),
+		item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+
+	coll->trigger = trigger_index;
+
+	if (input & IN_ACTION && item->hit_points > 0)
+		return 0;
+
+	lara.torso_y_rot = 0;
+	lara.torso_x_rot = 0;
+
+	lara.head_y_rot = 0;
+	lara.head_x_rot = 0;
+
+	item->goal_anim_state = STATE_LARA_JUMP_FORWARD;
+	item->current_anim_state = STATE_LARA_JUMP_FORWARD;
+	item->anim_number = ANIMATION_LARA_FREE_FALL_FORWARD;
+	item->frame_number = anims[ANIMATION_LARA_FREE_FALL_FORWARD].frame_base;
+
+	item->speed = 2;
+	item->gravity_status = TRUE;
+	item->fallspeed = 1;
+
+	lara.gun_status = 0;
+
+	return 1;
 }

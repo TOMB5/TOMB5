@@ -36,15 +36,24 @@
 # clipboard (if USE_CLIPBOARD is True). Note that the latter requires
 # pyperclip, which can be installed using pip.
 
+# Command-line usage:
+# $ python issue_generator.py [arg1] [arg2] ...
+# or you can chmod +x it and do
+# $ ./issue_generator.py [arg1] [arg2] ...
+# where [argN] is + or - an option (see below)
+# example:
+# $ ./issue_generator.py +warn -hint -clipboard
+# = force show warnings, hide hints and don't use clipboard
 
 # increment this plz
-# rev 1
-# 2017-10-16                                                      
+# rev 2
+# 2017-10-17                                                  
 
 
 from urllib.request import urlopen
 import json
 import os.path
+import sys
 
 # STEP
 #  _ 
@@ -55,13 +64,30 @@ import os.path
 # 
 # Global settings
 
-ISSUE_ID = 46 						# ID of the issue on GitHub (for the API request)
-PLATFORMS = ["GAME", "SPEC_PSX"] 	# Which folders/platforms to use
-SHOW_WARN = True 					# Show warnings (error messages)
-SHOW_HINT = True 					# Show hints (e.g. function checked in list but not (F) in file)
-SHOW_STATUS = False					# Show status messages (function added successfully yay)
-AUTO_ADD_MISSING = True 			# If a function is marked (F) in file but is missing in the list, add it to the list
-USE_CLIPBOARD = True 				# Copy output into clipboard instead of outputting it to the console
+def isarg(arg, default):
+	if any(x for x in sys.argv if x.strip().lower() == "+%s" % arg):
+		return True
+	elif any(x for x in sys.argv if x.strip().lower() == "-%s" % arg):
+		return False
+	else:
+		return default
+
+ISSUE_ID = 			46 							# ID of the issue on GitHub (for the API request)
+PLATFORMS = 		["GAME", "SPEC_PSX"] 		# Which folders/platforms to use
+SHOW_WARN = 		isarg("warn", True) 		# Show warnings (error messages)
+SHOW_HINT = 		isarg("hint", True) 		# Show hints (e.g. function checked in list but not (F) in file)
+SHOW_STATUS = 		isarg("status", False)		# Show status messages (function added successfully yay)
+AUTO_ADD_MISSING = 	isarg("addmissing", True) 	# If a function is marked (F) in file but is missing in the list, add it to the list
+USE_CLIPBOARD = 	isarg("clipboard", True) 	# Copy output into clipboard instead of outputting it to the console
+SHOW_UNIMPL =		isarg("showunimpl", False)	# At the end, output a list of unimplemented (unchecked) functions
+USE_REPR =			isarg("userepr", False)		# Debugging purposes. When outputting a list (e.g. SHOW_UNIMPL), use repr()
+SHOW_ADDED =		isarg("showadded", False)	# Show a plain list of added functions
+
+if not os.path.isfile("README.md"):
+	os.chdir("..")
+
+if SHOW_WARN and not os.path.isfile("README.md"):
+	print("[WARN--------] cannot find README.md in current or parent directory, are you in the correct folder?")
 
 # STEP
 #  ____  
@@ -183,6 +209,8 @@ for plat in sorted(platforms.keys()):
 # Output the results
 
 lines = []
+unimpl = []
+
 for plat in sorted(platforms.keys()):
 	lines.append("### " + plat)
 
@@ -191,6 +219,8 @@ for plat in sorted(platforms.keys()):
 
 		for func in sorted(platforms[plat][file].keys(), key=str.lower):
 			lines.append("- [%s] `%s`%s" %("x" if platforms[plat][file][func] else " ", func, comments[func] if func in comments else ""))
+			if SHOW_UNIMPL and not platforms[plat][file][func]:
+				unimpl.append("%s\\%s // %s" % (plat, file, func))
 
 output = "\n".join(lines)
 
@@ -199,3 +229,17 @@ if USE_CLIPBOARD:
 	pyperclip.copy(output)
 else:
 	print(output)
+
+if SHOW_UNIMPL:
+	print("Unimplemented :")
+	if USE_REPR:
+		print(repr([x.split(" // ")[1] for x in unimpl]))
+	else:
+		print("\n".join(unimpl))
+
+if SHOW_ADDED:
+	print("Added :")
+	if USE_REPR:
+		print(repr(added))
+	else:
+		print("\n".join(added))

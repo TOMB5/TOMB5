@@ -7,6 +7,8 @@
 #include "CAMERA.H"
 #include "SOUND.H"
 #include "TOMB4FX.H"
+#include "DRAW.H"
+#include "DEBRIS.H"
 
 struct ITEM_LIGHT fxil;
 
@@ -122,8 +124,24 @@ void ControlBodyPart(short fx_number)//4E600, 4EA64 (F)
 		EffectNewRoom(fx_number, room_number);
 }
 
-int ExplodeFX(struct FX_INFO* fx, int NoXZVel, long bits)//4E4E0, 4E944
+int ExplodeFX(struct FX_INFO* fx, int NoXZVel, long bits)//4E4E0, 4E944 (F)
 {
-	S_Warn("[ExplodeFX] - Unimplemented!\n");
-	return 0;
+	short** meshpp = &meshes[fx->frame_number];
+
+	ShatterItem.YRot = fx->pos.y_rot;
+	ShatterItem.meshp = *meshpp;
+	ShatterItem.Sphere.x = fx->pos.x_pos;
+	ShatterItem.Sphere.y = fx->pos.y_pos;
+	ShatterItem.Sphere.z = fx->pos.z_pos;
+	ShatterItem.Bit = 0;
+	ShatterItem.Flags = fx->flag2 & 0x1400;
+
+	if (fx->flag2 & 0x2000)
+		DebrisFlags = 1;
+
+	ShatterObject(&ShatterItem, 0, bits, fx->room_number, NoXZVel);
+
+	DebrisFlags = 0;
+
+	return 1;
 }

@@ -253,11 +253,11 @@ void ExplosionFX(struct ITEM_INFO* item)//39694(<), 39B94(<) (F)
 
 void SwapCrowbar(struct ITEM_INFO* item)//39638(<), 39B38(<) (F)
 {
-	short* tmp = meshes[objects[LARA].mesh_index + 20];
+	short* tmp = meshes[objects[LARA].mesh_index + 2 * LM_RHAND];
 
 	if (lara.mesh_ptrs[LM_RHAND] == tmp)
 	{
-		lara.mesh_ptrs[LM_RHAND] = meshes[objects[CROWBAR_ANIM].mesh_index + 20];
+		lara.mesh_ptrs[LM_RHAND] = meshes[objects[CROWBAR_ANIM].mesh_index + 2 * LM_RHAND];
 	}
 	else lara.mesh_ptrs[LM_RHAND] = tmp;
 }
