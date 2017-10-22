@@ -45,8 +45,9 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	init_game_malloc();
 
 	LOAD_Start(Name + TITLE);
-
-	//SetupPtr = db.poly_buffer[0]+1026;
+	
+	char* temp = new char[gwHeader.entries[0].fileSize];
+	SetupPtr = (unsigned long*)&temp[8];
 
 #if INTERNAL
 	len = FILE_Length("DATA\\SETUP.MOD");
@@ -57,12 +58,14 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	fclose(file);
 
 #else
-	char* temp = new char[gwHeader.entries[0].fileSize];
+
 	CD_Read(temp, gwHeader.entries[0].fileSize);//jal 5E414
-	delete[] temp;
+	
 #endif
 
-	//RelocateModule(SetupPtr, &SetupPtr[1024]);
+#if 1
+	RelocateModule((unsigned long)SetupPtr, (unsigned long*)&temp[(*(unsigned long*)&temp[0]) + 8] );
+#endif
 
 #if INTERNAL
 	strcpy(buf, &gfFilenameWad[gfFilenameOffset[Name]]);
@@ -81,6 +84,9 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 	LOAD_Stop();
 
+	//Bug may be accessed later
+	delete[] temp;
+	
 	return;
 }
 
