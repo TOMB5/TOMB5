@@ -3,26 +3,6 @@
 
 #include "SPECTYPES.H"
 
-enum material_index
-{
-	MAT_MUD,
-	MAT_SNOW,
-	MAT_SAND,
-	MAT_GRAVEL,
-	MAT_ICE,
-	MAT_WATER,
-	MAT_STONE,
-	MAT_WOOD,
-	MAT_METAL,
-	MAT_MARBLE,
-	MAT_GRASS,
-	MAT_CONCRETE,
-	MAT_OLD_WOOD,
-	MAT_OLD_METAL,
-
-	NUM_MATERIALS
-};
-
 extern short LightningSFXDelay;
 extern struct room_info* room;
 extern short number_rooms;
@@ -63,7 +43,12 @@ extern short Sback_gun;
 extern short* SRhandPtr;
 extern short* SLhandPtr;
 
-long GetFrames(struct ITEM_INFO* item, short** unknown, long* unknown_2);
-short* GetBoundsAccurate(struct ITEM_INFO* item);
+extern long GetFrames(struct ITEM_INFO* item, short** unknown, long* unknown_2);
+extern short* GetBoundsAccurate(struct ITEM_INFO* item);
+extern void UpdateSkyLightning();
+extern void DrawSkyMesh(short* mesh);
+extern void DrawFlatSky_ASM(struct CVECTOR colour, short pos, long flags);
+extern void DrawMoon();
+extern void DrawGunflashes();
 
 #endif

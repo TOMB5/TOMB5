@@ -53,5 +53,17 @@ extern void TriggerShatterSmoke(int x, int y, int z);
 extern void TriggerBlood(int x, int y, int z, int direction, int speed);
 extern void TriggerExplosionBubble(int x, int y, int z, short room_num);
 extern void TriggerExplosionSparks(int x, int y, int z, int a4, int a5, int a6, short room_no);
+extern void Fade();
+extern void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb);
+extern int ExplodingDeath2(short item_number, long mesh_bits, short Flags);
+extern void DrawLensFlares(struct ITEM_INFO *item);
+extern void TriggerLightningGlow(long x, long y, long z, long rgb);
+extern void trig_actor_gunflash(struct MATRIX3D *matrix, struct PHD_VECTOR *pos);
+extern void TriggerFenceSparks(long x, long y, long z, long kill, long crane);
+extern void ControlElectricFence(short item_number);
+extern void ControlTeleporter(short item_number);
+extern void DrawWeaponMissile(struct ITEM_INFO *item);
+extern void TriggerLaraDrips();
+extern void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num);
 
 #endif

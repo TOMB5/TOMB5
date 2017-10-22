@@ -10,6 +10,55 @@ enum cutseq_pistols_info
 	CPI_SHOOT_RIGHT = 0x4000
 };
 
+enum cutscenes
+{
+	CUT_NULL,
+	CUT_STEALTH3_1,
+	CUT_STEALTH3_2,
+	CUT_STEALTH3_3,
+	CUT_STEALTH3_4,
+	CUT_JOBY6,
+	CUT_ANDY5,
+	CUT_ANDREA3B,
+	CUT_ANDREA3,
+	CUT_ANDY4B,
+	CUT_ANDY4,
+	CUT_RICHCUT4,
+	CUT_JOBY10,
+	CUT_JOBY9,
+	CUT_ANDY3,
+	CUT_JOBY5,
+	CUT_ANDREA2,
+	CUT_ANDREA1,
+	CUT_JOBY4,
+	CUT_ANDY2,
+	CUT_RICH1,
+	CUT_ANDY1,
+	CUT_JOBY_CUT_3,
+	CUT_RICH_CUT_3,
+	CUT_RICH_CUT_1,
+	CUT_JOBY_CUT_2,
+	CUT_RICH_CUT_2,
+	CUT_JOBY_CRANE_CUT,
+	CUT_SPECIAL1,
+	CUT_SPECIAL2,
+	CUT_SPECIAL3,
+	CUT_SPECIAL4,
+	CUT_JOBY8,
+	CUT_ANDY6,
+	CUT_ANDYPEW,
+	CUT_ANDY7,
+	CUT_COSSACK,
+	CUT_ANDY9,
+	CUT_ANDY8,
+	CUT_ANDY10,
+	CUT_JOBY7,
+	CUT_ANDREA4,
+	CUT_MONK2,
+	CUT_SWAMPY,
+	CUT_ANDY11,
+};
+
 extern struct CUTSEQ_ROUTINES cutseq_control_routines[45];
 extern unsigned short crane_pistols_info[11];
 extern unsigned short craneguard_pistols_info[7];
@@ -252,5 +301,7 @@ extern void frigup_lara();
 extern void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* packed, int numnodes);
 extern void do_new_cutscene_camera();
 extern void handle_cutseq_triggering(int name);
+extern void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix);
+extern void TriggerUnderwaterBlood(int x, int y, int z, int sizeme);
 
 #endif

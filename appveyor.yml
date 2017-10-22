@@ -4,6 +4,7 @@ branches:
   only:
   - master
 #  - appveyor
+  - appveyor-testbranch
   
 skip_tags: true
 
@@ -17,7 +18,7 @@ clone_folder: c:\projects\TOMB5
 #lib_folder: %clone_folder%\EXTERNAL
 
 build:
-  project: TOMB5.sln
+  project: c:\projects\TOMB5\BUILD\TOMB5.sln
   verbosity: minimal
   
 platform:

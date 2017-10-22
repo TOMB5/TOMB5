@@ -75,7 +75,38 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578
 	return dwFileSize;
 }
 
-void RelocateModule(unsigned long Module, unsigned long* RelocData)
+void RelocateModule(unsigned long Module, unsigned long* RelocData)//5E6D4(<), 5F430(<) (F)
 {
-	//TODO
+	unsigned long* pModule = NULL;
+	unsigned long RelocationType = 0;
+
+	if (RelocData[0] == -1)
+	{
+		return;
+	}
+
+	//loc_5E700
+	do
+	{
+		RelocationType = *RelocData & 3;
+		pModule = (unsigned long*)(Module + (*RelocData++ & -4));
+
+		if (RelocationType == 0)
+		{
+			*(unsigned long*) pModule += Module;
+		}
+		else if(RelocationType == 1)
+		{
+			*(unsigned short*) pModule = (*RelocData++ + Module + 0x8000) / 65536;
+		}
+		else if(RelocationType == 2)
+		{
+			*(unsigned short*) pModule += Module;
+		}
+		else if(RelocationType == 3)
+		{
+			*(unsigned long*) pModule += Module / sizeof(unsigned long);
+		}
+
+	} while (*RelocData != -1);
 }

@@ -5,11 +5,7 @@
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "OBJECTS.H"
-#if PSXPC_VERSION
-	#include "PSXPCINPUT.H"
-#elif PSX_VERSION
-	#include "PSXINPUT.H"
-#endif
+#include INPUT_H
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "SWITCH.H"
@@ -17,7 +13,7 @@
 
 #include <assert.h>
 
-#if PSXPC_VERSION
+#if PSXPC_VERSION || PC_VERSION
 	#include <math.h>
 #endif
 
@@ -46,19 +42,23 @@ long MULTEMP(long A/*$a0*/, long B/*$a1*/)
 	return v1|v0;
 }
 
-int bUseSpotCam;
-int bDisableLaraControl;
-int bTrackCamInit;
-char SCOverlay;
-char SCNoDrawLara;
-char SniperOverlay;
-short spotcam_timer;
-int bCheckTrigger;
+int bUseSpotCam = 0;
+int bDisableLaraControl = 0;
+int bTrackCamInit = 0;
+char SCOverlay = 0;
+char SCNoDrawLara = 0;
+char SniperOverlay = 0;
+short spotcam_timer = 0;
+int bCheckTrigger = 0;
 short LastSequence;
 short CurrentFov;
 short spotcam_loopcnt;
 short number_spotcams;
+#if PC_VERSION
+struct SPOTCAM SpotCam[255];
+#else
 struct SPOTCAM* SpotCam;
+#endif
 unsigned char CameraCnt[16];
 unsigned char SpotRemap[16];
 long current_spline_position;
@@ -132,7 +132,7 @@ void InitSpotCamSequences()//374B8(<), 379B8(<) (F)
 	return;
 }
 
-void InitialiseSpotCam(short Sequence)//37648, 37B48
+void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 {
 	struct SPOTCAM* s;
 	int cn;
@@ -538,7 +538,7 @@ void CalculateSpotCams()//
 	{
 		CameraFade = current_spline_camera;
 
-		if (gfCurrentLevel != 0)
+		if (gfCurrentLevel != LVL5_TITLE)
 		{
 			ScreenFadedOut = 0;
 			ScreenFade = 255;
@@ -550,7 +550,7 @@ void CalculateSpotCams()//
 	//loc_38084
 	if (SpotCam[current_spline_camera].flags & SCF_SCREEN_FADE_OUT && CameraFade != current_spline_camera)
 	{
-		if (gfCurrentLevel != 0)
+		if (gfCurrentLevel != LVL5_TITLE)
 		{
 			ScreenFadedOut = 0;
 			ScreenFade = 0;

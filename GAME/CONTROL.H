@@ -21,6 +21,8 @@ enum input_buttons
 	IN_RSTEP = (1 << 11),						// 0x000800
 	IN_ROLL = (1 << 12), // End / O				// 0x001000
 	IN_PAUSE = (1 << 13),						// 0x002000
+	IN_UNK20 = (1 << 20),						// 0x100000
+	IN_UNK21 = (1 << 21),						// 0x200000
 	IN_SAVE = (1 << 22), // F5					// 0x400000
 	IN_LOAD = (1 << 23)  // F6					// 0x800000
 };
@@ -97,8 +99,13 @@ extern int framecount;
 extern long rand_2;
 extern struct ITEM_INFO* items;
 extern int flip_status;
+#if PC_VERSION
+extern int flipmap[255];
+extern int flip_stats[255];
+#else
 extern int flipmap[10];
 extern int flip_stats[10];
+#endif
 extern int height_type;
 extern int tiltxoff;
 extern int tiltyoff;
@@ -145,7 +152,9 @@ extern struct CHARDEF CharDef[106];
 
 extern long ControlPhase(long nframes, int demo_mode);
 extern long GetRandomControl();
+extern void SeedRandomControl(long seed);
 extern long GetRandomDraw();
+extern void SeedRandomDraw(long seed);
 extern void AddRoomFlipItems(struct room_info* r);
 extern void KillMoveItems();
 extern void KillMoveEffects();
@@ -185,5 +194,7 @@ extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor);
+extern void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int a3);
+extern void AddFire(int x, int y, int z, char size, short room_num, short on);
 
 #endif

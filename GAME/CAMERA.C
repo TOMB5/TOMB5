@@ -1,6 +1,7 @@
 #include "CAMERA.H"
-
+#if !PC_VERSION
 #include "CD.H"
+#endif
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
@@ -189,21 +190,21 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 	//We won't actually use this yet since lara_item is not inited.
 	return;
 	camera.pos.x = lara_item->pos.x_pos;
-	camera.pos.y = lara_item->pos.y_pos - SECTOR;
+	camera.pos.y = lara_item->pos.y_pos - SECTOR(1);
 	camera.pos.z = lara_item->pos.z_pos - 100;
 	camera.pos.room_number = lara_item->room_number;
 
 	camera.target.x = lara_item->pos.x_pos;
-	camera.target.y = lara_item->pos.y_pos - SECTOR;
+	camera.target.y = lara_item->pos.y_pos - SECTOR(1);
 	camera.target.z = lara_item->pos.z_pos;
 	camera.target.room_number = lara_item->room_number;
 
 	last_target.x = lara_item->pos.x_pos;
-	last_target.y = lara_item->pos.y_pos - SECTOR;
+	last_target.y = lara_item->pos.y_pos - SECTOR(1);
 	last_target.z = lara_item->pos.z_pos;
 	last_target.room_number = lara_item->room_number;
 	
-	camera.shift = lara_item->pos.y_pos - SECTOR;
+	camera.shift = lara_item->pos.y_pos - SECTOR(1);
 	camera.target_distance = 1536;
 	camera.number_frames = 1;
 	camera.speed = 1;
@@ -221,7 +222,7 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 	return;
 }
 
-void AlterFOV(short fov)//77BD8(<), 79C1C(<)
+void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 {
 	CurrentFov = fov;
 

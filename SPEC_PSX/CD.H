@@ -17,6 +17,11 @@
 #define LOADING_SCREEN_IMG_HEIGHT 256
 #define LOADING_SCREEN_IMG_SIZE LOADING_SCREEN_IMG_WIDTH * LOADING_SCREEN_IMG_HEIGHT * (LOADING_SCREEN_IMG_BPP / NUM_BITS_IN_BYTE)
 
+#define LOADING_CD_VRAM_OFFSET_X 1024
+#define LOADING_CD_VRAM_OFFSET_Y 256
+#define VRAM_OFFSET 1024 * 256
+//#define VRAM_OFFSET LOADING_CD_VRAM_OFFSET_X * LOADING_CD_VRAM_OFFSET_Y * (LOADING_CD_IMG_BPP / NUM_BITS_IN_BYTE)
+
 //Image properties for the loading "cd" seen when the game is loading.
 //Do not change these unless the image dimensions or pixel format of the bitmap in GAMEWAD.OBJ has been changed.
 #define LOADING_CD_IMG_BPP 16
@@ -99,12 +104,10 @@ struct GAMEWAD_entry
 	int fileSize;
 };
 
-#define GAMEWAD_ENTRYSIZE 8
-
 struct GAMEWAD_header
 {
 	struct GAMEWAD_entry entries[NUM_GAMEWAD_FILE_ENTRIES];
-	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * GAMEWAD_ENTRYSIZE)];
+	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * sizeof(struct GAMEWAD_entry))];
 };
 
 int CD_InitialiseReaderPosition(int fileID);
@@ -115,18 +118,6 @@ void CD_ReaderPositionToCurrent();
 extern struct GAMEWAD_header gwHeader;
 extern int gwLba;
 extern int cdCurrentSector;
-
-
-extern void cbvsync();
-extern void InitNewCDSystem();
-extern void S_CDPlay(short track, int mode);
-extern void S_CDStop();
-extern void S_CDPause();
-extern void CDDA_SetMasterVolume(int nVolume);
-extern void CDDA_SetVolume(int nVolume);
-extern void DEL_ChangeCDMode(int mode);
-extern void XAReplay();
-
 extern unsigned short XATrackClip[136];
 extern short XAFadeRate;
 extern int current_cd_mode;
@@ -140,5 +131,19 @@ extern short XAReqTrack;
 extern char XAFlag;
 extern char XAWait;
 extern int XAStartPos;
+
+extern void cbvsync();
+extern void InitNewCDSystem();
+extern void CDDA_SetMasterVolume(int nVolume);
+extern void CDDA_SetVolume(int nVolume);
+extern void DEL_ChangeCDMode(int mode);
+extern void XAReplay();
+extern void S_StartSyncedAudio(int nTrack);
+extern void S_CDPlay(short track, int mode);
+extern void S_CDStop();
+extern void S_CDPause();
+extern void S_CDRestart();
+
+
 
 #endif
