@@ -288,8 +288,82 @@ enum trigobj_types {
 	TO_OBJECT, TO_CAMERA, TO_SINK, TO_FLIPMAP, TO_FLIPON, TO_FLIPOFF, TO_TARGET, TO_FINISH, TO_CD, TO_FLIPEFFECT, TO_SECRET, TO_BODYBAG, TO_FLYBY, TO_CUTSCENE
 };
 
+enum weapon_types {
+	WEAPON_NONE = 0,
+	WEAPON_PISTOLS = 1,
+	WEAPON_REVOLVER = 2,
+	WEAPON_UZI = 3,
+	WEAPON_SHOTGUN = 4,
+	WEAPON_HK = 5,
+	WEAPON_CROSSBOW = 6,
+};
+
+enum weapon_type_carried {
+	WTYPE_MISSING = 0,
+	WTYPE_PRESENT = 1,
+	WTYPE_SILENCER = 2,
+	WTYPE_LASERSIGHT = 4,
+	WTYPE_AMMO_1 = 8,
+	WTYPE_AMMO_2 = 16,
+	WTYPE_AMMO_3 = 32,
+
+	WTYPE_MASK_AMMO = WTYPE_AMMO_1 | WTYPE_AMMO_2 | WTYPE_AMMO_3
+};
+
+enum cloth_type
+{
+	CLOTH_MISSING = 0,
+	CLOTH_DRY = 1,
+	CLOTH_WET = 2
+};
+
+// TR4
+/*enum crossbow_type {
+	CROSSBOW_NORMAL = 0,
+	CROSSBOW_POISON = 1,
+	CROSSBOW_EXPLOSIVE = 2
+};*/
+
+#define UZI_AMMO_COUNT 30
+#define SHOTGUN_SHELL_COUNT 36
+#define REVOLVER_AMMO_COUNT 6
+#define GRAPPLING_AMMO_COUNT 10
+#define HK_AMMO_COUNT 30
+
+enum pistols_type {
+	PISTOLS_NORMAL
+};
+
+enum uzi_type {
+	UZI_NORMAL
+};
+
+enum revolver_type {
+	REVOLVER_NORMAL
+};
+
+enum hk_type {
+	HK_SNIPER,
+	HK_BURST,
+	HK_RAPID
+};
+
+enum shotgun_shell_type {
+	SHELL_NORMAL,
+	SHELL_WIDESHOT
+};
+
+enum grappling_type {
+	GRAPPLING_TYPE_1,
+	GRAPPLING_TYPE_2,
+	GRAPPLING_TYPE_3
+};
+
+// converts something like HK_SNIPER or SHELL_NORMAL to WTYPE_AMMO_x
+#define WTYPE(x) (1 << (x + 3))
+
 extern struct BITE_INFO EnemyBites[9];
-extern int AnimatingWaterfallsVOffset;
+extern int AnimatingWaterfallsVOffset; // offset 0xA1268
 
 extern void HybridCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
 extern void DrawBaddieGunFlash(struct ITEM_INFO* item);

@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
-project (PCTOMB5)
+project (TombRaiderChronicles_PC${TARGET_ARCH})
 
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
@@ -11,9 +11,6 @@ add_definitions(-DPC_VERSION)
 #Setup platform specific / game code include folder
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${GAME_CODE_DIR})
-
-#Additional library include directories
-include_directories(${SDL2_INCLUDE_DIR})
 
 #Recursively locate the source files for SPEC_PC.
 file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAKE_CURRENT_SOURCE_DIR}/*.H ${CMAKE_CURRENT_SOURCE_DIR}/*.CUR ${CMAKE_CURRENT_SOURCE_DIR}/*.RC)
@@ -34,8 +31,8 @@ ${PLATFORM_SPECIFIC_SRCS}
 #)
 
 set_target_properties(
-${PROJECT_NAME}
-PROPERTIES OUTPUT_NAME "PCTOMB5"
+${PROJECT_NAME} PROPERTIES OUTPUT_NAME "PCTOMB5"
+${PROJECT_NAME} PROPERTIES FOLDER "Build Targets/Windows"
 )
 
 if(MSVC)

@@ -21,6 +21,8 @@ enum input_buttons
 	IN_RSTEP = (1 << 11),						// 0x000800
 	IN_ROLL = (1 << 12), // End / O				// 0x001000
 	IN_PAUSE = (1 << 13),						// 0x002000
+	IN_UNK20 = (1 << 20),						// 0x100000
+	IN_UNK21 = (1 << 21),						// 0x200000
 	IN_SAVE = (1 << 22), // F5					// 0x400000
 	IN_LOAD = (1 << 23)  // F6					// 0x800000
 };
@@ -192,5 +194,7 @@ extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor);
+extern void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int a3);
+extern void AddFire(int x, int y, int z, char size, short room_num, short on);
 
 #endif

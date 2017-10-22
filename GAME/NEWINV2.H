@@ -3,6 +3,23 @@
 
 #include "SPECTYPES.H"
 
+enum rings
+{
+	RING_INVENTORY,
+	RING_AMMO
+};
+
+enum inv_options
+{
+	OPT_SHOTGUN = 0x40,
+	OPT_CROSSBOW_TYPE2 = 0x80,
+	OPT_HK = 0x100,
+	OPT_UZI = 0x200,
+	OPT_PISTOLS = 0x400,
+	OPT_REVOLVER = 0x800,
+	OPT_CROSSBOW_TYPE1 = 0x4000
+};
+
 extern struct INVOBJ inventry_objects_list[100]; // offset 0x92BE8
 extern unsigned char wanky_secrets_table[18]; // offset 0x92BD4
 extern short options_table[99]; // offset 0x933B8

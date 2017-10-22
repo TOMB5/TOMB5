@@ -2,8 +2,8 @@
 
 | Platform  | Build State |
 | ------------- | ------------- |
-| Windows  | [![Build status](https://ci.appveyor.com/api/projects/status/u5ery22l7cl587dq/branch/master?svg=true)](https://ci.appveyor.com/project/Gh0stBlade/tomb5/branch/master)  |
-| Linux  | [![Build Status](https://travis-ci.org/Gh0stBlade/TOMB5.svg?branch=master)](https://travis-ci.org/Gh0stBlade/TOMB5)
+| Windows  | [![Build status](https://ci.appveyor.com/api/projects/status/wbfndh3l1j605tow/branch/master?svg=true)](https://ci.appveyor.com/project/Gh0stBlade/tomb5/branch/master) |
+| Linux  | [![Build Status](https://travis-ci.org/TOMB5/TOMB5.svg?branch=master)](https://travis-ci.org/TOMB5/TOMB5)
 
 ## Disclaimer
 This project may be abandoned at any time, use this product at your own risk.
@@ -28,6 +28,6 @@ Feel free to contact me on this: [Discord channel](https://discord.gg/KYSx8Q7)
 
 ## Credits
 
-- Gh0stBlade: main developer
-- zdimension: MIPS and x86 assembly to C translation, SPEC_PC branch main developer
+- Gh0stBlade: Main developer.
+- zdimension: MIPS and x86 assembly to C translation, SPEC_PC branch main developer.
 - [You?](CONTRIBUTING.md)

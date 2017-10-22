@@ -18,6 +18,9 @@
 
 #include <stddef.h>
 #include "OBJECTS.H"
+#include "SAVEGAME.H"
+#include "CD.H"
+#include "SOUND.H"
 
 
 long wf = 256;
@@ -27,64 +30,124 @@ int number_sound_effects;
 struct OBJECT_VECTOR* sound_effects;
 struct FX_INFO* effects;
 
-void TL_12(struct ITEM_INFO* item)//39E3C, 3A33C
+void TL_12(struct ITEM_INFO* item)//39E3C, 3A33C (F)
 {
-	S_Warn("[TL_12] - Unimplemented!\n");
+	if (savegame.TLCount == 11)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA5_TL_12, 0);
+		savegame.TLCount = 12;
+	}
 }
 
-void TL_11(struct ITEM_INFO* item)//39DF0, 3A2F0
+void TL_11(struct ITEM_INFO* item)//39DF0, 3A2F0 (F)
 {
-	S_Warn("[TL_11] - Unimplemented!\n");
+	if (savegame.TLCount == 10)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA1_TL_10B, 0);
+		savegame.TLCount = 11;
+	}
 }
 
-void TL_10(struct ITEM_INFO* item)//39DA4, 3A2A4
+void TL_10(struct ITEM_INFO* item)//39DA4, 3A2A4 (F)
 {
-	S_Warn("[TL_10] - Unimplemented!\n");
+	if (savegame.TLCount == 9)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA2_TL_10A, 0);
+		savegame.TLCount = 10;
+	}
 }
 
-void TL_9(struct ITEM_INFO* item)//39D54, 3A254
+void TL_9(struct ITEM_INFO* item)//39D54, 3A254 (F)
 {
-	S_Warn("[TL_9] - Unimplemented!\n");
+	if (savegame.TLCount < 9)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA1_TL_11, 0);
+		savegame.TLCount = 9;
+	}
 }
 
-void TL_8(struct ITEM_INFO* item)//39D04, 3A204
+void TL_8(struct ITEM_INFO* item)//39D04, 3A204 (F)
 {
-	S_Warn("[TL_8] - Unimplemented!\n");
+	if (savegame.TLCount < 8)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA1_TL_08, 0);
+		savegame.TLCount = 8;
+	}
 }
 
-void TL_7(struct ITEM_INFO* item)//39CB4, 3A1B4
+void TL_7(struct ITEM_INFO* item)//39CB4, 3A1B4 (F)
 {
-	S_Warn("[TL_7] - Unimplemented!\n");
+	if (savegame.TLCount < 7)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA7_TL_07, 0);
+		savegame.TLCount = 7;
+	}
 }
 
-void TL_6(struct ITEM_INFO* item)//39C64, 3A164
+void TL_6(struct ITEM_INFO* item)//39C64, 3A164 (F)
 {
-	S_Warn("[TL_6] - Unimplemented!\n");
+	if (savegame.TLCount < 6)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA3_TL_06, 0);
+		savegame.TLCount = 6;
+	}
 }
 
-void TL_5(struct ITEM_INFO* item)//39C14, 3A114
+void TL_5(struct ITEM_INFO* item)//39C14, 3A114 (F)
 {
-	S_Warn("[TL_5] - Unimplemented!\n");
+	if (savegame.TLCount < 5)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA1_TL_05, 0);
+		savegame.TLCount = 5;
+	}
 }
 
-void TL_4(struct ITEM_INFO* item)//39BC4, 3A0C4
+void TL_4(struct ITEM_INFO* item)//39BC4, 3A0C4 (F)
 {
-	S_Warn("[TL_4] - Unimplemented!\n");
+	if (savegame.TLCount < 4)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA5_TL_04, 0);
+		savegame.TLCount = 4;
+	}
 }
 
-void TL_3(struct ITEM_INFO* item)//39B74, 3A074
+void TL_3(struct ITEM_INFO* item)//39B74, 3A074 (F)
 {
-	S_Warn("[TL_3] - Unimplemented!\n");
+	if (savegame.TLCount < 3)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA3_TL_03, 0);
+		savegame.TLCount = 3;
+	}
 }
 
-void TL_2(struct ITEM_INFO* item)//39B24, 3A024
+void TL_2(struct ITEM_INFO* item)//39B24, 3A024 (F)
 {
-	S_Warn("[TL_2] - Unimplemented!\n");
+	if (savegame.TLCount < 2)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA1_TL_02, 0);
+		savegame.TLCount = 2;
+	}
 }
 
-void TL_1(struct ITEM_INFO* item)//39AD8, 39FD8
+void TL_1(struct ITEM_INFO* item)//39AD8, 39FD8 (F)
 {
-	S_Warn("[TL_1] - Unimplemented!\n");
+	if (savegame.TLCount < 1)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA2_TL_01, 0);
+		savegame.TLCount = 1;
+	}
 }
 
 void ClearSpidersPatch(struct ITEM_INFO* item)//39AA4, 39FA4
@@ -95,43 +158,36 @@ void ClearSpidersPatch(struct ITEM_INFO* item)//39AA4, 39FA4
 void reset_hair(struct ITEM_INFO* item)//39A84(<), 39F84(<) (F)
 {
 	InitialiseHair();
-	return;
 }
 
 void invisibility_off(struct ITEM_INFO* item)//39A6C(<), 39F6C(<) (F)
 {
 	item->status = 1;
-	return;
 }
 
 void invisibility_on(struct ITEM_INFO* item)//39A58(<), 39F58(<) (F)
 {
 	item->status = 3;
-	return;
 }
 
 void SetFog(struct ITEM_INFO* item)//39A44(<), 39F44(<) (F)
 {
 	flipeffect = -1;
-	return;
 }
 
 void shoot_left_gun(struct ITEM_INFO* item)//39A34(<), 39F34(<) (F)
 {
 	lara.left_arm.flash_gun = 3;
-	return;
 }
 
 void shoot_right_gun(struct ITEM_INFO* item)//39A24(<), 39F24(<) (F)
 {
 	lara.right_arm.flash_gun = 3;
-	return;
 }
 
 void lara_hands_free(struct ITEM_INFO* item)//39A18(<), 39F18(<) (F)
 {
 	lara.gun_status = 0;
-	return;
 }
 
 void KillActiveBaddies(struct ITEM_INFO* item)//39938(<), 39E38(<) (F)
@@ -190,18 +246,18 @@ void LaraLocation(struct ITEM_INFO* item)//396D0(<), 39BD0(<) (F)
 
 void ExplosionFX(struct ITEM_INFO* item)//39694(<), 39B94(<) (F)
 {
-	SoundEffect(105, NULL, 0);
+	SoundEffect(SFX_EXPLOSION1, NULL, 0);
 	camera.bounce = -75;
 	flipeffect = -1;
 }
 
 void SwapCrowbar(struct ITEM_INFO* item)//39638(<), 39B38(<) (F)
 {
-	short* tmp = meshes[objects[LARA].mesh_index + 20];
+	short* tmp = meshes[objects[LARA].mesh_index + 2 * LM_RHAND];
 
 	if (lara.mesh_ptrs[LM_RHAND] == tmp)
 	{
-		lara.mesh_ptrs[LM_RHAND] = meshes[objects[CROWBAR_ANIM].mesh_index + 20];
+		lara.mesh_ptrs[LM_RHAND] = meshes[objects[CROWBAR_ANIM].mesh_index + 2 * LM_RHAND];
 	}
 	else lara.mesh_ptrs[LM_RHAND] = tmp;
 }
@@ -218,7 +274,7 @@ void ActivateCamera(struct ITEM_INFO* item)//39610(<), 39B10(<) (F)
 
 void PoseidonSFX(struct ITEM_INFO* item)//395E0(<), 39AE0(<) (F)
 {
-	SoundEffect(238, NULL, 0);
+	SoundEffect(SFX_J_GRAB_OPEN, NULL, 0);
 	flipeffect = -1;
 }
 
@@ -255,18 +311,15 @@ void turn180_effect(struct ITEM_INFO* item)//393F4(<), 398F4(<) (F)
 {
 	item->pos.y_rot -= ANGLE(180);
 	item->pos.x_rot = -item->pos.x_rot;
-	return;
 }
 
 void finish_level_effect(struct ITEM_INFO* item)//393D4(<), 398D4(<) (F)
 {
 	gfLevelComplete = gfCurrentLevel + 1;
-	return;
 }
 
 void void_effect(struct ITEM_INFO* item)//393CC(<), 398CC(<) (F)
 {
-	return;
 }
 
 void WaterFall(short item_number)//39294, 39794
@@ -279,7 +332,7 @@ void SoundEffects()//39190, 39690
 	S_Warn("[SoundEffects] - Unimplemented!\n");
 }
 
-void SoundEffect(short arg1, struct PHD_3DPOS* pos, int arg2)
+void SoundEffect(short sfxid, struct PHD_3DPOS* pos, int arg2)
 {
 	S_Warn("[SoundEffect] - Unimplemented!\n");
 }

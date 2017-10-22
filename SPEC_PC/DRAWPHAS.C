@@ -2,7 +2,7 @@
 #include "SPECIFIC.H"
 #include <stdio.h>
 
-void PrintString(long x, long y, char* string)
+void PrintString(long x, long y, long unk, char* string)
 {
 	char* buf = (char*)malloc(strlen(string) + 64);
 	sprintf(buf, "PrintString - X:%d Y:%d - %s\n", x, y, string);

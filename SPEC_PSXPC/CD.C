@@ -3,19 +3,18 @@
 #include "CONTROL.H"
 #include "SPECIFIC.H"
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
-
-#include <stdio.h>
-#include <assert.h>
 
 //Number of XA files on disc (XA1-17.XA)
 #define NUM_XA_FILES 17
 
 #define XA_FILE_NAME "XA%d.XA"
 
-unsigned short XATrackClip[] =
+#define CDS "CDS!" + __TIMESTAMP__ + " ."
+
+unsigned short XATrackClip [] =//Probably used for XA audio start/end pos of each track
 {
 	0xFF00, 0xFF00, 0xFE80, 0xFF00, 0xFF00, 0xFF00, 0xFF00, 0xFF80,
 	0xFF00, 0xFF00, 0xFF00, 0xFF00, 0xFF00, 0xFF00, 0xFF00, 0xFF00,
@@ -246,6 +245,47 @@ void cbvsync()//5D884(<), 5DD00(<)
 	return;
 }
 
+void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<)
+{
+	unsigned char param[4];
+
+	if (XATrack == -1)
+	{
+		param[0] = 0xC8;
+		DEL_ChangeCDMode(1);
+	}
+
+	//loc_5DC70
+	if (XATrack != track)
+	{
+		if (XAReqTrack != track)
+		{
+			XAReqTrack = track;
+			XARepeat = mode;
+
+			if (XAFlag != 0)
+			{
+				XAFlag = 1;
+				XAReqVolume = 0;
+			}
+			else
+			{
+				//loc_5DCB4
+				XAFlag = 2;
+			}
+		}
+	}
+
+	//loc_5DCBC
+	return;
+}
+
+void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
+{
+	XAMasterVolume = nVolume;
+	CDDA_SetVolume(nVolume);
+}
+
 void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 {
 	char buf[10];
@@ -320,59 +360,6 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650
 
 	//loc_5DF58
 	return;
-}
-
-//Play audio track
-void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<)
-{
-	unsigned char param[4];
-
-	if (XATrack == -1)
-	{
-		param[0] = 0xC8;
-		DEL_ChangeCDMode(1);
-	}
-
-	//loc_5DC70
-	if (XATrack != track)
-	{
-		if (XAReqTrack != track)
-		{
-			XAReqTrack = track;
-			XARepeat = mode;
-
-			if (XAFlag != 0)
-			{
-				XAFlag = 1;
-				XAReqVolume = 0;
-			}
-			else
-			{
-				//loc_5DCB4
-				XAFlag = 2;
-			}
-		}
-	}
-	
-	//loc_5DCBC
-	return;
-}
-
-void S_CDStop()//5DCD0(<), 5E14C(<)
-{
-	XAFlag = 0;
-
-	XAReqTrack = -1;
-	XATrack = -1;
-
-	DEL_ChangeCDMode(0);
-	return;
-}
-
-void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
-{
-	XAMasterVolume = nVolume;
-	CDDA_SetVolume(nVolume);
 }
 
 /*
@@ -463,4 +450,48 @@ void CD_Seek(int offset /*$a0*/)//*, 5E54C(<) (F)
 void CD_ReaderPositionToCurrent()//*, 5E564(<) (F)
 {
 	cdStartSector = cdCurrentSector;
+}
+
+void S_StartSyncedAudio(int nTrack)//5DD78(<), 5E1F4(<)
+{
+	IsAtmospherePlaying = 0;
+
+	S_CDPlay(nTrack, 0);
+
+	//while (XAFlag < 4) {}
+
+	//VSync(29);
+
+	return;
+}
+
+void S_CDStop()//5DCD0(<), 5E14C(<)
+{
+	XAFlag = 0;
+
+	XAReqTrack = -1;
+	XATrack = -1;
+
+	DEL_ChangeCDMode(0);
+	return;
+}
+
+void S_CDPause()//5DD14(<), 5E190(<) (F)
+{
+	if (XATrack > 0)
+	{
+		//CdControlF(CdlPause, 0);
+	}
+
+	return;
+}
+
+void S_CDRestart()
+{
+	if (XATrack >= 0 && XAFlag != 7)
+	{
+		//CdControlF(CdlReadS, 0);
+	}
+
+	return;
 }

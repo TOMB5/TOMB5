@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
-project (PSXPCTOMB5)
+project (TombRaiderChronicles_PSXPC${TARGET_ARCH})
 
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
@@ -43,8 +43,8 @@ ${OPENGL_gl_LIBRARY}
 )
 
 set_target_properties(
-${PROJECT_NAME}
-PROPERTIES OUTPUT_NAME "MAIN"
+${PROJECT_NAME} PROPERTIES OUTPUT_NAME "MAIN"
+${PROJECT_NAME} PROPERTIES FOLDER "Build Targets/Windows"
 )
 
 #This will be a console application, alter linker subsystem accordingly or main method won't be found

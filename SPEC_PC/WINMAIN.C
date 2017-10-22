@@ -1205,7 +1205,7 @@ void sub_4CF191()
 
 int __cdecl sub_40286A(int a1)
 {
-	LPDIRECTINPUTDEVICEA result; // eax@1
+	LPDIRECTINPUTDEVICE2A result; // eax@1
 
 	result = ptr_ctx->dinput_other;
 	if (result)
@@ -1431,7 +1431,7 @@ int __cdecl LoadTextureFormats(HWND hDlg, HWND hWnd)
 			bitsR = v5->bitsR;
 			bitsG = v5->bitsG;
 			bitsA = v5->bitsA;
-			wsprintfA(v14, "%d %s RGBA %d%d%d%d", v5->depth, &gfStringWad[gfStringOffset[281]], bitsR, bitsG, bitsB, bitsA);
+			wsprintfA(v14, "%d %s RGBA %d%d%d%d", v5->depth, &gfStringWad[gfStringOffset[STR_BIT]], bitsR, bitsG, bitsB, bitsA);
 			SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)v14);
 			if (v10[0])
 			{
@@ -1555,7 +1555,7 @@ char __cdecl LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 					v16 = opt_AccelAdapter;
 					goto LABEL_20;
 				}
-				wsprintfA(var28, "%dx%d %d %s", res_w, res_h, res_bit, &gfStringWad[gfStringOffset[281]]);
+				wsprintfA(var28, "%dx%d %d %s", res_w, res_h, res_bit, &gfStringWad[gfStringOffset[STR_BIT]]);
 				SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)var28);
 				SendMessageA(hWnd, CB_SETITEMDATA, wParam, lParam);
 				if (hDlga)
@@ -1938,7 +1938,7 @@ LRESULT __cdecl sub_4018F2(HWND hDlg, HWND hWnd)
 	dword_57A08C = 0;
 	if (!v2)
 	{
-		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)&gfStringWad[gfStringOffset[285]]);
+		SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)&gfStringWad[gfStringOffset[STR_NO_SOUND_CARD_INSTALLED]]);
 		v5 = GetDlgItem(hDlg, IDC_NOSOUND);
 		EnableWindow(v5, 0);
 		v6 = GetDlgItem(hDlg, IDC_NOSOUND);
@@ -2120,58 +2120,58 @@ signed int __stdcall DialogFunc(HWND hDlg, int msg, unsigned int wParam, int lPa
 			v27 = GetDlgItem(hDlg, IDC_SNDADAPTER);
 			SendMessageA(v27, WM_SETFONT, 0, (LPARAM)v26);
 		}
-		v28 = sub_401C9E(&gfStringWad[gfStringOffset[266]], v68);
+		v28 = sub_401C9E(&gfStringWad[gfStringOffset[STR_GRAPHICS_ADAPTER]], v68);
 		v29 = GetDlgItem(hDlg, 1001);
 		SendMessageA(v29, WM_SETTEXT, 0, (LPARAM)v28);
-		v30 = sub_401C9E(&gfStringWad[gfStringOffset[267]], v68);
+		v30 = sub_401C9E(&gfStringWad[gfStringOffset[STR_OUTPUT_SETTINGS]], v68);
 		v31 = GetDlgItem(hDlg, 1002);
 		SendMessageA(v31, WM_SETTEXT, 0, (LPARAM)v30);
-		v32 = sub_401C9E(&gfStringWad[gfStringOffset[270]], v68);
+		v32 = sub_401C9E(&gfStringWad[gfStringOffset[STR_OK_BIS]], v68);
 		v33 = GetDlgItem(hDlg, IDOK);
 		SendMessageA(v33, WM_SETTEXT, 0, (LPARAM)v32);
-		v34 = sub_401C9E(&gfStringWad[gfStringOffset[271]], v68);
+		v34 = sub_401C9E(&gfStringWad[gfStringOffset[STR_CANCEL_BIS_BIS]], v68);
 		v35 = GetDlgItem(hDlg, IDCANCEL);
 		SendMessageA(v35, WM_SETTEXT, 0, (LPARAM)v34);
-		v36 = sub_401C9E(&gfStringWad[gfStringOffset[268]], v68);
+		v36 = sub_401C9E(&gfStringWad[gfStringOffset[STR_OUTPUT_RESOLUTION]], v68);
 		v37 = GetDlgItem(hDlg, 1009);
 		SendMessageA(v37, WM_SETTEXT, 0, (LPARAM)v36);
-		v38 = sub_401C9E(&gfStringWad[gfStringOffset[275]], v68);
+		v38 = sub_401C9E(&gfStringWad[gfStringOffset[STR_BILINEAR_FILTERING]], v68);
 		v39 = GetDlgItem(hDlg, IDC_BILINEAR);
 		SendMessageA(v39, WM_SETTEXT, 0, (LPARAM)v38);
-		v40 = sub_401C9E(&gfStringWad[gfStringOffset[276]], v68);
+		v40 = sub_401C9E(&gfStringWad[gfStringOffset[STR_BUMP_MAPPING]], v68);
 		v41 = GetDlgItem(hDlg, IDC_BUMPMAP);
 		SendMessageA(v41, WM_SETTEXT, 0, (LPARAM)v40);
-		v42 = sub_401C9E(&gfStringWad[gfStringOffset[272]], v68);
+		v42 = sub_401C9E(&gfStringWad[gfStringOffset[STR_HARDWARE_ACCELERATION]], v68);
 		v43 = GetDlgItem(hDlg, IDC_HARDACCEL);
 		SendMessageA(v43, WM_SETTEXT, 0, (LPARAM)v42);
-		v44 = sub_401C9E(&gfStringWad[gfStringOffset[273]], v68);
+		v44 = sub_401C9E(&gfStringWad[gfStringOffset[STR_SOFTWARE_MODE]], v68);
 		v45 = GetDlgItem(hDlg, IDC_SOFTWARE);
 		SendMessageA(v45, WM_SETTEXT, 0, (LPARAM)v44);
-		v46 = sub_401C9E(&gfStringWad[gfStringOffset[279]], v68);
+		v46 = sub_401C9E(&gfStringWad[gfStringOffset[STR_SOUND_DEVICE]], v68);
 		v47 = GetDlgItem(hDlg, 1017);
 		SendMessageA(v47, WM_SETTEXT, 0, (LPARAM)v46);
-		v48 = sub_401C9E(&gfStringWad[gfStringOffset[280]], v68);
+		v48 = sub_401C9E(&gfStringWad[gfStringOffset[STR_DISABLE]], v68);
 		v49 = GetDlgItem(hDlg, IDC_NOSOUND);
 		SendMessageA(v49, WM_SETTEXT, 0, (LPARAM)v48);
-		v50 = sub_401C9E(&gfStringWad[gfStringOffset[277]], v68);
+		v50 = sub_401C9E(&gfStringWad[gfStringOffset[STR_LOW_RESOLUTION_TEXTURES]], v68);
 		v51 = GetDlgItem(hDlg, IDC_LOWTEXT);
 		SendMessageA(v51, WM_SETTEXT, 0, (LPARAM)v50);
-		v52 = sub_401C9E(&gfStringWad[gfStringOffset[278]], v68);
+		v52 = sub_401C9E(&gfStringWad[gfStringOffset[STR_LOW_RESOLUTION_BUMP_MAPS]], v68);
 		v53 = GetDlgItem(hDlg, IDC_LOWBUMP);
 		SendMessageA(v53, WM_SETTEXT, 0, (LPARAM)v52);
-		v54 = sub_401C9E(&gfStringWad[gfStringOffset[269]], v68);
+		v54 = sub_401C9E(&gfStringWad[gfStringOffset[STR_TEXTURE_BIT_DEPTH]], v68);
 		v55 = GetDlgItem(hDlg, 1013);
 		SendMessageA(v55, WM_SETTEXT, 0, (LPARAM)v54);
-		v56 = sub_401C9E(&gfStringWad[gfStringOffset[283]], v68);
+		v56 = sub_401C9E(&gfStringWad[gfStringOffset[STR_WINDOWED]], v68);
 		v57 = GetDlgItem(hDlg, IDC_WINDOWED);
 		SendMessageA(v57, WM_SETTEXT, 0, (LPARAM)v56);
-		v58 = sub_401C9E(&gfStringWad[gfStringOffset[284]], v68);
+		v58 = sub_401C9E(&gfStringWad[gfStringOffset[STR_RENDER_OPTIONS]], v68);
 		v59 = GetDlgItem(hDlg, 1023);
 		SendMessageA(v59, WM_SETTEXT, 0, (LPARAM)v58);
-		v60 = sub_401C9E(&gfStringWad[gfStringOffset[274]], v68);
+		v60 = sub_401C9E(&gfStringWad[gfStringOffset[STR_VOLUMETRIC_FX]], v68);
 		v61 = GetDlgItem(hDlg, IDC_VOLUMEFOG);
 		SendMessageA(v61, WM_SETTEXT, 0, (LPARAM)v60);
-		v62 = sub_401C9E(&gfStringWad[gfStringOffset[307]], v68);
+		v62 = sub_401C9E(&gfStringWad[gfStringOffset[STR_NO_FMV]], v68);
 		v63 = GetDlgItem(hDlg, IDC_NOFMV);
 		SendMessageA(v63, WM_SETTEXT, 0, (LPARAM)v62);
 		v64 = GetDlgItem(hDlg, IDC_GFXADAPTER);
@@ -2453,7 +2453,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			hWnd,
 			WS_CAPTION))
 		{
-			MessageBoxA(0, &gfStringWad[gfStringOffset[286]], Caption, 0);
+			MessageBoxA(0, &gfStringWad[gfStringOffset[STR_FAILED_TO_SETUP_DIRECTX]], Caption, 0);
 			return 0;
 		}
 		sub_401424();

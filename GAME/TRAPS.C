@@ -1,6 +1,14 @@
 #include "TRAPS.H"
 
+#include "CONTROL.H"
+#include "EFFECTS.H"
+#include "ITEMS.H"
+#include "LARA.H"
+#include "OBJECTS.H"
 #include "SPECIFIC.H"
+#include "TOMB4FX.H"
+#include "EFFECT2.H"
+#include "SOUND.H"
 
 short SPDETyoffs[8] =
 {
@@ -35,6 +43,19 @@ short SPyoffs[8] =
 short SPxzoffs[8] =
 {
 	0x0000, 0x0000, 0x0200, 0x0000, 0x0000, 0x0000, 0xFE00, 0x0000
+};
+
+static struct PHD_VECTOR FloorTrapDoorPos = { 0, 0, -655 }; // offset 0xA16B8
+static short FloorTrapDoorBounds[12] = // offset 0xA16C4
+{
+	0xFF00, 0x0100, 0x0000, 0x0000, 0xFC00, 0xFF00, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
+	0xF8E4, 0x071C
+};
+static struct PHD_VECTOR CeilingTrapDoorPos = { 0, 1056, -480 }; // offset 0xA16DC
+static short CeilingTrapDoorBounds[12] = // offset 0xA16E8
+{
+	0xFF00, 0x0100, 0x0000, 0x0384, 0xFD00, 0xFF00, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
+	0xF8E4, 0x071C
 };
 
 void ControlExplosion(short item_number)//5C8BC, 5CD38
@@ -103,16 +124,33 @@ void ControlRollingBall(short item_number)//5AE08, 5B284
 	return;
 }
 
-void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4
+void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4 (F)
 {
-	S_Warn("[LavaBurn] - Unimplemented!\n");
-	return;
+	if (item->hit_points >= 0 && lara.water_status != 3)
+	{
+		short room_number = item->room_number;
+
+		if (item->floor == GetHeight(GetFloor(item->pos.x_pos, 32000, item->pos.z_pos, &room_number),
+			item->pos.x_pos, 32000, item->pos.z_pos))
+		{
+			item->hit_points = -1;
+			item->collidable = TRUE;
+			LaraBurn();
+		}
+	}
 }
 
-void LaraBurn()//5ACE4, 5B160
+void LaraBurn()//5ACE4, 5B160 (F)
 {
-	S_Warn("[LaraBurn] - Unimplemented!\n");
-	return;
+	if (!lara.burn && !lara.BurnSmoke)
+	{
+		short fx = CreateEffect(lara_item->room_number);
+		if (fx != -1)
+		{
+			effects[fx].object_number = FLAME;
+			lara.burn = TRUE;
+		}
+	}
 }
 
 void FlameControl(short fx_number)//5AA6C, 5AEE8
@@ -127,10 +165,58 @@ void FlameEmitter3Control(short item_number)//5A38C, 5A808
 	return;
 }
 
-void FlameEmitter2Control(short item_number)//5A1BC, 5A638
+void FlameEmitter2Control(short item_number)//5A1BC, 5A638 (F)
 {
-	S_Warn("[FlameEmitter2Control] - Unimplemented!\n");
-	return;
+	struct ITEM_INFO* item = &items[item_number];
+
+	if (TriggerActive(item))
+	{
+		if (item->trigger_flags < 0)
+		{
+			if (item->item_flags[0])
+			{
+				if (item->item_flags[0] == 1)
+				{
+					FlipMap(-item->trigger_flags);
+					flipmap[-item->trigger_flags] ^= 0x3E00u;
+					item->item_flags[0] = 2;
+				}
+			}
+			else
+			{
+				if (item->trigger_flags < -100)
+					item->trigger_flags = item->trigger_flags + 100;
+
+				item->item_flags[0] = 1;
+			}
+		}
+		else
+		{
+			if (item->trigger_flags != 2)
+			{
+				if (item->trigger_flags == 123)
+					AddFire(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 1, item->room_number, item->item_flags[3]);
+				else
+					AddFire(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 1 - item->trigger_flags, item->room_number, item->item_flags[3]);
+			}
+
+			if (item->trigger_flags == 0 || item->trigger_flags == 2)
+			{
+				int r = (GetRandomControl() & 0x3F) + 192;
+				int g = (GetRandomControl() & 0x1F) + 96;
+
+				if (item->item_flags[3])
+				{
+					r = r * item->item_flags[3] >> 8;
+					g = g * item->item_flags[3] >> 8;
+				}
+
+				TriggerDynamic(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 10, r, g, 0);
+			}
+
+			SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &item->pos, 0);
+		}
+	}
 }
 
 void FlameEmitterControl(short item_number)//59D18, 5A194
@@ -169,10 +255,44 @@ void FallingBlockFloor(struct ITEM_INFO* item, long x, long y, long z, long* hei
 	return;
 }
 
-void FallingBlock(short item_number)//59558, 599D4
+void FallingBlock(short item_number)//59558, 599D4 (F)
 {
-	S_Warn("[FallingBlock] - Unimplemented!\n");
-	return;
+	struct ITEM_INFO* item = &items[item_number];
+
+	if (item->trigger_flags)
+	{
+		item->trigger_flags--;
+	}
+	else
+	{
+		if (!item->item_flags[0])
+		{
+			item->mesh_bits = -2;
+			ExplodingDeath2(item_number, -1, 15265);
+			item->item_flags[0]++;
+		}
+		else
+		{
+			if (item->item_flags[0] >= 60)
+			{
+				KillItem(item_number);
+			}
+			else
+			{
+				if (item->item_flags[0] >= 52)
+				{
+					item->item_flags[1] += 2;			
+					item->pos.y_pos += item->item_flags[1];
+				}
+				else
+				{
+					if (!(GetRandomControl() % (0x3E - item->item_flags[0])))
+						item->pos.y_pos += (GetRandomControl() & 3) + 1;
+				}
+				item->item_flags[0]++;
+			}
+		}
+	}
 }
 
 void FallingBlockCollision(short item_number, struct ITEM_INFO* l, struct COLL_INFO* coll)//5947C, 598F8

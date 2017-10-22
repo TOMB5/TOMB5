@@ -11,8 +11,8 @@
 #include "LARAFIRE.H"
 #include "OBJECTS.H"
 
-char HKTimer;
-char HKShotsFired;
+char HKTimer = 0;
+char HKShotsFired = 0;
 
 void TriggerGrapplingEffect(long x, long y, long z)
 {
@@ -69,19 +69,42 @@ void RifleHandler(int weapon_type)
 	S_Warn("[RifleHandler] - Unimplemented!\n");
 }
 
-void ready_shotgun(int weapon_type)//424E0, 42934
+void ready_shotgun(int weapon_type)//424E0(<), 42934(<) (F)
 {
-	S_Warn("[ready_shotgun] - Unimplemented!\n");
+	struct object_info* object;
+
+	lara.gun_status = 4;
+	lara.left_arm.z_rot = 0;
+	lara.left_arm.y_rot = 0;
+	lara.left_arm.x_rot = 0;
+
+	lara.right_arm.z_rot = 0;
+	lara.right_arm.x_rot = 0;
+	lara.right_arm.y_rot = 0;
+
+	lara.right_arm.frame_number = 0;
+	lara.left_arm.frame_number = 0;
+
+	lara.right_arm.lock = 0;
+	lara.left_arm.lock = 0;
+	lara.target = NULL;
+
+	object = &objects[WeaponObject(weapon_type)];//v1
+
+	lara.right_arm.frame_base = object->frame_base;
+	lara.left_arm.frame_base = object->frame_base;
+
+	return;
 }
 
 void undraw_shotgun_meshes(int weapon_type)//42498(<), 428EC(<) (F)
 {
 	lara.back_gun = WeaponObject(weapon_type);
-	lara.mesh_ptrs[LM_RHAND] = meshes[objects[LARA].mesh_index + 20];
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[LARA].mesh_index + 2 * LM_RHAND];
 }
 
 void draw_shotgun_meshes(int weapon_type)//42444(<), 42898(<) (F)
 {
 	lara.back_gun = 0;
-	lara.mesh_ptrs[LM_RHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 20];
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 2 * LM_RHAND];
 }

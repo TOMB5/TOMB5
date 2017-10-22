@@ -16,6 +16,18 @@ string(CONCAT GAME_CODE_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/GAME")
 #Find all source files in the game folder.
 file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
 
+#Extract target architecture (MSVC only)
+if (MSVC)
+    if (CMAKE_CL_64)
+        set(TARGET_ARCH "Win64")
+    else()
+        set(TARGET_ARCH "Win32")
+    endif()
+endif()
+
+#We want to be able to group projects in folders
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 #Treat each platform specific directory as a sub-project.
 #Note: Travis/Appveyor ci only build PSXPC for now.
 if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))

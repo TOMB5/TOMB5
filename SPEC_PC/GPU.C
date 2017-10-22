@@ -1267,3 +1267,107 @@ signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_
 	S_Warn("[DXCreate] - Unimplemented!\n");
 	return 0;
 }
+
+int __cdecl sub_4B8780(LPDIRECTDRAWSURFACE4 a3, HGDIOBJ h, int xSrc, int ySrc, int wSrc, int hSrc)
+{
+	int v6; // ebx@0
+	int v7; // ebp@0
+	LPDIRECTDRAWSURFACE4 v8; // esi@2
+	HDC v9; // ebp@3
+	int v11; // edi@5
+	int v12; // ebx@5
+	HDC hdcDest; // [sp+18h] [bp-9Ch]@0
+	HDC v14; // [sp+20h] [bp-94h]@8
+	char pv[80]; // [sp+28h] [bp-8Ch]@5
+	DDSURFACEDESC2 surfd;
+
+	if (h && (v8 = a3) != NULL)
+	{
+		a3->lpVtbl->Restore(a3);
+		v9 = CreateCompatibleDC(0);
+		if (!v9)
+			OutputDebugStringA("createcompatible dc failed");
+		SelectObject(v9, h);
+		GetObjectA(h, 24, &pv);
+		surfd.dwSize = 124;
+		surfd.dwFlags = 6;
+		a3->lpVtbl->GetSurfaceDesc(a3, &surfd);
+		v11 = 0;
+		v12 = 0;
+		if (!(dxctx.flags & 0x80))
+		{
+			v8 = dxctx.buf_primary;
+			if (dxctx.flags & 2)
+			{
+				v11 = dxctx.windowPos.left;
+				v12 = dxctx.windowPos.top;
+			}
+		}
+		int v15 = v8->lpVtbl->GetDC(v8, &v14);
+		if (!v15)
+		{
+			hdcDest = v14;
+			StretchBlt(hdcDest, v11, v12, surfd.dwWidth, surfd.dwHeight, v9, xSrc, ySrc, wSrc, hSrc, 0xCC0020);
+			v8->lpVtbl->ReleaseDC(v8, hdcDest);
+		}
+		DeleteDC(v9);
+		return v15;
+	}
+	else
+	{
+		return 0x80004005;
+	}
+}
+
+signed int __cdecl LoadBitmapEx(struct IDirectDrawSurface4 *surface, const CHAR *name)
+{
+	HANDLE v2; // eax@1
+	void *v3; // esi@1
+	signed int v4; // eax@2
+	signed int v5; // edi@2
+	signed int result; // eax@4
+
+	v2 = LoadImageA(0, name, 0, 0, 0, 0x2010u);
+	v3 = v2;
+	if (v2)
+	{
+		sub_4B8780(surface, v2, 0, 0, 0, 0);
+		v5 = v4;
+		DeleteObject(v3);
+		if (v5)
+			Log(1, "LoadBitmap FAILED");
+		result = v5;
+	}
+	else
+	{
+		Log(1, "LoadBitmap FAILED");
+		result = 0x80004005;
+	}
+	return result;
+}
+
+int __cdecl DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char *filename)
+{
+	HMODULE v2; // eax@1
+	HANDLE handle; // esi@1
+	int result; // eax@3
+	int v5; // eax@4
+	int v6; // edi@4
+
+	v2 = GetModuleHandleA(0);
+	handle = LoadImageA(v2, filename, 0, 0, 0, 0x2000u);
+	if (handle || (handle = LoadImageA(0, filename, 0, 0, 0, 0x2010u)) != 0)
+	{
+		v5 = sub_4B8780(surface, handle, 0, 0, 0, 0);
+		if (v5)
+			OutputDebugStringA("ddcopybitmap failed\n");
+		DeleteObject(handle);
+		result = v5;
+	}
+	else
+	{
+		OutputDebugStringA("handle is null\n");
+		result = 0x80004005;
+	}
+	return result;
+}

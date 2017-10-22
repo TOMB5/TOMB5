@@ -692,6 +692,13 @@ enum lara_mesh
 	NUM_LARA_MESHES
 };
 
+enum lara_draw_type
+{
+	LARA_NORMAL = 1,
+	LARA_CATSUIT = 4,
+	LARA_DIVESUIT = 5,
+	LARA_INVISIBLE = 7
+};
 
 extern short angle; // offset 0xA0650
 extern short elevation; // offset 0xA0652
@@ -880,5 +887,6 @@ extern short LaraFloorFront(struct ITEM_INFO* item, short ang, long dist);
 extern void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern int GetLaraJointPos(struct PHD_VECTOR* arg1, int arg2);
 extern void AnimateLara(struct ITEM_INFO* item);
+extern void SetLaraUnderwaterNodes();
 
 #endif

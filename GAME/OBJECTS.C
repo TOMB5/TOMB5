@@ -3,9 +3,42 @@
 #include "CONTROL.H"
 #include "EFFECTS.H"
 #include <stddef.h>
+#include "DRAW.H"
+#include "BOX.H"
+#include "TOMB4FX.H"
+#include "ITEMS.H"
+#include "SOUND.H"
 
-struct BITE_INFO EnemyBites[9];
-int AnimatingWaterfallsVOffset;
+struct BITE_INFO EnemyBites[9] =
+{
+	{ 0x14, -0x5F, 0xF0, 0xD },
+	{ 0x30, 0, 0xB4, -0xB },
+	{ -0x30, 0, 0xB4, 0xE },
+	{ -0x37, 5, 0xE1, 0xE },
+	{ 0xF, -0x3C, 0xC3, 0xD },
+	{ -0x1E, -0x41, 0xFA, 0x12 },
+	{ 0, -0x6E, 0x1E0, 0xD },
+	{ -0x14, -0x50, 0xBE, -0xA },
+	{ 0xA, -0x3C, 0xC8, 0xD }
+};
+static struct PHD_VECTOR PolePos = {0, 0, -208}; // offset 0xA1238
+static struct PHD_VECTOR PolePosR = {0, 0, 0}; // offset 0xA1244
+static short PoleBounds[12] = // offset 0xA1250
+{
+	0xFF00, 0x0100, 0x0000, 0x0000, 0xFE00, 0x0200, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
+	0xF8E4, 0x071C
+};
+int AnimatingWaterfallsVOffset = 0; // offset 0xA1268
+static short TightRopeBounds[12] = // offset 0xA126C
+{
+	0xFF00, 0x0100, 0x0000, 0x0000, 0xFF00, 0x0100, 0xF8E4, 0x071C, 0xEAAC, 0x1554,
+	0xF8E4, 0x071C
+};
+static struct PHD_VECTOR TightRopePos = {0, 0, 0}; // offset 0xA1284
+static short ParallelBarsBounds[12] = // offset 0xA1290
+{
+	0xFD80, 0x0280, 0x02C0, 0x0340, 0xFFA0, 0x0060, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 0xF8E4, 0x071C
+};
 
 void HybridCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)
 {
@@ -48,11 +81,11 @@ void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 
 		if (item->trigger_flags == 0x29C)
 		{
-			SoundEffect(344, &item->pos, 0);
+			SoundEffect(SFX_D_METAL_KICKOPEN, &item->pos, 0);
 		}
 		else if (item->trigger_flags == 0x309)
 		{
-			SoundEffect(79, &item->pos, 0);
+			SoundEffect(SFX_WATERFALL_LOOP, &item->pos, 0);
 		}
 	}
 	else
@@ -157,9 +190,25 @@ void SmashObjectControl(short item_number)//4EEF8(<), 4F35C(<) (F)
 	SmashObject(item_number << 16);
 }
 
-void SmashObject(short item_number)//4EDB0, 4F214
+void SmashObject(short item_number)//4EDB0, 4F214 (F)
 {
-	S_Warn("[SmashObject] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_number];
+	struct room_info* r = &room[item->room_number];
+	int sector = ((item->pos.z_pos - r->z) >> 10) + r->x_size * ((item->pos.x_pos - r->x) >> 10);
+	struct box_info* box = &boxes[r->floor[sector].box];
+	if (box->overlap_index & BOX_LAST)
+	{
+		box->overlap_index &= ~BOX_BLOCKED;
+	}
+
+	SoundEffect(SFX_SMASH_GLASS, &item->pos, 0);
+	item->collidable = 0;
+	item->mesh_bits = 0xFFFE;
+	ExplodingDeath2(item_number, -1, 257);
+	item->flags |= IFLAG_INVISIBLE;
+	if (item->status == 1)
+		RemoveActiveItem(item_number);
+	item->status = 2;
 }
 
 void EarthQuake(short item_number)

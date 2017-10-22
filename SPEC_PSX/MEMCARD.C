@@ -33,11 +33,7 @@ void mcDir()//61EE8(<), 625CC(<)
 			//loc_61F68
 			mcBlocksFree -= dir->size + 0x1FFF < 0 ? dir->size + 0x3FFE : dir->size + 0x1FFF;
 			
-#if INTERNAL
-			if(strncmp(gfStringWad[gfStringOffset[202]], dir->name, 12) == 0)
-#else
-			if(strncmp(gfStringWad[gfStringOffset[200]], dir->name, 12) == 0)
-#endif
+			if(strncmp(gfStringWad[gfStringOffset[STR_PSX_GAME_ID]], dir->name, 12) == 0)
 			{
 				mcFileNames[i][0] = *(int*)dir->name;
 				mcFileNames[i][4] = *(int*)dir->name+4;

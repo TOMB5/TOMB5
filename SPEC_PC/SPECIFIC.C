@@ -38,7 +38,7 @@ signed int __cdecl sub_4D30E0(_WORD *a1)
 	return result;
 }
 
-void S_Warn(char* warning_message)
+void S_Warn(const char* warning_message)
 {
 	char buf[512];
 	time_t t = time(NULL);
@@ -236,4 +236,9 @@ char __cdecl Decompress(void* buf, void* compressed, int compSize, int uncompSiz
 {
 	S_Warn("[Decompress] - Unimplemented!\n");
 	return 0;
+}
+
+void DisplayStatsUCunt()
+{
+	S_Warn("[DisplayStatsUCunt] - Unimplemented!\n");
 }
