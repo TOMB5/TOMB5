@@ -2230,8 +2230,8 @@ void richcut3_control()//2E594(<), 2E8A0(<) (F)
 	{
 		cutseq_meshbits[1] |= 0x80000000;
 		cutseq_removelara_hk();
-		lara.back_gun = 0;
-		lara.hk_type_carried = 0;
+		lara.back_gun = WEAPON_NONE;
+		lara.hk_type_carried = WTYPE_MISSING;
 		lara.last_gun_type = WEAPON_NONE;
 	}
 }

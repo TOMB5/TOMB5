@@ -105,6 +105,6 @@ void undraw_shotgun_meshes(int weapon_type)//42498(<), 428EC(<) (F)
 
 void draw_shotgun_meshes(int weapon_type)//42444(<), 42898(<) (F)
 {
-	lara.back_gun = 0;
+	lara.back_gun = WEAPON_NONE;
 	lara.mesh_ptrs[LM_RHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 2 * LM_RHAND];
 }

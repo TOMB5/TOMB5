@@ -231,26 +231,26 @@ void SwimTurn(struct ITEM_INFO* item)//4BAF4(<), 4BF58(<) (F)
 {
 	if (input & IN_UP)
 	{
-		item->pos.x_rot -= 364;
+		item->pos.x_rot -= ANGLE(2);
 	}
 	else if (input & IN_DOWN)
 	{
-		item->pos.x_rot += 364;
+		item->pos.x_rot += ANGLE(2);
 	}
 
 	if (input & IN_LEFT)
 	{
 		lara.turn_rate -= 409;
-		if (lara.turn_rate < -1092)
-			lara.turn_rate = -1092;
-		item->pos.z_rot -= 546;
+		if (lara.turn_rate < ANGLE(-6))
+			lara.turn_rate = ANGLE(-6);
+		item->pos.z_rot -= ANGLE(3);
 	}
 	else if (input & IN_RIGHT)
 	{
 		lara.turn_rate += 409;
-		if (lara.turn_rate > 1092)
-			lara.turn_rate = 1092;
-		item->pos.z_rot -= 546;
+		if (lara.turn_rate > ANGLE(6))
+			lara.turn_rate = ANGLE(6);
+		item->pos.z_rot += ANGLE(3);
 	}
 }
 
