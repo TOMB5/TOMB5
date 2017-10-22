@@ -1,12 +1,24 @@
 #include "PICKUP.H"
 
+#include "CD.H"
 #include "COLLIDE.H"
 #include "CONTROL.H"
 #include "DRAW.H"
+#include "EFFECTS.H"
+#include "GAMEFLOW.H"
 #include "LARA.H"
 #include INPUT_H
+#include "OBJECTS.H"
+#include "SOUND.H"
 #include "SPECIFIC.H"
 #include "SWITCH.H"
+#include "ITEMS.H"
+#include "DELTAPAK.H"
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
 
 static short PickUpBounds[12] = // offset 0xA1338
 {
@@ -233,7 +245,49 @@ short* FindPlinth(struct ITEM_INFO* item)//51200, 51664
 	return 0;
 }
 
-void PuzzleDone(struct ITEM_INFO* item, short item_num)//51004, 51468
+void PuzzleDone(struct ITEM_INFO* item, short item_num)//51004, 51468 (F)
 {
-	S_Warn("[PuzzleDone] - Unimplemented!\n");
+	if (item->object_number == PUZZLE_HOLE1 && gfCurrentLevel == LVL5_GALLOWS_TREE)
+	{
+		IsAtmospherePlaying = 0;
+		S_CDPlay(CDA_XA6_SPOOKY03, 0);
+		SoundEffect(SFX_HANGMAN_LAUGH_OFFCAM, &item->pos, 0);
+	}
+
+	item->object_number += 8; // PUZZLE_HOLEx -> PUZZLE_DONEx
+
+	item->anim_number = objects[item->object_number].anim_index;
+	item->frame_number = anims[item->anim_number].frame_base;
+
+	item->required_anim_state = 0;
+	item->goal_anim_state = anims[item->anim_number].current_anim_state;
+	item->current_anim_state = anims[item->anim_number].current_anim_state;
+
+	AddActiveItem(item_num);
+
+	item->flags |= IFLAG_ACTIVATION_MASK;
+	item->status = 1;
+
+	if (item->trigger_flags == 0x3E6 && level_items > 0)
+	{
+		int i;
+		for (i = 0; i < level_items; i++)
+		{
+			if (items[i].object_number == AIRLOCK_SWITCH
+				&& items[i].pos.x_pos == item->pos.x_pos
+				&& items[i].pos.z_pos == item->pos.z_pos)
+			{
+				FlipMap(items[i].speed);
+				flipmap[items[i].trigger_flags] ^= IFLAG_ACTIVATION_MASK;
+				items[i].status = 0;
+				items[i].flags |= 0x20;
+			}
+		}
+	}
+
+	if (item->trigger_flags > 1024)
+	{
+		cutrot = 0;
+		cutseq_num = item->trigger_flags - 1024;
+	}
 }

@@ -912,8 +912,8 @@ void andy10_init()//31D58(<), 321F0(<) (F)
 void do_chalk_meshswap()//31D24(<), 321BC(<) (F)
 {
 	short* temp = lara.mesh_ptrs[LM_RHAND];
-	lara.mesh_ptrs[LM_RHAND] = meshes[objects[MAFIA_MIP].mesh_index + 20];
-	meshes[objects[MAFIA_MIP].mesh_index + 20] = temp;
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[MAFIA_MIP].mesh_index + 2 * LM_RHAND];
+	meshes[objects[MAFIA_MIP].mesh_index + 2 * LM_RHAND] = temp;
 }
 
 void andy8_end()//31CF8(<), 32190(<) (F)
@@ -1421,8 +1421,8 @@ void andrea3_init()//30850(<), 30BD0(<) (F)
 void do_clanger_meshswap()//3081C(<), 30B9C(<) (F)
 {
 	short* temp = lara.mesh_ptrs[LM_RHAND];
-	lara.mesh_ptrs[LM_RHAND] = meshes[objects[MESHSWAP2].mesh_index + 20];
-	meshes[objects[MESHSWAP2].mesh_index + 20] = temp;
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[MESHSWAP2].mesh_index + 2 * LM_RHAND];
+	meshes[objects[MESHSWAP2].mesh_index + 2 * LM_RHAND] = temp;
 }
 
 void andy4b_end()//307EC(<), 30B6C(<) (F)
@@ -1612,8 +1612,8 @@ void joby9_init()//30280(<), 30600(<) (F)
 void do_catapult_meshswap()//3024C(<), 305CC(<) (F)
 {
 	short* temp = lara.mesh_ptrs[LM_LHAND];
-	lara.mesh_ptrs[LM_LHAND] = meshes[objects[CROW_MIP].mesh_index + 26];
-	meshes[objects[CROW_MIP].mesh_index + 26] = temp;
+	lara.mesh_ptrs[LM_LHAND] = meshes[objects[CROW_MIP].mesh_index + 2 * LM_LHAND];
+	meshes[objects[CROW_MIP].mesh_index + 2 * LM_LHAND] = temp;
 }
 
 void andy3_end()//30208(<), 30588(<) (F)
@@ -1899,8 +1899,8 @@ void andy2_init()//2F5B0(<), 2F8F4(<) (F)
 void do_hammer_meshswap()//2F57C(<), 2F8C0(<) (F)
 {
 	short* temp = lara.mesh_ptrs[LM_RHAND];
-	lara.mesh_ptrs[LM_RHAND] = meshes[objects[MESHSWAP3].mesh_index + 20];
-	meshes[objects[MESHSWAP3].mesh_index + 20] = temp;
+	lara.mesh_ptrs[LM_RHAND] = meshes[objects[MESHSWAP3].mesh_index + 2 * LM_RHAND];
+	meshes[objects[MESHSWAP3].mesh_index + 2 * LM_RHAND] = temp;
 }
 
 void hamgate_end()//2F534(<), 2F878(<) (F)
@@ -2056,8 +2056,8 @@ void TriggerDelSmoke(long x, long y, long z, int sizeme)//2EED8(<), 2F1E4(<) (F)
 
 	dx = lara_item->pos.x_pos - x;
 	dz = lara_item->pos.z_pos - z;
-	if (dx >= -16 * SECTOR && dx <= 16 * SECTOR && 
-		dz >= -16 * SECTOR && dz <= 16 * SECTOR)
+	if (dx >= SECTOR(-16) && dx <= SECTOR(16) && 
+		dz >= SECTOR(-16) && dz <= SECTOR(16))
 	{
 		sptr = &spark[GetFreeSpark()];
 		sptr->On = 1;
@@ -2301,7 +2301,7 @@ void richcut1_control()//2E3D8(<), 2E668(<) (F)
 
 void richcut1_end()//2E3A0(<), 2E630(<) (F)
 {
-	DelsHandyTeleportLara(34504, -1 * SECTOR, 54799, -29215);
+	DelsHandyTeleportLara(34504, SECTOR(-1), 54799, -29215);
 	cutseq_removelara_hk();
 	cutrot = 1;
 }
@@ -2399,7 +2399,7 @@ void cranecut_end()//2E020(<), 2E2B0(<) (F)
 	item->flags &= 0xC1FFu;
 	cutseq_restore_item(ANIMATING16);
 	cutseq_restore_item(WRECKING_BALL);
-	DelsHandyTeleportLara(58543, -4 * SECTOR, 34972, ANGLE(-90));
+	DelsHandyTeleportLara(58543, SECTOR(-4), 34972, ANGLE(-90));
 }
 
 void cranecut_init()//2DFA0(<), 2E230(<) (F)
@@ -2481,7 +2481,7 @@ void handle_lara_chatting(short* ranges)//2DD00(<), 2DF90(<) (F)
 
 		if (r1 == -1)
 		{
-			lara.mesh_ptrs[LM_HEAD] = meshes[objects[LARA_SKIN].mesh_index + 28];
+			lara.mesh_ptrs[LM_HEAD] = meshes[objects[LARA_SKIN].mesh_index + 2 * LM_HEAD];
 			return;
 		}
 
@@ -2496,7 +2496,7 @@ void handle_lara_chatting(short* ranges)//2DD00(<), 2DF90(<) (F)
 	if (lara_chat_cnt == 0)
 	{
 		rndme = objects[(GetRandomControl() & 3) + LARA_SPEECH_HEAD1].mesh_index;
-		lara.mesh_ptrs[LM_HEAD] = meshes[rndme + 28];
+		lara.mesh_ptrs[LM_HEAD] = meshes[rndme + 2 * LM_HEAD];
 	}
 }
 
@@ -2626,7 +2626,7 @@ void deal_with_pistols(unsigned short* shootdata)// (F)
 	}
 	if (SmokeCountL || SmokeCountR)
 	{
-		lara.mesh_ptrs[LM_HEAD] = meshes[objects[LARA_SCREAM].mesh_index + 28];
+		lara.mesh_ptrs[LM_HEAD] = meshes[objects[LARA_SCREAM].mesh_index + 2 * LM_HEAD];
 		if (SmokeCountL)
 		{
 			pos.x = 4;
@@ -2646,7 +2646,7 @@ void deal_with_pistols(unsigned short* shootdata)// (F)
 	}
 	else
 	{
-		lara.mesh_ptrs[LM_HEAD] = meshes[objects[LARA].mesh_index + 28];
+		lara.mesh_ptrs[LM_HEAD] = meshes[objects[LARA].mesh_index + 2 * LM_HEAD];
 	}
 
 	if (lara.left_arm.flash_gun)
@@ -2679,7 +2679,16 @@ void trigger_weapon_dynamics(int left_or_right)//2D3E4(<), 2D6CC(<) (F)
 
 void cutseq_shoot_pistols(int left_or_right)//2D360, 2D648
 {
-	S_Warn("[cutseq_shoot_pistols] - Unimplemented!\n");
+	if (left_or_right == 14)
+	{
+		lara.left_arm.flash_gun = 4;
+		SmokeCountL = 16;
+	}
+	else
+	{
+		lara.right_arm.flash_gun = 4;
+		SmokeCountR = 16;
+	}
 }
 
 void cutseq_removelara_hk()//2D328(<), 2D610(<) (F)

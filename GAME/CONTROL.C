@@ -1253,11 +1253,11 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 			switch (items[item_num].object_number)
 			{
 			case RAISING_BLOCK1:
-				AlterFloorHeight(&items[item_num], -SECTOR);
+				AlterFloorHeight(&items[item_num], SECTOR(-1));
 				break;
 
 			case RAISING_BLOCK2:
-				AlterFloorHeight(&items[item_num], -2 * SECTOR);
+				AlterFloorHeight(&items[item_num], SECTOR(-2));
 				break;
 			}
 		}

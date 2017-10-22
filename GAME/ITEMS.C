@@ -71,15 +71,15 @@ void InitialiseFXArray(int allocmem)//4207C(<), 424D0(<) (F)
 	fx->next_fx = -1;
 }
 
-void AddActiveItem(short item_num)//41FEC(<), 42440(<)
+void AddActiveItem(short item_num)//41FEC(<), 42440(<) (F)
 {
 	struct ITEM_INFO* item;
 
 	item = &items[item_num];
 
 	item->flags |= 0x20;
-	//int test = item->object_number << 6;
-	if (objects[item->object_number ].control == 0)//Bug: Always zero due to incomplete level data relocation
+
+	if (objects[item->object_number].control == 0)//Bug: Always zero due to incomplete level data relocation
 	{
 		item->meshswap_meshbits &= -7;
 		return;
@@ -237,7 +237,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->next_item = r->item_number;
 	r->item_number = item_num;
 
-	floor = &r->floor[((item->pos.z_pos - r->z) / SECTOR) + (((item->pos.x_pos - r->x) / SECTOR) * r->x_size)];
+	floor = &r->floor[((item->pos.z_pos - r->z) / SECTOR(1)) + (((item->pos.x_pos - r->x) / SECTOR(1)) * r->x_size)];
 
 	item->floor = floor->floor * 256;
 	item->box_number = floor->box;
