@@ -321,21 +321,21 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
 	}
 
 	//loc_5F08C
-	GPU_BeginScene();
+	GPU_BeginScene();//FIXME: one ptr is mis-filled!
 
-	a0 = 0x1B8;
-	a1 = 0xC8;
-	a2 = 0x40;
+	a0 = 440;//x?
+	a1 = 200;//y?
+	a2 = 64;//cd width or height?
 
 	if (_first_time_ever)
 	{
-		a0 += 0x18;
+		a0 += 24;
 		a1 += 8;
-		a2 = 0x30;
+		a2 = 48;
 	}
 
 	//loc_5F0B4
-	draw_rotate_sprite(a0, a1, a2);
+	//draw_rotate_sprite(a0, a1, a2);
 	db.current_buffer ^= 1;
 	GnLastFrameCount = 0;
 	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);

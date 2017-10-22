@@ -2,7 +2,11 @@
 
 #include "DRAW.H"
 #include "OBJECTS.H"
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
 #include "SETUP.H"
+#endif
 
 int hair_wind;
 int hair_wind_angle = 2048;
@@ -10,7 +14,7 @@ int hair_dwind_angle = 2048;
 int first_hair[2];
 struct HAIR_STRUCT hairs[2][7];
 
-void InitialiseHair()//3AC70, 3B170
+void InitialiseHair()//3AC70, 3B170 (F)
 {
 	int i;
 	int j;

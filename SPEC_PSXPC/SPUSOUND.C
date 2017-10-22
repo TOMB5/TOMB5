@@ -34,11 +34,11 @@ void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
 	LabFreeChannel[LnFreeChannels++] = channel_index;
 }
 
-void S_SetReverbType(int Reverb)//91CF4, 93D40
+void S_SetReverbType(int reverb)//91CF4, 93D40
 {
-	if (Reverb != CurrentReverb)
+	if (reverb != CurrentReverb)
 	{
-		CurrentReverb = Reverb;
+		CurrentReverb = reverb;
 	}
 }
 
@@ -61,7 +61,6 @@ unsigned char SPU_AllocChannel()//915B0, 935F4
 	}
 
 	//loc_915DC
-	LnFreeChannels--;
-	
-	return LabFreeChannel[LnFreeChannels];
+
+	return LabFreeChannel[--LnFreeChannels];
 }

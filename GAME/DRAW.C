@@ -1,5 +1,7 @@
 #include "DRAW.H"
 
+#include "SPECIFIC.H"
+
 #include <stddef.h>
 
 short LightningSFXDelay;
@@ -71,7 +73,7 @@ long GetFrames(struct ITEM_INFO* item/*$a0*/, short** unknown/*a1*/, long* unkno
 	return (item->frame_number - anim->frame_base) / anim->interpolation;
 }
 
-short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 
+short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 8793C
 {
 	short* var_10[2];//$a1
 	long var_8[2];//$a2
@@ -107,4 +109,29 @@ short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8,
 #endif
 
 	return NULL;
+}
+
+void UpdateSkyLightning()
+{
+	S_Warn("[UpdateSkyLightning] - Unimplemented!\n");
+}
+
+void DrawSkyMesh(short* mesh)
+{
+	S_Warn("[DrawSkyMesh] - Unimplemented!\n");
+}
+
+void DrawFlatSky_ASM(struct CVECTOR colour, short pos, long flags)
+{
+	S_Warn("[DrawFlatSky_ASM] - Unimplemented!\n");
+}
+
+void DrawMoon()
+{
+	S_Warn("[DrawMoon] - Unimplemented!\n");
+}
+
+void DrawGunflashes()
+{
+	S_Warn("[DrawGunflashes] - Unimplemented!\n");
 }

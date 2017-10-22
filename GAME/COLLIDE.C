@@ -6,6 +6,7 @@
 #include "SPECIFIC.H"
 
 #include <stddef.h>
+#include "TOMB4FX.H"
 
 long zfront;
 long xfront;
@@ -21,8 +22,26 @@ void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)//2A940
 	S_Warn("[TestForObjectOnLedge] - Unimplemented!\n");
 }
 
-void TriggerLaraBlood()//2A838, 2AA60
+void TriggerLaraBlood()//2A838, 2AA60 (F)
 {
+	struct PHD_VECTOR vec;
+	int node = 1;
+	int i;
+	for(i = 0; i < 15; i++)
+	{
+		if (node & lara_item->touch_bits)
+		{
+			vec.x = (GetRandomControl() & 0x1F) - 16;
+			vec.y = (GetRandomControl() & 0x1F) - 16;
+			vec.z = (GetRandomControl() & 0x1F) - 16;
+
+			GetLaraJointPos(&vec, LM[i]);
+			DoBloodSplat(vec.x, vec.y, vec.z, (GetRandomControl() & 7) + 8, 2 * GetRandomControl(), lara_item->room_number);
+		}
+
+		node <<= 1;
+	}
+
 	S_Warn("[TriggerLaraBlood] - Unimplemented!\n");
 }
 
@@ -87,4 +106,33 @@ void UpdateLaraRoom(struct ITEM_INFO* item, int height)//7C58C(<), 7E5D0(<) (F)
 	{
 		ItemNewRoom(lara.item_number, room_number);
 	}
+}
+
+void ObjectCollision(short item_num, struct ITEM_INFO* lara_item, struct COLL_INFO* coll)
+{
+	S_Warn("[ObjectCollision] - Unimplemented!\n");
+}
+
+int TestLaraPosition(short* bounds, struct ITEM_INFO* item, struct ITEM_INFO* lara_item)
+{
+	S_Warn("[TestLaraPosition] - Unimplemented!\n");
+	return 0;
+}
+
+int MoveLaraPosition(struct PHD_VECTOR* vector, struct ITEM_INFO* item, struct ITEM_INFO* lara_item)
+{
+	S_Warn("[MoveLaraPosition] - Unimplemented!\n");
+	return 0;
+}
+
+int TestBoundsCollide(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, long radius)
+{
+	S_Warn("[TestBoundsCollide] - Unimplemented!\\n");
+	return 0;
+}
+
+int ItemPushLara(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, struct COLL_INFO* coll, int a4, int a5)
+{
+	S_Warn("[ItemPushLara] - Unimplemented!\\n");
+	return 0;
 }

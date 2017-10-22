@@ -16,9 +16,18 @@ enum collision_types
 
 enum height_types
 {
-	HT_WALL = 0,
-	HT_SLOPE_SMALL = 1,
-	HT_SLOPE_BIG = 2
+	WALL,
+	SMALL_SLOPE,
+	BIG_SLOPE,
+	DIAGONAL,
+	SPLIT_TRI
+};
+
+enum headings {
+	NORTH,
+	EAST,
+	SOUTH,
+	WEST
 };
 
 extern long zfront;
@@ -30,7 +39,9 @@ extern void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)
 extern void TriggerLaraBlood();
 extern void GenericSphereBoxCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
 extern int ItemPushLaraStatic(struct ITEM_INFO* laraitem, short* bounds, struct PHD_3DPOS* pos, struct COLL_INFO* coll);
+extern int ItemPushLara(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, struct COLL_INFO* coll, int a4, int a5);
 extern int TestBoundsCollideStatic(short* bounds, struct PHD_3DPOS* pos, long radius);
+extern int TestBoundsCollide(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, long radius);
 extern void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
 extern void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
 extern void CreatureCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
@@ -38,5 +49,8 @@ extern void LaraBaddieCollision(struct ITEM_INFO* laraitem, struct COLL_INFO* co
 extern void ShiftItem(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight);
 extern void UpdateLaraRoom(struct ITEM_INFO* item, int height);
+extern void ObjectCollision(short item_num, struct ITEM_INFO* lara_item, struct COLL_INFO* coll);
+extern int TestLaraPosition(short* bounds, struct ITEM_INFO* item, struct ITEM_INFO* lara_item);
+extern int MoveLaraPosition(struct PHD_VECTOR* vector, struct ITEM_INFO* item, struct ITEM_INFO* lara_item);
 
 #endif

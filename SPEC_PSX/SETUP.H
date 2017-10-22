@@ -15,10 +15,25 @@ extern void RelocateLevel();
 #endif
 
 extern long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize);
-extern void sub_B96EC(int unk);
+extern void InitialiseObjects();
 extern void sub_B5328();
 extern void sub_B84F0();
 extern void sub_B7E04();
+extern void InitialiseClosedDoors();
+extern void sub_B9DA8();
+extern void sub_B4A40();
+extern void InitialiseSqrtTable();
+extern void InitialiseAnimatedTextures();
+extern void InitialiseFootPrints();
+extern void InitialiseBinocularGraphics();
+extern void InitialiseTargetGraphics();
+extern void InitialiseFlipMaps();
+extern void sub_B4EE4(long keep_carried_items);
+extern void sub_B9974();
+extern void InitialiseCutseq();
+extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3);
+extern long sub_BA0DC(unsigned char a0);
+extern long sub_BA148(unsigned char a0);
 
 struct object_container
 {

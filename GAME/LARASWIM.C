@@ -1,18 +1,14 @@
 #include "LARASWIM.H"
 
 #include "CONTROL.H"
-#if PSX_VERSION
-	#include "PSXINPUT.H"
-#else
-	#include "PSXPCINPUT.H"
-#endif
+#include INPUT_H
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
 #include "LARA.H"
 #include "DRAW.H"
 
 struct SUBSUIT_INFO subsuit;
-char SubHitCount;
+char SubHitCount = 0;
 
 void LaraWaterCurrent(struct COLL_INFO* coll)//4CD34, 4D198
 {
@@ -91,7 +87,7 @@ void lara_as_uwdeath(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C884(<), 
 	}
 }
 
-void lara_as_dive(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C854, 4CCB8
+void lara_as_dive(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C854, 4CCB8 (F)
 {
 	if (input & IN_UP)
 	{
@@ -99,9 +95,42 @@ void lara_as_dive(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C854, 4CCB8
 	}
 }
 
-void lara_as_tread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C730, 4CB94
+void lara_as_tread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C730, 4CB94 (F)
 {
-	S_Warn("[lara_as_tread] - Unimplemented!\n");
+	if (item->hit_points > 0)
+	{
+		if (input & IN_ROLL && LaraDrawType != LARA_DIVESUIT)
+		{
+			item->current_anim_state = STATE_LARA_UNDERWATER_TURNAROUND;
+			item->anim_number = ANIMATION_LARA_UNDERWATER_ROLL_BEGIN;
+			item->frame_number = anims[ANIMATION_LARA_UNDERWATER_ROLL_BEGIN].frame_base;
+		}
+		else
+		{
+			if (input & IN_LOOK)
+				LookUpDown();
+
+			if (LaraDrawType == LARA_DIVESUIT)
+				SwimTurnSubsuit(item);
+			else
+				SwimTurn(item);
+
+			if (input & IN_JUMP)
+				item->goal_anim_state = STATE_LARA_UNDERWATER_FORWARD;
+
+			item->fallspeed -= 6;
+
+			if (item->fallspeed < 0)
+				item->fallspeed = 0;
+
+			if (lara.gun_status == 1)
+				lara.gun_status = 0;
+		}
+	}
+	else
+	{
+		item->goal_anim_state = STATE_LARA_WATER_DEATH;
+	}
 }
 
 void lara_as_glide(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C634(<), 4CA98(<) (F)
@@ -114,7 +143,7 @@ void lara_as_glide(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C634(<), 4C
 
 	if (input & IN_ROLL)
 	{
-		if (LaraDrawType != 5)
+		if (LaraDrawType != LARA_DIVESUIT)
 		{
 			item->current_anim_state = STATE_LARA_UNDERWATER_TURNAROUND;
 			item->anim_number = ANIMATION_LARA_UNDERWATER_ROLL_BEGIN;
@@ -122,7 +151,7 @@ void lara_as_glide(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C634(<), 4C
 			return;
 		}
 	}
-	else if (LaraDrawType != 5)
+	else if (LaraDrawType != LARA_DIVESUIT)
 	{
 		SwimTurn(item);
 	}
@@ -152,7 +181,7 @@ void lara_as_swim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C548(<), 4C9
 
 	if (input & IN_ROLL)
 	{
-		if (LaraDrawType != 5)
+		if (LaraDrawType != LARA_DIVESUIT)
 		{
 			item->current_anim_state = STATE_LARA_UNDERWATER_TURNAROUND;
 			item->anim_number = ANIMATION_LARA_UNDERWATER_ROLL_BEGIN;
@@ -160,7 +189,7 @@ void lara_as_swim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C548(<), 4C9
 			return;
 		}
 	}
-	else if (LaraDrawType != 5)
+	else if (LaraDrawType != LARA_DIVESUIT)
 	{
 		SwimTurn(item);
 	}
