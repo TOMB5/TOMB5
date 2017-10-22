@@ -1,7 +1,7 @@
 #include "LOT.H"
 
 #include "SPECIFIC.H"
-#include "malloc.h"
+#include "MALLOC.H"
 #include "BOX.H"
 
 int slots_used;

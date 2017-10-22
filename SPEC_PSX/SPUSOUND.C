@@ -42,10 +42,10 @@ void SPU_FreeSamples()//62610, 62CF4
 
 void SPU_Init()//62650(<), 62D34(<) (F)
 {
-	int nChannel;
+	int nChannel = 0;
 	
 	SpuInit();
-	SpuInitMalloc(MAX_SPU_MALLOC_CALLS, LabSPUMallocArea);
+	SpuInitMalloc(MAX_SPU_MALLOC_CALLS, (char*)&LabSPUMallocArea[0]);
 	SpuSetTransferMode(SPU_TRANSFER_BY_DMA);
 	SpuSetCommonMasterVolume(0x3FFF, 0x3FFF);
 	SpuSetReverbModeType(SPU_REV_MODE_STUDIO_B | SPU_REV_MODE_CLEAR_WA);
@@ -70,13 +70,13 @@ void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
 	LabFreeChannel[LnFreeChannels++] = channel_index;
 }
 
-void S_SetReverbType(int Reverb)//91CF4, 93D40
+void S_SetReverbType(int reverb)//91CF4, 93D40
 {
-	if (Reverb != CurrentReverb)
+	if (reverb != CurrentReverb)
 	{
-		CurrentReverb = Reverb;
-		
-		SpuSetReverbModeDepth(DepthTable[Reverb], DepthTable[Reverb]);
+		CurrentReverb = reverb;
+
+		SpuSetReverbModeDepth(DepthTable[reverb], DepthTable[reverb]);
 		SpuSetReverb(SPU_ON);
 	}
 }
@@ -101,7 +101,7 @@ int SPU_UpdateStatus()//915FC, 93640
 	int i = 0;
 	char status[MAX_SOUND_SLOTS];
 
-	SpuGetAllKeysStatus(&status);
+	SpuGetAllKeysStatus(&status[0]);
 
 	//loc_9161C
 	for (i = 0; i < MAX_SOUND_SLOTS; i++)

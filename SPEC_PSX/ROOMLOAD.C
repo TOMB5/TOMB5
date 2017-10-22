@@ -1,16 +1,22 @@
 #include "ROOMLOAD.H"
 
 #include "CD.H"
+#include "DRAW.H"
+#include "FILE.H"
+#include "GAMEFLOW.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "SETUP.H"
+#include "SPECIFIC.H"
 
 #include <assert.h>
-
 #include <stdio.h>
 #include <string.h>
-#include "SPECIFIC.H"
+
+#if INTERNAL
+	#include <LIBSN.H>
+#endif
 
 long AnimFilePos;
 long AnimFileLen;
@@ -43,7 +49,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 	LOAD_Start(Name + TITLE);
 
-	SetupPtr = db.poly_buffer[0]+1026;
+	SetupPtr = &db.poly_buffer[1026];
 
 #if INTERNAL
 	len = FILE_Length("DATA\\SETUP.MOD");
@@ -54,18 +60,18 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	PCclose(file);
 
 #else
-	CD_Read((char*)db.poly_buffer[0]+1024, gwHeader.entries[0].fileSize);//jal 5E414
+	CD_Read((char*)&db.poly_buffer[1024], gwHeader.entries[0].fileSize);//jal 5E414
 #endif
 
-	RelocateModule(SetupPtr, &SetupPtr[1024]);
+	RelocateModule((unsigned long)SetupPtr, (unsigned long*)&db.poly_buffer[1024]);
 
 #if INTERNAL
-	strcpy(buff, gfFilenameWad[gfFilenameOffset[Name]]);
-	strcat(buff, ".PSX");
+	strcpy(buf, gfFilenameWad[gfFilenameOffset[Name]]);
+	strcat(buf, ".PSX");
 		
-	len = FILE_Length(buff);
+	len = FILE_Length(buf);
 
-	file = PCopen(buff, 0, 0);
+	file = PCopen(buf, 0, 0);
 
 	RelocateLevel(file);
 #else
@@ -75,9 +81,28 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	 //jalr SetupPtr[5](len);, retail a0 = s1? len?
 
 	LOAD_Stop();
+
+	return;
 }
 
-void ReloadAnims(int name, long len)//600E4, 60D20
+void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
 {
-	S_Warn("[ReloadAnims] - Unimplemented!\n");
+#if INTERNAL
+	int file;
+	char buf[80];
+
+	strcpy(buf, gfFilenameWad[gfFilenameOffset[name]]);
+	strcat(buf, ".PSX");
+	file = PCopen(buf, 0, 0);
+
+	PClSeek(file, AnimFilePos, 0);
+	FILE_Read((char*)frames , 1, len, file);
+
+	PCClose(file);
+#else
+	cdCurrentSector = AnimFilePos;
+	CD_Read((char*) frames, len);
+#endif
+
+	return;
 }

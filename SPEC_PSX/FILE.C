@@ -7,6 +7,10 @@
 #include <libcd.h>
 #include <stdio.h>
 
+#if INTERNAL
+	#include <libsn.h>
+#endif
+
 int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 {
 	CdlFILE fp;
@@ -24,13 +28,14 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 
 	return fp.size;
 }
-int FILE_Read(void* pDest, int nItemSize, int nItems, int nHandle)//5E6A8, 
-{
-	int a1 = nItemSize * nItems;
 
-	//int	PCread(int fd, char *buff, int len);
-	return 0;
+#if INTERNAL
+int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ?
+{
+	int nAmount = nItems * nItemSize;
+	return PCread(nHandle, pDest, nAmount);
 }
+#endif
 
 unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
 {
@@ -49,7 +54,39 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
 	return dwFileSize;
 }
 
-void RelocateModule(unsigned long Module, unsigned long* RelocData)
+void RelocateModule(unsigned long Module, unsigned long* RelocData)//5E6D4(<), 5F430(<) (F)
 {
-	return;
+	//TODO check param ptrs on PSX, untested!
+	unsigned long* pModule;
+	unsigned long RelocationType;
+
+	if (RelocData[0] == -1)
+	{
+		return;
+	}
+
+	//loc_5E700
+	do
+	{
+		RelocationType = *RelocData & 3;
+		pModule = (unsigned long*) (Module + (*RelocData++ & -4));
+
+		if (RelocationType == 0)
+		{
+			*(unsigned long*) pModule += Module;
+		}
+		else if (RelocationType == 1)
+		{
+			*(unsigned short*) pModule = (*RelocData++ + Module + 0x8000) / 65536;
+		}
+		else if (RelocationType == 2)
+		{
+			*(unsigned short*) pModule += Module;
+		}
+		else if (RelocationType == 3)
+		{
+			*(unsigned long*) pModule += Module / sizeof(unsigned long);
+		}
+
+	} while (*RelocData != -1);
 }

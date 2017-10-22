@@ -1,89 +1,41 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.0)
 
 project (TOMB5)
 
-#User input, used to switch current platform specific code.
-set(PLATFORM_PSX 0 CACHE BOOL "Tomb Raider: 5 PlayStation")
-set(PLATFORM_PSXPC 1 CACHE BOOL "Tomb Raider: 5 PlayStation (PC)")
-set(PLATFORM_PC 0 CACHE BOOL "Tomb Raider: 5 PC")
-
-#Internal Beta
-set(INTERNAL 0 CACHE BOOL "Internal")
-
-#MESSAGE(STATUS "PLATFORM_PSXPC: TRUE" ${PLATFORM_PSXPC})
-
-#Tell CMAKE where to find the additional modules this project requires.
+#Store the path to our CMAKE module folder in "CMAKE_MODULE_PATH".
+#This is used by platform specific CMake scripts to correctly use external libraries.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
 
-#Required libs for PLATFORM_PSXPC
-if (PLATFORM_PSXPC)
-	find_package(SDL2 REQUIRED)
-	find_package(OpenGL)
-endif (PLATFORM_PSXPC)
+#Toggles debug code on/off
+set(DEBUG_VERSION 0 CACHE BOOL "Debug Version")
 
-#Create platform specific code directory string
-if (PLATFORM_PSX)
-	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PSX")
-	add_definitions(-DPSX_VERSION)
-endif (PLATFORM_PSX)
-
-if (PLATFORM_PSXPC)
-	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PSXPC")
-	add_definitions(-DPSXPC_VERSION)
-	#add_library(SETUP SHARED ${PLATFORM_SPECIFIC_DIR}/SETUP.C ${PLATFORM_SPECIFIC_DIR}/GAMEWAD.C ${PLATFORM_SPECIFIC_DIR}/MALLOC.C ${PLATFORM_SPECIFIC_DIR}/LOAD_LEV.C ${PLATFORM_SPECIFIC_DIR}/ROOMLOAD.C ...)
-endif (PLATFORM_PSXPC)
-
-if (PLATFORM_PC)
-	string(CONCAT PLATFORM_SPECIFIC_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/SPEC_PC")
-	add_definitions(-DPC_VERSION)
-endif (PLATFORM_PC)
-
-#Internal beta pre-processor definition
-if (INTERNAL)
-	add_definitions(-DINTERNAL)
-endif (INTERNAL)
-
+#Store the path to our game code folder in "GAME_CODE_DIR".
+#This is used by platform specific CMake scripts to add this directory as an include directory.
 string(CONCAT GAME_CODE_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/GAME")
 
-#Setup platform specific / game code include folder
-include_directories(${PLATFORM_SPECIFIC_DIR})
-include_directories(${GAME_CODE_DIR})
-
-#Additional library include directories
-include_directories(${SDL2_INCLUDE_DIR})
-
-#Add all GAME/SPEC* source files recursively.
+#Find all source files in the game folder.
 file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
-file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${PLATFORM_SPECIFIC_DIR}/*.C  ${PLATFORM_SPECIFIC_DIR}/*.H)
-		 
-#MESSAGE(STATUS "GAME_SRCS: " ${GAME_SRCS})
-#MESSAGE(STATUS "PLATFORM_SPECIFIC_SRCS: " ${PLATFORM_SPECIFIC_SRCS})
 
-add_executable(
-TOMB5
-${GAME_SRCS}
-${PLATFORM_SPECIFIC_SRCS}
-)
+#Extract target architecture (MSVC only)
+if (MSVC)
+    if (CMAKE_CL_64)
+        set(TARGET_ARCH "Win64")
+    else()
+        set(TARGET_ARCH "Win32")
+    endif()
+endif()
 
-#Link against required libraries
-target_link_libraries(
-TOMB5
-${SDL2_LIBRARY}
-${OPENGL_gl_LIBRARY}
-)
+#We want to be able to group projects in folders
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set_target_properties(
-TOMB5
-PROPERTIES OUTPUT_NAME "MAIN"
-)
+#Treat each platform specific directory as a sub-project.
+#Note: Travis/Appveyor ci only build PSXPC for now.
+if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))
+	add_subdirectory(SPEC_PSX)
+	add_subdirectory(SPEC_PC)
+	#add_subdirectory(SPEC_PS2)
+	#add_subdirectory(SPEC_CE)
+endif()
 
-#This will be a console application, alter linker subsystem accordingly or main method won't be found
-if(PLATFORM_PSXPC)
-   if(MSVC)
-      add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
-      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
-      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:CONSOLE")
-      set_target_properties(TOMB5 PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:CONSOLE")
-   endif(MSVC)
-endif(PLATFORM_PSXPC)
+#Default
+add_subdirectory(SPEC_PSXPC)
