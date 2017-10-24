@@ -138,20 +138,20 @@ void LaraInitialiseMeshes()//4A684, 4AAE8 (F)
 		lara.mesh_ptrs[LM_TORSO] = meshes[objects[ANIMATING6_MIP].mesh_index + 2 * LM_TORSO];
 	}
 
-	if (lara.gun_type == 5)
+	if (lara.gun_type == WEAPON_HK)
 	{
-		lara.back_gun = 5;
+		lara.back_gun = WEAPON_HK;
 	}
 	else if (!lara.shotgun_type_carried)
 	{
 		if (lara.hk_type_carried)
 		{
-			lara.back_gun = 5;
+			lara.back_gun = WEAPON_HK;
 		}
 	}
 	else
 	{
-		lara.back_gun = 3;
+		lara.back_gun = WEAPON_UZI;
 	}
 
 	lara.gun_status = 0;

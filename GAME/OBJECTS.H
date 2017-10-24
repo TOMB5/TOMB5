@@ -296,6 +296,7 @@ enum weapon_types {
 	WEAPON_SHOTGUN = 4,
 	WEAPON_HK = 5,
 	WEAPON_CROSSBOW = 6,
+	WEAPON_WTF7 = 7
 };
 
 enum weapon_type_carried {

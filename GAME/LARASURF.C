@@ -221,8 +221,51 @@ int LaraTestWaterClimbOut(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D22C
 	return 0;
 }
 
-int LaraTestWaterStepOut(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D100, 4D564
+int LaraTestWaterStepOut(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D100, 4D564 (F)
 {
-	S_Warn("[LaraTestWaterStepOut] - Unimplemented!\n");
-	return 0;
+	if (coll->coll_type == 1 || coll->mid_type == 2 || coll->mid_type == 3 || coll->mid_floor >= 0)
+	{
+		return 0;
+	}
+
+	if (coll->mid_floor >= -128)
+	{
+		if (item->goal_anim_state == STATE_LARA_ONWATER_LEFT)
+		{
+			item->goal_anim_state = STATE_LARA_WALK_LEFT;
+		}
+		else if (item->goal_anim_state == STATE_LARA_ONWATER_RIGHT)
+		{
+			item->goal_anim_state = STATE_LARA_WALK_RIGHT;
+		}
+		else
+		{
+			item->anim_number = ANIMATION_LARA_WADE;
+			item->frame_number = anims[ANIMATION_LARA_WADE].frame_base;
+			item->goal_anim_state = STATE_LARA_WADE_FORWARD;
+			item->current_anim_state = STATE_LARA_WADE_FORWARD;	
+		}
+	}
+	else
+	{
+		item->anim_number = ANIMATION_LARA_ONWATER_TO_WADE_DEEP;
+		item->frame_number = anims[ANIMATION_LARA_ONWATER_TO_WADE_DEEP].frame_base;
+		item->current_anim_state = STATE_LARA_ONWATER_EXIT;
+		item->goal_anim_state = STATE_LARA_STOP;
+	}
+
+	item->pos.y_pos += coll->front_floor + 695;
+
+	UpdateLaraRoom(item, -381);
+
+	item->pos.z_rot = 0;
+	item->pos.x_rot = 0;
+
+	item->gravity_status = TRUE;
+	item->speed = 0;
+	item->fallspeed = 0;
+
+	lara.water_status = 4;
+
+	return 1;
 }
