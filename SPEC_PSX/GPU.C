@@ -310,7 +310,7 @@ long OptimiseOTagR(unsigned long* ot, int nOTSize)//86CC4(<), 88D08(<)
 	return at;
 }
 
-void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14
+void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 {
 	long t0;
 	short* r_cossinptr;

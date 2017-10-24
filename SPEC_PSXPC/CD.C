@@ -245,7 +245,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 	return;
 }
 
-void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<)
+void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F)
 {
 	unsigned char param[4];
 
@@ -324,7 +324,7 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 	XATrack = -1;
 }
 
-void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650
+void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F)
 {
 	unsigned char param[4];
 

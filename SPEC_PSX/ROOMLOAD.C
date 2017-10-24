@@ -63,7 +63,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	CD_Read((char*)&db.poly_buffer[1024], gwHeader.entries[0].fileSize);//jal 5E414
 #endif
 
-	RelocateModule((unsigned long)SetupPtr, (unsigned long*)&db.poly_buffer[1024]);
+	//RelocateModule((unsigned long)SetupPtr, (unsigned long*)((char*)&db.poly_buffer[*db.poly_buffer[1024] + 8]));
 
 #if INTERNAL
 	strcpy(buf, gfFilenameWad[gfFilenameOffset[Name]]);

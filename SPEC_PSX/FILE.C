@@ -60,13 +60,8 @@ void RelocateModule(unsigned long Module, unsigned long* RelocData)//5E6D4(<), 5
 	unsigned long* pModule;
 	unsigned long RelocationType;
 
-	if (RelocData[0] == -1)
-	{
-		return;
-	}
-
 	//loc_5E700
-	do
+	while (*RelocData != -1)
 	{
 		RelocationType = *RelocData & 3;
 		pModule = (unsigned long*) (Module + (*RelocData++ & -4));
@@ -87,6 +82,5 @@ void RelocateModule(unsigned long Module, unsigned long* RelocData)//5E6D4(<), 5
 		{
 			*(unsigned long*) pModule += Module / sizeof(unsigned long);
 		}
-
-	} while (*RelocData != -1);
+	}
 }

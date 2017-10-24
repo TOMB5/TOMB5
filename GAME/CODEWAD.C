@@ -97,7 +97,7 @@ void RelocFunc_34_30()
 
 void RelocFunc_34_34()
 {
-#if PC_VERSION && false
+#if PC_VERSION && 0
 	ResetCutanimate(STROBE_LIGHT);
 	if (!bDoCredits)
 	{

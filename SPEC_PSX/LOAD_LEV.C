@@ -312,7 +312,7 @@ int dword_AD920 = 0;
 int dword_A33F6 = 0;
 char dword_A33F5 = 0;
 
-void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
+void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
 {
 	int a0, a1, a2;
 	if (!LtLoadingBarEnabled)
@@ -321,7 +321,7 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
 	}
 
 	//loc_5F08C
-	GPU_BeginScene();//FIXME: one ptr is mis-filled!
+	GPU_BeginScene();
 
 	a0 = 440;//x?
 	a1 = 200;//y?
@@ -335,7 +335,7 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
 	}
 
 	//loc_5F0B4
-	//draw_rotate_sprite(a0, a1, a2);
+	draw_rotate_sprite(a0, a1, a2);
 	db.current_buffer ^= 1;
 	GnLastFrameCount = 0;
 	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);
