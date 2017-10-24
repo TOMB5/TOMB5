@@ -19,6 +19,7 @@ extern void DrawCutSeqActors();
 extern void DrawRoomletListAsmBinocular(long underwater, struct room_info* r);
 extern void GetRoomBoundsAsm(short room_number);
 extern void SetGunFlash(short gun_type);
+extern void insert_psx_clip_window(long x, long y, long w, long a3, long h);
 
 extern long StoreBoxes;
 extern struct GAME_VECTOR LaraPos;

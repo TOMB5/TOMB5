@@ -196,9 +196,8 @@ long DrawPhaseGame()//63F04, 645E0
 		if (LaserSight != 0 || SCOverlay != 0 && SniperOverlay != 0)
 		{
 			//loc_6432C
-#if PSX_VERSION
-			//insert_psx_clip_window(0x64, 0x17, 0x138, 0xC4);
-#endif
+			insert_psx_clip_window(SCREEN_WIDTH / 2, 100, 23, 312, SCREEN_HEIGHT - 44);
+
 			if (SniperOverlay != 0)
 			{
 				//MGDrawSprite(0x100, 0x78, 0xE, 0, 4, 4, 0x80);
@@ -206,10 +205,8 @@ long DrawPhaseGame()//63F04, 645E0
 		}
 		else
 		{
-#if PSX_VERSION
 			//loc_64380
-			//insert_psx_clip_window(0x21, 0x17, 0x1C0, 0xC2);
-#endif
+			insert_psx_clip_window(SCREEN_WIDTH / 2, 33, 23, 448, SCREEN_HEIGHT - 46);
 		}
 	}
 	else
@@ -217,16 +214,33 @@ long DrawPhaseGame()//63F04, 645E0
 		//loc_64398
 		if (FadeScreenHeight != 0)
 		{
-#if PSX_VERSION
-			//insert_psx_clip_window(0, FadeScreenHeight, 0x200, 0xF0, FadeScreenHeight * 2);
-#endif
+			insert_psx_clip_window(0, FadeScreenHeight, SCREEN_WIDTH, SCREEN_HEIGHT, FadeScreenHeight * 2);
 		}//loc_643C4
 	}
 
-	//loc_643C4 ///@TODO retail is changed here
+	//loc_643C4
 	GPU_EndScene();
 	camera.number_frames = S_DumpScreen();
+
+#if INTERNAL//GC change?
 	S_AnimateTextures(camera.number_frames);
+#else
+	if (gfCurrentLevel == LVL5_SECURITY_BREACH)
+	{
+		//v0 = $gp+11A4//Unknown! A39B8
+		//v0 += 1
+		//v0 &= 3;
+		//if(v0 == 0)
+		{
+			S_AnimateTextures(camera.number_frames);
+		}
+	}
+	else
+	{
+		S_AnimateTextures(camera.number_frames);
+	}
+
+#endif
 
 	return camera.number_frames;
 }
@@ -581,7 +595,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (gfLevelFlags & GF_LVOP_LENSFLARE_USED)
 	{
-		SetUpLensFlare(gfLensFlare.x, gfLensFlare.y - 4096, gfLensFlare.z, NULL);
+		SetUpLensFlare(gfLensFlare.x, gfLensFlare.y - SECTOR(4), gfLensFlare.z, NULL);
 	}
 
 	//loc_64DE0
@@ -792,4 +806,28 @@ void InitObjGTE()
 	__asm__ volatile ("li $0, 0x80A;");
 	__asm__ volatile ("ctc2	$0, $30;");
 	gte_ldfcdir(0, 0, 0);
+}
+
+void insert_psx_clip_window(long x, long y, long w, long a3, long h)
+{
+	static DRAWENV env;
+
+	if (db.current_buffer != 0)
+	{
+		env.dr_env.tag = 0xF000;
+		y += 0xF0;
+	}
+	else
+	{
+		env.dr_env.tag = 0;
+	}
+	//loc_8FDCC:
+	SetDefDrawEnv(&env, x, y, w, h);
+	*(long*) &env.ofs[0] = env.dr_env.tag;
+	env.dtd = 1;
+	env.isbg = 0;
+	SetDrawEnv((DR_ENV*)&db.polyptr[0], &env);
+	*(long*)&db.polyptr[0] = db.ot[2563] |= 0x60000000;
+	*(long*) &db.ot[2563] = (long)db.polyptr;
+	db.polyptr += 0x1C;
 }
