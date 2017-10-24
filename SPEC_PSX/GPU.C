@@ -312,43 +312,22 @@ long OptimiseOTagR(unsigned long* ot, int nOTSize)//86CC4(<), 88D08(<)
 
 void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14
 {
-#if 1
 	long t0;
-	short* v0;
+	short* r_cossinptr;
 	long t6;
 	long t5;
-	long* a33;
-	long t2;
-	long at;
-	long* t3;
-	long v1;
 	long t1;
 	long t4;
 
-	long v00;
+	DelRotAng = (DelRotAng - 52) & 0xFFF;
+	r_cossinptr = &rcossin_tbl[DelRotAng * 2];
 
-	t0 = (DelRotAng - 52) & 0xFFF;
-	a2 = -a2;
-	v0 = &rcossin_tbl[t0 * 2];
-	t6 = v0[0];
-	a2 >>= 1;
-	t6 = a2 * t6;//
+	t6 = ((-a2 / 2) * r_cossinptr[0]) / 4096;
+	t5 = ((-a2 / 2) * r_cossinptr[1]) / 4096;
 
-	t3 = &db.ot[0];
-	t5 = v0[1];
-	a33 = db.polyptr;
-
-	t2 = 0x2C808080;
-	t5 = a2 * t5;
-
-	at = 0x1303F00;
-	DelRotAng = t0;
-	*(long*) &db.polyptr[4] = t2;
+	*(long*) &db.polyptr[4] = 0x2C808080;
 	*(long*) &db.polyptr[12] = 0;
-	*(long*) &db.polyptr[20] = at;
-
-	t6 >>= 12;
-	t5 >>= 12;
+	*(long*) &db.polyptr[20] = 0x1303F00;
 
 	t0 = t6 - t5;
 	a2 = -t6;
@@ -356,92 +335,44 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14
 	a2 += t5;
 	t1 = t6 + t5;
 
-	v00 = t0 >> 1;
-	v00 += a0;
-	t0 += v00;
+	*(short*) &db.polyptr[8] = t0 + (t0 / 2) + a0;
+	*(short*) &db.polyptr[10] = t5 + t6 + a1;
 
-	v1 = t4 >> 1;
-	v1 += a0;
-	t4 += v1;
+	*(short*) &db.polyptr[16] = t4 + (t4 / 2) + a0;
+	*(short*) &db.polyptr[18] = -t5 + t6 + a1;
 
-	v00 = a2 >> 1;
-	v00 += a0;
-	a2 += v00;
 
-	v1 = t1 >> 1;
-	v1 += a0;
-	t1 += v1;
+	*(short*) &db.polyptr[24] = t1 + (t1 / 2) + a0;
+	*(short*) &db.polyptr[26] = (t5 - t6) + a1;
 
-	v00 = t5 + t6;
-	v00 += a1;
-	v1 = -t5;
+	*(short*) &db.polyptr[28] = 0x3F;//width/height of loading cd?
+	*(short*) &db.polyptr[36] = 0x3F3F;
 
-	*(short*) &db.polyptr[8] = t0;
-	*(short*) &db.polyptr[10] = v00;
+	*(short*) &db.polyptr[32] = a2 + (a2 / 2) + a0;
+	*(short*) &db.polyptr[34] = a1 + (-t5 - t6);
 
-	v00 = v1 + t6;
-	v00 += a1;
-
-	*(short*) &db.polyptr[16] = t4;
-	*(short*) &db.polyptr[18] = v00;
-
-	v00 = t5 - t6;
-	v00 += a1;
-	v1 -= t6;
-
-	*(short*) &db.polyptr[24] = t1;
-	*(short*) &db.polyptr[26] = v00;
-
-	t4 = 0x3F;//width/height?
-
-	*(short*) &db.polyptr[28] = t4;
-
-	t4 = 0x3F3F;
-	*(short*) &db.polyptr[36] = t4;
-
-	a1 += v1;
-
-	*(short*) &db.polyptr[32] = a2;
-	*(short*) &db.polyptr[34] = a1;//Verified
-
-	v00 = db.ot[0];
-	at = 0x09000000;
-	v00 |= at;
-
+	*(long*) &db.polyptr[0] = db.ot[0] | 0x09000000;
 	db.ot[0] = &db.polyptr[0];
-	*(int*) &db.polyptr[0] = v00;
 	
-	db.polyptr += 0x28;//sizeof(POLY_F3); * 2
+	db.polyptr += 0x28;//sizeof(POLY_F3); * 2?
 
-	v00 = 0x780100;
-	v1 = 0x6800;
-	a0 = 0x7801FF;
+	*(long*) &db.polyptr[4] = 0x2C808080;
+	*(long*) &db.polyptr[8] = 0x780100;
+	*(long*) &db.polyptr[12] = 0x6800;
+	*(long*) &db.polyptr[16] = 0x7801FF;
 
-	*(long*) &db.polyptr[4] = t2;
-	*(long*) &db.polyptr[8] = v00;
-	*(long*) &db.polyptr[12] = v1;
-	*(long*) &db.polyptr[16] = a0;
 
-	at = 0x13468FF;
-	v00 = 0xEF0100;
-	v1 = 0xDF00;
-	a0 = 0xEF01FF;
+	*(long*) &db.polyptr[20] = 0x13468FF;
+	*(long*) &db.polyptr[24] = 0xEF0100;
+	*(short*) &db.polyptr[28] = 0xDF00;
+	*(long*) &db.polyptr[32] = 0xEF01FF;
 
-	*(long*) &db.polyptr[20] = at;
-	*(long*) &db.polyptr[24] = v00;
-	*(short*) &db.polyptr[28] = v1;
-	*(long*) &db.polyptr[32] = a0;
+	*(short*) &db.polyptr[36] = 0xDFFF;
 
-	at = 0xDFFF;
-	*(short*) &db.polyptr[36] = at;
-
-	v00 = t3[0];
-	v00 |= 0x9000000;
-
-	t3[0] = db.polyptr;
-	*(long*) &db.polyptr[0] = v00;
+	*(long*) &db.polyptr[0] = db.ot[0] | 0x9000000;
+	db.ot[0] = db.polyptr;
+	
 	db.polyptr += 0x28;
-#endif
 	return;
 }
 
