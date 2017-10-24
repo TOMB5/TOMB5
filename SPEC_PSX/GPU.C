@@ -194,39 +194,25 @@ void clear_a_rect(RECT* r)//5F334(<), 60014(<) (F)
 }
 
 //@Gh0stblade - Not sure why this is so unoptimal, we can basically &disp[db.current_buffer]... double check code.
-void GPU_FlipToBuffer(int buffer_index)//5F3C8
+void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F)
 {
-	DISPENV* disp;
-	DRAWENV* draw;
-
 	DrawSync(0);
 	VSync(0);
 
-	if (buffer_index & 1)
+	buffer_index &= 1;
+
+	if (buffer_index)
 	{
-		disp = &db.disp[1];
+		PutDispEnv(&db.disp[1]);
+		db.current_buffer = buffer_index ^ 1;
+		PutDrawEnv(&db.draw[1]);
 	}
 	else
 	{
-		disp = &db.disp[0];
+		PutDispEnv(&db.disp[0]);
+		db.current_buffer = buffer_index ^ 1;
+		PutDrawEnv(&db.draw[0]);
 	}
-
-	//loc_5F3F4
-	PutDispEnv(disp);
-
-	if (buffer_index & 1)
-	{
-		draw = &db.draw[1];
-	}
-	else
-	{
-		draw = &db.draw[0];
-	}
-
-	//loc_5F408
-	buffer_index &= 1 ^ 1;
-
-	PutDrawEnv(draw);
 
 	return;
 }
@@ -327,7 +313,6 @@ long OptimiseOTagR(unsigned long* ot, int nOTSize)//86CC4(<), 88D08(<)
 void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14
 {
 	short* a3;
-
 #if 1
 	short t0;
 	short* v0;

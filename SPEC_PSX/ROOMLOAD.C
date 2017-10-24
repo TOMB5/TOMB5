@@ -49,7 +49,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 	LOAD_Start(Name + TITLE);
 
-	SetupPtr = db.poly_buffer[0]+1026;
+	SetupPtr = &db.poly_buffer[1026];
 
 #if INTERNAL
 	len = FILE_Length("DATA\\SETUP.MOD");
@@ -60,10 +60,10 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	PCclose(file);
 
 #else
-	CD_Read((char*)db.poly_buffer[0]+1024, gwHeader.entries[0].fileSize);//jal 5E414
+	CD_Read((char*)&db.poly_buffer[1024], gwHeader.entries[0].fileSize);//jal 5E414
 #endif
 
-	RelocateModule(SetupPtr, &SetupPtr[1024]);
+	RelocateModule((unsigned long)SetupPtr, (unsigned long*)&db.poly_buffer[1024]);
 
 #if INTERNAL
 	strcpy(buf, gfFilenameWad[gfFilenameOffset[Name]]);
