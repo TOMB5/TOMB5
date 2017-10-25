@@ -126,7 +126,7 @@ void ControlRollingBall(short item_number)//5AE08, 5B284
 
 void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4 (F)
 {
-	if (item->hit_points >= 0 && lara.water_status != 3)
+	if (item->hit_points >= 0 && lara.water_status != LW_FLYCHEAT)
 	{
 		short room_number = item->room_number;
 

@@ -700,6 +700,14 @@ enum lara_draw_type
 	LARA_INVISIBLE = 7
 };
 
+enum lara_water_status
+{
+	LW_ABOVE_WATER = 0,
+	LW_UNDERWATER = 1,
+	LW_SURFACE = 2,
+	LW_FLYCHEAT = 3
+};
+
 extern short angle; // offset 0xA0650
 extern short elevation; // offset 0xA0652
 extern struct ITEM_INFO* lara_item; // offset 0xA2048

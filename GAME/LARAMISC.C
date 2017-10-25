@@ -108,7 +108,7 @@ void LaraCheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4A790(<), 4ABF4(
 	{
 		if (!(input & IN_LOOK))
 		{
-			lara.water_status = 0;
+			lara.water_status = LW_ABOVE_WATER;
 			item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
 			item->anim_number = ANIMATION_LARA_STAY_SOLID;
 			item->pos.z_rot = 0;

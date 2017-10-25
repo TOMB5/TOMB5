@@ -827,10 +827,10 @@ void lara_as_wade(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AF10, 1B044 
 
 		if (input & IN_UP)
 		{
-			if (lara.water_status)
-				item->goal_anim_state = STATE_LARA_WADE_FORWARD;
-			else
+			if (lara.water_status == LW_ABOVE_WATER)
 				item->goal_anim_state = STATE_LARA_RUN_FORWARD;
+			else
+				item->goal_anim_state = STATE_LARA_WADE_FORWARD;
 		}
 		else
 		{
@@ -2524,9 +2524,39 @@ int LaraTestHangOnClimbWall(struct ITEM_INFO* item, struct COLL_INFO* coll)//12C
 	return 0;
 }
 
-void LaraSlideEdgeJump(struct ITEM_INFO* item, struct COLL_INFO* coll)//12B18, 12BC8
+void LaraSlideEdgeJump(struct ITEM_INFO* item, struct COLL_INFO* coll)//12B18, 12BC8 (F)
 {
-	S_Warn("[LaraSlideEdgeJump] - Unimplemented!\n");
+	ShiftItem(item, coll);
+
+	switch (coll->coll_type)
+	{
+	case CT_LEFT:
+		item->pos.y_rot += ANGLE(5);
+		break;
+
+	case CT_RIGHT:
+		item->pos.y_rot -= ANGLE(5);
+		break;
+
+	case CT_TOP:
+	case CT_TOP_FRONT:
+		if (item->fallspeed <= 0)
+			item->fallspeed = 1;
+		break;
+
+	case CT_CLAMP:
+		item->pos.z_pos -= (100 * COS(coll->facing)) >> W2V_SHIFT;	
+		item->pos.x_pos -= (100 * SIN(coll->facing)) >> W2V_SHIFT;
+
+		item->speed = 0;
+
+		coll->mid_floor = 0;
+
+		if (item->fallspeed <= 0)
+			item->fallspeed = 16;
+
+		break;
+	}
 }
 
 void LaraDeflectEdgeJump(struct ITEM_INFO* item, struct COLL_INFO* coll)//12904, 129B4
@@ -2705,9 +2735,9 @@ short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h)//11
 {
 	short room = item->room_number;
 
-	long x = item->pos.x_pos + ((dist * 4 * rcossin_tbl[(ang >> 3) & 0x1FFE]) >> 14);
+	long x = item->pos.x_pos + ((dist * SIN(ang)) >> W2V_SHIFT);
 	long y = item->pos.y_pos - h;
-	long z = item->pos.z_pos + ((dist * 4 * rcossin_tbl[(ang >> 3) & 0x1FFE] + 1) >> 14);
+	long z = item->pos.z_pos + ((dist * COS(ang)) >> W2V_SHIFT);
 
 	long height = GetHeight(GetFloor(x, y, z, &room), x, y, z);
 
@@ -2721,9 +2751,9 @@ short LaraFloorFront(struct ITEM_INFO* item, short ang, long dist)//117B0, 11860
 {
 	short room = item->room_number;
 
-	long x = item->pos.x_pos + ((dist * 4 * rcossin_tbl[(ang >> 3) & 0x1FFE]) >> 14);
+	long x = item->pos.x_pos + ((dist * SIN(ang)) >> W2V_SHIFT);
 	long y = item->pos.y_pos - 762;
-	long z = item->pos.z_pos + ((dist * 4 * rcossin_tbl[(ang >> 3) & 0x1FFE] + 1) >> 14);
+	long z = item->pos.z_pos + ((dist * COS(ang)) >> W2V_SHIFT);
 
 	long height = GetHeight(GetFloor(x, y, z, &room), x, y, z);
 

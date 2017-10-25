@@ -1500,7 +1500,7 @@ void __cdecl sub_456900(struct ITEM_INFO *item)
 {
 	if (room[item->room_number].flags & RF_FILL_WATER)
 	{
-		lara.water_status = 1;
+		lara.water_status = LW_UNDERWATER;
 		item->fallspeed = 0;
 		item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
 		item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
@@ -1509,7 +1509,7 @@ void __cdecl sub_456900(struct ITEM_INFO *item)
 	}
 	else
 	{
-		lara.water_status = 0;
+		lara.water_status = LW_ABOVE_WATER;
 		item->goal_anim_state = STATE_LARA_STOP;
 		item->current_anim_state = STATE_LARA_STOP;
 		item->anim_number = ANIMATION_LARA_STAY_SOLID;

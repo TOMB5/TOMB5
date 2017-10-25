@@ -29,6 +29,9 @@
 //#define TRDEG (65536.0/360)
 #define ANGLE(x) ((x) * 65536.0 / 360.0)
 
+#define SIN(x) (4 * rcossin_tbl[((x) >> 3) & 0x1FFE])
+#define COS(x) (4 * rcossin_tbl[(((x) >> 3) & 0x1FFE) + 1])
+
 #define RGB555(r, g, b) (((r) << 10) | ((g) << 5) | (b))
 
 //#define SECTOR 1024
@@ -43,6 +46,8 @@
 #define PSXENGINE (PSXPC_VERSION || PSX_VERSION)
 
 #define TEXTURE_PAGE (256 * 256)
+
+#define W2V_SHIFT 14
 
 #ifndef CLAMP
 #define CLAMP(x, a, b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
@@ -658,7 +663,7 @@ struct COLL_INFO
 	short old_frame_number; // size=0, offset=116
 	short facing; // size=0, offset=118
 	short quadrant; // size=0, offset=120
-	short coll_type; // size=0, offset=122
+	short coll_type; // size=0, offset=122 USE ENUM CT_*
 	short* trigger; // size=0, offset=124
 	char tilt_x; // size=0, offset=128
 	char tilt_z; // size=0, offset=129

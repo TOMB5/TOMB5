@@ -194,8 +194,8 @@ void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 				item->anim_number = objects[item->object_number].anim_index + 4;
 				item->frame_number = anims[item->anim_number].frame_base;
 				item->item_flags[0] = 1;
-				ForcedFixedCamera.x = item->pos.x_pos - (rcossin_tbl[(item->pos.y_rot >> 3) & 0x1FFE] << 12 >> 14);
-				ForcedFixedCamera.z = item->pos.z_pos - (rcossin_tbl[(item->pos.y_rot >> 3) & 0x1FFE] << 12 >> 14);
+				ForcedFixedCamera.x = item->pos.x_pos - (1024 * SIN(item->pos.y_rot) >> W2V_SHIFT);
+				ForcedFixedCamera.z = item->pos.z_pos - (1024 * COS(item->pos.y_rot) >> W2V_SHIFT);
 				lara.IsMoving = 0;
 				lara.head_y_rot = 0;
 				lara.head_x_rot = 0;
@@ -232,8 +232,8 @@ void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 					flag = 1;
 					l->frame_number = anims[319].frame_base;
 					item->item_flags[0] = 2;
-					ForcedFixedCamera.x = item->pos.x_pos + (rcossin_tbl[(item->pos.y_rot >> 3) & 0x1FFE] << 12 >> 14);
-					ForcedFixedCamera.z = item->pos.z_pos + (rcossin_tbl[((item->pos.y_rot >> 3) & 0x1FFE) + 1] << 12 >> 14);
+					ForcedFixedCamera.x = item->pos.x_pos + (1024 * SIN(item->pos.y_rot) >> W2V_SHIFT);
+					ForcedFixedCamera.z = item->pos.z_pos + (1024 * COS(item->pos.y_rot) >> W2V_SHIFT);
 				}
 				else
 				{

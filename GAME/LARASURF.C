@@ -19,7 +19,7 @@ void lara_col_surftread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DDBC(<
 		item->pos.x_rot = ANGLE(-45);
 		item->frame_number = anims[ANIMATION_LARA_FREE_FALL_TO_UNDERWATER_ALTERNATE].frame_base;
 		item->fallspeed = 80;
-		lara.water_status = 1;
+		lara.water_status = LW_UNDERWATER;
 	}
 	lara.move_angle = item->pos.y_rot;
 	LaraSurfaceCollision(item, coll);
@@ -184,7 +184,7 @@ void LaraSurfaceCollision(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D4F0
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos + 700, item->pos.z_pos, item->room_number, 800);
 	ShiftItem(item, coll);
 	if (coll->coll_type & (CT_FRONT | CT_TOP | CT_TOP_FRONT | CT_CLAMP) || 
-		coll->mid_floor < 0 && (coll->mid_type == 2 || coll->mid_type == 3))
+		coll->mid_floor < 0 && (coll->mid_type == BIG_SLOPE || coll->mid_type == DIAGONAL))
 	{
 		item->fallspeed = 0;
 		item->pos.x_pos = coll->old.x;
@@ -211,7 +211,7 @@ void LaraSurfaceCollision(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D4F0
 		item->pos.x_rot = ANGLE(-90);
 		item->frame_number = anims[ANIMATION_LARA_FREE_FALL_TO_UNDERWATER_ALTERNATE].frame_base;
 		item->fallspeed = 80;
-		lara.water_status = 1;
+		lara.water_status = LW_UNDERWATER;
 	}
 }
 
@@ -223,7 +223,7 @@ int LaraTestWaterClimbOut(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D22C
 
 int LaraTestWaterStepOut(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D100, 4D564 (F)
 {
-	if (coll->coll_type == 1 || coll->mid_type == 2 || coll->mid_type == 3 || coll->mid_floor >= 0)
+	if (coll->coll_type == CT_FRONT || coll->mid_type == BIG_SLOPE || coll->mid_type == DIAGONAL || coll->mid_floor >= 0)
 	{
 		return 0;
 	}

@@ -608,7 +608,7 @@ void swampy_end()//3271C(<), 32BB4(<) (F)
 	SetCutNotPlayed(CUT_SWAMPY);
 	AddActiveItem(find_a_fucking_item(GREEN_TEETH) - items);
 	DelsHandyTeleportLara(42477, 12456, 55982, 28953);
-	lara.water_status = 1;
+	lara.water_status = LW_UNDERWATER;
 	lara_item->pos.x_rot = ANGLE(-29);
 	lara_item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
 	lara_item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
@@ -638,7 +638,7 @@ void swampy_init()//32608(<), 32AA0(<) (F)
 		item->flags |= IFLAG_INVISIBLE;
 	}
 
-	lara.water_status = 1;
+	lara.water_status = LW_UNDERWATER;
 }
 
 void monk2_end()//325F4(<), 32A8C(<) (F)
@@ -746,7 +746,7 @@ void joby7_end()//32328(<), 327C0(<) (F)
 	cutseq_restore_item(ANIMATING2);
 	AddDisplayPickup(PICKUP_ITEM1);
 	DelsHandyTeleportLara(30049, 17583, 69794, -13706);
-	lara.water_status = 1;
+	lara.water_status = LW_UNDERWATER;
 	lara_item->pos.x_rot = 1090;
 	lara_item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
 	lara_item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
@@ -821,7 +821,7 @@ void andy10_end()//3202C(<), 324C4(<) (F)
 	Cutanimate(ANIMATING13);
 	FlipMap(7);
 	DelsHandyTeleportLara(SECTOR_TO_WORLD(38), SECTOR_TO_WORLD(14.5), SECTOR_TO_WORLD(47), 0);
-	lara.water_status = 1;
+	lara.water_status = LW_UNDERWATER;
 	lara_item->pos.x_rot = ANGLE(-29);
 	lara_item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
 	lara_item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
@@ -904,7 +904,7 @@ void andy10_init()//31D58(<), 321F0(<) (F)
 	RemoveActiveItem(item - items);
 	DisableBaddieAI(item - items);
 	item->flags |= IFLAG_INVISIBLE;
-	lara.water_status = 1;
+	lara.water_status = LW_UNDERWATER;
 	FlipMap(7);
 	disable_horizon = 1;
 }
