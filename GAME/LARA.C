@@ -2242,9 +2242,45 @@ void lara_col_crawlb(struct ITEM_INFO* item, struct COLL_INFO* coll)//15614, 157
 	S_Warn("[lara_col_crawlb] - Unimplemented!\n");
 }
 
-void lara_as_crawlb(struct ITEM_INFO* item, struct COLL_INFO* coll)//154F0, 15624
+void lara_as_crawlb(struct ITEM_INFO* item, struct COLL_INFO* coll)//154F0, 15624 (F)
 {
-	S_Warn("[lara_as_crawlb] - Unimplemented!\n");
+	if (item->hit_points > 0 && lara.water_status != 4)
+	{
+		if (input & IN_LOOK)
+			LookUpDown();
+
+		coll->enable_spaz = FALSE;
+		coll->enable_baddie_push = TRUE;
+
+		lara.torso_y_rot = 0;
+		lara.torso_x_rot = 0;
+
+		camera.target_elevation = ANGLE(-23);
+
+		if (input & IN_DOWN)
+		{
+			if (input & IN_RIGHT)
+			{
+				lara.turn_rate -= 409;
+				if (lara.turn_rate < ANGLE(-3))
+					lara.turn_rate = ANGLE(-3);
+			}
+			else if (input & IN_LEFT)
+			{
+				lara.turn_rate += 409;
+				if (lara.turn_rate > ANGLE(3))
+					lara.turn_rate = ANGLE(3);
+			}
+		}
+		else
+		{
+			item->goal_anim_state = STATE_LARA_CRAWL_IDLE;
+		}
+	}
+	else
+	{
+		item->goal_anim_state = STATE_LARA_CRAWL_IDLE;
+	}
 }
 
 void lara_as_all4turnr(struct ITEM_INFO* item, struct COLL_INFO* coll)//15484(<), 155B8(<) (F)
