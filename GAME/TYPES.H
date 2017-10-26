@@ -53,6 +53,8 @@
 #define CLAMP(x, a, b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
 #endif
 
+#define CLAMPADD(x, a, b) ((x)<(a)?((x)+(a)):((x)>(b)?((x)-(b)):0))
+
 #define RED(rgb) (((rgb) >> 16) & 0xFF)
 #define GREEN(rgb) (((rgb) >> 8) & 0xFF)
 #define BLUE(rgb) ((rgb) & 0xFF)

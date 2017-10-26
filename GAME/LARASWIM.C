@@ -1,12 +1,15 @@
 #include "LARASWIM.H"
 
+#include "CAMERA.H"
+#include "COLLIDE.H"
 #include "CONTROL.H"
-#include INPUT_H
-#include "SPECIFIC.H"
-#include "SPECTYPES.H"
-#include "LARA.H"
 #include "DRAW.H"
 #include "EFFECT2.H"
+#include INPUT_H
+#include "LARA.H"
+#include "LARAFIRE.H"
+#include "SPECIFIC.H"
+#include "SPECTYPES.H"
 
 struct SUBSUIT_INFO subsuit;
 char SubHitCount = 0;
@@ -260,9 +263,79 @@ void lara_as_swimcheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C3A8, 4
 	}
 }
 
-void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C418
+void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C418 (F)
 {
-	S_Warn("[LaraUnderWater] - Unimplemented!\n");
+	coll->bad_pos = 32512;
+	coll->bad_neg = -400;
+	coll->bad_ceiling = 400;
+
+	coll->old.x = item->pos.x_pos;
+	coll->old.y = item->pos.y_pos;
+	coll->old.z = item->pos.z_pos;
+
+	coll->slopes_are_walls = 0;
+	coll->slopes_are_pits = 0;
+	coll->lava_is_pit = 0;
+
+	coll->enable_baddie_push = TRUE;
+	coll->enable_spaz = FALSE;
+
+	coll->radius = 300;
+	coll->trigger = 0;
+
+	if (input & IN_LOOK && lara.look)
+		LookLeftRight();
+	else
+		ResetLook();
+
+	lara.look = TRUE;
+
+	lara_control_routines[item->current_anim_state](item, coll);
+
+	if (LaraDrawType == LARA_DIVESUIT)
+	{
+		lara.turn_rate = CLAMPADD(lara.turn_rate, ANGLE(-0.5), ANGLE(0.5));
+	}
+	else
+	{
+		lara.turn_rate = CLAMPADD(lara.turn_rate, ANGLE(-2), ANGLE(2));
+	}
+
+	item->pos.y_rot += lara.turn_rate;
+
+	if (LaraDrawType == LARA_DIVESUIT)
+		UpdateSubsuitAngles();
+
+	item->pos.z_rot = CLAMPADD(item->pos.z_rot, ANGLE(-2), ANGLE(2));
+	item->pos.x_rot = CLAMPADD(item->pos.x_rot, ANGLE(-85), ANGLE(85));
+
+	if (LaraDrawType == LARA_DIVESUIT)
+	{
+		item->pos.z_rot = CLAMP(item->pos.z_rot, ANGLE(-44), ANGLE(44));
+	}
+	else
+	{
+		item->pos.z_rot = CLAMP(item->pos.z_rot, ANGLE(-22), ANGLE(22));
+	}
+
+	if (lara.current_active && lara.water_status != LW_FLYCHEAT)
+		LaraWaterCurrent(coll);
+
+	AnimateLara(item);
+	
+	item->pos.x_pos += COS(item->pos.x_rot) * (item->fallspeed * SIN(item->pos.y_rot) >> W2V_SHIFT >> 2) >> W2V_SHIFT;
+	item->pos.y_pos -= item->fallspeed * SIN(item->pos.x_rot) >> W2V_SHIFT >> 2;
+	item->pos.z_pos += COS(item->pos.x_rot) * (item->fallspeed * COS(item->pos.y_rot) >> W2V_SHIFT >> 2) >> W2V_SHIFT;
+
+	LaraBaddieCollision(item, coll);
+
+	lara_collision_routines[item->current_anim_state](item, coll);
+
+	UpdateLaraRoom(item, 0);
+
+	LaraGun();
+
+	TestTriggers(coll->trigger, 0, 0);
 }
 
 void UpdateSubsuitAngles()//4BD20, 4C184

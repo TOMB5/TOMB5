@@ -12,6 +12,8 @@
 #include "LARASWIM.H"
 #include "LARASURF.H"
 #include "LARACLMB.H"
+#include "GAMEFLOW.H"
+#include "LARAFIRE.H"
 
 static short LeftClimbTab[4] = // offset 0xA0638
 {
@@ -3285,9 +3287,49 @@ void lara_as_duckl(struct ITEM_INFO* item, struct COLL_INFO* coll)//1448C(<), 14
 	item->pos.y_rot -= ANGLE(1.5);
 }
 
-void LaraAboveWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//14228, 142D8
+void LaraAboveWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//14228, 142D8 (F)
 {
-	S_Warn("[LaraAboveWater] - Unimplemented!\n");
+	coll->old.x = item->pos.x_pos;
+	coll->old.y = item->pos.y_pos;
+	coll->old.z = item->pos.z_pos;
+
+	coll->slopes_are_walls = 0;
+	coll->slopes_are_pits = 0;
+	coll->lava_is_pit = 0;
+
+	coll->enable_baddie_push = TRUE;
+	coll->enable_spaz = TRUE;
+
+	coll->old_anim_state = item->current_anim_state;
+	coll->old_anim_number = item->anim_number;
+	coll->old_frame_number = item->frame_number;
+
+	coll->radius = 100;
+	coll->trigger = 0;
+
+	if (input & IN_LOOK && lara.look)
+		LookLeftRight();
+	else
+		ResetLook();
+
+	lara_control_routines[item->current_anim_state](item, coll);
+
+	item->pos.z_rot = CLAMPADD(item->pos.z_rot, ANGLE(-1), ANGLE(1));
+	lara.turn_rate = CLAMPADD(lara.turn_rate, ANGLE(-2), ANGLE(2));
+
+	AnimateLara(item);
+	LaraBaddieCollision(item, coll);
+	lara_control_routines[item->current_anim_state](item, coll);
+	UpdateLaraRoom(item, -381);
+
+	if (lara.gun_type == WEAPON_CROSSBOW && !LaserSight && gfLevelFlags & GF_LVOP_TRAIN)
+	{
+		input &= ~IN_ACTION;
+	}
+
+	LaraGun();
+
+	TestTriggers(coll->trigger, 0, 0);
 }
 
 int TestHangSwingIn(struct ITEM_INFO* item, short angle)//14104, 141B4
