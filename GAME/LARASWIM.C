@@ -6,6 +6,7 @@
 #include "SPECTYPES.H"
 #include "LARA.H"
 #include "DRAW.H"
+#include "EFFECT2.H"
 
 struct SUBSUIT_INFO subsuit;
 char SubHitCount = 0;
@@ -207,9 +208,56 @@ void lara_as_swim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C548(<), 4C9
 		item->goal_anim_state = STATE_LARA_UNDERWATER_INERTIA;
 }
 
-void lara_as_swimcheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C3A8, 4C80C
+void lara_as_swimcheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C3A8, 4C80C (F)
 {
-	S_Warn("[lara_as_swimcheat] - Unimplemented!\n");
+	if (input & IN_UP)
+	{
+		item->pos.x_rot -= ANGLE(3);
+	}
+	else if (input & IN_DOWN)
+	{
+		item->pos.x_rot += ANGLE(3);
+	}
+
+	if (input & IN_LEFT)
+	{
+		lara.turn_rate -= 613;
+
+		if (lara.turn_rate < ANGLE(-6))
+			lara.turn_rate = ANGLE(-6);
+	}
+	else if (input & IN_RIGHT)
+	{
+		lara.turn_rate += 613;
+
+		if (lara.turn_rate > ANGLE(6))
+			lara.turn_rate = ANGLE(6);
+	}
+
+	if (input & IN_ACTION)
+	{
+		TriggerDynamic(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 31, 255, 255, 255);
+	}
+
+	if (input & IN_OPTION)
+	{
+		lara.turn_rate = ANGLE(-12);
+	}
+
+	if (input & IN_JUMP)
+	{
+		item->fallspeed += 16;
+
+		if (item->fallspeed > 400)
+			item->fallspeed = 400;
+	}
+	else
+	{
+		if (item->fallspeed >= 8)
+			item->fallspeed -= item->fallspeed >> 3;
+		else
+			item->fallspeed = 0;
+	}
 }
 
 void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C418

@@ -33,6 +33,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include "SOUND.H"
+#include "EFFECTS.H"
 
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
@@ -488,7 +489,7 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80(<), 32F18(<) (F)
 	return item;
 }
 
-void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
+void trigger_title_spotcam(int num)//32904(<), 32D9C(<) (F)
 {
 	struct ITEM_INFO* item;
 
@@ -2155,9 +2156,35 @@ void stealth3_end()//2E99C, 2ECA8
 	S_Warn("[stealth3_end] - Unimplemented!\n");
 }
 
-void stealth3_start()//2E824, 2EB30
+void stealth3_start()//2E824, 2EB30 (F)
 {
-	S_Warn("[stealth3_start] - Unimplemented!\n");
+	int i;
+	struct ITEM_INFO* item = items;
+
+	for (i = 0; i < level_items; i++, item++)
+	{
+		if (item->object_number == CHEF ||
+			item->object_number == SAS ||
+			item->object_number == BLUE_GUARD ||
+			item->object_number == SWAT_PLUS ||
+			item->object_number == SWAT ||
+			item->object_number == TWOGUN)
+		{
+			if (ABS(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+				ABS(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+				ABS(item->pos.y_pos - lara_item->pos.y_pos) < CLICK)
+			{
+				GLOBAL_cutme->actor_data[1].objslot = item->object_number;
+				item->status = 3;
+				RemoveActiveItem(i);
+				DisableBaddieAI(i);
+				item->flags |= IFLAG_INVISIBLE;
+			}
+		}
+	}
+
+	if (cutseq_num == CUT_STEALTH3_2)
+		SwapCrowbar(NULL);
 }
 
 void special4_end()//2E7F4(<), 2EB00(<)

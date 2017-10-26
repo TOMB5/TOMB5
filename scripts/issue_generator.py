@@ -48,8 +48,8 @@
 # $ ./issue_generator.py +w -h -c
 
 # increment this plz
-# rev 4
-# 2017-10-24
+# rev 5
+# 2017-10-25
 
 
 from urllib.request import urlopen
@@ -204,7 +204,7 @@ for plat in sorted(platforms.keys()):
 			# function is (F) in file but not checked in list -> check it
 			if not platforms[plat][file][l]:
 				Status("adding implemented function -- %s // '%s'" % (path, l))
-				added.append((path, l))
+				added.append((plat, file, l))
 				platforms[plat][file][l] = True
 
 # STEP
@@ -215,6 +215,10 @@ for plat in sorted(platforms.keys()):
 # |____/ 
 # 
 # Output the results
+
+Status("%d function%s ha%s been implemented:" % (len(added), "s" if len(added) != 1 else "", "ve" if len(added) != 1 else "s"))
+for p in sorted(platforms.keys()):
+	Status("- %2d in %s" % (len([x for x in added if x[0] == p]), p))
 
 lines = []
 unimpl = []
@@ -250,4 +254,4 @@ if SHOW_ADDED:
 	if USE_REPR:
 		print(repr(added))
 	else:
-		print("\n".join(["%s // '%s'" % x for x in added]))
+		print("\n".join(["%s // '%s'" % (os.path.join(x[0], x[1]), x[2]) for x in added]))
