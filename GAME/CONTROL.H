@@ -194,7 +194,7 @@ extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor);
-extern void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int a3);
+extern void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint);
 extern void AddFire(int x, int y, int z, char size, short room_num, short on);
 
 #endif

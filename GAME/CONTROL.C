@@ -479,7 +479,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		//loc_1D920
 		if (BinocularRange == 0)
 		{
-			if (lara.gun_type != 5 && (lara.gun_type > 6 && lara.gun_type != 6) || (lara.gun_type == 2 && (lara.sixshooter_type_carried & 4)) == 0 || lara.gun_status != 4)
+			if (lara.gun_type != 5 && (lara.gun_type > 6 && lara.gun_type != 6) || (lara.gun_type == 2 && (lara.sixshooter_type_carried & 4)) == 0 || lara.gun_status != LG_READY)
 			{
 				v0 = BinocularRange;
 
@@ -1360,7 +1360,7 @@ int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLO
 	return 0;
 }
 
-void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int a3)
+void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint)
 {
 	S_Warn("[GetJointAbsPosition] - Unimplemented!\n");
 }

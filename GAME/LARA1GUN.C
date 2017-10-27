@@ -73,7 +73,7 @@ void ready_shotgun(int weapon_type)//424E0(<), 42934(<) (F)
 {
 	struct object_info* object;
 
-	lara.gun_status = 4;
+	lara.gun_status = LG_READY;
 	lara.left_arm.z_rot = 0;
 	lara.left_arm.y_rot = 0;
 	lara.left_arm.x_rot = 0;

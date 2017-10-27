@@ -3,6 +3,9 @@
 #include "SPECIFIC.H"
 #include "MALLOC.H"
 #include "BOX.H"
+#include "CONTROL.H"
+#include "OBJECTS.H"
+#include "LARA.H"
 
 int slots_used;
 short nAIObjects;
@@ -17,6 +20,83 @@ void CreateZone(struct ITEM_INFO* item)//4E330, 4E794
 //Only called when enemy is triggered
 void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0
 {
+#if 0
+	struct creature_info* creature = &baddie_slots[slot];
+	struct ITEM_INFO* item = &items[item_number];
+	item->data = creature;
+
+	creature->target.x = item_number;
+	creature->mood = 0;
+	creature->joint_rotation[0] = 0;
+	creature->joint_rotation[1] = 0;
+	creature->joint_rotation[2] = 0;
+	creature->joint_rotation[3] = 0;
+
+	creature->alerted = 0;
+	creature->head_left = 0;
+	creature->head_right = 0;
+	creature->reached_goal = 0;
+	creature->hurt_by_lara = 0;
+	creature->patrol2 = 0;
+	creature->jump_ahead = 0;
+	creature->monkey_ahead = 0;
+
+	*((unsigned short *)&creature->LOT + 13) &= 0xFFE4u;
+
+	creature->maximum_turn = ANGLE(1);
+
+	creature->flags = 0;
+	creature->enemy = 0;
+
+	creature->LOT.drop = 256;
+	creature->LOT.zone_count = -512;
+	creature->LOT.step = 16384;
+
+	creature->LOT.can_jump = FALSE;
+	creature->LOT.can_monkey = FALSE;
+	creature->LOT.is_amphibious = FALSE;
+	creature->LOT.is_jumping = FALSE;
+	creature->LOT.is_monkeying = FALSE;
+
+	creature->LOT.zone = 1;
+
+	switch (item->object_number)
+	{
+	case SAS:
+	case BLUE_GUARD:
+	case MAFIA2:
+	case SAILOR:
+		creature->LOT.drop = 1024;
+		creature->LOT.zone_count = -1024;
+		*((unsigned short *)&creature->LOT + 13) |= 1;
+		creature->LOT.zone = 3;
+		break;
+
+	case HITMAN:
+		creature->LOT.drop = 1024;
+		creature->LOT.zone_count = -1024;
+		*((unsigned short *)&creature->LOT + 13) |= 3;
+		creature->LOT.zone = 3;
+		break;
+
+	case CROW:
+	case WILLOWISP:
+	case REAPER:
+	case GREEN_TEETH:
+	case ATTACK_SUB:
+		creature->LOT.drop = 20480;
+		creature->LOT.zone_count = -20480;
+		creature->LOT.is_monkeying = TRUE;
+		creature->LOT.zone = 4;
+		break;
+	}
+
+	ClearLOT(&creature->LOT.node + 2);
+	if (item_number != lara.item_number)
+		CreateZone(item);
+
+	slots_used++;
+#endif
 #if 0
 	int i; // $s1
 	struct creature_info* creature; // $s0

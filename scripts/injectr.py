@@ -53,9 +53,6 @@ print(os.getcwd())
 orig_stdout = sys.stdout
 sys.stdout = file("output.txt", "w")
 
-with open("C:\\adb\\kiwi.txt", "w") as f:
-	f.write("ABCD")
-
 # STEP
 #  _ 
 # / |
@@ -1119,6 +1116,33 @@ if not os.path.isfile(os.path.join(os.getcwd(), exe_name)):
 if not os.path.isfile(os.path.join(os.getcwd(), exe_name)):
 	print("[FATAL  ERROR] %s not found -- exiting" % exe_name)
 	#exit()
+
+import idautils
+funcs=lambda:[(fea,GetFunctionName(fea)) for fea in Functions(SegStart(BeginEA()),SegEnd(BeginEA()))]
+from collections import *
+fbytes = OrderedDict()
+running = 0
+for ea, fn in funcs:
+	if fn[0] == "_":
+		fn = fn[1:]
+
+	if fn not in functions:
+		continue
+
+	if SHOW_WARN and fn in fbytes:
+		print("[WARN--------] duplicate function '%s' -- ignoring" % fname)
+		continue
+
+	bs = [idc.Byte(i) for i in range(ea, FindFuncEnd(ea))]
+	fbytes[fn] = (bs, running)
+	running += len(bs)
+
+
+
+
+
+
+
 
 pe = pefile.PE(exe_name)
 

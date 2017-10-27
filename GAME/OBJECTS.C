@@ -77,7 +77,7 @@ void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 
 	if (item_number != 0)
 	{
-		item->status = 1;
+		item->status = ITEM_ACTIVE;
 
 		if (item->trigger_flags == 0x29C)
 		{
@@ -92,7 +92,7 @@ void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 	{
 		if (item->trigger_flags == 2 || item->trigger_flags == 0x29C)
 		{
-			item->status = 3;
+			item->status = ITEM_INVISIBLE;
 		}
 	}
 }
@@ -206,9 +206,9 @@ void SmashObject(short item_number)//4EDB0, 4F214 (F)
 	item->mesh_bits = 0xFFFE;
 	ExplodingDeath2(item_number, -1, 257);
 	item->flags |= IFLAG_INVISIBLE;
-	if (item->status == 1)
+	if (item->status == ITEM_ACTIVE)
 		RemoveActiveItem(item_number);
-	item->status = 2;
+	item->status = ITEM_DEACTIVATED;
 }
 
 void EarthQuake(short item_number)

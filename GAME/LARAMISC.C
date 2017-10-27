@@ -108,7 +108,7 @@ void LaraCheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4A790(<), 4ABF4(
 	{
 		if (!(input & IN_LOOK))
 		{
-			lara.water_status = 0;
+			lara.water_status = LW_ABOVE_WATER;
 			item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
 			item->anim_number = ANIMATION_LARA_STAY_SOLID;
 			item->pos.z_rot = 0;
@@ -117,7 +117,7 @@ void LaraCheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4A790(<), 4ABF4(
 			lara.torso_x_rot = 0;
 			lara.head_y_rot = 0;
 			lara.head_x_rot = 0;
-			lara.gun_status = 0;
+			lara.gun_status = LG_NO_ARMS;
 			LaraInitialiseMeshes();
 			lara.mesh_effects = 0;
 			lara_item->hit_points = cheat_hit_points;
@@ -154,7 +154,7 @@ void LaraInitialiseMeshes()//4A684, 4AAE8 (F)
 		lara.back_gun = WEAPON_UZI;
 	}
 
-	lara.gun_status = 0;
+	lara.gun_status = LG_NO_ARMS;
 	lara.left_arm.frame_number = 0;
 	lara.right_arm.frame_number = 0;
 	lara.target = 0;

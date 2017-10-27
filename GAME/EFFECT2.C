@@ -147,8 +147,12 @@ void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, 
 	}
 }
 
-void TriggerDynamic(long x, long y, long z, int a4, int a5, int a6, int a7)
+void TriggerDynamic(long x, long y, long z, int a4, int r, int g, int b)
 {
 	S_Warn("[TriggerDynamic] - Unimplemented!\n");
 }
 
+void TriggerFireFlame(int x, int y, int z, int fxObj, signed int a5)
+{
+	S_Warn("[TriggerFireFlame] - Unimplemented!\n");
+}

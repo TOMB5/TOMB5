@@ -126,7 +126,7 @@ void ControlRollingBall(short item_number)//5AE08, 5B284
 
 void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4 (F)
 {
-	if (item->hit_points >= 0 && lara.water_status != 3)
+	if (item->hit_points >= 0 && lara.water_status != LW_FLYCHEAT)
 	{
 		short room_number = item->room_number;
 
@@ -153,10 +153,68 @@ void LaraBurn()//5ACE4, 5B160 (F)
 	}
 }
 
-void FlameControl(short fx_number)//5AA6C, 5AEE8
+void FlameControl(short fx_number)//5AA6C, 5AEE8 (F)
 {
-	S_Warn("[FlameControl] - Unimplemented!\n");
-	return;
+	struct FX_INFO* fx = &effects[fx_number];
+	int y;
+	int i;
+	for(i = NUM_LARA_MESHES; i > 0; i--)
+	{
+		if (!(wibble & 0xC))
+		{
+			fx->pos.x_pos = 0;
+			fx->pos.y_pos = 0;
+			fx->pos.z_pos = 0;
+
+			GetLaraJointPos((struct PHD_VECTOR*)&fx->pos, i - 1);
+
+			if (lara.BurnCount)
+			{
+				if (!--lara.BurnCount)
+					lara.BurnSmoke = TRUE;
+			}
+
+			TriggerFireFlame(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, -1, 255 - lara.BurnSmoke);
+		}
+	}
+
+	if (!lara.BurnSmoke)
+	{
+		const int r = (GetRandomControl() & 0x3F) + 192;
+		const int g = (GetRandomControl() & 0x1F) + 96;
+
+		if (lara.BurnBlue == 0)
+		{
+			TriggerDynamic(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, 13, r, g, 0);
+		}
+		else if (lara.BurnBlue == 128)
+		{
+			TriggerDynamic(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, 13, 0, g, r);
+		}
+		else if (lara.BurnBlue == 256)
+		{
+			TriggerDynamic(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, 13, 0, r, g);
+		}
+	}
+
+	if (lara_item->room_number != fx->room_number)
+		EffectNewRoom(fx_number, lara_item->room_number);
+
+	y = GetWaterHeight(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, fx->room_number);
+
+	if (y == -32512 || fx->pos.y_pos <= y || lara.BurnBlue != 0)
+	{
+		SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &fx->pos, 0);
+
+		lara_item->hit_points -= 7;
+		lara_item->hit_status = TRUE;
+	}
+	else
+	{
+		KillEffect(fx_number);
+
+		lara.burn = FALSE;
+	}
 }
 
 void FlameEmitter3Control(short item_number)//5A38C, 5A808

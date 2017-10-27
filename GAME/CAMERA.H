@@ -3,6 +3,13 @@
 
 #include "SPECTYPES.H"
 
+enum camera_flags
+{
+	CF_FOLLOW_CENTER = 1,
+	CF_UNKNOWN_2 = 2,
+	CF_CHASE_OBJECT = 3,
+};
+
 extern long BinocularRange;
 extern long BinocularOn;
 extern long BinocularOldCamera;

@@ -1,6 +1,9 @@
 #include "FLMTORCH.H"
 
 #include "SPECIFIC.H"
+#include "EFFECT2.H"
+#include "CONTROL.H"
+#include "TOMB4FX.H"
 
 static short FireBounds[12] =
 {
@@ -29,7 +32,54 @@ void FireCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)/
 	S_Warn("[FireCollision] - Unimplemented!\n");
 }
 
-void TriggerTorchFlame(short item_number, long Node)//39E88, 3A388
+void TriggerTorchFlame(short item_number, long Node)//39E88, 3A388 (F)
 {
-	S_Warn("[TriggerTorchFlame] - Unimplemented!\n");
+	struct SPARKS* sptr = &spark[GetFreeSpark()];
+	long size;
+
+	sptr->On = 1;
+
+	sptr->sR = 255;
+	sptr->sG = (GetRandomControl() & 0x1F) + 48;
+	sptr->sB = 48;
+
+	sptr->dR = (GetRandomControl() & 0x3F) - 64;
+	sptr->dG = (GetRandomControl() & 0x3F) + -128;
+	sptr->dB = 32;
+
+	sptr->FadeToBlack = 8;
+	sptr->ColFadeSpeed = (GetRandomControl() & 3) + 12;
+
+	sptr->TransType = 2;
+
+	sptr->Life = sptr->sLife = (GetRandomControl() & 7) + 24;
+
+	sptr->y = 0;
+	sptr->x = (GetRandomControl() & 0xF) - 8;
+	sptr->z = (GetRandomControl() & 0xF) - 8;
+
+	sptr->Xvel = (GetRandomControl() & 0xFF) - 128;
+	sptr->Yvel = -((GetRandomControl() & 0xF) + 16);
+	sptr->Zvel = GetRandomControl() - 128;
+
+	sptr->Friction = 5;
+	sptr->Flags = 4762;
+	
+	sptr->RotAng = GetRandomControl() & 0xFFF;
+
+	if (GetRandomControl() & 1)
+		sptr->RotAdd = -((GetRandomControl() & 0xF) + 16);
+	else
+		sptr->RotAdd = (GetRandomControl() & 0xF) + 16;
+
+	sptr->Gravity = -((GetRandomControl() & 0x1F) + 16);
+	sptr->NodeNumber = Node;
+	sptr->MaxYvel = -((GetRandomControl() & 7) + 16);
+	sptr->FxObj = item_number;
+	sptr->Scalar = 1;
+
+	size = (GetRandomControl() & 0x1F) + 80;
+	sptr->sSize = size;
+	sptr->Size = size;
+	sptr->dSize = size >> 3;
 }

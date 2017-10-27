@@ -271,7 +271,7 @@ void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 		if (savegame.Lara.IsMoving)
 		{
 			savegame.Lara.IsMoving = 0;
-			savegame.Lara.gun_status = 0;
+			savegame.Lara.gun_status = LG_NO_ARMS;
 		}
 	}
 	memcpy(&lara, &savegame.Lara, sizeof(struct lara_info));
@@ -304,7 +304,7 @@ void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 		item->frame_number = savegame.WeaponFrame;
 		item->current_anim_state = savegame.WeaponCurrent;
 		item->goal_anim_state = savegame.WeaponGoal;
-		item->status = 1;
+		item->status = ITEM_ACTIVE;
 		item->room_number = 255;
 	}
 	

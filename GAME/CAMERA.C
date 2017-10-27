@@ -5,6 +5,7 @@
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
+#include "MATHS.H"
 #include "OBJECTS.H"
 #include "SAVEGAME.H"
 #include "SPECIFIC.H"
@@ -23,6 +24,8 @@
 #endif
 
 #include <stddef.h>
+#include "EFFECT2.H"
+#include "CONTROL.H"
 
 long BinocularRange;
 long BinocularOn;
@@ -904,7 +907,7 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 	camera.target_distance = 1536;
 	camera.number_frames = 1;
 	camera.speed = 1;
-	camera.flags = 1;
+	camera.flags = CF_FOLLOW_CENTER;
 	camera.item = NULL;
 	camera.type = CHASE_CAMERA;
 	camera.bounce = 0;
@@ -1409,9 +1412,40 @@ void UpdateCameraElevation()
 	S_Warn("[UpdateCameraElevation] - Unimplemented!\n");
 }
 
-void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, short yrot, long brightness)
+void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, short yrot, long brightness) // (F)
 {
-	S_Warn("[LaraTorch] - Unimplemented!\n");
+	struct GAME_VECTOR s;
+	struct GAME_VECTOR d;
+	long dx;
+	long dy;
+	long dz;
+	long radius;
+
+	s.x = dx = Soffset->x;
+	s.y = dy = Soffset->y;
+	s.z = dz = Soffset->z;
+	s.room_number = lara_item->room_number;
+
+	d.x = Eoffset->x;
+	d.y = Eoffset->y;
+	d.z = Eoffset->z;
+
+	TriggerDynamic(dx, dy, dz, 12, brightness, brightness, brightness >> 1);
+
+	if (!LOS(&s, &d))
+	{
+		long tmp = (phd_sqrt_asm((s.x - d.x) * (s.x - d.x) +
+			(s.y - d.y) * (s.y - d.y) +
+			(s.z - d.z) * (s.z - d.z)) >> 8) + 8;
+
+		radius = tmp + 8;
+
+		if (radius > 31)
+			radius = 31;
+
+		if (brightness - tmp >= 0)
+			TriggerDynamic(d.x, d.y, d.z, radius, brightness - tmp, brightness - tmp, (brightness - tmp) >> 1);
+	}
 }
 
 long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)
