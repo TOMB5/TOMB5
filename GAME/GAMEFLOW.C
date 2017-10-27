@@ -551,9 +551,8 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	SOUND_Stop();
 
 	IsAtmospherePlaying = 0;
-#if !PC_VERSION
+
 	S_SetReverbType(1);
-#endif
 
 	InitialiseCamera();
 

@@ -296,15 +296,12 @@ struct creature_info {
 	unsigned short patrol2 : 1; // offset=12.5
 	unsigned short jump_ahead : 1; // offset=12.6
 	unsigned short monkey_ahead : 1; // offset=12.7
-	enum mood_type mood; // size=4, offset=16
-	struct ITEM_INFO* enemy; // size=144, offset=20
-	struct ITEM_INFO ai_target; // size=144, offset=24
-#if !PC_VERSION
-	short pad; // size=0, offset=168
-#endif
-	short item_num; // size=0, offset=170
-	struct PHD_VECTOR target; // size=12, offset=172
-	struct lot_info LOT; // size=44, offset=184
+	enum mood_type mood; // size=4, offset=14
+	struct ITEM_INFO* enemy; // size=144, offset=18
+	struct ITEM_INFO ai_target; // size=144, offset=22
+	short item_num; // size=0, offset=5644
+	struct PHD_VECTOR target; // size=12, offset=5646
+	struct lot_info LOT; // size=44, offset=5658
 };
 
 struct tr4_mesh_face3    // 10 bytes

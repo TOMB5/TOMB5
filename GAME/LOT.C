@@ -253,9 +253,18 @@ int EnableBaddieAI(short item_number, int Always)//4DF0C, 4E370
 	return 0;
 }
 
-void DisableBaddieAI(short item_num)//4DEC0, 4E324
+void DisableBaddieAI(short item_num)//4DEC0, 4E324 (F)
 {
-	S_Warn("[DisableBaddieAI] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_num];
+	struct creature_info* creature = (struct creature_info*)item->data;
+
+	item->data = NULL;
+
+	if (creature)
+	{
+		creature->item_num = -1;
+		slots_used--;
+	}
 }
 
 void InitialiseLOTarray(int allocmem)//4DE40(<), 4E2A4(<) (F)

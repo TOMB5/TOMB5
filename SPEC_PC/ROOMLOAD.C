@@ -25,6 +25,7 @@
 #include "TOMB4FX.H"
 #include "DELTAPAK.H"
 #include "LARA.H"
+#include "DOOR.H"
 
 long AnimFilePos;
 long AnimFileLen;
@@ -34,7 +35,6 @@ FILE* fp_level;
 char* lvDataPtr;
 char* lvDataPtr_orig; // debug purposes shhh
 DWORD num_items;
-DWORD dword_51CAC0[32];
 DWORD numLvlMeshes;
 struct mesh_vbuf_s
 {
@@ -113,7 +113,7 @@ inline void freadBytes(unsigned int count)
 	free(buf);
 }
 
-void InitialiseItemArray(int num)
+void InitialiseItemArray_old(int num)
 {
 	next_item_free = level_items;
 	next_item_active = -1;
@@ -137,7 +137,7 @@ void InitialiseItemArray(int num)
 
 void InitialiseClosedDoors()
 {
-	memset(dword_51CAC0, 0, 32 * sizeof(DWORD));
+	memset(ClosedDoors, 0, 32 * sizeof(DWORD));
 }
 
 void LoadItems()

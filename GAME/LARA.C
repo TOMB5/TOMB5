@@ -1239,23 +1239,23 @@ void lara_as_wade(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AF10, 1B044 
 
 void lara_as_waterout(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AEE4(<), 1B018(<) (F)
 {
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	camera.flags = CF_FOLLOW_CENTER;
 }
 
 void lara_as_gymnast(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AEC8(<), 1AFFC(<) (F)
 {
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 }
 
 void lara_as_fastdive(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AE4C(<), 1AF80(<) (F)
 {
 	if (input & IN_ROLL && item->goal_anim_state == STATE_LARA_SWANDIVE_END)
 		item->goal_anim_state = STATE_LARA_JUMP_ROLL;
-	coll->enable_baddie_push = 1;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = TRUE;
+	coll->enable_spaz = FALSE;
 	item->speed = (item->speed * 95) / 100;
 }
 
@@ -1299,8 +1299,8 @@ void lara_as_usepuzzle(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AD18(<)
 void lara_as_usekey(struct ITEM_INFO* item, struct COLL_INFO* coll)//1ACBC(<), 1ADF0(<) (F)
 {
 	lara.look = 0;
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	camera.target_angle = ANGLE(-80);
 	camera.target_elevation = -4550;
 	camera.target_distance = SECTOR(1);
@@ -1309,8 +1309,8 @@ void lara_as_usekey(struct ITEM_INFO* item, struct COLL_INFO* coll)//1ACBC(<), 1
 void lara_as_switchoff(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AC54(<), 1AD88(<) (F)
 {
 	lara.look = 0;
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	camera.target_angle = ANGLE(80);
 	camera.target_elevation = ANGLE(-25);
 	camera.target_distance = SECTOR(1);
@@ -1320,8 +1320,8 @@ void lara_as_switchoff(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AC54(<)
 void lara_as_switchon(struct ITEM_INFO* item, struct COLL_INFO* coll)//1ABEC(<), 1AD20(<) (F)
 {
 	lara.look = 0;
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	camera.target_angle = ANGLE(80);
 	camera.target_elevation = ANGLE(-25);
 	camera.target_distance = SECTOR(1);
@@ -1331,8 +1331,8 @@ void lara_as_switchon(struct ITEM_INFO* item, struct COLL_INFO* coll)//1ABEC(<),
 void lara_as_pickupflare(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB5C(<), 1AC90(<) (F)
 {
 	lara.look = 0;
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	camera.target_angle = ANGLE(130);
 	camera.target_elevation = ANGLE(-15);
 	camera.target_distance = SECTOR(1);
@@ -1343,8 +1343,8 @@ void lara_as_pickupflare(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB5C(
 void lara_as_pickup(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB00(<), 1AC34(<) (F)
 {
 	lara.look = 0;
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	camera.target_angle = ANGLE(-130);
 	camera.target_elevation = ANGLE(-15);
 	camera.target_distance = SECTOR(1);
@@ -1352,8 +1352,8 @@ void lara_as_pickup(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB00(<), 1
 
 void lara_as_ppready(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AABC(<), 1ABF0(<) (F)
 {
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	camera.target_angle = ANGLE(75);
 	if(!(input & IN_ACTION))
 		item->goal_anim_state = STATE_LARA_STOP;
@@ -1362,8 +1362,8 @@ void lara_as_ppready(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AABC(<), 
 void lara_as_pullblock(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AA60(<), 1AB94(<) (F)
 {
 	lara.look = 0;
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	camera.flags = CF_FOLLOW_CENTER;
 	camera.target_angle = ANGLE(35);
 	camera.target_elevation = -4550;
@@ -1372,8 +1372,8 @@ void lara_as_pullblock(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AA60(<)
 void lara_as_pushblock(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AA04(<), 1AB38(<) (F)
 {
 	lara.look = 0;
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	camera.flags = CF_FOLLOW_CENTER;
 	camera.target_angle = ANGLE(90);
 	camera.target_elevation = -4550;
@@ -1555,8 +1555,8 @@ void lara_as_fastturn(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A5F8(<),
 
 void lara_as_null(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A5DC(<), 1A710(<) (F)
 {
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	return;
 }
 
@@ -1722,8 +1722,8 @@ void lara_col_hangright(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A038(<
 
 void lara_as_hangright(struct ITEM_INFO* item, struct COLL_INFO* coll)//19FEC(<), 1A120(<) (F)
 {
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	camera.target_angle = 0;
 	camera.target_elevation = ANGLE(-45);
 	if (!(input & (IN_RIGHT | IN_RSTEP)))
@@ -1740,8 +1740,8 @@ void lara_col_hangleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//19F94(<)
 
 void lara_as_hangleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//19F48(<), 1A07C(<) (F)
 {
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	camera.target_angle = 0;
 	camera.target_elevation = ANGLE(-45);
 	if (!(input & (IN_LEFT | IN_LSTEP)))
@@ -1761,8 +1761,8 @@ void lara_as_hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//19A28, 19B5C 
 		if (input & IN_LOOK)
 			LookUpDown();
 
-		coll->enable_baddie_push = 0;
-		coll->enable_spaz = 0;
+		coll->enable_baddie_push = FALSE;
+		coll->enable_spaz = FALSE;
 
 		camera.target_angle = 0;
 		camera.target_elevation = ANGLE(-45);
@@ -1794,8 +1794,8 @@ void lara_as_fastfall(struct ITEM_INFO* item, struct COLL_INFO* coll)//198BC(<),
 void lara_as_death(struct ITEM_INFO* item, struct COLL_INFO* coll)//19830(<), 19964(<) (F)
 {
 	lara.look = 0;
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	if (BinocularRange)
 	{
 		BinocularRange = 0;
@@ -2312,8 +2312,8 @@ void lara_col_poleup(struct ITEM_INFO* item, struct COLL_INFO* coll)//170D8(<), 
 {
 	short room_num;
 
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 
 	if (input & IN_LOOK)
 		LookUpDown();
@@ -2331,8 +2331,8 @@ void lara_col_poleup(struct ITEM_INFO* item, struct COLL_INFO* coll)//170D8(<), 
 
 void lara_as_poleright(struct ITEM_INFO* item, struct COLL_INFO* coll)//1707C(<), 171B0(<) (F)
 {
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	if (!(input & IN_RIGHT) || !(input & IN_ACTION) || (input & (IN_UP | IN_DOWN)) || item->hit_points <= 0)
 		item->goal_anim_state = STATE_LARA_POLE_IDLE;
 	else
@@ -2341,8 +2341,8 @@ void lara_as_poleright(struct ITEM_INFO* item, struct COLL_INFO* coll)//1707C(<)
 
 void lara_as_poleleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//17020(<), 17154(<) (F)
 {
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	if (!(input & IN_LEFT) || !(input & IN_ACTION) || (input & (IN_UP | IN_DOWN)) || item->hit_points <= 0)
 		item->goal_anim_state = STATE_LARA_POLE_IDLE;
 	else
@@ -2432,8 +2432,8 @@ void lara_col_monkey180(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DDC, 
 
 void lara_as_monkey180(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DB8(<), 16EEC(<) (F)
 {
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	item->goal_anim_state = STATE_LARA_MONKEYSWING_IDLE;
 }
 
@@ -2515,8 +2515,8 @@ void lara_as_monkeyr(struct ITEM_INFO* item, struct COLL_INFO* coll)//16B24(<), 
 		lara.torso_y_rot = 0;
 		lara.torso_x_rot = 0;
 
-		coll->enable_baddie_push = 0;
-		coll->enable_spaz = 0;
+		coll->enable_baddie_push = FALSE;
+		coll->enable_spaz = FALSE;
 
 		if (input & IN_RSTEP)
 		{
@@ -2564,8 +2564,8 @@ void lara_as_monkeyl(struct ITEM_INFO* item, struct COLL_INFO* coll)//16A0C(<), 
 		lara.torso_y_rot = 0;
 		lara.torso_x_rot = 0;
 
-		coll->enable_baddie_push = 0;
-		coll->enable_spaz = 0;
+		coll->enable_baddie_push = FALSE;
+		coll->enable_spaz = FALSE;
 
 		if (input & IN_LSTEP)
 		{
@@ -2641,8 +2641,8 @@ void lara_as_monkeyswing(struct ITEM_INFO* item, struct COLL_INFO* coll)//1670C,
 {
 	if (item->hit_points > 0)
 	{
-		coll->enable_spaz = 0;
-		coll->enable_baddie_push = 0;
+		coll->enable_spaz = FALSE;
+		coll->enable_baddie_push = FALSE;
 
 		lara.torso_y_rot = 0;
 		lara.torso_x_rot = 0;
@@ -2685,8 +2685,8 @@ void lara_as_hang2(struct ITEM_INFO* item, struct COLL_INFO* coll)//1630C(<), 16
 {
 	if (item->hit_points > 0)
 	{
-		coll->enable_baddie_push = 0;
-		coll->enable_spaz = 0;
+		coll->enable_baddie_push = FALSE;
+		coll->enable_spaz = FALSE;
 
 		lara.torso_y_rot = 0;
 		lara.torso_x_rot = 0;
@@ -3344,7 +3344,7 @@ void lara_col_ducklr(struct ITEM_INFO* item, struct COLL_INFO* coll)//14534, 145
 
 void lara_as_duckr(struct ITEM_INFO* item, struct COLL_INFO* coll)//144E0(<), 14590(<) (F)
 {
-	coll->enable_spaz = 0;
+	coll->enable_spaz = FALSE;
 	if ((input & 0x20000004) != 0x20000004 || item->hit_points <= 0)
 		item->goal_anim_state = STATE_LARA_CROUCH_IDLE;
 	item->pos.y_rot += ANGLE(1.5);
@@ -3352,7 +3352,7 @@ void lara_as_duckr(struct ITEM_INFO* item, struct COLL_INFO* coll)//144E0(<), 14
 
 void lara_as_duckl(struct ITEM_INFO* item, struct COLL_INFO* coll)//1448C(<), 1453C(<) (F)
 {
-	coll->enable_spaz = 0;
+	coll->enable_spaz = FALSE;
 	if ((input & 0x20000004) != 0x20000004 || item->hit_points <= 0)
 		item->goal_anim_state = STATE_LARA_CROUCH_IDLE;
 	item->pos.y_rot -= ANGLE(1.5);

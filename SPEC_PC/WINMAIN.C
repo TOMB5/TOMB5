@@ -890,7 +890,7 @@ int __cdecl sub_40198D(int a1, int *a2, int *a3)
 	return result;
 }
 
-signed __int64 InitFont()
+signed __int64 InitFont_old()
 {
 	BYTE *v0; // edi@1
 	BYTE v1; // ST3C_1@2

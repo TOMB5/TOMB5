@@ -2,6 +2,7 @@
 #define DELTAPAK_H
 
 #include "SPECTYPES.H"
+#include "OBJECTS.H"
 
 enum cutseq_pistols_info
 {
@@ -59,6 +60,26 @@ enum cutscenes
 	CUT_ANDY11,
 };
 
+enum cutseq_obj_slots
+{
+	JOBY_LARA_DIVING_SUIT = 44,
+	JOBY_ADMIRAL = 56,
+	JOBY_SERGIE = 58,
+
+	JOBY2_ADMIRAL = 427,
+	JOBY2_SERGIE = 433,
+
+	ANDY_HANGED_MAN = 84,
+	ANDY_PRIEST = 54,
+	ANDY_DEMON_KNIGHT = 34,
+
+	ANDREA_PIERRE = 419,
+
+	RICHCUT2_VON_CROY = 426,
+	RICHCUT2_ASSOCIATE = 422,
+	RICHCUT2_GUARD = 416
+};
+
 extern struct CUTSEQ_ROUTINES cutseq_control_routines[45];
 extern unsigned short crane_pistols_info[11];
 extern unsigned short craneguard_pistols_info[7];
@@ -98,14 +119,14 @@ extern short lara_chat_ranges_andy6[8];
 extern short lara_chat_ranges_andy11[28];
 extern short priest_chat_ranges_andy6[18];
 extern short priest_chat_ranges_andy2[24];
-extern short unknown1_chat_ranges_richcut2[20];
-extern short unknown2_chat_ranges_richcut2[12];
-extern short unknown3_chat_ranges_richcut2[10];
-extern short unknown_chat_ranges_andy1[18];
-extern short unknown1_chat_ranges_andy9[20];
-extern short unknown2_chat_ranges_andy9[14];
-extern short unknown1_chat_ranges_andy11[30];
-extern short unknown2_chat_ranges_andy11[14];
+extern short voncroy_chat_ranges_richcut2[20];
+extern short associate_chat_ranges_richcut2[12];
+extern short guard_chat_ranges_richcut2[10];
+extern short hanged_man_chat_ranges_andy1[18];
+extern short priest_chat_ranges_andy9[20];
+extern short knight_chat_ranges_andy9[14];
+extern short priest_chat_ranges_andy11[30];
+extern short knight_chat_ranges_andy11[14];
 extern int cuntercunter;
 extern char jobyfrigger;
 extern int cutrot;
