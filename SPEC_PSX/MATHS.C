@@ -184,7 +184,7 @@ void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<)
 	negu	$t2, $t5
 
 	//loc_76664 :
-	mfc2	$t3, $25//gte_mvlvtr?
+	//mfc2	$t3, $25//gte_mvlvtr?
 	mfc2	$t4, $26
 	mfc2	$t5, $27
 	addu	$t0, $t3
@@ -199,6 +199,7 @@ void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<)
 	jr	$ra
 	sw	$t2, 0x1C($v0)*/
 #endif
+	
 
 	S_Warn("[mTranslateXYZ] - Unimplemented!\n");
 }
@@ -213,7 +214,12 @@ void mRotY(long ry)
 	S_Warn("[mRotY] - Unimplemented!\n");
 }
 
-void mCopyMatrix(struct MATRIX3D m)
+//Note: Original code is less optimal than this implementation.
+void mCopyMatrix(struct MATRIX3D* m)//769E4(<), 78A28(<) (F)
 {
-	S_Warn("[mCopyMatrix] - Unimplemented!\n");
+	gte_ldtr(m->tx, m->ty, m->tz);
+	Matrix->tx = m->tx;
+	Matrix->ty = m->ty;
+	Matrix->tz = m->tz;
+	setrot(Matrix, 0, 0, 0, 0, 0);
 }
