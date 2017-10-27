@@ -5,47 +5,38 @@
 
 #include <INLINE_C.H>
 
-long phd_sqrt_asm(long val)//83B30(<), ?
+long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 {
-#if 0
-	 //mtc2	$a0, $30
-	
-	if (val != 0)
+	long v0 = 0x1F;
+	long v1;
+	long at;
+
+	gte_ldlzc(value);
+
+	if (value != 0)
 	{
-		//0x1F0000
-	}
+		gte_stlzc(v1);
 
-	 li	$v0, 0x1F
-	 mfc2	$v1, $31
-	 li	$at, 0xFFFFFFFE
-	 and $v1, $at
-	 sub	$v0, $v1
-	 sra	$v0, 1
-	 addi	$at, $v1, -0x18
-	 bltz	$at, loc_83B64
-	 lui	$a1, 0xA
-	 j	loc_83B70
-	 sllv	$a0, $at
+		v1 &= 0xFFFFFFFE;
+		v0 = (v0 - v1) >> 1;
+		at = v1 - 0x18;
 
-	 loc_83B64 :
-	 li	$at, 0x18
-	 sub	$at, $v1
-	 srav	$a0, $at
+		if (v1 - 0x18 < 0)
+		{
+			//loc_85BA8
+			value >>= 0x18 - v1;
+		}
+		else
+		{
+			value <<= v1 - 0x18;
+		}
 
-	 loc_83B70 :
-	 ori	$a1, 0x1AA4
-	 addi	$a0, -0x40
-	 sll	$a0, 1
-	 addu	$a0, $a1
-	 lh	$a0, 0($a0)
-	 nop
-	 sllv	$a0, $v0
-		 
-	locret_83B8C :
-	jr	$ra
-	 srl	$v0, $a0, 12
-#endif
-	return 0;
+		//loc_85BB4
+		value = SqrtTable[value - 0x40] << v0;
+
+	}//locret_85BD0
+
+	return value << v0;
 }
 
 void ScaleCurrentMatrix(long a0, long sx, long sy, long sz)
@@ -82,9 +73,22 @@ void mPushMatrix()//764D0(<), 78514(<)
 	gte_ReadRotMatrix(++Matrix);
 }
 
+void iPushMatrix(struct MATRIX3D* m)//81E60(<), 83EA4(<)
+{
+	gte_ReadLightMatrix(++m);
+	//mmPushMatrix(m);
+}
+
 void mPopMatrix()//76520(<), 78564(<)
 {
 	mLoadMatrix(--Matrix);
+}
+
+void iPopMatrix(struct MATRIX3D* m, struct MATRIX3D* m2)//81EB0(<), 83EF4(<)
+{
+	mLoadMatrix(--m);
+	m2--;
+	gte_SetLightMatrix(m);
 }
 
 void mSetTrans(long x, long y, long z)//76AF4(<), 78B38(<) 
@@ -96,8 +100,106 @@ void mSetTrans(long x, long y, long z)//76AF4(<), 78B38(<)
 	Matrix->tz = z;
 }
 
-void mTranslateXYZ(long x, long y, long z)
+void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<)
 {
+	if (y < 0)
+	{
+		//a1 = -a1
+		//t4 = a1 >> 15
+		//a1 &= 0x7FFF
+		//t4 = -t4;
+		//a1 = -a1
+	}
+	else
+	{
+		//loc_765AC
+		//t4 = a1 >> 15;
+		y &= 0x7FFF;
+	}
+
+	//loc_765B0
+	if (z < 0)
+	{
+		//a2 = -a2;
+		//t5 = a2 >> 15;
+		//a2 &= 0x7FFF;
+		//t5 = -t5;
+		//a2 = -a2;
+	}
+	else
+	{
+		//loc_765D0
+		//t5 = a2 >> 15;
+		//a2 &= 0x7FFF;
+	}
+
+	//loc_765D4
+	if (x < 0)
+	{
+		//a0 = -a0;
+		//t3 = a0 >> 15;
+		//a0 &= 0x7FFF;
+		//t3 = -t3;
+		//a0 = -a0;
+	}
+	else
+	{
+		//loc_765F4
+		//t3 = a0 >> 15;
+		//a0 &= 0x7FFF;
+	}
+	
+#if 0
+	/*loc_765F8:
+	mtc2	$t3, $9
+	mtc2	$t4, $10
+	mtc2	$t5, $11
+	nop
+	cop2	0x41E012
+	mfc2	$t3, $25
+	mfc2	$t4, $26
+	mtc2	$a0, $9
+	mtc2	$a1, $10
+	mtc2	$a2, $11
+	mfc2	$t5, $27
+	cop2	0x498012
+	bgez	$t3, loc_7663C
+	sll	$t0, $t3, 3
+	negu	$t3, $t3
+	sll	$t3, 3
+	negu	$t0, $t3
+
+	//loc_7663C :
+	bgez	$t4, loc_76650
+	sll	$t1, $t4, 3
+	negu	$t4, $t4
+	sll	$t4, 3
+	negu	$t1, $t4
+
+	//loc_76650 :
+	bgez	$t5, loc_76664
+	sll	$t2, $t5, 3
+	negu	$t5, $t5
+	sll	$t5, 3
+	negu	$t2, $t5
+
+	//loc_76664 :
+	mfc2	$t3, $25//gte_mvlvtr?
+	mfc2	$t4, $26
+	mfc2	$t5, $27
+	addu	$t0, $t3
+	addu	$t1, $t4
+	addu	$t2, $t5
+	lw	$v0, 0x1820($gp)
+	ctc2	$t0, $5
+	ctc2	$t1, $6
+	ctc2	$t2, $7
+	sw	$t0, 0x14($v0)
+	sw	$t1, 0x18($v0)
+	jr	$ra
+	sw	$t2, 0x1C($v0)*/
+#endif
+
 	S_Warn("[mTranslateXYZ] - Unimplemented!\n");
 }
 
