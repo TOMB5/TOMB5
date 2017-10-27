@@ -138,6 +138,26 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 	return LnFlipFrame;
 }
 
+void GPU_FlipStory(unsigned long* gfx)//5E448(<), * (F)
+{
+	RECT r;
+	RECT* fuckmyanalpassage;
+
+	DrawSync(0);
+	VSync(0);
+
+	PutDispEnv(&db.disp[db.current_buffer]);
+	fuckmyanalpassage = (RECT*)&db.disp[db.current_buffer ^ 1].disp;
+	r.x = fuckmyanalpassage->x;
+	r.y = fuckmyanalpassage->y;
+	r.w = fuckmyanalpassage->w;
+	r.h = fuckmyanalpassage->h;
+	LoadImage(&r, gfx);
+
+	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[db.current_buffer]);
+	db.current_buffer ^= 1;
+}
+
 void GPU_GetScreenPosition(short* x, short* y)//5F34C, ?
 {
 	*x = db.disp[0].screen.x;

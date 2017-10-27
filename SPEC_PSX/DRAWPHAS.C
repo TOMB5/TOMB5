@@ -421,13 +421,13 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 			if (lara.right_arm.flash_gun != 0)
 			{
-				mCopyMatrix(lara_matrices[11]);
+				mCopyMatrix(&lara_matrices[11]);
 				SetGunFlash(lara.gun_type);
 			}//loc_64954
 
 			if (lara.left_arm.flash_gun != 0)
 			{
-				mCopyMatrix(lara_matrices[14]);
+				mCopyMatrix(&lara_matrices[14]);
 				SetGunFlash(lara.gun_type);
 			}//loc_64978
 
@@ -604,7 +604,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	ProfileRGB(255, 255, 255);
 #endif
 
-	//print_all_object_NOW();//**********************************************************
+	print_all_object_NOW();
 
 #if INTERNAL
 	ProfileRGB(0, 255, 0);
@@ -729,27 +729,240 @@ void mQuickW2VMatrix()
 
 void PrintString(long x, long y, long unk, char* string/*, long unk01*/)//8DB4C, 8FB90
 {
-	//s0 = a0;//x
-	//s4 = a1;//y
-	//s3 = a2 & 0xFF;//unk
-	//s5 = a3;//string
+	long s0, s4, s3, at, s6, s2, v0;
+	char* s5;
+	///@TODO unk is type (3 is red) also as byte
+	s0 = x;
+	s4 = y;
+	s3 = unk & 0xFF;
+	s5 = string;
+	s6 = 0xA000;//?????
+	at = GnFrameCounter;
 
-	//at = GnFrameCounter;
-	if (/*(unk01 & 0x2000) && */(GnFrameCounter & 0x10))
+	at &= 0x10;
+	if (s6 & 0x2000 && at & 0x10)
 	{
 		return;
 	}
 
 	//loc_8DBA0
-	//ScaleFlag = (unk01 >> 12) & 1;
+	ScaleFlag = (s6 >> 12) & 1;
 
-	//GetStringLength(string, 0, $sp,0x40+var_30);
-	//sub_8DD90();
+	//v0 = GetStringLength(string, 0, ?);///@FIXME
 
+	//Unpick @sub_8DD90
+	if (s6 & 0x8000)
+	{
+		s2 = s0 - (v0 >> 1);
+	}
+	else if (s6 & 0x4000)
+	{
+		s2 = s0 - v0;
+	}
+	else
+	{
+		s2 = s0;
+	}
+
+	//@ret jr ra +0x190(base 0x8FC000)
+	//0x0008FD9C (RETAIL)
+#if 0
+	move	$a0, $s5
+	move	$a1, $zero
+	jal	sub_8DEDC
+	addiu	$a2, $sp, 0x40 + var_30
+	jal	sub_8DD90
+	addiu	$ra, 0x190
+
+	loc_8DBC4:
+	bne	$a0, $v0, loc_8DC14
+	 li	$v0, 0x20
+	 lbu	$v0, 0($s5)
+	 addiu	$a1, $sp, 0x40 + var_2E
+	 bne	$v0, $a0, loc_8DBE8
+	 move	$a0, $s5
+	 sh	$zero, 0x40 + var_30($sp)
+	 j	loc_8DD54
+	 addiu	$s4, 0x10
+
+	 loc_8DBE8:
+	 jal	sub_8DEDC
+	 addiu	$a2, $sp, 0x40 + var_2C
+	 jal	sub_8DD90
+	 lhu	$v1, 0x40 + var_30($sp)
+	 lhu	$v0, 0x40 + var_2E($sp)
+	 lhu	$a0, 0x40 + var_2C($sp)
+	 subu	$v1, $v0
+	 addiu	$v1, 2
+	 addu	$s4, $v1
+	 j	loc_8DD54
+	 sh	$a0, 0x40 + var_30($sp)
+
+	 loc_8DC14:
+	bne	$a0, $v0, loc_8DC30
+	 li	$v0, 9
+	 andi	$v0, $s6, 0x1000
+	 bnez	$v0, loc_8DD54
+	 addiu	$s2, 6
+	 j	loc_8DD54
+	 addiu	$s2, 2
+
+	loc_8DC30:
+	bne	$a0, $v0, loc_8DC40
+	 sltiu	$v0, $a0, 0x14
+	 j	loc_8DD54
+	 addiu	$s2, 0x28
+
+	loc_8DC40 :
+	beqz	$v0, loc_8DC50
+	addiu	$v0, $a0, -1
+	j	loc_8DD54
+	andi	$s3, $v0, 0xFF
+
+	loc_8DC50 :
+	addiu	$v0, $a0, -0x80
+	 sltiu	$v1, $v0, 0x2E
+	beqz	$v1, loc_8DCDC
+	sll	$v0, 1
+	 la	$t1, aUEAAAAEEEAAEOO  #	" u^e\\a]a^a[a\\{ e]e^e[|^|]|[A^A]E\\   "...
+				 addu	$t1, $v0
+				 lbu	$v1, -1($t1)
+				 la	$s1, (loc_92020 + 1)
+				 sll	$v0, $v1, 3
+				 subu	$v0, $v1
+				 addu	$s1, $v0
+				 move	$a0, $s2
+				 move	$a1, $s4
+				 move	$a2, $s3
+				 jal	sub_8DDBC
+				 move	$a3, $s1
+				 lbu	$v1, 0($t1)
+				 li	$at, 0x20
+				 beq	$v1, $at, loc_8DD3C
+				 sll	$v0, $v1, 3
+				 subu	$v0, $v1
+				 la	$a3, (loc_92020 + 1)
+				 addu	$a3, $v0, $a3
+				 lb	$a0, 2($s1)
+				 lb	$a1, 4($s1)
+				 sra	$a0, 1
+				 addu	$a0, $s2
+				 addiu	$a0, -3
+				 addu	$a1, $s4, $a1
+				 move	$a2, $s3
+				 jal	sub_8DDBC
+				 addiu	$ra, 0x60
+
+				 loc_8DCDC:
+			 sll	$v0, $a0, 3
+				 subu	$v0, $a0
+				 sltiu	$at, $a0, 0x20
+				 beqz	$at, loc_8DD20
+				 move	$a2, $s3
+				 la	$v1, word_9230E
+				 addiu	$a0, -0x18
+				 sltiu	$a0, 4
+				 bnez	$a0, loc_8DD0C
+				 addu	$s1, $v0, $v1
+				 move	$a2, $zero
+
+				 loc_8DD0C :
+			 move	$a0, $s2
+				 move	$a1, $s4
+				 move	$a3, $s1
+				 jal	sub_8DDBC
+				 addiu	$ra, 0x1C
+
+				 loc_8DD20 :
+				 la	$a0, (loc_92020 + 1)
+				 addu	$s1, $v0, $a0
+				 move	$a0, $s2
+				 move	$a1, $s4
+				 jal	sub_8DDBC
+				 move	$a3, $s1
+
+				 loc_8DD3C :
+			 lbu	$v1, 2($s1)
+				 andi	$v0, $s6, 0x1000
+				 beqz	$v0, loc_8DD50
+				 srl	$v0, $v1, 2
+				 subu	$v1, $v0
+
+				 loc_8DD50 :
+			 addu	$s2, $v1
+
+				 loc_8DD54 :
+			 lbu	$a0, 0($s5)
+				 addiu	$s5, 1
+				 bnez	$a0, loc_8DBC4
+				 li	$v0, 0xA
+				 sb	$zero, 0x1A8C($gp)
+
+				 loc_8DD68 :
+				 lw	$ra, 0x40 + var_4($sp)
+				 lw	$s6, 0x40 + var_8($sp)
+				 lw	$s5, 0x40 + var_C($sp)
+				 lw	$s4, 0x40 + var_10($sp)
+				 lw	$s3, 0x40 + var_14($sp)
+				 lw	$s2, 0x40 + var_18($sp)
+				 lw	$s1, 0x40 + var_1C($sp)
+				 lw	$s0, 0x40 + var_20($sp)
+				 jr	$ra
+				 addiu	$sp, 0x40
+#endif
 	printf("PrintString - X:%d Y:%d C:%d - %s\n", x, y, unk, string);
 }
+#if 0
+void GetStringLength(char* string)//8DEDC(<), 8FF20(<)
+{
+	char c;
+	//t5 = 0;
+	//t0 = 0;
+	//t2 = 0xFFFFFC00;
 
-void DrawChar(long a0, long a1, long a3)
+	c = *string++;
+
+	if (c != 0 && c != 10)
+	{
+		//v0 = 0x20;
+		//t3 = ScaleFlag;
+		//t6 = &AccentTable[0][0];
+		//t4 = &CharDef[0];
+
+		//loc_8DF18
+		if(c == 0x20)
+		{
+			if (t3 == 0)
+			{
+				t0 += 8;
+			}
+			else
+			{
+				t0 -= 2;
+			}
+			//JMP loc_8DFE4
+		}
+		else if (c == 9)
+		{
+			//loc_8DF30
+			//v0 = a3 < 0x14 ? 1 : 0;
+			t0 += 0x28;
+			v0 = t1 < -0xB ? 1 : 0;
+
+
+		}
+		else if (c > 0x13)
+		{
+			//loc_8DF5C
+		}
+		
+	}
+
+	//loc_8DFFC
+
+}
+#endif
+void DrawChar(long a0, long a1, long a3)//8DDBC, ?
 {
 
 }
@@ -830,4 +1043,17 @@ void insert_psx_clip_window(long x, long y, long w, long a3, long h)
 	*(long*)&db.polyptr[0] = db.ot[2563] |= 0x60000000;
 	*(long*) &db.ot[2563] = (long)db.polyptr;
 	db.polyptr += 0x1C;
+}
+
+void print_all_object_NOW()//8F474(<), 914B8(<) (F)
+{
+	int i;
+
+	//CalcAllAnimatingItems_ASM();
+
+	for (i = 0; i < number_draw_rooms; i++)
+	{
+		//s3 = draw_rooms[i];//Why?
+		//PrintAllOtherObjects_ASM();
+	}
 }

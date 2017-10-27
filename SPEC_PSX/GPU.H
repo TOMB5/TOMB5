@@ -29,6 +29,7 @@ extern void GPU_UsePolygonBuffers(unsigned long* pBuffers , int nPBSize);
 extern void GPU_BeginScene();
 extern void GPU_EndScene();
 extern int GPU_FlipNoIdle();
+extern void GPU_FlipStory(unsigned long* gfx);
 extern void GPU_SyncBothScreens();
 extern void GPU_ClearVRAM();
 extern void GPU_FlipToBuffer(int buffer_index);
