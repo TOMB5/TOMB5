@@ -104,6 +104,31 @@ enum zone_type
 	FLYER_ZONE = 4,
 };
 
+enum camera_type
+{
+	CHASE_CAMERA = 0,
+	FIXED_CAMERA = 1,
+	LOOK_CAMERA = 2,
+	COMBAT_CAMERA = 3,
+	CINEMATIC_CAMERA = 4,
+	HEAVY_CAMERA = 5,
+};
+
+enum mood_type
+{
+	BORED_MOOD = 0,
+	ATTACK_MOOD = 1,
+	ESCAPE_MOOD = 2,
+	STALK_MOOD = 3,
+};
+
+enum target_type
+{
+	NO_TARGET = 0,
+	PRIME_TARGET = 1,
+	SECONDARY_TARGET = 2,
+};
+
 enum room_flags
 {
 	RF_FILL_WATER = (1 << 0),			    // 0x0001

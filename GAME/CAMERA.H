@@ -10,16 +10,6 @@ enum camera_flags
 	CF_CHASE_OBJECT = 3,
 };
 
-enum camera_type
-{
-	CHASE_CAMERA = 0,
-	FIXED_CAMERA = 1,
-	LOOK_CAMERA = 2,
-	COMBAT_CAMERA = 3,
-	CINEMATIC_CAMERA = 4,
-	HEAVY_CAMERA = 5,
-};
-
 extern long BinocularRange;
 extern long BinocularOn;
 extern long BinocularOldCamera;
