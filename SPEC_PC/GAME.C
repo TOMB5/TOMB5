@@ -43,7 +43,7 @@ void GameClose()
 
 void *sub_40299B()
 {
-	S_Warn("[*sub_40299B] - Unimplemented!\\n");
+	S_Warn("[*sub_40299B] - Unimplemented!\n");
 	return NULL;
 }
 
@@ -131,43 +131,43 @@ BOOL __cdecl sub_4010E1(float *a1, float *a2, float *a3)
 
 int __cdecl sub_40303A(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
-	S_Warn("[sub_40303A] - Unimplemented!\\n");
+	S_Warn("[sub_40303A] - Unimplemented!\n");
 	return 0;
 }
 
 int __cdecl sub_402BDF(int a1, int a2, int a3, int a4, int a5, int a6)
 {
-	S_Warn("[sub_402BDF] - Unimplemented!\\n");
+	S_Warn("[sub_402BDF] - Unimplemented!\n");
 	return 0;
 }
 
 int __cdecl sub_401A6E(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
-	S_Warn("[sub_401A6E] - Unimplemented!\\n");
+	S_Warn("[sub_401A6E] - Unimplemented!\n");
 	return 0;
 }
 
 int __cdecl sub_40138E(int a1, int a2, int a3, int a4, int a5, int a6)
 {
-	S_Warn("[sub_40138E] - Unimplemented!\\n");
+	S_Warn("[sub_40138E] - Unimplemented!\n");
 	return 0;
 }
 
 struct acceltexformatinfo *__cdecl sub_4025D6(int a1, int a2, __int16 a3)
 {
-	S_Warn("[sub_4025D6] - Unimplemented!\\n");
+	S_Warn("[sub_4025D6] - Unimplemented!\n");
 	return NULL;
 }
 
 int __cdecl sub_402626(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
-	S_Warn("[sub_402626] - Unimplemented!\\n");
+	S_Warn("[sub_402626] - Unimplemented!\n");
 	return 0;
 }
 
 int __cdecl sub_401F41(int a1, int a2, int a3, int a4, int a5, int a6)
 {
-	S_Warn("[sub_401F41] - Unimplemented!\\n");
+	S_Warn("[sub_401F41] - Unimplemented!\n");
 	return 0;
 }
 

@@ -907,7 +907,7 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 	camera.target_distance = 1536;
 	camera.number_frames = 1;
 	camera.speed = 1;
-	camera.flags = 1;
+	camera.flags = CF_FOLLOW_CENTER;
 	camera.item = NULL;
 	camera.type = CHASE_CAMERA;
 	camera.bounce = 0;

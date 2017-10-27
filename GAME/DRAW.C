@@ -44,19 +44,19 @@ short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;
 
-long GetFrames(struct ITEM_INFO* item/*$a0*/, short** unknown/*a1*/, long* unknown_2/*$a2*/)//8582C
+long GetFrames(struct ITEM_INFO* item/*$a0*/, short** frames/*a1*/, long* rate/*$a2*/)//8582C
 {
 	struct ANIM_STRUCT* anim = &anims[item->anim_number];
 	int t3;
 	short* t4;
 
-	unknown_2[0] = anim->interpolation;
+	rate[0] = anim->interpolation;
 
 	t3 = ((item->frame_number - anim->frame_base) / anim->interpolation) * anim->interpolation >> 8;
 	t4 = &anim->frame_ptr[t3];
 
-	unknown[0] = &anim->frame_ptr[t3];
-	unknown[1] = &t4[anim->interpolation >> 8];
+	frames[0] = &anim->frame_ptr[t3];
+	frames[1] = &t4[anim->interpolation >> 8];
 	if (anim->interpolation == 0)
 	{
 		return 0;
@@ -69,7 +69,7 @@ long GetFrames(struct ITEM_INFO* item/*$a0*/, short** unknown/*a1*/, long* unkno
 		return (t3 + anim->interpolation) - anim->interpolation;
 	}
 
-	unknown_2[0] = anim->frame_end - anim->interpolation;
+	rate[0] = anim->frame_end - anim->interpolation;
 	return (item->frame_number - anim->frame_base) / anim->interpolation;
 }
 

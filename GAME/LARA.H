@@ -704,6 +704,15 @@ enum lara_water_status
 	LW_FLYCHEAT = 3
 };
 
+enum lara_gun_status
+{
+	LG_NO_ARMS = 0,
+	LG_HANDS_BUSY = 1,
+	LG_DRAW_GUNS = 2,
+	LG_UNDRAW_GUNS = 3,
+	LG_READY = 4
+};
+
 extern short angle; // offset 0xA0650
 extern short elevation; // offset 0xA0652
 extern struct ITEM_INFO* lara_item; // offset 0xA2048
@@ -889,7 +898,7 @@ extern int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h);
 extern short LaraFloorFront(struct ITEM_INFO* item, short ang, long dist);
 extern void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll);
-extern int GetLaraJointPos(struct PHD_VECTOR* arg1, int arg2);
+extern int GetLaraJointPos(struct PHD_VECTOR* arg1, long arg2);
 extern void AnimateLara(struct ITEM_INFO* item);
 extern void SetLaraUnderwaterNodes();
 

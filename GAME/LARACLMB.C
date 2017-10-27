@@ -31,7 +31,7 @@ void lara_as_climbend(struct ITEM_INFO* item, struct COLL_INFO* coll)//46DF8(<),
 {
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.flags = 1;
+	camera.flags = CF_FOLLOW_CENTER;
 	camera.target_angle = ANGLE(-45);
 }
 
@@ -59,7 +59,7 @@ void lara_as_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//46984(<),
 	camera.target_elevation = ANGLE(30);
 }
 
-void lara_col_climbright(struct ITEM_INFO* item, struct COLL_INFO* coll)//46908(<), 46D6C(<) (F)
+void lara_col_climbright(struct ITEM_INFO* item, struct COLL_INFO* coll)//46908(<), 46D6C(<)
 {
 	S_Warn("[lara_col_climbright] - Unimplemented!\n");
 	return;
@@ -145,7 +145,7 @@ void lara_as_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//463F0, 4
 		{
 			item->goal_anim_state = STATE_LARA_JUMP_BACK;
 
-			lara.gun_status = 0;
+			lara.gun_status = LG_NO_ARMS;
 			lara.move_angle = item->pos.y_rot + ANGLE(-180);
 		}
 	}
@@ -216,7 +216,7 @@ long LaraCheckForLetGo(struct ITEM_INFO* item, struct COLL_INFO* coll)//45434, 4
 	item->gravity_status = TRUE;
 	item->fallspeed = 1;
 
-	lara.gun_status = 0;
+	lara.gun_status = LG_NO_ARMS;
 
 	return 1;
 }

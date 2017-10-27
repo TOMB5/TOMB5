@@ -437,14 +437,14 @@ int CreatureActive(short item_number)//218B0(<), ? (F)
 
 	if (item->flags & 0x8000)
 	{
-		if (item->status != 3)
+		if (item->status != ITEM_INVISIBLE)
 		{
 			return 1;
 		}
 
 		if (EnableBaddieAI(item_number, 0) != 0)
 		{
-			item->status = 2;
+			item->status = ITEM_DEACTIVATED;
 			return 1;
 		}
 	}

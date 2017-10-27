@@ -79,7 +79,7 @@ void DoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)/
 			&& l->current_anim_state == STATE_LARA_STOP
 			&& l->anim_number == ANIMATION_LARA_STAY_IDLE
 			&& !l->hit_status
-			&& !lara.gun_status
+			&& lara.gun_status == LG_NO_ARMS
 			|| lara.IsMoving && lara.GeneralPtr == (void *)item_num))
 	{
 		item->pos.y_rot ^= (short)ANGLE(180);
@@ -122,10 +122,10 @@ void DoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)/
 				item->pos.y_rot ^= (short)ANGLE(180);
 				AddActiveItem(item_num);
 				item->flags |= IFLAG_ACTIVATION_MASK;
-				item->status = 1;
+				item->status = ITEM_ACTIVE;
 				item->goal_anim_state = 1;
 				lara.IsMoving = 0;
-				lara.gun_status = 1;
+				lara.gun_status = LG_HANDS_BUSY;
 				return;
 			}
 			lara.GeneralPtr = (void *)item_num;
@@ -133,7 +133,7 @@ void DoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)/
 		else if (lara.IsMoving && lara.GeneralPtr == (void *)item_num)
 		{
 			lara.IsMoving = 0;
-			lara.gun_status = 0;
+			lara.gun_status = LG_NO_ARMS;
 		}
 		item->pos.y_rot ^= (short)ANGLE(180);
 	}

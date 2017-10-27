@@ -19,7 +19,7 @@ void FlareControl(short item_number)//4A418, 4A87C
 
 void ready_flare()//4A3E4(<), 4A848(<) (F)
 {
-	lara.gun_status = 0;
+	lara.gun_status = LG_NO_ARMS;
 	lara.left_arm.z_rot = 0;
 	lara.left_arm.y_rot = 0;
 	lara.left_arm.x_rot = 0;

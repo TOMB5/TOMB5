@@ -654,7 +654,7 @@ void NailInvItem(short objnum)//40584, 409D8 (F)
 	case PISTOLS_ITEM:
 		lara.holster = LARA_HOLSTERS;
 		lara.pistols_type_carried = WTYPE_MISSING;
-		lara.gun_status = 0;
+		lara.gun_status = LG_NO_ARMS;
 		lara.last_gun_type = WEAPON_NONE;
 		lara.gun_type = WEAPON_NONE;
 		lara.request_gun_type = WEAPON_NONE;

@@ -447,7 +447,7 @@ void LookLeftRight()//1CB80, 1CD14 (F)
 				lara.head_y_rot += ANGLE(2);
 		}
 	}
-	if (lara.gun_status != 1 && !lara.left_arm.lock && !lara.right_arm.lock)
+	if (lara.gun_status != LG_HANDS_BUSY && !lara.left_arm.lock && !lara.right_arm.lock)
 		lara.torso_y_rot = lara.head_y_rot;
 }
 
@@ -476,7 +476,7 @@ void LookUpDown()//1C9D8, 1CB6C (F)
 				lara.head_x_rot += ANGLE(2);
 		}
 	}
-	if (lara.gun_status != 1 && !lara.left_arm.lock && !lara.right_arm.lock)
+	if (lara.gun_status != LG_HANDS_BUSY && !lara.left_arm.lock && !lara.right_arm.lock)
 		lara.torso_x_rot = lara.head_x_rot;
 }
 
@@ -494,7 +494,7 @@ void ResetLook()//1C920, 1CA54 (F)
 		else
 			lara.head_y_rot = 0;
 
-		if (lara.gun_status == 1 || lara.left_arm.lock || lara.right_arm.lock)
+		if (lara.gun_status == LG_HANDS_BUSY || lara.left_arm.lock || lara.right_arm.lock)
 		{
 			if (!lara.head_x_rot)
 				lara.torso_x_rot = 0;
@@ -1103,13 +1103,13 @@ void lara_as_pulley(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B288, 1B3B
 				if (p->item_flags[2])
 				{
 					p->item_flags[2] = 0;
-					p->status = 2;
+					p->status = ITEM_DEACTIVATED;
 				}
 			}
 			else
 			{
 				if (!p->item_flags[1])
-					p->status = 2;
+					p->status = ITEM_DEACTIVATED;
 
 				p->item_flags[2] = 1;
 
@@ -1122,7 +1122,7 @@ void lara_as_pulley(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B288, 1B3B
 	}
 
 	if (item->anim_number == ANIMATION_LARA_PULLEY_UNGRAB && item->frame_number == anims[ANIMATION_LARA_PULLEY_UNGRAB].frame_end - 1)
-		lara.gun_status = 0;
+		lara.gun_status = LG_NO_ARMS;
 }
 
 void lara_col_turnswitch(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B1B4(<), 1B2E8(<) (F)
@@ -1149,19 +1149,19 @@ void lara_col_turnswitch(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B1B4(
 
 void lara_as_controlledl(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B180(<), 1B2B4(<) (F)
 {
-	lara.look = 0;
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	lara.look = FALSE;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 }
 
 void lara_as_controlled(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B0FC(<), 1B230(<) (F)
 {
-	lara.look = 0;
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	lara.look = FALSE;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 	if (item->frame_number == anims[item->anim_number].frame_end - 1)
 	{
-		lara.gun_status = 0;
+		lara.gun_status = LG_NO_ARMS;
 		if (UseForcedFixedCamera)
 			UseForcedFixedCamera = 0;
 	}
@@ -1241,7 +1241,7 @@ void lara_as_waterout(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AEE4(<),
 {
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.flags = 1;
+	camera.flags = CF_FOLLOW_CENTER;
 }
 
 void lara_as_gymnast(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AEC8(<), 1AFFC(<) (F)
@@ -1261,25 +1261,25 @@ void lara_as_fastdive(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AE4C(<),
 
 void lara_as_swandive(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AE08(<), 1AF3C(<) (F)
 {
-	coll->enable_baddie_push = 1;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = TRUE;
+	coll->enable_spaz = FALSE;
 	if (item->fallspeed > LARA_FREEFALL_SPEED && item->goal_anim_state != STATE_LARA_UNDERWATER_DIVING)
 		item->goal_anim_state = STATE_LARA_SWANDIVE_END;
 }
 
 void lara_as_special(struct ITEM_INFO* item, struct COLL_INFO* coll)//1ADDC(<), 1AF10(<) (F)
 {
-	camera.flags = 1;
+	camera.flags = CF_FOLLOW_CENTER;
 	camera.target_angle = ANGLE(170);
 	camera.target_elevation = ANGLE(-25);
 }
 
 void lara_as_usepuzzle(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AD18(<), 1AE4C(<) (F)
 {
-	lara.look = 0;
+	lara.look = FALSE;
 
-	coll->enable_baddie_push = 0;
-	coll->enable_spaz = 0;
+	coll->enable_baddie_push = FALSE;
+	coll->enable_spaz = FALSE;
 
 	camera.target_angle = ANGLE(-80);
 	camera.target_elevation = ANGLE(-25);
@@ -1337,7 +1337,7 @@ void lara_as_pickupflare(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB5C(
 	camera.target_elevation = ANGLE(-15);
 	camera.target_distance = SECTOR(1);
 	if (item->frame_number = anims[item->anim_number].frame_end - 1)
-		lara.gun_status = 0;
+		lara.gun_status = LG_NO_ARMS;
 }
 
 void lara_as_pickup(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB00(<), 1AC34(<) (F)
@@ -1364,7 +1364,7 @@ void lara_as_pullblock(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AA60(<)
 	lara.look = 0;
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.flags = 1;
+	camera.flags = CF_FOLLOW_CENTER;
 	camera.target_angle = ANGLE(35);
 	camera.target_elevation = -4550;
 }
@@ -1374,7 +1374,7 @@ void lara_as_pushblock(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AA04(<)
 	lara.look = 0;
 	coll->enable_baddie_push = 0;
 	coll->enable_spaz = 0;
-	camera.flags = 1;
+	camera.flags = CF_FOLLOW_CENTER;
 	camera.target_angle = ANGLE(90);
 	camera.target_elevation = -4550;
 }
@@ -1393,7 +1393,7 @@ void lara_as_fallback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1959C(<),
 		item->goal_anim_state = STATE_LARA_FREEFALL;
 
 	if (input & IN_ACTION)
-		if (!lara.gun_status)
+		if (lara.gun_status == LG_NO_ARMS)
 			item->goal_anim_state = STATE_LARA_REACH;
 }
 
@@ -1706,7 +1706,7 @@ void SetCornerAnim(struct ITEM_INFO* item, struct COLL_INFO* coll, short rot, sh
 		item->pos.y_pos += CLICK;
 		item->fallspeed = 1;
 
-		lara.gun_status = 0;
+		lara.gun_status = LG_NO_ARMS;
 
 		item->pos.y_rot += rot / 2;
 	}
@@ -1816,7 +1816,7 @@ void lara_as_turn_l(struct ITEM_INFO* item, struct COLL_INFO* coll)//1972C(<), 1
 
 	lara.turn_rate -= 409;
 
-	if (lara.gun_status != 4 || lara.water_status == 4)
+	if (lara.gun_status != LG_READY || lara.water_status == 4)
 	{
 		if (lara.turn_rate < ANGLE(-4))
 		{
@@ -1863,7 +1863,7 @@ void lara_as_turn_r(struct ITEM_INFO* item, struct COLL_INFO* coll)//19628(<), 1
 
 	lara.turn_rate += 409;
 
-	if (lara.gun_status != 4 || lara.water_status == 4)
+	if (lara.gun_status != LG_READY || lara.water_status == 4)
 	{
 		if (lara.turn_rate > ANGLE(4))
 		{
@@ -2031,13 +2031,13 @@ void lara_as_forwardjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//18A34,
 		item->goal_anim_state != STATE_LARA_STOP &&
 		item->goal_anim_state != STATE_LARA_RUN_FORWARD)
 	{
-		if (!lara.gun_status && input & IN_ACTION)
+		if (lara.gun_status == LG_NO_ARMS && input & IN_ACTION)
 			item->goal_anim_state = STATE_LARA_REACH;
 
 		if (input & IN_DOWN || input & IN_ROLL)
 			item->goal_anim_state = STATE_LARA_JUMP_ROLL;
 
-		if (!lara.gun_status && input & IN_WALK)
+		if (lara.gun_status == LG_NO_ARMS && input & IN_WALK)
 			item->goal_anim_state = STATE_LARA_SWANDIVE_BEGIN;
 
 		if (item->fallspeed > LARA_FREEFALL_SPEED)
@@ -2349,9 +2349,80 @@ void lara_as_poleleft(struct ITEM_INFO* item, struct COLL_INFO* coll)//17020(<),
 		item->pos.y_rot += 256;
 }
 
-void lara_col_polestat(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DFC, 16F30
+void lara_col_polestat(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DFC, 16F30 (F)
 {
-	S_Warn("[lara_col_polestat] - Unimplemented!\n");
+	if (item->hit_points > 0)
+	{
+		coll->enable_spaz = FALSE;
+		coll->enable_baddie_push = FALSE;
+
+		if (item->anim_number == ANIMATION_LARA_POLE_IDLE)
+		{
+			coll->bad_pos = 32512;
+			coll->bad_neg = -384;
+			coll->bad_ceiling = 192;
+
+			lara.move_angle = item->pos.y_rot;
+
+			coll->facing = lara.move_angle;
+
+			coll->radius = 100;
+
+			coll->slopes_are_walls = 1;
+
+			GetLaraCollisionInfo(item, coll);
+
+			if (input & IN_ACTION)
+			{
+				item->goal_anim_state = STATE_LARA_POLE_IDLE;
+
+				if (input & IN_LEFT)
+				{
+					item->goal_anim_state = STATE_LARA_POLE_TURN_LEFT;
+				}
+				else if (input & IN_RIGHT)
+				{
+					item->goal_anim_state = STATE_LARA_POLE_TURN_RIGHT;
+				}
+
+				if (input & IN_LOOK)
+					LookUpDown();
+
+				if (input & IN_UP)
+				{
+					short room_num = item->room_number;
+
+					if (item->pos.y_pos - GetCeiling(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_num),
+						item->pos.x_pos, item->pos.y_pos, item->pos.z_pos) > SECTOR(1))
+					{
+						item->goal_anim_state = STATE_LARA_POLE_UP;
+					}
+				}
+				else if (input & IN_DOWN && coll->mid_floor > 0)
+				{
+					item->goal_anim_state = STATE_LARA_POLE_DOWN;
+
+					item->item_flags[2] = 0;
+				}
+
+				if (input & IN_JUMP)
+					item->goal_anim_state = STATE_LARA_JUMP_BACK;
+			}
+			else if (coll->mid_floor <= 0)
+			{
+				item->goal_anim_state = STATE_LARA_STOP;
+			}
+			else
+			{
+				item->pos.x_pos -= (64 * SIN(item->pos.y_rot)) >> W2V_SHIFT;
+				item->pos.z_pos -= (64 * COS(item->pos.y_rot)) >> W2V_SHIFT;
+			}
+		}
+	}
+	else
+	{
+		item->goal_anim_state = STATE_LARA_FREEFALL;
+	}
 }
 
 void lara_col_monkey180(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DDC, 16F10 (F)
@@ -2728,7 +2799,7 @@ void MonkeySwingFall(struct ITEM_INFO* item)//16004(<), 16138(<) (F)
 	item->fallspeed = 1;
 	item->pos.y_pos += 256;
 
-	lara.gun_status = 0;
+	lara.gun_status = LG_NO_ARMS;
 }
 
 void lara_col_dashdive(struct ITEM_INFO* item, struct COLL_INFO* coll)//15E5C, 15F90 (F)
@@ -2866,7 +2937,7 @@ void lara_as_dash(struct ITEM_INFO* item, struct COLL_INFO* coll)//15A28, 15B5C 
 	DashTimer--;
 
 	if (input & 0x20000000
-		&& (!lara.gun_status
+		&& (lara.gun_status == LG_NO_ARMS
 			|| lara.gun_type == WEAPON_NONE
 			|| lara.gun_type == WEAPON_PISTOLS
 			|| lara.gun_type == WEAPON_REVOLVER
@@ -2956,7 +3027,7 @@ void lara_col_crawlb(struct ITEM_INFO* item, struct COLL_INFO* coll)//15614, 157
 	}
 	else if (LaraFallen(item, coll))
 	{
-		lara.gun_status = 0;
+		lara.gun_status = LG_NO_ARMS;
 	}
 	else if (!TestLaraSlide(item, coll))
 	{
@@ -3084,7 +3155,7 @@ void lara_col_crawl(struct ITEM_INFO* item, struct COLL_INFO* coll)//1523C, 1537
 	}
 	else if (LaraFallen(item, coll))
 	{
-		lara.gun_status = 0;
+		lara.gun_status = LG_NO_ARMS;
 	}
 	else if (!TestLaraSlide(item, coll))
 	{
@@ -3169,7 +3240,7 @@ void lara_col_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//147C4, 148CC
 
 	if (LaraFallen(item, coll))
 	{
-		lara.gun_status = 0;
+		lara.gun_status = LG_NO_ARMS;
 	}
 	else if (!TestLaraSlide(item, coll))
 	{
@@ -3216,7 +3287,7 @@ void lara_as_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//14688, 14738 
 
 		if ((input & IN_UP || input & IN_DOWN)
 			&& (input & 0x20000000 || lara.keep_ducked)
-			&& !lara.gun_status
+			&& lara.gun_status == LG_NO_ARMS
 			&& lara.water_status != 4
 			&& !(room[room_num].flags & RF_FILL_WATER))
 		{
@@ -3255,7 +3326,7 @@ void lara_col_ducklr(struct ITEM_INFO* item, struct COLL_INFO* coll)//14534, 145
 	
 	if (LaraFallen(item, coll))
 	{
-		lara.gun_status = 0;
+		lara.gun_status = LG_NO_ARMS;
 	}
 	else if (!TestLaraSlide(item, coll))
 	{
@@ -3741,7 +3812,7 @@ void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 762);
 }
 
-int GetLaraJointPos(struct PHD_VECTOR* arg1, int arg2)
+int GetLaraJointPos(struct PHD_VECTOR* arg1, long arg2)
 {
 	S_Warn("[GetLaraJointPos] - Unimplemented!\n");
 	return 0;

@@ -6,6 +6,21 @@
 #define BOX_BLOCKED (1 << 14) // unpassable for other enemies, always set for movable blocks & closed doors
 #define BOX_LAST    (1 << 15) // unpassable by large enemies (T-Rex, Centaur, etc), always set behind doors
 
+enum mood_type
+{
+	BORED_MOOD = 0,
+	ATTACK_MOOD = 1,
+	ESCAPE_MOOD = 2,
+	STALK_MOOD = 3,
+};
+
+enum target_type
+{
+	NO_TARGET = 0,
+	PRIME_TARGET = 1,
+	SECONDARY_TARGET = 2,
+};
+
 extern int number_boxes;
 extern struct box_info* boxes;
 extern unsigned short* overlap;

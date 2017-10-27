@@ -472,7 +472,7 @@ void Cutanimate(int objnum)//32B50(<), 32FE8(<) (F)
 	item->anim_number = objects[objnum].anim_index;
 	item->frame_number = anims[item->anim_number].frame_base;
 	AddActiveItem(item - items);
-	item->status = 1;
+	item->status = ITEM_ACTIVE;
 	item->flags |= IFLAG_ACTIVATION_MASK;
 }
 
@@ -483,7 +483,7 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80(<), 32F18(<) (F)
 	item->anim_number = objects[objnum].anim_index;
 	item->frame_number = anims[item->anim_number].frame_base;
 	RemoveActiveItem(item - items);	
-	item->status = 0;
+	item->status = ITEM_INACTIVE;
 	item->flags &= 0xC1FF;
 
 	return item;
@@ -633,7 +633,7 @@ void swampy_init()//32608(<), 32AA0(<) (F)
 
 	if (item)
 	{
-		item->status = 3;
+		item->status = ITEM_INVISIBLE;
 		RemoveActiveItem(item - items);
 		DisableBaddieAI(item - items);
 		item->flags |= IFLAG_INVISIBLE;
@@ -697,7 +697,7 @@ void monk2_control()//324E4(<), 3297C(<) (F)
 	GetActorJointAbsPosition(1, 0, &pos);
 
 	TriggerDynamic(pos.x, pos.y, pos.z, 10,
-		GetRandomControl() & 0xF, (GetRandomControl() & 0x1F) + 16, (GetRandomControl() & 0x3F) + 128);
+	               GetRandomControl() & 0xF, (GetRandomControl() & 0x1F) + 16, (GetRandomControl() & 0x3F) + 128);
 }
 
 void monk2_init()//324D4(<), 3296C(<) (F)
@@ -901,7 +901,7 @@ void andy10_init()//31D58(<), 321F0(<) (F)
 	cutseq_meshbits[6] &= 0x7FFFFFFFu;
 	
 	item = find_a_fucking_item(GREEN_TEETH);
-	item->status = 3;
+	item->status = ITEM_INVISIBLE;
 	RemoveActiveItem(item - items);
 	DisableBaddieAI(item - items);
 	item->flags |= IFLAG_INVISIBLE;
@@ -1161,9 +1161,9 @@ void andy6_control()//315F8(<), 319B4(<) (F)
 	pos.z = 240;
 	GetActorJointAbsPosition(1, 8, &pos);
 	TriggerDynamic(pos.x, pos.y, pos.z, 
-		12 - (GetRandomControl() & 1), 
-		(GetRandomControl() & 0x3F) + 192, 
-		(GetRandomControl() & 0x1F) + 96, 0);
+	               12 - (GetRandomControl() & 1), 
+	               (GetRandomControl() & 0x3F) + 192, 
+	               (GetRandomControl() & 0x1F) + 96, 0);
 	DelTorchFlames(&pos);
 	handle_lara_chatting(lara_chat_ranges_andy6);
 	handle_actor_chatting(21, 2, 1, 54, priest_chat_ranges_andy6);
@@ -1310,7 +1310,7 @@ void andrea3b_end()//30C54(<), 30FD4(<) (F)
 			item = &items[i];
 			if (item->object_number == HYDRA)
 			{
-				item->status = 1;
+				item->status = ITEM_ACTIVE;
 				item->flags |= IFLAG_INVISIBLE;
 				AddActiveItem(item - items);
 				EnableBaddieAI(item - items, 1);
@@ -1371,7 +1371,7 @@ void andrea3b_init()//30A1C(<), 30D9C(<) (F)
 	cutseq_meshbits[4] = 0x80000F00u;
 
 	item = find_a_fucking_item(LARSON);
-	item->status = 3;
+	item->status = ITEM_INVISIBLE;
 	RemoveActiveItem(item - items);
 	DisableBaddieAI(item - items);
 	item->flags |= IFLAG_INVISIBLE;
@@ -1388,7 +1388,7 @@ void andrea3_end()//30904(<), 30C84(<) (F)
 	item->anim_number = objects[LARSON].anim_index;
 	item->flags |= IFLAG_INVISIBLE;
 	item->frame_number = anims[objects[LARSON].anim_index].frame_base;
-	item->status = 1;
+	item->status = ITEM_ACTIVE;
 
 	AddActiveItem(item - items);
 	EnableBaddieAI(item - items, 1);
@@ -1576,7 +1576,7 @@ void joby10_control()//30338(<), 306B8(<) (F)
 	if (GLOBAL_cutseq_frame == 3235)
 	{
 		item = find_a_fucking_item(HYDRA_MIP);
-		item->status = 0;
+		item->status = ITEM_INACTIVE;
 	}
 
 	handle_lara_chatting(lara_chat_ranges_joby10);
@@ -1881,9 +1881,9 @@ void andy2_control()//2F5D0(<), 2F914(<) (F)
 	pos.z = 240;
 	GetActorJointAbsPosition(1, 8, &pos);
 	TriggerDynamic(pos.x, pos.y, pos.z, 
-		12 - (GetRandomControl() & 1), 
-		(GetRandomControl() & 0x3F) + 192, 
-		(GetRandomControl() & 0x1F) + 96, 0);
+	               12 - (GetRandomControl() & 1), 
+	               (GetRandomControl() & 0x3F) + 192, 
+	               (GetRandomControl() & 0x1F) + 96, 0);
 	DelTorchFlames(&pos);
 
 	handle_lara_chatting(lara_chat_ranges_andy2);
@@ -1907,7 +1907,7 @@ void do_hammer_meshswap()//2F57C(<), 2F8C0(<) (F)
 void hamgate_end()//2F534(<), 2F878(<) (F)
 {
 	struct ITEM_INFO* item = find_a_fucking_item(DOOR_TYPE1);
-	item->status = 1;
+	item->status = ITEM_ACTIVE;
 	DelsHandyTeleportLara(31232, -3328, 48344, 0);
 }
 
@@ -1931,7 +1931,7 @@ void hamgate_init()//2F434(<), 2F778(<) (F)
 	AddActiveItem(item - items);
 	item->flags |= IFLAG_ACTIVATION_MASK;
 	item->mesh_bits = 3;
-	item->status = 3;
+	item->status = ITEM_INVISIBLE;
 	cutseq_meshbits[2] &= 0xFFFFFFFD;
 	cutrot = 0;
 }
@@ -2144,9 +2144,9 @@ void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int noden
 			trig_actor_gunflash(&arse, pos);
 			GetActorJointAbsPosition(actornum, nodenum, pos);
 			TriggerDynamic(pos->x, pos->y, pos->z, 10,
-				(GetRandomControl() & 0x3F) + 192,
-				(GetRandomControl() & 0x1F) + 128,
-				(GetRandomControl() & 0x3F));
+			               (GetRandomControl() & 0x3F) + 192,
+			               (GetRandomControl() & 0x1F) + 128,
+			               (GetRandomControl() & 0x3F));
 		}
 	}
 }
@@ -2175,7 +2175,7 @@ void stealth3_start()//2E824, 2EB30 (F)
 				ABS(item->pos.y_pos - lara_item->pos.y_pos) < CLICK)
 			{
 				GLOBAL_cutme->actor_data[1].objslot = item->object_number;
-				item->status = 3;
+				item->status = ITEM_INVISIBLE;
 				RemoveActiveItem(i);
 				DisableBaddieAI(i);
 				item->flags |= IFLAG_INVISIBLE;
@@ -2269,7 +2269,7 @@ void richcut3_end()//2E54C(<), 2E858(<) (F)
 
 	if (item)
 	{
-		item->status = 1;
+		item->status = ITEM_ACTIVE;
 		item->flags |= 0x20;
 	}
 }
@@ -2321,7 +2321,7 @@ void richcut1_control()//2E3D8(<), 2E668(<) (F)
 	{
 		item = find_a_fucking_item(CLOSED_DOOR2);
 		AddActiveItem(item - items);
-		item->status = 3;
+		item->status = ITEM_INVISIBLE;
 		item->flags |= IFLAG_ACTIVATION_MASK;
 	}
 }
@@ -2350,7 +2350,7 @@ void richcut1_init()//2E26C(<), 2E4FC(<) (F)
 
 			if (item->object_number == 69)
 			{
-				item->status = 6;
+				item->status = ITEM_INVISIBLE;
 				RemoveActiveItem(item - items);
 				DisableBaddieAI(item - items);
 				item->flags |= IFLAG_INVISIBLE;
@@ -2555,7 +2555,7 @@ void DelsHandyTeleportLara(int x, int y, int z, int yrot)//2DC14(<), 2DEA4(<) (F
 	lara_item->fallspeed = 0;
 	lara_item->gravity_status = 0;
 
-	lara.gun_status = 0;
+	lara.gun_status = LG_NO_ARMS;
 	camera.fixed_camera = 1;
 }
 
@@ -2619,7 +2619,7 @@ void cutseq_kill_item(int num)//2D69C(<), 2D984(<) (F)
 				old_status_flags[numnailed] = items[i].status;
 				numnailed++;
 
-				items[i].status = 3;
+				items[i].status = ITEM_INVISIBLE;
 				items[i].flags &= 0xFFFFC1FF;
 				items[i].flags |= 0x20;
 			}			
@@ -2723,7 +2723,7 @@ void cutseq_removelara_hk()//2D328(<), 2D610(<) (F)
 	undraw_shotgun_meshes(WEAPON_HK);
 	lara.gun_type = WEAPON_NONE;
 	lara.request_gun_type = WEAPON_NONE;
-	lara.gun_status = 0;
+	lara.gun_status = LG_NO_ARMS;
 	lara.last_gun_type = WEAPON_HK;
 }
 
@@ -2836,7 +2836,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 		int a1 = 0;//Must confirm initial value.
 		if (cutseq_trig == 0)
 		{
-			if (lara.gun_status == 0)
+			if (lara.gun_status == LG_NO_ARMS)
 			{
 				if (lara.gun_type == 7)
 				{
@@ -2852,7 +2852,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 				}
 
 				//loc_2C430
-				if (lara.gun_status != 1)
+				if (lara.gun_status != LG_HANDS_BUSY)
 				{
 					lara.gun_status = 3;
 				}
@@ -2918,7 +2918,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 					else
 					{
 						//loc_2C52C
-						if (lara.gun_status != 1 && lara.gun_status == 0 && lara.flare_control_left != 0)
+						if (lara.gun_status != LG_HANDS_BUSY && lara.gun_status == LG_NO_ARMS && lara.flare_control_left != 0)
 						{
 							//loc_2C55C
 

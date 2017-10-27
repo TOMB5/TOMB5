@@ -181,7 +181,7 @@ void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 		&& l->current_anim_state == STATE_LARA_STOP
 		&& l->anim_number == ANIMATION_LARA_STAY_IDLE
 		&& !l->gravity_status
-		&& !lara.gun_status
+		&& lara.gun_status == LG_NO_ARMS
 		|| lara.IsMoving && lara.GeneralPtr == (void*)item_num)
 	{
 		short ItemNos[8];
@@ -201,13 +201,13 @@ void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 				lara.head_x_rot = 0;
 				lara.torso_y_rot = 0;
 				lara.torso_x_rot = 0;
-				lara.gun_status = 1;
+				lara.gun_status = LG_HANDS_BUSY;
 				l->current_anim_state = ANIMATION_LARA_TRY_HANG_SOLID;
 				UseForcedFixedCamera = TRUE;
 				ForcedFixedCamera.y = item->pos.y_pos - 2048;
 				ForcedFixedCamera.room_number = item->room_number;
 				AddActiveItem(item_num);
-				item->status = 1;
+				item->status = ITEM_ACTIVE;
 				item->item_flags[1] = 0;
 				if(GetSwitchTrigger(item, ItemNos, 0))
 				{
@@ -243,7 +243,7 @@ void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 			else if (lara.IsMoving && lara.GeneralPtr == (void *)item_num)
 			{
 				lara.IsMoving = FALSE;
-				lara.gun_status = 0;
+				lara.gun_status = LG_NO_ARMS;
 			}
 			l->pos.y_rot ^= 0x8000u;
 			if (flag)
@@ -253,13 +253,13 @@ void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 				lara.head_x_rot = 0;
 				lara.torso_y_rot = 0;
 				lara.torso_x_rot = 0;
-				lara.gun_status = 1;
+				lara.gun_status = LG_HANDS_BUSY;
 				l->current_anim_state = ANIMATION_LARA_TRY_HANG_SOLID;
 				UseForcedFixedCamera = TRUE;
 				ForcedFixedCamera.y = item->pos.y_pos - 2048;
 				ForcedFixedCamera.room_number = item->room_number;
 				AddActiveItem(item_num);
-				item->status = 1;
+				item->status = ITEM_ACTIVE;
 				item->item_flags[1] = 0;
 				if (GetSwitchTrigger(item, ItemNos, 0))
 				{

@@ -35,7 +35,7 @@ void lara_col_uwdeath(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C980(<),
 	int wh;
 	item->hit_points = -1;
 	lara.air = -1;
-	lara.gun_status = 1;
+	lara.gun_status = LG_HANDS_BUSY;
 	wh = GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
 	if (wh != -32512)
 	{
@@ -127,8 +127,8 @@ void lara_as_tread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C730, 4CB94
 			if (item->fallspeed < 0)
 				item->fallspeed = 0;
 
-			if (lara.gun_status == 1)
-				lara.gun_status = 0;
+			if (lara.gun_status == LG_HANDS_BUSY)
+				lara.gun_status = LG_NO_ARMS;
 		}
 	}
 	else

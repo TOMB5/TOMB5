@@ -563,6 +563,17 @@ enum sound_effects
 	NUM_SFX
 };
 
+enum reverb_type
+{
+	RVB_OUTSIDE,	   // 0x00   no reverberation
+	RVB_SMALL_ROOM,	   // 0x01   little reverberation
+	RVB_MEDIUM_ROOM,   // 0x02
+	RVB_LARGE_ROOM,	   // 0x03
+	RVB_PIPE,		   // 0x04   highest reverberation, almost never used
+
+	NUM_REVERB_TYPES
+};
+
 void SayNo();
 void SOUND_Init();
 void SOUND_Stop();

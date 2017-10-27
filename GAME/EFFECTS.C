@@ -162,12 +162,12 @@ void reset_hair(struct ITEM_INFO* item)//39A84(<), 39F84(<) (F)
 
 void invisibility_off(struct ITEM_INFO* item)//39A6C(<), 39F6C(<) (F)
 {
-	item->status = 1;
+	item->status = ITEM_ACTIVE;
 }
 
 void invisibility_on(struct ITEM_INFO* item)//39A58(<), 39F58(<) (F)
 {
-	item->status = 3;
+	item->status = ITEM_INVISIBLE;
 }
 
 void SetFog(struct ITEM_INFO* item)//39A44(<), 39F44(<) (F)
@@ -187,7 +187,7 @@ void shoot_right_gun(struct ITEM_INFO* item)//39A24(<), 39F24(<) (F)
 
 void lara_hands_free(struct ITEM_INFO* item)//39A18(<), 39F18(<) (F)
 {
-	lara.gun_status = 0;
+	lara.gun_status = LG_NO_ARMS;
 }
 
 void KillActiveBaddies(struct ITEM_INFO* item)//39938(<), 39E38(<) (F)
@@ -205,7 +205,7 @@ void KillActiveBaddies(struct ITEM_INFO* item)//39938(<), 39E38(<) (F)
 
 			if (objects[target_item->object_number].intelligent)
 			{
-				target_item->status = 3;
+				target_item->status = ITEM_INVISIBLE;
 
 				if (*(int*)&item != 0xABCDEF)
 				{
@@ -285,7 +285,7 @@ void RubbleFX(struct ITEM_INFO* item)//39534(<), 39A34(<) (F)
 	if (eq)
 	{
 		AddActiveItem(eq - items);
-		eq->status = 1;
+		eq->status = ITEM_ACTIVE;
 		eq->flags |= IFLAG_ACTIVATION_MASK;
 	}
 	else

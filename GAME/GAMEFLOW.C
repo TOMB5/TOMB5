@@ -123,7 +123,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	fmv_to_play[1] = 0;
 
 	//The game's title is disabled in Gameflow script. Automatically override the level id to 1 (skip it).
-	gfCurrentLevel = Gameflow->TitleEnabled == 0 ? 1 : 0;
+	gfCurrentLevel = Gameflow->TitleEnabled ? LVL5_TITLE : LVL5_STREETS_OF_ROME;
 
 	//Current level's script offset
 	scriptOffsetPtr = gfScriptOffset + (gfCurrentLevel & 0xFF);
