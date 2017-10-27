@@ -50,7 +50,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lp
 extern HANDLE sub_4DEA40(LPCSTR lpName);
 extern LPVOID sub_4DEA20(HANDLE hFileMappingObject);
 extern int HWInitialise();
-extern int __cdecl sub_4017E9(int a1, int a2, signed int width, signed int a4, int a5, int a6, int a7);
-extern signed __int64 sub_402DD3();
+extern int __cdecl InitWindow(int a1, int a2, signed int width, signed int a4, int a5, int a6, int a7);
+extern signed __int64 InitFont();
 
 #endif

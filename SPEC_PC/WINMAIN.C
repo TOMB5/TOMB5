@@ -478,7 +478,7 @@ char sub_4DEC40(char a1)
 	return v1;
 }
 
-char FindGameDrive()
+char FindCDDrive()
 {
 	unsigned int v0; // ebx@1
 	HANDLE v1; // eax@4
@@ -756,7 +756,7 @@ void __cdecl sub_402563(signed int a1, signed int a2)
 	flt_55D220 = v4 / flt_50A444;
 }
 
-int __cdecl sub_4017E9(int a1, int a2, signed int width, signed int a4, int a5, int a6, int a7)
+int __cdecl InitWindow(int a1, int a2, signed int width, signed int a4, int a5, int a6, int a7)
 {
 	int result; // eax@1
 
@@ -890,7 +890,7 @@ int __cdecl sub_40198D(int a1, int *a2, int *a3)
 	return result;
 }
 
-signed __int64 sub_402DD3()
+signed __int64 InitFont()
 {
 	BYTE *v0; // edi@1
 	BYTE v1; // ST3C_1@2
@@ -1179,8 +1179,8 @@ void __cdecl sub_4018AC(signed int param)
 			}
 			HWInitialise();
 			//j_nullsub_24();
-			sub_4017E9(0, 0, ptr_ctx->width, ptr_ctx->height, 20, 20480, 80);
-			sub_402DD3();
+			InitWindow(0, 0, ptr_ctx->width, ptr_ctx->height, 20, 20480, 80);
+			InitFont();
 			sub_401D84();
 			sub_402BAD();
 		}
@@ -1762,7 +1762,7 @@ void sub_402D10()
 	}
 }
 
-char sub_402F77()
+char LoadSettings()
 {
 	int v0; // eax@8
 	int v1; // eax@9
@@ -2380,7 +2380,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	_CrtSetDbgFlag(v6);
 	if (!(unsigned __int8)WinRunCheck(Name, "MainGameWindow", &ptr_ctx->hObject))
 	{
-		FindGameDrive();
+		FindCDDrive();
 		LoadGameflow();
 		WinProcessCommandLine(lpCmdLine);
 		hinst = hInstance;
@@ -2424,7 +2424,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			return 0;
 		}
 		DXInitialise(&dxctx, v8);
-		if (byte_57A098 || !(unsigned __int8)sub_402F77())
+		if (byte_57A098 || !(unsigned __int8)LoadSettings())
 		{
 			if (!(unsigned __int8)InitSetupDialog())
 			{
@@ -2433,7 +2433,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				WinClose();
 				return 0;
 			}
-			sub_402F77();
+			LoadSettings();
 		}
 		SetWindowPos(hWnd, 0, dxctx.windowPos.left, dxctx.windowPos.top, 0, 0, 5u);
 		v9 = GetDesktopWindow();
@@ -2469,7 +2469,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		if (!ptr_ctx->opt_DisableSound)
 		{
 			DXDSCreate();
-			InitACM();
+			ACMInit();
 		}
 		dword_E916E0 = NULL;
 		dword_876C40 = 1;

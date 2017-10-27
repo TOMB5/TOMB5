@@ -113,7 +113,7 @@ inline void freadBytes(unsigned int count)
 	free(buf);
 }
 
-void FreeItemsShit(int num)
+void InitialiseItemArray(int num)
 {
 	next_item_free = level_items;
 	next_item_active = -1;
@@ -135,7 +135,7 @@ void FreeItemsShit(int num)
 	}
 }
 
-void sub_43E380()
+void InitialiseClosedDoors()
 {
 	memset(dword_51CAC0, 0, 32 * sizeof(DWORD));
 }
@@ -149,7 +149,8 @@ void LoadItems()
 	if (num_items == 0) return;
 	Alloc(items, ITEM_INFO, 256);
 	level_items = num_items;
-	sub_43E380();
+	InitialiseClosedDoors();
+	InitialiseItemArray(256);
 
 	for (int it = 0; it < num_items; it++)
 	{
@@ -404,7 +405,7 @@ struct room_data
 	uint32_t Separator9[4];  // Always 0xCDCDCDCD
 };
 #pragma pop*/
-void ReadRoom(struct room_info *rooms, /*tr5_room*/struct room_info *roomData)
+void FixUpRoom(struct room_info *rooms, /*tr5_room*/struct room_info *roomData)
 {
 	AddPtr(roomData->door, short, roomData + 1);
 	AddPtr(roomData->floor, struct FLOOR_INFO, roomData + 1);
@@ -448,7 +449,7 @@ void ReadRoom(struct room_info *rooms, /*tr5_room*/struct room_info *roomData)
 		NumRoomLights = rooms->num_lights;
 }
 
-void ReadRooms()
+void LoadRoomStream()
 {
 	readDword(); // read unused value
 
@@ -463,7 +464,7 @@ void ReadRooms()
 		char* roomData;
 		AllocReadT(roomData, char, roomDataSize);
 
-		ReadRoom(&room[i], roomData);
+		FixUpRoom(&room[i], roomData);
 	}
 
 	number_rooms = numRooms;
@@ -695,7 +696,7 @@ void LoadRooms()
 	NumRoomLights = 0;
 	dword_7E7FE8 = 0;
 
-	ReadRooms();
+	LoadRoomStream();
 	//sub_4774D0();
 
 	int numFloorData = readDword();
@@ -786,7 +787,7 @@ float flt_8BBD90;
 DWORD dword_8BBD64;
 DWORD dword_8FBDC0;
 
-int __cdecl sub_4B1A40(int a1)
+int __cdecl S_InitLoadBar(int a1)
 {
 	int result; // eax@1
 
@@ -798,7 +799,7 @@ int __cdecl sub_4B1A40(int a1)
 	return result;
 }
 
-void sub_4B1A80()
+void S_LoadBar()
 {
 	flt_8BBD94 = 100.0 / (double)dword_8BBD64 + flt_8BBD94;
 }
@@ -812,7 +813,7 @@ void LoadDemoData()
 int numMeshes;
 int numAnims;
 
-int sub_456AE0()
+int CreateSkinningData()
 {
 	S_Warn("[sub_456AE0] - Unimplemented!\n");
 	return 0;
@@ -843,7 +844,7 @@ int sub_43D8B0()
 	
 }
 
-void sub_473600()
+void InitialiseObjects()
 {
 	for (int i = 0; i < NUMBER_OBJECTS; i++)
 	{
@@ -993,7 +994,7 @@ void LoadObjects()
 	}
 
 	if (LaraDrawType != LARA_DIVESUIT)
-		sub_456AE0();
+		CreateSkinningData();
 
 	for (int i = 0; i < NUMBER_OBJECTS; i++)
 	{
@@ -1013,8 +1014,8 @@ void LoadObjects()
 		meshes[2 * i + 1] = meshes[numMeshes + i];
 	}
 
-	sub_473600();
-	sub_43E380();
+	InitialiseObjects();
+	InitialiseClosedDoors();
 
 	int numStatics = readDword();
 
@@ -1339,7 +1340,7 @@ void LoadTextures(int numRoom, int numObj, int numBump)
 	int szRoom = numRoom * depth * TEXTURE_PAGE;
 	void* bufRoom;
 	AllocReadT(bufRoom, char, szRoom);
-	sub_4B1A80();
+	S_LoadBar();
 
 	if (numRoom > 0)
 	{
@@ -1434,7 +1435,7 @@ void sub_4A6AB0()
 	S_Warn("[sub_4A6AB0] - Unimplemented!\n");
 }
 
-void sub_4A9C10()
+void MallocD3DLights()
 {
 	if (NumRoomLights > 21)
 	{
@@ -1445,7 +1446,7 @@ void sub_4A9C10()
 	dword_87B0F4 = game_malloc(2688); // todo find the struct
 }
 
-void sub_4779E0()
+void reset_cutseq_vars()
 {
 	cutseq_num = 0;
 	cutseq_trig = 0;
@@ -1531,7 +1532,12 @@ void sub_473210(int a1)
 	}
 }
 
-void sub_4778F0()
+void SetupGame()
+{
+	S_Warn("[SetupGame] - Unimplemented!\n");
+}
+
+void CreateD3DLights()
 {
 	
 }
@@ -1560,8 +1566,8 @@ void LoadLevel(const char* filename)
 		int numObjTex = freadWord();
 		int numBumpTex = freadWord();
 
-		sub_4B1A40(numObjTex + numBumpTex + numRoomTex + 20);
-		sub_4B1A80();
+		S_InitLoadBar(numObjTex + numBumpTex + numRoomTex + 20);
+		S_LoadBar();
 
 		Log(7, "Process Level Data");
 		LoadTextures(numRoomTex, numObjTex, numBumpTex);
@@ -1579,29 +1585,29 @@ void LoadLevel(const char* filename)
 
 		Log(5, "Rooms");
 		LoadRooms();
-		sub_4B1A80();
+		S_LoadBar();
 
 		Log(5, "Objects");
 		LoadObjects();
-		sub_4B1A80();
+		S_LoadBar();
 
 		LoadSprites();
-		sub_4B1A80();
+		S_LoadBar();
 
 		LoadCameras();
-		sub_4B1A80();
+		S_LoadBar();
 
 		LoadSoundEffects();
-		sub_4B1A80();
+		S_LoadBar();
 
 		LoadBoxes();
-		sub_4B1A80();
+		S_LoadBar();
 
 		LoadAnimatedTextures();
-		sub_4B1A80();
+		S_LoadBar();
 
 		LoadTextureInfos();
-		sub_4B1A80();
+		S_LoadBar();
 
 		char* backup = lvDataPtr;
 		int numItems = readDword();
@@ -1614,18 +1620,18 @@ void LoadLevel(const char* filename)
 		LoadItems();
 		lvDataPtr = backup2;
 
-		sub_4B1A80();
-		sub_4B1A80();
+		S_LoadBar();
+		S_LoadBar();
 
 		LoadDemoData();
-		sub_4B1A80();
+		S_LoadBar();
 
 		if (ACMInited && !ptr_ctx->opt_DisableSound)
 			LoadSamples();
 
 		free(lvDataPtr_orig);
 
-		sub_4B1A80();
+		S_LoadBar();
 
 		for(int i = WATERFALL1; i <= WATERFALLSS2; i++)
 		{
@@ -1637,17 +1643,17 @@ void LoadLevel(const char* filename)
 			}
 		}
 
-		sub_4B1A80();
+		S_LoadBar();
 
 		sub_4A6AB0();
-		sub_4B1A80();
+		S_LoadBar();
 
-		sub_4A9C10();
-		//j_nullsub_24();
-		sub_4778F0();
-		sub_4B1A80();
+		MallocD3DLights();
+		CreateD3DLights();
+		SetupGame();
+		S_LoadBar();
 		SetFadeClip(0, 1);
-		sub_4779E0();
+		reset_cutseq_vars();
 
 		if (gfCurrentLevel == LVL5_STREETS_OF_ROME)
 			find_a_fucking_item(ANIMATING10)->mesh_bits = 11;
