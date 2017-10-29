@@ -282,7 +282,7 @@ void CreatureDie(short item_number, int explode)// (F)
 	}
 
 	DisableBaddieAI(item_number);
-	item->flags |= 0x8000 | IFLAG_INVISIBLE;
+	item->flags |= IFLAG_KILLED | IFLAG_INVISIBLE;
 	DropBaddyPickups(item);
 
 	if (item->object_number == SCIENTIST && item->ai_bits == 20)
@@ -435,7 +435,7 @@ int CreatureActive(short item_number)//218B0(<), ? (F)
 {
 	struct ITEM_INFO* item = &items[item_number];
 
-	if (item->flags & 0x8000)
+	if (item->flags & IFLAG_KILLED)
 	{
 		if (item->status != ITEM_INVISIBLE)
 		{

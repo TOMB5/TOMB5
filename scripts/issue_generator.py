@@ -48,8 +48,8 @@
 # $ ./issue_generator.py +w -h -c
 
 # increment this plz
-# rev 5
-# 2017-10-25
+# rev 6
+# 2017-10-28
 
 
 from urllib.request import urlopen
@@ -61,13 +61,13 @@ def Warn(msg):
 	if SHOW_WARN:
 		print("[WARN--------] " + str(msg))
 
-def Status(msg):
-	if SHOW_STATUS:
-		print("[--------STAT] " + str(msg))
-
 def Hint(msg):
 	if SHOW_HINT:
 		print("[----HINT----] " + str(msg))
+
+def Status(msg):
+	if SHOW_STATUS:
+		print("[--------STAT] " + str(msg))
 
 # STEP
 #  _ 
@@ -168,6 +168,7 @@ for x in issue:
 Status("working for platforms: " + ", ".join(sorted(platforms.keys())))
 
 added = []
+addedFiles = []
 
 def getfline(path):
 	with open(path, 'r') as fp:
@@ -206,6 +207,8 @@ for plat in sorted(platforms.keys()):
 				Status("adding implemented function -- %s // '%s'" % (path, l))
 				added.append((plat, file, l))
 				platforms[plat][file][l] = True
+				if all(platforms[plat][file].values()):
+					addedFiles.append((plat, file))
 
 # STEP
 #  ____  
@@ -219,6 +222,21 @@ for plat in sorted(platforms.keys()):
 Status("%d function%s ha%s been implemented:" % (len(added), "s" if len(added) != 1 else "", "ve" if len(added) != 1 else "s"))
 for p in sorted(platforms.keys()):
 	Status("- %2d in %s" % (len([x for x in added if x[0] == p]), p))
+
+if len(addedFiles) > 0:
+	Status("%d file%s ha%s been finished:" % (len(addedFiles), "s" if len(addedFiles) != 1 else "", "ve" if len(addedFiles) != 1 else "s"))
+	for x in addedFiles:
+		Status("- %s" % os.path.join(*x))
+
+def getPlatStats(plat):
+	return (sum([list(platforms[plat][f].values()).count(True) for f in platforms[plat]]), sum(len(platforms[plat][f]) for f in platforms[plat]), plat)
+
+Status("total:")
+for p in sorted(platforms.keys()):
+	Status("- %4d / %4d in %s" % getPlatStats(p))
+
+globStats = [getPlatStats(p) for p in platforms]
+Status("- %4d / %4d total" % (sum(c for c,_,__ in globStats), sum(t for _,t,__ in globStats)))
 
 lines = []
 unimpl = []
@@ -236,12 +254,6 @@ for plat in sorted(platforms.keys()):
 
 output = "\n".join(lines)
 
-if USE_CLIPBOARD:
-	import pyperclip
-	pyperclip.copy(output)
-else:
-	print(output)
-
 if SHOW_UNIMPL:
 	print("Unimplemented :")
 	if USE_REPR:
@@ -255,3 +267,25 @@ if SHOW_ADDED:
 		print(repr(added))
 	else:
 		print("\n".join(["%s // '%s'" % (os.path.join(x[0], x[1]), x[2]) for x in added]))
+
+# STEP
+#   __   
+#  / /_  
+# | '_ \ 
+# | (_) |
+#  \___/ 
+#        
+# Display motivational messages for the poor developers
+
+motivational_messages = [
+	"Keep up the good work!",
+	"Awesome!",
+]
+import random
+print("[MOTIVATIONAL] " + random.choice(motivational_messages))
+
+if USE_CLIPBOARD:
+	import pyperclip
+	pyperclip.copy(output)
+else:
+	print(output)

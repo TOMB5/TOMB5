@@ -40,9 +40,10 @@ void RelocFunc_18_10()
 	S_Warn("[RelocFunc_28] - Unimplemented!\n");
 }
 
-void RelocFunc_34_08()
+void RelocFunc_34_08() // (F)
 {
-	S_Warn("[RelocFunc_015] - Unimplemented!\n");
+	lara_item->mesh_bits = -1;
+	Chris_Menu = 0;
 }
 
 void RelocFunc_34_0C()

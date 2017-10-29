@@ -54,9 +54,61 @@ void lara_col_surfswim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DCE8(<)
 	LaraTestWaterClimbOut(item, coll);
 }
 
-void lara_as_surftread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DBA0, 4E004
+void lara_as_surftread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DBA0, 4E004 (F)
 {
-	S_Warn("[lara_as_surftread] - Unimplemented!\n");
+	item->fallspeed -= 4;
+	if (item->fallspeed < 0)
+		item->fallspeed = 0;
+
+	if (item->hit_points > 0)
+	{
+		if (input & IN_LOOK)
+		{
+			LookUpDown();
+			return;
+		}
+
+		if (input & IN_LEFT)
+		{
+			item->pos.y_rot -= ANGLE(4);
+		}
+		else if (input & IN_RIGHT)
+		{
+			item->pos.y_rot += ANGLE(4);
+		}
+
+		if(input & IN_UP)
+		{
+			item->goal_anim_state = STATE_LARA_ONWATER_FORWARD;
+		}
+		else if(input & IN_DOWN)
+		{
+			item->goal_anim_state = STATE_LARA_ONWATER_BACK;
+		}
+
+		if (input & IN_LSTEP)
+		{
+			item->goal_anim_state = STATE_LARA_ONWATER_LEFT;
+		}
+		else if(input & IN_RSTEP)
+		{
+			item->goal_anim_state = STATE_LARA_ONWATER_RIGHT;
+		}
+
+		if (input & IN_JUMP)
+		{
+			if (++lara.dive_count == 10)
+				item->goal_anim_state = STATE_LARA_UNDERWATER_FORWARD;
+		}
+		else
+		{
+			lara.dive_count = 0;
+		}
+	}
+	else
+	{
+		item->goal_anim_state = STATE_LARA_WATER_DEATH;
+	}
 }
 
 void lara_as_surfright(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DAF8, 4DF5C (F)
@@ -64,6 +116,7 @@ void lara_as_surfright(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DAF8, 4
 	if (item->hit_points > 0)
 	{
 		lara.dive_count = 0;
+
 		if (input & IN_LEFT)
 		{
 			item->pos.y_rot -= ANGLE(2);

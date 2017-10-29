@@ -14,20 +14,100 @@
 #include <assert.h>
 #include "EFFECTS.H"
 #include "MALLOC.H"
+#include "EFFECT2.H"
+#include "LARA.H"
 
 int level_items;
 short next_item_free;
 short next_item_active;
 short GlobalPulleyFrigItem;
 
-void EffectNewRoom(short fx_num, short room_number)//42320, 42774
+void EffectNewRoom(short fx_num, short room_number)//42320, 42774 (F)
 {
-	S_Warn("[EffectNewRoom] - Unimplemented!\n");
+	if(InItemControlLoop)
+	{
+		ItemNewRooms[ItemNewRoomNo][0] = fx_num;
+		ItemNewRooms[ItemNewRoomNo][1] = room_number;
+		ItemNewRoomNo++;
+	}
+	else
+	{
+		struct FX_INFO* fx = &effects[fx_num];
+		struct room_info* r = &room[fx->room_number];
+
+		if (r->fx_number == fx_num)
+		{
+			r->fx_number = fx->next_fx;
+		}
+		else if(r->fx_number != -1)
+		{
+			short linknum;
+			for (linknum = effects[r->fx_number].next_fx; linknum != -1; linknum = effects[linknum].next_fx)
+			{
+				if (linknum == fx_num)
+				{
+					effects[r->fx_number].next_fx = fx->next_fx;
+					break;
+				}
+			}
+		}
+
+		fx->room_number = room_number;
+		fx->next_fx = room[room_number].fx_number;
+		room[room_number].fx_number = fx_num;
+	}
 }
 
-void KillEffect(short fx_num)//42178, 425CC
+void KillEffect(short fx_num)//42178, 425CC (F)
 {
-	S_Warn("[KillEffect] - Unimplemented!\n");
+	if (InItemControlLoop)
+	{
+		ItemNewRooms[ItemNewRoomNo][0] = fx_num | 0x8000;
+		ItemNewRoomNo++;
+	}
+	else
+	{
+		struct FX_INFO* fx = &effects[fx_num];		
+
+		DetatchSpark(fx_num, 128);
+
+		if (next_fx_active == fx_num)
+		{
+			next_fx_active = fx->next_active;
+		}
+		else if (next_fx_active != -1)
+		{
+			short linknum;
+			for (linknum = effects[next_fx_active].next_active; linknum != -1; linknum = effects[linknum].next_active)
+			{
+				if (linknum == fx_num)
+				{
+					effects[linknum].next_active = fx->next_active;
+					break;
+				}
+			}
+		}
+
+		if (room[fx->room_number].fx_number == fx_num)
+		{
+			room[fx->room_number].fx_number = fx->next_fx;
+		}
+		else if (room[fx->room_number].fx_number != -1)
+		{
+			short linknum;
+			for (linknum = effects[room[fx->room_number].fx_number].next_fx; linknum != -1; linknum = effects[linknum].next_fx)
+			{
+				if (linknum == fx_num)
+				{
+					effects[room[fx->room_number].fx_number].next_fx = fx->next_fx;
+					break;
+				}
+			}
+		}
+
+		fx->next_fx = next_fx_free;
+		next_fx_free = fx_num;
+	}
 }
 
 short CreateEffect(short room_num)//420E0(<), 42534(<) (F)
@@ -79,86 +159,68 @@ void AddActiveItem(short item_num)//41FEC(<), 42440(<) (F)
 
 	item->flags |= 0x20;
 
-	if (objects[item->object_number].control == 0)//Bug: Always zero due to incomplete level data relocation
+	if (objects[item->object_number].control == NULL)//Bug: Always zero due to incomplete level data relocation
 	{
-		item->meshswap_meshbits &= -7;
+		item->status = ITEM_INACTIVE;
 		return;
 	}
 
-	if (!(item->active))
+	if (!item->active)
 	{
-		item->active = 1;
+		item->active = TRUE;
 		item->next_active = next_item_active;
 		next_item_active = item_num;
 	}
-
-	return;
 }
 
-void RemoveDrawnItem(short item_num)//41F48, 4239C
+void RemoveDrawnItem(short item_num)//41F48, 4239C (F)
 {
-	S_Warn("[RemoveDrawnItem] - Unimplemented!\n");
-}
+	struct ITEM_INFO* item = &items[item_num];
 
-void RemoveActiveItem(short item_num)//41E98, 422EC
-{
-	short linknum; // $v1
-	struct ITEM_INFO* a1 = &items[item_num];
-	//int a2 = *(int*)a1->active;
-	int v0;
-	short test = 1;
-	test &= -2;
-
-	v0 = -2;
-	if (a1->active)///@FIXME wrong flags, must finish InitialiseItem();
+	if (room[item->room_number].item_number == item_num)
 	{
-		assert(0);
-		linknum = next_item_active;
-
-		a1->meshswap_meshbits &= -2;
-
-		if (next_item_active == (item_num << 3))//check
+		room[item->room_number].item_number = item->next_item;
+	}
+	else if (room[item->room_number].item_number != -1)
+	{
+		short linknum;
+		for (linknum = items[room[item->room_number].item_number].next_item; linknum != -1; linknum = items[linknum].next_item)
 		{
-			next_item_active = a1->next_active;
-		}
-		else
-		{
-			//loc_41F08
-			int v0 = -1;
-			int v1 = next_item_active;
-
-			if (next_item_active != -1)
+			if (linknum == item_num)
 			{
-#if 0
-				assert(0);
-				int a3 = -1;
-				int v0 = v1 << 3;
-
-				//loc_41F1C
-
-				struct ITEM_INFO* a1 = &items[next_item_active];
-
-				while (v1 != -1)
-				{
-					v1 = a1->next_active;
-
-					if (v1 == item_num)
-					{
-						//loc_41EF0
-					}
-				}
-#endif
+				items[linknum].next_item = items[item_num].next_item;
+				break;
 			}
-
-			//loc_41F1C
 		}
-
-	}//locret_41EE8
-
-	return;
+	}
 }
 
-void InitialiseItem(short item_num)//41BEC(<), 42040
+void RemoveActiveItem(short item_num)//41E98, 422EC (F)
+{
+	if (items[item_num].active)
+	{
+		items[item_num].active = FALSE;
+
+		if (next_item_active == item_num)
+		{
+			next_item_active = items[item_num].next_active;
+		}
+		else if(next_item_active != -1)
+		{
+			short linknum;
+			for (linknum = items[next_item_active].next_active; linknum != -1; linknum = items[linknum].next_active)
+			{
+				if (linknum == item_num)
+				{
+					items[linknum].next_active = items[item_num].next_active;
+					break;
+				}
+			}
+		}
+	}
+}
+
+void InitialiseItem(short item_num)//41BEC(<), 42040 (F)
 {
 	struct ITEM_INFO* item;
 	struct room_info* r;
@@ -169,37 +231,39 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->frame_number = anims[item->anim_number].frame_base;
 
 	item->required_anim_state = 0;
+	item->goal_anim_state = anims[item->anim_number].current_anim_state;
+	item->current_anim_state = anims[item->anim_number].current_anim_state;
+
 	item->pos.z_rot = 0;
 	item->pos.x_rot = 0;
+
 	item->fallspeed = 0;
 	item->speed = 0;
+
 	item->item_flags[3] = 0;
 	item->item_flags[2] = 0;
 	item->item_flags[1] = 0;
 	item->item_flags[0] = 0;
 
-	/*item->meshswap_meshbits &= -7;
-	item->meshswap_meshbits &= -2;
-	item->meshswap_meshbits &= -129;
-	item->meshswap_meshbits &= -15873;
-	item->meshswap_meshbits &= -16385;
-	item->meshswap_meshbits &= -65;
-	item->meshswap_meshbits &= -17;
-	item->meshswap_meshbits &= -9;*/
+	item->active = FALSE;
+	item->status = ITEM_INACTIVE;
+	item->gravity_status = FALSE;
+	item->hit_status = FALSE;
+	item->collidable = TRUE;
+	item->looked_at = FALSE;
+	item->dynamic_light = FALSE;
+	item->poisoned = FALSE;
+	item->ai_bits = 0;
+	item->really_active = FALSE;
 
-	item->meshswap_meshbits &= 0xFFFFFFFF;
-
-	item->goal_anim_state = anims[item->anim_number].current_anim_state;
-	item->current_anim_state = anims[item->anim_number].current_anim_state;
-
-	item->meshswap_meshbits |= 0x20;
-	item->meshswap_meshbits &= -257;
 	item->timer = 0;
 
 	item->hit_points = objects[item->object_number].hit_points;
-
 	
-	if ((item->object_number - HK_ITEM) < UZI_ANIM || item->object_number == CROSSBOW_ITEM || item->object_number == REVOLVER_ITEM)
+	if (item->object_number == HK_ITEM || 
+		item->object_number == HK_AMMO_ITEM || 
+		item->object_number == CROSSBOW_ITEM || 
+		item->object_number == REVOLVER_ITEM)
 	{
 		item->mesh_bits = 1;
 	}
@@ -213,23 +277,22 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->fired_weapon = 0;
 	item->data = NULL;
 
-	if ((item->flags & IFLAG_INVISIBLE))
+	if (item->flags & IFLAG_INVISIBLE)
 	{
 		item->flags &= ~IFLAG_INVISIBLE;
-		item->meshswap_meshbits |= 6;
+		item->status = ITEM_INVISIBLE;
 	}
 	else if (objects[item->object_number].intelligent)
 	{
-		item->meshswap_meshbits |= 6;
+		item->status = ITEM_INVISIBLE;
 	}
 
 	if ((item->flags & IFLAG_ACTIVATION_MASK) == IFLAG_ACTIVATION_MASK)
 	{
 		item->flags &= ~IFLAG_ACTIVATION_MASK;
-		item->flags |= 0x4000;
+		item->flags |= IFLAG_REVERSE;
 		AddActiveItem(item_num);
-		item->meshswap_meshbits &= -7;
-		item->meshswap_meshbits |= 2;
+		item->status = ITEM_ACTIVE;
 	}
 
 	r = &room[item->room_number];
@@ -242,15 +305,16 @@ void InitialiseItem(short item_num)//41BEC(<), 42040
 	item->floor = floor->floor * 256;
 	item->box_number = floor->box;
 
-	if (objects[item->object_number].initialise != 0)
+	if (objects[item->object_number].initialise != NULL)
 	{
-		S_Warn("[InitialiseItem] - Unimplemented condition!\n");
-		//jalr *(int*) &objects[(item->object_number << 6) + 0xC];
+		objects[item->object_number].initialise(item_num);
 	}
 
 	item->il.Light[3].pad = 0;
-	
-	return;
+
+#if PC_VERSION
+	S_Warn("[InitialiseItem] - Unimplemented end of function!\n");
+#endif
 }
 
 short CreateItem()//41BAC(<), 42000(<) (F)
@@ -262,15 +326,78 @@ short CreateItem()//41BAC(<), 42000(<) (F)
 	item_num = next_item_free;
 	items[next_item_free].flags = 0;
 	next_item_free = items[next_item_free].next_item;
+
 	return item_num;
 }
 
-void KillItem(short item_num)//41950, 41DA4
+void KillItem(short item_num)//41950, 41DA4 (F)
 {
-	short linknum;
-	struct ITEM_INFO* item;
+	if (InItemControlLoop)
+	{
+		ItemNewRooms[ItemNewRoomNo][0] = item_num | 0x8000;
+		ItemNewRoomNo++;
+	}
+	else
+	{
+		struct ITEM_INFO* item = &items[item_num];
 
-	return;
+		DetatchSpark(item_num, 128);
+
+		item->active = FALSE;
+		item->really_active = FALSE;
+
+		if (next_item_active == item_num)
+		{
+			next_item_active = item->next_active;
+		}
+		else if (next_item_active != -1)
+		{
+			short linknum;
+			for (linknum = items[next_item_active].next_active; linknum != -1; linknum = items[linknum].next_active)
+			{
+				if (linknum == item_num)
+				{
+					items[linknum].next_active = item->next_active;
+					break;
+				}
+			}
+		}
+
+		if (item->room_number != 255)
+		{
+			if (room[item->room_number].item_number == item_num)
+			{
+				room[item->room_number].item_number = item->next_item;
+			}
+			else if (room[item->room_number].item_number != -1)
+			{
+				short linknum;
+				for (linknum = items[room[item->room_number].item_number].next_item; linknum != -1; linknum = items[linknum].next_item)
+				{
+					if (linknum == item_num)
+					{
+						items[room[item->room_number].item_number].next_item = item->next_item;
+						break;
+					}
+				}
+			}
+		}
+
+		if (item == lara.target)
+		{
+			lara.target = NULL;
+		}
+
+		if (item_num >= level_items)
+		{
+			item->next_item = next_item_free;
+			next_item_free = item_num;
+		}
+		else
+		{
+			item->flags |= IFLAG_KILLED;
+		}
+	}
 }
 
 void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
@@ -287,7 +414,7 @@ void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
 		for (i = level_items + 1; i < numitems; i++, item++)
 		{
 			item->next_item = i;
-			item->active = 0;
+			item->active = FALSE;
 		}
 	}
 
@@ -297,49 +424,40 @@ void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
 
 void ItemNewRoom(short item_num, short room_number)//7C608(<), 7E64C(<) (F)
 {
-	struct room_info* r;
-	struct ITEM_INFO* item;
-	long item_number;
-
 	if (InItemControlLoop)
 	{
 		ItemNewRooms[ItemNewRoomNo][0] = item_num;
 		ItemNewRooms[ItemNewRoomNo][1] = room_number;
 		ItemNewRoomNo++;
-		return;
 	}
-
-	//loc_7C648
-	item = &items[item_num];
-
-	if (item->room_number != 255)
+	else
 	{
-		r = &room[item->room_number];
-		item_number = r->item_number;
+		struct ITEM_INFO* item = &items[item_num];
 
-		if (r->item_number == item->next_item)
+		if (item->room_number != 255)
 		{
-			r->item_number = item->next_item;
-		}
-		else
-		{
-			//loc_7C698
-			if(r->item_number != -1)
+			struct room_info* r = &room[item->room_number];
+
+			if (r->item_number == item_num)
 			{
-				while (items[item_number].next_item != item->next_item)
+				r->item_number = item->next_item;
+			}
+			else if (r->item_number != -1)
+			{
+				short linknum;
+				for (linknum = items[r->item_number].next_item; linknum != -1; linknum = items[linknum].next_item)
 				{
-					item_number = items[item_number].next_item;
+					if (linknum == item_num)
+					{
+						items[r->item_number].next_item = item->next_item;
+						break;
+					}
 				}
 			}
 		}
+
+		item->room_number = room_number;
+		item->next_item = room[room_number].item_number;
+		room[room_number].item_number = item_num;
 	}
-	
-	//loc_7C6C4
-	r = &room[room_number];
-
-	item->room_number = room_number;
-	item->next_item = r->item_number;
-	r->item_number = item_num;
-
-	return;
 }

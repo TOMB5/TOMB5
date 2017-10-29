@@ -77,7 +77,10 @@ enum cutseq_obj_slots
 
 	RICHCUT2_VON_CROY = 426,
 	RICHCUT2_ASSOCIATE = 422,
-	RICHCUT2_GUARD = 416
+	RICHCUT2_GUARD = 416,
+
+	SPECIAL1_MAN_WALKING = 434,
+	SPECIAL1_WOMAN_WALKING = 436,
 };
 
 extern struct CUTSEQ_ROUTINES cutseq_control_routines[45];

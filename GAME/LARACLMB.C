@@ -151,10 +151,43 @@ void lara_as_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//463F0, 4
 	}
 }
 
-int LaraTestClimbPos(struct ITEM_INFO* item, int front, int right, int origin, int height, int* shift)//462F8, 4675C
+int LaraTestClimbPos(struct ITEM_INFO* item, int front, int right, int origin, int height, int* shift)//462F8, 4675C (F)
 {
-	S_Warn("[LaraTestClimbPos] - Unimplemented!\n");
-	return 0;
+	const int angle = (unsigned short)(item->pos.y_rot + ANGLE(45)) >> 14;
+	int x = 0;
+	int z = 0;
+	int xfront = 0;
+	int zfront = 0;
+
+	switch (angle)
+	{
+	case 0:
+		x = item->pos.x_pos + right;
+		z = item->pos.z_pos + front;
+		zfront = 256;
+		break;
+
+	case 1:
+		x = item->pos.x_pos + front;
+		z = item->pos.z_pos - right;
+		xfront = 256;
+		break;
+
+	case 2:
+		x = item->pos.x_pos - right;
+		z = item->pos.z_pos - front;
+		zfront = -256;
+		break;
+
+	case 3:
+	default:
+		x = item->pos.x_pos - front;
+		z = item->pos.z_pos + right;
+		xfront = -256;
+		break;
+	}
+
+	return LaraTestClimb(x, item->pos.y_pos + origin, z, xfront, zfront, height, item->room_number, shift);
 }
 
 void LaraDoClimbLeftRight(struct ITEM_INFO* item, struct COLL_INFO* coll, int result, int shift)//46100, 46564

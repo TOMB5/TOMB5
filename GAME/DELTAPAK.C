@@ -484,7 +484,7 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80(<), 32F18(<) (F)
 	item->frame_number = anims[item->anim_number].frame_base;
 	RemoveActiveItem(item - items);	
 	item->status = ITEM_INACTIVE;
-	item->flags &= 0xC1FF;
+	item->flags &= ~IFLAG_ACTIVATION_MASK;
 
 	return item;
 }
@@ -501,14 +501,14 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<) (F)
 		 * Resetting all outside church sequence animatings to their original position & animation.
 		 */
 		//Man holding umbrella at church area (TITLE.TRC)
-		item = ResetCutanimate(ANIMATING10);
+		item = ResetCutanimate(SPECIAL1_MAN_WALKING);
 		item->pos.x_pos = SECTOR_TO_WORLD(58);
 		item->pos.y_pos = SECTOR_TO_WORLD(0);
 		item->pos.z_pos = SECTOR_TO_WORLD(41);
 		item->room_number = 0;
 
 		//Female walking with man holding umbrella, church area (TITLE.TRC)
-		item = ResetCutanimate(ANIMATING11);
+		item = ResetCutanimate(SPECIAL1_WOMAN_WALKING);
 		item->pos.x_pos = SECTOR_TO_WORLD(58);
 		item->pos.y_pos = SECTOR_TO_WORLD(0);
 		item->pos.z_pos = SECTOR_TO_WORLD(41);
@@ -2245,7 +2245,7 @@ void special1_control()//2E614(<), 2E920(<)
 	RelocFunc_34_0C();
 }
 
-void special1_init()//2E5E4(<), 2E8F0(<)
+void special1_init()//2E5E4(<), 2E8F0(<) (F)
 {
 	cutrot = 0;
 	RelocFunc_34_08();
@@ -2423,7 +2423,7 @@ void cranecut_end()//2E020(<), 2E2B0(<) (F)
 {
 	struct ITEM_INFO* item = cutseq_restore_item(424);
 	RemoveActiveItem(item - items);
-	item->flags &= 0xC1FFu;
+	item->flags &= ~IFLAG_ACTIVATION_MASK;
 	cutseq_restore_item(ANIMATING16);
 	cutseq_restore_item(WRECKING_BALL);
 	DelsHandyTeleportLara(58543, SECTOR(-4), 34972, ANGLE(-90));
@@ -2620,7 +2620,7 @@ void cutseq_kill_item(int num)//2D69C(<), 2D984(<) (F)
 				numnailed++;
 
 				items[i].status = ITEM_INVISIBLE;
-				items[i].flags &= 0xFFFFC1FF;
+				items[i].flags &= ~IFLAG_ACTIVATION_MASK;
 				items[i].flags |= 0x20;
 			}			
 		}

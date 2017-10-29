@@ -6,6 +6,7 @@
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "TOMB4FX.H"
+#include "EFFECTS.H"
 
 long wibble;
 long SplashCount;
@@ -65,9 +66,35 @@ void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly)//32EAC
 	S_Warn("[TriggerSuperJetFlame] - Unimplemented!\n");
 }
 
-void DetatchSpark(long num, long type)//32D8C, 3328C
+void DetatchSpark(long num, long type)//32D8C, 3328C (F)
 {
-	S_Warn("[DetatchSpark] - Unimplemented!\n");
+	struct FX_INFO* fx = &effects[num];
+	struct ITEM_INFO* item = &items[num];	
+	struct SPARKS* sptr = &spark[0];
+
+	long lp;
+	for(lp = 0; lp < 1024; lp++, sptr++)
+	{
+		if (sptr->On && sptr->Flags & type && sptr->FxObj == num)
+		{
+			if (type == 64)
+			{
+				sptr->x += fx->pos.x_pos;
+				sptr->y += fx->pos.y_pos;
+				sptr->z += fx->pos.z_pos;
+
+				sptr->Flags &= 0xBF;
+			}
+			else if(type == 128)
+			{
+				sptr->x += item->pos.x_pos;
+				sptr->y += item->pos.y_pos;
+				sptr->z += item->pos.z_pos;
+
+				sptr->Flags &= 0x7F;
+			}
+		}
+	}
 }
 
 void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, int a8, int a9)//8D6D4(<), 8F718(<) (F)

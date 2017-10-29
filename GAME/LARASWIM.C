@@ -343,9 +343,42 @@ void UpdateSubsuitAngles()//4BD20, 4C184
 	S_Warn("[UpdateSubsuitAngles] - Unimplemented!\n");
 }
 
-void SwimTurnSubsuit(struct ITEM_INFO* item)//4BBDC, 4C040
+void SwimTurnSubsuit(struct ITEM_INFO* item)//4BBDC, 4C040 (F)
 {
-	S_Warn("[SwimTurnSubsuit] - Unimplemented!\n");
+	if (item->pos.y_pos < 14080)
+		subsuit.YVel += (14080 - item->pos.y_pos) >> 4;
+
+	if (input & IN_UP && item->pos.x_rot > ANGLE(-85))
+	{
+		subsuit.dXRot = ANGLE(-45);
+	}
+	else if(input & IN_DOWN && item->pos.x_rot < ANGLE(85))
+	{
+		subsuit.dXRot = ANGLE(45);
+	}
+	else
+	{
+		subsuit.dXRot = 0;
+	}
+
+	if (input & IN_LEFT)
+	{
+		lara.turn_rate -= 136;
+
+		if (lara.turn_rate < ANGLE(-6))
+			lara.turn_rate = ANGLE(-6);
+
+		item->pos.z_rot -= ANGLE(3);
+	}
+	else if (input & IN_RIGHT)
+	{
+		lara.turn_rate += 136;
+
+		if (lara.turn_rate > ANGLE(6))
+			lara.turn_rate = ANGLE(6);
+
+		item->pos.z_rot += ANGLE(3);
+	}
 }
 
 void SwimTurn(struct ITEM_INFO* item)//4BAF4(<), 4BF58(<) (F)

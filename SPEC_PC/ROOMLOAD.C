@@ -128,7 +128,7 @@ void InitialiseItemArray_old(int num)
 		do
 		{
 			curItem->next_item = v1++;
-			curItem->active = 0;
+			curItem->active = FALSE;
 			curItem++;
 		} while (v1 < num);
 		curItem->next_item = -1;
