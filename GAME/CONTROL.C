@@ -1213,7 +1213,7 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 			*room_number = floor->pit_room;
 			r = &room[floor->pit_room];
 			tmp = ((z - r->z) >> 10) + r->x_size * ((x - r->x) >> 10);
-			/*if (ABS(tmp) > 1048576)
+			/*if (abs(tmp) > 1048576)
 			{
 				S_Warn("[GetFloor] - sector num too big -> probably room array not initialized\n");
 				S_Warn("[GetFloor] - returning or the vc runtime will shit brixes\n");
@@ -1308,7 +1308,7 @@ int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(
 	struct FLOOR_INFO* floor;
 	int los1, los2;
 
-	if ((ABS(target->z - start->z)) > (ABS(target->x - start->x)))
+	if ((abs(target->z - start->z)) > (abs(target->x - start->x)))
 	{
 		los1 = xLOS(start, target);
 		los2 = zLOS(start, target);
@@ -1363,4 +1363,10 @@ int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLO
 void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint)
 {
 	S_Warn("[GetJointAbsPosition] - Unimplemented!\n");
+}
+
+int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4)
+{
+	S_Warn("[ObjectOnLOS2] - Unimplemented!\n");
+	return 0;
 }

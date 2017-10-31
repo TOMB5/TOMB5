@@ -27,6 +27,15 @@ WORD word_D6866C;
 WORD word_C717E4;
 WORD word_C713D8;
 
+extern DWORD window_width;
+extern WORD window_width_minus_1;
+extern DWORD window_height;
+extern WORD window_pos_x;
+extern WORD window_height_minus_1;
+extern WORD window_pos_y;
+extern DWORD middle_width;
+extern DWORD middle_height;
+
 DWORD dword_D9BB8C;
 DWORD dword_D9BB88;
 DWORD GnFrameCounter;
@@ -51,6 +60,5 @@ extern HANDLE sub_4DEA40(LPCSTR lpName);
 extern LPVOID sub_4DEA20(HANDLE hFileMappingObject);
 extern int HWInitialise();
 extern int __cdecl InitWindow(int a1, int a2, signed int width, signed int a4, int a5, int a6, int a7);
-extern signed __int64 InitFont();
 
 #endif

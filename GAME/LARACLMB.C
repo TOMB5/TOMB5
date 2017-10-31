@@ -16,10 +16,24 @@ static short LeftExtRightIntTab[4] = // offset 0xA0B84
 	0x0200, 0x0400, 0x0800, 0x0100
 };
 
-short GetClimbTrigger(long x, long y, long z, short room_number)//46E38, 4729C
+short GetClimbTrigger(long x, long y, long z, short room_number)//46E38, 4729C (F)
 {
-	S_Warn("[GetClimbTrigger] - Unimplemented!\n");
-	return 0;
+	short* data = trigger_index;
+
+	GetHeight(GetFloor(x, y, z, &room_number), x, y, z);
+
+	if (data == NULL)
+		return 0;
+
+	if ((*data & 0x1F) == 5)
+	{
+		if ((*data >> 8) & 0x80)
+			return 0;
+
+		data++;
+	}
+
+	return (*data & 0x1F) == 6 ? *data : 0;
 }
 
 void lara_col_climbend(struct ITEM_INFO* item, struct COLL_INFO* coll)//46E30(<), 47294(<) (F)
@@ -31,6 +45,7 @@ void lara_as_climbend(struct ITEM_INFO* item, struct COLL_INFO* coll)//46DF8(<),
 {
 	coll->enable_baddie_push = FALSE;
 	coll->enable_spaz = FALSE;
+
 	camera.flags = CF_FOLLOW_CENTER;
 	camera.target_angle = ANGLE(-45);
 }
@@ -44,12 +59,78 @@ void lara_as_climbdown(struct ITEM_INFO* item, struct COLL_INFO* coll)//46BA4(<)
 {
 	coll->enable_baddie_push = FALSE;
 	coll->enable_spaz = FALSE;
+
 	camera.target_elevation = ANGLE(-45);
 }
 
-void lara_col_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//469B0, 46E14
+void lara_col_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//469B0, 46E14 (F)
 {
-	S_Warn("[lara_col_climbing] - Unimplemented!\n");
+	if (!LaraCheckForLetGo(item, coll) && item->anim_number == ANIMATION_LARA_LADDER_UP)
+	{
+		int frame = item->frame_number - anims[ANIMATION_LARA_LADDER_UP].frame_base;
+		int yshift;
+		int result_r, result_l;
+		int shift_r, shift_l;
+		int ledge_r, ledge_l;
+
+		if (frame == 0)
+		{
+			yshift = 0;
+		}
+		else if(frame == 28 || frame == 29)
+		{
+			yshift = -256;
+		}
+		else if(frame == 57)
+		{
+			yshift = -512;
+		}
+		else
+		{
+			return;
+		}
+
+		item->pos.y_pos += yshift - 256;
+
+		result_r = LaraTestClimbUpPos(item, coll->radius, coll->radius + 120, &shift_r, &ledge_r);
+		result_l = LaraTestClimbUpPos(item, coll->radius, coll->radius + 120, &shift_l, &ledge_l);
+
+		if (result_r && result_l && input & IN_UP)
+		{
+			if (result_r < 0 || result_l < 0)
+			{
+				item->goal_anim_state = STATE_LARA_LADDER_IDLE;
+
+				AnimateLara(item);
+
+				if (abs(ledge_r - ledge_l) <= 120)
+				{
+					if (result_r != -1 || result_l != -1)
+					{
+						item->goal_anim_state = STATE_LARA_UNKNOWN_138;
+						item->required_anim_state = STATE_LARA_CROUCH_IDLE;
+					}
+					else
+					{
+						item->goal_anim_state = STATE_LARA_GRABBING;
+						item->pos.y_pos += (ledge_r + ledge_l) / 2 - 256;
+					}
+				}
+			}
+			else
+			{
+				item->goal_anim_state = STATE_LARA_LADDER_UP;
+				item->pos.y_pos += 256 - yshift;
+			}
+		}
+		else
+		{
+			item->goal_anim_state = STATE_LARA_LADDER_IDLE;
+
+			if (yshift != 0)
+				AnimateLara(item);
+		}
+	}
 }
 
 void lara_as_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//46984(<), 46DE8(<) (F)
@@ -131,7 +212,7 @@ void lara_as_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//463F0, 4
 	{
 		item->goal_anim_state = STATE_LARA_LADDER_LEFT;
 
-		lara.move_angle = item->pos.y_rot - 0x4000;
+		lara.move_angle = item->pos.y_rot - ANGLE(90);
 	}
 	else if (input & IN_RIGHT || input & IN_RSTEP)
 	{
@@ -146,7 +227,7 @@ void lara_as_climbstnc(struct ITEM_INFO* item, struct COLL_INFO* coll)//463F0, 4
 			item->goal_anim_state = STATE_LARA_JUMP_BACK;
 
 			lara.gun_status = LG_NO_ARMS;
-			lara.move_angle = item->pos.y_rot + ANGLE(-180);
+			lara.move_angle = item->pos.y_rot - ANGLE(180);
 		}
 	}
 }

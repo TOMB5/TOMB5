@@ -1,7 +1,7 @@
 #ifndef CODEWAD_H
 #define CODEWAD_H
 
-extern void RelocFunc_18_10(); // called in joby7_control
+extern void TriggerEngineEffects_CUT(); // 0x10 (RelocPtr + 0x18)
 extern void RelocFunc_34_08(); // special1_init
 extern void RelocFunc_34_0C(); // special1_control
 extern void RelocFunc_34_10(); // special1_end
@@ -16,5 +16,8 @@ extern void RelocFunc_34_30(); // special4_control
 extern void RelocFunc_34_34(); // special4_end
 extern long sub_1BE988();
 extern long sub_1BDF88(long levelID);
+
+extern void LaraClimbRope(struct ITEM_INFO* item, struct COLL_INFO* coll); // 0xC (RelocPtr + 0x28)
+extern void triggerwindowsmash(int item_num);
 
 #endif

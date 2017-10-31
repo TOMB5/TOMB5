@@ -15,8 +15,9 @@
 #include "EFFECTS.H"
 #include "CAMERA.H"
 #include "SOUND.H"
-#ifdef PC_VERSION
+#if PC_VERSION
 #include "GAME.H"
+#include "WINMAIN.H"
 #else
 #include "SETUP.H"
 #endif
@@ -524,22 +525,54 @@ void dels_give_lara_items_cheat()//41324, 41778 (F)
 void do_stats_mode()//412BC, 41710 (F)
 {
 	stats_mode += 8;
-	if (stats_mode > 0x80)
-		stats_mode = 0x80;
+	if (stats_mode > 128)
+		stats_mode = 128;
 
 	DisplayStatsUCunt();
 
 	if (go_deselect)
 	{
-		SoundEffect(SFX_MENU_SELECT, 0, 2);
+		SoundEffect(SFX_MENU_SELECT, 0, SFX_ALWAYS);
 		go_deselect = 0;
 		stats_mode = 0;
 	}
 }
 
-void do_examine_mode()//411C4, 41618
+void do_examine_mode()//411C4, 41618 (F)
 {
-	S_Warn("[do_examine_mode] - Unimplemented!\n");
+	struct INVOBJ* objme = &inventry_objects_list[rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem];
+	int saved_scale = objme->scale1;
+
+	examine_mode += 8;
+	if (examine_mode > 128)
+		examine_mode = 128;
+
+	objme->scale1 = 300;
+
+	DrawThreeDeeObject2D(
+#if PC_VERSION
+		(int)((double)middle_width + inventry_xpos),
+		(int)((double)middle_height / 120.0 * 256.0 + inventry_xpos) / 2,
+#else
+		inventry_xpos + 256,
+		(inventry_ypos + 240) / 2,
+#endif
+		rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem,
+		examine_mode,
+		ANGLE(180),
+		ANGLE(90),
+		ANGLE(90),
+		96,
+		0);
+
+	objme->scale1 = saved_scale;
+
+	if (go_deselect)
+	{
+		SoundEffect(SFX_MENU_SELECT, NULL, SFX_ALWAYS);
+		go_deselect = 0;
+		examine_mode = 0;
+	}
 }
 
 void do_keypad_mode()//40B54, 40FA8

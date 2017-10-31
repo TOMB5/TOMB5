@@ -23,7 +23,7 @@ void SayNo()//55BE0(<), 56044(<) (F)
 		fx = SFX_LARA_NO_JAPANESE;
 	}
 
-	SoundEffect(fx, NULL, 2);
+	SoundEffect(fx, NULL, SFX_ALWAYS);
 
 	return;
 }

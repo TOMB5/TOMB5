@@ -48,8 +48,8 @@
 # $ ./issue_generator.py +w -h -c
 
 # increment this plz
-# rev 6
-# 2017-10-28
+# rev 7
+# 2017-10-31
 
 
 from urllib.request import urlopen
@@ -95,6 +95,7 @@ USE_CLIPBOARD = 	isarg("clipboard", 	"c", True) 	# Copy output into clipboard in
 SHOW_UNIMPL =		isarg("showunimpl", "u", False)	# At the end, output a list of unimplemented (unchecked) functions
 USE_REPR =			isarg("userepr", 	"r", False)	# Debugging purposes. When outputting a list (e.g. SHOW_UNIMPL), use repr()
 SHOW_ADDED =		isarg("showadded", 	"a", False)	# Show a plain list of added functions
+SHOW_FILES_STATS =	isarg("showfiles",	"f", False) # Show number of implemented functions by file
 
 if not os.path.isfile("README.md"):
 	os.chdir("..")
@@ -219,24 +220,37 @@ for plat in sorted(platforms.keys()):
 # 
 # Output the results
 
-Status("%d function%s ha%s been implemented:" % (len(added), "s" if len(added) != 1 else "", "ve" if len(added) != 1 else "s"))
+def getPlatStats(plat):
+	return (
+		sum([list(platforms[plat][f].values()).count(True) for f in platforms[plat]]), 
+		len([x for x in added if x[0] == plat]),
+		sum(len(platforms[plat][f]) for f in platforms[plat]), 
+		plat
+	)
+
+def getFileStats(plat, file):
+	return (
+		list(platforms[plat][file].values()).count(True), 
+		len([x for x in added if x[0] == plat and x[1] == file]),
+		len(platforms[plat][file]), 
+		os.path.join(plat, file)
+	)
+
+Status("statistics:")
 for p in sorted(platforms.keys()):
-	Status("- %2d in %s" % (len([x for x in added if x[0] == p]), p))
+	Status("- %4d [%2d added] / %4d in %s" % getPlatStats(p))
+	if SHOW_FILES_STATS:
+		for f in sorted(platforms[p].keys()):
+			Status("- %4d [%2d added] / %4d in %s" % getFileStats(p, f))
+
+globStats = [getPlatStats(p) for p in platforms]
+Status("- %4d [%2d added] / %4d total" % (sum(c for c,_,__,___ in globStats), len(added), sum(t for _,__,t,___ in globStats)))
+
 
 if len(addedFiles) > 0:
 	Status("%d file%s ha%s been finished:" % (len(addedFiles), "s" if len(addedFiles) != 1 else "", "ve" if len(addedFiles) != 1 else "s"))
 	for x in addedFiles:
 		Status("- %s" % os.path.join(*x))
-
-def getPlatStats(plat):
-	return (sum([list(platforms[plat][f].values()).count(True) for f in platforms[plat]]), sum(len(platforms[plat][f]) for f in platforms[plat]), plat)
-
-Status("total:")
-for p in sorted(platforms.keys()):
-	Status("- %4d / %4d in %s" % getPlatStats(p))
-
-globStats = [getPlatStats(p) for p in platforms]
-Status("- %4d / %4d total" % (sum(c for c,_,__ in globStats), sum(t for _,t,__ in globStats)))
 
 lines = []
 unimpl = []
@@ -280,6 +294,7 @@ if SHOW_ADDED:
 motivational_messages = [
 	"Keep up the good work!",
 	"Awesome!",
+	"You're working very fast!"
 ]
 import random
 print("[MOTIVATIONAL] " + random.choice(motivational_messages))

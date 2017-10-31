@@ -20,11 +20,13 @@
 #include "ROOMLOAD.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
+#include "TEXT.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
 
 #if PC_VERSION
 #include "GAME.H"
+#include "WINMAIN.H"
 #else
 #include "PROFILE.H"
 #include "SETUP.H"
@@ -802,7 +804,7 @@ void joby7_control()//3210C(<), 325A4(<) (F)
 	d.z = -128;
 	GetActorJointAbsPosition(1, 7, &d);
 	LaraTorch(&s, &d, 0, 255);
-	RelocFunc_18_10();
+	TriggerEngineEffects_CUT();
 	handle_actor_chatting(17, 14, 1, JOBY_LARA_DIVING_SUIT, lara_chat_ranges_joby7);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
@@ -1760,12 +1762,16 @@ void joby4_end()//2FB04(<), 2FE84(<) (F)
 	DelsHandyTeleportLara(57950, 8960, 53760, ANGLE(90));
 }
 
-void joby4_control()//2FA0C, 2FD8C
+void joby4_control()//2FA0C, 2FD8C (F)
 {
 	int f = GLOBAL_cutseq_frame;
 	if (GLOBAL_cutseq_frame <= 130)
 	{
-		PrintString(256, 200, 0, &gfStringWad[2]); // todo maybe wrong on pc , @Gh0stBlade check third arg!
+#if PC_VERSION
+		PrintString(middle_width, window_height_minus_1 - 3 * font_height, 5, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000);
+#else
+		PrintString(256, 200, 0, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]]); // todo maybe wrong on pc , @Gh0stBlade check third arg!
+#endif
 	}
 	if (f == 575)
 	{
@@ -1862,9 +1868,8 @@ void DelTorchFlames(struct PHD_VECTOR* pos)//2F6E4(<), 2FA64(<) (F)
 
 void setup_preist_meshswap()//2F694(<), 2FA14(<) (F)
 {
-	meshes[objects[SAILOR_MIP].mesh_index + 0x10] = meshes[objects[MESHSWAP3].mesh_index + 0x10]; // todo the first one maybe 17 (0x11) instead of 16 (0x10)
+	meshes[objects[SAILOR_MIP].mesh_index + 17] = meshes[objects[MESHSWAP3].mesh_index + 16];
 	cutseq_meshswapbits[1] |= 0x100;
-	return;
 }
 
 void andy2_end()//2F668(<), 2F9E8(<) (F)
@@ -1879,6 +1884,7 @@ void andy2_control()//2F5D0(<), 2F914(<) (F)
 	pos.x = 0;
 	pos.y = 48;
 	pos.z = 240;
+
 	GetActorJointAbsPosition(1, 8, &pos);
 	TriggerDynamic(pos.x, pos.y, pos.z, 
 	               12 - (GetRandomControl() & 1), 
@@ -1894,7 +1900,6 @@ void andy2_control()//2F5D0(<), 2F914(<) (F)
 void andy2_init()//2F5B0(<), 2F8F4(<) (F)
 {
 	setup_preist_meshswap();
-	return;
 }
 
 void do_hammer_meshswap()//2F57C(<), 2F8C0(<) (F)
@@ -2151,15 +2156,61 @@ void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int noden
 	}
 }
 
-void stealth3_end()//2E99C, 2ECA8
+void stealth3_end()//2E99C, 2ECA8 (F)
 {
-	S_Warn("[stealth3_end] - Unimplemented!\n");
+	int i;
+	struct ITEM_INFO* item = &items[0];
+
+	for (i = 0; i < level_items; i++, item++)
+	{
+		if (cutseq_num == CUT_STEALTH3_3)
+			continue;
+
+		if (item->object_number == CHEF ||
+			item->object_number == SAS ||
+			item->object_number == BLUE_GUARD ||
+			item->object_number == SWAT_PLUS ||
+			item->object_number == SWAT ||
+			item->object_number == TWOGUN)
+		{
+			if (abs(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+				abs(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+				abs(item->pos.y_pos - lara_item->pos.y_pos) < CLICK)
+			{
+				item->hit_points = 0;
+				item->current_anim_state = 6;
+
+				if (item->object_number == TWOGUN)
+				{
+					item->anim_number = objects[TWOGUN].anim_index + 3;
+				}
+				else if (item->object_number == CHEF)
+				{
+					item->anim_number = objects[CHEF].anim_index + 11;
+				}
+				else if (objects[SWAT].loaded)
+				{
+					item->anim_number = objects[SWAT].anim_index + 11;
+				}
+				else
+				{
+					item->anim_number = objects[BLUE_GUARD].anim_index + 11;
+				}
+					
+				item->frame_number = anims[item->anim_number].frame_end;
+				AddActiveItem(i);
+			}
+		}
+	}
+
+	if (cutseq_num == CUT_STEALTH3_2)
+		SwapCrowbar(NULL);
 }
 
 void stealth3_start()//2E824, 2EB30 (F)
 {
 	int i;
-	struct ITEM_INFO* item = items;
+	struct ITEM_INFO* item = &items[0];
 
 	for (i = 0; i < level_items; i++, item++)
 	{
@@ -2170,9 +2221,9 @@ void stealth3_start()//2E824, 2EB30 (F)
 			item->object_number == SWAT ||
 			item->object_number == TWOGUN)
 		{
-			if (ABS(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
-				ABS(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
-				ABS(item->pos.y_pos - lara_item->pos.y_pos) < CLICK)
+			if (abs(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+				abs(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+				abs(item->pos.y_pos - lara_item->pos.y_pos) < CLICK)
 			{
 				GLOBAL_cutme->actor_data[1].objslot = item->object_number;
 				item->status = ITEM_INVISIBLE;
@@ -2348,7 +2399,7 @@ void richcut1_init()//2E26C(<), 2E4FC(<) (F)
 
 			nex = item->next_item;
 
-			if (item->object_number == 69)
+			if (item->object_number == SCIENTIST)
 			{
 				item->status = ITEM_INVISIBLE;
 				RemoveActiveItem(item - items);
@@ -2421,7 +2472,7 @@ void cranecut_control()//2E0B8(<), 2E348(<) (F)
 
 void cranecut_end()//2E020(<), 2E2B0(<) (F)
 {
-	struct ITEM_INFO* item = cutseq_restore_item(424);
+	struct ITEM_INFO* item = cutseq_restore_item(ANIMATING5);
 	RemoveActiveItem(item - items);
 	item->flags &= ~IFLAG_ACTIVATION_MASK;
 	cutseq_restore_item(ANIMATING16);
