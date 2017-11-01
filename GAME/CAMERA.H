@@ -37,7 +37,7 @@ extern struct GAME_VECTOR static_lookcamt;
 extern struct OLD_CAMERA old_cam;
 extern struct GAME_VECTOR last_ideal;
 extern struct GAME_VECTOR last_target;
-extern short rcossin_tbl[8192];
+extern short rcossin_tbl[];
 
 extern void InitialiseCamera();
 extern void AlterFOV(short fov);

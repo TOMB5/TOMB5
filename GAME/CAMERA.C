@@ -1397,9 +1397,51 @@ void BinocularCamera(struct ITEM_INFO* item)
 	S_Warn("[BinocularCamera] - Unimplemented!\n");
 }
 
-void ConfirmCameraTargetPos()
+void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 {
-	S_Warn("[ConfirmCameraTargetPos] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+	struct FLOOR_INFO* floor;
+	short room_number;
+	long wx;
+	long wy;
+	long wz;
+	long c;
+	long h;
+
+	pos.x = 0;
+	pos.y = 0;
+	pos.z = 0;
+	
+	GetJointAbsPosition(lara_item, &pos, 0xE);
+
+	if (camera.lara_node != -1)
+	{
+		camera.target.x = pos.x;
+		camera.target.y = pos.y;
+		camera.target.z = pos.z;
+	}
+	else
+	{
+		camera.target.y = camera.target.y + pos.y / 2;
+		camera.target.x = lara_item->pos.x_pos;
+		camera.target.z = lara_item->pos.z_pos;
+	}
+				
+	wx = camera.target.x;
+	wy = camera.target.y;
+	wz = camera.target.z;
+	room_number = camera.target.room_number;
+
+	floor = GetFloor(wx, wy, wz, &room_number);
+	h = GetHeight(floor, wx, wy, wz);
+	c = GetCeiling(floor, wx, wx, wy);
+
+	if (wy < c || h < wy || h > c || h == 0xFFFF8100 || c == 0xFFFF8100)
+	{
+		camera.target.x = pos.x;
+		camera.target.y = pos.y;
+		camera.target.z = pos.z;
+	}
 }
 
 void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)
