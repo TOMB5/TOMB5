@@ -2400,7 +2400,7 @@ void lara_as_run(struct ITEM_INFO* item, struct COLL_INFO* coll)//192EC, 19420 (
 			lara.gun_type == WEAPON_PISTOLS ||
 			lara.gun_type == WEAPON_REVOLVER ||
 			lara.gun_type == WEAPON_UZI ||
-			lara.gun_type == WEAPON_WTF7))
+			lara.gun_type == WEAPON_FLARE))
 	{
 		item->goal_anim_state = STATE_LARA_CROUCH_IDLE;
 
@@ -2977,7 +2977,7 @@ void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 
 			lara.gun_type == WEAPON_PISTOLS ||
 			lara.gun_type == WEAPON_REVOLVER ||
 			lara.gun_type == WEAPON_UZI ||
-			lara.gun_type == WEAPON_WTF7))
+			lara.gun_type == WEAPON_FLARE))
 	{
 		item->goal_anim_state = STATE_LARA_CROUCH_IDLE;
 
@@ -4152,7 +4152,7 @@ void lara_as_dash(struct ITEM_INFO* item, struct COLL_INFO* coll)//15A28, 15B5C 
 			|| lara.gun_type == WEAPON_PISTOLS
 			|| lara.gun_type == WEAPON_REVOLVER
 			|| lara.gun_type == WEAPON_UZI
-			|| lara.gun_type == WEAPON_WTF7))
+			|| lara.gun_type == WEAPON_FLARE))
 	{
 		item->goal_anim_state = STATE_LARA_CROUCH_IDLE;
 		return;
@@ -4817,7 +4817,7 @@ void lara_as_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//14688, 14738 
 
 		if ((item->anim_number == ANIMATION_LARA_CROUCH_IDLE || item->anim_number == ANIMATION_LARA_CROUCH_PREPARE) 
 			&& !(input & 0x80000 || input & IN_DRAW) 
-			&& (lara.gun_type != WEAPON_WTF7 || lara.flare_age < 900 && lara.flare_age != 0))
+			&& (lara.gun_type != WEAPON_FLARE || lara.flare_age < 900 && lara.flare_age != 0))
 		{
 			lara.torso_y_rot = 0;
 			lara.torso_x_rot = 0;
