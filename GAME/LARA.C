@@ -4138,7 +4138,7 @@ void lara_col_dash(struct ITEM_INFO* item, struct COLL_INFO* coll)//15C50, 15D84
 
 void lara_as_dash(struct ITEM_INFO* item, struct COLL_INFO* coll)//15A28, 15B5C (F)
 {
-	if (item->hit_points <= 0 || !DashTimer || !(input & 0x40000000) || lara.water_status == 4)
+	if (item->hit_points <= 0 || !DashTimer || !(input & IN_SPRINT) || lara.water_status == 4)
 	{
 		item->goal_anim_state = STATE_LARA_RUN_FORWARD;
 		return;
