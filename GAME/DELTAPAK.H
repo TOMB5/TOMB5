@@ -60,29 +60,6 @@ enum cutscenes
 	CUT_ANDY11,
 };
 
-enum cutseq_obj_slots
-{
-	JOBY_LARA_DIVING_SUIT = 44,
-	JOBY_ADMIRAL = 56,
-	JOBY_SERGIE = 58,
-
-	JOBY2_ADMIRAL = 427,
-	JOBY2_SERGIE = 433,
-
-	ANDY_HANGED_MAN = 84,
-	ANDY_PRIEST = 54,
-	ANDY_DEMON_KNIGHT = 34,
-
-	ANDREA_PIERRE = 419,
-
-	RICHCUT2_VON_CROY = 426,
-	RICHCUT2_ASSOCIATE = 422,
-	RICHCUT2_GUARD = 416,
-
-	SPECIAL1_MAN_WALKING = 434,
-	SPECIAL1_WOMAN_WALKING = 436,
-};
-
 extern struct CUTSEQ_ROUTINES cutseq_control_routines[45];
 extern unsigned short crane_pistols_info[11];
 extern unsigned short craneguard_pistols_info[7];

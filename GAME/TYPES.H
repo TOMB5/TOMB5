@@ -224,7 +224,7 @@ struct PHD_VECTOR
 	long z;
 };
 #if PC_VERSION
-#pragma pack(push, 4)
+#pragma pack(push, 1)
 #endif
 struct PHD_3DPOS
 {
@@ -235,10 +235,7 @@ struct PHD_3DPOS
 	short y_rot; // off 14 [78]
 	short z_rot; // off 16 [80]
 };
-#if PC_VERSION
-#pragma pack(pop)
-#pragma pack(push, 1)
-#endif
+
 struct ILIGHT
 {
 	short x;

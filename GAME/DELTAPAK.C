@@ -454,8 +454,8 @@ void andy11_control()//32C70(<), 33108(<) (F)
 	}
 
 	handle_lara_chatting(lara_chat_ranges_andy11);
-	handle_actor_chatting(21, 2, 4, ANDY_PRIEST, priest_chat_ranges_andy11); // todo find the names
-	handle_actor_chatting(23, 15, 1, ANDY_DEMON_KNIGHT, knight_chat_ranges_andy11);
+	handle_actor_chatting(21, 2, 4, SAILOR_MIP, priest_chat_ranges_andy11); // todo find the names
+	handle_actor_chatting(23, 15, 1, SWAT_MIP, knight_chat_ranges_andy11);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 } 
 
@@ -503,14 +503,14 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<) (F)
 		 * Resetting all outside church sequence animatings to their original position & animation.
 		 */
 		//Man holding umbrella at church area (TITLE.TRC)
-		item = ResetCutanimate(SPECIAL1_MAN_WALKING);
+		item = ResetCutanimate(ANIMATING10);
 		item->pos.x_pos = SECTOR_TO_WORLD(58);
 		item->pos.y_pos = SECTOR_TO_WORLD(0);
 		item->pos.z_pos = SECTOR_TO_WORLD(41);
 		item->room_number = 0;
 
 		//Female walking with man holding umbrella, church area (TITLE.TRC)
-		item = ResetCutanimate(SPECIAL1_WOMAN_WALKING);
+		item = ResetCutanimate(ANIMATING11);
 		item->pos.x_pos = SECTOR_TO_WORLD(58);
 		item->pos.y_pos = SECTOR_TO_WORLD(0);
 		item->pos.z_pos = SECTOR_TO_WORLD(41);
@@ -805,7 +805,7 @@ void joby7_control()//3210C(<), 325A4(<) (F)
 	GetActorJointAbsPosition(1, 7, &d);
 	LaraTorch(&s, &d, 0, 255);
 	TriggerEngineEffects_CUT();
-	handle_actor_chatting(17, 14, 1, JOBY_LARA_DIVING_SUIT, lara_chat_ranges_joby7);
+	handle_actor_chatting(17, 14, 1, CROW_MIP, lara_chat_ranges_joby7);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -976,8 +976,8 @@ void andy9_control()//31BA4(<), 31FD4(<) (F)
 		lara_item->mesh_bits = 0;
 
 	handle_lara_chatting(lara_chat_ranges_andy9);
-	handle_actor_chatting(21, 2, 4, ANDY_PRIEST, priest_chat_ranges_andy9); // todo find the names
-	handle_actor_chatting(23, 15, 1, ANDY_DEMON_KNIGHT, knight_chat_ranges_andy9);
+	handle_actor_chatting(21, 2, 4, SAILOR_MIP, priest_chat_ranges_andy9); // todo find the names
+	handle_actor_chatting(23, 15, 1, SWAT_MIP, knight_chat_ranges_andy9);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1116,7 +1116,7 @@ void andy7_end()//31754(<), 31B84(<) (F)
 void andy7_control()//31704(<), 31B34(<) (F)
 {
 	handle_lara_chatting(lara_chat_ranges_andy7);
-	handle_actor_chatting(21, 2, 1, ANDY_PRIEST, priest_chat_ranges_andy7);
+	handle_actor_chatting(21, 2, 1, SAILOR_MIP, priest_chat_ranges_andy7);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1168,7 +1168,7 @@ void andy6_control()//315F8(<), 319B4(<) (F)
 	               (GetRandomControl() & 0x1F) + 96, 0);
 	DelTorchFlames(&pos);
 	handle_lara_chatting(lara_chat_ranges_andy6);
-	handle_actor_chatting(21, 2, 1, ANDY_PRIEST, priest_chat_ranges_andy6);
+	handle_actor_chatting(21, 2, 1, SAILOR_MIP, priest_chat_ranges_andy6);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1582,7 +1582,7 @@ void joby10_control()//30338(<), 306B8(<) (F)
 	}
 
 	handle_lara_chatting(lara_chat_ranges_joby10);
-	handle_actor_chatting(21, 2, 1, JOBY_ADMIRAL, admiral_chat_ranges_joby10);
+	handle_actor_chatting(21, 2, 1, CRANE_GUY_MIP, admiral_chat_ranges_joby10);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1602,7 +1602,7 @@ void joby9_end()//302F0(<), 30670(<) (F)
 void joby9_control()//302A0(<), 30620(<) (F)
 {
 	handle_lara_chatting(lara_chat_ranges_joby9);
-	handle_actor_chatting(21, 2, 1, JOBY_ADMIRAL, admiral_chat_ranges_joby9);
+	handle_actor_chatting(21, 2, 1, CRANE_GUY_MIP, admiral_chat_ranges_joby9);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1677,8 +1677,8 @@ void joby5_control()//30034(<), 303B4() (F)
 		cutseq_meshbits[4] |= 0x80000000;
 	}
 
-	handle_actor_chatting(21, 2, 3, JOBY_ADMIRAL, admiral_chat_ranges_joby5);
-	handle_actor_chatting(23, 3, 4, JOBY_SERGIE, sergie_chat_ranges_joby5);
+	handle_actor_chatting(21, 2, 3, CRANE_GUY_MIP, admiral_chat_ranges_joby5);
+	handle_actor_chatting(23, 3, 4, LION_MIP, sergie_chat_ranges_joby5);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1745,7 +1745,7 @@ void andrea1_control()//2FB58(<), 2FED8(<) (F)
 	deal_with_actor_shooting(larson_pistols_info1, 1, 14, &pos);
 	handle_lara_chatting(lara_chat_ranges_andrea1);
 	handle_actor_chatting(21, 8, 1, LARSON, larson_chat_ranges1);
-	handle_actor_chatting(23, 8, 2, ANDREA_PIERRE, pierre_chat_ranges1);
+	handle_actor_chatting(23, 8, 2, ANIMATING2_MIP, pierre_chat_ranges1);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1785,7 +1785,7 @@ void joby4_control()//2FA0C, 2FD8C (F)
 			lara_item->mesh_bits = -1;
 	}
 	handle_lara_chatting(lara_chat_ranges_joby4);
-	handle_actor_chatting(21, 2, 3, JOBY_ADMIRAL, admiral_chat_ranges_joby4);
+	handle_actor_chatting(21, 2, 3, CRANE_GUY_MIP, admiral_chat_ranges_joby4);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1893,7 +1893,7 @@ void andy2_control()//2F5D0(<), 2F914(<) (F)
 	DelTorchFlames(&pos);
 
 	handle_lara_chatting(lara_chat_ranges_andy2);
-	handle_actor_chatting(21, 2, 1, ANDY_PRIEST, priest_chat_ranges_andy2);
+	handle_actor_chatting(21, 2, 1, SAILOR_MIP, priest_chat_ranges_andy2);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1958,7 +1958,7 @@ void andy1_control()//2F39C(<), 2F6A8(<) (F)
 		FlashFader = 32;
 	}
 	handle_lara_chatting(lara_chat_ranges_andy1);
-	handle_actor_chatting(23, 21, 1, ANDY_HANGED_MAN, hanged_man_chat_ranges_andy1); // todo find the name
+	handle_actor_chatting(23, 21, 1, SNIPER_MIP, hanged_man_chat_ranges_andy1); // todo find the name
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -2040,8 +2040,8 @@ void joby2_control()//2F114(<), 2F420(<) (F)
 		break;
 	}
 
-	handle_actor_chatting(21, 2, 3, JOBY2_ADMIRAL, admiral_chat_ranges_joby2);
-	handle_actor_chatting(23, 3, 4, JOBY2_SERGIE, sergie_chat_ranges_joby2);
+	handle_actor_chatting(21, 2, 3, ANIMATING6_MIP, admiral_chat_ranges_joby2);
+	handle_actor_chatting(23, 3, 4, ANIMATING9_MIP, sergie_chat_ranges_joby2);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -2337,9 +2337,9 @@ void richcut2_control()//2E4EC, 2E77C (F)
 	if (GLOBAL_cutseq_frame == 300)
 		cutseq_meshbits[5] &= 0x7FFFFFFFu;
 
-	handle_actor_chatting(23, 11, 1, RICHCUT2_VON_CROY, voncroy_chat_ranges_richcut2); // todo find the names
-	handle_actor_chatting(21, 18, 3, RICHCUT2_ASSOCIATE, associate_chat_ranges_richcut2);
-	handle_actor_chatting(438, 14, 2, RICHCUT2_GUARD, guard_chat_ranges_richcut2);
+	handle_actor_chatting(23, 11, 1, ANIMATING6, voncroy_chat_ranges_richcut2); // todo find the names
+	handle_actor_chatting(21, 18, 3, ANIMATING4, associate_chat_ranges_richcut2);
+	handle_actor_chatting(438, 14, 2, ANIMATING1, guard_chat_ranges_richcut2);
 
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }

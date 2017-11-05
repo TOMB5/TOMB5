@@ -612,7 +612,7 @@ int convert_obj_to_invobj(short obj)//40AC4(<), 40F18() (F)
 
 void remove_inventory_item(short object_number)//4097C, 40DD0 (F)
 {
-	if (object_number >= PICKUP_ITEM1 && object_number <= PICKUP_ITEM3)
+	if (object_number >= PICKUP_ITEM1 && object_number <= PICKUP_ITEM4)
 	{
 		lara.pickupitems &= ~(1 << (object_number - PICKUP_ITEM1));
 	}
@@ -640,7 +640,7 @@ void remove_inventory_item(short object_number)//4097C, 40DD0 (F)
 
 int have_i_got_object(short object_number)//4086C, 40CC0 (F)
 {
-	if (object_number >= PICKUP_ITEM1 && object_number <= PICKUP_ITEM3)
+	if (object_number >= PICKUP_ITEM1 && object_number <= PICKUP_ITEM4)
 	{
 		return lara.pickupitems & 1 << (object_number - PICKUP_ITEM1);
 	}
@@ -748,7 +748,7 @@ void NailInvItem(short objnum)//40584, 409D8 (F)
 		lara.bottle = 0;
 		break;
 	default:
-		if (objnum >= PICKUP_ITEM1 && objnum <= PICKUP_ITEM3)
+		if (objnum >= PICKUP_ITEM1 && objnum <= PICKUP_ITEM4)
 		{
 			lara.pickupitems &= ~(1 << (objnum - PICKUP_ITEM1));
 		}
@@ -989,7 +989,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304 (F)
 		return;
 
 	default:
-		if (objnum >= PICKUP_ITEM1 && objnum <= PICKUP_ITEM3)
+		if (objnum >= PICKUP_ITEM1 && objnum <= PICKUP_ITEM4)
 		{
 			lara.pickupitems |= 1 << (objnum - PICKUP_ITEM1);
 		}
