@@ -34,8 +34,8 @@
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
 
-#include <string.h>
 #include <assert.h>
+#include <string.h>
 
 int flipeffect = -1;
 int fliptimer;
@@ -237,12 +237,15 @@ struct CHARDEF CharDef[106] =
 	{ 0x7E, 0, 0x29, 0xD, -0xA, 6, 0xB }
 };
 
+char byte_A3660;
+
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 {
 #if PC_VERSION
 	S_Warn("[ControlPhase] - Unimplemented!\n");
 #else
 	short item_num;
+	short nex;
 	int s0 = nframes;
 	int v0 = SlowMotion;
 	int a0 = SlowMotion;
@@ -258,10 +261,11 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	int a1;
 	int v1;
 
+	//s0 = a0
+	//s6 = a1
+
 	if (SlowMotion == 0)
 	{
-		//******************** VERIFIED v
-
 		if (SlowMoFrameCount > 16)
 		{
 			SlowMoFrameCount--;
@@ -278,11 +282,9 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		{
 			bUseSpotCam = 0;
 		}
-		//******************** VERIFIED ^
 	}
 	else
 	{
-		//******************** NOT VERIFIED v
 		SlowMotion--;
 
 		if (SlowMoFrameCount > 39)
@@ -291,7 +293,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		}
 		
 		//loc_1D5CC
-		if (!((SlowMoFrameCount / 8) < nframes))
+		if (!((SlowMoFrameCount / 8) < nframes))//TODO inversion
 		{
 			while ((SlowMoFrameCount / 8) < nframes)
 			{
@@ -306,33 +308,29 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		nframes = 2;
 		GnLastFrameCount = 0;
 
-		//What?
+		//loc_1D618
+		RegeneratePickups();
+
 		if (nframes > 10)
 		{
 			nframes = 10;
 		}//loc_1D630
 
 
-		//loc_1D618
-		RegeneratePickups();
-
-		if (bTrackCamInit != 0)
+		if (bTrackCamInit)
 		{
 			bUseSpotCam = 0;
 		}
-
-		//******************** NOT VERIFIED^
 	}
 
 	//loc_1D64C
-	//******************** VERIFIED v
 	framecount += nframes;
 	SetDebounce = 1;
 
 	if (framecount <= 0)
 	{
 		//loc_1E3B8
-		return -1;
+		return 0;
 	}
 
 	if (GLOBAL_enterinventory != -1)
@@ -340,18 +338,17 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		return 0;
 	}
 
-	//******************** VERIFIED ^
+	//s4 = -1
+	//s3 = 1
 
 	//loc_1D684
 	GlobalCounter++;
 	UpdateSky();
 	S_UpdateInput();
 
-	//FIXME: bDisableLaraControl should be 1, it's altered in trigger_title_spotcam
-	if (bDisableLaraControl != 0)
+	if (bDisableLaraControl)
 	{
-		//Not title
-		if (gfCurrentLevel != 0)
+		if (gfCurrentLevel != LVL5_TITLE)
 		{
 			dbinput = 0;
 		}
@@ -361,7 +358,6 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	}
 
 	//loc_1D6EC
-	//Cutseq playing? lock controls to 0?
 	if (cutseq_trig != 0)
 	{
 		input = IN_NONE;
@@ -369,32 +365,29 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 
 	//loc_1D708
 	SetDebounce = 0;
-	if (gfLevelComplete)
+	if (gfLevelComplete != 0)
 	{
 		return 3;
 	}
 
-	if (reset_flag != 0)
+	if (reset_flag != 0)//***
 	{
 		reset_flag = 0;
 		return 1;
 	}
 
-	if (lara.death_count > 91)
+	if (lara.death_count > 90)//loc_1D708, loc_1D89C
 	{
 		//loc_1D5A0
 		reset_flag = 0;
-		//S_Death();
-		assert(0);//find ret val.
-		return -1;//FIXME, s2?
+		return S_Death();
 	}
 
 	if (demo_mode != 0)
 	{
 		if (PadConnected != 0 && ScreenFading == 0)
 		{
-			///@TODO retail ver string offset index
-			PrintString(256, 230, 0, &gfStringWad[gfStringOffset[STR_DEMO_MODE]]); //TODO IDA didn't dump me :-) ///@FIXME check arg 3
+			PrintString(256, 230, 2, &gfStringWad[gfStringOffset[STR_DEMO_MODE]], 0);
 		}
 
 		//loc_1D7A0
@@ -412,14 +405,10 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 		{
 			if (input == IN_NONE)
 			{
-				if (Gameflow->InputTimeout > NoInput)//bad check
+				if (Gameflow->InputTimeout < NoInput++)
 				{
-					NoInput++;
 					return 1;
 				}
-
-				NoInput++;
-
 			}//1D844
 			else
 			{
@@ -427,125 +416,72 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 			}
 		}//loc_1D848
 	}
+#if !INTERNAL
+	//loc_1D9DC
+	if (input == IN_NONE)
+	{
+		//lbu	$v0, byte_A335A
+		//lbu	$a0, 0x14DC($gp)
+		//bnez	$v0, loc_1DA5C
+		//andi	$v0, $a0, 0xFF
+		//lbu	$v0, byte_A2827
+		//nop
+		//bnez	$v0, loc_1DA5C
+		//andi	$v0, $a0, 0xFF
+		//sltiu	$v0, $a0, 4
+		//bnez	$v0, loc_1DA68
+		//addiu	$v0, $a0, 1
+		//addiu	$v0, $s2, 0x71E8
+		//lh	$v1, 0x1A($v0)
+		//nop
+		//bnez	$v1, loc_1DA5C
+		//andi	$v0, $a0, 0xFF
+	}
+	//loc_1DA3C:
+	//sb	$zero, byte_800A601D
+	// sb	$zero, byte_800A601C//motors maybe
+	//jal	sub_62190
+	//nop
+	//j	loc_1E5D0
+	// move	$v0, $zero
 
+	//loc_1DA5C :
+	//sltiu	$v0, 4
+	//beqz	$v0, loc_1DA6C
+	//addiu	$v0, $a0, 1
+	
+	//loc_1DA68 :
+	//sb	$v0, 0x14DC($gp)
+#endif
 	//1D848
-#if 1//def INTERNAL
 	if (InGameCnt < 4)
 	{
 		InGameCnt++;
 	}
-#endif
 
-#if 1//def INTERNAL
-	//loc_1D860
-	if ((input & IN_LOOK) == 0 && SniperCamActive != 0 && bUseSpotCam != 0 && bTrackCamInit != 0 && lara_item->current_anim_state != STATE_LARA_STOP || lara.hit_direction == 0x67 && lara.LitTorch == 0 && (input & IN_PAUSE) != 0 && lara_item->anim_number != ANIMATION_LARA_CROUCH_IDLE && lara_item->goal_anim_state != STATE_LARA_CROUCH_IDLE)
+	if (input & IN_LOOK && !SniperCamActive && !bUseSpotCam && !bTrackCamInit)
 	{
-		//loc_1D9D0
-		input |= IN_LOOK;
-
-		if (BinocularRange == 0)
+		//a0 = lara_item;
+		//v1 = lara_item->current_anim_state;
+		//v1 = lara (lara_info);
+		if (lara_item->current_anim_state != 2 && lara_item->anim_number != 103 && (lara.water_surface_dist & 8) && (input & (IN_LOOK | 0x20000000)) && lara_item->anim_number == 222 && lara_item->goal_anim_state == 71)
 		{
-			//loc_1DA80
-			if (SniperCamActive == 0 || bUseSpotCam == 0)
-			{
-				input &= ~IN_LOOK;
-			}//loc_1DABC
+			//loc_1D8E0
+
 		}
-		else if (LaserSight != 0)
-		{
-			BinocularRange = 0;
-			LaserSight = 0;
-
-			AlterFOV(16380);
-
-			lara_item->mesh_bits = -1;
-			camera.type = (enum camera_type)BinocularOldCamera;
-
-			lara.head_x_rot = 0;
-			lara.head_y_rot = 0;
-			lara.torso_x_rot = 0;
-			lara.torso_y_rot = 0;
-
-			BinocularOn = -8;
-			camera.bounce = 0;
-			input &= ~IN_LOOK;
-			lara.look = 0;//check
-		}
-
-		v0 = BinocularRange;
+		//^TODO!!!
 	}
-	else
+	//loc_1D9D0 //***TODO
+	if (BinocularRange != 0)
 	{
-		//loc_1D920
-		if (BinocularRange == 0)
+		if (LaserSight != 0)
 		{
-			if (lara.gun_type != 5 && (lara.gun_type > 6 && lara.gun_type != 6) || (lara.gun_type == 2 && (lara.sixshooter_type_carried & 4)) == 0 || lara.gun_status != LG_READY)
-			{
-				v0 = BinocularRange;
-
-			}//0x1D990
-			else //loc_1D990
-			{
-				lara.has_fired = 1;
-				BinocularRange = 128;
-				LaserSight = 1;
-				BinocularOldCamera = camera.old_type;
-			}
-		}
-	}
-#else
-	///@HACK ********************************************************************************
-	PadConnected = 1;
-
-	//loc_1D9EC
-	if ((input & IN_PAUSE) == 0)
-	{
-		if (PadConnected == 0)
-		{
-			assert(0);
-
-			//andi	$v0, $a0, 0xFF
-				if (gfGameMode == 0)
-				{
-					if (gfGameMode > 3)
-					{
-						assert(0);
-						//addiu	$v0, $a0, 1
-						//addiu	$v0, $s2, 0x71E8
-						//lh	$v1, 0x1A($v0)
-						//nop
-						//bnez	$v1, loc_1DA5C
-						//andi	$v0, $a0, 0xFF
-
-						//loc_1DA3C:
-						Motors[0] = 0;
-						Motors[1] = 0;
-						//jal	sub_62190
-						return 0;
-					}
-					else
-					{
-						//loc_1DA68
-					}
 
 
-				}//loc_1DA5C
-			
-				
+		}//loc_1DAC0
+	}//loc_1DA80
 
-		}//loc_1DA5C
 
-		a0 = camera_ytarget[16];
-		if (InGameCnt > 3)
-		{
-			assert(0);
-		}
-
-		//loc_1DA6C
-
-	}
-#endif
-	
 	//loc_1DAD0 ****************
 	v1 = 0;
 	if (BinocularRange != 0)
@@ -577,7 +513,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	//ClearDynamics();	
 	ClearFires();
 
-	item_num = next_item_active;//FIXME illegal value, should be 1F, check &objects looks like pointer not setup, continue setup.c
+	item_num = next_item_active;
 	GotLaraSpheres = 0;
 	InItemControlLoop = 1;
 
@@ -593,9 +529,9 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 			else
 			{
 				//loc_1DBB4
-				if (objects[items[item_num].object_number].control != 0)
+				if (objects[items[item_num].object_number].control != NULL)
 				{
-					//SayNo();//Delete me testing call here
+					objects[items[item_num].object_number].control(item_num);
 				}
 			}
 
@@ -605,21 +541,25 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC
 	}//loc_1DBE8, 1DDF4
 
 	InItemControlLoop = 0;
-
 	KillMoveItems();
-
-	a11111 = next_fx_active;
-
 	InItemControlLoop = 1;
+	nex = next_fx_active;
 
-	if (next_fx_active != -1)//-1 on first call
+	if (nex != -1)
 	{
-		S_Warn("[ControlPhase] -Unimplemented condition!\n");
+		do
+		{
+			nex = effects[next_fx_active].next_active;
+			if (objects[effects[nex].object_number].control != NULL)
+			{
+				//objects[effects[nex].object_number].control(nex);
+			}
+
+		} while (nex != -1);
 	}
 
 	//loc_1DC60
 	InItemControlLoop = 0;
-
 	KillMoveEffects();
 
 	if (KillEverythingFlag != 0)
@@ -867,7 +807,7 @@ void KillMoveEffects()//1D4AC(<), 1D640(<) (F)
 	ItemNewRoomNo = 0;
 }
 
-void TestTriggers(short* data, int heavy, int HeavyFlags) // (F)
+void TestTriggers(short* data, int heavy, int HeavyFlags)//(F)
 {
 	globoncuttrig = 0;
 	_TestTriggers(data, heavy, HeavyFlags);
@@ -886,7 +826,7 @@ long GetRandomControl()//5E9F0, 926F8 (F)
 	return (rand_1 >> 16) & 0x7FFF;
 }
 
-void SeedRandomControl(long seed)// (F)
+void SeedRandomControl(long seed)//(F)
 {
 	rand_1 = seed;
 }
@@ -899,7 +839,7 @@ long GetRandomDraw()//5EA18, 5F6F8 (F)
 	return (rand_2 >> 16) * 0x7FFF;
 }
 
-void SeedRandomDraw(long seed)// (F)
+void SeedRandomDraw(long seed)//(F)
 {
 	rand_2 = seed;
 }
@@ -935,6 +875,22 @@ void AddFire(int x, int y, int z, char size, short room_num, short on)// (F)
 	fptr->z = z;
 	fptr->size = size;
 	fptr->room_number = room_num;
+}
+
+void ClearDynamics()//8B1EC(<), 8D230(<) (F)
+{
+	int i;
+
+#if 0
+	//Not sure why Core have only clearing 32 entries here.
+	//Either bug or intentinal.
+	for (i = 0; i < 64; i++)
+#else
+	for (i = 0; i < 32; i++)
+#endif
+	{
+		dynamics[i].on = 0;
+	}
 }
 
 int is_object_in_room(int roomnumber, int objnumber)
@@ -1074,11 +1030,11 @@ void RemoveRoomFlipItems(struct room_info* r)//1F938(<), 1FB4C(<) (F)
 	}
 }
 
-void FlipMap(int FlipNumber) // (F)
+void FlipMap(int FlipNumber)// (F)
 {
 	struct room_info* r = room;
 	int i;
-	for(i = 0; i < number_rooms; i++, r++)
+	for (i = 0; i < number_rooms; i++, r++)
 	{
 		if (r->flipped_room >= 0 && r->FlipNumber == FlipNumber)
 		{
@@ -1370,3 +1326,4 @@ int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct P
 	S_Warn("[ObjectOnLOS2] - Unimplemented!\n");
 	return 0;
 }
+
