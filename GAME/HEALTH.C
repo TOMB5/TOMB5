@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 #include "SPECIFIC.H"
+#include "OBJECTS.H"
+#include "NEWINV2.H"
 
 int health_bar_timer = 0;
 char PoisonFlag = 0;
@@ -18,20 +20,27 @@ short PickupY = 0;
 short PickupVel = 0;
 short CurrentPickup = 0;
 
-void AddDisplayPickup(short object_number)//3B6F4, ?
+void AddDisplayPickup(short object_number)//3B6F4, ? (F)
 {
-	struct DISPLAYPU *pu; // $v1
-	long lp; // $a1
-
-
-	//a1 = gfCurrentLevel
-	if (gfCurrentLevel == LVL5_SUBMARINE)
+	struct DISPLAYPU* pu = &pickups[0];
+	long lp;
+	if (gfCurrentLevel == LVL5_SUBMARINE && object_number == PUZZLE_ITEM1 ||
+		gfCurrentLevel == LVL5_OLD_MILL && object_number == PUZZLE_ITEM3)
 	{
+		object_number = CROWBAR_ITEM;
+	}
 
-	}//loc_3B728
+	for(lp = 0; lp < 8; lp++, pu++)
+	{
+		if (pu->life < 0)
+		{
+			pu->life = 45;
+			pu->object_number = object_number;
+			break;
+		}
+	}
 
-	
-	S_Warn("[AddDisplayPickup] - Unimplemented!\n");
+	DEL_picked_up_object(object_number);
 }
 
 void DrawPickups(int timed)
@@ -80,7 +89,11 @@ void DrawGameInfo(int timed)//3AD68(<),
 	}
 	
 	sprintf(sbuf, "Room:%d X:%d Y:%d Z:%d", lara_item->room_number, (lara_item->pos.x_pos - room[lara_item->room_number].x) / SECTOR(1), (lara_item->pos.y_pos - room[lara_item->room_number].minfloor) / CLICK, (lara_item->pos.z_pos - room[lara_item->room_number].z) / SECTOR(1));
+#if PC_VERSION
+	PrintString(256, 24, 0, sbuf, 0);
+#else
 	PrintString(256, 24, 0, sbuf);///@FIXME check arg 3
+#endif
 
 	//^Not verified for retail/internal split
 

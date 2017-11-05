@@ -8,6 +8,7 @@
 #include "TOMB4FX.H"
 #include "ITEMS.H"
 #include "SOUND.H"
+#include "COLLIDE.H"
 
 struct BITE_INFO EnemyBites[9] =
 {
@@ -134,7 +135,7 @@ void BridgeTilt2Floor(struct ITEM_INFO* item, long x, long y, long z, long* heig
 	if (level >= y)
 	{
 		*height = level;
-		height_type = 0;
+		height_type = WALL;
 		OnObject = 1;
 	}
 }
@@ -162,7 +163,7 @@ void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long* heig
 	if (level >= y)
 	{
 		*height = level;
-		height_type = 0;
+		height_type = WALL;
 		OnObject = 1;
 	}
 }
@@ -180,7 +181,7 @@ void BridgeFlatFloor(struct ITEM_INFO* item, long x, long y, long z, long* heigh
 	if (item->pos.y_pos >= y)
 	{
 		*height = item->pos.y_pos;
-		height_type = 0;
+		height_type = WALL;
 		OnObject = 1;
 	}
 }

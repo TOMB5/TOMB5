@@ -149,12 +149,12 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 	{
 		struct object_info* obj = &objects[item->object_number];
 
-		if (item->flags & 0x8000)
+		if (item->flags & IFLAG_KILLED)
 		{
 			word = 0x2000;
 			WriteSG(&word, 2);
 		}
-		else if (item->flags & 0x3F20 || item->object_number == LARA && FullSave)
+		else if (item->flags & (IFLAG_ACTIVATION_MASK | IFLAG_INVISIBLE | 0x20) || item->object_number == LARA && FullSave)
 		{
 			word = 0x8000;
 

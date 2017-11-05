@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#ifndef ABS
+/*#ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
-#endif
+#endif*/
 
 #ifndef MIN
 #define MIN(x, y) (((x)<(y))?(x):(y))
@@ -25,12 +25,16 @@
 #define TRUE 1
 #endif
 
+#ifndef SIGN
+#define SIGN(x) ((0 < (x)) - ((x) < 0))
+#endif
+
 // (65536 / 360) ~ 182.0444...
 // Game used 182, so maybe our code will be more precise %)
 #define ANGLE(x) ((x) * 65536.0 / 360.0)
 
-#define SIN(x) (4 * rcossin_tbl[((x) >> 3) & 0x1FFE])
-#define COS(x) (4 * rcossin_tbl[(((x) >> 3) & 0x1FFE) + 1])
+#define SIN(x) (4 * rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
+#define COS(x) (4 * rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
 
 #if 0 // for later...
 inline int phd_atan(long x, long y)
@@ -59,7 +63,7 @@ inline int phd_atan(long x, long y)
 		x = 1;
 	}
 	res = atanOctantTab[octant] + atanTab[(y * 2048) / x];
-	return ABS(res);
+	return abs(res);
 }
 #endif
 
@@ -220,7 +224,7 @@ struct PHD_VECTOR
 	long z;
 };
 #if PC_VERSION
-#pragma pack(push, 4)
+#pragma pack(push, 1)
 #endif
 struct PHD_3DPOS
 {
@@ -231,10 +235,7 @@ struct PHD_3DPOS
 	short y_rot; // off 14 [78]
 	short z_rot; // off 16 [80]
 };
-#if PC_VERSION
-#pragma pack(pop)
-#pragma pack(push, 1)
-#endif
+
 struct ILIGHT
 {
 	short x;

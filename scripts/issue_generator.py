@@ -48,8 +48,8 @@
 # $ ./issue_generator.py +w -h -c
 
 # increment this plz
-# rev 5
-# 2017-10-25
+# rev 7
+# 2017-10-31
 
 
 from urllib.request import urlopen
@@ -61,13 +61,13 @@ def Warn(msg):
 	if SHOW_WARN:
 		print("[WARN--------] " + str(msg))
 
-def Status(msg):
-	if SHOW_STATUS:
-		print("[--------STAT] " + str(msg))
-
 def Hint(msg):
 	if SHOW_HINT:
 		print("[----HINT----] " + str(msg))
+
+def Status(msg):
+	if SHOW_STATUS:
+		print("[--------STAT] " + str(msg))
 
 # STEP
 #  _ 
@@ -95,6 +95,7 @@ USE_CLIPBOARD = 	isarg("clipboard", 	"c", True) 	# Copy output into clipboard in
 SHOW_UNIMPL =		isarg("showunimpl", "u", False)	# At the end, output a list of unimplemented (unchecked) functions
 USE_REPR =			isarg("userepr", 	"r", False)	# Debugging purposes. When outputting a list (e.g. SHOW_UNIMPL), use repr()
 SHOW_ADDED =		isarg("showadded", 	"a", False)	# Show a plain list of added functions
+SHOW_FILES_STATS =	isarg("showfiles",	"f", False) # Show number of implemented functions by file
 
 if not os.path.isfile("README.md"):
 	os.chdir("..")
@@ -168,6 +169,7 @@ for x in issue:
 Status("working for platforms: " + ", ".join(sorted(platforms.keys())))
 
 added = []
+addedFiles = []
 
 def getfline(path):
 	with open(path, 'r') as fp:
@@ -206,6 +208,8 @@ for plat in sorted(platforms.keys()):
 				Status("adding implemented function -- %s // '%s'" % (path, l))
 				added.append((plat, file, l))
 				platforms[plat][file][l] = True
+				if all(platforms[plat][file].values()):
+					addedFiles.append((plat, file))
 
 # STEP
 #  ____  
@@ -216,9 +220,37 @@ for plat in sorted(platforms.keys()):
 # 
 # Output the results
 
-Status("%d function%s ha%s been implemented:" % (len(added), "s" if len(added) != 1 else "", "ve" if len(added) != 1 else "s"))
+def getPlatStats(plat):
+	return (
+		sum([list(platforms[plat][f].values()).count(True) for f in platforms[plat]]), 
+		len([x for x in added if x[0] == plat]),
+		sum(len(platforms[plat][f]) for f in platforms[plat]), 
+		plat
+	)
+
+def getFileStats(plat, file):
+	return (
+		list(platforms[plat][file].values()).count(True), 
+		len([x for x in added if x[0] == plat and x[1] == file]),
+		len(platforms[plat][file]), 
+		os.path.join(plat, file)
+	)
+
+Status("statistics:")
 for p in sorted(platforms.keys()):
-	Status("- %2d in %s" % (len([x for x in added if x[0] == p]), p))
+	Status("- %4d [%2d added] / %4d in %s" % getPlatStats(p))
+	if SHOW_FILES_STATS:
+		for f in sorted(platforms[p].keys()):
+			Status("- %4d [%2d added] / %4d in %s" % getFileStats(p, f))
+
+globStats = [getPlatStats(p) for p in platforms]
+Status("- %4d [%2d added] / %4d total" % (sum(c for c,_,__,___ in globStats), len(added), sum(t for _,__,t,___ in globStats)))
+
+
+if len(addedFiles) > 0:
+	Status("%d file%s ha%s been finished:" % (len(addedFiles), "s" if len(addedFiles) != 1 else "", "ve" if len(addedFiles) != 1 else "s"))
+	for x in addedFiles:
+		Status("- %s" % os.path.join(*x))
 
 lines = []
 unimpl = []
@@ -236,12 +268,6 @@ for plat in sorted(platforms.keys()):
 
 output = "\n".join(lines)
 
-if USE_CLIPBOARD:
-	import pyperclip
-	pyperclip.copy(output)
-else:
-	print(output)
-
 if SHOW_UNIMPL:
 	print("Unimplemented :")
 	if USE_REPR:
@@ -255,3 +281,26 @@ if SHOW_ADDED:
 		print(repr(added))
 	else:
 		print("\n".join(["%s // '%s'" % (os.path.join(x[0], x[1]), x[2]) for x in added]))
+
+# STEP
+#   __   
+#  / /_  
+# | '_ \ 
+# | (_) |
+#  \___/ 
+#        
+# Display motivational messages for the poor developers
+
+motivational_messages = [
+	"Keep up the good work!",
+	"Awesome!",
+	"You're working very fast!"
+]
+import random
+print("[MOTIVATIONAL] " + random.choice(motivational_messages))
+
+if USE_CLIPBOARD:
+	import pyperclip
+	pyperclip.copy(output)
+else:
+	print(output)

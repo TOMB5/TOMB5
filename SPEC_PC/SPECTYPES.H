@@ -113,7 +113,7 @@ struct object_info {
 	short mesh_index; // size=0, offset=2
 	long bone_index; // size=0, offset=4
 	short* frame_base; // size=0, offset=8
-	void(*initialise); // size=0, offset=12
+	void(*initialise)(short item_number); // size=0, offset=12
 	void(*control)(short item_number); // size=0, offset=16
 	void(*floor)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=20
 	void(*ceiling)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=24
@@ -296,15 +296,12 @@ struct creature_info {
 	unsigned short patrol2 : 1; // offset=12.5
 	unsigned short jump_ahead : 1; // offset=12.6
 	unsigned short monkey_ahead : 1; // offset=12.7
-	enum mood_type mood; // size=4, offset=16
-	struct ITEM_INFO* enemy; // size=144, offset=20
-	struct ITEM_INFO ai_target; // size=144, offset=24
-#if !PC_VERSION
-	short pad; // size=0, offset=168
-#endif
-	short item_num; // size=0, offset=170
-	struct PHD_VECTOR target; // size=12, offset=172
-	struct lot_info LOT; // size=44, offset=184
+	enum mood_type mood; // size=4, offset=14
+	struct ITEM_INFO* enemy; // size=144, offset=18
+	struct ITEM_INFO ai_target; // size=144, offset=22
+	short item_num; // size=0, offset=5644
+	struct PHD_VECTOR target; // size=12, offset=5646
+	struct lot_info LOT; // size=44, offset=5658
 };
 
 struct tr4_mesh_face3    // 10 bytes

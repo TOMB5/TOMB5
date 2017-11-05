@@ -136,3 +136,9 @@ int ItemPushLara(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, struct COLL
 	S_Warn("[ItemPushLara] - Unimplemented!\n");
 	return 0;
 }
+
+int GetCollidedObjects(struct ITEM_INFO* a1, long a2, int a3, struct ITEM_INFO** a4, struct MESH_INFO** a5, int a6)
+{
+	S_Warn("[GetCollidedObjects] - Unimplemented!\n");
+	return 0;
+}

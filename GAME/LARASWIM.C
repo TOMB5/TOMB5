@@ -101,39 +101,39 @@ void lara_as_dive(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C854, 4CCB8 
 
 void lara_as_tread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C730, 4CB94 (F)
 {
-	if (item->hit_points > 0)
+	if (item->hit_points <= 0)
 	{
-		if (input & IN_ROLL && LaraDrawType != LARA_DIVESUIT)
-		{
-			item->current_anim_state = STATE_LARA_UNDERWATER_TURNAROUND;
-			item->anim_number = ANIMATION_LARA_UNDERWATER_ROLL_BEGIN;
-			item->frame_number = anims[ANIMATION_LARA_UNDERWATER_ROLL_BEGIN].frame_base;
-		}
-		else
-		{
-			if (input & IN_LOOK)
-				LookUpDown();
+		item->goal_anim_state = STATE_LARA_WATER_DEATH;
 
-			if (LaraDrawType == LARA_DIVESUIT)
-				SwimTurnSubsuit(item);
-			else
-				SwimTurn(item);
-
-			if (input & IN_JUMP)
-				item->goal_anim_state = STATE_LARA_UNDERWATER_FORWARD;
-
-			item->fallspeed -= 6;
-
-			if (item->fallspeed < 0)
-				item->fallspeed = 0;
-
-			if (lara.gun_status == LG_HANDS_BUSY)
-				lara.gun_status = LG_NO_ARMS;
-		}
+		return;
+	}
+	
+	if (input & IN_ROLL && LaraDrawType != LARA_DIVESUIT)
+	{
+		item->current_anim_state = STATE_LARA_UNDERWATER_TURNAROUND;
+		item->anim_number = ANIMATION_LARA_UNDERWATER_ROLL_BEGIN;
+		item->frame_number = anims[ANIMATION_LARA_UNDERWATER_ROLL_BEGIN].frame_base;
 	}
 	else
 	{
-		item->goal_anim_state = STATE_LARA_WATER_DEATH;
+		if (input & IN_LOOK)
+			LookUpDown();
+
+		if (LaraDrawType == LARA_DIVESUIT)
+			SwimTurnSubsuit(item);
+		else
+			SwimTurn(item);
+
+		if (input & IN_JUMP)
+			item->goal_anim_state = STATE_LARA_UNDERWATER_FORWARD;
+
+		item->fallspeed -= 6;
+
+		if (item->fallspeed < 0)
+			item->fallspeed = 0;
+
+		if (lara.gun_status == LG_HANDS_BUSY)
+			lara.gun_status = LG_NO_ARMS;
 	}
 }
 
@@ -142,6 +142,7 @@ void lara_as_glide(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C634(<), 4C
 	if (item->hit_points <= 0)
 	{
 		item->goal_anim_state = STATE_LARA_WATER_DEATH;
+
 		return;
 	}
 
@@ -180,6 +181,7 @@ void lara_as_swim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C548(<), 4C9
 	if (item->hit_points <= 0)
 	{
 		item->goal_anim_state = STATE_LARA_WATER_DEATH;
+
 		return;
 	}
 
@@ -343,9 +345,42 @@ void UpdateSubsuitAngles()//4BD20, 4C184
 	S_Warn("[UpdateSubsuitAngles] - Unimplemented!\n");
 }
 
-void SwimTurnSubsuit(struct ITEM_INFO* item)//4BBDC, 4C040
+void SwimTurnSubsuit(struct ITEM_INFO* item)//4BBDC, 4C040 (F)
 {
-	S_Warn("[SwimTurnSubsuit] - Unimplemented!\n");
+	if (item->pos.y_pos < 14080)
+		subsuit.YVel += (14080 - item->pos.y_pos) >> 4;
+
+	if (input & IN_UP && item->pos.x_rot > ANGLE(-85))
+	{
+		subsuit.dXRot = ANGLE(-45);
+	}
+	else if(input & IN_DOWN && item->pos.x_rot < ANGLE(85))
+	{
+		subsuit.dXRot = ANGLE(45);
+	}
+	else
+	{
+		subsuit.dXRot = 0;
+	}
+
+	if (input & IN_LEFT)
+	{
+		lara.turn_rate -= 136;
+
+		if (lara.turn_rate < ANGLE(-6))
+			lara.turn_rate = ANGLE(-6);
+
+		item->pos.z_rot -= ANGLE(3);
+	}
+	else if (input & IN_RIGHT)
+	{
+		lara.turn_rate += 136;
+
+		if (lara.turn_rate > ANGLE(6))
+			lara.turn_rate = ANGLE(6);
+
+		item->pos.z_rot += ANGLE(3);
+	}
 }
 
 void SwimTurn(struct ITEM_INFO* item)//4BAF4(<), 4BF58(<) (F)

@@ -1139,7 +1139,7 @@ void sub_B4EE4(long keep_carried_items)
 	//v0=lara_item.flags;//132
 	//v1 = -0x21;
 	lara_item->data = &lara;
-	lara_item->meshswap_meshbits &= 0xFFDF;
+	lara_item->collidable = FALSE;
 
 	//Possible hack, resets carried items? For specific levels.
 	//Should be done in script.

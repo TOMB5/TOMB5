@@ -574,6 +574,11 @@ enum reverb_type
 	NUM_REVERB_TYPES
 };
 
+enum sfx_options
+{
+	SFX_ALWAYS = 2,
+};
+
 void SayNo();
 void SOUND_Init();
 void SOUND_Stop();

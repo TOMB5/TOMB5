@@ -7,7 +7,7 @@
 #include "LARA.H"
 #include "GAMEFLOW.H"
 
-void RelocFunc_18_10()
+void TriggerEngineEffects_CUT()
 {
 #if 0
 	struct PHD_VECTOR pos1, pos2;
@@ -40,9 +40,10 @@ void RelocFunc_18_10()
 	S_Warn("[RelocFunc_28] - Unimplemented!\n");
 }
 
-void RelocFunc_34_08()
+void RelocFunc_34_08() // (F)
 {
-	S_Warn("[RelocFunc_015] - Unimplemented!\n");
+	lara_item->mesh_bits = -1;
+	Chris_Menu = 0;
 }
 
 void RelocFunc_34_0C()
@@ -121,4 +122,16 @@ long sub_1BDF88(long levelID)
 {
 	S_Warn("[sub_1BDF88] - Unimplemented!\n");
 	return 0;
+}
+
+void LaraClimbRope(struct ITEM_INFO* item, struct COLL_INFO* coll)
+{
+	S_Warn("[LaraClimbRope] - Unimplemented!\n");
+}
+
+void triggerwindowsmash(int item_num) // (F)
+{
+	struct ITEM_INFO* item = find_a_fucking_item(item_num);
+	ExplodeItemNode(item, 0, 0, 64);
+	item->mesh_bits = 2;
 }

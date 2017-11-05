@@ -75,24 +75,24 @@ HKEY hKey;
 LPSTR Class;
 DWORD dwDisposition;
 
-DWORD dword_55D29C;
-WORD word_55D218;
-DWORD dword_55D164;
-WORD word_55D234;
-WORD word_55D240;
-WORD word_55D1E8;
-DWORD dword_55D1B0;
-DWORD dword_55D1B4;
+DWORD window_width;
+WORD window_width_minus_1;
+DWORD window_height;
+WORD window_pos_x;
+WORD window_height_minus_1;
+WORD window_pos_y;
+DWORD middle_width;
+DWORD middle_height;
 DWORD dword_55D21C;
-float flt_55D22C;
+float middle_width_flt;
 DWORD dword_55D1F4;
-float flt_55D230;
+float middle_height_flt;
 float flt_55D250;
-DWORD dword_55DA3C;
-DWORD dword_55D204;
+DWORD phd_right;
+DWORD phd_bottom;
 float flt_55D664;
-DWORD dword_51D0A8;
-DWORD dword_55D20C;
+DWORD phd_top;
+DWORD phd_left;
 float flt_51D160;
 float flt_55DA34;
 float flt_51D14C;
@@ -478,7 +478,7 @@ char sub_4DEC40(char a1)
 	return v1;
 }
 
-char FindGameDrive()
+char FindCDDrive()
 {
 	unsigned int v0; // ebx@1
 	HANDLE v1; // eax@4
@@ -756,34 +756,34 @@ void __cdecl sub_402563(signed int a1, signed int a2)
 	flt_55D220 = v4 / flt_50A444;
 }
 
-int __cdecl sub_4017E9(int a1, int a2, signed int width, signed int a4, int a5, int a6, int a7)
+int __cdecl InitWindow(int x, int y, signed int width, signed int height, int a5, int a6, int fov_deg)
 {
 	int result; // eax@1
 
-	dword_55D29C = width;
-	word_55D218 = width - 1;
-	dword_55D164 = a4;
-	word_55D234 = a1;
-	word_55D240 = a4 - 1;
-	word_55D1E8 = a2;
-	dword_55D1B0 = width / 2;
-	dword_55D1B4 = a4 / 2;
+	window_width = width;
+	window_width_minus_1 = width - 1;
+	window_height = height;
+	window_pos_x = x;
+	window_height_minus_1 = height - 1;
+	window_pos_y = y;
+	middle_width = width / 2;
+	middle_height = height / 2;
 	dword_55D21C = a5 << 14;
-	flt_55D22C = (double)(width / 2);
+	middle_width_flt = (double)(width / 2);
 	dword_55D1F4 = a6 << 14;
-	flt_55D230 = (double)(a4 / 2);
-	AlterFOV(ANGLE(a7));
+	middle_height_flt = (double)(height / 2);
+	AlterFOV(ANGLE(fov_deg));
 	sub_402563(dword_55D21C, dword_55D1F4);
-	flt_55D250 = (double)word_55D234;
-	dword_55DA3C = word_55D218;
-	result = word_55D218 + 1;
-	dword_55D204 = word_55D240;
-	flt_55D664 = (double)word_55D1E8;
-	dword_51D0A8 = a2;
-	dword_55D20C = a1;
+	flt_55D250 = (double)window_pos_x;
+	phd_right = window_width_minus_1;
+	result = window_width_minus_1 + 1;
+	phd_bottom = window_height_minus_1;
+	flt_55D664 = (double)window_pos_y;
+	phd_top = y;
+	phd_left = x;
 	flt_51D160 = (double)result;
 	phd_mxptr = other_matrix_shit;
-	flt_55DA34 = (double)(word_55D240 + 1);
+	flt_55DA34 = (double)(window_height_minus_1 + 1);
 	flt_51D14C = flt_51D160 - flt_55D250;
 	flt_55DA40 = flt_55DA34 - flt_55D664;
 	return result;
@@ -890,7 +890,7 @@ int __cdecl sub_40198D(int a1, int *a2, int *a3)
 	return result;
 }
 
-signed __int64 sub_402DD3()
+signed __int64 InitFont_old()
 {
 	BYTE *v0; // edi@1
 	BYTE v1; // ST3C_1@2
@@ -1017,9 +1017,9 @@ signed __int64 sub_402DD3()
 		} while (v21 < 848);
 		*(_DWORD *)&byte_50A0FD[79] = 0;
 	}
-	v41 = word_55D240;
-	v40 = (double)word_55D218;
-	v24 = (double)word_55D240;
+	v41 = window_height_minus_1;
+	v40 = (double)window_width_minus_1;
+	v24 = (double)window_height_minus_1;
 	do
 	{
 		v41 = word_E4DEC8[v20 + 1];
@@ -1179,8 +1179,8 @@ void __cdecl sub_4018AC(signed int param)
 			}
 			HWInitialise();
 			//j_nullsub_24();
-			sub_4017E9(0, 0, ptr_ctx->width, ptr_ctx->height, 20, 20480, 80);
-			sub_402DD3();
+			InitWindow(0, 0, ptr_ctx->width, ptr_ctx->height, 20, 20480, 80);
+			InitFont();
 			sub_401D84();
 			sub_402BAD();
 		}
@@ -1762,7 +1762,7 @@ void sub_402D10()
 	}
 }
 
-char sub_402F77()
+char LoadSettings()
 {
 	int v0; // eax@8
 	int v1; // eax@9
@@ -2380,7 +2380,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	_CrtSetDbgFlag(v6);
 	if (!(unsigned __int8)WinRunCheck(Name, "MainGameWindow", &ptr_ctx->hObject))
 	{
-		FindGameDrive();
+		FindCDDrive();
 		LoadGameflow();
 		WinProcessCommandLine(lpCmdLine);
 		hinst = hInstance;
@@ -2424,7 +2424,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			return 0;
 		}
 		DXInitialise(&dxctx, v8);
-		if (byte_57A098 || !(unsigned __int8)sub_402F77())
+		if (byte_57A098 || !(unsigned __int8)LoadSettings())
 		{
 			if (!(unsigned __int8)InitSetupDialog())
 			{
@@ -2433,7 +2433,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				WinClose();
 				return 0;
 			}
-			sub_402F77();
+			LoadSettings();
 		}
 		SetWindowPos(hWnd, 0, dxctx.windowPos.left, dxctx.windowPos.top, 0, 0, 5u);
 		v9 = GetDesktopWindow();
@@ -2469,7 +2469,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		if (!ptr_ctx->opt_DisableSound)
 		{
 			DXDSCreate();
-			InitACM();
+			ACMInit();
 		}
 		dword_E916E0 = NULL;
 		dword_876C40 = 1;
