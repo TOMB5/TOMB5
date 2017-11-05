@@ -35,6 +35,7 @@ if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))
 	add_subdirectory(SPEC_PC)
 	#add_subdirectory(SPEC_PS2)
 	#add_subdirectory(SPEC_CE)
+	add_subdirectory(TOOLS)
 endif()
 
 #Default
