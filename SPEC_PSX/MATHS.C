@@ -5,6 +5,11 @@
 
 #include <INLINE_C.H>
 
+#define gte_rldlzc( r0 ) __asm__ volatile (			\
+	"mfc2	%0, $31"					\
+	:							\
+	: "r"( r0 ) )
+
 long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 {
 	long v0 = 0x1F;
@@ -15,20 +20,20 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 
 	if (value != 0)
 	{
-		gte_stlzc(v1);
+		gte_rldlzc(v1);
 
 		v1 &= 0xFFFFFFFE;
 		v0 = (v0 - v1) >> 1;
 		at = v1 - 0x18;
 
 		if (v1 - 0x18 < 0)
-		{
+		{ 
 			//loc_85BA8
-			value >>= 0x18 - v1;
+			value >>= (0x18 - v1);
 		}
 		else
 		{
-			value <<= v1 - 0x18;
+			value <<= (v1 - 0x18);
 		}
 
 		//loc_85BB4

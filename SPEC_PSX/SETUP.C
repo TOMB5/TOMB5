@@ -20,6 +20,7 @@
 #include "LOAD_LEV.H"
 #include "LOT.H"
 #include "MALLOC.H"
+#include "MATHS.H"
 #include "NEWINV2.H"
 #include "OBJLIGHT.H"
 #include "PICKUP.H"
@@ -456,7 +457,7 @@ void RelocateLevel()
 	{
 		for (i = 0; i < level_items; i++)
 		{
-			InitialiseItem(i);
+			InitialiseItem(i);//B4268
 		}
 	}
 
@@ -920,7 +921,7 @@ void InitialiseSqrtTable()//?(<), B4D14(<)
 
 	for (i = 0; i < 1024; i++)
 	{
-		OurSqrt[i] = 0;// phd_sqrt_asm(i); //@TODO*********************
+		OurSqrt[i] = phd_sqrt_asm(i);
 	}
 
 	return;

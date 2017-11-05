@@ -4789,6 +4789,8 @@ void lara_col_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//147C4, 148CC
 
 void lara_as_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//14688, 14738 (F)
 {
+	short room_num;
+
 	coll->enable_spaz = FALSE;
 	coll->enable_baddie_push = TRUE;
 
@@ -4801,7 +4803,7 @@ void lara_as_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//14688, 14738 
 		return;
 	}
 	
-	short room_num = lara_item->room_number;
+	room_num = lara_item->room_number;
 
 	if (input & IN_LOOK)
 		LookUpDown();

@@ -7,7 +7,6 @@ extern long DrawPhaseGame();
 extern void UpdateSky();
 extern void mQuickW2VMatrix();
 extern void DrawRooms(short current_room);
-extern void PrintString(long x, long y, long unk, char* string);
 extern void DrawBinoculars();
 extern void DrawFlash();
 extern void SortOutWreckingBallDraw();
@@ -21,6 +20,9 @@ extern void GetRoomBoundsAsm(short room_number);
 extern void SetGunFlash(short gun_type);
 extern void insert_psx_clip_window(long x, long y, long w, long a3, long h);
 extern void print_all_object_NOW();
+extern long GetStringLength(char* string, unsigned short* a1, unsigned short* a2);
+extern void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CHARDEF* a3);
+extern void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, char* string, unsigned short flag);
 
 extern long StoreBoxes;
 extern struct GAME_VECTOR LaraPos;

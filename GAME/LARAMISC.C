@@ -69,6 +69,23 @@ char* htypes[4] =
 	"WALL", "SMALL_SLOPE", "BIG_SLOPE", "DIAGONAL"
 };
 
+enum headings
+{
+	NORTH,
+	EAST,
+	SOUTH,
+	WEST
+};
+
+enum height_types
+{
+	WALL,
+	SMALL_SLOPE,
+	BIG_SLOPE,
+	DIAGONAL,
+	SPLIT_TRI
+};
+
 static struct COLL_INFO *coll = &mycoll; // offset 0xA0B8C
 short SubsuitAir = 0; // offset 0xA122E
 struct COLL_INFO mycoll;

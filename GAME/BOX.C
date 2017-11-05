@@ -208,6 +208,16 @@ int CreatureVault(short item_number, short angle, int vault, int shift)
 
 short CreatureEffectT(struct ITEM_INFO* item, struct BITE_INFO* bite, short damage, short angle, short* generate)
 {
+	struct PHD_VECTOR pos; // stack offset -40 0x28
+
+						   //s1 = damage;
+						   //s0 = angle;
+
+	GetJointAbsPosition(item, &pos, bite->mesh_num);
+	//a0 = bite->x;
+	//a1 = bite->y;
+	//a2 = bite->z;
+	//generate(bite->x, bite->y, bite->z);
 	S_Warn("[CreatureEffectT] - Unimplemented!\n");
 	return 0;
 }
