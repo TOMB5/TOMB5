@@ -1436,7 +1436,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	h = GetHeight(floor, wx, wy, wz);
 	c = GetCeiling(floor, wx, wx, wy);
 
-	if (wy < c || h < wy || h > c || h == 0xFFFF8100 || c == 0xFFFF8100)
+	if (wy < c || h < wy || h > c || h == -32512 || c == -32512)
 	{
 		camera.target.x = pos.x;
 		camera.target.y = pos.y;
@@ -1446,12 +1446,64 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 
 void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)
 {
+	long dx; // $v1
+	long dy; // $v1
+	long dz; // $a0
+
+	dx = (item->pos.x_pos - camera.pos.x) * (item->pos.x_pos - camera.pos.x);//a3
+	dy = (item->pos.y_pos - camera.pos.y) * (item->pos.y_pos - camera.pos.y);//v1
+	dz = (item->pos.z_pos - camera.pos.z) * (item->pos.z_pos - camera.pos.z);//a0
+
+	//MaxVal <<= 16;
+	//s2 = MaxVal >> 16;
+	//s0 = MaxDist
+
+	//s1 = s2
+	if (phd_sqrt_asm(dx + dy + dz) > MaxDist)
+	{
+		if (MaxDist == -1)
+		{
+
+		}
+
+	}//299E8
+
+
+
+
+
 	S_Warn("[ScreenShake] - Unimplemented!\n");
 }
 
-void UpdateCameraElevation()
+void UpdateCameraElevation()//29890(<), 29AA4(<) (F)
 {
-	S_Warn("[UpdateCameraElevation] - Unimplemented!\n");
+	struct PHD_VECTOR pos;
+	struct PHD_VECTOR pos1;
+
+	if (camera.lara_node != -1)
+	{
+		pos.x = 0;
+		pos.y = 0;
+		pos.z = 0;
+		GetLaraJointPos(&pos, camera.lara_node);
+
+		pos1.x = 0;
+		pos1.y = SECTOR(0.25);
+		pos1.z = SECTOR(2);
+		GetLaraJointPos(&pos1, camera.lara_node);
+
+		pos.z = pos1.z - pos.z;
+		pos.x = pos1.x - pos.x;
+		//camera.actual_angle = camera.target_angle + phd_atan_asm(pos.z, pos.x);
+	}
+	else
+	{
+		//loc_29910
+		camera.actual_angle = lara_item->pos.y_rot + camera.target_angle;
+	}
+
+	//loc_29928
+	camera.actual_elevation = (camera.target_elevation - camera.actual_elevation) / 8 + camera.actual_elevation;
 }
 
 void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, short yrot, long brightness) // (F)
