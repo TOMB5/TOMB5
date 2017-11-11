@@ -98,7 +98,7 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 
 	DrawSync(0);//TODO confirm retail is sub_6B144 draw sync
 
-#if _INTERNAL
+#if INTERNAL
 	if (ProfileDraw)
 	{
 		ProfileAddDrawOT(&db.ot[0]);
