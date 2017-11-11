@@ -150,10 +150,24 @@ void BridgeTilt1Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* he
 	}
 }
 
-long GetOffset(struct ITEM_INFO* item, long x, long z)
+long GetOffset(struct ITEM_INFO* item, long x, long z)// (F)
 {
-	S_Warn("[GetOffset] - Unimplemented!\n");
-	return 0;
+	if (item->pos.y_rot == 0)
+	{
+		return (-x) & 0x3FF;
+	}
+	else if (item->pos.y_rot == ANGLE(-180))
+	{
+		return x & 0x3FF;
+	}
+	else if (item->pos.y_rot == ANGLE(90))
+	{
+		return z & 0x3FF;
+	}
+	else
+	{
+		return (-z) & 0x3FF;
+	}
 }
 
 void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EFCC(<), 4F430(<) (F)

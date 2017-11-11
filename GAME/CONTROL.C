@@ -1,6 +1,7 @@
 #include "CONTROL.H"
 
 #include "3D_GEN.H"
+#include "CD.H"
 #include "BOX.H"
 #include "DELTAPAK.H"
 #include "DEBRIS.H"
@@ -938,8 +939,19 @@ void ClearDynamics()//8B1EC(<), 8D230(<) (F)
 
 int is_object_in_room(int roomnumber, int objnumber)
 {
-	S_Warn("[is_object_in_room] - Unimplemented!\n");
-	return 0;
+	short item_num = room[roomnumber].item_number;
+	short nex;
+	struct ITEM_INFO* item;
+	
+	for(nex = item_num; nex != -1; nex = item->next_item)
+	{
+		item = &items[nex];
+
+		if (item->object_number == objnumber)
+			return TRUE;
+	}
+
+	return FALSE;
 }
 
 void NeatAndTidyTriggerCutscene(int value, int timer)
@@ -1044,14 +1056,37 @@ void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* tar
 	S_Warn("[FireCrossBowFromLaserSight] - Unimplemented!\n");
 }
 
-void TriggerNormalCDTrack(short value, short flags, short type)
+void TriggerNormalCDTrack(short value, short flags, short type)// (F)
 {
-	S_Warn("[TriggerNormalCDTrack] - Unimplemented!\n");
+	int code;
+
+	if (value == 117 || value == 118 || value == 121 || (value >= 123 && value <= 130))
+	{
+		if (CurrentAtmosphere != value)
+		{
+			CurrentAtmosphere = value;
+
+			if (IsAtmospherePlaying)
+				S_CDPlay(value, 1);
+		}
+	}
+	else
+	{
+		code = (flags >> 8) & 0x3F;
+
+		if ((code & cd_flags[value]) != code)
+		{
+			cd_flags[value] |= code;
+			S_CDPlay(value, 0);
+			IsAtmospherePlaying = 0;
+		}
+	}
 }
 
-void TriggerCDTrack(short value, short flags, short type)
+void TriggerCDTrack(short value, short flags, short type)// (F)
 {
-	S_Warn("[TriggerCDTrack] - Unimplemented!\n");
+	if (value < 136)
+		TriggerNormalCDTrack(value, flags, type);
 }
 
 void RemoveRoomFlipItems(struct room_info* r)//1F938(<), 1FB4C(<) (F)
@@ -1370,3 +1405,18 @@ int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct P
 	return 0;
 }
 
+int check_xray_machine_trigger()// (F)
+{
+	int i;
+	for (i = 0; i < level_items; i++)
+	{
+		if (items[i].object_number == XRAY_CONTROLLER && 
+			items[i].trigger_flags == 0 && 
+			items[i].item_flags[0] == 666)
+		{
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}

@@ -76,9 +76,21 @@ void draw_pistol_meshes(int weapon_type)// (F)
 	}
 }
 
-void ready_pistols(int weapon_type)
+void ready_pistols(int weapon_type)// (F)
 {
-	S_Warn("[ready_pistols] - Unimplemented!\n");
+	lara.gun_status = LG_READY;
+	lara.left_arm.z_rot = 0;
+	lara.left_arm.y_rot = 0;
+	lara.left_arm.x_rot = 0;
+	lara.right_arm.z_rot = 0;
+	lara.right_arm.y_rot = 0;
+	lara.right_arm.x_rot = 0;
+	lara.right_arm.frame_number = 0;
+	lara.left_arm.frame_number = 0;
+	lara.target = 0;
+	lara.right_arm.lock = 0;
+	lara.left_arm.lock = 0;
+	lara.right_arm.frame_base = lara.left_arm.frame_base = objects[WeaponObject(weapon_type)].frame_base;
 }
 
 void undraw_pistols(int weapon_type)

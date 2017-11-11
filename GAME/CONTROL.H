@@ -163,7 +163,7 @@ extern void KillMoveItems();
 extern void KillMoveEffects();
 extern void TestTriggers(short* data, int heavy, int HeavyFlags);
 extern void ClearFires();
-
+extern void ClearDynamics();
 extern int is_object_in_room(int roomnumber, int objnumber);
 extern void NeatAndTidyTriggerCutscene(int value, int timer);
 extern int CheckCutPlayed(int num);
@@ -200,5 +200,6 @@ extern int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, str
 extern void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint);
 extern void AddFire(int x, int y, int z, char size, short room_num, short on);
 extern int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4);
+extern int check_xray_machine_trigger();
 
 #endif

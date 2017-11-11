@@ -9,6 +9,7 @@
 #include "TOMB4FX.H"
 #include "EFFECT2.H"
 #include "SOUND.H"
+#include "COLLIDE.H"
 
 short SPDETyoffs[8] =
 {
@@ -88,22 +89,54 @@ void ControlTwoBlockPlatform(short item_number)//5BC7C, 5C0F8
 	return;
 }
 
-int OnTwoBlockPlatform(struct ITEM_INFO* item, long x, long z)//5BB80, 5BFFC
+int OnTwoBlockPlatform(struct ITEM_INFO* item, long x, long z)//5BB80, 5BFFC (F)
 {
-	S_Warn("[OnTwoBlockPlatform] - Unimplemented!\n");
-	return 0;
+	int tx = item->pos.x_pos >> 10;
+	int tz = item->pos.z_pos >> 10;
+
+	if (item->mesh_bits == 0)
+		return FALSE;
+
+	x >>= 10;
+	z >>= 10;
+
+	if (item->pos.y_rot == 0 && (x == tx || x == tx - 1) && (z == tz || z == tz + 1))
+		return TRUE;
+
+	if (item->pos.y_rot == ANGLE(-180) && (x == tx || x == tx + 1) && (z == tz || z == tz - 1))
+		return TRUE;
+
+	if (item->pos.y_rot == ANGLE(90) && (z == tz || z == tz - 1) && (x == tx || x == tx + 1))
+		return TRUE;
+
+	if (item->pos.y_rot == ANGLE(-90) && (z == tz || z == tz - 1) && (x == tx || x == tx - 1))
+		return TRUE;
+
+	return FALSE;
 }
 
-void TwoBlockPlatformCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//5BB08, 5BF84
+void TwoBlockPlatformCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//5BB08, 5BF84 (F)
 {
-	S_Warn("[TwoBlockPlatformCeiling] - Unimplemented!\n");
-	return;
+	if (OnTwoBlockPlatform(item, x, z))
+	{
+		if (y > item->pos.y_pos + 32 && item->pos.y_pos > *height)
+		{
+			*height = item->pos.y_pos + 256;
+		}
+	}
 }
 
-void TwoBlockPlatformFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//5BA80, 5BEFC
+void TwoBlockPlatformFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//5BA80, 5BEFC (F)
 {
-	S_Warn("[TwoBlockPlatformFloor] - Unimplemented!\n");
-	return;
+	if (OnTwoBlockPlatform(item, x, z))
+	{
+		if (y <= item->pos.y_pos + 32 && item->pos.y_pos < *height)
+		{
+			*height = item->pos.y_pos;
+			OnObject = 1;
+			height_type = WALL;
+		}
+	}
 }
 
 void DrawScaledSpike(struct ITEM_INFO* item)//5B854, 5BCD0
@@ -301,16 +334,40 @@ void FallingCeiling(short item_number)//59720, 59B9C
 	return;
 }
 
-void FallingBlockCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//596D4, 59B50
+void FallingBlockCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//596D4, 59B50 (F)
 {
-	S_Warn("[FallingBlockCeiling] - Unimplemented!\n");
-	return;
+	int tx = item->pos.x_pos >> 10;
+	int tz = item->pos.z_pos >> 10;
+
+	x >>= 10;
+	z >>= 10;
+
+	if (x == tx && z == tz)
+	{
+		if (item->pos.y_pos < y)
+		{
+			*height = item->pos.y_pos + 256;
+		}
+	}
 }
 
-void FallingBlockFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//59674, 59AF0
+void FallingBlockFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//59674, 59AF0 (F)
 {
-	S_Warn("[FallingBlockFloor] - Unimplemented!\n");
-	return;
+	int tx = item->pos.x_pos >> 10;
+	int tz = item->pos.z_pos >> 10;
+
+	x >>= 10;
+	z >>= 10;
+
+	if (x == tx && z == tz)
+	{
+		if (item->pos.y_pos >= y)
+		{
+			*height = item->pos.y_pos + 256;
+			height_type = WALL;
+			OnObject = 1;
+		}
+	}
 }
 
 void FallingBlock(short item_number)//59558, 599D4 (F)
