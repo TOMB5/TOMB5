@@ -46,9 +46,9 @@ void KillEverything()//338AC(<), 33DAC(<) (F)
 	KillEverythingFlag = 0;
 }
 
-void KillAllCurrentItems(short item_number)//3389C, 33D9C
+void KillAllCurrentItems(short item_number)//3389C, 33D9C (F)
 {
-	S_Warn("[KillAllCurrentItems] - Unimplemented!\n");
+	KillEverythingFlag = 1;
 }
 
 void TriggerDartSmoke(long x, long y, long z, long xv, long zv, long hit)//335B8, 33AB8

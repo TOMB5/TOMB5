@@ -212,10 +212,17 @@ short CreatureEffectT(struct ITEM_INFO* item, struct BITE_INFO* bite, short dama
 	return 0;
 }
 
-short CreatureEffect(struct ITEM_INFO* item, struct BITE_INFO* bite, short* generate)
+short CreatureEffect(struct ITEM_INFO* item, struct BITE_INFO* bite, short(*generate)(long x, long y, long z, short speed, short yrot, short room_number))// (F)
 {
-	S_Warn("[CreatureEffect] - Unimplemented!\n");
-	return 0;
+	struct PHD_VECTOR pos;
+
+	pos.x = bite->x;
+	pos.y = bite->y;
+	pos.z = bite->z;
+
+	GetJointAbsPosition(item, &pos, bite->mesh_num);
+
+	return generate(pos.x, pos.y, pos.z, item->speed, item->pos.y_rot, item->room_number);
 }
 
 void CreatureUnderwater(struct ITEM_INFO* item, long depth)

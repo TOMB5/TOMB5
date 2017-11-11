@@ -48,8 +48,8 @@
 # $ ./issue_generator.py +w -h -c
 
 # increment this plz
-# rev 7
-# 2017-10-31
+# rev 8
+# 2017-11-05
 
 
 from urllib.request import urlopen
@@ -96,6 +96,7 @@ SHOW_UNIMPL =		isarg("showunimpl", "u", False)	# At the end, output a list of un
 USE_REPR =			isarg("userepr", 	"r", False)	# Debugging purposes. When outputting a list (e.g. SHOW_UNIMPL), use repr()
 SHOW_ADDED =		isarg("showadded", 	"a", False)	# Show a plain list of added functions
 SHOW_FILES_STATS =	isarg("showfiles",	"f", False) # Show number of implemented functions by file
+UNIMPL_NEUTRAL =	isarg("uneutral", 	"n", False) # for showunimp, show only GAME functions
 
 if not os.path.isfile("README.md"):
 	os.chdir("..")
@@ -264,16 +265,16 @@ for plat in sorted(platforms.keys()):
 		for func in sorted(platforms[plat][file].keys(), key=str.lower):
 			lines.append("- [%s] `%s`%s" %("x" if platforms[plat][file][func] else " ", func, comments[func] if func in comments else ""))
 			if SHOW_UNIMPL and not platforms[plat][file][func]:
-				unimpl.append("%s\\%s // %s" % (plat, file, func))
+				unimpl.append((plat, file, func))
 
 output = "\n".join(lines)
 
 if SHOW_UNIMPL:
 	print("Unimplemented :")
 	if USE_REPR:
-		print(repr([x.split(" // ")[1] for x in unimpl]))
+		print(repr([x[2] for x in unimpl if (not UNIMPL_NEUTRAL) or x[0] == "GAME"]))
 	else:
-		print("\n".join(unimpl))
+		print("\n".join(["%s // %s" % (os.path.join(x[0], x[1]), x[2]) for x in unimpl]))
 
 if SHOW_ADDED:
 	print("Added :")

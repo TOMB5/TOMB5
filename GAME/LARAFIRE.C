@@ -118,8 +118,17 @@ void LaraGun()//46F28, 4738C
 	S_Warn("[LaraGun] - Unimplemented!\n");
 }
 
-int CheckForHoldingState(int state)//46EE4, 47348
+int CheckForHoldingState(int state)//46EE4, 47348 (F)
 {
-	S_Warn("[CheckForHoldingState] - Unimplemented!\n");
-	return 0;
+	short* holds = HoldStates;
+
+	do
+	{
+		if (*holds < 0)
+			return FALSE;
+
+		++holds;
+	} while (*holds != state);
+
+	return TRUE;
 }
