@@ -163,7 +163,7 @@ extern void KillMoveItems();
 extern void KillMoveEffects();
 extern void TestTriggers(short* data, int heavy, int HeavyFlags);
 extern void ClearFires();
-
+extern void ClearDynamics();
 extern int is_object_in_room(int roomnumber, int objnumber);
 extern void NeatAndTidyTriggerCutscene(int value, int timer);
 extern int CheckCutPlayed(int num);
