@@ -98,7 +98,7 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 
 	DrawSync(0);//TODO confirm retail is sub_6B144 draw sync
 
-#if _INTERNAL
+#if INTERNAL
 	if (ProfileDraw)
 	{
 		ProfileAddDrawOT(&db.ot[0]);
@@ -166,7 +166,7 @@ void GPU_GetScreenPosition(short* x, short* y)//5F34C, ?
 }
 
 /*   PSX VRAM   (H)
- *  ----------- 512px
+ *  ----------- 1024px
  *  | TL | TR |  |
  *  -----------  v
  *  | BL | BR |  
@@ -267,12 +267,12 @@ void GPU_EndScene()//5DFDC(<), 5F23C(!)
 #if 0
 	nop
 
-	ProfileRGB(-1, -1, -1);
+	ProfileRGB(255, 255, 255);
 
 	a0 = db.nOTSize;
 	do_gfx_debug_mode(&db.ot[db.nOTSize - 1]);
 
-	ProfileRGB(0, -1, -1);
+	ProfileRGB(0, 255, 255);
 #endif
 	return;
 }
@@ -392,6 +392,7 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 	*(long*) &db.polyptr[0] = db.ot[0] | 0x9000000;
 	db.ot[0] = db.polyptr;
 	
+	sizeof(POLY_G3);
 	db.polyptr += 0x28;
 	return;
 }

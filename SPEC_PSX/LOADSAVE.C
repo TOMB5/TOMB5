@@ -98,11 +98,11 @@ int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 			if (i == cursor)
 			{
 				//loc_62870
-				PrintString(256, (y + 15) & 0xFFFF, 1, &buf[0]);
+				PrintString(256, (y + 15) & 0xFFFF, 1, &buf[0], 0);
 			}
 			else
 			{
-				PrintString(256, (y + 15) & 0xFFFF, 5, &buf[0]);
+				PrintString(256, (y + 15) & 0xFFFF, 5, &buf[0], 0);
 			}
 
 			//DrawF4(32, y & 0xFFFF, 448, 23);

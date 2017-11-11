@@ -14,7 +14,7 @@ int hair_dwind_angle = 2048;
 int first_hair[2];
 struct HAIR_STRUCT hairs[2][7];
 
-void InitialiseHair()//3AC70, 3B170 (F)
+void InitialiseHair()//3AC70, 3B170
 {
 	int i;
 	int j;
@@ -60,4 +60,11 @@ void InitialiseHair()//3AC70, 3B170 (F)
 		j++;
 		bone = &bones[objects[HAIR].bone_index];
 	}
+}
+
+void HairControl(short a0, short a1, short a2)
+{
+	//s0 = gfLevelFlags;
+	//s5 = lara_item
+	//v1 = lara.hit_direction;
 }

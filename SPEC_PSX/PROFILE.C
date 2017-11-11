@@ -1,5 +1,6 @@
 #include "PROFILE.H"
 
+#include "GPU.H"
 #include "SPECIFIC.H"
 
 #include <LIBAPI.H>
@@ -102,7 +103,7 @@ void ProfileAddOT(unsigned long* ot)//61A90, *
 
 			count++;
 
-			(long*) &db.polyptr[0] = *(long*) &db.polyptr[0] & 0xFF000000 | ot[0] & 0xFFFFFF;
+			*(long*) &db.polyptr[0] = *(long*) &db.polyptr[0] & 0xFF000000 | ot[0] & 0xFFFFFF;
 			*(long*) &ot = ot[0] & 0xFF000000 | (unsigned long) db.polyptr & 0xFFFFFF;
 			db.polyptr += 0x14;
 		}

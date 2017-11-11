@@ -1,6 +1,8 @@
 #ifndef CODEWAD_H
 #define CODEWAD_H
 
+#include "TYPES.H"
+
 extern void TriggerEngineEffects_CUT(); // 0x10 (RelocPtr + 0x18)
 extern void RelocFunc_34_08(); // special1_init
 extern void RelocFunc_34_0C(); // special1_control

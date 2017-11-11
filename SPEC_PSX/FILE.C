@@ -30,7 +30,7 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 }
 
 #if INTERNAL
-int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ?
+int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? (F)
 {
 	int nAmount = nItems * nItemSize;
 	return PCread(nHandle, pDest, nAmount);

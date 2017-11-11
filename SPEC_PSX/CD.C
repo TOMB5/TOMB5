@@ -343,7 +343,7 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 	XATrack = -1;
 }
 
-void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650
+void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F)
 {
 	unsigned char param[4];
 

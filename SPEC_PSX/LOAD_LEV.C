@@ -308,10 +308,6 @@ short atanTab[] =
 	0x1FEC, 0x1FEE, 0x1FF1, 0x1FF3, 0x1FF6, 0x1FF8, 0x1FFB, 0x1FFD, 0x2000, 0x2000
 };
 
-int dword_AD920 = 0;
-int dword_A33F6 = 0;
-char dword_A33F5 = 0;
-
 void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
 {
 	int a0, a1, a2;

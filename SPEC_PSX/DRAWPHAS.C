@@ -23,6 +23,7 @@
 #include "TOMB4FX.H"
 
 #include <INLINE_C.H>
+#include <LIBGPU.H>
 #include <stdio.h>
 
 #define gte_SetRotMatrixH( r0 ) __asm__ volatile (		\
@@ -140,8 +141,8 @@ long DrawPhaseGame()//63F04, 645E0
 		if (GLOBAL_playing_cutseq == 0)
 		{
 			ScaleCurrentMatrix(1, scalarx + 4096, scalary + 4096, scalarz + 4096);
+		}
 	}
-}
 
 	//loc_6416C
 	CalcLaraMatrices(0);
@@ -727,20 +728,23 @@ void mQuickW2VMatrix()
 	//sh	$t2, 0x4058($gp)
 }
 
-void PrintString(long x, long y, long unk, char* string/*, long unk01*/)//8DB4C, 8FB90
+//ushort, ushort, uchar, char*, ushort
+void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, char* string, unsigned short flag)//8DB4C, 8FB90
 {
+#if 0
 	long s0, s4, s3, at, s6, s2, v0;
 	char* s5;
+	unsigned short buf[64];//TODO check size
 	///@TODO unk is type (3 is red) also as byte
 	s0 = x;
 	s4 = y;
-	s3 = unk & 0xFF;
+	s3 = colourFlag & 0xFF;
 	s5 = string;
-	s6 = 0xA000;//?????
+	s6 = 0xA000;//?????$50($sp)
 	at = GnFrameCounter;
 
 	at &= 0x10;
-	if (s6 & 0x2000 && at & 0x10)
+	if (s6 & 0x2000 && GnFrameCounter & 0x10)
 	{
 		return;
 	}
@@ -748,7 +752,7 @@ void PrintString(long x, long y, long unk, char* string/*, long unk01*/)//8DB4C,
 	//loc_8DBA0
 	ScaleFlag = (s6 >> 12) & 1;
 
-	//v0 = GetStringLength(string, 0, ?);///@FIXME
+	v0 = GetStringLength(string, 0, &buf[0]);///@FIXME - ret is 65 on first call (Retail)
 
 	//Unpick @sub_8DD90
 	if (s6 & 0x8000)
@@ -763,9 +767,51 @@ void PrintString(long x, long y, long unk, char* string/*, long unk01*/)//8DB4C,
 	{
 		s2 = s0;
 	}
-
 	//@ret jr ra +0x190(base 0x8FC000)
 	//0x0008FD9C (RETAIL)
+
+	a0 = *s5++;
+	//v0 = 0xA;
+
+	if (a0 == 0)
+	{
+		//sb, 0 1284(gp)
+		return;
+	}
+
+	//0x8FC08
+	//v0 = 0x20
+	if (a0 == 0xA)
+	{
+		//v0 = *s5;
+		//a1 = sp+0x12
+		//a0 = s5;
+		//if(v0 == a0)
+		//{
+			//$sp+0x10 = 0;
+
+		//}
+	}
+
+	if (a0 == 0x20)
+	{
+	}
+
+	if (a0 == 0x9)
+	{
+
+	}
+
+	if (a0 < 0x14)
+	{
+
+	}
+
+	if (a0 - 0x80 < 0x2E)
+	{
+
+	}
+	//loc_8DCDC
 #if 0
 	move	$a0, $s5
 	move	$a1, $zero
@@ -910,61 +956,174 @@ void PrintString(long x, long y, long unk, char* string/*, long unk01*/)//8DB4C,
 				 jr	$ra
 				 addiu	$sp, 0x40
 #endif
-	printf("PrintString - X:%d Y:%d C:%d - %s\n", x, y, unk, string);
+
+#else
+	printf("PrintString - X:%d Y:%d C:%d - %s\n", x, y, colourFlag, string);
+#endif
 }
-#if 0
-void GetStringLength(char* string)//8DEDC(<), 8FF20(<)
+
+//char*, unsigned short*, unsigned short*
+#if 1
+long GetStringLength(char* string, unsigned short* a1, unsigned short* a2)//8DEDC(<), 8FF20(<)
 {
 	char c;
-	//t5 = 0;
-	//t0 = 0;
-	//t2 = 0xFFFFFC00;
+	long t0, t1, t2, t3, t5, v0;
+	t5 = 0;
+	t0 = 0;
+	t2 = 0xFFFFFC00;
 
-	c = *string++;
+	c = *string++;//c = a3
+	t1 = 0x400;
 
-	if (c != 0 && c != 10)
+	if (c != 0 || c != 10)
 	{
-		//v0 = 0x20;
-		//t3 = ScaleFlag;
+		t3 = ScaleFlag;
 		//t6 = &AccentTable[0][0];
 		//t4 = &CharDef[0];
 
 		//loc_8DF18
-		if(c == 0x20)
+		while (string[0] != 10 || string[0] != 0)
 		{
-			if (t3 == 0)
+			if (c == 32)
 			{
 				t0 += 8;
+				if (t3 != 0)
+				{
+					t0 -= 2;
+				}
 			}
-			else
+			else if (c == 9)
 			{
-				t0 -= 2;
+				//loc_8DF30
+				t0 += 40;
+
+				if (!(t1 < -11))
+				{
+					t1 = -12;
+				}
+
+				if (t2 < 2)
+				{
+					t2 = 2;
+				}
 			}
-			//JMP loc_8DFE4
-		}
-		else if (c == 9)
-		{
-			//loc_8DF30
-			//v0 = a3 < 0x14 ? 1 : 0;
-			t0 += 0x28;
-			v0 = t1 < -0xB ? 1 : 0;
+			else if (c > 19)
+			{
+				//loc_8DF5C
+				if (c < 0x20)
+				{
+					//v0 = (c << 3) - c;
+					//v0 += 0x206;
+					//a3 = v0 + t4
+					sizeof(struct CHARDEF);
+				}
+				else
+				{
+					//loc_8DF7C
+					//v1 = c - 0x80;
+					//v0 = v1 < 0x2E ? 1 : 0;
+					//v0 = v1 << 1;
+					if (c - 0x80 < 0x2E)
+					{
+						//v0 += t6;
+						//a3 = v0[0];
+						t5 = 1;
+					}//loc_8DF98
 
+					//v0 = a3 << 3;
+					//v0 -= a3;
+					//v0 -= 0xE7;
+					//a3 = v0 + t4;
+				}
 
+				//loc_8DFA8
+
+			}
 		}
-		else if (c > 0x13)
-		{
-			//loc_8DF5C
-		}
-		
 	}
 
 	//loc_8DFFC
+	if (a1 != 0 && t5 == 0)
+	{
+		//loc_8E010
+		*a1 = t1;
+	}
+	else if (a1 != 0 && t1 != 0)
+	{
+		t1 -= 4;
+	}
 
+	//loc_8E014
+	if (a2 != 0)
+	{
+		*a2 = t2;
+	}
+	
+	*a1 = t1;
+
+	return t0;
 }
 #endif
-void DrawChar(long a0, long a1, long a3)//8DDBC, ?
-{
 
+void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CHARDEF* a3)//8DDBC(<), 8FE00(<) (F)
+{
+	struct CVECTOR* TopShade;//$v0
+	struct CVECTOR* BottomShade;//$at
+	long v1;
+
+	a2 &= 0xFFFF;
+
+	if ((unsigned long)&db.polyptr[0] < (unsigned long)&db.polybuf_limit[0])
+	{
+		TopShade = &FontShades[a2][a3->TopShade];
+		BottomShade = &FontShades[a2][a3->BottomShade];
+
+		*(long*) &db.polyptr[4] = *(long*) &TopShade->r;
+		*(long*) &db.polyptr[28] = *(long*) &BottomShade->r;
+		*(long*) &db.polyptr[16] = *(long*) &TopShade->r;
+		*(long*) &db.polyptr[40] = *(long*) &BottomShade->r;
+
+		((char*)db.polyptr)[7] = 0x3C;//#define TAG_PGT4                    0x3C
+
+		*(short*) &db.polyptr[14] = 4197;
+		*(short*) &db.polyptr[26] = 41;
+		sizeof(POLY_GT4);
+
+		v1 = a3->w;
+		a1 += a3->YOffset;
+
+		if (ScaleFlag != 0)
+		{
+			v1 = (a3->w >> 2) - a3->w + 1;
+		}
+		
+		//loc_8DE5C
+		*(short*) &db.polyptr[8] = a0;
+		*(short*) &db.polyptr[10] = a1;
+		*(short*) &db.polyptr[20] = a0 + v1;
+		*(short*) &db.polyptr[22] = a1;
+
+		*(short*) &db.polyptr[32] = a0;
+		*(short*) &db.polyptr[34] = a1 + a3->h;
+		*(short*) &db.polyptr[44] = a0 + v1;
+		*(short*) &db.polyptr[46] = a1 + a3->h;
+
+		*(char*) &db.polyptr[12] = a3->w;
+		*(char*) &db.polyptr[13] = a3->v;
+		*(char*) &db.polyptr[24] = a3->u + a3->v;
+		*(char*) &db.polyptr[25] = a3->v;
+
+		*(char*) &db.polyptr[36] = a3->u;
+		*(char*) &db.polyptr[37] = a3->v + a3->h;
+		*(char*) &db.polyptr[48] = a3->u + a3->w;
+		*(char*) &db.polyptr[49] = a3->v + a3->h;
+
+		*(long*) &db.polyptr[0] = db.ot[0] | 0x0C000000;
+		db.ot[0] = db.polyptr;
+
+		db.polyptr += sizeof(POLY_GT4);
+
+	}//locret_8DED4
 }
 
 void DrawBinoculars()
@@ -1055,5 +1214,15 @@ void print_all_object_NOW()//8F474(<), 914B8(<) (F)
 	{
 		//s3 = draw_rooms[i];//Why?
 		//PrintAllOtherObjects_ASM();
+	}
+}
+
+void DrawTpage(unsigned char a0, unsigned char a1)//5EE78(<), 5FB58(<) (F)
+{
+	if ((unsigned long) db.polyptr < (unsigned long)db.polybuf_limit)
+	{
+		*(long*) &db.ot[a0] = db.polyptr;
+		*(long*) &db.polyptr[0] = db.ot[a0] | 0x01000000;
+		*(long*) &db.polyptr[4] = a1 << 5 | 0xE1000000;
 	}
 }

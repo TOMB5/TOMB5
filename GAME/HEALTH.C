@@ -72,7 +72,7 @@ void DrawHealthBar(int flash_state)
 	S_Warn("[DrawHealthBar] - Unimplemented!\n");
 }
 
-void DrawGameInfo(int timed)//3AD68(<), 
+void DrawGameInfo(int timed)//3AD68(<), 3B268(!)
 { // line 2, offset 0x3ad68
 	int flash_state; // $s0
 					 //{ // line 17, offset 0x3adac
@@ -89,11 +89,7 @@ void DrawGameInfo(int timed)//3AD68(<),
 	}
 	
 	sprintf(sbuf, "Room:%d X:%d Y:%d Z:%d", lara_item->room_number, (lara_item->pos.x_pos - room[lara_item->room_number].x) / SECTOR(1), (lara_item->pos.y_pos - room[lara_item->room_number].minfloor) / CLICK, (lara_item->pos.z_pos - room[lara_item->room_number].z) / SECTOR(1));
-#if PC_VERSION
 	PrintString(256, 24, 0, sbuf, 0);
-#else
-	PrintString(256, 24, 0, sbuf);///@FIXME check arg 3
-#endif
 
 	//^Not verified for retail/internal split
 

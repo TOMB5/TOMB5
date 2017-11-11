@@ -537,10 +537,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	title_controls_locked_out = 0;
 
-	#if PC_VERSION
-		 InitialiseFXArray(1);
-		InitialiseLOTarray(1);
-	#endif
+#if PC_VERSION
+	InitialiseFXArray(1);
+	InitialiseLOTarray(1);
+#endif
 
 	InitialisePickUpDisplay();
 
@@ -637,7 +637,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 #endif
 			//loc_10868
 			CreditsDone = 1;
-			gfStatus = sub_1BDF88(Name);
+			gfStatus = sub_1BDF88(Name);//TitleOptions(void);
 
 		lbl_10890:
 			if (GLOBAL_playing_cutseq != 0)
@@ -646,9 +646,9 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 				if (!bDoCredits || CreditsDone != 0)
 				{
 #if INTERNAL
-					PrintString(256, 220, 1, gfStringWad + gfStringOffset[176]);
+					PrintString(256, 220, 1, gfStringWad + gfStringOffset[176], 0);
 #else
-					PrintString(256, 220, 1, gfStringWad + gfStringOffset[174]);
+					PrintString(256, 220, 1, gfStringWad + gfStringOffset[174], 0);
 #endif
 				}
 
@@ -661,9 +661,9 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 			if (PadConnected == 0)
 			{
 #if INTERNAL
-				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[221]]);
+				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[221]], 0);
 #else
-				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[219]]);
+				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[219]], 0);
 #endif
 			}
 #endif
