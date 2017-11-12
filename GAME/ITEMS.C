@@ -126,7 +126,7 @@ short CreateEffect(short room_num)//420E0(<), 42534(<) (F)
 		r->fx_number = fx_num;
 		fx->next_active = next_fx_active;
 		next_fx_active = fx_num;
-		fx->shade = WHITE555;
+		fx->shade = GRAY555;
 	}
 
 	return fx_num;

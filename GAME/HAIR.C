@@ -21,43 +21,36 @@ void InitialiseHair()//3AC70, 3B170
 	long* bone;
 	struct HAIR_STRUCT* hptr;
 
-	bone = &bones[objects[HAIR].bone_index];
-
-	j = 0;
+	bone = &bones[objects[HAIR].bone_index + 4];
 
 	//loc_3ACA0
-	while (j < 2)
+	for(j = 0; j < 2; j++)
 	{
-		bone = &bone[4];
 		hptr = &hairs[j][0];
 
 		hptr->pos.y_rot = 0;
 		hptr->pos.x_rot = ANGLE(-90);
 		first_hair[j] = 1;
 
-		i = 5;
-
 		//loc_3ACD0
-		while (i >= 0)
+		for(i = 0; i < 7; i++)
 		{
 			hptr->pos.x_pos = bone[1];
 			hptr->pos.y_pos = bone[2];
 			hptr->pos.z_pos = bone[3];
 
 			hptr->pos.x_rot = ANGLE(-90);
-			hptr->pos.z_rot = 0;
 			hptr->pos.y_rot = 0;
+			hptr->pos.z_rot = 0;
 
 			hptr->vel.x = 0;
 			hptr->vel.y = 0;
 			hptr->vel.z = 0;
 
 			hptr++;
-			bone = &bone[4];
-			i--;
+			bone += 4;
 		}
 
-		j++;
 		bone = &bones[objects[HAIR].bone_index];
 	}
 }

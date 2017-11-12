@@ -1,10 +1,13 @@
 #include "BOX.H"
 
 #include "CONTROL.H"
+#include "DELTAPAK.H"
 #include "DRAW.H"
 #include "ITEMS.H"
 #include "LOT.H"
+#include "MATHS.H"
 #include "SPECIFIC.H"
+#include "TOMB4FX.H"
 
 #ifdef PC_VERSION
 #include "GAME.H"
@@ -14,8 +17,6 @@
 
 #include <assert.h>
 #include <stddef.h>
-#include "TOMB4FX.H"
-#include "DELTAPAK.H"
 
 int number_boxes;
 struct box_info* boxes;
@@ -46,10 +47,42 @@ void DropBaddyPickups(struct ITEM_INFO* item)//259BC(<), 25BC8(<) (F)
 	}
 }
 
-int MoveCreature3DPos(struct PHD_3DPOS* srcpos, struct PHD_3DPOS* destpos, int velocity, short angdif, int angadd)
+int MoveCreature3DPos(struct PHD_3DPOS* srcpos, struct PHD_3DPOS* destpos, int velocity, short angdif, int angadd)// (F)
 {
-	S_Warn("[MoveCreature3DPos] - Unimplemented!\n");
-	return 0;
+	int x = destpos->x_pos - srcpos->x_pos;
+	int y = destpos->y_pos - srcpos->y_pos;
+	int z = destpos->z_pos - srcpos->z_pos;
+	int dist = phd_sqrt_asm(x * x + y * y + z * z);
+
+	if (velocity < dist)
+	{
+		srcpos->x_pos += velocity * x / dist;
+		srcpos->y_pos += velocity * y / dist;
+		srcpos->z_pos += velocity * z / dist;
+	}
+	else
+	{
+		srcpos->x_pos = destpos->x_pos;
+		srcpos->y_pos = destpos->y_pos;
+		srcpos->z_pos = destpos->z_pos;
+	}
+
+	if (angdif <= angadd)
+	{
+		if (angdif >= -angadd)
+			srcpos->y_rot = destpos->y_rot;
+		else
+			srcpos->y_rot -= angadd;
+	}
+	else
+	{
+		srcpos->y_rot += angadd;
+	}
+
+	return srcpos->x_pos == destpos->x_pos
+		&& srcpos->y_pos == destpos->y_pos
+		&& srcpos->z_pos == destpos->z_pos
+		&& srcpos->y_rot == destpos->y_rot;
 }
 
 void CreatureYRot(struct PHD_3DPOS* srcpos, short angle, short angadd)//25738(<), ? (F)
@@ -100,7 +133,7 @@ void GetAITarget(struct creature_info* creature)
 	S_Warn("[GetAITarget] - Unimplemented!\n");
 }
 
-short AIGuard(struct creature_info* creature)//24DF0(<), ?
+short AIGuard(struct creature_info* creature)//24DF0(<), ? (F)
 {
 	int random;
 
@@ -113,33 +146,26 @@ short AIGuard(struct creature_info* creature)//24DF0(<), ?
 
 	if (random < 256)
 	{
-		creature->alerted = 1;
-		creature->head_left = 1;
+		creature->head_right = TRUE;
+		creature->head_left = TRUE;
 	}
-	else if (random < 284)
+	else if (random < 384)
 	{
-		creature->head_left = 1;
-		creature->patrol2 = 0;
+		creature->head_right = FALSE;
+		creature->head_left = TRUE;
 	}
 	else if (random < 512)
 	{
-		creature->monkey_ahead = 0;
-		creature->head_right = 1;
+		creature->head_right = TRUE;
+		creature->head_left = FALSE;
 	}
 
-	//0x24E98
-	if (creature->alerted && creature->head_left)
-	{
+	if (!creature->head_left)
+		return (creature->head_right) << 12;
+
+	if (creature->head_right)
 		return 0;
-	}
-	else if (creature->alerted)
-	{
-		//a0 = (*(int*)&creature->alerted)
-		//return (a0 << 12) & 0x4000;//???
-		assert(0);
-		return 0;
-	}//0x24EB4
-	
+
 	return -16384;
 }
 
@@ -190,9 +216,31 @@ void AlertNearbyGuards(struct ITEM_INFO* item)//24D20(<), 24F2C(<) (F)
 	return;
 }
 
-void AlertAllGuards(short item_number)
+void AlertAllGuards(short item_number)// (F)
 {
-	S_Warn("[AlertAllGuards] - Unimplemented!\n");
+	int slot;
+	struct creature_info* cinfo = &baddie_slots[0];
+	short obj_number = items[item_number].object_number;
+
+	for(slot = 0; slot < 6; slot++, cinfo++)
+	{
+		struct ITEM_INFO* target;
+
+		if (cinfo->item_num == -1)
+		{
+			continue;
+		}
+
+		target = &items[cinfo->item_num];
+
+		if (obj_number == target->object_number)
+		{
+			if (target->status == ITEM_ACTIVE)
+			{
+				cinfo->alerted = TRUE;
+			}
+		}
+	}
 }
 
 void CreatureKill(struct ITEM_INFO* item, int kill_anim, int kill_state, short lara_anim)
@@ -206,20 +254,17 @@ int CreatureVault(short item_number, short angle, int vault, int shift)
 	return 0;
 }
 
-short CreatureEffectT(struct ITEM_INFO* item, struct BITE_INFO* bite, short damage, short angle, short* generate)
+short CreatureEffectT(struct ITEM_INFO* item, struct BITE_INFO* bite, short damage, short angle, short (*generate)(long x, long y, long z, short speed, short yrot, short room_number))// (F)
 {
-	struct PHD_VECTOR pos; // stack offset -40 0x28
+	struct PHD_VECTOR pos;
 
-						   //s1 = damage;
-						   //s0 = angle;
+	pos.x = bite->x;
+	pos.y = bite->y;
+	pos.z = bite->z;
 
 	GetJointAbsPosition(item, &pos, bite->mesh_num);
-	//a0 = bite->x;
-	//a1 = bite->y;
-	//a2 = bite->z;
-	//generate(bite->x, bite->y, bite->z);
-	S_Warn("[CreatureEffectT] - Unimplemented!\n");
-	return 0;
+
+	return generate(pos.x, pos.y, pos.z, damage, angle, item->room_number);
 }
 
 short CreatureEffect(struct ITEM_INFO* item, struct BITE_INFO* bite, short(*generate)(long x, long y, long z, short speed, short yrot, short room_number))// (F)
