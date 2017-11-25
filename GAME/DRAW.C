@@ -1,7 +1,7 @@
 #include "DRAW.H"
 
 #include "SPECIFIC.H"
-
+#include "SPECTYPES.H"
 #include <stddef.h>
 
 short LightningSFXDelay;
@@ -44,7 +44,7 @@ short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;
 
-long GetFrames(struct ITEM_INFO* item/*$a0*/, short** frames/*a1*/, long* rate/*$a2*/)//8582C
+long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, long* rate/*$a2*/)//8582C
 {
 	struct ANIM_STRUCT* anim = &anims[item->anim_number];
 	int t3;
@@ -134,4 +134,16 @@ void DrawMoon()
 void DrawGunflashes()
 {
 	S_Warn("[DrawGunflashes] - Unimplemented!\n");
+}
+
+short* GetBestFrame(struct ITEM_INFO* item)// (F)s
+{
+	short* frm[2];
+	long rate;
+	const int ret = GetFrames(item, frm, &rate);
+
+	if (ret > (rate >> 1))
+		return frm[1];
+	else
+		return frm[0];
 }

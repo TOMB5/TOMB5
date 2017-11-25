@@ -4,7 +4,13 @@
 #include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 
+#ifdef PAELLA
+#include <string.h>
+#include <KERNEL.H>
+#endif
+
 #include <LIBMCRD.H>
+#include <LIBETC.H>
 
 unsigned char mcInit;
 unsigned char mcStatus;
@@ -21,7 +27,7 @@ void mcDir()//61EE8(<), 625CC(<)
 	int k = 0;
 	struct DIRENTRY* dir = (struct DIRENTRY*)&tsv_buffer[0];
 
-	MemCardGetDirentry(0, "*", dir, &mcNumFiles, 0, 0);
+	MemCardGetDirentry(0, "*", dir, (long*)&mcNumFiles, 0, 0);
 
 	mcBlocksFree = 15;
 	
@@ -33,7 +39,7 @@ void mcDir()//61EE8(<), 625CC(<)
 			//loc_61F68
 			mcBlocksFree -= dir->size + 0x1FFF < 0 ? dir->size + 0x3FFE : dir->size + 0x1FFF;
 			
-			if(strncmp(gfStringWad[gfStringOffset[STR_PSX_GAME_ID]], dir->name, 12) == 0)
+			if(strncmp(&gfStringWad[gfStringOffset[STR_PSX_GAME_ID]], dir->name, 12) == 0)
 			{
 				mcFileNames[i][0] = *(int*)dir->name;
 				mcFileNames[i][4] = *(int*)dir->name+4;
@@ -91,7 +97,7 @@ unsigned char mcGetStatus()//620CC(<), ? (F)
 	unsigned long cmd;
 	unsigned long res;
 
-	stat = MemCardSync(1, &cmd, &res);
+	stat = MemCardSync(1, (long*)&cmd, (long*)&res);
 	
 	//Locked, Asynchronous memory card function is running.
 	if (stat == 0)
@@ -231,7 +237,7 @@ long mcFormat()//622D8(<), 629BC(<) (F)
 	unsigned long cmd;
 	unsigned long res;
 
-	MemCardSync(0, &cmd, &res);
+	MemCardSync(0, (long*)&cmd, (long*)&res);
 
 	res = MemCardFormat(0);
 	if (res == 0)

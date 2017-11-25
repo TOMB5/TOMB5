@@ -14,13 +14,11 @@
 #include "3D_GEN.H"
 
 #include <assert.h>
-
-#if PSXPC_VERSION || PC_VERSION
-	#include <math.h>
-#endif
+#include "SPECTYPES.H"
+#include CMATH_H
 
 #if PSX_VERSION
-#include <INLINE_C.H>
+#include INLINE_H
 #endif
 
 #include <stddef.h>

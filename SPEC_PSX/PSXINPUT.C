@@ -1,6 +1,7 @@
 #include "PSXINPUT.H"
 
 #include "CONTROL.H"
+#include <LIBPAD.H>
 
 static struct pad_configs pad_cons[5] =
 {
@@ -75,10 +76,7 @@ void S_UpdateInput()//5F628, 6038C
 	a1 = 1;
 	a2 = 0;
 	
-	v0 = 0;
-	s1 = v0;
-	s1 = v0;
-	PadInfoMode();
+	s1 = v0 = PadInfoMode(0, 1, 0);
 
 	s2 = v0 & 0xFF;
 	if (s1 == 0 || (s2 != 4) || (s2 != 2))

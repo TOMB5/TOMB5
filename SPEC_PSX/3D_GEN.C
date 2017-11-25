@@ -25,7 +25,11 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 {
 	if (rcossin_tbl[(((((((view_angle * 2) + view_angle) * 8) - view_angle) * 4) - view_angle) / 8) & 0x1FFE] == 0)
 	{
+#if PAELLA
+		S_Warn("[phd_InitWindow] - Unimplemented mips\n");
+#else
 		__asm__ volatile ("break 7");
+#endif
 	}
 
 	//loc_5D7B0

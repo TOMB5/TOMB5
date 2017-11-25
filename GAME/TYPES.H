@@ -71,7 +71,8 @@ inline int phd_atan(long x, long y)
 #define RED5(rgb) (((rgb >> 10) & 0x1F) << 3)
 #define GREEN5(rgb) (((rgb >> 5) & 0x1F) << 3)
 #define BLUE5(rgb) ((rgb & 0x1F) << 3)
-#define WHITE555 RGB555(128, 128, 128)
+#define WHITE555 RGB555(255, 255, 255)
+#define GRAY555  RGB555(128, 128, 128)
 #define BLACK555 RGB555(  0,   0,   0)
 
 //#define SECTOR 1024
@@ -80,7 +81,7 @@ inline int phd_atan(long x, long y)
 
 #define SECTOR_TO_WORLD(S) ((S) > (0) ? SECTOR((S) + 0.5) : (0))
 
-
+#define XZ_GET_SECTOR(room, x, z) (r->floor[(int)((z) / 1024 + r->x_size * ((x) / 1024))])
 
 #define PSXENGINE (PSXPC_VERSION || PSX_VERSION)
 
@@ -136,6 +137,7 @@ enum target_type
 enum room_flags
 {
 	RF_FILL_WATER = (1 << 0),			    // 0x0001
+	RF_ALWAYS_SFX = (1 << 1),				// 0x0002
 	RF_SKYBOX_VISIBLE = (1 << 3),		    // 0x0008   speeds up rendering if no rendered room has this
 	RF_WIND_BLOWS_PONYTAIL = (1 << 5),	    // 0x0020   also some particles
 	RF_UNKNOWN_6 = (1 << 6),			    // 0x0040   used in official levels, no apparent effects

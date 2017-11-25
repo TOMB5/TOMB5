@@ -15,7 +15,7 @@
 #include "SETUP.H"
 #endif
 #include "SPECIFIC.H"
-
+#include "SPECTYPES.H"
 #include <stddef.h>
 #include "OBJECTS.H"
 #include "SAVEGAME.H"

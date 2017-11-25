@@ -3,12 +3,16 @@
 #include "LOAD_LEV.H"
 #include "SPECIFIC.H"
 
-#include <INLINE_C.H>
+#include INLINE_H
 
+#ifdef PAELLA
+#define gte_rldlzc( r0 )
+#else
 #define gte_rldlzc( r0 ) __asm__ volatile (			\
 	"mfc2	%0, $31"					\
 	:							\
 	: "r"( r0 ) )
+#endif
 
 long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 {

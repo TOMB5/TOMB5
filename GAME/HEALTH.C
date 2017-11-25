@@ -43,9 +43,53 @@ void AddDisplayPickup(short object_number)//3B6F4, ? (F)
 	DEL_picked_up_object(object_number);
 }
 
-void DrawPickups(int timed)
+void DrawPickups(int timed)// (F)
 {
-	S_Warn("[DrawPickups] - Unimplemented!\n");
+	struct DISPLAYPU* pu = &pickups[CurrentPickup];
+	long lp;
+
+	if (pu->life > 0)
+	{
+		if (PickupX > 0)
+		{
+			PickupX += (-PickupX >> 3);
+		}
+		else
+		{
+			pu->life--;
+		}
+	}
+	else if (pu->life == 0)
+	{
+		if (PickupX < 128)
+		{
+			if (PickupVel < 16)
+				PickupX += ++PickupVel;
+		}
+		else
+		{
+			pu->life = -1;
+			PickupVel = 0;
+		}
+	}
+	else
+	{
+		for (lp = 0; lp < 8; lp++)
+		{
+			if (pickups[(CurrentPickup + lp) % 8].life > 0)
+				break;
+		}
+
+		if (lp == 8)
+		{
+			CurrentPickup = 0;
+			return;
+		}
+
+		CurrentPickup = (CurrentPickup + lp) % 8;
+	}
+
+	S_DrawPickup(pu->object_number);
 }
 
 void InitialisePickUpDisplay()//3B580, 3B9DC (F)
@@ -73,7 +117,21 @@ void DrawHealthBar(int flash_state)
 }
 
 void DrawGameInfo(int timed)//3AD68(<), 3B268(!)
-{ // line 2, offset 0x3ad68
+{ 
+#if PC_VERSION
+	if (GLOBAL_playing_cutseq == 0 &&
+		!bDisableLaraControl &&
+		gfGameMode != 1)
+	{
+		int flash_state = FlashIt();
+		DrawHealthBar(flash_state);
+		DrawAirBar(flash_state);
+		DrawPickups(timed);
+		/*if (DashTimer < 120)
+			s_drawdas*/
+	}
+#else
+	// line 2, offset 0x3ad68
 	int flash_state; // $s0
 					 //{ // line 17, offset 0x3adac
 	char sbuf[80]; // stack offset -192
@@ -111,7 +169,7 @@ void DrawGameInfo(int timed)//3AD68(<), 3B268(!)
 	
 
 	return;
-
+#endif
 } // line 79, offset 0x3b0a0
 
 int FlashIt()//3AD2C, 3B22C

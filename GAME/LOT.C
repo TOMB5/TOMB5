@@ -99,6 +99,24 @@ void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0 (
 
 int EnableBaddieAI(short item_number, int Always)//4DF0C, 4E370
 {
+	/*struct ITEM_INFO* item = &items[item_number];
+
+	if (item->data != NULL)
+		return 1;
+
+	if (slots_used >= 5)
+	{
+		
+	}
+	else
+	{
+		int slot;
+		for(slot = 0; slot < 5; slot++)
+		{
+			
+		}
+	}*/
+
 	S_Warn("[EnableBaddieAI] - Unimplemented!\n");
 	return 0;
 }

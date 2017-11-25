@@ -2,6 +2,7 @@
 #include "SPECIFIC.H"
 #include "CONTROL.H"
 #include "EFFECTS.H"
+#include "SPECTYPES.H"
 #include <stddef.h>
 #include "DRAW.H"
 #include "BOX.H"

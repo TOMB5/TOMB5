@@ -651,6 +651,25 @@ enum lara_mesh
 	NUM_LARA_MESHES
 };
 
+/*enum LM
+{
+	LM2_HIPS = 0,
+	LM2_LTHIGH = 1,
+	LM2_LSHIN = 2,
+	LM2_LFOOT = 3,
+	LM2_RTHIGH = 4,
+	LM2_RSHIN = 5,
+	LM2_RFOOT = 6,
+	LM2_TORSO = 7,
+	LM2_RINARM = 14,
+	LM2_ROUTARM = 8,
+	LM2_RHAND = 9,
+	LM2_LINARM = 10,
+	LM2_LOUTARM = 11,
+	LM2_LHAND = 12,
+	LM2_HEAD = 13,
+};*/
+
 enum lara_draw_type
 {
 	LARA_NORMAL = 1,

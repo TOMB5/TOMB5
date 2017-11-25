@@ -2,6 +2,7 @@
 #define SPECTYPES_H
 
 #define INPUT_H "PCINPUT.H"
+#define CMATH_H "math.h"
 
 #include "TYPES.H"
 #include <stddef.h>

@@ -340,9 +340,37 @@ int GetKeyTrigger(struct ITEM_INFO* item)//56080, 56520
 	return 0;
 }
 
-int GetSwitchTrigger(struct ITEM_INFO* item, short* ItemNos, long AttatchedToSwitch)//55F4C, 563EC
+int GetSwitchTrigger(struct ITEM_INFO* item, short* ItemNos, long AttatchedToSwitch)//55F4C, 563EC (F)
 {
-	S_Warn("[GetSwitchTrigger] - Unimplemented!\n");
+	short* data = trigger_index;
+
+	GetHeight(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &item->room_number),
+		item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+
+	if (data != NULL)
+	{
+		while ((*data & 0x1F) != 4 && !(*data & 0x8000))
+			data++;
+
+		if (*data & 4)
+		{
+			short num = 0;
+			
+			do
+			{
+				data += 2;
+
+				if (!(*data & 0x3C00) && item != &items[*data & 0x3FF])
+				{
+					ItemNos[num] = *data & 0x3FF;
+					num++;
+				}
+			} while (!(*data & 0x8000));
+
+			return num;
+		}
+	}
+
 	return 0;
 }
 

@@ -24,7 +24,7 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 	CdSearchFile(&fp, buf);
 
 	cdCurrentSector = CdPosToInt(&fp.pos);
-	CD_Read(pDest, fp.size);
+	CD_Read((char*)pDest, fp.size);
 
 	return fp.size;
 }

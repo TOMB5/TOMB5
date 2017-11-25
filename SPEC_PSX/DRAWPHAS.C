@@ -22,7 +22,7 @@
 #include "TEXT.H"
 #include "TOMB4FX.H"
 
-#include <INLINE_C.H>
+#include INLINE_H
 #include <LIBGPU.H>
 #include <stdio.h>
 
@@ -1118,8 +1118,8 @@ void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CH
 		*(char*) &db.polyptr[48] = a3->u + a3->w;
 		*(char*) &db.polyptr[49] = a3->v + a3->h;
 
-		*(long*) &db.polyptr[0] = db.ot[0] | 0x0C000000;
-		db.ot[0] = db.polyptr;
+		*(long*)&db.polyptr[0] = db.ot[0] | 0x0C000000;
+		db.ot[0] = (unsigned long)db.polyptr;
 
 		db.polyptr += sizeof(POLY_GT4);
 
@@ -1173,11 +1173,15 @@ void SetGunFlash(short gun_type)
 
 void InitObjGTE()
 {
+#ifdef PAELLA
+	S_Warn("[InitObjGTE] - Unimplemented!\n");
+#else
 	__asm__ volatile ("li $0, 0xAA;");
 	__asm__ volatile ("ctc2	$0, $29;");
 	__asm__ volatile ("li $0, 0x80A;");
 	__asm__ volatile ("ctc2	$0, $30;");
 	gte_ldfcdir(0, 0, 0);
+#endif
 }
 
 void insert_psx_clip_window(long x, long y, long w, long a3, long h)
@@ -1221,7 +1225,7 @@ void DrawTpage(unsigned char a0, unsigned char a1)//5EE78(<), 5FB58(<) (F)
 {
 	if ((unsigned long) db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		*(long*) &db.ot[a0] = db.polyptr;
+		*(long*) &db.ot[a0] = (long)db.polyptr;
 		*(long*) &db.polyptr[0] = db.ot[a0] | 0x01000000;
 		*(long*) &db.polyptr[4] = a1 << 5 | 0xE1000000;
 	}
