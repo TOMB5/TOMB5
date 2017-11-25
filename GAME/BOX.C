@@ -15,8 +15,10 @@
 #include "SETUP.H"
 #endif
 
+#include "SPECTYPES.H"
 #include <assert.h>
 #include <stddef.h>
+#include "CAMERA.H"
 
 int number_boxes;
 struct box_info* boxes;
@@ -123,9 +125,49 @@ short SameZone(struct creature_info* creature, struct ITEM_INFO* target_item)//2
 	return (zone[item->box_number] == zone[target_item->box_number]);
 }
 
-void FindAITargetObject(struct creature_info* creature, short obj_num)
+void FindAITargetObject(struct creature_info* creature, short obj_num)// (F)
 {
-	S_Warn("[FindAITargetObject] - Unimplemented!\n");
+	if (nAIObjects > 0)
+	{
+		struct ITEM_INFO* item = &items[creature->item_num];
+		struct AIOBJECT* target_item = &AIObjects[0];
+		short i;
+
+		for (i = 0; i < nAIObjects; i++, target_item++)
+		{
+			if (target_item->object_number == obj_num
+				&& target_item->trigger_flags == item->item_flags[3]
+				&& target_item->room_number != 255)
+			{
+				short* zone = ground_zone[0][flip_status + 2 * creature->LOT.zone];
+				struct room_info* r = &room[item->room_number];
+
+				item->box_number = XZ_GET_SECTOR(r, item->pos.x_pos - r->x, item->pos.z_pos - r->z).box;
+				target_item->box_number = XZ_GET_SECTOR(r, target_item->x - r->x, target_item->z - r->z).box;
+
+				if (zone[item->box_number] == zone[target_item->box_number])
+					break;
+			}
+		}
+
+		creature->enemy = &creature->ai_target;
+
+		creature->ai_target.object_number = target_item->object_number;
+		creature->ai_target.room_number = target_item->room_number;
+		creature->ai_target.pos.x_pos = target_item->x;
+		creature->ai_target.pos.y_pos = target_item->y;
+		creature->ai_target.pos.z_pos = target_item->z;
+		creature->ai_target.pos.y_rot = target_item->y_rot;
+		creature->ai_target.flags = target_item->flags;
+		creature->ai_target.trigger_flags = target_item->trigger_flags;
+		creature->ai_target.box_number = target_item->box_number;
+
+		if (!(creature->ai_target.flags & 0x20))
+		{
+			creature->ai_target.pos.x_pos += CLICK * (SIN(creature->ai_target.pos.y_rot)) >> W2V_SHIFT;
+			creature->ai_target.pos.z_pos += CLICK * (COS(creature->ai_target.pos.y_rot)) >> W2V_SHIFT;
+		}
+	}
 }
 
 void GetAITarget(struct creature_info* creature)

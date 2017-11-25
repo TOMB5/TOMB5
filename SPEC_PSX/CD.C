@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <LIBCD.H>
 #include <LIBSPU.H>
+#include <LIBETC.H>
 
 //Number of XA files on disc (XA1-17.XA)
 #define NUM_XA_FILES 17
@@ -84,7 +85,7 @@ void XAReplay()//5D838(<), 5DCB4(<)
 
 	CdIntToPos(XAStartPos, &loc);
 	
-	if (CdControl(CdlReadS, &loc, 0) == 1)
+	if (CdControl(CdlReadS, (unsigned char*)&loc, 0) == 1)
 	{
 		XACurPos = XAStartPos;
 	}
@@ -125,7 +126,7 @@ void cbvsync()//5D884(<), 5DD00(<)
 		XAEndPos = XATrackList[cnt][1] + XATrackClip[XAReqTrack];
 		XACurPos = XAStartPos;
 
-		CdControlF(CdlSetfilter, &io);
+		CdControlF(CdlSetfilter, &io[0]);
 		
 		XAFlag++;
 
@@ -182,14 +183,14 @@ void cbvsync()//5D884(<), 5DD00(<)
 					//loc_5DAEC
 					if (CdLastCom() == 0x11);
 					{
-						cnt = CdPosToInt(&io[5]);
+						cnt = CdPosToInt((CdlLOC*)&io[5]);
 
 						if (cnt > 0)
 						{
 							XACurPos = cnt;
 						}
 
-						CdControlF(&io[5], 0);
+						CdControlF(CdlGetlocP, 0);
 					}
 				}
 				else if (XARepeat == 0)
@@ -314,8 +315,8 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 	DEL_ChangeCDMode(0);
 	
 	CdSearchFile(&fp, GAMEWAD_FILENAME);//662F0
-	CdControlB(CdlSetloc, &fp, 0);//6956C
-	CdRead(1, &local_wadfile_header, 0x80); //69C4C
+	CdControlB(CdlSetloc, (unsigned char*)&fp, 0);//6956C
+	CdRead(1, (unsigned long*)&local_wadfile_header, 0x80); //69C4C
 
 	while (CdReadSync(1, 0) > 0)
 	{
@@ -437,9 +438,9 @@ void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
 	if (numSectorsToRead != 0)
 	{
 		CdIntToPos(cdCurrentSector, &fp.pos);
-		CdControlB(CdlSetloc, &fp, 0);
+		CdControlB(CdlSetloc, (unsigned char*)&fp, 0);
 
-		CdRead(numSectorsToRead, pDest, 0x80);
+		CdRead(numSectorsToRead, (unsigned long*)pDest, 0x80);
 
 		while (CdReadSync(1, 0) > 0)
 		{
@@ -454,8 +455,8 @@ void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
 	{
 		pDest += numSectorsToRead * 2048;
 		CdIntToPos(cdCurrentSector, &fp.pos);
-		CdControlB(CdlSetloc, &fp, 0);
-		CdRead(1, pDest, 0x80);
+		CdControlB(CdlSetloc, (unsigned char*)&fp, 0);
+		CdRead(1, (unsigned long*)pDest, 0x80);
 
 		while (CdReadSync(1, 0) > 0)
 		{

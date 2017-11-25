@@ -49,7 +49,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 	LOAD_Start(Name + TITLE);
 
-	SetupPtr = &db.poly_buffer[1026];
+	SetupPtr = &db.poly_buffer[0][1026];
 
 #if INTERNAL
 	len = FILE_Length("DATA\\SETUP.MOD");

@@ -263,9 +263,9 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	r->test_bottom = 239;
 	phd_bottom = 239;
 
-	outside = r->flags & 8;
+	outside = r->flags & RF_SKYBOX_VISIBLE;
 
-	if (r->flags & 1)
+	if (r->flags & RF_FILL_WATER)
 	{
 		camera_underwater = 0xFFFF0000;
 	}

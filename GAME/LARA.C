@@ -5471,11 +5471,11 @@ int LaraHitCeiling(struct ITEM_INFO* item, struct COLL_INFO* coll)//11C94, 11D44
 		item->fallspeed = 0;
 		item->gravity_status = 0;
 
-		return 1;
+		return TRUE;
 	}
 	else
 	{
-		return 0;
+		return FALSE;
 	}
 }
 
@@ -5497,14 +5497,14 @@ int LaraLandedBad(struct ITEM_INFO* item, struct COLL_INFO* coll)//11BD8(<), 11C
 		}
 	}
 
-	return 0;
+	return FALSE;
 }
 
 int LaraFallen(struct ITEM_INFO* item, struct COLL_INFO* coll)//11B6C, 11C1C (F)
 {
 	if (lara.water_status == 4 || coll->mid_floor <= 384)
 	{
-		return 0;
+		return FALSE;
 	}
 	else
 	{
@@ -5514,7 +5514,7 @@ int LaraFallen(struct ITEM_INFO* item, struct COLL_INFO* coll)//11B6C, 11C1C (F)
 		item->frame_number = anims[ANIMATION_LARA_FREE_FALL_FORWARD].frame_base;
 		item->fallspeed = 0;
 		item->gravity_status = TRUE;
-		return 1;
+		return TRUE;
 	}
 }
 
@@ -5578,7 +5578,18 @@ void SetLaraUnderwaterNodes()
 	S_Warn("[SetLaraUnderwaterNodes] - Unimplemented!\n");
 }
 
-void SetPendulumVelocity(int x, int y, int z)
+void SetPendulumVelocity(int x, int y, int z)// (F)
 {
-	S_Warn("[SetPendulumVelocity] - Unimplemented!\n");
+	if ((CurrentPendulum.node & 0xFFFFFFFE) < 24)
+	{
+		int val = 4096 / ((12 - (CurrentPendulum.node >> 1)) << 9 >> 8) << 8; // todo make this more beautiful
+
+		x = (x * val) >> 16;
+		y = (y * val) >> 16;
+		z = (z * val) >> 16;
+	}
+
+	CurrentPendulum.Velocity.x += x;
+	CurrentPendulum.Velocity.y += y;
+	CurrentPendulum.Velocity.z += z;
 }

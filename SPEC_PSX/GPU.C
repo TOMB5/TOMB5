@@ -26,7 +26,7 @@ void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C
 	db.order_table[0] = &pBuffers[0];
 	db.order_table[1] = &pBuffers[nOTSize];
 	db.nOTSize = nOTSize;
-	db.pickup_order_table[0] = &db.disp[1];
+	db.pickup_order_table[0] = (unsigned long*)&db.disp[1];
 	db.pickup_order_table[1] = &GadwOrderingTables_V2[256];
 #if 0
 	//Should be safe to use 32-bit ptrs tho
@@ -372,7 +372,7 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 	*(short*) &db.polyptr[34] = a1 + (-t5 - t6);
 
 	*(long*) &db.polyptr[0] = db.ot[0] | 0x09000000;
-	db.ot[0] = &db.polyptr[0];
+	db.ot[0] = (unsigned long)&db.polyptr[0];
 	
 	db.polyptr += 0x28;//sizeof(POLY_F3); * 2?
 
@@ -390,7 +390,7 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 	*(short*) &db.polyptr[36] = 0xDFFF;
 
 	*(long*) &db.polyptr[0] = db.ot[0] | 0x9000000;
-	db.ot[0] = db.polyptr;
+	db.ot[0] = (unsigned long)db.polyptr;
 	
 	sizeof(POLY_G3);
 	db.polyptr += 0x28;

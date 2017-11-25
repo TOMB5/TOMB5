@@ -3,6 +3,7 @@
 #include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 #include "EFFECTS.H"
+#include "SPECTYPES.H"
 #include <stddef.h>
 
 int sound_active = 0;

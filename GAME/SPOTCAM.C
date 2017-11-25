@@ -15,6 +15,8 @@
 
 #if PSXPC_VERSION || PC_VERSION
 	#include <math.h>
+#elif PSX_VERSION
+	#include <LIBMATH.H>
 #endif
 
 #define MULFP(A, B) ((A % B) << 16) | ((A * B) >> 16)

@@ -19,6 +19,7 @@
 #include <LIBGPU.H>
 #include <LIBPAD.H>
 #include <stdio.h>
+#include <LIBMCRD.H>
 
 void VSyncFunc()//10000(<), 10000(<) (F)
 {

@@ -4,7 +4,7 @@
 #include "ITEMS.H"
 #include "LARA.H"
 #include "SPECIFIC.H"
-
+#include "SPECTYPES.H"
 #include <stddef.h>
 #include "TOMB4FX.H"
 

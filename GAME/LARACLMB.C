@@ -50,9 +50,87 @@ void lara_as_climbend(struct ITEM_INFO* item, struct COLL_INFO* coll)//46DF8(<),
 	camera.target_angle = ANGLE(-45);
 }
 
-void lara_col_climbdown(struct ITEM_INFO* item, struct COLL_INFO* coll)//46BD0, 47034
+void lara_col_climbdown(struct ITEM_INFO* item, struct COLL_INFO* coll)//46BD0, 47034 (F)
 {
-	S_Warn("[lara_col_climbdown] - Unimplemented!\n");
+	int frame;
+	int yshift;
+	int result_r, result_l;
+	int shift_r, shift_l;
+
+	if (LaraCheckForLetGo(item, coll) || item->anim_number != ANIMATION_LARA_LADDER_DOWN)
+		return;
+
+	frame = item->frame_number - anims[ANIMATION_LARA_LADDER_DOWN].frame_base;
+
+	switch(frame)
+	{
+	case 0:
+		yshift = 0;
+		break;
+
+	case 28:
+	case 29:
+		yshift = 256;
+		break;
+
+	case 57:
+		yshift = 512;
+		break;
+
+	default:
+		return;
+	}
+	
+	item->pos.y_pos += yshift + 256;
+
+	result_r = LaraTestClimbPos(item, coll->radius, coll->radius + 120, -512, 512, &shift_r);
+	result_l = LaraTestClimbPos(item, coll->radius, -(coll->radius + 120), -512, 512, &shift_l);
+
+	item->pos.y_pos -= 256;
+
+	if (result_r != 0 && result_l != 0 &&
+		result_r != -2 && result_l != -2 &&
+		input & IN_DOWN)
+	{
+		if (shift_r && shift_l)
+		{
+			if (shift_r < 0 != shift_l < 0)
+			{
+				item->goal_anim_state = STATE_LARA_LADDER_IDLE;
+				AnimateLara(item);
+
+				return;
+			}
+
+			if (shift_r < 0 && shift_r < shift_l ||
+				shift_r > 0 && shift_r > shift_l)
+			{
+				shift_l = shift_r;
+			}
+		}
+
+		if (result_r == -1 || result_l == -1)
+		{
+			item->anim_number = ANIMATION_LARA_LADDER_IDLE;
+			item->frame_number = anims[ANIMATION_LARA_LADDER_IDLE].frame_base;
+
+			item->current_anim_state = STATE_LARA_LADDER_IDLE;
+			item->goal_anim_state = STATE_LARA_HANG;
+
+			AnimateLara(item);
+		}
+		else
+		{
+			item->goal_anim_state = STATE_LARA_LADDER_DOWN;
+			item->pos.y_pos -= yshift;
+		}
+		return;
+	}
+
+	item->goal_anim_state = STATE_LARA_LADDER_IDLE;
+
+	if (yshift != 0)
+		AnimateLara(item);
 }
 
 void lara_as_climbdown(struct ITEM_INFO* item, struct COLL_INFO* coll)//46BA4(<), 47008(<) (F)
@@ -271,9 +349,114 @@ int LaraTestClimbPos(struct ITEM_INFO* item, int front, int right, int origin, i
 	return LaraTestClimb(x, item->pos.y_pos + origin, z, xfront, zfront, height, item->room_number, shift);
 }
 
-void LaraDoClimbLeftRight(struct ITEM_INFO* item, struct COLL_INFO* coll, int result, int shift)//46100, 46564
+void LaraDoClimbLeftRight(struct ITEM_INFO* item, struct COLL_INFO* coll, int result, int shift)//46100, 46564 (F)
 {
-	S_Warn("[LaraDoClimbLeftRight] - Unimplemented!\n");
+	if (result == 1)
+	{
+		if (input & IN_LEFT)
+		{
+			item->goal_anim_state = STATE_LARA_LADDER_LEFT;
+		}
+		else if (input & IN_RIGHT)
+		{
+			item->goal_anim_state = STATE_LARA_LADDER_RIGHT;
+		}
+		else
+		{
+			item->goal_anim_state = STATE_LARA_LADDER_IDLE;
+		}
+
+		item->pos.y_pos += shift;
+
+		return;
+	}
+
+	if (result != 0)
+	{
+		item->goal_anim_state = STATE_LARA_HANG;
+
+		do
+		{
+			AnimateItem(item);
+		} while (item->current_anim_state != STATE_LARA_HANG);
+
+		item->pos.x_pos = coll->old.x;
+		item->pos.z_pos = coll->old.z;
+
+		return;
+	}
+
+	item->pos.x_pos = coll->old.x;
+	item->pos.z_pos = coll->old.z;
+
+	item->goal_anim_state = STATE_LARA_LADDER_IDLE;
+	item->current_anim_state = STATE_LARA_LADDER_IDLE;
+
+	if (coll->old_anim_state != STATE_LARA_LADDER_IDLE)
+	{
+		item->anim_number = ANIMATION_LARA_LADDER_IDLE;
+		item->frame_number = anims[ANIMATION_LARA_LADDER_IDLE].frame_base;
+
+		return;
+	}
+
+	if (input & IN_LEFT)
+	{
+		const int flag = LaraClimbLeftCornerTest(item, coll);
+
+		if (flag)
+		{
+			if (flag <= 0)
+			{
+				item->anim_number = ANIMATION_LARA_LADDER_AROUND_LEFT_INNER_BEGIN;
+				item->frame_number = anims[ANIMATION_LARA_LADDER_AROUND_LEFT_INNER_BEGIN].frame_base;
+
+				item->goal_anim_state = STATE_LARA_CLIMB_CORNER_LEFT_INNER;
+				item->current_anim_state = STATE_LARA_CLIMB_CORNER_LEFT_INNER;
+			}
+			else
+			{
+				item->anim_number = ANIMATION_LARA_LADDER_AROUND_LEFT_OUTER_BEGIN;
+				item->frame_number = anims[ANIMATION_LARA_LADDER_AROUND_LEFT_OUTER_BEGIN].frame_base;
+
+				item->goal_anim_state = STATE_LARA_CLIMB_CORNER_LEFT_OUTER;
+				item->current_anim_state = STATE_LARA_CLIMB_CORNER_LEFT_OUTER;
+			}
+
+			return;
+		}
+	}
+	else if (input & IN_RIGHT)
+	{
+		const int flag = LaraClimbRightCornerTest(item, coll);
+
+		if (flag)
+		{
+			if (flag <= 0)
+			{
+				item->anim_number = ANIMATION_LARA_LADDER_AROUND_RIGHT_INNER_BEGIN;
+				item->frame_number = anims[ANIMATION_LARA_LADDER_AROUND_RIGHT_INNER_BEGIN].frame_base;
+
+				item->goal_anim_state = STATE_LARA_CLIMB_CORNER_RIGHT_INNER;
+				item->current_anim_state = STATE_LARA_CLIMB_CORNER_RIGHT_INNER;
+			}
+			else
+			{
+				item->anim_number = ANIMATION_LARA_LADDER_AROUND_RIGHT_OUTER_BEGIN;
+				item->frame_number = anims[ANIMATION_LARA_LADDER_AROUND_RIGHT_OUTER_BEGIN].frame_base;
+
+				item->goal_anim_state = STATE_LARA_CLIMB_CORNER_RIGHT_OUTER;
+				item->current_anim_state = STATE_LARA_CLIMB_CORNER_RIGHT_OUTER;
+			}
+
+			return;
+		}
+	}
+
+	item->anim_number = coll->old_anim_number;
+	item->frame_number = coll->old_frame_number;
+
+	AnimateLara(item);
 }
 
 int LaraClimbRightCornerTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//45DE4, 46248

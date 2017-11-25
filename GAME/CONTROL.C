@@ -937,7 +937,7 @@ void ClearDynamics()//8B1EC(<), 8D230(<) (F)
 	}
 }
 
-int is_object_in_room(int roomnumber, int objnumber)
+int is_object_in_room(int roomnumber, int objnumber)// (F)
 {
 	short item_num = room[roomnumber].item_number;
 	short nex;
@@ -1419,4 +1419,9 @@ int check_xray_machine_trigger()// (F)
 	}
 
 	return FALSE;
+}
+
+void AnimateItem(struct ITEM_INFO* item)
+{
+	S_Warn("[AnimateItem] - Unimplemented!\n");
 }

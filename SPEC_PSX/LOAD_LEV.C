@@ -7,7 +7,7 @@
 #include "MALLOC.H"
 #include "PROFILE.H"
 #include "TYPES.H"
-
+#include "SPECTYPES.H"
 #include <assert.h>
 #include <stddef.h>
 #include <LIBGTE.H>
@@ -412,7 +412,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 		*tmpptr++ |= 0x80008000;
 	}
 
-	LoadImage(&db.disp[1].disp, gfx);
+	LoadImage(&db.disp[1].disp, (unsigned long*)gfx);
 	DrawSync(0);
 
 	//loc_603AC
@@ -439,7 +439,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	}
 
 	//loc_603D4
-	LoadImage(&db.disp[0].disp, gfx);
+	LoadImage(&db.disp[0].disp, (unsigned long*)gfx);
 	DrawSync(0);
 	game_free(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 

@@ -131,7 +131,7 @@ void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, 
 	spark->Friction = 4;
 	if (GetRandomControl() & 1)
 	{
-		if (room[lara_item->room_number].flags & 0x20)
+		if (room[lara_item->room_number].flags & RF_WIND_BLOWS_PONYTAIL)
 			spark->Flags = 272;
 		else
 			spark->Flags = 16;
@@ -141,7 +141,7 @@ void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, 
 		else
 			spark->RotAdd = (GetRandomControl() & 0xF) + 16;
 	}
-	else if (room[lara_item->room_number].flags & 0x20)
+	else if (room[lara_item->room_number].flags & RF_WIND_BLOWS_PONYTAIL)
 	{
 		spark->Flags = 256;
 	}
@@ -174,7 +174,7 @@ void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, 
 	}
 }
 
-void TriggerDynamic(long x, long y, long z, int a4, int r, int g, int b)
+void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 {
 	S_Warn("[TriggerDynamic] - Unimplemented!\n");
 }

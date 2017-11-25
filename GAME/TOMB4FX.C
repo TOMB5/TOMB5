@@ -663,3 +663,13 @@ void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_
 		TriggerBlood(x, y, z, direction, speed);
 	}
 }
+
+void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
+{
+	S_Warn("[TriggerRicochetSpark] - Unimplemented!\n");
+}
+
+void Ricochet(struct GAME_VECTOR* pos)
+{
+	S_Warn("[Ricochet] - Unimplemented!\n");
+}

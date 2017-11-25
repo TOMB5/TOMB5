@@ -3,7 +3,7 @@
 
 // required for NULL macro because if we define it ourselves it shits brixes
 #include <stdlib.h>
-#include <stddef.h>
+//#include <stddef.h>
 
 /*#ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
@@ -81,7 +81,7 @@ inline int phd_atan(long x, long y)
 
 #define SECTOR_TO_WORLD(S) ((S) > (0) ? SECTOR((S) + 0.5) : (0))
 
-
+#define XZ_GET_SECTOR(room, x, z) (r->floor[(int)((z) / 1024 + r->x_size * ((x) / 1024))])
 
 #define PSXENGINE (PSXPC_VERSION || PSX_VERSION)
 
@@ -137,6 +137,7 @@ enum target_type
 enum room_flags
 {
 	RF_FILL_WATER = (1 << 0),			    // 0x0001
+	RF_ALWAYS_SFX = (1 << 1),				// 0x0002
 	RF_SKYBOX_VISIBLE = (1 << 3),		    // 0x0008   speeds up rendering if no rendered room has this
 	RF_WIND_BLOWS_PONYTAIL = (1 << 5),	    // 0x0020   also some particles
 	RF_UNKNOWN_6 = (1 << 6),			    // 0x0040   used in official levels, no apparent effects

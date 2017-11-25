@@ -33,7 +33,7 @@
 #include "SWITCH.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
-
+#include "SPECTYPES.H"
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -158,7 +158,7 @@ void RelocateLevel()
 #endif
 		LOAD_DrawEnable(0);
 
-		LoadImage(&tex, ptr);
+		LoadImage(&tex, (unsigned long*)ptr);
 
 		DrawSync(0);
 
@@ -702,7 +702,7 @@ long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, l
 
 	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
 	SpuSetTransferStartAddr(LlVABAddr);
-	SpuWrite(pSoundData, soundWadSize);
+	SpuWrite((unsigned char*)pSoundData, soundWadSize);
 	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
 
 	if (numSounds > 0)

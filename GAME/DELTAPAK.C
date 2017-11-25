@@ -32,6 +32,7 @@
 #include "SETUP.H"
 #endif
 
+#include "SPECTYPES.H"
 #include <assert.h>
 #include <stddef.h>
 #include "SOUND.H"

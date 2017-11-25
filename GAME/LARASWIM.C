@@ -1,6 +1,7 @@
 #include "LARASWIM.H"
 
 #include "CAMERA.H"
+#include CMATH_H
 #include "COLLIDE.H"
 #include "CONTROL.H"
 #include "DRAW.H"
@@ -10,6 +11,8 @@
 #include "LARAFIRE.H"
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
+#include "EFFECTS.H"
+#include "SOUND.H"
 
 struct SUBSUIT_INFO subsuit;
 char SubHitCount = 0;
@@ -340,9 +343,72 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 	TestTriggers(coll->trigger, 0, 0);
 }
 
-void UpdateSubsuitAngles()//4BD20, 4C184
+void UpdateSubsuitAngles()//4BD20, 4C184 (F)
 {
-	S_Warn("[UpdateSubsuitAngles] - Unimplemented!\n");
+	if (subsuit.YVel != 0)
+	{
+		lara_item->pos.y_pos += subsuit.YVel / 4;
+		subsuit.YVel = ceil(0.9375 * subsuit.YVel - 1); // YVel * (15/16)
+	}
+
+	subsuit.Vel[0] = subsuit.Vel[1] = -4 * lara_item->fallspeed;
+
+	if (subsuit.XRot >= subsuit.dXRot)
+	{
+		if (subsuit.XRot > subsuit.dXRot)
+		{
+			if (subsuit.XRot > 0 && subsuit.dXRot < 0)
+				subsuit.XRot = ceil(0.75 * subsuit.XRot);
+
+			subsuit.XRot -= ANGLE(2);
+
+			if (subsuit.XRot < subsuit.dXRot)
+			{
+				subsuit.XRot = subsuit.dXRot;
+			}
+		}
+	}
+	else
+	{
+		if (subsuit.XRot < 0 && subsuit.dXRot > 0)
+			subsuit.XRot = ceil(0.75 * subsuit.XRot);
+
+		subsuit.XRot += ANGLE(2);
+
+		if (subsuit.XRot > subsuit.dXRot)
+		{
+			subsuit.XRot = subsuit.dXRot;
+		}
+	}
+
+	if (subsuit.dXRot != 0)
+	{
+		lara_item->pos.x_rot += CLAMP(subsuit.dXRot >> 3, ANGLE(-2), ANGLE(2));
+	}
+
+	subsuit.Vel[0] += abs(subsuit.XRot >> 3);
+	subsuit.Vel[1] += abs(subsuit.XRot >> 3);
+
+	if (lara.turn_rate > 0)
+	{
+		subsuit.Vel[0] += 2 * abs(lara.turn_rate);
+	}
+	else if (lara.turn_rate < 0)
+	{
+		subsuit.Vel[1] += 2 * abs(lara.turn_rate);
+	}
+
+	if (subsuit.Vel[0] > 1536)
+		subsuit.Vel[0] = 1536;
+
+	if (subsuit.Vel[1] > 1536)
+		subsuit.Vel[1] = 1536;
+
+	if (subsuit.Vel[0] != 0 || subsuit.Vel[1] != 0)
+	{
+		// todo make the formula clearer
+		SoundEffect(SFX_LARA_UNDERWATER_ENGINE, &lara_item->pos, (((subsuit.Vel[0] + subsuit.Vel[1]) * 4) & 0x1F00) + 10);
+	}
 }
 
 void SwimTurnSubsuit(struct ITEM_INFO* item)//4BBDC, 4C040 (F)
