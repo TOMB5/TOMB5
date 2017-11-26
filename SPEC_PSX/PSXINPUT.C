@@ -77,21 +77,23 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 
 	//loc_5F650
 	state = PadGetState(0);
-	type = PadInfoMode(0, 1, 0) & 0xFF;
+	type = PadInfoMode(0, 1, 0);
 
-	if (state == 0 || type != 2 || type != 7)
+	if (state == 0)
 	{
-		//loc_5F688
-		RawPad = 0;
-		PadConnected = 0;
-		RawEdge = 0;
-		input = 0;
+		if (type != 4 || type != 7)
+		{
+			//loc_5F688
+			RawPad = 0;
+			PadConnected = 0;
+			RawEdge = 0;
+			input = 0;
 
-		dword_A1894 = 0;//static? sw
-		dword_A1890 = 0;//static? sw
-		reset_count = 0;
-
-		return;
+			dword_A1894 = 0;//static? sw
+			dword_A1890 = 0;//static? sw
+			reset_count = 0;
+			return;
+		}
 	}
 
 	//loc_5F6AC
@@ -105,7 +107,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	//lhu	$v1, 0x3F7A($gp)
 	///@FIXME accesses GPad1+2 as short
 	//maybe:
-	v1 = *(short*) &GPad1.dataFormat;
+	v1 = *(short*) &GPad1.transStatus;///@FIXME incorrect!
 
 	PadConnected = 1;
 	RawPad = (v1 ^ -1) & 0xFFFF;
