@@ -6,6 +6,7 @@
 #include "DELSTUFF.H"
 #include "CONTROL.H"
 #include "DRAW.H"
+#include "DRAWPHAS.H"
 #include "CAMERA.H"
 #include "EFFECTS.H"
 #include "DELTAPAK.H"
@@ -626,10 +627,10 @@ void Fade()//34B78(<), 35078(<) (F)
 
 	//loc_34C4C
 #if PSX_VERSION
-	 //DrawPsxTile(0, 0xF00200, (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade | 0x62000000, 2);
-#endif
-
+	 DrawPsxTile(0, 0xF00200, (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade | 0x62000000, 2);
+#else
 	S_Warn("[Fade] - Unimplemented!\n");
+#endif
 }
 
 void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb)

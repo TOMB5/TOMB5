@@ -167,8 +167,8 @@ long DrawPhaseGame()//63F04, 645E0
 		if (InfraRed)
 		{
 #if PSX_VERSION
-			//DrawPsxTile(0, 0xF00200, 0x62202000, 2);//@a1 = 8bit window height 16bit window width
-			//DrawPsxTile(0, 0xF00200, 0x62000020, 1);//@a1 = 8bit window height 16bit window width
+			DrawPsxTile(0, 0xF00200, 0x62202000, 2);//@a1 = 8bit window height 16bit window width
+			DrawPsxTile(0, 0xF00200, 0x62000020, 1);//@a1 = 8bit window height 16bit window width
 #endif
 		}
 	}
@@ -1353,4 +1353,21 @@ void DrawLineV(long a0, long a1, long a2, long a3)//5EF84(<),
 		sw	$t0, 0x3644($gp)//db.polyptr
 #endif
 #endif
+}
+
+void DrawPsxTile(long a0, long a1, long a2, long a3)
+{
+	long t1 = 0;//lw $t1, arg_10($sp) OT index
+
+	if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
+	{
+		((long*)db.polyptr)[8] = 0;
+		((long*)db.polyptr)[12] = a2;
+		((long*)db.polyptr)[16] = a0;
+		((long*)db.polyptr)[20] = a1;
+		((long*)db.polyptr)[0] = db.ot[t1] | 0x5000000;
+		db.ot[t1] = (unsigned long)db.polyptr;
+		((long*)db.polyptr)[4] = (a3 & 3) << 5 | 0xE1000200;
+		db.polyptr += 0x18;
+	}
 }
