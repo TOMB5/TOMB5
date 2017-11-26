@@ -1136,9 +1136,28 @@ void DrawFlash()
 	S_Warn("[DrawFlash] - Unimplemented!\n");
 }
 
-void SortOutWreckingBallDraw()
+void SortOutWreckingBallDraw()//64E78(<), 65528(<) (F)
 {
-	S_Warn("[SortOutWreckingBallDraw] - Unimplemented!\n");
+	int i;
+
+	if (number_draw_rooms > 0)
+	{
+		//loc_64EA0
+		for(i = 0; i < number_draw_rooms; i++)
+		{
+			if(draw_rooms[i] == WB_room)
+			{
+				return;
+			}
+		}
+
+		//loc_64EBC
+		//a0 = &WB_item[0];
+		//v1 = (unsigned long*)RelocPtr[31];
+		//jalr v1[1](&WB_item[0]);
+		WB_room = -1;
+
+	}//loc_64EBC
 }
 
 void CalcClipWindow_ONGTE(short room_number, long unknown)
@@ -1355,7 +1374,7 @@ void DrawLineV(long a0, long a1, long a2, long a3)//5EF84(<),
 #endif
 }
 
-void DrawPsxTile(long a0, long a1, long a2, long a3)
+void DrawPsxTile(long a0, long a1, long a2, long a3)//8F770(<), 917B4(<) (F)
 {
 	long t1 = 0;//lw $t1, arg_10($sp) OT index
 
