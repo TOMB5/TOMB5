@@ -564,8 +564,71 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 	}
 }
 
-void Fade()
+void Fade()//34B78(<), 35078(<) (F)
 {
+	if (dScreenFade != 0)
+	{
+		if (dScreenFade > ScreenFade)
+		{
+			ScreenFade = ScreenFadeSpeed + ScreenFade;
+
+			if (ScreenFade < dScreenFade)
+			{
+				ScreenFade = dScreenFade;
+
+				if (ScreenFade > dScreenFade)
+				{
+					ScreenFadedOut = 1;
+
+					if (ScreenFadeBack == 0)
+					{
+						//loc_34C30
+						ScreenFading = 0;
+					}
+
+					dScreenFade = 0;
+					ScreenFadeBack = 0;
+				}//loc_34C34
+			}//loc_34C34
+		}
+		else
+		{
+			//loc_34BFC
+			ScreenFade -= ScreenFadeSpeed;
+			if (ScreenFade < dScreenFade)
+			{
+				//loc_34C30
+				ScreenFade = dScreenFade;
+			}//loc_34C34
+		}
+	}
+	else
+	{
+		//loc_34BF0
+
+		if (dScreenFade < ScreenFade)
+		{
+			//loc_34BFC
+			ScreenFade -= ScreenFadeSpeed;
+			if (ScreenFade < dScreenFade)
+			{
+				//loc_34C30
+				ScreenFade = dScreenFade;
+			}//loc_34C34
+		}//loc_34C34
+	}
+
+	//loc_34C34
+	if(ScreenFade == 0 && dScreenFade == 0)
+	{
+		return;
+	}
+
+	//loc_34C4C
+#if PSX_VERSION
+	 //DrawPsxTile(0, 0xF00200, (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade | 0x62000000, 2);
+#endif
+
 	S_Warn("[Fade] - Unimplemented!\n");
 }
 
