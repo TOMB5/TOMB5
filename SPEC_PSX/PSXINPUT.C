@@ -40,8 +40,8 @@ long RawEdge;
 unsigned char Motors[2];
 long LaraLookY;
 long LaraLookX;
-volatile struct ControllerPacket GPad1;
-volatile struct ControllerPacket GPad2;
+volatile ControllerPacket GPad1;
+volatile ControllerPacket GPad2;
 unsigned long Edge2;
 struct GouraudBarColourSet healthBarColourSet;
 struct GouraudBarColourSet poisonBarColourSet;
@@ -104,13 +104,8 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	}
 
 	//loc_5F6D0
-	//lhu	$v1, 0x3F7A($gp)
-	///@FIXME accesses GPad1+2 as short
-	//maybe:
-	v1 = *(short*) &GPad1.transStatus;///@FIXME incorrect!
-
 	PadConnected = 1;
-	RawPad = (v1 ^ -1) & 0xFFFF;
+	RawPad = (GPad1.data.pad ^ -1) & 0xFFFF;
 	if (SetDebounce != 0)
 	{
 		RawEdge ^= RawPad;
@@ -266,8 +261,30 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		//v1 = in & 0x280;
 		if (in & 0x200)
 		{
-			//lbu	$v1, 0x3F7E($gp) (GPad1+0x6)... ControllerPacket bad struct!
 			assert(0);
+			//lbu	$v1, 0x3F7E($gp) (GPad1+0x6)
+			//v1 = GPad1.data.mouse.xOffset;
+			//v0 = 0x7F;
+			//v0 -= v1;
+			//v0 <<= 24;
+			//a0 = v0 >> 24;
+			//v1 = in & 0x80;
+			//v1 <<= 24;
+			//v0 = a0 < 0x21 ? 1 : 0;
+			//a1 = v1 >> 24;
+			//if (a0 < 0x21)
+			{
+				//loc_5FAE4
+			}
+			//else if (a0 > 0x5F)
+			{
+				in |= 4;
+				//loc_5FAFC
+			}
+			//else
+			{
+				in |= 4;
+			}
 		}//loc_5FB8C
 
 		if (in & 0x280 == 0x80 && BinocularRange == 0 && !(in & 3))
@@ -293,7 +310,10 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		{
 			//loc_5FC04
 			///@FIXME GPad1+5 invalid!
+			assert(0);
 #if 0
+			//v1 = GPad1.data.mouse.yOffset;
+
 			loc_5FC04:
 			lbu	$v0, 0x3F7D($gp)
 			li	$v1, 0x7F
@@ -499,6 +519,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 
 	//Edge2 = Pad2.3;
 #if INTERNAL
+	assert(0);
 	if (GPad2.transStatus != 0xFF)
 	{
 #if 0
