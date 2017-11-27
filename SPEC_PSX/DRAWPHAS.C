@@ -1205,8 +1205,51 @@ void InitObjGTE()
 
 void insert_psx_clip_window(long x, long y, long w, long a3, long h)
 {
-	return;
+	DRAWENV env;
 
+	return;
+#if 0
+	//sw	$a3, arg_10($sp)
+
+	//a3 = w;
+	//a2 = y;
+	//v0 = db.current_buffer;
+	//a1 = x;
+	//a0 = 0x1F800000;
+
+	if (db.current_buffer != 0)
+	{
+		//v0 = 0xF00000;
+		//a2 += 0xF0;
+	}
+	//loc_8FDCC
+	env.dr_env.
+	SetDefDrawEnv(, x, y, w, h);
+
+	loc_8FDCC:
+	jal	sub_68350
+	sw	$v0, 0x64($a0)
+
+	lui	$a1, 0x1F80
+	lw	$v0, 0x1F800064
+	lw	$a0, 0x3644($gp)
+	sw	$v0, 0x1F800008
+	li	$v0, 1
+	sb	$v0, 0x1F800016
+	jal	sub_66040
+	sb	$zero, 0x1F800018
+	lw	$ra, 0x1F800060
+	lw	$a0, 0x3640($gp)
+	lw	$a1, 0x3644($gp)
+	lw	$at, 0x280C($a0)
+	lui	$v0, 0x600
+	or $at, $v0
+	sw	$a1, 0x280C($a0)
+	sw	$at, 0($a1)
+	addiu	$a1, 0x1C
+	jr	$ra
+	sw	$a1, 0x3644($gp)
+#endif
 #if 0
 	static DRAWENV env;
 
@@ -1380,13 +1423,13 @@ void DrawPsxTile(long a0, long a1, long a2, long a3)//8F770(<), 917B4(<) (F)
 
 	if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
 	{
-		((long*)db.polyptr)[8] = 0;
-		((long*)db.polyptr)[12] = a2;
-		((long*)db.polyptr)[16] = a0;
-		((long*)db.polyptr)[20] = a1;
+		((long*)db.polyptr)[2] = 0;
+		((long*)db.polyptr)[3] = a2;
+		((long*)db.polyptr)[4] = a0;
+		((long*)db.polyptr)[5] = a1;
 		((long*)db.polyptr)[0] = db.ot[t1] | 0x5000000;
 		db.ot[t1] = (unsigned long)db.polyptr;
-		((long*)db.polyptr)[4] = (a3 & 3) << 5 | 0xE1000200;
+		((long*)db.polyptr)[1] = (a3 & 3) << 5 | 0xE1000200;
 		db.polyptr += 0x18;
 	}
 }
