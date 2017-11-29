@@ -11,7 +11,7 @@ void VibratePad()//604EC(<), 61064(<) (F)
 	int i;
 	struct VIBRATION* v;
 
-	if (DualShock == 0 && savegame.VibrateOn)
+	if (DualShock == 0 || savegame.VibrateOn == 0)
 	{
 		//loc_60510
 		Motors[0] = 0;
