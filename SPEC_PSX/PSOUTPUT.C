@@ -83,10 +83,10 @@ void VibratePad()//604EC(<), 61064(<) (F)
 					//loc_60648
 					Motors[0] = 0;
 				}
-
-				//loc_60650
-				v->Len--;
 			}
+
+			//loc_60650
+			v->Len--;
 		}
 		else
 		{
