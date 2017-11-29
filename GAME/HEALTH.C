@@ -5,12 +5,12 @@
 #include "DRAWPHAS.H"
 #include "GAMEFLOW.H"
 #include "LARA.H"
-#include "NEWINV2.H"
-#include "OBJECTS.H"
-#include "SPECIFIC.H"
 #include "SPOTCAM.H"
 
 #include <stdio.h>
+#include "SPECIFIC.H"
+#include "OBJECTS.H"
+#include "NEWINV2.H"
 
 int health_bar_timer = 0;
 char PoisonFlag = 0;
@@ -186,47 +186,5 @@ int FlashIt()//3AD2C, 3B22C
 	return flash_state;
 }
 
-void AddDisplayPickup(short object_number)//3B6F4(<), 3BB50(<) (F)
-{
-	struct DISPLAYPU* pu = &pickups[0];
-	long lp = 0;
 
-	if (gfCurrentLevel == LVL5_SUBMARINE && object_number == PUZZLE_ITEM1)
-	{
-		object_number = CROWBAR_ITEM;
-	}
 
-	if (gfCurrentLevel == LVL5_OLD_MILL && object_number == PUZZLE_ITEM3)
-	{
-		object_number = CROWBAR_ITEM;
-	}
-
-	if (pu->life < 0)
-	{
-		pu->life = 45;
-		pu->object_number = object_number;
-	}
-	else
-	{
-		//loc_3B764
-		lp++;
-
-		//loc_3B768
-		do
-		{
-			if (lp > 7)
-			{
-				DEL_picked_up_object(object_number);
-				return;
-			}
-		} while (++pu->life >= 0, lp++);
-
-		pu->life = 45;
-		pu->object_number = object_number;
-	}
-
-	//loc_3B790
-	DEL_picked_up_object(object_number);
-
-	return;
-}
