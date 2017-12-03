@@ -23,6 +23,10 @@ extern void print_all_object_NOW();
 extern long GetStringLength(char* string, unsigned short* a1, unsigned short* a2);
 extern void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CHARDEF* a3);
 extern void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, char* string, unsigned short flag);
+extern void DrawTPage(unsigned char a0, unsigned char a1);
+extern void DrawLineH(long a0, long a1, long a2, long a3);
+extern void DrawLineV(long a0, long a1, long a2, long a3);
+extern void DrawPsxTile(long a0, long a1, long a2, long a3);
 
 extern long StoreBoxes;
 extern struct GAME_VECTOR LaraPos;

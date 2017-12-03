@@ -167,8 +167,8 @@ long DrawPhaseGame()//63F04, 645E0
 		if (InfraRed)
 		{
 #if PSX_VERSION
-			//DrawPsxTile(0, 0xF00200, 0x62202000, 2);//@a1 = 8bit window height 16bit window width
-			//DrawPsxTile(0, 0xF00200, 0x62000020, 1);//@a1 = 8bit window height 16bit window width
+			DrawPsxTile(0, 0xF00200, 0x62202000, 2);//@a1 = 8bit window height 16bit window width
+			DrawPsxTile(0, 0xF00200, 0x62000020, 1);//@a1 = 8bit window height 16bit window width
 #endif
 		}
 	}
@@ -1087,7 +1087,7 @@ void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CH
 
 		*(short*) &db.polyptr[14] = 4197;
 		*(short*) &db.polyptr[26] = 41;
-		sizeof(POLY_GT4);
+		//sizeof(POLY_GT4);
 
 		v1 = a3->w;
 		a1 += a3->YOffset;
@@ -1136,9 +1136,28 @@ void DrawFlash()
 	S_Warn("[DrawFlash] - Unimplemented!\n");
 }
 
-void SortOutWreckingBallDraw()
+void SortOutWreckingBallDraw()//64E78(<), 65528(<) (F)
 {
-	S_Warn("[SortOutWreckingBallDraw] - Unimplemented!\n");
+	int i;
+
+	if (number_draw_rooms > 0)
+	{
+		//loc_64EA0
+		for(i = 0; i < number_draw_rooms; i++)
+		{
+			if(draw_rooms[i] == WB_room)
+			{
+				return;
+			}
+		}
+
+		//loc_64EBC
+		//a0 = &WB_item[0];
+		//v1 = (unsigned long*)RelocPtr[31];
+		//jalr v1[1](&WB_item[0]);
+		WB_room = -1;
+
+	}//loc_64EBC
 }
 
 void CalcClipWindow_ONGTE(short room_number, long unknown)
@@ -1186,6 +1205,52 @@ void InitObjGTE()
 
 void insert_psx_clip_window(long x, long y, long w, long a3, long h)
 {
+	DRAWENV env;
+
+	return;
+#if 0
+	//sw	$a3, arg_10($sp)
+
+	//a3 = w;
+	//a2 = y;
+	//v0 = db.current_buffer;
+	//a1 = x;
+	//a0 = 0x1F800000;
+
+	if (db.current_buffer != 0)
+	{
+		//v0 = 0xF00000;
+		//a2 += 0xF0;
+	}
+	//loc_8FDCC
+	env.dr_env.
+	SetDefDrawEnv(, x, y, w, h);
+
+	loc_8FDCC:
+	jal	sub_68350
+	sw	$v0, 0x64($a0)
+
+	lui	$a1, 0x1F80
+	lw	$v0, 0x1F800064
+	lw	$a0, 0x3644($gp)
+	sw	$v0, 0x1F800008
+	li	$v0, 1
+	sb	$v0, 0x1F800016
+	jal	sub_66040
+	sb	$zero, 0x1F800018
+	lw	$ra, 0x1F800060
+	lw	$a0, 0x3640($gp)
+	lw	$a1, 0x3644($gp)
+	lw	$at, 0x280C($a0)
+	lui	$v0, 0x600
+	or $at, $v0
+	sw	$a1, 0x280C($a0)
+	sw	$at, 0($a1)
+	addiu	$a1, 0x1C
+	jr	$ra
+	sw	$a1, 0x3644($gp)
+#endif
+#if 0
 	static DRAWENV env;
 
 	if (db.current_buffer != 0)
@@ -1206,6 +1271,7 @@ void insert_psx_clip_window(long x, long y, long w, long a3, long h)
 	*(long*)&db.polyptr[0] = db.ot[2563] |= 0x60000000;
 	*(long*) &db.ot[2563] = (long)db.polyptr;
 	db.polyptr += 0x1C;
+#endif
 }
 
 void print_all_object_NOW()//8F474(<), 914B8(<) (F)
@@ -1221,12 +1287,149 @@ void print_all_object_NOW()//8F474(<), 914B8(<) (F)
 	}
 }
 
-void DrawTpage(unsigned char a0, unsigned char a1)//5EE78(<), 5FB58(<) (F)
+void DrawTPage(unsigned char a0, unsigned char a1)//5EE78(<), 5FB58(<) (F)
 {
+	return;
+#if 0
 	if ((unsigned long) db.polyptr < (unsigned long)db.polybuf_limit)
 	{
 		*(long*) &db.ot[a0] = (long)db.polyptr;
 		*(long*) &db.polyptr[0] = db.ot[a0] | 0x01000000;
 		*(long*) &db.polyptr[4] = a1 << 5 | 0xE1000000;
+	}
+#endif
+}
+
+void DrawLineH(long a0, long a1, long a2, long a3)//5EECC(<), 
+{
+	return;
+
+#if 0
+	a0 &= 0xFFFF;
+	a1 &= 0xFFFF;
+	a2 &= 0xFFFF;
+	a3 &= 0xFFFF;
+
+	if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
+	{
+
+	}//locret_5EF7C
+#if 0
+
+		lw	$t1, arg_10($sp)
+		lw	$t2, arg_14($sp)
+		li	$at, 0xFFFFFF
+		and $t1, $at
+		and	$t2, $at
+		lui	$at, 0x5200
+		or $t2, $at
+		or $t1, $at
+		srl	$v0, $a2, 1
+		addu	$v0, $a0, $v0
+		sw	$t1, 4($t0)
+		sh	$a0, 8($t0)
+		sh	$a1, 0xA($t0)
+		sw	$t2, 0xC($t0)
+		sh	$v0, 0x10($t0)
+		sh	$a1, 0x12($t0)
+		addiu	$v0, 1
+		sw	$t2, 0x18($t0)
+		sh	$v0, 0x1C($t0)
+		sh	$a1, 0x1E($t0)
+		addu	$v0, $a0, $a2
+		addiu	$v0, -1
+		sw	$t1, 0x20($t0)
+		sh	$v0, 0x24($t0)
+		sh	$a1, 0x26($t0)
+		lw	$t2, 0x3640($gp)
+		sll	$a3, 2
+		addu	$a3, $t2
+		lw	$v0, 0($a3)
+		lui	$at, 0x900
+		or $v0, $at
+		sw	$t0, 0($a3)
+		sw	$v0, 0($t0)
+		sw	$zero, 0x14($t0)
+		addiu	$t0, 0x28
+
+		locret_5EF7C:
+	jr	$ra
+		sw	$t0, 0x3644($gp)//db.polyptr
+#endif
+#endif
+}
+
+void DrawLineV(long a0, long a1, long a2, long a3)//5EF84(<), 
+{
+	return;
+#if 0
+	a0 &= 0xFFFF;
+	a1 &= 0xFFFF;
+	a2 &= 0xFFFF;
+	a3 &= 0xFFFF;
+
+	if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
+	{
+
+	}//locret_5F038
+#if 0
+		lw	$t1, arg_10($sp)
+		lw	$t2, arg_14($sp)
+		li	$at, 0xFFFFFF
+		and $t1, $at
+		and	$t2, $at
+		lui	$at, 0x5200
+		or $t2, $at
+		or $t1, $at
+		addiu	$v0, $a1, 1
+		sw	$t1, 4($t0)
+		sh	$a0, 8($t0)
+		sh	$v0, 0xA($t0)
+		sw	$t2, 0xC($t0)
+		srl	$v0, $a2, 1
+		addu	$v0, $a1, $v0
+		sh	$a0, 0x10($t0)
+		sh	$v0, 0x12($t0)
+		addiu	$v0, 2
+		sw	$t2, 0x18($t0)
+		sh	$a0, 0x1C($t0)
+		sh	$v0, 0x1E($t0)
+		sw	$t1, 0x20($t0)
+		addu	$v0, $a1, $a2
+		addiu	$v0, -2
+		sh	$a0, 0x24($t0)
+		sh	$v0, 0x26($t0)
+		lw	$t2, 0x3640($gp)
+		sll	$a3, 2
+		addu	$a3, $t2
+		lw	$v0, 0($a3)
+		lui	$at, 0x900
+		or $v0, $at
+		sw	$t0, 0($a3)
+		sw	$v0, 0($t0)
+		sw	$zero, 0x14($t0)
+		addiu	$t0, 0x28
+
+		locret_5F038:
+	jr	$ra
+		sw	$t0, 0x3644($gp)//db.polyptr
+#endif
+#endif
+}
+
+void DrawPsxTile(long a0, long a1, long a2, long a3)//8F770(<), 917B4(<) (F)
+{
+	long t1 = 0;//lw $t1, arg_10($sp) OT index
+
+	if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
+	{
+		((long*)db.polyptr)[2] = 0;
+		((long*)db.polyptr)[3] = a2;
+		((long*)db.polyptr)[4] = a0;
+		((long*)db.polyptr)[5] = a1;
+		((long*)db.polyptr)[0] = db.ot[t1] | 0x5000000;
+		db.ot[t1] = (unsigned long)db.polyptr;
+		((long*)db.polyptr)[1] = (a3 & 3) << 5 | 0xE1000200;
+		db.polyptr += 0x18;
 	}
 }

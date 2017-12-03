@@ -766,12 +766,56 @@ struct TSV
 	unsigned long rgz;
 };
 
-struct ControllerPacket
+typedef unsigned short PadData;
+
+typedef struct
+{
+	unsigned short buttons;
+	char xOffset;
+	char yOffset;
+} MouseData;
+
+typedef struct
+{
+	unsigned short digitalButtons;
+	char centralTwist;
+	char buttonI;
+	char buttonII;
+	char topLeft;
+} NegconData;
+
+typedef struct
 {
 	unsigned char transStatus;
 	unsigned char dataFormat;
-	//struct fake76 data;
-};
+
+	union
+	{
+		PadData    pad;
+		NegconData negcon;
+	}
+	data;
+} TapCtrllerData;
+
+typedef struct
+{
+	TapCtrllerData ctrllers[4];
+} MultiTapData;
+
+typedef struct
+{
+	unsigned char transStatus;
+	unsigned char dataFormat;
+
+	union
+	{
+		PadData      pad;
+		MouseData    mouse;
+		NegconData   negcon;
+		MultiTapData tap;
+	}
+	data;
+} ControllerPacket;
 
 struct pad_configs
 {

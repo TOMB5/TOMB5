@@ -1,16 +1,16 @@
 #include "DOOR.H"
 
-#include "SPECTYPES.H"
-#include "SPECIFIC.H"
+#include "DRAW.H"
+#include "COLLIDE.H"
 #include "CONTROL.H"
+#include "ITEMS.H"
 #include "LARA.H"
 #include "NEWINV2.H"
-#include "../SPEC_PSX/PSXINPUT.H"
-#include "COLLIDE.H"
+#include INPUT_H
 #include "PICKUP.H"
 #include "SOUND.H"
-#include "DRAW.H"
-#include "ITEMS.H"
+#include "SPECIFIC.H"
+#include "SPECTYPES.H"
 #include "SPHERE.H"
 #include "OBJECTS.H"
 

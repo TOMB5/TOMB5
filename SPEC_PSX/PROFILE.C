@@ -220,8 +220,75 @@ void ProfileRGB(int r, int g, int b)//61C94, * (F)
 
 void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 {
-	//char count;//$a2
-	S_Warn("[ProfileAddDrawOT] - Unimplemented!\n");
+	char count = 0;
+
+	if (nummarks > 0)
+	{
+		//loc_61D5C
+		for (count = 0; count < nummarks; count++)
+		{
+			if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
+			{
+				((char*) db.polyptr)[3] = 4;
+				((char*) db.polyptr)[7] = 33;
+				((char*) db.polyptr)[4] = 50;
+				((char*) db.polyptr)[5] = 50;
+				((char*) db.polyptr)[6] = 150;
+
+				((short*) db.polyptr)[5] = 48;
+				((short*) db.polyptr)[3] = 48;
+				((short*) db.polyptr)[9] = 39;
+				((short*) db.polyptr)[6] = (count * grid) + 0x1D;
+				((short*) db.polyptr)[4] = (count * grid) + 0x15;
+				((short*) db.polyptr)[8] = (count * grid) + 0x19;
+
+				((long*) db.polyptr)[0] &= 0xFF000000;
+				((long*) db.polyptr)[0] |= ot[0] & 0xFFFFFF;
+
+				ot[0] = ot[0] & 0xFF000000 | ((long) db.polyptr & 0xFFFFFF);
+				db.polyptr += 0x14;
+			}
+			else
+			{
+				//locret_61EE0
+				return;
+			}
+		}
+	}
+
+	//loc_61E08
+	if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
+	{
+		((char*) db.polyptr)[3] = 8;
+		((char*) db.polyptr)[7] = 57;
+		((char*) db.polyptr)[4] = 0;
+		((char*) db.polyptr)[5] = 200;
+		((char*) db.polyptr)[6] = 0;
+		((char*) db.polyptr)[12] = 200;
+		((char*) db.polyptr)[13] = 0;
+		((char*) db.polyptr)[14] = 0;
+		((char*) db.polyptr)[20] = 0;
+		((char*) db.polyptr)[21] = 200;
+		((char*) db.polyptr)[22] = 0;
+		((char*) db.polyptr)[28] = 200;
+		((char*) db.polyptr)[29] = 0;
+		((char*) db.polyptr)[30] = 0;
+
+		((short*) db.polyptr)[5] = 36;
+		((short*) db.polyptr)[9] = 36;
+		((short*) db.polyptr)[4] = 25;
+		((short*) db.polyptr)[12] = 25;
+		((short*) db.polyptr)[13] = 44;
+		((short*) db.polyptr)[17] = 44;
+		((short*) db.polyptr)[8] = drawCount + 25;
+		((short*) db.polyptr)[16] = drawCount + 25;
+
+		((long*) db.polyptr)[0] &= 0xFF000000;
+		((long*) db.polyptr)[0] |= ot[0] & 0xFFFFFF;
+
+		ot[0] = ot[0] & 0xFF000000 | (long) db.polyptr & 0xFFFFFF;
+		db.polyptr += 0x24;
+	}
 }
 
 
