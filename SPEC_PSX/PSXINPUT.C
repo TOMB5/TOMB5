@@ -44,6 +44,7 @@ int dword_A1890;
 
 void S_UpdateInput()//5F628, 6038C
 {
+#ifndef PAELLA
 	int a0, a1, a2, v0, s1, s2;
 #if 0
 	// line 2, offset 0x5f628
@@ -105,5 +106,5 @@ void S_UpdateInput()//5F628, 6038C
 	//loc_5F6D0
 //	v0 = GPad1.data.pad;
 	PadConnected = 1;
-
+#endif
 }

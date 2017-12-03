@@ -69,6 +69,7 @@ int cdCurrentSector = 0;
 
 void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
 {
+#ifndef NO_SOUND
 	SpuCommonAttr attr;
 	
 	attr.cd.volume.left = nVolume * 64;
@@ -77,6 +78,7 @@ void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
 	attr.cd.mix = SPU_ON;
 	
 	SpuSetCommonAttr(&attr);
+#endif
 }
 
 void XAReplay()//5D838(<), 5DCB4(<)

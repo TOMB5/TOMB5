@@ -27,6 +27,7 @@ unsigned long LadwSampleAddr[MAX_NUM_SOUND_EFFECTS];
 
 void SPU_FreeSamples()//62610, 62CF4
 {
+#ifndef NO_SOUND
 	SPU_StopAll();
 	
 	if(LnSamplesLoaded != 0)
@@ -38,10 +39,12 @@ void SPU_FreeSamples()//62610, 62CF4
 	LnSamplesLoaded = 0;
 	
 	return;
+#endif
 }
 
 void SPU_Init()//62650(<), 62D34(<) (F)
 {
+#ifndef NO_SOUND
 	int nChannel = 0;
 	
 	SpuInit();
@@ -62,16 +65,20 @@ void SPU_Init()//62650(<), 62D34(<) (F)
 	}
 	
 	return;
+#endif
 }
 
 void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
 {
+#ifndef NO_SOUND
 	LabSampleType[channel_index] = 0;
 	LabFreeChannel[LnFreeChannels++] = channel_index;
+#endif
 }
 
 void S_SetReverbType(int reverb)//91CF4, 93D40
 {
+#ifndef NO_SOUND
 	if (reverb != CurrentReverb)
 	{
 		CurrentReverb = reverb;
@@ -79,10 +86,12 @@ void S_SetReverbType(int reverb)//91CF4, 93D40
 		SpuSetReverbModeDepth(DepthTable[reverb], DepthTable[reverb]);
 		SpuSetReverb(SPU_ON);
 	}
+#endif
 }
 
 void SPU_StopAll()
 {
+#ifndef NO_SOUND
 	int ret;
 
 	SpuSetKey(SPU_OFF, SPU_ALLCH);
@@ -92,10 +101,14 @@ void SPU_StopAll()
 		ret = SPU_UpdateStatus();
 	}
 	while (ret != MAX_SOUND_SLOTS);
+#endif
 }
 
 int SPU_UpdateStatus()//915FC, 93640
 {
+#ifdef NO_SOUND
+	return 0;
+#else
 	int i = 0;
 	char status[MAX_SOUND_SLOTS];
 
@@ -111,10 +124,14 @@ int SPU_UpdateStatus()//915FC, 93640
 	}
 	
 	return LnFreeChannels;
+#endif
 }
 
 unsigned char SPU_AllocChannel()//915B0, 935F4
 {
+#ifdef NO_SOUND
+	return 0;
+#else
 	if (LnFreeChannels == 0)
 	{
 		if (SPU_UpdateStatus() != 0)
@@ -125,4 +142,5 @@ unsigned char SPU_AllocChannel()//915B0, 935F4
 
 	//loc_915DC
 	return LabFreeChannel[--LnFreeChannels];
+#endif
 }

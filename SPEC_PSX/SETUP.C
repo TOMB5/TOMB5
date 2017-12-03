@@ -678,6 +678,7 @@ void RelocateLevel()
 
 long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize)
 {
+#ifndef NO_SOUND
 	int i;
 
 	//We have limited the amount of Sound Effects to 255 and the sound wad size.
@@ -714,6 +715,7 @@ long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, l
 	}
 
 	LnSamplesLoaded = numSounds;
+#endif
 
 	return 1;
 }

@@ -37,6 +37,7 @@
 #include <stddef.h>
 #include "SOUND.H"
 #include "EFFECTS.H"
+#include <stdio.h>
 
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =

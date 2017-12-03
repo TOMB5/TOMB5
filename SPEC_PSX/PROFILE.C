@@ -26,12 +26,15 @@ struct COCKSUCK ProfileInfo[32];
 
 void ProfileCallBack()//6194C, * (F)
 {
+#ifndef PAELLA
 	drawCount = GetRCnt(RCntCNT1) / divisor;
 	return;
+#endif
 }
 
 void ProfileInit(int scale)//61978, * (F)
 {
+#ifndef PAELLA
 	grid = scales[scale].xgrid;
 	nummarks = scales[scale].nummarks;
 	divisor = scales[scale].scalefactor;
@@ -46,10 +49,12 @@ void ProfileInit(int scale)//61978, * (F)
 	ExitCriticalSection();
 
 	return;
+#endif
 }
 
 void ProfileStartCount()//61A0C, * (F)
 {
+#ifndef PAELLA
 	ResetRCnt(RCntCNT1);
 	StartRCnt(RCntCNT1);
 
@@ -58,10 +63,12 @@ void ProfileStartCount()//61A0C, * (F)
 	numprof = 0;
 
 	return;
+#endif
 }
 
 void ProfileReadCount()//61A48(<), * (F)
 {
+#ifndef PAELLA
 	int lastCount = currentCount;
 
 	currentCount = GetRCnt(RCntCNT1);
@@ -69,6 +76,7 @@ void ProfileReadCount()//61A48(<), * (F)
 	finalCount = (currentCount - lastCount) / divisor;
 
 	return;
+#endif
 }
 
 void ProfileAddOT(unsigned long* ot)//61A90, *

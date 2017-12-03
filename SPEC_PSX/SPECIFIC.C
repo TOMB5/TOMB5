@@ -131,6 +131,7 @@ void S_SoundSetPanAndVolume(int handle, short wPan, unsigned short wVolume, unsi
 
 void S_SoundStopSample(int handle)//91690(<), 936D4(<)
 {
+#ifndef NO_SOUND
 	if (GtSFXEnabled == 0)
 	{
 		return;
@@ -144,16 +145,19 @@ void S_SoundStopSample(int handle)//91690(<), 936D4(<)
 	//loc_916CC
 	SpuSetVoiceVolume(handle, 0, 0);
 	SpuSetKey(SPU_OFF, SPU_0CH);
+#endif
 }
 
 void S_SoundStopAllSamples()//91D34, 93D80
 {
+#ifndef NO_SOUND
 	if (GtSFXEnabled == 0)
 	{
 		return;
 	}
 
 	SPU_StopAll();
+#endif
 }
 
 void S_PauseAllSamples()
@@ -168,6 +172,7 @@ void S_UnpauseAllSamples()
 
 int S_SoundSampleIsPlaying(int handle)//916F8(<), 9373C(<)
 {
+#ifndef NO_SOUND
 	char status;
 
 	if (GtSFXEnabled == 0)
@@ -183,18 +188,21 @@ int S_SoundSampleIsPlaying(int handle)//916F8(<), 9373C(<)
 	}
 
 	SPU_FreeChannel(handle);
+#endif
 
 	return 0;
 }
 
 void S_SoundSetPitch(int handle, int nPitch)//91768(<), 937AC(<)
 {
+#ifndef NO_SOUND
 	if (GtSFXEnabled == 0)
 	{
 		return;
 	}
 
 	SpuSetVoicePitch(handle, nPitch / 64);
+#endif
 }
 
 long S_DumpScreen()//607A8(<), 61320(<) (F)
