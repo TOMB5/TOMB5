@@ -386,22 +386,22 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	if (_first_time_ever)
 	{
 		//UNKNOWN_41 is the first loading screen image, simply add Gameflow->Language to the base to load language specific load screens.
-		CD_InitialiseReaderPosition(UNKNOWN_41 + Gameflow->Language);
+		DEL_CDFS_OpenFile(UNKNOWN_41 + Gameflow->Language);
 
 		//Request the loading screen/disc bitmaps to be read into gfx ptr.
 		//We don't actually pass the file ID or offset since this is already cached by the previous GAMEWAD_InitialiseFileEntry call.
-		CD_Read(gfx, LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
+		DEL_CDFS_Read(gfx, LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 
 		//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
-		CD_InitialiseReaderPosition(file_number);
+		DEL_CDFS_OpenFile(file_number);
 
 		//We will skip past the loading screen and disc image data so on the next read call we're ready to read SETUP.MOD
-		CD_Seek(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
+		DEL_CDFS_Seek(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 	}
 	else
 	{
 		//loc_60EC4
-		CD_Read(gfx, LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
+		DEL_CDFS_Read(gfx, LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 	}
 #endif
 

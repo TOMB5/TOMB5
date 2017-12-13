@@ -40,7 +40,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 #if! INTERNAL
 	//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
-	CD_InitialiseReaderPosition(Name + TITLE);
+	DEL_CDFS_OpenFile(Name + TITLE);
 #endif
 
 	DrawSync(0);
@@ -60,7 +60,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	PCclose(file);
 
 #else
-	CD_Read((char*)&db.poly_buffer[1024], gwHeader.entries[0].fileSize);//jal 5E414
+	DEL_CDFS_Read((char*)&db.poly_buffer[1024], gwHeader.entries[0].fileSize);//jal 5E414
 #endif
 
 	//RelocateModule((unsigned long)SetupPtr, (unsigned long*)((char*)&db.poly_buffer[*db.poly_buffer[1024] + 8]));
@@ -101,7 +101,7 @@ void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
 	PCClose(file);
 #else
 	cdCurrentSector = AnimFilePos;
-	CD_Read((char*) frames, len);
+	DEL_CDFS_Read((char*) frames, len);
 #endif
 
 	return;

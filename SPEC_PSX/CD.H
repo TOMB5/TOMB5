@@ -110,25 +110,42 @@ struct GAMEWAD_header
 	char reserved[GAMEWAD_HEADER_MAX_LENGTH - (NUM_GAMEWAD_FILE_ENTRIES * sizeof(struct GAMEWAD_entry))];
 };
 
-int CD_InitialiseReaderPosition(int fileID);
-void CD_Read(char* pDest, int fileSize);
-void CD_Seek(int offset);
-void CD_ReaderPositionToCurrent();
+enum
+{
+	CD_MODE_NONE,
+	CD_MODE_DATA,
+	CD_MODE_AUDIO
+};
+
+enum
+{
+	CD_SYNC_STATUS,
+	CD_SYNC_WAIT_START,
+	CD_SYNC_WAIT_END
+};
+
+enum
+{
+	CD_STATUS_NOT_STARTED,
+	CD_STATUS_PLAYING,
+	CD_STATUS_FINISHED
+};
+
 
 extern struct GAMEWAD_header gwHeader;
 extern int gwLba;
 extern int cdCurrentSector;
 extern unsigned short XATrackClip[136];
-extern short XAFadeRate;
 extern int current_cd_mode;
-extern int XACurPos;
-extern int XAEndPos;
-extern short XAVolume;
-extern short XAReqVolume;
+extern volatile int XACurPos;
+extern volatile int XAEndPos;
+extern volatile short XAVolume;
+extern volatile short XAReqVolume;
 extern short XAMasterVolume;
+extern short XAFadeRate;
 extern short XATrack;
 extern short XAReqTrack;
-extern char XAFlag;
+extern volatile char XAFlag;
 extern char XAWait;
 extern int XAStartPos;
 
@@ -143,7 +160,9 @@ extern void S_CDPlay(short track, int mode);
 extern void S_CDStop();
 extern void S_CDPause();
 extern void S_CDRestart();
-
-
+extern int DEL_CDFS_OpenFile(int filenum);//int DEL_CDFS_OpenFile(int filenum);
+extern void DEL_CDFS_Read(char* addr, int size);//extern int DEL_CDFS_Read(void *addr,int size);
+extern void DEL_CDFS_Seek(int offset);//extern int DEL_CDFS_Seek(int offset);
+extern void FRIG_CD_POS_TO_CUR();
 
 #endif
