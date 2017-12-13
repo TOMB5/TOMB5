@@ -42,14 +42,14 @@ unsigned short XATrackClip[] =//Probably used for XA audio start/end pos of each
 
 short XAFadeRate = 8;
 int current_cd_mode = -1;
-int XACurPos;
-int XAEndPos;
-short XAVolume;
-short XAReqVolume;
+volatile int XACurPos;
+volatile int XAEndPos;
+volatile short XAVolume;
+volatile short XAReqVolume;
+volatile char XAFlag;
 short XAMasterVolume;
 short XATrack;
 short XAReqTrack;
-char XAFlag;
 char XAWait;
 static char XARepeat;
 int XAStartPos;
@@ -391,40 +391,40 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F)
 }
 
 /*
-* [FUNCTIONALITY] - CD_InitialiseReaderPosition.
+* [FUNCTIONALITY] - DEL_CDFS_OpenFile.
 * GAMEWAD_header is already in the memory at this point, we loaded it during InitNewCDSystem() (See CD.C)
 * This method initialises the CD's read sector for a specific gamewad entry.
 * File ID indices must match GAMEWAD.OBJ, see gw_files enum (GAMEWAD.H)
 * Note: A File ID of "NONE" or 0 will initialise the reader position back to 0.
 *
 * [USAGE]
-* @PARAM - [fileID] index into GAMEWAD_header.entries you wish to seek to.
+* @PARAM - [filenum] index into GAMEWAD_header.entries you wish to seek to.
 * @RETURN - Filesize of the gamewad entry in bytes.
 */
 
-int CD_InitialiseReaderPosition(int fileID /*$a0*/)//*, 5E3C0(<) (F)
+int DEL_CDFS_OpenFile(int filenum /*$a0*/)//*, 5E3C0(<) (F)
 {
 	//Converting to multiples CD_SECTOR_SIZE since PSX legacy CD routines require the number of sectors to be read
 	//Not the actual file size of the file itself.
-	int relativeFileSector = gwHeader.entries[fileID].fileOffset / CD_SECTOR_SIZE;
+	int relativeFileSector = gwHeader.entries[filenum].fileOffset / CD_SECTOR_SIZE;
 
 	DEL_ChangeCDMode(0);
 	cdCurrentSector = cdStartSector = gwLba + relativeFileSector;
 
-	return gwHeader.entries[fileID].fileSize;
+	return gwHeader.entries[filenum].fileSize;
 }
 
 /*
-* [FUNCTIONALITY] - CD_Read
+* [FUNCTIONALITY] - DEL_CDFS_Read
 * It is assumed that prior to calling this you have initialised the cd's
-* reader's position to the file entry you wish to read see (CD_InitialiseReaderPosition)
+* reader's position to the file entry you wish to read see (DEL_CDFS_OpenFile)
 * This method reads data from disc at it's last sectior/read position.
 *
 * [USAGE]
-* @PARAM - [fileSize] the number of bytes you wish to read [ptr] the memory location the data is read to.
+* @PARAM - [size] the number of bytes you wish to read [addr] the memory location the data is read to.
 */
 
-void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
+void DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F)
 {
 	CdlFILE fp;
 	int i;
@@ -433,14 +433,14 @@ void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
 
 	DEL_ChangeCDMode(0);
 
-	numSectorsToRead = fileSize / CD_SECTOR_SIZE;
+	numSectorsToRead = size / CD_SECTOR_SIZE;
 
 	if (numSectorsToRead != 0)
 	{
 		CdIntToPos(cdCurrentSector, &fp.pos);
 		CdControlB(CdlSetloc, (unsigned char*)&fp, 0);
 
-		CdRead(numSectorsToRead, (unsigned long*)pDest, 0x80);
+		CdRead(numSectorsToRead, (unsigned long*)addr, 0x80);
 
 		while (CdReadSync(1, 0) > 0)
 		{
@@ -451,12 +451,12 @@ void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
 	}
 
 	//Another chunk that is not multiple of 2048 bytes exists, read it
-	if ((fileSize & 0x7FF) != 0)//%
+	if ((size & 0x7FF) != 0)//%
 	{
-		pDest += numSectorsToRead * 2048;
+		addr += numSectorsToRead * 2048;
 		CdIntToPos(cdCurrentSector, &fp.pos);
 		CdControlB(CdlSetloc, (unsigned char*)&fp, 0);
-		CdRead(1, (unsigned long*)pDest, 0x80);
+		CdRead(1, (unsigned long*)addr, 0x80);
 
 		while (CdReadSync(1, 0) > 0)
 		{
@@ -467,24 +467,24 @@ void CD_Read(char* pDest, int fileSize)//*, 5E414(<) (F)
 }
 
 /*
-* [FUNCTIONALITY] - CD_Seek
+* [FUNCTIONALITY] - DEL_CDFS_Seek
 * Seeks from the cd reader's current position.
 * Note: Negative numbers will allow backwards traversal.
 * [USAGE]
 * @PARAM - [offset] the number of bytes you wish to seek (not in sectors).
 */
 
-void CD_Seek(int offset /*$a0*/)//*, 5E54C(<) (F)
+void DEL_CDFS_Seek(int offset /*$a0*/)//*, 5E54C(<) (F)
 {
 	cdCurrentSector = cdStartSector + (offset / CD_SECTOR_SIZE);
 }
 
 /*
-* [FUNCTIONALITY] - CD_ReaderPositionToCurrent
+* [FUNCTIONALITY] - FRIG_CD_POS_TO_CUR
 * Updates the cd reader's start sector to current reader position.
 */
 
-void CD_ReaderPositionToCurrent()//*, 5E564(<) (F)
+void FRIG_CD_POS_TO_CUR()//*, 5E564(<) (F)
 {
 	cdStartSector = cdCurrentSector;
 }
