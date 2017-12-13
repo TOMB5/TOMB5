@@ -67,5 +67,6 @@ extern void TriggerLaraDrips();
 extern void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num);
 extern void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4);
 extern void Ricochet(struct GAME_VECTOR* pos);
+extern void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int a4, char a5, char a6, char a7);
 
 #endif

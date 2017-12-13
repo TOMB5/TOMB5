@@ -152,7 +152,7 @@ void TL_1(struct ITEM_INFO* item)//39AD8, 39FD8 (F)
 
 void ClearSpidersPatch(struct ITEM_INFO* item)//39AA4, 39FA4
 {
-	S_Warn("[ClearSpidersPatch] - Unimplemented!\n");
+	ClearSpiders();
 }
 
 void reset_hair(struct ITEM_INFO* item)//39A84(<), 39F84(<) (F)
@@ -458,7 +458,6 @@ long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<),
 
 void StopSoundEffect(short sample_index)//91FF8(<), 94044(<) (F)
 {
-#if PSX_VERSION
 	int i;
 	short sound_wad_index = sample_lut[sample_index];
 
@@ -476,7 +475,9 @@ void StopSoundEffect(short sample_index)//91FF8(<), 94044(<) (F)
 			S_SoundStopSample(i);
 		}
 	}
-#else
-	S_Warn("[StopSoundEffect] - Unimplemented!\n");
-#endif
+}
+
+void ClearSpiders()
+{
+	S_Warn("[ClearSpiders] - Unimplemented!\n");
 }

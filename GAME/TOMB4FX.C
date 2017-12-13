@@ -629,7 +629,8 @@ void Fade()//34B78(<), 35078(<) (F)
 #if PSX_VERSION
 	 DrawPsxTile(0, 0xF00200, (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade | 0x62000000, 2);
 #else
-	S_Warn("[Fade] - Unimplemented!\n");
+	// todo add DrawPsxTile on spec_psxpc and spec_pc
+	//DrawPsxTile(0, window_width | (window_height << 16), (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade);
 #endif
 }
 
@@ -736,4 +737,9 @@ void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
 void Ricochet(struct GAME_VECTOR* pos)
 {
 	S_Warn("[Ricochet] - Unimplemented!\n");
+}
+
+void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int a4, char a5, char a6, char a7)
+{
+	S_Warn("[TriggerLightning] - Unimplemented!\n");
 }

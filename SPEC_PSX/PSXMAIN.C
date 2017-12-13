@@ -38,7 +38,7 @@ void VSyncFunc()//10000(<), 10000(<) (F)
 }
 
 #ifdef PAELLA
-int psx_main(int argc, char* args[])
+int main(int argc, char* args[])
 #else
 int main(int argc, char* args[])//10064(<), 10064(!) (F)
 #endif

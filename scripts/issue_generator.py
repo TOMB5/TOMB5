@@ -48,8 +48,8 @@
 # $ ./issue_generator.py +w -h -c
 
 # increment this plz
-# rev 8
-# 2017-11-05
+# rev 9
+# 2017-12-03
 
 
 from urllib.request import urlopen
@@ -171,6 +171,7 @@ Status("working for platforms: " + ", ".join(sorted(platforms.keys())))
 
 added = []
 addedFiles = []
+unimplwarn = {p: {f: [] for f in platforms[p]} for p in platforms}
 
 def getfline(path):
 	with open(path, 'r') as fp:
@@ -183,12 +184,32 @@ for plat in sorted(platforms.keys()):
 			Warn("file does not exist - skipping -- '%s'" % path)
 			continue
 
+		un_funcs = [l for l in getfline(path) if "] - Unimpl" in l]
+
+		for i in range(len(un_funcs)):
+			a = un_funcs[i]
+			a = a[a.index("[")+1:a.index("]")]
+			unimplwarn[plat][file].append(a)
+
 		funcs = [l for l in getfline(path) if "(F)" in l]
 
 		for i in range(len(funcs)):
 			a = funcs[i][:funcs[i].index("(")] # take everything until first parenthesis
 			a = a[a.rfind(" ")+1:] # remove everything before last whitespace
 			funcs[i] = a
+
+		for l in sorted(funcs):
+			if l in unimplwarn[plat][file]:
+				Warn("function marked as (F) but still has unimplemented warning -- %s // '%s'" % (path, l))
+
+		for l in sorted(unimplwarn[plat][file]):
+			if l not in platforms[plat][file]:
+				if AUTO_ADD_MISSING:
+					platforms[plat][file][l] = False
+					Hint("function (unimplemented) was not in list - has been added to list -- %s // '%s'" % (path, l))
+				else:
+					Warn("function (unimplemented) in file but not in list - skipping -- %s // '%s'" % (path, l))
+				continue
 
 		for func in sorted(platforms[plat][file].keys(), key=str.lower):
 			if platforms[plat][file][func] and func not in funcs:

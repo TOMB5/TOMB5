@@ -8,6 +8,12 @@
 #include "TOMB4FX.H"
 #include "EFFECTS.H"
 
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
+
 long wibble;
 long SplashCount;
 long KillEverythingFlag;
@@ -61,9 +67,83 @@ void TriggerWaterfallMist(long x, long y, long z, long angle)//331B4, 336B4
 	S_Warn("[TriggerWaterfallMist] - Unimplemented!\n");
 }
 
-void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly)//32EAC, 333AC
+void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly)//32EAC, 333AC (F)
 {
-	S_Warn("[TriggerSuperJetFlame] - Unimplemented!\n");
+	long dx = lara_item->pos.x_pos - item->pos.x_pos;
+	long dz = lara_item->pos.z_pos - item->pos.z_pos;
+
+	if (abs(dx) <= 16384 && abs(dz) <= 16384)
+	{
+		long size = (GetRandomControl() & 0x1FF) - yvel;
+		struct SPARKS* sptr = &spark[GetFreeSpark()];
+
+		if (size < 512)
+			size = 512;
+
+		sptr->On = 1;
+
+		sptr->sR = sptr->sG = (GetRandomControl() & 0x1F) + 48;
+		sptr->sB = (GetRandomControl() & 0x3F) - 64;
+
+		sptr->dR = (GetRandomControl() & 0x3F) - 64;
+		sptr->dG = (GetRandomControl() & 0x3F) - 128;
+		sptr->dB = 32;
+		
+
+		sptr->ColFadeSpeed = 8;
+		sptr->FadeToBlack = 8;
+		sptr->TransType = 2;
+
+		sptr->Life = sptr->sLife = (size >> 9) + (GetRandomControl() & 7) + 16;
+
+		sptr->x = (GetRandomControl() & 0x1F) + item->pos.x_pos - 16;
+		sptr->y = (GetRandomControl() & 0x1F) + item->pos.y_pos - 16;
+		sptr->z = (GetRandomControl() & 0x1F) + item->pos.z_pos - 16;
+
+		sptr->Friction = 51;
+		sptr->MaxYvel = 0;
+		
+		sptr->Flags = 538;
+		if (deadly)
+			sptr->Flags = 539;
+		sptr->Scalar = 2;
+
+		sptr->dSize = (GetRandomControl() & 0xF) + (size >> 6) + 16;
+		sptr->sSize = sptr->Size = sptr->dSize >> 1;
+
+		if ((-(item->trigger_flags & 0xFF) & 7) == 1)
+		{
+			sptr->Gravity = -16 - (GetRandomControl() & 0x1F);
+			sptr->Xvel = (GetRandomControl() & 0xFF) - 128;
+			sptr->Yvel = -size;
+			sptr->Zvel = (GetRandomControl() & 0xFF) - 128;
+			sptr->dSize += sptr->dSize >> 2;
+			return;
+		}
+
+		sptr->y -= 64;
+		sptr->Gravity = -((size >> 9) + GetRandomControl() % (size >> 8));
+		sptr->Yvel = (GetRandomControl() & 0xFF) - 128;
+		sptr->Xvel = (GetRandomControl() & 0xFF) - 128;
+		sptr->Zvel = (GetRandomControl() & 0xFF) - 128;
+
+		if (item->pos.y_rot == 0)
+		{
+			sptr->Zvel = -(size - (size >> 2));
+		}
+		else if (item->pos.y_rot == ANGLE(90))
+		{
+			sptr->Xvel = -(size - (size >> 2));
+		}
+		else if (item->pos.y_rot == ANGLE(-180))
+		{
+			sptr->Zvel = size - (size >> 2);
+		}
+		else
+		{
+			sptr->Xvel = size - (size >> 2);
+		}
+	}
 }
 
 void DetatchSpark(long num, long type)//32D8C, 3328C (F)
@@ -182,4 +262,190 @@ void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 void TriggerFireFlame(int x, int y, int z, int fxObj, signed int a5)
 {
 	S_Warn("[TriggerFireFlame] - Unimplemented!\n");
+}
+
+void TriggerFontFire(struct ITEM_INFO* item, int a2, int a3)
+{
+	S_Warn("[TriggerFontFire] - Unimplemented!\n");
+}
+void TriggerHydraMissileFlame(struct PHD_VECTOR* pos, long x, long y, long z)
+{
+	S_Warn("[TriggerHydraMissileFlame] - Unimplemented!\n");
+}
+
+void TriggerRomanGodMissileFlame(struct PHD_VECTOR* pos, long fx_number)
+{
+	S_Warn("[TriggerRomanGodMissileFlame] - Unimplemented!\n");
+}
+
+void TriggerTorpedoSteam(struct PHD_VECTOR *pos, struct PHD_VECTOR *a2, int a3)// (F)
+{
+	struct SPARKS*  sptr = &spark[GetFreeSpark()];
+	long size;
+
+	sptr->On = 1;
+
+	sptr->sR = 32;
+	sptr->sG = 32;
+	sptr->sB = 32;
+
+	sptr->dR = 128;
+	sptr->dG = 128;
+	sptr->dB = 128;
+
+	sptr->ColFadeSpeed = 2;
+	sptr->FadeToBlack = 8;
+	sptr->TransType = 2;
+
+	sptr->Life = sptr->sLife = (GetRandomControl() & 7) + 16;
+
+	sptr->x = (GetRandomControl() & 0x1F) + pos->x - 16;
+	sptr->y = (GetRandomControl() & 0x1F) + pos->y - 16;
+	sptr->z = (GetRandomControl() & 0x1F) + pos->z - 16;
+
+	sptr->Xvel = a2->x + (GetRandomControl() & 0x7F) - pos->x - 64;
+	sptr->Yvel = a2->y + (GetRandomControl() & 0x7F) - pos->y - 64;
+	sptr->Zvel = a2->z + (GetRandomControl() & 0x7F) - pos->z - 64;
+
+	sptr->Friction = 51;
+	sptr->Gravity = -4 - (GetRandomControl() & 3);
+	sptr->MaxYvel = 0;
+	sptr->Scalar = 2 - a3;
+	sptr->Flags = 538;
+
+	sptr->RotAng = GetRandomControl() & 0xFFF;
+	sptr->RotAdd = (GetRandomControl() & 0x3F) - 32;
+
+	size = (GetRandomControl() & 0xF) + 32;
+	sptr->sSize = size;
+	sptr->Size = size;
+	sptr->dSize = 2 * size;
+}
+
+void TriggerSubMist(struct PHD_VECTOR *pos, struct PHD_VECTOR *a4, int a5)// (F)
+{
+	struct SPARKS*  sptr = &spark[GetFreeSpark()];
+	int v3 = 0;
+	int size;
+	if (a5 < 0)
+	{
+		a5 = -a5;
+		v3 = 2;
+	}
+
+	sptr->sR = 32;
+	sptr->sG = 32;
+	sptr->sB = 32;
+
+	sptr->On = 1;
+
+	sptr->dR = 160;
+	sptr->dG = 160;
+	sptr->dB = 160;
+
+	sptr->ColFadeSpeed = 2;
+	sptr->FadeToBlack = 6;
+	sptr->TransType = 2;
+
+	sptr->Life = sptr->sLife = (GetRandomControl() & 7) - a5 + 16;
+
+	sptr->x = (GetRandomControl() & 0x1F) + pos->x - 16;
+	sptr->y = (GetRandomControl() & 0x1F) + pos->y - 16;
+	sptr->z = (GetRandomControl() & 0x1F) + pos->z - 16;
+
+	sptr->Xvel = a4->x + (GetRandomControl() & 0x7F) - pos->x - 64;
+	sptr->Yvel = a4->y + (GetRandomControl() & 0x7F) - pos->y - 64;
+	sptr->Zvel = a4->z + (GetRandomControl() & 0x7F) - pos->z - 64;
+
+	sptr->Friction = 0;
+	sptr->Def = (objects[DEFAULT_SPRITES].mesh_index & 0xFF) + (v3 != 0 ? 17 : 13);
+	sptr->MaxYvel = 0;
+	sptr->Gravity = -4 - (GetRandomControl() & 3);
+	sptr->Scalar = 1;
+
+	if (v3)
+	{
+		sptr->Flags = 26;
+
+		sptr->RotAng = GetRandomControl() & 0xFFF;
+		sptr->RotAdd = (GetRandomControl() & 0xF) - 8;
+
+		size = (GetRandomControl() & 0xF) + 2 * a5 + 8;
+		sptr->sSize = size;
+		sptr->Size = size;
+		sptr->dSize = 2 * size;
+	}
+	else
+	{
+		sptr->Flags = 10;
+
+		size = (GetRandomControl() & 3) + a5 + 4;
+		sptr->dSize = size;
+		sptr->sSize = size >> 1;
+		sptr->Size = size >> 1;
+	}
+}
+
+void TriggerEngineEffects()
+{
+	S_Warn("[TriggerEngineEffects] - Unimplemented!\n");
+}
+
+void TriggerAirBubbles()// (F)
+{
+	struct PHD_VECTOR pos, v8;
+	struct SPARKS* sptr;
+	long size;
+
+	pos.x = 0;
+	pos.y = -192;
+	pos.z = -160;
+	GetLaraJointPos(&pos, 7);
+
+	v8.x = 0;
+	v8.y = -192;
+	v8.z = -512 - (GetRandomControl() & 0x7F);
+	GetLaraJointPos(&v8, 7);
+
+	sptr = &spark[GetFreeSpark()];
+
+	sptr->sR = 32;
+	sptr->sG = 32;
+	sptr->sB = 32;
+
+	sptr->On = 1;
+
+	sptr->dR = -96;
+	sptr->dG = -96;
+	sptr->dB = -96;
+
+	sptr->ColFadeSpeed = 2;
+	sptr->FadeToBlack = 6;
+	sptr->TransType = 2;
+
+	sptr->Life = sptr->sLife = (GetRandomControl() & 7) + 16;
+
+	sptr->x = (GetRandomControl() & 0x1F) + pos.x - 16;
+	sptr->y = (GetRandomControl() & 0x1F) + pos.y - 16;
+	sptr->z = (GetRandomControl() & 0x1F) + pos.z - 16;
+
+	sptr->Xvel = (GetRandomControl() & 0x7F) - pos.x + v8.x - 64;
+	sptr->Yvel = (GetRandomControl() & 0x7F) - pos.y + v8.y - 64;
+	sptr->Yvel = (GetRandomControl() & 0x7F) - pos.z + v8.z - 64;
+
+	sptr->Friction = 0;
+	sptr->Def = (objects[458].mesh_index & 0xFF) + 17;
+	sptr->MaxYvel = 0;
+	sptr->Gravity = -4 - (GetRandomControl() & 3);
+
+	sptr->Scalar = 1;
+	sptr->Flags = 26;
+
+	sptr->RotAng = GetRandomControl() & 0xFFF;
+	sptr->RotAdd = (GetRandomControl() & 0xF) - 8;
+
+	size = (GetRandomControl() & 0xF) + 16;
+	sptr->sSize = size;
+	sptr->Size = size;
+	sptr->dSize = 2 * size;
 }

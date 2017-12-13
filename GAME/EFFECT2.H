@@ -33,5 +33,12 @@ extern void DetatchSpark(long num, long type);
 extern void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int arg7, int arg8, int arg9);
 extern void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b);
 extern void TriggerFireFlame(int x, int y, int z, int fxObj, signed int a5);
+extern void TriggerFontFire(struct ITEM_INFO* item, int a2, int a3);
+extern void TriggerHydraMissileFlame(struct PHD_VECTOR* pos, long x, long y, long z);
+extern void TriggerRomanGodMissileFlame(struct PHD_VECTOR* pos, long fx_number);
+extern void TriggerTorpedoSteam(struct PHD_VECTOR *pos, struct PHD_VECTOR *a2, int a3);
+extern void TriggerSubMist(struct PHD_VECTOR *pos, struct PHD_VECTOR *a4, int a5);
+extern void TriggerEngineEffects();
+extern void TriggerAirBubbles();
 
 #endif

@@ -49,5 +49,6 @@ extern void WaterFall(short item_number);
 extern void SoundEffects();
 extern long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2);
 extern void StopSoundEffect(short sample_index);
+extern void ClearSpiders();
 
 #endif

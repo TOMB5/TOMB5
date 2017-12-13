@@ -41,8 +41,6 @@ void TriggerLaraBlood()//2A838, 2AA60 (F)
 
 		node <<= 1;
 	}
-
-	S_Warn("[TriggerLaraBlood] - Unimplemented!\n");
 }
 
 void GenericSphereBoxCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A5EC, 2A814
