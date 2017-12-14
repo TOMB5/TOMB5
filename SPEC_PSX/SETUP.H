@@ -8,10 +8,10 @@
 	#define PSX_FILE_VERSION OBJECT_VERSION * -1
 #endif
 
-#if INTERNAL
-extern void RelocateLevel(int nHandle);
-#else
+#if DISC_VERSION
 extern void RelocateLevel();
+#else
+extern void RelocateLevel(int nHandle);
 #endif
 
 extern long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize);

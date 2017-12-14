@@ -6,10 +6,7 @@
 #include <sys/types.h>
 #include <libcd.h>
 #include <stdio.h>
-
-#if INTERNAL
-	#include <libsn.h>
-#endif
+#include <libsn.h>
 
 int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 {
@@ -29,13 +26,11 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 	return fp.size;
 }
 
-#if INTERNAL
 int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? (F)
 {
 	int nAmount = nItems * nItemSize;
 	return PCread(nHandle, pDest, nAmount);
 }
-#endif
 
 unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
 {

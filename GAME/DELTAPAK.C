@@ -406,7 +406,7 @@ int cutseq_malloc_free;
 unsigned short old_lara_holster;
 short temp_rotation_buffer[160];
 
-#if INTERNAL
+#if DEBUG_VERSION
 	#define CD_PLAY_MODE 1
 #else
 	#define CD_PLAY_MODE 0
@@ -2811,7 +2811,7 @@ void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
 
 	if (cutseq_resident_addresses[cutseq_num].packed_data == NULL)
 	{
-#if INTERNAL
+#if DEBUG_VERSION && PSX_VERSION
 		ProfileDraw = 0;
 		DrawSync(0);
 		VSync(0);
@@ -2820,7 +2820,7 @@ void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
 		ReloadAnims(name, cutseq_malloc_used);
 	}
 
-#if INTERNAL
+#if DEBUG_VERSION && PSX_VERSION
 	ProfileDraw = 1;
 	DrawSync(0);
 	VSync(0);
@@ -2944,7 +2944,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 			}
 
 			//loc_2C4D0
-#if INTERNAL
+#if DEBUG_VERSION && PSX_VERSION
 			ProfileDraw = 0;
 #endif
 		}

@@ -14,6 +14,7 @@
 #include "LARA.H"
 #include "LOAD_LEV.H"
 #include "OBJECTS.H"
+#include "PRINTOBJ.H"
 #include "MATHS.H"
 #include "ROOMLOAD.H"
 #include "SETUP.H"
@@ -223,7 +224,7 @@ long DrawPhaseGame()//63F04, 645E0
 	GPU_EndScene();
 	camera.number_frames = S_DumpScreen();
 
-#if INTERNAL//GC change?
+#if BETA_VERSION//GC change?
 	S_AnimateTextures(camera.number_frames);
 #else
 	if (gfCurrentLevel == LVL5_SECURITY_BREACH)
@@ -256,7 +257,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	short* old_arm_anim[2];
 	struct GAME_VECTOR sp;
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
 #endif
 
@@ -408,14 +409,14 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 		if (lara_item->mesh_bits != 0 && SCNoDrawLara == 0)
 		{
-#if INTERNAL
+#if DEBUG_VERSION
 			ProfileRBG(0, 255, 0);
 #endif
 
 			//unsigned long* ptr = (unsigned long*)RelocPtr[1];
 			//jalr ptr[0];
 
-#if INTERNAL
+#if DEBUG_VERSION
 			ProfileRGB(255, 255, 0);
 #endif
 			mPushMatrix();
@@ -498,7 +499,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	mPushMatrix();
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
 #endif
 
@@ -514,7 +515,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 
 	//loc_64BBC
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileRGB(255, 0, 0);
 #endif
 
@@ -601,13 +602,13 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	//loc_64DE0
 	InItemControlLoop = 1;
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
 #endif
 
 	print_all_object_NOW();
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileRGB(0, 255, 0);
 #endif
 
@@ -1160,8 +1161,100 @@ void SortOutWreckingBallDraw()//64E78(<), 65528(<) (F)
 	}//loc_64EBC
 }
 
-void CalcClipWindow_ONGTE(short room_number, long unknown)
+void CalcClipWindow_ONGTE(short room_number, long unknown)//8F374, 
 {
+	//t2 = unknown;
+	//t5 = room_number;
+	//t7 = lara_item;
+	//t4 = number_draw_rooms;
+	//t6 = &room[0];
+	//t7 = lara_item->room_number;//fixme loads word but short?!?
+	//a0 = 512;
+	//a1 = 0;
+	//a2 = 256;
+	//a3 = 0;
+	//t3 = 0;
+
+	if (number_draw_rooms <= 0)
+	{
+		//locret_8F46C
+		return;
+	}
+
+	//loc_8F3AC
+	//t1 = &draw_rooms[0];
+	//t0 = draw_rooms[0];
+	//t3++;
+	//v1 = &room[draw_rooms[0]];
+	if (unknown != 0)
+	{
+		//at = r->flags;
+
+	}//loc_8F3DC
+#if 0
+
+		lhu	$at, 0x4E($v1)
+		nop
+		andi	$at, 0x28
+		beqz	$at, loc_8F440
+		nop
+
+		loc_8F3DC :
+	bne	$t0, $t5, loc_8F3EC
+		nop
+		beqz	$t2, loc_8F440
+		nop
+
+		loc_8F3EC :
+	bne	$t0, $t7, loc_8F3FC
+		nop
+		beqz	$t2, loc_8F440
+		nop
+
+		loc_8F3FC :
+	lh	$t0, 0x38($v1)
+		lh	$v0, 0x3A($v1)
+		slt	$at, $t0, $a0
+		beqz	$at, loc_8F414
+		slt	$at, $a1, $v0
+		addiu	$a0, $t0, 1
+
+		loc_8F414:
+	beqz	$at, loc_8F420
+		lh	$t0, 0x3C($v1)
+		addiu	$a1, $v0, -1
+
+		loc_8F420 :
+		lh	$v0, 0x3E($v1)
+		slt	$at, $t0, $a2
+		beqz	$at, loc_8F434
+		slt	$at, $a3, $v0
+		addiu	$a2, $t0, 1
+
+		loc_8F434 :
+		beqz	$at, loc_8F440
+		nop
+		addiu	$a3, $v0, -1
+
+		loc_8F440 :
+		slt	$at, $t3, $t4
+		bnez	$at, loc_8F3AC
+		addiu	$t1, 2
+
+		loc_8F44C :
+		sll	$a0, 16
+		sll	$a1, 16
+		sll	$a2, 16
+		sll	$a3, 16
+		mtc2	$a0, $6
+		mtc2	$a1, $20
+		mtc2	$a2, $21
+		mtc2	$a3, $22
+
+		locret_8F46C :
+	jr	$ra
+		nop
+#endif
 	S_Warn("[CalcClipWindow_ONGTE] - Unimplemented!\n");
 }
 
@@ -1170,8 +1263,179 @@ void DrawAllFx()
 	S_Warn("[DrawAllFx] - Unimplemented!\n");
 }
 
-void DrawCutSeqActors()
+void DrawCutSeqActors()//90DCC(<), ?
 {
+	struct NEW_CUTSCENE* s3 = &GLOBAL_cutme[0];
+	short** s0 = &meshes[0];
+	long s6 = 1;
+	struct object_info* object;
+
+	if (GLOBAL_cutme[0].numactors > 1)
+	{
+		//loc_91000
+		return;
+	}
+
+	mPushMatrix();
+
+	//loc_90E1C
+	mPushMatrix();
+
+	//v1 = s6 << 2;
+	//s7 = &cutseq_meshbits[s6];//long[]
+	//fp = &cutseq_meshswapbits[s6];//long[]
+	//s7 = cutseq_meshbits[s6];
+	// lw	$fp, 0x48 + var_48($fp) //?
+
+	if (cutseq_meshbits[s6] & 0x80000000)
+	{
+		//v0 = &actor_pnodes[s6];
+		//v1 = s6 << 3;//8
+		//v1 = &s3[2];//2 ptr advance
+		//a1 = GLOBAL_cutme[2].actor_data[0].nodes;
+		//a0 = ((long*)&actor_pnodes[s6])[0];
+		//a2 = &temp_rotation_buffer[0];
+
+		//updateAnimFrame(((long*) &actor_pnodes[s6])[0], GLOBAL_cutme[2].actor_data[0].nodes + 1, &temp_rotation_buffer[0]);
+
+		//v1 = GLOBAL_cutme[2].actor_data[0].objslot;
+		//a0 = GLOBAL_cutme[0].orgx;
+		//a1 = GLOBAL_cutme[0].orgy;
+		//a2 = GLOBAL_cutme[0].orgz;
+		object = &objects[GLOBAL_cutme[2].actor_data[0].objslot];
+
+		mTranslateAbsXYZ(GLOBAL_cutme[0].orgx, GLOBAL_cutme[0].orgy, GLOBAL_cutme[0].orgz);
+
+		//CalcActorLighting();
+
+		//v0 = object->mesh_index;
+		//v1 = object->bone_index;
+
+		//s1 = &meshes[object->mesh_index];
+		//s2 = &bones[object->bone_index];
+
+		//a2 = &temp_rotation_buffer[0];
+
+		mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
+		//addiu	$a0, $sp, 0x48 + var_38
+		//a1 = 0;
+		//v0 = &temp_rotation_buffer[9];
+		// sw	$v0, 0x48 + var_38($sp)
+
+		//mRotSuperPackedYXZ(a0, 0);
+		//v0 = s7 & 1;
+
+		//if(s7 & 1)
+		//{
+		//if(fp & 1)
+		//{
+				//a0 = meshes[1]; 
+		//}
+		//else
+		//{
+				//a0 = meshes[0];
+		//}
+			//loc_90F1C
+
+		//if(s6 - 1 == 0)
+		{
+			//phd_PutPolygons_seethrough(a0, cut_seethrough);
+
+		}//loc_90F34
+		//else
+		{
+			//phd_PutPolygons(a0, -1);
+		}
+		//}
+		//loc_90F3C
+	}
+	sizeof(struct NEW_CUTSCENE);
+	sizeof (struct ACTORME);
+	
+	//loc_90FDC
+#if 0
+
+
+				 loc_90F3C :
+				 lh	$s4, 0($s4)
+				 li	$s5, 1
+				 addiu	$s4, -1
+				 blez	$s4, loc_90FDC
+				 addiu	$s1, 8
+
+				 loc_90F50 :
+				 lw	$a1, 0($s2)
+				 addiu	$s4, -1
+				 andi	$v0, $a1, 1
+				 beqz	$v0, loc_90F6C
+				 andi	$a1, 2
+				 jal	sub_76520
+				 nop
+
+				 loc_90F6C :
+			 beqz	$a1, loc_90F7C
+				 sll	$s5, 1
+				 jal	sub_764D0
+				 nop
+
+				 loc_90F7C :
+			 lw	$a0, 4($s2)
+				 lw	$a1, 8($s2)
+				 jal	sub_7658C
+				 lw	$a2, 0xC($s2)
+				 addiu	$a0, $sp, 0x48 + var_38
+				 jal	sub_768BC
+				 move	$a1, $zero
+				 and	$v0, $s5, $s7
+				 beqz	$v0, loc_90FD0
+				 and	$v0, $s5, $fp
+				 beqz	$v0, loc_90FB0
+				 lw	$a0, 0($s1)
+				 lw	$a0, 4($s1)
+
+				 loc_90FB0:
+			 addiu	$at, $s6, -1
+				 bnez	$at, loc_90FC8
+				 nop
+				 lw	$a1, 0x410($gp)
+				 jal	sub_7FAD4
+				 addiu	$ra, 8
+
+				 loc_90FC8:
+			 jal	sub_7EEC4
+				 li	$a1, 0xFFFFFFFF
+
+				 loc_90FD0 :
+				 addiu	$s2, 0x10
+				 bnez	$s4, loc_90F50
+				 addiu	$s1, 8
+
+				 loc_90FDC :
+				 jal	sub_76520
+				 nop
+				 lh	$v1, 0($s3)
+				 addiu	$s6, 1
+				 slt	$v1, $s6, $v1
+				 bnez	$v1, loc_90E1C
+				 nop
+				 jal	sub_76520
+				 nop
+
+				 loc_91000 :
+			 lw	$ra, 0x48 + var_4($sp)
+				 lw	$fp, 0x48 + var_8($sp)
+				 lw	$s7, 0x48 + var_C($sp)
+				 lw	$s6, 0x48 + var_10($sp)
+				 lw	$s5, 0x48 + var_14($sp)
+				 lw	$s4, 0x48 + var_18($sp)
+				 lw	$s3, 0x48 + var_1C($sp)
+				 lw	$s2, 0x48 + var_20($sp)
+				 lw	$s1, 0x48 + var_24($sp)
+				 lw	$s0, 0x48 + var_28($sp)
+				 jr	$ra
+				 addiu	$sp, 0x48
+				 # End of function sub_90DCC
+#endif
 	S_Warn("[DrawCutSeqActors] - Unimplemented!\n");
 }
 
@@ -1272,19 +1536,6 @@ void insert_psx_clip_window(long x, long y, long w, long a3, long h)
 	*(long*) &db.ot[2563] = (long)db.polyptr;
 	db.polyptr += 0x1C;
 #endif
-}
-
-void print_all_object_NOW()//8F474(<), 914B8(<) (F)
-{
-	int i;
-
-	//CalcAllAnimatingItems_ASM();
-
-	for (i = 0; i < number_draw_rooms; i++)
-	{
-		//s3 = draw_rooms[i];//Why?
-		//PrintAllOtherObjects_ASM();
-	}
 }
 
 void DrawTPage(unsigned char a0, unsigned char a1)//5EE78(<), 5FB58(<) (F)
