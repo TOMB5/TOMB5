@@ -5,8 +5,11 @@ project (TombRaiderChronicles_PSXPC${TARGET_ARCH})
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
-#Internal Beta
-set(INTERNAL 0 CACHE BOOL "Internal")
+#Will make use of CD io if set.
+set(DISC_VERSION 1 CACHE BOOL "Enable/Disable CD code")
+
+#Will build all changes specific to the internal beta version.
+set(BETA_VERSION 0 CACHE BOOL "Enable/Disable Internal Beta code")
 
 #Platform specific defs
 add_definitions(-DPSXPC_VERSION)

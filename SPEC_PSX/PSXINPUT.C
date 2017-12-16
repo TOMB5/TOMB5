@@ -519,7 +519,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	}//loc_5FF00
 
 	//Edge2 = Pad2.3;
-#if INTERNAL
+#if DEBUG_VERSION
 	assert(0);
 	if (GPad2.transStatus != 0xFF)
 	{

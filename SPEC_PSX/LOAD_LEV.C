@@ -355,7 +355,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	int file = 0;
 	unsigned short dat = NULL;
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileDraw = 0;
 #endif
 
@@ -378,7 +378,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	cdgfx = (unsigned short*) &gfx[LOADING_SCREEN_IMG_SIZE];
 	gfx2 = (unsigned short*) &gfx[0x4000];//256*256 rect icrm
 
-#if INTERNAL
+#if !DISC_VERSION
 	file = PCopen("data\\loadpic.raw", 0, file);
 	FILE_Read(gfx, 1, LOADING_SCREEN_IMG_SIZE);
 	PCclose(file);
@@ -466,7 +466,7 @@ void LOAD_Stop()//60434(<), 60FB4(<) (F)
 	GPU_SyncBothScreens();
 	db.current_buffer = 1;
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileDraw = 1;
 	_first_time_ever = 0;
 #endif

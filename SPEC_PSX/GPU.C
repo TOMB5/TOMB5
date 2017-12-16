@@ -88,7 +88,7 @@ void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
 
 int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 {
-#if INTERNAL
+#if DEBUG_VERSION
 	if (ProfileDraw)
 	{
 		ProfileRGB(255, 255, 255);
@@ -98,7 +98,7 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 
 	DrawSync(0);//TODO confirm retail is sub_6B144 draw sync
 
-#if INTERNAL
+#if DEBUG_VERSION
 	if (ProfileDraw)
 	{
 		ProfileAddDrawOT(&db.ot[0]);
@@ -129,7 +129,7 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 	PutDispEnv(&db.disp[db.current_buffer]);
 	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[db.current_buffer]);
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileStartCount();
 #endif
 

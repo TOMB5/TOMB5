@@ -11,6 +11,7 @@
 #include "LARA.H"
 #include "LOT.H"
 #include "OBJECTS.H"
+#include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #ifdef PC_VERSION
 #include "GAME.H"
@@ -214,7 +215,7 @@ void TL_1(struct ITEM_INFO* item)//39AD8, 39FD8 (F)
 	}
 }
 
-void ClearSpidersPatch(struct ITEM_INFO* item)//39AA4, 39FA4
+void ClearSpidersPatch(struct ITEM_INFO* item)//39AA4(<), 39FA4(<) (F)
 {
 	ClearSpiders();
 }
@@ -415,7 +416,7 @@ long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<),
 	//lw	$at, 0x3FC($gp)
 #endif
 
-#if INTERNAL
+#if BETA_VERSION
 	if (sound_active)
 #else
 	if (sound_active && at == 0)

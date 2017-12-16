@@ -175,7 +175,7 @@ enum gf_tr5_levels
 
 enum gf_tr5_strings
 {
-#if INTERNAL
+#if BETA_VERSION
 	STR_FILLER_1,
 	STR_FILLER_2,
 #endif

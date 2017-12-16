@@ -30,7 +30,7 @@ TARGET		= MAIN
 PROGADDR	= 0x00010000
 SOURCES		= SPEC_PSX/ GAME/
 INCLUDES	= -ISPEC_PSX/ -IGAME/
-DEFS		= -DPSX_VERSION
+DEFS		= -DPSX_VERSION -DDISC_VERSION
 ISOXML		=
 
 #---------------------------------------------------------------------------------

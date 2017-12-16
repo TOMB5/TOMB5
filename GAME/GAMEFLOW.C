@@ -162,7 +162,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 			LightningRGBs[0] = *sequenceCommand;
 			gfLayer2Col.r = *sequenceCommand++;
 
-#if INTERNAL
+#if BETA_VERSION
 			GameTimer = 46;
 #else
 			GameTimer = 44;
@@ -481,24 +481,22 @@ void LoadGameflow()//102E0, 102B0
 	}
 }
 
-void QuickControlPhase()//10274(<), 10264(<)
+void QuickControlPhase()//10274(<), 10264(<) (F)
 {
-#if INTERNAL && PSX_VERSION
+#if PSX_VERSION
+#if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
 #endif
 
-#if PSX_VERSION
 	OldSP = SetSp(0x1F8003E0);
-#endif
 
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
 
-#if PSX_VERSION
 	SetSp(OldSP);
-#endif
 
-#if INTERNAL && PSX_VERSION
+#if DEBUG_VERSION
 	ProfileRGB(0, 0, 0);
+#endif
 #endif
 }
 
@@ -629,7 +627,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 				goto lbl_10890;
 			}
 
-#if INTERNAL
+#if DEBUG_VERSION
 			if (RawPad & 0x201)
 			{
 				dels_cutseq_selector_flag = 1;
@@ -645,10 +643,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 			lbl_108A4:
 				if (!bDoCredits || CreditsDone != 0)
 				{
-#if INTERNAL
-					PrintString(256, 220, 1, gfStringWad + gfStringOffset[176], 0);
+#if BETA_VERSION
+					PrintString(256, 220, 1, &gfStringWad[gfStringOffset[176]], 0);
 #else
-					PrintString(256, 220, 1, gfStringWad + gfStringOffset[174], 0);
+					PrintString(256, 220, 1, &gfStringWad[gfStringOffset[174]], 0);
 #endif
 				}
 
@@ -660,7 +658,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 #if PSX_VERSION || PSXPC_VERSION
 			if (PadConnected == 0)
 			{
-#if INTERNAL
+#if BETA_VERSION
 				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[221]], 0);
 #else
 				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[219]], 0);
