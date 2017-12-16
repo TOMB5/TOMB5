@@ -1270,10 +1270,38 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 	return 0;
 }
 
-int TriggerActive(struct ITEM_INFO* item)
+int TriggerActive(struct ITEM_INFO* item)// (F)
 {
-	S_Warn("[TriggerActive] - Unimplemented!\n");
-	return 0;
+	if ((item->flags & IFLAG_ACTIVATION_MASK) == IFLAG_ACTIVATION_MASK)
+	{
+		if (item->timer)
+		{
+			if (item->timer <= 0)
+			{
+				if (item->timer < -1)
+				{
+					item->timer++;
+					if (item->timer == -1)
+						item->timer = 0;
+				}
+			}
+			else
+			{
+				item->timer--;
+				if (item->timer == 0)
+					item->timer = -1;
+			}
+
+			if (item->timer < 0)
+				return (~item->flags & IFLAG_REVERSE) == 0;
+		}
+	}
+	else
+	{
+		return (~item->flags & IFLAG_REVERSE) == 0;
+	}
+
+	return (~item->flags & IFLAG_REVERSE) != 0;
 }
 
 void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
@@ -1424,4 +1452,14 @@ int check_xray_machine_trigger()// (F)
 void AnimateItem(struct ITEM_INFO* item)
 {
 	S_Warn("[AnimateItem] - Unimplemented!\n");
+}
+
+void Straighten(struct ROPE_STRUCT* a1, struct PHD_VECTOR* a2, struct PHD_VECTOR* a3, long a4)
+{
+	S_Warn("[Straighten] - Unimplemented!\n");
+}
+
+void StraightenRope(struct ITEM_INFO* item)
+{
+	S_Warn("[StraightenRope] - Unimplemented!\n");
 }

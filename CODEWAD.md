@@ -47,3 +47,10 @@ jalr $a3
 |?|-|`void TriggerEngineEffects()`|EFFECT2|
 |?|-|`void DoSubsuitStuff()`|LARA|
 |?|-|`void TriggerAirBubbles()`|EFFECT2|
+|`0x00 (0xB4)`|-|`void TriggerCoinGlow()`|TOMB4FX|
+|`0x24 (0x28)`|-|`void SaveRope()`|SAVEGAME|
+|?|-|`void Straighten(struct ROPE_STRUCT* a1, struct PHD_VECTOR* a2, struct PHD_VECTOR* a3, long a4)`|CONTROL|
+|`0x2C (0x28)`|-|`void StraightenRope(struct ITEM_INFO* item)`|CONTROL|
+|`0x28 (0x28)`|-|`void LoadRope()`|SAVEGAME|
+|`0x00 (0x8C)`|-|? (called in FlameEmitter3Control)|?|
+|`0x04 (0x7C)`|-|? (called in SortOutWreckingBallDraw)|?|

@@ -22,6 +22,7 @@
 #include "SPECTYPES.H"
 
 #include <stddef.h>
+#include "TOMB4FX.H"
 
 long wf = 256;
 short next_fx_free;
@@ -29,6 +30,69 @@ short next_fx_active;
 int number_sound_effects;
 struct OBJECT_VECTOR* sound_effects;
 struct FX_INFO* effects;
+
+void(*effect_routines[59])(struct ITEM_INFO* item) =
+{
+	turn180_effect,
+	floor_shake_effect,
+	PoseidonSFX,
+	LaraBubbles,
+	finish_level_effect,
+	ActivateCamera,
+	ActivateKey,
+	RubbleFX,
+	SwapCrowbar,
+	void_effect,
+	SoundFlipEffect,
+	ExplosionFX,
+	lara_hands_free,
+	void_effect,
+	void_effect,
+	void_effect,
+	shoot_right_gun,
+	shoot_left_gun,
+	void_effect,
+	void_effect,
+	void_effect,
+	invisibility_on,
+	invisibility_off,
+	void_effect,
+	void_effect,
+	void_effect,
+	reset_hair,
+	void_effect,
+	SetFog,
+	void_effect,
+	LaraLocation,
+	ClearSpidersPatch,
+	AddFootprint,
+	ResetTest,
+	void_effect,
+	void_effect,
+	void_effect,
+	void_effect,
+	void_effect,
+	void_effect,
+	void_effect,
+	void_effect,
+	void_effect,
+	void_effect,
+	void_effect,
+	LaraLocationPad,
+	KillActiveBaddies,
+	TL_1,
+	TL_2,
+	TL_3,
+	TL_4,
+	TL_5,
+	TL_6,
+	TL_7,
+	TL_8,
+	TL_9,
+	TL_10,
+	TL_11,
+	TL_12,
+};
 
 void TL_12(struct ITEM_INFO* item)//39E3C, 3A33C (F)
 {
@@ -480,4 +544,41 @@ void StopSoundEffect(short sample_index)//91FF8(<), 94044(<) (F)
 void ClearSpiders()
 {
 	S_Warn("[ClearSpiders] - Unimplemented!\n");
+}
+
+void LaraBubbles(struct ITEM_INFO* item)// (F)
+{
+	struct PHD_VECTOR pos;
+	int num, i;
+
+	SoundEffect(SFX_LARA_BUBBLES, &item->pos, 1);
+
+	pos.x = 0;
+
+	if (LaraDrawType == LARA_DIVESUIT)
+	{
+		pos.y = -192;
+		pos.z = -160;
+
+		GetLaraJointPos(&pos, 7);
+	}
+	else
+	{
+		pos.y = -4;
+		pos.z = 64;
+
+		GetLaraJointPos(&pos, 8);
+	}
+
+	num = (GetRandomControl() & 1) + 2;
+
+	for (i = 0; i < num; i++)
+	{
+		CreateBubble(&pos, item->room_number, 8, 7, 0, 0, 0, 0);
+	}
+}
+
+void AddFootprint(struct ITEM_INFO* item)
+{
+	S_Warn("[AddFootprint] - Unimplemented!\n");
 }

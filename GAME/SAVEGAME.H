@@ -19,5 +19,7 @@ extern void SaveLaraData();
 extern int CheckSumValid(char* buffer);
 extern void ReadSG(char* pointer, int size);
 extern void WriteSG(char* pointer, int size);
+extern void SaveRope();
+extern void LoadRope();
 
 #endif

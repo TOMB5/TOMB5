@@ -734,12 +734,17 @@ void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
 	S_Warn("[TriggerRicochetSpark] - Unimplemented!\n");
 }
 
-void Ricochet(struct GAME_VECTOR* pos)
+void Richochet(struct GAME_VECTOR* pos)
 {
-	S_Warn("[Ricochet] - Unimplemented!\n");
+	S_Warn("[Richochet] - Unimplemented!\n");
 }
 
 void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int a4, char a5, char a6, char a7)
 {
 	S_Warn("[TriggerLightning] - Unimplemented!\n");
+}
+
+void TriggerCoinGlow()
+{
+	S_Warn("[TriggerCoinGlow] - Unimplemented!\n");
 }

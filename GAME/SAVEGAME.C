@@ -391,3 +391,13 @@ void WriteSG(char* pointer, int size)//536A0, 53B04 (F)
 		}
 	}
 }
+
+void SaveRope()
+{
+	S_Warn("[SaveRope] - Unimplemented!\n");
+}
+
+void LoadRope()
+{
+	S_Warn("[LoadRope] - Unimplemented!\n");
+}
