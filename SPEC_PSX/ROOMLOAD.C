@@ -95,10 +95,10 @@ void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
 	strcat(buf, ".PSX");
 	file = PCopen(buf, 0, 0);
 
-	PClSeek(file, AnimFilePos, 0);
+	PClseek(file, AnimFilePos, 0);
 	FILE_Read((char*) frames, 1, len, file);
 
-	PCClose(file);
+	PCclose(file);
 #endif
 
 	return;

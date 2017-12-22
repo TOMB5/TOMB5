@@ -39,7 +39,7 @@ DISC_ROOTFD	= DISC/
 # LIBS      - Libraries to link during linking stage
 #---------------------------------------------------------------------------------
 LIBDIRS		=
-LIBS		= LIBSPU.LIB LIBMCRD.LIB LIBPAD.LIB
+LIBS		= LIBSPU.LIB LIBMCRD.LIB LIBPAD.LIB LIBSN.LIB
 
 #---------------------------------------------------------------------------------
 # CFLAGS   - Base C compiler options
