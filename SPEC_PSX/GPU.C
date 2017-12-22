@@ -1,4 +1,4 @@
-#include "GPU.H"
+﻿#include "GPU.H"
 
 #include "CAMERA.H"
 #include "LOAD_LEV.H"
@@ -237,43 +237,30 @@ void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F)
 	return;
 }
 
-void GPU_EndScene()//5DFDC(<), 5F23C(!)
+void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 {
-#if 0
-	//int nPolys;
-	//static int nWorstPolys;
+#if DEBUG_VERSION
+	int nPolys;
+	static int nWorstPolys;
 
-	lui	$v0, 0x4EC4
-	int a0 = &db.polyptr[0];
-	int v1 = &db.curpolybuf[0];
-	int v0 = 0x4EC4EC4F;
-	a0 -= v1;
-	v0 = a0 * v0;
-	a0 >>= 31;
-	v1 = psxtextinfo->u2v2pad;
-	v0 >>= 4;
-	v0 -= a0;
+	nPolys = ((int) &db.polyptr[0] - (int) &db.curpolybuf[0]) * 0x4EC4EC4F / 16 - (((long) &db.polyptr[0] - (long) &db.curpolybuf[0]) >> 31);
 
-	if (v1 < v0)
+	if (psxtextinfo->u2v2pad < nPolys)
 	{
-		u2v2pad = v0;
-	}//loc_5E020
+		psxtextinfo->u2v2pad = nPolys;
+	}
 	
 	//loc_5E020
 #endif
 
 	OptimiseOTagR(&db.ot[0], db.nOTSize);
 
-#if 0
-	nop
-
+#if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
-
-	a0 = db.nOTSize;
 	do_gfx_debug_mode(&db.ot[db.nOTSize - 1]);
-
 	ProfileRGB(0, 255, 255);
 #endif
+
 	return;
 }
 
@@ -406,3 +393,4 @@ void GPU_SetScreenPosition(short x, short y)//5F360(<), 60040(<)
 
 	return;
 }
+
