@@ -371,7 +371,7 @@ void RelocateLevel()
 	}//000B43A4, 000B42F8
 
 	camera.fixed = (struct OBJECT_VECTOR*)ptr;
-	ptr += level->frameDataLength;
+	ptr += level->unk455;
 
 	SpotCam = (struct SPOTCAM*) ptr;
 	NumFixedCameras = level->numFixedCameras;
