@@ -410,13 +410,13 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 			if (lara.right_arm.flash_gun != 0)
 			{
-				mCopyMatrix(lara_matrices[11]);
+				mCopyMatrix(&lara_matrices[11]);
 				SetGunFlash(lara.gun_type);
 			}//loc_64954
 
 			if (lara.left_arm.flash_gun != 0)
 			{
-				mCopyMatrix(lara_matrices[14]);
+				mCopyMatrix(&lara_matrices[14]);
 				SetGunFlash(lara.gun_type);
 			}//loc_64978
 
@@ -764,7 +764,7 @@ void InitObjGTE()
 	S_Warn("[InitObjGTE] - Unimplemented!\n");
 }
 
-void DrawCutSeqActors()
+void DrawCutSeqActors()//90DCC(<), 92E10(<)
 {
 	S_Warn("[DrawCutSeqActors] - Unimplemented!\n");
 }

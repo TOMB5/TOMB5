@@ -109,7 +109,13 @@ void mRotY(long ry)
 	S_Warn("[mRotY] - Unimplemented!\n");
 }
 
-void mCopyMatrix(struct MATRIX3D m)
+//Note: Original code is less optimal than this implementation.
+void mCopyMatrix(struct MATRIX3D* m)//769E4(<), 78A28(<)
 {
-	S_Warn("[mCopyMatrix] - Unimplemented!\n");
+	//gte_ldtr(m->tx, m->ty, m->tz);
+	Matrix->tx = m->tx;
+	Matrix->ty = m->ty;
+	Matrix->tz = m->tz;
+	setrot(Matrix, 0, 0, 0, 0, 0);
 }
+
