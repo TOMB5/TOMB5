@@ -11,8 +11,23 @@ set(DISC_VERSION 1 CACHE BOOL "Enable/Disable CD code")
 #Will build all changes specific to the internal beta version.
 set(BETA_VERSION 0 CACHE BOOL "Enable/Disable Internal Beta code")
 
+#Enable NTSC mode
+set(NTSC_VERSION 1 CACHE BOOL "Enable/Disable NTSC Mode")
+
 #Platform specific defs
 add_definitions(-DPSX_VERSION)
+
+if(BETA_VERSION)
+	add_definitions(-DBETA_VERSION)
+endif(BETA_VERSION)
+
+if(DISC_VERSION)
+	add_definitions(-DDISC_VERSION)
+endif(DISC_VERSION)
+
+if(NTSC_VERSION)
+	add_definitions(-DNTSC_VERSION)
+endif(NTSC_VERSION)
 
 #Setup platform specific / game code include folder
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

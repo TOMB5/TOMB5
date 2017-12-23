@@ -19,6 +19,10 @@ extern void phd_InitWindow(int view_angle);
 extern long mGetAngle(long x, long z, long tx, long tz);
 
 #define SCREEN_WIDTH 512
+#if NTSC_VERSION
 #define SCREEN_HEIGHT 240
+#else
+#define SCREEN_HEIGHT 256
+#endif
 
 #endif
