@@ -393,4 +393,3 @@ void GPU_SetScreenPosition(short x, short y)//5F360(<), 60040(<)
 
 	return;
 }
-
