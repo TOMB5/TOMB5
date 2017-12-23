@@ -5,8 +5,11 @@ project (TombRaiderChronicles_PSX${TARGET_ARCH})
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
-#Internal Beta
-set(INTERNAL 0 CACHE BOOL "Internal")
+#Will make use of CD io if set.
+set(DISC_VERSION 1 CACHE BOOL "Enable/Disable CD code")
+
+#Will build all changes specific to the internal beta version.
+set(BETA_VERSION 0 CACHE BOOL "Enable/Disable Internal Beta code")
 
 #Platform specific defs
 add_definitions(-DPSX_VERSION)
@@ -42,6 +45,8 @@ ${PROJECT_NAME} PROPERTIES OUTPUT_NAME "MAIN"
 ${PROJECT_NAME} PROPERTIES FOLDER "Build Targets/PlayStation"
 )
 
+set(TARGET_BINARY_DIR "${PROJECT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
+
 #This will be a console application, alter linker subsystem accordingly or main method won't be found
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -51,6 +56,6 @@ if(MSVC)
 	PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE"
 	PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:CONSOLE"
 	PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:CONSOLE"
-	PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir)"
+	PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${TARGET_BINARY_DIR}
 	)
 endif(MSVC)

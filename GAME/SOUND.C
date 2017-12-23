@@ -3,6 +3,7 @@
 #include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 #include "EFFECTS.H"
+#include "SPECTYPES.H"
 #include <stddef.h>
 
 int sound_active = 0;
@@ -23,7 +24,7 @@ void SayNo()//55BE0(<), 56044(<) (F)
 		fx = SFX_LARA_NO_JAPANESE;
 	}
 
-	SoundEffect(fx, NULL, 2);
+	SoundEffect(fx, NULL, SFX_ALWAYS);
 
 	return;
 }

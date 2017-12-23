@@ -13,5 +13,6 @@ extern void InitialiseSlot(short item_number, int slot);
 extern int EnableBaddieAI(short item_number, int Always);
 extern void DisableBaddieAI(short item_num);
 extern void InitialiseLOTarray(int allocmem);
+extern void ClearLOT(struct lot_info* LOT);
 
 #endif

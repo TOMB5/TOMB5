@@ -19,7 +19,7 @@ void GameClose()
 	int v0; // eax@2
 
 	Log(2, "GameClose");
-	FreeSoundThings();
+	ACMClose();
 	FreeLevel();
 	if (vertexBuffer)
 	{
@@ -41,13 +41,13 @@ void GameClose()
 	free(gfStringOffset);
 }
 
-void *sub_40299B()
+void *init_water_table()
 {
-	S_Warn("[*sub_40299B] - Unimplemented!\\n");
+	S_Warn("[*sub_40299B] - Unimplemented!\n");
 	return NULL;
 }
 
-signed int sub_40215D()
+signed int InitFX()
 {
 	signed int result; // eax@2
 
@@ -92,8 +92,8 @@ char GameInitialise()
 		.accelAdapters[ptr_ctx->curAccelAdapt]
 		.displayModes[ptr_ctx->curDispMode]
 		.height;
-	sub_40299B();
-	sub_40215D();
+	init_water_table();
+	InitFX();
 	return 1;
 }
 
@@ -131,48 +131,48 @@ BOOL __cdecl sub_4010E1(float *a1, float *a2, float *a3)
 
 int __cdecl sub_40303A(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
-	S_Warn("[sub_40303A] - Unimplemented!\\n");
+	S_Warn("[sub_40303A] - Unimplemented!\n");
 	return 0;
 }
 
 int __cdecl sub_402BDF(int a1, int a2, int a3, int a4, int a5, int a6)
 {
-	S_Warn("[sub_402BDF] - Unimplemented!\\n");
+	S_Warn("[sub_402BDF] - Unimplemented!\n");
 	return 0;
 }
 
 int __cdecl sub_401A6E(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
-	S_Warn("[sub_401A6E] - Unimplemented!\\n");
+	S_Warn("[sub_401A6E] - Unimplemented!\n");
 	return 0;
 }
 
 int __cdecl sub_40138E(int a1, int a2, int a3, int a4, int a5, int a6)
 {
-	S_Warn("[sub_40138E] - Unimplemented!\\n");
+	S_Warn("[sub_40138E] - Unimplemented!\n");
 	return 0;
 }
 
 struct acceltexformatinfo *__cdecl sub_4025D6(int a1, int a2, __int16 a3)
 {
-	S_Warn("[sub_4025D6] - Unimplemented!\\n");
+	S_Warn("[sub_4025D6] - Unimplemented!\n");
 	return NULL;
 }
 
 int __cdecl sub_402626(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
-	S_Warn("[sub_402626] - Unimplemented!\\n");
+	S_Warn("[sub_402626] - Unimplemented!\n");
 	return 0;
 }
 
 int __cdecl sub_401F41(int a1, int a2, int a3, int a4, int a5, int a6)
 {
-	S_Warn("[sub_401F41] - Unimplemented!\\n");
+	S_Warn("[sub_401F41] - Unimplemented!\n");
 	return 0;
 }
 
 
-void sub_4A7EE0()
+void InitialiseFunctionTable()
 {
 	ptr_BeginScene = BeginScene;
 	ptr_EndScene = EndScene;
@@ -271,7 +271,7 @@ int sub_40162C()
 	int v4; // eax@11
 
 	if (byte_86BBB4)
-		TakeScreenshot(ptr_ctx->buf_back, "Tomb");
+		TakeScreenshot(&ptr_ctx->buf_back, "Tomb");
 	if (ptr_ctx->buf_primary->lpVtbl->IsLost(ptr_ctx->buf_primary))
 	{
 		Log(3, "Restored Primary Buffer");
@@ -343,7 +343,7 @@ signed int sub_4B7DA0()
 }
 
 
-int sub_4D1AD0()
+int ClearSurfaces()
 {
 	int v0; // eax@2
 	int v1; // eax@5
@@ -432,20 +432,20 @@ unsigned __stdcall GameMain(void* data)
 	Log(2, "GameMain");
 	if (GameInitialise())
 	{
-		sub_4A7EE0();
+		InitialiseFunctionTable();
 		HWInitialise();
-		sub_4017E9(0, 0, ptr_ctx->width, ptr_ctx->height, 20, 20480, 80);
-		sub_402DD3();
+		InitWindow(0, 0, ptr_ctx->width, ptr_ctx->height, 20, 20480, 80);
+		InitFont();
 		TIME_Init();
 		ptr_ctx->byte_D9AC19 = 1;
 		//v1 = sub_4D30E0(&word_878654);
-		ResetSoundThings();
-		sub_4D1AD0();
+		S_CDStop();
+		ClearSurfaces();
 		if (!ptr_ctx->opt_DisableSound)
 			SOUND_Init();
 		DoGameflow();
 		GameClose();
-		ResetSoundThings();
+		S_CDStop();
 		/*if (v1)
 			sub_4D3150();*/ // null sub
 		PostMessageA(hWnd, 0x10u, 0, 0);

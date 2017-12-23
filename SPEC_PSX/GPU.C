@@ -26,7 +26,7 @@ void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C
 	db.order_table[0] = &pBuffers[0];
 	db.order_table[1] = &pBuffers[nOTSize];
 	db.nOTSize = nOTSize;
-	db.pickup_order_table[0] = &db.disp[1];
+	db.pickup_order_table[0] = (unsigned long*)&db.disp[1];
 	db.pickup_order_table[1] = &GadwOrderingTables_V2[256];
 #if 0
 	//Should be safe to use 32-bit ptrs tho
@@ -77,9 +77,9 @@ void GPU_SyncBothScreens()//5F374(<), 60054(<)
 void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
 {
 	db.ot = db.order_table[db.current_buffer];
-	db.polyptr = (char*)&db.poly_buffer[db.current_buffer];
-	db.curpolybuf = (char*)&db.poly_buffer[db.current_buffer];
-	db.polybuf_limit = (char*)(&db.poly_buffer[db.current_buffer]) + 26000;
+	db.polyptr = (char*)db.poly_buffer[db.current_buffer];
+	db.curpolybuf = (char*)db.poly_buffer[db.current_buffer];
+	db.polybuf_limit = (char*)(db.poly_buffer[db.current_buffer]) + 26000;
 	db.pickup_ot = db.pickup_order_table[db.current_buffer];
 	ClearOTagR(db.order_table[db.current_buffer], db.nOTSize);
 
@@ -88,7 +88,7 @@ void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
 
 int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 {
-#if INTERNAL
+#if DEBUG_VERSION
 	if (ProfileDraw)
 	{
 		ProfileRGB(255, 255, 255);
@@ -98,7 +98,7 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 
 	DrawSync(0);//TODO confirm retail is sub_6B144 draw sync
 
-#if _INTERNAL
+#if DEBUG_VERSION
 	if (ProfileDraw)
 	{
 		ProfileAddDrawOT(&db.ot[0]);
@@ -129,13 +129,33 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 	PutDispEnv(&db.disp[db.current_buffer]);
 	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[db.current_buffer]);
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileStartCount();
 #endif
 
 	db.current_buffer ^= 1;
 
 	return LnFlipFrame;
+}
+
+void GPU_FlipStory(unsigned long* gfx)//5E448(<), * (F)
+{
+	RECT r;
+	RECT* fuckmyanalpassage;
+
+	DrawSync(0);
+	VSync(0);
+
+	PutDispEnv(&db.disp[db.current_buffer]);
+	fuckmyanalpassage = (RECT*)&db.disp[db.current_buffer ^ 1].disp;
+	r.x = fuckmyanalpassage->x;
+	r.y = fuckmyanalpassage->y;
+	r.w = fuckmyanalpassage->w;
+	r.h = fuckmyanalpassage->h;
+	LoadImage(&r, gfx);
+
+	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[db.current_buffer]);
+	db.current_buffer ^= 1;
 }
 
 void GPU_GetScreenPosition(short* x, short* y)//5F34C, ?
@@ -146,7 +166,7 @@ void GPU_GetScreenPosition(short* x, short* y)//5F34C, ?
 }
 
 /*   PSX VRAM   (H)
- *  ----------- 512px
+ *  ----------- 1024px
  *  | TL | TR |  |
  *  -----------  v
  *  | BL | BR |  
@@ -194,80 +214,53 @@ void clear_a_rect(RECT* r)//5F334(<), 60014(<) (F)
 }
 
 //@Gh0stblade - Not sure why this is so unoptimal, we can basically &disp[db.current_buffer]... double check code.
-void GPU_FlipToBuffer(int buffer_index)//5F3C8
+void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F)
 {
-	DISPENV* disp;
-	DRAWENV* draw;
-
 	DrawSync(0);
 	VSync(0);
 
-	if (buffer_index & 1)
+	buffer_index &= 1;
+
+	if (buffer_index)
 	{
-		disp = &db.disp[1];
+		PutDispEnv(&db.disp[1]);
+		db.current_buffer = buffer_index ^ 1;
+		PutDrawEnv(&db.draw[1]);
 	}
 	else
 	{
-		disp = &db.disp[0];
+		PutDispEnv(&db.disp[0]);
+		db.current_buffer = buffer_index ^ 1;
+		PutDrawEnv(&db.draw[0]);
 	}
-
-	//loc_5F3F4
-	PutDispEnv(disp);
-
-	if (buffer_index & 1)
-	{
-		draw = &db.draw[1];
-	}
-	else
-	{
-		draw = &db.draw[0];
-	}
-
-	//loc_5F408
-	buffer_index &= 1 ^ 1;
-
-	PutDrawEnv(draw);
 
 	return;
 }
 
-void GPU_EndScene()//5DFDC(<), 5F23C(!)
+void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 {
-#if 0
-	//int nPolys;
-	//static int nWorstPolys;
+#if DEBUG_VERSION
+	int nPolys;
+	static int nWorstPolys;
 
-	lui	$v0, 0x4EC4
-	int a0 = &db.polyptr[0];
-	int v1 = &db.curpolybuf[0];
-	int v0 = 0x4EC4EC4F;
-	a0 -= v1;
-	v0 = a0 * v0;
-	a0 >>= 31;
-	v1 = psxtextinfo->u2v2pad;
-	v0 >>= 4;
-	v0 -= a0;
+	nPolys = ((int) &db.polyptr[0] - (int) &db.curpolybuf[0]) * 0x4EC4EC4F / 16 - (((long) &db.polyptr[0] - (long) &db.curpolybuf[0]) >> 31);
 
-	if (v1 < v0)
+	if (psxtextinfo->u2v2pad < nPolys)
 	{
-		u2v2pad = v0;
-	}//loc_5E020
+		psxtextinfo->u2v2pad = nPolys;
+	}
 	
 	//loc_5E020
 #endif
 
 	OptimiseOTagR(&db.ot[0], db.nOTSize);
 
-#if 0
-	nop
-
-	ProfileRGB(-1, -1, -1);
-
-	a0 = db.nOTSize;
+#if DEBUG_VERSION
+	ProfileRGB(255, 255, 255);
 	do_gfx_debug_mode(&db.ot[db.nOTSize - 1]);
-
-	ProfileRGB(0, -1, -1);
+	ProfileRGB(0, 255, 255);
 #endif
+
 	return;
 }
 
@@ -324,144 +317,70 @@ long OptimiseOTagR(unsigned long* ot, int nOTSize)//86CC4(<), 88D08(<)
 	return at;
 }
 
-void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14
+void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 {
-	short* a3;
-
-#if 1
-	short t0;
-	short* v0;
-	short t6;
-	short t5;
-	long* a33;
-	int t2;
-	int at;
-	long* t3;
-	long v1;
+	long t0;
+	short* r_cossinptr;
+	long t6;
+	long t5;
 	long t1;
 	long t4;
 
-	long v00;
+	DelRotAng = (DelRotAng - 52) & 0xFFF;
+	r_cossinptr = &rcossin_tbl[DelRotAng * 2];
 
-	a3 = &rcossin_tbl[0];
-	t0 = (DelRotAng - 52) & 0xFFF;
-	a2 = -a2;
-	v0 = &rcossin_tbl[t0 * 2];
-	t6 = v0[0];
-	a2 >>= 1;
-	t6 = a2 * t6;
+	t6 = ((-a2 / 2) * r_cossinptr[0]) / 4096;
+	t5 = ((-a2 / 2) * r_cossinptr[1]) / 4096;
 
-	t3 = &db.ot[0];//maybe current_buffer
-	t5 = v0[1];
-	a33 = db.polyptr;
-
-	t2 = 0x2C808080;
-	t5 = a2 * t5;
-
-	at = 0x1303F00;
-	DelRotAng = t0;
-	*(int*) &db.polyptr[4] = t2;
-	*(int*) &db.polyptr[12] = 0;
-	*(int*) &db.polyptr[20] = at;
-
-	t6 >>= 12;
-	t5 >>= 12;
+	*(long*) &db.polyptr[4] = 0x2C808080;
+	*(long*) &db.polyptr[12] = 0;
+	*(long*) &db.polyptr[20] = 0x1303F00;
 
 	t0 = t6 - t5;
 	a2 = -t6;
 	t4 = a2 - t5;
 	a2 += t5;
-	t1 = t6 - t5;
+	t1 = t6 + t5;
 
-	v0 = t0 >> 1;
-	v0 += a0;
-	t0 += v0;
+	*(short*) &db.polyptr[8] = t0 + (t0 / 2) + a0;
+	*(short*) &db.polyptr[10] = t5 + t6 + a1;
 
-	v1 = t4 >> 1;
-	v1 += a0;
-	t0 += v0;
-
-	v0 = a2 >> 1;
-	v0 += a0;
-	a2 += v0;
-
-	v1 = t1 >> 1;
-	v1 += a0;
-	t1 += v1;
-
-	v0 = t5 + t6;
-	v0 = a1 + v0;
-	v1 = -t5;
-
-	*(short*) &db.polyptr[8] = t0;
-	*(short*) &db.polyptr[10] = v0;
-
-	v0 = v1 + t6;
-	v0 += a1;
-
-	*(short*) &db.polyptr[16] = t4;
-	*(short*) &db.polyptr[18] = v0;
-
-	v0 = t5 - t6;
-	v0 += a1;
-	v1 += t6;
-
-	*(short*) &db.polyptr[24] = t1;
-	*(short*) &db.polyptr[26] = v0;
-
-	t4 = 0x3F;//width/height?
-
-	*(short*) &db.polyptr[28] = t4;
-
-	t4 = 0x3F3F;
-	*(short*) &db.polyptr[36] = v0;
-
-	a1 += v1;
-
-	*(short*) &db.polyptr[32] = a2;
-	*(short*) &db.polyptr[34] = a1;
-
-	v00 = t3[0];
-	at = 0x09000000;
-	v00 |= at;
-
-	t3[0] = a3;
-	*(int*) &db.polyptr[0] = v00;
-
-	a3 = &db.polyptr[0x28];
-
-	v00 = 0x780100;
-	v1 = 0x6800;
-	a0 = 0x7801FF;
-
-	*(int*) a3[4] = t2;
-	*(int*) a3[8] = v00;
-	*(int*) a3[12] = v1;
-	*(int*) a3[16] = a0;
-
-	at = 0x13468FF;
-	v00 = 0xEF0100;
-	v1 = 0xDF00;
-	a0 = 0xEF01FF;
-
-	*(int*) a3[20] = at;
-	*(int*) a3[24] = v00;
-	*(short*) a3[28] = v1;
-	*(int*) a3[32] = a0;
-
-	at = 0xDFFF;
-	*(short*) a3[36] = at;
-
-	v00 = t3[0];
-	v00 |= 0x9000000;
-
-	t3[0] = a3;
-	a3[0] = v00;
-	db.polyptr = &a3[0x28];
+	*(short*) &db.polyptr[16] = t4 + (t4 / 2) + a0;
+	*(short*) &db.polyptr[18] = -t5 + t6 + a1;
 
 
+	*(short*) &db.polyptr[24] = t1 + (t1 / 2) + a0;
+	*(short*) &db.polyptr[26] = (t5 - t6) + a1;
 
-#endif
+	*(short*) &db.polyptr[28] = 0x3F;//width/height of loading cd?
+	*(short*) &db.polyptr[36] = 0x3F3F;
+
+	*(short*) &db.polyptr[32] = a2 + (a2 / 2) + a0;
+	*(short*) &db.polyptr[34] = a1 + (-t5 - t6);
+
+	*(long*) &db.polyptr[0] = db.ot[0] | 0x09000000;
+	db.ot[0] = (unsigned long)&db.polyptr[0];
+	
+	db.polyptr += 0x28;//sizeof(POLY_F3); * 2?
+
+	*(long*) &db.polyptr[4] = 0x2C808080;
+	*(long*) &db.polyptr[8] = 0x780100;
+	*(long*) &db.polyptr[12] = 0x6800;
+	*(long*) &db.polyptr[16] = 0x7801FF;
+
+
+	*(long*) &db.polyptr[20] = 0x13468FF;
+	*(long*) &db.polyptr[24] = 0xEF0100;
+	*(short*) &db.polyptr[28] = 0xDF00;
+	*(long*) &db.polyptr[32] = 0xEF01FF;
+
+	*(short*) &db.polyptr[36] = 0xDFFF;
+
+	*(long*) &db.polyptr[0] = db.ot[0] | 0x9000000;
+	db.ot[0] = (unsigned long)db.polyptr;
+	
+	sizeof(POLY_G3);
+	db.polyptr += 0x28;
 	return;
 }
 
@@ -474,3 +393,4 @@ void GPU_SetScreenPosition(short x, short y)//5F360(<), 60040(<)
 
 	return;
 }
+

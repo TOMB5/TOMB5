@@ -1,5 +1,6 @@
 #include "LARA1GUN.H"
 
+#include "CONTROL.H"
 #include "SPECIFIC.H"
 #ifdef PC_VERSION
 #include "GAME.H"
@@ -10,6 +11,7 @@
 #include "LARA.H"
 #include "LARAFIRE.H"
 #include "OBJECTS.H"
+#include "ITEMS.H"
 
 char HKTimer = 0;
 char HKShotsFired = 0;
@@ -34,9 +36,51 @@ void undraw_shotgun(int weapon_type)
 	S_Warn("[undraw_shotgun] - Unimplemented!\n");
 }
 
-void draw_shotgun(int weapon_type)
+void draw_shotgun(int weapon_type)// (F)
 {
-	S_Warn("[draw_shotgun] - Unimplemented!\n");
+	struct ITEM_INFO* item;
+
+	if (lara.weapon_item == -1)
+	{		
+		lara.weapon_item = CreateItem();
+		item = &items[lara.weapon_item];
+		item->object_number = WeaponObject(weapon_type);
+		item->anim_number = objects[item->object_number].anim_index;
+		item->frame_number = anims[item->anim_number].frame_base;
+		item->status = ITEM_ACTIVE;
+		item->goal_anim_state = 1;
+		item->current_anim_state = 1;
+		item->room_number = 255;
+
+		lara.left_arm.frame_base = lara.right_arm.frame_base = objects[item->object_number].frame_base;
+	}
+	else
+	{
+		item = &items[lara.weapon_item];
+	}
+
+	AnimateItem(item);
+
+	if (item->current_anim_state != 0 && 
+		item->current_anim_state != 6)
+	{
+		if (item->frame_number - anims[item->anim_number].frame_base == weapons[weapon_type].draw_frame)
+		{
+			draw_shotgun_meshes(weapon_type);
+		}
+		else if (lara.water_status == LW_UNDERWATER)
+		{
+			item->goal_anim_state = 6;
+		}
+	}
+	else
+	{
+		ready_shotgun(weapon_type);
+	}
+
+	lara.left_arm.frame_base = lara.right_arm.frame_base = anims[item->anim_number].frame_ptr;
+	lara.left_arm.frame_number = lara.right_arm.frame_number = item->frame_number - anims[item->anim_number].frame_base;
+	lara.left_arm.anim_number = lara.right_arm.anim_number = item->anim_number;
 }
 
 void ControlCrossbow(short item_number)
@@ -73,7 +117,7 @@ void ready_shotgun(int weapon_type)//424E0(<), 42934(<) (F)
 {
 	struct object_info* object;
 
-	lara.gun_status = 4;
+	lara.gun_status = LG_READY;
 	lara.left_arm.z_rot = 0;
 	lara.left_arm.y_rot = 0;
 	lara.left_arm.x_rot = 0;
@@ -105,6 +149,6 @@ void undraw_shotgun_meshes(int weapon_type)//42498(<), 428EC(<) (F)
 
 void draw_shotgun_meshes(int weapon_type)//42444(<), 42898(<) (F)
 {
-	lara.back_gun = 0;
+	lara.back_gun = WEAPON_NONE;
 	lara.mesh_ptrs[LM_RHAND] = meshes[objects[WeaponObjectMesh(weapon_type)].mesh_index + 2 * LM_RHAND];
 }

@@ -13,10 +13,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <LIBSN.H>
 
-#if INTERNAL
-	#include <LIBSN.H>
-#endif
 
 long AnimFilePos;
 long AnimFileLen;
@@ -38,9 +36,9 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	int len;
 	int file;
 
-#if! INTERNAL
+#if DISC_VERSION
 	//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
-	CD_InitialiseReaderPosition(Name + TITLE);
+	DEL_CDFS_OpenFile(Name + TITLE);
 #endif
 
 	DrawSync(0);
@@ -49,33 +47,32 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 	LOAD_Start(Name + TITLE);
 
-	SetupPtr = &db.poly_buffer[1026];
+	SetupPtr = &db.poly_buffer[0][1026];
 
-#if INTERNAL
+#if DISC_VERSION
+	DEL_CDFS_Read((char*) &db.poly_buffer[1024], gwHeader.entries[0].fileSize);//jal 5E414
+#else
 	len = FILE_Length("DATA\\SETUP.MOD");
 	file = PCopen("DATA\\SETUP.MOD", 0, 0);
 
 	FILE_Read(&db.poly_buffer[1024], 1, len, file);
 
 	PCclose(file);
-
-#else
-	CD_Read((char*)&db.poly_buffer[1024], gwHeader.entries[0].fileSize);//jal 5E414
 #endif
 
-	RelocateModule((unsigned long)SetupPtr, (unsigned long*)&db.poly_buffer[1024]);
+	//RelocateModule((unsigned long)SetupPtr, (unsigned long*)((char*)&db.poly_buffer[*db.poly_buffer[1024] + 8]));
 
-#if INTERNAL
+#if DISC_VERSION
+	RelocateLevel();
+#else
 	strcpy(buf, gfFilenameWad[gfFilenameOffset[Name]]);
 	strcat(buf, ".PSX");
-		
+
 	len = FILE_Length(buf);
 
 	file = PCopen(buf, 0, 0);
 
 	RelocateLevel(file);
-#else
-	RelocateLevel();
 #endif
 
 	 //jalr SetupPtr[5](len);, retail a0 = s1? len?
@@ -87,7 +84,10 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
 {
-#if INTERNAL
+#if DISC_VERSION
+	cdCurrentSector = AnimFilePos;
+	DEL_CDFS_Read((char*) frames, len);
+#else
 	int file;
 	char buf[80];
 
@@ -95,13 +95,10 @@ void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
 	strcat(buf, ".PSX");
 	file = PCopen(buf, 0, 0);
 
-	PClSeek(file, AnimFilePos, 0);
-	FILE_Read((char*)frames , 1, len, file);
+	PClseek(file, AnimFilePos, 0);
+	FILE_Read((char*) frames, 1, len, file);
 
-	PCClose(file);
-#else
-	cdCurrentSector = AnimFilePos;
-	CD_Read((char*) frames, len);
+	PCclose(file);
 #endif
 
 	return;

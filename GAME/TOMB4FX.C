@@ -6,6 +6,7 @@
 #include "DELSTUFF.H"
 #include "CONTROL.H"
 #include "DRAW.H"
+#include "DRAWPHAS.H"
 #include "CAMERA.H"
 #include "EFFECTS.H"
 #include "DELTAPAK.H"
@@ -564,9 +565,72 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 	}
 }
 
-void Fade()
+void Fade()//34B78(<), 35078(<) (F)
 {
+	if (dScreenFade != 0)
+	{
+		if (dScreenFade > ScreenFade)
+		{
+			ScreenFade = ScreenFadeSpeed + ScreenFade;
+
+			if (ScreenFade < dScreenFade)
+			{
+				ScreenFade = dScreenFade;
+
+				if (ScreenFade > dScreenFade)
+				{
+					ScreenFadedOut = 1;
+
+					if (ScreenFadeBack == 0)
+					{
+						//loc_34C30
+						ScreenFading = 0;
+					}
+
+					dScreenFade = 0;
+					ScreenFadeBack = 0;
+				}//loc_34C34
+			}//loc_34C34
+		}
+		else
+		{
+			//loc_34BFC
+			ScreenFade -= ScreenFadeSpeed;
+			if (ScreenFade < dScreenFade)
+			{
+				//loc_34C30
+				ScreenFade = dScreenFade;
+			}//loc_34C34
+		}
+	}
+	else
+	{
+		//loc_34BF0
+
+		if (dScreenFade < ScreenFade)
+		{
+			//loc_34BFC
+			ScreenFade -= ScreenFadeSpeed;
+			if (ScreenFade < dScreenFade)
+			{
+				//loc_34C30
+				ScreenFade = dScreenFade;
+			}//loc_34C34
+		}//loc_34C34
+	}
+
+	//loc_34C34
+	if(ScreenFade == 0 && dScreenFade == 0)
+	{
+		return;
+	}
+
+	//loc_34C4C
+#if PSX_VERSION
+	 DrawPsxTile(0, 0xF00200, (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade | 0x62000000, 2);
+#else
 	S_Warn("[Fade] - Unimplemented!\n");
+#endif
 }
 
 void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb)
@@ -576,7 +640,7 @@ void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb)
 
 int ExplodingDeath2(short item_number, long mesh_bits, short Flags)
 {
-	S_Warn("[ExplodingDeath2] - Unimplemented!\\n");
+	S_Warn("[ExplodingDeath2] - Unimplemented!\n");
 	return 0;
 }
 
@@ -628,27 +692,27 @@ void TriggerLightningGlow(long x, long y, long z, long rgb)// (F)
 
 void trig_actor_gunflash(struct MATRIX3D *matrix, struct PHD_VECTOR *pos)
 {
-	S_Warn("[trig_actor_gunflash] - Unimplemented!\\n");
+	S_Warn("[trig_actor_gunflash] - Unimplemented!\n");
 }
 
 void TriggerFenceSparks(long x, long y, long z, long kill, long crane)
 {
-	S_Warn("[TriggerFenceSparks] - Unimplemented!\\n");
+	S_Warn("[TriggerFenceSparks] - Unimplemented!\n");
 }
 
 void ControlElectricFence(short item_number)
 {
-	S_Warn("[ControlElectricFence] - Unimplemented!\\n");
+	S_Warn("[ControlElectricFence] - Unimplemented!\n");
 }
 
 void ControlTeleporter(short item_number)
 {
-	S_Warn("[ControlTeleporter] - Unimplemented!\\n");
+	S_Warn("[ControlTeleporter] - Unimplemented!\n");
 }
 
 void DrawWeaponMissile(struct ITEM_INFO *item)
 {
-	S_Warn("[DrawWeaponMissile] - Unimplemented!\\n");
+	S_Warn("[DrawWeaponMissile] - Unimplemented!\n");
 }
 
 void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num)// (F)
@@ -662,4 +726,14 @@ void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_
 	{
 		TriggerBlood(x, y, z, direction, speed);
 	}
+}
+
+void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
+{
+	S_Warn("[TriggerRicochetSpark] - Unimplemented!\n");
+}
+
+void Ricochet(struct GAME_VECTOR* pos)
+{
+	S_Warn("[Ricochet] - Unimplemented!\n");
 }

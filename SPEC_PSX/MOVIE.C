@@ -1,6 +1,7 @@
 #include "MOVIE.H"
 
 #include "CONTROL.H"
+#include <LIBETC.H>
 
 int S_PlayFMV(int sequence, int flag)//*, (<)5E7A0
 {

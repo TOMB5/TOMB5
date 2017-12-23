@@ -4,7 +4,7 @@
 #include "ITEMS.H"
 #include "LARA.H"
 #include "SPECIFIC.H"
-
+#include "SPECTYPES.H"
 #include <stddef.h>
 #include "TOMB4FX.H"
 
@@ -127,12 +127,18 @@ int MoveLaraPosition(struct PHD_VECTOR* vector, struct ITEM_INFO* item, struct I
 
 int TestBoundsCollide(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, long radius)
 {
-	S_Warn("[TestBoundsCollide] - Unimplemented!\\n");
+	S_Warn("[TestBoundsCollide] - Unimplemented!\n");
 	return 0;
 }
 
-int ItemPushLara(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, struct COLL_INFO* coll, int a4, int a5)
+int ItemPushLara(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, struct COLL_INFO* coll, int spaz, int big_push)
 {
-	S_Warn("[ItemPushLara] - Unimplemented!\\n");
+	S_Warn("[ItemPushLara] - Unimplemented!\n");
+	return 0;
+}
+
+int GetCollidedObjects(struct ITEM_INFO* a1, long a2, int a3, struct ITEM_INFO** a4, struct MESH_INFO** a5, int a6)
+{
+	S_Warn("[GetCollidedObjects] - Unimplemented!\n");
 	return 0;
 }

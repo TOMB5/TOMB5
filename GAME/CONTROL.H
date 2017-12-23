@@ -6,25 +6,28 @@
 // guessed, some may be wrong on PSX
 enum input_buttons
 {
-	IN_NONE = 0,								// 0x000000
-	IN_UP = (1 << 0),							// 0x000001
-	IN_DOWN = (1 << 1),							// 0x000002
-	IN_LEFT = (1 << 2),							// 0x000004
-	IN_RIGHT = (1 << 3),						// 0x000008
-	IN_JUMP = (1 << 4),							// 0x000010
-	IN_DRAW = (1 << 5), // Space / Triangle		// 0x000020
-	IN_ACTION = (1 << 6), // Ctrl / X			// 0x000040
-	IN_WALK = (1 << 7), // Shift / R1			// 0x000080
-	IN_OPTION = (1 << 8),						// 0x000100
-	IN_LOOK = (1 << 9),							// 0x000200
-	IN_LSTEP = (1 << 10),						// 0x000400
-	IN_RSTEP = (1 << 11),						// 0x000800
-	IN_ROLL = (1 << 12), // End / O				// 0x001000
-	IN_PAUSE = (1 << 13),						// 0x002000
-	IN_UNK20 = (1 << 20),						// 0x100000
-	IN_UNK21 = (1 << 21),						// 0x200000
-	IN_SAVE = (1 << 22), // F5					// 0x400000
-	IN_LOAD = (1 << 23)  // F6					// 0x800000
+	IN_NONE = 0,								// 0x00000000
+	IN_UP = (1 << 0),							// 0x00000001
+	IN_DOWN = (1 << 1),							// 0x00000002
+	IN_LEFT = (1 << 2),							// 0x00000004
+	IN_RIGHT = (1 << 3),						// 0x00000008
+	IN_JUMP = (1 << 4),							// 0x00000010
+	IN_DRAW = (1 << 5), // Space / Triangle		// 0x00000020
+	IN_ACTION = (1 << 6), // Ctrl / X			// 0x00000040
+	IN_WALK = (1 << 7), // Shift / R1			// 0x00000080
+	IN_OPTION = (1 << 8),						// 0x00000100
+	IN_LOOK = (1 << 9),							// 0x00000200
+	IN_LSTEP = (1 << 10),						// 0x00000400
+	IN_RSTEP = (1 << 11),						// 0x00000800
+	IN_ROLL = (1 << 12), // End / O				// 0x00001000
+	IN_PAUSE = (1 << 13),						// 0x00002000
+	IN_UNK19 = (1 << 19),						// 0x00080000
+	IN_UNK20 = (1 << 20),						// 0x00100000
+	IN_UNK21 = (1 << 21),						// 0x00200000
+	IN_SAVE = (1 << 22), // F5					// 0x00400000
+	IN_LOAD = (1 << 23),  // F6					// 0x00800000
+	IN_CROUCH = (1 << 29),						// 0x20000000
+	IN_SPRINT = (1 << 30),						// 0x40000000
 };
 
 enum flipeffects
@@ -160,7 +163,7 @@ extern void KillMoveItems();
 extern void KillMoveEffects();
 extern void TestTriggers(short* data, int heavy, int HeavyFlags);
 extern void ClearFires();
-
+extern void ClearDynamics();
 extern int is_object_in_room(int roomnumber, int objnumber);
 extern void NeatAndTidyTriggerCutscene(int value, int timer);
 extern int CheckCutPlayed(int num);
@@ -194,7 +197,10 @@ extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor);
-extern void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int a3);
+extern void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint);
 extern void AddFire(int x, int y, int z, char size, short room_num, short on);
+extern int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4);
+extern int check_xray_machine_trigger();
+extern void AnimateItem(struct ITEM_INFO* item);
 
 #endif

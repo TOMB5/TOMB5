@@ -27,7 +27,7 @@ DWORD opt_SFXVolume = 80;
 DWORD opt_ControlMethod;
 DWORD opt_SoundQuality = 1;
 HANDLE dword_579FA8;
-char ResetSoundThings()
+char S_CDStop()
 {
 	char result; // al@1
 
@@ -52,7 +52,7 @@ char ResetSoundThings()
 	return result;
 }
 
-void FreeSoundThings()
+void ACMClose()
 {
 	int v0; // eax@3
 	int v1; // eax@6
@@ -60,7 +60,7 @@ void FreeSoundThings()
 	if (ACMInited)
 	{
 		EnterCriticalSection(&CriticalSection);
-		ResetSoundThings();
+		S_CDStop();
 		CloseHandle(Handles);
 		CloseHandle(dword_579FA4);
 		acmStreamUnprepareHeader(has, &acmHeader1, 0);
@@ -328,7 +328,7 @@ void __cdecl sub_4027DE(void *a1, int a2)
 	{
 		byte_57A01C = 0;
 		byte_579FE4 = 0;
-		ResetSoundThings();
+		S_CDStop();
 	}
 	else
 	{
@@ -336,7 +336,7 @@ void __cdecl sub_4027DE(void *a1, int a2)
 			goto LABEL_9;
 		byte_57A01C = 0;
 		byte_579FE4 = 0;
-		ResetSoundThings();
+		S_CDStop();
 		S_CDPlay(CurrentAtmosphere, 1);
 	}
 }
@@ -472,7 +472,7 @@ int SetupNotifications()
 }
 
 
-void InitACM()
+void ACMInit()
 {
 	unsigned int v3; // esi@1
 	int v5; // eax@5

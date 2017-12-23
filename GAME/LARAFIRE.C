@@ -4,6 +4,16 @@
 #include "LARA.H"
 #include "OBJECTS.H"
 #include "SPECIFIC.H"
+#include "LARA2GUN.H"
+#include "LARA1GUN.H"
+#include "DRAW.H"
+#include "LARAFLAR.H"
+
+#ifdef PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
 
 struct GAME_VECTOR bum_vdest;
 struct GAME_VECTOR bum_vsrc;
@@ -108,9 +118,51 @@ void LaraTargetInfo(struct WEAPON_INFO* winfo)//4789C, 47D00
 	S_Warn("[LaraTargetInfo] - Unimplemented!\n");
 }
 
-void InitialiseNewWeapon()//4772C, 47B90
+void InitialiseNewWeapon()//4772C, 47B90 (F)
 {
-	S_Warn("[InitialiseNewWeapon] - Unimplemented!\n");
+	lara.left_arm.frame_number = 0;
+	lara.left_arm.x_rot = 0;
+	lara.left_arm.y_rot = 0;
+	lara.left_arm.z_rot = 0;
+	lara.left_arm.lock = 0;
+	lara.left_arm.flash_gun = 0;
+
+	lara.right_arm.frame_number = 0;
+	lara.right_arm.x_rot = 0;
+	lara.right_arm.y_rot = 0;
+	lara.right_arm.z_rot = 0;
+	lara.right_arm.lock = 0;
+	lara.right_arm.flash_gun = 0;
+
+	lara.target = NULL;
+
+	switch (lara.gun_type)
+	{
+	case WEAPON_PISTOLS:
+	case WEAPON_UZI:
+		lara.left_arm.frame_base = lara.right_arm.frame_base = objects[PISTOLS_ANIM].frame_base;
+		if (lara.gun_status)
+			draw_pistol_meshes(lara.gun_type);
+		break;
+
+	case WEAPON_REVOLVER:
+	case WEAPON_SHOTGUN:
+	case WEAPON_HK:
+		lara.left_arm.frame_base = lara.right_arm.frame_base = objects[WeaponObject(lara.gun_type)].frame_base;
+		if (lara.gun_status)
+			draw_shotgun_meshes(lara.gun_type);
+		break;
+
+	case WEAPON_FLARE:
+		lara.left_arm.frame_base = lara.right_arm.frame_base = objects[FLARE_ANIM].frame_base;
+		if (lara.gun_status)
+			draw_flare_meshes();
+		break;
+
+	default:
+		lara.left_arm.frame_base = lara.right_arm.frame_base = anims[lara_item->anim_number].frame_ptr;
+		break;
+	}
 }
 
 void LaraGun()//46F28, 4738C
@@ -118,8 +170,17 @@ void LaraGun()//46F28, 4738C
 	S_Warn("[LaraGun] - Unimplemented!\n");
 }
 
-int CheckForHoldingState(int state)//46EE4, 47348
+int CheckForHoldingState(int state)//46EE4, 47348 (F)
 {
-	S_Warn("[CheckForHoldingState] - Unimplemented!\n");
-	return 0;
+	short* holds = HoldStates;
+
+	do
+	{
+		if (*holds < 0)
+			return FALSE;
+
+		++holds;
+	} while (*holds != state);
+
+	return TRUE;
 }
