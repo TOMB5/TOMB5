@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 #include "SPECIFIC.H"
+#include "OBJECTS.H"
+#include "NEWINV2.H"
 
 int health_bar_timer = 0;
 char PoisonFlag = 0;
@@ -18,25 +20,76 @@ short PickupY = 0;
 short PickupVel = 0;
 short CurrentPickup = 0;
 
-void AddDisplayPickup(short object_number)//3B6F4, ?
+void AddDisplayPickup(short object_number)//3B6F4, ? (F)
 {
-	struct DISPLAYPU *pu; // $v1
-	long lp; // $a1
-
-
-	//a1 = gfCurrentLevel
-	if (gfCurrentLevel == LVL5_SUBMARINE)
+	struct DISPLAYPU* pu = &pickups[0];
+	long lp;
+	if (gfCurrentLevel == LVL5_SUBMARINE && object_number == PUZZLE_ITEM1 ||
+		gfCurrentLevel == LVL5_OLD_MILL && object_number == PUZZLE_ITEM3)
 	{
+		object_number = CROWBAR_ITEM;
+	}
 
-	}//loc_3B728
+	for(lp = 0; lp < 8; lp++, pu++)
+	{
+		if (pu->life < 0)
+		{
+			pu->life = 45;
+			pu->object_number = object_number;
+			break;
+		}
+	}
 
-	
-	S_Warn("[AddDisplayPickup] - Unimplemented!\n");
+	DEL_picked_up_object(object_number);
 }
 
-void DrawPickups(int timed)
+void DrawPickups(int timed)// (F)
 {
-	S_Warn("[DrawPickups] - Unimplemented!\n");
+	struct DISPLAYPU* pu = &pickups[CurrentPickup];
+	long lp;
+
+	if (pu->life > 0)
+	{
+		if (PickupX > 0)
+		{
+			PickupX += (-PickupX >> 3);
+		}
+		else
+		{
+			pu->life--;
+		}
+	}
+	else if (pu->life == 0)
+	{
+		if (PickupX < 128)
+		{
+			if (PickupVel < 16)
+				PickupX += ++PickupVel;
+		}
+		else
+		{
+			pu->life = -1;
+			PickupVel = 0;
+		}
+	}
+	else
+	{
+		for (lp = 0; lp < 8; lp++)
+		{
+			if (pickups[(CurrentPickup + lp) % 8].life > 0)
+				break;
+		}
+
+		if (lp == 8)
+		{
+			CurrentPickup = 0;
+			return;
+		}
+
+		CurrentPickup = (CurrentPickup + lp) % 8;
+	}
+
+	S_DrawPickup(pu->object_number);
 }
 
 void InitialisePickUpDisplay()//3B580, 3B9DC (F)
@@ -63,8 +116,22 @@ void DrawHealthBar(int flash_state)
 	S_Warn("[DrawHealthBar] - Unimplemented!\n");
 }
 
-void DrawGameInfo(int timed)//3AD68(<), 
-{ // line 2, offset 0x3ad68
+void DrawGameInfo(int timed)//3AD68(<), 3B268(!)
+{ 
+#if PC_VERSION
+	if (GLOBAL_playing_cutseq == 0 &&
+		!bDisableLaraControl &&
+		gfGameMode != 1)
+	{
+		int flash_state = FlashIt();
+		DrawHealthBar(flash_state);
+		DrawAirBar(flash_state);
+		DrawPickups(timed);
+		/*if (DashTimer < 120)
+			s_drawdas*/
+	}
+#else
+	// line 2, offset 0x3ad68
 	int flash_state; // $s0
 					 //{ // line 17, offset 0x3adac
 	char sbuf[80]; // stack offset -192
@@ -80,7 +147,7 @@ void DrawGameInfo(int timed)//3AD68(<),
 	}
 	
 	sprintf(sbuf, "Room:%d X:%d Y:%d Z:%d", lara_item->room_number, (lara_item->pos.x_pos - room[lara_item->room_number].x) / SECTOR(1), (lara_item->pos.y_pos - room[lara_item->room_number].minfloor) / CLICK, (lara_item->pos.z_pos - room[lara_item->room_number].z) / SECTOR(1));
-	PrintString(256, 24, 0, sbuf);///@FIXME check arg 3
+	PrintString(256, 24, 0, sbuf, 0);
 
 	//^Not verified for retail/internal split
 
@@ -102,7 +169,7 @@ void DrawGameInfo(int timed)//3AD68(<),
 	
 
 	return;
-
+#endif
 } // line 79, offset 0x3b0a0
 
 int FlashIt()//3AD2C, 3B22C

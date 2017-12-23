@@ -3,7 +3,8 @@
 
 #include "SPECTYPES.H"
 
-void InitialiseHair();
+extern void InitialiseHair();
+extern void HairControl(short a0, short a1, short a2);
 
 extern int hair_wind;
 extern int hair_wind_angle;

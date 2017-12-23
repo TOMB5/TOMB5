@@ -175,7 +175,7 @@ enum gf_tr5_levels
 
 enum gf_tr5_strings
 {
-#if INTERNAL
+#if BETA_VERSION
 	STR_FILLER_1,
 	STR_FILLER_2,
 #endif
@@ -488,6 +488,7 @@ enum gf_tr5_strings
 	STR_DEMO_MODE_ESC_TO_EXIT,
 	STR_SELECT_LEVEL,
 	STR_NO_FMV,
+	STR_LAST_STRING_ENTRY,
 	
 	NUM_STRING_ENTRIES
 };

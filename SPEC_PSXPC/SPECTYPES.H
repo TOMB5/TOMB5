@@ -2,6 +2,7 @@
 #define SPECTYPES_H
 
 #define INPUT_H "PSXPCINPUT.H"
+#define CMATH_H "math.h"
 
 #include "TYPES.H"
 
@@ -46,7 +47,7 @@ struct object_info {
 	short mesh_index; // size=0, offset=2
 	long bone_index; // size=0, offset=4
 	short* frame_base; // size=0, offset=8
-	void(*initialise)(short); // size=0, offset=12
+	void(*initialise)(short item_number); // size=0, offset=12
 	void(*control)(short item_number); // size=0, offset=16
 	void(*floor)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=20
 	void(*ceiling)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=24

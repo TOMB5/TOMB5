@@ -123,7 +123,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	fmv_to_play[1] = 0;
 
 	//The game's title is disabled in Gameflow script. Automatically override the level id to 1 (skip it).
-	gfCurrentLevel = Gameflow->TitleEnabled == 0 ? 1 : 0;
+	gfCurrentLevel = Gameflow->TitleEnabled ? LVL5_TITLE : LVL5_STREETS_OF_ROME;
 
 	//Current level's script offset
 	scriptOffsetPtr = gfScriptOffset + (gfCurrentLevel & 0xFF);
@@ -162,7 +162,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 			LightningRGBs[0] = *sequenceCommand;
 			gfLayer2Col.r = *sequenceCommand++;
 
-#if INTERNAL
+#if BETA_VERSION
 			GameTimer = 46;
 #else
 			GameTimer = 44;
@@ -313,17 +313,13 @@ void LoadGameflow()//102E0, 102B0
 
 	gfStringWad = (char*)(gfStringOffset + num_strings);
 
-#if INTERNAL
-	memcpy(gfStringOffset + num_strings, gfStringOffset + 317, wad_len);
-#else
-	memcpy(gfStringOffset + num_strings, gfStringOffset + 315, wad_len);
-#endif
+	memcpy(gfStringWad, gfStringOffset + NUM_STRING_ENTRIES + (sizeof(struct STRINGHEADER) / sizeof(unsigned short)), wad_len);
 
 	gfScriptLen += (((num_strings * sizeof(unsigned short) + wad_len) + 3) & -4);
 
 	if (num_strings != 0)
 	{
-		unsigned char* stringPtr = (unsigned char*)(gfStringOffset + num_strings);//s?
+		unsigned char* stringPtr = (unsigned char*)gfStringWad;//s?
 
 		for (i = 0; i < num_strings; i++)
 		{
@@ -485,24 +481,22 @@ void LoadGameflow()//102E0, 102B0
 	}
 }
 
-void QuickControlPhase()//10274(<), 10264(<)
+void QuickControlPhase()//10274(<), 10264(<) (F)
 {
-#if INTERNAL && PSX_VERSION
+#if PSX_VERSION
+#if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
 #endif
 
-#if PSX_VERSION
 	OldSP = SetSp(0x1F8003E0);
-#endif
 
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
 
-#if PSX_VERSION
 	SetSp(OldSP);
-#endif
 
-#if INTERNAL && PSX_VERSION
+#if DEBUG_VERSION
 	ProfileRGB(0, 0, 0);
+#endif
 #endif
 }
 
@@ -541,10 +535,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	title_controls_locked_out = 0;
 
-	#if PC_VERSION
-		 InitialiseFXArray(1);
-		InitialiseLOTarray(1);
-	#endif
+#if PC_VERSION
+	InitialiseFXArray(1);
+	InitialiseLOTarray(1);
+#endif
 
 	InitialisePickUpDisplay();
 
@@ -555,9 +549,8 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	SOUND_Stop();
 
 	IsAtmospherePlaying = 0;
-#if !PC_VERSION
+
 	S_SetReverbType(1);
-#endif
 
 	InitialiseCamera();
 
@@ -634,7 +627,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 				goto lbl_10890;
 			}
 
-#if INTERNAL
+#if DEBUG_VERSION
 			if (RawPad & 0x201)
 			{
 				dels_cutseq_selector_flag = 1;
@@ -642,7 +635,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 #endif
 			//loc_10868
 			CreditsDone = 1;
-			gfStatus = sub_1BDF88(Name);
+			gfStatus = sub_1BDF88(Name);//TitleOptions(void);
 
 		lbl_10890:
 			if (GLOBAL_playing_cutseq != 0)
@@ -650,10 +643,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 			lbl_108A4:
 				if (!bDoCredits || CreditsDone != 0)
 				{
-#if INTERNAL
-					PrintString(256, 220, 1, gfStringWad + gfStringOffset[176]);
+#if BETA_VERSION
+					PrintString(256, 220, 1, &gfStringWad[gfStringOffset[176]], 0);
 #else
-					PrintString(256, 220, 1, gfStringWad + gfStringOffset[174]);
+					PrintString(256, 220, 1, &gfStringWad[gfStringOffset[174]], 0);
 #endif
 				}
 
@@ -665,10 +658,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 #if PSX_VERSION || PSXPC_VERSION
 			if (PadConnected == 0)
 			{
-#if INTERNAL
-				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[221]]);
+#if BETA_VERSION
+				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[221]], 0);
 #else
-				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[219]]);
+				PrintString(256, 128, 3, &gfStringWad[gfStringOffset[219]], 0);
 #endif
 			}
 #endif

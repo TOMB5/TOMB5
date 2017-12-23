@@ -69,6 +69,23 @@ char* htypes[4] =
 	"WALL", "SMALL_SLOPE", "BIG_SLOPE", "DIAGONAL"
 };
 
+enum headings
+{
+	NORTH,
+	EAST,
+	SOUTH,
+	WEST
+};
+
+enum height_types
+{
+	WALL,
+	SMALL_SLOPE,
+	BIG_SLOPE,
+	DIAGONAL,
+	SPLIT_TRI
+};
+
 static struct COLL_INFO *coll = &mycoll; // offset 0xA0B8C
 short SubsuitAir = 0; // offset 0xA122E
 struct COLL_INFO mycoll;
@@ -108,7 +125,7 @@ void LaraCheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4A790(<), 4ABF4(
 	{
 		if (!(input & IN_LOOK))
 		{
-			lara.water_status = 0;
+			lara.water_status = LW_ABOVE_WATER;
 			item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
 			item->anim_number = ANIMATION_LARA_STAY_SOLID;
 			item->pos.z_rot = 0;
@@ -117,7 +134,7 @@ void LaraCheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4A790(<), 4ABF4(
 			lara.torso_x_rot = 0;
 			lara.head_y_rot = 0;
 			lara.head_x_rot = 0;
-			lara.gun_status = 0;
+			lara.gun_status = LG_NO_ARMS;
 			LaraInitialiseMeshes();
 			lara.mesh_effects = 0;
 			lara_item->hit_points = cheat_hit_points;
@@ -138,23 +155,23 @@ void LaraInitialiseMeshes()//4A684, 4AAE8 (F)
 		lara.mesh_ptrs[LM_TORSO] = meshes[objects[ANIMATING6_MIP].mesh_index + 2 * LM_TORSO];
 	}
 
-	if (lara.gun_type == 5)
+	if (lara.gun_type == WEAPON_HK)
 	{
-		lara.back_gun = 5;
+		lara.back_gun = WEAPON_HK;
 	}
 	else if (!lara.shotgun_type_carried)
 	{
 		if (lara.hk_type_carried)
 		{
-			lara.back_gun = 5;
+			lara.back_gun = WEAPON_HK;
 		}
 	}
 	else
 	{
-		lara.back_gun = 3;
+		lara.back_gun = WEAPON_UZI;
 	}
 
-	lara.gun_status = 0;
+	lara.gun_status = LG_NO_ARMS;
 	lara.left_arm.frame_number = 0;
 	lara.right_arm.frame_number = 0;
 	lara.target = 0;

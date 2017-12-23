@@ -101,14 +101,14 @@ void MonitorScreenCollision(short item_num, struct ITEM_INFO* l, struct COLL_INF
 	short* bounds;
 
 	item = &items[item_num];
-	if (l->anim_number == 197 && l->frame_number == anims[197].frame_base + 24)
+	if (l->anim_number == ANIMATION_LARA_BUTTON_PUSH && l->frame_number == anims[ANIMATION_LARA_BUTTON_PUSH].frame_base + 24)
 		TestTriggersAtXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 1, 0);
 
-	if ((!(input & 0x40)
-		|| l->current_anim_state != 2
-		|| l->anim_number != 103
+	if ((!(input & IN_ACTION)
+		|| l->current_anim_state != STATE_LARA_STOP
+		|| l->anim_number != ANIMATION_LARA_STAY_IDLE
 		|| lara.gun_status
-		|| item->status != 0)
+		|| item->status != ITEM_INACTIVE)
 		&& (!lara.IsMoving || lara.GeneralPtr != (void *)item_num))
 	{
 		ObjectCollision(item_num, l, coll);
@@ -125,17 +125,17 @@ void MonitorScreenCollision(short item_num, struct ITEM_INFO* l, struct COLL_INF
 		{
 			if (MoveLaraPosition(&MSPos, item, l))
 			{
-				l->current_anim_state = 40;
-				l->anim_number = 197;
-				l->frame_number = anims[197].frame_base;
+				l->current_anim_state = STATE_LARA_SWITCH_DOWN;
+				l->anim_number = ANIMATION_LARA_BUTTON_PUSH;
+				l->frame_number = anims[ANIMATION_LARA_BUTTON_PUSH].frame_base;
 				lara.IsMoving = 0;
 				lara.head_y_rot = 0;
 				lara.head_x_rot = 0;
 				lara.torso_y_rot = 0;
 				lara.torso_x_rot = 0;
-				lara.gun_status = 1;
+				lara.gun_status = LG_HANDS_BUSY;
 				item->flags |= 0x20u;
-				item->status = 1;
+				item->status = ITEM_ACTIVE;
 			}
 			else
 			{
@@ -145,7 +145,7 @@ void MonitorScreenCollision(short item_num, struct ITEM_INFO* l, struct COLL_INF
 		else if (lara.IsMoving && lara.GeneralPtr == (void *)item_num)
 		{
 			lara.IsMoving = 0;
-			lara.gun_status = 0;
+			lara.gun_status = LG_NO_ARMS;
 		}
 	}
 }
@@ -266,7 +266,7 @@ void PuzzleDone(struct ITEM_INFO* item, short item_num)//51004, 51468 (F)
 	AddActiveItem(item_num);
 
 	item->flags |= IFLAG_ACTIVATION_MASK;
-	item->status = 1;
+	item->status = ITEM_ACTIVE;
 
 	if (item->trigger_flags == 0x3E6 && level_items > 0)
 	{
@@ -279,7 +279,7 @@ void PuzzleDone(struct ITEM_INFO* item, short item_num)//51004, 51468 (F)
 			{
 				FlipMap(items[i].speed);
 				flipmap[items[i].trigger_flags] ^= IFLAG_ACTIVATION_MASK;
-				items[i].status = 0;
+				items[i].status = ITEM_INACTIVE;
 				items[i].flags |= 0x20;
 			}
 		}

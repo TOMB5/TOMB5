@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#ifndef ABS
+/*#ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
-#endif
+#endif*/
 
 #ifndef MIN
 #define MIN(x, y) (((x)<(y))?(x):(y))
@@ -25,11 +25,55 @@
 #define TRUE 1
 #endif
 
+#ifndef SIGN
+#define SIGN(x) ((0 < (x)) - ((x) < 0))
+#endif
+
 // (65536 / 360) ~ 182.0444...
-//#define TRDEG (65536.0/360)
+// Game used 182, so maybe our code will be more precise %)
 #define ANGLE(x) ((x) * 65536.0 / 360.0)
 
-#define RGB555(r, g, b) (((r) << 10) | ((g) << 5) | (b))
+#define SIN(x) (4 * rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
+#define COS(x) (4 * rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
+
+#if 0 // for later...
+inline int phd_atan(long x, long y)
+{
+	char octant = 0;
+	int res;
+	if (x < 0)
+	{
+		octant = 4;
+		x = -x;
+	}
+	if (y < 0)
+	{
+		octant += 2;
+		y = -y;
+	}
+	if (y > x)
+	{
+		const long tmp = x;
+		x = y;
+		y = tmp;
+		octant += 1;
+	}
+	if (x == 0)
+	{
+		x = 1;
+	}
+	res = atanOctantTab[octant] + atanTab[(y * 2048) / x];
+	return abs(res);
+}
+#endif
+
+#define RGB555(r, g, b) ((r << 7) & 0x7C00 | (g << 2) & 0x3E0 | (b >> 3) & 0x1F)
+#define RED5(rgb) (((rgb >> 10) & 0x1F) << 3)
+#define GREEN5(rgb) (((rgb >> 5) & 0x1F) << 3)
+#define BLUE5(rgb) ((rgb & 0x1F) << 3)
+#define WHITE555 RGB555(255, 255, 255)
+#define GRAY555  RGB555(128, 128, 128)
+#define BLACK555 RGB555(  0,   0,   0)
 
 //#define SECTOR 1024
 #define SECTOR(x) ((x) * 1024)
@@ -37,30 +81,24 @@
 
 #define SECTOR_TO_WORLD(S) ((S) > (0) ? SECTOR((S) + 0.5) : (0))
 
-#define WHITE555 RGB555(16, 16, 16)
-#define BLACK555 RGB555( 0,  0,  0)
+#define XZ_GET_SECTOR(room, x, z) (r->floor[(int)((z) / 1024 + r->x_size * ((x) / 1024))])
 
 #define PSXENGINE (PSXPC_VERSION || PSX_VERSION)
 
 #define TEXTURE_PAGE (256 * 256)
 
+#define W2V_SHIFT 14
+
 #ifndef CLAMP
 #define CLAMP(x, a, b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
 #endif
+
+#define CLAMPADD(x, a, b) ((x)<(a)?((x)+(a)):((x)>(b)?((x)-(b)):0))
 
 #define RED(rgb) (((rgb) >> 16) & 0xFF)
 #define GREEN(rgb) (((rgb) >> 8) & 0xFF)
 #define BLUE(rgb) ((rgb) & 0xFF)
 #define ALPHA(rgb) (((rgb) >> 24) & 0xFF)
-
-// 4 enums
-enum mood_type
-{
-	BORED_MOOD = 0,
-	ATTACK_MOOD = 1,
-	ESCAPE_MOOD = 2,
-	STALK_MOOD = 3,
-};
 
 enum zone_type
 {
@@ -81,6 +119,14 @@ enum camera_type
 	HEAVY_CAMERA = 5,
 };
 
+enum mood_type
+{
+	BORED_MOOD = 0,
+	ATTACK_MOOD = 1,
+	ESCAPE_MOOD = 2,
+	STALK_MOOD = 3,
+};
+
 enum target_type
 {
 	NO_TARGET = 0,
@@ -91,6 +137,7 @@ enum target_type
 enum room_flags
 {
 	RF_FILL_WATER = (1 << 0),			    // 0x0001
+	RF_ALWAYS_SFX = (1 << 1),				// 0x0002
 	RF_SKYBOX_VISIBLE = (1 << 3),		    // 0x0008   speeds up rendering if no rendered room has this
 	RF_WIND_BLOWS_PONYTAIL = (1 << 5),	    // 0x0020   also some particles
 	RF_UNKNOWN_6 = (1 << 6),			    // 0x0040   used in official levels, no apparent effects
@@ -100,6 +147,14 @@ enum room_flags
 	RF_UNKNOWN_10 = (1 << 10),			    // 0x0400   NGLE uses it for snow
 	RF_TRLE_D = (1 << 11),					// 0x0800   NGLE uses it for rain
 	RF_TRLE_P = (1 << 12)					// 0x1000   NGLE uses it for cold rooms
+};
+
+enum item_status
+{
+	ITEM_INACTIVE = 0,
+	ITEM_ACTIVE = 1,
+	ITEM_DEACTIVATED = 2,
+	ITEM_INVISIBLE = 3
 };
 
 enum material_index
@@ -120,17 +175,6 @@ enum material_index
 	MAT_OLD_METAL,	 // Same SFX as metal
 
 	NUM_MATERIALS
-};
-
-enum reverb_type
-{
-	RVB_OUTSIDE,	   // 0x00   no reverberation
-	RVB_SMALL_ROOM,	   // 0x01   little reverberation
-	RVB_MEDIUM_ROOM,   // 0x02
-	RVB_LARGE_ROOM,	   // 0x03
-	RVB_PIPE,		   // 0x04   highest reverberation, almost never used
-
-	NUM_REVERB_TYPES
 };
 
 enum weather_type
@@ -182,7 +226,7 @@ struct PHD_VECTOR
 	long z;
 };
 #if PC_VERSION
-#pragma pack(push, 4)
+#pragma pack(push, 1)
 #endif
 struct PHD_3DPOS
 {
@@ -193,10 +237,7 @@ struct PHD_3DPOS
 	short y_rot; // off 14 [78]
 	short z_rot; // off 16 [80]
 };
-#if PC_VERSION
-#pragma pack(pop)
-#pragma pack(push, 1)
-#endif
+
 struct ILIGHT
 {
 	short x;
@@ -658,7 +699,7 @@ struct COLL_INFO
 	short old_frame_number; // size=0, offset=116
 	short facing; // size=0, offset=118
 	short quadrant; // size=0, offset=120
-	short coll_type; // size=0, offset=122
+	short coll_type; // size=0, offset=122 USE ENUM CT_*
 	short* trigger; // size=0, offset=124
 	char tilt_x; // size=0, offset=128
 	char tilt_z; // size=0, offset=129

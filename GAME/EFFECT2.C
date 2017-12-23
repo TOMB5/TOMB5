@@ -6,6 +6,7 @@
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "TOMB4FX.H"
+#include "EFFECTS.H"
 
 long wibble;
 long SplashCount;
@@ -45,9 +46,9 @@ void KillEverything()//338AC(<), 33DAC(<) (F)
 	KillEverythingFlag = 0;
 }
 
-void KillAllCurrentItems(short item_number)//3389C, 33D9C
+void KillAllCurrentItems(short item_number)//3389C, 33D9C (F)
 {
-	S_Warn("[KillAllCurrentItems] - Unimplemented!\n");
+	KillEverythingFlag = 1;
 }
 
 void TriggerDartSmoke(long x, long y, long z, long xv, long zv, long hit)//335B8, 33AB8
@@ -65,9 +66,35 @@ void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly)//32EAC
 	S_Warn("[TriggerSuperJetFlame] - Unimplemented!\n");
 }
 
-void DetatchSpark(long num, long type)//32D8C, 3328C
+void DetatchSpark(long num, long type)//32D8C, 3328C (F)
 {
-	S_Warn("[DetatchSpark] - Unimplemented!\n");
+	struct FX_INFO* fx = &effects[num];
+	struct ITEM_INFO* item = &items[num];	
+	struct SPARKS* sptr = &spark[0];
+
+	long lp;
+	for(lp = 0; lp < 1024; lp++, sptr++)
+	{
+		if (sptr->On && sptr->Flags & type && sptr->FxObj == num)
+		{
+			if (type == 64)
+			{
+				sptr->x += fx->pos.x_pos;
+				sptr->y += fx->pos.y_pos;
+				sptr->z += fx->pos.z_pos;
+
+				sptr->Flags &= 0xBF;
+			}
+			else if(type == 128)
+			{
+				sptr->x += item->pos.x_pos;
+				sptr->y += item->pos.y_pos;
+				sptr->z += item->pos.z_pos;
+
+				sptr->Flags &= 0x7F;
+			}
+		}
+	}
 }
 
 void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, int a8, int a9)//8D6D4(<), 8F718(<) (F)
@@ -104,7 +131,7 @@ void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, 
 	spark->Friction = 4;
 	if (GetRandomControl() & 1)
 	{
-		if (room[lara_item->room_number].flags & 0x20)
+		if (room[lara_item->room_number].flags & RF_WIND_BLOWS_PONYTAIL)
 			spark->Flags = 272;
 		else
 			spark->Flags = 16;
@@ -114,7 +141,7 @@ void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, 
 		else
 			spark->RotAdd = (GetRandomControl() & 0xF) + 16;
 	}
-	else if (room[lara_item->room_number].flags & 0x20)
+	else if (room[lara_item->room_number].flags & RF_WIND_BLOWS_PONYTAIL)
 	{
 		spark->Flags = 256;
 	}
@@ -147,8 +174,12 @@ void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, 
 	}
 }
 
-void TriggerDynamic(long x, long y, long z, int a4, int a5, int a6, int a7)
+void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 {
 	S_Warn("[TriggerDynamic] - Unimplemented!\n");
 }
 
+void TriggerFireFlame(int x, int y, int z, int fxObj, signed int a5)
+{
+	S_Warn("[TriggerFireFlame] - Unimplemented!\n");
+}

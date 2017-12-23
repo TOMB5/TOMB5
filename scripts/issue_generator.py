@@ -44,16 +44,30 @@
 # example:
 # $ ./issue_generator.py +warn -hint -clipboard
 # = force show warnings, hide hints and don't use clipboard
+# you can also use short args
+# $ ./issue_generator.py +w -h -c
 
 # increment this plz
-# rev 2
-# 2017-10-17                                                  
+# rev 8
+# 2017-11-05
 
 
 from urllib.request import urlopen
 import json
 import os.path
 import sys
+
+def Warn(msg):
+	if SHOW_WARN:
+		print("[WARN--------] " + str(msg))
+
+def Hint(msg):
+	if SHOW_HINT:
+		print("[----HINT----] " + str(msg))
+
+def Status(msg):
+	if SHOW_STATUS:
+		print("[--------STAT] " + str(msg))
 
 # STEP
 #  _ 
@@ -64,30 +78,31 @@ import sys
 # 
 # Global settings
 
-def isarg(arg, default):
-	if any(x for x in sys.argv if x.strip().lower() == "+%s" % arg):
+def isarg(arg, short, default):
+	if any(x for x in sys.argv if x.strip().lower() in ["+" + arg, "+" + short]):
 		return True
-	elif any(x for x in sys.argv if x.strip().lower() == "-%s" % arg):
+	elif any(x for x in sys.argv if x.strip().lower() in ["-" + arg, "-" + short]):
 		return False
 	else:
 		return default
 
-ISSUE_ID = 			46 							# ID of the issue on GitHub (for the API request)
-PLATFORMS = 		["GAME", "SPEC_PSX"] 		# Which folders/platforms to use
-SHOW_WARN = 		isarg("warn", True) 		# Show warnings (error messages)
-SHOW_HINT = 		isarg("hint", True) 		# Show hints (e.g. function checked in list but not (F) in file)
-SHOW_STATUS = 		isarg("status", False)		# Show status messages (function added successfully yay)
-AUTO_ADD_MISSING = 	isarg("addmissing", True) 	# If a function is marked (F) in file but is missing in the list, add it to the list
-USE_CLIPBOARD = 	isarg("clipboard", True) 	# Copy output into clipboard instead of outputting it to the console
-SHOW_UNIMPL =		isarg("showunimpl", False)	# At the end, output a list of unimplemented (unchecked) functions
-USE_REPR =			isarg("userepr", False)		# Debugging purposes. When outputting a list (e.g. SHOW_UNIMPL), use repr()
-SHOW_ADDED =		isarg("showadded", False)	# Show a plain list of added functions
+ISSUE_ID = 			46 								# ID of the issue on GitHub (for the API request)
+SHOW_WARN = 		isarg("warn", 		"w", True) 	# Show warnings (error messages)
+SHOW_HINT = 		isarg("hint", 		"h", True) 	# Show hints (e.g. function checked in list but not (F) in file)
+SHOW_STATUS = 		isarg("status", 	"s", False)	# Show status messages (function added successfully yay)
+AUTO_ADD_MISSING = 	isarg("addmissing", "m", True) 	# If a function is marked (F) in file but is missing in the list, add it to the list
+USE_CLIPBOARD = 	isarg("clipboard", 	"c", True) 	# Copy output into clipboard instead of outputting it to the console
+SHOW_UNIMPL =		isarg("showunimpl", "u", False)	# At the end, output a list of unimplemented (unchecked) functions
+USE_REPR =			isarg("userepr", 	"r", False)	# Debugging purposes. When outputting a list (e.g. SHOW_UNIMPL), use repr()
+SHOW_ADDED =		isarg("showadded", 	"a", False)	# Show a plain list of added functions
+SHOW_FILES_STATS =	isarg("showfiles",	"f", False) # Show number of implemented functions by file
+UNIMPL_NEUTRAL =	isarg("uneutral", 	"n", False) # for showunimp, show only GAME functions
 
 if not os.path.isfile("README.md"):
 	os.chdir("..")
 
-if SHOW_WARN and not os.path.isfile("README.md"):
-	print("[WARN--------] cannot find README.md in current or parent directory, are you in the correct folder?")
+if not os.path.isfile("README.md"):
+	Warn("cannot find README.md in current or parent directory, are you in the correct folder?")
 
 # STEP
 #  ____  
@@ -118,16 +133,18 @@ comments = {} # dictionary for when there is content after the function name in 
 for x in issue:
 	if "#### " in x: 		# level 2 header - file
 		curfile = x[5:]
+		if curfile not in platforms[curplat]:
+			platforms[curplat][curfile] = {}
 		continue
 	elif "### " in x:		# level 1 header - platform
 		curplat = x[4:]
+		if curplat not in platforms:
+			platforms[curplat] = {}
 		continue
 
-	if curplat not in platforms:
-		platforms[curplat] = {}
-
-	if curfile not in platforms[curplat]:
-		platforms[curplat][curfile] = {}
+	if len([c for c in x if c == "`"]) != 2:
+		Warn("syntax error, function name is not correctly surrounded by ` -- ignoring : %s" % x)
+		continue
 
 	fname = x[7:x.rfind("`")]
 
@@ -137,7 +154,7 @@ for x in issue:
 			comments[fname] = comment
 
 	if fname in platforms[curplat][curfile]:
-		print("[WARN--------] duplicate function '%s'" % fname)
+		Warn("duplicate function '%s'" % fname)
 
 	platforms[curplat][curfile][fname] = "[x]" in x
 
@@ -150,10 +167,10 @@ for x in issue:
 #
 # Let the actual shit be done
 
-if SHOW_STATUS:
-	print("[--------STAT] working for platforms: " + ", ".join(platforms.keys()))
+Status("working for platforms: " + ", ".join(sorted(platforms.keys())))
 
 added = []
+addedFiles = []
 
 def getfline(path):
 	with open(path, 'r') as fp:
@@ -163,8 +180,7 @@ for plat in sorted(platforms.keys()):
 	for file in sorted(platforms[plat].keys()):
 		path = os.path.join(plat, file)
 		if not os.path.isfile(path):
-			if SHOW_WARN:
-				print("[WARN--------] file does not exist - skipping -- '%s'" % path)
+			Warn("file does not exist - skipping -- '%s'" % path)
 			continue
 
 		funcs = [l for l in getfline(path) if "(F)" in l]
@@ -176,28 +192,25 @@ for plat in sorted(platforms.keys()):
 
 		for func in sorted(platforms[plat][file].keys(), key=str.lower):
 			if platforms[plat][file][func] and func not in funcs:
-				if SHOW_HINT:
-					print("[----HINT----] function marked as implemented in list, not in file -- %s // '%s'" % (path, func))
+				Hint("function marked as implemented in list, not in file -- %s // '%s'" % (path, func))
 
 		for l in sorted(funcs):
 			# function is present and (F) in file, but not present in list
 			if l not in platforms[plat][file]:
 				if AUTO_ADD_MISSING:
 					platforms[plat][file][l] = True
-
-					if SHOW_HINT:
-						print("[----HINT----] function was not in list - has been added to list -- %s // '%s'" % (path, l))
+					Hint("function was not in list - has been added to list -- %s // '%s'" % (path, l))
 				else:
-					if SHOW_WARN:
-						print("[WARN--------] function in file but not in list - skipping -- %s // '%s'" % (path, l))
+					Warn("function in file but not in list - skipping -- %s // '%s'" % (path, l))
 				continue
 
 			# function is (F) in file but not checked in list -> check it
 			if not platforms[plat][file][l]:
-				if SHOW_STATUS:
-					print("[--------STAT] adding implemented function -- %s // '%s'" % (path, l))
-				added.append(l)
+				Status("adding implemented function -- %s // '%s'" % (path, l))
+				added.append((plat, file, l))
 				platforms[plat][file][l] = True
+				if all(platforms[plat][file].values()):
+					addedFiles.append((plat, file))
 
 # STEP
 #  ____  
@@ -207,6 +220,38 @@ for plat in sorted(platforms.keys()):
 # |____/ 
 # 
 # Output the results
+
+def getPlatStats(plat):
+	return (
+		sum([list(platforms[plat][f].values()).count(True) for f in platforms[plat]]), 
+		len([x for x in added if x[0] == plat]),
+		sum(len(platforms[plat][f]) for f in platforms[plat]), 
+		plat
+	)
+
+def getFileStats(plat, file):
+	return (
+		list(platforms[plat][file].values()).count(True), 
+		len([x for x in added if x[0] == plat and x[1] == file]),
+		len(platforms[plat][file]), 
+		os.path.join(plat, file)
+	)
+
+Status("statistics:")
+for p in sorted(platforms.keys()):
+	Status("- %4d [%2d added] / %4d in %s" % getPlatStats(p))
+	if SHOW_FILES_STATS:
+		for f in sorted(platforms[p].keys()):
+			Status("- %4d [%2d added] / %4d in %s" % getFileStats(p, f))
+
+globStats = [getPlatStats(p) for p in platforms]
+Status("- %4d [%2d added] / %4d total" % (sum(c for c,_,__,___ in globStats), len(added), sum(t for _,__,t,___ in globStats)))
+
+
+if len(addedFiles) > 0:
+	Status("%d file%s ha%s been finished:" % (len(addedFiles), "s" if len(addedFiles) != 1 else "", "ve" if len(addedFiles) != 1 else "s"))
+	for x in addedFiles:
+		Status("- %s" % os.path.join(*x))
 
 lines = []
 unimpl = []
@@ -220,26 +265,43 @@ for plat in sorted(platforms.keys()):
 		for func in sorted(platforms[plat][file].keys(), key=str.lower):
 			lines.append("- [%s] `%s`%s" %("x" if platforms[plat][file][func] else " ", func, comments[func] if func in comments else ""))
 			if SHOW_UNIMPL and not platforms[plat][file][func]:
-				unimpl.append("%s\\%s // %s" % (plat, file, func))
+				unimpl.append((plat, file, func))
 
 output = "\n".join(lines)
-
-if USE_CLIPBOARD:
-	import pyperclip
-	pyperclip.copy(output)
-else:
-	print(output)
 
 if SHOW_UNIMPL:
 	print("Unimplemented :")
 	if USE_REPR:
-		print(repr([x.split(" // ")[1] for x in unimpl]))
+		print(repr([x[2] for x in unimpl if (not UNIMPL_NEUTRAL) or x[0] == "GAME"]))
 	else:
-		print("\n".join(unimpl))
+		print("\n".join(["%s // %s" % (os.path.join(x[0], x[1]), x[2]) for x in unimpl]))
 
 if SHOW_ADDED:
 	print("Added :")
 	if USE_REPR:
 		print(repr(added))
 	else:
-		print("\n".join(added))
+		print("\n".join(["%s // '%s'" % (os.path.join(x[0], x[1]), x[2]) for x in added]))
+
+# STEP
+#   __   
+#  / /_  
+# | '_ \ 
+# | (_) |
+#  \___/ 
+#        
+# Display motivational messages for the poor developers
+
+motivational_messages = [
+	"Keep up the good work!",
+	"Awesome!",
+	"You're working very fast!"
+]
+import random
+print("[MOTIVATIONAL] " + random.choice(motivational_messages))
+
+if USE_CLIPBOARD:
+	import pyperclip
+	pyperclip.copy(output)
+else:
+	print(output)

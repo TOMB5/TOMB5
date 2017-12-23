@@ -75,7 +75,7 @@ void gInit()//615CC(<), 6210C(<) (F)
 	XAFadeRate = 32;
 	XAReqVolume = 0;
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileDraw = 0;
 #endif
 	CreateMonoScreen();
@@ -257,8 +257,9 @@ void S_AnimateTextures(long num_frames)
 
 void S_SetupClutAdder(long unk)
 {
-	//__asm__ volatile ("ctc2	$4, $28;");
-	S_Warn("[S_SetupClutAdder] - Unimplemented!\n");
+#if PSX_VERSION
+	__asm__ volatile("ctc2 %0, $28": "=r" (unk) : );
+#endif
 }
 
 void S_DrawFootPrints()

@@ -242,3 +242,8 @@ void DisplayStatsUCunt()
 {
 	S_Warn("[DisplayStatsUCunt] - Unimplemented!\n");
 }
+
+void S_SetReverbType(int reverb)
+{
+	// null sub
+}
