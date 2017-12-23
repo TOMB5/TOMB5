@@ -1,7 +1,12 @@
 #include "DRAW.H"
 
+#include "CONTROL.H"
+#include "MATHS.H"
+#include "OBJECTS.H"
+#include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
+#include "TOMB4FX.H"
 #include <stddef.h>
 
 short LightningSFXDelay;
@@ -81,6 +86,8 @@ short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 8793C
 	int a1;
 	if (GetFrames(item, &var_10[0], &var_8[0]) == 0)
 	{
+		//t0 = v0
+		//v0 = t4;
 		return NULL;// t4;//? Well you can tell this was written by hand in mips, smh, nice optimisation
 	}
 	
@@ -131,9 +138,37 @@ void DrawMoon()
 	S_Warn("[DrawMoon] - Unimplemented!\n");
 }
 
-void DrawGunflashes()
+void DrawGunflashes()//8A924(<) 8C968(<) (F)
 {
-	S_Warn("[DrawGunflashes] - Unimplemented!\n");
+	long rand;
+	long i;
+
+	if (!Gunflashes[0].on)
+	{
+		return;
+	}
+
+	mPushMatrix();
+	rand = (GetRandomDraw() & 0x1F);
+	
+	/*SetInventoryLighting(((GetRandomDraw() & 0xF) + 72) | 0x4000,
+		((GetRandomDraw() & 0xF) + 72) | 0x4000,
+		((GetRandomDraw() & 0xF) + 72) | 0x4000,
+		rand << 16 | rand << 8 | rand);*/
+
+	for (i = 4; i > -1; i--)
+	{
+		if (Gunflashes[i].on)
+		{
+			mCopyMatrix(&Gunflashes[i].matrix);
+			//mRotZ(GetRandomDraw() << 1);
+			short* mesh = meshes[objects[GUN_FLASH].mesh_index];
+			//phd_PutPolygons(((long*) mesh)[0], -1);
+			mesh[16] = 0;
+		}
+	}
+
+	mPopMatrix();
 }
 
 short* GetBestFrame(struct ITEM_INFO* item)// (F)s
