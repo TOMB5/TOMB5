@@ -142,6 +142,7 @@ void DrawGunflashes()//8A924(<) 8C968(<) (F)
 {
 	long rand;
 	long i;
+	short* mesh;
 
 	if (!Gunflashes[0].on)
 	{
@@ -156,13 +157,13 @@ void DrawGunflashes()//8A924(<) 8C968(<) (F)
 		((GetRandomDraw() & 0xF) + 72) | 0x4000,
 		rand << 16 | rand << 8 | rand);*/
 
-	for (i = 4; i > -1; i--)
+	for (i = 0; i < 4; i++)
 	{
 		if (Gunflashes[i].on)
 		{
 			mCopyMatrix(&Gunflashes[i].matrix);
 			//mRotZ(GetRandomDraw() << 1);
-			short* mesh = meshes[objects[GUN_FLASH].mesh_index];
+			mesh = meshes[objects[GUN_FLASH].mesh_index];
 			//phd_PutPolygons(((long*) mesh)[0], -1);
 			mesh[16] = 0;
 		}
