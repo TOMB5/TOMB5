@@ -7,7 +7,7 @@
 #include "MALLOC.H"
 #include "PROFILE.H"
 #include "TYPES.H"
-
+#include "SPECTYPES.H"
 #include <assert.h>
 #include <stddef.h>
 #include <LIBGTE.H>
@@ -308,11 +308,7 @@ short atanTab[] =
 	0x1FEC, 0x1FEE, 0x1FF1, 0x1FF3, 0x1FF6, 0x1FF8, 0x1FFB, 0x1FFD, 0x2000, 0x2000
 };
 
-int dword_AD920 = 0;
-int dword_A33F6 = 0;
-char dword_A33F5 = 0;
-
-void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
+void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
 {
 	int a0, a1, a2;
 	if (!LtLoadingBarEnabled)
@@ -321,7 +317,7 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
 	}
 
 	//loc_5F08C
-	GPU_BeginScene();//FIXME: one ptr is mis-filled!
+	GPU_BeginScene();
 
 	a0 = 440;//x?
 	a1 = 200;//y?
@@ -335,7 +331,7 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
 	}
 
 	//loc_5F0B4
-	//draw_rotate_sprite(a0, a1, a2);
+	draw_rotate_sprite(a0, a1, a2);
 	db.current_buffer ^= 1;
 	GnLastFrameCount = 0;
 	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);
@@ -359,7 +355,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	int file = 0;
 	unsigned short dat = NULL;
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileDraw = 0;
 #endif
 
@@ -382,7 +378,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	cdgfx = (unsigned short*) &gfx[LOADING_SCREEN_IMG_SIZE];
 	gfx2 = (unsigned short*) &gfx[0x4000];//256*256 rect icrm
 
-#if INTERNAL
+#if !DISC_VERSION
 	file = PCopen("data\\loadpic.raw", 0, file);
 	FILE_Read(gfx, 1, LOADING_SCREEN_IMG_SIZE);
 	PCclose(file);
@@ -390,22 +386,22 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	if (_first_time_ever)
 	{
 		//UNKNOWN_41 is the first loading screen image, simply add Gameflow->Language to the base to load language specific load screens.
-		CD_InitialiseReaderPosition(UNKNOWN_41 + Gameflow->Language);
+		DEL_CDFS_OpenFile(UNKNOWN_41 + Gameflow->Language);
 
 		//Request the loading screen/disc bitmaps to be read into gfx ptr.
 		//We don't actually pass the file ID or offset since this is already cached by the previous GAMEWAD_InitialiseFileEntry call.
-		CD_Read(gfx, LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
+		DEL_CDFS_Read(gfx, LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 
 		//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
-		CD_InitialiseReaderPosition(file_number);
+		DEL_CDFS_OpenFile(file_number);
 
 		//We will skip past the loading screen and disc image data so on the next read call we're ready to read SETUP.MOD
-		CD_Seek(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
+		DEL_CDFS_Seek(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 	}
 	else
 	{
 		//loc_60EC4
-		CD_Read(gfx, LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
+		DEL_CDFS_Read(gfx, LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 	}
 #endif
 
@@ -416,7 +412,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 		*tmpptr++ |= 0x80008000;
 	}
 
-	LoadImage(&db.disp[1].disp, gfx);
+	LoadImage(&db.disp[1].disp, (unsigned long*)gfx);
 	DrawSync(0);
 
 	//loc_603AC
@@ -443,7 +439,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	}
 
 	//loc_603D4
-	LoadImage(&db.disp[0].disp, gfx);
+	LoadImage(&db.disp[0].disp, (unsigned long*)gfx);
 	DrawSync(0);
 	game_free(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 
@@ -470,7 +466,7 @@ void LOAD_Stop()//60434(<), 60FB4(<) (F)
 	GPU_SyncBothScreens();
 	db.current_buffer = 1;
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileDraw = 1;
 	_first_time_ever = 0;
 #endif

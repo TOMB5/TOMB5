@@ -1,5 +1,9 @@
 #include "TEXT.H"
 
+#if PC_VERSION
+#include "WINMAIN.H"
+#endif
+
 #include "SPECTYPES.H"
 
 char AccentTable[46][2] =
@@ -68,6 +72,10 @@ static struct CVECTOR ShadeFromTo[10][2] =
 	128,   0,   0,  0,  64,    0,  0,  0
 };
 
+#if PC_VERSION
+int font_height;
+#endif
+
 void InitFont()//115EC(<), 1169C(<) (F)
 {
 	int i, j;
@@ -119,6 +127,10 @@ void InitFont()//115EC(<), 1169C(<) (F)
 			t5 += -ShadeFromTo[i][0].b;
 		}
 	}
+
+#if PC_VERSION
+	font_height = window_height_minus_1 * 7.0 / 120.0;
+#endif
 
 	return;
 }

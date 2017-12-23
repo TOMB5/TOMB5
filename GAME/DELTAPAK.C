@@ -20,19 +20,23 @@
 #include "ROOMLOAD.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
+#include "TEXT.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
 
 #if PC_VERSION
 #include "GAME.H"
+#include "WINMAIN.H"
 #else
 #include "PROFILE.H"
 #include "SETUP.H"
 #endif
 
+#include "SPECTYPES.H"
 #include <assert.h>
 #include <stddef.h>
 #include "SOUND.H"
+#include "EFFECTS.H"
 
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
@@ -317,48 +321,48 @@ short priest_chat_ranges_andy2[24] =
 	0x0916, 0x0980, 0xFFFF, 0xFFFF
 };
 
-short unknown1_chat_ranges_richcut2[20] =
+short voncroy_chat_ranges_richcut2[20] =
 {
 	0x01E1, 0x01F5, 0x0290, 0x02AC, 0x02B7, 0x02F7, 0x0300, 0x033E, 0x039F, 0x03CA, 
 	0x03D7, 0x0408, 0x0414, 0x0443, 0x05C6, 0x0628, 0x0638, 0x0663, 0xFFFF, 0xFFFF
 };
 
-short unknown2_chat_ranges_richcut2[12] =
+short associate_chat_ranges_richcut2[12] =
 {
 	0x045D, 0x0515, 0x0681, 0x0723, 0x0731, 0x0741, 0x074A, 0x0764, 0x0772, 0x07AA, 
 	0xFFFF, 0xFFFF
 };
 
-short unknown3_chat_ranges_richcut2[10] =
+short guard_chat_ranges_richcut2[10] =
 {
 	0x0036, 0x00B0, 0x0205, 0x0287, 0x034F, 0x0392, 0x0529, 0x054C, 0xFFFF, 0xFFFF
 };
 
-short unknown_chat_ranges_andy1[18] =
+short hanged_man_chat_ranges_andy1[18] =
 {
 	0x01EE, 0x022D, 0x023E, 0x02F1, 0x0348, 0x052A, 0x0596, 0x084C, 0x0890, 0x0BFB, 
 	0x0C81, 0x0C8F, 0x0C9C, 0x0D4C, 0x0D5A, 0x0F16, 0xFFFF, 0xFFFF
 };
 
-short unknown1_chat_ranges_andy9[20] =
+short priest_chat_ranges_andy9[20] =
 {
 	0x024C, 0x0270, 0x0281, 0x02A7, 0x02BB, 0x0310, 0x0679, 0x06B4, 0x06C7, 0x0731, 
 	0x073F, 0x077A, 0x0AA3, 0x0ACE, 0x0AF0, 0x0B38, 0x0F8F, 0x0FE8, 0xFFFF, 0xFFFF
 };
 
-short unknown2_chat_ranges_andy9[14] =
+short knight_chat_ranges_andy9[14] =
 {
 	0x0130, 0x0228, 0x031E, 0x0389, 0x0449, 0x0634, 0x07A4, 0x0A83, 0x0B51, 0x0F0E, 
 	0x1012, 0x11F0, 0xFFFF, 0xFFFF
 };
 
-short unknown1_chat_ranges_andy11[30] =
+short priest_chat_ranges_andy11[30] =
 {
 	0x0427, 0x044B, 0x045F, 0x0486, 0x06B6, 0x0734, 0x09DA, 0x0A15, 0x0B4F, 0x0B65, 
 	0x0B78, 0x0BB3, 0x0DD6, 0x0E22, 0x1164, 0x11D4, 0x11E5, 0x1271, 0x127C, 0x12AC, 
 	0x1311, 0x13C8, 0x1549, 0x15E4, 0x1633, 0x1620, 0x1640, 0x16C0, 0xFFFF, 0xFFFF
 };
-short unknown2_chat_ranges_andy11[14] =
+short knight_chat_ranges_andy11[14] =
 {
 	0x01B4, 0x03BE, 0x04C7, 0x0698, 0x0890, 0x08C4, 0x08D6, 0x0942, 0x1081, 0x1105, 
 	0x13E9, 0x150A, 0xFFFF, 0xFFFF
@@ -402,7 +406,7 @@ int cutseq_malloc_free;
 unsigned short old_lara_holster;
 short temp_rotation_buffer[160];
 
-#if INTERNAL
+#if DEBUG_VERSION
 	#define CD_PLAY_MODE 1
 #else
 	#define CD_PLAY_MODE 0
@@ -451,8 +455,8 @@ void andy11_control()//32C70(<), 33108(<) (F)
 	}
 
 	handle_lara_chatting(lara_chat_ranges_andy11);
-	handle_actor_chatting(21, 2, 4, 54, unknown1_chat_ranges_andy11); // todo find the names
-	handle_actor_chatting(23, 15, 1, 34, unknown2_chat_ranges_andy11);
+	handle_actor_chatting(21, 2, 4, SAILOR_MIP, priest_chat_ranges_andy11); // todo find the names
+	handle_actor_chatting(23, 15, 1, SWAT_MIP, knight_chat_ranges_andy11);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 } 
 
@@ -471,7 +475,7 @@ void Cutanimate(int objnum)//32B50(<), 32FE8(<) (F)
 	item->anim_number = objects[objnum].anim_index;
 	item->frame_number = anims[item->anim_number].frame_base;
 	AddActiveItem(item - items);
-	item->status = 1;
+	item->status = ITEM_ACTIVE;
 	item->flags |= IFLAG_ACTIVATION_MASK;
 }
 
@@ -482,13 +486,13 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80(<), 32F18(<) (F)
 	item->anim_number = objects[objnum].anim_index;
 	item->frame_number = anims[item->anim_number].frame_base;
 	RemoveActiveItem(item - items);	
-	item->status = 0;
-	item->flags &= 0xC1FF;
+	item->status = ITEM_INACTIVE;
+	item->flags &= ~IFLAG_ACTIVATION_MASK;
 
 	return item;
 }
 
-void trigger_title_spotcam(int num)//32904(<), 32D9C(<)
+void trigger_title_spotcam(int num)//32904(<), 32D9C(<) (F)
 {
 	struct ITEM_INFO* item;
 
@@ -608,7 +612,7 @@ void swampy_end()//3271C(<), 32BB4(<) (F)
 	SetCutNotPlayed(CUT_SWAMPY);
 	AddActiveItem(find_a_fucking_item(GREEN_TEETH) - items);
 	DelsHandyTeleportLara(42477, 12456, 55982, 28953);
-	lara.water_status = 1;
+	lara.water_status = LW_UNDERWATER;
 	lara_item->pos.x_rot = ANGLE(-29);
 	lara_item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
 	lara_item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
@@ -632,13 +636,13 @@ void swampy_init()//32608(<), 32AA0(<) (F)
 
 	if (item)
 	{
-		item->status = 3;
+		item->status = ITEM_INVISIBLE;
 		RemoveActiveItem(item - items);
 		DisableBaddieAI(item - items);
 		item->flags |= IFLAG_INVISIBLE;
 	}
 
-	lara.water_status = 1;
+	lara.water_status = LW_UNDERWATER;
 }
 
 void monk2_end()//325F4(<), 32A8C(<) (F)
@@ -696,7 +700,7 @@ void monk2_control()//324E4(<), 3297C(<) (F)
 	GetActorJointAbsPosition(1, 0, &pos);
 
 	TriggerDynamic(pos.x, pos.y, pos.z, 10,
-		GetRandomControl() & 0xF, (GetRandomControl() & 0x1F) + 16, (GetRandomControl() & 0x3F) + 128);
+	               GetRandomControl() & 0xF, (GetRandomControl() & 0x1F) + 16, (GetRandomControl() & 0x3F) + 128);
 }
 
 void monk2_init()//324D4(<), 3296C(<) (F)
@@ -732,7 +736,7 @@ void andrea4_control()//323C8(<), 32860(<) (F)
 	}
 
 	handle_lara_chatting(lara_chat_ranges_andrea4);
-	handle_actor_chatting(23, 8, 1, 47, pierre_chat_ranges4);
+	handle_actor_chatting(23, 8, 1, PIERRE, pierre_chat_ranges4);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -746,7 +750,7 @@ void joby7_end()//32328(<), 327C0(<) (F)
 	cutseq_restore_item(ANIMATING2);
 	AddDisplayPickup(PICKUP_ITEM1);
 	DelsHandyTeleportLara(30049, 17583, 69794, -13706);
-	lara.water_status = 1;
+	lara.water_status = LW_UNDERWATER;
 	lara_item->pos.x_rot = 1090;
 	lara_item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
 	lara_item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
@@ -801,8 +805,8 @@ void joby7_control()//3210C(<), 325A4(<) (F)
 	d.z = -128;
 	GetActorJointAbsPosition(1, 7, &d);
 	LaraTorch(&s, &d, 0, 255);
-	RelocFunc_18_10();
-	handle_actor_chatting(17, 14, 1, 44, lara_chat_ranges_joby7);
+	TriggerEngineEffects_CUT();
+	handle_actor_chatting(17, 14, 1, CROW_MIP, lara_chat_ranges_joby7);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -821,7 +825,7 @@ void andy10_end()//3202C(<), 324C4(<) (F)
 	Cutanimate(ANIMATING13);
 	FlipMap(7);
 	DelsHandyTeleportLara(SECTOR_TO_WORLD(38), SECTOR_TO_WORLD(14.5), SECTOR_TO_WORLD(47), 0);
-	lara.water_status = 1;
+	lara.water_status = LW_UNDERWATER;
 	lara_item->pos.x_rot = ANGLE(-29);
 	lara_item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
 	lara_item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
@@ -900,11 +904,11 @@ void andy10_init()//31D58(<), 321F0(<) (F)
 	cutseq_meshbits[6] &= 0x7FFFFFFFu;
 	
 	item = find_a_fucking_item(GREEN_TEETH);
-	item->status = 3;
+	item->status = ITEM_INVISIBLE;
 	RemoveActiveItem(item - items);
 	DisableBaddieAI(item - items);
 	item->flags |= IFLAG_INVISIBLE;
-	lara.water_status = 1;
+	lara.water_status = LW_UNDERWATER;
 	FlipMap(7);
 	disable_horizon = 1;
 }
@@ -973,8 +977,8 @@ void andy9_control()//31BA4(<), 31FD4(<) (F)
 		lara_item->mesh_bits = 0;
 
 	handle_lara_chatting(lara_chat_ranges_andy9);
-	handle_actor_chatting(21, 2, 4, 54, unknown1_chat_ranges_andy9); // todo find the names
-	handle_actor_chatting(23, 15, 1, 34, unknown2_chat_ranges_andy9);
+	handle_actor_chatting(21, 2, 4, SAILOR_MIP, priest_chat_ranges_andy9); // todo find the names
+	handle_actor_chatting(23, 15, 1, SWAT_MIP, knight_chat_ranges_andy9);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1113,7 +1117,7 @@ void andy7_end()//31754(<), 31B84(<) (F)
 void andy7_control()//31704(<), 31B34(<) (F)
 {
 	handle_lara_chatting(lara_chat_ranges_andy7);
-	handle_actor_chatting(21, 2, 1, 54, priest_chat_ranges_andy7);
+	handle_actor_chatting(21, 2, 1, SAILOR_MIP, priest_chat_ranges_andy7);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1160,12 +1164,12 @@ void andy6_control()//315F8(<), 319B4(<) (F)
 	pos.z = 240;
 	GetActorJointAbsPosition(1, 8, &pos);
 	TriggerDynamic(pos.x, pos.y, pos.z, 
-		12 - (GetRandomControl() & 1), 
-		(GetRandomControl() & 0x3F) + 192, 
-		(GetRandomControl() & 0x1F) + 96, 0);
+	               12 - (GetRandomControl() & 1), 
+	               (GetRandomControl() & 0x3F) + 192, 
+	               (GetRandomControl() & 0x1F) + 96, 0);
 	DelTorchFlames(&pos);
 	handle_lara_chatting(lara_chat_ranges_andy6);
-	handle_actor_chatting(21, 2, 1, 54, priest_chat_ranges_andy6);
+	handle_actor_chatting(21, 2, 1, SAILOR_MIP, priest_chat_ranges_andy6);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1309,7 +1313,7 @@ void andrea3b_end()//30C54(<), 30FD4(<) (F)
 			item = &items[i];
 			if (item->object_number == HYDRA)
 			{
-				item->status = 1;
+				item->status = ITEM_ACTIVE;
 				item->flags |= IFLAG_INVISIBLE;
 				AddActiveItem(item - items);
 				EnableBaddieAI(item - items, 1);
@@ -1354,7 +1358,7 @@ void andrea3b_control()//30B08(<), 30E88(<) (F)
 	}
 
 	handle_lara_chatting(lara_chat_ranges_andrea3b);
-	handle_actor_chatting(21, 8, 1, 45, larson_chat_ranges3b);
+	handle_actor_chatting(21, 8, 1, LARSON, larson_chat_ranges3b);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1370,7 +1374,7 @@ void andrea3b_init()//30A1C(<), 30D9C(<) (F)
 	cutseq_meshbits[4] = 0x80000F00u;
 
 	item = find_a_fucking_item(LARSON);
-	item->status = 3;
+	item->status = ITEM_INVISIBLE;
 	RemoveActiveItem(item - items);
 	DisableBaddieAI(item - items);
 	item->flags |= IFLAG_INVISIBLE;
@@ -1387,7 +1391,7 @@ void andrea3_end()//30904(<), 30C84(<) (F)
 	item->anim_number = objects[LARSON].anim_index;
 	item->flags |= IFLAG_INVISIBLE;
 	item->frame_number = anims[objects[LARSON].anim_index].frame_base;
-	item->status = 1;
+	item->status = ITEM_ACTIVE;
 
 	AddActiveItem(item - items);
 	EnableBaddieAI(item - items, 1);
@@ -1408,7 +1412,7 @@ void andrea3_control()//30870(<), 30BF0(<) (F)
 
 	deal_with_pistols(andrea3_pistols_info);
 	handle_lara_chatting(lara_chat_ranges_andrea3);
-	handle_actor_chatting(21, 8, 1, 45, larson_chat_ranges3);
+	handle_actor_chatting(21, 8, 1, LARSON, larson_chat_ranges3);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1575,11 +1579,11 @@ void joby10_control()//30338(<), 306B8(<) (F)
 	if (GLOBAL_cutseq_frame == 3235)
 	{
 		item = find_a_fucking_item(HYDRA_MIP);
-		item->status = 0;
+		item->status = ITEM_INACTIVE;
 	}
 
 	handle_lara_chatting(lara_chat_ranges_joby10);
-	handle_actor_chatting(21, 2, 1, 56, admiral_chat_ranges_joby10);
+	handle_actor_chatting(21, 2, 1, CRANE_GUY_MIP, admiral_chat_ranges_joby10);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1599,7 +1603,7 @@ void joby9_end()//302F0(<), 30670(<) (F)
 void joby9_control()//302A0(<), 30620(<) (F)
 {
 	handle_lara_chatting(lara_chat_ranges_joby9);
-	handle_actor_chatting(21, 2, 1, 56, admiral_chat_ranges_joby9);
+	handle_actor_chatting(21, 2, 1, CRANE_GUY_MIP, admiral_chat_ranges_joby9);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1674,8 +1678,8 @@ void joby5_control()//30034(<), 303B4() (F)
 		cutseq_meshbits[4] |= 0x80000000;
 	}
 
-	handle_actor_chatting(21, 2, 3, 56, admiral_chat_ranges_joby5);
-	handle_actor_chatting(23, 3, 4, 58, sergie_chat_ranges_joby5);
+	handle_actor_chatting(21, 2, 3, CRANE_GUY_MIP, admiral_chat_ranges_joby5);
+	handle_actor_chatting(23, 3, 4, LION_MIP, sergie_chat_ranges_joby5);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1741,8 +1745,8 @@ void andrea1_control()//2FB58(<), 2FED8(<) (F)
 	pos.z = 0;
 	deal_with_actor_shooting(larson_pistols_info1, 1, 14, &pos);
 	handle_lara_chatting(lara_chat_ranges_andrea1);
-	handle_actor_chatting(21, 8, 1, 45, larson_chat_ranges1);
-	handle_actor_chatting(23, 8, 2, 419, pierre_chat_ranges1);
+	handle_actor_chatting(21, 8, 1, LARSON, larson_chat_ranges1);
+	handle_actor_chatting(23, 8, 2, ANIMATING2_MIP, pierre_chat_ranges1);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1759,12 +1763,16 @@ void joby4_end()//2FB04(<), 2FE84(<) (F)
 	DelsHandyTeleportLara(57950, 8960, 53760, ANGLE(90));
 }
 
-void joby4_control()//2FA0C, 2FD8C
+void joby4_control()//2FA0C, 2FD8C (F)
 {
 	int f = GLOBAL_cutseq_frame;
 	if (GLOBAL_cutseq_frame <= 130)
 	{
-		PrintString(256, 200, 0, &gfStringWad[2]); // todo maybe wrong on pc , @Gh0stBlade check third arg!
+#if PC_VERSION
+		PrintString(middle_width, window_height_minus_1 - 3 * font_height, 5, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000);
+#else
+		PrintString(256, 200, 0, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000); // todo maybe wrong on pc , @Gh0stBlade check third arg!
+#endif
 	}
 	if (f == 575)
 	{
@@ -1778,7 +1786,7 @@ void joby4_control()//2FA0C, 2FD8C
 			lara_item->mesh_bits = -1;
 	}
 	handle_lara_chatting(lara_chat_ranges_joby4);
-	handle_actor_chatting(21, 2, 3, 56, admiral_chat_ranges_joby4);
+	handle_actor_chatting(21, 2, 3, CRANE_GUY_MIP, admiral_chat_ranges_joby4);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -1861,9 +1869,8 @@ void DelTorchFlames(struct PHD_VECTOR* pos)//2F6E4(<), 2FA64(<) (F)
 
 void setup_preist_meshswap()//2F694(<), 2FA14(<) (F)
 {
-	meshes[objects[SAILOR_MIP].mesh_index + 0x10] = meshes[objects[MESHSWAP3].mesh_index + 0x10]; // todo the first one maybe 17 (0x11) instead of 16 (0x10)
+	meshes[objects[SAILOR_MIP].mesh_index + 17] = meshes[objects[MESHSWAP3].mesh_index + 16];
 	cutseq_meshswapbits[1] |= 0x100;
-	return;
 }
 
 void andy2_end()//2F668(<), 2F9E8(<) (F)
@@ -1878,22 +1885,22 @@ void andy2_control()//2F5D0(<), 2F914(<) (F)
 	pos.x = 0;
 	pos.y = 48;
 	pos.z = 240;
+
 	GetActorJointAbsPosition(1, 8, &pos);
 	TriggerDynamic(pos.x, pos.y, pos.z, 
-		12 - (GetRandomControl() & 1), 
-		(GetRandomControl() & 0x3F) + 192, 
-		(GetRandomControl() & 0x1F) + 96, 0);
+	               12 - (GetRandomControl() & 1), 
+	               (GetRandomControl() & 0x3F) + 192, 
+	               (GetRandomControl() & 0x1F) + 96, 0);
 	DelTorchFlames(&pos);
 
 	handle_lara_chatting(lara_chat_ranges_andy2);
-	handle_actor_chatting(21, 2, 1, 54, priest_chat_ranges_andy2);
+	handle_actor_chatting(21, 2, 1, SAILOR_MIP, priest_chat_ranges_andy2);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
 void andy2_init()//2F5B0(<), 2F8F4(<) (F)
 {
 	setup_preist_meshswap();
-	return;
 }
 
 void do_hammer_meshswap()//2F57C(<), 2F8C0(<) (F)
@@ -1906,7 +1913,7 @@ void do_hammer_meshswap()//2F57C(<), 2F8C0(<) (F)
 void hamgate_end()//2F534(<), 2F878(<) (F)
 {
 	struct ITEM_INFO* item = find_a_fucking_item(DOOR_TYPE1);
-	item->status = 1;
+	item->status = ITEM_ACTIVE;
 	DelsHandyTeleportLara(31232, -3328, 48344, 0);
 }
 
@@ -1930,7 +1937,7 @@ void hamgate_init()//2F434(<), 2F778(<) (F)
 	AddActiveItem(item - items);
 	item->flags |= IFLAG_ACTIVATION_MASK;
 	item->mesh_bits = 3;
-	item->status = 3;
+	item->status = ITEM_INVISIBLE;
 	cutseq_meshbits[2] &= 0xFFFFFFFD;
 	cutrot = 0;
 }
@@ -1952,7 +1959,7 @@ void andy1_control()//2F39C(<), 2F6A8(<) (F)
 		FlashFader = 32;
 	}
 	handle_lara_chatting(lara_chat_ranges_andy1);
-	handle_actor_chatting(23, 21, 1, 84, unknown_chat_ranges_andy1); // todo find the name
+	handle_actor_chatting(23, 21, 1, SNIPER_MIP, hanged_man_chat_ranges_andy1); // todo find the name
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -2034,8 +2041,8 @@ void joby2_control()//2F114(<), 2F420(<) (F)
 		break;
 	}
 
-	handle_actor_chatting(21, 2, 3, 427, admiral_chat_ranges_joby2);
-	handle_actor_chatting(23, 3, 4, 433, sergie_chat_ranges_joby2);
+	handle_actor_chatting(21, 2, 3, ANIMATING6_MIP, admiral_chat_ranges_joby2);
+	handle_actor_chatting(23, 3, 4, ANIMATING9_MIP, sergie_chat_ranges_joby2);
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
@@ -2143,21 +2150,93 @@ void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int noden
 			trig_actor_gunflash(&arse, pos);
 			GetActorJointAbsPosition(actornum, nodenum, pos);
 			TriggerDynamic(pos->x, pos->y, pos->z, 10,
-				(GetRandomControl() & 0x3F) + 192,
-				(GetRandomControl() & 0x1F) + 128,
-				(GetRandomControl() & 0x3F));
+			               (GetRandomControl() & 0x3F) + 192,
+			               (GetRandomControl() & 0x1F) + 128,
+			               (GetRandomControl() & 0x3F));
 		}
 	}
 }
 
-void stealth3_end()//2E99C, 2ECA8
+void stealth3_end()//2E99C, 2ECA8 (F)
 {
-	S_Warn("[stealth3_end] - Unimplemented!\n");
+	int i;
+	struct ITEM_INFO* item = &items[0];
+
+	for (i = 0; i < level_items; i++, item++)
+	{
+		if (cutseq_num == CUT_STEALTH3_3)
+			continue;
+
+		if (item->object_number == CHEF ||
+			item->object_number == SAS ||
+			item->object_number == BLUE_GUARD ||
+			item->object_number == SWAT_PLUS ||
+			item->object_number == SWAT ||
+			item->object_number == TWOGUN)
+		{
+			if (abs(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+				abs(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+				abs(item->pos.y_pos - lara_item->pos.y_pos) < CLICK)
+			{
+				item->hit_points = 0;
+				item->current_anim_state = 6;
+
+				if (item->object_number == TWOGUN)
+				{
+					item->anim_number = objects[TWOGUN].anim_index + 3;
+				}
+				else if (item->object_number == CHEF)
+				{
+					item->anim_number = objects[CHEF].anim_index + 11;
+				}
+				else if (objects[SWAT].loaded)
+				{
+					item->anim_number = objects[SWAT].anim_index + 11;
+				}
+				else
+				{
+					item->anim_number = objects[BLUE_GUARD].anim_index + 11;
+				}
+					
+				item->frame_number = anims[item->anim_number].frame_end;
+				AddActiveItem(i);
+			}
+		}
+	}
+
+	if (cutseq_num == CUT_STEALTH3_2)
+		SwapCrowbar(NULL);
 }
 
-void stealth3_start()//2E824, 2EB30
+void stealth3_start()//2E824, 2EB30 (F)
 {
-	S_Warn("[stealth3_start] - Unimplemented!\n");
+	int i;
+	struct ITEM_INFO* item = &items[0];
+
+	for (i = 0; i < level_items; i++, item++)
+	{
+		if (item->object_number == CHEF ||
+			item->object_number == SAS ||
+			item->object_number == BLUE_GUARD ||
+			item->object_number == SWAT_PLUS ||
+			item->object_number == SWAT ||
+			item->object_number == TWOGUN)
+		{
+			if (abs(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+				abs(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+				abs(item->pos.y_pos - lara_item->pos.y_pos) < CLICK)
+			{
+				GLOBAL_cutme->actor_data[1].objslot = item->object_number;
+				item->status = ITEM_INVISIBLE;
+				RemoveActiveItem(i);
+				DisableBaddieAI(i);
+				item->flags |= IFLAG_INVISIBLE;
+			}
+		}
+	}
+
+	if (cutseq_num == CUT_STEALTH3_2)
+		SwapCrowbar(NULL);
 }
 
 void special4_end()//2E7F4(<), 2EB00(<)
@@ -2218,7 +2297,7 @@ void special1_control()//2E614(<), 2E920(<)
 	RelocFunc_34_0C();
 }
 
-void special1_init()//2E5E4(<), 2E8F0(<)
+void special1_init()//2E5E4(<), 2E8F0(<) (F)
 {
 	cutrot = 0;
 	RelocFunc_34_08();
@@ -2230,8 +2309,8 @@ void richcut3_control()//2E594(<), 2E8A0(<) (F)
 	{
 		cutseq_meshbits[1] |= 0x80000000;
 		cutseq_removelara_hk();
-		lara.back_gun = 0;
-		lara.hk_type_carried = 0;
+		lara.back_gun = WEAPON_NONE;
+		lara.hk_type_carried = WTYPE_MISSING;
 		lara.last_gun_type = WEAPON_NONE;
 	}
 }
@@ -2242,7 +2321,7 @@ void richcut3_end()//2E54C(<), 2E858(<) (F)
 
 	if (item)
 	{
-		item->status = 1;
+		item->status = ITEM_ACTIVE;
 		item->flags |= 0x20;
 	}
 }
@@ -2254,14 +2333,14 @@ void richcut3_init()//2E514(<), 2E820(<) (F)
 	cutseq_meshbits[1] &= 0x7FFFFFFFu;
 }
 
-void richcut2_control()//2E4EC, 2E77C
+void richcut2_control()//2E4EC, 2E77C (F)
 {
 	if (GLOBAL_cutseq_frame == 300)
 		cutseq_meshbits[5] &= 0x7FFFFFFFu;
 
-	handle_actor_chatting(23, 11, 1, 426, unknown1_chat_ranges_richcut2); // todo find the names
-	handle_actor_chatting(21, 18, 3, 422, unknown2_chat_ranges_richcut2);
-	handle_actor_chatting(438, 14, 2, 416, unknown3_chat_ranges_richcut2);
+	handle_actor_chatting(23, 11, 1, ANIMATING6, voncroy_chat_ranges_richcut2); // todo find the names
+	handle_actor_chatting(21, 18, 3, ANIMATING4, associate_chat_ranges_richcut2);
+	handle_actor_chatting(438, 14, 2, ANIMATING1, guard_chat_ranges_richcut2);
 
 	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
@@ -2294,7 +2373,7 @@ void richcut1_control()//2E3D8(<), 2E668(<) (F)
 	{
 		item = find_a_fucking_item(CLOSED_DOOR2);
 		AddActiveItem(item - items);
-		item->status = 3;
+		item->status = ITEM_INVISIBLE;
 		item->flags |= IFLAG_ACTIVATION_MASK;
 	}
 }
@@ -2321,9 +2400,9 @@ void richcut1_init()//2E26C(<), 2E4FC(<) (F)
 
 			nex = item->next_item;
 
-			if (item->object_number == 69)
+			if (item->object_number == SCIENTIST)
 			{
-				item->status = 6;
+				item->status = ITEM_INVISIBLE;
 				RemoveActiveItem(item - items);
 				DisableBaddieAI(item - items);
 				item->flags |= IFLAG_INVISIBLE;
@@ -2394,9 +2473,9 @@ void cranecut_control()//2E0B8(<), 2E348(<) (F)
 
 void cranecut_end()//2E020(<), 2E2B0(<) (F)
 {
-	struct ITEM_INFO* item = cutseq_restore_item(424);
+	struct ITEM_INFO* item = cutseq_restore_item(ANIMATING5);
 	RemoveActiveItem(item - items);
-	item->flags &= 0xC1FFu;
+	item->flags &= ~IFLAG_ACTIVATION_MASK;
 	cutseq_restore_item(ANIMATING16);
 	cutseq_restore_item(WRECKING_BALL);
 	DelsHandyTeleportLara(58543, SECTOR(-4), 34972, ANGLE(-90));
@@ -2528,7 +2607,7 @@ void DelsHandyTeleportLara(int x, int y, int z, int yrot)//2DC14(<), 2DEA4(<) (F
 	lara_item->fallspeed = 0;
 	lara_item->gravity_status = 0;
 
-	lara.gun_status = 0;
+	lara.gun_status = LG_NO_ARMS;
 	camera.fixed_camera = 1;
 }
 
@@ -2592,8 +2671,8 @@ void cutseq_kill_item(int num)//2D69C(<), 2D984(<) (F)
 				old_status_flags[numnailed] = items[i].status;
 				numnailed++;
 
-				items[i].status = 3;
-				items[i].flags &= 0xFFFFC1FF;
+				items[i].status = ITEM_INVISIBLE;
+				items[i].flags &= ~IFLAG_ACTIVATION_MASK;
 				items[i].flags |= 0x20;
 			}			
 		}
@@ -2677,7 +2756,7 @@ void trigger_weapon_dynamics(int left_or_right)//2D3E4(<), 2D6CC(<) (F)
 	TriggerDynamic(pos.x, pos.y, pos.z, 10, v3 + 192, v2, v1);
 }
 
-void cutseq_shoot_pistols(int left_or_right)//2D360, 2D648
+void cutseq_shoot_pistols(int left_or_right)//2D360, 2D648 (F)
 {
 	if (left_or_right == 14)
 	{
@@ -2696,7 +2775,7 @@ void cutseq_removelara_hk()//2D328(<), 2D610(<) (F)
 	undraw_shotgun_meshes(WEAPON_HK);
 	lara.gun_type = WEAPON_NONE;
 	lara.request_gun_type = WEAPON_NONE;
-	lara.gun_status = 0;
+	lara.gun_status = LG_NO_ARMS;
 	lara.last_gun_type = WEAPON_HK;
 }
 
@@ -2732,7 +2811,7 @@ void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
 
 	if (cutseq_resident_addresses[cutseq_num].packed_data == NULL)
 	{
-#if INTERNAL
+#if DEBUG_VERSION && PSX_VERSION
 		ProfileDraw = 0;
 		DrawSync(0);
 		VSync(0);
@@ -2741,7 +2820,7 @@ void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
 		ReloadAnims(name, cutseq_malloc_used);
 	}
 
-#if INTERNAL
+#if DEBUG_VERSION && PSX_VERSION
 	ProfileDraw = 1;
 	DrawSync(0);
 	VSync(0);
@@ -2809,7 +2888,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 		int a1 = 0;//Must confirm initial value.
 		if (cutseq_trig == 0)
 		{
-			if (lara.gun_status == 0)
+			if (lara.gun_status == LG_NO_ARMS)
 			{
 				if (lara.gun_type == 7)
 				{
@@ -2825,7 +2904,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 				}
 
 				//loc_2C430
-				if (lara.gun_status != 1)
+				if (lara.gun_status != LG_HANDS_BUSY)
 				{
 					lara.gun_status = 3;
 				}
@@ -2865,7 +2944,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 			}
 
 			//loc_2C4D0
-#if INTERNAL
+#if DEBUG_VERSION && PSX_VERSION
 			ProfileDraw = 0;
 #endif
 		}
@@ -2891,7 +2970,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 					else
 					{
 						//loc_2C52C
-						if (lara.gun_status != 1 && lara.gun_status == 0 && lara.flare_control_left != 0)
+						if (lara.gun_status != LG_HANDS_BUSY && lara.gun_status == LG_NO_ARMS && lara.flare_control_left != 0)
 						{
 							//loc_2C55C
 

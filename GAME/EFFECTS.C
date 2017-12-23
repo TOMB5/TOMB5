@@ -1,6 +1,7 @@
 #include "EFFECTS.H"
 
 #include "CAMERA.H"
+#include "CD.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
@@ -9,19 +10,19 @@
 #include "ITEMS.H"
 #include "LARA.H"
 #include "LOT.H"
+#include "OBJECTS.H"
+#include "ROOMLOAD.H"
+#include "SAVEGAME.H"
 #ifdef PC_VERSION
 #include "GAME.H"
 #else
 #include "SETUP.H"
 #endif
+#include "SOUND.H"
 #include "SPECIFIC.H"
+#include "SPECTYPES.H"
 
 #include <stddef.h>
-#include "OBJECTS.H"
-#include "SAVEGAME.H"
-#include "CD.H"
-#include "SOUND.H"
-
 
 long wf = 256;
 short next_fx_free;
@@ -150,9 +151,17 @@ void TL_1(struct ITEM_INFO* item)//39AD8, 39FD8 (F)
 	}
 }
 
-void ClearSpidersPatch(struct ITEM_INFO* item)//39AA4, 39FA4
+void ClearSpidersPatch(struct ITEM_INFO* item)//39AA4(<), 39FA4(<) (F)
 {
+#if PSX_VERSION
+	if (RelocPtr[32] != 0)
+	{
+		//unsigned long* v0 = (unsigned long*)RelocPtr[32];
+		//jalr v0[4];
+	}
+#else
 	S_Warn("[ClearSpidersPatch] - Unimplemented!\n");
+#endif
 }
 
 void reset_hair(struct ITEM_INFO* item)//39A84(<), 39F84(<) (F)
@@ -162,12 +171,12 @@ void reset_hair(struct ITEM_INFO* item)//39A84(<), 39F84(<) (F)
 
 void invisibility_off(struct ITEM_INFO* item)//39A6C(<), 39F6C(<) (F)
 {
-	item->status = 1;
+	item->status = ITEM_ACTIVE;
 }
 
 void invisibility_on(struct ITEM_INFO* item)//39A58(<), 39F58(<) (F)
 {
-	item->status = 3;
+	item->status = ITEM_INVISIBLE;
 }
 
 void SetFog(struct ITEM_INFO* item)//39A44(<), 39F44(<) (F)
@@ -187,7 +196,7 @@ void shoot_right_gun(struct ITEM_INFO* item)//39A24(<), 39F24(<) (F)
 
 void lara_hands_free(struct ITEM_INFO* item)//39A18(<), 39F18(<) (F)
 {
-	lara.gun_status = 0;
+	lara.gun_status = LG_NO_ARMS;
 }
 
 void KillActiveBaddies(struct ITEM_INFO* item)//39938(<), 39E38(<) (F)
@@ -205,7 +214,7 @@ void KillActiveBaddies(struct ITEM_INFO* item)//39938(<), 39E38(<) (F)
 
 			if (objects[target_item->object_number].intelligent)
 			{
-				target_item->status = 3;
+				target_item->status = ITEM_INVISIBLE;
 
 				if (*(int*)&item != 0xABCDEF)
 				{
@@ -285,7 +294,7 @@ void RubbleFX(struct ITEM_INFO* item)//39534(<), 39A34(<) (F)
 	if (eq)
 	{
 		AddActiveItem(eq - items);
-		eq->status = 1;
+		eq->status = ITEM_ACTIVE;
 		eq->flags |= IFLAG_ACTIVATION_MASK;
 	}
 	else
@@ -332,12 +341,151 @@ void SoundEffects()//39190, 39690
 	S_Warn("[SoundEffects] - Unimplemented!\n");
 }
 
-void SoundEffect(short sfxid, struct PHD_3DPOS* pos, int arg2)
+long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<), 937C4(!)
 {
+	long r;
+	long dx;
+	long dy;
+	long dz;
+	long rx;
+	long ry;
+	long rz;
+	int v0;
+	int at = 0;
+	int s4;
+
+	struct SVECTOR direction;
+
+#if !INTERNAL
+	//lw	$at, 0x3FC($gp)
+#endif
+
+#if BETA_VERSION
+	if (sound_active)
+#else
+	if (sound_active && at == 0)
+#endif
+	{
+		//locret_91CEC
+		return 0;
+	}//locret_93D38
+
+	 //s4 = a2;
+	 //s7 = a1;
+	if (!(arg2 & 2))
+	{
+		if ((arg2 & 1) != (room[camera.pos.room_number].flags & 1))
+		{
+			//loc_91CC4
+			return 0;
+		}
+	}
+
+	//loc_917F0
+	//No sound is in the sound wad for this sample index. Get out!
+	if (sample_lut[sample_index] == -1)
+	{
+		sample_lut[sample_index] = -2;
+		//loc_91810
+		return 0;
+	}
+
+	//loc_91818
+	if (sample_lut[sample_index] == -2)
+	{
+		//loc_91CC4
+		return 0;
+	}
+
+	sizeof(struct SAMPLE_INFO);
+#if 0
+	s5 = sample_infos[sample_lut[sample_index]];
+
+	if (sample_infos[sample_lut[sample_index]].randomness != 0)
+	{
+		if (sample_infos[sample_lut[sample_index]].randomness < GetRandomDraw())
+		{
+			return 0;
+		}
+	}
+
+	//loc_91854
+	t0 = (sample_infos[sample_lut[sample_index]].radius * 1024 + 1024) * (sample_infos[sample_lut[sample_index]].radius * 1024 + 1024);
+	//s1 = 0
+	if (pos != NULL)
+	{
+#if 0
+		a1 dy = pos->y_pos - camera.pos.y_pos;
+		t8 dx = pos->x_pos - camera.pos.x_pos;
+		t9 dz = pos->z_pos - camera.pos.z_pos;
+
+		if (dx < -t0 || t0 < t0 || dy < -t0 || dy < t0 || dz < -t0 || dz < t0)
+		{
+			return 0;
+		}
+
+		negu	$v1, $t0
+
+#if PSX_VERSION
+			__asm__ volatile ("mtc2 dx, $9");
+		__asm__ volatile ("mtc2 dy, $10");
+		__asm__ volatile ("mtc2 dz, $11");
+
+		__asm__ volatile ("cop2 0xA00428");
+		__asm__ volatile ("mfc2 rx, $25");//moved to v0
+		__asm__ volatile ("mfc2 ry, $26");//moved to v1
+		__asm__ volatile ("mfc2 rz, $27");//moved to $s3 (0)
+#endif
+
+		rx += sy;
+		rz += rx;//add all
+
+		if (arg2 < rz)
+		{
+			return 0;
+		}
+
+		if (-1 < rz)
+		{
+			//loc_9191C
+			rz = phd_sqrt_asm(rz) - 1024;
+		}
+		else
+		{
+			rz = 0;//s3
+		}
+
+		//loc_91928
+
+#endif
+	}//loc_91950
+#endif
+
 	S_Warn("[SoundEffect] - Unimplemented!\n");
 }
 
-void StopSoundEffect(int arg1)
+
+void StopSoundEffect(short sample_index)//91FF8(<), 94044(<) (F)
 {
+#if PSX_VERSION
+	int i;
+	short sound_wad_index = sample_lut[sample_index];
+
+	if (sound_active == 0)
+	{
+		return;
+	}
+
+	//loc_92050
+	for (i = 0; i < MAX_SOUND_SLOTS; i++)
+	{
+		if(LaSlot[i].nSampleInfo > sound_wad_index || LaSlot[i].nSampleInfo > sound_wad_index + ((sample_infos[sound_wad_index].flags >> 2) & 0xF))
+		{
+			LaSlot[i].nSampleInfo = -1;
+			S_SoundStopSample(i);
+		}
+	}
+#else
 	S_Warn("[StopSoundEffect] - Unimplemented!\n");
+#endif
 }

@@ -149,12 +149,12 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 	{
 		struct object_info* obj = &objects[item->object_number];
 
-		if (item->flags & 0x8000)
+		if (item->flags & IFLAG_KILLED)
 		{
 			word = 0x2000;
 			WriteSG(&word, 2);
 		}
-		else if (item->flags & 0x3F20 || item->object_number == LARA && FullSave)
+		else if (item->flags & (IFLAG_ACTIVATION_MASK | IFLAG_INVISIBLE | 0x20) || item->object_number == LARA && FullSave)
 		{
 			word = 0x8000;
 
@@ -271,7 +271,7 @@ void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 		if (savegame.Lara.IsMoving)
 		{
 			savegame.Lara.IsMoving = 0;
-			savegame.Lara.gun_status = 0;
+			savegame.Lara.gun_status = LG_NO_ARMS;
 		}
 	}
 	memcpy(&lara, &savegame.Lara, sizeof(struct lara_info));
@@ -304,7 +304,7 @@ void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 		item->frame_number = savegame.WeaponFrame;
 		item->current_anim_state = savegame.WeaponCurrent;
 		item->goal_anim_state = savegame.WeaponGoal;
-		item->status = 1;
+		item->status = ITEM_ACTIVE;
 		item->room_number = 255;
 	}
 	

@@ -9,7 +9,7 @@ struct _RTL_CRITICAL_SECTION CriticalSection;
 extern void S_Warn(const char* warning_message);
 
 extern HWND Log(char a1, char* format, ...);
-
+extern void S_SetReverbType(int reverb);
 extern signed int __cdecl sub_4D30E0(_WORD *a1);
 extern char TIME_Init();
 extern inline void memset32(void* buf, uint32_t n, int32_t c);
