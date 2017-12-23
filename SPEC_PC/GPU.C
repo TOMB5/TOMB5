@@ -930,7 +930,7 @@ HWND CloseDirectX()
 
 int sub_40193D()
 {
-	S_Warn("[sub_40193D] - Unimplemented!\\n");
+	S_Warn("[sub_40193D] - Unimplemented!\n");
 	return 0;
 }
 

@@ -1,13 +1,19 @@
 #include "OBJECTS.H"
-#include "SPECIFIC.H"
-#include "CONTROL.H"
-#include "EFFECTS.H"
-#include <stddef.h>
-#include "DRAW.H"
+
 #include "BOX.H"
-#include "TOMB4FX.H"
+#include "COLLIDE.H"
+#include "CONTROL.H"
+#include "DRAW.H"
+#include "EFFECTS.H"
 #include "ITEMS.H"
+#include "ROOMLOAD.H"
+#include "SETUP.H"
 #include "SOUND.H"
+#include "SPECIFIC.H"
+#include "SPECTYPES.H"
+#include "TOMB4FX.H"
+
+#include <stddef.h>
 
 struct BITE_INFO EnemyBites[9] =
 {
@@ -77,7 +83,7 @@ void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 
 	if (item_number != 0)
 	{
-		item->status = 1;
+		item->status = ITEM_ACTIVE;
 
 		if (item->trigger_flags == 0x29C)
 		{
@@ -92,14 +98,52 @@ void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 	{
 		if (item->trigger_flags == 2 || item->trigger_flags == 0x29C)
 		{
-			item->status = 3;
+			item->status = ITEM_INVISIBLE;
 		}
 	}
 }
 
-void AnimateWaterfalls()
+void AnimateWaterfalls()//4FABC(<), 4FF20(<) (F)
 {
+#if PSX_VERSION
+	struct PSXTEXTI* Twaterfall;
+	long i;
+	long speed1;
+	long speed2;
+
+	speed1 = (GlobalCounter << 3) - GlobalCounter & 0x3F;
+	speed2 = -(GlobalCounter << 2) & 0x3F;
+
+	//loc_4FB00
+	for (i = 0; i < 6; i++)
+	{
+		if (objects[WATERFALL1 + i].loaded)
+		{
+			Twaterfall = AnimatingWaterfalls[i];
+
+			Twaterfall->v0 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1;
+			Twaterfall->v1 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1;
+			Twaterfall->v2 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
+			Twaterfall->v3 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
+
+			if (i < 4)
+			{
+				Twaterfall++;
+				Twaterfall->v0 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1;
+				Twaterfall->v1 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1;
+				Twaterfall->v2 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
+				Twaterfall->v3 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
+			}//loc_4FB98
+		}//loc_4FB98
+
+		if (i == 4)
+		{
+			speed1 = speed2;
+		}
+	}
+#else
 	S_Warn("[AnimateWaterfalls] - Unimplemented!\n");
+#endif
 }
 
 void ControlTriggerTriggerer(short item_number)
@@ -134,7 +178,7 @@ void BridgeTilt2Floor(struct ITEM_INFO* item, long x, long y, long z, long* heig
 	if (level >= y)
 	{
 		*height = level;
-		height_type = 0;
+		height_type = WALL;
 		OnObject = 1;
 	}
 }
@@ -149,10 +193,24 @@ void BridgeTilt1Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* he
 	}
 }
 
-long GetOffset(struct ITEM_INFO* item, long x, long z)
+long GetOffset(struct ITEM_INFO* item, long x, long z)// (F)
 {
-	S_Warn("[GetOffset] - Unimplemented!\n");
-	return 0;
+	if (item->pos.y_rot == 0)
+	{
+		return (-x) & 0x3FF;
+	}
+	else if (item->pos.y_rot == ANGLE(-180))
+	{
+		return x & 0x3FF;
+	}
+	else if (item->pos.y_rot == ANGLE(90))
+	{
+		return z & 0x3FF;
+	}
+	else
+	{
+		return (-z) & 0x3FF;
+	}
 }
 
 void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EFCC(<), 4F430(<) (F)
@@ -162,7 +220,7 @@ void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long* heig
 	if (level >= y)
 	{
 		*height = level;
-		height_type = 0;
+		height_type = WALL;
 		OnObject = 1;
 	}
 }
@@ -180,7 +238,7 @@ void BridgeFlatFloor(struct ITEM_INFO* item, long x, long y, long z, long* heigh
 	if (item->pos.y_pos >= y)
 	{
 		*height = item->pos.y_pos;
-		height_type = 0;
+		height_type = WALL;
 		OnObject = 1;
 	}
 }
@@ -206,9 +264,9 @@ void SmashObject(short item_number)//4EDB0, 4F214 (F)
 	item->mesh_bits = 0xFFFE;
 	ExplodingDeath2(item_number, -1, 257);
 	item->flags |= IFLAG_INVISIBLE;
-	if (item->status == 1)
+	if (item->status == ITEM_ACTIVE)
 		RemoveActiveItem(item_number);
-	item->status = 2;
+	item->status = ITEM_DEACTIVATED;
 }
 
 void EarthQuake(short item_number)

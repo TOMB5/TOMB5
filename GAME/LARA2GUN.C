@@ -10,6 +10,8 @@
 #endif
 #include "DRAW.H"
 #include "OBJECTS.H"
+#include "EFFECTS.H"
+#include "SOUND.H"
 
 static struct PISTOL_DEF PistolTable[4] =
 {
@@ -76,9 +78,21 @@ void draw_pistol_meshes(int weapon_type)// (F)
 	}
 }
 
-void ready_pistols(int weapon_type)
+void ready_pistols(int weapon_type)// (F)
 {
-	S_Warn("[ready_pistols] - Unimplemented!\n");
+	lara.gun_status = LG_READY;
+	lara.left_arm.z_rot = 0;
+	lara.left_arm.y_rot = 0;
+	lara.left_arm.x_rot = 0;
+	lara.right_arm.z_rot = 0;
+	lara.right_arm.y_rot = 0;
+	lara.right_arm.x_rot = 0;
+	lara.right_arm.frame_number = 0;
+	lara.left_arm.frame_number = 0;
+	lara.target = 0;
+	lara.right_arm.lock = 0;
+	lara.left_arm.lock = 0;
+	lara.right_arm.frame_base = lara.left_arm.frame_base = objects[WeaponObject(weapon_type)].frame_base;
 }
 
 void undraw_pistols(int weapon_type)
@@ -86,12 +100,55 @@ void undraw_pistols(int weapon_type)
 	S_Warn("[undraw_pistols] - Unimplemented!\n");
 }
 
-void draw_pistols(int weapon_type)
+void draw_pistols(int weapon_type)// (F)
 {
-	S_Warn("[draw_pistols] - Unimplemented!\n");
+	struct PISTOL_DEF* p = &PistolTable[lara.gun_type];
+	short ani = lara.left_arm.frame_number + 1;
+
+	if (ani < p->Draw1Anim || ani > p->RecoilAnim - 1)
+	{
+		ani = p->Draw1Anim;
+	}
+	else if (ani == p->Draw2Anim)
+	{
+		draw_pistol_meshes(weapon_type);
+		SoundEffect(SFX_LARA_HOLSTER_DRAW, &lara_item->pos, 0);
+	}
+	else if (ani == p->RecoilAnim - 1)
+	{
+		ready_pistols(weapon_type);
+		ani = 0;
+	}
+
+	set_arm_info(&lara.right_arm, ani);
+	set_arm_info(&lara.left_arm, ani);
 }
 
-void set_arm_info(struct lara_arm* arm, int frame)
+void set_arm_info(struct lara_arm* arm, int frame)// (F)
 {
-	S_Warn("[set_arm_info] - Unimplemented!\n");
+	struct PISTOL_DEF* def = &PistolTable[lara.gun_type];
+	int anim_base = objects[def->ObjectNum].anim_index;
+
+	if (frame >= def->Draw1Anim)
+	{
+		if (frame >= def->Draw2Anim)
+		{
+			if (frame >= def->RecoilAnim)
+			{
+				anim_base += 3;
+			}
+			else
+			{
+				anim_base += 2;
+			}
+		}
+		else
+		{
+			anim_base += 1;
+		}
+	}
+
+	arm->anim_number = anim_base;
+	arm->frame_number = frame;
+	arm->frame_base = anims[anim_base].frame_ptr;
 }

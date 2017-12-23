@@ -24,8 +24,10 @@ extern void AlertNearbyGuards(struct ITEM_INFO* item);
 extern void AlertAllGuards(short item_number);
 extern void CreatureKill(struct ITEM_INFO* item, int kill_anim, int kill_state, short lara_anim);
 extern int CreatureVault(short item_number, short angle, int vault, int shift);
-extern short CreatureEffectT(struct ITEM_INFO* item, struct BITE_INFO* bite, short damage, short angle, short* generate);
-extern short CreatureEffect(struct ITEM_INFO* item, struct BITE_INFO* bite, short* generate);
+extern short CreatureEffectT(struct ITEM_INFO* item, struct BITE_INFO* bite, short damage, short angle, short (*generate)(
+	                             long x, long y, long z, short speed, short yrot, short room_number));
+extern short CreatureEffect(struct ITEM_INFO* item, struct BITE_INFO* bite, short (*generate)(long x, long y, long z, short speed, short yrot,
+                                                                                              short room_number));
 extern void CreatureUnderwater(struct ITEM_INFO* item, long depth);
 extern void CreatureFloat(short item_number);
 extern void CreatureJoint(struct ITEM_INFO* item, short joint, short required);

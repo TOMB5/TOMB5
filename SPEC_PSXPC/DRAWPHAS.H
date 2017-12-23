@@ -7,7 +7,7 @@ extern long DrawPhaseGame();
 extern void UpdateSky();
 extern void mQuickW2VMatrix();
 extern void DrawRooms(short current_room);
-extern void PrintString(long x, long y, long unk, char* string);
+extern void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, char* string, unsigned short flag);
 extern void DrawBinoculars();
 extern void DrawFlash();
 extern void SortOutWreckingBallDraw();

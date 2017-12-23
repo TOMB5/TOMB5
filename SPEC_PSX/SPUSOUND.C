@@ -92,8 +92,6 @@ void SPU_StopAll()
 		ret = SPU_UpdateStatus();
 	}
 	while (ret != MAX_SOUND_SLOTS);
-	
-	return ret;
 }
 
 int SPU_UpdateStatus()//915FC, 93640

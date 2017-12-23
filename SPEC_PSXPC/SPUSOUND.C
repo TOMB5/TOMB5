@@ -17,7 +17,7 @@ int LnFreeChannels;
 static unsigned char LabSPUMallocArea[16];
 unsigned long LadwSampleAddr[256];
 
-void SPU_Init()//62650(<), 62D34(<) (F)
+void SPU_Init()//62650(<), 62D34(<)
 {
 	S_Warn("[SPU_Init] - Unimplemented!\n");
 	return;

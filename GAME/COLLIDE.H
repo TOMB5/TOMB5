@@ -39,7 +39,7 @@ extern void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)
 extern void TriggerLaraBlood();
 extern void GenericSphereBoxCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
 extern int ItemPushLaraStatic(struct ITEM_INFO* laraitem, short* bounds, struct PHD_3DPOS* pos, struct COLL_INFO* coll);
-extern int ItemPushLara(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, struct COLL_INFO* coll, int a4, int a5);
+extern int ItemPushLara(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, struct COLL_INFO* coll, int spaz, int big_push);
 extern int TestBoundsCollideStatic(short* bounds, struct PHD_3DPOS* pos, long radius);
 extern int TestBoundsCollide(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, long radius);
 extern void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
@@ -52,5 +52,6 @@ extern void UpdateLaraRoom(struct ITEM_INFO* item, int height);
 extern void ObjectCollision(short item_num, struct ITEM_INFO* lara_item, struct COLL_INFO* coll);
 extern int TestLaraPosition(short* bounds, struct ITEM_INFO* item, struct ITEM_INFO* lara_item);
 extern int MoveLaraPosition(struct PHD_VECTOR* vector, struct ITEM_INFO* item, struct ITEM_INFO* lara_item);
+extern int GetCollidedObjects(struct ITEM_INFO* a1, long a2, int a3, struct ITEM_INFO** a4, struct MESH_INFO** a5, int a6);
 
 #endif

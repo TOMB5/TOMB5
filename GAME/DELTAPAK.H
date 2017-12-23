@@ -2,6 +2,7 @@
 #define DELTAPAK_H
 
 #include "SPECTYPES.H"
+#include "OBJECTS.H"
 
 enum cutseq_pistols_info
 {
@@ -98,14 +99,14 @@ extern short lara_chat_ranges_andy6[8];
 extern short lara_chat_ranges_andy11[28];
 extern short priest_chat_ranges_andy6[18];
 extern short priest_chat_ranges_andy2[24];
-extern short unknown1_chat_ranges_richcut2[20];
-extern short unknown2_chat_ranges_richcut2[12];
-extern short unknown3_chat_ranges_richcut2[10];
-extern short unknown_chat_ranges_andy1[18];
-extern short unknown1_chat_ranges_andy9[20];
-extern short unknown2_chat_ranges_andy9[14];
-extern short unknown1_chat_ranges_andy11[30];
-extern short unknown2_chat_ranges_andy11[14];
+extern short voncroy_chat_ranges_richcut2[20];
+extern short associate_chat_ranges_richcut2[12];
+extern short guard_chat_ranges_richcut2[10];
+extern short hanged_man_chat_ranges_andy1[18];
+extern short priest_chat_ranges_andy9[20];
+extern short knight_chat_ranges_andy9[14];
+extern short priest_chat_ranges_andy11[30];
+extern short knight_chat_ranges_andy11[14];
 extern int cuntercunter;
 extern char jobyfrigger;
 extern int cutrot;

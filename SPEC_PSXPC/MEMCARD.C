@@ -344,7 +344,7 @@ unsigned char mcGetStatus()//620CC,
 				 return -1;
 }
 
-long mcFormat()//622D8(<), 629BC(<) (F)
+long mcFormat()//622D8(<), 629BC(<)
 {
 	unsigned long cmd;
 	unsigned long res;

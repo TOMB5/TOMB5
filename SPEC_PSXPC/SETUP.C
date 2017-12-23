@@ -67,7 +67,7 @@ void RelocateLevel()
 #if INTERNAL
 	FILE_Read((char*) &tsv_buffer[0], sizeof(struct Level), 1, nHandle);
 #else
-	CD_Read((char*) &tsv_buffer[0], sizeof(struct Level));
+	DEL_CDFS_Read((char*) &tsv_buffer[0], sizeof(struct Level));
 #endif
 	//Not done in original
 	level = (struct Level*)&tsv_buffer[0];
@@ -98,7 +98,7 @@ void RelocateLevel()
 		FILE_Read(ptr, sizeof(long), level->numSoundEffects, nHandle);
 		fseek(nHandle, level->offsetSoundData, 0);
 #else
-		CD_Read(ptr, level->numSoundEffects * sizeof(long));
+		DEL_CDFS_Read(ptr, level->numSoundEffects * sizeof(long));
 #endif
 
 		ptr = game_malloc(level->soundWadLength);
@@ -106,7 +106,7 @@ void RelocateLevel()
 #if INTERNAL
 		FILE_Read(ptr, level->soundWadLength, 1, nHandle);
 #else
-		CD_Read(ptr, level->soundWadLength);
+		DEL_CDFS_Read(ptr, level->soundWadLength);
 #endif
 		GtSFXEnabled = LoadSoundEffects(level->numSoundEffects, (long*) ptr2, ptr, level->soundWadLength);
 
@@ -150,7 +150,7 @@ void RelocateLevel()
 #if INTERNAL
 		FILE_Read(ptr, 1, 0x40000, nHandle);
 #else
-		CD_Read(ptr, 0x40000);
+		DEL_CDFS_Read(ptr, 0x40000);
 #endif
 		LOAD_DrawEnable(0);
 
@@ -183,7 +183,7 @@ void RelocateLevel()
 #if INTERNAL
 	FILE_Read(ptr, 1, level->frameDataLength, nHandle);
 #else
-	CD_Read(ptr, level->frameDataLength);
+	DEL_CDFS_Read(ptr, level->frameDataLength);
 #endif
 
 	AnimFileLen = level->frameDataLength;
@@ -197,7 +197,7 @@ void RelocateLevel()
 #if INTERNAL
 	FILE_Read(ptr, 1, level->roomInfoLength, nHandle);
 #else
-	CD_Read(ptr, level->roomInfoLength);
+	DEL_CDFS_Read(ptr, level->roomInfoLength);
 #endif
 
 	room = (struct room_info*)ptr;
@@ -371,7 +371,7 @@ void RelocateLevel()
 	}//000B43A4, 000B42F8
 
 	camera.fixed = (struct OBJECT_VECTOR*)ptr;
-	ptr += level->frameDataLength;
+	ptr += level->unk455;
 
 	SpotCam = (struct SPOTCAM*) ptr;
 	NumFixedCameras = level->numFixedCameras;
@@ -383,7 +383,7 @@ void RelocateLevel()
 	FILE_Read((char*) &objects_raw, 1, sizeof(objects_raw), nHandle);
 	fclose(nHandle);
 #else
-	CD_Read((char*) &objects_raw, sizeof(objects_raw));
+	DEL_CDFS_Read((char*) &objects_raw, sizeof(objects_raw));
 #endif
 
 	for (i = 0; i < 64; i++)
@@ -399,8 +399,8 @@ void RelocateLevel()
 		nHandle = fopen("DATA\\CODE.WAD", "rb");
 		FILE_Read((char*) &tsv_buffer[256], 20, 96, nHandle);
 #else
-		CD_ReaderPositionToCurrent();
-		CD_Read((char*) &tsv_buffer[256], 1920);
+		FRIG_CD_POS_TO_CUR();
+		DEL_CDFS_Read((char*) &tsv_buffer[256], 1920);
 #endif
 
 		//Temporary, array size is unknown
@@ -416,8 +416,8 @@ void RelocateLevel()
 				fseek(nHandle, relocationPtr[0], 0);
 				FILE_Read(ptr, 1, relocationPtr[1], nHandle);
 #else
-				CD_Seek(relocationPtr[0]);
-				CD_Read(ptr, relocationPtr[1]);
+				DEL_CDFS_Seek(relocationPtr[0]);
+				DEL_CDFS_Read(ptr, relocationPtr[1]);
 #endif
 				ptr2 = game_malloc(relocationPtr[3]);
 
@@ -425,8 +425,8 @@ void RelocateLevel()
 				fseek(nHandle, relocationPtr[2], 0);
 				FILE_Read(ptr, 1, relocationPtr[3], nHandle);
 #else
-				CD_Seek(relocationPtr[2]);
-				CD_Read(ptr2, relocationPtr[3]);
+				DEL_CDFS_Seek(relocationPtr[2]);
+				DEL_CDFS_Read(ptr2, relocationPtr[3]);
 #endif
 				RelocateModule((unsigned long) ptr, (unsigned long*) ptr2);
 
@@ -1139,7 +1139,7 @@ void sub_B4EE4(long keep_carried_items)
 	//v0=lara_item.flags;//132
 	//v1 = -0x21;
 	lara_item->data = &lara;
-	lara_item->meshswap_meshbits &= 0xFFDF;
+	lara_item->collidable = FALSE;
 
 	//Possible hack, resets carried items? For specific levels.
 	//Should be done in script.
@@ -1251,8 +1251,8 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 	nHandle = fopen("\\CUTSEQ.JIZ", "rb");
 	FILE_Read(&tsv_buffer[0], 1, 2048, nHandle);
 #else
-	CD_InitialiseReaderPosition(1);
-	CD_Read((char*)&tsv_buffer[0], 2048);
+	FRIG_CD_POS_TO_CUR();
+	DEL_CDFS_Read((char*)&tsv_buffer[0], 2048);
 #endif
 
 	s2 = sub_BA0DC(a0);
