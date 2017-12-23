@@ -5,8 +5,12 @@
 
 #include <sys/types.h>
 #include <LIBAPI.H>
+#include <LIBCD.H>
+#include <LIBETC.H>
 #include <LIBGTE.H>
 #include <LIBGPU.H>
+#include <LIBPAD.H>
+#include <stdio.h>
 
 extern unsigned long GnFrameCounter;
 extern unsigned long GnLastFrameCount;
@@ -21,7 +25,7 @@ extern unsigned long GadwOrderingTables[5128];
 extern unsigned long GadwPolygonBuffers[52260];
 
 extern void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize);
-extern void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize);
+extern void GPU_UsePolygonBuffers(unsigned long* pBuffers , int nPBSize);
 extern void GPU_BeginScene();
 extern void GPU_EndScene();
 extern int GPU_FlipNoIdle();
