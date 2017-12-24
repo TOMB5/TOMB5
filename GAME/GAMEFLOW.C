@@ -730,6 +730,247 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 #endif
 }
 
-void DoLevel(unsigned char Name, unsigned char Audio)
+void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 {
+	char *d;
+
+#if !BETA_VERSION
+	int fmvStatus;
+#endif
+
+	if (gfGameMode == 4)
+	{
+		if (FromTitle == 1)
+		{
+			d = (char*) &GadwPolygonBuffers[49188];
+			memcpy((void*) d, &MGSaveGamePtr[0], 8192);
+			MGSaveGamePtr = d;
+		}
+	}
+
+	//loc_10B24
+	FromTitle = 0;
+
+#if PSX_VERSION || PSXPC_VERSION
+	XAMasterVolume = savegame.VolumeCD;
+#endif
+
+	if (gfGameMode == 4)
+	{
+		memset(&savegame.Level, 0, sizeof(struct STATS));
+	}
+
+	//loc_10B58
+	S_LoadLevelFile(Name);
+
+	InitSpotCamSequences();
+	InitialisePickUpDisplay();
+	phd_InitWindow(90);
+	SOUND_Stop();
+	bDisableLaraControl = 0;
+
+	if (gfGameMode == 4)
+	{
+		sgRestoreGame();
+		gfRequiredStartPos = 0;
+		gfInitialiseGame = 0;
+	}
+	else
+	{
+		//loc_10BAC
+		gfRequiredStartPos = 0;
+
+		if (gfInitialiseGame != 0)
+		{
+			GameTimer = 0;
+			gfRequiredStartPos = 0;
+			gfInitialiseGame = 0;
+			FmvSceneTriggered = 0;
+			InitCutPlayed();
+		}
+
+		//loc_10BD8
+		CurrentAtmosphere = 0;
+		flipeffect = 0;
+
+		if (gfCurrentLevel == LVL5_STREETS_OF_ROME)
+		{
+			((char*) &LaserSight)[2] = 0;
+		}
+	}
+
+	//loc_10BF8
+	S_CDPlay(CurrentAtmosphere, 1);
+
+	IsAtmospherePlaying = 1;
+	ScreenFadedOut = 0;
+	ScreenFading = 0;
+	ScreenFadeBack = 0;
+	dScreenFade = 255;
+	ScreenFade = 255;
+
+	if (dels_cutseq_player != 0)
+	{
+		gfCutNumber = 0;
+	}//loc_10C50
+
+	if (gfCutNumber == 0 || CheckCutPlayed(gfCutNumber) != 0 && dels_cutseq_player == 0)
+	{
+		//loc_10CC4
+		cutseq_num = 0;
+		gfCutNumber = 0;
+		SetScreenFadeIn(16);
+	}
+	else
+	{
+		//loc_10C90
+		gfCutNumber = 0;
+		ScreenFadedOut = 1;
+		cutseq_num = gfCutNumber;
+	}
+
+	//loc_10CD8
+	InitialiseCamera();
+	bUseSpotCam = 0;
+
+#if DEBUG_VERSION
+	show_game_malloc_totals();
+#endif
+
+	gfGameMode = 0;
+	gfLevelComplete = 0;
+	nframes = 2;
+	framecount = 0;
+
+	gfStatus = ControlPhase(2, 0);
+
+	dbinput = 0;
+	JustLoaded = 0;
+
+	if (gfStatus == 0)
+	{
+		//loc_10D30
+		while (gfStatus == 0)
+		{
+
+			GPU_BeginScene();
+
+			if (gfLegendTime != 0 && DestFadeScreenHeight == 0 && FadeScreenHeight == 0 && cutseq_num == 0)
+			{
+				//v0 = 0x8000;
+				//sw	$v0, 0x30 + var_20($sp) //maybe a4?
+				PrintString(0x100, 0xE8, 2, &gfStringWad[gfStringOffset[gfLegend]], 0);
+				gfLegendTime--;
+			}
+
+			//loc_10DC4
+			nframes = DrawPhaseGame();
+			handle_cutseq_triggering(Name);
+
+			if (DEL_playingamefmv != 0)
+			{
+				DEL_playingamefmv = 0;
+			}
+
+			//loc_10DEC
+			if (gfLevelComplete == 0)
+			{
+				if (dbinput & 0x100 && GLOBAL_enterinventory != -1)
+				{
+					//loc_10E28
+					if (cutseq_trig == 0 && lara_item->hit_points > 0 && ScreenFading == 0)
+					{
+						if (S_CallInventory2() != 0)
+						{
+							//loc_10CB8
+							gfStatus = 2;
+						}
+					}
+				}
+
+				//loc_10E7C
+				QuickControlPhase();
+			}
+			else
+			{
+				//loc_10CAC
+				gfStatus = 3;
+				break;
+			}
+		}
+	}
+
+	//loc_10E94
+	XAReqVolume = 0;
+	Motors[1] = 0;
+	Motors[0] = 0;
+
+#if PSX_VERSION || PSXPC_VERSION
+	if (XAVolume != 0)
+	{
+		//loc_10EBC
+		do
+		{
+			XAReqVolume = 0;
+		} while (XAVolume == 0);
+	}
+#endif
+
+	//loc_10ED8
+	reset_count = 0;
+	S_SoundStopAllSamples();
+	S_CDStop();
+
+#if !BETA_VERSION
+
+	if (gfStatus == 3)
+	{
+		fmvStatus = 0;
+
+		if (fmv_to_play[0] & 0x80)
+		{
+			if (fmv_to_play[0] & 0x7F == 9 && gfLevelComplete != 10)
+			{
+				fmv_to_play[0] = 0;
+			}
+			
+			//loc_10EF8
+			if (fmv_to_play[0] & 0x7F == 8 && gfLevelComplete != 22)
+			{
+				fmv_to_play[0] = 0;
+			}
+		}
+		
+		//loc_10F20
+		if (fmv_to_play[0] != 0)
+		{
+			fmvStatus = S_PlayFMV(fmv_to_play[0] & 0x7F, 1);
+		}//loc_10F3C
+
+		if (fmvStatus != 2 && fmv_to_play[1] != 0)
+		{
+			S_PlayFMV(fmv_to_play[1] & 0x7F, 1);
+		}
+	}
+
+	//loc_10F64
+	num_fmvs = 0;
+	fmv_to_play[1] = 0;
+	fmv_to_play[0] = 0;
+#endif
+
+	lara.examine3 = 0;
+	lara.examine2 = 0;
+	lara.examine1 = 0;
+
+	if (gfStatus == 3 && gfCurrentLevel == LVL5_RED_ALERT)
+	{
+		gfStatus = 1;
+		bDoCredits = 1;
+		scroll_pos = 0;
+	}
+
+	//loc_10F30
+	input = 0;
+	reset_flag = 0;
 }
