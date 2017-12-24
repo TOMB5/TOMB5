@@ -3,6 +3,7 @@
 #include "SPECIFIC.H"
 #include "EFFECT2.H"
 #include "LARA.H"
+#include "OBJECTS.H"
 #include "DELSTUFF.H"
 #include "CONTROL.H"
 #include "DRAW.H"
@@ -251,10 +252,55 @@ int GetFreeSmokeSpark()
 	return 0;
 }
 
-int GetFreeSpark()
+int GetFreeSpark()//8B2F8(<), 8D33C(<) (F)
 {
-	S_Warn("[GetFreeSpark] - Unimplemented!\n");
-	return 0;
+	long lp;
+	struct SPARKS* sptr;
+	struct SPARKS* fsptr;
+	long free = next_spark;
+
+	sptr = &spark[free];
+
+	for (lp = 0; lp < 0x80; lp++, sptr++)
+	{
+		if (!sptr->On)
+		{
+
+			next_spark = (free + 1) & 0x7F;
+			sptr->Def = objects[DEFAULT_SPRITES].mesh_index;
+			sptr->extras = 0;
+			sptr->Dynamic = -1;
+			return free;
+
+		}
+		
+		//loc_8B35C
+		if (free++ == 0x7F)
+		{
+			sptr = (struct SPARKS*)&temp_rotation_buffer[0];
+			free = 0;
+		}
+	}
+
+	sptr = &spark[0];
+
+	//loc_8B394
+	for (lp = 0; lp < 0x80; ++lp, sptr++)
+	{
+		if (sptr->Life < 0xFFF && sptr->Dynamic == -1 && !(sptr->Flags & 0x20))
+		{
+			free = lp - 1;
+			fsptr = sptr;
+		}//loc_8B3C8
+	}
+
+	next_spark = (free + 1) & 0x7F;
+	fsptr->Def = objects[DEFAULT_SPRITES].mesh_index;
+	fsptr->extras = 0;
+	fsptr->Dynamic = -1;
+
+	return free;
+
 }
 
 int GetFreeBubble()//8BEAC(<), 8DEF0(<) (F)
