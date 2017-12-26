@@ -7,11 +7,7 @@ project (TOMB5)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
 
 #Toggles debug code on/off
-set(DEBUG_VERSION 1 CACHE BOOL "Enable/Disable Debug Code")
-
-if(DEBUG_VERSION)
-	add_definitions(-DEBUG_VERSION)
-endif(DEBUG_VERSION)
+set(DEBUG_VERSION 1 CACHE INTEGER "Enable/Disable Debug Code")
 
 #Store the path to our game code folder in "GAME_CODE_DIR".
 #This is used by platform specific CMake scripts to add this directory as an include directory.

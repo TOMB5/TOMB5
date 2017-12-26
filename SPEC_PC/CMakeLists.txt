@@ -5,9 +5,6 @@ project (TombRaiderChronicles_PC${TARGET_ARCH})
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
-#Platform specific defs
-add_definitions(-DPC_VERSION)
-
 #Setup platform specific / game code include folder
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${GAME_CODE_DIR})
@@ -24,6 +21,9 @@ ${PROJECT_NAME}
 ${GAME_SRCS}
 ${PLATFORM_SPECIFIC_SRCS}
 )
+
+#Platform specific defs
+target_compile_definitions(${PROJECT_NAME} PRIVATE PC_VERSION=1 DEBUG_VERSION=${DEBUG_VERSION})
 
 #Link against required libraries
 #target_link_libraries(
