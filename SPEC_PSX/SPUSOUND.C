@@ -25,7 +25,7 @@ static unsigned char LabSPUMallocArea[SPU_MALLOC_RECSIZ * (MAX_SPU_MALLOC_CALLS 
 unsigned long LadwSampleAddr[MAX_NUM_SOUND_EFFECTS];
 
 
-void SPU_FreeSamples()//62610, 62CF4
+void SPU_FreeSamples()//62610, 62CF4 (F) (*)
 {
 	SPU_StopAll();
 	
@@ -40,9 +40,9 @@ void SPU_FreeSamples()//62610, 62CF4
 	return;
 }
 
-void SPU_Init()//62650(<), 62D34(<) (F)
+void SPU_Init()//62650(<), 62D34(<) (F) (*)
 {
-	int nChannel = 0;
+	int nChannel;
 	
 	SpuInit();
 	SpuInitMalloc(MAX_SPU_MALLOC_CALLS, (char*)&LabSPUMallocArea[0]);
@@ -56,11 +56,14 @@ void SPU_Init()//62650(<), 62D34(<) (F)
 	LnFreeChannels = 0;
 
 	//loc_626B4
-	while (nChannel < MAX_SOUND_SLOTS)
+	for(nChannel = 0; nChannel < MAX_SOUND_SLOTS; nChannel++)
 	{
-		SPU_FreeChannel(nChannel++);
+		SPU_FreeChannel(nChannel);
 	}
 	
+	LlVABAddr = 0;
+	LnSamplesLoaded = 0;
+
 	return;
 }
 
@@ -70,7 +73,7 @@ void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
 	LabFreeChannel[LnFreeChannels++] = channel_index;
 }
 
-void S_SetReverbType(int reverb)//91CF4, 93D40
+void S_SetReverbType(int reverb)//91CF4, 93D40 (F)
 {
 	if (reverb != CurrentReverb)
 	{
@@ -81,43 +84,38 @@ void S_SetReverbType(int reverb)//91CF4, 93D40
 	}
 }
 
-void SPU_StopAll()
+void SPU_StopAll()//91D44 (F)
 {
-	int ret;
-
 	SpuSetKey(SPU_OFF, SPU_ALLCH);
+
+	while (SPU_UpdateStatus() != MAX_SOUND_SLOTS);
 	
-	do
-	{
-		ret = SPU_UpdateStatus();
-	}
-	while (ret != MAX_SOUND_SLOTS);
+	return;
 }
 
-int SPU_UpdateStatus()//915FC, 93640
+int SPU_UpdateStatus()//915FC, 93640 (F)
 {
-	int i = 0;
+	int i;
 	char status[MAX_SOUND_SLOTS];
 
 	SpuGetAllKeysStatus(&status[0]);
 
-	//loc_9161C
 	for (i = 0; i < MAX_SOUND_SLOTS; i++)
 	{
-		if ((status[i] - 1) < 2 && LabSampleType[i] != 0)
+		if(status[i] - 1 > 1 && LabSampleType[i] != 0)
 		{
 			SPU_FreeChannel(i);
 		}
 	}
-	
+
 	return LnFreeChannels;
 }
 
-unsigned char SPU_AllocChannel()//915B0, 935F4
+long SPU_AllocChannel()//915B0, 935F4 (F)
 {
 	if (LnFreeChannels == 0)
 	{
-		if (SPU_UpdateStatus() != 0)
+		if (SPU_UpdateStatus() == 0)
 		{
 			return -1;
 		}

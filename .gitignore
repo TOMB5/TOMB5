@@ -3,12 +3,7 @@
 *.sdf
 *.opendb
 *.idb
-*.map
-*.mak
-*.sym
-*.cpe
 
-/OUTPUT/*
 /BUILD/*
 /x64/*
 /EXTERNAL/*
