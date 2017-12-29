@@ -4,6 +4,7 @@
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
+#include "MISC.H"
 #include "PROFILE.H"
 #include "PSXINPUT.H"
 #include "SAVEGAME.H"
@@ -20,6 +21,7 @@
 #include <LIBPAD.H>
 #include <stdio.h>
 #include <LIBMCRD.H>
+#include <LIBETC.H>
 
 void VSyncFunc()//10000(<), 10000(<) (F)
 {

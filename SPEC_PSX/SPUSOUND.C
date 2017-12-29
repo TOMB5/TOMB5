@@ -1,5 +1,6 @@
 #include "SPUSOUND.H"
 
+#include "SFX.H"
 #include "SOUND.H"
 #include "SPECIFIC.H"
 
@@ -65,62 +66,4 @@ void SPU_Init()//62650(<), 62D34(<) (F) (*)
 	LnSamplesLoaded = 0;
 
 	return;
-}
-
-void SPU_FreeChannel(int channel_index)//91668, 936AC (F)
-{
-	LabSampleType[channel_index] = 0;
-	LabFreeChannel[LnFreeChannels++] = channel_index;
-}
-
-void S_SetReverbType(int reverb)//91CF4, 93D40 (F)
-{
-	if (reverb != CurrentReverb)
-	{
-		CurrentReverb = reverb;
-
-		SpuSetReverbModeDepth(DepthTable[reverb], DepthTable[reverb]);
-		SpuSetReverb(SPU_ON);
-	}
-}
-
-void SPU_StopAll()//91D44 (F)
-{
-	SpuSetKey(SPU_OFF, SPU_ALLCH);
-
-	while (SPU_UpdateStatus() != MAX_SOUND_SLOTS);
-	
-	return;
-}
-
-int SPU_UpdateStatus()//915FC, 93640 (F)
-{
-	int i;
-	char status[MAX_SOUND_SLOTS];
-
-	SpuGetAllKeysStatus(&status[0]);
-
-	for (i = 0; i < MAX_SOUND_SLOTS; i++)
-	{
-		if(status[i] - 1 > 1 && LabSampleType[i] != 0)
-		{
-			SPU_FreeChannel(i);
-		}
-	}
-
-	return LnFreeChannels;
-}
-
-long SPU_AllocChannel()//915B0, 935F4 (F)
-{
-	if (LnFreeChannels == 0)
-	{
-		if (SPU_UpdateStatus() == 0)
-		{
-			return -1;
-		}
-	}
-
-	//loc_915DC
-	return LabFreeChannel[--LnFreeChannels];
 }

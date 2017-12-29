@@ -39,7 +39,7 @@ DISC_ROOTFD	= DISC/
 # LIBS      - Libraries to link during linking stage
 #---------------------------------------------------------------------------------
 LIBDIRS		=
-LIBS		= LIBSPU.LIB LIBMCRD.LIB LIBPAD.LIB LIBSN.LIB
+LIBS		= LIBETC.LIB LIBPAD.LIB LIBGTE.LIB LIBMCRD.LIB LIBCD.LIB LIBSN.LIB LIBSPU.LIB LIBAPI.LIB
 
 #---------------------------------------------------------------------------------
 # CFLAGS   - Base C compiler options
@@ -73,12 +73,12 @@ AS         = asmpsx
 # Parse source directories for source files
 #---------------------------------------------------------------------------------
 CFILES      = $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.C))
-AFILES      = $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.S))
+AFILES      = $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.MIP))
 
 #---------------------------------------------------------------------------------
 # Generate file names for object binaries
 #---------------------------------------------------------------------------------
-OFILES      = $(CFILES:.c=.obj) $(AFILES:.s=.obj)
+OFILES      = $(CFILES:.c=.obj) $(AFILES:.MIP=.obj)
 
 #---------------------------------------------------------------------------------
 # Default rule, compiles all source files
@@ -106,11 +106,11 @@ all: $(OFILES)
 #---------------------------------------------------------------------------------
 # Rule for compiling C source
 #---------------------------------------------------------------------------------
-%.obj: %.c
+%.obj: %.C
 	$(CC) $(CFLAGS) $(addprefix -I,$(INCLUDES)) -c $< -o $@
 
 #---------------------------------------------------------------------------------
 # Rule for assembling assembly source
 #---------------------------------------------------------------------------------
-%.obj: %.s
+%.obj: %.MIP
 	$(AS) $(AFLAGS) $<,$@

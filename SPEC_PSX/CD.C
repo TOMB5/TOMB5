@@ -285,6 +285,52 @@ void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F)
 	return;
 }
 
+void S_CDStop()//5DCD0(<), 5E14C(<) (F) (*)
+{
+	XAFlag = 0;
+
+	CdControlB(CdlPause, 0, 0);
+
+	XAReqTrack = -1;
+	XATrack = -1;
+
+	DEL_ChangeCDMode(0);
+	return;
+}
+
+void S_CDPause()//5DD14(<), 5E190(<) (F) (*)
+{
+	if (XATrack > 0)
+	{
+		CdControlF(CdlPause, 0);
+	}
+
+	return;
+}
+
+void S_CDRestart()//5DD40(<) (F) (*)
+{
+	if (XATrack >= 0 && XAFlag != 7)
+	{
+		CdControlF(CdlReadS, 0);
+	}
+
+	return;
+}
+
+void S_StartSyncedAudio(int nTrack)//5DD78(<), 5E1F4(<) (F) (*)
+{
+	IsAtmospherePlaying = 0;
+
+	S_CDPlay(nTrack, 0);
+
+	while (XAFlag < 4) {}
+
+	VSync(29);
+
+	return;
+}
+
 void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
 {
 	XAMasterVolume = nVolume;
@@ -473,50 +519,4 @@ void DEL_CDFS_Seek(int offset /*$a0*/)//*, 5E54C(<) (F)
 void FRIG_CD_POS_TO_CUR()//*, 5E564(<) (F)
 {
 	cdStartSector = cdCurrentSector;
-}
-
-void S_StartSyncedAudio(int nTrack)//5DD78(<), 5E1F4(<) (F) (*)
-{
-	IsAtmospherePlaying = 0;
-
-	S_CDPlay(nTrack, 0);
-
-	while (XAFlag < 4) {}
-
-	VSync(29);
-
-	return;
-}
-
-void S_CDStop()//5DCD0(<), 5E14C(<) (F) (*)
-{
-	XAFlag = 0;
-
-	CdControlB(CdlPause, 0, 0);
-
-	XAReqTrack = -1;
-	XATrack = -1;
-
-	DEL_ChangeCDMode(0);
-	return;
-}
-
-void S_CDPause()//5DD14(<), 5E190(<) (F) (*)
-{
-	if (XATrack > 0)
-	{
-		CdControlF(CdlPause, 0);
-	}
-
-	return;
-}
-
-void S_CDRestart()//5DD40(<) (F) (*)
-{
-	if (XATrack >= 0 && XAFlag != 7)
-	{
-		CdControlF(CdlReadS, 0);
-	}
-
-	return;
 }

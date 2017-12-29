@@ -6,7 +6,6 @@
 #include "SPECIFIC.H"
 #include "TYPES.H"
 
-#include <assert.h>
 #include <LIBGTE.H>
 
 long phd_left;
@@ -42,57 +41,4 @@ void phd_InitWindow(int view_angle)//5D74C, 5DBC8
 
 	SetGeomOffset(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 	SetGeomScreen(phd_persp);
-}
-
-long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
-{
-	long dx = tx - x;
-	long dz = tz - z;
-	short table_index = 0;
-	long result_angle = 0;
-	long temp = 0;
-
-	if ((dx | dz) != 0)
-	{
-		if (dx < 0)
-		{
-			table_index |= 0x10;//FIXME: += (4);
-			dx = -dx;
-		}
-
-		//0x796E0
-		if (dz < 0)
-		{
-			table_index += 2;
-			dz = -dz;
-		}
-
-		//796F0
-		if (dx < dz)
-		{
-			table_index += 1;
-			temp = dx;
-			dx = dz;
-			dz = temp;
-		}
-		
-		//7970C
-		while ((dz / 65536) != 0)
-		{
-			dx /= 2;
-			dz /= 2;
-		}
-
-		//79724
-		result_angle = atanTab[(dz * 2048) / dx];
-		result_angle += atanOctantTab[table_index];
-
-		if (result_angle < 0)
-		{
-			result_angle = -result_angle;
-		}//79760
-
-	}//79760
-
-	return -result_angle & 0xFFFF;
 }

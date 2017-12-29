@@ -21,6 +21,7 @@
 #include "LOT.H"
 #include "MALLOC.H"
 #include "MATHS.H"
+#include "MISC.H"
 #include "NEWINV2.H"
 #include "OBJLIGHT.H"
 #include "PICKUP.H"
