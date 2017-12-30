@@ -8,6 +8,16 @@
 #include <SYS/TYPES.H>
 #include <LIBETC.H>
 
+void S_LongMemCpy(unsigned long* from, unsigned long* to, unsigned long size)
+{
+	S_Warn("[S_LongMemCpy] - Unimplemented!\n");
+}
+
+void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h)//5EDF8
+{
+	S_Warn("[DrawF4] - Unimplemented!\n");
+}
+
 void DrawTPage(unsigned char a0, unsigned char a1)//5EE78(<), 5FB58(<) (F)
 {
 #if 0
