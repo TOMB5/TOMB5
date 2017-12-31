@@ -211,7 +211,7 @@ long DrawPhaseGame()//63F04, 645E0
 
 			if (SniperOverlay != 0)
 			{
-				//MGDrawSprite(0x100, 0x78, 0xE, 0, 4, 4, 0x80);
+				MGDrawSprite(0x100, 0x78, 0xE, 0, 4, 4, 0x80);
 			}//loc_643C4
 		}
 		else
@@ -660,8 +660,45 @@ void SortOutWreckingBallDraw()//64E78(<), 65528(<) (F)
 	}//loc_64EBC
 }
 
-void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)
+void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)//64EF8(<) ? (F)
 {
-	struct POLY_FT4* polyft4;
+	POLY_FT4* polyft4;
 	struct PSXSPRITESTRUCT* pSpriteInfo;
+
+	polyft4 = (POLY_FT4*)&db.polyptr[0];
+
+	polyft4->y0 = y - (ys / 2);
+	polyft4->y1 = y - (ys / 2);
+	polyft4->x0 = x - (xs / 2);
+	polyft4->x1 = x + (xs / 2);
+	polyft4->x2 = x - (xs / 2);
+	polyft4->y2 = y + (ys / 2);
+	polyft4->x3 = x + (xs / 2);
+	polyft4->y3 = y + (ys / 2);
+
+	((char*)polyft4)[3] = 9;
+	pSpriteInfo = &psxspriteinfo[objects[DEFAULT_SPRITES].mesh_index + def];
+	((long*) &polyft4)[1] = rgb | 0x2E000000;
+
+	polyft4->tpage = pSpriteInfo->tpage;
+
+	polyft4->u0 = pSpriteInfo->u1;
+	polyft4->v0 = pSpriteInfo->v1;
+
+	polyft4->u1 = pSpriteInfo->u2;
+	polyft4->v1 = pSpriteInfo->v1;
+
+	polyft4->u2 = pSpriteInfo->u1;
+	polyft4->v2 = pSpriteInfo->v2;
+
+	polyft4->u3 = pSpriteInfo->u2;
+	polyft4->v3 = pSpriteInfo->v2;
+
+	polyft4->clut = pSpriteInfo->clut;
+
+	polyft4->tag = (polyft4->tag & 0xFF000000) | (db.ot[z] & 0xFFFFFF);
+
+	db.ot[z] = (db.ot[z] & 0xFF000000) | ((unsigned long)polyft4 & 0xFFFFFF);
+
+	db.polyptr += sizeof(POLY_FT4);
 }
