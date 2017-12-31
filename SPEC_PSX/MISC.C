@@ -8,9 +8,34 @@
 #include <SYS/TYPES.H>
 #include <LIBETC.H>
 
-void S_LongMemCpy(unsigned long* from, unsigned long* to, unsigned long size)
+void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size)//5E964(<), ? (F)
 {
-	S_Warn("[S_LongMemCpy] - Unimplemented!\n");
+	int i;
+
+	if (size > 0)
+	{
+		for(i = size / 4; i > 0; i--)
+		{
+			//loc_5E974
+			pDest[0] = pSrc[0];
+			pDest[1] = pSrc[1];
+			pDest[2] = pSrc[2];
+			pDest[3] = pSrc[3];
+			pSrc += 4;
+			pDest += 4;
+		}
+
+		i = size & 3;
+
+		if (i == 0)
+			return;
+		
+		//loc_5E9AC
+		for (; i > 0; i--)
+		{
+			*pDest++ = *pSrc++;
+		}
+	}
 }
 
 void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h)//5EDF8
