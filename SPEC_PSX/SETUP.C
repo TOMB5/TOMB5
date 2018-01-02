@@ -35,6 +35,7 @@
 #include "TOMB4FX.H"
 #include "TYPES.H"
 #include "SPECTYPES.H"
+
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -885,7 +886,6 @@ void sub_B9DA8()//?(<), B9DA8(<)
 	InGameCnt = 0;
 
 	InitialiseAnimatedTextures();
-
 	InitialiseFootPrints();
 	InitialiseBinocularGraphics();
 	InitialiseTargetGraphics();

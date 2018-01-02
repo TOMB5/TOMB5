@@ -1,7 +1,9 @@
 #include "DRAWPHAS.H"
 
 #include "3D_GEN.H"
+#include "ANIMITEM.H"
 #include "BUBBLES.H"
+#include "CALCLARA.H"
 #include "CONTROL.H"
 #include "CONTROL_S.H"
 #include "DELTAPAK.H"
@@ -678,7 +680,7 @@ void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)//64EF8
 
 	((char*)polyft4)[3] = 9;
 	pSpriteInfo = &psxspriteinfo[objects[DEFAULT_SPRITES].mesh_index + def];
-	((long*) &polyft4)[1] = rgb | 0x2E000000;
+	((long*)polyft4)[1] = rgb | 0x2E000000;
 
 	polyft4->tpage = pSpriteInfo->tpage;
 

@@ -1,6 +1,7 @@
 #include "TEXT_S.H"
 
 #include "GPU.H"
+#include "SPECIFIC.H"
 #include "TEXT.H"
 #include "TYPES.H"
 
@@ -106,6 +107,11 @@ long GetStringLength(char* string, unsigned short* a1, unsigned short* a2)//8DED
 	return t0;
 }
 #endif
+
+void GetStringDimensions(char* string, unsigned short* w, unsigned short* h)//8E028, ?
+{
+	S_Warn("[GetStringDimensions] - Unimplemented!\n");
+}
 
 void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CHARDEF* a3)//8DDBC(<), 8FE00(<) (F)
 {

@@ -2,7 +2,7 @@
 
 #include "SPECIFIC.H"
 
-void DrawAllFx()//FXDRAW
+void DrawAllFx()
 {
 	S_Warn("[DrawAllFx] - Unimplemented!\n");
 }

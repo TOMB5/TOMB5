@@ -83,7 +83,6 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 	return;
 }
 
-
 int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 {
 #if DEBUG_VERSION
@@ -160,4 +159,3 @@ void GPU_FlipStory(unsigned long* gfx)//5E448(<), * (F)
 	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[db.current_buffer]);
 	db.current_buffer ^= 1;
 }
-

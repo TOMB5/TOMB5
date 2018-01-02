@@ -397,7 +397,7 @@ void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F)
 	return;
 }
 
-void S_AnimateTextures()
+void S_AnimateTextures(long nFrames)
 {
 	S_Warn("[S_AnimateTextures] - Unimplemented!\n");
 }

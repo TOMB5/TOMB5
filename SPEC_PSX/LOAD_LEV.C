@@ -15,14 +15,6 @@
 #include <LIBGTE.H>
 #include <LIBETC.H>
 
-#if 0
-#include <limits>
-#endif
-
-#ifndef SHRT_MAX
-	#define SHRT_MAX 32767
-#endif
-
 unsigned char LtLoadingBarEnabled;
 unsigned char LoadingBarEnabled;
 unsigned char _first_time_ever = 1;
@@ -410,7 +402,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	DrawSync(0);
 	game_free(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 
-#if !INTERNAL
+#if DISC_VERSION
 	LOAD_DrawEnable(1);
 	LoadingBarEnabled = 1;
 #endif

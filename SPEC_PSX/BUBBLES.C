@@ -177,7 +177,7 @@ void CalcClipWindow_ONGTE(short room_number, long unknown)//8F374,
 	S_Warn("[CalcClipWindow_ONGTE] - Unimplemented!\n");
 }
 
-void DrawPsxTile(long a0, long a1, long a2, long a3)//8F770(<), 917B4(<) (F) //bubbles
+void DrawPsxTile(long a0, long a1, long a2, long a3)//8F770(<), 917B4(<) (F)
 {
 	long t1 = 0;//lw $t1, arg_10($sp) OT index
 

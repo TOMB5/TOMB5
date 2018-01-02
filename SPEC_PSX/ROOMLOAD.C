@@ -37,7 +37,7 @@ void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
 	int file;
 	char buf[80];
 
-	strcpy(buf, gfFilenameWad[gfFilenameOffset[name]]);
+	strcpy(buf, &gfFilenameWad[gfFilenameOffset[name]]);
 	strcat(buf, ".PSX");
 	file = PCopen(buf, 0, 0);
 

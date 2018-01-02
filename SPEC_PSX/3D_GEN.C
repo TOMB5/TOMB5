@@ -1,10 +1,7 @@
 #include "3D_GEN.H"
 
 #include "CAMERA.H"
-#include "GPU.H"
-#include "LOAD_LEV.H"
 #include "SPECIFIC.H"
-#include "TYPES.H"
 
 #include <LIBGTE.H>
 
@@ -20,7 +17,7 @@ struct PHD_3DPOS viewer;
 struct VECTOR3D CamPos;
 struct VECTOR3D CamTgt;
 
-void phd_InitWindow(int view_angle)//5D74C, 5DBC8
+void phd_InitWindow(int view_angle)//5D74C, 5DBC8 (F)
 {
 	if (rcossin_tbl[(((((((view_angle * 2) + view_angle) * 8) - view_angle) * 4) - view_angle) / 8) & 0x1FFE] == 0)
 	{
