@@ -2,7 +2,7 @@
 
 #include "SPECIFIC.H"
 
-#include <STDIO.H>
+#include <stdio.h>
 
 void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, char* string, unsigned short flag)//8DB4C, 8FB90
 {
