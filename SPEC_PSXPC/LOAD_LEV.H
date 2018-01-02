@@ -3,10 +3,8 @@
 
 #include "SPECTYPES.H"
 
-extern void LOAD_DrawEnable(unsigned char isEnabled);
-extern void LOAD_Stop();
 extern void LOAD_Start(int file_number);
-extern void LOAD_VSyncHandler();
+extern void LOAD_Stop();
 
 extern unsigned char LtLoadingBarEnabled;
 extern unsigned char LoadingBarEnabled;
@@ -24,7 +22,7 @@ extern struct MATRIX3D* Matrix;
 extern unsigned short SqrtTable[210];
 extern unsigned short ScalarTable[198];
 extern struct MATRIX3D iMatrixStack[32];
-extern struct SVECTOR CamRot;
+extern SVECTOR CamRot;
 extern struct MATRIX3D* iMatrix;
 extern unsigned short MatrixSP;
 extern struct MATRIX3D MatrixStack[32];

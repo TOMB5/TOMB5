@@ -12,6 +12,8 @@
 #include "MOVIE.H"
 #include "MEMCARD.H"
 #include "SPUSOUND.H"
+#include "MISC.H"
+#include "SFX.H"
 #else
 #include "GAME.H"
 #endif
@@ -109,7 +111,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	LoadGameflow();
 #endif
 
-#if !INTERNAL && PSX_VERSION
+#if DISC_VERSION && PSX_VERSION
 	S_PlayFMV(FMV_COPYRIGHT_INTRO, 0);
 	S_PlayFMV(FMV_GAME_INTRO, 0);
 #endif
@@ -546,6 +548,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	phd_InitWindow(90);
 #endif
 
+#if PSXPC_VERSION
+	InitialisePadSubsystem();
+#endif
+
 	SOUND_Stop();
 
 	IsAtmospherePlaying = 0;
@@ -573,7 +579,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 		ScreenFadeSpeed = 8;
 		ScreenFading = 0;
 
-#if !INTERNAL
+#if BETA_VERSION
 		S_CDPlay(CDA_XA14_ECREDITS, 1);
 #endif
 	}

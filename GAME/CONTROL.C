@@ -2,6 +2,7 @@
 
 #include "3D_GEN.H"
 #include "CD.H"
+#include "COLLIDE_S.H"
 #include "BOX.H"
 #include "DELTAPAK.H"
 #include "DEBRIS.H"
@@ -24,6 +25,7 @@
 #include "LOAD_LEV.H"
 #endif
 #include "LOT.H"
+#include "MATHS.H"
 #include "NEWINV2.H"
 #include "PICKUP.H"
 #include INPUT_H
@@ -398,7 +400,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 		//loc_1D848, loc_1D9DC 
 
-#if !INTERNAL///@TODO
+#if DISC_VERSION///@TODO
 	//loc_1D9DC
 		if (input == IN_NONE)
 		{
@@ -942,8 +944,8 @@ int is_object_in_room(int roomnumber, int objnumber)// (F)
 	short item_num = room[roomnumber].item_number;
 	short nex;
 	struct ITEM_INFO* item;
-	
-	for(nex = item_num; nex != -1; nex = item->next_item)
+
+	for (nex = item_num; nex != -1; nex = item->next_item)
 	{
 		item = &items[nex];
 
@@ -1298,8 +1300,168 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 	}
 }
 
-void IsRoomOutside(long x, long y, long z)
+void IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<)
 {
+#if 0
+	//s3 = x;
+	//s2 = y;
+	//s4 = z;
+
+	if (x / 4096 < 0 && z / 4096 < 0)//s3, s4
+	{
+		//loc_8F11C
+		return -2;
+	}
+
+	if (OutsideRoomOffests[(s3 / 4096) * 8 - (s3 / 4096) << 2 - (s3 / 4096) + (s4 / 4096) << 1] == -1)
+	{
+		return -2;
+	}///@FIXME idx bad, ptr shft 4
+
+	if (OutsideRoomOffests[(s3 / 4096) * 8 - (s3 / 4096) << 2 - (s3 / 4096) + (s4 / 4096) << 1] & 0x7FFF == 0)
+	{
+
+	}
+	else
+	{
+		//loc_8EFF4
+	}
+#endif
+#if 0
+		andi	$t0, $v1, 0x7FFF
+		bgez	$v1, loc_8EFF4
+		sll	$v0, $t0, 2
+		addu	$v0, $t0
+		lw	$v1, 0x1F28($gp)
+		sll	$v0, 4
+		addu	$s1, $v1, $v0
+		lw	$v0, 0x24($s1)
+		lw	$v1, 0x20($s1)
+		slt	$at, $s2, $v0
+		bnez	$at, loc_8F11C
+		slt	$at, $v1, $s2
+		bnez	$at, loc_8F11C
+		lw	$v1, 0x1C($s1)
+		lh	$v0, 0x28($s1)
+		addiu	$at, $v1, 0x400
+		slt	$at, $s4, $at
+		bnez	$at, loc_8F11C
+		addiu	$v0, -1
+		sll	$v0, 10
+		addu	$v0, $v1, $v0
+		slt	$v0, $s4
+		bnez	$v0, loc_8F11C
+		lw	$v1, 0x14($s1)
+		lh	$v0, 0x2A($s1)
+		addiu	$at, $v1, 0x400
+		slt	$at, $s3, $at
+		bnez	$at, loc_8F11C
+		addiu	$v0, -1
+		sll	$v0, 10
+		addu	$v0, $v1, $v0
+		slt	$v0, $s3
+		bnez	$v0, loc_8F11C
+		nop
+		j	loc_8F07C
+		move	$v0, $t0
+
+		loc_8EFF4 :
+	lw	$v0, 0x1C60($gp)
+		j	loc_8F108
+		addu	$a0, $v0, $v1
+
+		loc_8F000 :
+	addu	$v0, $t0
+		lw	$v1, 0x1F28($gp)
+		sll	$v0, 4
+		addu	$s1, $v1, $v0
+		lw	$v0, 0x24($s1)
+		lw	$v1, 0x20($s1)
+		slt	$at, $s2, $v0
+		bnez	$at, loc_8F104
+		slt	$at, $v1, $s2
+		bnez	$at, loc_8F104
+		lw	$v1, 0x1C($s1)
+		lh	$v0, 0x28($s1)
+		addiu	$at, $v1, 0x400
+		slt	$at, $s4, $at
+		bnez	$at, loc_8F104
+		addiu	$v0, -1
+		sll	$v0, 10
+		addu	$v0, $v1, $v0
+		slt	$v0, $s4
+		bnez	$v0, loc_8F104
+		lw	$v1, 0x14($s1)
+		lh	$v0, 0x2A($s1)
+		addiu	$at, $v1, 0x400
+		slt	$at, $s3, $at
+		bnez	$at, loc_8F104
+		addiu	$v0, -1
+		sll	$v0, 10
+		addu	$v0, $v1, $v0
+		slt	$v0, $s3
+		bnez	$v0, loc_8F104
+		andi	$v0, $t0, 0xFF
+
+		loc_8F07C:
+	move	$a1, $s2
+		move	$a0, $s3
+		move	$a2, $s4
+		addiu	$a3, $sp, 0x38 + var_28
+		sh	$v0, 0x38 + var_28($sp)
+		jal	sub_78954
+		sh	$v0, 0x1C54($gp)
+		move	$s0, $v0
+		move	$a0, $s0
+		move	$a1, $s3
+		move	$a2, $s2
+		jal	sub_78C74
+		move	$a3, $s4
+		move	$v1, $v0
+		li	$v0, 0xFFFF8100
+		beq	$v1, $v0, loc_8F11C
+		slt	$v0, $v1, $s2
+		bnez	$v0, loc_8F120
+		li	$v0, 0xFFFFFFFE
+		move	$a0, $s0
+		move	$a1, $s3
+		move	$a2, $s2
+		jal	sub_79060
+		move	$a3, $s4
+		slt	$v0, $s2, $v0
+		bnez	$v0, loc_8F11C
+		nop
+		lhu	$v1, 0x4E($s1)
+		nop
+		andi	$v1, 0x21
+		bnez	$v1, loc_8F120
+		li	$v0, 1
+		j	loc_8F120
+		li	$v0, 0xFFFFFFFD
+
+		loc_8F104:
+	addiu	$a0, 1
+
+		loc_8F108 :
+		lbu	$t0, 0($a0)
+		li	$v0, 0xFF
+		andi	$v1, $t0, 0xFF
+		bne	$v1, $v0, loc_8F000
+		sll	$v0, $t0, 2
+
+		loc_8F11C :
+		li	$v0, 0xFFFFFFFE
+
+		loc_8F120 :
+		lw	$ra, 0x38 + var_4($sp)
+		lw	$s4, 0x38 + var_8($sp)
+		lw	$s3, 0x38 + var_C($sp)
+		lw	$s2, 0x38 + var_10($sp)
+		lw	$s1, 0x38 + var_14($sp)
+		lw	$s0, 0x38 + var_18($sp)
+		jr	$ra
+		addiu	$sp, 0x38
+#endif
 	S_Warn("[IsRoomOutside] - Unimplemented!\n");
 }
 
@@ -1410,8 +1572,8 @@ int check_xray_machine_trigger()// (F)
 	int i;
 	for (i = 0; i < level_items; i++)
 	{
-		if (items[i].object_number == XRAY_CONTROLLER && 
-			items[i].trigger_flags == 0 && 
+		if (items[i].object_number == XRAY_CONTROLLER &&
+			items[i].trigger_flags == 0 &&
 			items[i].item_flags[0] == 666)
 		{
 			return TRUE;

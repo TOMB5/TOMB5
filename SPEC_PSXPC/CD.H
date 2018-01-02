@@ -155,21 +155,22 @@ extern volatile char XAFlag;
 extern char XAWait;
 extern int XAStartPos;
 
-extern void cbvsync();
-extern void InitNewCDSystem();
-extern void CDDA_SetMasterVolume(int nVolume);
 extern void CDDA_SetVolume(int nVolume);
-extern void DEL_ChangeCDMode(int mode);
 extern void XAReplay();
-extern void S_StartSyncedAudio(int nTrack);
+extern void cbvsync();
 extern void S_CDPlay(short track, int mode);
 extern void S_CDStop();
 extern void S_CDPause();
 extern void S_CDRestart();
+extern void S_StartSyncedAudio(int nTrack);
+extern void CDDA_SetMasterVolume(int nVolume);
+extern void InitNewCDSystem();
+extern void DEL_ChangeCDMode(int mode);
 extern int DEL_CDFS_OpenFile(int filenum);//int DEL_CDFS_OpenFile(int filenum);
 extern void DEL_CDFS_Read(char* addr, int size);//extern int DEL_CDFS_Read(void *addr,int size);
 extern void DEL_CDFS_Seek(int offset);//extern int DEL_CDFS_Seek(int offset);
 extern void FRIG_CD_POS_TO_CUR();
+
 
 
 #endif
