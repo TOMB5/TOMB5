@@ -4,9 +4,34 @@
 #include "SOUND.H"
 #include "SPUSOUND.H"
 
-void SPU_Play()//91518
+long SPU_Play(long sample_index, short volume_left, short volume_right, short pitch)//91518(<) ?
 {
-	S_Warn("[SPU_Play] - Unimplemented!\n");
+	long channel;
+
+	sva.volume.left = volume_left;
+	sva.volume.right = volume_right;
+	sva.pitch = pitch / 64;
+	sva.addr = LadwSampleAddr[sample_index];
+
+	if (sample_index > LnSamplesLoaded)
+	{
+		return -2;
+	}
+
+	channel = SPU_AllocChannel();
+	if (channel < 0)
+	{
+		return -1;
+	}
+
+	//lw	$v0, 0x18 + arg_10($sp)//?
+	//LabSampleType[channel] = v0;
+	
+	sva.mask = (SPU_COMMON_MVOLL | SPU_COMMON_MVOLR | SPU_COMMON_RVOLL | SPU_COMMON_CDVOLR);
+	sva.voice = (1 << channel);
+	SpuSetKeyOnWithAttr(&sva);
+
+	return channel;
 }
 
 long SPU_AllocChannel()//915B0, 935F4 (F)

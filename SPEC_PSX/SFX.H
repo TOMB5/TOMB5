@@ -1,7 +1,7 @@
 #ifndef SFX_H
 #define SFX_H
 
-extern void SPU_Play();
+extern long SPU_Play(long sample_index, short volume_left, short volume_right, short pitch);
 extern long SPU_AllocChannel();
 extern int SPU_UpdateStatus();
 extern void SPU_Status(long a0);
