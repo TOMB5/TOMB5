@@ -58,7 +58,7 @@ void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)//5DFB0(<),
 void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 {
 #if DEBUG_VERSION
-	int nPolys;
+	int nPolys = 0;
 	static int nWorstPolys;
 
 #if 0

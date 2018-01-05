@@ -26,14 +26,11 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 
 		printf("Close\n");
 		fclose(fileHandle);
-
-		
 	}
 	else
 	{
 		printf("FILE_Load: '%s' Could not open!\n", szFileName);
-		S_ExitSystem("FILE_Load: '%s' Could not open!\n");
-		printf("Can't open file");//?
+		S_ExitSystem("Can't open file");
 	}
 
 	return dwBytesRead;
