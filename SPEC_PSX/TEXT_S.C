@@ -108,9 +108,52 @@ long GetStringLength(char* string, unsigned short* a1, unsigned short* a2)//8DED
 }
 #endif
 
-void GetStringDimensions(char* string, unsigned short* w, unsigned short* h)//8E028, ?
+void GetStringDimensions(char* string, unsigned short* w, unsigned short* h)//8E028(<), 9006C(<) (F)
 {
-	S_Warn("[GetStringDimensions] - Unimplemented!\n");
+	unsigned short sw;//18
+	unsigned short sh;//16
+	long t9;//t9
+	long t7;//t7
+	char c;//a0
+	long v0;
+
+	t9 = GetStringLength(string, &sw, &sh);
+	c = *string++;
+
+	while (c != 0)
+	{
+		t7 = (sh - sw) + 2;
+
+		//loc_8E070
+		if (c == 0xA)
+		{
+			if (*string != 0xA)
+			{
+				//loc_8E094
+				if (*string != 0x0)
+				{
+					v0 = GetStringLength(string, &sw, &sh);
+					t7 = (t7 + 2) + (sh - sw);
+
+					if (t9 < v0 != 0)
+					{
+						t9 = v0;
+					}
+				}
+			}
+			else
+			{
+				t7 += 16;
+			}
+		}
+
+		//loc_8E0CC
+		c = *string++;
+	}
+	
+	//loc_8E0DC
+	*h = t7;
+	*w = t9;
 }
 
 void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CHARDEF* a3)//8DDBC(<), 8FE00(<) (F)
