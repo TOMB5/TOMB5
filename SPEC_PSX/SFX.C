@@ -87,9 +87,20 @@ void S_StopSoundSample()
 
 }
 
-void SPU_Stop()
+void SPU_Stop(long channel)//916A0(<)
 {
+	long a2;
 
+	if (LabSampleType[channel] != 0)
+	{
+		SPU_FreeChannel(channel);
+	}
+	
+	//loc_916CC
+	SpuSetVoiceVolume(0, 0, 0);
+
+	//a2 = lw a2, $14(sp); //?
+	SpuSetKey(0, 1 << a2);
 }
 
 void S_SetReverbType(int reverb)//91CF4, 93D40 (F)

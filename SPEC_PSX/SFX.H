@@ -6,7 +6,7 @@ extern long SPU_AllocChannel();
 extern int SPU_UpdateStatus();
 extern void SPU_Status(long a0);
 extern void S_StopSoundSample();
-extern void SPU_Stop();
+extern void SPU_Stop(long channel);
 extern void S_SetReverbType(int reverb);
 extern void SPU_StopAll();
 extern void S_SoundStopSample(int handle);
