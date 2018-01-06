@@ -1415,13 +1415,13 @@ short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 
 	fixtype = type & FD_MASK_FUNCTION;
 
-	if (fixtype == FD_FLOOR_SLANT
-		|| fixtype == FD_TRIANGLE_NW_SE_SOLID
-		|| fixtype == FD_TRIANGLE_NE_SW_SOLID
-		|| fixtype == FD_TRIANGLE_NW_SE_NE
-		|| fixtype == FD_TRIANGLE_NW_SE_SW
-		|| fixtype == FD_TRIANGLE_NE_SW_NW
-		|| fixtype == FD_TRIANGLE_NE_SW_SW) 
+	if (fixtype == TILT_TYPE
+		|| fixtype == SPLIT1
+		|| fixtype == SPLIT2
+		|| fixtype == NOCOLF1B
+		|| fixtype == NOCOLF1T
+		|| fixtype == NOCOLF2B
+		|| fixtype == NOCOLF2T)
 	{
 		if (type & FD_MASK_END_DATA)
 			return 255;
@@ -1431,13 +1431,13 @@ short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 
 	fixtype = type & FD_MASK_FUNCTION;
 
-	if (fixtype == FD_CEILING_SLANT
-		|| fixtype == FD_TRIANGLE_NW_SOLID
-		|| fixtype == FD_TRIANGLE_NE_SOLID
-		|| fixtype == FD_TRIANGLE_NW_NE
-		|| fixtype == FD_TRIANGLE_NW_SW
-		|| fixtype == FD_TRIANGLE_NE_SE
-		|| fixtype == FD_TRIANGLE_NE_NW)
+	if (fixtype == ROOF_TYPE
+		|| fixtype == SPLIT3
+		|| fixtype == SPLIT4
+		|| fixtype == NOCOLC1B
+		|| fixtype == NOCOLC1T
+		|| fixtype == NOCOLC2B
+		|| fixtype == NOCOLC2T)
 	{
 		if (type & FD_MASK_END_DATA)
 			return 255;
@@ -1445,7 +1445,7 @@ short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 		data += 2;
 	}
 
-	if ((type & FD_MASK_FUNCTION) == FD_PORTAL_SECTOR)
+	if ((type & FD_MASK_FUNCTION) == DOOR_TYPE)
 		return *data;
 
 	return 255;
@@ -1500,13 +1500,13 @@ int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 	if (floor->index == 0)
 		return 0;
 
-	if (fixtype == FD_FLOOR_SLANT
-		|| fixtype == FD_TRIANGLE_NW_SE_SOLID
-		|| fixtype == FD_TRIANGLE_NE_SW_SOLID
-		|| fixtype == FD_TRIANGLE_NW_SE_SW
-		|| fixtype == FD_TRIANGLE_NW_SE_NE
-		|| fixtype == FD_TRIANGLE_NE_SW_SW
-		|| fixtype == FD_TRIANGLE_NE_SW_NW)
+	if (fixtype == TILT_TYPE
+		|| fixtype == SPLIT1
+		|| fixtype == SPLIT2
+		|| fixtype == NOCOLF1T
+		|| fixtype == NOCOLF1B
+		|| fixtype == NOCOLF2T
+		|| fixtype == NOCOLF2B)
 	{
 		if (*fd & FD_MASK_END_DATA)
 			return 0;
@@ -1516,19 +1516,19 @@ int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 
 	switch (fixtype)
 	{
-	case FD_TRIANGLE_NW_SW:
+	case NOCOLC1T:
 		if (fix_x <= 1024 - fix_z)
 			return -1;
 		break;
-	case FD_TRIANGLE_NW_NE:
+	case NOCOLC1B:
 		if (fix_x > 1024 - fix_z)
 			return -1;
 		break;
-	case FD_TRIANGLE_NE_NW:
+	case NOCOLC2T:
 		if (fix_x <= fix_z)
 			return -1;
 		break;
-	case FD_TRIANGLE_NE_SE:
+	case NOCOLC2B:
 		if (fix_x > fix_z)
 			return -1;
 		break;
@@ -1550,19 +1550,19 @@ int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 
 	switch (fixtype)
 	{
-	case FD_TRIANGLE_NW_SE_SW:
+	case NOCOLF1T:
 		if (fix_x <= 1024 - fix_z)
 			return -1;
 		break;
-	case FD_TRIANGLE_NW_SE_NE:
+	case NOCOLF1B:
 		if (fix_x > 1024 - fix_z)
 			return -1;
 		break;
-	case FD_TRIANGLE_NE_SW_SW:
+	case NOCOLF2T:
 		if (fix_x <= fix_z)
 			return -1;
 		break;
-	case FD_TRIANGLE_NE_SW_NW:
+	case NOCOLF2B:
 		if (fix_x > fix_z)
 			return -1;
 		break;
