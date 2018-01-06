@@ -1,27 +1,39 @@
 #include "DRAWPHAS.H"
 
 #include "3D_GEN.H"
+#include "ANIMITEM.H"
+#include "BUBBLES.H"
+#include "CALCLARA.H"
 #include "CONTROL.H"
+#include "CONTROL_S.H"
 #include "DELTAPAK.H"
+#include "DELTAPAK_S.H"
 #include "DELSTUFF.H"
 #include "DOOR.H"
 #include "DRAW.H"
+#include "DRAWOBJ.H"
 #include "DRAWSPKS.H"
 #include "EFFECTS.H"
+#include "FXDRAW.H"
+#include "FXTRIG.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "HEALTH.H"
 #include "LARA.H"
 #include "LOAD_LEV.H"
-#include "MATHS.H"
 #include "OBJECTS.H"
+#include "PRINTOBJ.H"
+#include "PROFILE.H"
+#include "MATHS.H"
+#include "MISC.H"
 #include "ROOMLOAD.H"
+#include "ROOMLETB.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
+#include "TEXT.H"
 #include "TOMB4FX.H"
 
-#include <assert.h>
 #include <stdio.h>
 
 long StoreBoxes = -1;
@@ -32,7 +44,7 @@ unsigned char MonitorHold;
 short MonitorOff;
 short MonitorOff2;
 
-long DrawPhaseGame()//63F04(<), 645E0(<)
+long DrawPhaseGame()//63F04, 645E0
 {
 	short scalarx = 0; // $a3
 	short scalary = 0; // $t0
@@ -180,9 +192,8 @@ long DrawPhaseGame()//63F04(<), 645E0(<)
 		if (LaserSight != 0 || SCOverlay != 0 && SniperOverlay != 0)
 		{
 			//loc_6432C
-#if PSX_VERSION
-			insert_psx_clip_window(0x64, 0x17, 0x138, 0xC4);
-#endif
+			insert_psx_clip_window(SCREEN_WIDTH / 2, 100, 23, 312, SCREEN_HEIGHT - 44);
+
 			if (SniperOverlay != 0)
 			{
 				MGDrawSprite(0x100, 0x78, 0xE, 0, 4, 4, 0x80);
@@ -190,10 +201,8 @@ long DrawPhaseGame()//63F04(<), 645E0(<)
 		}
 		else
 		{
-#if PSX_VERSION
 			//loc_64380
-			insert_psx_clip_window(0x21, 0x17, 0x1C0, 0xC2);
-#endif
+			insert_psx_clip_window(SCREEN_WIDTH / 2, 33, 23, 448, SCREEN_HEIGHT - 46);
 		}
 	}
 	else
@@ -201,9 +210,7 @@ long DrawPhaseGame()//63F04(<), 645E0(<)
 		//loc_64398
 		if (FadeScreenHeight != 0)
 		{
-#if PSX_VERSION
-			insert_psx_clip_window(0, FadeScreenHeight, 0x200, 0xF0, FadeScreenHeight * 2);
-#endif
+			insert_psx_clip_window(0, FadeScreenHeight, SCREEN_WIDTH, SCREEN_HEIGHT, FadeScreenHeight * 2);
 		}//loc_643C4
 	}
 
@@ -211,7 +218,7 @@ long DrawPhaseGame()//63F04(<), 645E0(<)
 	GPU_EndScene();
 	camera.number_frames = S_DumpScreen();
 
-#if INTERNAL//GC change?
+#if BETA_VERSION//GC change?
 	S_AnimateTextures(camera.number_frames);
 #else
 	if (gfCurrentLevel == LVL5_SECURITY_BREACH)
@@ -230,7 +237,7 @@ long DrawPhaseGame()//63F04(<), 645E0(<)
 	}
 
 #endif
-	
+
 	return camera.number_frames;
 }
 
@@ -244,7 +251,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	short* old_arm_anim[2];
 	struct GAME_VECTOR sp;
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
 #endif
 
@@ -263,9 +270,9 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	r->test_bottom = 239;
 	phd_bottom = 239;
 
-	outside = r->flags & RF_SKYBOX_VISIBLE;
+	outside = r->flags & 8;
 
-	if (r->flags & RF_FILL_WATER)
+	if (r->flags & 1)
 	{
 		camera_underwater = 0xFFFF0000;
 	}
@@ -396,27 +403,27 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 		if (lara_item->mesh_bits != 0 && SCNoDrawLara == 0)
 		{
-#if INTERNAL
-			ProfileRBG(0, 255, 0);
+#if DEBUG_VERSION
+			ProfileRGB(0, 255, 0);
 #endif
 
 			//unsigned long* ptr = (unsigned long*)RelocPtr[1];
 			//jalr ptr[0];
 
-#if INTERNAL
+#if DEBUG_VERSION
 			ProfileRGB(255, 255, 0);
 #endif
 			mPushMatrix();
 
 			if (lara.right_arm.flash_gun != 0)
 			{
-				mCopyMatrix(lara_matrices[11]);
+				mCopyMatrix(&lara_matrices[11]);
 				SetGunFlash(lara.gun_type);
 			}//loc_64954
 
 			if (lara.left_arm.flash_gun != 0)
 			{
-				mCopyMatrix(lara_matrices[14]);
+				mCopyMatrix(&lara_matrices[14]);
 				SetGunFlash(lara.gun_type);
 			}//loc_64978
 
@@ -486,7 +493,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	mPushMatrix();
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
 #endif
 
@@ -502,7 +509,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 
 	//loc_64BBC
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileRGB(255, 0, 0);
 #endif
 
@@ -584,18 +591,18 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (gfLevelFlags & GF_LVOP_LENSFLARE_USED)
 	{
-		SetUpLensFlare(gfLensFlare.x, gfLensFlare.y - 4096, gfLensFlare.z, NULL);
+		SetUpLensFlare(gfLensFlare.x, gfLensFlare.y - SECTOR(4), gfLensFlare.z, NULL);
 	}
 
 	//loc_64DE0
 	InItemControlLoop = 1;
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
 #endif
 
-	//print_all_object_NOW();//**********************************************************
+	print_all_object_NOW();
 
-#if INTERNAL
+#if DEBUG_VERSION
 	ProfileRGB(0, 255, 0);
 #endif
 
@@ -614,172 +621,73 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	DrawGunflashes();
 }
 
-void SortOutWreckingBallDraw()//64E78(<), 65528(<)
+void SortOutWreckingBallDraw()//64E78(<), 65528(<) (F)
 {
-	long lp; // $v1
+	int i;
 
 	if (number_draw_rooms > 0)
 	{
-		for (lp = 0; lp < number_draw_rooms; lp++)
+		//loc_64EA0
+		for (i = 0; i < number_draw_rooms; i++)
 		{
-			//loc_64EA0
-			if (draw_rooms[lp] == WB_room)
+			if (draw_rooms[i] == WB_room)
 			{
 				return;
 			}
 		}
-	}
 
-	//loc_64EBC
-	//assert(0);
-	//v1 = &RelocPtr[31];
-	//a0 = WB_Item
-	//a1 = v1[1];
-	//jalr a1(WB_Item)
+		//loc_64EBC
+		//a0 = &WB_item[0];
+		//v1 = (unsigned long*)RelocPtr[31];
+		//jalr v1[1](&WB_item[0]);
+		WB_room = -1;
 
-	WB_room = -1;
-
-	//loc_64EE8
-	S_Warn("[SortOutWreckingBallDraw] - Unimplemented!\n");
-	return;
+	}//loc_64EBC
 }
 
-void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)//64EF8, 
+void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)//64EF8(<) ?
 {
-	//struct POLY_FT4* polyft4;//t0
-	//struct PSXSPRITESTRUCT* pSpriteInfo;//a0
-
-	//t3 = &db;
-	//def *= 16;
-	//z *= 4;
-	//t1 = xs;
-	//t2 = ys;
-	//t4 = rgb
-
-
-}
-
-void UpdateSky()//7CE88(<), 7EECC(<) (F)
-{
-	if (gfLevelFlags & GF_LVOP_LAYER1_USED)
-	{
-		SkyPos += gfLayer1Vel;
-		if (SkyPos >= 0 && SkyPos <= 9728)
-		{
-			SkyPos += 9728;
-		}
-		else
-		{
-			SkyPos -= 9728;
-		}
-	}
-
-	if (gfLevelFlags & GF_LVOP_LAYER2_USED)
-	{
-		SkyPos2 += gfLayer2Vel;
-		if (SkyPos2 >= 0 && SkyPos2 <= 9728)
-		{
-			SkyPos2 += 9728;
-		}
-		else 
-		{
-			SkyPos2 -= 9728;
-		}
-	}
-}
-
-void mQuickW2VMatrix()//77AEC, 79B30
-{
-	MatrixSP = 0;
-	Matrix = &MatrixStack[0];
-
-	Matrix->m00 = phd_mxptr[1];
-	Matrix->m01 = phd_mxptr[0];
-	Matrix->m02 = phd_mxptr[4];
-	Matrix->m10 = phd_mxptr[2];
-	Matrix->m11 = phd_mxptr[6];
-	Matrix->m12 = phd_mxptr[5];
-	Matrix->m20 = phd_mxptr[9];
-	Matrix->m21 = phd_mxptr[8];
 
 #if 0
-	ctc2	$at, $0
-		ctc2	$a1, $1
-		ctc2	$a3, $2
-		ctc2	$t1, $3
+	POLY_FT4* polyft4;
+	struct PSXSPRITESTRUCT* pSpriteInfo;
+
+	polyft4 = (POLY_FT4*) &db.polyptr[0];
+
+	polyft4->y0 = y - (ys / 2);
+	polyft4->y1 = y - (ys / 2);
+	polyft4->x0 = x - (xs / 2);
+	polyft4->x1 = x + (xs / 2);
+	polyft4->x2 = x - (xs / 2);
+	polyft4->y2 = y + (ys / 2);
+	polyft4->x3 = x + (xs / 2);
+	polyft4->y3 = y + (ys / 2);
+
+	((char*) polyft4)[3] = 9;
+	pSpriteInfo = &psxspriteinfo[objects[DEFAULT_SPRITES].mesh_index + def];
+	((long*) polyft4)[1] = rgb | 0x2E000000;
+
+	polyft4->tpage = pSpriteInfo->tpage;
+
+	polyft4->u0 = pSpriteInfo->u1;
+	polyft4->v0 = pSpriteInfo->v1;
+
+	polyft4->u1 = pSpriteInfo->u2;
+	polyft4->v1 = pSpriteInfo->v1;
+
+	polyft4->u2 = pSpriteInfo->u1;
+	polyft4->v2 = pSpriteInfo->v2;
+
+	polyft4->u3 = pSpriteInfo->u2;
+	polyft4->v3 = pSpriteInfo->v2;
+
+	polyft4->clut = pSpriteInfo->clut;
+
+	polyft4->tag = (polyft4->tag & 0xFF000000) | (db.ot[z] & 0xFFFFFF);
+
+	db.ot[z] = (db.ot[z] & 0xFF000000) | ((unsigned long) polyft4 & 0xFFFFFF);
+
+	db.polyptr += sizeof(POLY_FT4);
 #endif
-
-		Matrix->m22 = phd_mxptr[10];
-	Matrix->tx = phd_mxptr[3];
-	Matrix->ty = phd_mxptr[7];
-	Matrix->tz = phd_mxptr[11];
-
-#if 0 
-	ctc2	$at, $4
-		ctc2	$v0, $5
-		ctc2	$a1, $6
-		ctc2	$a2, $7
-#endif
-
-	CamGTE.m00 = w2v_matrix[0];
-	CamGTE.m01 = w2v_matrix[1];
-	CamGTE.m02 = w2v_matrix[2];
-
-	CamGTE.m10 = w2v_matrix[4];
-	CamGTE.m11 = w2v_matrix[5];
-	CamGTE.m12 = w2v_matrix[6];
-
-	CamGTE.m20 = w2v_matrix[8];
-	CamGTE.m21 = w2v_matrix[9];
-	CamGTE.m22 = w2v_matrix[10];
-}
-
-void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, char* string, unsigned short flag)
-{
-	printf("PrintString - X:%d Y:%d C:%d - %s\n", x, y, colourFlag, string);
-}
-
-void DrawBinoculars()
-{
-	S_Warn("[DrawBinoculars] - Unimplemented!\n");
-}
-
-void DrawFlash()
-{
-	S_Warn("[DrawFlash] - Unimplemented!\n");
-}
-
-void CalcClipWindow_ONGTE(short room_number, long unknown)
-{
-	S_Warn("[CalcClipWindow_ONGTE] - Unimplemented!\n");
-}
-
-void DrawAllFx()
-{
-	S_Warn("[DrawAllFx] - Unimplemented!\n");
-}
-
-void InitObjGTE()
-{
-	S_Warn("[InitObjGTE] - Unimplemented!\n");
-}
-
-void DrawCutSeqActors()
-{
-	S_Warn("[DrawCutSeqActors] - Unimplemented!\n");
-}
-
-void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)
-{
-	S_Warn("[DrawRoomletListAsmBinocular] - Unimplemented!\n");
-}
-
-void GetRoomBoundsAsm(short room_number)
-{
-	S_Warn("[GetRoomBoundsAsm] - Unimplemented!\n");
-}
-
-void SetGunFlash(short gun_type)
-{
-	S_Warn("[SetGunFlash] - Unimplemented!\n");
+	S_Warn("[MGDrawSprite] - Unimplemented!\n");
 }

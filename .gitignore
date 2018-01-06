@@ -3,12 +3,7 @@
 *.sdf
 *.opendb
 *.idb
-*.map
-*.mak
-*.sym
-*.cpe
 
-/OUTPUT/*
 /BUILD/*
 /x64/*
 /EXTERNAL/*
@@ -19,3 +14,4 @@
 /SPEC_PC/RCa55348
 /SPEC_PC/RCa24416
 /scripts/gextr
+/DISC/*

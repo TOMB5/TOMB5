@@ -15,7 +15,6 @@
 #include <string.h>
 #include <LIBSN.H>
 
-
 long AnimFilePos;
 long AnimFileLen;
 short* floor_data;
@@ -28,6 +27,28 @@ struct PSXTEXTI* AnimatingWaterfalls[6];
 int AnimatingWaterfallsV[6];
 unsigned long envmap_data[6];
 unsigned long* RelocPtr[128];
+
+void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
+{
+#if DISC_VERSION
+	cdCurrentSector = AnimFilePos;
+	DEL_CDFS_Read((char*) frames, len);
+#else
+	int file;
+	char buf[80];
+
+	strcpy(buf, &gfFilenameWad[gfFilenameOffset[name]]);
+	strcat(buf, ".PSX");
+	file = PCopen(buf, 0, 0);
+
+	PClseek(file, AnimFilePos, 0);
+	FILE_Read((char*) frames, 1, len, file);
+
+	PCclose(file);
+#endif
+
+	return;
+}
 
 void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 {
@@ -78,28 +99,6 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	 //jalr SetupPtr[5](len);, retail a0 = s1? len?
 
 	LOAD_Stop();
-
-	return;
-}
-
-void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
-{
-#if DISC_VERSION
-	cdCurrentSector = AnimFilePos;
-	DEL_CDFS_Read((char*) frames, len);
-#else
-	int file;
-	char buf[80];
-
-	strcpy(buf, gfFilenameWad[gfFilenameOffset[name]]);
-	strcat(buf, ".PSX");
-	file = PCopen(buf, 0, 0);
-
-	PClSeek(file, AnimFilePos, 0);
-	FILE_Read((char*) frames, 1, len, file);
-
-	PCClose(file);
-#endif
 
 	return;
 }

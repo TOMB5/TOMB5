@@ -21,6 +21,7 @@
 #include "LOT.H"
 #include "MALLOC.H"
 #include "MATHS.H"
+#include "MISC.H"
 #include "NEWINV2.H"
 #include "OBJLIGHT.H"
 #include "PICKUP.H"
@@ -34,6 +35,7 @@
 #include "TOMB4FX.H"
 #include "TYPES.H"
 #include "SPECTYPES.H"
+
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -372,7 +374,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	}//000B43A4, 000B42F8
 
 	camera.fixed = (struct OBJECT_VECTOR*)ptr;
-	ptr += level->frameDataLength;
+	ptr += level->unk455;
 
 	SpotCam = (struct SPOTCAM*) ptr;
 	NumFixedCameras = level->numFixedCameras;
@@ -886,7 +888,6 @@ void sub_B9DA8()//?(<), B9DA8(<)
 	InGameCnt = 0;
 
 	InitialiseAnimatedTextures();
-
 	InitialiseFootPrints();
 	InitialiseBinocularGraphics();
 	InitialiseTargetGraphics();

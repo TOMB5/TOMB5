@@ -10,6 +10,7 @@
 
 int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 {
+#if DISC_VERSION
 	CdlFILE fp;
 	char buf[10];
 	unsigned long dwFileSize = -1;
@@ -24,6 +25,73 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 	DEL_CDFS_Read((char*)pDest, fp.size);
 
 	return fp.size;
+#else
+	int nHandle;
+	unsigned long dwFileSize;
+	unsigned long dwBytesRead;
+
+	printf("Open\n");
+	nHandle = PCopen(szFileName, 0, 0);
+
+	if (nHandle < 0)
+	{
+		printf("FILE_Load: '%s' Could not open!\n", szFileName);
+		S_ExitSystem("Can't open file");
+	}
+
+	printf("Seek\n");
+	dwFileSize = PClseek(nHandle, 0, 2);
+	PClseek(nHandle, 0, 0);
+
+	printf("Read\n");
+	dwBytesRead = PCread(nHandle, (char*)pDest, dwFileSize);
+
+	printf("Close\n");
+	PCclose(nHandle);
+
+	return dwFileSize ^ dwBytesRead;//== ? 1 : 0
+#endif
+}
+
+unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
+{
+#if DISC_VERSION
+	CdlFILE fp;
+	char buf[10];
+	unsigned long dwFileSize = -1;
+
+	DEL_ChangeCDMode(0);
+	sprintf(buf, "\\%s;1", szFileName);
+
+	if (CdSearchFile(&fp, buf))
+	{
+		dwFileSize = fp.size;
+	}
+
+	return dwFileSize;
+#else
+	int nHandle;
+	unsigned long dwFileSize;
+
+	printf("Open\n");
+	nHandle = PCopen(szFileName, 0, 0);
+
+	if (nHandle < 0)
+	{
+		printf("FILE_Length: '%s' Could not find!\n", szFileName);
+		return -1;
+	}
+	else
+	{
+		printf("Seek\n");
+		dwFileSize = PClseek(nHandle, 0, 2);
+
+		printf("Close\n");
+		PCclose(nHandle);
+
+		return dwFileSize;
+	}
+#endif
 }
 
 int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? (F)
@@ -32,26 +100,8 @@ int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? 
 	return PCread(nHandle, pDest, nAmount);
 }
 
-unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
-{
-	CdlFILE fp;
-	char buf[10];
-	unsigned long dwFileSize = -1;
-
-	DEL_ChangeCDMode(0);
-	sprintf(buf, "\\%s;1", szFileName);
-	
-	if (CdSearchFile(&fp, buf))
-	{
-		dwFileSize = fp.size;
-	}
-
-	return dwFileSize;
-}
-
 void RelocateModule(unsigned long Module, unsigned long* RelocData)//5E6D4(<), 5F430(<) (F)
 {
-	//TODO check param ptrs on PSX, untested!
 	unsigned long* pModule;
 	unsigned long RelocationType;
 

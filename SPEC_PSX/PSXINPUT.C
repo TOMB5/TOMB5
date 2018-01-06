@@ -579,11 +579,13 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 
 	//v0 = Pad2.3;
 	//v1 = 0xA0000
+#if 0
 	if (Pad2.3 & 0x800)
 	{
 		S_Warn("[S_UpdateInput] - Break 0x400!\n");
 
 	}//loc_6002C
+#endif
 #endif
 
 	inputBusy = in;

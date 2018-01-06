@@ -322,8 +322,12 @@ short CreatureEffect(struct ITEM_INFO* item, struct BITE_INFO* bite, short(*gene
 	return generate(pos.x, pos.y, pos.z, item->speed, item->pos.y_rot, item->room_number);
 }
 
-void CreatureUnderwater(struct ITEM_INFO* item, long depth)
+void CreatureUnderwater(struct ITEM_INFO* item, long depth)//s0, s1 2468C(<) ?
 {
+	long water_level; // $v0
+	long floorheight; // $v1
+	short room_number; // stack offset -24
+
 	S_Warn("[CreatureUnderwater] - Unimplemented!\n");
 }
 
@@ -332,9 +336,36 @@ void CreatureFloat(short item_number)
 	S_Warn("[CreatureFloat] - Unimplemented!\n");
 }
 
-void CreatureJoint(struct ITEM_INFO* item, short joint, short required)
+void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<) ?
 {
-	S_Warn("[CreatureJoint] - Unimplemented!\n");
+	short change;
+
+	if (item->data == NULL)
+	{
+		return;
+	}
+
+	change = ((short*) item->data)[joint] - required;
+
+	if (change < -0x222)
+	{
+		change -= 0x222;
+	}
+	else
+	{
+		change += 0x222;
+	}
+
+	((short*) item->data)[joint] += change;
+
+	if (((short*) item->data)[joint] < 0x3001)
+	{
+		((short*) item->data)[joint] -= 0x3000;
+	}
+	else
+	{
+		((short*) item->data)[joint] += 0x3000;
+	}
 }
 
 void CreatureTilt(struct ITEM_INFO* item, short angle)//24418(<), 24624(<) (F)

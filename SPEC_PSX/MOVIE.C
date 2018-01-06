@@ -70,7 +70,6 @@ int S_PlayFMV(int sequence, int flag)//*, (<)5E7A0
 
 void FMV_InitialiseScreen()//*, 5F160(<) (F)
 {
-#if 1
 	RECT rect;
 
 	rect.x = 0;
@@ -85,6 +84,5 @@ void FMV_InitialiseScreen()//*, 5F160(<) (F)
 
 	DrawSync(0);
 
-#endif
 	return;
 }

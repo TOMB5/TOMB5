@@ -1,20 +1,12 @@
 #include "PSOUTPUT.H"
 
+#include "PSXPCINPUT.H"
+#include "SAVEGAME.H"
 #include "SPECTYPES.H"
-#include "SPECIFIC.H"
 
 static struct VIBRATION vib[2];
 
-
-void VibratePad()//604EC, 61064
-{
-#if 0
-	int i;
-	struct VIBRATION* v;
-#endif
-}
-
-void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int len)//604A4, 6101C
+void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int len)//604A4(<), 6101C(<) (F)
 {
 	struct VIBRATION* v = &vib[num];
 
@@ -26,32 +18,94 @@ void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int 
 	v->Sus = len - dec;
 	v->Dec = dec;
 	v->Len = len;
+}
 
-	return;
-
-#if 0
+void VibratePad()//604EC(<), 61064(<) (F)
+{
+	int i;
 	struct VIBRATION* v;
 
-	int a0;
-	a0 <<= 16;
-	a0 >>= 12;
+	if (DualShock == 0 || savegame.VibrateOn == 0)
+	{
+		//loc_60510
+		Motors[0] = 0;
+		Motors[1] = 0;
+		return;
+	}
 
+	//loc_6052C
+	for (i = 0; i < 2; i++, v = &vib[i])
+	{
+		if (v->Len != 0)
+		{
+			if (v->Flag == 0)
+			{
+				v->Rate += v->Acc;
 
-	struct VIBRATION* v0 = &vib[0];
-		addiu	$v0, $gp, 0x4088
-		addu	$a0, $v0
-		sll	$a3, 16
-		sra	$a3, 16
-		sh	$a1, 6($a0)
-		sh	$a2, 4($a0)
-		sh	$zero, 0xC($a0)
-		sh	$zero, 0($a0)
-		sh	$zero, 0xE($a0)
-		lh	$v1, arg_14($sp)
-		lh	$v0, arg_10($sp)
-		subu	$a3, $v1, $a3
-		sh	$a3, 0xA($a0)
-		sh	$v0, 8($a0)
-		sh	$v1, 2($a0)
-#endif
+				if (v->Rate > v->Lev)
+				{
+					v->Rate = v->Lev;
+					v->Flag = 1;
+				}//loc_605DC
+			}
+			else if (v->Flag == 1)
+			{
+				//loc_60588
+				if (v->Sus > v->Len)
+				{
+					v->Flag = 2;
+				}//loc_605DC
+			}
+			else if (v->Flag == 2)
+			{
+				//loc_605AC
+				v->Rate -= v->Dec;
+
+				if (v->Rate * 65536 < 0)
+				{
+					v->Rate = 0;
+					v->Flag = 3;
+				}//loc_605DC
+			}
+
+			//loc_605DC
+			v->Vib += v->Rate;
+
+			if (i != 0)
+			{
+				if (v->Vib / 16 != 0)
+				{
+					Motors[1] = v->Vib / 16;
+					v->Vib &= 0xFF;
+				}//loc_60650
+				else
+				{
+					//loc_60618
+					Motors[1] = 0;
+				}//loc_60650
+			}
+			else
+			{
+				//loc_60628
+				if (v->Vib / 24 != 0)
+				{
+					Motors[0] = 1;
+					v->Vib -= 4096;
+				}
+				else
+				{
+					//loc_60648
+					Motors[0] = 0;
+				}
+			}
+
+			//loc_60650
+			v->Len--;
+		}
+		else
+		{
+			//loc_60664
+			Motors[i] = 0;
+		}
+	}
 }

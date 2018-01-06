@@ -30,15 +30,16 @@ TARGET		= MAIN
 PROGADDR	= 0x00010000
 SOURCES		= SPEC_PSX/ GAME/
 INCLUDES	= -ISPEC_PSX/ -IGAME/
-DEFS		= -DPSX_VERSION -DDISC_VERSION
-ISOXML		=
+DEFS		= -DPSX_VERSION -DDISC_VERSION -DNTSC_VERSION
+ISOXML		= TOMB5US.XML
+DISC_ROOTFD	= DISC/
 
 #---------------------------------------------------------------------------------
 # LIBDIRS   - Library search directories
 # LIBS      - Libraries to link during linking stage
 #---------------------------------------------------------------------------------
 LIBDIRS		=
-LIBS		= LIBSPU.LIB LIBMCRD.LIB LIBPAD.LIB
+LIBS		= LIBETC.LIB LIBPAD.LIB LIBGTE.LIB LIBMCRD.LIB LIBCD.LIB LIBSN.LIB LIBSPU.LIB LIBAPI.LIB
 
 #---------------------------------------------------------------------------------
 # CFLAGS   - Base C compiler options
@@ -55,10 +56,10 @@ AFLAGS		= /q /l
 #ifeq "$(H2000)" "TRUE"
 #CFLAGS      += -g -DH2000
 #AFLAGS      += /zd
-#SYMFILE      = $(TARGET).sym
+#SYMFILE      = $(TARGET).SYM
 #else
 CFLAGS      += -O2
-SYMFILE      = $(TARGET).sym
+SYMFILE      = $(TARGET).SYM
 #endif
 
 #---------------------------------------------------------------------------------
@@ -72,26 +73,24 @@ AS         = asmpsx
 # Parse source directories for source files
 #---------------------------------------------------------------------------------
 CFILES      = $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.C))
-#CFILES      = SPEC_PSX/PSXMAIN.C GAME/GAMEFLOW.C GAME/CONTROL.C GAME/TEXT.C GAME/LARA.C GAME/DELSTUFF.C GAME/DELTAPAK.C GAME/DOOR.C GAME/DRAW.C GAME/BOX.C GAME/CAMERA.C GAME/COLLIDE.C GAME/ITEMS.C GAME/DEBRIS.C GAME/SPOTCAM.C GAME/EFFECT2.C GAME/TOMB4FX.C GAME/EFFECTS.C GAME/FLMTORCH.C GAME/HAIR.C GAME/HEALTH.C GAME/NEWINV2.C GAME/LARAFIRE.C GAME/LARAFLAR.C GAME/LARA1GUN.C GAME/LARA2GUN.C GAME/LARACLMB.C GAME/LARASWIM.C GAME/LARASURF.C GAME/LOT.C GAME/LARAMISC.C GAME/MISSILE.C GAME/OBJECTS.C GAME/PEOPLE.C GAME/SAVEGAME.C GAME/SOUND.C GAME/SPHERE.C GAME/SWITCH.C GAME/PICKUP.C GAME/OBJLIGHT.C SPEC_PSX/3D_GEN.C SPEC_PSX/CD.C GAME/TRAPS.C SPEC_PSX/GPU.C SPEC_PSX/FILE.C SPEC_PSX/MALLOC.C SPEC_PSX/3D_OBJ.C SPEC_PSX/PSXINPUT.C SPEC_PSX/ROOMLOAD.C SPEC_PSX/LOAD_LEV.C SPEC_PSX/DRAWSPKS.C SPEC_PSX/PSOUTPUT.C SPEC_PSX/SPECIFIC.C SPEC_PSX/PROFILE.C SPEC_PSX/MEMCARD.C SPEC_PSX/SPUSOUND.C SPEC_PSX/LOADSAVE.C SPEC_PSX/REQUEST.C SPEC_PSX/DRAWPHAS.C SPEC_PSX/SETUP.C
-AFILES      = $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.s))
+AFILES      = $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.MIP))
 
 #---------------------------------------------------------------------------------
 # Generate file names for object binaries
 #---------------------------------------------------------------------------------
-OFILES      = $(CFILES:.c=.obj) $(AFILES:.s=.obj)
-#OFILES = SPEC_PSX/PSXMAIN.obj GAME/GAMEFLOW.obj GAME/CONTROL.obj GAME/TEXT.obj GAME/LARA.obj GAME/DELSTUFF.obj GAME/DELTAPAK.obj GAME/DOOR.obj GAME/DRAW.obj GAME/BOX.obj GAME/CAMERA.obj GAME/COLLIDE.obj GAME/ITEMS.obj GAME/DEBRIS.obj GAME/SPOTCAM.obj GAME/EFFECT2.obj GAME/TOMB4FX.obj GAME/EFFECTS.obj GAME/FLMTORCH.obj GAME/HAIR.obj GAME/HEALTH.obj GAME/NEWINV2.obj GAME/LARAFIRE.obj GAME/LARAFLAR.obj GAME/LARA1GUN.obj GAME/LARA2GUN.obj GAME/LARACLMB.obj GAME/LARASWIM.obj GAME/LARASURF.obj GAME/LOT.obj GAME/LARAMISC.obj GAME/MISSILE.obj GAME/OBJECTS.obj GAME/PEOPLE.obj GAME/SAVEGAME.obj GAME/SOUND.obj GAME/SPHERE.obj GAME/SWITCH.obj GAME/PICKUP.obj GAME/OBJLIGHT.obj SPEC_PSX/3D_GEN.obj SPEC_PSX/CD.obj GAME/TRAPS.obj SPEC_PSX/GPU.obj SPEC_PSX/FILE.obj SPEC_PSX/MALLOC.obj SPEC_PSX/3D_OBJ.obj SPEC_PSX/PSXINPUT.obj SPEC_PSX/ROOMLOAD.obj SPEC_PSX/LOAD_LEV.obj SPEC_PSX/DRAWSPKS.obj SPEC_PSX/PSOUTPUT.obj SPEC_PSX/SPECIFIC.obj SPEC_PSX/PROFILE.obj SPEC_PSX/MEMCARD.obj SPEC_PSX/SPUSOUND.obj SPEC_PSX/LOADSAVE.obj SPEC_PSX/REQUEST.obj SPEC_PSX/DRAWPHAS.obj SPEC_PSX/SETUP.obj
+OFILES      = $(CFILES:.c=.obj) $(AFILES:.MIP=.obj)
 
 #---------------------------------------------------------------------------------
 # Default rule, compiles all source files
 #---------------------------------------------------------------------------------
 all: $(OFILES)
-	$(CC) -Xo$(PROGADDR) $(INCLUDES) $(DEFS) $(CFLAGS) $(addprefix -L,$(LIBDIRS)) $(addprefix -l,$(LIBS)) $(OFILES) -o $(TARGET).cpe,$(TARGET).sym,$(TARGET).map
+	$(CC) -Xo$(PROGADDR) $(INCLUDES) $(DEFS) $(CFLAGS) $(addprefix -L,$(LIBDIRS)) $(addprefix -l,$(LIBS)) $(OFILES) -o $(DISC_ROOTFD)$(TARGET).CPE,$(DISC_ROOTFD)$(TARGET).SYM,$(DISC_ROOTFD)$(TARGET).MAP
 
 #---------------------------------------------------------------------------------
 # Clean-up rule
 #---------------------------------------------------------------------------------
 #cleanall:
-#	rm -f $(OFILES) $(TARGET).cpe $(TARGET).sym $(TARGET).map
+#	rm -f $(OFILES) $(DISC_ROOTFD)$(TARGET).CPE $(TARGET).SYM $(TARGET).MAP
 
 #clean: cleanall
 
@@ -99,17 +98,19 @@ all: $(OFILES)
 # ISO build rule (requires MKPSXISO)
 #---------------------------------------------------------------------------------
 #iso:
-	cpe2x $(TARGET).cpe
-	#mkpsxiso -q -y $(ISOXML)
+	cpe2x $(DISC_ROOTFD)$(TARGET).CPE
+	cd DISC
+	mkpsxisox.exe $(ISOXML)
+#Bug: ^^^ dumb app not use working dir properly.
 
 #---------------------------------------------------------------------------------
 # Rule for compiling C source
 #---------------------------------------------------------------------------------
-%.obj: %.c
+%.obj: %.C
 	$(CC) $(CFLAGS) $(addprefix -I,$(INCLUDES)) -c $< -o $@
 
 #---------------------------------------------------------------------------------
 # Rule for assembling assembly source
 #---------------------------------------------------------------------------------
-%.obj: %.s
+%.obj: %.MIP
 	$(AS) $(AFLAGS) $<,$@

@@ -3,10 +3,9 @@
 
 #include <stdio.h>
 
-int FILE_Load(char* szFileName, void* pDest);
-int FILE_Read(void* pDest, int nItemSize, int nItems, FILE* nHandle);//5E6A8, 
-
-unsigned long FILE_Length(char* szFileName);
-void RelocateModule(unsigned long Module, unsigned long* RelocData);
+extern int FILE_Load(char* szFileName, void* pDest);
+extern unsigned long FILE_Length(char* szFileName);
+extern int FILE_Read(char* pDest, int nItemSize, int nItems, FILE* nHandle); 
+extern void RelocateModule(unsigned long Module, unsigned long* RelocData);
 
 #endif

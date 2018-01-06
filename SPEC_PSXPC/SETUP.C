@@ -21,6 +21,7 @@
 #include "LOT.H"
 #include "MALLOC.H"
 #include "MATHS.H"
+#include "MISC.H"
 #include "NEWINV2.H"
 #include "OBJLIGHT.H"
 #include "PICKUP.H"
@@ -33,6 +34,7 @@
 #include "SWITCH.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
+#include "SPECTYPES.H"
 
 #include <assert.h>
 #include <stddef.h>
@@ -52,10 +54,10 @@ extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
  * Note: The GAMEWAD reader's position must point to the level file data.
  * Note: This code is part of the SETUP.MOD module.
  */
-#if INTERNAL
-void RelocateLevel(FILE* nHandle)//?, B3B50(<)
-#else
+#if DISC_VERSION
 void RelocateLevel()
+#else
+void RelocateLevel(FILE* nHandle)//?, B3B50(<)
 #endif
 {
 	struct Level* level;
@@ -64,16 +66,16 @@ void RelocateLevel()
 	unsigned int size, i, j;
 	long* relocationPtr = NULL;
 
-#if INTERNAL
-	FILE_Read((char*) &tsv_buffer[0], sizeof(struct Level), 1, nHandle);
-#else
+#if DISC_VERSION
 	DEL_CDFS_Read((char*) &tsv_buffer[0], sizeof(struct Level));
+#else
+	FILE_Read((char*) &tsv_buffer[0], sizeof(struct Level), 1, nHandle);
 #endif
 	//Not done in original
 	level = (struct Level*)&tsv_buffer[0];
 	InItemControlLoop = 0;
 
-#if INTERNAL
+#if DEBUG_VERSION
 	if (level->objectVersion != PSX_FILE_VERSION)
 	{
 		printf("Wrong Version Number!!!\n");
@@ -85,7 +87,7 @@ void RelocateLevel()
 	WeatherType = level->weatherType;
 	RoomDrawType = level->roomDrawType;
 
-#if INTERNAL
+#if !DISC_VERSION
 	fseek(nHandle, level->offsetSoundPointers, 0);
 #endif
 
@@ -94,19 +96,19 @@ void RelocateLevel()
 		GtSFXEnabled = 0;
 		ptr2 = ptr = game_malloc(level->numSoundEffects * sizeof(long));
 
-#if INTERNAL
+#if DISC_VERSION
+		DEL_CDFS_Read(ptr, level->numSoundEffects * sizeof(long));
+#else
 		FILE_Read(ptr, sizeof(long), level->numSoundEffects, nHandle);
 		fseek(nHandle, level->offsetSoundData, 0);
-#else
-		DEL_CDFS_Read(ptr, level->numSoundEffects * sizeof(long));
 #endif
 
 		ptr = game_malloc(level->soundWadLength);
 
-#if INTERNAL
-		FILE_Read(ptr, level->soundWadLength, 1, nHandle);
-#else
+#if DISC_VERSION
 		DEL_CDFS_Read(ptr, level->soundWadLength);
+#else
+		FILE_Read(ptr, level->soundWadLength, 1, nHandle);
 #endif
 		GtSFXEnabled = LoadSoundEffects(level->numSoundEffects, (long*) ptr2, ptr, level->soundWadLength);
 
@@ -114,7 +116,7 @@ void RelocateLevel()
 		game_free(level->soundWadLength);
 	}
 
-#if INTERNAL
+#if !DISC_VERSION
 	fseek(nHandle, level->offsetTextiles, 0);
 #endif
 
@@ -147,10 +149,10 @@ void RelocateLevel()
 
 	for (i = 0; i < 2; i++)
 	{
-#if INTERNAL
-		FILE_Read(ptr, 1, 0x40000, nHandle);
-#else
+#if DISC_VERSION
 		DEL_CDFS_Read(ptr, 0x40000);
+#else
+		FILE_Read(ptr, 1, 0x40000, nHandle);
 #endif
 		LOAD_DrawEnable(0);
 
@@ -168,7 +170,7 @@ void RelocateLevel()
 
 	ClutStartY = level->clutStartY;
 
-#if INTERNAL
+#if !DISC_VERSION
 	fseek(nHandle, level->offsetAnimFrames, 0);
 #else
 	//lw      a2, $5620(v0)
@@ -180,24 +182,24 @@ void RelocateLevel()
 	ptr = game_malloc(level->frameDataLength);
 	frames = (short*) ptr;
 
-#if INTERNAL
-	FILE_Read(ptr, 1, level->frameDataLength, nHandle);
-#else
+#if DISC_VERSION
 	DEL_CDFS_Read(ptr, level->frameDataLength);
+#else
+	FILE_Read(ptr, 1, level->frameDataLength, nHandle);
 #endif
 
 	AnimFileLen = level->frameDataLength;
 
-#if INTERNAL
+#if !DISC_VERSION
 	fseek(nHandle, level->offsetRoomInfo, 0);
 #endif
 
 	ptr = game_malloc(level->roomInfoLength);
 
-#if INTERNAL
-	FILE_Read(ptr, 1, level->roomInfoLength, nHandle);
-#else
+#if DISC_VERSION
 	DEL_CDFS_Read(ptr, level->roomInfoLength);
+#else
+	FILE_Read(ptr, 1, level->roomInfoLength, nHandle);
 #endif
 
 	room = (struct room_info*)ptr;
@@ -371,19 +373,19 @@ void RelocateLevel()
 	}//000B43A4, 000B42F8
 
 	camera.fixed = (struct OBJECT_VECTOR*)ptr;
-	ptr += level->frameDataLength;
+	ptr += level->unk455;
 
 	SpotCam = (struct SPOTCAM*) ptr;
 	NumFixedCameras = level->numFixedCameras;
 	number_cameras = level->numFixedCameras;
 	number_spotcams = level->numSpotCameras;
 
-#if INTERNAL
+#if DISC_VERSION
+	DEL_CDFS_Read((char*) &objects_raw, sizeof(objects_raw));
+#else
 	fseek(nHandle, level->offsetObjects, SEEK_SET);
 	FILE_Read((char*) &objects_raw, 1, sizeof(objects_raw), nHandle);
 	fclose(nHandle);
-#else
-	DEL_CDFS_Read((char*) &objects_raw, sizeof(objects_raw));
 #endif
 
 	for (i = 0; i < 64; i++)
@@ -395,12 +397,13 @@ void RelocateLevel()
 	//000B4430, 000B4364
 	if (level->numAiModuleRelocations != 0)
 	{
-#if INTERNAL
-		nHandle = fopen("DATA\\CODE.WAD", "rb");
-		FILE_Read((char*) &tsv_buffer[256], 20, 96, nHandle);
-#else
+#if DISC_VERSION
+		printf("DEBUG_CODEWAD: %d\n", (char*) &tsv_buffer[256]);
 		FRIG_CD_POS_TO_CUR();
 		DEL_CDFS_Read((char*) &tsv_buffer[256], 1920);
+#else
+		nHandle = fopen("DATA\\CODE.WAD", "rb");
+		FILE_Read((char*) &tsv_buffer[256], 20, 96, nHandle);
 #endif
 
 		//Temporary, array size is unknown
@@ -412,21 +415,21 @@ void RelocateLevel()
 				relocationPtr = (long*) ((char*) &tsv_buffer[256] + (level->aiModuleIndices[i] * 20));
 				ptr = game_malloc(relocationPtr[1]);
 
-#if INTERNAL
-				fseek(nHandle, relocationPtr[0], 0);
-				FILE_Read(ptr, 1, relocationPtr[1], nHandle);
-#else
+#if DISC_VERSION
 				DEL_CDFS_Seek(relocationPtr[0]);
 				DEL_CDFS_Read(ptr, relocationPtr[1]);
+#else
+				fseek(nHandle, relocationPtr[0], 0);
+				FILE_Read(ptr, 1, relocationPtr[1], nHandle);
 #endif
 				ptr2 = game_malloc(relocationPtr[3]);
 
-#if INTERNAL
-				fseek(nHandle, relocationPtr[2], 0);
-				FILE_Read(ptr, 1, relocationPtr[3], nHandle);
-#else
+#if DISC_VERSION
 				DEL_CDFS_Seek(relocationPtr[2]);
 				DEL_CDFS_Read(ptr2, relocationPtr[3]);
+#else
+				fseek(nHandle, relocationPtr[2], 0);
+				FILE_Read(ptr, 1, relocationPtr[3], nHandle);
 #endif
 				RelocateModule((unsigned long) ptr, (unsigned long*) ptr2);
 
@@ -436,7 +439,7 @@ void RelocateLevel()
 			}
 		}
 
-#if INTERNAL
+#if !DISC_VERSION
 		fclose(nHandle);
 #endif
 	}//B4548
@@ -454,7 +457,7 @@ void RelocateLevel()
 	{
 		for (i = 0; i < level_items; i++)
 		{
-			InitialiseItem(i);
+			InitialiseItem(i);//B4268
 		}
 	}
 
@@ -554,14 +557,14 @@ void RelocateLevel()
 	//0xB45AC
 
 	//0xB45V0
-#if INTERNAL
+#if BETA_VERSION
 	MonitorScreenTI = NULL;
 #endif
 
 	//a0, a3 = 0xA0000
 	//a1, v0 = 0x1F0000
 	//a0 = &objects[0];
-#if !INTERNAL
+#if !BETA_VERSION
 	//sw      0,$6F5C(a3) maybe same as MonitorScreenTI = NULL;
 #endif
 	if (objects[MONITOR_SCREEN].bite_offset & 0x10000)//000B4904, 000B47E8
@@ -635,32 +638,32 @@ void RelocateLevel()
 		000B4A24 24040001 addiu   a0, 0, $1
 		000B4A28 3C07000A lui     a3, $A
 #endif
-	if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
-	{
-		inventry_objects_list[7].yoff = 4;
-		inventry_objects_list[7].yrot = -16384;
-		inventry_objects_list[7].xrot = 8448;
-		inventry_objects_list[7].zrot = 16384;
-		inventry_objects_list[7].flags = 10;
+		if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
+		{
+			inventry_objects_list[7].yoff = 4;
+			inventry_objects_list[7].yrot = -16384;
+			inventry_objects_list[7].xrot = 8448;
+			inventry_objects_list[7].zrot = 16384;
+			inventry_objects_list[7].flags = 10;
 
-		inventry_objects_list[8].yoff = 4;
-		inventry_objects_list[8].yrot = -16384;
-		inventry_objects_list[8].xrot = 8448;
-		inventry_objects_list[8].zrot = 16384;
-	}
-	else
-	{
-		inventry_objects_list[7].yoff = 0;
-		inventry_objects_list[7].yrot = 0;
-		inventry_objects_list[7].xrot = -16384;
-		inventry_objects_list[7].zrot = 0;
-		inventry_objects_list[7].flags = 2;
+			inventry_objects_list[8].yoff = 4;
+			inventry_objects_list[8].yrot = -16384;
+			inventry_objects_list[8].xrot = 8448;
+			inventry_objects_list[8].zrot = 16384;
+		}
+		else
+		{
+			inventry_objects_list[7].yoff = 0;
+			inventry_objects_list[7].yrot = 0;
+			inventry_objects_list[7].xrot = -16384;
+			inventry_objects_list[7].zrot = 0;
+			inventry_objects_list[7].flags = 2;
 
-		inventry_objects_list[8].yoff = 0;
-		inventry_objects_list[8].yrot = 0;
-		inventry_objects_list[8].xrot = -16384;
-		inventry_objects_list[8].zrot = 0;
-	}
+			inventry_objects_list[8].yoff = 0;
+			inventry_objects_list[8].yrot = 0;
+			inventry_objects_list[8].xrot = -16384;
+			inventry_objects_list[8].zrot = 0;
+		}
 
 	inventry_objects_list[8].flags = 0;
 
@@ -890,7 +893,7 @@ void sub_B9DA8()//?(<), B9DA8(<)
 	InitialiseTargetGraphics();
 	InitialiseFlipMaps();
 
-	if (gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE ||gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME && gfInitialiseGame != 0)
+	if (gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME && gfInitialiseGame != 0)
 	{
 		//B9E50
 		sub_B4EE4(0);
@@ -920,7 +923,7 @@ void InitialiseSqrtTable()//?(<), B4D14(<)
 
 	for (i = 0; i < 1024; i++)
 	{
-		OurSqrt[i] = 0;// phd_sqrt_asm(i);
+		OurSqrt[i] = phd_sqrt_asm(i);
 	}
 
 	return;
@@ -1247,12 +1250,12 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 		cutseq_resident_addresses[i].packed_data = NULL;
 	}
 
-#if INTERNAL
+#if DISC_VERSION
+	FRIG_CD_POS_TO_CUR();
+	DEL_CDFS_Read((char*) &tsv_buffer[0], 2048);
+#else
 	nHandle = fopen("\\CUTSEQ.JIZ", "rb");
 	FILE_Read(&tsv_buffer[0], 1, 2048, nHandle);
-#else
-	FRIG_CD_POS_TO_CUR();
-	DEL_CDFS_Read((char*)&tsv_buffer[0], 2048);
 #endif
 
 	s2 = sub_BA0DC(a0);
