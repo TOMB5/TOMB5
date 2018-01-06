@@ -3,10 +3,15 @@
 #include "DRAW.H"
 #include "GPU.H"
 #include "SPECIFIC.H"
+#include "TOMB4FX.H"
 
-void DrawFlash()
+void DrawFlash()//8F704(<) 91748(<) (F)
 {
-	S_Warn("[DrawFlash] - Unimplemented!\n");
+	long fr = ((FlashFadeR * FlashFader) / 32) & 0xFF;
+	long fg = ((FlashFadeB * FlashFader) / 32) & 0xFF;
+	long fb = ((FlashFadeG * FlashFader) * 8) & 0xFF00;
+
+	DrawPsxTile(0, 0xF00200, (fb << 16 | fg | fr | 0x6200), 1);
 }
 
 void insert_psx_clip_window(long x, long y, long w, long a3, long h)
