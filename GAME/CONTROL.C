@@ -2,7 +2,9 @@
 
 #include "3D_GEN.H"
 #include "CD.H"
+#if PSX_VERSION || PSXPC_VERSION
 #include "COLLIDE_S.H"
+#endif
 #include "BOX.H"
 #include "DELTAPAK.H"
 #include "DEBRIS.H"

@@ -24,6 +24,7 @@
 
 #include <stddef.h>
 #include "TOMB4FX.H"
+#include <SFX.H>
 
 long wf = 256;
 short next_fx_free;

@@ -1,7 +1,9 @@
 #include "DRAW.H"
 
 #include "CONTROL.H"
+#if PSX_VERSION || PSXPC_VERSION
 #include "DRAWSPKS.H"
+#endif
 #include "MATHS.H"
 #include "OBJECTS.H"
 #include "SETUP.H"
