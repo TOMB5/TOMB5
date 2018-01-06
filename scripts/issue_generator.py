@@ -48,8 +48,8 @@
 # $ ./issue_generator.py +w -h -c
 
 # increment this plz
-# rev 9
-# 2017-12-03
+# rev 10
+# 2018-01-06
 
 
 from urllib.request import urlopen
@@ -184,14 +184,15 @@ for plat in sorted(platforms.keys()):
 			Warn("file does not exist - skipping -- '%s'" % path)
 			continue
 
-		un_funcs = [l for l in getfline(path) if "] - Unimpl" in l]
+		file_lines = getfline(path)
+		un_funcs = [l for l in file_lines if "] - Unimpl" in l]
 
 		for i in range(len(un_funcs)):
 			a = un_funcs[i]
 			a = a[a.index("[")+1:a.index("]")]
 			unimplwarn[plat][file].append(a)
 
-		funcs = [l for l in getfline(path) if "(F)" in l]
+		funcs = [l for l in file_lines if "(F)" in l]
 
 		for i in range(len(funcs)):
 			a = funcs[i][:funcs[i].index("(")] # take everything until first parenthesis
@@ -212,7 +213,9 @@ for plat in sorted(platforms.keys()):
 				continue
 
 		for func in sorted(platforms[plat][file].keys(), key=str.lower):
-			if platforms[plat][file][func] and func not in funcs:
+			if not any(l for l in file_lines if func in l):
+				Warn("function in list missing completely from file - %s // '%s'" % (path, func))
+			elif platforms[plat][file][func] and func not in funcs:
 				Hint("function marked as implemented in list, not in file -- %s // '%s'" % (path, func))
 
 		for l in sorted(funcs):

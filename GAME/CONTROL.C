@@ -1330,169 +1330,76 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 	}
 }
 
-void IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<)
+int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 {
-#if 0
-	//s3 = x;
-	//s2 = y;
-	//s4 = z;
+	short off, room_num;
+	struct FLOOR_INFO* floor;
+	short height, ceiling;
+	struct room_info* r;
 
-	if (x / 4096 < 0 && z / 4096 < 0)//s3, s4
-	{
-		//loc_8F11C
+	if (x < 0 || z < 0)
 		return -2;
-	}
 
-	if (OutsideRoomOffests[(s3 / 4096) * 8 - (s3 / 4096) << 2 - (s3 / 4096) + (s4 / 4096) << 1] == -1)
-	{
+	off = OutsideRoomOffsets[(z / 4096) + 27 * (x / 4096)];
+
+	if (off == -1)
 		return -2;
-	}///@FIXME idx bad, ptr shft 4
 
-	if (OutsideRoomOffests[(s3 / 4096) * 8 - (s3 / 4096) << 2 - (s3 / 4096) + (s4 / 4096) << 1] & 0x7FFF == 0)
+	if (off >= 0)
 	{
+		char* ptr = &OutsideRoomTable[off];
+		
 
+		if (*ptr == -1)
+			return -2;
+
+		while (TRUE)
+		{
+			r = &room[*ptr];
+			if (y >= r->maxceiling && y <= r->minfloor)
+			{
+				if (z >= r->z + 1024 && z <= (r->x_size / 1024) + r->z - 1024)
+				{
+					if (x >= r->x + 1024 && x <= (r->y_size / 1024) + r->x - 1024)
+						break;
+				}
+			}
+			ptr++;
+
+			if (*ptr == -1)
+				return -2;
+		}
+
+		IsRoomOutsideNo = room_num = *ptr;
 	}
 	else
 	{
-		//loc_8EFF4
+		r = &room[off & 0x7fff];
+
+		if (y < r->maxceiling || y > r->minfloor)
+			return -2;
+
+		if (z < r->z + 1024 || z > r->x_size / 1024 + r->z - 1024)
+			return -2;
+
+		if (x < r->x + 1024 || x > r->y_size / 1024 + r->x - 1024)
+			return -2;
+
+		IsRoomOutsideNo = room_num = off & 0x7fff;
 	}
-#endif
-#if 0
-		andi	$t0, $v1, 0x7FFF
-		bgez	$v1, loc_8EFF4
-		sll	$v0, $t0, 2
-		addu	$v0, $t0
-		lw	$v1, 0x1F28($gp)
-		sll	$v0, 4
-		addu	$s1, $v1, $v0
-		lw	$v0, 0x24($s1)
-		lw	$v1, 0x20($s1)
-		slt	$at, $s2, $v0
-		bnez	$at, loc_8F11C
-		slt	$at, $v1, $s2
-		bnez	$at, loc_8F11C
-		lw	$v1, 0x1C($s1)
-		lh	$v0, 0x28($s1)
-		addiu	$at, $v1, 0x400
-		slt	$at, $s4, $at
-		bnez	$at, loc_8F11C
-		addiu	$v0, -1
-		sll	$v0, 10
-		addu	$v0, $v1, $v0
-		slt	$v0, $s4
-		bnez	$v0, loc_8F11C
-		lw	$v1, 0x14($s1)
-		lh	$v0, 0x2A($s1)
-		addiu	$at, $v1, 0x400
-		slt	$at, $s3, $at
-		bnez	$at, loc_8F11C
-		addiu	$v0, -1
-		sll	$v0, 10
-		addu	$v0, $v1, $v0
-		slt	$v0, $s3
-		bnez	$v0, loc_8F11C
-		nop
-		j	loc_8F07C
-		move	$v0, $t0
 
-		loc_8EFF4 :
-	lw	$v0, 0x1C60($gp)
-		j	loc_8F108
-		addu	$a0, $v0, $v1
+	floor = GetFloor(x, y, z, &room_num);
 
-		loc_8F000 :
-	addu	$v0, $t0
-		lw	$v1, 0x1F28($gp)
-		sll	$v0, 4
-		addu	$s1, $v1, $v0
-		lw	$v0, 0x24($s1)
-		lw	$v1, 0x20($s1)
-		slt	$at, $s2, $v0
-		bnez	$at, loc_8F104
-		slt	$at, $v1, $s2
-		bnez	$at, loc_8F104
-		lw	$v1, 0x1C($s1)
-		lh	$v0, 0x28($s1)
-		addiu	$at, $v1, 0x400
-		slt	$at, $s4, $at
-		bnez	$at, loc_8F104
-		addiu	$v0, -1
-		sll	$v0, 10
-		addu	$v0, $v1, $v0
-		slt	$v0, $s4
-		bnez	$v0, loc_8F104
-		lw	$v1, 0x14($s1)
-		lh	$v0, 0x2A($s1)
-		addiu	$at, $v1, 0x400
-		slt	$at, $s3, $at
-		bnez	$at, loc_8F104
-		addiu	$v0, -1
-		sll	$v0, 10
-		addu	$v0, $v1, $v0
-		slt	$v0, $s3
-		bnez	$v0, loc_8F104
-		andi	$v0, $t0, 0xFF
+	height = GetHeight(floor, x, y, z);
+	if (height == -32512 || y > height)
+		return -2;
 
-		loc_8F07C:
-	move	$a1, $s2
-		move	$a0, $s3
-		move	$a2, $s4
-		addiu	$a3, $sp, 0x38 + var_28
-		sh	$v0, 0x38 + var_28($sp)
-		jal	sub_78954
-		sh	$v0, 0x1C54($gp)
-		move	$s0, $v0
-		move	$a0, $s0
-		move	$a1, $s3
-		move	$a2, $s2
-		jal	sub_78C74
-		move	$a3, $s4
-		move	$v1, $v0
-		li	$v0, 0xFFFF8100
-		beq	$v1, $v0, loc_8F11C
-		slt	$v0, $v1, $s2
-		bnez	$v0, loc_8F120
-		li	$v0, 0xFFFFFFFE
-		move	$a0, $s0
-		move	$a1, $s3
-		move	$a2, $s2
-		jal	sub_79060
-		move	$a3, $s4
-		slt	$v0, $s2, $v0
-		bnez	$v0, loc_8F11C
-		nop
-		lhu	$v1, 0x4E($s1)
-		nop
-		andi	$v1, 0x21
-		bnez	$v1, loc_8F120
-		li	$v0, 1
-		j	loc_8F120
-		li	$v0, 0xFFFFFFFD
+	ceiling = GetCeiling(floor, x, y, z);
 
-		loc_8F104:
-	addiu	$a0, 1
+	if (y >= ceiling)
+		return (r->flags & RF_WIND_BLOWS_PONYTAIL || r->flags & RF_FILL_WATER) ? 1 : -3;
 
-		loc_8F108 :
-		lbu	$t0, 0($a0)
-		li	$v0, 0xFF
-		andi	$v1, $t0, 0xFF
-		bne	$v1, $v0, loc_8F000
-		sll	$v0, $t0, 2
-
-		loc_8F11C :
-		li	$v0, 0xFFFFFFFE
-
-		loc_8F120 :
-		lw	$ra, 0x38 + var_4($sp)
-		lw	$s4, 0x38 + var_8($sp)
-		lw	$s3, 0x38 + var_C($sp)
-		lw	$s2, 0x38 + var_10($sp)
-		lw	$s1, 0x38 + var_14($sp)
-		lw	$s0, 0x38 + var_18($sp)
-		jr	$ra
-		addiu	$sp, 0x38
-#endif
-	S_Warn("[IsRoomOutside] - Unimplemented!\n");
+	return -2;
 }
 
 short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
