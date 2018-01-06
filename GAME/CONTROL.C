@@ -1413,26 +1413,41 @@ short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 	type = floor_data[floor->index];
 	data = &floor_data[floor->index + 1];
 
-	fixtype = type & 0x1F;
-	if (fixtype == 2 || fixtype == 7 || fixtype == 8 || fixtype == 12 || fixtype == 11 || fixtype == 14 || fixtype == 13)
+	fixtype = type & FD_MASK_FUNCTION;
+
+	if (fixtype == FD_FLOOR_SLANT
+		|| fixtype == FD_TRIANGLE_NW_SE_SOLID
+		|| fixtype == FD_TRIANGLE_NE_SW_SOLID
+		|| fixtype == FD_TRIANGLE_NW_SE_NE
+		|| fixtype == FD_TRIANGLE_NW_SE_SW
+		|| fixtype == FD_TRIANGLE_NE_SW_NW
+		|| fixtype == FD_TRIANGLE_NE_SW_SW) 
 	{
-		if (type & 0x8000)
+		if (type & FD_MASK_END_DATA)
 			return 255;
 		type = data[1];
 		data += 2;
 	}
 
-	fixtype = type & 0x1F;
-	if (fixtype == 3 || fixtype == 9 || fixtype == 10 || fixtype == 16 || fixtype == 15 || fixtype == 18 || fixtype == 17)
+	fixtype = type & FD_MASK_FUNCTION;
+
+	if (fixtype == FD_CEILING_SLANT
+		|| fixtype == FD_TRIANGLE_NW_SOLID
+		|| fixtype == FD_TRIANGLE_NE_SOLID
+		|| fixtype == FD_TRIANGLE_NW_NE
+		|| fixtype == FD_TRIANGLE_NW_SW
+		|| fixtype == FD_TRIANGLE_NE_SE
+		|| fixtype == FD_TRIANGLE_NE_NW)
 	{
-		if (type & 0x8000)
+		if (type & FD_MASK_END_DATA)
 			return 255;
 		type = data[1];
 		data += 2;
 	}
 
-	if ((type & 0x1F) == 1)
+	if ((type & FD_MASK_FUNCTION) == FD_PORTAL_SECTOR)
 		return *data;
+
 	return 255;
 }
 
@@ -1475,16 +1490,87 @@ int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 	return 0;
 }
 
-int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)
+int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 {
-	S_Warn("[CheckNoColCeilingTriangle] - Unimplemented!\n");
-	return 0;
+	short* fd = &floor_data[floor->index];
+	short fixtype = *fd & FD_MASK_FUNCTION;
+	int fix_x = x & 0x3FF;
+	int fix_z = z & 0x3FF;
+
+	if (floor->index == 0)
+		return 0;
+
+	if (fixtype == FD_FLOOR_SLANT
+		|| fixtype == FD_TRIANGLE_NW_SE_SOLID
+		|| fixtype == FD_TRIANGLE_NE_SW_SOLID
+		|| fixtype == FD_TRIANGLE_NW_SE_SW
+		|| fixtype == FD_TRIANGLE_NW_SE_NE
+		|| fixtype == FD_TRIANGLE_NE_SW_SW
+		|| fixtype == FD_TRIANGLE_NE_SW_NW)
+	{
+		if (*fd & FD_MASK_END_DATA)
+			return 0;
+
+		fixtype = fd[2] & FD_MASK_FUNCTION;
+	}
+
+	switch (fixtype)
+	{
+	case FD_TRIANGLE_NW_SW:
+		if (fix_x <= 1024 - fix_z)
+			return -1;
+		break;
+	case FD_TRIANGLE_NW_NE:
+		if (fix_x > 1024 - fix_z)
+			return -1;
+		break;
+	case FD_TRIANGLE_NE_NW:
+		if (fix_x <= fix_z)
+			return -1;
+		break;
+	case FD_TRIANGLE_NE_SE:
+		if (fix_x > fix_z)
+			return -1;
+		break;
+	default:
+		return 0;
+	}
+
+	return 1;
 }
 
-int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)
+int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 {
-	S_Warn("[CheckNoColFloorTriangle] - Unimplemented!\n");
-	return 0;
+	short fixtype = floor_data[floor->index] & FD_MASK_FUNCTION;
+	int fix_x = x & 0x3FF;
+	int fix_z = z & 0x3FF;
+
+	if (floor->index == 0)
+		return 0;
+
+	switch (fixtype)
+	{
+	case FD_TRIANGLE_NW_SE_SW:
+		if (fix_x <= 1024 - fix_z)
+			return -1;
+		break;
+	case FD_TRIANGLE_NW_SE_NE:
+		if (fix_x > 1024 - fix_z)
+			return -1;
+		break;
+	case FD_TRIANGLE_NE_SW_SW:
+		if (fix_x <= fix_z)
+			return -1;
+		break;
+	case FD_TRIANGLE_NE_SW_NW:
+		if (fix_x > fix_z)
+			return -1;
+		break;
+	default:
+		return 0;
+	}
+
+	return 1;
 }
 
 int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor)
