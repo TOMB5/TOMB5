@@ -3,11 +3,11 @@
 #include "CONTROL.H"
 #include "SPECIFIC.H"
 #include "LARA.H"
-#include "TOMB4FX.H"
 #include "SOUND.H"
 #include "EFFECTS.H"
 #include "DRAW.H"
 #include "OBJECTS.H"
+#include "TOMB4FX.H"
 
 int ShotLara(struct ITEM_INFO* item, struct AI_info* info, struct BITE_INFO* gun, short extra_rotation, int damage)//50C74, 510D8
 {
@@ -24,7 +24,7 @@ short GunMiss(long x, long y, long z, short speed, int yrot, int room_number)//5
 	pos.z = lara_item->pos.z_pos + ((GetRandomControl() - 0x4000) << 9) / 0x7FFF;
 	pos.room_number = lara_item->room_number;
 
-	Ricochet(&pos);
+	Richochet(&pos);
 
 	return GunShot(x, y, z, speed, yrot, room_number);
 }

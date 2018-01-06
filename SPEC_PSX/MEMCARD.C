@@ -22,6 +22,7 @@ static unsigned char mcActualStatus;
 
 void mcDir()//61EE8(<), 625CC(<)
 {
+#ifndef PAELLA
 	int i = 0;
 	int j = 0;
 	int k = 0;
@@ -55,10 +56,12 @@ void mcDir()//61EE8(<), 625CC(<)
 	//loc_62028
 	mcNumFiles = k;//k
 	return;
+#endif
 }
 
 void mcOpen(int sync)//6204C(<), 62730(<) (F)
 {
+#ifndef PAELLA
 	int i;
 
 	mcInit = 1;
@@ -81,18 +84,22 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 
 	//loc_6209C
 	return;
+#endif
 }
 
 void mcClose()//620AC
 {
+#ifndef PAELLA
 	MemCardStop();
 	mcInit = 0;
 	
 	return;
+#endif
 }
 
 unsigned char mcGetStatus()//620CC(<), ? (F)
 {
+#ifndef PAELLA
 	long stat;
 	unsigned long cmd;
 	unsigned long res;
@@ -230,10 +237,14 @@ unsigned char mcGetStatus()//620CC(<), ? (F)
 	}
 	
 	return -1;
+#endif
+
+	return 0;
 }
 
 long mcFormat()//622D8(<), 629BC(<) (F)
 {
+#ifndef PAELLA
 	unsigned long cmd;
 	unsigned long res;
 
@@ -248,4 +259,7 @@ long mcFormat()//622D8(<), 629BC(<) (F)
 
 	//loc_6230C
 	return res;
+#endif
+
+	return 0;
 }

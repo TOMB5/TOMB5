@@ -54,6 +54,7 @@ int dword_A1898;
 
 void S_UpdateInput()//5F628(<), 6038C(<)
 {
+#ifndef PAELLA
 	int state; // $s1
 	unsigned char type; // $s2
 	unsigned long in; // $s0
@@ -618,4 +619,5 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	}//loc_600CC
 
 	return;
+#endif
 }

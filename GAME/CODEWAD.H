@@ -18,8 +18,6 @@ extern void RelocFunc_34_30(); // special4_control
 extern void RelocFunc_34_34(); // special4_end
 extern long sub_1BE988();
 extern long sub_1BDF88(long levelID);
-
-extern void LaraClimbRope(struct ITEM_INFO* item, struct COLL_INFO* coll); // 0xC (RelocPtr + 0x28)
 extern void triggerwindowsmash(int item_num);
 
 #endif

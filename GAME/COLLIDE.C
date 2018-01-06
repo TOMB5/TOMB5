@@ -7,6 +7,7 @@
 #include "SPECTYPES.H"
 #include <stddef.h>
 #include "TOMB4FX.H"
+#include "SPHERE.H"
 
 long zfront;
 long xfront;
@@ -41,8 +42,6 @@ void TriggerLaraBlood()//2A838, 2AA60 (F)
 
 		node <<= 1;
 	}
-
-	S_Warn("[TriggerLaraBlood] - Unimplemented!\n");
 }
 
 void GenericSphereBoxCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A5EC, 2A814
@@ -108,9 +107,15 @@ void UpdateLaraRoom(struct ITEM_INFO* item, int height)//7C58C(<), 7E5D0(<) (F)
 	}
 }
 
-void ObjectCollision(short item_num, struct ITEM_INFO* lara_item, struct COLL_INFO* coll)
+void ObjectCollision(short item_num, struct ITEM_INFO* lara_item, struct COLL_INFO* coll)// (F)
 {
-	S_Warn("[ObjectCollision] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_num];
+
+	if (TestBoundsCollide(&items[item_num], lara_item, coll->radius) && TestCollision(item, lara_item))
+	{
+		if (coll->enable_baddie_push)
+			ItemPushLara(item, lara_item, coll, 0, 1);
+	}
 }
 
 int TestLaraPosition(short* bounds, struct ITEM_INFO* item, struct ITEM_INFO* lara_item)

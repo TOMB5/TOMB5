@@ -4,7 +4,7 @@
 #include "OBJECTS.H"
 #include "SPECTYPES.H"
 
-#if DEBUG_VERSION
+#if DEBUG_VERSION || !DISC_VERSION
 	#include <stdio.h>
 #endif
 

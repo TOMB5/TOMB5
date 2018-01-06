@@ -3793,7 +3793,7 @@ void lara_as_monkeyswing(struct ITEM_INFO* item, struct COLL_INFO* coll)//1670C,
 	}
 }
 
-void lara_col_hang2(struct ITEM_INFO* item, struct COLL_INFO* coll)//163DC, 16510
+void lara_col_hang2(struct ITEM_INFO* item, struct COLL_INFO* coll)//163DC, 16510 (F)
 {
 	item->fallspeed = 0;
 	item->gravity_status = FALSE;
@@ -5635,4 +5635,24 @@ void SetPendulumVelocity(int x, int y, int z)// (F)
 	CurrentPendulum.Velocity.x += x;
 	CurrentPendulum.Velocity.y += y;
 	CurrentPendulum.Velocity.z += z;
+}
+
+void LaraClimbRope(struct ITEM_INFO* item, struct COLL_INFO* coll)
+{
+	S_Warn("[LaraClimbRope] - Unimplemented!\n");
+}
+
+void FireChaff()
+{
+	S_Warn("[FireChaff] - Unimplemented!\n");
+}
+
+void GetLaraJointPosRot(struct PHD_VECTOR *a1, int a2, int a3, struct SVECTOR *a4)
+{
+	S_Warn("[GetLaraJointPosRot] - Unimplemented!\n");
+}
+
+void DoSubsuitStuff()
+{
+	S_Warn("[DoSubsuitStuff] - Unimplemented!\n");
 }

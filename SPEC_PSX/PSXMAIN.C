@@ -39,13 +39,17 @@ void VSyncFunc()//10000(<), 10000(<) (F)
 	return;
 }
 
+#ifdef PAELLA
+int main(int argc, char* args[])
+#else
 int main(int argc, char* args[])//10064(<), 10064(!) (F)
+#endif
 {
 	SetSp(0x801FFFE0);
 	ResetCallback();
 
 	SPU_Init();
-
+	
 	ResetGraph(0);
 	SetGraphDebug(0);
 	InitGeom();
@@ -72,12 +76,13 @@ int main(int argc, char* args[])//10064(<), 10064(!) (F)
 
 	PutDispEnv(&db.disp[db.current_buffer]);
 
+#ifndef PAELLA
 	MemCardInit(1);
 
 	PadInitDirect(&GPad1.transStatus, &GPad2.transStatus);
 	PadSetAct(0, &Motors[0], sizeof(Motors));
 	PadStartCom();
-
+#endif
 	CdInit();
 	CdSetDebug(0);
 

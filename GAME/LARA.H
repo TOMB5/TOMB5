@@ -886,5 +886,9 @@ extern int GetLaraJointPos(struct PHD_VECTOR* arg1, long arg2);
 extern void AnimateLara(struct ITEM_INFO* item);
 extern void SetLaraUnderwaterNodes();
 extern void SetPendulumVelocity(int x, int y, int z);
+extern void LaraClimbRope(struct ITEM_INFO* item, struct COLL_INFO* coll); // 0xC (RelocPtr + 0x28)
+extern void FireChaff();
+extern void GetLaraJointPosRot(struct PHD_VECTOR *a1, int a2, int a3, struct SVECTOR *a4);
+extern void DoSubsuitStuff();
 
 #endif

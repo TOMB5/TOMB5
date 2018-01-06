@@ -202,5 +202,7 @@ extern void AddFire(int x, int y, int z, char size, short room_num, short on);
 extern int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4);
 extern int check_xray_machine_trigger();
 extern void AnimateItem(struct ITEM_INFO* item);
+extern void Straighten(struct ROPE_STRUCT* a1, struct PHD_VECTOR* a2, struct PHD_VECTOR* a3, long a4);
+extern void StraightenRope(struct ITEM_INFO* item);
 
 #endif
