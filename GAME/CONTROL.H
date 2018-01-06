@@ -189,7 +189,7 @@ extern struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number);
 extern short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z);
 extern int TriggerActive(struct ITEM_INFO* item);
 extern void AddRoomFlipItems(struct room_info* r);
-extern void IsRoomOutside(long x, long y, long z);
+extern int IsRoomOutside(long x, long y, long z);
 extern short GetDoor(struct FLOOR_INFO* floor);
 extern int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
