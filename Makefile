@@ -30,7 +30,7 @@ TARGET      = MAIN
 PROGADDR	= 0x00010000
 SOURCES		= SPEC_PSX/ GAME/
 INCLUDES	= SPEC_PSX/ GAME/
-DEFS		= PSX_VERSION DISC_VERSION NTSC_VERSION
+DEFS		= PSX_VERSION DISC_VERSION NTSC_VERSION USE_ASM
 ISOXML		= TOMB5US.XML
 DISC_ROOTFD	= DISC/
 
@@ -56,10 +56,8 @@ AFLAGS		= /q /l
 ifeq "$(H2000)" "TRUE"
 CFLAGS		+= -g -DH2000
 AFLAGS		+= /zd
-SYMFILE		= $(TARGET).SYM
 else
 CFLAGS		+= -O2
-SYMFILE		= $(TARGET).SYM
 endif
 
 #---------------------------------------------------------------------------------
@@ -84,7 +82,7 @@ OFILES		= $(CFILES:.C=.obj) $(AFILES:.MIP=.obj)
 # Default rule, compiles all source files
 #---------------------------------------------------------------------------------
 all: $(OFILES)
-	$(CC) -Xo$(PROGADDR) $(CFLAGS) $(addprefix -L,$(LIBDIRS)) $(addprefix -l,$(LIBS)) $(OFILES) -o $(DISC_ROOTFD)$(TARGET).CPE,$(DISC_ROOTFD)$(SYMFILE),$(DISC_ROOTFD)$(TARGET).MAP
+	$(CC) -Xo$(PROGADDR) $(CFLAGS) $(addprefix -L,$(LIBDIRS)) $(addprefix -l,$(LIBS)) $(OFILES) -o $(DISC_ROOTFD)$(TARGET).CPE,$(DISC_ROOTFD)$(TARGET).SYM,$(DISC_ROOTFD)$(TARGET).MAP
 
 #---------------------------------------------------------------------------------
 # Clean-up rule
