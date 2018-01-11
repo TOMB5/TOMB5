@@ -14,16 +14,12 @@
 #include "TEXT.H"
 
 #include <sys/types.h>
-#include <LIBAPI.H>
 #include <LIBCD.H>
-#include <LIBGTE.H>
-#include <LIBGPU.H>
 #include <LIBPAD.H>
-#include <stdio.h>
 #include <LIBMCRD.H>
 #include <LIBETC.H>
 
-void VSyncFunc()//10000(<), 10000(<) (F)
+void VSyncFunc()//10000(<), 10000(<) (F) (*)
 {
 	cbvsync();
 
@@ -42,7 +38,7 @@ void VSyncFunc()//10000(<), 10000(<) (F)
 #ifdef PAELLA
 int main(int argc, char* args[])
 #else
-int main(int argc, char* args[])//10064(<), 10064(!) (F)
+int main(int argc, char* args[])//10064(<), 10064(!) (F) (*)
 #endif
 {
 	SetSp(0x801FFFE0);
@@ -87,10 +83,15 @@ int main(int argc, char* args[])//10064(<), 10064(!) (F)
 	CdSetDebug(0);
 
 	InitNewCDSystem();
-	CDDA_SetMasterVolume(192);
 
-	GPU_UseOrderingTables(&GadwOrderingTables[0], 2564);
-	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], 26130);
+#if BETA_VERSION
+	CDDA_SetMasterVolume(192);
+#else
+	CDDA_SetMasterVolume(178);
+#endif
+
+	GPU_UseOrderingTables(&GadwOrderingTables[0], sizeof(GadwOrderingTables) / 8);
+	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], sizeof(GadwPolygonBuffers) / 8);
 	GPU_GetScreenPosition(&savegame.ScreenX, &savegame.ScreenY);
 
 #if DEBUG_VERSION
@@ -98,16 +99,28 @@ int main(int argc, char* args[])//10064(<), 10064(!) (F)
 	ProfileDraw = 1;
 #endif
 
+#if BETA_VERSION
 	savegame.VolumeCD = 204;
 	savegame.VolumeFX = 255;
+#else
+	savegame.VolumeCD = 178;
+	savegame.VolumeFX = 204;
+#endif
+
 	savegame.ControlOption = 0;
 	savegame.AutoTarget = 1;
 	savegame.VibrateOn = 0;
+
+#if BETA_VERSION
 	SoundFXVolume = 255;
+#else
+	SoundFXVolume = 204;
+#endif
 
 	init_game_malloc();
 	InitFont();
 	SOUND_Init();
 	DoGameflow();
+
 	return 0;
 }
