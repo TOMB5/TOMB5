@@ -16,4 +16,22 @@ If you're able to code in C/C++ please feel free to contact me. I can assign you
 - General Programmer - Clean existing code to improve readability without changing the structure, improve code documentation.
 - Build Engineer - Manage and maintain existing Travis/Appveyor build automation systems. Improve code distribution/publishing methods by implmenting a system to support all platforms and possible release versions.
 
-Feel free to contact us on this: [Discord channel](https://discord.gg/KYSx8Q7)
+## Folder Structure
+- CMAKE - Default CMake module folder. 
+- GAME - Contains all Tomb Raider 5 game specific code.
+- SPEC_PC - Platform specific code for PC version.
+- SPEC_PSX - Platform specific code for PSX version.
+- SPEC_PSXPC - Platform specific code for PSX version that runs on PC for debugging purposes (all psx sdk calls stripped).
+- TOOLS - Game tools (may be removed in the future).
+
+## Compiling
+1. Dependencies:
+    - CMake 3.0+
+    - SDL 2.0.7.
+
+2. Windows:
+    - Download SDL2-devel-2.0.7-VC.zip extract to project root EXTERNAL/ rename folder "SDL2-2.0.7" to "SDL2".
+    - Generate CMake project files for VS2015 or 2017, x86 ONLY! (x64 is currently unsupported so don't try it.)
+    - Open solution and build.
+    
+Feel free to contact us on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5
