@@ -6,6 +6,9 @@ project (TOMB5)
 #This is used by platform specific CMake scripts to correctly use external libraries.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
 
+#Stores root external lib folder.
+set(EXTERN_LIB_PATH ${EXTERN_LIB_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/EXTERNAL")
+
 #Toggles debug code on/off
 set(DEBUG_VERSION 1 CACHE INTEGER "Enable/Disable Debug Code")
 
