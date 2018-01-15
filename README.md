@@ -1,5 +1,9 @@
 # Project: Decompile Tomb Raider: Chronicles (TOMB5)
 
+<p align="center">
+<img src="https://i.imgur.com/1o1EDew.png"/>
+</p>
+
 | Platform  | Build State |
 | ------------- | ------------- |
 | Windows  | [![Build status](https://ci.appveyor.com/api/projects/status/wbfndh3l1j605tow/branch/master?svg=true)](https://ci.appveyor.com/project/Gh0stBlade/tomb5/branch/master) |
@@ -24,7 +28,7 @@ Assuming you have compiled the most recent code or downloaded the latest binarie
 
 Depending on the amount of contributors it could take years.
 
-Feel free to contact me on this: [Discord channel](https://discord.gg/KYSx8Q7)
+Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5
 
 ## Credits
 
