@@ -6,6 +6,7 @@
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
+#include "MALLOC.H"
 #include "SETUP.H"
 
 #include <stdio.h>
