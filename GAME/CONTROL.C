@@ -1002,8 +1002,7 @@ void InterpolateAngle(short dest, short* src, short* diff, short speed)//20AF0(<
 {
 	long adiff;
 
-	dest &= 0xFFFF;
-	adiff = dest - src[0];
+	adiff = (dest & 0xFFFF) - src[0];
 
 	if (32768 < adiff)
 	{
@@ -1023,9 +1022,62 @@ void InterpolateAngle(short dest, short* src, short* diff, short speed)//20AF0(<
 	src[0] = (src[0] >> speed) + adiff;
 }
 
-int CheckGuardOnTrigger()
+int CheckGuardOnTrigger()//209AC(<), 20BB8(<) (F)
 {
-	S_Warn("[CheckGuardOnTrigger] - Unimplemented!\n");
+	int slot;
+	short room_number;
+	struct creature_info* cinfo;
+	struct ITEM_INFO* item;
+	long v0;
+
+	room_number = lara_item->room_number;
+
+	cinfo = &baddie_slots[0];
+	GetFloor(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, &room_number);
+
+	//loc_209FC
+	for (slot = 0; slot < 5; slot++, cinfo++)
+	{
+		if (cinfo->item_num != -1 && cinfo->alerted)
+		{
+			item = &items[cinfo->item_num];
+
+			if (room_number == item->room_number && item->current_anim_state == 1)
+			{
+				///@TODO looks like macro
+				v0 = (item->pos.x_pos - lara_item->pos.x_pos);
+				if (v0 < 0)
+				{
+					v0 = -v0;
+				}
+				//loc_20A70
+				if (v0 < SECTOR(1))
+				{
+					v0 = item->pos.z_pos - lara_item->pos.z_pos;
+
+					if (v0 < 0)
+					{
+						v0 = -v0;
+					}
+
+					if (v0 < SECTOR(1))
+					{
+						v0 = item->pos.y_pos - lara_item->pos.y_pos;
+						if (v0 < 0)
+						{
+							v0 = -v0;
+						}
+
+						if (v0 < SECTOR(0.25))
+						{
+							return 1;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	return 0;
 }
 
