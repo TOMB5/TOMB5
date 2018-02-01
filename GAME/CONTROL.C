@@ -42,6 +42,7 @@
 #include "SPHERE.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
+#include "TYPES.H"
 
 #include <assert.h>
 #include <string.h>
@@ -1044,9 +1045,9 @@ int CheckGuardOnTrigger()//209AC(<), 20BB8(<) (F)
 			if (room_number == item->room_number && item->current_anim_state == 1)
 			{
 				//loc_20A70
-				if (ABS(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
-					ABS(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
-					ABS(item->pos.y_pos - lara_item->pos.y_pos) < SECTOR(0.25))
+				if (abs(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+					abs(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+					abs(item->pos.y_pos - lara_item->pos.y_pos) < SECTOR(0.25))
 				{
 					return 1;
 				}
@@ -1218,7 +1219,7 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F
 
 	joby = 0;
 
-	if (ABS(height) & 0xFF)
+	if (abs(height) & 0xFF)
 	{
 		joby = 1;
 
