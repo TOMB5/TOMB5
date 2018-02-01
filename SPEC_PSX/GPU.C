@@ -26,12 +26,13 @@ unsigned long GadwPolygonBuffers[52260];
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
 {
+#if 1
 	db.order_table[0] = &pBuffers[0];
 	db.order_table[1] = &pBuffers[nOTSize];
 	db.nOTSize = nOTSize;
 	db.pickup_order_table[0] = (unsigned long*)&db.disp[1];
 	db.pickup_order_table[1] = &GadwOrderingTables_V2[256];
-#if 0
+#else
 	//Should be safe to use 32-bit ptrs tho
 	db.order_table[0] = (unsigned long*)((unsigned long) pBuffers & 0xFFFFFF);
 	db.order_table[1] = (unsigned long*)((unsigned long) &pBuffers[nOTSize] & 0xFFFFFF);
