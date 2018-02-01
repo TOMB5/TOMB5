@@ -1006,7 +1006,7 @@ void InterpolateAngle(short dest, short* src, short* diff, short speed)//20AF0(<
 
 	if (32768 < adiff)
 	{
-		adiff += 0xFFFF0000;
+		adiff += -65536;
 	}//0x20B18
 	else if (adiff < -32768)
 	{
@@ -1028,7 +1028,6 @@ int CheckGuardOnTrigger()//209AC(<), 20BB8(<) (F)
 	short room_number;
 	struct creature_info* cinfo;
 	struct ITEM_INFO* item;
-	long v0;
 
 	room_number = lara_item->room_number;
 
@@ -1044,35 +1043,12 @@ int CheckGuardOnTrigger()//209AC(<), 20BB8(<) (F)
 
 			if (room_number == item->room_number && item->current_anim_state == 1)
 			{
-				///@TODO looks like macro
-				v0 = (item->pos.x_pos - lara_item->pos.x_pos);
-				if (v0 < 0)
-				{
-					v0 = -v0;
-				}
 				//loc_20A70
-				if (v0 < SECTOR(1))
+				if (ABS(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+					ABS(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+					ABS(item->pos.y_pos - lara_item->pos.y_pos) < SECTOR(0.25))
 				{
-					v0 = item->pos.z_pos - lara_item->pos.z_pos;
-
-					if (v0 < 0)
-					{
-						v0 = -v0;
-					}
-
-					if (v0 < SECTOR(1))
-					{
-						v0 = item->pos.y_pos - lara_item->pos.y_pos;
-						if (v0 < 0)
-						{
-							v0 = -v0;
-						}
-
-						if (v0 < SECTOR(0.25))
-						{
-							return 1;
-						}
-					}
+					return 1;
 				}
 			}
 		}
@@ -1233,9 +1209,77 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 	return 0;
 }
 
-void AlterFloorHeight(struct ITEM_INFO* item, int height)
+void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F)
 {
-	S_Warn("[AlterFloorHeight] - Unimplemented!\n");
+	struct FLOOR_INFO* floor;
+	struct FLOOR_INFO* ceiling;
+	short room_num;
+	short joby;
+
+	joby = 0;
+
+	if (ABS(height) & 0xFF)
+	{
+		joby = 1;
+
+		if (height < 0)
+		{
+			--height;
+		}
+		else
+		{
+			++height;
+		}
+	}
+
+	//loc_1E42C
+	room_num = item->room_number;
+	floor = GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_num);
+	ceiling = GetFloor(item->pos.x_pos, (item->pos.y_pos + height) - SECTOR(1), item->pos.z_pos, &room_num);
+
+	if (floor->floor == -127)
+	{
+		if (height < 0)
+		{
+			floor->floor = (ceiling->ceiling + ((height + 255) >> 8));
+		}
+		else
+		{
+			floor->floor = (ceiling->ceiling + ((height) >> 8));
+		}
+	}
+	else
+	{
+		//loc_1E4A0
+		if (height < 0)
+		{
+			floor->floor = (floor->floor + ((height + 255) >> 8));
+		}
+		else
+		{
+			floor->floor = (floor->floor + (height >> 8));
+		}
+
+		//loc_1E4AC
+		if (floor->floor == ceiling->ceiling && joby == 0)
+		{
+			floor->floor = -127;
+		}
+	}
+
+	//loc_1E4D8
+	if ((boxes[floor->box].overlap_index & BOX_LAST))
+	{
+		if (height < 0)
+		{
+			boxes[floor->box].overlap_index |= BOX_BLOCKED;
+		}
+		else
+		{
+			//loc_1E514
+			boxes[floor->box].overlap_index &= ~BOX_BLOCKED;
+		}
+	}
 }
 
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
