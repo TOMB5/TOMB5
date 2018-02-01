@@ -1020,7 +1020,7 @@ void InterpolateAngle(short dest, short* src, short* diff, short speed)//20AF0(<
 	}
 
 	//0x20B34
-	src[0] = (src[0] >> dest) + adiff;
+	src[0] = (src[0] >> speed) + adiff;
 }
 
 int CheckGuardOnTrigger()
