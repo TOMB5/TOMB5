@@ -998,9 +998,29 @@ void ResetGuards()
 	S_Warn("[ResetGuards] - Unimplemented!\n");
 }
 
-void InterpolateAngle(short dest, short* src, short* diff, short speed)
+void InterpolateAngle(short dest, short* src, short* diff, short speed)//20AF0(<) ? (F)
 {
-	S_Warn("[InterpolateAngle] - Unimplemented!\n");
+	long adiff;
+
+	dest &= 0xFFFF;
+	adiff = dest - src[0];
+
+	if (32768 < adiff)
+	{
+		adiff += 0xFFFF0000;
+	}//0x20B18
+	else if (adiff < -32768)
+	{
+		adiff += 65536;
+	}
+
+	if (diff != NULL)
+	{
+		diff[0] = adiff;
+	}
+
+	//0x20B34
+	src[0] = (src[0] >> dest) + adiff;
 }
 
 int CheckGuardOnTrigger()
