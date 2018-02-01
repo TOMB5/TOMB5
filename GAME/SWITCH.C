@@ -1,7 +1,9 @@
 #include "SWITCH.H"
 
 #include "CONTROL.H"
+#include "EFFECTS.H"
 #include INPUT_H
+#include "SOUND.H"
 #include "SPECIFIC.H"
 #include "LARA.H"
 #include "COLLIDE.H"
@@ -124,10 +126,33 @@ void CrowDoveSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_IN
 	return;
 }
 
-void CrowDoveSwitchControl(short item_number)//58674, 58B14
+void CrowDoveSwitchControl(short item_number)//58674(<), 58B14 (F)
 {
-	S_Warn("[CrowDoveSwitchControl] - Unimplemented!\n");
-	return;
+	struct ITEM_INFO* item = &items[item_number];
+
+	if ((item->mesh_bits & 2))
+	{
+		ExplodeItemNode(item, 1, 0, 0x100);
+		SoundEffect(SFX_RAVENSWITCH_EXP, &item->pos, 0);
+		item->mesh_bits = 5;
+		RemoveActiveItem(item_number);
+	}
+	else
+	{
+		//0x586F0
+		if (item->current_anim_state == 0)
+		{
+			item->goal_anim_state = 1;
+		}
+
+		//0x58704
+		AnimateItem(item);
+
+		if (item->current_anim_state == 0)
+		{
+			item->pos.y_rot += 16384;
+		}
+	}
 }
 
 void CogSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//58354, 587F4
