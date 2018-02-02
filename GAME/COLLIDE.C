@@ -62,11 +62,6 @@ int TestBoundsCollideStatic(short* bounds, struct PHD_3DPOS* pos, long radius)//
 	return 0;
 }
 
-void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A098, 2A2C0
-{
-	S_Warn("[TrapCollision] - Unimplemented!\n");
-}
-
 void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A03C(<), 2A264 (F)
 {
 	struct ITEM_INFO* item = &items[item_num];
@@ -76,6 +71,28 @@ void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_I
 		item->active = 1;
 		item->status = 1;
 	}
+}
+
+void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A098(<), 2A2C0 (F)
+{
+	struct ITEM_INFO* item = &items[item_num];
+
+	if (item->status == 1)
+	{
+		if (TestBoundsCollide(item, laraitem, coll->radius) == 0)
+		{
+			return;
+		}
+
+		ObjectCollision(item_num, lara_item, coll);
+	}
+	else if(item->status == 3)
+	{
+		//0x2A110
+		ObjectCollision(item_num, lara_item, coll);
+	}
+
+	//0x2A128
 }
 
 void CreatureCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//29E10, 2A024
