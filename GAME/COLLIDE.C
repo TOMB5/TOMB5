@@ -3,6 +3,7 @@
 #include "CONTROL.H"
 #include "ITEMS.H"
 #include "LARA.H"
+#include "OBJECTS.H"
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
 #include <stddef.h>
@@ -66,9 +67,15 @@ void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO*
 	S_Warn("[TrapCollision] - Unimplemented!\n");
 }
 
-void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A03C, 2A264
+void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A03C(<), 2A264 (F)
 {
-	S_Warn("[AIPickupCollision] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_num];
+
+	if (item->object_number == SWITCH_TYPE7 && !(item->mesh_bits & 1))
+	{
+		item->active = 1;
+		item->status = 1;
+	}
 }
 
 void CreatureCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//29E10, 2A024
