@@ -1,11 +1,10 @@
 #include "PROFILE.H"
 
 #include "GPU.H"
-#include "SPECIFIC.H"
 
 #include <LIBAPI.H>
 
-static struct SCALE scales[3] =
+static struct SCALE scales[] =
 {
 	{ 260, 0, 2 },
 	{ 130, 1, 3 },
@@ -24,15 +23,15 @@ static short drawCount;
 static short profile_xcnt;
 struct COCKSUCK ProfileInfo[32];
 
-void ProfileCallBack()//6194C, * (F)
+void ProfileCallBack()//6194C, * (F) (*)
 {
 #ifndef PAELLA
-	drawCount = GetRCnt(RCntCNT1) / divisor;
+	drawCount = GetRCnt(RCntCNT1) >> divisor;
 	return;
 #endif
 }
 
-void ProfileInit(int scale)//61978, * (F)
+void ProfileInit(int scale)//61978, * (F) (*)
 {
 #ifndef PAELLA
 	grid = scales[scale].xgrid;
@@ -52,7 +51,7 @@ void ProfileInit(int scale)//61978, * (F)
 #endif
 }
 
-void ProfileStartCount()//61A0C, * (F)
+void ProfileStartCount()//61A0C, * (F) (*)
 {
 #ifndef PAELLA
 	ResetRCnt(RCntCNT1);
@@ -66,14 +65,14 @@ void ProfileStartCount()//61A0C, * (F)
 #endif
 }
 
-void ProfileReadCount()//61A48(<), * (F)
+void ProfileReadCount()//61A48(<), * (F) (*)
 {
 #ifndef PAELLA
 	int lastCount = currentCount;
 
 	currentCount = GetRCnt(RCntCNT1);
 
-	finalCount = (currentCount - lastCount) / divisor;
+	finalCount = (currentCount - lastCount) >> divisor;
 
 	return;
 #endif
@@ -81,6 +80,7 @@ void ProfileReadCount()//61A48(<), * (F)
 
 void ProfileAddOT(unsigned long* ot)//61A90, * (F)
 {
+#ifndef PAELLA
 	int count = 0;
 
 	if (nummarks > 0)
@@ -142,10 +142,12 @@ void ProfileAddOT(unsigned long* ot)//61A90, * (F)
 			}
 		}
 	}
+#endif
 }
 
 void ProfileRGB(int r, int g, int b)//61C94, * (F)
 {
+#ifndef PAELLA
 	ProfileReadCount();
 
 	ProfileInfo[numprof].r = r;
@@ -157,11 +159,13 @@ void ProfileRGB(int r, int g, int b)//61C94, * (F)
 
 	profile_xcnt += finalCount;
 	numprof++;
+#endif
 	return;
 }
 
 void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 {
+#ifndef PAELLA
 	char count = 0;
 
 	if (nummarks > 0)
@@ -231,6 +235,7 @@ void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 		ot[0] = ot[0] & 0xFF000000 | (long) db.polyptr & 0xFFFFFF;
 		db.polyptr += 0x24;
 	}
+#endif
 }
 
 
