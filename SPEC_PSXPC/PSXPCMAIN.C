@@ -4,7 +4,7 @@
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
-#include "MEMCARD.H"
+#include "MISC.H"
 #include "PROFILE.H"
 #include "PSXPCINPUT.H"
 #include "SAVEGAME.H"
@@ -12,6 +12,7 @@
 #include "SPECIFIC.H"
 #include "SPUSOUND.H"
 #include "TEXT.H"
+
 #include <SDL.h>
 
 // SDL breaks build on PSX

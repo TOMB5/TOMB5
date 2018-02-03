@@ -33,8 +33,8 @@ extern long RawEdge;
 extern unsigned char Motors[2];
 extern long LaraLookY;
 extern long LaraLookX;
-extern struct ControllerPacket GPad1;
-extern struct ControllerPacket GPad2;
+extern volatile ControllerPacket GPad1;
+extern volatile ControllerPacket GPad2;
 extern unsigned long Edge2;
 extern struct GouraudBarColourSet healthBarColourSet;
 extern struct GouraudBarColourSet poisonBarColourSet;
@@ -42,5 +42,6 @@ extern struct GouraudBarColourSet airBarColourSet;
 extern struct GouraudBarColourSet dashBarColourSet;
 
 extern void S_UpdateInput();
+extern void InitialisePadSubsystem();
 
 #endif

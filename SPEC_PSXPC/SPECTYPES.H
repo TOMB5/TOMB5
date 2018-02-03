@@ -359,4 +359,105 @@ struct DRIP_STRUCT
 	unsigned char Pad; // size=0, offset=23
 };
 
+struct RECTPSX {
+	short x; // size=0, offset=0
+	short y; // size=0, offset=2
+	short w; // size=0, offset=4
+	short h; // size=0, offset=6
+};
+struct DR_ENV {
+	unsigned long tag; // size=0, offset=0
+	unsigned long code[15]; // size=60, offset=4
+};
+struct DRAWENV {
+	struct RECTPSX clip; // size=8, offset=0
+	short ofs[2]; // size=4, offset=8
+	struct RECTPSX tw; // size=8, offset=12
+	unsigned short tpage; // size=0, offset=20
+	unsigned char dtd; // size=0, offset=22
+	unsigned char dfe; // size=0, offset=23
+	unsigned char isbg; // size=0, offset=24
+	unsigned char r0; // size=0, offset=25
+	unsigned char g0; // size=0, offset=26
+	unsigned char b0; // size=0, offset=27
+	struct DR_ENV dr_env; // size=64, offset=28
+};
+struct DISPENV {
+	struct RECTPSX disp; // size=8, offset=0
+	struct RECTPSX screen; // size=8, offset=8
+	unsigned char isinter; // size=0, offset=16
+	unsigned char isrgb24; // size=0, offset=17
+	unsigned char pad0; // size=0, offset=18
+	unsigned char pad1; // size=0, offset=19
+};
+
+struct DB_STRUCT
+{
+	int current_buffer; // size=0, offset=0
+	unsigned long *ot; // size=0, offset=4
+	char *polyptr; // size=0, offset=8
+	char *curpolybuf; // size=0, offset=12
+	char *polybuf_limit; // size=0, offset=16
+	int nOTSize; // size=0, offset=20
+	int nPBSize; // size=0, offset=24
+	unsigned long *order_table[2]; // size=8, offset=28
+	unsigned long *poly_buffer[2]; // size=8, offset=36
+	unsigned long *pickup_ot; // size=0, offset=44
+	unsigned long *pickup_order_table[2]; // size=8, offset=48
+	struct DRAWENV draw[2]; // size=184, offset=56
+	struct DISPENV disp[2]; // size=40, offset=240
+};
+
+typedef unsigned short PadData;
+
+typedef struct
+{
+	unsigned short buttons;
+	char xOffset;
+	char yOffset;
+} MouseData;
+
+typedef struct
+{
+	unsigned short digitalButtons;
+	char centralTwist;
+	char buttonI;
+	char buttonII;
+	char topLeft;
+} NegconData;
+
+typedef struct
+{
+	unsigned char transStatus;
+	unsigned char dataFormat;
+
+	union
+	{
+		PadData    pad;
+		NegconData negcon;
+	}
+	data;
+} TapCtrllerData;
+
+typedef struct
+{
+	TapCtrllerData ctrllers[4];
+} MultiTapData;
+
+
+typedef struct
+{
+	unsigned char transStatus;
+	unsigned char dataFormat;
+
+	union
+	{
+		PadData      pad;
+		MouseData    mouse;
+		NegconData   negcon;
+		MultiTapData tap;
+	}
+	data;
+} ControllerPacket;
+
 #endif

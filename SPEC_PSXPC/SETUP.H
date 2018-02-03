@@ -4,18 +4,18 @@
 #include "OBJECTS.H"
 #include "SPECTYPES.H"
 
-#if INTERNAL
-#include <stdio.h>
+#if DEBUG_VERSION || !DISC_VERSION
+	#include <stdio.h>
 #endif
 
 #ifndef PSX_FILE_VERSION
 	#define PSX_FILE_VERSION OBJECT_VERSION * -1
 #endif
 
-#if INTERNAL
-extern void RelocateLevel(FILE* nHandle);
-#else
+#if DISC_VERSION
 extern void RelocateLevel();
+#else
+extern void RelocateLevel(FILE* nHandle);
 #endif
 
 extern long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize);

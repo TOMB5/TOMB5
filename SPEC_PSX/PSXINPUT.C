@@ -54,6 +54,7 @@ int dword_A1898;
 
 void S_UpdateInput()//5F628(<), 6038C(<)
 {
+#ifndef PAELLA
 	int state; // $s1
 	unsigned char type; // $s2
 	unsigned long in; // $s0
@@ -578,11 +579,13 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 
 	//v0 = Pad2.3;
 	//v1 = 0xA0000
+#if 0
 	if (Pad2.3 & 0x800)
 	{
 		S_Warn("[S_UpdateInput] - Break 0x400!\n");
 
 	}//loc_6002C
+#endif
 #endif
 
 	inputBusy = in;
@@ -616,4 +619,5 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	}//loc_600CC
 
 	return;
+#endif
 }

@@ -3,11 +3,13 @@
 #include "SPECIFIC.H"
 #include "EFFECT2.H"
 #include "LARA.H"
+#include "OBJECTS.H"
 #include "DELSTUFF.H"
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "DRAWPHAS.H"
 #include "CAMERA.H"
+#include "MATHS.H"
 #include "EFFECTS.H"
 #include "DELTAPAK.H"
 #include "SOUND.H"
@@ -38,6 +40,7 @@ long next_gunshell = 0;
 long next_bubble = 0;
 long next_drip = 0;
 long next_blood = 0;
+long next_spider = 0;
 
 struct NODEOFFSET_INFO NodeOffsets[16] = // offset 0xA0A24
 {
@@ -251,10 +254,55 @@ int GetFreeSmokeSpark()
 	return 0;
 }
 
-int GetFreeSpark()
+int GetFreeSpark()//8B2F8(<), 8D33C(<) (F)
 {
-	S_Warn("[GetFreeSpark] - Unimplemented!\n");
-	return 0;
+	long lp;
+	struct SPARKS* sptr;
+	struct SPARKS* fsptr;
+	long free = next_spark;
+
+	sptr = &spark[free];
+
+	for (lp = 0; lp < 0x80; lp++, sptr++)
+	{
+		if (!sptr->On)
+		{
+
+			next_spark = (free + 1) & 0x7F;
+			sptr->Def = objects[DEFAULT_SPRITES].mesh_index;
+			sptr->extras = 0;
+			sptr->Dynamic = -1;
+			return free;
+
+		}
+		
+		//loc_8B35C
+		if (free++ == 0x7F)
+		{
+			sptr = (struct SPARKS*)&temp_rotation_buffer[0];
+			free = 0;
+		}
+	}
+
+	sptr = &spark[0];
+
+	//loc_8B394
+	for (lp = 0; lp < 0x80; ++lp, sptr++)
+	{
+		if (sptr->Life < 0xFFF && sptr->Dynamic == -1 && !(sptr->Flags & 0x20))
+		{
+			free = lp - 1;
+			fsptr = sptr;
+		}//loc_8B3C8
+	}
+
+	next_spark = (free + 1) & 0x7F;
+	fsptr->Def = objects[DEFAULT_SPRITES].mesh_index;
+	fsptr->extras = 0;
+	fsptr->Dynamic = -1;
+
+	return free;
+
 }
 
 int GetFreeBubble()//8BEAC(<), 8DEF0(<) (F)
@@ -355,10 +403,42 @@ void TriggerShatterSmoke(int x, int y, int z)//8AA14(<), 8CA58(<) (F)
 	smoke->Size = smoke->dSize >> 3;
 }
 
-int GetFreeBlood()
+int GetFreeBlood()// (F)
 {
-	S_Warn("[GetFreeBlood] - Unimplemented!\n");
-	return 0;
+	struct BLOOD_STRUCT* bptr = &blood[next_blood];
+	int bptr_num = next_blood;
+	int min_life = 4095;
+	int min_life_num = 0;
+	int count = 0;
+	
+	while(bptr->On)
+	{
+		if (bptr->Life < min_life)
+		{
+			min_life_num = bptr_num;
+			min_life = bptr->Life;
+		}
+
+		if (bptr_num == 31)
+		{
+			bptr = &blood[0];
+			bptr_num = 0;
+		}
+		else
+		{
+			bptr++;
+			bptr_num++;
+		}
+
+		if (++count >= 32)
+		{
+			next_blood = (min_life_num + 1) & 31;
+			return min_life_num;
+		}
+	}
+
+	next_blood = (bptr_num + 1) & 31;
+	return bptr_num;
 }
 
 void TriggerBlood(int x, int y, int z, int a4, int num)// (F)
@@ -629,7 +709,8 @@ void Fade()//34B78(<), 35078(<) (F)
 #if PSX_VERSION
 	 DrawPsxTile(0, 0xF00200, (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade | 0x62000000, 2);
 #else
-	S_Warn("[Fade] - Unimplemented!\n");
+	// todo add DrawPsxTile on spec_psxpc and spec_pc
+	//DrawPsxTile(0, window_width | (window_height << 16), (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade);
 #endif
 }
 
@@ -733,7 +814,45 @@ void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
 	S_Warn("[TriggerRicochetSpark] - Unimplemented!\n");
 }
 
-void Ricochet(struct GAME_VECTOR* pos)
+void Richochet(struct GAME_VECTOR* pos)// (F)
 {
-	S_Warn("[Ricochet] - Unimplemented!\n");
+	TriggerRicochetSpark(pos, mGetAngle(pos->z, pos->x, lara_item->pos.z_pos, lara_item->pos.x_pos) >> 4, 3, 0);
+	SoundEffect(SFX_LARA_RICOCHET, (struct PHD_3DPOS*)pos, 0);
+}
+
+void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int a4, char a5, char a6, char a7)
+{
+	S_Warn("[TriggerLightning] - Unimplemented!\n");
+}
+
+void TriggerCoinGlow()
+{
+	S_Warn("[TriggerCoinGlow] - Unimplemented!\n");
+}
+
+int GetFreeSpider()// (F)
+{
+	struct SPIDER_STRUCT* peter = &Spiders[next_spider];
+	int peter_num = next_spider;
+	int count = 0;
+
+	while (peter->On)
+	{
+		if (peter_num == 63)
+		{
+			peter = &Spiders[0];
+			peter_num = 0;
+		}
+		else
+		{
+			peter++;
+			peter_num++;
+		}
+
+		if (++count >= 64)
+			return -1;
+	}
+
+	next_spider = (peter_num + 1) & 63;
+	return peter_num;
 }

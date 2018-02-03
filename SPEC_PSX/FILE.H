@@ -4,8 +4,8 @@
 #include <stdio.h>
 
 extern int FILE_Load(char* szFileName, void* pDest);
-extern int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle);
 extern unsigned long FILE_Length(char* szFileName);
+extern int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle);
 extern void RelocateModule(unsigned long Module, unsigned long* RelocData);
 
 #endif

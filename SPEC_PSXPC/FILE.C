@@ -3,14 +3,9 @@
 #include "CD.H"
 #include "SPECIFIC.H"
 
-#ifdef PSX
-	#include <sys/types.h>
-	#include <libcd.h>
-#endif
-
 #include <stdio.h>
 
-int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8
+int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 {
 	FILE* fileHandle = NULL;
 	long dwFileSize = 0;
@@ -31,25 +26,17 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8
 
 		printf("Close\n");
 		fclose(fileHandle);
-
-		
 	}
 	else
 	{
 		printf("FILE_Load: '%s' Could not open!\n", szFileName);
-		S_ExitSystem("FILE_Load: '%s' Could not open!\n");
-		printf("Can't open file");//?
+		S_ExitSystem("Can't open file");
 	}
 
 	return dwBytesRead;
 }
 
-int FILE_Read(void* pDest, int nItemSize, int nItems, FILE* nHandle)//5E6A8, 
-{
-	return fread(pDest, nItemSize, nItems, nHandle);
-}
-
-unsigned long FILE_Length(char* szFileName)//5E60C, 5E578
+unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
 {
 	FILE* fileHandle = NULL;
 	unsigned long dwFileSize = -1;
@@ -59,7 +46,6 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578
 
 	if (fileHandle != NULL)
 	{
-		printf(".");//?
 		printf("Seek\n");
 		fseek(fileHandle, 0, SEEK_END);
 		dwFileSize = ftell(fileHandle);
@@ -73,6 +59,11 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578
 	}
 
 	return dwFileSize;
+}
+
+int FILE_Read(void* pDest, int nItemSize, int nItems, FILE* nHandle)//5E6A8(<), ? (F)
+{
+	return fread(pDest, nItemSize, nItems, nHandle);
 }
 
 void RelocateModule(unsigned long Module, unsigned long* RelocData)//5E6D4(<), 5F430(<) (F)

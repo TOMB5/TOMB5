@@ -3,10 +3,8 @@
 
 #include "SPECTYPES.H"
 
-extern void LOAD_DrawEnable(unsigned char isEnabled);
-extern void LOAD_Stop();
 extern void LOAD_Start(int file_number);
-extern void LOAD_VSyncHandler();
+extern void LOAD_Stop();
 
 extern unsigned char LtLoadingBarEnabled;
 extern unsigned char LoadingBarEnabled;
