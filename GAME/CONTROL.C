@@ -245,6 +245,7 @@ struct CHARDEF CharDef[106] =
 	{ 0x2A, 0, 0x29, 0xD, -0xA, 6, 0xB },
 	{ 0x7E, 0, 0x29, 0xD, -0xA, 6, 0xB }
 };
+struct ROPE_STRUCT Ropes[12];
 
 char byte_A3660;
 
@@ -1611,12 +1612,7 @@ void AnimateItem(struct ITEM_INFO* item)
 	S_Warn("[AnimateItem] - Unimplemented!\n");
 }
 
-void Straighten(struct ROPE_STRUCT* a1, struct PHD_VECTOR* a2, struct PHD_VECTOR* a3, long a4)
+void UpdateSpiders()
 {
-	S_Warn("[Straighten] - Unimplemented!\n");
-}
-
-void StraightenRope(struct ITEM_INFO* item)
-{
-	S_Warn("[StraightenRope] - Unimplemented!\n");
+	S_Warn("[UpdateSpiders] - Unimplemented!\n");
 }

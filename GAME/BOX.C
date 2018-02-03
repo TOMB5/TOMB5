@@ -434,10 +434,36 @@ void CreatureDie(short item_number, int explode)// (F)
 	}
 }
 
-int BadFloor(long x, long y, long z, long box_height, long next_height, int room_number, struct lot_info* LOT)
+int BadFloor(long x, long y, long z, long box_height, long next_height, int room_number, struct lot_info* LOT)// (F)
 {
-	S_Warn("[BadFloor] - Unimplemented!\n");
-	return 0;
+	short room_num = room_number;
+	struct FLOOR_INFO* floor = GetFloor(x, y, z, &room_num);	
+	long height;
+
+	if (floor->box == 32752)
+		return TRUE;
+
+	if (LOT->is_jumping)
+		return FALSE;
+
+	if (boxes[floor->box].overlap_index & LOT->block_mask)
+		return TRUE;
+
+	height = boxes[floor->box].height;
+
+	if (box_height - height > LOT->step)
+		return TRUE;
+
+	if (box_height - height < LOT->drop)
+		return TRUE;
+
+	if (box_height - height < -LOT->step && height > next_height)
+		return TRUE;
+
+	if (LOT->fly && y > height + LOT->fly)
+		return TRUE;
+
+	return FALSE;
 }
 
 int CreatureCreature(short item_number)
