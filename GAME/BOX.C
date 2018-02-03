@@ -434,54 +434,36 @@ void CreatureDie(short item_number, int explode)// (F)
 	}
 }
 
-int BadFloor(long x, long y, long z, long box_height, long next_height, int room_number, struct lot_info* LOT)//231CC(<), (<) (F)
+int BadFloor(long x, long y, long z, long box_height, long next_height, int room_number, struct lot_info* LOT)// (F)
 {
+	short room_num = room_number;
+	struct FLOOR_INFO* floor = GetFloor(x, y, z, &room_num);	
 	long height;
 
-	if (GetFloor(x, y, z, (short*) &room_number)->fx == 0x7FF0)
-	{
-		return 1;
-	}
+	if (floor->box == 32752)
+		return TRUE;
 
-	//loc_232BC
 	if (LOT->is_jumping)
-	{
-		return 0;
-	}
+		return FALSE;
 
-	if ((boxes[(x >> 1) & 0x3FF8].overlap_index & LOT->block_mask))
-	{
-		return 1;
-	}
+	if (boxes[floor->box].overlap_index & LOT->block_mask)
+		return TRUE;
 
-	height = boxes[(x >> 1) & 0x3FF8].height;
+	height = boxes[floor->box].height;
 
-	if (LOT->step < (box_height - height))
-	{
-		return 1;
-	}
+	if (box_height - height > LOT->step)
+		return TRUE;
 
-	if (LOT->drop < (box_height - height))
-	{
-		return 1;
-	}
+	if (box_height - height < LOT->drop)
+		return TRUE;
 
-	if ((box_height - height) < -LOT->step && next_height < height)
-	{
-		return 1;
-	}
+	if (box_height - height < -LOT->step && height > next_height)
+		return TRUE;
 
-	if (LOT->fly == 0)
-	{
-		return 0;
-	}
+	if (LOT->fly && y > height + LOT->fly)
+		return TRUE;
 
-	if ((LOT->fly + height) < y)
-	{
-		return 1;
-	}
-
-	return 0;
+	return FALSE;
 }
 
 int CreatureCreature(short item_number)
