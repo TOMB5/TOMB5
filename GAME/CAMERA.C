@@ -1556,3 +1556,8 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)
 {
 	S_Warn("[MoveCamera] - Unimplemented!\n");
 }
+
+void CheckForRichesIllegalDiagonalWalls()
+{
+	S_Warn("[CheckForRichesIllegalDiagonalWalls] - Unimplemented!\n");
+}

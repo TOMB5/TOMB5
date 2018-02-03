@@ -6,14 +6,21 @@
 #include "DRAW.H"
 #include "EFFECTS.H"
 #include "ITEMS.H"
+#include "LARA.H"
 #include "ROOMLOAD.H"
+#if PSXENGINE
 #include "SETUP.H"
+#endif
 #include "SOUND.H"
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
 #include "TOMB4FX.H"
 
 #include <stddef.h>
+#include "SWITCH.H"
+#include "EFFECT2.H"
+#include "DEBRIS.H"
+#include "GAMEFLOW.H"
 
 struct BITE_INFO EnemyBites[9] =
 {
@@ -61,9 +68,110 @@ void CutsceneRopeControl(short item_number)
 	S_Warn("[CutsceneRopeControl] - Unimplemented!\n");
 }
 
-void ControlXRayMachine(short item_number)
+void ControlXRayMachine(short item_number)// (F)
 {
-	S_Warn("[ControlXRayMachine] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_number];
+
+	if (!TriggerActive(item))
+		return;
+
+	if (item->trigger_flags == 0)
+	{
+		if (item->item_flags[0] == 666)
+		{
+			if (item->item_flags[1] != 0)
+			{
+				item->item_flags[1]--;
+			}
+			else
+			{
+				item->item_flags[1] = 30;
+				SoundEffect(SFX_ALARM, &item->pos, 0);
+			}
+		}
+
+		if (lara.skelebob)
+		{
+			if (lara.hk_type_carried & WTYPE_PRESENT)
+			{
+				TestTriggersAtXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 1, 0);
+				item->item_flags[0] = 666;
+			}
+		}
+
+		return;
+	}
+
+	switch(item->trigger_flags)
+	{
+	case 111:
+		if (item->item_flags[0] != 0)
+		{
+			item->item_flags[0]--;
+
+			if (item->item_flags[0] == 0)
+			{
+				TestTriggersAtXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 1, 0);
+				RemoveActiveItem(item_number);
+				item->flags |= IFLAG_INVISIBLE;
+			}
+
+			return;
+		}
+
+		if (lara.Fired)
+			item->item_flags[0] = 15;
+		break;
+
+	case 222:
+		if (item->item_flags[1] >= 144)
+		{
+			TestTriggersAtXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 1, 0);
+			RemoveActiveItem(item_number);
+			item->flags |= IFLAG_INVISIBLE;
+			return;
+		}
+
+		if (item->item_flags[1] < 128)
+		{
+			SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &item->pos, 0);
+			TriggerFontFire(&items[item->item_flags[0]], item->item_flags[1], item->item_flags[1] == 0 ? 16 : 1);
+		}
+
+		++item->item_flags[1];
+		break;
+
+	case 333:
+	{
+		struct room_info* r = &room[item->room_number];
+		struct MESH_INFO* mesh = r->mesh;
+		int j;
+
+		for (j = 0; j < r->num_meshes; j++, mesh++)
+		{
+			if (mesh->Flags & 1)
+			{
+				if (item->pos.x_pos == mesh->x &&
+					item->pos.y_pos == mesh->y &&
+					item->pos.z_pos == mesh->z)
+				{
+					ShatterObject(NULL, mesh, 128, item->room_number, 0);
+					mesh->Flags &= ~1;
+					SoundEffect(ShatterSounds[gfCurrentLevel - 5][mesh->static_number], (struct PHD_3DPOS*)&mesh->x, 0);
+				}
+			}
+		}
+
+		RemoveActiveItem(item_number);
+		item->flags |= IFLAG_INVISIBLE;
+		break;
+	}
+
+	default:
+		TestTriggersAtXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 1, 0);
+		RemoveActiveItem(item_number);
+		break;
+	}
 }
 
 void ParallelBarsCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)

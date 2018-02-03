@@ -1,8 +1,10 @@
 #include "LOADSAVE.H"
 
 #include "DRAWPHAS.H"
+#include "FXTRIG.H"
 #include "GAMEFLOW.H"
 #include "MEMCARD.H"
+#include "MISC.H"
 #include "SPECIFIC.H"
 
 #include <stdio.h>
@@ -23,19 +25,6 @@ static struct REQUESTER FormatErrorReq;
 static struct REQUESTER NotFormatReq;
 static struct REQUESTER NoSpaceReq;
 static struct REQUESTER NoGamesReq;
-
-
-int SaveGame()//62E3C, 63520
-{
-	S_Warn("[SaveGame] - Unimplemented!\n");
-	return 0;
-}
-
-int LoadGame()//6297C, 63060
-{
-	S_Warn("[LoadGame] - Unimplemented!\n");
-	return 0;
-}
 
 int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 {
@@ -106,14 +95,26 @@ int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 			}
 
 			//DrawF4(32, y & 0xFFFF, 448, 23);
-			//DrawTPage(0, 0);
-			//DrawLineH(34,  (y + 1)  & 0xFFFF, 444, 0);
-			//DrawLineH(34,  (y + 21) & 0xFFFF, 444, 0);
-			//DrawLineV(34,  (y + 1)  & 0xFFFF,  21, 0);
-			//DrawLineV(477, (y + 1)  & 0xFFFF,  21, 0);
-			//DrawTPage(0, 1);
+			DrawTPage(0, 0);
+			DrawLineH(34, (y + 1) & 0xFFFF, 444, 0);
+			DrawLineH(34, (y + 21) & 0xFFFF, 444, 0);
+			DrawLineV(34, (y + 1) & 0xFFFF, 21, 0);
+			DrawLineV(477, (y + 1) & 0xFFFF, 21, 0);
+			DrawTPage(0, 1);
 		}
 	}
 
 	return n;
+}
+
+int LoadGame()//6297C, 63060
+{
+	S_Warn("[LoadGame] - Unimplemented!\n");
+	return 0;
+}
+
+int SaveGame()//62E3C, 63520
+{
+	S_Warn("[SaveGame] - Unimplemented!\n");
+	return 0;
 }
