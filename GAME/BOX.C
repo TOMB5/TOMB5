@@ -349,7 +349,7 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 
 	if (change < -0x222)
 	{
-		change -= 0x222;
+	change -= 0x222;
 	}
 	else
 	{
@@ -370,19 +370,19 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 
 void CreatureTilt(struct ITEM_INFO* item, short angle)//24418(<), 24624(<) (F)
 {
-	angle = (angle << 2) - item->pos.z_rot;
-	
-	if(angle < ANGLE(-3))
-		angle = ANGLE(-3);
-	else if (angle > ANGLE(3))
-		angle = ANGLE(3);
+angle = (angle << 2) - item->pos.z_rot;
 
-	if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
-	{
-		angle >>= 1;
-	}
-	
-	item->pos.z_rot += angle; // todo in orig code (mips) z_rot is lhu'd into v0 as unsigned, here i skipped that part, maybe it'll break
+if (angle < ANGLE(-3))
+	angle = ANGLE(-3);
+else if (angle > ANGLE(3))
+angle = ANGLE(3);
+
+if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
+{
+	angle >>= 1;
+}
+
+item->pos.z_rot += angle; // todo in orig code (mips) z_rot is lhu'd into v0 as unsigned, here i skipped that part, maybe it'll break
 }
 
 short CreatureTurn(struct ITEM_INFO* item, short maximum_turn)
