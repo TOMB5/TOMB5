@@ -349,7 +349,7 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 
 	if (change < -0x222)
 	{
-		change -= 0x222;
+	change -= 0x222;
 	}
 	else
 	{
@@ -370,19 +370,19 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 
 void CreatureTilt(struct ITEM_INFO* item, short angle)//24418(<), 24624(<) (F)
 {
-	angle = (angle << 2) - item->pos.z_rot;
-	
-	if(angle < ANGLE(-3))
-		angle = ANGLE(-3);
-	else if (angle > ANGLE(3))
-		angle = ANGLE(3);
+angle = (angle << 2) - item->pos.z_rot;
 
-	if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
-	{
-		angle >>= 1;
-	}
-	
-	item->pos.z_rot += angle; // todo in orig code (mips) z_rot is lhu'd into v0 as unsigned, here i skipped that part, maybe it'll break
+if (angle < ANGLE(-3))
+	angle = ANGLE(-3);
+else if (angle > ANGLE(3))
+angle = ANGLE(3);
+
+if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
+{
+	angle >>= 1;
+}
+
+item->pos.z_rot += angle; // todo in orig code (mips) z_rot is lhu'd into v0 as unsigned, here i skipped that part, maybe it'll break
 }
 
 short CreatureTurn(struct ITEM_INFO* item, short maximum_turn)
@@ -434,9 +434,53 @@ void CreatureDie(short item_number, int explode)// (F)
 	}
 }
 
-int BadFloor(long x, long y, long z, long box_height, long next_height, int room_number, struct lot_info* LOT)
+int BadFloor(long x, long y, long z, long box_height, long next_height, int room_number, struct lot_info* LOT)//231CC(<), (<) (F)
 {
-	S_Warn("[BadFloor] - Unimplemented!\n");
+	long height;
+
+	if (GetFloor(x, y, z, (short*) &room_number)->fx == 0x7FF0)
+	{
+		return 1;
+	}
+
+	//loc_232BC
+	if (LOT->is_jumping)
+	{
+		return 0;
+	}
+
+	if ((boxes[(x >> 1) & 0x3FF8].overlap_index & LOT->block_mask))
+	{
+		return 1;
+	}
+
+	height = boxes[(x >> 1) & 0x3FF8].height;
+
+	if (LOT->step < (box_height - height))
+	{
+		return 1;
+	}
+
+	if (LOT->drop < (box_height - height))
+	{
+		return 1;
+	}
+
+	if ((box_height - height) < -LOT->step && next_height < height)
+	{
+		return 1;
+	}
+
+	if (LOT->fly == 0)
+	{
+		return 0;
+	}
+
+	if ((LOT->fly + height) < y)
+	{
+		return 1;
+	}
+
 	return 0;
 }
 
