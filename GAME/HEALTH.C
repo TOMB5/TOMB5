@@ -172,7 +172,7 @@ void DrawGameInfo(int timed)//3AD68(<), 3B268(!)
 #endif
 } // line 79, offset 0x3b0a0
 
-int FlashIt()//3AD2C, 3B22C
+int FlashIt()//3AD2C, 3B22C (F)
 {
 	static int flash_state;
 	static int flash_count;

@@ -53,12 +53,6 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 #endif
 }
 
-int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? (F)
-{
-	int nAmount = nItems * nItemSize;
-	return PCread(nHandle, pDest, nAmount);
-}
-
 unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
 {
 #if DISC_VERSION
@@ -68,7 +62,7 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
 
 	DEL_ChangeCDMode(0);
 	sprintf(buf, "\\%s;1", szFileName);
-	
+
 	if (CdSearchFile(&fp, buf))
 	{
 		dwFileSize = fp.size;
@@ -100,9 +94,14 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
 #endif
 }
 
+int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? (F)
+{
+	int nAmount = nItems * nItemSize;
+	return PCread(nHandle, pDest, nAmount);
+}
+
 void RelocateModule(unsigned long Module, unsigned long* RelocData)//5E6D4(<), 5F430(<) (F)
 {
-	//TODO check param ptrs on PSX, untested!
 	unsigned long* pModule;
 	unsigned long RelocationType;
 

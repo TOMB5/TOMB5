@@ -21,7 +21,7 @@ int S_PlayFMV(int sequence, int flag)//*, (<)5E7A0
 	}
 	
 	//5E7F8
-	FMV_InitialiseScreen();
+	FMV_InitialiseVRAM();
 	
 	//VSync(0);
 	//env.disp.w = 240;
@@ -62,7 +62,7 @@ int S_PlayFMV(int sequence, int flag)//*, (<)5E7A0
 	return -1;//TODO
 }
 
-void FMV_InitialiseScreen()//*, 5F160(<) (F)
+void FMV_InitialiseVRAM()//*, 5F160(<) (F)
 {
 #if 0
 	RECT rect;

@@ -6,6 +6,7 @@
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
+#include "DELSTUFF.H"
 #include "EFFECT2.H"
 #include "GAMEFLOW.H"
 #include "HAIR.H"
@@ -15,6 +16,7 @@
 #include "LARA1GUN.H"
 #include "LARA2GUN.H"
 #include "LOT.H"
+#include "MATHS.H"
 #include "NEWINV2.H"
 #include "OBJECTS.H"
 #include "ROOMLOAD.H"
@@ -37,6 +39,7 @@
 #include <stddef.h>
 #include "SOUND.H"
 #include "EFFECTS.H"
+#include <stdio.h>
 
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
@@ -2859,9 +2862,40 @@ void init_cutseq_malloc()//2D110(<), 2D430(<) (F)
 	return;
 }
 
-void frigup_lara()
+void frigup_lara()//2D000(<), ? (F)
 {
-	S_Warn("[frigup_lara] - Unimplemented!\n");
+	struct object_info* object;
+	long* bone;
+	short* frame;
+
+	lara_item->pos.x_pos = GLOBAL_cutme->orgx;
+	lara_item->pos.y_pos = GLOBAL_cutme->orgy;
+	lara_item->pos.z_pos = GLOBAL_cutme->orgz;
+
+	if (GLOBAL_cutme->actor_data[0].objslot == -1)
+	{
+		return;
+	}
+
+	frame = &temp_rotation_buffer[0];
+	object = &objects[lara_item->object_number];
+	bone = &bones[object->bone_index];
+
+	//updateAnimFrame(&actor_pnodes[0], 0x10, frame);
+	//DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 0);
+	mPushUnitMatrix();
+	//DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 1);
+	mPopMatrix();
+
+	//HairControl(0, 0, frame);
+
+	if ((gfLevelFlags & GF_LVOP_YOUNG_LARA))
+	{
+		//HairControl(0, 1, frame);
+	}
+
+	//loc_2D0F0
+	GLaraShadowframe = &frig_shadow_bbox[0];
 }
 
 void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* packed, int numnodes)

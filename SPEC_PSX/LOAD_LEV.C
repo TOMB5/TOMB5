@@ -5,20 +5,15 @@
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "MALLOC.H"
+#include "MISC.H"
 #include "PROFILE.H"
 #include "TYPES.H"
 #include "SPECTYPES.H"
+
 #include <assert.h>
 #include <stddef.h>
 #include <LIBGTE.H>
-
-#if 0
-#include <limits>
-#endif
-
-#ifndef SHRT_MAX
-	#define SHRT_MAX 32767
-#endif
+#include <LIBETC.H>
 
 unsigned char LtLoadingBarEnabled;
 unsigned char LoadingBarEnabled;
@@ -308,42 +303,6 @@ short atanTab[] =
 	0x1FEC, 0x1FEE, 0x1FF1, 0x1FF3, 0x1FF6, 0x1FF8, 0x1FFB, 0x1FFD, 0x2000, 0x2000
 };
 
-void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
-{
-	int a0, a1, a2;
-	if (!LtLoadingBarEnabled)
-	{
-		return;
-	}
-
-	//loc_5F08C
-	GPU_BeginScene();
-
-	a0 = 440;//x?
-	a1 = 200;//y?
-	a2 = 64;//cd width or height?
-
-	if (_first_time_ever)
-	{
-		a0 += 24;
-		a1 += 8;
-		a2 = 48;
-	}
-
-	//loc_5F0B4
-	draw_rotate_sprite(a0, a1, a2);
-	db.current_buffer ^= 1;
-	GnLastFrameCount = 0;
-	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);
-
-	return;
-}
-
-void LOAD_DrawEnable(unsigned char isEnabled)//5F2C8, 5FFA8
-{
-	LtLoadingBarEnabled = isEnabled;
-}
-
 void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 {
 	char* gfx = NULL;
@@ -443,7 +402,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	DrawSync(0);
 	game_free(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 
-#if !INTERNAL
+#if DISC_VERSION
 	LOAD_DrawEnable(1);
 	LoadingBarEnabled = 1;
 #endif

@@ -1,24 +1,18 @@
 #include "LOAD_LEV.H"
 
 #include "CD.H"
-#include "FILE.H"
+#include "DRAW.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "MALLOC.H"
+#include "MISC.H"
 #include "PROFILE.H"
 #include "TYPES.H"
+#include "SPECTYPES.H"
 
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
-
-#if 0
-#include <limits>
-#endif
-
-#ifndef SHRT_MAX
-#define SHRT_MAX 32767
-#endif
 
 unsigned char LtLoadingBarEnabled;
 unsigned char LoadingBarEnabled;
@@ -308,64 +302,41 @@ short atanTab [] =
 	0x1FEC, 0x1FEE, 0x1FF1, 0x1FF3, 0x1FF6, 0x1FF8, 0x1FFB, 0x1FFD, 0x2000, 0x2000
 };
 
-int dword_AD920 = 0;
-char dword_A33F5 = 0;
-
-void LOAD_VSyncHandler()//5F074(<), 5FD54(<)
-{
-	int a0, a1, a2;
-	if (LtLoadingBarEnabled != 0)
-	{
-		//loc_5F08C
-		GPU_BeginScene();
-
-		a0 = 0x1B8;
-		a1 = 0xC8;
-		a2 = 0x40;
-
-		if (_first_time_ever)
-		{
-			a0 += 0x18;
-			a1 += 8;
-			a2 = 0x30;
-		}
-
-		//loc_5F0B4
-		//draw_rotate_sprite(a0, a1, a2);
-		GnLastFrameCount = 0;
-		//DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);
-	}
-
-	return;
-}
-
-void LOAD_DrawEnable(unsigned char isEnabled)//5F2C8, 5FFA8
-{
-	LtLoadingBarEnabled = isEnabled;
-}
-
 void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 {
-	char* gfx;
-	unsigned short* gfx2;
-	unsigned short* cdgfx;
+	char* gfx = NULL;
+	unsigned short* gfx2 = NULL;
+	unsigned short* cdgfx = NULL;
 	int x = 0;
 	int y = 0;
-	unsigned long* tmpptr;
-	unsigned short dat = 0;
+	unsigned long* tmpptr = NULL;
+	int file = 0;
+	unsigned short dat = NULL;
 
-#if INTERNAL
+#if !DISC_VERSION
 	FILE* file;
+#endif
+
+#if DEBUG_VERSION
 	ProfileDraw = 0;
 #endif
+
+	GPU_UseOrderingTables(&GadwOrderingTables[0], 1);
+
+	db.draw[0].isbg = 0;
+	db.draw[1].isbg = 0;
+	db.draw[0].dtd = 0;
+	db.draw[1].dtd = 0;
+
+	db.current_buffer = 0;
 
 	//We're going to allocate enough memory for the loading screen background picture and loading disc image
 	//The result pointer is later used as the base to read the loading screen/disc bitmap from GAMEWAD.OBJ on disk.
 	gfx = game_malloc(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 	cdgfx = (unsigned short*) &gfx[LOADING_SCREEN_IMG_SIZE];
-	gfx2 = (unsigned short*) &gfx[0x4000];
+	gfx2 = (unsigned short*) &gfx[0x4000];//256*256 rect icrm
 
-#if INTERNAL
+#if !DISC_VERSION
 	file = fopen("data\\loadpic.raw", "rb");
 	FILE_Read(gfx, 1, LOADING_SCREEN_IMG_SIZE, file);
 	fclose(file);
@@ -425,7 +396,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	//loc_603D4
 	game_free(LOADING_SCREEN_IMG_SIZE + LOADING_CD_IMG_SIZE);
 
-#if !INTERNAL
+#if DISC_VERSION
 	LOAD_DrawEnable(1);
 	LoadingBarEnabled = 1;
 #endif
@@ -437,10 +408,18 @@ void LOAD_Stop()//60434(<), 60FB4(<) (F)
 
 	LoadingBarEnabled = 0;
 
-	GPU_UseOrderingTables(&GadwOrderingTables[0], 2564);
-	GPU_SyncBothScreens();
+	db.draw[1].isbg = 1;
+	db.draw[0].isbg = 1;
+	db.draw[1].dtd = 1;
+	db.draw[0].dtd = 1;
 
-#ifdef INTERNAL
+	GPU_UseOrderingTables(&GadwOrderingTables[0], 2564);
+	db.current_buffer = 0;
+
+	GPU_SyncBothScreens();
+	db.current_buffer = 1;
+
+#if DEBUG_VERSION
 	ProfileDraw = 1;
 	_first_time_ever = 0;
 #endif

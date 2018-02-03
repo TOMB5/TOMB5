@@ -54,5 +54,6 @@ extern void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, sh
 extern long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push);
 extern long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst);
 extern void MoveCamera(struct GAME_VECTOR* ideal, int speed);
+extern void CheckForRichesIllegalDiagonalWalls();
 
 #endif

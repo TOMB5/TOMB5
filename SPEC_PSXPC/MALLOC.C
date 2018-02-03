@@ -27,7 +27,7 @@ void init_game_malloc()//5E79C(<), 5F4F8(<) (F)
 	malloc_used = gfScriptLen;
 	malloc_free = GAME_MALLOC_BUFFER_SIZE - gfScriptLen;
 	malloc_ptr = &malloc_buffer[gfScriptLen];
-	memset(malloc_ptr, 0, GAME_MALLOC_BUFFER_SIZE - gfScriptLen);
+	memset(&malloc_ptr[0], 0, GAME_MALLOC_BUFFER_SIZE - gfScriptLen);
 }
 
 /*
@@ -43,7 +43,7 @@ void init_game_malloc()//5E79C(<), 5F4F8(<) (F)
 
 char* game_malloc(int size)//5E7E8(<), 5F544(<) (F)
 {
-#if INTERNAL
+#if DEBUG_VERSION
 	char buf[80];
 #endif
 
@@ -61,7 +61,7 @@ char* game_malloc(int size)//5E7E8(<), 5F544(<) (F)
 
 		return ptr;
 	}
-#if INTERNAL
+#if DEBUG_VERSION
 	else
 	{		
 		sprintf(buf, "game_malloc() out of space (needs %d only got %d)\n", size, malloc_free);

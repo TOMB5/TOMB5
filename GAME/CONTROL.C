@@ -2,6 +2,9 @@
 
 #include "3D_GEN.H"
 #include "CD.H"
+#if PSX_VERSION || PSXPC_VERSION
+#include "COLLIDE_S.H"
+#endif
 #include "BOX.H"
 #include "DELTAPAK.H"
 #include "DEBRIS.H"
@@ -24,6 +27,7 @@
 #include "LOAD_LEV.H"
 #endif
 #include "LOT.H"
+#include "MATHS.H"
 #include "NEWINV2.H"
 #include "PICKUP.H"
 #include INPUT_H
@@ -38,6 +42,7 @@
 #include "SPHERE.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
+#include "TYPES.H"
 
 #include <assert.h>
 #include <string.h>
@@ -241,6 +246,7 @@ struct CHARDEF CharDef[106] =
 	{ 0x2A, 0, 0x29, 0xD, -0xA, 6, 0xB },
 	{ 0x7E, 0, 0x29, 0xD, -0xA, 6, 0xB }
 };
+struct ROPE_STRUCT Ropes[12];
 
 char byte_A3660;
 
@@ -398,7 +404,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 		//loc_1D848, loc_1D9DC 
 
-#if !INTERNAL///@TODO
+#if DISC_VERSION///@TODO
 	//loc_1D9DC
 		if (input == IN_NONE)
 		{
@@ -942,8 +948,8 @@ int is_object_in_room(int roomnumber, int objnumber)// (F)
 	short item_num = room[roomnumber].item_number;
 	short nex;
 	struct ITEM_INFO* item;
-	
-	for(nex = item_num; nex != -1; nex = item->next_item)
+
+	for (nex = item_num; nex != -1; nex = item->next_item)
 	{
 		item = &items[nex];
 
@@ -994,14 +1000,62 @@ void ResetGuards()
 	S_Warn("[ResetGuards] - Unimplemented!\n");
 }
 
-void InterpolateAngle(short dest, short* src, short* diff, short speed)
+void InterpolateAngle(short dest, short* src, short* diff, short speed)//20AF0(<) ? (F)
 {
-	S_Warn("[InterpolateAngle] - Unimplemented!\n");
+	long adiff;
+
+	adiff = (dest & 0xFFFF) - src[0];
+
+	if (32768 < adiff)
+	{
+		adiff += -65536;
+	}//0x20B18
+	else if (adiff < -32768)
+	{
+		adiff += 65536;
+	}
+
+	if (diff != NULL)
+	{
+		diff[0] = adiff;
+	}
+
+	//0x20B34
+	src[0] = (src[0] >> speed) + adiff;
 }
 
-int CheckGuardOnTrigger()
+int CheckGuardOnTrigger()//209AC(<), 20BB8(<) (F)
 {
-	S_Warn("[CheckGuardOnTrigger] - Unimplemented!\n");
+	int slot;
+	short room_number;
+	struct creature_info* cinfo;
+	struct ITEM_INFO* item;
+
+	room_number = lara_item->room_number;
+
+	cinfo = &baddie_slots[0];
+	GetFloor(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, &room_number);
+
+	//loc_209FC
+	for (slot = 0; slot < 5; slot++, cinfo++)
+	{
+		if (cinfo->item_num != -1 && cinfo->alerted)
+		{
+			item = &items[cinfo->item_num];
+
+			if (room_number == item->room_number && item->current_anim_state == 1)
+			{
+				//loc_20A70
+				if (abs(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+					abs(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+					abs(item->pos.y_pos - lara_item->pos.y_pos) < SECTOR(0.25))
+				{
+					return 1;
+				}
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -1157,9 +1211,77 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 	return 0;
 }
 
-void AlterFloorHeight(struct ITEM_INFO* item, int height)
+void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F)
 {
-	S_Warn("[AlterFloorHeight] - Unimplemented!\n");
+	struct FLOOR_INFO* floor;
+	struct FLOOR_INFO* ceiling;
+	short room_num;
+	short joby;
+
+	joby = 0;
+
+	if (abs(height) & 0xFF)
+	{
+		joby = 1;
+
+		if (height < 0)
+		{
+			--height;
+		}
+		else
+		{
+			++height;
+		}
+	}
+
+	//loc_1E42C
+	room_num = item->room_number;
+	floor = GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_num);
+	ceiling = GetFloor(item->pos.x_pos, (item->pos.y_pos + height) - SECTOR(1), item->pos.z_pos, &room_num);
+
+	if (floor->floor == -127)
+	{
+		if (height < 0)
+		{
+			floor->floor = (ceiling->ceiling + ((height + 255) >> 8));
+		}
+		else
+		{
+			floor->floor = (ceiling->ceiling + ((height) >> 8));
+		}
+	}
+	else
+	{
+		//loc_1E4A0
+		if (height < 0)
+		{
+			floor->floor = (floor->floor + ((height + 255) >> 8));
+		}
+		else
+		{
+			floor->floor = (floor->floor + (height >> 8));
+		}
+
+		//loc_1E4AC
+		if (floor->floor == ceiling->ceiling && joby == 0)
+		{
+			floor->floor = -127;
+		}
+	}
+
+	//loc_1E4D8
+	if ((boxes[floor->box].overlap_index & BOX_LAST))
+	{
+		if (height < 0)
+		{
+			boxes[floor->box].overlap_index |= BOX_BLOCKED;
+		}
+		else
+		{
+			//loc_1E514
+			boxes[floor->box].overlap_index &= ~BOX_BLOCKED;
+		}
+	}
 }
 
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
@@ -1270,10 +1392,38 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 	return 0;
 }
 
-int TriggerActive(struct ITEM_INFO* item)
+int TriggerActive(struct ITEM_INFO* item)// (F)
 {
-	S_Warn("[TriggerActive] - Unimplemented!\n");
-	return 0;
+	if ((item->flags & IFLAG_ACTIVATION_MASK) == IFLAG_ACTIVATION_MASK)
+	{
+		if (item->timer)
+		{
+			if (item->timer <= 0)
+			{
+				if (item->timer < -1)
+				{
+					item->timer++;
+					if (item->timer == -1)
+						item->timer = 0;
+				}
+			}
+			else
+			{
+				item->timer--;
+				if (item->timer == 0)
+					item->timer = -1;
+			}
+
+			if (item->timer < 0)
+				return (~item->flags & IFLAG_REVERSE) == 0;
+		}
+	}
+	else
+	{
+		return (~item->flags & IFLAG_REVERSE) == 0;
+	}
+
+	return (~item->flags & IFLAG_REVERSE) != 0;
 }
 
 void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
@@ -1298,9 +1448,76 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 	}
 }
 
-void IsRoomOutside(long x, long y, long z)
+int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 {
-	S_Warn("[IsRoomOutside] - Unimplemented!\n");
+	short off, room_num;
+	struct FLOOR_INFO* floor;
+	short height, ceiling;
+	struct room_info* r;
+
+	if (x < 0 || z < 0)
+		return -2;
+
+	off = OutsideRoomOffsets[(z / 4096) + 27 * (x / 4096)];
+
+	if (off == -1)
+		return -2;
+
+	if (off >= 0)
+	{
+		char* ptr = &OutsideRoomTable[off];
+		
+
+		if (*ptr == -1)
+			return -2;
+
+		while (TRUE)
+		{
+			r = &room[*ptr];
+			if (y >= r->maxceiling && y <= r->minfloor)
+			{
+				if (z >= r->z + 1024 && z <= (r->x_size / 1024) + r->z - 1024)
+				{
+					if (x >= r->x + 1024 && x <= (r->y_size / 1024) + r->x - 1024)
+						break;
+				}
+			}
+			ptr++;
+
+			if (*ptr == -1)
+				return -2;
+		}
+
+		IsRoomOutsideNo = room_num = *ptr;
+	}
+	else
+	{
+		r = &room[off & 0x7fff];
+
+		if (y < r->maxceiling || y > r->minfloor)
+			return -2;
+
+		if (z < r->z + 1024 || z > r->x_size / 1024 + r->z - 1024)
+			return -2;
+
+		if (x < r->x + 1024 || x > r->y_size / 1024 + r->x - 1024)
+			return -2;
+
+		IsRoomOutsideNo = room_num = off & 0x7fff;
+	}
+
+	floor = GetFloor(x, y, z, &room_num);
+
+	height = GetHeight(floor, x, y, z);
+	if (height == -32512 || y > height)
+		return -2;
+
+	ceiling = GetCeiling(floor, x, y, z);
+
+	if (y >= ceiling)
+		return (r->flags & RF_WIND_BLOWS_PONYTAIL || r->flags & RF_FILL_WATER) ? 1 : -3;
+
+	return -2;
 }
 
 short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
@@ -1314,26 +1531,41 @@ short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 	type = floor_data[floor->index];
 	data = &floor_data[floor->index + 1];
 
-	fixtype = type & 0x1F;
-	if (fixtype == 2 || fixtype == 7 || fixtype == 8 || fixtype == 12 || fixtype == 11 || fixtype == 14 || fixtype == 13)
+	fixtype = type & FD_MASK_FUNCTION;
+
+	if (fixtype == TILT_TYPE
+		|| fixtype == SPLIT1
+		|| fixtype == SPLIT2
+		|| fixtype == NOCOLF1B
+		|| fixtype == NOCOLF1T
+		|| fixtype == NOCOLF2B
+		|| fixtype == NOCOLF2T)
 	{
-		if (type & 0x8000)
+		if (type & FD_MASK_END_DATA)
 			return 255;
 		type = data[1];
 		data += 2;
 	}
 
-	fixtype = type & 0x1F;
-	if (fixtype == 3 || fixtype == 9 || fixtype == 10 || fixtype == 16 || fixtype == 15 || fixtype == 18 || fixtype == 17)
+	fixtype = type & FD_MASK_FUNCTION;
+
+	if (fixtype == ROOF_TYPE
+		|| fixtype == SPLIT3
+		|| fixtype == SPLIT4
+		|| fixtype == NOCOLC1B
+		|| fixtype == NOCOLC1T
+		|| fixtype == NOCOLC2B
+		|| fixtype == NOCOLC2T)
 	{
-		if (type & 0x8000)
+		if (type & FD_MASK_END_DATA)
 			return 255;
 		type = data[1];
 		data += 2;
 	}
 
-	if ((type & 0x1F) == 1)
+	if ((type & FD_MASK_FUNCTION) == DOOR_TYPE)
 		return *data;
+
 	return 255;
 }
 
@@ -1376,16 +1608,87 @@ int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 	return 0;
 }
 
-int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)
+int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 {
-	S_Warn("[CheckNoColCeilingTriangle] - Unimplemented!\n");
-	return 0;
+	short* fd = &floor_data[floor->index];
+	short fixtype = *fd & FD_MASK_FUNCTION;
+	int fix_x = x & 0x3FF;
+	int fix_z = z & 0x3FF;
+
+	if (floor->index == 0)
+		return 0;
+
+	if (fixtype == TILT_TYPE
+		|| fixtype == SPLIT1
+		|| fixtype == SPLIT2
+		|| fixtype == NOCOLF1T
+		|| fixtype == NOCOLF1B
+		|| fixtype == NOCOLF2T
+		|| fixtype == NOCOLF2B)
+	{
+		if (*fd & FD_MASK_END_DATA)
+			return 0;
+
+		fixtype = fd[2] & FD_MASK_FUNCTION;
+	}
+
+	switch (fixtype)
+	{
+	case NOCOLC1T:
+		if (fix_x <= 1024 - fix_z)
+			return -1;
+		break;
+	case NOCOLC1B:
+		if (fix_x > 1024 - fix_z)
+			return -1;
+		break;
+	case NOCOLC2T:
+		if (fix_x <= fix_z)
+			return -1;
+		break;
+	case NOCOLC2B:
+		if (fix_x > fix_z)
+			return -1;
+		break;
+	default:
+		return 0;
+	}
+
+	return 1;
 }
 
-int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)
+int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 {
-	S_Warn("[CheckNoColFloorTriangle] - Unimplemented!\n");
-	return 0;
+	short fixtype = floor_data[floor->index] & FD_MASK_FUNCTION;
+	int fix_x = x & 0x3FF;
+	int fix_z = z & 0x3FF;
+
+	if (floor->index == 0)
+		return 0;
+
+	switch (fixtype)
+	{
+	case NOCOLF1T:
+		if (fix_x <= 1024 - fix_z)
+			return -1;
+		break;
+	case NOCOLF1B:
+		if (fix_x > 1024 - fix_z)
+			return -1;
+		break;
+	case NOCOLF2T:
+		if (fix_x <= fix_z)
+			return -1;
+		break;
+	case NOCOLF2B:
+		if (fix_x > fix_z)
+			return -1;
+		break;
+	default:
+		return 0;
+	}
+
+	return 1;
 }
 
 int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor)
@@ -1410,8 +1713,8 @@ int check_xray_machine_trigger()// (F)
 	int i;
 	for (i = 0; i < level_items; i++)
 	{
-		if (items[i].object_number == XRAY_CONTROLLER && 
-			items[i].trigger_flags == 0 && 
+		if (items[i].object_number == XRAY_CONTROLLER &&
+			items[i].trigger_flags == 0 &&
 			items[i].item_flags[0] == 666)
 		{
 			return TRUE;
@@ -1424,4 +1727,9 @@ int check_xray_machine_trigger()// (F)
 void AnimateItem(struct ITEM_INFO* item)
 {
 	S_Warn("[AnimateItem] - Unimplemented!\n");
+}
+
+void UpdateSpiders()
+{
+	S_Warn("[UpdateSpiders] - Unimplemented!\n");
 }

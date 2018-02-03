@@ -9,7 +9,7 @@
 #ifdef PAELLA
 #define exit(x) exit()
 #define _STDDEF_H
-#define INLINE_H "PAELLA_INLINE.H"
+#define INLINE_H "PAELLA.H"
 #define ASSEMBLER
 #define _WCHAR_T
 #endif
@@ -17,6 +17,64 @@
 #include "TYPES.H"
 
 #ifdef PAELLA
+
+#define LMAX 256
+
+#ifndef NULL
+#define NULL 0		       /* null pointer constant */
+#endif
+
+#ifndef _SIZE_T
+#define _SIZE_T
+typedef unsigned int size_t;  /* result type of the sizeof operator (ANSI) */
+#endif
+
+#if defined(_LANGUAGE_C_PLUS_PLUS)||defined(__cplusplus)||defined(c_plusplus)
+extern "C" {
+#endif
+	/* To avoid conflicting */
+	extern void *memcpy(void *, void *, int);
+	extern void *memmove(void *, const void *, int);
+	/* To avoid conflicting */
+	extern int   memcmp(void *, void *, int);
+	extern void *memchr(const void *, int, int);
+	extern void *memset(void *, int, int);
+
+	extern void *bcopy(const void *, void *, int); /* src,dest */
+	extern void *bzero(void *, int);
+	extern int   bcmp(const void *, const void *, int);
+#if defined(_LANGUAGE_C_PLUS_PLUS)||defined(__cplusplus)||defined(c_plusplus)
+}
+#endif
+
+#if defined(_LANGUAGE_C_PLUS_PLUS)||defined(__cplusplus)||defined(c_plusplus)
+extern "C" {
+#endif
+	extern char *strcat(char *, const char *);
+	extern char *strncat(char *, const char *, int);
+	extern int   strcmp(char *, char *);
+	extern int   strncmp(const char *, const char *, int);
+	extern char *strcpy(char *, char *);
+	extern char *strncpy(char *, const char *, int);
+	extern int   strlen(char *);
+	extern char *index(const char *, char);
+	extern char *rindex(const char *, char);
+
+	extern char *strchr(const char *, char);
+	extern char *strrchr(const char *, char);
+	extern char *strpbrk(const char *, const char *);
+	extern int   strspn(const char *, const char *);
+	extern int   strcspn(const char *, const char *);
+	extern char *strtok(char *, const char *);
+	extern char *strstr(const char *, const char *);
+#if defined(_LANGUAGE_C_PLUS_PLUS)||defined(__cplusplus)||defined(c_plusplus)
+}
+#endif
+
+#define strdup(p)	( strcpy(malloc(strlen(p)+1),p); )
+
+
+
 #if defined(_LANGUAGE_C_PLUS_PLUS)||defined(__cplusplus)||defined(c_plusplus)
 extern "C" {
 #endif

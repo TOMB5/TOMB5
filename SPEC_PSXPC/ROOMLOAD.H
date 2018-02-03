@@ -16,7 +16,7 @@ extern int AnimatingWaterfallsV[6];
 extern unsigned long envmap_data[6];
 extern unsigned long* RelocPtr[128];
 
-extern void S_LoadLevelFile(int Name);
 extern void ReloadAnims(int name, long len);
+extern void S_LoadLevelFile(int Name);
 
 #endif

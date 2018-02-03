@@ -12,6 +12,7 @@ extern long next_gunshell; // offset 0xA0A18
 extern long next_bubble; // offset 0xA0A1C
 extern long next_drip; // offset 0xA0A20
 extern long next_blood; // offset 0xA0A14
+extern long next_spider;
 extern struct NODEOFFSET_INFO NodeOffsets[16]; // offset 0xA0A24
 extern short FlashFadeR; // offset 0xA0A04
 extern short FlashFadeG; // offset 0xA0A06
@@ -66,6 +67,9 @@ extern void DrawWeaponMissile(struct ITEM_INFO *item);
 extern void TriggerLaraDrips();
 extern void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num);
 extern void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4);
-extern void Ricochet(struct GAME_VECTOR* pos);
+extern void Richochet(struct GAME_VECTOR* pos);
+extern void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int a4, char a5, char a6, char a7);
+extern void TriggerCoinGlow();
+extern int GetFreeSpider();
 
 #endif

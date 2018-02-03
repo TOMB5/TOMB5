@@ -6,13 +6,13 @@ project (TombRaiderChronicles_PSXPC${TARGET_ARCH})
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
 #Will make use of CD io if set.
-set(DISC_VERSION 1 CACHE BOOL "Enable/Disable CD code")
+set(DISC_VERSION 1 CACHE INTEGER "Enable/Disable CD code")
 
 #Will build all changes specific to the internal beta version.
-set(BETA_VERSION 0 CACHE BOOL "Enable/Disable Internal Beta code")
+set(BETA_VERSION 0 CACHE INTEGER "Enable/Disable Internal Beta code")
 
-#Platform specific defs
-add_definitions(-DPSXPC_VERSION)
+#Enable NTSC mode
+set(NTSC_VERSION 1 CACHE INTEGER "Enable/Disable NTSC Mode")
 
 #Find required libs for PSXPC
 find_package(SDL2 REQUIRED)
@@ -37,6 +37,9 @@ ${PROJECT_NAME}
 ${GAME_SRCS}
 ${PLATFORM_SPECIFIC_SRCS}
 )
+
+#Platform specific defs
+target_compile_definitions(${PROJECT_NAME} PRIVATE PSXPC_VERSION=1 DEBUG_VERSION=${DEBUG_VERSION} DISC_VERSION=${DISC_VERSION} BETA_VERSION=${BETA_VERSION} NTSC_VERSION=${NTSC_VERSION})
 
 #Link against required libraries
 target_link_libraries(

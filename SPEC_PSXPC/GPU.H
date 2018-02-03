@@ -18,15 +18,11 @@ extern unsigned long GadwOrderingTables[5128];
 extern unsigned long GadwPolygonBuffers[52260];
 
 extern void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize);
-extern void GPU_UsePolygonBuffers(unsigned long* pBuffers , int nPBSize);
-extern void GPU_BeginScene();
+extern void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize);
 extern void GPU_EndScene();
 extern int GPU_FlipNoIdle();
-extern void GPU_SyncBothScreens();
-extern void GPU_GetScreenPosition(short* x, short* y);
-extern void GPU_ClearVRAM();
-extern void GPU_FlipToBuffer(int buffer_index);
-extern void GPU_SetScreenPosition(short x, short y);
+extern void do_gfx_debug_mode(unsigned long* otstart);
+extern void GPU_FlipStory(unsigned long* gfx);
 extern SDL_Window* g_window;
 
 #endif

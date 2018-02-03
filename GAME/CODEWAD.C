@@ -124,10 +124,7 @@ long sub_1BDF88(long levelID)
 	return 0;
 }
 
-void LaraClimbRope(struct ITEM_INFO* item, struct COLL_INFO* coll)
-{
-	S_Warn("[LaraClimbRope] - Unimplemented!\n");
-}
+
 
 void triggerwindowsmash(int item_num) // (F)
 {

@@ -9,6 +9,7 @@ extern short next_fx_active;
 extern int number_sound_effects;
 extern struct OBJECT_VECTOR* sound_effects;
 extern struct FX_INFO* effects;
+extern void(*effect_routines[])(struct ITEM_INFO* item);
 
 extern void TL_12(struct ITEM_INFO* item);
 extern void TL_11(struct ITEM_INFO* item);
@@ -49,5 +50,8 @@ extern void WaterFall(short item_number);
 extern void SoundEffects();
 extern long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2);
 extern void StopSoundEffect(short sample_index);
+extern void ClearSpiders();
+extern void LaraBubbles(struct ITEM_INFO* item);
+extern void AddFootprint(struct ITEM_INFO* item);
 
 #endif

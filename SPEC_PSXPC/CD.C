@@ -14,7 +14,7 @@
 
 #define CDS "CDS!" + __TIMESTAMP__ + " ."
 
-unsigned short XATrackClip [] =//Probably used for XA audio start/end pos of each track
+unsigned short XATrackClip[] =//Probably used for XA audio start/end pos of each track
 {
 	0xFF00, 0xFF00, 0xFE80, 0xFF00, 0xFF00, 0xFF00, 0xFF00, 0xFF80,
 	0xFF00, 0xFF00, 0xFF00, 0xFF00, 0xFF00, 0xFF00, 0xFF00, 0xFF00,
@@ -50,7 +50,6 @@ static char XARepeat;
 int XAStartPos;
 static int XATrackList[17][2];
 
-
 //Holds all game data file positions or offsets in GAMEWAD.OBJ.
 struct GAMEWAD_header gwHeader;
 
@@ -63,7 +62,7 @@ static int cdStartSector = 0;
 //Current sector for the gamewad file entry, updated as data is read from disk.
 int cdCurrentSector = 0;
 
-void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
+void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<)
 {
 	S_Warn("[CDDA_SetVolume] - Unimplemented!\n");
 }
@@ -71,14 +70,14 @@ void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F)
 void XAReplay()//5D838(<), 5DCB4(<)
 {
 #if 0
-	struct CdlLOC loc;
+	CdlLOC loc;
+
 	CdIntToPos(XAStartPos, &loc);
 
-	if(CdControl(0x1B, &loc, 0) == 1)
+	if (CdControl(CdlReadS, (unsigned char*) &loc, 0) == 1)
 	{
 		XACurPos = XAStartPos;
 	}
-
 #endif
 
 	return;
@@ -86,57 +85,52 @@ void XAReplay()//5D838(<), 5DCB4(<)
 
 void cbvsync()//5D884(<), 5DD00(<)
 {
-	int ret;//$a1
-	unsigned char io[8];//$sp-16
-	int cnt;//$v0
+	int ret;
+	unsigned char io[8];
+	int cnt;
 
-	switch (XAFlag - 1)
+	switch (XAFlag)
 	{
-	case 0:
+	case 1:
 	{
 		if (XAVolume == 0)
 		{
 			XAFlag++;
 		}
-
-		goto dflt;
-		break;
-	}
-	case 1:
-	{
-		cnt = XATrack = XAReqTrack;
-		if (XAReqTrack < 0)
-		{
-			cnt += 7;
-		}
-
-		//loc_5D8F8
-		io[0] = 1;
-		io[1] = XATrack & 7;
-
-		XAStartPos = XATrackList[cnt][0];
-		XAEndPos = XATrackList[cnt][1] + XATrackClip[XAReqTrack];
-		XACurPos = XAStartPos;
-
-		XAFlag++;
-
-		//loc_5D8D8
-		goto dflt;
-
+		//5DF9C
 		break;
 	}
 	case 2:
+	{
+		cnt = XATrack = XAReqTrack;
+
+		if (XAReqTrack < 0)
+		{
+			cnt = XAReqTrack + 7;
+		}
+
+		cnt &= ~3;//>>3<<3
+		XAStartPos = XATrackList[cnt][0];
+		io[0] = 1;
+		XAEndPos = XATrackList[cnt][1] + XATrackClip[XAReqTrack];
+		XAStartPos = 0;
+		io[1] = XATrack & 7;
+		XACurPos = XAStartPos;
+		//CdControlF(CdlSetfilter, &io[0]);
+		XAFlag++;
+
+		break;
+	}
+	case 3:
 	{
 		//loc_5D980
 		XAReplay();
 		XAReqVolume = XAMasterVolume;
 		XAFlag++;
 
-		goto dflt;
-
 		break;
 	}
-	case 3:
+	case 4:
 	{
 		//loc_5D9AC
 		if (XAVolume == XAMasterVolume)
@@ -145,11 +139,9 @@ void cbvsync()//5D884(<), 5DD00(<)
 			XAWait = 60;
 		}
 
-		goto dflt;
-
 		break;
 	}
-	case 4:
+	case 5:
 	{
 		//loc_5D9E0
 		if (XAWait == 0)
@@ -159,87 +151,91 @@ void cbvsync()//5D884(<), 5DD00(<)
 
 		XAWait--;
 
-		goto dflt;
-
 		break;
 	}
-	case 5:
+	case 6:
 	{
 		//loc_5DA18
-		if (XAFlag & 7)
+		if (0)//(((VSync(-1)) & 7) == 0)
 		{
+			//ret = CdSync(1, &io[0]);
+
 			if (ret == 5)
 			{
 				XAReplay();
 			}
 			else if (ret == 2)
 			{
-				if (XACurPos < XAEndPos)
+				if (XACurPos > XAEndPos)
 				{
-					
-				}
-				else if (XARepeat == 0)
-				{
-					//loc_5DA84
-					if (CurrentAtmosphere == 0)
+					if (XARepeat)
 					{
-						XAFlag = 7;
+						XAReplay();
 					}
 					else
 					{
-						//loc_5DAB8
-						XAVolume = 0;
-						XARepeat = 1;
-						XAFlag = ret;
-						XAReqTrack = CurrentAtmosphere;
-						CDDA_SetVolume(0);
-						IsAtmospherePlaying = 1;
+						if (CurrentAtmosphere == 0)
+						{
+							//CdControlB(CdlPause, NULL, NULL);
+							XAFlag = 7;
+						}
+						else
+						{
+							//5DAB8
+							XAVolume = 0;
+							XARepeat = 1;
+							XAFlag = ret;
+							XAReqTrack = CurrentAtmosphere;
+							CDDA_SetVolume(0);
+							IsAtmospherePlaying = 1;
+						}
 					}
 				}
 				else
 				{
-					XAReplay();
+					//5DAEC
+					/*if (CdLastCom() == 0x11)
+					{
+						cnt = CdPosToInt((CdlLOC*) &io[5]);
+						if (cnt > 0)
+						{
+							XACurPos = cnt;
+						}
+					}
+
+					CdControlF(CdlGetlocP, NULL);*/
 				}
 			}
-
-			goto dflt;
 		}
-
 		break;
 	}
-	default:
-
-	dflt:
-		//def_5D8B8
-		if (XAVolume < XAReqVolume)
-		{
-			XAVolume += XAFadeRate;
-			if (XAVolume < XAReqVolume)
-			{
-				XAVolume = XAReqVolume;
-			}//loc_5DB78
-
-			CDDA_SetVolume(XAVolume);
-		}
-		else
-		{
-			//loc_5DB94
-			if (XAReqVolume < XAVolume)
-			{
-				XAVolume -= XAFadeRate;
-				if (!(XAReqVolume < XAVolume))
-				{
-					XAVolume = XAReqVolume;
-				}
-
-				//loc_5DBEC
-				CDDA_SetVolume(XAVolume);
-
-			}//loc_5DC00
-		}
-
-		//loc_5DC00
+	case 7:
 		break;
+	default:
+		break;
+	}
+
+	if (XAVolume < XAReqVolume)
+	{
+		XAVolume += XAFadeRate;
+
+		if (XAVolume > XAReqVolume)
+		{
+			XAVolume = XAReqVolume;
+		}
+
+		CDDA_SetVolume(XAVolume);
+	}
+	else if (XAReqVolume < XAVolume)
+	{
+		XAVolume -= XAFadeRate;
+
+		if (XAReqVolume > XAVolume)
+		{
+			XAVolume = XAReqVolume;
+		}
+
+		CDDA_SetVolume(XAVolume);
 	}
 
 	//loc_5DC00
@@ -252,32 +248,74 @@ void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F)
 
 	if (XATrack == -1)
 	{
-		param[0] = 0xC8;
+		param[0] = 200;
+		//CdControlB(CdlSetmode, &param[0], NULL);
+		//VSync(3);
+		//CdControlB(CdlPause, NULL, NULL);
 		DEL_ChangeCDMode(1);
 	}
 
-	//loc_5DC70
-	if (XATrack != track)
+	if (XATrack != track && XAReqTrack != track)
 	{
-		if (XAReqTrack != track)
-		{
-			XAReqTrack = track;
-			XARepeat = mode;
+		XAReqTrack = track;
+		XARepeat = mode;
 
-			if (XAFlag != 0)
-			{
-				XAFlag = 1;
-				XAReqVolume = 0;
-			}
-			else
-			{
-				//loc_5DCB4
-				XAFlag = 2;
-			}
+		if (XAFlag != 0)
+		{
+			XAFlag = 1;
+			XAReqVolume = 0;
+		}
+		else
+		{
+			XAFlag = 2;
 		}
 	}
 
 	//loc_5DCBC
+	return;
+}
+
+void S_CDStop()//5DCD0(<), 5E14C(<) (F) (*)
+{
+	XAFlag = 0;
+
+	XAReqTrack = -1;
+	XATrack = -1;
+
+	DEL_ChangeCDMode(0);
+	return;
+}
+
+void S_CDPause()//5DD14(<), 5E190(<) (F) (*)
+{
+	if (XATrack > 0)
+	{
+		//CdControlF(CdlPause, 0);
+	}
+
+	return;
+}
+
+void S_CDRestart()//5DD40(<) (F) (*)
+{
+	if (XATrack >= 0 && XAFlag != 7)
+	{
+		//CdControlF(CdlReadS, 0);
+	}
+
+	return;
+}
+
+void S_StartSyncedAudio(int nTrack)//5DD78(<), 5E1F4(<) (F) (*)
+{
+	IsAtmospherePlaying = 0;
+
+	S_CDPlay(nTrack, 0);
+
+	while (XAFlag < 4) {}
+
+	//VSync(29);
+
 	return;
 }
 
@@ -325,7 +363,7 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 	XATrack = -1;
 }
 
-void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F)
+void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F) (*)
 {
 	unsigned char param[4];
 
@@ -335,8 +373,12 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F)
 		{
 			return;
 		}
-		
+
 		current_cd_mode = 0;
+
+		//param[0] = CdlModeSpeed;
+		//CdControlB(CdlSetmode, param, 0);
+		//VSync(3);
 	}
 	else if (mode == 1)
 	{
@@ -345,7 +387,7 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F)
 		{
 			return;
 		}
-		
+
 		current_cd_mode = mode;
 	}
 	else if (mode == 2)
@@ -357,6 +399,10 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F)
 		}
 
 		current_cd_mode = mode;
+
+		//param[0] = CdlModeSpeed;
+		//CdControlB(CdlSetmode, param, 0);
+		//VSync(3);
 	}
 
 	//loc_5DF58
@@ -381,6 +427,7 @@ int DEL_CDFS_OpenFile(int filenum /*$a0*/)//*, 5E3C0(<) (F)
 	//Not the actual file size of the file itself.
 	int relativeFileSector = gwHeader.entries[filenum].fileOffset / CD_SECTOR_SIZE;
 
+	DEL_ChangeCDMode(0);
 	cdCurrentSector = cdStartSector = relativeFileSector;
 
 	return gwHeader.entries[filenum].fileSize;
@@ -451,48 +498,4 @@ void DEL_CDFS_Seek(int offset /*$a0*/)//*, 5E54C(<) (F)
 void FRIG_CD_POS_TO_CUR()//*, 5E564(<) (F)
 {
 	cdStartSector = cdCurrentSector;
-}
-
-void S_StartSyncedAudio(int nTrack)//5DD78(<), 5E1F4(<)
-{
-	IsAtmospherePlaying = 0;
-
-	S_CDPlay(nTrack, 0);
-
-	//while (XAFlag < 4) {}
-
-	//VSync(29);
-
-	return;
-}
-
-void S_CDStop()//5DCD0(<), 5E14C(<)
-{
-	XAFlag = 0;
-
-	XAReqTrack = -1;
-	XATrack = -1;
-
-	DEL_ChangeCDMode(0);
-	return;
-}
-
-void S_CDPause()//5DD14(<), 5E190(<) (F)
-{
-	if (XATrack > 0)
-	{
-		//CdControlF(CdlPause, 0);
-	}
-
-	return;
-}
-
-void S_CDRestart()
-{
-	if (XATrack >= 0 && XAFlag != 7)
-	{
-		//CdControlF(CdlReadS, 0);
-	}
-
-	return;
 }

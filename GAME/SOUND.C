@@ -3,6 +3,9 @@
 #include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 #include "EFFECTS.H"
+#if !PC_VERSION
+#include "SFX.H"
+#endif
 #include "SPECTYPES.H"
 #include <stddef.h>
 

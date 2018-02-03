@@ -5,6 +5,7 @@
 #include "CONTROL.H"
 #include "EFFECTS.H"
 #include "COLLIDE.H"
+#include "DELSTUFF.H"
 #include "DRAW.H"
 #include INPUT_H
 #include "SOUND.H"
@@ -3792,7 +3793,7 @@ void lara_as_monkeyswing(struct ITEM_INFO* item, struct COLL_INFO* coll)//1670C,
 	}
 }
 
-void lara_col_hang2(struct ITEM_INFO* item, struct COLL_INFO* coll)//163DC, 16510
+void lara_col_hang2(struct ITEM_INFO* item, struct COLL_INFO* coll)//163DC, 16510 (F)
 {
 	item->fallspeed = 0;
 	item->gravity_status = FALSE;
@@ -5573,9 +5574,51 @@ void AnimateLara(struct ITEM_INFO* item)
 	S_Warn("[AnimateLara] - Unimplemented!\n");
 }
 
-void SetLaraUnderwaterNodes()
+void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F) 
 {
-	S_Warn("[SetLaraUnderwaterNodes] - Unimplemented!\n");
+	struct PHD_VECTOR joint;
+	short room_number;//_18
+	struct room_info* r;//$a1
+	long flags;//$s1
+	long current_joint;//$s0
+
+	joint.x = 0;
+	joint.y = 0;
+	joint.z = 0;
+
+	flags = 0;
+
+	//loc_85988
+	for (current_joint = 14; current_joint >= 0; current_joint--)
+	{
+		GetLaraJointPos(&joint, current_joint);
+
+		room_number = lara_item->room_number;
+		GetFloor(joint.x, joint.y, joint.z, &room_number);
+
+		r = &room[room_number];
+		LaraNodeUnderwater[current_joint] = r->flags & RF_FILL_WATER;
+
+		if (r->flags & RF_FILL_WATER)
+		{
+			lara.wet[current_joint] = 0xFC;
+
+			if (!(flags & 1))
+			{
+				flags |= 1;
+				((long*) SRhandPtr)[3] = ((long*) &r->ambient)[0];
+			}
+		}
+		else
+		{
+			//loc_85A1C
+			if (!(flags & 2))
+			{
+				flags |= 2;
+				((long*) SRhandPtr)[2] = ((long*) &r->ambient)[0];
+			}
+		}
+	}
 }
 
 void SetPendulumVelocity(int x, int y, int z)// (F)
@@ -5592,4 +5635,24 @@ void SetPendulumVelocity(int x, int y, int z)// (F)
 	CurrentPendulum.Velocity.x += x;
 	CurrentPendulum.Velocity.y += y;
 	CurrentPendulum.Velocity.z += z;
+}
+
+void LaraClimbRope(struct ITEM_INFO* item, struct COLL_INFO* coll)
+{
+	S_Warn("[LaraClimbRope] - Unimplemented!\n");
+}
+
+void FireChaff()
+{
+	S_Warn("[FireChaff] - Unimplemented!\n");
+}
+
+void GetLaraJointPosRot(struct PHD_VECTOR *a1, int a2, int a3, struct SVECTOR *a4)
+{
+	S_Warn("[GetLaraJointPosRot] - Unimplemented!\n");
+}
+
+void DoSubsuitStuff()
+{
+	S_Warn("[DoSubsuitStuff] - Unimplemented!\n");
 }
