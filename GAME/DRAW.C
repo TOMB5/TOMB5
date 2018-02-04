@@ -122,9 +122,49 @@ short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 8793C
 	return NULL;
 }
 
-void UpdateSkyLightning()
+void UpdateSkyLightning()//2C0D0(<), ? (F)
 {
-	S_Warn("[UpdateSkyLightning] - Unimplemented!\n");
+	long lp;
+
+	if (LightningCount > 0)
+	{
+		--LightningCount;
+
+		if ((LightningCount << 16) == 0)
+		{
+			LightningRand = (GetRandomDraw() & 0x7F) + 400;
+			dLightningRand = 0;
+		}
+		else
+		{
+			//loc_2C118
+			dLightningRand = (GetRandomDraw() & 0x1FF);
+			LightningRand = ((dLightningRand - LightningRand) >> 1) + LightningRand;
+		}
+	}
+	else
+	{
+		//loc_2C148
+		if (LightningRand < 4)
+		{
+			//loc_2C174
+			LightningRand = 0;
+		}
+		else
+		{
+			LightningRand = LightningRand - (LightningRand >> 2);
+		}
+	}
+
+	//loc_2C18C
+	for (lp = 2; lp >= 0; lp--)
+	{
+		LightningRGBs[lp] += ((LightningRGBs[lp] * LightningRand) >> 8);
+		if ((LightningRGBs[lp] & 0xFFFF) > 255)
+		{
+			LightningRGBs[lp] = 255;
+		}
+	}
 }
 
 void DrawSkyMesh(short* mesh)
