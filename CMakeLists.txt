@@ -6,8 +6,8 @@ project (TOMB5)
 #This is used by platform specific CMake scripts to correctly use external libraries.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
 
-include(GetGitRevisionDescription)
-get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+#include(GetGitRevisionDescription)
+#get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 
 #Stores root external lib folder.
 set(EXTERN_LIB_PATH ${EXTERN_LIB_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/EXTERNAL")
@@ -20,7 +20,7 @@ set(DEBUG_VERSION 1 CACHE INTEGER "Enable/Disable Debug Code")
 string(CONCAT GAME_CODE_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/GAME")
 
 #Config version file
-configure_file("${GAME_CODE_DIR}/VERSION.C.IN" "${GAME_CODE_DIR}/VERSION.C" @ONLY)
+#configure_file("${GAME_CODE_DIR}/VERSION.C.IN" "${GAME_CODE_DIR}/VERSION.C" @ONLY)
 
 #Find all source files in the game folder.
 file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
