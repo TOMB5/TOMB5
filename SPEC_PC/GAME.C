@@ -9,7 +9,7 @@
 #include "PCSOUND.H"
 #include <process.h>
 #include "SOUND.H"
-#include "GPU.H"
+#include "DIRECTX.H"
 
 struct object_info objects[NUMBER_OBJECTS];
 struct static_info static_objects[NUMBER_STATIC_OBJECTS];
@@ -85,13 +85,13 @@ char GameInitialise()
 	ptr_ctx->dword_D9AC38 = 0;
 	dword_D9ADE8 = 0;
 	ptr_ctx->dword_D9AC34 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
-		.accelAdapters[ptr_ctx->curAccelAdapt]
-		.displayModes[ptr_ctx->curDispMode]
-		.width;
+		.D3DInfo[ptr_ctx->curAccelAdapt]
+		.DisplayMode[ptr_ctx->curDispMode]
+		.w;
 	dword_D9AB18 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
-		.accelAdapters[ptr_ctx->curAccelAdapt]
-		.displayModes[ptr_ctx->curDispMode]
-		.height;
+		.D3DInfo[ptr_ctx->curAccelAdapt]
+		.DisplayMode[ptr_ctx->curDispMode]
+		.h;
 	init_water_table();
 	InitFX();
 	return 1;
@@ -153,7 +153,7 @@ int __cdecl sub_40138E(int a1, int a2, int a3, int a4, int a5, int a6)
 	return 0;
 }
 
-struct acceltexformatinfo *__cdecl sub_4025D6(int a1, int a2, __int16 a3)
+struct D3DTEXTUREINFO *__cdecl sub_4025D6(int a1, int a2, __int16 a3)
 {
 	S_Warn("[sub_4025D6] - Unimplemented!\n");
 	return NULL;

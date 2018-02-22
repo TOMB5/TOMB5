@@ -3,10 +3,11 @@
 #include "CONTROL.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "DRAWSPKS.H"
+#include "SETUP.H"
 #endif
 #include "MATHS.H"
 #include "OBJECTS.H"
-#include "SETUP.H"
+
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
 #include "TOMB4FX.H"

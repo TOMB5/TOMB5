@@ -18,7 +18,7 @@
 #include "LOT.H"
 #include "WINMAIN.H"
 #include "ERROR.H"
-#include "GPU.H"
+#include "DIRECTX.H"
 #include "HAIR.H"
 #include "SWITCH.H"
 #include "PICKUP.H"
@@ -1065,10 +1065,10 @@ _DWORD* __cdecl sub_4D0450(signed int a1, signed int a2, int a3, int a4, void(__
 	_BYTE* v8; // edi@10
 	unsigned int* v9; // ebx@11
 	void(__cdecl* v10)(int *, int *, int *, int *); // ebp@11
-	struct dxcontext_s *v11; // esi@11
+	struct WINAPP *v11; // esi@11
 	unsigned int v12; // eax@13
 	unsigned int v13; // edx@13
-	struct acceltexformatinfo *v14; // ecx@15
+	struct D3DTEXTUREINFO *v14; // ecx@15
 	int v15; // eax@15
 	unsigned int v16; // edx@15
 	unsigned int v17; // ebp@15
@@ -1112,7 +1112,7 @@ _DWORD* __cdecl sub_4D0450(signed int a1, signed int a2, int a3, int a4, void(__
 		a3 = 0;
 	qmemcpy(
 		&a2a.ddpfPixelFormat,
-		&ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt].texFormats[ptr_ctx->curTexFormat],
+		&ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].D3DInfo[ptr_ctx->curAccelAdapt].Texture[ptr_ctx->curTexFormat],
 		sizeof(a2a.ddpfPixelFormat));
 	a2a.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
 	a2a.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
@@ -1227,9 +1227,9 @@ _DWORD* __cdecl sub_4D0450(signed int a1, signed int a2, int a3, int a4, void(__
 							v10(&v43, &v44, &v47, &v46);
 							v11 = ptr_ctx;
 						}
-						v14 = v11->graphicsAdapters[v11->curGfxAdapt].accelAdapters[v11->curAccelAdapt].texFormats;
+						v14 = v11->graphicsAdapters[v11->curGfxAdapt].D3DInfo[v11->curAccelAdapt].Texture;
 						v15 = (int)&v14[v11->curTexFormat];
-						v16 = ((unsigned int)(unsigned __int8)v46 >> (8 - *(_BYTE *)(v15 + 47)) << *(_BYTE *)(v15 + 51)) | ((unsigned int)(unsigned __int8)v44 >> (8 - *(_BYTE *)(v15 + 45)) << *(_BYTE *)(v15 + 49)) | ((unsigned int)(unsigned __int8)v47 >> (8 - v14[v11->curTexFormat].bitsB) << *(_BYTE *)(v15 + 50));
+						v16 = ((unsigned int)(unsigned __int8)v46 >> (8 - *(_BYTE *)(v15 + 47)) << *(_BYTE *)(v15 + 51)) | ((unsigned int)(unsigned __int8)v44 >> (8 - *(_BYTE *)(v15 + 45)) << *(_BYTE *)(v15 + 49)) | ((unsigned int)(unsigned __int8)v47 >> (8 - v14[v11->curTexFormat].bbpp) << *(_BYTE *)(v15 + 50));
 						v17 = (unsigned int)(unsigned __int8)v43 >> (8 - *(_BYTE *)(v15 + 44));
 						LOBYTE(v14) = *(_BYTE *)(v15 + 48);
 						v18 = *(_DWORD *)(v15 + 32);
@@ -1273,11 +1273,11 @@ void LoadTextures(int numRoom, int numObj, int numBump)
 	int v85 = 0;
 	int depth = 4;
 
-	struct acceltexformatinfo* texf = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
-		.accelAdapters[ptr_ctx->curAccelAdapt]
-		.texFormats[ptr_ctx->curTexFormat];
+	struct D3DTEXTUREINFO* texf = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
+		.D3DInfo[ptr_ctx->curAccelAdapt]
+		.Texture[ptr_ctx->curTexFormat];
 
-	if (texf->bitsR == 5 && texf->bitsG == 5 && texf->bitsB == 5 && texf->bitsA == 1)
+	if (texf->rbpp == 5 && texf->gbpp == 5 && texf->bbpp == 5 && texf->abpp == 1)
 	{
 		v85 = 2;
 		depth = 2;
@@ -1306,7 +1306,7 @@ void LoadTextures(int numRoom, int numObj, int numBump)
 	}
 	else
 	{
-		if (texf->bitsR == 8 && texf->bitsG == 8 && texf->bitsB == 8 && texf->bitsA == 8)
+		if (texf->rbpp == 8 && texf->gbpp == 8 && texf->bbpp == 8 && texf->abpp == 8)
 			v85 = 1;
 
 		int uncomp32 = freadDword();

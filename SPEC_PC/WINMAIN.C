@@ -26,7 +26,7 @@
 #include "CD.H"
 #include "PCSOUND.H"
 #include "CAMERA.H"
-#include "GPU.H"
+#include "DIRECTX.H"
 #include "PCINPUT.H"
 
 
@@ -524,9 +524,9 @@ char FindCDDrive()
 
 signed int DXToggleFullScreen()
 {
-	struct dispmode* v0; // eax@2
+	struct DISPLAYMODE* v0; // eax@2
 	signed int result; // eax@2
-	struct dispmode* v2; // eax@3
+	struct DISPLAYMODE* v2; // eax@3
 
 	Log(2, "DXToggleFullScreen");
 	if (ptr_ctx->flags & 2)
@@ -537,12 +537,12 @@ signed int DXToggleFullScreen()
 		ptr_ctx->flags |= 0x40u;
 		ptr_ctx->d3d->lpVtbl->EvictManagedTextures(ptr_ctx->d3d);
 		v0 = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
-			.accelAdapters[ptr_ctx->curAccelAdapt]
-			.displayModes[ptr_ctx->curDispMode];
+			.D3DInfo[ptr_ctx->curAccelAdapt]
+			.DisplayMode[ptr_ctx->curDispMode];
 		DXCreate(
-			v0->width,
-			v0->height,
-			v0->depth,
+			v0->w,
+			v0->h,
+			v0->bpp,
 			ptr_ctx->flags,
 			ptr_ctx,
 			ptr_ctx->dxWndHwnd,
@@ -557,12 +557,12 @@ signed int DXToggleFullScreen()
 		ptr_ctx->flags |= 0x42u;
 		ptr_ctx->d3d->lpVtbl->EvictManagedTextures(ptr_ctx->d3d);
 		v2 = &ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
-			.accelAdapters[ptr_ctx->curAccelAdapt]
-		.displayModes[ptr_ctx->curDispMode];
+			.D3DInfo[ptr_ctx->curAccelAdapt]
+		.DisplayMode[ptr_ctx->curDispMode];
 		DXCreate(
-			v2->width,
-			v2->height,
-			v2->depth,
+			v2->w,
+			v2->h,
+			v2->bpp,
 			ptr_ctx->flags,
 			ptr_ctx,
 			ptr_ctx->dxWndHwnd,
@@ -1045,11 +1045,11 @@ void __cdecl sub_4018AC(signed int param)
 	int v3; // ebx@11
 	int v4; // eax@11
 	int v5; // ecx@11
-	struct dispmode* v7; // ecx@13
+	struct DISPLAYMODE* v7; // ecx@13
 	int v8; // ecx@16
-	struct dispmode* v9; // ecx@17
-	struct dispmode* v10; // ebx@27
-	struct dispmode* v11; // ebx@29
+	struct DISPLAYMODE* v9; // ecx@17
+	struct DISPLAYMODE* v10; // ebx@27
+	struct DISPLAYMODE* v11; // ebx@29
 	HCURSOR v12; // eax@41
 	int v13; // [sp+Ch] [bp+4h]@10
 
@@ -1057,7 +1057,7 @@ void __cdecl sub_4018AC(signed int param)
 	if (param == 8)
 	{
 		if (!ptr_ctx->byte_D9AC2B
-			&& ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].capabilities.dwCaps2 & DDSCAPS2_STEREOSURFACELEFT
+			&& ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].DDCaps.dwCaps2 & DDSCAPS2_STEREOSURFACELEFT
 			&& !dword_874968)
 		{
 			Log(6, "KA_ALTENTER");
@@ -1110,26 +1110,26 @@ void __cdecl sub_4018AC(signed int param)
 			v4 = ptr_ctx->curDispMode + 1;
 			ptr_ctx->curDispMode = v4;
 			v5 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
-				.accelAdapters[ptr_ctx->curAccelAdapt]
-				.numDispModes;
+				.D3DInfo[ptr_ctx->curAccelAdapt]
+				.nDisplayMode;
 			if (v4 >= v5)
 			{
 				v4 = v5 - 1;
 				ptr_ctx->curDispMode = v5 - 1;
 			}
-			v7 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt].displayModes;
-			if (v7[v4].depth != v7[v2].depth)
+			v7 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].D3DInfo[ptr_ctx->curAccelAdapt].DisplayMode;
+			if (v7[v4].bpp != v7[v2].bpp)
 			{
 				while (1)
 				{
 					ptr_ctx->curDispMode = ++v4;
 					v8 = *(_DWORD *)(ptr_ctx + 8);
 					if (v4 >= ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
-						.accelAdapters[ptr_ctx->curAccelAdapt]
-						.numDispModes)
+						.D3DInfo[ptr_ctx->curAccelAdapt]
+						.nDisplayMode)
 						break;
-					v9 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt].displayModes;
-					if (v9[4].depth == v9[v2].depth)
+					v9 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].D3DInfo[ptr_ctx->curAccelAdapt].DisplayMode;
+					if (v9[4].bpp == v9[v2].bpp)
 						goto LABEL_18;
 					v3 = ptr_ctx;
 				}
@@ -1149,9 +1149,9 @@ void __cdecl sub_4018AC(signed int param)
 				ptr_ctx->curDispMode = 0;
 			}
 			v10 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
-				.accelAdapters[ptr_ctx->curAccelAdapt]
-				.displayModes;
-			if (v10[v4].depth != v10[v2].depth)
+				.D3DInfo[ptr_ctx->curAccelAdapt]
+				.DisplayMode;
+			if (v10[v4].bpp != v10[v2].bpp)
 			{
 				while (1)
 				{
@@ -1159,9 +1159,9 @@ void __cdecl sub_4018AC(signed int param)
 					if (v4 < 0)
 						break;
 					v11 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt]
-						.accelAdapters[ptr_ctx->curAccelAdapt]
-						.displayModes;
-					if (v11[v4].depth == v11[v2].depth)
+						.D3DInfo[ptr_ctx->curAccelAdapt]
+						.DisplayMode;
+					if (v11[v4].bpp == v11[v2].bpp)
 						goto LABEL_19;
 				}
 				ptr_ctx->curDispMode = v2;
@@ -1401,8 +1401,8 @@ int __cdecl LoadTextureFormats(HWND hDlg, HWND hWnd)
 {
 	HWND v2; // eax@1
 	HWND v3; // eax@1
-	struct acceladapt* result; // eax@1
-	struct acceltexformatinfo* v5; // eax@3
+	struct DIRECT3DINFO* result; // eax@1
+	struct D3DTEXTUREINFO* v5; // eax@3
 	int depth; // esi@3
 	int bitsB; // ebx@3
 	int bitsR; // edi@3
@@ -1419,19 +1419,19 @@ int __cdecl LoadTextureFormats(HWND hDlg, HWND hWnd)
 	v3 = GetDlgItem(hDlg, IDC_SOFTWARE);
 	v10[4] = 0;
 	*(_DWORD *)v10 = SendMessageA(v3, BM_GETCHECK, 0, 0) != 0;
-	result = &dxctx.graphicsAdapters[opt_GraphicsAdapter].accelAdapters[opt_AccelAdapter];
-	if (result->numTexFormats > 0)
+	result = &dxctx.graphicsAdapters[opt_GraphicsAdapter].D3DInfo[opt_AccelAdapter];
+	if (result->nTexture > 0)
 	{
 		v11 = 0;
 		do
 		{
-			v5 = &result->texFormats[v11];
-			depth = v5->depth;
-			bitsB = v5->bitsB;
-			bitsR = v5->bitsR;
-			bitsG = v5->bitsG;
-			bitsA = v5->bitsA;
-			wsprintfA(v14, "%d %s RGBA %d%d%d%d", v5->depth, &gfStringWad[gfStringOffset[STR_BIT]], bitsR, bitsG, bitsB, bitsA);
+			v5 = &result->Texture[v11];
+			depth = v5->bpp;
+			bitsB = v5->bbpp;
+			bitsR = v5->rbpp;
+			bitsG = v5->gbpp;
+			bitsA = v5->abpp;
+			wsprintfA(v14, "%d %s RGBA %d%d%d%d", v5->bpp, &gfStringWad[gfStringOffset[STR_BIT]], bitsR, bitsG, bitsB, bitsA);
 			SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)v14);
 			if (v10[0])
 			{
@@ -1455,8 +1455,8 @@ int __cdecl LoadTextureFormats(HWND hDlg, HWND hWnd)
 			}
 			++*(_DWORD *)&v10[1];
 			v11++;
-			result = &dxctx.graphicsAdapters[opt_GraphicsAdapter].accelAdapters[opt_AccelAdapter];
-		} while (*(_DWORD *)&v10[1] < result->numTexFormats);
+			result = &dxctx.graphicsAdapters[opt_GraphicsAdapter].D3DInfo[opt_AccelAdapter];
+		} while (*(_DWORD *)&v10[1] < result->nTexture);
 	}
 	return result;
 }
@@ -1469,14 +1469,14 @@ char __cdecl LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 	HWND v8; // eax@4
 	HWND v9; // eax@4
 	int v10; // ecx@5
-	struct acceladapt* v11; // eax@5
-	struct dispmode* v12; // eax@7
+	struct DIRECT3DINFO* v11; // eax@5
+	struct DISPLAYMODE* v12; // eax@7
 	int res_w; // edx@7
 	int res_h; // ebx@7
 	signed int res_bit; // eax@7
 	int v16; // edx@18
 	int v17; // edx@20
-	struct acceladapt* v18; // eax@20
+	struct DIRECT3DINFO* v18; // eax@20
 	LPARAM v19; // ebx@20
 	HWND v20; // eax@24
 	HWND v22; // eax@24
@@ -1538,16 +1538,16 @@ char __cdecl LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 		SendMessageA(hWnd, CB_RESETCONTENT, 0, 0);
 		v10 = opt_GraphicsAdapter;
 		lParam = 0;
-		v11 = &dxctx.graphicsAdapters[opt_GraphicsAdapter].accelAdapters[opt_AccelAdapter];
-		if (v11->numDispModes > 0)
+		v11 = &dxctx.graphicsAdapters[opt_GraphicsAdapter].D3DInfo[opt_AccelAdapter];
+		if (v11->nDisplayMode > 0)
 		{
 			v50 = 0;
 			do
 			{
-				v12 = &v11->displayModes[v50];
-				res_w = v12->width;
-				res_h = v12->height;
-				res_bit = v12->depth;
+				v12 = &v11->DisplayMode[v50];
+				res_w = v12->w;
+				res_h = v12->h;
+				res_bit = v12->bpp;
 				v51 = res_w;
 				v52 = res_bit;
 				if (res_bit <= 8)
@@ -1581,8 +1581,8 @@ char __cdecl LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 			LABEL_20:
 				v50++;
 				++lParam;
-				v18 = dxctx.graphicsAdapters[v10].accelAdapters;
-				v19 = v18[v16].numDispModes;
+				v18 = dxctx.graphicsAdapters[v10].D3DInfo;
+				v19 = v18[v16].nDisplayMode;
 				v11 = &v18[v16];
 			} while (lParam < v19);
 		}
@@ -1591,7 +1591,7 @@ char __cdecl LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 	{
 		v10 = opt_GraphicsAdapter;
 	}
-	if (dxctx.graphicsAdapters[v10].capabilities.dwCaps2 & DDCAPS2_CANRENDERWINDOWED)
+	if (dxctx.graphicsAdapters[v10].DDCaps.dwCaps2 & DDCAPS2_CANRENDERWINDOWED)
 	{
 		v23 = GetDlgItem(v3, IDC_WINDOWED);
 		EnableWindow(v23, 1);
@@ -1684,23 +1684,23 @@ char __cdecl LoadResolutions(HWND hDlg, HWND hWnd, char a3)
 int __cdecl LoadAccelAdapters(HWND hDlg, HWND hWnd)
 {
 	int v2; // esi@1
-	struct gfxadapt* v3; // eax@1
+	struct DIRECTDRAWINFO* v3; // eax@1
 	int v4; // edi@2
 	HWND v5; // eax@4
 
 	SendMessageA(hWnd, CB_RESETCONTENT, 0, 0);
 	v2 = 0;
 	v3 = &dxctx.graphicsAdapters[opt_GraphicsAdapter];
-	if (v3->numAccelAdapters > 0)
+	if (v3->nD3DInfo > 0)
 	{
 		v4 = 0;
 		do
 		{
-			SendMessageA(hWnd, CB_ADDSTRING, 0, v3->accelAdapters[v4].description);
+			SendMessageA(hWnd, CB_ADDSTRING, 0, v3->D3DInfo[v4].About);
 			++v2;
 			v4++;
 			v3 = &dxctx.graphicsAdapters[opt_GraphicsAdapter];
-		} while (v2 < v3->numAccelAdapters);
+		} while (v2 < v3->nD3DInfo);
 	}
 	SendMessageA(hWnd, CB_SETCURSEL, 1u, 0);
 	opt_AccelAdapter = 1;
@@ -2326,7 +2326,7 @@ BOOL  InitSetupDialog()
 	return result;
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	InitConsole();
 
@@ -2340,7 +2340,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HWND v8; // eax@8
 	HWND v9; // esi@15
 	HDC v10; // edi@15
-	struct dispmode* v11; // ecx@15
+	struct DISPLAYMODE* v11; // ecx@15
 	HWND desktopHwnd; // eax@25
 	HWND v13; // esi@25
 	HDC desktopDC; // eax@25
@@ -2443,11 +2443,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ptr_ctx->dword_D9ABFD = 0;
 		ptr_ctx->isInScene = 0;
 		ptr_ctx->byte_D9AC2B = 0;
-		v11 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].accelAdapters[ptr_ctx->curAccelAdapt].displayModes;
+		v11 = ptr_ctx->graphicsAdapters[ptr_ctx->curGfxAdapt].D3DInfo[ptr_ctx->curAccelAdapt].DisplayMode;
 		if (!DXCreate(
-			v11[ptr_ctx->curDispMode].width,
-			v11[ptr_ctx->curDispMode].height,
-			v11[ptr_ctx->curDispMode].depth,
+			v11[ptr_ctx->curDispMode].w,
+			v11[ptr_ctx->curDispMode].h,
+			v11[ptr_ctx->curDispMode].bpp,
 			ptr_ctx->dword_D9AC27,
 			&dxctx,
 			hWnd,
@@ -2458,7 +2458,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 		sub_401424();
 		UpdateWindow(hWnd);
-		ShowWindow(hWnd, nShowCmd);
+		ShowWindow(hWnd, nCmdShow);
 		if (ptr_ctx->flags & 1)
 		{
 			SetCursor(0);

@@ -1,5 +1,5 @@
 #include "PCINPUT.H"
-#include "GPU.H"
+#include "DIRECTX.H"
 #include "ERROR.H"
 
 long input;
