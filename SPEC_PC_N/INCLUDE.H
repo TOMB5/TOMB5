@@ -14,6 +14,7 @@
 #include <windowsx.h>
 #include <time.h>
 #include "specific.h"
+#include <stdio.h>
 
 
 #if !defined(__cplusplus)
@@ -40,25 +41,6 @@ enum
 //#define Log(type, fmt, ...) S_Warn("[DBLOG] [" STRINGIFY(type) "] " fmt, __VA_ARGS__)
 #define Log(type, fmt, ...) Log_real(STRINGIFY(type), fmt, __VA_ARGS__)
 
-inline void Log_real(char* type, char* fmt, ...)
-{
-	char buf[128], pbuf[1024];
-
-	strcpy(buf, "[DBLOG] [");
-	strcat(buf, type);
-	strcat(buf, "] ");
-
-	va_list args;
-	va_start(args, fmt);
-	vsprintf(pbuf, fmt, args);
-	va_end(args);
-
-	char res[1152];
-
-	strcat(res, buf);
-	strcat(res, pbuf);
-}
-
 #define ArraySize(a) (sizeof(a)/sizeof((a)[0]))
 #define Zero(thing) memset(&(thing),0,sizeof(thing))
 #define ZeroArray(a) memset((a),0,sizeof(a))
@@ -69,6 +51,33 @@ inline void Log_real(char* type, char* fmt, ...)
 #define DefValueName(x) local char Lsz##x[]=#x
 #define ValueName(x) Lsz##x
 #define Align(x,b) (x)=(x)&~((b)-1)
+
+inline void Log_real(char* type, char* fmt, ...)
+{
+	char buf[128], pbuf[1024];
+	char tbuf[10];
+	memset(tbuf, ' ', 10);
+	strcpy(tbuf, type);
+	ZeroArray(buf);
+	ZeroArray(pbuf);
+	strcpy(buf, "[DBLOG] [");
+	strcat(buf, tbuf);
+	strcat(buf, "] ");
+
+	va_list args;
+	va_start(args, fmt);
+	vsprintf(pbuf, fmt, args);
+	va_end(args);
+
+	char res[1152];
+	ZeroArray(res);
+	strcat(res, buf);
+	strcat(res, pbuf);
+
+	S_Warn(res);
+}
+
+
 
 
 
@@ -209,7 +218,7 @@ inline bool DX_TRY(HRESULT hr)
 {
 	if (SUCCEEDED(hr))
 		return false;
-	Log(ERR_Describe_DX(hr));
+	Log(LT_DXTry, ERR_Describe_DX(hr));
 	return true;
 }
 

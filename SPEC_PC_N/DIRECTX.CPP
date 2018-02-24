@@ -1,5 +1,9 @@
 #include <ddraw.h>
 #include "DIRECTX.H"
+#pragma comment (lib, "ddraw.lib")
+#pragma comment (lib, "dxguid.lib")
+
+#pragma comment (lib, "d3dx9.lib")
 
 static LPDIRECTDRAW4		lpDD2;
 static LPDIRECT3D3			lpD3D2;
@@ -24,44 +28,49 @@ void DXBitMask2ShiftCnt(unsigned long mask, unsigned char* shift, unsigned char*
 	*cnt = n;
 }
 
-bool DXSetCooperativeLevel(LPDIRECTDRAW4 lpDD2, HWND WindowHandle, int Flags)
-{
-	static const char* flags[] =
+#ifdef __cplusplus
+extern "C" {
+#endif
+	bool DXSetCooperativeLevel(LPDIRECTDRAW4 lpDD2, HWND WindowHandle, int Flags)
 	{
-		"fullscreen",		  //    1
-		"allowreboot",		  //    2
-		"nowindowchanges",	  //    4
-		"normal",			  //    8
-		"exclusive",		  //   16
-		"",					  //   32
-		"allowmodex",		  //   64
-		"setfocuswindow",	  //  128
-		"setdevicewindow",	  //  256
-		"createdevicewindow", //  512
-		"multithreaded",	  // 1024
-		"fpusetup",			  // 2048
-	};
-
-	char v120[1024];
-	strcpy(v120, "DXSetCooperativeLevel - ");
-
-	for (int i = 0; i < 12; i++)
-	{
-		if (Flags & (1 << i))
+		static const char* flags[] =
 		{
-			strcat(v120, flags[i]);
-			strcat(v120, " ");
+			"fullscreen",		  //    1
+			"allowreboot",		  //    2
+			"nowindowchanges",	  //    4
+			"normal",			  //    8
+			"exclusive",		  //   16
+			"",					  //   32
+			"allowmodex",		  //   64
+			"setfocuswindow",	  //  128
+			"setdevicewindow",	  //  256
+			"createdevicewindow", //  512
+			"multithreaded",	  // 1024
+			"fpusetup",			  // 2048
+		};
+
+		char v120[1024];
+		strcpy(v120, "DXSetCooperativeLevel - ");
+
+		for (int i = 0; i < 12; i++)
+		{
+			if (Flags & (1 << i))
+			{
+				strcat(v120, flags[i]);
+				strcat(v120, " ");
+			}
 		}
+
+		Log(LT_Info, v120);
+
+		int RetVal;
+		RetVal = lpDD2->SetCooperativeLevel(WindowHandle, Flags);
+		if (RetVal != DD_OK) return false;
+		return true;
 	}
-
-	Log(LT_Info, v120);
-
-	int RetVal;
-	RetVal = lpDD2->SetCooperativeLevel(WindowHandle, Flags);
-	if (RetVal != DD_OK) return false;
-	return true;
+#ifdef __cplusplus
 }
-
+#endif
 BOOL DXDDCreate(GUID FAR* lpGuid, LPDIRECTDRAW* lpDD)
 {
 	LPDIRECTDRAW lpDDTemp;
@@ -268,6 +277,7 @@ HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)
 
 
 	memset(&D3DInfo->Texture[D3DInfo->nTexture], 0, sizeof(D3DTEXTUREINFO));
+	memcpy(&D3DInfo->Texture[D3DInfo->nTexture].ddpf, lpddpf, sizeof(DDPIXELFORMAT));
 
 	// Is it Palettised
 
@@ -329,6 +339,29 @@ HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)
 	}
 
 	D3DInfo->nTexture++;
+
+	return D3DENUMRET_OK;
+}
+
+HRESULT CALLBACK DXEnumZBufferFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)
+{
+	DIRECT3DINFO* D3DInfo;
+	D3DInfo = (DIRECT3DINFO*)lpContext;
+
+	if (D3DInfo->nZbuffer== 0)
+		D3DInfo->Zbuffer = (zBufFormat*)malloc(sizeof(zBufFormat));
+	else
+		D3DInfo->Zbuffer = (zBufFormat*)realloc(D3DInfo->Zbuffer, sizeof(zBufFormat)*(D3DInfo->nZbuffer + 1));
+
+
+	memset(&D3DInfo->Zbuffer[D3DInfo->nZbuffer], 0, sizeof(zBufFormat));
+	memcpy(&D3DInfo->Zbuffer[D3DInfo->nZbuffer].ddpf, lpddpf, sizeof(DDPIXELFORMAT));
+
+	D3DInfo->Zbuffer[D3DInfo->nZbuffer].bpp = lpddpf->dwRGBBitCount;
+
+	Log(LT_Info, "%d Bit", D3DInfo->Zbuffer[D3DInfo->nZbuffer].bpp);
+
+	D3DInfo->nZbuffer++;
 
 	return D3DENUMRET_OK;
 }
@@ -579,10 +612,46 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 	return DDENUMRET_OK;
 }
 
+BOOL CALLBACK DXEnumDirectSound(GUID FAR* lpGuid, LPCSTR lpDeviceDesc, LPCSTR lpDeviceName, LPVOID lpContext)
+{
+	Log(LT_Enter, "DXEnumDirectSound");
+
+	DEVICEINFO*		 dd;
+
+	dd = (DEVICEINFO*)lpContext;
+
+	// Allocate Device Structure
+	if (dd->nDSInfo == 0)
+		dd->DSInfo = (DIRECTSOUNDINFO*)malloc(sizeof(DIRECTSOUNDINFO));
+	else
+		dd->DSInfo = (DIRECTSOUNDINFO*)realloc(dd->DSInfo, sizeof(DIRECTSOUNDINFO)*(dd->nDSInfo + 1));
+
+	// Clear Structure
+	memset(&dd->DSInfo[dd->nDSInfo], 0, sizeof(DIRECTSOUNDINFO));
+
+	// Store DirectSound Info	
+	if (lpGuid == NULL)
+		dd->DSInfo[dd->nDSInfo].lpGuid = NULL;
+	else
+	{
+		dd->DSInfo[dd->nDSInfo].lpGuid = &dd->DSInfo[dd->nDSInfo].Guid;
+		memcpy(&dd->DSInfo[dd->nDSInfo].Guid, lpGuid, sizeof(GUID));
+	}
+
+	lstrcpy(dd->DSInfo[dd->nDSInfo].About, lpDeviceDesc);
+	lstrcpy(dd->DSInfo[dd->nDSInfo].Name, lpDeviceName);
+
+	Log(LT_Info, "Found - %s %s", dd->DSInfo[dd->nDSInfo].About, dd->DSInfo[dd->nDSInfo].Name);
+
+	dd->nDSInfo++;
+
+	return DDENUMRET_OK;
+}
+
 void DXInitialise(DEVICEINFO* dd, HWND hWnd)
 {
-	WindowHandle = hWnd;
 	Log(LT_Enter, "DXInitialise");
+	WindowHandle = hWnd;
 	Log(LT_Info, "Enumerating DirectDraw Devices");
 	DX_TRY(DirectDrawEnumerate(DXEnumDirectDraw, dd));
 	DX_TRY(DirectSoundEnumerate(DXEnumDirectSound, dd));

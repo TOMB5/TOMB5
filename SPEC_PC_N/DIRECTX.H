@@ -63,8 +63,8 @@ struct DIRECT3DINFO
 	DISPLAYMODE*	DisplayMode;	// Ptr To Compatible Display Modes
 	int				nTexture;		// Number Of Texture Formats
 	D3DTEXTUREINFO*	Texture;		// Texture Info
-	DWORD numZbufFormats; // pos 402 s 4
-	struct zBufFormat* zBufFormats; // pos 406 s 4
+	int nZbuffer; // pos 402 s 4
+	struct zBufFormat* Zbuffer; // pos 406 s 4
 };
 
 struct DIRECTDRAWINFO
@@ -124,7 +124,13 @@ struct DEVICEINFO					// DirectX Device Information
 									b>>(8-DXD3DTexture(i,j).bbpp)<<(DXD3DTexture(i,j).bshift)|\
 									a>>(8-DXD3DTexture(i,j).abpp)<<(DXD3DTexture(i,j).ashift)	
 
-bool	DXSetCooperativeLevel(LPDIRECTDRAW2 lpDD2, HWND WindowHandle, int Flags);
+#ifdef __cplusplus
+extern "C" {
+#endif
+	bool	DXSetCooperativeLevel(LPDIRECTDRAW4 lpDD2, HWND WindowHandle, int Flags);
+#ifdef __cplusplus
+}
+#endif
 
 void DXInitialise(DEVICEINFO* DeviceInfo, HWND WindowHandle);
 

@@ -549,7 +549,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	InitialisePickUpDisplay();
 
-#if !PC_VERSION
+#if PSX_VERSION
 	phd_InitWindow(90);
 #endif
 
@@ -776,7 +776,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 	InitSpotCamSequences();
 	InitialisePickUpDisplay();
-#if PSXENGINE	
+#if PSX_VERSION
 	phd_InitWindow(90);
 #endif
 	SOUND_Stop();

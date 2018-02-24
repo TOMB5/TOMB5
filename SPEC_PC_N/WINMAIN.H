@@ -24,7 +24,7 @@ struct WINAPP
 
 	BYTE pad;
 
-	LPDIRECTDRAW2			lpDD;				// DirectDraw2 Interface
+	LPDIRECTDRAW4			lpDD;				// DirectDraw2 Interface
 	LPDIRECT3D2				lpD3D;				// Direct3D2 Interface
 	LPDIRECT3DDEVICE2		lpD3DDevice;		// Direct 3D2 Device
 	LPDIRECT3DDEVICE2		lpD3DDevice_BIS;	// Direct 3D2 Device
@@ -37,10 +37,55 @@ struct WINAPP
 
 	LPDIRECTSOUND			lpDS;
 
+	unsigned int width;
+	unsigned int height;
+
+	tagRECT					r1;
+	int						GnWindowPosX;
+	int						GnWindowPosY;
+	int						GnWindowWidth;
+	int						GnWindowHeight;
+
+	unsigned int			Flags;
+	unsigned int			DXWndStyle;
+	unsigned int			Unk1;
+
+	LPDIRECTINPUT7A			lpDI;
+	LPDIRECTINPUTDEVICE2A	lpDIKeyboard;
+	LPDIRECTINPUTDEVICE2A	lpDIJoystick;
+
+	HWND					GhWnd; // pos 100 s 4
+	DWORD isInScene; // pos 104 s 4
+	DWORD					bNoFocus;				// Application Window Has Fous
+
+	DWORD dword_D9AC01;
+	HANDLE hObject; // D9AC05
+
+	DWORD dword_D9AC09;
+	DWORD dword_D9AC0D;
+	DWORD dword_D9AC11;
+
+	HACCEL hAccTable;
+	uint8 byte_D9AC19;
+	BYTE					tBumpMap;
+	DWORD dword_D9AC1B;
+	DWORD dword_D9AC1F;
+	uint8 byte_D9AC23;
+	BYTE					tBilinearFilter;
+	BYTE					tVolumetricShadows;
+	BYTE					tDisableSound;
+	DWORD dword_D9AC27;
+	BYTE byte_D9AC2B;
+	DWORD dword_D9AC2C;
+	
+	BYTE					tAutoTarget;
+	DWORD dword_D9AC34;
+	DWORD dword_D9AC38;
+
 	LPDIRECTDRAWPALETTE		Palette;				// Palette For SW Renderer
 	PALETTEENTRY			PaletteEntries[256];	// Palette Entries
 
-	bool					bFocus;				// Application Window Has Fous
+	
 	bool					bRender;			// Ok To Render
 
 	int						nRenderMode;		// Hardware/Internal Renderer

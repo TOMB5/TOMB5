@@ -29,14 +29,6 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Clear Application Structure
 	memset(&App, 0, sizeof(WINAPP));
 
-	// Create And Display Window
-	App.WindowHandle = WinCreateWindow(hInstance, nCmdShow);
-	if (!App.WindowHandle)
-	{
-		MessageBox(NULL, "Unable To Create Window", "", MB_OK);
-		return FALSE;
-	}
-
 	FindCdDrive();
 	LoadGameflow();
 
@@ -88,7 +80,18 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return FALSE;
 	}
 
+	DXInitialise(&App.DeviceInfo, App.WindowHandle);
 
+	SetWindowPos(App.WindowHandle, 0, App.GnWindowPosX, App.GnWindowPosY, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+
+	HWND dWnd = GetDesktopWindow();
+	HDC context = GetDC(dWnd);
+	App.dword_D9AC2C = GetDeviceCaps(context, BITSPIXEL);
+	ReleaseDC(dWnd, context);
+
+	App.bNoFocus = 0;
+	App.isInScene = 0;
+	App.byte_D9AC2B = 0;
 
 	return 0;
 }
@@ -107,7 +110,7 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_DESTROY:
-		WinAppExit();
+		//WinAppExit();
 		PostQuitMessage(0);
 		break;
 
@@ -135,11 +138,11 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 		case WA_ACTIVE:
 		case WA_CLICKACTIVE:
-			App.bFocus = TRUE;
+			App.bNoFocus = FALSE;
 			break;
 
 		case WA_INACTIVE:
-			App.bFocus = FALSE;
+			App.bNoFocus = TRUE;
 			break;
 		}
 
