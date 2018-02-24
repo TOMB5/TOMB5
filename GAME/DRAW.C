@@ -4,8 +4,9 @@
 #if PSX_VERSION || PSXPC_VERSION
 #include "DRAWSPKS.H"
 #include "SETUP.H"
-#endif
 #include "MATHS.H"
+#endif
+
 #include "OBJECTS.H"
 
 #include "SPECIFIC.H"
@@ -256,6 +257,9 @@ void SetInventoryLighting(struct MATRIX3D* m)
 
 void DrawGunflashes()//8A924(<) 8C968(<) (F)
 {
+#ifdef PC_VERSION
+	S_Warn("[DrawGunflashes] - Unimplemented!\n");
+#else
 	long rand;
 	long i;
 	short* mesh;
@@ -286,6 +290,7 @@ void DrawGunflashes()//8A924(<) 8C968(<) (F)
 	}
 
 	mPopMatrix();
+#endif
 }
 
 short* GetBestFrame(struct ITEM_INFO* item)// (F)s

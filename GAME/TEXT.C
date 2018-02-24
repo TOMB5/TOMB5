@@ -129,7 +129,7 @@ void InitFont()//115EC(<), 1169C(<) (F)
 	}
 
 #if PC_VERSION
-	font_height = window_height_minus_1 * 7.0 / 120.0;
+	//font_height = window_height_minus_1 * 7.0 / 120.0; TODO TODO TODO
 #endif
 
 	return;

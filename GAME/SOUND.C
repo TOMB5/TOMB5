@@ -5,6 +5,8 @@
 #include "EFFECTS.H"
 #if !PC_VERSION
 #include "SFX.H"
+#else
+#include "GLOBAL.H"
 #endif
 #include "SPECTYPES.H"
 #include <stddef.h>

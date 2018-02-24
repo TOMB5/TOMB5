@@ -7,6 +7,10 @@
 #include "OBJECTS.H"
 #include "LARA.H"
 
+#if PC_VERSION
+#include "INIT.H"
+#endif
+
 int slots_used;
 short nAIObjects;
 struct AIOBJECT* AIObjects;

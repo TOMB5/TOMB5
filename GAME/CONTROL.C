@@ -1,19 +1,22 @@
 #include "CONTROL.H"
 
-#include "3D_GEN.H"
-#include "CD.H"
+
 #if PSX_VERSION || PSXPC_VERSION
 #include "COLLIDE_S.H"
+#include "DRAWPHAS.H"
+#include "3D_GEN.H"
+#include "CD.H"
 #endif
 #include "BOX.H"
 #include "DELTAPAK.H"
 #include "DEBRIS.H"
 #include "DRAW.H"
-#include "DRAWPHAS.H"
+
 #include "EFFECTS.H"
 #include "EFFECT2.H"
 #if PC_VERSION
 	#include "GAME.H"
+	#include "FILE.H"
 #endif
 #include "GAMEFLOW.H"
 #if PSX_VERSION || PSXPC_VERSION
@@ -25,13 +28,15 @@
 #include "LARA.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "LOAD_LEV.H"
+#include "MATHS.H"
+#include "ROOMLOAD.H"
 #endif
 #include "LOT.H"
-#include "MATHS.H"
+
 #include "NEWINV2.H"
 #include "PICKUP.H"
 #include INPUT_H
-#include "ROOMLOAD.H"
+
 #if PSX_VERSION || PSXPC_VERSION
 #include "PSOUTPUT.H"
 #include "SETUP.H"

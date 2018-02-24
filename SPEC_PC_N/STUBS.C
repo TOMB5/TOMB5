@@ -1,4 +1,6 @@
-#include "MATHS.H"
+#include "SPECTYPES.H"
+
+
 
 unsigned long atanOctantTab[] = {
 	0,			// Left Top Y<X   0-45    Base 0
@@ -271,84 +273,98 @@ unsigned short atanTab[] = {
 	0x2000, 0x2000
 };
 
-long phd_sqrt_asm(long val) // (F)
-{
-	long root = 0;
-	long remainder = val;
-	long place = 0x40000000;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	do
+	unsigned long mGetAngle(long x1, long y1, long x2, long y2)
 	{
-		if (remainder >= root + place)
+		long x, y;
+		long	octant, n, angle;
+
+		/* -------- calculate gradient */
+
+		x = x2 - x1;
+		y = y2 - y1;
+
+		if ((x == 0) && (y == 0))
+			return 0;
+
+		/* -------- determine octant */
+
+		octant = 0;
+
+		if (x < 0)
 		{
-			remainder -= root + place;
-			root |= place << 1;
+			octant += 4;
+			x = -x;
 		}
 
-		place >>= 2;
-		root >>= 1;
-	} while (place);
+		if (y < 0)
+		{
+			octant += 2;
+			y = -y;
+		}
 
-	return root;
-}
+		if (y > x)
+		{
+			octant++;
+			n = x;
+			x = y;
+			y = n;
+		}
 
-unsigned long mGetAngle(long x1, long y1, long x2, long y2)
-{
-	long x, y;
-	long	octant, n, angle;
+		while ((short)y != y)		/* Scale X and Y down into Word */
+		{						/* So that when we shift Y up */
+			y >>= 1;				/* we dont overflow 32 Bits!! */
+			x >>= 1;
+		}
 
-	/* -------- calculate gradient */
+		n = atanTab[(y << 11) / x];
 
-	x = x2 - x1;
-	y = y2 - y1;
+		if ((n += atanOctantTab[octant]) < 0)	/* add on req Octant*/
+			angle = -(n);
+		else
+			angle = n;
 
-	if ((x == 0) && (y == 0))
-		return 0;
+		return (-angle) & 0xffff;
+	}
 
-	/* -------- determine octant */
-
-	octant = 0;
-
-	if (x < 0)
+	uint32	phd_sqrt(uint32 n)
 	{
-		octant += 4;
-		x = -x;
+		sint32	a, b, c, d;
+
+		a = n;
+
+		c = a;
+		b = 0x40000000;
+		a = 0;
+
+		do
+		{
+			d = a;					/* if you want to know how this works*/
+			a += b;					/* then ask Paul. hahaha!*/
+			d >>= 1;
+
+			if (a > c)
+			{
+				a = d;
+			}
+			else
+			{
+				c -= a;
+				a = b;
+				a |= d;
+			}
+
+		} while ((b >>= 2) != 0);
+
+
+		return(a);					/* c = remainder*/
 	}
 
-	if (y < 0)
-	{
-		octant += 2;
-		y = -y;
-	}
+	void S_SetReverbType() {}
 
-	if (y > x)
-	{
-		octant++;
-		n = x;
-		x = y;
-		y = n;
-	}
-
-	while ((short)y != y)		/* Scale X and Y down into Word */
-	{						/* So that when we shift Y up */
-		y >>= 1;				/* we dont overflow 32 Bits!! */
-		x >>= 1;
-	}
-
-	n = atanTab[(y << 11) / x];
-
-	if ((n += atanOctantTab[octant]) < 0)	/* add on req Octant*/
-		angle = -(n);
-	else
-		angle = n;
-
-	return (-angle) & 0xffff;
+#ifdef __cplusplus
 }
-
-
-int *phd_mxptr;				/* matrix pointer....*/
-
-void mPushUnitMatrix()
-{
-	phd_mxptr += 12;
-}
+#endif

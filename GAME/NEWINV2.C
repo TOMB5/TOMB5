@@ -3,12 +3,12 @@
 #include "DELTAPAK.H"
 #include "SPECIFIC.H"
 #include "LARA.H"
-#include "LOADSAVE.H"
+
 #include "OBJECTS.H"
 #include "GAMEFLOW.H"
 #include "CONTROL.H"
 #include "SAVEGAME.H"
-#include "CD.H"
+
 #include "LARA2GUN.H"
 #include "LARA1GUN.H"
 #include INPUT_H
@@ -20,6 +20,8 @@
 #include "WINMAIN.H"
 #else
 #include "SETUP.H"
+#include "LOADSAVE.H"
+#include "CD.H"
 #endif
 
 enum invobj_types // update this whenever inventry_objects_list is modified
@@ -528,7 +530,12 @@ void do_stats_mode()//412BC, 41710 (F)
 	if (stats_mode > 128)
 		stats_mode = 128;
 
+#if PC_VERSION
+	S_Warn("todo status cunt"); // todo
+#else
 	DisplayStatsUCunt();
+#endif
+	
 
 	if (go_deselect)
 	{
@@ -550,7 +557,7 @@ void do_examine_mode()//411C4, 41618 (F)
 	objme->scale1 = 300;
 
 	DrawThreeDeeObject2D(
-#if PC_VERSION
+#if PC_VERSION && 0
 		(int)((double)middle_width + inventry_xpos),
 		(int)((double)middle_height / 120.0 * 256.0 + inventry_xpos) / 2,
 #else
@@ -1798,12 +1805,22 @@ void construct_combine_object_list()//3C940, 3CD94 (F)
 
 int go_and_save_game()//3C920(<), 3CD74(<) (F)
 {
+#if PC_VERSION
+	Unimpl();
+	return 0;
+#else
 	return SaveGame();
+#endif
 }
 
 int go_and_load_game()//3C900(<), 3CD54(<) (F)
 {
+#if PC_VERSION
+	Unimpl();
+	return 0;
+#else
 	return LoadGame();
+#endif
 }
 
 void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int shagflag)//3C6A0, 3CAF4
