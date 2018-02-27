@@ -1,6 +1,6 @@
 #include "GAMEFLOW.H"
 
-
+#include "3D_GEN.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
@@ -549,7 +549,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	InitialisePickUpDisplay();
 
-#if PSX_VERSION
+#if PSX_VERSION || PSXPC_VERSION
 	phd_InitWindow(90);
 #endif
 
@@ -776,7 +776,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 	InitSpotCamSequences();
 	InitialisePickUpDisplay();
-#if PSX_VERSION
+#if PSX_VERSION || PSXPC_VERSION
 	phd_InitWindow(90);
 #endif
 	SOUND_Stop();
