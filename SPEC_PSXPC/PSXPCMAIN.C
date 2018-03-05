@@ -52,6 +52,8 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 	savegame.VibrateOn = 0;
 	SoundFXVolume = 255;
 
+	InitialisePadSubsystem();
+
 	init_game_malloc();
 	InitFont();
 	SOUND_Init();

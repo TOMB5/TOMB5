@@ -496,12 +496,13 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 #endif
 
 	OldSP = SetSp(0x1F8003E0);
+#endif
 
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
 
-	SetSp(OldSP);
-
+#if PSX_VERSION
 #if DEBUG_VERSION
+	SetSp(OldSP);
 	ProfileRGB(0, 0, 0);
 #endif
 #endif
@@ -551,10 +552,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 #if PSX_VERSION || PSXPC_VERSION
 	phd_InitWindow(90);
-#endif
-
-#if PSXPC_VERSION
-	InitialisePadSubsystem();
 #endif
 
 	SOUND_Stop();

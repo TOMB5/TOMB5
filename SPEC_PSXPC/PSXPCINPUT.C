@@ -55,6 +55,8 @@ int dword_A1894;
 int dword_A1890;
 int dword_A1898;
 
+void ConvertInput(long& RawPad, SDL_GameController* pad);
+
 void S_UpdateInput()//5F628(<), 6038C(<)
 {
 	int state = 0; // $s1
@@ -82,22 +84,21 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	//state = PadGetState(0);
 	//type = PadInfoMode(0, 1, 0);
 
-	if (state == 0)
+	if (!(SDL_GameControllerGetAttached(padHandle[0])))
 	{
-		if (type != 4 || type != 7)
-		{
-			//loc_5F688
-			RawPad = 0;
-			PadConnected = 0;
-			RawEdge = 0;
-			input = 0;
+		//loc_5F688
+		RawPad = 0;
+		PadConnected = 0;
+		RawEdge = 0;
+		input = 0;
 
-			dword_A1894 = 0;//static? sw
-			dword_A1890 = 0;//static? sw
-			reset_count = 0;
-			return;
-		}
+		dword_A1894 = 0;//static? sw
+		dword_A1890 = 0;//static? sw
+		reset_count = 0;
+		return;
 	}
+
+	ConvertInput(RawPad, padHandle[0]);
 
 	//loc_5F6AC
 	if (SetDebounce != 0)
@@ -108,7 +109,10 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 
 	//loc_5F6D0
 	PadConnected = 1;
+
+#if 0
 	RawPad = (GPad1.data.pad ^ -1) & 0xFFFF;
+#endif
 	if (SetDebounce != 0)
 	{
 		RawEdge ^= RawPad;
@@ -521,7 +525,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	}//loc_5FF00
 
 	 //Edge2 = Pad2.3;
-#if DEBUG_VERSION
+#if DEBUG_VERSION && 0
 	assert(0);
 	if (GPad2.transStatus != 0xFF)
 	{
@@ -629,5 +633,47 @@ void InitialisePadSubsystem()
 	{
 		S_Warn("Failed to initialise SDL controller subsystem!\n");
 		return;
+	}
+
+	if (SDL_NumJoysticks() < 1)
+	{
+		S_Warn("Failed to locate a connected gamepad!\n");
+		return;
+	}
+
+	for (int i = 0; i < SDL_NumJoysticks(); i++)
+	{
+		if (SDL_IsGameController(i) && i < MAX_CONTROLLERS)
+		{
+			padHandle[i] = SDL_GameControllerOpen(i);///@TODO close joysticks
+			if (padHandle[i])
+			{
+				break;
+			}
+		}
+	}
+}
+
+
+void ConvertInput(long& RawPad, SDL_GameController* pad)
+{
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_X))
+	{
+		RawPad |= 0x8000;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_B))
+	{
+		RawPad |= 0x2000;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_Y))
+	{
+		RawPad |= 0x1000;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A))
+	{
+		RawPad |= 0x4000;
 	}
 }
