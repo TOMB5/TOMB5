@@ -10,6 +10,7 @@
 #include "PCSOUND.H"
 #include "ERROR.H"
 #include <stdint.h>
+#include "SOUND.H"
 
 HANDLE Handles;
 HANDLE dword_579FA4;
@@ -246,4 +247,11 @@ void DisplayStatsUCunt()
 void S_SetReverbType(int reverb)
 {
 	// null sub
+}
+
+void S_SoundStopSample(sint32 handle)
+{
+	if (!sound_active)
+		return;
+	//DS_StopSample(handle);
 }

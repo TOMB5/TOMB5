@@ -23,6 +23,10 @@ If you're able to code in C/C++ please feel free to contact me. I can assign you
 - SPEC_PSX - Platform specific code for PSX version.
 - SPEC_PSXPC - Platform specific code for PSX version that runs on PC for debugging purposes (all psx sdk calls stripped).
 - TOOLS - Game tools (may be removed in the future).
+- DISC - Contains PSX specific disc project generation files.
+
+## Base Versions
+- PSX NTSC v1.0 SLUS_013.11 MD5: (4EF523E708D7A7D6571F39C6E47784F9)
 
 ## Compiling
 1. Dependencies:

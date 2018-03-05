@@ -1,17 +1,21 @@
 #include "CAMERA.H"
 #if !PC_VERSION
 #include "CD.H"
+#include "MATHS.H"
+#include "3D_GEN.H"
+#else
+#include "GLOBAL.H"
 #endif
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
-#include "MATHS.H"
+
 #include "OBJECTS.H"
 #include "SAVEGAME.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 
-#include "3D_GEN.H"
+
 
 #include <assert.h>
 #include "SPECTYPES.H"

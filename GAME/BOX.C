@@ -5,14 +5,16 @@
 #include "DRAW.H"
 #include "ITEMS.H"
 #include "LOT.H"
-#include "MATHS.H"
+
 #include "SPECIFIC.H"
 #include "TOMB4FX.H"
 
 #ifdef PC_VERSION
 #include "GAME.H"
+#include "GLOBAL.H"
 #else
 #include "SETUP.H"
+#include "MATHS.H"
 #endif
 
 #include "SPECTYPES.H"

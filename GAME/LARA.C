@@ -5576,6 +5576,8 @@ void AnimateLara(struct ITEM_INFO* item)
 
 void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F) 
 {
+	return;//not used yet
+#if 0
 	struct PHD_VECTOR joint;
 	short room_number;//_18
 	struct room_info* r;//$a1
@@ -5619,6 +5621,7 @@ void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F)
 			}
 		}
 	}
+#endif
 }
 
 void SetPendulumVelocity(int x, int y, int z)// (F)

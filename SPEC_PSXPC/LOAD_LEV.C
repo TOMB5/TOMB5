@@ -413,7 +413,7 @@ void LOAD_Stop()//60434(<), 60FB4(<) (F)
 	db.draw[1].dtd = 1;
 	db.draw[0].dtd = 1;
 
-	GPU_UseOrderingTables(&GadwOrderingTables[0], 2564);
+	GPU_UseOrderingTables(&GadwOrderingTables[0], sizeof(GadwOrderingTables) / 8);
 	db.current_buffer = 0;
 
 	GPU_SyncBothScreens();

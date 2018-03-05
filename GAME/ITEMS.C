@@ -5,6 +5,7 @@
 #include "OBJECTS.H"
 #ifdef PC_VERSION
 #include "GAME.H"
+#include "INIT.H"
 #else
 #include "SETUP.H"
 #endif

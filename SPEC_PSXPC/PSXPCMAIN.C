@@ -18,6 +18,8 @@
 // SDL breaks build on PSX
 #undef main
 
+int gp_start_address = 'T' | ('W' << 8) | ('A' << 16) | ('T' << 24);
+
 void VSyncFunc()//10000(<), 10000(<) (F)
 {
 	cbvsync();
@@ -49,6 +51,8 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 	savegame.AutoTarget = 1;
 	savegame.VibrateOn = 0;
 	SoundFXVolume = 255;
+
+	InitialisePadSubsystem();
 
 	init_game_malloc();
 	InitFont();

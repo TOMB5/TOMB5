@@ -1,8 +1,6 @@
 #include "DELTAPAK.H"
 
-#include "DRAWPHAS.H"
 
-#include "CD.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
@@ -16,10 +14,10 @@
 #include "LARA1GUN.H"
 #include "LARA2GUN.H"
 #include "LOT.H"
-#include "MATHS.H"
+
 #include "NEWINV2.H"
 #include "OBJECTS.H"
-#include "ROOMLOAD.H"
+
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TEXT.H"
@@ -27,11 +25,18 @@
 #include "TYPES.H"
 
 #if PC_VERSION
+#include "GLOBAL.H"
 #include "GAME.H"
 #include "WINMAIN.H"
+#include "FILE.H"
 #else
 #include "PROFILE.H"
 #include "SETUP.H"
+#include "ROOMLOAD.H"
+#include "MATHS.H"
+#include "DRAWPHAS.H"
+
+#include "CD.H"
 #endif
 
 #include "SPECTYPES.H"
@@ -1772,7 +1777,7 @@ void joby4_control()//2FA0C, 2FD8C (F)
 	if (GLOBAL_cutseq_frame <= 130)
 	{
 #if PC_VERSION
-		PrintString(middle_width, window_height_minus_1 - 3 * font_height, 5, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000);
+		//PrintString(middle_width, window_height_minus_1 - 3 * font_height, 5, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000);
 #else
 		PrintString(256, 200, 0, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000); // todo maybe wrong on pc , @Gh0stBlade check third arg!
 #endif

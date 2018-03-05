@@ -4,37 +4,38 @@
 #include <d3d.h>
 #include <dsound.h>
 #include "SPECIFIC.H"
+#include <stdbool.h>
 #pragma pack(push, 1)
-struct dispmode
+struct DISPLAYMODE
 {
-	DWORD width; // pos 0 s 4
-	DWORD height; // pos 4 s 4
-	DWORD depth; // pos 8 s 4
+	int				w;				// Width
+	int				h;				// Height
+	unsigned long	bpp;			// Bits Per Pixel
 	DWORD mipMapCount; // pos 12 s 4
-	DWORD isIndexed8; // pos 16 s 4
-	DDSURFACEDESC2 surfaceDesc; // pos 20 s 124
-	BYTE bitsR; // pos 144 s 1
-	BYTE bitsG; // pos 145 s 1
-	BYTE bitsB; // pos 146 s 1
-	BYTE offsetR; // pos 147 s 1
-	BYTE offsetG; // pos 148 s 1
-	BYTE offsetB; // pos 149 s 1
+	bool			bPalette;		// Is It Palettised
+	DDSURFACEDESC2	ddsd;			// Surface Description
+	unsigned char	rbpp;			// Red Bits Per Pixel
+	unsigned char	gbpp;			// Green Bits Per Pixel
+	unsigned char	bbpp;			// Blue Bits Per Pixel
+	unsigned char	rshift;			// Shifts For Red 
+	unsigned char	gshift;			// Shifts For Green
+	unsigned char	bshift;			// Shifts For Blue
 };
 
-struct acceltexformatinfo
+struct D3DTEXTUREINFO
 {
-	DDPIXELFORMAT format; // pos 0 s 32
-	DWORD depth; // pos 32 s 4
-	DWORD field1; // pos 36 s 4
-	DWORD field2; // pos 40 s 4
-	BYTE bitsR; // pos 44 s 1
-	BYTE bitsG; // pos 45 s 1
-	BYTE bitsB; // pos 46 s 1
-	BYTE bitsA; // pos 47 s 1
-	BYTE offsetR; // pos 48 s 1
-	BYTE offsetG; // pos 49 s 1
-	BYTE offsetB; // pos 50 s 1
-	BYTE offsetA; // pos 51 s 1
+	DDPIXELFORMAT	ddpf;			// Texture Pixel Format
+	unsigned long	bpp;			// Bits Per Pixel (if Palettised)
+	bool			bPalette;		// Is it Palettised
+	bool			bAlpha;			// Does It Support Alpha
+	unsigned char	rbpp;			// Red Bits Per Pixel 
+	unsigned char	gbpp;			// Green Bits Per Pixel
+	unsigned char	bbpp;			// Blue Bits Per Pixel
+	unsigned char	abpp;			// Alpha Bits Per Pixel
+	unsigned char	rshift;			// Shifts For Red
+	unsigned char	gshift;			// Shifts For Green
+	unsigned char	bshift;			// Shifts For Blue
+	unsigned char	ashift;			// Shifts For Alpha
 };
 
 struct zBufFormat
@@ -43,29 +44,29 @@ struct zBufFormat
 	DWORD depth; // pos 32 s 4
 };
 
-struct acceladapt
+struct DIRECT3DINFO
 {
-	char name[30]; // pos 0 s 30
-	char description[80]; // pos 30 s 80
-	GUID* field1; // pos 110 s 4
-	GUID guid; // pos 114 s 16
-	D3DDEVICEDESC deviceDesc; // pos 130 s 252
-	DWORD field2; // pos 382 s 4
-	DWORD numDispModes; // pos 386 s 4
-	struct dispmode* displayModes; // pos 390 s 4
-	DWORD numTexFormats; // pos 394 s 4
-	struct acceltexformatinfo* texFormats; // pos 398 s 4
-	DWORD numZbufFormats; // pos 402 s 4
+	char			Name[30];		// Name String
+	char			About[80];		// Description String
+	LPGUID			lpGuid;			// GUID
+	GUID			Guid;
+	D3DDEVICEDESC	DeviceDesc;		// Device Description
+	bool			bHardware;		// Is It Hardware
+	int				nDisplayMode;	// Number Of Display Modes
+	struct DISPLAYMODE*	DisplayMode;	// Ptr To Compatible Display Modes
+	int				nTexture;		// Number Of Texture Formats
+	struct D3DTEXTUREINFO*	Texture;		// Texture Info
+	DWORD nZbuffer; // pos 402 s 4
 	struct zBufFormat* zBufFormats; // pos 406 s 4
 };
 
-struct gfxadapt
+struct DIRECTDRAWINFO
 {
-	char driverName[30]; // pos 0 s 30
-	char driverDesc[80]; // pos 30 s 80
-	GUID* field3; // pos 110 s 4
-	GUID guid; // pos 114 s 16
-	DDCAPS capabilities; // pos 130 s 380
+	char			Name[30];		// Name String   
+	char			About[80];		// Description String
+	LPGUID			lpGuid;			// GUID
+	GUID			Guid;
+	DDCAPS			DDCaps;			// Device Capabilites
 	char driverDllName[512]; // pos 510 s 512
 	char deviceName[512]; // pos 1022 s 4
 	WORD versionRevision; // pos 1534 s 2
@@ -73,10 +74,10 @@ struct gfxadapt
 	WORD versionMinor; // pos 1538 s 2
 	WORD versionMajor; // pos 1540 s 2
 	char pad4[32]; // pos 1542 s 32
-	DWORD numDispModes; // pos 1574 s 4
-	struct dispmode* displayModes; // pos 1578 s 4
-	DWORD numAccelAdapters; // pos 1582 s 4
-	struct acceladapt* accelAdapters; // pos 1586 s 4
+	int				nDisplayMode;	// Number Of Display Modes	
+	struct DISPLAYMODE*	DisplayMode;	// Ptr To Display Mode Structure
+	int				nD3DInfo;		// Number Of D3D Drivers
+	struct DIRECT3DINFO*	D3DInfo;		// Ptr To D3D Info Structure
 };
 
 struct soundcard
@@ -88,11 +89,11 @@ struct soundcard
 };
 #pragma pop
 
-struct dxcontext_s
+struct WINAPP
 {
 	DWORD numGraphicsAdapters; // pos 0 s 4  D9AB68
 	DWORD numSoundCards; // pos 4 s 4
-	struct gfxadapt* graphicsAdapters; // pos 8 s 4
+	struct DIRECTDRAWINFO* graphicsAdapters; // pos 8 s 4
 	struct soundcard* soundCards; // pos 12 s 4
 	DWORD curGfxAdapt; // pos 16 s 4
 	DWORD curAccelAdapt; // pos 20 s 4
@@ -129,7 +130,7 @@ struct dxcontext_s
 	LPDIRECTINPUTDEVICE2A dinput_keyboard; // pos 92 s 4
 
 	LPDIRECTINPUTDEVICE2A dinput_other; // pos 96 s 4
-	HWND dxWndHwnd; // pos 100 s 4
+	HWND GhWnd; // pos 100 s 4
 	DWORD isInScene; // pos 104 s 4
 	DWORD dword_D9ABFD; // pos 108 s 4
 
@@ -142,7 +143,7 @@ struct dxcontext_s
 
 	HACCEL hAccTable;
 	uint8 byte_D9AC19;
-	BYTE opt_BumpMap;
+	BYTE tEnableBumpMap;
 	DWORD dword_D9AC1B;
 	DWORD dword_D9AC1F;
 	uint8 byte_D9AC23;
@@ -156,7 +157,7 @@ struct dxcontext_s
 	DWORD dword_D9AC34;
 	DWORD dword_D9AC38;
 } dxctx;
-struct dxcontext_s* ptr_ctx;
+struct WINAPP* ptr_ctx;
 LPDIRECT3DVERTEXBUFFER vertexBuffer;
 DWORD opt_GraphicsAdapter;
 DWORD opt_AccelAdapter;
@@ -166,8 +167,8 @@ extern signed int __cdecl DXInitialise(void *lpContext, HWND hwnd);
 extern int sub_401424();
 extern int DXChangeVideoMode();
 extern int DXMove(int xLeft, int yTop);
-extern signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct dxcontext_s *a5, HWND a6, DWORD dwStyle);
-extern signed int __cdecl DXCreateSurface(LPDIRECTDRAW4 a1, LPDDSURFACEDESC2 a2, LPDIRECTDRAWSURFACE4* a3);
+extern signed int __cdecl DXCreate(int a1, int a2, int a3, int flags, struct WINAPP *a5, HWND a6, DWORD dwStyle);
+extern bool	DXCreateSurface(LPDIRECTDRAW2 lpDD2, DDSURFACEDESC* ddsd, LPDIRECTDRAWSURFACE3* lpSurface);
 extern int __cdecl sub_4B8780(LPDIRECTDRAWSURFACE4 a3, HGDIOBJ h, int xSrc, int ySrc, int wSrc, int hSrc);
 extern signed int __cdecl LoadBitmapEx(struct IDirectDrawSurface4 *surface, const CHAR *name);
 extern int __cdecl DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char *filename);
