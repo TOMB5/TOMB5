@@ -18,6 +18,8 @@
 // SDL breaks build on PSX
 #undef main
 
+int gp_start_address = ('T' << 24) | ('W' << 16) | ('A' << 8) | ('T' << 0);
+
 void VSyncFunc()//10000(<), 10000(<) (F)
 {
 	cbvsync();
