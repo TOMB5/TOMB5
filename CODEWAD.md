@@ -48,9 +48,20 @@ jalr $a3
 |?|-|`void DoSubsuitStuff()`|LARA|
 |?|-|`void TriggerAirBubbles()`|EFFECT2|
 |`0x00 (0xB4)`|-|`void TriggerCoinGlow()`|TOMB4FX|
-|`0x24 (0x28)`|-|`void SaveRope()`|SAVEGAME|
-|?|-|`void Straighten(struct ROPE_STRUCT* a1, struct PHD_VECTOR* a2, struct PHD_VECTOR* a3, long a4)`|CONTROL|
-|`0x2C (0x28)`|-|`void StraightenRope(struct ITEM_INFO* item)`|CONTROL|
-|`0x28 (0x28)`|-|`void LoadRope()`|SAVEGAME|
+|`0x24 (0x28)`|-|`void SaveRope()`|ROPE|
+|?|-|`void Straighten(struct ROPE_STRUCT* a1, struct PHD_VECTOR* a2, struct PHD_VECTOR* a3, long a4)`|ROEP|
+|`0x2C (0x28)`|-|`void StraightenRope(struct ITEM_INFO* item)`|ROPE|
+|`0x28 (0x28)`|-|`void LoadRope()`|ROPE|
 |`0x00 (0x8C)`|-|? (called in FlameEmitter3Control)|?|
 |`0x04 (0x7C)`|-|? (called in SortOutWreckingBallDraw)|?|
+|?|-|`void UpdateSpiders()`|CONTROL|
+|?|-|`int GetFreeSpider()`|TOMB4FX|
+
+# list of guessed global vars names
+
+basically, if a global variable is only ever used from functions in codewad, then it's not present in the debug symbols and thus we can't know its name so we guess it (and also type)
+
+| Address | Type | Name | Use |
+|---------|------|------|-----|
+|?|`long`|`next_spider`|In spider-related functions to keep track of next free spider|
+|?|`ROPE_STRUCT[12]`|`Ropes`|Ropes|

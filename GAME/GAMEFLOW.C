@@ -1,29 +1,33 @@
 #include "GAMEFLOW.H"
 
 #include "3D_GEN.H"
-#include "CD.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
-#include "DRAWPHAS.H"
+
 #include "FILE.H"
 #if !PC_VERSION
+#include "CD.H"
 #include "MOVIE.H"
 #include "MEMCARD.H"
 #include "SPUSOUND.H"
 #include "MISC.H"
 #include "SFX.H"
+#include "GPU.H"
+#include "DRAWPHAS.H"
+#include "ROOMLOAD.H"
 #else
 #include "GAME.H"
+#include "INIT.H"
 #endif
-#include "GPU.H"
+
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "MALLOC.H"
 #include "NEWINV2.H"
 #include INPUT_H
-#include "ROOMLOAD.H"
+
 #include "SAVEGAME.H"
 #include "SOUND.H"
 
@@ -117,7 +121,8 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 #endif
 
 #if PC_VERSION
-	do_boot_screen(Gameflow->Language);
+	//do_boot_screen(Gameflow->Language);
+	// todo
 #endif
 
 	num_fmvs = 0;
@@ -240,7 +245,7 @@ void LoadGameflow()//102E0, 102B0
 #endif
 
 #if PC_VERSION
-	LoadFile(GF_SCRIPT_FILENAME, &s);
+	LoadFile(GF_SCRIPT_FILENAME, (void**)&s);
 	gfScriptFile = s;
 #endif
 
@@ -282,7 +287,7 @@ void LoadGameflow()//102E0, 102B0
 	{
 #if PC_VERSION
 		gfStringOffset = NULL;
-		if (LoadFile((char*)s, &gfStringOffset))
+		if (LoadFile((char*)s, (void**)&gfStringOffset))
 #else
 		if (FILE_Length((char*)s) != -1)
 #endif
@@ -544,7 +549,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	InitialisePickUpDisplay();
 
-#if !PC_VERSION
+#if PSX_VERSION || PSXPC_VERSION
 	phd_InitWindow(90);
 #endif
 
@@ -743,7 +748,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 #if !BETA_VERSION
 	int fmvStatus;
 #endif
-
+#if PSX_VERSION || PSXPC_VERSION
 	if (gfGameMode == 4)
 	{
 		if (FromTitle == 1)
@@ -757,7 +762,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	//loc_10B24
 	FromTitle = 0;
 
-#if PSX_VERSION || PSXPC_VERSION
+
 	XAMasterVolume = savegame.VolumeCD;
 #endif
 
@@ -771,7 +776,9 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 	InitSpotCamSequences();
 	InitialisePickUpDisplay();
+#if PSX_VERSION || PSXPC_VERSION
 	phd_InitWindow(90);
+#endif
 	SOUND_Stop();
 	bDisableLaraControl = 0;
 
@@ -849,7 +856,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	framecount = 0;
 
 	gfStatus = ControlPhase(2, 0);
-
+#if PSX_VERSION || PSXPC_VERSION
 	dbinput = 0;
 	JustLoaded = 0;
 
@@ -911,7 +918,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	Motors[1] = 0;
 	Motors[0] = 0;
 
-#if PSX_VERSION || PSXPC_VERSION
+
 	if (XAVolume != 0)
 	{
 		//loc_10EBC
@@ -920,13 +927,13 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 			XAReqVolume = 0;
 		} while (XAVolume == 0);
 	}
-#endif
+
 
 	//loc_10ED8
 	reset_count = 0;
 	S_SoundStopAllSamples();
 	S_CDStop();
-
+#endif
 #if !BETA_VERSION
 
 	if (gfStatus == 3)
@@ -946,7 +953,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 				fmv_to_play[0] = 0;
 			}
 		}
-		
+#if PSXENGINE	
 		//loc_10F20
 		if (fmv_to_play[0] != 0)
 		{
@@ -957,6 +964,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		{
 			S_PlayFMV(fmv_to_play[1] & 0x7F, 1);
 		}
+#endif
 	}
 
 	//loc_10F64

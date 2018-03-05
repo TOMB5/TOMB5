@@ -8,11 +8,8 @@
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "SETUP.H"
-#include "SPECIFIC.H"
 
-#include <assert.h>
 #include <stdio.h>
-#include <string.h>
 #include <LIBSN.H>
 
 long AnimFilePos;
@@ -71,7 +68,8 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	SetupPtr = &db.poly_buffer[0][1026];
 
 #if DISC_VERSION
-	DEL_CDFS_Read((char*) &db.poly_buffer[1024], gwHeader.entries[0].fileSize);//jal 5E414
+	DEL_CDFS_Read((char*) &db.poly_buffer[1024], gwHeader.entries[NONE].fileSize);//jal 5E414
+	RelocateLevel();
 #else
 	len = FILE_Length("DATA\\SETUP.MOD");
 	file = PCopen("DATA\\SETUP.MOD", 0, 0);
@@ -83,10 +81,8 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 	//RelocateModule((unsigned long)SetupPtr, (unsigned long*)((char*)&db.poly_buffer[*db.poly_buffer[1024] + 8]));
 
-#if DISC_VERSION
-	RelocateLevel();
-#else
-	strcpy(buf, gfFilenameWad[gfFilenameOffset[Name]]);
+#if !DISC_VERSION
+	strcpy(buf, &gfFilenameWad[gfFilenameOffset[Name]]);
 	strcat(buf, ".PSX");
 
 	len = FILE_Length(buf);

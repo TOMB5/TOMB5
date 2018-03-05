@@ -7,15 +7,19 @@
 #include "DELSTUFF.H"
 #include "CONTROL.H"
 #include "DRAW.H"
-#include "DRAWPHAS.H"
+
 #include "CAMERA.H"
+
 #include "EFFECTS.H"
 #include "DELTAPAK.H"
 #include "SOUND.H"
 #ifdef PC_VERSION
+#include "GLOBAL.H"
 #include "GAME.H"
 #else
 #include "SETUP.H"
+#include "DRAWPHAS.H"
+#include "MATHS.H"
 #endif
 
 char flare_table[121] =
@@ -39,6 +43,7 @@ long next_gunshell = 0;
 long next_bubble = 0;
 long next_drip = 0;
 long next_blood = 0;
+long next_spider = 0;
 
 struct NODEOFFSET_INFO NodeOffsets[16] = // offset 0xA0A24
 {
@@ -401,10 +406,42 @@ void TriggerShatterSmoke(int x, int y, int z)//8AA14(<), 8CA58(<) (F)
 	smoke->Size = smoke->dSize >> 3;
 }
 
-int GetFreeBlood()
+int GetFreeBlood()// (F)
 {
-	S_Warn("[GetFreeBlood] - Unimplemented!\n");
-	return 0;
+	struct BLOOD_STRUCT* bptr = &blood[next_blood];
+	int bptr_num = next_blood;
+	int min_life = 4095;
+	int min_life_num = 0;
+	int count = 0;
+	
+	while(bptr->On)
+	{
+		if (bptr->Life < min_life)
+		{
+			min_life_num = bptr_num;
+			min_life = bptr->Life;
+		}
+
+		if (bptr_num == 31)
+		{
+			bptr = &blood[0];
+			bptr_num = 0;
+		}
+		else
+		{
+			bptr++;
+			bptr_num++;
+		}
+
+		if (++count >= 32)
+		{
+			next_blood = (min_life_num + 1) & 31;
+			return min_life_num;
+		}
+	}
+
+	next_blood = (bptr_num + 1) & 31;
+	return bptr_num;
 }
 
 void TriggerBlood(int x, int y, int z, int a4, int num)// (F)
@@ -780,9 +817,10 @@ void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
 	S_Warn("[TriggerRicochetSpark] - Unimplemented!\n");
 }
 
-void Richochet(struct GAME_VECTOR* pos)
+void Richochet(struct GAME_VECTOR* pos)// (F)
 {
-	S_Warn("[Richochet] - Unimplemented!\n");
+	TriggerRicochetSpark(pos, mGetAngle(pos->z, pos->x, lara_item->pos.z_pos, lara_item->pos.x_pos) >> 4, 3, 0);
+	SoundEffect(SFX_LARA_RICOCHET, (struct PHD_3DPOS*)pos, 0);
 }
 
 void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int a4, char a5, char a6, char a7)
@@ -793,4 +831,31 @@ void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int
 void TriggerCoinGlow()
 {
 	S_Warn("[TriggerCoinGlow] - Unimplemented!\n");
+}
+
+int GetFreeSpider()// (F)
+{
+	struct SPIDER_STRUCT* peter = &Spiders[next_spider];
+	int peter_num = next_spider;
+	int count = 0;
+
+	while (peter->On)
+	{
+		if (peter_num == 63)
+		{
+			peter = &Spiders[0];
+			peter_num = 0;
+		}
+		else
+		{
+			peter++;
+			peter_num++;
+		}
+
+		if (++count >= 64)
+			return -1;
+	}
+
+	next_spider = (peter_num + 1) & 63;
+	return peter_num;
 }

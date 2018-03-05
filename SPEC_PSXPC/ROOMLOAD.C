@@ -8,9 +8,7 @@
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "SETUP.H"
-#include "SPECIFIC.H"
 
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -44,7 +42,6 @@ void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
 	FILE_Read((char*) frames, 1, len, file);
 
 	fclose(file);
-
 #endif
 
 	return;
@@ -68,11 +65,11 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 	LOAD_Start(Name + TITLE);
 	
-	char* temp = new char[gwHeader.entries[0].fileSize];
-	SetupPtr = (unsigned long*)&temp[8];
+	SetupPtr = &db.poly_buffer[0][1026];
 
 #if DISC_VERSION
-	DEL_CDFS_Read(temp, gwHeader.entries[0].fileSize);//jal 5E414
+	DEL_CDFS_Read((char*) &db.poly_buffer[1024], gwHeader.entries[NONE].fileSize);//jal 5E414
+	RelocateLevel();
 #else
 	len = FILE_Length("DATA\\SETUP.MOD");
 	file = fopen("DATA\\SETUP.MOD", "rb");
@@ -82,13 +79,11 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	fclose(file);
 #endif
 
-#if 1
+#if 0
 	RelocateModule((unsigned long)SetupPtr, (unsigned long*)&temp[(*(unsigned long*)&temp[0]) + 8] );
 #endif
 
-#if DISC_VERSION
-	RelocateLevel();
-#else
+#if !DISC_VERSION
 	strcpy(buf, &gfFilenameWad[gfFilenameOffset[Name]]);
 	strcat(buf, ".PSX");
 
@@ -102,9 +97,6 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	 //jalr SetupPtr[5](len);, retail a0 = s1? len?
 
 	LOAD_Stop();
-
-	//Bug may be accessed later
-	delete[] temp;
 	
 	return;
 }

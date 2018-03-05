@@ -1,19 +1,22 @@
 #include "CONTROL.H"
 
-#include "3D_GEN.H"
-#include "CD.H"
+
 #if PSX_VERSION || PSXPC_VERSION
 #include "COLLIDE_S.H"
+#include "DRAWPHAS.H"
+#include "3D_GEN.H"
+#include "CD.H"
 #endif
 #include "BOX.H"
 #include "DELTAPAK.H"
 #include "DEBRIS.H"
 #include "DRAW.H"
-#include "DRAWPHAS.H"
+
 #include "EFFECTS.H"
 #include "EFFECT2.H"
 #if PC_VERSION
 	#include "GAME.H"
+	#include "FILE.H"
 #endif
 #include "GAMEFLOW.H"
 #if PSX_VERSION || PSXPC_VERSION
@@ -25,13 +28,15 @@
 #include "LARA.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "LOAD_LEV.H"
+#include "MATHS.H"
+#include "ROOMLOAD.H"
 #endif
 #include "LOT.H"
-#include "MATHS.H"
+
 #include "NEWINV2.H"
 #include "PICKUP.H"
 #include INPUT_H
-#include "ROOMLOAD.H"
+
 #if PSX_VERSION || PSXPC_VERSION
 #include "PSOUTPUT.H"
 #include "SETUP.H"
@@ -42,6 +47,7 @@
 #include "SPHERE.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
+#include "TYPES.H"
 
 #include <assert.h>
 #include <string.h>
@@ -245,6 +251,7 @@ struct CHARDEF CharDef[106] =
 	{ 0x2A, 0, 0x29, 0xD, -0xA, 6, 0xB },
 	{ 0x7E, 0, 0x29, 0xD, -0xA, 6, 0xB }
 };
+struct ROPE_STRUCT Ropes[12];
 
 char byte_A3660;
 
@@ -998,14 +1005,62 @@ void ResetGuards()
 	S_Warn("[ResetGuards] - Unimplemented!\n");
 }
 
-void InterpolateAngle(short dest, short* src, short* diff, short speed)
+void InterpolateAngle(short dest, short* src, short* diff, short speed)//20AF0(<) ? (F)
 {
-	S_Warn("[InterpolateAngle] - Unimplemented!\n");
+	long adiff;
+
+	adiff = (dest & 0xFFFF) - src[0];
+
+	if (32768 < adiff)
+	{
+		adiff += -65536;
+	}//0x20B18
+	else if (adiff < -32768)
+	{
+		adiff += 65536;
+	}
+
+	if (diff != NULL)
+	{
+		diff[0] = adiff;
+	}
+
+	//0x20B34
+	src[0] = (src[0] >> speed) + adiff;
 }
 
-int CheckGuardOnTrigger()
+int CheckGuardOnTrigger()//209AC(<), 20BB8(<) (F)
 {
-	S_Warn("[CheckGuardOnTrigger] - Unimplemented!\n");
+	int slot;
+	short room_number;
+	struct creature_info* cinfo;
+	struct ITEM_INFO* item;
+
+	room_number = lara_item->room_number;
+
+	cinfo = &baddie_slots[0];
+	GetFloor(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, &room_number);
+
+	//loc_209FC
+	for (slot = 0; slot < 5; slot++, cinfo++)
+	{
+		if (cinfo->item_num != -1 && cinfo->alerted)
+		{
+			item = &items[cinfo->item_num];
+
+			if (room_number == item->room_number && item->current_anim_state == 1)
+			{
+				//loc_20A70
+				if (abs(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+					abs(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+					abs(item->pos.y_pos - lara_item->pos.y_pos) < SECTOR(0.25))
+				{
+					return 1;
+				}
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -1161,9 +1216,77 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 	return 0;
 }
 
-void AlterFloorHeight(struct ITEM_INFO* item, int height)
+void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F)
 {
-	S_Warn("[AlterFloorHeight] - Unimplemented!\n");
+	struct FLOOR_INFO* floor;
+	struct FLOOR_INFO* ceiling;
+	short room_num;
+	short joby;
+
+	joby = 0;
+
+	if (abs(height) & 0xFF)
+	{
+		joby = 1;
+
+		if (height < 0)
+		{
+			--height;
+		}
+		else
+		{
+			++height;
+		}
+	}
+
+	//loc_1E42C
+	room_num = item->room_number;
+	floor = GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_num);
+	ceiling = GetFloor(item->pos.x_pos, (item->pos.y_pos + height) - SECTOR(1), item->pos.z_pos, &room_num);
+
+	if (floor->floor == -127)
+	{
+		if (height < 0)
+		{
+			floor->floor = (ceiling->ceiling + ((height + 255) >> 8));
+		}
+		else
+		{
+			floor->floor = (ceiling->ceiling + ((height) >> 8));
+		}
+	}
+	else
+	{
+		//loc_1E4A0
+		if (height < 0)
+		{
+			floor->floor = (floor->floor + ((height + 255) >> 8));
+		}
+		else
+		{
+			floor->floor = (floor->floor + (height >> 8));
+		}
+
+		//loc_1E4AC
+		if (floor->floor == ceiling->ceiling && joby == 0)
+		{
+			floor->floor = -127;
+		}
+	}
+
+	//loc_1E4D8
+	if ((boxes[floor->box].overlap_index & BOX_LAST))
+	{
+		if (height < 0)
+		{
+			boxes[floor->box].overlap_index |= BOX_BLOCKED;
+		}
+		else
+		{
+			//loc_1E514
+			boxes[floor->box].overlap_index &= ~BOX_BLOCKED;
+		}
+	}
 }
 
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
@@ -1330,169 +1453,76 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 	}
 }
 
-void IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<)
+int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 {
-#if 0
-	//s3 = x;
-	//s2 = y;
-	//s4 = z;
+	short off, room_num;
+	struct FLOOR_INFO* floor;
+	short height, ceiling;
+	struct room_info* r;
 
-	if (x / 4096 < 0 && z / 4096 < 0)//s3, s4
-	{
-		//loc_8F11C
+	if (x < 0 || z < 0)
 		return -2;
-	}
 
-	if (OutsideRoomOffests[(s3 / 4096) * 8 - (s3 / 4096) << 2 - (s3 / 4096) + (s4 / 4096) << 1] == -1)
-	{
+	off = OutsideRoomOffsets[(z / 4096) + 27 * (x / 4096)];
+
+	if (off == -1)
 		return -2;
-	}///@FIXME idx bad, ptr shft 4
 
-	if (OutsideRoomOffests[(s3 / 4096) * 8 - (s3 / 4096) << 2 - (s3 / 4096) + (s4 / 4096) << 1] & 0x7FFF == 0)
+	if (off >= 0)
 	{
+		char* ptr = &OutsideRoomTable[off];
+		
 
+		if (*ptr == -1)
+			return -2;
+
+		while (TRUE)
+		{
+			r = &room[*ptr];
+			if (y >= r->maxceiling && y <= r->minfloor)
+			{
+				if (z >= r->z + 1024 && z <= (r->x_size / 1024) + r->z - 1024)
+				{
+					if (x >= r->x + 1024 && x <= (r->y_size / 1024) + r->x - 1024)
+						break;
+				}
+			}
+			ptr++;
+
+			if (*ptr == -1)
+				return -2;
+		}
+
+		IsRoomOutsideNo = room_num = *ptr;
 	}
 	else
 	{
-		//loc_8EFF4
+		r = &room[off & 0x7fff];
+
+		if (y < r->maxceiling || y > r->minfloor)
+			return -2;
+
+		if (z < r->z + 1024 || z > r->x_size / 1024 + r->z - 1024)
+			return -2;
+
+		if (x < r->x + 1024 || x > r->y_size / 1024 + r->x - 1024)
+			return -2;
+
+		IsRoomOutsideNo = room_num = off & 0x7fff;
 	}
-#endif
-#if 0
-		andi	$t0, $v1, 0x7FFF
-		bgez	$v1, loc_8EFF4
-		sll	$v0, $t0, 2
-		addu	$v0, $t0
-		lw	$v1, 0x1F28($gp)
-		sll	$v0, 4
-		addu	$s1, $v1, $v0
-		lw	$v0, 0x24($s1)
-		lw	$v1, 0x20($s1)
-		slt	$at, $s2, $v0
-		bnez	$at, loc_8F11C
-		slt	$at, $v1, $s2
-		bnez	$at, loc_8F11C
-		lw	$v1, 0x1C($s1)
-		lh	$v0, 0x28($s1)
-		addiu	$at, $v1, 0x400
-		slt	$at, $s4, $at
-		bnez	$at, loc_8F11C
-		addiu	$v0, -1
-		sll	$v0, 10
-		addu	$v0, $v1, $v0
-		slt	$v0, $s4
-		bnez	$v0, loc_8F11C
-		lw	$v1, 0x14($s1)
-		lh	$v0, 0x2A($s1)
-		addiu	$at, $v1, 0x400
-		slt	$at, $s3, $at
-		bnez	$at, loc_8F11C
-		addiu	$v0, -1
-		sll	$v0, 10
-		addu	$v0, $v1, $v0
-		slt	$v0, $s3
-		bnez	$v0, loc_8F11C
-		nop
-		j	loc_8F07C
-		move	$v0, $t0
 
-		loc_8EFF4 :
-	lw	$v0, 0x1C60($gp)
-		j	loc_8F108
-		addu	$a0, $v0, $v1
+	floor = GetFloor(x, y, z, &room_num);
 
-		loc_8F000 :
-	addu	$v0, $t0
-		lw	$v1, 0x1F28($gp)
-		sll	$v0, 4
-		addu	$s1, $v1, $v0
-		lw	$v0, 0x24($s1)
-		lw	$v1, 0x20($s1)
-		slt	$at, $s2, $v0
-		bnez	$at, loc_8F104
-		slt	$at, $v1, $s2
-		bnez	$at, loc_8F104
-		lw	$v1, 0x1C($s1)
-		lh	$v0, 0x28($s1)
-		addiu	$at, $v1, 0x400
-		slt	$at, $s4, $at
-		bnez	$at, loc_8F104
-		addiu	$v0, -1
-		sll	$v0, 10
-		addu	$v0, $v1, $v0
-		slt	$v0, $s4
-		bnez	$v0, loc_8F104
-		lw	$v1, 0x14($s1)
-		lh	$v0, 0x2A($s1)
-		addiu	$at, $v1, 0x400
-		slt	$at, $s3, $at
-		bnez	$at, loc_8F104
-		addiu	$v0, -1
-		sll	$v0, 10
-		addu	$v0, $v1, $v0
-		slt	$v0, $s3
-		bnez	$v0, loc_8F104
-		andi	$v0, $t0, 0xFF
+	height = GetHeight(floor, x, y, z);
+	if (height == -32512 || y > height)
+		return -2;
 
-		loc_8F07C:
-	move	$a1, $s2
-		move	$a0, $s3
-		move	$a2, $s4
-		addiu	$a3, $sp, 0x38 + var_28
-		sh	$v0, 0x38 + var_28($sp)
-		jal	sub_78954
-		sh	$v0, 0x1C54($gp)
-		move	$s0, $v0
-		move	$a0, $s0
-		move	$a1, $s3
-		move	$a2, $s2
-		jal	sub_78C74
-		move	$a3, $s4
-		move	$v1, $v0
-		li	$v0, 0xFFFF8100
-		beq	$v1, $v0, loc_8F11C
-		slt	$v0, $v1, $s2
-		bnez	$v0, loc_8F120
-		li	$v0, 0xFFFFFFFE
-		move	$a0, $s0
-		move	$a1, $s3
-		move	$a2, $s2
-		jal	sub_79060
-		move	$a3, $s4
-		slt	$v0, $s2, $v0
-		bnez	$v0, loc_8F11C
-		nop
-		lhu	$v1, 0x4E($s1)
-		nop
-		andi	$v1, 0x21
-		bnez	$v1, loc_8F120
-		li	$v0, 1
-		j	loc_8F120
-		li	$v0, 0xFFFFFFFD
+	ceiling = GetCeiling(floor, x, y, z);
 
-		loc_8F104:
-	addiu	$a0, 1
+	if (y >= ceiling)
+		return (r->flags & RF_WIND_BLOWS_PONYTAIL || r->flags & RF_FILL_WATER) ? 1 : -3;
 
-		loc_8F108 :
-		lbu	$t0, 0($a0)
-		li	$v0, 0xFF
-		andi	$v1, $t0, 0xFF
-		bne	$v1, $v0, loc_8F000
-		sll	$v0, $t0, 2
-
-		loc_8F11C :
-		li	$v0, 0xFFFFFFFE
-
-		loc_8F120 :
-		lw	$ra, 0x38 + var_4($sp)
-		lw	$s4, 0x38 + var_8($sp)
-		lw	$s3, 0x38 + var_C($sp)
-		lw	$s2, 0x38 + var_10($sp)
-		lw	$s1, 0x38 + var_14($sp)
-		lw	$s0, 0x38 + var_18($sp)
-		jr	$ra
-		addiu	$sp, 0x38
-#endif
-	S_Warn("[IsRoomOutside] - Unimplemented!\n");
+	return -2;
 }
 
 short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
@@ -1506,26 +1536,41 @@ short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 	type = floor_data[floor->index];
 	data = &floor_data[floor->index + 1];
 
-	fixtype = type & 0x1F;
-	if (fixtype == 2 || fixtype == 7 || fixtype == 8 || fixtype == 12 || fixtype == 11 || fixtype == 14 || fixtype == 13)
+	fixtype = type & FD_MASK_FUNCTION;
+
+	if (fixtype == TILT_TYPE
+		|| fixtype == SPLIT1
+		|| fixtype == SPLIT2
+		|| fixtype == NOCOLF1B
+		|| fixtype == NOCOLF1T
+		|| fixtype == NOCOLF2B
+		|| fixtype == NOCOLF2T)
 	{
-		if (type & 0x8000)
+		if (type & FD_MASK_END_DATA)
 			return 255;
 		type = data[1];
 		data += 2;
 	}
 
-	fixtype = type & 0x1F;
-	if (fixtype == 3 || fixtype == 9 || fixtype == 10 || fixtype == 16 || fixtype == 15 || fixtype == 18 || fixtype == 17)
+	fixtype = type & FD_MASK_FUNCTION;
+
+	if (fixtype == ROOF_TYPE
+		|| fixtype == SPLIT3
+		|| fixtype == SPLIT4
+		|| fixtype == NOCOLC1B
+		|| fixtype == NOCOLC1T
+		|| fixtype == NOCOLC2B
+		|| fixtype == NOCOLC2T)
 	{
-		if (type & 0x8000)
+		if (type & FD_MASK_END_DATA)
 			return 255;
 		type = data[1];
 		data += 2;
 	}
 
-	if ((type & 0x1F) == 1)
+	if ((type & FD_MASK_FUNCTION) == DOOR_TYPE)
 		return *data;
+
 	return 255;
 }
 
@@ -1568,16 +1613,87 @@ int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 	return 0;
 }
 
-int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)
+int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 {
-	S_Warn("[CheckNoColCeilingTriangle] - Unimplemented!\n");
-	return 0;
+	short* fd = &floor_data[floor->index];
+	short fixtype = *fd & FD_MASK_FUNCTION;
+	int fix_x = x & 0x3FF;
+	int fix_z = z & 0x3FF;
+
+	if (floor->index == 0)
+		return 0;
+
+	if (fixtype == TILT_TYPE
+		|| fixtype == SPLIT1
+		|| fixtype == SPLIT2
+		|| fixtype == NOCOLF1T
+		|| fixtype == NOCOLF1B
+		|| fixtype == NOCOLF2T
+		|| fixtype == NOCOLF2B)
+	{
+		if (*fd & FD_MASK_END_DATA)
+			return 0;
+
+		fixtype = fd[2] & FD_MASK_FUNCTION;
+	}
+
+	switch (fixtype)
+	{
+	case NOCOLC1T:
+		if (fix_x <= 1024 - fix_z)
+			return -1;
+		break;
+	case NOCOLC1B:
+		if (fix_x > 1024 - fix_z)
+			return -1;
+		break;
+	case NOCOLC2T:
+		if (fix_x <= fix_z)
+			return -1;
+		break;
+	case NOCOLC2B:
+		if (fix_x > fix_z)
+			return -1;
+		break;
+	default:
+		return 0;
+	}
+
+	return 1;
 }
 
-int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)
+int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 {
-	S_Warn("[CheckNoColFloorTriangle] - Unimplemented!\n");
-	return 0;
+	short fixtype = floor_data[floor->index] & FD_MASK_FUNCTION;
+	int fix_x = x & 0x3FF;
+	int fix_z = z & 0x3FF;
+
+	if (floor->index == 0)
+		return 0;
+
+	switch (fixtype)
+	{
+	case NOCOLF1T:
+		if (fix_x <= 1024 - fix_z)
+			return -1;
+		break;
+	case NOCOLF1B:
+		if (fix_x > 1024 - fix_z)
+			return -1;
+		break;
+	case NOCOLF2T:
+		if (fix_x <= fix_z)
+			return -1;
+		break;
+	case NOCOLF2B:
+		if (fix_x > fix_z)
+			return -1;
+		break;
+	default:
+		return 0;
+	}
+
+	return 1;
 }
 
 int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor)
@@ -1618,12 +1734,7 @@ void AnimateItem(struct ITEM_INFO* item)
 	S_Warn("[AnimateItem] - Unimplemented!\n");
 }
 
-void Straighten(struct ROPE_STRUCT* a1, struct PHD_VECTOR* a2, struct PHD_VECTOR* a3, long a4)
+void UpdateSpiders()
 {
-	S_Warn("[Straighten] - Unimplemented!\n");
-}
-
-void StraightenRope(struct ITEM_INFO* item)
-{
-	S_Warn("[StraightenRope] - Unimplemented!\n");
+	S_Warn("[UpdateSpiders] - Unimplemented!\n");
 }

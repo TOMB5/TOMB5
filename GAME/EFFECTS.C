@@ -1,7 +1,7 @@
 #include "EFFECTS.H"
 
 #include "CAMERA.H"
-#include "CD.H"
+
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
@@ -11,12 +11,16 @@
 #include "LARA.H"
 #include "LOT.H"
 #include "OBJECTS.H"
-#include "ROOMLOAD.H"
+
 #include "SAVEGAME.H"
 #ifdef PC_VERSION
 #include "GAME.H"
+#include "GLOBAL.H"
 #else
+#include "ROOMLOAD.H"
 #include "SETUP.H"
+#include <SFX.H>
+#include "CD.H"
 #endif
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -24,7 +28,8 @@
 
 #include <stddef.h>
 #include "TOMB4FX.H"
-#include <SFX.H>
+
+#include <string.h>
 
 long wf = 256;
 short next_fx_free;
@@ -543,9 +548,14 @@ void StopSoundEffect(short sample_index)//91FF8(<), 94044(<) (F)
 	}
 }
 
-void ClearSpiders()
+void ClearSpiders()// (F)
 {
-	S_Warn("[ClearSpiders] - Unimplemented!\n");
+	if (objects[SPIDER].loaded)
+	{
+		memset(Spiders, 0, 64 * sizeof(struct SPIDER_STRUCT));
+		next_spider = 0;
+		flipeffect = -1;
+	}
 }
 
 void LaraBubbles(struct ITEM_INFO* item)// (F)

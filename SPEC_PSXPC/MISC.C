@@ -14,24 +14,17 @@ void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size)
 
 	if (size > 0)
 	{
-		for(i = size / 4; i > 0; i--)
+		for (i = size / sizeof(unsigned long); i > 0; i--, pDest += 4, pSrc += 4)
 		{
 			//loc_5E974
 			pDest[0] = pSrc[0];
 			pDest[1] = pSrc[1];
 			pDest[2] = pSrc[2];
 			pDest[3] = pSrc[3];
-			pSrc += 4;
-			pDest += 4;
 		}
-
-		i = size & 3;
-
-		if (i == 0)
-			return;
 		
 		//loc_5E9AC
-		for (; i > 0; i--)
+		for (i = size & 3; i > 0; i--)
 		{
 			*pDest++ = *pSrc++;
 		}

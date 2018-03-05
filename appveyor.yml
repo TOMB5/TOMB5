@@ -5,6 +5,7 @@ branches:
   - master
 #  - appveyor
   - appveyor-testbranch
+  - test
   
 skip_tags: true
 
@@ -26,10 +27,10 @@ platform:
   #- x64
   
 install:
-  - set SDL2_URL="https://www.libsdl.org/release/SDL2-devel-2.0.5-VC.zip"
+  - set SDL2_URL="https://www.libsdl.org/release/SDL2-devel-2.0.7-VC.zip"
   - appveyor DownloadFile %SDL2_URL% -FileName SDL2.zip
   - 7z x SDL2.zip -oC:\projects\TOMB5\EXTERNAL\
-  - set SDL2=C:\projects\TOMB5\EXTERNAL\SDL2-2.0.5
+  - set SDL2=C:\projects\TOMB5\EXTERNAL\SDL2-2.0.7
   
 before_build:
   - cmd: cd %clone_folder%
@@ -46,7 +47,7 @@ artifacts:
   
 after_build:
   - cmd: cd SPEC_PSXPC
-  - cmd: copy "C:\projects\TOMB5\EXTERNAL\SDL2-2.0.5\lib\x86\SDL2.dll" "%configuration%\"
+  - cmd: copy "C:\projects\TOMB5\EXTERNAL\SDL2-2.0.7\lib\x86\SDL2.dll" "%configuration%\"
   - 7z a TOMB5.zip "%configuration%\"
   
 #build: off

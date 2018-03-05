@@ -5,14 +5,16 @@
 #include "DRAW.H"
 #include "ITEMS.H"
 #include "LOT.H"
-#include "MATHS.H"
+
 #include "SPECIFIC.H"
 #include "TOMB4FX.H"
 
 #ifdef PC_VERSION
 #include "GAME.H"
+#include "GLOBAL.H"
 #else
 #include "SETUP.H"
+#include "MATHS.H"
 #endif
 
 #include "SPECTYPES.H"
@@ -349,7 +351,7 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 
 	if (change < -0x222)
 	{
-		change -= 0x222;
+	change -= 0x222;
 	}
 	else
 	{
@@ -370,19 +372,19 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 
 void CreatureTilt(struct ITEM_INFO* item, short angle)//24418(<), 24624(<) (F)
 {
-	angle = (angle << 2) - item->pos.z_rot;
-	
-	if(angle < ANGLE(-3))
-		angle = ANGLE(-3);
-	else if (angle > ANGLE(3))
-		angle = ANGLE(3);
+angle = (angle << 2) - item->pos.z_rot;
 
-	if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
-	{
-		angle >>= 1;
-	}
-	
-	item->pos.z_rot += angle; // todo in orig code (mips) z_rot is lhu'd into v0 as unsigned, here i skipped that part, maybe it'll break
+if (angle < ANGLE(-3))
+	angle = ANGLE(-3);
+else if (angle > ANGLE(3))
+angle = ANGLE(3);
+
+if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
+{
+	angle >>= 1;
+}
+
+item->pos.z_rot += angle; // todo in orig code (mips) z_rot is lhu'd into v0 as unsigned, here i skipped that part, maybe it'll break
 }
 
 short CreatureTurn(struct ITEM_INFO* item, short maximum_turn)
@@ -434,10 +436,36 @@ void CreatureDie(short item_number, int explode)// (F)
 	}
 }
 
-int BadFloor(long x, long y, long z, long box_height, long next_height, int room_number, struct lot_info* LOT)
+int BadFloor(long x, long y, long z, long box_height, long next_height, int room_number, struct lot_info* LOT)// (F)
 {
-	S_Warn("[BadFloor] - Unimplemented!\n");
-	return 0;
+	short room_num = room_number;
+	struct FLOOR_INFO* floor = GetFloor(x, y, z, &room_num);	
+	long height;
+
+	if (floor->box == 32752)
+		return TRUE;
+
+	if (LOT->is_jumping)
+		return FALSE;
+
+	if (boxes[floor->box].overlap_index & LOT->block_mask)
+		return TRUE;
+
+	height = boxes[floor->box].height;
+
+	if (box_height - height > LOT->step)
+		return TRUE;
+
+	if (box_height - height < LOT->drop)
+		return TRUE;
+
+	if (box_height - height < -LOT->step && height > next_height)
+		return TRUE;
+
+	if (LOT->fly && y > height + LOT->fly)
+		return TRUE;
+
+	return FALSE;
 }
 
 int CreatureCreature(short item_number)

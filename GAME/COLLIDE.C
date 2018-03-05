@@ -3,6 +3,7 @@
 #include "CONTROL.H"
 #include "ITEMS.H"
 #include "LARA.H"
+#include "OBJECTS.H"
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
 #include <stddef.h>
@@ -61,14 +62,37 @@ int TestBoundsCollideStatic(short* bounds, struct PHD_3DPOS* pos, long radius)//
 	return 0;
 }
 
-void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A098, 2A2C0
+void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A03C(<), 2A264 (F)
 {
-	S_Warn("[TrapCollision] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_num];
+
+	if (item->object_number == SWITCH_TYPE7 && !(item->mesh_bits & 1))
+	{
+		item->active = 1;
+		item->status = 1;
+	}
 }
 
-void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A03C, 2A264
+void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A098(<), 2A2C0 (F)
 {
-	S_Warn("[AIPickupCollision] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[item_num];
+
+	if (item->status == 1)
+	{
+		if (TestBoundsCollide(item, laraitem, coll->radius) == 0)
+		{
+			return;
+		}
+
+		ObjectCollision(item_num, lara_item, coll);
+	}
+	else if(item->status == 3)
+	{
+		//0x2A110
+		ObjectCollision(item_num, lara_item, coll);
+	}
+
+	//0x2A128
 }
 
 void CreatureCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//29E10, 2A024

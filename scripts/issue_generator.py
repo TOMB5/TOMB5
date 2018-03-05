@@ -48,14 +48,15 @@
 # $ ./issue_generator.py +w -h -c
 
 # increment this plz
-# rev 9
-# 2017-12-03
+# rev 11
+# 2018-01-21
 
 
 from urllib.request import urlopen
 import json
 import os.path
 import sys
+import itertools
 
 def Warn(msg):
 	if SHOW_WARN:
@@ -97,6 +98,8 @@ USE_REPR =			isarg("userepr", 	"r", False)	# Debugging purposes. When outputting
 SHOW_ADDED =		isarg("showadded", 	"a", False)	# Show a plain list of added functions
 SHOW_FILES_STATS =	isarg("showfiles",	"f", False) # Show number of implemented functions by file
 UNIMPL_NEUTRAL =	isarg("uneutral", 	"n", False) # for showunimp, show only GAME functions
+SHOW_DUPL =			isarg("showdupl",	"d", True)  # show duplicate functions among each platform
+AUTOREMOVE_DUPL =	isarg("remdupl",	"e", False) # automatically remove duplicates
 
 if not os.path.isfile("README.md"):
 	os.chdir("..")
@@ -130,7 +133,10 @@ platforms = {}
 curplat = ""
 curfile = ""
 comments = {} # dictionary for when there is content after the function name in the list, i.e. comments, so that it's not erased
-for x in issue:
+for idx, x in enumerate(issue):
+	if not x.strip():
+		continue
+
 	if "#### " in x: 		# level 2 header - file
 		curfile = x[5:]
 		if curfile not in platforms[curplat]:
@@ -143,7 +149,7 @@ for x in issue:
 		continue
 
 	if len([c for c in x if c == "`"]) != 2:
-		Warn("syntax error, function name is not correctly surrounded by ` -- ignoring : %s" % x)
+		Warn("syntax error at line %d, function name is not correctly surrounded by ` -- ignoring : %s" % (idx, x))
 		continue
 
 	fname = x[7:x.rfind("`")]
@@ -172,10 +178,10 @@ Status("working for platforms: " + ", ".join(sorted(platforms.keys())))
 added = []
 addedFiles = []
 unimplwarn = {p: {f: [] for f in platforms[p]} for p in platforms}
-
+missing = {p: [] for p in platforms}
 def getfline(path):
 	with open(path, 'r') as fp:
-		return [x for x in fp.read().replace("\r\n", "\n").split('\n') if x]
+		return [x.replace("\t", "    ") for x in fp.read().replace("\r\n", "\n").split('\n') if x]
 
 for plat in sorted(platforms.keys()):
 	for file in sorted(platforms[plat].keys()):
@@ -184,14 +190,15 @@ for plat in sorted(platforms.keys()):
 			Warn("file does not exist - skipping -- '%s'" % path)
 			continue
 
-		un_funcs = [l for l in getfline(path) if "] - Unimpl" in l]
+		file_lines = getfline(path)
+		un_funcs = [l for l in file_lines if "] - Unimpl" in l]
 
 		for i in range(len(un_funcs)):
 			a = un_funcs[i]
 			a = a[a.index("[")+1:a.index("]")]
 			unimplwarn[plat][file].append(a)
 
-		funcs = [l for l in getfline(path) if "(F)" in l]
+		funcs = [l for l in file_lines if "(F)" in l]
 
 		for i in range(len(funcs)):
 			a = funcs[i][:funcs[i].index("(")] # take everything until first parenthesis
@@ -212,7 +219,10 @@ for plat in sorted(platforms.keys()):
 				continue
 
 		for func in sorted(platforms[plat][file].keys(), key=str.lower):
-			if platforms[plat][file][func] and func not in funcs:
+			if not any(l for l in file_lines if func in l and not "  " + func in l and not "/" + func in l):
+				Warn("function in list missing completely from file - %s // '%s'" % (path, func))
+				missing[plat].append((file, func))
+			elif platforms[plat][file][func] and func not in funcs:
 				Hint("function marked as implemented in list, not in file -- %s // '%s'" % (path, func))
 
 		for l in sorted(funcs):
@@ -258,6 +268,32 @@ def getFileStats(plat, file):
 		os.path.join(plat, file)
 	)
 
+if SHOW_DUPL:
+	print("Duplicates :")
+	remove = {p: {f: [] for f in platforms[p]} for p in platforms}
+	for plat in sorted(platforms.keys()):
+		flatfuncs = [(file, func) for file in sorted(platforms[plat].keys()) for func in sorted(platforms[plat][file].keys(), key=str.lower)]
+		#import pdb;pdb.set_trace()
+		flatfuncs = [x for x in flatfuncs if sum(1 for f in flatfuncs if f[1] == x[1]) > 1]
+		dfuncs = {tup[1]: [t[0] for t in flatfuncs if t[1] == tup[1]] for tup in flatfuncs}
+		print("- %s : %d" % (plat, len(dfuncs.keys())))
+		for func in sorted(dfuncs.keys(), key=str.lower):
+			correctfiles = [x for x in dfuncs[func] if not any(m for m in missing[plat] if m[0] == x and m[1] == func)]
+			print("  - '%s' : [%s] / [%s]" % (func, ", ".join(dfuncs[func]), ", ".join(correctfiles)))
+			if len(correctfiles) == 1:
+				for file in dfuncs[func]:
+					if file != correctfiles[0]:
+						remove[plat][file].append(func)
+	print("Remove:")
+	for plat in sorted(platforms.keys()):
+		print("- %s" % plat)
+		for file in sorted(remove[plat].keys()):
+			if remove[plat][file]:
+				print("  - %s : [%s]" % (file, ", ".join(sorted(remove[plat][file], key=str.lower))))
+				if AUTOREMOVE_DUPL:
+					for func in remove[plat][file]:
+						del platforms[plat][file][func]
+
 Status("statistics:")
 for p in sorted(platforms.keys()):
 	Status("- %4d [%2d added] / %4d in %s" % getPlatStats(p))
@@ -267,7 +303,6 @@ for p in sorted(platforms.keys()):
 
 globStats = [getPlatStats(p) for p in platforms]
 Status("- %4d [%2d added] / %4d total" % (sum(c for c,_,__,___ in globStats), len(added), sum(t for _,__,t,___ in globStats)))
-
 
 if len(addedFiles) > 0:
 	Status("%d file%s ha%s been finished:" % (len(addedFiles), "s" if len(addedFiles) != 1 else "", "ve" if len(addedFiles) != 1 else "s"))
@@ -303,6 +338,7 @@ if SHOW_ADDED:
 		print(repr(added))
 	else:
 		print("\n".join(["%s // '%s'" % (os.path.join(x[0], x[1]), x[2]) for x in added]))
+
 
 # STEP
 #   __   

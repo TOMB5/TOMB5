@@ -1,11 +1,10 @@
 #include "DELTAPAK.H"
 
-#include "DRAWPHAS.H"
 
-#include "CD.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
+#include "DELSTUFF.H"
 #include "EFFECT2.H"
 #include "GAMEFLOW.H"
 #include "HAIR.H"
@@ -15,9 +14,10 @@
 #include "LARA1GUN.H"
 #include "LARA2GUN.H"
 #include "LOT.H"
+
 #include "NEWINV2.H"
 #include "OBJECTS.H"
-#include "ROOMLOAD.H"
+
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TEXT.H"
@@ -25,11 +25,18 @@
 #include "TYPES.H"
 
 #if PC_VERSION
+#include "GLOBAL.H"
 #include "GAME.H"
 #include "WINMAIN.H"
+#include "FILE.H"
 #else
 #include "PROFILE.H"
 #include "SETUP.H"
+#include "ROOMLOAD.H"
+#include "MATHS.H"
+#include "DRAWPHAS.H"
+
+#include "CD.H"
 #endif
 
 #include "SPECTYPES.H"
@@ -1770,7 +1777,7 @@ void joby4_control()//2FA0C, 2FD8C (F)
 	if (GLOBAL_cutseq_frame <= 130)
 	{
 #if PC_VERSION
-		PrintString(middle_width, window_height_minus_1 - 3 * font_height, 5, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000);
+		//PrintString(middle_width, window_height_minus_1 - 3 * font_height, 5, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000);
 #else
 		PrintString(256, 200, 0, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000); // todo maybe wrong on pc , @Gh0stBlade check third arg!
 #endif
@@ -2860,9 +2867,40 @@ void init_cutseq_malloc()//2D110(<), 2D430(<) (F)
 	return;
 }
 
-void frigup_lara()
+void frigup_lara()//2D000(<), ? (F)
 {
-	S_Warn("[frigup_lara] - Unimplemented!\n");
+	struct object_info* object;
+	long* bone;
+	short* frame;
+
+	lara_item->pos.x_pos = GLOBAL_cutme->orgx;
+	lara_item->pos.y_pos = GLOBAL_cutme->orgy;
+	lara_item->pos.z_pos = GLOBAL_cutme->orgz;
+
+	if (GLOBAL_cutme->actor_data[0].objslot == -1)
+	{
+		return;
+	}
+
+	frame = &temp_rotation_buffer[0];
+	object = &objects[lara_item->object_number];
+	bone = &bones[object->bone_index];
+
+	//updateAnimFrame(&actor_pnodes[0], 0x10, frame);
+	//DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 0);
+	mPushUnitMatrix();
+	//DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 1);
+	mPopMatrix();
+
+	//HairControl(0, 0, frame);
+
+	if ((gfLevelFlags & GF_LVOP_YOUNG_LARA))
+	{
+		//HairControl(0, 1, frame);
+	}
+
+	//loc_2D0F0
+	GLaraShadowframe = &frig_shadow_bbox[0];
 }
 
 void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* packed, int numnodes)

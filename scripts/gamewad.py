@@ -121,7 +121,7 @@ if len(sys.argv) < 4:
 	Warn("Not enough arguments provided -- exiting.")
 	exit()
 
-WORK_MODE =	sys.argv[1].lower()
+WORK_MODE =	sys.argv[1].strip().lower()
 INPUT = 	sys.argv[2].strip()
 OUTPUT = 	sys.argv[3].strip()
 
@@ -184,3 +184,10 @@ if WORK_MODE in ["unpack", "u"]:
 			ostream.write(ibytes.read(entries[i][1]))
 
 	ibytes.close()
+
+elif WORK_MODE in ["repack", "r"]:
+	if not os.path.exists(INPUT):
+		Warn("The specified input folder doesn't exist: %s -- exiting" % INPUT)
+		exit()
+
+	

@@ -26,12 +26,13 @@ unsigned long GadwPolygonBuffers[52260];
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
 {
+#if 1
 	db.order_table[0] = &pBuffers[0];
 	db.order_table[1] = &pBuffers[nOTSize];
 	db.nOTSize = nOTSize;
 	db.pickup_order_table[0] = (unsigned long*)&db.disp[1];
 	db.pickup_order_table[1] = &GadwOrderingTables_V2[256];
-#if 0
+#else
 	//Should be safe to use 32-bit ptrs tho
 	db.order_table[0] = (unsigned long*)((unsigned long) pBuffers & 0xFFFFFF);
 	db.order_table[1] = (unsigned long*)((unsigned long) &pBuffers[nOTSize] & 0xFFFFFF);
@@ -83,30 +84,31 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 	return;
 }
 
-int GPU_FlipNoIdle()//5E078(<), 5F264(<)
+int GPU_FlipNoIdle()//5E078(<), 5F264(<) (F)
 {
 #if DEBUG_VERSION
 	if (ProfileDraw)
 	{
 		ProfileRGB(255, 255, 255);
 		ProfileAddOT(&db.ot[0]);
-	}//loc_5E0B0
+	}
 #endif
 
-	DrawSync(0);//TODO confirm retail is sub_6B144 draw sync
+	//loc_5E0B0
+	DrawSync(0);
 
 #if DEBUG_VERSION
 	if (ProfileDraw)
 	{
 		ProfileAddDrawOT(&db.ot[0]);
-	}//loc_5E0D8
+	}
 #endif
 
 	LnFlipFrame = GnLastFrameCount;
 
-	if (GnLastFrameCount < 2)
+	//loc_5E0D8
+	if (LnFlipFrame < 2)
 	{
-		//loc_5E0F4
 		do
 		{
 			VSync(0);
@@ -120,11 +122,9 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 		LnFlipFrame++;
 	}
 
-	//loc_5E138
-	//v0 = db.current_buffer;
 	GnLastFrameCount = 0;
 	PutDispEnv(&db.disp[db.current_buffer]);
-	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[db.current_buffer]);
+	DrawOTagEnv(&db.ot[db.nOTSize-1], &db.draw[db.current_buffer]);
 
 #if DEBUG_VERSION
 	ProfileStartCount();

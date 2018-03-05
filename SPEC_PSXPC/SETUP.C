@@ -39,7 +39,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <string>
+#include <string.h>
 
 struct object_container objects_raw;
 struct object_info* objects = &objects_raw.m_objects[0];
@@ -687,7 +687,7 @@ long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, l
 	{
 		//return 0;
 	}
-	
+
 	//Sound samples are loaded (likely from a previously loaded level).
 	//Free them.
 	if (LnSamplesLoaded != 0)
@@ -986,7 +986,7 @@ void InitialiseAnimatedTextures()//?(<), B4904(<)
 
 		//a0 = t2;
 	}
-	
+
 	return;
 #endif
 }
@@ -1106,7 +1106,7 @@ void InitialiseFlipMaps()//?(<), B9D30(<)
 
 	flip_status = 0;
 	flipeffect = 1;
-		
+
 	for (i = 0; i < 136; i++)
 	{
 		cd_flags[i] = 0;

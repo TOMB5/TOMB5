@@ -152,6 +152,7 @@ extern short los_rooms[20];
 extern char globoncuttrig;
 extern short ItemNewRooms[256][2];
 extern struct CHARDEF CharDef[106];
+extern struct ROPE_STRUCT Ropes[12];
 
 extern long ControlPhase(long nframes, int demo_mode);
 extern long GetRandomControl();
@@ -189,7 +190,7 @@ extern struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number);
 extern short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z);
 extern int TriggerActive(struct ITEM_INFO* item);
 extern void AddRoomFlipItems(struct room_info* r);
-extern void IsRoomOutside(long x, long y, long z);
+extern int IsRoomOutside(long x, long y, long z);
 extern short GetDoor(struct FLOOR_INFO* floor);
 extern int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
@@ -202,7 +203,6 @@ extern void AddFire(int x, int y, int z, char size, short room_num, short on);
 extern int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4);
 extern int check_xray_machine_trigger();
 extern void AnimateItem(struct ITEM_INFO* item);
-extern void Straighten(struct ROPE_STRUCT* a1, struct PHD_VECTOR* a2, struct PHD_VECTOR* a3, long a4);
-extern void StraightenRope(struct ITEM_INFO* item);
+extern void UpdateSpiders();
 
 #endif
