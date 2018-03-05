@@ -494,15 +494,14 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 #if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
 #endif
-
 	OldSP = SetSp(0x1F8003E0);
 #endif
 
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
 
 #if PSX_VERSION
-#if DEBUG_VERSION
 	SetSp(OldSP);
+#if DEBUG_VERSION
 	ProfileRGB(0, 0, 0);
 #endif
 #endif
