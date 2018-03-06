@@ -19,6 +19,8 @@
 #include <LIBMCRD.H>
 #include <LIBETC.H>
 
+int gp_start_address = 'T' | ('W' << 8) | ('A' << 16) | ('T' << 24);
+
 void VSyncFunc()//10000(<), 10000(<) (F) (*)
 {
 	cbvsync();

@@ -87,7 +87,14 @@ inline int phd_atan(long x, long y)
 
 #define TEXTURE_PAGE (256 * 256)
 
-#define W2V_SHIFT 14
+#define W2V_SHIFT 		14				// Shift scale of View.Frame to World.Frame
+#define	W2V_SCALE 		(1<<W2V_SHIFT)	// Scale of View Frame to World Frame
+
+enum msoff {
+	M00, M01, M02, M03,
+	M10, M11, M12, M13,
+	M20, M21, M22, M23
+};
 
 #ifndef CLAMP
 #define CLAMP(x, a, b) ((x)<(a)?(a):((x)>(b)?(b):(x)))

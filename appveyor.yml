@@ -5,6 +5,7 @@ branches:
   - master
 #  - appveyor
   - appveyor-testbranch
+  - test
   
 skip_tags: true
 

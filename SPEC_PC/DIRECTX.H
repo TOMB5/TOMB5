@@ -56,7 +56,7 @@ struct DIRECT3DINFO
 	struct DISPLAYMODE*	DisplayMode;	// Ptr To Compatible Display Modes
 	int				nTexture;		// Number Of Texture Formats
 	struct D3DTEXTUREINFO*	Texture;		// Texture Info
-	DWORD numZbufFormats; // pos 402 s 4
+	DWORD nZbuffer; // pos 402 s 4
 	struct zBufFormat* zBufFormats; // pos 406 s 4
 };
 
@@ -130,7 +130,7 @@ struct WINAPP
 	LPDIRECTINPUTDEVICE2A dinput_keyboard; // pos 92 s 4
 
 	LPDIRECTINPUTDEVICE2A dinput_other; // pos 96 s 4
-	HWND dxWndHwnd; // pos 100 s 4
+	HWND GhWnd; // pos 100 s 4
 	DWORD isInScene; // pos 104 s 4
 	DWORD dword_D9ABFD; // pos 108 s 4
 
@@ -143,7 +143,7 @@ struct WINAPP
 
 	HACCEL hAccTable;
 	uint8 byte_D9AC19;
-	BYTE opt_BumpMap;
+	BYTE tEnableBumpMap;
 	DWORD dword_D9AC1B;
 	DWORD dword_D9AC1F;
 	uint8 byte_D9AC23;

@@ -545,7 +545,7 @@ signed int DXToggleFullScreen()
 			v0->bpp,
 			ptr_ctx->flags,
 			ptr_ctx,
-			ptr_ctx->dxWndHwnd,
+			ptr_ctx->GhWnd,
 			ptr_ctx->dxWndStyle);
 		ptr_ctx->flags ^= 0x40u;
 		result = 1;
@@ -565,7 +565,7 @@ signed int DXToggleFullScreen()
 			v2->bpp,
 			ptr_ctx->flags,
 			ptr_ctx,
-			ptr_ctx->dxWndHwnd,
+			ptr_ctx->GhWnd,
 			ptr_ctx->dxWndStyle);
 		ptr_ctx->flags ^= 0x40u;
 		result = 1;
@@ -1785,7 +1785,7 @@ char LoadSettings()
 			ReadRegDword("VMode", &ptr_ctx->curDispMode, 0);
 			ReadRegDword("TFormat", &ptr_ctx->curTexFormat, 0);
 			ReadRegDword("DS", &ptr_ctx->curSoundCard, 0);
-			ReadRegByte("BumpMap", &ptr_ctx->opt_BumpMap, 1);
+			ReadRegByte("BumpMap", &ptr_ctx->tEnableBumpMap, 1);
 			ReadRegByte("Filter", &ptr_ctx->opt_Filter, 1);
 			ReadRegByte("DisableSound", &ptr_ctx->opt_DisableSound, 0);
 #ifdef FORCE_NO_SOUND

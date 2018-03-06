@@ -1,6 +1,6 @@
 #include "PICKUP.H"
 
-#include "CD.H"
+
 #include "COLLIDE.H"
 #include "CONTROL.H"
 #include "DRAW.H"
@@ -18,6 +18,7 @@
 #include "GAME.H"
 #else
 #include "SETUP.H"
+#include "CD.H"
 #endif
 
 static short PickUpBounds[12] = // offset 0xA1338
