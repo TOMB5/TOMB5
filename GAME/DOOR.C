@@ -122,9 +122,24 @@ void PushPullKickDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_
 	S_Warn("[PushPullKickDoorCollision] - Unimplemented!\n");
 }
 
-void PushPullKickDoorControl(short item_number)//2B508, 2B830
+void PushPullKickDoorControl(short item_number)//2B508(<), 2B830 (F)
 {
-	S_Warn("[PushPullKickDoorControl] - Unimplemented!\n");
+	struct ITEM_INFO* item; // $s1
+	struct DOOR_DATA* door; // $s0
+
+	item = &items[item_number];
+	door = (struct DOOR_DATA*)item->data;
+
+	if (!door->Opened)
+	{
+		OpenThatDoor(&door->d1, door);
+		OpenThatDoor(&door->d2, door);
+		OpenThatDoor(&door->d1flip, door);
+		OpenThatDoor(&door->d2flip, door);
+		door->Opened = 1;
+	}//0x2B584
+
+	AnimateItem(item);
 }
 
 void DoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//2B150, 2B478
