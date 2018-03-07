@@ -552,6 +552,11 @@ void GetRoomBoundsAsm(short room_number)//
 	S_Warn("[GetRoomBoundsAsm] - Unimplemented!\n");
 }
 
+void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)
+{
+	S_Warn("[phd_GetVectorAngles] - Unimplemented!\n");
+}
+
 #if 0
 
 0x76DB8 iRotX

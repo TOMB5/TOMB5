@@ -26,6 +26,7 @@
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
+#include "LARA1GUN.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "LOAD_LEV.H"
 #include "MATHS.H"
@@ -1281,7 +1282,22 @@ int GetTargetOnLOS(struct GAME_VECTOR* src, struct GAME_VECTOR* dest, int DrawTa
 
 void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* target)
 {
-	S_Warn("[FireCrossBowFromLaserSight] - Unimplemented!\n");
+	short angles[2];
+	struct PHD_3DPOS pos;
+
+	target->x = (target->x & -1023) | 0x200;
+	target->z = (target->z & -1023) | 0x200;
+
+	phd_GetVectorAngles(target->x - src->x, target->y - src->y, target->z - src->z, &angles[0]);
+
+	pos.z_rot = 0;
+	pos.x_pos = src->x;
+	pos.y_pos = src->y;
+	pos.z_pos = src->z;
+	pos.x_rot = angles[1];
+	pos.y_rot = angles[0];
+
+	FireCrossbow(&pos);
 }
 
 void TriggerNormalCDTrack(short value, short flags, short type)// (F)
