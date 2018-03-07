@@ -19,7 +19,6 @@
 
 #include "SPECTYPES.H"
 #include <assert.h>
-#include <stddef.h>
 #include "CAMERA.H"
 
 int number_boxes;
@@ -406,19 +405,19 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 
 void CreatureTilt(struct ITEM_INFO* item, short angle)//24418(<), 24624(<) (F)
 {
-angle = (angle << 2) - item->pos.z_rot;
+	angle = (angle << 2) - item->pos.z_rot;
 
-if (angle < ANGLE(-3))
-	angle = ANGLE(-3);
-else if (angle > ANGLE(3))
-angle = ANGLE(3);
+	if (angle < ANGLE(-3))
+		angle = ANGLE(-3);
+	else if (angle > ANGLE(3))
+		angle = ANGLE(3);
 
-if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
-{
-	angle >>= 1;
-}
+	if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
+	{
+		angle >>= 1;
+	}
 
-item->pos.z_rot += angle; // todo in orig code (mips) z_rot is lhu'd into v0 as unsigned, here i skipped that part, maybe it'll break
+	item->pos.z_rot += angle; // todo in orig code (mips) z_rot is lhu'd into v0 as unsigned, here i skipped that part, maybe it'll break
 }
 
 short CreatureTurn(struct ITEM_INFO* item, short maximum_turn)
@@ -664,6 +663,122 @@ void InitialiseCreature(short item_number)//21800(<), ? (F)
 
 int StalkBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)
 {
+	struct box_info *box; // $a0
+	int baddie_quad; // $a0
+	int box_quad; // $a1
+	int enemy_quad; // $v1
+	long x; // $a0
+	long z; // $t2
+	long xrange; // $a1
+	long zrange; // $a2
+
+	//t4 = item;
+	//t3 = enemy;
+	//v0 = box_number;
+
+	if (enemy == NULL)
+	{
+		return 0;
+	}
+
+	//box = &boxes[box_number];
+	//t1 = enemy->pos.z_pos;
+	//t0 = box->left;
+	//a2 = box->right;
+	//a3 = box->top;
+	//a1 = box->bottom;
+
+	//enemy_quad = (box->left - box->right) << 9;
+	//z = enemy_quad - enemy->pos.z_pos;
+	//v0 = (box->top + box->bottom) << 9;
+	//a2 -= t0
+#if 0
+
+
+	
+		subu	$a2, $t0
+		sll	$a2, 10
+		addiu	$a2, 0xC00
+		subu	$a1, $a3
+		sll	$a1, 10
+		lw	$v1, 0x40($t3)
+		addiu	$a1, 0xC00
+		subu	$a0, $v0, $v1
+		slt	$v0, $a1, $a0
+		bnez	$v0, locret_21780
+		move	$a3, $v1
+		negu	$v0, $a1
+		slt	$v0, $a0, $v0
+		bnez	$v0, locret_21780
+		slt	$v0, $a2, $t2
+		bnez	$v0, locret_21780
+		negu	$v0, $a2
+		slt	$v0, $t2, $v0
+		bnez	$v0, locret_21780
+		nop
+		lhu	$v0, 0x4E($t3)
+		nop
+		sll	$v0, 16
+		sra	$v0, 30
+		blez	$t2, loc_2176C
+		addiu	$v1, $v0, 2
+		blez	$a0, loc_21778
+		li	$a1, 1
+		j	loc_21778
+		li	$a1, 2
+
+		loc_2176C:
+	blez	$a0, loc_21778
+		move	$a1, $zero
+		li	$a1, 3
+
+		loc_21778 :
+		bne	$v1, $a1, loc_21788
+		nop
+
+		locret_21780 :
+	jr	$ra
+		move	$v0, $zero
+
+		loc_21788 :
+	lw	$v0, 0x48($t4)
+		nop
+		slt	$v0, $t1, $v0
+		beqz	$v0, loc_217B8
+		nop
+		lw	$v0, 0x40($t4)
+		nop
+		slt	$v0, $a3, $v0
+		beqz	$v0, loc_217D0
+		li	$a0, 1
+		j	loc_217D0
+		li	$a0, 2
+
+		loc_217B8:
+	lw	$v0, 0x40($t4)
+		nop
+		slt	$v0, $a3, $v0
+		beqz	$v0, loc_217D0
+		move	$a0, $zero
+		li	$a0, 3
+
+		loc_217D0:
+	bne	$v1, $a0, locret_217F8
+		li	$v0, 1
+		subu	$v1, $a1
+		bgez	$v1, loc_217E8
+		nop
+		negu	$v1, $v1
+
+		loc_217E8 :
+	li	$a0, 2
+		beq	$v1, $a0, locret_217F8
+		move	$v0, $zero
+		li	$v0, 1
+
+		locret_217F8 :
+		jr	$ra
+#endif
 	S_Warn("[StalkBox] - Unimplemented!\n");
 	return 0;
 }

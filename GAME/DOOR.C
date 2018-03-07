@@ -42,6 +42,8 @@ char LiftDoor;
 
 void ProcessClosedDoors()//2BDE8, 2C110
 {
+	long lp; // $s2
+	short room_number; // $s0
 	S_Warn("[ProcessClosedDoors] - Unimplemented!\n");
 }
 
