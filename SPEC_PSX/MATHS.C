@@ -5,18 +5,7 @@
 
 #include INLINE_H
 
-#define gte_debug( r0, r1, r2 ) __asm__ volatile (		\
-	"ctc2	%0, $13;"					\
-	"ctc2	%1, $14;"					\
-	"ctc2	%2, $15"					\
-	:							\
-	: "r"( r0 ), "r"( r1 ), "r"( r2 ) )
-
-
-static long f;
-#//define NOP_N(N) for(f=0; f < N; f++) __asm__ volatile("cfc2 $0, " #N ";")
-//) __asm__ volatile("cfc2 $" #RS + f "," #C ";")
-//__asm__ volatile ("li $0, 0xAA;");
+#ifndef USE_ASM
 
 void mQuickW2VMatrix()
 {
@@ -24,7 +13,7 @@ void mQuickW2VMatrix()
 	//a0 = &MatrixStack[0];
 	MatrixSP = 0;
 	Matrix = &MatrixStack[0];
-
+	
 
 	//lhu	$at, 0($v1)
 	//lhu	$v0, 4($v1)
@@ -198,6 +187,7 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 #endif
 }
 
+
 void ScaleCurrentMatrix(long a0, long sx, long sy, long sz)
 {
 	S_Warn("[ScaleCurrentMatrix] - Unimplemented!\n");
@@ -331,10 +321,12 @@ void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
 	S_Warn("[mTranslateXYZ] - Unimplemented!\n");
 }
 
+#if 1
 void mRotX()//7669C
 {
 
 }
+#endif
 
 void mRotY(long ry)//76744
 {
@@ -452,7 +444,6 @@ void GetBounds()//76A28
 
 }
 
-
 void mSetTrans(long x, long y, long z)//76AF4(<), 78B38(<) TOCHECK
 {
 	gte_ldtr(x, y, z);
@@ -530,11 +521,9 @@ void iPopMatrix0()
 
 void iPopMatrix(struct MATRIX3D* m, struct MATRIX3D* m2)//76D8C(<), ?(<) TOCHECK
 {
-#if 0
 	mLoadMatrix(--m);
 	m2--;
 	gte_SetLightMatrix(m);
-#endif
 }
 
 void mPushMatrix0()//764D0 (F)
@@ -557,20 +546,4 @@ void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)
 	S_Warn("[phd_GetVectorAngles] - Unimplemented!\n");
 }
 
-#if 0
-
-0x76DB8 iRotX
-0x76E60 iRotY
-0x76F04 iRotZ
-0x76FBC iRotYXZ
-0x76FDC iRotPackedYXZ
-0x7700C iRotSuperPackedYXZ
-0x77090 iTranslateXYZ
-0x7709C iTranslateXYZ2
-0x771D8 iLoadMatrix
-0x77220 SetRotation_I
-0x77250 InterpolateMatrix
-0x77580 mResetCols
-0x775A0 mNormalise
-0x775CC mNormaliseXYZ
 #endif
