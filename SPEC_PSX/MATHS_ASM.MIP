@@ -2,12 +2,69 @@
 
 	section	.asm
 	xdef mQuickW2VMatrix, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm
-	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, sva
+	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix
 
 ;0x77AEC
 mQuickW2VMatrix:
+	lw	v1, phd_mxptr
+	la	a0, MatrixStack
+	sh	zero, MatrixSP
+	sw	a0, Matrix
+	lhu	at, 0(v1)
+	lhu	v0, 4(v1)
+	lhu	a1, 8(v1)
+	lhu	a2, 0x10(v1)
+	sll	v0, 16
+	or	at, v0
+	sll	a2, 16
+	or	a1, a2
+	lhu	a3, 0x14(v1)
+	lhu	t0, 0x18(v1)
+	lhu	t1, 0x20(v1)
+	lhu	t2, 0x24(v1)
+	sll	t0, 16
+	or	a3, t0
+	sll	t2, 16
+	or	t1, t2
+	sw	at, 0(a0)
+	sw	a1, 4(a0)
+	sw	a3, 8(a0)
+	sw	t1, 0xC(a0)
+	ctc2	at, r0
+	ctc2	a1, r1
+	ctc2	a3, r2
+	ctc2	t1, r3
+	lhu	at, 0x28(v1)
+	lw	v0, 0xC(v1)
+	lw	a1, 0x1C(v1)
+	lw	a2, 0x2C(v1)
+	sh	at, 0x10(a0)
+	sw	v0, 0x14(a0)
+	sw	a1, 0x18(a0)
+	sw	a2, 0x1C(a0)
+	ctc2	at, r4
+	ctc2	v0, r5
+	ctc2	a1, r6
+	ctc2	a2, r7
+	lhu	v0, w2v_matrix
+	lhu	v1, w2v_matrix+0x4
+	lhu	a0, w2v_matrix+0x8
+	lhu	a1, w2v_matrix+0x10
+	lhu	a2, w2v_matrix+0x14
+	lhu	a3, w2v_matrix+0x18
+	lhu	t0, w2v_matrix+0x20
+	lhu	t1, w2v_matrix+0x24
+	lhu	t2, w2v_matrix+0x28
+	sh	v0, CamGTE+0x0
+	sh	v1, CamGTE+0x2
+	sh	a0, CamGTE+0x4
+	sh	a1, CamGTE+0x6
+	sh	a2, CamGTE+0x8
+	sh	a3, CamGTE+0xA
+	sh	t0, CamGTE+0xC
+	sh	t1, CamGTE+0xE
 	jr	ra
-	nop
+	sh	t2, 0x4058(gp)
 
 ;0x764D0
 mPushMatrix:
@@ -44,8 +101,29 @@ mPopMatrix:
 
 ;0x76534
 mPushUnitMatrix:
+	lw	a0, Matrix
+	li	t0, 0x1000
+	addi	a0, 0x20
+	sw	a0, Matrix
+	move	t1, zero
+	move	t2, t0
+	move	t3, zero
+	j	loc_76970
+	move	t4, t0
 	jr	ra
 	nop
+loc_76970:
+	ctc2	t0, r0
+	ctc2	t1, r1
+	ctc2	t2, r2
+	ctc2	t3, r3
+	ctc2	t4, r4
+	sw	t0, 0(a0)
+	sw	t1, 4(a0)
+	sw	t2, 8(a0)
+	sw	t3, 0xC(a0)
+	jr	ra
+	sw	t4, 0x10(a0)
 
 ;0x76558
 mTranslate:
@@ -54,9 +132,9 @@ mTranslate:
 
 ;0x76568
 mTranslateAbsXYZ:
-	;lw	t0, sva.voice
-	;lw	t1, sva.mask
-	;lw	t2, sva.volume.left
+	lw	t0, MatrixStack+0x0
+	lw	t1, MatrixStack+0x4
+	lw	t2, MatrixStack+0x8
 	ctc2	zero, r5
 	ctc2	zero, r6
 	ctc2	zero, r7
@@ -178,8 +256,62 @@ mRotZ:
 
 ;0x768BC
 mRotSuperPackedYXZ:
-	jr	ra
+	lw	a2, 0(a0)
+	beqz	a1, loc_768E8
+
+	loc_768C4:
+	lhu	v0, 0(a2)
+	addi	a1, -1
+	andi	at, v0, 0xC000
+	bnez	at, loc_768DC
+	addi	a2, 2
+	addi	a2, 2
+
+	loc_768DC:
+	bnez	a1, loc_768C4
 	nop
+	lhu	v0, 0(a2)
+
+	loc_768E8:
+	addi	a2, 2
+	srl	at, v0, 14
+	beqz	at, loc_76928
+	addi	at, -1
+	sw	a2, 0(a0)
+	beqz	at, loc_7691C
+	addi	at, -1
+	beqz	at, loc_76914
+	andi	a0, v0, 0xFFF
+	j	mRotZ
+	sll	a0, 4
+
+	loc_76914:
+	j	mRotY
+	sll	a0, 4
+
+	loc_7691C:
+	andi	a0, v0, 0xFFF
+	j	mRotX
+	sll	a0, 4
+
+	loc_76928:
+	lhu	at, 0(a2)
+	addi	a2, 2
+	sw	a2, 0(a0)
+	sll	a0, v0, 16
+	or	a0, at
+	move	v0, a0
+	move	v1, ra
+	sra	a0, v0, 4
+	jal	mRotY
+	andi	a0, 0xFFC0
+	sra	a0, v0, 14
+	jal	mRotX
+	andi	a0, 0xFFC0
+	andi	a0, v0, 0x3FF
+	sll	a0, 6
+	j	mRotZ
+	move	ra, v1
 
 ;0x7693C
 mRotPackedYXZ:
@@ -193,8 +325,17 @@ SetRotation:
 
 ;0x76970
 setrot:
+	ctc2 t0, r0
+	ctc2 t1, r1
+	ctc2 t2, r2
+	ctc2 t3, r3
+	ctc2 t4, r4
+	sw t0, 0(a0)
+	sw	t1, 4(a0)
+	sw	t2, 8(a0)
+	sw	t3, 0xC(a0)
 	jr	ra
-	nop
+	sw	t4, 0x10(a0)
 
 ;0x7699C
 mLoadMatrix:
@@ -258,7 +399,26 @@ InitInterpolation:
 
 ;0x76D3C
 iPushMatrix:
-	jr	ra
+	lw	a0, iMatrix
+	cfc2	t0, r8
+	cfc2	t1, r9
+	cfc2	t2, r10
+	cfc2	t3, r11
+	cfc2	t4, r12
+	cfc2	t5, r13
+	cfc2	t6, r14
+	cfc2	t7, r15
+	addi	a0, 0x20
+	sw	t0, 0(a0)
+	sw	t1, 4(a0)
+	sw	t2, 8(a0)
+	sw	t3, 0xC(a0)
+	sw	t4, 0x10(a0)
+	sw	t5, 0x14(a0)
+	sw	t6, 0x18(a0)
+	sw	t7, 0x1C(a0)
+	j	mPushMatrix
+	sw	a0, iMatrix
 	nop
 
 ;0x76D8C
@@ -338,7 +498,60 @@ mNormaliseXYZ:
 
 ;0x77678
 mGetAngle:
+	sub	t0, a2, a0
+	sub	t1, a3, a1
+	or	at, t0, t1
+	beqz	at, loc_7771C
+	move	v0, zero
+	bgez	t0, loc_7769C
+	lui	a0, 9
+	ori	v0, 0x10
+	neg	t0, t0
+
+	loc_7769C:
+	bgez	t1, loc_776AC
+	ori	a0, 0x4004
+	addi	v0, 8
+	neg	t1, t1
+
+	loc_776AC:
+	slt	at, t0, t1
+	beqz	at, loc_776C8
+	lui	a1, 9
+	addi	v0, 4
+	move	at, t0
+	move	t0, t1
+	move	t1, at
+
+	loc_776C8:
+	srl	at, t1, 16
+	beqz	at, loc_776E0
+	nop
+	srl	t0, 1
+	j	loc_776C8
+	srl	t1, 1
+
+	loc_776E0:
+	sll	t1, 11
+	divu	t1, t0
+	ori	a1, 0x3FE4
+	add	a1, v0
+	lw	t1, 0(a1)
+	mflo	t0
+	nop
+	sll	t0, 1
+	add	a0, t0
+	lh	t0, 0(a0)
+	nop
+	add	t0, t1
+	bgez	t0, loc_7771C
+	move	v0, t0
+	neg	v0, t0
+
+	loc_7771C:
+	neg	v0, v0
 	jr	ra
+	andi	v0, 0xFFFF
 	nop
 
 ;0x779DC
