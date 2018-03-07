@@ -21,6 +21,10 @@
 #include "SPECTYPES.H"
 #include CMATH_H
 
+#if PSXPC_VERSION || PC_VERSION
+	#include <math.h>
+#endif
+
 #if PSX_VERSION
 #include INLINE_H
 #endif
@@ -927,11 +931,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 {
 	CurrentFov = fov;
 
-	if (fov == 0)
-	{
-		S_Warn("[AlterFOV] - fov == 0 -> divide by zero because spotcam is empty\n");
-	}
-	else phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
+	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
 
 #if PSX_VERSION
 	gte_SetGeomScreen(phd_persp);
@@ -1379,8 +1379,86 @@ void LookCamera(struct ITEM_INFO* item)
 	S_Warn("[LookCamera] - Unimplemented!\n");
 }
 
-void CombatCamera(struct ITEM_INFO* item)
+void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 {
+	struct FLOOR_INFO *floor; // $s3
+	struct GAME_VECTOR ideal; // stack offset -248
+	struct GAME_VECTOR ideals[9]; // stack offset -232
+	struct GAME_VECTOR temp[2]; // stack offset -88
+	long distance; // $s5
+	long lp; // $s2
+	long dx; // $t0
+	long dz; // $v1
+	long farthest; // $s4
+	long farthestnum; // stack offset -52
+	long h; // $s2
+	long c; // $a0
+	short angle; // $v0
+	{ // line 45, offset 0x269a0
+		short room_number; // stack offset -56
+		long wx; // $s1
+		long wy; // $s4
+		long wz; // $s0
+	} // line 166, offset 0x26a80
+
+	//v1 = item->pos.z_pos;
+	//a1 = lara;
+	camera.target.z = item->pos.z_pos;
+	camera.target.x = item->pos.x_pos;
+
+	if (lara.target != NULL)
+	{
+		camera.target_angle = lara.target_angles[0];
+		camera.target_elevation = item->pos.x_rot + lara.target_angles[1];
+	}
+	else
+	{
+		//loc_268B0
+		camera.target_angle = lara.head_y_rot + lara.torso_y_rot;
+		camera.target_elevation = lara.torso_x_rot + item->pos.x_rot + lara.head_x_rot - 2730;
+	}
+
+	//loc_268E0
+	floor = GetFloor(camera.target.x, camera.target.y, camera.target.z, &camera.target.room_number);
+	h = GetHeight(floor, camera.target.x, camera.target.y, camera.target.z);
+	c = GetCeiling(floor, camera.target.x, camera.target.y, camera.target.z);
+
+	if (h - 64 > c + 64 && h == -3512 && c == -3512)
+	{
+		//loc_26960
+#if 0
+
+		lw	$v0, 0x1DFC($gp)
+		addiu	$v1, $s2, -0x40
+		slt	$v0, $v1, $v0
+		beqz	$v0, loc_2697C
+		li	$v0, 0xFFFF8100
+		bne	$s2, $v0, loc_26998
+		nop
+		
+		loc_2697C :
+		lw	$v0, 0x1DFC($gp)
+		addiu	$v1, $a0, 0x40
+		slt	$v0, $v1
+		beqz	$v0, loc_269A0
+		li	$v0, 0xFFFF8100
+		beq	$a0, $v0, loc_269A0
+		nop
+
+		loc_26998 :
+		sw	$v1, 0x1DFC($gp)
+#endif
+	}
+	else
+	{
+		camera.target.y = (c + h) / 2;
+	}
+
+	//loc_2699C
+	camera.target_elevation = 0;
+
+	//loc_269A0 (TODO)
+
 	S_Warn("[CombatCamera] - Unimplemented!\n");
 }
 

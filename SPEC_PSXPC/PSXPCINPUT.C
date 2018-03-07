@@ -657,6 +657,8 @@ void InitialisePadSubsystem()
 
 void ConvertInput(long& RawPad, SDL_GameController* pad)
 {
+	RawPad = 0;
+
 	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_X))
 	{
 		RawPad |= 0x8000;

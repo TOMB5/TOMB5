@@ -35,5 +35,6 @@ extern void iPopMatrix(struct MATRIX3D* m, struct MATRIX3D* m2);
 extern void mPushMatrix0();
 extern void mmPushMatrix(struct MATRIX3D* m);
 extern void GetRoomBoundsAsm(short room_number);
+extern void phd_GetVectorAngles(long dx, long dy, long dz, short* angles);
 
 #endif
