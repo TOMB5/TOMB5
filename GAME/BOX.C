@@ -324,13 +324,47 @@ short CreatureEffect(struct ITEM_INFO* item, struct BITE_INFO* bite, short(*gene
 	return generate(pos.x, pos.y, pos.z, item->speed, item->pos.y_rot, item->room_number);
 }
 
-void CreatureUnderwater(struct ITEM_INFO* item, long depth)//s0, s1 2468C(<) ?
+void CreatureUnderwater(struct ITEM_INFO* item, long depth)//?, 2468C(<) (F)
 {
-	long water_level; // $v0
-	long floorheight; // $v1
-	short room_number; // stack offset -24
+	long water_level;
+	long floorheight;
+	short room_number;
 
-	S_Warn("[CreatureUnderwater] - Unimplemented!\n");
+	if (depth < 0)
+	{
+		water_level = -depth;
+		depth = 0;
+	}
+	else
+	{
+		//0x246BC
+		water_level = GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
+	}
+
+	if (item->pos.y_pos < depth)
+	{
+		room_number = item->room_number;
+		floorheight = GetHeight(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number), item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+
+		if (floorheight < depth)
+		{
+			item->pos.y_pos = floorheight;
+		}
+		else
+		{
+			//0x24724
+			item->pos.y_pos = depth;
+		}
+
+		if (item->pos.x_rot > 0x16C)
+		{
+			item->pos.x_rot -= 0x16C;
+		}
+		else if (item->pos.x_rot > 0)
+		{
+			item->pos.x_rot = 0;
+		}//0x24740
+	}//0x2474c
 }
 
 void CreatureFloat(short item_number)
