@@ -97,22 +97,7 @@ void game_free(int size)//5E85C(<), 5F590(<) (F)
 
 void show_game_malloc_totals()//5E894(<), * (F)
 {
-	int total;
-	int used;
-
-	used = malloc_used + 1023;
-	if (used < 0)
-	{
-		used += 1023;
-	}
-
-	total = malloc_used + malloc_free;
-	if (total < 0)
-	{
-		total += 1023;
-	}
-
-	printf("---->Total Memory Used %dK of %dK<----\n", used / 1024, total / 1024);
+	printf("---->Total Memory Used %dK of %dK<----\n", (malloc_used + 1023) / 1024, (malloc_used + malloc_free + 1023) / 1024);
 }
 
 /*
