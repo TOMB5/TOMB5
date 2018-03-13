@@ -195,10 +195,18 @@ void SearchObjectControl(short item_number)//52D54, 531B8
 	S_Warn("[SearchObjectControl] - Unimplemented!\n");
 }
 
-int PickupTrigger(short item_num)//52CC0, 53124
+int PickupTrigger(short item_num)//52CC0(<), 53124(<) (F)
 {
-	S_Warn("[PickupTrigger] - Unimplemented!\n");
-	return 0;
+	struct ITEM_INFO* item = &items[item_num];
+
+	if (item->flags & 0x8000 && item->status != 3 && item->item_flags[3] != 1 && item->trigger_flags & 0x80)
+	{
+		return 0;
+	}
+
+	KillItem(item_num);
+
+	return 1;
 }
 
 int KeyTrigger(short item_num)//52C14(<), 53078(<) (F)
