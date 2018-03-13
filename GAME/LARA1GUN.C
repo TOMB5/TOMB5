@@ -31,9 +31,41 @@ void AnimateShotgun(int weapon_type)
 	S_Warn("[AnimateShotgun] - Unimplemented!\n");
 }
 
-void undraw_shotgun(int weapon_type)
+void undraw_shotgun(int weapon_type)//436B0(<), 43B14(<) (F)
 {
-	S_Warn("[undraw_shotgun] - Unimplemented!\n");
+	struct ITEM_INFO* item = &items[lara.weapon_item];
+	AnimateItem(item);
+
+	if (item->status == 2)
+	{
+		lara.gun_status = 0;
+		lara.target = NULL;
+		lara.right_arm.lock = 0;
+		lara.left_arm.lock = 0;
+		KillItem(lara.weapon_item);
+		lara.weapon_item = -1;
+		lara.right_arm.frame_number = 0;
+		lara.left_arm.frame_number = 0;
+	}//loc_43750
+	else
+	{
+		if (item->current_anim_state == 3)
+		{
+			if (anims[item->anim_number].frame_base == item->frame_number - 21)
+			{
+				undraw_shotgun_meshes(weapon_type);
+			}
+		}//loc_43798
+	}
+
+	lara.right_arm.frame_base = anims[item->frame_number].frame_ptr;
+	lara.left_arm.frame_base = anims[item->frame_number].frame_ptr;
+
+	lara.right_arm.frame_number = item->frame_number - anims[item->anim_number].frame_base;
+	lara.left_arm.frame_number = item->frame_number - anims[item->anim_number].frame_base;
+
+	lara.right_arm.anim_number = item->anim_number;
+	lara.left_arm.anim_number = item->anim_number;
 }
 
 void draw_shotgun(int weapon_type)// (F)

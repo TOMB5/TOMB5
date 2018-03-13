@@ -729,21 +729,21 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 #endif
 
-	if (RelocPtr[9] != NULL)
+	if (RelocPtr[9] != NULL)//UpdateRats
 	{
 		//unsigned long* v0 = (unsigned long*)RelocPtr[9];
 		//jalr v0[5];
 	}
 
 	//loc_1E1C4
-	if (RelocPtr[21] != NULL)
+	if (RelocPtr[21] != NULL)//UpdateBats
 	{
 		//unsigned long* v0 = (unsigned long*)RelocPtr[21];
 		//jalr v0[1];
 	}
 
 	//loc_1E1E4
-	if (RelocPtr[32] != NULL)
+	if (RelocPtr[32] != NULL)//UpdateSpiders
 	{
 		//unsigned long* v0 = (unsigned long*)RelocPtr[32];
 		//jalr v0[5];
@@ -752,14 +752,14 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 	//loc_1E204
 	//UpdateShockwaves();
 
-	if (RelocPtr[35] != NULL)
+	if (RelocPtr[35] != NULL)//UpdateLighting
 	{
 		//unsigned long* v0 = (unsigned long*)RelocPtr[35];
 		//jalr v0[1];
 	}
 
 	//loc_1E22C
-	if (RelocPtr[7] != NULL)
+	if (RelocPtr[7] != NULL)//UpdateTwogunLasers
 	{
 		//unsigned long* v0 = (unsigned long*)RelocPtr[7];
 		//jalr v0[2];
@@ -771,7 +771,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 	if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
 	{
-		if (RelocPtr[48] != NULL)
+		if (RelocPtr[48] != NULL)//KlaxonTremor
 		{
 			//unsigned long* v0 = (unsigned long*)RelocPtr[48];
 			//jalr v0[0];
@@ -1288,8 +1288,9 @@ void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* tar
 	target->x = (target->x & -1023) | 0x200;
 	target->z = (target->z & -1023) | 0x200;
 
+#ifndef USE_ASM///@TEMP
 	phd_GetVectorAngles(target->x - src->x, target->y - src->y, target->z - src->z, &angles[0]);
-
+#endif
 	pos.z_rot = 0;
 	pos.x_pos = src->x;
 	pos.y_pos = src->y;
