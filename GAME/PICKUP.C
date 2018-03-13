@@ -201,10 +201,32 @@ int PickupTrigger(short item_num)//52CC0, 53124
 	return 0;
 }
 
-int KeyTrigger(short item_num)//52C14, 53078
+int KeyTrigger(short item_num)//52C14(<), 53078(<) (F)
 {
-	S_Warn("[KeyTrigger] - Unimplemented!\n");
-	return 0;
+	struct ITEM_INFO* item = &items[item_num];
+	int oldkey;
+
+	if (item->status != 1 && !KeyTriggerActive && lara.gun_status == 1)
+	{
+		return -1;
+	}
+	else if (lara.gun_status == 1)
+	{
+		oldkey = KeyTriggerActive;
+
+		if (!oldkey)
+		{
+			item->ai_bits & 0x1D;
+			item->status = 2;
+		}
+
+		KeyTriggerActive = 0;
+
+		return oldkey;
+	}
+
+	//locret_52CB8
+	return -1;
 }
 
 void PuzzleHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52520, 52984
