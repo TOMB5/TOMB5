@@ -33,14 +33,19 @@ If you're able to code in C/C++ please feel free to contact me. I can assign you
     - CMake 3.0+
     - SDL 2.0.7.
 
-2. Windows (VS 2015-2017):
+2. Windows (VS 2015-2017) PSXPC:
     - Download SDL2-devel-2.0.7-VC.zip extract to project root EXTERNAL/ rename folder "SDL2-2.0.7" to "SDL2".
     - Generate CMake project files for VS2015 or 2017, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Open solution and build.
 
-3. Windows (CB MinGW32):
+3. Windows (CB MinGW32) PSXPC:
     - Download SDL2-devel-2.0.7-mingw.tar.gz extract to project root EXTERNAL/ rename folder "SDL2-2.0.7" to "SDL2".
     - Generate CMake project files for CodeBlocks MinGW Makefiles, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Open solution and build.
+4. Windows PSX:
+    - Download PSX PsyQ SDK 4.6 or 4.7, extract to c:/psyq
+    - Download and install TDM-GCC.
+    - Run psxdev's pspath.reg file to update registry environment variables.
+    - Go to root clone directory in commandline type mingw32-make and enter the command.
     
 Feel free to contact us on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5
