@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
+int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F) (*) (?)
 {
 	FILE* fileHandle = NULL;
 	long dwFileSize = 0;
@@ -33,10 +33,10 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 		S_ExitSystem("Can't open file");
 	}
 
-	return dwBytesRead;
+	return dwFileSize == dwBytesRead;
 }
 
-unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
+unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F) (*) (?)
 {
 	FILE* fileHandle = NULL;
 	unsigned long dwFileSize = -1;

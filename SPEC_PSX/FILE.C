@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <libsn.h>
 
-int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
+int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F) (*) (?)
 {
 #if DISC_VERSION
 	CdlFILE fp;
@@ -49,11 +49,11 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 	printf("Close\n");
 	PCclose(nHandle);
 
-	return dwFileSize ^ dwBytesRead;//== ? 1 : 0
+	return dwFileSize == dwBytesRead;
 #endif
 }
 
-unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
+unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F) (*) (?)
 {
 #if DISC_VERSION
 	CdlFILE fp;
@@ -94,7 +94,7 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
 #endif
 }
 
-int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? (F)
+int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? (F) (*)
 {
 	int nAmount = nItems * nItemSize;
 	return PCread(nHandle, pDest, nAmount);
