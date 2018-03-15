@@ -27,4 +27,12 @@ extern int GPU_FlipNoIdle();
 extern void do_gfx_debug_mode(unsigned long* otstart);
 extern void GPU_FlipStory(unsigned long* gfx);
 
+#define SCREEN_WIDTH 512
+
+#if NTSC_VERSION
+#define SCREEN_HEIGHT 240
+#else
+#define SCREEN_HEIGHT 256
+#endif
+
 #endif
