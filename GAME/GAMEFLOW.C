@@ -1,6 +1,8 @@
 #include "GAMEFLOW.H"
 
+#if !PC_VERSION
 #include "3D_GEN.H"
+#endif
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
@@ -866,9 +868,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 			if (gfLegendTime != 0 && DestFadeScreenHeight == 0 && FadeScreenHeight == 0 && cutseq_num == 0)
 			{
-				//v0 = 0x8000;
-				//sw	$v0, 0x30 + var_20($sp) //maybe a4?
-				PrintString(0x100, 0xE8, 2, &gfStringWad[gfStringOffset[gfLegend]], 0);
+				PrintString(0x100, 0xE8, 2, &gfStringWad[gfStringOffset[gfLegend]], 0x8000);
 				gfLegendTime--;
 			}
 
@@ -983,4 +983,9 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	//loc_10F30
 	input = 0;
 	reset_flag = 0;
+}
+
+void TitleOptions()
+{
+
 }
