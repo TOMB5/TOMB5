@@ -1,0 +1,761 @@
+	opt L.,C+,at+
+
+	section	.asm
+	xdef DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh
+	xref number_draw_rooms, RoomBBoxes, wibble, tsv_buffer
+	
+;needs loffset
+DrawMesh:
+	jr ra
+	
+DrawRoomletListAsm:
+	nop
+	jr	ra
+
+;74B28
+GetBounds:
+	sll	v1, t0, 16
+	sra	v1, 16
+	slt	at, v1, a0
+	beqz	at, loc_74B40
+	slt	at, v1, a1
+	move	a0, v1
+
+	loc_74B40:
+	bnez	at, loc_74B4C
+	sra	t0, 16
+	move	a1, v1
+
+	loc_74B4C:
+	slt	at, t0, a2
+	beqz	at, loc_74B5C
+	slt	at, t0, a3
+	move	a2, t0
+
+	loc_74B5C:
+	bnez	at, loc_74B68
+	sll	v1, t6, 16
+	move	a3, t0
+
+	loc_74B68:
+	sra	v1, 16
+	slt	at, v1, a0
+	beqz	at, loc_74B7C
+	slt	at, v1, a1
+	move	a0, v1
+
+	loc_74B7C:
+	bnez	at, loc_74B88
+	sra	t6, 16
+	move	a1, v1
+
+	loc_74B88:
+	slt	at, t6, a2
+	beqz	at, loc_74B98
+	slt	at, t6, a3
+	move	a2, t6
+
+	loc_74B98:
+	bnez	at, loc_74BA4
+	sll	v1, t8, 16
+	move	a3, t6
+
+	loc_74BA4:
+	sra	v1, 16
+	slt	at, v1, a0
+	beqz	at, loc_74BB8
+	slt	at, v1, a1
+	move	a0, v1
+
+	loc_74BB8:
+	bnez	at, loc_74BC4
+	sra	t8, 16
+	move	a1, v1
+
+	loc_74BC4:
+	slt	at, t8, a2
+	beqz	at, loc_74BD4
+	slt	at, t8, a3
+	move	a2, t8
+
+	loc_74BD4:
+	bnez	at, loc_74BE0
+	sltiu	at, t1, 0x5000
+	move	a3, t8
+
+	loc_74BE0:
+	bnez	at, loc_74BEC
+	sltiu	at, t7, 0x5000
+	addi	v0, 1
+
+	loc_74BEC:
+	bnez	at, loc_74BF8
+	sltiu	at, t9, 0x5000
+	addi	v0, 1
+
+	loc_74BF8:
+	bnez	at, loc_74C04
+	nop
+	addi	v0, 1
+
+	loc_74C04:
+	bnez	t1, loc_74C10
+	nop
+	addi	s5, 1
+
+	loc_74C10:
+	bnez	t7, loc_74C1C
+	nop
+	addi	s5, 1
+
+	loc_74C1C:
+	bnez	t9, locret_74C28
+	nop
+	addi	s5, 1
+
+	locret_74C28:
+	jr	ra
+	nop
+	
+DrawRoomletListAsmBinocular:
+	addi	sp, -0x38
+	sw	s0, 0x38+0x38(sp)
+	sw	s1, 0x38+0x34(sp)
+	sw	s2, 0x38+0x30(sp)
+	sw	s3, 0x38+0x2C(sp)
+	sw	s4, 0x38+0x28(sp)
+	sw	s5, 0x38+0x24(sp)
+	sw	s6, 0x38+0x20(sp)
+	sw	s7, 0x38+0x1C(sp)
+	sw	ra, 0x38+0x18(sp)
+	sw	fp, 0x38+0x14(sp)
+	sw	gp, 0x38+0x10(sp)
+	ctc2	a0, r21
+	mtc2	a1, r20
+	lw	s0, number_draw_rooms
+	lw	s3, RoomBBoxes
+	addiu	s4, gp, 0x1F30
+	lw	t2, wibble
+	la	s2, tsv_buffer
+	andi	t2, 0xFC
+	ctc2	t2, r20
+
+	loc_74C88:
+	lh	t0, 0(s4)
+	addi	s4, 2
+	sll	t0, 4
+	sll	at, t0, 2
+	lw	t1, 0x1F28(gp)
+	add	t0, at
+	add	fp, t0, t1
+	lbu	t0, 0x38+0x2(fp)
+	li	t1, 0x1F0A80
+	sll	t0, 8
+	add	t1, t0
+	sw	fp, 0(s2)
+	sw	t1, 4(s2)
+	lw	s1, 0x38+0x38(fp)
+	lw	t0, 0x38+0x24(fp)
+	lw	t1, 0x38+0x20(fp)
+	mfc2	s5, r20
+	lw	t2, 0x38+0x1C(fp)
+	lw	t3, 0x14(s5)
+	lw	t4, 0x18(s5)
+	lw	t5, 0x1C(s5)
+	sub	t6, t3, t0
+	sub	t7, t4, t1
+	sub	t8, t5, t2
+	slti	at, t6, -0x7C00
+	bnez	at, loc_74DF8
+	slti	at, t6, 0x7C00
+	beqz	at, loc_74DF8
+	slti	at, t7, -0x7C00
+	bnez	at, loc_74DF8
+	slti	at, t7, 0x7C00
+	beqz	at, loc_74DF8
+	slti	at, t8, -0x7C00
+	bnez	at, loc_74DF8
+	slti	at, t8, 0x7C00
+	beqz	at, loc_74DF8
+	lw	t7, 0x38+0x18(fp)
+	lh	t6, 0x38+0x10(fp)
+	lh	t8, 0x38+0x10+2(fp)
+	addi	t6, -2
+	addi	t8, -2
+	sll	t6, 10
+	sll	t8, 10
+	add	t8, t0
+	add	t6, t2
+	sub	t6, t5
+	sub	t7, t4
+	sub	t8, t3
+	slti	at, t6, -0x7C00
+	bnez	at, loc_74DF8
+	slti	at, t6, 0x7C00
+	beqz	at, loc_74DF8
+	slti	at, t7, -0x7C00
+	bnez	at, loc_74DF8
+	slti	at, t7, 0x7C00
+	beqz	at, loc_74DF8
+	slti	at, t8, -0x7C00
+	bnez	at, loc_74DF8
+	slti	at, t8, 0x7C00
+	beqz	at, loc_74DF8
+	lw	t7, 0x20(s5)
+	lh	t6, 0x28(s5)
+	lh	t8, 0x2A(s5)
+	addi	t6, -2
+	addi	t8, -2
+	sll	t6, 10
+	sll	t8, 10
+	add	t8, t5
+	add	t6, t3
+	sub	t6, t0
+	sub	t7, t1
+	sub	t8, t2
+	slti	at, t6, -0x7C00
+	bnez	at, loc_74DF8
+	slti	at, t6, 0x7C00
+	beqz	at, loc_74DF8
+	slti	at, t7, -0x7C00
+	bnez	at, loc_74DF8
+	slti	at, t7, 0x7C00
+	beqz	at, loc_74DF8
+	slti	at, t8, -0x7C00
+	bnez	at, loc_74DF8
+	slti	at, t8, 0x7C00
+	beqz	at, loc_74DF8
+	sub	t6, t0, t3
+	sub	t7, t1, t4
+	sub	t8, t2, t5
+	move	t0, t3
+	move	t1, t4
+	j	loc_74E04
+	move	t2, t5
+
+	loc_74DF8:
+	move	t6, zero
+	move	t7, zero
+	move	t8, zero
+
+	loc_74E04:
+	sw	t6, 0x14(s2)
+	sw	t7, 0x18(s2)
+	sw	t8, 0x1C(s2)
+	lw	t3, 0x46D8(gp)
+	lw	t4, 0x46DC(gp)
+	lw	t5, 0x46E0(gp)
+	sub	t0, t3
+	sub	t1, t4
+	sub	t2, t5
+	bgez	t0, loc_74E48
+	sra	t3, t0, 15
+	negu	t0, t0
+	sra	t3, t0, 15
+	andi	t0, 0x7FFF
+	negu	t3, t3
+	j	loc_74E4C
+	negu	t0, t0
+
+	loc_74E48:
+	andi	t0, 0x7FFF
+
+	loc_74E4C:
+	bgez	t1, loc_74E6C
+	sra	t4, t1, 15
+	negu	t1, t1
+	sra	t4, t1, 15
+	andi	t1, 0x7FFF
+	negu	t4, t4
+	j	loc_74E70
+	negu	t1, t1
+
+	loc_74E6C:
+	andi	t1, 0x7FFF
+
+	loc_74E70:
+	bgez	t2, loc_74E90
+	sra	t5, t2, 15
+	negu	t2, t2
+	sra	t5, t2, 15
+	andi	t2, 0x7FFF
+	negu	t5, t5
+	j	loc_74E94
+	negu	t2, t2
+
+	loc_74E90:
+	andi	t2, 0x7FFF
+
+	loc_74E94:
+	mtc2	t3, r9
+	mtc2	t4, r10
+	mtc2	t5, r11
+	nop
+	nop
+	cop2	0x41E012
+	mfc2	t3, r25
+	mfc2	t4, r26
+	mtc2	t0, r9
+	mtc2	t1, r10
+	mtc2	t2, r11
+	mfc2	t5, r27
+	nop
+	nop
+	cop2	0x49E012
+	bgez	t3, loc_74ED8
+	sll	t0, t3, 3
+	negu	t3, t3
+	sll	t3, 3
+	negu	t0, t3
+
+	loc_74ED8:
+	bgez	t4, loc_74EEC
+	sll	t1, t4, 3
+	negu	t4, t4
+	sll	t4, 3
+	negu	t1, t4
+
+	loc_74EEC:
+	bgez	t5, loc_74F00
+	sll	t2, t5, 3
+	negu	t5, t5
+	sll	t5, 3
+	negu	t2, t5
+
+	loc_74F00:
+	mfc2	t3, r25
+	mfc2	t4, r26
+	mfc2	t5, r27
+	addu	t0, t3
+	addu	t1, t4
+	addu	t2, t5
+	ctc2	t0, r5
+	ctc2	t1, r6
+	ctc2	t2, r7
+	sw	t0, 8(s2)
+	sw	t1, 0xC(s2)
+	sw	t2, 0x10(s2)
+	addi	s2, 0x20
+	lw	s6, 0(s1)
+	addi	s1, 4
+	lw	t0, 0x38+0x0(fp)
+	lw	t2, 0x38+0x4(fp)
+	srl	t1, t0, 16
+	andi	t0, 0xFFFF
+	srl	t3, t2, 16
+	andi	t2, 0xFFFF
+	addi	t1, 1
+	addi	t3, 1
+	ctc2	t0, r8
+	ctc2	t1, r9
+	ctc2	t2, r10
+	ctc2	t3, r11
+	ctc2	t6, r13
+	move	fp, t7
+	move	s7, t8
+
+	loc_74F78:
+	beqz	s6, loc_75108
+	lw	a0, 0(s1)
+	addi	s1, 4
+	lw	t3, 0(a0)
+	sw	a0, 0(s2)
+	cfc2	t6, r13
+	sll	t0, t3, 3
+	andi	t0, 0xFFF8
+	add	t0, s3
+	lh	t1, 4(t0)
+	lh	at, 0(t0)
+	lh	t0, 2(t0)
+	add	at, t6
+	andi	at, 0xFFFF
+	add	t0, fp
+	add	t1, s7
+	sll	t0, 16
+	or	t0, at
+	srl	t3, 13
+	andi	t3, 0xFFF8
+	add	t3, s3
+	lh	at, 0(t3)
+	lh	t2, 2(t3)
+	lh	t3, 4(t3)
+	add	at, t6
+	andi	at, 0xFFFF
+	add	t2, fp
+	add	t3, s7
+	sll	t2, 16
+	or	t2, at
+	mtc2	t0, r0
+	mtc2	t1, r1
+	mtc2	t2, r2
+	mtc2	t1, r3
+	mtc2	t2, r4
+	mtc2	t3, r5
+	andi	t4, t0, 0xFFFF
+	nop
+	nop
+	cop2	0x280030
+	andi	t6, t2, 0xFFFF
+	lui	t7, 0xFFFF
+	and	t5, t0, t7
+	and	t7, t2
+	or	t4, t7
+	or	t5, t6
+	li	a0, 0x800
+	li	a1, 0xFFFFF800
+	li	a2, 0x800
+	li	a3, 0xFFFFF800
+	move	s5, zero
+	mfc2	t1, r17
+	mfc2	t6, r13
+	mfc2	t7, r18
+	mfc2	t8, r14
+	mfc2	t9, r19
+	mtc2	t4, r0
+	mtc2	t5, r2
+	mtc2	t0, r4
+	mfc2	t0, r12
+	nop
+	nop
+	cop2	0x280030
+	jal	GetBounds
+	move	v0, zero
+	mfc2	t0, r12
+	mfc2	t1, r17
+	mfc2	t6, r13
+	mfc2	t7, r18
+	mfc2	t8, r14
+	mtc2	t3, r1
+	mtc2	t3, r3
+	mfc2	t9, r19
+	nop
+	nop
+	cop2	0x280030
+	jal	GetBounds
+	nop
+	mfc2	t0, r12
+	mfc2	t1, r17
+	mfc2	t6, r13
+	mfc2	t7, r18
+	move	t8, t6
+	jal	GetBounds
+	move	t9, t7
+	sltiu	at, v0, 9
+	beqz	at, loc_75100
+	sltiu	at, s5, 9
+	beqz	at, loc_75100
+	nop
+	cfc2	t0, r8
+	cfc2	t1, r9
+	cfc2	t2, r10
+	cfc2	t3, r11
+	slt	at, a1, t0
+	bnez	at, loc_75100
+	slt	at, a0, t1
+	beqz	at, loc_75100
+	slt	at, a3, t2
+	bnez	at, loc_75100
+	slt	at, a2, t3
+	beqz	at, loc_75100
+	nop
+	addi	s2, 4
+
+	loc_75100:
+	j	loc_74F78
+	addi	s6, -1
+
+	loc_75108:
+	sw	zero, 0(s2)
+	addi	s0, -1
+	bnez	s0, loc_74C88
+	addi	s2, 4
+	sw	zero, 0(s2)
+	li	s2, 0x1ECDC0
+
+	loc_75124:
+	lw	a1, 0(s2)
+	;lwc2	20, 4(s2)
+	beqz	a1, loc_76420
+	addi	s2, 0x20
+	lw	t0, -0x18(s2)
+	lw	t1, -0x14(s2)
+	lw	t2, -0x10(s2)
+	ctc2	t0, r5
+	ctc2	t1, r6
+	ctc2	t2, r7
+	lw	t0, 0x14(a1)
+	lw	t1, 0x18(a1)
+	lw	t2, 0x1C(a1)
+	sw	t0, 0x38+0xC(sp)
+	sw	t1, 0x38+0x8(sp)
+	sw	t2, 0x34(sp)
+	lw	t0, 0x38(a1)
+	lw	t2, 0x3C(a1)
+	lui	at, 0xFFFF
+	and	t1, t0, at
+	and	t3, t2, at
+	lui	at, 1
+	add	t1, at
+	add	t3, at
+	sll	t0, 16
+	sll	t2, 16
+	ctc2	t0, r8
+	ctc2	t1, r9
+	ctc2	t2, r10
+	ctc2	t3, r11
+	lw	t0, -0xC(s2)
+	lw	t1, -8(s2)
+	lw	t2, -4(s2)
+	ctc2	t0, r13
+	ctc2	t1, r14
+	ctc2	t2, r15
+
+	loc_751B4:
+	lw	a0, 0(s2)
+	addi	s2, 4
+	beqz	a0, loc_75124
+	lw	t5, 0(a0)
+	move	t6, zero
+	sll	t0, t5, 3
+	andi	t0, 0xFFF8
+	add	t0, s3
+	lh	t2, 4(t0)
+	lw	t0, 0(t0)
+	srl	t5, 13
+	andi	t5, 0xFFF8
+	add	t5, s3
+	lw	t3, 0(t5)
+	lh	t5, 4(t5)
+	srl	t1, t0, 16
+	andi	t0, 0xFFFF
+	srl	t4, t3, 16
+	andi	t3, 0xFFFF
+	lw	t7, 0x38+0xC(sp)
+	lw	t8, 0x38+0x8(sp)
+	lw	t9, 0x34(sp)
+	add	t0, t7
+	add	t1, t8
+	add	t2, t9
+	add	t3, t7
+	add	t4, t8
+	add	t5, t9
+	li	t7, 1
+	lui	t8, 0x1F80
+	move	t9, zero
+	addiu	s1, gp, 0x25B8
+	li	a3, 0x20
+
+	loc_75238:
+	sb	zero, 0x30C(s1)
+	lb	at, 0xC(s1)
+	addi	a3, -1
+	beqz	at, loc_752C4
+	lh	a2, 0x10(s1)
+	lw	v0, 0(s1)
+	srl	a2, 1
+	add	v1, v0, a2
+	sub	v0, a2
+	slt	at, v1, t0
+	bnez	at, loc_752C0
+	slt	at, v0, t3
+	lw	v0, 4(s1)
+	beqz	at, loc_752C0
+	add	v1, v0, a2
+	sub	v0, a2
+	slt	at, v1, t1
+	bnez	at, loc_752C0
+	slt	at, v0, t4
+	lw	v0, 8(s1)
+	beqz	at, loc_752C0
+	add	v1, v0, a2
+	sub	v0, a2
+	slt	at, v1, t2
+	bnez	at, loc_752C0
+	slt	at, v0, t5
+	beqz	at, loc_752C0
+	srl	a2, 7
+	sb	t7, 0x12(s1)
+	add	t9, a2
+	sw	s1, 0(t8)
+	addi	t8, 4
+	j	loc_752C4
+	addi	t6, 1
+
+	loc_752C0:
+	sb	zero, 0x12(s1)
+
+	loc_752C4:
+	bnez	a3, loc_75238
+	addi	s1, 0x18
+	addiu	t8, gp, 0x28B8
+
+	loc_752D0:
+	slti	at, t9, 0x60
+	bnez	at, loc_75448
+	lui	t7, 0xFFF
+	move	t3, zero
+	lui	s1, 0x1F80
+	move	t5, t6
+
+	loc_752E8:
+	beqz	t5, loc_752D0
+	lw	a2, 0(s1)
+	addi	s1, 4
+	beqz	a2, loc_752E8
+	addi	t5, -1
+	move	a1, s1
+	addi	t4, t5, -1
+
+	loc_75304:
+	beqz	t4, loc_75394
+	lw	a3, 0(a1)
+	addi	a1, 4
+	beqz	a3, loc_75304
+	addi	t4, -1
+	lw	t0, 0(a2)
+	lw	at, 0(a3)
+	lw	t1, 4(a2)
+	sub	t0, at
+	bgtz	t0, loc_75334
+	lw	at, 4(a3)
+	neg	t0, t0
+
+	loc_75334:
+	sltiu	s4, t0, 0x800
+	beqz	s4, loc_75304
+	sub	t1, at
+	lw	ra, 8(a2)
+	bgtz	t1, loc_75350
+	lw	at, 8(a3)
+	neg	t1, t1
+
+	loc_75350:
+	sltiu	s4, t1, 0x800
+	beqz	s4, loc_75304
+	sub	ra, at
+	bgtz	ra, loc_75368
+	add	t0, t1
+	neg	ra, ra
+
+	loc_75368:
+	sltiu	s4, ra, 0x800
+	beqz	s4, loc_75304
+	add	t0, ra
+	slt	at, t0, t7
+	beqz	at, loc_75304
+	move	t2, a2
+	move	t7, t0
+	addi	v0, s1, -4
+	addi	v1, a1, -4
+	j	loc_75304
+	move	t3, a3
+
+	loc_75394:
+	beqz	t3, loc_75448
+	lh	t0, 0x10(t2)
+	lh	t1, 0x10(t3)
+	sw	zero, 0(v1)
+	slt	at, t0, t1
+	bnez	at, loc_753C0
+	sw	t8, 0(v0)
+	sh	t0, 0x10(t8)
+	srl	t1, 8
+	j	loc_753CC
+	sub	t9, t1
+
+	loc_753C0:
+	sh	t1, 0x10(t8)
+	srl	t0, 8
+	sub	t9, t0
+
+	loc_753CC:
+	lw	t0, 0xC(t2)
+	lw	t1, 0xC(t3)
+	li	t7, 0x7C7C7C00
+	srl	t0, 1
+	srl	t1, 1
+	and	t0, t7
+	and	t1, t7
+	addu	t0, t1
+	ori	t0, 1
+	sw	t0, 0xC(t8)
+	sb	t0, 0x12(t8)
+	lw	v0, 0(t2)
+	lw	v1, 0(t3)
+	lw	t0, 4(t2)
+	lw	t1, 4(t3)
+	add	v0, v1
+	srl	v0, 1
+	add	t0, t1
+	sra	t0, 1
+	sw	v0, 0(t8)
+	lw	v0, 8(t2)
+	lw	v1, 8(t3)
+	sw	t0, 4(t8)
+	add	v0, v1
+	srl	v0, 1
+	sw	v0, 8(t8)
+	sb	zero, 0x12(t2)
+	sb	zero, 0x12(t3)
+	j	loc_752D0
+	addi	t8, 0x18
+
+	loc_75448:
+	addiu	s1, gp, 0x25B8
+	lui	a1, 0x1F80
+	addi	a1, 0x300
+	li	v1, 0xF
+	li	v0, 0x40
+
+	loc_7545C:
+	lb	at, 0xC(s1)
+	lb	t0, 0x12(s1)
+	beqz	at, loc_754B8
+	lw	t1, 4(s1)
+	beqz	t0, loc_754B8
+	lw	t0, 0(s1)
+	lw	t2, 8(s1)
+	srl	t0, 7
+	sw	t0, 0(a1)
+	sra	t1, 7
+	sw	t1, 4(a1)
+	srl	t2, 7
+	sw	t2, 8(a1)
+	lw	t1, 0xC(s1)
+	lh	t0, 0x10(s1)
+	srl	t1, 8
+	sll	t1, 8
+	srl	t0, 8
+	or	t1, t0
+	sw	t1, 0xC(a1)
+	addi	a1, 0x10
+	addi	v1, -1
+	beqz	v1, loc_754C4
+
+	loc_754B8:
+	addi	v0, -1
+	bnez	v0, loc_7545C
+	addi	s1, 0x18
+
+	loc_754C4:
+	sw	zero, 0xC(a1)
+	jal	DrawMesh
+	addiu	a1, gp, 0x363C
+	addiu	a1, gp, 0x363C
+	j	loc_751B4
+	sw	a3, 8(a1)
+	
+	loc_76420:
+	lw	s0, 0x38+0x38(sp)
+	lw	s1, 0x38+0x34(sp)
+	lw	s2, 0x38+0x30(sp)
+	lw	s3, 0x38+0x2C(sp)
+	lw	s4, 0x38+0x28(sp)
+	lw	s5, 0x38+0x24(sp)
+	lw	s6, 0x38+0x20(sp)
+	lw	ra, 0x38+0x18(sp)
+	lw	s7, 0x38+0x1C(sp)
+	lw	fp, 0x38+0x14(sp)
+	lw	gp, 0x38+0x10(sp)
+	jr	ra
+	addi sp, 0x38

@@ -4,6 +4,7 @@
 
 #include <INLINE_C.H>
 
+#ifndef USE_ASM && PSX_VERSION
 void MakeMono(unsigned short* s, unsigned char* d)//7F9E4
 {
 	S_Warn("[MakeMono] - Unimplemented!\n");
@@ -21,3 +22,5 @@ void InitObjGTE()
 	gte_ldfcdir(0, 0, 0);
 #endif
 }
+
+#endif
