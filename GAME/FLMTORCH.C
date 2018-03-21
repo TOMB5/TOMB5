@@ -6,7 +6,11 @@
 #include "LARA.H"
 #include "LARAFLAR.H"
 #include "OBJECTS.H"
+#if PC_VERSION
+#include "GAME.H"
+#else
 #include "SETUP.H"
+#endif
 #include "SPECIFIC.H"
 #include "TOMB4FX.H"
 
