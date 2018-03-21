@@ -81,12 +81,12 @@ char* game_malloc(int size)//5E7E8(<), 5F544(<) (F) (*) (?)
  * @PARAM - [size] The amount of memory you wish to "free".
  */
 
-void game_free(int size)//5E85C(<), 5F590(<) (F)
+void game_free(int size)//5E85C(<), 5F590(<) (F) (*)
 {
 	size = (size + 3) & -4;
 
-	malloc_free += size;
 	malloc_ptr -= size;
+	malloc_free += size;
 	malloc_used -= size;
 }
 
@@ -95,9 +95,9 @@ void game_free(int size)//5E85C(<), 5F590(<) (F)
  * Prints the amount of free/used malloc_buffer memory to stdio in Kilobytes.
  */
 
-void show_game_malloc_totals()//5E894(<), * (F)
+void show_game_malloc_totals()//5E894(<), * (F) (*)
 {
-	printf("---->Total Memory Used %dK of %dK<----\n", ((malloc_used + 1023) / 1024) - 10, (((malloc_used + malloc_free) + 1023) / 1024) - 10);
+	printf("---->Total Memory Used %dK of %dK<----\n", ((malloc_used + 1023) / 1024) - 10, ((malloc_used + malloc_free) / 1024) - 10);
 }
 
 /*
