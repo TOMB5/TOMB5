@@ -5,7 +5,7 @@
 
 int S_PlayFMV(int sequence, int flag)//*, (<)5E7A0
 {
-	DISPENV disp;
+	DISPENV disp;//interp@var_50
 	//s1 = fmv_index
 	//s2 = a1; //maybe skippable?
 	//v0 = 7;
@@ -28,7 +28,7 @@ int S_PlayFMV(int sequence, int flag)//*, (<)5E7A0
 
 	//__asm__ volatile ("addiu	$2, 0xF0");
 	//__asm__ volatile ("sw	$2, 0x10($sp)");
-	disp.isinter = 0xF0;
+	disp.screen.x = 0xF0;
 	SetDefDispEnv(&disp, 0, 0, 480, 0);//BUG: v0 (0xF0, 240) is not written to $sp+0x10, $sp+0x10 gets 0 written to it, maybe custom sdk is used.
 
 
@@ -85,4 +85,21 @@ void FMV_InitialiseVRAM()//*, 5F160(<) (F)
 	DrawSync(0);
 
 	return;
+}
+
+void sub_5F160()
+{
+	RECT r;//var_10
+
+	ClearImage(&r, 0, 0, 0);
+	r.x = 0;
+	r.y = 0;
+	r.w = 0x200;
+	r.h = 0x100;
+
+	ClearImage(&r, 0, 0, 0);
+	r.y = 0xF0;
+	ClearImage(&r, 0, 0, 0);
+
+	DrawSync(0);
 }
