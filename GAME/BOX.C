@@ -366,9 +366,51 @@ void CreatureUnderwater(struct ITEM_INFO* item, long depth)//?, 2468C(<) (F)
 	}//0x2474c
 }
 
-void CreatureFloat(short item_number)
+void CreatureFloat(short item_number)//24524(<), (?) (F)
 {
-	S_Warn("[CreatureFloat] - Unimplemented!\n");
+	long water_level;
+	struct ITEM_INFO* item;
+	short room_number;
+
+	item = &items[item_number];
+	item->hit_points = -16384;
+	item->pos.x_rot = 0;
+	water_level =  GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
+
+	if (water_level < item->pos.y_pos)
+	{
+		item->pos.y_pos -= 32;
+	}//0x24590
+
+	if (item->pos.y_pos < water_level)
+	{
+		item->pos.y_pos = water_level;
+	}
+
+	AnimateItem(item);
+	room_number = item->room_number;
+
+	item->floor = GetHeight(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number), item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+
+	if (room_number != item->room_number)
+	{
+		ItemNewRoom(item_number, room_number);
+	}//0x245FC
+
+	if (water_level < item->pos.y_pos)
+	{
+		return;
+	}
+
+	if (item->frame_number == anims[item->anim_number].frame_base)
+	{
+		item->meshswap_meshbits &= -7;
+		item->active = 1;
+		DisableBaddieAI(item_number);
+		RemoveActiveItem(item_number);
+	}
+
+	item->after_death = 1;
 }
 
 void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<) ?
@@ -384,7 +426,7 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 
 	if (change < -0x222)
 	{
-	change -= 0x222;
+		change -= 0x222;
 	}
 	else
 	{
