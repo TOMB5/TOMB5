@@ -438,13 +438,8 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F) (*)
 
 int DEL_CDFS_OpenFile(int filenum /*$a0*/)//*, 5E3C0(<) (F)
 {
-	//Converting to multiples CD_SECTOR_SIZE since PSX legacy CD routines require the number of sectors to be read
-	//Not the actual file size of the file itself.
-	int relativeFileSector = gwHeader.entries[filenum].fileOffset / CD_SECTOR_SIZE;
-
 	DEL_ChangeCDMode(0);
-	cdCurrentSector = cdStartSector = gwLba + relativeFileSector;
-
+	cdCurrentSector = cdStartSector = gwLba + (gwHeader.entries[filenum].fileOffset >> CD_SECTOR_SHIFT);
 	return gwHeader.entries[filenum].fileSize;
 }
 
@@ -458,46 +453,53 @@ int DEL_CDFS_OpenFile(int filenum /*$a0*/)//*, 5E3C0(<) (F)
 * @PARAM - [size] the number of bytes you wish to read [addr] the memory location the data is read to.
 */
 
-void DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F)
+int DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F) (*)
 {
 	CdlFILE fp;
-	int i;
-	int numSectorsToRead;
-	unsigned char param[4];
+	long numSectorsToRead;
+	long remainingDataToRead;
+	char buf[2048];
 
 	DEL_ChangeCDMode(0);
 
-	numSectorsToRead = size / CD_SECTOR_SIZE;
+	remainingDataToRead = size & ((1 << CD_SECTOR_SHIFT) - 1);
+	numSectorsToRead = size >> CD_SECTOR_SHIFT;
 
 	if (numSectorsToRead != 0)
 	{
 		CdIntToPos(cdCurrentSector, &fp.pos);
 		CdControlB(CdlSetloc, (unsigned char*)&fp, 0);
 
-		CdRead(numSectorsToRead, (unsigned long*)addr, 0x80);
-
+		CdRead(numSectorsToRead, (unsigned long*)addr, 128);
+		
+		//loc_5E48C
 		while (CdReadSync(1, 0) > 0)
 		{
 			VSync(0);
 		}
 
 		cdCurrentSector += numSectorsToRead;
-	}
 
-	//Another chunk that is not multiple of 2048 bytes exists, read it
-	if ((size & 0x7FF) != 0)//%
+	}//loc_5E4AC
+
+	if (remainingDataToRead != 0)
 	{
-		addr += numSectorsToRead * 2048;
+		
 		CdIntToPos(cdCurrentSector, &fp.pos);
 		CdControlB(CdlSetloc, (unsigned char*)&fp, 0);
-		CdRead(1, (unsigned long*)addr, 0x80);
+		CdRead(1, &buf, 0x80);
 
 		while (CdReadSync(1, 0) > 0)
 		{
-			VSync(0);//6A1FC
+			VSync(0);
 		}
+
+		memcpy(&addr[numSectorsToRead << CD_SECTOR_SHIFT], &buf, remainingDataToRead);
+
 		cdCurrentSector++;
 	}
+
+	return 0;
 }
 
 /*
@@ -508,9 +510,10 @@ void DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F)
 * @PARAM - [offset] the number of bytes you wish to seek (not in sectors).
 */
 
-void DEL_CDFS_Seek(int offset /*$a0*/)//*, 5E54C(<) (F)
+int DEL_CDFS_Seek(int offset /*$a0*/)//*, 5E54C(<) (F) (*)
 {
-	cdCurrentSector = cdStartSector + (offset / CD_SECTOR_SIZE);
+	cdCurrentSector = cdStartSector + (offset >> CD_SECTOR_SHIFT);
+	return 0;
 }
 
 /*

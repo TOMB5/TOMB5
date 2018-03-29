@@ -4,6 +4,7 @@
 #include "SPECTYPES.H"
 
 #define CD_SECTOR_SIZE (2048)
+#define CD_SECTOR_SHIFT (11)
 
 #define NUM_BITS_IN_BYTE 8
 
@@ -166,9 +167,9 @@ extern void S_StartSyncedAudio(int nTrack);
 extern void CDDA_SetMasterVolume(int nVolume);
 extern void InitNewCDSystem();
 extern void DEL_ChangeCDMode(int mode);
-extern int DEL_CDFS_OpenFile(int filenum);//int DEL_CDFS_OpenFile(int filenum);
-extern void DEL_CDFS_Read(char* addr, int size);//extern int DEL_CDFS_Read(void *addr,int size);
-extern void DEL_CDFS_Seek(int offset);//extern int DEL_CDFS_Seek(int offset);
+extern int DEL_CDFS_OpenFile(int filenum);
+extern int DEL_CDFS_Read(char* addr, int size);
+extern int DEL_CDFS_Seek(int offset);
 extern void FRIG_CD_POS_TO_CUR();
 
 
