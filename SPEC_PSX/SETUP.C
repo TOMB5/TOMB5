@@ -14,8 +14,10 @@
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "HAIR.H"
+#include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
+#include "LARAFIRE.H"
 #include "LARAMISC.H"
 #include "LOAD_LEV.H"
 #include "LOT.H"
@@ -23,6 +25,7 @@
 #include "MATHS.H"
 #include "MISC.H"
 #include "NEWINV2.H"
+#include "OBJECTS.H"
 #include "OBJLIGHT.H"
 #include "PICKUP.H"
 #include "ROOMLOAD.H"
@@ -69,6 +72,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	char* ptr2 = NULL;
 	unsigned int size, i, j;
 	long* relocationPtr = NULL;
+	long gunType;
 
 #if DISC_VERSION
 	DEL_CDFS_Read((char*) &tsv_buffer[0], sizeof(struct Level));
@@ -250,7 +254,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	OutsideRoomTable = ptr;
 	ptr += level->outsideRoomTableLength;
 	
-	RoomBBoxes = (SVECTOR*)ptr;
+	RoomBBoxes = (struct SVECTOR*)ptr;
 	ptr += level->roomBoundingBoxesLength;
 
 	mesh_base = (short*) ptr;
@@ -527,7 +531,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	GLOBAL_gunflash_meshptr = meshes[objects[GUN_FLASH].mesh_index];
 
 	//s0 = &objects[0];
-	if (objects[SEARCH_OBJECT1].bite_offset & 0x10000 && objects[SEARCH_OBJECT1_MIP].bite_offset & 0x10000)
+	if (objects[SEARCH_OBJECT1].loaded && objects[SEARCH_OBJECT1_MIP].loaded)
 	{
 		//0x2900 is base
 		//v0 = objects[SEARCH_OBJECT1].mesh_index;
@@ -568,7 +572,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 #if !BETA_VERSION
 	//sw      0,$6F5C(a3) maybe same as MonitorScreenTI = NULL;
 #endif
-	if (objects[MONITOR_SCREEN].bite_offset & 0x10000)//000B4904, 000B47E8
+	if (objects[MONITOR_SCREEN].loaded)//000B4904, 000B47E8
 	{
 		assert(0);
 	}//0xB4708
@@ -778,14 +782,8 @@ void InitialiseObjects()//?(<), B96EC(<)
 	{
 		for (i = 0; i < gfNumMips; i++)
 		{
-			assert(0);
-			//FIXME need to extract obj index or analyse this properly when used
-			//v0 = 0x1F0000
-			//t0 = &objects[0];
-			//v0 = ((gfNumMips[i] & 0xF) * 128) | 0x6800;
-			//v0 += t0;
-			//a0 = (gfNumMips[i] & 0xF0) * 64;
-			//object->object_mip = a0;
+			//objects[((gfMips[i] & 0xF) << 7) | ANIMATING1 * 128].object_mip = (gfMips[i] & 0xF0) << 6;
+			objects[((gfMips[i] & 0xF) << 1) | ANIMATING1].object_mip = (gfMips[i] & 0xF0) << 6;
 		}
 	}//0xB98B8
 
@@ -799,17 +797,17 @@ void InitialiseObjects()//?(<), B96EC(<)
 		find_a_fucking_item(ANIMATING16)->mesh_bits = 0;
 	}//B98F0
 
-	if (objects[RAT].bite_offset & 0x10000)
+	if (objects[RAT].loaded)
 	{
 		Rats = (struct RAT_STRUCT*)game_malloc(sizeof(struct RAT_STRUCT) * 32);
 	}//B9914
 
-	if (objects[BAT].bite_offset & 0x10000)
+	if (objects[BAT].loaded)
 	{
 		Bats = (struct BAT_STRUCT*)game_malloc(sizeof(struct BAT_STRUCT) * 64);
 	}//B9938
 
-	if (objects[SPIDER].bite_offset & 0x10000)
+	if (objects[SPIDER].loaded)
 	{
 		Spiders = (struct SPIDER_STRUCT*)game_malloc(sizeof(struct SPIDER_STRUCT) * 64);
 	}
@@ -896,12 +894,12 @@ void sub_B9DA8()//?(<), B9DA8(<)
 	if (gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME && gfInitialiseGame != 0)
 	{
 		//B9E50
-		sub_B4EE4(0);
+		InitialiseLaraCarriedItems(0);
 	}
 	else
 	{
 		//B9E60
-		sub_B4EE4(1);
+		InitialiseLaraCarriedItems(1);
 	}
 	//B9E68
 	sub_B9974();
@@ -932,6 +930,7 @@ void InitialiseSqrtTable()//?(<), B4D14(<)
 void InitialiseAnimatedTextures()//?(<), B4904(<)
 {
 	int i;
+	unsigned short* animTexRange = &AnimTextureRanges[0];
 #if 0
 	//000B4B50 3C03000A lui     v1, $A
 	//v0 = nAnimUVRanges;
@@ -943,29 +942,27 @@ void InitialiseAnimatedTextures()//?(<), B4904(<)
 
 	//a0 = 0;
 	//t4 = RoomTextInfo;
-	while (a0 < nAnimUVRanges)
+	for (i = 0; i < nAnimUVRanges; i++)
 	{
 		//v1 = AnimTextureRanges[0];
-		//a1 += 2;//size of short next anim tex range
-		//t2 = a0 + 1;
+		animTexRange++;
 		//if(AnimTextureRanges[0] > -1)
 		{
 			//t1 = t4;
 			//t3 = AnimatingTexturesV;
-			//v0 = a0 << 1;
-			//v0 += a0;
+			//v0 = i << 1;
+			//v0 += i;
 			//t0 = v0 << 4;
 			while (v1 >= 0)
 			{
-				//a3 = a1 + 2;
+				//a3 = animTexRange++;
 				//a2 = v1 - 1;
 				//v0 = v1 << 1;
 				//v0 += v1;
 				//v0 <<= 1;
 				//v0 += t0;
 				//a0 = v0 + t3;
-				//v1 = a1[0];
-				//a1 += 2;//sizeof short
+				//v1 = *animTexRange++;
 				//v0 = v1 << 1;
 				//v0 += v1;
 				//v0 <<= 4;
@@ -983,8 +980,6 @@ void InitialiseAnimatedTextures()//?(<), B4904(<)
 				//a1 = a3;
 			}
 		}
-
-		//a0 = t2;
 	}
 
 	return;
@@ -1094,7 +1089,7 @@ void InitialiseTargetGraphics()//(<), B4D64(<)
 	return;
 }
 
-void InitialiseFlipMaps()//?(<), B9D30(<)
+void InitialiseFlipMaps()//?(<), B9D30(<)//InitialiseGameFlags
 {
 	int i;
 
@@ -1107,7 +1102,7 @@ void InitialiseFlipMaps()//?(<), B9D30(<)
 	flip_status = 0;
 	flipeffect = 1;
 
-	for (i = 0; i < 136; i++)
+	for (i = 0; i < sizeof(cd_flags); i++)
 	{
 		cd_flags[i] = 0;
 	}
@@ -1117,102 +1112,208 @@ void InitialiseFlipMaps()//?(<), B9D30(<)
 }
 
 //InitialiseLaraCarriedItems
-void sub_B4EE4(long keep_carried_items)
+void InitialiseLaraCarriedItems(long keep_carried_items)
 {
-	return;//************************************************************* temp crashes game cuz unfinished
-#if 0
-	int lara_item_number_backup;
+	long i;
+	long gun_type;
 	struct lara_info lara_backup;
-	sizeof(struct lara_info);
 
-	//000B5134 3C02000A lui     v0, $A
-	//s1 = &lara;
-	lara_item_number_backup = lara.item_number;//$s0
-											   //v1 = -1;
-											   //s4 = v0; //0xA0000
-
-											   //000B5174 AFA40198 sw      a0, $198(sp) //Critical stored at stckptrv
 	if (lara.item_number == -1)
 	{
 		return;
 	}
 
-	//v0 = 0xA0000;
-	//s3 = &lara_item;
-
-	//v0=lara_item.flags;//132
-	//v1 = -0x21;
-	lara_item->data = &lara;
 	lara_item->meshswap_meshbits &= 0xFFDF;
-
-	//Possible hack, resets carried items? For specific levels.
-	//Should be done in script.
-	if (keep_carried_items == 0)
+	lara_item->data = &lara;
+		
+	if (keep_carried_items)
 	{
-		memset((char*) &lara, 0, sizeof(struct lara_info));
+		//$B51C0
+		memcpy(&lara_backup, &lara, sizeof(struct lara_info));
+		memset(&lara, 0, sizeof(struct lara_info));
+		memcpy(&lara.pistols_type_carried, &lara_backup.pistols_type_carried, 59);
 	}
 	else
 	{
-		memcpy(&lara_backup, &lara, sizeof(struct lara_info));
-		memset((char*) &lara, 0, sizeof(struct lara_info));
-		memcpy(&lara.pistols_type_carried, &lara_backup.pistols_type_carried, 59);
+		memset(&lara, 0, sizeof(struct lara_info));
 	}
 
-	lara.item_number = lara_item_number_backup;
+	lara.item_number = lara.item_number;//?
 
-#if 0
-	//s0 = 0;
-	//a0 = &lara;
-	//a1 = -1;
-	//v0 = 0x708
-	lara.air = 1800;
+
+	lara.air = 0x708;
 	lara.hit_direction = -1;
 	lara.weapon_item = -1;
-	//000B5204 3C02000A lui     v0, $A
 	PoisonFlag = 0;
-	//v0 = 0x64;
-	//v1 = 0xE;
-	lara.holster = 14;
-	//v1 = -1;
+	lara.holster = 0xE;
 	lara.RopePtr = -1;
-	v1 = 0x3E8;
-	//000B522C 3C1E000A lui     fp, $A
-	//000B5230 3C16001F lui     s6, $1F
-	//000B5234 3C17000A lui     s7, $A
-	lara.water_surface_dist = 100;
-	000B523C 8C820044 lw      v0, $44(a0)
-		000B5240 3C15000A lui     s5, $A
-		000B5244 A4800032 sh      0, $32(a0)
-		000B5248 A4800030 sh      0, $30(a0)
-		000B524C A0850158 sb      a1, $158(a0)
-		000B5250 A0850159 sb      a1, $159(a0)
-		000B5254 34420004 ori     v0, $4
-		000B5258 AC820044 sw      v0, $44(a0)
-		000B525C 3C04000A lui     a0, $A
-		000B5260 A6630022 sh      v1, $22(s3)
-		000B5264 908205D1 lbu     v0, $5D1(a0)
-		000B5268 00000000 nop
-		000B526C 1040000F beq     v0, 0, $B52AC
-		000B5270 00808821 addu    s1, a0, 0
-		000B5274 3C02000A lui     v0, $A
-		000B5278 24522004 addiu   s2, v0, $2004
-		000B527C 02121021 addu    v0, s0, s2
-		000B5280 90440000 lbu     a0, $0(v0)
-		000B5284 0C0102C2 jal     $40B08
-		000B5288 26100001 addiu   s0, $1
-		000B528C 00021400 sll     v0, $10
-		000B5290 0C00FFAC jal     $3FEB0
-		000B5294 00022403 sra     a0, v0, $10
-		S000B5298 922205D1 lbu     v0, $5D1(s1)
+	lara.water_surface_dist = 0x64;
+	lara.dpoisoned = 0;
+	lara.poisoned = 0;
+	lara.location = -1;
+	lara.highest_location = -1;
+	lara.Unused1 = 1;
+
+	//a0 = 0xA0000;
+	//s3= lara_item
+	lara_item->hit_points = 0x3E8;
+
+	for (i = 0; i < gfNumPickups; i++)
+	{
+		DEL_picked_up_object(convert_invobj_to_obj(gfPickups[i]));
+	}//$B52AC
+
+	gfNumPickups = 0;
+	if (!(gfLevelFlags & 1) && objects[PISTOLS_ITEM].loaded)
+	{
+		gun_type = 1;
+	}
+	else
+	{
+		//$B52D8
+		gun_type = 0;
+	}
+	
+	//v0 = &objects
+	if ((gfLevelFlags & 0x80) && objects[HK_ITEM].loaded)
+	{
+		//v1 = lara
+		if ((lara.hk_type_carried & 1))
+		{
+			gun_type = 5;
+		}//$B531C
+	}//$B531C
+
+	//s1 = lara;
+	lara.gun_status = 0;
+	lara.last_gun_type = gun_type;
+	lara.gun_type = gun_type;
+	lara.request_gun_type = gun_type;
+
+	LaraInitialiseMeshes();
+	
+	//a0 = &objects
+	lara.skelebob = 0;
+
+	//objects[PISTOLS_ITEM]
+
+	if (objects[PISTOLS_ITEM].loaded)
+	{
+		lara.pistols_type_carried = 9;
+	}//$B5354
+
+	lara.binoculars = 1;
+
+#if 0
+	000B535C 8FA20198 lw      v0, $198(sp)
+	000B5360 00000000 nop
+	000B5364 1440000B bne     v0, 0, $B5394
+	000B5368 00000000 nop
+	000B536C 8C8258F0 lw      v0, $58F0(a0)
+	000B5370 00000000 nop
+	000B5374 00431024 and v0, v1
+	000B5378 10400002 beq     v0, 0, $B5384
+	000B537C 24020003 addiu   v0, 0, $3
+	000B5380 A6220146 sh      v0, $146(s1)		
 #endif
+	
+	lara.num_small_medipack = 3;
+	lara.num_large_medipack = 1;
+
+	lara.num_pistols_ammo = -1;
+	InitialiseLaraAnims(lara_item);
+
+	//s0 = 0;
+	//v1 = 0x78
+	//a0 = gfNumTakeaways;
+	//v0 = 0xA0000
+
+	if (gfNumTakeaways != 0)
+	{
+#if 0
+			000B53B8 1080000F beq     a0, 0, $B53F8
+			000B53BC A4432044 sh      v1, $2044(v0)
+			000B53C0 3C02000A lui     v0, $A
+			000B53C4 24511F90 addiu   s1, v0, $1F90
+			000B53C8 02111021 addu    v0, s0, s1
+			000B53CC 90440000 lbu     a0, $0(v0)
+			000B53D0 0C0102C2 jal     $40B08
+			000B53D4 26100001 addiu   s0, $1
+			000B53D8 00021400 sll     v0, $10
+			000B53DC 0C010161 jal     $40584
+			000B53E0 00022403 sra     a0, v0, $10
+			000B53E4 92E205D2 lbu     v0, $5D2(s7)
+			000B53E8 00000000 nop
+			000B53EC 0202102A slt     v0, s0, v0
+			000B53F0 1440FFF6 bne     v0, 0, $B53CC
+			000B53F4 02111021 addu    v0, s0, s1
 #endif
+
+	}//$B53F8
+
+	gfNumTakeaways = 0;
+
+	if (gfCurrentLevel < LVL5_BASE)
+	{
+		weapons[1].damage = 6;
+	}
+	else
+	{
+		//$B541C
+		weapons[1].damage = 15;
+	}
+
+	if (gfCurrentLevel == LVL5_DEEPSEA_DIVE)
+	{
+		lara.puzzleitems[0] = 10;
+	}//$B5450
+
+	if (gfCurrentLevel == LVL5_SUBMARINE)
+	{
+		lara.pickupitems = 0;
+		lara.pickupitemscombo = 0;
+		lara.keyitems = 0;
+		lara.keyitemscombo = 0;
+		lara.puzzleitemscombo = 0;
+
+		for (i = 0; i < 0xB; i++)
+		{
+			lara.puzzleitems[i] = 0;
+		}
+	}
+
+	if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
+	{
+		lara.puzzleitems[0] = 0;
+		lara.pickupitems = 0;
+	}//$B54A8
+
+	if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
+	{
+		lara.puzzleitems[2] = 0;
+		lara.puzzleitems[3] = 0;
+		lara.pickupitems &= -2;
+	}
+
+	if (gfCurrentLevel == LVL5_RED_ALERT)
+	{
+		lara.pickupitems &= -3;
+	}
+
+	if (gfCurrentLevel - 0xB < 4)
+	{
+		lara.bottle = 0;
+		lara.wetcloth = 0;
+	}
+
+	lara.pickupitems &= -9;
 }
 
 void sub_B9974()
 {
 }
 
-void InitialiseCutseq()//?(<), BA194(<)
+void InitialiseCutseq()//?(<), BA194(<) (F)
 {
 	cutseq_num = 0;
 	cutseq_trig = 0;

@@ -117,7 +117,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	LoadGameflow();
 #endif
 
-#if DISC_VERSION && PSX_VERSION
+#if DISC_VERSION && PSX_VERSION && PLAY_FMVS
 	S_PlayFMV(FMV_COPYRIGHT_INTRO, 0);
 	S_PlayFMV(FMV_GAME_INTRO, 0);
 #endif

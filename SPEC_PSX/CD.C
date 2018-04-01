@@ -343,7 +343,7 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 {
 	CdlFILE fp;
 	char buf[10];
-	int i = 0;
+	int i;
 	long local_wadfile_header[512];
 
 	DEL_ChangeCDMode(0);
@@ -369,7 +369,7 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 		CdSearchFile(&fp, buf);
 
 		XATrackList[i][0] = CdPosToInt(&fp.pos);
-		XATrackList[i][1] = XATrackList[i][0] + ((fp.size + 0x7FF) / CD_SECTOR_SIZE);
+		XATrackList[i][1] = XATrackList[i][0] + ((fp.size + 0x7FF) >> CD_SECTOR_SHIFT);
 	}
 
 	XAFlag = 0;

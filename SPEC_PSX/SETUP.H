@@ -28,7 +28,7 @@ extern void InitialiseFootPrints();
 extern void InitialiseBinocularGraphics();
 extern void InitialiseTargetGraphics();
 extern void InitialiseFlipMaps();
-extern void sub_B4EE4(long keep_carried_items);
+extern void InitialiseLaraCarriedItems(long keep_carried_items);
 extern void sub_B9974();
 extern void InitialiseCutseq();
 extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3);

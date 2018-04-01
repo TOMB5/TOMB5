@@ -448,7 +448,7 @@ int DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F) (*)
 
 	fileHandle = fopen(GAMEWAD_FILENAME, "rb");
 	assert(fileHandle);
-	fseek(fileHandle, cdCurrentSector * CD_SECTOR_SIZE, SEEK_SET);
+	fseek(fileHandle, cdCurrentSector << CD_SECTOR_SHIFT, SEEK_SET);
 
 	remainingDataToRead = size & ((1 << CD_SECTOR_SHIFT) - 1);
 	numSectorsToRead = size >> CD_SECTOR_SHIFT;

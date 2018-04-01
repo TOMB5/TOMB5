@@ -26,7 +26,7 @@ unsigned long GadwPolygonBuffers[52260];
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
 {
-#if 1
+#if 0
 	db.order_table[0] = &pBuffers[0];
 	db.order_table[1] = &pBuffers[nOTSize];
 	db.nOTSize = nOTSize;
@@ -45,7 +45,7 @@ void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C
 
 void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)//5DFB0(<), 
 {
-#if 1
+#if 0
 	db.nPBSize = nPBSize;
 	db.poly_buffer[0] = &pBuffers[0];
 	db.poly_buffer[1] = &pBuffers[nPBSize];
@@ -155,7 +155,6 @@ void GPU_FlipStory(unsigned long* gfx)//5E448(<), * (F)
 	r.w = fuckmyanalpassage->w;
 	r.h = fuckmyanalpassage->h;
 	LoadImage(&r, gfx);
-
 	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[db.current_buffer]);
 	db.current_buffer ^= 1;
 }
