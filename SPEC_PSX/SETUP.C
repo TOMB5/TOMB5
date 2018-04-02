@@ -403,7 +403,6 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	if (level->numAiModuleRelocations != 0)
 	{
 #if DISC_VERSION
-		printf("DEBUG_CODEWAD: %d\n", (char*) &tsv_buffer[256]);
 		FRIG_CD_POS_TO_CUR();
 		DEL_CDFS_Read((char*) &tsv_buffer[256], 1920);
 #else
@@ -469,59 +468,41 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	//B45AC
 	sub_B9DA8();
 
-#if 0
 	if (number_rooms > 0)
 	{
-		//t5 = room
-		//t3 = room.num_meshes
-		//t6 = room.mesh
-
-		if (room.mesh > 0)//num meshes?
+		for (i = 0; i < number_rooms; i++)
 		{
-			//s2 = boxes
-			//a3 = room.mesh[0].x;
-			//t0 = room.x
-			//v1 = room.x_size;
-			//v0 = ((a3 - t0) / 1024) * room.x_size;
-			//a1 = room.mesh[0].z;
-			//a2 =room.z
-			//a0 = room.floor
-			//t8 = room.x_size
-			//v1 = (a1 - a2) / 1024;
-			//v1 += v0;
-			//v1 <<= 3;
-			//t1 = a0 + v1;
-			//v0 = $2(t1)
-			//s0 = a1;
-			//v0 >>= 1;//box index shift?
-			//v0 &= 0x3FF8;
-			//v0 += s2;//box index
-			//v1 = $6(v0);
-
-			//v1 &= 0x4000
-			if (!(v1 & 0x4000))
+			if (room[i].num_meshes > 0)
 			{
-				//s1 = a0;
-				//v1 = gfCurrentLevel;
-				//v0 = 4;
+				struct FLOOR_INFO* t1;
+				struct box_info* v0;
 
-				if (s4 == 0x13 || s4 == 0x17 || s4 = 0x10 && gfCurrentLevel == 4)
+				for (j = 0; j < room[i].num_meshes; j++)
 				{
-					//0xB4448
+					t1 = &room[i].floor[((room[i].mesh[j].z - room[i].z) >> 10) + (((room[i].mesh[j].x - room[i].x) >> 10) * room[i].x_size)];
+					v0 = &boxes[t1->box];
+
+					if (!(v0->overlap_index & BOX_BLOCKED))
+					{
+						if (gfCurrentLevel == LVL5_BASE || gfCurrentLevel != LVL5_SECURITY_BREACH || gfCurrentLevel != 0x17 || gfCurrentLevel != LVL5_DEL_LEVEL)
+						{
+							struct static_info* v1 = &static_objects[room[i].mesh[j].static_number];
+
+							if (((room[i].mesh->y - v1->y_maxc) + 512) > ((t1->floor << 0x18) >> 0x10) && ((t1->floor << 0x18) >> 0x10) < (room[i].mesh->y - v1->y_minc))
+							{
+								if (v1->x_maxc == 0 && v1->x_minc == 0 && v1->z_maxc == 0 && v1->z_minc == 0 && !((v1->x_maxc ^ v1->x_minc) & 0x8000) && !((v1->z_maxc ^ v1->z_minc) & 0x8000))
+								{
+									//$B4734
+									t1 = &room[i].floor[((room[i].mesh[j].z - room[i].z) >> 10) + ((room[i].mesh[j].x - room[i].x) >> 10) * room[i].x_size];
+									t1->stopper = 1;
+								}
+							}//$B4770
+						}
+					}//$B4770
 				}
-				else
-				{
-					//0xB4358
-				}
-
-			}//b4448
-
-
-			 //end loop is 0xB444C
+			}//$B477C
 		}
-
-	}//B478C
-#endif
+	}//$B478C
 
 	 InitialiseResidentCut(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
 
