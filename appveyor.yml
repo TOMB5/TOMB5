@@ -9,7 +9,7 @@ branches:
   
 skip_tags: true
 
-image: Visual Studio 2017
+image: Ubuntu
 
 configuration:
 - Debug
@@ -27,27 +27,22 @@ platform:
   #- x64
   
 install:
-  - set SDL2_URL="https://www.libsdl.org/release/SDL2-devel-2.0.7-VC.zip"
-  - appveyor DownloadFile %SDL2_URL% -FileName SDL2.zip
-  - 7z x SDL2.zip -oC:\projects\TOMB5\EXTERNAL\
-  - set SDL2=C:\projects\TOMB5\EXTERNAL\SDL2-2.0.7
+  - cmd sudo apt-get update -qq
+  - cmd sudo apt-get install -y libegl1-mesa-dev
+  - cmd sudo apt-get install -y libgles2-mesa-dev
+  - cmd sudo apt-get install -y libsdl2-dev
   
 before_build:
-  - cmd: cd %clone_folder%
-  #- cmd: dir /s
-  - cmd: md BUILD
+  - cmd: mkdir BUILD
   - cmd: cd BUILD
-  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
-  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
-  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
-  
+  - cmd: make
+   
 artifacts:
    - path: BUILD\SPEC_PSXPC\*.zip
      name: Binaries
   
 after_build:
   - cmd: cd SPEC_PSXPC
-  - cmd: copy "C:\projects\TOMB5\EXTERNAL\SDL2-2.0.7\lib\x86\SDL2.dll" "%configuration%\"
   - 7z a TOMB5.zip "%configuration%\"
   
 #build: off
