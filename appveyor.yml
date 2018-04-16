@@ -27,15 +27,15 @@ platform:
   #- x64
   
 install:
-  - cmd sudo apt-get update -qq
-  - cmd sudo apt-get install -y libegl1-mesa-dev
-  - cmd sudo apt-get install -y libgles2-mesa-dev
-  - cmd sudo apt-get install -y libsdl2-dev
+  - sh: sudo apt-get update -qq
+  - sh: sudo apt-get install -y libegl1-mesa-dev
+  - sh: sudo apt-get install -y libgles2-mesa-dev
+  - sh: sudo apt-get install -y libsdl2-dev
   
 before_build:
-  - cmd: mkdir BUILD
-  - cmd: cd BUILD
-  - cmd: make
+  - sh: mkdir BUILD
+  - sh: cd BUILD
+  - sh: make
    
 artifacts:
    - path: BUILD\SPEC_PSXPC\*.zip
