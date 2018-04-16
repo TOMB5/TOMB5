@@ -5,7 +5,7 @@ branches:
   - master
 #  - appveyor
   - appveyor-testbranch
-  - test
+  - appveyor-ubuntu
   
 skip_tags: true
 
