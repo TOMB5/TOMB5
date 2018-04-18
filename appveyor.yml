@@ -34,7 +34,6 @@ before_build:
   - sh: mkdir BUILD
   - sh: cd BUILD
   - sh: cmake ..
-  - sh: make
    
 artifacts:
    - path: BUILD\SPEC_PSXPC\*.zip
