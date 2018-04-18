@@ -15,11 +15,9 @@ configuration:
 - Debug
 - Release
 
-clone_folder: c:\projects\TOMB5
 #lib_folder: %clone_folder%\EXTERNAL
 
 build:
-  project: c:\projects\TOMB5\BUILD\TOMB5.sln
   verbosity: minimal
   
 platform:
