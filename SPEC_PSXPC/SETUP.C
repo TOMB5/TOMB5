@@ -1104,7 +1104,6 @@ void InitialiseFlipMaps()//?(<), B9D30(<)
 //InitialiseLaraCarriedItems
 void sub_B4EE4(long keep_carried_items)
 {
-	return;//************************************************************* temp crashes game cuz unfinished
 	int lara_item_number_backup;
 	struct lara_info lara_backup;
 	sizeof(struct lara_info);
