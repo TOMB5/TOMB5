@@ -555,14 +555,14 @@ struct MATRIX3D
 
 struct GAMEFLOW
 {
-	unsigned long CheatEnabled : 1; // offset=0.0
-	unsigned long LoadSaveEnabled : 1; // offset=0.1
-	unsigned long TitleEnabled : 1; // offset=0.2
-	unsigned long PlayAnyLevel : 1; // offset=0.3
-	unsigned long Language : 3; // offset=0.4
-	unsigned long DemoDisc : 1; // offset=0.7
-	unsigned long Unused : 24; // offset=1.0
-	unsigned long InputTimeout; // size=0, offset=4
+	unsigned int CheatEnabled : 1; // offset=0.0
+	unsigned int LoadSaveEnabled : 1; // offset=0.1
+	unsigned int TitleEnabled : 1; // offset=0.2
+	unsigned int PlayAnyLevel : 1; // offset=0.3
+	unsigned int Language : 3; // offset=0.4
+	unsigned int DemoDisc : 1; // offset=0.7
+	unsigned int Unused : 24; // offset=1.0
+	unsigned int InputTimeout; // size=0, offset=4
 	unsigned char SecurityTag; // size=0, offset=8
 	unsigned char nLevels; // size=0, offset=9
 	unsigned char nFileNames; // size=0, offset=10
