@@ -14,8 +14,10 @@
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "HAIR.H"
+#include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
+#include "LARAFIRE.H"
 #include "LARAMISC.H"
 #include "LOAD_LEV.H"
 #include "LOT.H"
@@ -23,6 +25,7 @@
 #include "MATHS.H"
 #include "MISC.H"
 #include "NEWINV2.H"
+#include "OBJECTS.H"
 #include "OBJLIGHT.H"
 #include "PICKUP.H"
 #include "ROOMLOAD.H"
@@ -249,7 +252,7 @@ void RelocateLevel(FILE* nHandle)//?, B3B50(<)
 	OutsideRoomTable = ptr;
 	ptr += level->outsideRoomTableLength;
 
-	RoomBBoxes = (SVECTOR*) ptr;
+	RoomBBoxes = (struct SVECTOR*) ptr;
 	ptr += level->roomBoundingBoxesLength;
 
 	mesh_base = (short*) ptr;
@@ -398,7 +401,6 @@ void RelocateLevel(FILE* nHandle)//?, B3B50(<)
 	if (level->numAiModuleRelocations != 0)
 	{
 #if DISC_VERSION
-		printf("DEBUG_CODEWAD: %d\n", (char*) &tsv_buffer[256]);
 		FRIG_CD_POS_TO_CUR();
 		DEL_CDFS_Read((char*) &tsv_buffer[256], 1920);
 #else
@@ -464,59 +466,42 @@ void RelocateLevel(FILE* nHandle)//?, B3B50(<)
 	//B45AC
 	sub_B9DA8();
 
-#if 0
 	if (number_rooms > 0)
 	{
-		//t5 = room
-		//t3 = room.num_meshes
-		//t6 = room.mesh
-
-		if (room.mesh > 0)//num meshes?
+		for (i = 0; i < number_rooms; i++)
 		{
-			//s2 = boxes
-			//a3 = room.mesh[0].x;
-			//t0 = room.x
-			//v1 = room.x_size;
-			//v0 = ((a3 - t0) / 1024) * room.x_size;
-			//a1 = room.mesh[0].z;
-			//a2 =room.z
-			//a0 = room.floor
-			//t8 = room.x_size
-			//v1 = (a1 - a2) / 1024;
-			//v1 += v0;
-			//v1 <<= 3;
-			//t1 = a0 + v1;
-			//v0 = $2(t1)
-			//s0 = a1;
-			//v0 >>= 1;//box index shift?
-			//v0 &= 0x3FF8;
-			//v0 += s2;//box index
-			//v1 = $6(v0);
-
-			//v1 &= 0x4000
-			if (!(v1 & 0x4000))
+			if (room[i].num_meshes > 0)
 			{
-				//s1 = a0;
-				//v1 = gfCurrentLevel;
-				//v0 = 4;
+				struct FLOOR_INFO* t1;
+				struct box_info* v0;
 
-				if (s4 == 0x13 || s4 == 0x17 || s4 = 0x10 && gfCurrentLevel == 4)
+				for (j = 0; j < room[i].num_meshes; j++)
 				{
-					//0xB4448
+					t1 = &room[i].floor[((room[i].mesh[j].z - room[i].z) >> 10) + (((room[i].mesh[j].x - room[i].x) >> 10) * room[i].x_size)];
+					v0 = &boxes[t1->box];
+
+					if (!(v0->overlap_index & BOX_BLOCKED))
+					{
+						if (gfCurrentLevel == LVL5_BASE || gfCurrentLevel != LVL5_SECURITY_BREACH || gfCurrentLevel != 0x17 || gfCurrentLevel != LVL5_DEL_LEVEL)
+						{
+							struct static_info* v1 = &static_objects[room[i].mesh[j].static_number];
+
+							if (((room[i].mesh->y - v1->y_maxc) + 512) > ((t1->floor << 0x18) >> 0x10) && ((t1->floor << 0x18) >> 0x10) < (room[i].mesh->y - v1->y_minc))
+							{
+								if (v1->x_maxc == 0 && v1->x_minc == 0 && v1->z_maxc == 0 && v1->z_minc == 0 && !((v1->x_maxc ^ v1->x_minc) & 0x8000) && !((v1->z_maxc ^ v1->z_minc) & 0x8000))
+								{
+									//$B4734
+									t1 = &room[i].floor[((room[i].mesh[j].z - room[i].z) >> 10) + ((room[i].mesh[j].x - room[i].x) >> 10) * room[i].x_size];
+									t1->stopper = 1;
+								}
+							}//$B4770
+						}
+					}//$B4770
 				}
-				else
-				{
-					//0xB4358
-				}
-
-			}//b4448
-
-
-			//end loop is 0xB444C
+			}//$B477C
 		}
+	}//$B478C
 
-	}//B478C
-#endif
 
 	InitialiseResidentCut(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
 
@@ -526,7 +511,7 @@ void RelocateLevel(FILE* nHandle)//?, B3B50(<)
 	GLOBAL_gunflash_meshptr = meshes[objects[GUN_FLASH].mesh_index];
 
 	//s0 = &objects[0];
-	if (objects[SEARCH_OBJECT1].bite_offset & 0x10000 && objects[SEARCH_OBJECT1_MIP].bite_offset & 0x10000)
+	if (objects[SEARCH_OBJECT1].loaded && objects[SEARCH_OBJECT1_MIP].loaded)
 	{
 		//0x2900 is base
 		//v0 = objects[SEARCH_OBJECT1].mesh_index;
@@ -567,7 +552,7 @@ void RelocateLevel(FILE* nHandle)//?, B3B50(<)
 #if !BETA_VERSION
 	//sw      0,$6F5C(a3) maybe same as MonitorScreenTI = NULL;
 #endif
-	if (objects[MONITOR_SCREEN].bite_offset & 0x10000)//000B4904, 000B47E8
+	if (objects[MONITOR_SCREEN].loaded)//000B4904, 000B47E8
 	{
 		assert(0);
 	}//0xB4708
@@ -797,17 +782,17 @@ void InitialiseObjects()//?(<), B96EC(<)
 		find_a_fucking_item(ANIMATING16)->mesh_bits = 0;
 	}//B98F0
 
-	if (objects[RAT].bite_offset & 0x10000)
+	if (objects[RAT].loaded)
 	{
 		Rats = (struct RAT_STRUCT*)game_malloc(sizeof(struct RAT_STRUCT) * 32);
 	}//B9914
 
-	if (objects[BAT].bite_offset & 0x10000)
+	if (objects[BAT].loaded)
 	{
 		Bats = (struct BAT_STRUCT*)game_malloc(sizeof(struct BAT_STRUCT) * 64);
 	}//B9938
 
-	if (objects[SPIDER].bite_offset & 0x10000)
+	if (objects[SPIDER].loaded)
 	{
 		Spiders = (struct SPIDER_STRUCT*)game_malloc(sizeof(struct SPIDER_STRUCT) * 64);
 	}
@@ -1119,7 +1104,6 @@ void InitialiseFlipMaps()//?(<), B9D30(<)
 //InitialiseLaraCarriedItems
 void sub_B4EE4(long keep_carried_items)
 {
-	return;//************************************************************* temp crashes game cuz unfinished
 	int lara_item_number_backup;
 	struct lara_info lara_backup;
 	sizeof(struct lara_info);

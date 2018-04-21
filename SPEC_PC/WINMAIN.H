@@ -6,7 +6,8 @@
 #include "SPECTYPES.H"
 #include <d3d.h>
 
-
+#define	WINDOWCLASS	"Window Class"
+#define WINDOWNAME	"Tomb Raider Chronicles"
 
 extern const char* ClassName;
 extern const char* WindowName;
@@ -46,7 +47,7 @@ int(*dword_876C08)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
 int(*dword_876C10)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
 int(*dword_876C04)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
 int(*dword_876BFC)(_DWORD, _DWORD, _DWORD, _DWORD, _DWORD, _DWORD);
-struct acceltexformatinfo*(*dword_876C00)(_DWORD, _DWORD, _DWORD);
+struct D3DTEXTUREINFO*(*dword_876C00)(_DWORD, _DWORD, _DWORD);
 extern HKEY hKey;
 extern BYTE opt_NoFMV;
 extern BYTE opt_Setup;
@@ -55,7 +56,7 @@ extern int WinProcMsg();
 extern char* WinProcessCommandLine(char *a1);
 extern char WinRunCheck(const CHAR *lpName, const CHAR *lpClassName, HANDLE *mutex);
 extern HWND WinClose();
-extern int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd);
+extern int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
 extern HANDLE sub_4DEA40(LPCSTR lpName);
 extern LPVOID sub_4DEA20(HANDLE hFileMappingObject);
 extern int HWInitialise();

@@ -1,8 +1,17 @@
 #include "FLMTORCH.H"
 
-#include "SPECIFIC.H"
 #include "EFFECT2.H"
 #include "CONTROL.H"
+#include "DRAW.H"
+#include "LARA.H"
+#include "LARAFLAR.H"
+#include "OBJECTS.H"
+#if PC_VERSION
+#include "GAME.H"
+#else
+#include "SETUP.H"
+#endif
+#include "SPECIFIC.H"
 #include "TOMB4FX.H"
 
 static short FireBounds[12] =
@@ -17,9 +26,23 @@ void FlameTorchControl(short item_number)//3A8F4, 3ADF4
 	S_Warn("[FlameTorchControl] - Unimplemented!\n");
 }
 
-void GetFlameTorch()//3A830, 3AD30
+void GetFlameTorch()//3A830, 3AD30(<) (F)
 {
-	S_Warn("[GetFlameTorch] - Unimplemented!\n");
+	if (lara.gun_type == 7)
+	{
+		CreateFlare(FLARE_ITEM, 0);
+	}
+
+	//loc_3A864
+	lara.gun_status = 4;
+	lara.request_gun_type = 8;
+	lara.gun_type = 8;
+	lara.left_arm.lock = 0;
+	lara.left_arm.frame_number = 0;
+	lara.left_arm.anim_number = objects[TORCH_ANIM].anim_index;
+	lara.flare_control_left = 1;
+	lara.left_arm.frame_base = anims[objects[TORCH_ANIM].anim_index].frame_ptr;
+	lara.target->touch_bits = ((unsigned long*)meshes[objects[TORCH_ANIM].mesh_index])[26];
 }
 
 void DoFlameTorch()//3A3CC, 3A8CC

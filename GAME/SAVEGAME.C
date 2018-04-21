@@ -4,16 +4,19 @@
 #include "GAMEFLOW.H"
 #include "ITEMS.H"
 #include "MALLOC.H"
-#include "ROOMLOAD.H"
+
 #include "SPECIFIC.H"
 #include "SWITCH.H"
 #include "TRAPS.H"
 #include "TYPES.H"
 
 #ifdef PC_VERSION
+#include "GLOBAL.H"
+#include "FILE.H"
 #include "GAME.H"
 #else
 #include "SETUP.H"
+#include "ROOMLOAD.H"
 #endif
 
 #include <stdio.h>
@@ -29,6 +32,8 @@ char *MGSaveGamePtr; // offset 0xA3924
 static int SGcount; // offset 0xA391C
 static char *SGpoint; // offset 0xA3920
 struct savegame_info savegame;
+
+#define WriteSG(a, b) WriteSG_real((char*)a, b)
 
 #if PSX_VERSION//@HACK not really needed, can just take int.
 	typedef int ptrdiff_t;
@@ -67,6 +72,19 @@ void sgSaveGame()//55AF8(<), 55F5C(<)
 void RestoreLevelData(int FullSave)//54B08, 54F6C
 {
 	S_Warn("[RestoreLevelData] - Unimplemented!\n");
+}
+
+void WriteSG_real(char* pointer, int size)//536A0, 53B04 (F)
+{
+	SGcount += size;
+
+	if (size > 0)
+	{
+		while (size-- > 0)
+		{
+			*SGpoint++ = *pointer++;
+		}
+	}
 }
 
 void SaveLevelData(int FullSave)//53AAC, 53F10
@@ -379,15 +397,3 @@ void ReadSG(char* pointer, int size)//536E0, 53B44 (F)
 	return;
 }
 
-void WriteSG(char* pointer, int size)//536A0, 53B04 (F)
-{
-	SGcount += size;
-
-	if (size > 0)
-	{
-		while (size-- > 0)
-		{
-			*SGpoint++ = *pointer++;
-		}
-	}
-}

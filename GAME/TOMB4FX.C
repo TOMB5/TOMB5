@@ -7,16 +7,19 @@
 #include "DELSTUFF.H"
 #include "CONTROL.H"
 #include "DRAW.H"
-#include "DRAWPHAS.H"
+
 #include "CAMERA.H"
-#include "MATHS.H"
+
 #include "EFFECTS.H"
 #include "DELTAPAK.H"
 #include "SOUND.H"
 #ifdef PC_VERSION
+#include "GLOBAL.H"
 #include "GAME.H"
 #else
 #include "SETUP.H"
+#include "DRAWPHAS.H"
+#include "MATHS.H"
 #endif
 
 char flare_table[121] =

@@ -7,9 +7,10 @@
 #include "EFFECTS.H"
 #include "ITEMS.H"
 #include "LARA.H"
-#include "ROOMLOAD.H"
+
 #if PSXENGINE
 #include "SETUP.H"
+#include "ROOMLOAD.H"
 #endif
 #include "SOUND.H"
 #include "SPECIFIC.H"

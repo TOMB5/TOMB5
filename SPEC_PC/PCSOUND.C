@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "ERROR.H"
 #include "WINMAIN.H"
-#include "GPU.H"
+#include "DIRECTX.H"
 #include "SOUND.H"
 #include "CONTROL.H"
 #include "CD.H"

@@ -1,4 +1,3 @@
-#include "3D_GEN.H"
 #include "CD.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
@@ -18,6 +17,8 @@
 #include <LIBPAD.H>
 #include <LIBMCRD.H>
 #include <LIBETC.H>
+
+int gp_start_address = 'T' | ('W' << 8) | ('A' << 16) | ('T' << 24);
 
 void VSyncFunc()//10000(<), 10000(<) (F) (*)
 {
@@ -56,10 +57,11 @@ int main(int argc, char* args[])//10064(<), 10064(!) (F) (*)
 	SetDefDispEnv(&db.disp[0], 0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
 	SetDefDispEnv(&db.disp[1], 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	db.draw[0].dtd = 1;
-	db.draw[0].isbg = 1;
+	
 	db.draw[1].dtd = 1;
+	db.draw[0].dtd = 1;
 	db.draw[1].isbg = 1;
+	db.draw[0].isbg = 1;
 
 	GPU_ClearVRAM();
 	GPU_FlipToBuffer(0);
@@ -75,7 +77,7 @@ int main(int argc, char* args[])//10064(<), 10064(!) (F) (*)
 #ifndef PAELLA
 	MemCardInit(1);
 
-	PadInitDirect(&GPad1.transStatus, &GPad2.transStatus);
+	PadInitDirect((unsigned char*)&GPad1.transStatus, (unsigned char*)&GPad2.transStatus);
 	PadSetAct(0, &Motors[0], sizeof(Motors));
 	PadStartCom();
 #endif

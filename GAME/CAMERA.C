@@ -1,21 +1,29 @@
 #include "CAMERA.H"
 #if !PC_VERSION
 #include "CD.H"
+#include "EFFECTS.H"
+#include "MATHS.H"
+#include "3D_GEN.H"
+#else
+#include "GLOBAL.H"
 #endif
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
-#include "MATHS.H"
+
 #include "OBJECTS.H"
 #include "SAVEGAME.H"
+#include "SOUND.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
-
-#include "3D_GEN.H"
 
 #include <assert.h>
 #include "SPECTYPES.H"
 #include CMATH_H
+
+#if PSXPC_VERSION || PC_VERSION
+	#include <math.h>
+#endif
 
 #if PSX_VERSION
 #include INLINE_H
@@ -884,8 +892,6 @@ short rcossin_tbl[8192] =
 
 void InitialiseCamera()//25AAC, 25CB8 (F)
 {
-	//We won't actually use this yet since lara_item is not inited.
-	return;
 	camera.pos.x = lara_item->pos.x_pos;
 	camera.pos.y = lara_item->pos.y_pos - SECTOR(1);
 	camera.pos.z = lara_item->pos.z_pos - 100;
@@ -923,11 +929,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 {
 	CurrentFov = fov;
 
-	if (fov == 0)
-	{
-		S_Warn("[AlterFOV] - fov == 0 -> divide by zero because spotcam is empty\n");
-	}
-	else phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
+	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
 
 #if PSX_VERSION
 	gte_SetGeomScreen(phd_persp);
@@ -938,9 +940,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-	//lara_item is not inited.
-	//Also, GetBoundsAccurate is not implemented.
-#if 0
+#if 0//GetBoundsAccurate illegal, crash.
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -951,6 +951,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	long gotit;
 	struct OBJECT_VECTOR* fixed;
 	struct PHD_VECTOR v;
+	int v0, v1;
 
 	SniperOverlay = 0;
 	camerasnaps = 0;
@@ -1014,7 +1015,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		//Camera is in a water room, play water sound effect.
 		if (room[camera.pos.room_number].flags & 1)
 		{
-			//SoundEffect(0, 60, 2);//a0, a1, a2
+			SoundEffect(SFX_UNDERWATER, NULL, 2);//a0, a1, a2
 			if (camera.underwater > 0)
 			{
 				if (GLOBAL_playing_cutseq == 0 && TLFlag == 0)
@@ -1091,11 +1092,11 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		//FIXME: phd_atan_asm(); , check args $a0, $a1
 		//phd_atan_asm(shift, (camera.item->pos.y_pos + ((((bounds[2] + bounds[3]) + (bounds[2] + bounds[3])) >> 31) >> 1)) - y); 
 
-		int v0 = atan2(shift, (camera.item->pos.y_pos + ((((bounds[2] + bounds[3]) + (bounds[2] + bounds[3])) >> 31) >> 1)) - y);
+		v0 = atan2(shift, (camera.item->pos.y_pos + ((((bounds[2] + bounds[3]) + (bounds[2] + bounds[3])) >> 31) >> 1)) - y);
 		v0 <<= 16;
 		tilt = v0 >> 17;//a3
 
-		int v1 = change >> 17;
+		v1 = change >> 17;
 
 		v0 = ((change >> 17) + 9099) & 0xFFFF;
 		v0 = v0 < 0x4717 ? 1 : 0;
@@ -1111,12 +1112,14 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 				{
 					struct lara_info* a2 = &lara;
 					int a1 = lara.water_surface_dist;
+					int a0, t0;
+
 					v1 -= a1;
 					v1 <<= 16;
 					change = v1 >> 16;
 					
-					int a0 = change < 0x2D9 ? 1 : 0;
-					int t0 = v0;
+					a0 = change < 0x2D9 ? 1 : 0;
+					t0 = v0;
 
 					if (a0 == 0)
 					{
@@ -1249,7 +1252,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 				v.y = 0;
 				v.z = 0;
 
-				//v = GetLaraJointPos(7);//$a1
+				GetLaraJointPos(&v, 7);//$a1
 
 				camera.target.x = v.z;
 				camera.target.y = v.y;
@@ -1302,9 +1305,9 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		}
 
 		//loc_284DC
-		//GetFloor(camera.target.x, camera.target.y, camera.target.z, camera.target.room_number);//$a0, $a1, $a2, $a3
+		GetFloor(camera.target.x, camera.target.y, camera.target.z, &camera.target.room_number);//$a0, $a1, $a2, $a3
 
-		long v0 = camera.target.x - last_target.x;
+		v0 = camera.target.x - last_target.x;
 		if (v0 < 0)
 		{
 			v0 = -v0;
@@ -1375,8 +1378,86 @@ void LookCamera(struct ITEM_INFO* item)
 	S_Warn("[LookCamera] - Unimplemented!\n");
 }
 
-void CombatCamera(struct ITEM_INFO* item)
+void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 {
+	struct FLOOR_INFO *floor; // $s3
+	struct GAME_VECTOR ideal; // stack offset -248
+	struct GAME_VECTOR ideals[9]; // stack offset -232
+	struct GAME_VECTOR temp[2]; // stack offset -88
+	long distance; // $s5
+	long lp; // $s2
+	long dx; // $t0
+	long dz; // $v1
+	long farthest; // $s4
+	long farthestnum; // stack offset -52
+	long h; // $s2
+	long c; // $a0
+	short angle; // $v0
+	{ // line 45, offset 0x269a0
+		short room_number; // stack offset -56
+		long wx; // $s1
+		long wy; // $s4
+		long wz; // $s0
+	} // line 166, offset 0x26a80
+
+	//v1 = item->pos.z_pos;
+	//a1 = lara;
+	camera.target.z = item->pos.z_pos;
+	camera.target.x = item->pos.x_pos;
+
+	if (lara.target != NULL)
+	{
+		camera.target_angle = lara.target_angles[0];
+		camera.target_elevation = item->pos.x_rot + lara.target_angles[1];
+	}
+	else
+	{
+		//loc_268B0
+		camera.target_angle = lara.head_y_rot + lara.torso_y_rot;
+		camera.target_elevation = lara.torso_x_rot + item->pos.x_rot + lara.head_x_rot - 2730;
+	}
+
+	//loc_268E0
+	floor = GetFloor(camera.target.x, camera.target.y, camera.target.z, &camera.target.room_number);
+	h = GetHeight(floor, camera.target.x, camera.target.y, camera.target.z);
+	c = GetCeiling(floor, camera.target.x, camera.target.y, camera.target.z);
+
+	if (h - 64 > c + 64 && h == -3512 && c == -3512)
+	{
+		//loc_26960
+#if 0
+
+		lw	$v0, 0x1DFC($gp)
+		addiu	$v1, $s2, -0x40
+		slt	$v0, $v1, $v0
+		beqz	$v0, loc_2697C
+		li	$v0, 0xFFFF8100
+		bne	$s2, $v0, loc_26998
+		nop
+		
+		loc_2697C :
+		lw	$v0, 0x1DFC($gp)
+		addiu	$v1, $a0, 0x40
+		slt	$v0, $v1
+		beqz	$v0, loc_269A0
+		li	$v0, 0xFFFF8100
+		beq	$a0, $v0, loc_269A0
+		nop
+
+		loc_26998 :
+		sw	$v1, 0x1DFC($gp)
+#endif
+	}
+	else
+	{
+		camera.target.y = (c + h) / 2;
+	}
+
+	//loc_2699C
+	camera.target_elevation = 0;
+
+	//loc_269A0 (TODO)
+
 	S_Warn("[CombatCamera] - Unimplemented!\n");
 }
 
@@ -1444,33 +1525,30 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 
 void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)
 {
-	long dx; // $v1
-	long dy; // $v1
-	long dz; // $a0
+	long dx;
+	long dy;
+	long dz;
 
-	dx = (item->pos.x_pos - camera.pos.x) * (item->pos.x_pos - camera.pos.x);//a3
-	dy = (item->pos.y_pos - camera.pos.y) * (item->pos.y_pos - camera.pos.y);//v1
-	dz = (item->pos.z_pos - camera.pos.z) * (item->pos.z_pos - camera.pos.z);//a0
+	dx = (item->pos.x_pos - camera.pos.x) * (item->pos.x_pos - camera.pos.x);
+	dy = (item->pos.y_pos - camera.pos.y) * (item->pos.y_pos - camera.pos.y);
+	dz = (item->pos.z_pos - camera.pos.z) * (item->pos.z_pos - camera.pos.z);
 
-	//MaxVal <<= 16;
-	//s2 = MaxVal >> 16;
-	//s0 = MaxDist
-
-	//s1 = s2
 	if (phd_sqrt_asm(dx + dy + dz) > MaxDist)
 	{
-		if (MaxDist == -1)
+		if (MaxDist != -1)
 		{
-
+			return;
 		}
+	}
 
-	}//299E8
-
-
-
-
-
-	S_Warn("[ScreenShake] - Unimplemented!\n");
+	if (MaxDist == -1)
+	{
+		camera.bounce = MaxVal;
+	}
+	else
+	{
+		camera.bounce = -(((MaxDist - dy) * MaxVal) / MaxDist);
+	}
 }
 
 void UpdateCameraElevation()//29890(<), 29AA4(<) (F)
