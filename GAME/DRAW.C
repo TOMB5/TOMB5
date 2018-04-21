@@ -3,10 +3,12 @@
 #include "CONTROL.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "DRAWSPKS.H"
-#endif
-#include "MATHS.H"
-#include "OBJECTS.H"
 #include "SETUP.H"
+#include "MATHS.H"
+#endif
+
+#include "OBJECTS.H"
+
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
 #include "TOMB4FX.H"
@@ -122,9 +124,49 @@ short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 8793C
 	return NULL;
 }
 
-void UpdateSkyLightning()
+void UpdateSkyLightning()//2C0D0(<), ? (F)
 {
-	S_Warn("[UpdateSkyLightning] - Unimplemented!\n");
+	long lp;
+
+	if (LightningCount > 0)
+	{
+		--LightningCount;
+
+		if ((LightningCount << 16) == 0)
+		{
+			LightningRand = (GetRandomDraw() & 0x7F) + 400;
+			dLightningRand = 0;
+		}
+		else
+		{
+			//loc_2C118
+			dLightningRand = (GetRandomDraw() & 0x1FF);
+			LightningRand = ((dLightningRand - LightningRand) >> 1) + LightningRand;
+		}
+	}
+	else
+	{
+		//loc_2C148
+		if (LightningRand < 4)
+		{
+			//loc_2C174
+			LightningRand = 0;
+		}
+		else
+		{
+			LightningRand = LightningRand - (LightningRand >> 2);
+		}
+	}
+
+	//loc_2C18C
+	for (lp = 2; lp >= 0; lp--)
+	{
+		LightningRGBs[lp] += ((LightningRGBs[lp] * LightningRand) >> 8);
+		if ((LightningRGBs[lp] & 0xFFFF) > 255)
+		{
+			LightningRGBs[lp] = 255;
+		}
+	}
 }
 
 void DrawSkyMesh(short* mesh)
@@ -215,6 +257,9 @@ void SetInventoryLighting(struct MATRIX3D* m)
 
 void DrawGunflashes()//8A924(<) 8C968(<) (F)
 {
+#ifdef PC_VERSION
+	S_Warn("[DrawGunflashes] - Unimplemented!\n");
+#else
 	long rand;
 	long i;
 	short* mesh;
@@ -245,6 +290,7 @@ void DrawGunflashes()//8A924(<) 8C968(<) (F)
 	}
 
 	mPopMatrix();
+#endif
 }
 
 short* GetBestFrame(struct ITEM_INFO* item)// (F)s

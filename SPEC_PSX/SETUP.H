@@ -28,7 +28,7 @@ extern void InitialiseFootPrints();
 extern void InitialiseBinocularGraphics();
 extern void InitialiseTargetGraphics();
 extern void InitialiseFlipMaps();
-extern void sub_B4EE4(long keep_carried_items);
+extern void InitialiseLaraCarriedItems(long keep_carried_items);
 extern void sub_B9974();
 extern void InitialiseCutseq();
 extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3);
@@ -46,21 +46,21 @@ struct object_container
 struct Level
 {
 	//0x0
-	long objectVersion;
-	long offsetSoundPointers;
-	long offsetSoundData;
-	long offsetTextiles;
+	int objectVersion;
+	int offsetSoundPointers;
+	int offsetSoundData;
+	int offsetTextiles;
 
 	//0x10
-	long offsetAnimFrames;
-	long offsetRoomInfo;
-	long offsetObjects;
-	long unk06;
+	int offsetAnimFrames;
+	int offsetRoomInfo;
+	int offsetObjects;
+	int unk06;
 
 	//0x20
-	long unk07;
-	long numSoundEffects;
-	long soundWadLength;
+	int unk07;
+	int numSoundEffects;
+	int soundWadLength;
 	unsigned short clutStartY;
 	unsigned short numRooms;
 
@@ -74,75 +74,76 @@ struct Level
 	unsigned short numAnimTextureRanges;//0x34
 	unsigned short numAnimUVRanges;
 
-	long roomInfoLength;
-	long floorDataLength;
+	int roomInfoLength;
+	int floorDataLength;
 
 	//0x40
-	long outsideRoomTableLength;
-	long roomBoundingBoxesLength;
+	int outsideRoomTableLength;
+	int roomBoundingBoxesLength;
 	unsigned short numBones;
 	unsigned short numAnims;
-	long meshBaseLength;
+	int meshBaseLength;
 
 	//0x50
-	long meshesLength;
-	long animsLength;
-	long changesLength;
-	long rangesLength;
+	int meshesLength;
+	int animsLength;
+	int changesLength;
+	int rangesLength;
 
 	//0x60
-	long commandsLength;
-	long bonesLength;
-	long frameDataLength;
-	long textureInfoLength;
+	int commandsLength;
+	int bonesLength;
+	int frameDataLength;
+	int textureInfoLength;
 
 	//0x70
-	long spriteInfoLength;
-	long mmTextureInfoLength;
-	long animTextureRangesLength;
-	long soundEffectInfoLength;
+	int spriteInfoLength;
+	int mmTextureInfoLength;
+	int animTextureRangesLength;
+	int soundEffectInfoLength;
 
 	//0x80
-	long sampleInfoLength;
-	long unk33;
-	long unk34;
-	long numBoxes;
+	int sampleInfoLength;
+	int unk33;
+	int unk34;
+	int numBoxes;
 
 	//0x90
-	long boxesLength;
-	long overlapsLength;
-	long groundZoneLength;
-	long groundZone2Length;
+	int boxesLength;
+	int overlapsLength;
+	int groundZoneLength;
+	int groundZone2Length;
 
 	//0xA0
-	long groundZone3Length;
-	long groundZone4Length;
-	long groundZone5Length;
-	long numFixedCameras;
+	int groundZone3Length;
+	int groundZone4Length;
+	int groundZone5Length;
+	int numFixedCameras;
 
 	//0xB0
 	unsigned short numSpotCameras;
 	unsigned short unk45;
-	long unk455;
-	long unk46;
+	int unk455;
+	int unk46;
 	unsigned short numAIObjects;
 	unsigned short unk0003;
 
 	//0xC0
-	long numAiModuleRelocations;
+	int numAiModuleRelocations;
 	char aiModuleIndices[4];
-	long unk50;
-	long unk51;
+	int unk50;
+	int unk51;
 
 	//0xD0
-	long unk53;
-	long unk54;
-	long unk55;
-	long unk56;
+	int unk53;
+	int unk54;
+	int unk55;
+	int unk56;
 
 	//0xE0
-	long unk57;
+	int unk57;
 };
+
 
 extern struct object_info* objects;
 extern struct static_info* static_objects;

@@ -6,6 +6,9 @@ project (TOMB5)
 #This is used by platform specific CMake scripts to correctly use external libraries.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
 
+#include(GetGitRevisionDescription)
+#get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+
 #Stores root external lib folder.
 set(EXTERN_LIB_PATH ${EXTERN_LIB_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/EXTERNAL")
 
@@ -15,6 +18,9 @@ set(DEBUG_VERSION 1 CACHE INTEGER "Enable/Disable Debug Code")
 #Store the path to our game code folder in "GAME_CODE_DIR".
 #This is used by platform specific CMake scripts to add this directory as an include directory.
 string(CONCAT GAME_CODE_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/GAME")
+
+#Config version file
+#configure_file("${GAME_CODE_DIR}/VERSION.C.IN" "${GAME_CODE_DIR}/VERSION.C" @ONLY)
 
 #Find all source files in the game folder.
 file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
@@ -36,6 +42,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))
 	add_subdirectory(SPEC_PSX)
 	add_subdirectory(SPEC_PC)
+add_subdirectory(SPEC_PC_N)
 	#add_subdirectory(SPEC_PS2)
 	#add_subdirectory(SPEC_CE)
 	add_subdirectory(TOOLS)

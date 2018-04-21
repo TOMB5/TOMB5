@@ -1,8 +1,6 @@
 #include "DELTAPAK.H"
 
-#include "DRAWPHAS.H"
 
-#include "CD.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
@@ -16,10 +14,10 @@
 #include "LARA1GUN.H"
 #include "LARA2GUN.H"
 #include "LOT.H"
-#include "MATHS.H"
+
 #include "NEWINV2.H"
 #include "OBJECTS.H"
-#include "ROOMLOAD.H"
+
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "TEXT.H"
@@ -27,11 +25,18 @@
 #include "TYPES.H"
 
 #if PC_VERSION
+#include "GLOBAL.H"
 #include "GAME.H"
 #include "WINMAIN.H"
+#include "FILE.H"
 #else
 #include "PROFILE.H"
 #include "SETUP.H"
+#include "ROOMLOAD.H"
+#include "MATHS.H"
+#include "DRAWPHAS.H"
+
+#include "CD.H"
 #endif
 
 #include "SPECTYPES.H"
@@ -1772,7 +1777,7 @@ void joby4_control()//2FA0C, 2FD8C (F)
 	if (GLOBAL_cutseq_frame <= 130)
 	{
 #if PC_VERSION
-		PrintString(middle_width, window_height_minus_1 - 3 * font_height, 5, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000);
+		//PrintString(middle_width, window_height_minus_1 - 3 * font_height, 5, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000);
 #else
 		PrintString(256, 200, 0, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000); // todo maybe wrong on pc , @Gh0stBlade check third arg!
 #endif
@@ -2898,9 +2903,60 @@ void frigup_lara()//2D000(<), ? (F)
 	GLaraShadowframe = &frig_shadow_bbox[0];
 }
 
-void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* packed, int numnodes)
+void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* packed, int numnodes)//2CED4(<), ?
 {
-	S_Warn("[InitPackNodes] - Unimplemented!\n");
+	int offset;
+	int xoff;
+	int yoffset;
+	int yoff;
+	int zoffset;
+	int zoff;
+	int i;
+
+	offset = ((numnodes << 3) - numnodes) << 1;
+	if (numnodes <= 0)
+	{
+		return;
+	}
+
+	//loc_2CEF0
+	for(i = numnodes; i >= numnodes; i--)
+	{
+		pnode->xkey = lnode->xkey;
+		pnode->ykey = lnode->ykey;
+		pnode->zkey = lnode->zkey;
+
+		pnode->decode_x.packmethod = (lnode->packmethod >> 10) & 0xF;
+		pnode->decode_y.packmethod = (lnode->packmethod >> 5) & 0xF;
+		pnode->decode_z.packmethod = (lnode->packmethod) & 0xF;
+
+		pnode->xlength = lnode->xlength;
+		pnode->ylength = lnode->ylength;
+		pnode->zlength = lnode->zlength;
+
+		xoff = ((lnode->xlength * pnode->decode_x.packmethod) >> 3) + 4;
+		yoff = (lnode->ylength * pnode->decode_y.packmethod);
+		zoff = (lnode->zlength * pnode->decode_z.packmethod);
+
+		lnode++;
+
+		yoffset = offset + xoff;
+		yoff >>= 3;
+		yoff += 4;
+		xoff += yoff;
+		pnode->xpacked = packed + offset;
+		pnode->ypacked = packed + yoffset;
+		zoffset += yoff;
+		pnode->zpacked = packed + zoffset;
+		pnode++;
+		zoff >>= 3;
+		zoff += 4;
+		xoff += zoff;
+		offset += xoff;
+
+	}
+
+	return;
 }
 
 

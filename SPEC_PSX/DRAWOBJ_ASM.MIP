@@ -1,0 +1,89 @@
+	opt L.,C+,at+
+
+	section	.asm
+	xdef MakeMono, InitObjGTE
+	
+MakeMono:
+	li	at, 0x421
+	ctc2	at, r29
+	lw	t0, 0(a0)
+	li	v0, 0x3FFF
+	li	v1, 0xD371F947
+	li	t4, 0x41C64E6D
+
+	loc_7FA04:
+	mult	v1, t4
+	srl	t3, t0, 26
+	srl	t2, t0, 21
+	srl	t1, t0, 16
+	andi	t3, 0x1F
+	andi	t2, 0x1F
+	andi	t1, 0x1F
+	mtc2	t3, r17
+	mtc2	t2, r18
+	mtc2	t1, r19
+	addi	a0, 4
+	nop
+	nop
+	cop2	0x158002D
+	srl	t2, t0, 10
+	srl	t1, t0, 5
+	andi	t2, 0x1F
+	andi	t1, 0x1F
+	andi	t0, 0x1F
+	mtc2	t2, r17
+	mtc2	t1, r18
+	mtc2	t0, r19
+	mfc2	t1, r7
+	nop
+	nop
+	cop2	0x158002D
+	mflo	v1
+	addiu	v1, 0x3039
+	lw	t0, 0(a0)
+	mfc2	at, r7
+	srl	t3, v1, 16
+	srl	t5, v1, 24
+	andi	t3, 1
+	andi	t5, 1
+	sltiu	t2, t1, 0xF
+	bnez	t2, loc_7FA8C
+	sltiu	t2, at, 0xF
+	li	t1, 0xF
+
+	loc_7FA8C:
+	bnez	t2, loc_7FA98
+	sub	t1, t3
+	li	at, 0xF
+
+	loc_7FA98:
+	bgez	t1, loc_7FAA4
+	sub	at, t5
+	move	t1, zero
+
+	loc_7FAA4:
+	bgez	at, loc_7FAB0
+	sll	t1, 4
+	move	at, zero
+
+	loc_7FAB0:
+	or	t1, at
+	sb	t1, 0(a1)
+	addi	a1, 1
+	bnez	v0, loc_7FA04
+	addi	v0, -1
+	li	v0, 0xAA
+	ctc2	v0, r29
+	jr	ra
+	
+InitObjGTE:
+	li	v0, 0xAA
+	ctc2	v0, r29
+	li	v0, 0x80
+	ctc2	v0, r30
+	ctc2	zero, r21
+	ctc2	zero, r22
+	ctc2	zero, r23
+	jr	ra
+	nop
+	end

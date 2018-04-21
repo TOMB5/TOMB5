@@ -11,6 +11,7 @@
 #include <LIBPAD.H>
 #include <STDIO.H>
 #include <ASSERT.H>
+#include "FXTRIG.H"
 
 static struct pad_configs pad_cons[5] =
 {
@@ -75,11 +76,11 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	{
 		SayNoCount--;
 	}
-
+	PrintString(20, 20, 0, "Debug", 0);
 	//loc_5F650
 	state = PadGetState(0);
 	type = PadInfoMode(0, 1, 0);
-
+	PadConnected = 0;
 	if (state == 0)
 	{
 		if (type != 4 || type != 7)
@@ -190,11 +191,13 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	//loc_5F8B0
 	if (RawPad & 0x4000)
 	{
+		S_Warn("PAD_UNK0\n");
 		in |= 0x10000;
 	}//loc_5F8C8
 
 	if (RawPad & 0x1000)
 	{
+		S_Warn("PAD_UNK1\n");
 		in |= 0x20000;
 	}//loc_5F8D8
 
@@ -404,20 +407,24 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	{
 		if (RawPad & 0x10)
 		{
+			S_Warn("PAD_UNK4\n");
 			in |= 1;
 		}
 		else if (RawPad & 0x40)
 		{
 			//loc_5FD24
+			S_Warn("PAD_UNK5\n");
 			in |= 2;
 		}//loc_5FD34
 
 		if (RawPad & 0x80)
 		{
+			S_Warn("PAD_UNK6\n");
 			in |= 4;
 		}
 		else if (RawPad & 0x20)
 		{
+			S_Warn("PAD_UNK7\n");
 			//loc_5FD4C
 			in |= 8;
 		}

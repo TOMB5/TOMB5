@@ -1,8 +1,13 @@
 #include "ROPE.H"
+
+#include "CONTROL.H"
 #include "LARA.H"
 #include "SAVEGAME.H"
-#include "CONTROL.H"
 #include "SPECIFIC.H"
+
+#if PSX_VERSION
+typedef int ptrdiff_t;
+#endif
 
 void SaveRope()// (F)
 {

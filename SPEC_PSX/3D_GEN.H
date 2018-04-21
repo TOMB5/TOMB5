@@ -17,12 +17,5 @@ extern struct VECTOR3D CamTgt;
 
 extern void phd_InitWindow(int view_angle);
 
-#define SCREEN_WIDTH 512
-
-#if NTSC_VERSION
-	#define SCREEN_HEIGHT 240
-#else
-	#define SCREEN_HEIGHT 256
-#endif
 
 #endif

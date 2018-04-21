@@ -7,13 +7,131 @@
 #include "OBJECTS.H"
 #include "LARA.H"
 
+#if PC_VERSION
+#include "INIT.H"
+#endif
+
 int slots_used;
 short nAIObjects;
 struct AIOBJECT* AIObjects;
 struct creature_info* baddie_slots;
 
+//void /*$ra*/ CreateZone(struct ITEM_INFO *item /*$t1*/)
 void CreateZone(struct ITEM_INFO* item)//4E330, 4E794
 {
+	int i; // $a1
+	struct creature_info* creature; // $a3
+	struct box_node* node; // $a2
+	short* zone; // $t0
+	short zone_number; // $t2
+	short* flip; // $a0
+	short flip_number; // $t1
+	struct room_info* r; // $a1
+
+
+#if 0 
+	sub_4E330:
+			 move	$t1, $a0
+				 lh	$v1, 0x18($t1)
+				 lw	$a1, dword_800A24DC
+				 sll	$v0, $v1, 2
+				 addu	$v0, $v1
+				 sll	$v0, 4
+				 addu	$a1, $v0
+				 lw	$v1, 0x40($t1)
+				 lw	$v0, 0x14($a1)
+				 lh	$a0, 0x28($a1)
+				 subu	$v1, $v0
+				 sra	$v1, 10
+				 mult	$v1, $a0
+				 lw	$v0, 0x48($t1)
+				 lw	$a0, 0x1C($a1)
+				 nop
+				 subu	$v0, $a0
+				 sra	$v0, 10
+				 lw	$a0, 8($a1)
+				 mflo	$v1
+				 addu	$v0, $v1
+				 sll	$v0, 3
+				 addu	$v0, $a0
+				 lhu	$v1, 2($v0)
+				 lw	$a3, 0x3C($t1)
+				 srl	$v1, 4
+				 andi	$v1, 0x7FF
+				 sh	$v1, 0x24($t1)
+				 lh	$v0, 0xCE($a3)
+				 nop
+				 bnez	$v0, loc_4E460
+				 move	$a1, $zero
+				 li	$v0, 0xA2314
+				 li	$v1, 0xA2318
+				 lw	$a0, 0xE0($a3)
+				 lw	$a2, 0xB8($a3)
+				 sll	$a0, 3
+				 addu	$v0, $a0, $v0
+				 addu	$a0, $v1
+				 lw	$t0, 0($v0)
+				 lhu	$v0, 0x24($t1)
+				 lw	$a0, 0($a0)
+				 sll	$v0, 1
+				 addu	$v1, $v0, $t0
+				 addu	$v0, $a0
+				 lh	$t2, 0($v1)
+				 lh	$t1, 0($v0)
+				 lw	$v0, dword_800A2308
+				 nop
+				 blez	$v0, locret_4E458
+				 sh	$zero, 0xC8($a3)
+				 move	$v1, $v0
+
+				 loc_4E410 :
+			 lh	$v0, 0($t0)
+				 nop
+				 beq	$v0, $t2, loc_4E430
+				 nop
+				 lh	$v0, 0($a0)
+				 nop
+				 bne	$v0, $t1, loc_4E444
+				 nop
+
+				 loc_4E430 :
+			 sh	$a1, 6($a2)
+				 lhu	$v0, 0xC8($a3)
+				 addiu	$a2, 8
+				 addiu	$v0, 1
+				 sh	$v0, 0xC8($a3)
+
+				 loc_4E444 :
+				 addiu	$a1, 1
+				 addiu	$t0, 2
+				 slt	$v0, $a1, $v1
+				 bnez	$v0, loc_4E410
+				 addiu	$a0, 2
+
+				 locret_4E458 :
+				 jr	$ra
+				 nop
+
+				 loc_4E460 :
+			 lw	$a2, 0xB8($a3)
+				 lw	$a0, dword_800A2308
+				 nop
+				 blez	$a0, locret_4E458
+				 sh	$zero, 0xC8($a3)
+
+				 loc_4E478 :
+				 sh	$a1, 6($a2)
+				 addiu	$a2, 8
+				 addiu	$a1, 1
+				 lhu	$v0, 0xC8($a3)
+				 slt	$v1, $a1, $a0
+				 addiu	$v0, 1
+				 bnez	$v1, loc_4E478
+				 sh	$v0, 0xC8($a3)
+				 jr	$ra
+				 nop
+				 # End of function sub_4E330
+#endif
 	S_Warn("[CreateZone] - Unimplemented!\n");
 }
 

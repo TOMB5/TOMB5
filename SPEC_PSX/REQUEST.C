@@ -1,10 +1,15 @@
 #include "REQUEST.H"
 
+#include "FXTRIG.H"
+#include "GAMEFLOW.H"
+#include "MISC.H"
 #include "SPECIFIC.H"
+#include "TEXT_S.H"
 
 long Requester(struct REQUESTER* r)//63718, 63DF4
 {
-#if 0
+	//sizeof(struct REQUESTER);
+
 	int x; // $s4
 	int y; // $s2
 	short top; // stack offset -48
@@ -18,9 +23,9 @@ long Requester(struct REQUESTER* r)//63718, 63DF4
 	unsigned short rh; // stack offset -50
 	short OptionTop[5]; // stack offset -88
 	short OptionBottom[5]; // stack offset -72
-	{ // line 66, offset 0x63a90
-		int val; // $s0
-	} // line 68, offset 0x63ad0
+	//{ // line 66, offset 0x63a90
+	int val; // $s0
+	//} // line 68, offset 0x63ad0
 	long t0;
 
 	//a1 = &w;
@@ -31,7 +36,7 @@ long Requester(struct REQUESTER* r)//63718, 63DF4
 
 	//a0 = &gfStringWad[gfStringOffset[r->TitleTxt]];
 
-	//GetStringDimensions(&gfStringWad[gfStringOffset[r->TitleTxt]], &w, &h);
+	GetStringDimensions(&gfStringWad[gfStringOffset[r->TitleTxt]], &w, &h);
 
 	//s2 = &top;
 	//v0 = 0x00E00000;
@@ -43,16 +48,15 @@ long Requester(struct REQUESTER* r)//63718, 63DF4
 
 	if (r->nOptions != 0)
 	{
-		h += 2;
-#if 0
 		//loc_637B0
 		for (i = 0; i < r->nOptions; i++)
 		{
+			h += 2;
 
-			GetStringLength(&gfStringWad[gfStringOffset[r->OptionTxt[i]]], &OptionTop[i], &OptionBottom[i]);
+			GetStringLength(&gfStringWad[gfStringOffset[r->OptionTxt[i]]], (unsigned short*)&OptionTop[i], (unsigned short*)&OptionBottom[i]);
 			GetStringDimensions(&gfStringWad[gfStringOffset[r->OptionTxt[i]]], &rw, &rh);
 
-			if (i == 0 && r->ignore != 0)
+			if (i == 0 && r->Ignore != 0)
 			{
 				OptionBottom[0] = OptionTop[0] + rh;
 			}
@@ -66,9 +70,9 @@ long Requester(struct REQUESTER* r)//63718, 63DF4
 			//loc_63874
 			h += rh;
 		}
-#endif
 	}
-	
+
+#if 1
 	//loc_6389C
 	//a1 = y;
 	//a2 = 0;
@@ -96,7 +100,7 @@ long Requester(struct REQUESTER* r)//63718, 63DF4
 	//a0 = gfStringWad;
 	//s7 = v0 & 0xFFFF;
 
-//	GetStringLength(&gfStringWad[gfStringOffset[r->TitleTxt]], &top, NULL);
+	GetStringLength(&gfStringWad[gfStringOffset[r->TitleTxt]], (unsigned short*)&top, NULL);
 
 	//a0 = 0x100
 	//a1 = top
@@ -110,16 +114,16 @@ long Requester(struct REQUESTER* r)//63718, 63DF4
 
 	//t0 = gfStringOffset[r->TitleTxt];
 	//v0 = 0x8000;
-	OptionTop[4] = 0x8000;///@CHECKME sw	$v0, 0x70 + var_60($sp)
+	OptionTop[4] = 0x8000;///@CHECKME sw	$v0, 0x70 + var_60($sp) //TODO cast word
 
-	//PrintString(256, ((y - top) + 2) & 0xFFFF, r->TitleCol, &gfStringWad[gfStringOffset[r->TitleTxt]], 0);
+	PrintString(256, ((y - top) + 2) & 0xFFFF, r->TitleCol, &gfStringWad[gfStringOffset[r->TitleTxt]], 0);
 
 	if (r->nOptions != 0)
 	{
 		//s0 = x & 0xFFFF
 		//a0 = s0;
 		//a1 = ((y + optiony) - 4) & 0xFFFF
-#if 0
+#if 1
 
 		//a2 = W;
 		//a3 = 1
@@ -134,8 +138,8 @@ long Requester(struct REQUESTER* r)//63718, 63DF4
 		//v1 = OptionTop[0];
 
 		//s1 = 0 (i)
-		sw	$s0, 0x70 + var_2C($sp)
-			//v1 = optiony - OptionTop[0];
+		//sw	$s0, 0x70 + var_2C($sp)
+		//v1 = optiony - OptionTop[0];
 
 		y += optiony - OptionTop[0]; 	//addu	$s2, $v1
 
@@ -145,7 +149,7 @@ long Requester(struct REQUESTER* r)//63718, 63DF4
 				//s6 = &r->OptionTxt[0];
 				//fp = &savegame;
 
-				//loc_639D8:
+				//loc_639D8://LOOP
 				//lw	$v1, 4($s3)
 					//v0 = r.JustifyL;
 					if (i == 0 && r->Ignore != 0)
@@ -157,7 +161,7 @@ long Requester(struct REQUESTER* r)//63718, 63DF4
 						//loc_63A08
 						//v0 = r.JustifyL >> i;
 						// andi	$a1, $s2, 0xFFFF
-						if ((r.JustifyL >> i) & 1)
+						if ((r->JustifyL >> i) & 1)
 						{
 							t0 = 1;
 							if (i == r->CursorPos)
@@ -203,101 +207,78 @@ long Requester(struct REQUESTER* r)//63718, 63DF4
 									//a2 = 1;
 
 								}
-								
+
 								//loc_63AD0
+								//v0 = s1 << 1;
+								//v0 = &r->OptionTxt[i];
+								//v1 = &gfStringWad[gfStringOffset[r->OptionTxt[i]]];
+								//a3 = gfStringWad;
+								((long*) &OptionTop[4])[0] = 0x4000;
 
-							}//loc_63B30
+								//PrintString((x - 32) & 0xFFFF, y & 0xFFFF, a2, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], 0);
+								//PrintGauge((rw - 140) & 0xFFFF, (y - 7) & 0xFFFF, val);
+
+								//jmp loc_63B88
+
+							}
+							else
+							{
+								//loc_63B30
+								//lw	$a2, 0($s3)
+								//srl	$a2, 27
+								if (r->CursorPos = i)
+								{
+								//a2 = 1;
+									
+								}
+
+								//loc_63B4C
+								//a0 = 256;
+								//v1 = 
+								//((long*) &OptionTop[4])[0] = 0x8000;
+								//PrintString(256, y & 0xFFFF, a2, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], a4);
+							}
 						}
-#if 0
-									
-									
-							
-									  loc_63AD0:
-								  sll	$v0, $s1, 1
-									  addu	$v0, $s6, $v0
-									  lhu	$v1, 0($v0)
-									  lw	$a3, dword_800A202C
-									  sll	$v1, 1
-									  addu	$v1, $a3
-									  lhu	$t0, 0($v1)
-									  lw	$a3, dword_800A203C
-									  li	$v0, 0x4000
-									  sw	$v0, 0x70 + var_60($sp)
-									  jal	sub_8DB4C
-									  addu	$a3, $t0
-									  addiu	$a1, $s2, -7
-									  andi	$a1, 0xFFFF
-									  lhu	$a0, 0x70 + var_34($sp)
-									  move	$a2, $s0
-									  addu	$a0, $s4
-									  addiu	$a0, -0x8C
-									  jal	sub_5F040
-									  andi	$a0, 0xFFFF
-									  j	loc_63B88
-									  nop
-
-									  loc_63B30 :
-								  lw	$a2, 0($s3)
-									  nop
-									  srl	$v0, $a2, 24
-									  andi	$v0, 7
-									  bne	$s1, $v0, loc_63B4C
-									  srl	$a2, 27
-									  li	$a2, 1
-
-									  loc_63B4C:
-								  li	$a0, 0x100
-									  sll	$v0, $s1, 1
-									  addu	$v0, $s6, $v0
-									  lhu	$v1, 0($v0)
-									  lw	$a3, dword_800A202C
-									  sll	$v1, 1
-									  addu	$v1, $a3
-									  lhu	$t0, 0($v1)
-									  lw	$a3, dword_800A203C
-									  li	$v0, 0x8000
-									  sw	$v0, 0x70 + var_60($sp)
-									  jal	sub_8DB4C
-									  addu	$a3, $t0
-#endif
 					}
 
 				//loc_63B88
 
+					//s0 = s2 & 0xFFFF
+					if (r->CursorPos == i && (r->Arrows >> i) & 1)
+					{
+						//a0 = (s5 - 4) & 0xFFFF;
+						//a1 = s0;
+						//a2 = 1;
+						//a3 = NoGamesReq[0]
+						//sw	$zero, 0x70 + var_60($sp)//TODO
+						//PrintString();
+
+#if 0
+						li	$a2, 1
+							la	$a3, dword_A1F44//?
+							jal	sub_8DB4C
+
+							move	$a1, $s0
+							li	$a2, 1
+							lui	$a3, 0xA
+							lhu	$a0, 0x70 + var_34($sp)
+							la	$a3, dword_A1F48
+							sw	$zero, 0x70 + var_60($sp)
+							addu	$a0, $s5, $a0
+							addiu	$a0, -8
+							jal	sub_8DB4C
+							andi	$a0, 0xFFFF
+#endif
+
+					}//loc_63C04
 					
-
-					loc_63B88 :
-				lbu	$v0, 3($s3)
-					nop
-					andi	$v0, 7
-					bne	$s1, $v0, loc_63C04
-					nop
-					lw	$v0, 4($s3)
-					nop
-					srl	$v0, 10
-					andi	$v0, 0x1F
-					srav	$v0, $s1
-					andi	$v0, 1
-					beqz	$v0, loc_63C04
-					andi	$s0, $s2, 0xFFFF
-					addiu	$a0, $s5, -4
-					andi	$a0, 0xFFFF
-					move	$a1, $s0
-					li	$a2, 1
-					la	$a3, dword_A1F44
-					jal	sub_8DB4C
-					sw	$zero, 0x70 + var_60($sp)
-					move	$a1, $s0
-					li	$a2, 1
-					lui	$a3, 0xA
-					lhu	$a0, 0x70 + var_34($sp)
-					la	$a3, dword_A1F48
-					sw	$zero, 0x70 + var_60($sp)
-					addu	$a0, $s5, $a0
-					addiu	$a0, -8
-					jal	sub_8DB4C
-					andi	$a0, 0xFFFF
-
+					
+					
+		
+				
+					
+					
+#if 0
 					loc_63C04:
 				lw	$v0, 0($s3)
 					nop
@@ -322,88 +303,74 @@ long Requester(struct REQUESTER* r)//63718, 63DF4
 					slt	$v0, $s1, $a3
 					bnez	$v0, loc_639D8
 					nop
+#endif
 	}
 #endif
-	}//loc_63C58
+	}
+	
+	//loc_63C58
 #if 0
 
+	//li	$s2, 0x404040
+	((long*) &OptionTop[4])[0] = 0;//sw	$zero, 0x70 + var_60($sp) check
+	((long*) &OptionTop[2])[0] = 0x2A800000;//sw	$v0, 0x70 + var_5C($sp) check
+	DrawF4(rx, ry, rw, rh);
+	DrawTPage(0, 1);
 
-				 loc_63C58 :
-			 move	$a0, $s5
-				 move	$a1, $s7
-				 li	$s2, 0x404040
-				 lhu	$a2, 0x70 + var_34($sp)
-				 lhu	$a3, 0x70 + var_32($sp)
-				 lui	$v0, 0x2A80
-				 sw	$zero, 0x70 + var_60($sp)
-				 jal	sub_5EDF8
-				 sw	$v0, 0x70 + var_5C($sp)
-				 move	$a0, $zero
-				 jal	sub_5EE78
-				 move	$a1, $zero
-				 addiu	$s0, $s5, 2
-				 andi	$s0, 0xFFFF
-				 move	$a0, $s0
-				 addiu	$s1, $s7, 1
-				 andi	$s1, 0xFFFF
-				 move	$a1, $s1
-				 lhu	$a2, 0x70 + var_34($sp)
-				 move	$a3, $zero
-				 sw	$s2, 0x70 + var_60($sp)
-				 sw	$zero, 0x70 + var_5C($sp)
-				 addiu	$a2, -4
-				 jal	sub_5EECC
-				 andi	$a2, 0xFFFF
-				 move	$a0, $s0
-				 lhu	$a1, 0x70 + var_32($sp)
-				 lhu	$a2, 0x70 + var_34($sp)
-				 move	$a3, $zero
-				 sw	$s2, 0x70 + var_60($sp)
-				 sw	$zero, 0x70 + var_5C($sp)
-				 addu	$a1, $s7, $a1
-				 addiu	$a1, -2
-				 andi	$a1, 0xFFFF
-				 addiu	$a2, -4
-				 jal	sub_5EECC
-				 andi	$a2, 0xFFFF
-				 move	$a0, $s0
-				 move	$a1, $s1
-				 lhu	$a2, 0x70 + var_32($sp)
-				 move	$a3, $zero
-				 sw	$s2, 0x70 + var_60($sp)
-				 sw	$zero, 0x70 + var_5C($sp)
-				 addiu	$a2, -2
-				 jal	sub_5EF84
-				 andi	$a2, 0xFFFF
-				 move	$a1, $s1
-				 lhu	$a0, 0x70 + var_34($sp)
-				 lhu	$a2, 0x70 + var_32($sp)
-				 move	$a3, $zero
-				 sw	$s2, 0x70 + var_60($sp)
-				 sw	$zero, 0x70 + var_5C($sp)
-				 addu	$a0, $s5, $a0
-				 addiu	$a0, -3
-				 andi	$a0, 0xFFFF
-				 addiu	$a2, -2
-				 jal	sub_5EF84
-				 andi	$a2, 0xFFFF
-				 move	$a0, $zero
-				 jal	sub_5EE78
-				 li	$a1, 1
-				 lw	$a0, 0($s3)
-				 lui	$v0, 0xE0
-				 and $v0, $a0, $v0
-				 beqz	$v0, loc_63ED4
-				 move	$v0, $zero
-				 lw	$v0, dword_800A458C
-				 nop
-				 andi	$v1, $v0, 1
-				 beqz	$v1, loc_63DDC
-				 move	$a1, $v0
-				 lui	$v0, 0x700
-				 and $v0, $a0, $v0
-				 beqz	$v0, loc_63DDC
-				 srl	$v0, $a0, 24
+	//a0 = (rx + 2) & 0xFFFF;
+	//a1 = (ry + 1) & 0xFFFF;
+	
+	//a2 = (rw - 4) & 0xFFFF;
+		a3 = 0;
+		((long*) &OptionTop[4])[0] = 0x404040;
+		((long*) &OptionTop[2])[0] = 0//sw	$zero, 0x70 + var_5C($sp)
+
+		DrawLineH((rx + 2) & 0xFFFF, (ry + 1) & 0xFFFF, (rw - 4) & 0xFFFF, 0);
+
+
+		//
+		//s0 = (rx + 2) & 0xFFFF
+
+		//a0 = s0;
+
+		//a1 = rh;
+		//a2 = rw;
+		//a3 = 0;
+
+		((long*) &OptionTop[4])[0] = 0x404040;//sw	$s2, 0x70 + var_60($sp)
+		((long*) &OptionTop[2])[0] = 0x0;//sw	$zero, 0x70 + var_5C($sp)
+		DrawLineH((rx + 2) & 0xFFFF, ((ry + rh) - 2) & 0xFFFF, (rw - 4) & 0xFFFF, 0);
+
+		((long*) &OptionTop[4])[0] = 0x404040;//sw	$s2, 0x70 + var_60($sp)
+		((long*) &OptionTop[2])[0] = 0x0;//sw	$zero, 0x70 + var_5C($sp)
+		DrawLineV((rx + 2) & 0xFFFF, (ry + 1) & 0xFFFF, (rh - 2) & 0xFFFF, 0);
+
+		((long*) &OptionTop[4])[0] = 0x404040;//sw	$s2, 0x70 + var_60($sp)
+		((long*) &OptionTop[2])[0] = 0x0;//sw	$zero, 0x70 + var_5C($sp)
+
+		DrawLineV(((rx + rw) - 3) & 0xFFFF, (ry + 1) & 0xFFFF, (rh - 2) & 0xFFFF, 0);
+		DrawTPage(0, 1);
+
+
+		if (r->Options == 0)
+		{
+			//loc_63ED4
+			return 0;
+		}
+
+		//a1 = dbinput2;
+		if (dbinput2 & 1)
+		{
+			//srl	$v0, $a0, 24
+			if (((long*) &r)[0] & 0x7000000)
+			{
+
+
+			}//loc_63DDC
+
+		}//loc_63DDC
+
+
 				 lw	$v1, 4($s3)
 				 andi	$v0, 7
 				 addiu	$v0, -1

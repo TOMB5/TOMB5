@@ -69,6 +69,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 #if DISC_VERSION
 	DEL_CDFS_Read((char*) &db.poly_buffer[1024], gwHeader.entries[NONE].fileSize);//jal 5E414
+	RelocateLevel();
 #else
 	len = FILE_Length("DATA\\SETUP.MOD");
 	file = fopen("DATA\\SETUP.MOD", "rb");
@@ -82,9 +83,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	RelocateModule((unsigned long)SetupPtr, (unsigned long*)&temp[(*(unsigned long*)&temp[0]) + 8] );
 #endif
 
-#if DISC_VERSION
-	RelocateLevel();
-#else
+#if !DISC_VERSION
 	strcpy(buf, &gfFilenameWad[gfFilenameOffset[Name]]);
 	strcat(buf, ".PSX");
 

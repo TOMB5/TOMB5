@@ -1,29 +1,35 @@
 #include "GAMEFLOW.H"
 
+#if !PC_VERSION
 #include "3D_GEN.H"
-#include "CD.H"
+#endif
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
-#include "DRAWPHAS.H"
+
 #include "FILE.H"
 #if !PC_VERSION
+#include "CD.H"
 #include "MOVIE.H"
 #include "MEMCARD.H"
 #include "SPUSOUND.H"
 #include "MISC.H"
 #include "SFX.H"
+#include "GPU.H"
+#include "DRAWPHAS.H"
+#include "ROOMLOAD.H"
 #else
 #include "GAME.H"
+#include "INIT.H"
 #endif
-#include "GPU.H"
+
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "MALLOC.H"
 #include "NEWINV2.H"
 #include INPUT_H
-#include "ROOMLOAD.H"
+
 #include "SAVEGAME.H"
 #include "SOUND.H"
 
@@ -111,13 +117,14 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	LoadGameflow();
 #endif
 
-#if DISC_VERSION && PSX_VERSION
+#if DISC_VERSION && PSX_VERSION && PLAY_FMVS
 	S_PlayFMV(FMV_COPYRIGHT_INTRO, 0);
 	S_PlayFMV(FMV_GAME_INTRO, 0);
 #endif
 
 #if PC_VERSION
-	do_boot_screen(Gameflow->Language);
+	//do_boot_screen(Gameflow->Language);
+	// todo
 #endif
 
 	num_fmvs = 0;
@@ -240,7 +247,7 @@ void LoadGameflow()//102E0, 102B0
 #endif
 
 #if PC_VERSION
-	LoadFile(GF_SCRIPT_FILENAME, &s);
+	LoadFile(GF_SCRIPT_FILENAME, (void**)&s);
 	gfScriptFile = s;
 #endif
 
@@ -282,7 +289,7 @@ void LoadGameflow()//102E0, 102B0
 	{
 #if PC_VERSION
 		gfStringOffset = NULL;
-		if (LoadFile((char*)s, &gfStringOffset))
+		if (LoadFile((char*)s, (void**)&gfStringOffset))
 #else
 		if (FILE_Length((char*)s) != -1)
 #endif
@@ -489,13 +496,13 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 #if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
 #endif
-
 	OldSP = SetSp(0x1F8003E0);
+#endif
 
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
 
+#if PSX_VERSION
 	SetSp(OldSP);
-
 #if DEBUG_VERSION
 	ProfileRGB(0, 0, 0);
 #endif
@@ -544,12 +551,8 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	InitialisePickUpDisplay();
 
-#if !PC_VERSION
+#if PSX_VERSION || PSXPC_VERSION
 	phd_InitWindow(90);
-#endif
-
-#if PSXPC_VERSION
-	InitialisePadSubsystem();
 #endif
 
 	SOUND_Stop();
@@ -743,7 +746,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 #if !BETA_VERSION
 	int fmvStatus;
 #endif
-
+#if PSX_VERSION || PSXPC_VERSION
 	if (gfGameMode == 4)
 	{
 		if (FromTitle == 1)
@@ -757,7 +760,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	//loc_10B24
 	FromTitle = 0;
 
-#if PSX_VERSION || PSXPC_VERSION
+
 	XAMasterVolume = savegame.VolumeCD;
 #endif
 
@@ -771,7 +774,9 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 	InitSpotCamSequences();
 	InitialisePickUpDisplay();
+#if PSX_VERSION || PSXPC_VERSION
 	phd_InitWindow(90);
+#endif
 	SOUND_Stop();
 	bDisableLaraControl = 0;
 
@@ -849,7 +854,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	framecount = 0;
 
 	gfStatus = ControlPhase(2, 0);
-
+#if PSX_VERSION || PSXPC_VERSION
 	dbinput = 0;
 	JustLoaded = 0;
 
@@ -863,9 +868,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 			if (gfLegendTime != 0 && DestFadeScreenHeight == 0 && FadeScreenHeight == 0 && cutseq_num == 0)
 			{
-				//v0 = 0x8000;
-				//sw	$v0, 0x30 + var_20($sp) //maybe a4?
-				PrintString(0x100, 0xE8, 2, &gfStringWad[gfStringOffset[gfLegend]], 0);
+				PrintString(0x100, 0xE8, 2, &gfStringWad[gfStringOffset[gfLegend]], 0x8000);
 				gfLegendTime--;
 			}
 
@@ -911,7 +914,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	Motors[1] = 0;
 	Motors[0] = 0;
 
-#if PSX_VERSION || PSXPC_VERSION
+
 	if (XAVolume != 0)
 	{
 		//loc_10EBC
@@ -920,13 +923,13 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 			XAReqVolume = 0;
 		} while (XAVolume == 0);
 	}
-#endif
+
 
 	//loc_10ED8
 	reset_count = 0;
 	S_SoundStopAllSamples();
 	S_CDStop();
-
+#endif
 #if !BETA_VERSION
 
 	if (gfStatus == 3)
@@ -946,7 +949,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 				fmv_to_play[0] = 0;
 			}
 		}
-		
+#if PSXENGINE	
 		//loc_10F20
 		if (fmv_to_play[0] != 0)
 		{
@@ -957,6 +960,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		{
 			S_PlayFMV(fmv_to_play[1] & 0x7F, 1);
 		}
+#endif
 	}
 
 	//loc_10F64
@@ -979,4 +983,9 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	//loc_10F30
 	input = 0;
 	reset_flag = 0;
+}
+
+void TitleOptions()
+{
+
 }
