@@ -68,5 +68,5 @@ void CreateMonoScreen()//5F450(<), 60130(<) (F)
 	DrawSync(0);
 
 	S_LongMemCpy(db.poly_buffer[0] + 17938, db.poly_buffer[0] + 9746, 8192);
-	S_LongMemCpy(db.poly_buffer[0] + 17938, db.poly_buffer[0] + 9746, 8192);
+	S_LongMemCpy(db.poly_buffer[1] + 17938, db.poly_buffer[1] + 9746, 8192);
 }

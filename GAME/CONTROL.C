@@ -26,6 +26,7 @@
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
+#include "LARA1GUN.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "LOAD_LEV.H"
 #include "MATHS.H"
@@ -728,21 +729,21 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 #endif
 
-	if (RelocPtr[9] != NULL)
+	if (RelocPtr[9] != NULL)//UpdateRats
 	{
 		//unsigned long* v0 = (unsigned long*)RelocPtr[9];
 		//jalr v0[5];
 	}
 
 	//loc_1E1C4
-	if (RelocPtr[21] != NULL)
+	if (RelocPtr[21] != NULL)//UpdateBats
 	{
 		//unsigned long* v0 = (unsigned long*)RelocPtr[21];
 		//jalr v0[1];
 	}
 
 	//loc_1E1E4
-	if (RelocPtr[32] != NULL)
+	if (RelocPtr[32] != NULL)//UpdateSpiders
 	{
 		//unsigned long* v0 = (unsigned long*)RelocPtr[32];
 		//jalr v0[5];
@@ -751,14 +752,14 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 	//loc_1E204
 	//UpdateShockwaves();
 
-	if (RelocPtr[35] != NULL)
+	if (RelocPtr[35] != NULL)//UpdateLighting
 	{
 		//unsigned long* v0 = (unsigned long*)RelocPtr[35];
 		//jalr v0[1];
 	}
 
 	//loc_1E22C
-	if (RelocPtr[7] != NULL)
+	if (RelocPtr[7] != NULL)//UpdateTwogunLasers
 	{
 		//unsigned long* v0 = (unsigned long*)RelocPtr[7];
 		//jalr v0[2];
@@ -770,7 +771,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 	if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
 	{
-		if (RelocPtr[48] != NULL)
+		if (RelocPtr[48] != NULL)//KlaxonTremor
 		{
 			//unsigned long* v0 = (unsigned long*)RelocPtr[48];
 			//jalr v0[0];
@@ -1000,8 +1001,177 @@ void InitCutPlayed()//20D90, 20F9C (F)
 	_CutSceneTriggered2 = 0;
 }
 
-void ResetGuards()
+void ResetGuards()//20B48(<), ? (F)
 {
+	short item_num; // $s1
+	short room_num; // $t1
+	struct ITEM_INFO* target_item; // $s0
+
+	item_num = next_item_active;
+
+	//v0 = -1;
+
+	if (item_num == -1)
+	{
+		return;
+	}
+
+	//loc_20D78
+	//s2 = &objects[0];
+	//v1 = s1 << 3;
+	//v1 += s1;
+	//a0 = &items[0];
+	//v1 <<= 4;
+	target_item = &items[item_num];//s0
+	//v0 = target_item->object_number;
+	//v0 << 6 = 0x64;
+
+	//v0 = &objects[target_item->object_number];
+
+	//a0 = item+_num;
+	if (objects[target_item->object_number].intelligent)
+	{
+		target_item->status = 3;
+
+		RemoveActiveItem(item_num);
+		DisableBaddieAI(item_num);
+		//v1 = -15872
+		//a3 = target_item->ai_bits;
+		//t0 = target_item->TOSSPAD;
+		//a1 = target_item->draw_room;
+		//v0 = t0 << 1;
+		//v0 = v0 & 0x3E00;
+		//a3 |= v0;
+		//v1 = target_item->item_flags[2];
+		//v0 = room;
+		//t1 = v1 & 0xFF;
+
+	}//loc_20D68
+#if 0
+		sll	$v1, 16
+		sra	$v1, 24
+		sll	$v1, 8
+		sll	$a0, $t1, 2
+		addu	$a0, $t1
+		sll	$a0, 4
+		addu	$a0, $v0
+		sll	$v0, $a1, 16
+		sra	$v0, 24
+		sll	$v0, 10
+		lw	$a2, 0x20($a0)
+		andi	$a1, 0xFF
+		addu	$v1, $a2
+		sw	$v1, 0x44($s0)
+		lw	$v1, 0x14($a0)
+		sll	$a1, 10
+		addu	$v0, $v1
+		addiu	$v0, 0x200
+		sw	$v0, 0x40($s0)
+		andi	$v0, $t0, 0xE000
+		lw	$v1, 0x1C($a0)
+		andi	$t0, 0xFF
+		sh	$v0, 0x4E($s0)
+		li	$v0, 0x57
+		sw	$a3, 0x84($s0)
+		sh	$t0, 0x3A($s0)
+		addu	$a1, $v1
+		lh	$v1, 0xC($s0)
+		addiu	$a1, 0x200
+		beq	$v1, $v0, loc_20C8C
+		sw	$a1, 0x48($s0)
+		li	$v0, 0x4D
+		beq	$v1, $v0, loc_20C8C
+		li	$v0, 0x47
+		bne	$v1, $v0, loc_20CA8
+		li	$v0, 0x27
+
+		loc_20C8C:
+	lh	$v0, 0xC($s0)
+		nop
+		sll	$v0, 6
+		addu	$v0, $s2
+		lhu	$v1, 0x26($v0)
+		j	loc_20D08
+		sh	$v1, 0x14($s0)
+
+		loc_20CA8:
+	bne	$v1, $v0, loc_20CBC
+		lui	$v1, 1
+		lhu	$v0, 0x9E6($s2)
+		j	loc_20D00
+		addiu	$v0, 6
+
+		loc_20CBC :
+		lw	$v0, 0x870($s2)
+		nop
+		and	$v0, $v1
+		beqz	$v0, loc_20CDC
+		nop
+		lhu	$v0, 0x866($s2)
+		j	loc_20D08
+		sh	$v0, 0x14($s0)
+
+		loc_20CDC:
+	lw	$v0, 0x1470($s2)
+		nop
+		and	$v0, $v1
+		beqz	$v0, loc_20CFC
+		nop
+		lhu	$v0, 0x1466($s2)
+		j	loc_20D08
+		sh	$v0, 0x14($s0)
+
+		loc_20CFC:
+	lhu	$v0, 0x966($s2)
+
+		loc_20D00 :
+		nop
+		sh	$v0, 0x14($s0)
+
+		loc_20D08 :
+		lh	$v1, 0xC($s0)
+		li	$v0, 0x4D
+		bne	$v1, $v0, loc_20D24
+		li	$v0, 1
+		sh	$zero, 0xE($s0)
+		j	loc_20D2C
+		sh	$zero, 0x10($s0)
+
+		loc_20D24:
+	sh	$v0, 0xE($s0)
+		sh	$v0, 0x10($s0)
+
+		loc_20D2C :
+		lh	$v1, 0x14($s0)
+		lw	$a0, dword_800A25E0
+		sll	$v0, $v1, 2
+		addu	$v0, $v1
+		sll	$v0, 3
+		addu	$v0, $a0
+		lhu	$v1, 0x18($v0)
+		lh	$a0, 0x18($s0)
+		nop
+		beq	$a0, $t1, loc_20D68
+		sh	$v1, 0x16($s0)
+		move	$a0, $s1
+		jal	sub_7C608
+		move	$a1, $t1
+
+		loc_20D68 :
+	lh	$s1, 0x1C($s0)
+		li	$v0, 0xFFFFFFFF
+		bne	$s1, $v0, loc_20B78
+		sll	$v1, $s1, 3
+
+		loc_20D78 :
+		lw	$ra, 0x20 + var_4($sp)
+		lw	$s2, 0x20 + var_8($sp)
+		lw	$s1, 0x20 + var_C($sp)
+		lw	$s0, 0x20 + var_10($sp)
+		jr	$ra
+		addiu	$sp, 0x20
+#endif
+
 	S_Warn("[ResetGuards] - Unimplemented!\n");
 }
 
@@ -1112,7 +1282,25 @@ int GetTargetOnLOS(struct GAME_VECTOR* src, struct GAME_VECTOR* dest, int DrawTa
 
 void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* target)
 {
-	S_Warn("[FireCrossBowFromLaserSight] - Unimplemented!\n");
+	short angles[2];
+	struct PHD_3DPOS pos;
+
+	target->x = (target->x & -1023) | 0x200;
+	target->z = (target->z & -1023) | 0x200;
+
+#ifndef USE_ASM
+#if PSX_VERSION || PSXPC_VERSION///@TEMP
+	phd_GetVectorAngles(target->x - src->x, target->y - src->y, target->z - src->z, &angles[0]);
+#endif
+#endif
+	pos.z_rot = 0;
+	pos.x_pos = src->x;
+	pos.y_pos = src->y;
+	pos.z_pos = src->z;
+	pos.x_rot = angles[1];
+	pos.y_rot = angles[0];
+
+	FireCrossbow(&pos);
 }
 
 void TriggerNormalCDTrack(short value, short flags, short type)// (F)

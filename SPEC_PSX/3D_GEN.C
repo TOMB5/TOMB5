@@ -1,6 +1,7 @@
 #include "3D_GEN.H"
 
 #include "CAMERA.H"
+#include "GPU.H"
 #include "SPECIFIC.H"
 
 #include <LIBGTE.H>

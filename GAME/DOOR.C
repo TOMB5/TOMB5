@@ -12,6 +12,7 @@
 #include "SPECIFIC.H"
 #include "SPECTYPES.H"
 #include "SPHERE.H"
+#include "SWITCH.H"
 #include "OBJECTS.H"
 
 static struct PHD_VECTOR DoubleDoorPos = { 0, 0, 220 };
@@ -41,12 +42,71 @@ char LiftDoor;
 
 void ProcessClosedDoors()//2BDE8, 2C110
 {
+	long lp; // $s2
+	short room_number; // $s0
 	S_Warn("[ProcessClosedDoors] - Unimplemented!\n");
 }
 
-void SequenceDoorControl(short item_number)//2BC28, 2BF50
+void SequenceDoorControl(short item_number)//2BC28(<), 2BF50(?) (F)
 {
-	S_Warn("[SequenceDoorControl] - Unimplemented!\n");
+	struct ITEM_INFO *item; // $s1
+	struct DOOR_DATA *door; // $s0
+
+	item = &items[item_number];
+	door = (struct DOOR_DATA*)item->data;
+
+	if (CurrentSequence == 3)
+	{
+		if (SequenceResults[Sequences[0]][Sequences[1]][Sequences[2]] == item->trigger_flags)
+		{
+			if (item->current_anim_state == 1)
+			{
+				item->goal_anim_state = 1;
+			}
+			else
+			{
+				//0x2BCDC
+				item->goal_anim_state = 0;
+			}
+
+			TestTriggersAtXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 0, 0);
+
+		}//0x2BD08
+
+		CurrentSequence = 4;
+
+	}//0x2BD10
+
+	if (item->current_anim_state == item->goal_anim_state)
+	{
+		if (item->current_anim_state == 1)
+		{
+			if (door->Opened)
+			{
+				OpenThatDoor(&door->d1, door);
+				OpenThatDoor(&door->d2, door);
+				OpenThatDoor(&door->d1flip, door);
+				OpenThatDoor(&door->d2flip, door);
+				door->Opened = item->current_anim_state;
+				door->Opened |= 0x3E00;
+			}//0x2BDC8
+		}
+		else
+		{
+			//0x2BD78
+			if (door->Opened)
+			{
+				ShutThatDoor(&door->d1, door);
+				ShutThatDoor(&door->d2, door);
+				ShutThatDoor(&door->d1flip, door);
+				ShutThatDoor(&door->d2flip, door);
+				door->Opened = 0;
+				item->flags &= 0xC1FF;
+			}
+		}
+	}//0x2BDC8
+
+	AnimateItem(item);
 }
 
 void UnderwaterDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//2BA38, 2BD60
@@ -64,9 +124,24 @@ void PushPullKickDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_
 	S_Warn("[PushPullKickDoorCollision] - Unimplemented!\n");
 }
 
-void PushPullKickDoorControl(short item_number)//2B508, 2B830
+void PushPullKickDoorControl(short item_number)//2B508(<), 2B830 (F)
 {
-	S_Warn("[PushPullKickDoorControl] - Unimplemented!\n");
+	struct ITEM_INFO* item; // $s1
+	struct DOOR_DATA* door; // $s0
+
+	item = &items[item_number];
+	door = (struct DOOR_DATA*)item->data;
+
+	if (!door->Opened)
+	{
+		OpenThatDoor(&door->d1, door);
+		OpenThatDoor(&door->d2, door);
+		OpenThatDoor(&door->d1flip, door);
+		OpenThatDoor(&door->d2flip, door);
+		door->Opened = 1;
+	}//0x2B584
+
+	AnimateItem(item);
 }
 
 void DoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//2B150, 2B478

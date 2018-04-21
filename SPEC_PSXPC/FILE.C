@@ -5,8 +5,19 @@
 
 #include <stdio.h>
 
-int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
+int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F) (*) (?)
 {
+#if 0
+	long dwFileSize = 0;
+	FILE* fileHandle = NULL;
+
+	fileHandle = fopen(szFileName, "rb");
+	fseek(fileHandle, 0, SEEK_END);
+	dwFileSize = ftell(fileHandle);
+	fseek(fileHandle, 0, SEEK_SET);
+	fclose(fileHandle);
+	return DEL_CDFS_Read((char*)pDest, dwFileSize);//Bug: Always set to read from GAMEWAD. Pass fp or name (ugly solution).
+#else
 	FILE* fileHandle = NULL;
 	long dwFileSize = 0;
 	unsigned long dwBytesRead = 0;
@@ -14,29 +25,28 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F)
 	printf("Open\n");
 	fileHandle = fopen(szFileName, "rb");
 
-	if (fileHandle != NULL)
-	{
-		printf("Seek\n");
-		fseek(fileHandle, 0, SEEK_END);
-		dwFileSize = ftell(fileHandle);
-		fseek(fileHandle, 0, SEEK_SET);
-
-		printf("Read\n");
-		dwBytesRead = fread(pDest, 1, dwFileSize, fileHandle);
-
-		printf("Close\n");
-		fclose(fileHandle);
-	}
-	else
+	if (fileHandle == NULL)
 	{
 		printf("FILE_Load: '%s' Could not open!\n", szFileName);
 		S_ExitSystem("Can't open file");
 	}
 
-	return dwBytesRead;
+	printf("Seek\n");
+	fseek(fileHandle, 0, SEEK_END);
+	dwFileSize = ftell(fileHandle);
+	fseek(fileHandle, 0, SEEK_SET);
+
+	printf("Read\n");
+	dwBytesRead = fread(pDest, 1, dwFileSize, fileHandle);
+
+	printf("Close\n");
+	fclose(fileHandle);
+
+	return dwFileSize == dwBytesRead;
+#endif
 }
 
-unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
+unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F) (*) (?)
 {
 	FILE* fileHandle = NULL;
 	unsigned long dwFileSize = -1;
@@ -44,24 +54,23 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F)
 	printf("Open\n");
 	fileHandle = fopen(szFileName, "rb");
 
-	if (fileHandle != NULL)
-	{
-		printf("Seek\n");
-		fseek(fileHandle, 0, SEEK_END);
-		dwFileSize = ftell(fileHandle);
-
-		printf("Close\n");
-		fclose(fileHandle);
-	}
-	else
+	if (fileHandle == NULL)
 	{
 		printf("FILE_Length: '%s' Could not find!\n", szFileName);
+		return -1;
 	}
+
+	printf("Seek\n");
+	fseek(fileHandle, 0, SEEK_END);
+	dwFileSize = ftell(fileHandle);
+
+	printf("Close\n");
+	fclose(fileHandle);
 
 	return dwFileSize;
 }
 
-int FILE_Read(void* pDest, int nItemSize, int nItems, FILE* nHandle)//5E6A8(<), ? (F)
+int FILE_Read(char* pDest, int nItemSize, int nItems, FILE* nHandle)//5E6A8(<), ? (F)
 {
 	return fread(pDest, nItemSize, nItems, nHandle);
 }

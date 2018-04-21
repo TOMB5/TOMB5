@@ -19,7 +19,6 @@
 
 #include "SPECTYPES.H"
 #include <assert.h>
-#include <stddef.h>
 #include "CAMERA.H"
 
 int number_boxes;
@@ -324,18 +323,94 @@ short CreatureEffect(struct ITEM_INFO* item, struct BITE_INFO* bite, short(*gene
 	return generate(pos.x, pos.y, pos.z, item->speed, item->pos.y_rot, item->room_number);
 }
 
-void CreatureUnderwater(struct ITEM_INFO* item, long depth)//s0, s1 2468C(<) ?
+void CreatureUnderwater(struct ITEM_INFO* item, long depth)//?, 2468C(<) (F)
 {
-	long water_level; // $v0
-	long floorheight; // $v1
-	short room_number; // stack offset -24
+	long water_level;
+	long floorheight;
+	short room_number;
 
-	S_Warn("[CreatureUnderwater] - Unimplemented!\n");
+	if (depth < 0)
+	{
+		water_level = -depth;
+		depth = 0;
+	}
+	else
+	{
+		//0x246BC
+		water_level = GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
+	}
+
+	if (item->pos.y_pos < depth)
+	{
+		room_number = item->room_number;
+		floorheight = GetHeight(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number), item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+
+		if (floorheight < depth)
+		{
+			item->pos.y_pos = floorheight;
+		}
+		else
+		{
+			//0x24724
+			item->pos.y_pos = depth;
+		}
+
+		if (item->pos.x_rot > 0x16C)
+		{
+			item->pos.x_rot -= 0x16C;
+		}
+		else if (item->pos.x_rot > 0)
+		{
+			item->pos.x_rot = 0;
+		}//0x24740
+	}//0x2474c
 }
 
-void CreatureFloat(short item_number)
+void CreatureFloat(short item_number)//24524(<), (?) (F)
 {
-	S_Warn("[CreatureFloat] - Unimplemented!\n");
+	long water_level;
+	struct ITEM_INFO* item;
+	short room_number;
+
+	item = &items[item_number];
+	item->hit_points = -16384;
+	item->pos.x_rot = 0;
+	water_level =  GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
+
+	if (water_level < item->pos.y_pos)
+	{
+		item->pos.y_pos -= 32;
+	}//0x24590
+
+	if (item->pos.y_pos < water_level)
+	{
+		item->pos.y_pos = water_level;
+	}
+
+	AnimateItem(item);
+	room_number = item->room_number;
+
+	item->floor = GetHeight(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number), item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+
+	if (room_number != item->room_number)
+	{
+		ItemNewRoom(item_number, room_number);
+	}//0x245FC
+
+	if (water_level < item->pos.y_pos)
+	{
+		return;
+	}
+
+	if (item->frame_number == anims[item->anim_number].frame_base)
+	{
+		item->meshswap_meshbits &= -7;
+		item->active = 1;
+		DisableBaddieAI(item_number);
+		RemoveActiveItem(item_number);
+	}
+
+	item->after_death = 1;
 }
 
 void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<) ?
@@ -351,7 +426,7 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 
 	if (change < -0x222)
 	{
-	change -= 0x222;
+		change -= 0x222;
 	}
 	else
 	{
@@ -372,19 +447,19 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 
 void CreatureTilt(struct ITEM_INFO* item, short angle)//24418(<), 24624(<) (F)
 {
-angle = (angle << 2) - item->pos.z_rot;
+	angle = (angle << 2) - item->pos.z_rot;
 
-if (angle < ANGLE(-3))
-	angle = ANGLE(-3);
-else if (angle > ANGLE(3))
-angle = ANGLE(3);
+	if (angle < ANGLE(-3))
+		angle = ANGLE(-3);
+	else if (angle > ANGLE(3))
+		angle = ANGLE(3);
 
-if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
-{
-	angle >>= 1;
-}
+	if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
+	{
+		angle >>= 1;
+	}
 
-item->pos.z_rot += angle; // todo in orig code (mips) z_rot is lhu'd into v0 as unsigned, here i skipped that part, maybe it'll break
+	item->pos.z_rot += angle; // todo in orig code (mips) z_rot is lhu'd into v0 as unsigned, here i skipped that part, maybe it'll break
 }
 
 short CreatureTurn(struct ITEM_INFO* item, short maximum_turn)
@@ -630,6 +705,122 @@ void InitialiseCreature(short item_number)//21800(<), ? (F)
 
 int StalkBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)
 {
+	struct box_info *box; // $a0
+	int baddie_quad; // $a0
+	int box_quad; // $a1
+	int enemy_quad; // $v1
+	long x; // $a0
+	long z; // $t2
+	long xrange; // $a1
+	long zrange; // $a2
+
+	//t4 = item;
+	//t3 = enemy;
+	//v0 = box_number;
+
+	if (enemy == NULL)
+	{
+		return 0;
+	}
+
+	//box = &boxes[box_number];
+	//t1 = enemy->pos.z_pos;
+	//t0 = box->left;
+	//a2 = box->right;
+	//a3 = box->top;
+	//a1 = box->bottom;
+
+	//enemy_quad = (box->left - box->right) << 9;
+	//z = enemy_quad - enemy->pos.z_pos;
+	//v0 = (box->top + box->bottom) << 9;
+	//a2 -= t0
+#if 0
+
+
+	
+		subu	$a2, $t0
+		sll	$a2, 10
+		addiu	$a2, 0xC00
+		subu	$a1, $a3
+		sll	$a1, 10
+		lw	$v1, 0x40($t3)
+		addiu	$a1, 0xC00
+		subu	$a0, $v0, $v1
+		slt	$v0, $a1, $a0
+		bnez	$v0, locret_21780
+		move	$a3, $v1
+		negu	$v0, $a1
+		slt	$v0, $a0, $v0
+		bnez	$v0, locret_21780
+		slt	$v0, $a2, $t2
+		bnez	$v0, locret_21780
+		negu	$v0, $a2
+		slt	$v0, $t2, $v0
+		bnez	$v0, locret_21780
+		nop
+		lhu	$v0, 0x4E($t3)
+		nop
+		sll	$v0, 16
+		sra	$v0, 30
+		blez	$t2, loc_2176C
+		addiu	$v1, $v0, 2
+		blez	$a0, loc_21778
+		li	$a1, 1
+		j	loc_21778
+		li	$a1, 2
+
+		loc_2176C:
+	blez	$a0, loc_21778
+		move	$a1, $zero
+		li	$a1, 3
+
+		loc_21778 :
+		bne	$v1, $a1, loc_21788
+		nop
+
+		locret_21780 :
+	jr	$ra
+		move	$v0, $zero
+
+		loc_21788 :
+	lw	$v0, 0x48($t4)
+		nop
+		slt	$v0, $t1, $v0
+		beqz	$v0, loc_217B8
+		nop
+		lw	$v0, 0x40($t4)
+		nop
+		slt	$v0, $a3, $v0
+		beqz	$v0, loc_217D0
+		li	$a0, 1
+		j	loc_217D0
+		li	$a0, 2
+
+		loc_217B8:
+	lw	$v0, 0x40($t4)
+		nop
+		slt	$v0, $a3, $v0
+		beqz	$v0, loc_217D0
+		move	$a0, $zero
+		li	$a0, 3
+
+		loc_217D0:
+	bne	$v1, $a0, locret_217F8
+		li	$v0, 1
+		subu	$v1, $a1
+		bgez	$v1, loc_217E8
+		nop
+		negu	$v1, $v1
+
+		loc_217E8 :
+	li	$a0, 2
+		beq	$v1, $a0, locret_217F8
+		move	$v0, $zero
+		li	$v0, 1
+
+		locret_217F8 :
+		jr	$ra
+#endif
 	S_Warn("[StalkBox] - Unimplemented!\n");
 	return 0;
 }

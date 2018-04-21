@@ -4,9 +4,10 @@
 
 #include <STDIO.H>
 
+#if 0
 void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, char* string, unsigned short flag)//8DB4C, 8FB90
 {
-#if 0
+
 	long s0, s4, s3, at, s6, s2, v0;
 	char* s5;
 	unsigned short buf[64];//TODO check size
@@ -232,11 +233,11 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 		addiu	$sp, 0x40
 #endif
 
-#else
+//#else
 	printf("PrintString - X:%d Y:%d C:%d - %s\n", x, y, colourFlag, string);
-#endif
-}
 
+}
+#endif
 void SetGunFlash(short gun_type)
 {
 	S_Warn("[SetGunFlash] - Unimplemented!\n");

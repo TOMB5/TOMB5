@@ -16,7 +16,8 @@
 /scripts/gextr
 /GAME/VERSION.C
 
-
+/DISC/Original/
+/DISC/*.EXE
 /DISC/*.DAT
 /DISC/*.XA
 /DISC/*.STR
@@ -27,3 +28,5 @@
 /DISC/*.BIN
 /DISC/*.CUE
 /DISC/*.OBJ
+/GAME/*.OBJ
+/SPEC_PSX/*.OBJ
