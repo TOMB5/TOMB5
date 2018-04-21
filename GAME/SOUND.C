@@ -109,25 +109,4 @@ void SOUND_EndScene()//91D80(<) ? (F)
 			}
 		}//loc_91E64
 	}
-	//i++;
-
-#if 0
-
-				 
-			
-
-				 loc_91E64 :
-				 addiu	$s0, 1
-				 slti	$v0, $s0, 0x18
-				 bnez	$v0, loc_91DAC
-				 addiu	$s1, 0x24
-
-				 loc_91E74 :
-				 lw	$ra, 0x20 + var_4($sp)
-				 lw	$s2, 0x20 + var_8($sp)
-				 lw	$s1, 0x20 + var_C($sp)
-				 lw	$s0, 0x20 + var_10($sp)
-				 jr	$ra
-				 addiu	$sp, 0x20
-#endif
 }
