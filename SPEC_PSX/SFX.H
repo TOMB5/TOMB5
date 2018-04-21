@@ -15,7 +15,7 @@ extern void S_SoundStopSample(int handle);
 extern void S_SoundStopAllSamples();
 extern int S_SoundSampleIsPlaying(int handle);
 extern void S_SoundSetPitch(int handle, int nPitch);
-extern void S_SoundSetPanAndVolume(int nhandle, int nPan, int nVolume, int distance);
+extern int S_SoundSetPanAndVolume(int nhandle, int nPan, int nVolume, int distance);
 extern void GetPanVolume(struct SoundSlot* slot);
 extern void SPU_FreeChannel(int channel_index);
 
