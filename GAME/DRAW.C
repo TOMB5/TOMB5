@@ -55,7 +55,7 @@ short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;
 
-long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, long* rate/*$a2*/)//8582C
+long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*$a2*/)//8582C
 {
 	struct ANIM_STRUCT* anim = &anims[item->anim_number];
 	int t3;
