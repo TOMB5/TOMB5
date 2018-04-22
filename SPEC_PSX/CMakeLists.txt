@@ -43,14 +43,6 @@ ${PLATFORM_SPECIFIC_SRCS}
 
 BuildPreProcessorDefinitions()
 
-#Platform specific defs
-target_compile_definitions(${PROJECT_NAME} PRIVATE ${PREPROCESSOR_DEFINITIONS})
-
-#Link against required libraries
-#target_link_libraries(
-#${PROJECT_NAME}
-#)
-
 set_target_properties(
 ${PROJECT_NAME} PROPERTIES OUTPUT_NAME "MAIN"
 ${PROJECT_NAME} PROPERTIES FOLDER "Build Targets/PlayStation"

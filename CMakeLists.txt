@@ -9,7 +9,7 @@ endmacro()
 
 macro(BuildPreProcessorDefinitions)
 	foreach(DEF ${OPT_DEFINITIONS})
-		string(CONCAT PREPROCESSOR_DEFINITIONS ${PREPROCESSOR_DEFINITIONS} "${DEF}=${${DEF}} ;")
+		target_compile_definitions(${PROJECT_NAME} PRIVATE ${DEF}=${${DEF}})
 	endforeach()
 endmacro()
 
