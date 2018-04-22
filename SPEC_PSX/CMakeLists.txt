@@ -6,19 +6,19 @@ project (TombRaiderChronicles_PSX${TARGET_ARCH})
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
 #Required to build platform specific code properly
-OPTIONAL_DEFINE(PSX_VERSION "Enable PSX code building" 1)
+OPTIONAL_DEFINE(PSX_VERSION "Enable PSX code building" ON)
 
 #Will make use of CD io if set.
-OPTIONAL_DEFINE(DISC_VERSION "Enable/Disable CD code" 1)
+OPTIONAL_DEFINE(DISC_VERSION "Enable/Disable CD code" ON)
 
 #Will build all changes specific to the internal beta version.
-OPTIONAL_DEFINE(BETA_VERSION "Enable/Disable Internal Beta code" 0)
+OPTIONAL_DEFINE(BETA_VERSION "Enable/Disable Internal Beta code" OFF)
 
 #Enable NTSC mode
-OPTIONAL_DEFINE(NTSC_VERSION "Enable/Disable NTSC Mode" 1)
+OPTIONAL_DEFINE(NTSC_VERSION "Enable/Disable NTSC Mode" ON)
 
 #Enable relocatable code
-OPTIONAL_DEFINE(RELOC "Enable/Disable Relocatable code modules" 1)
+OPTIONAL_DEFINE(RELOC "Enable/Disable Relocatable code modules" ON)
 
 #Setup platform specific / game code include folder
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

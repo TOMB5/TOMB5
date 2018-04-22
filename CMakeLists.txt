@@ -3,13 +3,17 @@ cmake_minimum_required (VERSION 3.0)
 project (TOMB5)
 
 macro(OPTIONAL_DEFINE DEFNAME DESCRIPTION VALUE)
-	set(${DEFNAME} ${VALUE} CACHE INTEGER ${DESCRIPTION})
+	option(${DEFNAME} ${DESCRIPTION} ${VALUE})
 	list(APPEND OPT_DEFINITIONS ${DEFNAME})
 endmacro()
 
 macro(BuildPreProcessorDefinitions)
 	foreach(DEF ${OPT_DEFINITIONS})
-		target_compile_definitions(${PROJECT_NAME} PRIVATE ${DEF}=${${DEF}})
+		if(${${DEF}} STREQUAL "ON")
+			target_compile_definitions(${PROJECT_NAME} PRIVATE ${DEF}=1)
+		else()
+			target_compile_definitions(${PROJECT_NAME} PRIVATE ${DEF}=0)
+		endif()
 	endforeach()
 endmacro()
 
@@ -24,7 +28,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
 set(EXTERN_LIB_PATH ${EXTERN_LIB_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/EXTERNAL")
 
 #Toggles debug code on/off
-OPTIONAL_DEFINE(DEBUG_VERSION "Enable/Disable Debug Code" 1)
+OPTIONAL_DEFINE(DEBUG_VERSION "Enable/Disable Debug Code" ON)
 
 #Store the path to our game code folder in "GAME_CODE_DIR".
 #This is used by platform specific CMake scripts to add this directory as an include directory.
