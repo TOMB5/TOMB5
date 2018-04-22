@@ -144,6 +144,8 @@ int S_SoundSetPanAndVolume(int nhandle, int nPan, int nVolume, int distance)//91
 	{
 		//CalcVolumes_ASM(distance, nVolume, nVolume, nPan);
 	}
+
+	return 0;
 }
 
 void GetPanVolume(struct SoundSlot* slot)
