@@ -85,6 +85,7 @@ void insert_psx_clip_window(long x, long y, long w, long a3, long h)
 #endif
 }
 
+#ifndef USE_ASM
 void CalcClipWindow_ONGTE(short room_number, long unknown)//8F374,
 {
 	//t2 = unknown;
@@ -181,11 +182,12 @@ void CalcClipWindow_ONGTE(short room_number, long unknown)//8F374,
 #endif
 	S_Warn("[CalcClipWindow_ONGTE] - Unimplemented!\n");
 }
+#endif
 
 void DrawPsxTile(long a0, long a1, long a2, long a3)//8F770(<), 917B4(<) (F)
 {
 	long t1 = 0;//lw $t1, arg_10($sp) OT index
-
+	
 	if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
 	{
 		((long*)db.polyptr)[2] = 0;
