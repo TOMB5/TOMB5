@@ -519,6 +519,11 @@ void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)
 	S_Warn("[phd_GetVectorAngles] - Unimplemented!\n");
 }
 
+void phd_LookAt(long x, long y, long z, long tx, long ty, long tz, long croll)
+{
+	S_Warn("[phd_LookAt] - Unimplemented!\n");
+}
+
 #if 0
 
 0x76DB8 iRotX
