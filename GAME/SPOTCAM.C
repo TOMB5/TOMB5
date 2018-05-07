@@ -134,8 +134,6 @@ void InitSpotCamSequences()//374B8(<), 379B8(<) (F)
 		SpotRemap[s] = ce;
 	}
 
-	int test = 0;
-	test++;
 	return;
 }
 
@@ -467,46 +465,46 @@ void CalculateSpotCams()//37ED0(<), ?
 	long dz; // $s1
 
 	//{ // line 76, offset 0x38114
-		long cs; // $s6
-		long sp; // $s2
-		long cp; // $fp
-		long clen; // $s4
-		long tlen; // $v1
-		long cx; // $s1
-		long cy; // $s0
-		long cz; // $v0
-		long lx; // stack offset -56
-		long lz; // stack offset -52
-		long ly; // stack offset -48
-		int i; // $v1
-		int var_2C;
+	long cs; // $s6
+	long sp; // $s2
+	long cp; // $fp
+	long clen; // $s4
+	long tlen; // $v1
+	long cx; // $s1
+	long cy; // $s0
+	long cz; // $v0
+	long lx; // stack offset -56
+	long lz; // stack offset -52
+	long ly; // stack offset -48
+	int i; // $v1
+	int var_2C;
+
 	//} // line 142, offset 0x382c4
 
 	//{ // line 1, offset 0x386ac
 		//{ // line 1, offset 0x386ac
-			int ctype; // $s0
+	int ctype; // $s0
 		// // line 1, offset 0x38760
 	//} // line 1, offset 0x38760
 
 	//{ // line 396, offset 0x38a50
 		//int sp; // $s5
-		int cn; // $s0
+	int cn = 0; // $s0
 	//} // line 396, offset 0x38a50
 
-	{ // line 1, offset 0x38b04
-		int sp; // $s5
-		int cn; // $s0
-	} // line 1, offset 0x38b04
+	//{ // line 1, offset 0x38b04
+	//int sp = 0; // $s5
+	//	int cn; // $s0
+	//} // line 1, offset 0x38b04
 
 	{ // line 1, offset 0x38c2c
-		int sp; // $s5
-		int cn; // $s0
+
 	} // line 1, offset 0x38c2c
 
 	{ // line 439, offset 0x38d68
 		struct CAMERA_INFO Backup; // stack offset -216
 		{ // line 441, offset 0x38d68
-			int cn; // $v1
+		
 		} // line 441, offset 0x38d68
 		{ // line 441, offset 0x38d68
 		} // line 441, offset 0x38d68
@@ -524,22 +522,15 @@ void CalculateSpotCams()//37ED0(<), ?
 	}
 	
 	//loc_37F20
-	//v0 = first_camera
-	//a0 = SpotCam
-	s = &SpotCam[first_camera];//a0
-	//v0 = s->flags;
+	s = &SpotCam[first_camera];
+	spline_cnt = 4;
 
-	spline_cnt = 4;//s3
 	if ((s->flags & SCF_TRACKING_CAM))
 	{
 		spline_cnt = current_camera_cnt + 2;
 	}
 	
 	//loc_37F64
-	//a1 = &camera_xposition[0];
-	//a0 = current_spline_position;
-	//a2 = spline_cnt;
-
 	cpx = Spline(current_spline_position, &camera_xposition[0], spline_cnt);
 	cpy = Spline(current_spline_position, &camera_yposition[0], spline_cnt);
 	cpz = Spline(current_spline_position, &camera_zposition[0], spline_cnt);
@@ -552,9 +543,6 @@ void CalculateSpotCams()//37ED0(<), ?
 	croll = Spline(current_spline_position, &camera_roll[0], spline_cnt);
 	cfov = Spline(current_spline_position, &camera_fov[0], spline_cnt);
 	
-	//a2 = current_spline_camera;
-	//a1 = SpotCam;
-	//a0 = SpotCam[current_spline_camera].flags;
 	if ((SpotCam[current_spline_camera].flags & SCF_SCREEN_FADE_IN) && CameraFade != current_spline_camera )
 	{
 		CameraFade = current_spline_camera;
@@ -567,10 +555,6 @@ void CalculateSpotCams()//37ED0(<), ?
 			SetScreenFadeIn(16);
 		}
 	}//loc_38084
-
-	//a1 = current_spline_camera;
-	//a0 = SpotCam;
-	//v0 = SpotCam[current_spline_camera];
 
 	if ((SpotCam[current_spline_camera].flags & SCF_SCREEN_FADE_OUT) && CameraFade != current_spline_camera)
 	{
@@ -657,15 +641,7 @@ void CalculateSpotCams()//37ED0(<), ?
 			//v1 = var_2c;
 		}
 
-		//v0 = current_spline_position;
-		//a1 = s;
-		//v1 = (cp - current_spline_posision) >> 5;
-
-		//a0 = s->flags
-		//v0 += v1;
 		current_spline_position += (cp - current_spline_position) >> 5;
-
-		//v1 = cp - current_spline_position
 		if((s->flags & SCF_CUT_PAN))
 		{
 			if ((cp - current_spline_position) >= 0 && 0x8000 < (cp - current_spline_position))
@@ -681,10 +657,8 @@ void CalculateSpotCams()//37ED0(<), ?
 			}
 		}
 		//loc_3829C
-		//v0 = current_spline_position;
 		if (current_spline_position < 0)
 		{
-			//v1 = 0x10000;
 			current_spline_position = 0;
 		}//loc_382B4
 
@@ -709,14 +683,8 @@ void CalculateSpotCams()//37ED0(<), ?
 	}
 
 	//loc_38310
-	//a1 = s
-	//a0 = s->flags;
-	//s0 = 1;
-
-	//v0 = s->flags & 8
 	if ((s->flags & SCF_DISABLE_BREAKOUT) && (input & IN_LOOK) && gfGameMode != 1)
 	{
-		//a0 = 0;
 		if ((s->flags & SCF_TRACKING_CAM))
 		{
 			if (dword_A0AC4 == 0)
@@ -745,23 +713,17 @@ void CalculateSpotCams()//37ED0(<), ?
 		}
 	}
 	//loc_383B4
-	//v0 = cpx
-	//v1 = cpy
-	//a0 = cpz
-	//a1 = s
 	camera.pos.x = cpx;
 	camera.pos.y = cpy;
 	camera.pos.z = cpz;
-	//v0 = s->speed;
-	//v1 = 0x280000
 
 	if ((s->speed & 0x280000))
 	{
-		//v0 = lara_item;
 		ctx = lara_item->pos.x_pos;
 		cty = lara_item->pos.y_pos;
 		ctz = lara_item->pos.z_pos;
 	}
+
 	//loc_38420
 	camera.target.x = ctx;
 	camera.target.y = ctx;
@@ -769,9 +731,6 @@ void CalculateSpotCams()//37ED0(<), ?
 
 	IsRoomOutsideNo = -1;
 	IsRoomOutside(cpx, cpy, cpz);
-	//v1 = -1;
-	//v0 = IsRoomOutsideNo;
-	//a0 = IsRoomOutsideNo;
 
 	if (IsRoomOutsideNo != -1)
 	{
@@ -787,21 +746,15 @@ void CalculateSpotCams()//37ED0(<), ?
 	//loc_384DC
 	AlterFOV(cfov);
 
-	//v0 = quakecam.spos.box_number;
-
 	if (quakecam.spos.box_number != 0)
 	{
 		dx = (camera.pos.x - quakecam.epos.x);
 		dy = (camera.pos.y - quakecam.epos.y);
 		dz = (camera.pos.z - quakecam.epos.z);
 
-		//a1 = quakecam.epos.box_number;
-		//v1 = -a1;
+
 		if (phd_sqrt_asm(dx * dy * dz) < quakecam.epos.box_number)
 		{
-			//s0 = quakecam.spos.room_number;
-			//v0 = quakecam.epos.room_number;
-
 			dz = quakecam.spos.room_number + (((quakecam.epos.room_number - quakecam.spos.room_number) * -quakecam.epos.box_number) / quakecam.epos.box_number) >> 1;//s1
 			dy = quakecam.spos.room_number + (((quakecam.epos.room_number - quakecam.spos.room_number) * -quakecam.epos.box_number) / quakecam.epos.box_number);//s0
 			if(dy > 0)
@@ -847,21 +800,12 @@ void CalculateSpotCams()//37ED0(<), ?
 			camera.type = (enum camera_type)ctype;
 		}//loc_3876C
 
-		//v1 = s;
-		//v0 = s->flags;
-
 		if ((s->flags & SCF_TRACKING_CAM))
 		{
 			bTrackCamInit = 1;
 			return;
 		}
 		
-		//loc_38794
-		//v0 = 0x10000;
-		//a0 = cspeed;
-		//v1 = current_spline_position;
-		//v0 -= cspeed;
-	
 		if (current_spline_position > 0xFFFF)
 		{
 			return;
@@ -883,7 +827,6 @@ void CalculateSpotCams()//37ED0(<), ?
 			}
 		}//loc_38814
 
-		//a0 = SpotCam[current_spline_camera];
 		if((SpotCam[current_spline_camera].flags & SCF_HIDE_LARA))
 		{
 			SCNoDrawLara = 1;
@@ -963,8 +906,6 @@ void CalculateSpotCams()//37ED0(<), ?
 		}
 		else
 		{
-			//v1 = current_spline_camera
-			//v0 = SpotCam[current_spline_camera];
 			if ((SpotCam[current_spline_camera].flags & SCF_REENABLE_LARA_CONTROLS))
 			{
 				bDisableLaraControl = 0;
@@ -976,9 +917,6 @@ void CalculateSpotCams()//37ED0(<), ?
 				bDisableLaraControl = 1;
 			}
 			//loc_38A24
-			//v1 = SpotCam[current_spline_camera];
-			//v0 = SpotCam[current_spline_camera].flags;
-			//a1 = SpotCam
 
 			sp = 0;
 			if ((SpotCam[current_spline_camera].flags & SCF_CUT_TO_CAM))
@@ -1001,35 +939,17 @@ void CalculateSpotCams()//37ED0(<), ?
 				camera_speed[0] = SpotCam[cn].speed;
 			}//loc_38B04
 
-			//t0 = sp << 2;
-			//v1 = &camera_xposition[0];
-			//a0 = cn << 2;
-			//a0 += cn
-			//a0 <<= 3;
-			//v1 = &camera_xposition[sp];
-			//a2 = &camera_xtarget[sp];
-			//v0 = SpotCam
-			//a3 = &camera_ytarget[sp];
-			//a0 = SpotCam[cn];
-			//v0 = &camera_yposition[sp];
 			camera_xposition[sp] = SpotCam[cn].x;
-			//SpotCam[cn].y;
-			//v1 = &camera_zposition[sp];
 			camera_yposition[sp] = SpotCam[cn].y;
-			//v0 = SpotCam[cn].z;
 			camera_zposition[sp] = SpotCam[cn].z;
 			camera_xtarget[sp] = SpotCam[cn].tx;
 			camera_ytarget[sp] = SpotCam[cn].ty;
 			camera_ztarget[sp] = SpotCam[cn].tz;
-			//a1 = &camera_ztarget[sp];
 			sp = 1;
 			camera_xtarget[sp] = SpotCam[cn].tx;
 			camera_ytarget[sp] = SpotCam[cn].ty;
 			camera_ztarget[sp] = SpotCam[cn].tz;
-			//v0 = &camera_roll[sp];
-			//v1 = &camera_fov[sp];
 			camera_roll[sp] = SpotCam[cn].roll;
-			//a1 = &camera_speed[0];
 			camera_fov[sp] = SpotCam[cn].fov;
 			camera_speed[sp] = SpotCam[cn].speed;
 		}
@@ -1044,7 +964,6 @@ void CalculateSpotCams()//37ED0(<), ?
 				{
 					if (last_camera < cn)
 					{
-						//t0 = sp << 2;
 						cn = first_camera;
 					}//loc_38C2C
 				}//loc_38C18
@@ -1053,39 +972,21 @@ void CalculateSpotCams()//37ED0(<), ?
 					//loc_38C18
 					if (last_camera < cn)
 					{
-						//t0 = sp << 2;
 						cn = last_camera;
 					}//loc_38C2C
 				}
 
 				//loc_38C2C
-				//a1 = &camera_xposition[sp];
-				//a0 = &SpotCam[cn];
-				//v0 = &camera_yposition[sp];
-				//a3 = &camera_ytarget[sp];
-				//a3 = t0 + a3;
-				//v1 = SpotCam[cn].x;
-				//a2 = &camera_ztarget[sp];
 				camera_xposition[sp] = SpotCam[cn].x;
-				//v1 = &camera_zposition[sp];
 				camera_yposition[sp] = SpotCam[cn].y;
-				//v0 = //SpotCam[cn].z;
-				//a1 = &camera_xtarget[sp];
 				camera_zposition[sp] = SpotCam[cn].z;
 				camera_xtarget[sp] = SpotCam[cn].tx;
 				camera_ytarget[sp] = SpotCam[cn].ty;
 				camera_ztarget[sp] = SpotCam[cn].tz;
-				///cn++;
-				//v0 = SpotCam[cn].tx;
-				///sp++;
 				camera_xtarget[sp] = SpotCam[cn].tx;
-				//v0 = &camera_roll[sp];
 				camera_ytarget[sp] = SpotCam[cn].ty;
-				//a1 = SpotCam[cn].tz;
-				//v1 = &camera_fov[sp];
 				camera_ztarget[sp] = SpotCam[cn].tz;
 				camera_roll[sp] = SpotCam[cn].roll;
-				//t0 = &camera_speed[sp];
 				camera_fov[sp] = SpotCam[cn].fov;
 				camera_speed[sp] = SpotCam[cn].speed;
 				cn++;
@@ -1093,10 +994,6 @@ void CalculateSpotCams()//37ED0(<), ?
 			}
 		}//loc_38CF4
 
-		//a3 = current_spline_camera;
-		//v1 = last_camera
-
-		//v1 = last_camera < current_spline_camera ? 1 : 0
 		if (last_camera > ++current_spline_camera)
 		{
 			return;
@@ -1126,8 +1023,7 @@ void CalculateSpotCams()//37ED0(<), ?
 				camera_roll[0] = SpotCam[current_spline_camera - 1].roll;
 				camera_fov[0] = SpotCam[current_spline_camera - 1].fov;
 				camera_speed[0] = SpotCam[current_spline_camera - 1].speed;
-				
-				//v0 = SpotCam[current_spline_camera];
+
 				camera_xposition[1] = SpotCam[current_spline_camera].x;
 				camera_yposition[1] = SpotCam[current_spline_camera].y;
 				camera_zposition[1] = SpotCam[current_spline_camera].z;
@@ -1237,638 +1133,6 @@ void CalculateSpotCams()//37ED0(<), ?
 		cfov = LastFov;
 		AlterFOV(LastFov);
 }
-
-#if 0
-void CalculateSpotCams()//
-{
-	long cpx;
-	long cpy;
-	long cpz;
-	long ctx;
-	long cty;
-	long ctz;
-	long cspeed;
-	long cfov;
-	long croll;
-	struct SPOTCAM* s;
-	short spline_cnt;
-	int next_spline_camera;
-	int n;
-	static int bFirstLook;
-	long dx;
-	long dy;
-	long dz;
-	long cs;
-	long sp;
-	long cp;
-	long clen;
-	long tlen;
-	long cx;
-	long cy;
-	long cz;
-	long lx;
-	long lz;
-	long ly;
-	int i;//var_2C
-	int ctype;
-	int cn;
-	struct CAMERA_INFO Backup;
-	struct SPOTCAM* v1111111;
-	struct SPOTCAM* v1;
-	int v0;
-	int s2;//sp?
-	int s5;
-	int s0;
-	int a00;
-	int a11;
-	int a22;
-	int a33;
-	int v11;
-	int t00;
-	int v00;
-	int fp;
-	int s6;
-	int s7;
-	int s11;
-	int s00;
-	int v000;
-	int v111;
-	int a000;
-	int a0;
-	int a111;
-	int a222;
-	struct SPOTCAM* a1;
-
-	if (bDisableLaraControl != 0)
-	{
-		lara_item->hit_points = LaraHealth;
-		lara.air = LaraAir;
-	}
-
-	//loc_37F20
-	s = &SpotCam[first_camera];//$a0
-
-	if (s->flags & 8)
-	{
-
-		spline_cnt = current_camera_cnt + 2;
-	}
-	else
-	{
-		spline_cnt = 4;//$s3
-	}
-
-	//loc_37F64
-	cpx = Spline(0, &camera_xposition[0], spline_cnt);
-	cpy = Spline(0, &camera_yposition[0], spline_cnt);
-	cpz = Spline(0, &camera_zposition[0], spline_cnt);
-
-	ctx = Spline(0, &camera_xtarget[0], spline_cnt);
-	cty = Spline(0, &camera_ytarget[0], spline_cnt);
-	ctz = Spline(0, &camera_ztarget[0], spline_cnt);
-
-	cspeed = Spline(0, &camera_speed[0], spline_cnt);
-	croll = Spline(0, &camera_roll[0], spline_cnt);
-	cfov = Spline(0, &camera_fov[0], spline_cnt);
-
-	if (SpotCam[current_spline_camera].flags & SCF_SCREEN_FADE_IN && current_spline_camera != CameraFade)
-	{
-		CameraFade = current_spline_camera;
-
-		if (gfCurrentLevel != LVL5_TITLE)
-		{
-			ScreenFadedOut = 0;
-			ScreenFade = 255;
-			dScreenFade = 0;
-			SetScreenFadeIn(16);
-		}
-	}
-
-	//loc_38084
-	if (SpotCam[current_spline_camera].flags & SCF_SCREEN_FADE_OUT && CameraFade != current_spline_camera)
-	{
-		if (gfCurrentLevel != LVL5_TITLE)
-		{
-			ScreenFadedOut = 0;
-			ScreenFade = 0;
-			dScreenFade = 255;
-			SetScreenFadeOut(16, 0);
-		}
-	}
-
-	//loc_380F8
-	v1 = s;
-	v0 = s->flags;
-	s2 = 0;//sp?
-	if (s->flags & 8)
-	{
-		fp = 0;//cp
-		lx = lara_item->pos.x_pos;
-		s6 = 0x2000;//cs?
-		ly = lara_item->pos.y_pos;
-		i = 0;
-		lz = lara_item->pos.z_pos;
-
-		//loc_38144
-		while (i < 8)
-		{
-			s5 = 0;
-			s7 = s6 >> 1;
-			i++;
-
-			//loc_38158
-			while (s5 < 8)
-			{
-				a00 = s2;
-				cx = Spline(0, &camera_xposition[0], spline_cnt);
-				cy = Spline(0, &camera_yposition[0], spline_cnt);
-				cz = Spline(0, &camera_zposition[0], spline_cnt);
-
-				tlen = sqrt((cx - lx) * (cx - lx) + (cz - lz) * (cz - lz) + (cy - ly) * (cy - ly)); //$v1
-
-				if (tlen > 1024 * 64)
-				{
-					fp = s2;
-					clen = tlen;
-				}
-
-				//loc_381F0 *
-				s2 += s6;
-				v0 = 0x00010000;
-				v0 = v0 < s2 ? 1 : 0;
-
-				v0 = s7 >> 1;
-				if (0x00010000 < s2)
-				{
-					break;
-				}//loc_38214
-
-				s5++;
-				v0 = s5 < 8 ? 1 : 0;
-				v0 = s7 >> 1;
-			}
-
-			//loc_38214
-			v0 <<= 2;
-			s2 = fp - v0;
-
-			s6 = s7;
-			if (s2 < 0)
-			{
-				s2 = 0;
-			}
-		}
-
-		//loc_38228
-		v0 = current_spline_position;
-		a1 = s;
-		v11 = fp - v0;
-		v11 >>= 5;
-		a0 = a1->flags;
-		v0 += v11;
-
-		current_spline_position = v0;
-
-		v11 = fp - v0;
-		if (a1->flags & 1)
-		{
-			if (v11 > 0 || 0x8000 < v11)
-			{
-				//loc_38284
-				v11 = -fp;
-				if (v11 < 0x8000)
-				{
-					//loc_38298
-					current_spline_position = fp;
-				}
-			}
-		}
-
-		//loc_3829C
-		v0 = current_spline_position;
-		v11 = 0x00010000;
-		if (v0 < 0)
-		{
-			current_spline_position = 0;
-			v0 = current_spline_position;
-		}
-
-		//loc_382B4
-		v0 = v11 < v0 ? 1 : 0;
-		if (v11 < v0)
-		{
-			current_spline_position = v11;
-		}
-	}//loc_382D0
-	else if (spotcam_timer == 0)
-	{
-		current_spline_position += cspeed;
-	}
-
-	//loc_382F4
-	if (!(input & IN_LOOK))
-	{
-		dword_A0AC4 = 0;
-	}
-	
-	//loc_38310
-	if (!(s->flags & SCF_DISABLE_BREAKOUT) && (input & IN_LOOK) && gfGameMode != 1)
-	{
-		if (s->flags & SCF_TRACKING_CAM)
-		{
-			if (dword_A0AC4 == 0)
-			{
-				camera.old_type = FIXED_CAMERA;
-				dword_A0AC4 = 1;
-			}
-
-			//loc_3836C
-			CalculateCamera();
-			return;
-		}
-		else
-		{
-			//loc_3837C
-			SetFadeClip(0, 1);
-			bUseSpotCam = 0;
-			bDisableLaraControl = 0;
-			camera.speed = 1;
-
-			AlterFOV(LastFov);
-
-			CalculateCamera();
-			bCheckTrigger = 0;
-
-			return;
-		}
-	}
-
-	//loc_383B4
-	camera.pos.x = cpx;
-	camera.pos.y = cpy;
-	camera.pos.z = cpz;
-
-	if (s->speed & 0x280000)
-	{
-		ctx = lara_item->pos.x_pos;
-		cty = lara_item->pos.y_pos;
-		ctz = lara_item->pos.z_pos;
-	}
-	
-	//loc_38420
-	v000 = ctx;
-	a000 = cpx;
-	a111 = cpy;
-	a222 = cpz;
-	v111 = cty;
-
-	camera.target.x = ctx;
-	camera.target.y = cty;
-	camera.target.z = ctz;
-	v000 = -1;
-	IsRoomOutsideNo = -1;
-
-
-	IsRoomOutside(cpx, cpy, cpz);
-
-	if (IsRoomOutsideNo == -1)
-	{
-		camera.pos.room_number = SpotCam[current_spline_camera].room_number;
-		GetFloor(camera.pos.x, camera.pos.y, camera.pos.z, &camera.pos.room_number);
-	}
-	else
-	{
-		camera.pos.room_number = IsRoomOutsideNo;
-	}
-
-	//loc_384DC
-	AlterFOV(cfov);//FIXME cfov = 0;
-
-	if (quakecam.spos.box_number != 0)
-	{
-		v00 = sqrt((camera.pos.x - quakecam.epos.x) * (camera.pos.x - quakecam.epos.x) + (camera.pos.y - quakecam.epos.y) * (camera.pos.y - quakecam.epos.y) + (camera.pos.z - quakecam.epos.z) * (camera.pos.z - quakecam.epos.z));
-		a11 = quakecam.epos.box_number;
-		v11 = v00;
-
-		if (v00 < quakecam.epos.box_number)
-		{
-			v11 = (quakecam.epos.box_number - v00)
-				* (quakecam.epos.room_number - quakecam.spos.room_number)
-				/ quakecam.epos.box_number
-				+ quakecam.spos.room_number;
-			s11 = v11 >> 1;
-			if (v11 > 0)
-			{
-				camera.pos.x += GetRandomControl() % v11 - s11;
-				camera.pos.y += GetRandomControl() % v11 - s11;
-				camera.pos.z += GetRandomControl() % v11 - s11;
-			}
-		}
-
-/*
-		if (v11 < a11)
-		{
-			v11 -= a11;
-			s00 = quakecam.spos.room_number;
-			v00 = quakecam.epos.room_number;
-			s11 = v00 - s00;
-			s11 *= v11;
-			v00 = s11 / a11;
-
-			if (v00 == 0)
-			{
-				//Simulate break 7
-				assert(0);
-			}
-
-			//loc_385A8
-			s00 += v00;
-			s11 = s00 >> 1;
-			if (s00 > 0)
-			{
-				v11 = GetRandomControl() / s00;
-				if (s00 != 0)
-				{
-					//loc_385D0
-					v11 -= s11;
-					camera.pos.x += v11;
-
-					v11 = GetRandomControl() / s00;
-
-					if (s00 == 0)
-					{
-						//Simulate break 7
-						assert(0);
-					}
-
-					//loc_38604
-					v11 -= s11;
-					camera.pos.y += v11;
-
-					v11 = GetRandomControl() / s00;
-
-					if (s00 == 0)
-					{
-						//Simulate break 7
-						assert(0);
-					}
-
-					//loc_38638
-					v11 -= s11;
-					camera.pos.z += v11;
-				}
-
-				//Simulate break 7
-				assert(0);
-
-			}//loc_38650
-		}//loc_38650
-		*/
-	}//loc_38650
-
-	a00 = camera.pos.x;
-	a11 = camera.pos.y;
-	a22 = camera.pos.z;
-	a33 = camera.target.x;
-	v11 = camera.target.y;
-	t00 = camera.target.z;
-	v00 = croll;
-#if 0
-	//loc_38650:
-
-	//sw	$v0, 0xF8 + var_E0($sp)
-	//sw	$v1, 0xF8 + var_E8($sp)
-	//sw	$t0, 0xF8 + var_E4($sp)
-	//jal	sub_77728//phd_LookAt
-	phd_LookAt();
-
-	int s22 = s00;
-	if (!bCheckTrigger)
-	{
-		s00 = camera.type;
-		camera.type = HEAVY_CAMERA;
-
-		if (gfCurrentLevel != 0)
-		{
-			TestTriggersAtXYZ(camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number, 1, 0);
-		}
-		else
-		{
-			//loc_38704
-			TestTriggersAtXYZ(camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number, 0, 0);
-			TestTriggersAtXYZ(camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number, 1, 0);
-		}
-
-		//loc_38760
-		camera.type = s00;
-		bCheckTrigger = 0;
-	}
-#endif
-
-	//loc_3876C
-	if (s->flags & 8)
-	{
-		bTrackCamInit = 1;
-		return;
-	}
-
-	//loc_38794
-	if (0x10000 - cspeed < current_spline_position)
-	{
-		if (SpotCam[current_spline_camera].flags & 2)
-		{
-			if (SpotCam[current_spline_camera].timer < 0)
-			{
-				SCOverlay = 1;
-			}
-			else if (!SlowMotion)
-			{
-				//loc_387F8
-				SlowMotion = 1;
-			}
-		}
-
-		//loc_38814
-		if (SpotCam[current_spline_camera].flags & SCF_HIDE_LARA)
-		{
-			SCNoDrawLara = 1;
-		}
-
-		//loc_38844
-		if (SpotCam[current_spline_camera].flags & SCF_ACTIVATE_HEAVY_TRIGGERS)
-		{
-			bCheckTrigger = 1;
-		}
-
-		//loc_3885C
-		if (SpotCam[current_spline_camera].flags & SCF_STOP_MOVEMENT)
-		{
-			if (quakecam.spos.box_number == 0 && SpotCam[current_spline_camera].timer != -1)
-			{
-				//loc_38888
-				quakecam.epos.x = SpotCam[current_spline_camera].x;
-				quakecam.epos.y = SpotCam[current_spline_camera].y;
-				quakecam.epos.z = SpotCam[current_spline_camera].z;
-
-				if (SpotCam[current_spline_camera].timer != -1)
-				{
-					quakecam.epos.room_number = SpotCam[current_spline_camera].timer << 3;
-				}
-				else
-				{
-					//loc_388C8
-					quakecam.epos.room_number = 0;
-				}
-
-				//loc_388CC
-				quakecam.spos.box_number = 1;
-
-				quakecam.epos.x = SpotCam[current_spline_camera + 1].x;
-				quakecam.epos.y = SpotCam[current_spline_camera + 1].y;
-				quakecam.epos.z = SpotCam[current_spline_camera + 1].z;
-
-				if (SpotCam[current_spline_camera + 1].timer != -1)
-				{
-					quakecam.epos.room_number = SpotCam[current_spline_camera + 1].timer << 3;
-				}
-				else
-				{
-					//loc_3892C
-					quakecam.epos.room_number = 0;
-				}
-
-				//loc_38930
-				quakecam.epos.box_number = sqrt((quakecam.spos.x - quakecam.epos.x) * (quakecam.spos.x - quakecam.epos.x) + (quakecam.spos.y - quakecam.epos.y) * (quakecam.spos.y - quakecam.epos.y) + (quakecam.spos.z - quakecam.epos.z) * (quakecam.spos.z - quakecam.epos.z));
-
-			}
-			else if (SpotCam[current_spline_camera].timer != -1)
-			{
-				//loc_38990
-				quakecam.spos.box_number = 0;
-			}
-		}
-
-		//loc_38994
-		if (spotcam_timer != 0)
-		{
-			return;
-		}
-
-		v11 = current_spline_camera;
-		v00 = first_camera;
-		current_spline_position = 0;
-
-		s0 = current_spline_camera - 1;
-		if (current_spline_camera == first_camera)
-		{
-			s0 = last_camera;
-		}
-		
-		//loc_389BC
-		s5 = 1;
-		if (!spline_from_camera)
-		{
-			spline_from_camera = 0;
-			s0 = first_camera - 1;
-			//j	loc_38BC8
-		}
-		else
-		{
-			//loc_389DC
-			if (SpotCam[current_spline_camera].flags & SCF_REENABLE_LARA_CONTROLS)
-			{
-				bDisableLaraControl = 0;
-			}
-
-			//loc_38A0C
-			if (SpotCam[current_spline_camera].flags & SCF_DISABLE_LARA_CONTROLS)
-			{
-				SetFadeClip(16, 1);
-				bDisableLaraControl = 1;
-			}
-			
-			//loc_38A24
-			v1111111 = &SpotCam[current_spline_camera];
-			s5 = 0;
-			if (SpotCam[current_spline_camera].flags & SCF_CUT_TO_CAM)
-			{
-				current_spline_camera = (SpotCam[current_spline_camera].timer & 0xF) + first_camera;
-
-				camera_xposition[0] = SpotCam[current_spline_camera].x;
-				camera_yposition[0] = SpotCam[current_spline_camera].y;
-				camera_zposition[0] = SpotCam[current_spline_camera].z;
-
-				camera_xtarget[0] = SpotCam[current_spline_camera].tx;
-				camera_ytarget[0] = SpotCam[current_spline_camera].ty;
-				camera_ztarget[0] = SpotCam[current_spline_camera].tz;
-
-				camera_roll[0] = SpotCam[current_spline_camera].roll;
-				camera_fov[0] = SpotCam[current_spline_camera].fov;
-				camera_speed[0] = SpotCam[current_spline_camera].speed;
-
-				s5 = 1;
-			}
-			
-			//loc_38B04
-#if 0
-			loc_38B04:
-			sll	$t0, $s5, 2
-			addiu	$v1, $gp, 0x2DB0
-			sll	$a0, $s0, 2
-			addu	$a0, $s0
-			sll	$a0, 3
-			addu	$v1, $t0, $v1
-			addiu	$a2, $gp, 0x301C
-			addu	$a2, $t0, $a2
-			lw	$v0, SpotCam($gp)
-			addiu	$a3, $gp, 0x306C
-			addu	$a0, $v0
-			addiu	$v0, $gp, 0x2DF8
-			lw	$a1, 0($a0)
-			addu	$v0, $t0, $v0
-			sw	$a1, 0($v1)
-			lw	$a1, 4($a0)
-						 addiu	$v1, $gp, 0x2E40
-						 sw	$a1, 0($v0)
-						 lw	$v0, 8($a0)
-						 addu	$v1, $t0, $v1
-						 sw	$v0, 0($v1)
-						 lw	$v0, 0xC($a0)
-						 addu	$a3, $t0, $a3
-						 sw	$v0, 0($a2)
-						 lw	$v0, 0x10($a0)
-						 addiu	$a1, $gp, 0x2FB0
-						 sw	$v0, 0($a3)
-						 lw	$v1, 0x14($a0)
-						 addu	$a1, $t0, $a1
-						 sw	$v1, 0($a1)
-						 lw	$v0, 0xC($a0)
-						 addiu	$s5, 1
-						 sw	$v0, 0($a2)
-						 addiu	$v0, $gp, 0x2F00
-						 lw	$v1, 0x10($a0)
-						 addu	$v0, $t0, $v0
-						 sw	$v1, 0($a3)
-						 lw	$a2, 0x14($a0)
-						 addiu	$v1, $gp, 0x2F4C
-						 sw	$a2, 0($a1)
-						 lh	$a1, 0x1C($a0)
-						 addu	$v1, $t0, $v1
-						 sw	$a1, 0($v0)
-						 lh	$v0, 0x1A($a0)
-						 addiu	$a1, $gp, 0x2EB8
-						 sw	$v0, 0($v1)
-						 lh	$v0, 0x20($a0)
-						 addu	$t0, $a1
-						 sw	$v0, 0($t0)
-#endif//critical 8BC8 jmp
-		}
-
-
-	}//loc_39160
-	S_Warn("[CalculateSpotCams] - Unimplemented!\n");
-}//loc_39160
-#endif
 
 long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 {
