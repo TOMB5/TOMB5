@@ -339,15 +339,16 @@ void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
 	CDDA_SetVolume(nVolume);
 }
 
-void InitNewCDSystem()//5DDE8, 5E264(<) (F)
+void InitNewCDSystem()//5DDE8(<), 5E264(<) (F)
 {
-	CdlFILE fp;
-	char buf[10];
 	int i;
 	long local_wadfile_header[512];
+	CdlFILE fp;
+	char buf[80];
 
 	DEL_ChangeCDMode(0);
-	
+
+#if DISC_VERSION
 	CdSearchFile(&fp, GAMEWAD_FILENAME);//662F0
 	CdControlB(CdlSetloc, (unsigned char*)&fp, NULL);//6956C
 	CdRead(1, (unsigned long*)&local_wadfile_header, CdlModeSpeed); //69C4C
@@ -360,16 +361,15 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 	memcpy(&gwHeader, &local_wadfile_header, 512);//5F6AC
 
 	gwLba = CdPosToInt(&fp.pos);//66270
+#endif
 
 	//loc_5E2E8
 	for (i = 0; i < NUM_XA_FILES; i++)
 	{
-		sprintf(buf, XA_FILE_NAME, i + 1);
-		
-		CdSearchFile(&fp, buf);
-
+		sprintf(&buf[0], XA_FILE_NAME, i + 1);
+		CdSearchFile(&fp, &buf[0]);
 		XATrackList[i][0] = CdPosToInt(&fp.pos);
-		XATrackList[i][1] = XATrackList[i][0] + ((fp.size + 0x7FF) >> CD_SECTOR_SHIFT);
+		XATrackList[i][1] = ((fp.size + ((1 << CD_SECTOR_SHIFT) - 1)) >> CD_SECTOR_SHIFT) + XATrackList[i][0];
 	}
 
 	XAFlag = 0;

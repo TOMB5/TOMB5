@@ -2,6 +2,7 @@
 
 #include "CONTROL.H"
 #include "EFFECTS.H"
+#include "GAMEFLOW.H"
 #include INPUT_H
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -359,9 +360,61 @@ void TestTriggersAtXYZ(long x, long y, long z, short room_number, int heavy, int
 	return;
 }
 
-int GetKeyTrigger(struct ITEM_INFO* item)//56080, 56520
+int GetKeyTrigger(struct ITEM_INFO* item)//56080(<), 56520(<) (F)
 {
-	S_Warn("[GetKeyTrigger] - Unimplemented!\n");
+	short* data;
+
+	if (item->object_number == 7)
+	{
+		if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
+		{
+			return 1;
+		}
+	}//loc_560B8
+
+	GetHeight(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &item->room_number), item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+
+	data = trigger_index;
+	if (data == NULL)
+	{
+		return 0;
+	}//loc_56194
+
+	if ((*data & 0x1F) != 4 && (*data & 0x8000) == 0)
+	{
+		++data;
+		//loc_56118
+		if ((*data & 0x1F) != 4)
+		{
+			if ((*data & 0x8000))
+			{
+				--data;
+			}
+			else
+			{
+				++data;
+			}
+		}
+		//loc_56138
+	}
+	//loc_56138
+	if (!(*data += 2 & 4))
+	{
+		return 0;
+	}
+
+	//loc_56154
+	do
+	{
+		if ((*data & 0x3FFF) >> 10 == 0)
+		{
+			if (item == &items[(*data & 0x3FF) << 3])
+			{
+				return 1;
+			}
+		}//loc_56188
+	} while ((*data++ & 0x8000) == 0);
+
 	return 0;
 }
 

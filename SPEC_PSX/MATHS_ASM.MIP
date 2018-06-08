@@ -1,7 +1,7 @@
 	opt L.,C+,at+
 
 	section	.asm
-	xdef mQuickW2VMatrix, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm
+	xdef mQuickW2VMatrix, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt
 	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix
 
 ;0x77AEC
@@ -1177,4 +1177,7 @@ GetRoomBoundsAsm:
 	lw	s7, 0x1F8000F4
 	jr	ra
 	lw	fp, 0x1F8000F8
+	
+phd_LookAt:
+	nop
 	end

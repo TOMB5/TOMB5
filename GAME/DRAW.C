@@ -55,7 +55,7 @@ short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;
 
-long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, long* rate/*$a2*/)//8582C
+long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*$a2*/)//8582C
 {
 	struct ANIM_STRUCT* anim = &anims[item->anim_number];
 	int t3;
@@ -87,7 +87,7 @@ long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, long* rate/
 short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 8793C
 {
 	short* var_10[2];//$a1
-	long var_8[2];//$a2
+	int var_8[2];//$a2
 	short* a2;
 	int a1;
 	if (GetFrames(item, &var_10[0], &var_8[0]) == 0)
@@ -296,7 +296,7 @@ void DrawGunflashes()//8A924(<) 8C968(<) (F)
 short* GetBestFrame(struct ITEM_INFO* item)// (F)s
 {
 	short* frm[2];
-	long rate;
+	int rate;
 	const int ret = GetFrames(item, frm, &rate);
 
 	if (ret > (rate >> 1))
