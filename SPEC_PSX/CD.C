@@ -254,7 +254,7 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 	return;
 }
 
-void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F)
+void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F) (*)
 {
 	unsigned char param[4];
 
@@ -302,7 +302,7 @@ void S_CDStop()//5DCD0(<), 5E14C(<) (F) (*)
 
 void S_CDPause()//5DD14(<), 5E190(<) (F) (*)
 {
-	if (XATrack > 0)
+	if (XATrack >= 0)
 	{
 		CdControlF(CdlPause, NULL);
 	}
