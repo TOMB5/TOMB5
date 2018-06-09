@@ -73,8 +73,8 @@ void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F) (*)
 	SpuCommonAttr attr;
 	
 	attr.mask = SPU_COMMON_CDVOLL | SPU_COMMON_CDVOLR | SPU_COMMON_CDMIX;
-	attr.cd.volume.left = nVolume * 64;
-	attr.cd.volume.right = nVolume * 64;
+	attr.cd.volume.left = nVolume << 6;
+	attr.cd.volume.right = nVolume << 6;
 	attr.cd.mix = SPU_ON;
 	
 	SpuSetCommonAttr(&attr);
