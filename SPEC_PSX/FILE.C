@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <libsn.h>
 
-int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F) (*) (?)
+int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F) (*) (*)
 {
 #if DISC_VERSION
 	CdlFILE fp;
@@ -52,22 +52,24 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F) (*) (?)
 #endif
 }
 
-unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F) (*) (?)
+unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F) (*) (*)
 {
 #if DISC_VERSION
 	CdlFILE fp;
-	char buf[10];
-	unsigned long dwFileSize = -1;
+	char buf[80];
 
 	DEL_ChangeCDMode(0);
 	sprintf(buf, "\\%s;1", szFileName);
 
 	if (CdSearchFile(&fp, buf))
 	{
-		dwFileSize = fp.size;
+		return fp.size;
+	}
+	else
+	{
+		return -1;
 	}
 
-	return dwFileSize;
 #else
 	int nHandle;
 	unsigned long dwFileSize;
