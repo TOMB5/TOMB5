@@ -20,6 +20,7 @@
 #include "SPECTYPES.H"
 #include <assert.h>
 #include "CAMERA.H"
+#include "LARA.H"
 
 int number_boxes;
 struct box_info* boxes;
@@ -543,9 +544,30 @@ int BadFloor(long x, long y, long z, long box_height, long next_height, int room
 	return FALSE;
 }
 
-int CreatureCreature(short item_number)
+int CreatureCreature(short item_number) // (F)
 {
-	S_Warn("[CreatureCreature] - Unimplemented!\n");
+	long x = items[item_number].pos.x_pos;
+	long z = items[item_number].pos.z_pos;
+
+	struct ITEM_INFO* item;
+
+	for(short link = room[items[item_number].room_number].item_number; link != -1; link = item->next_item)
+	{
+		item = &items[link];
+
+		if (link != item_number && item != lara_item && item->status == ITEM_ACTIVE && item->hit_points > 0)
+		{
+			long xdistance = abs(item->pos.x_pos - x);
+			long zdistance = abs(item->pos.z_pos - z);
+			long radius = xdistance <= zdistance ? zdistance + (xdistance >> 1) : xdistance + (zdistance >> 1);
+			if (radius < objects[items[item_number].object_number].radius + objects[item->object_number].radius)
+			{
+				long y_rot = items[item_number].pos.y_rot;
+				return phd_atan_asm(item->pos.z_pos - z, item->pos.x_pos - x) - y_rot;
+			}
+		}
+	}
+
 	return 0;
 }
 
