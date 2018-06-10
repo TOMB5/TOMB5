@@ -4,6 +4,7 @@
 #define INPUT_H "INPUT.H"
 #define CMATH_H "math.h"
 
+#include "STANDARD.H"
 #include "TYPES.H"
 #include <stddef.h>
 #include <stdint.h>
