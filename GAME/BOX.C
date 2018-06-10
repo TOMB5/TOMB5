@@ -292,10 +292,110 @@ void CreatureKill(struct ITEM_INFO* item, int kill_anim, int kill_state, short l
 	S_Warn("[CreatureKill] - Unimplemented!\n");
 }
 
-int CreatureVault(short item_number, short angle, int vault, int shift)
+int CreatureVault(short item_number, short angle, int vault, int shift) // (F)
 {
-	S_Warn("[CreatureVault] - Unimplemented!\n");
-	return 0;
+	struct ITEM_INFO* item = &items[item_number];
+	long y = item->pos.y_pos;
+	short room_number = item->room_number;
+
+	long yy = item->pos.z_pos >> 10;
+	long xx = item->pos.x_pos >> 10;
+
+	CreatureAnimation(item_number, angle, 0);
+
+	if (item->floor > y + 1152)
+	{
+		vault = 0;
+	}
+	else if (item->floor > y + 896)
+	{
+		vault = -4;
+	}
+	else if (item->floor > y + 640)
+	{
+		vault = -3;
+	}
+	else if (item->floor > y + 384)
+	{
+		vault = -2;
+	}
+	else if (item->pos.y_pos > y - 384)
+	{
+		return 0;
+	}
+	else if (item->pos.y_pos > y - 640)
+	{
+		vault = 2;
+	}
+	else if (item->pos.y_pos > y - 896)
+	{
+		vault = 3;
+	}
+	else if (item->pos.y_pos > y - 1152)
+	{
+		vault = 4;
+	}
+
+	if (yy == item->pos.z_pos >> 10)
+	{
+		if (xx > item->pos.x_pos >> 10)
+		{
+			item->pos.y_rot = ANGLE(-90);
+			item->pos.x_pos = (xx << 10) + shift;
+		}
+		else if (xx < item->pos.x_pos >> 10)
+		{
+			item->pos.y_rot = ANGLE(90);
+			item->pos.x_pos = (item->pos.x_pos << 10) - shift;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else if (xx == item->pos.x_pos >> 10)
+	{
+		if (yy > item->pos.z_pos >> 10)
+		{
+			item->pos.y_rot = ANGLE(-180);
+			item->pos.z_pos = (yy << 10) + shift;
+		}
+		else
+		{
+			item->pos.y_rot = ANGLE(180);
+			item->pos.z_pos = (item->pos.z_pos << 10) - shift;
+		}
+	}
+	else
+	{
+		if (yy >= item->pos.z_pos >> 10)
+		{
+			item->pos.z_pos = (yy << 10) + shift;
+		}
+		else
+		{
+			item->pos.z_pos = (item->pos.z_pos << 10) - shift;
+		}
+
+		if (xx >= item->pos.x_pos >> 10)
+		{
+			item->pos.x_pos = (xx << 10) + shift;
+		}
+		else
+		{
+			item->pos.x_pos = (item->pos.x_pos << 10) - shift;
+		}
+	}
+
+	item->floor = y;
+	item->pos.y_pos = y;
+
+	if (vault)
+	{
+		ItemNewRoom(item_number, room_number);
+	}
+
+	return vault;
 }
 
 short CreatureEffectT(struct ITEM_INFO* item, struct BITE_INFO* bite, short damage, short angle, short (*generate)(long x, long y, long z, short speed, short yrot, short room_number))// (F)
