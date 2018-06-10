@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+
 /*#ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif*/
@@ -67,7 +68,8 @@ inline int phd_atan(long x, long y)
 	res = atanOctantTab[octant] + atanTab[(y * 2048) / x];
 	return abs(res);
 }
-#elif PC_VERSION
+#elif 1
+#include <math.h>
 inline int phd_atan(long x, long y)
 {
 	return (int)(atan2(x, y) * 32768.0 / 3.14159265359);
