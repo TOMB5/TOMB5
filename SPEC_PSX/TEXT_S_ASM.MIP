@@ -1,6 +1,6 @@
 	opt L.,C+,at+
 
-	section	.asm
+	section	.ASM
 	xdef DrawChar, GetStringDimensions, GetStringLength, PrintString
 	xref aUEAAAAEEEAAEOO, word_9230E, phd_mxptr, MatrixStack, Matrix, MatrixSP, AccentTable, LaSlot, CharDef, sound_active, sample_infos, sample_lut, ScaleFlag, GnFrameCounter, db, S_SoundStopSample, db.ot
 

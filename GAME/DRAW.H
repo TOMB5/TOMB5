@@ -44,12 +44,13 @@ extern short* SRhandPtr;
 extern short* SLhandPtr;
 
 extern long GetFrames(struct ITEM_INFO* item, short* frames[], int* rate);
-extern short* GetBoundsAccurate(struct ITEM_INFO* item);
 extern void UpdateSkyLightning();
 extern void DrawSkyMesh(short* mesh);
 extern void DrawFlatSky_ASM(struct CVECTOR colour, short pos, long flags);
 extern void DrawMoon();
 extern void DrawGunflashes();
 extern short* GetBestFrame(struct ITEM_INFO* item);
+
+
 
 #endif

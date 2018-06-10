@@ -13,7 +13,6 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F) (*) (*)
 #if DISC_VERSION
 	CdlFILE fp;
 	char buf[80];
-	unsigned long dwFileSize = -1;
 	
 	DEL_ChangeCDMode(0);
 

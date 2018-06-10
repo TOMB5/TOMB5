@@ -1,6 +1,6 @@
 	opt L.,C+,at+
 
-	section	.asm
+	section	.ASM
 	xdef mQuickW2VMatrix, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt
 	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix
 

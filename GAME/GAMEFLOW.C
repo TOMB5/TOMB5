@@ -26,6 +26,7 @@
 
 #include "HEALTH.H"
 #include "ITEMS.H"
+#include "LARA.H"
 #include "MALLOC.H"
 #include "NEWINV2.H"
 #include INPUT_H
