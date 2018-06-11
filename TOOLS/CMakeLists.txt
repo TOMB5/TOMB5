@@ -5,5 +5,6 @@ set(TOOL_ROOT_DIR ${TOOL_ROOT_DIR} "${CMAKE_CURRENT_SOURCE_DIR}")
 
 #Add each tool project
 if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))
-	add_subdirectory(GAMEWAD)
+	add_subdirectory(GAMEWAD_Unpack)
+	add_subdirectory(GAMEWAD_Pack)
 endif()

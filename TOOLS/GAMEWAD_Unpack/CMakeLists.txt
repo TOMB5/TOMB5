@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
-project (GAMEWAD_${TARGET_ARCH})
+project (GAMEWAD_Unpack${TARGET_ARCH})
 
 #Setup platform specific / game code include folder
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -14,7 +14,7 @@ ${TOOL_SRCS}
 )
 
 set_target_properties(
-${PROJECT_NAME} PROPERTIES OUTPUT_NAME "GAMEWAD"
+${PROJECT_NAME} PROPERTIES OUTPUT_NAME "GAMEWAD_Unpack"
 ${PROJECT_NAME} PROPERTIES FOLDER "Tools/Gamewad"
 )
 
