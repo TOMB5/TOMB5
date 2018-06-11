@@ -65,7 +65,7 @@ namespace TombRaiderChronicles
 
 						//Level data
 						reader.seek(((int)reader.m_pos + 0x7FF) & ~0x7FF);
-						int dataSize = entry[i].fileSize - ((int)reader.m_pos - entry[i].fileOffset) - 0x691B4;
+						int dataSize = entry[i].fileSize - ((int)reader.m_pos - entry[i].fileOffset) - 0x691B4;///@HACK
 						char* levelData = new char[dataSize];
 						reader.readRaw(levelData, dataSize);
 						sprintf_s(buf, "%s.PSX", gwFileNames[i]);
@@ -73,6 +73,15 @@ namespace TombRaiderChronicles
 						levelWriter.write(levelData, dataSize);
 						delete[] levelData;
 						levelWriter.close();
+
+						reader.seek(((int)reader.m_pos + 0x7FF) & ~0x7FF);
+						char* codeData = new char[0x6901C];//Sizeof codewad
+						reader.readRaw(codeData, 0x6901C);
+						IO::StreamWriter codeWriter("DATA\\CODE.WAD");
+						codeWriter.write(codeData, 0x6901C);
+						delete[] codeData;
+						codeWriter.close();
+
 					}
 					else if (i > RESERVED_40 && i < UNKNOWN_49)
 					{

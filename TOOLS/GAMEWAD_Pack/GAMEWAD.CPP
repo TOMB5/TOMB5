@@ -18,6 +18,8 @@ namespace TombRaiderChronicles
 
 		for (auto i = 0; i < NUM_GAMEWAD_FILE_ENTRIES; i++)
 		{
+			writer.seek(currentOffset);
+
 			if (i == NONE)
 			{
 				//SETUP.MOD
@@ -40,7 +42,6 @@ namespace TombRaiderChronicles
 			}
 			else if (i > CUTSEQ && i < RESERVED_17)
 			{
-				writer.seek(currentOffset);
 				gameWad.entries[i].fileOffset = currentOffset;
 				char buf[32];
 				sprintf_s(buf, "%s.RAW", gwFileNames[i]);
@@ -78,13 +79,21 @@ namespace TombRaiderChronicles
 				writer.write(levelData, (int)levelReader.m_length);
 				delete[] levelData;
 
-				gameWad.entries[i].fileSize += 0x691B4;
+				gameWad.entries[i].fileSize = (gameWad.entries[i].fileSize + 0x7FF) & ~0x7FF;
+				writer.seek(((int)writer.m_pos + 0x7FF) & ~0x7FF);
+				IO::StreamReader codeReader("DATA\\CODE.WAD");
+				char* codeData = new char[(int)codeReader.m_length];
+				codeReader.readRaw(codeData, (int)codeReader.m_length);
+				gameWad.entries[i].fileSize += 0x6901C;
+				codeReader.close();
+				writer.write(codeData, (int)codeReader.m_length);
+				delete[] codeData;
+
 				currentOffset += gameWad.entries[i].fileSize;
 				currentOffset = (currentOffset + 0x7FF) & ~0x7FF;
 			}
 			else if (i > RESERVED_40 && i < UNKNOWN_49)
 			{
-				writer.seek(currentOffset);
 				gameWad.entries[i].fileOffset = currentOffset;
 				char buf[32];
 				sprintf_s(buf, "%s.RAW", gwFileNames[i]);
@@ -113,7 +122,6 @@ namespace TombRaiderChronicles
 			else
 			{
 				//CUTSEQ.JIZ
-				writer.seek(currentOffset);
 				IO::StreamReader reader(gwFileNames[i]);
 				if (reader.m_isOpen)
 				{
