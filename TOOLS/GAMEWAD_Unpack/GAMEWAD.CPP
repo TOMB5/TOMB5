@@ -16,15 +16,17 @@ namespace TombRaiderChronicles
 		{
 			printf("Warning: failed to open file: %s\n", fileName);
 		}
+
 		char* fileData = new char[NUM_GAMEWAD_FILE_ENTRIES * sizeof(GAMEWAD_entry)];
 		reader.readRaw(fileData, NUM_GAMEWAD_FILE_ENTRIES * sizeof(GAMEWAD_entry));
 		GAMEWAD_entry* entry = (GAMEWAD_entry*)fileData;
 
 		for (int i = 0; i < NUM_GAMEWAD_FILE_ENTRIES; i++)
 		{
+			//First entry (NONE) only holds SETUP.MOD size.
 			if (i > NONE)
 			{
-				//Null entry
+				//Skip null entries
 				if (entry[i].fileOffset > 0 && entry[i].fileSize > 0)
 				{
 					reader.seek(entry[i].fileOffset);
@@ -71,7 +73,29 @@ namespace TombRaiderChronicles
 						levelWriter.write(levelData, dataSize);
 						delete[] levelData;
 						levelWriter.close();
-						reader.close();
+					}
+					else if (i > RESERVED_40 && i < UNKNOWN_49)
+					{
+						//Loading Screen
+						char* loadingScreenData = new char[LOADING_SCREEN_IMG_SIZE];
+						reader.readRaw(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
+						char buf[32];
+						sprintf_s(buf, "%s.RAW", gwFileNames[i]);
+						IO::StreamWriter writerls(buf);
+						writerls.write(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
+						delete[] loadingScreenData;
+						writerls.close();
+						memset(&buf[0], 0, sizeof(buf));
+
+						//Loading CD
+						char* loadingCdData = new char[LOADING_CD_IMG_SIZE];
+						reader.readRaw(loadingCdData, LOADING_CD_IMG_SIZE);
+						sprintf_s(buf, "%s_CD.RAW", gwFileNames[i]);
+						IO::StreamWriter writercd(buf);
+						writercd.write(loadingCdData, LOADING_CD_IMG_SIZE);
+						delete[] loadingCdData;
+						writercd.close();
+						memset(&buf[0], 0, sizeof(buf));
 					}
 					else
 					{
@@ -87,5 +111,6 @@ namespace TombRaiderChronicles
 		}
 
 		delete[] fileData;
+		reader.close();
 	}
 }
