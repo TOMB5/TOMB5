@@ -4,7 +4,11 @@
 #include "DELTAPAK.H"
 #include "GAMEFLOW.H"
 #include "LARA.H"
+#if PSXENGINE
 #include "MATHS.H"
+#else
+#include "GLOBAL.H"
+#endif
 #include "OBJECTS.H"
 #include INPUT_H
 #include "SPECIFIC.H"
@@ -766,7 +770,9 @@ void CalculateSpotCams()//37ED0(<), ?
 		}//loc_38650
 	}//loc_38650
 
+#if PSXENGINE
 	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, croll);
+#endif
 #if 0
 		lw      $a3, camera.target.x
 		lw      $v0, 0xF8 + var_40($sp)//croll?
@@ -1077,7 +1083,9 @@ void CalculateSpotCams()//37ED0(<), ?
 				camera_speed[3] = camera_speed[1] >> 1;
 
 				///S_MemCpy(&camera, &backup, sizeof(struct CAMERA_INFO));
+#if PSXENGINE
 				phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
+#endif
 				spline_to_camera = 1;
 				return;
 			}

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+
 /*#ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif*/
@@ -36,6 +37,8 @@
 #define SIN(x) (4 * rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
 #define COS(x) (4 * rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
 
+#define phd_atan_asm phd_atan
+
 #if 0 // for later...
 inline int phd_atan(long x, long y)
 {
@@ -65,7 +68,14 @@ inline int phd_atan(long x, long y)
 	res = atanOctantTab[octant] + atanTab[(y * 2048) / x];
 	return abs(res);
 }
+#elif 1
+#include <math.h>
+inline int phd_atan(long x, long y)
+{
+	return (int)(atan2(x, y) * 32768.0 / 3.14159265359);
+}
 #endif
+
 
 #define RGB555(r, g, b) ((r << 7) & 0x7C00 | (g << 2) & 0x3E0 | (b >> 3) & 0x1F)
 #define RED5(rgb) (((rgb >> 10) & 0x1F) << 3)

@@ -1,12 +1,13 @@
 #include "CAMERA.H"
 #if !PC_VERSION
 #include "CD.H"
-#include "EFFECTS.H"
 #include "MATHS.H"
 #include "3D_GEN.H"
 #else
 #include "GLOBAL.H"
+#include "DS.H"
 #endif
+#include "EFFECTS.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
@@ -940,7 +941,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#if 1//GetBoundsAccurate illegal, crash.
+#if PSXENGINE//GetBoundsAccurate illegal, crash.
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
