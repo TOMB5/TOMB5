@@ -4,8 +4,9 @@ project (GAMEWAD_Pack${TARGET_ARCH})
 
 #Setup platform specific / game code include folder
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${SPEC_PSXPC_DIR})
 
-#Recursively locate the source files for SPEC_PSXPC.
+#Recursively locate the source files for GAMEWAD_Pack.
 file(GLOB_RECURSE TOOL_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.CPP ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAKE_CURRENT_SOURCE_DIR}/*.H ${CMAKE_CURRENT_SOURCE_DIR}/*.CUR ${CMAKE_CURRENT_SOURCE_DIR}/*.RC)
 
 add_executable(
