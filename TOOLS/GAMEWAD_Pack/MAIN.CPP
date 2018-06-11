@@ -1,7 +1,6 @@
 #include "GAMEWAD.H"
 int main()
 {
-	TombRaiderChronicles::InitialiseGamewadToc();
-	TombRaiderChronicles::WriteGamewad();
+	TombRaiderChronicles::PackGamewad();
 	return 0;
 }

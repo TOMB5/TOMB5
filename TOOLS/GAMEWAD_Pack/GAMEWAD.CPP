@@ -9,39 +9,132 @@ namespace TombRaiderChronicles
 {
 	static GAMEWAD_header gameWad;
 
-	void InitialiseGamewadToc()
+	void PackGamewad()
 	{
 		int currentOffset = 0;
 
+		IO::StreamWriter writer(GAMEWAD_FILENAME);
+		char* modData = NULL;
+
 		for (auto i = 0; i < NUM_GAMEWAD_FILE_ENTRIES; i++)
 		{
-			IO::StreamReader reader(gwFileNames[i]);
-
-			if (reader.m_isOpen)
+			if (i == NONE)
 			{
-				gameWad.entries[i].fileSize = reader.m_length;
-				gameWad.entries[i].fileOffset = currentOffset;
-				
-				//Hack SETUP.MOD is not written to first entry, only size is stored thus we don't want to alter currentOffset with this hack.
-				if (i == 0)
+				//SETUP.MOD
+				IO::StreamReader reader(gwFileNames[i]);
+				if (reader.m_isOpen)
 				{
-					reader.m_length = 1;
+					gameWad.entries[i].fileSize = (int)reader.m_length;
+					gameWad.entries[i].fileOffset = currentOffset;
+					currentOffset++;//HACK
+					currentOffset = (currentOffset + 0x7FF) & ~0x7FF;
+					
+					if (modData == NULL)
+					{
+						modData = new char[gameWad.entries[i].fileSize];
+						reader.readRaw(modData, gameWad.entries[i].fileSize);
+					}
+
+					reader.close();
 				}
-				//HACK Inject loading screen image before [level.psx] and CODE.WAD
-
-				currentOffset = ((currentOffset + reader.m_length) + (CD_SECTOR_SIZE - 1)) & ~(CD_SECTOR_SIZE - 1);
 			}
+			else if (i > CUTSEQ && i < RESERVED_17)
+			{
+				writer.seek(currentOffset);
+				gameWad.entries[i].fileOffset = currentOffset;
+				char buf[32];
+				sprintf_s(buf, "%s.RAW", gwFileNames[i]);
+				IO::StreamReader loadScreenReader(buf);
+				char* loadScreenData = new char[(int)loadScreenReader.m_length];
+				loadScreenReader.readRaw(loadScreenData, (int)loadScreenReader.m_length);
+				gameWad.entries[i].fileSize += loadScreenReader.m_length;
+				loadScreenReader.close();
+				memset(&buf[0], 0, sizeof(buf));
+				writer.write(loadScreenData, (int)loadScreenReader.m_length);
+				delete[] loadScreenData;
 
-			reader.close();
+				sprintf_s(buf, "%s_CD.RAW", gwFileNames[i]);
+				IO::StreamReader loadCdReader(buf);
+				char* loadCdData = new char[(int)loadCdReader.m_length];
+				loadCdReader.readRaw(loadCdData, (int)loadCdReader.m_length);
+				gameWad.entries[i].fileSize += loadCdReader.m_length;
+				loadCdReader.close();
+				memset(&buf[0], 0, sizeof(buf));
+				writer.write(loadCdData, (int)loadCdReader.m_length);
+				delete[] loadCdData;
+
+				gameWad.entries[i].fileSize += gameWad.entries[NONE].fileSize;
+				writer.write(modData, (int)gameWad.entries[NONE].fileSize);
+
+				gameWad.entries[i].fileSize = (gameWad.entries[i].fileSize + 0x7FF) & ~0x7FF;
+				writer.seek(((int)writer.m_pos + 0x7FF) & ~0x7FF);
+
+				sprintf_s(buf, "%s.PSX", gwFileNames[i]);
+				IO::StreamReader levelReader(buf);
+				char* levelData = new char[(int)levelReader.m_length];
+				levelReader.readRaw(levelData, (int)levelReader.m_length);
+				gameWad.entries[i].fileSize += levelReader.m_length;
+				levelReader.close();
+				writer.write(levelData, (int)levelReader.m_length);
+				delete[] levelData;
+
+				gameWad.entries[i].fileSize += 0x691B4;
+				currentOffset += gameWad.entries[i].fileSize;
+				currentOffset = (currentOffset + 0x7FF) & ~0x7FF;
+			}
+			else if (i > RESERVED_40 && i < UNKNOWN_49)
+			{
+				writer.seek(currentOffset);
+				gameWad.entries[i].fileOffset = currentOffset;
+				char buf[32];
+				sprintf_s(buf, "%s.RAW", gwFileNames[i]);
+				IO::StreamReader loadScreenReader(buf);
+				char* loadScreenData = new char[(int)loadScreenReader.m_length];
+				loadScreenReader.readRaw(loadScreenData, (int)loadScreenReader.m_length);
+				gameWad.entries[i].fileSize += loadScreenReader.m_length;
+				loadScreenReader.close();
+				memset(&buf[0], 0, sizeof(buf));
+				writer.write(loadScreenData, (int)loadScreenReader.m_length);
+				delete[] loadScreenData;
+
+				sprintf_s(buf, "%s_CD.RAW", gwFileNames[i]);
+				IO::StreamReader loadCdReader(buf);
+				char* loadCdData = new char[(int)loadCdReader.m_length];
+				loadCdReader.readRaw(loadCdData, (int)loadCdReader.m_length);
+				gameWad.entries[i].fileSize += loadCdReader.m_length;
+				loadCdReader.close();
+				memset(&buf[0], 0, sizeof(buf));
+				writer.write(loadCdData, (int)loadCdReader.m_length);
+				delete[] loadCdData;
+
+				currentOffset += gameWad.entries[i].fileSize;
+				currentOffset = (currentOffset + 0x7FF) & ~0x7FF;
+			}
+			else
+			{
+				//CUTSEQ.JIZ
+				writer.seek(currentOffset);
+				IO::StreamReader reader(gwFileNames[i]);
+				if (reader.m_isOpen)
+				{
+					int dataSize = (int)reader.m_length;
+					char* fileData = new char[dataSize];
+					reader.readRaw(fileData, dataSize);
+					gameWad.entries[i].fileSize = dataSize;
+					gameWad.entries[i].fileOffset = currentOffset;
+					currentOffset = (currentOffset + dataSize + 0x7FF) & ~0x7FF;
+					writer.write(fileData, dataSize);
+					delete[] fileData;
+					reader.close();
+				}
+			}
 		}
 
 		sprintf(&gameWad.reserved[0], "TR5 DATA FILE (C) 2000 Core Design... 'gamewad.asm' Compiled by Del - %s %s", __DATE__, __TIME__);
-	}
 
-	void WriteGamewad()
-	{
-		IO::StreamWriter writer(GAMEWAD_FILENAME);
-		writer.write(gameWad);
+		writer.seek(0);
+		writer.write(&gameWad, sizeof(GAMEWAD_header));
 		writer.close();
+		delete[] modData;
 	}
 }

@@ -117,6 +117,5 @@ struct GAMEWAD_header
 
 namespace TombRaiderChronicles
 {
-	extern void InitialiseGamewadToc();
-	extern void WriteGamewad();
+	extern void PackGamewad();
 }
