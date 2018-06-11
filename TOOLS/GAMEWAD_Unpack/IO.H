@@ -101,6 +101,7 @@ namespace IO
 			if (m_isOpen)
 			{
 				m_stream.close();
+				m_isOpen = false;
 			}
 		}
 
@@ -140,7 +141,7 @@ namespace IO
 			}
 			else
 			{
-				m_stream.write(reinterpret_cast<char*>(&input), length);
+				m_stream.write(reinterpret_cast<char*>(input), length);
 				m_pos += length;
 			}
 		}
@@ -175,6 +176,7 @@ namespace IO
 			if (m_isOpen)
 			{
 				m_stream.close();
+				m_isOpen = false;
 			}
 		}
 
