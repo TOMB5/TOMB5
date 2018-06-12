@@ -8,6 +8,6 @@ enum fmv
 };
 
 extern int S_PlayFMV(int sequence, int flag);
-extern void FMV_InitialiseVRAM();
+extern void MOVIE_ClearVRAM();
 
 #endif

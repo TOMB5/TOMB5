@@ -3,6 +3,12 @@
 #include "CONTROL.H"
 #include <LIBETC.H>
 
+#ifdef NTSC_VERSION
+#define FRAME_Y 240
+#else
+#define FRAME_Y 256 ///@TOCHECK
+#endif
+
 int S_PlayFMV(int sequence, int flag)//*, (<)5E7A0
 {
 	DISPENV disp;//interp@var_50
@@ -22,7 +28,7 @@ int S_PlayFMV(int sequence, int flag)//*, (<)5E7A0
 	}
 
 	//5E7F8
-	FMV_InitialiseVRAM();
+	MOVIE_ClearVRAM();
 
 	VSync(0);
 
@@ -68,7 +74,7 @@ int S_PlayFMV(int sequence, int flag)//*, (<)5E7A0
 }
 
 
-void FMV_InitialiseVRAM()//*, 5F160(<) (F)
+void MOVIE_ClearVRAM()//*, 5F160(<) (F)
 {
 	RECT rect;
 
@@ -85,21 +91,4 @@ void FMV_InitialiseVRAM()//*, 5F160(<) (F)
 	DrawSync(0);
 
 	return;
-}
-
-void sub_5F160()
-{
-	RECT r;//var_10
-
-	ClearImage(&r, 0, 0, 0);
-	r.x = 0;
-	r.y = 0;
-	r.w = 0x200;
-	r.h = 0x100;
-
-	ClearImage(&r, 0, 0, 0);
-	r.y = 0xF0;
-	ClearImage(&r, 0, 0, 0);
-
-	DrawSync(0);
 }
