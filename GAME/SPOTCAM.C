@@ -6,6 +6,7 @@
 #include "LARA.H"
 #if PSXENGINE
 #include "MATHS.H"
+#include "GETSTUFF.H"
 #else
 #include "GLOBAL.H"
 #endif
@@ -24,32 +25,7 @@
 	#include <LIBMATH.H>
 #endif
 
-#define MULFP(A, B) ((A % B) << 16) | ((A * B) >> 16)
-#define DIVFP(A, B) (A / (B >> 8)) << 8
-
 #include <stdio.h>
-
-long DIVTEMP(long A, long B)
-{
-	B >>= 8;
-	A /= B;
-	B <<= 8;
-	return B;
-}
-
-long MULTEMP(long A/*$a0*/, long B/*$a1*/)
-{
-	int v1 = A * B;
-	int v0 = 0;
-
-	if (A != 0 && B != 0)
-	{
-		v0 = A % B;
-	}
-	v1 >>= 16;
-	v0 <<= 16;
-	return v1|v0;
-}
 
 int bUseSpotCam = 0;
 int bDisableLaraControl = 0;
@@ -450,6 +426,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 
 void CalculateSpotCams()//37ED0(<), ? 
 {
+#if 1
 	long cpx; // stack offset -96
 	long cpy; // stack offset -92
 	long cpz; // stack offset -88
@@ -1140,6 +1117,7 @@ void CalculateSpotCams()//37ED0(<), ?
 	SCNoDrawLara = 0;
 	cfov = LastFov;
 	AlterFOV(LastFov);
+#endif
 }
 
 long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
@@ -1148,23 +1126,22 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 	long* k;
 	long c1;
 	long c2;
-	int ret;
 
 	c2 = nk - 3;
 	x = MULFP(x, c2 << 16);
 	span = x >> 16;
-	
-	if (!(x < c2))
+
+	if (c2 > span)
 	{
-		span = nk - 4;
+		x -= (nk - 4) << 16;
+	}
+	else
+	{
+		x -= span << 16;
 	}
 
 	//loc_375A0
-	x -= span << 16;
 	k = &knots[span];
 
-	ret = (((k[1] + (k[1] >> 1)) + (k[0] ^ -1) >> 2) - k[2] + (k[2] >> 1)) + (k[3] >> 1);
-	ret = MULTEMP(ret, x) + (((k[0] - ((k[1] << 1) + (k[1] >> 1))) + (k[2] << 1) - (k[3] >> 1)) - (k[3] >> 1)) + (k[2] >> 1);
-	ret = MULTEMP(ret, x) + (k[0] ^ -1) >> 2;
-	return MULTEMP(ret, x) + k[1];
+	return MULFP(MULFP(MULFP((((k[1]) + (k[1] >> 1)) + ((k[0] ^ -1) >> 2)) - ((k[2]) + (k[2] >> 1)) + (k[3] >> 1), x) + k[0] - (k[1] << 1) + (k[1] >> 1) + (k[2] << 1) - (k[3] >> 1), x) + ((k[0] ^ -1) >> 2) - (k[2] >> 1), x) + k[1];
 }
