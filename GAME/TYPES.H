@@ -36,9 +36,9 @@
 
 #define SIN(x) (4 * rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
 #define COS(x) (4 * rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
-
+#if PC_VERSION
 #define phd_atan_asm phd_atan
-
+#endif
 #if 0 // for later...
 inline int phd_atan(long x, long y)
 {
@@ -69,11 +69,14 @@ inline int phd_atan(long x, long y)
 	return abs(res);
 }
 #elif 1
+#if PC_VERSION
 #include <math.h>
+
 inline int phd_atan(long x, long y)
 {
 	return (int)(atan2(x, y) * 32768.0 / 3.14159265359);
 }
+#endif
 #endif
 
 

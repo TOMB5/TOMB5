@@ -653,8 +653,9 @@ int CreatureCreature(short item_number) // (F)
 	long z = items[item_number].pos.z_pos;
 
 	struct ITEM_INFO* item;
+	short link;
 
-	for(short link = room[items[item_number].room_number].item_number; link != -1; link = item->next_item)
+	for(link = room[items[item_number].room_number].item_number; link != -1; link = item->next_item)
 	{
 		item = &items[link];
 

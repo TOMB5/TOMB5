@@ -1008,6 +1008,7 @@ void CalculateSpotCams()//37ED0(<), ?
 	if ((s->flags & SCF_LOOP_SEQUENCE))
 	{
 		current_spline_camera = first_camera;
+		spotcam_loopcnt++;
 		return;
 	}//loc_38D50
 
