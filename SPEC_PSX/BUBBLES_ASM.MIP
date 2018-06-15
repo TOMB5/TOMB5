@@ -1,6 +1,6 @@
 	opt L.,C+,at+
 
-	section	.asm
+	section	.ASM
 	xdef CalcClipWindow_ONGTE
 	xref lara_item, draw_rooms, number_draw_rooms, room
 

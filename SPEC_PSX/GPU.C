@@ -176,7 +176,7 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 		{
 			if (data[0] & 0xFF000000 != 0)
 			{
-				code = ((char*)data)[7];
+				code = ((char*)data)[7];//getcode
 
 				if (gfx_debugging_mode < 2)
 				{
@@ -189,7 +189,7 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 						else
 						{
 							//loc_5E27C
-							((char*)data)[7] = (code & 2) | 0x3C;
+							((char*)data)[7] = (code & 2) | 0x3C;//setcode
 						}
 
 						nquad = 1;

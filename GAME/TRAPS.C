@@ -1,5 +1,6 @@
 #include "TRAPS.H"
 
+#include "DRAW.H"
 #include "CONTROL.H"
 #include "EFFECTS.H"
 #include "ITEMS.H"
@@ -446,8 +447,38 @@ void CloseTrapDoor(struct ITEM_INFO* item)//58B68, 59008
 
 }
 
-void OpenTrapDoor(struct ITEM_INFO* item)//58A1C, 58EBC
+void OpenTrapDoor(struct ITEM_INFO* item)//58A1C(<), 58EBC (F)
 {
-	S_Warn("[OpenTrapDoor] - Unimplemented!\n");
+	long x;
+	long z;
+	struct room_info* r;
+	struct FLOOR_INFO* floor;
+	unsigned short pitsky;
+
+	r = &room[item->room_number];
+	x = room->x;
+	z = room->z;
+
+	floor = &r->floor[((item->pos.z_pos - z) >> 10) + (((item->pos.x_pos - x) >> 10) * room->x_size)];
+	pitsky = item->item_flags[3];
+
+	if (z == x)
+	{
+		floor->pit_room = pitsky;
+		r = &room[pitsky & 0xFF];
+		floor = &r->floor[((item->pos.z_pos - room->z) >> 10) + (((item->pos.x_pos - r->x) >> 10) * r->x_size)];
+		floor->sky_room = pitsky >> 8;
+	}
+	else
+	{
+		//loc_58AFC
+		floor->sky_room = pitsky >> 8;
+		r = &room[(pitsky >> 8) & 0xFF];
+		floor = &r->floor[((item->pos.z_pos - r->z) >> 10) + (((item->pos.x_pos - r->x) >> 10) * r->x_size)];
+		floor->pit_room = pitsky;
+	}
+
+	//locret_58B60
+	item->item_flags[2] = 0;
 	return;
 }
