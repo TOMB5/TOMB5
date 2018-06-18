@@ -1,6 +1,6 @@
 	opt L.,C+,at+
 
-	section	.asm
+	section	.ASM
 	xdef MakeMono, InitObjGTE
 	
 MakeMono:

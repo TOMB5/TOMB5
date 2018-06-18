@@ -73,8 +73,8 @@ void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F) (*)
 	SpuCommonAttr attr;
 	
 	attr.mask = SPU_COMMON_CDVOLL | SPU_COMMON_CDVOLR | SPU_COMMON_CDMIX;
-	attr.cd.volume.left = nVolume * 64;
-	attr.cd.volume.right = nVolume * 64;
+	attr.cd.volume.left = nVolume << 6;
+	attr.cd.volume.right = nVolume << 6;
 	attr.cd.mix = SPU_ON;
 	
 	SpuSetCommonAttr(&attr);
@@ -254,7 +254,7 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 	return;
 }
 
-void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F)
+void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F) (*)
 {
 	unsigned char param[4];
 
@@ -302,7 +302,7 @@ void S_CDStop()//5DCD0(<), 5E14C(<) (F) (*)
 
 void S_CDPause()//5DD14(<), 5E190(<) (F) (*)
 {
-	if (XATrack > 0)
+	if (XATrack >= 0)
 	{
 		CdControlF(CdlPause, NULL);
 	}

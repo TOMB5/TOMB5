@@ -1,4 +1,8 @@
 #include "CAMERA.H"
+
+#if PSXPC_VERSION || PSX_VERSION
+#include "CALCLARA.H"
+#endif
 #if !PC_VERSION
 #include "CD.H"
 #include "MATHS.H"
@@ -11,7 +15,7 @@
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
-
+#include "LARA.H"
 #include "OBJECTS.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"

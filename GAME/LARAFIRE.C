@@ -38,10 +38,52 @@ struct WEAPON_INFO weapons[9] =
 	{ { 60076, ANGLE(30), 55526, ANGLE(55) },{ 60076, ANGLE(30), 55526, ANGLE(55) },{ 60076, ANGLE(30), 55526, ANGLE(55) }, 0x071C, 0x05B0, 0x0190, 0x2000, 0x03, 0x00, 0x02, 0x00, 0x002B },
 };
 
-short* get_current_ammo_pointer(int num)//4965C, 49AC0
+short* get_current_ammo_pointer(int num)//4965C(<), 49AC0 (F)
 {
-	S_Warn("[get_current_ammo_pointer] - Unimplemented!\n");
-	return 0;
+	short* ammo;
+
+	switch (num)
+	{
+	case WEAPON_REVOLVER:
+		//loc_496AC
+		ammo = &lara.num_revolver_ammo;
+		break;
+	case WEAPON_UZI:
+		//loc_496B8
+		ammo = &lara.num_uzi_ammo;
+		break;
+	case WEAPON_SHOTGUN:
+		//loc_49688
+		if ((lara.shotgun_type_carried & 8))
+		{
+			ammo = &lara.num_shotgun_ammo1;
+		}
+		else
+		{
+			ammo = &lara.num_shotgun_ammo2;
+		}
+		break;
+	case WEAPON_HK:
+		//loc_496C4
+		ammo = &lara.num_hk_ammo1;
+		break;
+	case WEAPON_CROSSBOW:
+		//loc_496D0
+		if ((lara.crossbow_type_carried & 8))
+		{
+			ammo = &lara.num_crossbow_ammo1;
+		}
+		else
+		{
+			ammo = &lara.num_crossbow_ammo2;
+		}
+		break;
+	default:
+		ammo = &lara.num_pistols_ammo;
+		break;
+	}
+
+	return ammo;
 }
 
 void DoProperDetection(short item_number, long x, long y, long z, long xv, long yv, long zv)//48984, 48DE8

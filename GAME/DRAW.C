@@ -84,46 +84,6 @@ long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*
 	return (item->frame_number - anim->frame_base) / anim->interpolation;
 }
 
-short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 8793C
-{
-	short* var_10[2];//$a1
-	int var_8[2];//$a2
-	short* a2;
-	int a1;
-	if (GetFrames(item, &var_10[0], &var_8[0]) == 0)
-	{
-		//t0 = v0
-		//v0 = t4;
-		return NULL;// t4;//? Well you can tell this was written by hand in mips, smh, nice optimisation
-	}
-	
-
-	//loc_8591C
-	a2 = &interpolated_bounds[0];
-	a1 = 6;
-
-	//loc_85928
-#if 0//Error, t5 = unknown, t4 = unknown. probably gonna have to ref
-	lh	$v0, 0($t5)
-	lh	$a0, 0($t4)
-	addiu	$a1, -1
-	subu	$v0, $a0
-	mult	$v0, $t0
-	mflo	$v1
-	addiu	$t5, 2
-	addiu	$t4, 2
-	div	$v1, $a3
-	addiu	$a2, 2
-	mflo	$v0
-	addu	$a0, $v0
-	bnez	$a1, loc_85928
-	sh	$a0, -2($a2)
-	addiu	$v0, $a2, -0xC
-#endif
-
-	return NULL;
-}
-
 void UpdateSkyLightning()//2C0D0(<), ? (F)
 {
 	long lp;

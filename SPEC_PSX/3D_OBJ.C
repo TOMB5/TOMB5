@@ -9,7 +9,7 @@
 
 struct TSV tsv_buffer[512];
 
-void CreateMonoScreen()//5F450(<), 60130(<) (F)
+void CreateMonoScreen()//5F450(<), 60130(<) (F) (*)
 {
 	int i;
 	RECT r;
@@ -23,6 +23,7 @@ void CreateMonoScreen()//5F450(<), 60130(<) (F)
 	r.h = 128;
 
 	s = (unsigned short*)(db.poly_buffer[0] + 1554);
+	d = (unsigned char*)(db.poly_buffer[0] + 17938);
 	r.y = db.draw[db.current_buffer ^ 1].clip.y;
 
 	//loc_5F4CC:

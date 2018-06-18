@@ -63,7 +63,5 @@ if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))
 	add_subdirectory(TOOLS)
 endif()
 
-
-
 #Default
 add_subdirectory(SPEC_PSXPC)

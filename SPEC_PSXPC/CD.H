@@ -1,8 +1,6 @@
 #ifndef CD_H
 #define CD_H
 
-#include "SPECTYPES.H"
-
 #define CD_SECTOR_SIZE (2048)
 #define CD_SECTOR_SHIFT (11)
 
