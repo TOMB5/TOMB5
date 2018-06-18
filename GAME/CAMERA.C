@@ -1,16 +1,21 @@
 #include "CAMERA.H"
+
+#if PSXPC_VERSION || PSX_VERSION
+#include "CALCLARA.H"
+#endif
 #if !PC_VERSION
 #include "CD.H"
-#include "EFFECTS.H"
 #include "MATHS.H"
 #include "3D_GEN.H"
 #else
 #include "GLOBAL.H"
+#include "DS.H"
 #endif
+#include "EFFECTS.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
-
+#include "LARA.H"
 #include "OBJECTS.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
@@ -940,7 +945,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#if 0//GetBoundsAccurate illegal, crash.
+#if PSXENGINE//GetBoundsAccurate illegal, crash.
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -978,11 +983,15 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	}
 
 	//loc_27E28
-	camera.type = FIXED_CAMERA;
-	if (!UseForcedFixedCamera && camera.old_type != FIXED_CAMERA)
+	//v0 = UseForcedFixedCamera;
+	if (UseForcedFixedCamera != 0)
 	{
-		camera.speed = 1;
-	}
+		camera.type = FIXED_CAMERA;
+		if (camera.old_type != FIXED_CAMERA)
+		{
+			camera.speed = 1;
+		}//loc_27E4C
+	}//loc_27E4C
 
 	//loc_27E4C
 	if (gfCurrentLevel == 1 && XATrack == 51)
@@ -998,15 +1007,15 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	else
 	{
 		//loc_27EC8
-		if (TLFlag != 1 || camera.underwater == 0)
+		if (TLFlag == 1)
 		{
-			//loc_27EEC
-			TLFlag = 0;
+			if (camera.underwater != 0)
+			{
+				camera.underwater = 0;
+			}
 		}
-		else
-		{
-			camera.underwater = 0;
-		}
+		//loc_27EEC
+		TLFlag = 0;
 	}
 
 	//loc_27EF0
@@ -1074,7 +1083,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		item = camera.item;
 	}
 
-	//loc_28040
+	//loc_28040, loc_28254 ///@VERF
 	bounds = GetBoundsAccurate(item);
 	y = (item->pos.y_pos + ((bounds[2] + bounds[3]) / 2)) - CLICK;//$s4
 
@@ -1380,6 +1389,7 @@ void LookCamera(struct ITEM_INFO* item)
 
 void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 {
+#if 0
 	struct FLOOR_INFO *floor; // $s3
 	struct GAME_VECTOR ideal; // stack offset -248
 	struct GAME_VECTOR ideals[9]; // stack offset -232
@@ -1425,7 +1435,7 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 	if (h - 64 > c + 64 && h == -3512 && c == -3512)
 	{
 		//loc_26960
-#if 0
+
 
 		lw	$v0, 0x1DFC($gp)
 		addiu	$v1, $s2, -0x40
@@ -1446,7 +1456,7 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 
 		loc_26998 :
 		sw	$v1, 0x1DFC($gp)
-#endif
+
 	}
 	else
 	{
@@ -1457,7 +1467,7 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 	camera.target_elevation = 0;
 
 	//loc_269A0 (TODO)
-
+#endif
 	S_Warn("[CombatCamera] - Unimplemented!\n");
 }
 

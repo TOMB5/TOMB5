@@ -93,6 +93,10 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	App.isInScene = 0;
 	App.byte_D9AC2B = 0;
 
+	auto dd = App.DeviceInfo.DDInfo[App.DeviceInfo.nDDInfo];
+	auto d3d = dd.D3DInfo[dd.nD3DInfo];
+	auto dm = d3d.DisplayMode;
+	
 	return 0;
 }
 

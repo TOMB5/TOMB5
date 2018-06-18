@@ -1,8 +1,6 @@
 #ifndef SAVEGAME_H
 #define SAVEGAME_H
 
-#include "LARA.H"
-
 #include "SPECTYPES.H"
 
 #define WriteSG(a, b) WriteSG_real((char*)a, b)

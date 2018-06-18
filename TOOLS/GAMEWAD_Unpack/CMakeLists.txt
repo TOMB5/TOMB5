@@ -1,11 +1,12 @@
 cmake_minimum_required (VERSION 3.0)
 
-project (GAMEWAD_${TARGET_ARCH})
+project (GAMEWAD_Unpack${TARGET_ARCH})
 
 #Setup platform specific / game code include folder
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${SPEC_PSXPC_DIR})
 
-#Recursively locate the source files for SPEC_PSXPC.
+#Recursively locate the source files for GAMEWAD_Unpack.
 file(GLOB_RECURSE TOOL_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.CPP ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAKE_CURRENT_SOURCE_DIR}/*.H ${CMAKE_CURRENT_SOURCE_DIR}/*.CUR ${CMAKE_CURRENT_SOURCE_DIR}/*.RC)
 
 add_executable(
@@ -14,7 +15,7 @@ ${TOOL_SRCS}
 )
 
 set_target_properties(
-${PROJECT_NAME} PROPERTIES OUTPUT_NAME "GAMEWAD"
+${PROJECT_NAME} PROPERTIES OUTPUT_NAME "GAMEWAD_Unpack"
 ${PROJECT_NAME} PROPERTIES FOLDER "Tools/Gamewad"
 )
 

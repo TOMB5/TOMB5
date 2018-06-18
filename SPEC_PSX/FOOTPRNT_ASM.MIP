@@ -1,0 +1,145 @@
+	opt L.,C+,at+
+
+	section	.ASM
+	xdef S_DrawFootPrints
+	xref GLOBAL_default_sprites_ptr, db, FootPrint, mPushMatrix, mTranslateAbsXYZ, mRotY, mPopMatrix
+
+S_DrawFootPrints:
+	addiu   sp, -0x30
+	sw      s0, 0x30+0x020(sp)
+	sw      s1, 0x30+0x01C(sp)
+	sw      s2, 0x30+0x018(sp)
+	sw      s3, 0x30+0x014(sp)
+	sw      s4, 0x30+0x010(sp)
+	sw      s5, 0x30+0x0C(sp)
+	sw      s6, 0x30+0x08(sp)
+	sw      ra, 0x30+0x04(sp)
+	lw      s3, GLOBAL_default_sprites_ptr
+	la      s2, FootPrint
+	lw      s0, db+0x8
+	lw      s4, db+0x4
+	lw      t8, db+0x10
+	lw      v0, 0xAC(s3)
+	lw      v1, 0xA8(s3)
+	andi    s5, v0, 0xFFFF
+	sll     at, v1, 16
+	or      s5, at
+	srl     s6, v0, 16
+	andi    s6, 0xFF
+	andi    at, v0, 0xFF00
+	or      s6, at
+	srl     v1, 16
+	andi    v1, 0xFF9F
+	ori     v1, 0x40
+	sll     v1, 16
+	or      s6, v1
+	andi    s3, v0, 0xFF
+	srl     at, v0, 24
+	sll     at, 8
+	or      s3, at
+	li      t9, 0x20
+
+	loc_82A8C:
+	lhu     a0, 0xE(s2)
+	addiu   t9, -1
+	beqz    a0, loc_82BCC
+	sltu    at, s0, t8
+	beqz    at, loc_82BD4
+	li      s1, 0x38
+	addiu   a0, -1
+	slti    at, a0, 0x1D
+	beqz    at, loc_82AB8
+	sh      a0, 0xE(s2)
+	sll     s1, a0, 1
+
+	loc_82AB8:
+	jal     mPushMatrix
+	nop
+	lw      a0, 0(s2)
+	lw      a1, 4(s2)
+	jal     mTranslateAbsXYZ
+	lw      a2, 8(s2)
+	lh      a0, 0xC(s2)
+	jal     mRotY
+	nop
+	li      at, 0xFFFFFFC0
+	mtc2    zero, r0
+	mtc2    at, r1
+	li      at, 0xFF80
+	li      v0, 0x40
+	mtc2    at, r2
+	mtc2    v0, r3
+	li      at, 0x80
+	mtc2    at, r4
+	mtc2    v0, r5
+	nop
+	li      v1, 0x26
+	cop2    0x280030
+	sb      v1, 7(s0)
+	sb      s1, 4(s0)
+	sb      s1, 5(s0)
+	sb      s1, 6(s0)
+	sw      s5, 0xC(s0)
+	sw      s6, 0x14(s0)
+	sh      s3, 0x1C(s0)
+	swc2    r12, 8(s0)
+	swc2    r13, 0x10(s0)
+	swc2    r14, 0x18(s0)
+	cop2    0x158002D
+	jal     mPopMatrix
+	nop
+	mfc2    s1, r7
+	mfc2    v0, r12
+	mfc2    v1, r13
+	mfc2    a0, r14
+	andi    at, v0, 0xFE00
+	beqz    at, loc_82B6C
+	andi    at, v1, 0xFE00
+	beqz    at, loc_82B6C
+	andi    at, a0, 0xFE00
+	bnez    at, loc_82BCC
+
+	loc_82B6C:
+	and     at, v0, v1
+	and     at, a0
+	bltz    at, loc_82BCC
+	sra     at, v0, 16
+	slti    at, at, 0xF0
+	bnez    at, loc_82B9C
+	sra     at, v1, 16
+	slti    at, at, 0xF0
+	bnez    at, loc_82B9C
+	sra     at, a0, 16
+	slti    at, at, 0xF0
+	beqz    at, loc_82BCC
+
+	loc_82B9C:
+	addiu   v0, s1, -2
+	sltiu   v0, v0, 0x9FF
+	beqz    v0, loc_82BCC
+	addiu   s1, -2
+	sll     v0, s1, 2
+	addu    v0, s4
+	lw      a0, 0(v0)
+	lui     at, 0x700
+	or      a0, at
+	sw      s0, 0(v0)
+	sw      a0, 0(s0)
+	addiu   s0, 0x20
+
+	loc_82BCC:
+	bnez    t9, loc_82A8C
+	addiu   s2, 0x10
+
+	loc_82BD4:
+	sw      s0, db+0x8
+	lw      ra, 0x30+0x04(sp)
+	lw      s6, 0x30+0x08(sp)
+	lw      s5, 0x30+0x0C(sp)
+	lw      s4, 0x30+0x010(sp)
+	lw      s3, 0x30+0x014(sp)
+	lw      s2, 0x30+0x018(sp)
+	lw      s1, 0x30+0x01C(sp)
+	lw      s0, 0x30+0x020(sp)
+	jr      ra
+	addiu   sp, 0x30

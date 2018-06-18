@@ -546,4 +546,14 @@ void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)
 	S_Warn("[phd_GetVectorAngles] - Unimplemented!\n");
 }
 
+void phd_LookAt(long x, long y, long z, long tx, long ty, long tz, long croll)
+{
+	S_Warn("[phd_LookAt] - Unimplemented!\n");
+}
+
+long phd_atan_asm(long x, long y)
+{
+	S_Warn("[phd_atan_asm] - Unimplemented!\n");
+}
+
 #endif

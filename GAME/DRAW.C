@@ -55,7 +55,7 @@ short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;
 
-long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, long* rate/*$a2*/)//8582C
+long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*$a2*/)//8582C
 {
 	struct ANIM_STRUCT* anim = &anims[item->anim_number];
 	int t3;
@@ -82,46 +82,6 @@ long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, long* rate/
 
 	rate[0] = anim->frame_end - anim->interpolation;
 	return (item->frame_number - anim->frame_base) / anim->interpolation;
-}
-
-short* GetBoundsAccurate(struct ITEM_INFO* item/*a0*/)//858F8, 8793C
-{
-	short* var_10[2];//$a1
-	long var_8[2];//$a2
-	short* a2;
-	int a1;
-	if (GetFrames(item, &var_10[0], &var_8[0]) == 0)
-	{
-		//t0 = v0
-		//v0 = t4;
-		return NULL;// t4;//? Well you can tell this was written by hand in mips, smh, nice optimisation
-	}
-	
-
-	//loc_8591C
-	a2 = &interpolated_bounds[0];
-	a1 = 6;
-
-	//loc_85928
-#if 0//Error, t5 = unknown, t4 = unknown. probably gonna have to ref
-	lh	$v0, 0($t5)
-	lh	$a0, 0($t4)
-	addiu	$a1, -1
-	subu	$v0, $a0
-	mult	$v0, $t0
-	mflo	$v1
-	addiu	$t5, 2
-	addiu	$t4, 2
-	div	$v1, $a3
-	addiu	$a2, 2
-	mflo	$v0
-	addu	$a0, $v0
-	bnez	$a1, loc_85928
-	sh	$a0, -2($a2)
-	addiu	$v0, $a2, -0xC
-#endif
-
-	return NULL;
 }
 
 void UpdateSkyLightning()//2C0D0(<), ? (F)
@@ -296,7 +256,7 @@ void DrawGunflashes()//8A924(<) 8C968(<) (F)
 short* GetBestFrame(struct ITEM_INFO* item)// (F)s
 {
 	short* frm[2];
-	long rate;
+	int rate;
 	const int ret = GetFrames(item, frm, &rate);
 
 	if (ret > (rate >> 1))

@@ -1,5 +1,8 @@
 #include "BOX.H"
 
+#if PSXPC_VERSION || PSX_VERSION
+#include "CALCLARA.H"
+#endif
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
@@ -20,6 +23,7 @@
 #include "SPECTYPES.H"
 #include <assert.h>
 #include "CAMERA.H"
+#include "LARA.H"
 
 int number_boxes;
 struct box_info* boxes;
@@ -291,10 +295,110 @@ void CreatureKill(struct ITEM_INFO* item, int kill_anim, int kill_state, short l
 	S_Warn("[CreatureKill] - Unimplemented!\n");
 }
 
-int CreatureVault(short item_number, short angle, int vault, int shift)
+int CreatureVault(short item_number, short angle, int vault, int shift) // (F)
 {
-	S_Warn("[CreatureVault] - Unimplemented!\n");
-	return 0;
+	struct ITEM_INFO* item = &items[item_number];
+	long y = item->pos.y_pos;
+	short room_number = item->room_number;
+
+	long yy = item->pos.z_pos >> 10;
+	long xx = item->pos.x_pos >> 10;
+
+	CreatureAnimation(item_number, angle, 0);
+
+	if (item->floor > y + 1152)
+	{
+		vault = 0;
+	}
+	else if (item->floor > y + 896)
+	{
+		vault = -4;
+	}
+	else if (item->floor > y + 640)
+	{
+		vault = -3;
+	}
+	else if (item->floor > y + 384)
+	{
+		vault = -2;
+	}
+	else if (item->pos.y_pos > y - 384)
+	{
+		return 0;
+	}
+	else if (item->pos.y_pos > y - 640)
+	{
+		vault = 2;
+	}
+	else if (item->pos.y_pos > y - 896)
+	{
+		vault = 3;
+	}
+	else if (item->pos.y_pos > y - 1152)
+	{
+		vault = 4;
+	}
+
+	if (yy == item->pos.z_pos >> 10)
+	{
+		if (xx > item->pos.x_pos >> 10)
+		{
+			item->pos.y_rot = ANGLE(-90);
+			item->pos.x_pos = (xx << 10) + shift;
+		}
+		else if (xx < item->pos.x_pos >> 10)
+		{
+			item->pos.y_rot = ANGLE(90);
+			item->pos.x_pos = (item->pos.x_pos << 10) - shift;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else if (xx == item->pos.x_pos >> 10)
+	{
+		if (yy > item->pos.z_pos >> 10)
+		{
+			item->pos.y_rot = ANGLE(-180);
+			item->pos.z_pos = (yy << 10) + shift;
+		}
+		else
+		{
+			item->pos.y_rot = ANGLE(180);
+			item->pos.z_pos = (item->pos.z_pos << 10) - shift;
+		}
+	}
+	else
+	{
+		if (yy >= item->pos.z_pos >> 10)
+		{
+			item->pos.z_pos = (yy << 10) + shift;
+		}
+		else
+		{
+			item->pos.z_pos = (item->pos.z_pos << 10) - shift;
+		}
+
+		if (xx >= item->pos.x_pos >> 10)
+		{
+			item->pos.x_pos = (xx << 10) + shift;
+		}
+		else
+		{
+			item->pos.x_pos = (item->pos.x_pos << 10) - shift;
+		}
+	}
+
+	item->floor = y;
+	item->pos.y_pos = y;
+
+	if (vault)
+	{
+		ItemNewRoom(item_number, room_number);
+	}
+
+	return vault;
 }
 
 short CreatureEffectT(struct ITEM_INFO* item, struct BITE_INFO* bite, short damage, short angle, short (*generate)(long x, long y, long z, short speed, short yrot, short room_number))// (F)
@@ -543,9 +647,31 @@ int BadFloor(long x, long y, long z, long box_height, long next_height, int room
 	return FALSE;
 }
 
-int CreatureCreature(short item_number)
+int CreatureCreature(short item_number) // (F)
 {
-	S_Warn("[CreatureCreature] - Unimplemented!\n");
+	long x = items[item_number].pos.x_pos;
+	long z = items[item_number].pos.z_pos;
+
+	struct ITEM_INFO* item;
+	short link;
+
+	for(link = room[items[item_number].room_number].item_number; link != -1; link = item->next_item)
+	{
+		item = &items[link];
+
+		if (link != item_number && item != lara_item && item->status == ITEM_ACTIVE && item->hit_points > 0)
+		{
+			long xdistance = abs(item->pos.x_pos - x);
+			long zdistance = abs(item->pos.z_pos - z);
+			long radius = xdistance <= zdistance ? zdistance + (xdistance >> 1) : xdistance + (zdistance >> 1);
+			if (radius < objects[items[item_number].object_number].radius + objects[item->object_number].radius)
+			{
+				long y_rot = items[item_number].pos.y_rot;
+				return phd_atan_asm(item->pos.z_pos - z, item->pos.x_pos - x) - y_rot;
+			}
+		}
+	}
+
 	return 0;
 }
 

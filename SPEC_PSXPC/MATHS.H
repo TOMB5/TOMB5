@@ -36,5 +36,7 @@ extern void mPushMatrix0();
 extern void mmPushMatrix(struct MATRIX3D* m);
 extern void GetRoomBoundsAsm(short room_number);
 extern void phd_GetVectorAngles(long dx, long dy, long dz, short* angles);
+extern void phd_LookAt(long x, long y, long z, long tx, long ty, long tz, long croll);
+extern long phd_atan_asm(long x, long y);
 
 #endif

@@ -4,7 +4,7 @@
 #include <fstream>
 
 #ifdef _DEBUG
-	#include <assert.h>
+#include <assert.h>
 #endif
 
 namespace IO
@@ -101,6 +101,7 @@ namespace IO
 			if (m_isOpen)
 			{
 				m_stream.close();
+				m_isOpen = false;
 			}
 		}
 
@@ -127,7 +128,7 @@ namespace IO
 		}
 
 		template <typename T>
-		void write(T& input, unsigned long length = 0)
+		void write(T input, unsigned long length = 0)
 		{
 #ifdef _DEBUG
 			assert(m_isOpen);
@@ -140,7 +141,7 @@ namespace IO
 			}
 			else
 			{
-				m_stream.write(reinterpret_cast<char*>(&input), length);
+				m_stream.write(reinterpret_cast<char*>(input), length);
 				m_pos += length;
 			}
 		}
@@ -175,6 +176,7 @@ namespace IO
 			if (m_isOpen)
 			{
 				m_stream.close();
+				m_isOpen = false;
 			}
 		}
 

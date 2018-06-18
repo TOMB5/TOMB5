@@ -1,6 +1,8 @@
 #include "PICKUP.H"
 
-
+#if PSXPC_VERSION || PSX_VERSION
+#include "CALCLARA.H"
+#endif
 #include "COLLIDE.H"
 #include "CONTROL.H"
 #include "DRAW.H"
@@ -265,9 +267,50 @@ void RegeneratePickups()//515AC, 51A10
 	short* ammo; // $v0
 }
 
-void AnimatingPickUp(short item_number)//51450, 518B4
+void AnimatingPickUp(short item_number)//51450(<), 518B4 (F)
 {
-	S_Warn("[AnimatingPickUp] - Unimplemented!\n");
+	struct ITEM_INFO* item;
+	short room_number;
+
+	item = &item[item_number];
+
+	if ((item->trigger_flags & 0x3F) == 5)
+	{
+		item->fallspeed += 6;
+		item->pos.y_pos += item->fallspeed;
+
+		room_number = item->room_number;
+		GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number);
+
+		if (item->item_flags[0] < item->pos.y_pos)
+		{
+			item->pos.y_pos = item->item_flags[0];
+			if (item->fallspeed > 64)
+			{
+				item->fallspeed = -item->fallspeed >> 2;
+			}
+			else
+			{
+				//$5150C
+				item->trigger_flags &= 0xFFC0;
+			}
+		}//$5151C
+		if (item->room_number != room_number)
+		{
+			ItemNewRoom(item_number, room_number);
+		}//$51598
+	}//$51540
+	else if ((item->trigger_flags & 0x3F) == 2 || (item->trigger_flags & 0x3F) == 6 ||
+		(item->trigger_flags & 0x3F) == 7 || (item->trigger_flags & 0x3F) == 8)
+	{
+		AnimateItem(item);
+	}
+	else if ((item->trigger_flags & 0x3F) == 9 || (item->trigger_flags == 0xB))
+	{
+		//v1 = RelocPtr[45];
+		//a1 = v1[0];
+		//jalr a1(item_number);
+	}
 }
 
 short* FindPlinth(struct ITEM_INFO* item)//51200, 51664

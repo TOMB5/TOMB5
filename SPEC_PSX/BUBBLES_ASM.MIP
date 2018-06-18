@@ -1,0 +1,91 @@
+	opt L.,C+,at+
+
+	section	.ASM
+	xdef CalcClipWindow_ONGTE
+	xref lara_item, draw_rooms, number_draw_rooms, room
+
+CalcClipWindow_ONGTE:
+	andi    t2, a1, 0xFFFF
+	andi    t5, a0, 0xFFFF
+	lw      t7, lara_item
+	lw      t4, number_draw_rooms
+	lw      t6, room
+	lw      t7, 0x18(t7)
+	li      a0, 0x200
+	move    a1, zero
+	li      a2, 0x100
+	move    a3, zero
+	blez    t4, locret_8F46C
+	move    t3, zero
+	la      t1, draw_rooms
+
+	loc_8F3AC:
+	lh      t0, 0(t1)
+	addiu   t3, 1
+	sll     v1, t0, 2
+	addu    v1, t0
+	sll     v1, 4
+	beqz    t2, loc_8F3DC
+	addu    v1, t6, v1
+	lhu     at, 0x4E(v1)
+	nop
+	andi    at, 0x28
+	beqz    at, loc_8F440
+	nop
+
+	loc_8F3DC:
+	bne     t0, t5, loc_8F3EC
+	nop
+	beqz    t2, loc_8F440
+	nop
+
+	loc_8F3EC:
+	bne     t0, t7, loc_8F3FC
+	nop
+	beqz    t2, loc_8F440
+	nop
+
+	loc_8F3FC:
+	lh      t0, 0x38(v1)
+	lh      v0, 0x3A(v1)
+	slt     at, t0, a0
+	beqz    at, loc_8F414
+	slt     at, a1, v0
+	addiu   a0, t0, 1
+
+	loc_8F414:
+	beqz    at, loc_8F420
+	lh      t0, 0x3C(v1)
+	addiu   a1, v0, -1
+
+	loc_8F420:
+	lh      v0, 0x3E(v1)
+	slt     at, t0, a2
+	beqz    at, loc_8F434
+	slt     at, a3, v0
+	addiu   a2, t0, 1
+
+	loc_8F434:
+	beqz    at, loc_8F440
+	nop
+	addiu   a3, v0, -1
+
+	loc_8F440:
+	slt     at, t3, t4
+	bnez    at, loc_8F3AC
+	addiu   t1, 2
+
+	loc_8F44C:
+	sll     a0, 16
+	sll     a1, 16
+	sll     a2, 16
+	sll     a3, 16
+	mtc2    a0, r6
+	mtc2    a1, r20
+	mtc2    a2, r21
+	mtc2    a3, r22
+
+	locret_8F46C:
+	jr      ra
+	nop
+	end

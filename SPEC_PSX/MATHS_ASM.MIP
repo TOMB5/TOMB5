@@ -1,8 +1,8 @@
 	opt L.,C+,at+
 
-	section	.asm
-	xdef mQuickW2VMatrix, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm
-	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix
+	section	.ASM
+	xdef mQuickW2VMatrix, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm
+	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab
 
 ;0x77AEC
 mQuickW2VMatrix:
@@ -1177,4 +1177,63 @@ GetRoomBoundsAsm:
 	lw	s7, 0x1F8000F4
 	jr	ra
 	lw	fp, 0x1F8000F8
+	
+phd_LookAt:
+	nop
+	
+phd_atan_asm:
+	bnez    a0, loc_77A50
+	lui     at, 9
+	beqz    a1, locret_77AE4
+	move    v0, zero
+
+	loc_77A50:
+	ori     at, 0x4004
+	bgez    a0, loc_77A64
+	move    a2, zero
+	li      a2, 4
+	negu    a0, a0
+
+	loc_77A64:
+	bgez    a1, loc_77A78
+	slt     v0, a0, a1
+	addiu   a2, 2
+	negu    a1, a1
+	slt     v0, a0, a1
+
+	loc_77A78:
+	beqz    v0, loc_77A98
+	move    v0, a0
+	addiu   a2, 1
+	move    a0, a1
+	j       loc_77A98
+	move    a1, v0
+
+	loc_77A90:
+	sra     a1, 1
+	sra     a0, 1
+
+	loc_77A98:
+	sll     v0, a1, 16
+	sra     v0, 16
+	bne     v0, a1, loc_77A90
+	sll     v0, a1, 11
+	div     v0, a0
+	sll     v1, a2, 2
+	la      v0, atanOctantTab
+	addu    v1, v0
+	lw      v0, 0(v1)
+	mflo    a3
+	sll     a3, 1
+	addu    a3, at
+	lh      a0, 0(a3)
+	nop
+	addu    v0, a0, v0
+	bgez    v0, locret_77AE4
+	nop
+	negu    v0, v0
+
+	locret_77AE4:
+	jr      ra
+	nop
 	end
