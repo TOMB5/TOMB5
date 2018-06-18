@@ -380,9 +380,9 @@ void mRotY(long ry)//76744
 	S_Warn("[mRotY] - Unimplemented!\n");
 }
 
-void mRotYXZ()//767E8
+void mRotYXZ(short y, short x, short z)//767E8
 {
-
+	S_Warn("[mRotYXZ] - Unimplemented!\n");
 }
 
 void mRotZ()//76804
