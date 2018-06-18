@@ -2,6 +2,7 @@
 
 #include "FILES.H"
 #include "IO.H"
+#include "CD.H"
 
 #include <cstdio>
 
@@ -15,6 +16,7 @@ namespace TombRaiderChronicles
 		if (!reader.m_isOpen)
 		{
 			printf("Warning: failed to open file: %s\n", fileName);
+			return;
 		}
 
 		char* fileData = new char[NUM_GAMEWAD_FILE_ENTRIES * sizeof(GAMEWAD_entry)];
@@ -39,29 +41,29 @@ namespace TombRaiderChronicles
 						reader.readRaw(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
 						char buf[32];
 						sprintf_s(buf, "%s.RAW", gwFileNames[i]);
-						IO::StreamWriter writerls(buf);
-						writerls.write(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
+						IO::StreamWriter writer(buf);
+						writer.write(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
 						delete[] loadingScreenData;
-						writerls.close();
+						writer.close();
 						memset(&buf[0], 0, sizeof(buf));
 
 						//Loading CD
 						char* loadingCdData = new char[LOADING_CD_IMG_SIZE];
 						reader.readRaw(loadingCdData, LOADING_CD_IMG_SIZE);
 						sprintf_s(buf, "%s_CD.RAW", gwFileNames[i]);
-						IO::StreamWriter writercd(buf);
-						writercd.write(loadingCdData, LOADING_CD_IMG_SIZE);
+						writer.open(buf);
+						writer.write(loadingCdData, LOADING_CD_IMG_SIZE);
 						delete[] loadingCdData;
-						writercd.close();
+						writer.close();
 						memset(&buf[0], 0, sizeof(buf));
 
 						//SETUP.MOD
 						char* modData = new char[entry[NONE].fileSize];
 						reader.readRaw(modData, entry[NONE].fileSize);
-						IO::StreamWriter modWriter(gwFileNames[NONE]);
-						modWriter.write(modData, entry[NONE].fileSize);
+						writer.open(gwFileNames[NONE]);
+						writer.write(modData, entry[NONE].fileSize);
 						delete[] modData;
-						modWriter.close();
+						writer.close();
 
 						//Level data
 						reader.seek(((int)reader.m_pos + 0x7FF) & ~0x7FF);
@@ -69,18 +71,19 @@ namespace TombRaiderChronicles
 						char* levelData = new char[dataSize];
 						reader.readRaw(levelData, dataSize);
 						sprintf_s(buf, "%s.PSX", gwFileNames[i]);
-						IO::StreamWriter levelWriter(buf);
-						levelWriter.write(levelData, dataSize);
+						writer.open(buf);
+						writer.write(levelData, dataSize);
 						delete[] levelData;
-						levelWriter.close();
+						writer.close();
 
+						//Code modules
 						reader.seek(((int)reader.m_pos + 0x7FF) & ~0x7FF);
 						char* codeData = new char[0x6901C];//Sizeof codewad
 						reader.readRaw(codeData, 0x6901C);
-						IO::StreamWriter codeWriter("DATA\\CODE.WAD");
-						codeWriter.write(codeData, 0x6901C);
+						writer.open("DATA\\CODE.WAD");
+						writer.write(codeData, 0x6901C);
 						delete[] codeData;
-						codeWriter.close();
+						writer.close();
 
 					}
 					else if (i > RESERVED_40 && i < UNKNOWN_49)
@@ -90,20 +93,20 @@ namespace TombRaiderChronicles
 						reader.readRaw(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
 						char buf[32];
 						sprintf_s(buf, "%s.RAW", gwFileNames[i]);
-						IO::StreamWriter writerls(buf);
-						writerls.write(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
+						IO::StreamWriter writer(buf);
+						writer.write(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
 						delete[] loadingScreenData;
-						writerls.close();
+						writer.close();
 						memset(&buf[0], 0, sizeof(buf));
 
 						//Loading CD
 						char* loadingCdData = new char[LOADING_CD_IMG_SIZE];
 						reader.readRaw(loadingCdData, LOADING_CD_IMG_SIZE);
 						sprintf_s(buf, "%s_CD.RAW", gwFileNames[i]);
-						IO::StreamWriter writercd(buf);
-						writercd.write(loadingCdData, LOADING_CD_IMG_SIZE);
+						writer.open(buf);
+						writer.write(loadingCdData, LOADING_CD_IMG_SIZE);
 						delete[] loadingCdData;
-						writercd.close();
+						writer.close();
 						memset(&buf[0], 0, sizeof(buf));
 					}
 					else

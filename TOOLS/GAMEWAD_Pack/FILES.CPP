@@ -1,5 +1,3 @@
-#include "FILES.H"
-
 #include "CD.H"
 
 const char* gwFileNames[NUM_GAMEWAD_FILE_ENTRIES] =
