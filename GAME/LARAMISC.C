@@ -101,9 +101,27 @@ void DelAlignLaraToRope(struct ITEM_INFO* item)//4B3D8, 4B83C
 	S_Warn("[DelAlignLaraToRope] - Unimplemented!\n");
 }
 
-void InitialiseLaraAnims(struct ITEM_INFO* item)//4B340, 4B7A4
+void InitialiseLaraAnims(struct ITEM_INFO* item)//4B340(<), 4B7A4 (F)
 {
-	S_Warn("[InitialiseLaraAnims] - Unimplemented!\n");
+	if ((room[item->room_number].flags & RF_FILL_WATER))
+	{
+		lara.water_status = 1;
+		item->goal_anim_state = 13;
+		item->current_anim_state = 13;
+		item->fallspeed = 0;
+		item->anim_number = 108;
+		item->frame_number = anims[108].frame_base;
+		return;
+	}
+	else
+	{
+		//4B3AC
+		lara.water_status = 0;
+		item->goal_anim_state = 2;
+		item->current_anim_state = 2;
+		item->anim_number = 11;
+		item->frame_number = anims[11].frame_base;
+	}
 }
 
 void InitialiseLaraLoad(short item_num)//4B308, 4B76C (F)
