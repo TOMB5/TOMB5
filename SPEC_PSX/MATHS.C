@@ -556,4 +556,9 @@ long phd_atan_asm(long x, long y)
 	S_Warn("[phd_atan_asm] - Unimplemented!\n");
 }
 
+void mRotBoundingBoxNoPersp(short* bounds, short* tbounds)
+{
+	S_Warn("[mRotBoundingBoxNoPersp] - Unimplemented!\n");
+}
+
 #endif

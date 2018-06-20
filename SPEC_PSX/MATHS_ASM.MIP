@@ -1,7 +1,7 @@
 	opt L.,C+,at+
 
 	section	.ASM
-	xdef mQuickW2VMatrix, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix
+	xdef mQuickW2VMatrix, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp
 	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate
 
 ;0x77AEC
@@ -2169,4 +2169,93 @@ phd_atan_asm:
 	locret_77AE4:
 	jr      ra
 	nop
-	end
+	
+mRotBoundingBoxNoPersp:
+	lhu     a3, 0(a0)
+	lhu     t2, 2(a0)
+	lhu     t0, 4(a0)
+	lhu     t3, 6(a0)
+	lhu     t1, 8(a0)
+	lhu     a0, 0xA(a0)
+	lui     t5, 0x1F80
+	sh      a3, 0x1F800000
+	sh      t0, 0x1F800002
+	sh      t1, 0x1F800004
+	sh      t2, 0x1F800008
+	sh      t0, 0x1F80000A
+	sh      t1, 0x1F80000C
+	sh      t2, 0x1F800010
+	sh      t3, 0x1F800012
+	sh      t1, 0x1F800014
+	sh      a3, 0x1F800018
+	sh      t3, 0x1F80001A
+	sh      t1, 0x1F80001C
+	sh      a3, 0x1F800020
+	sh      t0, 0x1F800022
+	sh      a0, 0x1F800024
+	sh      t2, 0x1F800028
+	sh      t0, 0x2A(t5)
+	sh      a0, 0x2C(t5)
+	sh      t2, 0x30(t5)
+	sh      t3, 0x32(t5)
+	sh      a0, 0x34(t5)
+	sh      a3, 0x38(t5)
+	sh      t3, 0x3A(t5)
+	sh      a0, 0x3C(t5)
+	li      a3, 0x7FFF
+	li      t2, 0xFFFF8001
+	li      t0, 0x7FFF
+	li      t3, 0xFFFF8001
+	li      t1, 0x7FFF
+	li      a0, 0xFFFF8001
+	li      t4, 8
+
+	loc_77CB8:
+	lwc2    r0, 0(t5)
+	lwc2    r1, 4(t5)
+	addiu   t4, -1
+	nop
+	cop2    0x480012
+	mfc2    v1, r25
+	mfc2    v0, r26
+	mfc2    a2, r27
+	slt     at, v1, a3
+	beqz    at, loc_77CE8
+	slt     at, t2, v1
+	move    a3, v1
+
+	loc_77CE8:
+	beqz    at, loc_77CF4
+	slt     at, v0, t0
+	move    t2, v1
+
+	loc_77CF4:
+	beqz    at, loc_77D00
+	slt     at, t3, v0
+	move    t0, v0
+
+	loc_77D00:
+	beqz    at, loc_77D0C
+	slt     at, a2, t1
+	move    t3, v0
+
+	loc_77D0C:
+	beqz    at, loc_77D18
+	slt     at, a0, a2
+	move    t1, a2
+
+	loc_77D18:
+	beqz    at, loc_77D24
+	nop
+	move    a0, a2
+
+	loc_77D24:
+	bnez    t4, loc_77CB8
+	addiu   t5, 8
+	sh      a3, 0(a1)
+	sh      t2, 2(a1)
+	sh      t0, 4(a1)
+	sh      t3, 6(a1)
+	sh      t1, 8(a1)
+	jr      ra
+	sh      a0, 0xA(a1)

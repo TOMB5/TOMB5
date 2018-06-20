@@ -38,5 +38,6 @@ extern void GetRoomBoundsAsm(short room_number);
 extern void phd_GetVectorAngles(long dx, long dy, long dz, short* angles);
 extern void phd_LookAt(long x, long y, long z, long tx, long ty, long tz, long croll);
 extern long phd_atan_asm(long x, long y);
+extern void mRotBoundingBoxNoPersp(short* bounds, short* tbounds);
 
 #endif
