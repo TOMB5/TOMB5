@@ -66,7 +66,7 @@ namespace TombRaiderChronicles
 						writer.close();
 
 						//Level data
-						reader.seek(((int)reader.m_pos + 0x7FF) & ~0x7FF);
+						reader.seek((int)reader.m_pos + (CD_SECTOR_SIZE-1) & ~(CD_SECTOR_SIZE-1));
 						int dataSize = entry[i].fileSize - ((int)reader.m_pos - entry[i].fileOffset) - 0x691B4;///@HACK
 						char* levelData = new char[dataSize];
 						reader.readRaw(levelData, dataSize);
@@ -77,7 +77,7 @@ namespace TombRaiderChronicles
 						writer.close();
 
 						//Code modules
-						reader.seek(((int)reader.m_pos + 0x7FF) & ~0x7FF);
+						reader.seek((int)reader.m_pos + (CD_SECTOR_SIZE-1) & ~(CD_SECTOR_SIZE-1));
 
 						/*
 						 * Getting size of codewad
