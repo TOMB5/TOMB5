@@ -78,10 +78,22 @@ namespace TombRaiderChronicles
 
 						//Code modules
 						reader.seek(((int)reader.m_pos + 0x7FF) & ~0x7FF);
-						char* codeData = new char[0x6901C];//Sizeof codewad
-						reader.readRaw(codeData, 0x6901C);
+
+						/*
+						 * Getting size of codewad
+						 */
+						int codeWadStart = (int)reader.m_pos;
+						reader.seek(8 * 146 + (unsigned int)reader.m_pos);
+						int dataOffset;
+						reader.read(dataOffset);
+						reader.read(dataSize);
+						reader.seek(codeWadStart);
+						dataSize += dataOffset;
+
+						char* codeData = new char[dataSize];//Sizeof codewad
+						reader.readRaw(codeData, dataSize);
 						writer.open("DATA\\CODE.WAD");
-						writer.write(codeData, 0x6901C);
+						writer.write(codeData, dataSize);
 						delete[] codeData;
 						writer.close();
 
