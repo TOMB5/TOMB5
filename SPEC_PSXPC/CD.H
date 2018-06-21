@@ -30,7 +30,7 @@
 #define NUM_GAMEWAD_FILE_ENTRIES 51
 
 //Maximum size of the GAMEWAD header struct.
-#define GAMEWAD_HEADER_MAX_LENGTH 512
+#define GAMEWAD_HEADER_MAX_LENGTH CD_SECTOR_SIZE
 
 //Filename for PSX "GAMEWAD" that is a container storing all levelfiles and load screens.
 #define GAMEWAD_FILENAME "GAMEWAD.OBJ"
