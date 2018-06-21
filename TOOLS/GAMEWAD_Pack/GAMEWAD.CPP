@@ -70,7 +70,7 @@ namespace TombRaiderChronicles
 				writer.write(modData, gameWad.entries[NONE].fileSize);
 
 				gameWad.entries[i].fileSize = gameWad.entries[i].fileSize + (CD_SECTOR_SIZE-1) & ~(CD_SECTOR_SIZE-1);
-				writer.seek(((int)writer.m_pos + 0x7FF) & ~0x7FF);
+				writer.seek((int)writer.m_pos + (CD_SECTOR_SIZE - 1) & ~(CD_SECTOR_SIZE - 1));
 
 				sprintf_s(buf, "%s.PSX", gwFileNames[i]);
 				reader.open(buf);
