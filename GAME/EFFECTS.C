@@ -398,9 +398,34 @@ void WaterFall(short item_number)//39294, 39794
 	S_Warn("[WaterFall] - Unimplemented!\n");
 }
 
-void SoundEffects()//39190, 39690
+void SoundEffects()//39190(<), 39690 (F)
 {
-	S_Warn("[SoundEffects] - Unimplemented!\n");
+	struct OBJECT_VECTOR* sound;
+	int i;
+
+	sound = &sound_effects[0];
+
+	if (number_sound_effects > 0)
+	{
+		//loc_391B8
+		for (i = number_sound_effects; i > 0; i--, sound++)
+		{
+			//loc_39224
+			if ((flip_stats[((sound_effects[i].flags & 0x1F) & 1) | ((sound_effects[i].flags & 0x1F) & 2) + ((((sound_effects[i].flags & 0x1F) >> 2) & 1) << 1) + (((sound_effects[i].flags & 0x1F) >> 2) & 1) + (((sound_effects[i].flags & 0x1F) >> 1) & 4) + (((sound_effects[i].flags & 0x1F) >> 4) << 2) + ((sound_effects[i].flags & 0x1F) >> 4)] & 0x40) || (flip_stats[((sound_effects[i].flags & 0x1F) & 1) | ((sound_effects[i].flags & 0x1F) & 2) + ((((sound_effects[i].flags & 0x1F) >> 2) & 1) << 1) + (((sound_effects[i].flags & 0x1F) >> 2) & 1) + (((sound_effects[i].flags & 0x1F) >> 1) & 4) + (((sound_effects[i].flags & 0x1F) >> 4) << 2) + ((sound_effects[i].flags & 0x1F) >> 4)] & 0x80))///@FIXME Macro
+			{
+				SoundEffect(sound->data, (struct PHD_3DPOS*)&sound, 0);
+			}
+			//loc_39238
+		}
+	}
+	//loc_39244
+	//v0 = 0x90000
+	if (flipeffect != -1)
+	{
+		effect_routines[flipeffect](NULL);
+	}//loc_39274
+
+	SOUND_EndScene();
 }
 
 long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<), 937C4(!)
