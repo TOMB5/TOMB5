@@ -1,5 +1,6 @@
 #include "SHADOWS.H"
 
+#ifndef USE_ASM
 long OptimiseOTagR(unsigned long* ot, int nOTSize)//86CC4(<), 88D08(<)
 {
 	unsigned long* a1;
@@ -52,3 +53,4 @@ long OptimiseOTagR(unsigned long* ot, int nOTSize)//86CC4(<), 88D08(<)
 	//loc_86D0C
 	return at;
 }
+#endif
