@@ -1,0 +1,309 @@
+	opt L.,C+,at+
+
+	section	.ASM
+	xdef DrawCutSeqActors, updateAnimFrame
+	xref GLOBAL_cutme, meshes, cutrot, mPushMatrix, cutseq_meshbits, cutseq_meshswapbits, temp_rotation_buffer, mTranslateAbsXYZ, objects, bones, mTranslateXYZ, mRotSuperPackedYXZ, phd_PutPolygons_seethrough, phd_PutPolygons, cut_seethrough, mPopMatrix, phd_PutPolygons_seethrough, actor_pnodes, duff_item, mSetTrans, IsRoomOutside, mPushUnitMatrix, S_CalculateLight
+	
+DrawCutSeqActors:
+	addiu   sp, -0x48
+	sw      ra, 0x48-0x4(sp)
+	sw      fp, 0x48-0x8(sp)
+	sw      s7, 0x48-0xC(sp)
+	sw      s6, 0x48-0x10(sp)
+	sw      s5, 0x48-0x14(sp)
+	sw      s4, 0x48-0x18(sp)
+	sw      s3, 0x48-0x1C(sp)
+	sw      s2, 0x48-0x20(sp)
+	sw      s1, 0x48-0x24(sp)
+	sw      s0, 0x48-0x28(sp)
+	lw      s3, GLOBAL_cutme
+	lw      s0, meshes
+	lh      v0, 0(s3)
+	li      s6, 1
+	slt     v0, s6, v0
+	beqz    v0, loc_91000
+	nop
+	jal     mPushMatrix
+	nop
+
+	loc_90E1C:
+	jal     mPushMatrix
+	nop
+	sll     v1, s6, 2
+	la      s7, cutseq_meshbits
+	la      fp, cutseq_meshswapbits
+	addu    s7, v1
+	addu    fp, v1
+	lw      s7, 0(s7)
+	lw      fp, 0x48-0x48(fp)
+	lui     v0, 0x8000
+	and     v0, s7
+	beqz    v0, loc_90FDC
+	nop
+	la      v0, actor_pnodes
+	addu    v0, v1
+	sll     v1, s6, 3
+	addu    v1, s3, v1
+	lh      a1, 0x1E(v1)
+	lw      a0, 0(v0)
+	la      a2, temp_rotation_buffer
+	jal     updateAnimFrame
+	addiu   a1, 1
+	sll     v1, s6, 3
+	addu    v1, s3, v1
+	lh      v1, 0x1C(v1)
+	lw      a0, 4(s3)
+	lw      a1, 8(s3)
+	lw      a2, 0xC(s3)
+	la      v0, objects
+	sll     v1, 6
+	jal     mTranslateAbsXYZ
+	addu    s4, v1, v0
+	jal     CalcActorLighting
+	nop
+	lh      v0, 2(s4)
+	lw      v1, 4(s4)
+	sll     v0, 2
+	addu    s1, s0, v0
+	lw      v0, bones
+	sll     v1, 2
+	la      a2, temp_rotation_buffer
+	lh      a0, 0xC(a2)
+	lh      a1, 0xE(a2)
+	lh      a2, 0x10(a2)
+	jal     mTranslateXYZ
+	addu    s2, v0, v1
+	addiu   a0, sp, 0x48-0x38
+	move    a1, zero
+	la      v0, temp_rotation_buffer+0x12
+	jal     mRotSuperPackedYXZ
+	sw      v0, 0x48-0x38(sp)
+	andi    v0, s7, 1
+	beqz    v0, loc_90F3C
+	andi    v0, fp, 1
+	beqz    v0, loc_90F1C
+	lw      a0, 0(s1)
+	lw      a0, 4(s1)
+
+	loc_90F1C:
+	addiu   at, s6, -1
+	bnez    at, loc_90F34
+	nop
+	lw      a1, cut_seethrough
+	jal     phd_PutPolygons_seethrough
+	addiu   ra, 8
+
+	loc_90F34:
+	jal     phd_PutPolygons
+	li      a1, 0xFFFFFFFF
+
+	loc_90F3C:
+	lh      s4, 0(s4)
+	li      s5, 1
+	addiu   s4, -1
+	blez    s4, loc_90FDC
+	addiu   s1, 8
+
+	loc_90F50:
+	lw      a1, 0(s2)
+	addiu   s4, -1
+	andi    v0, a1, 1
+	beqz    v0, loc_90F6C
+	andi    a1, 2
+	jal     mPopMatrix
+	nop
+
+	loc_90F6C:
+	beqz    a1, loc_90F7C
+	sll     s5, 1
+	jal     mPushMatrix
+	nop
+
+	loc_90F7C:
+	lw      a0, 4(s2)
+	lw      a1, 8(s2)
+	jal     mTranslateXYZ
+	lw      a2, 0xC(s2)
+	addiu   a0, sp, 0x48-0x38
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	and     v0, s5, s7
+	beqz    v0, loc_90FD0
+	and     v0, s5, fp
+	beqz    v0, loc_90FB0
+	lw      a0, 0(s1)
+	lw      a0, 4(s1)
+
+	loc_90FB0:
+	addiu   at, s6, -1
+	bnez    at, loc_90FC8
+	nop
+	lw      a1, cut_seethrough
+	jal     phd_PutPolygons_seethrough
+	addiu   ra, 8
+
+	loc_90FC8:
+	jal     phd_PutPolygons
+	li      a1, 0xFFFFFFFF
+
+	loc_90FD0:
+	addiu   s2, 0x10
+	bnez    s4, loc_90F50
+	addiu   s1, 8
+
+	loc_90FDC:
+	jal     mPopMatrix
+	nop
+	lh      v1, 0(s3)
+	addiu   s6, 1
+	slt     v1, s6, v1
+	bnez    v1, loc_90E1C
+	nop
+	jal     mPopMatrix
+	nop
+
+	loc_91000:
+	lw      ra, 0x48-0x4(sp)
+	lw      fp, 0x48-0x8(sp)
+	lw      s7, 0x48-0xC(sp)
+	lw      s6, 0x48-0x10(sp)
+	lw      s5, 0x48-0x14(sp)
+	lw      s4, 0x48-0x18(sp)
+	lw      s3, 0x48-0x1C(sp)
+	lw      s2, 0x48-0x20(sp)
+	lw      s1, 0x48-0x24(sp)
+	lw      s0, 0x48-0x28(sp)
+	jr      ra
+	addiu   sp, 0x48
+	
+updateAnimFrame:
+	lh      v0, 0(a0)
+	lh      v1, 2(a0)
+	lh      a3, 4(a0)
+	lw      t1, cutrot
+	sll     at, v0, 1
+	addu    v0, at, v0
+	sll     at, v1, 1
+	addu    v1, at, v1
+	sll     at, a3, 1
+	addu    a3, at, a3
+	beqz    t1, loc_91098
+	sh      v1, 0xE(a2)
+	addiu   t0, t1, -1
+	beqz    t0, loc_91088
+	addiu   t0, -1
+	beqz    t0, loc_91080
+	negu    a3, a3
+	sh      v0, 0x10(a2)
+	j       loc_910A0
+	sh      a3, 0xC(a2)
+
+	loc_91080:
+	j       loc_91098
+	negu    v0, v0
+
+	loc_91088:
+	sh      a3, 0xC(a2)
+	negu    v0, v0
+	j       loc_910A0
+	sh      v0, 0x10(a2)
+
+	loc_91098:
+	sh      v0, 0xC(a2)
+	sh      a3, 0x10(a2)
+
+	loc_910A0:
+	li      t0, 1
+	slt     v0, t0, a1
+	beqz    v0, locret_91108
+	addiu   a3, a2, 0x12
+	addiu   a2, a0, 0x54
+	addiu   t0, a1, -1
+	li      at, 1
+
+	loc_910BC:
+	lh      v1, 0(a2)
+	lh      v0, 2(a2)
+	lh      a0, 4(a2)
+	beqz    at, loc_910E0
+	addiu   a2, 0x54
+	li      at, 0
+	sll     t1, 8
+	addu    v0, t1
+	andi    v0, 0x3FF
+
+	loc_910E0:
+	addiu   t0, -1
+	sll     v1, 20
+	sll     v0, 10
+	or      v1, v0
+	or      v1, a0
+	srl     v0, v1, 16
+	sh      v0, 0(a3)
+	sh      v1, 2(a3)
+	bnez    t0, loc_910BC
+	addiu   a3, 4
+
+	locret_91108:
+	jr      ra
+	nop
+	
+CalcActorLighting:
+	sw      s0, 0x1F800010
+	sw      s1, 0x1F800014
+	sw      s2, 0x1F800018
+	sw      ra, 0x1F80001C
+	la      s2, duff_item
+	la      s0, temp_rotation_buffer
+	jal     mPushUnitMatrix
+	lui     s1, 0x1F80
+	move    a0, zero
+	move    a1, zero
+	jal     mSetTrans
+	move    a2, zero
+	lh      a0, 0xC(s0)
+	lh      a1, 0xE(s0)
+	jal     mTranslateXYZ
+	lh      a2, 0x10(s0)
+	addiu   at, s0, 0x12
+	addiu   a0, s1, 0xC
+	move    a1, zero
+	jal     mRotSuperPackedYXZ
+	sw      at, 0(a0)
+	lw      v0, 0x40(s2)
+	lw      v1, 0x44(s2)
+	lw      a0, 0x48(s2)
+	cfc2    t4, r5
+	cfc2    t5, r6
+	cfc2    t6, r7
+	addu    t4, v0
+	addu    t5, v1
+	addu    t6, a0
+	sw      t4, 0(s1)
+	sw      t5, 4(s1)
+	jal     mPopMatrix
+	sw      t6, 8(s1)
+	lw      a0, 0(s1)
+	lw      a1, 4(s1)
+	jal     IsRoomOutside
+	lw      a2, 8(s1)
+	lh      v0, 0x1C54(gp)
+	li      at, 0xFFFFFFFF
+	beq     v0, at, loc_911C8
+	lh      a3, 0x18(s2)
+	move    a3, v0
+
+	loc_911C8:
+	lw      a0, 0(s1)
+	lw      a1, 4(s1)
+	lw      a2, 8(s1)
+	addiu   v0, s2, 0x54
+	sb      zero, 0x83(s2)
+	lw      ra, 0x1F80001C
+	lw      s2, 0x1F800018
+	lw      s1, 0x1F800014
+	lw      s0, 0x1F800010
+	j       S_CalculateLight
+	sw      v0, 0x10(sp)
+	
+	

@@ -2,8 +2,13 @@
 
 #include "SPECIFIC.H"
 #include "LARA.H"
+#if PSX_VERSION || PSXPC_VERSION
+#include "CALCLARA.H"
+#include "MATHS.H"
+#endif
 #include "CONTROL.H"
 #include "DRAW.H"
+#include "EFFECT2.H"
 #include "LARASWIM.H"
 
 #ifdef PC_VERSION
@@ -91,9 +96,26 @@ short SubsuitAir = 0; // offset 0xA122E
 struct COLL_INFO mycoll;
 short cheat_hit_points; // offset 0xA3828
 
-void GetLaraDeadlyBounds()//4B408, 4B86C
+void GetLaraDeadlyBounds()//4B408(<), 4B86C (F)
 {
-	S_Warn("[GetLaraDeadlyBounds] - Unimplemented!\n");
+#if PSX_VERSION || PSXPC_VERSION///@TODO PC subs not there yet.
+	short* bounds;
+	short tbounds[6];
+
+	bounds = GetBoundsAccurate(lara_item);
+	mPushUnitMatrix();
+	mRotYXZ(lara_item->pos.y_rot, lara_item->pos.x_rot, lara_item->pos.z_rot);
+	mSetTrans(0, 0, 0);
+	mRotBoundingBoxNoPersp(bounds, &tbounds[0]);
+	mPopMatrix();
+
+	DeadlyBounds[0] = lara_item->pos.x_pos + tbounds[0];
+	DeadlyBounds[1] = lara_item->pos.x_pos + tbounds[1];
+	DeadlyBounds[2] = lara_item->pos.y_pos + tbounds[2];
+	DeadlyBounds[3] = lara_item->pos.y_pos + tbounds[3];
+	DeadlyBounds[4] = lara_item->pos.z_pos + tbounds[4];
+	DeadlyBounds[5] = lara_item->pos.z_pos + tbounds[5];
+#endif
 }
 
 void DelAlignLaraToRope(struct ITEM_INFO* item)//4B3D8, 4B83C
@@ -101,9 +123,27 @@ void DelAlignLaraToRope(struct ITEM_INFO* item)//4B3D8, 4B83C
 	S_Warn("[DelAlignLaraToRope] - Unimplemented!\n");
 }
 
-void InitialiseLaraAnims(struct ITEM_INFO* item)//4B340, 4B7A4
+void InitialiseLaraAnims(struct ITEM_INFO* item)//4B340(<), 4B7A4 (F)
 {
-	S_Warn("[InitialiseLaraAnims] - Unimplemented!\n");
+	if ((room[item->room_number].flags & RF_FILL_WATER))
+	{
+		lara.water_status = 1;
+		item->goal_anim_state = 13;
+		item->current_anim_state = 13;
+		item->fallspeed = 0;
+		item->anim_number = ANIMATION_LARA_UNDERWATER_IDLE;
+		item->frame_number = anims[ANIMATION_LARA_UNDERWATER_IDLE].frame_base;
+		return;
+	}
+	else
+	{
+		//4B3AC
+		lara.water_status = 0;
+		item->goal_anim_state = 2;
+		item->current_anim_state = 2;
+		item->anim_number = ANIMATION_LARA_STAY_SOLID;
+		item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
+	}
 }
 
 void InitialiseLaraLoad(short item_num)//4B308, 4B76C (F)

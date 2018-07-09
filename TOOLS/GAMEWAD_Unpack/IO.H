@@ -13,6 +13,23 @@ namespace IO
 	{
 		StreamReader(const char* filePath)
 		{
+			if (m_isOpen)
+			{
+				close();
+			}
+			open(filePath);
+		}
+
+		StreamReader::~StreamReader()
+		{
+			if (m_stream.is_open())
+			{
+				m_stream.close();
+			}
+		}
+
+		void open(const char* filePath)
+		{
 			m_stream.open(filePath, std::ios::binary);
 			m_isOpen = m_stream.is_open();
 
@@ -21,14 +38,6 @@ namespace IO
 				m_stream.seekg(0, SEEK_END);
 				m_length = tell();
 				m_stream.seekg(0, SEEK_SET);
-			}
-		}
-
-		StreamReader::~StreamReader()
-		{
-			if (m_stream.is_open())
-			{
-				m_stream.close();
 			}
 		}
 
@@ -115,8 +124,7 @@ namespace IO
 	{
 		StreamWriter(const char* filePath)
 		{
-			m_stream.open(filePath, std::ios::binary);
-			m_isOpen = m_stream.is_open();
+			open(filePath);
 		}
 
 		StreamWriter::~StreamWriter()
@@ -125,6 +133,16 @@ namespace IO
 			{
 				m_stream.close();
 			}
+		}
+
+		void open(const char* filePath)
+		{
+			if (m_isOpen)
+			{
+				close();
+			}
+			m_stream.open(filePath, std::ios::binary);
+			m_isOpen = m_stream.is_open();
 		}
 
 		template <typename T>
