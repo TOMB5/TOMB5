@@ -9,7 +9,8 @@ extern "C" {
 #define LT_Default			(char*)0
 #define LT_Enter			(char*)2
 //#define LT_Exit				(char*)1
-#define LT_Release			(char*)3
+#define LT_DXShit			(char*)3
+#define LT_Release			(char*)4
 #define LT_Info				(char*)5
 #define LT_WindowMessage	(char*)6
 #define LT_DXTry			(char*)7

@@ -1,5 +1,5 @@
-#include "standard.h"
-#include "global.h"
+#include "STANDARD.H"
+#include "GLOBAL.H"
 #include "INCLUDE.H"
 
 char* ERR_Describe_DX(HRESULT error)

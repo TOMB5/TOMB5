@@ -1,11 +1,11 @@
-#include "standard.h"
-#include "global.h"
+#include "STANDARD.H"
+#include "GLOBAL.H"
 
 
-#include "init.h"
-#include "winmain.h"
-//#include "debug.h"
-#include "hwrender.h"
+#include "INIT.H"
+#include "WINMAIN.H"
+//#include "DEBUG.H"
+#include "HWRENDER.H"
 
 extern "C" void S_ExitSystem(char *message) {
 	DXSetCooperativeLevel(App.lpDD, App.WindowHandle, DDSCL_NORMAL);

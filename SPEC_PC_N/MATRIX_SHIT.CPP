@@ -1,4 +1,5 @@
 #include "SPECTYPES.H"
+#include "3DGLODEF.H"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +25,22 @@ extern "C" {
 	sint32		phd_persp;				/* perspective thang*/
 	sint32		*phd_mxptr;				/* matrix pointer....*/
 	sint32		phd_oopersp;
+
+	float		one;				// in 3dinsert.cpp
+	float		f_znear;			// phd_znear
+	float		f_zfar;				// phd_zfar
+	float		f_oneoznear;		// one / phd_znear
+	float		f_persp;			// phd_persp
+	float		f_oneopersp;		// one / phd_persp
+	float		f_perspoznear;		// phd_persp / phd_znear
+	float		f_centerx;			// phd_centrex
+	float		f_centery;			// phd_centrey
+	float		f_invzfar;			// 1.0/phd_zfar (actually 65535/65536 at the moment)
+	float		f_oneozfar;			// one/phd_zfar
+	float		f_a, f_b, f_boo;		// a/b factors for z buffering (f_boo is f_b/one)
+
+	sint32		w2v_matrix[12];		// World to View Matrix...
+	sint32		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
 
 	void	phd_PushMatrix(void)
 	{

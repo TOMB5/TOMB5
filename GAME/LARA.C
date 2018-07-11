@@ -1,9 +1,7 @@
 #include "LARA.H"
 
 #include "SPECIFIC.H"
-#if PSXPC_VERSION || PSX_VERSION
 #include "CALCLARA.H"
-#endif
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "EFFECTS.H"

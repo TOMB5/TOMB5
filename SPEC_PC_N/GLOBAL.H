@@ -6,6 +6,8 @@
 
 #include "SPECTYPES.H"
 
+extern struct WINAPP App;
+
 #define mPushUnitMatrix phd_PushUnitMatrix
 #define mPopMatrix phd_PopMatrix
 
@@ -64,6 +66,22 @@ extern sint32		phd_scrheight;       	/* Height of Screen ie. 200 or 480*/
 extern sint32		phd_persp;				/* perspective thang*/
 extern sint32		*phd_mxptr;				/* matrix pointer....*/
 extern sint32		phd_oopersp;
+
+extern	float		one;				// in 3dinsert.cpp
+extern	float		f_znear;			// phd_znear
+extern	float		f_zfar;				// phd_zfar
+extern	float		f_oneoznear;		// one / phd_znear
+extern	float		f_persp;			// phd_persp
+extern	float		f_oneopersp;		// one / phd_persp
+extern	float		f_perspoznear;		// phd_persp / phd_znear
+extern	float		f_centerx;			// phd_centrex
+extern	float		f_centery;			// phd_centrey
+extern	float		f_invzfar;			// 1.0/phd_zfar (actually 65535/65536 at the moment)
+extern	float		f_oneozfar;			// one/phd_zfar
+extern	float		f_a, f_b, f_boo;		// a/b factors for z buffering (f_boo is f_b/one)
+
+extern	sint32		w2v_matrix[];		// World to View Matrix...
+extern	sint32		matrix_stack[];		// matrix stack for animations etc..
 
 #define EndOfArray(a) ((a)+ArraySize(a))
 

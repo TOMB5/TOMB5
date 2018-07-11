@@ -1,8 +1,6 @@
 #include "PICKUP.H"
 
-#if PSXPC_VERSION || PSX_VERSION
 #include "CALCLARA.H"
-#endif
 #include "COLLIDE.H"
 #include "CONTROL.H"
 #include "DRAW.H"

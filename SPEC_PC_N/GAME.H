@@ -14,4 +14,6 @@ extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
 }
 #endif
 
+unsigned __stdcall GameMain(void* data);
+
 #endif

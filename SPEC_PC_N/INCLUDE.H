@@ -1,8 +1,7 @@
 #ifndef INCLUDE_H
 #define INCLUDE_H
 
-#define WIN32_LEAN_AND_MEAN
-#define STRICT
+#include "STANDARD.H"
 
 #include <stdbool.h>
 #include <windows.h>
@@ -13,7 +12,7 @@
 #include <dsound.h>
 #include <windowsx.h>
 #include <time.h>
-#include "specific.h"
+#include "SPECIFIC.H"
 #include <stdio.h>
 
 
