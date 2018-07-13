@@ -26,6 +26,7 @@ extern "C" {
 	extern void S_ExitSystem(char *message);
 
 	void		S_DumpScreenFrame();
+	void		S_DumpScreen();
 
 	void S_LoadBar();
 	void S_InitLoadBar(int size);

@@ -16,5 +16,6 @@ extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
 
 extern bool game_running;
 unsigned __stdcall GameMain(void* data);
+void do_boot_screen(int language);
 
 #endif

@@ -124,7 +124,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 #endif
 
 #if PC_VERSION
-	//do_boot_screen(Gameflow->Language);
+	do_boot_screen(Gameflow->Language);
 	// todo
 #endif
 

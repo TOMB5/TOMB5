@@ -152,7 +152,7 @@ struct WINAPP
 	BYTE opt_DisableSound;
 	DWORD dword_D9AC27;
 	BYTE byte_D9AC2B;
-	DWORD dword_D9AC2C;
+	DWORD OriginalBPP;
 	DWORD opt_AutoTarget;
 	DWORD dword_D9AC34;
 	DWORD dword_D9AC38;

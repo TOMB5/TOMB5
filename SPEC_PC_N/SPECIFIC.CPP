@@ -99,6 +99,10 @@ void		S_DumpScreenFrame()
 	Unimpl();
 }
 
+void		S_DumpScreen()
+{
+	Unimpl();
+}
 void S_LoadBar()
 {
 	Unimpl();

@@ -52,7 +52,8 @@ bool DXCreateSurface(LPDIRECTDRAW4 lpDD2, DDSURFACEDESC2* ddsd, LPDIRECTDRAWSURF
 bool DXCreateDirect3DDevice(LPDIRECT3D3 lpD3D2, GUID Guid, LPDIRECTDRAWSURFACE4 lpSurface, LPDIRECT3DDEVICE3* lpD3DDevice2);
 bool DXCreateViewport(LPDIRECT3D3 lpD3D, LPDIRECT3DDEVICE3 lpD3DDevice, int w, int h, LPDIRECT3DVIEWPORT3* lpViewport);
 bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND window, DWORD dwStyle);
-bool DICreate(HWND hWnd, HINSTANCE hInstance);
 void CloseDirectX();
+HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename);
+void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance);
 
 #endif

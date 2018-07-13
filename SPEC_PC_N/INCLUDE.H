@@ -38,7 +38,7 @@ enum
 //#define Log2(type, fmt, ...) Log_real("[DBLOG] [%s] %s", STRINGIFY(type), )
 
 //#define Log(type, fmt, ...) S_Warn("[DBLOG] [" STRINGIFY(type) "] " fmt, __VA_ARGS__)
-#define Log(type, fmt, ...) Log_real(STRINGIFY(type), fmt, __VA_ARGS__)
+#define Log(type, fmt, ...) Log_real(#type, fmt, __VA_ARGS__)
 
 #define ArraySize(a) (sizeof(a)/sizeof((a)[0]))
 #define Zero(thing) memset(&(thing),0,sizeof(thing))
@@ -54,9 +54,10 @@ enum
 inline void Log_real(char* type, char* fmt, ...)
 {
 	char buf[128], pbuf[1024];
-	char tbuf[10];
-	memset(tbuf, ' ', 10);
-	strcpy(tbuf, type);
+	char tbuf[12];
+	memset(tbuf, ' ', 11);
+	tbuf[11] = 0;
+	strcpy(tbuf, type + 3);
 	ZeroArray(buf);
 	ZeroArray(pbuf);
 	strcpy(buf, "[DBLOG] [");
@@ -217,7 +218,7 @@ inline bool DX_TRY(HRESULT hr)
 {
 	if (SUCCEEDED(hr))
 		return false;
-	Log(LT_DXTry, ERR_Describe_DX(hr));
+	Log(LT_DXTry, "ERROR : %s", ERR_Describe_DX(hr));
 	return true;
 }
 

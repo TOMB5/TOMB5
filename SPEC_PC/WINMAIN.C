@@ -2438,7 +2438,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		SetWindowPos(hWnd, 0, dxctx.windowPos.left, dxctx.windowPos.top, 0, 0, 5u);
 		v9 = GetDesktopWindow();
 		v10 = GetDC(v9);
-		ptr_ctx->dword_D9AC2C = GetDeviceCaps(v10, 12);
+		ptr_ctx->OriginalBPP = GetDeviceCaps(v10, 12);
 		ReleaseDC(v9, v10);
 		ptr_ctx->dword_D9ABFD = 0;
 		ptr_ctx->isInScene = 0;
@@ -2486,7 +2486,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		v13 = desktopHwnd;
 		desktopDC = GetDC(desktopHwnd);
 		v18 = 148;
-		v20 = ptr_ctx->dword_D9AC2C;
+		v20 = ptr_ctx->OriginalBPP;
 		ReleaseDC(v13, desktopDC);
 		v19 = 0x40000;
 		ChangeDisplaySettingsA((DEVMODEA *)&v17[0], 0);

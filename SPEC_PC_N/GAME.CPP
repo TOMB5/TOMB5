@@ -171,3 +171,47 @@ unsigned __stdcall GameMain(void* data)
 
 	return true;
 }
+
+void do_boot_screen(int language)
+{
+	Log(2, "do_boot_screen");
+	switch (language)
+	{
+	case LNG_ENGLISH:
+	case LNG_DUTCH:
+		DDCopyBitmap(App.lpBackBuffer, "uk.bmp");
+		S_DumpScreen();
+		DDCopyBitmap(App.lpBackBuffer, "uk.bmp");
+		break;
+	case LNG_FRENCH:
+		DDCopyBitmap(App.lpBackBuffer, "france.bmp");
+		S_DumpScreen();
+		DDCopyBitmap(App.lpBackBuffer, "france.bmp");
+		break;
+	case LNG_GERMAN:
+		DDCopyBitmap(App.lpBackBuffer, "germany.bmp");
+		S_DumpScreen();
+		DDCopyBitmap(App.lpBackBuffer, "germany.bmp");
+		break;
+	case LNG_ITALIAN:
+		DDCopyBitmap(App.lpBackBuffer, "italy.bmp");
+		S_DumpScreen();
+		DDCopyBitmap(App.lpBackBuffer, "italy.bmp");
+		break;
+	case LNG_SPANISH:
+		DDCopyBitmap(App.lpBackBuffer, "spain.bmp");
+		S_DumpScreen();
+		DDCopyBitmap(App.lpBackBuffer, "spain.bmp");
+		break;
+	case LNG_US:
+		DDCopyBitmap(App.lpBackBuffer, "usa.bmp");
+		S_DumpScreen();
+		DDCopyBitmap(App.lpBackBuffer, "usa.bmp");
+		break;
+	case LNG_JAPAN:
+		DDCopyBitmap(App.lpBackBuffer, "japan.bmp");
+		S_DumpScreen();
+		DDCopyBitmap(App.lpBackBuffer, "japan.bmp");
+		break;
+	}
+}

@@ -510,7 +510,7 @@ struct WINAPP
 	BYTE					tDisableSound;
 	DWORD dword_D9AC27;
 	BYTE byte_D9AC2B;
-	DWORD dword_D9AC2C;
+	DWORD OriginalBPP;
 
 	BYTE					tAutoTarget;
 	DWORD dword_D9AC34;
@@ -547,6 +547,7 @@ typedef struct
 enum WINAPP_FLAGS
 {
 	WA_FULLSCREEN = (1 << 0),
+	WA_UNKNOWN1 = (1 << 1),
 	WA_FPUSETUP = (1 << 5),
 	WA_SOFTWARE = (1 << 6),
 	WA_BACK_BUFFER = (1 << 7),

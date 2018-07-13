@@ -20,8 +20,72 @@
 #include "FILE.H"
 #include "GAMEFLOW.H"
 #include "GAME.H"
+#include "SETUP.H"
+#include "DEBUG.H"
 
 WINAPP	 App;
+bool thread_started;
+
+void WinProcMsg()
+{
+	Log(LT_Enter, "WinProcMsg");
+
+	MSG Msg;
+	
+	do
+	{
+		GetMessageA(&Msg, nullptr, 0, 0);
+
+		if (!TranslateAcceleratorA(App.WindowHandle, App.hAccTable, &Msg))
+		{
+			TranslateMessage(&Msg);
+			DispatchMessageA(&Msg);
+		}
+	} while (!thread_started && Msg.message != WM_QUIT);
+}
+
+void WinClose()
+{
+	Log(LT_Enter, "WinClose");
+
+	SaveSettings();
+	CloseHandle(App.hObject);
+	//
+	DestroyAcceleratorTable(App.hAccTable);
+	CloseDirectX();
+
+	DX_TRY(App.lpDIKeyboard->Unacquire());
+	DXRelease(App.lpDIKeyboard, "Keyboard");
+
+	DX_TRY(App.lpDIJoystick->Unacquire());
+	DXRelease(App.lpDIJoystick, "Joystick");
+
+	DXRelease(App.lpDI, "DirectInput");
+}
+
+bool WinRunCheck(LPCSTR lpName, LPCSTR lpClassName, HANDLE* mutex)
+{
+	Log(LT_Enter, "WinRunCheck");
+
+	*mutex = CreateMutexA(0, true, lpName);
+
+	if (GetLastError() != 183)
+		return false;
+
+	HWND wnd = FindWindowA(lpClassName, lpName);
+
+	if (wnd)
+		SendMessageA(wnd, WM_ACTIVATE, 0, 0);
+
+	return true;
+}
+
+void WinProcessCommandLine(LPSTR lpCmdLine)
+{
+	Log(LT_Enter, "WinProcessCommandLine");
+
+	Unimpl();
+}
 
 int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -31,12 +95,16 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Clear Application Structure
 	memset(&App, 0, sizeof(WINAPP));
 
+	if (WinRunCheck(WINDOWNAME, WINDOWCLASS, &App.hObject))
+		return false;
+
 	FindCdDrive();
 	LoadGameflow();
+	WinProcessCommandLine(lpCmdLine);
 
 	App.hInstance = hInstance;
-	App.WindowClass.hIcon = NULL;
-	App.WindowClass.lpszMenuName = NULL;
+	App.WindowClass.hIcon = nullptr;
+	App.WindowClass.lpszMenuName = nullptr;
 	App.WindowClass.lpszClassName = WINDOWCLASS;
 	App.WindowClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	App.WindowClass.hInstance = hInstance;
@@ -49,10 +117,10 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if (!RegisterClass(&App.WindowClass))
 	{
 		Log(LT_Error, "Unable To Register Window Class");
-		return FALSE;
+		return false;
 	}
 
-	tagRECT Rect;
+	RECT Rect;
 
 	Rect.left = 0;
 	Rect.top = 0;
@@ -84,11 +152,13 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	DXInitialise(&App.DeviceInfo, App.WindowHandle);
 
+	// setup
+
 	SetWindowPos(App.WindowHandle, 0, App.GnWindowRect.left, App.GnWindowRect.top, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
 	HWND dWnd = GetDesktopWindow();
 	HDC context = GetDC(dWnd);
-	App.dword_D9AC2C = GetDeviceCaps(context, BITSPIXEL);
+	App.OriginalBPP = GetDeviceCaps(context, BITSPIXEL);
 	ReleaseDC(dWnd, context);
 
 	App.bNoFocus = false;
@@ -105,7 +175,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		WS_CAPTION))
 	{
 		MessageBoxA(nullptr, &gfStringWad[gfStringOffset[STR_FAILED_TO_SETUP_DIRECTX]], "Tomb Raider", 0);
-		return 0;
+		return false;
 	}
 
 	ShowBumpInfo();
@@ -119,20 +189,39 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ShowCursor(false);
 	}
 
-	DICreate(App.WindowHandle, hInstance);
+	DXCreateDirectInput(App.WindowHandle, hInstance);
 
 	App.hAccTable = LoadAcceleratorsA(hInstance, (LPCSTR)0x65);
 
 	// sound
 
 	game_running = true;
+	thread_started = false;
 
 	uint32_t thread_id;
 	HANDLE hThread = (HANDLE)_beginthreadex(nullptr, 0, GameMain, nullptr, 0, &thread_id);
 
-	//WinProcMsg();
+	thread_started = true;
+
+	WinProcMsg();
 
 	while (game_running);
+
+	WinClose();
+
+	HWND desktop = GetDesktopWindow();
+	ReleaseDC(desktop, GetDC(desktop));
+
+	DEVMODEA dm;
+	dm.dmSize = sizeof(dm);
+	dm.dmBitsPerPel = App.OriginalBPP;
+	dm.dmFields = DM_BITSPERPEL;
+	ChangeDisplaySettingsA(&dm, 0);
+
+	HWND dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
+	if (dblog)
+		PostMessageA(dblog, dbm_command, 4, 0);
+
 	
 	return 0;
 }
@@ -212,9 +301,4 @@ void ShowBumpInfo()
 			}
 		}
 	}
-}
-
-bool DICreate(HWND hWnd, HINSTANCE hInstance)
-{
-	return false;
 }

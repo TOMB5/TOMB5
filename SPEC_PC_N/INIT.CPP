@@ -4,6 +4,8 @@
 #include "GLOBAL.H"
 #include "WINMAIN.H"
 
+#define GAME_MALLOC_BUFFER_SIZE 5000000
+
 char*	malloc_buffer = NULL;
 int		malloc_size;
 char*	malloc_ptr;
@@ -99,6 +101,8 @@ extern "C" {
 
 	void init_game_malloc(void)
 	{
+		malloc_size = GAME_MALLOC_BUFFER_SIZE;
+		malloc_buffer = (char*)malloc(malloc_size);
 		malloc_ptr = malloc_buffer;
 		malloc_free = malloc_size;
 		malloc_used = 0;

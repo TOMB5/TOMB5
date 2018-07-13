@@ -26,6 +26,10 @@
 #include "DELTAPAK.H"
 #include "LOT.H"
 #include "ITEMS.H"
+#include "EFFECT2.H"
+#include "OBJLIGHT.H"
+#include "LARAMISC.H"
+#include "FLMTORCH.H"
 
 short* floor_data;
 short* mesh_base;
@@ -49,6 +53,7 @@ OBJECT_TEXTURE* object_textures;
 SPRITE_STRUCT* sprites;
 OBJECT_TEXTURE* waterfall_textures[6];
 float waterfall_y[6];
+int num_room_lights;
 
 #ifdef __cplusplus
 extern "C" {
@@ -113,7 +118,6 @@ extern "C" {
 		fread(buf, 1, count, fp_level);
 		free(buf);
 	}
-
 
 	void FreeTextures()
 	{
@@ -283,26 +287,104 @@ extern "C" {
 			Unimpl();
 		}
 	}
-	void LoadRooms()
+	void FixUpRoom(room_info *rooms, room_info *roomData)
+	{
+		AddPtr(roomData->door, short, roomData + 1);
+		AddPtr(roomData->floor, struct FLOOR_INFO, roomData + 1);
+		AddPtr(roomData->light, struct LIGHTINFO, roomData + 1);
+		AddPtr(roomData->mesh, struct MESH_INFO, roomData + 1);
+		AddPtr(roomData->Separator4, void, roomData + 1);
+		AddPtr(roomData->LayerOffset, struct tr5_room_layer, roomData + 1);
+		AddPtr(roomData->PolyOffset, void, roomData + 1);
+		AddPtr(roomData->PolyOffset2, void, roomData + 1);
+		AddPtr(roomData->VerticesOffset, struct tr5_room_vertex, roomData + 1);
+
+		roomData->LightDataSize += (uint32_t)(roomData + 1);
+
+		if ((uint8_t)roomData->door & 1)
+		{
+			Log(0, "%X", roomData->door);
+			roomData->door = 0;
+		}
+
+		char* polyOff = (char*)roomData->PolyOffset;
+		char* polyOff2 = (char*)roomData->PolyOffset2;
+		char* vertOff = (char*)roomData->VerticesOffset;
+
+		for (int i = 0; i < roomData->NumLayers; i++)
+		{
+			roomData->LayerOffset[i].PolyOffset = polyOff;
+			roomData->LayerOffset[i].PolyOffset2 = polyOff2;
+			roomData->LayerOffset[i].VerticesOffset = vertOff;
+
+			polyOff += sizeof(struct tr4_mesh_face3) * roomData->LayerOffset[i].NumLayerTriangles +
+				sizeof(struct tr4_mesh_face4) * roomData->LayerOffset[i].NumLayerRectangles;
+
+			polyOff2 += 4 * roomData->LayerOffset[i].NumLayerVertices; // todo find what struct this is
+
+			vertOff += sizeof(struct tr5_room_vertex) * roomData->LayerOffset[i].NumLayerVertices;
+		}
+
+		memcpy(rooms, roomData, sizeof(struct room_info));
+
+		if (rooms->num_lights > num_room_lights)
+			num_room_lights = rooms->num_lights;
+	}
+	void LoadRoomStream()
+	{
+		readDword(); // read unused value
+
+		int numRooms = readDword(); // todo maybe it's 16 so it'll explode
+		Alloc(room, room_info, numRooms);
+
+		for (int i = 0; i < numRooms; i++)
+		{
+			readDword(); // XELA landmark
+
+			int roomDataSize = readDword();
+			char* roomData;
+			AllocReadT(roomData, char, roomDataSize);
+
+			FixUpRoom(&room[i], (room_info*)roomData);
+		}
+
+		number_rooms = numRooms;
+	}
+	void BuildOutsideTable()
 	{
 		Unimpl();
 	}
+	void LoadRooms()
+	{
+		Log(LT_Enter, "LoadRooms");
+
+		wibble = 0;
+		num_room_lights = 0;
+		//dword_7E7FE8 = 0;
+
+		LoadRoomStream();
+		BuildOutsideTable();
+
+		int numFloorData = readDword();
+		AllocReadT(floor_data, short, numFloorData);
+		Log(LT_Default, "Floor Data Size %d @ %x", numFloorData, floor_data);
+	}
 	void BaddyObjects()
-{
-	Unimpl();
-}
+	{
+		Unimpl();
+	}
 	void ObjectObjects()
-{
-	Unimpl();
-}
+	{
+		Unimpl();
+	}
 	void TrapObjects()
-{
-	Unimpl();
-}
+	{
+		Unimpl();
+	}
 	void InitialiseEffects()
-{
-	Unimpl();
-}
+	{
+		Unimpl();
+	}
 	void InitialiseObjects()
 	{
 		for (int i = 0; i < NUMBER_OBJECTS; i++)
@@ -776,23 +858,78 @@ extern "C" {
 		}
 	}
 	void MallocD3DLights()
-{
-	Unimpl();
-}
+	{
+		Unimpl();
+	}
 	void CreateD3DLights()
-{
-	Unimpl();
-}
+	{
+		Unimpl();
+	}
+	int GetCarriedItems()
+	{
+		Unimpl();
+		return 0;
+	}
+	int GetAIPickups()
+	{
+		Unimpl();
+		return 0;
+	}
+	void ClearFootPrints()
+	{
+		for (int i = 0; i < 32; i++)
+		{
+			FootPrint[i].Active = false;
+		}
+
+		FootPrintNum = 0;
+	}
+	void InitBinoculars()
+	{
+		Unimpl();
+	}
+	void InitTarget()
+	{
+		Unimpl();
+	}
+	void InitialiseGameFlags()
+	{
+		Unimpl();
+	}
 	void SetupGame()
-{
-	Unimpl();
-}
+	{
+		SeedRandomDraw(0xD371F947);
+		SeedRandomControl(0xD371F947);
+
+		wibble = 0;
+		torchroom = 255;
+
+		ClearFootPrints();
+		InitBinoculars();
+		InitTarget();
+		InitialiseGameFlags();
+
+		InitialiseLara(
+			gfCurrentLevel != LVL5_THIRTEENTH_FLOOR &&
+			gfCurrentLevel != LVL5_BASE &&
+			gfCurrentLevel != LVL5_GALLOWS_TREE &&
+			gfCurrentLevel != LVL5_STREETS_OF_ROME &&
+			!gfInitialiseGame);
+
+		GetCarriedItems();
+		GetAIPickups();
+
+		SeedRandomDraw(0xD371F947);
+		SeedRandomControl(0xD371F947);
+	}
 	void reset_cutseq_vars()
 	{
 		cutseq_num = 0;
 		cutseq_trig = 0;
+
 		GLOBAL_playing_cutseq = 0;
 		GLOBAL_cutseq_frame = 0;
+
 		SetFadeClip(0, 1);
 	}
 	unsigned __stdcall LoadLevel(char* filename)

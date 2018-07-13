@@ -1,9 +1,10 @@
 #include <ddraw.h>
 #include "DIRECTX.H"
 #include "GLOBAL.H"
+#include <dinput.h>
 #pragma comment (lib, "ddraw.lib")
 #pragma comment (lib, "dxguid.lib")
-
+#pragma comment (lib, "dinput.lib")
 #pragma comment (lib, "d3dx9.lib")
 
 static LPDIRECTDRAW4		enum_lpDD;
@@ -847,4 +848,132 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 
 	CloseDirectX();
 	return false;
+}
+
+HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, int wSrc, int hSrc)
+{
+	if (!h)
+		return 0x80004005;
+
+	if (!surf)
+		return 0x80004005;
+
+	surf->Restore();
+
+	HDC dc = CreateCompatibleDC(nullptr);
+	if (!dc)
+		OutputDebugStringA("createcompatible dc failed");
+
+	SelectObject(dc, h);
+
+	BITMAP bmp;
+	GetObjectA(h, sizeof(BITMAP), &bmp);
+
+	DDSURFACEDESC2 desc; // todo maybe surf desc (not 2)
+	DXInit(desc);
+	desc.dwFlags = DDSD_WIDTH | DDSD_HEIGHT;
+
+	surf->GetSurfaceDesc(&desc);
+
+	int x = 0;
+	int y = 0;
+
+	if (App.Flags & WA_BACK_BUFFER)
+	{
+		surf = App.lpFrontBuffer;
+
+		if (App.Flags & WA_UNKNOWN1)
+		{
+			x = App.GnWindowRect.left;
+			y = App.GnWindowRect.top;
+		}
+	}
+
+	HDC dest;
+	HRESULT res = surf->GetDC(&dest);
+
+	if (res == NO_ERROR)
+	{
+		StretchBlt(dest, x, y, desc.dwWidth, desc.dwHeight, dc, xSrc, ySrc, wSrc, hSrc, SRCCOPY);
+		surf->ReleaseDC(dest);
+	}
+
+	DeleteDC(dc);
+
+	return res;
+}
+
+HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)
+{
+	HMODULE mod = GetModuleHandleA(nullptr);
+	HANDLE image = LoadImageA(mod, filename, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+
+	if (!image)
+		image = LoadImageA(mod, filename, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_LOADFROMFILE);
+
+	if (!image)
+	{
+		OutputDebugStringA("handle is null");
+
+		return 0x80004005;
+	}
+
+	HRESULT res = LoadPicture(surface, image, 0, 0, 0, 0);
+
+	if (res)
+		OutputDebugStringA("ddcopybitmap failed");
+
+	DeleteObject(image);
+
+	return res;
+}
+
+BOOL PASCAL DXEnumDirectInput(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
+{
+	return FAILED(App.lpDI->CreateDeviceEx(lpddi->guidInstance, IID_IDirectInputDevice2A, (LPVOID*)&App.lpDIJoystick, nullptr));
+}
+
+BOOL PASCAL DXEnumDirectInputObjects(LPCDIDEVICEOBJECTINSTANCEA lpddoi, LPVOID pvRef)
+{
+	DIPROPRANGE prop;
+	DXInit(prop.diph);
+
+	prop.diph.dwHeaderSize = 16;
+	prop.diph.dwHow = 1;
+	prop.diph.dwObj = lpddoi->dwOfs;
+
+	prop.lMin = -1000;
+	prop.lMax = 1000;
+
+	return SUCCEEDED(App.lpDIJoystick->SetProperty(DIPROP_RANGE, &prop.diph));
+}
+
+void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance)
+{
+	LPDIRECTINPUTA di;
+	DX_TRY(DirectInputCreateA(hInstance, 0x700, &di, nullptr));
+	di->QueryInterface(IID_IDirectInput2A, (LPVOID*)&App.lpDI);
+	DXRelease(di, "DirectInput");
+
+	LPDIRECTINPUTDEVICEA keyb;
+	DX_TRY(App.lpDI->CreateDevice(GUID_SysKeyboard, &keyb, nullptr));
+	keyb->QueryInterface(IID_IDirectInputDevice2A, (LPVOID*)&App.lpDIKeyboard);
+	DXRelease(keyb, "Keyboard");
+
+	DX_TRY(App.lpDIKeyboard->SetCooperativeLevel(hWnd, DDSCL_ALLOWREBOOT | DDSCL_NORMAL));
+	DX_TRY(App.lpDIKeyboard->SetDataFormat(&c_dfDIKeyboard));
+	DX_TRY(App.lpDIKeyboard->Acquire());
+
+	DX_TRY(App.lpDI->EnumDevices(DIDEVTYPE_JOYSTICK, DXEnumDirectInput, nullptr, DIEDFL_ATTACHEDONLY));
+
+	if (App.lpDIJoystick)
+	{
+		DX_TRY(App.lpDIJoystick->SetDataFormat(&c_dfDIJoystick));
+		DX_TRY(App.lpDIJoystick->SetCooperativeLevel(hWnd, DDSCL_FULLSCREEN | DDSCL_NOWINDOWCHANGES));
+
+		DIDEVCAPS caps;
+		App.lpDIJoystick->GetCapabilities(&caps);
+		App.lpDIJoystick->EnumObjects(DXEnumDirectInputObjects, hWnd, DIDFT_AXIS);
+		DX_TRY(App.lpDIJoystick->Acquire());
+	}
 }
