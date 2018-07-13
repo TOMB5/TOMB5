@@ -148,6 +148,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 		case GF_TITLE_LEVEL://IB = 113D8, 11488
 			gfLevelFlags = (sequenceCommand[0] | (sequenceCommand[1] << 8));
 			DoTitle(sequenceCommand[2], sequenceCommand[3]);//a3[2]unconfirmed
+			return;
 			break;
 		case GF_LEVEL_DATA_END://11048
 			break;
