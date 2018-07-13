@@ -221,7 +221,7 @@ void LaraInitialiseMeshes()//4A684, 4AAE8 (F)
 	lara.left_arm.lock = 0;
 }
 
-void InitialiseLara(BOOL restore)
+void InitialiseLara(int restore)
 {
 	if (lara.item_number == -1)
 		return;

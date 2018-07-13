@@ -1059,6 +1059,10 @@ extern "C" {
 			if (gfCurrentLevel == LVL5_OLD_MILL)
 				find_a_fucking_item(ANIMATING16)->mesh_bits = 1;
 
+
+
+			//todo
+			//objects[0].initialise(0);
 			// todo
 
 			FileClose(fp_level);
