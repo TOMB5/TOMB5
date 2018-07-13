@@ -23,6 +23,7 @@
 #include "HEALTH.H"
 #include "NEWINV2.H"
 #include "LARAFIRE.H"
+#include <string.h>
 
 char* states[131] =
 {
