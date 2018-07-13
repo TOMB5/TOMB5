@@ -11,7 +11,7 @@
 
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x)
-#define Unimpl() S_Warn("[" STRINGIFY(__FUNCTION__) "] - Unimplemented!\n")
+#define Unimpl() S_Warn("[" __FUNCTION__ "] - Unimplemented!\n")
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
@@ -530,6 +530,17 @@ struct WINAPP
 
 	float					fps;
 };
+
+
+typedef struct
+{
+	signed char	  shimmer;
+	signed char   choppy;
+	unsigned char random;
+	unsigned char abs;
+} WATERTAB;
+
+
 
 #pragma pop
 

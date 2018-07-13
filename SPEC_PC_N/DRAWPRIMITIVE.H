@@ -9,4 +9,6 @@ extern HRESULT(*BeginScene)();
 extern HRESULT(*EndScene)();
 extern HRESULT(*SetRenderState)(D3DRENDERSTATETYPE dwRenderStateType, DWORD dwRenderState);
 
+void InitialiseFunctionTable();
+
 #endif

@@ -4,7 +4,7 @@
 #include "STYPES.H"
 #include "INCLUDE.H"
 
-double LdFreq;
+double LdSync, LdFreq;
 LARGE_INTEGER LdUnk;
 
 void TIME_Reset()
@@ -26,4 +26,17 @@ bool TIME_Init()
 	TIME_Reset();
 
 	return true;
+}
+
+int Sync()
+{
+	int nFrames;
+	LARGE_INTEGER ct;
+	double dCounter;
+	QueryPerformanceCounter(&ct);
+	dCounter = (double)ct.LowPart + (double)ct.HighPart*(double)0xffffffff;
+	dCounter /= LdFreq;
+	nFrames = long(dCounter) - long(LdSync);
+	LdSync = dCounter;
+	return nFrames;
 }

@@ -27,20 +27,10 @@ struct	HWCONFIG
 extern struct HWCONFIG HWConfig;
 
 
-typedef struct
-{
-	signed char	  shimmer;
-	signed char   choppy;
-	unsigned char random;
-	unsigned char abs;
-} WATERTAB;
 
 
 
 
-
-extern WATERTAB	WaterTable[22][64];
-extern "C" short rcossin_tbl[];
 
 
 void ShowBumpInfo();

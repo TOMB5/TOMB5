@@ -125,10 +125,14 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// sound
 
+	game_running = true;
+
 	uint32_t thread_id;
 	HANDLE hThread = (HANDLE)_beginthreadex(nullptr, 0, GameMain, nullptr, 0, &thread_id);
 
 	//WinProcMsg();
+
+	while (game_running);
 	
 	return 0;
 }

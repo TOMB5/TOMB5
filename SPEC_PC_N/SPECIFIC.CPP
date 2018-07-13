@@ -44,6 +44,8 @@ void S_CDPlay(sint16 nTrack, int tMode)
 {
 	Log(LT_Enter, "S_CDPlay: nTrack=%d; tMode=%d", nTrack, tMode);
 
+	Unimpl();
+
 	//if (!Option_Music_Volume)
 		return;
 /*
@@ -71,10 +73,16 @@ void S_CDPlay(sint16 nTrack, int tMode)
 	*/
 }
 
+void S_CDStop(void)
+{
+	Unimpl();
+}
+
 void S_SoundStopSample(sint32 handle)
 {
 	if (!sound_active)
 		return;
+
 	DS_StopSample(handle);
 }
 
@@ -82,7 +90,22 @@ void S_SoundStopAllSamples(void)
 {
 	if (!sound_active)
 		return;
+
 	DS_StopAllSamples();
+}
+
+void		S_DumpScreenFrame()
+{
+	Unimpl();
+}
+
+void S_LoadBar()
+{
+	Unimpl();
+}
+void S_InitLoadBar(int size)
+{
+	Unimpl();
 }
 
 

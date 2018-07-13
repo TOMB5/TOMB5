@@ -3,5 +3,6 @@
 
 void TIME_Reset();
 bool TIME_Init();
+int Sync();
 
 #endif

@@ -4,9 +4,7 @@
 #include "INCLUDE.H"
 #include "SPECTYPES.H"
 
-void HWR_BeginScene();
-void HWR_EndScene();
-bool HWR_Init();
+
 
 
 #endif

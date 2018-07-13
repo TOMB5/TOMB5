@@ -13,7 +13,7 @@ extern "C" {
 #define LT_Release			(char*)4
 #define LT_Info				(char*)5
 #define LT_WindowMessage	(char*)6
-#define LT_DXTry			(char*)7
+#define LT_Status			(char*)7
 #define LT_Error			(char*)1
 #define LT_Warning			(char*)8
 #define LT_Version			(char*)9
