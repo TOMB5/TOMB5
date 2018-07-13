@@ -15,10 +15,10 @@ extern "C" {
 #define LT_WindowMessage	(char*)6
 #define LT_Status			(char*)7
 #define LT_Error			(char*)1
-#define LT_Warning			(char*)8
+#define LT_Warning			(char*)????
 #define LT_Version			(char*)9
 #define LT_Texture			(char*)10	// crappy temporary texture loading messages
-#define LT_Sound			(char*)11	// sample info
+#define LT_Sound			(char*)8	// sample info
 
 #define S_MemSet(A,B,C) 		memset(A,B,C)
 #define S_MemCpy(A,B,C) 		memcpy(A,B,C)

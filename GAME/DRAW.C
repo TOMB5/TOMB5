@@ -259,3 +259,8 @@ short* GetBestFrame(struct ITEM_INFO* item)// (F)s
 	else
 		return frm[0];
 }
+
+void DrawAnimatingItem(struct ITEM_INFO *item)
+{
+	S_Warn("[DrawAnimatingItem] - Unimplemented!\n");
+}

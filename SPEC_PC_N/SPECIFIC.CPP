@@ -108,6 +108,15 @@ void S_InitLoadBar(int size)
 	Unimpl();
 }
 
+bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)
+{
+	Unimpl();
+	return false;
+}
+
+unsigned short *AnimTextureRanges; // offset 0xA4670
+unsigned short nAnimUVRanges; // offset 0xA4660
+
 
 #ifdef __cplusplus
 }

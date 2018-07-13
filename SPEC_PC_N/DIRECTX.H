@@ -42,6 +42,7 @@ extern "C" {
 #define CUR_DD App.DeviceInfo.DDInfo[App.DXConfig.nDD]
 #define CUR_D3D CUR_DD.D3DInfo[App.DXConfig.nD3D]
 #define CUR_DM CUR_D3D.DisplayMode[App.DXConfig.nVMode]
+#define CUR_TEX CUR_D3D.Texture[App.DXConfig.nTexture]
 
 void DXInitialise(DEVICEINFO* DeviceInfo, HWND WindowHandle);
 bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2);

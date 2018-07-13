@@ -30,10 +30,15 @@ extern "C" {
 	void S_LoadBar();
 	void S_InitLoadBar(int size);
 
+	bool Decompress(void* buf, void* compressed, int compSize, int uncompSize);
+
 
 extern void S_Warn(const char* warning_message, ...);
 
 extern void S_SetReverbType(sint16 reverb);
+
+extern unsigned short *AnimTextureRanges; // offset 0xA4670
+extern unsigned short nAnimUVRanges; // offset 0xA4660
 
 #ifdef __cplusplus
 }

@@ -8,8 +8,8 @@
 #include "SOUND.H"
 #include "DRAWPRIMITIVE.H"
 
-struct object_info objects[NUMBER_OBJECTS];
-struct static_info static_objects[NUMBER_STATIC_OBJECTS];
+object_info objects[NUMBER_OBJECTS];
+static_info static_objects[NUMBER_STATIC_OBJECTS];
 LPDIRECT3DVERTEXBUFFER vertex_buffer;
 bool game_running;
 
