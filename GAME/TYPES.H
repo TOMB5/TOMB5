@@ -34,6 +34,10 @@
 // Game used 182, so maybe our code will be more precise %)
 #define ANGLE(x) ((x) * 65536.0 / 360.0)
 
+#ifndef BOOL
+#define BOOL int
+#endif
+
 #if PC_VERSION
 #define SIN(x) (4 * rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
 #define COS(x) (4 * rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])

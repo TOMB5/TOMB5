@@ -371,6 +371,19 @@ extern "C" {
 	}
 	void BaddyObjects()
 	{
+		struct object_info* object = &objects[LARA];
+
+		object->shadow_size = 160;
+		object->initialise = &InitialiseLaraLoad;
+		object->hit_points = 1000;
+		object->draw_routine = NULL;
+
+		object->using_drawanimating_item = 0;
+		object->save_hitpoints = 1;
+		object->save_position = 1;
+		object->save_flags = 1;
+		object->save_anim = 1;
+
 		Unimpl();
 	}
 	void ObjectObjects()
