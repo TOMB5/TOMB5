@@ -167,7 +167,9 @@ extern "C" {
 
 	void InitMatrix()
 	{
-		Unimpl();
+		// todo
+
+		phd_dxptr = (BYTE*)malloc(48 * 40);
 	}
 
 	void InitWater()
@@ -475,9 +477,9 @@ extern "C" {
 	{
 		Log(LT_Enter, "ProcessMeshData %d", nmeshes);
 
-		/*numLvlMeshes = nmeshes;
+		//numLvlMeshes = nmeshes;
 
-		AllocT(mesh_vbufs, struct mesh_vbuf_s*, nmeshes);*/
+		AllocT(mesh_vbufs, struct mesh_vbuf_s*, nmeshes);
 		mesh_base = (short*)malloc_ptr;
 
 		Unimpl();
@@ -1031,7 +1033,7 @@ extern "C" {
 
 			S_LoadBar();
 
-			for (int i = WATERFALL1; i <= WATERFALLSS2; i++)
+			for (int i = WATERFALL1; i <= WATERFALLSS2 && false; i++)
 			{
 				if (objects[i].loaded)
 				{

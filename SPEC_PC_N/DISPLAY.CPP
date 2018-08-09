@@ -1,6 +1,7 @@
 #include "DISPLAY.H"
 #include "GLOBAL.H"
 #include "CAMERA.H"
+#include "DIRECTX.H"
 
 #define MINZRANGE 0.005
 #define MAXZRANGE 0.995
@@ -49,4 +50,11 @@ void InitWindow(int x, int y, int width, int height, int nearz, int farz, int vi
 	/*unk_55DA34 = (double)(phd_winymax + 1);
 	flt_51D14C = flt_51D160 - flt_55D250;
 	unk_55DA40 = unk_55DA34 - flt_55D664;*/
+}
+
+void PrintString(long x, long y, int unk1, char* string, int unk2)
+{
+	char* buf = (char*)malloc(strlen(string) + 64);
+	sprintf(buf, "PrintString - X:%d Y:%d Unk1:%d Flags:%4x - %s\n", x, y, unk1, unk2, string);
+	S_Warn(buf);
 }

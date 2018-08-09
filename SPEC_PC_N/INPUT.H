@@ -9,6 +9,7 @@ extern "C" {
 
 	// The global input variable
 	extern sint32 input;
+	extern sint32 dbinput;
 
 
 	extern int bLaraOn;

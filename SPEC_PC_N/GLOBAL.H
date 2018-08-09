@@ -51,6 +51,7 @@ extern sint32		phd_scrheight;       	/* Height of Screen ie. 200 or 480*/
 extern sint32		phd_persp;				/* perspective thang*/
 extern sint32		*phd_mxptr;				/* matrix pointer....*/
 extern sint32		phd_oopersp;
+extern BYTE* phd_dxptr;
 
 extern	float		one;				// in 3dinsert.cpp
 extern	float		f_znear;			// phd_znear
@@ -70,11 +71,14 @@ extern	sint32		matrix_stack[];		// matrix stack for animations etc..
 
 #define EndOfArray(a) ((a)+ArraySize(a))
 
+extern void phd_PushMatrix();
 extern void phd_PushUnitMatrix();
 extern void phd_UnitMatrix();
 extern void phd_TransposeMatrix();
+extern void phd_TranslateAbs(long x, long y, long z);
+extern void phd_RotYXZ(long y, long x, long z);
 extern unsigned long mGetAngle(long x1, long y1, long x2, long y2);
-#define phd_PopMatrix()		phd_mxptr -= 12
+#define phd_PopMatrix()		{ phd_mxptr -= 12, phd_dxptr -= 48; }
 
 #ifdef __cplusplus
 }

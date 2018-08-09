@@ -1,5 +1,6 @@
 #include "SPECTYPES.H"
 #include "3DGLODEF.H"
+#include "SPECIFIC.H"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,6 +26,7 @@ extern "C" {
 	sint32		phd_persp;				/* perspective thang*/
 	sint32		*phd_mxptr;				/* matrix pointer....*/
 	sint32		phd_oopersp;
+	BYTE* phd_dxptr;
 
 	float		one;				// in 3dinsert.cpp
 	float		f_znear;			// phd_znear
@@ -72,12 +74,36 @@ extern "C" {
 		*(p1 + M01) = *(p1 + M02) =
 			*(p1 + M10) = *(p1 + M12) =
 			*(p1 + M20) = *(p1 + M21) = 0;
+
+		*((uint32_t *)phd_dxptr + 10) = 0x3F800000;
+		*((uint32_t *)phd_dxptr + 5) = 0x3F800000;
+		*(uint32_t *)phd_dxptr = 0x3F800000;
+		*((uint32_t *)phd_dxptr + 3) = 0;
+		*((uint32_t *)phd_dxptr + 2) = 0;
+		*((uint32_t *)phd_dxptr + 1) = 0;
+		*((uint32_t *)phd_dxptr + 7) = 0;
+		*((uint32_t *)phd_dxptr + 6) = 0;
+		*((uint32_t *)phd_dxptr + 4) = 0;
+		*((uint32_t *)phd_dxptr + 11) = 0;
+		*((uint32_t *)phd_dxptr + 9) = 0;
+		*((uint32_t *)phd_dxptr + 8) = 0;
 	}
 
 	void	phd_PushUnitMatrix(void)
 	{
+		phd_dxptr += 48;
 		phd_mxptr += 12;
 		phd_UnitMatrix();
+	}
+
+	void phd_TranslateAbs(long x, long y, long z)
+	{
+		Unimpl();
+	}
+
+	void phd_RotYXZ(long y, long x, long z)
+	{
+		Unimpl();
 	}
 
 #ifdef __cplusplus

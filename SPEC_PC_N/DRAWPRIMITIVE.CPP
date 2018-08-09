@@ -1,5 +1,17 @@
 #include "DRAWPRIMITIVE.H"
 #include "GLOBAL.H"
+#include "DELSTUFF.H"
+#include "LARA.H"
+#include "DOOR.H"
+#include "HEALTH.H"
+#include "CAMERA.H"
+#include "DELTAPAK.H"
+#include "GAME.H"
+#include "EFFECTS.H"
+#include "GAMEFLOW.H"
+#include "DRAW.H"
+#include "ITEMS.H"
+#include "CONTROL.H"
 
 HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
@@ -118,4 +130,168 @@ void InitialiseFunctionTable()
 	}
 
 	AddLine = AddLineClippedSorted;
+}
+
+void GPU_BeginScene()
+{
+	Unimpl();
+}
+
+void SetGlobalAmbient(uint32_t color)
+{
+	Unimpl();
+}
+
+void DrawEffect(short fx_num)
+{
+	FX_INFO* fx = &effects[fx_num];
+	object_info* obj = &objects[fx->object_number];
+
+	if (obj->draw_routine != nullptr && obj->loaded)
+	{
+		phd_PushMatrix();
+		phd_TranslateAbs(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos);
+
+		if (phd_mxptr[11] > phd_znear && phd_mxptr[11] < phd_zfar)
+		{
+			phd_RotYXZ(fx->pos.y_rot, fx->pos.x_rot, fx->pos.z_rot);
+
+			if (gfCurrentLevel == LVL5_COLOSSEUM && fx->object_number == BODY_PART)
+			{
+				SetGlobalAmbient(0xFF282020);
+			}
+
+			//S_CalculateLight(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, fx->room_number, &stru_E71352);
+			// null sub, dont care
+
+			if (obj->nmeshes != 0)
+			{
+				phd_PutPolygons(meshes[obj->mesh_index]);
+			}
+			else
+			{
+				phd_PutPolygons(meshes[fx->frame_number]);
+			}
+		}
+
+		phd_PopMatrix();
+	}
+}
+
+void PrintObjects(short current_room)
+{
+	Unimpl();
+}
+
+void DoRain()
+{
+	Unimpl();
+}
+
+void DoSnow()
+{
+	Unimpl();
+}
+
+void DoWeather()
+{
+	if (WeatherType == WEATHER_RAIN)
+		DoRain();
+	else if (WeatherType == WEATHER_SNOW)
+		DoSnow();
+}
+
+void DrawLaserSightSprite()
+{
+	Unimpl();
+}
+
+void DrawStaticObjects(short current_room)
+{
+	Unimpl();
+}
+
+void DoMonitorScreen()
+{
+	Unimpl();
+}
+
+void GetRoomBounds()
+{
+	Unimpl();
+}
+
+void InitialiseFogBulbs()
+{
+	
+}
+
+void CreateFXBulbs()
+{
+	
+}
+
+void SkyDrawPhase()
+{
+	Unimpl();
+}
+
+void DrawRooms(short current_room)
+{
+	DoMonitorScreen();
+
+	room_info* r = &room[current_room];
+
+	r->test_left = phd_left = 0;
+	r->test_top = phd_top = 0;
+	r->test_right = phd_right = phd_winxmax;
+	r->test_bottom = phd_bottom = phd_winymax;
+
+	// todo
+
+	r->bound_active = 2;
+
+	// todo
+
+	GetRoomBounds();
+	InitialiseFogBulbs();
+	CreateFXBulbs();
+	ProcessClosedDoors();
+
+	if (gfCurrentLevel != LVL5_TITLE)
+		SkyDrawPhase();
+
+	if (objects[LARA].loaded)
+	{
+		if (!(lara_item->flags & IFLAG_INVISIBLE))
+		{
+			
+		}
+	}
+}
+
+void phd_PutPolygons(short* mesh)
+{
+	Unimpl();
+}
+
+int32_t DrawPhaseGame()
+{
+	CalcLaraMatrices(0);
+	phd_PushUnitMatrix();
+	CalcLaraMatrices(1);
+
+	phd_mxptr -= 12;
+	phd_dxptr -= 48;
+
+	if (GLOBAL_playing_cutseq)
+		frigup_lara();
+
+	SetLaraUnderwaterNodes();
+	DrawRooms(camera.pos.room_number);
+	DrawGameInfo(TRUE);
+	S_OutputPolyList();
+	camera.number_frames = S_DumpScreen();
+	S_AnimateTextures(camera.number_frames);
+	return camera.number_frames;
 }

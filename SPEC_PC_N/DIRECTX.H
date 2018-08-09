@@ -31,6 +31,9 @@
 									b>>(8-DXD3DTexture(i,j).bbpp)<<(DXD3DTexture(i,j).bshift)|\
 									a>>(8-DXD3DTexture(i,j).abpp)<<(DXD3DTexture(i,j).ashift)	
 
+
+#define GENRGB(r, g, b) DXRGB(&App.DeviceInfo, &App.DXConfig, r, g, b)
+
 #ifdef __cplusplus
 extern "C" {
 #endif

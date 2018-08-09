@@ -11,3 +11,4 @@
 #include "INIT.H"
 
 sint32 input;
+sint32 dbinput;

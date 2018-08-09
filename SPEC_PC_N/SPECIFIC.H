@@ -26,7 +26,7 @@ extern "C" {
 	extern void S_ExitSystem(char *message);
 
 	void		S_DumpScreenFrame();
-	void		S_DumpScreen();
+	long		S_DumpScreen();
 
 	void S_LoadBar();
 	void S_InitLoadBar(int size);
@@ -40,6 +40,24 @@ extern void S_SetReverbType(sint16 reverb);
 
 extern unsigned short *AnimTextureRanges; // offset 0xA4670
 extern unsigned short nAnimUVRanges; // offset 0xA4660
+
+extern void SetFogColor(uint8_t r, uint8_t g, uint8_t b);
+
+extern void ClearFXFogBulbs();
+
+extern void SetFade(int a1, int a2);
+
+extern void S_InitialiseScreen();
+
+extern BYTE IsVolumetric();
+
+extern void S_AnimateTextures(long nFrames);
+
+extern void S_OutputPolyList();
+
+extern void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room);
+
+extern void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light);
 
 #ifdef __cplusplus
 }

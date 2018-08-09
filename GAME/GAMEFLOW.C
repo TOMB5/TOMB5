@@ -24,6 +24,12 @@
 #include "INIT.H"
 #endif
 
+#if PC_VERSION
+#include "SPECIFIC.H"
+#include "DRAWPRIMITIVE.H"
+#include "DISPLAY.H"
+#endif
+
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
@@ -148,7 +154,6 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 		case GF_TITLE_LEVEL://IB = 113D8, 11488
 			gfLevelFlags = (sequenceCommand[0] | (sequenceCommand[1] << 8));
 			DoTitle(sequenceCommand[2], sequenceCommand[3]);//a3[2]unconfirmed
-			return;
 			break;
 		case GF_LEVEL_DATA_END://11048
 			break;
@@ -501,7 +506,11 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 	OldSP = SetSp(0x1F8003E0);
 #endif
 
+#if PSX_VERSION
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
+#else
+	gfStatus = ControlPhase(nframes, 0);
+#endif
 
 #if PSX_VERSION
 	SetSp(OldSP);
@@ -513,6 +522,13 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 
 void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 {
+#if PC_VERSION
+	S_Warn("DoTitle PC");
+	DoLevel(LVL5_STREETS_OF_ROME, Audio);
+
+	return;
+#endif
+
 	int i;
 
 	CreditsDone = 0;
@@ -748,7 +764,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 #if !BETA_VERSION
 	int fmvStatus;
 #endif
-#if PSX_VERSION || PSXPC_VERSION
+#if PSXENGINE
 	if (gfGameMode == 4)
 	{
 		if (FromTitle == 1)
@@ -766,6 +782,10 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	XAMasterVolume = savegame.VolumeCD;
 #endif
 
+#if PC_VERSION
+	SetFade(255, 0);
+#endif
+
 	if (gfGameMode == 4)
 	{
 		memset(&savegame.Level, 0, sizeof(struct STATS));
@@ -774,8 +794,24 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	//loc_10B58
 	S_LoadLevelFile(Name);
 
+#if PC_VERSION
+	//SetFogColor(...); todo
+
+	InitialiseFXArray(TRUE);
+	InitialiseLOTarray(TRUE);
+
+	ClearFXFogBulbs();
+
+	// todo
+#endif
+
 	InitSpotCamSequences();
 	InitialisePickUpDisplay();
+
+#if PC_VERSION
+	S_InitialiseScreen();
+#endif
+
 #if PSX_VERSION || PSXPC_VERSION
 	phd_InitWindow(90);
 #endif
@@ -787,6 +823,13 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		sgRestoreGame();
 		gfRequiredStartPos = 0;
 		gfInitialiseGame = 0;
+
+#if PC_VERSION
+		if (IsVolumetric())
+		{
+			//SetFogColor(...); todo
+		}
+#endif
 	}
 	else
 	{
@@ -803,22 +846,22 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		}
 
 		//loc_10BD8
-		CurrentAtmosphere = 0;
-		flipeffect = 0;
+		CurrentAtmosphere = Audio;
+		savegame.Level.Timer = 0;
 
 		if (gfCurrentLevel == LVL5_STREETS_OF_ROME)
 		{
-			((char*) &LaserSight)[2] = 0;
+			savegame.TLCount = 0;
 		}
 	}
 
 	//loc_10BF8
 	S_CDPlay(CurrentAtmosphere, 1);
 
-	IsAtmospherePlaying = 1;
-	ScreenFadedOut = 0;
-	ScreenFading = 0;
-	ScreenFadeBack = 0;
+	IsAtmospherePlaying = TRUE;
+	ScreenFadedOut = FALSE;
+	ScreenFading = FALSE;
+	ScreenFadeBack = FALSE;
 	dScreenFade = 255;
 	ScreenFade = 255;
 
@@ -838,7 +881,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	{
 		//loc_10C90
 		gfCutNumber = 0;
-		ScreenFadedOut = 1;
+		ScreenFadedOut = TRUE;
 		cutseq_num = gfCutNumber;
 	}
 
@@ -856,7 +899,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	framecount = 0;
 
 	gfStatus = ControlPhase(2, 0);
-#if PSX_VERSION || PSXPC_VERSION
+
 	dbinput = 0;
 	JustLoaded = 0;
 
@@ -886,6 +929,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 			//loc_10DEC
 			if (gfLevelComplete == 0)
 			{
+#if PSX_VERSION
 				if (dbinput & 0x100 && GLOBAL_enterinventory != -1)
 				{
 					//loc_10E28
@@ -898,19 +942,23 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 						}
 					}
 				}
+#endif
 
 				//loc_10E7C
 				QuickControlPhase();
 			}
 			else
 			{
+#if PSXENGINE
 				//loc_10CAC
 				gfStatus = 3;
+#endif
 				break;
 			}
 		}
 	}
 
+#if PSXENGINE
 	//loc_10E94
 	XAReqVolume = 0;
 	Motors[1] = 0;
@@ -929,9 +977,11 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 	//loc_10ED8
 	reset_count = 0;
+#endif
+
 	S_SoundStopAllSamples();
 	S_CDStop();
-#endif
+
 #if !BETA_VERSION
 
 	if (gfStatus == 3)

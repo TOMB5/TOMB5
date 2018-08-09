@@ -11,6 +11,8 @@
 #include "SPECTYPES.H"
 #include "SOUND.H"
 #include "DS.H"
+#include "GLOBAL.H"
+#include "DIRECTX.H"
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,9 +101,10 @@ void		S_DumpScreenFrame()
 	Unimpl();
 }
 
-void		S_DumpScreen()
+long		S_DumpScreen()
 {
 	Unimpl();
+	return 0;
 }
 void S_LoadBar()
 {
@@ -121,6 +124,50 @@ bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)
 unsigned short *AnimTextureRanges; // offset 0xA4670
 unsigned short nAnimUVRanges; // offset 0xA4660
 
+void SetFogColor(uint8_t r, uint8_t g, uint8_t b)
+{
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR, GENRGB(r, g, b));
+}
+
+void ClearFXFogBulbs()
+{
+	
+}
+
+void SetFade(int a1, int a2)
+{
+	Unimpl();
+}
+
+void S_InitialiseScreen()
+{
+	Unimpl();
+}
+
+BYTE IsVolumetric()
+{
+	return App.tVolumetricShadows;
+}
+
+void S_AnimateTextures(long nFrames)
+{
+	Unimpl();
+}
+
+void S_OutputPolyList()
+{
+	Unimpl();
+}
+
+void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
+{
+	Unimpl();
+}
+
+void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light)
+{
+	
+}
 
 #ifdef __cplusplus
 }
