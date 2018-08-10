@@ -14,9 +14,33 @@
 #include "GLOBAL.H"
 #include "DIRECTX.H"
 
+void DebugPrint(const char* message)
+{
+	char buf[1024];
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+
+	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+	strcpy(buf, message);
+
+	int len = strlen(buf);
+
+	if (buf[len - 1] != '\n')
+	{
+		buf[len] = '\n';
+		buf[len + 1] = 0;
+	}
+
+	OutputDebugString(buf);
+	printf(buf);
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+	
 
 void S_Warn(const char* warning_message, ...)
 {
@@ -31,15 +55,9 @@ void S_Warn(const char* warning_message, ...)
 	vsprintf(buf, warning_message, argptr);
 	va_end(argptr);
 
-	int len = strlen(buf);
-	if (buf[len - 1] != '\n')
-	{
-		buf[len] = '\n';
-		buf[len + 1] = 0;
-	}
+	Log_backend(LT_Info, buf);
 
-	OutputDebugString(buf);
-	printf(buf);
+	DebugPrint(buf);
 }
 
 void S_CDPlay(sint16 nTrack, int tMode)

@@ -95,6 +95,9 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Clear Application Structure
 	memset(&App, 0, sizeof(WINAPP));
 
+	Log(LT_Info, "Launching - %s", WINDOWNAME);
+	Log(LT_Enter, "WinMain");
+
 	if (WinRunCheck(WINDOWNAME, WINDOWCLASS, &App.hObject))
 		return false;
 

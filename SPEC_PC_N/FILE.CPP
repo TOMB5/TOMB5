@@ -169,7 +169,7 @@ extern "C" {
 	{
 		// todo
 
-		phd_dxptr = (BYTE*)malloc(48 * 40);
+		phd_dxptr = (float*)malloc(480 * sizeof(float));
 	}
 
 	void InitWater()
@@ -1121,19 +1121,19 @@ extern "C" {
 		fn[2] = 0;
 		strcat(fn, filename);
 
-		Log(5, "FileOpen - %s", fn);
+		Log(LT_Info, "FileOpen - %s", fn);
 
 		fp = fopen(fn, "rb");
 
 		if (!fp)
-			Log(1, "Unable To Open %s", fn);
+			Log(LT_Error, "Unable To Open %s", fn);
 
 		return fp;
 	}
 
 	int FileClose(FILE* fp)
 	{
-		Log(2, "FileClose");
+		Log(LT_Enter, "FileClose");
 
 		return fclose(fp);
 	}
@@ -1154,8 +1154,8 @@ extern "C" {
 		FILE* fp;
 		int len, read;
 
-		Log(2, "LoadFile");
-		Log(5, "File - %s", szFileName);
+		Log(LT_Enter, "LoadFile");
+		Log(LT_Info, "File - %s", szFileName);
 
 		fp = FileOpen(szFileName);
 		if (!fp)
@@ -1168,11 +1168,11 @@ extern "C" {
 
 		read = fread(*pDest, 1, len, fp);
 
-		Log(5, "Read - %d FileSize - %d", read, len);
+		Log(LT_Info, "Read - %d FileSize - %d", read, len);
 
 		if (read != len)
 		{
-			Log(1, "Error Reading File");
+			Log(LT_Error, "Error Reading File");
 			FileClose(fp);
 			free(*pDest);
 			return 0;

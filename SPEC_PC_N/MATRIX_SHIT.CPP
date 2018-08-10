@@ -26,7 +26,7 @@ extern "C" {
 	sint32		phd_persp;				/* perspective thang*/
 	sint32		*phd_mxptr;				/* matrix pointer....*/
 	sint32		phd_oopersp;
-	BYTE* phd_dxptr;
+	float* phd_dxptr;
 
 	float		one;				// in 3dinsert.cpp
 	float		f_znear;			// phd_znear
@@ -43,6 +43,19 @@ extern "C" {
 
 	sint32		w2v_matrix[12];		// World to View Matrix...
 	sint32		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
+
+	void phd_RotX(long angle)
+	{
+		Unimpl();
+	}
+	void phd_RotY(long angle)
+	{
+		Unimpl();
+	}
+	void phd_RotZ(long angle)
+	{
+		Unimpl();
+	}
 
 	void	phd_PushMatrix(void)
 	{
@@ -63,6 +76,22 @@ extern "C" {
 		*(p2 + M21) = *(p1 + M21);
 		*(p2 + M22) = *(p1 + M22);
 		*(p2 + M23) = *(p1 + M23);
+
+		float* f1 = phd_dxptr;
+		phd_dxptr += 12;
+		float* f2 = phd_dxptr;
+		*(f2 + M00) = *(f1 + M00);
+		*(f2 + M01) = *(f1 + M01);
+		*(f2 + M02) = *(f1 + M02);
+		*(f2 + M03) = *(f1 + M03);
+		*(f2 + M10) = *(f1 + M10);
+		*(f2 + M11) = *(f1 + M11);
+		*(f2 + M12) = *(f1 + M12);
+		*(f2 + M13) = *(f1 + M13);
+		*(f2 + M20) = *(f1 + M20);
+		*(f2 + M21) = *(f1 + M21);
+		*(f2 + M22) = *(f1 + M22);
+		*(f2 + M23) = *(f1 + M23);
 	}
 
 	void	phd_UnitMatrix(void)
@@ -75,23 +104,17 @@ extern "C" {
 			*(p1 + M10) = *(p1 + M12) =
 			*(p1 + M20) = *(p1 + M21) = 0;
 
-		*((uint32_t *)phd_dxptr + 10) = 0x3F800000;
-		*((uint32_t *)phd_dxptr + 5) = 0x3F800000;
-		*(uint32_t *)phd_dxptr = 0x3F800000;
-		*((uint32_t *)phd_dxptr + 3) = 0;
-		*((uint32_t *)phd_dxptr + 2) = 0;
-		*((uint32_t *)phd_dxptr + 1) = 0;
-		*((uint32_t *)phd_dxptr + 7) = 0;
-		*((uint32_t *)phd_dxptr + 6) = 0;
-		*((uint32_t *)phd_dxptr + 4) = 0;
-		*((uint32_t *)phd_dxptr + 11) = 0;
-		*((uint32_t *)phd_dxptr + 9) = 0;
-		*((uint32_t *)phd_dxptr + 8) = 0;
+		float* f1 = phd_dxptr;
+
+		*(f1 + M00) = *(f1 + M11) = *(f1 + M22) = 1.0f;
+		*(f1 + M01) = *(f1 + M02) =
+			*(f1 + M10) = *(f1 + M12) =
+			*(f1 + M20) = *(f1 + M21) = 0.0f;
 	}
 
 	void	phd_PushUnitMatrix(void)
 	{
-		phd_dxptr += 48;
+		phd_dxptr += 12;
 		phd_mxptr += 12;
 		phd_UnitMatrix();
 	}

@@ -12,6 +12,8 @@
 #include "DRAW.H"
 #include "ITEMS.H"
 #include "CONTROL.H"
+#include "HWINSERT.H"
+#include "SPOTCAM.H"
 
 HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
@@ -24,6 +26,10 @@ void(*AddQuad2)(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, int a6, int a7);
 void(*AddTri1)(D3DTLVERTEX *v, int v1, int v2, int v3, int a6, int a7);
 void(*AddTri2)(D3DTLVERTEX *v, int v1, int v2, int v3, int a6, int a7);
 void(*AddLine)(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color);
+
+static int bound_list[128];
+static int bound_start = 0;
+static int bound_end = 0;
 
 struct TEXTURESTRUCT
 {
@@ -132,9 +138,23 @@ void InitialiseFunctionTable()
 	AddLine = AddLineClippedSorted;
 }
 
-void GPU_BeginScene()
+void InitialiseSortList()
 {
 	Unimpl();
+}
+
+void GPU_BeginScene()
+{
+	D3DRECT rect;
+	rect.x1 = App.r1.left;
+	rect.y1 = App.r1.top;
+	rect.y2 = App.r1.top + App.r1.bottom;
+	rect.x2 = App.r1.left + App.r1.right;
+
+	DX_TRY(App.lpViewPort->Clear2(1, &rect, 1, 0, 1.0f, 0)); // todo understand dwFlags
+	BeginScene();
+	InitBuckets();
+	InitialiseSortList();
 }
 
 void SetGlobalAmbient(uint32_t color)
@@ -236,9 +256,26 @@ void SkyDrawPhase()
 	Unimpl();
 }
 
+void DrawLara(ITEM_INFO* item, int a2)
+{
+	Unimpl();
+}
+
+void SetupSkelebobMeshswaps()
+{
+	Unimpl();
+}
+
+void RestoreLaraMeshswaps()
+{
+	
+}
+
 void DrawRooms(short current_room)
 {
 	DoMonitorScreen();
+
+	CurrentRoom = current_room;
 
 	room_info* r = &room[current_room];
 
@@ -246,12 +283,30 @@ void DrawRooms(short current_room)
 	r->test_top = phd_top = 0;
 	r->test_right = phd_right = phd_winxmax;
 	r->test_bottom = phd_bottom = phd_winymax;
-
-	// todo
-
+	
+	//dword_E6CAE8 = 0;
+	outside = r->flags & RF_SKYBOX_VISIBLE;
+	camera_underwater = r->flags & RF_FILL_WATER;
 	r->bound_active = 2;
+	bound_list[0] = current_room;
+	bound_start = 0;
+	bound_end = 1;
+	number_draw_rooms = 0;
 
-	// todo
+	if (outside)
+	{
+		outside_top = 0;
+		outside_left = 0;
+		outside_right = phd_winxmax;
+		outside_bottom = phd_winymax;
+	}
+	else
+	{
+		outside_left = phd_winxmax;
+		outside_top = phd_winymax;
+		outside_bottom = 0;
+		outside_right = 0;
+	}
 
 	GetRoomBounds();
 	InitialiseFogBulbs();
@@ -265,7 +320,20 @@ void DrawRooms(short current_room)
 	{
 		if (!(lara_item->flags & IFLAG_INVISIBLE))
 		{
-			
+			//dword_E4B100 = 4;	
+
+			if (lara_item->mesh_bits != 0 && !SCNoDrawLara)
+			{
+				if (lara.skelebob)
+					SetupSkelebobMeshswaps();
+
+				DrawLara(lara_item, 0);
+
+				if (lara.skelebob)
+					RestoreLaraMeshswaps();
+
+				phd_PushMatrix();
+			}
 		}
 	}
 }
@@ -281,8 +349,7 @@ int32_t DrawPhaseGame()
 	phd_PushUnitMatrix();
 	CalcLaraMatrices(1);
 
-	phd_mxptr -= 12;
-	phd_dxptr -= 48;
+	phd_PopMatrix();
 
 	if (GLOBAL_playing_cutseq)
 		frigup_lara();
