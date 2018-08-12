@@ -30,7 +30,7 @@ install:
   - sh: sudo apt-get install -y libgles2-mesa-dev
   - sh: sudo apt-get install -y libsdl2-dev
   
-before_build:
+build_script:
   - sh: mkdir BUILD
   - sh: cd BUILD
   - sh: cmake ..
