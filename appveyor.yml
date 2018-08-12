@@ -42,6 +42,6 @@ artifacts:
   
 after_build:
   - sh: cd SPEC_PSXPC
-  - sh: 7z a TOMB5.zip "%configuration%\"
+#  - sh: 7z a TOMB5.zip "%configuration%\"
   
 #build: off
