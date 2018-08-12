@@ -17,9 +17,9 @@ configuration:
 
 #lib_folder: %clone_folder%\EXTERNAL
 
-build_script:
-  verbosity: minimal
-  
+
+
+
 platform:
   - Win32
   #- x64
