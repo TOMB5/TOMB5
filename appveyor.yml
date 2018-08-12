@@ -17,7 +17,7 @@ configuration:
 
 #lib_folder: %clone_folder%\EXTERNAL
 
-build:
+build_script:
   verbosity: minimal
   
 platform:
