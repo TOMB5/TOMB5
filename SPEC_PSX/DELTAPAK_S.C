@@ -6,12 +6,15 @@
 #include "SETUP.H"
 #include "SPECIFIC.H"
 
+#ifndef USE_ASM
+
 void DrawCutSeqActors()//90DCC(<), ? deltapak
 {
 	struct NEW_CUTSCENE* s3 = &GLOBAL_cutme[0];
 	short** s0 = &meshes[0];
 	long s6 = 1;
 	struct object_info* object;
+#if 0
 
 	if (GLOBAL_cutme[0].numactors > 1)
 	{
@@ -96,7 +99,6 @@ void DrawCutSeqActors()//90DCC(<), ? deltapak
 	sizeof (struct ACTORME);
 	
 	//loc_90FDC
-#if 0
 
 
 				 loc_90F3C :
@@ -181,3 +183,4 @@ void DrawCutSeqActors()//90DCC(<), ? deltapak
 #endif
 	S_Warn("[DrawCutSeqActors] - Unimplemented!\n");
 }
+#endif

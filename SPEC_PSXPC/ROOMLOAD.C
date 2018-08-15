@@ -66,22 +66,21 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	LOAD_Start(Name + TITLE);
 	
 	SetupPtr = &db.poly_buffer[0][1026];
+	mod = &db.poly_buffer[0][1024];
 
 #if DISC_VERSION
-	DEL_CDFS_Read((char*) &db.poly_buffer[1024], gwHeader.entries[NONE].fileSize);//jal 5E414
+	DEL_CDFS_Read((char*)mod, gwHeader.entries[NONE].fileSize);//jal 5E414
 	RelocateLevel();
 #else
 	len = FILE_Length("DATA\\SETUP.MOD");
 	file = fopen("DATA\\SETUP.MOD", "rb");
-
-	//FILE_Read(&db.poly_buffer[1024], 1, len, file);
+	FILE_Read((char*)mod, 1, len, file);
 
 	fclose(file);
 #endif
 
-#if 0
-	RelocateModule((unsigned long)SetupPtr, (unsigned long*)&temp[(*(unsigned long*)&temp[0]) + 8] );
-#endif
+	//RelocateModule((unsigned long)SetupPtr, (unsigned long*)(db.poly_buffer[0][1024] + (unsigned long)SetupPtr));
+
 
 #if !DISC_VERSION
 	strcpy(buf, &gfFilenameWad[gfFilenameOffset[Name]]);

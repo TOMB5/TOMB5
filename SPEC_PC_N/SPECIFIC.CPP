@@ -11,10 +11,36 @@
 #include "SPECTYPES.H"
 #include "SOUND.H"
 #include "DS.H"
+#include "GLOBAL.H"
+#include "DIRECTX.H"
+
+void DebugPrint(const char* message)
+{
+	char buf[1024];
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+
+	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+	strcpy(buf, message);
+
+	int len = strlen(buf);
+
+	if (buf[len - 1] != '\n')
+	{
+		buf[len] = '\n';
+		buf[len + 1] = 0;
+	}
+
+	OutputDebugString(buf);
+	printf(buf);
+}
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+	
 
 void S_Warn(const char* warning_message, ...)
 {
@@ -29,20 +55,16 @@ void S_Warn(const char* warning_message, ...)
 	vsprintf(buf, warning_message, argptr);
 	va_end(argptr);
 
-	int len = strlen(buf);
-	if (buf[len - 1] != '\n')
-	{
-		buf[len] = '\n';
-		buf[len + 1] = 0;
-	}
+	Log_backend(LT_Info, buf);
 
-	OutputDebugString(buf);
-	printf(buf);
+	DebugPrint(buf);
 }
 
 void S_CDPlay(sint16 nTrack, int tMode)
 {
 	Log(LT_Enter, "S_CDPlay: nTrack=%d; tMode=%d", nTrack, tMode);
+
+	Unimpl();
 
 	//if (!Option_Music_Volume)
 		return;
@@ -71,10 +93,16 @@ void S_CDPlay(sint16 nTrack, int tMode)
 	*/
 }
 
+void S_CDStop(void)
+{
+	Unimpl();
+}
+
 void S_SoundStopSample(sint32 handle)
 {
 	if (!sound_active)
 		return;
+
 	DS_StopSample(handle);
 }
 
@@ -82,9 +110,82 @@ void S_SoundStopAllSamples(void)
 {
 	if (!sound_active)
 		return;
+
 	DS_StopAllSamples();
 }
 
+void		S_DumpScreenFrame()
+{
+	Unimpl();
+}
+
+long		S_DumpScreen()
+{
+	Unimpl();
+	return 0;
+}
+void S_LoadBar()
+{
+	Unimpl();
+}
+void S_InitLoadBar(int size)
+{
+	Unimpl();
+}
+
+bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)
+{
+	Unimpl();
+	return false;
+}
+
+unsigned short *AnimTextureRanges; // offset 0xA4670
+unsigned short nAnimUVRanges; // offset 0xA4660
+
+void SetFogColor(uint8_t r, uint8_t g, uint8_t b)
+{
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR, GENRGB(r, g, b));
+}
+
+void ClearFXFogBulbs()
+{
+	
+}
+
+void SetFade(int a1, int a2)
+{
+	Unimpl();
+}
+
+void S_InitialiseScreen()
+{
+	Unimpl();
+}
+
+BYTE IsVolumetric()
+{
+	return App.tVolumetricShadows;
+}
+
+void S_AnimateTextures(long nFrames)
+{
+	Unimpl();
+}
+
+void S_OutputPolyList()
+{
+	Unimpl();
+}
+
+void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
+{
+	Unimpl();
+}
+
+void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light)
+{
+	
+}
 
 #ifdef __cplusplus
 }

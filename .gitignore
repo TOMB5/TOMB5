@@ -16,7 +16,8 @@
 /scripts/gextr
 /GAME/VERSION.C
 
-
+/DISC/Original/
+/DISC/*.EXE
 /DISC/*.DAT
 /DISC/*.XA
 /DISC/*.STR

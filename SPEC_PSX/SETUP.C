@@ -6,6 +6,7 @@
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
+#include "DRAWPHAS.H"
 #include "DOOR.H"
 #include "EFFECTS.H"
 #include "EFFECT2.H"
@@ -1208,28 +1209,15 @@ void InitialiseLaraCarriedItems(long keep_carried_items)
 	//v1 = 0x78
 	//a0 = gfNumTakeaways;
 	//v0 = 0xA0000
+	DashTimer = 120;
 
 	if (gfNumTakeaways != 0)
 	{
-#if 0
-			000B53B8 1080000F beq     a0, 0, $B53F8
-			000B53BC A4432044 sh      v1, $2044(v0)
-			000B53C0 3C02000A lui     v0, $A
-			000B53C4 24511F90 addiu   s1, v0, $1F90
-			000B53C8 02111021 addu    v0, s0, s1
-			000B53CC 90440000 lbu     a0, $0(v0)
-			000B53D0 0C0102C2 jal     $40B08
-			000B53D4 26100001 addiu   s0, $1
-			000B53D8 00021400 sll     v0, $10
-			000B53DC 0C010161 jal     $40584
-			000B53E0 00022403 sra     a0, v0, $10
-			000B53E4 92E205D2 lbu     v0, $5D2(s7)
-			000B53E8 00000000 nop
-			000B53EC 0202102A slt     v0, s0, v0
-			000B53F0 1440FFF6 bne     v0, 0, $B53CC
-			000B53F4 02111021 addu    v0, s0, s1
-#endif
-
+		for (i = 0; i < gfNumTakeaways; i++)
+		{
+			convert_invobj_to_obj(gfTakeaways[i]);
+			NailInvItem(gfTakeaways[i]);
+		}
 	}//$B53F8
 
 	gfNumTakeaways = 0;

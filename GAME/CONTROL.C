@@ -1890,10 +1890,12 @@ int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLO
 	return 0;
 }
 
+#ifndef PSX_VERSION || PSXPC_VERSION///@FIXME @pc
 void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint)
 {
 	S_Warn("[GetJointAbsPosition] - Unimplemented!\n");
 }
+#endif
 
 int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4)
 {

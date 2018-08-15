@@ -1,25 +1,91 @@
-#include "standard.h"
-#include "global.h"
-#include "template.h"
-#include "directx.h"
-#include "winmain.h"
+#define _X86_
+#include "STANDARD.H"
+#include "GLOBAL.H"
+#include "TEMPLATE.H"
+#include "DIRECTX.H"
+#include "WINMAIN.H"
 //#include "console.h"
 #include "crtdbg.h"
 //#include "texture.h"
-#include "drawprimitive.h"
-#include "hwrender.h"
-#include "utils.h"
-#include "di.h"
-#include "ds.h"
+#include "DRAWPRIMITIVE.H"
+#include "HWRENDER.H"
+#include "UTILS.H"
+#include "DI.H"
+#include "DS.H"
 #include "time.h"
 //#include "spanbuffer.h"
-#include "hwinsert.h"
-#include "picture.h"
+#include "HWINSERT.H"
+#include "PICTURE.H"
 #include "resource.h"
 #include "FILE.H"
 #include "GAMEFLOW.H"
+#include "GAME.H"
+#include "SETUP.H"
+#include "DEBUG.H"
 
 WINAPP	 App;
+bool thread_started;
+
+void WinProcMsg()
+{
+	Log(LT_Enter, "WinProcMsg");
+
+	MSG Msg;
+	
+	do
+	{
+		GetMessageA(&Msg, nullptr, 0, 0);
+
+		if (!TranslateAcceleratorA(App.WindowHandle, App.hAccTable, &Msg))
+		{
+			TranslateMessage(&Msg);
+			DispatchMessageA(&Msg);
+		}
+	} while (!thread_started && Msg.message != WM_QUIT);
+}
+
+void WinClose()
+{
+	Log(LT_Enter, "WinClose");
+
+	SaveSettings();
+	CloseHandle(App.hObject);
+	//
+	DestroyAcceleratorTable(App.hAccTable);
+	CloseDirectX();
+
+	DX_TRY(App.lpDIKeyboard->Unacquire());
+	DXRelease(App.lpDIKeyboard, "Keyboard");
+
+	DX_TRY(App.lpDIJoystick->Unacquire());
+	DXRelease(App.lpDIJoystick, "Joystick");
+
+	DXRelease(App.lpDI, "DirectInput");
+}
+
+bool WinRunCheck(LPCSTR lpName, LPCSTR lpClassName, HANDLE* mutex)
+{
+	Log(LT_Enter, "WinRunCheck");
+
+	*mutex = CreateMutexA(0, true, lpName);
+
+	if (GetLastError() != 183)
+		return false;
+
+	HWND wnd = FindWindowA(lpClassName, lpName);
+
+	if (wnd)
+		SendMessageA(wnd, WM_ACTIVATE, 0, 0);
+
+	return true;
+}
+
+void WinProcessCommandLine(LPSTR lpCmdLine)
+{
+	Log(LT_Enter, "WinProcessCommandLine");
+
+	Unimpl();
+}
 
 int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -29,12 +95,19 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Clear Application Structure
 	memset(&App, 0, sizeof(WINAPP));
 
+	Log(LT_Info, "Launching - %s", WINDOWNAME);
+	Log(LT_Enter, "WinMain");
+
+	if (WinRunCheck(WINDOWNAME, WINDOWCLASS, &App.hObject))
+		return false;
+
 	FindCdDrive();
 	LoadGameflow();
+	WinProcessCommandLine(lpCmdLine);
 
 	App.hInstance = hInstance;
-	App.WindowClass.hIcon = NULL;
-	App.WindowClass.lpszMenuName = NULL;
+	App.WindowClass.hIcon = nullptr;
+	App.WindowClass.lpszMenuName = nullptr;
 	App.WindowClass.lpszClassName = WINDOWCLASS;
 	App.WindowClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	App.WindowClass.hInstance = hInstance;
@@ -47,10 +120,10 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if (!RegisterClass(&App.WindowClass))
 	{
 		Log(LT_Error, "Unable To Register Window Class");
-		return FALSE;
+		return false;
 	}
 
-	tagRECT Rect;
+	RECT Rect;
 
 	Rect.left = 0;
 	Rect.top = 0;
@@ -82,17 +155,77 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	DXInitialise(&App.DeviceInfo, App.WindowHandle);
 
-	SetWindowPos(App.WindowHandle, 0, App.GnWindowPosX, App.GnWindowPosY, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+	// setup
+
+	SetWindowPos(App.WindowHandle, 0, App.GnWindowRect.left, App.GnWindowRect.top, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
 	HWND dWnd = GetDesktopWindow();
 	HDC context = GetDC(dWnd);
-	App.dword_D9AC2C = GetDeviceCaps(context, BITSPIXEL);
+	App.OriginalBPP = GetDeviceCaps(context, BITSPIXEL);
 	ReleaseDC(dWnd, context);
 
-	App.bNoFocus = 0;
-	App.isInScene = 0;
-	App.byte_D9AC2B = 0;
+	App.bNoFocus = false;
+	App.isInScene = false;
+	App.byte_D9AC2B = false;
 
+	if (!DXCreate(
+		CUR_DM.w,
+		CUR_DM.h,
+		CUR_DM.bpp,
+		App.dword_D9AC27,
+		&App,
+		App.WindowHandle,
+		WS_CAPTION))
+	{
+		MessageBoxA(nullptr, &gfStringWad[gfStringOffset[STR_FAILED_TO_SETUP_DIRECTX]], "Tomb Raider", 0);
+		return false;
+	}
+
+	ShowBumpInfo();
+
+	UpdateWindow(App.WindowHandle);
+	ShowWindow(App.WindowHandle, nCmdShow);
+
+	if (App.Flags & WA_FULLSCREEN)
+	{
+		SetCursor(nullptr);
+		ShowCursor(false);
+	}
+
+	DXCreateDirectInput(App.WindowHandle, hInstance);
+
+	App.hAccTable = LoadAcceleratorsA(hInstance, (LPCSTR)0x65);
+
+	// sound
+
+	game_running = true;
+	thread_started = false;
+
+	uint32_t thread_id;
+	HANDLE hThread = (HANDLE)_beginthreadex(nullptr, 0, GameMain, nullptr, 0, &thread_id);
+
+	thread_started = true;
+
+	WinProcMsg();
+
+	while (game_running);
+
+	WinClose();
+
+	HWND desktop = GetDesktopWindow();
+	ReleaseDC(desktop, GetDC(desktop));
+
+	DEVMODEA dm;
+	dm.dmSize = sizeof(dm);
+	dm.dmBitsPerPel = App.OriginalBPP;
+	dm.dmFields = DM_BITSPERPEL;
+	ChangeDisplaySettingsA(&dm, 0);
+
+	HWND dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
+	if (dblog)
+		PostMessageA(dblog, dbm_command, 4, 0);
+
+	
 	return 0;
 }
 
@@ -148,4 +281,27 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+
+
+
+
+
+void ShowBumpInfo()
+{
+	if (CUR_D3D.DeviceDesc.dwTextureOpCaps & (D3DTEXOPCAPS_BUMPENVMAP | D3DTEXOPCAPS_BUMPENVMAPLUMINANCE))
+	{
+		if (CUR_D3D.DeviceDesc.wMaxTextureBlendStages >= 3)
+		{
+			//App.lpD3DDevice->EnumTextureFormats(nullptr, nullptr);
+
+			if (false)
+			{
+				/*Log(LT_Info, "Bump bit count 0x%X", BumpBitCount);
+				Log(LT_Info, "Bump DU %X", BumpDU);
+				Log(LT_Info, "Bump DV %X", BumpDV);*/
+			}
+		}
+	}
 }

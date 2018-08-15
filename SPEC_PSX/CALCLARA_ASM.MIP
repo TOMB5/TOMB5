@@ -1,0 +1,46 @@
+	opt L.,C+,at+
+
+	section	.ASM
+	xdef S_SetupClutAdder, GetBoundsAccurate
+	xref GetFrames, interpolated_bounds
+	
+S_SetupClutAdder:
+	ctc2    a0, r28
+	jr      ra
+	nop
+	
+GetBoundsAccurate:
+	addiu   sp, -0x20
+	move    t7, ra
+	addiu   a1, sp, 0x20+0x10
+	jal     GetFrames
+	addiu   a2, sp, 0x20+0x8
+	bnez    v0, loc_8591C
+	move    t0, v0
+	j       loc_85964
+	move    v0, t4
+
+	loc_8591C:
+	la      a2, interpolated_bounds
+	li      a1, 6
+
+	loc_85928:
+	lh      v0, 0(t5)
+	lh      a0, 0(t4)
+	addiu   a1, -1
+	subu    v0, a0
+	mult    v0, t0
+	mflo    v1
+	addiu   t5, 2
+	addiu   t4, 2
+	div     v1, a3
+	addiu   a2, 2
+	mflo    v0
+	addu    a0, v0
+	bnez    a1, loc_85928
+	sh      a0, -2(a2)
+	addiu   v0, a2, -0xC
+
+	loc_85964:
+	jr      t7
+	addiu   sp, 0x20

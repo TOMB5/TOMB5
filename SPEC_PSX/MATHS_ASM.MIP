@@ -1,8 +1,8 @@
 	opt L.,C+,at+
 
-	section	.asm
-	xdef mQuickW2VMatrix, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm
-	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix
+	section	.ASM
+	xdef mQuickW2VMatrix, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mSqrt
+	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
 
 ;0x77AEC
 mQuickW2VMatrix:
@@ -64,7 +64,7 @@ mQuickW2VMatrix:
 	sh	t0, CamGTE+0xC
 	sh	t1, CamGTE+0xE
 	jr	ra
-	sh	t2, 0x4058(gp)
+	sh	t2, CamGTE+0x10
 
 ;0x764D0
 mPushMatrix:
@@ -112,6 +112,7 @@ mPushUnitMatrix:
 	move	t4, t0
 	jr	ra
 	nop
+	
 loc_76970:
 	ctc2	t0, r0
 	ctc2	t1, r1
@@ -140,7 +141,7 @@ mTranslateAbsXYZ:
 	ctc2	zero, r7
 	sub	a0, t0
 	sub	a1, t1
-	sub	a2, t2
+	sub	a2, t2;fixme no end
 
 ;0x7658C
 mTranslateXYZ:
@@ -236,23 +237,157 @@ mTranslateXYZ:
 
 ;0x7669C
 mRotX:
-	jr	ra
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_766B4
+	lui     t0, 9
+	jr      ra
 	nop
+
+	loc_766B4:
+	ori     t0, 0xA8C8
+	add     t0, a0
+	lw      t5, 0(t0)
+	lui     t7, 0xFFFF
+	and     t6, t7, t5
+	mtc2    t6, r0
+	mtc2    t5, r1
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t3, r3
+	cop2    0x486012
+	srl     t6, t5, 16
+	sll     t5, 16
+	neg     t5, t5
+	mtc2    t5, r2
+	mtc2    t6, r3
+	andi    t0, 0xFFFF
+	and     t1, t7
+	andi    t3, 0xFFFF
+	mfc2    t4, r25
+	mfc2    t2, r26
+	mfc2    t5, r27
+	cop2    0x48E012
+	sll     t4, 16
+	or      t0, t4
+	andi    t2, 0xFFFF
+	sll     t5, 16
+	or      t3, t5
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    t4, r27
+	andi    t5, 0xFFFF
+	or      t1, t5
+	sll     t6, 16
+	j       SetRotation
+	or      t2, t6
 
 ;0x76744
 mRotY:
-	jr	ra
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_7675C
+	lui     t0, 9
+	jr      ra
 	nop
 
+	loc_7675C:
+	ori     t0, 0xA8C8
+	add     t0, a0
+	lw      t5, 0(t0)
+	lui     t7, 0xFFFF
+	srl     t6, t5, 16
+	andi    t5, 0xFFFF
+	neg     t2, t5
+	mtc2    t6, r0
+	mtc2    t2, r1
+	cfc2    t0, r0
+	cfc2    t2, r2
+	cfc2    t3, r3
+	cop2    0x486012
+	mtc2    t5, r2
+	mtc2    t6, r3
+	and     t0, t7
+	andi    t2, 0xFFFF
+	and     t3, t7
+	mfc2    t4, r25
+	mfc2    t1, r26
+	mfc2    t5, r27
+	cop2    0x48E012
+	andi    t4, 0xFFFF
+	or      t0, t4
+	sll     t1, 16
+	andi    t5, 0xFFFF
+	or      t3, t5
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    t4, r27
+	andi    t5, 0xFFFF
+	or      t1, t5
+	sll     t6, 16
+	j       SetRotation
+	or      t2, t6
+	
 ;0x767E8
 mRotYXZ:
-	jr	ra
+	move    v0, ra
+	jal     mRotY
 	nop
+	jal     mRotX
+	move    a0, a1
+	move    a0, a2
+	move    ra, v0
 
 ;0x76804
 mRotZ:
-	jr	ra
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_7681C
+	lui     t0, 9
+	jr      ra
 	nop
+
+	loc_7681C:
+	ori     t0, 0xA8C8
+	add     t0, a0
+	lw      t0, 0(t0)
+	lui     t7, 0xFFFF
+	srl     t1, t0, 16
+	sll     t2, t0, 16
+	or      t1, t2
+	mtc2    t1, r0
+	mtc2    zero, r1
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t4, r4
+	cop2    0x486012
+	and     t3, t0, t7
+	andi    t0, 0xFFFF
+	neg     t0, t0
+	andi    t0, 0xFFFF
+	or      t0, t3
+	mtc2    t0, r2
+	mtc2    zero, r3
+	andi    t1, 0xFFFF
+	mfc2    t0, r25
+	mfc2    t5, r26
+	mfc2    t3, r27
+	cop2    0x48E012
+	and     t2, t7
+	andi    t0, 0xFFFF
+	sll     t5, 16
+	or      t1, t5
+	andi    t3, 0xFFFF
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    a0, r27
+	sll     t5, 16
+	or      t0, t5
+	andi    t6, 0xFFFF
+	or      t2, t6
+	sll     a0, 16
+	j       SetRotation
+	or      t3, a0
 
 ;0x768BC
 mRotSuperPackedYXZ:
@@ -320,8 +455,18 @@ mRotPackedYXZ:
 
 ;0x7696C
 SetRotation:
-	jr	ra
-	nop
+	lw      a0, Matrix
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	ctc2    t4, r4
+	sw      t0, 0(a0)
+	sw      t1, 4(a0)
+	sw      t2, 8(a0)
+	sw      t3, 0xC(a0)
+	jr      ra
+	sw      t4, 0x10(a0)
 
 ;0x76970
 setrot:
@@ -361,18 +506,191 @@ mLoadMatrix:
 
 ;0x769E4
 mCopyMatrix:
-	jr	ra
-	nop
+	move    v0, a0
+	lw      a0, Matrix
+	lw      t0, 0(v0)
+	lw      t1, 4(v0)
+	lw      t2, 8(v0)
+	lw      t3, 0xC(v0)
+	lw      t4, 0x10(v0)
+	lw      t5, 0x14(v0)
+	lw      t6, 0x18(v0)
+	lw      t7, 0x1C(v0)
+	ctc2    t5, r5
+	ctc2    t6, r6
+	ctc2    t7, r7
+	sw      t5, 0x14(a0)
+	sw      t6, 0x18(a0)
+	j       loc_76970
+	sw      t7, 0x1C(a0)
 
 ;0x76A28
-ASM_GetBounds:
-	jr	ra
+
+	slt     at, t0, a2
+	beqz    at, loc_76A38
+	slt     at, t0, a3
+	move    a2, t0
+
+	loc_76A38:
+	bnez    at, loc_76A44
+	slt     at, t1, a2
+	move    a3, t0
+
+	loc_76A44:
+	beqz    at, loc_76A50
+	slt     at, t1, a3
+	move    a2, t1
+
+	loc_76A50:
+	bnez    at, loc_76A5C
+	slt     at, t2, a2
+	move    a3, t1
+
+	loc_76A5C:
+	beqz    at, loc_76A68
+	slt     at, t2, a3
+	move    a2, t2
+
+	loc_76A68:
+	bnez    at, loc_76A74
+	sll     t0, 16
+	move    a3, t2
+
+	loc_76A74:
+	sll     t1, 16
+	sll     t2, 16
+	slt     at, t0, a0
+	beqz    at, loc_76A8C
+	slt     at, t0, a1
+	move    a0, t0
+
+	loc_76A8C:
+	bnez    at, loc_76A98
+	slt     at, t1, a0
+	move    a1, t0
+
+	loc_76A98:
+	beqz    at, loc_76AA4
+	slt     at, t1, a1
+	move    a0, t1
+
+	loc_76AA4:
+	bnez    at, loc_76AB0
+	slt     at, t2, a0
+	move    a1, t1
+
+	loc_76AB0:
+	beqz    at, loc_76ABC
+	slt     at, t2, a1
+	move    a0, t2
+
+	loc_76ABC:
+	bnez    at, loc_76AC8
+	sltiu   at, t3, 0x5000
+	move    a1, t2
+
+	loc_76AC8:
+	beqz    at, loc_76AD4
+	sltiu   at, t4, 0x5000
+	addi    v0, 1
+
+	loc_76AD4:
+	beqz    at, loc_76AE0
+	sltiu   at, t5, 0x5000
+	addi    v0, 1
+
+	loc_76AE0:
+	beqz    at, locret_76AECC
+	nop
+	addi    v0, 1
+
+	locret_76AECC:
+	jr      ra
 	nop
 
 
 ;0x76A28
 GetBounds:
-	jr	ra
+	slt     at, t0, a2
+	beqz    at, loc_76A38x
+	slt     at, t0, a3
+	move    a2, t0
+
+	loc_76A38x:
+	bnez    at, loc_76A44x
+	slt     at, t1, a2
+	move    a3, t0
+
+	loc_76A44x:
+	beqz    at, loc_76A50x
+	slt     at, t1, a3
+	move    a2, t1
+
+	loc_76A50x:
+	bnez    at, loc_76A5Cx
+	slt     at, t2, a2
+	move    a3, t1
+
+	loc_76A5Cx:
+	beqz    at, loc_76A68x
+	slt     at, t2, a3
+	move    a2, t2
+
+	loc_76A68x:
+	bnez    at, loc_76A74x
+	sll     t0, 16
+	move    a3, t2
+
+	loc_76A74x:
+	sll     t1, 16
+	sll     t2, 16
+	slt     at, t0, a0
+	beqz    at, loc_76A8Cx
+	slt     at, t0, a1
+	move    a0, t0
+
+	loc_76A8Cx:
+	bnez    at, loc_76A98x
+	slt     at, t1, a0
+	move    a1, t0
+
+	loc_76A98x:
+	beqz    at, loc_76AA4x
+	slt     at, t1, a1
+	move    a0, t1
+
+	loc_76AA4x:
+	bnez    at, loc_76AB0x
+	slt     at, t2, a0
+	move    a1, t1
+
+	loc_76AB0x:
+	beqz    at, loc_76ABCx
+	slt     at, t2, a1
+	move    a0, t2
+
+	loc_76ABCx:
+	bnez    at, loc_76AC8x
+	sltiu   at, t3, 0x5000
+	move    a1, t2
+
+	loc_76AC8x:
+	beqz    at, loc_76AD4x
+	sltiu   at, t4, 0x5000
+	addi    v0, 1
+
+	loc_76AD4x:
+	beqz    at, loc_76AE0x
+	sltiu   at, t5, 0x5000
+	addi    v0, 1
+
+	loc_76AE0x:
+	beqz    at, locret_76AEC
+	nop
+	addi    v0, 1
+
+	locret_76AEC:
+	jr      ra
 	nop
 
 
@@ -394,8 +712,40 @@ mClipBoundingBox:
 
 ;0x76CB4
 InitInterpolation:
-	jr	ra
-	nop
+	cfc2    t0, r13
+	cfc2    t1, r14
+	cfc2    t2, r15
+	sw      a0, iFrac
+	sw      a1, iRate
+	sw      a2, iMatrix
+	sw      t0, iMatrix+0xC
+	sw      t1, iMatrix+0x14
+	sw      t2, iMatrix+0x10
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t3, r3
+	cfc2    t4, r4
+	cfc2    t5, r5
+	cfc2    t6, r6
+	cfc2    t7, r7
+	ctc2    t0, r8
+	ctc2    t1, r9
+	ctc2    t2, r10
+	ctc2    t3, r11
+	ctc2    t4, r12
+	ctc2    t5, r13
+	ctc2    t6, r14
+	ctc2    t7, r15
+	sw      t0, 0(a2)
+	sw      t1, 4(a2)
+	sw      t2, 8(a2)
+	sw      t3, 0xC(a2)
+	sw      t4, 0x10(a2)
+	sw      t5, 0x14(a2)
+	sw      t6, 0x18(a2)
+	jr      ra
+	sw      t7, 0x1C(a2)
 
 ;0x76D3C
 iPushMatrix:
@@ -423,23 +773,181 @@ iPushMatrix:
 
 ;0x76D8C
 iPopMatrix:
-	jr	ra
+	move    a2, ra
+	lw      a0, Matrix
+	lw      a1, iMatrix
+	addi    a0, -0x20
+	addi    a1, -0x20
+	sw      a0, Matrix
+	jal     mLoadMatrix
+	sw      a1, iMatrix
+	move    ra, a2
+	j       loc_771D8
+	move    a0, a1
+	
+loc_771D8:
+	lw      t0, 0(a0)
+	lw      t1, 4(a0)
+	lw      t2, 8(a0)
+	lw      t3, 0xC(a0)
+	lw      t4, 0x10(a0)
+	lw      t5, 0x14(a0)
+	lw      t6, 0x18(a0)
+	lw      t7, 0x1C(a0)
+	ctc2    t0, r8
+	ctc2    t1, r9
+	ctc2    t2, r10
+	ctc2    t3, r11
+	ctc2    t4, r12
+	ctc2    t5, r13
+	ctc2    t6, r14
+	ctc2    t7, r15
+	jr      ra
 	nop
 
 ;0x76DB8
 iRotX:
-	jr	ra
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_76DD0
+	lui     t0, 9
+	jr      ra
 	nop
+
+	loc_76DD0:
+	ori     t0, 0xA8C8
+	add     t0, a0
+	lw      t5, 0(t0)
+	lui     t7, 0xFFFF
+	and     t6, t7, t5
+	mtc2    t6, r0
+	mtc2    t5, r1
+	cfc2    t0, r8
+	cfc2    t1, r9
+	cfc2    t3, r11
+	cop2    0x4A6012
+	srl     t6, t5, 16
+	sll     t5, 16
+	neg     t5, t5
+	mtc2    t5, r2
+	mtc2    t6, r3
+	andi    t0, 0xFFFF
+	and     t1, t7
+	andi    t3, 0xFFFF
+	mfc2    t4, r25
+	mfc2    t2, r26
+	mfc2    t5, r27
+	cop2    0x4AE012
+	sll     t4, 16
+	or      t0, t4
+	andi    t2, 0xFFFF
+	sll     t5, 16
+	or      t3, t5
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    t4, r27
+	andi    t5, 0xFFFF
+	or      t1, t5
+	sll     t6, 16
+	j       SetRotation_I
+	or      t2, t6
 
 ;0x76E60
 iRotY:
-	jr	ra
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_76E78
+	lui     t0, 9
+	jr      ra
 	nop
+
+	loc_76E78:
+	ori     t0, 0xA8C8
+	add     t0, a0
+	lw      t5, 0(t0)
+	lui     t7, 0xFFFF
+	srl     t6, t5, 16
+	andi    t5, 0xFFFF
+	neg     t2, t5
+	mtc2    t6, r0
+	mtc2    t2, r1
+	cfc2    t0, r8
+	cfc2    t2, r10
+	cfc2    t3, r11
+	cop2    0x4A6012
+	mtc2    t5, r2
+	mtc2    t6, r3
+	and     t0, t7
+	andi    t2, 0xFFFF
+	and     t3, t7
+	mfc2    t4, r25
+	mfc2    t1, r26
+	mfc2    t5, r27
+	cop2    0x4AE012
+	andi    t4, 0xFFFF
+	or      t0, t4
+	sll     t1, 16
+	andi    t5, 0xFFFF
+	or      t3, t5
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    t4, r27
+	andi    t5, 0xFFFF
+	or      t1, t5
+	sll     t6, 16
+	j       SetRotation_I
+	or      t2, t6
 
 ;0x76F04
 iRotZ:
-	jr	ra
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_76F1C
+	lui     t0, 9
+	jr      ra
 	nop
+
+	loc_76F1C:
+	ori     t0, 0xA8C8
+	add     t0, a0
+	lw      t0, 0(t0)
+	lui     t7, 0xFFFF
+	srl     t1, t0, 16
+	sll     t2, t0, 16
+	or      t1, t2
+	mtc2    t1, r0
+	mtc2    zero, r1
+	cfc2    t1, r9
+	cfc2    t2, r10
+	cfc2    t4, r12
+	cop2    0x4A6012
+	and     t3, t0, t7
+	andi    t0, 0xFFFF
+	neg     t0, t0
+	andi    t0, 0xFFFF
+	or      t0, t3
+	mtc2    t0, r2
+	mtc2    zero, r3
+	andi    t1, 0xFFFF
+	mfc2    t0, r25
+	mfc2    t5, r26
+	mfc2    t3, r27
+	cop2    0x4AE012
+	and     t2, t7
+	andi    t0, 0xFFFF
+	sll     t5, 16
+	or      t1, t5
+	andi    t3, 0xFFFF
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    t8, r27
+	sll     t5, 16
+	or      t0, t5
+	andi    t6, 0xFFFF
+	or      t2, t6
+	sll     t8, 16
+	j       SetRotation_I
+	or      t3, t8
 
 ;0x76FBC
 iRotYXZ:
@@ -448,13 +956,66 @@ iRotYXZ:
 
 ;0x76FDC
 iRotPackedYXZ:
-	jr	ra
-	nop
+	move    a1, ra
+	move    a2, a0
+	srl     a0, a2, 4
+	jal     iRotY
+	andi    a0, 0xFFC0
+	srl     a0, a2, 14
+	jal     iRotX
+	andi    a0, 0xFFC0
+	sll     a0, a2, 6
+	andi    a0, 0xFFC0
+	j       iRotZ
+	move    ra, a1;@FIXME no jr ra
 
 ;0x7700C
 iRotSuperPackedYXZ:
-	jr	ra
+	lw      a2, 0(a0)
+	beqz    a1, loc_77038
+
+	loc_77014:
+	lhu     v0, 0(a2)
+	addi    a1, -1
+	andi    at, v0, 0xC000
+	bnez    at, loc_7702C
+	addi    a2, 2
+	addi    a2, 2
+
+	loc_7702C:
+	bnez    a1, loc_77014
 	nop
+	lhu     v0, 0(a2)
+
+	loc_77038:
+	addi    a2, 2
+	srl     at, v0, 14
+	beqz    at, loc_77078
+	addi    at, -1
+	sw      a2, 0(a0)
+	beqz    at, loc_7706C
+	addi    at, -1
+	beqz    at, loc_77064
+	andi    a0, v0, 0xFFF
+	j       iRotZ
+	sll     a0, 4
+
+	loc_77064:
+	j       iRotY
+	sll     a0, 4
+
+	loc_7706C:
+	andi    a0, v0, 0xFFF
+	j       iRotX
+	sll     a0, 4
+
+	loc_77078:
+	lhu     at, 0(a2)
+	addi    a2, 2
+	sw      a2, 0(a0)
+	sll     a0, v0, 16
+	j       iRotPackedYXZ
+	or      a0, at
 
 ;0x77090
 iTranslateXYZ:
@@ -463,8 +1024,105 @@ iTranslateXYZ:
 
 ;0x7709C
 iTranslateXYZ2:
-	jr	ra
+	move    t9, ra
+	jal     mTranslateXYZ
 	nop
+	lw      a1, 0x10(sp)
+	lw      a2, 0x14(sp)
+	bgez    a3, loc_770D0
+	sra     t0, a3, 15
+	negu    a3, a3
+	sra     t0, a3, 15
+	andi    a3, 0x7FFF
+	negu    t0, t0
+	j       loc_770D4
+	negu    a3, a3
+
+	loc_770D0:
+	andi    a3, 0x7FFF
+
+	loc_770D4:
+	bgez    a1, loc_770F4
+	sra     t1, a1, 15
+	negu    a1, a1
+	sra     t1, a1, 15
+	andi    a1, 0x7FFF
+	negu    t1, t1
+	j       loc_770F8
+	negu    a1, a1
+
+	loc_770F4:
+	andi    a1, 0x7FFF
+
+	loc_770F8:
+	bgez    a2, loc_77118
+	sra     t2, a2, 15
+	negu    a2, a2
+	sra     t2, a2, 15
+	andi    a2, 0x7FFF
+	negu    t2, t2
+	j       loc_7711C
+	negu    a2, a2
+
+	loc_77118:
+	andi    a2, 0x7FFF
+
+	loc_7711C:
+	mtc2    t0, r9
+	mtc2    t1, r10
+	mtc2    t2, r11
+	move    ra, t9
+	nop
+	nop
+	cop2    0x43E012
+	lw      v0, iMatrix
+	mfc2    t6, r25
+	mtc2    a3, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	mfc2    t7, r26
+	mfc2    t8, r27
+	cop2    0x4BE012
+	bgez    t6, loc_77164
+	sll     t3, t6, 3
+	negu    t6, t6
+	sll     t6, 3
+	negu    t3, t6
+
+	loc_77164:
+	bgez    t7, loc_77178
+	sll     t4, t7, 3
+	negu    t7, t7
+	sll     t7, 3
+	negu    t4, t7
+
+	loc_77178:
+	bgez    t8, loc_7718C
+	sll     t5, t8, 3
+	negu    t8, t8
+	sll     t8, 3
+	negu    t5, t8
+
+	loc_7718C:
+	mfc2    t6, r25
+	mfc2    t7, r26
+	mfc2    t8, r27
+	addu    t3, t6
+	addu    t4, t7
+	addu    t5, t8
+	cfc2    t0, r13
+	cfc2    t1, r14
+	cfc2    t2, r15
+	addu    t0, t3
+	addu    t1, t4
+	addu    t2, t5
+	ctc2    t0, r13
+	ctc2    t1, r14
+	ctc2    t2, r15
+	sw      t0, 0x14(v0)
+	sw      t1, 0x18(v0)
+	jr      ra
+	sw      t2, 0x1C(v0)
 
 ;0x771D8
 iLoadMatrix:
@@ -473,12 +1131,240 @@ iLoadMatrix:
 
 ;0x77220
 SetRotation_I:
-	jr	ra
-	nop
+	lw      a0, iMatrix
+	ctc2    t0, r8
+	ctc2    t1, r9
+	ctc2    t2, r10
+	ctc2    t3, r11
+	ctc2    t4, r12
+	sw      t0, 0(a0)
+	sw      t1, 4(a0)
+	sw      t2, 8(a0)
+	sw      t3, 0xC(a0)
+	jr      ra
+	sw      t4, 0x10(a0)
 
 ;0x77250
 InterpolateMatrix:
-	jr	ra
+	lw      a2, Matrix
+	lw      a1, iMatrix
+	lw      t6, iRate
+	lw      t7, iFrac
+	addiu   sp, -0x30
+	lh      v0, 0(a1)
+	lh      v1, 0(a2)
+	lh      a3, 2(a1)
+	lh      t0, 2(a2)
+	lh      t1, 4(a1)
+	lh      t2, 4(a2)
+	lh      t3, 6(a1)
+	lh      t4, 6(a2)
+	li      at, 2
+	beq     t6, at, loc_772A4
+	addiu   a0, sp, 0x30-0x20
+	bne     t7, at, loc_77368
+	li      at, 1
+	li      at, 4
+	bne     t6, at, loc_77368
+	li      at, 1
+
+	loc_772A4:
+	addu    v0, v1
+	sra     v0, 1
+	addu    a3, t0
+	sra     a3, 1
+	addu    t1, t2
+	sra     t1, 1
+	addu    t3, t4
+	sra     t3, 1
+	sh      v0, 0(a0)
+	sh      a3, 2(a0)
+	sh      t1, 4(a0)
+	sh      t3, 6(a0)
+	lh      v0, 8(a1)
+	lh      v1, 8(a2)
+	lh      a3, 0xA(a1)
+	lh      t0, 0xA(a2)
+	addu    v0, v1
+	sra     v0, 1
+	addu    a3, t0
+	sra     a3, 1
+	lh      t1, 0xC(a1)
+	lh      t2, 0xC(a2)
+	lh      t3, 0xE(a1)
+	lh      t4, 0xE(a2)
+	addu    t1, t2
+	sra     t1, 1
+	addu    t3, t4
+	sra     t3, 1
+	sh      v0, 8(a0)
+	sh      a3, 0xA(a0)
+	sh      t1, 0xC(a0)
+	sh      t3, 0xE(a0)
+	lh      v0, 0x10(a1)
+	lh      v1, 0x10(a2)
+	lw      a3, 0x14(a1)
+	lw      t0, 0x14(a2)
+	addu    v0, v1
+	sra     v0, 1
+	addu    a3, t0
+	sra     a3, 1
+	lw      t1, 0x18(a1)
+	lw      t2, 0x18(a2)
+	lw      t3, 0x1C(a1)
+	lw      t4, 0x1C(a2)
+	addu    t1, t2
+	sra     t1, 1
+	addu    t3, t4
+	j       loc_7754C
+	sra     t3, 1
+
+	loc_77368:
+	bne     t7, at, loc_77460
+	subu    at, v0, v1
+	sra     v0, at, 2
+	addu    v1, v0
+	subu    a3, t0
+	sra     a3, 2
+	addu    t0, a3
+	subu    t1, t2
+	sra     t1, 2
+	addu    t2, t1
+	subu    t3, t4
+	sra     t3, 2
+	addu    t4, t3
+	sh      v1, 0(a0)
+	sh      t0, 2(a0)
+	sh      t2, 4(a0)
+	sh      t4, 6(a0)
+	lh      v0, 8(a1)
+	lh      v1, 8(a2)
+	lh      a3, 0xA(a1)
+	lh      t0, 0xA(a2)
+	subu    v0, v1
+	sra     v0, 2
+	addu    v1, v0
+	subu    a3, t0
+	sra     a3, 2
+	addu    t0, a3
+	lh      t1, 0xC(a1)
+	lh      t2, 0xC(a2)
+	lh      t3, 0xE(a1)
+	lh      t4, 0xE(a2)
+	subu    t1, t2
+	sra     t1, 2
+	addu    t2, t1
+	subu    t3, t4
+	sra     t3, 2
+	addu    t4, t3
+	sh      v1, 8(a0)
+	sh      t0, 0xA(a0)
+	sh      t2, 0xC(a0)
+	sh      t4, 0xE(a0)
+	lh      v0, 0x10(a1)
+	lh      v1, 0x10(a2)
+	lw      a3, 0x14(a1)
+	lw      t0, 0x14(a2)
+	subu    v0, v1
+	sra     v0, 2
+	addu    v0, v1, v0
+	subu    a3, t0
+	sra     a3, 2
+	addu    a3, t0, a3
+	lw      t1, 0x18(a1)
+	lw      t2, 0x18(a2)
+	lw      t3, 0x1C(a1)
+	lw      t4, 0x1C(a2)
+	subu    t1, t2
+	sra     t1, 2
+	addu    t1, t2, t1
+	subu    t3, t4
+	sra     t3, 2
+	j       loc_7754C
+	addu    t3, t4, t3
+
+	loc_77460:
+	sra     v1, at, 2
+	subu    v0, v1
+	subu    t0, a3, t0
+	sra     t0, 2
+	subu    a3, t0
+	subu    t2, t1, t2
+	sra     t2, 2
+	subu    t1, t2
+	subu    t4, t3, t4
+	sra     t4, 2
+	subu    t3, t4
+	sh      v0, 0(a0)
+	sh      a3, 2(a0)
+	sh      t1, 4(a0)
+	sh      t3, 6(a0)
+	lh      v0, 8(a1)
+	lh      v1, 8(a2)
+	lh      a3, 0xA(a1)
+	lh      t0, 0xA(a2)
+	subu    v1, v0, v1
+	sra     v1, 2
+	subu    v0, v1
+	subu    t0, a3, t0
+	sra     t0, 2
+	subu    a3, t0
+	lh      t1, 0xC(a1)
+	lh      t2, 0xC(a2)
+	lh      t3, 0xE(a1)
+	lh      t4, 0xE(a2)
+	subu    t2, t1, t2
+	sra     t2, 2
+	subu    t1, t2
+	subu    t4, t3, t4
+	sra     t4, 2
+	subu    t3, t4
+	sh      v0, 8(a0)
+	sh      a3, 0xA(a0)
+	sh      t1, 0xC(a0)
+	sh      t3, 0xE(a0)
+	lh      v0, 0x10(a1)
+	lh      v1, 0x10(a2)
+	lw      a3, 0x14(a1)
+	lw      t0, 0x14(a2)
+	subu    v1, v0, v1
+	sra     v1, 2
+	subu    v0, v1
+	subu    t0, a3, t0
+	sra     t0, 2
+	subu    a3, t0
+	lw      t1, 0x18(a1)
+	lw      t2, 0x18(a2)
+	lw      t3, 0x1C(a1)
+	lw      t4, 0x1C(a2)
+	subu    t2, t1, t2
+	sra     t2, 2
+	subu    t1, t2
+	subu    t4, t3, t4
+	sra     t4, 2
+	subu    t3, t4
+
+	loc_7754C:
+	ctc2    v0, r4
+	ctc2    a3, r5
+	ctc2    t1, r6
+	ctc2    t3, r7
+	lw      t0, 0(a0)
+	lw      t1, 4(a0)
+	lw      t2, 8(a0)
+	lw      t3, 0xC(a0)
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	addiu   sp, 0x30
+	lw      t0, iAmbientR
+	lw      t1, iAmbientG
+	lw      t2, iAmbientB
+	ctc2    t0, r13
+	ctc2    t1, r14
+	ctc2    t2, r15
+	jr      ra
 	nop
 
 ;0x77580
@@ -493,8 +1379,55 @@ mNormalise:
 
 ;0x775CC
 mNormaliseXYZ:
-	jr	ra
+	mtc2    a0, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	li      a3, 0x1F
 	nop
+	nop
+	cop2    0xA00428
+	mfc2    v0, r25
+	mfc2    v1, r26
+	mfc2    at, r27
+	add     v0, v1
+	add     v0, at
+	mtc2    v0, r30
+	mtc2    a0, r9
+	mtc2    a1, r10
+	mfc2    v1, r31
+	li      at, 0xFFFFFFFE
+	and     v1, at
+	sub     a3, v1
+	sra     a3, 1
+	addi    at, v1, -0x18
+	bltz    at, loc_77628
+	lui     a0, 0xA
+	j       loc_77634
+	sllv    v0, at
+
+	loc_77628:
+	li      at, 0x18
+	sub     at, v1
+	srav    v0, at
+
+	loc_77634:
+	ori     a0, 0x1C48
+	addi    v0, -0x40
+	sll     v0, 1
+	add     a0, v0
+	lh      v0, 0(a0)
+	mtc2    a2, r11
+	mtc2    v0, r8
+	nop
+	nop
+	cop2    0x190003D
+	mfc2    a0, r25
+	mfc2    a1, r26
+	mfc2    a2, r27
+	srav    a0, a3
+	srav    a1, a3
+	jr      ra
+	srav    a2, a3
 
 ;0x77678
 mGetAngle:
@@ -555,6 +1488,7 @@ mGetAngle:
 	nop
 
 ;0x779DC
+mSqrt:
 phd_sqrt_asm:
 	mtc2	a0, r30
 	beqz	a0, locret_77A38
@@ -678,12 +1612,12 @@ GetRoomBoundsAsm:
 	sw	s7, 0x1F8000F4
 	sw	fp, 0x1F8000F8
 	move	s0, a1
-	lw	s1, 0x1F28(gp)
+	lw	s1, room
 	move	s2, zero
 	li	s3, 1
 	li	s4, 0x1F8000FC
 	move	s5, zero
-	lw	fp, 0x203C(gp)
+	lw	fp, outside
 	sb	a0, 0(s0)
 	sll	a0, 4
 	sll	at, a0, 2
@@ -695,7 +1629,7 @@ GetRoomBoundsAsm:
 	sw	t0, 0x40(a0)
 	sw	t1, 0x44(a0)
 	sb	t2, 0x37(a0)
-	addiu	t6, gp, 0x34A8
+	la	t6, CamPos
 	cfc2	t1, r5
 	cfc2	t2, r6
 	cfc2	t3, r7
@@ -1151,7 +2085,7 @@ GetRoomBoundsAsm:
 	nop
 
 	loc_78490:
-	addiu	t0, gp, 0x1F30
+	la	t0, draw_rooms
 	li	s4, 0x1F8000FC
 	addiu	v0, s5, -1
 	move	s5, zero
@@ -1164,8 +2098,8 @@ GetRoomBoundsAsm:
 	addiu	s5, 1
 	bgtz	v0, loc_784A4
 	addi	v0, -1
-	sw	s5, 0x1F2C(gp)
-	sw	fp, 0x203C(gp)
+	sw	s5, number_draw_rooms
+	sw	fp, outside
 	lui	a0, 0x1F80
 	lw	s0, 0x1F8000D8
 	lw	s1, 0x1F8000DC
@@ -1177,4 +2111,152 @@ GetRoomBoundsAsm:
 	lw	s7, 0x1F8000F4
 	jr	ra
 	lw	fp, 0x1F8000F8
-	end
+	
+phd_LookAt:
+	nop
+	
+phd_atan_asm:
+	bnez    a0, loc_77A50
+	lui     at, 9
+	beqz    a1, locret_77AE4
+	move    v0, zero
+
+	loc_77A50:
+	ori     at, 0x4004
+	bgez    a0, loc_77A64
+	move    a2, zero
+	li      a2, 4
+	negu    a0, a0
+
+	loc_77A64:
+	bgez    a1, loc_77A78
+	slt     v0, a0, a1
+	addiu   a2, 2
+	negu    a1, a1
+	slt     v0, a0, a1
+
+	loc_77A78:
+	beqz    v0, loc_77A98
+	move    v0, a0
+	addiu   a2, 1
+	move    a0, a1
+	j       loc_77A98
+	move    a1, v0
+
+	loc_77A90:
+	sra     a1, 1
+	sra     a0, 1
+
+	loc_77A98:
+	sll     v0, a1, 16
+	sra     v0, 16
+	bne     v0, a1, loc_77A90
+	sll     v0, a1, 11
+	div     v0, a0
+	sll     v1, a2, 2
+	la      v0, atanOctantTab
+	addu    v1, v0
+	lw      v0, 0(v1)
+	mflo    a3
+	sll     a3, 1
+	addu    a3, at
+	lh      a0, 0(a3)
+	nop
+	addu    v0, a0, v0
+	bgez    v0, locret_77AE4
+	nop
+	negu    v0, v0
+
+	locret_77AE4:
+	jr      ra
+	nop
+	
+mRotBoundingBoxNoPersp:
+	lhu     a3, 0(a0)
+	lhu     t2, 2(a0)
+	lhu     t0, 4(a0)
+	lhu     t3, 6(a0)
+	lhu     t1, 8(a0)
+	lhu     a0, 0xA(a0)
+	lui     t5, 0x1F80
+	sh      a3, 0x1F800000
+	sh      t0, 0x1F800002
+	sh      t1, 0x1F800004
+	sh      t2, 0x1F800008
+	sh      t0, 0x1F80000A
+	sh      t1, 0x1F80000C
+	sh      t2, 0x1F800010
+	sh      t3, 0x1F800012
+	sh      t1, 0x1F800014
+	sh      a3, 0x1F800018
+	sh      t3, 0x1F80001A
+	sh      t1, 0x1F80001C
+	sh      a3, 0x1F800020
+	sh      t0, 0x1F800022
+	sh      a0, 0x1F800024
+	sh      t2, 0x1F800028
+	sh      t0, 0x2A(t5)
+	sh      a0, 0x2C(t5)
+	sh      t2, 0x30(t5)
+	sh      t3, 0x32(t5)
+	sh      a0, 0x34(t5)
+	sh      a3, 0x38(t5)
+	sh      t3, 0x3A(t5)
+	sh      a0, 0x3C(t5)
+	li      a3, 0x7FFF
+	li      t2, 0xFFFF8001
+	li      t0, 0x7FFF
+	li      t3, 0xFFFF8001
+	li      t1, 0x7FFF
+	li      a0, 0xFFFF8001
+	li      t4, 8
+
+	loc_77CB8:
+	lwc2    r0, 0(t5)
+	lwc2    r1, 4(t5)
+	addiu   t4, -1
+	nop
+	cop2    0x480012
+	mfc2    v1, r25
+	mfc2    v0, r26
+	mfc2    a2, r27
+	slt     at, v1, a3
+	beqz    at, loc_77CE8
+	slt     at, t2, v1
+	move    a3, v1
+
+	loc_77CE8:
+	beqz    at, loc_77CF4
+	slt     at, v0, t0
+	move    t2, v1
+
+	loc_77CF4:
+	beqz    at, loc_77D00
+	slt     at, t3, v0
+	move    t0, v0
+
+	loc_77D00:
+	beqz    at, loc_77D0C
+	slt     at, a2, t1
+	move    t3, v0
+
+	loc_77D0C:
+	beqz    at, loc_77D18
+	slt     at, a0, a2
+	move    t1, a2
+
+	loc_77D18:
+	beqz    at, loc_77D24
+	nop
+	move    a0, a2
+
+	loc_77D24:
+	bnez    t4, loc_77CB8
+	addiu   t5, 8
+	sh      a3, 0(a1)
+	sh      t2, 2(a1)
+	sh      t0, 4(a1)
+	sh      t3, 6(a1)
+	sh      t1, 8(a1)
+	jr      ra
+	sh      a0, 0xA(a1)

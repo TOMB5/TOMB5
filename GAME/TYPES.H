@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+
 /*#ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif*/
@@ -33,9 +34,16 @@
 // Game used 182, so maybe our code will be more precise %)
 #define ANGLE(x) ((x) * 65536.0 / 360.0)
 
+#if PC_VERSION
 #define SIN(x) (4 * rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
 #define COS(x) (4 * rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
-
+#elif PSX_VERSION || PSXPC_VERSION
+#define SIN(x) (rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
+#define COS(x) (rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
+#endif
+#if PC_VERSION
+#define phd_atan_asm phd_atan
+#endif
 #if 0 // for later...
 inline int phd_atan(long x, long y)
 {
@@ -65,7 +73,17 @@ inline int phd_atan(long x, long y)
 	res = atanOctantTab[octant] + atanTab[(y * 2048) / x];
 	return abs(res);
 }
+#elif 1
+#if PC_VERSION
+#include <math.h>
+
+inline int phd_atan(long x, long y)
+{
+	return (int)(atan2(x, y) * 32768.0 / 3.14159265359);
+}
 #endif
+#endif
+
 
 #define RGB555(r, g, b) ((r << 7) & 0x7C00 | (g << 2) & 0x3E0 | (b >> 3) & 0x1F)
 #define RED5(rgb) (((rgb >> 10) & 0x1F) << 3)
@@ -555,14 +573,14 @@ struct MATRIX3D
 
 struct GAMEFLOW
 {
-	unsigned long CheatEnabled : 1; // offset=0.0
-	unsigned long LoadSaveEnabled : 1; // offset=0.1
-	unsigned long TitleEnabled : 1; // offset=0.2
-	unsigned long PlayAnyLevel : 1; // offset=0.3
-	unsigned long Language : 3; // offset=0.4
-	unsigned long DemoDisc : 1; // offset=0.7
-	unsigned long Unused : 24; // offset=1.0
-	unsigned long InputTimeout; // size=0, offset=4
+	unsigned int CheatEnabled : 1; // offset=0.0
+	unsigned int LoadSaveEnabled : 1; // offset=0.1
+	unsigned int TitleEnabled : 1; // offset=0.2
+	unsigned int PlayAnyLevel : 1; // offset=0.3
+	unsigned int Language : 3; // offset=0.4
+	unsigned int DemoDisc : 1; // offset=0.7
+	unsigned int Unused : 24; // offset=1.0
+	unsigned int InputTimeout; // size=0, offset=4
 	unsigned char SecurityTag; // size=0, offset=8
 	unsigned char nLevels; // size=0, offset=9
 	unsigned char nFileNames; // size=0, offset=10

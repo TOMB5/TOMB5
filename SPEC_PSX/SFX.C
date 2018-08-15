@@ -3,6 +3,7 @@
 #include "SPECIFIC.H"
 #include "SOUND.H"
 #include "SPUSOUND.H"
+#include <LIBSPU.H>
 
 long SPU_Play(long sample_index, short volume_left, short volume_right, short pitch)//91518(<) ?
 {
@@ -179,4 +180,20 @@ void S_SoundSetPitch(int handle, int nPitch)//91768(<), 937AC(<)
 	}
 
 	SpuSetVoicePitch(handle, nPitch / 64);
+}
+
+int S_SoundSetPanAndVolume(int nhandle, int nPan, int nVolume, int distance)//914E4(<) ? (F)
+{
+	if (GtSFXEnabled)
+	{
+		//CalcVolumes_ASM(distance, nVolume, nVolume, nPan);
+		SpuSetVoiceVolume(nhandle, nVolume, nVolume);
+	}
+
+	return 0;
+}
+
+void GetPanVolume(struct SoundSlot* slot)
+{
+	S_Warn("[GetPanVolume] - Unimplemented!\n");
 }

@@ -1,6 +1,6 @@
 	opt L.,C+,at+
 
-	section	.asm
+	section	.ASM
 	xdef DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh
 	xref number_draw_rooms, RoomBBoxes, wibble, tsv_buffer
 	

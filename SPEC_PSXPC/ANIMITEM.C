@@ -2,7 +2,3 @@
 
 #include "SPECIFIC.H"
 
-void S_DrawFootPrints()
-{
-	S_Warn("[S_DrawFootPrints] - Unimplemented!\n");
-}
