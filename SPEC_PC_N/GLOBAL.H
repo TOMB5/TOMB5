@@ -69,6 +69,8 @@ extern	float		f_a, f_b, f_boo;		// a/b factors for z buffering (f_boo is f_b/one
 extern	sint32		w2v_matrix[];		// World to View Matrix...
 extern	sint32		matrix_stack[];		// matrix stack for animations etc..
 
+
+
 #define EndOfArray(a) ((a)+ArraySize(a))
 
 extern void D3DIdentityMatrix(LPD3DMATRIX mat);
@@ -90,6 +92,11 @@ extern unsigned long mGetAngle(long x1, long y1, long x2, long y2);
 #endif
 
 extern WATERTAB	WaterTable[22][64];
+
+void WaitUntilFalse(DWORD* ptr);
+void WaitUntilTrue(DWORD* ptr);
+void Sleep1ms();
+void* GetSleepFunc();
 
 
 #endif

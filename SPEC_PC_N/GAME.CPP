@@ -175,6 +175,7 @@ unsigned __stdcall GameMain(void* data)
 void do_boot_screen(int language)
 {
 	Log(2, "do_boot_screen");
+
 	switch (language)
 	{
 	case LNG_ENGLISH:
@@ -214,4 +215,9 @@ void do_boot_screen(int language)
 		DDCopyBitmap(App.lpBackBuffer, "japan.bmp");
 		break;
 	}
+}
+
+void UpdateSky()
+{
+	Unimpl();
 }

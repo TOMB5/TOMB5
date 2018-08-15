@@ -12,3 +12,7 @@
 
 sint32 input;
 sint32 dbinput;
+
+short mouse_x;
+short mouse_y;
+int mouse_vkeys;

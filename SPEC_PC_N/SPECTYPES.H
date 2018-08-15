@@ -31,6 +31,9 @@ typedef unsigned int    uint32;
 #define DIVFP(A, B) (((A) / ((B) >> 8)) << 8)
 #define MULFP(A, B) ((((A) % (B)) << 16) | (((A) * (B)) >> 6))
 
+#define SLOWORD(l)           ((sint16)(((DWORD_PTR)(l)) & 0xffff))
+#define SHIWORD(l)           ((sint16)((((DWORD_PTR)(l)) >> 16) & 0xffff))
+
 #pragma pack(push, 1)
 struct object_info {
 	short nmeshes; // size=0, offset=0
@@ -492,7 +495,7 @@ struct WINAPP
 	DWORD isInScene; // pos 104 s 4
 	DWORD					bNoFocus;				// Application Window Has Fous
 
-	DWORD dword_D9AC01;
+	DWORD sceneDone;
 	HANDLE hObject; // D9AC05
 
 	DWORD dword_D9AC09;

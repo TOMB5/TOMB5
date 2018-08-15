@@ -134,7 +134,7 @@ struct WINAPP
 	DWORD isInScene; // pos 104 s 4
 	DWORD dword_D9ABFD; // pos 108 s 4
 
-	DWORD dword_D9AC01;
+	DWORD sceneDone;
 	HANDLE hObject; // D9AC05
 
 	DWORD dword_D9AC09;

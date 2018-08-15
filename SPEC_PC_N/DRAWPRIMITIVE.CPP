@@ -15,6 +15,8 @@
 #include "HWINSERT.H"
 #include "SPOTCAM.H"
 #include "TOMB4FX.H"
+#include "EFFECT2.H"
+#include "DIRECTX.H"
 
 HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
@@ -28,9 +30,16 @@ void(*AddTri1)(D3DTLVERTEX *v, int v1, int v2, int v3, int a6, int a7);
 void(*AddTri2)(D3DTLVERTEX *v, int v1, int v2, int v3, int a6, int a7);
 void(*AddLine)(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color);
 
+int dword_E4B100;
+int num_fog_bulbs;
+
+uint32_t GnFrameCounter;
+
 static int bound_list[128];
 static int bound_start = 0;
 static int bound_end = 0;
+
+D3DMATRIX d3d_camera;
 
 struct TEXTURESTRUCT
 {
@@ -95,9 +104,10 @@ HRESULT HWBeginScene()
 	}
 
 	App.isInScene = true;
-	App.dword_D9AC01 = 0;
+	App.sceneDone = false;
 
-	// todo
+	if (App.bNoFocus)
+		WaitUntilFalse(&App.bNoFocus);
 
 	return App.lpD3DDevice->BeginScene();
 }
@@ -396,6 +406,44 @@ void InsertRoom(room_info* r)
 	Unimpl();
 }
 
+void SaveD3DCameraMatrix()
+{
+	D3DIdentityMatrix(&d3d_camera);
+	d3d_camera._11 = phd_dxptr[0];
+	d3d_camera._12 = phd_dxptr[4];
+	d3d_camera._13 = phd_dxptr[8];
+	d3d_camera._21 = phd_dxptr[1];
+	d3d_camera._22 = phd_dxptr[5];
+	d3d_camera._23 = phd_dxptr[9];
+	d3d_camera._31 = phd_dxptr[2];
+	d3d_camera._32 = phd_dxptr[6];
+	d3d_camera._33 = phd_dxptr[10];
+	d3d_camera._41 = phd_dxptr[3];
+	d3d_camera._42 = phd_dxptr[7];
+	d3d_camera._43 = phd_dxptr[11];
+}
+
+void ResetFogBulbList()
+{
+	Unimpl();
+}
+
+void RoomTestThing()
+{
+	Unimpl();
+}
+
+void BuildFogBulbList()
+{
+	Unimpl();
+}
+
+void BuildFXFogBulbList()
+{
+	Unimpl();
+}
+
+
 void DrawRooms(short current_room)
 {
 	DoMonitorScreen();
@@ -445,7 +493,7 @@ void DrawRooms(short current_room)
 	{
 		if (!(lara_item->flags & IFLAG_INVISIBLE))
 		{
-			//dword_E4B100 = 4;	
+			dword_E4B100 = 4;	
 
 			if (lara_item->mesh_bits != 0 && !SCNoDrawLara)
 			{
@@ -485,7 +533,28 @@ void DrawRooms(short current_room)
 
 	InitDynamicLighting();
 
-	// gap
+	dword_E4B100 = 0;
+
+	for (int i = 0; i < 32; i++)
+	{
+		if (dynamics[i].on)
+		{
+			if (dynamics[i].x < 0)
+				dynamics[i].x = 0;
+
+			if (dynamics[i].z < 0)
+				dynamics[i].z = 0;
+		}
+	}
+
+	phd_PushMatrix();
+	phd_TranslateAbs(0, 0, 0);
+	SaveD3DCameraMatrix();
+	phd_PopMatrix();
+	ResetFogBulbList();
+	RoomTestThing();
+	BuildFogBulbList();
+	BuildFXFogBulbList();
 
 	for (int i = 0; i < number_draw_rooms; i++)
 	{
@@ -503,9 +572,10 @@ void DrawRooms(short current_room)
 
 		aSetViewMatrix();
 		InsertRoom(cr);
+
+		phd_PopMatrix();
 	}
 
-	// line 166
 	DrawGunshells();
 	//
 	if (GLOBAL_playing_cutseq)
@@ -575,10 +645,13 @@ int32_t DrawPhaseGame()
 	if (GLOBAL_playing_cutseq)
 		frigup_lara();
 
-	SetLaraUnderwaterNodes();
+	/*SetLaraUnderwaterNodes();
 	DrawRooms(camera.pos.room_number);
 	DrawGameInfo(TRUE);
-	S_OutputPolyList();
+	S_OutputPolyList();*/
+	DDCopyBitmap(App.lpBackBuffer, "uk.bmp");
+	S_DumpScreen();
+	DDCopyBitmap(App.lpBackBuffer, "uk.bmp");
 	camera.number_frames = S_DumpScreen();
 	S_AnimateTextures(camera.number_frames);
 	return camera.number_frames;

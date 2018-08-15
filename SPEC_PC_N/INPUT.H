@@ -3,6 +3,10 @@
 
 #include "SPECTYPES.H"
 
+extern short mouse_x;
+extern short mouse_y;
+extern int mouse_vkeys;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

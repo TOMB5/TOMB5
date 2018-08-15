@@ -13,6 +13,8 @@
 #include "DS.H"
 #include "GLOBAL.H"
 #include "DIRECTX.H"
+#include "TIME.H"
+#include "DRAWPRIMITIVE.H"
 
 void DebugPrint(const char* message)
 {
@@ -121,8 +123,37 @@ void		S_DumpScreenFrame()
 
 long		S_DumpScreen()
 {
-	Unimpl();
-	return 0;
+	// todo
+	int last = Sync();
+	int off = last;
+	if (last < 2)
+	{
+		int rev = 2 - last;
+		off = 2;
+		do
+		{
+			while (!Sync());
+			rev--;
+		} while (rev);
+	}
+	GnFrameCounter++;
+
+	DDPIXELFORMAT ddpf;
+	DXInit(ddpf);
+	App.lpFrontBuffer->GetPixelFormat(&ddpf);
+	DDBLTFX fx;
+	DXInit(fx);
+	fx.dwFillColor = ddpf.dwBBitMask;
+	App.lpFrontBuffer->Blt(&App.GnWindowRect, nullptr, nullptr, DDBLT_COLORFILL, &fx);
+	fx.dwFillColor = ddpf.dwRBitMask;
+	App.lpBackBuffer->Blt(&App.GnWindowRect, nullptr, nullptr, DDBLT_COLORFILL, &fx);
+	DDCopyBitmap(App.lpFrontBuffer, "uk.bmp");
+	DDCopyBitmap(App.lpBackBuffer, "france.bmp");
+	EndScene();
+	DXShowFrame();
+	App.sceneDone = true;
+
+	return off;
 }
 void S_LoadBar()
 {
@@ -185,6 +216,11 @@ void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
 void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light)
 {
 	
+}
+
+void S_CDLoop()
+{
+	Unimpl();
 }
 
 #ifdef __cplusplus

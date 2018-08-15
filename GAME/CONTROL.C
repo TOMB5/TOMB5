@@ -1,6 +1,5 @@
 #include "CONTROL.H"
 
-
 #if PSX_VERSION || PSXPC_VERSION
 #include "COLLIDE_S.H"
 #include "DRAWPHAS.H"
@@ -17,6 +16,8 @@
 #if PC_VERSION
 	#include "GAME.H"
 	#include "FILE.H"
+#include "GLOBAL.H"
+#include "SPECIFIC.H"
 #endif
 #include "GAMEFLOW.H"
 #if PSX_VERSION || PSXPC_VERSION
@@ -52,6 +53,8 @@
 
 #include <assert.h>
 #include <string.h>
+
+#define MAX_FRAMES 10
 
 int flipeffect = -1;
 int fliptimer;
@@ -254,11 +257,33 @@ struct CHARDEF CharDef[106] =
 };
 struct ROPE_STRUCT Ropes[12];
 
+#if PC_VERSION
+short cdtrack = -1;
+#endif
+
 char byte_A3660;
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUCH (PSX/PSXPC)
 {
 #if PC_VERSION
+	RegeneratePickups();
+
+	if (nframes > MAX_FRAMES)
+		nframes = MAX_FRAMES;
+
+	if (bTrackCamInit)
+		bUseSpotCam = 0;
+
+	SetDebounce = 1;
+
+	for (framecount += nframes; framecount > 0; framecount -= 2)
+	{
+		GlobalCounter++;
+		UpdateSky();
+		if (cdtrack > 0)
+			S_CDLoop();
+	}
+
 	S_Warn("[ControlPhase] - Unimplemented!\n");
 #else
 	short item_num;

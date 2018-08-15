@@ -71,11 +71,28 @@ void Log_backend(char type, char* fmt, ...)
 		{
 			char* addr = (char*)map + dboff;
 			*addr = type;
-			strcpy(addr + 1, buf);
+			char* bptr = addr + 1;
 
-			SendMsg(dblog, dboff);
+			for (int i = 0, run = 1; i < len + 1; i++, run++)
+			{
+				if (buf[i] != '\n' && buf[i] != '\0')
+				{
+					*bptr++ = buf[i];
+				}
+				else
+				{
+					if (run > 1)
+					{
+						*bptr = 0;
+						SendMsg(dblog, dboff);
+						bptr++;
+						dboff += run + 1;
+						*bptr++ = type;
+					}
 
-			dboff += strlen(buf) + 1;
+					run = 0;
+				}
+			}
 
 			if (dboff > 0xFFC00)
 			{
