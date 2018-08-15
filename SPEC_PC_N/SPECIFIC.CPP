@@ -223,6 +223,24 @@ void S_CDLoop()
 	Unimpl();
 }
 
+	int S_LoadSave(int input, int in_inventory)
+{
+		Unimpl();
+		return 0;
+}
+
+	int S_DisplayPauseMenu(int a1)
+{
+		Unimpl(); 
+	return 0;
+}
+
+	int S_PauseMenu()
+{
+		Unimpl();
+		return 0;
+}
+
 #ifdef __cplusplus
 }
 #endif

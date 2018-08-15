@@ -259,6 +259,7 @@ struct ROPE_STRUCT Ropes[12];
 
 #if PC_VERSION
 short cdtrack = -1;
+BYTE byte_86BBA3 = 0;
 #endif
 
 char byte_A3660;
@@ -272,16 +273,139 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 		nframes = MAX_FRAMES;
 
 	if (bTrackCamInit)
-		bUseSpotCam = 0;
+		bUseSpotCam = FALSE;
 
-	SetDebounce = 1;
+	SetDebounce = TRUE;
 
 	for (framecount += nframes; framecount > 0; framecount -= 2)
 	{
 		GlobalCounter++;
+
 		UpdateSky();
+
 		if (cdtrack > 0)
 			S_CDLoop();
+
+		if (S_UpdateInput() == -1)
+			return 0;
+
+		if (bDisableLaraControl)
+		{
+			if (gfCurrentLevel != LVL5_TITLE)
+				dbinput = IN_NONE;
+
+			input &= IN_LOOK;
+		}
+
+		if (cutseq_trig)
+			input = IN_NONE;
+
+		SetDebounce = FALSE;
+
+		if (gfCurrentLevel != LVL5_TITLE)
+		{
+			if ((dbinput & IN_OPTION || GLOBAL_enterinventory != -1) && !cutseq_trig && lara_item->hit_points > 0)
+			{
+				S_SoundStopAllSamples();
+
+				if (S_CallInventory2())
+					return 2;
+			}
+		}
+
+		if (byte_86BBA3)
+			dels_give_lara_items_cheat();
+
+		if (gfLevelComplete)
+			return 3;
+
+		if (reset_flag || lara.death_count > 300 || (lara.death_count > 60 && input != IN_NONE))
+		{
+			reset_flag = FALSE;
+
+			if (Gameflow->DemoDisc && reset_flag)
+				return 4;
+			else
+				return 1;
+		}
+
+		if (demo_mode && input == IN_ALL)
+		{
+			input = IN_NONE;
+		}
+
+		if (lara.death_count == 0 && FadeScreenHeight == 0)
+		{
+			if (input & IN_SAVE)
+			{
+				S_LoadSave(IN_SAVE, FALSE);
+			}
+			else if (input & IN_LOAD)
+			{
+				if (S_LoadSave(IN_LOAD, FALSE) >= 0)
+					return 2;
+			}
+
+			if (input & IN_PAUSE && gfGameMode == 0)
+			{
+				if (S_PauseMenu() == 8)
+					return 1;
+			}
+		}
+
+		if (thread_started)
+		{
+			return 4;
+		}
+
+		if (!(input & IN_LOOK)
+			|| SniperCamActive
+			|| bUseSpotCam
+			|| bTrackCamInit
+			|| ((lara_item->current_anim_state != STATE_LARA_STOP || lara_item->anim_number != ANIMATION_LARA_STAY_IDLE)
+			&& (!lara.IsDucked
+				|| input & IN_CROUCH
+				|| lara_item->anim_number != ANIMATION_LARA_CROUCH_IDLE
+				|| lara_item->goal_anim_state != STATE_LARA_CROUCH_IDLE)))
+		{
+			if (!BinocularRange)
+			{
+				if (SniperCamActive
+					|| bUseSpotCam
+					|| bTrackCamInit)
+				{
+					input &= ~IN_LOOK;
+				}
+
+				// GOTO
+			}
+
+			if (LaserSight)
+			{
+				BinocularRange = 0;
+				LaserSight = 0;
+				AlterFOV(ANGLE(80));
+				lara_item->mesh_bits = -1;
+				lara.IsDucked = FALSE;
+				camera.type = BinocularOldCamera;
+
+				lara.head_y_rot = 0;
+				lara.head_x_rot = 0;
+
+				lara.torso_y_rot = 0;
+				lara.torso_x_rot = 0;
+
+				camera.bounce = 0;
+				BinocularOn = -8;
+				input &= ~IN_LOOK;
+			}
+			else
+			{
+				input |= IN_LOOK;
+			}
+
+			//if (input & I)
+		}
 	}
 
 	S_Warn("[ControlPhase] - Unimplemented!\n");

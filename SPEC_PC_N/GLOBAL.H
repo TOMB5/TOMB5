@@ -92,6 +92,7 @@ extern unsigned long mGetAngle(long x1, long y1, long x2, long y2);
 #endif
 
 extern WATERTAB	WaterTable[22][64];
+extern bool thread_started;;
 
 void WaitUntilFalse(DWORD* ptr);
 void WaitUntilTrue(DWORD* ptr);

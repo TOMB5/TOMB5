@@ -23,14 +23,13 @@ extern "C" {
 	extern int bEffectOn;
 
 
-	extern int S_UpdateInput();
+	
 
 #ifdef __cplusplus
 }
 #endif
 
-
-extern int S_UpdateInput(void);
+extern int S_UpdateInput();
 
 extern char*		kname[];
 extern sint16		layout[2][15];
