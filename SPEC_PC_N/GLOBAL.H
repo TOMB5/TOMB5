@@ -71,6 +71,8 @@ extern	sint32		matrix_stack[];		// matrix stack for animations etc..
 
 #define EndOfArray(a) ((a)+ArraySize(a))
 
+extern void D3DIdentityMatrix(LPD3DMATRIX mat);
+extern void SetD3DMatrixF(LPD3DMATRIX dst, LPD3DMATRIX src);
 extern void phd_RotX(long angle);
 extern void phd_RotY(long angle);
 extern void phd_RotZ(long angle);

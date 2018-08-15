@@ -14,6 +14,7 @@
 #include "CONTROL.H"
 #include "HWINSERT.H"
 #include "SPOTCAM.H"
+#include "TOMB4FX.H"
 
 HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
@@ -268,7 +269,131 @@ void SetupSkelebobMeshswaps()
 
 void RestoreLaraMeshswaps()
 {
-	
+	Unimpl();
+}
+
+float lara_left_mat[12];
+float lara_right_mat[12];
+
+void aUpdate()
+{
+	Unimpl();
+}
+
+void InitDynamicLighting()
+{
+	Unimpl();
+}
+
+void Draw_Mirror_Lara()
+{
+	Unimpl();
+}
+
+void SetGunFlash(short gun_type)
+{
+	Unimpl();
+}
+
+void DoUwEffect()
+{
+	Unimpl();
+}
+
+void S_DrawFires()
+{
+	Unimpl();
+}
+
+void S_DrawSmokeSparks()
+{
+	Unimpl();
+}
+
+void S_DrawSplashes()
+{
+	Unimpl();
+}
+
+void DrawBubbles()
+{
+	Unimpl();
+}
+
+void DrawDebris()
+{
+	Unimpl();
+}
+
+void DrawBlood()
+{
+	Unimpl();
+}
+
+void DrawDrips()
+{
+	Unimpl();
+}
+
+void DrawShockwaves()
+{
+	Unimpl();
+}
+
+void DrawLightning()
+{
+	Unimpl();
+}
+
+void DrawTwogunLasers()
+{
+	Unimpl();
+}
+
+void DrawGunshells()
+{
+	Unimpl();
+}
+
+void DrawCutSeqActors()
+{
+	Unimpl();
+}
+
+void DrawRopeList()
+{
+	Unimpl();
+}
+
+void S_DrawSparks()
+{
+	Unimpl();
+}
+
+void DrawRats()
+{
+	Unimpl();
+}
+
+void DrawBats()
+{
+	Unimpl();
+}
+
+void DrawSpiders()
+{
+	Unimpl();
+}
+
+void aSetViewMatrix()
+{
+	//DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, 0));
+	Unimpl();
+}
+
+void InsertRoom(room_info* r)
+{
+	Unimpl();
 }
 
 void DrawRooms(short current_room)
@@ -333,9 +458,105 @@ void DrawRooms(short current_room)
 					RestoreLaraMeshswaps();
 
 				phd_PushMatrix();
+
+				if (lara.right_arm.flash_gun)
+				{
+					memcpy(phd_dxptr, lara_right_mat, 12 * sizeof(float));
+					SetGunFlash(lara.gun_type);
+				}
+
+				if (lara.left_arm.flash_gun)
+				{
+					memcpy(phd_dxptr, lara_left_mat, 12 * sizeof(float));
+					SetGunFlash(lara.gun_type);
+				}
+
+				phd_PopMatrix();
+
+				DrawGunflashes();
+			}
+
+			if (gfLevelFlags & GF_LVOP_MIRROR_USED && lara_item->room_number == gfMirrorRoom)
+			{
+				Draw_Mirror_Lara();
 			}
 		}
 	}
+
+	InitDynamicLighting();
+
+	// gap
+
+	for (int i = 0; i < number_draw_rooms; i++)
+	{
+		auto cr = &room[draw_rooms[i]];
+
+		phd_PushMatrix();
+		phd_TranslateAbs(cr->x, cr->y, cr->z);
+
+		CurrentRoom = draw_rooms[i];
+
+		phd_left = cr->left;
+		phd_right = cr->right;
+		phd_top = cr->top;
+		phd_bottom = cr->bottom;
+
+		aSetViewMatrix();
+		InsertRoom(cr);
+	}
+
+	// line 166
+	DrawGunshells();
+	//
+	if (GLOBAL_playing_cutseq)
+		DrawCutSeqActors();
+
+	DrawRopeList();
+	S_DrawSparks();
+	DrawRats();
+	DrawBats();
+	DrawSpiders();
+
+	long bak_x = lara_item->pos.x_pos;
+	long bak_y = lara_item->pos.y_pos;
+	long bak_z = lara_item->pos.z_pos;
+	short bak_room = lara_item->room_number;
+
+	lara_item->pos.x_pos = camera.pos.x;
+	lara_item->pos.y_pos = camera.pos.y;
+	lara_item->pos.z_pos = camera.pos.z;
+	lara_item->room_number = camera.pos.room_number;
+
+	DoWeather();
+	DoUwEffect();
+	S_DrawFires();
+	S_DrawSmokeSparks();
+	S_DrawSplashes();
+	DrawBubbles();
+	DrawDebris();
+	DrawBlood();
+	DrawDrips();
+	DrawShockwaves();
+	DrawLightning();
+	DrawTwogunLasers();
+
+	lara_item->pos.x_pos = bak_x;
+	lara_item->pos.y_pos = bak_y;
+	lara_item->pos.z_pos = bak_z;
+	lara_item->room_number = bak_room;
+
+	if (gfLevelFlags & GF_LVOP_LENSFLARE_USED)
+		SetUpLensFlare(gfLensFlare.x, gfLensFlare.y - 4096, gfLensFlare.z, nullptr);
+
+	if (LaserSightActive)
+		DrawLaserSightSprite();
+
+	for(int i = 0; i < number_draw_rooms; i++)
+	{
+		PrintObjects(draw_rooms[i]);
+	}
+
+	aUpdate();
 }
 
 void phd_PutPolygons(short* mesh)

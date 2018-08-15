@@ -44,6 +44,43 @@ extern "C" {
 	sint32		w2v_matrix[12];		// World to View Matrix...
 	sint32		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
 
+	void D3DIdentityMatrix(LPD3DMATRIX mat)
+	{
+		mat->_11 = 1.0;
+		mat->_12 = 0.0;
+		mat->_13 = 0.0;
+		mat->_14 = 0.0;
+		mat->_21 = 0.0;
+		mat->_22 = 1.0;
+		mat->_23 = 0.0;
+		mat->_24 = 0.0;
+		mat->_31 = 0.0;
+		mat->_32 = 0.0;
+		mat->_33 = 1.0;
+		mat->_34 = 0.0;
+		mat->_41 = 0.0;
+		mat->_42 = 0.0;
+		mat->_43 = 0.0;
+		mat->_44 = 1.0;
+	}
+
+	void SetD3DMatrixF(LPD3DMATRIX dst, LPD3DMATRIX src)
+	{
+		D3DIdentityMatrix(dst);
+		dst->_11 = src->_11;
+		dst->_12 = src->_21;
+		dst->_13 = src->_31;
+		dst->_21 = src->_12;
+		dst->_22 = src->_22;
+		dst->_23 = src->_32;
+		dst->_31 = src->_13;
+		dst->_32 = src->_23;
+		dst->_33 = src->_33;
+		dst->_41 = src->_14;
+		dst->_42 = src->_24;
+		dst->_43 = src->_34;
+	}
+
 	void phd_RotX(long angle)
 	{
 		Unimpl();
