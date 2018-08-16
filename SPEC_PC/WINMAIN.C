@@ -1777,8 +1777,8 @@ char LoadSettings()
 		ReadRegByte("Setup", (int)&opt_Setup, 0);
 		if (opt_Setup)
 		{
-			ptr_ctx->dword_D9AC1B = 256;
-			ptr_ctx->dword_D9AC1F = 256;
+			ptr_ctx->textRes = 256;
+			ptr_ctx->bumpRes = 256;
 			ptr_ctx->dword_D9AC27 = 32;
 			ReadRegDword("DD", &ptr_ctx->curGfxAdapt, 0);
 			ReadRegDword("D3D", &ptr_ctx->curAccelAdapt, 0);
@@ -1795,10 +1795,10 @@ char LoadSettings()
 			ReadRegByte("NoFMV", &opt_NoFMV, 0);
 			ReadRegByte("TextLow", (int)&Type, 0);
 			if ((_BYTE)Type)
-				ptr_ctx->dword_D9AC1B = 128;
+				ptr_ctx->textRes = 128;
 			ReadRegByte("BumpLow", (int)&Type, 0);
 			if ((_BYTE)Type)
-				ptr_ctx->dword_D9AC1F = 128;
+				ptr_ctx->bumpRes = 128;
 			ReadRegByte("HardWare", (int)&Type, 1);
 			if ((_BYTE)Type)
 			{

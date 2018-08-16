@@ -15,6 +15,7 @@
 #include "DIRECTX.H"
 #include "TIME.H"
 #include "DRAWPRIMITIVE.H"
+#include "DEBUG.H"
 
 void DebugPrint(const char* message)
 {
@@ -36,6 +37,8 @@ void DebugPrint(const char* message)
 
 	OutputDebugString(buf);
 	printf(buf);
+	fprintf(fplog, buf);
+	fflush(fplog);
 }
 
 #ifdef __cplusplus

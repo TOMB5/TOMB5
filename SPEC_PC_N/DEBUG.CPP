@@ -3,14 +3,18 @@
 
 UINT dbm_logout, dbm_clearlog, dbm_deftype, dbm_command;
 
+FILE* fplog;
+
 void DB_InitLog(char opt)
 {
 	dbm_logout = RegisterWindowMessageA("UM_DBLOGOUT");
 	dbm_clearlog = RegisterWindowMessageA("UM_DBCLEARLOG");
 	dbm_deftype = RegisterWindowMessageA("UM_DBDEFTYPE");
 	dbm_command = RegisterWindowMessageA("UM_DBCOMMAND");
+
+	fplog = fopen("trlog.txt", "w");
 	
-	HKEY phkResult;
+	/*HKEY phkResult;
 	DWORD dwDisposition, cbData, Type;
 	BYTE Data[1024];
 	STARTUPINFO StartupInfo;
@@ -35,7 +39,7 @@ void DB_InitLog(char opt)
 
 		WaitForInputIdle(ProcessInformation.hProcess, 0xFFFFFFFF);
 		RegCloseKey(phkResult);
-	}
+	}*/
 }
 
 static int dboff = 0;
@@ -47,6 +51,23 @@ void SendMsg(HWND hWnd, LPARAM lParam)
 		if (PostMessageA(hWnd, dbm_logout, 0, lParam))
 			break;
 	} while (FindWindowA("DBLogWindowClass", "DBLog Server"));
+}
+
+void DB_DefType(char* name, LPARAM lParam, WPARAM wParam)
+{
+	HWND dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
+
+	if (dblog)
+	{
+		HANDLE db = OpenFileMappingA(FILE_MAP_READ | FILE_MAP_WRITE, true, "DBLOGMAPMEM");
+		void* map = MapViewOfFile(db, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0x100000u);
+
+		if (map)
+		{
+			strcpy((char*)map, name);
+			SendMessageA(dblog, dbm_deftype, wParam, lParam);
+		}
+	}
 }
 
 void Log_backend(char type, char* fmt, ...)

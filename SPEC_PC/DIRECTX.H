@@ -144,13 +144,13 @@ struct WINAPP
 	HACCEL hAccTable;
 	uint8 byte_D9AC19;
 	BYTE tEnableBumpMap;
-	DWORD dword_D9AC1B;
-	DWORD dword_D9AC1F;
+	DWORD textRes;
+	DWORD bumpRes;
 	uint8 byte_D9AC23;
 	BYTE opt_Filter;
 	BYTE opt_Volumetric;
 	BYTE opt_DisableSound;
-	DWORD dword_D9AC27;
+	DWORD orig_flags;
 	BYTE byte_D9AC2B;
 	DWORD OriginalBPP;
 	DWORD opt_AutoTarget;

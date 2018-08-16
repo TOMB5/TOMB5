@@ -505,13 +505,13 @@ struct WINAPP
 	HACCEL hAccTable;
 	uint8 byte_D9AC19;
 	BYTE					tBumpMap;
-	DWORD dword_D9AC1B;
-	DWORD dword_D9AC1F;
+	DWORD textRes;
+	DWORD bumpRes;
 	uint8 byte_D9AC23;
 	BYTE					tBilinearFilter;
 	BYTE					tVolumetricShadows;
 	BYTE					tDisableSound;
-	DWORD dword_D9AC27;
+	DWORD orig_flags;
 	BYTE byte_D9AC2B;
 	DWORD OriginalBPP;
 
@@ -551,6 +551,7 @@ enum WINAPP_FLAGS
 {
 	WA_FULLSCREEN = (1 << 0),
 	WA_UNKNOWN1 = (1 << 1),
+	WA_UNKNOWN2 = (1 << 4),
 	WA_FPUSETUP = (1 << 5),
 	WA_SOFTWARE = (1 << 6),
 	WA_BACK_BUFFER = (1 << 7),

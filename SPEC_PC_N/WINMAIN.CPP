@@ -94,8 +94,29 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int RetVal;
 	int n;
 
+	appsettings.OpenSetup = false;
+
 	// Clear Application Structure
 	memset(&App, 0, sizeof(WINAPP));
+
+	DB_InitLog(1);
+
+	HWND dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
+	if (dblog)
+		PostMessageA(dblog, dbm_command, 2, 0);
+
+	dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
+	if (dblog)
+		PostMessageA(dblog, dbm_clearlog, 0, 0);
+
+	DB_DefType("Error", 0xFF, 1);
+	DB_DefType("Function", 0x8000, 0);
+	DB_DefType("DirectX Information", 0x802040, 1);
+	DB_DefType("Object Release", 0x80, 0);
+	DB_DefType("General Information", 0x800000, 1);
+	DB_DefType("Windows Message", 0x800080, 0);
+	DB_DefType("Level Info", 0x8000FF, 0);
+	DB_DefType("Sound", 0x8080, 0);
 
 	Log(LT_Info, "Launching - %s", WINDOWNAME);
 	Log(LT_Enter, "WinMain");
@@ -157,7 +178,18 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	DXInitialise(&App.DeviceInfo, App.WindowHandle);
 
-	// setup
+	if (appsettings.OpenSetup || !LoadSettings())
+	{
+		if (!InitSetupDialog())
+		{
+			free(gfScriptFile);
+			free(gfStringOffset);
+			WinClose();
+			return 0;
+		}
+
+		LoadSettings();
+	}
 
 	SetWindowPos(App.WindowHandle, 0, App.GnWindowRect.left, App.GnWindowRect.top, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
@@ -174,7 +206,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		CUR_DM.w,
 		CUR_DM.h,
 		CUR_DM.bpp,
-		App.dword_D9AC27,
+		App.orig_flags,
 		&App,
 		App.WindowHandle,
 		WS_CAPTION))
@@ -223,7 +255,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	dm.dmFields = DM_BITSPERPEL;
 	ChangeDisplaySettingsA(&dm, 0);
 
-	HWND dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
+	dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
 	if (dblog)
 		PostMessageA(dblog, dbm_command, 4, 0);
 
