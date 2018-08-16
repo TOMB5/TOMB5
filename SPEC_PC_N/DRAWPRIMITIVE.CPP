@@ -645,13 +645,10 @@ int32_t DrawPhaseGame()
 	if (GLOBAL_playing_cutseq)
 		frigup_lara();
 
-	/*SetLaraUnderwaterNodes();
+	SetLaraUnderwaterNodes();
 	DrawRooms(camera.pos.room_number);
 	DrawGameInfo(TRUE);
-	S_OutputPolyList();*/
-	DDCopyBitmap(App.lpBackBuffer, "uk.bmp");
-	S_DumpScreen();
-	DDCopyBitmap(App.lpBackBuffer, "uk.bmp");
+	S_OutputPolyList();
 	camera.number_frames = S_DumpScreen();
 	S_AnimateTextures(camera.number_frames);
 	return camera.number_frames;

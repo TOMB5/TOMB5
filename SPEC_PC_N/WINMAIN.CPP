@@ -206,9 +206,9 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	uint32_t thread_id;
 	hThread = (HANDLE)_beginthreadex(nullptr, 0, GameMain, nullptr, 0, &thread_id);
 
-	thread_started = true;
-
 	WinProcMsg();
+
+	thread_started = true;
 
 	while (game_running);
 

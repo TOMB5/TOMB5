@@ -138,17 +138,9 @@ long		S_DumpScreen()
 	}
 	GnFrameCounter++;
 
-	DDPIXELFORMAT ddpf;
-	DXInit(ddpf);
-	App.lpFrontBuffer->GetPixelFormat(&ddpf);
-	DDBLTFX fx;
-	DXInit(fx);
-	fx.dwFillColor = ddpf.dwBBitMask;
-	App.lpFrontBuffer->Blt(&App.GnWindowRect, nullptr, nullptr, DDBLT_COLORFILL, &fx);
-	fx.dwFillColor = ddpf.dwRBitMask;
-	App.lpBackBuffer->Blt(&App.GnWindowRect, nullptr, nullptr, DDBLT_COLORFILL, &fx);
 	DDCopyBitmap(App.lpFrontBuffer, "uk.bmp");
 	DDCopyBitmap(App.lpBackBuffer, "france.bmp");
+
 	EndScene();
 	DXShowFrame();
 	App.sceneDone = true;

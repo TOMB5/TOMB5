@@ -14,6 +14,7 @@ extern "C" {
 	// The global input variable
 	extern sint32 input;
 	extern sint32 dbinput;
+	extern sint32 inputBusy;
 
 
 	extern int bLaraOn;

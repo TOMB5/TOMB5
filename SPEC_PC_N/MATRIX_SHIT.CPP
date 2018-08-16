@@ -5,7 +5,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+	struct SVECTOR CamRot;
 	sint32		phd_left;  				/* Left Clipping Value */
 	sint32		phd_right;              /* Right Clipping Value */
 	sint32		phd_top;                /* Top Clipping Value */

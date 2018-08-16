@@ -69,7 +69,7 @@ extern	float		f_a, f_b, f_boo;		// a/b factors for z buffering (f_boo is f_b/one
 extern	sint32		w2v_matrix[];		// World to View Matrix...
 extern	sint32		matrix_stack[];		// matrix stack for animations etc..
 
-
+extern struct SVECTOR CamRot;
 
 #define EndOfArray(a) ((a)+ArraySize(a))
 
