@@ -2,7 +2,8 @@
 #include "SPECIFIC.H"
 #include "INCLUDE.H"
 #include "GLOBAL.H"
-#include "../SPEC_PC/SPECTYPES.H"
+#include "resource.h"
+#include "GAMEFLOW.H"
 
 Settings appsettings;
 HKEY reg_key;
@@ -41,8 +42,40 @@ void CLSetup(char* arg)
 	appsettings.OpenSetup = arg == nullptr;
 }
 
+INT_PTR CALLBACK DialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch(uMsg)
+	{
+	case WM_INITDIALOG:
+		Log(LT_WindowMessage, "WM_INITDIALOG");
+
+		if (Gameflow->Language == LNG_JAPAN)
+		{
+			
+		}
+
+		return 1;
+
+	case WM_COMMAND:
+		break;
+	}
+
+	if (lParam)
+		DeleteObject((HGDIOBJ)lParam);
+
+	EndDialog(hwndDlg, 1);
+	return 1;
+}
+
 bool InitSetupDialog()
 {
+	ShowCursor(true);
+	INT_PTR res = DialogBoxParamA(App.hInstance, (LPCSTR)IDD_SETUP, nullptr, DialogFunc, 0);
+	ShowCursor(false);
+	if (res != -1)
+		return res != 0;
+	MessageBoxA(nullptr, "Unable To Initialise Dialog", reg_class, 0);
+
 	Unimpl();
 	return false;
 }
