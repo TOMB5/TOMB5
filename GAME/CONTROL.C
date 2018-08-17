@@ -347,6 +347,37 @@ void KlaxonTremor()
 	Unimpl();
 }
 
+void UpdateSky()
+{
+	if (gfLevelFlags & GF_LVOP_LAYER1_USED)
+	{
+		SkyPos += gfLayer1Vel;
+
+		if (SkyPos > 9728)
+		{
+			SkyPos -= 9728;
+		}
+		else if(SkyPos < 0)
+		{
+			SkyPos += 9728;
+		}
+	}
+
+	if (gfLevelFlags & GF_LVOP_LAYER2_USED)
+	{
+		SkyPos2 += gfLayer2Vel;
+
+		if (SkyPos2 > 9728)
+		{
+			SkyPos2 -= 9728;
+		}
+		else if (SkyPos2 < 0)
+		{
+			SkyPos2 += 9728;
+		}
+	}
+}
+
 #endif
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUCH (PSX/PSXPC)

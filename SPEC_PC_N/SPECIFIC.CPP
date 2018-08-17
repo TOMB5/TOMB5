@@ -16,6 +16,7 @@
 #include "TIME.H"
 #include "DRAWPRIMITIVE.H"
 #include "DEBUG.H"
+#include "GAME.H"
 
 void DebugPrint(const char* message)
 {
@@ -141,8 +142,12 @@ long		S_DumpScreen()
 	}
 	GnFrameCounter++;
 
-	DDCopyBitmap(App.lpFrontBuffer, "uk.bmp");
-	DDCopyBitmap(App.lpBackBuffer, "france.bmp");
+	
+	DDBLTFX fx;
+	DXInit(fx);
+	fx.dwFillColor = GENRGB(0, 0, (5 * GnFrameCounter) % 256);
+	App.lpBackBuffer->Blt(nullptr, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &fx);
+	
 
 	EndScene();
 	DXShowFrame();

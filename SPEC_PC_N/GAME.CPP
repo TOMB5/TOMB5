@@ -68,6 +68,8 @@ void ClearSurfaces()
 	}
 
 	S_DumpScreen();
+
+	
 }
 
 void GameClose()
@@ -188,7 +190,7 @@ unsigned __stdcall GameMain(void* data)
 void do_boot_screen(int language)
 {
 	Log(2, "do_boot_screen");
-
+	return;
 	switch (language)
 	{
 	case LNG_ENGLISH:
@@ -230,7 +232,3 @@ void do_boot_screen(int language)
 	}
 }
 
-void UpdateSky()
-{
-	Unimpl();
-}

@@ -562,6 +562,8 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 
 		DXSetCooperativeLevel(enum_lpDD, NULL, DDSCL_NOWINDOWCHANGES | DDSCL_ALLOWMODEX | DDSCL_FULLSCREEN | DDSCL_NORMAL);
 
+		Log(LT_Enter, "DXEnumDisplayModes");
+
 		DX_TRY(enum_lpDD->EnumDisplayModes(0, NULL, (LPVOID)&dd->DDInfo[dd->nDDInfo], DXEnumDisplayModes));
 
 		if (DXCreateDirect3D(enum_lpDD, &enum_lpD3D))
@@ -804,7 +806,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		}
 	}
 
-	if (flags & 0x10 && flags & 0x80)
+	if (flags & WA_UNKNOWN2 && flags & WA_BACK_BUFFER)
 	{
 		Log(LT_DXShit, "Creating ZBuffer");
 
@@ -837,7 +839,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		{
 			DX_TRY(App.lpD3DDevice->SetRenderTarget(App.lpBackBuffer, 0));
 
-			if (!(App.Flags & 0x80))
+			if (!(App.Flags & WA_BACK_BUFFER))
 			{
 				// todo
 			}
@@ -882,7 +884,7 @@ HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, in
 	{
 		surf = App.lpFrontBuffer;
 
-		if (App.Flags & WA_UNKNOWN1)
+		if (App.Flags & WA_WINDOWED)
 		{
 			x = App.GnWindowRect.left;
 			y = App.GnWindowRect.top;
@@ -905,7 +907,8 @@ HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, in
 
 HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)
 {
-	HMODULE mod = GetModuleHandleA(nullptr);
+	//HMODULE mod = GetModuleHandleA(nullptr); todo
+	HMODULE mod = nullptr;
 	HANDLE image = LoadImageA(mod, filename, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
 
 	if (!image)
@@ -915,10 +918,10 @@ HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)
 	{
 		Log(LT_Error, "handle is null");
 
-		return 0x80004005;
+		return GetLastError();
 	}
 
-	HRESULT res = LoadPicture(surface, image, 0, 0, 0, 0);
+	HRESULT res = LoadPicture(surface, image, 0, 0, 640, 480);
 
 	if (res)
 		Log(LT_Error, "ddcopybitmap failed");
@@ -1090,7 +1093,7 @@ void DXShowFrame()
 		DX_TRY(App.lpBackBuffer->Restore());
 	}
 
-	if (App.Flags & WA_UNKNOWN1)
+	if (App.Flags & WA_WINDOWED)
 	{
 		DX_TRY(App.lpFrontBuffer->Blt(&App.GnWindowRect, App.lpBackBuffer, &App.r1, DDBLT_WAIT, nullptr));
 	}

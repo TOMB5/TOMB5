@@ -25,6 +25,7 @@ uint8_t opt_MusicVolume = 40;
 uint8_t opt_SFXVolume = 80;
 uint8_t opt_ControlMethod;
 uint8_t opt_SoundQuality = 1;
+int32_t key_conflicts[18];
 
 const char* reg_path = "Software\\Core Design\\Tomb Raider Chronicles";
 
@@ -116,9 +117,15 @@ void CheckKeyConflicts()
 {
 	for(int i = 0; i < 18; i++)
 	{
+		key_conflicts[i] = false;
+
 		for(int j = 0; j < 18; j++)
 		{
-			if ()
+			if (opt_Keys[i] == default_keys[i])
+			{
+				key_conflicts[i] = true;
+				break;
+			}
 		}
 	}
 }
@@ -164,7 +171,7 @@ bool LoadSettings()
 
 		RegReadBool("Window", &tmp, 0);
 		if (tmp)
-			App.orig_flags |= WA_UNKNOWN1;
+			App.orig_flags |= WA_WINDOWED;
 		else
 			App.orig_flags |= WA_FULLSCREEN;
 	}

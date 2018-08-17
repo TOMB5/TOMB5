@@ -550,7 +550,7 @@ typedef struct
 enum WINAPP_FLAGS
 {
 	WA_FULLSCREEN = (1 << 0),
-	WA_UNKNOWN1 = (1 << 1),
+	WA_WINDOWED = (1 << 1),
 	WA_UNKNOWN2 = (1 << 4),
 	WA_FPUSETUP = (1 << 5),
 	WA_SOFTWARE = (1 << 6),
