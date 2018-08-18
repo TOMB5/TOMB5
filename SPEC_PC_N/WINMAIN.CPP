@@ -96,7 +96,6 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	appsettings.OpenSetup = false;
 
-	// Clear Application Structure
 	memset(&App, 0, sizeof(WINAPP));
 
 	DB_InitLog(1);
