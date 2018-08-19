@@ -71,6 +71,9 @@ extern	sint32		matrix_stack[];		// matrix stack for animations etc..
 
 extern struct SVECTOR CamRot;
 
+extern WORD* d9ab34;
+extern int e4b100;
+
 #define EndOfArray(a) ((a)+ArraySize(a))
 
 extern void D3DIdentityMatrix(LPD3DMATRIX mat);

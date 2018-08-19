@@ -1,7 +1,7 @@
 #define _X86_
 #define _USE_32BIT_TIME_T
-#include <cstddef>
 #include <time.h>
+#include <cstddef>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
@@ -17,16 +17,23 @@
 #include "DRAWPRIMITIVE.H"
 #include "DEBUG.H"
 #include "GAME.H"
+#include "HWINSERT.H"
+#include "TEXT.H"
+
+bool loadBarShown;
+int loadBarMax;
+float loadBarPercent;
+float loadBar2;
 
 void DebugPrint(const char* message)
 {
 	char buf[1024];
 	time_t t = time(NULL);
-	struct tm tm = *localtime(&t);
+	tm tm = *localtime(&t);
 
 	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
 
-	strcpy(buf, message);
+	strcat(buf, message);
 
 	int len = strlen(buf);
 
@@ -120,9 +127,30 @@ void S_SoundStopAllSamples(void)
 	DS_StopAllSamples();
 }
 
+int WeirdWaitThingy()
+{
+	Sleep1ms();
+	return Sync();
+}
+
 void		S_DumpScreenFrame()
 {
-	Unimpl();
+	int last = Sync();
+	if (last < 1)
+	{
+		int rev = 1 - last;
+		do
+		{
+			if (Sync() == 0)
+				while (WeirdWaitThingy() == 0);
+			rev--;
+		} while (rev != 0);
+	}
+	GnFrameCounter++;
+
+	EndScene();
+	DXShowFrame();
+	App.sceneDone = true;
 }
 
 long		S_DumpScreen()
@@ -145,7 +173,8 @@ long		S_DumpScreen()
 	
 	DDBLTFX fx;
 	DXInit(fx);
-	fx.dwFillColor = GENRGB(0, 0, (5 * GnFrameCounter) % 256);
+	//fx.dwFillColor = GENRGB(0, 0, (5 * GnFrameCounter) % 256);
+	fx.dwFillColor = (64 + abs((int)((2 * GnFrameCounter) % 192 - 96))) << (8 * (((GnFrameCounter / 6) % 27) / 9));
 	App.lpBackBuffer->Blt(nullptr, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &fx);
 	
 
@@ -155,13 +184,200 @@ long		S_DumpScreen()
 
 	return off;
 }
+	void UpdateLoadBar()
+{
+		loadBarPercent += 100.0 / loadBarMax;
+}
 void S_LoadBar()
 {
-	Unimpl();
+	UpdateLoadBar();
 }
 void S_InitLoadBar(int size)
 {
-	Unimpl();
+	loadBarPercent = 0.0;
+	loadBarMax = size;
+	loadBar2 = 0.0;
+	loadBarShown = true;
+}
+
+void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color2)
+{
+	D3DTLVERTEX tlvert[4];
+
+	d9ab34[3] = 0;
+	d9ab34[2] = 0;
+	d9ab34[1] = 0;
+	d9ab34[0] = 0;
+
+	e4b100 = 4;
+
+	OBJECT_TEXTURE tex;
+
+	float xfactor = phd_winxmax / 640.0;
+	float yfactor = phd_winymax / 480.0;
+
+	float real_x = x * xfactor;
+	float real_y = y * yfactor;
+	float real_w = w * xfactor;
+	float real_h = h * yfactor;
+
+	float real_y_middle = real_y + real_h / 2.0;
+	float real_y_bottom = real_y + real_h;
+	float real_x_right = real_x + real_w;
+
+	float sznorm = pc / 100.0;
+	float w_filled = real_w * sznorm;
+	float real_x_right_fill = w_filled + real_x;
+
+	float rhw = f_persp / f_znear * f_oneopersp;
+	float rhw_2 = f_persp / (f_znear + 1.0) * f_oneopersp;
+
+	BYTE red1 = RGBA_GETRED(color1);
+	BYTE green1 = RGBA_GETGREEN(color1);
+	BYTE blue1 = RGBA_GETBLUE(color1);
+
+	int real_red1 = red1, real_green1 = green1, real_blue1 = blue1;
+	D3DCOLOR real_color1 = RGBONLY(real_red1, real_green1, real_blue1);
+	D3DCOLOR real_color1d = RGBONLY(real_red1 & ~1, real_green1 & ~1, real_blue1 & ~1);
+
+	BYTE red2 = RGBA_GETRED(color2);
+	BYTE green2 = RGBA_GETGREEN(color2);
+	BYTE blue2 = RGBA_GETBLUE(color2);
+
+	int real_red2 = SCALE_CLR(red1, red2, sznorm);
+	int real_green2 = SCALE_CLR(green1, green2, sznorm);
+	int real_blue2 = SCALE_CLR(blue1, blue2, sznorm);
+	D3DCOLOR real_color2 = RGBONLY(real_red2, real_green2, real_blue2);
+	D3DCOLOR real_color2d = RGBONLY(real_red2 & ~1, real_green2 & ~1, real_blue2 & ~1);
+
+	tlvert[0].sx = real_x;
+	tlvert[1].sx = real_x_right_fill;
+	tlvert[2].sx = real_x;
+	tlvert[3].sx = real_x_right_fill;
+
+	tlvert[0].sy = real_y;
+	tlvert[1].sy = real_y;
+	tlvert[2].sy = real_y_middle;
+	tlvert[3].sy = real_y_middle;
+	
+	tlvert[0].sz = f_znear; // todo, in the original they wrote that to sx which is wrong i guess
+	tlvert[1].sz = f_znear;
+	tlvert[2].sz = f_znear;
+	tlvert[3].sz = f_znear;
+
+	tlvert[0].specular = RGB_MAKE(0, 0, 0);
+	tlvert[1].specular = RGB_MAKE(0, 0, 0);
+	tlvert[2].specular = RGB_MAKE(0, 0, 0);
+	tlvert[3].specular = RGB_MAKE(0, 0, 0);
+
+	tlvert[0].rhw = rhw;	
+	tlvert[1].rhw = rhw;
+	tlvert[2].rhw = rhw;	
+	tlvert[3].rhw = rhw;
+
+	tlvert[0].color = real_color1d;
+	tlvert[1].color = real_color2d;
+	tlvert[2].color = real_color1;
+	tlvert[3].color = real_color2;	
+
+	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
+
+	tlvert[0].sy = real_y_middle;
+	tlvert[1].sy = real_y_middle;
+	tlvert[2].sy = real_y_bottom;
+	tlvert[3].sy = real_y_bottom;
+
+	tlvert[0].color = real_color1;	
+	tlvert[1].color = real_color2;
+	tlvert[2].color = real_color1d;
+	tlvert[3].color = real_color2d;
+
+	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
+
+	tlvert[0].sx = real_x; 
+	tlvert[1].sx = real_x_right;
+	tlvert[2].sx = real_x;
+	tlvert[3].sx = real_x_right;
+
+	tlvert[0].sy = real_y;
+	tlvert[1].sy = real_y;
+	tlvert[2].sy = real_y_bottom;
+	tlvert[3].sy = real_y_bottom;
+
+	tlvert[0].sz = f_znear + 1.0;
+	tlvert[1].sz = f_znear + 1.0;
+	tlvert[2].sz = f_znear + 1.0;
+	tlvert[3].sz = f_znear + 1.0;
+
+	tlvert[0].rhw = rhw_2;
+	tlvert[1].rhw = rhw_2;
+	tlvert[2].rhw = rhw_2;
+	tlvert[3].rhw = rhw_2;
+
+	tlvert[0].color = RGBA_MAKE(0, 0, 0, 0);
+	tlvert[1].color = RGBA_MAKE(0, 0, 0, 0);
+	tlvert[2].color = RGBA_MAKE(0, 0, 0, 0);
+	tlvert[3].color = RGBA_MAKE(0, 0, 0, 0);
+
+	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
+
+	tlvert[0].sx = real_x - 1.0;	
+	tlvert[1].sx = real_x_right + 1.0;
+	tlvert[2].sx = real_x - 1.0;
+	tlvert[3].sx = real_x_right + 1.0;
+	
+	tlvert[0].sy = real_y - 1.0;
+	tlvert[1].sy = real_y - 1.0;
+	tlvert[2].sy = real_y_bottom + 1.0;
+	tlvert[3].sy = real_y_bottom + 1.0;
+	
+	tlvert[0].sz = f_znear + 2.0;
+	tlvert[1].sz = f_znear + 2.0;
+	tlvert[2].sz = f_znear + 2.0;
+	tlvert[3].sz = f_znear + 2.0;
+
+	tlvert[0].rhw = f_persp / (f_znear + 2.0) * f_oneopersp;
+	tlvert[1].rhw = f_persp / (f_znear + 2.0) * f_oneopersp;
+	tlvert[2].rhw = f_persp / (f_znear + 2.0) * f_oneopersp;
+	tlvert[3].rhw = f_persp / (f_znear + 2.0) * f_oneopersp;
+
+	tlvert[0].color = RGB_MAKE(255, 255, 255);
+	tlvert[1].color = RGB_MAKE(255, 255, 255);
+	tlvert[2].color = RGB_MAKE(255, 255, 255);
+	tlvert[3].color = RGB_MAKE(255, 255, 255);
+
+	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
+}
+
+bool S_DrawLoadBar()
+{
+	BeginScene();
+	InitBuckets();
+	InitialiseSortList();
+
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+	
+	DoBar(170, 480 - font_height, 300, 10, loadBar2, RGB_MAKE(0, 0, 16), RGB_MAKE(0, 0, 240));
+
+	//SortPolyList(...
+	//RestoreFPCW();
+	//DrawSortList()
+	//MungeFPCW(..
+	S_DumpScreenFrame();
+
+	if (loadBar2 >= loadBarPercent)
+	{
+		if (loadBarMax > loadBarPercent)
+			return false;
+
+		return true;
+	}
+
+	loadBar2 += 2.0;
+
+	return false;
 }
 
 bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)

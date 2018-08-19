@@ -35,7 +35,7 @@ short* floor_data;
 short* mesh_base;
 int AnimFileLen;
 char	cd_drive = 0;
-
+bool levelLoading;
 int num_pages;
 FILE* fp_level;
 char* level_data;
@@ -947,7 +947,7 @@ extern "C" {
 
 		SetFadeClip(0, 1);
 	}
-	unsigned __stdcall LoadLevel(char* filename)
+	unsigned __stdcall LoadLevel(void* filename)
 	{
 		Log(LT_Info, "Begin LoadLevel");
 
@@ -955,7 +955,7 @@ extern "C" {
 
 		num_pages = 1;
 		//
-		fp_level = FileOpen(filename);
+		fp_level = FileOpen((char*)filename);
 
 		if (fp_level)
 		{
@@ -1074,7 +1074,7 @@ extern "C" {
 		}
 
 		MakeCutsceneResident(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
-		//
+		levelLoading = false;
 		return true;
 	}
 
@@ -1086,15 +1086,15 @@ extern "C" {
 
 		char filename[80];
 		strcpy(filename, &gfFilenameWad[gfFilenameOffset[Name]]);
-		//
+		loadBarShown = false;
 		strcat(filename, ".TRC");
 
 		for (int i = 0; i < 4; i++)
 		{
 			BeginScene();
 			InitBuckets();
-			/*InitialiseSortList();
-			DrawLoadingScreen();
+			InitialiseSortList();
+			/*DrawLoadingScreen();
 			SortPolyList(dword_BA4384, &dword_BA4390);
 			RestoreFPCW();
 			DrawSortList(word_878654);
@@ -1102,12 +1102,25 @@ extern "C" {
 			S_DumpScreenFrame();
 		}
 
-		// todo thread
+		levelLoading = true;
 
-		LoadLevel(filename);
+		unsigned thread;
+		int levelReturn = _beginthreadex(nullptr, 0, LoadLevel, filename, 0, &thread);
 
-		Unimpl();
-		return 0;
+		while (levelLoading)
+		{
+			if (App.Flags & WA_BACK_BUFFER && loadBarShown)
+				S_DrawLoadBar();
+		}
+
+		if (App.Flags & WA_BACK_BUFFER)
+		{
+			while (!S_DrawLoadBar());
+		}
+
+		//
+
+		return 1;
 	}
 
 	FILE* FileOpen(const char *filename)

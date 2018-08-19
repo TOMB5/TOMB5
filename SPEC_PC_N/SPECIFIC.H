@@ -4,6 +4,7 @@
 #include "SPECTYPES.H"
 
 extern char			cd_drive;
+extern bool loadBarShown;
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,6 +31,7 @@ extern "C" {
 
 	void S_LoadBar();
 	void S_InitLoadBar(int size);
+	bool S_DrawLoadBar();
 
 	bool Decompress(void* buf, void* compressed, int compSize, int uncompSize);
 

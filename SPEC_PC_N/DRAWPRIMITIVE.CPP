@@ -24,10 +24,10 @@ HRESULT(*BeginScene)();
 HRESULT(*EndScene)();
 HRESULT(*SetRenderState)(D3DRENDERSTATETYPE dwRenderStateType, DWORD dwRenderState);
 bool(*PtrVisible)(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3);
-void(*AddQuad1)(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, int a6, int a7);
-void(*AddQuad2)(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, int a6, int a7);
-void(*AddTri1)(D3DTLVERTEX *v, int v1, int v2, int v3, int a6, int a7);
-void(*AddTri2)(D3DTLVERTEX *v, int v1, int v2, int v3, int a6, int a7);
+void(*AddQuad1)(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7);
+void(*AddQuad2)(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7);
+void(*AddTri1)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7);
+void(*AddTri2)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7);
 void(*AddLine)(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color);
 
 int dword_E4B100;
@@ -41,53 +41,43 @@ static int bound_end = 0;
 
 D3DMATRIX d3d_camera;
 
-struct TEXTURESTRUCT
-{
-	uint16 drawtype;
-	uint16 tpage;
-	uint16 pad;
-	float u1, v1;
-	float u2, v2;
-	float u3, v3;
-	float u4, v4;
-};
 
 void SubdivideEdge(D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, short *a4, float u1, float v1, float u2, float v2, float *u, float *v)
 {
 	Unimpl();
 }
-void SubdivideQuad(D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, D3DTLVERTEX *pv4, TEXTURESTRUCT* tex, int a6, int a7, short *face)
+void SubdivideQuad(D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, D3DTLVERTEX *pv4, OBJECT_TEXTURE* tex, int a6, int a7, short *face)
 {
 	Unimpl();
 }
-void SubdivideTri (D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, TEXTURESTRUCT* tex, int a5, int a6, short *face)
-{
-	Unimpl();
-}
-
-void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, int a6, int a7)
-{
-	Unimpl();
-}
-void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int a6, int a7)
+void SubdivideTri (D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, OBJECT_TEXTURE* tex, int a5, int a6, short *face)
 {
 	Unimpl();
 }
 
-void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, int a6, int a7)
+void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
 {
 	Unimpl();
 }
-void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int a6, int a7)
+void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
 {
 	Unimpl();
 }
 
-void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, int a6, int a7)
+void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
 {
 	Unimpl();
 }
-void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int a6, int a7)
+void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
+{
+	Unimpl();
+}
+
+void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
+{
+	Unimpl();
+}
+void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
 {
 	Unimpl();
 }

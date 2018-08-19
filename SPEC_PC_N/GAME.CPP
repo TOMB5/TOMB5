@@ -12,6 +12,8 @@ object_info objects[NUMBER_OBJECTS];
 static_info static_objects[NUMBER_STATIC_OBJECTS];
 LPDIRECT3DVERTEXBUFFER vertex_buffer;
 bool game_running;
+WORD* d9ab34;
+int e4b100;
 
 bool GameInitialise()
 {
@@ -26,6 +28,8 @@ bool GameInitialise()
 	DX_TRY(App.lpD3D->CreateVertexBuffer(&buf, &vertex_buffer, D3DFVF_XYZRHW, nullptr));
 
 	init_game_malloc();
+
+	d9ab34 = (WORD*)malloc(16384 * sizeof(WORD));
 
 	App.dword_D9AC38 = 0;
 	App.dword_D9AC34 = CUR_DM.w;
