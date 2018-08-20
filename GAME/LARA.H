@@ -694,7 +694,8 @@ enum lara_gun_status
 	LG_HANDS_BUSY = 1,
 	LG_DRAW_GUNS = 2,
 	LG_UNDRAW_GUNS = 3,
-	LG_READY = 4
+	LG_READY = 4,
+	LG_FLARE = 5,
 };
 
 extern short angle; // offset 0xA0650

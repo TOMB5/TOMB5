@@ -98,6 +98,8 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	memset(&App, 0, sizeof(WINAPP));
 
+	App.GameInitialized = false;
+
 	DB_InitLog(1);
 
 	HWND dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
@@ -199,7 +201,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	App.bNoFocus = false;
 	App.isInScene = false;
-	App.byte_D9AC2B = false;
+	App.PlayingFMV = false;
 
 	if (!DXCreate(
 		CUR_DM.w,
@@ -372,7 +374,7 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		if (!false) // todo
 		{
-			if (!App.byte_D9AC2B)
+			if (!App.PlayingFMV)
 			{
 				switch (LOWORD(wParam))
 				{
@@ -380,7 +382,7 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				case WA_CLICKACTIVE:
 					Log(LT_WindowMessage, "WM_ACTIVE");
 
-					if (App.byte_D9AC19)
+					if (App.GameInitialized)
 					{
 						AcquireInput(true);
 						ResumeThread(hThread);
@@ -394,7 +396,7 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				case WA_INACTIVE:
 					Log(LT_WindowMessage, "WM_INACTIVE");
 
-					if (App.byte_D9AC19)
+					if (App.GameInitialized)
 					{
 						AcquireInput(false);
 

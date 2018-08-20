@@ -21,6 +21,8 @@ extern "C" {
 extern short* floor_data;
 extern short* mesh_base;
 
+extern int num_pages;
+
 extern int AnimFileLen;
 
 #endif

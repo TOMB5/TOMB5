@@ -147,10 +147,10 @@ void InitialiseSortList()
 void GPU_BeginScene()
 {
 	D3DRECT rect;
-	rect.x1 = App.r1.left;
-	rect.y1 = App.r1.top;
-	rect.y2 = App.r1.top + App.r1.bottom;
-	rect.x2 = App.r1.left + App.r1.right;
+	rect.x1 = App.GnClientRect.left;
+	rect.y1 = App.GnClientRect.top;
+	rect.y2 = App.GnClientRect.top + App.GnClientRect.bottom;
+	rect.x2 = App.GnClientRect.left + App.GnClientRect.right;
 
 	DX_TRY(App.lpViewPort->Clear2(1, &rect, 1, 0, 1.0f, 0)); // todo understand dwFlags
 	BeginScene();

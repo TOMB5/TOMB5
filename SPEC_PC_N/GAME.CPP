@@ -176,7 +176,7 @@ unsigned __stdcall GameMain(void* data)
 	InitWindow(0, 0, App.width, App.height, 20, 20480, 80);
 	//InitFont();
 	TIME_Init();
-	App.byte_D9AC19 = 1;
+	App.GameInitialized = true;
 	// todo
 	S_CDStop();
 	ClearSurfaces();

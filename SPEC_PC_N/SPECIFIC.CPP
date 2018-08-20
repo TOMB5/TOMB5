@@ -6,7 +6,7 @@
 #include <cstdio>
 #include <cstring>
 #include <debugapi.h>
-#include "STYPES.H"
+#include "FILE.H"
 #include "INCLUDE.H"
 #include "SPECTYPES.H"
 #include "SOUND.H"
@@ -19,6 +19,10 @@
 #include "GAME.H"
 #include "HWINSERT.H"
 #include "TEXT.H"
+#include "DISPLAY.H"
+#include "GAMEFLOW.H"
+#include "LARA.H"
+
 
 bool loadBarShown;
 int loadBarMax;
@@ -177,6 +181,7 @@ long		S_DumpScreen()
 	fx.dwFillColor = (64 + abs((int)((2 * GnFrameCounter) % 192 - 96))) << (8 * (((GnFrameCounter / 6) % 27) / 9));
 	App.lpBackBuffer->Blt(nullptr, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &fx);
 	
+	PrintString(10, 10, 0, "ABCDEF", 0);
 
 	EndScene();
 	DXShowFrame();
@@ -184,6 +189,54 @@ long		S_DumpScreen()
 
 	return off;
 }
+
+void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2)
+{
+	uint8_t red1, green1, blue1;
+	uint8_t red2 = 0, green2 = 0, blue2 = 0;
+
+	if (RGBA_GETRED(clr) <= 128)
+	{
+		red1 = 2 * RGBA_GETRED(clr);
+	}
+	else
+	{
+		red1 = 255;
+		red2 = (RGBA_GETRED(clr) - 128) / 2;
+	}
+
+	if (RGBA_GETGREEN(clr) <= 128)
+	{
+		green1 = 2 * RGBA_GETGREEN(clr);
+	}
+	else
+	{
+		green1 = 255;
+		green2 = (RGBA_GETGREEN(clr) - 128) / 2;
+	}
+
+	if (RGBA_GETBLUE(clr) <= 128)
+	{
+		blue1 = 2 * RGBA_GETBLUE(clr);
+	}
+	else
+	{
+		blue1 = 255;
+		blue2 = (RGBA_GETBLUE(clr) - 128) / 2;
+	}
+
+	red1 = CLAMP(red1, 0, 255);
+	green1 = CLAMP(green1, 0, 255);
+	blue1 = CLAMP(blue1, 0, 255);
+
+	red2 = CLAMP(red2, 0, 255);
+	green2 = CLAMP(green2, 0, 255);
+	blue2 = CLAMP(blue2, 0, 255);
+
+	*out1 = RGBONLY(red1, green1, blue1);
+	*out2 = RGBONLY(red2, green2, blue2);
+}
+
 	void UpdateLoadBar()
 {
 		loadBarPercent += 100.0 / loadBarMax;
@@ -204,10 +257,10 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 {
 	D3DTLVERTEX tlvert[4];
 
-	d9ab34[3] = 0;
-	d9ab34[2] = 0;
-	d9ab34[1] = 0;
 	d9ab34[0] = 0;
+	d9ab34[1] = 0;
+	d9ab34[2] = 0;
+	d9ab34[3] = 0;
 
 	e4b100 = 4;
 
@@ -349,6 +402,138 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
 }
 
+void SuperShowLogo()
+{
+	D3DTLVERTEX tlvert[4];
+
+	d9ab34[0] = 0;
+	d9ab34[1] = 0;
+	d9ab34[2] = 0;
+	d9ab34[3] = 0;
+
+	e4b100 = 4;
+
+	OBJECT_TEXTURE tex;
+
+	tlvert[0].rhw = f_oneoznear;
+	tlvert[1].rhw = f_oneoznear;
+	tlvert[2].rhw = f_oneoznear;
+	tlvert[3].rhw = f_oneoznear;
+
+	float x = 64.0;
+	float y = 0.0;
+	float width = 256.0;
+	float height = 256.0;
+
+	float xfactor = phd_winxmax / 640.0;
+	float yfactor = phd_winymax / 480.0;
+
+	float real_width = width * xfactor;
+	float real_height = height * yfactor;
+
+	float real_x = phd_winxmin + x * xfactor;
+	float real_x_right = real_x + real_width;
+
+	float real_y = phd_winymin + y * yfactor;
+	float real_y_bottom = real_y + real_height;
+
+	tlvert[0].sx = real_x;
+	tlvert[1].sx = real_x_right;
+	tlvert[2].sx = real_x_right;
+	tlvert[3].sx = real_x;
+
+	tlvert[0].sy = real_y;
+	tlvert[1].sy = real_y;
+	tlvert[2].sy = real_y_bottom;
+	tlvert[3].sy = real_y_bottom;
+
+	tlvert[0].sz = 0.0;
+	tlvert[1].sz = 0.0;
+	tlvert[2].sz = 0.0;
+	tlvert[3].sz = 0.0;
+
+	tlvert[0].specular = RGB_MAKE(0, 0, 0);
+	tlvert[1].specular = RGB_MAKE(0, 0, 0);
+	tlvert[2].specular = RGB_MAKE(0, 0, 0);
+	tlvert[3].specular = RGB_MAKE(0, 0, 0);
+
+	tlvert[0].rhw = f_oneoznear;
+	tlvert[1].rhw = f_oneoznear;
+	tlvert[2].rhw = f_oneoznear;
+	tlvert[3].rhw = f_oneoznear;
+
+	tlvert[0].color = RGB_MAKE(255, 255, 255);
+	tlvert[1].color = RGB_MAKE(255, 255, 255);
+	tlvert[2].color = RGB_MAKE(255, 255, 255);
+	tlvert[3].color = RGB_MAKE(255, 255, 255);
+
+	tex.attribute = OT_ALPHA_TESTING;
+	tex.new_flags = 0;
+	tex.tile_and_flag = num_pages - 5;
+
+	tex.vertices[0].x = 1 / 256.0;
+	tex.vertices[0].y = 1 / 256.0;
+
+	tex.vertices[1].x = 1 - 1 / 256.0;
+	tex.vertices[1].y = 1 / 256.0;
+
+	tex.vertices[2].x = 1 - 1 / 256.0;
+	tex.vertices[2].y = 1 - 1 / 256.0;
+
+	tex.vertices[3].x = 1 / 256.0;
+	tex.vertices[3].y = 1 - 1 / 256.0;
+
+	AddQuad2(tlvert, 0, 1, 2, 3, &tex, 0);
+
+	tlvert[0].sx = real_x_right;
+	tlvert[1].sx = real_x_right + real_width;
+	tlvert[2].sx = real_x_right + real_width;
+	tlvert[3].sx = real_x_right;
+
+	tlvert[0].sy = real_y;
+	tlvert[1].sy = real_y;
+	tlvert[2].sy = real_y_bottom;
+	tlvert[3].sy = real_y_bottom;
+
+	tlvert[0].sz = 0.0;
+	tlvert[1].sz = 0.0;
+	tlvert[2].sz = 0.0;
+	tlvert[3].sz = 0.0;
+
+	tlvert[0].specular = RGB_MAKE(0, 0, 0);
+	tlvert[1].specular = RGB_MAKE(0, 0, 0);
+	tlvert[2].specular = RGB_MAKE(0, 0, 0);
+	tlvert[3].specular = RGB_MAKE(0, 0, 0);
+
+	tlvert[0].rhw = f_oneoznear;
+	tlvert[1].rhw = f_oneoznear;
+	tlvert[2].rhw = f_oneoznear;
+	tlvert[3].rhw = f_oneoznear;
+
+	tlvert[0].color = RGB_MAKE(255, 255, 255);
+	tlvert[1].color = RGB_MAKE(255, 255, 255);
+	tlvert[2].color = RGB_MAKE(255, 255, 255);
+	tlvert[3].color = RGB_MAKE(255, 255, 255);
+
+	tex.attribute = OT_ALPHA_TESTING;
+	tex.new_flags = 0;
+	tex.tile_and_flag = num_pages - 4;
+
+	tex.vertices[0].x = 1 / 256.0;
+	tex.vertices[0].y = 1 / 256.0;
+
+	tex.vertices[1].x = 1 - 1 / 256.0;
+	tex.vertices[1].y = 1 / 256.0;
+
+	tex.vertices[2].x = 1 - 1 / 256.0;
+	tex.vertices[2].y = 1 - 1 / 256.0;
+
+	tex.vertices[3].x = 1 / 256.0;
+	tex.vertices[3].y = 1 - 1 / 256.0;
+
+	AddQuad2(tlvert, 0, 1, 2, 3, &tex, 1);
+}
+
 bool S_DrawLoadBar()
 {
 	BeginScene();
@@ -455,6 +640,40 @@ void S_CDLoop()
 {
 		Unimpl();
 		return 0;
+}
+
+void S_DrawAirBar(int size)
+{
+	if (gfCurrentLevel != LVL5_TITLE)
+	{
+		DoBar(490 - font_height / 4, font_height / 2 + font_height / 4 + 32, 150, 12, size, RGBONLY(0, 0, 160), RGBONLY(0, 80, 160));
+	}
+}
+
+void S_DrawHealthBar(int size)
+{
+	if (gfCurrentLevel != LVL5_TITLE)
+	{
+		D3DCOLOR col = RGBONLY(0, 160, 0);
+
+		if (lara.poisoned || lara.Gassed)
+			col = RGBONLY(160, 160, 0);
+
+		DoBar(font_height / 4, font_height / 4 + 32, 150, 12, size, RGBONLY(160, 0, 0), col);
+	}
+}
+
+void S_DrawHealthBar2(int size)
+{
+	if (gfCurrentLevel != LVL5_TITLE)
+	{
+		D3DCOLOR col = RGBONLY(0, 160, 0);
+
+		if (lara.poisoned || lara.Gassed)
+			col = RGBONLY(160, 160, 0);
+
+		DoBar(245, font_height / 4 + 32, 150, 12, size, RGBONLY(160, 0, 0), col);
+	}
 }
 
 #ifdef __cplusplus

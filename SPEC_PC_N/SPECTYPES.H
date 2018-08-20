@@ -13,6 +13,8 @@
 #define STRINGIFY(x) STRINGIFY2(x)
 #define Unimpl() S_Warn("[" __FUNCTION__ "] - Unimplemented!\n")
 
+#define SWAP(a, b) {auto _ = a; a = b; b = _;}
+
 typedef unsigned int uint;
 typedef unsigned char uchar;
 typedef unsigned short ushort;
@@ -336,6 +338,18 @@ struct OBJECT_TEXTURE
 	struct OBJECT_TEXTURE_VERT vertices[4];
 };
 
+enum OBJECT_TEXTURE_ATTRIBUTE
+{
+	OT_ALL_OPAQUE = 0,
+	OT_ALPHA_TESTING = 1,
+	OT_ALPHA_BLENDING = 2,
+	OT_ALPHA_BLENDING_INV = 3,
+	OT_ALPHA_TESTING_DEPTHLESS = 4,
+	OT_UNUSED = 5,
+	OT_WIREFRAME = 6,
+	OT_FORCED_ALPHA = 7
+};
+
 struct DRIP_STRUCT
 {
 	long x; // size=0, offset=0
@@ -480,7 +494,7 @@ struct WINAPP
 	unsigned int width;
 	unsigned int height;
 
-	RECT					r1;
+	RECT					GnClientRect;
 	RECT					GnWindowRect;
 
 	unsigned int			Flags;
@@ -503,16 +517,16 @@ struct WINAPP
 	DWORD dword_D9AC11;
 
 	HACCEL hAccTable;
-	uint8 byte_D9AC19;
+	uint8 GameInitialized;
 	BYTE					tBumpMap;
 	DWORD textRes;
 	DWORD bumpRes;
-	uint8 byte_D9AC23;
+	uint8 MMXSupport;
 	BYTE					tBilinearFilter;
 	BYTE					tVolumetricShadows;
 	BYTE					tDisableSound;
 	DWORD orig_flags;
-	BYTE byte_D9AC2B;
+	BYTE PlayingFMV;
 	DWORD OriginalBPP;
 
 	BYTE					tAutoTarget;

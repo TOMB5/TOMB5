@@ -8,7 +8,7 @@ extern unsigned char PulseCnt;
 extern unsigned char ScaleFlag;
 extern struct CVECTOR FontShades[10][16];
 
-#if PC_VERSION
+#ifdef PC_VERSION
 extern int font_height;
 #endif
 

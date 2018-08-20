@@ -744,10 +744,10 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 
 		App.width = CUR_DM.w;
 		App.height = CUR_DM.h;
-		App.r1.top = 0;
-		App.r1.left = 0;
-		App.r1.right = CUR_DM.w;
-		App.r1.bottom = CUR_DM.h;
+		App.GnClientRect.top = 0;
+		App.GnClientRect.left = 0;
+		App.GnClientRect.right = CUR_DM.w;
+		App.GnClientRect.bottom = CUR_DM.h;
 	}
 	else
 	{
@@ -762,14 +762,14 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		AdjustWindowRect(&rect, dwStyle, false);
 		SetWindowPos(window, HWND_TOP, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
 
-		GetClientRect(window, &App.r1);
+		GetClientRect(window, &App.GnClientRect);
 		GetClientRect(window, &App.GnWindowRect);
 
 		ClientToScreen(window, (LPPOINT)&App.GnWindowRect.left);
 		ClientToScreen(window, (LPPOINT)&App.GnWindowRect.right);
 
-		App.width = App.r1.right;
-		App.height = App.r1.bottom;
+		App.width = App.GnClientRect.right;
+		App.height = App.GnClientRect.bottom;
 
 		Log(LT_Info, "w %d h %d", App.width, App.height);
 
@@ -1095,7 +1095,7 @@ void DXShowFrame()
 
 	if (App.Flags & WA_WINDOWED)
 	{
-		DX_TRY(App.lpFrontBuffer->Blt(&App.GnWindowRect, App.lpBackBuffer, &App.r1, DDBLT_WAIT, nullptr));
+		DX_TRY(App.lpFrontBuffer->Blt(&App.GnWindowRect, App.lpBackBuffer, &App.GnClientRect, DDBLT_WAIT, nullptr));
 	}
 	else if (App.Flags & WA_BACK_BUFFER)
 	{
