@@ -17,6 +17,7 @@
 #include "TOMB4FX.H"
 #include "EFFECT2.H"
 #include "DIRECTX.H"
+#include "OBJLIGHT.H"
 
 HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
@@ -313,7 +314,7 @@ void FadeLightList(PCLIGHT* lights, int num)
 		if (ptr->UnknownByte == 0 || ptr->UnknownInt == 0)
 			continue;
 
-		if (ptr->LightType == LIGHT_SHADOW)
+		if (ptr->LightType == LT_SHADOW)
 		{
 			ptr[-1].ShadowIntensity += ptr[-1].dy2;
 		}
@@ -326,7 +327,7 @@ void FadeLightList(PCLIGHT* lights, int num)
 
 		ptr->UnknownInt--;
 
-		if (ptr->LightType == LIGHT_SHADOW)
+		if (ptr->LightType == LT_SHADOW)
 		{
 			if (ptr[-1].ShadowIntensity <= 0)
 			{

@@ -48,10 +48,15 @@ extern "C" {
 }
 #endif
 
-#define CUR_DD App.DeviceInfo.DDInfo[App.DXConfig.nDD]
-#define CUR_D3D CUR_DD.D3DInfo[App.DXConfig.nD3D]
-#define CUR_DM CUR_D3D.DisplayMode[App.DXConfig.nVMode]
-#define CUR_TEX CUR_D3D.Texture[App.DXConfig.nTexture]
+#define GET_DD(a) App.DeviceInfo.DDInfo[a]
+#define GET_D3D(a) CUR_DD.D3DInfo[a]
+#define GET_DM(a) CUR_D3D.DisplayMode[a]
+#define GET_TEX(a) CUR_D3D.Texture[a]
+
+#define CUR_DD GET_DD(App.DXConfig.nDD)
+#define CUR_D3D GET_D3D(App.DXConfig.nD3D)
+#define CUR_DM GET_DM(App.DXConfig.nVMode)
+#define CUR_TEX GET_TEX(App.DXConfig.nTexture)
 
 void DXInitialise(DEVICEINFO* DeviceInfo, HWND WindowHandle);
 bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2);
@@ -67,5 +72,7 @@ void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance);
 void DXMove(int x, int y);
 void AcquireInput(bool acquire);
 void DXShowFrame();
+bool DXChangeVideoMode();
+void DXToggleFullScreen();
 
 #endif

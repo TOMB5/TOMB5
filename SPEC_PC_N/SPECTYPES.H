@@ -91,15 +91,6 @@ struct static_info
 	short z_maxc;
 };
 
-enum LightType
-{
-	LIGHT_SUN = 0,
-	LIGHT_LIGHT = 1,
-	LIGHT_SPOT = 2,
-	LIGHT_SHADOW = 3,
-	LIGHT_FOGBULB = 4
-};
-
 struct ROOM_LIGHT   // 88 bytes
 {
 	float x, y, z;       // Position of light, in world coordinates
@@ -187,7 +178,7 @@ struct room_info {
 
 	uint32_t NumLayers;
 
-	struct tr5_room_layer* LayerOffset;
+	struct ROOMLET* LayerOffset;
 	struct tr5_room_vertex* VerticesOffset;
 	void* PolyOffset;
 	void* PolyOffset2;   // Same as PolyOffset
@@ -257,8 +248,12 @@ struct ITEM_INFO {
 	unsigned long meshswap_meshbits; // size=0, offset=136 OFF=132
 	short draw_room; // size=0, offset=140 OFF=136
 	short TOSSPAD; // size=0, offset=142 OFF=138
-	char pad1[5452]; // OFF=140
-	struct PHD_VECTOR unk_pos1;
+	char pad1[5436];
+	DWORD num_lights_1;
+	DWORD num_lights_2;
+	DWORD light_room_num;
+	char pad11[4];
+	struct PHD_VECTOR ambient_light_pos;
 	struct PCLIGHT* ptr1;
 	struct PCLIGHT* ptr2;
 	unsigned long active : 1; // offset=132.0 OFF=5610
@@ -308,7 +303,7 @@ struct tr4_mesh_face4    // 12 bytes
 	uint16_t Effects;
 };
 
-struct tr5_room_layer   // 56 bytes
+struct ROOMLET   // 56 bytes
 {
 	uint32_t NumLayerVertices;   // Number of vertices in this layer (4 bytes)
 	uint16_t UnknownL1;
@@ -595,7 +590,11 @@ struct WINAPP
 	DWORD dword_D9AC38;
 
 	LPDIRECTDRAWPALETTE		Palette;				// Palette For SW Renderer
-	PALETTEENTRY			PaletteEntries[256];	// Palette Entries
+	char pad111[272];
+	D3DMATRIX ViewMatrix;
+	char pad112[24];
+	D3DMATRIX WorldMatrix;
+	char pad113[600];
 
 
 	bool					bRender;			// Ok To Render

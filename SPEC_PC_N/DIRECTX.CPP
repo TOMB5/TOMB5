@@ -1102,3 +1102,41 @@ void DXShowFrame()
 		DX_TRY(App.lpFrontBuffer->Flip(nullptr, true));
 	}
 }
+
+bool DXChangeVideoMode()
+{
+	Log(LT_Enter, "DXChangeVideoMode");
+
+	App.Flags |= WA_SOFTWARE;
+	App.lpD3D->EvictManagedTextures();
+
+	bool ret = DXCreate(0, 0, 0, App.Flags, &App, App.GhWnd, App.DXWndStyle);
+	Log(LT_Enter, "Exited DXChangeVideoMode %d", ret);
+	return ret;
+}
+
+void DXToggleFullScreen()
+{
+	Log(LT_Enter, "DXToggleFullScreen");
+
+	if (App.Flags & WA_WINDOWED)
+	{
+		Log(LT_Info, "Switching To Full Screen");
+
+		App.Flags ^= WA_WINDOWED;
+		App.Flags |= WA_FULLSCREEN;
+		App.Flags |= WA_SOFTWARE;
+	}
+	else
+	{
+		Log(LT_Info, "Switching To A Window");
+
+		App.Flags ^= WA_FULLSCREEN;
+		App.Flags |= WA_WINDOWED;
+		App.Flags |= WA_SOFTWARE;
+	}
+
+	App.lpD3D->EvictManagedTextures();
+
+	DXCreate(CUR_DM.w, CUR_DM.h, CUR_DM.bpp, App.Flags, &App, App.GhWnd, App.DXWndStyle);
+}

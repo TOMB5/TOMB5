@@ -228,7 +228,7 @@ struct room_info {
 
 	uint32_t NumLayers;
 
-	struct tr5_room_layer* LayerOffset;
+	struct ROOMLET* LayerOffset;
 	struct tr5_room_vertex* VerticesOffset;
 	void* PolyOffset;
 	void* PolyOffset2;   // Same as PolyOffset
@@ -319,7 +319,7 @@ struct tr4_mesh_face4    // 12 bytes
 	uint16_t Effects;
 };
 
-struct tr5_room_layer   // 56 bytes
+struct ROOMLET   // 56 bytes
 {
 	uint32_t NumLayerVertices;   // Number of vertices in this layer (4 bytes)
 	uint16_t UnknownL1;

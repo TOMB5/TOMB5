@@ -23,6 +23,8 @@
 #include "SETUP.H"
 #include "DEBUG.H"
 #include "INPUT.H"
+#include "DISPLAY.H"
+#include "TEXT.H"
 
 WINAPP	 App;
 bool thread_started;
@@ -266,7 +268,136 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 void HandleCommand(WORD param)
 {
-	Unimpl();
+	if (param == IDR_VKRETURN)
+	{
+		if (!App.PlayingFMV && CUR_DD.DDCaps.dwCaps2 & DDCAPS2_CANRENDERWINDOWED && !levelLoading)
+		{
+			Log(LT_WindowMessage, "KA_ALTENTER");
+
+			Log(LT_Info, "HangGameThread");
+
+			while(App.isInScene);
+
+			App.bNoFocus = true;
+
+			while(!App.isInScene);
+
+			SuspendThread(hThread);
+
+			Log(LT_Info, "Game Thread Suspended");
+
+			FreeD3DLights();
+			DXToggleFullScreen();
+			HWInitialise();
+			//
+			S_InitD3DMatrix();
+			SetD3DViewMatrix();
+
+			ResumeThread(hThread);
+
+			App.bNoFocus = false;
+
+			Log(LT_Info, "Game Thread Resumed");
+
+			if (App.Flags & WA_FULLSCREEN)
+			{
+				SetCursor(nullptr);
+				ShowCursor(false);
+			}
+			else
+			{
+				SetCursor(LoadCursor(App.hInstance, IDC_ARROW));
+				ShowCursor(true);
+			}
+		}
+	}
+	else if ((param == IDR_VKADD || param == IDR_VKSUBTRACT) && !levelLoading && !App.PlayingFMV)
+	{
+		Log(LT_Info, "Change Video Mode");
+
+		Log(LT_Info, "HangGameThread");
+
+		if (App.isInScene)
+			WaitUntilFalse(&App.isInScene);
+
+		App.bNoFocus = true;
+
+		if (!App.isInScene)
+			WaitUntilTrue(&App.isInScene);
+
+		SuspendThread(hThread);
+
+		Log(LT_Info, "Game Thread Suspended");
+
+		int old = App.DXConfig.nVMode;
+
+		if (param == IDR_VKADD)
+		{
+			App.DXConfig.nVMode = MIN(App.DXConfig.nVMode + 1, CUR_D3D.nDisplayMode - 1);
+
+			if (GET_DM(old).bpp != CUR_DM.bpp)
+			{
+				for(; App.DXConfig.nVMode < CUR_D3D.nDisplayMode; App.DXConfig.nVMode++)
+				{
+					if (GET_DM(old).bpp == CUR_DM.bpp)
+					{
+						break;
+					}
+				}
+
+				if (App.DXConfig.nVMode == CUR_D3D.nDisplayMode)
+				{
+					App.DXConfig.nVMode = old;
+				}
+			}
+		}
+		else
+		{
+			App.DXConfig.nVMode = MAX(App.DXConfig.nVMode - 1, 0);
+
+			if (GET_DM(old).bpp != CUR_DM.bpp)
+			{
+				for (; App.DXConfig.nVMode >= 0; App.DXConfig.nVMode--)
+				{
+					if (GET_DM(old).bpp == CUR_DM.bpp)
+					{
+						break;
+					}
+				}
+
+				if (App.DXConfig.nVMode == -1)
+				{
+					App.DXConfig.nVMode = old;
+				}
+			}
+		}
+
+		if (App.DXConfig.nVMode != old)
+		{
+			FreeD3DLights();
+
+			if (!DXChangeVideoMode())
+			{
+				App.DXConfig.nVMode = old;
+				DXChangeVideoMode();
+			}
+
+			HWInitialise();
+			//
+			InitWindow(0, 0, App.width, App.height, 20, SECTOR(20), 80);
+			InitFont();
+			S_InitD3DMatrix();
+			SetD3DViewMatrix();
+		}
+
+		ResumeThread(hThread);
+
+		App.bNoFocus = false;
+
+		Log(LT_Info, "Game Thread Resumed");
+
+		//
+	}
 }
 
 void HandleApp(LPARAM lParam, WPARAM wParam)
@@ -332,16 +463,15 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_MOVE:
 		Log(LT_WindowMessage, "WM_MOVE");
-		DXMove(SLOWORD(lParam), SHIWORD(lParam));
+		DXMove(LOWORD(lParam), HIWORD(lParam));
 		break;
 
 	case WM_COMMAND:
 		Log(LT_WindowMessage, "WM_COMMAND");
-		HandleCommand((WORD)wParam);
+		HandleCommand(LOWORD(wParam));
 		break;
 
 	case WM_MOUSEMOVE:
-		//Log(LT_WindowMessage, "WM_MOUSEMOVE");
 		mouse_x = GET_X_LPARAM(lParam);
 		mouse_y = GET_Y_LPARAM(lParam);
 		mouse_vkeys = (int)wParam;

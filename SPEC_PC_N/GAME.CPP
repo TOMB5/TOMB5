@@ -101,7 +101,7 @@ void GameClose()
 
 void HWInitialise()
 {
-	Log(2, "HWInitialise");
+	Log(LT_Enter, "HWInitialise");
 	App.lpD3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_DISABLE);
 	App.lpD3DDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
 	App.lpD3DDevice->SetTextureStageState(2, D3DTSS_COLOROP, D3DTOP_DISABLE);
@@ -173,7 +173,7 @@ unsigned __stdcall GameMain(void* data)
 
 	InitialiseFunctionTable();
 	HWInitialise();
-	InitWindow(0, 0, App.width, App.height, 20, 20480, 80);
+	InitWindow(0, 0, App.width, App.height, 20, SECTOR(20), 80);
 	//InitFont();
 	TIME_Init();
 	App.GameInitialized = true;
