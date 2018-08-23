@@ -91,6 +91,37 @@ struct static_info
 	short z_maxc;
 };
 
+enum LightType
+{
+	LIGHT_SUN = 0,
+	LIGHT_LIGHT = 1,
+	LIGHT_SPOT = 2,
+	LIGHT_SHADOW = 3,
+	LIGHT_FOGBULB = 4
+};
+
+struct ROOM_LIGHT   // 88 bytes
+{
+	float x, y, z;       // Position of light, in world coordinates
+	float r, g, b;       // Colour of the light
+
+	uint32_t ShadowIntensity;    // only if LightType == LIGHT_SHADOW
+
+	float In;            // Cosine of the IN value for light / size of IN value
+	float Out;           // Cosine of the OUT value for light / size of OUT value
+	float RadIn;         // (IN radians) * 2
+	float RadOut;        // (OUT radians) * 2
+	float Range;         // Range of light
+
+	float dx, dy, dz;    // Direction - used only by sun and spot lights
+	int32_t x2, y2, z2;    // Same as position, only in integer.
+	int32_t dx2, dy2, dz2; // Same as direction, only in integer.
+
+	uint8_t LightType;
+
+	uint8_t Filler[3];     // Dummy values = 3 x 0xCD
+};
+
 struct room_info {
 	short* data; // size=0, offset=0
 	short* door; // size=0, offset=4
@@ -144,7 +175,7 @@ struct room_info {
 	uint32_t NumRoomTriangles;
 	uint32_t NumRoomRectangles;
 
-	void* Separator4;     // Always 0
+	struct ROOM_LIGHT* RoomLights; 
 
 	uint32_t LightDataSize;
 	uint32_t NumLights2;    // Always same as NumLights
@@ -166,6 +197,33 @@ struct room_info {
 	uint32_t Separator5[4];  // Always 0xCDCDCDCD
 };
 
+struct PCLIGHT
+{
+	float x, y, z;       // Position of light, in world coordinates
+	float r, g, b;       // Colour of the light
+
+	uint32_t ShadowIntensity;    // only if LightType == LIGHT_SHADOW
+
+	float In;            // Cosine of the IN value for light / size of IN value
+	float Out;           // Cosine of the OUT value for light / size of OUT value
+	float RadIn;         // (IN radians) * 2
+	float RadOut;        // (OUT radians) * 2
+	float Range;         // Range of light
+
+	float dx, dy, dz;    // Direction - used only by sun and spot lights
+	int32_t x2, y2, z2;    // Same as position, only in integer.
+	int32_t dx2, dy2, dz2; // Same as direction, only in integer.
+
+	float r2, g2, b2;
+	float r3, g3, b3;
+
+	int32_t UnknownInt;
+	uint8_t LightType;
+	uint8_t UnknownByte;
+	
+	int32_t dx3, dy3, dz3;
+	int32_t magnsq;
+};
 
 struct ITEM_INFO {
 	long floor; // size=0, offset=0
@@ -199,7 +257,10 @@ struct ITEM_INFO {
 	unsigned long meshswap_meshbits; // size=0, offset=136 OFF=132
 	short draw_room; // size=0, offset=140 OFF=136
 	short TOSSPAD; // size=0, offset=142 OFF=138
-	char pad1[5472]; // OFF=140
+	char pad1[5452]; // OFF=140
+	struct PHD_VECTOR unk_pos1;
+	struct PCLIGHT* ptr1;
+	struct PCLIGHT* ptr2;
 	unsigned long active : 1; // offset=132.0 OFF=5610
 	unsigned long status : 2; // offset=132.1
 	unsigned long gravity_status : 1; // offset=132.3

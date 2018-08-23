@@ -53,7 +53,7 @@ void ClearSurfaces()
 
 	if (App.Flags & WA_BACK_BUFFER)
 	{
-		DX_TRY(App.lpViewPort->Clear2(1, &rect, 3, 0, 1.0, 0));
+		DX_TRY(App.lpViewPort->Clear2(1, &rect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, RGBA_MAKE(0, 0, 0, 0), 1.0f, 0));
 	}
 	else
 	{
@@ -64,7 +64,7 @@ void ClearSurfaces()
 
 	if (App.Flags & WA_BACK_BUFFER)
 	{
-		DX_TRY(App.lpViewPort->Clear2(1, &rect, 3, 0, 1.0, 0));
+		DX_TRY(App.lpViewPort->Clear2(1, &rect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, RGBA_MAKE(0, 0, 0, 0), 1.0f, 0));
 	}
 	else
 	{

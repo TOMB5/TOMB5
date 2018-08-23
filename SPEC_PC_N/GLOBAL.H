@@ -87,6 +87,7 @@ extern void phd_UnitMatrix();
 extern void phd_TransposeMatrix();
 extern void phd_TranslateAbs(long x, long y, long z);
 extern void phd_RotYXZ(long y, long x, long z);
+extern void phd_SetTrans(long x, long y, long z);
 extern unsigned long mGetAngle(long x1, long y1, long x2, long y2);
 #define phd_PopMatrix()		{ phd_mxptr -= 12; phd_dxptr -= 12; }
 

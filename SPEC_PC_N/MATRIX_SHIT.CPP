@@ -166,6 +166,28 @@ extern "C" {
 		Unimpl();
 	}
 
+	void SetTransl(long x, long y, long z)
+	{
+		phd_dxptr[M03] = x;
+		phd_dxptr[M13] = y;
+		phd_dxptr[M23] = z;
+	}
+
+	void phd_SetTrans(long x, long y, long z)
+	{
+		x <<= W2V_SHIFT;
+		y <<= W2V_SHIFT;
+		z <<= W2V_SHIFT;
+
+		phd_dxptr[M03] = x;
+		phd_dxptr[M13] = y;
+		phd_dxptr[M23] = z;
+
+		SetTransl(x, y, z);
+	}
+
+	
+
 #ifdef __cplusplus
 }
 #endif

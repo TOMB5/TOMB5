@@ -152,7 +152,7 @@ void GPU_BeginScene()
 	rect.y2 = App.GnClientRect.top + App.GnClientRect.bottom;
 	rect.x2 = App.GnClientRect.left + App.GnClientRect.right;
 
-	DX_TRY(App.lpViewPort->Clear2(1, &rect, 1, 0, 1.0f, 0)); // todo understand dwFlags
+	DX_TRY(App.lpViewPort->Clear2(1, &rect, D3DCLEAR_TARGET, RGBA_MAKE(0, 0, 0, 0), 1.0f, 0));
 	BeginScene();
 	InitBuckets();
 	InitialiseSortList();
@@ -257,9 +257,90 @@ void SkyDrawPhase()
 	Unimpl();
 }
 
-void DrawLara(ITEM_INFO* item, int a2)
+void DrawLara__1(ITEM_INFO* item, int a2)
 {
 	Unimpl();
+}
+
+void DrawLara__4(ITEM_INFO* item, int a2)
+{
+	Unimpl();
+}
+
+void DrawLara__5(ITEM_INFO* item, int a2)
+{
+	Unimpl();
+}
+
+void DrawLara__6(ITEM_INFO* item, int a2)
+{
+	Unimpl();
+}
+
+
+void DrawLara(ITEM_INFO* item, int a2)
+{
+	if (lara.skelebob)
+	{
+		DrawLara__6(item, a2);
+	}
+	else
+	{
+		switch(LaraDrawType)
+		{
+		case LARA_NORMAL:
+		case LARA_YOUNG:
+		case LARA_BUNHEAD:
+			DrawLara__1(item, a2);
+			return;
+
+		case LARA_CATSUIT:
+			DrawLara__4(item, a2);
+
+		case LARA_DIVESUIT:
+			DrawLara__5(item, a2);
+			return;
+		}
+	}
+}
+
+void FadeLightList(PCLIGHT* lights, int num)
+{
+	for(int i = 0; i < num; i++)
+	{
+		PCLIGHT* ptr = &lights[i];
+
+		if (ptr->UnknownByte == 0 || ptr->UnknownInt == 0)
+			continue;
+
+		if (ptr->LightType == LIGHT_SHADOW)
+		{
+			ptr[-1].ShadowIntensity += ptr[-1].dy2;
+		}
+		else
+		{
+			ptr[-1].r = ptr[-1].r3 + ptr[-1].r;
+			ptr[-1].g = ptr[-1].g3 + ptr[-1].g;
+			ptr[-1].b = ptr[-1].b3 + ptr[-1].b;
+		}
+
+		ptr->UnknownInt--;
+
+		if (ptr->LightType == LIGHT_SHADOW)
+		{
+			if (ptr[-1].ShadowIntensity <= 0)
+			{
+				ptr[-1].UnknownByte = 0;
+			}
+		}
+		else
+		{
+			if (ptr[-1].r <= 0.0 && ptr[-1].g <= 0.0 && ptr[-1].b <= 0.0)
+			{
+				ptr[-1].UnknownByte = 0;
+			}
+		}
+	}
 }
 
 void SetupSkelebobMeshswaps()
