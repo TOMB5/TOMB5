@@ -295,7 +295,7 @@ extern "C" {
 		AddPtr(roomData->floor, struct FLOOR_INFO, roomData + 1);
 		AddPtr(roomData->light, struct LIGHTINFO, roomData + 1);
 		AddPtr(roomData->mesh, struct MESH_INFO, roomData + 1);
-		AddPtr(roomData->RoomLights, void, roomData + 1);
+		AddPtr(roomData->RoomLights, struct ROOM_LIGHT, roomData + 1);
 		AddPtr(roomData->LayerOffset, struct tr5_room_layer, roomData + 1);
 		AddPtr(roomData->PolyOffset, void, roomData + 1);
 		AddPtr(roomData->PolyOffset2, void, roomData + 1);
