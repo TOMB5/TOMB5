@@ -8,6 +8,7 @@
 #include "TYPES.H"
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x)
@@ -485,9 +486,9 @@ struct DIRECT3DINFO
 	D3DDEVICEDESC	DeviceDesc;		// Device Description
 	bool			bHardware;		// Is It Hardware
 	int				nDisplayMode;	// Number Of Display Modes
-	DISPLAYMODE*	DisplayMode;	// Ptr To Compatible Display Modes
+	struct DISPLAYMODE*	DisplayMode;	// Ptr To Compatible Display Modes
 	int				nTexture;		// Number Of Texture Formats
-	D3DTEXTUREINFO*	Texture;		// Texture Info
+	struct D3DTEXTUREINFO*	Texture;		// Texture Info
 	int nZbuffer; // pos 402 s 4
 	struct zBufFormat* Zbuffer; // pos 406 s 4
 };
@@ -501,9 +502,9 @@ struct DIRECTDRAWINFO
 	DDCAPS			DDCaps;			// Device Capabilites
 	DDDEVICEIDENTIFIER DDDevIdent;
 	int				nDisplayMode;	// Number Of Display Modes	
-	DISPLAYMODE*	DisplayMode;	// Ptr To Display Mode Structure
+	struct DISPLAYMODE*	DisplayMode;	// Ptr To Display Mode Structure
 	int				nD3DInfo;		// Number Of D3D Drivers
-	DIRECT3DINFO*	D3DInfo;		// Ptr To D3D Info Structure
+	struct DIRECT3DINFO*	D3DInfo;		// Ptr To D3D Info Structure
 };
 
 struct DIRECTSOUNDINFO
@@ -518,8 +519,7 @@ struct DEVICEINFO					// DirectX Device Information
 {
 	int				nDDInfo;		// Entries
 	int				nDSInfo;
-	DIRECTDRAWINFO*	DDInfo;			// Ptr To Info Structure
-	DIRECTSOUNDINFO* DSInfo;
+	struct DIRECTDRAWINFO*	DDInfo;			// Ptr To Info Structure
 };
 
 
@@ -529,8 +529,8 @@ struct WINAPP
 	HWND					WindowHandle;
 	WNDCLASS				WindowClass;
 
-	DEVICEINFO				DeviceInfo;			// Device Information
-	DXCONFIG				DXConfig;
+	struct DEVICEINFO				DeviceInfo;			// Device Information
+	struct DXCONFIG				DXConfig;
 
 	BYTE pad;
 
