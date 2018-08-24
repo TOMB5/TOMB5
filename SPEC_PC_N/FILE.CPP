@@ -31,6 +31,8 @@
 #include "LARAMISC.H"
 #include "FLMTORCH.H"
 
+#define OUTSIDE_Z 64
+
 short* floor_data;
 short* mesh_base;
 int AnimFileLen;
@@ -354,7 +356,137 @@ extern "C" {
 	}
 	void BuildOutsideTable()
 	{
-		Unimpl();
+		long max_slots = 0;
+		AllocT(OutsideRoomOffsets, short, 27 * 27);
+		AllocT(OutsideRoomTable, char, 27 * 27 * OUTSIDE_Z);
+		memset(OutsideRoomTable, -1, 27 * 27 * OUTSIDE_Z);
+
+		char flipped[256];
+		memset(flipped, 0, -1);
+
+		for(int i = 0; i < number_rooms; i++)
+		{
+			if (room[i].flipped_room != -1)
+				flipped[i] = true;
+		}
+
+		for(int y = 0; y < 108; y += 4)
+		{
+			for(int x = 0; x < 108; x += 4)
+			{
+				for(int i = 0; i < number_rooms; i++)
+				{
+					auto r = &room[i];
+
+					if (!flipped[i])
+					{
+						int rx = (r->z >> SECTOR(1)) + 1;
+						int ry = (r->x >> SECTOR(1)) + 1;
+
+						int j = 0;
+
+						for(int yl = 0; yl < 4; yl++)
+						{
+							for(int xl = 0; xl < 4; xl++)
+							{
+								if ((x + xl) >= rx && (x + xl) < (rx + r->x_size - 2) &&
+									(y + yl) >= ry && (y + yl) < (ry + r->y_size - 2))
+								{
+									j = 1;
+									break;
+								}
+							}
+						}
+
+						if (!j)
+							continue;
+
+						if (i == 255)
+						{
+							S_Warn("ERROR : Room 255 fuckeroony - go tell Chris\n");
+						}
+
+						char* d = &OutsideRoomTable[OUTSIDE_Z * (x >> 2) + OUTSIDE_Z * (y >> 2) * 27];
+
+						for(int j = 0; j < OUTSIDE_Z; j++)
+						{
+							if (d[j] == -1)
+							{
+								d[j] = i;
+
+								if (j > max_slots)
+									max_slots = j;
+
+								break;
+							}
+						}
+
+						if (j == OUTSIDE_Z)
+						{
+							S_Warn("ERROR : Buffer shittage - go tell Chris\n");
+						}
+					}
+				}
+			}
+		}
+		// todo it's a bit incorrect
+		char* s = OutsideRoomTable;
+
+		for(int y = 0; y < 27; y++)
+		{
+			for(int x = 0; x < 27; x++)
+			{
+				int z = 0;
+
+				char* d = &OutsideRoomTable[OUTSIDE_Z * x + OUTSIDE_Z * y * 27];
+
+				int i = 27 * y + x;
+
+				while (d[z] != -1)
+					z++;
+
+				if (z == 0)
+				{
+					OutsideRoomOffsets[i] = -1;
+				}
+				else if (z == 1)
+				{
+					OutsideRoomOffsets[i] = *d | 0x8000;
+				}
+				else
+				{
+					char* p = OutsideRoomTable;
+
+					while (p < s)
+					{
+						if (memcmp(p, d, z) == 0)
+						{
+							OutsideRoomOffsets[i] = p - OutsideRoomTable;
+							break;
+						}
+						else
+						{
+							int z2 = 0;
+
+							while (p[z2] != -1)
+								z2++;
+
+							p += z2 + 1;
+						}
+					}
+
+					if (p >= s)
+					{
+						OutsideRoomOffsets[i] = s - OutsideRoomTable;
+
+						while (z-- > 0)
+							*s++ = *d++;
+
+						*s++ = -1;
+					}
+				}
+			}
+		}
 	}
 	void LoadRooms()
 	{
