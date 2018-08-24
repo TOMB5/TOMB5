@@ -40,6 +40,16 @@ static int bound_list[128];
 static int bound_start = 0;
 static int bound_end = 0;
 
+#define MAX_POLYGONS 4000
+
+float sort3d_bufferbf[MAX_POLYGONS][10];
+short info3d_bufferbf[MAX_POLYGONS * 30];
+
+int* sort3dptrbf;
+short* info3dptrbf;
+
+int surfacenumbf;
+
 D3DMATRIX d3d_camera;
 
 
@@ -82,9 +92,46 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 {
 	Unimpl();
 }
+struct dinfo_line
+{
+	float z;
+	short color;
+	short unk1;
+	short unk2;
+	short unk3;
+	D3DTLVERTEX v1;
+	int unk4;
+	int unk5;
+	D3DTLVERTEX v2;
+};
 void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)
 {
-	Unimpl();
+	auto ptr = (dinfo_line*)info3dptrbf;
+	ptr->unk1 = 0;
+	ptr->color = color;
+	ptr->unk2 = 2;
+	info3dptrbf = (short*)(ptr + 1);
+
+	*sort3dptrbf++ = (int)ptr;
+
+	ptr->z = v1->sz;
+	surfacenumbf++;
+
+	ptr->v1.sx = v1->sx;
+	ptr->v1.sy = v1->sy;
+	ptr->v1.sz = f_a - f_boo * v1->rhw;
+	ptr->v1.rhw = v1->rhw;
+	ptr->v1.color = v1->color;
+	ptr->v1.specular = v1->specular;
+
+	ptr->v2.sx = v2->sx;
+	ptr->v2.sy = v2->sy;
+	ptr->v2.sz = f_a - f_boo * v2->rhw;
+	ptr->v2.rhw = v2->rhw;
+	ptr->v2.color = v2->color;
+	ptr->v2.specular = v2->specular;
+}
+
 void do_quickysorty(int left, int right, float buffer[][10])
 {
 	int i = left;
