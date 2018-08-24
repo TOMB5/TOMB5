@@ -205,6 +205,8 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	App.isInScene = false;
 	App.PlayingFMV = false;
 
+	App.DXConfig.nD3D = 0;
+
 	if (!DXCreate(
 		CUR_DM.w,
 		CUR_DM.h,
