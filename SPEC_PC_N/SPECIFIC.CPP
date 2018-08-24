@@ -181,7 +181,9 @@ long		S_DumpScreen()
 	fx.dwFillColor = (64 + abs((int)((2 * GnFrameCounter) % 192 - 96))) << (8 * (((GnFrameCounter / 6) % 27) / 9));
 	App.lpBackBuffer->Blt(nullptr, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &fx);
 	
-	PrintString(10, 10, 0, "ABCDEF", 0);
+	char buf[256];
+	sprintf(buf, "frame %d", GnFrameCounter);
+	PrintString(10, 10, 0, buf, 0);
 
 	EndScene();
 	DXShowFrame();
