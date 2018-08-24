@@ -117,6 +117,17 @@ void do_quickysorty(int left, int right, float buffer[][10])
 		do_quickysorty(i, right, buffer);
 }
 
+void SortPolyList(int number, float buffer[][10])
+{
+	if (number != 0)
+	{
+		for (int i = 0; i < number; i++)
+		{
+			buffer[i][0] -= i / 10.0;
+		}
+
+		do_quickysorty(0, number - 1, buffer);
+	}
 }
 
 HRESULT HWBeginScene()
