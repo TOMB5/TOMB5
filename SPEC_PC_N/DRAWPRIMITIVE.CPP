@@ -85,6 +85,38 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)
 {
 	Unimpl();
+void do_quickysorty(int left, int right, float buffer[][10])
+{
+	int i = left;
+	int j = right;
+	float compare = buffer[(left + right) / 2][0];
+
+	do
+	{
+		if (buffer[i][0] > compare)
+			while (buffer[i][1] > compare && i < right)
+				i++;
+
+		if (compare > buffer[j][0])
+			while (compare > buffer[j][1] && j > left)
+				j--;
+
+		if (i <= j)
+		{
+			SWAPARR(buffer, i, j);
+
+			i++;
+			j--;
+		}
+	} while (i <= j);
+
+	if (left < j)
+		do_quickysorty(left, j, buffer);
+
+	if (i < right)
+		do_quickysorty(i, right, buffer);
+}
+
 }
 
 HRESULT HWBeginScene()
