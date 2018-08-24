@@ -174,7 +174,9 @@ void InitialiseFunctionTable()
 
 void InitialiseSortList()
 {
-	Unimpl();
+	info3dptrbf = info3d_bufferbf;
+	sort3dptrbf = (int*)sort3d_bufferbf;
+	surfacenumbf = 0;
 }
 
 void GPU_BeginScene()
