@@ -206,7 +206,7 @@ void DrawEffect(short fx_num)
 		phd_PushMatrix();
 		phd_TranslateAbs(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos);
 
-		if (phd_mxptr[11] > phd_znear && phd_mxptr[11] < phd_zfar)
+		if (phd_mxptr[M23] > phd_znear && phd_mxptr[M23] < phd_zfar)
 		{
 			phd_RotYXZ(fx->pos.y_rot, fx->pos.x_rot, fx->pos.z_rot);
 
