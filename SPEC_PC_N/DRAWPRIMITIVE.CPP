@@ -212,7 +212,7 @@ void DrawEffect(short fx_num)
 
 			if (gfCurrentLevel == LVL5_COLOSSEUM && fx->object_number == BODY_PART)
 			{
-				SetGlobalAmbient(0xFF282020);
+				SetGlobalAmbient(RGB_MAKE(40, 32, 32));
 			}
 
 			//S_CalculateLight(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, fx->room_number, &stru_E71352);
