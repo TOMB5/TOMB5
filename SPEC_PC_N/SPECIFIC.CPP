@@ -571,7 +571,6 @@ bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)
 	return false;
 }
 
-unsigned short *AnimTextureRanges; // offset 0xA4670
 unsigned short nAnimUVRanges; // offset 0xA4660
 
 void SetFogColor(uint8_t r, uint8_t g, uint8_t b)

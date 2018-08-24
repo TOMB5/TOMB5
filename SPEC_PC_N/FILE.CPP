@@ -755,7 +755,7 @@ extern "C" {
 	void LoadAnimatedTextures()
 	{
 		int numAnimTex = readDword();
-		AllocReadT(AnimTextureRanges, uint16_t, numAnimTex);
+		AllocReadT(App.AnimTextureRanges, uint16_t, numAnimTex);
 
 		nAnimUVRanges = readByte();
 	}
