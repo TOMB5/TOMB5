@@ -270,7 +270,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040 (F)
 	}
 	else
 	{
-		item->mesh_bits = -1;
+		item->mesh_bits = 0xFFFFFFFF;
 	}
 
 	item->touch_bits = 0;

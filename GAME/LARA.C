@@ -2248,7 +2248,7 @@ void lara_as_death(struct ITEM_INFO* item, struct COLL_INFO* coll)//19830(<), 19
 		BinocularRange = 0;
 		LaserSight = 0;
 		AlterFOV(ANGLE(80));
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 		lara.Busy = 0;
 	}
 }
