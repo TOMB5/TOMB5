@@ -587,5 +587,6 @@ extern int sound_active;
 extern short* sample_lut;
 extern struct SAMPLE_INFO* sample_infos;
 extern struct SoundSlot LaSlot[MAX_SOUND_SLOTS];
+extern void SOUND_EndScene();
 
 #endif

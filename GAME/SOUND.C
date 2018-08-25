@@ -80,7 +80,9 @@ void SOUND_EndScene()//91D80(<) ? (F)
 			{
 				if (slot->nVolume != 0)
 				{
+#if PSXENGINE
 					S_SoundSetPanAndVolume(i, slot->nPan, slot->nVolume & 0xFFFF, slot->distance);
+#endif
 					S_SoundSetPitch(i, slot->nPitch);
 					slot->nVolume = 0;
 				}
@@ -102,8 +104,12 @@ void SOUND_EndScene()//91D80(<) ? (F)
 				{
 					if ((slot->pos.x | slot->pos.y | slot->pos.z) != 0)
 					{
+#if PSXENGINE
 						GetPanVolume(slot);
 						S_SoundSetPanAndVolume(i, slot->nPan, slot->nVolume, slot->distance);
+#else
+						S_Warn("[SOUND_EndScene] - nope!\n");
+#endif
 					}//loc_91E64
 				}
 			}

@@ -27,7 +27,6 @@
 #if PC_VERSION
 #include "GLOBAL.H"
 #include "GAME.H"
-#include "WINMAIN.H"
 #include "FILE.H"
 #else
 #include "PROFILE.H"

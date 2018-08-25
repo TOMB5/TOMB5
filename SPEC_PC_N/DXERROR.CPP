@@ -1,5 +1,5 @@
-#include "standard.h"
-#include "global.h"
+#include "STANDARD.H"
+#include "GLOBAL.H"
 #include "INCLUDE.H"
 
 char* ERR_Describe_DX(HRESULT error)
@@ -271,7 +271,7 @@ char* ERR_Describe_DX(HRESULT error)
 		return "Another app has a higher priority level, preventing this call from succeeding.\0";
 	case DSERR_UNINITIALIZED:
 		return "The Initialize() member on the Direct Sound Object has not been called or called successfully before calls to other members.\0";
-
+		// todo add others
 	case DIERR_INSUFFICIENTPRIVS:
 		return "Unable to IDirectInputJoyConfig_Acquire because the user does not have sufficient privileges to change the joystick configuration.\0";
 	case DIERR_DEVICEFULL:

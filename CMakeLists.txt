@@ -2,6 +2,21 @@ cmake_minimum_required (VERSION 3.0)
 
 project (TOMB5)
 
+macro(OPTIONAL_DEFINE DEFNAME DESCRIPTION VALUE)
+	option(${DEFNAME} ${DESCRIPTION} ${VALUE})
+	list(APPEND OPT_DEFINITIONS ${DEFNAME})
+endmacro()
+
+macro(BuildPreProcessorDefinitions)
+	foreach(DEF ${OPT_DEFINITIONS})
+		if(${${DEF}} STREQUAL "ON")
+			target_compile_definitions(${PROJECT_NAME} PRIVATE ${DEF}=1)
+		else()
+			target_compile_definitions(${PROJECT_NAME} PRIVATE ${DEF}=0)
+		endif()
+	endforeach()
+endmacro()
+
 #Store the path to our CMAKE module folder in "CMAKE_MODULE_PATH".
 #This is used by platform specific CMake scripts to correctly use external libraries.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
@@ -13,7 +28,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
 set(EXTERN_LIB_PATH ${EXTERN_LIB_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/EXTERNAL")
 
 #Toggles debug code on/off
-set(DEBUG_VERSION 1 CACHE INTEGER "Enable/Disable Debug Code")
+OPTIONAL_DEFINE(DEBUG_VERSION "Enable/Disable Debug Code" ON)
 
 #Store the path to our game code folder in "GAME_CODE_DIR".
 #This is used by platform specific CMake scripts to add this directory as an include directory.
@@ -42,7 +57,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))
 	add_subdirectory(SPEC_PSX)
 	add_subdirectory(SPEC_PC)
-add_subdirectory(SPEC_PC_N)
+	add_subdirectory(SPEC_PC_N)
 	#add_subdirectory(SPEC_PS2)
 	#add_subdirectory(SPEC_CE)
 	add_subdirectory(TOOLS)

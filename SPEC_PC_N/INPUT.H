@@ -3,12 +3,18 @@
 
 #include "SPECTYPES.H"
 
+extern short mouse_x;
+extern short mouse_y;
+extern int mouse_vkeys;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 	// The global input variable
 	extern sint32 input;
+	extern sint32 dbinput;
+	extern sint32 inputBusy;
 
 
 	extern int bLaraOn;
@@ -18,14 +24,13 @@ extern "C" {
 	extern int bEffectOn;
 
 
-	extern int S_UpdateInput();
+	
 
 #ifdef __cplusplus
 }
 #endif
 
-
-extern int S_UpdateInput(void);
+extern int S_UpdateInput();
 
 extern char*		kname[];
 extern sint16		layout[2][15];

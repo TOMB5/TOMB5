@@ -138,9 +138,14 @@ void S_SoundSetPitch(int handle, int nPitch)//91768(<), 937AC(<)
 	//SpuSetVoicePitch(handle, nPitch / 64);
 }
 
-void S_SoundSetPanAndVolume(int nhandle, int nPan, int nVolume, int distance)
+int S_SoundSetPanAndVolume(int nhandle, int nPan, int nVolume, int distance)//914E4
 {
-	S_Warn("[S_SoundSetPanAndVolume] - Unimplemented!\n");
+	if (GtSFXEnabled)
+	{
+		//CalcVolumes_ASM(distance, nVolume, nVolume, nPan);
+	}
+
+	return 0;
 }
 
 void GetPanVolume(struct SoundSlot* slot)

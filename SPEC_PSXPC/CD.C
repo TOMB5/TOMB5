@@ -74,7 +74,7 @@ void XAReplay()//5D838(<), 5DCB4(<)
 
 	CdIntToPos(XAStartPos, &loc);
 
-	if (CdControl(CdlReadS, (unsigned char*) &loc, 0) == 1)
+	if (CdControl(CdlReadS, (unsigned char*)&loc, NULL) == 1)
 	{
 		XACurPos = XAStartPos;
 	}
@@ -288,7 +288,7 @@ void S_CDStop()//5DCD0(<), 5E14C(<) (F) (*)
 
 void S_CDPause()//5DD14(<), 5E190(<) (F) (*)
 {
-	if (XATrack > 0)
+	if (XATrack >= 0)
 	{
 		//CdControlF(CdlPause, 0);
 	}
@@ -346,14 +346,11 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 	for (i = 0; i < NUM_XA_FILES; i++)
 	{
 		sprintf(buf, XA_FILE_NAME, i + 1);
-
 		FILE* fileHandle = fopen(buf, "rb");
 		assert(fileHandle);
 		fseek(fileHandle, 0, SEEK_END);
-
 		XATrackList[i][0] = -1;//FIXME: This value is returned by CdPosToInt(); register is v0. It returns the LBA of the XA file on disc.
-		XATrackList[i][1] = XATrackList[i][0] + ((ftell(fileHandle) + 0x7FF) / CD_SECTOR_SIZE);
-
+		XATrackList[i][1] = ((ftell(fileHandle) + ((1 << CD_SECTOR_SHIFT) - 1)) >> CD_SECTOR_SHIFT) + XATrackList[i][0];
 		fclose(fileHandle);
 	}
 

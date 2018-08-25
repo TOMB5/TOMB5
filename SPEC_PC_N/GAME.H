@@ -14,4 +14,9 @@ extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
 }
 #endif
 
+extern bool game_running;
+unsigned __stdcall GameMain(void* data);
+void do_boot_screen(int language);
+void UpdateSky();
+
 #endif

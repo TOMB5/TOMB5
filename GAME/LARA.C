@@ -1,6 +1,7 @@
 #include "LARA.H"
 
 #include "SPECIFIC.H"
+#include "CALCLARA.H"
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "EFFECTS.H"
