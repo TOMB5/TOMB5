@@ -27,6 +27,7 @@
 #if PC_VERSION
 #include "GLOBAL.H"
 #include "GAME.H"
+#include "SPECIFIC.H"
 #include "FILE.H"
 #else
 #include "PROFILE.H"
@@ -408,7 +409,7 @@ struct NEW_CUTSCENE* GLOBAL_cutme;
 int lastcamnum;
 int GLOBAL_cutseq_frame;
 int GLOBAL_numcutseq_frames;
-int GLOBAL_oldcamtype;
+enum camera_type GLOBAL_oldcamtype;
 struct PACKNODE* camera_pnodes;
 struct PACKNODE* actor_pnodes[10];
 struct ITEM_INFO duff_item;
@@ -3239,7 +3240,243 @@ void do_new_cutscene_camera()
 void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 {
 #if PC_VERSION
-	S_Warn("[handle_cutseq_triggering] - Unimplemented!\n");
+	if (cutseq_num == CUT_NULL)
+		return;
+
+	if (cutseq_trig == 0)
+	{
+		if (lara.gun_type == WEAPON_FLARE || lara.gun_status != LG_NO_ARMS && lara.gun_status != LG_HANDS_BUSY)
+		{
+			lara.gun_status = LG_UNDRAW_GUNS;
+		}
+
+		cutseq_trig = 1;
+		memset(cutseq_meshswapbits, 0, sizeof(cutseq_meshswapbits));
+		cutseq_busy_timeout = 50;
+		memset(cutseq_meshbits, 0xFF, sizeof(cutseq_meshbits));
+
+		if (gfCurrentLevel)
+			SetFadeClip(28, 1);
+
+		if (!ScreenFadedOut)
+		{
+			if (gfCurrentLevel)
+				S_CDFade(0);
+
+			SetScreenFadeOut(16, 0);
+		}
+
+		return;
+	}
+
+	if (cutseq_trig != 1)
+	{
+		if (cutseq_trig == 3)
+		{
+			SetScreenFadeOut(16, 1);
+
+			if (gfCurrentLevel != LVL5_TITLE)
+				S_CDFade(0);
+
+			cutseq_trig = 4;
+			return;
+		}
+
+		if (cutseq_trig != 4 || !ScreenFadedOut)
+			return;
+
+		if (gfCurrentLevel)
+		{
+			S_CDStop();
+		}
+
+		ScreenFadedOut = FALSE;
+		numnailed = 0;
+
+		void(*end)() = cutseq_control_routines[cutseq_num].end_func;
+
+		if (end != NULL)
+		{
+			end();
+		}
+
+		if (cutseq_num >= CUT_STEALTH3_1 && cutseq_num <= CUT_STEALTH3_4)
+		{
+			DelsHandyTeleportLara(GLOBAL_cutme->orgx, GLOBAL_cutme->orgy, GLOBAL_cutme->orgz, cutrot << W2V_SHIFT);
+		}
+
+		cutseq_trig = 0;
+		GLOBAL_playing_cutseq = 0;
+
+		if (!bDoCredits)
+		{
+			if (dels_cutseq_player)
+			{
+				reset_flag = 1;
+				dels_cutseq_player = 0;
+			}
+			else
+			{
+				if (cutseq_num != CUT_RICH_CUT_2 &&
+					cutseq_num != CUT_JOBY_CUT_3 &&
+					cutseq_num != CUT_JOBY6 &&
+					cutseq_num != CUT_ANDREA2 &&
+					cutseq_num != CUT_ANDY6 &&
+					cutseq_num != CUT_ANDY11 &&
+					cutseq_num != CUT_JOBY10)
+				{
+					finish_cutseq(name);
+
+					cutseq_num = CUT_NULL;
+					camera.type = GLOBAL_oldcamtype;
+
+					if (gfCurrentLevel)
+						SetFadeClip(0, 1);
+
+					AlterFOV(ANGLE(80));
+
+					if (gfCurrentLevel)
+						S_CDPlay(CurrentAtmosphere, 1);
+
+					IsAtmospherePlaying = 1;
+					return;
+				}
+
+				gfLevelComplete = gfCurrentLevel + 1;
+			}
+
+			gfRequiredStartPos = 0;
+
+			cutseq_num = 0;
+			GLOBAL_playing_cutseq = 0;
+			cutseq_trig = 0;
+
+			AlterFOV(ANGLE(80));
+
+			ScreenFade = 0;
+			dScreenFade = 0;
+
+			ScreenFadeSpeed = 8;
+			ScreenFadeBack = 0;
+			ScreenFadedOut = 0;
+			ScreenFading = 0;
+
+			return;
+		}
+
+		switch (cutseq_num)
+		{
+		case 28:
+			cutseq_num = 29;
+			break;
+		case 29:
+			cutseq_num = 30;
+			break;
+		case 30:
+			cutseq_num = 28;
+			break;
+		}
+
+		Load_and_Init_Cutseq(cutseq_num);
+		cutseq_trig = 2;
+		return;
+	}
+
+	if (!ScreenFadedOut)
+		return;
+
+	if (--cutseq_busy_timeout > 0)
+	{
+		if (lara.gun_status != LG_HANDS_BUSY
+			&& (lara.gun_status != LG_NO_ARMS || lara.flare_control_left)
+			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_IDLE
+			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_FORWARD
+			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_TURN_LEFT
+			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_TURN_RIGHT
+			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_BACK)
+		{
+			return;
+		}
+	}
+	else
+	{
+		cutseq_busy_timeout = 0;
+	}
+
+	lara.flare_control_left = FALSE;
+	lara.flare_age = 0;
+
+	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA))
+	{
+		lara.gun_type = WEAPON_NONE;
+		lara.request_gun_type = WEAPON_NONE;
+
+		lara.gun_status = LG_NO_ARMS;
+
+		lara.last_gun_type = WEAPON_PISTOLS;
+
+		if (!objects[PISTOLS_ITEM].loaded || lara.pistols_type_carried == WTYPE_MISSING)
+			lara.last_gun_type = WEAPON_NONE;
+
+		if (gfLevelFlags & GF_LVOP_TRAIN && objects[HK_ITEM].loaded && lara.hk_type_carried & WTYPE_PRESENT)
+			lara.last_gun_type = WEAPON_HK;
+
+		lara.mesh_ptrs[LM_LHAND] = meshes[objects[LARA].mesh_index + 2 * LM_LHAND];
+		lara.mesh_ptrs[LM_RHAND] = meshes[objects[LARA].mesh_index + 2 * LM_RHAND];
+
+		lara.left_arm.frame_number = 0;
+		lara.right_arm.frame_number = 0;
+
+		lara.target = 0;
+
+		lara.right_arm.lock = 0;
+		lara.left_arm.lock = 0;
+
+		lara_item->goal_anim_state = STATE_LARA_STOP;
+		lara_item->current_anim_state = STATE_LARA_STOP;
+		lara_item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
+		lara_item->anim_number = ANIMATION_LARA_STAY_SOLID;
+
+		lara_item->speed = 0;
+		lara_item->fallspeed = 0;
+
+		lara_item->gravity_status = FALSE;
+
+		lara.back_gun = 0;
+
+		if (lara.weapon_item != -1)
+		{
+			KillItem(lara.weapon_item);
+			lara.weapon_item = -1;
+		}
+	}
+
+	lara.water_status = 0;
+
+	if (gfCurrentLevel)
+		S_CDStop();
+
+	numnailed = 0;
+	GLOBAL_oldcamtype = camera.type;
+
+	ScreenFading = 0;
+	SetScreenFadeIn(16);
+	Load_and_Init_Cutseq(cutseq_num);
+	cutseq_trig = 2;
+
+	cut_seethrough = 128;
+
+	void(*init)() = cutseq_control_routines[cutseq_num].init_func;
+
+	if (init != NULL)
+	{
+		init();
+	}
+
+	AlterFOV(11488);
+
+	if (GLOBAL_cutme->audio_track != -1 && !bDoCredits)
+		S_StartSyncedAudio(GLOBAL_cutme->audio_track);
 #else
 	int i;
 	int s1 = name;//guessed, moved but not used

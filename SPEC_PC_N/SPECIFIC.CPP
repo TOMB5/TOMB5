@@ -677,6 +677,11 @@ void S_DrawHealthBar2(int size)
 	}
 }
 
+	void S_CDFade(int a1)
+{
+	
+}
+
 #ifdef __cplusplus
 }
 #endif

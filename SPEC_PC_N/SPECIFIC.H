@@ -41,6 +41,7 @@ extern "C" {
 	void S_DrawAirBar(int size);
 	void S_DrawHealthBar(int size);
 	void S_DrawHealthBar2(int size);
+	void S_CDFade(int a1);
 extern void S_Warn(const char* warning_message, ...);
 
 extern void S_SetReverbType(sint16 reverb);
