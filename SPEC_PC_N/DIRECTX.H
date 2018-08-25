@@ -36,8 +36,6 @@
 
 #define RGB_MAKE(r, g, b) RGBA_MAKE(r, g, b, 255)
 
-#define RGBONLY(r, g, b) RGBA_MAKE(r, g, b, 0)
-
 #define SCALE_CLR(begin, end, perc) ((begin) + ((end) - (begin)) * (perc))
 
 #ifdef __cplusplus

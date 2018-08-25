@@ -128,6 +128,9 @@ enum msoff {
 #define BLUE(rgb) ((rgb) & 0xFF)
 #define ALPHA(rgb) (((rgb) >> 24) & 0xFF)
 
+#define RGBONLY(r, g, b) ((b & 0xFF) | (((g & 0xFF) | ((r & 0xFF) << 8)) << 8))
+#define RGBA(r, g, b, a) (RGBONLY(r, g, b) | ((a) << 24))
+
 enum zone_type
 {
 	SKELLY_ZONE = 0,
