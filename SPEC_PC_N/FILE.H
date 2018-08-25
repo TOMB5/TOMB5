@@ -1,5 +1,6 @@
 #ifndef FILE_H
 #define FILE_H
+#include <cstdio>
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,6 +9,9 @@ extern "C" {
 	int 		S_LoadLevelFile(int Name);
 	int LoadFile(char* szFileName, void** pDest);
 	int FindCdDrive(void);
+	FILE* FileOpen(const char *filename);
+	int FileClose(FILE* fp);
+	unsigned long FileLength(FILE* nHandle);
 
 
 #ifdef __cplusplus

@@ -28,6 +28,8 @@ enum input_buttons
 	IN_LOAD = (1 << 23),  // F6					// 0x00800000
 	IN_CROUCH = (1 << 29),						// 0x20000000
 	IN_SPRINT = (1 << 30),						// 0x40000000
+
+	IN_ALL = ~0,								// 0xFFFFFFFF (-1)
 };
 
 enum flipeffects
@@ -198,7 +200,9 @@ extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor);
+#ifndef PSX_VERSION || PSXPC_VERSION///@FIXME @pc
 extern void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint);
+#endif
 extern void AddFire(int x, int y, int z, char size, short room_num, short on);
 extern int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4);
 extern int check_xray_machine_trigger();

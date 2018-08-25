@@ -1,22 +1,18 @@
 #include <ddraw.h>
 #include "DIRECTX.H"
+#include "GLOBAL.H"
+#include <dinput.h>
 #pragma comment (lib, "ddraw.lib")
 #pragma comment (lib, "dxguid.lib")
-
+#pragma comment (lib, "dinput.lib")
 #pragma comment (lib, "d3dx9.lib")
 
-static LPDIRECTDRAW4		lpDD2;
-static LPDIRECT3D3			lpD3D2;
-static LPDIRECTDRAWSURFACE4 lpDDSurface;
-static LPDIRECT3DDEVICE3	lpD3DDevice;
+static LPDIRECTDRAW4		enum_lpDD;
+static LPDIRECT3D3			enum_lpD3D;
+static LPDIRECTDRAWSURFACE4 enum_lpDDSurface;
+static LPDIRECT3DDEVICE3	enum_lpD3DDevice;
 static HWND					WindowHandle;
 static bool bSoftRend = false;
-
-/*
-Function :	DXBitMask2ShiftCnt
-Useage   :	Convert Bitmask to Shifts and Bit cnt
-
-*/
 
 void DXBitMask2ShiftCnt(unsigned long mask, unsigned char* shift, unsigned char* cnt)
 {
@@ -31,7 +27,7 @@ void DXBitMask2ShiftCnt(unsigned long mask, unsigned char* shift, unsigned char*
 #ifdef __cplusplus
 extern "C" {
 #endif
-	bool DXSetCooperativeLevel(LPDIRECTDRAW4 lpDD2, HWND WindowHandle, int Flags)
+	bool DXSetCooperativeLevel(LPDIRECTDRAW4 lpDD, HWND WindowHandle, int Flags)
 	{
 		static const char* flags[] =
 		{
@@ -60,11 +56,11 @@ extern "C" {
 				strcat(v120, " ");
 			}
 		}
-
+		
 		Log(LT_Info, v120);
 
 		int RetVal;
-		RetVal = lpDD2->SetCooperativeLevel(WindowHandle, Flags);
+		RetVal = lpDD->SetCooperativeLevel(WindowHandle, Flags);
 		if (RetVal != DD_OK) return false;
 		return true;
 	}
@@ -83,7 +79,7 @@ BOOL DXDDCreate(GUID FAR* lpGuid, LPDIRECTDRAW* lpDD)
 		return FALSE;
 	}
 
-	DX_TRY(lpDDTemp->QueryInterface(IID_IDirectDraw4, (LPVOID*)&lpDD2));
+	DX_TRY(lpDDTemp->QueryInterface(IID_IDirectDraw4, (LPVOID*)lpDD));
 
 	DXRelease(lpDDTemp, "DirectDraw");
 
@@ -97,16 +93,13 @@ HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)
 	DIRECTDRAWINFO* DDInfo;
 	DDInfo = (DIRECTDRAWINFO*)lpContext;
 
-	// Allocate DisplayMode Structure 
 	if (DDInfo->nDisplayMode == 0)
 		DDInfo->DisplayMode = (DISPLAYMODE*)malloc(sizeof(DISPLAYMODE));
 	else
 		DDInfo->DisplayMode = (DISPLAYMODE*)realloc(DDInfo->DisplayMode, sizeof(DISPLAYMODE)*(DDInfo->nDisplayMode + 1));
 
-	// Clear Structure 
 	memset(&DDInfo->DisplayMode[DDInfo->nDisplayMode], 0, sizeof(DISPLAYMODE));
 
-	// Store Details Of Display Mode
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].w = lpddsd->dwWidth;
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].h = lpddsd->dwHeight;
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].bpp = lpddsd->ddpfPixelFormat.dwRGBBitCount;
@@ -125,8 +118,6 @@ HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)
 	}
 	else
 	{
-		// Get RGBA Bit Counts and Shifts
-
 		DXBitMask2ShiftCnt(lpddsd->ddpfPixelFormat.dwRBitMask,
 		                   &DDInfo->DisplayMode[DDInfo->nDisplayMode].rshift,
 		                   &DDInfo->DisplayMode[DDInfo->nDisplayMode].rbpp);
@@ -150,16 +141,10 @@ HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)
 			DDInfo->DisplayMode[DDInfo->nDisplayMode].bbpp);
 	}
 
-	// Increase Number Of Display Modes
 	DDInfo->nDisplayMode++;
 
 	return DDENUMRET_OK;
 }
-
-/*
-Function	:	DXCreateDirect3D
-Useage		:	Create A Direct3D2 Interface
-*/
 
 bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2)
 {
@@ -176,11 +161,6 @@ bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2)
 		return true;
 	}
 }
-
-/*
-Function	:	BPPToDDBD
-Useage		:	Convert bpp to DDBD
-*/
 
 DWORD BPPToDDBD(int bpp)
 {
@@ -204,17 +184,11 @@ DWORD BPPToDDBD(int bpp)
 	return (DWORD)0;
 }
 
-/*
-Function	: DXCreateSurface
-Useage		: Create DirectDraw Surface
-*/
-
 bool DXCreateSurface(LPDIRECTDRAW4 lpDD2, DDSURFACEDESC2* ddsd, LPDIRECTDRAWSURFACE4* lpSurface)
 {
 	Log(LT_Enter, "DXCreateSurface");
 	int RetVal;
-	LPDIRECTDRAWSURFACE4 lps;
-	RetVal = lpDD2->CreateSurface(ddsd, &lps, NULL);
+	RetVal = lpDD2->CreateSurface(ddsd, lpSurface, NULL);
 	if (DX_TRY(RetVal))
 	{
 		Log(LT_Error, "DXCreateSurface Failed");
@@ -222,11 +196,6 @@ bool DXCreateSurface(LPDIRECTDRAW4 lpDD2, DDSURFACEDESC2* ddsd, LPDIRECTDRAWSURF
 	}
 	return true;
 }
-
-/*
-Function	:	DXCreateDirect3DDevice
-Useage		:	Create A Direct3D Device
-*/
 
 bool DXCreateDirect3DDevice(LPDIRECT3D3 lpD3D2, GUID Guid, LPDIRECTDRAWSURFACE4 lpSurface, LPDIRECT3DDEVICE3* lpD3DDevice2)
 {
@@ -244,10 +213,34 @@ bool DXCreateDirect3DDevice(LPDIRECT3D3 lpD3D2, GUID Guid, LPDIRECTDRAWSURFACE4 
 	}
 }
 
-/*
-Function	:	DXSetVideoMode
-Useage		:	Set Video Mode
-*/
+bool DXCreateViewport(LPDIRECT3D3 lpD3D, LPDIRECT3DDEVICE3 lpD3DDevice, int w, int h, LPDIRECT3DVIEWPORT3* lpViewport)
+{
+	D3DVIEWPORT2 viewdata;
+
+	Log(LT_Enter, "DXCreateViewport");
+
+	if (DX_TRY(lpD3D->CreateViewport(lpViewport, NULL))) return false;
+
+	if (DX_TRY(lpD3DDevice->AddViewport(*lpViewport))) return false;
+
+	DXInit(viewdata);
+	viewdata.dvClipWidth = w;
+	viewdata.dvClipHeight = h;
+	viewdata.dwX = 0;
+	viewdata.dwY = 0;
+	viewdata.dvClipX = 0.0;
+	viewdata.dvClipY = 0.0;
+	viewdata.dvMinZ = 0.0;
+	viewdata.dwHeight = h;
+	viewdata.dwWidth = w;
+	viewdata.dvMaxZ = 1.0;
+
+	if (DX_TRY((*lpViewport)->SetViewport2(&viewdata))) return false;
+
+	DX_TRY(lpD3DDevice->SetCurrentViewport(*lpViewport));
+
+	return true;
+}
 
 bool DXSetVideoMode(LPDIRECTDRAW4 lpDD2, int w, int h, int bpp)
 {
@@ -278,8 +271,6 @@ HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)
 
 	memset(&D3DInfo->Texture[D3DInfo->nTexture], 0, sizeof(D3DTEXTUREINFO));
 	memcpy(&D3DInfo->Texture[D3DInfo->nTexture].ddpf, lpddpf, sizeof(DDPIXELFORMAT));
-
-	// Is it Palettised
 
 	if (lpddpf->dwFlags & DDPF_PALETTEINDEXED8)
 	{
@@ -375,8 +366,7 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 
 	if (lpHWDesc->dwFlags == 0)
 	{
-		// Discard 8 Bit Drivers
-		if (lpHELDesc->dcmColorModel&D3DCOLOR_MONO) return D3DENUMRET_OK;
+		if (lpHELDesc->dcmColorModel & D3DCOLOR_MONO) return D3DENUMRET_OK;
 	}
 
 
@@ -404,7 +394,6 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 
 	memset(&DDInfo->D3DInfo[DDInfo->nD3DInfo], 0, sizeof(DIRECT3DINFO));
 
-	// Store Details Of Driver Information
 	if (lpGuid == NULL)
 		DDInfo->D3DInfo[DDInfo->nD3DInfo].lpGuid = NULL;
 	else
@@ -416,7 +405,6 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 	lstrcpy(DDInfo->D3DInfo[DDInfo->nD3DInfo].About, lpDeviceDesc);
 	lstrcpy(DDInfo->D3DInfo[DDInfo->nD3DInfo].Name, lpDeviceName);
 
-	// Store Device Descriptions
 	if (lpHWDesc->dwFlags != 0)
 	{
 		DDInfo->D3DInfo[DDInfo->nD3DInfo].bHardware = true;
@@ -434,106 +422,91 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 	{
 		if (BPPToDDBD(DDInfo->DisplayMode[n].bpp)&DDInfo->D3DInfo[DDInfo->nD3DInfo].DeviceDesc.dwDeviceRenderBitDepth)
 		{
-			// ToDo: Make a setup specifier
-			//		 Only Want 16 Bit Video Modes
+			if (DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode == 0)
+				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode = (DISPLAYMODE*)malloc(sizeof(DISPLAYMODE));
+			else
+				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode = (DISPLAYMODE*)realloc(DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode, sizeof(DISPLAYMODE)*(DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode + 1));
 
-			if (DDInfo->DisplayMode[n].bpp == 16)
+			memcpy(&DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode], &DDInfo->DisplayMode[n], sizeof(DISPLAYMODE));
+
+			if (DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bPalette)
 			{
-				if (DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode == 0)
-					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode = (DISPLAYMODE*)malloc(sizeof(DISPLAYMODE));
-				else
-					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode = (DISPLAYMODE*)realloc(DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode, sizeof(DISPLAYMODE)*(DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode + 1));
-
-				memcpy(&DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode], &DDInfo->DisplayMode[n], sizeof(DISPLAYMODE));
-
-				if (DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bPalette)
-				{
-					Log(LT_Info, "%d x %d - %d Bit - Palette", 
-						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].w, 
-						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].h, 
-						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bpp);
-				}
-				else
-				{
-					Log(
-						LT_Info, "%d x %d - %d Bit - %d%d%d",
-						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].w,
-						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].h,
-						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bpp,
-						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].rbpp,
-						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].gbpp,
-						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bbpp);
-				}
-
-				DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode++;
-
-
+				Log(LT_Info, "%d x %d - %d Bit - Palette", 
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].w, 
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].h, 
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bpp);
+			}
+			else
+			{
+				Log(
+					LT_Info, "%d x %d - %d Bit - %d%d%d",
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].w,
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].h,
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bpp,
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].rbpp,
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].gbpp,
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bbpp);
 			}
 
+			DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode++;
 		}
 	}
 
 	Log(LT_Info, "Enumerate Texture Formats");
-
-	// Setup A D3DDEVICE For Texture Format Enumeration
-	// First Try Using the Primary Surface
 
 	DDSURFACEDESC2 ddsd;
 	DXInit(ddsd);
 	ddsd.dwFlags = DDSD_CAPS;
 	ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_3DDEVICE;
 
-	lpDDSurface = NULL;
-
-	DXSetCooperativeLevel(lpDD2, WindowHandle, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_NOWINDOWCHANGES);
-	DXCreateSurface(lpDD2, &ddsd, &lpDDSurface);
+	DXSetCooperativeLevel(enum_lpDD, WindowHandle, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_NOWINDOWCHANGES);
+	DXCreateSurface(enum_lpDD, &ddsd, &enum_lpDDSurface);
 	
-	if (lpDDSurface)
+	if (enum_lpDDSurface)
 	{
-		lpD3DDevice = NULL;
-		DXCreateDirect3DDevice(lpD3D2, DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid, lpDDSurface, &lpD3DDevice);
+		DXCreateDirect3DDevice(enum_lpD3D, DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid, enum_lpDDSurface, &enum_lpD3DDevice);
 
-		if (lpD3DDevice == NULL)
+		if (enum_lpD3DDevice == NULL)
 		{
-			DXRelease(lpDDSurface, "DirectDrawSurface");
+			Log(LT_Error, "Create D3DDevice Failed");
+
+			DXRelease(enum_lpDDSurface, "DirectDrawSurface");
 
 			DXSetVideoMode(
-				lpDD2,
+				enum_lpDD,
 				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode->w,
 				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode->h,
 				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode->bpp);
 
-			DXCreateSurface(lpDD2, &ddsd, &lpDDSurface);
+			DXCreateSurface(enum_lpDD, &ddsd, &enum_lpDDSurface);
 
-			if (lpDDSurface)
+			if (enum_lpDDSurface)
 			{
-				DXCreateDirect3DDevice(lpD3D2, DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid, lpDDSurface, &lpD3DDevice);
+				DXCreateDirect3DDevice(enum_lpD3D, DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid, enum_lpDDSurface, &enum_lpD3DDevice);
 			}
 		}
 
-		if (lpD3DDevice)
+		if (enum_lpD3DDevice)
 		{
-			// Enumerate Texture Formats For This D3DDevice
 			DDInfo->D3DInfo[DDInfo->nD3DInfo].nTexture = 0;
+			Log(LT_Enter, "DXEnumTextureFormats");
 
-			lpD3DDevice->EnumTextureFormats(DXEnumTextureFormats, (LPVOID)&DDInfo->D3DInfo[DDInfo->nD3DInfo]);
+			enum_lpD3DDevice->EnumTextureFormats(DXEnumTextureFormats, (LPVOID)&DDInfo->D3DInfo[DDInfo->nD3DInfo]);
 
-			DXRelease(lpD3DDevice, "D3DDevice");
-			DXRelease(lpDDSurface, "DirectDrawSurface");
+			DXRelease(enum_lpD3DDevice, "D3DDevice");
+			DXRelease(enum_lpDDSurface, "DirectDrawSurface");
 		}
 	}
 
-	DXSetCooperativeLevel(lpDD2, WindowHandle, DDSCL_NORMAL);
+	DXSetCooperativeLevel(enum_lpDD, WindowHandle, DDSCL_NORMAL);
 
 	Log(LT_Info, "Enumerating ZBuffer Formats");
 	Log(LT_Enter, "DXEnumZBufferFormats");
 
-	DX_TRY(lpD3D2->EnumZBufferFormats(
+	DX_TRY(enum_lpD3D->EnumZBufferFormats(
 		DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid,
 		DXEnumZBufferFormats,
 		&DDInfo->D3DInfo[DDInfo->nD3DInfo]));
-
-	// Increase Number Of Devices
 
 	DDInfo->nD3DInfo++;
 
@@ -548,16 +521,13 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 
 	dd = (DEVICEINFO*)lpContext;
 
-	// Allocate Device Structure
 	if (dd->nDDInfo == 0)
 		dd->DDInfo = (DIRECTDRAWINFO*)malloc(sizeof(DIRECTDRAWINFO));
 	else
 		dd->DDInfo = (DIRECTDRAWINFO*)realloc(dd->DDInfo, sizeof(DIRECTDRAWINFO)*(dd->nDDInfo + 1));
 
-	// Clear Structure
 	memset(&dd->DDInfo[dd->nDDInfo], 0, sizeof(DIRECTDRAWINFO));
-
-	// Store DirectDraw Info	
+	
 	if (lpGuid == NULL)
 		dd->DDInfo[dd->nDDInfo].lpGuid = NULL;
 	else
@@ -571,9 +541,9 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 
 	Log(LT_Info, "Obtaining Information For %s", lpDeviceDesc);
 
-	if (DXDDCreate(lpGuid, (LPDIRECTDRAW*)&lpDD2))
+	if (DXDDCreate(lpGuid, (LPDIRECTDRAW*)&enum_lpDD))
 	{
-		DX_TRY(lpDD2->GetDeviceIdentifier(&dd->DDInfo[dd->nDDInfo].DDDevIdent, NULL));
+		DX_TRY(enum_lpDD->GetDeviceIdentifier(&dd->DDInfo[dd->nDDInfo].DDDevIdent, NULL));
 		Log(LT_Info, "Found - %s\nDriver %s Version %d.%d.%d.%d",
 			dd->DDInfo[dd->nDDInfo].DDDevIdent.szDescription,
 			dd->DDInfo[dd->nDDInfo].DDDevIdent.szDriver,
@@ -586,27 +556,26 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 
 		Log(LT_Info, "Getting Device Capabilities");
 
-		DX_TRY(lpDD2->GetCaps(&dd->DDInfo[dd->nDDInfo].DDCaps, NULL));
+		DX_TRY(enum_lpDD->GetCaps(&dd->DDInfo[dd->nDDInfo].DDCaps, NULL));
 
 		Log(LT_Info, "Enumerating Display Modes");
 
-		DXSetCooperativeLevel(lpDD2, NULL, DDSCL_NOWINDOWCHANGES | DDSCL_ALLOWMODEX | DDSCL_FULLSCREEN | DDSCL_NORMAL);
+		DXSetCooperativeLevel(enum_lpDD, NULL, DDSCL_NOWINDOWCHANGES | DDSCL_ALLOWMODEX | DDSCL_FULLSCREEN | DDSCL_NORMAL);
 
-		DX_TRY(lpDD2->EnumDisplayModes(0, NULL, (LPVOID)&dd->DDInfo[dd->nDDInfo], DXEnumDisplayModes));
+		DX_TRY(enum_lpDD->EnumDisplayModes(0, NULL, (LPVOID)&dd->DDInfo[dd->nDDInfo], DXEnumDisplayModes));
 
-		if (DXCreateDirect3D(lpDD2, &lpD3D2))
+		if (DXCreateDirect3D(enum_lpDD, &enum_lpD3D))
 		{
 			Log(LT_Enter, "DXEnumDirect3D");
-			DX_TRY(lpD3D2->EnumDevices(DXEnumDirect3D, (LPVOID)&dd->DDInfo[dd->nDDInfo]));
-			DXRelease(lpD3D2, "Direct3D");
+			DX_TRY(enum_lpD3D->EnumDevices(DXEnumDirect3D, (LPVOID)&dd->DDInfo[dd->nDDInfo]));
+			DXRelease(enum_lpD3D, "Direct3D");
 		}
 
-		DXSetCooperativeLevel(lpDD2, NULL, DDSCL_NORMAL);
+		DXSetCooperativeLevel(enum_lpDD, NULL, DDSCL_NORMAL);
 
-		DXRelease(lpDD2, "DirectDraw");
+		DXRelease(enum_lpDD, "DirectDraw");
 	}
 
-	// Increase Number Of Devices
 	dd->nDDInfo++;
 
 	return DDENUMRET_OK;
@@ -620,16 +589,13 @@ BOOL CALLBACK DXEnumDirectSound(GUID FAR* lpGuid, LPCSTR lpDeviceDesc, LPCSTR lp
 
 	dd = (DEVICEINFO*)lpContext;
 
-	// Allocate Device Structure
 	if (dd->nDSInfo == 0)
 		dd->DSInfo = (DIRECTSOUNDINFO*)malloc(sizeof(DIRECTSOUNDINFO));
 	else
 		dd->DSInfo = (DIRECTSOUNDINFO*)realloc(dd->DSInfo, sizeof(DIRECTSOUNDINFO)*(dd->nDSInfo + 1));
 
-	// Clear Structure
 	memset(&dd->DSInfo[dd->nDSInfo], 0, sizeof(DIRECTSOUNDINFO));
 
-	// Store DirectSound Info	
 	if (lpGuid == NULL)
 		dd->DSInfo[dd->nDSInfo].lpGuid = NULL;
 	else
@@ -655,4 +621,481 @@ void DXInitialise(DEVICEINFO* dd, HWND hWnd)
 	Log(LT_Info, "Enumerating DirectDraw Devices");
 	DX_TRY(DirectDrawEnumerate(DXEnumDirectDraw, dd));
 	DX_TRY(DirectSoundEnumerate(DXEnumDirectSound, dd));
+}
+
+void CloseDirectX()
+{
+	Log(LT_Enter, "CloseDirectX");
+
+	DXRelease(App.lpViewPort, "Viewport");
+	DXRelease(App.lpD3DDevice, "Direct3DDevice");
+	DXRelease(App.lpZBuffer, "Z Buffer");
+	DXRelease(App.lpBackBuffer, "Back Buffer");
+	DXRelease(App.lpFrontBuffer, "Primary Buffer");
+
+	if (!(App.Flags & WA_SOFTWARE))
+	{
+		DXRelease(App.lpDD, "DirectDraw");
+		DXRelease(App.lpD3D, "Direct3D");
+	}
+}
+
+bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND window, DWORD dwStyle)
+{
+	Log(LT_Enter, "DXCreate");
+
+	app->Flags = flags;
+	app->GhWnd = window;
+	app->DXWndStyle = dwStyle;
+
+	CloseDirectX();
+
+	if (!(flags & WA_SOFTWARE))
+	{
+		if (!DXDDCreate(CUR_DD.lpGuid, (LPDIRECTDRAW*)&App.lpDD))
+		{
+			CloseDirectX();
+			return 0;
+		}
+		if (!DXCreateDirect3D(App.lpDD, &App.lpD3D))
+		{
+			CloseDirectX();
+			return 0;
+		}
+	}
+
+	int dwFlags;
+
+	if (flags & WA_FULLSCREEN)
+		dwFlags = DDSCL_FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_EXCLUSIVE;
+	else
+		dwFlags = DDSCL_NORMAL;
+
+	if (flags & WA_FPUSETUP)
+		dwFlags |= DDSCL_FPUSETUP;
+
+	app->DXCoopLevel = dwFlags;
+
+	if (!DXSetCooperativeLevel(App.lpDD, window, dwFlags))
+	{
+		CloseDirectX();
+		return 0;
+	}
+
+	if (flags & WA_FULLSCREEN)
+	{
+		DXSetVideoMode(
+			App.lpDD,
+			CUR_DM.w,
+			CUR_DM.h,
+			CUR_DM.bpp);
+	}
+	else
+	{
+		HWND desktop = GetDesktopWindow();
+		DEVMODE mode;
+		Zero(mode);
+		mode.dmSize = 148;
+		HDC hDC = GetDC(desktop);
+		mode.dmBitsPerPel = CUR_DM.bpp;
+		ReleaseDC(desktop, hDC);
+		mode.dmFields = DM_BITSPERPEL;
+		ChangeDisplaySettings(&mode, 0);
+	}
+
+	DDSURFACEDESC2 surf;
+	DXInit(surf);
+
+	if (flags & WA_FULLSCREEN)
+	{
+		surf.dwBackBufferCount = 0;
+		surf.dwFlags = DDSD_CAPS;
+		surf.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_3DDEVICE | DDSCAPS_VIDEOMEMORY;
+
+		if (flags & WA_BACK_BUFFER)
+		{
+			surf.dwBackBufferCount = 1;
+			surf.dwFlags |= DDSD_BACKBUFFERCOUNT;
+			surf.ddsCaps.dwCaps |= DDSCAPS_COMPLEX | DDSCAPS_FLIP;
+		}
+
+		Log(LT_DXShit, "Create Primary Surface");
+
+		if (!DXCreateSurface(App.lpDD, &surf, &App.lpFrontBuffer))
+		{
+			CloseDirectX();
+			return 0;
+		}
+
+		if (flags & WA_BACK_BUFFER)
+		{
+			Log(LT_DXShit, "Get Attached Back Buffer");
+
+			surf.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER;
+
+			App.lpFrontBuffer->GetAttachedSurface(&surf.ddsCaps, &App.lpBackBuffer);
+		}
+		else
+		{
+			App.lpBackBuffer = App.lpFrontBuffer;
+		}
+
+		App.width = CUR_DM.w;
+		App.height = CUR_DM.h;
+		App.r1.top = 0;
+		App.r1.left = 0;
+		App.r1.right = CUR_DM.w;
+		App.r1.bottom = CUR_DM.h;
+	}
+	else
+	{
+		Log(LT_Info, "DXCreate: Windowed Mode");
+
+		tagRECT rect;
+		rect.top = 0;
+		rect.left = 0;
+		rect.right = CUR_DM.w;
+		rect.bottom = CUR_DM.h;
+
+		AdjustWindowRect(&rect, dwStyle, false);
+		SetWindowPos(window, HWND_TOP, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+
+		GetClientRect(window, &App.r1);
+		GetClientRect(window, &App.GnWindowRect);
+
+		ClientToScreen(window, (LPPOINT)&App.GnWindowRect.left);
+		ClientToScreen(window, (LPPOINT)&App.GnWindowRect.right);
+
+		App.width = App.r1.right;
+		App.height = App.r1.bottom;
+
+		Log(LT_Info, "w %d h %d", App.width, App.height);
+
+		surf.dwFlags = DDSD_CAPS;
+		surf.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
+
+		if (!DXCreateSurface(App.lpDD, &surf, &App.lpFrontBuffer))
+		{
+			CloseDirectX();
+			return 0;
+		}
+
+		LPDIRECTDRAWCLIPPER clipper;
+		if (DX_TRY(App.lpDD->CreateClipper(0, &clipper, nullptr)))
+		{
+			CloseDirectX();
+			return 0;
+		}
+
+		DX_TRY(clipper->SetHWnd(0, window));
+		DX_TRY(App.lpFrontBuffer->SetClipper(clipper));
+
+		DXRelease(clipper, "Clipper");
+
+		surf.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
+		surf.dwWidth = App.width;
+		surf.dwHeight = App.height;
+		surf.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE;
+
+		if (DX_TRY(App.lpDD->CreateSurface(&surf, &App.lpBackBuffer, nullptr)))
+		{
+			CloseDirectX();
+			return 0;
+		}
+	}
+
+	if (flags & 0x10 && flags & 0x80)
+	{
+		Log(LT_DXShit, "Creating ZBuffer");
+
+		Zero(surf);
+
+		surf.dwSize = 124;
+		surf.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+		surf.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY | DDSCAPS_ZBUFFER;
+		surf.dwWidth = App.width;
+		surf.dwHeight = App.height;
+
+		memcpy(&surf.ddpfPixelFormat, &CUR_D3D.Zbuffer->ddpf, sizeof(DDPIXELFORMAT));
+
+		if (DX_TRY(App.lpDD->CreateSurface(&surf, &App.lpZBuffer, nullptr)))
+		{
+			CloseDirectX();
+			return 0;
+		}
+
+		DX_TRY(App.lpBackBuffer->AddAttachedSurface(App.lpZBuffer));
+
+		Log(LT_DXShit, "ZBuffer Created %x", App.lpZBuffer);
+	}
+
+	if (DXCreateDirect3DDevice(App.lpD3D, CUR_D3D.Guid, App.lpBackBuffer, &App.lpD3DDevice))
+	{
+		App.lpD3DDevice_BIS = App.lpD3DDevice;
+
+		if (DXCreateViewport(App.lpD3D, App.lpD3DDevice, App.width, App.height, &App.lpViewPort))
+		{
+			DX_TRY(App.lpD3DDevice->SetRenderTarget(App.lpBackBuffer, 0));
+
+			if (!(App.Flags & 0x80))
+			{
+				// todo
+			}
+
+			return true;
+		}
+	}
+
+	CloseDirectX();
+	return false;
+}
+
+HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, int wSrc, int hSrc)
+{
+	if (!h)
+		return 0x80004005;
+
+	if (!surf)
+		return 0x80004005;
+
+	surf->Restore();
+
+	HDC dc = CreateCompatibleDC(nullptr);
+	if (!dc)
+		OutputDebugStringA("createcompatible dc failed");
+
+	SelectObject(dc, h);
+
+	BITMAP bmp;
+	GetObjectA(h, sizeof(BITMAP), &bmp);
+
+	DDSURFACEDESC2 desc; // todo maybe surf desc (not 2)
+	DXInit(desc);
+	desc.dwFlags = DDSD_WIDTH | DDSD_HEIGHT;
+
+	surf->GetSurfaceDesc(&desc);
+
+	int x = 0;
+	int y = 0;
+
+	if (App.Flags & WA_BACK_BUFFER)
+	{
+		surf = App.lpFrontBuffer;
+
+		if (App.Flags & WA_UNKNOWN1)
+		{
+			x = App.GnWindowRect.left;
+			y = App.GnWindowRect.top;
+		}
+	}
+
+	HDC dest;
+	HRESULT res = surf->GetDC(&dest);
+
+	if (res == NO_ERROR)
+	{
+		StretchBlt(dest, x, y, desc.dwWidth, desc.dwHeight, dc, xSrc, ySrc, wSrc, hSrc, SRCCOPY);
+		surf->ReleaseDC(dest);
+	}
+
+	DeleteDC(dc);
+
+	return res;
+}
+
+HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)
+{
+	HMODULE mod = GetModuleHandleA(nullptr);
+	HANDLE image = LoadImageA(mod, filename, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+
+	if (!image)
+		image = LoadImageA(mod, filename, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_LOADFROMFILE);
+
+	if (!image)
+	{
+		Log(LT_Error, "handle is null");
+
+		return 0x80004005;
+	}
+
+	HRESULT res = LoadPicture(surface, image, 0, 0, 0, 0);
+
+	if (res)
+		Log(LT_Error, "ddcopybitmap failed");
+
+	DeleteObject(image);
+
+	return res;
+}
+
+BOOL PASCAL DXEnumDirectInput(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
+{
+	return FAILED(App.lpDI->CreateDeviceEx(lpddi->guidInstance, IID_IDirectInputDevice2A, (LPVOID*)&App.lpDIJoystick, nullptr));
+}
+
+BOOL PASCAL DXEnumDirectInputObjects(LPCDIDEVICEOBJECTINSTANCEA lpddoi, LPVOID pvRef)
+{
+	DIPROPRANGE prop;
+	DXInit(prop.diph);
+
+	prop.diph.dwHeaderSize = 16;
+	prop.diph.dwHow = 1;
+	prop.diph.dwObj = lpddoi->dwOfs;
+
+	prop.lMin = -1000;
+	prop.lMax = 1000;
+
+	return SUCCEEDED(App.lpDIJoystick->SetProperty(DIPROP_RANGE, &prop.diph));
+}
+
+void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance)
+{
+	LPDIRECTINPUTA di;
+	DX_TRY(DirectInputCreateA(hInstance, 0x700, &di, nullptr));
+	di->QueryInterface(IID_IDirectInput2A, (LPVOID*)&App.lpDI);
+	DXRelease(di, "DirectInput");
+
+	LPDIRECTINPUTDEVICEA keyb;
+	DX_TRY(App.lpDI->CreateDevice(GUID_SysKeyboard, &keyb, nullptr));
+	keyb->QueryInterface(IID_IDirectInputDevice2A, (LPVOID*)&App.lpDIKeyboard);
+	DXRelease(keyb, "Keyboard");
+
+	DX_TRY(App.lpDIKeyboard->SetCooperativeLevel(hWnd, DDSCL_ALLOWREBOOT | DDSCL_NORMAL));
+	DX_TRY(App.lpDIKeyboard->SetDataFormat(&c_dfDIKeyboard));
+	DX_TRY(App.lpDIKeyboard->Acquire());
+
+	DX_TRY(App.lpDI->EnumDevices(DIDEVTYPE_JOYSTICK, DXEnumDirectInput, nullptr, DIEDFL_ATTACHEDONLY));
+
+	if (App.lpDIJoystick)
+	{
+		DX_TRY(App.lpDIJoystick->SetDataFormat(&c_dfDIJoystick));
+		DX_TRY(App.lpDIJoystick->SetCooperativeLevel(hWnd, DDSCL_FULLSCREEN | DDSCL_NOWINDOWCHANGES));
+
+		DIDEVCAPS caps;
+		App.lpDIJoystick->GetCapabilities(&caps);
+		App.lpDIJoystick->EnumObjects(DXEnumDirectInputObjects, hWnd, DIDFT_AXIS);
+		DX_TRY(App.lpDIJoystick->Acquire());
+	}
+}
+
+void DXMove(int x, int y)
+{
+	Log(LT_Enter, "DXMove : x %d y %d", x, y);
+
+	if (!(App.Flags & WA_FULLSCREEN))
+	{
+		SetRect(&App.GnWindowRect, x, y, x + App.width, y + App.height);
+	}
+}
+
+void AcquireInput(bool acquire)
+{
+	if (App.lpDIJoystick)
+	{
+		if (acquire)
+		{
+			App.lpDIJoystick->Acquire();
+		}
+		else
+		{
+			App.lpDIJoystick->Unacquire();
+		}
+	}
+}
+
+void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)
+{
+	static int nFile = 0;
+	static char header[18] = { 0,0,2,0,0,0,0,0,0,0,0,0,0x40,0x01,0x00,0x01,16,0 };
+	char filename[16];
+
+	DDSURFACEDESC2 ddsd;
+	DXInit(ddsd);
+
+	if (DX_TRY(surf->GetSurfaceDesc(&ddsd)))
+		return;
+
+	DX_TRY(surf->Lock(nullptr, &ddsd, DDLOCK_WAIT, nullptr));
+
+	short* p = (short*)ddsd.lpSurface;
+
+	sprintf(filename, "%s%04d.tga", prefix, nFile++);
+	FILE* handle = fopen(filename, "wb");
+
+	if (handle)
+	{
+		short* p1 = (short*)&header[12];
+
+		*p1++ = short(ddsd.dwWidth);
+		*p1 = short(ddsd.dwHeight);
+
+		fwrite(header, 18, 1, handle);
+
+		short* pd = (short*)malloc_ptr;
+
+		p += ddsd.lPitch / 2 * ddsd.dwHeight;
+
+		for (int i = 0; i < ddsd.dwHeight; i++)
+		{
+			for (int j = 0; j < ddsd.dwWidth; j++)
+			{
+				int k = p[j];
+
+				if (ddsd.ddpfPixelFormat.dwRBitMask == 0xF800)
+				{
+					int r = (k >> 11) & 0x1F;
+					int g = (k >> 6) & 0x1F;
+					int b = k & 0x1F;
+
+					*pd++ = (r << 10) + (g << 5) + b;
+				}
+				else
+				{
+					*pd++ = k;
+				}
+			}
+
+			p -= ddsd.lPitch / 2;
+		}
+
+		fwrite(malloc_ptr, 2 * ddsd.dwWidth * ddsd.dwHeight, 1, handle);
+		fclose(handle);
+
+		filename[7]++;
+
+		if (filename[7] > '9')
+		{
+			filename[7] = '0';
+			filename[6]++;
+		}
+	}
+
+	DX_TRY(surf->Unlock(nullptr));
+}
+
+void DXShowFrame()
+{
+	if (false)
+		SaveDDBuffer(App.lpBackBuffer, "Tomb");
+
+	if (App.lpFrontBuffer->IsLost())
+	{
+		Log(LT_DXShit, "Restored Primary Buffer");
+		DX_TRY(App.lpFrontBuffer->Restore());
+	}
+
+	if (App.lpBackBuffer->IsLost())
+	{
+		Log(LT_DXShit, "Restored Back Buffer");
+		DX_TRY(App.lpBackBuffer->Restore());
+	}
+
+	if (App.Flags & WA_UNKNOWN1)
+	{
+		DX_TRY(App.lpFrontBuffer->Blt(&App.GnWindowRect, App.lpBackBuffer, &App.r1, DDBLT_WAIT, nullptr));
+	}
+	else if (App.Flags & WA_BACK_BUFFER)
+	{
+		DX_TRY(App.lpFrontBuffer->Flip(nullptr, true));
+	}
 }

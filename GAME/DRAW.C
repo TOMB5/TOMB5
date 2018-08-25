@@ -134,11 +134,6 @@ void DrawSkyMesh(short* mesh)
 	S_Warn("[DrawSkyMesh] - Unimplemented!\n");
 }
 
-void DrawFlatSky_ASM(struct CVECTOR colour, short pos, long flags)
-{
-	S_Warn("[DrawFlatSky_ASM] - Unimplemented!\n");
-}
-
 void DrawMoon()
 {
 	S_Warn("[DrawMoon] - Unimplemented!\n");
@@ -263,4 +258,9 @@ short* GetBestFrame(struct ITEM_INFO* item)// (F)s
 		return frm[1];
 	else
 		return frm[0];
+}
+
+void DrawAnimatingItem(struct ITEM_INFO *item)
+{
+	S_Warn("[DrawAnimatingItem] - Unimplemented!\n");
 }

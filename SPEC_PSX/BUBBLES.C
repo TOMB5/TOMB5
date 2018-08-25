@@ -5,6 +5,8 @@
 #include "SPECIFIC.H"
 #include "TOMB4FX.H"
 
+#ifndef USE_ASM
+
 void DrawFlash()//8F704(<) 91748(<) (F)
 {
 	long fr = ((FlashFadeR * FlashFader) / 32) & 0xFF;
@@ -18,51 +20,7 @@ void insert_psx_clip_window(long x, long y, long w, long a3, long h)
 {
 	DRAWENV env;
 
-	return;
-#if 0
-	//sw	$a3, arg_10($sp)
-
-	//a3 = w;
-	//a2 = y;
-	//v0 = db.current_buffer;
-	//a1 = x;
-	//a0 = 0x1F800000;
-
-	if (db.current_buffer != 0)
-	{
-		//v0 = 0xF00000;
-		//a2 += 0xF0;
-	}
-	//loc_8FDCC
-	env.dr_env.
-	SetDefDrawEnv(, x, y, w, h);
-
-	loc_8FDCC:
-	jal	sub_68350
-	sw	$v0, 0x64($a0)
-
-	lui	$a1, 0x1F80
-	lw	$v0, 0x1F800064
-	lw	$a0, 0x3644($gp)
-	sw	$v0, 0x1F800008
-	li	$v0, 1
-	sb	$v0, 0x1F800016
-	jal	sub_66040
-	sb	$zero, 0x1F800018
-	lw	$ra, 0x1F800060
-	lw	$a0, 0x3640($gp)
-	lw	$a1, 0x3644($gp)
-	lw	$at, 0x280C($a0)
-	lui	$v0, 0x600
-	or $at, $v0
-	sw	$a1, 0x280C($a0)
-	sw	$at, 0($a1)
-	addiu	$a1, 0x1C
-	jr	$ra
-	sw	$a1, 0x3644($gp)
-#endif
-#if 0
-	static DRAWENV env;
+#if 1
 
 	if (db.current_buffer != 0)
 	{
@@ -85,7 +43,7 @@ void insert_psx_clip_window(long x, long y, long w, long a3, long h)
 #endif
 }
 
-#ifndef USE_ASM
+
 void CalcClipWindow_ONGTE(short room_number, long unknown)//8F374,
 {
 	//t2 = unknown;
@@ -182,7 +140,6 @@ void CalcClipWindow_ONGTE(short room_number, long unknown)//8F374,
 #endif
 	S_Warn("[CalcClipWindow_ONGTE] - Unimplemented!\n");
 }
-#endif
 
 void DrawPsxTile(long a0, long a1, long a2, long a3)//8F770(<), 917B4(<) (F)
 {
@@ -200,6 +157,7 @@ void DrawPsxTile(long a0, long a1, long a2, long a3)//8F770(<), 917B4(<) (F)
 		db.polyptr += 0x18;
 	}
 }
+#endif
 
 void S_DrawSparks()
 {

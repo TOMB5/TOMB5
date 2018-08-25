@@ -380,9 +380,9 @@ void mRotY(long ry)//76744
 	S_Warn("[mRotY] - Unimplemented!\n");
 }
 
-void mRotYXZ()//767E8
+void mRotYXZ(short y, short x, short z)//767E8
 {
-
+	S_Warn("[mRotYXZ] - Unimplemented!\n");
 }
 
 void mRotZ()//76804
@@ -554,6 +554,11 @@ void phd_LookAt(long x, long y, long z, long tx, long ty, long tz, long croll)
 long phd_atan_asm(long x, long y)
 {
 	S_Warn("[phd_atan_asm] - Unimplemented!\n");
+}
+
+void mRotBoundingBoxNoPersp(short* bounds, short* tbounds)
+{
+	S_Warn("[mRotBoundingBoxNoPersp] - Unimplemented!\n");
 }
 
 #endif

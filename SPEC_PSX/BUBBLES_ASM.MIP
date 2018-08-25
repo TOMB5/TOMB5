@@ -1,9 +1,103 @@
 	opt L.,C+,at+
 
 	section	.ASM
-	xdef CalcClipWindow_ONGTE
-	xref lara_item, draw_rooms, number_draw_rooms, room
+	xdef CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window
+	xref lara_item, draw_rooms, number_draw_rooms, room, FlashFadeR, FlashFader, FlashFadeG, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv
 
+insert_psx_clip_window:
+	sw      a3, 0x10(sp)
+	move    a3, a2
+	move    a2, a1
+	lw      v0, db+0x0
+	move    a1, a0
+	lui     a0, 0x1F80
+	beqz    v0, loc_8FDCC
+	sw      ra, 0x1F800060
+	lui     v0, 0xF0
+	addiu   a2, 0xF0
+
+	loc_8FDCC:
+	jal     SetDefDrawEnv
+	sw      v0, 0x64(a0)
+	lui     a1, 0x1F80
+	lw      v0, 0x1F800064
+	lw      a0, db+0x8
+	sw      v0, 0x1F800008
+	li      v0, 1
+	sb      v0, 0x1F800016
+	jal     SetDrawEnv
+	sb      zero, 0x1F800018
+	lw      ra, 0x1F800060
+	lw      a0, db+0x4
+	lw      a1, db+0x8
+	lw      at, 0x280C(a0)
+	lui     v0, 0x600
+	or      at, v0
+	sw      a1, 0x280C(a0)
+	sw      at, 0(a1)
+	addiu   a1, 0x1C
+	jr      ra
+	sw      a1, db+0x8
+	
+DrawPsxTile:
+	lw      t0, db+0x8
+	lw      v0, db+0x10
+	lw      t1, 0x10(sp)
+	sltu    v0, t0, v0
+	beqz    v0, locret_8F7D0
+	lui     v0, 0xE100
+	lw      v1, db+0x4
+	li      v0, 0xE1000200
+	sw      zero, 8(t0)
+	sw      a2, 0xC(t0)
+	sw      a0, 0x10(t0)
+	sw      a1, 0x14(t0)
+	andi    a3, 3
+	sll     a3, 5
+	or      v0, a3
+	sll     t1, 2
+	addu    v1, t1
+	lw      a0, 0(v1)
+	lui     at, 0x500
+	or      a0, at
+	sw      t0, 0(v1)
+	sw      a0, 0(t0)
+	sw      v0, 4(t0)
+	addiu   t0, 0x18
+
+	locret_8F7D0:
+	jr      ra
+	sw      t0, db+0x8
+	
+DrawFlash:
+	lh      a0, FlashFadeR
+	lh      v1, FlashFader
+	lui     a1, 0xF0
+	mult    a0, v1
+	lh      v0, FlashFadeG
+	lh      a2, FlashFadeB
+	mflo    a0
+	li      a1, 0xF00200
+	li      a3, 1
+	mult    v0, v1
+	sw      zero, 0x10(sp)
+	mflo    v0
+	sra     a0, 5
+	sll     v0, 3
+	mult    a2, v1
+	andi    v0, 0xFF00
+	andi    a0, 0xFF
+	mflo    a2
+	sra     a2, 5
+	andi    a2, 0xFF
+	sll     a2, 16
+	or      a2, v0
+	or      a2, a0
+	lui     v0, 0x6200
+	move    a0, zero
+	j       DrawPsxTile
+	or      a2, v0
+	
 CalcClipWindow_ONGTE:
 	andi    t2, a1, 0xFFFF
 	andi    t5, a0, 0xFFFF

@@ -11,7 +11,7 @@ extern "C" {
 	void DrawBuckets(void *);
 
 #define VERTSPERBUCKET	(1024+32)
-#define MAXBUCKETS		20
+#define MAXBUCKETS		73
 	struct TEXTUREBUCKET
 	{
 		DWORD tpage;

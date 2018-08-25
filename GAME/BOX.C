@@ -1,8 +1,6 @@
 #include "BOX.H"
 
-#if PSXPC_VERSION || PSX_VERSION
 #include "CALCLARA.H"
-#endif
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"

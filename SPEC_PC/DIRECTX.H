@@ -134,7 +134,7 @@ struct WINAPP
 	DWORD isInScene; // pos 104 s 4
 	DWORD dword_D9ABFD; // pos 108 s 4
 
-	DWORD dword_D9AC01;
+	DWORD sceneDone;
 	HANDLE hObject; // D9AC05
 
 	DWORD dword_D9AC09;
@@ -144,15 +144,15 @@ struct WINAPP
 	HACCEL hAccTable;
 	uint8 byte_D9AC19;
 	BYTE tEnableBumpMap;
-	DWORD dword_D9AC1B;
-	DWORD dword_D9AC1F;
+	DWORD textRes;
+	DWORD bumpRes;
 	uint8 byte_D9AC23;
 	BYTE opt_Filter;
 	BYTE opt_Volumetric;
 	BYTE opt_DisableSound;
-	DWORD dword_D9AC27;
+	DWORD orig_flags;
 	BYTE byte_D9AC2B;
-	DWORD dword_D9AC2C;
+	DWORD OriginalBPP;
 	DWORD opt_AutoTarget;
 	DWORD dword_D9AC34;
 	DWORD dword_D9AC38;
