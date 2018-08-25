@@ -4633,16 +4633,16 @@ void lara_col_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14B40, 14C7
 												item->pos.y_rot = 0;
 												item->pos.z_pos = (item->pos.z_pos & 0xFFFFFC00) + 225;
 												break;
-											case 2:
-												item->pos.y_rot = -32768;
-												item->pos.z_pos = (item->pos.z_pos | 0x3FF) - 225;
-												break;
 											case 1:
-												item->pos.y_rot = 0x4000;
+												item->pos.y_rot = ANGLE(90);
 												item->pos.x_pos = (item->pos.x_pos & 0xFFFFFC00) + 225;
 												break;
+											case 2:
+												item->pos.y_rot = ANGLE(-180);
+												item->pos.z_pos = (item->pos.z_pos | 0x3FF) - 225;
+												break;
 											case 3:
-												item->pos.y_rot = -16384;
+												item->pos.y_rot = ANGLE(-90);
 												item->pos.x_pos = (item->pos.x_pos | 0x3FF) - 225;
 												break;
 											}
