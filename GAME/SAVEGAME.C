@@ -25,6 +25,7 @@
 #include "DRAW.H"
 #include "CAMERA.H"
 #include "SPOTCAM.H"
+#include "LARA.H"
 
 char FromTitle = 0; // offset 0xA14AC
 char JustLoaded = 0; // offset 0xA14AD

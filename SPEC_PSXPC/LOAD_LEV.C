@@ -2,6 +2,7 @@
 
 #include "CD.H"
 #include "DRAW.H"
+#include "FILE.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "MALLOC.H"
@@ -310,7 +311,6 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	int x = 0;
 	int y = 0;
 	unsigned long* tmpptr = NULL;
-	int file = 0;
 	unsigned short dat = NULL;
 
 #if !DISC_VERSION

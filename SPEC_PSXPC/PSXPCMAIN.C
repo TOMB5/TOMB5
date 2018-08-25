@@ -39,18 +39,31 @@ void VSyncFunc()//10000(<), 10000(<) (F)
 int main(int argc, char* args[])//10064(<), 10064(!)
 {
 	InitNewCDSystem();
+#if BETA_VERSION
 	CDDA_SetMasterVolume(192);
+#else
+	CDDA_SetMasterVolume(178);
+#endif
 
-	GPU_UseOrderingTables(&GadwOrderingTables[0], 2564);
-	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], 26130);
+	GPU_UseOrderingTables(&GadwOrderingTables[0], sizeof(GadwOrderingTables) / 8);
+	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], sizeof(GadwPolygonBuffers) / 8);
 	GPU_GetScreenPosition(&savegame.ScreenX, &savegame.ScreenY);
 
+#if BETA_VERSION
 	savegame.VolumeCD = 204;
 	savegame.VolumeFX = 255;
+#else
+	savegame.VolumeCD = 178;
+	savegame.VolumeFX = 204;
+#endif
 	savegame.ControlOption = 0;
 	savegame.AutoTarget = 1;
 	savegame.VibrateOn = 0;
+#if BETA_VERSION
 	SoundFXVolume = 255;
+#else
+	SoundFXVolume = 204;
+#endif
 
 	InitialisePadSubsystem();
 

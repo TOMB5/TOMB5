@@ -2,8 +2,10 @@
 
 #include "DELTAPAK.H"
 #include "DRAW.H"
+#if PSXENGINE
 #include "DRAWPHAS.H"
 #include "FXTRIG.H"
+#endif
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "SPOTCAM.H"
