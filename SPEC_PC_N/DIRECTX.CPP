@@ -913,7 +913,7 @@ HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)
 
 	if (!image)
 	{
-		OutputDebugStringA("handle is null");
+		Log(LT_Error, "handle is null");
 
 		return 0x80004005;
 	}
@@ -921,7 +921,7 @@ HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)
 	HRESULT res = LoadPicture(surface, image, 0, 0, 0, 0);
 
 	if (res)
-		OutputDebugStringA("ddcopybitmap failed");
+		Log(LT_Error, "ddcopybitmap failed");
 
 	DeleteObject(image);
 
@@ -975,5 +975,127 @@ void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance)
 		App.lpDIJoystick->GetCapabilities(&caps);
 		App.lpDIJoystick->EnumObjects(DXEnumDirectInputObjects, hWnd, DIDFT_AXIS);
 		DX_TRY(App.lpDIJoystick->Acquire());
+	}
+}
+
+void DXMove(int x, int y)
+{
+	Log(LT_Enter, "DXMove : x %d y %d", x, y);
+
+	if (!(App.Flags & WA_FULLSCREEN))
+	{
+		SetRect(&App.GnWindowRect, x, y, x + App.width, y + App.height);
+	}
+}
+
+void AcquireInput(bool acquire)
+{
+	if (App.lpDIJoystick)
+	{
+		if (acquire)
+		{
+			App.lpDIJoystick->Acquire();
+		}
+		else
+		{
+			App.lpDIJoystick->Unacquire();
+		}
+	}
+}
+
+void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)
+{
+	static int nFile = 0;
+	static char header[18] = { 0,0,2,0,0,0,0,0,0,0,0,0,0x40,0x01,0x00,0x01,16,0 };
+	char filename[16];
+
+	DDSURFACEDESC2 ddsd;
+	DXInit(ddsd);
+
+	if (DX_TRY(surf->GetSurfaceDesc(&ddsd)))
+		return;
+
+	DX_TRY(surf->Lock(nullptr, &ddsd, DDLOCK_WAIT, nullptr));
+
+	short* p = (short*)ddsd.lpSurface;
+
+	sprintf(filename, "%s%04d.tga", prefix, nFile++);
+	FILE* handle = fopen(filename, "wb");
+
+	if (handle)
+	{
+		short* p1 = (short*)&header[12];
+
+		*p1++ = short(ddsd.dwWidth);
+		*p1 = short(ddsd.dwHeight);
+
+		fwrite(header, 18, 1, handle);
+
+		short* pd = (short*)malloc_ptr;
+
+		p += ddsd.lPitch / 2 * ddsd.dwHeight;
+
+		for (int i = 0; i < ddsd.dwHeight; i++)
+		{
+			for (int j = 0; j < ddsd.dwWidth; j++)
+			{
+				int k = p[j];
+
+				if (ddsd.ddpfPixelFormat.dwRBitMask == 0xF800)
+				{
+					int r = (k >> 11) & 0x1F;
+					int g = (k >> 6) & 0x1F;
+					int b = k & 0x1F;
+
+					*pd++ = (r << 10) + (g << 5) + b;
+				}
+				else
+				{
+					*pd++ = k;
+				}
+			}
+
+			p -= ddsd.lPitch / 2;
+		}
+
+		fwrite(malloc_ptr, 2 * ddsd.dwWidth * ddsd.dwHeight, 1, handle);
+		fclose(handle);
+
+		filename[7]++;
+
+		if (filename[7] > '9')
+		{
+			filename[7] = '0';
+			filename[6]++;
+		}
+	}
+
+	DX_TRY(surf->Unlock(nullptr));
+}
+
+void DXShowFrame()
+{
+	if (false)
+		SaveDDBuffer(App.lpBackBuffer, "Tomb");
+
+	if (App.lpFrontBuffer->IsLost())
+	{
+		Log(LT_DXShit, "Restored Primary Buffer");
+		DX_TRY(App.lpFrontBuffer->Restore());
+	}
+
+	if (App.lpBackBuffer->IsLost())
+	{
+		Log(LT_DXShit, "Restored Back Buffer");
+		DX_TRY(App.lpBackBuffer->Restore());
+	}
+
+	if (App.Flags & WA_UNKNOWN1)
+	{
+		DX_TRY(App.lpFrontBuffer->Blt(&App.GnWindowRect, App.lpBackBuffer, &App.r1, DDBLT_WAIT, nullptr));
+	}
+	else if (App.Flags & WA_BACK_BUFFER)
+	{
+		DX_TRY(App.lpFrontBuffer->Flip(nullptr, true));
 	}
 }

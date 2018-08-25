@@ -18,4 +18,10 @@ void phd_PutPolygons(short* mesh);
 void DrawStaticObjects(short current_room);
 void DrawEffect(short fx);
 
+void SkyDrawPhase();
+
+extern int num_fog_bulbs;
+
+extern uint32_t GnFrameCounter;
+
 #endif

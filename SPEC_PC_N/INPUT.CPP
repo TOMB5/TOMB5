@@ -12,3 +12,14 @@
 
 sint32 input;
 sint32 dbinput;
+sint32 inputBusy;
+
+short mouse_x;
+short mouse_y;
+int mouse_vkeys;
+
+int S_UpdateInput()
+{
+	Unimpl();
+	return 0;
+}

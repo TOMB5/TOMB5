@@ -55,6 +55,19 @@ void ClearSurfaces()
 	{
 		// todo
 	}
+
+	S_DumpScreen();
+
+	if (App.Flags & WA_BACK_BUFFER)
+	{
+		DX_TRY(App.lpViewPort->Clear2(1, &rect, 3, 0, 1.0, 0));
+	}
+	else
+	{
+		// todo
+	}
+
+	S_DumpScreen();
 }
 
 void GameClose()
@@ -175,6 +188,7 @@ unsigned __stdcall GameMain(void* data)
 void do_boot_screen(int language)
 {
 	Log(2, "do_boot_screen");
+
 	switch (language)
 	{
 	case LNG_ENGLISH:
@@ -214,4 +228,9 @@ void do_boot_screen(int language)
 		DDCopyBitmap(App.lpBackBuffer, "japan.bmp");
 		break;
 	}
+}
+
+void UpdateSky()
+{
+	Unimpl();
 }

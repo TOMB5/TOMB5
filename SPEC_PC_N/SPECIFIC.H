@@ -59,6 +59,12 @@ extern void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info
 
 extern void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light);
 
+extern void S_CDLoop();
+
+extern int S_LoadSave(int input, int in_inventory);
+extern int S_DisplayPauseMenu(int a1);
+extern int S_PauseMenu();
+
 #ifdef __cplusplus
 }
 #endif

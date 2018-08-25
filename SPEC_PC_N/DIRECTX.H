@@ -58,5 +58,8 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 void CloseDirectX();
 HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename);
 void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance);
+void DXMove(int x, int y);
+void AcquireInput(bool acquire);
+void DXShowFrame();
 
 #endif

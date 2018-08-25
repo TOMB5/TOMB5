@@ -28,6 +28,8 @@ enum input_buttons
 	IN_LOAD = (1 << 23),  // F6					// 0x00800000
 	IN_CROUCH = (1 << 29),						// 0x20000000
 	IN_SPRINT = (1 << 30),						// 0x40000000
+
+	IN_ALL = ~0,								// 0xFFFFFFFF (-1)
 };
 
 enum flipeffects

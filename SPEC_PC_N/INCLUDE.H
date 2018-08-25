@@ -56,9 +56,9 @@ void Log_backend(char type, char* fmt, ...);
 inline void Log_real(char ctype, char* type, char* fmt, ...)
 {
 	char buf[128], pbuf[1024];
-	char tbuf[12];
-	memset(tbuf, ' ', 11);
-	tbuf[11] = 0;
+	char tbuf[15];
+	memset(tbuf, ' ', 14);
+	tbuf[14] = 0;
 	strcpy(tbuf, type + 3);
 	ZeroArray(buf);
 	ZeroArray(pbuf);

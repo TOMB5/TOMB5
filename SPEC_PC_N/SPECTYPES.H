@@ -31,6 +31,9 @@ typedef unsigned int    uint32;
 #define DIVFP(A, B) (((A) / ((B) >> 8)) << 8)
 #define MULFP(A, B) ((((A) % (B)) << 16) | (((A) * (B)) >> 6))
 
+#define SLOWORD(l)           ((sint16)(((DWORD_PTR)(l)) & 0xffff))
+#define SHIWORD(l)           ((sint16)((((DWORD_PTR)(l)) >> 16) & 0xffff))
+
 #pragma pack(push, 1)
 struct object_info {
 	short nmeshes; // size=0, offset=0
@@ -492,7 +495,7 @@ struct WINAPP
 	DWORD isInScene; // pos 104 s 4
 	DWORD					bNoFocus;				// Application Window Has Fous
 
-	DWORD dword_D9AC01;
+	DWORD sceneDone;
 	HANDLE hObject; // D9AC05
 
 	DWORD dword_D9AC09;
@@ -502,13 +505,13 @@ struct WINAPP
 	HACCEL hAccTable;
 	uint8 byte_D9AC19;
 	BYTE					tBumpMap;
-	DWORD dword_D9AC1B;
-	DWORD dword_D9AC1F;
+	DWORD textRes;
+	DWORD bumpRes;
 	uint8 byte_D9AC23;
 	BYTE					tBilinearFilter;
 	BYTE					tVolumetricShadows;
 	BYTE					tDisableSound;
-	DWORD dword_D9AC27;
+	DWORD orig_flags;
 	BYTE byte_D9AC2B;
 	DWORD OriginalBPP;
 
@@ -548,6 +551,7 @@ enum WINAPP_FLAGS
 {
 	WA_FULLSCREEN = (1 << 0),
 	WA_UNKNOWN1 = (1 << 1),
+	WA_UNKNOWN2 = (1 << 4),
 	WA_FPUSETUP = (1 << 5),
 	WA_SOFTWARE = (1 << 6),
 	WA_BACK_BUFFER = (1 << 7),
