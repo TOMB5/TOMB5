@@ -1,6 +1,5 @@
 #include "CONTROL.H"
 
-
 #if PSX_VERSION || PSXPC_VERSION
 #include "COLLIDE_S.H"
 #include "DRAWPHAS.H"
@@ -17,6 +16,9 @@
 #if PC_VERSION
 	#include "GAME.H"
 	#include "FILE.H"
+#include "GLOBAL.H"
+#include "SPECIFIC.H"
+#include "INPUT.H"
 #endif
 #include "GAMEFLOW.H"
 #if PSX_VERSION || PSXPC_VERSION
@@ -52,6 +54,9 @@
 
 #include <assert.h>
 #include <string.h>
+#include "LARAMISC.H"
+
+#define MAX_FRAMES 10
 
 int flipeffect = -1;
 int fliptimer;
@@ -254,12 +259,505 @@ struct CHARDEF CharDef[106] =
 };
 struct ROPE_STRUCT Ropes[12];
 
+#if PC_VERSION
+short cdtrack = -1;
+BYTE byte_86BBA3 = 0;
+#endif
+
 char byte_A3660;
+
+#if PC_VERSION
+void UpdateSparks()
+{
+	Unimpl();
+}
+
+void UpdateFireSparks()
+{
+	Unimpl();
+}
+
+void UpdateSmokeSparks()
+{
+	Unimpl();
+}
+
+void UpdateBubbles()
+{
+	Unimpl();
+}
+
+void UpdateSplashes()
+{
+	Unimpl();
+}
+
+void UpdateDebris()
+{
+	Unimpl();
+}
+
+void UpdateBlood()
+{
+	Unimpl();
+}
+
+void UpdateDrips()
+{
+	Unimpl();
+}
+
+void UpdateGunShells()
+{
+	Unimpl();
+}
+
+void UpdateRats()
+{
+	Unimpl();
+}
+
+void UpdateBats()
+{
+	Unimpl();
+}
+
+void UpdateShockwaves()
+{
+	Unimpl();
+}
+
+void UpdateLightning()
+{
+	Unimpl();
+}
+
+void UpdateTwogunLasers()
+{
+	Unimpl();
+}
+
+void UpdatePulseColour()
+{
+	Unimpl();
+}
+
+void KlaxonTremor()
+{
+	Unimpl();
+}
+
+#endif
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUCH (PSX/PSXPC)
 {
 #if PC_VERSION
-	S_Warn("[ControlPhase] - Unimplemented!\n");
+	S_Warn("PC CONTROLPHASE %d %d", nframes, demo_mode);
+
+	RegeneratePickups();
+
+	if (nframes > MAX_FRAMES)
+		nframes = MAX_FRAMES;
+
+	if (bTrackCamInit)
+		bUseSpotCam = FALSE;
+
+	SetDebounce = TRUE;
+
+	for (framecount += nframes; framecount > 0; framecount -= 2)
+	{
+		GlobalCounter++;
+
+		UpdateSky();
+
+		if (cdtrack > 0)
+			S_CDLoop();
+
+		if (S_UpdateInput() == -1)
+			return 0;
+
+		if (bDisableLaraControl)
+		{
+			if (gfCurrentLevel != LVL5_TITLE)
+				dbinput = IN_NONE;
+
+			input &= IN_LOOK;
+		}
+
+		if (cutseq_trig)
+			input = IN_NONE;
+
+		SetDebounce = FALSE;
+
+		if (gfCurrentLevel != LVL5_TITLE)
+		{
+			if ((dbinput & IN_OPTION || GLOBAL_enterinventory != -1) && !cutseq_trig && lara_item->hit_points > 0)
+			{
+				S_SoundStopAllSamples();
+
+				if (S_CallInventory2())
+					return 2;
+			}
+		}
+
+		if (byte_86BBA3)
+			dels_give_lara_items_cheat();
+
+		if (gfLevelComplete)
+			return 3;
+
+		if (reset_flag || lara.death_count > 300 || (lara.death_count > 60 && input != IN_NONE))
+		{
+			reset_flag = FALSE;
+
+			if (Gameflow->DemoDisc && reset_flag)
+				return 4;
+			else
+				return 1;
+		}
+
+		if (demo_mode && input == IN_ALL)
+		{
+			input = IN_NONE;
+		}
+
+		if (lara.death_count == 0 && FadeScreenHeight == 0)
+		{
+			if (input & IN_SAVE)
+			{
+				S_LoadSave(IN_SAVE, FALSE);
+			}
+			else if (input & IN_LOAD)
+			{
+				if (S_LoadSave(IN_LOAD, FALSE) >= 0)
+					return 2;
+			}
+
+			if (input & IN_PAUSE && gfGameMode == 0)
+			{
+				if (S_PauseMenu() == 8)
+					return 1;
+			}
+		}
+
+		if (thread_started)
+		{
+			return 4;
+		}
+
+		if (!(input & IN_LOOK)
+			|| SniperCamActive
+			|| bUseSpotCam
+			|| bTrackCamInit
+			|| 
+			((lara_item->current_anim_state != STATE_LARA_STOP || lara_item->anim_number != ANIMATION_LARA_STAY_IDLE)
+				&& (!lara.IsDucked
+					|| input & IN_CROUCH
+					|| lara_item->anim_number != ANIMATION_LARA_CROUCH_IDLE
+					|| lara_item->goal_anim_state != STATE_LARA_CROUCH_IDLE)))
+		{
+			if (BinocularRange == 0)
+			{
+				if (SniperCamActive
+					|| bUseSpotCam
+					|| bTrackCamInit)
+				{
+					input &= ~IN_LOOK;
+				}
+			}
+			else
+			{
+				if (LaserSight)
+				{
+					BinocularRange = 0;
+					LaserSight = 0;
+					AlterFOV(ANGLE(80));
+					lara_item->mesh_bits = 0xFFFFFFFF;
+					lara.IsDucked = FALSE;
+					camera.type = BinocularOldCamera;
+
+					lara.head_y_rot = 0;
+					lara.head_x_rot = 0;
+
+					lara.torso_y_rot = 0;
+					lara.torso_x_rot = 0;
+
+					camera.bounce = 0;
+					BinocularOn = -8;
+					input &= ~IN_LOOK;
+				}
+				else
+				{
+					input |= IN_LOOK;
+				}
+			}
+
+			InfraRed = FALSE;
+		}
+		else if (BinocularRange == 0)
+		{
+			if (lara.gun_status == LG_READY
+				&& ((lara.gun_type == WEAPON_REVOLVER && lara.sixshooter_type_carried & WTYPE_LASERSIGHT)
+					|| (lara.gun_type == WEAPON_HK)
+					|| (lara.gun_type == WEAPON_CROSSBOW && lara.crossbow_type_carried & WTYPE_LASERSIGHT)))
+			{
+				BinocularRange = 128;
+				BinocularOldCamera = camera.old_type;
+
+				lara.Busy = TRUE;
+				LaserSight = TRUE;
+
+				if (!(gfLevelFlags & GF_LVOP_TRAIN))
+					InfraRed = TRUE;
+				else
+					InfraRed = FALSE;
+			}
+			else
+				InfraRed = FALSE;
+		}
+		else
+		{
+			if (LaserSight)
+			{
+				if (!(gfLevelFlags & GF_LVOP_TRAIN))
+					InfraRed = TRUE;
+				else
+					InfraRed = FALSE;
+			}
+			else
+			{
+				if ((gfLevelFlags & GF_LVOP_TRAIN) && (inputBusy & IN_ACTION))
+					InfraRed = TRUE;
+				else
+					InfraRed = FALSE;
+			}
+		}
+
+		ClearDynamics();
+		ClearFires();
+
+		GotLaraSpheres = FALSE;
+		InItemControlLoop = TRUE;
+
+		short item_num = next_item_active;
+		while (item_num != -1)
+		{
+			struct ITEM_INFO* item = &items[item_num];
+			short nex = item->next_active;
+
+			if (item->after_death < 128)
+			{
+				if (objects[item->object_number].control)
+					objects[item->object_number].control(item_num);
+			}
+			else
+			{
+				KillItem(item_num);
+			}
+
+			item_num = nex;
+		}
+
+		InItemControlLoop = FALSE;
+
+		KillMoveItems();
+
+		InItemControlLoop = TRUE;
+
+		short fx_num = next_fx_active;
+		while (fx_num != -1)
+		{
+			struct FX_INFO* fx = &effects[fx_num];
+			short nex = fx->next_active;
+
+			if (objects[fx->object_number].control)
+				objects[fx->object_number].control(fx_num);
+
+			fx_num = nex;
+		}
+
+		InItemControlLoop = FALSE;
+
+		KillMoveEffects();
+
+		if (KillEverythingFlag)
+			KillEverything();
+
+		if (SmokeCountL != 0)
+			SmokeCountL--;
+
+		if (SmokeCountR != 0)
+			SmokeCountR--;
+
+		if (SplashCount != 0)
+			SplashCount--;
+
+		if (WeaponDelay != 0)
+			WeaponDelay--;
+
+		if (lara.has_fired && !(wibble & 0x7F))
+		{
+			AlertNearbyGuards(lara_item);
+			lara.has_fired = FALSE;
+		}
+
+		XSoff1 += 150;
+		YSoff1 += 230;
+		ZSoff1 += 660;
+
+		XSoff2 += 270;
+		YSoff2 += 440;
+		ZSoff2 += 160;
+
+		if (lara.poisoned != 0 && !GLOBAL_playing_cutseq)
+		{
+			if (lara.poisoned <= 4096)
+			{
+				if (lara.dpoisoned)
+					lara.dpoisoned++;
+			}
+			else
+			{
+				lara.poisoned = 4096;
+			}
+
+			if (gfLevelFlags & GF_LVOP_TRAIN && !lara.Gassed)
+			{
+				if (lara.dpoisoned != 0)
+				{
+					lara.dpoisoned -= 8;
+
+					if (lara.dpoisoned < 0)
+						lara.dpoisoned = 0;
+				}
+			}
+
+			if (lara.poisoned >= 256 && !(wibble & 0xFF))
+			{
+				lara_item->hit_points -= lara.poisoned >> (8 - lara.Gassed);
+				PoisonFlag = 16;
+			}
+		}
+
+		lara.skelebob = 0;
+
+		InItemControlLoop = TRUE;
+
+		if (!GLOBAL_playing_cutseq && !gfGameMode)
+		{
+			lara.Fired = FALSE;
+
+			LaraControl(0);
+
+			if (LaraDrawType == LARA_DIVESUIT)
+				DoSubsuitStuff();
+		}
+
+		InItemControlLoop = FALSE;
+
+		KillMoveItems();
+
+		if (gfLevelFlags & GF_LVOP_TRAIN && !bUseSpotCam)
+		{
+			if (room[lara_item->room_number].FlipNumber > 10)
+			{
+				InitialiseSpotCam(room[lara_item->room_number].FlipNumber);
+				bUseSpotCam = TRUE;
+			}
+		}
+
+		if (GLOBAL_inventoryitemchosen != -1)
+		{
+			SayNo();
+
+			GLOBAL_inventoryitemchosen = -1;
+		}
+
+		if (GLOBAL_playing_cutseq)
+		{
+			camera.type = CINEMATIC_CAMERA;
+			CalculateCamera();
+		}
+		else
+		{
+			if (LaraDrawType != LARA_DIVESUIT)
+			{
+				HairControl(0, 0, 0);
+
+				if (gfLevelFlags & GF_LVOP_YOUNG_LARA)
+					HairControl(0, 1, 0);
+			}
+
+			if (!bUseSpotCam)
+			{
+				bTrackCamInit = FALSE;
+				CalculateCamera();
+			}
+			else
+			{
+				CalculateSpotCams();
+			}
+		}
+
+		CamRot.vy = (mGetAngle(camera.pos.z, camera.pos.x, camera.target.z, camera.target.x) >> 4) & 0xFFF;
+		wibble = (wibble + 4) & 0xFC;
+		TriggerLaraDrips();
+
+		while (SmashedMeshCount != 0)
+		{
+			SmashedMeshCount--;
+
+			struct MESH_INFO* mesh = SmashedMesh[SmashedMeshCount];
+			struct FLOOR_INFO* floor = GetFloor(mesh->x, mesh->y, mesh->z, &SmashedMeshRoom[SmashedMeshCount]);
+
+			GetHeight(floor, mesh->x, mesh->y, mesh->z);
+			TestTriggers(trigger_index, 1, 0);
+
+			floor->stopper = FALSE;
+
+			SmashedMesh[SmashedMeshCount] = NULL;
+		}
+
+		UpdateSparks();
+		UpdateFireSparks();
+		UpdateSmokeSparks();
+		UpdateBubbles();
+		UpdateSplashes();
+		UpdateDebris();
+		UpdateBlood();
+		UpdateDrips();
+		UpdateGunShells();
+		UpdateRats();
+		UpdateBats();
+		UpdateSpiders();
+		UpdateShockwaves();
+		UpdateLightning();
+		UpdateTwogunLasers();
+		AnimateWaterfalls();
+		UpdatePulseColour();
+
+		if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
+			KlaxonTremor();
+
+		SoundEffects();
+
+		health_bar_timer--;
+
+		if (gfGameMode == 0)
+		{
+			GameTimer++;
+
+			if (savegame.Level.Timer != 0)
+			{
+				if (!GLOBAL_playing_cutseq)
+					savegame.Level.Timer++;
+			}
+		}
+
+		UpdateFadeClip();
+	}
+
+	return 0;
 #else
 	short item_num;
 	short nex;

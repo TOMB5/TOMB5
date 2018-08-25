@@ -934,7 +934,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304 (F)
 		return;
 
 	case BINOCULARS_ITEM:
-		lara.binoculars = 1;
+		lara.binoculars = WTYPE_PRESENT;
 		return;
 
 	case PICKUP_ITEM4:

@@ -12,7 +12,7 @@ enum camera_flags
 
 extern long BinocularRange;
 extern long BinocularOn;
-extern long BinocularOldCamera;
+extern enum camera_type BinocularOldCamera;
 extern long LaserSight;
 extern long InfraRed;
 extern char SniperCount;

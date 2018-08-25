@@ -20,6 +20,10 @@
 #include INPUT_H
 #include "OBJECTS.H"
 #include "GAMEFLOW.H"
+#include "HEALTH.H"
+#include "NEWINV2.H"
+#include "LARAFIRE.H"
+#include <string.h>
 
 char* states[131] =
 {
@@ -125,22 +129,20 @@ void DelAlignLaraToRope(struct ITEM_INFO* item)//4B3D8, 4B83C
 
 void InitialiseLaraAnims(struct ITEM_INFO* item)//4B340(<), 4B7A4 (F)
 {
-	if ((room[item->room_number].flags & RF_FILL_WATER))
+	if (room[item->room_number].flags & RF_FILL_WATER)
 	{
-		lara.water_status = 1;
-		item->goal_anim_state = 13;
-		item->current_anim_state = 13;
+		lara.water_status = LW_UNDERWATER;
+		item->goal_anim_state = STATE_LARA_UNDERWATER_STOP;
+		item->current_anim_state = STATE_LARA_UNDERWATER_STOP;
 		item->fallspeed = 0;
 		item->anim_number = ANIMATION_LARA_UNDERWATER_IDLE;
 		item->frame_number = anims[ANIMATION_LARA_UNDERWATER_IDLE].frame_base;
-		return;
 	}
 	else
 	{
-		//4B3AC
-		lara.water_status = 0;
-		item->goal_anim_state = 2;
-		item->current_anim_state = 2;
+		lara.water_status = LW_ABOVE_WATER;
+		item->goal_anim_state = STATE_LARA_STOP;
+		item->current_anim_state = STATE_LARA_STOP;
 		item->anim_number = ANIMATION_LARA_STAY_SOLID;
 		item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
 	}
@@ -217,4 +219,133 @@ void LaraInitialiseMeshes()//4A684, 4AAE8 (F)
 	lara.target = 0;
 	lara.right_arm.lock = 0;
 	lara.left_arm.lock = 0;
+}
+
+void InitialiseLara(int restore)
+{
+	if (lara.item_number == -1)
+		return;
+
+	short item = lara.item_number;
+
+	lara_item->data = &lara;
+	lara_item->collidable = FALSE;
+
+	if (restore)
+	{
+		struct lara_info backup;
+		memcpy(&backup, &lara, sizeof(lara));
+		memset(&lara, 0, sizeof(lara));
+		memcpy(&lara.pistols_type_carried, &backup.pistols_type_carried, 59);
+	}
+	else
+	{
+		memset(&lara, 0, sizeof(lara));
+	}
+
+	lara.look = TRUE;
+	lara.item_number = item;
+	lara.hit_direction = -1;
+	lara.air = 1800;
+	lara.weapon_item = -1;
+	PoisonFlag = 0;
+	lara.dpoisoned = 0;
+	lara.poisoned = 0;
+	lara.water_surface_dist = 100;
+	lara.holster = 14;
+	lara.location = -1;
+	lara.highest_location = -1;
+	lara.RopePtr = -1;
+	lara_item->hit_points = 1000;
+
+	for(int i = 0; i < gfNumPickups; i++)
+	{
+		DEL_picked_up_object(convert_invobj_to_obj(gfPickups[i]));
+	}
+
+	gfNumPickups = 0;
+
+	lara.gun_status = LG_NO_ARMS;
+
+	short gun = WEAPON_NONE;
+
+	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA) && objects[PISTOLS_ITEM].loaded)
+		gun = WEAPON_PISTOLS;
+
+	if ((gfLevelFlags & GF_LVOP_TRAIN) && objects[HK_ITEM].loaded && (lara.hk_type_carried & WTYPE_PRESENT))
+		gun = WEAPON_HK;
+
+	lara.last_gun_type = lara.gun_type = lara.request_gun_type = gun;
+
+	LaraInitialiseMeshes();
+
+	lara.skelebob = 0;
+
+	if (objects[PISTOLS_ITEM].loaded)
+		lara.pistols_type_carried = WTYPE_PRESENT | WTYPE_AMMO_1;
+
+	lara.binoculars = WTYPE_PRESENT;
+
+	if (!restore)
+	{
+		if (objects[FLARE_INV_ITEM].loaded)
+			lara.num_flares = 3;
+
+		lara.num_small_medipack = 3;
+		lara.num_large_medipack = 1;
+	}
+
+	lara.num_pistols_ammo = -1;
+
+	InitialiseLaraAnims(lara_item);
+
+	DashTimer = 120;
+
+	for (int i = 0; i < gfNumTakeaways; i++)
+	{
+		NailInvItem(convert_invobj_to_obj(gfTakeaways[i]));
+	}
+
+	gfNumTakeaways = 0;
+
+	weapons[WEAPON_REVOLVER].damage = gfCurrentLevel >= LVL5_BASE ? 15 : 6;
+
+	switch(gfCurrentLevel)
+	{
+	case 6u:
+		lara.pickupitems &= 0xFFF7u;
+
+		lara.puzzleitems[0] = 10;
+		return;
+	case 5u:
+		lara.pickupitems = 0;
+		lara.pickupitemscombo = 0;
+		lara.keyitems = 0;
+		lara.keyitemscombo = 0;
+		lara.puzzleitemscombo = 0;
+
+		memset(lara.puzzleitems, 0, 12);
+		return;
+	case 7u:	
+		lara.pickupitems = 0;
+
+		lara.puzzleitems[0] = 0;
+		return;
+	case 0xCu:
+		lara.pickupitems &= 0xFFFEu;
+
+		lara.puzzleitems[2] = 0;
+		lara.puzzleitems[3] = 0;
+		break;
+	case 0xEu:
+		lara.pickupitems &= 0xFFFDu;
+		break;
+	default:
+		if (gfCurrentLevel < LVL5_THIRTEENTH_FLOOR || gfCurrentLevel > LVL5_RED_ALERT)
+			lara.pickupitems &= 0xFFF7u;
+		return;
+	}
+
+	lara.bottle = 0;
+	lara.wetcloth = CLOTH_MISSING;
 }
