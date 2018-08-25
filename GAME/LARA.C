@@ -345,8 +345,8 @@ void lara_as_pbleapoff(struct ITEM_INFO* item, struct COLL_INFO* coll)//1D244, 1
 
 	if (item->frame_number == anims[item->anim_number].frame_end)
 	{
-		item->pos.x_pos += 700 * SIN(item->pos.y_rot) >> W2V_SHIFT;
-		item->pos.x_pos += 700 * COS(item->pos.y_rot) >> W2V_SHIFT;
+		item->pos.x_pos += 2800 * SIN(item->pos.y_rot) >> W2V_SHIFT;
+		item->pos.x_pos += 2800 * COS(item->pos.y_rot) >> W2V_SHIFT;
 
 		item->anim_number = ANIMATION_LARA_TRY_HANG_SOLID;
 		item->frame_number = anims[ANIMATION_LARA_TRY_HANG_SOLID].frame_base;
@@ -3295,9 +3295,9 @@ void lara_as_rope(struct ITEM_INFO* item, struct COLL_INFO* coll)//17958(<), 17A
 void ApplyVelocityToRope(int node, unsigned short angle, unsigned short n)//178E4, 17A18 (F)
 {
 	SetPendulumVelocity(
-		n * SIN(angle) >> 2,
+		n * SIN(angle),
 		0,
-		n * COS(angle) >> 2);
+		n * COS(angle));
 }
 
 void UpdateRopeSwing(struct ITEM_INFO* item)//17508, 1763C
@@ -3537,8 +3537,8 @@ void lara_col_polestat(struct ITEM_INFO* item, struct COLL_INFO* coll)//16DFC, 1
 		}
 		else
 		{
-			item->pos.x_pos -= (64 * SIN(item->pos.y_rot)) >> W2V_SHIFT;
-			item->pos.z_pos -= (64 * COS(item->pos.y_rot)) >> W2V_SHIFT;
+			item->pos.x_pos -= (256 * SIN(item->pos.y_rot)) >> W2V_SHIFT;
+			item->pos.z_pos -= (256 * COS(item->pos.y_rot)) >> W2V_SHIFT;
 		}
 	}
 }
@@ -4584,13 +4584,13 @@ void lara_col_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14B40, 14C7
 								long x = item->pos.x_pos;
 								long z = item->pos.z_pos;
 
-								item->pos.x_pos += 128 * SIN(item->pos.y_rot - ANGLE(90)) >> W2V_SHIFT;
-								item->pos.z_pos += 128 * COS(item->pos.y_rot - ANGLE(90)) >> W2V_SHIFT;
+								item->pos.x_pos += 512 * SIN(item->pos.y_rot - ANGLE(90)) >> W2V_SHIFT;
+								item->pos.z_pos += 512 * COS(item->pos.y_rot - ANGLE(90)) >> W2V_SHIFT;
 
 								heightl = LaraFloorFront(item, item->pos.y_rot, -300);
 
-								item->pos.x_pos += 256 * SIN(item->pos.y_rot + ANGLE(90)) >> W2V_SHIFT;
-								item->pos.z_pos += 256 * COS(item->pos.y_rot + ANGLE(90)) >> W2V_SHIFT;
+								item->pos.x_pos += 1024 * SIN(item->pos.y_rot + ANGLE(90)) >> W2V_SHIFT;
+								item->pos.z_pos += 1024 * COS(item->pos.y_rot + ANGLE(90)) >> W2V_SHIFT;
 
 								heightr = LaraFloorFront(item, item->pos.y_rot, -300);
 
@@ -4615,8 +4615,8 @@ void lara_col_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14B40, 14C7
 										long x = item->pos.x_pos;
 										long z = item->pos.z_pos;
 
-										item->pos.x_pos -= 100 * SIN(coll->facing) >> W2V_SHIFT;
-										item->pos.z_pos -= 100 * SIN(coll->facing) >> W2V_SHIFT;
+										item->pos.x_pos -= 400 * SIN(coll->facing) >> W2V_SHIFT;
+										item->pos.z_pos -= 400 * SIN(coll->facing) >> W2V_SHIFT;
 
 										//tmp = GetCollidedObjects(item, 100, 1, wat, wat, 0);
 										S_Warn("[lara_col_all4s] - Warning: Core Design function call shittery\n");
@@ -4708,9 +4708,9 @@ void lara_as_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14970, 14A78
 			s.z = lara_item->pos.z_pos;
 			s.room_number = lara_item->room_number;
 
-			d.x = s.x + (768 * SIN(lara_item->pos.y_rot) >> W2V_SHIFT);
+			d.x = s.x + (3072 * SIN(lara_item->pos.y_rot) >> W2V_SHIFT);
 			d.y = s.y + 160;
-			d.z = s.z + (768 * COS(lara_item->pos.y_rot) >> W2V_SHIFT);
+			d.z = s.z + (3072 * COS(lara_item->pos.y_rot) >> W2V_SHIFT);
 
 			if (LOS(&s, &d))
 			{
@@ -5129,8 +5129,8 @@ void LaraSlideEdgeJump(struct ITEM_INFO* item, struct COLL_INFO* coll)//12B18, 1
 		break;
 
 	case CT_CLAMP:
-		item->pos.z_pos -= (100 * COS(coll->facing)) >> W2V_SHIFT;	
-		item->pos.x_pos -= (100 * SIN(coll->facing)) >> W2V_SHIFT;
+		item->pos.z_pos -= (400 * COS(coll->facing)) >> W2V_SHIFT;	
+		item->pos.x_pos -= (400 * SIN(coll->facing)) >> W2V_SHIFT;
 
 		item->speed = 0;
 
@@ -5193,8 +5193,8 @@ void LaraDeflectEdgeJump(struct ITEM_INFO* item, struct COLL_INFO* coll)//12904,
 		item->pos.y_rot -= ANGLE(5);
 		break;
 	case CT_CLAMP:
-		item->pos.x_pos -= (100 * SIN(coll->facing)) >> W2V_SHIFT;
-		item->pos.z_pos -= (100 * COS(coll->facing)) >> W2V_SHIFT;
+		item->pos.x_pos -= (100 * 4 * SIN(coll->facing)) >> W2V_SHIFT;
+		item->pos.z_pos -= (100 * 4 * COS(coll->facing)) >> W2V_SHIFT;
 
 		item->speed = 0;
 		coll->mid_floor = 0;
@@ -5530,9 +5530,9 @@ short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h)//11
 {
 	short room = item->room_number;
 
-	long x = item->pos.x_pos + ((dist * SIN(ang)) >> W2V_SHIFT);
+	long x = item->pos.x_pos + ((dist * 4 * SIN(ang)) >> W2V_SHIFT);
 	long y = item->pos.y_pos - h;
-	long z = item->pos.z_pos + ((dist * COS(ang)) >> W2V_SHIFT);
+	long z = item->pos.z_pos + ((dist * 4 * COS(ang)) >> W2V_SHIFT);
 
 	long height = GetHeight(GetFloor(x, y, z, &room), x, y, z);
 
@@ -5546,9 +5546,9 @@ short LaraFloorFront(struct ITEM_INFO* item, short ang, long dist)//117B0, 11860
 {
 	short room = item->room_number;
 
-	long x = item->pos.x_pos + ((dist * SIN(ang)) >> W2V_SHIFT);
+	long x = item->pos.x_pos + ((dist * 4 * SIN(ang)) >> W2V_SHIFT);
 	long y = item->pos.y_pos - 762;
-	long z = item->pos.z_pos + ((dist * COS(ang)) >> W2V_SHIFT);
+	long z = item->pos.z_pos + ((dist * 4 * COS(ang)) >> W2V_SHIFT);
 
 	long height = GetHeight(GetFloor(x, y, z, &room), x, y, z);
 
