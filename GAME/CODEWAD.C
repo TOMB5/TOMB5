@@ -40,12 +40,6 @@ void TriggerEngineEffects_CUT()
 	S_Warn("[RelocFunc_28] - Unimplemented!\n");
 }
 
-void RelocFunc_34_08() // (F)
-{
-	lara_item->mesh_bits = -1;
-	Chris_Menu = 0;
-}
-
 long sub_1BE988()
 {
 	S_Warn("[sub_1BE988] - Unimplemented!\n");
