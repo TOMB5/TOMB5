@@ -269,23 +269,6 @@ struct PHD_3DPOS
 	short z_rot; // off 16 [80]
 };
 
-struct ILIGHT
-{
-	short x;
-	short y;
-	short z;
-	short pad1;
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-	unsigned char pad;
-};
-
-struct ITEM_LIGHT
-{
-	struct ILIGHT Light[4];
-};
-
 struct FLOOR_INFO
 {
 	unsigned short index; // size=0, offset=0

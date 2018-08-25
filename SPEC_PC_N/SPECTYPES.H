@@ -219,6 +219,18 @@ struct PCLIGHT
 	int32_t magnsq;
 };
 
+struct ITEM_LIGHT
+{
+	int red;
+	int green;
+	int blue;
+	struct CVECTOR room_ambient;
+	int d_red;
+	int d_green;
+	int d_blue;
+	int room_num;
+};
+
 struct ITEM_INFO {
 	long floor; // size=0, offset=0
 	unsigned long touch_bits; // size=0, offset=4
@@ -247,16 +259,15 @@ struct ITEM_INFO {
 	void* data; // size=0, offset=60
 	struct PHD_3DPOS pos; // size=20, offset=64
 	struct ITEM_LIGHT il; // size=48, offset=84
-
-	
-	char pad1[5444];
+	struct PCLIGHT lights_1[21];
+	struct PCLIGHT lights_2[21];
 	DWORD num_lights_1;
 	DWORD num_lights_2;
 	DWORD light_room_num;
-	char pad11[4];
+	DWORD unk_thing;
 	struct PHD_VECTOR ambient_light_pos;
-	struct PCLIGHT* ptr1;
-	struct PCLIGHT* ptr2;
+	struct PCLIGHT* ptr_lights_1;
+	struct PCLIGHT* ptr_lights_2;
 	unsigned long active : 1; // offset=132.0 OFF=5610
 	unsigned long status : 2; // offset=132.1
 	unsigned long gravity_status : 1; // offset=132.3
