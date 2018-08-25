@@ -248,10 +248,8 @@ struct ITEM_INFO {
 	struct PHD_3DPOS pos; // size=20, offset=64
 	struct ITEM_LIGHT il; // size=48, offset=84
 
-	unsigned long meshswap_meshbits; // size=0, offset=136 OFF=132
-	short draw_room; // size=0, offset=140 OFF=136
-	short TOSSPAD; // size=0, offset=142 OFF=138
-	char pad1[5436];
+	
+	char pad1[5444];
 	DWORD num_lights_1;
 	DWORD num_lights_2;
 	DWORD light_room_num;
@@ -270,7 +268,9 @@ struct ITEM_INFO {
 	unsigned long ai_bits : 5; // offset=133.1
 	unsigned long really_active : 1; // offset=133.6
 	unsigned long InDrawRoom : 1; // offset=133.7
-	char pad2[8]; // OFF=5614
+	unsigned long meshswap_meshbits; // size=0, offset=136 OFF=132
+	short draw_room; // size=0, offset=140 OFF=136
+	short TOSSPAD; // size=0, offset=142 OFF=138
 };
 struct creature_info {
 	short joint_rotation[4]; // size=8, offset=0
