@@ -97,6 +97,13 @@ inline int phd_atan(long x, long y)
 #define SECTOR(x) ((x) * 1024)
 #define CLICK 256
 
+#define UNIT_SHADOW 256
+#define UNIT_SHADOW_SHIFT 8
+
+#define LARA_HITPOINTS 1000
+
+#define ROUND_MUL_LOW(x, m) ((x) & ~(m - 1))
+
 #define SECTOR_TO_WORLD(S) ((S) > (0) ? SECTOR((S) + 0.5) : (0))
 
 #define XZ_GET_SECTOR(room, x, z) (r->floor[(int)((z) / 1024 + r->x_size * ((x) / 1024))])

@@ -375,6 +375,12 @@ short knight_chat_ranges_andy11[14] =
 	0x13E9, 0x150A, 0xFFFF, 0xFFFF
 };
 
+unsigned short special2_pistols_info[13] =
+{
+	0x00C4, 0x00CC, 0x00D4, 0x00DC, 0x00E4, 0x00EC, 0x00F4, 0x00FC, 0x0104, 0x010C, 
+	0x0114, 0x0121, 0xFFFF
+};
+
 int cuntercunter;
 char jobyfrigger;
 int cutrot;
@@ -412,6 +418,7 @@ char* cutseq_malloc_ptr;
 int cutseq_malloc_free;
 unsigned short old_lara_holster;
 short temp_rotation_buffer[160];
+int special_num;
 
 #if DEBUG_VERSION
 	#define CD_PLAY_MODE 1
@@ -2246,68 +2253,214 @@ void stealth3_start()//2E824, 2EB30 (F)
 		SwapCrowbar(NULL);
 }
 
-void special4_end()//2E7F4(<), 2EB00(<)
+void special4_end()//2E7F4(<), 2EB00(<) (F)
 {
-	RelocFunc_34_34();
+	ResetCutanimate(STROBE_LIGHT);
+
+	if (!bDoCredits)
+	{
+		trigger_title_spotcam(1);
+		lara_item->mesh_bits = 0;
+	}
+
+	Chris_Menu = 0;
+	title_controls_locked_out = 0;
 }
 
-void special4_control()//2E7C4(<), 2EAD0(<)
+void special4_control()//2E7C4(<), 2EAD0(<) (F)
 {
-	RelocFunc_34_30();
+	struct PHD_VECTOR pos;
+
+	pos.x = 85834;
+	pos.z = 72300;
+	pos.y = -3138;
+
+	TriggerFireFlame(85834, -3010, 72300, -1, 1);
+	TriggerFireFlame(85834, -3010, 72044, -1, 1);
+	TriggerFireFlame(85834, -3010, 72556, -1, 1);
+	TriggerFireFlame(85578, -3010, 72300, -1, 1);
+	TriggerFireFlame(86090, -3010, 72300, -1, 1);
+
+	if (GLOBAL_cutseq_frame >= 460)
+		FlamingHell(&pos);
+
+	int r, g, b;
+
+	if (GLOBAL_cutseq_frame < 470)
+	{
+		b = GetRandomControl() & 0x3F;
+		g = (GetRandomControl() & 0xF) + 31;
+		r = (GetRandomControl() & 0x3F) + 31;
+	}
+	else
+	{
+		b = GetRandomControl() & 0x3F;
+		g = (GetRandomControl() & 0x7F) + 127;
+		r = (GetRandomControl() & 0x7F) + 127;
+	}
+
+	TriggerDynamic(pos.x, pos.y, pos.z, 10, r, g, b);
+
+	if (GLOBAL_cutseq_frame == 390)
+		Cutanimate(STROBE_LIGHT);
 }
 
 void special4_init()//2E794(<), 2EAA0(<)
 {
+#if PSXENGINE
 	cutrot = 0;
-	RelocFunc_34_2C();
+	S_Warn("[special4_init] - Unimplemented!\n");
+#else
+	lara_item->mesh_bits = 0xFFFFFFFF;
+	Chris_Menu = 0;
+	cutrot = 1;
+	special_num = 4;
+#endif
 }
 
-void special3_end()//2E764(<), 2EA70(<)
+void special3_end()//2E764(<), 2EA70(<) (F)
 {
-	RelocFunc_34_28();
+	if (!bDoCredits)
+	{
+		trigger_title_spotcam(4);
+		lara_item->mesh_bits = 0;
+	}
+
+	Chris_Menu = 0;
+	title_controls_locked_out = 0;
 }
 
 void special3_control()//2E734(<), 2EA40(<)
 {
-	RelocFunc_34_24();
+	S_Warn("[special3_control] - Unimplemented!\n");
 }
 
-void special3_init()//2E704(<), 2EA10(<)
+void special3_init()//2E704(<), 2EA10(<) (F)
 {
 	cutrot = 0;
-	RelocFunc_34_20();
+	lara_item->mesh_bits = 0xFFFFFFFF;
+	Chris_Menu = 0;
+	special_num = 3;
 }
 
-void special2_end()//2E6D4(<), 2E9E0(<)
+void special2_end()//2E6D4(<), 2E9E0(<) (F)
 {
-	RelocFunc_34_1C();
+	if (!bDoCredits)
+	{
+		trigger_title_spotcam(3);
+		lara_item->mesh_bits = 0;
+	}
+
+	Chris_Menu = 0;
+	title_controls_locked_out = 0;
 }
 
-void special2_control()//2E6A4(<), 2E9B0(<)
+void special2_control()//2E6A4(<), 2E9B0(<) (F)
 {
-	RelocFunc_34_18();
+	struct PHD_VECTOR pos;
+	struct ITEM_INFO* item;
+
+	pos.x = 12;
+	pos.y = 200;
+	pos.z = 92;
+
+	deal_with_actor_shooting(special2_pistols_info, 1, 13, &pos);
+
+	switch (GLOBAL_cutseq_frame)
+	{
+	case 0xC5:
+		item = find_a_fucking_item(ANIMATING1_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0xC8:
+		item = find_a_fucking_item(ANIMATING2_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0xC9:
+		triggerwindowsmash(50);
+		break;
+	case 0xCF:
+		item = find_a_fucking_item(ANIMATING3_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0xD1:
+		triggerwindowsmash(52);
+		break;
+	case 0xDD:
+		item = find_a_fucking_item(ANIMATING4_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0xE0:
+		triggerwindowsmash(54);
+		break;
+	case 0xE5:
+		Cutanimate(446);
+		break;
+	case 0xF5:
+		triggerwindowsmash(56);
+		break;
+	case 0x105:
+		item = find_a_fucking_item(ANIMATING5_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0x10D:
+		triggerwindowsmash(58);
+		break;
+	case 0x118:
+		item = find_a_fucking_item(ANIMATING6_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0x11A:
+		item = find_a_fucking_item(ANIMATING7_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0x11C:
+		Cutanimate(ANIMATING5);
+		break;
+	case 0x123:
+		triggerwindowsmash(60);
+		break;
+	}
 }
 
-void special2_init()//2E674(<), 2E980(<)
+void special2_init()//2E674(<), 2E980(<) (F)
 {
 	cutrot = 0;
-	RelocFunc_34_14();
+	lara_item->mesh_bits = 0xFFFFFFFF;
+	Chris_Menu = 0;
+	ResetCutItem(ANIMATING1_MIP);
+	ResetCutItem(ANIMATING2_MIP);
+	ResetCutItem(ANIMATING3_MIP);
+	ResetCutItem(ANIMATING4_MIP);
+	ResetCutItem(ANIMATING5_MIP);
+	ResetCutItem(ANIMATING6_MIP);
+	ResetCutItem(ANIMATING7_MIP);
+	resetwindowsmash(50);
+	resetwindowsmash(52);
+	resetwindowsmash(54);
+	resetwindowsmash(56);
+	resetwindowsmash(58);
+	resetwindowsmash(60);
+	ResetCutanimate(ANIMATING16);
+	ResetCutanimate(ANIMATING5);
+	special_num = 2;
 }
 
 void special1_end()//2E644(<), 2E950(<)
 {
-	RelocFunc_34_10();
+	S_Warn("[special1_end] - Unimplemented!\n");
 }
 
 void special1_control()//2E614(<), 2E920(<)
 {
-	RelocFunc_34_0C();
+	S_Warn("[special1_control] - Unimplemented!\n");
 }
 
 void special1_init()//2E5E4(<), 2E8F0(<) (F)
 {
 	cutrot = 0;
-	RelocFunc_34_08();
+	lara_item->mesh_bits = 0xFFFFFFFF;
+	Chris_Menu = 0;
 }
 
 void richcut3_control()//2E594(<), 2E8A0(<) (F)
@@ -3163,9 +3316,19 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 	return;
 }
 
+void triggerwindowsmash(int item_num) // (F)
+{
+	struct ITEM_INFO* item = find_a_fucking_item(item_num);
+	ExplodeItemNode(item, 0, 0, 64);
+	item->mesh_bits = 2;
+}
 
+void resetwindowsmash(int item_num)
+{
+	S_Warn("[resetwindowsmash] - Unimplemented!\n");
+}
 
-
-
-
-
+void ResetCutItem(int item_num)
+{
+	S_Warn("[ResetCutItem] - Unimplemented!\n");
+}
