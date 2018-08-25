@@ -77,30 +77,33 @@ int FILE_Read(char* pDest, int nItemSize, int nItems, FILE* nHandle)//5E6A8(<), 
 
 void RelocateModule(unsigned long Module, unsigned long* RelocData)//5E6D4(<), 5F430(<) (F)
 {
-	unsigned long* pModule = NULL;
-	unsigned long RelocationType = 0;
+	unsigned int* rel;
 
-	//loc_5E700
-	while (*RelocData != -1)
+	if (*RelocData != -1)
 	{
-		RelocationType = *RelocData & 3;
-		pModule = (unsigned long*)(Module + (*RelocData++ & -4));
+		do
+		{
+			rel = (unsigned int*)(Module + (*RelocData & -4));
 
-		if (RelocationType == 0)
-		{
-			*(unsigned long*) pModule += Module;
-		}
-		else if(RelocationType == 1)
-		{
-			*(unsigned short*) pModule = (*RelocData++ + Module + 0x8000) / 65536;
-		}
-		else if(RelocationType == 2)
-		{
-			*(unsigned short*) pModule += Module;
-		}
-		else if(RelocationType == 3)
-		{
-			*(unsigned long*) pModule += Module / sizeof(unsigned long);
-		}
-	}
+			switch (*RelocData++ & 3)
+			{
+			case 0:
+				//loc_5E738
+				((unsigned int*)rel)[0] += Module;
+				break;
+			case 1:
+				//loc_5E744
+				((unsigned short*)rel)[0] = (Module + *RelocData++ + 0x8000) >> 16;
+				break;
+			case 2:
+				//loc_5E760:
+				((unsigned short*)rel)[0] += Module;
+				break;
+			case 3:
+				//loc_5E774
+				((unsigned int*)rel)[0] += ((Module << 4) >> 6);
+				break;
+			}
+		} while (*RelocData != -1);
+	}//locret_5E794
 }

@@ -1,6 +1,4 @@
-#include "FILES.H"
-
-#include "GAMEWAD.H"
+#include "CD.H"
 
 const char* gwFileNames[NUM_GAMEWAD_FILE_ENTRIES] =
 { 

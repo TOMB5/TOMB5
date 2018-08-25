@@ -11,7 +11,7 @@
 
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x)
-#define Unimpl() S_Warn("[" STRINGIFY(__FUNCTION__) "] - Unimplemented!\n")
+#define Unimpl() S_Warn("[" __FUNCTION__ "] - Unimplemented!\n")
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
@@ -27,6 +27,12 @@ typedef unsigned short  uint16;
 typedef          int    int32;
 typedef   signed int    sint32;
 typedef unsigned int    uint32;
+
+#define DIVFP(A, B) (((A) / ((B) >> 8)) << 8)
+#define MULFP(A, B) ((((A) % (B)) << 16) | (((A) * (B)) >> 6))
+
+#define SLOWORD(l)           ((sint16)(((DWORD_PTR)(l)) & 0xffff))
+#define SHIWORD(l)           ((sint16)((((DWORD_PTR)(l)) >> 16) & 0xffff))
 
 #pragma pack(push, 1)
 struct object_info {
@@ -351,6 +357,204 @@ struct DRIP_STRUCT
 	unsigned short padding3;
 	char padding4[2];
 };
+
+struct DXCONFIG
+{
+	int nDD;
+	int nD3D;
+	int nVMode;
+	int nTexture;
+	int bZBuffer;
+	int nSoundCard;
+};
+
+struct DISPLAYMODE					// Display Mode Info
+{
+	int				w;				// Width
+	int				h;				// Height
+	unsigned long	bpp;			// Bits Per Pixel
+	unsigned int	mipMapCount;
+	bool			bPalette;		// Is It Palettised
+	DDSURFACEDESC	ddsd;			// Surface Description
+	unsigned char	rbpp;			// Red Bits Per Pixel
+	unsigned char	gbpp;			// Green Bits Per Pixel
+	unsigned char	bbpp;			// Blue Bits Per Pixel
+	unsigned char	rshift;			// Shifts For Red 
+	unsigned char	gshift;			// Shifts For Green
+	unsigned char	bshift;			// Shifts For Blue
+};
+
+struct D3DTEXTUREINFO
+{
+	DDPIXELFORMAT	ddpf;			// Texture Pixel Format
+	unsigned long	bpp;			// Bits Per Pixel (if Palettised)
+	bool			bPalette;		// Is it Palettised
+	bool			bAlpha;			// Does It Support Alpha
+	unsigned char	rbpp;			// Red Bits Per Pixel 
+	unsigned char	gbpp;			// Green Bits Per Pixel
+	unsigned char	bbpp;			// Blue Bits Per Pixel
+	unsigned char	abpp;			// Alpha Bits Per Pixel
+	unsigned char	rshift;			// Shifts For Red
+	unsigned char	gshift;			// Shifts For Green
+	unsigned char	bshift;			// Shifts For Blue
+	unsigned char	ashift;			// Shifts For Alpha
+};
+
+struct zBufFormat
+{
+	DDPIXELFORMAT ddpf; // pos 0 s 32
+	unsigned long bpp; // pos 32 s 4
+};
+
+struct DIRECT3DINFO
+{
+	char			Name[30];		// Name String
+	char			About[80];		// Description String
+	LPGUID			lpGuid;			// GUID
+	GUID			Guid;
+	D3DDEVICEDESC	DeviceDesc;		// Device Description
+	bool			bHardware;		// Is It Hardware
+	int				nDisplayMode;	// Number Of Display Modes
+	DISPLAYMODE*	DisplayMode;	// Ptr To Compatible Display Modes
+	int				nTexture;		// Number Of Texture Formats
+	D3DTEXTUREINFO*	Texture;		// Texture Info
+	int nZbuffer; // pos 402 s 4
+	struct zBufFormat* Zbuffer; // pos 406 s 4
+};
+
+struct DIRECTDRAWINFO
+{
+	char			Name[30];		// Name String   
+	char			About[80];		// Description String
+	LPGUID			lpGuid;			// GUID
+	GUID			Guid;
+	DDCAPS			DDCaps;			// Device Capabilites
+	DDDEVICEIDENTIFIER DDDevIdent;
+	int				nDisplayMode;	// Number Of Display Modes	
+	DISPLAYMODE*	DisplayMode;	// Ptr To Display Mode Structure
+	int				nD3DInfo;		// Number Of D3D Drivers
+	DIRECT3DINFO*	D3DInfo;		// Ptr To D3D Info Structure
+};
+
+struct DIRECTSOUNDINFO
+{
+	char			Name[30];		// Name String   
+	char			About[80];		// Description String
+	LPGUID			lpGuid;			// GUID
+	GUID			Guid;
+};
+
+struct DEVICEINFO					// DirectX Device Information
+{
+	int				nDDInfo;		// Entries
+	int				nDSInfo;
+	DIRECTDRAWINFO*	DDInfo;			// Ptr To Info Structure
+	DIRECTSOUNDINFO* DSInfo;
+};
+
+
+struct WINAPP
+{
+	HINSTANCE				hInstance;
+	HWND					WindowHandle;
+	WNDCLASS				WindowClass;
+
+	DEVICEINFO				DeviceInfo;			// Device Information
+	DXCONFIG				DXConfig;
+
+	BYTE pad;
+
+	LPDIRECTDRAW4			lpDD;				// DirectDraw2 Interface
+	LPDIRECT3D3				lpD3D;				// Direct3D2 Interface
+	LPDIRECT3DDEVICE3		lpD3DDevice;		// Direct 3D2 Device
+	LPDIRECT3DDEVICE3		lpD3DDevice_BIS;	// Direct 3D2 Device
+
+	LPDIRECTDRAWSURFACE4	lpFrontBuffer;		// Primary Surface
+	LPDIRECTDRAWSURFACE4	lpBackBuffer;		// Back Buffer
+	LPDIRECTDRAWSURFACE4	lpZBuffer;			// Z Buffer
+
+	LPDIRECT3DVIEWPORT3		lpViewPort;
+
+	LPDIRECTSOUND			lpDS;
+
+	unsigned int width;
+	unsigned int height;
+
+	RECT					r1;
+	RECT					GnWindowRect;
+
+	unsigned int			Flags;
+	unsigned int			DXWndStyle;
+	unsigned int			DXCoopLevel;
+
+	LPDIRECTINPUT7A			lpDI;
+	LPDIRECTINPUTDEVICE2A	lpDIKeyboard;
+	LPDIRECTINPUTDEVICE2A	lpDIJoystick;
+
+	HWND					GhWnd; // pos 100 s 4
+	DWORD isInScene; // pos 104 s 4
+	DWORD					bNoFocus;				// Application Window Has Fous
+
+	DWORD sceneDone;
+	HANDLE hObject; // D9AC05
+
+	DWORD dword_D9AC09;
+	DWORD dword_D9AC0D;
+	DWORD dword_D9AC11;
+
+	HACCEL hAccTable;
+	uint8 byte_D9AC19;
+	BYTE					tBumpMap;
+	DWORD textRes;
+	DWORD bumpRes;
+	uint8 byte_D9AC23;
+	BYTE					tBilinearFilter;
+	BYTE					tVolumetricShadows;
+	BYTE					tDisableSound;
+	DWORD orig_flags;
+	BYTE byte_D9AC2B;
+	DWORD OriginalBPP;
+
+	BYTE					tAutoTarget;
+	DWORD dword_D9AC34;
+	DWORD dword_D9AC38;
+
+	LPDIRECTDRAWPALETTE		Palette;				// Palette For SW Renderer
+	PALETTEENTRY			PaletteEntries[256];	// Palette Entries
+
+
+	bool					bRender;			// Ok To Render
+
+	int						nRenderMode;		// Hardware/Internal Renderer
+	int						nUVAdd;
+
+	bool					tJoystickEnabled;
+	int						Joystick;
+
+	float					fps;
+};
+
+
+typedef struct
+{
+	signed char	  shimmer;
+	signed char   choppy;
+	unsigned char random;
+	unsigned char abs;
+} WATERTAB;
+
+
+
 #pragma pop
+
+enum WINAPP_FLAGS
+{
+	WA_FULLSCREEN = (1 << 0),
+	WA_UNKNOWN1 = (1 << 1),
+	WA_UNKNOWN2 = (1 << 4),
+	WA_FPUSETUP = (1 << 5),
+	WA_SOFTWARE = (1 << 6),
+	WA_BACK_BUFFER = (1 << 7),
+};
 
 #endif

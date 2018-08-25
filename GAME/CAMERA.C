@@ -40,7 +40,7 @@
 
 long BinocularRange;
 long BinocularOn;
-long BinocularOldCamera;
+enum camera_type BinocularOldCamera;
 long LaserSight;
 long InfraRed;
 char SniperCount;

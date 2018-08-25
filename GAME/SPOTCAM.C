@@ -426,7 +426,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 
 void CalculateSpotCams()//37ED0(<), ? 
 {
-#if 1
+#if !PC_VERSION
 	long cpx; // stack offset -96
 	long cpy; // stack offset -92
 	long cpz; // stack offset -88

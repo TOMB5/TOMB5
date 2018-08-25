@@ -710,7 +710,7 @@ HRESULT HWBeginScene()
 	if (ptr_ctx->isInScene)
 		Log(1, "Already In Scene");
 	ptr_ctx->isInScene = 1;
-	ptr_ctx->dword_D9AC01 = 0;
+	ptr_ctx->sceneDone = 0;
 	if (ptr_ctx->dword_D9ABFD)
 		sub_4D34C1();
 	return ptr_ctx->d3d_dev->lpVtbl->BeginScene(ptr_ctx->d3d_dev);
@@ -936,7 +936,7 @@ signed int sub_4B7DA0()
 	ptr_EndScene();
 	sub_40162C();
 	//j_nullsub_19();
-	ptr_ctx->dword_D9AC01 = 1;
+	ptr_ctx->sceneDone = 1;
 	return v1;
 }
 
