@@ -54,7 +54,7 @@ void WinClose()
 
 	SaveSettings();
 	CloseHandle(App.hObject);
-	//
+	DXFreeInfo(&App.DeviceInfo);
 	DestroyAcceleratorTable(App.hAccTable);
 	CloseDirectX();
 
@@ -73,7 +73,7 @@ bool WinRunCheck(LPCSTR lpName, LPCSTR lpClassName, HANDLE* mutex)
 
 	*mutex = CreateMutexA(0, true, lpName);
 
-	if (GetLastError() != 183)
+	if (GetLastError() != ERROR_ALREADY_EXISTS)
 		return false;
 
 	HWND wnd = FindWindowA(lpClassName, lpName);
@@ -205,7 +205,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	App.isInScene = false;
 	App.PlayingFMV = false;
 
-	App.DXConfig.nD3D = 0;
+	App.DXConfig.nD3D = 0; // todo: temporary fix because of lack of software renderer
 
 	if (!DXCreate(
 		CUR_DM.w,
@@ -235,7 +235,11 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	App.hAccTable = LoadAcceleratorsA(hInstance, (LPCSTR)0x65);
 
-	// sound
+	if (!App.tDisableSound)
+	{
+		DXDSCreate();
+		InitACM();
+	}
 
 	game_running = true;
 	thread_started = false;
@@ -263,7 +267,6 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
 	if (dblog)
 		PostMessageA(dblog, dbm_command, 4, 0);
-
 	
 	return 0;
 }

@@ -101,7 +101,7 @@ void GameClose()
 {
 	Log(LT_Enter, "GameClose");
 
-	//ACMClose();
+	ACMClose();
 
 	FreeLevel();
 
@@ -109,11 +109,11 @@ void GameClose()
 
 	free(d9ab34);
 
-	/*if (ptr)
-		free(ptr);
+	if (wave_file_buf)
+		free(wave_file_buf);
 
-	if (bufSource)
-		free(bufSource);*/
+	if (source_buffer)
+		free(source_buffer);
 
 	free(malloc_buffer);
 	free(gfScriptFile);
