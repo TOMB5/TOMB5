@@ -592,7 +592,7 @@ void SetFade(int a1, int a2)
 
 void S_InitialiseScreen()
 {
-	Unimpl();
+
 }
 
 BYTE IsVolumetric()
@@ -680,6 +680,12 @@ void S_DrawHealthBar2(int size)
 	void S_CDFade(int a1)
 {
 	
+}
+
+	int		S_StartSyncedAudio(int num)
+{
+		Unimpl();
+		return 0;
 }
 
 #ifdef __cplusplus
