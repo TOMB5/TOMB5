@@ -31,7 +31,6 @@ void(*AddTri1)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int 
 void(*AddTri2)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7);
 void(*AddLine)(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color);
 
-int dword_E4B100;
 int num_fog_bulbs;
 
 uint32_t GnFrameCounter;
@@ -657,7 +656,7 @@ void DrawRooms(short current_room)
 	{
 		if (!(lara_item->flags & IFLAG_INVISIBLE))
 		{
-			dword_E4B100 = 4;	
+			e4b100 = 4;	
 
 			if (lara_item->mesh_bits != 0 && !SCNoDrawLara)
 			{
@@ -697,7 +696,7 @@ void DrawRooms(short current_room)
 
 	InitDynamicLighting();
 
-	dword_E4B100 = 0;
+	e4b100 = 0;
 
 	for (int i = 0; i < 32; i++)
 	{

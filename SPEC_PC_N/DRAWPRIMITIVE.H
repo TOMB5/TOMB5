@@ -49,6 +49,14 @@ void DoSnow();
 
 extern int num_fog_bulbs;
 
+extern int num_snow_flakes;
+extern int num_rain_drops;
+extern int num_snow_splashes;
+extern int num_rain_splashes;
+
+extern float fog_start;
+extern float fog_end;
+
 extern uint32_t GnFrameCounter;
 
 #endif
