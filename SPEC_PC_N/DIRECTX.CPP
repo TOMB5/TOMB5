@@ -2,10 +2,14 @@
 #include "DIRECTX.H"
 #include "GLOBAL.H"
 #include <dinput.h>
+#include "SOUND.H"
+#include "SETUP.H"
+#include <msacm.h>
 #pragma comment (lib, "ddraw.lib")
 #pragma comment (lib, "dxguid.lib")
 #pragma comment (lib, "dinput.lib")
 #pragma comment (lib, "d3dx9.lib")
+#pragma comment (lib, "Msacm32.lib")
 
 static LPDIRECTDRAW4		enum_lpDD;
 static LPDIRECT3D3			enum_lpD3D;
@@ -13,6 +17,61 @@ static LPDIRECTDRAWSURFACE4 enum_lpDDSurface;
 static LPDIRECT3DDEVICE3	enum_lpD3DDevice;
 static HWND					WindowHandle;
 static bool bSoftRend = false;
+static LPDIRECTSOUNDBUFFER DSSoundBuffer;
+static LPDIRECTSOUNDBUFFER ACMSoundBuffer;
+static LPDIRECTSOUNDNOTIFY DSNotify;
+
+int NumSamplesTable[3] =
+{
+	11025, 22050, 44100
+};
+int NumSamples;
+bool ACMInited;
+HACMDRIVERID acm_driver_id;
+HACMDRIVER acm_driver;
+ACMSTREAMHEADER acm_header_1;
+ACMSTREAMHEADER acm_header_2;
+ACMSTREAMHEADER acm_header_3;
+ACMSTREAMHEADER acm_header_4;
+
+HACMSTREAM acm_stream;
+int acm_lock_length;
+DWORD acm_max_length;
+LPBYTE acm_audio_ptr;
+DWORD acm_audio_bytes;
+
+const char* xa_filenames[] =
+{
+	"xa1_TL_10B.wav", "xa1_Z10.wav", "xa1_TL_05.wav", "xa1_TL_08.wav", "xa1_TL_11.wav", 
+	"xa1_ANDYPEW.wav", "xa1_SECRET.wav", "xa1_TL_02.wav", "xa2_HMMM05.wav", "xa2_TL_01.wav", 
+	"xa2_ATTACK04.wav", "xa2_UWATER2B.wav", "xa2_SPOOKY2A.wav", "xa2_TL_10A.wav", "xa2_HMMM02.wav", 
+	"xa2_TOMS01.wav", "xa3_Attack03.wav", "xa3_Attack02.wav", "xa3_Hmmm01.wav", "xa3_Stealth1.wav", 
+	"xa3_Stealth2.wav", "xa3_Attack01.wav", "xa3_TL_06.wav", "xa3_TL_03.wav", "xa4_hmmm06.wav", 
+	"xa4_mil01.wav", "xa4_Z_03.wav", "xa4_hit01.wav", "xa4_spooky05.wav", "xa4_drama01.wav", 
+	"xa4_stealth4.wav", "xa4_mil05.wav", "xa5_HMMM04.wav", "xa5_MIL06.wav", "xa5_SPOOKY02.wav", 
+	"xa5_TL_12.wav", "xa5_MIL02A.wav", "xa5_HMMM03.wav", "xa5_MIL02.wav", "xa5_TL_04.wav", 
+	"xa6_Mil04.wav", "xa6_Solo01.wav", "xa6_Z12.wav", "xa6_Stealth3.wav", "xa6_AuthSolo.wav", 
+	"xa6_Spooky03.wav", "xa6_Z13.wav", "xa6_Z_04anim.wav", "xa7_z_06a.wav", "xa7_andyoooh.wav", 
+	"xa7_andyooer.wav", "xa7_tl_07.wav", "xa7_z_02.wav", "xa7_evibes01.wav", "xa7_z_06.wav", 
+	"xa7_authtr.wav", "xa8_mil03.wav", "xa8_fightsc.wav", "xa8_richcut3.wav", "xa8_z_13.wav", 
+	"xa8_z_08.wav", "xa8_uwater2a.wav", "xa8_jobyalrm.wav", "xa8_mil02b.wav", "xa9_swampy.wav", 
+	"xa9_evibes02.wav", "xa9_gods01.wav", "xa9_z_03.wav", "xa9_richcut4.wav", "xa9_title4.wav", 
+	"xa9_spooky01.wav", "xa9_chopin01.wav", "xa10_echoir01.wav", "xa10_title3.wav",
+	"xa10_perc01.wav", "xa10_vc01.wav", "xa10_title2.wav", "xa10_z_09.wav", "xa10_spooky04.wav", 
+	"xa10_z_10.wav", "xa11_vc01atv.wav", "xa11_andy3.wav", "xa11_title1.wav", "xa11_flyby1.wav", 
+	"xa11_monk_2.wav", "xa11_andy4.wav", "xa11_flyby3.wav", "xa11_flyby2.wav", "xa12_moses01.wav", 
+	"xa12_andy4b.wav", "xa12_z_10.wav", "xa12_flyby4.wav", "xa12_richcut1.wav", "xa12_andy5.wav",
+	"xa12_z_05.wav", "xa12_z_01.wav", "xa13_Joby3.wav", "xa13_Andy7.wav", "xa13_Andrea3B.wav", 
+	"xa13_cossack.wav", "xa13_Z_07.wav", "xa13_Andy6.wav", "xa13_Andrea3.wav", "xa13_Joby7.wav", 
+	"xa14_uwater1.wav", "xa14_joby1.wav", "xa14_andy10.wav", "xa14_richcut2.wav", 
+	"xa14_andrea1.wav", "xa14_andy8.wav", "xa14_joby6.wav", "xa14_ecredits.wav", 
+	"xa15_boss_01.wav", "xa15_joby2.wav", "xa15_joby4.wav", "xa15_joby5.wav", "xa15_joby9.wav", 
+	"xa15_a_andy.wav", "xa15_a_rome.wav", "xa15_andy2.wav", "xa16_Joby8.wav", "xa16_A_Sub_Amb.wav", 
+	"xa16_Joby10.wav", "xa16_A_Harbour_out.wav", "xa16_A_Andy_Out_Norm.wav", 
+	"xa16_A_Andy_Out_Spooky.wav", "xa16_A_Rome_Day.wav", "xa16_A_Underwater.wav",
+	"xa17_A_Rome_Night.wav", "xa17_A_VC_Saga.wav", "xa17_A_Industry.wav", "xa17_Andrea2.wav", 
+	"xa17_Andy1.wav", "xa17_Andrea4.wav", "xa17_Andy9.wav", "xa17_Andy11.wav"
+};
 
 void DXBitMask2ShiftCnt(unsigned long mask, unsigned char* shift, unsigned char* cnt)
 {
@@ -1139,4 +1198,197 @@ void DXToggleFullScreen()
 	App.lpD3D->EvictManagedTextures();
 
 	DXCreate(CUR_DM.w, CUR_DM.h, CUR_DM.bpp, App.Flags, &App, App.GhWnd, App.DXWndStyle);
+}
+
+void DXDSCreate()
+{
+	Log(LT_Enter, "DXDSCreate");
+	DX_TRY(DirectSoundCreate(CUR_DS.lpGuid, &App.lpDS, nullptr));
+	DX_TRY(App.lpDS->SetCooperativeLevel(App.WindowHandle, DSSCL_EXCLUSIVE));
+	DXSetOutputFormat();
+	sound_active = true;
+}
+
+bool SetSoundOutputFormat(int num_samples, char a2)
+{
+	if (!a2 && NumSamples == num_samples)
+		return true;
+
+	WAVEFORMATEX wf;
+	wf.wFormatTag = WAVE_FORMAT_PCM;
+	wf.nChannels = 2;
+	wf.nSamplesPerSec = num_samples;
+	wf.nAvgBytesPerSec = num_samples * 4;
+	wf.nBlockAlign = 4;
+	wf.wBitsPerSample = 16;
+	wf.cbSize = 0;
+	S_SoundStopAllSamples();
+
+	if (DSSoundBuffer == nullptr)
+		return true;
+
+	if (DX_TRY(DSSoundBuffer->SetFormat(&wf)))
+	{
+		Log(LT_Error, "Can't set sound output format to %d", wf.nSamplesPerSec);
+		return false;
+	}
+
+	return true;
+}
+
+bool DXSetOutputFormat()
+{
+	Log(LT_Enter, "DXSetOutputFormat");
+
+	DSBUFFERDESC desc;
+	DXInit(desc);
+	desc.dwFlags = DSBCAPS_PRIMARYBUFFER;
+	if (DX_TRY(App.lpDS->CreateSoundBuffer(&desc, &DSSoundBuffer, nullptr)))
+	{
+		Log(LT_Error, "Can't Get Primary Sound Buffer");
+		return false;
+	}
+
+	SetSoundOutputFormat(NumSamplesTable[opt_SoundQuality], 0);
+	DSSoundBuffer->Play(0, 0, DSBPLAY_LOOPING);
+	return true;
+}
+
+BOOL CALLBACK ACMEnumCallback(HACMDRIVERID hadid, DWORD_PTR dwInstance, DWORD fdwSupport)
+{
+	ACMDRIVERDETAILSA padd;
+	Zero(padd);
+	padd.cbStruct = sizeof(padd);
+
+	acmDriverDetailsA(hadid, &padd, 0);
+
+	if (strcmp(padd.szShortName, "MS-ADPCM"))
+		return true;
+
+	acm_driver_id = hadid;
+
+	return false;
+}
+
+void SetupNotifications()
+{
+	Unimpl();
+}
+
+void InitACM()
+{
+	DWORD ver = acmGetVersion();
+
+	ACMInited = false;
+	Log(LT_Sound, "ACM Version %u.%.02u", ver >> 24, (BYTE)(ver >> 16));
+	acmDriverEnum(ACMEnumCallback, 0, 0);
+
+	if (!acm_driver_id)
+	{
+		Log(LT_Error, "*** Unable To Locate MS-ADPCM Driver ***");
+		return;
+	}
+
+	if (acmDriverOpen(&acm_driver, acm_driver_id, 0))
+	{
+		Log(LT_Error, "*** Failed To Open Driver MS-ADPCM Driver ***");
+		return;
+	}
+
+	source_buffer = (BYTE*)malloc(22528);
+	wave_file_buf = malloc(22528 * 10);
+
+	WAVEFORMATEX wfSrc, wfDst;
+	wfDst.wFormatTag = WAVE_FORMAT_PCM;
+
+	DWORD max_format;
+	acmMetrics(nullptr, ACM_METRIC_MAX_SIZE_FORMAT, &max_format);
+
+	acmFormatSuggest(acm_driver, &wfSrc, &wfDst, max_format, ACM_FORMATSUGGESTF_WFORMATTAG);
+
+	acm_lock_length = 358336;
+	acm_max_length = 89584;
+
+	DSBUFFERDESC desc;
+	DXInit(desc);
+	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
+	desc.dwBufferBytes = 358336;
+	desc.lpwfxFormat = &wfDst;
+	App.lpDS->CreateSoundBuffer(&desc, &ACMSoundBuffer, nullptr);
+	ACMSoundBuffer->QueryInterface(IID_IDirectSoundNotify, (LPVOID*)&DSNotify);
+	SetupNotifications();
+	acmStreamOpen(&acm_stream, acm_driver, &wfSrc, &wfDst, nullptr, 0, 0, 0);
+	DWORD stream_size;
+	acmStreamSize(acm_stream, 22528, &stream_size, 0);
+	DX_TRY(ACMSoundBuffer->Lock(0, acm_lock_length, (LPVOID*)&acm_audio_ptr, &acm_audio_bytes, nullptr, nullptr, 0));
+
+	memset(acm_audio_ptr, 0, acm_lock_length);
+
+	DSInit(acm_header_1);
+	DSInit(acm_header_2);
+	DSInit(acm_header_3);
+	DSInit(acm_header_4);
+
+	acm_header_1.pbSrc = acm_header_2.pbSrc = acm_header_3.pbSrc = acm_header_4.pbSrc = source_buffer;
+	acm_header_1.cbDstLength = acm_header_2.cbDstLength = acm_header_3.cbDstLength = acm_header_4.cbDstLength = stream_size;
+	acm_header_1.cbSrcLength = acm_header_2.cbSrcLength = acm_header_3.cbSrcLength = acm_header_4.cbSrcLength = 22528;
+
+	acm_header_1.pbDst = &acm_audio_ptr[0 * acm_max_length];
+	acm_header_2.pbDst = &acm_audio_ptr[1 * acm_max_length];
+	acm_header_3.pbDst = &acm_audio_ptr[2 * acm_max_length];
+	acm_header_4.pbDst = &acm_audio_ptr[3 * acm_max_length];
+
+	acmStreamPrepareHeader(acm_stream, &acm_header_1, 0);
+	acmStreamPrepareHeader(acm_stream, &acm_header_2, 0);
+	acmStreamPrepareHeader(acm_stream, &acm_header_3, 0);
+	acmStreamPrepareHeader(acm_stream, &acm_header_4, 0);
+					
+	DX_TRY(ACMSoundBuffer->Unlock(acm_audio_ptr, acm_lock_length, nullptr, 0));
+
+	ACMInited = true;
+}
+
+void ACMClose()
+{
+	if (ACMInited)
+	{
+		S_CDStop();
+
+		// todo
+		// todo
+
+		acmStreamUnprepareHeader(acm_stream, &acm_header_1, 0);
+		acmStreamUnprepareHeader(acm_stream, &acm_header_2, 0);
+		acmStreamUnprepareHeader(acm_stream, &acm_header_3, 0);
+		acmStreamUnprepareHeader(acm_stream, &acm_header_4, 0);
+
+		acmStreamClose(acm_stream, 0);
+		acmDriverClose(acm_driver, 0);
+
+		DXRelease(DSNotify, "Notification");
+		DXRelease(ACMSoundBuffer, "Stream Buffer");
+	}
+}
+
+void DXFreeInfo(DEVICEINFO* info)
+{
+	Log(LT_Enter, "DXFreeInfo");
+
+	for(int i = 0; i < info->nDDInfo; i++)
+	{
+		auto dd = info->DDInfo[i];
+
+		for(int j = 0; j < dd.nD3DInfo; j++)
+		{
+			free(dd.D3DInfo[i].DisplayMode);
+			free(dd.D3DInfo[i].Texture);
+			free(dd.D3DInfo[i].Zbuffer);
+		}
+
+		free(dd.D3DInfo);
+		free(dd.DisplayMode);
+	}
+
+	free(info->DDInfo);
+	free(info->DSInfo);
 }
