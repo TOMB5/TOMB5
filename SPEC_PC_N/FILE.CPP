@@ -1055,10 +1055,42 @@ extern "C" {
 			}
 		}
 	}
-	int GetAIPickups()
+	void GetAIPickups()
 	{
-		Unimpl();
-		return 0;
+		for (int i = 0; i < level_items; i++)
+		{
+			struct ITEM_INFO* item = &items[i];
+
+			if (objects[item->object_number].intelligent)
+			{
+				item->status = 0;
+				item->gravity_status = FALSE;
+				item->hit_status = FALSE;
+				item->collidable = FALSE;
+
+				for(int j = 0; j < nAIObjects; j++)
+				{
+					struct AIOBJECT* cur = &AIObjects[j];
+
+					if (abs(cur->x - item->pos.x_pos) < SECTOR(0.5) &&
+						abs(cur->z - item->pos.z_pos) < SECTOR(0.5) &&
+						cur->room_number == item->room_number)
+					{
+						if (cur->object_number < AI_PATROL2)
+						{
+							item->ai_bits = 1 << (cur->object_number - AI_GUARD);
+							item->trigger_flags = cur->trigger_flags;
+
+							if (cur->object_number != AI_GUARD)
+								cur->room_number = 255;
+						}
+					}
+				}
+
+				item->meshswap_meshbits |= item->item_flags[3] << 8;
+				item->meshswap_meshbits |= item->ai_bits << 16;
+			}
+		}
 	}
 	void ClearFootPrints()
 	{
