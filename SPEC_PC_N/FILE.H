@@ -13,6 +13,7 @@ extern "C" {
 	int FileClose(FILE* fp);
 	unsigned long FileLength(FILE* nHandle);
 	void FreeD3DLights();
+	void FreeLevel();
 
 #ifdef __cplusplus
 }

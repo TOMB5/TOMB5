@@ -44,7 +44,7 @@ bool GameInitialise()
 	DXInit(buf);
 	buf.dwCaps = 0;
 	buf.dwFVF = D3DFVF_TLVERTEX;
-	buf.dwNumVertices = 0x2000;
+	buf.dwNumVertices = 8192;
 
 	DX_TRY(App.lpD3D->CreateVertexBuffer(&buf, &vertex_buffer, D3DFVF_XYZRHW, nullptr));
 

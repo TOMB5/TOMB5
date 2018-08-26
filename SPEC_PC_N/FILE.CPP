@@ -362,7 +362,7 @@ extern "C" {
 		memset(OutsideRoomTable, -1, 27 * 27 * OUTSIDE_Z);
 
 		char flipped[256];
-		memset(flipped, 0, -1);
+		memset(flipped, 0, 255);
 
 		for(int i = 0; i < number_rooms; i++)
 		{
@@ -1019,7 +1019,7 @@ extern "C" {
 	}
 	void CreateD3DLights()
 	{
-		Unimpl();
+		
 	}
 	int GetCarriedItems()
 	{
