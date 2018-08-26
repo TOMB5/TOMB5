@@ -349,8 +349,8 @@ void PuzzleDone(struct ITEM_INFO* item, short item_num)//51004, 51468 (F)
 				&& items[i].pos.x_pos == item->pos.x_pos
 				&& items[i].pos.z_pos == item->pos.z_pos)
 			{
-				FlipMap(items[i].speed);
-				flipmap[items[i].trigger_flags] ^= IFLAG_ACTIVATION_MASK;
+				FlipMap(items[i].trigger_flags - 7);
+				flipmap[items[i].trigger_flags - 7] ^= IFLAG_ACTIVATION_MASK;
 				items[i].status = ITEM_INACTIVE;
 				items[i].flags |= 0x20;
 			}
