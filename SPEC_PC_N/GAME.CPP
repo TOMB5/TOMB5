@@ -15,6 +15,26 @@ bool game_running;
 WORD* d9ab34;
 int e4b100;
 
+void InitFX()
+{
+	if (App.Flags & WA_BACK_BUFFER)  
+	{
+		num_snow_flakes = 2048;
+		num_rain_drops = 2048;
+
+		num_snow_splashes = 128;
+		num_rain_splashes = 128;
+	}
+	else
+	{
+		num_snow_flakes = 256;
+		num_rain_drops = 256;
+
+		num_snow_splashes = 8;
+		num_rain_splashes = 8;
+	}
+}
+
 bool GameInitialise()
 {
 	Log(LT_Enter, "GameInitialise");
@@ -37,7 +57,7 @@ bool GameInitialise()
 
 	init_water_table();
 
-	//InitFX();
+	InitFX();
 
 	return true;
 }

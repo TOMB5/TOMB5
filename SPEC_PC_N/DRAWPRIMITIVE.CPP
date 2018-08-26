@@ -36,6 +36,11 @@ float fog_end = SECTOR(20);
 
 int num_fog_bulbs;
 
+int num_snow_flakes;
+int num_rain_drops;
+int num_snow_splashes;
+int num_rain_splashes;
+
 uint32_t GnFrameCounter;
 
 static int bound_list[128];
