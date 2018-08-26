@@ -859,3 +859,45 @@ int GetFreeSpider()// (F)
 	next_spider = (peter_num + 1) & 63;
 	return peter_num;
 }
+
+void TriggerSmallSplash(int x, int y, int z, int num)// (F)
+{
+	for(int i = 0; i < num; i++)
+	{
+		struct SPARKS* sptr = &spark[GetFreeSpark()];
+
+		sptr->On = 1;
+
+		sptr->sR = 64;
+		sptr->sG = 64;
+		sptr->sB = 64;
+
+		sptr->dR = 32;
+		sptr->dG = 32;
+		sptr->dB = 32;
+
+		sptr->ColFadeSpeed = 4;
+		sptr->FadeToBlack = 8;
+
+		sptr->Life = 24;
+		sptr->sLife = 24;
+
+		sptr->TransType = 2;
+
+		int angle = GetRandomControl() << 3;
+
+		sptr->Xvel = -SIN(angle) >> 5;		
+		sptr->Yvel = -640 - (GetRandomControl() & 0xFF);
+		sptr->Zvel = COS(angle) >> 5;
+
+		sptr->Friction = 5;	
+		sptr->Flags = 0;
+
+		sptr->x = x + (sptr->Xvel >> 3);
+		sptr->y = y - (sptr->Yvel >> 5);
+		sptr->z = z + (sptr->Zvel >> 3);
+
+		sptr->MaxYvel = 0;
+		sptr->Gravity = (GetRandomControl() & 0xF) + 64;
+	}
+}
