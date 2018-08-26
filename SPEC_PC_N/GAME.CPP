@@ -7,6 +7,7 @@
 #include "GAMEFLOW.H"
 #include "SOUND.H"
 #include "DRAWPRIMITIVE.H"
+#include "FILE.H"
 
 object_info objects[NUMBER_OBJECTS];
 static_info static_objects[NUMBER_STATIC_OBJECTS];
@@ -102,11 +103,11 @@ void GameClose()
 
 	//ACMClose();
 
-	//FreeLevel();
+	FreeLevel();
 
 	DXRelease(vertex_buffer, "Dest VB");
 
-	//free(dword_D9AB34);
+	free(d9ab34);
 
 	/*if (ptr)
 		free(ptr);
