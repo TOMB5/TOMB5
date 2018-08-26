@@ -1021,10 +1021,39 @@ extern "C" {
 	{
 		
 	}
-	int GetCarriedItems()
+	void GetCarriedItems()
 	{
-		Unimpl();
-		return 0;
+		for(int i = 0; i < level_items; i++)
+		{
+			items[i].carried_item = -1;
+		}
+
+		for (int i = 0; i < level_items; i++)
+		{
+			struct ITEM_INFO* item = &items[i];
+
+			if (objects[item->object_number].intelligent || 
+				item->object_number >= SEARCH_OBJECT1 && item->object_number <= SEARCH_OBJECT3)
+			{
+				struct ITEM_INFO* cur;
+
+				for(int j = room[item->room_number].item_number; j != -1; j = cur->next_item)
+				{
+					cur = &items[j];
+
+					if (abs(cur->pos.x_pos - item->pos.x_pos) < SECTOR(0.5) &&
+						abs(cur->pos.y_pos - item->pos.y_pos) < SECTOR(0.25) &&
+						abs(cur->pos.z_pos - item->pos.z_pos) < SECTOR(0.5) &&
+						objects[cur->object_number].collision == PickUpCollision)
+					{
+						cur->carried_item = item->carried_item;
+						item->carried_item = j;
+						RemoveDrawnItem(j);
+						cur->room_number = 255;
+					}
+				}
+			}
+		}
 	}
 	int GetAIPickups()
 	{
@@ -1050,7 +1079,13 @@ extern "C" {
 	}
 	void InitialiseGameFlags()
 	{
-		Unimpl();
+		memset(flipmap, 0, sizeof(flipmap));
+		memset(flip_stats, 0, sizeof(flip_stats));
+		flipeffect = -1;
+		memset(cd_flags, 0, sizeof(cd_flags));
+		flip_status = 0;
+		IsAtmospherePlaying = 0;
+		camera.underwater = 0;
 	}
 	void SetupGame()
 	{
