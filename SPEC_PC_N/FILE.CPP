@@ -30,6 +30,7 @@
 #include "OBJLIGHT.H"
 #include "LARAMISC.H"
 #include "FLMTORCH.H"
+#include "SOUND.H"
 
 #define OUTSIDE_Z 64
 
@@ -1155,6 +1156,33 @@ extern "C" {
 
 		SetFadeClip(0, 1);
 	}
+	void LoadSamples()
+	{
+		Log(LT_Enter, "LoadSamples");
+
+		AllocReadT(sample_lut, short, 450);
+
+		int numSampleInfos = freadDword();
+
+		Log(LT_Sound, "Number Of Sample Infos %d", numSampleInfos);
+
+		if (numSampleInfos != 0)
+		{
+			AllocRead(sample_infos, SAMPLE_INFO, numSampleInfos);
+
+			int numSampleIndices = freadDword();
+
+			if (numSampleIndices != 0)
+			{
+				Log(LT_Sound, "Number Of Samples %d", numSampleIndices);
+
+				if (feof(fp_level))
+					Log(LT_Error, "END OF FILE");
+
+				Unimpl();
+			}
+		}
+	}
 	unsigned __stdcall LoadLevel(void* filename)
 	{
 		Log(LT_Info, "Begin LoadLevel");
@@ -1234,8 +1262,8 @@ extern "C" {
 			LoadDemoData();
 			S_LoadBar();
 
-			/*if (ACMInited && !ptr_ctx->opt_DisableSound)
-				LoadSamples();*/
+			if (ACMInited && !App.tDisableSound)
+				LoadSamples();
 
 			free(level_data_orig);
 
