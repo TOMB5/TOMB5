@@ -37,6 +37,10 @@
 #define SIN(x) (rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
 #define COS(x) (rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
 
+#define TRIGMULT2(a, b) (((a) * (b)) >> W2V_SHIFT)
+#define TRIGMULT2F(a, b) (((a) * (b)) / 16384.0f)
+#define TRIGMULT3(a, b, c) TRIGMULT2(TRIGMULT2(a, b), c)
+
 #if PC_VERSION
 #define phd_atan_asm phd_atan
 #endif
