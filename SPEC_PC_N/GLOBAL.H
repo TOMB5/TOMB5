@@ -24,6 +24,7 @@ extern "C" {
 #define		ERR_SOUND_FAILED		(-2)
 #define		ERR_SOUND_NO_FREE_SLOTS	(-1)
 
+	extern BYTE tsv_buffer[];
 
 extern	char*		malloc_buffer;
 extern	int			script_malloc_size;
