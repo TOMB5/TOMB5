@@ -1097,13 +1097,13 @@ void cossack_control()//3178C(<), 31BBC(<) (F)
 			pos.z = 0;
 			pos.y = 0;
 			pos.x = 0;
-			GetLaraJointPos(&pos, 11);
+			GetLaraJointPos(&pos, LJ_RHAND);
 			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
 
 			pos.z = 0;
 			pos.y = 0;
 			pos.x = 0;
-			GetLaraJointPos(&pos, 14);
+			GetLaraJointPos(&pos, LJ_LHAND);
 			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
 		}
 		if (f >= 1110 && f <= 1125)
@@ -1111,7 +1111,7 @@ void cossack_control()//3178C(<), 31BBC(<) (F)
 			pos.z = 0;
 			pos.y = 0;
 			pos.x = 0;
-			GetLaraJointPos(&pos, 11);
+			GetLaraJointPos(&pos, LJ_RHAND);
 			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
 		}
 		if (f >= 1111 && f <= 1126)
@@ -1119,7 +1119,7 @@ void cossack_control()//3178C(<), 31BBC(<) (F)
 			pos.z = 0;
 			pos.y = 0;
 			pos.x = 0;
-			GetLaraJointPos(&pos, 4);
+			GetLaraJointPos(&pos, LJ_RTHIGH);
 			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
 		}
 	}
@@ -1304,7 +1304,7 @@ void joby8_control()//310E0, 31460 (F)
 		s.x = 512;
 		s.y = 0;
 		s.z = 0;
-		GetLaraJointPos(&s, 0);
+		GetLaraJointPos(&s, LJ_HIPS);
 
 		int scale = (GLOBAL_cutseq_frame - 2681) >> 4;
 
@@ -2992,9 +2992,9 @@ void deal_with_pistols(unsigned short* shootdata)// (F)
 		if (f == (dat & CPI_FRAME_MASK))
 		{
 			if (dat & CPI_SHOOT_LEFT)
-				cutseq_shoot_pistols(14);
+				cutseq_shoot_pistols(LJ_LHAND);
 			if (dat & CPI_SHOOT_RIGHT)
-				cutseq_shoot_pistols(11);
+				cutseq_shoot_pistols(LJ_RHAND);
 		}
 	}
 	if (SmokeCountL || SmokeCountR)
@@ -3005,7 +3005,7 @@ void deal_with_pistols(unsigned short* shootdata)// (F)
 			pos.x = 4;
 			pos.y = 128;
 			pos.z = 40;
-			GetLaraJointPos(&pos, 14);
+			GetLaraJointPos(&pos, LJ_LHAND);
 			TriggerGunSmoke(pos.x, pos.y, pos.z, 0, 0, 0, 0, SmokeWeapon, SmokeCountL);
 		}
 		if (SmokeCountR)
@@ -3013,7 +3013,7 @@ void deal_with_pistols(unsigned short* shootdata)// (F)
 			pos.x = -16;
 			pos.y = 128;
 			pos.z = 40;
-			GetLaraJointPos(&pos, 11);
+			GetLaraJointPos(&pos, LJ_RHAND);
 			TriggerGunSmoke(pos.x, pos.y, pos.z, 0, 0, 0, 0, SmokeWeapon, SmokeCountR);
 		}
 	}
@@ -3025,12 +3025,12 @@ void deal_with_pistols(unsigned short* shootdata)// (F)
 	if (lara.left_arm.flash_gun)
 	{
 		--lara.left_arm.flash_gun;
-		trigger_weapon_dynamics(14);
+		trigger_weapon_dynamics(LJ_LHAND);
 	}
 	if (lara.right_arm.flash_gun)
 	{
 		--lara.right_arm.flash_gun;
-		trigger_weapon_dynamics(11);
+		trigger_weapon_dynamics(LJ_RHAND);
 	}
 }
 
@@ -3052,7 +3052,7 @@ void trigger_weapon_dynamics(int left_or_right)//2D3E4(<), 2D6CC(<) (F)
 
 void cutseq_shoot_pistols(int left_or_right)//2D360, 2D648 (F)
 {
-	if (left_or_right == 14)
+	if (left_or_right == LJ_LHAND)
 	{
 		lara.left_arm.flash_gun = 4;
 		SmokeCountL = 16;

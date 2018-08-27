@@ -16,7 +16,21 @@ short GlobalCollisionBounds[6];
 
 char LM[] =
 {
-	0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 8
+	LJ_HIPS,
+	LJ_LTHIGH,
+	LJ_LSHIN,
+	LJ_LFOOT,
+	LJ_RTHIGH,
+	LJ_RSHIN,
+	LJ_RFOOT,
+	LJ_TORSO,
+	LJ_RINARM,
+	LJ_ROUTARM,
+	LJ_RHAND,
+	LJ_LINARM,
+	LJ_LOUTARM,
+	LJ_LHAND,
+	LJ_HEAD,
 };
 
 void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)//2A940, 2AB68
