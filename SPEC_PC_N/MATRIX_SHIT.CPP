@@ -48,6 +48,7 @@ extern "C" {
 	float		w2v_matrix_f[12];		// World to View Matrix...
 
 	D3DMATRIX transform_projection;
+	static float LfAspectCorrection;
 
 	void D3DIdentityMatrix(LPD3DMATRIX mat)
 	{
