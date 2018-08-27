@@ -68,6 +68,23 @@ extern "C" {
 		mat->_44 = 1.0;
 	}
 
+	void SetD3DMatrix(LPD3DMATRIX dst, int* src)
+	{
+		D3DIdentityMatrix(dst);
+		dst->_11 = src[M00] / 16384.0f;
+		dst->_12 = src[M10] / 16384.0f;
+		dst->_13 = src[M20] / 16384.0f;
+		dst->_21 = src[M01] / 16384.0f;
+		dst->_22 = src[M11] / 16384.0f;
+		dst->_23 = src[M21] / 16384.0f;
+		dst->_31 = src[M02] / 16384.0f;
+		dst->_32 = src[M12] / 16384.0f;
+		dst->_33 = src[M22] / 16384.0f;
+		dst->_41 = src[M03] / 16384.0f;
+		dst->_42 = src[M13] / 16384.0f;
+		dst->_43 = src[M23] / 16384.0f;
+	}
+
 	void SetD3DMatrixF(LPD3DMATRIX dst, LPD3DMATRIX src)
 	{
 		D3DIdentityMatrix(dst);
