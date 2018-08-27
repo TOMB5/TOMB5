@@ -384,6 +384,35 @@ extern "C" {
 		dest[1] = pitch;
 	}
 
+	void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll)
+	{
+		short	angles[2];
+		PHD_3DPOS 	viewer;
+
+		phd_GetVectorAngles(xtar - xsrc, ytar - ysrc, ztar - zsrc, angles);
+		viewer.x_pos = xsrc;
+		viewer.y_pos = ysrc;
+		viewer.z_pos = zsrc;
+		viewer.x_rot = angles[1];
+		viewer.y_rot = angles[0];
+		viewer.z_rot = roll;
+
+
+		int dx, dy, dz;
+		dx = xsrc - xtar;
+		dy = ysrc - ytar;
+		dz = zsrc - ztar;
+
+		int len = (int)sqrt((dx*dx) + (dz*dz));
+
+		CamRot.vx = mGetAngle(0, 0, len, dy) >> 4;
+		CamRot.vy = mGetAngle(zsrc, xsrc, ztar, xtar) >> 4;
+		CamRot.vz = 0;
+
+		phd_GenerateW2V(&viewer);
+		S_InitD3DMatrix();
+	}
+
 	
 
 #ifdef __cplusplus
