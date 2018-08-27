@@ -40,6 +40,11 @@ DWORD acm_max_length;
 LPBYTE acm_audio_ptr;
 DWORD acm_audio_bytes;
 
+int joystick_read_x;
+int joystick_read_y;
+int joystick_read_fire;
+bool joystick_read;
+
 const char* xa_filenames[] =
 {
 	"xa1_TL_10B.wav", "xa1_Z10.wav", "xa1_TL_05.wav", "xa1_TL_08.wav", "xa1_TL_11.wav", 
@@ -1391,4 +1396,20 @@ void DXFreeInfo(DEVICEINFO* info)
 
 	free(info->DDInfo);
 	free(info->DSInfo);
+int DI_ReadJoystick(int* joy_x, int* joy_y)
+{
+	if (joystick_read)
+	{
+		*joy_x = joystick_read_x;
+		*joy_y = joystick_read_y;
+		return joystick_read_fire;
+	}
+	else
+	{
+		*joy_x = 0;
+		*joy_y = 0;
+		return 0;
+	}
+}
+
 }
