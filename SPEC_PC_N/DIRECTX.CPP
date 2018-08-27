@@ -1324,7 +1324,7 @@ void InitACM()
 	wfSrc->aCoef[4] = { 240, 0 };
 	wfSrc->aCoef[5] = { 460, -208 };
 	wfSrc->aCoef[6] = { 392, -232 };
-	static WAVEFORMATEX* p = (WAVEFORMATEX*)malloc(1024);
+	static WAVEFORMATEX* p = (WAVEFORMATEX*)malloc(1024); // TODO: BAD BAD BAD BAD BAD
 	static WAVEFORMATEX& wfDst = *p;
 	Zero(wfDst);
 	wfDst.wFormatTag = WAVE_FORMAT_PCM;
