@@ -4,6 +4,7 @@
 #include <dinput.h>
 #include "SOUND.H"
 #include "SETUP.H"
+#include <mmreg.h>
 #include <msacm.h>
 #pragma comment (lib, "ddraw.lib")
 #pragma comment (lib, "dxguid.lib")
@@ -33,6 +34,9 @@ ACMSTREAMHEADER acm_header_1;
 ACMSTREAMHEADER acm_header_2;
 ACMSTREAMHEADER acm_header_3;
 ACMSTREAMHEADER acm_header_4;
+
+void* wave_file_buf;
+BYTE* source_buffer;
 
 HACMSTREAM acm_stream;
 int acm_lock_length;
@@ -1303,13 +1307,32 @@ void InitACM()
 	source_buffer = (BYTE*)malloc(22528);
 	wave_file_buf = malloc(22528 * 10);
 
-	WAVEFORMATEX wfSrc, wfDst;
+	auto wfSrc = (ADPCMWAVEFORMAT*)malloc(sizeof(WAVEFORMATEX) + 32);	
+	wfSrc->wfx.wFormatTag = WAVE_FORMAT_ADPCM;
+	wfSrc->wfx.nChannels = 2;
+	wfSrc->wfx.nSamplesPerSec = 44100;
+	wfSrc->wfx.nAvgBytesPerSec = 44359;
+	wfSrc->wfx.nBlockAlign = 2048;
+	wfSrc->wfx.wBitsPerSample = sizeof(DWORD);
+	wfSrc->wfx.cbSize = 32;
+	wfSrc->wSamplesPerBlock = 2036;
+	wfSrc->wNumCoef = 7;
+	wfSrc->aCoef[0] = { 256, 0 };
+	wfSrc->aCoef[1] = { 512, -256 };
+	wfSrc->aCoef[2] = { 0, 0 };
+	wfSrc->aCoef[3] = { 192, 64 };
+	wfSrc->aCoef[4] = { 240, 0 };
+	wfSrc->aCoef[5] = { 460, -208 };
+	wfSrc->aCoef[6] = { 392, -232 };
+	static WAVEFORMATEX* p = (WAVEFORMATEX*)malloc(1024);
+	static WAVEFORMATEX& wfDst = *p;
+	Zero(wfDst);
 	wfDst.wFormatTag = WAVE_FORMAT_PCM;
 
 	DWORD max_format;
 	acmMetrics(nullptr, ACM_METRIC_MAX_SIZE_FORMAT, &max_format);
 
-	acmFormatSuggest(acm_driver, &wfSrc, &wfDst, max_format, ACM_FORMATSUGGESTF_WFORMATTAG);
+	acmFormatSuggest(acm_driver, &wfSrc->wfx, &wfDst, max_format, ACM_FORMATSUGGESTF_WFORMATTAG);
 
 	acm_lock_length = 358336;
 	acm_max_length = 89584;
@@ -1322,7 +1345,7 @@ void InitACM()
 	App.lpDS->CreateSoundBuffer(&desc, &ACMSoundBuffer, nullptr);
 	ACMSoundBuffer->QueryInterface(IID_IDirectSoundNotify, (LPVOID*)&DSNotify);
 	SetupNotifications();
-	acmStreamOpen(&acm_stream, acm_driver, &wfSrc, &wfDst, nullptr, 0, 0, 0);
+	acmStreamOpen(&acm_stream, acm_driver, &wfSrc->wfx, &wfDst, nullptr, 0, 0, 0);
 	DWORD stream_size;
 	acmStreamSize(acm_stream, 22528, &stream_size, 0);
 	DX_TRY(ACMSoundBuffer->Lock(0, acm_lock_length, (LPVOID*)&acm_audio_ptr, &acm_audio_bytes, nullptr, nullptr, 0));
