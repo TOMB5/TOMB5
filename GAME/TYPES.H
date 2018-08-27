@@ -141,6 +141,8 @@ enum msoff {
 #define RGBONLY(r, g, b) ((b & 0xFF) | (((g & 0xFF) | ((r & 0xFF) << 8)) << 8))
 #define RGBA(r, g, b, a) (RGBONLY(r, g, b) | ((a) << 24))
 
+#define NO_ROOM 0xFF
+
 enum zone_type
 {
 	SKELLY_ZONE = 0,
