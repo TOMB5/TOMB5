@@ -215,9 +215,32 @@ extern "C" {
 		phd_UnitMatrix();
 	}
 
+	void TranslateAbs(long x, long y, long z)
+	{
+		float* mptr = phd_dxptr;
+
+		x -= w2v_matrix_f[M03];
+		y -= w2v_matrix_f[M13];
+		z -= w2v_matrix_f[M23];
+
+		mptr[M03] = mptr[M00] * x + mptr[M01] * y + mptr[M02] * z;
+		mptr[M13] = mptr[M10] * x + mptr[M11] * y + mptr[M12] * z;
+		mptr[M23] = mptr[M20] * x + mptr[M21] * y + mptr[M22] * z;
+	}
+
 	void phd_TranslateAbs(long x, long y, long z)
 	{
-		Unimpl();
+		int* mptr = phd_mxptr;
+
+		TranslateAbs(x, y, z);
+
+		x -= w2v_matrix[M03];
+		y -= w2v_matrix[M13];
+		z -= w2v_matrix[M23];
+
+		mptr[M03] = mptr[M00] * x + mptr[M01] * y + mptr[M02] * z;
+		mptr[M13] = mptr[M10] * x + mptr[M11] * y + mptr[M12] * z;
+		mptr[M23] = mptr[M20] * x + mptr[M21] * y + mptr[M22] * z;
 	}
 
 	void phd_RotYXZ(long y, long x, long z)
