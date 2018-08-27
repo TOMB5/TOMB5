@@ -17,6 +17,7 @@ sint32 inputBusy;
 short mouse_x;
 short mouse_y;
 int mouse_vkeys;
+int32_t conflict[18];
 int16_t layout[2][18] = 
 {
 	{ DIK_UP, DIK_DOWN, DIK_LEFT, DIK_RIGHT, DIK_PERIOD, DIK_SLASH, DIK_RSHIFT, DIK_RMENU, DIK_RCONTROL, DIK_SPACE, DIK_COMMA, DIK_NUMPAD0, DIK_END, DIK_ESCAPE, DIK_DELETE, DIK_NEXT, DIK_P, DIK_RETURN },

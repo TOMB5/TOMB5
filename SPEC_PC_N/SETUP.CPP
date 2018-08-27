@@ -24,7 +24,7 @@ uint8_t opt_MusicVolume = 40;
 uint8_t opt_SFXVolume = 80;
 uint8_t opt_ControlMethod;
 uint8_t opt_SoundQuality = 1;
-int32_t key_conflicts[18];
+
 
 const char* reg_path = "Software\\Core Design\\Tomb Raider Chronicles";
 
