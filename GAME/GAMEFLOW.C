@@ -112,6 +112,10 @@ unsigned char gfTakeaways[16];
 char* gfScriptFile;
 #endif
 int special_features_num = -1;
+const char* screens[5] =
+{
+	"SCREENS\\STORY1.STR", "SCREENS\\NXG.STR", "SCREENS\\STORY2.STR", "SCREENS\\GALLERY.STR", "SCREENS\\SCREENS.STR"
+};
 
 void DoGameflow()//10F5C(<), 10FD8(<)
 {
