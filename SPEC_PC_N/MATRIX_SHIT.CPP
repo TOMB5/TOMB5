@@ -302,6 +302,71 @@ extern "C" {
 		ScaleCurrentMatrixF(vec);
 	}
 
+	void phd_GenerateW2V(PHD_3DPOS* viewpos)
+	{
+		int32_t	sx, sy, sz;
+		int32_t	cx, cy, cz;
+		int32_t	*mptr, *nptr;
+
+		mptr = phd_mxptr = matrix_stack;    /* Put W2V at Top Of matrix Stack */
+		nptr = w2v_matrix;
+
+		sx = 4 * SIN(viewpos->x_rot);		/* get sin and cos values*/
+		cx = 4 * COS(viewpos->x_rot);
+		sy = 4 * SIN(viewpos->y_rot);
+		cy = 4 * COS(viewpos->y_rot);
+		sz = 4 * SIN(viewpos->z_rot);
+		cz = 4 * COS(viewpos->z_rot);
+
+		*(nptr + M00) = *(mptr + M00) = (TRIGMULT3(sx, sy, sz) + TRIGMULT2(cy, cz));
+		*(nptr + M01) = *(mptr + M01) = (TRIGMULT2(cx, sz));
+		*(nptr + M02) = *(mptr + M02) = (TRIGMULT3(sx, cy, sz) - TRIGMULT2(sy, cz));
+		*(nptr + M10) = *(mptr + M10) = (TRIGMULT3(sx, sy, cz) - TRIGMULT2(cy, sz));
+		*(nptr + M11) = *(mptr + M11) = (TRIGMULT2(cx, cz));
+		*(nptr + M12) = *(mptr + M12) = (TRIGMULT3(sx, cy, cz) + TRIGMULT2(sy, sz));
+		*(nptr + M20) = *(mptr + M20) = (TRIGMULT2(cx, sy));
+		*(nptr + M21) = *(mptr + M21) = -(sx);
+		*(nptr + M22) = *(mptr + M22) = (TRIGMULT2(cx, cy));
+
+		short poison;
+		if (lara.dpoisoned != lara.poisoned)
+		{
+			poison = ((lara.dpoisoned - lara.poisoned) >> 4) + lara.poisoned;
+			lara.poisoned = poison;
+			if (abs(lara.dpoisoned - poison) < 16)
+			{
+				poison = lara.dpoisoned;
+				lara.poisoned = lara.dpoisoned;
+			}
+		}
+
+		if (poison >= 256)
+		{
+			short p = poison - 256;
+			long x = p * (SIN(XSoff1) + SIN(XSoff2));
+			long y = p * (SIN(XSoff1) + SIN(XSoff2));
+			long z = p * (SIN(XSoff1) + SIN(XSoff2));
+			if (x != 0 || y != 0 || z != 0)
+			{
+				VECTOR vec;
+				vec.vx = (x >> 12) + 0x4000;
+				vec.vy = (y >> 12) + 0x4000;
+				vec.vz = (z >> 12) + 0x4000;
+				ScaleCurrentMatrix(&vec);
+			}
+		}
+
+		*(nptr + M03) = *(mptr + M03) = viewpos->x_pos;
+		*(nptr + M13) = *(mptr + M13) = viewpos->y_pos;
+		*(nptr + M23) = *(mptr + M23) = viewpos->z_pos;
+
+		*(nptr + M10) = *(mptr + M10) = (int32_t)(float(*(mptr + M10))*LfAspectCorrection);
+		*(nptr + M11) = *(mptr + M11) = (int32_t)(float(*(mptr + M11))*LfAspectCorrection);
+		*(nptr + M12) = *(mptr + M12) = (int32_t)(float(*(mptr + M12))*LfAspectCorrection);
+
+		SetD3DMatrix(&w2v_matrix_d3d, w2v_matrix);
+	}
+
 	void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest)
 	{
 		short	pitch;
