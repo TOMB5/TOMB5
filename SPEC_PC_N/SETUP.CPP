@@ -4,12 +4,14 @@
 #include "GLOBAL.H"
 #include "resource.h"
 #include "GAMEFLOW.H"
+#include "INPUT.H"
 
 Settings appsettings;
 HKEY reg_key;
 DWORD reg_disp;
 BOOL settings_present;
 LPSTR reg_class;
+
 int16_t opt_JDck = 5;
 int16_t opt_JDsh = 3;
 int16_t opt_JWlk = 4;
@@ -226,13 +228,13 @@ void CheckKeyConflicts()
 {
 	for(int i = 0; i < 18; i++)
 	{
-		key_conflicts[i] = false;
+		conflict[i] = false;
 
 		for(int j = 0; j < 18; j++)
 		{
-			if (opt_Keys[i] == default_keys[i])
+			if (layout[1][i] == layout[0][i])
 			{
-				key_conflicts[i] = true;
+				conflict[i] = true;
 				break;
 			}
 		}
@@ -292,8 +294,8 @@ bool LoadSettings()
 		int tmp;
 		char buf[6];
 		sprintf(buf, "Key%d", i);
-		RegReadInt(buf, &tmp, default_keys[i]);
-		opt_Keys[i] = tmp;
+		RegReadInt(buf, &tmp, layout[0][i]);
+		layout[1][i] = tmp;
 	}
 
 	RegReadInt("JDck", &opt_JDck, 5);
