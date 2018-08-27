@@ -59,6 +59,8 @@ extern "C" {
 #define CUR_DM GET_DM(App.DXConfig.nVMode)
 #define CUR_TEX GET_TEX(App.DXConfig.nTexture)
 
+#define KEYDOWN(key) ((key) & 0x80)
+
 extern int NumSamplesTable[3];
 extern int NumSamples;
 extern bool ACMInited;

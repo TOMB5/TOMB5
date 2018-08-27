@@ -1427,4 +1427,47 @@ int DI_ReadJoystick(int* joy_x, int* joy_y)
 	}
 }
 
+bool DI_UpdateJoystick()
+{
+	joystick_read = false;
+
+	joystick_read_x = 0;
+	joystick_read_y = 0;
+	joystick_read_fire = 0;
+
+	if (App.lpDIJoystick == nullptr)
+		return false;
+
+	DIJOYSTATE stat;
+
+	HRESULT err;
+
+	do
+	{
+		App.lpDIJoystick->Poll();
+
+		if ((err = App.lpDIJoystick->GetDeviceState(80, &stat)) != DIERR_INPUTLOST)
+			break;
+
+		err = App.lpDIJoystick->Acquire();
+	} while (err == DIERR_INPUTLOST);
+
+	if (FAILED(err))
+		return false;
+
+	
+	joystick_read_x = stat.lX;
+	joystick_read_y = stat.lY;
+
+	joystick_read = true;
+
+	joystick_read_fire = 0;
+
+	for(int i = 0; i < 32; i++)
+	{
+		if (KEYDOWN(stat.rgbButtons[i]))
+			joystick_read_fire |= 1 << i;
+	}
+
+	return true;
 }
