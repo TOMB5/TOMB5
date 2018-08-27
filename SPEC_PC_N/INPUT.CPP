@@ -383,5 +383,7 @@ int S_UpdateInput()
 	else
 		linput = IN_NONE;
 
+	dbginput = input;
+
 	return true;
 }

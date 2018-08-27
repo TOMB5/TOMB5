@@ -2,7 +2,7 @@
 #include "GLOBAL.H"
 
 UINT dbm_logout, dbm_clearlog, dbm_deftype, dbm_command;
-
+DWORD dbginput;
 FILE* fplog;
 
 void DB_InitLog(char opt)
