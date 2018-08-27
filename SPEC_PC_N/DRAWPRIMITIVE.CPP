@@ -456,7 +456,7 @@ void RestoreLaraMeshswaps()
 float lara_left_mat[12];
 float lara_right_mat[12];
 
-void aUpdate()
+void Update()
 {
 	Unimpl();
 }
@@ -797,7 +797,7 @@ void DrawRooms(short current_room)
 		PrintObjects(draw_rooms[i]);
 	}
 
-	aUpdate();
+	Update();
 }
 
 void phd_PutPolygons(short* mesh)
