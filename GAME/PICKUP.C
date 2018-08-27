@@ -252,12 +252,35 @@ void PickUpCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll
 	S_Warn("[PickUpCollision] - Unimplemented!\n");
 }
 
-void RegeneratePickups()//515AC, 51A10
+void RegeneratePickups()//515AC, 51A10 (F)
 {
-	struct ITEM_INFO* item;
-	short objnum; // $v1
-	short lp; // $v1
-	short* ammo; // $v0
+	for(int i = 0; i < NumRPickups; i++)
+	{
+		struct ITEM_INFO* item = &items[RPickups[i]];
+
+		if (item->status == ITEM_INVISIBLE)
+		{
+			short* ammo = NULL;
+
+			if (item->object_number == CROSSBOW_AMMO1_ITEM)
+				ammo = &lara.num_crossbow_ammo1;
+			if (item->object_number == CROSSBOW_AMMO2_ITEM)
+				ammo = &lara.num_crossbow_ammo2;
+			if (item->object_number == HK_AMMO_ITEM)
+				ammo = &lara.num_hk_ammo1;
+			if (item->object_number == REVOLVER_AMMO_ITEM)
+				ammo = &lara.num_revolver_ammo;
+			if (item->object_number == SHOTGUN_AMMO1_ITEM)
+				ammo = &lara.num_shotgun_ammo1;
+			if (item->object_number == SHOTGUN_AMMO1_ITEM)
+				ammo = &lara.num_shotgun_ammo2;
+
+			if (ammo && *ammo == 0)
+			{
+				item->status = ITEM_INACTIVE;
+			}
+		}
+	}
 }
 
 void AnimatingPickUp(short item_number)//51450(<), 518B4 (F)
