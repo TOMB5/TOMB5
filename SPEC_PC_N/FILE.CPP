@@ -1474,6 +1474,19 @@ extern "C" {
 		return (0);
 	}
 
+	NEW_CUTSCENE* ReadCutData(int num, FILE* fp)
+	{
+		if (num == 0)
+			return nullptr;
+
+		auto ptr = (Cutseq*)tsv_buffer;
+		int len = ptr->cutscenes[num].size;
+		fseek(fp, ptr->cutscenes[num].offset, SEEK_SET);
+		void* buf = game_malloc(len);
+		fread(buf, len, 1, fp);
+		return (NEW_CUTSCENE*)buf;
+	}
+
 #ifdef __cplusplus
 }
 #endif
