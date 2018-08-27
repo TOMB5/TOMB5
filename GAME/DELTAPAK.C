@@ -2914,7 +2914,21 @@ void init_cutseq_actors(char* data, int resident)
 
 int Load_and_Init_Cutseq(int num)
 {
+#if PC_VERSION
+	SetCutPlayed(num);
+	struct NEW_CUTSCENE* cut = FetchCutData(num);
+	GLOBAL_cutme = cut;
+	if (cutseq_num <= CUT_STEALTH3_4)
+	{
+		GLOBAL_cutme->orgx = (lara_item->pos.x_pos & 0xFFFFFC00) + 512;
+		GLOBAL_cutme->orgy = lara_item->pos.y_pos;
+		GLOBAL_cutme->orgz = (lara_item->pos.z_pos & 0xFFFFFC00) + 512;
+	}
+	init_cutseq_actors((char*)cut, FALSE);
+#else
 	S_Warn("[Load_and_Init_Cutseq] - Unimplemented!\n");
+#endif
+
 	return 0;
 }
 
