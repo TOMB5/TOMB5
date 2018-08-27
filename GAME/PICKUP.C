@@ -199,7 +199,7 @@ int PickupTrigger(short item_num)//52CC0(<), 53124(<) (F)
 {
 	struct ITEM_INFO* item = &items[item_num];
 
-	if (item->flags & 0x8000 && item->status != 3 && item->item_flags[3] != 1 && item->trigger_flags & 0x80)
+	if (item->flags & IFLAG_KILLED && item->status != ITEM_INVISIBLE && item->item_flags[3] != 1 && item->trigger_flags & 0x80)
 	{
 		return 0;
 	}
@@ -214,27 +214,22 @@ int KeyTrigger(short item_num)//52C14(<), 53078(<) (F)
 	struct ITEM_INFO* item = &items[item_num];
 	int oldkey;
 
-	if (item->status != 1 && !KeyTriggerActive && lara.gun_status == 1)
+	if ((item->status != ITEM_ACTIVE || lara.gun_status == LG_HANDS_BUSY) && 
+		(!KeyTriggerActive || lara.gun_status != LG_HANDS_BUSY))
 	{
 		return -1;
 	}
-	else if (lara.gun_status == 1)
+
+	oldkey = KeyTriggerActive;
+
+	if (!oldkey)
 	{
-		oldkey = KeyTriggerActive;
-
-		if (!oldkey)
-		{
-			item->ai_bits & 0x1D;
-			item->status = 2;
-		}
-
-		KeyTriggerActive = 0;
-
-		return oldkey;
+		item->status = ITEM_DEACTIVATED;
 	}
 
-	//locret_52CB8
-	return -1;
+	KeyTriggerActive = FALSE;
+
+	return oldkey;
 }
 
 void PuzzleHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52520, 52984

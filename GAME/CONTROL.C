@@ -1560,7 +1560,7 @@ void ResetGuards()//20B48(<), ?
 	//a0 = item+_num;
 	if (objects[target_item->object_number].intelligent)
 	{
-		target_item->status = 3;
+		target_item->status = ITEM_INVISIBLE;
 
 		RemoveActiveItem(item_num);
 		DisableBaddieAI(item_num);

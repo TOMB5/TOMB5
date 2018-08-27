@@ -82,8 +82,8 @@ void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_I
 
 	if (item->object_number == SWITCH_TYPE7 && !(item->mesh_bits & 1))
 	{
-		item->active = 1;
-		item->status = 1;
+		item->active = TRUE;
+		item->status = ITEM_ACTIVE;
 	}
 }
 
@@ -91,7 +91,7 @@ void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO*
 {
 	struct ITEM_INFO* item = &items[item_num];
 
-	if (item->status == 1)
+	if (item->status == ITEM_ACTIVE)
 	{
 		if (TestBoundsCollide(item, laraitem, coll->radius) == 0)
 		{
@@ -100,7 +100,7 @@ void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO*
 
 		ObjectCollision(item_num, lara_item, coll);
 	}
-	else if(item->status == 3)
+	else if(item->status == ITEM_INVISIBLE)
 	{
 		//0x2A110
 		ObjectCollision(item_num, lara_item, coll);
