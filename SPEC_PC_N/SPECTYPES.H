@@ -633,6 +633,20 @@ typedef struct
 	unsigned char abs;
 } WATERTAB;
 
+struct CutsceneHeader
+{
+	uint32_t offset;
+	uint32_t size;
+};
+
+struct Cutseq
+{
+	struct CutsceneHeader cutscenes[45];
+	uint8_t padding[1688];
+};
+
+
+
 
 
 #pragma pop
