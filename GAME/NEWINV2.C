@@ -16,6 +16,8 @@
 #include "CAMERA.H"
 #include "SOUND.H"
 #if PC_VERSION
+#include "GLOBAL.H"
+#include "DRAWPRIMITIVE.H"
 #include "GAME.H"
 #include "WINMAIN.H"
 #else
@@ -403,7 +405,23 @@ void do_playstation_button_prompts_v1()//416E0, 41B34
 
 void S_DrawPickup(short object_number)//41608, 41A5C
 {
+#if PC_VERSION
+	phd_LookAt(0, SECTOR(1), 0, 0, 0, 0, 0);
+	SetD3DViewMatrix();
+	SetViewMatrix();
+	DrawThreeDeeObject2D(
+		(int)(phd_winxmax / 512.0 * 448.0),
+		(int)(phd_winymax / 256.0 * 216.0),
+		convert_obj_to_invobj(object_number),
+		128,
+		0,
+		(GnFrameCounter & 0x7F) << 9,
+		0,
+		0,
+		1);
+#else
 	S_Warn("[S_DrawPickup] - Unimplemented!\n");
+#endif
 }
 
 void dels_give_lara_guns_cheat()//41470, 418C4 (F)
