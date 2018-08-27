@@ -94,6 +94,7 @@ extern void phd_SetTrans(long x, long y, long z);
 extern void SetD3DViewMatrix();
 extern unsigned long mGetAngle(long x1, long y1, long x2, long y2);
 extern void S_InitD3DMatrix();
+extern void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest);
 #define phd_PopMatrix()		{ phd_mxptr -= 12; phd_dxptr -= 12; }
 
 #ifdef __cplusplus
