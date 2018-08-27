@@ -93,12 +93,18 @@ inline int phd_atan(long x, long y)
 #define GRAY555  RGB555(128, 128, 128)
 #define BLACK555 RGB555(  0,   0,   0)
 
+#define WALL_L  	 1024
+#define WALL_SHIFT 10
+#define STEP_L     (WALL_L/4)
+
 //#define SECTOR 1024
-#define SECTOR(x) ((x) * 1024)
+#define SECTOR(x) ((x) * WALL_L)
 #define CLICK 256
 
 #define UNIT_SHADOW 256
 #define UNIT_SHADOW_SHIFT 8
+
+
 
 #define LARA_HITPOINTS 1000
 
