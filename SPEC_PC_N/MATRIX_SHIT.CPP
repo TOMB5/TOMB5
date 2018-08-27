@@ -268,6 +268,38 @@ extern "C" {
 		SetTransl(x, y, z);
 	}
 
+	void ScaleCurrentMatrixF(VECTOR* vec)
+	{
+		phd_dxptr[M00] = TRIGMULT2F(phd_dxptr[M00], vec->vx);
+		phd_dxptr[M10] = TRIGMULT2F(phd_dxptr[M10], vec->vx);
+		phd_dxptr[M20] = TRIGMULT2F(phd_dxptr[M20], vec->vx);
+
+		phd_dxptr[M01] = TRIGMULT2F(phd_dxptr[M01], vec->vy);
+		phd_dxptr[M11] = TRIGMULT2F(phd_dxptr[M11], vec->vy);
+		phd_dxptr[M21] = TRIGMULT2F(phd_dxptr[M21], vec->vy);
+
+		phd_dxptr[M02] = TRIGMULT2F(phd_dxptr[M02], vec->vz);
+		phd_dxptr[M12] = TRIGMULT2F(phd_dxptr[M12], vec->vz);
+		phd_dxptr[M22] = TRIGMULT2F(phd_dxptr[M22], vec->vz);
+	}
+
+	void ScaleCurrentMatrix(VECTOR* vec)
+	{
+		phd_mxptr[M00] = TRIGMULT2(phd_mxptr[M00], vec->vx);
+		phd_mxptr[M10] = TRIGMULT2(phd_mxptr[M10], vec->vx);
+		phd_mxptr[M20] = TRIGMULT2(phd_mxptr[M20], vec->vx);
+
+		phd_mxptr[M01] = TRIGMULT2(phd_mxptr[M01], vec->vy);
+		phd_mxptr[M11] = TRIGMULT2(phd_mxptr[M11], vec->vy);
+		phd_mxptr[M21] = TRIGMULT2(phd_mxptr[M21], vec->vy);
+
+		phd_mxptr[M02] = TRIGMULT2(phd_mxptr[M02], vec->vz);
+		phd_mxptr[M12] = TRIGMULT2(phd_mxptr[M12], vec->vz);
+		phd_mxptr[M22] = TRIGMULT2(phd_mxptr[M22], vec->vz);
+
+		ScaleCurrentMatrixF(vec);
+	}
+
 	
 
 #ifdef __cplusplus
