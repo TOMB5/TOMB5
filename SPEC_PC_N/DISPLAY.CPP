@@ -58,11 +58,25 @@ void PrintString(long x, long y, int unk1, char* string, int options)
 	sprintf(buf, "PrintString - X:%d Y:%d Unk1:%d Flags:%04x - %s\n", x, y, unk1, options, string);
 	S_Warn(buf);
 	
+	char* b2 = (char*)malloc(strlen(string) + 1);
+	strcpy(b2, string);
+	if (b2[strlen(b2) - 1] != '\n')
+		strcat(b2, "\n");
 	HDC hdc;
 	App.lpBackBuffer->GetDC(&hdc);
 	SetTextColor(hdc, 0x00ff7f00);
 	SetBkColor(hdc, 0x000000);
-	TextOut(hdc, x, y, buf, strlen(buf) - 1);
+	int last = 0;
+	int num = 0;
+	for(int i = 0; i < strlen(b2); i++)
+	{
+		if (b2[i] == '\n')
+		{
+			TextOut(hdc, x, y + num * 16, b2 + last, i - last);
+			last = i;
+			num++;
+		}
+	}
 	App.lpBackBuffer->ReleaseDC(hdc);
 }
 

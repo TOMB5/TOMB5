@@ -1,5 +1,11 @@
 #include "DEBUG.H"
 #include "GLOBAL.H"
+#include "INPUT.H"
+#include "CONTROL.H"
+#include "DISPLAY.H"
+#include "DRAWPRIMITIVE.H"
+#include "GAMEFLOW.H"
+#include "DELTAPAK.H"
 
 UINT dbm_logout, dbm_clearlog, dbm_deftype, dbm_command;
 DWORD dbginput;
@@ -184,4 +190,17 @@ void GetInputStr(char* buf)
 	}
 }
 
+void ShowDebugInfo()
+{
+	char buf[2048];
+	sprintf(buf,
+		"frame %d\n"
+		"Mouse : %4d ; %4d\n"
+		"Game mode : %d\n"
+		"Malloc : %04x (%3d%%) used - %04x free - %04x total\n"
+		"Current : level #%02d / cutseq #%02d (playing=%5s)\n"
+		"Input : ", GnFrameCounter, mouse_x, mouse_y, gfGameMode, malloc_used, (int)(malloc_used * 100.0 / malloc_size), malloc_free, malloc_size,
+		gfCurrentLevel, cutseq_num, GLOBAL_playing_cutseq ? "TRUE" : "FALSE");
+	GetInputStr(buf + strlen(buf));
+	PrintString(10, 10, 0, buf, 0);
 }
