@@ -235,7 +235,9 @@ struct VECTOR
 	long vx;
 	long vy;
 	long vz;
+#if PSXENGINE
 	long pad;
+#endif
 };
 
 struct SVECTOR
