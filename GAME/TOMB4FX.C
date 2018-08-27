@@ -223,10 +223,41 @@ void TriggerLaraDrips()// (F)
 	}
 }
 
-int GetFreeSmokeSpark()
+int GetFreeSmokeSpark()// (F)
 {
-	S_Warn("[GetFreeSmokeSpark] - Unimplemented!\n");
-	return 0;
+	struct SMOKE_SPARKS* spark = &smoke_spark[next_smoke_spark];
+	int spark_num = next_smoke_spark;
+	short min_life = 4095;
+	short min_index = 0;
+	short count = 0;
+	while (spark->On)
+	{
+		if (spark->Life < min_life)
+		{
+			min_index = spark_num;
+			min_life = spark->Life;
+		}
+
+		if (spark_num == 31)
+		{
+			spark = &smoke_spark[0];
+			spark_num = 0;
+		}
+		else
+		{
+			spark_num++;
+			spark++;
+		}
+
+		if (++count >= 32)
+		{
+			next_smoke_spark = (min_index + 1) % 32;
+			return min_index;
+		}
+	}
+
+	next_smoke_spark = (spark_num + 1) % 32;
+	return spark_num;
 }
 
 int GetFreeSpark()//8B2F8(<), 8D33C(<) (F)
