@@ -1396,6 +1396,21 @@ void DXFreeInfo(DEVICEINFO* info)
 
 	free(info->DDInfo);
 	free(info->DSInfo);
+}
+
+void DI_ReadKeyboard(BYTE* keymap)
+{
+	HRESULT err = App.lpDIKeyboard->GetDeviceState(256, keymap);
+
+	if (FAILED(err))
+	{
+		if (err == DIERR_INPUTLOST)
+			App.lpDIKeyboard->Acquire();
+
+		App.lpDIKeyboard->GetDeviceState(256, keymap);
+	}
+}
+
 int DI_ReadJoystick(int* joy_x, int* joy_y)
 {
 	if (joystick_read)
