@@ -151,67 +151,39 @@ void SetScreenFadeIn(long fadespeed)//34B48(<), 35048(<) (F)
 
 int GetFreeDrip()
 {
-	S_Warn("[GetFreeDrip] - Unimplemented!\n");
-	return 0;
+	struct DRIP_STRUCT* drip = &Drips[next_drip];
+	int drip_num = next_drip;
+	short min_life = 4095;
+	short min_index = 0;
+	short count = 0;
+	while (drip->On)
+	{
+		if (drip->Life < min_life)
+		{
+			min_index = drip_num;
+			min_life = drip->Life;
+		}
 
-#if 0
-	int var_8, var_C, var_10;
+		if (drip_num == 31)
+		{
+			drip = &Drips[0];
+			drip_num = 0;
+		}
+		else
+		{
+			drip_num++;
+			drip++;
+		}
 
-	if ((wibble & 0xF) != 0) return;
+		if (++count >= 32)
+		{
+			next_drip = (min_index + 1) % 32;
+			return min_index;
+		}
+	}
 
-	auto t6 = 0xE;
-
-	auto t7 = &lara.wet[14];
-
-	loc_8CEB4:
-
-	auto t8 = t7[0];
-
-	auto v0 = &LaraNodeUnderwater[0];
-
-	v0 += t6;
-
-	if (t8 == 0) goto loc_8CFC4;
-
-	v0 = v0[0];
-
-	if (v0 != 0) goto loc_8CFC4;
-
-	v0 = GetRandomControl();
-
-	v0 &= 0x1FF;
-
-	if (v0 >= t8) goto loc_8CFC4;
-
-	v0 &= 0x1F;
-
-	v0 -= 0x10;
-
-	v0 = GetRandomControl();
-	var_10 = v0;
-
-	v0 &= 0xF;
-
-	v0 += 0x10;
-
-	v0 = GetRandomControl();
-	var_C = v0;
-	v0 &= 0x1F;
-	v0 -= 0x10;
-
-	auto a0 = &var_10;
-
-	auto a1 = t6;
-
-	var_8 = GetLaraJointPos((int)a0, a1);
-
-
-	loc_8CFC4:
-	t6--;
-	t7--;
-	if (t6 >= 0) goto loc_8CEB4;
-#endif
-
+	next_drip = (drip_num + 1) % 32;
+	return drip_num;
 }
 
 void TriggerLaraDrips()// (F)
