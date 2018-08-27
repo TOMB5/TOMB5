@@ -13,7 +13,13 @@ typedef struct
 	bool VolumetricFog;
 } Settings;
 
-extern Settings appsettings;
+enum ControlMethod
+{
+	CM_KEYBOARD = 0,
+	CM_JOYSTICK = 1
+};
+
+extern Settings appsettings;;
 extern int16_t opt_JDck;
 extern int16_t opt_JDsh;
 extern int16_t opt_JWlk;
