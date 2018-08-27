@@ -10,8 +10,6 @@ HKEY reg_key;
 DWORD reg_disp;
 BOOL settings_present;
 LPSTR reg_class;
-int16_t default_keys[18] = { 200, 208, 203, 205, 52, 53, 54, 184, 157, 57, 51, 82, 207, 1, 211, 209, 25, 28 };
-int16_t opt_Keys[18] = { 200, 208, 203, 205, 52, 53, 54, 184, 157, 57, 51, 82, 207, 1, 211, 209, 25, 28 };
 int16_t opt_JDck = 5;
 int16_t opt_JDsh = 3;
 int16_t opt_JWlk = 4;

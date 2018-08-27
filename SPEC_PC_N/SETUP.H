@@ -14,7 +14,6 @@ typedef struct
 } Settings;
 
 extern Settings appsettings;
-extern int16_t opt_Keys[18];
 extern int16_t opt_JDck;
 extern int16_t opt_JDsh;
 extern int16_t opt_JWlk;

@@ -33,11 +33,11 @@ extern "C" {
 extern int S_UpdateInput();
 
 extern char*		kname[];
-extern sint16		layout[2][15];
 extern int			conflict[];
 extern int joy_x, joy_y, joy_fire;
 
 extern unsigned char keymap[];
+extern int16_t layout[2][18];
 #define rawkey(A) (keymap[A] & 0x80)
 
 
