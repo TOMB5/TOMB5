@@ -1814,13 +1814,11 @@ void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* tar
 	short angles[2];
 	struct PHD_3DPOS pos;
 
-	target->x = (target->x & -1023) | 0x200;
-	target->z = (target->z & -1023) | 0x200;
+	target->x = (target->x & ~0x3FE) | 0x200;
+	target->z = (target->z & ~0x3FE) | 0x200;
 
-#ifndef USE_ASM
-#if PSX_VERSION || PSXPC_VERSION///@TEMP
-	phd_GetVectorAngles(target->x - src->x, target->y - src->y, target->z - src->z, &angles[0]);
-#endif
+#if (PSXENGINE && !defined(USE_ASM)) || PC_VERSION
+	phd_GetVectorAngles(target->x - src->x, target->y - src->y, target->z - src->z, angles);
 #endif
 	pos.z_rot = 0;
 	pos.x_pos = src->x;
