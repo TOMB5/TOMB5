@@ -89,5 +89,8 @@ bool SetSoundOutputFormat(int num_samples, char a2);
 void ACMClose();
 void InitACM();
 void DXFreeInfo(DEVICEINFO* info);
+int DI_ReadJoystick(int* joy_x, int* joy_y);
+bool DI_UpdateJoystick();
+void DI_ReadKeyboard(BYTE* keymap);
 
 #endif
