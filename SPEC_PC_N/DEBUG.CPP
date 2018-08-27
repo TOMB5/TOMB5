@@ -125,3 +125,63 @@ void Log_backend(char type, char* fmt, ...)
 		}
 	}
 }
+
+void GetInputStr(char* buf)
+{
+	const char* names[] = {
+		"FORWARD",
+		"BACK",
+		"LEFT",
+		"RIGHT",
+		"JUMP",
+		"DRAW",
+		"ACTION",
+		"WALK",
+		"OPTION",
+		"LOOK",
+		"LSTEP",
+		"RSTEP",
+		"ROLL",
+		"PAUSE",
+		"A",
+		"B",
+		"CHEAT",
+		"D",
+		"E",
+		"FLARE",
+		"SELECT",
+		"DESELECT",
+		"SAVE",
+		"LOAD",
+		"STEPSHIFT",
+		"LOOKLEFT",
+		"LOOKRIGHT",
+		"LOOKFORWARD",
+		"LOOKBACK",
+		"DUCK",
+		"SPRINT",
+		"UNK31",
+	};
+
+	buf[0] = 0;
+
+	if (dbginput == IN_NONE)
+	{
+		strcpy(buf, "---");
+	}
+	else
+	{
+		for(int i = 0; i < 32; i++)
+		{
+			if (dbginput & (1 << i))
+			{
+				strcat(buf, names[i]);
+				strcat(buf, ", ");
+			}
+		}
+
+		buf[strlen(buf) - 2] = 0;
+	}
+}
+
+}

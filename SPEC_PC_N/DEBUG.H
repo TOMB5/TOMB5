@@ -8,5 +8,6 @@ extern DWORD dbginput;
 
 void DB_InitLog(char opt);
 void DB_DefType(char* name, LPARAM lParam, WPARAM wParam);
+void GetInputStr(char* buf);
 
 #endif
