@@ -9,6 +9,17 @@
 //#include "display.h"
 //#include "frontend.h"
 #include "INIT.H"
+#include "SETUP.H"
+#include "CONTROL.H"
+#include "LARA.H"
+#include "EFFECTS.H"
+#include "SOUND.H"
+#include "SAVEGAME.H"
+#include "CAMERA.H"
+#include "GAMEFLOW.H"
+#include "DEBUG.H"
+
+#define JOY_SENSITIVITY 8
 
 sint32 input;
 sint32 dbinput;
