@@ -111,6 +111,7 @@ unsigned char gfTakeaways[16];
 #if PC_VERSION
 char* gfScriptFile;
 #endif
+int special_features_num = -1;
 
 void DoGameflow()//10F5C(<), 10FD8(<)
 {
@@ -1070,7 +1071,28 @@ int TitleOptions()
 	return 0;
 }
 
-void DoSpecialFeaturesServer()
+void SpecialFeaturesDisplayScreens(int num)
 {
-	S_Warn("[DoSpecialFeaturesServer] - Unimplemented!\n");
+	S_Warn("[SpecialFeaturesDisplayScreens] - Unimplemented!\n");
+}
+
+void DoSpecialFeaturesServer()// (F)
+{
+	switch(special_features_num)
+	{
+	case 0:
+		SpecialFeaturesDisplayScreens(0);
+		break;
+	case 1:
+		SpecialFeaturesDisplayScreens(1);
+		break;
+	case 2:
+		SpecialFeaturesDisplayScreens(2);
+		break;
+	case 3:
+		SpecialFeaturesDisplayScreens(3);
+		break;
+	}
+
+	special_features_num = -1;
 }
