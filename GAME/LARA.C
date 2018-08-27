@@ -18,6 +18,8 @@
 #include "LARAFIRE.H"
 #include "CODEWAD.H"
 
+#define SLOPE_DIF 60
+
 static short LeftClimbTab[4] = // offset 0xA0638
 {
 	0x0200, 0x0400, 0x0800, 0x0100
@@ -5395,10 +5397,32 @@ int LaraTestClimbStance(struct ITEM_INFO* item, struct COLL_INFO* coll)//11F78, 
 	return TRUE;
 }
 
-int LaraTestEdgeCatch(struct ITEM_INFO* item, struct COLL_INFO* coll, long* edge)//11E60, 11F10
+int LaraTestEdgeCatch(struct ITEM_INFO* item, struct COLL_INFO* coll, long* edge)//11E60, 11F10 (F)
 {
-	S_Warn("[LaraTestEdgeCatch] - Unimplemented!\n");
-	return 0;
+	short* bounds = GetBoundsAccurate(item);
+	int hdif = coll->front_floor - bounds[2];
+
+	if (hdif < 0 && hdif + item->fallspeed < 0 || hdif > 0 && hdif + item->fallspeed > 0)
+	{
+		hdif = item->pos.y_pos + bounds[2];
+
+		if (hdif >> (WALL_SHIFT - 2) != (hdif + item->fallspeed) >> (WALL_SHIFT - 2))
+		{
+			if (item->fallspeed > 0)
+				*edge = (hdif + item->fallspeed) & ~(STEP_L - 1);
+			else
+				*edge = hdif & ~(STEP_L - 1);
+
+			return -1;
+		}
+
+		return 0;
+	}
+
+	if (abs(coll->left_floor2 - coll->right_floor2) >= SLOPE_DIF)
+		return 0;
+
+	return 1;
 }
 
 int LaraDeflectEdgeDuck(struct ITEM_INFO* item, struct COLL_INFO* coll)//11DC0, 11E70 (F)
