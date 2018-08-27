@@ -3,31 +3,34 @@
 #include "SPECIFIC.H"
 #include "GLOBAL.H"
 #include "INCLUDE.H"
+#include "CAMERA.H"
+#include "LARA.H"
+#include "CONTROL.H"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 	struct SVECTOR CamRot;
-	sint32		phd_left;  				/* Left Clipping Value */
-	sint32		phd_right;              /* Right Clipping Value */
-	sint32		phd_top;                /* Top Clipping Value */
-	sint32		phd_bottom;             /* Bottom Clipping Value */
-	sint16		phd_winxmin;
-	sint16		phd_winymin;
-	sint16		phd_winxmax;        	/* Maximum Window X coord*/
-	sint16		phd_winymax;        	/* Maximum Window Y coord*/
-	sint32		phd_winwidth;       	/* Window Width*/
-	sint32		phd_winheight;      	/* Window Height*/
-	sint32		phd_centerx;        	/* Vanishing point X*/
-	sint32		phd_centery;        	/* Vanishing point Y*/
-	sint32		phd_znear;          	/* Distance to near clip plane in View.Frame*/
-	sint32		phd_zfar;           	/* Distance to far clip plane in View.Frame*/
-	sint32		phd_viewdist;       	/* Distance you can see in World.Frame*/
-	sint32		phd_scrwidth;       	/* Width of Screen ie. 320 or 640*/
-	sint32		phd_scrheight;       	/* Height of Screen ie. 200 or 480*/
-	sint32		phd_persp;				/* perspective thang*/
-	sint32		*phd_mxptr;				/* matrix pointer....*/
-	sint32		phd_oopersp;
+	int32_t		phd_left;  				/* Left Clipping Value */
+	int32_t		phd_right;              /* Right Clipping Value */
+	int32_t		phd_top;                /* Top Clipping Value */
+	int32_t		phd_bottom;             /* Bottom Clipping Value */
+	int16_t		phd_winxmin;
+	int16_t		phd_winymin;
+	int16_t		phd_winxmax;        	/* Maximum Window X coord*/
+	int16_t		phd_winymax;        	/* Maximum Window Y coord*/
+	int32_t		phd_winwidth;       	/* Window Width*/
+	int32_t		phd_winheight;      	/* Window Height*/
+	int32_t		phd_centerx;        	/* Vanishing point X*/
+	int32_t		phd_centery;        	/* Vanishing point Y*/
+	int32_t		phd_znear;          	/* Distance to near clip plane in View.Frame*/
+	int32_t		phd_zfar;           	/* Distance to far clip plane in View.Frame*/
+	int32_t		phd_viewdist;       	/* Distance you can see in World.Frame*/
+	int32_t		phd_scrwidth;       	/* Width of Screen ie. 320 or 640*/
+	int32_t		phd_scrheight;       	/* Height of Screen ie. 200 or 480*/
+	int32_t		phd_persp;				/* perspective thang*/
+	int32_t		*phd_mxptr;				/* matrix pointer....*/
+	int32_t		phd_oopersp;
 	float* phd_dxptr;
 
 	float		one;				// in 3dinsert.cpp
@@ -43,9 +46,9 @@ extern "C" {
 	float		f_oneozfar;			// one/phd_zfar
 	float		f_a, f_b, f_boo;		// a/b factors for z buffering (f_boo is f_b/one)
 
-	sint32		w2v_matrix[12];		// World to View Matrix...
-	sint32		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
+	int32_t		w2v_matrix[12];		// World to View Matrix...
 	float		w2v_matrix_f[12];		// World to View Matrix...
+	int32_t		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
 
 	D3DMATRIX transform_projection;
 	D3DMATRIX w2v_matrix_d3d;
@@ -157,7 +160,7 @@ extern "C" {
 
 	void	phd_PushMatrix(void)
 	{
-		sint32	*p1, *p2;
+		int32_t	*p1, *p2;
 
 		p1 = phd_mxptr;
 		phd_mxptr += 12;
@@ -194,7 +197,7 @@ extern "C" {
 
 	void	phd_UnitMatrix(void)
 	{
-		sint32	*p1;
+		int32_t	*p1;
 
 		p1 = phd_mxptr;
 		*(p1 + M00) = *(p1 + M11) = *(p1 + M22) = W2V_SCALE;
