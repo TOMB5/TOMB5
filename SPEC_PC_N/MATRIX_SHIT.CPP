@@ -45,6 +45,7 @@ extern "C" {
 
 	sint32		w2v_matrix[12];		// World to View Matrix...
 	sint32		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
+	float		w2v_matrix_f[12];		// World to View Matrix...
 
 	D3DMATRIX transform_projection;
 

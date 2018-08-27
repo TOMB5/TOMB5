@@ -67,6 +67,7 @@ extern	float		f_oneozfar;			// one/phd_zfar
 extern	float		f_a, f_b, f_boo;		// a/b factors for z buffering (f_boo is f_b/one)
 
 extern	sint32		w2v_matrix[];		// World to View Matrix...
+	extern float		w2v_matrix_f[];
 extern	sint32		matrix_stack[];		// matrix stack for animations etc..
 
 extern struct SVECTOR CamRot;
