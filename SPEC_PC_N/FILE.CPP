@@ -1487,6 +1487,22 @@ extern "C" {
 		return (NEW_CUTSCENE*)buf;
 	}
 
+	NEW_CUTSCENE* FetchCutData(int num)
+	{
+		if (cutseq_resident_addresses[num].packed_data != nullptr)
+			return (NEW_CUTSCENE*)cutseq_resident_addresses[num].packed_data;
+
+		FILE* fp = FileOpen("DATA\\CUTSEQ.BIN");
+
+		if (!fp)
+			return nullptr;
+
+		fread(tsv_buffer, 1, sizeof(Cutseq), fp);
+		auto res = ReadCutData(num, fp);
+		fclose(fp);
+		return res;
+	}
+
 #ifdef __cplusplus
 }
 #endif
