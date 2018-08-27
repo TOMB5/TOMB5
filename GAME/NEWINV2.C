@@ -1874,7 +1874,7 @@ void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 		right_repeat = 0;
 	}
 
-	if (input & IN_UP)
+	if (input & IN_FORWARD)
 	{
 		if (!up_debounce)
 			go_up = 1;
@@ -1885,7 +1885,7 @@ void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 		up_debounce = 0;
 	}
 
-	if (input & IN_DOWN)
+	if (input & IN_BACK)
 	{
 		if (!down_debounce)
 			go_down = 1;
@@ -1897,7 +1897,7 @@ void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 	}
 
 #if PC_VERSION
-	if (input & IN_ACTION || input & IN_UNK20)
+	if (input & IN_ACTION || input & IN_SELECT)
 #else
 	if (input & IN_JUMP)
 #endif
@@ -1913,7 +1913,7 @@ void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 	}
 
 #if PC_VERSION
-	if (input & IN_UNK21)
+	if (input & IN_DESELECT)
 #else
 	if (input & IN_DRAW)
 #endif

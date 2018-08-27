@@ -483,7 +483,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 			|| 
 			((lara_item->current_anim_state != STATE_LARA_STOP || lara_item->anim_number != ANIMATION_LARA_STAY_IDLE)
 				&& (!lara.IsDucked
-					|| input & IN_CROUCH
+					|| input & IN_DUCK
 					|| lara_item->anim_number != ANIMATION_LARA_CROUCH_IDLE
 					|| lara_item->goal_anim_state != STATE_LARA_CROUCH_IDLE)))
 		{
