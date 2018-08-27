@@ -1530,7 +1530,7 @@ void InitCutPlayed()//20D90, 20F9C (F)
 	_CutSceneTriggered2 = 0;
 }
 
-void ResetGuards()//20B48(<), ? (F)
+void ResetGuards()//20B48(<), ?
 {
 	short item_num; // $s1
 	short room_num; // $t1
@@ -1809,7 +1809,7 @@ int GetTargetOnLOS(struct GAME_VECTOR* src, struct GAME_VECTOR* dest, int DrawTa
 	return 0;
 }
 
-void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* target)
+void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* target)// (F)
 {
 	short angles[2];
 	struct PHD_3DPOS pos;

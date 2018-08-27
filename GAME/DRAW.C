@@ -210,7 +210,7 @@ void SetInventoryLighting(struct MATRIX3D* m)
 
 }
 
-void DrawGunflashes()//8A924(<) 8C968(<) (F)
+void DrawGunflashes()//8A924(<) 8C968(<)
 {
 #ifdef PC_VERSION
 	S_Warn("[DrawGunflashes] - Unimplemented!\n");
