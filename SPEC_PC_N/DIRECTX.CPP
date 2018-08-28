@@ -127,10 +127,7 @@ extern "C" {
 		
 		Log(LT_Info, v120);
 
-		int RetVal;
-		RetVal = lpDD->SetCooperativeLevel(WindowHandle, Flags);
-		if (RetVal != DD_OK) return false;
-		return true;
+		return lpDD->SetCooperativeLevel(WindowHandle, Flags) == DD_OK;
 	}
 #ifdef __cplusplus
 }
@@ -216,9 +213,7 @@ HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)//
 
 bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2)// (F)
 {
-	int RetVal;
-	RetVal = lpDD2->QueryInterface(IID_IDirect3D3, (LPVOID*)lpD3D2);
-	if (DX_TRY(RetVal))
+	if (DX_TRY(lpDD2->QueryInterface(IID_IDirect3D3, (LPVOID*)lpD3D2)))
 	{
 		Log(LT_Error, "DXD3DCreate Failed");
 		return false;
@@ -255,9 +250,7 @@ DWORD BPPToDDBD(int bpp)// (F)
 bool DXCreateSurface(LPDIRECTDRAW4 lpDD2, DDSURFACEDESC2* ddsd, LPDIRECTDRAWSURFACE4* lpSurface)// (F)
 {
 	Log(LT_Enter, "DXCreateSurface");
-	int RetVal;
-	RetVal = lpDD2->CreateSurface(ddsd, lpSurface, NULL);
-	if (DX_TRY(RetVal))
+	if (DX_TRY(lpDD2->CreateSurface(ddsd, lpSurface, nullptr)))
 	{
 		Log(LT_Error, "DXCreateSurface Failed");
 		return false;
@@ -267,9 +260,7 @@ bool DXCreateSurface(LPDIRECTDRAW4 lpDD2, DDSURFACEDESC2* ddsd, LPDIRECTDRAWSURF
 
 bool DXCreateDirect3DDevice(LPDIRECT3D3 lpD3D2, GUID Guid, LPDIRECTDRAWSURFACE4 lpSurface, LPDIRECT3DDEVICE3* lpD3DDevice2)// (F)
 {
-	int RetVal;
-	RetVal = lpD3D2->CreateDevice(Guid, lpSurface, lpD3DDevice2, NULL);
-	if (DX_TRY(RetVal))
+	if (DX_TRY(lpD3D2->CreateDevice(Guid, lpSurface, lpD3DDevice2, nullptr)))
 	{
 		Log(LT_Error, "DXCreateD3DDevice Failed");
 		return false;
@@ -287,7 +278,7 @@ bool DXCreateViewport(LPDIRECT3D3 lpD3D, LPDIRECT3DDEVICE3 lpD3DDevice, int w, i
 
 	Log(LT_Enter, "DXCreateViewport");
 
-	if (DX_TRY(lpD3D->CreateViewport(lpViewport, NULL))) return false;
+	if (DX_TRY(lpD3D->CreateViewport(lpViewport, nullptr))) return false;
 
 	if (DX_TRY(lpD3DDevice->AddViewport(*lpViewport))) return false;
 
@@ -321,9 +312,6 @@ bool DXSetVideoMode(LPDIRECTDRAW4 lpDD2, int w, int h, int bpp)// (F)
 	int RetVal;
 	Log(LT_Enter, "DXSetVideoMode");
 	Log(LT_Info, "SetDisplayMode - %dx%dx%d", w, h, bpp);
-	RetVal = lpDD2->SetDisplayMode(w, h, bpp, 0, NULL);
-	if (RetVal != DD_OK) return false;
-	return true;
 }
 
 HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)// (F)
