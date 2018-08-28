@@ -723,12 +723,12 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		if (!DXDDCreate(CUR_DD.lpGuid, (LPDIRECTDRAW*)&App.lpDD))
 		{
 			CloseDirectX();
-			return 0;
+			return false;
 		}
 		if (!DXCreateDirect3D(App.lpDD, &App.lpD3D))
 		{
 			CloseDirectX();
-			return 0;
+			return false;
 		}
 	}
 
@@ -747,7 +747,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 	if (!DXSetCooperativeLevel(App.lpDD, window, dwFlags))
 	{
 		CloseDirectX();
-		return 0;
+		return false;
 	}
 
 	if (flags & WA_FULLSCREEN)
@@ -792,7 +792,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		if (!DXCreateSurface(App.lpDD, &surf, &App.lpFrontBuffer))
 		{
 			CloseDirectX();
-			return 0;
+			return false;
 		}
 
 		if (flags & WA_BACK_BUFFER)
@@ -845,14 +845,14 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		if (!DXCreateSurface(App.lpDD, &surf, &App.lpFrontBuffer))
 		{
 			CloseDirectX();
-			return 0;
+			return false;
 		}
 
 		LPDIRECTDRAWCLIPPER clipper;
 		if (DX_TRY(App.lpDD->CreateClipper(0, &clipper, nullptr)))
 		{
 			CloseDirectX();
-			return 0;
+			return false;
 		}
 
 		DX_TRY(clipper->SetHWnd(0, window));
@@ -868,7 +868,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		if (DX_TRY(App.lpDD->CreateSurface(&surf, &App.lpBackBuffer, nullptr)))
 		{
 			CloseDirectX();
-			return 0;
+			return false;
 		}
 	}
 
@@ -889,7 +889,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		if (DX_TRY(App.lpDD->CreateSurface(&surf, &App.lpZBuffer, nullptr)))
 		{
 			CloseDirectX();
-			return 0;
+			return false;
 		}
 
 		DX_TRY(App.lpBackBuffer->AddAttachedSurface(App.lpZBuffer));
