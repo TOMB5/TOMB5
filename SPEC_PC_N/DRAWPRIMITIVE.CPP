@@ -603,7 +603,7 @@ void ResetFogBulbList()
 
 void RoomTestThing()
 {
-	Unimpl();
+	
 }
 
 void BuildFogBulbList()
