@@ -10,6 +10,10 @@
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif*/
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #ifndef MIN
 #define MIN(x, y) (((x)<(y))?(x):(y))
 #endif
