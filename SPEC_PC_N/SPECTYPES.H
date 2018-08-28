@@ -645,7 +645,18 @@ struct Cutseq
 	uint8_t padding[1688];
 };
 
-
+struct SNOWFLAKE
+{
+	long x;
+	long y;
+	long z;
+	int8_t xv;
+	uint8_t yv; // also life
+	int8_t zv;
+	uint8_t life;
+	uint16_t underwater;
+	short room_number;
+};
 
 
 
