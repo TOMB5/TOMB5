@@ -908,10 +908,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 
 HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, int wSrc, int hSrc)// (F)
 {
-	if (!h)
-		return 0x80004005;
-
-	if (!surf)
+	if (!h || !surf)
 		return 0x80004005;
 
 	surf->Restore();
