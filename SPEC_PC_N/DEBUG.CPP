@@ -194,12 +194,12 @@ void ShowDebugInfo()// (F)
 {
 	char buf[2048];
 	sprintf(buf,
-		"frame %d\n"
+		"Game frame : %d\n"
 		"Mouse : %4d ; %4d\n"
 		"Game mode : %d\n"
-		"Malloc : %04x (%3d%%) used - %04x free - %04x total\n"
+		"Malloc : %5dK (%3d%%) used - %5dK free - %5dK total\n"
 		"Current : level #%02d / cutseq #%02d (playing=%5s)\n"
-		"Input : ", GnFrameCounter, mouse_x, mouse_y, gfGameMode, malloc_used, (int)(malloc_used * 100.0 / malloc_size), malloc_free, malloc_size,
+		"Input : ", GnFrameCounter, mouse_x, mouse_y, gfGameMode, malloc_used / 1024, (int)(malloc_used * 100.0 / malloc_size), malloc_free / 1024, malloc_size / 1024,
 		gfCurrentLevel, cutseq_num, GLOBAL_playing_cutseq ? "TRUE" : "FALSE");
 	GetInputStr(buf + strlen(buf));
 	PrintString(10, 10, 0, buf, 0);
