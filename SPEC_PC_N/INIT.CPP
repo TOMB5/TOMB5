@@ -6,7 +6,7 @@
 
 #define GAME_MALLOC_BUFFER_SIZE 5000000
 
-char*	malloc_buffer = NULL;
+char*	malloc_buffer = nullptr;
 int		malloc_size;
 char*	malloc_ptr;
 int		malloc_used, malloc_free;
@@ -131,7 +131,7 @@ extern "C" {
 
 		Log(0, "OUT OF MEMORY");
 		S_ExitSystem(exit_message);
-		return 0;	// S_ExitSystem doesn't return...
+		return nullptr;	// S_ExitSystem doesn't return...
 	}
 
 	void show_game_malloc_totals(void)// (F)

@@ -313,7 +313,7 @@ extern "C" {
 		if ((uint8_t)roomData->door & 1)
 		{
 			Log(0, "%X", roomData->door);
-			roomData->door = 0;
+			roomData->door = nullptr;
 		}
 
 		char* polyOff = (char*)roomData->PolyOffset;
@@ -1481,7 +1481,7 @@ extern "C" {
 				{
 					// NOTE: user may have more than one CD drive, so need to check this has Tomb 2 in it
 					file_check[0] = cd_drive;
-					file = CreateFile(file_check, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+					file = CreateFile(file_check, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 					if (file != INVALID_HANDLE_VALUE)
 					{
 						CloseHandle(file);

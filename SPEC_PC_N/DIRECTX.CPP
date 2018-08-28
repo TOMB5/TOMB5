@@ -138,7 +138,7 @@ BOOL DXDDCreate(GUID FAR* lpGuid, LPDIRECTDRAW* lpDD)// (F)
 
 	Log(LT_Enter, "DXDDCreate");
 
-	if (DX_TRY(DirectDrawCreate(lpGuid, &lpDDTemp, NULL)))
+	if (DX_TRY(DirectDrawCreate(lpGuid, &lpDDTemp, nullptr)))
 	{
 		Log(LT_Error, "DXDDCreate Failed");
 		return FALSE;
@@ -441,8 +441,8 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 
 	Zero(DDInfo->D3DInfo[DDInfo->nD3DInfo]);
 
-	if (lpGuid == NULL)
-		DDInfo->D3DInfo[DDInfo->nD3DInfo].lpGuid = NULL;
+	if (lpGuid == nullptr)
+		DDInfo->D3DInfo[DDInfo->nD3DInfo].lpGuid = nullptr;
 	else
 	{
 		DDInfo->D3DInfo[DDInfo->nD3DInfo].lpGuid = &DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid;
@@ -513,7 +513,7 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 	{
 		DXCreateDirect3DDevice(enum_lpD3D, DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid, enum_lpDDSurface, &enum_lpD3DDevice);
 
-		if (enum_lpD3DDevice == NULL)
+		if (enum_lpD3DDevice == nullptr)
 		{
 			Log(LT_Error, "Create D3DDevice Failed");
 
@@ -573,8 +573,8 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 
 	Zero(dd->DDInfo[dd->nDDInfo]);
 	
-	if (lpGuid == NULL)
-		dd->DDInfo[dd->nDDInfo].lpGuid = NULL;
+	if (lpGuid == nullptr)
+		dd->DDInfo[dd->nDDInfo].lpGuid = nullptr;
 	else
 	{
 		dd->DDInfo[dd->nDDInfo].lpGuid = &dd->DDInfo[dd->nDDInfo].Guid;
@@ -601,15 +601,15 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 
 		Log(LT_Info, "Getting Device Capabilities");
 
-		DX_TRY(enum_lpDD->GetCaps(&dd->DDInfo[dd->nDDInfo].DDCaps, NULL));
+		DX_TRY(enum_lpDD->GetCaps(&dd->DDInfo[dd->nDDInfo].DDCaps, nullptr));
 
 		Log(LT_Info, "Enumerating Display Modes");
 
-		DXSetCooperativeLevel(enum_lpDD, NULL, DDSCL_NOWINDOWCHANGES | DDSCL_ALLOWMODEX | DDSCL_FULLSCREEN | DDSCL_NORMAL);
+		DXSetCooperativeLevel(enum_lpDD, nullptr, DDSCL_NOWINDOWCHANGES | DDSCL_ALLOWMODEX | DDSCL_FULLSCREEN | DDSCL_NORMAL);
 
 		Log(LT_Enter, "DXEnumDisplayModes");
 
-		DX_TRY(enum_lpDD->EnumDisplayModes(0, NULL, (LPVOID)&dd->DDInfo[dd->nDDInfo], DXEnumDisplayModes));
+		DX_TRY(enum_lpDD->EnumDisplayModes(0, nullptr, (LPVOID)&dd->DDInfo[dd->nDDInfo], DXEnumDisplayModes));
 
 		if (DXCreateDirect3D(enum_lpDD, &enum_lpD3D))
 		{
@@ -618,7 +618,7 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 			DXRelease(enum_lpD3D, "Direct3D");
 		}
 
-		DXSetCooperativeLevel(enum_lpDD, NULL, DDSCL_NORMAL);
+		DXSetCooperativeLevel(enum_lpDD, nullptr, DDSCL_NORMAL);
 
 		DXRelease(enum_lpDD, "DirectDraw");
 	}
@@ -641,8 +641,8 @@ BOOL CALLBACK DXEnumDirectSound(GUID FAR* lpGuid, LPCSTR lpDeviceDesc, LPCSTR lp
 
 	Zero(dd->DSInfo[dd->nDSInfo]);
 
-	if (lpGuid == NULL)
-		dd->DSInfo[dd->nDSInfo].lpGuid = NULL;
+	if (lpGuid == nullptr)
+		dd->DSInfo[dd->nDSInfo].lpGuid = nullptr;
 	else
 	{
 		dd->DSInfo[dd->nDSInfo].lpGuid = &dd->DSInfo[dd->nDSInfo].Guid;

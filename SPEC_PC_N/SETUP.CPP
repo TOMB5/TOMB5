@@ -190,7 +190,7 @@ bool RegReadBool(LPCSTR name, void* out, BYTE def)// (F)
 	DWORD cb = 4;
 	DWORD type;
 	DWORD buf;
-	if (RegQueryValueExA(reg_key, name, 0, &type, (BYTE*)&buf, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
+	if (RegQueryValueExA(reg_key, name, nullptr, &type, (BYTE*)&buf, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
 	{
 		*(BYTE*)out = buf != 0;
 		return true;
@@ -207,7 +207,7 @@ bool RegReadInt(LPCSTR name, void* out, int def)// (F)
 {
 	DWORD cb = 4;
 	DWORD type;
-	if (RegQueryValueExA(reg_key, name, 0, &type, (BYTE*)out, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
+	if (RegQueryValueExA(reg_key, name, nullptr, &type, (BYTE*)out, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
 	{
 		return true;
 	}

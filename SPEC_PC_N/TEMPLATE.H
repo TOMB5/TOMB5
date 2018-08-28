@@ -88,7 +88,7 @@ template <class TYPE> Position List<TYPE>::Find(TYPE& rData)
 {
 	Node* pNode = m_pHead;
 	if (!pNode)
-		return 0;
+		return nullptr;
 	do
 	{
 		if (!(pNode->data<rData))
@@ -113,7 +113,7 @@ template <class TYPE> void List<TYPE>::Insert(TYPE& rData)
 			Node* pPrevNode = pNode->pPrev;
 			Node* pNewNode = new Node(pPrevNode, pNode);
 			pNewNode->data = rData;
-			if (pPrevNode == 0)
+			if (pPrevNode == nullptr)
 				m_pHead = pNewNode;
 			else
 				pPrevNode->pNext = pNewNode;
@@ -209,7 +209,7 @@ struct GenericAdapter
 		else
 		{
 			Zero(AdapterGUID);
-			pGUID = 0;
+			pGUID = nullptr;
 		}
 	}
 };

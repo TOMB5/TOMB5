@@ -71,7 +71,7 @@ bool WinRunCheck(LPCSTR lpName, LPCSTR lpClassName, HANDLE* mutex)// (F)
 {
 	Log(LT_Enter, "WinRunCheck");
 
-	*mutex = CreateMutexA(0, true, lpName);
+	*mutex = CreateMutexA(nullptr, true, lpName);
 
 	if (GetLastError() != ERROR_ALREADY_EXISTS)
 		return false;
@@ -194,7 +194,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		LoadSettings();
 	}
 
-	SetWindowPos(App.WindowHandle, 0, App.GnWindowRect.left, App.GnWindowRect.top, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+	SetWindowPos(App.WindowHandle, nullptr, App.GnWindowRect.left, App.GnWindowRect.top, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
 	HWND dWnd = GetDesktopWindow();
 	HDC context = GetDC(dWnd);
