@@ -175,7 +175,7 @@ extern "C" {
 	{
 		// todo
 
-		phd_dxptr = (float*)malloc(480 * sizeof(float));
+		phd_dxptr = matrix_stack_dx;
 	}
 
 	void InitWater()
