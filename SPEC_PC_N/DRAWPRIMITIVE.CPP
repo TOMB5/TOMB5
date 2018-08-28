@@ -262,7 +262,7 @@ void GPU_BeginScene()
 
 void SetGlobalAmbient(uint32_t color)
 {
-	Unimpl();
+	global_ambient = color;
 }
 
 void DrawEffect(short fx_num)
