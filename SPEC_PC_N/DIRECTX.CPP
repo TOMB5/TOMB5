@@ -304,13 +304,6 @@ bool DXCreateViewport(LPDIRECT3D3 lpD3D, LPDIRECT3DDEVICE3 lpD3DDevice, int w, i
 
 bool DXSetVideoMode(LPDIRECTDRAW4 lpDD2, int w, int h, int bpp)// (F)
 {
-#if TRUE
-	// otherwise it fucks up my desktop icons --zdimension
-	w = 1680;
-	h = 1050;
-	bpp = 32;
-#endif
-	int RetVal;
 	Log(LT_Enter, "DXSetVideoMode");
 	Log(LT_Info, "SetDisplayMode - %dx%dx%d", w, h, bpp);
 }
