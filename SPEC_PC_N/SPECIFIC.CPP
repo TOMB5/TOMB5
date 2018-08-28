@@ -240,7 +240,7 @@ void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2)// (F)
 
 void UpdateLoadBar()// (F)
 {
-		loadBarPercent += 100.0 / loadBarMax;
+	loadBarPercent += 100.0 / loadBarMax;
 }
 void S_LoadBar()// (F)
 {
@@ -626,20 +626,20 @@ void S_CDLoop()// (F)
 
 int S_LoadSave(int input, int in_inventory)
 {
-		Unimpl();
-		return 0;
+	Unimpl();
+	return 0;
 }
 
 int S_DisplayPauseMenu(int a1)
 {
-		Unimpl(); 
+	Unimpl(); 
 	return 0;
 }
 
 	int S_PauseMenu()
 {
-		Unimpl();
-		return 0;
+	Unimpl();
+	return 0;
 }
 
 void S_DrawAirBar(int size)// (F)
@@ -681,7 +681,7 @@ void S_CDFade(int a1)// (F)
 	
 }
 
-	int		S_StartSyncedAudio(int num)
+int		S_StartSyncedAudio(int num)
 {
 		Unimpl();
 		return 0;

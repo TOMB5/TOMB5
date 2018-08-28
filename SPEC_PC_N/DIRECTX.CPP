@@ -6,6 +6,7 @@
 #include "SETUP.H"
 #include <mmreg.h>
 #include <msacm.h>
+#include "INPUT.H"
 #pragma comment (lib, "ddraw.lib")
 #pragma comment (lib, "dxguid.lib")
 #pragma comment (lib, "dinput.lib")
@@ -414,7 +415,6 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 		if (lpHELDesc->dcmColorModel & D3DCOLOR_MONO) return D3DENUMRET_OK;
 	}
 
-
 #ifdef DISABLESOFTWARE
 	if (lpHWDesc->dwFlags == 0)
 		return D3DENUMRET_OK;
@@ -423,14 +423,12 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 	if (lpHWDesc->dwFlags == 0 && bSoftRend == true)
 		return D3DENUMRET_OK;
 
-
 	if (lpHWDesc->dwFlags == 0)
 	{
 		bSoftRend = true;
 		strcpy(lpDeviceDesc, "Core Design Hardware Card Emulation");
 		strcpy(lpDeviceName, "RGB Emulation");
 	}
-
 
 	if (DDInfo->nD3DInfo == 0)
 		DDInfo->D3DInfo = (DIRECT3DINFO*)malloc(sizeof(DIRECT3DINFO));

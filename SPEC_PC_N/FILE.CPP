@@ -37,12 +37,13 @@
 short* floor_data;
 short* mesh_base;
 int AnimFileLen;
-char	cd_drive = 0;
+char cd_drive = 0;
 bool levelLoading;
 int num_pages;
 FILE* fp_level;
 char* level_data;
 char* level_data_orig;
+
 struct mesh_vbuf_s
 {
 	char pad0[4]; // pos 0 size 4
@@ -51,6 +52,7 @@ struct mesh_vbuf_s
 	LPDIRECT3DVERTEXBUFFER vbuf; // pos 30 size 4
 	char pad2[36]; // pos 34 size 36
 };
+
 mesh_vbuf_s** mesh_vbufs;
 OBJECT_TEXTURE* object_textures;
 SPRITE_STRUCT* sprites;
@@ -59,7 +61,8 @@ float waterfall_y[6];
 int num_room_lights;
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #define AllocT(d, s, n) d = (s*)game_malloc(sizeof(s) * (n))
@@ -132,7 +135,7 @@ extern "C" {
 
 	void FreeD3DLights()// (F)
 	{
-		;
+		
 	}
 
 	void DXFreeSounds()
@@ -165,6 +168,7 @@ extern "C" {
 
 	void ClearFX()// (F)
 	{
+		for (int i = 0; i < 2048; i++)
 		{
 			raindrops[i].x = 0;
 			snowflakes[i].x = 0;
@@ -374,17 +378,17 @@ extern "C" {
 		char flipped[256];
 		memset(flipped, 0, 255);
 
-		for(int i = 0; i < number_rooms; i++)
+		for (int i = 0; i < number_rooms; i++)
 		{
 			if (room[i].flipped_room != -1)
 				flipped[i] = true;
 		}
 
-		for(int y = 0; y < 108; y += 4)
+		for (int y = 0; y < 108; y += 4)
 		{
-			for(int x = 0; x < 108; x += 4)
+			for (int x = 0; x < 108; x += 4)
 			{
-				for(int i = 0; i < number_rooms; i++)
+				for (int i = 0; i < number_rooms; i++)
 				{
 					auto r = &room[i];
 
@@ -395,9 +399,9 @@ extern "C" {
 
 						int j = 0;
 
-						for(int yl = 0; yl < 4; yl++)
+						for (int yl = 0; yl < 4; yl++)
 						{
-							for(int xl = 0; xl < 4; xl++)
+							for (int xl = 0; xl < 4; xl++)
 							{
 								if ((x + xl) >= rx && (x + xl) < (rx + r->x_size - 2) &&
 									(y + yl) >= ry && (y + yl) < (ry + r->y_size - 2))
@@ -418,7 +422,7 @@ extern "C" {
 
 						char* d = &OutsideRoomTable[OUTSIDE_Z * (x >> 2) + OUTSIDE_Z * (y >> 2) * 27];
 
-						for(int j = 0; j < OUTSIDE_Z; j++)
+						for (int j = 0; j < OUTSIDE_Z; j++)
 						{
 							if (d[j] == -1)
 							{
@@ -442,9 +446,9 @@ extern "C" {
 		// todo it's a bit incorrect
 		char* s = OutsideRoomTable;
 
-		for(int y = 0; y < 27; y++)
+		for (int y = 0; y < 27; y++)
 		{
-			for(int x = 0; x < 27; x++)
+			for (int x = 0; x < 27; x++)
 			{
 				int z = 0;
 
@@ -498,6 +502,7 @@ extern "C" {
 			}
 		}
 	}
+
 	void LoadRooms()
 	{
 		Log(LT_Enter, "LoadRooms");
@@ -513,6 +518,7 @@ extern "C" {
 		AllocReadT(floor_data, short, numFloorData);
 		Log(LT_Default, "Floor Data Size %d @ %x", numFloorData, floor_data);
 	}
+
 	void BaddyObjects()
 	{
 		struct object_info* obj = &objects[LARA];
@@ -534,19 +540,21 @@ extern "C" {
 		if (obj->loaded)
 		{
 			obj->bite_offset = 0;
-
 		}
 
 		Unimpl();
 	}
+
 	void ObjectObjects()
 	{
 		Unimpl();
 	}
+
 	void TrapObjects()
 	{
 		Unimpl();
 	}
+
 	void InitialiseEffects()
 	{
 		Unimpl();
@@ -625,6 +633,7 @@ extern "C" {
 		if (objects[SPIDER].loaded)
 			Alloc(Spiders, SPIDER_STRUCT, 64); // todo: SPIDER_STRUCT size wrong, should be 26, is 28 (should be 1664 B)
 	}
+
 	void ProcessMeshData(int nmeshes)
 	{
 		Log(LT_Enter, "ProcessMeshData %d", nmeshes);
@@ -638,6 +647,7 @@ extern "C" {
 
 		Log(LT_Enter, "End ProcessMeshData");
 	}
+
 	void CreateSkinningData()
 	{
 		Unimpl();
@@ -918,6 +928,7 @@ extern "C" {
 
 		nAnimUVRanges = readByte();
 	}
+
 	void AdjustUV(int numTex)
 	{
 		Log(2, "AdjustUV");
@@ -1035,6 +1046,7 @@ extern "C" {
 			}
 		}
 	}
+
 	void MallocD3DLights()
 	{
 		Unimpl();
@@ -1046,7 +1058,7 @@ extern "C" {
 
 	void GetCarriedItems()// (F)
 	{
-		for(int i = 0; i < level_items; i++)
+		for (int i = 0; i < level_items; i++)
 		{
 			items[i].carried_item = -1;
 		}
@@ -1055,12 +1067,12 @@ extern "C" {
 		{
 			struct ITEM_INFO* item = &items[i];
 
-			if (objects[item->object_number].intelligent || 
+			if (objects[item->object_number].intelligent ||
 				item->object_number >= SEARCH_OBJECT1 && item->object_number <= SEARCH_OBJECT3)
 			{
 				struct ITEM_INFO* cur;
 
-				for(int j = room[item->room_number].item_number; j != -1; j = cur->next_item)
+				for (int j = room[item->room_number].item_number; j != -1; j = cur->next_item)
 				{
 					cur = &items[j];
 
@@ -1092,7 +1104,7 @@ extern "C" {
 				item->hit_status = FALSE;
 				item->collidable = FALSE;
 
-				for(int j = 0; j < nAIObjects; j++)
+				for (int j = 0; j < nAIObjects; j++)
 				{
 					struct AIOBJECT* cur = &AIObjects[j];
 
@@ -1126,10 +1138,12 @@ extern "C" {
 
 		FootPrintNum = 0;
 	}
+
 	void InitBinoculars()
 	{
 		Unimpl();
 	}
+
 	void InitTarget()
 	{
 		Unimpl();
@@ -1183,6 +1197,7 @@ extern "C" {
 
 		SetFadeClip(0, 1);
 	}
+
 	void LoadSamples()
 	{
 		Log(LT_Enter, "LoadSamples");
@@ -1210,6 +1225,7 @@ extern "C" {
 			}
 		}
 	}
+
 	unsigned __stdcall LoadLevel(void* filename)
 	{
 		Log(LT_Info, "Begin LoadLevel");
@@ -1325,7 +1341,6 @@ extern "C" {
 				find_a_fucking_item(ANIMATING16)->mesh_bits = 1;
 
 
-
 			//todo
 			//objects[0].initialise(0);
 			// todo
@@ -1341,7 +1356,7 @@ extern "C" {
 		return true;
 	}
 
-	int 		S_LoadLevelFile(int Name)
+	int S_LoadLevelFile(int Name)
 	{
 		Log(LT_Enter, "S_LoadLevelFile");
 
