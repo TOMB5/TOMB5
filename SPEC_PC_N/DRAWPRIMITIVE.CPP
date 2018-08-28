@@ -419,29 +419,29 @@ void FadeLightList(PCLIGHT* lights, int num)// (F)
 
 		if (ptr->LightType == LT_SHADOW)
 		{
-			ptr[-1].ShadowIntensity += ptr[-1].dy2;
+			ptr->ShadowIntensity += ptr->dy2;
 		}
 		else
 		{
-			ptr[-1].r = ptr[-1].r3 + ptr[-1].r;
-			ptr[-1].g = ptr[-1].g3 + ptr[-1].g;
-			ptr[-1].b = ptr[-1].b3 + ptr[-1].b;
+			ptr->r = ptr->r3 + ptr->r;
+			ptr->g = ptr->g3 + ptr->g;
+			ptr->b = ptr->b3 + ptr->b;
 		}
 
 		ptr->UnknownInt--;
 
 		if (ptr->LightType == LT_SHADOW)
 		{
-			if (ptr[-1].ShadowIntensity <= 0)
+			if (ptr->ShadowIntensity <= 0)
 			{
-				ptr[-1].UnknownByte = 0;
+				ptr->UnknownByte = 0;
 			}
 		}
 		else
 		{
-			if (ptr[-1].r <= 0.0 && ptr[-1].g <= 0.0 && ptr[-1].b <= 0.0)
+			if (ptr->r <= 0.0 && ptr->g <= 0.0 && ptr->b <= 0.0)
 			{
-				ptr[-1].UnknownByte = 0;
+				ptr->UnknownByte = 0;
 			}
 		}
 	}
