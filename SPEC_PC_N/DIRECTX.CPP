@@ -316,8 +316,7 @@ bool DXSetVideoMode(LPDIRECTDRAW4 lpDD2, int w, int h, int bpp)// (F)
 
 HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)// (F)
 {
-	DIRECT3DINFO* D3DInfo;
-	D3DInfo = (DIRECT3DINFO*)lpContext;
+	DIRECT3DINFO* D3DInfo = (DIRECT3DINFO*)lpContext;
 
 	if (D3DInfo->nTexture == 0)
 		D3DInfo->Texture = (D3DTEXTUREINFO*)malloc(sizeof(D3DTEXTUREINFO));
@@ -391,8 +390,7 @@ HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)/
 
 HRESULT CALLBACK DXEnumZBufferFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)// (F)
 {
-	DIRECT3DINFO* D3DInfo;
-	D3DInfo = (DIRECT3DINFO*)lpContext;
+	DIRECT3DINFO* D3DInfo = (DIRECT3DINFO*)lpContext;
 
 	if (D3DInfo->nZbuffer== 0)
 		D3DInfo->Zbuffer = (zBufFormat*)malloc(sizeof(zBufFormat));
@@ -415,8 +413,7 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 {
 	int n;
 
-	DIRECTDRAWINFO* DDInfo;
-	DDInfo = (DIRECTDRAWINFO*)lpContext;
+	DIRECTDRAWINFO* DDInfo = (DIRECTDRAWINFO*)lpContext;
 
 	if (lpHWDesc->dwFlags == 0)
 	{
@@ -571,9 +568,7 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 {
 	Log(LT_Enter, "DXEnumDirectDraw");
 
-	DEVICEINFO*		 dd;
-
-	dd = (DEVICEINFO*)lpContext;
+	DEVICEINFO*		 dd = (DEVICEINFO*)lpContext;
 
 	if (dd->nDDInfo == 0)
 		dd->DDInfo = (DIRECTDRAWINFO*)malloc(sizeof(DIRECTDRAWINFO));
@@ -641,9 +636,7 @@ BOOL CALLBACK DXEnumDirectSound(GUID FAR* lpGuid, LPCSTR lpDeviceDesc, LPCSTR lp
 {
 	Log(LT_Enter, "DXEnumDirectSound");
 
-	DEVICEINFO*		 dd;
-
-	dd = (DEVICEINFO*)lpContext;
+	DEVICEINFO*		 dd = (DEVICEINFO*)lpContext;
 
 	if (dd->nDSInfo == 0)
 		dd->DSInfo = (DIRECTSOUNDINFO*)malloc(sizeof(DIRECTSOUNDINFO));
