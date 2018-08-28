@@ -621,7 +621,7 @@ void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light)
 
 void S_CDLoop()
 {
-	Unimpl();
+	
 }
 
 	int S_LoadSave(int input, int in_inventory)
