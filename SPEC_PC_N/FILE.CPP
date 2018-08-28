@@ -642,7 +642,7 @@ extern "C" {
 
 	void InitialiseClosedDoors()// (F)
 	{
-		memset(ClosedDoors, 0, 32 * sizeof(long));
+		Zero(ClosedDoors);
 	}
 
 	void LoadObjects()// (F)
@@ -1134,10 +1134,10 @@ extern "C" {
 
 	void InitialiseGameFlags()// (F)
 	{
-		memset(flipmap, 0, sizeof(flipmap));
-		memset(flip_stats, 0, sizeof(flip_stats));
+		Zero(flipmap);
+		Zero(flip_stats);
 		flipeffect = -1;
-		memset(cd_flags, 0, sizeof(cd_flags));
+		Zero(cd_flags);
 		flip_status = 0;
 		IsAtmospherePlaying = 0;
 		camera.underwater = 0;

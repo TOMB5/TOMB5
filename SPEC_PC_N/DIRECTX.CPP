@@ -166,14 +166,14 @@ HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)//
 	else
 		DDInfo->DisplayMode = (DISPLAYMODE*)realloc(DDInfo->DisplayMode, sizeof(DISPLAYMODE)*(DDInfo->nDisplayMode + 1));
 
-	memset(&DDInfo->DisplayMode[DDInfo->nDisplayMode], 0, sizeof(DISPLAYMODE));
+	Zero(DDInfo->DisplayMode[DDInfo->nDisplayMode]);
 
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].w = lpddsd->dwWidth;
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].h = lpddsd->dwHeight;
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].bpp = lpddsd->ddpfPixelFormat.dwRGBBitCount;
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].bPalette = lpddsd->ddpfPixelFormat.dwFlags&DDPF_PALETTEINDEXED8 ? true : false;
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].mipMapCount = lpddsd->dwMipMapCount;
-	memcpy(&DDInfo->DisplayMode[DDInfo->nDisplayMode].ddsd, lpddsd, sizeof(DDSURFACEDESC));
+	DDInfo->DisplayMode[DDInfo->nDisplayMode].ddsd = *lpddsd;
 
 	if (DDInfo->DisplayMode[DDInfo->nDisplayMode].bPalette)
 	{
@@ -336,9 +336,8 @@ HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)/
 	else
 		D3DInfo->Texture = (D3DTEXTUREINFO*)realloc(D3DInfo->Texture, sizeof(D3DTEXTUREINFO)*(D3DInfo->nTexture + 1));
 
-
-	memset(&D3DInfo->Texture[D3DInfo->nTexture], 0, sizeof(D3DTEXTUREINFO));
-	memcpy(&D3DInfo->Texture[D3DInfo->nTexture].ddpf, lpddpf, sizeof(DDPIXELFORMAT));
+	Zero(D3DInfo->Texture[D3DInfo->nTexture]);
+	D3DInfo->Texture[D3DInfo->nTexture].ddpf = *lpddpf;
 
 	if (lpddpf->dwFlags & DDPF_PALETTEINDEXED8)
 	{
@@ -412,9 +411,8 @@ HRESULT CALLBACK DXEnumZBufferFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)/
 	else
 		D3DInfo->Zbuffer = (zBufFormat*)realloc(D3DInfo->Zbuffer, sizeof(zBufFormat)*(D3DInfo->nZbuffer + 1));
 
-
-	memset(&D3DInfo->Zbuffer[D3DInfo->nZbuffer], 0, sizeof(zBufFormat));
-	memcpy(&D3DInfo->Zbuffer[D3DInfo->nZbuffer].ddpf, lpddpf, sizeof(DDPIXELFORMAT));
+	Zero(D3DInfo->Zbuffer[D3DInfo->nZbuffer]);
+	D3DInfo->Zbuffer[D3DInfo->nZbuffer].ddpf = *lpddpf;
 
 	D3DInfo->Zbuffer[D3DInfo->nZbuffer].bpp = lpddpf->dwRGBBitCount;
 
@@ -460,14 +458,14 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 	else
 		DDInfo->D3DInfo = (DIRECT3DINFO*)realloc(DDInfo->D3DInfo, sizeof(DIRECT3DINFO)*(DDInfo->nD3DInfo + 1));
 
-	memset(&DDInfo->D3DInfo[DDInfo->nD3DInfo], 0, sizeof(DIRECT3DINFO));
+	Zero(DDInfo->D3DInfo[DDInfo->nD3DInfo]);
 
 	if (lpGuid == NULL)
 		DDInfo->D3DInfo[DDInfo->nD3DInfo].lpGuid = NULL;
 	else
 	{
 		DDInfo->D3DInfo[DDInfo->nD3DInfo].lpGuid = &DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid;
-		memcpy(&DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid, lpGuid, sizeof(GUID));
+		DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid = *lpGuid;
 	}
 
 	lstrcpy(DDInfo->D3DInfo[DDInfo->nD3DInfo].About, lpDeviceDesc);
@@ -476,12 +474,12 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 	if (lpHWDesc->dwFlags != 0)
 	{
 		DDInfo->D3DInfo[DDInfo->nD3DInfo].bHardware = true;
-		memcpy(&DDInfo->D3DInfo[DDInfo->nD3DInfo].DeviceDesc, lpHWDesc, sizeof(D3DDEVICEDESC));
+		DDInfo->D3DInfo[DDInfo->nD3DInfo].DeviceDesc = *lpHWDesc;
 	}
 	else
 	{
 		DDInfo->D3DInfo[DDInfo->nD3DInfo].bHardware = false;
-		memcpy(&DDInfo->D3DInfo[DDInfo->nD3DInfo].DeviceDesc, lpHELDesc, sizeof(D3DDEVICEDESC));
+		DDInfo->D3DInfo[DDInfo->nD3DInfo].DeviceDesc = *lpHELDesc;
 	}
 
 	Log(LT_Info, "Finding Compatible Display Modes");
@@ -495,7 +493,7 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 			else
 				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode = (DISPLAYMODE*)realloc(DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode, sizeof(DISPLAYMODE)*(DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode + 1));
 
-			memcpy(&DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode], &DDInfo->DisplayMode[n], sizeof(DISPLAYMODE));
+			DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode] = DDInfo->DisplayMode[n];
 
 			if (DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bPalette)
 			{
@@ -594,14 +592,14 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 	else
 		dd->DDInfo = (DIRECTDRAWINFO*)realloc(dd->DDInfo, sizeof(DIRECTDRAWINFO)*(dd->nDDInfo + 1));
 
-	memset(&dd->DDInfo[dd->nDDInfo], 0, sizeof(DIRECTDRAWINFO));
+	Zero(dd->DDInfo[dd->nDDInfo]);
 	
 	if (lpGuid == NULL)
 		dd->DDInfo[dd->nDDInfo].lpGuid = NULL;
 	else
 	{
 		dd->DDInfo[dd->nDDInfo].lpGuid = &dd->DDInfo[dd->nDDInfo].Guid;
-		memcpy(&dd->DDInfo[dd->nDDInfo].Guid, lpGuid, sizeof(GUID));
+		dd->DDInfo[dd->nDDInfo].Guid = *lpGuid;
 	}
 
 	lstrcpy(dd->DDInfo[dd->nDDInfo].About, lpDeviceDesc);
@@ -664,14 +662,14 @@ BOOL CALLBACK DXEnumDirectSound(GUID FAR* lpGuid, LPCSTR lpDeviceDesc, LPCSTR lp
 	else
 		dd->DSInfo = (DIRECTSOUNDINFO*)realloc(dd->DSInfo, sizeof(DIRECTSOUNDINFO)*(dd->nDSInfo + 1));
 
-	memset(&dd->DSInfo[dd->nDSInfo], 0, sizeof(DIRECTSOUNDINFO));
+	Zero(dd->DSInfo[dd->nDSInfo]);
 
 	if (lpGuid == NULL)
 		dd->DSInfo[dd->nDSInfo].lpGuid = NULL;
 	else
 	{
 		dd->DSInfo[dd->nDSInfo].lpGuid = &dd->DSInfo[dd->nDSInfo].Guid;
-		memcpy(&dd->DSInfo[dd->nDSInfo].Guid, lpGuid, sizeof(GUID));
+		dd->DSInfo[dd->nDSInfo].Guid = *lpGuid;
 	}
 
 	lstrcpy(dd->DSInfo[dd->nDSInfo].About, lpDeviceDesc);
@@ -886,7 +884,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		surf.dwWidth = App.width;
 		surf.dwHeight = App.height;
 
-		memcpy(&surf.ddpfPixelFormat, &CUR_D3D.Zbuffer->ddpf, sizeof(DDPIXELFORMAT));
+		surf.ddpfPixelFormat = CUR_D3D.Zbuffer->ddpf;
 
 		if (DX_TRY(App.lpDD->CreateSurface(&surf, &App.lpZBuffer, nullptr)))
 		{
