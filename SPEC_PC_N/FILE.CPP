@@ -165,7 +165,11 @@ extern "C" {
 
 	void ClearFX()
 	{
-		Unimpl();
+		for(int i = 0; i < 2048; i++)
+		{
+			raindrops[i].x = 0;
+			snowflakes[i].x = 0;
+		}
 	}
 
 	void InitMatrix()
