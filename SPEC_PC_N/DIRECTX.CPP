@@ -306,6 +306,8 @@ bool DXSetVideoMode(LPDIRECTDRAW4 lpDD2, int w, int h, int bpp)// (F)
 {
 	Log(LT_Enter, "DXSetVideoMode");
 	Log(LT_Info, "SetDisplayMode - %dx%dx%d", w, h, bpp);
+
+	return lpDD2->SetDisplayMode(w, h, bpp, 0, NULL) == DD_OK;
 }
 
 HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)// (F)
