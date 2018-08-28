@@ -129,7 +129,8 @@ extern "C" {
 			return ptr;
 		}
 
-		Log(0, "OUT OF MEMORY");
+		Log(LT_Default, "OUT OF MEMORY");
+		exit(0);
 		return nullptr;	// S_ExitSystem doesn't return...
 	}
 
