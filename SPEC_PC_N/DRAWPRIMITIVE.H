@@ -49,6 +49,9 @@ void DoSnow();
 
 extern uint32_t global_ambient;
 
+extern SNOWFLAKE raindrops[];
+extern SNOWFLAKE snowflakes[];
+
 extern int num_fog_bulbs;
 
 extern int num_snow_flakes;

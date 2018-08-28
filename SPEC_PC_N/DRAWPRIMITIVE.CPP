@@ -61,6 +61,9 @@ int surfacenumbf;
 
 D3DMATRIX d3d_camera;
 
+SNOWFLAKE raindrops[2048];
+SNOWFLAKE snowflakes[2048];
+
 
 void SubdivideEdge(D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, short *a4, float u1, float v1, float u2, float v2, float *u, float *v)
 {
