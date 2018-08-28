@@ -23,7 +23,7 @@ extern "C" {
 	void		S_CDPause(void);
 	void		S_CDRestart(void);
 	int		S_StartSyncedAudio(int num);
-	extern char			exit_message[128];
+
 	extern void S_ExitSystem(char *message);
 
 	void		S_DumpScreenFrame();
