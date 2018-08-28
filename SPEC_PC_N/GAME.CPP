@@ -3,7 +3,6 @@
 #include "DISPLAY.H"
 #include "DIRECTX.H"
 #include "INIT.H"
-#include "NEWSHIT.H"
 #include "GAMEFLOW.H"
 #include "SOUND.H"
 #include "DRAWPRIMITIVE.H"
