@@ -226,7 +226,7 @@ unsigned __stdcall GameMain(void* data)
 void do_boot_screen(int language)// (F)
 {
 	Log(2, "do_boot_screen");
-	return;
+
 	switch (language)
 	{
 	case LNG_ENGLISH:
