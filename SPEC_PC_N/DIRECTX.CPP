@@ -407,8 +407,6 @@ HRESULT CALLBACK DXEnumZBufferFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)/
 
 HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDeviceName, LPD3DDEVICEDESC lpHWDesc, LPD3DDEVICEDESC lpHELDesc, LPVOID lpContext)// (F)
 {
-	int n;
-
 	DIRECTDRAWINFO* DDInfo = (DIRECTDRAWINFO*)lpContext;
 
 	if (lpHWDesc->dwFlags == 0)
@@ -467,7 +465,7 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 
 	Log(LT_Info, "Finding Compatible Display Modes");
 
-	for (n = 0; n<DDInfo->nDisplayMode; n++)
+	for (int n = 0; n<DDInfo->nDisplayMode; n++)
 	{
 		if (BPPToDDBD(DDInfo->DisplayMode[n].bpp)&DDInfo->D3DInfo[DDInfo->nD3DInfo].DeviceDesc.dwDeviceRenderBitDepth)
 		{
