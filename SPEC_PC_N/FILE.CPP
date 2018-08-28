@@ -1068,7 +1068,7 @@ extern "C" {
 
 			if (objects[item->object_number].intelligent)
 			{
-				item->status = 0;
+				item->status = ITEM_INACTIVE;
 				item->gravity_status = FALSE;
 				item->hit_status = FALSE;
 				item->collidable = FALSE;
