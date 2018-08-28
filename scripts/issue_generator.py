@@ -207,6 +207,8 @@ for plat in sorted(platforms.keys()):
 					a = a[:a.index("(")]
 					b = a[a.rfind(" ")+1:].strip()
 					if not b:
+						b = a[a[:-1].rfind(" ")+1:].strip()
+					if not b:
 						Warn("Unable to determine function name -- %s // '%s'" % (path, file_lines[i - 2]))
 					else:
 						if b not in ["if", "else"]:
@@ -217,6 +219,8 @@ for plat in sorted(platforms.keys()):
 		for i in range(len(funcs)):
 			a = funcs[i][:funcs[i].index("(")] # take everything until first parenthesis
 			b = a[a.rfind(" ")+1:] # remove everything before last whitespace
+			if not b:
+				b = a[a[:-1].rfind(" ")+1:].strip()
 			funcs[i] = b
 
 		for l in sorted(funcs):
