@@ -31,6 +31,8 @@ void(*AddTri1)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int 
 void(*AddTri2)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7);
 void(*AddLine)(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color);
 
+uint32_t global_ambient;
+
 float fog_start = SECTOR(12);
 float fog_end = SECTOR(20);
 

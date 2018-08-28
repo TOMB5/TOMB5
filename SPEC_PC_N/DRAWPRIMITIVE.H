@@ -47,6 +47,8 @@ void PrintObjects(short current_room);
 void DoRain();
 void DoSnow();
 
+extern uint32_t global_ambient;
+
 extern int num_fog_bulbs;
 
 extern int num_snow_flakes;
