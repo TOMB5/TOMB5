@@ -130,7 +130,6 @@ extern "C" {
 		}
 
 		Log(0, "OUT OF MEMORY");
-		S_ExitSystem(exit_message);
 		return nullptr;	// S_ExitSystem doesn't return...
 	}
 
