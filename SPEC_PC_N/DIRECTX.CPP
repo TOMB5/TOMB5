@@ -243,8 +243,9 @@ DWORD BPPToDDBD(int bpp)// (F)
 		return DDBD_24;
 	case 32:
 		return DDBD_32;
+	default:
+		return 0;
 	}
-	return (DWORD)0;
 }
 
 bool DXCreateSurface(LPDIRECTDRAW4 lpDD2, DDSURFACEDESC2* ddsd, LPDIRECTDRAWSURFACE4* lpSurface)// (F)
