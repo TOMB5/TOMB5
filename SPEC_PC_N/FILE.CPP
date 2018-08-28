@@ -173,7 +173,10 @@ extern "C" {
 
 	void InitMatrix()// (F)
 	{
-		// todo
+		for (int i = 0; i < ANGLE(360); i++)
+		{
+			sin_flt_table[i] = sinf((i * 2 * M_PI) / ANGLE(360));
+		}
 
 		phd_dxptr = matrix_stack_dx;
 	}
