@@ -1129,7 +1129,7 @@ void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)// (F)
 
 void DXShowFrame()// (F)
 {
-	if (false)
+	if (keymap[DIK_APOSTROPHE])
 		SaveDDBuffer(App.lpBackBuffer, "Tomb");
 
 	if (App.lpFrontBuffer->IsLost())
