@@ -570,12 +570,6 @@ void DrawSpiders()
 	Unimpl();
 }
 
-void aSetViewMatrix()
-{
-	//DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, 0));
-	Unimpl();
-}
-
 void InsertRoom(room_info* r)
 {
 	Unimpl();
@@ -745,7 +739,7 @@ void DrawRooms(short current_room)
 		phd_top = cr->top;
 		phd_bottom = cr->bottom;
 
-		aSetViewMatrix();
+		SetViewMatrix();
 		InsertRoom(cr);
 
 		phd_PopMatrix();
