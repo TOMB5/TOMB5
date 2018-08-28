@@ -459,7 +459,7 @@ struct DISPLAYMODE					// Display Mode Info
 	unsigned long	bpp;			// Bits Per Pixel
 	unsigned int	mipMapCount;
 	bool			bPalette;		// Is It Palettised
-	DDSURFACEDESC	ddsd;			// Surface Description
+	DDSURFACEDESC2	ddsd;			// Surface Description
 	unsigned char	rbpp;			// Red Bits Per Pixel
 	unsigned char	gbpp;			// Green Bits Per Pixel
 	unsigned char	bbpp;			// Blue Bits Per Pixel
