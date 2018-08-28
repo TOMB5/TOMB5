@@ -17,7 +17,7 @@ WORD* d9ab34;
 int e4b100;
 BYTE tsv_buffer[8192];
 
-void InitFX()
+void InitFX()// (F)
 {
 	if (App.Flags & WA_BACK_BUFFER)  
 	{
@@ -98,7 +98,7 @@ void ClearSurfaces()
 	
 }
 
-void GameClose()
+void GameClose()// (F)
 {
 	Log(LT_Enter, "GameClose");
 
@@ -121,7 +121,7 @@ void GameClose()
 	free(gfStringOffset);
 }
 
-void HWInitialise()
+void HWInitialise()// (F)
 {
 	Log(LT_Enter, "HWInitialise");
 
@@ -224,7 +224,7 @@ unsigned __stdcall GameMain(void* data)
 	return true;
 }
 
-void do_boot_screen(int language)
+void do_boot_screen(int language)// (F)
 {
 	Log(2, "do_boot_screen");
 	return;

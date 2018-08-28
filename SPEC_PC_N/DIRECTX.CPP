@@ -82,7 +82,7 @@ const char* xa_filenames[] =
 	"xa17_Andy1.wav", "xa17_Andrea4.wav", "xa17_Andy9.wav", "xa17_Andy11.wav"
 };
 
-void DXBitMask2ShiftCnt(unsigned long mask, unsigned char* shift, unsigned char* cnt)
+void DXBitMask2ShiftCnt(unsigned long mask, unsigned char* shift, unsigned char* cnt)// (F)
 {
 	unsigned long m;
 	unsigned char n;
@@ -95,7 +95,7 @@ void DXBitMask2ShiftCnt(unsigned long mask, unsigned char* shift, unsigned char*
 #ifdef __cplusplus
 extern "C" {
 #endif
-	bool DXSetCooperativeLevel(LPDIRECTDRAW4 lpDD, HWND WindowHandle, int Flags)
+	bool DXSetCooperativeLevel(LPDIRECTDRAW4 lpDD, HWND WindowHandle, int Flags)// (F)
 	{
 		static const char* flags[] =
 		{
@@ -135,7 +135,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-BOOL DXDDCreate(GUID FAR* lpGuid, LPDIRECTDRAW* lpDD)
+BOOL DXDDCreate(GUID FAR* lpGuid, LPDIRECTDRAW* lpDD)// (F)
 {
 	LPDIRECTDRAW lpDDTemp;
 
@@ -156,7 +156,7 @@ BOOL DXDDCreate(GUID FAR* lpGuid, LPDIRECTDRAW* lpDD)
 	return TRUE;
 }
 
-HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)
+HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)// (F)
 {
 	DIRECTDRAWINFO* DDInfo;
 	DDInfo = (DIRECTDRAWINFO*)lpContext;
@@ -214,7 +214,7 @@ HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)
 	return DDENUMRET_OK;
 }
 
-bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2)
+bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2)// (F)
 {
 	int RetVal;
 	RetVal = lpDD2->QueryInterface(IID_IDirect3D3, (LPVOID*)lpD3D2);
@@ -230,7 +230,7 @@ bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2)
 	}
 }
 
-DWORD BPPToDDBD(int bpp)
+DWORD BPPToDDBD(int bpp)// (F)
 {
 	switch (bpp)
 	{
@@ -252,7 +252,7 @@ DWORD BPPToDDBD(int bpp)
 	return (DWORD)0;
 }
 
-bool DXCreateSurface(LPDIRECTDRAW4 lpDD2, DDSURFACEDESC2* ddsd, LPDIRECTDRAWSURFACE4* lpSurface)
+bool DXCreateSurface(LPDIRECTDRAW4 lpDD2, DDSURFACEDESC2* ddsd, LPDIRECTDRAWSURFACE4* lpSurface)// (F)
 {
 	Log(LT_Enter, "DXCreateSurface");
 	int RetVal;
@@ -265,7 +265,7 @@ bool DXCreateSurface(LPDIRECTDRAW4 lpDD2, DDSURFACEDESC2* ddsd, LPDIRECTDRAWSURF
 	return true;
 }
 
-bool DXCreateDirect3DDevice(LPDIRECT3D3 lpD3D2, GUID Guid, LPDIRECTDRAWSURFACE4 lpSurface, LPDIRECT3DDEVICE3* lpD3DDevice2)
+bool DXCreateDirect3DDevice(LPDIRECT3D3 lpD3D2, GUID Guid, LPDIRECTDRAWSURFACE4 lpSurface, LPDIRECT3DDEVICE3* lpD3DDevice2)// (F)
 {
 	int RetVal;
 	RetVal = lpD3D2->CreateDevice(Guid, lpSurface, lpD3DDevice2, NULL);
@@ -281,7 +281,7 @@ bool DXCreateDirect3DDevice(LPDIRECT3D3 lpD3D2, GUID Guid, LPDIRECTDRAWSURFACE4 
 	}
 }
 
-bool DXCreateViewport(LPDIRECT3D3 lpD3D, LPDIRECT3DDEVICE3 lpD3DDevice, int w, int h, LPDIRECT3DVIEWPORT3* lpViewport)
+bool DXCreateViewport(LPDIRECT3D3 lpD3D, LPDIRECT3DDEVICE3 lpD3DDevice, int w, int h, LPDIRECT3DVIEWPORT3* lpViewport)// (F)
 {
 	D3DVIEWPORT2 viewdata;
 
@@ -310,7 +310,7 @@ bool DXCreateViewport(LPDIRECT3D3 lpD3D, LPDIRECT3DDEVICE3 lpD3DDevice, int w, i
 	return true;
 }
 
-bool DXSetVideoMode(LPDIRECTDRAW4 lpDD2, int w, int h, int bpp)
+bool DXSetVideoMode(LPDIRECTDRAW4 lpDD2, int w, int h, int bpp)// (F)
 {
 #if TRUE
 	// otherwise it fucks up my desktop icons --zdimension
@@ -326,7 +326,7 @@ bool DXSetVideoMode(LPDIRECTDRAW4 lpDD2, int w, int h, int bpp)
 	return true;
 }
 
-HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)
+HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)// (F)
 {
 	DIRECT3DINFO* D3DInfo;
 	D3DInfo = (DIRECT3DINFO*)lpContext;
@@ -402,7 +402,7 @@ HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)
 	return D3DENUMRET_OK;
 }
 
-HRESULT CALLBACK DXEnumZBufferFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)
+HRESULT CALLBACK DXEnumZBufferFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)// (F)
 {
 	DIRECT3DINFO* D3DInfo;
 	D3DInfo = (DIRECT3DINFO*)lpContext;
@@ -425,7 +425,7 @@ HRESULT CALLBACK DXEnumZBufferFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)
 	return D3DENUMRET_OK;
 }
 
-HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDeviceName, LPD3DDEVICEDESC lpHWDesc, LPD3DDEVICEDESC lpHELDesc, LPVOID lpContext)
+HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDeviceName, LPD3DDEVICEDESC lpHWDesc, LPD3DDEVICEDESC lpHELDesc, LPVOID lpContext)// (F)
 {
 	int n;
 
@@ -581,7 +581,7 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 	return D3DENUMRET_OK;
 }
 
-BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDeviceName, LPVOID lpContext)
+BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDeviceName, LPVOID lpContext)// (F)
 {
 	Log(LT_Enter, "DXEnumDirectDraw");
 
@@ -651,7 +651,7 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 	return DDENUMRET_OK;
 }
 
-BOOL CALLBACK DXEnumDirectSound(GUID FAR* lpGuid, LPCSTR lpDeviceDesc, LPCSTR lpDeviceName, LPVOID lpContext)
+BOOL CALLBACK DXEnumDirectSound(GUID FAR* lpGuid, LPCSTR lpDeviceDesc, LPCSTR lpDeviceName, LPVOID lpContext)// (F)
 {
 	Log(LT_Enter, "DXEnumDirectSound");
 
@@ -684,7 +684,7 @@ BOOL CALLBACK DXEnumDirectSound(GUID FAR* lpGuid, LPCSTR lpDeviceDesc, LPCSTR lp
 	return DDENUMRET_OK;
 }
 
-void DXInitialise(DEVICEINFO* dd, HWND hWnd)
+void DXInitialise(DEVICEINFO* dd, HWND hWnd)// (F)
 {
 	Log(LT_Enter, "DXInitialise");
 	WindowHandle = hWnd;
@@ -693,7 +693,7 @@ void DXInitialise(DEVICEINFO* dd, HWND hWnd)
 	DX_TRY(DirectSoundEnumerate(DXEnumDirectSound, dd));
 }
 
-void CloseDirectX()
+void CloseDirectX()// (F)
 {
 	Log(LT_Enter, "CloseDirectX");
 
@@ -710,7 +710,7 @@ void CloseDirectX()
 	}
 }
 
-bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND window, DWORD dwStyle)
+bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND window, DWORD dwStyle)// back buffer todo
 {
 	Log(LT_Enter, "DXCreate");
 
@@ -920,7 +920,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 	return false;
 }
 
-HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, int wSrc, int hSrc)
+HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, int wSrc, int hSrc)// (F)
 {
 	if (!h)
 		return 0x80004005;
@@ -973,7 +973,7 @@ HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, in
 	return res;
 }
 
-HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)
+HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)// todo embed in executable
 {
 	//HMODULE mod = GetModuleHandleA(nullptr); todo
 	HMODULE mod = nullptr;
@@ -999,12 +999,12 @@ HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)
 	return res;
 }
 
-BOOL PASCAL DXEnumDirectInput(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
+BOOL PASCAL DXEnumDirectInput(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)// (F)
 {
 	return FAILED(App.lpDI->CreateDeviceEx(lpddi->guidInstance, IID_IDirectInputDevice2A, (LPVOID*)&App.lpDIJoystick, nullptr));
 }
 
-BOOL PASCAL DXEnumDirectInputObjects(LPCDIDEVICEOBJECTINSTANCEA lpddoi, LPVOID pvRef)
+BOOL PASCAL DXEnumDirectInputObjects(LPCDIDEVICEOBJECTINSTANCEA lpddoi, LPVOID pvRef)// (F)
 {
 	DIPROPRANGE prop;
 	DXInit(prop.diph);
@@ -1019,7 +1019,7 @@ BOOL PASCAL DXEnumDirectInputObjects(LPCDIDEVICEOBJECTINSTANCEA lpddoi, LPVOID p
 	return SUCCEEDED(App.lpDIJoystick->SetProperty(DIPROP_RANGE, &prop.diph));
 }
 
-void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance)
+void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance)// (F)
 {
 	LPDIRECTINPUTA di;
 	DX_TRY(DirectInputCreateA(hInstance, 0x700, &di, nullptr));
@@ -1049,7 +1049,7 @@ void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance)
 	}
 }
 
-void DXMove(int x, int y)
+void DXMove(int x, int y)// (F)
 {
 	Log(LT_Enter, "DXMove : x %d y %d", x, y);
 
@@ -1059,7 +1059,7 @@ void DXMove(int x, int y)
 	}
 }
 
-void AcquireInput(bool acquire)
+void AcquireInput(bool acquire)// (F)
 {
 	if (App.lpDIJoystick)
 	{
@@ -1074,7 +1074,7 @@ void AcquireInput(bool acquire)
 	}
 }
 
-void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)
+void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)// (F)
 {
 	static int nFile = 0;
 	static char header[18] = { 0,0,2,0,0,0,0,0,0,0,0,0,0x40,0x01,0x00,0x01,16,0 };
@@ -1144,7 +1144,7 @@ void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)
 	DX_TRY(surf->Unlock(nullptr));
 }
 
-void DXShowFrame()
+void DXShowFrame()// (F)
 {
 	if (false)
 		SaveDDBuffer(App.lpBackBuffer, "Tomb");
@@ -1171,7 +1171,7 @@ void DXShowFrame()
 	}
 }
 
-bool DXChangeVideoMode()
+bool DXChangeVideoMode()// (F)
 {
 	Log(LT_Enter, "DXChangeVideoMode");
 
@@ -1183,7 +1183,7 @@ bool DXChangeVideoMode()
 	return ret;
 }
 
-void DXToggleFullScreen()
+void DXToggleFullScreen()// (F)
 {
 	Log(LT_Enter, "DXToggleFullScreen");
 
@@ -1209,7 +1209,7 @@ void DXToggleFullScreen()
 	DXCreate(CUR_DM.w, CUR_DM.h, CUR_DM.bpp, App.Flags, &App, App.GhWnd, App.DXWndStyle);
 }
 
-void DXDSCreate()
+void DXDSCreate()// (F)
 {
 	Log(LT_Enter, "DXDSCreate");
 	DX_TRY(DirectSoundCreate(CUR_DS.lpGuid, &App.lpDS, nullptr));
@@ -1218,7 +1218,7 @@ void DXDSCreate()
 	sound_active = true;
 }
 
-bool SetSoundOutputFormat(int num_samples, char a2)
+bool SetSoundOutputFormat(int num_samples, char a2)// (F)
 {
 	if (!a2 && NumSamples == num_samples)
 		return true;
@@ -1245,7 +1245,7 @@ bool SetSoundOutputFormat(int num_samples, char a2)
 	return true;
 }
 
-bool DXSetOutputFormat()
+bool DXSetOutputFormat()// (F)
 {
 	Log(LT_Enter, "DXSetOutputFormat");
 
@@ -1263,7 +1263,7 @@ bool DXSetOutputFormat()
 	return true;
 }
 
-BOOL CALLBACK ACMEnumCallback(HACMDRIVERID hadid, DWORD_PTR dwInstance, DWORD fdwSupport)
+BOOL CALLBACK ACMEnumCallback(HACMDRIVERID hadid, DWORD_PTR dwInstance, DWORD fdwSupport)// (F)
 {
 	ACMDRIVERDETAILSA padd;
 	Zero(padd);
@@ -1284,7 +1284,7 @@ void SetupNotifications()
 	Unimpl();
 }
 
-void InitACM()
+void InitACM()// (F)
 {
 	DWORD ver = acmGetVersion();
 
@@ -1398,7 +1398,7 @@ void ACMClose()
 	}
 }
 
-void DXFreeInfo(DEVICEINFO* info)
+void DXFreeInfo(DEVICEINFO* info)// (F)
 {
 	Log(LT_Enter, "DXFreeInfo");
 
@@ -1421,7 +1421,7 @@ void DXFreeInfo(DEVICEINFO* info)
 	free(info->DSInfo);
 }
 
-void DI_ReadKeyboard(BYTE* keymap)
+void DI_ReadKeyboard(BYTE* keymap)// (F)
 {
 	HRESULT err = App.lpDIKeyboard->GetDeviceState(256, keymap);
 
@@ -1434,7 +1434,7 @@ void DI_ReadKeyboard(BYTE* keymap)
 	}
 }
 
-int DI_ReadJoystick(int* joy_x, int* joy_y)
+int DI_ReadJoystick(int* joy_x, int* joy_y)// (F)
 {
 	if (joystick_read)
 	{
@@ -1450,7 +1450,7 @@ int DI_ReadJoystick(int* joy_x, int* joy_y)
 	}
 }
 
-bool DI_UpdateJoystick()
+bool DI_UpdateJoystick()// (F)
 {
 	joystick_read = false;
 

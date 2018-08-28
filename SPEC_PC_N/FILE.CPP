@@ -130,7 +130,7 @@ extern "C" {
 		Unimpl();
 	}
 
-	void FreeD3DLights()
+	void FreeD3DLights()// (F)
 	{
 		;
 	}
@@ -163,16 +163,15 @@ extern "C" {
 		Unimpl();
 	}
 
-	void ClearFX()
+	void ClearFX()// (F)
 	{
-		for(int i = 0; i < 2048; i++)
 		{
 			raindrops[i].x = 0;
 			snowflakes[i].x = 0;
 		}
 	}
 
-	void InitMatrix()
+	void InitMatrix()// (F)
 	{
 		// todo
 
@@ -189,12 +188,12 @@ extern "C" {
 		Unimpl();
 	}
 
-	void RoomInit()
+	void RoomInit()// (F)
 	{
 		BuildGlobalFogBulbList();
 	}
 
-	void Init()
+	void Init()// (F)
 	{
 		InitWater();
 		RoomInit();
@@ -296,7 +295,8 @@ extern "C" {
 			Unimpl();
 		}
 	}
-	void FixUpRoom(room_info *rooms, room_info *roomData)
+
+	void FixUpRoom(room_info* rooms, room_info* roomData)// (F)
 	{
 		AddPtr(roomData->door, short, roomData + 1);
 		AddPtr(roomData->floor, struct FLOOR_INFO, roomData + 1);
@@ -339,7 +339,8 @@ extern "C" {
 		if (rooms->num_lights > num_room_lights)
 			num_room_lights = rooms->num_lights;
 	}
-	void LoadRoomStream()
+
+	void LoadRoomStream()// (F)
 	{
 		readDword(); // read unused value
 
@@ -359,7 +360,8 @@ extern "C" {
 
 		number_rooms = numRooms;
 	}
-	void BuildOutsideTable()
+
+	void BuildOutsideTable()// (F)
 	{
 		long max_slots = 0;
 		AllocT(OutsideRoomOffsets, short, 27 * 27);
@@ -546,7 +548,8 @@ extern "C" {
 	{
 		Unimpl();
 	}
-	void InitialiseObjects()
+
+	void InitialiseObjects()// (F)
 	{
 		for (int i = 0; i < NUMBER_OBJECTS; i++)
 		{
@@ -636,11 +639,13 @@ extern "C" {
 	{
 		Unimpl();
 	}
-	void InitialiseClosedDoors()
+
+	void InitialiseClosedDoors()// (F)
 	{
 		memset(ClosedDoors, 0, 32 * sizeof(long));
 	}
-	void LoadObjects()
+
+	void LoadObjects()// (F)
 	{
 		Log(LT_Enter, "LoadObjects");
 
@@ -757,7 +762,8 @@ extern "C" {
 
 		ProcessMeshData(2 * numMeshes);
 	}
-	void LoadSprites()
+
+	void LoadSprites()// (F)
 	{
 		Log(2, "LoadSprites");
 
@@ -800,7 +806,8 @@ extern "C" {
 			}
 		}
 	}
-	void LoadCameras()
+
+	void LoadCameras()// (F)
 	{
 		Log(LT_Enter, "LoadCameras");
 
@@ -818,7 +825,8 @@ extern "C" {
 			OnlyRead(SpotCam, SPOTCAM, number_spotcams);
 		}
 	}
-	void LoadSoundEffects()
+
+	void LoadSoundEffects()// (F)
 	{
 		Log(LT_Enter, "LoadSoundEffects");
 
@@ -830,7 +838,8 @@ extern "C" {
 			AllocRead(sound_effects, OBJECT_VECTOR, number_sound_effects);
 		}
 	}
-	void LoadBoxes()
+
+	void LoadBoxes()// (F)
 	{
 		Log(LT_Enter, "LoadBoxes");
 
@@ -898,7 +907,8 @@ extern "C" {
 			}
 		}
 	}
-	void LoadAnimatedTextures()
+
+	void LoadAnimatedTextures()// (F)
 	{
 		int numAnimTex = readDword();
 		AllocReadT(App.AnimTextureRanges, uint16_t, numAnimTex);
@@ -911,7 +921,8 @@ extern "C" {
 
 		Unimpl();
 	}
-	void LoadTextureInfos()
+
+	void LoadTextureInfos()// (F)
 	{
 		Log(LT_Enter, "LoadTextureInfos");
 
@@ -942,12 +953,14 @@ extern "C" {
 
 		Log(5, "Created %d Texture Pages", num_pages - 1);
 	}
-	void LoadDemoData()
+
+	void LoadDemoData()// (F)
 	{
 		uint16_t numDemoData = readWord();
 		// no demo data anymore, count is always 0
 	}
-	void LoadAIObjects()
+
+	void LoadAIObjects()// (F)
 	{
 		int num = readDword();
 
@@ -957,7 +970,8 @@ extern "C" {
 			AllocRead(AIObjects, AIOBJECT, nAIObjects);
 		}
 	}
-	void LoadItems()
+
+	void LoadItems()// (F)
 	{
 		Log(LT_Enter, "LoadItems");
 
@@ -1022,11 +1036,12 @@ extern "C" {
 	{
 		Unimpl();
 	}
-	void CreateD3DLights()
+
+	void CreateD3DLights()// (F)
 	{
-		
 	}
-	void GetCarriedItems()
+
+	void GetCarriedItems()// (F)
 	{
 		for(int i = 0; i < level_items; i++)
 		{
@@ -1060,7 +1075,8 @@ extern "C" {
 			}
 		}
 	}
-	void GetAIPickups()
+
+	void GetAIPickups()// (F)
 	{
 		for (int i = 0; i < level_items; i++)
 		{
@@ -1097,7 +1113,8 @@ extern "C" {
 			}
 		}
 	}
-	void ClearFootPrints()
+
+	void ClearFootPrints()// (F)
 	{
 		for (int i = 0; i < 32; i++)
 		{
@@ -1114,7 +1131,8 @@ extern "C" {
 	{
 		Unimpl();
 	}
-	void InitialiseGameFlags()
+
+	void InitialiseGameFlags()// (F)
 	{
 		memset(flipmap, 0, sizeof(flipmap));
 		memset(flip_stats, 0, sizeof(flip_stats));
@@ -1124,7 +1142,8 @@ extern "C" {
 		IsAtmospherePlaying = 0;
 		camera.underwater = 0;
 	}
-	void SetupGame()
+
+	void SetupGame()// (F)
 	{
 		SeedRandomDraw(0xD371F947);
 		SeedRandomControl(0xD371F947);
@@ -1150,7 +1169,8 @@ extern "C" {
 		SeedRandomDraw(0xD371F947);
 		SeedRandomControl(0xD371F947);
 	}
-	void reset_cutseq_vars()
+
+	void reset_cutseq_vars()// (F)
 	{
 		cutseq_num = 0;
 		cutseq_trig = 0;
@@ -1363,7 +1383,7 @@ extern "C" {
 		return 1;
 	}
 
-	FILE* FileOpen(const char *filename)
+	FILE* FileOpen(const char* filename)// (F)
 	{
 		FILE* fp;
 		char fn[80];
@@ -1384,14 +1404,14 @@ extern "C" {
 		return fp;
 	}
 
-	int FileClose(FILE* fp)
+	int FileClose(FILE* fp)// (F)
 	{
 		Log(LT_Enter, "FileClose");
 
 		return fclose(fp);
 	}
 
-	unsigned long FileLength(FILE* nHandle)
+	unsigned long FileLength(FILE* nHandle)// (F)
 	{
 		unsigned long ret;
 
@@ -1402,7 +1422,7 @@ extern "C" {
 		return ret;
 	}
 
-	int LoadFile(char* szFileName, void** pDest)
+	int LoadFile(char* szFileName, void** pDest)// (F)
 	{
 		FILE* fp;
 		int len, read;
@@ -1435,7 +1455,7 @@ extern "C" {
 		return len;
 	}
 
-	int FindCdDrive(void)
+	int FindCdDrive(void)// (F)
 	{
 		unsigned int type;
 		char root[5];
@@ -1478,7 +1498,7 @@ extern "C" {
 		return (0);
 	}
 
-	NEW_CUTSCENE* ReadCutData(int num, FILE* fp)
+	NEW_CUTSCENE* ReadCutData(int num, FILE* fp)// (F)
 	{
 		if (num == 0)
 			return nullptr;
@@ -1491,7 +1511,7 @@ extern "C" {
 		return (NEW_CUTSCENE*)buf;
 	}
 
-	NEW_CUTSCENE* FetchCutData(int num)
+	NEW_CUTSCENE* FetchCutData(int num)// (F)
 	{
 		if (cutseq_resident_addresses[num].packed_data != nullptr)
 			return (NEW_CUTSCENE*)cutseq_resident_addresses[num].packed_data;

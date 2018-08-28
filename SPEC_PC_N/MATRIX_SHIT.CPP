@@ -54,7 +54,7 @@ extern "C" {
 	D3DMATRIX w2v_matrix_d3d;
 	static float LfAspectCorrection;
 
-	void D3DIdentityMatrix(LPD3DMATRIX mat)
+	void D3DIdentityMatrix(LPD3DMATRIX mat)// (F)
 	{
 		mat->_11 = 1.0;
 		mat->_12 = 0.0;
@@ -74,7 +74,7 @@ extern "C" {
 		mat->_44 = 1.0;
 	}
 
-	void SetD3DMatrix(LPD3DMATRIX dst, int* src)
+	void SetD3DMatrix(LPD3DMATRIX dst, int* src)// (F)
 	{
 		D3DIdentityMatrix(dst);
 		dst->_11 = src[M00] / 16384.0f;
@@ -91,7 +91,7 @@ extern "C" {
 		dst->_43 = src[M23] / 16384.0f;
 	}
 
-	void SetD3DMatrixF(LPD3DMATRIX dst, LPD3DMATRIX src)
+	void SetD3DMatrixF(LPD3DMATRIX dst, LPD3DMATRIX src)// (F)
 	{
 		D3DIdentityMatrix(dst);
 		dst->_11 = src->_11;
@@ -108,7 +108,7 @@ extern "C" {
 		dst->_43 = src->_34;
 	}
 
-	void S_InitD3DMatrix()
+	void S_InitD3DMatrix()// (F)
 	{
 		D3DIdentityMatrix(&App.WorldMatrix);
 		D3DIdentityMatrix(&transform_projection);
@@ -139,7 +139,7 @@ extern "C" {
 		DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &App.ViewMatrix));
 	}
 
-	void SetViewMatrix()
+	void SetViewMatrix()// (F)
 	{
 		SetD3DMatrixF(&App.ViewMatrix, (LPD3DMATRIX)phd_dxptr);
 		DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &App.ViewMatrix));
@@ -158,7 +158,7 @@ extern "C" {
 		Unimpl();
 	}
 
-	void	phd_PushMatrix(void)
+	void	phd_PushMatrix(void)// (F)
 	{
 		int32_t	*p1, *p2;
 
@@ -195,7 +195,7 @@ extern "C" {
 		*(f2 + M23) = *(f1 + M23);
 	}
 
-	void	phd_UnitMatrix(void)
+	void	phd_UnitMatrix(void)// (F)
 	{
 		int32_t	*p1;
 
@@ -213,14 +213,14 @@ extern "C" {
 			*(f1 + M20) = *(f1 + M21) = 0.0f;
 	}
 
-	void	phd_PushUnitMatrix(void)
+	void	phd_PushUnitMatrix(void)// (F)
 	{
 		phd_dxptr += 12;
 		phd_mxptr += 12;
 		phd_UnitMatrix();
 	}
 
-	void TranslateAbs(long x, long y, long z)
+	void TranslateAbs(long x, long y, long z)// (F)
 	{
 		float* mptr = phd_dxptr;
 
@@ -233,7 +233,7 @@ extern "C" {
 		mptr[M23] = mptr[M20] * x + mptr[M21] * y + mptr[M22] * z;
 	}
 
-	void phd_TranslateAbs(long x, long y, long z)
+	void phd_TranslateAbs(long x, long y, long z)// (F)
 	{
 		int* mptr = phd_mxptr;
 
@@ -253,14 +253,14 @@ extern "C" {
 		Unimpl();
 	}
 
-	void SetTransl(long x, long y, long z)
+	void SetTransl(long x, long y, long z)// (F)
 	{
 		phd_dxptr[M03] = x;
 		phd_dxptr[M13] = y;
 		phd_dxptr[M23] = z;
 	}
 
-	void phd_SetTrans(long x, long y, long z)
+	void phd_SetTrans(long x, long y, long z)// (F)
 	{
 		x <<= W2V_SHIFT;
 		y <<= W2V_SHIFT;
@@ -273,7 +273,7 @@ extern "C" {
 		SetTransl(x, y, z);
 	}
 
-	void ScaleCurrentMatrixF(VECTOR* vec)
+	void ScaleCurrentMatrixF(VECTOR* vec)// (F)
 	{
 		phd_dxptr[M00] = TRIGMULT2F(phd_dxptr[M00], vec->vx);
 		phd_dxptr[M10] = TRIGMULT2F(phd_dxptr[M10], vec->vx);
@@ -288,7 +288,7 @@ extern "C" {
 		phd_dxptr[M22] = TRIGMULT2F(phd_dxptr[M22], vec->vz);
 	}
 
-	void ScaleCurrentMatrix(VECTOR* vec)
+	void ScaleCurrentMatrix(VECTOR* vec)// (F)
 	{
 		phd_mxptr[M00] = TRIGMULT2(phd_mxptr[M00], vec->vx);
 		phd_mxptr[M10] = TRIGMULT2(phd_mxptr[M10], vec->vx);
@@ -305,7 +305,7 @@ extern "C" {
 		ScaleCurrentMatrixF(vec);
 	}
 
-	void phd_GenerateW2V(PHD_3DPOS* viewpos)
+	void phd_GenerateW2V(PHD_3DPOS* viewpos)// (F)
 	{
 		int32_t	sx, sy, sz;
 		int32_t	cx, cy, cz;
@@ -370,7 +370,7 @@ extern "C" {
 		SetD3DMatrix(&w2v_matrix_d3d, w2v_matrix);
 	}
 
-	void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest)
+	void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest)// (F)
 	{
 		short	pitch;
 
@@ -387,7 +387,7 @@ extern "C" {
 		dest[1] = pitch;
 	}
 
-	void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll)
+	void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll)// (F)
 	{
 		short	angles[2];
 		PHD_3DPOS 	viewer;

@@ -13,7 +13,7 @@ int		malloc_used, malloc_free;
 
 WATERTAB	WaterTable[22][64];
 
-static unsigned short GetRandom(WATERTAB *w, int n)
+static unsigned short GetRandom(WATERTAB *w, int n)// (F)
 {
 	int i;
 	unsigned short random;
@@ -35,7 +35,7 @@ static unsigned short GetRandom(WATERTAB *w, int n)
 	return 0;		// to stop warning
 }
 
-void	init_water_table()
+void	init_water_table()// (F)
 {
 	long	lp;
 
@@ -99,7 +99,7 @@ void	init_water_table()
 extern "C" {
 #endif
 
-	void init_game_malloc(void)
+	void init_game_malloc(void)// (F)
 	{
 		malloc_size = GAME_MALLOC_BUFFER_SIZE;
 		malloc_buffer = (char*)malloc(malloc_size);
@@ -112,7 +112,7 @@ extern "C" {
 #endif
 	}
 
-	void* game_malloc(int size)
+	void* game_malloc(int size)// (F)
 	{
 		char* ptr;
 
@@ -134,7 +134,7 @@ extern "C" {
 		return 0;	// S_ExitSystem doesn't return...
 	}
 
-	void show_game_malloc_totals(void)
+	void show_game_malloc_totals(void)// (F)
 	{
 #ifdef GAMEDEBUG
 		for (int i = 0; i<NUM_MALLOC_TYPES; ++i)
@@ -143,7 +143,7 @@ extern "C" {
 #endif
 	}
 
-	void game_free(int size, int type)
+	void game_free(int size, int type)// (F)
 	{
 		size = (size + 3)&(~3);		// fuck Fuck FUck FUCk FUCK !FUCK!
 #ifdef GAMEDEBUG

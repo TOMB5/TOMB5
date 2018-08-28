@@ -30,7 +30,7 @@ WINAPP	 App;
 bool thread_started;
 HANDLE hThread;
 
-void WinProcMsg()
+void WinProcMsg()// (F)
 {
 	Log(LT_Enter, "WinProcMsg");
 
@@ -48,7 +48,7 @@ void WinProcMsg()
 	} while (!thread_started && Msg.message != WM_QUIT);
 }
 
-void WinClose()
+void WinClose()// (F)
 {
 	Log(LT_Enter, "WinClose");
 
@@ -67,7 +67,7 @@ void WinClose()
 	DXRelease(App.lpDI, "DirectInput");
 }
 
-bool WinRunCheck(LPCSTR lpName, LPCSTR lpClassName, HANDLE* mutex)
+bool WinRunCheck(LPCSTR lpName, LPCSTR lpClassName, HANDLE* mutex)// (F)
 {
 	Log(LT_Enter, "WinRunCheck");
 
@@ -91,7 +91,7 @@ void WinProcessCommandLine(LPSTR lpCmdLine)
 	Unimpl();
 }
 
-int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)// (F)
 {
 	int RetVal;
 	int n;
@@ -271,7 +271,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	return 0;
 }
 
-void HandleCommand(WORD param)
+void HandleCommand(WORD param)// (F)
 {
 	if (param == IDR_VKRETURN)
 	{
@@ -410,27 +410,27 @@ void HandleApp(LPARAM lParam, WPARAM wParam)
 	Unimpl();
 }
 
-HMODULE GetKernel32()
+HMODULE GetKernel32()// (F)
 {
 	return GetModuleHandleA("kernel32.dll");
 }
 
-void* FindSleepAddress(HMODULE kernel)
+void* FindSleepAddress(HMODULE kernel)// (F)
 {
 	return GetProcAddress(kernel, "Sleep");
 }
 
-void* GetSleepFunc()
+void* GetSleepFunc()// (F)
 {
 	return FindSleepAddress(GetKernel32());
 }
 
-void Sleep1ms()
+void Sleep1ms()// (F)
 {
 	((void (__stdcall*)(DWORD))GetSleepFunc())(1);
 }
 
-void WaitUntilFalse(DWORD* ptr)
+void WaitUntilFalse(DWORD* ptr)// (F)
 {
 	do
 	{
@@ -438,7 +438,7 @@ void WaitUntilFalse(DWORD* ptr)
 	} while (*ptr);
 }
 
-void WaitUntilTrue(DWORD* ptr)
+void WaitUntilTrue(DWORD* ptr)// (F)
 {
 	do
 	{

@@ -2,7 +2,7 @@
 
 TEXTUREBUCKET Bucket[MAXBUCKETS];
 
-void InitBuckets()
+void InitBuckets()// (F)
 {
 	for (int n = 0; n < MAXBUCKETS; n++)
 	{

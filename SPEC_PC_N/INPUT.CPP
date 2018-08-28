@@ -39,7 +39,7 @@ int joy_x;
 int joy_y;
 int joy_fire;
 
-int Key(int number)
+int Key(int number)// (F)
 {
 	short key = layout[1][number];
 
@@ -92,7 +92,7 @@ int Key(int number)
 	return 0;
 }
 
-int S_UpdateInput()
+int S_UpdateInput()// (F)
 {
 	DI_UpdateJoystick();
 	DI_ReadKeyboard(keymap);

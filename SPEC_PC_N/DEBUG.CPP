@@ -50,7 +50,7 @@ void DB_InitLog(char opt)
 
 static int dboff = 0;
 
-void SendMsg(HWND hWnd, LPARAM lParam)
+void SendMsg(HWND hWnd, LPARAM lParam)// (F)
 {
 	do
 	{
@@ -59,7 +59,7 @@ void SendMsg(HWND hWnd, LPARAM lParam)
 	} while (FindWindowA("DBLogWindowClass", "DBLog Server"));
 }
 
-void DB_DefType(char* name, LPARAM lParam, WPARAM wParam)
+void DB_DefType(char* name, LPARAM lParam, WPARAM wParam)// (F)
 {
 	HWND dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
 
@@ -76,7 +76,7 @@ void DB_DefType(char* name, LPARAM lParam, WPARAM wParam)
 	}
 }
 
-void Log_backend(char type, char* fmt, ...)
+void Log_backend(char type, char* fmt, ...)// (F)
 {
 	char buf[1024];
 
@@ -132,7 +132,7 @@ void Log_backend(char type, char* fmt, ...)
 	}
 }
 
-void GetInputStr(char* buf)
+void GetInputStr(char* buf)// (F)
 {
 	const char* names[] = {
 		"FORWARD",
@@ -190,7 +190,7 @@ void GetInputStr(char* buf)
 	}
 }
 
-void ShowDebugInfo()
+void ShowDebugInfo()// (F)
 {
 	char buf[2048];
 	sprintf(buf,

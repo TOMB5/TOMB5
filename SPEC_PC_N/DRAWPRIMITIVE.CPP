@@ -116,7 +116,7 @@ struct dinfo_line
 	int unk5;
 	D3DTLVERTEX v2;
 };
-void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)
+void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)// (F)
 {
 	auto ptr = (dinfo_line*)info3dptrbf;
 	ptr->unk1 = 0;
@@ -144,7 +144,7 @@ void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)
 	ptr->v2.specular = v2->specular;
 }
 
-void do_quickysorty(int left, int right, float buffer[][10])
+void do_quickysorty(int left, int right, float buffer[][10])// (F)
 {
 	int i = left;
 	int j = right;
@@ -176,7 +176,7 @@ void do_quickysorty(int left, int right, float buffer[][10])
 		do_quickysorty(i, right, buffer);
 }
 
-void SortPolyList(int number, float buffer[][10])
+void SortPolyList(int number, float buffer[][10])// (F)
 {
 	if (number != 0)
 	{
@@ -189,7 +189,7 @@ void SortPolyList(int number, float buffer[][10])
 	}
 }
 
-HRESULT HWBeginScene()
+HRESULT HWBeginScene()// (F)
 {
 	if (App.isInScene)
 	{
@@ -205,19 +205,19 @@ HRESULT HWBeginScene()
 	return App.lpD3DDevice->BeginScene();
 }
 
-HRESULT HWEndScene()
+HRESULT HWEndScene()// (F)
 {
 	App.isInScene = false;
 
 	return App.lpD3DDevice->EndScene();
 }
 
-bool Visible(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3)
+bool Visible(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3)// (F)
 {
 	return (v1->sy - v2->sy) * (v3->sx - v2->sx) - (v3->sy - v2->sy) * (v1->sx - v2->sx) < 0.0;
 }
 
-void InitialiseFunctionTable()
+void InitialiseFunctionTable()// (F)
 {
 	BeginScene = HWBeginScene;
 	EndScene = HWEndScene;
@@ -242,14 +242,14 @@ void InitialiseFunctionTable()
 	AddLine = AddLineClippedSorted;
 }
 
-void InitialiseSortList()
+void InitialiseSortList()// (F)
 {
 	info3dptrbf = info3d_bufferbf;
 	sort3dptrbf = (int*)sort3d_bufferbf;
 	surfacenumbf = 0;
 }
 
-void GPU_BeginScene()
+void GPU_BeginScene()// (F)
 {
 	D3DRECT rect;
 	rect.x1 = App.GnClientRect.left;
@@ -263,7 +263,7 @@ void GPU_BeginScene()
 	InitialiseSortList();
 }
 
-void SetGlobalAmbient(uint32_t color)
+void SetGlobalAmbient(uint32_t color)// (F)
 {
 	global_ambient = color;
 }
@@ -319,7 +319,7 @@ void DoSnow()
 	Unimpl();
 }
 
-void DoWeather()
+void DoWeather()// (F)
 {
 	if (WeatherType == WEATHER_RAIN)
 		DoRain();
@@ -347,12 +347,12 @@ void GetRoomBounds()
 	Unimpl();
 }
 
-void InitialiseFogBulbs()
+void InitialiseFogBulbs()// (F)
 {
 	
 }
 
-void CreateFXBulbs()
+void CreateFXBulbs()// (F)
 {
 	
 }
@@ -382,8 +382,7 @@ void DrawLara__6(ITEM_INFO* item, int a2)
 	Unimpl();
 }
 
-
-void DrawLara(ITEM_INFO* item, int a2)
+void DrawLara(ITEM_INFO* item, int a2)// (F)
 {
 	if (lara.skelebob)
 	{
@@ -409,7 +408,7 @@ void DrawLara(ITEM_INFO* item, int a2)
 	}
 }
 
-void FadeLightList(PCLIGHT* lights, int num)
+void FadeLightList(PCLIGHT* lights, int num)// (F)
 {
 	for(int i = 0; i < num; i++)
 	{
@@ -582,7 +581,7 @@ void InsertRoom(room_info* r)
 	Unimpl();
 }
 
-void SaveD3DCameraMatrix()
+void SaveD3DCameraMatrix()// (F)
 {
 	D3DIdentityMatrix(&d3d_camera);
 	d3d_camera._11 = phd_dxptr[0];
@@ -604,7 +603,7 @@ void ResetFogBulbList()
 	Unimpl();
 }
 
-void RoomTestThing()
+void RoomTestThing()// (F)
 {
 	
 }
@@ -810,7 +809,7 @@ void phd_PutPolygons(short* mesh)
 	Unimpl();
 }
 
-int32_t DrawPhaseGame()
+int32_t DrawPhaseGame()// (F)
 {
 	CalcLaraMatrices(0);
 	phd_PushUnitMatrix();

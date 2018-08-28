@@ -30,7 +30,7 @@ int loadBarMax;
 float loadBarPercent;
 float loadBar2;
 
-void DebugPrint(const char* message)
+void DebugPrint(const char* message)// (F)
 {
 	char buf[1024];
 	time_t t = time(NULL);
@@ -60,7 +60,7 @@ extern "C" {
 
 	
 
-void S_Warn(const char* warning_message, ...)
+void S_Warn(const char* warning_message, ...)// (F)
 {
 	char buf[1024];
 	time_t t = time(NULL);
@@ -116,7 +116,7 @@ void S_CDStop(void)
 	Unimpl();
 }
 
-void S_SoundStopSample(sint32 handle)
+void S_SoundStopSample(sint32 handle)// (F)
 {
 	if (!sound_active)
 		return;
@@ -124,7 +124,7 @@ void S_SoundStopSample(sint32 handle)
 	DS_StopSample(handle);
 }
 
-void S_SoundStopAllSamples(void)
+void S_SoundStopAllSamples(void)// (F)
 {
 	if (!sound_active)
 		return;
@@ -132,13 +132,13 @@ void S_SoundStopAllSamples(void)
 	DS_StopAllSamples();
 }
 
-int WeirdWaitThingy()
+int WeirdWaitThingy()// (F)
 {
 	Sleep1ms();
 	return Sync();
 }
 
-void		S_DumpScreenFrame()
+void		S_DumpScreenFrame()// (F)
 {
 	int last = Sync();
 	if (last < 1)
@@ -191,7 +191,7 @@ long		S_DumpScreen()
 	return off;
 }
 
-void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2)
+void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2)// (F)
 {
 	uint8_t red1, green1, blue1;
 	uint8_t red2 = 0, green2 = 0, blue2 = 0;
@@ -238,15 +238,15 @@ void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2)
 	*out2 = RGBONLY(red2, green2, blue2);
 }
 
-	void UpdateLoadBar()
+void UpdateLoadBar()// (F)
 {
 		loadBarPercent += 100.0 / loadBarMax;
 }
-void S_LoadBar()
+void S_LoadBar()// (F)
 {
 	UpdateLoadBar();
 }
-void S_InitLoadBar(int size)
+void S_InitLoadBar(int size)// (F)
 {
 	loadBarPercent = 0.0;
 	loadBarMax = size;
@@ -254,7 +254,7 @@ void S_InitLoadBar(int size)
 	loadBarShown = true;
 }
 
-void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color2)
+void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color2)// (F)
 {
 	D3DTLVERTEX tlvert[4];
 
@@ -403,7 +403,7 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
 }
 
-void SuperShowLogo()
+void SuperShowLogo()// (F)
 {
 	D3DTLVERTEX tlvert[4];
 
@@ -574,12 +574,12 @@ bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)
 
 unsigned short nAnimUVRanges; // offset 0xA4660
 
-void SetFogColor(uint8_t r, uint8_t g, uint8_t b)
+void SetFogColor(uint8_t r, uint8_t g, uint8_t b)// (F)
 {
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR, GENRGB(r, g, b));
 }
 
-void ClearFXFogBulbs()
+void ClearFXFogBulbs()// (F)
 {
 	
 }
@@ -589,12 +589,12 @@ void SetFade(int a1, int a2)
 	Unimpl();
 }
 
-void S_InitialiseScreen()
+void S_InitialiseScreen()// (F)
 {
 
 }
 
-BYTE IsVolumetric()
+BYTE IsVolumetric()// (F)
 {
 	return App.tVolumetricShadows;
 }
@@ -614,23 +614,23 @@ void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
 	Unimpl();
 }
 
-void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light)
+void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light)// (F)
 {
 	
 }
 
-void S_CDLoop()
+void S_CDLoop()// (F)
 {
 	
 }
 
-	int S_LoadSave(int input, int in_inventory)
+int S_LoadSave(int input, int in_inventory)
 {
 		Unimpl();
 		return 0;
 }
 
-	int S_DisplayPauseMenu(int a1)
+int S_DisplayPauseMenu(int a1)
 {
 		Unimpl(); 
 	return 0;
@@ -642,7 +642,7 @@ void S_CDLoop()
 		return 0;
 }
 
-void S_DrawAirBar(int size)
+void S_DrawAirBar(int size)// (F)
 {
 	if (gfCurrentLevel != LVL5_TITLE)
 	{
@@ -650,7 +650,7 @@ void S_DrawAirBar(int size)
 	}
 }
 
-void S_DrawHealthBar(int size)
+void S_DrawHealthBar(int size)// (F)
 {
 	if (gfCurrentLevel != LVL5_TITLE)
 	{
@@ -663,7 +663,7 @@ void S_DrawHealthBar(int size)
 	}
 }
 
-void S_DrawHealthBar2(int size)
+void S_DrawHealthBar2(int size)// (F)
 {
 	if (gfCurrentLevel != LVL5_TITLE)
 	{
@@ -676,7 +676,7 @@ void S_DrawHealthBar2(int size)
 	}
 }
 
-	void S_CDFade(int a1)
+void S_CDFade(int a1)// (F)
 {
 	
 }
