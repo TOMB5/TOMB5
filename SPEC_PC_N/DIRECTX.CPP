@@ -442,7 +442,9 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 	Zero(DDInfo->D3DInfo[DDInfo->nD3DInfo]);
 
 	if (lpGuid == nullptr)
+	{
 		DDInfo->D3DInfo[DDInfo->nD3DInfo].lpGuid = nullptr;
+	}
 	else
 	{
 		DDInfo->D3DInfo[DDInfo->nD3DInfo].lpGuid = &DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid;
@@ -574,7 +576,9 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 	Zero(dd->DDInfo[dd->nDDInfo]);
 	
 	if (lpGuid == nullptr)
+	{
 		dd->DDInfo[dd->nDDInfo].lpGuid = nullptr;
+	}
 	else
 	{
 		dd->DDInfo[dd->nDDInfo].lpGuid = &dd->DDInfo[dd->nDDInfo].Guid;
@@ -642,7 +646,9 @@ BOOL CALLBACK DXEnumDirectSound(GUID FAR* lpGuid, LPCSTR lpDeviceDesc, LPCSTR lp
 	Zero(dd->DSInfo[dd->nDSInfo]);
 
 	if (lpGuid == nullptr)
+	{
 		dd->DSInfo[dd->nDSInfo].lpGuid = nullptr;
+	}
 	else
 	{
 		dd->DSInfo[dd->nDSInfo].lpGuid = &dd->DSInfo[dd->nDSInfo].Guid;
