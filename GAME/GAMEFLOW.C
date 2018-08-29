@@ -55,6 +55,7 @@ typedef unsigned int uintptr_t;
 
 #include <string.h>
 #include "LOT.H"
+#include "TEXT.H"
 
 #define GF_SCRIPT_FILENAME "SCRIPT.DAT"
 
@@ -946,7 +947,13 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 		if (gfLegendTime != 0 && DestFadeScreenHeight == 0 && FadeScreenHeight == 0 && cutseq_num == 0)
 		{
-			PrintString(0x100, 0xE8, 2, &gfStringWad[gfStringOffset[gfLegend]], 0x8000);
+			PrintString(
+#if PSXENGINE
+				0x100, 0xE8, 
+#else
+				phd_winwidth / 2, phd_winymax - font_height,
+#endif
+				2, &gfStringWad[gfStringOffset[gfLegend]], PRINT_CENTER);
 			gfLegendTime--;
 		}
 
