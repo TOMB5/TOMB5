@@ -147,6 +147,13 @@ enum msoff {
 
 #define NO_ROOM 0xFF
 
+enum PRINT_OPTIONS
+{
+	PRINT_BLINK = 1 << 13,			// 0x2000
+	PRINT_UNK14 = 1 << 14,			// 0x4000
+	PRINT_CENTER = 1 << 15,			// 0x8000
+};
+
 enum zone_type
 {
 	SKELLY_ZONE = 0,
