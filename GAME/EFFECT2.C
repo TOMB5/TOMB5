@@ -457,6 +457,8 @@ void FlamingHell(struct PHD_VECTOR* pos)
 	long yvel = MAX(512, (GetRandomControl() & 0x1FF) - 128);
 
 	long tmp = (GetRandomControl() & 0x1F) + 48;
+	long size;
+	
 	sptr->sR = tmp;
 	sptr->sG = tmp;
 	sptr->sB = (GetRandomControl() & 0x3F) - 64;
@@ -486,7 +488,7 @@ void FlamingHell(struct PHD_VECTOR* pos)
 	sptr->Scalar = 2;
 	sptr->Flags = 538;
 
-	long size = (GetRandomControl() & 0xF) + (yvel >> 6) + 16;
+	size = (GetRandomControl() & 0xF) + (yvel >> 6) + 16;
 	sptr->sSize = size >> 1;
 	sptr->Size = size >> 1;
 	sptr->dSize = size;
