@@ -582,7 +582,7 @@ struct WINAPP
 	DWORD sceneDone;
 	HANDLE hObject; // D9AC05
 
-	DWORD dword_D9AC09;
+	float fps;
 	DWORD dword_D9AC0D;
 	DWORD dword_D9AC11;
 
@@ -606,11 +606,16 @@ struct WINAPP
 	LPDIRECTDRAWPALETTE		Palette;				// Palette For SW Renderer
 	char pad111[272];
 	D3DMATRIX ViewMatrix;
-	char pad112[16];
+	char pad112[8];
+	DWORD DrawPrimitiveCnt;
+	char pad11201[4];
 	uint16_t* AnimTextureRanges;
 	char pad1121[4];
 	D3DMATRIX WorldMatrix;
-	char pad113[600];
+	char pad113[8];
+	DWORD fps_counter = 0;
+	float fps_static = 0.0f;
+	char pad114[584];
 
 
 	bool					bRender;			// Ok To Render
@@ -621,7 +626,7 @@ struct WINAPP
 	bool					tJoystickEnabled;
 	int						Joystick;
 
-	float					fps;
+	float					fps_weird;
 };
 
 
