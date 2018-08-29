@@ -1,7 +1,7 @@
-	opt L.,C+,at+
+	opt at-,w-,c+,m-
 
-	section	.ASM
-	xdef MULFP
+	SECTION	.ASM
+	XDEF MULFP
 
 MULFP:
 	mult    a0, a1
