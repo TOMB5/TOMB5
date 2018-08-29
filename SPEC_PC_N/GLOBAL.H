@@ -71,6 +71,11 @@ extern	sint32		matrix_stack[];		// matrix stack for animations etc..
 
 extern struct SVECTOR CamRot;
 
+extern WORD* d9ab34;
+extern int e4b100;
+
+extern D3DMATRIX transform_projection;
+
 #define EndOfArray(a) ((a)+ArraySize(a))
 
 extern void D3DIdentityMatrix(LPD3DMATRIX mat);
@@ -84,7 +89,10 @@ extern void phd_UnitMatrix();
 extern void phd_TransposeMatrix();
 extern void phd_TranslateAbs(long x, long y, long z);
 extern void phd_RotYXZ(long y, long x, long z);
+extern void phd_SetTrans(long x, long y, long z);
+extern void SetD3DViewMatrix();
 extern unsigned long mGetAngle(long x1, long y1, long x2, long y2);
+extern void S_InitD3DMatrix();
 #define phd_PopMatrix()		{ phd_mxptr -= 12; phd_dxptr -= 12; }
 
 #ifdef __cplusplus

@@ -4,6 +4,7 @@
 #include "SPECTYPES.H"
 
 extern char			cd_drive;
+extern bool loadBarShown;
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,10 +31,16 @@ extern "C" {
 
 	void S_LoadBar();
 	void S_InitLoadBar(int size);
+	bool S_DrawLoadBar();
 
 	bool Decompress(void* buf, void* compressed, int compSize, int uncompSize);
 
 
+	extern void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2);
+	void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color2);
+	void S_DrawAirBar(int size);
+	void S_DrawHealthBar(int size);
+	void S_DrawHealthBar2(int size);
 extern void S_Warn(const char* warning_message, ...);
 
 extern void S_SetReverbType(sint16 reverb);

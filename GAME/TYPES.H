@@ -34,13 +34,9 @@
 // Game used 182, so maybe our code will be more precise %)
 #define ANGLE(x) ((x) * 65536.0 / 360.0)
 
-#if PC_VERSION
-#define SIN(x) (4 * rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
-#define COS(x) (4 * rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
-#elif PSX_VERSION || PSXPC_VERSION
 #define SIN(x) (rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
 #define COS(x) (rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
-#endif
+
 #if PC_VERSION
 #define phd_atan_asm phd_atan
 #endif
@@ -97,6 +93,13 @@ inline int phd_atan(long x, long y)
 #define SECTOR(x) ((x) * 1024)
 #define CLICK 256
 
+#define UNIT_SHADOW 256
+#define UNIT_SHADOW_SHIFT 8
+
+#define LARA_HITPOINTS 1000
+
+#define ROUND_MUL_LOW(x, m) ((x) & ~(m - 1))
+
 #define SECTOR_TO_WORLD(S) ((S) > (0) ? SECTOR((S) + 0.5) : (0))
 
 #define XZ_GET_SECTOR(room, x, z) (r->floor[(int)((z) / 1024 + r->x_size * ((x) / 1024))])
@@ -124,6 +127,9 @@ enum msoff {
 #define GREEN(rgb) (((rgb) >> 8) & 0xFF)
 #define BLUE(rgb) ((rgb) & 0xFF)
 #define ALPHA(rgb) (((rgb) >> 24) & 0xFF)
+
+#define RGBONLY(r, g, b) ((b & 0xFF) | (((g & 0xFF) | ((r & 0xFF) << 8)) << 8))
+#define RGBA(r, g, b, a) (RGBONLY(r, g, b) | ((a) << 24))
 
 enum zone_type
 {

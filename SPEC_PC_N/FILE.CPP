@@ -31,11 +31,13 @@
 #include "LARAMISC.H"
 #include "FLMTORCH.H"
 
+#define OUTSIDE_Z 64
+
 short* floor_data;
 short* mesh_base;
 int AnimFileLen;
 char	cd_drive = 0;
-
+bool levelLoading;
 int num_pages;
 FILE* fp_level;
 char* level_data;
@@ -295,8 +297,8 @@ extern "C" {
 		AddPtr(roomData->floor, struct FLOOR_INFO, roomData + 1);
 		AddPtr(roomData->light, struct LIGHTINFO, roomData + 1);
 		AddPtr(roomData->mesh, struct MESH_INFO, roomData + 1);
-		AddPtr(roomData->Separator4, void, roomData + 1);
-		AddPtr(roomData->LayerOffset, struct tr5_room_layer, roomData + 1);
+		AddPtr(roomData->RoomLights, struct ROOM_LIGHT, roomData + 1);
+		AddPtr(roomData->LayerOffset, struct ROOMLET, roomData + 1);
 		AddPtr(roomData->PolyOffset, void, roomData + 1);
 		AddPtr(roomData->PolyOffset2, void, roomData + 1);
 		AddPtr(roomData->VerticesOffset, struct tr5_room_vertex, roomData + 1);
@@ -354,7 +356,137 @@ extern "C" {
 	}
 	void BuildOutsideTable()
 	{
-		Unimpl();
+		long max_slots = 0;
+		AllocT(OutsideRoomOffsets, short, 27 * 27);
+		AllocT(OutsideRoomTable, char, 27 * 27 * OUTSIDE_Z);
+		memset(OutsideRoomTable, -1, 27 * 27 * OUTSIDE_Z);
+
+		char flipped[256];
+		memset(flipped, 0, -1);
+
+		for(int i = 0; i < number_rooms; i++)
+		{
+			if (room[i].flipped_room != -1)
+				flipped[i] = true;
+		}
+
+		for(int y = 0; y < 108; y += 4)
+		{
+			for(int x = 0; x < 108; x += 4)
+			{
+				for(int i = 0; i < number_rooms; i++)
+				{
+					auto r = &room[i];
+
+					if (!flipped[i])
+					{
+						int rx = (r->z >> SECTOR(1)) + 1;
+						int ry = (r->x >> SECTOR(1)) + 1;
+
+						int j = 0;
+
+						for(int yl = 0; yl < 4; yl++)
+						{
+							for(int xl = 0; xl < 4; xl++)
+							{
+								if ((x + xl) >= rx && (x + xl) < (rx + r->x_size - 2) &&
+									(y + yl) >= ry && (y + yl) < (ry + r->y_size - 2))
+								{
+									j = 1;
+									break;
+								}
+							}
+						}
+
+						if (!j)
+							continue;
+
+						if (i == 255)
+						{
+							S_Warn("ERROR : Room 255 fuckeroony - go tell Chris\n");
+						}
+
+						char* d = &OutsideRoomTable[OUTSIDE_Z * (x >> 2) + OUTSIDE_Z * (y >> 2) * 27];
+
+						for(int j = 0; j < OUTSIDE_Z; j++)
+						{
+							if (d[j] == -1)
+							{
+								d[j] = i;
+
+								if (j > max_slots)
+									max_slots = j;
+
+								break;
+							}
+						}
+
+						if (j == OUTSIDE_Z)
+						{
+							S_Warn("ERROR : Buffer shittage - go tell Chris\n");
+						}
+					}
+				}
+			}
+		}
+		// todo it's a bit incorrect
+		char* s = OutsideRoomTable;
+
+		for(int y = 0; y < 27; y++)
+		{
+			for(int x = 0; x < 27; x++)
+			{
+				int z = 0;
+
+				char* d = &OutsideRoomTable[OUTSIDE_Z * x + OUTSIDE_Z * y * 27];
+
+				int i = 27 * y + x;
+
+				while (d[z] != -1)
+					z++;
+
+				if (z == 0)
+				{
+					OutsideRoomOffsets[i] = -1;
+				}
+				else if (z == 1)
+				{
+					OutsideRoomOffsets[i] = *d | 0x8000;
+				}
+				else
+				{
+					char* p = OutsideRoomTable;
+
+					while (p < s)
+					{
+						if (memcmp(p, d, z) == 0)
+						{
+							OutsideRoomOffsets[i] = p - OutsideRoomTable;
+							break;
+						}
+						else
+						{
+							int z2 = 0;
+
+							while (p[z2] != -1)
+								z2++;
+
+							p += z2 + 1;
+						}
+					}
+
+					if (p >= s)
+					{
+						OutsideRoomOffsets[i] = s - OutsideRoomTable;
+
+						while (z-- > 0)
+							*s++ = *d++;
+
+						*s++ = -1;
+					}
+				}
+			}
+		}
 	}
 	void LoadRooms()
 	{
@@ -373,18 +505,27 @@ extern "C" {
 	}
 	void BaddyObjects()
 	{
-		struct object_info* object = &objects[LARA];
+		struct object_info* obj = &objects[LARA];
 
-		object->shadow_size = 160;
-		object->initialise = &InitialiseLaraLoad;
-		object->hit_points = 1000;
-		object->draw_routine = NULL;
+		obj->shadow_size = (10 * UNIT_SHADOW) / 16;
+		obj->initialise = &InitialiseLaraLoad;
+		obj->hit_points = LARA_HITPOINTS;
+		obj->draw_routine = nullptr;
 
-		object->using_drawanimating_item = 0;
-		object->save_hitpoints = 1;
-		object->save_position = 1;
-		object->save_flags = 1;
-		object->save_anim = 1;
+		obj->using_drawanimating_item = false;
+		obj->save_hitpoints = true;
+		obj->save_position = true;
+		obj->save_flags = true;
+		obj->save_anim = true;
+
+
+		obj = &objects[SAS];
+
+		if (obj->loaded)
+		{
+			obj->bite_offset = 0;
+
+		}
 
 		Unimpl();
 	}
@@ -755,7 +896,7 @@ extern "C" {
 	void LoadAnimatedTextures()
 	{
 		int numAnimTex = readDword();
-		AllocReadT(AnimTextureRanges, uint16_t, numAnimTex);
+		AllocReadT(App.AnimTextureRanges, uint16_t, numAnimTex);
 
 		nAnimUVRanges = readByte();
 	}
@@ -947,7 +1088,7 @@ extern "C" {
 
 		SetFadeClip(0, 1);
 	}
-	unsigned __stdcall LoadLevel(char* filename)
+	unsigned __stdcall LoadLevel(void* filename)
 	{
 		Log(LT_Info, "Begin LoadLevel");
 
@@ -955,7 +1096,7 @@ extern "C" {
 
 		num_pages = 1;
 		//
-		fp_level = FileOpen(filename);
+		fp_level = FileOpen((char*)filename);
 
 		if (fp_level)
 		{
@@ -1074,7 +1215,7 @@ extern "C" {
 		}
 
 		MakeCutsceneResident(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
-		//
+		levelLoading = false;
 		return true;
 	}
 
@@ -1086,15 +1227,15 @@ extern "C" {
 
 		char filename[80];
 		strcpy(filename, &gfFilenameWad[gfFilenameOffset[Name]]);
-		//
+		loadBarShown = false;
 		strcat(filename, ".TRC");
 
 		for (int i = 0; i < 4; i++)
 		{
 			BeginScene();
 			InitBuckets();
-			/*InitialiseSortList();
-			DrawLoadingScreen();
+			InitialiseSortList();
+			/*DrawLoadingScreen();
 			SortPolyList(dword_BA4384, &dword_BA4390);
 			RestoreFPCW();
 			DrawSortList(word_878654);
@@ -1102,12 +1243,25 @@ extern "C" {
 			S_DumpScreenFrame();
 		}
 
-		// todo thread
+		levelLoading = true;
 
-		LoadLevel(filename);
+		unsigned thread;
+		int levelReturn = _beginthreadex(nullptr, 0, LoadLevel, filename, 0, &thread);
 
-		Unimpl();
-		return 0;
+		while (levelLoading)
+		{
+			if (App.Flags & WA_BACK_BUFFER && loadBarShown)
+				S_DrawLoadBar();
+		}
+
+		if (App.Flags & WA_BACK_BUFFER)
+		{
+			while (!S_DrawLoadBar());
+		}
+
+		//
+
+		return 1;
 	}
 
 	FILE* FileOpen(const char *filename)

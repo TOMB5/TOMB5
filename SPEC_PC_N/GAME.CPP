@@ -12,6 +12,8 @@ object_info objects[NUMBER_OBJECTS];
 static_info static_objects[NUMBER_STATIC_OBJECTS];
 LPDIRECT3DVERTEXBUFFER vertex_buffer;
 bool game_running;
+WORD* d9ab34;
+int e4b100;
 
 bool GameInitialise()
 {
@@ -26,6 +28,8 @@ bool GameInitialise()
 	DX_TRY(App.lpD3D->CreateVertexBuffer(&buf, &vertex_buffer, D3DFVF_XYZRHW, nullptr));
 
 	init_game_malloc();
+
+	d9ab34 = (WORD*)malloc(16384 * sizeof(WORD));
 
 	App.dword_D9AC38 = 0;
 	App.dword_D9AC34 = CUR_DM.w;
@@ -49,7 +53,7 @@ void ClearSurfaces()
 
 	if (App.Flags & WA_BACK_BUFFER)
 	{
-		DX_TRY(App.lpViewPort->Clear2(1, &rect, 3, 0, 1.0, 0));
+		DX_TRY(App.lpViewPort->Clear2(1, &rect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, RGBA_MAKE(0, 0, 0, 0), 1.0f, 0));
 	}
 	else
 	{
@@ -60,7 +64,7 @@ void ClearSurfaces()
 
 	if (App.Flags & WA_BACK_BUFFER)
 	{
-		DX_TRY(App.lpViewPort->Clear2(1, &rect, 3, 0, 1.0, 0));
+		DX_TRY(App.lpViewPort->Clear2(1, &rect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, RGBA_MAKE(0, 0, 0, 0), 1.0f, 0));
 	}
 	else
 	{
@@ -68,6 +72,8 @@ void ClearSurfaces()
 	}
 
 	S_DumpScreen();
+
+	
 }
 
 void GameClose()
@@ -95,7 +101,7 @@ void GameClose()
 
 void HWInitialise()
 {
-	Log(2, "HWInitialise");
+	Log(LT_Enter, "HWInitialise");
 	App.lpD3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_DISABLE);
 	App.lpD3DDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
 	App.lpD3DDevice->SetTextureStageState(2, D3DTSS_COLOROP, D3DTOP_DISABLE);
@@ -167,10 +173,10 @@ unsigned __stdcall GameMain(void* data)
 
 	InitialiseFunctionTable();
 	HWInitialise();
-	InitWindow(0, 0, App.width, App.height, 20, 20480, 80);
+	InitWindow(0, 0, App.width, App.height, 20, SECTOR(20), 80);
 	//InitFont();
 	TIME_Init();
-	App.byte_D9AC19 = 1;
+	App.GameInitialized = true;
 	// todo
 	S_CDStop();
 	ClearSurfaces();
@@ -188,7 +194,7 @@ unsigned __stdcall GameMain(void* data)
 void do_boot_screen(int language)
 {
 	Log(2, "do_boot_screen");
-
+	return;
 	switch (language)
 	{
 	case LNG_ENGLISH:
@@ -230,7 +236,3 @@ void do_boot_screen(int language)
 	}
 }
 
-void UpdateSky()
-{
-	Unimpl();
-}

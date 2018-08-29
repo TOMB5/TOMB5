@@ -269,8 +269,8 @@ void LaraSurface(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D684, 4DAE8 (
 
 	AnimateLara(item);
 
-	item->pos.x_pos += item->fallspeed * SIN(lara.move_angle) >> W2V_SHIFT >> 2;
-	item->pos.z_pos += item->fallspeed * COS(lara.move_angle) >> W2V_SHIFT >> 2;
+	item->pos.x_pos += item->fallspeed * SIN(lara.move_angle) >> W2V_SHIFT;
+	item->pos.z_pos += item->fallspeed * COS(lara.move_angle) >> W2V_SHIFT;
 
 	LaraBaddieCollision(item, coll);
 

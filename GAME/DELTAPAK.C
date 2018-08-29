@@ -76,10 +76,10 @@ struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 	{ joby2_init, joby2_control, joby2_end },			  // Joby Cut 2 (Admiral+Sergie+Sailors)
 	{ richcut2_init, richcut2_control, richcut2_end },	  // Rich Cut 2 (Voncroy etc)
 	{ cranecut_init, cranecut_control, cranecut_end },	  // Joby Crane Cut
-	{ special1_init, special1_control, special1_end },	  // 
-	{ special2_init, special2_control, special2_end },	  // 
-	{ special3_init, special3_control, special3_end },	  // 
-	{ special4_init, special4_control, special4_end },	  // 
+	{ special1_init, special1_control, special1_end },	  // Title (VCI bookshelf + Croft manor)
+	{ special2_init, special2_control, special2_end },	  // Title (VCI office + Church)
+	{ special3_init, special3_control, special3_end },	  // Title (VCI corridor + Egypt)
+	{ special4_init, special4_control, special4_end },	  // Title (VCI soldier fire)
 	{ joby8_init, joby8_control, joby8_end },			  // JOBY8 (out of suit)
 	{ andy6_init, andy6_control, andy6_end },			  // ANDY6 (white hair priest)
 	{ andypew_init, andypew_control, andypew_end },		  // ANDYPEW (!)
@@ -303,6 +303,12 @@ short lara_chat_ranges_joby8[20] =
 	0x05F6, 0x0620, 0x070C, 0x072F, 0x0897, 0x08CF, 0x0913, 0x0940, 0xFFFF, 0xFFFF
 };
 
+short actor_chat_ranges_joby8[14] =
+{
+	0x02B3, 0x03A8, 0x0447, 0x04E2, 0x064F, 0x068F, 0x069F, 0x06ED, 0x076D, 0x0799, 
+	0x07A6, 0x07F7, 0xFFFF, 0xFFFF
+};
+
 short lara_chat_ranges_andy6[8] =
 {
 	0x02C8, 0x02D7, 0x02EF, 0x0303, 0x034C, 0x037A, 0xFFFF, 0xFFFF
@@ -375,6 +381,12 @@ short knight_chat_ranges_andy11[14] =
 	0x13E9, 0x150A, 0xFFFF, 0xFFFF
 };
 
+unsigned short special2_pistols_info[13] =
+{
+	0x00C4, 0x00CC, 0x00D4, 0x00DC, 0x00E4, 0x00EC, 0x00F4, 0x00FC, 0x0104, 0x010C, 
+	0x0114, 0x0121, 0xFFFF
+};
+
 int cuntercunter;
 char jobyfrigger;
 int cutrot;
@@ -412,6 +424,7 @@ char* cutseq_malloc_ptr;
 int cutseq_malloc_free;
 unsigned short old_lara_holster;
 short temp_rotation_buffer[160];
+int special_num;
 
 #if DEBUG_VERSION
 	#define CD_PLAY_MODE 1
@@ -437,7 +450,7 @@ void andy11_control()//32C70(<), 33108(<) (F)
 		GLOBAL_cutseq_frame == 4789 ||
 		GLOBAL_cutseq_frame == 5390)
 	{
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 	}
 
 	if (GLOBAL_cutseq_frame == 2164 ||
@@ -753,7 +766,7 @@ void andrea4_init()//323C0(<), 32858(<) (F)
 
 void joby7_end()//32328(<), 327C0(<) (F)
 {
-	lara_item->mesh_bits = -1;
+	lara_item->mesh_bits = 0xFFFFFFFF;
 	cutseq_restore_item(ANIMATING2);
 	AddDisplayPickup(PICKUP_ITEM1);
 	DelsHandyTeleportLara(30049, 17583, 69794, -13706);
@@ -826,7 +839,7 @@ void joby7_init()//320D0(<), 32568(<) (F)
 
 void andy10_end()//3202C(<), 324C4(<) (F)
 {
-	lara_item->mesh_bits = -1;
+	lara_item->mesh_bits = 0xFFFFFFFF;
 	SetCutPlayed(CUT_SWAMPY);
 	Cutanimate(ANIMATING12);
 	Cutanimate(ANIMATING13);
@@ -866,7 +879,7 @@ void andy10_control()//31E9C(<), 32334(<) (F)
 	}
 	else if (GLOBAL_cutseq_frame == 747)
 	{
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 		TriggerDynamic(GLOBAL_cutme->orgx, GLOBAL_cutme->orgy, GLOBAL_cutme->orgz, 31, 255, 255, 255);
 		return;
 	}
@@ -956,7 +969,7 @@ void andy8_control()//31C3C(<), 320D4(<) (F)
 		lara_item->mesh_bits = 0;
 		break;
 	case 1476:
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 		break;
 	case 145:
 		do_chalk_meshswap();
@@ -971,7 +984,7 @@ void andy8_init()//31C34(<), 320CC(<) (F)
 void andy9_end()//31C08(<), 320A0(<) (F)
 {
 	cutseq_restore_item(ANIMATING15);
-	lara_item->mesh_bits = -1;
+	lara_item->mesh_bits = 0xFFFFFFFF;
 }
 
 void andy9_control()//31BA4(<), 31FD4(<) (F)
@@ -979,7 +992,7 @@ void andy9_control()//31BA4(<), 31FD4(<) (F)
 	int f = GLOBAL_cutseq_frame;
 
 	if (f == 151 || f == 1033 || f == 3868)
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 	if (f == 192 || f == 1099 || f == 3974)
 		lara_item->mesh_bits = 0;
 
@@ -1052,7 +1065,7 @@ void cossack_control()//3178C(<), 31BBC(<) (F)
 	}
 	if (f == 281 || f == 468 || f == 901 || f == 1339)
 	{
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 	}
 	if (f == 156)
 	{
@@ -1164,7 +1177,7 @@ void andy6_control()//315F8(<), 319B4(<) (F)
 	}
 	else if (GLOBAL_cutseq_frame == 1401)
 	{
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 	}
 	pos.x = 0;
 	pos.y = 48;
@@ -1191,9 +1204,122 @@ void joby8_end()//315A0(<), 3195C(<) (F)
 	DelsHandyTeleportLara(58880, 5120, 76288, 0);
 }
 
-void joby8_control()//310E0, 31460
+void joby8_control()//310E0, 31460 (F)
 {
-	S_Warn("[joby8_control] - Unimplemented!\n");
+	switch (GLOBAL_cutseq_frame)
+	{
+	case 147:
+		cutseq_meshbits[2] |= 0x80000000;
+		cutseq_meshbits[3] |= 0x80000000;
+		cutseq_meshbits[4] |= 0x80000000;
+		break;
+	case 2440:
+		cutseq_meshbits[8] &= 0x7FFFFFFF;
+		break;
+	case 2681:
+		cutseq_meshbits[1] &= 0x7FFFFFFF;
+		cutseq_meshbits[2] &= 0x7FFFFFFF;		
+		cutseq_meshbits[3] &= 0x7FFFFFFF;		
+		cutseq_meshbits[4] &= 0x7FFFFFFF;
+		cutseq_meshbits[5] &= 0x7FFFFFFF;
+		break;
+	case 440:
+		lara_item->mesh_bits = 0xFFFFFFFF;
+		break;
+	case 2103:
+		cutseq_meshswapbits[7] = 9216;
+		break;
+	case 2724:
+		short room_num = lara_item->room_number;
+		GetHeight(GetFloor(lara_item->pos.x_pos + SECTOR(1), lara_item->pos.y_pos, lara_item->pos.z_pos, &room_num), lara_item->pos.x_pos + 1024, lara_item->pos.y_pos, lara_item->pos.z_pos);
+		TestTriggers(trigger_index, 1, 0);
+		break;
+	}
+
+	if (GLOBAL_cutseq_frame >= 2440 && GLOBAL_cutseq_frame <= 2659)
+	{
+		int r = (GetRandomControl() & 0x3F) + 96;
+		int g = GetRandomControl() % r;
+		int b = GetRandomControl() & 0xF;
+
+		struct PHD_VECTOR s;
+
+		for (int i = 0; i < 3; i++)
+		{
+			s.x = 0;
+			s.y = 0;
+			s.z = 0;
+
+			GetActorJointAbsPosition(1, GetRandomControl() % 20, &s);
+
+			struct SPARKS* sptr = &spark[GetFreeSpark()];
+
+			sptr->On = 1;
+
+			sptr->dR = r;
+			sptr->dG = g;
+			sptr->dB = b;
+
+			int scale = (GetRandomControl() & 0x3F) - 64;
+			sptr->sR = scale;
+			sptr->sB = scale;
+			sptr->sG = scale;
+
+			sptr->ColFadeSpeed = 8;
+			sptr->TransType = 2;
+			sptr->FadeToBlack = 4;
+
+			sptr->Life = 12;
+			sptr->sLife = 12;
+
+			sptr->x = s.x;
+			sptr->y = s.y;
+			sptr->z = s.z;
+
+			sptr->Xvel = 2 * (GetRandomControl() & 0x1FF) - 512;
+			sptr->Yvel = 2 * (GetRandomControl() & 0x1FF) - 512;
+			sptr->Zvel = 2 * (GetRandomControl() & 0x1FF) - 512;
+
+			sptr->Friction = 51;
+			sptr->MaxYvel = 0;
+			sptr->Gravity = 0;
+
+			sptr->Flags = 0;
+
+			TriggerFireFlame(s.x, s.y, s.z, -1, 254);
+		}
+
+		struct PHD_VECTOR d;
+		d.x = s.x + (SIN(2 * (GetRandomControl() & 0x7FFF)) >> 3);
+		d.y = s.y;
+		d.z = s.z + (COS(2 * (GetRandomControl() & 0x7FFF)) >> 3);
+
+		TriggerLightning(&s, &d, (GetRandomControl() & 0xF) + 30, RGBA(r, g, b, 16), 15, 40, 5);
+		TriggerDynamic(s.x, s.y, s.z, 10, (GetRandomControl() & 0x7F) + 128, g, b);
+	}
+	else if(GLOBAL_cutseq_frame >= 2681 && GLOBAL_cutseq_frame <= 2724)
+	{
+		struct PHD_VECTOR s;
+		s.x = 512;
+		s.y = 0;
+		s.z = 0;
+		GetLaraJointPos(&s, 0);
+
+		int scale = (GLOBAL_cutseq_frame - 2681) >> 4;
+
+		int r = (GetRandomControl() & 0x3F) + 192 >> scale;
+		int g = ((GetRandomControl() & 0x1F) + 128) >> scale;
+		int b = (GetRandomControl() & 0x3F) >> scale;
+
+		if (GetRandomControl() & 1)
+			TriggerDynamic(s.x, s.y, s.z, 24, r, g, b);
+
+		TriggerDynamic(s.x, s.y, s.z, 31, r, g, b);
+	}
+
+	handle_lara_chatting(lara_chat_ranges_joby8);
+	handle_actor_chatting(23, 3, 1, LION_MIP, actor_chat_ranges_joby8);
+	actor_chat_cnt = (actor_chat_cnt - 1) & 1;
 }
 
 void joby8_init()//31024(<), 313A4(<) (F)
@@ -1216,7 +1342,7 @@ void joby8_init()//31024(<), 313A4(<) (F)
 
 void joby6_end()//30FEC(<), 3136C(<) (F)
 {
-	lara_item->mesh_bits = -1;
+	lara_item->mesh_bits = 0xFFFFFFFF;
 	lara.mesh_ptrs[LM_HIPS] = meshes[objects[LARA].mesh_index];
 }
 
@@ -1343,7 +1469,7 @@ void andrea3b_control()//30B08(<), 30E88(<) (F)
 	}
 	else if (f == 512 || f == 692 || f == 1084)
 	{
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 	}
 	else if (f == 1191)
 	{
@@ -1414,7 +1540,7 @@ void andrea3_control()//30870(<), 30BF0(<) (F)
 	}
 	else if (GLOBAL_cutseq_frame == 421)
 	{
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 	}
 
 	deal_with_pistols(andrea3_pistols_info);
@@ -1527,7 +1653,7 @@ void richcut4_end()//30560(<), 308E0(<) (F)
 {
 	find_a_fucking_item(SAILOR_MIP)->mesh_bits = -1;
 	DelsHandyTeleportLara(35328, 0, 35328, -16384);
-	lara_item->mesh_bits = -1;
+	lara_item->mesh_bits = 0xFFFFFFFF;
 }
 
 void richcut4_control()//30478(<), 307F8(<) (F)
@@ -1657,7 +1783,7 @@ void joby5_end()//30144(<), 304C4(<) (F)
 	cutseq_restore_item(ANIMATING3);
 	cutseq_restore_item(ANIMATING4);
 	DelsHandyTeleportLara(SECTOR_TO_WORLD(60), -SECTOR_TO_WORLD(1.25), SECTOR_TO_WORLD(54), ANGLE(-180));
-	lara_item->mesh_bits = -1;
+	lara_item->mesh_bits = 0xFFFFFFFF;
 }
 
 void joby5_control()//30034(<), 303B4() (F)
@@ -1716,7 +1842,7 @@ void andrea2_init()//2FCC0(<), 30040(<) (F)
 
 void andrea1_end()//2FC94(<), 30014(<) (F)
 {
-	lara_item->mesh_bits = -1;
+	lara_item->mesh_bits = 0xFFFFFFFF;
 	lara.pickupitems &= 0xFFFEu;
 }
 
@@ -1764,7 +1890,7 @@ void andrea1_init()//2FB50(<), 2FED0(<) (F)
 
 void joby4_end()//2FB04(<), 2FE84(<) (F)
 {
-	lara_item->mesh_bits = -1;
+	lara_item->mesh_bits = 0xFFFFFFFF;
 	cutseq_restore_item(DOOR_TYPE1);
 	cutseq_restore_item(DOOR_TYPE5);
 	DelsHandyTeleportLara(57950, 8960, 53760, ANGLE(90));
@@ -1790,7 +1916,7 @@ void joby4_control()//2FA0C, 2FD8C (F)
 		if (f == 769 || f == 1966)
 			lara_item->mesh_bits = 0;
 		if (f == 1593)
-			lara_item->mesh_bits = -1;
+			lara_item->mesh_bits = 0xFFFFFFFF;
 	}
 	handle_lara_chatting(lara_chat_ranges_joby4);
 	handle_actor_chatting(21, 2, 3, CRANE_GUY_MIP, admiral_chat_ranges_joby4);
@@ -1989,7 +2115,7 @@ void joby3_control()//2F304(<), 2F610(<) (F)
 	}
 	else if (GLOBAL_cutseq_frame == 765)
 	{
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 	}
 	else if (GLOBAL_cutseq_frame == 1299)
 	{
@@ -2006,7 +2132,7 @@ void joby3_init()//2F2FC(<), 2F608(<) (F)
 
 void joby2_end()//2F2B8(<), 2F5C4(<) (F)
 {
-	lara_item->mesh_bits = -1;
+	lara_item->mesh_bits = 0xFFFFFFFF;
 	DelsHandyTeleportLara(22905, -4608, 45415, -16730);
 	cutseq_kill_item(ANIMATING6);
 }
@@ -2021,7 +2147,7 @@ void joby2_control()//2F114(<), 2F420(<) (F)
 		cutseq_meshbits[4] |= 0x80000000;
 		break;
 	case 1622:
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 		cutseq_meshbits[1] &= 0x7FFFFFFFu;
 		cutseq_meshbits[2] &= 0x7FFFFFFFu;
 		cutseq_meshbits[3] &= 0x7FFFFFFFu;
@@ -2246,68 +2372,214 @@ void stealth3_start()//2E824, 2EB30 (F)
 		SwapCrowbar(NULL);
 }
 
-void special4_end()//2E7F4(<), 2EB00(<)
+void special4_end()//2E7F4(<), 2EB00(<) (F)
 {
-	RelocFunc_34_34();
+	ResetCutanimate(STROBE_LIGHT);
+
+	if (!bDoCredits)
+	{
+		trigger_title_spotcam(1);
+		lara_item->mesh_bits = 0;
+	}
+
+	Chris_Menu = 0;
+	title_controls_locked_out = 0;
 }
 
-void special4_control()//2E7C4(<), 2EAD0(<)
+void special4_control()//2E7C4(<), 2EAD0(<) (F)
 {
-	RelocFunc_34_30();
+	struct PHD_VECTOR pos;
+
+	pos.x = 85834;
+	pos.z = 72300;
+	pos.y = -3138;
+
+	TriggerFireFlame(85834, -3010, 72300, -1, 1);
+	TriggerFireFlame(85834, -3010, 72044, -1, 1);
+	TriggerFireFlame(85834, -3010, 72556, -1, 1);
+	TriggerFireFlame(85578, -3010, 72300, -1, 1);
+	TriggerFireFlame(86090, -3010, 72300, -1, 1);
+
+	if (GLOBAL_cutseq_frame >= 460)
+		FlamingHell(&pos);
+
+	int r, g, b;
+
+	if (GLOBAL_cutseq_frame < 470)
+	{
+		b = GetRandomControl() & 0x3F;
+		g = (GetRandomControl() & 0xF) + 31;
+		r = (GetRandomControl() & 0x3F) + 31;
+	}
+	else
+	{
+		b = GetRandomControl() & 0x3F;
+		g = (GetRandomControl() & 0x7F) + 127;
+		r = (GetRandomControl() & 0x7F) + 127;
+	}
+
+	TriggerDynamic(pos.x, pos.y, pos.z, 10, r, g, b);
+
+	if (GLOBAL_cutseq_frame == 390)
+		Cutanimate(STROBE_LIGHT);
 }
 
 void special4_init()//2E794(<), 2EAA0(<)
 {
+#if PSXENGINE
 	cutrot = 0;
-	RelocFunc_34_2C();
+	S_Warn("[special4_init] - Unimplemented!\n");
+#else
+	lara_item->mesh_bits = 0xFFFFFFFF;
+	Chris_Menu = 0;
+	cutrot = 1;
+	special_num = 4;
+#endif
 }
 
-void special3_end()//2E764(<), 2EA70(<)
+void special3_end()//2E764(<), 2EA70(<) (F)
 {
-	RelocFunc_34_28();
+	if (!bDoCredits)
+	{
+		trigger_title_spotcam(4);
+		lara_item->mesh_bits = 0;
+	}
+
+	Chris_Menu = 0;
+	title_controls_locked_out = 0;
 }
 
 void special3_control()//2E734(<), 2EA40(<)
 {
-	RelocFunc_34_24();
+	S_Warn("[special3_control] - Unimplemented!\n");
 }
 
-void special3_init()//2E704(<), 2EA10(<)
+void special3_init()//2E704(<), 2EA10(<) (F)
 {
 	cutrot = 0;
-	RelocFunc_34_20();
+	lara_item->mesh_bits = 0xFFFFFFFF;
+	Chris_Menu = 0;
+	special_num = 3;
 }
 
-void special2_end()//2E6D4(<), 2E9E0(<)
+void special2_end()//2E6D4(<), 2E9E0(<) (F)
 {
-	RelocFunc_34_1C();
+	if (!bDoCredits)
+	{
+		trigger_title_spotcam(3);
+		lara_item->mesh_bits = 0;
+	}
+
+	Chris_Menu = 0;
+	title_controls_locked_out = 0;
 }
 
-void special2_control()//2E6A4(<), 2E9B0(<)
+void special2_control()//2E6A4(<), 2E9B0(<) (F)
 {
-	RelocFunc_34_18();
+	struct PHD_VECTOR pos;
+	struct ITEM_INFO* item;
+
+	pos.x = 12;
+	pos.y = 200;
+	pos.z = 92;
+
+	deal_with_actor_shooting(special2_pistols_info, 1, 13, &pos);
+
+	switch (GLOBAL_cutseq_frame)
+	{
+	case 0xC5:
+		item = find_a_fucking_item(ANIMATING1_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0xC8:
+		item = find_a_fucking_item(ANIMATING2_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0xC9:
+		triggerwindowsmash(50);
+		break;
+	case 0xCF:
+		item = find_a_fucking_item(ANIMATING3_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0xD1:
+		triggerwindowsmash(52);
+		break;
+	case 0xDD:
+		item = find_a_fucking_item(ANIMATING4_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0xE0:
+		triggerwindowsmash(54);
+		break;
+	case 0xE5:
+		Cutanimate(446);
+		break;
+	case 0xF5:
+		triggerwindowsmash(56);
+		break;
+	case 0x105:
+		item = find_a_fucking_item(ANIMATING5_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0x10D:
+		triggerwindowsmash(58);
+		break;
+	case 0x118:
+		item = find_a_fucking_item(ANIMATING6_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0x11A:
+		item = find_a_fucking_item(ANIMATING7_MIP);
+		ExplodeItemNode(item, 0, 0, 64);
+		break;
+	case 0x11C:
+		Cutanimate(ANIMATING5);
+		break;
+	case 0x123:
+		triggerwindowsmash(60);
+		break;
+	}
 }
 
-void special2_init()//2E674(<), 2E980(<)
+void special2_init()//2E674(<), 2E980(<) (F)
 {
 	cutrot = 0;
-	RelocFunc_34_14();
+	lara_item->mesh_bits = 0xFFFFFFFF;
+	Chris_Menu = 0;
+	ResetCutItem(ANIMATING1_MIP);
+	ResetCutItem(ANIMATING2_MIP);
+	ResetCutItem(ANIMATING3_MIP);
+	ResetCutItem(ANIMATING4_MIP);
+	ResetCutItem(ANIMATING5_MIP);
+	ResetCutItem(ANIMATING6_MIP);
+	ResetCutItem(ANIMATING7_MIP);
+	resetwindowsmash(50);
+	resetwindowsmash(52);
+	resetwindowsmash(54);
+	resetwindowsmash(56);
+	resetwindowsmash(58);
+	resetwindowsmash(60);
+	ResetCutanimate(ANIMATING16);
+	ResetCutanimate(ANIMATING5);
+	special_num = 2;
 }
 
 void special1_end()//2E644(<), 2E950(<)
 {
-	RelocFunc_34_10();
+	S_Warn("[special1_end] - Unimplemented!\n");
 }
 
 void special1_control()//2E614(<), 2E920(<)
 {
-	RelocFunc_34_0C();
+	S_Warn("[special1_control] - Unimplemented!\n");
 }
 
 void special1_init()//2E5E4(<), 2E8F0(<) (F)
 {
 	cutrot = 0;
-	RelocFunc_34_08();
+	lara_item->mesh_bits = 0xFFFFFFFF;
+	Chris_Menu = 0;
 }
 
 void richcut3_control()//2E594(<), 2E8A0(<) (F)
@@ -2374,7 +2646,7 @@ void richcut1_control()//2E3D8(<), 2E668(<) (F)
 		lara_item->mesh_bits = 0;
 
 	if (f == 208 || f == 580 || f == 810)
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 
 	if (f == 840)
 	{
@@ -2436,7 +2708,7 @@ void cranecut_control()//2E0B8(<), 2E348(<) (F)
 		lara_item->mesh_bits = 0;
 		break;
 	case 124:
-		lara_item->mesh_bits = -1;
+		lara_item->mesh_bits = 0xFFFFFFFF;
 		break;
 	case 801:
 		cutseq_meshbits[1] &= 0x7FFFFFFFu;
@@ -3163,9 +3435,19 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 	return;
 }
 
+void triggerwindowsmash(int item_num) // (F)
+{
+	struct ITEM_INFO* item = find_a_fucking_item(item_num);
+	ExplodeItemNode(item, 0, 0, 64);
+	item->mesh_bits = 2;
+}
 
+void resetwindowsmash(int item_num)// (F)
+{
+	find_a_fucking_item(item_num)->mesh_bits = 1;
+}
 
-
-
-
-
+void ResetCutItem(int item_num)// (F)
+{
+	find_a_fucking_item(item_num)->mesh_bits = 0xFFFFFFFF;
+}

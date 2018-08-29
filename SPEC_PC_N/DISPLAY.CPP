@@ -13,8 +13,8 @@ void SetZNearFar(int znear, int zfar)
 	/*f_zfar3 = (double)zfar;
 	f_znear3 = (double)znear;
 	flt_55D238 = flt_55D268 / f_znear3;*/
-	f_znear = znear >> 14;
-	f_zfar = zfar >> 14;
+	f_znear = znear >> W2V_SHIFT;
+	f_zfar = zfar >> W2V_SHIFT;
 	f_perspoznear = f_persp / f_znear;
 	f_oneoznear = one / f_znear;
 	f_b = f_zfar * f_znear * MAXZRANGE / (f_znear - f_zfar);
@@ -52,9 +52,21 @@ void InitWindow(int x, int y, int width, int height, int nearz, int farz, int vi
 	unk_55DA40 = unk_55DA34 - flt_55D664;*/
 }
 
-void PrintString(long x, long y, int unk1, char* string, int unk2)
+void PrintString(long x, long y, int unk1, char* string, int options)
 {
 	char* buf = (char*)malloc(strlen(string) + 64);
-	sprintf(buf, "PrintString - X:%d Y:%d Unk1:%d Flags:%4x - %s\n", x, y, unk1, unk2, string);
+	sprintf(buf, "PrintString - X:%d Y:%d Unk1:%d Flags:%04x - %s\n", x, y, unk1, options, string);
 	S_Warn(buf);
+	
+	HDC hdc;
+	App.lpBackBuffer->GetDC(&hdc);
+	SetTextColor(hdc, 0x00ff7f00);
+	SetBkColor(hdc, 0x000000);
+	TextOut(hdc, x, y, buf, strlen(buf) - 1);
+	App.lpBackBuffer->ReleaseDC(hdc);
+}
+
+void DrawChar(uint16_t x, uint16_t y, uint16_t a2, CHARDEF* def)
+{
+	Unimpl();
 }

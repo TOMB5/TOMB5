@@ -1,6 +1,8 @@
 #include "SPECTYPES.H"
 #include "3DGLODEF.H"
 #include "SPECIFIC.H"
+#include "GLOBAL.H"
+#include "INCLUDE.H"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +46,8 @@ extern "C" {
 	sint32		w2v_matrix[12];		// World to View Matrix...
 	sint32		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
 
+	D3DMATRIX transform_projection;
+
 	void D3DIdentityMatrix(LPD3DMATRIX mat)
 	{
 		mat->_11 = 1.0;
@@ -79,6 +83,43 @@ extern "C" {
 		dst->_41 = src->_14;
 		dst->_42 = src->_24;
 		dst->_43 = src->_34;
+	}
+
+	void S_InitD3DMatrix()
+	{
+		D3DIdentityMatrix(&App.WorldMatrix);
+		D3DIdentityMatrix(&transform_projection);
+
+		transform_projection._22 = -1.0;
+
+		DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &App.WorldMatrix));
+		DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &transform_projection));
+	}
+
+	void SetD3DViewMatrix()
+	{
+		D3DIdentityMatrix(&App.ViewMatrix);
+
+		App.ViewMatrix._11 = phd_mxptr[M00] >> 14;
+		App.ViewMatrix._12 = phd_mxptr[M10] >> 14;
+		App.ViewMatrix._13 = phd_mxptr[M20] >> 14;
+		App.ViewMatrix._21 = phd_mxptr[M01] >> 14;
+		App.ViewMatrix._22 = phd_mxptr[M11] >> 14;
+		App.ViewMatrix._23 = phd_mxptr[M21] >> 14;
+		App.ViewMatrix._31 = phd_mxptr[M02] >> 14;
+		App.ViewMatrix._32 = phd_mxptr[M12] >> 14;
+		App.ViewMatrix._33 = phd_mxptr[M22] >> 14;
+		App.ViewMatrix._41 = phd_mxptr[M03] >> 14;
+		App.ViewMatrix._42 = phd_mxptr[M13] >> 14;
+		App.ViewMatrix._43 = phd_mxptr[M23] >> 14;
+
+		DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &App.ViewMatrix));
+	}
+
+	void SetViewMatrix()
+	{
+		SetD3DMatrixF(&App.ViewMatrix, (LPD3DMATRIX)phd_dxptr);
+		DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &App.ViewMatrix));
 	}
 
 	void phd_RotX(long angle)
@@ -165,6 +206,28 @@ extern "C" {
 	{
 		Unimpl();
 	}
+
+	void SetTransl(long x, long y, long z)
+	{
+		phd_dxptr[M03] = x;
+		phd_dxptr[M13] = y;
+		phd_dxptr[M23] = z;
+	}
+
+	void phd_SetTrans(long x, long y, long z)
+	{
+		x <<= W2V_SHIFT;
+		y <<= W2V_SHIFT;
+		z <<= W2V_SHIFT;
+
+		phd_dxptr[M03] = x;
+		phd_dxptr[M13] = y;
+		phd_dxptr[M23] = z;
+
+		SetTransl(x, y, z);
+	}
+
+	
 
 #ifdef __cplusplus
 }

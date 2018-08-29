@@ -8,10 +8,15 @@
 #include "TYPES.H"
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x)
 #define Unimpl() S_Warn("[" __FUNCTION__ "] - Unimplemented!\n")
+
+#define SWAP(a, b) {auto _ = a; a = b; b = _;}
+
+#define SWAPARR(arr, i, j, len) {void* tmp = malloc(sizeof(arr[i]));memcpy(tmp, arr[i], sizeof(arr[i]));memcpy(arr[j], arr[i], sizeof(arr[i]));memcpy(arr[i], tmp, sizeof(tmp));}
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
@@ -89,6 +94,28 @@ struct static_info
 	short z_maxc;
 };
 
+struct ROOM_LIGHT   // 88 bytes
+{
+	float x, y, z;       // Position of light, in world coordinates
+	float r, g, b;       // Colour of the light
+
+	uint32_t ShadowIntensity;    // only if LightType == LIGHT_SHADOW
+
+	float In;            // Cosine of the IN value for light / size of IN value
+	float Out;           // Cosine of the OUT value for light / size of OUT value
+	float RadIn;         // (IN radians) * 2
+	float RadOut;        // (OUT radians) * 2
+	float Range;         // Range of light
+
+	float dx, dy, dz;    // Direction - used only by sun and spot lights
+	int32_t x2, y2, z2;    // Same as position, only in integer.
+	int32_t dx2, dy2, dz2; // Same as direction, only in integer.
+
+	uint8_t LightType;
+
+	uint8_t Filler[3];     // Dummy values = 3 x 0xCD
+};
+
 struct room_info {
 	short* data; // size=0, offset=0
 	short* door; // size=0, offset=4
@@ -142,7 +169,7 @@ struct room_info {
 	uint32_t NumRoomTriangles;
 	uint32_t NumRoomRectangles;
 
-	void* Separator4;     // Always 0
+	struct ROOM_LIGHT* RoomLights; 
 
 	uint32_t LightDataSize;
 	uint32_t NumLights2;    // Always same as NumLights
@@ -154,7 +181,7 @@ struct room_info {
 
 	uint32_t NumLayers;
 
-	struct tr5_room_layer* LayerOffset;
+	struct ROOMLET* LayerOffset;
 	struct tr5_room_vertex* VerticesOffset;
 	void* PolyOffset;
 	void* PolyOffset2;   // Same as PolyOffset
@@ -164,6 +191,33 @@ struct room_info {
 	uint32_t Separator5[4];  // Always 0xCDCDCDCD
 };
 
+struct PCLIGHT
+{
+	float x, y, z;       // Position of light, in world coordinates
+	float r, g, b;       // Colour of the light
+
+	uint32_t ShadowIntensity;    // only if LightType == LIGHT_SHADOW
+
+	float In;            // Cosine of the IN value for light / size of IN value
+	float Out;           // Cosine of the OUT value for light / size of OUT value
+	float RadIn;         // (IN radians) * 2
+	float RadOut;        // (OUT radians) * 2
+	float Range;         // Range of light
+
+	float dx, dy, dz;    // Direction - used only by sun and spot lights
+	int32_t x2, y2, z2;    // Same as position, only in integer.
+	int32_t dx2, dy2, dz2; // Same as direction, only in integer.
+
+	float r2, g2, b2;
+	float r3, g3, b3;
+
+	int32_t UnknownInt;
+	uint8_t LightType;
+	uint8_t UnknownByte;
+	
+	int32_t dx3, dy3, dz3;
+	int32_t magnsq;
+};
 
 struct ITEM_INFO {
 	long floor; // size=0, offset=0
@@ -194,10 +248,15 @@ struct ITEM_INFO {
 	struct PHD_3DPOS pos; // size=20, offset=64
 	struct ITEM_LIGHT il; // size=48, offset=84
 
-	unsigned long meshswap_meshbits; // size=0, offset=136 OFF=132
-	short draw_room; // size=0, offset=140 OFF=136
-	short TOSSPAD; // size=0, offset=142 OFF=138
-	char pad1[5472]; // OFF=140
+	
+	char pad1[5444];
+	DWORD num_lights_1;
+	DWORD num_lights_2;
+	DWORD light_room_num;
+	char pad11[4];
+	struct PHD_VECTOR ambient_light_pos;
+	struct PCLIGHT* ptr1;
+	struct PCLIGHT* ptr2;
 	unsigned long active : 1; // offset=132.0 OFF=5610
 	unsigned long status : 2; // offset=132.1
 	unsigned long gravity_status : 1; // offset=132.3
@@ -209,7 +268,9 @@ struct ITEM_INFO {
 	unsigned long ai_bits : 5; // offset=133.1
 	unsigned long really_active : 1; // offset=133.6
 	unsigned long InDrawRoom : 1; // offset=133.7
-	char pad2[8]; // OFF=5614
+	unsigned long meshswap_meshbits; // size=0, offset=136 OFF=132
+	short draw_room; // size=0, offset=140 OFF=136
+	short TOSSPAD; // size=0, offset=142 OFF=138
 };
 struct creature_info {
 	short joint_rotation[4]; // size=8, offset=0
@@ -245,7 +306,7 @@ struct tr4_mesh_face4    // 12 bytes
 	uint16_t Effects;
 };
 
-struct tr5_room_layer   // 56 bytes
+struct ROOMLET   // 56 bytes
 {
 	uint32_t NumLayerVertices;   // Number of vertices in this layer (4 bytes)
 	uint16_t UnknownL1;
@@ -336,6 +397,18 @@ struct OBJECT_TEXTURE
 	struct OBJECT_TEXTURE_VERT vertices[4];
 };
 
+enum OBJECT_TEXTURE_ATTRIBUTE
+{
+	OT_ALL_OPAQUE = 0,
+	OT_ALPHA_TESTING = 1,
+	OT_ALPHA_BLENDING = 2,
+	OT_ALPHA_BLENDING_INV = 3,
+	OT_ALPHA_TESTING_DEPTHLESS = 4,
+	OT_UNUSED = 5,
+	OT_WIREFRAME = 6,
+	OT_FORCED_ALPHA = 7
+};
+
 struct DRIP_STRUCT
 {
 	long x; // size=0, offset=0
@@ -415,9 +488,9 @@ struct DIRECT3DINFO
 	D3DDEVICEDESC	DeviceDesc;		// Device Description
 	bool			bHardware;		// Is It Hardware
 	int				nDisplayMode;	// Number Of Display Modes
-	DISPLAYMODE*	DisplayMode;	// Ptr To Compatible Display Modes
+	struct DISPLAYMODE*	DisplayMode;	// Ptr To Compatible Display Modes
 	int				nTexture;		// Number Of Texture Formats
-	D3DTEXTUREINFO*	Texture;		// Texture Info
+	struct D3DTEXTUREINFO*	Texture;		// Texture Info
 	int nZbuffer; // pos 402 s 4
 	struct zBufFormat* Zbuffer; // pos 406 s 4
 };
@@ -431,9 +504,9 @@ struct DIRECTDRAWINFO
 	DDCAPS			DDCaps;			// Device Capabilites
 	DDDEVICEIDENTIFIER DDDevIdent;
 	int				nDisplayMode;	// Number Of Display Modes	
-	DISPLAYMODE*	DisplayMode;	// Ptr To Display Mode Structure
+	struct DISPLAYMODE*	DisplayMode;	// Ptr To Display Mode Structure
 	int				nD3DInfo;		// Number Of D3D Drivers
-	DIRECT3DINFO*	D3DInfo;		// Ptr To D3D Info Structure
+	struct DIRECT3DINFO*	D3DInfo;		// Ptr To D3D Info Structure
 };
 
 struct DIRECTSOUNDINFO
@@ -448,8 +521,8 @@ struct DEVICEINFO					// DirectX Device Information
 {
 	int				nDDInfo;		// Entries
 	int				nDSInfo;
-	DIRECTDRAWINFO*	DDInfo;			// Ptr To Info Structure
-	DIRECTSOUNDINFO* DSInfo;
+	struct DIRECTDRAWINFO*	DDInfo;			// Ptr To Info Structure
+	struct DIRECTSOUNDINFO* DSInfo;
 };
 
 
@@ -459,8 +532,8 @@ struct WINAPP
 	HWND					WindowHandle;
 	WNDCLASS				WindowClass;
 
-	DEVICEINFO				DeviceInfo;			// Device Information
-	DXCONFIG				DXConfig;
+	struct DEVICEINFO				DeviceInfo;			// Device Information
+	struct DXCONFIG				DXConfig;
 
 	BYTE pad;
 
@@ -480,7 +553,7 @@ struct WINAPP
 	unsigned int width;
 	unsigned int height;
 
-	RECT					r1;
+	RECT					GnClientRect;
 	RECT					GnWindowRect;
 
 	unsigned int			Flags;
@@ -503,16 +576,16 @@ struct WINAPP
 	DWORD dword_D9AC11;
 
 	HACCEL hAccTable;
-	uint8 byte_D9AC19;
+	uint8 GameInitialized;
 	BYTE					tBumpMap;
 	DWORD textRes;
 	DWORD bumpRes;
-	uint8 byte_D9AC23;
+	uint8 MMXSupport;
 	BYTE					tBilinearFilter;
 	BYTE					tVolumetricShadows;
 	BYTE					tDisableSound;
 	DWORD orig_flags;
-	BYTE byte_D9AC2B;
+	BYTE PlayingFMV;
 	DWORD OriginalBPP;
 
 	BYTE					tAutoTarget;
@@ -520,7 +593,13 @@ struct WINAPP
 	DWORD dword_D9AC38;
 
 	LPDIRECTDRAWPALETTE		Palette;				// Palette For SW Renderer
-	PALETTEENTRY			PaletteEntries[256];	// Palette Entries
+	char pad111[272];
+	D3DMATRIX ViewMatrix;
+	char pad112[16];
+	uint16_t* AnimTextureRanges;
+	char pad1121[4];
+	D3DMATRIX WorldMatrix;
+	char pad113[600];
 
 
 	bool					bRender;			// Ok To Render
@@ -550,7 +629,7 @@ typedef struct
 enum WINAPP_FLAGS
 {
 	WA_FULLSCREEN = (1 << 0),
-	WA_UNKNOWN1 = (1 << 1),
+	WA_WINDOWED = (1 << 1),
 	WA_UNKNOWN2 = (1 << 4),
 	WA_FPUSETUP = (1 << 5),
 	WA_SOFTWARE = (1 << 6),

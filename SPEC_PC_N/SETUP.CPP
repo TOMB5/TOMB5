@@ -2,7 +2,8 @@
 #include "SPECIFIC.H"
 #include "INCLUDE.H"
 #include "GLOBAL.H"
-#include "../SPEC_PC/SPECTYPES.H"
+#include "resource.h"
+#include "GAMEFLOW.H"
 
 Settings appsettings;
 HKEY reg_key;
@@ -25,6 +26,7 @@ uint8_t opt_MusicVolume = 40;
 uint8_t opt_SFXVolume = 80;
 uint8_t opt_ControlMethod;
 uint8_t opt_SoundQuality = 1;
+int32_t key_conflicts[18];
 
 const char* reg_path = "Software\\Core Design\\Tomb Raider Chronicles";
 
@@ -40,10 +42,120 @@ void CLSetup(char* arg)
 	appsettings.OpenSetup = arg == nullptr;
 }
 
-bool InitSetupDialog()
+BYTE oemToIso[10] = { 0x82, 0xE9, 0x8A, 0xE8, 0x88, 0xEA, 0x94, 0xF6, 0x85, 0xE0 };
+
+char* LoadToISO(const char* instr, char* outbuf)
+{
+	char* bufptr = outbuf;
+
+	char curchar;
+	while ((curchar = *instr++) != 0)
+	{
+		if (curchar >= 128)
+		{
+			int i;
+			for (i = 0; i < 10; i += 2)
+			{
+				if (curchar == oemToIso[i])
+				{
+					curchar = oemToIso[i + 1];
+					break;
+				}
+			}
+
+			if (i == 10)
+			{
+				Log(LT_Error, "Reqd : %x", curchar);
+			}
+		}
+
+		*bufptr++ = curchar;
+	}
+
+	*bufptr = 0;
+
+	return outbuf;
+}
+
+void LoadGraphicsAdapters(HWND hDlg, HWND hWnd)
 {
 	Unimpl();
-	return false;
+}
+
+void LoadSoundAdapters(HWND hDlg, HWND hWnd)
+{
+	Unimpl();
+}
+
+INT_PTR CALLBACK DialogFunc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch(uMsg)
+	{
+	case WM_INITDIALOG:
+		Log(LT_WindowMessage, "WM_INITDIALOG");
+
+		if (Gameflow->Language == LNG_JAPAN)
+		{
+			auto obj = GetStockObject(SYSTEM_FONT);
+			SendMessageA(GetDlgItem(hDlg, IDC_GFXADAPTER), WM_SETFONT, 0, (LPARAM)obj);
+			SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGS), WM_SETFONT, 0, (LPARAM)obj);
+			SendMessageA(GetDlgItem(hDlg, IDC_RESOLUTION), WM_SETFONT, 0, (LPARAM)obj);
+			SendMessageA(GetDlgItem(hDlg, IDC_TEXRES), WM_SETFONT, 0, (LPARAM)obj);
+			SendMessageA(GetDlgItem(hDlg, IDC_SNDADAPTER), WM_SETFONT, 0, (LPARAM)obj);
+		}
+
+		char buf[256];
+
+		SendMessageA(GetDlgItem(hDlg, IDC_GFXADAPTERTXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_GRAPHICS_ADAPTER]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_OUTSETTINGSTXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_OUTPUT_SETTINGS]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDOK), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_OK_BIS]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDCANCEL), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_CANCEL_BIS_BIS]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_RESOLUTIONTXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_OUTPUT_RESOLUTION]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_BILINEAR), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_BILINEAR_FILTERING]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_BUMPMAP), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_BUMP_MAPPING]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_HARDACCEL), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_HARDWARE_ACCELERATION]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_SOFTWARE), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_SOFTWARE_MODE]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_SNDADAPTERTXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_SOUND_DEVICE]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_NOSOUND), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_DISABLE]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_LOWTEXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_LOW_RESOLUTION_TEXTURES]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_LOWBUMP), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_LOW_RESOLUTION_BUMP_MAPS]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_TEXRESTXT), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_TEXTURE_BIT_DEPTH]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_WINDOWED), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_WINDOWED]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_RENDEROPTIONS), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_RENDER_OPTIONS]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_VOLUMEFOG), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_VOLUMETRIC_FX]], buf));
+		SendMessageA(GetDlgItem(hDlg, IDC_NOFMV), WM_SETTEXT, 0, (LPARAM)LoadToISO(&gfStringWad[gfStringOffset[STR_NO_FMV]], buf));
+
+		LoadGraphicsAdapters(hDlg, GetDlgItem(hDlg, IDC_GFXADAPTER));
+		LoadSoundAdapters(hDlg, GetDlgItem(hDlg, IDC_SNDADAPTER));
+
+		return 1;
+
+	case WM_COMMAND:
+		return 0;
+		if (lParam)
+			DeleteObject((HGDIOBJ)lParam);
+
+		EndDialog(hDlg, 1);
+
+		return 1;
+	}
+
+	return 0;
+}
+
+bool InitSetupDialog()
+{
+	ShowCursor(true);
+	INT_PTR res = DialogBoxParamA(App.hInstance, (LPCSTR)IDD_SETUP, nullptr, DialogFunc, 0);
+	ShowCursor(false);
+
+	if (res == -1)
+	{
+		MessageBoxA(nullptr, "Unable To Initialise Dialog", reg_class, 0);
+		return false;
+	}
+
+	return res != 0;
 }
 
 BOOL CreateRegKeyRW(LPCSTR lpSubKey)
@@ -116,9 +228,15 @@ void CheckKeyConflicts()
 {
 	for(int i = 0; i < 18; i++)
 	{
+		key_conflicts[i] = false;
+
 		for(int j = 0; j < 18; j++)
 		{
-			if ()
+			if (opt_Keys[i] == default_keys[i])
+			{
+				key_conflicts[i] = true;
+				break;
+			}
 		}
 	}
 }
@@ -164,7 +282,7 @@ bool LoadSettings()
 
 		RegReadBool("Window", &tmp, 0);
 		if (tmp)
-			App.orig_flags |= WA_UNKNOWN1;
+			App.orig_flags |= WA_WINDOWED;
 		else
 			App.orig_flags |= WA_FULLSCREEN;
 	}

@@ -12,7 +12,7 @@ extern "C" {
 	FILE* FileOpen(const char *filename);
 	int FileClose(FILE* fp);
 	unsigned long FileLength(FILE* nHandle);
-
+	void FreeD3DLights();
 
 #ifdef __cplusplus
 }
@@ -20,6 +20,9 @@ extern "C" {
 
 extern short* floor_data;
 extern short* mesh_base;
+
+extern int num_pages;
+extern bool levelLoading;
 
 extern int AnimFileLen;
 

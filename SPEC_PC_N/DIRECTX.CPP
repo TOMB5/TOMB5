@@ -562,6 +562,8 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 
 		DXSetCooperativeLevel(enum_lpDD, NULL, DDSCL_NOWINDOWCHANGES | DDSCL_ALLOWMODEX | DDSCL_FULLSCREEN | DDSCL_NORMAL);
 
+		Log(LT_Enter, "DXEnumDisplayModes");
+
 		DX_TRY(enum_lpDD->EnumDisplayModes(0, NULL, (LPVOID)&dd->DDInfo[dd->nDDInfo], DXEnumDisplayModes));
 
 		if (DXCreateDirect3D(enum_lpDD, &enum_lpD3D))
@@ -742,10 +744,10 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 
 		App.width = CUR_DM.w;
 		App.height = CUR_DM.h;
-		App.r1.top = 0;
-		App.r1.left = 0;
-		App.r1.right = CUR_DM.w;
-		App.r1.bottom = CUR_DM.h;
+		App.GnClientRect.top = 0;
+		App.GnClientRect.left = 0;
+		App.GnClientRect.right = CUR_DM.w;
+		App.GnClientRect.bottom = CUR_DM.h;
 	}
 	else
 	{
@@ -760,14 +762,14 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		AdjustWindowRect(&rect, dwStyle, false);
 		SetWindowPos(window, HWND_TOP, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
 
-		GetClientRect(window, &App.r1);
+		GetClientRect(window, &App.GnClientRect);
 		GetClientRect(window, &App.GnWindowRect);
 
 		ClientToScreen(window, (LPPOINT)&App.GnWindowRect.left);
 		ClientToScreen(window, (LPPOINT)&App.GnWindowRect.right);
 
-		App.width = App.r1.right;
-		App.height = App.r1.bottom;
+		App.width = App.GnClientRect.right;
+		App.height = App.GnClientRect.bottom;
 
 		Log(LT_Info, "w %d h %d", App.width, App.height);
 
@@ -804,7 +806,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		}
 	}
 
-	if (flags & 0x10 && flags & 0x80)
+	if (flags & WA_UNKNOWN2 && flags & WA_BACK_BUFFER)
 	{
 		Log(LT_DXShit, "Creating ZBuffer");
 
@@ -837,7 +839,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		{
 			DX_TRY(App.lpD3DDevice->SetRenderTarget(App.lpBackBuffer, 0));
 
-			if (!(App.Flags & 0x80))
+			if (!(App.Flags & WA_BACK_BUFFER))
 			{
 				// todo
 			}
@@ -882,7 +884,7 @@ HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, in
 	{
 		surf = App.lpFrontBuffer;
 
-		if (App.Flags & WA_UNKNOWN1)
+		if (App.Flags & WA_WINDOWED)
 		{
 			x = App.GnWindowRect.left;
 			y = App.GnWindowRect.top;
@@ -905,7 +907,8 @@ HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, in
 
 HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)
 {
-	HMODULE mod = GetModuleHandleA(nullptr);
+	//HMODULE mod = GetModuleHandleA(nullptr); todo
+	HMODULE mod = nullptr;
 	HANDLE image = LoadImageA(mod, filename, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
 
 	if (!image)
@@ -915,10 +918,10 @@ HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)
 	{
 		Log(LT_Error, "handle is null");
 
-		return 0x80004005;
+		return GetLastError();
 	}
 
-	HRESULT res = LoadPicture(surface, image, 0, 0, 0, 0);
+	HRESULT res = LoadPicture(surface, image, 0, 0, 640, 480);
 
 	if (res)
 		Log(LT_Error, "ddcopybitmap failed");
@@ -1090,12 +1093,50 @@ void DXShowFrame()
 		DX_TRY(App.lpBackBuffer->Restore());
 	}
 
-	if (App.Flags & WA_UNKNOWN1)
+	if (App.Flags & WA_WINDOWED)
 	{
-		DX_TRY(App.lpFrontBuffer->Blt(&App.GnWindowRect, App.lpBackBuffer, &App.r1, DDBLT_WAIT, nullptr));
+		DX_TRY(App.lpFrontBuffer->Blt(&App.GnWindowRect, App.lpBackBuffer, &App.GnClientRect, DDBLT_WAIT, nullptr));
 	}
 	else if (App.Flags & WA_BACK_BUFFER)
 	{
 		DX_TRY(App.lpFrontBuffer->Flip(nullptr, true));
 	}
+}
+
+bool DXChangeVideoMode()
+{
+	Log(LT_Enter, "DXChangeVideoMode");
+
+	App.Flags |= WA_SOFTWARE;
+	App.lpD3D->EvictManagedTextures();
+
+	bool ret = DXCreate(0, 0, 0, App.Flags, &App, App.GhWnd, App.DXWndStyle);
+	Log(LT_Enter, "Exited DXChangeVideoMode %d", ret);
+	return ret;
+}
+
+void DXToggleFullScreen()
+{
+	Log(LT_Enter, "DXToggleFullScreen");
+
+	if (App.Flags & WA_WINDOWED)
+	{
+		Log(LT_Info, "Switching To Full Screen");
+
+		App.Flags ^= WA_WINDOWED;
+		App.Flags |= WA_FULLSCREEN;
+		App.Flags |= WA_SOFTWARE;
+	}
+	else
+	{
+		Log(LT_Info, "Switching To A Window");
+
+		App.Flags ^= WA_FULLSCREEN;
+		App.Flags |= WA_WINDOWED;
+		App.Flags |= WA_SOFTWARE;
+	}
+
+	App.lpD3D->EvictManagedTextures();
+
+	DXCreate(CUR_DM.w, CUR_DM.h, CUR_DM.bpp, App.Flags, &App, App.GhWnd, App.DXWndStyle);
 }
