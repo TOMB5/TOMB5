@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 	void InitBuckets();
-	void DrawBuckets(void *);
+	void DrawBuckets();
 
 #define VERTSPERBUCKET	2600
 #define MAXBUCKETS		30
