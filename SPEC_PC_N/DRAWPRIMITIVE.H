@@ -52,6 +52,13 @@ extern uint32_t global_ambient;
 extern SNOWFLAKE raindrops[];
 extern SNOWFLAKE snowflakes[];
 
+
+extern float sort3d_bufferbf[][10];
+extern short info3d_bufferbf[];
+extern int* sort3dptrbf;
+extern short* info3dptrbf;
+extern int surfacenumbf;
+
 extern int num_fog_bulbs;
 
 extern int num_snow_flakes;
