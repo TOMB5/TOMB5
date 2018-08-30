@@ -6,6 +6,8 @@
 #define MINZRANGE 0.005
 #define MAXZRANGE 0.995
 
+bool in_loading_screen;
+
 void SetZNearFar(int znear, int zfar)
 {
 	phd_znear = znear;
