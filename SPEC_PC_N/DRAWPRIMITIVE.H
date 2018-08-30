@@ -3,6 +3,8 @@
 
 #include "INCLUDE.H"
 
+
+
 extern HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
 extern HRESULT(*BeginScene)();
@@ -46,7 +48,12 @@ void SetGlobalAmbient(uint32_t color);
 void PrintObjects(short current_room);
 void DoRain();
 void DoSnow();
-
+void SortPolyList(int number, float buffer[][10]);
+void DrawBinoculars();
+void DrawLoadingScreen();
+void ReleaseScreen();
+void DrawFlash();
+void DrawSortList();
 extern uint32_t global_ambient;
 
 extern SNOWFLAKE raindrops[];

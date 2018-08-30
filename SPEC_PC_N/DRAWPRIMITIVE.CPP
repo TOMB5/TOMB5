@@ -18,6 +18,8 @@
 #include "EFFECT2.H"
 #include "DIRECTX.H"
 #include "OBJLIGHT.H"
+#include "TEXTURE.H"
+#include "DEBUG.H"
 
 HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
@@ -30,6 +32,8 @@ void(*AddQuad2)(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* 
 void(*AddTri1)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7);
 void(*AddTri2)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7);
 void(*AddLine)(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color);
+
+DXTEXTURE DXTextureList[MAX_D3D_TEXTURES];
 
 uint32_t global_ambient;
 
@@ -104,24 +108,38 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 {
 	Unimpl();
 }
+enum dinfo_type
+{
+	DI_LINE = 2,
+	DI_TRI = 3,
+	DI_QUAD = 4,
+};
 struct dinfo_line
 {
 	float z;
 	short color;
 	short unk1;
-	short unk2;
+	short type;
 	short unk3;
 	D3DTLVERTEX v1;
 	int unk4;
 	int unk5;
 	D3DTLVERTEX v2;
 };
+struct dinfo_tri
+{
+	float z;
+	short texattr;
+	short unk1;
+	short type;
+	short unk3;
+};
 void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)// (F)
 {
 	auto ptr = (dinfo_line*)info3dptrbf;
 	ptr->unk1 = 0;
 	ptr->color = color;
-	ptr->unk2 = 2;
+	ptr->type = 2;
 	info3dptrbf = (short*)(ptr + 1);
 
 	*sort3dptrbf++ = (int)ptr;
@@ -817,8 +835,213 @@ int32_t DrawPhaseGame()// (F)
 	SetLaraUnderwaterNodes();
 	DrawRooms(camera.pos.room_number);
 	DrawGameInfo(TRUE);
+	DrawDebugPre();
 	S_OutputPolyList();
 	camera.number_frames = S_DumpScreen();
 	S_AnimateTextures(camera.number_frames);
 	return camera.number_frames;
+}
+
+void DrawBinoculars()
+{
+	Unimpl();
+}
+
+void DrawLoadingScreen()
+{
+	Unimpl();
+}
+
+void DrawFlash()
+{
+	Unimpl();
+}
+
+void ReleaseScreen()
+{
+	Unimpl();
+}
+
+void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// (F)
+{
+	switch (type)
+	{
+	case 0:
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+
+		break;
+	case 1:
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		break;
+	case 2:
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		break;
+	case 3:
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+
+		break;
+	case 4:
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+		}
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+		}
+
+		break;
+	case 5:
+		break;
+	case 6:
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		break;
+	case 7:
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+
+		break;
+	}
+
+	App.DrawPrimitiveCnt++;
+}
+
+void DrawSortList()
+{
+	if (surfacenumbf == 0)
+		return;
+
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+
+	if (App.lpZBuffer)
+	{
+		S_Warn("No DrawSortList for ZBuffer");
+		if (surfacenumbf < 0)
+		{
+			// TODO
+		}
+		else
+		{
+			for(int i = 0; i < surfacenumbf; i++)
+			{
+				
+			}
+		}
+	}
+	//else // LINE 421
+	{
+		int* ptr = (int*)&sort3d_bufferbf[0][0];
+		for(int i = 0; i < surfacenumbf; i++, ptr++)
+		{
+			short* info = (short*)(*ptr);
+			if (info[5] == 4)
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, FALSE);
+
+			HWR_DrawRoutine(&info[6], info[4], info[3], info[2]);
+
+			if (info[5] == 4)
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, TRUE);
+		}
+	}
+
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+
+	InitBuckets();
 }
