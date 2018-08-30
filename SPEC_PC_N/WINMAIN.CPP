@@ -582,3 +582,31 @@ void ShowBumpInfo()
 		}
 	}
 }
+
+float WinFrameRate()// (F)
+{
+	static int last_time = clock();
+
+	if (++App.fps_counter == 10)
+	{
+		time_t this_time = clock();
+		double t = (this_time - last_time) / (double)CLOCKS_PER_SEC;
+		last_time = this_time;
+		App.fps_static = App.fps_counter / t;
+		App.fps_counter = 0;
+	}
+
+	App.fps = App.fps_static;
+
+	return App.fps;
+}
+
+void WinDisplayString(int x, int y, char *String, ...)// (F)
+{
+	va_list	argptr;
+	char msg[4096];
+	va_start(argptr, String);
+	vsprintf(msg, String, argptr);
+	va_end(argptr);
+	PrintString(x, y, 6, msg, 0);
+}
