@@ -1,4 +1,5 @@
 #include "HWINSERT.H"
+#include "GLOBAL.H"
 
 TEXTUREBUCKET Bucket[MAXBUCKETS];
 

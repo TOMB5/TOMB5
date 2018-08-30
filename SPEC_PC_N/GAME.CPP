@@ -93,8 +93,6 @@ void ClearSurfaces()
 	}
 
 	S_DumpScreen();
-
-	
 }
 
 void GameClose()// (F)
