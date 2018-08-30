@@ -31,6 +31,8 @@
 #include "LARAMISC.H"
 #include "FLMTORCH.H"
 #include "SOUND.H"
+#include "DISPLAY.H"
+#include "PICTURE.H"
 
 #define OUTSIDE_Z 64
 
@@ -206,25 +208,14 @@ extern "C"
 		RoomInit();
 	}
 
-	void LoadTextures(int numRoom, int numObj, int numBump)
+	void LoadTextures(int numRoom, int numObj, int numBump)// (F)
 	{
 		Log(LT_Enter, "LoadTextures");
-
-		int uncomp32 = freadDword();
-		int comp32 = freadDword();
-		fseek(fp_level, comp32, SEEK_CUR);
-		int uncomp16 = freadDword();
-		int comp16 = freadDword();
-		fseek(fp_level, comp16, SEEK_CUR);
-		uncomp32 = freadDword();
-		comp32 = freadDword();
-		fseek(fp_level, comp32, SEEK_CUR);
-		return;
 
 		//dword_875144 = level_data;
 		num_pages = 1;
 
-		int v85 = 0;
+		int depth_bis = 0;
 		int depth = 4;
 
 		D3DTEXTUREINFO* texf = &CUR_TEX;
@@ -234,7 +225,7 @@ extern "C"
 
 		if (texf->rbpp == 5 && texf->gbpp == 5 && texf->bbpp == 5 && texf->abpp == 1)
 		{
-			v85 = 2;
+			depth_bis = 2;
 			depth = 2;
 
 			int uncomp32 = freadDword();
@@ -262,12 +253,12 @@ extern "C"
 		else
 		{
 			if (texf->rbpp == 8 && texf->gbpp == 8 && texf->bbpp == 8 && texf->abpp == 8)
-				v85 = 1;
+				depth_bis = 1;
 
 			int uncomp32 = freadDword();
 			int comp32 = freadDword();
 			texbuf = malloc(comp32);
-			level_data = (char*)malloc(uncomp32);
+			level_data = level_data_orig = (char*)malloc(uncomp32);
 
 			if (useCompression)
 			{
@@ -290,17 +281,219 @@ extern "C"
 
 		free(texbuf);
 
+		int tex_size = depth * TEXTURE_PAGE;
+
 		Log(LT_Info, "RTPages %d", numRoom);
 
-		int szRoom = numRoom * depth * TEXTURE_PAGE;
-		void* bufRoom;
-		AllocReadT(bufRoom, char, szRoom);
+		auto bufRoom = (char*)malloc(numRoom * tex_size);
+		OnlyReadT(bufRoom, char, numRoom * tex_size);
 		S_LoadBar();
 
-		if (numRoom > 0)
+		for(int i = 0; i < numRoom; i++, bufRoom += tex_size)
 		{
-			Unimpl();
+			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)bufRoom, nullptr, depth_bis);
+
+			LPDIRECT3DTEXTURE2 tex;
+			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
+
+			int page = num_pages++;
+
+			DXTextureList[page].tex = tex;
+			DXTextureList[page].surface = surf;
+			DXTextureList[page].width = App.textRes;
+			DXTextureList[page].height = App.textRes;
+			DXTextureList[page].a9 = 0;
+			DXTextureList[page].a10 = 0;
+			DXTextureList[page].a11 = 0;
+
+			S_LoadBar();
 		}
+
+		//free(bufRoom);
+
+		Log(LT_Info, "OTPages %d", numObj);
+
+		auto bufObj = (char*)malloc(numObj * tex_size);
+		OnlyReadT(bufObj, char, numObj * tex_size);
+		S_LoadBar();
+
+		for (int i = 0; i < numObj; i++, bufObj += tex_size)
+		{
+			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)bufObj, nullptr, depth_bis);
+
+			LPDIRECT3DTEXTURE2 tex;
+			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
+
+			int page = num_pages++;
+
+			DXTextureList[page].tex = tex;
+			DXTextureList[page].surface = surf;
+			DXTextureList[page].width = App.textRes;
+			DXTextureList[page].height = App.textRes;
+			DXTextureList[page].a9 = 0;
+			DXTextureList[page].a11 = 0;
+
+			App.lpD3DDevice->SetTexture(0, tex);
+
+			S_LoadBar();
+		}
+
+		//free(bufObj);
+
+		Log(LT_Info, "BTPages %d", numBump);
+
+		auto bufBump = (char*)malloc(numBump * tex_size);
+		OnlyReadT(bufBump, char, numBump * tex_size);
+		S_LoadBar();
+
+		for (int i = 0; i < numBump; i++, bufBump += tex_size)
+		{
+			bool bump = i >= numBump / 2;
+
+			if (bump && !App.tBumpMap)
+				break;
+
+			int res = bump ? App.bumpRes : App.textRes;
+
+			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)bufBump, nullptr, depth_bis);
+
+			LPDIRECT3DTEXTURE2 tex;
+			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
+
+			int page = num_pages++;
+
+			DXTextureList[page].tex = tex;
+			DXTextureList[page].surface = surf;
+			DXTextureList[page].width = res;
+			DXTextureList[page].height = res;
+			DXTextureList[page].a9 = 0;
+			DXTextureList[page].other_id = page + numBump / 2;
+			DXTextureList[page].a11 = 0;
+
+			S_LoadBar();
+		}
+
+		//free(bufBump);
+
+		free(level_data_orig);
+
+		int uncomp = freadDword();
+		int comp = freadDword();
+		texbuf = malloc(comp);
+		level_data = level_data_orig = (char*)malloc(uncomp);
+
+		if (useCompression)
+		{
+			fread(texbuf, comp, 1, fp_level);
+			Decompress(level_data, texbuf, comp, uncomp);
+		}
+		else
+		{
+			fread(level_data, comp, 1, fp_level);
+		}
+
+		free(texbuf);
+
+		void* buf = malloc(0x40000);
+
+		if (gfCurrentLevel != LVL5_TITLE)
+		{
+			texbuf = nullptr;
+			size_t length;
+
+			switch(Gameflow->Language)
+			{
+			case LNG_US:
+				length = LoadFile("data\\uslogo.pak", &texbuf);
+				break;
+			case LNG_GERMAN:
+				length = LoadFile("data\\grlogo.pak", &texbuf);
+				break;
+			case LNG_FRENCH:
+				length = LoadFile("data\\frlogo.pak", &texbuf);
+				break;
+			default:
+				length = LoadFile("data\\logo512.pak", &texbuf);
+				break;
+			}
+
+			void* pakbuf = malloc(length);
+
+			Decompress(pakbuf, (char*)texbuf + 4, length - 4, *(DWORD*)texbuf);
+			free(texbuf);
+
+			char* ptr1 = (char*)pakbuf;
+
+			for(int i = 0; i < 2; i++)
+			{
+				char* v46 = (char*)buf;
+				char* ptr2 = ptr1;
+
+				for(int j = 0; j < 256; j++)
+				{
+					char* ptr3 = ptr2;
+
+					for(int k = 0; k < 256; k++)
+					{
+						uint8_t red = ptr3[0];
+						uint8_t green = ptr3[1];
+						uint8_t alpha = 255;
+						uint8_t blue = ptr3[2];
+
+						if (red == 255 && green == 0 && blue == 255) // magenta key
+						{
+							alpha = 0;
+							red = 0;
+							blue = 0;
+						}
+
+						*v46++ = RGBA(red, green, blue, alpha);
+					}
+
+					ptr2 += 3 * 512;
+				}
+
+				auto surf = CreateTexturePage(256, 256, 0, (int*)buf, nullptr, 0);
+
+				LPDIRECT3DTEXTURE2 tex;
+				DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
+
+				int page = num_pages++;
+
+				DXTextureList[page].tex = tex;
+				DXTextureList[page].surface = surf;
+				DXTextureList[page].width = 256;
+				DXTextureList[page].height = 256;
+				DXTextureList[page].a9 = 0;
+				DXTextureList[page].a11 = 0;
+
+				ptr1 += 3 * 256;
+			}
+
+			free(pakbuf);
+		}
+
+		for (int i = 0; i < 3; i++)
+		{
+			OnlyReadT(buf, char, 0x40000);
+
+			auto surf = CreateTexturePage(256, 256, 0, (int*)buf, nullptr, 0);
+
+			LPDIRECT3DTEXTURE2 tex;
+			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
+
+			int page = num_pages++;
+
+			DXTextureList[page].tex = tex;
+			DXTextureList[page].surface = surf;
+			DXTextureList[page].width = 256;
+			DXTextureList[page].height = 256;
+			DXTextureList[page].a9 = 0;
+			DXTextureList[page].a11 = 0;
+		}
+
+		free(buf);
+		free(level_data_orig);
 	}
 
 	void FixUpRoom(room_info* rooms, room_info* roomData)// (F)
@@ -1360,7 +1553,10 @@ extern "C"
 	{
 		Log(LT_Enter, "S_LoadLevelFile");
 
-		// todo
+		if (!in_loading_screen)
+		{
+			// todo
+		}
 
 		char filename[80];
 		strcpy(filename, &gfFilenameWad[gfFilenameOffset[Name]]);
@@ -1372,13 +1568,16 @@ extern "C"
 			BeginScene();
 			InitBuckets();
 			InitialiseSortList();
-			/*DrawLoadingScreen();
-			SortPolyList(dword_BA4384, &dword_BA4390);
-			RestoreFPCW();
+			DrawLoadingScreen();
+			SortPolyList(surfacenumbf, sort3d_bufferbf);
+			/*RestoreFPCW();
 			DrawSortList(word_878654);
 			MungeFPCW(&word_878654);*/
 			S_DumpScreenFrame();
 		}
+
+		while (in_loading_screen)
+			ReleaseScreen();
 
 		levelLoading = true;
 
