@@ -143,7 +143,7 @@ void DoFlareInHand(int flare_age)//49984, 49DE8
 	pos.y = 32;
 	pos.z = 41;
 
-	GetLaraJointPos(&pos, 14);
+	GetLaraJointPos(&pos, LJ_LHAND);
 	DoFlareLight(&pos, flare_age);
 
 	if (gfLevelFlags & GF_LVOP_MIRROR_USED && lara_item->room_number == gfMirrorRoom)

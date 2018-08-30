@@ -24,6 +24,7 @@ extern "C" {
 #define		ERR_SOUND_FAILED		(-2)
 #define		ERR_SOUND_NO_FREE_SLOTS	(-1)
 
+	extern BYTE tsv_buffer[];
 
 extern	char*		malloc_buffer;
 extern	int			script_malloc_size;
@@ -67,7 +68,10 @@ extern	float		f_oneozfar;			// one/phd_zfar
 extern	float		f_a, f_b, f_boo;		// a/b factors for z buffering (f_boo is f_b/one)
 
 extern	sint32		w2v_matrix[];		// World to View Matrix...
+	extern float		w2v_matrix_f[];
 extern	sint32		matrix_stack[];		// matrix stack for animations etc..
+	extern float		matrix_stack_dx[];
+	extern float		sin_flt_table[];
 
 extern struct SVECTOR CamRot;
 
@@ -93,6 +97,9 @@ extern void phd_SetTrans(long x, long y, long z);
 extern void SetD3DViewMatrix();
 extern unsigned long mGetAngle(long x1, long y1, long x2, long y2);
 extern void S_InitD3DMatrix();
+extern void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll);
+extern void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest);
+extern void SetViewMatrix();
 #define phd_PopMatrix()		{ phd_mxptr -= 12; phd_dxptr -= 12; }
 
 #ifdef __cplusplus

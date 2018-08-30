@@ -330,7 +330,7 @@ extern "C" {
 		return (-angle) & 0xffff;
 	}
 
-	uint32	phd_sqrt(uint32 n)
+	uint32	phd_sqrt(uint32 n)// (F)
 	{
 		sint32	a, b, c, d;
 
@@ -363,7 +363,10 @@ extern "C" {
 		return(a);					/* c = remainder*/
 	}
 
-	void S_SetReverbType() {}
+	void S_SetReverbType()// (F)
+	{
+		
+	}
 
 #ifdef __cplusplus
 }

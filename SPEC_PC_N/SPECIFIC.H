@@ -23,7 +23,7 @@ extern "C" {
 	void		S_CDPause(void);
 	void		S_CDRestart(void);
 	int		S_StartSyncedAudio(int num);
-	extern char			exit_message[128];
+
 	extern void S_ExitSystem(char *message);
 
 	void		S_DumpScreenFrame();
@@ -35,12 +35,13 @@ extern "C" {
 
 	bool Decompress(void* buf, void* compressed, int compSize, int uncompSize);
 
-
+	LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *buf, void(*a5)(uchar *, uchar *, uchar *, uchar *), int bpp);
 	extern void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2);
 	void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color2);
 	void S_DrawAirBar(int size);
 	void S_DrawHealthBar(int size);
 	void S_DrawHealthBar2(int size);
+	void S_CDFade(int a1);
 extern void S_Warn(const char* warning_message, ...);
 
 extern void S_SetReverbType(sint16 reverb);

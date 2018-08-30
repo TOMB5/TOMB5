@@ -90,7 +90,7 @@ void lara_col_climbdown(struct ITEM_INFO* item, struct COLL_INFO* coll)//46BD0, 
 
 	if (result_r != 0 && result_l != 0 &&
 		result_r != -2 && result_l != -2 &&
-		input & IN_DOWN)
+		input & IN_BACK)
 	{
 		if (shift_r && shift_l)
 		{
@@ -173,7 +173,7 @@ void lara_col_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//469B0, 4
 		result_r = LaraTestClimbUpPos(item, coll->radius, coll->radius + 120, &shift_r, &ledge_r);
 		result_l = LaraTestClimbUpPos(item, coll->radius, coll->radius + 120, &shift_l, &ledge_l);
 
-		if (result_r && result_l && input & IN_UP)
+		if (result_r && result_l && input & IN_FORWARD)
 		{
 			if (result_r < 0 || result_l < 0)
 			{

@@ -71,5 +71,6 @@ extern void Richochet(struct GAME_VECTOR* pos);
 extern void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int a4, char a5, char a6, char a7);
 extern void TriggerCoinGlow();
 extern int GetFreeSpider();
+extern void TriggerSmallSplash(int x, int y, int z, int num);
 
 #endif

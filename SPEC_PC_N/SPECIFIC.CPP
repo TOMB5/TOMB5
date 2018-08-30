@@ -1,6 +1,6 @@
 #define _X86_
 #define _USE_32BIT_TIME_T
-#include <time.h>
+
 #include <cstddef>
 #include <cstdarg>
 #include <cstdio>
@@ -22,17 +22,28 @@
 #include "DISPLAY.H"
 #include "GAMEFLOW.H"
 #include "LARA.H"
+#include "INPUT.H"
+#include "TOMB4FX.H"
+#include "WINMAIN.H"
+#include "CAMERA.H"
+#include "SPOTCAM.H"
+#include "HEALTH.H"
+#include "DELTAPAK.H"
+#include "NEWINV2.H"
+#include <time.h>
+#include <zlib.h>
 
+#pragma comment(lib, "zlibstatic.lib")
 
 bool loadBarShown;
 int loadBarMax;
 float loadBarPercent;
 float loadBar2;
 
-void DebugPrint(const char* message)
+void DebugPrint(const char* message)// (F)
 {
 	char buf[1024];
-	time_t t = time(NULL);
+	time_t t = time(nullptr);
 	tm tm = *localtime(&t);
 
 	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
@@ -59,10 +70,10 @@ extern "C" {
 
 	
 
-void S_Warn(const char* warning_message, ...)
+void S_Warn(const char* warning_message, ...)// (F)
 {
 	char buf[1024];
-	time_t t = time(NULL);
+	time_t t = time(nullptr);
 	struct tm tm = *localtime(&t);
 
 	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
@@ -115,7 +126,7 @@ void S_CDStop(void)
 	Unimpl();
 }
 
-void S_SoundStopSample(sint32 handle)
+void S_SoundStopSample(sint32 handle)// (F)
 {
 	if (!sound_active)
 		return;
@@ -123,7 +134,7 @@ void S_SoundStopSample(sint32 handle)
 	DS_StopSample(handle);
 }
 
-void S_SoundStopAllSamples(void)
+void S_SoundStopAllSamples(void)// (F)
 {
 	if (!sound_active)
 		return;
@@ -131,13 +142,13 @@ void S_SoundStopAllSamples(void)
 	DS_StopAllSamples();
 }
 
-int WeirdWaitThingy()
+int WeirdWaitThingy()// (F)
 {
 	Sleep1ms();
 	return Sync();
 }
 
-void		S_DumpScreenFrame()
+void		S_DumpScreenFrame()// (F)
 {
 	int last = Sync();
 	if (last < 1)
@@ -175,15 +186,15 @@ long		S_DumpScreen()
 	GnFrameCounter++;
 
 	
-	DDBLTFX fx;
+	/*DDBLTFX fx;
 	DXInit(fx);
 	//fx.dwFillColor = GENRGB(0, 0, (5 * GnFrameCounter) % 256);
 	fx.dwFillColor = (64 + abs((int)((2 * GnFrameCounter) % 192 - 96))) << (8 * (((GnFrameCounter / 6) % 27) / 9));
-	App.lpBackBuffer->Blt(nullptr, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &fx);
+	App.lpBackBuffer->Blt(nullptr, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &fx);*/
+
+	DrawDebugPost();
 	
-	char buf[256];
-	sprintf(buf, "frame %d", GnFrameCounter);
-	PrintString(10, 10, 0, buf, 0);
+	ShowDebugInfo();
 
 	EndScene();
 	DXShowFrame();
@@ -192,7 +203,7 @@ long		S_DumpScreen()
 	return off;
 }
 
-void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2)
+void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2)// (F)
 {
 	uint8_t red1, green1, blue1;
 	uint8_t red2 = 0, green2 = 0, blue2 = 0;
@@ -239,15 +250,15 @@ void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2)
 	*out2 = RGBONLY(red2, green2, blue2);
 }
 
-	void UpdateLoadBar()
+void UpdateLoadBar()// (F)
 {
-		loadBarPercent += 100.0 / loadBarMax;
+	loadBarPercent += 100.0 / loadBarMax;
 }
-void S_LoadBar()
+void S_LoadBar()// (F)
 {
 	UpdateLoadBar();
 }
-void S_InitLoadBar(int size)
+void S_InitLoadBar(int size)// (F)
 {
 	loadBarPercent = 0.0;
 	loadBarMax = size;
@@ -255,7 +266,7 @@ void S_InitLoadBar(int size)
 	loadBarShown = true;
 }
 
-void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color2)
+void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color2)// (F)
 {
 	D3DTLVERTEX tlvert[4];
 
@@ -404,7 +415,7 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
 }
 
-void SuperShowLogo()
+void SuperShowLogo()// (F)
 {
 	D3DTLVERTEX tlvert[4];
 
@@ -567,20 +578,42 @@ bool S_DrawLoadBar()
 	return false;
 }
 
-bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)
+bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)// (F)
 {
-	Unimpl();
-	return false;
+	Log(LT_Enter, "Decompress");
+
+	z_stream strm;
+	Zero(strm);
+	strm.avail_in = compSize;
+	strm.avail_out = uncompSize;
+	strm.next_out = (BYTE *)buf;
+	strm.next_in = (BYTE *)compressed;
+
+	inflateInit(&strm);
+	inflate(&strm, Z_FINISH);
+
+	if (strm.total_out == uncompSize)
+	{
+		inflateEnd(&strm);
+
+		Log(LT_Info, "Decompression OK");
+		return true;
+	}
+	else
+	{
+		Log(LT_Error, "Error Decompressing Data");
+		return false;
+	}
 }
 
 unsigned short nAnimUVRanges; // offset 0xA4660
 
-void SetFogColor(uint8_t r, uint8_t g, uint8_t b)
+void SetFogColor(uint8_t r, uint8_t g, uint8_t b)// (F)
 {
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR, GENRGB(r, g, b));
 }
 
-void ClearFXFogBulbs()
+void ClearFXFogBulbs()// (F)
 {
 	
 }
@@ -590,12 +623,12 @@ void SetFade(int a1, int a2)
 	Unimpl();
 }
 
-void S_InitialiseScreen()
+void S_InitialiseScreen()// (F)
 {
-	Unimpl();
+
 }
 
-BYTE IsVolumetric()
+BYTE IsVolumetric()// (F)
 {
 	return App.tVolumetricShadows;
 }
@@ -607,6 +640,82 @@ void S_AnimateTextures(long nFrames)
 
 void S_OutputPolyList()
 {
+	//RestoreFPCW();
+	WinFrameRate();
+
+	// todo
+
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+
+	// todo
+
+	if (App.lpZBuffer != nullptr)
+		DrawBuckets();
+
+	if (gfCurrentLevel == LVL5_TITLE)
+	{
+		Fade();
+
+		if (App.lpZBuffer != nullptr)
+			DrawSortList();
+	}
+
+	SortPolyList(surfacenumbf, sort3d_bufferbf);
+	DrawSortList();
+
+	if (App.lpZBuffer != nullptr)
+	{
+		D3DRECT r;
+		r.x1 = App.GnClientRect.left;
+		r.y1 = App.GnClientRect.top;
+		r.x2 = App.GnClientRect.left + App.GnClientRect.right;
+		r.y2 = App.GnClientRect.top + App.GnClientRect.bottom;
+		DX_TRY(App.lpViewPort->Clear2(1, &r, D3DCLEAR_ZBUFFER, RGBA_MAKE(0, 0, 0, 0), 1.0f, 0));
+	}
+
+	if ((BinocularRange || SCOverlay || SniperOverlay) && !in_loading_screen) // TODO
+	{
+		InitialiseSortList();
+		DrawBinoculars();
+		DrawSortList();
+	}
+
+	if (pickups[CurrentPickup].life != -1 && !in_loading_screen && !GLOBAL_playing_cutseq)
+	{
+		// TODO
+		InitialiseSortList();
+		S_DrawPickup(pickups[CurrentPickup].object_number);
+		SortPolyList(surfacenumbf, sort3d_bufferbf);
+		DrawSortList();
+	}
+
+	InitialiseSortList();
+
+	if (FadeScreenHeight != 0)
+	{
+		int height = phd_winymax / 256.0 * FadeScreenHeight;
+		//DrawPsxTile() TODO
+	}
+
+	if (gfCurrentLevel != LVL5_TITLE)
+	{
+		Fade();
+
+		if (FlashFader != 0)
+		{
+			DrawFlash();
+
+			if (FlashFader != 0)
+				FlashFader -= 2;
+		}
+
+		DrawSortList();
+	}
+
+	// TODO TODO
+
 	Unimpl();
 }
 
@@ -615,35 +724,35 @@ void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
 	Unimpl();
 }
 
-void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light)
+void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light)// (F)
 {
 	
 }
 
-void S_CDLoop()
+void S_CDLoop()// (F)
+{
+	
+}
+
+int S_LoadSave(int input, int in_inventory)
 {
 	Unimpl();
+	return 0;
 }
 
-	int S_LoadSave(int input, int in_inventory)
+int S_DisplayPauseMenu(int a1)
 {
-		Unimpl();
-		return 0;
-}
-
-	int S_DisplayPauseMenu(int a1)
-{
-		Unimpl(); 
+	Unimpl(); 
 	return 0;
 }
 
 	int S_PauseMenu()
 {
-		Unimpl();
-		return 0;
+	Unimpl();
+	return 0;
 }
 
-void S_DrawAirBar(int size)
+void S_DrawAirBar(int size)// (F)
 {
 	if (gfCurrentLevel != LVL5_TITLE)
 	{
@@ -651,7 +760,7 @@ void S_DrawAirBar(int size)
 	}
 }
 
-void S_DrawHealthBar(int size)
+void S_DrawHealthBar(int size)// (F)
 {
 	if (gfCurrentLevel != LVL5_TITLE)
 	{
@@ -664,7 +773,7 @@ void S_DrawHealthBar(int size)
 	}
 }
 
-void S_DrawHealthBar2(int size)
+void S_DrawHealthBar2(int size)// (F)
 {
 	if (gfCurrentLevel != LVL5_TITLE)
 	{
@@ -675,6 +784,142 @@ void S_DrawHealthBar2(int size)
 
 		DoBar(245, font_height / 4 + 32, 150, 12, size, RGBONLY(160, 0, 0), col);
 	}
+}
+
+void S_CDFade(int a1)// (F)
+{
+	
+}
+
+int		S_StartSyncedAudio(int num)
+{
+		Unimpl();
+		return 0;
+}
+
+LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *buf, void(*a5)(uchar *, uchar *, uchar *, uchar *), int bpp)
+{
+	DDSURFACEDESC2 desc;
+	DXInit(desc);
+
+	desc.dwWidth = width;
+	desc.dwHeight = height;
+
+	if (width < 32 || height < 32)
+		mipmaps = 0;
+
+	desc.ddpfPixelFormat = CUR_TEX.ddpf;
+	desc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+	desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+
+	if (App.Flags & WA_BACK_BUFFER)
+		desc.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
+	else
+		desc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
+
+	if (mipmaps)
+	{
+		desc.dwFlags |= DDSD_MIPMAPCOUNT;
+		desc.dwMipMapCount = mipmaps + 1;
+		desc.ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;
+	}
+
+	LPDIRECTDRAWSURFACE4 surf;
+
+	DXCreateSurface(App.lpDD, &desc, &surf);
+
+	DX_TRY(surf->Lock(nullptr, &desc, DDLOCK_NOSYSLOCK, nullptr));
+
+	if (desc.dwHeight != 0 && desc.dwWidth != 0)
+	{
+		if (bpp == 0)
+		{
+			auto sptr = (BYTE*)desc.lpSurface;
+
+			for (int y = 0; y < desc.dwHeight; y++)
+			{
+				for (int x = 0; x < desc.dwWidth; x++)
+				{
+					auto ptr = (BYTE*)buf;
+
+					auto r = ptr[0];
+					auto g = ptr[1];
+					auto b = ptr[2];
+					auto a = ptr[3];
+
+					if (a5)
+					{
+						a5(&r, &g, &b, &a);
+					}
+
+					DWORD color =
+						r >> (8 - CUR_TEX.rbpp) << CUR_TEX.rshift |
+						g >> (8 - CUR_TEX.gbpp) << CUR_TEX.gshift |
+						b >> (8 - CUR_TEX.bbpp) << CUR_TEX.bshift |
+						a >> (8 - CUR_TEX.abpp) << CUR_TEX.ashift;
+
+					if (CUR_TEX.bpp > 0)
+					{
+						for(int i = 0; i < (CUR_TEX.bpp + 7) / 8; i++)
+						{
+							*sptr++ = color;
+							color >>= 8;
+						}
+					}
+
+					buf += 256 / width;
+				}
+			}
+		}
+		else
+		{
+			if (bpp == 2)
+			{
+				auto ptr = (WORD*)buf;
+				auto sptr = (WORD*)desc.lpSurface;
+
+				for (int y = 0; y < desc.dwHeight; y++)
+				{
+					auto ptr2 = ptr;
+
+					for (int x = 0; x < desc.dwWidth; x++)
+					{
+						*sptr++ = *ptr2;
+						ptr2 += 256 / width;
+					}
+
+					ptr += 512 * 256 / height;
+				}
+			}
+			else if (bpp == 1)
+			{
+				auto ptr = (DWORD*)buf;
+				auto sptr = (DWORD*)desc.lpSurface;
+
+				for (int y = 0; y < desc.dwHeight; y++)
+				{
+					auto ptr2 = ptr;
+
+					for (int x = 0; x < desc.dwWidth; x++)
+					{
+						*sptr++ = *ptr2;
+						ptr2 += 256 / width;
+					}
+
+					ptr += 1024 * 256 / height;
+				}
+			}
+		}
+	}
+
+	DX_TRY(surf->Unlock(nullptr));
+
+	if (mipmaps)
+	{
+		Unimpl();
+	}
+
+	return surf;
 }
 
 #ifdef __cplusplus

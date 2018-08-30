@@ -27,6 +27,7 @@
 #if PC_VERSION
 #include "GLOBAL.H"
 #include "GAME.H"
+#include "SPECIFIC.H"
 #include "FILE.H"
 #else
 #include "PROFILE.H"
@@ -408,7 +409,7 @@ struct NEW_CUTSCENE* GLOBAL_cutme;
 int lastcamnum;
 int GLOBAL_cutseq_frame;
 int GLOBAL_numcutseq_frames;
-int GLOBAL_oldcamtype;
+enum camera_type GLOBAL_oldcamtype;
 struct PACKNODE* camera_pnodes;
 struct PACKNODE* actor_pnodes[10];
 struct ITEM_INFO duff_item;
@@ -1096,13 +1097,13 @@ void cossack_control()//3178C(<), 31BBC(<) (F)
 			pos.z = 0;
 			pos.y = 0;
 			pos.x = 0;
-			GetLaraJointPos(&pos, 11);
+			GetLaraJointPos(&pos, LJ_RHAND);
 			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
 
 			pos.z = 0;
 			pos.y = 0;
 			pos.x = 0;
-			GetLaraJointPos(&pos, 14);
+			GetLaraJointPos(&pos, LJ_LHAND);
 			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
 		}
 		if (f >= 1110 && f <= 1125)
@@ -1110,7 +1111,7 @@ void cossack_control()//3178C(<), 31BBC(<) (F)
 			pos.z = 0;
 			pos.y = 0;
 			pos.x = 0;
-			GetLaraJointPos(&pos, 11);
+			GetLaraJointPos(&pos, LJ_RHAND);
 			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
 		}
 		if (f >= 1111 && f <= 1126)
@@ -1118,7 +1119,7 @@ void cossack_control()//3178C(<), 31BBC(<) (F)
 			pos.z = 0;
 			pos.y = 0;
 			pos.x = 0;
-			GetLaraJointPos(&pos, 4);
+			GetLaraJointPos(&pos, LJ_RTHIGH);
 			TriggerDelBrownSmoke(pos.x, pos.y, pos.z);
 		}
 	}
@@ -1312,7 +1313,7 @@ void joby8_control()//310E0, 31460 (F)
 		s.x = 512;
 		s.y = 0;
 		s.z = 0;
-		GetLaraJointPos(&s, 0);
+		GetLaraJointPos(&s, LJ_HIPS);
 
 		scale = (GLOBAL_cutseq_frame - 2681) >> 4;
 
@@ -2921,7 +2922,21 @@ void init_cutseq_actors(char* data, int resident)
 
 int Load_and_Init_Cutseq(int num)
 {
+#if PC_VERSION
+	SetCutPlayed(num);
+	struct NEW_CUTSCENE* cut = FetchCutData(num);
+	GLOBAL_cutme = cut;
+	if (cutseq_num <= CUT_STEALTH3_4)
+	{
+		GLOBAL_cutme->orgx = (lara_item->pos.x_pos & 0xFFFFFC00) + 512;
+		GLOBAL_cutme->orgy = lara_item->pos.y_pos;
+		GLOBAL_cutme->orgz = (lara_item->pos.z_pos & 0xFFFFFC00) + 512;
+	}
+	init_cutseq_actors((char*)cut, FALSE);
+#else
 	S_Warn("[Load_and_Init_Cutseq] - Unimplemented!\n");
+#endif
+
 	return 0;
 }
 
@@ -2985,9 +3000,9 @@ void deal_with_pistols(unsigned short* shootdata)// (F)
 		if (f == (dat & CPI_FRAME_MASK))
 		{
 			if (dat & CPI_SHOOT_LEFT)
-				cutseq_shoot_pistols(14);
+				cutseq_shoot_pistols(LJ_LHAND);
 			if (dat & CPI_SHOOT_RIGHT)
-				cutseq_shoot_pistols(11);
+				cutseq_shoot_pistols(LJ_RHAND);
 		}
 	}
 	if (SmokeCountL || SmokeCountR)
@@ -2998,7 +3013,7 @@ void deal_with_pistols(unsigned short* shootdata)// (F)
 			pos.x = 4;
 			pos.y = 128;
 			pos.z = 40;
-			GetLaraJointPos(&pos, 14);
+			GetLaraJointPos(&pos, LJ_LHAND);
 			TriggerGunSmoke(pos.x, pos.y, pos.z, 0, 0, 0, 0, SmokeWeapon, SmokeCountL);
 		}
 		if (SmokeCountR)
@@ -3006,7 +3021,7 @@ void deal_with_pistols(unsigned short* shootdata)// (F)
 			pos.x = -16;
 			pos.y = 128;
 			pos.z = 40;
-			GetLaraJointPos(&pos, 11);
+			GetLaraJointPos(&pos, LJ_RHAND);
 			TriggerGunSmoke(pos.x, pos.y, pos.z, 0, 0, 0, 0, SmokeWeapon, SmokeCountR);
 		}
 	}
@@ -3018,12 +3033,12 @@ void deal_with_pistols(unsigned short* shootdata)// (F)
 	if (lara.left_arm.flash_gun)
 	{
 		--lara.left_arm.flash_gun;
-		trigger_weapon_dynamics(14);
+		trigger_weapon_dynamics(LJ_LHAND);
 	}
 	if (lara.right_arm.flash_gun)
 	{
 		--lara.right_arm.flash_gun;
-		trigger_weapon_dynamics(11);
+		trigger_weapon_dynamics(LJ_RHAND);
 	}
 }
 
@@ -3045,7 +3060,7 @@ void trigger_weapon_dynamics(int left_or_right)//2D3E4(<), 2D6CC(<) (F)
 
 void cutseq_shoot_pistols(int left_or_right)//2D360, 2D648 (F)
 {
-	if (left_or_right == 14)
+	if (left_or_right == LJ_LHAND)
 	{
 		lara.left_arm.flash_gun = 4;
 		SmokeCountL = 16;
@@ -3247,7 +3262,243 @@ void do_new_cutscene_camera()
 void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 {
 #if PC_VERSION
-	S_Warn("[handle_cutseq_triggering] - Unimplemented!\n");
+	if (cutseq_num == CUT_NULL)
+		return;
+
+	if (cutseq_trig == 0)
+	{
+		if (lara.gun_type == WEAPON_FLARE || lara.gun_status != LG_NO_ARMS && lara.gun_status != LG_HANDS_BUSY)
+		{
+			lara.gun_status = LG_UNDRAW_GUNS;
+		}
+
+		cutseq_trig = 1;
+		memset(cutseq_meshswapbits, 0, sizeof(cutseq_meshswapbits));
+		cutseq_busy_timeout = 50;
+		memset(cutseq_meshbits, 0xFF, sizeof(cutseq_meshbits));
+
+		if (gfCurrentLevel)
+			SetFadeClip(28, 1);
+
+		if (!ScreenFadedOut)
+		{
+			if (gfCurrentLevel)
+				S_CDFade(0);
+
+			SetScreenFadeOut(16, 0);
+		}
+
+		return;
+	}
+
+	if (cutseq_trig != 1)
+	{
+		if (cutseq_trig == 3)
+		{
+			SetScreenFadeOut(16, 1);
+
+			if (gfCurrentLevel != LVL5_TITLE)
+				S_CDFade(0);
+
+			cutseq_trig = 4;
+			return;
+		}
+
+		if (cutseq_trig != 4 || !ScreenFadedOut)
+			return;
+
+		if (gfCurrentLevel)
+		{
+			S_CDStop();
+		}
+
+		ScreenFadedOut = FALSE;
+		numnailed = 0;
+
+		void(*end)() = cutseq_control_routines[cutseq_num].end_func;
+
+		if (end != NULL)
+		{
+			end();
+		}
+
+		if (cutseq_num >= CUT_STEALTH3_1 && cutseq_num <= CUT_STEALTH3_4)
+		{
+			DelsHandyTeleportLara(GLOBAL_cutme->orgx, GLOBAL_cutme->orgy, GLOBAL_cutme->orgz, cutrot << W2V_SHIFT);
+		}
+
+		cutseq_trig = 0;
+		GLOBAL_playing_cutseq = 0;
+
+		if (!bDoCredits)
+		{
+			if (dels_cutseq_player)
+			{
+				reset_flag = 1;
+				dels_cutseq_player = 0;
+			}
+			else
+			{
+				if (cutseq_num != CUT_RICH_CUT_2 &&
+					cutseq_num != CUT_JOBY_CUT_3 &&
+					cutseq_num != CUT_JOBY6 &&
+					cutseq_num != CUT_ANDREA2 &&
+					cutseq_num != CUT_ANDY6 &&
+					cutseq_num != CUT_ANDY11 &&
+					cutseq_num != CUT_JOBY10)
+				{
+					finish_cutseq(name);
+
+					cutseq_num = CUT_NULL;
+					camera.type = GLOBAL_oldcamtype;
+
+					if (gfCurrentLevel)
+						SetFadeClip(0, 1);
+
+					AlterFOV(ANGLE(80));
+
+					if (gfCurrentLevel)
+						S_CDPlay(CurrentAtmosphere, 1);
+
+					IsAtmospherePlaying = 1;
+					return;
+				}
+
+				gfLevelComplete = gfCurrentLevel + 1;
+			}
+
+			gfRequiredStartPos = 0;
+
+			cutseq_num = 0;
+			GLOBAL_playing_cutseq = 0;
+			cutseq_trig = 0;
+
+			AlterFOV(ANGLE(80));
+
+			ScreenFade = 0;
+			dScreenFade = 0;
+
+			ScreenFadeSpeed = 8;
+			ScreenFadeBack = 0;
+			ScreenFadedOut = 0;
+			ScreenFading = 0;
+
+			return;
+		}
+
+		switch (cutseq_num)
+		{
+		case 28:
+			cutseq_num = 29;
+			break;
+		case 29:
+			cutseq_num = 30;
+			break;
+		case 30:
+			cutseq_num = 28;
+			break;
+		}
+
+		Load_and_Init_Cutseq(cutseq_num);
+		cutseq_trig = 2;
+		return;
+	}
+
+	if (!ScreenFadedOut)
+		return;
+
+	if (--cutseq_busy_timeout > 0)
+	{
+		if (lara.gun_status != LG_HANDS_BUSY
+			&& (lara.gun_status != LG_NO_ARMS || lara.flare_control_left)
+			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_IDLE
+			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_FORWARD
+			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_TURN_LEFT
+			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_TURN_RIGHT
+			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_BACK)
+		{
+			return;
+		}
+	}
+	else
+	{
+		cutseq_busy_timeout = 0;
+	}
+
+	lara.flare_control_left = FALSE;
+	lara.flare_age = 0;
+
+	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA))
+	{
+		lara.gun_type = WEAPON_NONE;
+		lara.request_gun_type = WEAPON_NONE;
+
+		lara.gun_status = LG_NO_ARMS;
+
+		lara.last_gun_type = WEAPON_PISTOLS;
+
+		if (!objects[PISTOLS_ITEM].loaded || lara.pistols_type_carried == WTYPE_MISSING)
+			lara.last_gun_type = WEAPON_NONE;
+
+		if (gfLevelFlags & GF_LVOP_TRAIN && objects[HK_ITEM].loaded && lara.hk_type_carried & WTYPE_PRESENT)
+			lara.last_gun_type = WEAPON_HK;
+
+		lara.mesh_ptrs[LM_LHAND] = meshes[objects[LARA].mesh_index + 2 * LM_LHAND];
+		lara.mesh_ptrs[LM_RHAND] = meshes[objects[LARA].mesh_index + 2 * LM_RHAND];
+
+		lara.left_arm.frame_number = 0;
+		lara.right_arm.frame_number = 0;
+
+		lara.target = 0;
+
+		lara.right_arm.lock = 0;
+		lara.left_arm.lock = 0;
+
+		lara_item->goal_anim_state = STATE_LARA_STOP;
+		lara_item->current_anim_state = STATE_LARA_STOP;
+		lara_item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
+		lara_item->anim_number = ANIMATION_LARA_STAY_SOLID;
+
+		lara_item->speed = 0;
+		lara_item->fallspeed = 0;
+
+		lara_item->gravity_status = FALSE;
+
+		lara.back_gun = 0;
+
+		if (lara.weapon_item != -1)
+		{
+			KillItem(lara.weapon_item);
+			lara.weapon_item = -1;
+		}
+	}
+
+	lara.water_status = 0;
+
+	if (gfCurrentLevel)
+		S_CDStop();
+
+	numnailed = 0;
+	GLOBAL_oldcamtype = camera.type;
+
+	ScreenFading = 0;
+	SetScreenFadeIn(16);
+	Load_and_Init_Cutseq(cutseq_num);
+	cutseq_trig = 2;
+
+	cut_seethrough = 128;
+
+	void(*init)() = cutseq_control_routines[cutseq_num].init_func;
+
+	if (init != NULL)
+	{
+		init();
+	}
+
+	AlterFOV(11488);
+
+	if (GLOBAL_cutme->audio_track != -1 && !bDoCredits)
+		S_StartSyncedAudio(GLOBAL_cutme->audio_track);
 #else
 	int i;
 	int s1 = name;//guessed, moved but not used

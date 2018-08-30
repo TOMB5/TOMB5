@@ -212,7 +212,7 @@ void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 	}
 }
 
-void AnimateWaterfalls()//4FABC(<), 4FF20(<) (F)
+void AnimateWaterfalls()//4FABC(<), 4FF20(<)
 {
 #if PSX_VERSION
 	struct PSXTEXTI* Twaterfall;

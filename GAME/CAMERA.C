@@ -1533,7 +1533,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	}
 }
 
-void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)
+void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)// (F)
 {
 	long dx;
 	long dy;

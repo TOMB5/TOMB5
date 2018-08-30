@@ -37,7 +37,7 @@ void TriggerEngineEffects_CUT()
 	}
 #endif
 
-	S_Warn("[RelocFunc_28] - Unimplemented!\n");
+	S_Warn("[TriggerEngineEffects_CUT] - Unimplemented!\n");
 }
 
 long sub_1BE988()

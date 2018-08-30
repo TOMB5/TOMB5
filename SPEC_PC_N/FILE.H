@@ -1,7 +1,7 @@
 #ifndef FILE_H
 #define FILE_H
 #include <cstdio>
-
+#include "SPECTYPES.H"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -13,6 +13,8 @@ extern "C" {
 	int FileClose(FILE* fp);
 	unsigned long FileLength(FILE* nHandle);
 	void FreeD3DLights();
+	void FreeLevel();
+	NEW_CUTSCENE* FetchCutData(int num);
 
 #ifdef __cplusplus
 }
