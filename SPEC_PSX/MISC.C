@@ -7,7 +7,7 @@
 
 #include <SYS/TYPES.H>
 #include <LIBETC.H>
-
+#ifndef USE_ASM
 void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size)//5E964(<), ? (F)
 {
 	int i;
@@ -196,11 +196,11 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
 	return;
 }
 
+
 void LOAD_DrawEnable(unsigned char isEnabled)//5F2C8, 5FFA8
 {
 	LtLoadingBarEnabled = isEnabled;
 }
-
 void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
 {
 	db.ot = db.order_table[db.current_buffer];
@@ -257,7 +257,7 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 	*(long*) &db.polyptr[0] = db.ot[0] | 0x09000000;
 	db.ot[0] = (unsigned long)&db.polyptr[0];
 	
-	db.polyptr += 0x28;//sizeof(POLY_F3); * 2?
+	db.polyptr += sizeof(POLY_GT3);
 
 	*(long*) &db.polyptr[4] = 0x2C808080;
 	*(long*) &db.polyptr[8] = 0x780100;
@@ -275,11 +275,10 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 	*(long*) &db.polyptr[0] = db.ot[0] | 0x9000000;
 	db.ot[0] = (unsigned long)db.polyptr;
 	
-	//sizeof(POLY_G3);
-	db.polyptr += 0x28;
+	db.polyptr += sizeof(POLY_GT3);
+
 	return;
 }
-
 /*   PSX VRAM   (H)
  *  ----------- 1024px
  *  | TL | TR |  |
@@ -394,3 +393,4 @@ void S_AnimateTextures(long nFrames)
 {
 	S_Warn("[S_AnimateTextures] - Unimplemented!\n");
 }
+#endif

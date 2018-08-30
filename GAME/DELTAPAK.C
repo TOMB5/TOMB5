@@ -1207,6 +1207,8 @@ void joby8_end()//315A0(<), 3195C(<) (F)
 
 void joby8_control()//310E0, 31460 (F)
 {
+	short room_num;
+	
 	switch (GLOBAL_cutseq_frame)
 	{
 	case 147:
@@ -1231,7 +1233,7 @@ void joby8_control()//310E0, 31460 (F)
 		cutseq_meshswapbits[7] = 9216;
 		break;
 	case 2724:
-		short room_num = lara_item->room_number;
+		room_num = lara_item->room_number;
 		GetHeight(GetFloor(lara_item->pos.x_pos + SECTOR(1), lara_item->pos.y_pos, lara_item->pos.z_pos, &room_num), lara_item->pos.x_pos + 1024, lara_item->pos.y_pos, lara_item->pos.z_pos);
 		TestTriggers(trigger_index, 1, 0);
 		break;
@@ -1242,10 +1244,13 @@ void joby8_control()//310E0, 31460 (F)
 		int r = (GetRandomControl() & 0x3F) + 96;
 		int g = GetRandomControl() % r;
 		int b = GetRandomControl() & 0xF;
-
+		int i;
+		struct SPARKS* sptr;
 		struct PHD_VECTOR s;
-
-		for (int i = 0; i < 3; i++)
+		int scale;
+		struct PHD_VECTOR d;
+		
+		for (i = 0; i < 3; i++)
 		{
 			s.x = 0;
 			s.y = 0;
@@ -1253,7 +1258,7 @@ void joby8_control()//310E0, 31460 (F)
 
 			GetActorJointAbsPosition(1, GetRandomControl() % 20, &s);
 
-			struct SPARKS* sptr = &spark[GetFreeSpark()];
+			sptr = &spark[GetFreeSpark()];
 
 			sptr->On = 1;
 
@@ -1261,7 +1266,7 @@ void joby8_control()//310E0, 31460 (F)
 			sptr->dG = g;
 			sptr->dB = b;
 
-			int scale = (GetRandomControl() & 0x3F) - 64;
+			scale = (GetRandomControl() & 0x3F) - 64;
 			sptr->sR = scale;
 			sptr->sB = scale;
 			sptr->sG = scale;
@@ -1290,7 +1295,6 @@ void joby8_control()//310E0, 31460 (F)
 			TriggerFireFlame(s.x, s.y, s.z, -1, 254);
 		}
 
-		struct PHD_VECTOR d;
 		d.x = s.x + (SIN(2 * (GetRandomControl() & 0x7FFF)) >> 3);
 		d.y = s.y;
 		d.z = s.z + (COS(2 * (GetRandomControl() & 0x7FFF)) >> 3);
@@ -1301,16 +1305,21 @@ void joby8_control()//310E0, 31460 (F)
 	else if(GLOBAL_cutseq_frame >= 2681 && GLOBAL_cutseq_frame <= 2724)
 	{
 		struct PHD_VECTOR s;
+		int scale;
+		int r;
+		int g;
+		int b;
+		
 		s.x = 512;
 		s.y = 0;
 		s.z = 0;
 		GetLaraJointPos(&s, LJ_HIPS);
 
-		int scale = (GLOBAL_cutseq_frame - 2681) >> 4;
+		scale = (GLOBAL_cutseq_frame - 2681) >> 4;
 
-		int r = (GetRandomControl() & 0x3F) + 192 >> scale;
-		int g = ((GetRandomControl() & 0x1F) + 128) >> scale;
-		int b = (GetRandomControl() & 0x3F) >> scale;
+		r = (GetRandomControl() & 0x3F) + 192 >> scale;
+		g = ((GetRandomControl() & 0x1F) + 128) >> scale;
+		b = (GetRandomControl() & 0x3F) >> scale;
 
 		if (GetRandomControl() & 1)
 			TriggerDynamic(s.x, s.y, s.z, 24, r, g, b);
@@ -2390,7 +2399,8 @@ void special4_end()//2E7F4(<), 2EB00(<) (F)
 void special4_control()//2E7C4(<), 2EAD0(<) (F)
 {
 	struct PHD_VECTOR pos;
-
+	int r, g, b;
+	
 	pos.x = 85834;
 	pos.z = 72300;
 	pos.y = -3138;
@@ -2403,8 +2413,6 @@ void special4_control()//2E7C4(<), 2EAD0(<) (F)
 
 	if (GLOBAL_cutseq_frame >= 460)
 		FlamingHell(&pos);
-
-	int r, g, b;
 
 	if (GLOBAL_cutseq_frame < 470)
 	{

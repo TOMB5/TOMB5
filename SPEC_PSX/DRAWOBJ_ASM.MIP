@@ -1,8 +1,8 @@
 	opt L.,C+,at+
 
 	section	.ASM
-	xdef phd_PutPolygons, phd_PutPolygons_seethrough, InitSubDiv, MakeMono, InitObjGTE, initialise_light_matrix, ultimate_clipper, InitGT3, InitGT4, SubDiv3, SubDiv4, dirty_envmap_intensity_shit_TRI, dirty_envmap_intensity_shit_QUAD
-	xref tsv_buffer, psxtextinfo, db, UnpackRGB, LightPos
+	xdef phd_PutPolygons, phd_PutPolygons_seethrough, InitSubDiv, MakeMono, InitObjGTE, initialise_light_matrix, ultimate_clipper, InitGT3, InitGT4, SubDiv3, SubDiv4, dirty_envmap_intensity_shit_TRI, dirty_envmap_intensity_shit_QUAD, UnpackRGB
+	xref tsv_buffer, psxtextinfo, db, LightPos
 
 ;FIXME
 Div3Tab equ 0
@@ -263,6 +263,38 @@ SubDiv4:
 	jr      ra
 	lui     gp, 0xC00
 	
+UnpackRGB:
+	lui     s2, 0xF8
+	srl     t5, s4, 7
+	and     t5, s2
+	srl     t6, s4, 10
+	andi    t6, 0xF800
+	srl     fp, s4, 13
+	andi    fp, 0xF8
+	or      fp, t5
+	or      fp, t6
+	srl     t5, t8, 24
+	ori     t5, 0x40
+	sll     t5, 24
+	or      fp, t5
+	srl     t5, s5, 7
+	and     t5, s2
+	srl     t6, s5, 10
+	andi    t6, 0xF800
+	srl     gp, s5, 13
+	andi    gp, 0xF8
+	or      gp, t5
+	or      gp, t6
+	srl     t5, s6, 7
+	and     t5, s2
+	srl     t6, s6, 10
+	andi    t6, 0xF800
+	srl     s3, s6, 13
+	andi    s3, 0xF8
+	or      s3, t5
+	jr      ra
+	or      s3, t6
+		
 dirty_envmap_intensity_shit_TRI:
 	andi    t2, 0x1F
 	srl     at, t6, 3

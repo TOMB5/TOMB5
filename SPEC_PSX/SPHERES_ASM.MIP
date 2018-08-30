@@ -1,8 +1,9 @@
-	opt L.,C+,at+
+	opt at-,w-,c+,m-
 
-	section	.ASM
-	xdef GetJointAbsPosition
-	xref bones, Matrix, GetFrames, mPushUnitMatrix, mSetTrans, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, mPopMatrix, mPushMatrix, mRotY, mCopyMatrix, iTranslateXYZ, InterpolateMatrix, iRotZ, mRotZ, iRotX, mRotX, iRotY, mRotY, InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, objects, iMatrixStack
+	SECTION	.ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF GetJointAbsPosition
+	XREF bones, Matrix, GetFrames, mPushUnitMatrix, mSetTrans, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, mPopMatrix, mPushMatrix, mRotY, mCopyMatrix, iTranslateXYZ, InterpolateMatrix, iRotZ, mRotZ, iRotX, mRotX, iRotY, mRotY, InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, objects, iMatrixStack
 	
 GetJointAbsPosition:
 	addiu   sp, -0x50
@@ -22,7 +23,7 @@ GetJointAbsPosition:
 	la      s1, objects
 	sll     v1, 6
 	addu    s1, v1
-	lw      v0, Matrix
+	lw      v0, Matrix-GP_ADDR(gp)
 	addiu   a2, sp, 0x50-0x30
 	jal     GetFrames
 	sw      v0, 0x50-0x24(sp)
@@ -38,7 +39,7 @@ GetJointAbsPosition:
 	lh      a2, 0x50(s5)
 	lw      s2, 0x3C(s5)
 	lw      v0, 4(s1)
-	lw      v1, bones
+	lw      v1, bones-GP_ADDR(gp)
 	sll     v0, 2
 	bnez    s0, loc_8E9EC
 	addu    s3, v1, v0
@@ -119,14 +120,14 @@ GetJointAbsPosition:
 	addiu   ra, 0x170
 
 	loc_8E9EC:
-	la      a2, iMatrixStack+0x200
+	li      a2, 0xA5278
 	lw      a1, 0x50-0x30(sp)
 	jal     InitInterpolation
 	move    a0, s0
 	lw      v1, 0x50-0x38(sp)
 	lw      t0, 0x50-0x34(sp)
 	addiu   v0, v1, 0x12
-	sw      v0, 0x50+0x2C(sp)
+	sw      v0, 0x50-0x2C(sp)
 	addiu   v0, t0, 0x12
 	sw      v0, 0x50-0x28(sp)
 	lh      a0, 0xC(v1)
@@ -135,10 +136,10 @@ GetJointAbsPosition:
 	lh      a3, 0xC(t0)
 	lh      v0, 0xE(t0)
 	lh      v1, 0x10(t0)
-	sw      v0, 0x50+0x40(sp)
+	sw      v0, 0x50-0x40(sp)
 	jal     iTranslateXYZ2
 	sw      v1, 0x50-0x3C(sp)
-	addiu   a0, sp, 0x50+0x2C
+	addiu   a0, sp, 0x50-0x2C
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	addiu   a0, sp, 0x50-0x28
@@ -235,7 +236,7 @@ GetJointAbsPosition:
 	sw      v0, 4(s4)
 	sw      v1, 8(s4)
 	jal     mCopyMatrix
-	sw      a0, Matrix
+	sw      a0, Matrix-GP_ADDR(gp)
 	lw      ra, 0x50-0x4(sp)
 	lw      s6, 0x50-0x8(sp)
 	lw      s5, 0x50-0xC(sp)
