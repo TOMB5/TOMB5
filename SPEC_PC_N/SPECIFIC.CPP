@@ -1,6 +1,6 @@
 #define _X86_
 #define _USE_32BIT_TIME_T
-#include <time.h>
+
 #include <cstddef>
 #include <cstdarg>
 #include <cstdio>
@@ -23,7 +23,17 @@
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "INPUT.H"
+#include "TOMB4FX.H"
+#include "WINMAIN.H"
+#include "CAMERA.H"
+#include "SPOTCAM.H"
+#include "HEALTH.H"
+#include "DELTAPAK.H"
+#include "NEWINV2.H"
+#include <time.h>
+#include <zlib.h>
 
+#pragma comment(lib, "zlibstatic.lib")
 
 bool loadBarShown;
 int loadBarMax;
@@ -176,11 +186,13 @@ long		S_DumpScreen()
 	GnFrameCounter++;
 
 	
-	DDBLTFX fx;
+	/*DDBLTFX fx;
 	DXInit(fx);
 	//fx.dwFillColor = GENRGB(0, 0, (5 * GnFrameCounter) % 256);
 	fx.dwFillColor = (64 + abs((int)((2 * GnFrameCounter) % 192 - 96))) << (8 * (((GnFrameCounter / 6) % 27) / 9));
-	App.lpBackBuffer->Blt(nullptr, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &fx);
+	App.lpBackBuffer->Blt(nullptr, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &fx);*/
+
+	DrawDebugPost();
 	
 	ShowDebugInfo();
 
@@ -566,10 +578,32 @@ bool S_DrawLoadBar()
 	return false;
 }
 
-bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)
+bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)// (F)
 {
-	Unimpl();
-	return false;
+	Log(LT_Enter, "Decompress");
+
+	z_stream strm;
+	Zero(strm);
+	strm.avail_in = compSize;
+	strm.avail_out = uncompSize;
+	strm.next_out = (BYTE *)buf;
+	strm.next_in = (BYTE *)compressed;
+
+	inflateInit(&strm);
+	inflate(&strm, Z_FINISH);
+
+	if (strm.total_out == uncompSize)
+	{
+		inflateEnd(&strm);
+
+		Log(LT_Info, "Decompression OK");
+		return true;
+	}
+	else
+	{
+		Log(LT_Error, "Error Decompressing Data");
+		return false;
+	}
 }
 
 unsigned short nAnimUVRanges; // offset 0xA4660
@@ -606,6 +640,82 @@ void S_AnimateTextures(long nFrames)
 
 void S_OutputPolyList()
 {
+	//RestoreFPCW();
+	WinFrameRate();
+
+	// todo
+
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+
+	// todo
+
+	if (App.lpZBuffer != nullptr)
+		DrawBuckets();
+
+	if (gfCurrentLevel == LVL5_TITLE)
+	{
+		Fade();
+
+		if (App.lpZBuffer != nullptr)
+			DrawSortList();
+	}
+
+	SortPolyList(surfacenumbf, sort3d_bufferbf);
+	DrawSortList();
+
+	if (App.lpZBuffer != nullptr)
+	{
+		D3DRECT r;
+		r.x1 = App.GnClientRect.left;
+		r.y1 = App.GnClientRect.top;
+		r.x2 = App.GnClientRect.left + App.GnClientRect.right;
+		r.y2 = App.GnClientRect.top + App.GnClientRect.bottom;
+		DX_TRY(App.lpViewPort->Clear2(1, &r, D3DCLEAR_ZBUFFER, RGBA_MAKE(0, 0, 0, 0), 1.0f, 0));
+	}
+
+	if ((BinocularRange || SCOverlay || SniperOverlay) && !in_loading_screen) // TODO
+	{
+		InitialiseSortList();
+		DrawBinoculars();
+		DrawSortList();
+	}
+
+	if (pickups[CurrentPickup].life != -1 && !in_loading_screen && !GLOBAL_playing_cutseq)
+	{
+		// TODO
+		InitialiseSortList();
+		S_DrawPickup(pickups[CurrentPickup].object_number);
+		SortPolyList(surfacenumbf, sort3d_bufferbf);
+		DrawSortList();
+	}
+
+	InitialiseSortList();
+
+	if (FadeScreenHeight != 0)
+	{
+		int height = phd_winymax / 256.0 * FadeScreenHeight;
+		//DrawPsxTile() TODO
+	}
+
+	if (gfCurrentLevel != LVL5_TITLE)
+	{
+		Fade();
+
+		if (FlashFader != 0)
+		{
+			DrawFlash();
+
+			if (FlashFader != 0)
+				FlashFader -= 2;
+		}
+
+		DrawSortList();
+	}
+
+	// TODO TODO
+
 	Unimpl();
 }
 
@@ -685,6 +795,131 @@ int		S_StartSyncedAudio(int num)
 {
 		Unimpl();
 		return 0;
+}
+
+LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *buf, void(*a5)(uchar *, uchar *, uchar *, uchar *), int bpp)
+{
+	DDSURFACEDESC2 desc;
+	DXInit(desc);
+
+	desc.dwWidth = width;
+	desc.dwHeight = height;
+
+	if (width < 32 || height < 32)
+		mipmaps = 0;
+
+	desc.ddpfPixelFormat = CUR_TEX.ddpf;
+	desc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+	desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+
+	if (App.Flags & WA_BACK_BUFFER)
+		desc.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
+	else
+		desc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
+
+	if (mipmaps)
+	{
+		desc.dwFlags |= DDSD_MIPMAPCOUNT;
+		desc.dwMipMapCount = mipmaps + 1;
+		desc.ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;
+	}
+
+	LPDIRECTDRAWSURFACE4 surf;
+
+	DXCreateSurface(App.lpDD, &desc, &surf);
+
+	DX_TRY(surf->Lock(nullptr, &desc, DDLOCK_NOSYSLOCK, nullptr));
+
+	if (desc.dwHeight != 0 && desc.dwWidth != 0)
+	{
+		if (bpp == 0)
+		{
+			auto sptr = (BYTE*)desc.lpSurface;
+
+			for (int y = 0; y < desc.dwHeight; y++)
+			{
+				for (int x = 0; x < desc.dwWidth; x++)
+				{
+					auto ptr = (BYTE*)buf;
+
+					auto r = ptr[0];
+					auto g = ptr[1];
+					auto b = ptr[2];
+					auto a = ptr[3];
+
+					if (a5)
+					{
+						a5(&r, &g, &b, &a);
+					}
+
+					DWORD color =
+						r >> (8 - CUR_TEX.rbpp) << CUR_TEX.rshift |
+						g >> (8 - CUR_TEX.gbpp) << CUR_TEX.gshift |
+						b >> (8 - CUR_TEX.bbpp) << CUR_TEX.bshift |
+						a >> (8 - CUR_TEX.abpp) << CUR_TEX.ashift;
+
+					if (CUR_TEX.bpp > 0)
+					{
+						for(int i = 0; i < (CUR_TEX.bpp + 7) / 8; i++)
+						{
+							*sptr++ = color;
+							color >>= 8;
+						}
+					}
+
+					buf += 256 / width;
+				}
+			}
+		}
+		else
+		{
+			if (bpp == 2)
+			{
+				auto ptr = (WORD*)buf;
+				auto sptr = (WORD*)desc.lpSurface;
+
+				for (int y = 0; y < desc.dwHeight; y++)
+				{
+					auto ptr2 = ptr;
+
+					for (int x = 0; x < desc.dwWidth; x++)
+					{
+						*sptr++ = *ptr2;
+						ptr2 += 256 / width;
+					}
+
+					ptr += 512 * 256 / height;
+				}
+			}
+			else if (bpp == 1)
+			{
+				auto ptr = (DWORD*)buf;
+				auto sptr = (DWORD*)desc.lpSurface;
+
+				for (int y = 0; y < desc.dwHeight; y++)
+				{
+					auto ptr2 = ptr;
+
+					for (int x = 0; x < desc.dwWidth; x++)
+					{
+						*sptr++ = *ptr2;
+						ptr2 += 256 / width;
+					}
+
+					ptr += 1024 * 256 / height;
+				}
+			}
+		}
+	}
+
+	DX_TRY(surf->Unlock(nullptr));
+
+	if (mipmaps)
+	{
+		Unimpl();
+	}
+
+	return surf;
 }
 
 #ifdef __cplusplus
