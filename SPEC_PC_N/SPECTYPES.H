@@ -219,6 +219,18 @@ struct PCLIGHT
 	int32_t magnsq;
 };
 
+struct ITEM_LIGHT
+{
+	int red;
+	int green;
+	int blue;
+	struct CVECTOR room_ambient;
+	int d_red;
+	int d_green;
+	int d_blue;
+	int room_num;
+};
+
 struct ITEM_INFO {
 	long floor; // size=0, offset=0
 	unsigned long touch_bits; // size=0, offset=4
@@ -247,16 +259,15 @@ struct ITEM_INFO {
 	void* data; // size=0, offset=60
 	struct PHD_3DPOS pos; // size=20, offset=64
 	struct ITEM_LIGHT il; // size=48, offset=84
-
-	
-	char pad1[5444];
+	struct PCLIGHT lights_1[21];
+	struct PCLIGHT lights_2[21];
 	DWORD num_lights_1;
 	DWORD num_lights_2;
 	DWORD light_room_num;
-	char pad11[4];
+	DWORD unk_thing;
 	struct PHD_VECTOR ambient_light_pos;
-	struct PCLIGHT* ptr1;
-	struct PCLIGHT* ptr2;
+	struct PCLIGHT* ptr_lights_1;
+	struct PCLIGHT* ptr_lights_2;
 	unsigned long active : 1; // offset=132.0 OFF=5610
 	unsigned long status : 2; // offset=132.1
 	unsigned long gravity_status : 1; // offset=132.3
@@ -448,7 +459,7 @@ struct DISPLAYMODE					// Display Mode Info
 	unsigned long	bpp;			// Bits Per Pixel
 	unsigned int	mipMapCount;
 	bool			bPalette;		// Is It Palettised
-	DDSURFACEDESC	ddsd;			// Surface Description
+	DDSURFACEDESC2	ddsd;			// Surface Description
 	unsigned char	rbpp;			// Red Bits Per Pixel
 	unsigned char	gbpp;			// Green Bits Per Pixel
 	unsigned char	bbpp;			// Blue Bits Per Pixel
@@ -571,7 +582,7 @@ struct WINAPP
 	DWORD sceneDone;
 	HANDLE hObject; // D9AC05
 
-	DWORD dword_D9AC09;
+	float fps;
 	DWORD dword_D9AC0D;
 	DWORD dword_D9AC11;
 
@@ -595,11 +606,16 @@ struct WINAPP
 	LPDIRECTDRAWPALETTE		Palette;				// Palette For SW Renderer
 	char pad111[272];
 	D3DMATRIX ViewMatrix;
-	char pad112[16];
+	char pad112[8];
+	DWORD DrawPrimitiveCnt;
+	char pad11201[4];
 	uint16_t* AnimTextureRanges;
 	char pad1121[4];
 	D3DMATRIX WorldMatrix;
-	char pad113[600];
+	char pad113[8];
+	DWORD fps_counter = 0;
+	float fps_static = 0.0f;
+	char pad114[584];
 
 
 	bool					bRender;			// Ok To Render
@@ -610,7 +626,7 @@ struct WINAPP
 	bool					tJoystickEnabled;
 	int						Joystick;
 
-	float					fps;
+	float					fps_weird;
 };
 
 
@@ -621,6 +637,31 @@ typedef struct
 	unsigned char random;
 	unsigned char abs;
 } WATERTAB;
+
+struct CutsceneHeader
+{
+	uint32_t offset;
+	uint32_t size;
+};
+
+struct Cutseq
+{
+	struct CutsceneHeader cutscenes[45];
+	uint8_t padding[1688];
+};
+
+struct SNOWFLAKE
+{
+	long x;
+	long y;
+	long z;
+	int8_t xv;
+	uint8_t yv; // also life
+	int8_t zv;
+	uint8_t life;
+	uint16_t underwater;
+	short room_number;
+};
 
 
 

@@ -4,14 +4,14 @@
 #include "GLOBAL.H"
 #include "resource.h"
 #include "GAMEFLOW.H"
+#include "INPUT.H"
 
 Settings appsettings;
 HKEY reg_key;
 DWORD reg_disp;
 BOOL settings_present;
 LPSTR reg_class;
-int16_t default_keys[18] = { 200, 208, 203, 205, 52, 53, 54, 184, 157, 57, 51, 82, 207, 1, 211, 209, 25, 28 };
-int16_t opt_Keys[18] = { 200, 208, 203, 205, 52, 53, 54, 184, 157, 57, 51, 82, 207, 1, 211, 209, 25, 28 };
+
 int16_t opt_JDck = 5;
 int16_t opt_JDsh = 3;
 int16_t opt_JWlk = 4;
@@ -26,17 +26,17 @@ uint8_t opt_MusicVolume = 40;
 uint8_t opt_SFXVolume = 80;
 uint8_t opt_ControlMethod;
 uint8_t opt_SoundQuality = 1;
-int32_t key_conflicts[18];
+
 
 const char* reg_path = "Software\\Core Design\\Tomb Raider Chronicles";
 
-void CLNoFMV(char* arg)
+void CLNoFMV(char* arg)// (F)
 {
 	Log(LT_Enter, "CLNoFMV");
 	appsettings.NoFMV = arg == nullptr;
 }
 
-void CLSetup(char* arg)
+void CLSetup(char* arg)// (F)
 {
 	Log(LT_Enter, "CLSetup");
 	appsettings.OpenSetup = arg == nullptr;
@@ -44,7 +44,7 @@ void CLSetup(char* arg)
 
 BYTE oemToIso[10] = { 0x82, 0xE9, 0x8A, 0xE8, 0x88, 0xEA, 0x94, 0xF6, 0x85, 0xE0 };
 
-char* LoadToISO(const char* instr, char* outbuf)
+char* LoadToISO(const char* instr, char* outbuf)// (F)
 {
 	char* bufptr = outbuf;
 
@@ -87,7 +87,7 @@ void LoadSoundAdapters(HWND hDlg, HWND hWnd)
 	Unimpl();
 }
 
-INT_PTR CALLBACK DialogFunc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK DialogFunc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)// (F)
 {
 	switch(uMsg)
 	{
@@ -131,7 +131,7 @@ INT_PTR CALLBACK DialogFunc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 1;
 
 	case WM_COMMAND:
-		return 0;
+		return 0;// TODO TODO TODO
 		if (lParam)
 			DeleteObject((HGDIOBJ)lParam);
 
@@ -143,7 +143,7 @@ INT_PTR CALLBACK DialogFunc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-bool InitSetupDialog()
+bool InitSetupDialog()// (F)
 {
 	ShowCursor(true);
 	INT_PTR res = DialogBoxParamA(App.hInstance, (LPCSTR)IDD_SETUP, nullptr, DialogFunc, 0);
@@ -158,12 +158,12 @@ bool InitSetupDialog()
 	return res != 0;
 }
 
-BOOL CreateRegKeyRW(LPCSTR lpSubKey)
+BOOL CreateRegKeyRW(LPCSTR lpSubKey)// (F)
 {
 	return RegCreateKeyExA(HKEY_CURRENT_USER, lpSubKey, 0, reg_class, 0, KEY_ALL_ACCESS, nullptr, &reg_key, &reg_disp) == ERROR_SUCCESS;
 }
 
-BOOL CreateKey(char* sub)
+BOOL CreateKey(char* sub)// (F)
 {
 	if (sub == nullptr)
 		return CreateRegKeyRW(reg_path);
@@ -173,24 +173,24 @@ BOOL CreateKey(char* sub)
 	return CreateRegKeyRW(subkey);
 }
 
-void RegWrite(LPCSTR name, DWORD data)
+void RegWrite(LPCSTR name, DWORD data)// (F)
 {
 	RegSetValueExA(reg_key, name, 0, 4, (BYTE*)&data, sizeof(DWORD));
 }
 
-void RegWriteMulti(LPCSTR name, ...)
+void RegWriteMulti(LPCSTR name, ...)// (F)
 {
 	va_list data;
 	va_start(data, name);
 	RegSetValueExA(reg_key, name, 0, 4, (BYTE*)data, 4);
 }
 
-bool RegReadBool(LPCSTR name, void* out, BYTE def)
+bool RegReadBool(LPCSTR name, void* out, BYTE def)// (F)
 {
 	DWORD cb = 4;
 	DWORD type;
 	DWORD buf;
-	if (RegQueryValueExA(reg_key, name, 0, &type, (BYTE*)&buf, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
+	if (RegQueryValueExA(reg_key, name, nullptr, &type, (BYTE*)&buf, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
 	{
 		*(BYTE*)out = buf != 0;
 		return true;
@@ -203,11 +203,11 @@ bool RegReadBool(LPCSTR name, void* out, BYTE def)
 	}
 }
 
-bool RegReadInt(LPCSTR name, void* out, int def)
+bool RegReadInt(LPCSTR name, void* out, int def)// (F)
 {
 	DWORD cb = 4;
 	DWORD type;
-	if (RegQueryValueExA(reg_key, name, 0, &type, (BYTE*)out, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
+	if (RegQueryValueExA(reg_key, name, nullptr, &type, (BYTE*)out, &cb) == ERROR_SUCCESS && type == 4 && cb == 4)
 	{
 		return true;
 	}
@@ -224,24 +224,24 @@ void SaveSettings()
 	Unimpl();
 }
 
-void CheckKeyConflicts()
+void CheckKeyConflicts()// (F)
 {
 	for(int i = 0; i < 18; i++)
 	{
-		key_conflicts[i] = false;
+		conflict[i] = false;
 
 		for(int j = 0; j < 18; j++)
 		{
-			if (opt_Keys[i] == default_keys[i])
+			if (layout[1][i] == layout[0][i])
 			{
-				key_conflicts[i] = true;
+				conflict[i] = true;
 				break;
 			}
 		}
 	}
 }
 
-bool LoadSettings()
+bool LoadSettings()// (F)
 {
 	if (!CreateKey("System"))
 		return false;
@@ -294,8 +294,8 @@ bool LoadSettings()
 		int tmp;
 		char buf[6];
 		sprintf(buf, "Key%d", i);
-		RegReadInt(buf, &tmp, default_keys[i]);
-		opt_Keys[i] = tmp;
+		RegReadInt(buf, &tmp, layout[0][i]);
+		layout[1][i] = tmp;
 	}
 
 	RegReadInt("JDck", &opt_JDck, 5);

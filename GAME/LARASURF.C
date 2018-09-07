@@ -82,11 +82,11 @@ void lara_as_surftread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DBA0, 4
 		item->pos.y_rot += ANGLE(4);
 	}
 
-	if(input & IN_UP)
+	if(input & IN_FORWARD)
 	{
 		item->goal_anim_state = STATE_LARA_ONWATER_FORWARD;
 	}
-	else if(input & IN_DOWN)
+	else if(input & IN_BACK)
 	{
 		item->goal_anim_state = STATE_LARA_ONWATER_BACK;
 	}
@@ -191,7 +191,7 @@ void lara_as_surfback(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D9A8(<),
 		item->pos.y_rot += ANGLE(2);
 	}
 
-	if (!(input & IN_DOWN))
+	if (!(input & IN_BACK))
 	{
 		item->goal_anim_state = STATE_LARA_ONWATER_STOP;
 	}
@@ -221,7 +221,7 @@ void lara_as_surfswim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D8E4(<),
 		item->pos.y_rot += ANGLE(4);
 	}
 
-	if (!(input & IN_UP))
+	if (!(input & IN_FORWARD))
 		item->goal_anim_state = STATE_LARA_ONWATER_STOP;
 	if (input & IN_JUMP)
 		item->goal_anim_state = STATE_LARA_ONWATER_STOP;

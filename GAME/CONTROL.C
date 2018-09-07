@@ -483,7 +483,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 			|| 
 			((lara_item->current_anim_state != STATE_LARA_STOP || lara_item->anim_number != ANIMATION_LARA_STAY_IDLE)
 				&& (!lara.IsDucked
-					|| input & IN_CROUCH
+					|| input & IN_DUCK
 					|| lara_item->anim_number != ANIMATION_LARA_CROUCH_IDLE
 					|| lara_item->goal_anim_state != STATE_LARA_CROUCH_IDLE)))
 		{
@@ -1530,7 +1530,7 @@ void InitCutPlayed()//20D90, 20F9C (F)
 	_CutSceneTriggered2 = 0;
 }
 
-void ResetGuards()//20B48(<), ? (F)
+void ResetGuards()//20B48(<), ?
 {
 	short item_num; // $s1
 	short room_num; // $t1
@@ -1560,7 +1560,7 @@ void ResetGuards()//20B48(<), ? (F)
 	//a0 = item+_num;
 	if (objects[target_item->object_number].intelligent)
 	{
-		target_item->status = 3;
+		target_item->status = ITEM_INVISIBLE;
 
 		RemoveActiveItem(item_num);
 		DisableBaddieAI(item_num);
@@ -1809,18 +1809,16 @@ int GetTargetOnLOS(struct GAME_VECTOR* src, struct GAME_VECTOR* dest, int DrawTa
 	return 0;
 }
 
-void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* target)
+void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* target)// (F)
 {
 	short angles[2];
 	struct PHD_3DPOS pos;
 
-	target->x = (target->x & -1023) | 0x200;
-	target->z = (target->z & -1023) | 0x200;
+	target->x = (target->x & ~0x3FE) | 0x200;
+	target->z = (target->z & ~0x3FE) | 0x200;
 
-#ifndef USE_ASM
-#if PSX_VERSION || PSXPC_VERSION///@TEMP
-	phd_GetVectorAngles(target->x - src->x, target->y - src->y, target->z - src->z, &angles[0]);
-#endif
+#if (PSXENGINE && !defined(USE_ASM)) || PC_VERSION
+	phd_GetVectorAngles(target->x - src->x, target->y - src->y, target->z - src->z, angles);
 #endif
 	pos.z_rot = 0;
 	pos.x_pos = src->x;

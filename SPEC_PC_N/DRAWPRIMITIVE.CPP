@@ -18,6 +18,8 @@
 #include "EFFECT2.H"
 #include "DIRECTX.H"
 #include "OBJLIGHT.H"
+#include "TEXTURE.H"
+#include "DEBUG.H"
 
 HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
@@ -31,8 +33,19 @@ void(*AddTri1)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int 
 void(*AddTri2)(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7);
 void(*AddLine)(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color);
 
-int dword_E4B100;
+DXTEXTURE DXTextureList[MAX_D3D_TEXTURES];
+
+uint32_t global_ambient;
+
+float fog_start = SECTOR(12);
+float fog_end = SECTOR(20);
+
 int num_fog_bulbs;
+
+int num_snow_flakes;
+int num_rain_drops;
+int num_snow_splashes;
+int num_rain_splashes;
 
 uint32_t GnFrameCounter;
 
@@ -51,6 +64,9 @@ short* info3dptrbf;
 int surfacenumbf;
 
 D3DMATRIX d3d_camera;
+
+SNOWFLAKE raindrops[2048];
+SNOWFLAKE snowflakes[2048];
 
 
 void SubdivideEdge(D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, short *a4, float u1, float v1, float u2, float v2, float *u, float *v)
@@ -92,24 +108,38 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 {
 	Unimpl();
 }
+enum dinfo_type
+{
+	DI_LINE = 2,
+	DI_TRI = 3,
+	DI_QUAD = 4,
+};
 struct dinfo_line
 {
 	float z;
 	short color;
 	short unk1;
-	short unk2;
+	short type;
 	short unk3;
 	D3DTLVERTEX v1;
 	int unk4;
 	int unk5;
 	D3DTLVERTEX v2;
 };
-void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)
+struct dinfo_tri
+{
+	float z;
+	short texattr;
+	short unk1;
+	short type;
+	short unk3;
+};
+void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)// (F)
 {
 	auto ptr = (dinfo_line*)info3dptrbf;
 	ptr->unk1 = 0;
 	ptr->color = color;
-	ptr->unk2 = 2;
+	ptr->type = 2;
 	info3dptrbf = (short*)(ptr + 1);
 
 	*sort3dptrbf++ = (int)ptr;
@@ -132,7 +162,7 @@ void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)
 	ptr->v2.specular = v2->specular;
 }
 
-void do_quickysorty(int left, int right, float buffer[][10])
+void do_quickysorty(int left, int right, float buffer[][10])// (F)
 {
 	int i = left;
 	int j = right;
@@ -164,7 +194,7 @@ void do_quickysorty(int left, int right, float buffer[][10])
 		do_quickysorty(i, right, buffer);
 }
 
-void SortPolyList(int number, float buffer[][10])
+void SortPolyList(int number, float buffer[][10])// (F)
 {
 	if (number != 0)
 	{
@@ -177,7 +207,7 @@ void SortPolyList(int number, float buffer[][10])
 	}
 }
 
-HRESULT HWBeginScene()
+HRESULT HWBeginScene()// (F)
 {
 	if (App.isInScene)
 	{
@@ -193,19 +223,19 @@ HRESULT HWBeginScene()
 	return App.lpD3DDevice->BeginScene();
 }
 
-HRESULT HWEndScene()
+HRESULT HWEndScene()// (F)
 {
 	App.isInScene = false;
 
 	return App.lpD3DDevice->EndScene();
 }
 
-bool Visible(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3)
+bool Visible(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3)// (F)
 {
 	return (v1->sy - v2->sy) * (v3->sx - v2->sx) - (v3->sy - v2->sy) * (v1->sx - v2->sx) < 0.0;
 }
 
-void InitialiseFunctionTable()
+void InitialiseFunctionTable()// (F)
 {
 	BeginScene = HWBeginScene;
 	EndScene = HWEndScene;
@@ -230,14 +260,14 @@ void InitialiseFunctionTable()
 	AddLine = AddLineClippedSorted;
 }
 
-void InitialiseSortList()
+void InitialiseSortList()// (F)
 {
 	info3dptrbf = info3d_bufferbf;
 	sort3dptrbf = (int*)sort3d_bufferbf;
 	surfacenumbf = 0;
 }
 
-void GPU_BeginScene()
+void GPU_BeginScene()// (F)
 {
 	D3DRECT rect;
 	rect.x1 = App.GnClientRect.left;
@@ -251,9 +281,9 @@ void GPU_BeginScene()
 	InitialiseSortList();
 }
 
-void SetGlobalAmbient(uint32_t color)
+void SetGlobalAmbient(uint32_t color)// (F)
 {
-	Unimpl();
+	global_ambient = color;
 }
 
 void DrawEffect(short fx_num)
@@ -307,7 +337,7 @@ void DoSnow()
 	Unimpl();
 }
 
-void DoWeather()
+void DoWeather()// (F)
 {
 	if (WeatherType == WEATHER_RAIN)
 		DoRain();
@@ -335,12 +365,12 @@ void GetRoomBounds()
 	Unimpl();
 }
 
-void InitialiseFogBulbs()
+void InitialiseFogBulbs()// (F)
 {
 	
 }
 
-void CreateFXBulbs()
+void CreateFXBulbs()// (F)
 {
 	
 }
@@ -370,8 +400,7 @@ void DrawLara__6(ITEM_INFO* item, int a2)
 	Unimpl();
 }
 
-
-void DrawLara(ITEM_INFO* item, int a2)
+void DrawLara(ITEM_INFO* item, int a2)// (F)
 {
 	if (lara.skelebob)
 	{
@@ -397,7 +426,7 @@ void DrawLara(ITEM_INFO* item, int a2)
 	}
 }
 
-void FadeLightList(PCLIGHT* lights, int num)
+void FadeLightList(PCLIGHT* lights, int num)// (F)
 {
 	for(int i = 0; i < num; i++)
 	{
@@ -408,29 +437,29 @@ void FadeLightList(PCLIGHT* lights, int num)
 
 		if (ptr->LightType == LT_SHADOW)
 		{
-			ptr[-1].ShadowIntensity += ptr[-1].dy2;
+			ptr->ShadowIntensity += ptr->dy2;
 		}
 		else
 		{
-			ptr[-1].r = ptr[-1].r3 + ptr[-1].r;
-			ptr[-1].g = ptr[-1].g3 + ptr[-1].g;
-			ptr[-1].b = ptr[-1].b3 + ptr[-1].b;
+			ptr->r = ptr->r3 + ptr->r;
+			ptr->g = ptr->g3 + ptr->g;
+			ptr->b = ptr->b3 + ptr->b;
 		}
 
 		ptr->UnknownInt--;
 
 		if (ptr->LightType == LT_SHADOW)
 		{
-			if (ptr[-1].ShadowIntensity <= 0)
+			if (ptr->ShadowIntensity <= 0)
 			{
-				ptr[-1].UnknownByte = 0;
+				ptr->UnknownByte = 0;
 			}
 		}
 		else
 		{
-			if (ptr[-1].r <= 0.0 && ptr[-1].g <= 0.0 && ptr[-1].b <= 0.0)
+			if (ptr->r <= 0.0 && ptr->g <= 0.0 && ptr->b <= 0.0)
 			{
-				ptr[-1].UnknownByte = 0;
+				ptr->UnknownByte = 0;
 			}
 		}
 	}
@@ -449,7 +478,7 @@ void RestoreLaraMeshswaps()
 float lara_left_mat[12];
 float lara_right_mat[12];
 
-void aUpdate()
+void Update()
 {
 	Unimpl();
 }
@@ -559,18 +588,12 @@ void DrawSpiders()
 	Unimpl();
 }
 
-void aSetViewMatrix()
-{
-	//DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, 0));
-	Unimpl();
-}
-
 void InsertRoom(room_info* r)
 {
 	Unimpl();
 }
 
-void SaveD3DCameraMatrix()
+void SaveD3DCameraMatrix()// (F)
 {
 	D3DIdentityMatrix(&d3d_camera);
 	d3d_camera._11 = phd_dxptr[0];
@@ -592,9 +615,9 @@ void ResetFogBulbList()
 	Unimpl();
 }
 
-void RoomTestThing()
+void RoomTestThing()// (F)
 {
-	Unimpl();
+	
 }
 
 void BuildFogBulbList()
@@ -657,7 +680,7 @@ void DrawRooms(short current_room)
 	{
 		if (!(lara_item->flags & IFLAG_INVISIBLE))
 		{
-			dword_E4B100 = 4;	
+			e4b100 = 4;	
 
 			if (lara_item->mesh_bits != 0 && !SCNoDrawLara)
 			{
@@ -697,7 +720,7 @@ void DrawRooms(short current_room)
 
 	InitDynamicLighting();
 
-	dword_E4B100 = 0;
+	e4b100 = 0;
 
 	for (int i = 0; i < 32; i++)
 	{
@@ -734,7 +757,7 @@ void DrawRooms(short current_room)
 		phd_top = cr->top;
 		phd_bottom = cr->bottom;
 
-		aSetViewMatrix();
+		SetViewMatrix();
 		InsertRoom(cr);
 
 		phd_PopMatrix();
@@ -790,7 +813,7 @@ void DrawRooms(short current_room)
 		PrintObjects(draw_rooms[i]);
 	}
 
-	aUpdate();
+	Update();
 }
 
 void phd_PutPolygons(short* mesh)
@@ -798,7 +821,7 @@ void phd_PutPolygons(short* mesh)
 	Unimpl();
 }
 
-int32_t DrawPhaseGame()
+int32_t DrawPhaseGame()// (F)
 {
 	CalcLaraMatrices(0);
 	phd_PushUnitMatrix();
@@ -812,8 +835,213 @@ int32_t DrawPhaseGame()
 	SetLaraUnderwaterNodes();
 	DrawRooms(camera.pos.room_number);
 	DrawGameInfo(TRUE);
+	DrawDebugPre();
 	S_OutputPolyList();
 	camera.number_frames = S_DumpScreen();
 	S_AnimateTextures(camera.number_frames);
 	return camera.number_frames;
+}
+
+void DrawBinoculars()
+{
+	Unimpl();
+}
+
+void DrawLoadingScreen()
+{
+	Unimpl();
+}
+
+void DrawFlash()
+{
+	Unimpl();
+}
+
+void ReleaseScreen()
+{
+	Unimpl();
+}
+
+void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// (F)
+{
+	switch (type)
+	{
+	case 0:
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+
+		break;
+	case 1:
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		break;
+	case 2:
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		break;
+	case 3:
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+
+		break;
+	case 4:
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+		}
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+		}
+
+		break;
+	case 5:
+		break;
+	case 6:
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		break;
+	case 7:
+		if (App.lpZBuffer)
+		{
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+
+		break;
+	}
+
+	App.DrawPrimitiveCnt++;
+}
+
+void DrawSortList()
+{
+	if (surfacenumbf == 0)
+		return;
+
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+
+	if (App.lpZBuffer)
+	{
+		S_Warn("No DrawSortList for ZBuffer");
+		if (surfacenumbf < 0)
+		{
+			// TODO
+		}
+		else
+		{
+			for(int i = 0; i < surfacenumbf; i++)
+			{
+				
+			}
+		}
+	}
+	//else // LINE 421
+	{
+		int* ptr = (int*)&sort3d_bufferbf[0][0];
+		for(int i = 0; i < surfacenumbf; i++, ptr++)
+		{
+			short* info = (short*)(*ptr);
+			if (info[5] == 4)
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, FALSE);
+
+			HWR_DrawRoutine(&info[6], info[4], info[3], info[2]);
+
+			if (info[5] == 4)
+				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, TRUE);
+		}
+	}
+
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+
+	InitBuckets();
 }

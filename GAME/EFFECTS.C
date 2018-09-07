@@ -373,9 +373,16 @@ void SoundFlipEffect(struct ITEM_INFO* item)//39500(<), 39A00(<) (F)
 	flipeffect = -1;
 }
 
-void floor_shake_effect(struct ITEM_INFO* item)//39410, 39910
+void floor_shake_effect(struct ITEM_INFO* item)//39410, 39910 (F)
 {
-	S_Warn("[floor_shake_effect] - Unimplemented!\n");
+	int x = abs(item->pos.x_pos - camera.pos.x);
+	int y = abs(item->pos.y_pos - camera.pos.y);     
+	int z = abs(item->pos.z_pos - camera.pos.z);
+
+	if (z < SECTOR(16))
+	{
+		camera.bounce = 66 * ((x * x + y * y + z * z / 256) / SECTOR(1024) - 1);
+	}
 }
 
 void turn180_effect(struct ITEM_INFO* item)//393F4(<), 398F4(<) (F)

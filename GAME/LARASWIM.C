@@ -96,7 +96,7 @@ void lara_as_uwdeath(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C884(<), 
 
 void lara_as_dive(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C854, 4CCB8 (F)
 {
-	if (input & IN_UP)
+	if (input & IN_FORWARD)
 	{
 		item->pos.x_rot -= ANGLE(1);
 	}
@@ -218,11 +218,11 @@ void lara_as_swim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C548(<), 4C9
 
 void lara_as_swimcheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C3A8, 4C80C (F)
 {
-	if (input & IN_UP)
+	if (input & IN_FORWARD)
 	{
 		item->pos.x_rot -= ANGLE(3);
 	}
-	else if (input & IN_DOWN)
+	else if (input & IN_BACK)
 	{
 		item->pos.x_rot += ANGLE(3);
 	}
@@ -416,11 +416,11 @@ void SwimTurnSubsuit(struct ITEM_INFO* item)//4BBDC, 4C040 (F)
 	if (item->pos.y_pos < 14080)
 		subsuit.YVel += (14080 - item->pos.y_pos) >> 4;
 
-	if (input & IN_UP && item->pos.x_rot > ANGLE(-85))
+	if (input & IN_FORWARD && item->pos.x_rot > ANGLE(-85))
 	{
 		subsuit.dXRot = ANGLE(-45);
 	}
-	else if(input & IN_DOWN && item->pos.x_rot < ANGLE(85))
+	else if(input & IN_BACK && item->pos.x_rot < ANGLE(85))
 	{
 		subsuit.dXRot = ANGLE(45);
 	}
@@ -451,11 +451,11 @@ void SwimTurnSubsuit(struct ITEM_INFO* item)//4BBDC, 4C040 (F)
 
 void SwimTurn(struct ITEM_INFO* item)//4BAF4(<), 4BF58(<) (F)
 {
-	if (input & IN_UP)
+	if (input & IN_FORWARD)
 	{
 		item->pos.x_rot -= ANGLE(2);
 	}
-	else if (input & IN_DOWN)
+	else if (input & IN_BACK)
 	{
 		item->pos.x_rot += ANGLE(2);
 	}

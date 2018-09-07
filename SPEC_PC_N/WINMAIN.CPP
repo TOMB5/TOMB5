@@ -30,7 +30,7 @@ WINAPP	 App;
 bool thread_started;
 HANDLE hThread;
 
-void WinProcMsg()
+void WinProcMsg()// (F)
 {
 	Log(LT_Enter, "WinProcMsg");
 
@@ -48,13 +48,13 @@ void WinProcMsg()
 	} while (!thread_started && Msg.message != WM_QUIT);
 }
 
-void WinClose()
+void WinClose()// (F)
 {
 	Log(LT_Enter, "WinClose");
 
 	SaveSettings();
 	CloseHandle(App.hObject);
-	//
+	DXFreeInfo(&App.DeviceInfo);
 	DestroyAcceleratorTable(App.hAccTable);
 	CloseDirectX();
 
@@ -67,13 +67,13 @@ void WinClose()
 	DXRelease(App.lpDI, "DirectInput");
 }
 
-bool WinRunCheck(LPCSTR lpName, LPCSTR lpClassName, HANDLE* mutex)
+bool WinRunCheck(LPCSTR lpName, LPCSTR lpClassName, HANDLE* mutex)// (F)
 {
 	Log(LT_Enter, "WinRunCheck");
 
-	*mutex = CreateMutexA(0, true, lpName);
+	*mutex = CreateMutexA(nullptr, true, lpName);
 
-	if (GetLastError() != 183)
+	if (GetLastError() != ERROR_ALREADY_EXISTS)
 		return false;
 
 	HWND wnd = FindWindowA(lpClassName, lpName);
@@ -91,7 +91,7 @@ void WinProcessCommandLine(LPSTR lpCmdLine)
 	Unimpl();
 }
 
-int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)// (F)
 {
 	int RetVal;
 	int n;
@@ -194,7 +194,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		LoadSettings();
 	}
 
-	SetWindowPos(App.WindowHandle, 0, App.GnWindowRect.left, App.GnWindowRect.top, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+	SetWindowPos(App.WindowHandle, nullptr, App.GnWindowRect.left, App.GnWindowRect.top, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
 	HWND dWnd = GetDesktopWindow();
 	HDC context = GetDC(dWnd);
@@ -205,7 +205,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	App.isInScene = false;
 	App.PlayingFMV = false;
 
-	App.DXConfig.nD3D = 0;
+	App.DXConfig.nD3D = 0; // todo: temporary fix because of lack of software renderer
 
 	if (!DXCreate(
 		CUR_DM.w,
@@ -235,7 +235,11 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	App.hAccTable = LoadAcceleratorsA(hInstance, (LPCSTR)0x65);
 
-	// sound
+	if (!App.tDisableSound)
+	{
+		DXDSCreate();
+		InitACM();
+	}
 
 	game_running = true;
 	thread_started = false;
@@ -263,12 +267,11 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
 	if (dblog)
 		PostMessageA(dblog, dbm_command, 4, 0);
-
 	
 	return 0;
 }
 
-void HandleCommand(WORD param)
+void HandleCommand(WORD param)// (F)
 {
 	if (param == IDR_VKRETURN)
 	{
@@ -407,27 +410,27 @@ void HandleApp(LPARAM lParam, WPARAM wParam)
 	Unimpl();
 }
 
-HMODULE GetKernel32()
+HMODULE GetKernel32()// (F)
 {
 	return GetModuleHandleA("kernel32.dll");
 }
 
-void* FindSleepAddress(HMODULE kernel)
+void* FindSleepAddress(HMODULE kernel)// (F)
 {
 	return GetProcAddress(kernel, "Sleep");
 }
 
-void* GetSleepFunc()
+void* GetSleepFunc()// (F)
 {
 	return FindSleepAddress(GetKernel32());
 }
 
-void Sleep1ms()
+void Sleep1ms()// (F)
 {
 	((void (__stdcall*)(DWORD))GetSleepFunc())(1);
 }
 
-void WaitUntilFalse(DWORD* ptr)
+void WaitUntilFalse(DWORD* ptr)// (F)
 {
 	do
 	{
@@ -435,7 +438,7 @@ void WaitUntilFalse(DWORD* ptr)
 	} while (*ptr);
 }
 
-void WaitUntilTrue(DWORD* ptr)
+void WaitUntilTrue(DWORD* ptr)// (F)
 {
 	do
 	{
@@ -578,4 +581,32 @@ void ShowBumpInfo()
 			}
 		}
 	}
+}
+
+float WinFrameRate()// (F)
+{
+	static int last_time = clock();
+
+	if (++App.fps_counter == 10)
+	{
+		time_t this_time = clock();
+		double t = (this_time - last_time) / (double)CLOCKS_PER_SEC;
+		last_time = this_time;
+		App.fps_static = App.fps_counter / t;
+		App.fps_counter = 0;
+	}
+
+	App.fps = App.fps_static;
+
+	return App.fps;
+}
+
+void WinDisplayString(int x, int y, char *String, ...)// (F)
+{
+	va_list	argptr;
+	char msg[4096];
+	va_start(argptr, String);
+	vsprintf(msg, String, argptr);
+	va_end(argptr);
+	PrintString(x, y, 6, msg, 0);
 }

@@ -123,7 +123,7 @@ extern struct NEW_CUTSCENE* GLOBAL_cutme;
 extern int lastcamnum;
 extern int GLOBAL_cutseq_frame;
 extern int GLOBAL_numcutseq_frames;
-extern int GLOBAL_oldcamtype;
+extern enum camera_type GLOBAL_oldcamtype;
 extern struct PACKNODE* camera_pnodes;
 extern struct PACKNODE* actor_pnodes[10];
 extern struct ITEM_INFO duff_item;
