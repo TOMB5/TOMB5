@@ -6,6 +6,8 @@
 
 #include "SPECTYPES.H"
 
+extern struct WINAPP App;
+
 #define mPushUnitMatrix phd_PushUnitMatrix
 #define mPopMatrix phd_PopMatrix
 
@@ -22,21 +24,7 @@ extern "C" {
 #define		ERR_SOUND_FAILED		(-2)
 #define		ERR_SOUND_NO_FREE_SLOTS	(-1)
 
-sint32		S_SoundPlaySample(int nSample, uint16 wVol, int nPitch, sint16 wPan);
-sint32		S_SoundPlaySampleLooped(int nSample, uint16 wVol, int nPitch, sint16 wPan);
-sint32		S_SoundSampleIsPlaying(sint32 handle);
-void 		S_SoundStopAllSamples(void);
-void	 	S_SoundStopSample(sint32 handle);
-void		S_SoundSetPanAndVolume(sint32 handle, sint16 wPan, uint16 newvol);
-void		S_SoundSetPitch(sint32 handle, int nPitch);
-
-void		S_CDPlay(sint16 track, int mode);
-void		S_CDStop(void);
-void		S_CDPause(void);
-void		S_CDRestart(void);
-int		S_StartSyncedAudio(int num);
-extern char			exit_message[128];
-extern void S_ExitSystem(char *message);
+	extern BYTE tsv_buffer[];
 
 extern	char*		malloc_buffer;
 extern	int			script_malloc_size;
@@ -64,18 +52,67 @@ extern sint32		phd_scrheight;       	/* Height of Screen ie. 200 or 480*/
 extern sint32		phd_persp;				/* perspective thang*/
 extern sint32		*phd_mxptr;				/* matrix pointer....*/
 extern sint32		phd_oopersp;
+extern float* phd_dxptr;
+
+extern	float		one;				// in 3dinsert.cpp
+extern	float		f_znear;			// phd_znear
+extern	float		f_zfar;				// phd_zfar
+extern	float		f_oneoznear;		// one / phd_znear
+extern	float		f_persp;			// phd_persp
+extern	float		f_oneopersp;		// one / phd_persp
+extern	float		f_perspoznear;		// phd_persp / phd_znear
+extern	float		f_centerx;			// phd_centrex
+extern	float		f_centery;			// phd_centrey
+extern	float		f_invzfar;			// 1.0/phd_zfar (actually 65535/65536 at the moment)
+extern	float		f_oneozfar;			// one/phd_zfar
+extern	float		f_a, f_b, f_boo;		// a/b factors for z buffering (f_boo is f_b/one)
+
+extern	sint32		w2v_matrix[];		// World to View Matrix...
+	extern float		w2v_matrix_f[];
+extern	sint32		matrix_stack[];		// matrix stack for animations etc..
+	extern float		matrix_stack_dx[];
+	extern float		sin_flt_table[];
+
+extern struct SVECTOR CamRot;
+
+extern WORD* d9ab34;
+extern int e4b100;
+
+extern D3DMATRIX transform_projection;
 
 #define EndOfArray(a) ((a)+ArraySize(a))
 
+extern void D3DIdentityMatrix(LPD3DMATRIX mat);
+extern void SetD3DMatrixF(LPD3DMATRIX dst, LPD3DMATRIX src);
+extern void phd_RotX(long angle);
+extern void phd_RotY(long angle);
+extern void phd_RotZ(long angle);
+extern void phd_PushMatrix();
 extern void phd_PushUnitMatrix();
 extern void phd_UnitMatrix();
 extern void phd_TransposeMatrix();
+extern void phd_TranslateAbs(long x, long y, long z);
+extern void phd_RotYXZ(long y, long x, long z);
+extern void phd_SetTrans(long x, long y, long z);
+extern void SetD3DViewMatrix();
 extern unsigned long mGetAngle(long x1, long y1, long x2, long y2);
-#define phd_PopMatrix()		phd_mxptr -= 12
+extern void S_InitD3DMatrix();
+extern void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll);
+extern void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest);
+extern void SetViewMatrix();
+#define phd_PopMatrix()		{ phd_mxptr -= 12; phd_dxptr -= 12; }
 
 #ifdef __cplusplus
 }
 #endif
+
+extern WATERTAB	WaterTable[22][64];
+extern bool thread_started;;
+
+void WaitUntilFalse(DWORD* ptr);
+void WaitUntilTrue(DWORD* ptr);
+void Sleep1ms();
+void* GetSleepFunc();
 
 
 #endif

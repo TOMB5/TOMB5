@@ -24,6 +24,12 @@
 #include "INIT.H"
 #endif
 
+#if PC_VERSION
+#include "SPECIFIC.H"
+#include "DRAWPRIMITIVE.H"
+#include "DISPLAY.H"
+#endif
+
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
@@ -49,6 +55,7 @@ typedef unsigned int uintptr_t;
 
 #include <string.h>
 #include "LOT.H"
+#include "TEXT.H"
 
 #define GF_SCRIPT_FILENAME "SCRIPT.DAT"
 
@@ -105,6 +112,11 @@ unsigned char gfTakeaways[16];
 #if PC_VERSION
 char* gfScriptFile;
 #endif
+int special_features_num = -1;
+const char* screens[5] =
+{
+	"SCREENS\\STORY1.STR", "SCREENS\\NXG.STR", "SCREENS\\STORY2.STR", "SCREENS\\GALLERY.STR", "SCREENS\\SCREENS.STR"
+};
 
 void DoGameflow()//10F5C(<), 10FD8(<)
 {
@@ -124,7 +136,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 #endif
 
 #if PC_VERSION
-	//do_boot_screen(Gameflow->Language);
+	do_boot_screen(Gameflow->Language);
 	// todo
 #endif
 
@@ -500,7 +512,11 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 	OldSP = SetSp(0x1F8003E0);
 #endif
 
+#if PSX_VERSION
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
+#else
+	gfStatus = ControlPhase(nframes, 0);
+#endif
 
 #if PSX_VERSION
 	SetSp(OldSP);
@@ -512,12 +528,22 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 
 void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 {
+/*#if PC_VERSION
+	S_Warn("DoTitle PC");
+	gfCurrentLevel = LVL5_STREETS_OF_ROME;
+	DoLevel(LVL5_STREETS_OF_ROME, Audio);
+
+	return;
+#endif*/
+
 	int i;
 
 	CreditsDone = 0;
 	CanLoad = 0;
 
-#if !PC_VERSION
+#if PC_VERSION
+	SetFade(255, 0);
+#else
 	if (Gameflow->LoadSaveEnabled)
 	{
 		mcOpen(1);
@@ -548,12 +574,20 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 #if PC_VERSION
 	InitialiseFXArray(1);
 	InitialiseLOTarray(1);
+
+	// TODO fog
+
+	ClearFXFogBulbs();
 #endif
 
 	InitialisePickUpDisplay();
 
 #if PSX_VERSION || PSXPC_VERSION
 	phd_InitWindow(90);
+#endif
+
+#if PC_VERSION
+	S_InitialiseScreen();
 #endif
 
 	SOUND_Stop();
@@ -571,6 +605,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 		ScreenFadedOut = 1;
 		ScreenFade = 255;
 		dScreenFade = 255;
+
+#if PC_VERSION
+		S_CDPlay(CDA_XA14_ECREDITS, 1);
+#endif
 	}
 	else
 	{
@@ -603,9 +641,21 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 	JustLoaded = 0;
 	
-#if !PC_VERSION
-	if (gfStatus == 0)
+#if PC_VERSION
+	while (gfStatus == 0)
 	{
+		GPU_BeginScene();
+		SkyDrawPhase();
+		gfStatus = TitleOptions();
+		if (gfStatus != 0)
+			break;
+		handle_cutseq_triggering(Name);
+		nframes = DrawPhaseGame();
+		gfStatus = ControlPhase(nframes, 0);
+		DoSpecialFeaturesServer();
+	}
+#else
+	
 		//loc_107BC, 10778
 		while (gfStatus == 0)
 		{
@@ -711,7 +761,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 			}//loc_10A14
 		}
-	}
+	
 	
 	//loc_10A24
 #if PSX_VERSION || PSXPC_VERSION
@@ -730,14 +780,17 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 		XAReqVolume = 0;
 	}
 #endif
+#endif
 
 	NoInput = 0;
 	S_SoundStopAllSamples();
 	S_CDStop();
 	bUseSpotCam = 0;
 	bDisableLaraControl = 0;
-	input = 0;
-#endif
+
+	if (gfStatus != 4)
+		input = 0;
+
 }
 
 void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
@@ -747,7 +800,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 #if !BETA_VERSION
 	int fmvStatus;
 #endif
-#if PSX_VERSION || PSXPC_VERSION
+#if PSXENGINE
 	if (gfGameMode == 4)
 	{
 		if (FromTitle == 1)
@@ -765,6 +818,10 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	XAMasterVolume = savegame.VolumeCD;
 #endif
 
+#if PC_VERSION
+	SetFade(255, 0);
+#endif
+
 	if (gfGameMode == 4)
 	{
 		memset(&savegame.Level, 0, sizeof(struct STATS));
@@ -773,8 +830,24 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	//loc_10B58
 	S_LoadLevelFile(Name);
 
+#if PC_VERSION
+	//SetFogColor(...); todo
+
+	InitialiseFXArray(TRUE);
+	InitialiseLOTarray(TRUE);
+
+	ClearFXFogBulbs();
+
+	// todo
+#endif
+
 	InitSpotCamSequences();
 	InitialisePickUpDisplay();
+
+#if PC_VERSION
+	S_InitialiseScreen();
+#endif
+
 #if PSX_VERSION || PSXPC_VERSION
 	phd_InitWindow(90);
 #endif
@@ -786,6 +859,13 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		sgRestoreGame();
 		gfRequiredStartPos = 0;
 		gfInitialiseGame = 0;
+
+#if PC_VERSION
+		if (IsVolumetric())
+		{
+			//SetFogColor(...); todo
+		}
+#endif
 	}
 	else
 	{
@@ -802,22 +882,22 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		}
 
 		//loc_10BD8
-		CurrentAtmosphere = 0;
-		flipeffect = 0;
+		CurrentAtmosphere = Audio;
+		savegame.Level.Timer = 0;
 
 		if (gfCurrentLevel == LVL5_STREETS_OF_ROME)
 		{
-			((char*) &LaserSight)[2] = 0;
+			savegame.TLCount = 0;
 		}
 	}
 
 	//loc_10BF8
 	S_CDPlay(CurrentAtmosphere, 1);
 
-	IsAtmospherePlaying = 1;
-	ScreenFadedOut = 0;
-	ScreenFading = 0;
-	ScreenFadeBack = 0;
+	IsAtmospherePlaying = TRUE;
+	ScreenFadedOut = FALSE;
+	ScreenFading = FALSE;
+	ScreenFadeBack = FALSE;
 	dScreenFade = 255;
 	ScreenFade = 255;
 
@@ -837,7 +917,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	{
 		//loc_10C90
 		gfCutNumber = 0;
-		ScreenFadedOut = 1;
+		ScreenFadedOut = TRUE;
 		cutseq_num = gfCutNumber;
 	}
 
@@ -855,36 +935,41 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	framecount = 0;
 
 	gfStatus = ControlPhase(2, 0);
-#if PSX_VERSION || PSXPC_VERSION
+
 	dbinput = 0;
 	JustLoaded = 0;
 
-	if (gfStatus == 0)
+	//loc_10D30
+	while (gfStatus == 0)
 	{
-		//loc_10D30
-		while (gfStatus == 0)
+
+		GPU_BeginScene();
+
+		if (gfLegendTime != 0 && DestFadeScreenHeight == 0 && FadeScreenHeight == 0 && cutseq_num == 0)
 		{
+			PrintString(
+#if PSXENGINE
+				0x100, 0xE8, 
+#else
+				phd_winwidth / 2, phd_winymax - font_height,
+#endif
+				2, &gfStringWad[gfStringOffset[gfLegend]], PRINT_CENTER);
+			gfLegendTime--;
+		}
 
-			GPU_BeginScene();
+		//loc_10DC4
+		nframes = DrawPhaseGame();
+		handle_cutseq_triggering(Name);
 
-			if (gfLegendTime != 0 && DestFadeScreenHeight == 0 && FadeScreenHeight == 0 && cutseq_num == 0)
-			{
-				PrintString(0x100, 0xE8, 2, &gfStringWad[gfStringOffset[gfLegend]], 0x8000);
-				gfLegendTime--;
-			}
+		if (DEL_playingamefmv != 0)
+		{
+			DEL_playingamefmv = 0;
+		}
 
-			//loc_10DC4
-			nframes = DrawPhaseGame();
-			handle_cutseq_triggering(Name);
-
-			if (DEL_playingamefmv != 0)
-			{
-				DEL_playingamefmv = 0;
-			}
-
-			//loc_10DEC
-			if (gfLevelComplete == 0)
-			{
+		//loc_10DEC
+		if (gfLevelComplete == 0)
+		{
+#if PSX_VERSION
 				if (dbinput & 0x100 && GLOBAL_enterinventory != -1)
 				{
 					//loc_10E28
@@ -897,19 +982,22 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 						}
 					}
 				}
+#endif
 
-				//loc_10E7C
-				QuickControlPhase();
-			}
-			else
-			{
+			//loc_10E7C
+			QuickControlPhase();
+		}
+		else
+		{
+#if PSXENGINE
 				//loc_10CAC
 				gfStatus = 3;
-				break;
-			}
+#endif
+			break;
 		}
 	}
 
+#if PSXENGINE
 	//loc_10E94
 	XAReqVolume = 0;
 	Motors[1] = 0;
@@ -928,9 +1016,11 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 	//loc_10ED8
 	reset_count = 0;
+#endif
+
 	S_SoundStopAllSamples();
 	S_CDStop();
-#endif
+
 #if !BETA_VERSION
 
 	if (gfStatus == 3)
@@ -986,7 +1076,34 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	reset_flag = 0;
 }
 
-void TitleOptions()
+int TitleOptions()
 {
+	S_Warn("[TitleOptions] - Unimplemented!\n");
+	return 0;
+}
 
+void SpecialFeaturesDisplayScreens(int num)
+{
+	S_Warn("[SpecialFeaturesDisplayScreens] - Unimplemented!\n");
+}
+
+void DoSpecialFeaturesServer()// (F)
+{
+	switch(special_features_num)
+	{
+	case 0:
+		SpecialFeaturesDisplayScreens(0);
+		break;
+	case 1:
+		SpecialFeaturesDisplayScreens(1);
+		break;
+	case 2:
+		SpecialFeaturesDisplayScreens(2);
+		break;
+	case 3:
+		SpecialFeaturesDisplayScreens(3);
+		break;
+	}
+
+	special_features_num = -1;
 }

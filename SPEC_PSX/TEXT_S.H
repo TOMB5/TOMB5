@@ -8,4 +8,5 @@ extern void GetStringDimensions(char* string, unsigned short* w, unsigned short*
 extern void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CHARDEF* a3);
 extern char aUEAAAAEEEAAEOO[];
 extern long word_9230E;
+extern char loc_92020[];
 #endif

@@ -1,5 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define STRICT
+#define DIRECTINPUT_VERSION 0x0700
+#define _X86_
 
 #include <windows.h>
 #include <windowsx.h>

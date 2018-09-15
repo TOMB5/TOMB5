@@ -412,7 +412,7 @@ void FixUpRoom(struct room_info *rooms, /*tr5_room*/struct room_info *roomData)
 	AddPtr(roomData->light, struct LIGHTINFO, roomData + 1);
 	AddPtr(roomData->mesh, struct MESH_INFO, roomData + 1);
 	AddPtr(roomData->Separator4, void, roomData + 1);	
-	AddPtr(roomData->LayerOffset, struct tr5_room_layer, roomData + 1);
+	AddPtr(roomData->LayerOffset, struct ROOMLET, roomData + 1);
 	AddPtr(roomData->PolyOffset, void, roomData + 1);
 	AddPtr(roomData->PolyOffset2, void, roomData + 1);
 	AddPtr(roomData->VerticesOffset, struct tr5_room_vertex, roomData + 1);

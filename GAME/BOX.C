@@ -1,8 +1,6 @@
 #include "BOX.H"
 
-#if PSXPC_VERSION || PSX_VERSION
 #include "CALCLARA.H"
-#endif
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
@@ -517,7 +515,7 @@ void CreatureFloat(short item_number)//24524(<), (?) (F)
 	item->after_death = 1;
 }
 
-void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<) ?
+void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<) ? (F)
 {
 	short change;
 

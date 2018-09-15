@@ -48,6 +48,7 @@ extern void UpdateSkyLightning();
 extern void DrawSkyMesh(short* mesh);
 extern void DrawMoon();
 extern void DrawGunflashes();
+extern void DrawAnimatingItem(struct ITEM_INFO *item);
 extern short* GetBestFrame(struct ITEM_INFO* item);
 
 

@@ -2,7 +2,7 @@
 #define PICTURE_H
 
 #include "INCLUDE.H"
-#include "texture.h"
+#include "TEXTURE.H"
 
 #ifdef __cplusplus
 extern "C" {

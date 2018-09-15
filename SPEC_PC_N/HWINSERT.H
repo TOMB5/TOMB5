@@ -8,10 +8,10 @@ extern "C" {
 #endif
 
 	void InitBuckets();
-	void DrawBuckets(void *);
+	void DrawBuckets();
 
-#define VERTSPERBUCKET	(1024+32)
-#define MAXBUCKETS		20
+#define VERTSPERBUCKET	2600
+#define MAXBUCKETS		30
 	struct TEXTUREBUCKET
 	{
 		DWORD tpage;

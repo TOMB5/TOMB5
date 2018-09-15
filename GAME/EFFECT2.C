@@ -431,7 +431,7 @@ void TriggerAirBubbles()// (F)
 
 	sptr->Xvel = (GetRandomControl() & 0x7F) - pos.x + v8.x - 64;
 	sptr->Yvel = (GetRandomControl() & 0x7F) - pos.y + v8.y - 64;
-	sptr->Yvel = (GetRandomControl() & 0x7F) - pos.z + v8.z - 64;
+	sptr->Zvel = (GetRandomControl() & 0x7F) - pos.z + v8.z - 64;
 
 	sptr->Friction = 0;
 	sptr->Def = (objects[458].mesh_index & 0xFF) + 17;
@@ -448,4 +448,48 @@ void TriggerAirBubbles()// (F)
 	sptr->sSize = size;
 	sptr->Size = size;
 	sptr->dSize = 2 * size;
+}
+
+void FlamingHell(struct PHD_VECTOR* pos)
+{
+	struct SPARKS* sptr = &spark[GetFreeSpark()];
+
+	long yvel = MAX(512, (GetRandomControl() & 0x1FF) - 128);
+
+	long tmp = (GetRandomControl() & 0x1F) + 48;
+	long size;
+	
+	sptr->sR = tmp;
+	sptr->sG = tmp;
+	sptr->sB = (GetRandomControl() & 0x3F) - 64;
+
+	sptr->dR = (GetRandomControl() & 0x3F) - 64;
+	sptr->dG = (GetRandomControl() & 0x3F) - 128;
+	sptr->dB = 32;
+
+	sptr->ColFadeSpeed = 8;
+	sptr->FadeToBlack = 8;
+	sptr->TransType = 2;
+
+	sptr->Life = sptr->sLife = (GetRandomControl() & 0x3F) + 90;
+
+	sptr->x = GetRandomControl() + pos->x - 128;
+	sptr->y = GetRandomControl() + pos->y - 256;
+	sptr->z = GetRandomControl() + pos->z - 128;
+
+	sptr->Xvel = (GetRandomControl() & 0xFF) - 128;
+	sptr->Yvel = -(yvel & 0xFFFF);
+	sptr->Zvel = (GetRandomControl() & 0xFF) - 128;
+
+	sptr->Friction = 51;
+	sptr->MaxYvel = 0;
+	sptr->Gravity = -16 - (GetRandomControl() & 0x1F);
+
+	sptr->Scalar = 2;
+	sptr->Flags = 538;
+
+	size = (GetRandomControl() & 0xF) + (yvel >> 6) + 16;
+	sptr->sSize = size >> 1;
+	sptr->Size = size >> 1;
+	sptr->dSize = size;
 }

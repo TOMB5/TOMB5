@@ -16,7 +16,21 @@ short GlobalCollisionBounds[6];
 
 char LM[] =
 {
-	0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 8
+	LJ_HIPS,
+	LJ_LTHIGH,
+	LJ_LSHIN,
+	LJ_LFOOT,
+	LJ_RTHIGH,
+	LJ_RSHIN,
+	LJ_RFOOT,
+	LJ_TORSO,
+	LJ_RINARM,
+	LJ_ROUTARM,
+	LJ_RHAND,
+	LJ_LINARM,
+	LJ_LOUTARM,
+	LJ_LHAND,
+	LJ_HEAD,
 };
 
 void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)//2A940, 2AB68
@@ -68,8 +82,8 @@ void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_I
 
 	if (item->object_number == SWITCH_TYPE7 && !(item->mesh_bits & 1))
 	{
-		item->active = 1;
-		item->status = 1;
+		item->active = TRUE;
+		item->status = ITEM_ACTIVE;
 	}
 }
 
@@ -77,7 +91,7 @@ void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO*
 {
 	struct ITEM_INFO* item = &items[item_num];
 
-	if (item->status == 1)
+	if (item->status == ITEM_ACTIVE)
 	{
 		if (TestBoundsCollide(item, laraitem, coll->radius) == 0)
 		{
@@ -86,7 +100,7 @@ void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO*
 
 		ObjectCollision(item_num, lara_item, coll);
 	}
-	else if(item->status == 3)
+	else if(item->status == ITEM_INVISIBLE)
 	{
 		//0x2A110
 		ObjectCollision(item_num, lara_item, coll);

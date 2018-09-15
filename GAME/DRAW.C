@@ -210,7 +210,7 @@ void SetInventoryLighting(struct MATRIX3D* m)
 
 }
 
-void DrawGunflashes()//8A924(<) 8C968(<) (F)
+void DrawGunflashes()//8A924(<) 8C968(<)
 {
 #ifdef PC_VERSION
 	S_Warn("[DrawGunflashes] - Unimplemented!\n");
@@ -258,4 +258,9 @@ short* GetBestFrame(struct ITEM_INFO* item)// (F)s
 		return frm[1];
 	else
 		return frm[0];
+}
+
+void DrawAnimatingItem(struct ITEM_INFO *item)
+{
+	S_Warn("[DrawAnimatingItem] - Unimplemented!\n");
 }
