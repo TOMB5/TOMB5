@@ -57,6 +57,8 @@ void CODEWAD_DumpOverlay(char* fileName, FILE* fr, unsigned int* entry)
 	fread(&buffer[0], 1, entry[1], fr);
 	fwrite(&buffer[0], 1, entry[1], f);
 	fclose(f);
+
+	delete[] buffer;
 }
 
 
