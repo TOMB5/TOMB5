@@ -31,7 +31,7 @@ void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size)
 	}
 }
 
-void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h)//5EDF8
+void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h, unsigned short unk, unsigned short unk2)//5EDF8
 {
 	S_Warn("[DrawF4] - Unimplemented!\n");
 }

@@ -2,7 +2,7 @@
 
 	SECTION	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF draw_rotate_sprite, S_AnimateTextures, S_LongMemCpy, DrawTPage, DrawLineH, DrawLineV, LOAD_VSyncHandler, GPU_ClearVRAM, GPU_BeginScene, GPU_FlipToBuffer, GPU_GetScreenPosition, GPU_SetScreenPosition, LOAD_DrawEnable, GPU_SyncBothScreens
+	XDEF draw_rotate_sprite, S_AnimateTextures, S_LongMemCpy, DrawF4, DrawTPage, DrawLineH, DrawLineV, LOAD_VSyncHandler, GPU_ClearVRAM, GPU_BeginScene, GPU_FlipToBuffer, GPU_GetScreenPosition, GPU_SetScreenPosition, LOAD_DrawEnable, GPU_SyncBothScreens
 	XREF LtLoadingBarEnabled, _first_time_ever, DrawOTagEnv, GnLastFrameCount, db, rcossin_tbl, DelRotAng, ClearOTagR, DrawSync, VSync, MoveImage, PutDispEnv, PutDrawEnv, ClearImage, DrawSync, VSync, DrawOTagEnv
 	
 S_AnimateTextures:
@@ -42,6 +42,42 @@ S_LongMemCpy:
 	locret_5E9C4:
 	jr      ra
 	nop
+	
+DrawF4:
+	andi    a0, 0xFFFF
+	andi    a1, 0xFFFF
+	lw      t0, db+0x8-GP_ADDR(gp)
+	lw      at, db+0x10-GP_ADDR(gp)
+	lw      v0, 0x14(sp)
+	andi    a2, 0xFFFF
+	sltu    at, t0, at
+	beqz    at, locret_5EE70
+	andi    a3, 0xFFFF
+	lbu     t1, 0x10(sp)
+	lw      t2, db+0x4-GP_ADDR(gp)
+	sll     t1, 2
+	addu    t1, t2
+	lw      t3, 0(t1)
+	addu    at, a0, a2
+	sw      v0, 4(t0)
+	sh      a0, 8(t0)
+	sh      a1, 0xA(t0)
+	sh      at, 0xC(t0)
+	addu    v1, a1, a3
+	sh      a1, 0xE(t0)
+	sh      a0, 0x10(t0)
+	sh      v1, 0x12(t0)
+	sh      at, 0x14(t0)
+	sh      v1, 0x16(t0)
+	lui     at, 0x500
+	or      t3, at
+	sw      t0, 0(t1)
+	sw      t3, 0(t0)
+	addiu   t0, 0x18
+
+	locret_5EE70:
+	jr      ra
+	sw      t0, db+0x8-GP_ADDR(gp)
 	
 DrawTPage:
 	lw      a2, db+0x8

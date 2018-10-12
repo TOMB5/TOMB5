@@ -865,7 +865,10 @@ int GetFreeSpider()// (F)
 
 void TriggerSmallSplash(int x, int y, int z, int num)// (F)
 {
-	for(int i = 0; i < num; i++)
+	int i;
+	int angle;
+
+	for(i = 0; i < num; i++)
 	{
 		struct SPARKS* sptr = &spark[GetFreeSpark()];
 
@@ -887,7 +890,7 @@ void TriggerSmallSplash(int x, int y, int z, int num)// (F)
 
 		sptr->TransType = 2;
 
-		int angle = GetRandomControl() << 3;
+		angle = GetRandomControl() << 3;
 
 		sptr->Xvel = -SIN(angle) >> 5;		
 		sptr->Yvel = -640 - (GetRandomControl() & 0xFF);

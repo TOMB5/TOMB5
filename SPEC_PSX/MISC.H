@@ -6,7 +6,7 @@
 #include <LIBGPU.H>
 
 extern void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size);
-extern void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h);
+extern void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h, unsigned short unk, unsigned short unk2);
 extern void DrawTPage(unsigned char a0, unsigned char a1);
 extern void DrawLineH(long a0, long a1, long a2, long a3);
 extern void DrawLineV(long a0, long a1, long a2, long a3);

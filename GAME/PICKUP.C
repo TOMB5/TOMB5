@@ -254,7 +254,9 @@ void PickUpCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll
 
 void RegeneratePickups()//515AC, 51A10 (F)
 {
-	for(int i = 0; i < NumRPickups; i++)
+	int i;
+	
+	for(i = 0; i < NumRPickups; i++)
 	{
 		struct ITEM_INFO* item = &items[RPickups[i]];
 
