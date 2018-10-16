@@ -13,7 +13,7 @@ struct fileEntry
 	unsigned int padding;
 };
 
-extern void CODEWAD_Unpack(const char* fileName);
-extern void CODEWAD_DumpOverlay(char* fileName, IO::StreamReader* reader, unsigned int* entry);
+extern void CODEWAD_Pack(const char* fileName);
+extern void CODEWAD_WriteOverlay(IO::StreamWriter* writer, IO::StreamReader* reader, unsigned int entry);
 
 #endif
