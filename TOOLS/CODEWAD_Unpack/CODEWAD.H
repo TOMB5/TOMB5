@@ -2,6 +2,7 @@
 #define CODEWAD_H
 
 #include <stdio.h>
+#include "IO.H"
 
 #define NUM_OVERLAYS 59
 
@@ -13,6 +14,6 @@ struct fileEntry
 };
 
 extern void CODEWAD_Unpack(const char* fileName);
-extern void CODEWAD_DumpOverlay(char* fileName, FILE* fr, unsigned int* entry);
+extern void CODEWAD_DumpOverlay(char* fileName, IO::StreamReader* reader, unsigned int* entry);
 
 #endif

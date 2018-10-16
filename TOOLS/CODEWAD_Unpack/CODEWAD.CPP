@@ -11,7 +11,6 @@ char wadHeader[NUM_OVERLAYS*sizeof(fileEntry)];
 void CODEWAD_Unpack(const char* fileName)
 {
 	fileEntry* entry = (fileEntry*)&wadHeader[0];
-	int i;
 	
 	IO::StreamReader reader(fileName);
 	if (!reader.m_isOpen)
@@ -22,7 +21,7 @@ void CODEWAD_Unpack(const char* fileName)
 
 	reader.readRaw(&wadHeader[0], NUM_OVERLAYS*sizeof(fileEntry));
 
-	for(i = 0; i < NUM_OVERLAYS; i++)
+	for(int i = 0; i < NUM_OVERLAYS; i++)
 	{
 		char nameBin[32];
 		char nameRel[32];
