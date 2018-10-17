@@ -1,13 +1,47 @@
 	opt L.,C+,at+
 
 	section	.ASM
-	xdef DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, Add2DPrim, CreateNewVertex, ClipToScreen, SubdivSetup3
-	xref number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo, QuadVertTables, TriVertTables, UnpackRGB
+	xdef UnpackRGB, DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, Add2DPrim, CreateNewVertex, ClipToScreen, SubdivSetup3
+	xref number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo
 	
 ;FIXME
 LOffset equ 0
 YOffset equ 0
+QuadVertTables equ 0
+TriVertTables equ 0
 	
+UnpackRGB:
+	lui     s2, 0xF8
+	srl     t5, s4, 7
+	and     t5, s2
+	srl     t6, s4, 10
+	andi    t6, 0xF800
+	srl     fp, s4, 13
+	andi    fp, 0xF8
+	or      fp, t5
+	or      fp, t6
+	srl     t5, t8, 24
+	ori     t5, 0x40
+	sll     t5, 24
+	or      fp, t5
+	srl     t5, s5, 7
+	and     t5, s2
+	srl     t6, s5, 10
+	andi    t6, 0xF800
+	srl     gp, s5, 13
+	andi    gp, 0xF8
+	or      gp, t5
+	or      gp, t6
+	srl     t5, s6, 7
+	and     t5, s2
+	srl     t6, s6, 10
+	andi    t6, 0xF800
+	srl     s3, s6, 13
+	andi    s3, 0xF8
+	or      s3, t5
+	jr      ra
+	or      s3, t6
+
 SubPolyGT4:
 	move    s7, ra
 	jal     SubPolyGTLoop
