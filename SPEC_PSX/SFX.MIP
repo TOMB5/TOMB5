@@ -4,7 +4,8 @@
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch
 	XREF DepthTable, GtSFXEnabled, SpuSetReverbModeDepth, SpuSetReverb, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey, SPU_UpdateStatus, LabSampleType, LabFreeChannel, LnFreeChannels
-	
+
+
 S_SoundSetPanAndVolume:
 	lw      v0, GtSFXEnabled-GP_ADDR(gp)
 	move    t1, a0
