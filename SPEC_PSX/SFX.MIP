@@ -2,25 +2,129 @@
 
 	SECTION	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying
-	XREF DepthTable, GtSFXEnabled, SpuSetReverbModeDepth, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey, SPU_UpdateStatus, LabSampleType, LabFreeChannel, LnFreeChannels
+	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume
+	XREF DepthTable, camera, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey, SPU_UpdateStatus, LabSampleType, LabFreeChannel, LnFreeChannels
 
+GetPanVolume:
+	move    t7, ra
+	move    t2, a0
+	lw      v0, 0x10(t2)
+	lw      v1, sample_infos-GP_ADDR(gp)
+	sll     v0, 3
+	addu    v1, v0
+	lbu     v1, 3(v1)
+	nop
+	sll     t4, v1, 10
+	mult    t4, t4
+	lw      a0, 0x18(t2)
+	lw      v0, camera+0x0-GP_ADDR(gp)
+	lw      a1, 0x1C(t2)
+	subu    t6, a0, v0
+	lw      v1, camera+0x4-GP_ADDR(gp)
+	lw      a0, 0x20(t2)
+	lw      v0, camera+0x8-GP_ADDR(gp)
+	subu    a1, v1
+	subu    t5, a0, v0
+	negu    v1, t4
+	mflo    a0
+	slt     v0, t6, v1
+	bnez    v0, loc_91FC8
+	slt     v0, t4, t6
+	bnez    v0, loc_91FC8
+	slt     v0, a1, v1
+	bnez    v0, loc_91FC8
+	slt     v0, t4, a1
+	bnez    v0, loc_91FC8
+	slt     v0, t5, v1
+	bnez    v0, loc_91FC8
+	slt     v0, t4, t5
+	bnez    v0, loc_91FC8
+	nop
+	mtc2    t6, r9
+	mtc2    a1, r10
+	mtc2    t5, r11
+	nop
+	nop
+	cop2    0xA00428
+	mfc2    v0, r25
+	mfc2    v1, r26
+	mfc2    t3, r27
+	addu    v0, v1
+	addu    t3, v0
+	sltu    v0, a0, t3
+	bnez    v0, loc_91FC8
+	lui     v0, 0xF
+	li      v0, 0xFFFFF
+	sltu    v0, v0, t3
+	bnez    v0, loc_91F60
+	nop
+	j       loc_91F6C
+	move    t3, zero
+
+	loc_91F60:
+	jal     phd_sqrt_asm
+	move    a0, t3
+	addiu   t3, v0, -0x400
+
+	loc_91F6C:
+	move    a0, t5
+	jal     phd_atan_asm
+	move    a1, t6
+	lhu     v1, 0x46A6(gp)
+	lw      a0, 0(t2)
+	sll     v1, 4
+	beqz    t3, loc_91FC0
+	addu    a1, v0, v1
+	sll     v0, t3, 14
+	divu    v0, t4
+	mflo    v0
+	sra     v0, 2
+	andi    v0, 0x3FFC
+	lh      v1, rcossin_tbl(v0)
+	li      v0, 0x1000
+	subu    v0, v1
+	mult    v0, a0
+	mflo    a2
+	sra     a0, a2, 12
+
+	loc_91FC0:
+	bgtz    a0, loc_91FD8
+	li      v0, 0x7FFF
+
+	loc_91FC8:
+	sw      zero, 0x14(t2)
+	sw      zero, 8(t2)
+	jr      t7
+	sw      zero, 4(t2)
+
+	loc_91FD8:
+	slt     v0, v0, a0
+	beqz    v0, loc_91FE8
+	andi    a1, 0xFFFF
+	li      a0, 0x7FFF
+
+	loc_91FE8:
+	sw      a0, 4(t2)
+	sw      a1, 8(t2)
+	jr      t7
+	sw      t3, 0x14(t2)
+	
 S_SoundSampleIsPlaying:
 	lw      v0, GtSFXEnabled
 	nop
 	beqz    v0, locret_91510
 	nop
 	addiu   sp, -0x18
-	sw      s0, 0x18+var_8(sp)
+	sw      s0, 0x18-0x8(sp)
 	move    s0, a0
 	li      a0, 1
-	sw      ra, 0x18+var_4(sp)
+	sw      ra, 0x18-0x4(sp)
 	jal     SpuGetKeyStatus
 	sllv    a0, s0
 	lbu     a1, LabSampleType(s0)
 	addiu   v0, -1
 	andi    v0, 0xFF
-	sltiu   v0, 2
+	sltiu   v0, v0, 2
 	bnez    v0, loc_91758
 	move    v0, a1
 	beqz    v0, loc_91758
