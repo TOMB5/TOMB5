@@ -2,9 +2,17 @@
 
 	SECTION	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch
-	XREF DepthTable, GtSFXEnabled, SpuSetReverbModeDepth, SpuSetReverb, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey, SPU_UpdateStatus, LabSampleType, LabFreeChannel, LnFreeChannels
+	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying
+	XREF DepthTable, GtSFXEnabled, SpuSetReverbModeDepth, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey, SPU_UpdateStatus, LabSampleType, LabFreeChannel, LnFreeChannels
 
+
+S_SoundSetPitch:
+	lw      v0, GtSFXEnabled-GP_ADDR(gp)
+	sll     a1, 10
+	beqz    v0, locret_91510
+	srl     a1, 16
+	j       SpuSetVoicePitch
+	nop
 
 S_SoundSetPanAndVolume:
 	lw      v0, GtSFXEnabled-GP_ADDR(gp)
