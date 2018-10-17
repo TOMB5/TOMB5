@@ -2,11 +2,108 @@
 
 	section	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF DrawAllFx
-	XREF db, MatrixStack, lara_item, room, GLOBAL_default_sprites_ptr, phd_persp, local_mTranslateAbsXYZ, subdiv_ripple, rcossin_tbl, DrawLaserSightSprite_ASM, ASM_GetBounds, local_mRotX, local_mRotY
+	XDEF DrawAllFx, local_mTranslateAbsXYZ
+	XREF db, MatrixStack, lara_item, room, GLOBAL_default_sprites_ptr, phd_persp, subdiv_ripple, rcossin_tbl, DrawLaserSightSprite_ASM, ASM_GetBounds, local_mRotX, local_mRotY
 	
 SplashLinks equ 0
-	
+
+local_mTranslateAbsXYZ:
+	lw      t0, 0x20(s7)
+	lw      t1, 0x24(s7)
+	lw      a3, 0x28(s7)
+	ctc2    zero, r5
+	ctc2    zero, r6
+	ctc2    zero, r7
+	sub     a0, t0
+	sub     a1, t1
+	sub     a2, a3
+	bgez    a1, loc_8A590
+	sra     v0, a1, 15
+	negu    a1, a1
+	sra     v0, a1, 15
+	andi    a1, 0x7FFF
+	negu    v0, v0
+	j       loc_8A594
+	negu    a1, a1
+
+	loc_8A590:
+	andi    a1, 0x7FFF
+
+	loc_8A594:
+	bgez    a2, loc_8A5B4
+	sra     at, a2, 15
+	negu    a2, a2
+	sra     at, a2, 15
+	andi    a2, 0x7FFF
+	negu    at, at
+	j       loc_8A5B8
+	negu    a2, a2
+
+	loc_8A5B4:
+	andi    a2, 0x7FFF
+
+	loc_8A5B8:
+	bgez    a0, loc_8A5D8
+	sra     v1, a0, 15
+	negu    a0, a0
+	sra     v1, a0, 15
+	andi    a0, 0x7FFF
+	negu    v1, v1
+	j       loc_8A5DC
+	negu    a0, a0
+
+	loc_8A5D8:
+	andi    a0, 0x7FFF
+
+	loc_8A5DC:
+	mtc2    v1, r9
+	mtc2    v0, r10
+	mtc2    at, r11
+	nop
+	nop
+	cop2    0x41E012
+	mfc2    v1, r25
+	mfc2    v0, r26
+	mtc2    a0, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	mfc2    at, r27
+	nop
+	nop
+	cop2    0x498012
+	bgez    v1, loc_8A620
+	sll     t0, v1, 3
+	negu    v1, v1
+	sll     v1, 3
+	negu    t0, v1
+
+	loc_8A620:
+	bgez    v0, loc_8A634
+	sll     t1, v0, 3
+	negu    v0, v0
+	sll     v0, 3
+	negu    t1, v0
+
+	loc_8A634:
+	bgez    at, loc_8A648
+	sll     a3, at, 3
+	negu    at, at
+	sll     at, 3
+	negu    a3, at
+
+	loc_8A648:
+	mfc2    v1, r25
+	mfc2    v0, r26
+	mfc2    at, r27
+	addu    t0, v1
+	addu    t1, v0
+	addu    a3, at
+	ctc2    t0, r5
+	ctc2    t1, r6
+	ctc2    a3, r7
+	jr      ra
+	nop
+
 DrawAllFx:
 	addiu   sp, -0x38
 	sw      s0, 0x38-0x28(sp)
