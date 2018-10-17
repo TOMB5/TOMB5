@@ -2,8 +2,93 @@
 
 	section	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	xdef DrawCutSeqActors, updateAnimFrame
-	xref GLOBAL_cutme, meshes, cutrot, mPushMatrix, cutseq_meshbits, cutseq_meshswapbits, temp_rotation_buffer, mTranslateAbsXYZ, objects, bones, mTranslateXYZ, mRotSuperPackedYXZ, phd_PutPolygons_seethrough, phd_PutPolygons, cut_seethrough, mPopMatrix, phd_PutPolygons_seethrough, actor_pnodes, duff_item, mSetTrans, IsRoomOutside, mPushUnitMatrix, S_CalculateLight
+	xdef DrawCutSeqActors, updateAnimFrame, CalcVolumes_ASM
+	xref SoundFXVolume, rcossin_tbl, GLOBAL_cutme, meshes, cutrot, mPushMatrix, cutseq_meshbits, cutseq_meshswapbits, temp_rotation_buffer, mTranslateAbsXYZ, objects, bones, mTranslateXYZ, mRotSuperPackedYXZ, phd_PutPolygons_seethrough, phd_PutPolygons, cut_seethrough, mPopMatrix, phd_PutPolygons_seethrough, actor_pnodes, duff_item, mSetTrans, IsRoomOutside, mPushUnitMatrix, S_CalculateLight
+
+CalcVolumes_ASM:
+	la      v1, rcossin_tbl
+	move    a2, a1
+	sltiu   v0, a0, 0x801
+	bnez    v0, loc_91378
+	andi    a3, 0xFFFF
+	j       loc_9138C
+	li      a0, 0x4B
+
+	loc_91378:
+	sll     at, a0, 2
+	addu    at, a0
+	sll     v0, at, 4
+	subu    v0, at
+	srl     a0, v0, 11
+
+	loc_9138C:
+	li      t0, 0x8000
+	sltu    v0, t0, a3
+	beqz    v0, loc_913E4
+	sra     v0, a3, 2
+	andi    v0, 0x3FFC
+	addu    v0, v1, v0
+	lh      v0, 0(v0)
+	nop
+	mult    v0, a0
+	mflo    v0
+	nop
+	sra     v0, 12
+	mult    a2, v0
+	mflo    v0
+	li      at, 0x51EB851F
+	mult    v0, at
+	sra     v0, 31
+	mfhi    at
+	sra     at, 5
+	subu    v0, at, v0
+	addu    a2, v0
+
+	loc_913E4:
+	li      v0, 0x7FFF
+	sltu    v0, v0, a3
+	bnez    v0, loc_91440
+	addu    v0, a3, t0
+	sra     v0, 2
+	andi    v0, 0x3FFC
+	addu    v0, v1, v0
+	lh      v0, 0(v0)
+	nop
+	mult    v0, a0
+	mflo    v0
+	nop
+	sra     v0, 12
+	mult    a1, v0
+	mflo    v0
+	li      at, 0x51EB851F
+	mult    v0, at
+	sra     v0, 31
+	mfhi    at
+	sra     at, 5
+	subu    v0, at, v0
+	addu    a1, v0
+
+	loc_91440:
+	slti    v0, a2, 0x4000
+	bnez    v0, loc_91450
+	slti    v0, a1, 0x4000
+	li      a2, 0x3FFF
+
+	loc_91450:
+	bnez    v0, loc_9145C
+	lbu     at, SoundFXVolume-GP_ADDR(gp)
+	li      a1, 0x3FFF
+
+	loc_9145C:
+	nop
+	mult    a1, at
+	mflo    a1
+	nop
+	srl     a1, 8
+	mult    a2, at
+	mflo    a2
+	jr      ra
+	srl     a2, 8
 	
 DrawCutSeqActors:
 	addiu   sp, -0x48
