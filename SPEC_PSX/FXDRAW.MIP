@@ -103,6 +103,57 @@ local_mTranslateAbsXYZ:
 	ctc2    a3, r7
 	jr      ra
 	nop
+	
+local_mRotX:
+	andi    a0, 0x3FFC
+	bnez    a0, loc_8A740
+	lui     t0, 9
+	jr      ra
+	nop
+
+	loc_8A740:
+	ori     t0, 0xA8C8
+	add     t0, a0
+	lw      t5, 0(t0)
+	lui     t7, 0xFFFF
+	and     t6, t7, t5
+	mtc2    t6, r0
+	mtc2    t5, r1
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t3, r3
+	cop2    0x486012
+	srl     t6, t5, 16
+	sll     t5, 16
+	neg     t5, t5
+	mtc2    t5, r2
+	mtc2    t6, r3
+	andi    t0, 0xFFFF
+	and     t1, t7
+	andi    t3, 0xFFFF
+	mfc2    t4, r25
+	mfc2    t2, r26
+	mfc2    t5, r27
+	cop2    0x48E012
+	sll     t4, 16
+	or      t0, t4
+	andi    t2, 0xFFFF
+	sll     t5, 16
+	or      t3, t5
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    t4, r27
+	andi    t5, 0xFFFF
+	or      t1, t5
+	sll     t6, 16
+	or      t2, t6
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	ctc2    t4, r4
+	jr      ra
+	nop
 
 DrawAllFx:
 	addiu   sp, -0x38
