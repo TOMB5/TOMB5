@@ -1,0 +1,25 @@
+	opt at-,w-,c+,m-
+
+	SECTION	.ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel
+	XREF DepthTable, SpuSetReverbModeDepth, SpuSetReverb, CurrentReverb, SpuSetKey, SPU_UpdateStatus, LabSampleType, LabFreeChannel, LnFreeChannels
+	
+S_SetReverbType:
+	move    t9, ra
+	lh      v0, 0x1844(gp)
+	sll     a0, 16
+	sra     a0, 16
+	beq     a0, v0, loc_91D2C
+	sll     a1, a0, 1
+	sh      a0, CurrentReverb-GP_ADDR(gp)
+	lh      a1, DepthTable(a1)
+	jal     SpuSetReverbModeDepth
+	move    a0, a1
+	jal     SpuSetReverb
+	li      a0, 1
+
+	loc_91D2C:
+	jr      t9
+	nop
+	
