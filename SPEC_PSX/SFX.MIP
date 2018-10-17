@@ -41,3 +41,10 @@ SPU_StopAll:
 	jr      ra
 	nop
 	
+SPU_FreeChannel:
+	lw      v1, LnFreeChannels-GP_ADDR(gp)
+	sb      zero, LabSampleType(a0)
+	addiu   v0, v1, 1
+	sb      a0, LabFreeChannel(v1)
+	jr      ra
+	sw      v0, LnFreeChannels-GP_ADDR(gp)
