@@ -3,8 +3,155 @@
 	SECTION	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM
-	XREF lara_item, draw_rooms, number_draw_rooms, room, FlashFadeR, FlashFader, FlashFadeG, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM
+	XREF lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
 
+PrintAllOtherObjects_ASM:
+	move    fp, ra
+	lw      s5, room-GP_ADDR(gp)
+	sll     v1, s3, 2
+	addu    v1, s3
+	sll     v1, 4
+	addu    s5, v1
+	jal     mPushMatrix
+	sb      zero, 0x37(s5)
+	lw      a0, 0x14(s5)
+	lw      a1, 0x18(s5)
+	jal     mTranslateAbsXYZ
+	lw      a2, 0x1C(s5)
+	lh      s4, 0x48(s5)
+	li      v0, 0x200
+	sw      v0, phd_right-GP_ADDR(gp)
+	li      v0, 0xF0
+	sw      v0, phd_bottom-GP_ADDR(gp)
+	li      v0, 0xFFFFFFFF
+	sw      zero, phd_left-GP_ADDR(gp)
+	sw      zero, phd_top-GP_ADDR(gp)
+	beq     s4, v0, loc_8F5FC
+	sll     v0, s4, 3
+
+	loc_8F558:
+	addu    v0, s4
+	sll     v0, 4
+	addu    s3, s7, v0
+	lw      v0, 0x84(s3)
+	lh      at, 0xC(s3)
+	la      s6, objects
+	sll     at, 6
+	li      v1, 6
+	andi    v0, 6
+	beq     v0, v1, loc_8F5AC
+	addu    s6, at
+	lhu     v0, 0x32(s6)
+	lw      v1, 0x1C(s6)
+	andi    v0, 0x200
+	bnez    v0, loc_8F5AC
+	nop
+	beqz    v1, loc_8F5AC
+	nop
+	jalr    v1
+	move    a0, s3
+
+	loc_8F5AC:
+	lw      v1, 0x34(s6)
+	nop
+	beqz    v1, loc_8F5C4
+	nop
+	jalr    v1
+	move    a0, s3
+
+	loc_8F5C4:
+	lhu     v1, 0x30(s3)
+	li      at, 0x80
+	addiu   v0, v1, -1
+	sltiu   v0, v0, 0x7F
+	beqz    v0, loc_8F5EC
+	addiu   v1, 1
+	bne     v1, at, loc_8F5EC
+	sh      v1, 0x30(s3)
+	jal     KillItem
+	move    a0, s4
+
+	loc_8F5EC:
+	lh      s4, 0x1A(s3)
+	li      v0, 0xFFFFFFFF
+	bne     s4, v0, loc_8F558
+	sll     v0, s4, 3
+
+	loc_8F5FC:
+	lh      a0, 0x4A(s5)
+	li      v0, 0xFFFFFFFF
+	beq     a0, v0, loc_8F6EC
+
+	loc_8F608:
+	sll     v0, a0, 1
+	addu    v0, a0
+	sll     v0, 2
+	subu    v0, a0
+	lw      a0, effects-GP_ADDR(gp)
+	sll     v0, 2
+	addu    s4, a0, v0
+	lh      v1, 0x16(s4)
+	la      s3, objects
+	sll     v1, 6
+	addu    s3, v1
+	lw      a0, 0x1C(s3)
+	lh      v0, 0x32(s3)
+	beqz    a0, loc_8F6E0
+	andi    v0, 1
+	beqz    v0, loc_8F6E0
+	nop
+	jal     mPushMatrix
+	nop
+	lw      a0, 0(s4)
+	lw      a1, 4(s4)
+	jal     mTranslateAbsXYZ
+	lw      a2, 8(s4)
+	addiu   t2, -0x15
+	sltiu   t2, t2, 0x4FEB
+	beqz    t2, loc_8F6D8
+	nop
+	lh      a0, 0xE(s4)
+	lh      a1, 0xC(s4)
+	jal     mRotYXZ
+	lh      a2, 0x10(s4)
+	lh      a3, 0x14(s4)
+	lw      a0, 0(s4)
+	lw      a1, 4(s4)
+	lw      a2, 8(s4)
+	la      v0, duff_item+0x54
+	sw      v0, 0x10(sp)
+	jal     S_CalculateLight
+	sb      zero, 0x2F(v0)
+	lh      at, 0(s3)
+	lh      v0, 0x20(s4)
+	beqz    at, loc_8F6C0
+	nop
+	lh      v0, 2(s3)
+
+	loc_8F6C0:
+	lw      v1, meshes-GP_ADDR(gp)
+	sll     v0, 2
+	addu    v0, v1
+	lw      a0, 0(v0)
+	jal     phd_PutPolygons
+	li      a1, 0xFFFFFFFF
+
+	loc_8F6D8:
+	jal     mPopMatrix
+	nop
+
+	loc_8F6E0:
+	lh      a0, 0x18(s4)
+	li      at, 0xFFFFFFFF
+	bne     a0, at, loc_8F608
+
+	loc_8F6EC:
+	li      v0, 0x1FF
+	jal     mPopMatrix
+	sw      v0, 0x38(s5)
+	li      v0, 0xEF
+	jr      fp
+	sw      v0, 0x3C(s5)
 	
 print_all_object_NOW:
 	addiu   sp, -0x48
