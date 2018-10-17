@@ -1,8 +1,91 @@
 	opt L.,C+,at+
 
 	section	.ASM
-	xdef mQuickW2VMatrix, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mSqrt
+	xdef mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mSqrt
 	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
+
+ASM_GetBounds:
+	slt     at, t0, a2
+	beqz    at, loc_76A38A
+	slt     at, t0, a3
+	move    a2, t0
+
+	loc_76A38A:
+	bnez    at, loc_76A44A
+	slt     at, t1, a2
+	move    a3, t0
+
+	loc_76A44A:
+	beqz    at, loc_76A50A
+	slt     at, t1, a3
+	move    a2, t1
+
+	loc_76A50A:
+	bnez    at, loc_76A5CA
+	slt     at, t2, a2
+	move    a3, t1
+
+	loc_76A5CA:
+	beqz    at, loc_76A68A
+	slt     at, t2, a3
+	move    a2, t2
+
+	loc_76A68A:
+	bnez    at, loc_76A74A
+	sll     t0, 16
+	move    a3, t2
+
+	loc_76A74A:
+	sll     t1, 16
+	sll     t2, 16
+	slt     at, t0, a0
+	beqz    at, loc_76A8CA
+	slt     at, t0, a1
+	move    a0, t0
+
+	loc_76A8CA:
+	bnez    at, loc_76A98A
+	slt     at, t1, a0
+	move    a1, t0
+
+	loc_76A98A:
+	beqz    at, loc_76AA4A
+	slt     at, t1, a1
+	move    a0, t1
+
+	loc_76AA4A:
+	bnez    at, loc_76AB0A
+	slt     at, t2, a0
+	move    a1, t1
+
+	loc_76AB0A:
+	beqz    at, loc_76ABCA
+	slt     at, t2, a1
+	move    a0, t2
+
+	loc_76ABCA:
+	bnez    at, loc_76AC8A
+	sltiu   at, t3, 0x5000
+	move    a1, t2
+
+	loc_76AC8A:
+	beqz    at, loc_76AD4A
+	sltiu   at, t4, 0x5000
+	addi    v0, 1
+
+	loc_76AD4A:
+	beqz    at, loc_76AE0A
+	sltiu   at, t5, 0x5000
+	addi    v0, 1
+
+	loc_76AE0A:
+	beqz    at, locret_76AECD
+	nop
+	addi    v0, 1
+
+	locret_76AECD:
+	jr      ra
+	nop
 
 ;0x77AEC
 mQuickW2VMatrix:
