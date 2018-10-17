@@ -5,6 +5,24 @@
 	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch
 	XREF DepthTable, GtSFXEnabled, SpuSetReverbModeDepth, SpuSetReverb, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey, SPU_UpdateStatus, LabSampleType, LabFreeChannel, LnFreeChannels
 
+S_SetReverbType:
+	move    t9, ra
+	lh      v0, 0x1844(gp)
+	sll     a0, 16
+	sra     a0, 16
+	beq     a0, v0, loc_91D2C
+	sll     a1, a0, 1
+	sh      a0, CurrentReverb-GP_ADDR(gp)
+	lh      a1, DepthTable(a1)
+	jal     SpuSetReverbModeDepth
+	move    a0, a1
+	jal     SpuSetReverb
+	li      a0, 1
+
+	loc_91D2C:
+	jr      t9
+	nop
+	
 SPU_StopAll:
 	addiu   sp, -0x18
 	sw      ra, 0x18-0x8(sp)
