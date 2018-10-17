@@ -2,9 +2,50 @@
 
 	SECTION	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window
-	XREF lara_item, draw_rooms, number_draw_rooms, room, FlashFadeR, FlashFader, FlashFadeG, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv
+	XDEF CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM
+	XREF lara_item, draw_rooms, number_draw_rooms, room, FlashFadeR, FlashFader, FlashFadeG, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM
 
+	
+print_all_object_NOW:
+	addiu   sp, -0x48
+	sw      s0, 0x48-0x28(sp)
+	sw      s1, 0x48-0x24(sp)
+	sw      s2, 0x48-0x20(sp)
+	sw      s3, 0x48-0x1C(sp)
+	sw      s4, 0x48-0x18(sp)
+	sw      s5, 0x48-0x14(sp)
+	sw      s6, 0x48-0x10(sp)
+	sw      s7, 0x48-0xC(sp)
+	sw      ra, 0x48-0x4(sp)
+	jal     CalcAllAnimatingItems_ASM
+	sw      fp, 0x48-0x8(sp)
+	lw      s7, items-GP_ADDR(gp)
+	lw      s0, number_draw_rooms-GP_ADDR(gp)
+	la      s1, draw_rooms
+	blez    s0, loc_8F4D0
+	nop
+
+	loc_8F4BC:
+	lh      s3, 0(s1)
+	jal     PrintAllOtherObjects_ASM
+	addiu   s0, -1
+	bnez    s0, loc_8F4BC
+	addiu   s1, 2
+
+	loc_8F4D0:
+	lw      ra, 0x48-0x4(sp)
+	lw      fp, 0x48-0x8(sp)
+	lw      s7, 0x48-0xC(sp)
+	lw      s6, 0x48-0x10(sp)
+	lw      s5, 0x48-0x14(sp)
+	lw      s4, 0x48-0x18(sp)
+	lw      s3, 0x48-0x1C(sp)
+	lw      s2, 0x48-0x20(sp)
+	lw      s1, 0x48-0x24(sp)
+	lw      s0, 0x48-0x28(sp)
+	jr      ra
+	addiu   sp, 0x48
+	
 CalcClipWindow_ONGTE:
 	andi    t2, a1, 0xFFFF
 	andi    t5, a0, 0xFFFF
