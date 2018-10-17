@@ -14,6 +14,7 @@
 #include "DRAWOBJ.H"
 #include "DRAWSPKS.H"
 #include "EFFECTS.H"
+#include "FOOTPRNT.H"
 #include "FXDRAW.H"
 #include "FXTRIG.H"
 #include "GAMEFLOW.H"
@@ -178,10 +179,8 @@ long DrawPhaseGame()//63F04, 645E0
 
 		if (InfraRed)
 		{
-#if PSX_VERSION
 			DrawPsxTile(0, 0xF00200, 0x62202000, 2);//@a1 = 8bit window height 16bit window width
 			DrawPsxTile(0, 0xF00200, 0x62000020, 1);//@a1 = 8bit window height 16bit window width
-#endif
 		}
 	}
 
@@ -520,6 +519,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 	else
 	{
+		//DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 		//loc_64BA0
 		//unsigned long* v1 = (unsigned long*)RelocPtr[3];
 		//jalr v1[0];

@@ -3,7 +3,7 @@
 	section	.ASM
 	xdef S_CalculateLight
 	xref room, number_dynamics, dynamics, CamGTE, LightPos, mSqrt, mNormaliseXYZ
-
+;TODO, GP
 S_CalculateLight:
 	addi    sp, -0x2C
 	sw      ra, 0x2C-0x2C(sp)

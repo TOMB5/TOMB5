@@ -1,4 +1,4 @@
-	opt L.,C+,at+
+	opt at-,w-,c+,m-
 
 	section	.ASM
 	xdef S_SetupClutAdder, GetBoundsAccurate

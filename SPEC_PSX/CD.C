@@ -121,7 +121,7 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 			cnt = XAReqTrack + 7;
 		}
 
-		cnt &= ~3;//>>3<<3
+		cnt = (cnt >> 3) << 3;//>>3<<3
 		XAStartPos = XATrackList[cnt][0];
 		io[0] = 1;
 		XAEndPos = XATrackList[cnt][1] + XATrackClip[XAReqTrack];

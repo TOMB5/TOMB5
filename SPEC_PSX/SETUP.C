@@ -1077,7 +1077,7 @@ void InitialiseFlipMaps()//?(<), B9D30(<)//InitialiseGameFlags
 
 	for (i = 0; i < 10; i++)
 	{
-		flipmap[0] = 0;
+		flipmap[0] = 0;///@FIXME should be [i]?
 		flip_stats[0] = 0;
 	}
 
