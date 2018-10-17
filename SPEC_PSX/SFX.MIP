@@ -22,4 +22,22 @@ S_SetReverbType:
 	loc_91D2C:
 	jr      t9
 	nop
+
+SPU_StopAll:
+	addiu   sp, -0x18
+	sw      ra, 0x18-0x8(sp)
+	li      a1, 0xFFFFFF
+	jal     SpuSetKey
+	move    a0, zero
+
+	loc_91D5C:
+	jal     SPU_UpdateStatus
+	nop
+	li      at, 0x18
+	bne     v0, at, loc_91D5C
+	nop
+	lw      ra, 0x18-0x8(sp)
+	addiu   sp, 0x18
+	jr      ra
+	nop
 	
