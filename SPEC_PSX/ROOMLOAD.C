@@ -3,12 +3,9 @@
 #include "CD.H"
 #include "DRAW.H"
 #include "FILE.H"
-#include "GAMEFLOW.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
-#include "MALLOC.H"
 #include "SETUP.H"
-#include "TYPEDEFS.H"
 
 #include <stdio.h>
 #include <LIBSN.H>

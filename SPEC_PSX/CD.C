@@ -1,7 +1,6 @@
 #include "CD.H"
 
 #include "CONTROL.H"
-#include "SPECIFIC.H"
 
 #include <assert.h>
 #include <stdio.h>

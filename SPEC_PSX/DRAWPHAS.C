@@ -1,7 +1,6 @@
 #include "DRAWPHAS.H"
 
 #include "3D_GEN.H"
-#include "ANIMITEM.H"
 #include "BUBBLES.H"
 #include "CALCLARA.H"
 #include "CONTROL.H"
@@ -12,16 +11,13 @@
 #include "DOOR.H"
 #include "DRAW.H"
 #include "DRAWOBJ.H"
-#include "DRAWSPKS.H"
 #include "EFFECTS.H"
-#include "FOOTPRNT.H"
 #include "FXDRAW.H"
 #include "FXTRIG.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "HEALTH.H"
 #include "LARA.H"
-#include "LOAD_LEV.H"
 #include "OBJECTS.H"
 #include "PRINTOBJ.H"
 #include "PROFILE.H"
@@ -32,27 +28,11 @@
 #include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
-#include "TEXT.H"
 #include "TOMB4FX.H"
 
 #include INLINE_H
 #include <LIBGPU.H>
 #include <stdio.h>
-
-#define gte_SetRotMatrixH( r0 ) __asm__ volatile (		\
-	"lhu	$12, 0( %0 );"					\
-	"lhu	$13, 4( %0 );"					\
-	"ctc2	$12, $0;"					\
-	"ctc2	$13, $1;"					\
-	"lhu	$12, 8( %0 );"					\
-	"lhu	$13, 12( %0 );"					\
-	"lhu	$14, 16( %0 );"					\
-	"ctc2	$12, $2;"					\
-	"ctc2	$13, $3;"					\
-	"ctc2	$14, $4"					\
-	:							\
-	: "r"( r0 )						\
-	: "$12", "$13", "$14" )
 
 long StoreBoxes = -1;
 struct GAME_VECTOR LaraPos;

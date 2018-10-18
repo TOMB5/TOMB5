@@ -3,9 +3,7 @@
 #include "3D_OBJ.H"
 #include "CAMERA.H"
 #include "CD.H"
-#include "CONTROL.H"
 #include "MISC.H"
-#include "MOVIE.H"
 #include "GPU.H"
 #include "PROFILE.H"
 #include "PSXINPUT.H"
@@ -13,7 +11,6 @@
 #include "SAVEGAME.H"
 #include "SFX.H"
 #include "SOUND.H"
-#include "SPUSOUND.H"
 
 #include <assert.h>
 #include <stdio.h>

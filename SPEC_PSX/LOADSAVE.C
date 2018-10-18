@@ -1,7 +1,5 @@
 #include "LOADSAVE.H"
 
-#include "DRAWPHAS.H"
-#include "FXTRIG.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "MEMCARD.H"
