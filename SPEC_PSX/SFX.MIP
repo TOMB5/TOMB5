@@ -2,8 +2,40 @@
 
 	SECTION	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume
-	XREF DepthTable, camera, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey, SPU_UpdateStatus, LabSampleType, LabFreeChannel, LnFreeChannels
+	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume, SPU_UpdateStatus
+	XREF DepthTable, camera, local_mRotY, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuGetAllKeysStatus, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey, LabSampleType, LabFreeChannel, LnFreeChannels
+
+SPU_UpdateStatus:
+	addiu   sp, -0x2C
+	sw      ra, 0x2C-0x4(sp)
+	jal     SpuGetAllKeysStatus
+	addiu   a0, sp, 0x2C-0x1C
+	move    a2, zero
+	addiu   a3, sp, 0x2C-0x1C
+	la      t0, LabSampleType
+
+	loc_9161C:
+	lbu     v0, 0(a3)
+	addiu   a3, 1
+	addiu   v0, -1
+	sltiu   v0, v0, 2
+	bnez    v0, loc_9164C
+	addiu   a2, 1
+	lbu     v0, 0(t0)
+	nop
+	beqz    v0, loc_9164C
+	nop
+	jal     SPU_FreeChannel
+	addiu   a0, a2, -1
+
+	loc_9164C:
+	slti    v0, a2, 0x18
+	bnez    v0, loc_9161C
+	addiu   t0, 1
+	lw      ra, 0x2C-0x4(sp)
+	lw      v0, LnFreeChannels-GP_ADDR(gp)
+	jr      ra
+	addiu   sp, 0x2C
 
 GetPanVolume:
 	move    t7, ra
@@ -80,7 +112,7 @@ GetPanVolume:
 	mflo    v0
 	sra     v0, 2
 	andi    v0, 0x3FFC
-	lh      v1, rcossin_tbl(v0)
+;	lh      v1, rcossin_tbl(v0)
 	li      v0, 0x1000
 	subu    v0, v1
 	mult    v0, a0
@@ -121,7 +153,7 @@ S_SoundSampleIsPlaying:
 	sw      ra, 0x18-0x4(sp)
 	jal     SpuGetKeyStatus
 	sllv    a0, s0
-	lbu     a1, LabSampleType(s0)
+;	lbu     a1, LabSampleType(s0)
 	addiu   v0, -1
 	andi    v0, 0xFF
 	sltiu   v0, v0, 2
@@ -147,7 +179,7 @@ S_SoundStopSample:
 	addiu   sp, -0x18
 	sw      ra, 0x18-0x8(sp)
 	sw      a0, 0x18-0x4(sp)
-	lbu     v0, LabSampleType(a0)
+;	lbu     v0, LabSampleType(a0)
 	move    a2, a0
 	beqz    v0, loc_916CC
 	nop
@@ -230,7 +262,7 @@ S_SetReverbType:
 	beq     a0, v0, loc_91D2C
 	sll     a1, a0, 1
 	sh      a0, CurrentReverb-GP_ADDR(gp)
-	lh      a1, DepthTable(a1)
+;	lh      a1, DepthTable(a1)
 	jal     SpuSetReverbModeDepth
 	move    a0, a1
 	jal     SpuSetReverb
@@ -260,8 +292,8 @@ SPU_StopAll:
 	
 SPU_FreeChannel:
 	lw      v1, LnFreeChannels-GP_ADDR(gp)
-	sb      zero, LabSampleType(a0)
+;	sb      zero, LabSampleType(a0)
 	addiu   v0, v1, 1
-	sb      a0, LabFreeChannel(v1)
+;	sb      a0, LabFreeChannel(v1)
 	jr      ra
 	sw      v0, LnFreeChannels-GP_ADDR(gp)

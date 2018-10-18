@@ -3,7 +3,11 @@
 	SECTION	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF PrintString, DrawChar, GetStringLength, GetStringDimensions
-	XREF aUEAAAAEEEAAEOO, word_9230E, loc_92020, FontShades, phd_mxptr, MatrixStack, Matrix, MatrixSP, AccentTable, LaSlot, CharDef, sound_active, sample_infos, sample_lut, ScaleFlag, GnFrameCounter, db, S_SoundStopSample, db.ot
+	XREF FontShades, phd_mxptr, MatrixStack, Matrix, MatrixSP, AccentTable, LaSlot, CharDef, sound_active, sample_infos, sample_lut, ScaleFlag, GnFrameCounter, db, S_SoundStopSample, db.ot
+
+aUEAAAAEEEAAEOO equ 0
+loc_92020 equ 0
+word_9230E equ 0
 
 PrintString:
 	addiu   sp, -0x40

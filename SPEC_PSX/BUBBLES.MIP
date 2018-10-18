@@ -2,7 +2,7 @@
 
 	SECTION	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM
+	XDEF CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
 	XREF lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
 
 PrintAllOtherObjects_ASM:

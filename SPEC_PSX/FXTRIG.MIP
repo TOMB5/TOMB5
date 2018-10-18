@@ -2,8 +2,11 @@
 
 	section	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF SetGunFlash
+	XDEF SetGunFlash, subdiv_ripple
 	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1
+	
+subdiv_ripple:
+	jr	ra
 	
 SetGunFlash:
 	move    t9, ra
