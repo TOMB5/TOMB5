@@ -123,7 +123,7 @@ void ProcessExplodingSwitchType8(struct ITEM_INFO* item)//58958, 58DF8 (F)
 
 void CrowDoveSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//58740, 58BE0
 {
-	S_Warn("[CrowDoveSwitchCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
@@ -158,43 +158,43 @@ void CrowDoveSwitchControl(short item_number)//58674(<), 58B14 (F)
 
 void CogSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//58354, 587F4
 {
-	S_Warn("[CogSwitchCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
 void CogSwitchControl(short item_num)//581D8, 58678
 {
-	S_Warn("[CogSwitchControl] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
 void FullBlockSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//57FB8, 58458
 {
-	S_Warn("[FullBlockSwitchCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
 void FullBlockSwitchControl(short item_number)//57EB8, 58358
 {
-	S_Warn("[FullBlockSwitchControl] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
 void CrowbarSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//57ACC, 57F6C
 {
-	S_Warn("[CrowbarSwitchCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
 void JumpSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//57980, 57E20
 {
-	S_Warn("[JumpSwitchCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
 void RailSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//576F4, 57B94
 {
-	S_Warn("[RailSwitchCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
@@ -319,37 +319,37 @@ void TurnSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 
 void TurnSwitchControl(short item_num)//56E9C, 5733C
 {
-	S_Warn("[TurnSwitchControl] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
 void PulleyCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//56C98, 57138
 {
-	S_Warn("[PulleyCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
 void UnderwaterSwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//56A2C, 56ECC
 {
-	S_Warn("[UnderwaterSwitchCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
 void SwitchCollision2(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//568C0, 56D60
 {
-	S_Warn("[SwitchCollision2] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
 void SwitchCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//56470, 56910
 {
-	S_Warn("[SwitchCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
 void SwitchControl(short item_number)//5623C, 566DC
 {
-	S_Warn("[SwitchControl] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return;
 }
 
@@ -454,6 +454,6 @@ int GetSwitchTrigger(struct ITEM_INFO* item, short* ItemNos, long AttatchedToSwi
 
 int SwitchTrigger(short item_num, short timer)//55DE4, 56284
 {
-	S_Warn("[SwitchTrigger] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }

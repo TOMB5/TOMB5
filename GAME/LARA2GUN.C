@@ -23,12 +23,12 @@ static struct PISTOL_DEF PistolTable[4] =
 
 void AnimatePistols(int weapon_type)
 {
-	S_Warn("[AnimatePistols] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void PistolHandler(int weapon_type)
 {
-	S_Warn("[PistolHandler] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void undraw_pistol_mesh_right(int weapon_type)//44968(<), 44DCC(<) (F)
@@ -97,7 +97,7 @@ void ready_pistols(int weapon_type)// (F)
 
 void undraw_pistols(int weapon_type)
 {
-	S_Warn("[undraw_pistols] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void draw_pistols(int weapon_type)// (F)

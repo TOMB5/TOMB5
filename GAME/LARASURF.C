@@ -322,7 +322,7 @@ void LaraSurfaceCollision(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D4F0
 
 int LaraTestWaterClimbOut(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D22C, 4D690
 {
-	S_Warn("[LaraTestWaterClimbOut] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 

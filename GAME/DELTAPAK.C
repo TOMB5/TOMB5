@@ -1842,7 +1842,7 @@ void andrea2_end()//2FFD4(<), 30354(<) (F)
 
 void andrea2_control()//2FCDC, 3005C
 {
-	S_Warn("[andrea2_control] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void andrea2_init()//2FCC0(<), 30040(<) (F)
@@ -2269,12 +2269,12 @@ void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* p
 
 void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR* vec)
 {
-	S_Warn("[GetActorJointAbsPosition] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix)
 {
-	S_Warn("[GrabActorMatrix] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, struct PHD_VECTOR* pos)// (F)
@@ -2437,7 +2437,7 @@ void special4_init()//2E794(<), 2EAA0(<)
 {
 #if PSXENGINE
 	cutrot = 0;
-	S_Warn("[special4_init] - Unimplemented!\n");
+	UNIMPLEMENTED();
 #else
 	lara_item->mesh_bits = 0xFFFFFFFF;
 	Chris_Menu = 0;
@@ -2460,7 +2460,7 @@ void special3_end()//2E764(<), 2EA70(<) (F)
 
 void special3_control()//2E734(<), 2EA40(<)
 {
-	S_Warn("[special3_control] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void special3_init()//2E704(<), 2EA10(<) (F)
@@ -2576,12 +2576,12 @@ void special2_init()//2E674(<), 2E980(<) (F)
 
 void special1_end()//2E644(<), 2E950(<)
 {
-	S_Warn("[special1_end] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void special1_control()//2E614(<), 2E920(<)
 {
-	S_Warn("[special1_control] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void special1_init()//2E5E4(<), 2E8F0(<) (F)
@@ -2917,7 +2917,7 @@ void init_resident_cutseq(int num)//2DB8C(<), 2DE1C(<) (F)
 
 void init_cutseq_actors(char* data, int resident)
 {
-	S_Warn("[init_cutseq_actors] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int Load_and_Init_Cutseq(int num)
@@ -2934,7 +2934,7 @@ int Load_and_Init_Cutseq(int num)
 	}
 	init_cutseq_actors((char*)cut, FALSE);
 #else
-	S_Warn("[Load_and_Init_Cutseq] - Unimplemented!\n");
+	UNIMPLEMENTED();
 #endif
 
 	return 0;
@@ -3102,7 +3102,7 @@ void cutseq_givelara_pistols()//2D2A0(<), 2D588(<) (F)
 
 void CalculateObjectLightingLaraCutSeq()
 {
-	S_Warn("[CalculateObjectLightingLaraCutSeq] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
@@ -3256,7 +3256,7 @@ void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* p
 
 void do_new_cutscene_camera()
 {
-	S_Warn("[do_new_cutscene_camera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void handle_cutseq_triggering(int name)//2C3C4, 2C6EC

@@ -1078,13 +1078,13 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 int TitleOptions()
 {
-	S_Warn("[TitleOptions] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void SpecialFeaturesDisplayScreens(int num)
 {
-	S_Warn("[SpecialFeaturesDisplayScreens] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DoSpecialFeaturesServer()// (F)

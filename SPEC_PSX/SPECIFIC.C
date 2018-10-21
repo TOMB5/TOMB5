@@ -539,12 +539,12 @@ void DisplayConfig(int x, int y)//6080C, 61340
 		# End of function sub_6080C
 #endif
 
-		S_Warn("[DisplayConfig] - Unimplemented!\n");
+		UNIMPLEMENTED();
 }
 
 int DoPauseMenu()//60F34, 61A68
 {
-	S_Warn("[DoPauseMenu] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -576,7 +576,7 @@ void gInit()//615CC(<), 6210C(<) (F)
 
 short S_Death()//61658, 622C8
 {
-	S_Warn("[S_Death] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 

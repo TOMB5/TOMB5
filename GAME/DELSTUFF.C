@@ -85,5 +85,5 @@ char HairRotScratchVertNums[5][12] =
 
 void CalcLaraMatrices(int flag)//2C1DC, 2C504
 {
-	S_Warn("[CalcLaraMatrices] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

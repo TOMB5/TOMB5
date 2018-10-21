@@ -3304,7 +3304,7 @@ void ApplyVelocityToRope(int node, unsigned short angle, unsigned short n)//178E
 
 void UpdateRopeSwing(struct ITEM_INFO* item)//17508, 1763C
 {
-	S_Warn("[UpdateRopeSwing] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void JumpOffRope(struct ITEM_INFO* item)//17424, 17558 (F)
@@ -4962,13 +4962,13 @@ int TestHangSwingIn(struct ITEM_INFO* item, short angle)//14104, 141B4 (F)
 
 int LaraHangLeftCornerTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//13C24, 13CD4
 {
-	S_Warn("[LaraHangLeftCornerTest] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int LaraHangRightCornerTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//13738, 137E8
 {
-	S_Warn("[LaraHangRightCornerTest] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -5011,7 +5011,7 @@ int IsValidHangPos(struct ITEM_INFO* item, struct COLL_INFO* coll)//135BC, 1366C
 
 int LaraHangTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//12F34, 12FE4
 {
-	S_Warn("[LaraHangTest] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -5356,7 +5356,7 @@ int TestWall(struct ITEM_INFO* item, long front, long right, long down)//12550, 
 
 int TestLaraVault(struct ITEM_INFO* item, struct COLL_INFO* coll)//120C0, 12170
 {
-	S_Warn("[TestLaraVault] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -5546,7 +5546,7 @@ int LaraFallen(struct ITEM_INFO* item, struct COLL_INFO* coll)//11B6C, 11C1C (F)
 
 int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll)//11998, 11A48
 {
-	S_Warn("[TestLaraSlide] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -5590,13 +5590,13 @@ void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764
 
 int GetLaraJointPos(struct PHD_VECTOR* arg1, long arg2)
 {
-	S_Warn("[GetLaraJointPos] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void AnimateLara(struct ITEM_INFO* item)
 {
-	S_Warn("[AnimateLara] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F) 
@@ -5667,20 +5667,20 @@ void SetPendulumVelocity(int x, int y, int z)// (F)
 
 void LaraClimbRope(struct ITEM_INFO* item, struct COLL_INFO* coll)
 {
-	S_Warn("[LaraClimbRope] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void FireChaff()
 {
-	S_Warn("[FireChaff] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void GetLaraJointPosRot(struct PHD_VECTOR *a1, int a2, int a3, struct SVECTOR *a4)
 {
-	S_Warn("[GetLaraJointPosRot] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DoSubsuitStuff()
 {
-	S_Warn("[DoSubsuitStuff] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

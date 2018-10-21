@@ -39,12 +39,12 @@ struct SPARKS spark[128];
 
 void ControlEnemyMissile(short fx_number)//342D0, 347D0
 {
-	S_Warn("[ControlEnemyMissile] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ControlSmokeEmitter(short item_number)//338B8, 33DB8
 {
-	S_Warn("[ControlSmokeEmitter] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void KillEverything()//338AC(<), 33DAC(<) (F)
@@ -59,12 +59,12 @@ void KillAllCurrentItems(short item_number)//3389C, 33D9C (F)
 
 void TriggerDartSmoke(long x, long y, long z, long xv, long zv, long hit)//335B8, 33AB8
 {
-	S_Warn("[TriggerDartSmoke] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerWaterfallMist(long x, long y, long z, long angle)//331B4, 336B4
 {
-	S_Warn("[TriggerWaterfallMist] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly)//32EAC, 333AC (F)
@@ -256,26 +256,26 @@ void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, 
 
 void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 {
-	S_Warn("[TriggerDynamic] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerFireFlame(int x, int y, int z, int fxObj, signed int a5)
 {
-	S_Warn("[TriggerFireFlame] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerFontFire(struct ITEM_INFO* item, int a2, int a3)
 {
-	S_Warn("[TriggerFontFire] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 void TriggerHydraMissileFlame(struct PHD_VECTOR* pos, long x, long y, long z)
 {
-	S_Warn("[TriggerHydraMissileFlame] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerRomanGodMissileFlame(struct PHD_VECTOR* pos, long fx_number)
 {
-	S_Warn("[TriggerRomanGodMissileFlame] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerTorpedoSteam(struct PHD_VECTOR *pos, struct PHD_VECTOR *a2, int a3)// (F)
@@ -388,7 +388,7 @@ void TriggerSubMist(struct PHD_VECTOR *pos, struct PHD_VECTOR *a4, int a5)// (F)
 
 void TriggerEngineEffects()
 {
-	S_Warn("[TriggerEngineEffects] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerAirBubbles()// (F)

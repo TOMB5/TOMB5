@@ -281,7 +281,7 @@ void DrawAirBar(int flash_state)
 		jr	$ra
 		addiu	$sp, 0x20
 #endif
-	S_Warn("[DrawAirBar] - Unimplemented!\n");
+		UNIMPLEMENTED();
 #endif
 }
 
@@ -336,7 +336,7 @@ void DrawHealthBar(int flash_state)
 	if (PoisonFlag)
 		PoisonFlag--;
 #else
-	S_Warn("[DrawHealthBar] - Unimplemented!\n");
+	UNIMPLEMENTED();
 #endif
 }
 
