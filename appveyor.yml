@@ -17,9 +17,9 @@ configuration:
 
 #lib_folder: %clone_folder%\EXTERNAL
 
-build:
-  verbosity: minimal
-  
+
+
+
 platform:
   - Win32
   #- x64
@@ -30,17 +30,21 @@ install:
   - sh: sudo apt-get install -y libgles2-mesa-dev
   - sh: sudo apt-get install -y libsdl2-dev
   
-before_build:
+build_script:
   - sh: mkdir BUILD
   - sh: cd BUILD
   - sh: cmake ..
+  - sh: make
    
 artifacts:
    - path: BUILD\SPEC_PSXPC\*.zip
      name: Binaries
   
 after_build:
-  - cmd: cd SPEC_PSXPC
-  - 7z a TOMB5.zip "%configuration%\"
+
+  - sh: cd SPEC_PSXPC
+
+  - sh: 7z a TOMB5.zip MAIN
+#  - sh: 7z a TOMB5.zip "%configuration%\"
   
 #build: off
