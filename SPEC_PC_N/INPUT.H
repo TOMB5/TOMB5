@@ -3,12 +3,40 @@
 
 #include "SPECTYPES.H"
 
+enum IKEYS
+{
+	KEY_FORWARD = 0,
+	KEY_BACK = 1,
+	KEY_LEFT = 2,
+	KEY_RIGHT = 3,
+	KEY_DUCK = 4,
+	KEY_SPRINT = 5,
+	KEY_WALK = 6,
+	KEY_JUMP = 7,
+	KEY_ACTION = 8,
+	KEY_DRAW = 9,
+	KEY_FLARE = 10,
+	KEY_LOOK = 11,
+	KEY_ROLL = 12,
+	KEY_OPTION = 13,
+	KEY_STEPL = 14,
+	KEY_STEPR = 15,
+	KEY_PAUSE = 16,
+	KEY_SELECT = 17,
+};
+
+extern short mouse_x;
+extern short mouse_y;
+extern int mouse_vkeys;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 	// The global input variable
 	extern sint32 input;
+	extern sint32 dbinput;
+	extern sint32 inputBusy;
 
 
 	extern int bLaraOn;
@@ -18,21 +46,19 @@ extern "C" {
 	extern int bEffectOn;
 
 
-	extern int S_UpdateInput();
+	
 
 #ifdef __cplusplus
 }
 #endif
 
+extern int S_UpdateInput();
 
-extern int S_UpdateInput(void);
-
-extern char*		kname[];
-extern sint16		layout[2][15];
-extern int			conflict[];
 extern int joy_x, joy_y, joy_fire;
 
 extern unsigned char keymap[];
+extern int32_t conflict[];
+extern int16_t layout[2][18];
 #define rawkey(A) (keymap[A] & 0x80)
 
 

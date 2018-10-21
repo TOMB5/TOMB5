@@ -651,24 +651,24 @@ enum lara_mesh
 	NUM_LARA_MESHES
 };
 
-/*enum LM
+enum lara_joint
 {
-	LM2_HIPS = 0,
-	LM2_LTHIGH = 1,
-	LM2_LSHIN = 2,
-	LM2_LFOOT = 3,
-	LM2_RTHIGH = 4,
-	LM2_RSHIN = 5,
-	LM2_RFOOT = 6,
-	LM2_TORSO = 7,
-	LM2_RINARM = 14,
-	LM2_ROUTARM = 8,
-	LM2_RHAND = 9,
-	LM2_LINARM = 10,
-	LM2_LOUTARM = 11,
-	LM2_LHAND = 12,
-	LM2_HEAD = 13,
-};*/
+	LJ_HIPS = 0,
+	LJ_LTHIGH = 1,
+	LJ_LSHIN = 2,
+	LJ_LFOOT = 3,
+	LJ_RTHIGH = 4,
+	LJ_RSHIN = 5,
+	LJ_RFOOT = 6,
+	LJ_TORSO = 7,
+	LJ_RINARM = 9,
+	LJ_ROUTARM = 10,
+	LJ_RHAND = 11,
+	LJ_LINARM = 12,
+	LJ_LOUTARM = 13,
+	LJ_LHAND = 14,
+	LJ_HEAD = 8,
+};
 
 enum lara_draw_type
 {
@@ -694,7 +694,8 @@ enum lara_gun_status
 	LG_HANDS_BUSY = 1,
 	LG_DRAW_GUNS = 2,
 	LG_UNDRAW_GUNS = 3,
-	LG_READY = 4
+	LG_READY = 4,
+	LG_FLARE = 5,
 };
 
 extern short angle; // offset 0xA0650

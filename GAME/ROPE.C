@@ -27,7 +27,7 @@ void LoadRope()// (F)
 
 void Straighten(struct ROPE_STRUCT* a1, struct PHD_VECTOR* a2, struct PHD_VECTOR* a3, long a4)
 {
-	S_Warn("[Straighten] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void StraightenRope(struct ITEM_INFO* item)// (F)

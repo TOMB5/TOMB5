@@ -3,10 +3,8 @@
 #include "CD.H"
 #include "DRAW.H"
 #include "FILE.H"
-#include "GAMEFLOW.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
-#include "MALLOC.H"
 #include "SETUP.H"
 
 #include <stdio.h>
@@ -25,7 +23,7 @@ int AnimatingWaterfallsV[6];
 unsigned long envmap_data[6];
 unsigned long* RelocPtr[128];
 
-void ReloadAnims(int name, long len)//600E4(<), 60D20(<)
+void ReloadAnims(int name, long len)//600E4(<), 60D20(<) (*) (?)
 {
 #if DISC_VERSION
 	cdCurrentSector = AnimFilePos;
@@ -66,33 +64,43 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	LOAD_Start(Name + TITLE);
 
 	SetupPtr = &db.poly_buffer[0][1026];
-
+	mod = &db.poly_buffer[0][1024];
+	
 #if DISC_VERSION
-	DEL_CDFS_Read((char*) &db.poly_buffer[1024], gwHeader.entries[NONE].fileSize);//jal 5E414
-	RelocateLevel();
+	DEL_CDFS_Read((char*) mod, gwHeader.entries[NONE].fileSize);//jal 5E414
 #else
 	len = FILE_Length("DATA\\SETUP.MOD");
 	file = PCopen("DATA\\SETUP.MOD", 0, 0);
-
-	FILE_Read(&db.poly_buffer[1024], 1, len, file);
+	FILE_Read((char*)mod, 1, len, file);
 
 	PCclose(file);
 #endif
+	/*
+	 *  SETUP.MOD
+	 * Layout is:
+	 * [SETUP.REL]
+	 * [SETUP.BIN]
+	 */
+	RelocateModule((unsigned long)SetupPtr, (unsigned long*)(db.poly_buffer[0][1024] + (unsigned long)SetupPtr));
 
-	//RelocateModule((unsigned long)SetupPtr, (unsigned long*)((char*)&db.poly_buffer[*db.poly_buffer[1024] + 8]));
+#if DISC_VERSION
+	#if 0
+		((VOIDFUNCVOID*)SetupPtr[5])();
+	#else
+		RelocateLevel();
+	#endif
+#else
+	strcpy(&buf[0], &gfFilenameWad[gfFilenameOffset[Name]]);
+	strcat(&buf[0], ".PSX");
 
-#if !DISC_VERSION
-	strcpy(buf, &gfFilenameWad[gfFilenameOffset[Name]]);
-	strcat(buf, ".PSX");
+	FILE_Length(buf);
 
-	len = FILE_Length(buf);
-
-	file = PCopen(buf, 0, 0);
-
-	RelocateLevel(file);
+	#if RELOC
+		((VOIDFUNCINT*)SetupPtr[5])(PCopen(&buf[0], 0, 0));
+	#else
+		RelocateLevel(PCopen(buf, 0, 0))
+	#endif
 #endif
-
-	 //jalr SetupPtr[5](len);, retail a0 = s1? len?
 
 	LOAD_Stop();
 

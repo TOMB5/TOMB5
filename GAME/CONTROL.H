@@ -7,8 +7,8 @@
 enum input_buttons
 {
 	IN_NONE = 0,								// 0x00000000
-	IN_UP = (1 << 0),							// 0x00000001
-	IN_DOWN = (1 << 1),							// 0x00000002
+	IN_FORWARD = (1 << 0),						// 0x00000001
+	IN_BACK = (1 << 1),							// 0x00000002
 	IN_LEFT = (1 << 2),							// 0x00000004
 	IN_RIGHT = (1 << 3),						// 0x00000008
 	IN_JUMP = (1 << 4),							// 0x00000010
@@ -21,13 +21,26 @@ enum input_buttons
 	IN_RSTEP = (1 << 11),						// 0x00000800
 	IN_ROLL = (1 << 12), // End / O				// 0x00001000
 	IN_PAUSE = (1 << 13),						// 0x00002000
-	IN_UNK19 = (1 << 19),						// 0x00080000
-	IN_UNK20 = (1 << 20),						// 0x00100000
-	IN_UNK21 = (1 << 21),						// 0x00200000
+	IN_A = (1 << 14),							// 0x00004000
+	IN_B = (1 << 15),							// 0x00008000
+	IN_CHEAT = (1 << 16),						// 0x00010000
+	IN_D = (1 << 17),							// 0x00020000
+	IN_E = (1 << 18),							// 0x00040000
+	IN_FLARE = (1 << 19),						// 0x00080000
+	IN_SELECT = (1 << 20),						// 0x00100000
+	IN_DESELECT = (1 << 21),					// 0x00200000
 	IN_SAVE = (1 << 22), // F5					// 0x00400000
 	IN_LOAD = (1 << 23),  // F6					// 0x00800000
-	IN_CROUCH = (1 << 29),						// 0x20000000
+	IN_STEPSHIFT = (1 << 24),					// 0x01000000
+	IN_LOOKLEFT = (1 << 25),					// 0x02000000
+	IN_LOOKRIGHT = (1 << 26),					// 0x04000000
+	IN_LOOKFORWARD = (1 << 27),					// 0x08000000
+	IN_LOOKBACK = (1 << 28),					// 0x10000000
+	IN_DUCK = (1 << 29),						// 0x20000000
 	IN_SPRINT = (1 << 30),						// 0x40000000
+	IN_UNK31 = (1 << 31),						// 0x80000000
+
+	IN_ALL = ~0,								// 0xFFFFFFFF (-1)
 };
 
 enum flipeffects
@@ -198,7 +211,9 @@ extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor);
+#ifndef PSX_VERSION || PSXPC_VERSION///@FIXME @pc
 extern void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint);
+#endif
 extern void AddFire(int x, int y, int z, char size, short room_num, short on);
 extern int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4);
 extern int check_xray_machine_trigger();

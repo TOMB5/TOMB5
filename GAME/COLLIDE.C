@@ -16,12 +16,26 @@ short GlobalCollisionBounds[6];
 
 char LM[] =
 {
-	0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 8
+	LJ_HIPS,
+	LJ_LTHIGH,
+	LJ_LSHIN,
+	LJ_LFOOT,
+	LJ_RTHIGH,
+	LJ_RSHIN,
+	LJ_RFOOT,
+	LJ_TORSO,
+	LJ_RINARM,
+	LJ_ROUTARM,
+	LJ_RHAND,
+	LJ_LINARM,
+	LJ_LOUTARM,
+	LJ_LHAND,
+	LJ_HEAD,
 };
 
 void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)//2A940, 2AB68
 {
-	S_Warn("[TestForObjectOnLedge] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerLaraBlood()//2A838, 2AA60 (F)
@@ -47,18 +61,18 @@ void TriggerLaraBlood()//2A838, 2AA60 (F)
 
 void GenericSphereBoxCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//2A5EC, 2A814
 {
-	S_Warn("[GenericSphereBoxCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int ItemPushLaraStatic(struct ITEM_INFO* laraitem, short* bounds, struct PHD_3DPOS* pos, struct COLL_INFO* coll)//2A2D8, 2A500
 {
-	S_Warn("[ItemPushLaraStatic] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int TestBoundsCollideStatic(short* bounds, struct PHD_3DPOS* pos, long radius)//2A140, 2A368
 {
-	S_Warn("[TestBoundsCollideStatic] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -68,8 +82,8 @@ void AIPickupCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_I
 
 	if (item->object_number == SWITCH_TYPE7 && !(item->mesh_bits & 1))
 	{
-		item->active = 1;
-		item->status = 1;
+		item->active = TRUE;
+		item->status = ITEM_ACTIVE;
 	}
 }
 
@@ -77,7 +91,7 @@ void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO*
 {
 	struct ITEM_INFO* item = &items[item_num];
 
-	if (item->status == 1)
+	if (item->status == ITEM_ACTIVE)
 	{
 		if (TestBoundsCollide(item, laraitem, coll->radius) == 0)
 		{
@@ -86,7 +100,7 @@ void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO*
 
 		ObjectCollision(item_num, lara_item, coll);
 	}
-	else if(item->status == 3)
+	else if(item->status == ITEM_INVISIBLE)
 	{
 		//0x2A110
 		ObjectCollision(item_num, lara_item, coll);
@@ -97,12 +111,12 @@ void TrapCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO*
 
 void CreatureCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//29E10, 2A024
 {
-	S_Warn("[CreatureCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void LaraBaddieCollision(struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//29A44, 29C58
 {
-	S_Warn("[LaraBaddieCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ShiftItem(struct ITEM_INFO* item, struct COLL_INFO* coll)//7BEEC(<), 7DF30(<) (F)
@@ -115,7 +129,7 @@ void ShiftItem(struct ITEM_INFO* item, struct COLL_INFO* coll)//7BEEC(<), 7DF30(
 
 int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)
 {
-	S_Warn("[GetCollisionInfo] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -144,30 +158,30 @@ void ObjectCollision(short item_num, struct ITEM_INFO* lara_item, struct COLL_IN
 
 int TestLaraPosition(short* bounds, struct ITEM_INFO* item, struct ITEM_INFO* lara_item)
 {
-	S_Warn("[TestLaraPosition] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int MoveLaraPosition(struct PHD_VECTOR* vector, struct ITEM_INFO* item, struct ITEM_INFO* lara_item)
 {
-	S_Warn("[MoveLaraPosition] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int TestBoundsCollide(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, long radius)
 {
-	S_Warn("[TestBoundsCollide] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int ItemPushLara(struct ITEM_INFO* item, struct ITEM_INFO* laraitem, struct COLL_INFO* coll, int spaz, int big_push)
 {
-	S_Warn("[ItemPushLara] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int GetCollidedObjects(struct ITEM_INFO* a1, long a2, int a3, struct ITEM_INFO** a4, struct MESH_INFO** a5, int a6)
 {
-	S_Warn("[GetCollidedObjects] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }

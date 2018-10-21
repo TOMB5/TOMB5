@@ -38,15 +38,57 @@ struct WEAPON_INFO weapons[9] =
 	{ { 60076, ANGLE(30), 55526, ANGLE(55) },{ 60076, ANGLE(30), 55526, ANGLE(55) },{ 60076, ANGLE(30), 55526, ANGLE(55) }, 0x071C, 0x05B0, 0x0190, 0x2000, 0x03, 0x00, 0x02, 0x00, 0x002B },
 };
 
-short* get_current_ammo_pointer(int num)//4965C, 49AC0
+short* get_current_ammo_pointer(int num)//4965C(<), 49AC0 (F)
 {
-	S_Warn("[get_current_ammo_pointer] - Unimplemented!\n");
-	return 0;
+	short* ammo;
+
+	switch (num)
+	{
+	case WEAPON_REVOLVER:
+		//loc_496AC
+		ammo = &lara.num_revolver_ammo;
+		break;
+	case WEAPON_UZI:
+		//loc_496B8
+		ammo = &lara.num_uzi_ammo;
+		break;
+	case WEAPON_SHOTGUN:
+		//loc_49688
+		if ((lara.shotgun_type_carried & 8))
+		{
+			ammo = &lara.num_shotgun_ammo1;
+		}
+		else
+		{
+			ammo = &lara.num_shotgun_ammo2;
+		}
+		break;
+	case WEAPON_HK:
+		//loc_496C4
+		ammo = &lara.num_hk_ammo1;
+		break;
+	case WEAPON_CROSSBOW:
+		//loc_496D0
+		if ((lara.crossbow_type_carried & 8))
+		{
+			ammo = &lara.num_crossbow_ammo1;
+		}
+		else
+		{
+			ammo = &lara.num_crossbow_ammo2;
+		}
+		break;
+	default:
+		ammo = &lara.num_pistols_ammo;
+		break;
+	}
+
+	return ammo;
 }
 
 void DoProperDetection(short item_number, long x, long y, long z, long xv, long yv, long zv)//48984, 48DE8
 {
-	S_Warn("[DoProperDetection] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int WeaponObjectMesh(int weapon_type)//488F4, 48D58 (F)
@@ -89,33 +131,33 @@ int WeaponObject(int weapon_type)//48898(<), 48CFC(<) (F)
 
 void HitTarget(struct ITEM_INFO* item, struct GAME_VECTOR* hitpos, int damage, int grenade)//486E0, 48B44
 {
-	S_Warn("[HitTarget] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int FireWeapon(int weapon_type, struct ITEM_INFO* target, struct ITEM_INFO* src, short* angles)//48328, 4878C
 {
-	S_Warn("[FireWeapon] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void AimWeapon(struct WEAPON_INFO* winfo, struct lara_arm* arm)//4826C, 486D0
 {
-	S_Warn("[AimWeapon] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void find_target_point(struct ITEM_INFO* item, struct GAME_VECTOR* target)//48150, 485B4
 {
-	S_Warn("[find_target_point] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void LaraGetNewTarget(struct WEAPON_INFO* winfo)//47B28, 47F8C
 {
-	S_Warn("[LaraGetNewTarget] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void LaraTargetInfo(struct WEAPON_INFO* winfo)//4789C, 47D00
 {
-	S_Warn("[LaraTargetInfo] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void InitialiseNewWeapon()//4772C, 47B90 (F)
@@ -167,7 +209,7 @@ void InitialiseNewWeapon()//4772C, 47B90 (F)
 
 void LaraGun()//46F28, 4738C
 {
-	S_Warn("[LaraGun] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int CheckForHoldingState(int state)//46EE4, 47348 (F)

@@ -1,16 +1,21 @@
 #include "CAMERA.H"
+
+#if PSXPC_VERSION || PSX_VERSION
+#include "CALCLARA.H"
+#endif
 #if !PC_VERSION
 #include "CD.H"
-#include "EFFECTS.H"
 #include "MATHS.H"
 #include "3D_GEN.H"
 #else
 #include "GLOBAL.H"
+#include "DS.H"
 #endif
+#include "EFFECTS.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "GAMEFLOW.H"
-
+#include "LARA.H"
 #include "OBJECTS.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
@@ -35,7 +40,7 @@
 
 long BinocularRange;
 long BinocularOn;
-long BinocularOldCamera;
+enum camera_type BinocularOldCamera;
 long LaserSight;
 long InfraRed;
 char SniperCount;
@@ -940,7 +945,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#if 0//GetBoundsAccurate illegal, crash.
+#if 0//PSXENGINE//GetBoundsAccurate illegal, crash.
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -978,11 +983,15 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	}
 
 	//loc_27E28
-	camera.type = FIXED_CAMERA;
-	if (!UseForcedFixedCamera && camera.old_type != FIXED_CAMERA)
+	//v0 = UseForcedFixedCamera;
+	if (UseForcedFixedCamera != 0)
 	{
-		camera.speed = 1;
-	}
+		camera.type = FIXED_CAMERA;
+		if (camera.old_type != FIXED_CAMERA)
+		{
+			camera.speed = 1;
+		}//loc_27E4C
+	}//loc_27E4C
 
 	//loc_27E4C
 	if (gfCurrentLevel == 1 && XATrack == 51)
@@ -998,15 +1007,15 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	else
 	{
 		//loc_27EC8
-		if (TLFlag != 1 || camera.underwater == 0)
+		if (TLFlag == 1)
 		{
-			//loc_27EEC
-			TLFlag = 0;
+			if (camera.underwater != 0)
+			{
+				camera.underwater = 0;
+			}
 		}
-		else
-		{
-			camera.underwater = 0;
-		}
+		//loc_27EEC
+		TLFlag = 0;
 	}
 
 	//loc_27EF0
@@ -1074,7 +1083,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		item = camera.item;
 	}
 
-	//loc_28040
+	//loc_28040, loc_28254 ///@VERF
 	bounds = GetBoundsAccurate(item);
 	y = (item->pos.y_pos + ((bounds[2] + bounds[3]) / 2)) - CLICK;//$s4
 
@@ -1375,11 +1384,12 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 
 void LookCamera(struct ITEM_INFO* item)
 {
-	S_Warn("[LookCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 {
+#if 0
 	struct FLOOR_INFO *floor; // $s3
 	struct GAME_VECTOR ideal; // stack offset -248
 	struct GAME_VECTOR ideals[9]; // stack offset -232
@@ -1425,7 +1435,7 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 	if (h - 64 > c + 64 && h == -3512 && c == -3512)
 	{
 		//loc_26960
-#if 0
+
 
 		lw	$v0, 0x1DFC($gp)
 		addiu	$v1, $s2, -0x40
@@ -1446,7 +1456,7 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 
 		loc_26998 :
 		sw	$v1, 0x1DFC($gp)
-#endif
+
 	}
 	else
 	{
@@ -1457,23 +1467,23 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 	camera.target_elevation = 0;
 
 	//loc_269A0 (TODO)
-
-	S_Warn("[CombatCamera] - Unimplemented!\n");
+#endif
+	UNIMPLEMENTED();
 }
 
 void FixedCamera()
 {
-	S_Warn("[FixedCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ChaseCamera(struct ITEM_INFO* item)
 {
-	S_Warn("[ChaseCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void BinocularCamera(struct ITEM_INFO* item)
 {
-	S_Warn("[BinocularCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
@@ -1523,7 +1533,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	}
 }
 
-void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)
+void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)// (F)
 {
 	long dx;
 	long dy;
@@ -1620,22 +1630,22 @@ void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, short yro
 
 long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)
 {
-	S_Warn("[mgLOS] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)
 {
-	S_Warn("[CameraCollisionBounds] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void MoveCamera(struct GAME_VECTOR* ideal, int speed)
 {
-	S_Warn("[MoveCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void CheckForRichesIllegalDiagonalWalls()
 {
-	S_Warn("[CheckForRichesIllegalDiagonalWalls] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

@@ -40,5 +40,6 @@ extern void TriggerTorpedoSteam(struct PHD_VECTOR *pos, struct PHD_VECTOR *a2, i
 extern void TriggerSubMist(struct PHD_VECTOR *pos, struct PHD_VECTOR *a4, int a5);
 extern void TriggerEngineEffects();
 extern void TriggerAirBubbles();
+extern void FlamingHell(struct PHD_VECTOR* pos);
 
 #endif

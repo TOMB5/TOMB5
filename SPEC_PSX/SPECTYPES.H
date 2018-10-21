@@ -2,7 +2,7 @@
 #define SPECTYPES_H
 
 #define INPUT_H "PSXINPUT.H"
-#define CMATH_H "LIBMATH.H"
+#define CMATH_H <LIBMATH.H>
 
 #include "TYPES.H"
 
@@ -914,6 +914,23 @@ struct PACKEDNAME
 	unsigned short Slot;
 	unsigned char Level;
 	unsigned char Pad;
+};
+
+struct ILIGHT
+{
+	short x;
+	short y;
+	short z;
+	short pad1;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char pad;
+};
+
+struct ITEM_LIGHT
+{
+	struct ILIGHT Light[4];
 };
 
 struct ITEM_INFO {

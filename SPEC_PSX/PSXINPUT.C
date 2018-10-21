@@ -15,11 +15,11 @@
 
 static struct pad_configs pad_cons[5] =
 {
-	{ IN_CROUCH, IN_SPRINT, IN_LOOK, IN_WALK, IN_DRAW, IN_JUMP, IN_ROLL, IN_ACTION },
-	{ IN_LOOK, IN_WALK, IN_CROUCH, IN_SPRINT, IN_ROLL, IN_DRAW, IN_ACTION, IN_JUMP },
-	{ IN_SPRINT, IN_CROUCH, IN_WALK, IN_LOOK, IN_JUMP, IN_ROLL, IN_ACTION, IN_DRAW },
-	{ IN_CROUCH, IN_SPRINT, IN_DRAW, IN_WALK, IN_LOOK, IN_ACTION, IN_JUMP, IN_ROLL },
-	{ IN_ROLL, IN_DRAW, IN_JUMP, IN_ACTION, IN_SPRINT, IN_LOOK, IN_CROUCH, IN_WALK }
+	{ IN_DUCK, IN_SPRINT, IN_LOOK, IN_WALK, IN_DRAW, IN_JUMP, IN_ROLL, IN_ACTION },
+	{ IN_LOOK, IN_WALK, IN_DUCK, IN_SPRINT, IN_ROLL, IN_DRAW, IN_ACTION, IN_JUMP },
+	{ IN_SPRINT, IN_DUCK, IN_WALK, IN_LOOK, IN_JUMP, IN_ROLL, IN_ACTION, IN_DRAW },
+	{ IN_DUCK, IN_SPRINT, IN_DRAW, IN_WALK, IN_LOOK, IN_ACTION, IN_JUMP, IN_ROLL },
+	{ IN_ROLL, IN_DRAW, IN_JUMP, IN_ACTION, IN_SPRINT, IN_LOOK, IN_DUCK, IN_WALK }
 };
 
 unsigned char DualShock;
@@ -76,7 +76,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	{
 		SayNoCount--;
 	}
-	PrintString(20, 20, 0, "Debug", 0);
+
 	//loc_5F650
 	state = PadGetState(0);
 	type = PadInfoMode(0, 1, 0);
@@ -191,61 +191,51 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	//loc_5F8B0
 	if (RawPad & 0x4000)
 	{
-		S_Warn("PAD_UNK0\n");
 		in |= 0x10000;
 	}//loc_5F8C8
 
 	if (RawPad & 0x1000)
 	{
-		S_Warn("PAD_UNK1\n");
 		in |= 0x20000;
 	}//loc_5F8D8
 
 	if (RawPad & 0x8000)
 	{
-		S_Warn("PAD_SQUARE\n");
 		in |= pad_cons[savegame.ControlOption].pad_square;
 	}//loc_5F904
 
 	if (RawPad & 0x2000)
 	{
-		S_Warn("PAD_CIRCLE\n");
 		in |= pad_cons[savegame.ControlOption].pad_circle;
 	}//loc_5F930
 
 	if (RawPad & 0x1000)//merge?
 	{
-		S_Warn("PAD_TRIANGLE\n");
 		in |= pad_cons[savegame.ControlOption].pad_triangle;
 	}//loc_5F958
 
 	if (RawPad & 0x4000)//merge?
 	{
-		S_Warn("PAD_CROSS\n");
 		in |= pad_cons[savegame.ControlOption].pad_cross;
 	}//loc_5F980
 
 	if (RawPad & 0x400)
 	{
-		S_Warn("PAD_L1\n");
 		in |= pad_cons[savegame.ControlOption].pad_L1;
 	}//loc_5F9AC
 
 	if (RawPad & 0x100)
 	{
-		S_Warn("PAD_L2\n");
 		in |= pad_cons[savegame.ControlOption].pad_L2;
 	}//loc_5F9D8
 
 	if (RawPad & 0x800)
 	{
-		S_Warn("PAD_R1\n");
 		in |= pad_cons[savegame.ControlOption].pad_R1;
 	}//loc_5FA04
 
 	if (RawPad & 0x200)
 	{
-		S_Warn("PAD_R2\n");
 		in |= pad_cons[savegame.ControlOption].pad_R2;
 	}
 	//loc_5FA30
@@ -407,24 +397,20 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	{
 		if (RawPad & 0x10)
 		{
-			S_Warn("PAD_UNK4\n");
 			in |= 1;
 		}
 		else if (RawPad & 0x40)
 		{
 			//loc_5FD24
-			S_Warn("PAD_UNK5\n");
 			in |= 2;
 		}//loc_5FD34
 
 		if (RawPad & 0x80)
 		{
-			S_Warn("PAD_UNK6\n");
 			in |= 4;
 		}
 		else if (RawPad & 0x20)
 		{
-			S_Warn("PAD_UNK7\n");
 			//loc_5FD4C
 			in |= 8;
 		}

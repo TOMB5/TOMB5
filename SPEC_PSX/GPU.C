@@ -1,14 +1,9 @@
 #include "GPU.H"
 
-#include "CAMERA.H"
-#include "FXTRIG.H"
-#include "LOAD_LEV.H"
 #include "PROFILE.H"
 #include "PSXINPUT.H"
 #include "SHADOWS.H"
-#include "SPECIFIC.H"
 
-#include <assert.h>
 #include <LIBGPU.H>
 #include <LIBETC.H>
 #include <STDIO.H>
@@ -176,7 +171,7 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 		{
 			if (data[0] & 0xFF000000 != 0)
 			{
-				code = ((char*)data)[7];
+				code = ((char*)data)[7];//getcode
 
 				if (gfx_debugging_mode < 2)
 				{
@@ -189,7 +184,7 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 						else
 						{
 							//loc_5E27C
-							((char*)data)[7] = (code & 2) | 0x3C;
+							((char*)data)[7] = (code & 2) | 0x3C;//setcode
 						}
 
 						nquad = 1;

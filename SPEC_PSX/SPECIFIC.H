@@ -3,6 +3,9 @@
 
 #include "SPECTYPES.H"
 
+
+#define UNIMPLEMENTED() __asm("nop");
+
 extern unsigned short AnimComp;
 extern short AnimatingTexturesVOffset;
 extern struct REQUESTER SettingsReq;

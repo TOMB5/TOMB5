@@ -1,5 +1,7 @@
 #include "INCLUDE.H"
 
+#pragma comment (lib, "dsound.lib")
+
 #define NUMBER_SOUND_BUFFERS 256
 #define NUMBER_SOUND_PLAY_BUFFERS 32
 
@@ -16,7 +18,7 @@ void DS_StopSample(int nHandle)
 	{
 		DX_TRY(pBuffer->Stop());
 		pBuffer->Release();
-		LaPlayBuffer[nHandle] = 0;
+		LaPlayBuffer[nHandle] = nullptr;
 	}
 }
 
@@ -29,7 +31,29 @@ void DS_StopAllSamples()
 		{
 			DX_TRY(pBuffer->Stop());
 			pBuffer->Release();
-			LaPlayBuffer[nChannel] = 0;
+			LaPlayBuffer[nChannel] = nullptr;
 		}
 	}
 }
+
+void CDDA_SetMasterVolume(int nVolume) // (F)
+{
+	
+}
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+	sint32		S_SoundSampleIsPlaying(sint32 handle)
+	{
+		Unimpl();
+		return 0;
+	}
+
+	void		S_SoundSetPitch(sint32 handle, int nPitch)
+	{
+		Unimpl();
+	}
+#ifdef __cplusplus
+}
+#endif
