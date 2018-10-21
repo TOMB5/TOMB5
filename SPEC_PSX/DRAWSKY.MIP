@@ -1,22 +1,22 @@
-	opt at+,w-,c+,m-
+	opt at-,w-,c+,m-
 
-	section	.ASM
+	SECTION	.ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF DrawBinoculars, DrawFlatSky_ASM, DrawSubdivChunk, SkyClipXY
 	XREF LaserSight, SniperOverlay, binoculars_mesh_ptr, db, target_mesh_ptr, psxtextinfo, psxspriteinfo
 	
 DrawFlatSky_ASM:
 	lui     t0, 0x1F80
-	sw      s0, 0x1F800054
-	sw      s1, 0x1F800058
-	sw      s2, 0x1F80005C
-	sw      s3, 0x1F800060
-	sw      s4, 0x1F800064
-	sw      s5, 0x1F800068
-	sw      s6, 0x1F80006C
-	sw      ra, 0x1F800070
-	sw      a1, 0x1F800050
-	sh      a2, 0x1F80004A
+	sw      s0, 0x54(t0)
+	sw      s1, 0x58(t0)
+	sw      s2, 0x5C(t0)
+	sw      s3, 0x60(t0)
+	sw      s4, 0x64(t0)
+	sw      s5, 0x68(t0)
+	sw      s6, 0x6C(t0)
+	sw      ra, 0x70(t0)
+	sw      a1, 0x50(t0)
+	sh      a2, 0x4A(t0)
 	move    t9, a0
 	lw      t4, db+0x4-GP_ADDR(gp)
 	lw      t5, db+0x8-GP_ADDR(gp)
