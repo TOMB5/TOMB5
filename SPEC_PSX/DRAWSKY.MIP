@@ -1,0 +1,465 @@
+	opt at-,w-,c+,m-
+
+	SECTION	.ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF DrawBinoculars, DrawFlatSky_ASM, DrawSubdivChunk, SkyClipXY
+	XREF LaserSight, SniperOverlay, binoculars_mesh_ptr, db, target_mesh_ptr, psxtextinfo, psxspriteinfo
+	
+DrawFlatSky_ASM:
+	lui     t0, 0x1F80
+	sw      s0, 0x54(t0)
+	sw      s1, 0x58(t0)
+	sw      s2, 0x5C(t0)
+	sw      s3, 0x60(t0)
+	sw      s4, 0x64(t0)
+	sw      s5, 0x68(t0)
+	sw      s6, 0x6C(t0)
+	sw      ra, 0x70(t0)
+	sw      a1, 0x50(t0)
+	sh      a2, 0x4A(t0)
+	move    t9, a0
+	lw      t4, db+0x4-GP_ADDR(gp)
+	lw      t5, db+0x8-GP_ADDR(gp)
+	lw      t4, 0x280C(t4)
+;FIXME	lh      v0, word_801F9642
+	lw      t1, psxspriteinfo-GP_ADDR(gp)
+	sll     v0, 4
+	addu    t1, v0
+	move    t8, zero
+
+	loc_7E010:
+	lbu     v0, 0xC(t1)
+	lbu     v1, 0xD(t1)
+	lw      t7, 8(t1)
+	sb      v0, 0x1C(t0)
+	sb      v0, 4(t0)
+	addiu   v0, 0x20
+	sb      v0, 0x24(t0)
+	sb      v0, 0xC(t0)
+	sb      v1, 0xD(t0)
+	sb      v1, 5(t0)
+	addiu   v1, 0x20
+	sb      v1, 0x25(t0)
+	sb      v1, 0x1D(t0)
+	sll     t6, t7, 16
+	srl     t7, 16
+	sll     t7, 16
+	move    s1, zero
+
+	loc_7E054:
+	lw      t2, 0x50(t0)
+	andi    at, t8, 1
+	addiu   t2, -0x2008
+	beqz    at, loc_7E06C
+	addu    t2, s1
+	addiu   t2, 0x668
+
+	loc_7E06C:
+	move    s0, zero
+
+	loc_7E070:
+	andi    at, t8, 2
+	beqz    at, loc_7E080
+	addiu   t3, s0, -0x1338
+	addiu   t3, 0x668
+
+	loc_7E080:
+	mtc2    t3, r1
+	addiu   at, t3, 0x334
+	mtc2    at, r3
+	addiu   at, 0x334
+	mtc2    at, r5
+	sh      t2, 0x48(t0)
+	lwc2    r0, 0x48(t0)
+	lwc2    r2, 0x48(t0)
+	lwc2    r4, 0x48(t0)
+	addiu   at, t2, 0x334
+	sh      at, 0x48(t0)
+	cop2    0x280030
+	swc2    r12, 0(t0)
+	swc2    r13, 0x18(t0)
+	swc2    r14, 0x30(t0)
+	lwc2    r0, 0x48(t0)
+	lwc2    r2, 0x48(t0)
+	lwc2    r4, 0x48(t0)
+	addiu   at, 0x334
+	sh      at, 0x48(t0)
+	cop2    0x280030
+	swc2    r12, 8(t0)
+	swc2    r13, 0x20(t0)
+	swc2    r14, 0x38(t0)
+	lwc2    r0, 0x48(t0)
+	lwc2    r2, 0x48(t0)
+	lwc2    r4, 0x48(t0)
+	addiu   s0, 0xCD0
+	nop
+	cop2    0x280030
+	swc2    r12, 0x10(t0)
+	swc2    r13, 0x28(t0)
+	swc2    r14, 0x40(t0)
+	jal     DrawSubdivChunk
+	addiu   a3, t0, 0
+	jal     DrawSubdivChunk
+	addiu   a3, t0, 8
+	jal     DrawSubdivChunk
+	addiu   a3, t0, 0x18
+	jal     DrawSubdivChunk
+	addiu   a3, t0, 0x20
+	li      at, 0x2670
+	bne     s0, at, loc_7E070
+	li      at, 0x2670
+	bne     s1, at, loc_7E054
+	addiu   s1, 0xCD0
+	addiu   t8, 1
+	slti    v0, t8, 4
+	bnez    v0, loc_7E010
+	addiu   t1, 0x10
+	lw      s0, 0x54(t0)
+	lw      s1, 0x58(t0)
+	lw      s2, 0x5C(t0)
+	lw      s3, 0x60(t0)
+	lw      s4, 0x64(t0)
+	lw      s5, 0x68(t0)
+	lw      s6, 0x6C(t0)
+	lw      ra, 0x70(t0)
+	lw      v0, db+0x4-GP_ADDR(gp)
+	sw      t5, db+0x8-GP_ADDR(gp)
+	jr      ra
+	sw      t4, 0x280C(v0)
+
+DrawSubdivChunk:
+	lwc2    r12, 0(a3)
+	lwc2    r13, 8(a3)
+	lwc2    r14, 0x18(a3)
+	lw      v0, 0(a3)
+	lw      v1, 8(a3)
+	lw      a0, 0x18(a3)
+	lw      a1, 0x20(a3)
+	cop2    0x1400006
+	mtlo    ra
+	jal     SkyClipXY
+	nop
+	bnez    at, locret_7E21C
+	mflo    ra
+	mfc2    at, r24
+	mtc2    a1, r14
+	bltz    at, locret_7E21C
+	nop
+	cop2    0x1400006
+	mfc2    at, r24
+	lhu     a2, 4(a3)
+	bltz    at, locret_7E21C
+	sw      v0, 8(t5)
+	sw      v1, 0x10(t5)
+	sw      a0, 0x18(t5)
+	sw      a1, 0x20(t5)
+	addiu   at, a2, 0x1F
+	addiu   v1, a2, 0x1F00
+	addiu   a0, v1, 0x1F
+	or      a2, t6
+	or      at, t7
+	sw      a2, 0xC(t5)
+	sw      at, 0x14(t5)
+	sh      v1, 0x1C(t5)
+	sh      a0, 0x24(t5)
+	lui     at, 0x900
+	or      t4, at
+	sw      t4, 0(t5)
+	sw      t9, 4(t5)
+	move    t4, t5
+	jr      ra
+	addiu   t5, 0x28
+
+	locret_7E21C:
+	jr      ra
+	nop
+	
+SkyClipXY:
+	mfc2    s2, r21
+	mfc2    s3, r22
+	slt     at, v0, s2
+	beqz    at, loc_7E24C
+	slt     at, v1, s2
+	beqz    at, loc_7E24C
+	slt     at, a0, s2
+	beqz    at, loc_7E24C
+	slt     at, a1, s2
+	bnez    at, locret_7E2D8
+
+	loc_7E24C:
+	slt     at, v0, s3
+	bnez    at, loc_7E26C
+	slt     at, v1, s3
+	bnez    at, loc_7E26C
+	slt     at, a0, s3
+	bnez    at, loc_7E26C
+	slt     at, a1, s3
+	beqz    at, locret_7E2D8
+
+	loc_7E26C:
+	sll     s4, v0, 16
+	sll     s5, v1, 16
+	sll     s2, a0, 16
+	mfc2    s6, r6
+	sll     s3, a1, 16
+	slt     at, s4, s6
+	beqz    at, loc_7E2A0
+	slt     at, s5, s6
+	beqz    at, loc_7E2A0
+	slt     at, s2, s6
+	beqz    at, loc_7E2A0
+	slt     at, s3, s6
+	bnez    at, locret_7E2D8
+
+	loc_7E2A0:
+	nop
+	mfc2    s6, r20
+	nop
+	slt     at, s4, s6
+	bnez    at, locret_7E2D0
+	slt     at, s5, s6
+	bnez    at, locret_7E2D0
+	slt     at, s2, s6
+	bnez    at, locret_7E2D0
+	slt     at, s3, s6
+	beqz    at, locret_7E2D8
+	nop
+
+	locret_7E2D0:
+	jr      ra
+	move    at, zero
+
+	locret_7E2D8:
+	jr      ra
+	li      at, 1
+	
+DrawBinoculars:
+	addiu   sp, -0x30
+	sw      s5, 0x30-0x20(sp)
+	sw      s6, 0x30-0x1C(sp)
+	sw      s7, 0x30-0x18(sp)
+	lw      v0, LaserSight-GP_ADDR(gp)
+	lbu     v1, SniperOverlay-GP_ADDR(gp)
+	lw      a0, binoculars_mesh_ptr-GP_ADDR(gp)
+	or      v0, v1
+	beqz    v0, loc_7D97C
+	lw      s5, db+0x8-GP_ADDR(gp)
+	lw      a0, target_mesh_ptr-GP_ADDR(gp)
+
+	loc_7D97C:
+	lw      t9, db+0x4-GP_ADDR(gp)
+	lw      s7, db+0x10-GP_ADDR(gp)
+	lw      v0, 8(a0)
+	lw      s6, 0(t9)
+	addi    a0, 0xC
+	srl     a1, v0, 16
+	andi    v0, 0xFF
+	add     a1, a0
+	sll     at, v0, 3
+	move    v1, v0
+	lw      a2, psxtextinfo-GP_ADDR(gp)
+	lw      v0, 0(a1)
+	lui     a3, 0xF8
+	srl     at, v0, 16
+	ctc2    at, r27
+	andi    v0, 0xFFFF
+	beqz    v0, loc_7DB04
+	addi    a1, 4
+	lw      t0, 0(a1)
+
+	loc_7D9C8:
+	addi    a1, 4
+	li      v1, 3
+
+	loc_7D9D0:
+	lw      t1, 0(a1)
+	addi    v0, -1
+	slt     at, s5, s7
+	beqz    at, loc_7DC70
+	srl     t8, t1, 13
+	andi    t8, 0x7F8
+	add     t8, a0
+	srl     t7, t1, 5
+	andi    t7, 0x7F8
+	add     t7, a0
+	sll     t6, t1, 3
+	andi    t6, 0x7F8
+	add     t6, a0
+	lwc2    r12, 0(t6)
+	lwc2    r13, 0(t7)
+	lwc2    r14, 0(t8)
+	andi    t5, t0, 0xFF
+	srl     t0, 8
+	srl     t1, 16
+	andi    t1, 0xF00
+	or      t5, t1
+	sll     t5, 4
+	add     t5, a2
+	mfc2    t1, r12
+	mfc2    t2, r13
+	mfc2    t3, r14
+	andi    at, t1, 0xFE00
+	beqz    at, loc_7DA50
+	andi    at, t2, 0xFE00
+	beqz    at, loc_7DA50
+	andi    at, t3, 0xFE00
+	bnez    at, loc_7DAEC
+
+	loc_7DA50:
+	and     at, t1, t2
+	and     at, t3
+	bltz    at, loc_7DAEC
+	sra     at, t1, 16
+	slti    at, at, 0xF0
+	bnez    at, loc_7DA84
+	sra     at, t2, 16
+	slti    at, at, 0xF0
+	bnez    at, loc_7DA84
+	sra     at, t3, 16
+	slti    at, at, 0xF0
+	beqz    at, loc_7DAEC
+	nop
+
+	loc_7DA84:
+	lw      t4, 8(t5)
+	lw      t2, 0(t5)
+	lw      t3, 4(t5)
+	li      t6, 0x24C0C0C0
+	srl     at, t4, 16
+	andi    at, 2
+	sll     at, 24
+	or      t6, at
+	li      at, 0xFF9FFFFF
+	and     t3, at
+	lui     at, 0x40
+	or      t3, at
+	swc2    r12, 8(s5)
+	swc2    r13, 0x10(s5)
+	swc2    r14, 0x18(s5)
+	sw      t6, 4(s5)
+	sw      t2, 0xC(s5)
+	sw      t3, 0x14(s5)
+	sw      t4, 0x1C(s5)
+	lui     at, 0x700
+	or      t2, s6, at
+	sw      t2, 0(s5)
+	move    s6, s5
+	addi    s5, 0x20
+
+	loc_7DAEC:
+	beqz    v0, loc_7DB04
+	addi    a1, 4
+	bnez    v1, loc_7D9D0
+	addi    v1, -1
+	j       loc_7D9C8
+	lw      t0, 0(a1)
+
+	loc_7DB04:
+	cfc2    v0, r27
+	lw      t0, 0(a1)
+	beqz    v0, loc_7DC70
+
+	loc_7DB10:
+	addi    a1, 4
+	li      v1, 1
+
+	loc_7DB18:
+	lw      t1, 0(a1)
+	addi    v0, -1
+	slt     at, s5, s7
+	beqz    at, loc_7DC70
+	srl     t4, t1, 21
+	srl     t8, t1, 13
+	andi    t8, 0x7F8
+	add     t8, a0
+	srl     t7, t1, 5
+	andi    t7, 0x7F8
+	add     t7, a0
+	sll     t6, t1, 3
+	andi    t6, 0x7F8
+	add     t6, a0
+	lwc2    r12, 0(t6)
+	lwc2    r13, 0(t7)
+	lwc2    r14, 0(t8)
+	andi    t4, 0x7F8
+	add     t4, a0
+	lw      t4, 0(t4)
+	andi    t5, t0, 0xFFF
+	srl     t0, 16
+	sll     t5, 4
+	mfc2    t1, r12
+	mfc2    t2, r13
+	mfc2    t3, r14
+	andi    at, t1, 0xFE00
+	beqz    at, loc_7DBA0
+	andi    at, t2, 0xFE00
+	beqz    at, loc_7DBA0
+	andi    at, t3, 0xFE00
+	beqz    at, loc_7DBA0
+	andi    at, t4, 0xFE00
+	bnez    at, loc_7DC58
+
+	loc_7DBA0:
+	and     at, t1, t2
+	and     at, t3
+	and     at, t4
+	bltz    at, loc_7DC58
+	sra     at, t1, 16
+	slti    at, at, 0xF0
+	bnez    at, loc_7DBE0
+	sra     at, t2, 16
+	slti    at, at, 0xF0
+	bnez    at, loc_7DBE0
+	sra     at, t3, 16
+	slti    at, at, 0xF0
+	bnez    at, loc_7DBE0
+	sra     at, t4, 16
+	slti    at, at, 0xF0
+	beqz    at, loc_7DC58
+
+	loc_7DBE0:
+	add     t5, a2
+	swc2    r12, 8(s5)
+	swc2    r13, 0x10(s5)
+	swc2    r14, 0x18(s5)
+	sw      t4, 0x20(s5)
+	lw      t4, 8(t5)
+	lw      t2, 0(t5)
+	lw      t3, 4(t5)
+	lw      t5, 0xC(t5)
+	li      t6, 0x2CC0C0C0
+	srl     at, t4, 16
+	andi    at, 0x200
+	sll     at, 16
+	or      t6, at
+	li      at, 0xFF9FFFFF
+	and     t3, at
+	lui     at, 0x40
+	or      t3, at
+	sw      t6, 4(s5)
+	sw      t2, 0xC(s5)
+	sw      t3, 0x14(s5)
+	sw      t4, 0x1C(s5)
+	sw      t5, 0x24(s5)
+	lui     at, 0x900
+	or      t2, s6, at
+	sw      t2, 0(s5)
+	move    s6, s5
+	addi    s5, 0x28
+
+	loc_7DC58:
+	beqz    v0, loc_7DC70
+	addi    a1, 4
+	bnez    v1, loc_7DB18
+	addi    v1, -1
+	j       loc_7DB10
+	lw      t0, 0(a1)
+
+	loc_7DC70:
+	sw      s5, db+0x8-GP_ADDR(gp)
+	sw      s6, 0(t9)
+	lw      s5, 0x30-0x20(sp)
+	lw      s6, 0x30-0x1C(sp)
+	lw      s7, 0x30-0x18(sp)
+	jr      ra
+	addiu   sp, 0x30

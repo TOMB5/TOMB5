@@ -30,16 +30,22 @@
 #include "OBJLIGHT.H"
 #include "LARAMISC.H"
 #include "FLMTORCH.H"
+#include "SOUND.H"
+#include "DISPLAY.H"
+#include "PICTURE.H"
+
+#define OUTSIDE_Z 64
 
 short* floor_data;
 short* mesh_base;
 int AnimFileLen;
-char	cd_drive = 0;
-
+char cd_drive = 0;
+bool levelLoading;
 int num_pages;
 FILE* fp_level;
 char* level_data;
 char* level_data_orig;
+
 struct mesh_vbuf_s
 {
 	char pad0[4]; // pos 0 size 4
@@ -48,6 +54,7 @@ struct mesh_vbuf_s
 	LPDIRECT3DVERTEXBUFFER vbuf; // pos 30 size 4
 	char pad2[36]; // pos 34 size 36
 };
+
 mesh_vbuf_s** mesh_vbufs;
 OBJECT_TEXTURE* object_textures;
 SPRITE_STRUCT* sprites;
@@ -56,7 +63,8 @@ float waterfall_y[6];
 int num_room_lights;
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #define AllocT(d, s, n) d = (s*)game_malloc(sizeof(s) * (n))
@@ -127,9 +135,9 @@ extern "C" {
 		Unimpl();
 	}
 
-	void FreeD3DLights()
+	void FreeD3DLights()// (F)
 	{
-		;
+		
 	}
 
 	void DXFreeSounds()
@@ -160,16 +168,23 @@ extern "C" {
 		Unimpl();
 	}
 
-	void ClearFX()
+	void ClearFX()// (F)
 	{
-		Unimpl();
+		for (int i = 0; i < 2048; i++)
+		{
+			raindrops[i].x = 0;
+			snowflakes[i].x = 0;
+		}
 	}
 
-	void InitMatrix()
+	void InitMatrix()// (F)
 	{
-		// todo
+		for (int i = 0; i < ANGLE(360); i++)
+		{
+			sin_flt_table[i] = sinf((i * 2 * M_PI) / ANGLE(360));
+		}
 
-		phd_dxptr = (float*)malloc(480 * sizeof(float));
+		phd_dxptr = matrix_stack_dx;
 	}
 
 	void InitWater()
@@ -182,36 +197,25 @@ extern "C" {
 		Unimpl();
 	}
 
-	void RoomInit()
+	void RoomInit()// (F)
 	{
 		BuildGlobalFogBulbList();
 	}
 
-	void Init()
+	void Init()// (F)
 	{
 		InitWater();
 		RoomInit();
 	}
 
-	void LoadTextures(int numRoom, int numObj, int numBump)
+	void LoadTextures(int numRoom, int numObj, int numBump)// (F)
 	{
 		Log(LT_Enter, "LoadTextures");
-
-		int uncomp32 = freadDword();
-		int comp32 = freadDword();
-		fseek(fp_level, comp32, SEEK_CUR);
-		int uncomp16 = freadDword();
-		int comp16 = freadDword();
-		fseek(fp_level, comp16, SEEK_CUR);
-		uncomp32 = freadDword();
-		comp32 = freadDword();
-		fseek(fp_level, comp32, SEEK_CUR);
-		return;
 
 		//dword_875144 = level_data;
 		num_pages = 1;
 
-		int v85 = 0;
+		int depth_bis = 0;
 		int depth = 4;
 
 		D3DTEXTUREINFO* texf = &CUR_TEX;
@@ -221,7 +225,7 @@ extern "C" {
 
 		if (texf->rbpp == 5 && texf->gbpp == 5 && texf->bbpp == 5 && texf->abpp == 1)
 		{
-			v85 = 2;
+			depth_bis = 2;
 			depth = 2;
 
 			int uncomp32 = freadDword();
@@ -249,12 +253,12 @@ extern "C" {
 		else
 		{
 			if (texf->rbpp == 8 && texf->gbpp == 8 && texf->bbpp == 8 && texf->abpp == 8)
-				v85 = 1;
+				depth_bis = 1;
 
 			int uncomp32 = freadDword();
 			int comp32 = freadDword();
 			texbuf = malloc(comp32);
-			level_data = (char*)malloc(uncomp32);
+			level_data = level_data_orig = (char*)malloc(uncomp32);
 
 			if (useCompression)
 			{
@@ -277,26 +281,229 @@ extern "C" {
 
 		free(texbuf);
 
+		int tex_size = depth * TEXTURE_PAGE;
+
 		Log(LT_Info, "RTPages %d", numRoom);
 
-		int szRoom = numRoom * depth * TEXTURE_PAGE;
-		void* bufRoom;
-		AllocReadT(bufRoom, char, szRoom);
+		auto bufRoom = (char*)malloc(numRoom * tex_size);
+		OnlyReadT(bufRoom, char, numRoom * tex_size);
 		S_LoadBar();
 
-		if (numRoom > 0)
+		for(int i = 0; i < numRoom; i++, bufRoom += tex_size)
 		{
-			Unimpl();
+			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)bufRoom, nullptr, depth_bis);
+
+			LPDIRECT3DTEXTURE2 tex;
+			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
+
+			int page = num_pages++;
+
+			DXTextureList[page].tex = tex;
+			DXTextureList[page].surface = surf;
+			DXTextureList[page].width = App.textRes;
+			DXTextureList[page].height = App.textRes;
+			DXTextureList[page].a9 = 0;
+			DXTextureList[page].a10 = 0;
+			DXTextureList[page].a11 = 0;
+
+			S_LoadBar();
 		}
+
+		//free(bufRoom);
+
+		Log(LT_Info, "OTPages %d", numObj);
+
+		auto bufObj = (char*)malloc(numObj * tex_size);
+		OnlyReadT(bufObj, char, numObj * tex_size);
+		S_LoadBar();
+
+		for (int i = 0; i < numObj; i++, bufObj += tex_size)
+		{
+			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)bufObj, nullptr, depth_bis);
+
+			LPDIRECT3DTEXTURE2 tex;
+			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
+
+			int page = num_pages++;
+
+			DXTextureList[page].tex = tex;
+			DXTextureList[page].surface = surf;
+			DXTextureList[page].width = App.textRes;
+			DXTextureList[page].height = App.textRes;
+			DXTextureList[page].a9 = 0;
+			DXTextureList[page].a11 = 0;
+
+			App.lpD3DDevice->SetTexture(0, tex);
+
+			S_LoadBar();
+		}
+
+		//free(bufObj);
+
+		Log(LT_Info, "BTPages %d", numBump);
+
+		auto bufBump = (char*)malloc(numBump * tex_size);
+		OnlyReadT(bufBump, char, numBump * tex_size);
+		S_LoadBar();
+
+		for (int i = 0; i < numBump; i++, bufBump += tex_size)
+		{
+			bool bump = i >= numBump / 2;
+
+			if (bump && !App.tBumpMap)
+				break;
+
+			int res = bump ? App.bumpRes : App.textRes;
+
+			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)bufBump, nullptr, depth_bis);
+
+			LPDIRECT3DTEXTURE2 tex;
+			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
+
+			int page = num_pages++;
+
+			DXTextureList[page].tex = tex;
+			DXTextureList[page].surface = surf;
+			DXTextureList[page].width = res;
+			DXTextureList[page].height = res;
+			DXTextureList[page].a9 = 0;
+			DXTextureList[page].other_id = page + numBump / 2;
+			DXTextureList[page].a11 = 0;
+
+			S_LoadBar();
+		}
+
+		//free(bufBump);
+
+		free(level_data_orig);
+
+		int uncomp = freadDword();
+		int comp = freadDword();
+		texbuf = malloc(comp);
+		level_data = level_data_orig = (char*)malloc(uncomp);
+
+		if (useCompression)
+		{
+			fread(texbuf, comp, 1, fp_level);
+			Decompress(level_data, texbuf, comp, uncomp);
+		}
+		else
+		{
+			fread(level_data, comp, 1, fp_level);
+		}
+
+		free(texbuf);
+
+		void* buf = malloc(0x40000);
+
+		if (gfCurrentLevel != LVL5_TITLE)
+		{
+			texbuf = nullptr;
+			size_t length;
+
+			switch(Gameflow->Language)
+			{
+			case LNG_US:
+				length = LoadFile("data\\uslogo.pak", &texbuf);
+				break;
+			case LNG_GERMAN:
+				length = LoadFile("data\\grlogo.pak", &texbuf);
+				break;
+			case LNG_FRENCH:
+				length = LoadFile("data\\frlogo.pak", &texbuf);
+				break;
+			default:
+				length = LoadFile("data\\logo512.pak", &texbuf);
+				break;
+			}
+
+			void* pakbuf = malloc(length);
+
+			Decompress(pakbuf, (char*)texbuf + 4, length - 4, *(DWORD*)texbuf);
+			free(texbuf);
+
+			char* ptr1 = (char*)pakbuf;
+
+			for(int i = 0; i < 2; i++)
+			{
+				char* v46 = (char*)buf;
+				char* ptr2 = ptr1;
+
+				for(int j = 0; j < 256; j++)
+				{
+					char* ptr3 = ptr2;
+
+					for(int k = 0; k < 256; k++)
+					{
+						uint8_t red = ptr3[0];
+						uint8_t green = ptr3[1];
+						uint8_t alpha = 255;
+						uint8_t blue = ptr3[2];
+
+						if (red == 255 && green == 0 && blue == 255) // magenta key
+						{
+							alpha = 0;
+							red = 0;
+							blue = 0;
+						}
+
+						*v46++ = RGBA(red, green, blue, alpha);
+					}
+
+					ptr2 += 3 * 512;
+				}
+
+				auto surf = CreateTexturePage(256, 256, 0, (int*)buf, nullptr, 0);
+
+				LPDIRECT3DTEXTURE2 tex;
+				DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
+
+				int page = num_pages++;
+
+				DXTextureList[page].tex = tex;
+				DXTextureList[page].surface = surf;
+				DXTextureList[page].width = 256;
+				DXTextureList[page].height = 256;
+				DXTextureList[page].a9 = 0;
+				DXTextureList[page].a11 = 0;
+
+				ptr1 += 3 * 256;
+			}
+
+			free(pakbuf);
+		}
+
+		for (int i = 0; i < 3; i++)
+		{
+			OnlyReadT(buf, char, 0x40000);
+
+			auto surf = CreateTexturePage(256, 256, 0, (int*)buf, nullptr, 0);
+
+			LPDIRECT3DTEXTURE2 tex;
+			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
+
+			int page = num_pages++;
+
+			DXTextureList[page].tex = tex;
+			DXTextureList[page].surface = surf;
+			DXTextureList[page].width = 256;
+			DXTextureList[page].height = 256;
+			DXTextureList[page].a9 = 0;
+			DXTextureList[page].a11 = 0;
+		}
+
+		free(buf);
+		free(level_data_orig);
 	}
-	void FixUpRoom(room_info *rooms, room_info *roomData)
+
+	void FixUpRoom(room_info* rooms, room_info* roomData)// (F)
 	{
 		AddPtr(roomData->door, short, roomData + 1);
 		AddPtr(roomData->floor, struct FLOOR_INFO, roomData + 1);
 		AddPtr(roomData->light, struct LIGHTINFO, roomData + 1);
 		AddPtr(roomData->mesh, struct MESH_INFO, roomData + 1);
-		AddPtr(roomData->Separator4, void, roomData + 1);
-		AddPtr(roomData->LayerOffset, struct tr5_room_layer, roomData + 1);
+		AddPtr(roomData->RoomLights, struct ROOM_LIGHT, roomData + 1);
+		AddPtr(roomData->LayerOffset, struct ROOMLET, roomData + 1);
 		AddPtr(roomData->PolyOffset, void, roomData + 1);
 		AddPtr(roomData->PolyOffset2, void, roomData + 1);
 		AddPtr(roomData->VerticesOffset, struct tr5_room_vertex, roomData + 1);
@@ -306,7 +513,7 @@ extern "C" {
 		if ((uint8_t)roomData->door & 1)
 		{
 			Log(0, "%X", roomData->door);
-			roomData->door = 0;
+			roomData->door = nullptr;
 		}
 
 		char* polyOff = (char*)roomData->PolyOffset;
@@ -332,7 +539,8 @@ extern "C" {
 		if (rooms->num_lights > num_room_lights)
 			num_room_lights = rooms->num_lights;
 	}
-	void LoadRoomStream()
+
+	void LoadRoomStream()// (F)
 	{
 		readDword(); // read unused value
 
@@ -352,10 +560,142 @@ extern "C" {
 
 		number_rooms = numRooms;
 	}
-	void BuildOutsideTable()
+
+	void BuildOutsideTable()// (F)
 	{
-		Unimpl();
+		long max_slots = 0;
+		AllocT(OutsideRoomOffsets, short, 27 * 27);
+		AllocT(OutsideRoomTable, char, 27 * 27 * OUTSIDE_Z);
+		memset(OutsideRoomTable, -1, 27 * 27 * OUTSIDE_Z);
+
+		char flipped[256];
+		memset(flipped, 0, 255);
+
+		for (int i = 0; i < number_rooms; i++)
+		{
+			if (room[i].flipped_room != -1)
+				flipped[i] = true;
+		}
+
+		for (int y = 0; y < 108; y += 4)
+		{
+			for (int x = 0; x < 108; x += 4)
+			{
+				for (int i = 0; i < number_rooms; i++)
+				{
+					auto r = &room[i];
+
+					if (!flipped[i])
+					{
+						int rx = (r->z >> SECTOR(1)) + 1;
+						int ry = (r->x >> SECTOR(1)) + 1;
+
+						int j = 0;
+
+						for (int yl = 0; yl < 4; yl++)
+						{
+							for (int xl = 0; xl < 4; xl++)
+							{
+								if ((x + xl) >= rx && (x + xl) < (rx + r->x_size - 2) &&
+									(y + yl) >= ry && (y + yl) < (ry + r->y_size - 2))
+								{
+									j = 1;
+									break;
+								}
+							}
+						}
+
+						if (!j)
+							continue;
+
+						if (i == 255)
+						{
+							S_Warn("ERROR : Room 255 fuckeroony - go tell Chris\n");
+						}
+
+						char* d = &OutsideRoomTable[OUTSIDE_Z * (x >> 2) + OUTSIDE_Z * (y >> 2) * 27];
+
+						for (int j = 0; j < OUTSIDE_Z; j++)
+						{
+							if (d[j] == -1)
+							{
+								d[j] = i;
+
+								if (j > max_slots)
+									max_slots = j;
+
+								break;
+							}
+						}
+
+						if (j == OUTSIDE_Z)
+						{
+							S_Warn("ERROR : Buffer shittage - go tell Chris\n");
+						}
+					}
+				}
+			}
+		}
+		// todo it's a bit incorrect
+		char* s = OutsideRoomTable;
+
+		for (int y = 0; y < 27; y++)
+		{
+			for (int x = 0; x < 27; x++)
+			{
+				int z = 0;
+
+				char* d = &OutsideRoomTable[OUTSIDE_Z * x + OUTSIDE_Z * y * 27];
+
+				int i = 27 * y + x;
+
+				while (d[z] != -1)
+					z++;
+
+				if (z == 0)
+				{
+					OutsideRoomOffsets[i] = -1;
+				}
+				else if (z == 1)
+				{
+					OutsideRoomOffsets[i] = *d | 0x8000;
+				}
+				else
+				{
+					char* p = OutsideRoomTable;
+
+					while (p < s)
+					{
+						if (memcmp(p, d, z) == 0)
+						{
+							OutsideRoomOffsets[i] = p - OutsideRoomTable;
+							break;
+						}
+						else
+						{
+							int z2 = 0;
+
+							while (p[z2] != -1)
+								z2++;
+
+							p += z2 + 1;
+						}
+					}
+
+					if (p >= s)
+					{
+						OutsideRoomOffsets[i] = s - OutsideRoomTable;
+
+						while (z-- > 0)
+							*s++ = *d++;
+
+						*s++ = -1;
+					}
+				}
+			}
+		}
 	}
+
 	void LoadRooms()
 	{
 		Log(LT_Enter, "LoadRooms");
@@ -371,36 +711,49 @@ extern "C" {
 		AllocReadT(floor_data, short, numFloorData);
 		Log(LT_Default, "Floor Data Size %d @ %x", numFloorData, floor_data);
 	}
+
 	void BaddyObjects()
 	{
-		struct object_info* object = &objects[LARA];
+		struct object_info* obj = &objects[LARA];
 
-		object->shadow_size = 160;
-		object->initialise = &InitialiseLaraLoad;
-		object->hit_points = 1000;
-		object->draw_routine = NULL;
+		obj->shadow_size = (10 * UNIT_SHADOW) / 16;
+		obj->initialise = &InitialiseLaraLoad;
+		obj->hit_points = LARA_HITPOINTS;
+		obj->draw_routine = nullptr;
 
-		object->using_drawanimating_item = 0;
-		object->save_hitpoints = 1;
-		object->save_position = 1;
-		object->save_flags = 1;
-		object->save_anim = 1;
+		obj->using_drawanimating_item = false;
+		obj->save_hitpoints = true;
+		obj->save_position = true;
+		obj->save_flags = true;
+		obj->save_anim = true;
+
+
+		obj = &objects[SAS];
+
+		if (obj->loaded)
+		{
+			obj->bite_offset = 0;
+		}
 
 		Unimpl();
 	}
+
 	void ObjectObjects()
 	{
 		Unimpl();
 	}
+
 	void TrapObjects()
 	{
 		Unimpl();
 	}
+
 	void InitialiseEffects()
 	{
 		Unimpl();
 	}
-	void InitialiseObjects()
+
+	void InitialiseObjects()// (F)
 	{
 		for (int i = 0; i < NUMBER_OBJECTS; i++)
 		{
@@ -473,6 +826,7 @@ extern "C" {
 		if (objects[SPIDER].loaded)
 			Alloc(Spiders, SPIDER_STRUCT, 64); // todo: SPIDER_STRUCT size wrong, should be 26, is 28 (should be 1664 B)
 	}
+
 	void ProcessMeshData(int nmeshes)
 	{
 		Log(LT_Enter, "ProcessMeshData %d", nmeshes);
@@ -486,15 +840,18 @@ extern "C" {
 
 		Log(LT_Enter, "End ProcessMeshData");
 	}
+
 	void CreateSkinningData()
 	{
 		Unimpl();
 	}
-	void InitialiseClosedDoors()
+
+	void InitialiseClosedDoors()// (F)
 	{
-		memset(ClosedDoors, 0, 32 * sizeof(long));
+		Zero(ClosedDoors);
 	}
-	void LoadObjects()
+
+	void LoadObjects()// (F)
 	{
 		Log(LT_Enter, "LoadObjects");
 
@@ -611,7 +968,8 @@ extern "C" {
 
 		ProcessMeshData(2 * numMeshes);
 	}
-	void LoadSprites()
+
+	void LoadSprites()// (F)
 	{
 		Log(2, "LoadSprites");
 
@@ -654,7 +1012,8 @@ extern "C" {
 			}
 		}
 	}
-	void LoadCameras()
+
+	void LoadCameras()// (F)
 	{
 		Log(LT_Enter, "LoadCameras");
 
@@ -672,7 +1031,8 @@ extern "C" {
 			OnlyRead(SpotCam, SPOTCAM, number_spotcams);
 		}
 	}
-	void LoadSoundEffects()
+
+	void LoadSoundEffects()// (F)
 	{
 		Log(LT_Enter, "LoadSoundEffects");
 
@@ -684,7 +1044,8 @@ extern "C" {
 			AllocRead(sound_effects, OBJECT_VECTOR, number_sound_effects);
 		}
 	}
-	void LoadBoxes()
+
+	void LoadBoxes()// (F)
 	{
 		Log(LT_Enter, "LoadBoxes");
 
@@ -752,20 +1113,23 @@ extern "C" {
 			}
 		}
 	}
-	void LoadAnimatedTextures()
+
+	void LoadAnimatedTextures()// (F)
 	{
 		int numAnimTex = readDword();
-		AllocReadT(AnimTextureRanges, uint16_t, numAnimTex);
+		AllocReadT(App.AnimTextureRanges, uint16_t, numAnimTex);
 
 		nAnimUVRanges = readByte();
 	}
+
 	void AdjustUV(int numTex)
 	{
 		Log(2, "AdjustUV");
 
 		Unimpl();
 	}
-	void LoadTextureInfos()
+
+	void LoadTextureInfos()// (F)
 	{
 		Log(LT_Enter, "LoadTextureInfos");
 
@@ -796,12 +1160,14 @@ extern "C" {
 
 		Log(5, "Created %d Texture Pages", num_pages - 1);
 	}
-	void LoadDemoData()
+
+	void LoadDemoData()// (F)
 	{
 		uint16_t numDemoData = readWord();
 		// no demo data anymore, count is always 0
 	}
-	void LoadAIObjects()
+
+	void LoadAIObjects()// (F)
 	{
 		int num = readDword();
 
@@ -811,7 +1177,8 @@ extern "C" {
 			AllocRead(AIObjects, AIOBJECT, nAIObjects);
 		}
 	}
-	void LoadItems()
+
+	void LoadItems()// (F)
 	{
 		Log(LT_Enter, "LoadItems");
 
@@ -872,25 +1239,90 @@ extern "C" {
 			}
 		}
 	}
+
 	void MallocD3DLights()
 	{
 		Unimpl();
 	}
-	void CreateD3DLights()
+
+	void CreateD3DLights()// (F)
 	{
-		Unimpl();
 	}
-	int GetCarriedItems()
+
+	void GetCarriedItems()// (F)
 	{
-		Unimpl();
-		return 0;
+		for (int i = 0; i < level_items; i++)
+		{
+			items[i].carried_item = -1;
+		}
+
+		for (int i = 0; i < level_items; i++)
+		{
+			struct ITEM_INFO* item = &items[i];
+
+			if (objects[item->object_number].intelligent ||
+				item->object_number >= SEARCH_OBJECT1 && item->object_number <= SEARCH_OBJECT3)
+			{
+				struct ITEM_INFO* cur;
+
+				for (int j = room[item->room_number].item_number; j != -1; j = cur->next_item)
+				{
+					cur = &items[j];
+
+					if (abs(cur->pos.x_pos - item->pos.x_pos) < SECTOR(0.5) &&
+						abs(cur->pos.y_pos - item->pos.y_pos) < SECTOR(0.25) &&
+						abs(cur->pos.z_pos - item->pos.z_pos) < SECTOR(0.5) &&
+						objects[cur->object_number].collision == PickUpCollision)
+					{
+						cur->carried_item = item->carried_item;
+						item->carried_item = j;
+						RemoveDrawnItem(j);
+						cur->room_number = 255;
+					}
+				}
+			}
+		}
 	}
-	int GetAIPickups()
+
+	void GetAIPickups()// (F)
 	{
-		Unimpl();
-		return 0;
+		for (int i = 0; i < level_items; i++)
+		{
+			struct ITEM_INFO* item = &items[i];
+
+			if (objects[item->object_number].intelligent)
+			{
+				item->status = ITEM_INACTIVE;
+				item->gravity_status = FALSE;
+				item->hit_status = FALSE;
+				item->collidable = FALSE;
+
+				for (int j = 0; j < nAIObjects; j++)
+				{
+					struct AIOBJECT* cur = &AIObjects[j];
+
+					if (abs(cur->x - item->pos.x_pos) < SECTOR(0.5) &&
+						abs(cur->z - item->pos.z_pos) < SECTOR(0.5) &&
+						cur->room_number == item->room_number)
+					{
+						if (cur->object_number < AI_PATROL2)
+						{
+							item->ai_bits = 1 << (cur->object_number - AI_GUARD);
+							item->trigger_flags = cur->trigger_flags;
+
+							if (cur->object_number != AI_GUARD)
+								cur->room_number = 255;
+						}
+					}
+				}
+
+				item->meshswap_meshbits |= item->item_flags[3] << 8;
+				item->meshswap_meshbits |= item->ai_bits << 16;
+			}
+		}
 	}
-	void ClearFootPrints()
+
+	void ClearFootPrints()// (F)
 	{
 		for (int i = 0; i < 32; i++)
 		{
@@ -899,19 +1331,29 @@ extern "C" {
 
 		FootPrintNum = 0;
 	}
+
 	void InitBinoculars()
 	{
 		Unimpl();
 	}
+
 	void InitTarget()
 	{
 		Unimpl();
 	}
-	void InitialiseGameFlags()
+
+	void InitialiseGameFlags()// (F)
 	{
-		Unimpl();
+		Zero(flipmap);
+		Zero(flip_stats);
+		flipeffect = -1;
+		Zero(cd_flags);
+		flip_status = 0;
+		IsAtmospherePlaying = 0;
+		camera.underwater = 0;
 	}
-	void SetupGame()
+
+	void SetupGame()// (F)
 	{
 		SeedRandomDraw(0xD371F947);
 		SeedRandomControl(0xD371F947);
@@ -937,7 +1379,8 @@ extern "C" {
 		SeedRandomDraw(0xD371F947);
 		SeedRandomControl(0xD371F947);
 	}
-	void reset_cutseq_vars()
+
+	void reset_cutseq_vars()// (F)
 	{
 		cutseq_num = 0;
 		cutseq_trig = 0;
@@ -947,7 +1390,36 @@ extern "C" {
 
 		SetFadeClip(0, 1);
 	}
-	unsigned __stdcall LoadLevel(char* filename)
+
+	void LoadSamples()
+	{
+		Log(LT_Enter, "LoadSamples");
+
+		AllocReadT(sample_lut, short, 450);
+
+		int numSampleInfos = freadDword();
+
+		Log(LT_Sound, "Number Of Sample Infos %d", numSampleInfos);
+
+		if (numSampleInfos != 0)
+		{
+			AllocRead(sample_infos, SAMPLE_INFO, numSampleInfos);
+
+			int numSampleIndices = freadDword();
+
+			if (numSampleIndices != 0)
+			{
+				Log(LT_Sound, "Number Of Samples %d", numSampleIndices);
+
+				if (feof(fp_level))
+					Log(LT_Error, "END OF FILE");
+
+				Unimpl();
+			}
+		}
+	}
+
+	unsigned __stdcall LoadLevel(void* filename)
 	{
 		Log(LT_Info, "Begin LoadLevel");
 
@@ -955,7 +1427,7 @@ extern "C" {
 
 		num_pages = 1;
 		//
-		fp_level = FileOpen(filename);
+		fp_level = FileOpen((char*)filename);
 
 		if (fp_level)
 		{
@@ -1026,8 +1498,8 @@ extern "C" {
 			LoadDemoData();
 			S_LoadBar();
 
-			/*if (ACMInited && !ptr_ctx->opt_DisableSound)
-				LoadSamples();*/
+			if (ACMInited && !App.tDisableSound)
+				LoadSamples();
 
 			free(level_data_orig);
 
@@ -1062,7 +1534,6 @@ extern "C" {
 				find_a_fucking_item(ANIMATING16)->mesh_bits = 1;
 
 
-
 			//todo
 			//objects[0].initialise(0);
 			// todo
@@ -1074,43 +1545,62 @@ extern "C" {
 		}
 
 		MakeCutsceneResident(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
-		//
+		levelLoading = false;
 		return true;
 	}
 
-	int 		S_LoadLevelFile(int Name)
+	int S_LoadLevelFile(int Name)
 	{
 		Log(LT_Enter, "S_LoadLevelFile");
 
-		// todo
+		if (!in_loading_screen)
+		{
+			// todo
+		}
 
 		char filename[80];
 		strcpy(filename, &gfFilenameWad[gfFilenameOffset[Name]]);
-		//
+		loadBarShown = false;
 		strcat(filename, ".TRC");
 
 		for (int i = 0; i < 4; i++)
 		{
 			BeginScene();
 			InitBuckets();
-			/*InitialiseSortList();
+			InitialiseSortList();
 			DrawLoadingScreen();
-			SortPolyList(dword_BA4384, &dword_BA4390);
-			RestoreFPCW();
+			SortPolyList(surfacenumbf, sort3d_bufferbf);
+			/*RestoreFPCW();
 			DrawSortList(word_878654);
 			MungeFPCW(&word_878654);*/
 			S_DumpScreenFrame();
 		}
 
-		// todo thread
+		while (in_loading_screen)
+			ReleaseScreen();
 
-		LoadLevel(filename);
+		levelLoading = true;
 
-		Unimpl();
-		return 0;
+		unsigned thread;
+		int levelReturn = _beginthreadex(nullptr, 0, LoadLevel, filename, 0, &thread);
+
+		while (levelLoading)
+		{
+			if (App.Flags & WA_BACK_BUFFER && loadBarShown)
+				S_DrawLoadBar();
+		}
+
+		if (App.Flags & WA_BACK_BUFFER)
+		{
+			while (!S_DrawLoadBar());
+		}
+
+		//
+
+		return 1;
 	}
 
-	FILE* FileOpen(const char *filename)
+	FILE* FileOpen(const char* filename)// (F)
 	{
 		FILE* fp;
 		char fn[80];
@@ -1131,14 +1621,14 @@ extern "C" {
 		return fp;
 	}
 
-	int FileClose(FILE* fp)
+	int FileClose(FILE* fp)// (F)
 	{
 		Log(LT_Enter, "FileClose");
 
 		return fclose(fp);
 	}
 
-	unsigned long FileLength(FILE* nHandle)
+	unsigned long FileLength(FILE* nHandle)// (F)
 	{
 		unsigned long ret;
 
@@ -1149,7 +1639,7 @@ extern "C" {
 		return ret;
 	}
 
-	int LoadFile(char* szFileName, void** pDest)
+	int LoadFile(char* szFileName, void** pDest)// (F)
 	{
 		FILE* fp;
 		int len, read;
@@ -1182,7 +1672,7 @@ extern "C" {
 		return len;
 	}
 
-	int FindCdDrive(void)
+	int FindCdDrive(void)// (F)
 	{
 		unsigned int type;
 		char root[5];
@@ -1208,7 +1698,7 @@ extern "C" {
 				{
 					// NOTE: user may have more than one CD drive, so need to check this has Tomb 2 in it
 					file_check[0] = cd_drive;
-					file = CreateFile(file_check, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+					file = CreateFile(file_check, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 					if (file != INVALID_HANDLE_VALUE)
 					{
 						CloseHandle(file);
@@ -1223,6 +1713,35 @@ extern "C" {
 		}
 
 		return (0);
+	}
+
+	NEW_CUTSCENE* ReadCutData(int num, FILE* fp)// (F)
+	{
+		if (num == 0)
+			return nullptr;
+
+		auto ptr = (Cutseq*)tsv_buffer;
+		int len = ptr->cutscenes[num].size;
+		fseek(fp, ptr->cutscenes[num].offset, SEEK_SET);
+		void* buf = game_malloc(len);
+		fread(buf, len, 1, fp);
+		return (NEW_CUTSCENE*)buf;
+	}
+
+	NEW_CUTSCENE* FetchCutData(int num)// (F)
+	{
+		if (cutseq_resident_addresses[num].packed_data != nullptr)
+			return (NEW_CUTSCENE*)cutseq_resident_addresses[num].packed_data;
+
+		FILE* fp = FileOpen("DATA\\CUTSEQ.BIN");
+
+		if (!fp)
+			return nullptr;
+
+		fread(tsv_buffer, 1, sizeof(Cutseq), fp);
+		auto res = ReadCutData(num, fp);
+		fclose(fp);
+		return res;
 	}
 
 #ifdef __cplusplus

@@ -19,12 +19,12 @@ char SubHitCount = 0;
 
 void LaraWaterCurrent(struct COLL_INFO* coll)//4CD34, 4D198
 {
-	S_Warn("[LaraWaterCurrent] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 long GetWaterDepth(long x, long y, long z, short room_number)//4CA38, 4CE9C
 {
-	S_Warn("[GetWaterDepth] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -96,7 +96,7 @@ void lara_as_uwdeath(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C884(<), 
 
 void lara_as_dive(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C854, 4CCB8 (F)
 {
-	if (input & IN_UP)
+	if (input & IN_FORWARD)
 	{
 		item->pos.x_rot -= ANGLE(1);
 	}
@@ -218,11 +218,11 @@ void lara_as_swim(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C548(<), 4C9
 
 void lara_as_swimcheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C3A8, 4C80C (F)
 {
-	if (input & IN_UP)
+	if (input & IN_FORWARD)
 	{
 		item->pos.x_rot -= ANGLE(3);
 	}
-	else if (input & IN_DOWN)
+	else if (input & IN_BACK)
 	{
 		item->pos.x_rot += ANGLE(3);
 	}
@@ -328,9 +328,9 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 
 	AnimateLara(item);
 	
-	item->pos.x_pos += COS(item->pos.x_rot) * (item->fallspeed * SIN(item->pos.y_rot) >> W2V_SHIFT >> 2) >> W2V_SHIFT;
-	item->pos.y_pos -= item->fallspeed * SIN(item->pos.x_rot) >> W2V_SHIFT >> 2;
-	item->pos.z_pos += COS(item->pos.x_rot) * (item->fallspeed * COS(item->pos.y_rot) >> W2V_SHIFT >> 2) >> W2V_SHIFT;
+	item->pos.x_pos += 4 * COS(item->pos.x_rot) * (item->fallspeed * SIN(item->pos.y_rot) >> W2V_SHIFT) >> W2V_SHIFT;
+	item->pos.y_pos -= item->fallspeed * 4 * SIN(item->pos.x_rot) >> W2V_SHIFT >> 2;
+	item->pos.z_pos += 4 * COS(item->pos.x_rot) * (item->fallspeed * COS(item->pos.y_rot) >> W2V_SHIFT) >> W2V_SHIFT;
 
 	LaraBaddieCollision(item, coll);
 
@@ -416,11 +416,11 @@ void SwimTurnSubsuit(struct ITEM_INFO* item)//4BBDC, 4C040 (F)
 	if (item->pos.y_pos < 14080)
 		subsuit.YVel += (14080 - item->pos.y_pos) >> 4;
 
-	if (input & IN_UP && item->pos.x_rot > ANGLE(-85))
+	if (input & IN_FORWARD && item->pos.x_rot > ANGLE(-85))
 	{
 		subsuit.dXRot = ANGLE(-45);
 	}
-	else if(input & IN_DOWN && item->pos.x_rot < ANGLE(85))
+	else if(input & IN_BACK && item->pos.x_rot < ANGLE(85))
 	{
 		subsuit.dXRot = ANGLE(45);
 	}
@@ -451,11 +451,11 @@ void SwimTurnSubsuit(struct ITEM_INFO* item)//4BBDC, 4C040 (F)
 
 void SwimTurn(struct ITEM_INFO* item)//4BAF4(<), 4BF58(<) (F)
 {
-	if (input & IN_UP)
+	if (input & IN_FORWARD)
 	{
 		item->pos.x_rot -= ANGLE(2);
 	}
-	else if (input & IN_DOWN)
+	else if (input & IN_BACK)
 	{
 		item->pos.x_rot += ANGLE(2);
 	}
@@ -478,10 +478,10 @@ void SwimTurn(struct ITEM_INFO* item)//4BAF4(<), 4BF58(<) (F)
 
 void LaraSwimCollision(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B608, 4BA6C
 {
-	S_Warn("[LaraSwimCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void LaraTestWaterDepth(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B4F8, 4B95C
 {
-	S_Warn("[LaraTestWaterDepth] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

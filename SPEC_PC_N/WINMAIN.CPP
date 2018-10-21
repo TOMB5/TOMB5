@@ -23,12 +23,14 @@
 #include "SETUP.H"
 #include "DEBUG.H"
 #include "INPUT.H"
+#include "DISPLAY.H"
+#include "TEXT.H"
 
 WINAPP	 App;
 bool thread_started;
 HANDLE hThread;
 
-void WinProcMsg()
+void WinProcMsg()// (F)
 {
 	Log(LT_Enter, "WinProcMsg");
 
@@ -46,13 +48,13 @@ void WinProcMsg()
 	} while (!thread_started && Msg.message != WM_QUIT);
 }
 
-void WinClose()
+void WinClose()// (F)
 {
 	Log(LT_Enter, "WinClose");
 
 	SaveSettings();
 	CloseHandle(App.hObject);
-	//
+	DXFreeInfo(&App.DeviceInfo);
 	DestroyAcceleratorTable(App.hAccTable);
 	CloseDirectX();
 
@@ -65,13 +67,13 @@ void WinClose()
 	DXRelease(App.lpDI, "DirectInput");
 }
 
-bool WinRunCheck(LPCSTR lpName, LPCSTR lpClassName, HANDLE* mutex)
+bool WinRunCheck(LPCSTR lpName, LPCSTR lpClassName, HANDLE* mutex)// (F)
 {
 	Log(LT_Enter, "WinRunCheck");
 
-	*mutex = CreateMutexA(0, true, lpName);
+	*mutex = CreateMutexA(nullptr, true, lpName);
 
-	if (GetLastError() != 183)
+	if (GetLastError() != ERROR_ALREADY_EXISTS)
 		return false;
 
 	HWND wnd = FindWindowA(lpClassName, lpName);
@@ -89,15 +91,16 @@ void WinProcessCommandLine(LPSTR lpCmdLine)
 	Unimpl();
 }
 
-int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)// (F)
 {
 	int RetVal;
 	int n;
 
 	appsettings.OpenSetup = false;
 
-	// Clear Application Structure
 	memset(&App, 0, sizeof(WINAPP));
+
+	App.GameInitialized = false;
 
 	DB_InitLog(1);
 
@@ -191,7 +194,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		LoadSettings();
 	}
 
-	SetWindowPos(App.WindowHandle, 0, App.GnWindowRect.left, App.GnWindowRect.top, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+	SetWindowPos(App.WindowHandle, nullptr, App.GnWindowRect.left, App.GnWindowRect.top, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
 	HWND dWnd = GetDesktopWindow();
 	HDC context = GetDC(dWnd);
@@ -200,7 +203,9 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	App.bNoFocus = false;
 	App.isInScene = false;
-	App.byte_D9AC2B = false;
+	App.PlayingFMV = false;
+
+	App.DXConfig.nD3D = 0; // todo: temporary fix because of lack of software renderer
 
 	if (!DXCreate(
 		CUR_DM.w,
@@ -230,7 +235,11 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	App.hAccTable = LoadAcceleratorsA(hInstance, (LPCSTR)0x65);
 
-	// sound
+	if (!App.tDisableSound)
+	{
+		DXDSCreate();
+		InitACM();
+	}
 
 	game_running = true;
 	thread_started = false;
@@ -258,14 +267,142 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
 	if (dblog)
 		PostMessageA(dblog, dbm_command, 4, 0);
-
 	
 	return 0;
 }
 
-void HandleCommand(WORD param)
+void HandleCommand(WORD param)// (F)
 {
-	Unimpl();
+	if (param == IDR_VKRETURN)
+	{
+		if (!App.PlayingFMV && CUR_DD.DDCaps.dwCaps2 & DDCAPS2_CANRENDERWINDOWED && !levelLoading)
+		{
+			Log(LT_WindowMessage, "KA_ALTENTER");
+
+			Log(LT_Info, "HangGameThread");
+
+			while(App.isInScene);
+
+			App.bNoFocus = true;
+
+			while(!App.isInScene);
+
+			SuspendThread(hThread);
+
+			Log(LT_Info, "Game Thread Suspended");
+
+			FreeD3DLights();
+			DXToggleFullScreen();
+			HWInitialise();
+			//
+			S_InitD3DMatrix();
+			SetD3DViewMatrix();
+
+			ResumeThread(hThread);
+
+			App.bNoFocus = false;
+
+			Log(LT_Info, "Game Thread Resumed");
+
+			if (App.Flags & WA_FULLSCREEN)
+			{
+				SetCursor(nullptr);
+				ShowCursor(false);
+			}
+			else
+			{
+				SetCursor(LoadCursor(App.hInstance, IDC_ARROW));
+				ShowCursor(true);
+			}
+		}
+	}
+	else if ((param == IDR_VKADD || param == IDR_VKSUBTRACT) && !levelLoading && !App.PlayingFMV)
+	{
+		Log(LT_Info, "Change Video Mode");
+
+		Log(LT_Info, "HangGameThread");
+
+		if (App.isInScene)
+			WaitUntilFalse(&App.isInScene);
+
+		App.bNoFocus = true;
+
+		if (!App.isInScene)
+			WaitUntilTrue(&App.isInScene);
+
+		SuspendThread(hThread);
+
+		Log(LT_Info, "Game Thread Suspended");
+
+		int old = App.DXConfig.nVMode;
+
+		if (param == IDR_VKADD)
+		{
+			App.DXConfig.nVMode = MIN(App.DXConfig.nVMode + 1, CUR_D3D.nDisplayMode - 1);
+
+			if (GET_DM(old).bpp != CUR_DM.bpp)
+			{
+				for(; App.DXConfig.nVMode < CUR_D3D.nDisplayMode; App.DXConfig.nVMode++)
+				{
+					if (GET_DM(old).bpp == CUR_DM.bpp)
+					{
+						break;
+					}
+				}
+
+				if (App.DXConfig.nVMode == CUR_D3D.nDisplayMode)
+				{
+					App.DXConfig.nVMode = old;
+				}
+			}
+		}
+		else
+		{
+			App.DXConfig.nVMode = MAX(App.DXConfig.nVMode - 1, 0);
+
+			if (GET_DM(old).bpp != CUR_DM.bpp)
+			{
+				for (; App.DXConfig.nVMode >= 0; App.DXConfig.nVMode--)
+				{
+					if (GET_DM(old).bpp == CUR_DM.bpp)
+					{
+						break;
+					}
+				}
+
+				if (App.DXConfig.nVMode == -1)
+				{
+					App.DXConfig.nVMode = old;
+				}
+			}
+		}
+
+		if (App.DXConfig.nVMode != old)
+		{
+			FreeD3DLights();
+
+			if (!DXChangeVideoMode())
+			{
+				App.DXConfig.nVMode = old;
+				DXChangeVideoMode();
+			}
+
+			HWInitialise();
+			//
+			InitWindow(0, 0, App.width, App.height, 20, SECTOR(20), 80);
+			InitFont();
+			S_InitD3DMatrix();
+			SetD3DViewMatrix();
+		}
+
+		ResumeThread(hThread);
+
+		App.bNoFocus = false;
+
+		Log(LT_Info, "Game Thread Resumed");
+
+		//
+	}
 }
 
 void HandleApp(LPARAM lParam, WPARAM wParam)
@@ -273,27 +410,27 @@ void HandleApp(LPARAM lParam, WPARAM wParam)
 	Unimpl();
 }
 
-HMODULE GetKernel32()
+HMODULE GetKernel32()// (F)
 {
 	return GetModuleHandleA("kernel32.dll");
 }
 
-void* FindSleepAddress(HMODULE kernel)
+void* FindSleepAddress(HMODULE kernel)// (F)
 {
 	return GetProcAddress(kernel, "Sleep");
 }
 
-void* GetSleepFunc()
+void* GetSleepFunc()// (F)
 {
 	return FindSleepAddress(GetKernel32());
 }
 
-void Sleep1ms()
+void Sleep1ms()// (F)
 {
 	((void (__stdcall*)(DWORD))GetSleepFunc())(1);
 }
 
-void WaitUntilFalse(DWORD* ptr)
+void WaitUntilFalse(DWORD* ptr)// (F)
 {
 	do
 	{
@@ -301,7 +438,7 @@ void WaitUntilFalse(DWORD* ptr)
 	} while (*ptr);
 }
 
-void WaitUntilTrue(DWORD* ptr)
+void WaitUntilTrue(DWORD* ptr)// (F)
 {
 	do
 	{
@@ -331,16 +468,15 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_MOVE:
 		Log(LT_WindowMessage, "WM_MOVE");
-		DXMove(SLOWORD(lParam), SHIWORD(lParam));
+		DXMove(LOWORD(lParam), HIWORD(lParam));
 		break;
 
 	case WM_COMMAND:
 		Log(LT_WindowMessage, "WM_COMMAND");
-		HandleCommand((WORD)wParam);
+		HandleCommand(LOWORD(wParam));
 		break;
 
 	case WM_MOUSEMOVE:
-		//Log(LT_WindowMessage, "WM_MOUSEMOVE");
 		mouse_x = GET_X_LPARAM(lParam);
 		mouse_y = GET_Y_LPARAM(lParam);
 		mouse_vkeys = (int)wParam;
@@ -373,7 +509,7 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		if (!false) // todo
 		{
-			if (!App.byte_D9AC2B)
+			if (!App.PlayingFMV)
 			{
 				switch (LOWORD(wParam))
 				{
@@ -381,7 +517,7 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				case WA_CLICKACTIVE:
 					Log(LT_WindowMessage, "WM_ACTIVE");
 
-					if (App.byte_D9AC19)
+					if (App.GameInitialized)
 					{
 						AcquireInput(true);
 						ResumeThread(hThread);
@@ -395,7 +531,7 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				case WA_INACTIVE:
 					Log(LT_WindowMessage, "WM_INACTIVE");
 
-					if (App.byte_D9AC19)
+					if (App.GameInitialized)
 					{
 						AcquireInput(false);
 
@@ -445,4 +581,32 @@ void ShowBumpInfo()
 			}
 		}
 	}
+}
+
+float WinFrameRate()// (F)
+{
+	static int last_time = clock();
+
+	if (++App.fps_counter == 10)
+	{
+		time_t this_time = clock();
+		double t = (this_time - last_time) / (double)CLOCKS_PER_SEC;
+		last_time = this_time;
+		App.fps_static = App.fps_counter / t;
+		App.fps_counter = 0;
+	}
+
+	App.fps = App.fps_static;
+
+	return App.fps;
+}
+
+void WinDisplayString(int x, int y, char *String, ...)// (F)
+{
+	va_list	argptr;
+	char msg[4096];
+	va_start(argptr, String);
+	vsprintf(msg, String, argptr);
+	va_end(argptr);
+	PrintString(x, y, 6, msg, 0);
 }

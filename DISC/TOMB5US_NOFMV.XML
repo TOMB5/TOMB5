@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<iso_project image_name="TOMB5.BIN" cue_sheet="TOMB5.CUE">
+	<track type="data">
+		<identifiers system="PLAYSTATION" application="PLAYSTATION" volume="SLUS-01311" volume_set="TOMB5" publisher="EIDOS_INTERACTIVE" data_preparer ="CORE"/>
+		<license file="LICENSEA.DAT"/>
+		<directory_tree>
+			<file name="SYSTEM.CNF"	type="data"	source="SYSTEM.TXT"/>
+			<file name="GAMEWAD.OBJ"type="data"	source="GAMEWAD.OBJ"/>
+			<file name="SCRIPT.DAT"	type="data"	source="SCRIPT.DAT"/>
+			<file name="MAIN.EXE"	type="data"	source="MAIN.EXE"/>
+			<file name="US.DAT"	type="data"	source="US.DAT"/>
+			<file name="XA1.XA"	type="xa"	source="XA1.XA"/>
+			<dummy sectors="129"/>
+			<file name="XA2.XA"	type="data"	source="XA2.XA"/>
+			<file name="XA3.XA"	type="data"	source="XA3.XA"/>
+			<file name="XA4.XA"	type="data"	source="XA4.XA"/>
+			<file name="XA5.XA"	type="data"	source="XA5.XA"/>
+			<file name="XA6.XA"	type="data"	source="XA6.XA"/>
+			<file name="XA7.XA"	type="data"	source="XA7.XA"/>
+			<file name="XA8.XA"	type="data"	source="XA8.XA"/>
+			<file name="XA9.XA"	type="data"	source="XA9.XA"/>
+			<file name="XA10.XA"	type="data"	source="XA10.XA"/>
+			<file name="XA11.XA"	type="data"	source="XA11.XA"/>
+			<file name="XA12.XA"	type="data"	source="XA12.XA"/>
+			<file name="XA13.XA"	type="data"	source="XA13.XA"/>
+			<file name="XA14.XA"	type="data"	source="XA14.XA"/>
+			<file name="XA15.XA"	type="data"	source="XA15.XA"/>
+			<file name="XA16.XA"	type="data"	source="XA16.XA"/>
+			<file name="XA17.XA"	type="data"	source="XA17.XA"/>
+			<file name="FMV3.STR"	type="data"	source="FMV3.STR"/>
+			<dummy sectors="1024"/>
+		</directory_tree>
+	</track>
+</iso_project>

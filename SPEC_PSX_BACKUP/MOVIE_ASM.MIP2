@@ -1,0 +1,462 @@
+	opt L.,C+,at+
+
+	section	.ASM
+	xdef sub_5E7A0, sub_656F0, sub_5DCB4, sub_5F018, sub_6D508, sub_6D584, sub_6D5A4, sub_6D6B8
+	xref FmvSceneTriggered, MOVIE_ClearVRAM, game_malloc, VSync, SetDefDispEnv, PadConnected, SetDebounce, RawEdge, PutDispEnv, init_cutseq_malloc, cutseq_malloc, CdControl, CdIntToPos, S_UpdateInput, S_MemSet, init_game_malloc, DMACallback
+	
+sub_5F018:
+
+	addiu	sp, -0x18
+	sw	s0, 0x18+0x8(sp)
+	move	s0, a0
+	sw	ra, 0x18+0x4(sp)
+
+	loc_5F028:
+	li	a0, 2
+
+	loc_5F02C:
+	move	a1, s0
+	jal	sub_692FC
+	move	a2, zero
+	beqz	v0, loc_5F02C
+	li	a0, 2
+	jal	sub_66C60
+	li	a0, 0x1E0
+	beqz	v0, loc_5F028
+	nop
+	lw	ra, 0x18+0x4(sp)
+	lw	s0, 0x18+0x8(sp)
+	jr	ra
+	addiu	sp, 0x18
+
+sub_5DCB4:
+	addiu	sp, -0x20
+	lw	a0, 0x2E48(gp)
+	sw	ra, 0x20+0x8(sp)
+	jal	CdIntToPos
+	addiu	a1, sp, 0x20+0x10
+	li	a0, 0x1B
+	addiu	a1, sp, 0x20+0x10
+	jal	CdControl
+	move	a2, zero
+	li	v1, 1
+	bne	v0, v1, loc_5DCF0
+	nop
+	lw	v0, 0x2E48(gp)
+	nop
+	sw	v0, 0x2E20(gp)
+
+	loc_5DCF0:
+	lw	ra, 0x20+0x8(sp)
+	nop
+	jr	ra
+	addiu	sp, 0x20
+
+sub_5E7A0:
+	addiu	sp, -0x60
+	sw	s1, 0x60+0x1C(sp)
+	move	s1, a0
+	sw	s2, 0x60+0x18(sp)
+	move	s2, a1
+	li	v0, 7
+	sw	ra, 0x60+0x8(sp)
+	sw	s5, 0x60+0xC(sp)
+	sw	s4, 0x60+0x10(sp)
+	sw	s3, 0x60+0x14(sp)
+	beq	s1, v0, loc_5E7F8
+	sw	s0, 0x60+0x20(sp)
+	li	v1, 1
+	lw	a0, FmvSceneTriggered
+	sllv	v1, s1
+	and	v0, a0, v1
+	bnez	v0, loc_5EBBC
+	li	v0, 1
+	or	v0, a0, v1
+	sw	v0, FmvSceneTriggered
+
+	loc_5E7F8:
+	jal	MOVIE_ClearVRAM
+	lui	s0, 0xA
+	jal	VSync
+	move	a0, zero
+	addiu	a0, sp, 0x60+0x48
+	move	a1, zero
+	move	a2, zero
+	li	a3, 0x1E0
+	li	v0, 0xF0
+	jal	SetDefDispEnv
+	sw	v0, 0x60+0x50(sp)
+	lui	v1, 0x5555
+	lh	a2, 0x60+0x44(sp)
+	li	v1, 0x55555556
+	sll	a2, 1
+	mult	a2, v1
+	addiu	a0, sp, 0x60+0x48
+	addiu	a1, s0, 0x5EE0
+	lhu	a3, 0xFA(a1)
+	lhu	t0, 0xFE(a1)
+	li	v0, 1
+	sb	v0, 0x60+0x37(sp)
+	sra	a2, 31
+	sh	a3, 0x60+0x3E(sp)
+	sh	t0, 0x60+0x3A(sp)
+	mfhi	v1
+	subu	v1, a2
+	jal	PutDispEnv
+	sh	v1, 0x60+0x44(sp)
+	sll	v1, s1, 2
+	addiu	v0, gp, 0x2E4C
+	addu	v1, v0
+	li	a0, 0xFFFFFFFF
+	lw	v1, 0(v1)
+	nop
+	bne	v1, a0, loc_5E894
+	move	s5, s0
+	j	loc_5EBBC
+	move	v0, zero
+
+	loc_5E894:
+	move	a0, v1
+	addiu	s0, sp, 0x60+0x28
+	jal	CdIntToPos
+	move	a1, s0
+	li	v1, 0xB2940
+	lui	v0, 2
+	sw	v1, 0x2EBC(gp)
+	addu	v1, v0
+	sw	v1, 0x2E6C(gp)
+	addiu	v1, 0x2D00
+	move	a1, zero
+	lui	a2, 2
+	sll	v0, s1, 1
+	addiu	a3, gp, 0xB10
+	addu	v0, a3
+	lw	a0, 0x2EBC(gp)
+	lhu	t0, 0(v0)
+	sw	v1, 0x2E70(gp)
+	sh	t0, 0x2EBA(gp)
+	jal	S_MemSet
+	la	a2, 0x25A00
+	bnez	s2, loc_5E920
+	nop
+	jal	init_game_malloc
+	nop
+	lui	a0, 2
+	jal	game_malloc
+	la	a0, 0x20400
+	lui	a0, 2
+	sw	v0, 0x2E74(gp)
+	jal	game_malloc
+	la	a0, 0x20400
+	j	loc_5E944
+	nop
+
+	loc_5E920:
+	jal	init_cutseq_malloc
+	nop
+	lui	a0, 2
+	jal	cutseq_malloc
+	la	a0, 0x20400
+	lui	a0, 2
+	sw	v0, 0x2E74(gp)
+	jal	cutseq_malloc
+	la	a0, 0x20400
+
+	loc_5E944:
+	sw	v0, 0x2E78(gp)
+	move	a1, zero
+	lui	a2, 4
+	lw	a0, 0x2E74(gp)
+	jal	S_MemSet
+	la	a2, 0x40800
+	addiu	a0, gp, 0x2E7C
+	move	a1, zero
+	move	a2, zero
+	move	a3, zero
+	li	v0, 0xF0
+	jal	sub_5EBE0
+	sw	v0, 0x60+0x50(sp)
+	move	a0, s0
+	lui	a1, 6
+	jal	sub_5EC3C
+	la	a1, sub_5ECB4
+	jal	sub_656F0
+	nop
+	addiu	s3, gp, 0x2E7C
+	addiu	s2, gp, 0x2E88
+	j	loc_5E9BC
+	nop
+
+	loc_5E9A0:
+	lwl	v0, 0x60+0x25(sp)
+	lwr	v0, 0x60+0x28(sp)
+	nop
+	swl	v0, 0x60+0x2D(sp)
+	swr	v0, 0x60+0x30(sp)
+	jal	sub_5F018
+	addiu	a0, sp, 0x60+0x30
+
+	loc_5E9BC:
+	addiu	a0, gp, 0x2E7C
+	jal	sub_5EDFC
+	nop
+	li	v1, 0xFFFFFFFF
+	beq	v0, v1, loc_5E9A0
+	nop
+	sb	zero, 0x2EB8(gp)
+	jal	sub_5F060
+	move	a0, zero
+	li	s4, 1
+	li	s1, 0xFFFFFFFF
+
+	loc_5E9E8:
+	lw	v0, 0x2E84(gp)
+	nop
+	sll	v0, 2
+	addu	v0, s3
+	lw	a0, 0(v0)
+	jal	sub_6D508
+	li	a1, 3
+	lh	a1, 0x2EAC(gp)
+	lh	v1, 0x2EAE(gp)
+	nop
+	mult	a1, v1
+	lw	v0, 0x2E90(gp)
+	nop
+	sll	v0, 2
+	addu	v0, s2
+	lw	a0, 0(v0)
+	mflo	a1
+	srl	v1, a1, 31
+	addu	a1, v1
+	jal	sub_6D584
+	sra	a1, 1
+	j	loc_5EA84
+	nop
+
+	loc_5EA44:
+	jal	sub_66E7C
+	addiu	a0, sp, 0x60+0x30
+	lhu	v1, 0x2EBA(gp)
+	nop
+	slt	v1, v1, v0
+	bnez	v1, loc_5EA68
+	addiu	a0, sp, 0x60+0x30
+	bgtz	v0, loc_5EA7C
+	nop
+
+	loc_5EA68:
+	lwl	v0, 0x60+0x25(sp)
+	lwr	v0, 0x60+0x28(sp)
+	nop
+	swl	v0, 0x60+0x2D(sp)
+	swr	v0, 0x60+0x30(sp)
+
+	loc_5EA7C:
+	jal	sub_5F018
+	nop
+
+	loc_5EA84:
+	addiu	a0, gp, 0x2E7C
+	jal	sub_5EDFC
+	nop
+	beq	v0, s1, loc_5EA44
+	nop
+	addiu	a0, gp, 0x2E7C
+	jal	sub_5EF84
+	move	a1, zero
+	jal	VSync
+	move	a0, zero
+	addiu	a0, sp, 0x60+0x48
+	move	a1, zero
+	li	a3, 0x1E0
+	lw	v1, 0x2EA4(gp)
+	li	v0, 0xF0
+	sw	v0, 0x60+0x50(sp)
+	sltiu	v1, v1, 1
+	sll	a2, v1, 4
+	subu	a2, v1
+	jal	SetDefDispEnv
+	sll	a2, 4
+	lui	a1, 0x5555
+	lh	a2, 0x60+0x44(sp)
+	li	a1, 0x55555556
+	sll	a2, 1
+	mult	a2, a1
+	addiu	a0, sp, 0x60+0x48
+	addiu	v1, s5, 0x5EE0
+	lhu	a3, 0xFA(v1)
+	lhu	t0, 0xFE(v1)
+	li	v0, 1
+	sb	v0, 0x60+0x37(sp)
+	sra	a2, 31
+	sh	a3, 0x60+0x3E(sp)
+	sh	t0, 0x60+0x3A(sp)
+	mfhi	a1
+	subu	a1, a2
+	jal	PutDispEnv
+	sh	a1, 0x60+0x44(sp)
+	lbu	v1, 0x2EB8(gp)
+	li	s0, 1
+	beq	v1, s0, loc_5EB80
+	nop
+	sw	s0, SetDebounce
+	jal	S_UpdateInput
+	nop
+	lbu	v0, PadConnected
+	nop
+	beqz	v0, loc_5E9E8
+	nop
+	lw	v1, RawEdge
+	nop
+	andi	v0, v1, 0x4009
+	beqz	v0, loc_5E9E8
+	andi	v0, v1, 9
+	sw	zero, 0x2EB4(gp)
+	sb	s0, 0x2EB8(gp)
+	beqz	v0, loc_5EB80
+	nop
+	li	s4, 2
+
+	loc_5EB80:
+	jal	sub_5F060
+	li	a0, 1
+	jal	MOVIE_ClearVRAM
+	nop
+	jal	sub_6D5A4
+	move	a0, zero
+	jal	sub_66D70
+	nop
+	li	a0, 9
+	move	a1, zero
+	jal	CdControl
+	move	a2, zero
+	sw	zero, SetDebounce
+	move	v0, s4
+
+	loc_5EBBC:
+	lw	ra, 0x60+0x8(sp)
+	lw	s5, 0x60+0xC(sp)
+	lw	s4, 0x60+0x10(sp)
+	lw	s3, 0x60+0x14(sp)
+	lw	s2, 0x60+0x18(sp)
+	lw	s1, 0x60+0x1C(sp)
+	lw	s0, 0x60+0x20(sp)
+	jr	ra
+	addiu	sp, 0x60
+	
+sub_656F0:
+	lui	a0, 0x1F80
+	la	a1, dword_9B498;&YOffset[?]
+	li	t0, 0xD6
+
+	loc_65700:
+	lbu	t1, 0(a1)
+	lbu	t2, 1(a1)
+	sll	t1, 10
+	neg	t3, t2
+	andi	t3, 0x3FF
+	or	t2, t1, t2
+	sh	t2, 0(a0)
+	or	t3, t1, t3
+	sh	t3, 2(a0)
+	addi	a1, 2
+	addi	a0, 4
+	bgez	t0, loc_65700
+	addi	t0, -2
+	jr	ra
+	
+sub_6D508:
+	addiu	sp, -0x18
+	andi	v0, a1, 1
+	beqz	v0, loc_6D52C
+	sw	ra, 0x18+0x8(sp)
+	lui	v1, 0xF7FF
+	lw	v0, 0(a0)
+	li	v1, 0xF7FFFFFF
+	j	loc_6D538
+	and	v0, v1
+
+	loc_6D52C:
+	lw	v0, 0(a0)
+	lui	v1, 0x800
+	or	v0, v1
+
+	loc_6D538:
+	sw	v0, 0(a0)
+	andi	v0, a1, 2
+	beqz	v0, loc_6D554
+	lui	v1, 0x200
+	lw	v0, 0(a0)
+	j	loc_6D564
+	or	v0, v1
+
+	loc_6D554:
+	lui	v1, 0xFDFF
+	lw	v0, 0(a0)
+	li	v1, 0xFDFFFFFF
+	and	v0, v1
+
+	loc_6D564:
+	sw	v0, 0(a0)
+	lhu	a1, 0(a0)
+	jal	sub_6D6B8
+	nop
+	lw	ra, 0x18+0x8(sp)
+	addiu	sp, 0x18
+	jr	ra
+	nop
+
+sub_6D584:
+	addiu	sp, -0x18
+	sw	ra, 0x18+0x8(sp)
+	jal	sub_6D748
+	nop
+	lw	ra, 0x18+0x8(sp)
+	addiu	sp, 0x18
+	jr	ra
+	nop
+
+sub_6D5A4:
+	addiu	sp, -0x18
+	sw	ra, 0x18+0x8(sp)
+	move	a1, a0
+	jal	DMACallback
+	li	a0, 1
+	lw	ra, 0x18+0x8(sp)
+	addiu	sp, 0x18
+	jr	ra
+	nop
+	
+sub_6D6B8:
+	addiu	sp, -0x20
+	sw	s1, 0x20+0xC(sp)
+	move	s1, a0
+	sw	s0, 0x20+0x10(sp)
+	sw	ra, 0x20+0x8(sp)
+	jal	sub_6D7D4
+	move	s0, a1
+	lw	v1, dword_A0F1C
+	srl	s0, 5
+	lw	v0, 0(v1)
+	sll	s0, 16
+	ori	v0, 0x88
+	sw	v0, 0(v1)
+	lw	v1, dword_A0EE4
+	addiu	v0, s1, 4
+	sw	v0, 0(v1)
+	lw	v0, dword_A0EE8
+	ori	s0, 0x20
+	sw	s0, 0(v0)
+	lw	v1, dword_A0F14
+	lw	v0, 0(s1)
+	lui	a0, 0x100
+	sw	v0, 0(v1)
+	lw	v0, dword_A0EEC
+	li	a0, 0x1000201
+	sw	a0, 0(v0)
+	lw	ra, 0x20+0x8(sp)
+	lw	s1, 0x20+0xC(sp)
+	lw	s0, 0x20+0x10(sp)
+	jr	ra
+	addiu	sp, 0x20

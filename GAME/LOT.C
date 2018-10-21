@@ -132,7 +132,7 @@ void CreateZone(struct ITEM_INFO* item)//4E330, 4E794
 				 nop
 				 # End of function sub_4E330
 #endif
-	S_Warn("[CreateZone] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 //Only called when enemy is triggered
@@ -235,7 +235,7 @@ int EnableBaddieAI(short item_number, int Always)//4DF0C, 4E370
 		}
 	}*/
 
-	S_Warn("[EnableBaddieAI] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 

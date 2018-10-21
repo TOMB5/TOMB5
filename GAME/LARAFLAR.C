@@ -19,7 +19,7 @@
 
 void FlareControl(short item_number)//4A418, 4A87C
 {
-	S_Warn("[FlareControl] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ready_flare()//4A3E4(<), 4A848(<) (F)
@@ -48,7 +48,7 @@ void draw_flare_meshes()//4A394(<), 4A7F8(<) (F)
 
 void undraw_flare()//4A108, 4A56C
 {
-	S_Warn("[undraw_flare] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void draw_flare()//49F74, 4A3D8 (F)
@@ -127,12 +127,12 @@ void set_flare_arm(int frame)//49ED4, 4A338 (F)
 
 void CreateFlare(short object, int thrown)//49BBC, 4A020
 {
-	S_Warn("[CreateFlare] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DrawFlareInAir(struct ITEM_INFO* item)//49A8C, 49EF0
 {
-	S_Warn("[DrawFlareInAir] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DoFlareInHand(int flare_age)//49984, 49DE8
@@ -143,7 +143,7 @@ void DoFlareInHand(int flare_age)//49984, 49DE8
 	pos.y = 32;
 	pos.z = 41;
 
-	GetLaraJointPos(&pos, 14);
+	GetLaraJointPos(&pos, LJ_LHAND);
 	DoFlareLight(&pos, flare_age);
 
 	if (gfLevelFlags & GF_LVOP_MIRROR_USED && lara_item->room_number == gfMirrorRoom)

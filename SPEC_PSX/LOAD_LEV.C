@@ -1,14 +1,10 @@
 #include "LOAD_LEV.H"
 
 #include "CD.H"
-#include "DRAW.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
-#include "MALLOC.H"
 #include "MISC.H"
 #include "PROFILE.H"
-#include "TYPES.H"
-#include "SPECTYPES.H"
 
 #include <assert.h>
 #include <stddef.h>

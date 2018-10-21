@@ -1,0 +1,249 @@
+	opt at-,w-,c+,m-
+
+	SECTION	.ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF GetJointAbsPosition
+	XREF bones, Matrix, GetFrames, mPushUnitMatrix, mSetTrans, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, mPopMatrix, mPushMatrix, mRotY, mCopyMatrix, iTranslateXYZ, InterpolateMatrix, iRotZ, mRotZ, iRotX, mRotX, iRotY, mRotY, InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, objects, iMatrixStack
+	
+GetJointAbsPosition:
+	addiu   sp, -0x50
+	sw      s4, 0x50-0x10(sp)
+	sw      s5, 0x50-0xC(sp)
+	sw      s6, 0x50-0x8(sp)
+	sw      ra, 0x50-0x4(sp)
+	move    s5, a0
+	move    s4, a1
+	addiu   a1, sp, 0x50-0x38
+	move    s6, a2
+	sw      s3, 0x50-0x14(sp)
+	sw      s2, 0x50-0x18(sp)
+	sw      s1, 0x50-0x1C(sp)
+	sw      s0, 0x50-0x20(sp)
+	lh      v1, 0xC(s5)
+	la      s1, objects
+	sll     v1, 6
+	addu    s1, v1
+	lw      v0, Matrix-GP_ADDR(gp)
+	addiu   a2, sp, 0x50-0x30
+	jal     GetFrames
+	sw      v0, 0x50-0x24(sp)
+	jal     mPushUnitMatrix
+	move    s0, v0
+	move    a0, zero
+	move    a1, zero
+	jal     mSetTrans
+	move    a2, zero
+	lh      a0, 0x4E(s5)
+	lh      a1, 0x4C(s5)
+	jal     mRotYXZ
+	lh      a2, 0x50(s5)
+	lw      s2, 0x3C(s5)
+	lw      v0, 4(s1)
+	lw      v1, bones-GP_ADDR(gp)
+	sll     v0, 2
+	bnez    s0, loc_8E9EC
+	addu    s3, v1, v0
+	lw      v0, 0x50-0x38(sp)
+	nop
+	lh      a0, 0xC(v0)
+	lh      a1, 0xE(v0)
+	lh      a2, 0x10(v0)
+	addiu   v0, 0x12
+	jal     mTranslateXYZ
+	sw      v0, 0x50-0x2C(sp)
+	addiu   a0, sp, 0x50-0x2C
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	blez    s6, loc_8E9D8
+	move    s1, s6
+
+	loc_8E92C:
+	lw      s0, 0(s3)
+	nop
+	andi    v0, s0, 1
+	beqz    v0, loc_8E94C
+	andi    v0, s0, 2
+	jal     mPopMatrix
+	nop
+	andi    v0, s0, 2
+
+	loc_8E94C:
+	beqz    v0, loc_8E95C
+	nop
+	jal     mPushMatrix
+	nop
+
+	loc_8E95C:
+	lw      a0, 4(s3)
+	lw      a1, 8(s3)
+	jal     mTranslateXYZ
+	lw      a2, 0xC(s3)
+	addiu   a0, sp, 0x50-0x2C
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	beqz    s2, loc_8E9CC
+	andi    v0, s0, 0x1C
+	beqz    v0, loc_8E9CC
+	andi    v0, s0, 8
+	beqz    v0, loc_8E9A0
+	andi    v0, s0, 4
+	lh      a0, 0(s2)
+	jal     mRotY
+	addiu   s2, 2
+	andi    v0, s0, 4
+
+	loc_8E9A0:
+	beqz    v0, loc_8E9B8
+	andi    v0, s0, 0x10
+	lh      a0, 0(s2)
+	jal     mRotX
+	addiu   s2, 2
+	andi    v0, s0, 0x10
+
+	loc_8E9B8:
+	beqz    v0, loc_8E9CC
+	nop
+	lh      a0, 0(s2)
+	jal     mRotZ
+	addiu   s2, 2
+
+	loc_8E9CC:
+	addiu   s1, -1
+	bnez    s1, loc_8E92C
+	addiu   s3, 0x10
+
+	loc_8E9D8:
+	lw      a0, 0(s4)
+	lw      a1, 4(s4)
+	lw      a2, 8(s4)
+	jal     mTranslateXYZ
+	addiu   ra, 0x170
+
+	loc_8E9EC:
+	li      a2, 0xA5278
+	lw      a1, 0x50-0x30(sp)
+	jal     InitInterpolation
+	move    a0, s0
+	lw      v1, 0x50-0x38(sp)
+	lw      t0, 0x50-0x34(sp)
+	addiu   v0, v1, 0x12
+	sw      v0, 0x50-0x2C(sp)
+	addiu   v0, t0, 0x12
+	sw      v0, 0x50-0x28(sp)
+	lh      a0, 0xC(v1)
+	lh      a1, 0xE(v1)
+	lh      a2, 0x10(v1)
+	lh      a3, 0xC(t0)
+	lh      v0, 0xE(t0)
+	lh      v1, 0x10(t0)
+	sw      v0, 0x50-0x40(sp)
+	jal     iTranslateXYZ2
+	sw      v1, 0x50-0x3C(sp)
+	addiu   a0, sp, 0x50-0x2C
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	addiu   a0, sp, 0x50-0x28
+	jal     iRotSuperPackedYXZ
+	move    a1, zero
+	blez    s6, loc_8EB38
+	move    s1, s6
+
+	loc_8EA5C:
+	lw      s0, 0(s3)
+	nop
+	andi    v0, s0, 1
+	beqz    v0, loc_8EA7C
+	andi    v0, s0, 2
+	jal     iPopMatrix
+	nop
+	andi    v0, s0, 2
+
+	loc_8EA7C:
+	beqz    v0, loc_8EA8C
+	nop
+	jal     iPushMatrix
+	nop
+
+	loc_8EA8C:
+	lw      a0, 4(s3)
+	lw      a1, 8(s3)
+	jal     iTranslateXYZ
+	lw      a2, 0xC(s3)
+	addiu   a0, sp, 0x50-0x2C
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	addiu   a0, sp, 0x50-0x28
+	jal     iRotSuperPackedYXZ
+	move    a1, zero
+	beqz    s2, loc_8EB2C
+	andi    v0, s0, 0x1C
+	beqz    v0, loc_8EB2C
+	andi    v0, s0, 8
+	beqz    v0, loc_8EAE8
+	andi    v0, s0, 4
+	lh      a0, 0(s2)
+	jal     mRotY
+	nop
+	lh      a0, 0(s2)
+	jal     iRotY
+	addiu   s2, 2
+	andi    v0, s0, 4
+
+	loc_8EAE8:
+	beqz    v0, loc_8EB0C
+	andi    v0, s0, 0x10
+	lh      a0, 0(s2)
+	jal     mRotX
+	nop
+	lh      a0, 0(s2)
+	jal     iRotX
+	addiu   s2, 2
+	andi    v0, s0, 0x10
+
+	loc_8EB0C:
+	beqz    v0, loc_8EB2C
+	nop
+	lh      a0, 0(s2)
+	jal     mRotZ
+	nop
+	lh      a0, 0(s2)
+	jal     iRotZ
+	addiu   s2, 2
+
+	loc_8EB2C:
+	addiu   s1, -1
+	bnez    s1, loc_8EA5C
+	addiu   s3, 0x10
+
+	loc_8EB38:
+	lw      a0, 0(s4)
+	lw      a1, 4(s4)
+	jal     iTranslateXYZ
+	lw      a2, 8(s4)
+	jal     InterpolateMatrix
+	nop
+	cfc2    t0, r5
+	cfc2    t1, r6
+	cfc2    t2, r7
+	lw      at, 0x40(s5)
+	lw      v0, 0x44(s5)
+	lw      v1, 0x48(s5)
+	lw      a0, 0x50-0x24(sp)
+	addu    at, t0
+	addu    v0, t1
+	addu    v1, t2
+	sw      at, 0(s4)
+	sw      v0, 4(s4)
+	sw      v1, 8(s4)
+	jal     mCopyMatrix
+	sw      a0, Matrix-GP_ADDR(gp)
+	lw      ra, 0x50-0x4(sp)
+	lw      s6, 0x50-0x8(sp)
+	lw      s5, 0x50-0xC(sp)
+	lw      s4, 0x50-0x10(sp)
+	lw      s3, 0x50-0x14(sp)
+	lw      s2, 0x50-0x18(sp)
+	lw      s1, 0x50-0x1C(sp)
+	lw      s0, 0x50-0x20(sp)
+	jr      ra
+	addiu   sp, 0x50

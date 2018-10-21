@@ -2,7 +2,7 @@
 #include "GLOBAL.H"
 #include "INCLUDE.H"
 
-char* ERR_Describe_DX(HRESULT error)
+char* ERR_Describe_DX(HRESULT error)// (F)
 {
 	switch (error)
 	{
@@ -348,7 +348,7 @@ local char* LaszInitErrs[] =
 	"GetDisplayMode"
 };
 
-char* ERR_Describe_Init(int nError)
+char* ERR_Describe_Init(int nError)// (F)
 {
 	return LaszInitErrs[nError];
 }

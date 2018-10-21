@@ -347,6 +347,37 @@ void KlaxonTremor()
 	Unimpl();
 }
 
+void UpdateSky()
+{
+	if (gfLevelFlags & GF_LVOP_LAYER1_USED)
+	{
+		SkyPos += gfLayer1Vel;
+
+		if (SkyPos > 9728)
+		{
+			SkyPos -= 9728;
+		}
+		else if(SkyPos < 0)
+		{
+			SkyPos += 9728;
+		}
+	}
+
+	if (gfLevelFlags & GF_LVOP_LAYER2_USED)
+	{
+		SkyPos2 += gfLayer2Vel;
+
+		if (SkyPos2 > 9728)
+		{
+			SkyPos2 -= 9728;
+		}
+		else if (SkyPos2 < 0)
+		{
+			SkyPos2 += 9728;
+		}
+	}
+}
+
 #endif
 
 long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUCH (PSX/PSXPC)
@@ -452,7 +483,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 			|| 
 			((lara_item->current_anim_state != STATE_LARA_STOP || lara_item->anim_number != ANIMATION_LARA_STAY_IDLE)
 				&& (!lara.IsDucked
-					|| input & IN_CROUCH
+					|| input & IN_DUCK
 					|| lara_item->anim_number != ANIMATION_LARA_CROUCH_IDLE
 					|| lara_item->goal_anim_state != STATE_LARA_CROUCH_IDLE)))
 		{
@@ -1466,7 +1497,7 @@ int is_object_in_room(int roomnumber, int objnumber)// (F)
 
 void NeatAndTidyTriggerCutscene(int value, int timer)
 {
-	S_Warn("[NeatAndTidyTriggerCutscene] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int CheckCutPlayed(int num)//20E34(<), 21040(<) (F)
@@ -1499,7 +1530,7 @@ void InitCutPlayed()//20D90, 20F9C (F)
 	_CutSceneTriggered2 = 0;
 }
 
-void ResetGuards()//20B48(<), ? (F)
+void ResetGuards()//20B48(<), ?
 {
 	short item_num; // $s1
 	short room_num; // $t1
@@ -1529,7 +1560,7 @@ void ResetGuards()//20B48(<), ? (F)
 	//a0 = item+_num;
 	if (objects[target_item->object_number].intelligent)
 	{
-		target_item->status = 3;
+		target_item->status = ITEM_INVISIBLE;
 
 		RemoveActiveItem(item_num);
 		DisableBaddieAI(item_num);
@@ -1670,7 +1701,7 @@ void ResetGuards()//20B48(<), ? (F)
 		addiu	$sp, 0x20
 #endif
 
-	S_Warn("[ResetGuards] - Unimplemented!\n");
+		UNIMPLEMENTED();
 }
 
 void InterpolateAngle(short dest, short* src, short* diff, short speed)//20AF0(<) ? (F)
@@ -1774,22 +1805,20 @@ int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)//2
 
 int GetTargetOnLOS(struct GAME_VECTOR* src, struct GAME_VECTOR* dest, int DrawTarget, int firing)
 {
-	S_Warn("[GetTargetOnLOS] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
-void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* target)
+void FireCrossBowFromLaserSight(struct GAME_VECTOR* src, struct GAME_VECTOR* target)// (F)
 {
 	short angles[2];
 	struct PHD_3DPOS pos;
 
-	target->x = (target->x & -1023) | 0x200;
-	target->z = (target->z & -1023) | 0x200;
+	target->x = (target->x & ~0x3FE) | 0x200;
+	target->z = (target->z & ~0x3FE) | 0x200;
 
-#ifndef USE_ASM
-#if PSX_VERSION || PSXPC_VERSION///@TEMP
-	phd_GetVectorAngles(target->x - src->x, target->y - src->y, target->z - src->z, &angles[0]);
-#endif
+#if (PSXENGINE && !defined(USE_ASM)) || PC_VERSION
+	phd_GetVectorAngles(target->x - src->x, target->y - src->y, target->z - src->z, angles);
 #endif
 	pos.z_rot = 0;
 	pos.x_pos = src->x;
@@ -1888,17 +1917,17 @@ void FlipMap(int FlipNumber)// (F)
 
 void _TestTriggers(short* data, int heavy, int HeavyFlags)
 {
-	S_Warn("[_TestTriggers] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void RefreshCamera(short type, short* data)
 {
-	S_Warn("[RefreshCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 long GetWaterHeight(long x, long y, long z, short room_number)
 {
-	S_Warn("[GetWaterHeight] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -1977,7 +2006,7 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F
 
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
 {
-	S_Warn("[GetHeight] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -2079,7 +2108,7 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 
 short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 {
-	S_Warn("[GetCeiling] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -2289,13 +2318,13 @@ int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(
 
 int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
-	S_Warn("[xLOS] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
-	S_Warn("[zLOS] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -2384,20 +2413,20 @@ int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 
 int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor)
 {
-	S_Warn("[ClipTarget] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 #ifndef PSX_VERSION || PSXPC_VERSION///@FIXME @pc
 void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint)
 {
-	S_Warn("[GetJointAbsPosition] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 #endif
 
 int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4)
 {
-	S_Warn("[ObjectOnLOS2] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -2419,10 +2448,10 @@ int check_xray_machine_trigger()// (F)
 
 void AnimateItem(struct ITEM_INFO* item)
 {
-	S_Warn("[AnimateItem] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void UpdateSpiders()
 {
-	S_Warn("[UpdateSpiders] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

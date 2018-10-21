@@ -295,7 +295,143 @@ void KillActiveBaddies(struct ITEM_INFO* item)//39938(<), 39E38(<) (F)
 
 void ResetTest(struct ITEM_INFO* item)//39738, 39C38
 {
-	S_Warn("[ResetTest] - Unimplemented!\n");
+	short item_num; // $s1
+	short room_num; // $t1
+	struct ITEM_INFO* target_item; // $s0
+
+	item_num = next_item_active;
+	//v0 = -1
+	if (item_num != -1)
+	{
+		//s2 = &objects
+
+		//loc_39768
+		target_item = &items[item_num];
+		//v0 = &objects[target_item->object_number];
+
+	}//loc_39914
+
+#if 0
+		lw      $v1, 0x30($v0)
+		nop
+		srl     $v1, 17
+		andi    $v1, 1
+		beqz    $v1, loc_39904
+		move    $a0, $s1
+		lw      $v0, 0x84($s0)
+		nop
+		ori     $v0, 6
+		jal     sub_41E98
+		sw      $v0, 0x84($s0)
+		jal     sub_4DEC0
+		move    $a0, $s1
+		li      $v0, 0xFFFFC1FF
+		lw      $a3, 0x84($s0)
+		lhu     $v1, 0x38($s0)
+		lhu     $a2, 0x36($s0)
+		and $a3, $v0
+		andi    $t1, $v1, 0xFF
+		sll     $v1, 16
+		sra     $v1, 24
+		sll     $v1, 8
+		sll     $a0, $t1, 2
+		addu    $a0, $t1
+		lw      $v0, dword_800A24DC
+		sll     $a0, 4
+		addu    $a0, $v0
+		sll     $v0, $a2, 16
+		sra     $v0, 24
+		sll     $v0, 10
+		andi    $a2, 0xFF
+		lw      $a1, 0x20($a0)
+		sll     $a2, 10
+		addu    $v1, $a1
+		sw      $v1, 0x44($s0)
+		lw      $v1, 0x14($a0)
+		lhu     $a1, 0x34($s0)
+		addu    $v0, $v1
+		addiu   $v0, 0x200
+		sll     $v1, $a1, 1
+		andi    $v1, 0x3E00
+		or $a3, $v1
+		sw      $v0, 0x40($s0)
+		lw      $t0, 0x1C($a0)
+		lhu     $v0, 0x8E($s0)
+		lh      $v1, 0xC($s0)
+		andi    $a1, 0xFF
+		sw      $a3, 0x84($s0)
+		sh      $a1, 0x3A($s0)
+		addu    $a2, $t0
+		addiu   $a2, 0x200
+		sh      $v0, 0x4E($s0)
+		li      $v0, 0x57
+		bne     $v1, $v0, loc_39878
+		sw      $a2, 0x48($s0)
+		lhu     $v0, 0x15E6($s2)
+		j       loc_398BC
+		sh      $v0, 0x14($s0)
+
+		loc_39878:
+	li      $v0, 0x27
+		bne     $v1, $v0, loc_39890
+		lui     $v1, 1
+		lhu     $v0, 0x9E6($s2)
+		j       loc_398B4
+		addiu   $v0, 6
+
+		loc_39890:
+	lw      $v0, 0x870($s2)
+		nop
+		and     $v0, $v1
+		beqz    $v0, loc_398B0
+		nop
+		lhu     $v0, 0x866($s2)
+		j       loc_398BC
+		sh      $v0, 0x14($s0)
+
+		loc_398B0:
+	lhu     $v0, 0x966($s2)
+
+		loc_398B4 :
+		nop
+		sh      $v0, 0x14($s0)
+
+		loc_398BC :
+		lh      $a0, 0x14($s0)
+		li      $v1, 1
+		sh      $v1, 0xE($s0)
+		sh      $v1, 0x10($s0)
+		lw      $v1, dword_800A25E0
+		sll     $v0, $a0, 2
+		addu    $v0, $a0
+		sll     $v0, 3
+		addu    $v0, $v1
+		lhu     $a0, 0x18($v0)
+		lh      $v1, 0x18($s0)
+		nop
+		beq     $v1, $t1, loc_39904
+		sh      $a0, 0x16($s0)
+		move    $a0, $s1
+		jal     sub_7C608
+		move    $a1, $t1
+
+		loc_39904 :
+	lh      $s1, 0x1C($s0)
+		li      $v0, 0xFFFFFFFF
+		bne     $s1, $v0, loc_39768
+		sll     $v1, $s1, 3
+
+		loc_39914 :
+		lw      $ra, 0x20 + var_4($sp)
+		lw      $s2, 0x20 + var_8($sp)
+		lw      $s1, 0x20 + var_C($sp)
+		lw      $s0, 0x20 + var_10($sp)
+		li      $v0, 0xFFFFFFFF
+		sw      $v0, dword_A0724
+		jr      $ra
+		addiu   $sp, 0x20
+#endif
+		UNIMPLEMENTED();
 }
 
 void LaraLocationPad(struct ITEM_INFO* item)//39710(<), 39C10(<) (F)
@@ -373,9 +509,16 @@ void SoundFlipEffect(struct ITEM_INFO* item)//39500(<), 39A00(<) (F)
 	flipeffect = -1;
 }
 
-void floor_shake_effect(struct ITEM_INFO* item)//39410, 39910
+void floor_shake_effect(struct ITEM_INFO* item)//39410, 39910 (F)
 {
-	S_Warn("[floor_shake_effect] - Unimplemented!\n");
+	int x = abs(item->pos.x_pos - camera.pos.x);
+	int y = abs(item->pos.y_pos - camera.pos.y);     
+	int z = abs(item->pos.z_pos - camera.pos.z);
+
+	if (z < SECTOR(16))
+	{
+		camera.bounce = 66 * ((x * x + y * y + z * z / 256) / SECTOR(1024) - 1);
+	}
 }
 
 void turn180_effect(struct ITEM_INFO* item)//393F4(<), 398F4(<) (F)
@@ -395,7 +538,7 @@ void void_effect(struct ITEM_INFO* item)//393CC(<), 398CC(<) (F)
 
 void WaterFall(short item_number)//39294, 39794
 {
-	S_Warn("[WaterFall] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void SoundEffects()//39190(<), 39690 (F)
@@ -548,7 +691,7 @@ long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<),
 	}//loc_91950
 #endif
 
-	S_Warn("[SoundEffect] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 
@@ -617,5 +760,5 @@ void LaraBubbles(struct ITEM_INFO* item)// (F)
 
 void AddFootprint(struct ITEM_INFO* item)
 {
-	S_Warn("[AddFootprint] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

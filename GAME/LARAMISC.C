@@ -124,7 +124,7 @@ void GetLaraDeadlyBounds()//4B408(<), 4B86C (F)
 
 void DelAlignLaraToRope(struct ITEM_INFO* item)//4B3D8, 4B83C
 {
-	S_Warn("[DelAlignLaraToRope] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void InitialiseLaraAnims(struct ITEM_INFO* item)//4B340(<), 4B7A4 (F)
@@ -156,7 +156,7 @@ void InitialiseLaraLoad(short item_num)//4B308, 4B76C (F)
 
 void LaraControl(short item_number)//4A838, 4AC9C
 {
-	S_Warn("[LaraControl] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void LaraCheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4A790(<), 4ABF4(<) (F)
@@ -223,10 +223,14 @@ void LaraInitialiseMeshes()//4A684, 4AAE8 (F)
 
 void InitialiseLara(int restore)
 {
+	int i;
+	short item;
+	short gun;
+
 	if (lara.item_number == -1)
 		return;
 
-	short item = lara.item_number;
+	item = lara.item_number;
 
 	lara_item->data = &lara;
 	lara_item->collidable = FALSE;
@@ -258,7 +262,7 @@ void InitialiseLara(int restore)
 	lara.RopePtr = -1;
 	lara_item->hit_points = 1000;
 
-	for(int i = 0; i < gfNumPickups; i++)
+	for(i = 0; i < gfNumPickups; i++)
 	{
 		DEL_picked_up_object(convert_invobj_to_obj(gfPickups[i]));
 	}
@@ -267,7 +271,7 @@ void InitialiseLara(int restore)
 
 	lara.gun_status = LG_NO_ARMS;
 
-	short gun = WEAPON_NONE;
+	gun = WEAPON_NONE;
 
 	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA) && objects[PISTOLS_ITEM].loaded)
 		gun = WEAPON_PISTOLS;
@@ -301,7 +305,7 @@ void InitialiseLara(int restore)
 
 	DashTimer = 120;
 
-	for (int i = 0; i < gfNumTakeaways; i++)
+	for (i = 0; i < gfNumTakeaways; i++)
 	{
 		NailInvItem(convert_invobj_to_obj(gfTakeaways[i]));
 	}

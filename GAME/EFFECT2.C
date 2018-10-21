@@ -39,12 +39,12 @@ struct SPARKS spark[128];
 
 void ControlEnemyMissile(short fx_number)//342D0, 347D0
 {
-	S_Warn("[ControlEnemyMissile] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ControlSmokeEmitter(short item_number)//338B8, 33DB8
 {
-	S_Warn("[ControlSmokeEmitter] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void KillEverything()//338AC(<), 33DAC(<) (F)
@@ -59,12 +59,12 @@ void KillAllCurrentItems(short item_number)//3389C, 33D9C (F)
 
 void TriggerDartSmoke(long x, long y, long z, long xv, long zv, long hit)//335B8, 33AB8
 {
-	S_Warn("[TriggerDartSmoke] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerWaterfallMist(long x, long y, long z, long angle)//331B4, 336B4
 {
-	S_Warn("[TriggerWaterfallMist] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly)//32EAC, 333AC (F)
@@ -256,26 +256,26 @@ void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, 
 
 void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 {
-	S_Warn("[TriggerDynamic] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerFireFlame(int x, int y, int z, int fxObj, signed int a5)
 {
-	S_Warn("[TriggerFireFlame] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerFontFire(struct ITEM_INFO* item, int a2, int a3)
 {
-	S_Warn("[TriggerFontFire] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 void TriggerHydraMissileFlame(struct PHD_VECTOR* pos, long x, long y, long z)
 {
-	S_Warn("[TriggerHydraMissileFlame] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerRomanGodMissileFlame(struct PHD_VECTOR* pos, long fx_number)
 {
-	S_Warn("[TriggerRomanGodMissileFlame] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerTorpedoSteam(struct PHD_VECTOR *pos, struct PHD_VECTOR *a2, int a3)// (F)
@@ -388,7 +388,7 @@ void TriggerSubMist(struct PHD_VECTOR *pos, struct PHD_VECTOR *a4, int a5)// (F)
 
 void TriggerEngineEffects()
 {
-	S_Warn("[TriggerEngineEffects] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerAirBubbles()// (F)
@@ -431,7 +431,7 @@ void TriggerAirBubbles()// (F)
 
 	sptr->Xvel = (GetRandomControl() & 0x7F) - pos.x + v8.x - 64;
 	sptr->Yvel = (GetRandomControl() & 0x7F) - pos.y + v8.y - 64;
-	sptr->Yvel = (GetRandomControl() & 0x7F) - pos.z + v8.z - 64;
+	sptr->Zvel = (GetRandomControl() & 0x7F) - pos.z + v8.z - 64;
 
 	sptr->Friction = 0;
 	sptr->Def = (objects[458].mesh_index & 0xFF) + 17;
@@ -448,4 +448,48 @@ void TriggerAirBubbles()// (F)
 	sptr->sSize = size;
 	sptr->Size = size;
 	sptr->dSize = 2 * size;
+}
+
+void FlamingHell(struct PHD_VECTOR* pos)
+{
+	struct SPARKS* sptr = &spark[GetFreeSpark()];
+
+	long yvel = MAX(512, (GetRandomControl() & 0x1FF) - 128);
+
+	long tmp = (GetRandomControl() & 0x1F) + 48;
+	long size;
+	
+	sptr->sR = tmp;
+	sptr->sG = tmp;
+	sptr->sB = (GetRandomControl() & 0x3F) - 64;
+
+	sptr->dR = (GetRandomControl() & 0x3F) - 64;
+	sptr->dG = (GetRandomControl() & 0x3F) - 128;
+	sptr->dB = 32;
+
+	sptr->ColFadeSpeed = 8;
+	sptr->FadeToBlack = 8;
+	sptr->TransType = 2;
+
+	sptr->Life = sptr->sLife = (GetRandomControl() & 0x3F) + 90;
+
+	sptr->x = GetRandomControl() + pos->x - 128;
+	sptr->y = GetRandomControl() + pos->y - 256;
+	sptr->z = GetRandomControl() + pos->z - 128;
+
+	sptr->Xvel = (GetRandomControl() & 0xFF) - 128;
+	sptr->Yvel = -(yvel & 0xFFFF);
+	sptr->Zvel = (GetRandomControl() & 0xFF) - 128;
+
+	sptr->Friction = 51;
+	sptr->MaxYvel = 0;
+	sptr->Gravity = -16 - (GetRandomControl() & 0x1F);
+
+	sptr->Scalar = 2;
+	sptr->Flags = 538;
+
+	size = (GetRandomControl() & 0xF) + (yvel >> 6) + 16;
+	sptr->sSize = size >> 1;
+	sptr->Size = size >> 1;
+	sptr->dSize = size;
 }

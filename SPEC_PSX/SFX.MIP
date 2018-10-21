@@ -1,0 +1,301 @@
+	;opt at-,w-,c+,m-
+
+	SECTION	.ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume, SPU_UpdateStatus
+	XREF LabSampleType, LabFreeChannel, LnFreeChannels, DepthTable, camera, char_anim, local_mRotY, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuGetAllKeysStatus, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey
+
+SPU_UpdateStatus:
+	addiu   sp, -0x2C
+	sw      ra, 0x2C-0x4(sp)
+	jal     SpuGetAllKeysStatus
+	addiu   a0, sp, 0x2C-0x1C
+	move    a2, zero
+	addiu   a3, sp, 0x2C-0x1C
+	la      t0, LabSampleType
+
+	loc_9161C:
+	lbu     v0, 0(a3)
+	addiu   a3, 1
+	addiu   v0, -1
+	sltiu   v0, v0, 2
+	bnez    v0, loc_9164C
+	addiu   a2, 1
+	lbu     v0, 0(t0)
+	nop
+	beqz    v0, loc_9164C
+	nop
+	jal     SPU_FreeChannel
+	addiu   a0, a2, -1
+
+	loc_9164C:
+	slti    v0, a2, 0x18
+	bnez    v0, loc_9161C
+	addiu   t0, 1
+	lw      ra, 0x2C-0x4(sp)
+	lw      v0, LnFreeChannels-GP_ADDR(gp)
+	jr      ra
+	addiu   sp, 0x2C
+
+GetPanVolume:
+	move    t7, ra
+	move    t2, a0
+	lw      v0, 0x10(t2)
+	lw      v1, sample_infos-GP_ADDR(gp)
+	sll     v0, 3
+	addu    v1, v0
+	lbu     v1, 3(v1)
+	nop
+	sll     t4, v1, 10
+	mult    t4, t4
+	lw      a0, 0x18(t2)
+	lw      v0, camera+0x0-GP_ADDR(gp)
+	lw      a1, 0x1C(t2)
+	subu    t6, a0, v0
+	lw      v1, camera+0x4-GP_ADDR(gp)
+	lw      a0, 0x20(t2)
+	lw      v0, camera+0x8-GP_ADDR(gp)
+	subu    a1, v1
+	subu    t5, a0, v0
+	negu    v1, t4
+	mflo    a0
+	slt     v0, t6, v1
+	bnez    v0, loc_91FC8
+	slt     v0, t4, t6
+	bnez    v0, loc_91FC8
+	slt     v0, a1, v1
+	bnez    v0, loc_91FC8
+	slt     v0, t4, a1
+	bnez    v0, loc_91FC8
+	slt     v0, t5, v1
+	bnez    v0, loc_91FC8
+	slt     v0, t4, t5
+	bnez    v0, loc_91FC8
+	nop
+	mtc2    t6, r9
+	mtc2    a1, r10
+	mtc2    t5, r11
+	nop
+	nop
+	cop2    0xA00428
+	mfc2    v0, r25
+	mfc2    v1, r26
+	mfc2    t3, r27
+	addu    v0, v1
+	addu    t3, v0
+	sltu    v0, a0, t3
+	bnez    v0, loc_91FC8
+	lui     v0, 0xF
+	li      v0, 0xFFFFF
+	sltu    v0, v0, t3
+	bnez    v0, loc_91F60
+	nop
+	j       loc_91F6C
+	move    t3, zero
+
+	loc_91F60:
+	jal     phd_sqrt_asm
+	move    a0, t3
+	addiu   t3, v0, -0x400
+
+	loc_91F6C:
+	move    a0, t5
+	jal     phd_atan_asm
+	move    a1, t6
+	lhu     v1, char_anim-GP_ADDR(gp)
+	lw      a0, 0(t2)
+	sll     v1, 4
+	beqz    t3, loc_91FC0
+	addu    a1, v0, v1
+	sll     v0, t3, 14
+	divu    v0, t4
+	mflo    v0
+	sra     v0, 2
+	andi    v0, 0x3FFC
+	la		at, rcossin_tbl
+	addu	at, at, v0
+	lh      v1, 0(at)
+	li      v0, 0x1000
+	subu    v0, v1
+	mult    v0, a0
+	mflo    a2
+	sra     a0, a2, 12
+
+	loc_91FC0:
+	bgtz    a0, loc_91FD8
+	li      v0, 0x7FFF
+
+	loc_91FC8:
+	sw      zero, 0x14(t2)
+	sw      zero, 8(t2)
+	jr      t7
+	sw      zero, 4(t2)
+
+	loc_91FD8:
+	slt     v0, v0, a0
+	beqz    v0, loc_91FE8
+	andi    a1, 0xFFFF
+	li      a0, 0x7FFF
+
+	loc_91FE8:
+	sw      a0, 4(t2)
+	sw      a1, 8(t2)
+	jr      t7
+	sw      t3, 0x14(t2)
+	
+S_SoundSampleIsPlaying:
+	lw      v0, GtSFXEnabled
+	nop
+	beqz    v0, locret_91510
+	nop
+	addiu   sp, -0x18
+	sw      s0, 0x18-0x8(sp)
+	move    s0, a0
+	li      a0, 1
+	sw      ra, 0x18-0x4(sp)
+	jal     SpuGetKeyStatus
+	sllv    a0, s0
+	lbu     a1, LabSampleType(s0)
+	addiu   v0, -1
+	andi    v0, 0xFF
+	sltiu   v0, v0, 2
+	bnez    v0, loc_91758
+	move    v0, a1
+	beqz    v0, loc_91758
+	nop
+	jal     SPU_FreeChannel
+	move    a0, s0
+	li      v0, 0
+
+	loc_91758:
+	lw      ra, 0x18-0x4(sp)
+	lw      s0, 0x18-0x8(sp)
+	jr      ra
+	addiu   sp, 0x18
+	
+S_SoundStopSample:
+	lw      v0, GtSFXEnabled-GP_ADDR(gp)
+	nop
+	beqz    v0, locret_91510
+	nop
+	addiu   sp, -0x18
+	sw      ra, 0x18-0x8(sp)
+	sw      a0, 0x18-0x4(sp)
+	lbu     v0, LabSampleType(a0)
+	move    a2, a0
+	beqz    v0, loc_916CC
+	nop
+	jal     SPU_FreeChannel
+	nop
+
+	loc_916CC:
+	move    a0, a2
+	li      a1, 0
+	jal     SpuSetVoiceVolume
+	li      a2, 0
+	lw      ra, 0x18-0x8(sp)
+	lw      a2, 0x18-0x4(sp)
+	addiu   sp, 0x18
+	move    a0, zero
+	li      a1, 1
+	j       SpuSetKey
+	sllv    a1, a2
+	
+S_SoundSetPitch:
+	lw      v0, GtSFXEnabled-GP_ADDR(gp)
+	sll     a1, 10
+	beqz    v0, locret_91510
+	srl     a1, 16
+	j       SpuSetVoicePitch
+	nop
+
+S_SoundSetPanAndVolume:
+	lw      v0, GtSFXEnabled-GP_ADDR(gp)
+	move    t1, a0
+	beqz    v0, locret_91511
+	move    t3, ra
+	move    a0, a3
+	move    a3, a1
+	jal     CalcVolumes_ASM
+	move    a1, a2
+	move    ra, t3
+	j       SpuSetVoiceVolume
+	move    a0, t1
+
+	locret_91511:
+	jr      ra
+	move    v0, zero
+
+S_SoundStopAllSamples:
+	lw      v0, GtSFXEnabled-GP_ADDR(gp)
+	nop
+	beqz    v0, locret_91510
+	nop
+
+	loc_91D44:
+	addiu   sp, -0x18
+	sw      ra, 0x18-0x8(sp)
+	li      a1, 0xFFFFFF
+	jal     SpuSetKey
+	move    a0, zero
+
+	loc_91D5E:
+	jal     SPU_UpdateStatus
+	nop
+	li      at, 0x18
+	bne     v0, at, loc_91D5E
+	nop
+	lw      ra, 0x18-0x8(sp)
+	addiu   sp, 0x18
+	jr      ra
+	nop
+	
+	
+locret_91510:
+	jr      ra
+	move    v0, zero
+
+	
+S_SetReverbType:
+	move    t9, ra
+	lh      v0, CurrentReverb-GP_ADDR(gp)
+	sll     a0, 16
+	sra     a0, 16
+	beq     a0, v0, loc_91D2C
+	sll     a1, a0, 1
+	sh      a0, CurrentReverb-GP_ADDR(gp)
+	lh      a1, DepthTable(a1)
+	jal     SpuSetReverbModeDepth
+	move    a0, a1
+	jal     SpuSetReverb
+	li      a0, 1
+
+	loc_91D2C:
+	jr      t9
+	nop
+	
+SPU_StopAll:
+	addiu   sp, -0x18
+	sw      ra, 0x18-0x8(sp)
+	li      a1, 0xFFFFFF
+	jal     SpuSetKey
+	move    a0, zero
+
+	loc_91D5C:
+	jal     SPU_UpdateStatus
+	nop
+	li      at, 0x18
+	bne     v0, at, loc_91D5C
+	nop
+	lw      ra, 0x18-0x8(sp)
+	addiu   sp, 0x18
+	jr      ra
+	nop
+	
+SPU_FreeChannel:
+	lw      v1, LnFreeChannels-GP_ADDR(gp)
+	sb      zero, LabSampleType(a0)
+	addiu   v0, v1, 1
+	sb      a0, LabFreeChannel(v1)
+	jr      ra
+	sw      v0, LnFreeChannels-GP_ADDR(gp)
