@@ -16,6 +16,8 @@
 #include "CAMERA.H"
 #include "SOUND.H"
 #if PC_VERSION
+#include "GLOBAL.H"
+#include "DRAWPRIMITIVE.H"
 #include "GAME.H"
 #include "WINMAIN.H"
 #else
@@ -398,12 +400,28 @@ void do_playstation_button_prompts_v1()//416E0, 41B34
 			}
 		}
 	}
-	S_Warn("[do_playstation_button_prompts_v1] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void S_DrawPickup(short object_number)//41608, 41A5C
 {
-	S_Warn("[S_DrawPickup] - Unimplemented!\n");
+#if PC_VERSION
+	phd_LookAt(0, SECTOR(1), 0, 0, 0, 0, 0);
+	SetD3DViewMatrix();
+	SetViewMatrix();
+	DrawThreeDeeObject2D(
+		(int)(phd_winxmax / 512.0 * 448.0),
+		(int)(phd_winymax / 256.0 * 216.0),
+		convert_obj_to_invobj(object_number),
+		128,
+		0,
+		(GnFrameCounter & 0x7F) << 9,
+		0,
+		0,
+		1);
+#else
+	UNIMPLEMENTED();
+#endif
 }
 
 void dels_give_lara_guns_cheat()//41470, 418C4 (F)
@@ -584,7 +602,7 @@ void do_examine_mode()//411C4, 41618 (F)
 
 void do_keypad_mode()//40B54, 40FA8
 {
-	S_Warn("[do_keypad_mode] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void init_keypad_mode()//40B2C(<), 40F80(<) (F)
@@ -1025,7 +1043,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304 (F)
 
 void use_current_item()//3F9A0, 3FDF4
 {
-	S_Warn("[use_current_item] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void setup_objectlist_startposition2(short newobj)//3F938, 3FD8C (F)
@@ -1378,7 +1396,7 @@ void spinback(unsigned short* cock)//3F094, 3F4E8 (F)
 
 void draw_ammo_selector()//3EDDC, 3F230
 {
-	S_Warn("[draw_ammo_selector] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void fade_ammo_selector()//3ED08, 3F15C (F)
@@ -1501,7 +1519,7 @@ void setup_ammo_selector()//3E9F8, 3EE4C (F)
 
 void handle_inventry_menu()//3DF44, 3E398
 {
-	S_Warn("[handle_inventry_menu] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void handle_object_changeover(int ringnum)//3DF18, 3E36C (F)
@@ -1513,7 +1531,7 @@ void handle_object_changeover(int ringnum)//3DF18, 3E36C (F)
 
 void draw_current_object_list(int ringnum)//3D350, 3D7A4
 {
-	S_Warn("[draw_current_object_list] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void insert_object_into_list(int num)//3D2C4(<), 3D718(<) (F)
@@ -1825,12 +1843,12 @@ int go_and_load_game()//3C900(<), 3CD54(<) (F)
 
 void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int shagflag)//3C6A0, 3CAF4
 {
-	S_Warn("[DrawInventoryItemMe] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay)//3C43C, 3C890
 {
-	S_Warn("[DrawThreeDeeObject2D] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
@@ -1874,7 +1892,7 @@ void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 		right_repeat = 0;
 	}
 
-	if (input & IN_UP)
+	if (input & IN_FORWARD)
 	{
 		if (!up_debounce)
 			go_up = 1;
@@ -1885,7 +1903,7 @@ void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 		up_debounce = 0;
 	}
 
-	if (input & IN_DOWN)
+	if (input & IN_BACK)
 	{
 		if (!down_debounce)
 			go_down = 1;
@@ -1897,7 +1915,7 @@ void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 	}
 
 #if PC_VERSION
-	if (input & IN_ACTION || input & IN_UNK20)
+	if (input & IN_ACTION || input & IN_SELECT)
 #else
 	if (input & IN_JUMP)
 #endif
@@ -1913,7 +1931,7 @@ void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 	}
 
 #if PC_VERSION
-	if (input & IN_UNK21)
+	if (input & IN_DESELECT)
 #else
 	if (input & IN_DRAW)
 #endif
@@ -2025,7 +2043,7 @@ void init_new_inventry()//3C024, 3C478 (F)
 
 int S_CallInventory2()//3B7A8, 3BC04
 {
-	S_Warn("[S_CallInventory2] - Unimplemented!\n");
+	UNIMPLEMENTED();
 #if 0
 	short flag; // $s2
 	int return_value; // $s3

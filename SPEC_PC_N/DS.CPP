@@ -18,7 +18,7 @@ void DS_StopSample(int nHandle)
 	{
 		DX_TRY(pBuffer->Stop());
 		pBuffer->Release();
-		LaPlayBuffer[nHandle] = 0;
+		LaPlayBuffer[nHandle] = nullptr;
 	}
 }
 
@@ -31,7 +31,7 @@ void DS_StopAllSamples()
 		{
 			DX_TRY(pBuffer->Stop());
 			pBuffer->Release();
-			LaPlayBuffer[nChannel] = 0;
+			LaPlayBuffer[nChannel] = nullptr;
 		}
 	}
 }

@@ -945,7 +945,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#if PSXENGINE//GetBoundsAccurate illegal, crash.
+#if 0//PSXENGINE//GetBoundsAccurate illegal, crash.
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -1384,7 +1384,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 
 void LookCamera(struct ITEM_INFO* item)
 {
-	S_Warn("[LookCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
@@ -1468,22 +1468,22 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 
 	//loc_269A0 (TODO)
 #endif
-	S_Warn("[CombatCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void FixedCamera()
 {
-	S_Warn("[FixedCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ChaseCamera(struct ITEM_INFO* item)
 {
-	S_Warn("[ChaseCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void BinocularCamera(struct ITEM_INFO* item)
 {
-	S_Warn("[BinocularCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
@@ -1533,7 +1533,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	}
 }
 
-void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)
+void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)// (F)
 {
 	long dx;
 	long dy;
@@ -1630,22 +1630,22 @@ void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, short yro
 
 long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)
 {
-	S_Warn("[mgLOS] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)
 {
-	S_Warn("[CameraCollisionBounds] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void MoveCamera(struct GAME_VECTOR* ideal, int speed)
 {
-	S_Warn("[MoveCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void CheckForRichesIllegalDiagonalWalls()
 {
-	S_Warn("[CheckForRichesIllegalDiagonalWalls] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

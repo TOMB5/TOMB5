@@ -277,6 +277,23 @@ struct PACKEDNAME
 	unsigned char Pad;
 };
 
+struct ILIGHT
+{
+	short x;
+	short y;
+	short z;
+	short pad1;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char pad;
+};
+
+struct ITEM_LIGHT
+{
+	struct ILIGHT Light[4];
+};
+
 struct ITEM_INFO {
 	long floor; // size=0, offset=0
 	unsigned long touch_bits; // size=0, offset=4

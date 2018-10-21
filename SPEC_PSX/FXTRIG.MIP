@@ -1,0 +1,71 @@
+	opt at+,w-,c+,m-
+
+	section	.ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF SetGunFlash, subdiv_ripple
+	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1
+	
+subdiv_ripple:
+	jr	ra
+	
+SetGunFlash:
+	move    t9, ra
+	li      v0, 7
+	beq     a0, v0, loc_8D9EC
+	li      v0, 4
+	beq     a0, v0, loc_8D9EC
+	li      v0, 6
+	beq     a0, v0, loc_8D9EC
+	li      v0, 2
+	li      a3, 0xFFFFC004
+	bne     a0, v0, loc_8D974
+	li      v0, 3
+	li      a3, 0xFFFFC720
+	li      a1, 0xC0
+	j       loc_8D9A4
+	li      a2, 0x44
+
+	loc_8D974:
+	bne     a0, v0, loc_8D988
+	li      v0, 5
+	li      a1, 0xBE
+	j       loc_8D9A4
+	li      a2, 0x32
+
+	loc_8D988:
+	bne     a0, v0, loc_8D99C
+	li      a1, 0x12C
+	li      a2, 0x5C
+	j       loc_8D9A4
+	li      a3, 0xFFFFC720
+
+	loc_8D99C:
+	li      a1, 0xB4
+	li      a2, 0x28
+
+	loc_8D9A4:
+	move    a0, zero
+	li      t8, 0xA31D8
+	move    v1, zero
+
+	loc_8D9B4:
+	lh      v0, 0x20(t8)
+	addiu   v1, 1
+	bnez    v0, loc_8D9E0
+	li      at, 1
+	jal     mTranslateXYZ
+	sh      at, 0x20(t8)
+	jal     mRotX
+	move    a0, a3
+	move    a0, t8
+	jal     snaff_current_gte_matrix_V1
+	addiu   ra, 0xC
+
+	loc_8D9E0:
+	slti    at, v1, 4
+	bnez    at, loc_8D9B4
+	addiu   t8, 0x24
+
+	loc_8D9EC:
+	jr      t9
+	nop

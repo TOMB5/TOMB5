@@ -151,67 +151,39 @@ void SetScreenFadeIn(long fadespeed)//34B48(<), 35048(<) (F)
 
 int GetFreeDrip()
 {
-	S_Warn("[GetFreeDrip] - Unimplemented!\n");
-	return 0;
+	struct DRIP_STRUCT* drip = &Drips[next_drip];
+	int drip_num = next_drip;
+	short min_life = 4095;
+	short min_index = 0;
+	short count = 0;
+	while (drip->On)
+	{
+		if (drip->Life < min_life)
+		{
+			min_index = drip_num;
+			min_life = drip->Life;
+		}
 
-#if 0
-	int var_8, var_C, var_10;
+		if (drip_num == 31)
+		{
+			drip = &Drips[0];
+			drip_num = 0;
+		}
+		else
+		{
+			drip_num++;
+			drip++;
+		}
 
-	if ((wibble & 0xF) != 0) return;
+		if (++count >= 32)
+		{
+			next_drip = (min_index + 1) % 32;
+			return min_index;
+		}
+	}
 
-	auto t6 = 0xE;
-
-	auto t7 = &lara.wet[14];
-
-	loc_8CEB4:
-
-	auto t8 = t7[0];
-
-	auto v0 = &LaraNodeUnderwater[0];
-
-	v0 += t6;
-
-	if (t8 == 0) goto loc_8CFC4;
-
-	v0 = v0[0];
-
-	if (v0 != 0) goto loc_8CFC4;
-
-	v0 = GetRandomControl();
-
-	v0 &= 0x1FF;
-
-	if (v0 >= t8) goto loc_8CFC4;
-
-	v0 &= 0x1F;
-
-	v0 -= 0x10;
-
-	v0 = GetRandomControl();
-	var_10 = v0;
-
-	v0 &= 0xF;
-
-	v0 += 0x10;
-
-	v0 = GetRandomControl();
-	var_C = v0;
-	v0 &= 0x1F;
-	v0 -= 0x10;
-
-	auto a0 = &var_10;
-
-	auto a1 = t6;
-
-	var_8 = GetLaraJointPos((int)a0, a1);
-
-
-	loc_8CFC4:
-	t6--;
-	t7--;
-	if (t6 >= 0) goto loc_8CEB4;
-#endif
-
+	next_drip = (drip_num + 1) % 32;
+	return drip_num;
 }
 
 void TriggerLaraDrips()// (F)
@@ -251,10 +223,41 @@ void TriggerLaraDrips()// (F)
 	}
 }
 
-int GetFreeSmokeSpark()
+int GetFreeSmokeSpark()// (F)
 {
-	S_Warn("[GetFreeSmokeSpark] - Unimplemented!\n");
-	return 0;
+	struct SMOKE_SPARKS* spark = &smoke_spark[next_smoke_spark];
+	int spark_num = next_smoke_spark;
+	short min_life = 4095;
+	short min_index = 0;
+	short count = 0;
+	while (spark->On)
+	{
+		if (spark->Life < min_life)
+		{
+			min_index = spark_num;
+			min_life = spark->Life;
+		}
+
+		if (spark_num == 31)
+		{
+			spark = &smoke_spark[0];
+			spark_num = 0;
+		}
+		else
+		{
+			spark_num++;
+			spark++;
+		}
+
+		if (++count >= 32)
+		{
+			next_smoke_spark = (min_index + 1) % 32;
+			return min_index;
+		}
+	}
+
+	next_smoke_spark = (spark_num + 1) % 32;
+	return spark_num;
 }
 
 int GetFreeSpark()//8B2F8(<), 8D33C(<) (F)
@@ -606,7 +609,7 @@ void TriggerExplosionSmokeEnd(int x, int y, int z, int a4)// (F)
 
 void TriggerExplosionSparks(int x, int y, int z, int a4, int a5, int a6, short room_no)
 {
-	S_Warn("[TriggerExplosionSparks] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int GetFreeShockwave()// (F)
@@ -719,12 +722,12 @@ void Fade()//34B78(<), 35078(<) (F)
 
 void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb)
 {
-	S_Warn("[SetUpLensFlare] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int ExplodingDeath2(short item_number, long mesh_bits, short Flags)
 {
-	S_Warn("[ExplodingDeath2] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -776,27 +779,27 @@ void TriggerLightningGlow(long x, long y, long z, long rgb)// (F)
 
 void trig_actor_gunflash(struct MATRIX3D *matrix, struct PHD_VECTOR *pos)
 {
-	S_Warn("[trig_actor_gunflash] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerFenceSparks(long x, long y, long z, long kill, long crane)
 {
-	S_Warn("[TriggerFenceSparks] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ControlElectricFence(short item_number)
 {
-	S_Warn("[ControlElectricFence] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ControlTeleporter(short item_number)
 {
-	S_Warn("[ControlTeleporter] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DrawWeaponMissile(struct ITEM_INFO *item)
 {
-	S_Warn("[DrawWeaponMissile] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num)// (F)
@@ -814,7 +817,7 @@ void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_
 
 void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
 {
-	S_Warn("[TriggerRicochetSpark] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void Richochet(struct GAME_VECTOR* pos)// (F)
@@ -825,12 +828,12 @@ void Richochet(struct GAME_VECTOR* pos)// (F)
 
 void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int a4, char a5, char a6, char a7)
 {
-	S_Warn("[TriggerLightning] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TriggerCoinGlow()
 {
-	S_Warn("[TriggerCoinGlow] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int GetFreeSpider()// (F)
@@ -858,4 +861,49 @@ int GetFreeSpider()// (F)
 
 	next_spider = (peter_num + 1) & 63;
 	return peter_num;
+}
+
+void TriggerSmallSplash(int x, int y, int z, int num)// (F)
+{
+	int i;
+	int angle;
+
+	for(i = 0; i < num; i++)
+	{
+		struct SPARKS* sptr = &spark[GetFreeSpark()];
+
+		sptr->On = 1;
+
+		sptr->sR = 64;
+		sptr->sG = 64;
+		sptr->sB = 64;
+
+		sptr->dR = 32;
+		sptr->dG = 32;
+		sptr->dB = 32;
+
+		sptr->ColFadeSpeed = 4;
+		sptr->FadeToBlack = 8;
+
+		sptr->Life = 24;
+		sptr->sLife = 24;
+
+		sptr->TransType = 2;
+
+		angle = GetRandomControl() << 3;
+
+		sptr->Xvel = -SIN(angle) >> 5;		
+		sptr->Yvel = -640 - (GetRandomControl() & 0xFF);
+		sptr->Zvel = COS(angle) >> 5;
+
+		sptr->Friction = 5;	
+		sptr->Flags = 0;
+
+		sptr->x = x + (sptr->Xvel >> 3);
+		sptr->y = y - (sptr->Yvel >> 5);
+		sptr->z = z + (sptr->Zvel >> 3);
+
+		sptr->MaxYvel = 0;
+		sptr->Gravity = (GetRandomControl() & 0xF) + 64;
+	}
 }

@@ -187,19 +187,19 @@ void CollectCarriedItems(struct ITEM_INFO* item)//5339C, 53800
 
 void SearchObjectCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//53080, 534E4
 {
-	S_Warn("[SearchObjectCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void SearchObjectControl(short item_number)//52D54, 531B8
 {
-	S_Warn("[SearchObjectControl] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int PickupTrigger(short item_num)//52CC0(<), 53124(<) (F)
 {
 	struct ITEM_INFO* item = &items[item_num];
 
-	if (item->flags & 0x8000 && item->status != 3 && item->item_flags[3] != 1 && item->trigger_flags & 0x80)
+	if (item->flags & IFLAG_KILLED && item->status != ITEM_INVISIBLE && item->item_flags[3] != 1 && item->trigger_flags & 0x80)
 	{
 		return 0;
 	}
@@ -214,55 +214,75 @@ int KeyTrigger(short item_num)//52C14(<), 53078(<) (F)
 	struct ITEM_INFO* item = &items[item_num];
 	int oldkey;
 
-	if (item->status != 1 && !KeyTriggerActive && lara.gun_status == 1)
+	if ((item->status != ITEM_ACTIVE || lara.gun_status == LG_HANDS_BUSY) && 
+		(!KeyTriggerActive || lara.gun_status != LG_HANDS_BUSY))
 	{
 		return -1;
 	}
-	else if (lara.gun_status == 1)
+
+	oldkey = KeyTriggerActive;
+
+	if (!oldkey)
 	{
-		oldkey = KeyTriggerActive;
-
-		if (!oldkey)
-		{
-			item->ai_bits & 0x1D;
-			item->status = 2;
-		}
-
-		KeyTriggerActive = 0;
-
-		return oldkey;
+		item->status = ITEM_DEACTIVATED;
 	}
 
-	//locret_52CB8
-	return -1;
+	KeyTriggerActive = FALSE;
+
+	return oldkey;
 }
 
 void PuzzleHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52520, 52984
 {
-	S_Warn("[PuzzleHoleCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void PuzzleDoneCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//524C8, 5292C
 {
-	S_Warn("[PuzzleDoneCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void KeyHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52188, 525EC
 {
-	S_Warn("[KeyHoleCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void PickUpCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//516C8, 51B2C
 {
-	S_Warn("[PickUpCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
-void RegeneratePickups()//515AC, 51A10
+void RegeneratePickups()//515AC, 51A10 (F)
 {
-	struct ITEM_INFO* item;
-	short objnum; // $v1
-	short lp; // $v1
-	short* ammo; // $v0
+	int i;
+	
+	for(i = 0; i < NumRPickups; i++)
+	{
+		struct ITEM_INFO* item = &items[RPickups[i]];
+
+		if (item->status == ITEM_INVISIBLE)
+		{
+			short* ammo = NULL;
+
+			if (item->object_number == CROSSBOW_AMMO1_ITEM)
+				ammo = &lara.num_crossbow_ammo1;
+			if (item->object_number == CROSSBOW_AMMO2_ITEM)
+				ammo = &lara.num_crossbow_ammo2;
+			if (item->object_number == HK_AMMO_ITEM)
+				ammo = &lara.num_hk_ammo1;
+			if (item->object_number == REVOLVER_AMMO_ITEM)
+				ammo = &lara.num_revolver_ammo;
+			if (item->object_number == SHOTGUN_AMMO1_ITEM)
+				ammo = &lara.num_shotgun_ammo1;
+			if (item->object_number == SHOTGUN_AMMO1_ITEM)
+				ammo = &lara.num_shotgun_ammo2;
+
+			if (ammo && *ammo == 0)
+			{
+				item->status = ITEM_INACTIVE;
+			}
+		}
+	}
 }
 
 void AnimatingPickUp(short item_number)//51450(<), 518B4 (F)
@@ -313,7 +333,7 @@ void AnimatingPickUp(short item_number)//51450(<), 518B4 (F)
 
 short* FindPlinth(struct ITEM_INFO* item)//51200, 51664
 {
-	S_Warn("[FindPlinth] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -349,8 +369,8 @@ void PuzzleDone(struct ITEM_INFO* item, short item_num)//51004, 51468 (F)
 				&& items[i].pos.x_pos == item->pos.x_pos
 				&& items[i].pos.z_pos == item->pos.z_pos)
 			{
-				FlipMap(items[i].speed);
-				flipmap[items[i].trigger_flags] ^= IFLAG_ACTIVATION_MASK;
+				FlipMap(items[i].trigger_flags - 7);
+				flipmap[items[i].trigger_flags - 7] ^= IFLAG_ACTIVATION_MASK;
 				items[i].status = ITEM_INACTIVE;
 				items[i].flags |= 0x20;
 			}

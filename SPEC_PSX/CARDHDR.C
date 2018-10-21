@@ -1,9 +1,0 @@
-
-
-#if 0
-0x95008 DepthTable
-0x95014 CardHeader
-0x95114 LOffset
-0x95154 LTab
-0x99354 YOffset
-#endif

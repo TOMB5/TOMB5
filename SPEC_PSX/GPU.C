@@ -1,14 +1,9 @@
 #include "GPU.H"
 
-#include "CAMERA.H"
-#include "FXTRIG.H"
-#include "LOAD_LEV.H"
 #include "PROFILE.H"
 #include "PSXINPUT.H"
 #include "SHADOWS.H"
-#include "SPECIFIC.H"
 
-#include <assert.h>
 #include <LIBGPU.H>
 #include <LIBETC.H>
 #include <STDIO.H>

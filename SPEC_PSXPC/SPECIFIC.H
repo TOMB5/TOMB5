@@ -3,6 +3,10 @@
 
 #include "SPECTYPES.H"
 
+#include <stdio.h>
+
+#define UNIMPLEMENTED() printf("[%s] - Unimplemented!\n", __func__);
+
 extern unsigned short AnimComp;
 extern short AnimatingTexturesVOffset;
 extern struct REQUESTER SettingsReq;

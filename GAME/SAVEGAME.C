@@ -34,7 +34,7 @@ static int SGcount; // offset 0xA391C
 static char *SGpoint; // offset 0xA3920
 struct savegame_info savegame;
 
-#define WriteSG(a, b) WriteSG_real((char*)a, b)
+#define Write(a, b) WriteSG((char*)a, b)
 
 #if PSX_VERSION//@HACK not really needed, can just take int.
 	typedef int ptrdiff_t;
@@ -72,10 +72,10 @@ void sgSaveGame()//55AF8(<), 55F5C(<)
 
 void RestoreLevelData(int FullSave)//54B08, 54F6C
 {
-	S_Warn("[RestoreLevelData] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
-void WriteSG_real(char* pointer, int size)//536A0, 53B04 (F)
+void WriteSG(char* pointer, int size)//536A0, 53B04 (F)
 {
 	SGcount += size;
 
@@ -95,27 +95,27 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 	short word = 0;
 	unsigned char byte = 0;
 
-	WriteSG(&FmvSceneTriggered, 4);
-	WriteSG(&GLOBAL_lastinvitem, 4);
+	Write(&FmvSceneTriggered, 4);
+	Write(&GLOBAL_lastinvitem, 4);
 
 	for(i = 0; i < 10; i++)
 	{
 		if (flip_stats[i])
 			word |= 1 << i;
 	}
-	WriteSG(&word, 2);
+	Write(&word, 2);
 
 	for(i = 0; i < 10; i++)
 	{
 		word = flipmap[i] >> 8;
-		WriteSG(&word, 2);
+		Write(&word, 2);
 	}
 
-	WriteSG(&flipeffect, 4);
-	WriteSG(&fliptimer, 4);
-	WriteSG(&flip_status, 4);
-	WriteSG(cd_flags, 136);
-	WriteSG(&CurrentAtmosphere, 1);
+	Write(&flipeffect, 4);
+	Write(&fliptimer, 4);
+	Write(&flip_status, 4);
+	Write(cd_flags, 136);
+	Write(&CurrentAtmosphere, 1);
 
 	word = 0;
 	if (number_rooms > 0)
@@ -132,7 +132,7 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 
 					if (k == 16)
 					{
-						WriteSG(&word, 2);
+						Write(&word, 2);
 						k = 0;
 						word = 0;
 					}
@@ -141,26 +141,26 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 		}
 
 		if (k != 0)
-			WriteSG(&word, 2);
+			Write(&word, 2);
 	}
 
-	WriteSG(&CurrentSequence, 1);
+	Write(&CurrentSequence, 1);
 
 	byte = 0;
 	for (i = 0; i < 6; i++)
 	{
 		byte |= SequenceUsed[i] << i;
 	}
-	WriteSG(&byte, 1);
+	Write(&byte, 1);
 
 	for (i = 0; i < number_cameras; i++)
 	{
-		WriteSG(&camera.fixed[i].flags, 2);
+		Write(&camera.fixed[i].flags, 2);
 	}
 
 	for(i = 0; i < number_spotcams; i++)
 	{
-		WriteSG(&SpotCam[i].flags, 2);
+		Write(&SpotCam[i].flags, 2);
 	}
 	
 	struct ITEM_INFO* item = &items[0];
@@ -171,7 +171,7 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 		if (item->flags & IFLAG_KILLED)
 		{
 			word = 0x2000;
-			WriteSG(&word, 2);
+			Write(&word, 2);
 		}
 		else if (item->flags & (IFLAG_ACTIVATION_MASK | IFLAG_INVISIBLE | 0x20) || item->object_number == LARA && FullSave)
 		{
@@ -222,47 +222,47 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 			if (obj->save_position)
 			{
 				short packed = item->pos.x_pos >> 1;
-				WriteSG(&packed, 2);
+				Write(&packed, 2);
 				packed = item->pos.y_pos >> 1;
-				WriteSG(&packed, 2);
+				Write(&packed, 2);
 				packed = item->pos.z_pos >> 1;
-				WriteSG(&packed, 2);
+				Write(&packed, 2);
 
-				WriteSG(&item->room_number, 1);
+				Write(&item->room_number, 1);
 
-				WriteSG(&item->pos.y_rot, 2);
+				Write(&item->pos.y_rot, 2);
 
 				if (word & 1)
-					WriteSG(&item->pos.x_rot, 2);
+					Write(&item->pos.x_rot, 2);
 				if (word & 2)
-					WriteSG(&item->pos.z_rot, 2);
+					Write(&item->pos.z_rot, 2);
 				if (word & 0x20)
-					WriteSG(&item->speed, 2);
+					Write(&item->speed, 2);
 				if (word & 0x40)
-					WriteSG(&item->fallspeed, 2);
+					Write(&item->fallspeed, 2);
 			}
 
 			if (obj->save_anim)
 			{
-				WriteSG(&item->current_anim_state, 2);
-				WriteSG(&item->goal_anim_state, 2);
-				WriteSG(&item->required_anim_state, 2);
+				Write(&item->current_anim_state, 2);
+				Write(&item->goal_anim_state, 2);
+				Write(&item->required_anim_state, 2);
 
 				if (item->object_number == LARA)
 				{
-					WriteSG(&item->anim_number, 2);
+					Write(&item->anim_number, 2);
 				}
 				else
 				{
 					byte = item->anim_number - obj->anim_index;
-					WriteSG(&byte, 1);
+					Write(&byte, 1);
 				}
 
-				WriteSG(&item->frame_number, 2);
+				Write(&item->frame_number, 2);
 			}
 
 			if (word & 0x4000)
-				WriteSG(&item->hit_points, 2);
+				Write(&item->hit_points, 2);
 
 			if (obj->save_flags)
 			{
@@ -274,7 +274,7 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 
 #else
 	// todo check for psx
-	S_Warn("[SaveLevelData] - Unimplemented!\n");
+	UNIMPLEMENTED();
 #endif
 }
 

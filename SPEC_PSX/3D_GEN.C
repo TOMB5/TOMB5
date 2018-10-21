@@ -2,7 +2,6 @@
 
 #include "CAMERA.H"
 #include "GPU.H"
-#include "SPECIFIC.H"
 
 #include <LIBGTE.H>
 

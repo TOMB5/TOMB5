@@ -37,98 +37,20 @@ void TriggerEngineEffects_CUT()
 	}
 #endif
 
-	S_Warn("[RelocFunc_28] - Unimplemented!\n");
-}
-
-void RelocFunc_34_08() // (F)
-{
-	lara_item->mesh_bits = -1;
-	Chris_Menu = 0;
-}
-
-void RelocFunc_34_0C()
-{
-	S_Warn("[RelocFunc_016] - Unimplemented!\n");
-}
-
-void RelocFunc_34_10()
-{
-	S_Warn("[RelocFunc_017] - Unimplemented!\n");
-}
-
-void RelocFunc_34_14()
-{
-	S_Warn("[RelocFunc_018] - Unimplemented!\n");
-}
-
-void RelocFunc_34_18()
-{
-	S_Warn("[RelocFunc_019] - Unimplemented!\n");
-}
-
-void RelocFunc_34_1C()
-{
-	S_Warn("[RelocFunc_020] - Unimplemented!\n");
-}
-
-void RelocFunc_34_20()
-{
-	S_Warn("[RelocFunc_021] - Unimplemented!\n");
-}
-
-void RelocFunc_34_24()
-{
-	S_Warn("[RelocFunc_022] - Unimplemented!\n");
-}
-
-void RelocFunc_34_28()
-{
-	S_Warn("[RelocFunc_023] - Unimplemented!\n");
-}
-
-void RelocFunc_34_2C()
-{
-	S_Warn("[RelocFunc_024] - Unimplemented!\n");
-}
-
-void RelocFunc_34_30()
-{
-	S_Warn("[RelocFunc_025] - Unimplemented!\n");
-}
-
-void RelocFunc_34_34()
-{
-#if PC_VERSION && 0
-	ResetCutanimate(STROBE_LIGHT);
-	if (!bDoCredits)
-	{
-		trigger_title_spotcam(1);
-		lara_item->mesh_bits = 0;
-}
-	BYTE2(dels_cutseq_player) = 0;
-	title_controls_locked_out = 0;
-#else
-	S_Warn("[RelocFunc_026] - Unimplemented!\n");
-#endif
+	UNIMPLEMENTED();
 }
 
 long sub_1BE988()
 {
-	S_Warn("[sub_1BE988] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 long sub_1BDF88(long levelID)
 {
-	S_Warn("[sub_1BDF88] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 
 
-void triggerwindowsmash(int item_num) // (F)
-{
-	struct ITEM_INFO* item = find_a_fucking_item(item_num);
-	ExplodeItemNode(item, 0, 0, 64);
-	item->mesh_bits = 2;
-}

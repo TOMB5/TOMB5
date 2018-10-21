@@ -1,7 +1,7 @@
 #ifndef FILE_H
 #define FILE_H
 #include <cstdio>
-
+#include "SPECTYPES.H"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -12,7 +12,9 @@ extern "C" {
 	FILE* FileOpen(const char *filename);
 	int FileClose(FILE* fp);
 	unsigned long FileLength(FILE* nHandle);
-
+	void FreeD3DLights();
+	void FreeLevel();
+	NEW_CUTSCENE* FetchCutData(int num);
 
 #ifdef __cplusplus
 }
@@ -20,6 +22,9 @@ extern "C" {
 
 extern short* floor_data;
 extern short* mesh_base;
+
+extern int num_pages;
+extern bool levelLoading;
 
 extern int AnimFileLen;
 

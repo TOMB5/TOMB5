@@ -55,6 +55,7 @@ typedef unsigned int uintptr_t;
 
 #include <string.h>
 #include "LOT.H"
+#include "TEXT.H"
 
 #define GF_SCRIPT_FILENAME "SCRIPT.DAT"
 
@@ -111,6 +112,11 @@ unsigned char gfTakeaways[16];
 #if PC_VERSION
 char* gfScriptFile;
 #endif
+int special_features_num = -1;
+const char* screens[5] =
+{
+	"SCREENS\\STORY1.STR", "SCREENS\\NXG.STR", "SCREENS\\STORY2.STR", "SCREENS\\GALLERY.STR", "SCREENS\\SCREENS.STR"
+};
 
 void DoGameflow()//10F5C(<), 10FD8(<)
 {
@@ -941,7 +947,13 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 		if (gfLegendTime != 0 && DestFadeScreenHeight == 0 && FadeScreenHeight == 0 && cutseq_num == 0)
 		{
-			PrintString(0x100, 0xE8, 2, &gfStringWad[gfStringOffset[gfLegend]], 0x8000);
+			PrintString(
+#if PSXENGINE
+				0x100, 0xE8, 
+#else
+				phd_winwidth / 2, phd_winymax - font_height,
+#endif
+				2, &gfStringWad[gfStringOffset[gfLegend]], PRINT_CENTER);
 			gfLegendTime--;
 		}
 
@@ -1066,11 +1078,32 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 int TitleOptions()
 {
-	S_Warn("[TitleOptions] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
-void DoSpecialFeaturesServer()
+void SpecialFeaturesDisplayScreens(int num)
 {
-	S_Warn("[DoSpecialFeaturesServer] - Unimplemented!\n");
+	UNIMPLEMENTED();
+}
+
+void DoSpecialFeaturesServer()// (F)
+{
+	switch(special_features_num)
+	{
+	case 0:
+		SpecialFeaturesDisplayScreens(0);
+		break;
+	case 1:
+		SpecialFeaturesDisplayScreens(1);
+		break;
+	case 2:
+		SpecialFeaturesDisplayScreens(2);
+		break;
+	case 3:
+		SpecialFeaturesDisplayScreens(3);
+		break;
+	}
+
+	special_features_num = -1;
 }

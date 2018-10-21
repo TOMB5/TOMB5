@@ -4,7 +4,7 @@
 #include "GAMEFLOW.H"
 #include "MISC.H"
 #include "SPECIFIC.H"
-#include "TEXT_S.H"
+#include "TEXT.H"
 
 long Requester(struct REQUESTER* r)//63718, 63DF4
 {

@@ -7,6 +7,7 @@
 #define DXRelease(ptr, desc) {if(ptr){Log(LT_Release, "Released %s @ %x - RefCnt = %d", desc, ptr, ptr->Release());ptr=NULL;}else{Log(LT_Error, "%s Attempt To Release NULL Ptr", desc);}}
 
 #define DXInit(dstruct)			{memset(&dstruct,0,sizeof(dstruct));dstruct.dwSize = sizeof(dstruct);}
+#define DSInit(dstruct)			{memset(&dstruct,0,sizeof(dstruct));dstruct.cbStruct = sizeof(dstruct);}
 #define DXDisplayMode(a,b)		(a)->DDInfo[(b)->nDD].D3DInfo[(b)->nD3D].DisplayMode[(b)->nVMode]  
 #define DXD3DGuid(a,b)			(a)->DDInfo[(b)->nDD].D3DInfo[(b)->nD3D].Guid
 #define DXD3D(a,b)				(a)->DDInfo[(b)->nDD].D3DInfo[(b)->nD3D]
@@ -34,6 +35,10 @@
 
 #define GENRGB(r, g, b) DXRGB(&App.DeviceInfo, &App.DXConfig, r, g, b)
 
+#define RGB_MAKE(r, g, b) RGBA_MAKE(r, g, b, 255)
+
+#define SCALE_CLR(begin, end, perc) ((begin) + ((end) - (begin)) * (perc))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -42,10 +47,25 @@ extern "C" {
 }
 #endif
 
-#define CUR_DD App.DeviceInfo.DDInfo[App.DXConfig.nDD]
-#define CUR_D3D CUR_DD.D3DInfo[App.DXConfig.nD3D]
-#define CUR_DM CUR_D3D.DisplayMode[App.DXConfig.nVMode]
-#define CUR_TEX CUR_D3D.Texture[App.DXConfig.nTexture]
+#define GET_DD(a) App.DeviceInfo.DDInfo[a]
+#define GET_DS(a) App.DeviceInfo.DSInfo[a]
+#define GET_D3D(a) CUR_DD.D3DInfo[a]
+#define GET_DM(a) CUR_D3D.DisplayMode[a]
+#define GET_TEX(a) CUR_D3D.Texture[a]
+
+#define CUR_DD GET_DD(App.DXConfig.nDD)
+#define CUR_DS GET_DS(App.DXConfig.nSoundCard)
+#define CUR_D3D GET_D3D(App.DXConfig.nD3D)
+#define CUR_DM GET_DM(App.DXConfig.nVMode)
+#define CUR_TEX GET_TEX(App.DXConfig.nTexture)
+
+#define KEYDOWN(key) ((key) & 0x80)
+
+extern int NumSamplesTable[3];
+extern int NumSamples;
+extern bool ACMInited;
+extern void* wave_file_buf;
+extern BYTE* source_buffer;
 
 void DXInitialise(DEVICEINFO* DeviceInfo, HWND WindowHandle);
 bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2);
@@ -61,5 +81,16 @@ void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance);
 void DXMove(int x, int y);
 void AcquireInput(bool acquire);
 void DXShowFrame();
+bool DXChangeVideoMode();
+void DXToggleFullScreen();
+void DXDSCreate();
+bool DXSetOutputFormat();
+bool SetSoundOutputFormat(int num_samples, char a2);
+void ACMClose();
+void InitACM();
+void DXFreeInfo(DEVICEINFO* info);
+int DI_ReadJoystick(int* joy_x, int* joy_y);
+bool DI_UpdateJoystick();
+void DI_ReadKeyboard(BYTE* keymap);
 
 #endif
