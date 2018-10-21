@@ -2,7 +2,7 @@
 #define SPECTYPES_H
 
 #define INPUT_H "PSXINPUT.H"
-#define CMATH_H "LIBMATH.H"
+#define CMATH_H <LIBMATH.H>
 
 #include "TYPES.H"
 
