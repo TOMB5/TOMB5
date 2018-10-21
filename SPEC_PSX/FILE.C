@@ -1,7 +1,6 @@
 #include "FILE.H"
 
 #include "CD.H"
-#include "SPECIFIC.H"
 
 #include <sys/types.h>
 #include <libcd.h>

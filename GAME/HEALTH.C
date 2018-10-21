@@ -14,6 +14,7 @@
 #include "SPECIFIC.H"
 #include "OBJECTS.H"
 #include "NEWINV2.H"
+#include "TEXT.H"
 
 int health_bar_timer = 0;
 char PoisonFlag = 0;
@@ -111,6 +112,30 @@ void InitialisePickUpDisplay()//3B580, 3B9DC (F)
 
 void DrawAirBar(int flash_state)
 {
+#if PC_VERSION
+	if (lara.air == 1800 || lara_item->hit_points <= 0)
+		return;
+
+	short val = CLAMP(lara.air, 0, 1800);
+
+	if (val > 450 || flash_state)
+	{
+		S_DrawAirBar(100 * val / 1800);
+	}
+	else
+	{
+		S_DrawAirBar(0);
+	}
+
+	if (lara.Gassed)
+	{
+		if (lara.dpoisoned < 2048)
+			lara.dpoisoned += 2;
+
+		lara.Gassed = FALSE;
+	}
+#else
+
 	int air; // $v1
 
 	//a2 = flash_state;
@@ -256,12 +281,63 @@ void DrawAirBar(int flash_state)
 		jr	$ra
 		addiu	$sp, 0x20
 #endif
-	S_Warn("[DrawAirBar] - Unimplemented!\n");
+		UNIMPLEMENTED();
+#endif
 }
 
 void DrawHealthBar(int flash_state)
 {
-	S_Warn("[DrawHealthBar] - Unimplemented!\n");
+#if PC_VERSION
+	static short old_val = 0;
+	short val = CLAMP(lara_item->hit_points, 0, 1000);
+
+	if (old_val != val)
+	{
+		old_val = val;
+		health_bar_timer = 40;
+	}
+
+	if (health_bar_timer < 0)
+		health_bar_timer = 0;
+
+	if (val <= 250)
+	{
+		if (BinocularRange)
+		{
+			if (flash_state)
+				S_DrawHealthBar2(val / 10);
+			else
+				S_DrawHealthBar2(0);
+		}
+		else
+		{
+			if (flash_state)
+				S_DrawHealthBar(val / 10);
+			else
+				S_DrawHealthBar(0);
+		}
+	}
+
+	if (health_bar_timer > 0 
+		|| val <= 0 
+		|| lara.gun_status == LG_READY && lara.gun_type == WEAPON_FLARE_2 
+		|| lara.poisoned >= 256)
+	{
+		if (BinocularRange || SniperOverlay)
+		{
+			S_DrawHealthBar2(val / 10);
+		}
+		else
+		{
+			S_DrawHealthBar(val / 10);
+		}
+	}
+
+	if (PoisonFlag)
+		PoisonFlag--;
+#else
+	UNIMPLEMENTED();
+#endif
 }
 
 void DrawGameInfo(int timed)//3AD68(<), 3B268(!)

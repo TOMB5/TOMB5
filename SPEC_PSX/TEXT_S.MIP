@@ -1,0 +1,447 @@
+	opt at-,w-,c+,m-
+
+	SECTION	.ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF PrintString, DrawChar, GetStringLength, GetStringDimensions
+	XREF FontShades, phd_mxptr, MatrixStack, Matrix, MatrixSP, AccentTable, LaSlot, CharDef, sound_active, sample_infos, sample_lut, ScaleFlag, GnFrameCounter, db, S_SoundStopSample, db.ot
+
+aUEAAAAEEEAAEOO equ 0
+loc_92020 equ 0
+word_9230E equ 0
+
+PrintString:
+	addiu   sp, -0x40
+	sw      s0, 0x40-0x20(sp)
+	sw      s1, 0x40-0x1C(sp)
+	sw      s2, 0x40-0x18(sp)
+	sw      s3, 0x40-0x14(sp)
+	sw      s4, 0x40-0x10(sp)
+	sw      s5, 0x40-0xC(sp)
+	sw      s6, 0x40-0x8(sp)
+	sw      ra, 0x40-0x4(sp)
+	sll     s0, a0, 16
+	sra     s0, 16
+	sll     s4, a1, 16
+	sra     s4, 16
+	andi    s3, a2, 0xFF
+	move    s5, a3
+	lhu     s6, 0x40+0x10(sp)
+	lw      at, GnFrameCounter-GP_ADDR(gp)
+	andi    v0, s6, 0x2000
+	beqz    v0, loc_8DBA0
+	andi    at, 0x10
+	bnez    at, loc_8DD68
+
+	loc_8DBA0:
+	srl     v0, s6, 12
+	andi    v0, 1
+	sb      v0, ScaleFlag-GP_ADDR(gp)
+	move    a0, s5
+	move    a1, zero
+	jal     GetStringLength
+	addiu   a2, sp, 0x40-0x30
+	jal     sub_8DD90
+	addiu   ra, 0x190
+
+	loc_8DBC4:
+	bne     a0, v0, loc_8DC14
+	li      v0, 0x20
+	lbu     v0, 0(s5)
+	addiu   a1, sp, 0x40-0x2E
+	bne     v0, a0, loc_8DBE8
+	move    a0, s5
+	sh      zero, 0x40-0x30(sp)
+	j       loc_8DD54
+	addiu   s4, 0x10
+
+	loc_8DBE8:
+	jal     GetStringLength
+	addiu   a2, sp, 0x40-0x2C
+	jal     sub_8DD90
+	lhu     v1, 0x40-0x30(sp)
+	lhu     v0, 0x40-0x2E(sp)
+	lhu     a0, 0x40-0x2C(sp)
+	subu    v1, v0
+	addiu   v1, 2
+	addu    s4, v1
+	j       loc_8DD54
+	sh      a0, 0x40-0x30(sp)
+
+	loc_8DC14:
+	bne     a0, v0, loc_8DC30
+	li      v0, 9
+	andi    v0, s6, 0x1000
+	bnez    v0, loc_8DD54
+	addiu   s2, 6
+	j       loc_8DD54
+	addiu   s2, 2
+
+	loc_8DC30:
+	bne     a0, v0, loc_8DC40
+	sltiu   v0, a0, 0x14
+	j       loc_8DD54
+	addiu   s2, 0x28
+
+	loc_8DC40:
+	beqz    v0, loc_8DC50
+	addiu   v0, a0, -1
+	j       loc_8DD54
+	andi    s3, v0, 0xFF
+
+	loc_8DC50:
+	addiu   v0, a0, -0x80
+	sltiu   v1, v0, 0x2E
+	beqz    v1, loc_8DCDC
+	sll     v0, 1
+	la      t1, aUEAAAAEEEAAEOO
+	addu    t1, v0
+	lbu     v1, -1(t1)
+	la      s1, loc_92020+1
+	sll     v0, v1, 3
+	subu    v0, v1
+	addu    s1, v0
+	move    a0, s2
+	move    a1, s4
+	move    a2, s3
+	jal     DrawChar
+	move    a3, s1
+	lbu     v1, 0(t1)
+	li      at, 0x20
+	beq     v1, at, loc_8DD3C
+	sll     v0, v1, 3
+	subu    v0, v1
+	la      a3, loc_92020+1
+	addu    a3, v0, a3
+	lb      a0, 2(s1)
+	lb      a1, 4(s1)
+	sra     a0, 1
+	addu    a0, s2
+	addiu   a0, -3
+	addu    a1, s4, a1
+	move    a2, s3
+	jal     DrawChar
+	addiu   ra, 0x60
+
+	loc_8DCDC:
+	sll     v0, a0, 3
+	subu    v0, a0
+	sltiu   at, a0, 0x20
+	beqz    at, loc_8DD20
+	move    a2, s3
+	la      v1, word_9230E
+	addiu   a0, -0x18
+	sltiu   a0, a0, 4
+	bnez    a0, loc_8DD0C
+	addu    s1, v0, v1
+	move    a2, zero
+
+	loc_8DD0C:
+	move    a0, s2
+	move    a1, s4
+	move    a3, s1
+	jal     DrawChar
+	addiu   ra, 0x1C
+
+	loc_8DD20:
+	la      a0, loc_92020+1
+	addu    s1, v0, a0
+	move    a0, s2
+	move    a1, s4
+	jal     DrawChar
+	move    a3, s1
+
+	loc_8DD3C:
+	lbu     v1, 2(s1)
+	andi    v0, s6, 0x1000
+	beqz    v0, loc_8DD50
+	srl     v0, v1, 2
+	subu    v1, v0
+
+	loc_8DD50:
+	addu    s2, v1
+
+	loc_8DD54:
+	lbu     a0, 0(s5)
+	addiu   s5, 1
+	bnez    a0, loc_8DBC4
+	li      v0, 0xA
+	sb      zero, ScaleFlag-GP_ADDR(gp)
+
+	loc_8DD68:
+	lw      ra, 0x40-0x4(sp)
+	lw      s6, 0x40-0x8(sp)
+	lw      s5, 0x40-0xC(sp)
+	lw      s4, 0x40-0x10(sp)
+	lw      s3, 0x40-0x14(sp)
+	lw      s2, 0x40-0x18(sp)
+	lw      s1, 0x40-0x1C(sp)
+	lw      s0, 0x40-0x20(sp)
+	jr      ra
+	addiu   sp, 0x40
+	
+GetStringLength:
+	move    t5, zero
+	move    t0, zero
+	li      t2, 0xFFFFFC00
+	lbu     a3, 0(a0)
+	li      t1, 0x400
+	beqz    a3, loc_8DFFC
+	addiu   a0, 1
+	li      v0, 0xA
+	beq     a3, v0, loc_8DFFC
+	li      v0, 0x20
+	lbu     t3, ScaleFlag-GP_ADDR(gp)
+	la      t6, AccentTable
+	la      t4, CharDef
+
+	loc_8DF18:
+	bne     a3, v0, loc_8DF30
+	li      v0, 9
+	beqz    t3, loc_8DFE4
+	addiu   t0, 8
+	j       loc_8DFE4
+	addiu   t0, -2
+
+	loc_8DF30:
+	bne     a3, v0, loc_8DF5C
+	slti    v0, a3, 0x14
+	addiu   t0, 0x28
+	slti    v0, t1, -0xB
+	bnez    v0, loc_8DF4C
+	slti    v0, t2, 2
+	li      t1, 0xFFFFFFF4
+
+	loc_8DF4C:
+	beqz    v0, loc_8DFE4
+	nop
+	j       loc_8DFE4
+	li      t2, 2
+
+	loc_8DF5C:
+	bnez    v0, loc_8DFE4
+	slti    v0, a3, 0x20
+	beqz    v0, loc_8DF7C
+	sll     v0, a3, 3
+	subu    v0, a3
+	addiu   v0, 0x206
+	j       loc_8DFA8
+	addu    a3, v0, t4
+
+	loc_8DF7C:
+	addiu   v1, a3, -0x80
+	sltiu   v0, v1, 0x2E
+	beqz    v0, loc_8DF98
+	sll     v0, v1, 1
+	addu    v0, t6
+	lbu     a3, 0(v0)
+	li      t5, 1
+
+	loc_8DF98:
+	sll     v0, a3, 3
+	subu    v0, a3
+	addiu   v0, -0xE7
+	addu    a3, v0, t4
+
+	loc_8DFA8:
+	lbu     v0, 2(a3)
+	beqz    t3, loc_8DFB8
+	srl     v1, v0, 2
+	subu    v0, v1
+
+	loc_8DFB8:
+	lb      v1, 4(a3)
+	lbu     at, 3(a3)
+	addu    t0, v0
+	slt     v0, v1, t1
+	beqz    v0, loc_8DFD4
+	addu    v0, v1, at
+	move    t1, v1
+
+	loc_8DFD4:
+	slt     v1, t2, v0
+	beqz    v1, loc_8DFE4
+	nop
+	move    t2, v0
+
+	loc_8DFE4:
+	lbu     a3, 0(a0)
+	addiu   a0, 1
+	beqz    a3, loc_8DFFC
+	li      v0, 0xA
+	bne     a3, v0, loc_8DF18
+	li      v0, 0x20
+
+	loc_8DFFC:
+	beqz    a1, loc_8E014
+	nop
+	beqz    t5, loc_8E010
+	nop
+	addiu   t1, -4
+
+	loc_8E010:
+	sh      t1, 0(a1)
+
+	loc_8E014:
+	beqz    a2, locret_8E020
+	nop
+	sh      t2, 0(a2)
+
+	locret_8E020:
+	jr      ra
+	move    v0, t0
+	
+DrawChar:
+	lw      t0, db+0x8-GP_ADDR(gp)
+	lw      v0, db+0x10-GP_ADDR(gp)
+	sll     a0, 16
+	sra     a0, 16
+	sll     a1, 16
+	sra     a1, 16
+	sltu    v0, t0, v0
+	beqz    v0, locret_8DED4
+	andi    a2, 0xFFFF
+	la      v1, FontShades
+	lbu     v0, 5(a3)
+	lbu     at, 6(a3)
+	sll     a2, 6
+	sll     v0, 2
+	sll     at, 2
+	addu    a2, v1
+	addu    v0, a2, v0
+	addu    at, a2, at
+	lw      v0, 0(v0)
+	lw      at, 0(at)
+	sw      v0, 4(t0)
+	sw      at, 0x1C(t0)
+	sw      v0, 0x10(t0)
+	sw      at, 0x28(t0)
+	li      at, 0x3C
+	li      v0, 0x1065
+	li      v1, 0x29
+	sb      at, 7(t0)
+	sh      v0, 0xE(t0)
+	sh      v1, 0x1A(t0)
+	lbu     v0, ScaleFlag-GP_ADDR(gp)
+	lb      at, 4(a3)
+	lbu     v1, 2(a3)
+	lbu     a2, 3(a3)
+	beqz    v0, loc_8DE5C
+	addu    a1, at
+	srl     v0, v1, 2
+	subu    v1, v0
+	addiu   v1, 1
+
+	loc_8DE5C:
+	addu    at, a0, v1
+	sh      a0, 8(t0)
+	sh      a1, 0xA(t0)
+	sh      at, 0x14(t0)
+	sh      a1, 0x16(t0)
+	addu    v0, a1, a2
+	sh      a0, 0x20(t0)
+	sh      v0, 0x22(t0)
+	sh      at, 0x2C(t0)
+	sh      v0, 0x2E(t0)
+	lbu     v1, 2(a3)
+	lbu     a0, 0(a3)
+	lbu     a1, 1(a3)
+	lw      a3, db+0x4-GP_ADDR(gp)
+	addu    at, a0, v1
+	sb      a0, 0xC(t0)
+	sb      a1, 0xD(t0)
+	sb      at, 0x18(t0)
+	sb      a1, 0x19(t0)
+	addu    v0, a1, a2
+	sb      a0, 0x24(t0)
+	sb      v0, 0x25(t0)
+	sb      at, 0x30(t0)
+	sb      v0, 0x31(t0)
+	lw      v0, 0(a3)
+	lui     at, 0xC00
+	or      v0, at
+	sw      t0, 0(a3)
+	sw      v0, 0(t0)
+	addiu   t0, 0x34
+
+	locret_8DED4:
+	jr      ra
+	sw      t0, db+0x8-GP_ADDR(gp)
+	
+GetStringDimensions:
+	addiu   sp, -0x28
+	sw      s0, 0x28-0x10(sp)
+	sw      s1, 0x28-0xC(sp)
+	sw      ra, 0x28-0x8(sp)
+	move    t8, a0
+	move    s1, a1
+	move    s0, a2
+	addiu   a1, sp, 0x28-0x18
+	jal     GetStringLength
+	addiu   a2, sp, 0x28-0x16
+	move    t9, v0
+	lbu     a0, 0(t8)
+	lh      v0, 0x28-0x16(sp)
+	lh      v1, 0x28-0x18(sp)
+	addiu   t8, 1
+	subu    v0, v1
+	beqz    a0, loc_8E0DC
+	addiu   t7, v0, 2
+
+	loc_8E070:
+	li      v0, 0xA
+	bne     a0, v0, loc_8E0CC
+	nop
+	lbu     at, 0(t8)
+	nop
+	bne     at, v0, loc_8E094
+	nop
+	j       loc_8E0CC
+	addiu   t7, 0x10
+
+	loc_8E094:
+	beqz    at, loc_8E0CC
+	move    a0, t8
+	addiu   a1, sp, 0x28-0x18
+	jal     GetStringLength
+	addiu   a2, sp, 0x28-0x16
+	lh      v1, 0x28-0x16(sp)
+	lh      a0, 0x28-0x18(sp)
+	addiu   a1, t7, 2
+	subu    v1, a0
+	addu    t7, a1, v1
+	slt     at, t9, v0
+	beqz    at, loc_8E0CC
+	nop
+	move    t9, v0
+
+	loc_8E0CC:
+	lbu     a0, 0(t8)
+	nop
+	bnez    a0, loc_8E070
+	addiu   t8, 1
+
+	loc_8E0DC:
+	sh      t7, 0(s0)
+	sh      t9, 0(s1)
+	lw      ra, 0x28-0x8(sp)
+	lw      s1, 0x28-0xC(sp)
+	lw      s0, 0x28-0x10(sp)
+	jr      ra
+	addiu   sp, 0x28
+	
+sub_8DD90:
+	andi    at, s6, 0x8000
+	beqz    at, loc_8DDA4
+	sra     at, v0, 1
+	jr      ra
+	subu    s2, s0, at
+
+	loc_8DDA4:
+	andi    at, s6, 0x4000
+	beqz    at, locret_8DDB4
+	move    s2, s0
+	subu    s2, s0, v0
+
+	locret_8DDB4:
+	jr      ra
+	nop

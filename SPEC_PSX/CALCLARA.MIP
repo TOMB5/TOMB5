@@ -1,0 +1,65 @@
+	opt at-,w-,c+,m-
+
+	section	.ASM
+	xdef S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1
+	xref GetFrames, interpolated_bounds
+	
+snaff_current_gte_matrix_V1:
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t3, r3
+	sw      t0, 0(a0)
+	sw      t1, 4(a0)
+	sw      t2, 8(a0)
+	sw      t3, 0xC(a0)
+	cfc2    t4, r4
+	cfc2    t5, r5
+	cfc2    t6, r6
+	cfc2    t7, r7
+	sw      t4, 0x10(a0)
+	sw      t5, 0x14(a0)
+	sw      t6, 0x18(a0)
+	jr      ra
+	sw      t7, 0x1C(a0)
+
+S_SetupClutAdder:
+	ctc2    a0, r28
+	jr      ra
+	nop
+	
+GetBoundsAccurate:
+	addiu   sp, -0x20
+	move    t7, ra
+	addiu   a1, sp, 0x20+0x10
+	jal     GetFrames
+	addiu   a2, sp, 0x20+0x8
+	bnez    v0, loc_8591C
+	move    t0, v0
+	j       loc_85964
+	move    v0, t4
+
+	loc_8591C:
+	la      a2, interpolated_bounds
+	li      a1, 6
+
+	loc_85928:
+	lh      v0, 0(t5)
+	lh      a0, 0(t4)
+	addiu   a1, -1
+	subu    v0, a0
+	mult    v0, t0
+	mflo    v1
+	addiu   t5, 2
+	addiu   t4, 2
+	div     v1, a3
+	addiu   a2, 2
+	mflo    v0
+	addu    a0, v0
+	bnez    a1, loc_85928
+	sh      a0, -2(a2)
+	addiu   v0, a2, -0xC
+
+	loc_85964:
+	jr      t7
+	addiu   sp, 0x20

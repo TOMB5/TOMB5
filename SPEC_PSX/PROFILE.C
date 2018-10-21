@@ -81,32 +81,29 @@ void ProfileReadCount()//61A48(<), * (F) (*)
 void ProfileAddOT(unsigned long* ot)//61A90, * (F)
 {
 #ifndef PAELLA
-	int count = 0;
+	int count;
 
 	if (nummarks > 0)
 	{
 		//loc_61AD0
-		while (count < nummarks)
+		for (count = 0; count < nummarks; count++)
 		{
 			if ((unsigned long) &db.polyptr[0] > (unsigned long)&db.polybuf_limit[0])
 			{
 				return;
 			}
 
-			db.polyptr[3] = 4;
-			db.polyptr[7] = 33;
-			db.polyptr[4] = 50;
-			db.polyptr[5] = 50;
-			db.polyptr[6] = 150;
-			*(short*) &db.polyptr[10] = 20;
-			*(short*) &db.polyptr[14] = 20;
-			*(short*) &db.polyptr[18] = 30;
+			setlen(db.polyptr, 4);
+			setcode(db.polyptr, 0x21);
+			setRGB0((POLY_F3*)db.polyptr, 50, 50, 150);
+
+			*(short*) &db.polyptr[10] = 20;//y0
+			*(short*) &db.polyptr[14] = 20;//clut
+			*(short*) &db.polyptr[18] = 30;//y1
 
 			*(short*) &db.polyptr[12] = count * grid + 29;
 			*(short*) &db.polyptr[8] = count * grid + 21;
 			*(short*) &db.polyptr[16] = count * grid + 25;
-
-			count++;
 
 			*(long*) &db.polyptr[0] = *(long*) &db.polyptr[0] & 0xFF000000 | ot[0] & 0xFFFFFF;
 			*(long*) &ot = ot[0] & 0xFF000000 | (unsigned long) db.polyptr & 0xFFFFFF;
@@ -121,11 +118,10 @@ void ProfileAddOT(unsigned long* ot)//61A90, * (F)
 		{
 			if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
 			{
-				((char*) db.polyptr)[3] = 5;
-				((char*) db.polyptr)[7] = 0x29;
-				((char*) db.polyptr)[4] = ProfileInfo[count].r;
-				((char*) db.polyptr)[5] = ProfileInfo[count].g;
-				((char*) db.polyptr)[6] = ProfileInfo[count].b;
+				setlen(db.polyptr, 5);
+				setcode(db.polyptr, 0x29);
+				setRGB0((POLY_F4*)db.polyptr, ProfileInfo[count].r, ProfileInfo[count].g, ProfileInfo[count].b);
+
 				((short*) db.polyptr)[10] = 0x19;
 				((short*) db.polyptr)[4] = ProfileInfo[count].profile_xcnt;
 				((short*) db.polyptr)[7] = 0x19;
@@ -175,15 +171,14 @@ void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 		{
 			if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
 			{
-				((char*) db.polyptr)[3] = 4;
-				((char*) db.polyptr)[7] = 33;
-				((char*) db.polyptr)[4] = 50;
-				((char*) db.polyptr)[5] = 50;
-				((char*) db.polyptr)[6] = 150;
+				setlen(db.polyptr, 4);
+				setcode(db.polyptr, 0x21);
+				setRGB0((POLY_F3*)db.polyptr, 50, 50, 150);
 
 				((short*) db.polyptr)[5] = 48;
 				((short*) db.polyptr)[3] = 48;
 				((short*) db.polyptr)[9] = 39;
+
 				((short*) db.polyptr)[6] = (count * grid) + 0x1D;
 				((short*) db.polyptr)[4] = (count * grid) + 0x15;
 				((short*) db.polyptr)[8] = (count * grid) + 0x19;
@@ -205,27 +200,21 @@ void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 	//loc_61E08
 	if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
 	{
-		((char*) db.polyptr)[3] = 8;
-		((char*) db.polyptr)[7] = 57;
-		((char*) db.polyptr)[4] = 0;
-		((char*) db.polyptr)[5] = 200;
-		((char*) db.polyptr)[6] = 0;
-		((char*) db.polyptr)[12] = 200;
-		((char*) db.polyptr)[13] = 0;
-		((char*) db.polyptr)[14] = 0;
-		((char*) db.polyptr)[20] = 0;
-		((char*) db.polyptr)[21] = 200;
-		((char*) db.polyptr)[22] = 0;
-		((char*) db.polyptr)[28] = 200;
-		((char*) db.polyptr)[29] = 0;
-		((char*) db.polyptr)[30] = 0;
+		setlen(db.polyptr, 8);
+		setcode(db.polyptr, 0x39);
+		setRGB0((POLY_G4*)db.polyptr, 0, 200, 0);
+		setRGB1((POLY_G4*)db.polyptr, 200, 0, 0);
+		setRGB2((POLY_G4*)db.polyptr, 0, 200, 0);
+		setRGB3((POLY_G4*)db.polyptr, 200, 0, 0);
 
-		((short*) db.polyptr)[5] = 36;
+		((short*) db.polyptr)[5] = 36;//y0
 		((short*) db.polyptr)[9] = 36;
 		((short*) db.polyptr)[4] = 25;
+
 		((short*) db.polyptr)[12] = 25;
 		((short*) db.polyptr)[13] = 44;
 		((short*) db.polyptr)[17] = 44;
+		
 		((short*) db.polyptr)[8] = drawCount + 25;
 		((short*) db.polyptr)[16] = drawCount + 25;
 
@@ -233,7 +222,8 @@ void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 		((long*) db.polyptr)[0] |= ot[0] & 0xFFFFFF;
 
 		ot[0] = ot[0] & 0xFF000000 | (long) db.polyptr & 0xFFFFFF;
-		db.polyptr += 0x24;
+		db.polyptr += sizeof(POLY_G4);
+		
 	}
 #endif
 }

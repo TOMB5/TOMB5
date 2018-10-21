@@ -270,7 +270,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040 (F)
 	}
 	else
 	{
-		item->mesh_bits = -1;
+		item->mesh_bits = 0xFFFFFFFF;
 	}
 
 	item->touch_bits = 0;
@@ -311,10 +311,23 @@ void InitialiseItem(short item_num)//41BEC(<), 42040 (F)
 		objects[item->object_number].initialise(item_num);
 	}
 
+#if PSXENGINE
 	item->il.Light[3].pad = 0;
+#endif
 
 #if PC_VERSION
-	S_Warn("[InitialiseItem] - Unimplemented end of function!\n");
+	item->il.room_num = -1;
+	item->light_room_num = -1;
+
+	item->unk_thing = 0;
+
+	item->num_lights_1 = 0;
+	item->num_lights_2 = 0;
+
+	item->il.room_ambient = r->ambient;
+
+	item->ptr_lights_1 = item->lights_1;
+	item->ptr_lights_2 = item->lights_2;
 #endif
 }
 

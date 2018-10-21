@@ -1,0 +1,8 @@
+	opt at+,w-,c+,m-
+
+	section	.ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF S_DrawSparks
+	
+S_DrawSparks:
+	jr      ra

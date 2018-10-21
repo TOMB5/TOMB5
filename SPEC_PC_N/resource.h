@@ -5,10 +5,15 @@
 #define SUBLANG_ENGLISH_US              0x01
 #define LANG_ENGLISH                    0x09
 #define IDC_GFXADAPTER                  1000
+#define IDC_GFXADAPTERTXT				1001
 #define IDC_OUTSETTINGS                 1003
+#define IDC_OUTSETTINGSTXT              1002
 #define IDC_RESOLUTION                  1004
+#define IDC_RESOLUTIONTXT               1009
 #define IDC_SNDADAPTER                  1005
+#define IDC_SNDADAPTERTXT               1017
 #define IDC_TEXRES                      1006
+#define IDC_TEXRESTXT                   1013
 #define IDC_HARDACCEL                   1010
 #define IDC_SOFTWARE                    1011
 #define IDC_BILINEAR                    1012
@@ -19,6 +24,7 @@
 #define IDC_WINDOWED                    1025
 #define IDC_VOLUMEFOG                   1029
 #define IDC_NOFMV                       1030
+#define IDC_RENDEROPTIONS				1023
 
 #define IDD_SETUP						109
 
