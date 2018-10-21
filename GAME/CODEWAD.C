@@ -37,18 +37,18 @@ void TriggerEngineEffects_CUT()
 	}
 #endif
 
-	S_Warn("[TriggerEngineEffects_CUT] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 long sub_1BE988()
 {
-	S_Warn("[sub_1BE988] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 long sub_1BDF88(long levelID)
 {
-	S_Warn("[sub_1BDF88] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 

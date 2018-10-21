@@ -1497,7 +1497,7 @@ int is_object_in_room(int roomnumber, int objnumber)// (F)
 
 void NeatAndTidyTriggerCutscene(int value, int timer)
 {
-	S_Warn("[NeatAndTidyTriggerCutscene] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int CheckCutPlayed(int num)//20E34(<), 21040(<) (F)
@@ -1701,7 +1701,7 @@ void ResetGuards()//20B48(<), ?
 		addiu	$sp, 0x20
 #endif
 
-	S_Warn("[ResetGuards] - Unimplemented!\n");
+		UNIMPLEMENTED();
 }
 
 void InterpolateAngle(short dest, short* src, short* diff, short speed)//20AF0(<) ? (F)
@@ -1805,7 +1805,7 @@ int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)//2
 
 int GetTargetOnLOS(struct GAME_VECTOR* src, struct GAME_VECTOR* dest, int DrawTarget, int firing)
 {
-	S_Warn("[GetTargetOnLOS] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -1917,17 +1917,17 @@ void FlipMap(int FlipNumber)// (F)
 
 void _TestTriggers(short* data, int heavy, int HeavyFlags)
 {
-	S_Warn("[_TestTriggers] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void RefreshCamera(short type, short* data)
 {
-	S_Warn("[RefreshCamera] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 long GetWaterHeight(long x, long y, long z, short room_number)
 {
-	S_Warn("[GetWaterHeight] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -2006,7 +2006,7 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F
 
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
 {
-	S_Warn("[GetHeight] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -2108,7 +2108,7 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 
 short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 {
-	S_Warn("[GetCeiling] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -2318,13 +2318,13 @@ int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(
 
 int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
-	S_Warn("[xLOS] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
-	S_Warn("[zLOS] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -2413,20 +2413,20 @@ int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 
 int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor)
 {
-	S_Warn("[ClipTarget] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 #ifndef PSX_VERSION || PSXPC_VERSION///@FIXME @pc
 void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint)
 {
-	S_Warn("[GetJointAbsPosition] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 #endif
 
 int ObjectOnLOS2(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct PHD_VECTOR* a3, struct MESH_INFO** a4)
 {
-	S_Warn("[ObjectOnLOS2] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -2448,10 +2448,10 @@ int check_xray_machine_trigger()// (F)
 
 void AnimateItem(struct ITEM_INFO* item)
 {
-	S_Warn("[AnimateItem] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void UpdateSpiders()
 {
-	S_Warn("[UpdateSpiders] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

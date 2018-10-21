@@ -72,7 +72,7 @@ void sgSaveGame()//55AF8(<), 55F5C(<)
 
 void RestoreLevelData(int FullSave)//54B08, 54F6C
 {
-	S_Warn("[RestoreLevelData] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void WriteSG(char* pointer, int size)//536A0, 53B04 (F)
@@ -274,7 +274,7 @@ void SaveLevelData(int FullSave)//53AAC, 53F10
 
 #else
 	// todo check for psx
-	S_Warn("[SaveLevelData] - Unimplemented!\n");
+	UNIMPLEMENTED();
 #endif
 }
 

@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include "SPECTYPES.H"
 #include <stdint.h>
+
+#define UNIMPLEMENTED() printf("[%s] - Unimplemented!\n", __func__);
+
 struct _RTL_CRITICAL_SECTION CriticalSection;
 
 extern void S_Warn(const char* warning_message);

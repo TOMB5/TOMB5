@@ -19,12 +19,12 @@ char SubHitCount = 0;
 
 void LaraWaterCurrent(struct COLL_INFO* coll)//4CD34, 4D198
 {
-	S_Warn("[LaraWaterCurrent] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 long GetWaterDepth(long x, long y, long z, short room_number)//4CA38, 4CE9C
 {
-	S_Warn("[GetWaterDepth] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -478,10 +478,10 @@ void SwimTurn(struct ITEM_INFO* item)//4BAF4(<), 4BF58(<) (F)
 
 void LaraSwimCollision(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B608, 4BA6C
 {
-	S_Warn("[LaraSwimCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void LaraTestWaterDepth(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B4F8, 4B95C
 {
-	S_Warn("[LaraTestWaterDepth] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

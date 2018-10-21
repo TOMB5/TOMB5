@@ -124,7 +124,7 @@ void GetLaraDeadlyBounds()//4B408(<), 4B86C (F)
 
 void DelAlignLaraToRope(struct ITEM_INFO* item)//4B3D8, 4B83C
 {
-	S_Warn("[DelAlignLaraToRope] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void InitialiseLaraAnims(struct ITEM_INFO* item)//4B340(<), 4B7A4 (F)
@@ -156,7 +156,7 @@ void InitialiseLaraLoad(short item_num)//4B308, 4B76C (F)
 
 void LaraControl(short item_number)//4A838, 4AC9C
 {
-	S_Warn("[LaraControl] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void LaraCheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4A790(<), 4ABF4(<) (F)

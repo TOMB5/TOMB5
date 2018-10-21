@@ -1,0 +1,424 @@
+	opt L.,C+,at+
+
+	section	.ASM
+	xdef S_LongMemCpy, GPU_BeginScene, S_AnimateTextures, DrawLineH, DrawLineV, DrawTPage, LOAD_DrawEnable, LOAD_VSyncHandler, draw_rotate_sprite, GPU_ClearVRAM, GPU_GetScreenPosition, GPU_SetScreenPosition, GPU_FlipToBuffer, GPU_SyncBothScreens
+	xref LtLoadingBarEnabled, _first_time_ever, DrawOTagEnv, GnLastFrameCount, db, rcossin_tbl, DelRotAng, ClearOTagR, DrawSync, VSync, MoveImage, PutDispEnv, PutDrawEnv, ClearImage
+
+S_AnimateTextures:
+	jr ra
+	nop
+	
+S_LongMemCpy:
+	blez    a2, locret_5E9C4
+	srl     v0, a2, 2
+	beqz    v0, loc_5E9AC
+	andi    v1, a2, 3
+
+	loc_5E974:
+	lw      t0, 0(a1)
+	lw      t1, 4(a1)
+	lw      t2, 8(a1)
+	lw      t3, 0xC(a1)
+	addiu   a1, 0x10
+	addiu   v0, -1
+	sw      t0, 0(a0)
+	sw      t1, 4(a0)
+	sw      t2, 8(a0)
+	sw      t3, 0xC(a0)
+	bgtz    v0, loc_5E974
+	addiu   a0, 0x10
+	beqz    v1, locret_5E9C4
+	nop
+
+	loc_5E9AC:
+	lw      t0, 0(a1)
+	addiu   a1, 4
+	addiu   v1, -1
+	sw      t0, 0(a0)
+	bgtz    v1, loc_5E9AC
+	addiu   a0, 4
+
+	locret_5E9C4:
+	jr      ra
+	nop
+	
+DrawTPage:
+	lw      a2, db+0x8
+	lw      at, db+0x10
+	andi    a0, 0xFF
+	sltu    at, a2, at
+	beqz    at, locret_5EEC4
+	andi    a1, 0xFF
+	lui     at, 0xE100
+	sll     a1, 5
+	or      a1, at
+	lw      at, db+0x4
+	sll     a0, 2
+	addu    a0, at
+	lw      v1, 0(a0)
+	lui     at, 0x100
+	or      v1, at
+	sw      a2, 0(a0)
+	sw      v1, 0(a2)
+	sw      a1, 4(a2)
+	addiu   a2, 8
+
+	locret_5EEC4:
+	jr      ra
+	sw      a2, db+0x8
+	
+DrawLineH:
+	andi    a0, 0xFFFF
+	andi    a1, 0xFFFF
+	lw      t0, db+0x8
+	lw      at, db+0x10
+	andi    a2, 0xFFFF
+	sltu    at, t0, at
+	beqz    at, locret_5EF7C
+	andi    a3, 0xFF
+	lw      t1, 0x10(sp)
+	lw      t2, 0x14(sp)
+	li      at, 0xFFFFFF
+	and     t1, at
+	and     t2, at
+	lui     at, 0x5200
+	or      t2, at
+	or      t1, at
+	srl     v0, a2, 1
+	addu    v0, a0, v0
+	sw      t1, 4(t0)
+	sh      a0, 8(t0)
+	sh      a1, 0xA(t0)
+	sw      t2, 0xC(t0)
+	sh      v0, 0x10(t0)
+	sh      a1, 0x12(t0)
+	addiu   v0, 1
+	sw      t2, 0x18(t0)
+	sh      v0, 0x1C(t0)
+	sh      a1, 0x1E(t0)
+	addu    v0, a0, a2
+	addiu   v0, -1
+	sw      t1, 0x20(t0)
+	sh      v0, 0x24(t0)
+	sh      a1, 0x26(t0)
+	lw      t2, db+0x4
+	sll     a3, 2
+	addu    a3, t2
+	lw      v0, 0(a3)
+	lui     at, 0x900
+	or      v0, at
+	sw      t0, 0(a3)
+	sw      v0, 0(t0)
+	sw      zero, 0x14(t0)
+	addiu   t0, 0x28
+
+	locret_5EF7C:
+	jr      ra
+	sw      t0, db+0x8
+	
+DrawLineV:
+	andi    a0, 0xFFFF
+	andi    a1, 0xFFFF
+	lw      t0, db+0x8
+	lw      at, db+0x10
+	andi    a2, 0xFFFF
+	sltu    at, t0, at
+	beqz    at, locret_5F038
+	andi    a3, 0xFF
+	lw      t1, 0x10(sp)
+	lw      t2, 0x14(sp)
+	li      at, 0xFFFFFF
+	and     t1, at
+	and     t2, at
+	lui     at, 0x5200
+	or      t2, at
+	or      t1, at
+	addiu   v0, a1, 1
+	sw      t1, 4(t0)
+	sh      a0, 8(t0)
+	sh      v0, 0xA(t0)
+	sw      t2, 0xC(t0)
+	srl     v0, a2, 1
+	addu    v0, a1, v0
+	sh      a0, 0x10(t0)
+	sh      v0, 0x12(t0)
+	addiu   v0, 2
+	sw      t2, 0x18(t0)
+	sh      a0, 0x1C(t0)
+	sh      v0, 0x1E(t0)
+	sw      t1, 0x20(t0)
+	addu    v0, a1, a2
+	addiu   v0, -2
+	sh      a0, 0x24(t0)
+	sh      v0, 0x26(t0)
+	lw      t2, db+0x4
+	sll     a3, 2
+	addu    a3, t2
+	lw      v0, 0(a3)
+	lui     at, 0x900
+	or      v0, at
+	sw      t0, 0(a3)
+	sw      v0, 0(t0)
+	sw      zero, 0x14(t0)
+	addiu   t0, 0x28
+
+	locret_5F038:
+	jr      ra
+	sw      t0, db+0x8
+	
+GPU_BeginScene:
+	lw      at, db
+	la 	  	a2, db
+	sll     at, 2
+	addu    a2, at
+	lw      v0, 0x24(a2)
+	lw      a0, 0x1C(a2)
+	lw      at, 0x30(a2)
+	lw      a1, db+0x14
+	la      v1, 0x19640
+	sw      a0, db+0x4
+	sw      v0, db+0x8
+	sw      v0, db+0xC
+	addu    v0, v1
+	sw      v0, db+0x10
+	j       ClearOTagR
+	sw      at, db+0x2C
+	
+LOAD_VSyncHandler:
+	lbu     v0, LtLoadingBarEnabled
+	addiu   sp, -0x18
+	bnez    v0, loc_5F08C
+	move    v1, ra
+	jr      ra
+	addiu   sp, 0x18
+
+	loc_5F08C:
+	jal     GPU_BeginScene
+	sw      v1, 0x18-0x8(sp)
+	lbu     v0, _first_time_ever
+	li      a0, 0x1B8
+	li      a1, 0xC8
+	beqz    v0, loc_5F0B4
+	li      a2, 0x40
+	addiu   a0, 0x18
+	addiu   a1, 8
+	li      a2, 0x30
+
+	loc_5F0B4:
+	jal     draw_rotate_sprite
+	nop
+	lw      ra, 0x18-0x8(sp)
+	addiu   sp, 0x18
+	lw      v0, db+0x0
+	lw      v1, db+0x4
+	lw      a0, db+0x14
+	xori    v0, 1
+	sll     a0, 2
+	addiu   a0, -4
+	sw      zero, GnLastFrameCount
+	sw      v0, db+0x0
+	la 	  	a1, db+0x8
+	j       DrawOTagEnv
+	addu    a0, v1, a0
+	
+draw_rotate_sprite:
+	la      a3, rcossin_tbl
+	lhu     t0, DelRotAng
+	negu    a2, a2
+	addiu   t0, -0x34
+	andi    t0, 0xFFF
+	sll     v0, t0, 2
+	addu    v0, a3
+	lh      t6, 0(v0)
+	sra     a2, 1
+	mult    a2, t6
+	lw      t3, db+0x4
+	lh      t5, 2(v0)
+	lw      a3, db+0x8
+	mflo    t6
+	li      t2, 0x2C808080
+	mult    a2, t5
+	li      at, 0x1303F00
+	sh      t0, DelRotAng
+	sw      t2, 4(a3)
+	sw      zero, 0xC(a3)
+	sw      at, 0x14(a3)
+	mflo    t5
+	sra     t6, 12
+	sra     t5, 12
+	subu    t0, t6, t5
+	negu    a2, t6
+	subu    t4, a2, t5
+	addu    a2, t5
+	addu    t1, t6, t5
+	sra     v0, t0, 1
+	addu    v0, a0
+	addu    t0, v0
+	sra     v1, t4, 1
+	addu    v1, a0
+	addu    t4, v1
+	sra     v0, a2, 1
+	addu    v0, a0
+	addu    a2, v0
+	sra     v1, t1, 1
+	addu    v1, a0
+	addu    t1, v1
+	addu    v0, t5, t6
+	addu    v0, a1, v0
+	negu    v1, t5
+	sh      t0, 8(a3)
+	sh      v0, 0xA(a3)
+	addu    v0, v1, t6
+	addu    v0, a1, v0
+	sh      t4, 0x10(a3)
+	sh      v0, 0x12(a3)
+	subu    v0, t5, t6
+	addu    v0, a1, v0
+	subu    v1, t6
+	sh      t1, 0x18(a3)
+	sh      v0, 0x1A(a3)
+	li      t4, 0x3F
+	sh      t4, 0x1C(a3)
+	li      t4, 0x3F3F
+	sh      t4, 0x24(a3)
+	addu    a1, v1
+	sh      a2, 0x20(a3)
+	sh      a1, 0x22(a3)
+	lw      v0, 0(t3)
+	lui     at, 0x900
+	or      v0, at
+	sw      a3, 0(t3)
+	sw      v0, 0(a3)
+	addiu   a3, 0x28
+	li      v0, 0x780100
+	li      v1, 0x6800
+	li      a0, 0x7801FF
+	sw      t2, 4(a3)
+	sw      v0, 8(a3)
+	sw      v1, 0xC(a3)
+	sw      a0, 0x10(a3)
+	li      at, 0x13468FF
+	li      v0, 0xEF0100
+	li      v1, 0xDF00
+	li      a0, 0xEF01FF
+	sw      at, 0x14(a3)
+	sw      v0, 0x18(a3)
+	sh      v1, 0x1C(a3)
+	sw      a0, 0x20(a3)
+	li      at, 0xDFFF
+	sh      at, 0x24(a3)
+	lw      v0, 0(t3)
+	lui     at, 0x900
+	or      v0, at
+	sw      a3, 0(t3)
+	sw      v0, 0(a3)
+	addiu   a3, 0x28
+	sw      a3, db+0x8
+	jr      ra
+	
+	
+LOAD_DrawEnable:
+	jr      ra
+	sb      a0, LtLoadingBarEnabled
+	
+@clear_a_rect:
+	addiu   a0, sp, 0x10
+	move    a1, zero
+	move    a2, zero
+	li      a2, 0x30
+	j       ClearImage
+	move    a3, zero
+	
+GPU_ClearVRAM:
+	addiu   sp, -0x20
+	sw      ra, 0x20-0x8(sp)
+	jal     DrawSync
+	move    a0, zero
+	jal     VSync
+	move    a0, zero
+	li      at, 0x1000200
+	sw      zero, 0x20-0x10(sp)
+	jal     @clear_a_rect
+	sw      at, 0x20-0xC(sp)
+	li      at, 0x100
+	jal     @clear_a_rect
+	sh      at, 0x20-0x10+2(sp)
+	li      at, 0x200
+	jal     @clear_a_rect
+	sh      at, 0x20-0x10(sp)
+	jal     @clear_a_rect
+	sh      zero, 0x20-0x10+2(sp)
+	jal     DrawSync
+	move    a0, zero
+	lw      ra, 0x20-0x8(sp)
+	addiu   sp, 0x20
+	j       VSync
+	move    a0, zero
+	
+GPU_GetScreenPosition:
+	lhu     at, db+0xF8
+	lhu     v0, db+0xFA
+	sh      at, 0(a0)
+	jr      ra
+	sh      v0, 0(a1)
+	
+GPU_SetScreenPosition:
+	sh      a0, db+0xF8
+	sh      a1, db+0xFA
+	sh      a0, db+0x10C
+	jr      ra
+	sh      a1, db+0x10E
+	
+GPU_SyncBothScreens:
+	addiu   sp, -0x14
+	sw      ra, 0x14-0x4(sp)
+	jal     DrawSync
+	move    a0, zero
+	lw      v0, db
+	la  	a0, db+0x104
+	xori    v0, 1
+	beqz    v0, loc_5F3A8
+	sw      v0, db
+	lh      a1, db+0xF0
+	lh      a2, db+0xF2
+	jal     MoveImage
+	addiu   ra, 0x10
+
+	loc_5F3A8:
+	lh      a1, db+0x104
+	lh      a2, db+0x106
+	jal     MoveImage
+	la 	 	a0, db+0x4
+	lw      ra, 0x14-0x4(sp)
+	addiu   sp, 0x14
+	j       DrawSync
+	move    a0, zero
+	
+GPU_FlipToBuffer:
+	addiu   sp, -0x1C
+	sw      s0, 0x1C-0xC(sp)
+	sw      ra, 0x1C-0x8(sp)
+	andi    s0, a0, 1
+	jal     DrawSync
+	move    a0, zero
+	jal     VSync
+	move    a0, zero
+	beqz    s0, loc_5F3F4
+	la   	a0, db+0xF0
+	la   	a0, db+0x104
+
+	loc_5F3F4:
+	jal     PutDispEnv
+	nop
+	beqz    s0, loc_5F408
+	la      a0, db+0x38
+	la	    a0, db+0x94
+
+	loc_5F408:
+	xori    s0, 1
+	jal     PutDrawEnv
+	sw      s0, db
+	lw      ra, 0x1C-0x8(sp)
+	lw      s0, 0x1C-0xC(sp)
+	jr      ra
+	addiu   sp, 0x1C

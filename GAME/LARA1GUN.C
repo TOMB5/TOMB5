@@ -18,17 +18,17 @@ char HKShotsFired = 0;
 
 void TriggerGrapplingEffect(long x, long y, long z)
 {
-	S_Warn("[TriggerGrapplingEffect] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DoGrenadeDamageOnBaddie(struct ITEM_INFO* baddie, struct ITEM_INFO* item)
 {
-	S_Warn("[DoGrenadeDamageOnBaddie] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void AnimateShotgun(int weapon_type)
 {
-	S_Warn("[AnimateShotgun] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void undraw_shotgun(int weapon_type)//436B0(<), 43B14(<) (F)
@@ -117,32 +117,32 @@ void draw_shotgun(int weapon_type)// (F)
 
 void ControlCrossbow(short item_number)
 {
-	S_Warn("[ControlCrossbow] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void CrossbowHitSwitchType78(struct ITEM_INFO* item, struct ITEM_INFO* target, int MustHitLastNode)
 {
-	S_Warn("[CrossbowHitSwitchType78] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void FireCrossbow(struct PHD_3DPOS* Start)
 {
-	S_Warn("[FireCrossbow] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void FireHK(int running)
 {
-	S_Warn("[FireHK] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void FireShotgun()
 {
-	S_Warn("[FireShotgun] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void RifleHandler(int weapon_type)
 {
-	S_Warn("[RifleHandler] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ready_shotgun(int weapon_type)//424E0(<), 42934(<) (F)

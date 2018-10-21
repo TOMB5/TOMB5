@@ -187,12 +187,12 @@ void CollectCarriedItems(struct ITEM_INFO* item)//5339C, 53800
 
 void SearchObjectCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//53080, 534E4
 {
-	S_Warn("[SearchObjectCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void SearchObjectControl(short item_number)//52D54, 531B8
 {
-	S_Warn("[SearchObjectControl] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int PickupTrigger(short item_num)//52CC0(<), 53124(<) (F)
@@ -234,22 +234,22 @@ int KeyTrigger(short item_num)//52C14(<), 53078(<) (F)
 
 void PuzzleHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52520, 52984
 {
-	S_Warn("[PuzzleHoleCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void PuzzleDoneCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//524C8, 5292C
 {
-	S_Warn("[PuzzleDoneCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void KeyHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52188, 525EC
 {
-	S_Warn("[KeyHoleCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void PickUpCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//516C8, 51B2C
 {
-	S_Warn("[PickUpCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void RegeneratePickups()//515AC, 51A10 (F)
@@ -333,7 +333,7 @@ void AnimatingPickUp(short item_number)//51450(<), 518B4 (F)
 
 short* FindPlinth(struct ITEM_INFO* item)//51200, 51664
 {
-	S_Warn("[FindPlinth] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 

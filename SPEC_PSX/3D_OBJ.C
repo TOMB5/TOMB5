@@ -4,9 +4,6 @@
 #include "GPU.H"
 #include "MISC.H"
 
-#include <SYS\TYPES.H>
-#include <LIBGPU.H>
-
 struct TSV tsv_buffer[512];
 
 void CreateMonoScreen()//5F450(<), 60130(<) (F) (*)

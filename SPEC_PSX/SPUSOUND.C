@@ -2,7 +2,6 @@
 
 #include "SFX.H"
 #include "SOUND.H"
-#include "SPECIFIC.H"
 
 #include <sys/types.h>
 #include <LIBSPU.H>

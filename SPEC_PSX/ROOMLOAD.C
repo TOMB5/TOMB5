@@ -3,12 +3,9 @@
 #include "CD.H"
 #include "DRAW.H"
 #include "FILE.H"
-#include "GAMEFLOW.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
-#include "MALLOC.H"
 #include "SETUP.H"
-#include "TYPEDEFS.H"
 
 #include <stdio.h>
 #include <LIBSN.H>
@@ -78,11 +75,16 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 	PCclose(file);
 #endif
-
+	/*
+	 *  SETUP.MOD
+	 * Layout is:
+	 * [SETUP.REL]
+	 * [SETUP.BIN]
+	 */
 	RelocateModule((unsigned long)SetupPtr, (unsigned long*)(db.poly_buffer[0][1024] + (unsigned long)SetupPtr));
 
 #if DISC_VERSION
-	#if RELOC
+	#if 0
 		((VOIDFUNCVOID*)SetupPtr[5])();
 	#else
 		RelocateLevel();

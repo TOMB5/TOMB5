@@ -1,7 +1,5 @@
 #include "LOADSAVE.H"
 
-#include "DRAWPHAS.H"
-#include "FXTRIG.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "MEMCARD.H"
@@ -104,12 +102,12 @@ int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 
 int LoadGame()//6297C, 63060
 {
-	S_Warn("[LoadGame] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int SaveGame()//62E3C, 63520
 {
-	S_Warn("[SaveGame] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
