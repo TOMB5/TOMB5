@@ -1,6 +1,6 @@
 	opt at-,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF GetJointAbsPosition
 	XREF bones, Matrix, GetFrames, mPushUnitMatrix, mSetTrans, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, mPopMatrix, mPushMatrix, mRotY, mCopyMatrix, iTranslateXYZ, InterpolateMatrix, iRotZ, mRotZ, iRotX, mRotX, iRotY, mRotY, InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, objects, iMatrixStack

@@ -1,6 +1,6 @@
 	opt at-,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF draw_rotate_sprite, S_AnimateTextures, S_LongMemCpy, DrawF4, DrawTPage, DrawLineH, DrawLineV, LOAD_VSyncHandler, GPU_ClearVRAM, GPU_BeginScene, GPU_FlipToBuffer, GPU_GetScreenPosition, GPU_SetScreenPosition, LOAD_DrawEnable, GPU_SyncBothScreens
 	XREF LtLoadingBarEnabled, _first_time_ever, DrawOTagEnv, GnLastFrameCount, db, rcossin_tbl, DelRotAng, ClearOTagR, DrawSync, VSync, MoveImage, PutDispEnv, PutDrawEnv, ClearImage, DrawSync, VSync, DrawOTagEnv

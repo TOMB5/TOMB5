@@ -1,6 +1,6 @@
 	;opt at-,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume, SPU_UpdateStatus
 	XREF LabSampleType, LabFreeChannel, LnFreeChannels, DepthTable, camera, char_anim, local_mRotY, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuGetAllKeysStatus, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey

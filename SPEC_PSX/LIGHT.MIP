@@ -1,8 +1,8 @@
 	opt L.,C+,at+
 
-	section	.ASM
-	xdef S_CalculateLight
-	xref room, number_dynamics, dynamics, CamGTE, LightPos, mSqrt, mNormaliseXYZ
+	SECTION	ASM
+	XDEF S_CalculateLight
+	XREF room, number_dynamics, dynamics, CamGTE, LightPos, mSqrt, mNormaliseXYZ
 ;TODO, GP
 S_CalculateLight:
 	addi    sp, -0x2C
