@@ -11,7 +11,7 @@
 
 int ShotLara(struct ITEM_INFO* item, struct AI_info* info, struct BITE_INFO* gun, short extra_rotation, int damage)//50C74, 510D8
 {
-	S_Warn("[ShotLara] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -84,6 +84,6 @@ int Targetable(struct ITEM_INFO* item, struct AI_info* info)//508EC, 50D50 (F)
 
 int TargetVisible(struct ITEM_INFO* item, struct AI_info* info)//507DC, 50C40
 {
-	S_Warn("[TargetVisible] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }

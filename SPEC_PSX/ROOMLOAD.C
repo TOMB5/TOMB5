@@ -3,10 +3,8 @@
 #include "CD.H"
 #include "DRAW.H"
 #include "FILE.H"
-#include "GAMEFLOW.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
-#include "MALLOC.H"
 #include "SETUP.H"
 
 #include <stdio.h>
@@ -67,10 +65,9 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 	SetupPtr = &db.poly_buffer[0][1026];
 	mod = &db.poly_buffer[0][1024];
-
+	
 #if DISC_VERSION
 	DEL_CDFS_Read((char*) mod, gwHeader.entries[NONE].fileSize);//jal 5E414
-	RelocateLevel();
 #else
 	len = FILE_Length("DATA\\SETUP.MOD");
 	file = PCopen("DATA\\SETUP.MOD", 0, 0);
@@ -78,16 +75,31 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 	PCclose(file);
 #endif
+	/*
+	 *  SETUP.MOD
+	 * Layout is:
+	 * [SETUP.REL]
+	 * [SETUP.BIN]
+	 */
+	RelocateModule((unsigned long)SetupPtr, (unsigned long*)(db.poly_buffer[0][1024] + (unsigned long)SetupPtr));
 
-	//RelocateModule((unsigned long)SetupPtr, (unsigned long*)(db.poly_buffer[0][1024] + (unsigned long)SetupPtr));
-
-#if !DISC_VERSION
+#if DISC_VERSION
+	#if 0
+		((VOIDFUNCVOID*)SetupPtr[5])();
+	#else
+		RelocateLevel();
+	#endif
+#else
 	strcpy(&buf[0], &gfFilenameWad[gfFilenameOffset[Name]]);
 	strcat(&buf[0], ".PSX");
 
 	FILE_Length(buf);
 
-	RelocateLevel(PCopen(buf, 0, 0));//SetupPtr[5](PCopen(&buf[0], 0, 0));
+	#if RELOC
+		((VOIDFUNCINT*)SetupPtr[5])(PCopen(&buf[0], 0, 0));
+	#else
+		RelocateLevel(PCopen(buf, 0, 0))
+	#endif
 #endif
 
 	LOAD_Stop();

@@ -284,7 +284,7 @@ int GetSpheres(struct ITEM_INFO* item, struct SPHERE* sptr, int worldspace)
 				 jr	$ra
 				 addiu	$sp, 0x50
 #endif
-	S_Warn("[GetSpheres] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 

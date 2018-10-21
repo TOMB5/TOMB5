@@ -98,6 +98,7 @@ USE_REPR =			isarg("userepr", 	"r", False)	# Debugging purposes. When outputting
 SHOW_ADDED =		isarg("showadded", 	"a", False)	# Show a plain list of added functions
 SHOW_FILES_STATS =	isarg("showfiles",	"f", False) # Show number of implemented functions by file
 UNIMPL_NEUTRAL =	isarg("uneutral", 	"n", False) # for showunimp, show only GAME functions
+UNIMPL_PC		 =	isarg("upc", 		"p", False) # for showunimp, show only SPEC_PC_N functions
 SHOW_DUPL =			isarg("showdupl",	"d", True)  # show duplicate functions among each platform
 AUTOREMOVE_DUPL =	isarg("remdupl",	"e", False) # automatically remove duplicates
 
@@ -192,18 +193,35 @@ for plat in sorted(platforms.keys()):
 
 		file_lines = getfline(path)
 		un_funcs = [l for l in file_lines if "] - Unimpl" in l]
+		unm_funcs = [(i, l) for i, l in enumerate(file_lines) if "Unimpl();" in l]
 
 		for i in range(len(un_funcs)):
 			a = un_funcs[i]
 			a = a[a.index("[")+1:a.index("]")]
 			unimplwarn[plat][file].append(a)
 
+		for i, l in unm_funcs:
+			if file_lines[i - 1].strip() == "{" and file_lines[i + 1].strip() == "}":
+				a = file_lines[i - 2]
+				if "(" in a and ")" in a:
+					a = a[:a.index("(")]
+					b = a[a.rfind(" ")+1:].strip()
+					if not b:
+						b = a[a[:-1].rfind(" ")+1:].strip()
+					if not b:
+						Warn("Unable to determine function name -- %s // '%s'" % (path, file_lines[i - 2]))
+					else:
+						if b not in ["if", "else"]:
+							unimplwarn[plat][file].append(b)
+
 		funcs = [l for l in file_lines if "(F)" in l]
 
 		for i in range(len(funcs)):
 			a = funcs[i][:funcs[i].index("(")] # take everything until first parenthesis
-			a = a[a.rfind(" ")+1:] # remove everything before last whitespace
-			funcs[i] = a
+			b = a[a.rfind(" ")+1:] # remove everything before last whitespace
+			if not b:
+				b = a[a[:-1].rfind(" ")+1:].strip()
+			funcs[i] = b
 
 		for l in sorted(funcs):
 			if l in unimplwarn[plat][file]:
@@ -328,7 +346,7 @@ output = "\n".join(lines)
 if SHOW_UNIMPL:
 	print("Unimplemented :")
 	if USE_REPR:
-		print(repr([x[2] for x in unimpl if (not UNIMPL_NEUTRAL) or x[0] == "GAME"]))
+		print(repr([x[2] for x in unimpl if ((not UNIMPL_PC) and ((not UNIMPL_NEUTRAL) or x[0] == "GAME")) or x[0] == "SPEC_PC_N"]))
 	else:
 		print("\n".join(["%s // %s" % (os.path.join(x[0], x[1]), x[2]) for x in unimpl]))
 

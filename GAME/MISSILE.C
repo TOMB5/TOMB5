@@ -46,8 +46,8 @@ void ControlBodyPart(short fx_number)//4E600, 4EA64 (F)
 	}
 
 	fx->pos.y_pos += fx->fallspeed;
-	fx->pos.z_pos += (fx->speed * COS(fx->pos.y_rot) >> W2V_SHIFT);
-	fx->pos.x_pos += (fx->speed * SIN(fx->pos.y_rot) >> W2V_SHIFT);
+	fx->pos.z_pos += (fx->speed * 4 * COS(fx->pos.y_rot) >> W2V_SHIFT);
+	fx->pos.x_pos += (fx->speed * 4 * SIN(fx->pos.y_rot) >> W2V_SHIFT);
 
 	room_number = fx->room_number;
 

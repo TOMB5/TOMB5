@@ -7,12 +7,12 @@
 double LdSync, LdFreq;
 LARGE_INTEGER LdUnk;
 
-void TIME_Reset()
+void TIME_Reset()// (F)
 {
 	QueryPerformanceCounter(&LdUnk);
 }
 
-bool TIME_Init()
+bool TIME_Init()// (F)
 {
 	Log(LT_Enter, "TIME_Init");
 
@@ -28,7 +28,7 @@ bool TIME_Init()
 	return true;
 }
 
-int Sync()
+int Sync()// (F)
 {
 	int nFrames;
 	LARGE_INTEGER ct;

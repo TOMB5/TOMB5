@@ -131,12 +131,12 @@ void UpdateSkyLightning()//2C0D0(<), ? (F)
 
 void DrawSkyMesh(short* mesh)
 {
-	S_Warn("[DrawSkyMesh] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DrawMoon()
 {
-	S_Warn("[DrawMoon] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void SetInventoryLighting(struct MATRIX3D* m)
@@ -210,10 +210,10 @@ void SetInventoryLighting(struct MATRIX3D* m)
 
 }
 
-void DrawGunflashes()//8A924(<) 8C968(<) (F)
+void DrawGunflashes()//8A924(<) 8C968(<)
 {
 #ifdef PC_VERSION
-	S_Warn("[DrawGunflashes] - Unimplemented!\n");
+	UNIMPLEMENTED();
 #else
 	long rand;
 	long i;
@@ -262,5 +262,5 @@ short* GetBestFrame(struct ITEM_INFO* item)// (F)s
 
 void DrawAnimatingItem(struct ITEM_INFO *item)
 {
-	S_Warn("[DrawAnimatingItem] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

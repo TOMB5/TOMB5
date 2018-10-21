@@ -18,17 +18,17 @@ char HKShotsFired = 0;
 
 void TriggerGrapplingEffect(long x, long y, long z)
 {
-	S_Warn("[TriggerGrapplingEffect] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DoGrenadeDamageOnBaddie(struct ITEM_INFO* baddie, struct ITEM_INFO* item)
 {
-	S_Warn("[DoGrenadeDamageOnBaddie] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void AnimateShotgun(int weapon_type)
 {
-	S_Warn("[AnimateShotgun] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void undraw_shotgun(int weapon_type)//436B0(<), 43B14(<) (F)
@@ -36,9 +36,9 @@ void undraw_shotgun(int weapon_type)//436B0(<), 43B14(<) (F)
 	struct ITEM_INFO* item = &items[lara.weapon_item];
 	AnimateItem(item);
 
-	if (item->status == 2)
+	if (item->status == ITEM_DEACTIVATED)
 	{
-		lara.gun_status = 0;
+		lara.gun_status = LG_NO_ARMS;
 		lara.target = NULL;
 		lara.right_arm.lock = 0;
 		lara.left_arm.lock = 0;
@@ -49,7 +49,7 @@ void undraw_shotgun(int weapon_type)//436B0(<), 43B14(<) (F)
 	}//loc_43750
 	else
 	{
-		if (item->current_anim_state == 3)
+		if (item->current_anim_state == STATE_LARA_JUMP_FORWARD)
 		{
 			if (anims[item->anim_number].frame_base == item->frame_number - 21)
 			{
@@ -80,9 +80,9 @@ void draw_shotgun(int weapon_type)// (F)
 		item->anim_number = objects[item->object_number].anim_index;
 		item->frame_number = anims[item->anim_number].frame_base;
 		item->status = ITEM_ACTIVE;
-		item->goal_anim_state = 1;
-		item->current_anim_state = 1;
-		item->room_number = 255;
+		item->goal_anim_state = STATE_LARA_RUN_FORWARD;
+		item->current_anim_state = STATE_LARA_RUN_FORWARD;
+		item->room_number = NO_ROOM;
 
 		lara.left_arm.frame_base = lara.right_arm.frame_base = objects[item->object_number].frame_base;
 	}
@@ -93,8 +93,8 @@ void draw_shotgun(int weapon_type)// (F)
 
 	AnimateItem(item);
 
-	if (item->current_anim_state != 0 && 
-		item->current_anim_state != 6)
+	if (item->current_anim_state != STATE_LARA_WALK_FORWARD &&
+		item->current_anim_state != STATE_LARA_TURN_RIGHT_SLOW)
 	{
 		if (item->frame_number - anims[item->anim_number].frame_base == weapons[weapon_type].draw_frame)
 		{
@@ -102,7 +102,7 @@ void draw_shotgun(int weapon_type)// (F)
 		}
 		else if (lara.water_status == LW_UNDERWATER)
 		{
-			item->goal_anim_state = 6;
+			item->goal_anim_state = STATE_LARA_TURN_RIGHT_SLOW;
 		}
 	}
 	else
@@ -117,32 +117,32 @@ void draw_shotgun(int weapon_type)// (F)
 
 void ControlCrossbow(short item_number)
 {
-	S_Warn("[ControlCrossbow] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void CrossbowHitSwitchType78(struct ITEM_INFO* item, struct ITEM_INFO* target, int MustHitLastNode)
 {
-	S_Warn("[CrossbowHitSwitchType78] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void FireCrossbow(struct PHD_3DPOS* Start)
 {
-	S_Warn("[FireCrossbow] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void FireHK(int running)
 {
-	S_Warn("[FireHK] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void FireShotgun()
 {
-	S_Warn("[FireShotgun] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void RifleHandler(int weapon_type)
 {
-	S_Warn("[RifleHandler] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ready_shotgun(int weapon_type)//424E0(<), 42934(<) (F)

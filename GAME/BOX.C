@@ -175,7 +175,7 @@ void FindAITargetObject(struct creature_info* creature, short obj_num)// (F)
 
 void GetAITarget(struct creature_info* creature)
 {
-	S_Warn("[GetAITarget] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 short AIGuard(struct creature_info* creature)//24DF0(<), ? (F)
@@ -290,7 +290,7 @@ void AlertAllGuards(short item_number)// (F)
 
 void CreatureKill(struct ITEM_INFO* item, int kill_anim, int kill_state, short lara_anim)
 {
-	S_Warn("[CreatureKill] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int CreatureVault(short item_number, short angle, int vault, int shift) // (F)
@@ -515,7 +515,7 @@ void CreatureFloat(short item_number)//24524(<), (?) (F)
 	item->after_death = 1;
 }
 
-void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<) ?
+void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<) ? (F)
 {
 	short change;
 
@@ -566,13 +566,13 @@ void CreatureTilt(struct ITEM_INFO* item, short angle)//24418(<), 24624(<) (F)
 
 short CreatureTurn(struct ITEM_INFO* item, short maximum_turn)
 {
-	S_Warn("[CreatureTurn] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int CreatureAnimation(short item_number, short angle, short tilt)
 {
-	S_Warn("[CreatureAnimation] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -675,18 +675,18 @@ int CreatureCreature(short item_number) // (F)
 
 enum target_type CalculateTarget(struct PHD_VECTOR* target, struct ITEM_INFO* item, struct lot_info* LOT)
 {
-	S_Warn("[CalculateTarget] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return NO_TARGET;
 }
 
 void CreatureMood(struct ITEM_INFO* item, struct AI_info* info, int violent)
 {
-	S_Warn("[CreatureMood] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void GetCreatureMood(struct ITEM_INFO* item, struct AI_info* info, int violent)
 {
-	S_Warn("[GetCreatureMood] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int ValidBox(struct ITEM_INFO* item, short zone_number, short box_number)//222A4(<), ? (F)
@@ -784,13 +784,13 @@ int UpdateLOT(struct lot_info* LOT, int expansion)//22034(<), ? (F)
 
 int SearchLOT(struct lot_info* LOT, int expansion)
 {
-	S_Warn("[SearchLOT] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void CreatureAIInfo(struct ITEM_INFO* item, struct AI_info* info)
 {
-	S_Warn("[CreatureAIInfo] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 int CreatureActive(short item_number)//218B0(<), ? (F)
@@ -945,7 +945,7 @@ int StalkBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)
 		locret_217F8 :
 		jr	$ra
 #endif
-	S_Warn("[StalkBox] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 

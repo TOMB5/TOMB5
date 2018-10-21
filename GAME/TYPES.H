@@ -10,6 +10,10 @@
 #define ABS(x) (((x)<0)?(-(x)):(x))
 #endif*/
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #ifndef MIN
 #define MIN(x, y) (((x)<(y))?(x):(y))
 #endif
@@ -34,13 +38,13 @@
 // Game used 182, so maybe our code will be more precise %)
 #define ANGLE(x) ((x) * 65536.0 / 360.0)
 
-#if PC_VERSION
-#define SIN(x) (4 * rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
-#define COS(x) (4 * rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
-#elif PSX_VERSION || PSXPC_VERSION
 #define SIN(x) (rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
 #define COS(x) (rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
-#endif
+
+#define TRIGMULT2(a, b) (((a) * (b)) >> W2V_SHIFT)
+#define TRIGMULT2F(a, b) (((a) * (b)) / 16384.0f)
+#define TRIGMULT3(a, b, c) TRIGMULT2(TRIGMULT2(a, b), c)
+
 #if PC_VERSION
 #define phd_atan_asm phd_atan
 #endif
@@ -93,9 +97,22 @@ inline int phd_atan(long x, long y)
 #define GRAY555  RGB555(128, 128, 128)
 #define BLACK555 RGB555(  0,   0,   0)
 
+#define WALL_L  	 1024
+#define WALL_SHIFT 10
+#define STEP_L     (WALL_L/4)
+
 //#define SECTOR 1024
-#define SECTOR(x) ((x) * 1024)
+#define SECTOR(x) ((x) * WALL_L)
 #define CLICK 256
+
+#define UNIT_SHADOW 256
+#define UNIT_SHADOW_SHIFT 8
+
+
+
+#define LARA_HITPOINTS 1000
+
+#define ROUND_MUL_LOW(x, m) ((x) & ~(m - 1))
 
 #define SECTOR_TO_WORLD(S) ((S) > (0) ? SECTOR((S) + 0.5) : (0))
 
@@ -124,6 +141,18 @@ enum msoff {
 #define GREEN(rgb) (((rgb) >> 8) & 0xFF)
 #define BLUE(rgb) ((rgb) & 0xFF)
 #define ALPHA(rgb) (((rgb) >> 24) & 0xFF)
+
+#define RGBONLY(r, g, b) ((b & 0xFF) | (((g & 0xFF) | ((r & 0xFF) << 8)) << 8))
+#define RGBA(r, g, b, a) (RGBONLY(r, g, b) | ((a) << 24))
+
+#define NO_ROOM 0xFF
+
+enum PRINT_OPTIONS
+{
+	PRINT_BLINK = 1 << 13,			// 0x2000
+	PRINT_UNK14 = 1 << 14,			// 0x4000
+	PRINT_CENTER = 1 << 15,			// 0x8000
+};
 
 enum zone_type
 {
@@ -225,7 +254,9 @@ struct VECTOR
 	long vx;
 	long vy;
 	long vz;
+#if PSXENGINE
 	long pad;
+#endif
 };
 
 struct SVECTOR
@@ -261,23 +292,6 @@ struct PHD_3DPOS
 	short x_rot; // off 12 [76]
 	short y_rot; // off 14 [78]
 	short z_rot; // off 16 [80]
-};
-
-struct ILIGHT
-{
-	short x;
-	short y;
-	short z;
-	short pad1;
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-	unsigned char pad;
-};
-
-struct ITEM_LIGHT
-{
-	struct ILIGHT Light[4];
 };
 
 struct FLOOR_INFO
@@ -537,6 +551,7 @@ struct savegame_info
 	short ScreenY; // size=0, offset=8
 	unsigned char ControlOption; // size=0, offset=10
 	unsigned char VibrateOn; // size=0, offset=11
+	char pad[3];
 	unsigned char AutoTarget; // size=0, offset=12
 	struct lara_info Lara; // size=352, offset=16
 	struct STATS Level; // size=20, offset=368

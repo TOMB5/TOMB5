@@ -1,0 +1,51 @@
+	opt at+,w-,c+,m-
+
+	section	.ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF UpdateSky
+	XREF gfLevelFlags, gfLayer1Vel, SkyPos, gfLayer2Vel, SkyPos2
+	
+UpdateSky:
+	lhu     a0, gfLevelFlags-GP_ADDR(gp)
+	lb      v0, gfLayer1Vel-GP_ADDR(gp)
+	lh      v1, SkyPos-GP_ADDR(gp)
+	andi    at, a0, 8
+	beqz    at, loc_7CEC0
+	addu    v1, v0
+	bgez    v1, loc_7CEB0
+	slti    at, v1, 0xCD1
+	j       loc_7CEBC
+	addiu   v1, 0xCD0
+
+	loc_7CEB0:
+	bnez    at, loc_7CEBC
+	nop
+	addiu   v1, -0xCD0
+
+	loc_7CEBC:
+	sh      v1, SkyPos-GP_ADDR(gp)
+
+	loc_7CEC0:
+	andi    at, a0, 0x10
+	beqz    at, locret_7CEFC
+	nop
+	lb      v0, gfLayer2Vel-GP_ADDR(gp)
+	lh      v1, SkyPos2-GP_ADDR(gp)
+	nop
+	addu    v1, v0
+	bgez    v1, loc_7CEEC
+	slti    at, v1, 0xCD1
+	j       loc_7CEF8
+	addiu   v1, 0xCD0
+
+	loc_7CEEC:
+	bnez    at, loc_7CEF8
+	nop
+	addiu   v1, -0xCD0
+
+	loc_7CEF8:
+	sh      v1, SkyPos2-GP_ADDR(gp)
+
+	locret_7CEFC:
+	jr      ra
+	nop

@@ -2,7 +2,6 @@
 
 #include "3D_OBJ.H"
 #include "GAMEFLOW.H"
-#include "SPECIFIC.H"
 
 #ifdef PAELLA
 #include <string.h>

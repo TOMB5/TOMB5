@@ -56,17 +56,17 @@ static short ParallelBarsBounds[12] = // offset 0xA1290
 
 void HybridCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)
 {
-	S_Warn("[HybridCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DrawBaddieGunFlash(struct ITEM_INFO* item)
 {
-	S_Warn("[DrawBaddieGunFlash] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void CutsceneRopeControl(short item_number)
 {
-	S_Warn("[CutsceneRopeControl] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ControlXRayMachine(short item_number)// (F)
@@ -177,12 +177,12 @@ void ControlXRayMachine(short item_number)// (F)
 
 void ParallelBarsCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
 {
-	S_Warn("[ParallelBarsCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void TightRopeCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
 {
-	S_Warn("[TightRopeCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
@@ -212,7 +212,7 @@ void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
 	}
 }
 
-void AnimateWaterfalls()//4FABC(<), 4FF20(<) (F)
+void AnimateWaterfalls()//4FABC(<), 4FF20(<)
 {
 #if PSX_VERSION
 	struct PSXTEXTI* Twaterfall;
@@ -251,23 +251,23 @@ void AnimateWaterfalls()//4FABC(<), 4FF20(<) (F)
 		}
 	}
 #else
-	S_Warn("[AnimateWaterfalls] - Unimplemented!\n");
+	UNIMPLEMENTED();
 #endif
 }
 
 void ControlTriggerTriggerer(short item_number)
 {
-	S_Warn("[ControlTriggerTriggerer] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void PoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
 {
-	S_Warn("[PoleCollision] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ControlAnimatingSlots(short item_number)
 {
-	S_Warn("[ControlAnimatingSlots] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void BridgeTilt2Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F0FC(<), 4F560(<) (F)
@@ -380,5 +380,5 @@ void SmashObject(short item_number)//4EDB0, 4F214 (F)
 
 void EarthQuake(short item_number)
 {
-	S_Warn("[EarthQuake] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
