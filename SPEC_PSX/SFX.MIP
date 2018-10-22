@@ -1,4 +1,4 @@
-	;opt at-,w-,c+,m-
+	opt at-,w-,c+,m-
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
@@ -113,7 +113,7 @@ GetPanVolume:
 	sra     v0, 2
 	andi    v0, 0x3FFC
 	la		at, rcossin_tbl
-	addu	at, at, v0
+	addu	at, v0
 	lh      v1, 0(at)
 	li      v0, 0x1000
 	subu    v0, v1
@@ -155,7 +155,9 @@ S_SoundSampleIsPlaying:
 	sw      ra, 0x18-0x4(sp)
 	jal     SpuGetKeyStatus
 	sllv    a0, s0
-	lbu     a1, LabSampleType(s0)
+	la		at, LabSampleType
+	addu	at, s0
+	lbu     a1, 0(at)
 	addiu   v0, -1
 	andi    v0, 0xFF
 	sltiu   v0, v0, 2
@@ -181,7 +183,9 @@ S_SoundStopSample:
 	addiu   sp, -0x18
 	sw      ra, 0x18-0x8(sp)
 	sw      a0, 0x18-0x4(sp)
-	lbu     v0, LabSampleType(a0)
+	la		at, LabSampleType
+	addu	at, a0
+	lbu     v0, 0(a0)
 	move    a2, a0
 	beqz    v0, loc_916CC
 	nop
@@ -264,7 +268,9 @@ S_SetReverbType:
 	beq     a0, v0, loc_91D2C
 	sll     a1, a0, 1
 	sh      a0, CurrentReverb-GP_ADDR(gp)
-	lh      a1, DepthTable(a1)
+	la		at, DepthTable
+	addu	at, a1
+	lh      a1, 0(at)
 	jal     SpuSetReverbModeDepth
 	move    a0, a1
 	jal     SpuSetReverb
@@ -294,8 +300,12 @@ SPU_StopAll:
 	
 SPU_FreeChannel:
 	lw      v1, LnFreeChannels-GP_ADDR(gp)
-	sb      zero, LabSampleType(a0)
+	la		at, LabSampleType
+	addu	at, a0
+	sb      zero, 0(a0)
 	addiu   v0, v1, 1
-	sb      a0, LabFreeChannel(v1)
+	la		at, LabFreeChannel
+	addu	at, v1
+	sb      a0, 0(at)
 	jr      ra
 	sw      v0, LnFreeChannels-GP_ADDR(gp)
