@@ -3,8 +3,15 @@
 #include "3D_OBJ.H"
 #include "CAMERA.H"
 #include "CD.H"
+#include "CONTROL.H"
+#include "EFFECTS.H"
+#include "FXTRIG.H"
+#include "GAMEFLOW.H"
+#include "MEMCARD.H"
 #include "MISC.H"
 #include "GPU.H"
+#include "LARA.H"
+#include "LOADSAVE.H"
 #include "PROFILE.H"
 #include "PSXINPUT.H"
 #include "REQUEST.H"
@@ -574,10 +581,147 @@ void gInit()//615CC(<), 6210C(<) (F)
 	return;
 }
 
-short S_Death()//61658, 622C8
+short S_Death()//61658(<), 622C8
 {
-	UNIMPLEMENTED();
-	return 0;
+	short ret;
+	unsigned char flag;
+	unsigned char Cursor;
+
+	ret = 0;
+	flag = 0;
+	Cursor = 0;
+
+	gInit();
+	mcOpen(0);
+
+	//loc_6169C:
+	while (ret == 0)
+	{
+		XAReqVolume = 0;
+
+		GPU_BeginScene();
+
+		SetDebounce = 1;
+
+		S_UpdateInput();
+		///UpdatePulseColour();//Unimpl
+
+		++lara.death_count;
+
+		if (PadConnected == 0)
+		{
+			PrintString(0x100, 0x40, 3, &gfStringWad[gfStringOffset[0xDD]], 0xA000);
+		}
+		else
+		{
+			//loc_61704
+			if (flag != 0)
+			{
+				if (flag == 1)
+				{
+					//loc_6189C
+					ret = LoadGame();
+
+					if (ret != 0)
+					{
+						ret = 2;
+						if (ret < 0)
+						{
+							flag = 0;
+							ret = 0;
+						}
+					}
+				}//loc_618C4
+			}
+			else
+			{
+				//loc_6171C
+				if (mcGetStatus() == 0)
+				{
+					if (mcNumFiles != 0)
+					{
+						if (Cursor == 0)
+						{
+							//loc_6174C
+							PrintString(0x100, 0xC0, 1, &gfStringWad[gfStringOffset[0xA2]], 0x8000);
+						}
+						else
+						{
+							//loc_6174C
+							PrintString(0x100, 0xC0, 2, &gfStringWad[gfStringOffset[0xA2]], 0x8000);
+						}
+
+						if (Cursor == 0)
+						{
+							PrintString(0x100, 0xD0, 2, &gfStringWad[gfStringOffset[0xAF]], 0x8000);
+						}
+						else
+						{
+							PrintString(0x100, 0xD0, 1, &gfStringWad[gfStringOffset[0xAF]], 0x8000);
+						}
+
+						if (Cursor != 0)
+						{
+							if ((RawEdge & 0x10))
+							{
+								SoundEffect(0x6D, NULL, 2);
+								Cursor = 0;
+							}
+							else
+							{
+								//loc_617E0
+								if ((RawEdge & 0x4000))
+								{
+									SoundEffect(0x6F, NULL, 2);
+									Cursor = 1;
+								}
+							}
+						}
+						//loc_61800
+						if ((RawEdge & 0x40))
+						{
+							SoundEffect(0x6D, NULL, 2);
+							Cursor = 1;
+						}
+						//loc_6182C
+						if ((RawEdge & 0x4000))
+						{
+							SoundEffect(0x6F, NULL, 2);
+							Cursor = 1;
+						}
+					}
+					else
+					{
+						//loc_6184C
+						if (lara.death_count > 0x12C)
+						{
+							Cursor = 1;
+						}
+					}
+				}
+				else
+				{
+					//loc_6184C
+					if (lara.death_count > 0x12C)
+					{
+						Cursor = 1;
+					}
+				}
+
+				//loc_61864
+				PrintString(0x100, 0x78, 3, &gfStringWad[gfStringOffset[0xAD]], 0x8000);
+			}
+		}
+		//loc_618C4
+		SOUND_EndScene();
+		///DrawMonoScreen(0x203040); //Unimpl
+		GPU_EndScene();
+		camera.number_frames = S_DumpScreen();
+	}
+
+	mcClose();
+
+	return ret;
 }
 
 void DisplayStatsUCunt()//61928(<), 625A8(<) (F)
