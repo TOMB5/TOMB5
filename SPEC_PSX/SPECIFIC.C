@@ -604,7 +604,7 @@ short S_Death()//61658(<), 622C8
 		SetDebounce = 1;
 
 		S_UpdateInput();
-		///UpdatePulseColour();//Unimpl
+		UpdatePulseColour();
 
 		++lara.death_count;
 
