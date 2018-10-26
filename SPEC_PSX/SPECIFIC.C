@@ -1,6 +1,7 @@
 #include "SPECIFIC.H"
 
 #include "3D_OBJ.H"
+#include "BUBBLES.H"
 #include "CAMERA.H"
 #include "CD.H"
 #include "CONTROL.H"
@@ -18,6 +19,7 @@
 #include "SAVEGAME.H"
 #include "SFX.H"
 #include "SOUND.H"
+#include "TEXT_S.H"
 
 #include <assert.h>
 #include <stdio.h>
@@ -714,7 +716,7 @@ short S_Death()//61658(<), 622C8
 		}
 		//loc_618C4
 		SOUND_EndScene();
-		///DrawMonoScreen(0x203040); //Unimpl
+		DrawMonoScreen(0x203040); //Unimpl
 		GPU_EndScene();
 		camera.number_frames = S_DumpScreen();
 	}
