@@ -345,6 +345,7 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 
 void UpdateSubsuitAngles()//4BD20, 4C184 (F)
 {
+#ifdef PC_VERSION
 	if (subsuit.YVel != 0)
 	{
 		lara_item->pos.y_pos += subsuit.YVel / 4;
@@ -409,6 +410,7 @@ void UpdateSubsuitAngles()//4BD20, 4C184 (F)
 		// todo make the formula clearer
 		SoundEffect(SFX_LARA_UNDERWATER_ENGINE, &lara_item->pos, (((subsuit.Vel[0] + subsuit.Vel[1]) * 4) & 0x1F00) + 10);
 	}
+#endif
 }
 
 void SwimTurnSubsuit(struct ITEM_INFO* item)//4BBDC, 4C040 (F)

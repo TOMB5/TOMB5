@@ -1,6 +1,6 @@
 	opt at-,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	XDEF MULFP
 
 MULFP:

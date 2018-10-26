@@ -1,6 +1,6 @@
-	opt at+,w-,c+,m-
+	OPT at+,w-,c+,m-
 
-	section	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF UpdateSky
 	XREF gfLevelFlags, gfLayer1Vel, SkyPos, gfLayer2Vel, SkyPos2

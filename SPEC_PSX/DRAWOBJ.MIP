@@ -1,6 +1,6 @@
 	opt at+,w-,c+,m-
 
-	section	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF MakeMono, InitObjGTE, phd_PutPolygons, phd_PutPolygons_seethrough
 	

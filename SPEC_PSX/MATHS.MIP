@@ -1,8 +1,8 @@
-	opt L.,C+,at+
+	OPT L.,C+,at+
 
-	section	.ASM
-	xdef mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mSqrt
-	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
+	SECTION	ASM
+	XDEF mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mSqrt
+	XREF phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
 
 ASM_GetBounds:
 	slt     at, t0, a2

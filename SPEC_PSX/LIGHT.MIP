@@ -1,8 +1,9 @@
 	opt L.,C+,at+
 
-	section	.ASM
-	xdef S_CalculateLight
-	xref room, number_dynamics, dynamics, CamGTE, LightPos, mSqrt, mNormaliseXYZ
+	SECTION	ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF S_CalculateLight
+	XREF room, number_dynamics, dynamics, CamGTE, LightPos, mSqrt, mNormaliseXYZ
 ;TODO, GP
 S_CalculateLight:
 	addi    sp, -0x2C
@@ -37,7 +38,7 @@ S_CalculateLight:
 	move    t7, a0
 	move    t8, a1
 	move    t9, a2
-	lw      t0, room
+	lw      t0, room-GP_ADDR(gp)
 	move    s0, gp
 	sll     a3, 4
 	sll     at, a3, 2

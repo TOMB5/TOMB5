@@ -1,6 +1,6 @@
 	opt at+,w-,c+,m-
 
-	section	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF SetGunFlash, subdiv_ripple
 	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1

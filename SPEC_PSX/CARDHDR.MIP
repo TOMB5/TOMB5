@@ -1,4 +1,4 @@
 	opt at+,w-,c+,m-
 
-	section	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
