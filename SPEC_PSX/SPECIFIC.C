@@ -612,7 +612,7 @@ short S_Death()//61658(<), 622C8
 
 		if (PadConnected == 0)
 		{
-			PrintString(0x100, 0x40, 3, &gfStringWad[gfStringOffset[0xDD]], 0xA000);
+			PrintString(SCREEN_WIDTH / 2, 0x40, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], 0xA000);
 		}
 		else
 		{
@@ -645,21 +645,21 @@ short S_Death()//61658(<), 622C8
 						if (Cursor == 0)
 						{
 							//loc_6174C
-							PrintString(0x100, 0xC0, 1, &gfStringWad[gfStringOffset[0xA2]], 0x8000);
+							PrintString(SCREEN_WIDTH / 2, 0xC0, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
 						}
 						else
 						{
 							//loc_6174C
-							PrintString(0x100, 0xC0, 2, &gfStringWad[gfStringOffset[0xA2]], 0x8000);
+							PrintString(SCREEN_WIDTH / 2, 0xC0, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
 						}
 
 						if (Cursor == 0)
 						{
-							PrintString(0x100, 0xD0, 2, &gfStringWad[gfStringOffset[0xAF]], 0x8000);
+							PrintString(SCREEN_WIDTH / 2, 0xD0, 2, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], 0x8000);
 						}
 						else
 						{
-							PrintString(0x100, 0xD0, 1, &gfStringWad[gfStringOffset[0xAF]], 0x8000);
+							PrintString(SCREEN_WIDTH / 2, 0xD0, 1, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], 0x8000);
 						}
 
 						if (Cursor != 0)
@@ -711,12 +711,12 @@ short S_Death()//61658(<), 622C8
 				}
 
 				//loc_61864
-				PrintString(0x100, 0x78, 3, &gfStringWad[gfStringOffset[0xAD]], 0x8000);
+				PrintString(SCREEN_WIDTH/2, 0x78, 3, &gfStringWad[gfStringOffset[STR_GAME_OVER]], 0x8000);
 			}
 		}
 		//loc_618C4
 		SOUND_EndScene();
-		DrawMonoScreen(0x203040); //Unimpl
+		DrawMonoScreen(0x203040);
 		GPU_EndScene();
 		camera.number_frames = S_DumpScreen();
 	}
