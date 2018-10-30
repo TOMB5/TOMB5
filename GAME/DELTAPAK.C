@@ -23,6 +23,7 @@
 #include "TEXT.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
+#include "TYPEDEFS.H"
 
 #if PC_VERSION
 #include "GLOBAL.H"
@@ -2574,9 +2575,13 @@ void special2_init()//2E674(<), 2E980(<) (F)
 	special_num = 2;
 }
 
-void special1_end()//2E644(<), 2E950(<)
+void special1_end()//2E644(<), 2E950(<) (F) (*)
 {
+#if PSX_VERSION
+	((VOIDFUNCVOID*)RelocPtr[13][4])();
+#else
 	UNIMPLEMENTED();
+#endif
 }
 
 void special1_control()//2E614(<), 2E920(<)
