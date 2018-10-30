@@ -1,5 +1,9 @@
 #include "TOMB4FX.H"
 
+#if PSX_VERSION
+#include "CALCLARA.H"
+#endif
+
 #include "SPECIFIC.H"
 #include "EFFECT2.H"
 #include "LARA.H"
@@ -777,9 +781,30 @@ void TriggerLightningGlow(long x, long y, long z, long rgb)// (F)
 	sptr->Size = size;
 }
 
-void trig_actor_gunflash(struct MATRIX3D *matrix, struct PHD_VECTOR *pos)
+void trig_actor_gunflash(struct MATRIX3D* matrix, struct PHD_VECTOR* pos)//(F)
 {
-	UNIMPLEMENTED();
+#if PSX_VERSION//Likely different for PC
+	struct GUNFLASH_STRUCT* fx;
+	long lp;
+
+	fx = &Gunflashes[0];
+
+	//loc_36638:
+	for (lp = 0; lp < 4; lp++, fx++)
+	{
+		if (!fx->on)
+		{
+			fx->on = 1;
+			mPushMatrix();
+			mCopyMatrix(matrix);
+			mTranslateXYZ(pos->x, pos->y, pos->z);
+			mRotX(-13680);
+			snaff_current_gte_matrix_V1(&fx->matrix);
+			mPopMatrix();
+			break;
+		}
+	}
+#endif
 }
 
 void TriggerFenceSparks(long x, long y, long z, long kill, long crane)
