@@ -2584,9 +2584,13 @@ void special1_end()//2E644(<), 2E950(<) (F) (*)
 #endif
 }
 
-void special1_control()//2E614(<), 2E920(<)
+void special1_control()//2E614(<), 2E920(<) (F) (*)
 {
+#if PSX_VERSION
+	((VOIDFUNCVOID*)RelocPtr[13][3])();
+#else
 	UNIMPLEMENTED();
+#endif
 }
 
 void special1_init()//2E5E4(<), 2E8F0(<) (F)
