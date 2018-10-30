@@ -13,7 +13,7 @@ extern void mPushUnitMatrix();
 extern void mTranslate();
 extern void mTranslateAbsXYZ(long x, long y, long z);
 extern void mTranslateXYZ(long x, long y, long z);
-extern void mRotX();
+extern void mRotX(long rx);
 extern void mRotY(long ry);
 extern void mRotYXZ(short y, short x, short z);
 extern void mRotZ();
