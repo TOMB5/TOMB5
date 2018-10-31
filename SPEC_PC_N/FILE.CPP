@@ -286,12 +286,13 @@ extern "C"
 		Log(LT_Info, "RTPages %d", numRoom);
 
 		auto bufRoom = (char*)malloc(numRoom * tex_size);
+		auto ptrRoom = bufRoom;
 		OnlyReadT(bufRoom, char, numRoom * tex_size);
 		S_LoadBar();
 
-		for(int i = 0; i < numRoom; i++, bufRoom += tex_size)
+		for(int i = 0; i < numRoom; i++, ptrRoom += tex_size)
 		{
-			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)bufRoom, nullptr, depth_bis);
+			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)ptrRoom, nullptr, depth_bis);
 
 			LPDIRECT3DTEXTURE2 tex;
 			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
@@ -309,17 +310,18 @@ extern "C"
 			S_LoadBar();
 		}
 
-		//free(bufRoom);
+		free(bufRoom);
 
 		Log(LT_Info, "OTPages %d", numObj);
 
 		auto bufObj = (char*)malloc(numObj * tex_size);
+		auto ptrObj = bufObj;
 		OnlyReadT(bufObj, char, numObj * tex_size);
 		S_LoadBar();
 
-		for (int i = 0; i < numObj; i++, bufObj += tex_size)
+		for (int i = 0; i < numObj; i++, ptrObj += tex_size)
 		{
-			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)bufObj, nullptr, depth_bis);
+			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)ptrObj, nullptr, depth_bis);
 
 			LPDIRECT3DTEXTURE2 tex;
 			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
@@ -338,15 +340,16 @@ extern "C"
 			S_LoadBar();
 		}
 
-		//free(bufObj);
+		free(bufObj);
 
 		Log(LT_Info, "BTPages %d", numBump);
 
 		auto bufBump = (char*)malloc(numBump * tex_size);
+		auto ptrBump = bufBump;
 		OnlyReadT(bufBump, char, numBump * tex_size);
 		S_LoadBar();
 
-		for (int i = 0; i < numBump; i++, bufBump += tex_size)
+		for (int i = 0; i < numBump; i++, ptrBump += tex_size)
 		{
 			bool bump = i >= numBump / 2;
 
@@ -355,7 +358,7 @@ extern "C"
 
 			int res = bump ? App.bumpRes : App.textRes;
 
-			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)bufBump, nullptr, depth_bis);
+			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)ptrBump, nullptr, depth_bis);
 
 			LPDIRECT3DTEXTURE2 tex;
 			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
@@ -373,7 +376,7 @@ extern "C"
 			S_LoadBar();
 		}
 
-		//free(bufBump);
+		free(bufBump);
 
 		free(level_data_orig);
 
