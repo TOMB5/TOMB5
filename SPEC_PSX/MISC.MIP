@@ -2,9 +2,23 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF S_MemSet, draw_rotate_sprite, S_AnimateTextures, S_LongMemCpy, DrawF4, DrawTPage, DrawLineH, DrawLineV, LOAD_VSyncHandler, GPU_ClearVRAM, GPU_BeginScene, GPU_FlipToBuffer, GPU_GetScreenPosition, GPU_SetScreenPosition, LOAD_DrawEnable, GPU_SyncBothScreens
-	XREF LtLoadingBarEnabled, _first_time_ever, DrawOTagEnv, GnLastFrameCount, db, rcossin_tbl, DelRotAng, ClearOTagR, DrawSync, VSync, MoveImage, PutDispEnv, PutDrawEnv, ClearImage, DrawSync, VSync, DrawOTagEnv
+	XDEF PrintGauge, S_MemSet, draw_rotate_sprite, S_AnimateTextures, S_LongMemCpy, DrawF4, DrawTPage, DrawLineH, DrawLineV, LOAD_VSyncHandler, GPU_ClearVRAM, GPU_BeginScene, GPU_FlipToBuffer, GPU_GetScreenPosition, GPU_SetScreenPosition, LOAD_DrawEnable, GPU_SyncBothScreens
+	XREF S_DrawGouraudBar, dashBarColourSet, LtLoadingBarEnabled, _first_time_ever, DrawOTagEnv, GnLastFrameCount, db, rcossin_tbl, DelRotAng, ClearOTagR, DrawSync, VSync, MoveImage, PutDispEnv, PutDrawEnv, ClearImage, DrawSync, VSync, DrawOTagEnv
 	
+PrintGauge:
+	li      at, 0x64
+	mult    a2, at
+	mflo    a3
+	la      v0, dashBarColourSet
+	li      at, 0xFF
+	div     a3, at
+	sw      v0, 0x10(sp)
+	andi    a0, 0xFFFF
+	andi    a1, 0xFFFF
+	mflo    a3
+	j       S_DrawGouraudBar
+	li      a2, 0x64
+
 S_MemSet:
 	beqz    a2, locret_5E95C
 	sll     t7, a1, 8
