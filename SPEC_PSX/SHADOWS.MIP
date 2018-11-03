@@ -31,6 +31,17 @@ DelLine:
 	move    t7, t8
 	jr      ra
 	addiu   t8, 0x14
+	
+DelBox:
+	lui     at, 0x300
+	or      t7, at
+	sw      t7, 0(t8)
+	sw      a2, 4(t8)
+	sw      a0, 8(t8)
+	sw      a1, 0xC(t8)
+	move    t7, t8
+	jr      ra
+	addiu   t8, 0x10
 
 S_DrawGouraudBar:
 	addiu   sp, -0x20
