@@ -5,9 +5,9 @@
 	XREF number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo
 	
 ;FIXME
-LOffset incbin SPEC_PSX//LOFFSET.BIN
-LTab incbin SPEC_PSX//LTAB.BIN
-YOffset equ 0
+LOffset incbin SPEC_PSX//LOFFSET.TBL
+LTab incbin SPEC_PSX//LTAB.TBL
+YOffset equ 0 ;FIXME not sure how to extract
 QuadVertTables equ 0
 TriVertTables equ 0
 	
