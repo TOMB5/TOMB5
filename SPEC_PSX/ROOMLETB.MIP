@@ -6,6 +6,7 @@
 	
 ;FIXME
 LOffset incbin SPEC_PSX//LOFFSET.BIN
+LTab incbin SPEC_PSX//LTAB.BIN
 YOffset equ 0
 QuadVertTables equ 0
 TriVertTables equ 0
