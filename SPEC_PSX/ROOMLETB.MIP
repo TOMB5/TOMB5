@@ -5,7 +5,7 @@
 	XREF number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo
 	
 ;FIXME
-LOffset equ 0
+LOffset incbin SPEC_PSX//LOFFSET.BIN
 YOffset equ 0
 QuadVertTables equ 0
 TriVertTables equ 0
