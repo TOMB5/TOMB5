@@ -1,12 +1,13 @@
 	opt L.,C+,at+
 
-	section	ASM
-	xdef UnpackRGB, DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, Add2DPrim, CreateNewVertex, ClipToScreen, SubdivSetup3
-	xref number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo
+	SECTION	ASM
+	XDEF UnpackRGB, DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, Add2DPrim, CreateNewVertex, ClipToScreen, SubdivSetup3
+	XREF number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo
 	
 ;FIXME
-LOffset equ 0
-YOffset equ 0
+LOffset incbin SPEC_PSX//LOFFSET.TBL
+LTab incbin SPEC_PSX//LTAB.TBL
+YOffset equ 0 ;FIXME not sure how to extract
 QuadVertTables equ 0
 TriVertTables equ 0
 	

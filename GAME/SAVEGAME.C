@@ -29,9 +29,9 @@
 
 char FromTitle = 0; // offset 0xA14AC
 char JustLoaded = 0; // offset 0xA14AD
-char *MGSaveGamePtr; // offset 0xA3924
+char* MGSaveGamePtr; // offset 0xA3924
 static int SGcount; // offset 0xA391C
-static char *SGpoint; // offset 0xA3920
+static char* SGpoint; // offset 0xA3920
 struct savegame_info savegame;
 
 #define Write(a, b) WriteSG((char*)a, b)
