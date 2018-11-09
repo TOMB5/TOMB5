@@ -3,9 +3,63 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF CalcAllAnimatingItems_ASM, init_scratchpad
-	XREF mmPushMatrix, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY
+	XREF draw_rooms, number_draw_rooms, MatrixStack, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
 	
 init_scratchpad:
+	sw      s0, 0x18(sp)
+	sw      s1, 0x1C(sp)
+	sw      s2, 0x20(sp)
+	sw      s3, 0x24(sp)
+	sw      s4, 0x28(sp)
+	sw      s5, 0x2C(sp)
+	sw      s6, 0x30(sp)
+	sw      s7, 0x34(sp)
+	addiu   at, fp, 0xBC
+	sw      at, 0x50(fp)
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t3, r3
+	cfc2    t4, r4
+	cfc2    t5, r5
+	cfc2    t6, r6
+	cfc2    t7, r7
+	sw      t0, 0(at)
+	sw      t1, 4(at)
+	sw      t2, 8(at)
+	sw      t3, 0xC(at)
+	sw      t4, 0x10(at)
+	sw      t5, 0x14(at)
+	sw      t6, 0x18(at)
+	sw      t7, 0x1C(at)
+	la      v0, stashed_objects_list
+	la      v1, stashed_matrix_list
+	lw      a0, items-GP_ADDR
+	lw      a1, room-GP_ADDR
+	sw      v0, 0x40(fp)
+	sw      v1, 0x44(fp)
+	sw      zero, 0x48(fp)
+	sw      a0, 0x60(fp)
+	sw      a1, 0x98(fp)
+	lh      v0, camera+0xC-GP_ADDR
+	lw      v1, anims-GP_ADDR
+	lw      a0, meshes-GP_ADDR
+	lw      a1, bones-GP_ADDR
+	sh      v0, 0x6A(fp)
+	sw      v1, 0x9C(fp)
+	sw      a0, 0xA0(fp)
+	sw      a1, 0xA4(fp)
+	lw      t0, MatrixStack+0x14-GP_ADDR
+	lw      t1, MatrixStack+0x18-GP_ADDR
+	lw      t2, MatrixStack+0x1C-GP_ADDR
+	lw      s1, number_draw_rooms-GP_ADDR
+	lw      a0, 0x1A4(gp)
+	la      s0, draw_rooms
+	sw      a0, 0xB8(fp)
+	sw      t0, 0x6C(fp)
+	sw      t1, 0x70(fp)
+	jr      ra
+	sw      t2, 0x74(fp)
 
 CalcAllAnimatingItems_ASM:
 	addiu   sp, -0x80
