@@ -2,8 +2,147 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF CalcAllAnimatingItems_ASM
+	XDEF CalcAllAnimatingItems_ASM, init_scratchpad
+	XREF mmPushMatrix, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY
 	
+init_scratchpad:
+
 CalcAllAnimatingItems_ASM:
-	jr	ra
+	addiu   sp, -0x80
+	sw      fp, 0x80-0x48(sp)
+	sw      ra, 0x80-0x44(sp)
+	jal     init_scratchpad
+	lui     fp, 0x1F80
+	blez    s1, loc_827DC
+
+	loc_82658:
+	lh      a0, 0(s0)
+	lw      v1, 0x80+0x18(fp)
+	sll     v0, a0, 2
+	addu    v0, a0
+	sll     v0, 4
+	addu    s2, v1, v0
+	sh      a0, 0x80-0x18(fp)
+	jal     mmPushMatrix
+	sw      s2, 0x80-0x1C(fp)
+	lh      s3, 0x32(s2)
+	lw      s4, 0x10(s2)
+	blez    s3, loc_8275C
+	lw      v0, 0x38(s2)
+	lw      v1, 0x3C(s2)
+	sw      v0, 0x80+0x10(fp)
+	sw      v1, 0x80+0x14(fp)
+
+	loc_82698:
+	lh      v0, 0x12(s4)
+	lh      v1, 0x10(s4)
+	la      s5, static_objects
+	sll     at, v0, 3
+	subu    at, v0
+	sll     at, 2
+	andi    v0, v1, 1
+	beqz    v0, loc_82750
+	addu    s5, at
+	jal     mmPushMatrix
+	lw      a1, 4(s4)
+	lw      a0, 0(s4)
+	jal     mTranslateAbsXYZ
+	lw      a2, 8(s4)
+	lh      a0, 0xC(s4)
+	jal     mRotY
+	nop
+	lhu     v1, 2(s5)
+	cfc2    at, r7
+	srl     v1, 2
+	sll     v1, 10
+	beqz    v1, loc_82704
+	slt     at, v1, at
+	beqz    at, loc_82704
+	nop
+	addiu   s5, 0x1C
+
+	loc_82704:
+	jal     mClipBoundingBox
+	addiu   a0, s5, 4
+	beqz    v0, loc_8274C
+	lw      a3, 0x80-0x38(fp)
+	lw      a2, 0x80-0x40(fp)
+	addiu   a3, 1
+	sw      a3, 0x80-0x38(fp)
+	sh      v0, 0(a2)
+	sw      s4, 4(a2)
+	sh      zero, 2(a2)
+	addiu   a2, 0xC
+	sw      a2, 0x80-0x40(fp)
+	lh      v1, 0(s5)
+	lw      v0, 0x80+0x20(fp)
+	sll     v1, 2
+	addu    v0, v1
+	jal     stash_the_info
+	lw      a0, 0(v0)
+
+	loc_8274C:
+	jal     mmPopMatrix
+
+	loc_82750:
+	addiu   s3, -1
+	bgtz    s3, loc_82698
+	addiu   s4, 0x14
+
+	loc_8275C:
+	lh      s2, 0x48(s2)
+	li      v1, 0xFFFFFFFF
+	beq     s2, v1, loc_827CC
+	sll     v0, s2, 7
+
+	loc_8276C:
+	sll     v1, s2, 4
+	lw      s3, 0x80-0x20(fp)
+	addu    v0, v1
+	addu    s3, v0
+	lh      v1, 0xC(s3)
+	la      s6, objects
+	sll     v1, 6
+	addu    s6, v1
+	lhu     v0, 0x32(s6)
+	lw      a1, 0x84(s3)
+	andi    v0, 0x200
+	beqz    v0, loc_827BC
+	li      v1, 6
+	andi    a1, 6
+	beq     a1, v1, loc_827BC
+	nop
+	jal     CalcAnimatingItem_ASM
+	move    s2, s3
+	move    s3, s2
+
+	loc_827BC:
+	lh      s2, 0x1A(s3)
+	li      v0, 0xFFFFFFFF
+	bne     s2, v0, loc_8276C
+	sll     v0, s2, 7
+
+	loc_827CC:
+	jal     mmPopMatrix
+	addiu   s1, -1
+	bnez    s1, loc_82658
+	addiu   s0, 2
+
+	loc_827DC:
+	lw      s4, 0x80-0x38(fp)
+	lui     gp, 0xA
+	jal     DrawAllAnimatingItems_ASM
+	la      gp, GP_ADDR
+	lw      ra, 0x80-0x44(sp)
+	lw      fp, 0x80-0x48(sp)
+	lw      s7, 0x80-0x4C(sp)
+	lw      s6, 0x80-0x50(sp)
+	lw      s5, 0x80-0x54(sp)
+	lw      s4, 0x80-0x58(sp)
+	lw      s3, 0x80-0x5C(sp)
+	lw      s2, 0x80-0x60(sp)
+	lw      s1, 0x80-0x64(sp)
+	lw      s0, 0x80-0x68(sp)
+	jr      ra
+	addiu   sp, 0x80
 	
