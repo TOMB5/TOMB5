@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mSqrt, mClipBoundingBox
+	XDEF mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mmPushMatrix, mmPopMatrix, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mSqrt, mClipBoundingBox
 	XREF phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
 
 ASM_GetBounds:
@@ -318,6 +318,29 @@ mTranslateXYZ:
 	sw	t1, 0x18(v0)
 	jr	ra
 	sw	t2, 0x1C(v0)
+
+;0x81BBC
+mmPushMatrix:
+	lw      a0, 0x50(fp)
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t3, r3
+	cfc2    t4, r4
+	cfc2    t5, r5
+	cfc2    t6, r6
+	cfc2    t7, r7
+	addi    a0, 0x20
+	sw      t0, 0(a0)
+	sw      t1, 4(a0)
+	sw      t2, 8(a0)
+	sw      t3, 0xC(a0)
+	sw      t4, 0x10(a0)
+	sw      t5, 0x14(a0)
+	sw      t6, 0x18(a0)
+	sw      t7, 0x1C(a0)
+	jr      ra
+	sw      a0, 0x50(fp)
 
 ;0x7669C
 mRotX:
