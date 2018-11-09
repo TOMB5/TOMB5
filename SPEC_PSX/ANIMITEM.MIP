@@ -2,8 +2,11 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF CalcAllAnimatingItems_ASM, init_scratchpad, stash_the_info
-	XREF mClipBoundingBox, draw_rooms, number_draw_rooms, MatrixStack, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
+	XDEF CalcAllAnimatingItems_ASM, init_scratchpad, stash_the_info, CalcAnimatingItem_ASM
+	XREF CalculateObjectLighting, S_CalculateStaticMeshLight, phd_PutPolygons, phd_PutPolygons_seethrough, mPopMatrix, mPushMatrix, phd_left, phd_right, phd_top, phd_bottom, mClipBoundingBox, draw_rooms, number_draw_rooms, MatrixStack, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
+	
+CalcAnimatingItem_ASM:
+	jr ra
 	
 stash_the_info:
 	lw      at, 0x44(fp)
@@ -86,6 +89,84 @@ init_scratchpad:
 	sw      t1, 0x70(fp)
 	jr      ra
 	sw      t2, 0x74(fp)
+	
+DrawAllAnimatingItems_ASM:
+	blez    s4, loc_829E8
+	move    s5, ra
+	lui     s0, 0x1E
+	jal     mPushMatrix
+	la      s0, stashed_objects_list
+	la      s2, stashed_matrix_list
+
+	loc_8291C:
+	lh      s1, 2(s0)
+	lh      s3, 0(s0)
+	li      s6, 0x80
+	bnez    s1, loc_82950
+	lw      a0, 4(s0)
+	li      s1, 1
+	move    a3, a0
+	lw      a0, 0(a3)
+	lw      a1, 4(a3)
+	lw      a2, 8(a3)
+	lh      a3, 0xE(a3)
+	jal     S_CalculateStaticMeshLight
+	addiu   ra, 0x14
+
+	loc_82950:
+	lw      a1, 8(s0)
+	lh      at, 0x30(a0)
+	li      s6, 0x80
+	jal     CalculateObjectLighting
+	subu    s6, at
+
+	loc_82964:
+	lw      t0, 4(s2)
+	lw      t1, 8(s2)
+	lw      t2, 0xC(s2)
+	lw      t3, 0x10(s2)
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	lw      t0, 0x14(s2)
+	lw      t1, 0x18(s2)
+	lw      t2, 0x1C(s2)
+	lw      t3, 0x20(s2)
+	ctc2    t0, r4
+	ctc2    t1, r5
+	ctc2    t2, r6
+	ctc2    t3, r7
+	li      at, 0x80
+	beq     s6, at, loc_829C4
+	lw      a0, 0(s2)
+	slti    at, s6, 5
+	bnez    at, loc_829CC
+	move    a1, s6
+	jal     phd_PutPolygons_seethrough
+	addiu   ra, 8
+
+	loc_829C4:
+	jal     phd_PutPolygons
+	move    a1, s3
+
+	loc_829CC:
+	addiu   s1, -1
+	bgtz    s1, loc_82964
+	addiu   s2, 0x24
+	addiu   s4, -1
+	bgtz    s4, loc_8291C
+	addiu   s0, 0xC
+	jal     mPopMatrix
+
+	loc_829E8:
+	sw      zero, phd_left-GP_ADDR
+	li      v0, 0x1FF
+	li      at, 0xEF
+	sw      v0, phd_right-GP_ADDR
+	sw      zero, phd_top-GP_ADDR
+	jr      s5
+	sw      at, phd_bottom-GP_ADDR
 
 CalcAllAnimatingItems_ASM:
 	addiu   sp, -0x80
