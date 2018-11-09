@@ -2,8 +2,34 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF CalcAllAnimatingItems_ASM, init_scratchpad
-	XREF draw_rooms, number_draw_rooms, MatrixStack, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
+	XDEF CalcAllAnimatingItems_ASM, init_scratchpad, stash_the_info
+	XREF mClipBoundingBox, draw_rooms, number_draw_rooms, MatrixStack, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
+	
+stash_the_info:
+	lw      at, 0x44(fp)
+	lw      v0, 0x4C(fp)
+	sw      a0, 0(at)
+	cfc2    a0, r0
+	cfc2    a1, r1
+	cfc2    a2, r2
+	cfc2    a3, r3
+	sw      a0, 4(at)
+	sw      a1, 8(at)
+	sw      a2, 0xC(at)
+	sw      a3, 0x10(at)
+	cfc2    a0, r4
+	cfc2    a1, r5
+	cfc2    a2, r6
+	cfc2    a3, r7
+	sw      a0, 0x14(at)
+	sw      a1, 0x18(at)
+	sw      a2, 0x1C(at)
+	sw      a3, 0x20(at)
+	addiu   at, 0x24
+	addiu   v0, 1
+	sw      v0, 0x4C(fp)
+	jr      ra
+	sw      at, 0x44(fp)
 	
 init_scratchpad:
 	sw      s0, 0x18(sp)
