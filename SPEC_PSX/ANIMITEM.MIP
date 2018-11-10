@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF CalcAllAnimatingItems_ASM, init_scratchpad, stash_the_info, CalcAnimatingItem_ASM
-	XREF CalculateObjectLighting, S_CalculateStaticMeshLight, phd_PutPolygons, phd_PutPolygons_seethrough, mPopMatrix, mPushMatrix, phd_left, phd_right, phd_top, phd_bottom, mClipBoundingBox, draw_rooms, number_draw_rooms, MatrixStack, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
+	XREF MatrixStack, CalculateObjectLighting, S_CalculateStaticMeshLight, phd_PutPolygons, phd_PutPolygons_seethrough, mPopMatrix, mPushMatrix, phd_left, phd_right, phd_top, phd_bottom, mClipBoundingBox, draw_rooms, number_draw_rooms, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
 	
 CalcAnimatingItem_ASM:
 	jr ra
@@ -63,25 +63,25 @@ init_scratchpad:
 	sw      t7, 0x1C(at)
 	la      v0, stashed_objects_list
 	la      v1, stashed_matrix_list
-	lw      a0, items-GP_ADDR
-	lw      a1, room-GP_ADDR
+	lw      a0, items-GP_ADDR(gp)
+	lw      a1, room-GP_ADDR(gp)
 	sw      v0, 0x40(fp)
 	sw      v1, 0x44(fp)
 	sw      zero, 0x48(fp)
 	sw      a0, 0x60(fp)
 	sw      a1, 0x98(fp)
-	lh      v0, camera+0xC-GP_ADDR
-	lw      v1, anims-GP_ADDR
-	lw      a0, meshes-GP_ADDR
-	lw      a1, bones-GP_ADDR
+	lh      v0, camera+0xC-GP_ADDR(gp)
+	lw      v1, anims-GP_ADDR(gp)
+	lw      a0, meshes-GP_ADDR(gp)
+	lw      a1, bones-GP_ADDR(gp)
 	sh      v0, 0x6A(fp)
 	sw      v1, 0x9C(fp)
 	sw      a0, 0xA0(fp)
 	sw      a1, 0xA4(fp)
-	lw      t0, MatrixStack+0x14-GP_ADDR
-	lw      t1, MatrixStack+0x18-GP_ADDR
-	lw      t2, MatrixStack+0x1C-GP_ADDR
-	lw      s1, number_draw_rooms-GP_ADDR
+;	lw      t0, MatrixStack+0x14-GP_ADDR(gp)
+;	lw      t1, MatrixStack+0x18-GP_ADDR(gp)
+;	lw      t2, MatrixStack+0x1C-GP_ADDR(gp)
+	lw      s1, number_draw_rooms-GP_ADDR(gp)
 	lw      a0, 0x1A4(gp)
 	la      s0, draw_rooms
 	sw      a0, 0xB8(fp)
@@ -160,13 +160,13 @@ DrawAllAnimatingItems_ASM:
 	jal     mPopMatrix
 
 	loc_829E8:
-	sw      zero, phd_left-GP_ADDR
+	sw      zero, phd_left-GP_ADDR(gp)
 	li      v0, 0x1FF
 	li      at, 0xEF
-	sw      v0, phd_right-GP_ADDR
-	sw      zero, phd_top-GP_ADDR
+	sw      v0, phd_right-GP_ADDR(gp)
+	sw      zero, phd_top-GP_ADDR(gp)
 	jr      s5
-	sw      at, phd_bottom-GP_ADDR
+	sw      at, phd_bottom-GP_ADDR(gp)
 
 CalcAllAnimatingItems_ASM:
 	addiu   sp, -0x80
