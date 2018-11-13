@@ -2168,7 +2168,7 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 	}
 }
 
-#ifdef PC_VERSION
+#ifdef PC_VERSION || PSXPC_VERSION
 int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 {
 	short off, room_num;
