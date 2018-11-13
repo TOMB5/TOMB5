@@ -16,7 +16,7 @@ S_DrawFootPrints:
 	sw      s6, 0x30-0x8(sp)
 	sw      ra, 0x30-0x4(sp)
 	lw      s3, GLOBAL_default_sprites_ptr-GP_ADDR(gp)
-	la      s2, FootPrint-GP_ADDR(gp)
+;	la      s2, FootPrint-GP_ADDR(gp)
 	lw      s0, db+0x8-GP_ADDR(gp)
 	lw      s4, db+0x4-GP_ADDR(gp)
 	lw      t8, db+0x10-GP_ADDR(gp)
