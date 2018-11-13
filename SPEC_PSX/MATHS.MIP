@@ -894,10 +894,10 @@ mClipBoundingBox:
 	jal     GetBounds
 	move    t5, t4
 	move    ra, v1
-	lw      t0, phd_right-GP_ADDR
-	lw      t1, phd_bottom-GP_ADDR
-	lw      t2, phd_left-GP_ADDR
-	lw      t3, phd_top-GP_ADDR
+	lw      t0, phd_right-GP_ADDR(gp)
+	lw      t1, phd_bottom-GP_ADDR(gp)
+	lw      t2, phd_left-GP_ADDR(gp)
+	lw      t3, phd_top-GP_ADDR(gp)
 	sra     a0, 16
 	sra     a1, 16
 	sra     a2, 16

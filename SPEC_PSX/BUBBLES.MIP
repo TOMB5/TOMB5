@@ -170,7 +170,7 @@ PrintAllOtherObjects_ASM:
 	lw      a0, 0(s4)
 	lw      a1, 4(s4)
 	lw      a2, 8(s4)
-	la      v0, duff_item+0x54
+	la      v0, duff_item+0x54-GP_ADDR(gp)
 	sw      v0, 0x10(sp)
 	jal     S_CalculateLight
 	sb      zero, 0x2F(v0)
