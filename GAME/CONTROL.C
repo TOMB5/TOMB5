@@ -2168,6 +2168,7 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 	}
 }
 
+#ifdef PC_VERSION
 int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 {
 	short off, room_num;
@@ -2239,6 +2240,7 @@ int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 
 	return -2;
 }
+#endif
 
 short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 {
