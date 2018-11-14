@@ -839,6 +839,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 	if (bTrackCamInit)
 	{
+		printf("bTrackCamInit Zero\n");
 		bUseSpotCam = 0;
 	}
 
@@ -2168,7 +2169,7 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 	}
 }
 
-#ifdef PC_VERSION
+#if PC_VERSION || PSXPC_VERSION
 int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 {
 	short off, room_num;
