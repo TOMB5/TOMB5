@@ -3,21 +3,77 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF S_SoundPlaySampleLooped, SoundEffect, S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume, SPU_UpdateStatus
-	XREF CamRot, LaSlot, mSqrt, GetRandomDraw, sample_lut, room, camera, sound_active, LabSampleType, LabFreeChannel, LnFreeChannels, DepthTable, camera, char_anim, local_mRotY, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuGetAllKeysStatus, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey
+	XREF SPU_AllocChannel, sva, LnSamplesLoaded, LadwSampleAddr, SpuSetKeyOnWithAttr, CalcVolumes_ASM, CamRot, LaSlot, mSqrt, GetRandomDraw, sample_lut, room, camera, sound_active, LabSampleType, LabFreeChannel, LnFreeChannels, DepthTable, camera, char_anim, local_mRotY, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuGetAllKeysStatus, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey
 
-S_SoundPlaySampleLooped:
-	lw      $v0, GtSFXEnabled-GP_ADDR(gp)
-	move    $t1, $a0
-	beqz    $v0, locret_914A0
-	move    $t2, $a2
-	lw      $a0, 0x10($sp)
-	li      $v0, 2
+S_SoundPlaySample:
+	lw      v0, GtSFXEnabled-GP_ADDR(gp)
+	move    t1, a0
+	beqz    v0, nosnd
+	move    t2, a2
+	lw      a0, 0x10(sp)
+	li      v0, 1
 	j       loc_914C8
-	sw      $v0, 0x10($sp)
+	sw      v0, 0x10(sp)
 
-	locret_914A0:
-	jr      $ra
-	li      $v0, 0xFFFFFFFD
+	loc_914C8:
+	move    t3, ra
+	jal     CalcVolumes_ASM
+	nop
+	move    ra, t3
+	move    a0, t1
+	j       loc_91518
+	move    a3, t2
+	
+loc_91518:
+	sh      a1, 0x4EE0(gp)
+	sh      a2, 0x4EE2(gp)
+	srl     a3, 6
+	sh      a3, 0x4EEC(gp)
+	sll     v1, a0, 2
+	lw      v1, LadwSampleAddr(v1)
+	lw      v0, LnSamplesLoaded-GP_ADDR(gp)
+	addiu   sp, -0x18
+	slt     v0, a0, v0
+	sw      v1, 0x4EF4(gp)
+	sw      ra, 0x18-0x4(sp)
+	sw      s0, 0x18-0x8(sp)
+	beqz    v0, loc_915A0
+	li      v0, 0xFFFFFFFE
+	jal     SPU_AllocChannel
+	nop
+	move    s0, v0
+	bltz    s0, loc_915A0
+	li      v0, 0xFFFFFFFF
+	lw      v0, 0x18+0x10(sp)
+	la      a0, sva
+	sb      v0, LabSampleType(s0)
+	li      v0, 0x93
+	sw      v0, 4(a0)
+	li      v0, 1
+	sllv    v0, s0
+	jal     SpuSetKeyOnWithAttr
+	sw      v0, 0(a0)
+	move    v0, s0
+
+	loc_915A0:
+	lw      ra, 0x18-0x4(sp)
+	lw      s0, 0x18-0x8(sp)
+	jr      ra
+	addiu   sp, 0x18
+	
+S_SoundPlaySampleLooped:
+	lw      v0, GtSFXEnabled-GP_ADDR(gp)
+	move    t1, a0
+	beqz    v0, nosnd
+	move    t2, a2
+	lw      a0, 0x10(sp)
+	li      v0, 2
+	j       loc_914C8
+	sw      v0, 0x10(sp)
+
+	nosnd:
+	jr      ra
+	li      v0, 0xFFFFFFFD
 		
 SoundEffect:
 	lw      v0, sound_active-GP_ADDR(gp)
