@@ -5,6 +5,20 @@
 	XDEF S_SoundPlaySampleLooped, SoundEffect, S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume, SPU_UpdateStatus
 	XREF CamRot, LaSlot, mSqrt, GetRandomDraw, sample_lut, room, camera, sound_active, LabSampleType, LabFreeChannel, LnFreeChannels, DepthTable, camera, char_anim, local_mRotY, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuGetAllKeysStatus, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey
 
+S_SoundPlaySampleLooped:
+	lw      $v0, GtSFXEnabled-GP_ADDR(gp)
+	move    $t1, $a0
+	beqz    $v0, locret_914A0
+	move    $t2, $a2
+	lw      $a0, 0x10($sp)
+	li      $v0, 2
+	j       loc_914C8
+	sw      $v0, 0x10($sp)
+
+	locret_914A0:
+	jr      $ra
+	li      $v0, 0xFFFFFFFD
+		
 SoundEffect:
 	lw      v0, sound_active-GP_ADDR(gp)
 	addiu   sp, -0x40
