@@ -1,4 +1,4 @@
-	opt L.,C+,at+
+	opt at-,w-,c+,m-
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
@@ -1158,10 +1158,10 @@ DrawRoomletListAsmBinocular:
 	sw      gp, 0x38-0x10(sp)
 	ctc2    a0, r21
 	mtc2    a1, r20
-	lw      s0, number_draw_rooms
-	lw      s3, RoomBBoxes
+	lw      s0, number_draw_rooms-GP_ADDR(gp)
+	lw      s3, RoomBBoxes-GP_ADDR(gp)
 	la   	s4, draw_rooms
-	lw      t2, wibble
+	lw      t2, wibble-GP_ADDR(gp)
 	la      s2, tsv_buffer
 	andi    t2, 0xFC
 	ctc2    t2, r20
@@ -1171,7 +1171,7 @@ DrawRoomletListAsmBinocular:
 	addi    s4, 2
 	sll     t0, 4
 	sll     at, t0, 2
-	lw      t1, room
+	lw      t1, room-GP_ADDR(gp)
 	add     t0, at
 	add     fp, t0, t1
 	lbu     t0, 0x38+0x2(fp)
@@ -1268,9 +1268,9 @@ DrawRoomletListAsmBinocular:
 	sw      t6, 0x14(s2)
 	sw      t7, 0x18(s2)
 	sw      t8, 0x1C(s2)
-	lw      t3, MatrixStack+0x14-GP_ADDR(gp)
-	lw      t4, MatrixStack+0x18-GP_ADDR(gp)
-	lw      t5, MatrixStack+0x1C-GP_ADDR(gp)
+;	lw      t3, MatrixStack+0x14-GP_ADDR(gp)
+;	lw      t4, MatrixStack+0x18-GP_ADDR(gp)
+;	lw      t5, MatrixStack+0x1C-GP_ADDR(gp)
 	sub     t0, t3
 	sub     t1, t4
 	sub     t2, t5
