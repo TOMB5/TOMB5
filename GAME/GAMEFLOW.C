@@ -515,7 +515,7 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 	OldSP = SetSp(0x1F8003E0);
 #endif
 
-#if PSX_VERSION
+#if PSX_VERSION || PSXPC_VERSION
 	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
 #else
 	gfStatus = ControlPhase(nframes, 0);
