@@ -31,6 +31,11 @@
 
 #include <string.h>
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
+
 long wf = 256;
 short next_fx_free;
 short next_fx_active;

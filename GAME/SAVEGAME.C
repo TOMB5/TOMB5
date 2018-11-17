@@ -27,6 +27,11 @@
 #include "SPOTCAM.H"
 #include "LARA.H"
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
+
 char FromTitle = 0; // offset 0xA14AC
 char JustLoaded = 0; // offset 0xA14AD
 char* MGSaveGamePtr; // offset 0xA3924

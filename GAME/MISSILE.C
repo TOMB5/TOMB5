@@ -10,6 +10,11 @@
 #include "DRAW.H"
 #include "DEBRIS.H"
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
+
 struct ITEM_LIGHT fxil;
 
 void ControlBodyPart(short fx_number)//4E600, 4EA64 (F)

@@ -1,5 +1,5 @@
 #include "MISC.H"
-
+#include "CONTROL.H"
 #include "CAMERA.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
@@ -274,4 +274,26 @@ void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F)
 void S_AnimateTextures(long nFrames)
 {
 	S_Warn("[S_AnimateTextures] - Unimplemented!\n");
+}
+
+long GetRandomControl()//5E9F0, 926F8 (F)
+{
+	rand_1 = (rand_1 * 0x41C64E6D) + 0x3039;
+	return (rand_1 >> 16) & 0x7FFF;
+}
+
+void SeedRandomControl(long seed)//(F)
+{
+	rand_1 = seed;
+}
+
+long GetRandomDraw()//5EA18, 5F6F8 (F)
+{
+	rand_2 = (rand_2 * 0x41C64E6D) + 0x3039;
+	return (rand_2 >> 16) * 0x7FFF;
+}
+
+void SeedRandomDraw(long seed)//(F)
+{
+	rand_2 = seed;
 }

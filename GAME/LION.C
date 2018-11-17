@@ -9,6 +9,9 @@
 #include "TOMB4FX.H"
 #include "SPECTYPES.H"
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
 
 struct BITE_INFO LION_BITE_1 = { 0x0FFFFFFFE, 0x0FFFFFFF6, 0x0FA, 0x15 };
 struct BITE_INFO LION_BITE_2 = { 0x0FFFFFFFE, 0x0FFFFFFF6, 0x84, 0x15 };
