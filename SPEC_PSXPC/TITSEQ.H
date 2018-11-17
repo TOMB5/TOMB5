@@ -1,4 +1,5 @@
-#ifndef TITLESEQ_H
-#define TITLESEQ_H
+#ifndef TITSEQ_H
+#define TITSEQ_H
 
+extern int TitleOptions(int Name);
 #endif
