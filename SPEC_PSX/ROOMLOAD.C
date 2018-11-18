@@ -8,7 +8,10 @@
 #include "SETUP.H"
 
 #include <stdio.h>
-#include <LIBSN.H>
+
+#if !DISC_VERSION
+	#include <LIBSN.H>
+#endif
 
 long AnimFilePos;
 long AnimFileLen;
