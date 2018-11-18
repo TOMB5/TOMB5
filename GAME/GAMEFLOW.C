@@ -561,8 +561,8 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	XAMasterVolume = savegame.VolumeCD;
 #endif
 
-	S_MemSet(&savegame.Level, 0, sizeof(struct STATS));
-	S_MemSet(&savegame.Game, 0, sizeof(struct STATS));
+	S_MemSet((char*)&savegame.Level, 0, sizeof(struct STATS));
+	S_MemSet((char*)&savegame.Game, 0, sizeof(struct STATS));
 
 	S_LoadLevelFile(Name);
 	
@@ -661,11 +661,13 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 			if (bDoCredits)
 			{
+#if !PSXPC_VERSION
 				if (!((INTFUNCVOID*)RelocPtr[MOD_TITSEQ][1])())
 				{
 					bDoCredits = 0;
 					SetFadeClip(0, 2);
 				}
+#endif
 				//loc_10800
 				if (bDoCredits)
 					goto loc_10890;
