@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF GetJointAbsPosition, IsRoomOutside
-	XREF GetCeiling, GetHeight, room, OutsideRoomOffsets, GetFloor, bones, Matrix, GetFrames, mPushUnitMatrix, mSetTrans, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, mPopMatrix, mPushMatrix, mRotY, mCopyMatrix, iTranslateXYZ, InterpolateMatrix, iRotZ, mRotZ, iRotX, mRotX, iRotY, mRotY, InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, objects, iMatrixStack
+	XREF IsRoomOutsideNo, OutsideRoomTable, GetCeiling, GetHeight, room, OutsideRoomOffsets, GetFloor, bones, Matrix, GetFrames, mPushUnitMatrix, mSetTrans, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, mPopMatrix, mPushMatrix, mRotY, mCopyMatrix, iTranslateXYZ, InterpolateMatrix, iRotZ, mRotZ, iRotX, mRotX, iRotY, mRotY, InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, objects, iMatrixStack
 	
 IsRoomOutside:
 	addiu   sp, -0x38

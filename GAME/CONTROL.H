@@ -168,10 +168,12 @@ extern struct CHARDEF CharDef[106];
 extern struct ROPE_STRUCT Ropes[12];
 
 extern long ControlPhase(long nframes, int demo_mode);
+#if PC_VERSION ///@FIXME remove, this needs to go in specific
 extern long GetRandomControl();
 extern void SeedRandomControl(long seed);
 extern long GetRandomDraw();
 extern void SeedRandomDraw(long seed);
+#endif
 extern void AddRoomFlipItems(struct room_info* r);
 extern void KillMoveItems();
 extern void KillMoveEffects();

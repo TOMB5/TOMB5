@@ -18,6 +18,11 @@
 #include "LARAFIRE.H"
 #include "CODEWAD.H"
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
+
 #define SLOPE_DIF 60
 
 static short LeftClimbTab[4] = // offset 0xA0638

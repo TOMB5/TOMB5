@@ -107,10 +107,11 @@ bss	group	bss
 	include SPEC_PSX/LOADSAVE.OBJ
 	include SPEC_PSX/CARDHDR.OBJ
 	include SPEC_PSX/REQUEST.OBJ
-	;include SPEC_PSX/GLOBALS.OBJ
+	include SPEC_PSX/GLOBALS.OBJ
 	include SPEC_PSX/DRAWPHAS.OBJ
 	include SPEC_PSX/SETUP.OBJ
 	include GAME/CODEWAD.OBJ
+	include SPEC_PSX/TITSEQ.OBJ
 
 	inclib	C:/psyq/lib/LIBAPI.LIB
 	inclib	C:/psyq/lib/LIBC.LIB

@@ -23,5 +23,8 @@ extern void GPU_SyncBothScreens();
 extern void GPU_FlipToBuffer(int buffer_index);
 extern void S_AnimateTextures(long nFrames);
 extern void PrintGauge(int x, int y, int length);
-
+extern long GetRandomControl();
+extern void SeedRandomControl(long seed);
+extern long GetRandomDraw();
+extern void SeedRandomDraw(long seed);
 #endif

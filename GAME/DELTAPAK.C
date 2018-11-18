@@ -47,6 +47,11 @@
 #include "EFFECTS.H"
 #include <stdio.h>
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
+
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
 {
