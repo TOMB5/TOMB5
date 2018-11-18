@@ -9,6 +9,7 @@ If you're able to code in C/C++ please feel free to contact me. I can assign you
 - MIPS R3000 Programmer/Interpreter - Translate TR5 PSX MIPS Disassembled output back to C.
 - x86 Programmer/Interpreter - Translate TR5 PC x86 asm back to C. 
 - SH4 Programmer/Interpreter - Translate TR5 Dreamcast SH4 asm back to C. 
+- PPC Programmer/Interpreter - Translate TR5 Mac PPC asm back to C. 
 - Platform Programmer (Mac) - (Maintain and ensure that PSXPC code compiles under Mac OSX).
 - Platform Programmer (Linux) - (Maintain and ensure that PSXPC code compiles under Linux).
 - Code Analyser (ASM - PSX) - Compare compiled code to the original to help detect any possible errors in exising code.
@@ -22,10 +23,10 @@ If you're able to code in C/C++ please feel free to contact me. I can assign you
 - SPEC_PC - Platform specific code for PC version.
 - SPEC_PSX - Platform specific code for PSX version.
 - SPEC_PSXPC - Platform specific code for PSX version that runs on PC for debugging purposes (all psx sdk calls stripped).
-- TOOLS - Game tools (may be removed in the future).
+- TOOLS - Game tools folder, contains various tools to work with the game files.
 - DISC - Contains PSX specific disc project generation files.
 
-## Base Versions
+## Base Version (PSX)
 - PSX NTSC v1.0 SLUS_013.11 MD5: (4EF523E708D7A7D6571F39C6E47784F9)
 
 ## Compiling

@@ -7,6 +7,7 @@
 #include "GAMEFLOW.H"
 #include "DELTAPAK.H"
 #include "PICTURE.H"
+#include "DIRECTX.H"
 
 UINT dbm_logout, dbm_clearlog, dbm_deftype, dbm_command;
 DWORD dbginput;
@@ -215,11 +216,16 @@ void DrawDebugPre()
 
 void DrawDebugPost()
 {
-	RECT dest{ 256, 256, 256, 256 };
-	RECT src{ 0, 0, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height };
+	DDBLTFX fx;
+	DXInit(fx);
+	//fx.dwFillColor = GENRGB(0, 0, (5 * GnFrameCounter) % 256);
+	fx.dwFillColor = (64 + abs((int)((2 * GnFrameCounter) % 192 - 96))) << (8 * (((GnFrameCounter / 6) % 27) / 9));
+	App.lpBackBuffer->Blt(nullptr, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &fx);
 
-	App.lpBackBuffer->Blt(&dest, DXTextureList[cur_tpage].surface, &src, DDBLT_WAIT, nullptr);
-	App.lpFrontBuffer->Blt(&dest, DXTextureList[cur_tpage].surface, &src, DDBLT_WAIT, nullptr);
+	RECT dest{ 256, 256, 512, 512 };
+	RECT src{ 0, 0, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height };
+	Log(LT_Info, "Debug draw %08x", DXTextureList[cur_tpage].surface);
+	DX_TRY(App.lpBackBuffer->Blt(&dest, DXTextureList[cur_tpage].surface, &src, DDBLT_WAIT, nullptr));
 }
 
 void ShowDebugInfo()// (F)

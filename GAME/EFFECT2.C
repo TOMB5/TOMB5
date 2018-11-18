@@ -14,6 +14,11 @@
 #include "SETUP.H"
 #endif
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
+
 long wibble;
 long SplashCount;
 long KillEverythingFlag;

@@ -1,10 +1,520 @@
-	;opt at-,w-,c+,m-
+	opt at+,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume, SPU_UpdateStatus
-	XREF LabSampleType, LabFreeChannel, LnFreeChannels, DepthTable, camera, char_anim, local_mRotY, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuGetAllKeysStatus, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey
+	XDEF SPU_AllocChannel, S_SoundPlaySampleLooped, SoundEffect, S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume, SPU_UpdateStatus
+	XREF sva, LnSamplesLoaded, LadwSampleAddr, SpuSetKeyOnWithAttr, CalcVolumes_ASM, CamRot, LaSlot, mSqrt, GetRandomDraw, sample_lut, room, camera, sound_active, LabSampleType, LabFreeChannel, LnFreeChannels, DepthTable, camera, char_anim, local_mRotY, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuGetAllKeysStatus, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey
 
+	
+SPU_AllocChannel:
+	lw      v0, LnFreeChannels-GP_ADDR(gp)
+	addiu   sp, -0x18
+	bnez    v0, loc_915DC
+	nop
+	sw      ra, 0x18-0x8(sp)
+	jal     SPU_UpdateStatus
+	nop
+	lw      ra, 0x18-0x8(sp)
+	beqz    v0, locret_915F4
+	li      v0, 0xFFFFFFFF
+	lw      v0, LnFreeChannels-GP_ADDR(gp)
+
+	loc_915DC:
+	la      v1, LabFreeChannel
+	addiu   v0, -1
+	sw      v0, LnFreeChannels-GP_ADDR(gp)
+	addu    v1, v0
+	lbu     v0, 0(v1)
+
+	locret_915F4:
+	jr      ra
+	addiu   sp, 0x18
+	
+S_SoundPlaySample:
+	lw      v0, GtSFXEnabled-GP_ADDR(gp)
+	move    t1, a0
+	beqz    v0, nosnd
+	move    t2, a2
+	lw      a0, 0x10(sp)
+	li      v0, 1
+	j       loc_914C8
+	sw      v0, 0x10(sp)
+
+	loc_914C8:
+	move    t3, ra
+	jal     CalcVolumes_ASM
+	nop
+	move    ra, t3
+	move    a0, t1
+	j       loc_91518
+	move    a3, t2
+	
+loc_91518:
+	sh      a1, 0x4EE0(gp)
+	sh      a2, 0x4EE2(gp)
+	srl     a3, 6
+	sh      a3, 0x4EEC(gp)
+	sll     v1, a0, 2
+	la		at, LadwSampleAddr
+	addu	at, at, v1
+	lw      v1, 0(at)
+	lw      v0, LnSamplesLoaded-GP_ADDR(gp)
+	addiu   sp, -0x18
+	slt     v0, a0, v0
+	sw      v1, 0x4EF4(gp)
+	sw      ra, 0x18-0x4(sp)
+	sw      s0, 0x18-0x8(sp)
+	beqz    v0, loc_915A0
+	li      v0, 0xFFFFFFFE
+	jal     SPU_AllocChannel
+	nop
+	move    s0, v0
+	bltz    s0, loc_915A0
+	li      v0, 0xFFFFFFFF
+	lw      v0, 0x18+0x10(sp)
+	la      a0, sva
+	la		at, LabSampleType
+	addu	at, at, s0
+	sb      v0, 0(at)
+	li      v0, 0x93
+	sw      v0, 4(a0)
+	li      v0, 1
+	sllv    v0, s0
+	jal     SpuSetKeyOnWithAttr
+	sw      v0, 0(a0)
+	move    v0, s0
+
+	loc_915A0:
+	lw      ra, 0x18-0x4(sp)
+	lw      s0, 0x18-0x8(sp)
+	jr      ra
+	addiu   sp, 0x18
+	
+S_SoundPlaySampleLooped:
+	lw      v0, GtSFXEnabled-GP_ADDR(gp)
+	move    t1, a0
+	beqz    v0, nosnd
+	move    t2, a2
+	lw      a0, 0x10(sp)
+	li      v0, 2
+	j       loc_914C8
+	sw      v0, 0x10(sp)
+
+	nosnd:
+	jr      ra
+	li      v0, 0xFFFFFFFD
+		
+SoundEffect:
+	lw      v0, sound_active-GP_ADDR(gp)
+	addiu   sp, -0x40
+	beqz    v0, locret_91CEC
+	andi    at, a2, 2
+	sw      s0, 0x40-0x28(sp)
+	sw      s1, 0x40-0x24(sp)
+	sw      s2, 0x40-0x20(sp)
+	sw      s3, 0x40-0x1C(sp)
+	sw      s4, 0x40-0x18(sp)
+	sw      s5, 0x40-0x14(sp)
+	sw      s6, 0x40-0x10(sp)
+	sw      s7, 0x40-0xC(sp)
+	sw      fp, 0x40-0x8(sp)
+	sw      ra, 0x40-0x4(sp)
+	move    s4, a2
+	bnez    at, loc_917F0
+	move    s7, a1
+	lh      v1, camera+0xC-GP_ADDR(gp)
+	lw      at, room-GP_ADDR(gp)
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 4
+	addu    v0, at
+	lhu     v0, 0x4E(v0)
+	andi    v1, s4, 1
+	andi    v0, 1
+	bne     v1, v0, loc_91CC4
+	move    v0, zero
+
+	loc_917F0:
+	lw      v0, sample_lut-GP_ADDR(gp)
+	sll     v1, a0, 1
+	addu    v1, v0
+	lh      fp, 0(v1)
+	li      v0, 0xFFFFFFFF
+	bne     fp, v0, loc_91818
+	li      v0, 0xFFFFFFFE
+	sh      v0, 0(v1)
+
+	loc_91810:
+	j       loc_91CC4
+	move    v0, zero
+
+	loc_91818:
+	beq     fp, v0, loc_91CC4
+	move    v0, zero
+	lw      s5, sample_infos-GP_ADDR(gp)
+	sll     v1, fp, 3
+	addu    s5, v1
+	lbu     t1, 4(s5)
+	lbu     t0, 3(s5)
+	beqz    t1, loc_91854
+	lhu     t2, 6(s5)
+	jal     GetRandomDraw
+	nop
+	andi    v0, 0xFF
+	slt     at, t1, v0
+	bnez    at, loc_91CC4
+	move    v0, zero
+
+	loc_91854:
+	sll     t0, 10
+	addiu   t0, 0x400
+	mult    t0, t0
+	mflo    a2
+	beqz    s7, loc_91950
+	li      s1, 0
+	lw      v1, 0(s7)
+	lw      v0, camera+0x0-GP_ADDR(gp)
+	lw      a1, 4(s7)
+	lw      a0, 8(s7)
+	subu    t8, v1, v0
+	lw      v1, camera+0x4-GP_ADDR(gp)
+	lw      v0, camera+0x8-GP_ADDR(gp)
+	subu    a1, v1
+	subu    t9, a0, v0
+	negu    v1, t0
+	slt     at, t8, v1
+	bnez    at, loc_91CC4
+	move    v0, zero
+	slt     at, t0, t8
+	bnez    at, loc_91CC4
+	slt     at, a1, v1
+	bnez    at, loc_91CC4
+	slt     at, t0, a1
+	bnez    at, loc_91CC4
+	slt     at, t9, v1
+	bnez    at, loc_91CC4
+	slt     at, t0, t9
+	bnez    at, loc_91CC4
+	nop
+	mtc2    t8, r9
+	mtc2    a1, r10
+	mtc2    t9, r11
+	nop
+	nop
+	cop2    0xA00428
+	mfc2    v0, r25
+	mfc2    v1, r26
+	mfc2    s3, r27
+	addu    v0, v1
+	addu    s3, v0
+	sltu    v0, a2, s3
+	bnez    v0, loc_91CC4
+	move    v0, zero
+	li      v0, 0xFFFFF
+	sltu    v0, v0, s3
+	bnez    v0, loc_9191C
+	nop
+	j       loc_91928
+	move    s3, zero
+
+	loc_9191C:
+	jal     mSqrt
+	move    a0, s3
+	addiu   s3, v0, -0x400
+
+	loc_91928:
+	andi    v0, t2, 0x1000
+	bnez    v0, loc_91954
+	move    a0, t9
+	jal     phd_atan_asm
+	move    a1, t8
+	lhu     v1, CamRot+0x2-GP_ADDR(gp)
+	nop
+	sll     v1, 4
+	j       loc_91954
+	addu    s1, v0, v1
+
+	loc_91950:
+	move    s3, zero
+
+	loc_91954:
+	lbu     v1, 2(s5)
+	andi    at, s4, 8
+	beqz    at, loc_91974
+	srl     at, s4, 8
+	andi    at, 0x1F
+	mult    at, v1
+	mflo    v1
+	srl     v1, 5
+
+	loc_91974:
+	andi    v0, t2, 0x4000
+	beqz    v0, loc_91994
+	sll     s2, v1, 6
+	jal     GetRandomDraw
+	nop
+	sll     v0, 12
+	sra     v0, 15
+	subu    s2, v0
+
+	loc_91994:
+	beqz    s3, loc_919D0
+	move    s6, s2
+	sll     v0, s3, 14
+	divu    v0, t0
+	mflo    v0
+	sra     v0, 2
+	andi    v0, 0x3FFC
+	la		at, rcossin_tbl
+	addu	at, at, v0
+	lh      v1, 0(at)
+	li      v0, 0x1000
+	subu    v0, v1
+	mult    v0, s2
+	mflo    s2
+	sra     s2, 12
+
+	loc_919D0:
+	blez    s2, loc_91810
+	li      v0, 0x7FFF
+	slt     v0, v0, s2
+	beqz    v0, loc_919E8
+	andi    v0, s4, 4
+	li      s2, 0x7FFF
+
+	loc_919E8:
+	bnez    v0, loc_919F4
+	srl     s4, 16
+	li      s4, 0x100
+
+	loc_919F4:
+	sll     s4, 8
+	lb      v0, 5(s5)
+	andi    v1, t2, 0x2000
+	sll     v0, 9
+	beqz    v1, loc_91A3C
+	addu    s4, v0
+	jal     GetRandomDraw
+	nop
+	addiu   a0, s4, -0x1770
+	sll     v1, v0, 1
+	addu    v1, v0
+	sll     v1, 4
+	subu    v1, v0
+	sll     v1, 3
+	subu    v1, v0
+	sll     v1, 4
+	sra     v1, 14
+	addu    s4, a0, v1
+
+	loc_91A3C:
+	lh      s0, 0(s5)
+	srl     t0, t2, 2
+	bltz    s0, loc_91CC4
+	move    v0, zero
+	andi    t0, 0xF
+	li      v0, 1
+	beq     t0, v0, loc_91A74
+	nop
+	jal     GetRandomDraw
+	nop
+	mult    v0, t0
+	mflo    v0
+	sra     v0, 15
+	addu    s0, v0
+
+	loc_91A74:
+	andi    v1, t2, 3
+	ctc2    s5, r8
+	ctc2    s0, r9
+	ctc2    v1, r10
+	li      s0, 0
+	la      s5, LaSlot
+	beqz    v1, loc_91BA0
+	addiu   v1, -1
+	beqz    v1, loc_91B2C
+	addiu   v1, -1
+	beqz    v1, loc_91B6C
+	nop
+
+	loc_91AA8:
+	lw      v0, 0x10(s5)
+	nop
+	bne     v0, fp, loc_91B14
+	nop
+	lw      v0, 4(s5)
+	nop
+	slt     v0, v0, s2
+	beqz    v0, loc_91CC4
+	nop
+
+	loc_91ACC:
+	sw      s6, 0(s5)
+	sw      s2, 4(s5)
+	sw      s1, 8(s5)
+	sw      s4, 0xC(s5)
+	sw      fp, 0x10(s5)
+	sw      s3, 0x14(s5)
+	li      v0, 0
+	li      v1, 0
+	beqz    s7, loc_91B00
+	li      a0, 0
+	lw      v0, 0(s7)
+	lw      v1, 4(s7)
+	lw      a0, 8(s7)
+
+	loc_91B00:
+	sw      v0, 0x18(s5)
+	sw      v1, 0x1C(s5)
+	sw      a0, 0x20(s5)
+	j       loc_91CC4
+	li      v0, 1
+
+	loc_91B14:
+	addiu   s0, 1
+	slti    v0, s0, 0x18
+	bnez    v0, loc_91AA8
+	addiu   s5, 0x24
+	j       loc_91BA0
+	nop
+
+	loc_91B2C:
+	lw      v0, 0x10(s5)
+	nop
+	bne     v0, fp, loc_91B54
+	nop
+	jal     S_SoundSampleIsPlaying
+	move    a0, s0
+	bnez    v0, loc_91CC4
+	move    v0, zero
+	li      at, 0xFFFFFFFF
+	sw      at, 0x10(s5)
+
+	loc_91B54:
+	addiu   s0, 1
+	slti    v0, s0, 0x18
+	bnez    v0, loc_91B2C
+	addiu   s5, 0x24
+	j       loc_91BA0
+	nop
+
+	loc_91B6C:
+	lw      v0, 0x10(s5)
+	nop
+	bne     v0, fp, loc_91B90
+	nop
+	jal     S_SoundStopSample
+	move    a0, s0
+	li      v0, 0xFFFFFFFF
+	j       loc_91BA0
+	sw      at, 0x10(s5)
+
+	loc_91B90:
+	addiu   s0, 1
+	slti    v0, s0, 0x18
+	bnez    v0, loc_91B6C
+	addiu   s5, 0x24
+
+	loc_91BA0:
+	cfc2    v0, r10
+	cfc2    a0, r9
+	andi    a1, s2, 0xFFFF
+	move    a2, s4
+	move    a3, s1
+	li      at, 3
+	bne     v0, at, loc_91BC8
+	sw      s3, 0x40-0x30(sp)
+	jal     S_SoundPlaySampleLooped
+	addiu   ra, 8
+
+	loc_91BC8:
+	jal     S_SoundPlaySample
+	nop
+	bltz    v0, loc_91BF0
+	sll     v1, v0, 3
+	addu    v1, v0
+	sll     v1, 2
+	la      s5, LaSlot
+	j       loc_91ACC
+	addu    s5, v1
+
+	loc_91BF0:
+	li      at, 0xFFFFFFFF
+	beq     v0, at, loc_91C08
+	move    v0, zero
+	cfc2    v1, r8
+	j       loc_91CC4
+	sw      at, 0(v1)
+
+	loc_91C08:
+	lui     a1, 0x800
+	li      a2, 0xFFFFFFFF
+	la      a3, LaSlot+0x24
+	li      t0, 1
+
+	loc_91C1C:
+	lw      v0, 0x10(a3)
+	lw      v1, 4(a3)
+	bltz    v0, loc_91C40
+	slt     v0, a1, v1
+	bnez    v0, loc_91C40
+	nop
+	move    a1, v1
+	move    a2, t0
+	move    s5, a3
+
+	loc_91C40:
+	addiu   t0, 1
+	slti    v0, t0, 0x18
+	bnez    v0, loc_91C1C
+	addiu   a3, 0x24
+	slt     v0, s2, a1
+	bnez    v0, loc_91CC4
+	move    v0, zero
+	jal     S_SoundStopSample
+	move    a0, a2
+	li      at, 0xFFFFFFFF
+	sw      at, 0x10(s5)
+	cfc2    v0, r10
+	cfc2    a0, r9
+	andi    a1, s2, 0xFFFF
+	move    a2, s4
+	move    a3, s1
+	li      at, 3
+	bne     v0, at, loc_91C94
+	sw      s3, 0x40-0x30(sp)
+	jal     S_SoundPlaySampleLooped
+	addiu   ra, 8
+
+	loc_91C94:
+	jal     S_SoundPlaySample
+	nop
+	move    a0, v0
+	bltz    a0, loc_91CC4
+	move    v0, zero
+	sll     v1, a0, 3
+	addu    v1, a0
+	sll     v1, 2
+	la      s5, LaSlot
+	j       loc_91ACC
+	addu    s5, v1
+
+	loc_91CC4:
+	lw      ra, 0x40-0x4(sp)
+	lw      fp, 0x40-0x8(sp)
+	lw      s7, 0x40-0xC(sp)
+	lw      s6, 0x40-0x10(sp)
+	lw      s5, 0x40-0x14(sp)
+	lw      s4, 0x40-0x18(sp)
+	lw      s3, 0x40-0x1C(sp)
+	lw      s2, 0x40-0x20(sp)
+	lw      s1, 0x40-0x24(sp)
+	lw      s0, 0x40-0x28(sp)
+
+	locret_91CEC:
+	jr      ra
+	addiu   sp, 0x40
+	
 SPU_UpdateStatus:
 	addiu   sp, -0x2C
 	sw      ra, 0x2C-0x4(sp)
@@ -113,7 +623,7 @@ GetPanVolume:
 	sra     v0, 2
 	andi    v0, 0x3FFC
 	la		at, rcossin_tbl
-	addu	at, at, v0
+	addu	at, v0
 	lh      v1, 0(at)
 	li      v0, 0x1000
 	subu    v0, v1
@@ -155,7 +665,9 @@ S_SoundSampleIsPlaying:
 	sw      ra, 0x18-0x4(sp)
 	jal     SpuGetKeyStatus
 	sllv    a0, s0
-	lbu     a1, LabSampleType(s0)
+	la		at, LabSampleType
+	addu	at, s0
+	lbu     a1, 0(at)
 	addiu   v0, -1
 	andi    v0, 0xFF
 	sltiu   v0, v0, 2
@@ -181,7 +693,9 @@ S_SoundStopSample:
 	addiu   sp, -0x18
 	sw      ra, 0x18-0x8(sp)
 	sw      a0, 0x18-0x4(sp)
-	lbu     v0, LabSampleType(a0)
+	la		at, LabSampleType
+	addu	at, a0
+	lbu     v0, 0(a0)
 	move    a2, a0
 	beqz    v0, loc_916CC
 	nop
@@ -264,7 +778,9 @@ S_SetReverbType:
 	beq     a0, v0, loc_91D2C
 	sll     a1, a0, 1
 	sh      a0, CurrentReverb-GP_ADDR(gp)
-	lh      a1, DepthTable(a1)
+	la		at, DepthTable
+	addu	at, a1
+	lh      a1, 0(at)
 	jal     SpuSetReverbModeDepth
 	move    a0, a1
 	jal     SpuSetReverb
@@ -294,8 +810,12 @@ SPU_StopAll:
 	
 SPU_FreeChannel:
 	lw      v1, LnFreeChannels-GP_ADDR(gp)
-	sb      zero, LabSampleType(a0)
+	la		at, LabSampleType
+	addu	at, a0
+	sb      zero, 0(a0)
 	addiu   v0, v1, 1
-	sb      a0, LabFreeChannel(v1)
+	la		at, LabFreeChannel
+	addu	at, v1
+	sb      a0, 0(at)
 	jr      ra
 	sw      v0, LnFreeChannels-GP_ADDR(gp)

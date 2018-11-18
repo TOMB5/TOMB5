@@ -6,8 +6,6 @@
 #include "SPECIFIC.H"
 #include "TYPES.H"
 
-#include <assert.h>
-
 long phd_left;
 long phd_right;
 long phd_top;

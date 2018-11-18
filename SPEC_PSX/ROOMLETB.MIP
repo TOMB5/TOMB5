@@ -1,12 +1,14 @@
-	opt L.,C+,at+
+	opt at-,w-,c+,m-
 
-	section	.ASM
-	xdef UnpackRGB, DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, Add2DPrim, CreateNewVertex, ClipToScreen, SubdivSetup3
-	xref number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo
+	SECTION	ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF UnpackRGB, DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, Add2DPrim, CreateNewVertex, ClipToScreen, SubdivSetup3
+	XREF MatrixStack, number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo
 	
 ;FIXME
-LOffset equ 0
-YOffset equ 0
+LOffset incbin SPEC_PSX//LOFFSET.TBL
+LTab incbin SPEC_PSX//LTAB.TBL
+YOffset equ 0 ;FIXME not sure how to extract
 QuadVertTables equ 0
 TriVertTables equ 0
 	
@@ -645,24 +647,23 @@ ClipXY:
 	jr      ra
 	li      t5, 1
 
-;needs loffset
 DrawMesh:
 	addi    sp, -0x38
-	sw      s0, 0x38+0x38(sp)
-	sw      s1, 0x38+0x34(sp)
-	sw      s2, 0x38+0x30(sp)
-	sw      s3, 0x38+0x2C(sp)
-	sw      s4, 0x38+0x28(sp)
-	sw      s5, 0x38+0x24(sp)
-	sw      s6, 0x38+0x20(sp)
-	sw      s7, 0x38+0x1C(sp)
-	sw      ra, 0x38+0x18(sp)
-	sw      fp, 0x38+0x14(sp)
-	sw      gp, 0x38+0x10(sp)
+	sw      s0, 0x38-0x38(sp)
+	sw      s1, 0x38-0x34(sp)
+	sw      s2, 0x38-0x30(sp)
+	sw      s3, 0x38-0x2C(sp)
+	sw      s4, 0x38-0x28(sp)
+	sw      s5, 0x38-0x24(sp)
+	sw      s6, 0x38-0x20(sp)
+	sw      s7, 0x38-0x1C(sp)
+	sw      ra, 0x38-0x18(sp)
+	sw      fp, 0x38-0x14(sp)
+	sw      gp, 0x38-0x10(sp)
 	lui     a2, 0x1F80
 	la      s0, LOffset
 	addi    s1, s0, 0x40
-	la		s5, OurSqrt
+	la      s5, OurSqrt ;addiu   s5, gp, OurSqrt-GP_ADDR
 	addi    fp, s0, 0x4240
 	lw      s2, 0x38+0x2C(sp)
 	lw      s3, 0x38+0x30(sp)
@@ -718,7 +719,7 @@ DrawMesh:
 
 	loc_75E8C:
 	beqz    t9, loc_75E98
-	sw      t6, 0x38+0x38(fp)
+	sw      t6, 0x38-0x38(fp)
 	add     t1, t6
 
 	loc_75E98:
@@ -859,7 +860,7 @@ DrawMesh:
 	addi    a2, 8
 	cfc2    a1, r18
 	cfc2    v0, r27
-	lw      a2, RoomTextInfo
+	lw      a2, RoomTextInfo-GP_ADDR(gp)
 	lw      a3, 8(a1)
 	lw      s0, 4(a1)
 	lui     s1, 0x1F80
@@ -1101,7 +1102,7 @@ DrawMesh:
 	sh      t5, 0x330(s1)
 	addi    t1, s1, 0x338
 	jal     SubPolyGT4
-	addiu   t0, ra, -0x199C;//really now?
+	addiu   t0, ra, -0x199C
 	cfc2    t0, r19
 	cfc2    at, r23
 	cfc2    t9, r27
@@ -1127,18 +1128,18 @@ DrawMesh:
 	j       loc_761EC
 	nop
 
-	loc_76420:;Unstack
-	lw      s0, 0x38+0x38(sp)
-	lw      s1, 0x38+0x34(sp)
-	lw      s2, 0x38+0x30(sp)
-	lw      s3, 0x38+0x2C(sp)
-	lw      s4, 0x38+0x28(sp)
-	lw      s5, 0x38+0x24(sp)
-	lw      s6, 0x38+0x20(sp)
-	lw      ra, 0x38+0x18(sp)
-	lw      s7, 0x38+0x1C(sp)
-	lw      fp, 0x38+0x14(sp)
-	lw      gp, 0x38+0x10(sp)
+	loc_76420:
+	lw      s0, 0x38-0x38(sp)
+	lw      s1, 0x38-0x34(sp)
+	lw      s2, 0x38-0x30(sp)
+	lw      s3, 0x38-0x2C(sp)
+	lw      s4, 0x38-0x28(sp)
+	lw      s5, 0x38-0x24(sp)
+	lw      s6, 0x38-0x20(sp)
+	lw      ra, 0x38-0x18(sp)
+	lw      s7, 0x38-0x1C(sp)
+	lw      fp, 0x38-0x14(sp)
+	lw      gp, 0x38-0x10(sp)
 	jr      ra
 	addi    sp, 0x38
 		
@@ -1157,10 +1158,10 @@ DrawRoomletListAsmBinocular:
 	sw      gp, 0x38-0x10(sp)
 	ctc2    a0, r21
 	mtc2    a1, r20
-	lw      s0, number_draw_rooms
-	lw      s3, RoomBBoxes
+	lw      s0, number_draw_rooms-GP_ADDR(gp)
+	lw      s3, RoomBBoxes-GP_ADDR(gp)
 	la   	s4, draw_rooms
-	lw      t2, wibble
+	lw      t2, wibble-GP_ADDR(gp)
 	la      s2, tsv_buffer
 	andi    t2, 0xFC
 	ctc2    t2, r20
@@ -1170,7 +1171,7 @@ DrawRoomletListAsmBinocular:
 	addi    s4, 2
 	sll     t0, 4
 	sll     at, t0, 2
-	lw      t1, room
+	lw      t1, room-GP_ADDR(gp)
 	add     t0, at
 	add     fp, t0, t1
 	lbu     t0, 0x38+0x2(fp)
@@ -1179,11 +1180,11 @@ DrawRoomletListAsmBinocular:
 	add     t1, t0
 	sw      fp, 0(s2)
 	sw      t1, 4(s2)
-	lw      s1, 0x38+0x38(fp)
-	lw      t0, 0x38+0x24(fp)
-	lw      t1, 0x38+0x20(fp)
+	lw      s1, 0x38-0x38(fp)
+	lw      t0, 0x38-0x24(fp)
+	lw      t1, 0x38-0x20(fp)
 	mfc2    s5, r20
-	lw      t2, 0x38+0x1C(fp)
+	lw      t2, 0x38-0x1C(fp)
 	lw      t3, 0x14(s5)
 	lw      t4, 0x18(s5)
 	lw      t5, 0x1C(s5)
@@ -1202,9 +1203,9 @@ DrawRoomletListAsmBinocular:
 	bnez    at, loc_74DF8
 	slti    at, t8, 0x7C00
 	beqz    at, loc_74DF8
-	lw      t7, 0x38+0x18(fp)
-	lh      t6, 0x38+0x10(fp)
-	lh      t8, 0x38+0x10+2(fp)
+	lw      t7, 0x38-0x18(fp)
+	lh      t6, 0x38-0x10(fp)
+	lh      t8, 0x38-0x10+2(fp)
 	addi    t6, -2
 	addi    t8, -2
 	sll     t6, 10
@@ -1267,9 +1268,9 @@ DrawRoomletListAsmBinocular:
 	sw      t6, 0x14(s2)
 	sw      t7, 0x18(s2)
 	sw      t8, 0x1C(s2)
-	lw      t3, 0x46D8(gp)
-	lw      t4, 0x46DC(gp)
-	lw      t5, 0x46E0(gp)
+;	lw      t3, MatrixStack+0x14-GP_ADDR(gp)
+;	lw      t4, MatrixStack+0x18-GP_ADDR(gp)
+;	lw      t5, MatrixStack+0x1C-GP_ADDR(gp)
 	sub     t0, t3
 	sub     t1, t4
 	sub     t2, t5
@@ -1497,7 +1498,7 @@ DrawRoomletListAsmBinocular:
 	sw      zero, 0(s2)
 	la      s2, tsv_buffer
 
-	loc_75124:
+	RoomLoop:
 	lw      a1, 0(s2)
 	lwc2    r20, 4(s2)
 	beqz    a1, loc_76420
@@ -1511,8 +1512,8 @@ DrawRoomletListAsmBinocular:
 	lw      t0, 0x14(a1)
 	lw      t1, 0x18(a1)
 	lw      t2, 0x1C(a1)
-	sw      t0, 0x38+0xC(sp)
-	sw      t1, 0x38+0x8(sp)
+	sw      t0, 0x38-0xC(sp)
+	sw      t1, 0x38-0x8(sp)
 	sw      t2, 0x34(sp)
 	lw      t0, 0x38(a1)
 	lw      t2, 0x3C(a1)
@@ -1538,7 +1539,7 @@ DrawRoomletListAsmBinocular:
 	loc_751B4:
 	lw      a0, 0(s2)
 	addi    s2, 4
-	beqz    a0, loc_75124
+	beqz    a0, RoomLoop
 	lw      t5, 0(a0)
 	move    t6, zero
 	sll     t0, t5, 3
@@ -1555,8 +1556,8 @@ DrawRoomletListAsmBinocular:
 	andi    t0, 0xFFFF
 	srl     t4, t3, 16
 	andi    t3, 0xFFFF
-	lw      t7, 0x38+0xC(sp)
-	lw      t8, 0x38+0x8(sp)
+	lw      t7, 0x38-0xC(sp)
+	lw      t8, 0x38-0x8(sp)
 	lw      t9, 0x34(sp)
 	add     t0, t7
 	add     t1, t8
@@ -1726,7 +1727,7 @@ DrawRoomletListAsmBinocular:
 	addi    t8, 0x18
 
 	loc_75448:
-	addiu   s1, gp, 0x25B8
+	la   s1, dynamics;originally addiu
 	lui     a1, 0x1F80
 	addi    a1, 0x300
 	li      v1, 0xF
@@ -1769,37 +1770,6 @@ DrawRoomletListAsmBinocular:
 	la   	a1, db
 	j       loc_751B4
 	sw      a3, 8(a1)
-	lui     s2, 0xF8
-	srl     t5, s4, 7
-	and     t5, s2
-	srl     t6, s4, 10
-	andi    t6, 0xF800
-	srl     fp, s4, 13
-	andi    fp, 0xF8
-	or      fp, t5
-	or      fp, t6
-	srl     t5, t8, 24
-	ori     t5, 0x40
-	sll     t5, 24
-	or      fp, t5
-	srl     t5, s5, 7
-	and     t5, s2
-	srl     t6, s5, 10
-	andi    t6, 0xF800
-	srl     gp, s5, 13
-	andi    gp, 0xF8
-	or      gp, t5
-	or      gp, t6
-	srl     t5, s6, 7
-	and     t5, s2
-	srl     t6, s6, 10
-	andi    t6, 0xF800
-	srl     s3, s6, 13
-	andi    s3, 0xF8
-	or      s3, t5
-	jr      ra
-	or      s3, t6
-
 
 ;74B28
 GetBounds:

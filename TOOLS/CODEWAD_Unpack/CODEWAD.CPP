@@ -35,12 +35,12 @@ void CODEWAD_Unpack(const char* fileName)
 		strcat(&nameBin[0], ".BIN"); 
 		strcat(&nameRel[0], ".REL"); 
 
-		printf("Name: %s, Name: %s\n", &nameBin[0], &nameRel[0]);
+		printf("Name: %s, Name: %s Index: %i\n", &nameBin[0], &nameRel[0], entry[i].moduleIndex);
 
 		CODEWAD_DumpOverlay(&nameBin[0], &reader, &entry[i].binData[0]);
 		CODEWAD_DumpOverlay(&nameRel[0], &reader, &entry[i].relData[0]);
 
-		printf("Offset: %i, Size: %i\n", entry[i].binData[0], entry[i].binData[1]);
+		printf("Offset: %i, Size: %i Index: %i\n", entry[i].binData[0], entry[i].binData[1], entry[i].moduleIndex);
 	}
 
 	reader.close();

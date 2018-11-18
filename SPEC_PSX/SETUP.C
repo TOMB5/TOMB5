@@ -44,7 +44,9 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#if !DISC_VERSION
 #include <LIBSN.H>
+#endif
 #include <LIBSPU.H>
 #include <LIBGTE.H>
 

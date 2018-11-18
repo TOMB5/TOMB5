@@ -1,8 +1,9 @@
 	opt L.,C+,at+
 
-	section	.ASM
-	xdef S_CalculateLight
-	xref room, number_dynamics, dynamics, CamGTE, LightPos, mSqrt, mNormaliseXYZ
+	SECTION	ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF S_CalculateLight, S_CalculateStaticMeshLight, CalculateObjectLighting
+	XREF room, number_dynamics, dynamics, CamGTE, LightPos, mSqrt, mNormaliseXYZ
 ;TODO, GP
 S_CalculateLight:
 	addi    sp, -0x2C
@@ -37,7 +38,7 @@ S_CalculateLight:
 	move    t7, a0
 	move    t8, a1
 	move    t9, a2
-	lw      t0, room
+	lw      t0, room-GP_ADDR(gp)
 	move    s0, gp
 	sll     a3, 4
 	sll     at, a3, 2
@@ -597,3 +598,171 @@ S_CalculateLight:
 	lw      fp, 0x2C-0x4(sp)
 	jr      ra
 	addi    sp, 0x2C
+	
+S_CalculateStaticMeshLight:
+	lw      t1, number_dynamics-GP_ADDR(gp)
+	move    t5, zero
+	move    t4, zero
+	blez    t1, loc_8681C
+	move    t3, zero
+	move    t7, a0
+	move    t6, a1
+	move    t0, a2
+	la      t2, dynamics
+
+	loc_866C4:
+	lw      a0, 0(t2)
+	lw      a1, 4(t2)
+	lw      a2, 8(t2)
+	subu    a0, t7, a0
+	mtc2    a0, r9
+	bgez    a0, loc_866E4
+	move    v0, a0
+	negu    v0, v0
+
+	loc_866E4:
+	slti    v0, v0, 0x2001
+	beqz    v0, loc_86810
+	subu    a1, t6, a1
+	mtc2    a1, r10
+	bgez    a1, loc_86700
+	move    v0, a1
+	negu    v0, v0
+
+	loc_86700:
+	slti    v0, v0, 0x2001
+	beqz    v0, loc_86810
+	subu    a2, t0, a2
+	mtc2    a2, r11
+	bgez    a2, loc_8671C
+	move    v0, a2
+	negu    v0, v0
+
+	loc_8671C:
+	slti    v0, v0, 0x2001
+	beqz    v0, loc_86810
+	nop
+	cop2    0xA00428
+	mfc2    a0, r25
+	mfc2    a1, r26
+	mfc2    a2, r27
+	add     a0, a1
+	add     a0, a2
+	mtc2    a0, r30
+	beqz    a0, loc_8679C
+	li      v0, 0x1F
+	mfc2    v1, r31
+	li      at, 0xFFFFFFFE
+	and     v1, at
+	sub     v0, v1
+	sra     v0, 1
+	addi    at, v1, -0x18
+	bltz    at, loc_86774
+	lui     a1, 0xA
+	j       loc_86780
+	sllv    a0, at
+
+	loc_86774:
+	li      at, 0x18
+	sub     at, v1
+	srav    a0, at
+
+	loc_86780:
+	ori     a1, 0x1AA4
+	addi    a0, -0x40
+	sll     a0, 1
+	addu    a0, a1
+	lh      a0, 0(a0)
+	nop
+	sllv    a0, v0
+
+	loc_8679C:
+	srl     v0, a0, 12
+	lhu     v1, 0x10(t2)
+	move    a0, v0
+	srl     v1, 1
+	slt     v0, v1, a0
+	bnez    v0, loc_86810
+	sll     v0, a0, 13
+	subu    v0, a0
+	div     v0, v1
+	mflo    v0
+	li      v1, 0x1FFF
+	lbu     a0, 0xD(t2)
+	subu    v1, v0
+	mult    a0, v1
+	mflo    at
+	lbu     v0, 0xE(t2)
+	nop
+	mult    v0, v1
+	mflo    a0
+	lbu     v0, 0xF(t2)
+	nop
+	mult    v0, v1
+	sra     v0, at, 13
+	addu    t3, v0
+	sra     v0, a0, 13
+	addu    t4, v0
+	mflo    v1
+	sra     v0, v1, 13
+	addu    t5, v0
+
+	loc_86810:
+	addiu   t1, -1
+	bnez    t1, loc_866C4
+	addiu   t2, 0x18
+
+	loc_8681C:
+	addu    v0, t3, t4
+	addu    v0, t5
+	beqz    v0, loc_8688C
+	move    a0, a3
+	andi    v0, a3, 0x1F
+	sll     v0, 3
+	addu    t3, v0
+	andi    v1, a3, 0x3E0
+	sra     v1, 2
+	addu    t4, v1
+	andi    v1, a3, 0x7C00
+	sra     v1, 7
+	addu    t5, v1
+	slti    v0, t3, 0x100
+	bnez    v0, loc_86860
+	slti    v0, t4, 0x100
+	li      t3, 0xFF
+
+	loc_86860:
+	bnez    v0, loc_8686C
+	slti    v0, t5, 0x100
+	li      t4, 0xFF
+
+	loc_8686C:
+	bnez    v0, loc_86878
+	nop
+	li      t5, 0xFF
+
+	loc_86878:
+	sll     t4, 8
+	sll     t5, 16
+	or      a0, t3, t4
+	j       loc_868AC
+	or      a0, t5
+
+	loc_8688C:
+	andi    v1, a0, 0x3E0
+	andi    v0, a0, 0x7C00
+	andi    a0, 0x1F
+	sll     a0, 3
+	sll     v1, 6
+	sll     v0, 9
+	or      a0, v1
+	or      a0, v0
+
+	loc_868AC:
+	mtc2    a0, r6
+	jr      ra
+	nop
+	
+CalculateObjectLighting:
+	jr	ra
+	nop
