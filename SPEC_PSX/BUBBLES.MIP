@@ -1,9 +1,61 @@
 	opt at-,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
-	XREF lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
+	XDEF DrawMonoScreen, CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
+	XREF ClutStartY, lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
+
+	
+DrawMonoScreen:
+	lui     v0, 0x6400
+	or      t6, a0, v0
+	move    t4, zero
+	li      t2, 0x400040
+	lw      a2, db+0x4-GP_ADDR(gp)
+	lw      a0, db+0x8-GP_ADDR(gp)
+	lhu     t7, ClutStartY-GP_ADDR(gp)
+	lw      t5, 0x1F40(a2)
+	sll     t7, 6
+	ori     t7, 0x3C
+	li      a3, 0xE1000610
+	lui     t0, 0x600
+	move    t1, zero
+
+	loc_8F17C:
+	sll     t3, t4, 6
+
+	loc_8F180:
+	sll     a1, t1, 6
+	sll     v0, t3, 16
+	or      v0, a1
+	sw      zero, 8(a0)
+	sw      t6, 0xC(a0)
+	sw      v0, 0x10(a0)
+	sw      t2, 0x18(a0)
+	srl     v0, a1, 8
+	addiu   v0, 0xD
+	or      v0, a3
+	andi    a1, 0xFF
+	andi    at, t3, 0xFF
+	sll     at, 8
+	or      at, a1
+	or      t5, t0
+	sw      t5, 0(a0)
+	sw      v0, 4(a0)
+	sh      at, 0x14(a0)
+	sh      t7, 0x16(a0)
+	move    t5, a0
+	addiu   t1, 1
+	slti    v0, t1, 8
+	bnez    v0, loc_8F180
+	addiu   a0, 0x1C
+	addiu   t4, 1
+	slti    v0, t4, 4
+	bnez    v0, loc_8F17C
+	move    t1, zero
+	sw      t5, 0x1F40(a2)
+	jr      ra
+	sw      a0, db+0x8-GP_ADDR(gp)
 
 PrintAllOtherObjects_ASM:
 	move    fp, ra
@@ -118,7 +170,7 @@ PrintAllOtherObjects_ASM:
 	lw      a0, 0(s4)
 	lw      a1, 4(s4)
 	lw      a2, 8(s4)
-	la      v0, duff_item+0x54
+	la      v0, duff_item+0x54-GP_ADDR(gp)
 	sw      v0, 0x10(sp)
 	jal     S_CalculateLight
 	sb      zero, 0x2F(v0)

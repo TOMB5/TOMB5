@@ -168,10 +168,12 @@ extern struct CHARDEF CharDef[106];
 extern struct ROPE_STRUCT Ropes[12];
 
 extern long ControlPhase(long nframes, int demo_mode);
+#if PC_VERSION ///@FIXME remove, this needs to go in specific
 extern long GetRandomControl();
 extern void SeedRandomControl(long seed);
 extern long GetRandomDraw();
 extern void SeedRandomDraw(long seed);
+#endif
 extern void AddRoomFlipItems(struct room_info* r);
 extern void KillMoveItems();
 extern void KillMoveEffects();
@@ -203,7 +205,9 @@ extern struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number);
 extern short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z);
 extern int TriggerActive(struct ITEM_INFO* item);
 extern void AddRoomFlipItems(struct room_info* r);
+#if PC_VERSION || PSXPC_VERSION
 extern int IsRoomOutside(long x, long y, long z);
+#endif
 extern short GetDoor(struct FLOOR_INFO* floor);
 extern int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);

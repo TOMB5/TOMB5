@@ -1,12 +1,12 @@
 #include "GAME.H"
 #include "GLOBAL.H"
 #include "DISPLAY.H"
-#include "DIRECTX.H"
 #include "INIT.H"
 #include "GAMEFLOW.H"
 #include "SOUND.H"
 #include "DRAWPRIMITIVE.H"
 #include "FILE.H"
+#include "DIRECTX.H"
 
 object_info objects[NUMBER_OBJECTS];
 static_info static_objects[NUMBER_STATIC_OBJECTS];

@@ -1,9 +1,68 @@
 	opt at-,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF draw_rotate_sprite, S_AnimateTextures, S_LongMemCpy, DrawF4, DrawTPage, DrawLineH, DrawLineV, LOAD_VSyncHandler, GPU_ClearVRAM, GPU_BeginScene, GPU_FlipToBuffer, GPU_GetScreenPosition, GPU_SetScreenPosition, LOAD_DrawEnable, GPU_SyncBothScreens
-	XREF LtLoadingBarEnabled, _first_time_ever, DrawOTagEnv, GnLastFrameCount, db, rcossin_tbl, DelRotAng, ClearOTagR, DrawSync, VSync, MoveImage, PutDispEnv, PutDrawEnv, ClearImage, DrawSync, VSync, DrawOTagEnv
+	XDEF GetRandomControl, GetRandomDraw, SeedRandomControl, SeedRandomDraw, PrintGauge, S_MemSet, draw_rotate_sprite, S_AnimateTextures, S_LongMemCpy, DrawF4, DrawTPage, DrawLineH, DrawLineV, LOAD_VSyncHandler, GPU_ClearVRAM, GPU_BeginScene, GPU_FlipToBuffer, GPU_GetScreenPosition, GPU_SetScreenPosition, LOAD_DrawEnable, GPU_SyncBothScreens
+	XREF rand_1, rand_2, S_DrawGouraudBar, dashBarColourSet, LtLoadingBarEnabled, _first_time_ever, DrawOTagEnv, GnLastFrameCount, db, rcossin_tbl, DelRotAng, ClearOTagR, DrawSync, VSync, MoveImage, PutDispEnv, PutDrawEnv, ClearImage, DrawSync, VSync, DrawOTagEnv
+	
+PrintGauge:
+	li      at, 0x64
+	mult    a2, at
+	mflo    a3
+	la      v0, dashBarColourSet
+	li      at, 0xFF
+	div     a3, at
+	sw      v0, 0x10(sp)
+	andi    a0, 0xFFFF
+	andi    a1, 0xFFFF
+	mflo    a3
+	j       S_DrawGouraudBar
+	li      a2, 0x64
+
+S_MemSet:
+	beqz    a2, locret_5E95C
+	sll     t7, a1, 8
+	slti    at, a2, 4
+	bnez    at, loc_5E94C
+	or      a1, t7
+	sll     t7, a1, 16
+	or      a1, t7
+	andi    t7, a0, 3
+	beqz    t7, loc_5E928
+	li      t6, 4
+	subu    t7, t6, t7
+	subu    a2, t7
+
+	loc_5E918:
+	sb      a1, 0(a0)
+	addi    t7, -1
+	bnez    t7, loc_5E918
+	addi    a0, 1
+
+	loc_5E928:
+	sra     t7, a2, 2
+	beqz    t7, loc_5E944
+	andi    a2, 3
+
+	loc_5E934:
+	sw      a1, 0(a0)
+	addi    t7, -1
+	bnez    t7, loc_5E934
+	addi    a0, 4
+
+	loc_5E944:
+	beqz    a2, locret_5E95C
+	nop
+
+	loc_5E94C:
+	sb      a1, 0(a0)
+	addi    a2, -1
+	bnez    a2, loc_5E94C
+	addi    a0, 1
+
+	locret_5E95C:
+	jr      ra
+	nop
 	
 S_AnimateTextures:
 	jr ra
@@ -459,3 +518,34 @@ GPU_SyncBothScreens:
 	addiu   sp, 0x14
 	j       DrawSync
 	move    a0, zero
+	
+	
+GetRandomControl:
+	lw      v0, rand_1-GP_ADDR(gp)
+	li      at, 0x41C64E6D
+	mult    v0, at
+	mflo    at
+	addiu   v0, at, 0x3039
+	sw      v0, rand_1-GP_ADDR(gp)
+	sra     v0, 16
+	jr      ra
+	andi    v0, 0x7FFF
+	
+GetRandomDraw:
+	lw      v0, rand_2-GP_ADDR(gp)
+	li      at, 0x41C64E6D
+	mult    v0, at
+	mflo    at
+	addiu   v0, at, 0x3039
+	sw      v0, rand_2-GP_ADDR(gp)
+	sra     v0, 16
+	jr      ra
+	andi    v0, 0x7FFF
+	
+SeedRandomControl:
+	jr		ra
+	sw		a0, rand_1-GP_ADDR(gp)
+	
+SeedRandomDraw:
+	jr		ra
+	sw		a0, rand_2-GP_ADDR(gp)

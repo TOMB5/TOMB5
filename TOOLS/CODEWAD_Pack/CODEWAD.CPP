@@ -46,6 +46,8 @@ void CODEWAD_Pack(const char* fileName)
 			return;
 		}
 		
+		entry->moduleIndex = moduleIndices[i];
+
 		currentOffset = (currentOffset + (CD_SECTOR_SIZE - 1) & ~(CD_SECTOR_SIZE - 1));
 		entry->binData[0] = currentOffset;
 		entry->binData[1] = readerBin.m_length;

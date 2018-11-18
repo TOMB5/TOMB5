@@ -12,6 +12,10 @@
 #include "SOUND.H"
 #include "COLLIDE.H"
 
+#if PSX_VERSION || PSXPC_VERSION
+	#include "MISC.H"
+#endif
+
 short SPDETyoffs[8] =
 {
 	0x0400, 0x0200, 0x0200, 0x0200, 0x0000, 0x0200, 0x0200, 0x0200

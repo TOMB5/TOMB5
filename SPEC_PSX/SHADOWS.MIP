@@ -1,10 +1,159 @@
 	opt at-,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF OptimiseOTagR
-	;XREF
+	XDEF OptimiseOTagR, S_DrawGouraudBar, calcval, DelLine, DelBox
+	XREF db
+	
+calcval:
+	mult    at, t5
+	mflo    at
+	nop
+	nop
+	mult    v0, t3
+	mflo    v0
+	nop
+	addu    v0, at
+	div     v0, t6
+	jr      ra
+	mflo    at
+	
+DelLine:
+	lui     at, 0x5000
+	or      a2, at
+	sw      a2, 4(t8)
+	sw      a0, 8(t8)
+	sw      a3, 0xC(t8)
+	sw      a1, 0x10(t8)
+	lui     at, 0x400
+	or      t7, at
+	sw      t7, 0(t8)
+	move    t7, t8
+	jr      ra
+	addiu   t8, 0x14
+	
+DelBox:
+	lui     at, 0x300
+	or      t7, at
+	sw      t7, 0(t8)
+	sw      a2, 4(t8)
+	sw      a0, 8(t8)
+	sw      a1, 0xC(t8)
+	move    t7, t8
+	jr      ra
+	addiu   t8, 0x10
 
+S_DrawGouraudBar:
+	addiu   sp, -0x20
+	sw      s0, 0x20+0x10(sp)
+	sw      s1, 0x20+0xC(sp)
+	sw      ra, 0x20+0x8(sp)
+	lw      t9, db+0x4-GP_ADDR(gp)
+	lw      t8, db+0x8-GP_ADDR(gp)
+	lw      at, db+0x10-GP_ADDR(gp)
+	lw      t7, 0(t9)
+	sltu    at, t8, at
+	beqz    at, loc_87160
+	move    t6, a2
+	move    s0, a0
+	move    s1, a1
+	move    t3, a3
+	beqz    t3, loc_870AC
+	addiu   t3, -1
+	subu    t5, t6, t3
+	lw      t2, 0x20+0x10(sp)
+	li      t4, 5
+	andi    a0, s0, 0xFFFF
+	sll     at, s1, 16
+	addu    a1, a0, t3
+	or      a0, at
+	or      a1, at
+
+	loc_87038:
+	lbu     at, 0(t2)
+	lbu     v0, 0xF(t2)
+	jal     calcval
+	move    t0, at
+	move    a3, at
+	lbu     at, 5(t2)
+	lbu     v0, 0x14(t2)
+	jal     calcval
+	move    t1, at
+	move    a2, at
+	lbu     at, 0xA(t2)
+	lbu     v0, 0x19(t2)
+	jal     calcval
+	move    v1, at
+	sll     at, 16
+	or      a3, at, a3
+	sll     a2, 8
+	or      a3, a2
+	sll     t1, 8
+	or      a2, t1, t0
+	sll     v1, 16
+	jal     DelLine
+	or      a2, v1
+	addiu   t2, 1
+	lui     at, 1
+	addu    a0, at
+	addiu   t4, -1
+	bnez    t4, loc_87038
+	addu    a1, at
+
+	loc_870AC:
+	addiu   s0, -2
+	addiu   s1, -2
+	sll     t2, s1, 16
+	addu    t3, s0, t6
+	addiu   t3, 4
+	addiu   t4, s1, 8
+	sll     t4, 16
+	or      a0, s0, t2
+	or      a1, t3, t2
+	li      a2, 0x828250
+	lui     a3, 0xA0
+	jal     DelLine
+	li      a3, 0xA0A0A0
+	or      a0, t3, t4
+	jal     DelLine
+	or      a1, s0, t4
+	or      a1, t3, t2
+	jal     DelLine
+	or      a0, t3, t4
+	or      a1, s0, t4
+	jal     DelLine
+	or      a0, s0, t2
+	lui     at, 1
+	addu    t2, at
+	subu    t4, at
+	addiu   s0, -1
+	or      a0, s0, t2
+	or      a1, s0, t4
+	li      a2, 0x414128
+	lui     a3, 0x50
+	jal     DelLine
+	li      a3, 0x505050
+	addiu   t3, 1
+	or      a1, t3, t2
+	jal     DelLine
+	or      a0, t3, t4
+	addiu   s0, 2
+	or      a0, s0, t2
+	addiu   v0, t6, 3
+	lui     a1, 7
+	or      a1, v0, a1
+	jal     DelBox
+	lui     a2, 0x6000
+
+	loc_87160:
+	lw      ra, 0x20+0x8(sp)
+	lw      s1, 0x20+0xC(sp)
+	lw      s0, 0x20+0x10(sp)
+	addiu   sp, 0x20
+	sw      t7, 0(t9)
+	jr      ra
+	sw      t8, db+0x8-GP_ADDR(gp)
+	
 OptimiseOTagR:
 	slti    at, a1, 8
 	bnez    at, locret_86D14

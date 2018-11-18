@@ -23,6 +23,7 @@
 #include "TEXT.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
+#include "TYPEDEFS.H"
 
 #if PC_VERSION
 #include "GLOBAL.H"
@@ -45,6 +46,11 @@
 #include "SOUND.H"
 #include "EFFECTS.H"
 #include <stdio.h>
+
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
 
 
 struct CUTSEQ_ROUTINES cutseq_control_routines[45] =
@@ -2574,14 +2580,22 @@ void special2_init()//2E674(<), 2E980(<) (F)
 	special_num = 2;
 }
 
-void special1_end()//2E644(<), 2E950(<)
+void special1_end()//2E644(<), 2E950(<) (F) (*)
 {
+#if PSX_VERSION
+	((VOIDFUNCVOID*)RelocPtr[13][4])();
+#else
 	UNIMPLEMENTED();
+#endif
 }
 
-void special1_control()//2E614(<), 2E920(<)
+void special1_control()//2E614(<), 2E920(<) (F) (*)
 {
+#if PSX_VERSION
+	((VOIDFUNCVOID*)RelocPtr[13][3])();
+#else
 	UNIMPLEMENTED();
+#endif
 }
 
 void special1_init()//2E5E4(<), 2E8F0(<) (F)
