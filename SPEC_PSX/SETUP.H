@@ -35,14 +35,6 @@ extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned c
 extern long sub_BA0DC(unsigned char a0);
 extern long sub_BA148(unsigned char a0);
 
-struct object_container
-{
-	struct object_info m_objects[NUMBER_OBJECTS];
-	struct static_info m_static_objects[NUMBER_STATIC_OBJECTS];
-	char m_SkinVertNums[480];
-	char m_ScratchVertNums[480];
-};
-
 struct Level
 {
 	//0x0
@@ -145,9 +137,9 @@ struct Level
 };
 
 
-extern struct object_info* objects;
-extern struct static_info* static_objects;
-extern char* SkinVertNums;
-extern char* ScratchVertNums;
+extern struct object_info objects[NUMBER_OBJECTS];
+extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
+extern char SkinVertNums[480];
+extern char ScratchVertNums[480];
 
 #endif

@@ -50,12 +50,6 @@
 #include <LIBSPU.H>
 #include <LIBGTE.H>
 
-struct object_container objects_raw;
-struct object_info* objects = &objects_raw.m_objects[0];
-struct static_info* static_objects = &objects_raw.m_static_objects[0];
-extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
-extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
-
 /*
  * [FUNCTIONALITY] - RelocateLevel.
  * Relocates all game data pointers from the level file to be loaded back into the engine.
@@ -389,10 +383,10 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	number_spotcams = level->numSpotCameras;
 
 #if DISC_VERSION
-	DEL_CDFS_Read((char*) &objects_raw, sizeof(objects_raw));
+	DEL_CDFS_Read((char*) &objects, NUMBER_OBJECTS*sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
 #else
 	PClseek(nHandle, level->offsetObjects, 0);
-	FILE_Read((char*) &objects_raw, 1, sizeof(objects_raw), nHandle);
+	FILE_Read((char*) &objects_raw, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
 	PCclose(nHandle);
 #endif
 	
