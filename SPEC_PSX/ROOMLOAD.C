@@ -8,7 +8,10 @@
 #include "SETUP.H"
 
 #include <stdio.h>
-#include <LIBSN.H>
+
+#if !DISC_VERSION
+	#include <LIBSN.H>
+#endif
 
 long AnimFilePos;
 long AnimFileLen;
@@ -98,7 +101,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	#if RELOC
 		((VOIDFUNCINT*)SetupPtr[5])(PCopen(&buf[0], 0, 0));
 	#else
-		RelocateLevel(PCopen(buf, 0, 0))
+	RelocateLevel(PCopen(buf, 0, 0));
 	#endif
 #endif
 

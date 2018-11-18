@@ -36,7 +36,7 @@
 
 // (65536 / 360) ~ 182.0444...
 // Game used 182, so maybe our code will be more precise %)
-#define ANGLE(x) ((x) * 65536.0 / 360.0)
+#define ANGLE(x) (short)((x) * 65536.0 / 360.0)
 
 #define SIN(x) (rcossin_tbl[((int)(x) >> 3) & 0x1FFE])
 #define COS(x) (rcossin_tbl[(((int)(x) >> 3) & 0x1FFE) + 1])
@@ -102,7 +102,7 @@ inline int phd_atan(long x, long y)
 #define STEP_L     (WALL_L/4)
 
 //#define SECTOR 1024
-#define SECTOR(x) ((x) * WALL_L)
+#define SECTOR(x) (short)((x) * WALL_L)
 #define CLICK 256
 
 #define UNIT_SHADOW 256

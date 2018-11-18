@@ -1,0 +1,7 @@
+	opt L.,C+,at+
+
+	SECTION	ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	
+objects
+	dw 0

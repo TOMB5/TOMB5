@@ -25,6 +25,10 @@
 	#include <LIBMATH.H>
 #endif
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
 #include <stdio.h>
 
 int bUseSpotCam = 0;
