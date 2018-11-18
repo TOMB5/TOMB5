@@ -19,10 +19,10 @@ void S_MemSet(char* p, int value, int length)
 			value |= value << 8;
 			value |= value << 16;
 
-			if (((int)p) & 3)
+			if (((uintptr_t)p) & 3)
 			{
-				size = 4 - (((int)p) & 3);
-				length -= 4 - (((int)p) & 3);
+				size = 4 - (((uintptr_t)p) & 3);
+				length -= 4 - (((uintptr_t)p) & 3);
 
 				//loc_5E918
 				while (size--)
