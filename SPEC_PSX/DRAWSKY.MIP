@@ -1,6 +1,6 @@
 	opt at-,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF DrawBinoculars, DrawFlatSky_ASM, DrawSubdivChunk, SkyClipXY
 	XREF LaserSight, SniperOverlay, binoculars_mesh_ptr, db, target_mesh_ptr, psxtextinfo, psxspriteinfo

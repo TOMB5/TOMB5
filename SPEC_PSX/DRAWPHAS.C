@@ -11,7 +11,9 @@
 #include "DOOR.H"
 #include "DRAW.H"
 #include "DRAWOBJ.H"
+#include "DRAWSKY.H"
 #include "EFFECTS.H"
+#include "FOOTPRNT_S.H"
 #include "FXDRAW.H"
 #include "FXTRIG.H"
 #include "GAMEFLOW.H"
@@ -358,7 +360,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 				if (gfLevelFlags & GF_LVOP_LIGHTNING)
 				{
 					//Must convert a0 to CVector
-					//DrawFlatSky_ASM((LightningRGB[2] << 16) | (LightningRGB[1] << 8) | LightningRGB[0]) | 0x2C00, SkyPos, 0xFFFFFA00);
+					//DrawFlatSky_ASM(((LightningRGB[2] << 16) | (LightningRGB[1] << 8) | LightningRGB[0]) | 0x2C00), SkyPos, 0xFFFFFA00);
 				}
 				else
 				{

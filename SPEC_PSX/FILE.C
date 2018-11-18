@@ -3,9 +3,11 @@
 #include "CD.H"
 
 #include <sys/types.h>
-#include <libcd.h>
-#include <stdio.h>
-#include <libsn.h>
+#include <LIBCD.H>
+#include <STDIO.H>
+#if !DISC_VERSION
+#include <LIBSN.H>
+#endif
 
 int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F) (*) (*)
 {
@@ -93,11 +95,13 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F) (*) (*)
 #endif
 }
 
+#if !DISC_VERSION
 int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? (F) (*)
 {
 	int nAmount = nItems * nItemSize;
 	return PCread(nHandle, pDest, nAmount);
 }
+#endif
 
 void RelocateModule(unsigned long Module, unsigned long* RelocData)//5E6D4(<), 5F430(<) (F) (*)
 {

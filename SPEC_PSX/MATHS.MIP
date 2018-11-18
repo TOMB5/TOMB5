@@ -1,8 +1,9 @@
-	opt L.,C+,at+
+	OPT L.,C+,at+
 
-	section	.ASM
-	xdef mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mSqrt
-	xref phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
+	SECTION	ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mmPushMatrix, mmPopMatrix, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mSqrt, mClipBoundingBox
+	XREF phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
 
 ASM_GetBounds:
 	slt     at, t0, a2
@@ -317,6 +318,35 @@ mTranslateXYZ:
 	sw	t1, 0x18(v0)
 	jr	ra
 	sw	t2, 0x1C(v0)
+
+;0x81BBC
+mmPushMatrix:
+	lw      a0, 0x50(fp)
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t3, r3
+	cfc2    t4, r4
+	cfc2    t5, r5
+	cfc2    t6, r6
+	cfc2    t7, r7
+	addi    a0, 0x20
+	sw      t0, 0(a0)
+	sw      t1, 4(a0)
+	sw      t2, 8(a0)
+	sw      t3, 0xC(a0)
+	sw      t4, 0x10(a0)
+	sw      t5, 0x14(a0)
+	sw      t6, 0x18(a0)
+	sw      t7, 0x1C(a0)
+	jr      ra
+	sw      a0, 0x50(fp)
+	
+;0x81C0C
+mmPopMatrix:
+	lw      a0, 0x50(fp)
+	nop
+	addi    a0, -0x20
 
 ;0x7669C
 mRotX:
@@ -790,7 +820,116 @@ mSetTrans:
 
 ;0x76B14
 mClipBoundingBox:
-	jr	ra
+	cfc2    t0, r7
+	move    v0, zero
+	addi    t0, -0x5000
+	bgez    t0, locret_76CAC
+	lhu     t0, 0(a0)
+	lhu     t3, 2(a0)
+	lhu     t1, 4(a0)
+	lhu     t4, 6(a0)
+	lhu     t2, 8(a0)
+	lhu     t7, 0xA(a0)
+	sll     t1, 16
+	sll     t4, 16
+	or      at, t0, t1
+	mtc2    at, r0
+	mtc2    t2, r1
+	or      at, t3, t1
+	mtc2    at, r2
+	mtc2    t2, r3
+	or      at, t0, t4
+	mtc2    at, r4
+	mtc2    t2, r5
+	move    v1, ra
+	nop
+	nop
+	cop2    0x280030
+	or      t9, t3, t4
+	move    t8, t2
+	li      a0, 0x7FFFFFFF
+	lui     a1, 0x8100
+	move    a2, a0
+	mfc2    t0, r12
+	mfc2    t1, r13
+	mfc2    t2, r14
+	mfc2    t3, r17
+	mfc2    t4, r18
+	mfc2    t5, r19
+	mtc2    t7, r1
+	mtc2    t7, r3
+	mtc2    t7, r5
+	move    a3, a1
+	nop
+	nop
+	cop2    0x280030
+	addi    t3, -0x21
+	addi    t4, -0x21
+	addi    t5, -0x21
+	jal     ASM_GetBounds
+	move    v0, zero
+	mfc2    t0, r12
+	mfc2    t1, r13
+	mfc2    t2, r14
+	mfc2    t3, r17
+	mfc2    t4, r18
+	mfc2    t5, r19
+	mtc2    t9, r0
+	mtc2    t8, r1
+	mtc2    t9, r2
+	addi    t3, -0x21
+	nop
+	nop
+	cop2    0x280030
+	addi    t4, -0x21
+	jal     GetBounds
+	addi    t5, -0x21
+	mfc2    t0, r12
+	mfc2    t1, r13
+	mfc2    t3, r17
+	mfc2    t4, r18
+	addi    t3, -0x21
+	addi    t4, -0x21
+	move    t2, t1
+	jal     GetBounds
+	move    t5, t4
+	move    ra, v1
+	lw      t0, phd_right-GP_ADDR(gp)
+	lw      t1, phd_bottom-GP_ADDR(gp)
+	lw      t2, phd_left-GP_ADDR(gp)
+	lw      t3, phd_top-GP_ADDR(gp)
+	sra     a0, 16
+	sra     a1, 16
+	sra     a2, 16
+	sra     a3, 16
+	move    v1, v0
+	beqz    v1, locret_76CAC
+	move    v0, zero
+	slt     at, t0, a0
+	bnez    at, locret_76CAC
+	slt     at, t1, a2
+	bnez    at, locret_76CAC
+	slt     at, a1, t2
+	bnez    at, locret_76CAC
+	slt     at, a3, t3
+	bnez    at, locret_76CAC
+	nop
+	slti    at, v1, 9
+	bnez    at, locret_76CAC
+	li      v0, 0xFFFFFFFF
+	slt     at, a0, t2
+	bnez    at, locret_76CAC
+	slt     at, a2, t3
+	bnez    at, locret_76CAC
+	slt     at, t0, a1
+	bnez    at, locret_76CAC
+	slt     at, t1, a3
+	bnez    at, locret_76CAC
+	nop
+	li      v0, 1
+
+	locret_76CAC:
+	jr      ra
 	nop
 
 ;0x76CB4

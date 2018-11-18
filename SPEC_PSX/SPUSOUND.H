@@ -1,8 +1,6 @@
 #ifndef SPUSOUND_H
 #define SPUSOUND_H
 
-#include "SPECTYPES.H"
-
 #include <LIBSPU.H>
 
 #define MAX_NUM_SOUND_EFFECTS 256
@@ -15,7 +13,7 @@ extern SpuVoiceAttr sva;
 extern unsigned char LabSampleType[];
 extern unsigned char LabFreeChannel[];
 extern int LnFreeChannels;
-extern unsigned long LadwSampleAddr[256];
+extern unsigned long LadwSampleAddr[];
 
 extern void SPU_FreeSamples();
 extern void SPU_Init();

@@ -17,6 +17,11 @@
 #include "CONTROL.H"
 #include "EFFECT2.H"
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
+
 void FlareControl(short item_number)//4A418, 4A87C
 {
 	UNIMPLEMENTED();

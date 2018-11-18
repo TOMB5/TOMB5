@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define GAME_MALLOC_BUFFER_SIZE (1024*1024) + (1024*36)
+#define GAME_MALLOC_BUFFER_SIZE (1024*1060)
 
 char* malloc_ptr = NULL;
 int malloc_used = 0;
@@ -98,15 +98,4 @@ void game_free(int size)//5E85C(<), 5F590(<) (F) (*)
 void show_game_malloc_totals()//5E894(<), * (F) (*)
 {
 	printf("---->Total Memory Used %dK of %dK<----\n", ((malloc_used + 1023) / 1024) - 10, ((malloc_used + malloc_free) / 1024) - 10);
-}
-
-/*
- * [FUNCTIONALITY] - dump_game_malloc.
- * Dumps the entire malloc_buffer to a file named "DUMP.BIN"
- * This is typically used to inspect malloc_buffer memory and compare to PS1.
- */
-
-void dump_game_malloc()//*, *
-{
-	return;
 }

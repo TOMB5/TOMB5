@@ -1,9 +1,9 @@
 	opt at+,w-,c+,m-
 
-	section	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	xdef DrawCutSeqActors, updateAnimFrame, CalcVolumes_ASM
-	xref SoundFXVolume, rcossin_tbl, GLOBAL_cutme, meshes, cutrot, mPushMatrix, cutseq_meshbits, cutseq_meshswapbits, temp_rotation_buffer, mTranslateAbsXYZ, objects, bones, mTranslateXYZ, mRotSuperPackedYXZ, phd_PutPolygons_seethrough, phd_PutPolygons, cut_seethrough, mPopMatrix, phd_PutPolygons_seethrough, actor_pnodes, duff_item, mSetTrans, IsRoomOutside, mPushUnitMatrix, S_CalculateLight
+	XDEF DrawCutSeqActors, updateAnimFrame, CalcVolumes_ASM
+	XREF SoundFXVolume, rcossin_tbl, GLOBAL_cutme, meshes, cutrot, mPushMatrix, cutseq_meshbits, cutseq_meshswapbits, temp_rotation_buffer, mTranslateAbsXYZ, objects, bones, mTranslateXYZ, mRotSuperPackedYXZ, phd_PutPolygons_seethrough, phd_PutPolygons, cut_seethrough, mPopMatrix, phd_PutPolygons_seethrough, actor_pnodes, duff_item, mSetTrans, IsRoomOutside, mPushUnitMatrix, S_CalculateLight
 
 CalcVolumes_ASM:
 	la      v1, rcossin_tbl

@@ -1,9 +1,171 @@
 	opt at-,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF GetJointAbsPosition
-	XREF bones, Matrix, GetFrames, mPushUnitMatrix, mSetTrans, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, mPopMatrix, mPushMatrix, mRotY, mCopyMatrix, iTranslateXYZ, InterpolateMatrix, iRotZ, mRotZ, iRotX, mRotX, iRotY, mRotY, InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, objects, iMatrixStack
+	XDEF GetJointAbsPosition, IsRoomOutside
+	XREF IsRoomOutsideNo, OutsideRoomTable, GetCeiling, GetHeight, room, OutsideRoomOffsets, GetFloor, bones, Matrix, GetFrames, mPushUnitMatrix, mSetTrans, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, mPopMatrix, mPushMatrix, mRotY, mCopyMatrix, iTranslateXYZ, InterpolateMatrix, iRotZ, mRotZ, iRotX, mRotX, iRotY, mRotY, InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, objects, iMatrixStack
+	
+IsRoomOutside:
+	addiu   sp, -0x38
+	sw      s3, 0x38-0xC(sp)
+	move    s3, a0
+	sw      s2, 0x38-0x10(sp)
+	move    s2, a1
+	sw      s4, 0x38-0x8(sp)
+	move    s4, a2
+	sra     v1, s3, 12
+	sra     a0, s4, 12
+	sll     v0, v1, 3
+	subu    v0, v1
+	sll     v0, 2
+	subu    v0, v1
+	addu    v0, a0
+	lw      v1, OutsideRoomOffsets-GP_ADDR(gp)
+	sll     v0, 1
+	sw      ra, 0x38-0x4(sp)
+	sw      s1, 0x38-0x14(sp)
+	bgez    s3, loc_8EF54
+	sw      s0, 0x38-0x18(sp)
+	bltz    s4, loc_8F11C
+
+	loc_8EF54:
+	addu    v0, v1
+	lh      v1, 0(v0)
+	li      v0, 0xFFFFFFFF
+	beq     v1, v0, loc_8F11C
+	andi    t0, v1, 0x7FFF
+	bgez    v1, loc_8EFF4
+	sll     v0, t0, 2
+	addu    v0, t0
+	lw      v1, room-GP_ADDR(gp)
+	sll     v0, 4
+	addu    s1, v1, v0
+	lw      v0, 0x24(s1)
+	lw      v1, 0x20(s1)
+	slt     at, s2, v0
+	bnez    at, loc_8F11C
+	slt     at, v1, s2
+	bnez    at, loc_8F11C
+	lw      v1, 0x1C(s1)
+	lh      v0, 0x28(s1)
+	addiu   at, v1, 0x400
+	slt     at, s4, at
+	bnez    at, loc_8F11C
+	addiu   v0, -1
+	sll     v0, 10
+	addu    v0, v1, v0
+	slt     v0, v0, s4
+	bnez    v0, loc_8F11C
+	lw      v1, 0x14(s1)
+	lh      v0, 0x2A(s1)
+	addiu   at, v1, 0x400
+	slt     at, s3, at
+	bnez    at, loc_8F11C
+	addiu   v0, -1
+	sll     v0, 10
+	addu    v0, v1, v0
+	slt     v0, v0, s3
+	bnez    v0, loc_8F11C
+	nop
+	j       loc_8F07C
+	move    v0, t0
+
+	loc_8EFF4:
+	lw      v0, OutsideRoomTable-GP_ADDR(gp)
+	j       loc_8F108
+	addu    a0, v0, v1
+
+	loc_8F000:
+	addu    v0, t0
+	lw      v1, room-GP_ADDR(gp)
+	sll     v0, 4
+	addu    s1, v1, v0
+	lw      v0, 0x24(s1)
+	lw      v1, 0x20(s1)
+	slt     at, s2, v0
+	bnez    at, loc_8F104
+	slt     at, v1, s2
+	bnez    at, loc_8F104
+	lw      v1, 0x1C(s1)
+	lh      v0, 0x28(s1)
+	addiu   at, v1, 0x400
+	slt     at, s4, at
+	bnez    at, loc_8F104
+	addiu   v0, -1
+	sll     v0, 10
+	addu    v0, v1, v0
+	slt     v0, v0, s4
+	bnez    v0, loc_8F104
+	lw      v1, 0x14(s1)
+	lh      v0, 0x2A(s1)
+	addiu   at, v1, 0x400
+	slt     at, s3, at
+	bnez    at, loc_8F104
+	addiu   v0, -1
+	sll     v0, 10
+	addu    v0, v1, v0
+	slt     v0, v0, s3
+	bnez    v0, loc_8F104
+	andi    v0, t0, 0xFF
+
+	loc_8F07C:
+	move    a1, s2
+	move    a0, s3
+	move    a2, s4
+	addiu   a3, sp, 0x38-0x28
+	sh      v0, 0x38-0x28(sp)
+	jal     GetFloor
+	sh      v0, IsRoomOutsideNo-GP_ADDR(gp)
+	move    s0, v0
+	move    a0, s0
+	move    a1, s3
+	move    a2, s2
+	jal     GetHeight
+	move    a3, s4
+	move    v1, v0
+	li      v0, 0xFFFF8100
+	beq     v1, v0, loc_8F11C
+	slt     v0, v1, s2
+	bnez    v0, loc_8F120
+	li      v0, 0xFFFFFFFE
+	move    a0, s0
+	move    a1, s3
+	move    a2, s2
+	jal     GetCeiling
+	move    a3, s4
+	slt     v0, s2, v0
+	bnez    v0, loc_8F11C
+	nop
+	lhu     v1, 0x4E(s1)
+	nop
+	andi    v1, 0x21
+	bnez    v1, loc_8F120
+	li      v0, 1
+	j       loc_8F120
+	li      v0, 0xFFFFFFFD
+
+	loc_8F104:
+	addiu   a0, 1
+
+	loc_8F108:
+	lbu     t0, 0(a0)
+	li      v0, 0xFF
+	andi    v1, t0, 0xFF
+	bne     v1, v0, loc_8F000
+	sll     v0, t0, 2
+
+	loc_8F11C:
+	li      v0, 0xFFFFFFFE
+
+	loc_8F120:
+	lw      ra, 0x38-0x4(sp)
+	lw      s4, 0x38-0x8(sp)
+	lw      s3, 0x38-0xC(sp)
+	lw      s2, 0x38-0x10(sp)
+	lw      s1, 0x38-0x14(sp)
+	lw      s0, 0x38-0x18(sp)
+	jr      ra
+	addiu   sp, 0x38
 	
 GetJointAbsPosition:
 	addiu   sp, -0x50

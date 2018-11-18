@@ -3,6 +3,7 @@
 
 #include "TYPES.H"
 
+extern void UpdatePulseColour();
 extern long GetStringLength(char* string, unsigned short* a1, unsigned short* a2);
 extern void GetStringDimensions(char* string, unsigned short* w, unsigned short* h);
 extern void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CHARDEF* a3);

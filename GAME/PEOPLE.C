@@ -9,6 +9,11 @@
 #include "OBJECTS.H"
 #include "TOMB4FX.H"
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
+
 int ShotLara(struct ITEM_INFO* item, struct AI_info* info, struct BITE_INFO* gun, short extra_rotation, int damage)//50C74, 510D8
 {
 	UNIMPLEMENTED();

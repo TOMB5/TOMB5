@@ -1,13 +1,41 @@
 	opt at-,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF PrintString, DrawChar, GetStringLength, GetStringDimensions
-	XREF FontShades, phd_mxptr, MatrixStack, Matrix, MatrixSP, AccentTable, LaSlot, CharDef, sound_active, sample_infos, sample_lut, ScaleFlag, GnFrameCounter, db, S_SoundStopSample, db.ot
+	XDEF UpdatePulseColour, PrintString, DrawChar, GetStringLength, GetStringDimensions
+	XREF PulseCnt, FontShades, phd_mxptr, MatrixStack, Matrix, MatrixSP, AccentTable, LaSlot, CharDef, sound_active, sample_infos, sample_lut, ScaleFlag, GnFrameCounter, db, S_SoundStopSample, db.ot
 
 aUEAAAAEEEAAEOO equ 0
 loc_92020 equ 0
 word_9230E equ 0
+
+UpdatePulseColour:
+	lbu     a0, PulseCnt-GP_ADDR(gp)
+	la      v1, FontShades
+	addiu   a0, 1
+	andi    a0, 0x1F
+	sltiu   at, a0, 0x10
+	bnez    at, loc_8E11C
+	sb      a0, PulseCnt-GP_ADDR(gp)
+	negu    a0, a0
+
+	loc_8E11C:
+	sll     a0, 3
+	andi    a0, 0xFF
+	sll     at, a0, 8
+	or      v0, a0, at
+	sll     at, a0, 16
+	or      v0, at
+	li      a1, 0xF
+
+	loc_8E138:
+	sw      v0, 0x40(v1)
+	sw      a2, 0x240(v1)
+	addiu   a1, -1
+	bgez    a1, loc_8E138
+	addiu   v1, 4
+	jr      ra
+	nop
 
 PrintString:
 	addiu   sp, -0x40

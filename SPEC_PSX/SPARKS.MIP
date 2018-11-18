@@ -1,8 +1,523 @@
 	opt at+,w-,c+,m-
 
-	section	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF S_DrawSparks
+	XDEF S_DrawSparks, local_GetRandomDraw
+	XREF mPushMatrix, rand_2, mTranslateAbsXYZ, items, lara_item, effects, mPopMatrix, db, psxspriteinfo, phd_persp, spark, NodeVectors, NodeOffsets, GetLaraJointPos, GetJointAbsPosition, rcossin_tbl
+	
+local_GetRandomDraw:
+	lw      v0, rand_2-GP_ADDR(gp)
+	li      at, 0x41C64E6D
+	mult    v0, at
+	mflo    at
+	addiu   v0, at, 0x3039
+	sw      v0, rand_2-GP_ADDR(gp)
+	sra     v0, 16
+	jr      ra
+	andi    v0, 0x7FFF
 	
 S_DrawSparks:
+	addiu   sp, -0x48
+	sw      s0, 0x48-0x28(sp)
+	sw      s1, 0x48-0x24(sp)
+	sw      s2, 0x48-0x20(sp)
+	sw      s3, 0x48-0x1C(sp)
+	sw      s4, 0x48-0x18(sp)
+	sw      s5, 0x48-0x14(sp)
+	sw      s6, 0x48-0x10(sp)
+	sw      s7, 0x48-0xC(sp)
+	sw      fp, 0x48-0x8(sp)
+	sw      ra, 0x48-0x4(sp)
+	la      v0, NodeOffsets+0x7F
+	li      v1, 0xF
+
+	loc_8FFC4:
+	sb      zero, 0(v0)
+	addiu   v1, -1
+	bgez    v1, loc_8FFC4
+	addiu   v0, -8
+	jal     mPushMatrix
+	lui     fp, 0x1F80
+	lw      s4, db+0x8-GP_ADDR(gp)
+	lw      s5, db+0x4-GP_ADDR(gp)
+	lw      s7, db+0x10-GP_ADDR(gp)
+	lw      s1, psxspriteinfo-GP_ADDR(gp)
+	lw      s2, phd_persp-GP_ADDR(gp)
+	lw      v0, lara_item-GP_ADDR(gp)
+	la      s3, spark
+	lw      a0, 0x40(v0)
+	lw      a1, 0x44(v0)
+	lw      a2, 0x48(v0)
+	sw      a0, 0x1F800008
+	sw      a1, 0x1F80000C
+	jal     mTranslateAbsXYZ
+	sw      a2, 0x1F800010
+	li      s6, 0x80
+
+	loc_9001C:
+	lbu     v0, 0x20(s3)
+	addiu   s6, -1
+	beqz    v0, loc_90674
+	sltu    at, s4, s7
+	beqz    at, loc_9067C
+	lhu     s0, 0x16(s3)
+	nop
+	andi    v0, s0, 0x40
+	beqz    v0, loc_900C4
+	andi    v0, s0, 0x80
+	lbu     v1, 0x31(s3)
+	lw      a0, effects-GP_ADDR(gp)
+	sll     v0, v1, 1
+	addu    v0, v1
+	sll     v0, 2
+	subu    v0, v1
+	sll     v0, 2
+	addu    a0, v0
+	lw      v1, 0(a0)
+	lw      v0, 0(s3)
+	lw      a2, 4(a0)
+	lw      a1, 8(a0)
+	addu    t6, v1, v0
+	lw      v1, 4(s3)
+	lw      v0, 8(s3)
+	addu    t5, a2, v1
+	jal     local_GetRandomDraw
+	addu    t7, a1, v0
+	andi    v0, 7
+	lbu     v1, 0x2C(s3)
+	lbu     a0, 0x2D(s3)
+	addiu   v0, 4
+	subu    v1, a0
+	slt     v0, v0, v1
+	beqz    v0, loc_90290
+	nop
+	sw      t6, 0(s3)
+	sw      t5, 4(s3)
+	sw      t7, 8(s3)
+	andi    s0, 0xFFBF
+	j       loc_90290
+	sh      s0, 0x16(s3)
+
+	loc_900C4:
+	beqz    v0, loc_90284
+	andi    at, s0, 0x1000
+	lbu     v1, 0x31(s3)
+	lw      t0, items-GP_ADDR(gp)
+	sll     v0, v1, 3
+	addu    v0, v1
+	sll     v0, 4
+	beqz    at, loc_9025C
+	addu    t0, v0
+	lbu     a0, 0x33(s3)
+	la      a1, NodeOffsets
+	sll     v0, a0, 3
+	addu    a2, v0, a1
+	lbu     v1, 7(a2)
+	lui     v0, 0xA
+	beqz    v1, loc_90138
+	la      v0, NodeVectors
+	sll     a2, a0, 1
+	addu    a2, a0
+	sll     a2, 2
+	addu    a2, v0
+	lw      a1, 0(a2)
+	lw      v1, 4(a2)
+	lw      a2, 8(a2)
+	sw      a1, 0x48-0x34(fp)
+	sw      v1, 0x48-0x30(fp)
+	j       loc_901FC
+	sw      a2, 0x48-0x2C(fp)
+
+	loc_90138:
+	lb      v1, 6(a2)
+	lh      a0, 0(a2)
+	lh      a1, 2(a2)
+	lh      v0, 4(a2)
+	li      at, 1
+	sb      at, 7(a2)
+	sw      a0, 0x48-0x34(fp)
+	sw      a1, 0x48-0x30(fp)
+	bgez    v1, loc_901B8
+	sw      v0, 0x48-0x2C(fp)
+	addiu   a0, fp, 0x48-0x34
+	jal     GetLaraJointPos
+	negu    a1, v1
+	lw      at, 0x48-0x34(fp)
+	lw      v0, 0x48-0x30(fp)
+	lw      v1, 0x48-0x2C(fp)
+	lw      a0, 0x48-0x40(fp)
+	lw      a1, 0x48-0x3C(fp)
+	lw      a2, 0x48-0x38(fp)
+	subu    at, a0
+	subu    v0, a1
+	subu    v1, a2
+	lw      a0, 0x4F94(gp)
+	lw      a1, 0x4F98(gp)
+	lw      a2, 0x4F9C(gp)
+	addu    at, a0
+	addu    v0, a1
+	addu    v1, a2
+	sw      at, 0x48-0x34(fp)
+	sw      v0, 0x48-0x30(fp)
+	j       loc_901C8
+	sw      v1, 0x48-0x2C(fp)
+
+	loc_901B8:
+	move    a0, t0
+	addiu   a1, fp, 0x48-0x34
+	jal     GetJointAbsPosition
+	move    a2, v1
+
+	loc_901C8:
+	lbu     a1, 0x33(s3)
+	la      v1, NodeVectors
+	sll     v0, a1, 1
+	addu    v0, a1
+	sll     v0, 2
+	addu    v0, v1
+	lw      v1, 0x48-0x34(fp)
+	lw      a0, 0x48-0x30(fp)
+	lw      a1, 0x48-0x2C(fp)
+	sw      v1, 0(v0)
+	sw      a0, 4(v0)
+	sw      a1, 8(v0)
+
+	loc_901FC:
+	lw      v1, 0x48-0x34(fp)
+	lw      v0, 0(s3)
+	lw      a1, 0x48-0x30(fp)
+	lw      a0, 0x48-0x2C(fp)
+	addu    t6, v1, v0
+	lw      v1, 4(s3)
+	lw      v0, 8(s3)
+	addu    t5, a1, v1
+	jal     local_GetRandomDraw
+	addu    t7, a0, v0
+	andi    v0, 3
+	lbu     v1, 0x2C(s3)
+	lbu     a0, 0x2D(s3)
+	addiu   v0, 8
+	subu    v1, a0
+	slt     v0, v0, v1
+	beqz    v0, loc_90290
+	nop
+	sw      t6, 0(s3)
+	sw      t5, 4(s3)
+	sw      t7, 8(s3)
+	andi    s0, 0xEF7F
+	j       loc_90290
+	sh      s0, 0x16(s3)
+
+	loc_9025C:
+	lw      v1, 0x40(t0)
+	lw      v0, 0(s3)
+	lw      a1, 0x44(t0)
+	lw      a0, 0x48(t0)
+	addu    t6, v1, v0
+	lw      v1, 4(s3)
+	lw      v0, 8(s3)
+	addu    t5, a1, v1
+	j       loc_90290
+	addu    t7, a0, v0
+
+	loc_90284:
+	lw      t6, 0(s3)
+	lw      t5, 4(s3)
+	lw      t7, 8(s3)
+
+	loc_90290:
+	lw      at, 0x48-0x40(fp)
+	lw      v0, 0x48-0x3C(fp)
+	lw      v1, 0x48-0x38(fp)
+	subu    t6, at
+	subu    t5, v0
+	subu    t7, v1
+	li      v0, 0xA000
+	addiu   v1, t6, 0x5000
+	sltu    at, v0, v1
+	bnez    at, loc_90334
+	addiu   v1, t5, 0x5000
+	sltu    at, v0, v1
+	bnez    at, loc_90334
+	addiu   v1, t7, 0x5000
+	sltu    at, v0, v1
+	bnez    at, loc_90334
+	sh      t6, 0x48-0x44(fp)
+	sh      t5, 0x48-0x44+2(fp)
+	mtc2    t7, r1
+	lwc2    r0, 0x48-0x44(fp)
+	nop
+	nop
+	cop2    0x180001
+	lbu     t4, 0x1D(s3)
+	lbu     t9, 0x2E(s3)
+	lbu     t1, 0x1A(s3)
+	sll     t4, 4
+	addu    t4, s1
+	mfc2    t8, r19
+	swc2    r14, 0x48-0x48(fp)
+	andi    at, s0, 0x4000
+	beqz    at, loc_90318
+	andi    at, s0, 0x8000
+	addiu   t8, -0x100
+
+	loc_90318:
+	beqz    at, loc_90324
+	nop
+	addiu   t8, -0x80
+
+	loc_90324:
+	blez    t8, loc_90674
+	slti    at, t8, 0x5000
+	bnez    at, loc_9033C
+	andi    at, s0, 8
+
+	loc_90334:
+	j       loc_90674
+	sb      zero, 0x20(s3)
+
+	loc_9033C:
+	bnez    at, loc_90450
+	andi    at, s0, 2
+	lh      v0, 0xC(s3)
+	lh      v1, 0xE(s3)
+	lh      a0, 0x10(s3)
+	sra     v0, 4
+	sra     v1, 4
+	sra     a0, 4
+	subu    v0, t6, v0
+	subu    v1, t5, v1
+	subu    a0, t7, a0
+	sh      v0, 0x48-0x44(fp)
+	sh      v1, 0x48-0x44+2(fp)
+	mtc2    a0, r1
+	lwc2    r0, 0x48-0x44(fp)
+	li      a1, 0xE1000200
+	cop2    0x180001
+	lbu     v0, 0x27(s3)
+	lbu     v1, 0x28(s3)
+	lbu     a0, 0x29(s3)
+	slti    at, t8, 0x3001
+	bnez    at, loc_903CC
+	li      at, 0x5000
+	subu    at, t8
+	mult    v0, at
+	mflo    v0
+	sra     v0, 13
+	nop
+	mult    v1, at
+	mflo    v1
+	sra     v1, 13
+	nop
+	mult    a0, at
+	mflo    a0
+	sra     a0, 13
+
+	loc_903CC:
+	sb      v0, 0xC(s4)
+	sb      v1, 0xD(s4)
+	sb      a0, 0xE(s4)
+	srl     v0, 1
+	sb      v0, 0x14(s4)
+	srl     v1, 1
+	sb      v1, 0x15(s4)
+	srl     a0, 1
+	sb      a0, 0x16(s4)
+	bnez    t9, loc_903FC
+	li      v0, 0x52
+	li      v0, 0x50
+
+	loc_903FC:
+	sb      v0, 0xF(s4)
+	addiu   v1, t9, -1
+	andi    v1, 3
+	sll     v1, 5
+	or      v1, a1
+	sw      v1, 4(s4)
+	lw      a2, 0x48-0x48(fp)
+	mfc2    a3, r14
+	sw      a2, 0x10(s4)
+	sw      a3, 0x18(s4)
+	sra     v1, t8, 3
+	sll     v1, 2
+	addu    v1, s5
+	lw      v0, 0(v1)
+	lui     at, 0x600
+	or      v0, at
+	sw      s4, 0(v1)
+	sw      v0, 0(s4)
+	sw      zero, 8(s4)
+	j       loc_90674
+	addiu   s4, 0x1C
+
+	loc_90450:
+	beqz    at, loc_90494
+	nop
+	mult    t1, s2
+	lbu     at, 0x1C(s3)
+	mflo    v0
+	sllv    v1, t1, at
+	sllv    v0, at
+	div     v0, t8
+	mflo    t1
+	slt     at, v1, t1
+	beqz    at, loc_90488
+	slti    at, t1, 2
+	j       loc_90494
+	move    t1, v1
+
+	loc_90488:
+	beqz    at, loc_90494
+	nop
+	li      t1, 2
+
+	loc_90494:
+	lh      t3, 0x48-0x48(fp)
+	lh      t2, 0x48-0x48+2(fp)
+	sra     a0, t1, 1
+	addu    t0, t3, a0
+	bltz    t0, loc_90674
+	subu    a2, t3, a0
+	slti    v0, a2, 0x200
+	beqz    v0, loc_90674
+	addu    a1, t2, a0
+	bltz    a1, loc_90674
+	subu    v1, t2, a0
+	slti    v0, v1, 0xF0
+	beqz    v0, loc_90674
+	andi    v0, s0, 0x10
+	beqz    v0, loc_90578
+	nop
+	lh      v1, 0x14(s3)
+	la      a1, rcossin_tbl
+	sll     v1, 2
+	addu    v1, a1
+	negu    a0, t1
+	lh      t0, 0(v1)
+	sra     a0, 1
+	mult    a0, t0
+	lh      a2, 2(v1)
+	mflo    v0
+	sra     t0, v0, 12
+	negu    a1, t0
+	mult    a0, a2
+	mflo    a0
+	sra     a2, a0, 12
+	subu    v0, t0, a2
+	addu    t6, v0, t3
+	subu    v0, a1, a2
+	addu    t1, v0, t3
+	addu    v1, t0, a2
+	addu    t5, v1, t2
+	negu    a0, a2
+	addu    v0, a0, t0
+	addu    v0, t2
+	addu    v1, t3
+	sh      v0, 0x12(s4)
+	subu    v0, a2, t0
+	addu    v0, t2
+	addu    a1, a2
+	addu    a1, t3
+	subu    a0, t0
+	addu    a0, t2
+	sh      t6, 8(s4)
+	sh      t5, 0xA(s4)
+	sh      t1, 0x10(s4)
+	sh      v1, 0x18(s4)
+	sh      v0, 0x1A(s4)
+	sh      a1, 0x20(s4)
+	j       loc_90598
+	sh      a0, 0x22(s4)
+
+	loc_90578:
+	sh      a2, 8(s4)
+	sh      v1, 0xA(s4)
+	sh      t0, 0x10(s4)
+	sh      v1, 0x12(s4)
+	sh      a2, 0x18(s4)
+	sh      a1, 0x1A(s4)
+	sh      t0, 0x20(s4)
+	sh      a1, 0x22(s4)
+
+	loc_90598:
+	lbu     a1, 0x27(s3)
+	lbu     v1, 0x28(s3)
+	lbu     a0, 0x29(s3)
+	beqz    t9, loc_905B0
+	li      v0, 0x2C
+	li      v0, 0x2E
+
+	loc_905B0:
+	slti    at, t8, 0x3001
+	bnez    at, loc_905EC
+	li      at, 0x5000
+	subu    at, t8
+	mult    a1, at
+	mflo    a1
+	nop
+	sra     a1, 13
+	mult    v1, at
+	mflo    v1
+	nop
+	sra     v1, 13
+	mult    a0, at
+	mflo    a0
+	sra     a0, 13
+
+	loc_905EC:
+	sb      a1, 4(s4)
+	sb      v1, 5(s4)
+	sb      a0, 6(s4)
+	sb      v0, 7(s4)
+	lbu     t6, 0xC(t4)
+	lbu     t1, 0xE(t4)
+	lbu     t5, 0xD(t4)
+	lbu     v0, 0xF(t4)
+	sb      t6, 0xC(s4)
+	sb      t5, 0xD(s4)
+	sb      t1, 0x14(s4)
+	sb      t5, 0x15(s4)
+	sb      t6, 0x1C(s4)
+	sb      v0, 0x1D(s4)
+	sb      t1, 0x24(s4)
+	sb      v0, 0x25(s4)
+	lhu     v1, 0xA(t4)
+	beqz    t9, loc_90648
+	lhu     v0, 8(t4)
+	andi    v1, 0xFF9F
+	addiu   at, t9, -1
+	sll     at, 5
+	or      v1, at
+
+	loc_90648:
+	sh      v1, 0x16(s4)
+	sh      v0, 0xE(s4)
+	sra     a0, t8, 3
+	sll     a0, 2
+	addu    a0, s5
+	lw      v0, 0(a0)
+	lui     at, 0x900
+	or      v0, at
+	sw      s4, 0(a0)
+	sw      v0, 0(s4)
+	addiu   s4, 0x28
+
+	loc_90674:
+	bnez    s6, loc_9001C
+	addiu   s3, 0x34
+
+	loc_9067C:
+	jal     mPopMatrix
+	sw      s4, db+0x8-GP_ADDR(gp)
+	lw      ra, 0x48-0x4(sp)
+	lw      fp, 0x48-0x8(sp)
+	lw      s7, 0x48-0xC(sp)
+	lw      s6, 0x48-0x10(sp)
+	lw      s5, 0x48-0x14(sp)
+	lw      s4, 0x48-0x18(sp)
+	lw      s3, 0x48-0x1C(sp)
+	lw      s2, 0x48-0x20(sp)
+	lw      s1, 0x48-0x24(sp)
+	lw      s0, 0x48-0x28(sp)
 	jr      ra
+	addiu   sp, 0x48

@@ -1,149 +1,309 @@
 	opt at+,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF CalcAllAnimatingItems_ASM, S_DrawFootPrints
-	XREF FootPrint, db, mPopMatrix, mPushMatrix, mTranslateAbsXYZ, mRotY, GLOBAL_default_sprites_ptr
+	XDEF CalcAllAnimatingItems_ASM, init_scratchpad, stash_the_info, CalcAnimatingItem_ASM
+	XREF MatrixStack, CalculateObjectLighting, S_CalculateStaticMeshLight, phd_PutPolygons, phd_PutPolygons_seethrough, mPopMatrix, mPushMatrix, phd_left, phd_right, phd_top, phd_bottom, mClipBoundingBox, draw_rooms, number_draw_rooms, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
 	
-CalcAllAnimatingItems_ASM:
-	jr	ra
+CalcAnimatingItem_ASM:
+	jr ra
 	
-S_DrawFootPrints:
-	addiu   sp, -0x30
-	sw      s0, 0x30-0x20(sp)
-	sw      s1, 0x30-0x1C(sp)
-	sw      s2, 0x30-0x18(sp)
-	sw      s3, 0x30-0x14(sp)
-	sw      s4, 0x30-0x10(sp)
-	sw      s5, 0x30-0xC(sp)
-	sw      s6, 0x30-0x8(sp)
-	sw      ra, 0x30-0x4(sp)
-	lw      s3, GLOBAL_default_sprites_ptr-GP_ADDR(gp)
-	la      s2, FootPrint-GP_ADDR(gp)
-	lw      s0, db+0x8-GP_ADDR(gp)
-	lw      s4, db+0x4-GP_ADDR(gp)
-	lw      t8, db+0x10-GP_ADDR(gp)
-	lw      v0, 0xAC(s3)
-	lw      v1, 0xA8(s3)
-	andi    s5, v0, 0xFFFF
-	sll     at, v1, 16
-	or      s5, at
-	srl     s6, v0, 16
-	andi    s6, 0xFF
-	andi    at, v0, 0xFF00
-	or      s6, at
-	srl     v1, 16
-	andi    v1, 0xFF9F
-	ori     v1, 0x40
-	sll     v1, 16
-	or      s6, v1
-	andi    s3, v0, 0xFF
-	srl     at, v0, 24
-	sll     at, 8
-	or      s3, at
-	li      t9, 0x20
-
-	loc_82A8C:
-	lhu     a0, 0xE(s2)
-	addiu   t9, -1
-	beqz    a0, loc_82BCC
-	sltu    at, s0, t8
-	beqz    at, loc_82BD4
-	li      s1, 0x38
-	addiu   a0, -1
-	slti    at, a0, 0x1D
-	beqz    at, loc_82AB8
-	sh      a0, 0xE(s2)
-	sll     s1, a0, 1
-
-	loc_82AB8:
+stash_the_info:
+	lw      at, 0x44(fp)
+	lw      v0, 0x4C(fp)
+	sw      a0, 0(at)
+	cfc2    a0, r0
+	cfc2    a1, r1
+	cfc2    a2, r2
+	cfc2    a3, r3
+	sw      a0, 4(at)
+	sw      a1, 8(at)
+	sw      a2, 0xC(at)
+	sw      a3, 0x10(at)
+	cfc2    a0, r4
+	cfc2    a1, r5
+	cfc2    a2, r6
+	cfc2    a3, r7
+	sw      a0, 0x14(at)
+	sw      a1, 0x18(at)
+	sw      a2, 0x1C(at)
+	sw      a3, 0x20(at)
+	addiu   at, 0x24
+	addiu   v0, 1
+	sw      v0, 0x4C(fp)
+	jr      ra
+	sw      at, 0x44(fp)
+	
+init_scratchpad:
+	sw      s0, 0x18(sp)
+	sw      s1, 0x1C(sp)
+	sw      s2, 0x20(sp)
+	sw      s3, 0x24(sp)
+	sw      s4, 0x28(sp)
+	sw      s5, 0x2C(sp)
+	sw      s6, 0x30(sp)
+	sw      s7, 0x34(sp)
+	addiu   at, fp, 0xBC
+	sw      at, 0x50(fp)
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t3, r3
+	cfc2    t4, r4
+	cfc2    t5, r5
+	cfc2    t6, r6
+	cfc2    t7, r7
+	sw      t0, 0(at)
+	sw      t1, 4(at)
+	sw      t2, 8(at)
+	sw      t3, 0xC(at)
+	sw      t4, 0x10(at)
+	sw      t5, 0x14(at)
+	sw      t6, 0x18(at)
+	sw      t7, 0x1C(at)
+	la      v0, stashed_objects_list
+	la      v1, stashed_matrix_list
+	lw      a0, items-GP_ADDR(gp)
+	lw      a1, room-GP_ADDR(gp)
+	sw      v0, 0x40(fp)
+	sw      v1, 0x44(fp)
+	sw      zero, 0x48(fp)
+	sw      a0, 0x60(fp)
+	sw      a1, 0x98(fp)
+	lh      v0, camera+0xC-GP_ADDR(gp)
+	lw      v1, anims-GP_ADDR(gp)
+	lw      a0, meshes-GP_ADDR(gp)
+	lw      a1, bones-GP_ADDR(gp)
+	sh      v0, 0x6A(fp)
+	sw      v1, 0x9C(fp)
+	sw      a0, 0xA0(fp)
+	sw      a1, 0xA4(fp)
+;	lw      t0, MatrixStack+0x14-GP_ADDR(gp)
+;	lw      t1, MatrixStack+0x18-GP_ADDR(gp)
+;	lw      t2, MatrixStack+0x1C-GP_ADDR(gp)
+	lw      s1, number_draw_rooms-GP_ADDR(gp)
+	lw      a0, 0x1A4(gp)
+	la      s0, draw_rooms
+	sw      a0, 0xB8(fp)
+	sw      t0, 0x6C(fp)
+	sw      t1, 0x70(fp)
+	jr      ra
+	sw      t2, 0x74(fp)
+	
+DrawAllAnimatingItems_ASM:
+	blez    s4, loc_829E8
+	move    s5, ra
+	lui     s0, 0x1E
 	jal     mPushMatrix
-	nop
+	la      s0, stashed_objects_list
+	la      s2, stashed_matrix_list
+
+	loc_8291C:
+	lh      s1, 2(s0)
+	lh      s3, 0(s0)
+	li      s6, 0x80
+	bnez    s1, loc_82950
+	lw      a0, 4(s0)
+	li      s1, 1
+	move    a3, a0
+	lw      a0, 0(a3)
+	lw      a1, 4(a3)
+	lw      a2, 8(a3)
+	lh      a3, 0xE(a3)
+	jal     S_CalculateStaticMeshLight
+	addiu   ra, 0x14
+
+	loc_82950:
+	lw      a1, 8(s0)
+	lh      at, 0x30(a0)
+	li      s6, 0x80
+	jal     CalculateObjectLighting
+	subu    s6, at
+
+	loc_82964:
+	lw      t0, 4(s2)
+	lw      t1, 8(s2)
+	lw      t2, 0xC(s2)
+	lw      t3, 0x10(s2)
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	lw      t0, 0x14(s2)
+	lw      t1, 0x18(s2)
+	lw      t2, 0x1C(s2)
+	lw      t3, 0x20(s2)
+	ctc2    t0, r4
+	ctc2    t1, r5
+	ctc2    t2, r6
+	ctc2    t3, r7
+	li      at, 0x80
+	beq     s6, at, loc_829C4
 	lw      a0, 0(s2)
-	lw      a1, 4(s2)
+	slti    at, s6, 5
+	bnez    at, loc_829CC
+	move    a1, s6
+	jal     phd_PutPolygons_seethrough
+	addiu   ra, 8
+
+	loc_829C4:
+	jal     phd_PutPolygons
+	move    a1, s3
+
+	loc_829CC:
+	addiu   s1, -1
+	bgtz    s1, loc_82964
+	addiu   s2, 0x24
+	addiu   s4, -1
+	bgtz    s4, loc_8291C
+	addiu   s0, 0xC
+	jal     mPopMatrix
+
+	loc_829E8:
+	sw      zero, phd_left-GP_ADDR(gp)
+	li      v0, 0x1FF
+	li      at, 0xEF
+	sw      v0, phd_right-GP_ADDR(gp)
+	sw      zero, phd_top-GP_ADDR(gp)
+	jr      s5
+	sw      at, phd_bottom-GP_ADDR(gp)
+
+CalcAllAnimatingItems_ASM:
+	addiu   sp, -0x80
+	sw      fp, 0x80-0x48(sp)
+	sw      ra, 0x80-0x44(sp)
+	jal     init_scratchpad
+	lui     fp, 0x1F80
+	blez    s1, loc_827DC
+
+	loc_82658:
+	lh      a0, 0(s0)
+	lw      v1, 0x80+0x18(fp)
+	sll     v0, a0, 2
+	addu    v0, a0
+	sll     v0, 4
+	addu    s2, v1, v0
+	sh      a0, 0x80-0x18(fp)
+	jal     mmPushMatrix
+	sw      s2, 0x80-0x1C(fp)
+	lh      s3, 0x32(s2)
+	lw      s4, 0x10(s2)
+	blez    s3, loc_8275C
+	lw      v0, 0x38(s2)
+	lw      v1, 0x3C(s2)
+	sw      v0, 0x80+0x10(fp)
+	sw      v1, 0x80+0x14(fp)
+
+	loc_82698:
+	lh      v0, 0x12(s4)
+	lh      v1, 0x10(s4)
+	la      s5, static_objects
+	sll     at, v0, 3
+	subu    at, v0
+	sll     at, 2
+	andi    v0, v1, 1
+	beqz    v0, loc_82750
+	addu    s5, at
+	jal     mmPushMatrix
+	lw      a1, 4(s4)
+	lw      a0, 0(s4)
 	jal     mTranslateAbsXYZ
-	lw      a2, 8(s2)
-	lh      a0, 0xC(s2)
+	lw      a2, 8(s4)
+	lh      a0, 0xC(s4)
 	jal     mRotY
 	nop
-	li      at, 0xFFFFFFC0
-	mtc2    zero, r0
-	mtc2    at, r1
-	li      at, 0xFF80
-	li      v0, 0x40
-	mtc2    at, r2
-	mtc2    v0, r3
-	li      at, 0x80
-	mtc2    at, r4
-	mtc2    v0, r5
+	lhu     v1, 2(s5)
+	cfc2    at, r7
+	srl     v1, 2
+	sll     v1, 10
+	beqz    v1, loc_82704
+	slt     at, v1, at
+	beqz    at, loc_82704
 	nop
-	li      v1, 0x26
-	cop2    0x280030
-	sb      v1, 7(s0)
-	sb      s1, 4(s0)
-	sb      s1, 5(s0)
-	sb      s1, 6(s0)
-	sw      s5, 0xC(s0)
-	sw      s6, 0x14(s0)
-	sh      s3, 0x1C(s0)
-	swc2    r12, 8(s0)
-	swc2    r13, 0x10(s0)
-	swc2    r14, 0x18(s0)
-	cop2    0x158002D
-	jal     mPopMatrix
-	nop
-	mfc2    s1, r7
-	mfc2    v0, r12
-	mfc2    v1, r13
-	mfc2    a0, r14
-	andi    at, v0, 0xFE00
-	beqz    at, loc_82B6C
-	andi    at, v1, 0xFE00
-	beqz    at, loc_82B6C
-	andi    at, a0, 0xFE00
-	bnez    at, loc_82BCC
+	addiu   s5, 0x1C
 
-	loc_82B6C:
-	and     at, v0, v1
-	and     at, a0
-	bltz    at, loc_82BCC
-	sra     at, v0, 16
-	slti    at, at, 0xF0
-	bnez    at, loc_82B9C
-	sra     at, v1, 16
-	slti    at, at, 0xF0
-	bnez    at, loc_82B9C
-	sra     at, a0, 16
-	slti    at, at, 0xF0
-	beqz    at, loc_82BCC
-
-	loc_82B9C:
-	addiu   v0, s1, -2
-	sltiu   v0, v0, 0x9FF
-	beqz    v0, loc_82BCC
-	addiu   s1, -2
-	sll     v0, s1, 2
-	addu    v0, s4
+	loc_82704:
+	jal     mClipBoundingBox
+	addiu   a0, s5, 4
+	beqz    v0, loc_8274C
+	lw      a3, 0x80-0x38(fp)
+	lw      a2, 0x80-0x40(fp)
+	addiu   a3, 1
+	sw      a3, 0x80-0x38(fp)
+	sh      v0, 0(a2)
+	sw      s4, 4(a2)
+	sh      zero, 2(a2)
+	addiu   a2, 0xC
+	sw      a2, 0x80-0x40(fp)
+	lh      v1, 0(s5)
+	lw      v0, 0x80+0x20(fp)
+	sll     v1, 2
+	addu    v0, v1
+	jal     stash_the_info
 	lw      a0, 0(v0)
-	lui     at, 0x700
-	or      a0, at
-	sw      s0, 0(v0)
-	sw      a0, 0(s0)
-	addiu   s0, 0x20
 
-	loc_82BCC:
-	bnez    t9, loc_82A8C
-	addiu   s2, 0x10
+	loc_8274C:
+	jal     mmPopMatrix
 
-	loc_82BD4:
-	sw      s0, 0x3644(gp)
-	lw      ra, 0x30-0x4(sp)
-	lw      s6, 0x30-0x8(sp)
-	lw      s5, 0x30-0xC(sp)
-	lw      s4, 0x30-0x10(sp)
-	lw      s3, 0x30-0x14(sp)
-	lw      s2, 0x30-0x18(sp)
-	lw      s1, 0x30-0x1C(sp)
-	lw      s0, 0x30-0x20(sp)
+	loc_82750:
+	addiu   s3, -1
+	bgtz    s3, loc_82698
+	addiu   s4, 0x14
+
+	loc_8275C:
+	lh      s2, 0x48(s2)
+	li      v1, 0xFFFFFFFF
+	beq     s2, v1, loc_827CC
+	sll     v0, s2, 7
+
+	loc_8276C:
+	sll     v1, s2, 4
+	lw      s3, 0x80-0x20(fp)
+	addu    v0, v1
+	addu    s3, v0
+	lh      v1, 0xC(s3)
+	la      s6, objects
+	sll     v1, 6
+	addu    s6, v1
+	lhu     v0, 0x32(s6)
+	lw      a1, 0x84(s3)
+	andi    v0, 0x200
+	beqz    v0, loc_827BC
+	li      v1, 6
+	andi    a1, 6
+	beq     a1, v1, loc_827BC
+	nop
+	jal     CalcAnimatingItem_ASM
+	move    s2, s3
+	move    s3, s2
+
+	loc_827BC:
+	lh      s2, 0x1A(s3)
+	li      v0, 0xFFFFFFFF
+	bne     s2, v0, loc_8276C
+	sll     v0, s2, 7
+
+	loc_827CC:
+	jal     mmPopMatrix
+	addiu   s1, -1
+	bnez    s1, loc_82658
+	addiu   s0, 2
+
+	loc_827DC:
+	lw      s4, 0x80-0x38(fp)
+	lui     gp, 0xA
+	jal     DrawAllAnimatingItems_ASM
+	la      gp, GP_ADDR
+	lw      ra, 0x80-0x44(sp)
+	lw      fp, 0x80-0x48(sp)
+	lw      s7, 0x80-0x4C(sp)
+	lw      s6, 0x80-0x50(sp)
+	lw      s5, 0x80-0x54(sp)
+	lw      s4, 0x80-0x58(sp)
+	lw      s3, 0x80-0x5C(sp)
+	lw      s2, 0x80-0x60(sp)
+	lw      s1, 0x80-0x64(sp)
+	lw      s0, 0x80-0x68(sp)
 	jr      ra
-	addiu   sp, 0x30
+	addiu   sp, 0x80
+	

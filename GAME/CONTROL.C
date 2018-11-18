@@ -839,6 +839,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 	if (bTrackCamInit)
 	{
+		printf("bTrackCamInit Zero\n");
 		bUseSpotCam = 0;
 	}
 
@@ -1404,7 +1405,9 @@ void TestTriggers(short* data, int heavy, int HeavyFlags)//(F)
 }
 
 long rand_1 = 0xD371F947;
+long rand_2 = 0xD371F947;
 
+#if PC_VERSION ///@FIXME remove, this needs to go in specific
 long GetRandomControl()//5E9F0, 926F8 (F)
 {
 	rand_1 = (rand_1 * 0x41C64E6D) + 0x3039;
@@ -1416,8 +1419,6 @@ void SeedRandomControl(long seed)//(F)
 	rand_1 = seed;
 }
 
-long rand_2 = 0xD371F947;
-
 long GetRandomDraw()//5EA18, 5F6F8 (F)
 {
 	rand_2 = (rand_2 * 0x41C64E6D) + 0x3039;
@@ -1428,6 +1429,7 @@ void SeedRandomDraw(long seed)//(F)
 {
 	rand_2 = seed;
 }
+#endif
 
 void ClearFires()//8B1C8(<), 8D20C(<) (F)
 {
@@ -2168,6 +2170,7 @@ void AddRoomFlipItems(struct room_info* r)//1FA0C(<), 1FC20(<) (F)
 	}
 }
 
+#if PC_VERSION || PSXPC_VERSION
 int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 {
 	short off, room_num;
@@ -2239,6 +2242,7 @@ int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 
 	return -2;
 }
+#endif
 
 short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 {

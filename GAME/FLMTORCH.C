@@ -14,6 +14,11 @@
 #include "SPECIFIC.H"
 #include "TOMB4FX.H"
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
+
 static short FireBounds[12] =
 {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 0xF8E4, 0x071C

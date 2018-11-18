@@ -8,7 +8,6 @@ extern void LoadGameflow();
 extern void QuickControlPhase();
 extern void DoTitle(unsigned char Name, unsigned char Audio);
 extern void DoLevel(unsigned char Name, unsigned char Audio);
-extern int TitleOptions();
 extern void DoSpecialFeaturesServer();
 
 enum gf_languages

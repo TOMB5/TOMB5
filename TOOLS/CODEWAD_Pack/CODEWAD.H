@@ -10,7 +10,7 @@ struct fileEntry
 {
 	unsigned int binData[2];//Offset, Size
 	unsigned int relData[2];//Offset, Size
-	unsigned int padding;
+	unsigned int moduleIndex;
 };
 
 extern void CODEWAD_Pack(const char* fileName);

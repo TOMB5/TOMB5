@@ -1,8 +1,8 @@
 	opt at-,w-,c+,m-
 
-	section	.ASM
-	xdef S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1
-	xref GetFrames, interpolated_bounds
+	SECTION	ASM
+	XDEF S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1
+	XREF GetFrames, interpolated_bounds
 	
 snaff_current_gte_matrix_V1:
 	cfc2    t0, r0

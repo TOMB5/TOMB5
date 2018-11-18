@@ -1,6 +1,6 @@
 	;opt at+,w-,c+,m-
 
-	SECTION	.ASM
+	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF DrawAllFx, local_mTranslateAbsXYZ, local_mRotX, local_mRotY, local_mTranslateAbsXYZ, DrawLaserSightSprite_ASM
 	XREF db, MatrixStack, lara_item, room, GLOBAL_default_sprites_ptr, phd_persp, subdiv_ripple, rcossin_tbl, ASM_GetBounds
