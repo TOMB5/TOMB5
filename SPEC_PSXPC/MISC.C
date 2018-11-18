@@ -8,6 +8,47 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
+void S_MemSet(char* p, int value, int length)
+{
+	int size;
+
+	if (length != 0)
+	{
+		if (length > 3)
+		{
+			value |= value << 8;
+			value |= value << 16;
+
+			if (((int)p) & 3)
+			{
+				size = 4 - (((int)p) & 3);
+				length -= 4 - (((int)p) & 3);
+
+				//loc_5E918
+				while (size--)
+					*p++ = value;
+
+			}
+			//loc_5E928
+			size = length >> 2;
+			if ((length >> 2))
+			{
+				length &= 3;
+
+				//loc_5E934
+				while (size--)
+				{
+					((int*)p)[0] = value;
+					p += 4;
+				}
+			}
+		}
+		//loc_5E94C
+		while (length-- != 0)
+			*p++ = value;
+	}
+}
+
 void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size)//5E964(<), ? (F)
 {
 	int i;
