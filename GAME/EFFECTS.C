@@ -31,6 +31,11 @@
 
 #include <string.h>
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
+
 long wf = 256;
 short next_fx_free;
 short next_fx_active;
@@ -571,6 +576,7 @@ void SoundEffects()//39190(<), 39690 (F)
 	SOUND_EndScene();
 }
 
+#if PSXPC_VERSION
 long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<), 937C4(!)
 {
 	long r;
@@ -693,7 +699,7 @@ long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<),
 
 	UNIMPLEMENTED();
 }
-
+#endif
 
 void StopSoundEffect(short sample_index)//91FF8(<), 94044(<) (F)
 {

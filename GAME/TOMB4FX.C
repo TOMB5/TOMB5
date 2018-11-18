@@ -1,5 +1,9 @@
 #include "TOMB4FX.H"
 
+#if PSX_VERSION
+#include "CALCLARA.H"
+#endif
+
 #include "SPECIFIC.H"
 #include "EFFECT2.H"
 #include "LARA.H"
@@ -21,6 +25,11 @@
 #include "DRAWPHAS.H"
 #include "MATHS.H"
 #endif
+
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
 
 char flare_table[121] =
 {
@@ -777,14 +786,74 @@ void TriggerLightningGlow(long x, long y, long z, long rgb)// (F)
 	sptr->Size = size;
 }
 
-void trig_actor_gunflash(struct MATRIX3D *matrix, struct PHD_VECTOR *pos)
+void trig_actor_gunflash(struct MATRIX3D* matrix, struct PHD_VECTOR* pos)//(F)
 {
-	UNIMPLEMENTED();
+#if PSX_VERSION//Likely different for PC
+	struct GUNFLASH_STRUCT* fx;
+	long lp;
+
+	fx = &Gunflashes[0];
+
+	//loc_36638:
+	for (lp = 0; lp < 4; lp++, fx++)
+	{
+		if (!fx->on)
+		{
+			fx->on = 1;
+			mPushMatrix();
+			mCopyMatrix(matrix);
+			mTranslateXYZ(pos->x, pos->y, pos->z);
+			mRotX(-13680);
+			snaff_current_gte_matrix_V1(&fx->matrix);
+			mPopMatrix();
+			break;
+		}
+	}
+#endif
 }
 
-void TriggerFenceSparks(long x, long y, long z, long kill, long crane)
+void TriggerFenceSparks(long x, long y, long z, long kill, long crane)//(F)
 {
-	UNIMPLEMENTED();
+	struct SPARKS* sptr;
+
+	sptr = &spark[GetFreeSpark()];
+	sptr->On = 1;
+	sptr->sR = (GetRandomControl() & 0x3F) - 0x40;
+	sptr->sG = (GetRandomControl() & 0x3F) - 0x40;
+	sptr->sB = (GetRandomControl() & 0x3F) - 0x40;
+
+	sptr->dR = GetRandomControl() | 0xC0;
+	sptr->ColFadeSpeed = 16;
+	sptr->G = 8;
+	sptr->dG = sptr->sR >> 1;
+	sptr->dB = sptr->sR >> 2;
+
+	sptr->Life = (GetRandomControl() & 7) + 24;
+	sptr->sLife = (GetRandomControl() & 7) + 24;
+	sptr->TransType = 2;
+	sptr->Dynamic = -1;
+
+	sptr->x = x;
+	sptr->y = y;
+	sptr->z = z;
+
+	sptr->Xvel = ((GetRandomControl() & 0xFF) - 128) << 2;
+	sptr->Yvel = (GetRandomControl() & 0xF) - ((kill << 5) + 8) + (crane << 4);
+	sptr->Zvel = ((GetRandomControl() & 0xFF) - 128) << 2;
+
+	if (crane != 0)
+	{
+		sptr->Friction = 5;
+	}
+	else
+	{
+		sptr->Friction = 4;
+	}
+
+	//loc_365C4
+	sptr->Flags = 0;
+	sptr->Gravity = (GetRandomControl() & 0xF) + ((crane << 4) + 16);
+	sptr->MaxYvel = 0;
 }
 
 void ControlElectricFence(short item_number)

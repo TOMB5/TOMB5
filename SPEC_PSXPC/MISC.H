@@ -21,5 +21,9 @@ extern void GPU_SetScreenPosition(short x, short y);
 extern void GPU_SyncBothScreens();
 extern void GPU_FlipToBuffer(int buffer_index);
 extern void S_AnimateTextures(long nFrames);
+extern long GetRandomControl();
+extern void SeedRandomControl(long seed);
+extern long GetRandomDraw();
+extern void SeedRandomDraw(long seed);
 
 #endif
