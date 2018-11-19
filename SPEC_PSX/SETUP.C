@@ -50,6 +50,16 @@
 #include <LIBSPU.H>
 #include <LIBGTE.H>
 
+void* func[] __attribute__((section(".header"))) = 
+{ 
+	(void*)0x100,//Unknown
+	(void*)0x200,//Unknown
+	(void*)0x300,//Unknown
+	(void*)0x400,//Unknown
+	(void*)0x500,//Unknown
+	&RelocateLevel
+};
+
 /*
  * [FUNCTIONALITY] - RelocateLevel.
  * Relocates all game data pointers from the level file to be loaded back into the engine.
