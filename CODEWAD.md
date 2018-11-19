@@ -1,18 +1,100 @@
-# list of functions in codewad
+# List of functions in CODE.WAD
 
-> tip: in mips disasm they are written like this (example):
-```mips
+> Tip: In MIPS disassembly external module execution is written like this (example):
+```MIPS
 lw $v0, RelocPtr+0x70
 lw $a3, 0xC($v0)
 jalr $a3
 ```
-> the two useful values are `0x70` and `0xC`. Here we write these in the following format: `second (first)`
+> The two useful values are `0x70` and `0xC`. Here we write these in the following format: `second (first)`
 > example for example above: `0x0C (0x70)` (padding for readability)
 > if file is -- it means that the function hasn't yet been moved in its corresponding file and that it is currently in codewad.c
 > if address is ? it means that we know the function is there because it's on the pc version, but it's only called from inside code.wad so we don't know its relocptr address
 > 'both' means that the entire function is in code.wad, but that it is called using a "gateway" function in main executable
 > example: special1_init in main.exe is a function that only contains code for calling code in code.wad
 > on pc and mac version, it directly contains the code
+
+> Here is a list of CODE.WAD module names.
+
+```Modules
+enum module_indices
+{
+	MOD_WEATHER,
+	MOD_LARA,
+	MOD_ROOMLET,
+	MOD_UWPARTS,
+	MOD_MOVEBLOK,
+	MOD_SAS,
+	MOD_SUBSUIT,
+	MOD_TWOGUN,
+	MOD_HYDRA,
+	MOD_RAT,
+	MOD_ROPE,
+	MOD_DEATHSLD,
+	MOD_LASERS,
+	MOD_TITSEQ,
+	MOD_STARS,
+	MOD_PIERRE,
+	MOD_CROW,
+	MOD_HITMAN,
+	MOD_LION,
+	MOD_IMP,
+	MOD_GLADIATR,
+	MOD_BAT,
+	MOD_DOG,
+	MOD_HUSKIE,
+	MOD_MAFIA2,
+	MOD_SNIPER,
+	MOD_WILLWISP,
+	MOD_TOWER2,
+	MOD_SKELETON,
+	MOD_ROMANGOD,
+	MOD_SWAMPY,
+	MOD_JOBY2,
+	MOD_SPIDER,
+	MOD_ANDREA2,
+	MOD_GUARDIAN,
+	MOD_LIGHTNG,
+	MOD_CHEF,
+	MOD_AUTOGUN,
+	MOD_JOBY3,
+	MOD_MINISUB,
+	MOD_TOWER3,
+	MOD_ANDREA1,
+	MOD_ANDREA3,
+	MOD_ANDY1,
+	MOD_ANDY2,
+	MOD_ANDY3,
+	MOD_TOWER1,
+	MOD_JOBY4,
+	MOD_JOBY5,
+	MOD_LIFTS,
+	MOD_T12
+};
+```
+
+> To obtain the correct module index we do the following as per the example above. 0x70/4=28. 0x70 is divided by 4 because RelocPtr is long* data type, once we use C we need the relative address in multiples of 4. We do the same for the second value which is 0xC/4=3. We now have the following:
+
+```C
+RelocPtr[28][3];
+```
+Which translates to:
+
+```C
+RelocPtr[MOD_SKELETON][3];
+```
+
+The format is as follows:
+
+```C
+RelocPtr[ModuleIndex][FunctionIndex];
+```
+
+To call this function in C code we would do the following:
+
+```C
+((VOIDFUNCVOID*)RelocPtr[ModuleIndex][FunctionIndex])();
+```
 
 | Address | Both | Definition | File |
 |---------|------|------------|------|
@@ -57,9 +139,9 @@ jalr $a3
 |?|-|`void UpdateSpiders()`|CONTROL|
 |?|-|`int GetFreeSpider()`|TOMB4FX|
 
-# list of guessed global vars names
+# List of guessed global variable names
 
-basically, if a global variable is only ever used from functions in codewad, then it's not present in the debug symbols and thus we can't know its name so we guess it (and also type)
+If a global variable is only ever used from functions in CODE.WAD, then it's not present in the debug symbols and thus we can't know its name so we guess it (and also the type).
 
 | Address | Type | Name | Use |
 |---------|------|------|-----|
