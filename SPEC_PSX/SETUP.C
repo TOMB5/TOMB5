@@ -49,7 +49,7 @@
 #endif
 #include <LIBSPU.H>
 #include <LIBGTE.H>
-
+#if RELOC
 void* func[] __attribute__((section(".header"))) = 
 { 
 	(void*)0x100,//Unknown
@@ -59,6 +59,7 @@ void* func[] __attribute__((section(".header"))) =
 	(void*)0x500,//Unknown
 	&RelocateLevel
 };
+#endif
 
 /*
  * [FUNCTIONALITY] - RelocateLevel.
@@ -669,7 +670,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	 //assert(lara_item);//000A3AA4 appears to be set during InitialiseItem(i)... probably item specific init routines
 }//0xB48FC
 
-long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize)
+long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize)//? B3974
 {
 #ifndef NO_SOUND
 	int i;
