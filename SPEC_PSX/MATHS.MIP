@@ -2360,6 +2360,64 @@ phd_LookAt:
 	sw      v0, viewer+0xC-GP_ADDR(gp)
 	move    ra, t5
 	
+phd_GetVectorAngles:
+	move    t0, a0
+	move    t1, a1
+	move    t2, a2
+	move    t3, a3
+	move    t4, ra
+	move    a0, t2
+	jal     phd_atan_asm
+	move    a1, t0
+	j       loc_7795C
+	sh      v0, 0(t3)
+
+	loc_77950:
+	sra     t0, 2
+	sra     t1, 2
+	sra     t2, 2
+
+	loc_7795C:
+	sll     v0, t0, 16
+	sra     v0, 16
+	bne     v0, t0, loc_77950
+	sll     v0, t1, 16
+	sra     v0, 16
+	bne     v0, t1, loc_77950
+	sll     v0, t2, 16
+	sra     v0, 16
+	bne     v0, t2, loc_77950
+	nop
+	mtc2    t0, r9
+	mtc2    t2, r10
+	nop
+	nop
+	cop2    0xA00428
+	mfc2    a0, r25
+	mfc2    v1, r26
+	jal     mSqrt
+	add     a0, v1
+	move    a0, v0
+	jal     phd_atan_asm
+	move    a1, t1
+	blez    t1, loc_779C0
+	sll     v1, v0, 16
+	bgtz    v1, loc_779D0
+	nop
+
+	loc_779C0:
+	bgez    t1, loc_779D4
+	nop
+	bgez    v1, loc_779D4
+	nop
+
+	loc_779D0:
+	negu    v0, v0
+
+	loc_779D4:
+	jr      t4
+	sh      v0, 2(t3)
+	
 phd_atan_asm:
 	bnez    a0, loc_77A50
 	lui     at, 9
