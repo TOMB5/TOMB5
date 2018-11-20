@@ -49,12 +49,7 @@ long DrawPhaseGame()//63F04, 645E0
 	short scalarx = 0; // $a3
 	short scalary = 0; // $t0
 	short scalarz = 0; // $t1
-	struct lara_info* a1;
-	struct lara_info* a2;
 	int temp;
-	int a3;
-	int a22;
-	int v1111111;
 
 	mQuickW2VMatrix();
 
@@ -88,30 +83,9 @@ long DrawPhaseGame()//63F04, 645E0
 	}
 	else
 	{
-		a3 = rcossin_tbl[(((XSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((XSoff2 >> 2) & 0x3FFC) / sizeof(short))];
-		/*
-		short scalarx = 0; // $a3
-		short scalary = 0; // $t0
-		short scalarz = 0; // $t1
-		*/
-
-		a3 >>= 2;
-		a3 *= -256;
-
-		a22 = rcossin_tbl[(((YSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((YSoff2 >> 2) & 0x3FFC) / sizeof(short))];
-		a22 >>= 2;
-		a22 *= -256;
-
-		v1111111 = rcossin_tbl[(((ZSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((ZSoff2 >> 2) & 0x3FFC) / sizeof(short))];
-		v1111111 >>= 2;
-		v1111111 *= -256;
-
-		a3 <<= 3;
-		a3 >>= 16;
-		a22 <<= 3;
-		scalary = a22 >> 16;
-		v1111111 <<= 3;
-		scalarz = v1111111 >> 16;
+		scalarx = ((((SIN(XSoff1) + SIN(XSoff2)) >> 2) * (lara.poisoned - 256)) << 3) >> 16;
+		scalary = ((((SIN(YSoff1) + SIN(YSoff2)) >> 2) * (lara.poisoned - 256)) << 3) >> 16;
+		scalarz = ((((SIN(ZSoff1) + SIN(ZSoff2)) >> 2) * (lara.poisoned - 256)) << 3) >> 16;
 	}
 
 	//loc_64090
@@ -501,9 +475,9 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 	else
 	{
-		//DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
+		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 		//loc_64BA0
-		//unsigned long* v1 = (unsigned long*)RelocPtr[3];
+		//unsigned long* v1 = (unsigned long*)RelocPtr[2];
 		//jalr v1[0];
 	}
 
@@ -543,7 +517,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	lara_item->pos.z_pos = camera.pos.z;
 	lara_item->room_number = camera.pos.room_number;
 
-	DrawAllFx();
+	//DrawAllFx();
 
 	if (RelocPtr[35] != NULL)
 	{
