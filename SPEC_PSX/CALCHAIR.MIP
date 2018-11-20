@@ -712,5 +712,20 @@ load_matrix:
 	nop
 	
 save_matrix:
-	jr ra
-	nop
+	cfc2    v0, r0
+	cfc2    v1, r1
+	cfc2    a0, r2
+	cfc2    a1, r3
+	sw      v0, 0(at)
+	sw      v1, 4(at)
+	sw      a0, 8(at)
+	sw      a1, 0xC(at)
+	cfc2    v0, r4
+	cfc2    v1, r5
+	cfc2    a0, r6
+	cfc2    a1, r7
+	sw      v0, 0x10(at)
+	sw      v1, 0x14(at)
+	sw      a0, 0x18(at)
+	jr      ra
+	sw      a1, 0x1C(at)
