@@ -679,8 +679,17 @@ snaff_sphere_normal:
 	addiu   at, fp, 0xB4
 	
 snaff_sphere_special:
-	jr ra
-	nop
+	lh      v1, 6(s7)
+	sw      t0, 0(at)
+	sw      t1, 4(at)
+	sw      t2, 8(at)
+	sll     v0, v1, 1
+	addu    v0, v1
+	srl     v1, v0, 31
+	addu    v0, v1
+	sra     v0, 1
+	sw      v0, 0xC(at)
+	addiu   at, fp, 0xB4
 	
 load_matrix:
 	jr ra
