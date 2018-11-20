@@ -226,7 +226,7 @@ void TL_1(struct ITEM_INFO* item)//39AD8, 39FD8 (F)
 	}
 }
 
-void ClearSpidersPatch(struct ITEM_INFO* item)//39AA4(<), 39FA4(<) (F)
+static void ClearSpidersPatch(struct ITEM_INFO* item)//39AA4(<), 39FA4(<) (F)
 {
 	ClearSpiders();
 }
@@ -722,11 +722,11 @@ void StopSoundEffect(short sample_index)//91FF8(<), 94044(<) (F)
 	}
 }
 
-void ClearSpiders()// (F)
+static void ClearSpiders()// (F)
 {
 	if (objects[SPIDER].loaded)
 	{
-		memset(Spiders, 0, 64 * sizeof(struct SPIDER_STRUCT));
+		memset((char*)&Spiders, 0, 64 * sizeof(struct SPIDER_STRUCT));
 		next_spider = 0;
 		flipeffect = -1;
 	}
