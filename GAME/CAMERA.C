@@ -1645,7 +1645,9 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)
 	UNIMPLEMENTED();
 }
 
+#if PC_VERSION
 void CheckForRichesIllegalDiagonalWalls()
 {
 	UNIMPLEMENTED();
 }
+#endif
