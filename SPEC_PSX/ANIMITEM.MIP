@@ -2,11 +2,309 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF CalcAllAnimatingItems_ASM, init_scratchpad, stash_the_info, CalcAnimatingItem_ASM
-	XREF MatrixStack, CalculateObjectLighting, S_CalculateStaticMeshLight, phd_PutPolygons, phd_PutPolygons_seethrough, mPopMatrix, mPushMatrix, phd_left, phd_right, phd_top, phd_bottom, mClipBoundingBox, draw_rooms, number_draw_rooms, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
+	XDEF calc_animating_item_clip_window, CalcAllAnimatingItems_ASM, init_scratchpad, stash_the_info, CalcAnimatingItem_ASM
+	XREF InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, InterpolateMatrix, iPopMatrix, iPushMatrix, iTranslateXYZ, iRotY, iRotX, iRotZ, mRotSuperPackedYXZ, mTranslateXYZ, mRotX, mRotZ, GetFrames, mmPushMatrix, mTranslateAbsXYZ, mRotYXZ, MatrixStack, CalculateObjectLighting, S_CalculateStaticMeshLight, phd_PutPolygons, phd_PutPolygons_seethrough, mPopMatrix, mPushMatrix, phd_left, phd_right, phd_top, phd_bottom, mClipBoundingBox, draw_rooms, number_draw_rooms, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
+	
+calc_animating_item_clip_window
+	jr ra
 	
 CalcAnimatingItem_ASM:
-	jr ra
+	sw      s0, 0xA8(fp)
+	sw      s1, 0xAC(fp)
+	sw      s2, 0xB0(fp)
+	sw      ra, 0xB4(fp)
+	lui     v0, 0x1FF
+	lui     v1, 0xEF
+	sw      v0, 0x90(fp)
+	jal     GetFrames
+	sw      v1, 0x94(fp)
+	jal     mmPushMatrix
+	move    s0, v0
+	lw      a0, 0x40(s3)
+	lw      a1, 0x44(s3)
+	jal     mTranslateAbsXYZ
+	lw      a2, 0x48(s3)
+	lh      a0, 0x4E(s3)
+	lh      a1, 0x4C(s3)
+	jal     mRotYXZ
+	lh      a2, 0x50(s3)
+	lh      a0, 0x24(s6)
+	lhu     v0, 0x72(s6)
+	beqz    a0, loc_81584
+	andi    v0, 1
+	cfc2    at, r7
+	beqz    v0, loc_81584
+	slt     v0, a0, at
+	beqz    v0, loc_81584
+	lw      a0, 0xB8(fp)
+	nop
+	bnez    a0, loc_81584
+	nop
+	addiu   s6, 0x40
+
+	loc_81584:
+	jal     calc_animating_item_clip_window
+	lw      s2, 0x78(fp)
+	jal     mClipBoundingBox
+	lw      a0, 0x78(fp)
+	beqz    v0, loc_81738
+	li      at, 0
+	sw      at, 0x4C(fp)
+	lw      a2, 0x40(fp)
+	lw      v1, 0x78(fp)
+	sh      v0, 0(a2)
+	sw      s3, 4(a2)
+	sw      v1, 8(a2)
+	lw      s2, 0x3C(s3)
+	li      s1, 1
+	lh      v0, 2(s6)
+	lw      s7, 0xA0(fp)
+	sll     v0, 2
+	addu    s7, v0
+	lw      v0, 4(s6)
+	lw      s5, 0xA4(fp)
+	sll     v0, 2
+	bnez    s0, loc_81C60
+	addu    s5, v0
+	lw      v0, 0x78(fp)
+	nop
+	lh      a0, 0xC(v0)
+	lh      a1, 0xE(v0)
+	jal     mTranslateXYZ
+	lh      a2, 0x10(v0)
+	lw      v0, 0x78(fp)
+	lw      gp, 0x88(s3)
+	lw      s3, 8(s3)
+	addiu   v0, 0x12
+	jal     mRotSuperPackedYXZ
+	sw      v0, 0x80(fp)
+	and     v0, s3, s1
+	beqz    v0, loc_81630
+	and     v0, gp, s1
+	beqz    v0, loc_81628
+	lw      a0, 0(s7)
+	lw      a0, 4(s7)
+
+	loc_81628:
+	jal     stash_the_info
+	nop
+
+	loc_81630:
+	lh      s4, 0(s6)
+	nop
+	addiu   s4, -1
+	blez    s4, loc_81714
+	addiu   s7, 8
+
+	loc_81644:
+	lw      s0, 0(s5)
+	nop
+	andi    v0, s0, 1
+	beqz    v0, loc_81660
+	nop
+	jal     mmPopMatrix
+	nop
+
+	loc_81660:
+	andi    v0, s0, 2
+	beqz    v0, loc_81674
+	nop
+	jal     mmPushMatrix
+	nop
+
+	loc_81674:
+	lw      a0, 4(s5)
+	lw      a1, 8(s5)
+	jal     mTranslateXYZ
+	lw      a2, 0xC(s5)
+	jal     mRotSuperPackedYXZ
+	nop
+	beqz    s2, loc_816E0
+	andi    v0, s0, 0x1C
+	beqz    v0, loc_816E0
+	andi    v0, s0, 8
+	beqz    v0, loc_816B4
+	andi    v0, s0, 4
+	lh      a0, 0(s2)
+	jal     mRotY
+	addiu   s2, 2
+	andi    v0, s0, 4
+
+	loc_816B4:
+	beqz    v0, loc_816CC
+	andi    v0, s0, 0x10
+	lh      a0, 0(s2)
+	jal     mRotX
+	addiu   s2, 2
+	andi    v0, s0, 0x10
+
+	loc_816CC:
+	beqz    v0, loc_816E0
+	nop
+	lh      a0, 0(s2)
+	jal     mRotZ
+	addiu   s2, 2
+
+	loc_816E0:
+	sll     s1, 1
+	and     v0, s1, s3
+	beqz    v0, loc_81704
+	and     v0, gp, s1
+	beqz    v0, loc_816FC
+	lw      a0, 0(s7)
+	lw      a0, 4(s7)
+
+	loc_816FC:
+	jal     stash_the_info
+	nop
+
+	loc_81704:
+	addiu   s4, -1
+	addiu   s7, 8
+	bnez    s4, loc_81644
+	addiu   s5, 0x10
+
+	loc_81714:
+	lw      at, 0x4C(fp)
+	lw      v0, 0x48(fp)
+	blez    at, loc_81738
+	addiu   v0, 1
+	lw      v1, 0x40(fp)
+	sw      v0, 0x48(fp)
+	sh      at, 2(v1)
+	addiu   v1, 0xC
+	sw      v1, 0x40(fp)
+
+	loc_81738:
+	jal     mmPopMatrix
+	lw      s2, 0xB0(fp)
+	lw      ra, 0xB4(fp)
+	lw      s1, 0xAC(fp)
+	jr      ra
+	lw      s0, 0xA8(fp)
+	
+loc_81C60:
+	addiu   a2, fp, 0x25C
+	jal     InitInterpolation
+	move    a0, s0
+	lw      v0, 0x78(fp)
+	lw      v1, 0x7C(fp)
+	lh      a0, 0xC(v0)
+	lh      a1, 0xE(v0)
+	lh      a2, 0x10(v0)
+	lh      a3, 0xC(v1)
+	lh      t0, 0xE(v1)
+	lh      t1, 0x10(v1)
+	addiu   v0, 0x12
+	addiu   v1, 0x12
+	sw      t0, 0x88(fp)
+	sw      t1, 0x8C(fp)
+	sw      v0, 0x80(fp)
+	jal     iTranslateXYZ2
+	sw      v1, 0x84(fp)
+	jal     mRotSuperPackedYXZ
+	lw      gp, 0x88(s3)
+	lw      s3, 8(s3)
+	jal     iRotSuperPackedYXZ
+	nop
+	and     v0, s3, s1
+	beqz    v0, loc_81CDC
+	and     v0, gp, s1
+	beqz    v0, loc_81CD4
+	lw      v1, 0(s7)
+	lw      v1, 4(s7)
+
+	loc_81CD4:
+	jal     InterpolateMatrix
+	nop
+
+	loc_81CDC:
+	lh      s4, 0(s6)
+	addiu   s7, 8
+	addiu   s4, -1
+	blez    s4, loc_81714
+	nop
+
+	loc_81CF0:
+	lw      s0, 0(s5)
+	nop
+	andi    v0, s0, 1
+	beqz    v0, loc_81D0C
+	nop
+	jal     iPopMatrix
+	nop
+
+	loc_81D0C:
+	andi    v0, s0, 2
+	beqz    v0, loc_81D20
+	nop
+	jal     iPushMatrix
+	nop
+
+	loc_81D20:
+	lw      a0, 4(s5)
+	lw      a1, 8(s5)
+	jal     iTranslateXYZ
+	lw      a2, 0xC(s5)
+	jal     mRotSuperPackedYXZ
+	nop
+	jal     iRotSuperPackedYXZ
+	nop
+	beqz    s2, loc_81DB8
+	andi    v0, s0, 0x1C
+	beqz    v0, loc_81DB8
+	andi    v0, s0, 8
+	beqz    v0, loc_81D74
+	andi    v0, s0, 4
+	lh      a0, 0(s2)
+	jal     mRotY
+	nop
+	lh      a0, 0(s2)
+	jal     iRotY
+	addiu   s2, 2
+	andi    v0, s0, 4
+
+	loc_81D74:
+	beqz    v0, loc_81D98
+	andi    v0, s0, 0x10
+	lh      a0, 0(s2)
+	jal     mRotX
+	nop
+	lh      a0, 0(s2)
+	jal     iRotX
+	addiu   s2, 2
+	andi    v0, s0, 0x10
+
+	loc_81D98:
+	beqz    v0, loc_81DB8
+	nop
+	lh      a0, 0(s2)
+	jal     mRotZ
+	nop
+	lh      a0, 0(s2)
+	jal     iRotZ
+	addiu   s2, 2
+
+	loc_81DB8:
+	sll     s1, 1
+	and     v0, s1, s3
+	beqz    v0, loc_81DDC
+	and     v0, gp, s1
+	beqz    v0, loc_81DD4
+	lw      v1, 0(s7)
+	lw      v1, 4(s7)
+
+	loc_81DD4:
+	jal     InterpolateMatrix
+	nop
+
+	loc_81DDC:
+	addiu   s4, -1
+	addiu   s5, 0x10
+	bnez    s4, loc_81CF0
+	addiu   s7, 8
+	j       loc_81714
+	nop
 	
 stash_the_info:
 	lw      at, 0x44(fp)
