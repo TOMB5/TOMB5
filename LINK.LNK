@@ -15,7 +15,7 @@ bss	group	bss
 	include SPEC_PSX/GPU.OBJ
 	include GAME/GAMEFLOW.OBJ
 	include GAME/CONTROL.OBJ
-	include GAME/FONT.OBJ
+	;include GAME/FONT.OBJ
 	include GAME/TEXT.OBJ
 	include GAME/LARA.OBJ
 	include GAME/DELSTUFF.OBJ
@@ -54,7 +54,7 @@ bss	group	bss
 	include GAME/SWITCH.OBJ
 	include GAME/PICKUP.OBJ
 	include GAME/OBJLIGHT.OBJ
-	include GAME/FOOTPRNT.OBJ
+	;include GAME/FOOTPRNT.OBJ
 	include SPEC_PSX/3D_GEN.OBJ
 	include SPEC_PSX/CD.OBJ
 	include GAME/TRAPS.OBJ
