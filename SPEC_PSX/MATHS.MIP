@@ -1348,7 +1348,23 @@ iTranslateXYZ2:
 
 ;0x771D8
 iLoadMatrix:
-	jr	ra
+	lw      t0, 0(a0)
+	lw      t1, 4(a0)
+	lw      t2, 8(a0)
+	lw      t3, 0xC(a0)
+	lw      t4, 0x10(a0)
+	lw      t5, 0x14(a0)
+	lw      t6, 0x18(a0)
+	lw      t7, 0x1C(a0)
+	ctc2    t0, r8
+	ctc2    t1, r9
+	ctc2    t2, r10
+	ctc2    t3, r11
+	ctc2    t4, r12
+	ctc2    t5, r13
+	ctc2    t6, r14
+	ctc2    t7, r15
+	jr      ra
 	nop
 
 ;0x77220
