@@ -2421,7 +2421,7 @@ int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLO
 	return 0;
 }
 
-#ifndef PSX_VERSION || PSXPC_VERSION///@FIXME @pc
+#if PC_VERSION
 void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint)
 {
 	UNIMPLEMENTED();
