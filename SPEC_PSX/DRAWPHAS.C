@@ -89,18 +89,11 @@ long DrawPhaseGame()//63F04, 645E0
 	}
 
 	//loc_64090
-	//underwater v0
-	if (camera.underwater > 0)
+	if (camera.underwater != 0)
 	{
-#if 0
-		short* a1 = &rcossin_tbl[0];
-		int v00 = (GlobalCounter & 0x3F) << 8;
-		int a22 = GlobalCounter;
-
-		short* v000 = &rcossin_tbl[v00 / sizeof(short)];
-		int v111 = v000[0];
-		int v0000 = ((a22 - 16) & 0x3F) << 8;
-#endif
+		scalarx = ((scalarx + (((rcossin_tbl[(GlobalCounter & 0x3F) << 7]) << 16) >> 24)) << 16) >> 16;
+		scalary = ((scalary + (((rcossin_tbl[((GlobalCounter - 16) & 0x3F) << 7]) << 16) >> 23)) << 16) >> 16;
+		scalarz = ((scalarz + (((rcossin_tbl[((64 - GlobalCounter) & 0x3F) << 7]) << 16) >> 25)) << 16) >> 16;
 	}
 
 	//loc_64130
