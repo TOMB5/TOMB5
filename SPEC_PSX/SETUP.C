@@ -49,12 +49,17 @@
 #endif
 #include <LIBSPU.H>
 #include <LIBGTE.H>
-
-struct object_container objects_raw;
-struct object_info* objects = &objects_raw.m_objects[0];
-struct static_info* static_objects = &objects_raw.m_static_objects[0];
-extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
-extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
+#if RELOC
+void* func[] __attribute__((section(".header"))) = 
+{ 
+	(void*)0x100,//Unknown
+	(void*)0x200,//Unknown
+	(void*)0x300,//Unknown
+	(void*)0x400,//Unknown
+	(void*)0x500,//Unknown
+	&RelocateLevel
+};
+#endif
 
 /*
  * [FUNCTIONALITY] - RelocateLevel.
@@ -389,10 +394,10 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	number_spotcams = level->numSpotCameras;
 
 #if DISC_VERSION
-	DEL_CDFS_Read((char*) &objects_raw, sizeof(objects_raw));
+	DEL_CDFS_Read((char*) &objects, NUMBER_OBJECTS*sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
 #else
 	PClseek(nHandle, level->offsetObjects, 0);
-	FILE_Read((char*) &objects_raw, 1, sizeof(objects_raw), nHandle);
+	FILE_Read((char*) &objects_raw, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
 	PCclose(nHandle);
 #endif
 	
@@ -665,7 +670,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	 //assert(lara_item);//000A3AA4 appears to be set during InitialiseItem(i)... probably item specific init routines
 }//0xB48FC
 
-long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize)
+long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize)//? B3974
 {
 #ifndef NO_SOUND
 	int i;

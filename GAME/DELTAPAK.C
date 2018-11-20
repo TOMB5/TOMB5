@@ -1,6 +1,7 @@
 #include "DELTAPAK.H"
 
-
+#include "CALCHAIR.H"
+#include "CALCLARA.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
@@ -3195,16 +3196,16 @@ void frigup_lara()//2D000(<), ? (F)
 	bone = &bones[object->bone_index];
 
 	//updateAnimFrame(&actor_pnodes[0], 0x10, frame);
-	//DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 0);
+	DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 0);
 	mPushUnitMatrix();
-	//DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 1);
+	DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 1);
 	mPopMatrix();
 
-	//HairControl(0, 0, frame);
+	HairControl(0, 0, frame);
 
 	if ((gfLevelFlags & GF_LVOP_YOUNG_LARA))
 	{
-		//HairControl(0, 1, frame);
+		HairControl(0, 1, frame);
 	}
 
 	//loc_2D0F0

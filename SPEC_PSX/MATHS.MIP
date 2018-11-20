@@ -2,8 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mmPushMatrix, mmPopMatrix, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mSqrt, mClipBoundingBox
-	XREF phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
+	XDEF phd_GetVectorAngles, mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mmPushMatrix, mmPopMatrix, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mSqrt, mClipBoundingBox
+	XREF viewer, phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
 
 ASM_GetBounds:
 	slt     at, t0, a2
@@ -217,15 +217,15 @@ mTranslate:
 
 ;0x76568
 mTranslateAbsXYZ:
-	lw	t0, MatrixStack+0x0
-	lw	t1, MatrixStack+0x4
-	lw	t2, MatrixStack+0x8
+	lw	t0, MatrixStack+0x0-GP_ADDR(gp)
+	lw	t1, MatrixStack+0x4-GP_ADDR(gp)
+	lw	t2, MatrixStack+0x8-GP_ADDR(gp)
 	ctc2	zero, r5
 	ctc2	zero, r6
 	ctc2	zero, r7
 	sub	a0, t0
 	sub	a1, t1
-	sub	a2, t2;fixme no end
+	sub	a2, t2;fixme check bleed
 
 ;0x7658C
 mTranslateXYZ:
@@ -568,7 +568,7 @@ mRotPackedYXZ:
 
 ;0x7696C
 SetRotation:
-	lw      a0, Matrix
+	lw      a0, Matrix-GP_ADDR(gp)
 	ctc2    t0, r0
 	ctc2    t1, r1
 	ctc2    t2, r2
@@ -620,7 +620,7 @@ mLoadMatrix:
 ;0x769E4
 mCopyMatrix:
 	move    v0, a0
-	lw      a0, Matrix
+	lw      a0, Matrix-GP_ADDR(gp)
 	lw      t0, 0(v0)
 	lw      t1, 4(v0)
 	lw      t2, 8(v0)
@@ -809,7 +809,7 @@ GetBounds:
 
 ;0x76AF4
 mSetTrans:
-	lw	v0, Matrix
+	lw	v0, Matrix-GP_ADDR(gp)
 	ctc2	a0, r5
 	ctc2	a1, r6
 	ctc2	a2, r7
@@ -937,12 +937,12 @@ InitInterpolation:
 	cfc2    t0, r13
 	cfc2    t1, r14
 	cfc2    t2, r15
-	sw      a0, iFrac
-	sw      a1, iRate
-	sw      a2, iMatrix
-	sw      t0, iMatrix+0xC
-	sw      t1, iMatrix+0x14
-	sw      t2, iMatrix+0x10
+	sw      a0, iFrac-GP_ADDR(gp)
+	sw      a1, iRate-GP_ADDR(gp)
+	sw      a2, iMatrix-GP_ADDR(gp)
+	sw      t0, iMatrix+0xC-GP_ADDR(gp)
+	sw      t1, iMatrix+0x14-GP_ADDR(gp)
+	sw      t2, iMatrix+0x10-GP_ADDR(gp)
 	cfc2    t0, r0
 	cfc2    t1, r1
 	cfc2    t2, r2
@@ -971,7 +971,7 @@ InitInterpolation:
 
 ;0x76D3C
 iPushMatrix:
-	lw	a0, iMatrix
+	lw	a0, iMatrix-GP_ADDR(gp)
 	cfc2	t0, r8
 	cfc2	t1, r9
 	cfc2	t2, r10
@@ -990,19 +990,19 @@ iPushMatrix:
 	sw	t6, 0x18(a0)
 	sw	t7, 0x1C(a0)
 	j	mPushMatrix
-	sw	a0, iMatrix
+	sw	a0, iMatrix-GP_ADDR(gp)
 	nop
 
 ;0x76D8C
 iPopMatrix:
 	move    a2, ra
-	lw      a0, Matrix
-	lw      a1, iMatrix
+	lw      a0, Matrix-GP_ADDR(gp)
+	lw      a1, iMatrix-GP_ADDR(gp)
 	addi    a0, -0x20
 	addi    a1, -0x20
-	sw      a0, Matrix
+	sw      a0, Matrix-GP_ADDR(gp)
 	jal     mLoadMatrix
-	sw      a1, iMatrix
+	sw      a1, iMatrix-GP_ADDR(gp)
 	move    ra, a2
 	j       loc_771D8
 	move    a0, a1
@@ -1297,7 +1297,7 @@ iTranslateXYZ2:
 	nop
 	nop
 	cop2    0x43E012
-	lw      v0, iMatrix
+	lw      v0, iMatrix-GP_ADDR(gp)
 	mfc2    t6, r25
 	mtc2    a3, r9
 	mtc2    a1, r10
@@ -1348,12 +1348,28 @@ iTranslateXYZ2:
 
 ;0x771D8
 iLoadMatrix:
-	jr	ra
+	lw      t0, 0(a0)
+	lw      t1, 4(a0)
+	lw      t2, 8(a0)
+	lw      t3, 0xC(a0)
+	lw      t4, 0x10(a0)
+	lw      t5, 0x14(a0)
+	lw      t6, 0x18(a0)
+	lw      t7, 0x1C(a0)
+	ctc2    t0, r8
+	ctc2    t1, r9
+	ctc2    t2, r10
+	ctc2    t3, r11
+	ctc2    t4, r12
+	ctc2    t5, r13
+	ctc2    t6, r14
+	ctc2    t7, r15
+	jr      ra
 	nop
 
 ;0x77220
 SetRotation_I:
-	lw      a0, iMatrix
+	lw      a0, iMatrix-GP_ADDR(gp)
 	ctc2    t0, r8
 	ctc2    t1, r9
 	ctc2    t2, r10
@@ -1368,10 +1384,10 @@ SetRotation_I:
 
 ;0x77250
 InterpolateMatrix:
-	lw      a2, Matrix
-	lw      a1, iMatrix
-	lw      t6, iRate
-	lw      t7, iFrac
+	lw      a2, Matrix-GP_ADDR(gp)
+	lw      a1, iMatrix-GP_ADDR(gp)
+	lw      t6, iRate-GP_ADDR(gp)
+	lw      t7, iFrac-GP_ADDR(gp)
 	addiu   sp, -0x30
 	lh      v0, 0(a1)
 	lh      v1, 0(a2)
@@ -1580,9 +1596,9 @@ InterpolateMatrix:
 	ctc2    t2, r2
 	ctc2    t3, r3
 	addiu   sp, 0x30
-	lw      t0, iAmbientR
-	lw      t1, iAmbientG
-	lw      t2, iAmbientB
+	lw      t0, iAmbientR-GP_ADDR(gp)
+	lw      t1, iAmbientG-GP_ADDR(gp)
+	lw      t2, iAmbientB-GP_ADDR(gp)
 	ctc2    t0, r13
 	ctc2    t1, r14
 	ctc2    t2, r15
@@ -1810,7 +1826,7 @@ ScaleCurrentMatrix:
 	ctc2	v1, r4
 	beqz	a0, locret_77E68
 	nop
-	lw	a0, Matrix
+	lw	a0, Matrix-GP_ADDR(gp)
 	nop
 	sw	t0, 0(a0)
 	sw	t1, 4(a0)
@@ -1834,12 +1850,12 @@ GetRoomBoundsAsm:
 	sw	s7, 0x1F8000F4
 	sw	fp, 0x1F8000F8
 	move	s0, a1
-	lw	s1, room
+	lw	s1, room-GP_ADDR(gp)
 	move	s2, zero
 	li	s3, 1
 	li	s4, 0x1F8000FC
 	move	s5, zero
-	lw	fp, outside
+	lw	fp, outside-GP_ADDR(gp)
 	sb	a0, 0(s0)
 	sll	a0, 4
 	sll	at, a0, 2
@@ -1851,7 +1867,7 @@ GetRoomBoundsAsm:
 	sw	t0, 0x40(a0)
 	sw	t1, 0x44(a0)
 	sb	t2, 0x37(a0)
-	la	t6, CamPos
+	la	t6, CamPos;addiu
 	cfc2	t1, r5
 	cfc2	t2, r6
 	cfc2	t3, r7
@@ -2320,8 +2336,8 @@ GetRoomBoundsAsm:
 	addiu	s5, 1
 	bgtz	v0, loc_784A4
 	addi	v0, -1
-	sw	s5, number_draw_rooms
-	sw	fp, outside
+	sw	s5, number_draw_rooms-GP_ADDR(gp)
+	sw	fp, outside-GP_ADDR(gp)
 	lui	a0, 0x1F80
 	lw	s0, 0x1F8000D8
 	lw	s1, 0x1F8000DC
@@ -2334,8 +2350,89 @@ GetRoomBoundsAsm:
 	jr	ra
 	lw	fp, 0x1F8000F8
 	
+;0x77728
 phd_LookAt:
+	move    t5, ra
+	lhu     at, 0x18(sp)
+	lw      t0, 0x10(sp)
+	lw      t1, 0x14(sp)
+	sw      a0, CamPos+0x0-GP_ADDR(gp)
+	sw      a1, CamPos+0x4-GP_ADDR(gp)
+	sw      a2, CamPos+0x8-GP_ADDR(gp)
+	sw      a0, viewer+0x0-GP_ADDR(gp)
+	sw      a1, viewer+0x4-GP_ADDR(gp)
+	sw      a2, viewer+0x8-GP_ADDR(gp)
+	sh      at, viewer+0x10-GP_ADDR(gp)
+	subu    a0, a3, a0
+	subu    a1, t0, a1
+	subu    a2, t1, a2
+	jal     phd_GetVectorAngles
+	la      a3, viewer+0xC;addiu
+	lw      v0, viewer+0xC-GP_ADDR(gp)
+	la      a0, viewer+0x0;addiu
+	sll     at, v0, 16
+	srl     v0, 16
+	or      v0, at
+	sw      v0, viewer+0xC-GP_ADDR(gp)
+	move    ra, t5
+	
+phd_GetVectorAngles:
+	move    t0, a0
+	move    t1, a1
+	move    t2, a2
+	move    t3, a3
+	move    t4, ra
+	move    a0, t2
+	jal     phd_atan_asm
+	move    a1, t0
+	j       loc_7795C
+	sh      v0, 0(t3)
+
+	loc_77950:
+	sra     t0, 2
+	sra     t1, 2
+	sra     t2, 2
+
+	loc_7795C:
+	sll     v0, t0, 16
+	sra     v0, 16
+	bne     v0, t0, loc_77950
+	sll     v0, t1, 16
+	sra     v0, 16
+	bne     v0, t1, loc_77950
+	sll     v0, t2, 16
+	sra     v0, 16
+	bne     v0, t2, loc_77950
 	nop
+	mtc2    t0, r9
+	mtc2    t2, r10
+	nop
+	nop
+	cop2    0xA00428
+	mfc2    a0, r25
+	mfc2    v1, r26
+	jal     mSqrt
+	add     a0, v1
+	move    a0, v0
+	jal     phd_atan_asm
+	move    a1, t1
+	blez    t1, loc_779C0
+	sll     v1, v0, 16
+	bgtz    v1, loc_779D0
+	nop
+
+	loc_779C0:
+	bgez    t1, loc_779D4
+	nop
+	bgez    v1, loc_779D4
+	nop
+
+	loc_779D0:
+	negu    v0, v0
+
+	loc_779D4:
+	jr      t4
+	sh      v0, 2(t3)
 	
 phd_atan_asm:
 	bnez    a0, loc_77A50

@@ -54,10 +54,3 @@ void InitialiseHair()//3AC70, 3B170 (F)
 		bone = &bones[objects[HAIR].bone_index];
 	}
 }
-
-void HairControl(short a0, short a1, short a2)
-{
-	//s0 = gfLevelFlags;
-	//s5 = lara_item
-	//v1 = lara.hit_direction;
-}
