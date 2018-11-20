@@ -692,7 +692,23 @@ snaff_sphere_special:
 	addiu   at, fp, 0xB4
 	
 load_matrix:
-	jr ra
+	lw      v0, 0(at)
+	lw      v1, 4(at)
+	lw      a0, 8(at)
+	lw      a1, 0xC(at)
+	ctc2    v0, r0
+	ctc2    v1, r1
+	ctc2    a0, r2
+	ctc2    a1, r3
+	lw      v0, 0x10(at)
+	lw      v1, 0x14(at)
+	lw      a0, 0x18(at)
+	lw      a1, 0x1C(at)
+	ctc2    v0, r4
+	ctc2    v1, r5
+	ctc2    a0, r6
+	ctc2    a1, r7
+	jr      ra
 	nop
 	
 save_matrix:
