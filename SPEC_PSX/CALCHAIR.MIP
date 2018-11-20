@@ -670,8 +670,13 @@ HairControl:
 	nop
 	
 snaff_sphere_normal:
-	jr ra
-	nop
+	lh      v0, 6(s7)
+	sw      t0, 0(at)
+	sw      t1, 4(at)
+	sw      t2, 8(at)
+	sw      v0, 0xC(at)
+	j       load_matrix
+	addiu   at, fp, 0xB4
 	
 snaff_sphere_special:
 	jr ra
