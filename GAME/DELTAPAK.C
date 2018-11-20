@@ -1,5 +1,6 @@
 #include "DELTAPAK.H"
 
+#include "CALCHAIR.H"
 #include "CALCLARA.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
