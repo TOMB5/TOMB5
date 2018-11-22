@@ -11,18 +11,20 @@ void* func[] __attribute__((section(".header"))) =
 	&CODEWAD_Joby5_Func1,
 };
 
-short data[] __attribute__((section(".header"))) =
+short hData[] __attribute__((section(".header"))) =
 {
 	0,
-	0
+};
+
+unsigned short data[] __attribute__((section(".data"))) =
+{
+	0,
 };
 #endif
 
 void CODEWAD_Joby5_Func1()
 {
-#if PC_VERSION || PSXPC_VERSION
-	static short data[2];
-#endif
+#if PSX_VERSION
 
 	if (!(GlobalCounter & 0x1FF))
 	{
@@ -30,36 +32,35 @@ void CODEWAD_Joby5_Func1()
 	}
 	
 	//loc_38
-	if (data[0] > 0)
+	if (hData[0] > 0)
 	{
-		++data[0];
+		++hData[0];
 	}
 	
 	//loc_54
-	if (data[0] > 0x1C2 && !(GetRandomControl() & 0x1FF))
+	if (hData[0] > 0x1C2 && !(GetRandomControl() & 0x1FF))
 	{
-		data[0] = -(GetRandomControl() & 0x1F) - 32;
-		data[1] = 0;
+		hData[0] = -(GetRandomControl() & 0x1F) - 32;
+		data[0] = 0;
 	}//loc_A0
 	else
 	{
-		if (data[0] < 0)
+		if (hData[0] < 0)
 		{
-			if (data[1] < ABS(data[0]))
+			if (data[0] < ABS(hData[0]))
 			{
-				data[1]++;
-				camera.bounce = -(data[1] / data[1]);
+				data[0]++;
+				camera.bounce = -(data[0] / data[0]);
 			}
 			else
 			{
 				//loc_104
-				GetRandomControl();
-				camera.bounce = -(GetRandomControl() / ABS(data[0]));
-				data[0]++;
+				camera.bounce = -(GetRandomControl() / ABS(hData[0]));
+				hData[0]++;
 			}
 		}
 	}
 	//loc_14C
-
+#endif
 	return;
 }
