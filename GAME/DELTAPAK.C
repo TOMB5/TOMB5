@@ -37,7 +37,7 @@
 #include "ROOMLOAD.H"
 #include "MATHS.H"
 #include "DRAWPHAS.H"
-
+#include "DELTAPAK_S.H"
 #include "CD.H"
 #endif
 
@@ -3195,17 +3195,17 @@ void frigup_lara()//2D000(<), ? (F)
 	object = &objects[lara_item->object_number];
 	bone = &bones[object->bone_index];
 
-	//updateAnimFrame(&actor_pnodes[0], 0x10, frame);
+	//updateAnimFrame(actor_pnodes[0], 0x10, frame);
 	DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 0);
 	mPushUnitMatrix();
 	DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 1);
 	mPopMatrix();
 
-	HairControl(0, 0, frame);
+	//HairControl(0, 0, frame);
 
 	if ((gfLevelFlags & GF_LVOP_YOUNG_LARA))
 	{
-		HairControl(0, 1, frame);
+		//HairControl(0, 1, frame);
 	}
 
 	//loc_2D0F0
