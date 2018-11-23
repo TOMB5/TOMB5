@@ -7,6 +7,7 @@
 #include "DRAWPHAS.H"
 #include "FXTRIG.H"
 #include "PSXINPUT.H"
+#include "SHADOWS.H"
 #endif
 #include "GAMEFLOW.H"
 #include "LARA.H"
@@ -113,7 +114,7 @@ void InitialisePickUpDisplay()//3B580, 3B9DC (F)
 	CurrentPickup = 0;
 }
 
-void DrawAirBar(int flash_state)
+void DrawAirBar(int flash_state)//3B3CC
 {
 #if PC_VERSION
 	if (lara.air == 1800 || lara_item->hit_points <= 0)
@@ -137,154 +138,57 @@ void DrawAirBar(int flash_state)
 
 		lara.Gassed = FALSE;
 	}
-#else
+#elif PSX_VERSION
 
-	int air; // $v1
+	int air;
 
-	//a2 = flash_state;
-	//v1 = &lara
-	//a0 = 0x708
-	//a1 = lara.air;
-	//s0  = 0xA0000;
-	if (lara.air == 1800)
+	if (lara.air == 1800 || lara_item->hit_points <= 0)
 	{
+		//loc_3B570
 		return;
 	}
 
-	//v0 = lara_item;
-	//v1 = lara.air
+	air = lara.air;
 
-	if (lara_item->hit_points <= 0)
+	//clamp
+	if (air < 0)
 	{
-		return;
-	}
+		air = 0;
+	}//loc_3B424
+	else if (air > 1080)
+	{
+		air = 1080;
+	}//loc_3B434
 
-	if (lara.air < 0)//v1
+	if (air > 450)
 	{
-		//v1 = 0
+		if (flash_state != 0)
+		{
+			S_DrawGouraudBar(343, 32, 133, ((((((((air * 0x38E38E39) >> 2) - (air >> 31) >> 5) + ((air * 0x38E38E39) >> 2) - (air >> 31)) << 2) + ((air * 0x38E38E39) >> 2) - (air >> 31)) * 0x51EB851F) >> 5) - (((((((air * 0x38E38E39) >> 2) - (air >> 31) >> 5) + ((air * 0x38E38E39) >> 2) - (air >> 31)) << 2) + ((air * 0x38E38E39) >> 2) - (air >> 31)) >> 31), &airBarColourSet);
+		}
+		else
+		{
+			//loc_3B4A8
+			S_DrawGouraudBar(343, 32, 133, 0, &airBarColourSet);
+		}
 	}
-	else if (lara.air > 0x708)//v1
-	{
-		//v1 = 0x708
-	}
-
-	//v0 = 0x38E30000;
-	if (lara.air > 0x1C2)
+	else
 	{
 		//loc_3B4D0
+		S_DrawGouraudBar(343, 32, 133, ((((((((air * 0x38E38E39) >> 2) - (air >> 31) << 5) + ((air * 0x38E38E39) >> 2) - (air >> 31)) << 2) + ((air * 0x38E38E39) >> 2) - (air >> 31)) * 0x51EB851F) >> 5) - (((((((air * 0x38E38E39) >> 2) - (air >> 31) << 5) + ((air * 0x38E38E39) >> 2) - (air >> 31)) << 2) + ((air * 0x38E38E39) >> 2) - (air >> 31)) >> 31), &airBarColourSet);
 	}
-	else if (flash_state == 0)
+
+	//loc_3B534
+	if (lara.Gassed)// & 0x200 check me
 	{
-		//loc_3B4A8
-	}
+		if (lara.dpoisoned < 2048)
+		{
+			lara.dpoisoned += 2;
+		}
+		//loc_3B560
+		lara.Gassed = 0;
 
-	sizeof(struct room_info);
-#if 0
-	
-		bgez	$v1, loc_3B424
-		slti	$v0, $v1, 0x709
-		j	loc_3B430
-		move	$v1, $zero
-
-		loc_3B424 :
-	bnez	$v0, loc_3B434
-		slti	$v0, $v1, 0x1C3
-		li	$v1, 0x708
-
-		loc_3B430 :
-		slti	$v0, $v1, 0x1C3
-
-		loc_3B434 :
-		beqz	$v0, loc_3B4D0
-		lui	$v0, 0x38E3
-		beqz	$a2, loc_3B4A8
-		li	$v0, 0x38E38E39
-		mult	$v1, $v0
-		li	$t0, 0x51EB851F
-		sra	$v1, 31
-		mfhi	$v0
-		sra	$v0, 2
-		subu	$v0, $v1
-		sll	$a3, $v0, 5
-		addu	$a3, $v0
-		sll	$a3, 2
-		addu	$a3, $v0
-		mult	$a3, $t0
-		li	$a0, 0x157
-		li	$a1, 0x20
-		li	$a2, 0x85
-		la	$v0, dword_A18E0
-		sw	$v0, 0x20 + var_10($sp)
-		sra	$a3, 31
-		mfhi	$t0
-		sra	$t0, 5
-		jal	sub_86FD8
-		subu	$a3, $t0, $a3
-		j	loc_3B534
-		addiu	$a0, $s0, 0x57DC
-
-		loc_3B4A8:
-	la	$v0, dword_A18E0
-		sw	$v0, 0x20 + var_10($sp)
-		li	$a0, 0x157
-		li	$a1, 0x20
-		li	$a2, 0x85
-		jal	sub_86FD8
-		move	$a3, $zero
-		j	loc_3B534
-		addiu	$a0, $s0, 0x57DC
-
-		loc_3B4D0:
-	ori	$v0, 0x8E39
-		mult	$v1, $v0
-		li	$t0, 0x51EB851F
-		sra	$v1, 31
-		mfhi	$v0
-		sra	$v0, 2
-		subu	$v0, $v1
-		sll	$a3, $v0, 5
-		addu	$a3, $v0
-		sll	$a3, 2
-		addu	$a3, $v0
-		mult	$a3, $t0
-		li	$a0, 0x157
-		li	$a1, 0x20
-		li	$a2, 0x85
-		la	$v0, dword_A18E0
-		sw	$v0, 0x20 + var_10($sp)
-		sra	$a3, 31
-		mfhi	$t0
-		sra	$t0, 5
-		jal	sub_86FD8//S_DrawGouraudBar
-		subu	$a3, $t0, $a3
-		addiu	$a0, $s0, 0x57DC
-
-		loc_3B534:
-	lw	$v0, 0x44($a0)
-		nop
-		andi	$v0, 0x200
-		beqz	$v0, loc_3B570
-		nop
-		lh	$v0, 0x32($a0)
-		lhu	$v1, 0x32($a0)
-		slti	$v0, 0x800
-		beqz	$v0, loc_3B560
-		addiu	$v0, $v1, 2
-		sh	$v0, 0x32($a0)
-
-		loc_3B560:
-	lw	$v0, 0x44($a0)
-		li	$v1, 0xFFFFFDFF
-		and $v0, $v1
-		sw	$v0, 0x44($a0)
-
-		loc_3B570 :
-		lw	$ra, 0x20 + var_4($sp)
-		lw	$s0, 0x20 + var_8($sp)
-		jr	$ra
-		addiu	$sp, 0x20
-#endif
-		UNIMPLEMENTED();
+	}//loc_3B570
 #endif
 }
 
@@ -380,7 +284,7 @@ void DrawGameInfo(int timed)//3AD68(<), 3B268(<)
 
 			if (DashTimer < 120)
 			{
-				///@TODO Macro S_DrawGouraudBar(0x2E, 0x85, 0x157, (((((((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31) << 5) + (((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31)) << 2) + (((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31) * 0x51EB851F) >> 5 - (((((((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31) << 5) + (((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31)) << 2) + (((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31)) >> 31, &dashBarColourSet);
+				S_DrawGouraudBar(0x2E, 0x85, 0x157, (((((((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31) << 5) + (((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31)) << 2) + (((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31) * 0x51EB851F) >> 5 - (((((((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31) << 5) + (((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31)) << 2) + (((((((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) * 0x88888889) + (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2)) >> 6) - (((((DashTimer << 1) + DashTimer) << 3) + DashTimer) << 2) >> 31)) >> 31, &dashBarColourSet);
 			}//loc_3AF14
 
 			if ((gfLevelFlags & GF_LVOP_TIMER) && savegame.Level.Timer != 0 && 0x1A5E0 > savegame.Level.Timer)
