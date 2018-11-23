@@ -1208,7 +1208,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 	{
 		if (LaraDrawType != 5)
 		{
-			HairControl(0, 0, 0);
+			//HairControl(0, 0, 0);
 
 			if ((gfLevelFlags) & GF_LVOP_YOUNG_LARA)
 			{
