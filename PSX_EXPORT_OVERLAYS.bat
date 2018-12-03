@@ -10,3 +10,6 @@ rem psylink /c /p /q /rmips=SPEC_PSX/TITSEQ.REL @SPEC_PSX/TITSEQ.LNK,SPEC_PSX/TI
 
 rem slink /psx /c /p /rmips=GAME/LION.REL @GAME/LION.LNK,GAME/LION.BIN
 rem psylink /c /p /q /rmips=GAME/LION.REL @GAME/LION.LNK,GAME/LION.BIN
+
+rem slink /psx /c /p /rmips=GAME/JOBY5.REL @GAME/JOBY5.LNK,GAME/JOBY5.BIN
+rem psylink /c /p /q /rmips=GAME/JOBY5.REL @GAME/JOBY5.LNK,GAME/JOBY5.BIN
