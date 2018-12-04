@@ -109,6 +109,22 @@ int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundDa
 #endif
 }
 
+void sub_B3A7C(int a0)
+{
+	struct PSXSPRITESTRUCT* spr = &psxspriteinfo[objects[MISC_SPRITES].mesh_index];
+
+	envmap_data[0] = spr->tpage << 16 | spr->clut;
+	envmap_data[1] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+	spr++;
+
+	envmap_data[2] = spr->tpage << 16 | spr->clut;
+	envmap_data[3] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+	spr++;
+
+	envmap_data[4] = spr->tpage << 16 | spr->clut;
+	envmap_data[5] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+}
+
 /*
  * [FUNCTIONALITY] - RelocateLevel.
  * Relocates all game data pointers from the level file to be loaded back into the engine.
@@ -528,7 +544,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	}
 	//loc_A5C
 
-	///sub_649C();
+	sub_B9DA8();
 
 	if (number_rooms > 0)
 	{
@@ -570,7 +586,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	
 	GLOBAL_default_sprites_ptr = &psxspriteinfo[objects[DEFAULT_SPRITES].mesh_index];
 
-	///sub_134(0xB);
+	sub_B3A7C(0xB);
 
 	GLOBAL_gunflash_meshptr = meshes[objects[GUN_FLASH].mesh_index];
 
@@ -1085,7 +1101,7 @@ void sub_B9DA8()//?(<), B9DA8(<)
 	}
 	//B9E68
 	sub_B9974();
-	//sub_B9B84();
+	sub_B9B84();
 
 	SeedRandomDraw(0xD371F947);
 	SeedRandomControl(0xD371F947);
@@ -1093,8 +1109,18 @@ void sub_B9DA8()//?(<), B9DA8(<)
 	return;
 }
 
-void sub_B4A40()
+void sub_B4A40()//(<), B4A40(<)
 {
+	long rand;
+	//a0 = 0x10000
+	rand = rand_2;//v0 @ 0x10(sp)
+
+	SeedRandomDraw(0x1D96D);
+
+	//fp = 0
+	//s5 = &WaterTable
+	//a0 = s5;
+
 }
 
 void InitialiseSqrtTable()//?(<), B4D14(<)
@@ -1492,6 +1518,30 @@ void InitialiseCutseq()//?(<), BA194(<) (F)
 	SetFadeClip(0, 1);
 }
 
+void sub_B9B84()
+{
+	//a0 = level_items
+	//a3 = items
+	//a1 = 0
+
+	if (level_items > 0)
+	{
+		//s0 = &objects
+		//t5 = -15873
+		//t9 = a0
+		//v0 = nAIObjects
+		//t8 = AIObjects
+
+		//t7 = nAIObjects
+		//t6 = nAIObjects
+
+		//loc_62CC
+
+
+
+	}//loc_6420
+}
+
 void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3)//?(<), B9EA0(<) (F)
 {
 	int i;
@@ -1528,7 +1578,7 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 		DEL_CDFS_OpenFile(CUTSEQ);
 		DEL_CDFS_Read((char*)&tsv_buffer[0], 2048);
 #else
-		nHandle = PCopen("\CUTSEQ.JIZ", 0, 0);
+		nHandle = PCopen("\\CUTSEQ.JIZ", 0, 0);
 		FILE_Read((char*)&tsv_buffer[0], 1, 2048, nHandle);
 #endif
 		s3 = ReadResidentData(residentData[0], nHandle);
