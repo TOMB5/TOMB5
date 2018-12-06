@@ -155,11 +155,14 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 #endif
 
 	level = (struct Level*)&tsv_buffer[0];
+
+#if DEBUG_VERSION
 	if (level->objectVersion != PSX_FILE_VERSION)
 	{
 		printf("Wrong Version Number!!!\n");
 		printf("Game Ver: %d  Level Ver: %d\n", OBJECT_VERSION, level->objectVersion);
 	}
+#endif
 
 	LaraDrawType = level->laraDrawType;
 	WeatherType = level->weatherType;
@@ -528,7 +531,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	//B4228
 	InitialiseFXArray(1);
 	InitialiseLOTarray(1);
-	InitialiseObjects();//InitialiseObjects();
+	InitialiseObjects();
 	InitialiseClosedDoors();///sub_7BC4();//InitialiseClosedDoors();
 	InitialiseItemArray(256);
 
@@ -592,8 +595,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 
 	if (objects[SEARCH_OBJECT1].loaded && objects[SEARCH_OBJECT1_MIP].loaded)
 	{
-		///@FIXME wrong struct
-		((struct MESH_INFO*)meshes[objects[SEARCH_OBJECT1].mesh_index])->y = ((struct MESH_INFO*)meshes[objects[SEARCH_OBJECT1_MIP].mesh_index])->x;
+		((int*)meshes[objects[SEARCH_OBJECT1].mesh_index])[1] = ((int*)meshes[objects[SEARCH_OBJECT1_MIP].mesh_index])[0];
 	}//loc_CF4
 
 
@@ -615,8 +617,8 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 			meshptr = meshes[objects[WATERFALL1 + i].mesh_index];
 			meshptr += 6;//0xC for next itr?
 			meshptr += meshptr[5] << 16 >> 17;
-			((int*)AnimatingWaterfalls[i])[0] = (int)&psxtextinfo[meshptr[2] << 4];
-			AnimatingWaterfallsV[i] = ((char*)&psxtextinfo[meshptr[2] << 4])[1];
+			((int*)AnimatingWaterfalls[i])[0] = (int)&psxtextinfo[meshptr[2] << 4];//why << 4? 1<<4=16!
+			AnimatingWaterfallsV[i] = ((char*)&psxtextinfo[meshptr[2] << 4])[1];//why << 4? 1<<4=16!
 		}//loc_D84
 	}
 
@@ -748,188 +750,8 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 {
 	int i;
 
-	//a0 = &objects
-	//s2 = 0x1F0000
-#if 0
-		sw      $s1, 0x14($sp)
-		lui     $s1, 0xA
-		sw      $s0, 0x10($sp)
-		lui     $s0, 0x200
-		li      $t7, 0xA
-		li      $t6, -16384
-		li      $t4, 0xFEFFFFFF
-		lui     $v0, 0xA
-		li      $a1, MISC_SPRITES
-		li      $t3, 0xFFFDFFFF
-		li      $t2, 0xDFFFFFFF
-		li      $t1, 0xFFBFFFFF
-		li      $t0, 0xFFDFFFFF
-		li      $a3, 0xFFEFFFFF
-		lui     $a2, 0xFFF7
-		lw      $t5, frames
-		li      $a2, 0xFFF7FFFF
-		sw      $ra, 0x1C($sp)
-#endif
-
-
-		//loc_5E5C
-		//v0 = *(int*)&object->bite_offset;
-		//v1 = object->frame_base
-		//a1 --;
-		//objects[i].initialise = NULL;
-		//objects[i].collision = NULL;
-		//objects[i].control = NULL;
-		//objects[i].draw_routine = NULL;
-		//objects[i].ceiling = NULL;
-		//objects[i].floor = NULL;
-		//objects[i].pivot_length = 0;
-		//objects[i].radius = 10;
-		//objects[i].shadow_size = 0;
-		//objects[i].hit_points = -16384;
-		//objects[i].explodable_meshbits = 0;
-		//objects[i].draw_routine_extra = NULL;
-		//objects[i].object_mip = 0;
-		//objects[i].using_drawanimating_item = 1;
-		//objects[i].bite_offset &= 8;
-		//objects[i].bite_offset &= 0x1000000;
-		//objects[i].bite_offset &= 0x20000;
-
-#if 0
-		and     $v0, $t2
-		and     $v0, $t1
-		and     $v0, $t0
-		and     $v0, $a3
-		and     $v0, $a2
-		addu    $v1, $t5, $v1
-		sw      $v0, 0x30($a0)
-
-		sw      $v1, 8($a0)
-		bgez    $a1, loc_5E5C
-		addiu   $a0, 0x40  # '@'
-		jal     sub_1A1C
-		nop
-		jal     sub_4BE4
-		nop
-		jal     nullsub_1
-		nop
-		jal     0x3AC70
-		nop
-		jal     nullsub_2
-		nop
-		li      $a1, 5
-		li      $v0, 0xA3A2C
-		addiu   $a2, $v0, 5
-		lui     $v1, 0xA
-		lui     $a0, 0xA
-		li      $v0, 0xA3A34
-		sb      $zero, 0xA390C
-		li      $v1, 1
-		sb      $zero, 0xA3A28
-		li      $a0, 2
-		sb      $v1, 7($v0)
-		li      $v1, 3
-		sb      $a0, 0xB($v0)
-		li      $a0, 4
-		sb      $v1, 0xF($v0)
-		li      $v1, 5
-		sb      $zero, 5($v0)
-		sb      $a0, 0x13($v0)
-		sb      $v1, 0x15($v0)
-
-		loc_5F4C:                                # CODE XREF : ROM:00005F54↓j
-		sb      $zero, 0($a2)
-		addiu   $a1, -1
-		bgez    $a1, loc_5F4C
-		addiu   $a2, -1
-		lui     $v0, 0xA
-		lbu     $a0, 0xA05D0
-		nop
-		beqz    $a0, loc_5FB4
-		move    $a1, $zero
-		lui     $v0, 0x1F
-		addiu   $t0, $v0, 0x2480
-		lui     $v1, 0xA
-		addiu   $a3, $v1, 0x201C
-		move    $a2, $a0
-
-		loc_5F84 : # CODE XREF : ROM:00005FAC↓j
-		addu    $v0, $a1, $a3
-		addiu   $a1, 1
-		lbu     $a0, 0($v0)
-		slt     $v1, $a1, $a2
-		andi    $v0, $a0, 0xF
-		sll     $v0, 7
-		ori     $v0, 0x6800
-		addu    $v0, $t0
-		andi    $a0, 0xF0
-		sll     $a0, 6
-		bnez    $v1, loc_5F84
-		sh      $a0, 0x24($v0)
-
-		loc_5FB4:                                # CODE XREF : ROM:00005F68↑j
-		lbu     $v0, 0x1FA8($s1)
-		li      $s0, 1
-		bne     $v0, $s0, loc_5FCC
-		nop
-		jal     0x2DF50
-		li      $a0, 0x1B2
-
-		loc_5FCC:                                # CODE XREF : ROM:00005FBC↑j
-		lbu     $v1, 0x1FA8($s1)
-		li      $v0, 0xA
-		bne     $v1, $v0, loc_5FEC
-		addiu   $s1, $s2, 0x2480
-		jal     0x2DF50
-		li      $a0, 0x1BE
-		sw      $s0, 8($v0)
-		addiu   $s1, $s2, 0x2480
-
-		loc_5FEC:                                # CODE XREF : ROM:00005FD4↑j
-		lw      $v0, 0x17B0($s1)
-		lui     $s0, 1
-		and $v0, $s0
-		beqz    $v0, loc_6010
-		nop
-		jal     0x5E7E8
-		li      $a0, 0x380
-		lui     $v1, 0xA
-		sw      $v0, 0xA205C
-
-		loc_6010:                                # CODE XREF : ROM:00005FF8↑j
-		lw      $v0, 0x1770($s1)
-		nop
-		and     $v0, $s0
-		beqz    $v0, loc_6034
-		nop
-		jal     0x5E7E8
-		li      $a0, 0x800
-		lui     $v1, 0xA
-		sw      $v0, 0xA2058
-
-		loc_6034:                                # CODE XREF : ROM:0000601C↑j
-		lw      $v0, 0x17F0($s1)
-		nop
-		and     $v0, $s0
-		beqz    $v0, loc_6058
-		nop
-		jal     0x5E7E8
-		li      $a0, 0x700
-		lui     $v1, 0xA
-		sw      $v0, 0xA2074
-
-		loc_6058:                                # CODE XREF : ROM:00006040↑j
-		lw      $ra, 0x1C($sp)
-		lw      $s2, 0x18($sp)
-		lw      $s1, 0x14($sp)
-		lw      $s0, 0x10($sp)
-		jr      $ra
-		addiu   $sp, 0x20
-
-#endif
-
-
-#if 0
-	for (i = 0; i < NUMBER_OBJECTS; i++)
+	//loc_5E5C
+	for (i = MISC_SPRITES; i >= 0; i--)
 	{
 		objects[i].initialise = NULL;
 		objects[i].collision = NULL;
@@ -953,7 +775,7 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 		objects[i].save_hitpoints = 0;
 		objects[i].save_position = 0;
 
-		*(int*) &objects[i].frame_base += (int) frames;
+		(int)objects[i].frame_base += (int)frames;
 	}
 
 	sub_B5328();
@@ -980,7 +802,6 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 	{
 		for (i = 0; i < gfNumMips; i++)
 		{
-			//objects[((gfMips[i] & 0xF) << 7) | ANIMATING1 * 128].object_mip = (gfMips[i] & 0xF0) << 6;
 			objects[((gfMips[i] & 0xF) << 1) | ANIMATING1].object_mip = (gfMips[i] & 0xF0) << 6;
 		}
 	}//0xB98B8
@@ -1009,7 +830,6 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 	{
 		Spiders = (struct SPIDER_STRUCT*)game_malloc(sizeof(struct SPIDER_STRUCT) * 64);
 	}
-#endif
 }//0xB996C
 
 void sub_B5328()
@@ -1520,25 +1340,60 @@ void InitialiseCutseq()//?(<), BA194(<) (F)
 
 void sub_B9B84()
 {
-	//a0 = level_items
-	//a3 = items
-	//a1 = 0
+	struct ITEM_INFO* item;
+	struct AIOBJECT* ai_object;//$a2
+	int i;
+	int j;
+	int t0;
+	int v0;
 
 	if (level_items > 0)
 	{
-		//s0 = &objects
-		//t5 = -15873
-		//t9 = a0
-		//v0 = nAIObjects
-		//t8 = AIObjects
-
-		//t7 = nAIObjects
-		//t6 = nAIObjects
-
 		//loc_62CC
+		for(i = 1; i < level_items; i++)///@CHECK
+		{
+			if (objects[items[i].object_number].intelligent)
+			{
+				items[i].meshswap_meshbits &= 0xC1FF;
 
+				if (nAIObjects > 0)
+				{
+					t0 = 0x10000;
+					ai_object = &AIObjects[0];
+					//loc_6318
+					while ((t0 >> 16) < (nAIObjects >> 16))///@CHECK $t0 maybe opt'd
+					{
+						v0 = t0;
 
+						if (ABS(ai_object->x - items[i].pos.x_pos) < 512 &&
+							ABS(ai_object->z - items[i].pos.z_pos) < 512 &&
+							ai_object->room_number == items[i].room_number &&
+							ai_object->object_number < AI_PATROL2)
+						{
+#if 1
+							((int*)&items[i])[33] = ((((int*)&items[i])[33] & 0xFFFFC1FF) | ((((1 << (ai_object->object_number - 0x17A)) | ((int*)&items[i])[33] >> 9)) & 0x1F) << 9);
+#else
+							items[i].meshswap_meshbits &= 0xC1FF;
+							items[i].meshswap_meshbits >>= 9;
+							items[i].meshswap_meshbits |= 1 << (ai_object->object_number - 0x17A) & 0x1F << 9;
+#endif
+							items[i].item_flags[3] = ai_object->trigger_flags;
 
+							if (ai_object->object_number != AI_GUARD)
+							{
+								ai_object->room_number = 255;
+							}
+						}//loc_63D8
+
+						++ai_object;
+						t0 += 0x10000;
+					}
+
+					//loc_63B4
+					items[i].TOSSPAD = items[i].item_flags[3] | item[i].ai_bits;
+				}
+			}//loc_63F0
+		}//loc_6410
 	}//loc_6420
 }
 
