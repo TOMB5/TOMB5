@@ -3723,5 +3723,5 @@ void resetwindowsmash(int item_num)// (F)
 
 void ResetCutItem(int item_num)// (F)
 {
-	find_a_fucking_item(item_num)->mesh_bits = 0xFFFFFFFF;
+	find_a_fucking_item(item_num)->mesh_bits = -1;
 }
