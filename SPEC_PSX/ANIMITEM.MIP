@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF calc_animating_item_clip_window, CalcAllAnimatingItems_ASM, init_scratchpad, stash_the_info, CalcAnimatingItem_ASM
+	XDEF calc_animating_item_clip_window, CalcAllAnimatingItems_ASM, init_scratchpad, stash_the_info
 	XREF InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, InterpolateMatrix, iPopMatrix, iPushMatrix, iTranslateXYZ, iRotY, iRotX, iRotZ, mRotSuperPackedYXZ, mTranslateXYZ, mRotX, mRotZ, GetFrames, mmPushMatrix, mTranslateAbsXYZ, mRotYXZ, MatrixStack, CalculateObjectLighting, S_CalculateStaticMeshLight, phd_PutPolygons, phd_PutPolygons_seethrough, mPopMatrix, mPushMatrix, phd_left, phd_right, phd_top, phd_bottom, mClipBoundingBox, draw_rooms, number_draw_rooms, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
 	
 calc_animating_item_clip_window:
