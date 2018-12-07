@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF UnpackRGB, DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, Add2DPrim, CreateNewVertex, ClipToScreen, SubdivSetup3
+	XDEF UnpackRGB, DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, CreateNewVertex, ClipToScreen, SubdivSetup3
 	XREF MatrixStack, number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo
 	
 ;FIXME
