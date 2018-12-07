@@ -22,6 +22,5 @@ extern void LaraGetNewTarget(struct WEAPON_INFO* winfo);
 extern void LaraTargetInfo(struct WEAPON_INFO* winfo);
 extern void InitialiseNewWeapon();
 extern void LaraGun();
-extern int CheckForHoldingState(int state);
 
 #endif

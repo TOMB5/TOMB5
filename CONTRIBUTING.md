@@ -47,6 +47,12 @@ If you're able to code in C/C++ please feel free to contact me. I can assign you
     - Download PSX PsyQ SDK 4.6 or 4.7, extract to c:/psyq
     - Download and install TDM-GCC.
     - Run psxdev's pspath.reg file to update registry environment variables.
-    - Go to root clone directory in commandline type mingw32-make and enter the command.
+    - Compile all the TOOLS in the tool folder of the solution.
+	- Create a /DATA/ folder in BUILD\TOOLS\GAMEWAD_Unpack\Release
+	- Extract GAMEWAD.OBJ using GAMEWAD_Unpack tool (drag and drop onto exe).
+	- Copy the /DATA/ FOLDER to BUILD\TOOLS\GAMEWAD_Pack\Release
+	- Copy DEL2FAB.EXE (from leaked TR4&5 PSX SDK) to root clone directory.
+    - Go to root clone directory in commandline type PSX_BUILD and enter the command.
+    - Go to root clone directory /DISC/ and run MAKEISO.bat (note: mkpsxiso required)
     
 Feel free to contact us on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5

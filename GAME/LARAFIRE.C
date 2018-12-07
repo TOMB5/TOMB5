@@ -212,7 +212,7 @@ void LaraGun()//46F28, 4738C
 	UNIMPLEMENTED();
 }
 
-int CheckForHoldingState(int state)//46EE4, 47348 (F)
+static int CheckForHoldingState(int state)//46EE4, 47348 (F)
 {
 	short* holds = HoldStates;
 
