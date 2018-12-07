@@ -5,6 +5,7 @@
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
+#include "EFFECT2.H"
 #include "GAMEFLOW.H"
 #include "HAIR.H"
 #include "ITEMS.H"
@@ -42,6 +43,8 @@ short next_fx_active;
 int number_sound_effects;
 struct OBJECT_VECTOR* sound_effects;
 struct FX_INFO* effects;
+
+static void ClearSpidersPatch(struct ITEM_INFO* item);
 
 void(*effect_routines[59])(struct ITEM_INFO* item) =
 {
@@ -552,9 +555,29 @@ void void_effect(struct ITEM_INFO* item)//393CC(<), 398CC(<) (F)
 {
 }
 
-void WaterFall(short item_number)//39294, 39794
+void WaterFall(short item_number)//39294(<), 39794(<) (F)
 {
-	UNIMPLEMENTED();
+	struct ITEM_INFO* item;
+	int x;
+	int z;
+
+	item = &items[item_number];
+
+	if (item->pos.y_rot + 0x8000 == 0)
+	{
+		x = item->pos.x_pos - (SIN(item->pos.y_rot + 0x8000) >> 3) + ((rcossin_tbl[2048] * wf) >> 12);
+		z = item->pos.z_pos - (COS(item->pos.y_rot + 0x8000) >> 3) + ((rcossin_tbl[2049] * wf) >> 12);
+	}
+	else
+	{
+		//3934C
+		x = item->pos.x_pos - (SIN(item->pos.y_rot + 0x8000) >> 3) + ((SIN(item->pos.y_rot + 0x4000) * wf) >> 12);
+		z = item->pos.z_pos - (COS(item->pos.y_rot + 0x8000) >> 3) + ((COS(item->pos.y_rot + 0x4000) * wf) >> 12);
+	}
+
+	//393A0
+	TriggerWaterfallMist(x, item->pos.y_pos, z, item->pos.y_rot + 0x8000);
+	SoundEffect(SFX_WATERFALL_LOOP, &item->pos, 0);
 }
 
 void SoundEffects()//39190(<), 39690 (F)

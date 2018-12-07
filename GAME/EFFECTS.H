@@ -23,7 +23,6 @@ extern void TL_4(struct ITEM_INFO* item);
 extern void TL_3(struct ITEM_INFO* item);
 extern void TL_2(struct ITEM_INFO* item);
 extern void TL_1(struct ITEM_INFO* item);
-extern void ClearSpidersPatch(struct ITEM_INFO* item);
 extern void reset_hair(struct ITEM_INFO* item);
 extern void invisibility_off(struct ITEM_INFO* item);
 extern void invisibility_on(struct ITEM_INFO* item);
