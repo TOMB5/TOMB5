@@ -788,7 +788,9 @@ void LaraBubbles(struct ITEM_INFO* item)// (F)
 	}
 }
 
+#if PC_VERSION || PSXPC_VERSION
 void AddFootprint(struct ITEM_INFO* item)
 {
 	UNIMPLEMENTED();
 }
+#endif
