@@ -338,3 +338,12 @@ void SeedRandomDraw(long seed)//(F)
 {
 	rand_2 = seed;
 }
+
+void S_MemCpy(char* pSrc, char* pDest, int size)
+{
+	if (size > 0)
+	{
+		while (size-- > 0)
+			*pSrc++ = *pDest++;
+	}
+}

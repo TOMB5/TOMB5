@@ -6,9 +6,16 @@
 #include "GPU.H"
 #include "DRAWPHAS.H"
 #include "FXTRIG.H"
-#include "PSXINPUT.H"
 #include "SHADOWS.H"
 #endif
+
+#if PSX_VERSION
+#include "PSXINPUT.H"
+#endif
+#if PSXPC_VERSION
+#include "PSXPCINPUT.H"
+#endif
+
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "SPOTCAM.H"
@@ -179,7 +186,7 @@ void DrawAirBar(int flash_state)//3B3CC
 	}
 
 	//loc_3B534
-	if (lara.Gassed)// & 0x200 check me
+	if (lara.Gassed)
 	{
 		if (lara.dpoisoned < 2048)
 		{

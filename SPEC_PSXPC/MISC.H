@@ -26,5 +26,6 @@ extern long GetRandomControl();
 extern void SeedRandomControl(long seed);
 extern long GetRandomDraw();
 extern void SeedRandomDraw(long seed);
+extern void S_MemCpy(char* pSrc, char* pDest, int size);
 
 #endif
