@@ -1,6 +1,7 @@
 #include "CONTROL.H"
 
 #if PSX_VERSION || PSXPC_VERSION
+#include "CALCHAIR.H"
 #include "COLLIDE_S.H"
 #include "DRAWPHAS.H"
 #include "3D_GEN.H"
@@ -1207,11 +1208,11 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 	{
 		if (LaraDrawType != 5)
 		{
-			HairControl(0, 0, 0);
+			//HairControl(0, 0, 0);
 
 			if ((gfLevelFlags) & GF_LVOP_YOUNG_LARA)
 			{
-				HairControl(0, 1, 2);
+				//HairControl(0, 1, 2); ///@FIXME bad arg
 			}
 		}
 		//loc_1DFF4
@@ -2421,7 +2422,7 @@ int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLO
 	return 0;
 }
 
-#ifndef PSX_VERSION || PSXPC_VERSION///@FIXME @pc
+#if !PSX_VERSION
 void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint)
 {
 	UNIMPLEMENTED();

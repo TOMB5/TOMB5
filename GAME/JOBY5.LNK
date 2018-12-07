@@ -1,0 +1,15 @@
+text		group
+
+		section	.header,text
+		section	.rdata,text
+		section	.text,text
+		section	.ctors,text
+		section	.dtors,text
+		section	.data,text
+		section	.sdata,text
+		section	.sbss,text
+		section	.bss,text
+
+		include	GAME/JOBY5.OBJ
+		incsym	DISC/MAIN.SYM
+		inclib	c:/psyq/lib/libc.lib

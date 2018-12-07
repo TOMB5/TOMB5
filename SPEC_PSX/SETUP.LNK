@@ -1,0 +1,16 @@
+text		group
+
+		section	.header,text
+		section	.rdata,text
+		section	.text,text
+		section	.ctors,text
+		section	.dtors,text
+		section	.data,text
+		section	.sdata,text
+		section	.sbss,text
+		section	.bss,text
+
+		include	SPEC_PSX/SETUP.OBJ
+		incsym	DISC/MAIN.SYM
+		
+		inclib	C:/psyq/lib/LIBSPU.LIB

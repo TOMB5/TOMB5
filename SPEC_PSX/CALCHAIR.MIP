@@ -1,0 +1,731 @@
+	opt at+,w-,c+,m-
+
+	SECTION	ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF HairControl
+	XREF rcossin_tbl, room, SmokeWindX, SmokeWindZ,hair_wind, hair_dwind_angle, hair_wind_angle, objects, first_hair, hairs, gfLevelFlags, lara_item, lara, GetBestFrame, bones, anims, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, GetRandomControl, GetWaterHeight, GetFloor, GetHeight, phd_sqrt_asm, phd_atan_asm
+	
+HairControl:
+	lui		at, 0x1F80
+	sw      s0, 0x0(at)
+	sw      s3, 0xC(at)
+	sw      s4, 0x10(at)
+	sw      s5, 0x14(at)
+	sw      s6, 0x18(at)
+	sw      s7, 0x1C(at)
+	sw      fp, 0x20(at)
+	sw      ra, 0x24(at)
+	lhu     s0, gfLevelFlags-GP_ADDR(gp)
+	lui     fp, 0x1F80
+	lw      s5, lara_item-GP_ADDR(gp)
+;	lh      v1, lara+0x14-GP_ADDR(gp)
+	andi    s0, 1
+	move    s4, a1
+	sw      a0, 0x2C(fp)
+	bnez    a2, loc_82E0C
+	move    s3, a2
+	bltz    v1, loc_82E00
+	nop
+;	lw      v0, lara+0x44-GP_ADDR(gp)
+	lw      a1, anims-GP_ADDR(gp)
+	beqz    v1, loc_82DAC
+	andi    v0, 0x400
+	li      at, 2
+	beq     v1, at, loc_82DBC
+	li      at, 1
+	beq     v1, at, loc_82DCC
+	nop
+	beqz    v0, loc_82DD8
+	li      a0, 0x1400
+	j       loc_82DD8
+	li      a0, 0x2E40
+
+	loc_82DAC:
+	beqz    v0, loc_82DD8
+	li      a0, 0x1388
+	j       loc_82DD8
+	li      a0, 0x2DF0
+
+	loc_82DBC:
+	beqz    v0, loc_82DD8
+	li      a0, 0x13B0
+	j       loc_82DD8
+	li      a0, 0x2DC8
+
+	loc_82DCC:
+	beqz    v0, loc_82DD8
+	li      a0, 0x13D8
+	li      a0, 0x2E18
+
+	loc_82DD8:
+	addu    v1, a1, a0
+	lh      v0, 4(v1)
+;	lh      a0, lara+0x12-GP_ADDR(gp)
+	sra     v0, 8
+	mult    a0, v0
+	lw      s3, 0(v1)
+	mflo    t1
+	sll     v0, t1, 1
+	j       loc_82E0C
+	addu    s3, v0
+
+	loc_82E00:
+	jal     GetBestFrame
+	move    a0, s5
+	move    s3, v0
+
+	loc_82E0C:
+	jal     save_matrix
+	addiu   at, fp, 0x94
+	li      at, 0x1000
+	ctc2    at, r0
+	ctc2    zero, r1
+	ctc2    at, r2
+	ctc2    zero, r3
+	ctc2    at, r4
+	addiu   v0, s3, 0x12
+	sw      v0, 0x28(fp)
+	lw      a0, 0x40(s5)
+	lw      a1, 0x44(s5)
+	lw      a2, 0x48(s5)
+	ctc2    a0, r5
+	ctc2    a1, r6
+	ctc2    a2, r7
+	lh      a0, 0x4E(s5)
+	lh      a1, 0x4C(s5)
+	jal     mRotYXZ
+	lh      a2, 0x50(s5)
+	la      at, objects
+	lw      v0, 4(at)
+	lw      s6, bones-GP_ADDR(gp)
+	sll     v0, 2
+	addu    s6, v0
+	lh      a0, 0xC(s3)
+	lh      a1, 0xE(s3)
+	jal     mTranslateXYZ
+	lh      a2, 0x10(s3)
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+;	lw      s7, lara+0x60-GP_ADDR(gp)
+	jal     save_matrix
+	addiu   at, fp, 0xB4
+	lh      a0, 0(s7)
+	lh      a1, 2(s7)
+	jal     mTranslateXYZ
+	lh      a2, 4(s7)
+	jal     snaff_sphere_normal
+	addiu   at, fp, 0x44
+	lw      a0, 0x64(s6)
+	lw      a1, 0x68(s6)
+	jal     mTranslateXYZ
+	lw      a2, 0x6C(s6)
+	jal     mRotSuperPackedYXZ
+	li      a1, 6
+;	lh      a0, lara+0xAE-GP_ADDR(gp)
+;	lh      a1, lara+0xB0-GP_ADDR(gp)
+	jal     mRotYXZ
+	nop;deleteme
+;	lh      a2, lara+0xB2-GP_ADDR(gp)
+;	lw      s7, lara+0x7C-GP_ADDR(gp)
+	jal     save_matrix
+	addiu   at, fp, 0xB4
+	lh      a0, 0(s7)
+	lh      a1, 2(s7)
+	jal     mTranslateXYZ
+	lh      a2, 4(s7)
+	addiu   at, fp, 0x54
+	lh      v0, 6(s7)
+	sw      t0, 0(at)
+	sw      t1, 4(at)
+	sw      t2, 8(at)
+	beqz    s0, loc_82F1C
+	sra     a0, v0, 2
+	sra     a1, v0, 3
+	addu    a0, a1
+	subu    v0, a0
+
+	loc_82F1C:
+	sw      v0, 0xC(at)
+	jal     load_matrix
+	addiu   at, fp, 0xB4
+;	lw      s7, lara+0x80-GP_ADDR(gp)
+	lw      a0, 0x74(s6)
+	lw      a1, 0x78(s6)
+	jal     mTranslateXYZ
+	lw      a2, 0x7C(s6)
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	lh      a0, 0(s7)
+	lh      a1, 2(s7)
+	jal     mTranslateXYZ
+	lh      a2, 4(s7)
+	jal     snaff_sphere_special
+	addiu   at, fp, 0x74
+;	lw      s7, lara+0x8C-GP_ADDR(gp)
+	lw      a0, 0xA4(s6)
+	lw      a1, 0xA8(s6)
+	jal     mTranslateXYZ
+	lw      a2, 0xAC(s6)
+	jal     mRotSuperPackedYXZ
+	li      a1, 2
+	lh      a0, 0(s7)
+	lh      a1, 2(s7)
+	jal     mTranslateXYZ
+	lh      a2, 4(s7)
+	jal     snaff_sphere_special
+	addiu   at, fp, 0x84
+	lw      a0, 0xD4(s6)
+	lw      a1, 0xD8(s6)
+	jal     mTranslateXYZ
+	lw      a2, 0xDC(s6)
+	jal     mRotSuperPackedYXZ
+	li      a1, 2
+;	lh      a0, lara+0xA8-GP_ADDR(gp)
+;	lh      a1, lara+0xAA-GP_ADDR(gp)
+	jal     mRotYXZ
+	nop;deleteme
+;	lh      a2, lara+0xAC-GP_ADDR(gp)
+;	lw      s7, lara+0x98-GP_ADDR(gp)
+	jal     save_matrix
+	addiu   at, fp, 0xB4
+	lh      a0, 0(s7)
+	lh      a1, 2(s7)
+	jal     mTranslateXYZ
+	lh      a2, 4(s7)
+	jal     snaff_sphere_normal
+	addiu   at, fp, 0x64
+	beqz    s0, loc_83020
+	nop
+	lw      at, 0x54(fp)
+	lw      v0, 0x58(fp)
+	lw      v1, 0x5C(fp)
+	lw      a0, 0x64(fp)
+	lw      a1, 0x68(fp)
+	lw      a2, 0x6C(fp)
+	addu    at, a0
+	addu    v0, a1
+	addu    v1, a2
+	sra     at, 1
+	sra     v0, 1
+	sra     v1, 1
+	sw      at, 0x54(fp)
+	sw      v0, 0x58(fp)
+	sw      v1, 0x5C(fp)
+
+	loc_83020:
+	bnez    s4, loc_83054
+	nop
+	beqz    s0, loc_83040
+	nop
+	li      a0, 0xFFFFFFCC
+	li      a1, 0xFFFFFFD0
+	j       loc_8304C
+	li      a2, 0xFFFFFFCE
+
+	loc_83040:
+	li      a0, 0xFFFFFFFC
+	li      a1, 0xFFFFFFFC
+	li      a2, 0xFFFFFFD0
+
+	loc_8304C:
+	jal     mTranslateXYZ
+	addiu   ra, 0x10
+
+	loc_83054:
+	li      a0, 0x2C
+	li      a1, 0xFFFFFFD0
+	jal     mTranslateXYZ
+	li      a2, 0xFFFFFFCE
+	sw      t0, 0x30(fp)
+	sw      t1, 0x34(fp)
+	sw      t2, 0x38(fp)
+	jal     load_matrix
+	addiu   at, fp, 0x94
+	sll     v0, s4, 3
+	subu    v0, s4
+	sll     v0, 5
+	la      v1, hairs
+	addu    s7, v0, v1
+	la      a1, first_hair
+	sll     v0, s4, 2
+	addu    a1, v0, a1
+	lw      a0, objects+0x784
+	lw      v0, bones-GP_ADDR(gp)
+	lw      v1, 0(a1)
+	sll     a0, 2
+	beqz    v1, loc_8316C
+	addu    s6, v0, a0
+	sw      zero, 0(a1)
+	lw      a0, 0x30(fp)
+	lw      a1, 0x34(fp)
+	lw      a2, 0x38(fp)
+	sw      a0, 0(s7)
+	sw      a1, 4(s7)
+	sw      a2, 8(s7)
+	li      s5, 6
+
+	loc_830DC:
+	li      at, 0x1000
+	ctc2    at, r0
+	ctc2    zero, r1
+	ctc2    at, r2
+	ctc2    zero, r3
+	ctc2    at, r4
+	lw      a0, 0(s7)
+	lw      a1, 4(s7)
+	lw      a2, 8(s7)
+	ctc2    a0, r5
+	ctc2    a1, r6
+	ctc2    a2, r7
+	addiu   s5, -1
+	lh      a0, 0xE(s7)
+	lh      a1, 0xC(s7)
+	jal     mRotYXZ
+	move    a2, zero
+	lw      a0, 4(s6)
+	lw      a1, 8(s6)
+	jal     mTranslateXYZ
+	lw      a2, 0xC(s6)
+	sw      t0, 0x20(s7)
+	sw      t1, 0x24(s7)
+	sw      t2, 0x28(s7)
+	addiu   s6, 0x10
+	bnez    s5, loc_830DC
+	addiu   s7, 0x20
+	li      v0, 0x800
+	sw      zero, SmokeWindZ-GP_ADDR(gp)
+	sw      zero, SmokeWindX-GP_ADDR(gp)
+	sw      zero, hair_wind-GP_ADDR(gp)
+	sw      v0, hair_dwind_angle-GP_ADDR(gp)
+	sw      v0, hair_wind_angle-GP_ADDR(gp)
+	addiu   at, fp, 0x94
+	jal     load_matrix
+	addiu   ra, 0x4D8
+
+	loc_8316C:
+	lw      v0, 0x30(fp)
+	lw      v1, 0x34(fp)
+	lw      a0, 0x38(fp)
+	sw      v0, 0(s7)
+	sw      v1, 4(s7)
+	sw      a0, 8(s7)
+	lw      t1, 0x2C(fp)
+	lh      a3, 0x18(s5)
+	beqz    t1, loc_831A0
+	sh      a3, 0x3C(fp)
+	li      t1, 0xFFFF8100
+	j       loc_831F0
+	sw      t1, 0x40(fp)
+
+	loc_831A0:
+	lh      a0, 0(s3)
+	lh      v0, 2(s3)
+	lw      v1, 0x40(s5)
+	lh      a1, 4(s3)
+	lh      a2, 8(s3)
+	addu    a0, v0
+	sra     a0, 1
+	addu    a0, v1, a0
+	lh      v0, 6(s3)
+	lw      v1, 0x44(s5)
+	addu    a1, v0
+	sra     a1, 1
+	lh      v0, 0xA(s3)
+	addu    a1, v1, a1
+	addu    a2, v0
+	lw      v0, 0x48(s5)
+	sra     a2, 1
+	jal     GetWaterHeight
+	addu    a2, v0, a2
+	sw      v0, 0x40(fp)
+
+	loc_831F0:
+	jal     GetRandomControl
+	nop
+	lw      v1, hair_wind-GP_ADDR(gp)
+	andi    v0, 7
+	addiu   v1, -3
+	addu    v1, v0
+	slti    v0, v1, -1
+	bnez    v0, loc_83220
+	li      v0, 1
+	slti    v0, v1, 9
+	bnez    v0, loc_83224
+	li      v0, 0xFFFFFFFF
+
+	loc_83220:
+	addu    v1, v0
+
+	loc_83224:
+	sw      v1, hair_wind-GP_ADDR(gp)
+	jal     GetRandomControl
+	nop
+	andi    v0, 0x3F
+	addiu   v0, -0x20
+	lw      v1, hair_dwind_angle-GP_ADDR(gp)
+	sll     v0, 1
+	addu    v1, v0
+	andi    v1, 0x1FFE
+	slti    v0, v1, 0x400
+	beqz    v0, loc_83264
+	li      v0, 0x400
+	subu    v0, v1
+	sll     v0, 1
+	j       loc_8327C
+	addu    v1, v0
+
+	loc_83264:
+	slti    v0, v1, 0xC01
+	bnez    v0, loc_8327C
+	li      v0, 0xC00
+	subu    v0, v1, v0
+	sll     v0, 1
+	subu    v1, v0
+
+	loc_8327C:
+	sw      v1, hair_dwind_angle-GP_ADDR(gp)
+	lw      v0, hair_dwind_angle-GP_ADDR(gp)
+	lw      v1, hair_wind_angle-GP_ADDR(gp)
+	lw      a0, hair_wind-GP_ADDR(gp)
+	subu    v0, v1
+	sra     v0, 3
+	addu    v1, v0
+	andi    v1, 0x1FFE
+	sw      v1, hair_wind_angle-GP_ADDR(gp)
+	sll     v1, 1
+	la      v0, rcossin_tbl
+	addu	v0, v1
+	lw      v0, 0x0(v0)
+	addiu   s7, 0x20
+	sra     at, v0, 16
+	mult    at, a0
+	mflo    a1
+	sll     at, v0, 16
+	sra     at, 16
+	mult    at, a0
+	sra     a1, 12
+	sw      a1, SmokeWindZ-GP_ADDR(gp)
+	mflo    a2
+	sra     a2, 12
+	sw      a1, SmokeWindX-GP_ADDR(gp)
+	li      s3, 1
+
+	loc_832E4:
+	lw      a0, 0(s7)
+	lw      a1, 4(s7)
+	lw      a2, 8(s7)
+	lw      t1, 0x2C(fp)
+	sw      a0, 0x30(fp)
+	sw      a1, 0x34(fp)
+	bnez    t1, loc_83328
+	sw      a2, 0x38(fp)
+	jal     GetFloor
+	addiu   a3, fp, 0x3C
+	lw      a1, 0x30(fp)
+	lw      a2, 0x34(fp)
+	lw      a3, 0x38(fp)
+	jal     GetHeight
+	move    a0, v0
+	j       loc_8332C
+	move    a2, v0
+
+	loc_83328:
+	li      a2, 0x7FFF
+
+	loc_8332C:
+	lw      v1, 0x14(s7)
+	lw      v0, 0(s7)
+	sll     at, v1, 1
+	addu    v1, at, v1
+	sra     v1, 2
+	addu    v0, v1
+	sw      v0, 0(s7)
+	lw      v1, 0x18(s7)
+	lw      v0, 4(s7)
+	sll     at, v1, 1
+	addu    v1, at, v1
+	sra     v1, 2
+	addu    v0, v1
+	sw      v0, 4(s7)
+	lw      v1, 0x1C(s7)
+	lw      v0, 8(s7)
+	sll     at, v1, 1
+	addu    v1, at, v1
+	sra     v1, 2
+	addu    v0, v1
+	sw      v0, 8(s7)
+;	lh      a3, lara+0xC-GP_ADDR(gp)
+	lh      v1, 0x3C(fp)
+	bnez    a3, loc_833D4
+	sll     v0, v1, 2
+	addu    v0, v1
+	lw      v1, room-GP_ADDR(gp)
+	sll     v0, 4
+	addu    v0, v1
+	lhu     v0, 0x4E(v0)
+	nop
+	andi    v0, 0x20
+	beqz    v0, loc_833D4
+	nop
+	lw      v0, 0(s7)
+	lw      a0, 8(s7)
+	lw      v1, SmokeWindX-GP_ADDR(gp)
+	lw      a1, SmokeWindZ-GP_ADDR(gp)
+	addu    v0, v1
+	addu    a0, a1
+	sw      v0, 0(s7)
+	sw      a0, 8(s7)
+
+	loc_833D4:
+	lw      v1, 4(s7)
+	lw      t1, 0x40(fp)
+	beqz    a3, loc_8341C
+	li      at, 1
+	beq     a3, at, loc_833F8
+	li      at, 2
+	beq     a3, at, loc_833F8
+	li      at, 4
+	bne     a3, at, loc_8344C
+
+	loc_833F8:
+	slt     v0, v1, t1
+	beqz    v0, loc_8340C
+	slt     v0, a2, v1
+
+	loc_83404:
+	j       loc_8344C
+	sw      t1, 4(s7)
+
+	loc_8340C:
+	beqz    v0, loc_8344C
+	nop
+	j       loc_8344C
+	sw      a2, 4(s7)
+
+	loc_8341C:
+	li      v0, 0xFFFF8100
+	addiu   v1, 0xA
+	sw      v1, 4(s7)
+	beq     t1, v0, loc_83434
+	slt     v0, t1, v1
+	bnez    v0, loc_83404
+
+	loc_83434:
+	slt     v0, a2, v1
+	beqz    v0, loc_8344C
+	lw      v0, 0x30(fp)
+	lw      v1, 0x38(fp)
+	sw      v0, 0(s7)
+	sw      v1, 8(s7)
+
+	loc_8344C:
+	li      t3, 5
+	addiu   t4, fp, 0x44
+
+	loc_83454:
+	lw      a0, 0(s7)
+	lw      a1, 4(s7)
+	lw      a2, 8(s7)
+	lw      at, 0(t4)
+	lw      v0, 4(t4)
+	lw      v1, 8(t4)
+	subu    t0, a0, at
+	subu    t1, a1, v0
+	subu    t2, a2, v1
+	lw      v0, 0xC(t4)
+	mtc2    t0, r9
+	mtc2    t1, r10
+	mtc2    t2, r11
+	mult    v0, v0
+	nop
+	nop
+	cop2    0xA00428
+	mflo    v0
+	mfc2    a0, r25
+	mfc2    v1, r26
+	mfc2    at, r27
+	addu    a0, v1
+	addu    a0, at
+	slt     at, a0, v0
+	beqz    at, loc_8351C
+	addiu   t3, -1
+	jal     phd_sqrt_asm
+	nop
+	bnez    v0, loc_834C8
+	lw      v1, 0xC(t4)
+	li      v0, 1
+
+	loc_834C8:
+	lw      at, 0(t4)
+	sll     v1, 16
+	div     v1, v0
+	mflo    a0
+	lw      v0, 4(t4)
+	lw      v1, 8(t4)
+	mult    a0, t0
+	mflo    t0
+	sra     t0, 16
+	addu    t0, at
+	mult    a0, t1
+	sw      t0, 0(s7)
+	mflo    t1
+	sra     t1, 16
+	addu    t1, v0
+	mult    a0, t2
+	sw      t1, 4(s7)
+	mflo    t2
+	sra     t2, 16
+	addu    t2, v1
+	sw      t2, 8(s7)
+
+	loc_8351C:
+	bnez    t3, loc_83454
+	addiu   t4, 0x10
+	li      at, 0x1000
+	ctc2    at, r0
+	ctc2    zero, r1
+	ctc2    at, r2
+	ctc2    zero, r3
+	ctc2    at, r4
+	lw      v0, 8(s7)
+	lw      v1, -0x18(s7)
+	lw      a0, 0(s7)
+	lw      a1, -0x20(s7)
+	subu    t0, v0, v1
+	subu    t1, a0, a1
+	mtc2    t0, r9
+	mtc2    t1, r10
+	nop
+	nop
+	cop2    0xA00428
+	mfc2    a0, r25
+	mfc2    a1, r26
+	jal     phd_sqrt_asm
+	addu    a0, a1
+	move    t2, v0
+	move    a0, t0
+	jal     phd_atan_asm
+	move    a1, t1
+	sh      v0, -0x12(s7)
+	lw      v1, 4(s7)
+	lw      a1, -0x1C(s7)
+	move    a0, t2
+	jal     phd_atan_asm
+	subu    a1, v1, a1
+	negu    v0, v0
+	sh      v0, -0x14(s7)
+	lw      a0, -0x20(s7)
+	lw      a1, -0x1C(s7)
+	lw      a2, -0x18(s7)
+	ctc2    a0, r5
+	ctc2    a1, r6
+	ctc2    a2, r7
+	lh      a0, -0x12(s7)
+	lh      a1, -0x14(s7)
+	jal     mRotYXZ
+	move    a2, zero
+	li      v0, 6
+	bne     s3, v0, loc_835E8
+	nop
+	lw      a0, -0xC(s6)
+	lw      a1, -8(s6)
+	j       loc_835F4
+	lw      a2, -4(s6)
+
+	loc_835E8:
+	lw      a0, 4(s6)
+	lw      a1, 8(s6)
+	lw      a2, 0xC(s6)
+
+	loc_835F4:
+	jal     mTranslateXYZ
+	addiu   s6, 0x10
+	sw      t0, 0(s7)
+	sw      t1, 4(s7)
+	sw      t2, 8(s7)
+	lw      v0, 0x30(fp)
+	lw      v1, 0x34(fp)
+	lw      a0, 0x38(fp)
+	subu    t0, v0
+	subu    t1, v1
+	subu    t2, a0
+	sw      t0, 0x14(s7)
+	sw      t1, 0x18(s7)
+	sw      t2, 0x1C(s7)
+	jal     load_matrix
+	addiu   at, fp, 0x94
+	addiu   s3, 1
+	slti    v0, s3, 7
+	bnez    v0, loc_832E4
+	addiu   s7, 0x20
+	lw      ra, 0x1F800024
+	lw      s0, 0x1F800000
+	lw      s3, 0x1F80000C
+	lw      s4, 0x1F800010
+	lw      s5, 0x1F800014
+	lw      s6, 0x1F800018
+	lw      s7, 0x1F80001C
+	lw      fp, 0x1F800020
+	jr      ra
+	nop
+	
+snaff_sphere_normal:
+	lh      v0, 6(s7)
+	sw      t0, 0(at)
+	sw      t1, 4(at)
+	sw      t2, 8(at)
+	sw      v0, 0xC(at)
+	j       load_matrix
+	addiu   at, fp, 0xB4
+	
+snaff_sphere_special:
+	lh      v1, 6(s7)
+	sw      t0, 0(at)
+	sw      t1, 4(at)
+	sw      t2, 8(at)
+	sll     v0, v1, 1
+	addu    v0, v1
+	srl     v1, v0, 31
+	addu    v0, v1
+	sra     v0, 1
+	sw      v0, 0xC(at)
+	addiu   at, fp, 0xB4
+	
+load_matrix:
+	lw      v0, 0(at)
+	lw      v1, 4(at)
+	lw      a0, 8(at)
+	lw      a1, 0xC(at)
+	ctc2    v0, r0
+	ctc2    v1, r1
+	ctc2    a0, r2
+	ctc2    a1, r3
+	lw      v0, 0x10(at)
+	lw      v1, 0x14(at)
+	lw      a0, 0x18(at)
+	lw      a1, 0x1C(at)
+	ctc2    v0, r4
+	ctc2    v1, r5
+	ctc2    a0, r6
+	ctc2    a1, r7
+	jr      ra
+	nop
+	
+save_matrix:
+	cfc2    v0, r0
+	cfc2    v1, r1
+	cfc2    a0, r2
+	cfc2    a1, r3
+	sw      v0, 0(at)
+	sw      v1, 4(at)
+	sw      a0, 8(at)
+	sw      a1, 0xC(at)
+	cfc2    v0, r4
+	cfc2    v1, r5
+	cfc2    a0, r6
+	cfc2    a1, r7
+	sw      v0, 0x10(at)
+	sw      v1, 0x14(at)
+	sw      a0, 0x18(at)
+	jr      ra
+	sw      a1, 0x1C(at)
