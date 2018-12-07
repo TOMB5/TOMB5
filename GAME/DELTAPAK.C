@@ -1,6 +1,7 @@
 #include "DELTAPAK.H"
 
-
+#include "CALCHAIR.H"
+#include "CALCLARA.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DRAW.H"
@@ -36,7 +37,7 @@
 #include "ROOMLOAD.H"
 #include "MATHS.H"
 #include "DRAWPHAS.H"
-
+#include "DELTAPAK_S.H"
 #include "CD.H"
 #endif
 
@@ -3194,10 +3195,10 @@ void frigup_lara()//2D000(<), ? (F)
 	object = &objects[lara_item->object_number];
 	bone = &bones[object->bone_index];
 
-	//updateAnimFrame(&actor_pnodes[0], 0x10, frame);
-	//DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 0);
+	//updateAnimFrame(actor_pnodes[0], 0x10, frame);
+	DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 0);
 	mPushUnitMatrix();
-	//DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 1);
+	DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 1);
 	mPopMatrix();
 
 	//HairControl(0, 0, frame);
@@ -3722,5 +3723,5 @@ void resetwindowsmash(int item_num)// (F)
 
 void ResetCutItem(int item_num)// (F)
 {
-	find_a_fucking_item(item_num)->mesh_bits = 0xFFFFFFFF;
+	find_a_fucking_item(item_num)->mesh_bits = -1;
 }

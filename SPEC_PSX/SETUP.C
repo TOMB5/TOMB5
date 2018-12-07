@@ -4,6 +4,7 @@
 #include "BOX.H"
 #include "CD.H"
 #include "CONTROL.H"
+#include "CODEWAD.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
 #include "DRAWPHAS.H"
@@ -38,6 +39,7 @@
 #include "SWITCH.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
+#include "TYPEDEFS.H"
 #include "SPECTYPES.H"
 
 #include <assert.h>
@@ -49,12 +51,79 @@
 #endif
 #include <LIBSPU.H>
 #include <LIBGTE.H>
+#if RELOC
+void* setupFunc[] __attribute__((section(".header"))) = 
+{ 
+	(void*)0x100,//Unknown
+	(void*)0x200,//Unknown
+	(void*)0x300,//Unknown
+	(void*)0x400,//Unknown
+	(void*)0x500,//Unknown
+	&RelocateLevel
+};
+#endif
 
-struct object_container objects_raw;
-struct object_info* objects = &objects_raw.m_objects[0];
-struct static_info* static_objects = &objects_raw.m_static_objects[0];
-extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
-extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
+RECT dword_BD7F4[] = { 0x00440240, 0x00390040 };
+
+int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundData, int soundWadSize)//(F)
+{
+#ifndef NO_SOUND
+
+	int i;
+
+	if (numSoundEffects > MAX_NUM_SOUND_EFFECTS || soundWadSize > 524288)
+	{
+		return 0;
+	}
+
+	if (LnSamplesLoaded != 0)
+	{
+		SPU_FreeSamples();
+	}//loc_9C
+
+	LlVABAddr = SpuMalloc(soundWadSize);
+	if (LlVABAddr == -1)
+	{
+		return 0;
+	}
+
+	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
+	SpuSetTransferStartAddr(LlVABAddr);
+	SpuWrite((unsigned char*)pSoundData, soundWadSize);
+	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
+
+	if (numSoundEffects > 0)
+	{
+		for (i = 0; i < numSoundEffects; i++)
+		{
+			LadwSampleAddr[i] = LlVABAddr + pSoundWadLengths[i];
+		}
+	}//loc_110
+
+	LnSamplesLoaded = numSoundEffects;
+
+	return 1;
+
+#else
+	return 0;
+#endif
+}
+
+void sub_B3A7C(int a0)
+{
+	struct PSXSPRITESTRUCT* spr = &psxspriteinfo[objects[MISC_SPRITES].mesh_index];
+
+	envmap_data[0] = spr->tpage << 16 | spr->clut;
+	envmap_data[1] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+	spr++;
+
+	envmap_data[2] = spr->tpage << 16 | spr->clut;
+	envmap_data[3] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+	spr++;
+
+	envmap_data[4] = spr->tpage << 16 | spr->clut;
+	envmap_data[5] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+}
 
 /*
  * [FUNCTIONALITY] - RelocateLevel.
@@ -64,27 +133,28 @@ extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
  * Note: This code is part of the SETUP.MOD module.
  */
 #if DISC_VERSION
-void RelocateLevel()//?, B3B50(<)
+void RelocateLevel()//?(<), B3B50(<) (F)
 #else
 void RelocateLevel(int nHandle)//?, B3B50(<)
 #endif
 {
 	struct Level* level;
-	RECT tex;
+	RECT tex[2];
 	char* ptr = NULL;
 	char* ptr2 = NULL;
-	unsigned int size, i, j;
+	int size, i, j;
 	long* relocationPtr = NULL;
 	long gunType;
 
-#if DISC_VERSION
-	DEL_CDFS_Read((char*) &tsv_buffer[0], sizeof(struct Level));
-#else
-	FILE_Read((char*) &tsv_buffer[0], sizeof(struct Level), 1, nHandle);
-#endif
-	//Not done in original
-	level = (struct Level*)&tsv_buffer[0];
 	InItemControlLoop = 0;
+
+#if DISC_VERSION
+	DEL_CDFS_Read((char*)&tsv_buffer[0], sizeof(struct Level));
+#else
+	FILE_Read((char*)&tsv_buffer[0], sizeof(struct Level), 1, nHandle);
+#endif
+
+	level = (struct Level*)&tsv_buffer[0];
 
 #if DEBUG_VERSION
 	if (level->objectVersion != PSX_FILE_VERSION)
@@ -105,33 +175,33 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	if (level->numSoundEffects != 0)
 	{
 		GtSFXEnabled = 0;
-		ptr2 = ptr = game_malloc(level->numSoundEffects * sizeof(long));
+		ptr = game_malloc(level->numSoundEffects * sizeof(int));
 
 #if DISC_VERSION
-		DEL_CDFS_Read(ptr, level->numSoundEffects * sizeof(long));
+		DEL_CDFS_Read(ptr, level->numSoundEffects * sizeof(int));
 #else
-		FILE_Read(ptr, sizeof(long), level->numSoundEffects, nHandle);
+		FILE_Read(ptr, sizeof(int), level->numSoundEffects, nHandle);
 		PClseek(nHandle, level->offsetSoundData, 0);
 #endif
-
-		ptr = game_malloc(level->soundWadLength);
+		ptr2 = game_malloc(level->soundWadLength);
 
 #if DISC_VERSION
-		DEL_CDFS_Read(ptr, level->soundWadLength);
+		DEL_CDFS_Read(ptr2, level->soundWadLength);
 #else
-		FILE_Read(ptr, level->soundWadLength, 1, nHandle);
+		FILE_Read(ptr, level->soundWadLength, sizeof(char), nHandle);
 #endif
-		GtSFXEnabled = LoadSoundEffects(level->numSoundEffects, (long*)ptr2, ptr, level->soundWadLength);
+		GtSFXEnabled = LoadSoundEffects(level->numSoundEffects, (long*)ptr, ptr2, level->soundWadLength);//LoadSoundEffects
 
-		game_free(level->numSoundEffects * sizeof(long));
+		game_free(level->numSoundEffects * sizeof(int));
 		game_free(level->soundWadLength);
-	}
+
+	}//R loc_304, IB loc_36C
 
 #if !DISC_VERSION
 	PClseek(nHandle, level->offsetTextiles, 0);
 #endif
 
-	ptr = game_malloc(0x40000);
+	ptr = game_malloc(0x40000);///@TODO macro size
 
 	/*   PSX VRAM   (H)
 	*  --------------------- 1024px
@@ -142,21 +212,17 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	*(W)1024px-->
 	*
 	* Loading texture pages+cluts into VRAM (TPAGE1, TPAGE2)
-	* 
+	*
 	*/
 
 	//Setup rect
-	//x position of textile data in VRAM
-	tex.x = 512;//Screen width
-	tex.y = 0;
+	tex[0].x = 512;//x position of textile data in VRAM
+	tex[0].y = 0;
+	tex[0].w = 512;//Width of VRAM texture space
+	tex[0].h = 256;//Height of tpage
 
-	//Width of VRAM texture space
-	tex.w = 512;
-
-	//Height of tpage
-	tex.h = 256;
-
-	for (i = 0; i < 2; i++)
+	//loc_340, loc_3B4
+	for (i = 1; i >= 0; i--)///@CHECK
 	{
 #if DISC_VERSION
 		DEL_CDFS_Read(ptr, 0x40000);
@@ -165,31 +231,29 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 #endif
 		LOAD_DrawEnable(0);
 
-		LoadImage(&tex, (unsigned long*)ptr);
+		LoadImage(&tex[0], (unsigned long*)ptr);
 
 		DrawSync(0);
 
 		LOAD_DrawEnable(1);
 
-		tex.y += 256;
+		tex[0].y += 256;
 	}
 
-	//000B3F50, 000B3ED4
 	game_free(0x40000);
 
 	ClutStartY = level->clutStartY;
-	
+
 #if !DISC_VERSION
 	PClseek(nHandle, level->offsetAnimFrames, 0);
+	AnimFilePos = level->offsetAnimFrames;
 #else
-	//lw      a2, $5620(v0)
-	//sw      a2, $60BC(v0)
+	AnimFilePos = cdCurrentSector;
 #endif
 
-	AnimFilePos = level->offsetAnimFrames;
 	ptr = game_malloc(level->frameDataLength);
-	frames = (short*) ptr;
-	
+	frames = (short*)ptr;
+
 #if DISC_VERSION
 	DEL_CDFS_Read(ptr, level->frameDataLength);
 #else
@@ -217,36 +281,52 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 
 	if (level->numRooms > 0)
 	{
-		for (i = 0; i < number_rooms; i++)
+		//loc_4D4
+		for(i = 0; i < number_rooms; i++)
 		{
-			size = *(unsigned int*) &room[i].data;
-			room[i].data = (short*) ptr;
+#if UNOPTIMISED//Original
+			ptr2 = ptr;
+			ptr2 += 4;
 
-			for (j = 0; j < 24; j++)
+			size = (int)room[i].data;
+			room[i].data = (short*)ptr;
+			ptr += size;
+
+			//loc_4F8:
+			for (j = 23; j >= 0; j--)
 			{
-				*(int*) &ptr[4 + (j * 4)] += (*(int*) &room[i].data);
-			}///@CRITICAL the last relocated pointer seemingly points to invalid memory?!?!?!??
+				((int*)ptr2)[1 + j] += (int)room[i].data;
+			}
+#else
+			size = (int)room[i].data;
+			room[i].data = (short*)ptr;
+			
+			//loc_4F8:
+			for (j = 23; j >= 0; j--)
+			{
+				((int*)ptr)[1 + j] += (int)room[i].data;
+			}
 
 			ptr += size;
+#endif
 
-			size = *(unsigned int*) &room[i].door;
-			room[i].door = (short*) ptr;
+			size = (int)room[i].door;
+			room[i].door = (short*)ptr;
 			ptr += size;
 
-			size = *(unsigned int*) &room[i].floor;
-			room[i].floor = (struct FLOOR_INFO*) ptr;
+			size = (int)room[i].floor;
+			room[i].floor = (struct FLOOR_INFO*)ptr;
 			ptr += size;
 
-			size = *(unsigned int*) &room[i].light;
-			room[i].light = (struct LIGHTINFO*) ptr;
+			size = (int)room[i].light;
+			room[i].light = (struct LIGHTINFO*)ptr;
 			ptr += size;
 
-			size = *(unsigned int*) &room[i].mesh;
-			room[i].mesh = (struct MESH_INFO*) ptr;
+			size = (int)room[i].mesh;
+			room[i].mesh = (struct MESH_INFO*)ptr;
 			ptr += size;
 		}
-
-	}//B40C0, B401C
+	}//loc_570
 
 	floor_data = (short*)ptr;
 	ptr += level->floorDataLength;
@@ -256,14 +336,14 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 
 	OutsideRoomTable = ptr;
 	ptr += level->outsideRoomTableLength;
-	
+
 	RoomBBoxes = (struct SVECTOR*)ptr;
 	ptr += level->roomBoundingBoxesLength;
 
-	mesh_base = (short*) ptr;
+	mesh_base = (short*)ptr;
 	ptr += level->meshBaseLength;
 
-	meshes = (short**) ptr;
+	meshes = (short**)ptr;
 	ptr += level->meshesLength;
 
 	anims = (struct ANIM_STRUCT*)ptr;
@@ -275,47 +355,46 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	ranges = (struct RANGE_STRUCT*)ptr;
 	ptr += level->rangesLength;
 
-	commands = (short*) ptr;
+	commands = (short*)ptr;
 	ptr += level->commandsLength;
 
-	bones = (long*) ptr;
+	bones = (long*)ptr;
 	ptr += level->bonesLength;
-	
-	if (level->numBones * 2)
+
+	if (level->numBones * 2 > 0)
 	{
 		for (i = 0; i < level->numBones * 2; i++)
 		{
-			*(int*) &meshes[i] += *(int*) &mesh_base;//Original game does add *(int*) &meshes[i] >> 0x1F too
+			((int*)meshes)[i] += (int)mesh_base + ((((int)meshes[i] + ((int)meshes[i] >> 31)) >> 1) << 1);
 		}
 	}
+	//loc_674
 
-	//000B41C4
 	if (level->numAnims > 0)
 	{
 		for (i = 0; i < level->numAnims; i++)
 		{
-			*(int*) &anims[i].frame_ptr += *(int*) &frames;
+			(int)anims[i].frame_ptr += (int)frames;
 		}
-	}
+	}//loc_6BC
 
-	AnimTextureRanges = (unsigned short*) ptr;
+	AnimTextureRanges = (unsigned short*)ptr;
 	ptr += level->animTextureRangesLength;
 
-	psxtextinfo = (struct PSXTEXTSTRUCT*) ptr;
+	psxtextinfo = (struct PSXTEXTSTRUCT*)ptr;
 	ptr += level->textureInfoLength;
 
 	psxspriteinfo = (struct PSXSPRITESTRUCT*)ptr;
 	ptr += level->spriteInfoLength;
 
-	//maybe mip maps
 	RoomTextInfo = (struct MMTEXTURE*)ptr;
 	ptr += level->mmTextureInfoLength;
 
 	sound_effects = (struct OBJECT_VECTOR*)ptr;
 	ptr += level->soundEffectInfoLength;
 
-	sample_lut = (short*) ptr;
-	ptr += 900;//num sound map indices
+	sample_lut = (short*)ptr;
+	ptr += 900;
 
 	sample_infos = (struct SAMPLE_INFO*)ptr;
 	ptr += level->sampleInfoLength;
@@ -328,39 +407,18 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 
 	boxes = (struct box_info*)ptr;
 	ptr += level->boxesLength;
-	
-	overlap = (unsigned short*) ptr;
+
+	overlap = (unsigned short*)ptr;
 	ptr += level->overlapsLength;
 
-	ground_zone[0][0] = (short*) ptr;
+	ground_zone[0][0] = (short*)ptr;
 	ptr += level->groundZoneLength;
 
-	ground_zone[1][0] = (short*) ptr;
+	ground_zone[1][0] = (short*)ptr;
 	ptr += level->groundZone2Length;
 
-	ground_zone[2][0] = (short*) ptr;
+	ground_zone[2][0] = (short*)ptr;
 	ptr += level->groundZone3Length;
-
-	ground_zone[3][0] = (short*) ptr;
-	ptr += level->groundZone4Length;
-
-	ground_zone[4][0] = (short*) ptr;
-	ptr += level->groundZone5Length;
-
-	ground_zone[0][1] = (short*) ptr;
-	ptr += level->groundZoneLength;
-
-	ground_zone[1][1] = (short*) ptr;
-	ptr += level->groundZone2Length;
-
-	ground_zone[2][1] = (short*) ptr;
-	ptr += level->groundZone3Length;
-
-	ground_zone[3][1] = (short*) ptr;
-	ptr += level->groundZone4Length;
-
-	ground_zone[4][1] = (short*) ptr;
-	ptr += level->groundZone5Length;
 
 	nAnimTextureRanges = level->numAnimTextureRanges;
 	number_sound_effects = level->soundEffectInfoLength / sizeof(struct OBJECT_VECTOR);
@@ -368,58 +426,78 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	level_items = level->numLevelItems;
 	nAIObjects = level->numAIObjects;
 
+	ground_zone[3][0] = (short*)ptr;
+	ptr += level->groundZone4Length;
+
+	ground_zone[4][0] = (short*)ptr;
+	ptr += level->groundZone5Length;
+
+	ground_zone[0][1] = (short*)ptr;
+	ptr += level->groundZoneLength;
+	
+	ground_zone[1][1] = (short*)ptr;
+	ptr += level->groundZone2Length;
+
+	ground_zone[2][1] = (short*)ptr;
+	ptr += level->groundZone3Length;
+
+	ground_zone[3][1] = (short*)ptr;
+	ptr += level->groundZone4Length;
+
+	ground_zone[4][1] = (short*)ptr;
+	ptr += level->groundZone5Length;
+
 	number_boxes = level->numBoxes;
+
 	if (level->numBoxes > 0)
 	{
-		for (i = 0; i < number_boxes; i++)
+		for (i = level->numBoxes; i != 0; i--)
 		{
-			if (boxes[i].overlap_index & BOX_LAST)
+			if ((boxes[i].overlap_index & BOX_LAST))
 			{
 				boxes[i].overlap_index |= BOX_BLOCKED;
 			}
 		}
-	}//000B43A4, 000B42F8
+	}//loc_854
 
 	camera.fixed = (struct OBJECT_VECTOR*)ptr;
-	ptr += level->unk455;
+	ptr += level->fixedCameraLength;
 
-	SpotCam = (struct SPOTCAM*) ptr;
+	SpotCam = (struct SPOTCAM*)ptr;
 	NumFixedCameras = level->numFixedCameras;
-	number_cameras = level->numFixedCameras;
 	number_spotcams = level->numSpotCameras;
+	number_cameras = level->numFixedCameras;
 
 #if DISC_VERSION
-	DEL_CDFS_Read((char*) &objects_raw, sizeof(objects_raw));
+	DEL_CDFS_Read((char*)&objects, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
 #else
 	PClseek(nHandle, level->offsetObjects, 0);
-	FILE_Read((char*) &objects_raw, 1, sizeof(objects_raw), nHandle);
+	FILE_Read((char*)&objects, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
 	PCclose(nHandle);
 #endif
-	
-	for (i = 0; i < 64; i++)
+
+	for (i = 63; i >= 0; i--)
 	{
 		RelocPtr[i] = NULL;
 	}
 
-	////^VERIFIED
-	//000B4430, 000B4364
-	if (level->numAiModuleRelocations != 0)
+	if (level->numAiModules != 0)
 	{
 #if DISC_VERSION
 		FRIG_CD_POS_TO_CUR();
-		DEL_CDFS_Read((char*) &tsv_buffer[256], 1920);
+		DEL_CDFS_Read((char*)&tsv_buffer[256], 1920);
 #else
 		nHandle = PCopen("DATA\\CODE.WAD", 0, 0);
-		FILE_Read((char*) &tsv_buffer[256], 20, 96, nHandle);
+		FILE_Read((char*)&tsv_buffer[256], 20, 96, nHandle);
 #endif
 
-		//Temporary, array size is unknown
-		assert(level->numAiModuleRelocations < 6);
-		if (level->numAiModuleRelocations != 0)
+		if (level->numAiModules > 0)
 		{
-			for (i = 0; i < level->numAiModuleRelocations; i++)
+			//loc_938
+			for(i = 0; i < level->numAiModules; i++)
 			{
-				relocationPtr = (long*) ((char*) &tsv_buffer[256] + (level->aiModuleIndices[i] * 20));
+				relocationPtr = (long*)((char*)&tsv_buffer[256] + (level->aiModuleIndices[i] * 20));
+				///relocationPtr = (long*)&((char*)&tsv_buffer)[level->aiModuleIndices[i] * 20];
 				ptr = game_malloc(relocationPtr[1]);
 
 #if DISC_VERSION
@@ -435,287 +513,245 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 				DEL_CDFS_Seek(relocationPtr[2]);
 				DEL_CDFS_Read(ptr2, relocationPtr[3]);
 #else
-				PClseek(nHandle, relocationPtr[2], 0);
-				FILE_Read(ptr, 1, relocationPtr[3], nHandle);
+				FILE_Read(ptr2, 1, relocationPtr[3], nHandle);
 #endif
-				RelocateModule((unsigned long) ptr, (unsigned long*) ptr2);
+				RelocateModule((unsigned long)ptr, (unsigned long*)ptr2);
 
 				game_free(relocationPtr[3]);
 
-				RelocPtr[relocationPtr[4]] = (unsigned long*) ptr;
+				RelocPtr[relocationPtr[4]] = (unsigned long*)ptr;
 			}
 		}
-
+		//loc_9F0
 #if !DISC_VERSION
 		PCclose(nHandle);
 #endif
-	}//B4548
+	}//loc_9F8
 
+	//B4228
 	InitialiseFXArray(1);
 	InitialiseLOTarray(1);
-	//000B4558, 000B4448
-	InitialiseObjects();//TODO: 4 more unknown subs
-	InitialiseClosedDoors();
+	InitialiseObjects();
+	InitialiseClosedDoors();///sub_7BC4();//InitialiseClosedDoors();
 	InitialiseItemArray(256);
 
 	GlobalPulleyFrigItem = -1;
 
 	if (level_items > 0)
 	{
-		for (i = 0; i < level_items; i++)
+		//loc_A3C
+		for(i = 0; i < level_items; i++)
 		{
-			InitialiseItem(i);//B4268
+			InitialiseItem(i);
 		}
 	}
+	//loc_A5C
 
-	//B45AC
 	sub_B9DA8();
 
 	if (number_rooms > 0)
 	{
-		for (i = 0; i < number_rooms; i++)
+		//loc_A84
+		for(i = 0; i < number_rooms; i++)
 		{
 			if (room[i].num_meshes > 0)
 			{
 				struct FLOOR_INFO* t1;
 				struct box_info* v0;
 
-				for (j = 0; j < room[i].num_meshes; j++)
+				//loc_A9C
+				for (j = room[i].num_meshes; j > 0; j--)
 				{
-					t1 = &room[i].floor[((room[i].mesh[j].z - room[i].z) >> 10) + (((room[i].mesh[j].x - room[i].x) >> 10) * room[i].x_size)];
+					t1 = &room[i].floor[((room[i].mesh[j].z - room[i].z) >> 10) + ((room[i].mesh[j].x - room[i].x) >> 10) * room[i].x_size];
 					v0 = &boxes[t1->box];
-
 					if (!(v0->overlap_index & BOX_BLOCKED))
 					{
-						if (gfCurrentLevel == LVL5_BASE || gfCurrentLevel != LVL5_SECURITY_BREACH || gfCurrentLevel != 0x17 || gfCurrentLevel != LVL5_DEL_LEVEL)
+						if (gfCurrentLevel == LVL5_BASE && i != 0x13 && i != 0x17 && i != 0x10)
 						{
 							struct static_info* v1 = &static_objects[room[i].mesh[j].static_number];
-
-							if (((room[i].mesh->y - v1->y_maxc) + 512) > ((t1->floor << 0x18) >> 0x10) && ((t1->floor << 0x18) >> 0x10) < (room[i].mesh->y - v1->y_minc))
+							//loc_B30
+							if ((t1->floor << 8) < ((room[i].mesh[j].y - v1->y_maxc) + 512) && (room[i].mesh[j].y - v1->y_minc) < (t1->floor << 8))
 							{
-								if (v1->x_maxc == 0 && v1->x_minc == 0 && v1->z_maxc == 0 && v1->z_minc == 0 && !((v1->x_maxc ^ v1->x_minc) & 0x8000) && !((v1->z_maxc ^ v1->z_minc) & 0x8000))
+								if (v1->x_maxc != 0 && v1->x_minc != 0 && v1->z_maxc != 0 && v1->z_minc != 0 && !((v1->x_maxc ^ v1->x_minc) & 0x8000) && !((v1->z_maxc ^ v1->z_minc) & 0x8000))
 								{
-									//$B4734
-									t1 = &room[i].floor[((room[i].mesh[j].z - room[i].z) >> 10) + ((room[i].mesh[j].x - room[i].x) >> 10) * room[i].x_size];
-									t1->stopper = 1;
+									//loc_BE8
+									room[i].floor[((room[i].mesh[j].z - room[i].z) >> 10) + ((room[i].mesh[j].x - room[i].x) >> 10) * room[i].x_size].stopper = 1;
 								}
-							}//$B4770
-						}
-					}//$B4770
+							}//loc_C20
+						}//loc_C20
+					}//loc_C20
 				}
-			}//$B477C
+			}//loc_C2C
 		}
-	}//$B478C
+	}//loc_C3C
 
-	 InitialiseResidentCut(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
-
-	 //sub_B3A7C(0xB)
-
+	InitialiseResidentCut(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
+	
 	GLOBAL_default_sprites_ptr = &psxspriteinfo[objects[DEFAULT_SPRITES].mesh_index];
+
+	sub_B3A7C(0xB);
+
 	GLOBAL_gunflash_meshptr = meshes[objects[GUN_FLASH].mesh_index];
 
-	//s0 = &objects[0];
 	if (objects[SEARCH_OBJECT1].loaded && objects[SEARCH_OBJECT1_MIP].loaded)
 	{
-		//0x2900 is base
-		//v0 = objects[SEARCH_OBJECT1].mesh_index;
-		//v1 = objects[SEARCH_OBJECT1_MIP].mesh_index;
+		((int*)meshes[objects[SEARCH_OBJECT1].mesh_index])[1] = ((int*)meshes[objects[SEARCH_OBJECT1_MIP].mesh_index])[0];
+	}//loc_CF4
 
-		//000B4828 00021080 sll     v0, $2
-		//000B482C 00031880 sll     v1, $2
-		//v1 = meshes[objects[SEARCH_OBJECT1_MIP].mesh_index];
-		//000B4834 8C640000 lw      a0, $0(v1)
-		//v0 = meshes[objects[SEARCH_OBJECT1].mesh_index];
-		//000B483C AC440004 sw      a0, $4(v0)
-		//000B4840 3C02000A lui     v0, $A
-	}//0xB451C
 
-	 //a3 = &AnimatingWaterfallsV[0];
-	 //a2 = &AnimatingWaterfalls[0];
-	 //v0 = &objects[0];
-	 //a1 = &spark[21];
-	 //s4 = 5;
-	 //t1 = meshes;
-	 //t0 = psxtextinfo;
+	//a3 = &AnimatingWaterfallsV
+	//v1 = 0xA0000
+	//a2 = &AnimatingWaterfalls
+	//v0 = &objects
+	//a1 = &objects[WATERFALL1];
+	//s4 = 5;
+	//t1 = meshes
+	//t0 = psxtextinfo
 
-	if (spark[21].NodeNumber & 1)
+	//loc_D20
+	for (i = 5; i >= 0; i--)
 	{
-		assert(0);
+		if (objects[WATERFALL1 + i].loaded)
+		{
+			short* meshptr;//a0
+			meshptr = meshes[objects[WATERFALL1 + i].mesh_index];
+			meshptr += 6;//0xC for next itr?
+			meshptr += meshptr[5] << 16 >> 17;
+			((int*)AnimatingWaterfalls[i])[0] = (int)&psxtextinfo[meshptr[2] << 4];//why << 4? 1<<4=16!
+			AnimatingWaterfallsV[i] = ((char*)&psxtextinfo[meshptr[2] << 4])[1];//why << 4? 1<<4=16!
+		}//loc_D84
 	}
 
-	//0xB45AC
-
-	//0xB45V0
-#if BETA_VERSION
+#if 1
 	MonitorScreenTI = NULL;
+#else
+	///@FIXME check 
+	//Retail: sw      $zero, 0xA6F5C
+	//Beta: sw      $zero, 0xA5534
 #endif
+	//a0 = &objects
 
-	//a0, a3 = 0xA0000
-	//a1, v0 = 0x1F0000
-	//a0 = &objects[0];
-#if !BETA_VERSION
-	//sw      0,$6F5C(a3) maybe same as MonitorScreenTI = NULL;
-#endif
-	if (objects[MONITOR_SCREEN].loaded)//000B4904, 000B47E8
+	if (objects[MONITOR_SCREEN].loaded)
 	{
-		assert(0);
-	}//0xB4708
+		short* meshptr;//v1
+		short* meshptr_2;//a1
+		short v0;
+		short t0;
 
-	InitialiseCutseq();
+		//s4 = 0
+		//v0 = objects[MONITOR_SCREEN].mesh_index
+		//v1 = meshes
+		meshptr = meshes[objects[MONITOR_SCREEN].mesh_index];
 
-	if (RelocPtr[14] != NULL)
+		meshptr_2 = (short*)meshptr[0];
+		//v0 = meshptr_2[5];
+		meshptr_2 += 6;
+		//v1 = meshptr_2[5] << 16 >> 17
+		meshptr_2 += meshptr_2[5] << 16 >> 17;
+
+		v0 = meshptr_2[0];
+		t0 = meshptr_2[1];
+
+		meshptr_2 += 2;
+		//a3 = 0
+
+		meshptr_2 += meshptr_2[0] << 1;
+		meshptr_2 += v0 + 3 >> 2 << 1;
+
+		if (t0 > 0)
+		{
+			//v1 = 0xA0000
+			//v0 = (meshptr_2[0] & 0xFFFF) << 3;
+			//a0 = psxtextinfo[(meshptr_2[0] & 0xFFFF)];
+			///@TODO can't find a2.....
+		}//loc_EA4
+
+
+	}//loc_EE4
+
+	//sub_68C0();//InitialiseCutseq();
+
+#if RELOC
+	if (RelocPtr[MOD_STARS] != NULL)
 	{
-		//jalr ((void*)(RelocPtr[14])[0])
-	}//0xB473C
-
-#if 0// !INTERNAL
-	000B4948 3C06000A lui     a2, $A
-		000B494C 90C23A88 lbu     v0, $3A88(a2)
-		000B4950 00000000 nop
-		000B4954 14400035 bne     v0, 0, $B4A2C
-		000B4958 3C07000A lui     a3, $A
-		000B495C 3C11000A lui     s1, $A
-		000B4960 8E233A60 lw      v1, $3A60(s1)
-		000B4964 00000000 nop
-		000B4968 8C620000 lw      v0, $0(v1)
-		000B496C 00000000 nop
-		000B4970 00021102 srl     v0, $4
-		000B4974 30420007 andi    v0, $7
-		000B4978 2442FFFF subiu   v0, $1
-		000B497C 2C420002 sltiu   v0, v0, $2
-		000B4980 1040002A beq     v0, 0, $B4A2C
-		000B4984 3C020000 lui     v0, $0
-		000B4988 24469EAC subiu   a2, v0, $6154
-		000B498C 88C70003 lwl     a3, $3(a2)
-		000B4990 98C70000 lwr     a3, $0(a2)
-		000B4994 88C30007 lwl     v1, $7(a2)
-		000B4998 98C30004 lwr     v1, $4(a2)
-		000B499C ABA7001B swl     a3, $1B(sp)
-		000B49A0 BBA70018 swr     a3, $18(sp)
-		000B49A4 ABA3001F swl     v1, $1F(sp)
-		000B49A8 BBA3001C swr     v1, $1C(sp)
-		000B49AC 0C017D51 jal     $5F544
-		000B49B0 24042000 addiu   a0, 0, $2000
-		000B49B4 00002021 addu    a0, 0, 0
-		000B49B8 0C017FEA jal     $5FFA8
-		000B49BC 00408021 addu    s0, v0, 0
-		000B49C0 8E233A60 lw      v1, $3A60(s1)
-		000B49C4 00000000 nop
-		000B49C8 8C620000 lw      v0, $0(v1)
-		000B49CC 24030002 addiu   v1, 0, $2
-		000B49D0 00021102 srl     v0, $4
-		000B49D4 30440007 andi    a0, v0, $7
-		000B49D8 14830005 bne     a0, v1, $B49F0
-		000B49DC 24020001 addiu   v0, 0, $1
-		000B49E0 0C0178F0 jal     $5E3C0
-		000B49E4 24040032 addiu   a0, 0, $32
-		000B49E8 080003AB j       $EAC
-		000B49EC 02002021 addu    a0, s0, 0
-		000B49F0 14820003 bne     a0, v0, $B4A00
-		000B49F4 00000000 nop
-		000B49F8 0C0178F0 jal     $5E3C0
-		000B49FC 24040031 addiu   a0, 0, $31
-		000B4A00 02002021 addu    a0, s0, 0
-		000B4A04 0C017905 jal     $5E414
-		000B4A08 24051C80 addiu   a1, 0, $1C80
-		000B4A0C 27A40018 addiu   a0, sp, $18
-		000B4A10 0C01AC71 jal     $6B1C4
-		000B4A14 02002821 addu    a1, s0, 0
-		000B4A18 0C01AC51 jal     $6B144
-		000B4A1C 00002021 addu    a0, 0, 0
-		000B4A20 0C017FEA jal     $5FFA8
-		000B4A24 24040001 addiu   a0, 0, $1
-		000B4A28 3C07000A lui     a3, $A
+		((VOIDFUNCVOID*)RelocPtr[MOD_STARS][0])();
+	}//loc_DFC, loc_F14
+#else
+	//Unimplemented
 #endif
-		if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
-		{
-			inventry_objects_list[7].yoff = 4;
-			inventry_objects_list[7].yrot = -16384;
-			inventry_objects_list[7].xrot = 8448;
-			inventry_objects_list[7].zrot = 16384;
-			inventry_objects_list[7].flags = 10;
 
-			inventry_objects_list[8].yoff = 4;
-			inventry_objects_list[8].yrot = -16384;
-			inventry_objects_list[8].xrot = 8448;
-			inventry_objects_list[8].zrot = 16384;
-		}
-		else
-		{
-			inventry_objects_list[7].yoff = 0;
-			inventry_objects_list[7].yrot = 0;
-			inventry_objects_list[7].xrot = -16384;
-			inventry_objects_list[7].zrot = 0;
-			inventry_objects_list[7].flags = 2;
+#if DISC_VERSION && !BETA_VERSION
 
-			inventry_objects_list[8].yoff = 0;
-			inventry_objects_list[8].yrot = 0;
-			inventry_objects_list[8].xrot = -16384;
-			inventry_objects_list[8].zrot = 0;
+	if (gfCurrentLevel == LVL5_TITLE && Gameflow->Language - 1 < 2)
+	{
+		tex[0] = dword_BD7F4[0];
+		tex[1] = dword_BD7F4[1];
+
+		ptr = game_malloc(0x2000);
+
+		LOAD_DrawEnable(0);
+
+		if (Gameflow->Language == 2)
+		{
+			DEL_CDFS_OpenFile(UNKNOWN_50);
+		}//loc_EA0
+		else if (Gameflow->Language == 1)
+		{
+			DEL_CDFS_OpenFile(UNKNOWN_49);
 		}
 
-	inventry_objects_list[8].flags = 0;
+		DEL_CDFS_Read(ptr, 7296);
+
+		LoadImage(&tex[0], (unsigned long*)ptr);
+
+		DrawSync(0);
+
+		LOAD_DrawEnable(1);
+	}//loc_EDC
+
+#endif
+
+	if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
+	{
+		inventry_objects_list[7].yoff = 4;
+		inventry_objects_list[7].yrot = -16384;
+		inventry_objects_list[7].xrot = 8448;
+		inventry_objects_list[7].zrot = 16384;
+		inventry_objects_list[7].flags = 10;
+
+		inventry_objects_list[8].yoff = -16384;
+		inventry_objects_list[8].xrot = 8448;
+		inventry_objects_list[8].zrot = 16384;
+		inventry_objects_list[8].flags = 10;
+	}
+	else
+	{
+		//loc_F30
+		inventry_objects_list[7].yoff = 0;
+		inventry_objects_list[7].yrot = 0;
+		inventry_objects_list[7].xrot = -16384;
+		inventry_objects_list[7].zrot = 0;
+		inventry_objects_list[7].flags = 2;
+
+		inventry_objects_list[8].yoff = 0;
+		inventry_objects_list[8].xrot = -16384;
+		inventry_objects_list[8].zrot = 0;
+		inventry_objects_list[8].flags = 2;
+	}
 
 	if (gfCurrentLevel == LVL5_TITLE)
 	{
 		MGSaveGamePtr = game_malloc(8192);
 		FromTitle = 1;
-	}//0xB48D4
-
-	 //assert(lara_item);//000A3AA4 appears to be set during InitialiseItem(i)... probably item specific init routines
-}//0xB48FC
-
-long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize)
-{
-#ifndef NO_SOUND
-	int i;
-
-	//We have limited the amount of Sound Effects to 255 and the sound wad size.
-	//Do not load anything which exceeds our memory budget.
-	if (numSounds > MAX_NUM_SOUND_EFFECTS || soundWadSize > 524287)
-	{
-		return 0;
-	}
-	
-	//Sound samples are loaded (likely from a previously loaded level).
-	//Free them.
-	if (LnSamplesLoaded != 0)
-	{
-		SPU_FreeSamples();
-	}
-
-	LlVABAddr = SpuMalloc(soundWadSize);
-	if(LlVABAddr == -1)
-	{
-		return 0;
-	}
-
-	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
-	SpuSetTransferStartAddr(LlVABAddr);
-	SpuWrite((unsigned char*)pSoundData, soundWadSize);
-	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
-
-	if (numSounds > 0)
-	{
-		for (i = 0; i < numSounds; i++)
-		{
-			LadwSampleAddr[i] = LlVABAddr + pSoundWadLengths[i];
-		}
-	}
-
-	LnSamplesLoaded = numSounds;
-#endif
-
-	return 1;
+	}//loc_F94
 }
 
-//?
-//Relocate initial object frame ptrs, see ResetCutanimate()
-void InitialiseObjects()//?(<), B96EC(<)
+void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 {
 	int i;
 
-	for (i = 0; i < NUMBER_OBJECTS; i++)
+	//loc_5E5C
+	for (i = MISC_SPRITES; i >= 0; i--)
 	{
 		objects[i].initialise = NULL;
 		objects[i].collision = NULL;
@@ -739,7 +775,7 @@ void InitialiseObjects()//?(<), B96EC(<)
 		objects[i].save_hitpoints = 0;
 		objects[i].save_position = 0;
 
-		*(int*) &objects[i].frame_base += (int) frames;
+		(int)objects[i].frame_base += (int)frames;
 	}
 
 	sub_B5328();
@@ -766,7 +802,6 @@ void InitialiseObjects()//?(<), B96EC(<)
 	{
 		for (i = 0; i < gfNumMips; i++)
 		{
-			//objects[((gfMips[i] & 0xF) << 7) | ANIMATING1 * 128].object_mip = (gfMips[i] & 0xF0) << 6;
 			objects[((gfMips[i] & 0xF) << 1) | ANIMATING1].object_mip = (gfMips[i] & 0xF0) << 6;
 		}
 	}//0xB98B8
@@ -795,7 +830,6 @@ void InitialiseObjects()//?(<), B96EC(<)
 	{
 		Spiders = (struct SPIDER_STRUCT*)game_malloc(sizeof(struct SPIDER_STRUCT) * 64);
 	}
-
 }//0xB996C
 
 void sub_B5328()
@@ -887,7 +921,7 @@ void sub_B9DA8()//?(<), B9DA8(<)
 	}
 	//B9E68
 	sub_B9974();
-	//sub_B9B84();
+	sub_B9B84();
 
 	SeedRandomDraw(0xD371F947);
 	SeedRandomControl(0xD371F947);
@@ -895,8 +929,18 @@ void sub_B9DA8()//?(<), B9DA8(<)
 	return;
 }
 
-void sub_B4A40()
+void sub_B4A40()//(<), B4A40(<)
 {
+	long rand;
+	//a0 = 0x10000
+	rand = rand_2;//v0 @ 0x10(sp)
+
+	SeedRandomDraw(0x1D96D);
+
+	//fp = 0
+	//s5 = &WaterTable
+	//a0 = s5;
+
 }
 
 void InitialiseSqrtTable()//?(<), B4D14(<)
@@ -1079,8 +1123,8 @@ void InitialiseFlipMaps()//?(<), B9D30(<)//InitialiseGameFlags
 
 	for (i = 0; i < 10; i++)
 	{
-		flipmap[0] = 0;///@FIXME should be [i]?
-		flip_stats[0] = 0;
+		flipmap[i] = 0;
+		flip_stats[i] = 0;
 	}
 
 	flip_status = 0;
@@ -1294,95 +1338,226 @@ void InitialiseCutseq()//?(<), BA194(<) (F)
 	SetFadeClip(0, 1);
 }
 
-void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3)//?(<), B9EA0(<)
+void sub_B9B84()
+{
+	struct ITEM_INFO* item;
+	struct AIOBJECT* ai_object;//$a2
+	int i;
+	int j;
+	int t0;
+	int v0;
+
+	if (level_items > 0)
+	{
+		//loc_62CC
+		for(i = 1; i < level_items; i++)///@CHECK
+		{
+			if (objects[items[i].object_number].intelligent)
+			{
+				items[i].meshswap_meshbits &= 0xC1FF;
+
+				if (nAIObjects > 0)
+				{
+					t0 = 0x10000;
+					ai_object = &AIObjects[0];
+					//loc_6318
+					while ((t0 >> 16) < (nAIObjects >> 16))///@CHECK $t0 maybe opt'd
+					{
+						v0 = t0;
+
+						if (ABS(ai_object->x - items[i].pos.x_pos) < 512 &&
+							ABS(ai_object->z - items[i].pos.z_pos) < 512 &&
+							ai_object->room_number == items[i].room_number &&
+							ai_object->object_number < AI_PATROL2)
+						{
+#if 1
+							((int*)&items[i])[33] = ((((int*)&items[i])[33] & 0xFFFFC1FF) | ((((1 << (ai_object->object_number - 0x17A)) | ((int*)&items[i])[33] >> 9)) & 0x1F) << 9);
+#else
+							items[i].meshswap_meshbits &= 0xC1FF;
+							items[i].meshswap_meshbits >>= 9;
+							items[i].meshswap_meshbits |= 1 << (ai_object->object_number - 0x17A) & 0x1F << 9;
+#endif
+							items[i].item_flags[3] = ai_object->trigger_flags;
+
+							if (ai_object->object_number != AI_GUARD)
+							{
+								ai_object->room_number = 255;
+							}
+						}//loc_63D8
+
+						++ai_object;
+						t0 += 0x10000;
+					}
+
+					//loc_63B4
+					items[i].TOSSPAD = items[i].item_flags[3] | item[i].ai_bits;
+				}
+			}//loc_63F0
+		}//loc_6410
+	}//loc_6420
+}
+
+void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3)//?(<), B9EA0(<) (F)
 {
 	int i;
-	int nHandle;
-	int s2;
-	int s3;
-	int s5;
-	int s4;
 	int s0;
 	int s1;
-	int s6;
+	int s2;
+	char* s3;
+	char* s4;
+	char* s5;
+	char* s6;
 	int s7;
-	int a00;
+	int mallocSize;//$a0
+	int nHandle;
+	int residentData[4];
 
-	if ((a0 | a1 | a2 | a3) == 0)
+	residentData[0] = a0;//0x38(sp)
+	residentData[1] = a1;//0x3C(sp)
+	residentData[2] = a2;//0x40(sp)
+	residentData[3] = a3;//0x44(sp)
+
+	if ((a0 | a1 | a2 | a3))
 	{
-		//0xBA0AC
-		return;
-	}
+		lastcamnum = -1;
+		GLOBAL_playing_cutseq = 0;
+		cutseq_trig = 0;
 
-	lastcamnum = -1;
-	GLOBAL_playing_cutseq = 0;
-	cutseq_trig = 0;
-
-	for (i = 0; i < 46; i++)
-	{
-		cutseq_resident_addresses[i].packed_data = NULL;
-	}
+		//loc_6614
+		for (i = 46; i >= 0; i--)
+		{
+			cutseq_resident_addresses[i].packed_data = NULL;
+		}
 
 #if DISC_VERSION
-	FRIG_CD_POS_TO_CUR();
-	DEL_CDFS_Read((char*) &tsv_buffer[0], 2048);
+		DEL_CDFS_OpenFile(CUTSEQ);
+		DEL_CDFS_Read((char*)&tsv_buffer[0], 2048);
 #else
-	nHandle = PCopen("\\CUTSEQ.JIZ", 0, 0);
-	FILE_Read(&tsv_buffer[0], 1, 2048, nHandle);
+		nHandle = PCopen("\\CUTSEQ.JIZ", 0, 0);
+		FILE_Read((char*)&tsv_buffer[0], 1, 2048, nHandle);
 #endif
+		s3 = ReadResidentData(residentData[0], nHandle);
+		s4 = ReadResidentData(residentData[1], nHandle);
+		s5 = ReadResidentData(residentData[2], nHandle);
+		s6 = ReadResidentData(residentData[3], nHandle);
 
-	s2 = sub_BA0DC(a0);
-	s3 = sub_BA0DC(a1);
-	s5 = sub_BA0DC(a2);
-	s4 = sub_BA0DC(a3);
+		s7 = 0;
+		s2 = 0;
+		s1 = 0;
+		s0 = 0;
 
-#if !DISC_VERSION
-	PCclose(nHandle);
-#endif
+		if (s3 != NULL)
+		{
+			s0 = sub_BA148((short*)s3);
+		}
+		//loc_66C0
+		if (s4 != NULL)
+		{
+			s1 = sub_BA148((short*)s4);
+		}
+		//loc_66D4
+		if (s5 != NULL)
+		{
+			s2 = sub_BA148((short*)s5);
+		}
+		//loc_66E8
+		if (s6 != NULL)
+		{
+			s7 = sub_BA148((short*)s6);
+		}
 
-	if (s2 != 0)
-	{
-		s0 = sub_BA148(s2);
-	}//0xB9FA4
+		//loc_66FC
+		mallocSize = 0;
 
-	if (s3 != 0)
-	{
-		s1 = sub_BA148(s3);
-	}//0xB9FB8
+		if (s0 > 0)
+		{
+			mallocSize = s0;
+		}
 
-	if (s5 != 0)
-	{
-		s6 = sub_BA148(s5);
-	}//0xB9FCC
+		//loc_6708
+		if (mallocSize < s1)
+		{
+			mallocSize = s1;
+		}//loc_671C
 
-	if (s4 != 0)
-	{
-		s7 = sub_BA148(s4);
-	}//0xB9FE0
+		if (mallocSize < s2)
+		{
+			mallocSize = s2;
+		}//loc_672C
 
-	if (s0 > 0)
-	{
-		a00 = s0;
-	}
-	else
-	{
-		a00 = 0;
-	}
+		if (mallocSize < s7)
+		{
+			mallocSize = s7;
+		}
 
-	if (a00 < s1)
-	{
+		//loc_6738
+		GLOBAL_resident_depack_buffers = game_malloc(mallocSize);
 
-	}//0xBA000
+		if (residentData[0] != 0)
+		{
+			cutseq_resident_addresses[residentData[0]].packed_data = s3;
+		}
 
-	//TODO
+		//loc_6764
+		if (residentData[1] != 0)
+		{
+			cutseq_resident_addresses[residentData[1]].packed_data = s4;
+		}
+		//loc_6788
+		if (residentData[2] != 0)
+		{
+			cutseq_resident_addresses[residentData[2]].packed_data = s5;
+		}
+		//loc_67A4
+		if (residentData[3] != 0)
+		{
+			cutseq_resident_addresses[residentData[3]].packed_data = s6;
+		}
+	}//loc_67C8
 }
 
-long sub_BA0DC(unsigned char a0)
+char* ReadResidentData(int residentIndex, int nHandle)//(<), BA0DC(<) (F)
 {
-	return 0;
+	char* ptr;
+
+	if (residentIndex != 0)
+	{
+#if DISC_VERSION
+		DEL_CDFS_Seek(tsv_buffer[residentIndex].xy);
+#else
+		PClseek(nHandle, tsv_buffer[residentIndex].xy, 0);
+#endif
+		ptr = game_malloc(tsv_buffer[residentIndex].rgz);
+
+#if DISC_VERSION
+		DEL_CDFS_Read(ptr, tsv_buffer[residentIndex].rgz);
+#else
+		FILE_Read(ptr, sizeof(char), tsv_buffer[residentIndex].rgz, nHandle);
+#endif
+		return ptr;
+	}
+
+	return NULL;
 }
 
-long sub_BA148(unsigned char a0)
+long sub_BA148(short* ptr)
 {
-	return 0;
+	int i;//$a1
+	long addr = 0;//$a2
+	short v1;
+
+	GLOBAL_cutme = (struct NEW_CUTSCENE*)ptr;
+
+	if (ptr[0] > 0)
+	{
+		//loc_6894
+		for(i = ptr[0]; i != 0; i--)
+		{
+			v1 = ptr[15] + 1;
+			ptr += 4;
+			addr += (((((v1 + 1) << 2) + v1 + 1) << 2) + v1 + 1) << 2;///@FIXME * sizeof x
+		}
+	}//locret_68C0
+
+	return addr + 0xA8;
 }

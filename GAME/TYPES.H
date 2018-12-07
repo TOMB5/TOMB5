@@ -6,9 +6,9 @@
 #include <stddef.h>
 
 
-/*#ifndef ABS
+#ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
-#endif*/
+#endif
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

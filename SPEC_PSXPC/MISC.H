@@ -3,6 +3,7 @@
 
 #include "SPECTYPES.H"
 
+extern void S_MemSet(char* p, int value, int length);
 extern void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size);
 extern void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h);
 extern void DrawTPage(unsigned char a0, unsigned char a1);
@@ -25,5 +26,6 @@ extern long GetRandomControl();
 extern void SeedRandomControl(long seed);
 extern long GetRandomDraw();
 extern void SeedRandomDraw(long seed);
+extern void S_MemCpy(char* pSrc, char* pDest, int size);
 
 #endif

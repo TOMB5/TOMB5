@@ -25,6 +25,7 @@
 #include "LARAFIRE.H"
 #include <string.h>
 
+#if DEBUG_VERSION
 char* states[131] =
 {
 	"WALK", "RUN", "STOP", "F JUMP", "POSE", "FASTBACK", "TURN R", "TURN L", "DEATH", 
@@ -77,6 +78,7 @@ char* htypes[4] =
 {
 	"WALL", "SMALL_SLOPE", "BIG_SLOPE", "DIAGONAL"
 };
+#endif
 
 enum headings
 {
