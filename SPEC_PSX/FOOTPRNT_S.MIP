@@ -2,8 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF S_DrawFootPrints
-	XREF GLOBAL_default_sprites_ptr, FootPrint, db, mPushMatrix, mTranslateAbsXYZ, mPopMatrix, mRotY
+	XDEF S_DrawFootPrints, AddFootprint
+	XREF GLOBAL_default_sprites_ptr, FootPrint, db, mPushMatrix, mTranslateAbsXYZ, mPopMatrix, mRotY, FXType, GetHeight, SoundEffect, GetFloor, lara_item, FootPrintNum, GetLaraJointPos, OnObject
 
 S_DrawFootPrints:
 	addiu   sp, -0x30
@@ -16,7 +16,7 @@ S_DrawFootPrints:
 	sw      s6, 0x30-0x8(sp)
 	sw      ra, 0x30-0x4(sp)
 	lw      s3, GLOBAL_default_sprites_ptr-GP_ADDR(gp)
-;	la      s2, FootPrint-GP_ADDR(gp)
+	la      s2, FootPrint
 	lw      s0, db+0x8-GP_ADDR(gp)
 	lw      s4, db+0x4-GP_ADDR(gp)
 	lw      t8, db+0x10-GP_ADDR(gp)
@@ -144,3 +144,79 @@ S_DrawFootPrints:
 	lw      s0, 0x30-0x20(sp)
 	jr      ra
 	addiu   sp, 0x30
+	
+AddFootprint:
+	addiu   sp, -0x38
+	sw      s0, 0x38-0x10(sp)
+	sw      s1, 0x38-0xC(sp)
+	sw      ra, 0x38-0x8(sp)
+	sw      zero, 0x38-0x28(sp)
+	move    s1, a0
+	sw      zero, 0x38-0x24(sp)
+	sw      zero, 0x38-0x20(sp)
+	lh      v1, FXType-GP_ADDR(gp)
+	li      v0, 0x4000
+	beq     v1, v0, loc_82C34
+	li      a1, 3
+	li      a1, 6
+
+	loc_82C34:
+	jal     GetLaraJointPos
+	addiu   a0, sp, 0x38-0x28
+	lw      a0, 0x38-0x28(sp)
+	lw      a1, 0x38-0x24(sp)
+	lw      a2, 0x38-0x20(sp)
+	lh      v0, 0x18(s1)
+	addiu   a3, sp, 0x38-0x18
+	jal     GetFloor
+	sh      v0, 0x38-0x18(sp)
+	lhu     v1, 2(v0)
+	move    s0, v0
+	andi    v1, 0xF
+	addiu   v0, v1, -5
+	sltiu   v0, v0, 2
+	bnez    v0, loc_82C9C
+	li      v0, 0xB
+	beq     v1, v0, loc_82C9C
+	move    a2, zero
+	;la      v0, dword_82D18;FIXME? unknown table
+	addu    v0, v1, v0
+	lbu     a0, 0(v0)
+	lw      a1, lara_item-GP_ADDR(gp)
+	addiu   a0, 0x120
+	jal     SoundEffect
+	addiu   a1, 0x40
+
+	loc_82C9C:
+	lhu     at, 2(s0)
+	lw      v0, OnObject-GP_ADDR(gp)
+	andi    at, 0xF
+	sltiu   at, at, 3
+	beqz    at, loc_82D04
+	li      v1, 0x200
+	bnez    v0, loc_82D04
+	move    a0, s0
+	lw      s0, FootPrintNum-GP_ADDR(gp)
+	lw      a1, 0x38-0x28(sp)
+	lw      a2, 0x38-0x24(sp)
+	lw      a3, 0x38-0x20(sp)
+	lhu     at, 0x4E(s1)
+	la      v0, FootPrint
+	addiu   t0, s0, 1
+	andi    t0, 0x1F
+	sll     s0, 4
+	addu    s0, v0
+	sw      t0, FootPrintNum
+	sw      a1, 0(s0)
+	sw      a3, 8(s0)
+	sh      at, 0xC(s0)
+	jal     GetHeight
+	sh      v1, 0xE(s0)
+	sw      v0, 4(s0)
+
+	loc_82D04:
+	lw      ra, 0x38-0x8(sp)
+	lw      s1, 0x38-0xC(sp)
+	lw      s0, 0x38-0x10(sp)
+	jr      ra
+	addiu   sp, 0x38

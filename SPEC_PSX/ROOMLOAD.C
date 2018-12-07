@@ -6,6 +6,7 @@
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "SETUP.H"
+#include "TYPEDEFS.H"
 
 #include <stdio.h>
 
@@ -81,13 +82,13 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	/*
 	 *  SETUP.MOD
 	 * Layout is:
-	 * [SETUP.REL]
 	 * [SETUP.BIN]
+	 * [SETUP.REL]
 	 */
 	RelocateModule((unsigned long)SetupPtr, (unsigned long*)(db.poly_buffer[0][1024] + (unsigned long)SetupPtr));
 
 #if DISC_VERSION
-	#if 0
+	#if RELOC
 		((VOIDFUNCVOID*)SetupPtr[5])();
 	#else
 		RelocateLevel();
@@ -101,7 +102,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	#if RELOC
 		((VOIDFUNCINT*)SetupPtr[5])(PCopen(&buf[0], 0, 0));
 	#else
-	RelocateLevel(PCopen(buf, 0, 0));
+		RelocateLevel(PCopen(buf, 0, 0));
 	#endif
 #endif
 

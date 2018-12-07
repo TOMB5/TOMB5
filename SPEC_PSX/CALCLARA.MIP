@@ -1,8 +1,11 @@
 	opt at-,w-,c+,m-
 
 	SECTION	ASM
-	XDEF S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1
+	XDEF S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM
 	XREF GetFrames, interpolated_bounds
+	
+DEL_CalcLaraMatrices_Normal_ASM:
+	jr ra;fixme jmptbl
 	
 snaff_current_gte_matrix_V1:
 	cfc2    t0, r0

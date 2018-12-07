@@ -14,7 +14,7 @@ extern void RelocateLevel();
 extern void RelocateLevel(int nHandle);
 #endif
 
-extern long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize);
+extern int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundData, int soundWadSize);
 extern void InitialiseObjects();
 extern void sub_B5328();
 extern void sub_B84F0();
@@ -32,16 +32,8 @@ extern void InitialiseLaraCarriedItems(long keep_carried_items);
 extern void sub_B9974();
 extern void InitialiseCutseq();
 extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3);
-extern long sub_BA0DC(unsigned char a0);
-extern long sub_BA148(unsigned char a0);
-
-struct object_container
-{
-	struct object_info m_objects[NUMBER_OBJECTS];
-	struct static_info m_static_objects[NUMBER_STATIC_OBJECTS];
-	char m_SkinVertNums[480];
-	char m_ScratchVertNums[480];
-};
+extern char* ReadResidentData(int residentIndex, int nHandle);
+extern long sub_BA148(short* ptr);
 
 struct Level
 {
@@ -63,7 +55,7 @@ struct Level
 	int soundWadLength;
 	unsigned short clutStartY;
 	unsigned short numRooms;
-
+	
 	//0x30
 	unsigned short laraDrawType : 3;
 	unsigned short weatherType : 2;
@@ -122,14 +114,14 @@ struct Level
 
 	//0xB0
 	unsigned short numSpotCameras;
-	unsigned short unk45;
+	unsigned short fixedCameraLength;
 	int unk455;
 	int unk46;
 	unsigned short numAIObjects;
 	unsigned short unk0003;
 
 	//0xC0
-	int numAiModuleRelocations;
+	int numAiModules;
 	char aiModuleIndices[4];
 	int unk50;
 	int unk51;
@@ -145,9 +137,9 @@ struct Level
 };
 
 
-extern struct object_info* objects;
-extern struct static_info* static_objects;
-extern char* SkinVertNums;
-extern char* ScratchVertNums;
+extern struct object_info objects[NUMBER_OBJECTS];
+extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
+extern char SkinVertNums[480];
+extern char ScratchVertNums[480];
 
 #endif

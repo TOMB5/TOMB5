@@ -23,6 +23,11 @@
 #include "CAMERA.H"
 #include "LARA.H"
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "MISC.H"
+#endif
+
+
 int number_boxes;
 struct box_info* boxes;
 unsigned short* overlap;
@@ -781,10 +786,201 @@ int UpdateLOT(struct lot_info* LOT, int expansion)//22034(<), ? (F)
 
 	return SearchLOT(LOT, expansion);
 }
-
+//int /*$ra*/ SearchLOT(struct lot_info *LOT /*$t2*/, int expansion /*$s3*/)
 int SearchLOT(struct lot_info* LOT, int expansion)
 {
-	UNIMPLEMENTED();
+	int i; // $a2
+	int index; // $v0
+	int done; // $t8
+	int change; // $a0
+	int box_number; // $t1
+	int overlap_flags; // $a2
+	struct box_node* node; // $t5
+	struct box_node* expand; // $a3
+	struct box_info* box; // $t6
+	short* zone; // $s0
+	short search_zone; // $s2
+
+	//v0 = flip_status << 2
+	//a0 = &ground_zone
+	//v1 = lot->zone << 3
+	//v0 = &ground_zone[lot->zone][flip_status];
+	//v1 = lot->head
+
+	zone = ground_zone[LOT->zone][flip_status];
+	search_zone = zone[LOT->head];
+	
+	//i = 0;
+
+	if (expansion > 0)
+	{
+		//t7 = 0x7FF
+		//s4 = overlap;
+
+		//loc_21E40
+		//v1 = LOT->head
+		done = 0;
+		if (LOT->head == 0x7FF)
+		{
+			LOT->tail = 0x7FF;
+			return 0;
+		}
+		
+		//loc_21E5C
+		//s1 = a2 + 1;
+		//v1 <<= 3;
+		//v0 = LOT->node
+		//a0 = boxes;
+		node = &LOT->node[LOT->head];//t5
+		box = &boxes[LOT->head];//t6
+		//t3 = &overlap[(box->overlap_index & 0x3FFF)];
+		//t9 = boxes;
+
+		//loc_21E88
+		box_number = overlap[(box->overlap_index & 0x3FFF)];
+		//t3 += 2 (t3 is overlap[(box->overlap_index & 0x3FFF)];)
+		overlap_flags = (box_number & 0x8000);
+
+		if ((box_number & 0x8000))
+		{
+			done = 1;
+		}
+		
+		//loc_21EA0
+		//v0 = LOT->fly
+		box_number &= 0x7FF;
+
+		if (LOT->fly == 0 && search_zone != zone[box_number])
+		{
+			//loc_21FF4
+		}
+		//loc_21EC8
+		//a1 = box_number << 3;
+		//v0 = &boxes[box_number];
+		//a0 = boxes[box_number].height 
+		//v1 = box->height
+		//v0 = LOT->step
+		//t4 = boxes
+
+		change = boxes[box_number].height - box->height;
+
+		//v0 = overlap_flags & 0x2000
+		if (LOT->step > change)
+		{
+			 //v0 = LOT->drop
+			if (change < LOT->drop)
+			{
+
+			}//loc_21F20 = 0
+
+		}
+		//loc_21F04 fixme
+		if (!(overlap_flags & 0x2000) || !LOT->can_monkey)
+		{
+			//loc_21FF4
+		}
+
+		if ((overlap_flags & 0x800) && !LOT->can_jump)
+		{
+			//loc_21FF4
+		}
+		//loc_21F40
+		//v0 = LOT->node
+		//a2 = node->search_number
+		//a3 = LOT->node[box_number];
+		//t0 = LOT->node[box_number].search_number;
+		//a0 = (node->search_number & 0x7FFF)
+		//v1 = (LOT->node[box_number].search_number & 0x7FFF)
+
+		if ((node->search_number & 0x7FFF) < (LOT->node[box_number].search_number & 0x7FFF))
+		{
+			//loc_21FF4
+		}
+
+		if ((overlap_flags & 0x8000))
+		{
+			//loc_21FF4
+		}
+		
+		if ((node->search_number & 0x7FFF) == (LOT->node[box_number].search_number & 0x7FFF))
+		{
+			//loc_21FF4
+		}
+		
+		//loc_21F7C
+
+	}//loc_22014
+#if 0
+				 sltu    $v0, $a0, $v1
+				 bnez    $v0, loc_21FF4
+				 andi    $v0, $a2, 0x8000
+				 beqz    $v0, loc_21F7C
+				 nop
+				 beq     $a0, $v1, loc_21FF4
+				 nop
+				 j       loc_21FC0
+				 sh      $a2, 2($a3)
+
+				 loc_21F7C:
+			 bne     $a0, $v1, loc_21F90
+				 addu    $v0, $a1, $t4
+				 andi    $v0, $t0, 0x8000
+				 beqz    $v0, loc_21FF4
+				 addu    $v0, $a1, $t4
+
+				 loc_21F90 :
+			 lh      $v1, 6($v0)
+				 lhu     $a0, 0xA($t2)
+				 nop
+				 and     $v1, $a0
+				 beqz    $v1, loc_21FB0
+				 ori     $v0, $a2, 0x8000
+				 j       loc_21FC0
+				 sh      $v0, 2($a3)
+
+				 loc_21FB0:
+			 sh      $a2, 2($a3)
+				 lhu     $v0, 4($t2)
+				 nop
+				 sh      $v0, 0($a3)
+
+				 loc_21FC0 :
+				 lh      $v0, 4($a3)
+				 nop
+				 bne     $v0, $t7, loc_21FF4
+				 nop
+				 lh      $v0, 6($t2)
+				 nop
+				 beq     $t1, $v0, loc_21FF4
+				 sll     $v0, 3
+				 lw      $v1, 0($t2)
+				 nop
+				 addu    $v0, $v1
+				 sh      $t1, 4($v0)
+				 sh      $t1, 6($t2)
+
+				 loc_21FF4:
+			 beqz    $t8, loc_21E88
+				 move    $a2, $s1
+				 lhu     $v0, 4($t5)
+				 nop
+				 sh      $v0, 4($t2)
+				 slt     $v0, $a2, $s3
+				 bnez    $v0, loc_21E40
+				 sh      $t7, 4($t5)
+
+				 loc_22014:
+			 li      $v0, 1
+
+				 loc_22018 :
+				 lw      $s4, 0x18 + var_8($sp)
+				 lw      $s3, 0x18 + var_C($sp)
+				 lw      $s2, 0x18 + var_10($sp)
+				 lw      $s1, 0x18 + var_14($sp)
+				 lw      $s0, 0x18 + var_18($sp)
+				 jr      $ra
+				 addiu   $sp, 0x18
+#endif
 	return 0;
 }
 

@@ -2,6 +2,9 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF objects, static_objects, SkinVertNums, ScratchVertNums
 	
-objects
-	dw 0
+objects dcb 460*64,0
+static_objects dcb 70*28,0
+SkinVertNums dcb 480,0
+ScratchVertNums dcb 480,0
