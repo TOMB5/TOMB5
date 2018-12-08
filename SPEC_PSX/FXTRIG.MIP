@@ -3,7 +3,118 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF SetGunFlash, subdiv_ripple, DoBloodSplat, TriggerRicochetSpark, TriggerUnderwaterBlood
-	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1, GetFloor, GetFreeSpark, GetRandomControl, rcossin_tbl, objects, room, ripples
+	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1, GetFloor, GetFreeSpark, GetRandomControl, GetFreeBlood, rcossin_tbl, objects, room, ripples
+	
+TriggerBlood:
+	lw      t2, 0x10(sp)
+	move    t7, ra
+	move    t3, a0
+	move    t4, a1
+	move    t5, a2
+	blez    t2, loc_8D340
+	move    t6, a3
+
+	loc_8D1D4:
+	jal     GetFreeBlood
+	li      a0, 1
+	move    t1, v1
+	sb      v1, 0x1B(t1)
+	jal     GetRandomControl
+	sb      zero, 0x1C(t1)
+	andi    v0, 0x3F
+	addiu   v0, 0x30
+	sb      v0, 0x1D(t1)
+	li      v0, 4
+	li      v1, 8
+	sb      v0, 0x1F(t1)
+	jal     GetRandomControl
+	sb      v1, 0x20(t1)
+	andi    v0, 7
+	addiu   v0, 0x18
+	sb      v0, 0x21(t1)
+	jal     GetRandomControl
+	sb      v0, 0x22(t1)
+	andi    v0, 0x1F
+	addu    v0, t3, v0
+	addiu   v0, -0x10
+	jal     GetRandomControl
+	sw      v0, 0(t1)
+	andi    v0, 0x1F
+	addu    v0, t4, v0
+	addiu   v0, -0x10
+	jal     GetRandomControl
+	sw      v0, 4(t1)
+	andi    v0, 0x1F
+	addu    v0, t5, v0
+	addiu   v0, -0x10
+	sw      v0, 8(t1)
+	jal     GetRandomControl
+	li      a0, 0xFFFFFFFF
+	beq     t6, a0, loc_8D278
+	andi    a0, v0, 0xFFF
+	addiu   v1, t6, -0x10
+	andi    v0, 0x1F
+	addu    v1, v0
+	andi    a0, v1, 0xFFF
+
+	loc_8D278:
+	jal     GetRandomControl
+	sll     a0, 2
+	la      v1, rcossin_tbl
+	addu    a0, v1
+	lh      a1, 2(a0)
+	andi    v0, 0xF
+	mult    a1, v0
+	lh      a0, 0(a0)
+	mflo    a1
+	negu    a0, a0
+	sra     a1, 7
+	mult    a0, v0
+	sh      a1, 0x10(t1)
+	mflo    a0
+	sra     a0, 7
+	jal     GetRandomControl
+	sh      a0, 0xC(t1)
+	andi    v0, 0xFF
+	addiu   v0, 0x80
+	negu    v0, v0
+	sh      v0, 0xE(t1)
+	li      v0, 4
+	jal     GetRandomControl
+	sb      v0, 0x19(t1)
+	andi    v0, 0xFFF
+	jal     GetRandomControl
+	sh      v0, 0x14(t1)
+	jal     GetRandomControl
+	andi    a0, v0, 1
+	beqz    a0, loc_8D304
+	andi    v0, 0x3F
+	negu    v0, v0
+	j       loc_8D308
+	addiu   v0, -0x40
+
+	loc_8D304:
+	addiu   v0, 0x40
+
+	loc_8D308:
+	jal     GetRandomControl
+	sb      v0, 0x1A(t1)
+	andi    v0, 0x1F
+	addiu   v0, 0x1F
+	jal     GetRandomControl
+	sh      v0, 0x12(t1)
+	addiu   t2, -1
+	andi    v0, 7
+	addiu   v0, 8
+	sb      v0, 0x16(t1)
+	sb      v0, 0x18(t1)
+	sra     v0, 2
+	bnez    t2, loc_8D1D4
+	sb      v0, 0x17(t1)
+
+	loc_8D340:
+	jr      t7
+	nop
 	
 TriggerUnderwaterBlood:
 	la      t0, ripples
