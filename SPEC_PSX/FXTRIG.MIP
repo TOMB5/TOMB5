@@ -3,11 +3,44 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF SetGunFlash, subdiv_ripple, DoBloodSplat, TriggerRicochetSpark
-	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1
+	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1, GetFloor
 	
 DoBloodSplat:
-	jr ra
-	nop
+	addiu   sp, -0x28
+	sw      ra, 0x28-0x18(sp)
+	sw      a0, 0x28-0x10(sp)
+	sw      a1, 0x28-0xC(sp)
+	sw      a2, 0x28-0x8(sp)
+	sw      a3, 0x28-0x4(sp)
+	jal     GetFloor
+	addiu   a3, sp, 0x28+0x14
+	lw      t8, 0x28-0x18(sp)
+	lw      a0, 0x28-0x10(sp)
+	lw      a1, 0x28-0xC(sp)
+	lw      a2, 0x28-0x8(sp)
+	lw      a3, 0x28-0x4(sp)
+	addiu   sp, 0x28
+	lh      v1, 0x14(sp)
+	lw      at, room-GP_ADDR(gp)
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 4
+	addu    v0, at
+	lhu     v0, 0x4E(v0)
+	sll     a3, 16
+	andi    v0, 1
+	beqz    v0, loc_8D1A0
+	sra     a3, 16
+	jal     TriggerUnderwaterBlood
+	addiu   ra, 0x10
+
+	loc_8D1A0:
+	lh      at, 0x10(sp)
+	sw      a3, 0x10(sp)
+	jal     TriggerBlood
+	sra     a3, at, 4
+	jr      t8
+	li      v0, 0xFFFFFFFF
 	
 TriggerRicochetSpark:
 	jr ra
