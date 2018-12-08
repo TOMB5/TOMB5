@@ -57,6 +57,10 @@
 #include <string.h>
 #include "LARAMISC.H"
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "SPHERES.H"
+#endif
+
 #define MAX_FRAMES 10
 
 int flipeffect = -1;
