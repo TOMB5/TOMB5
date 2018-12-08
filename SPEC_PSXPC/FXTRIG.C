@@ -11,5 +11,15 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 
 void SetGunFlash(short gun_type)
 {
-	S_Warn("[SetGunFlash] - Unimplemented!\n");
+	UNIMPLEMENTED();
+}
+
+void DoBloodSplat(long x, long y, long z, int random, short y_rot, short room_number)
+{
+	UNIMPLEMENTED();
+}
+
+void TriggerRicochetSpark(struct GAME_VECTOR* hit_pos, short y_rot, int unk00, int unk01)
+{
+	UNIMPLEMENTED();
 }
