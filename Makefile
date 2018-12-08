@@ -31,9 +31,13 @@ PROGADDR	= 0x00010000
 SOURCES		= SPEC_PSX/ GAME/
 INCLUDES	= SPEC_PSX/ GAME/
 DEFS		= PSX_VERSION DISC_VERSION NTSC_VERSION USE_ASM RELOC
-##DEFS		= PSX_VERSION DEBUG_VERSION NTSC_VERSION USE_ASM
 ISOXML		= TOMB5US.XML
 DISC_ROOTFD	= DISC/
+
+#---------------------------------------------------------------------------------
+# USE_SLINK	- Flag to use SLINK, otherwise PSYLINK is used
+#---------------------------------------------------------------------------------
+USE_SLINK = FALSE
 
 #---------------------------------------------------------------------------------
 # LIBDIRS	- Library search directories
@@ -89,7 +93,11 @@ OFILES		= $(CFILES:.C=.obj) $(AFILES:.MIP=.obj) $(RFILES:.C=.obj)
 #---------------------------------------------------------------------------------
 all: $(OFILES)
 	$(CC) -Xo$(PROGADDR) $(CFLAGS) $(addprefix -L,$(LIBDIRS)) $(addprefix -l,$(LIBS)) $(OFILES) $(ROFILES)
-	
+ifeq "$(USE_SLINK)" "TRUE"
+	PSX_SLINK.BAT
+else
+	PSX_LINK.BAT
+endif
 #---------------------------------------------------------------------------------
 # Default rule, compiles all overlay files
 #---------------------------------------------------------------------------------
