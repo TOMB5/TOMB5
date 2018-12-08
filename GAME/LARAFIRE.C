@@ -1,5 +1,6 @@
 #include "LARAFIRE.H"
 
+#include "EFFECTS.H"
 #include "GAMEFLOW.H"
 #include "LARA.H"
 #include "OBJECTS.H"
@@ -8,11 +9,15 @@
 #include "LARA1GUN.H"
 #include "DRAW.H"
 #include "LARAFLAR.H"
+#include "SAVEGAME.H"
+#include "SOUND.H"
 
 #ifdef PC_VERSION
 #include "GAME.H"
+#include "CONTROL.H"
 #else
 #include "SETUP.H"
+#include "MISC.H"
 #endif
 
 struct GAME_VECTOR bum_vdest;
@@ -129,9 +134,47 @@ int WeaponObject(int weapon_type)//48898(<), 48CFC(<) (F)
 	}
 }
 
-void HitTarget(struct ITEM_INFO* item, struct GAME_VECTOR* hitpos, int damage, int grenade)//486E0, 48B44
+void HitTarget(struct ITEM_INFO* item, struct GAME_VECTOR* hitpos, int damage, int grenade)//486E0(<), 48B44(<) (F)
 {
-	UNIMPLEMENTED();
+	struct object_info* obj; // $s2
+
+	item->hit_status = 1;
+	obj = &objects[item->object_number];
+
+	if (item->data != NULL && item != lara_item)
+	{
+		((int*)item->data)[3] |= 0x10;
+	}//loc_48758
+
+	if (hitpos != NULL && obj->HitEffect != 0)
+	{
+		if (obj->HitEffect == 4)//*(int*)obj->bite_offset & 0x4000000
+		{
+			DoBloodSplat(hitpos->x, hitpos->y, hitpos->z, (GetRandomControl() & 3) + 3, item->pos.y_rot, item->room_number);
+		}
+		else if (obj->HitEffect == 3)//*(int*)obj->bite_offset & 0xC000000
+		{
+			//loc_487B4
+			TriggerRicochetSpark(hitpos, lara_item->pos.y_rot, 3, 0);
+		}
+		else if (obj->HitEffect == 1)//*(int*)obj->bite_offset & 0x8000000
+		{
+			TriggerRicochetSpark(hitpos, lara_item->pos.y_rot, 3, -5);
+			SoundEffect(SFX_SWORD_GOD_HITMET, &item->pos, 0);
+		}
+	}//loc_48810
+
+	if (obj->undead && grenade == 0 && item->hit_points != -16384)
+	{
+		return;
+	}//loc_4883C
+
+	if (item->hit_points > 0 && damage > item->hit_points)
+	{
+		savegame.Level.Kills++;
+	}//loc_48868
+
+	item->hit_points -= damage;
 }
 
 int FireWeapon(int weapon_type, struct ITEM_INFO* target, struct ITEM_INFO* src, short* angles)//48328, 4878C
