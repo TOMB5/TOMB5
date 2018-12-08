@@ -10,6 +10,7 @@
 #include "TOMB4FX.H"
 #include "EFFECT2.H"
 #include "SOUND.H"
+#include "SPHERE.H"
 #include "COLLIDE.H"
 
 #if PSX_VERSION || PSXPC_VERSION
@@ -206,9 +207,32 @@ void DrawScaledSpike(struct ITEM_INFO* item)//5B854, 5BCD0
 	return;
 }
 
-void RollingBallCollision(short item_number, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//5B750, 5BBCC
+void RollingBallCollision(short item_number, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//5B750(<), 5BBCC (F)
 {
-	UNIMPLEMENTED();
+	struct ITEM_INFO* item = &items[item_number];
+
+	if (TestBoundsCollide(item, lara_item, coll->radius) == 0)
+		return;
+
+	if (TestCollision(item, laraitem) == 0)
+		return;
+
+	if (TriggerActive(item) != 0 && item->item_flags[0] != 0 && item->fallspeed != 0)
+	{
+		//$5B7FC
+		lara_item->anim_number = 0x88;
+		lara_item->goal_anim_state = 8;
+		lara_item->current_anim_state = 8;
+	}
+	else
+	{
+		//$5B7E4
+		ObjectCollision(item_number, laraitem, coll);
+		lara_item->frame_number = anims[139].frame_base;
+		lara_item->gravity_status = 0;
+	}
+
+	//$5B838
 	return;
 }
 
