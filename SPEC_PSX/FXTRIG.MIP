@@ -2,8 +2,46 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF SetGunFlash, subdiv_ripple, DoBloodSplat, TriggerRicochetSpark
-	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1, GetFloor, GetFreeSpark, GetRandomControl, rcossin_tbl, objects, room
+	XDEF SetGunFlash, subdiv_ripple, DoBloodSplat, TriggerRicochetSpark, TriggerUnderwaterBlood
+	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1, GetFloor, GetFreeSpark, GetRandomControl, rcossin_tbl, objects, room, ripples
+	
+TriggerUnderwaterBlood:
+	la      t0, ripples
+	move    t1, ra
+	move    v1, zero
+
+	loc_8D3F8:
+	lbu     v0, 0xC(t0)
+	addiu   v1, 1
+	andi    v0, 1
+	beqz    v0, loc_8D418
+	slti    v0, v1, 0x20
+	bnez    v0, loc_8D3F8
+	addiu   t0, 0x10
+	jr      t1
+
+	loc_8D418:
+	li      v0, 0x31
+	jal     GetRandomControl
+	sb      v0, 0xC(t0)
+	andi    v0, 7
+	addiu   v0, 0xF0
+	sb      v0, 0xD(t0)
+	li      v0, 1
+	sb      a3, 0xE(t0)
+	jal     GetRandomControl
+	sb      v0, 0xF(t0)
+	andi    v0, 0x3F
+	addu    v0, a0, v0
+	addiu   v0, -0x20
+	sw      v0, 0(t0)
+	jal     GetRandomControl
+	sw      a1, 4(t0)
+	andi    v0, 0x3F
+	addu    v0, a2, v0
+	addiu   v0, -0x20
+	jr      t1
+	sw      v0, 8(t0)
 	
 DoBloodSplat:
 	addiu   sp, -0x28
