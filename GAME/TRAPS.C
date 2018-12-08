@@ -82,9 +82,65 @@ void ControlScaledSpike(short item_number)//5C000, 5C47C
 	return;
 }
 
-int TestBoundsCollideTeethSpikes(struct ITEM_INFO* item)//5BE64, 5C2E0
+int TestBoundsCollideTeethSpikes(struct ITEM_INFO* item)//5BE64(<), 5C2E0(<) (F)
 {
-	UNIMPLEMENTED();
+	long x;
+	long y;
+	long z;
+	short* larabounds;
+	long minx;
+	long maxx;
+	long minz;
+	long maxz;
+	long size;
+
+	if ((item->trigger_flags & 8))
+	{
+		x = item->pos.x_pos | 0x200;
+		z = item->pos.z_pos + SPxzoffs[item->trigger_flags & 7] & -1024 | 0x200;
+	}
+	else
+	{
+
+		//loc_5BEC8
+		z = item->pos.z_pos & -1024 | 0x200;
+		x = item->pos.x_pos - SPxzoffs[item->trigger_flags & 7] & -1024 | 0x200;
+	}
+
+	//loc_5BEF8
+	size = 480;
+	if ((item->trigger_flags & 1))
+	{
+		size = 300;
+	}
+	
+	//loc_5BF10
+	y = item->pos.y_pos + SPDETyoffs[item->trigger_flags & 7];
+	larabounds = GetBestFrame(lara_item);
+
+	if (y < lara_item->pos.y_pos + larabounds[2])
+		return 0;
+
+	if (lara_item->pos.y_pos + larabounds[3] < y - 900)
+		return 0;
+
+	minx = item->pos.x_pos + larabounds[0];
+	maxx = item->pos.x_pos + larabounds[1];
+	minz = item->pos.z_pos + larabounds[5];
+	maxz = item->pos.z_pos + larabounds[6];
+
+	if (x + size < minx)
+		return 0;
+
+	if (maxx < x - size)
+		return 0;
+
+	if (z + size < minz)
+		return 0;
+
+	if (maxz > z - size)
+		return 1;
+
 	return 0;
 }
 
