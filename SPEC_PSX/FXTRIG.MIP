@@ -2,8 +2,16 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF SetGunFlash, subdiv_ripple
+	XDEF SetGunFlash, subdiv_ripple, DoBloodSplat, TriggerRicochetSpark
 	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1
+	
+DoBloodSplat:
+	jr ra
+	nop
+	
+TriggerRicochetSpark:
+	jr ra
+	nop
 	
 subdiv_ripple:
 	jr	ra

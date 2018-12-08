@@ -871,6 +871,7 @@ void DrawWeaponMissile(struct ITEM_INFO *item)
 	UNIMPLEMENTED();
 }
 
+#if PC_VERSION
 void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num)// (F)
 {
 	GetFloor(x, y, z, &room_num);
@@ -888,6 +889,7 @@ void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
 {
 	UNIMPLEMENTED();
 }
+#endif
 
 void Richochet(struct GAME_VECTOR* pos)// (F)
 {

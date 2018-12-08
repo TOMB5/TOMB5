@@ -18,6 +18,7 @@
 #else
 #include "SETUP.H"
 #include "MISC.H"
+#include "FXTRIG.H"
 #endif
 
 struct GAME_VECTOR bum_vdest;
