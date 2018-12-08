@@ -82,16 +82,12 @@ RFILES = GAME/JOBY5.C SPEC_PSX/SETUP.C
 #---------------------------------------------------------------------------------
 # Generate file names for object binaries
 #---------------------------------------------------------------------------------
-OFILES		= $(CFILES:.C=.obj) $(AFILES:.MIP=.obj)
-ROFILES		= $(RFILES:.C=.obj)
+OFILES		= $(CFILES:.C=.obj) $(AFILES:.MIP=.obj) $(RFILES:.C=.obj)
 
 #---------------------------------------------------------------------------------
 # Default rule, compiles all source files
 #---------------------------------------------------------------------------------
 all: $(OFILES)
-	$(CC) -Xo$(PROGADDR) $(CFLAGS) $(addprefix -L,$(LIBDIRS)) $(addprefix -l,$(LIBS)) $(OFILES) -o $(DISC_ROOTFD)$(TARGET).CPE,$(DISC_ROOTFD)$(TARGET).SYM,$(DISC_ROOTFD)$(TARGET).MAP
-
-all: $(ROFILES)
 	$(CC) -Xo$(PROGADDR) $(CFLAGS) $(addprefix -L,$(LIBDIRS)) $(addprefix -l,$(LIBS)) $(OFILES) $(ROFILES)
 	
 #---------------------------------------------------------------------------------
