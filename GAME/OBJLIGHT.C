@@ -75,14 +75,30 @@ void ControlPulseLight(short item_number)//5D254(<), 5D6D0 (F)
 	}//5D2F0
 
 	r = sin * ((item->trigger_flags & 0x1F) << 3) >> 9;
-	g = sin * ((item->trigger_flags << 10) >> 12) & 0xF8 >> 9;
-	b = sin * ((item->trigger_flags >> 17) & 0xF8) >> 9;
+	g = sin * ((item->trigger_flags << 16) >> 18) & 0xF8 >> 9;
+	b = sin * ((item->trigger_flags >> 23) & 0xF8) >> 9;
 
 	TriggerDynamic(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 24, r, g, b);
 }
 
-void ControlColouredLight(short item_number)//5D368, 5D7E4
+void ControlColouredLight(short item_number)//5D368(<), 5D7E4 (F)
 {
+	struct ITEM_INFO* item;
+	long r;
+	long g;
+	long b;
+
+	item = &items[item_number];
+
+	if (!TriggerActive(item))
+		return;
+
+	r = (item->trigger_flags & 0x1F) << 3;
+	g = (item->trigger_flags << 16) >> 18 & 0xF8;
+	b = (item->trigger_flags << 23) >> 17 & 0xF8;
+
+	TriggerDynamic(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 24, r, g, b);
+
 	UNIMPLEMENTED();
 }
 
