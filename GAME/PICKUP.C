@@ -226,9 +226,12 @@ void PuzzleHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 	UNIMPLEMENTED();
 }
 
-void PuzzleDoneCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//524C8, 5292C
+void PuzzleDoneCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//524C8(<), 5292C (F)
 {
-	UNIMPLEMENTED();
+	if (items[item_num].trigger_flags - 998 > 1)
+	{
+		ObjectCollision(item_num, l, coll);
+	}
 }
 
 void KeyHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52188, 525EC
