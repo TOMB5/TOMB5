@@ -39,6 +39,7 @@
 #include "DRAWPHAS.H"
 #include "DELTAPAK_S.H"
 #include "CD.H"
+#include "BUBBLES.H"
 #endif
 
 #include "SPECTYPES.H"

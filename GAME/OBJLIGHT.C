@@ -5,6 +5,7 @@
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "SPHERES.H"
+#include "BUBBLES.H"
 #endif
 
 struct FOOTPRINT FootPrint[32];

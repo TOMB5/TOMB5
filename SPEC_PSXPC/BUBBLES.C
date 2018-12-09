@@ -6,25 +6,30 @@
 
 void DrawFlash()
 {
-	S_Warn("[DrawFlash] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void insert_psx_clip_window(long x, long y, long w, long a3, long h)
 {
-	S_Warn("[insert_psx_clip_window] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void CalcClipWindow_ONGTE(short room_number, long unknown)//8F374,
 {
-	S_Warn("[CalcClipWindow_ONGTE] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DrawPsxTile(long a0, long a1, long a2, long a3)//8F770(<), 917B4(<) (F)
 {
-	S_Warn("[DrawPsxTile] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void S_DrawSparks()
 {
-	S_Warn("[S_DrawSparks] - Unimplemented!\n");
+	UNIMPLEMENTED();
+}
+
+void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
+{
+	UNIMPLEMENTED();
 }

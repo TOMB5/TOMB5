@@ -2,9 +2,105 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF DrawMonoScreen, CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
-	XREF ClutStartY, lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
+	XDEF TriggerDynamic, DrawMonoScreen, CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
+	XREF camera, number_dynamics, ClutStartY, lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
 
+	
+TriggerDynamic:
+	bltz    a0, locret_8FF68
+	lui     t3, 0xA
+	bltz    a3, locret_8FF68
+	li      t3, 0xA2B6C
+	beqz    a3, locret_8FF68
+	lw      v1, number_dynamics-GP_ADDR(gp)
+	li      v0, 0x20
+	bne     v1, v0, loc_8FECC
+	move    t0, t3
+	move    t1, zero
+	move    t2, zero
+
+	loc_8FE50:
+	lw      at, 0(t3)
+	lw      v0, camera+0x0-GP_ADDR(gp)
+	lw      v1, 4(t3)
+	subu    at, v0, at
+	lw      v0, camera+0x4-GP_ADDR(gp)
+	mtc2    at, r9
+	subu    v0, v1
+	lw      at, 8(t3)
+	lw      v1, camera+0x8-GP_ADDR(gp)
+	mtc2    v0, r10
+	subu    v1, at
+	mtc2    v1, r11
+	nop
+	nop
+	cop2    0xA00428
+	mfc2    at, r25
+	mfc2    v0, r26
+	mfc2    v1, r27
+	addu    at, v0
+	addu    v1, at, v1
+	slt     at, t1, v1
+	beqz    at, loc_8FEB0
+	addiu   t2, 1
+	move    t1, v1
+	move    t0, t3
+
+	loc_8FEB0:
+	slti    v0, t2, 0x20
+	bnez    v0, loc_8FE50
+	addiu   t3, 0x18
+	lw      v1, number_dynamics-GP_ADDR(gp)
+	move    t3, t0
+	j       loc_8FEDC
+	addiu   v1, -1
+
+	loc_8FECC:
+	sll     at, v1, 1
+	addu    at, v1
+	sll     at, 3
+	addu    t3, at
+
+	loc_8FEDC:
+	sll     v0, a3, 8
+	lui     at, 0x20
+	div     at, v0
+	lw      t0, 0x10(sp)
+	lw      t1, 0x14(sp)
+	lw      t2, 0x18(sp)
+	sh      v0, 0x10(t3)
+	li      at, 1
+	sb      at, 0xC(t3)
+	sw      a0, 0(t3)
+	sw      a1, 4(t3)
+	sw      a2, 8(t3)
+	addiu   v1, 1
+	sw      v1, number_dynamics-GP_ADDR(gp)
+	sb      t0, 0xD(t3)
+	sb      t1, 0xE(t3)
+	sb      t2, 0xF(t3)
+	slti    at, a3, 8
+	mflo    v0
+	beqz    at, locret_8FF68
+	sw      v0, 0x14(t3)
+	mult    t0, a3
+	mflo    t0
+	sra     t0, 3
+	nop
+	mult    t1, a3
+	sb      t0, 0xD(t3)
+	mflo    t1
+	sra     t1, 3
+	nop
+	mult    t2, a3
+	sb      t1, 0xE(t3)
+	mflo    t2
+	sra     t2, 3
+	sb      t2, 0xF(t3)
+
+	locret_8FF68:
+	jr      ra
+	nop
 	
 DrawMonoScreen:
 	lui     v0, 0x6400

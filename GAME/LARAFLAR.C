@@ -6,8 +6,10 @@
 #include <stddef.h>
 #ifdef PC_VERSION
 #include "GAME.H"
-#else
+#elif PSX_VERSION || PSXPC_VERSION
 #include "SETUP.H"
+#include "MISC.H"
+#include "BUBBLES.H"
 #endif
 #include "DRAW.H"
 #include "OBJECTS.H"
@@ -17,9 +19,6 @@
 #include "CONTROL.H"
 #include "EFFECT2.H"
 
-#if PSX_VERSION || PSXPC_VERSION
-#include "MISC.H"
-#endif
 
 
 void FlareControl(short item_number)//4A418, 4A87C
