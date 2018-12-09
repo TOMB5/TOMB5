@@ -1947,10 +1947,8 @@ void RefreshCamera(short type, short* data)//1E7FC, ? (F)
 			data++;
 			if (value == camera.last)
 			{
-				//v0 = camera.timer
 				camera.number = value;
 
-				//v0 = -1
 				if (camera.timer < 0)
 				{
 					//loc_1E894

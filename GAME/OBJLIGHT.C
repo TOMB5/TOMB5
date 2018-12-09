@@ -1,5 +1,6 @@
 #include "OBJLIGHT.H"
 
+#include "CAMERA.H"
 #include "CONTROL.H"
 #include "SPECIFIC.H"
 
@@ -11,8 +12,62 @@
 struct FOOTPRINT FootPrint[32];
 int FootPrintNum;
 
+//void /*$ra*/ TriggerAlertLight(long x /*$s2*/, long y /*$s3*/, long z /*$s1*/, long r /*$s5*/, long g /*stack 16*/, long b /*stack 20*/, long angle /*stack 24*/, int room_no /*stack 28*/, int falloff /*stack 32*/)
 void TriggerAlertLight(long x, long y, long z, long r, long g, long b, long angle, int room_no, int falloff)//5D018, 5D494
 {
+	UNIMPLEMENTED();
+}
+
+void ControlStrobeLight(short item_number)//5D118(<), 5D594
+{
+	struct ITEM_INFO* item;
+	long angle;
+	long sin;
+	long cos;
+	long r;
+	long g;
+	long b;
+
+	item = &items[item_number];
+
+	if (!TriggerActive(item))
+		return;
+
+	angle = item->pos.y_rot + 2912;
+
+	r = (item->trigger_flags) & 0x1F << 3;
+	b = (item->trigger_flags << 16) >> 17 & 0xF8;
+	g = (item->trigger_flags << 16) >> 12 & 0xF8;
+	
+	item->pos.y_rot = angle;
+
+	angle += 22528;
+	angle >>= 4;
+	angle &= 0xFFF;
+
+	TriggerAlertLight(item->box_number, item->pos.y_pos - 512, item->pos.z_pos, r, g, b, angle, 12, item->room_number);
+
+	sin = rcossin_tbl[angle];
+	angle |= 2;
+	cos = rcossin_tbl[angle | 1];
+
+	TriggerDynamic(item->pos.x_pos + ((sin << 16) >> 14), item->pos.y_pos - 768, (item->pos.z_pos + (cos << 16) >> 14), 12, r, g ,b);
+}
+
+void ControlPulseLight(short item_number)//5D254, 5D6D0
+{
+	UNIMPLEMENTED();
+}
+
+void ControlColouredLight(short item_number)//5D368, 5D7E4
+{
+	UNIMPLEMENTED();
+}
+
+
+void ControlElectricalLight(short item_number)//5D3F8, 5D874
+{
+	UNIMPLEMENTED();
 }
 
 void ControlBlinker(short item_number)//5D660(<), 5DADC (F)
@@ -25,7 +80,7 @@ void ControlBlinker(short item_number)//5D660(<), 5DADC (F)
 
 	item = &items[item_number];
 
-	if (TriggerActive(item) == 0)
+	if (!TriggerActive(item))
 		return;
 
 	if (--item->item_flags[0] < 3)
@@ -52,24 +107,4 @@ void ControlBlinker(short item_number)//5D660(<), 5DADC (F)
 		//5D734
 		item->mesh_bits = 1;
 	}
-}
-
-void ControlElectricalLight(short item_number)//5D3F8, 5D874
-{
-	UNIMPLEMENTED();
-}
-
-void ControlColouredLight(short item_number)//5D368, 5D7E4
-{
-	UNIMPLEMENTED();
-}
-
-void ControlPulseLight(short item_number)//5D254, 5D6D0
-{
-	UNIMPLEMENTED();
-}
-
-void ControlStrobeLight(short item_number)//5D118, 5D594
-{
-	UNIMPLEMENTED();
 }
