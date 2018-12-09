@@ -1927,9 +1927,75 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)
 	UNIMPLEMENTED();
 }
 
-void RefreshCamera(short type, short* data)
+void RefreshCamera(short type, short* data)//1E7FC, ? (F)
 {
-	UNIMPLEMENTED();
+	short trigger;
+	short value;
+	short target_ok;
+
+	target_ok = 2;
+
+	//loc_1E814
+	do
+	{
+		trigger = *data++;
+		value = trigger & 0x3FF;
+
+		if ((trigger & 0x3FFF) >> 10 == 1)
+		{
+			//loc_1E840
+			data++;
+			if (value == camera.last)
+			{
+				//v0 = camera.timer
+				camera.number = value;
+
+				//v0 = -1
+				if (camera.timer < 0)
+				{
+					//loc_1E894
+					camera.timer = -1;
+				}
+				else if (camera.type == LOOK_CAMERA || camera.fixed[value].flags & 3)
+				{
+					//loc_1E8A4
+					camera.type = FIXED_CAMERA;
+					target_ok = 1;
+				}
+				else
+				{
+					camera.timer = -1;
+				}
+			}
+			else
+			{
+				//loc_1E89C
+				target_ok = 0;
+			}
+		}
+		else if ((trigger & 0x3FFF) >> 10 == 6)
+		{
+			//loc_1E8B4
+			if (camera.type == LOOK_CAMERA || camera.number == -1 || camera.fixed[camera.number].flags & 3)
+			{
+				camera.item = &items[value];
+			}
+		}
+	} while (!(trigger & 0x8000));
+
+	//loc_1E91C
+	if (camera.item != NULL)
+	{
+		if (!target_ok || target_ok == 2 || camera.item->looked_at || camera.item != camera.last_item)
+		{
+			camera.item = NULL;
+		}
+	}//loc_1E97C
+
+	if (camera.number == -1 && camera.timer > 0)
+	{
+		camera.timer = camera.number;
+	}
 }
 
 long GetWaterHeight(long x, long y, long z, short room_number)
