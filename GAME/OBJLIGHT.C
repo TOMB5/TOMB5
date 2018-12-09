@@ -18,7 +18,7 @@ void TriggerAlertLight(long x, long y, long z, long r, long g, long b, long angl
 	UNIMPLEMENTED();
 }
 
-void ControlStrobeLight(short item_number)//5D118(<), 5D594
+void ControlStrobeLight(short item_number)//5D118(<), 5D594 ///@FIXME im not sure this is correct redo this
 {
 	struct ITEM_INFO* item;
 	long angle;
@@ -48,22 +48,43 @@ void ControlStrobeLight(short item_number)//5D118(<), 5D594
 	TriggerAlertLight(item->box_number, item->pos.y_pos - 512, item->pos.z_pos, r, g, b, angle, 12, item->room_number);
 
 	sin = rcossin_tbl[angle];
-	angle |= 2;
 	cos = rcossin_tbl[angle | 1];
 
 	TriggerDynamic(item->pos.x_pos + ((sin << 16) >> 14), item->pos.y_pos - 768, (item->pos.z_pos + (cos << 16) >> 14), 12, r, g ,b);
 }
 
-void ControlPulseLight(short item_number)//5D254, 5D6D0
+void ControlPulseLight(short item_number)//5D254(<), 5D6D0 (F)
 {
-	UNIMPLEMENTED();
+	struct ITEM_INFO* item;
+	long sin;
+	long r;
+	long g;
+	long b;
+
+	item = &items[item_number];
+
+	if (!TriggerActive(item))
+		return;
+
+	item->item_flags[0] -= 1024;
+	sin = ABS(SIN((item->pos.y_pos & 0x3FFF) << 2) << 16 >> 14);
+
+	if (sin > 255)
+	{
+		sin = 255;
+	}//5D2F0
+
+	r = sin * ((item->trigger_flags & 0x1F) << 3) >> 9;
+	g = sin * ((item->trigger_flags << 10) >> 12) & 0xF8 >> 9;
+	b = sin * ((item->trigger_flags >> 17) & 0xF8) >> 9;
+
+	TriggerDynamic(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 24, r, g, b);
 }
 
 void ControlColouredLight(short item_number)//5D368, 5D7E4
 {
 	UNIMPLEMENTED();
 }
-
 
 void ControlElectricalLight(short item_number)//5D3F8, 5D874
 {
