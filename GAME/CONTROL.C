@@ -24,27 +24,24 @@
 #include "GAMEFLOW.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "GPU.H"
-#endif
 #include "HAIR.H"
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
 #include "LARA1GUN.H"
-#if PSX_VERSION || PSXPC_VERSION
 #include "LOAD_LEV.H"
 #include "MATHS.H"
 #include "ROOMLOAD.H"
+#include "PSOUTPUT.H"
+#include "SETUP.H"
+#include "SPHERES.H"
+#include "GETSTUFF.H"
 #endif
 #include "LOT.H"
 
 #include "NEWINV2.H"
 #include "PICKUP.H"
 #include INPUT_H
-
-#if PSX_VERSION || PSXPC_VERSION
-#include "PSOUTPUT.H"
-#include "SETUP.H"
-#endif
 #include "SAVEGAME.H"
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -56,10 +53,6 @@
 #include <assert.h>
 #include <string.h>
 #include "LARAMISC.H"
-
-#if PSX_VERSION || PSXPC_VERSION
-#include "SPHERES.H"
-#endif
 
 #define MAX_FRAMES 10
 
@@ -2389,6 +2382,7 @@ int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(
 	return 0;
 }
 
+#if PC_VERSION 
 int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
 	UNIMPLEMENTED();
@@ -2400,6 +2394,7 @@ int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 	UNIMPLEMENTED();
 	return 0;
 }
+#endif
 
 int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 {
