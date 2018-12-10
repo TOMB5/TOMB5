@@ -4,6 +4,7 @@
 #include "3D_GEN.H"
 #include "TITSEQ.H"
 #endif
+#include "CDTRACKS.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"

@@ -1,6 +1,7 @@
 #include "PICKUP.H"
 
 #include "CALCLARA.H"
+#include "CDTRACKS.H"
 #include "COLLIDE.H"
 #include "CONTROL.H"
 #include "DRAW.H"
