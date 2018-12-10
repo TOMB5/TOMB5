@@ -22,9 +22,11 @@ long MULFP(long A, long B)
 int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
 	UNIMPLEMENTED();
+	return 0;
 }
 
 int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
 	UNIMPLEMENTED();
+	return 0;
 }
