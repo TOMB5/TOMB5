@@ -1,6 +1,7 @@
 #ifndef BUBBLES_H
 #define BUBBLES_H
 
+extern void SetInventoryLighting(struct MATRIX3D* m);
 extern void DrawMonoScreen(int a0);
 extern void DrawFlash();
 extern void insert_psx_clip_window(long x, long y, long w, long a3, long h);

@@ -3,8 +3,89 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF TriggerDynamic, DrawMonoScreen, CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
-	XREF camera, number_dynamics, ClutStartY, lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
+	XREF LightPos, CamGTE, camera, number_dynamics, ClutStartY, lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
 
+SetInventoryLighting:
+	move    t9, ra
+	move    t5, a0
+	move    t6, a1
+	move    t7, a2
+	move    t8, a3
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t3, r3
+	cfc2    t4, r4
+	addiu   a0, gp, CamGTE-GP_ADDR
+	lw      at, 0(a0)
+	lw      v0, 4(a0)
+	lw      v1, 8(a0)
+	lw      a1, 0xC(a0)
+	lw      a0, 0x10(a0)
+	ctc2    at, r0
+	ctc2    v0, r1
+	ctc2    v1, r2
+	ctc2    a1, r3
+	ctc2    a0, r4
+	li      v0, 0xF000F000
+	li      v1, 0x1000
+	jal     DEL_ApplyMatrixSV
+	addiu   a0, gp, LightPos-GP_ADDR
+	li      v0, 0xF0001000
+	li      v1, 0xFFFFF000
+	jal     DEL_ApplyMatrixSV
+	addiu   a0, gp, LightPos+0x6-GP_ADDR
+	lui     v0, 0x1000
+	li      v1, 0xFFFFF000
+	jal     DEL_ApplyMatrixSV
+	addiu   a0, gp, LightPos+0xC-GP_ADDR
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	ctc2    t4, r4
+	andi    v0, t5, 0xFF
+	sll     v0, 4
+	andi    v1, t6, 0xFF
+	sll     v1, 20
+	or      v0, v1
+	ctc2    v0, r16
+	andi    v0, t7, 0xFF
+	sll     v0, 4
+	andi    v1, t5, 0xFF00
+	sll     v1, 12
+	or      v0, v1
+	ctc2    v0, r17
+	sra     v0, t6, 4
+	andi    v0, 0xFF0
+	andi    v1, t7, 0xFF00
+	sll     v1, 12
+	or      v0, v1
+	ctc2    v0, r18
+	sra     v0, t5, 12
+	andi    v0, 0xFF0
+	sra     v1, t6, 12
+	andi    v1, 0xFF0
+	sll     v1, 16
+	or      v0, v1
+	ctc2    v0, r19
+	sra     v0, t7, 12
+	andi    v0, 0xFF0
+	ctc2    v0, r20
+	andi    a0, t8, 0xFF
+	sll     a0, 4
+	sra     a1, t8, 4
+	andi    a1, 0xFF0
+	sra     a2, t8, 12
+	andi    a2, 0xFF0
+	ctc2    a0, r13
+	ctc2    a1, r14
+	ctc2    a2, r15
+	li      v0, 0x808080
+	mtc2    v0, r6
+	ctc2    zero, r28
+	jr      t9
+	nop
 	
 TriggerDynamic:
 	bltz    a0, locret_8FF68

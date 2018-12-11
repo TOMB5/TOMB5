@@ -33,3 +33,16 @@ void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 {
 	UNIMPLEMENTED();
 }
+
+#if PSXPC_VERSION
+void SetInventoryLighting(struct MATRIX3D* m)
+{
+#if PSX_VERSION && !USE_ASM
+	gte_ReadRotMatrix(m);
+	gte_SetRotMatrix(CamGTE);
+	//a0 = CamGTE
+#else
+	UNIMPLEMENTED();
+#endif
+}
+#endif
