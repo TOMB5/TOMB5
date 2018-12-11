@@ -2,8 +2,22 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF TriggerDynamic, DrawMonoScreen, CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
+	XDEF DEL_ApplyMatrixSV, TriggerDynamic, DrawMonoScreen, CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
 	XREF LightPos, CamGTE, camera, number_dynamics, ClutStartY, lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
+
+DEL_ApplyMatrixSV:
+	mtc2    v0, r0
+	mtc2    v1, r1
+	nop
+	nop
+	cop2    0x486012
+	mfc2    at, r9
+	mfc2    v0, r10
+	mfc2    v1, r11
+	sh      at, 0(a0)
+	sh      v0, 2(a0)
+	jr      ra
+	sh      v1, 4(a0)
 
 SetInventoryLighting:
 	move    t9, ra
