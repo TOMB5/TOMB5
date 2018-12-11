@@ -2068,7 +2068,7 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F
 	}
 }
 
-#if PC_VERSION
+#if PC_VERSION || PSXPC_VERSION
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
 {
 	UNIMPLEMENTED();
