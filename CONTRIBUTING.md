@@ -4,6 +4,21 @@ Pull requests which drastically alter the structure/architecture of the code wil
 
 If you're able to code in C/C++ please feel free to contact me. I can assign you tasks to prevent collisions with my local code which is not pushed yet. I'm typically looking for pull requests which resolve bugs, finish existing decompiled methods, improve readability or introduce new decompiled methods.
 
+## Code Formatting
+```C
+int main()//10064(<), 10064(<) (F) (*)
+```
+Methods are organised as follows:
+- The address on the left is the address of the function in the internal beta version.
+- The address on the right is the address of the function in the final version.
+- The arrows "(<)" pointing to the address specify whether the code for this method belongs to that specific version
+- Then follows some markers.
+
+Markers are as follows:
+- * - This method when compiled, produces identical code to the original.
+- F - This method is final, meaning it has been fully decompiled.
+- D - This method has been debugged and is now functionally the same as the original.
+
 ## Current Positions
 
 - MIPS R3000 Programmer/Interpreter - Translate TR5 PSX MIPS Disassembled output back to C.
