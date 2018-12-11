@@ -2,9 +2,21 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF MULFP, DIVFP, xLOS, zLOS
-	XREF los_rooms, GetCeiling, number_los_rooms, GetHeight, GetFloor
+	XDEF MULFP, DIVFP, xLOS, zLOS, GetFloor, GetHeight, GetCeiling
+	XREF los_rooms, number_los_rooms
 
+GetFloor:
+	jr ra
+	nop
+	
+GetHeight:
+	jr ra
+	nop
+	
+GetCeiling:
+	jr ra
+	nop
+	
 MULFP:
 	mult    a0, a1
 	mflo    v1
