@@ -15,7 +15,7 @@ Methods are organised as follows:
 - Then follows some markers.
 
 Markers are as follows:
-- * - This method when compiled, produces identical code to the original.
+- ** - This method when compiled, produces identical code to the original.
 - F - This method is final, meaning it has been fully decompiled.
 - D - This method has been debugged and is now functionally the same as the original.
 
