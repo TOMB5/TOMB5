@@ -1,5 +1,6 @@
 #include "DELTAPAK.H"
 
+#include "CDTRACKS.H"
 #include "CALCHAIR.H"
 #include "CALCLARA.H"
 #include "CODEWAD.H"
@@ -39,6 +40,7 @@
 #include "DRAWPHAS.H"
 #include "DELTAPAK_S.H"
 #include "CD.H"
+#include "BUBBLES.H"
 #endif
 
 #include "SPECTYPES.H"

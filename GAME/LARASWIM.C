@@ -14,6 +14,10 @@
 #include "EFFECTS.H"
 #include "SOUND.H"
 
+#if PSXPC_VERSION || PSX_VERSION
+#include "BUBBLES.H"
+#endif
+
 struct SUBSUIT_INFO subsuit;
 char SubHitCount = 0;
 

@@ -31,9 +31,13 @@ PROGADDR	= 0x00010000
 SOURCES		= SPEC_PSX/ GAME/
 INCLUDES	= SPEC_PSX/ GAME/
 DEFS		= PSX_VERSION DISC_VERSION NTSC_VERSION USE_ASM RELOC
-##DEFS		= PSX_VERSION DEBUG_VERSION NTSC_VERSION USE_ASM
 ISOXML		= TOMB5US.XML
 DISC_ROOTFD	= DISC/
+
+#---------------------------------------------------------------------------------
+# USE_SLINK	- Flag to use SLINK, otherwise PSYLINK is used
+#---------------------------------------------------------------------------------
+USE_SLINK = FALSE
 
 #---------------------------------------------------------------------------------
 # LIBDIRS	- Library search directories
@@ -82,24 +86,21 @@ RFILES = GAME/JOBY5.C SPEC_PSX/SETUP.C
 #---------------------------------------------------------------------------------
 # Generate file names for object binaries
 #---------------------------------------------------------------------------------
-OFILES		= $(CFILES:.C=.obj) $(AFILES:.MIP=.obj) $(RFILES:.C=.obj)
+OFILES		= $(AFILES:.MIP=.obj) $(CFILES:.C=.obj) $(RFILES:.C=.obj)
 
 #---------------------------------------------------------------------------------
 # Default rule, compiles all source files
 #---------------------------------------------------------------------------------
 all: $(OFILES)
 	$(CC) -Xo$(PROGADDR) $(CFLAGS) $(addprefix -L,$(LIBDIRS)) $(addprefix -l,$(LIBS)) $(OFILES) $(ROFILES)
-	
-#---------------------------------------------------------------------------------
-# Default rule, compiles all overlay files
-#---------------------------------------------------------------------------------
-	
+ifeq "$(USE_SLINK)" "TRUE"
+	PSX_SLINK.BAT
+else
+	PSX_LINK.BAT
+endif
 #---------------------------------------------------------------------------------
 # Clean-up rule
 #---------------------------------------------------------------------------------
-cleanall:
-	rm -f $(OFILES) $(DISC_ROOTFD)$(TARGET).CPE $(DISC_ROOTFD)$(TARGET).SYM $(DISC_ROOTFD)$(TARGET).MAP
-
 clean: cleanall
 
 #---------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 #include "GETSTUFF.H"
 
-#ifndef USE_ASM
+#include "SPECIFIC.H"
+
 long DIVFP(long A, long B)
 {
 	return (A / (B >> 8)) << 8;
@@ -17,4 +18,15 @@ long MULFP(long A, long B)
 		return ((A * B) >> 16);
 	}
 }
-#endif
+
+int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
