@@ -331,7 +331,7 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 	int i = 0;
 	long local_wadfile_header[512];
 
-
+#if DISC_VERSION
 	FILE* fileHandle = fopen(GAMEWAD_FILENAME, "rb");
 	assert(fileHandle);
 	fread(&local_wadfile_header, sizeof(struct GAMEWAD_header), 1, fileHandle);
@@ -341,6 +341,7 @@ void InitNewCDSystem()//5DDE8, 5E264(<) (F)
 
 	//FIXME: CdPosToInt(); returns LBA for GAMEWAD.OBJ on disc.
 	gwLba = 24;
+#endif
 
 	//loc_5E2E8
 	for (i = 0; i < NUM_XA_FILES; i++)
@@ -480,7 +481,7 @@ int DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F) (*)
 * @PARAM - [offset] the number of bytes you wish to seek (not in sectors).
 */
 
-int DEL_CDFS_Seek(int offset /*$a0*/)//*, 5E54C(<) (F)
+int DEL_CDFS_Seek(int offset /*$a0*/)//*, 5E54C(<) (F) (*)
 {
 	cdCurrentSector = cdStartSector + (offset >> CD_SECTOR_SHIFT);
 	return 0;
@@ -491,7 +492,7 @@ int DEL_CDFS_Seek(int offset /*$a0*/)//*, 5E54C(<) (F)
 * Updates the cd reader's start sector to current reader position.
 */
 
-void FRIG_CD_POS_TO_CUR()//*, 5E564(<) (F)
+void FRIG_CD_POS_TO_CUR()//*, 5E564(<) (F) (*)
 {
 	cdStartSector = cdCurrentSector;
 }

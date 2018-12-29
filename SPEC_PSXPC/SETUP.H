@@ -18,7 +18,7 @@ extern void RelocateLevel();
 extern void RelocateLevel(FILE* nHandle);
 #endif
 
-extern long LoadSoundEffects(int numSounds, long* pSoundWadLengths, char* pSoundData, long soundWadSize);
+extern int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundData, int soundWadSize);
 extern void InitialiseObjects();
 extern void sub_B5328();
 extern void sub_B84F0();
@@ -32,12 +32,13 @@ extern void InitialiseFootPrints();
 extern void InitialiseBinocularGraphics();
 extern void InitialiseTargetGraphics();
 extern void InitialiseFlipMaps();
-extern void sub_B4EE4(long keep_carried_items);
+extern void InitialiseLaraCarriedItems(long keep_carried_items);
 extern void sub_B9974();
 extern void InitialiseCutseq();
 extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3);
-extern long sub_BA0DC(unsigned char a0);
-extern long sub_BA148(unsigned char a0);
+extern char* ReadResidentData(int residentIndex, FILE* nHandle);
+extern long sub_BA148(short* ptr);
+extern void sub_B9B84();
 
 struct object_container
 {
@@ -126,14 +127,14 @@ struct Level
 
 	//0xB0
 	unsigned short numSpotCameras;
-	unsigned short unk45;
+	unsigned short fixedCameraLength;
 	int unk455;
 	int unk46;
 	unsigned short numAIObjects;
 	unsigned short unk0003;
 
 	//0xC0
-	int numAiModuleRelocations;
+	int numAiModules;
 	char aiModuleIndices[4];
 	int unk50;
 	int unk51;
