@@ -3,6 +3,7 @@
 #include "3D_OBJ.H"
 #include "BOX.H"
 #include "CD.H"
+#include "COLLIDE.H"
 #include "CONTROL.H"
 #include "CODEWAD.H"
 #include "DELTAPAK.H"
@@ -46,12 +47,15 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#if PSX_VERSION
 #if !DISC_VERSION
 #include <LIBSN.H>
 #endif
 #include <LIBSPU.H>
 #include <LIBGTE.H>
-#if RELOC
+#endif
+
+#if RELOC && PSX_VERSION
 void* setupFunc[] __attribute__((section(".header"))) = 
 { 
 	(void*)0x100,//Unknown
@@ -797,7 +801,7 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 		objects[i].save_hitpoints = 0;
 		objects[i].save_position = 0;
 
-		(int)objects[i].frame_base += (int)frames;
+		((int*)&objects[i].frame_base)[0] += (int)frames;
 	}
 
 	BaddyObjects();
@@ -854,39 +858,80 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 	}
 }//0xB996C
 
-void BaddyObjects()
+void BaddyObjects()//?, B5328
 {
-	struct object_info* object = &objects[LARA];
+	struct object_info* object = &objects[LARA];//$t0
+	//lui     $a1, 0x1F
+	//t0 = &objects
+	//a0 = 0xFDFFFFFF
+	//v0 = 0x4B308
+	//v1 = 160
 
 	object->shadow_size = 160;
+	//v1 = 0x3E8
+	//t5 = 0x100000
+	//t4 = 0x80000
+	//t3 = 0x200000
+	//t2 = 0x400000
 	object->initialise = &InitialiseLaraLoad;
+	//v0 = *(int*)&objects[LARA].bite_offset //flags
+	//t1 = 0x10000
 	object->hit_points = 1000;
 	object->draw_routine = NULL;
-
-	object->using_drawanimating_item = 0;
+	object->using_drawanimating_item = 0;///@CHECK
 	object->save_hitpoints = 1;
 	object->save_position = 1;
 	object->save_flags = 1;
 	object->save_anim = 1;
 
-	//TODO illegal data @ offset 0
-	object = &objects[HAIR];
-
-	//t6 = a1 (0x1F0000)
+	object = &objects[SAS];
+	//v1 = *(int*)&object.bite_offset //flags
+	//t6 = 0x1F0000
 	if (object->loaded)
 	{
+		//v0 = 0xF3FFFFFF
+		//a0 = 0x20000
 		object->intelligent = 1;
 		object->HitEffect = 0;
+		//v1 = 0x4000000
 		object->HitEffect = 1;
-		object->initialise = NULL;//FIXME sub_ 0xBC5C4,0xBC550
-								  //TODO assert
-								  //TODO
-								  //a1 = RelocPtr[5];
-								  //v0 = &CreatureCollision
-								  //0xB53D8
-	}//0xB54A8
+		//v0 = 0xFFFF8C7C
+		//v1 = 0x1F0000
+		object->initialise = NULL;///@FIXME Local module 0xFFFF8C7C(IB), 0xFFFF8C08(RET)
+		//v0 = 0x30000
+		//a1 = RelocPtr[MOD_SAS]
+		//v0 = &CreatureCollision;
+		//a2 = RelocPtr[MOD_SAS][0];
+		//v1 = 0x80
+		object->collision = &CreatureCollision;
+		//v0 = 0x28
+		object->shadow_size = 46;
+		//v1 = 50
+		object->pivot_length = 50;
+		//v1 = 102
+		object->radius = 102;
+		//v1 = 0xA0000
+		object->hit_points = 40;
+		object->bite_offset = 0;
+		//v0 = *(int*)&object->bite_offset;
+		//a0 = object->bone_index;
+		//a1 = &bones
+		object->save_flags = 1;//t3
+		object->save_anim = 1;
+		object->save_hitpoints = 1;
+		object->save_position = 1;
 
-	 //TODO
+		//a0 = &bones[object->bone_index];
+
+#if PSX_VERSION
+		object->control = RelocPtr[MOD_SAS][0];
+#endif
+		((int*)bones[object->bone_index])[24] |= 8;
+		((int*)bones[object->bone_index])[24] |= 4;
+
+		((int*)bones[object->bone_index])[52] |= 8;
+		((int*)bones[object->bone_index])[52] |= 4;
+	}//loc_1BA4
 }
 
 void ObjectObjects()
@@ -911,7 +956,6 @@ void InitialiseClosedDoors()//?(<), BB498(<)
 	return;
 }
 
-///Initialise Game?
 void SetupGame()//?(<), B9DA8(<)
 {
 	SeedRandomDraw(0xD371F947);
