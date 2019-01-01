@@ -59,7 +59,7 @@ void* setupFunc[] __attribute__((section(".header"))) =
 	(void*)0x300,//Unknown
 	(void*)0x400,//Unknown
 	(void*)0x500,//Unknown
-	&RelocateLevel
+	&LoadLevel
 };
 #endif
 
@@ -126,16 +126,16 @@ void sub_B3A7C(int a0)
 }
 
 /*
- * [FUNCTIONALITY] - RelocateLevel.
+ * [FUNCTIONALITY] - LoadLevel.
  * Relocates all game data pointers from the level file to be loaded back into the engine.
  * Note: The GAMEWAD reader must be initialised to a level file entry.
  * Note: The GAMEWAD reader's position must point to the level file data.
  * Note: This code is part of the SETUP.MOD module.
  */
 #if DISC_VERSION
-void RelocateLevel()//?(<), B3B50(<) (F)
+void LoadLevel()//?(<), B3B50(<) (F)
 #else
-void RelocateLevel(int nHandle)//?, B3B50(<)
+void LoadLevel(int nHandle)//?, B3B50(<)
 #endif
 {
 	struct Level* level;
@@ -554,7 +554,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	//InitialiseObjects();
 	InitialiseClosedDoors();///sub_7BC4();//InitialiseClosedDoors();
 	InitialiseItemArray(256);
-	S_Warn("RelocateLevel Marker 2\n");
+	S_Warn("LoadLevel Marker 2\n");
 
 	GlobalPulleyFrigItem = -1;
 
@@ -567,7 +567,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 		}
 	}
 	//loc_A5C
-	sub_B9DA8();
+	SetupGame();
 
 	if (number_rooms > 0)
 	{
@@ -765,7 +765,7 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 		FromTitle = 1;
 	}//loc_F94
 
-	S_Warn("End of RelocateLevel");
+	S_Warn("End of LoadLevel");
 }
 
 void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
@@ -912,7 +912,7 @@ void InitialiseClosedDoors()//?(<), BB498(<)
 }
 
 ///Initialise Game?
-void sub_B9DA8()//?(<), B9DA8(<)
+void SetupGame()//?(<), B9DA8(<)
 {
 	SeedRandomDraw(0xD371F947);
 	SeedRandomControl(0xD371F947);
@@ -927,8 +927,8 @@ void sub_B9DA8()//?(<), B9DA8(<)
 
 	InitialiseAnimatedTextures();
 	InitialiseFootPrints();
-	InitialiseBinocularGraphics();
-	InitialiseTargetGraphics();
+	InitBinoculars();
+	InitTarget();
 	InitialiseGameFlags();
 
 	if (gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME && gfInitialiseGame != 0)
@@ -942,8 +942,8 @@ void sub_B9DA8()//?(<), B9DA8(<)
 		InitialiseLaraCarriedItems(1);
 	}
 	//B9E68
-	sub_B9974();
-	sub_B9B84();
+	GetCarriedItems();
+	GetAIPickups();
 
 	SeedRandomDraw(0xD371F947);
 	SeedRandomControl(0xD371F947);
@@ -1048,7 +1048,7 @@ void InitialiseFootPrints()//?(<), B52FC(<)
 	return;
 }
 
-void InitialiseBinocularGraphics()//?(<), B4E28(<)
+void InitBinoculars()//?(<), B4E28(<)
 {
 	sizeof(struct object_info);
 
@@ -1099,7 +1099,7 @@ void InitialiseBinocularGraphics()//?(<), B4E28(<)
 #endif
 }
 
-void InitialiseTargetGraphics()//(<), B4D64(<)
+void InitTarget()//(<), B4D64(<)
 {
 	int i;
 	int v0;
@@ -1348,7 +1348,7 @@ void InitialiseLaraCarriedItems(long keep_carried_items)
 	lara.pickupitems &= -9;
 }
 
-void sub_B9974()
+void GetCarriedItems()
 {
 }
 
@@ -1362,7 +1362,7 @@ void InitialiseCutseq()//?(<), BA194(<) (F)
 	SetFadeClip(0, 1);
 }
 
-void sub_B9B84()
+void GetAIPickups()
 {
 	struct AIOBJECT* ai_object;//$a2
 	int i;

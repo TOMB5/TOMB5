@@ -89,7 +89,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	#if RELOC
 		((VOIDFUNCVOID*)SetupPtr[5])();
 	#else
-		RelocateLevel();
+		LoadLevel();
 	#endif
 #else
 	strcpy(&buf[0], &gfFilenameWad[gfFilenameOffset[Name]]);
@@ -102,7 +102,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 #if RELOC
 	((VOIDFUNCINT*)SetupPtr[5])(file);
 #else
-	RelocateLevel(file);
+	LoadLevel(file);
 #endif
 #endif
 

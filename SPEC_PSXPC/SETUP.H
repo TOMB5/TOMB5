@@ -13,9 +13,9 @@
 #endif
 
 #if DISC_VERSION
-extern void RelocateLevel();
+extern void LoadLevel();
 #else
-extern void RelocateLevel(FILE* nHandle);
+extern void LoadLevel(FILE* nHandle);
 #endif
 
 extern int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundData, int soundWadSize);
@@ -24,17 +24,18 @@ extern void sub_B5328();
 extern void sub_B84F0();
 extern void sub_B7E04();
 extern void InitialiseClosedDoors();
-extern void sub_B9DA8();
+extern void SetupGame();
 extern void sub_B4A40();
 extern void InitialiseSqrtTable();
 extern void InitialiseAnimatedTextures();
 extern void InitialiseFootPrints();
-extern void InitialiseBinocularGraphics();
-extern void InitialiseTargetGraphics();
+extern void InitBinoculars();
+extern void InitTarget();
 extern void InitialiseGameFlags();
 extern void InitialiseLaraCarriedItems(long keep_carried_items);
-extern void sub_B9974();
+extern void GetCarriedItems();
 extern void InitialiseCutseq();
+extern void GetAIPickups();
 extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3);
 extern char* ReadResidentData(int residentIndex, FILE* nHandle);
 extern long sub_BA148(short* ptr);
