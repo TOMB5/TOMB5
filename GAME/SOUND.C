@@ -50,6 +50,8 @@ void SOUND_Stop()//920A4(<), 940F0(<) (F)
 {
 	int i;
 
+	return;///@FIXME infinite loop PSXPC
+
 	if (sound_active != 0)
 	{
 		for (i = 0; i < MAX_SOUND_SLOTS; i++)

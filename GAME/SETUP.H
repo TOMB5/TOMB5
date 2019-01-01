@@ -9,9 +9,13 @@
 #endif
 
 #if DISC_VERSION
-extern void LoadLevel();
+	extern void LoadLevel();
 #else
-extern void LoadLevel(int nHandle);
+	#if PSX_VERSION
+		extern void LoadLevel(int nHandle);
+	#elif PSXPC_VERSION
+		extern void LoadLevel(FILE* nHandle);
+	#endif
 #endif
 
 extern int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundData, int soundWadSize);
@@ -35,6 +39,16 @@ extern void GetAIPickups();
 extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3);
 extern char* ReadResidentData(int residentIndex, int nHandle);
 extern long sub_BA148(short* ptr);
+
+#if PSXPC_VERSION
+struct object_container
+{
+	struct object_info m_objects[NUMBER_OBJECTS];
+	struct static_info m_static_objects[NUMBER_STATIC_OBJECTS];
+	char m_SkinVertNums[480];
+	char m_ScratchVertNums[480];
+};
+#endif
 
 struct Level
 {
@@ -137,10 +151,17 @@ struct Level
 	int unk57;
 };
 
-
+#if PSX_VERSION
 extern struct object_info objects[NUMBER_OBJECTS];
 extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
 extern char SkinVertNums[480];
 extern char ScratchVertNums[480];
+#elif PSXPC_VERSION
+extern struct object_info* objects;
+extern struct static_info* static_objects;
+extern char* SkinVertNums;
+extern char* ScratchVertNums;
+#endif
+
 
 #endif

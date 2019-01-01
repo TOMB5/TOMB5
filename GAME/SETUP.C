@@ -47,17 +47,17 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+
 #if PSX_VERSION
-#if !DISC_VERSION
-#include <LIBSN.H>
-#endif
+	#if !DISC_VERSION
+		#include <LIBSN.H>
+	#endif
 #include <LIBSPU.H>
 #include <LIBGTE.H>
-#endif
 
-#if RELOC && PSX_VERSION
-void* setupFunc[] __attribute__((section(".header"))) = 
-{ 
+#if RELOC
+void* setupFunc[] __attribute__((section(".header"))) =
+{
 	(void*)0x100,//Unknown
 	(void*)0x200,//Unknown
 	(void*)0x300,//Unknown
@@ -65,11 +65,21 @@ void* setupFunc[] __attribute__((section(".header"))) =
 	(void*)0x500,//Unknown
 	&LoadLevel
 };
+#endif
 
 RECT dword_BD7F4[] = { 0x00440240, 0x00390040 };
 
 #endif
 
+#if PSXPC_VERSION
+struct object_container objects_raw;
+struct object_info* objects = &objects_raw.m_objects[0];
+struct static_info* static_objects = &objects_raw.m_static_objects[0];
+extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
+extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
+#endif
+
+#if PSX_VERSION || PSXPC_VERSION
 int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundData, int soundWadSize)//(F)
 {
 #ifndef NO_SOUND
@@ -115,6 +125,7 @@ int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundDa
 	return 0;
 #endif
 }
+#endif
 
 void sub_B3A7C(int a0)
 {
@@ -142,7 +153,11 @@ void sub_B3A7C(int a0)
 #if DISC_VERSION
 void LoadLevel()//?(<), B3B50(<) (F)
 #else
+#if PSX_VERSION
 void LoadLevel(int nHandle)//?, B3B50(<)
+#elif PSXPC_VERSION
+extern void LoadLevel(FILE* nHandle);
+#endif
 #endif
 {
 	struct Level* level;
@@ -225,10 +240,12 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 	*/
 
 	//Setup rect
+#if PSX_VERSION
 	tex[0].x = 512;//x position of textile data in VRAM
 	tex[0].y = 0;
 	tex[0].w = 512;//Width of VRAM texture space
 	tex[0].h = 256;//Height of tpage
+#endif
 
 	//loc_340, loc_3B4
 	for (i = 1; i >= 0; i--)///@CHECK
@@ -248,7 +265,9 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 
 		LOAD_DrawEnable(1);
 
+#if PSX_VERSION
 		tex[0].y += 256;
+#endif
 	}
 
 	game_free(0x40000);
@@ -500,10 +519,18 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 	number_cameras = level->numFixedCameras;
 
 #if DISC_VERSION
+#if PSX_VERSION
 	DEL_CDFS_Read((char*)&objects, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
+#elif PSXPC_VERSION
+	DEL_CDFS_Read((char*)&objects_raw, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
+#endif
 #else
 	PClseek(nHandle, level->offsetObjects, 0);
+#if PSX_VERSION
 	FILE_Read((char*)&objects, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
+#elif PSXPC_VERSION
+	FILE_Read((char*)&objects_raw, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
+#endif
 	PCclose(nHandle);
 #endif
 
@@ -562,7 +589,7 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 	//B4228
 	InitialiseFXArray(1);
 	InitialiseLOTarray(1);
-	//InitialiseObjects();
+	InitialiseObjects();
 	InitialiseClosedDoors();///sub_7BC4();//InitialiseClosedDoors();
 	InitialiseItemArray(256);
 	S_Warn("LoadLevel Marker 2\n");
@@ -616,7 +643,7 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 		}
 	}//loc_C3C
 
-	InitialiseResidentCut(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
+	//InitialiseResidentCut(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
 	
 	GLOBAL_default_sprites_ptr = &psxspriteinfo[objects[DEFAULT_SPRITES].mesh_index];
 
