@@ -689,7 +689,7 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 
 	}//loc_EE4
 
-	//sub_68C0();//InitialiseCutseq();
+	//sub_68C0();//InitialiseEffects();
 
 #if RELOC
 	/*if (RelocPtr[MOD_STARS] != NULL)
@@ -800,11 +800,11 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 		(int)objects[i].frame_base += (int)frames;
 	}
 
-	sub_B5328();
-	sub_B84F0();
-	sub_B7E04();
+	BaddyObjects();
+	ObjectObjects();
+	TrapObjects();
 	InitialiseHair();
-	InitialiseCutseq();
+	InitialiseEffects();
 
 	NumRPickups = 0;
 	CurrentSequence = 0;
@@ -854,7 +854,7 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 	}
 }//0xB996C
 
-void sub_B5328()
+void BaddyObjects()
 {
 	struct object_info* object = &objects[LARA];
 
@@ -889,12 +889,12 @@ void sub_B5328()
 	 //TODO
 }
 
-void sub_B84F0()
+void ObjectObjects()
 {
 
 }
 
-void sub_B7E04()
+void TrapObjects()
 {
 
 }
@@ -1352,7 +1352,7 @@ void GetCarriedItems()
 {
 }
 
-void InitialiseCutseq()//?(<), BA194(<) (F)
+void InitialiseEffects()//?(<), BA194(<) (F)
 {
 	cutseq_num = 0;
 	cutseq_trig = 0;
