@@ -905,10 +905,10 @@ void BaddyObjects()//?, B5328
 
 	object->shadow_size = 160;
 	//v1 = 0x3E8
-	//t5 = 0x100000
-	//t4 = 0x80000
-	//t3 = 0x200000
-	//t2 = 0x400000
+	//t5 = 0x100000//object->save_hitpoints
+	//t4 = 0x80000//object->save_position
+	//t3 = 0x200000//object->intelligent
+	//t2 = 0x400000//object->save_anim
 	object->initialise = &InitialiseLaraLoad;
 	//v0 = *(int*)&objects[LARA].bite_offset //flags
 	//t1 = 0x10000
@@ -933,7 +933,7 @@ void BaddyObjects()//?, B5328
 		object->HitEffect = 1;
 		//v0 = 0xFFFF8C7C
 		//v1 = 0x1F0000
-		object->initialise = NULL;///@FIXME Local module 0xFFFF8C7C(IB), 0xFFFF8C08(RET)
+		///object->initialise = NULL;///@FIXME Local module 0xFFFF8C7C(IB), 0xFFFF8C08(RET)
 		//v0 = 0x30000
 		//a1 = RelocPtr[MOD_SAS]
 		//v0 = &CreatureCollision;
@@ -977,26 +977,72 @@ void BaddyObjects()//?, B5328
 	if (object->loaded)
 	{
 		//v0 = 0xFFFF8C7C
-		//object->initialise = 0xFFFF8C7C
+		///object->initialise = 0xFFFF8C7C
 		//a0 = RelocPtr[MOD_SAS][0]
 		//a3 = &objects[LARA];
+#if PSX_VERSION
 		object->control = RelocPtr[MOD_SAS][0];
+#endif
 		//v0 = *(int*)&objects[SWAT].bite_offset
 
 		//a0 = 0xF3FF0000
 		if (objects[SWAT].loaded)
 		{
 			object->anim_index = objects[SWAT].anim_index;
-		}
+		}//loc_1BFC
 
+		//a0 = 0xF3FFFFFF
+		//v0 = &CreatureCollision;
+		object->collision = &CreatureCollision;
+		object->hit_points = 24;
+		object->radius = 102;
+
+		//v0 = *(int*)&object->bite_offset;
+		object->shadow_size = 128;
+		object->pivot_length = 50;
+		object->explodable_meshbits = 0x4000;
+
+		//v1 = 0x20000;
+		object->intelligent = 1;
+		object->HitEffect = 0;
+		//v1 = 0x4000000
+		object->HitEffect = 1;
+
+		//a0 = 4
+		//v1 = DrawBaddieGunFlash
+		object->draw_routine_extra = &DrawBaddieGunFlash;
+
+		//v1 = 0xA0000
+
+		object->bite_offset = 4;
+		//v0 = *(int*)&object->bite_offset;
+		//a0 = object->bone_index;
+		//a1 = &bones
+
+		object->intelligent = 1;
+		object->save_anim = 1;
+		object->save_hitpoints = 1;
+		object->save_position = 1;
+
+		((int*)bones[object->bone_index])[24] |= 8;
+		((int*)bones[object->bone_index])[24] |= 4;
+		((int*)bones[object->bone_index])[52] |= 8;
+		((int*)bones[object->bone_index])[52] |= 4;
+
+		//v1 = 0xA0000
+		//a0 = object->mesh_index;
+		//v0 = objects[MESHSWAP1].mesh_index
+		//a2 = &meshes[]
+		//v0 = meshes[objects[MESHSWAP1].mesh_index]
+		//a0 = ((int*)meshes[object->mesh_index])[21] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[20];
+
+		//v1 = meshes[object->mesh_index];
+		//v0 = meshes[objects[MESHSWAP1].mesh_index];
+
+		((int*)meshes[object->mesh_index])[28] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[26];
+
+		object->object_mip = 0x1400;
 	}//loc_1D50
-
-#if 0
-		lhu     $v0, 0x866($a3)
-		nop
-		sh      $v0, 0x26($t0)
-#endif
-
 }
 
 void ObjectObjects()
