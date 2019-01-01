@@ -44,7 +44,7 @@ void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)//5DFB0(<),
 void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 {
 #if DEBUG_VERSION
-	int nPolys;
+	int nPolys = 0;
 	static int nWorstPolys;
 
 	//nPolys = ((int)&db.polyptr[0] - (int)&db.curpolybuf[0]) * 0x4EC4EC4F / 16 - (((long)&db.polyptr[0] - (long)&db.curpolybuf[0]) >> 31);

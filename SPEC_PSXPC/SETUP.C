@@ -1058,7 +1058,7 @@ void InitialiseTargetGraphics()//(<), B4D64(<)
 	return;
 }
 
-void InitialiseGameFlags()//?(<), B9D30(<)
+void InitialiseGameFlags()//?(<), B9D30(<) (F)
 {
 	int i;
 
