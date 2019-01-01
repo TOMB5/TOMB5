@@ -65,9 +65,10 @@ void* setupFunc[] __attribute__((section(".header"))) =
 	(void*)0x500,//Unknown
 	&LoadLevel
 };
-#endif
 
 RECT dword_BD7F4[] = { 0x00440240, 0x00390040 };
+
+#endif
 
 int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundData, int soundWadSize)//(F)
 {
@@ -85,6 +86,7 @@ int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundDa
 		SPU_FreeSamples();
 	}//loc_9C
 
+#if PSX_VERSION
 	LlVABAddr = SpuMalloc(soundWadSize);
 	if (LlVABAddr == -1)
 	{
@@ -95,6 +97,7 @@ int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundDa
 	SpuSetTransferStartAddr(LlVABAddr);
 	SpuWrite((unsigned char*)pSoundData, soundWadSize);
 	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
+#endif
 
 	if (numSoundEffects > 0)
 	{
@@ -143,7 +146,9 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 #endif
 {
 	struct Level* level;
+#if PSX_VERSION
 	RECT tex[2];
+#endif
 	char* ptr = NULL;
 	char* ptr2 = NULL;
 	int size, i, j;
@@ -235,9 +240,11 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 #endif
 		LOAD_DrawEnable(0);
 
+#if PSX_VERSION
 		LoadImage(&tex[0], (unsigned long*)ptr);
 
 		DrawSync(0);
+#endif
 
 		LOAD_DrawEnable(1);
 
@@ -708,9 +715,10 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 
 	if (gfCurrentLevel == LVL5_TITLE && Gameflow->Language - 1 < 2)
 	{
+#if PSX_VERSION
 		tex[0] = dword_BD7F4[0];
 		tex[1] = dword_BD7F4[1];
-
+#endif
 		ptr = game_malloc(0x2000);
 
 		LOAD_DrawEnable(0);
@@ -726,10 +734,11 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 
 		DEL_CDFS_Read(ptr, 7296);
 
+#if PSX_VERSION
 		LoadImage(&tex[0], (unsigned long*)ptr);
 
 		DrawSync(0);
-
+#endif
 		LOAD_DrawEnable(1);
 	}//loc_EDC
 

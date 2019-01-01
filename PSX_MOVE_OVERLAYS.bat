@@ -2,4 +2,4 @@ for /r %cd%/SPEC_PSX %%x in (*.BIN) do move "%%x" "%cd%/BUILD/TOOLS/CODEWAD_Pack
 for /r %cd%/SPEC_PSX %%x in (*.REL) do move "%%x" "%cd%/BUILD/TOOLS/CODEWAD_Pack/Release/GAME"
 for /r %cd%/GAME %%x in (*.BIN) do move "%%x" "%cd%/BUILD/TOOLS/CODEWAD_Pack/Release/GAME"
 for /r %cd%/GAME %%x in (*.REL) do move "%%x" "%cd%/BUILD/TOOLS/CODEWAD_Pack/Release/GAME"
-for /r %cd%/SPEC_PSX %%x in (*.MOD) do move "%%x" "%cd%/BUILD/TOOLS/GAMEWAD_Pack/Release/DATA"
+for /r %cd%/GAME %%x in (*.MOD) do move "%%x" "%cd%/BUILD/TOOLS/GAMEWAD_Pack/Release/DATA"

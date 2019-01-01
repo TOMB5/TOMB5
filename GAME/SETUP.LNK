@@ -10,7 +10,7 @@ text		group
 		section	.sbss,text
 		section	.bss,text
 
-		include	SPEC_PSX/SETUP.OBJ
+		include	GAME/SETUP.OBJ
 		incsym	DISC/MAIN.SYM
 		
 		inclib	C:/psyq/lib/LIBSPU.LIB
