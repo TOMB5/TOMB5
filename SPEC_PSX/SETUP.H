@@ -27,7 +27,7 @@ extern void InitialiseAnimatedTextures();
 extern void InitialiseFootPrints();
 extern void InitialiseBinocularGraphics();
 extern void InitialiseTargetGraphics();
-extern void InitialiseFlipMaps();
+extern void InitialiseGameFlags();
 extern void InitialiseLaraCarriedItems(long keep_carried_items);
 extern void sub_B9974();
 extern void InitialiseCutseq();

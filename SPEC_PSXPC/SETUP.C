@@ -1,4 +1,4 @@
-#include "SETUP.H"
+﻿#include "SETUP.H"
 
 #include "3D_OBJ.H"
 #include "BOX.H"
@@ -848,7 +848,7 @@ void sub_B9DA8()//?(<), B9DA8(<)
 	InitialiseFootPrints();
 	InitialiseBinocularGraphics();
 	InitialiseTargetGraphics();
-	InitialiseFlipMaps();
+	InitialiseGameFlags();
 
 	if (gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME && gfInitialiseGame != 0)
 	{
@@ -1058,10 +1058,11 @@ void InitialiseTargetGraphics()//(<), B4D64(<)
 	return;
 }
 
-void InitialiseFlipMaps()//?(<), B9D30(<)//InitialiseGameFlags
+void InitialiseGameFlags()//?(<), B9D30(<)
 {
 	int i;
 
+	//loc_6440:
 	for (i = 0; i < 10; i++)
 	{
 		flipmap[i] = 0;
@@ -1069,9 +1070,10 @@ void InitialiseFlipMaps()//?(<), B9D30(<)//InitialiseGameFlags
 	}
 
 	flip_status = 0;
-	flipeffect = 1;
+	flipeffect = -1;
 
-	for (i = 0; i < sizeof(cd_flags); i++)
+	//loc_647C
+	for (i = 0; i < 136; i++)
 	{
 		cd_flags[i] = 0;
 	}

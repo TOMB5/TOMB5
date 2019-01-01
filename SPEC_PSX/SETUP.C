@@ -278,13 +278,25 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	ptr += sizeof(struct room_info) * level->numRooms;
 
 	number_rooms = level->numRooms;
-
+#define OLD_CODE 1
 	if (level->numRooms > 0)
 	{
 		//loc_4D4
 		for(i = 0; i < number_rooms; i++)
 		{
-#if UNOPTIMISED//Original
+
+#if OLD_CODE
+			size = *(unsigned int*)&room[i].data;
+			room[i].data = (short*)ptr;
+
+			for (j = 0; j < 24; j++)
+			{
+				*(int*)&ptr[4 + (j * 4)] += (*(int*)&room[i].data);
+			}///@CRITICAL the last relocated pointer seemingly points to invalid memory?!?!?!??
+
+			ptr += size;
+
+#elif UNOPTIMISED//Original
 			ptr2 = ptr;
 			ptr2 += 4;
 
@@ -365,7 +377,11 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	{
 		for (i = 0; i < level->numBones * 2; i++)
 		{
-			((int*)meshes)[i] += (int)mesh_base + ((((int)meshes[i] + ((int)meshes[i] >> 31)) >> 1) << 1);
+#if OLD_CODE
+			*(int*)&meshes[i] += *(int*)&mesh_base;//Original game does add *(int*) &meshes[i] >> 0x1F too
+#else
+			((int*)&meshes)[i] += (int)mesh_base + ((((int)meshes[i] + ((int)meshes[i] >> 31)) >> 1) << 1);
+#endif
 		}
 	}
 	//loc_674
@@ -374,7 +390,11 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	{
 		for (i = 0; i < level->numAnims; i++)
 		{
-			(int)anims[i].frame_ptr += (int)frames;
+#if 0
+			*(int*)&anims[i].frame_ptr += *(int*)&frames;
+#else
+			((int*)&anims[i].frame_ptr)[0] += (int)frames;
+#endif
 		}
 	}//loc_6BC
 
@@ -531,9 +551,10 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	//B4228
 	InitialiseFXArray(1);
 	InitialiseLOTarray(1);
-	InitialiseObjects();
+	//InitialiseObjects();
 	InitialiseClosedDoors();///sub_7BC4();//InitialiseClosedDoors();
 	InitialiseItemArray(256);
+	S_Warn("RelocateLevel Marker 2\n");
 
 	GlobalPulleyFrigItem = -1;
 
@@ -546,7 +567,6 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 		}
 	}
 	//loc_A5C
-
 	sub_B9DA8();
 
 	if (number_rooms > 0)
@@ -672,10 +692,10 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 	//sub_68C0();//InitialiseCutseq();
 
 #if RELOC
-	if (RelocPtr[MOD_STARS] != NULL)
+	/*if (RelocPtr[MOD_STARS] != NULL)
 	{
 		((VOIDFUNCVOID*)RelocPtr[MOD_STARS][0])();
-	}//loc_DFC, loc_F14
+	}*///loc_DFC, loc_F14
 #else
 	//Unimplemented
 #endif
@@ -744,6 +764,8 @@ void RelocateLevel(int nHandle)//?, B3B50(<)
 		MGSaveGamePtr = game_malloc(8192);
 		FromTitle = 1;
 	}//loc_F94
+
+	S_Warn("End of RelocateLevel");
 }
 
 void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
@@ -907,7 +929,7 @@ void sub_B9DA8()//?(<), B9DA8(<)
 	InitialiseFootPrints();
 	InitialiseBinocularGraphics();
 	InitialiseTargetGraphics();
-	InitialiseFlipMaps();
+	InitialiseGameFlags();
 
 	if (gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME && gfInitialiseGame != 0)
 	{
@@ -1117,10 +1139,11 @@ void InitialiseTargetGraphics()//(<), B4D64(<)
 	return;
 }
 
-void InitialiseFlipMaps()//?(<), B9D30(<)//InitialiseGameFlags
+void InitialiseGameFlags()//?(<), B9D30(<)
 {
 	int i;
 
+	//loc_6440:
 	for (i = 0; i < 10; i++)
 	{
 		flipmap[i] = 0;
@@ -1128,9 +1151,10 @@ void InitialiseFlipMaps()//?(<), B9D30(<)//InitialiseGameFlags
 	}
 
 	flip_status = 0;
-	flipeffect = 1;
+	flipeffect = -1;
 
-	for (i = 0; i < sizeof(cd_flags); i++)
+	//loc_647C
+	for (i = 0; i < 136; i++)
 	{
 		cd_flags[i] = 0;
 	}
@@ -1340,7 +1364,6 @@ void InitialiseCutseq()//?(<), BA194(<) (F)
 
 void sub_B9B84()
 {
-	struct ITEM_INFO* item;
 	struct AIOBJECT* ai_object;//$a2
 	int i;
 	int j;
@@ -1390,7 +1413,7 @@ void sub_B9B84()
 					}
 
 					//loc_63B4
-					items[i].TOSSPAD = items[i].item_flags[3] | item[i].ai_bits;
+					items[i].TOSSPAD = items[i].item_flags[3] | items[i].ai_bits;
 				}
 			}//loc_63F0
 		}//loc_6410
