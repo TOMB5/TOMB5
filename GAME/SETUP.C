@@ -967,7 +967,36 @@ void BaddyObjects()//?, B5328
 
 		((int*)bones[object->bone_index])[52] |= 8;
 		((int*)bones[object->bone_index])[52] |= 4;
-	}//loc_1BA4
+	}
+	
+	//loc_1BA4
+	object = &objects[BLUE_GUARD];
+	//v0 = *(int*)&object->bite_offset;
+
+	//v0 = 0;
+	if (object->loaded)
+	{
+		//v0 = 0xFFFF8C7C
+		//object->initialise = 0xFFFF8C7C
+		//a0 = RelocPtr[MOD_SAS][0]
+		//a3 = &objects[LARA];
+		object->control = RelocPtr[MOD_SAS][0];
+		//v0 = *(int*)&objects[SWAT].bite_offset
+
+		//a0 = 0xF3FF0000
+		if (objects[SWAT].loaded)
+		{
+			object->anim_index = objects[SWAT].anim_index;
+		}
+
+	}//loc_1D50
+
+#if 0
+		lhu     $v0, 0x866($a3)
+		nop
+		sh      $v0, 0x26($t0)
+#endif
+
 }
 
 void ObjectObjects()
