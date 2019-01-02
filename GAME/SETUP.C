@@ -7,6 +7,7 @@
 #include "CONTROL.H"
 #include "CODEWAD.H"
 #include "DELTAPAK.H"
+#include "DEBRIS.H"
 #include "DRAW.H"
 #include "DRAWPHAS.H"
 #include "DOOR.H"
@@ -1827,10 +1828,36 @@ void reset_cutseq_vars()//?(<), BA194(<) (F)
 	SetFadeClip(0, 1);
 }
 
-void InitialiseEffects()//?, BA81C
+void InitialiseEffects()//?(<), BA81C(<) (F)
 {
+	int i;
 
+	S_MemSet((char*)&spark, 0, sizeof(spark));
+	S_MemSet((char*)&fire_spark, 0, sizeof(fire_spark));
+	S_MemSet((char*)&smoke_spark, 0, sizeof(smoke_spark));
+	S_MemSet((char*)&Gunshells, 0, sizeof(Gunshells));
+	S_MemSet((char*)&Gunflashes, 0, sizeof(Gunflashes));
+	S_MemSet((char*)&debris, 0, sizeof(debris));
+	S_MemSet((char*)&blood, 0, sizeof(blood));
+	S_MemSet((char*)&splashes, 0, sizeof(splashes));
+	S_MemSet((char*)&ripples, 0, sizeof(ripples));
+	S_MemSet((char*)&Bubbles, 0, sizeof(Bubbles));
+	S_MemSet((char*)&Drips, 0, sizeof(Drips));
+	S_MemSet((char*)&ShockWaves, 0, sizeof(ShockWaves));
 
+	for (i = 0; i < sizeof(spark) / sizeof(struct SPARKS); i++)
+	{
+		spark[i].Dynamic = -1;
+	}
+
+	next_fire_spark = 1;
+	next_smoke_spark = 0;
+	next_gunshell = 0;
+	next_bubble = 0;
+	next_drip = 0;
+	next_debris = 0;
+	next_blood = 0;
+	WB_room = -1;
 }
 
 void InitialiseClosedDoors()//?(<), BB498(<) (F)
