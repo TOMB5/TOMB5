@@ -4,6 +4,8 @@
 #include "SPECTYPES.H"
 #include "OBJECTS.H"
 
+#include <stdio.h>
+
 #ifndef PSX_FILE_VERSION
 	#define PSX_FILE_VERSION OBJECT_VERSION * -1
 #endif
@@ -37,7 +39,11 @@ extern void GetCarriedItems();
 extern void InitialiseEffects();
 extern void GetAIPickups();
 extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3);
+#if PSX_VERSION
 extern char* ReadResidentData(int residentIndex, int nHandle);
+#elif PSXPC_VERSION
+extern char* ReadResidentData(int residentIndex, FILE* nHandle);
+#endif
 extern long sub_BA148(short* ptr);
 
 #if PSXPC_VERSION

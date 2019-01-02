@@ -770,7 +770,7 @@ void LoadLevel()//?(<), B3B50(<) (F)
 #if PSX_VERSION
 void LoadLevel(int nHandle)//?, B3B50(<)
 #elif PSXPC_VERSION
-extern void LoadLevel(FILE* nHandle);
+void LoadLevel(FILE* nHandle)
 #endif
 #endif
 {
@@ -807,7 +807,11 @@ extern void LoadLevel(FILE* nHandle);
 	RoomDrawType = level->roomDrawType;
 
 #if !DISC_VERSION
+#if PSX_VERSION
 	PClseek(nHandle, level->offsetSoundPointers, 0);
+#elif PSXPC_VERSION
+	fseek(nHandle, level->offsetSoundPointers, SEEK_SET);
+#endif
 #endif
 
 	if (level->numSoundEffects != 0)
@@ -819,7 +823,11 @@ extern void LoadLevel(FILE* nHandle);
 		DEL_CDFS_Read(ptr, level->numSoundEffects * sizeof(int));
 #else
 		FILE_Read(ptr, sizeof(int), level->numSoundEffects, nHandle);
+#if PSX_VERSION
 		PClseek(nHandle, level->offsetSoundData, 0);
+#elif PSXPC_VERSION
+		fseek(nHandle, level->offsetSoundData, 0);
+#endif
 #endif
 		ptr2 = game_malloc(level->soundWadLength);
 
@@ -836,7 +844,11 @@ extern void LoadLevel(FILE* nHandle);
 	}//R loc_304, IB loc_36C
 
 #if !DISC_VERSION
+#if PSX_VERSION
 	PClseek(nHandle, level->offsetTextiles, 0);
+#elif PSXPC_VERSION
+	fseek(nHandle, level->offsetTextiles, SEEK_SET);
+#endif
 #endif
 
 	ptr = game_malloc(0x40000);///@TODO macro size
@@ -889,7 +901,11 @@ extern void LoadLevel(FILE* nHandle);
 	ClutStartY = level->clutStartY;
 
 #if !DISC_VERSION
+#if PSX_VERSION
 	PClseek(nHandle, level->offsetAnimFrames, 0);
+#elif PSXPC_VERSION
+	fseek(nHandle, level->offsetAnimFrames, SEEK_SET);
+#endif
 	AnimFilePos = level->offsetAnimFrames;
 #else
 	AnimFilePos = cdCurrentSector;
@@ -907,7 +923,11 @@ extern void LoadLevel(FILE* nHandle);
 	AnimFileLen = level->frameDataLength;
 
 #if !DISC_VERSION
+#if PSX_VERSION
 	PClseek(nHandle, level->offsetRoomInfo, 0);
+#elif PSXPC_VERSION
+	fseek(nHandle, level->offsetRoomInfo, SEEK_SET);
+#endif
 #endif
 
 	ptr = game_malloc(level->roomInfoLength);
@@ -1139,13 +1159,15 @@ extern void LoadLevel(FILE* nHandle);
 	DEL_CDFS_Read((char*)&objects_raw, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
 #endif
 #else
-	PClseek(nHandle, level->offsetObjects, 0);
 #if PSX_VERSION
+	PClseek(nHandle, level->offsetObjects, 0);
 	FILE_Read((char*)&objects, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
-#elif PSXPC_VERSION
-	FILE_Read((char*)&objects_raw, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
-#endif
 	PCclose(nHandle);
+#elif PSXPC_VERSION
+	fseek(nHandle, level->offsetObjects, SEEK_SET);
+	FILE_Read((char*)&objects_raw, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
+	fclose(nHandle);
+#endif
 #endif
 
 	for (i = 63; i >= 0; i--)
@@ -1159,8 +1181,14 @@ extern void LoadLevel(FILE* nHandle);
 		FRIG_CD_POS_TO_CUR();
 		DEL_CDFS_Read((char*)&tsv_buffer[256], 1920);
 #else
+#if PSX_VERSION
 		nHandle = PCopen("DATA\\CODE.WAD", 0, 0);
+#elif PSXPC_VERSION
+		nHandle = fopen("DATA\\CODE.WAD", "rb");
+#endif
+		char* ptr = (char*)&tsv_buffer[256];
 		FILE_Read((char*)&tsv_buffer[256], 20, 96, nHandle);
+		ptr++;
 #endif
 
 		if (level->numAiModules > 0)
@@ -1176,7 +1204,11 @@ extern void LoadLevel(FILE* nHandle);
 				DEL_CDFS_Seek(relocationPtr[0]);
 				DEL_CDFS_Read(ptr, relocationPtr[1]);
 #else
+#if PSX_VERSION
 				PClseek(nHandle, relocationPtr[0], 0);
+#elif PSXPC_VERSION
+				fseek(nHandle, relocationPtr[0], SEEK_SET);
+#endif
 				FILE_Read(ptr, 1, relocationPtr[1], nHandle);
 #endif
 				ptr2 = game_malloc(relocationPtr[3]);
@@ -1185,6 +1217,11 @@ extern void LoadLevel(FILE* nHandle);
 				DEL_CDFS_Seek(relocationPtr[2]);
 				DEL_CDFS_Read(ptr2, relocationPtr[3]);
 #else
+#if PSX_VERSION
+				PClseek(nHandle, relocationPtr[2], 0);///@FIXME For some reason this line doesn't exist in the original internal beta, this is probably why it keeps crashing
+#elif PSXPC_VERSION
+				fseek(nHandle, relocationPtr[2], SEEK_SET);
+#endif
 				FILE_Read(ptr2, 1, relocationPtr[3], nHandle);
 #endif
 				RelocateModule((unsigned long)ptr, (unsigned long*)ptr2);
@@ -1196,7 +1233,11 @@ extern void LoadLevel(FILE* nHandle);
 		}
 		//loc_9F0
 #if !DISC_VERSION
+#if PSX_VERSION
 		PCclose(nHandle);
+#elif PSXPC_VERSION
+		fclose(nHandle);
+#endif
 #endif
 	}//loc_9F8
 
@@ -1567,7 +1608,11 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 	char* s6;
 	int s7;
 	int mallocSize;//$a0
+#if PSX_VERSION
 	int nHandle;
+#elif PSXPC_VERSION
+	FILE* nHandle;
+#endif
 	int residentData[4];
 
 	residentData[0] = a0;//0x38(sp)
@@ -1591,7 +1636,11 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 		DEL_CDFS_OpenFile(CUTSEQ);
 		DEL_CDFS_Read((char*)&tsv_buffer[0], 2048);
 #else
+#if PSX_VERSION
 		nHandle = PCopen("\\CUTSEQ.JIZ", 0, 0);
+#elif PSXPC_VERSION
+		nHandle = fopen("\\CUTSEQ.JIZ", "rb");
+#endif
 		FILE_Read((char*)&tsv_buffer[0], 1, 2048, nHandle);
 #endif
 		s3 = ReadResidentData(residentData[0], nHandle);
@@ -1674,7 +1723,11 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 	}//loc_67C8
 }
 
+#if PSX_VERSION
 char* ReadResidentData(int residentIndex, int nHandle)//(<), BA0DC(<) (F)
+#elif PSXPC_VERSION
+char* ReadResidentData(int residentIndex, FILE* nHandle)//(<), BA0DC(<) (F)
+#endif
 {
 	char* ptr;
 
@@ -1683,7 +1736,11 @@ char* ReadResidentData(int residentIndex, int nHandle)//(<), BA0DC(<) (F)
 #if DISC_VERSION
 		DEL_CDFS_Seek(tsv_buffer[residentIndex].xy);
 #else
+#if PSX_VERSION
 		PClseek(nHandle, tsv_buffer[residentIndex].xy, 0);
+#elif PSXPC_VERSION
+		fseek(nHandle, tsv_buffer[residentIndex].xy, SEEK_SET);
+#endif
 #endif
 		ptr = game_malloc(tsv_buffer[residentIndex].rgz);
 
