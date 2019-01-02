@@ -1477,59 +1477,51 @@ void GetCarriedItems()//?, B9974
 
 void GetAIPickups()//?, B9B84
 {
-	struct AIOBJECT* ai_object;//$a2
-	int i;
-	int j;
-	int t0;
-	int v0;
+	int i, j;
 
 	if (level_items > 0)
 	{
 		//loc_62CC
-		for (i = 1; i < level_items; i++)///@CHECK
+		for (i = 0; i < level_items; i++)
 		{
 			if (objects[items[i].object_number].intelligent)
 			{
-				items[i].meshswap_meshbits &= 0xC1FF;
+				items[i].ai_bits = 0;
 
 				if (nAIObjects > 0)
 				{
-					t0 = 0x10000;
-					ai_object = &AIObjects[0];
 					//loc_6318
-					while ((t0 >> 16) < (nAIObjects >> 16))///@CHECK $t0 maybe opt'd
+					for (j = 0; j < nAIObjects; j++)
 					{
-						v0 = t0;
-
-						if (ABS(ai_object->x - items[i].pos.x_pos) < 512 &&
-							ABS(ai_object->z - items[i].pos.z_pos) < 512 &&
-							ai_object->room_number == items[i].room_number &&
-							ai_object->object_number < AI_PATROL2)
+						if (ABS(AIObjects[j].x - items[i].pos.x_pos) < 512 &&
+							ABS(AIObjects[j].z - items[i].pos.z_pos) < 512 &&
+							AIObjects[j].room_number == items[i].room_number &&
+							AIObjects[j].object_number < AI_PATROL2)
 						{
-#if 1
-							((int*)&items[i])[33] = ((((int*)&items[i])[33] & 0xFFFFC1FF) | ((((1 << (ai_object->object_number - 0x17A)) | ((int*)&items[i])[33] >> 9)) & 0x1F) << 9);
-#else
-							items[i].meshswap_meshbits &= 0xC1FF;
-							items[i].meshswap_meshbits >>= 9;
-							items[i].meshswap_meshbits |= 1 << (ai_object->object_number - 0x17A) & 0x1F << 9;
-#endif
-							items[i].item_flags[3] = ai_object->trigger_flags;
+							items[i].active = 0;
+							items[i].status = 0;
+							items[i].gravity_status = 0;
+							items[i].hit_status = 0;
+							items[i].collidable = 0;
+							items[i].looked_at = 0;
+							items[i].dynamic_light = 0;
+							items[i].poisoned = 0;
+							items[i].ai_bits = 0;
+							items[i].ai_bits |= 1 << (AIObjects[j].object_number - AI_PATROL2);
+							items[i].item_flags[3] = AIObjects[j].trigger_flags;
 
-							if (ai_object->object_number != AI_GUARD)
+							if (AIObjects[j].object_number != AI_GUARD)
 							{
-								ai_object->room_number = 255;
+								AIObjects[j].room_number = 255;
 							}
 						}//loc_63D8
-
-						++ai_object;
-						t0 += 0x10000;
 					}
-
-					//loc_63B4
-					items[i].TOSSPAD = items[i].item_flags[3] | items[i].ai_bits;
 				}
-			}//loc_63F0
-		}//loc_6410
+				//loc_63F0
+				items[i].TOSSPAD |= (items[i].ai_bits | items[i].item_flags[3]);
+
+			}//loc_6410
+		}
 	}//loc_6420
 }
 
