@@ -37,6 +37,7 @@ extern void InitialiseGameFlags();
 extern void InitialiseLaraCarriedItems(long keep_carried_items);
 extern void GetCarriedItems();
 extern void InitialiseEffects();
+extern void reset_cutseq_vars();
 extern void GetAIPickups();
 extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3);
 #if PSX_VERSION

@@ -1298,7 +1298,7 @@ void LoadLevel(FILE* nHandle)
 		}
 	}//loc_C3C
 
-	//InitialiseResidentCut(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
+	InitialiseResidentCut(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
 	
 	GLOBAL_default_sprites_ptr = &psxspriteinfo[objects[DEFAULT_SPRITES].mesh_index];
 
@@ -1382,7 +1382,7 @@ void LoadLevel(FILE* nHandle)
 
 	}//loc_EE4
 
-	//sub_68C0();//InitialiseEffects();
+	reset_cutseq_vars();
 
 #if RELOC
 	/*if (RelocPtr[MOD_STARS] != NULL)
@@ -1679,7 +1679,7 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 #if PSX_VERSION
 		nHandle = PCopen("\\CUTSEQ.JIZ", 0, 0);
 #elif PSXPC_VERSION
-		nHandle = fopen("\\CUTSEQ.JIZ", "rb");
+		nHandle = fopen("CUTSEQ.JIZ", "rb");
 #endif
 		FILE_Read((char*)&tsv_buffer[0], 1, 2048, nHandle);
 #endif
@@ -1795,7 +1795,7 @@ char* ReadResidentData(int residentIndex, FILE* nHandle)//(<), BA0DC(<) (F)
 	return NULL;
 }
 
-long sub_BA148(short* ptr)
+long sub_BA148(short* ptr)//?, BA148(<) (F)
 {
 	int i;//$a1
 	long addr = 0;//$a2
@@ -1817,7 +1817,7 @@ long sub_BA148(short* ptr)
 	return addr + 0xA8;
 }
 
-void InitialiseEffects()//?(<), BA194(<) (F)
+void reset_cutseq_vars()//?(<), BA194(<) (F)
 {
 	cutseq_num = 0;
 	cutseq_trig = 0;
@@ -1827,7 +1827,13 @@ void InitialiseEffects()//?(<), BA194(<) (F)
 	SetFadeClip(0, 1);
 }
 
-void InitialiseClosedDoors()//?(<), BB498(<)
+void InitialiseEffects()//?, BA81C
+{
+
+
+}
+
+void InitialiseClosedDoors()//?(<), BB498(<) (F)
 {
 	int i;
 
