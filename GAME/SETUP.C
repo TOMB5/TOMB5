@@ -1471,8 +1471,56 @@ void ObjectObjects()//?, B84F0
 {
 }
 
-void GetCarriedItems()//?, B9974
+void GetCarriedItems()//?(<), B9974(<) (F)
 {
+	int i;
+	struct object_info* object;
+	struct ITEM_INFO* item;
+	int item_number;
+
+	//loc_60C0
+	for (i = 0; i < level_items; i++)
+	{
+		items[i].carried_item = -1;
+	}
+
+	//loc_60E4
+	for (i = 0; i < level_items; i++)
+	{
+		object = &objects[items[i].object_number];
+
+		if (!object->intelligent && items[i].object_number - SEARCH_OBJECT1 > 4)
+		{
+			continue;
+		}//loc_6124
+
+		item_number = room[items[i].room_number].item_number;
+
+		if (item_number != -1)
+		{
+			//loc_6164
+			do
+			{
+				item = &items[item_number];
+
+				//loc_6190
+				if (ABS(item->pos.x_pos - items[i].pos.x_pos) < 512 &&
+					ABS(item->pos.z_pos - items[i].pos.z_pos) < 512 &&
+					ABS(item->pos.y_pos - items[i].pos.y_pos) < 512 &&
+					objects[item->object_number].collision == &PickUpCollision)
+				{
+					item->carried_item = items[i].carried_item;
+					items[i].carried_item = item_number;
+					RemoveDrawnItem(item_number);
+					item->room_number = 255;
+
+				}//loc_6228
+
+				item_number = item->next_item;
+
+			} while (item_number != -1);
+		}//loc_6238
+	}
 }
 
 void GetAIPickups()//?, B9B84
