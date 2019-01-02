@@ -36,8 +36,8 @@ void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C
 void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)//5DFB0(<), 
 {
 	db.nPBSize = nPBSize;
-	db.poly_buffer[0] = (unsigned long*)((unsigned long)pBuffers & 0xFFFFFF);
-	db.poly_buffer[1] = (unsigned long*)((unsigned long)&pBuffers[nPBSize] & 0xFFFFFF);
+	db.poly_buffer[0] = (unsigned long*)((unsigned long)pBuffers);
+	db.poly_buffer[1] = (unsigned long*)((unsigned long)&pBuffers[nPBSize]);
 	return;
 }
 
