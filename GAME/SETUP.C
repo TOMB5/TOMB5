@@ -652,7 +652,72 @@ void BaddyObjects()//?, B5328
 		object->object_mip = 0x1400;
 	}//loc_1D50
 
+	object = &objects[SWAT];
+	//v1 = *(int*)&object->bite_offset
+	//t1 = 0x10000
+	if (object->loaded)
+	{
+		//v0 = 0xF3FFFFFF
+		//a0 = 0x20000
+		object->intelligent = 1;
+		object->HitEffect = 0;
+		//v1 = 0x4000000
+		object->HitEffect = 1;
+		//v0 = 0xFFFF8C7C
+		//v1 = 0x1F0000
+		///object->initialise = 0xFFFF8C7C
+		//v0 = 0x30000
+		//a1 = RelocPtr[MOD_SAS];
+		//v0 = &CreatureCollision
+		//a2 = RelocPtr[MOD_SAS][0];
+		//v1 = 0x80
+		object->collision = &CreatureCollision;
+		//v0 = 0x18
+		object->shadow_size = 128;
+		object->hit_points = 24;
+		//V1 = 0X32
+		object->radius = 102;
+		object->explodable_meshbits = 16384;
+		//v0 = 0x50594
+		object->pivot_length = 50;
+		//v1 = 0x200000
+		object->bite_offset = 0;
+		object->draw_routine_extra = &DrawBaddieGunFlash;
+		//v0 = *(int*)&object->bite_offset
+		object->save_flags = 1;
+		object->save_anim = 1;
+		object->save_hitpoints = 1;
+		object->save_position = 1;
 
+		//a0 = object->bone_index
+		//a1 = bones
+#if PSX_VERSION
+		object->control = RelocPtr[MOD_SAS][0];
+#endif
+
+		//a0 = &bones[object->bone_index];
+		((int*)bones[object->bone_index])[24] |= 8;
+		((int*)bones[object->bone_index])[24] |= 4;
+		((int*)bones[object->bone_index])[52] |= 8;
+		((int*)bones[object->bone_index])[52] |= 4;
+
+		//a3 = &objects[LARA]
+		//a0 = meshes[object->mesh_index]
+
+		//v0 = meshes[objects[BRIDGE_TILT2].mesh_index]
+		//a2 = meshes
+
+		((int*)meshes[object->mesh_index])[21] = ((int*)meshes[objects[BRIDGE_TILT2].mesh_index])[20];
+
+		//v1 = meshes[object->mesh_index]
+		//v0 = meshes[objects[BRIDGE_TILT2].mesh_index]
+
+		//a0 = ((int*)meshes[objects[BRIDGE_TILT2].mesh_index])[26]
+		((int*)meshes[object->mesh_index])[27] = ((int*)meshes[objects[BRIDGE_TILT2].mesh_index])[26];
+
+		object->object_mip = 0x1400;
+
+	}//loc_1EE4
 }
 
 void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
@@ -660,7 +725,7 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 	int i;
 
 	//loc_5E5C
-	for (i = MISC_SPRITES; i >= 0; i--)
+	for (i = 0; i < NUMBER_OBJECTS; i++)
 	{
 		objects[i].initialise = NULL;
 		objects[i].collision = NULL;
