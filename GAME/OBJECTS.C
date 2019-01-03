@@ -11,6 +11,8 @@
 #if PSXENGINE
 #include "SETUP.H"
 #include "ROOMLOAD.H"
+#include "SPHERES.H"
+#include "LIGHT.H"
 #endif
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -368,9 +370,37 @@ void ControlXRayMachine(short item_number)// (F)
 	}
 }
 
-void CutsceneRopeControl(short item_number)
+void CutsceneRopeControl(short item_number)//50454(<), ? (F)
 {
-	UNIMPLEMENTED();
+	struct ITEM_INFO* item;
+	struct PHD_VECTOR pos1;
+	struct PHD_VECTOR pos2;
+	long dx;
+	long dy;
+	long dz;
+
+	item = &items[item_number];
+
+	pos1.x = -128;
+	pos1.y = -72;
+	pos1.z = -16;
+	GetJointAbsPosition(&items[item->item_flags[2]], &pos1, 0);
+
+	pos2.x = 830;
+	pos2.z = -12;
+	pos2.y = 0;
+	GetJointAbsPosition(&items[item->item_flags[3]], &pos2, 0);
+
+	item->pos.x_pos = pos2.x;
+	item->pos.y_pos = pos2.y;
+	item->pos.z_pos = pos2.z;
+
+	dx = (pos2.x - pos1.x) * (pos2.x - pos1.x);
+	dy = (pos2.y - pos1.y) * (pos2.y - pos1.y);
+	dz = (pos2.z - pos1.z) * (pos2.z - pos1.z);
+	
+	item->item_flags[1] = ((mSqrt(dx + dy + dz) << 1) + mSqrt(dx + dy + dz)) << 1;
+	item->pos.x_rot = -4869;
 }
 
 void DrawBaddieGunFlash(struct ITEM_INFO* item)
@@ -382,16 +412,3 @@ void HybridCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INF
 {
 	UNIMPLEMENTED();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
