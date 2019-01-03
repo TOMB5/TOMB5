@@ -405,33 +405,17 @@ void CutsceneRopeControl(short item_number)//50454(<), ? (F)
 
 void DrawBaddieGunFlash(struct ITEM_INFO* item)
 {
-	struct MATRIX3D m; // stack offset -72
-	short node[2]; // stack offset -40
-	short num; // $s0
-	short bite[2]; // stack offset -32
-	int RGB1; // $s2
-	int RGB2; // $s1
-	int RGB3; // $s0
-	int shade; // $v0
-
 	UNIMPLEMENTED();
 }
 
 void HybridCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//50758, ? (F)
 {
-	struct ITEM_INFO* item;//t0
+	struct ITEM_INFO* item;
 
-	//a3 = item_num
 	item = &items[item_num];
 
 	if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
 	{
-		//v1 = item->anim_number
-		//a0 = anims
-		//v0 = anims[item->anim_number].frame_end;
-		//v1 = item->frame_number
-		//a0 = anims[item->anim_number].frame_end
-
 		if (item->frame_number < anims[item->anim_number].frame_end)
 		{
 			ObjectCollision(item_num, laraitem, coll);
