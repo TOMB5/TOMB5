@@ -23,3 +23,8 @@ void TriggerRicochetSpark(struct GAME_VECTOR* hit_pos, short y_rot, int unk00, i
 {
 	UNIMPLEMENTED();
 }
+
+void TriggerGunShell(long x, long y, long z)
+{
+	UNIMPLEMENTED();
+}
