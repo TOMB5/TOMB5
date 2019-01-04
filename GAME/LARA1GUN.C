@@ -7,18 +7,70 @@
 #else
 #include "SETUP.H"
 #endif
+#include "TOMB4FX.H"
 #include "DRAW.H"
 #include "LARA.H"
 #include "LARAFIRE.H"
+#include "MISC.H"
 #include "OBJECTS.H"
 #include "ITEMS.H"
 
 char HKTimer = 0;
 char HKShotsFired = 0;
 
-void TriggerGrapplingEffect(long x, long y, long z)
+void TriggerGrapplingEffect(long x, long y, long z)//44138(<), ? (F)
 {
-	UNIMPLEMENTED();
+	long size;
+	long lp;
+	struct SMOKE_SPARKS* sptr;
+
+	//loc_4416C
+	for(lp = 0; lp < 24; lp++)
+	{
+		sptr = &smoke_spark[GetFreeSmokeSpark()];
+		sptr->On = 1;
+
+		sptr->sShade = (GetRandomControl() & 0xF) + 40;
+		sptr->dShade = (GetRandomControl() & 0xF) + 64;
+		sptr->ColFadeSpeed = 4;
+		sptr->FadeToBlack = 16;
+
+		sptr->Life = sptr->sLife = (GetRandomControl() & 3) + 40;
+		sptr->TransType = 2;
+
+		sptr->x = x + (GetRandomControl() & 0x1F) - 16;
+		sptr->y = y + (GetRandomControl() & 0x1F) - 16;
+		sptr->z = z + (GetRandomControl() & 0x1F) - 16;
+
+		sptr->Xvel = (GetRandomControl() & 0x1FF) - 256 << 1;
+		sptr->Zvel = (GetRandomControl() & 0x1FF) - 256 << 1;
+
+		if (lp < 12)
+		{
+			sptr->Yvel = (GetRandomControl() & 0x1F);
+			sptr->Friction = 64;
+		}
+		else
+		{
+			//loc_4426C
+			sptr->Yvel = (GetRandomControl() & 0x1FF) + 256;
+			sptr->Friction = 82;
+		}
+
+		//loc_44284
+		sptr->Flags = 16;
+		sptr->RotAng = (GetRandomControl() & 0xFFF);
+		sptr->RotAdd = (GetRandomControl() & 0x40) - 32;
+		sptr->MaxYvel = 0;
+		sptr->Gravity = 0;
+
+		size = (GetRandomControl() & 0xF) + 48;
+
+		sptr->dSize = size << 1;
+		sptr->sSize = size >> 2;
+		sptr->Size = size >> 2;
+		sptr->mirror = 0;
+	}
 }
 
 void DoGrenadeDamageOnBaddie(struct ITEM_INFO* baddie, struct ITEM_INFO* item)
