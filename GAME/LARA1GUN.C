@@ -322,9 +322,105 @@ void FireHK(int running)//42CA8(<), 430FC(<) (F)
 	}//loc_42E04
 }
 
-void FireShotgun()
+void FireShotgun()//429F0(<), 42E44(<) (F)
 {
-	UNIMPLEMENTED();
+	struct PHD_VECTOR pos;
+	short angles[2];
+	short dangles[2];
+	int i;
+	int r;
+	int fired;
+	int x;
+	int y;
+	int z;
+	int lp;
+	int scatter;
+
+	angles[1] = lara.left_arm.x_rot;
+	angles[0] = lara.left_arm.y_rot + lara_item->pos.y_rot;
+
+	if (!lara.left_arm.lock)
+	{
+		angles[0] += lara.torso_y_rot;
+		angles[1] += lara.torso_x_rot;
+	}
+	//loc_42A6C
+	fired = 0;
+
+	if (lara.shotgun_type_carried & 8)
+	{
+		scatter = 1820;
+	}
+	else
+	{
+		scatter = 5460;
+	}
+	//loc_42A88
+	//loc_42A98
+	for(i = 0; i < 6; i++)
+	{
+		r = (GetRandomControl() - 16384) * scatter;
+		if (r < 0)
+		{
+			r += 65535;
+		}
+
+		//loc_42AB8
+		dangles[0] = angles[0] + (r >> 16);
+
+		r = (GetRandomControl() - 16384) * scatter;
+		if (r < 0)
+		{
+			r += 65535;
+		}
+
+		//loc_42AE8
+		dangles[1] = angles[1] + (r >> 16);
+
+		if (FireWeapon(WEAPON_SHOTGUN, lara.target, lara_item, &dangles[0]))
+		{
+			fired = 1;
+		}
+		//loc_42B18
+	}
+
+	if (fired)
+	{
+		pos.x = 0;
+		pos.y = 228;
+		pos.z = 32;
+
+		GetLaraJointPos(&pos, 11);
+
+		x = pos.x;
+		y = pos.y;
+		z = pos.z;
+
+		pos.x = 0;
+		pos.y = 1508;
+		pos.z = 32;
+
+		GetLaraJointPos(&pos, 11);
+
+		SmokeCountL = 32;
+		SmokeWeapon = WEAPON_SHOTGUN;
+
+		//s7 = 0xB0000
+		if (lara_item->mesh_bits != 0)
+		{
+			//loc_42BB0
+			for(lp = 0; lp < 7; lp++)
+			{
+				TriggerGunSmoke(x, y, z, pos.x - x, pos.y - y, pos.z - z, 1, SmokeWeapon, 32);
+			}
+		}//loc_42BFC
+
+		lara.right_arm.flash_gun = weapons[WEAPON_SHOTGUN].flash_time;
+		SoundEffect(SFX_EXPLOSION1, &lara_item->pos, 0x1400004);
+		SoundEffect(weapons[WEAPON_SHOTGUN].sample_num, &lara_item->pos, 0);
+		SetupPadVibration(0, 4096, 4096, 2, 1536, 5);
+		savegame.Game.AmmoUsed++;
+	}//loc_42C78
 }
 
 void RifleHandler(int weapon_type)
