@@ -1,6 +1,8 @@
 #include "LARA1GUN.H"
 
+#include "BOX.H"
 #include "CONTROL.H"
+#include "SAVEGAME.H"
 #include "SPECIFIC.H"
 #ifdef PC_VERSION
 #include "GAME.H"
@@ -8,6 +10,7 @@
 #include "SETUP.H"
 #endif
 #include "TOMB4FX.H"
+#include "TRAPS.H"
 #include "DRAW.H"
 #include "LARA.H"
 #include "LARAFIRE.H"
@@ -42,8 +45,8 @@ void TriggerGrapplingEffect(long x, long y, long z)//44138(<), ? (F)
 		sptr->y = y + (GetRandomControl() & 0x1F) - 16;
 		sptr->z = z + (GetRandomControl() & 0x1F) - 16;
 
-		sptr->Xvel = (GetRandomControl() & 0x1FF) - 256 << 1;
-		sptr->Zvel = (GetRandomControl() & 0x1FF) - 256 << 1;
+		sptr->Xvel = ((GetRandomControl() & 0x1FF) - 256) << 1;
+		sptr->Zvel = ((GetRandomControl() & 0x1FF) - 256) << 1;
 
 		if (lp < 12)
 		{
@@ -73,9 +76,44 @@ void TriggerGrapplingEffect(long x, long y, long z)//44138(<), ? (F)
 	}
 }
 
-void DoGrenadeDamageOnBaddie(struct ITEM_INFO* baddie, struct ITEM_INFO* item)
+void DoGrenadeDamageOnBaddie(struct ITEM_INFO* baddie, struct ITEM_INFO* item)//43FB0(<), ? (F)
 {
-	UNIMPLEMENTED();
+	if (!(baddie->flags & 0x8000))
+	{
+		if (baddie == lara_item && baddie->hit_points > 0)
+		{
+			baddie->hit_points -= 50;
+
+			if (!(room[item->room_number].flags & RF_FILL_WATER) && baddie->hit_points < 51)
+			{
+				LaraBurn();
+			}//loc_44128
+		}
+		else
+		{
+			//loc_4404C
+			if (item->item_flags[2] == 0)
+			{
+				baddie->hit_status = 1;
+
+				if (!objects[baddie->object_number].undead)
+				{
+					HitTarget(baddie, NULL, 30, 1);
+
+					if (baddie != lara_item)
+					{
+						savegame.Game.AmmoHits++;
+
+						if (baddie->hit_points <= 0)
+						{
+							savegame.Level.Kills++;
+							CreatureDie((baddie - items), 1);
+						}//loc_44128
+					}//loc_44128
+				}//loc_44128
+			}//loc_44128
+		}
+	}//loc_44128
 }
 
 void AnimateShotgun(int weapon_type)
