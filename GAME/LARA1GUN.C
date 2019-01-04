@@ -3,6 +3,7 @@
 #include "BOX.H"
 #include "CONTROL.H"
 #include "EFFECTS.H"
+#include "EFFECT2.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -11,6 +12,7 @@
 #else
 #include "PSOUTPUT.H"
 #include "SETUP.H"
+#include "FXTRIG.H"
 #endif
 #include "TOMB4FX.H"
 #include "TRAPS.H"
@@ -269,9 +271,55 @@ void FireCrossbow(struct PHD_3DPOS* Start)//42E18(<), 4326C(<) (F)
 	}//loc_42F60
 }
 
-void FireHK(int running)
+void FireHK(int running)//42CA8(<), 430FC(<) (F)
 {
-	UNIMPLEMENTED();
+	short angles[2];
+
+	if (lara.hk_type_carried & 0x8)
+	{
+		HKTimer = 12;
+	}
+	else if (lara.hk_type_carried & 0x10)
+	{
+		//loc_42CE0
+		HKShotsFired++;
+
+		if ((HKShotsFired & 0xFF) == 5)
+		{
+			HKShotsFired = 0;
+			HKTimer = 12;
+		}//loc_42D14
+	}//loc_42D14
+
+	angles[1] = lara.left_arm.x_rot;
+	angles[0] = lara.left_arm.y_rot + lara_item->pos.y_rot;
+
+	if (!lara.left_arm.lock)
+	{
+		angles[1] = lara_item->pos.y_rot + lara.torso_y_rot;
+		angles[0] = lara.left_arm.x_rot + lara.torso_x_rot;
+	}//loc_42D58
+
+	if (running)
+	{
+		weapons[WEAPON_HK].shot_accuracy = 0x888;
+		weapons[WEAPON_HK].damage = 1;
+	}
+	else
+	{
+		//loc_42D74
+		weapons[WEAPON_HK].shot_accuracy = 0x2D8;
+		weapons[WEAPON_HK].damage = 3;
+	}
+
+	if (FireWeapon(WEAPON_HK, lara.target, lara_item, &angles[0]))
+	{
+		SmokeCountL = 12;
+		SmokeWeapon = WEAPON_HK;
+		TriggerGunShell(1, 369, 5);
+		lara.right_arm.flash_gun = weapons[WEAPON_HK].flash_time;
+		SetupPadVibration(0, 4096, 4096, 2, 4096, 2);
+	}//loc_42E04
 }
 
 void FireShotgun()
