@@ -2,11 +2,14 @@
 
 #include "BOX.H"
 #include "CONTROL.H"
+#include "EFFECTS.H"
 #include "SAVEGAME.H"
+#include "SOUND.H"
 #include "SPECIFIC.H"
 #ifdef PC_VERSION
 #include "GAME.H"
 #else
+#include "PSOUTPUT.H"
 #include "SETUP.H"
 #endif
 #include "TOMB4FX.H"
@@ -215,9 +218,55 @@ void CrossbowHitSwitchType78(struct ITEM_INFO* item, struct ITEM_INFO* target, i
 	UNIMPLEMENTED();
 }
 
-void FireCrossbow(struct PHD_3DPOS* Start)
+void FireCrossbow(struct PHD_3DPOS* Start)//42E18(<), 4326C(<) (F)
 {
-	UNIMPLEMENTED();
+	short* ammo;
+	struct ITEM_INFO* item;
+	short item_number;
+
+	ammo = get_current_ammo_pointer(WEAPON_CROSSBOW);
+
+	if (ammo[0] != 0)
+	{
+		lara.has_fired = 1;
+		lara.Fired = 1;
+		item_number = CreateItem();
+
+		if (item_number != -1)
+		{
+			item = &item[item_number];
+
+			item->object_number = CROSSBOW_BOLT;
+			item->shade = -15856;
+			item->room_number = lara_item->room_number;
+			item->pos.x_pos = Start->x_pos;
+			item->pos.y_pos = Start->y_pos;
+			item->pos.z_pos = Start->z_pos;
+
+			InitialiseItem(item_number);
+
+			item->pos.x_rot = Start->x_rot;
+			item->pos.y_rot = Start->y_rot;
+			item->speed = 512;
+			item->pos.z_rot = Start->z_rot;
+
+			AddActiveItem(item_number);
+#if !BETA_VERSION//Nice last minute bug fix CORE! >_<
+			if (ammo[0] != -1)
+			{
+#endif
+				ammo[0]--;
+#if !BETA_VERSION
+			}
+#endif
+
+#if PSX_VERSION || PSXPC_VERSION
+			SetupPadVibration(0, 4096, 4096, 2, 1536, 5);
+#endif
+			SoundEffect(SFX_LARA_CROSSBOW, NULL, 0);
+			savegame.Game.AmmoUsed++;
+		}//loc_42F60
+	}//loc_42F60
 }
 
 void FireHK(int running)
