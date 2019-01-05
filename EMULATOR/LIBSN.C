@@ -42,8 +42,7 @@ int PClseek(int fd, int offset, int mode)
 
 int PCread(int fd, char* buff, int len)
 {
-	assert(0);
-	return 0;
+	return fread(buff, len, 1, (FILE*)fileHandle);
 }
 
 int PCwrite(int fd, char* buff, int len)
