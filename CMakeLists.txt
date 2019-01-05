@@ -56,6 +56,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 #Note: Travis/Appveyor ci only build PSXPC for now.
 if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))
 	add_subdirectory(SPEC_PSX)
+	add_subdirectory(SPEC_PSX_PAELLA)
 	add_subdirectory(SPEC_PC)
 	add_subdirectory(SPEC_PC_N)
 	#add_subdirectory(SPEC_PS2)
