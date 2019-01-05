@@ -26,7 +26,7 @@ void LaraWaterCurrent(struct COLL_INFO* coll)//4CD34, 4D198
 	UNIMPLEMENTED();
 }
 
-long GetWaterDepth(long x, long y, long z, short room_number)//4CA38, 4CE9C
+long GetWaterDepth(long x, long y, long z, short* room_number)//4CA38, 4CE9C
 {
 	UNIMPLEMENTED();
 	return 0;
