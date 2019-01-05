@@ -11,6 +11,8 @@
 #if PSXENGINE
 #include "SETUP.H"
 #include "ROOMLOAD.H"
+#include "SPHERES.H"
+#include "LIGHT.H"
 #endif
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -54,17 +56,210 @@ static short ParallelBarsBounds[12] = // offset 0xA1290
 	0xFD80, 0x0280, 0x02C0, 0x0340, 0xFFA0, 0x0060, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 0xF8E4, 0x071C
 };
 
-void HybridCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)
+void EarthQuake(short item_number)
 {
 	UNIMPLEMENTED();
 }
 
-void DrawBaddieGunFlash(struct ITEM_INFO* item)
+void SmashObject(short item_number)//4EDB0, 4F214 (F)
+{
+	struct ITEM_INFO* item = &items[item_number];
+	struct room_info* r = &room[item->room_number];
+	int sector = ((item->pos.z_pos - r->z) >> 10) + r->x_size * ((item->pos.x_pos - r->x) >> 10);
+	struct box_info* box = &boxes[r->floor[sector].box];
+	if (box->overlap_index & BOX_LAST)
+	{
+		box->overlap_index &= ~BOX_BLOCKED;
+	}
+
+	SoundEffect(SFX_SMASH_GLASS, &item->pos, 0);
+	item->collidable = 0;
+	item->mesh_bits = 0xFFFE;
+	ExplodingDeath2(item_number, -1, 257);
+	item->flags |= IFLAG_INVISIBLE;
+	if (item->status == ITEM_ACTIVE)
+		RemoveActiveItem(item_number);
+	item->status = ITEM_DEACTIVATED;
+}
+
+void SmashObjectControl(short item_number)//4EEF8(<), 4F35C(<) (F)
+{
+	SmashObject(item_number << 16);
+}
+
+void BridgeFlatFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EF1C(<), 4F380(<) (F)
+{
+	if (item->pos.y_pos >= y)
+	{
+		*height = item->pos.y_pos;
+		height_type = WALL;
+		OnObject = 1;
+	}
+}
+
+void BridgeFlatCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EF58(<), 4F3BC(<) (F)
+{
+	if (item->pos.y_pos >= y)
+	{
+		*height = item->pos.y_pos + 256;
+	}
+}
+
+long GetOffset(struct ITEM_INFO* item, long x, long z)// (F)
+{
+	if (item->pos.y_rot == 0)
+	{
+		return (-x) & 0x3FF;
+	}
+	else if (item->pos.y_rot == ANGLE(-180))
+	{
+		return x & 0x3FF;
+	}
+	else if (item->pos.y_rot == ANGLE(90))
+	{
+		return z & 0x3FF;
+	}
+	else
+	{
+		return (-z) & 0x3FF;
+	}
+}
+
+void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EFCC(<), 4F430(<) (F)
+{
+	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 2);
+
+	if (level >= y)
+	{
+		*height = level;
+		height_type = WALL;
+		OnObject = 1;
+	}
+}
+
+void BridgeTilt1Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F038(<), 4F49C(<) (F)
+{
+	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 2);
+
+	if (level >= y)
+	{
+		*height = level;
+	}
+}
+
+void BridgeTilt2Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F090(<), 4F4F4(<) (F)
+{
+	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 1);
+
+	if (level >= y)
+	{
+		*height = level;
+		height_type = WALL;
+		OnObject = 1;
+	}
+}
+
+void BridgeTilt2Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F0FC(<), 4F560(<) (F)
+{
+	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 1);
+
+	if (level >= y)
+	{
+		*height = level;
+	}
+}
+
+void ControlAnimatingSlots(short item_number)
 {
 	UNIMPLEMENTED();
 }
 
-void CutsceneRopeControl(short item_number)
+void PoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
+{
+	UNIMPLEMENTED();
+}
+
+void ControlTriggerTriggerer(short item_number)
+{
+	UNIMPLEMENTED();
+}
+
+void AnimateWaterfalls()//4FABC(<), 4FF20(<)
+{
+#if PSX_VERSION
+	struct PSXTEXTI* Twaterfall;
+	long i;
+	long speed1;
+	long speed2;
+
+	speed1 = (GlobalCounter << 3) - GlobalCounter & 0x3F;
+	speed2 = -(GlobalCounter << 2) & 0x3F;
+
+	//loc_4FB00
+	for (i = 0; i < 6; i++)
+	{
+		if (objects[WATERFALL1 + i].loaded)
+		{
+			Twaterfall = AnimatingWaterfalls[i];
+
+			Twaterfall->v0 = ((char*)&AnimatingWaterfallsV[i])[0] + speed1;
+			Twaterfall->v1 = ((char*)&AnimatingWaterfallsV[i])[0] + speed1;
+			Twaterfall->v2 = ((char*)&AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
+			Twaterfall->v3 = ((char*)&AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
+
+			if (i < 4)
+			{
+				Twaterfall++;
+				Twaterfall->v0 = ((char*)&AnimatingWaterfallsV[i])[0] + speed1;
+				Twaterfall->v1 = ((char*)&AnimatingWaterfallsV[i])[0] + speed1;
+				Twaterfall->v2 = ((char*)&AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
+				Twaterfall->v3 = ((char*)&AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
+			}//loc_4FB98
+		}//loc_4FB98
+
+		if (i == 4)
+		{
+			speed1 = speed2;
+		}
+	}
+#else
+	UNIMPLEMENTED();
+#endif
+}
+
+void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
+{
+	struct ITEM_INFO* item = &items[item_number];
+	TriggerActive(item);
+
+	if (item_number != 0)
+	{
+		item->status = ITEM_ACTIVE;
+
+		if (item->trigger_flags == 0x29C)
+		{
+			SoundEffect(SFX_D_METAL_KICKOPEN, &item->pos, 0);
+		}
+		else if (item->trigger_flags == 0x309)
+		{
+			SoundEffect(SFX_WATERFALL_LOOP, &item->pos, 0);
+		}
+	}
+	else
+	{
+		if (item->trigger_flags == 2 || item->trigger_flags == 0x29C)
+		{
+			item->status = ITEM_INVISIBLE;
+		}
+	}
+}
+
+void TightRopeCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
+{
+	UNIMPLEMENTED();
+}
+
+void ParallelBarsCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
 {
 	UNIMPLEMENTED();
 }
@@ -103,7 +298,7 @@ void ControlXRayMachine(short item_number)// (F)
 		return;
 	}
 
-	switch(item->trigger_flags)
+	switch (item->trigger_flags)
 	{
 	case 111:
 		if (item->item_flags[0] != 0)
@@ -175,210 +370,55 @@ void ControlXRayMachine(short item_number)// (F)
 	}
 }
 
-void ParallelBarsCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
+void CutsceneRopeControl(short item_number)//50454(<), ? (F)
+{
+	struct ITEM_INFO* item;
+	struct PHD_VECTOR pos1;
+	struct PHD_VECTOR pos2;
+	long dx;
+	long dy;
+	long dz;
+
+	item = &items[item_number];
+
+	pos1.x = -128;
+	pos1.y = -72;
+	pos1.z = -16;
+	GetJointAbsPosition(&items[item->item_flags[2]], &pos1, 0);
+
+	pos2.x = 830;
+	pos2.z = -12;
+	pos2.y = 0;
+	GetJointAbsPosition(&items[item->item_flags[3]], &pos2, 0);
+
+	item->pos.x_pos = pos2.x;
+	item->pos.y_pos = pos2.y;
+	item->pos.z_pos = pos2.z;
+
+	dx = (pos2.x - pos1.x) * (pos2.x - pos1.x);
+	dy = (pos2.y - pos1.y) * (pos2.y - pos1.y);
+	dz = (pos2.z - pos1.z) * (pos2.z - pos1.z);
+	
+	item->item_flags[1] = ((mSqrt(dx + dy + dz) << 1) + mSqrt(dx + dy + dz)) << 1;
+	item->pos.x_rot = -4869;
+}
+
+void DrawBaddieGunFlash(struct ITEM_INFO* item)
 {
 	UNIMPLEMENTED();
 }
 
-void TightRopeCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
+void HybridCollision(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//50758, ? (F)
 {
-	UNIMPLEMENTED();
-}
+	struct ITEM_INFO* item;
 
-void ControlWaterfall(short item_number)//4FBC4(<), 50028(<) (F)
-{
-	struct ITEM_INFO* item = &items[item_number];
-	TriggerActive(item);
+	item = &items[item_num];
 
-	if (item_number != 0)
+	if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
 	{
-		item->status = ITEM_ACTIVE;
-
-		if (item->trigger_flags == 0x29C)
+		if (item->frame_number < anims[item->anim_number].frame_end)
 		{
-			SoundEffect(SFX_D_METAL_KICKOPEN, &item->pos, 0);
+			ObjectCollision(item_num, laraitem, coll);
 		}
-		else if (item->trigger_flags == 0x309)
-		{
-			SoundEffect(SFX_WATERFALL_LOOP, &item->pos, 0);
-		}
-	}
-	else
-	{
-		if (item->trigger_flags == 2 || item->trigger_flags == 0x29C)
-		{
-			item->status = ITEM_INVISIBLE;
-		}
-	}
-}
-
-void AnimateWaterfalls()//4FABC(<), 4FF20(<)
-{
-#if PSX_VERSION
-	struct PSXTEXTI* Twaterfall;
-	long i;
-	long speed1;
-	long speed2;
-
-	speed1 = (GlobalCounter << 3) - GlobalCounter & 0x3F;
-	speed2 = -(GlobalCounter << 2) & 0x3F;
-
-	//loc_4FB00
-	for (i = 0; i < 6; i++)
-	{
-		if (objects[WATERFALL1 + i].loaded)
-		{
-			Twaterfall = AnimatingWaterfalls[i];
-
-			Twaterfall->v0 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1;
-			Twaterfall->v1 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1;
-			Twaterfall->v2 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
-			Twaterfall->v3 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
-
-			if (i < 4)
-			{
-				Twaterfall++;
-				Twaterfall->v0 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1;
-				Twaterfall->v1 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1;
-				Twaterfall->v2 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
-				Twaterfall->v3 = ((char*) &AnimatingWaterfallsV[i])[0] + speed1 & 0x3F;
-			}//loc_4FB98
-		}//loc_4FB98
-
-		if (i == 4)
-		{
-			speed1 = speed2;
-		}
-	}
-#else
-	UNIMPLEMENTED();
-#endif
-}
-
-void ControlTriggerTriggerer(short item_number)
-{
-	UNIMPLEMENTED();
-}
-
-void PoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)
-{
-	UNIMPLEMENTED();
-}
-
-void ControlAnimatingSlots(short item_number)
-{
-	UNIMPLEMENTED();
-}
-
-void BridgeTilt2Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F0FC(<), 4F560(<) (F)
-{
-	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 1);
-
-	if (level >= y)
-	{
-		*height = level;
-	}
-}
-
-void BridgeTilt2Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F090(<), 4F4F4(<) (F)
-{
-	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 1);
-
-	if (level >= y)
-	{
-		*height = level;
-		height_type = WALL;
-		OnObject = 1;
-	}
-}
-
-void BridgeTilt1Ceiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4F038(<), 4F49C(<) (F)
-{
-	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 2);
-
-	if (level >= y)
-	{
-		*height = level;
-	}
-}
-
-long GetOffset(struct ITEM_INFO* item, long x, long z)// (F)
-{
-	if (item->pos.y_rot == 0)
-	{
-		return (-x) & 0x3FF;
-	}
-	else if (item->pos.y_rot == ANGLE(-180))
-	{
-		return x & 0x3FF;
-	}
-	else if (item->pos.y_rot == ANGLE(90))
-	{
-		return z & 0x3FF;
-	}
-	else
-	{
-		return (-z) & 0x3FF;
-	}
-}
-
-void BridgeTilt1Floor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EFCC(<), 4F430(<) (F)
-{
-	long level = item->pos.y_pos + (GetOffset(item, x, z) >> 2);
-
-	if (level >= y)
-	{
-		*height = level;
-		height_type = WALL;
-		OnObject = 1;
-	}
-}
-
-void BridgeFlatCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EF58(<), 4F3BC(<) (F)
-{
-	if (item->pos.y_pos >= y)
-	{
-		*height = item->pos.y_pos + 256;
-	}
-}
-
-void BridgeFlatFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//4EF1C(<), 4F380(<) (F)
-{
-	if (item->pos.y_pos >= y)
-	{
-		*height = item->pos.y_pos;
-		height_type = WALL;
-		OnObject = 1;
-	}
-}
-
-void SmashObjectControl(short item_number)//4EEF8(<), 4F35C(<) (F)
-{
-	SmashObject(item_number << 16);
-}
-
-void SmashObject(short item_number)//4EDB0, 4F214 (F)
-{
-	struct ITEM_INFO* item = &items[item_number];
-	struct room_info* r = &room[item->room_number];
-	int sector = ((item->pos.z_pos - r->z) >> 10) + r->x_size * ((item->pos.x_pos - r->x) >> 10);
-	struct box_info* box = &boxes[r->floor[sector].box];
-	if (box->overlap_index & BOX_LAST)
-	{
-		box->overlap_index &= ~BOX_BLOCKED;
-	}
-
-	SoundEffect(SFX_SMASH_GLASS, &item->pos, 0);
-	item->collidable = 0;
-	item->mesh_bits = 0xFFFE;
-	ExplodingDeath2(item_number, -1, 257);
-	item->flags |= IFLAG_INVISIBLE;
-	if (item->status == ITEM_ACTIVE)
-		RemoveActiveItem(item_number);
-	item->status = ITEM_DEACTIVATED;
-}
-
-void EarthQuake(short item_number)
-{
-	UNIMPLEMENTED();
+	}//507CC
 }

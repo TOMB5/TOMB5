@@ -44,12 +44,11 @@ unsigned char MonitorHold;
 short MonitorOff;
 short MonitorOff2;
 
-long DrawPhaseGame()//63F04, 645E0
+long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 {
-	short scalarx = 0; // $a3
-	short scalary = 0; // $t0
-	short scalarz = 0; // $t1
-	int temp;
+	short scalarx = 0;
+	short scalary = 0;
+	short scalarz = 0;
 
 	mQuickW2VMatrix();
 

@@ -15,5 +15,5 @@ struct MATRIX3D LightPos;
 
 void S_DrawDarts(struct ITEM_INFO* item)//62320, ?
 {
-	S_Warn("[S_DrawDarts] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

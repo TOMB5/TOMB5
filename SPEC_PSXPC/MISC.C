@@ -72,24 +72,24 @@ void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size)
 	}
 }
 
-void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h)//5EDF8
+void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h, int unk, int unk2)//5EDF8
 {
-	S_Warn("[DrawF4] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DrawTPage(unsigned char a0, unsigned char a1)//5EE78(<), 5FB58(<)
 {
-	S_Warn("[DrawTPage] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
-void DrawLineH(long a0, long a1, long a2, long a3)//5EECC(<)
+void DrawLineH(long a0, long a1, long a2, long a3, long a4, long a5)//5EECC(<)
 {
-	S_Warn("[DrawLineH] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
-void DrawLineV(long a0, long a1, long a2, long a3)//5EF84(<),
+void DrawLineV(long a0, long a1, long a2, long a3, long a4, long a5)//5EF84(<),
 {
-	S_Warn("[DrawLineV] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
@@ -314,7 +314,12 @@ void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F)
 
 void S_AnimateTextures(long nFrames)
 {
-	S_Warn("[S_AnimateTextures] - Unimplemented!\n");
+	UNIMPLEMENTED();
+}
+
+void PrintGauge(int x, int y, int length)
+{
+	UNIMPLEMENTED();
 }
 
 long GetRandomControl()//5E9F0, 926F8 (F)
