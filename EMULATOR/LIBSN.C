@@ -52,6 +52,5 @@ int PCwrite(int fd, char* buff, int len)
 
 int PCclose(int fd)
 {
-	assert(0);
-	return 0;
+	return fclose((FILE*)fd);
 }
