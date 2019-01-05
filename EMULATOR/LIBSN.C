@@ -37,17 +37,17 @@ int PCcreat(char* name, int perms)
 
 int PClseek(int fd, int offset, int mode)
 {
-	return fseek((FILE*)fileHandle, offset, mode);
+	return fseek((FILE*)fd, offset, mode);
 }
 
 int PCread(int fd, char* buff, int len)
 {
-	return fread(buff, len, 1, (FILE*)fileHandle);
+	return fread(buff, len, 1, (FILE*)fd);
 }
 
 int PCwrite(int fd, char* buff, int len)
 {
-	return fwrite(buff, len, 1, (FILE*)fileHandle);
+	return fwrite(buff, len, 1, (FILE*)fd);
 }
 
 int PCclose(int fd)
