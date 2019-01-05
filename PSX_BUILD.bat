@@ -4,5 +4,5 @@ call PSX_MOVE_OVERLAYS.bat
 call PSX_CREATE_GAMEWAD.bat
 cd DISC
 CPE2X MAIN.CPE
-MAKEISO.bat
+call MAKEISO.bat
 cd ../
