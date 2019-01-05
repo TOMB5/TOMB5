@@ -37,8 +37,7 @@ int PCcreat(char* name, int perms)
 
 int PClseek(int fd, int offset, int mode)
 {
-	assert(0);
-	return 0;
+	return fseek((FILE*)fileHandle, offset, mode);
 }
 
 int PCread(int fd, char* buff, int len)
