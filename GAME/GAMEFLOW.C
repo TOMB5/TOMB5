@@ -224,7 +224,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 			break;
 		case GF_MIRROR:
 			gfMirrorRoom = *sequenceCommand++;
-			gfMirrorZPlane = *(int*)sequenceCommand;
+			gfMirrorZPlane = *(int*)sequenceCommand;///@FIXME illegal operation here?
 			sequenceCommand += 4;
 			break;
 		case GF_CUT:

@@ -2,10 +2,28 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF SOUND_EndScene, SPU_AllocChannel, S_SoundPlaySampleLooped, SoundEffect, S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume, SPU_UpdateStatus
+	XDEF SOUND_Stop, SOUND_EndScene, SPU_AllocChannel, S_SoundPlaySampleLooped, SoundEffect, S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume, SPU_UpdateStatus
 	XREF sva, LnSamplesLoaded, LadwSampleAddr, SpuSetKeyOnWithAttr, CalcVolumes_ASM, CamRot, LaSlot, mSqrt, GetRandomDraw, sample_lut, room, camera, sound_active, LabSampleType, LabFreeChannel, LnFreeChannels, DepthTable, camera, char_anim, local_mRotY, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuGetAllKeysStatus, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey
 
-	
+SOUND_Stop:
+	lw      at, sound_active-GP_ADDR(gp)
+	la      v0, LaSlot
+	beqz    at, locret_920D4
+	li      v1, 0xFFFFFFFF
+	li      a0, 0x18
+
+	loc_920BC:
+	sw      v1, 0x10(v0)
+	addiu   a0, -1
+	bnez    a0, loc_920BC
+	addiu   v0, 0x24
+	j       S_SoundStopAllSamples
+	nop
+
+	locret_920D4:
+	jr      ra
+	nop
+
 SOUND_EndScene:
 	lw      v0, sound_active-GP_ADDR(gp)
 	addiu   sp, -0x20

@@ -68,7 +68,7 @@ void* setupFunc[] __attribute__((section(".header"))) =
 };
 #endif
 
-RECT dword_BD7F4[] = { 0x00440240, 0x00390040 };
+RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
 
 #endif
 
@@ -1313,7 +1313,6 @@ void LoadLevel(FILE* nHandle)
 	InitialiseObjects();
 	InitialiseClosedDoors();///sub_7BC4();//InitialiseClosedDoors();
 	InitialiseItemArray(256);
-	S_Warn("LoadLevel Marker 2\n");
 
 	GlobalPulleyFrigItem = -1;
 
@@ -1409,7 +1408,7 @@ void LoadLevel(FILE* nHandle)
 	//Beta: sw      $zero, 0xA5534
 #endif
 	//a0 = &objects
-
+#if 0
 	if (objects[MONITOR_SCREEN].loaded)
 	{
 		short* meshptr;//v1
@@ -1447,6 +1446,7 @@ void LoadLevel(FILE* nHandle)
 
 
 	}//loc_EE4
+#endif
 
 	reset_cutseq_vars();
 
@@ -1525,8 +1525,6 @@ void LoadLevel(FILE* nHandle)
 		MGSaveGamePtr = game_malloc(8192);
 		FromTitle = 1;
 	}//loc_F94
-
-	S_Warn("End of LoadLevel");
 }
 
 void TrapObjects()//?, B7E04
@@ -1658,7 +1656,7 @@ void SetupGame()//?(<), B9DA8(<)
 	InitTarget();
 	InitialiseGameFlags();
 
-	if (gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME && gfInitialiseGame != 0)
+	if ((gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME) && gfInitialiseGame != 0)
 	{
 		//B9E50
 		InitialiseLaraCarriedItems(0);

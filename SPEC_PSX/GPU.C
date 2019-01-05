@@ -155,7 +155,7 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 	{
 		do
 		{
-			if (data[0] & 0xFF000000 != 0)
+			if ((data[0] & 0xFF000000) != 0)
 			{
 				code = ((char*)data)[7];//getcode
 
@@ -215,7 +215,7 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 
 						((short*)data)[8] = ((unsigned short*)data)[22];
 
-						line2 = (struct LINE_F2*)&data[6];
+						line2 = (LINE_F2*)&data[6];
 
 						((short*)data)[9] = ((unsigned short*)data)[23];
 
