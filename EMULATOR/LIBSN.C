@@ -1,6 +1,9 @@
 #include "LIBSN.H"
 
+#include <stdio.h>
 #include <assert.h>
+
+int fileHandle = 0;
 
 int PCinit()
 {
@@ -10,8 +13,20 @@ int PCinit()
 
 int PCopen(char* name, int flags, int perms)
 {
-	assert(0);
-	return 0;
+	switch (flags)
+	{
+	case 0:
+		fileHandle = (int)fopen(name, "rb");
+		break;
+	case 1:
+		fileHandle = (int)fopen(name, "wb");
+		break;
+	case 2:
+		fileHandle = (int)fopen(name, "rwb");
+		break;
+	}
+	
+	return fileHandle == 0 ? -1 : fileHandle;
 }
 
 int PCcreat(char* name, int perms)
