@@ -47,8 +47,7 @@ int PCread(int fd, char* buff, int len)
 
 int PCwrite(int fd, char* buff, int len)
 {
-	assert(0);
-	return 0;
+	return fwrite(buff, len, 1, (FILE*)fileHandle);
 }
 
 int PCclose(int fd)
