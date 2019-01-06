@@ -56,7 +56,7 @@
 #include <LIBSPU.H>
 #include <LIBGTE.H>
 
-#if RELOC
+#if PSX_VERSION && RELOC
 void* setupFunc[] __attribute__((section(".header"))) =
 {
 	&InitialiseGameFlags,
@@ -1363,7 +1363,7 @@ void LoadLevel(FILE* nHandle)
 				DEL_CDFS_Read(ptr2, relocationPtr[3]);
 #else
 #if PSX_VERSION
-				PClseek(nHandle, relocationPtr[2], 0);///@FIXME For some reason this line doesn't exist in the original internal beta, this is probably why it keeps crashing
+				PClseek(nHandle, relocationPtr[2], 0);
 #elif PSXPC_VERSION
 				fseek(nHandle, relocationPtr[2], SEEK_SET);
 #endif
