@@ -56,7 +56,7 @@
 #include <LIBSPU.H>
 #include <LIBGTE.H>
 
-#if RELOC
+#if PSX_VERSION && RELOC
 void* setupFunc[] __attribute__((section(".header"))) =
 {
 	&InitialiseGameFlags,
@@ -68,7 +68,7 @@ void* setupFunc[] __attribute__((section(".header"))) =
 };
 #endif
 
-RECT dword_BD7F4[] = { 0x00440240, 0x00390040 };
+RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
 
 #endif
 
@@ -718,6 +718,85 @@ void BaddyObjects()//?, B5328
 		object->object_mip = 0x1400;
 
 	}//loc_1EE4
+
+	object = &objects[SWAT_PLUS];
+
+	//v0 = 0x0
+	if (object->loaded)
+	{
+		//v0 = 0xFFFF8C7C
+		//v1 = 0x1F0000
+		///object->initialise = 0xFFFF8C7C;
+		//v0 = RelocPtr[SWAT];
+		//a0 = RelocPtr[SWAT][0];
+		//v1 = &objects[LARA];
+#if PSX_VERSION
+		object->control = RelocPtr[SWAT][0];
+#endif
+		//v0 = objects[SWAT].
+
+		if (objects[SWAT].loaded)
+		{
+			object->anim_index = objects[SWAT].anim_index;
+		}
+		else
+		{
+			//loc_1F3C
+			object->anim_index = objects[BLUE_GUARD].anim_index;
+		}
+
+		//a1 = 0xF3FFFFFF
+		//v0 = CreatureCollision
+		//v1 = 0x80
+		object->collision = &CreatureCollision;
+		//v0 = 0x18
+		object->shadow_size = 128;
+
+		//li      $v1, 0x32  # '2'
+		//li      $a0, 0x66  # 'f'
+		object->hit_points = 24;
+		object->pivot_length = 50;
+
+		//v1 = *(int*)&object->bite_offset
+		object->draw_routine_extra = DrawBaddieGunFlash;
+		//v0 = 0x20000
+		object->radius = 102;
+		//a0 = 0x400000
+		object->intelligent = 1;
+		object->HitEffect = 0;
+		//v0 = 0x4000000
+		object->HitEffect = 1;
+		object->bite_offset = 0;
+		//v0 = *(int*)&object->bite_offset
+		//v1 = 0x200000
+		object->save_flags = 1;
+		object->save_anim = 1;
+		//v1 = 0x100000
+		object->save_hitpoints = 1;
+		object->save_position = 1;
+		//0x80000
+
+		//a0 = object->bone_index
+		//a1 = bones
+		//a0 = &bones[object->bone_index];
+
+		((int*)bones[object->bone_index])[24] |= 8;
+		((int*)bones[object->bone_index])[24] |= 4;
+		((int*)bones[object->bone_index])[52] |= 8;
+		((int*)bones[object->bone_index])[52] |= 4;
+
+		//a3 = &objects
+		//a0 = meshes[object->mesh_index]
+		//v0 = meshes]objects[MESHSWAP1].mesh_index]
+		//a2 = meshes
+
+		((int*)meshes[object->mesh_index])[21] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[20];
+
+		//v1 = meshes[object->mesh_index]
+		//v0 = meshes[objects[MESHSWAP1].mesh_index]
+		((int*)meshes[object->mesh_index])[27] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[26];
+		object->object_mip = 0x1400;
+	}//loc_20A4
 }
 
 void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
@@ -1284,7 +1363,7 @@ void LoadLevel(FILE* nHandle)
 				DEL_CDFS_Read(ptr2, relocationPtr[3]);
 #else
 #if PSX_VERSION
-				PClseek(nHandle, relocationPtr[2], 0);///@FIXME For some reason this line doesn't exist in the original internal beta, this is probably why it keeps crashing
+				PClseek(nHandle, relocationPtr[2], 0);
 #elif PSXPC_VERSION
 				fseek(nHandle, relocationPtr[2], SEEK_SET);
 #endif
@@ -1313,7 +1392,6 @@ void LoadLevel(FILE* nHandle)
 	InitialiseObjects();
 	InitialiseClosedDoors();///sub_7BC4();//InitialiseClosedDoors();
 	InitialiseItemArray(256);
-	S_Warn("LoadLevel Marker 2\n");
 
 	GlobalPulleyFrigItem = -1;
 
@@ -1409,7 +1487,7 @@ void LoadLevel(FILE* nHandle)
 	//Beta: sw      $zero, 0xA5534
 #endif
 	//a0 = &objects
-
+#if 0
 	if (objects[MONITOR_SCREEN].loaded)
 	{
 		short* meshptr;//v1
@@ -1447,6 +1525,7 @@ void LoadLevel(FILE* nHandle)
 
 
 	}//loc_EE4
+#endif
 
 	reset_cutseq_vars();
 
@@ -1525,8 +1604,6 @@ void LoadLevel(FILE* nHandle)
 		MGSaveGamePtr = game_malloc(8192);
 		FromTitle = 1;
 	}//loc_F94
-
-	S_Warn("End of LoadLevel");
 }
 
 void TrapObjects()//?, B7E04
@@ -1658,7 +1735,7 @@ void SetupGame()//?(<), B9DA8(<)
 	InitTarget();
 	InitialiseGameFlags();
 
-	if (gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME && gfInitialiseGame != 0)
+	if ((gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME) && gfInitialiseGame != 0)
 	{
 		//B9E50
 		InitialiseLaraCarriedItems(0);

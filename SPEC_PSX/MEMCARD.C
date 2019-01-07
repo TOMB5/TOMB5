@@ -10,6 +10,7 @@
 
 #include <LIBMCRD.H>
 #include <LIBETC.H>
+#include <STRINGS.H>
 
 unsigned char mcInit;
 unsigned char mcStatus;

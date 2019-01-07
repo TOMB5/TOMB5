@@ -46,11 +46,14 @@ void SOUND_Init()//920DC(<), 94128(<) (F)
 	sound_active = 1;
 }
 
+#if PSXPC_VERSION
 void SOUND_Stop()//920A4(<), 940F0(<) (F)
 {
 	int i;
 
+#if PSXPC_VERSION
 	return;///@FIXME infinite loop PSXPC
+#endif
 
 	if (sound_active != 0)
 	{
@@ -62,3 +65,4 @@ void SOUND_Stop()//920A4(<), 940F0(<) (F)
 		S_SoundStopAllSamples();
 	}
 }
+#endif
