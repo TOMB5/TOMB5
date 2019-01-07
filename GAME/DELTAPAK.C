@@ -1,5 +1,6 @@
 #include "DELTAPAK.H"
 
+#include "CDTRACKS.H"
 #include "CALCHAIR.H"
 #include "CALCLARA.H"
 #include "CODEWAD.H"
@@ -39,6 +40,7 @@
 #include "DRAWPHAS.H"
 #include "DELTAPAK_S.H"
 #include "CD.H"
+#include "BUBBLES.H"
 #endif
 
 #include "SPECTYPES.H"
@@ -2248,6 +2250,7 @@ void TriggerDelSmoke(long x, long y, long z, int sizeme)//2EED8(<), 2F1E4(<) (F)
 	}
 }
 
+#if PC_VERSION
 void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
 {
 	int i;
@@ -2267,6 +2270,7 @@ void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
 		}
 	}
 }
+#endif
 
 void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* pos, int direction, int speed)//2EE84(<), 2F190(<) (F)
 {

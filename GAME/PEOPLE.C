@@ -11,6 +11,7 @@
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "MISC.H"
+#include "FXTRIG.H"
 #endif
 
 
@@ -87,8 +88,34 @@ int Targetable(struct ITEM_INFO* item, struct AI_info* info)//508EC, 50D50 (F)
 	return 0;
 }
 
-int TargetVisible(struct ITEM_INFO* item, struct AI_info* info)//507DC, 50C40
+int TargetVisible(struct ITEM_INFO* item, struct AI_info* info)//507DC(<), 50C40(<) (F)
 {
-	UNIMPLEMENTED();
+	struct GAME_VECTOR start;
+	struct GAME_VECTOR target;
+	struct creature_info* creature;
+	struct ITEM_INFO* enemy;
+	short* bounds;
+
+	creature = (struct creature_info*)item->data;
+	enemy = creature->enemy;
+
+	if (enemy != NULL)
+	{
+		if (enemy->hit_points != 0 && (((info->angle - creature->joint_rotation[2]) + 0x1FFF) & 0xFFFF) < 0x3FFF && info->distance < 0x3FFFFFF)
+		{
+			start.x = item->pos.x_pos;
+			start.y = item->pos.y_pos - 768;
+			start.z = item->pos.z_pos;
+			start.room_number = item->room_number;
+
+			target.x = enemy->pos.x_pos;
+			bounds = GetBestFrame(enemy);
+			target.y = enemy->pos.y_pos + ((((bounds[2] << 1) + bounds[2]) + bounds[3]) >> 2);
+			target.z = enemy->pos.z_pos;
+
+			return LOS(&start, &target);
+		}//508DC
+	}//508DC
+
 	return 0;
 }

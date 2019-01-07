@@ -1,6 +1,10 @@
 #include "MEMCARD.H"
 
+#include "3D_OBJ.H"
 #include "SPECIFIC.H"
+#include "GAMEFLOW.H"
+
+#include <string.h>
 
 unsigned char mcInit;
 unsigned char mcStatus;
@@ -14,110 +18,39 @@ int dword_A1AA0 = 0x2A;//init me 0x2a? looks like name string
 
 void mcDir()//61EE8
 {
-	int i; // $s3
-	int j; // $s4
-	int k; // $s1
-	struct DIRENTRY* dir;// $s2
+#ifndef PAELLA
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	struct DIRENTRY* dir = (struct DIRENTRY*)&tsv_buffer[0];
 
-#if 0
-	int a0 = 0;
-	int a1 = dword_A1AA0;
-				 
-				
-	//lui	$v0, 0x001F0000
-	//sw	$s2, 0x30 + var_10($sp)
-	struct TSV* a2 = &tsv_buffer[0];
-	
-	//sw	$s0, 0x30 + var_18($sp)
-	int s0 = 0xF;
-	a3 = &mcNumFiles;
-	//sw	$ra, 0x30 + var_4($sp)
-	//sw	$s4, 0x30 + var_8($sp)
-	//sw	$s3, 0x30 + var_C($sp)
-	//sw	$s1, 0x30 + var_14($sp)
-	//sw	$zero, 0x30 + var_20($sp)
-				
-	MemCardGetDirentry(0, dword_A1AA0, &tsv_buffer[0], &mcNumFiles, 0, 0);//	jal	sub_6B08C
-	//sw	$s0, 0x30 + var_1C($sp)
-	int s4 = 0;//j
-	int s3 = 0;//i
-	
-	lw	$v0, 0x41E0($gp)
-	sb	$s0, 0x41DC($gp)
-	beqz	$v0, loc_62028
-	move	$s1, $zero
-	move	$s0, $s2
-	addiu	$s2, $gp, 0x41E4
 
-				 loc_61F50:
-			 lw	$v0, 0x18($s0)
-				 nop
-				 addiu	$v1, $v0, 0x1FFF
-				 bgez	$v1, loc_61F68
-				 move	$a1, $s0
-				 addiu	$v1, $v0, 0x3FFE
+	mcBlocksFree = 15;
 
-				 loc_61F68:
-			 sra	$v1, 13
-				 lbu	$v0, 0x41DC($gp)
-				 lw	$a0, dword_800A202C
-				 subu	$v0, $v1
-				 sb	$v0, 0x41DC($gp)
-				 lhu	$v1, 0x194($a0)
-				 lw	$a0, dword_800A203C
-				 li	$a2, 0xC
-				 jal	sub_68A84
-				 addu	$a0, $v1
-				 bnez	$v0, loc_62014
-				 nop
-				 lwl	$v0, 3($s0)
-				 lwr	$v0, 0($s0)
-				 lwl	$v1, 7($s0)
-				 lwr	$v1, 4($s0)
-				 lwl	$a0, 0xB($s0)
-				 lwr	$a0, 8($s0)
-				 lwl	$a1, 0xF($s0)
-				 lwr	$a1, 0xC($s0)
-				 swl	$v0, 3($s2)
-				 swr	$v0, 0($s2)
-				 swl	$v1, 7($s2)
-				 swr	$v1, 4($s2)
-				 swl	$a0, 0xB($s2)
-				 swr	$a0, 8($s2)
-				 swl	$a1, 0xF($s2)
-				 swr	$a1, 0xC($s2)
-				 lwl	$v0, 0x13($s0)
-				 lwr	$v0, 0x10($s0)
-				 nop
-				 swl	$v0, 0x13($s2)
-				 swr	$v0, 0x10($s2)
-				 addiu	$s2, 0x14
-				 sll	$v0, $s4, 2
-				 addiu	$s4, 1
-				 addiu	$s1, 1
-				 addiu	$v1, $gp, 0x4274
-				 lw	$a0, 0x18($s0)
-				 addu	$v0, $v1
-				 sw	$a0, 0($v0)
+	if (mcNumFiles > 0)
+	{
+		//loc_61F50
+		//for (i = 0; i < mcNumFiles; i++, j++, k++, dir++)
+		{
+			//loc_61F68
+			/*mcBlocksFree -= dir->size + 0x1FFF < 0 ? dir->size + 0x3FFE : dir->size + 0x1FFF;
 
-				 loc_62014:
-			 lw	$v0, 0x41E0($gp)
-				 addiu	$s3, 1
-				 sltu	$v0, $s3, $v0
-				 bnez	$v0, loc_61F50
-				 addiu	$s0, 0x28
+			if (strncmp(&gfStringWad[gfStringOffset[STR_PSX_GAME_ID]], dir->name, 12) == 0)
+			{
+				mcFileNames[i][0] = *(int*)dir->name;
+				mcFileNames[i][4] = *(int*)dir->name + 4;
+				mcFileNames[i][8] = *(int*)dir->name + 8;
+				mcFileNames[i][12] = *(int*)dir->name + 12;
+				mcFileNames[i][16] = *(int*)dir->name + 16;
 
-				 loc_62028 :
-				 lw	$ra, 0x30 + var_4($sp)
-				 lw	$s4, 0x30 + var_8($sp)
-				 lw	$s3, 0x30 + var_C($sp)
-				 lw	$s2, 0x30 + var_10($sp)
-				 sw	$s1, 0x41E0($gp)
-				 lw	$s1, 0x30 + var_14($sp)
-				 lw	$s0, 0x30 + var_18($sp)
-				 jr	$ra
-				 addiu	$sp, 0x30
-				 # End of function sub_61EE8
+				mcFileLengths[j] = dir->size;
+			}*/
+		}
+	}//loc_62028
+
+	 //loc_62028
+	mcNumFiles = k;//k
+	return;
 #endif
 
 }
@@ -154,194 +87,147 @@ void mcClose()//620AC
 
 unsigned char mcGetStatus()//620CC, 
 {
-	long stat; // $a0
-	unsigned long cmd; // stack offset -16
-	unsigned long res; // stack offset -12
-#if 0
+#ifndef PAELLA
+	long stat = 0;
+	unsigned long cmd = 0;
+	unsigned long res = 0;
 
+	//stat = MemCardSync(1, (long*)&cmd, (long*)&res);
 
-	int a0 = 1;
-
-	//addiu	$a1, $sp, 0x20 + var_10
-	//addiu	$a2, $sp, 0x20 + var_C
-	//sw	$ra, 0x20 + var_4($sp)
-
-	int v0 = 3;
-	stat = MemCardSync(a0, &cmd, &res);
-	if (stat != 0)
+	//Locked, Asynchronous memory card function is running.
+	if (stat == 0)
 	{
-		if (stat < 0)
+		//loc_62130
+		//if (cmd == McFuncReadFile)
 		{
-			if (stat == -1)
-			{
-				//loc_62120
-				MemCardExist(0);
-			}// j	loc_622C4 else on outer most brace
+			return mcStatus = 5;
 		}
-		
+		//else if (cmd == McFuncWriteData)
+		{
+			//loc_62150
+			return mcStatus = 6;
+		}
+		//else if (cmd == McFuncAccept)
+		{
+			//loc_62164
+			return mcStatus = 4;
+		}
+	}
+	else if (stat > 0)
+	{
 		//loc_62110
-		v0 = 2;
 		if (stat == 1)
 		{
 			//loc_62178
+			//if (cmd == McFuncAccept)
+			{
+				//loc_62210
+				if (res == 3)
+				{
+					//loc_62248
+					mcDir();
+					mcActualStatus = 0;
+					mcStatus = 0;
+				}
+				else if (res > 3)
+				{
+					//loc_62238
+					if (res == 4)
+					{
+						//loc_6225C
+						mcActualStatus = mcStatus = cmd;
+					}
+					else
+					{
+						mcActualStatus = mcStatus = 3;
+					}
+				}
+				else if (res == 0)
+				{
+					//loc_6228C
+					mcStatus = 0;
+				}
+				else
+				{
+					mcActualStatus = mcStatus = 3;
+				}
 
-		}//j	loc_622C4
+				return 3;
+			}
+			//else if (cmd > McFuncAccept)
+			{
+				//loc_621A0
+				//if (cmd == McFuncReadFile)
+				{
+					//loc_6227C
+					if (res != 0)
+					{
+						//loc_622B8
+						//MemCardAccept(0);
+						mcStatus = 3;
+					}
+					else
+					{
+						//loc_6228C
+						mcStatus = 0;
+					}
 
-	}//loc_62130
+					return res;
+				}
+				//else if (cmd == McFuncWriteData)
+				{
+					//loc_62298
+					if (res != 0)
+					{
+						//MemCardAccept(0);
+						mcStatus = 3;
+					}
+					else
+					{
+						mcStatus = 0;
+					}
 
-	//sw	$s0, 0x20 + var_8($sp)
+					return res;
+				}
 
-				
-				
+				return 6;
+			}
+			//else if (cmd == stat)
+			{
+				//loc_621B8
+				if (res == 0)
+				{
+					//loc_621D8
+					return mcStatus = mcActualStatus;
+				}
+				else if (res == 3)
+				{
+					//loc_621EC
+					//MemCardAccept(0);
+					mcStatus = 4;
+					return 1;
+				}
+				else
+				{
+					//loc_62204
+					mcStatus = 1;
+					return 1;
+				}
+			}
+		}
 
+		return 2;
+	}
+	else if (stat == -1)
+	{
+		//loc_62120
+		//MemCardExist(0);
+	}
 
-				 loc_62130 :
-			 lw	$v1, 0x20 + var_10($sp)
-				 nop
-				 bne	$v1, $v0, loc_62150
-				 li	$v0, 6
-				 li	$v0, 5
-				 sb	$v0, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62150 :
-			 bne	$v1, $v0, loc_62164
-				 li	$v0, 2
-				 sb	$v1, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62164 :
-			 bne	$v1, $v0, loc_622C4
-				 li	$v0, 4
-				 sb	$v0, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62178 :
-			 lw	$v1, 0x20 + var_10($sp)
-				 nop
-				 beq	$v1, $v0, loc_62210
-				 sltiu	$v0, $v1, 3
-				 beqz	$v0, loc_621A0
-				 li	$s0, 3
-				 beq	$v1, $a0, loc_621B8
-				 nop
-				 j	loc_622C4
-				 nop
-
-				 loc_621A0 :
-			 beq	$v1, $s0, loc_6227C
-				 li	$v0, 6
-				 beq	$v1, $v0, loc_62298
-				 nop
-				 j	loc_622C4
-				 nop
-
-				 loc_621B8 :
-			 lw	$v1, 0x20 + var_C($sp)
-				 nop
-				 beqz	$v1, loc_621D8
-				 li	$v0, 3
-				 beq	$v1, $v0, loc_621EC
-				 li	$v0, 1
-				 j	loc_62204
-				 nop
-
-				 loc_621D8 :
-			 lbu	$v0, 0x41D8($gp)
-				 nop
-				 sb	$v0, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_621EC :
-			 jal	sub_6A6E4
-				 move	$a0, $zero
-				 li	$v1, 4
-				 sb	$v1, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62204 :
-			 sb	$v0, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62210 :
-			 lw	$a0, 0x20 + var_C($sp)
-				 li	$v0, 3
-				 beq	$a0, $v0, loc_62248
-				 sltiu	$v0, $a0, 4
-				 beqz	$v0, loc_62238
-				 li	$v0, 4
-				 beqz	$a0, loc_6228C
-				 li	$v0, 3
-				 j	loc_6226C
-				 nop
-
-				 loc_62238 :
-			 beq	$a0, $v0, loc_6225C
-				 li	$v0, 3
-				 j	loc_6226C
-				 nop
-
-				 loc_62248 :
-			 jal	sub_61EE8
-				 nop
-				 sb	$zero, 0x41D8($gp)
-				 j	loc_6228C
-				 nop
-
-				 loc_6225C :
-			 sb	$v1, 0x4270($gp)
-				 sb	$v1, 0x41D8($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_6226C :
-			 sb	$v0, 0x4270($gp)
-				 sb	$v0, 0x41D8($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_6227C :
-			 lw	$v0, 0x20 + var_C($sp)
-				 nop
-				 bnez	$v0, loc_622B8
-				 nop
-
-				 loc_6228C :
-			 sb	$zero, 0x4270($gp)
-				 j	loc_622C4
-				 nop
-
-				 loc_62298 :
-			 lw	$v0, 0x20 + var_C($sp)
-				 nop
-				 bnez	$v0, loc_622B8
-				 nop
-				 jal	sub_61EE8
-				 nop
-				 j	loc_6228C
-				 nop
-
-				 loc_622B8 :
-			 jal	sub_6A6E4
-				 move	$a0, $zero
-				 sb	$s0, 0x4270($gp)
-
-				 loc_622C4 :
-				 lbu	$v0, 0x4270($gp)
-				 lw	$ra, 0x20 + var_4($sp)
-				 lw	$s0, 0x20 + var_8($sp)
-				 jr	$ra
-				 addiu	$sp, 0x20
-				 # End of function sub_620CC
+	return -1;
 #endif
 
-				 return -1;
+	return 0;
 }
 
 long mcFormat()//622D8(<), 629BC(<)

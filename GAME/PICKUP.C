@@ -1,11 +1,13 @@
 #include "PICKUP.H"
 
 #include "CALCLARA.H"
+#include "CDTRACKS.H"
 #include "COLLIDE.H"
 #include "CONTROL.H"
 #include "DRAW.H"
 #include "EFFECTS.H"
 #include "GAMEFLOW.H"
+#include "HEALTH.H"
 #include "LARA.H"
 #include INPUT_H
 #include "OBJECTS.H"
@@ -151,38 +153,26 @@ void MonitorScreenCollision(short item_num, struct ITEM_INFO* l, struct COLL_INF
 	}
 }
 
-void CollectCarriedItems(struct ITEM_INFO* item)//5339C, 53800
+void CollectCarriedItems(struct ITEM_INFO* item/*$s3*/)//5339C, 53800
 {
-	struct ITEM_INFO* pickup; // $s0
-	short pickup_number; // $s1
+	struct ITEM_INFO* pickup;
+	short pickup_number;
 
-#if 0
-		//move	$s3, $a0
-		pickup_number = item->carried_item;
-		int v0 = -1;
-		
-		if (pickup_number != -1)
+	pickup_number = item->carried_item;
+
+	if (pickup_number != -1)
+	{
+		//loc_533CC
+		while (pickup_number != -1)
 		{
-			int s2 = -1;
-			v0 = pickup_number << 3;
+			pickup = &items[pickup_number];
 
-			loc_533CC:
-			v0 += pickup_number;
-			pickup = &items[0];
-			v0 <<= 4;
-			s0 += v0;
-
-			//AddDisplayPickup(pickup->object_number);
-			//KillItem(pickup->object_number);
+			AddDisplayPickup(pickup->object_number);
+			KillItem(pickup_number);
 
 			pickup_number = pickup->carried_item;
-			sll	$v0, $s1, 3
-			bne	$s1, $s2, loc_533CC
-			
 		}
-
-		item->carried_item = -1;
-#endif
+	}//loc_53404
 }
 
 void SearchObjectCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//53080, 534E4
@@ -237,9 +227,12 @@ void PuzzleHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* 
 	UNIMPLEMENTED();
 }
 
-void PuzzleDoneCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//524C8, 5292C
+void PuzzleDoneCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//524C8(<), 5292C (F)
 {
-	UNIMPLEMENTED();
+	if (items[item_num].trigger_flags - 998 > 1)
+	{
+		ObjectCollision(item_num, l, coll);
+	}
 }
 
 void KeyHoleCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//52188, 525EC

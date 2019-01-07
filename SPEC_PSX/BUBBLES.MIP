@@ -2,9 +2,200 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF DrawMonoScreen, CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
-	XREF ClutStartY, lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
+	XDEF DEL_ApplyMatrixSV, TriggerDynamic, DrawMonoScreen, CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
+	XREF LightPos, CamGTE, camera, number_dynamics, ClutStartY, lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
 
+DEL_ApplyMatrixSV:
+	mtc2    v0, r0
+	mtc2    v1, r1
+	nop
+	nop
+	cop2    0x486012
+	mfc2    at, r9
+	mfc2    v0, r10
+	mfc2    v1, r11
+	sh      at, 0(a0)
+	sh      v0, 2(a0)
+	jr      ra
+	sh      v1, 4(a0)
+
+SetInventoryLighting:
+	move    t9, ra
+	move    t5, a0
+	move    t6, a1
+	move    t7, a2
+	move    t8, a3
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t3, r3
+	cfc2    t4, r4
+	addiu   a0, gp, CamGTE-GP_ADDR
+	lw      at, 0(a0)
+	lw      v0, 4(a0)
+	lw      v1, 8(a0)
+	lw      a1, 0xC(a0)
+	lw      a0, 0x10(a0)
+	ctc2    at, r0
+	ctc2    v0, r1
+	ctc2    v1, r2
+	ctc2    a1, r3
+	ctc2    a0, r4
+	li      v0, 0xF000F000
+	li      v1, 0x1000
+	jal     DEL_ApplyMatrixSV
+	addiu   a0, gp, LightPos-GP_ADDR
+	li      v0, 0xF0001000
+	li      v1, 0xFFFFF000
+	jal     DEL_ApplyMatrixSV
+	addiu   a0, gp, LightPos+0x6-GP_ADDR
+	lui     v0, 0x1000
+	li      v1, 0xFFFFF000
+	jal     DEL_ApplyMatrixSV
+	addiu   a0, gp, LightPos+0xC-GP_ADDR
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	ctc2    t4, r4
+	andi    v0, t5, 0xFF
+	sll     v0, 4
+	andi    v1, t6, 0xFF
+	sll     v1, 20
+	or      v0, v1
+	ctc2    v0, r16
+	andi    v0, t7, 0xFF
+	sll     v0, 4
+	andi    v1, t5, 0xFF00
+	sll     v1, 12
+	or      v0, v1
+	ctc2    v0, r17
+	sra     v0, t6, 4
+	andi    v0, 0xFF0
+	andi    v1, t7, 0xFF00
+	sll     v1, 12
+	or      v0, v1
+	ctc2    v0, r18
+	sra     v0, t5, 12
+	andi    v0, 0xFF0
+	sra     v1, t6, 12
+	andi    v1, 0xFF0
+	sll     v1, 16
+	or      v0, v1
+	ctc2    v0, r19
+	sra     v0, t7, 12
+	andi    v0, 0xFF0
+	ctc2    v0, r20
+	andi    a0, t8, 0xFF
+	sll     a0, 4
+	sra     a1, t8, 4
+	andi    a1, 0xFF0
+	sra     a2, t8, 12
+	andi    a2, 0xFF0
+	ctc2    a0, r13
+	ctc2    a1, r14
+	ctc2    a2, r15
+	li      v0, 0x808080
+	mtc2    v0, r6
+	ctc2    zero, r28
+	jr      t9
+	nop
+	
+TriggerDynamic:
+	bltz    a0, locret_8FF68
+	lui     t3, 0xA
+	bltz    a3, locret_8FF68
+	li      t3, 0xA2B6C
+	beqz    a3, locret_8FF68
+	lw      v1, number_dynamics-GP_ADDR(gp)
+	li      v0, 0x20
+	bne     v1, v0, loc_8FECC
+	move    t0, t3
+	move    t1, zero
+	move    t2, zero
+
+	loc_8FE50:
+	lw      at, 0(t3)
+	lw      v0, camera+0x0-GP_ADDR(gp)
+	lw      v1, 4(t3)
+	subu    at, v0, at
+	lw      v0, camera+0x4-GP_ADDR(gp)
+	mtc2    at, r9
+	subu    v0, v1
+	lw      at, 8(t3)
+	lw      v1, camera+0x8-GP_ADDR(gp)
+	mtc2    v0, r10
+	subu    v1, at
+	mtc2    v1, r11
+	nop
+	nop
+	cop2    0xA00428
+	mfc2    at, r25
+	mfc2    v0, r26
+	mfc2    v1, r27
+	addu    at, v0
+	addu    v1, at, v1
+	slt     at, t1, v1
+	beqz    at, loc_8FEB0
+	addiu   t2, 1
+	move    t1, v1
+	move    t0, t3
+
+	loc_8FEB0:
+	slti    v0, t2, 0x20
+	bnez    v0, loc_8FE50
+	addiu   t3, 0x18
+	lw      v1, number_dynamics-GP_ADDR(gp)
+	move    t3, t0
+	j       loc_8FEDC
+	addiu   v1, -1
+
+	loc_8FECC:
+	sll     at, v1, 1
+	addu    at, v1
+	sll     at, 3
+	addu    t3, at
+
+	loc_8FEDC:
+	sll     v0, a3, 8
+	lui     at, 0x20
+	div     at, v0
+	lw      t0, 0x10(sp)
+	lw      t1, 0x14(sp)
+	lw      t2, 0x18(sp)
+	sh      v0, 0x10(t3)
+	li      at, 1
+	sb      at, 0xC(t3)
+	sw      a0, 0(t3)
+	sw      a1, 4(t3)
+	sw      a2, 8(t3)
+	addiu   v1, 1
+	sw      v1, number_dynamics-GP_ADDR(gp)
+	sb      t0, 0xD(t3)
+	sb      t1, 0xE(t3)
+	sb      t2, 0xF(t3)
+	slti    at, a3, 8
+	mflo    v0
+	beqz    at, locret_8FF68
+	sw      v0, 0x14(t3)
+	mult    t0, a3
+	mflo    t0
+	sra     t0, 3
+	nop
+	mult    t1, a3
+	sb      t0, 0xD(t3)
+	mflo    t1
+	sra     t1, 3
+	nop
+	mult    t2, a3
+	sb      t1, 0xE(t3)
+	mflo    t2
+	sra     t2, 3
+	sb      t2, 0xF(t3)
+
+	locret_8FF68:
+	jr      ra
+	nop
 	
 DrawMonoScreen:
 	lui     v0, 0x6400

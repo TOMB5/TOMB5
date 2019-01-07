@@ -259,10 +259,12 @@ void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, 
 	}
 }
 
+#if PC_VERSION
 void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 {
 	UNIMPLEMENTED();
 }
+#endif
 
 void TriggerFireFlame(int x, int y, int z, int fxObj, signed int a5)
 {
