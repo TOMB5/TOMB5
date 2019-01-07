@@ -662,7 +662,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 			if (bDoCredits)
 			{
-#if !PSXPC_VERSION
+#if !PSXPC_VERSION && 0
 				if (!((INTFUNCVOID*)RelocPtr[MOD_TITSEQ][1])())
 				{
 					bDoCredits = 0;
@@ -687,7 +687,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 #endif
 					//loc_10868
 					CreditsDone = 1;
-#if RELOC
+#if RELOC && 0
 					gfStatus = ((INTFUNCINT*)RelocPtr[MOD_TITSEQ][0])(Name);
 #else
 					gfStatus = TitleOptions(Name);
