@@ -1,19 +1,26 @@
 #include "SPECIFIC.H"
 
 #include "3D_OBJ.H"
+#include "3D_GEN.H"
+#include "BUBBLES.H"
 #include "CAMERA.H"
 #include "CD.H"
 #include "CONTROL.H"
+#include "EFFECTS.H"
+#include "FXTRIG.H"
+#include "GAMEFLOW.H"
+#include "MEMCARD.H"
 #include "MISC.H"
-#include "MOVIE.H"
 #include "GPU.H"
+#include "LARA.H"
+#include "LOADSAVE.H"
 #include "PROFILE.H"
 #include "PSXPCINPUT.H"
 #include "REQUEST.H"
 #include "SAVEGAME.H"
 #include "SFX.H"
 #include "SOUND.H"
-#include "SPUSOUND.H"
+#include "TEXT_S.H"
 
 #include <assert.h>
 #include <stdio.h>
@@ -102,7 +109,11 @@ long S_DumpScreen()//607A8(<), 61320(<) (F)
 void S_ExitSystem(char* exit_message)//607C8, * (F)
 {
 	printf("\n Exit Message: %s\n", exit_message);
-	exit(EXIT_FAILURE);
+	
+	while (1)
+	{
+
+	}
 }
 
 void DisplayConfig(int x, int y)//6080C, 61340
@@ -538,7 +549,7 @@ void DisplayConfig(int x, int y)//6080C, 61340
 
 int DoPauseMenu()//60F34, 61A68
 {
-	S_Warn("[DoPauseMenu] - Unimplemented!\n");
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -570,8 +581,145 @@ void gInit()//615CC(<), 6210C(<) (F)
 
 short S_Death()//61658, 622C8
 {
-	S_Warn("[S_Death] - Unimplemented!\n");
-	return 0;
+	short ret;
+	unsigned char flag;
+	unsigned char Cursor;
+
+	ret = 0;
+	flag = 0;
+	Cursor = 0;
+
+	gInit();
+	mcOpen(0);
+
+	//loc_6169C:
+	while (ret == 0)
+	{
+		XAReqVolume = 0;
+
+		GPU_BeginScene();
+
+		SetDebounce = 1;
+
+		S_UpdateInput();
+		///UpdatePulseColour();
+
+		++lara.death_count;
+
+		if (PadConnected == 0)
+		{
+			PrintString(SCREEN_WIDTH / 2, 0x40, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], 0xA000);
+		}
+		else
+		{
+			//loc_61704
+			if (flag != 0)
+			{
+				if (flag == 1)
+				{
+					//loc_6189C
+					ret = LoadGame();
+
+					if (ret != 0)
+					{
+						ret = 2;
+						if (ret < 0)
+						{
+							flag = 0;
+							ret = 0;
+						}
+					}
+				}//loc_618C4
+			}
+			else
+			{
+				//loc_6171C
+				if (mcGetStatus() == 0)
+				{
+					if (mcNumFiles != 0)
+					{
+						if (Cursor == 0)
+						{
+							//loc_6174C
+							PrintString(SCREEN_WIDTH / 2, 0xC0, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+						}
+						else
+						{
+							//loc_6174C
+							PrintString(SCREEN_WIDTH / 2, 0xC0, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+						}
+
+						if (Cursor == 0)
+						{
+							PrintString(SCREEN_WIDTH / 2, 0xD0, 2, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], 0x8000);
+						}
+						else
+						{
+							PrintString(SCREEN_WIDTH / 2, 0xD0, 1, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], 0x8000);
+						}
+
+						if (Cursor != 0)
+						{
+							if ((RawEdge & 0x10))
+							{
+								SoundEffect(0x6D, NULL, 2);
+								Cursor = 0;
+							}
+							else
+							{
+								//loc_617E0
+								if ((RawEdge & 0x4000))
+								{
+									SoundEffect(0x6F, NULL, 2);
+									Cursor = 1;
+								}
+							}
+						}
+						//loc_61800
+						if ((RawEdge & 0x40))
+						{
+							SoundEffect(0x6D, NULL, 2);
+							Cursor = 1;
+						}
+						//loc_6182C
+						if ((RawEdge & 0x4000))
+						{
+							SoundEffect(0x6F, NULL, 2);
+							Cursor = 1;
+						}
+					}
+					else
+					{
+						//loc_6184C
+						if (lara.death_count > 0x12C)
+						{
+							Cursor = 1;
+						}
+					}
+				}
+				else
+				{
+					//loc_6184C
+					if (lara.death_count > 0x12C)
+					{
+						Cursor = 1;
+					}
+				}
+
+				//loc_61864
+				PrintString(SCREEN_WIDTH / 2, 0x78, 3, &gfStringWad[gfStringOffset[STR_GAME_OVER]], 0x8000);
+			}
+		}
+		//loc_618C4
+		SOUND_EndScene();
+		//DrawMonoScreen(0x203040);
+		GPU_EndScene();
+		camera.number_frames = S_DumpScreen();
+	}
+
+	//mcClose();
+
+	return ret;
 }
 
 void DisplayStatsUCunt()//61928(<), 625A8(<) (F)

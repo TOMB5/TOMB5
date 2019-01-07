@@ -1,7 +1,7 @@
 #include "EFFECTS.H"
 
 #include "CAMERA.H"
-
+#include "CDTRACKS.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"

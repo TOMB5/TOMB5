@@ -39,7 +39,7 @@ void VSyncFunc()//10000(<), 10000(<) (F) (*)
 #ifdef PAELLA
 int main(int argc, char* args[])
 #else
-int main(int argc, char* args[])//10064(<), 10064(!) (F) (*)
+int main()//10064(<), 10064(<) (F) (*)
 #endif
 {
 	SetSp(0x801FFFE0);

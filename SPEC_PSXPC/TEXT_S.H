@@ -3,7 +3,8 @@
 
 #include "TYPES.H"
 
-extern long GetStringLength(char* string, unsigned short* a1, unsigned short* a2);
+extern long GetStringLength(char* string, short* a1, short* a2);
 extern void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CHARDEF* a3);
+extern void GetStringDimensions(char* string, unsigned short* w, unsigned short* h);
 
 #endif

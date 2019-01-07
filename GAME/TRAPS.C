@@ -10,10 +10,12 @@
 #include "TOMB4FX.H"
 #include "EFFECT2.H"
 #include "SOUND.H"
+#include "SPHERE.H"
 #include "COLLIDE.H"
 
 #if PSX_VERSION || PSXPC_VERSION
 	#include "MISC.H"
+	#include "BUBBLES.H"
 #endif
 
 short SPDETyoffs[8] =
@@ -64,62 +66,6 @@ static short CeilingTrapDoorBounds[12] = // offset 0xA16E8
 	0xF8E4, 0x071C
 };
 
-void ControlExplosion(short item_number)//5C8BC, 5CD38
-{
-	UNIMPLEMENTED();
-	return;
-}
-
-void ControlRaisingBlock(short item_number)//5C56C, 5C9E8
-{
-	UNIMPLEMENTED();
-	return;
-}
-
-void ControlScaledSpike(short item_number)//5C000, 5C47C
-{
-	UNIMPLEMENTED();
-	return;
-}
-
-int TestBoundsCollideTeethSpikes(struct ITEM_INFO* item)//5BE64, 5C2E0
-{
-	UNIMPLEMENTED();
-	return 0;
-}
-
-void ControlTwoBlockPlatform(short item_number)//5BC7C, 5C0F8
-{
-	UNIMPLEMENTED();
-	return;
-}
-
-int OnTwoBlockPlatform(struct ITEM_INFO* item, long x, long z)//5BB80, 5BFFC (F)
-{
-	int tx = item->pos.x_pos >> 10;
-	int tz = item->pos.z_pos >> 10;
-
-	if (item->mesh_bits == 0)
-		return FALSE;
-
-	x >>= 10;
-	z >>= 10;
-
-	if (item->pos.y_rot == 0 && (x == tx || x == tx - 1) && (z == tz || z == tz + 1))
-		return TRUE;
-
-	if (item->pos.y_rot == ANGLE(-180) && (x == tx || x == tx + 1) && (z == tz || z == tz - 1))
-		return TRUE;
-
-	if (item->pos.y_rot == ANGLE(90) && (z == tz || z == tz - 1) && (x == tx || x == tx + 1))
-		return TRUE;
-
-	if (item->pos.y_rot == ANGLE(-90) && (z == tz || z == tz - 1) && (x == tx || x == tx - 1))
-		return TRUE;
-
-	return FALSE;
-}
-
 void TwoBlockPlatformCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//5BB08, 5BF84 (F)
 {
 	if (OnTwoBlockPlatform(item, x, z))
@@ -131,131 +77,157 @@ void TwoBlockPlatformCeiling(struct ITEM_INFO* item, long x, long y, long z, lon
 	}
 }
 
-void TwoBlockPlatformFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//5BA80, 5BEFC (F)
+void OpenTrapDoor(struct ITEM_INFO* item)//58A1C(<), 58EBC (F)
 {
-	if (OnTwoBlockPlatform(item, x, z))
+	long x;
+	long z;
+	struct room_info* r;
+	struct FLOOR_INFO* floor;
+	unsigned short pitsky;
+
+	r = &room[item->room_number];
+	x = room->x;
+	z = room->z;
+
+	floor = &r->floor[((item->pos.z_pos - z) >> 10) + (((item->pos.x_pos - x) >> 10) * room->x_size)];
+	pitsky = item->item_flags[3];
+
+	if (z == x)
 	{
-		if (y <= item->pos.y_pos + 32 && item->pos.y_pos < *height)
-		{
-			*height = item->pos.y_pos;
-			OnObject = 1;
-			height_type = WALL;
-		}
-	}
-}
-
-void DrawScaledSpike(struct ITEM_INFO* item)//5B854, 5BCD0
-{
-	UNIMPLEMENTED();
-	return;
-}
-
-void RollingBallCollision(short item_number, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//5B750, 5BBCC
-{
-	UNIMPLEMENTED();
-	return;
-}
-
-void ControlRollingBall(short item_number)//5AE08, 5B284
-{
-	UNIMPLEMENTED();
-	return;
-}
-
-void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4 (F)
-{
-	if (item->hit_points >= 0 && lara.water_status != LW_FLYCHEAT)
-	{
-		short room_number = item->room_number;
-
-		if (item->floor == GetHeight(GetFloor(item->pos.x_pos, 32000, item->pos.z_pos, &room_number),
-			item->pos.x_pos, 32000, item->pos.z_pos))
-		{
-			item->hit_points = -1;
-			item->collidable = TRUE;
-			LaraBurn();
-		}
-	}
-}
-
-void LaraBurn()//5ACE4, 5B160 (F)
-{
-	if (!lara.burn && !lara.BurnSmoke)
-	{
-		short fx = CreateEffect(lara_item->room_number);
-		if (fx != -1)
-		{
-			effects[fx].object_number = FLAME;
-			lara.burn = TRUE;
-		}
-	}
-}
-
-void FlameControl(short fx_number)//5AA6C, 5AEE8 (F)
-{
-	struct FX_INFO* fx = &effects[fx_number];
-	int y;
-	int i;
-	for(i = NUM_LARA_MESHES; i > 0; i--)
-	{
-		if (!(wibble & 0xC))
-		{
-			fx->pos.x_pos = 0;
-			fx->pos.y_pos = 0;
-			fx->pos.z_pos = 0;
-
-			GetLaraJointPos((struct PHD_VECTOR*)&fx->pos, i - 1);
-
-			if (lara.BurnCount)
-			{
-				if (!--lara.BurnCount)
-					lara.BurnSmoke = TRUE;
-			}
-
-			TriggerFireFlame(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, -1, 255 - lara.BurnSmoke);
-		}
-	}
-
-	if (!lara.BurnSmoke)
-	{
-		const int r = (GetRandomControl() & 0x3F) + 192;
-		const int g = (GetRandomControl() & 0x1F) + 96;
-
-		if (lara.BurnBlue == 0)
-		{
-			TriggerDynamic(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, 13, r, g, 0);
-		}
-		else if (lara.BurnBlue == 128)
-		{
-			TriggerDynamic(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, 13, 0, g, r);
-		}
-		else if (lara.BurnBlue == 256)
-		{
-			TriggerDynamic(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, 13, 0, r, g);
-		}
-	}
-
-	if (lara_item->room_number != fx->room_number)
-		EffectNewRoom(fx_number, lara_item->room_number);
-
-	y = GetWaterHeight(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, fx->room_number);
-
-	if (y == -32512 || fx->pos.y_pos <= y || lara.BurnBlue != 0)
-	{
-		SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &fx->pos, 0);
-
-		lara_item->hit_points -= 7;
-		lara_item->hit_status = TRUE;
+		floor->pit_room = pitsky;
+		r = &room[pitsky & 0xFF];
+		floor = &r->floor[((item->pos.z_pos - room->z) >> 10) + (((item->pos.x_pos - r->x) >> 10) * r->x_size)];
+		floor->sky_room = pitsky >> 8;
 	}
 	else
 	{
-		KillEffect(fx_number);
+		//loc_58AFC
+		floor->sky_room = pitsky >> 8;
+		r = &room[(pitsky >> 8) & 0xFF];
+		floor = &r->floor[((item->pos.z_pos - r->z) >> 10) + (((item->pos.x_pos - r->x) >> 10) * r->x_size)];
+		floor->pit_room = pitsky;
+	}
 
-		lara.burn = FALSE;
+	//locret_58B60
+	item->item_flags[2] = 0;
+	return;
+}
+
+void CloseTrapDoor(struct ITEM_INFO* item)//58B68, 59008
+{
+	UNIMPLEMENTED();
+}
+
+void TrapDoorControl(short item_number)//58D08, 59184
+{
+	UNIMPLEMENTED();
+	return;
+}
+
+void FloorTrapDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//58E80, 592FC
+{
+	UNIMPLEMENTED();
+	return;
+}
+
+void CeilingTrapDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//5912C, 595A8
+{
+	UNIMPLEMENTED();
+	return;
+}
+
+void TrapDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//593F8, 59874
+{
+	UNIMPLEMENTED();
+	return;
+}
+
+void FallingBlockCollision(short item_number, struct ITEM_INFO* l, struct COLL_INFO* coll)//5947C, 598F8
+{
+	UNIMPLEMENTED();
+	return;
+}
+
+void FallingBlock(short item_number)//59558, 599D4 (F)
+{
+	struct ITEM_INFO* item = &items[item_number];
+
+	if (item->trigger_flags)
+	{
+		item->trigger_flags--;
+	}
+	else
+	{
+		if (!item->item_flags[0])
+		{
+			item->mesh_bits = -2;
+			ExplodingDeath2(item_number, -1, 15265);
+			item->item_flags[0]++;
+		}
+		else
+		{
+			if (item->item_flags[0] >= 60)
+			{
+				KillItem(item_number);
+			}
+			else
+			{
+				if (item->item_flags[0] >= 52)
+				{
+					item->item_flags[1] += 2;
+					item->pos.y_pos += item->item_flags[1];
+				}
+				else
+				{
+					if (!(GetRandomControl() % (0x3E - item->item_flags[0])))
+						item->pos.y_pos += (GetRandomControl() & 3) + 1;
+				}
+				item->item_flags[0]++;
+			}
+		}
 	}
 }
 
-void FlameEmitter3Control(short item_number)//5A38C, 5A808
+void FallingBlockFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//59674, 59AF0 (F)
+{
+	int tx = item->pos.x_pos >> 10;
+	int tz = item->pos.z_pos >> 10;
+
+	x >>= 10;
+	z >>= 10;
+
+	if (x == tx && z == tz)
+	{
+		if (item->pos.y_pos >= y)
+		{
+			*height = item->pos.y_pos + 256;
+			height_type = WALL;
+			OnObject = 1;
+		}
+	}
+}
+
+void FallingCeiling(short item_number)//59720, 59B9C
+{
+	struct ITEM_INFO *item; // $s0
+	short room_number; // stack offset -24
+
+	return;
+}
+
+void DartEmitterControl(short item_num)//5988C, 59D08
+{
+	UNIMPLEMENTED();
+	return;
+}
+
+void DartsControl(short item_num)//59AD4, 59F50
+{
+	UNIMPLEMENTED();
+	return;
+}
+
+void FlameEmitterControl(short item_number)//59D18, 5A194
 {
 	UNIMPLEMENTED();
 	return;
@@ -315,29 +287,253 @@ void FlameEmitter2Control(short item_number)//5A1BC, 5A638 (F)
 	}
 }
 
-void FlameEmitterControl(short item_number)//59D18, 5A194
+void FlameEmitter3Control(short item_number)//5A38C, 5A808
 {
 	UNIMPLEMENTED();
 	return;
 }
 
-void DartsControl(short item_num)//59AD4, 59F50
+void FlameControl(short fx_number)//5AA6C, 5AEE8 (F)
+{
+	struct FX_INFO* fx = &effects[fx_number];
+	int y;
+	int i;
+	for (i = NUM_LARA_MESHES; i > 0; i--)
+	{
+		if (!(wibble & 0xC))
+		{
+			fx->pos.x_pos = 0;
+			fx->pos.y_pos = 0;
+			fx->pos.z_pos = 0;
+
+			GetLaraJointPos((struct PHD_VECTOR*)&fx->pos, i - 1);
+
+			if (lara.BurnCount)
+			{
+				if (!--lara.BurnCount)
+					lara.BurnSmoke = TRUE;
+			}
+
+			TriggerFireFlame(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, -1, 255 - lara.BurnSmoke);
+		}
+	}
+
+	if (!lara.BurnSmoke)
+	{
+		const int r = (GetRandomControl() & 0x3F) + 192;
+		const int g = (GetRandomControl() & 0x1F) + 96;
+
+		if (lara.BurnBlue == 0)
+		{
+			TriggerDynamic(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, 13, r, g, 0);
+		}
+		else if (lara.BurnBlue == 128)
+		{
+			TriggerDynamic(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, 13, 0, g, r);
+		}
+		else if (lara.BurnBlue == 256)
+		{
+			TriggerDynamic(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, 13, 0, r, g);
+		}
+	}
+
+	if (lara_item->room_number != fx->room_number)
+		EffectNewRoom(fx_number, lara_item->room_number);
+
+	y = GetWaterHeight(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, fx->room_number);
+
+	if (y == -32512 || fx->pos.y_pos <= y || lara.BurnBlue != 0)
+	{
+		SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &fx->pos, 0);
+
+		lara_item->hit_points -= 7;
+		lara_item->hit_status = TRUE;
+	}
+	else
+	{
+		KillEffect(fx_number);
+
+		lara.burn = FALSE;
+	}
+}
+
+void LaraBurn()//5ACE4, 5B160 (F)
+{
+	if (!lara.burn && !lara.BurnSmoke)
+	{
+		short fx = CreateEffect(lara_item->room_number);
+		if (fx != -1)
+		{
+			effects[fx].object_number = FLAME;
+			lara.burn = TRUE;
+		}
+	}
+}
+
+void LavaBurn(struct ITEM_INFO* item)//5AD78, 5B1F4 (F)
+{
+	if (item->hit_points >= 0 && lara.water_status != LW_FLYCHEAT)
+	{
+		short room_number = item->room_number;
+
+		if (item->floor == GetHeight(GetFloor(item->pos.x_pos, 32000, item->pos.z_pos, &room_number),
+			item->pos.x_pos, 32000, item->pos.z_pos))
+		{
+			item->hit_points = -1;
+			item->collidable = TRUE;
+			LaraBurn();
+		}
+	}
+}
+
+void ControlRollingBall(short item_number)//5AE08, 5B284
 {
 	UNIMPLEMENTED();
 	return;
 }
 
-void DartEmitterControl(short item_num)//5988C, 59D08
+void RollingBallCollision(short item_number, struct ITEM_INFO* laraitem, struct COLL_INFO* coll)//5B750(<), 5BBCC (F)
+{
+	struct ITEM_INFO* item = &items[item_number];
+
+	if (TestBoundsCollide(item, lara_item, coll->radius) == 0)
+		return;
+
+	if (TestCollision(item, laraitem) == 0)
+		return;
+
+	if (TriggerActive(item) != 0 && item->item_flags[0] != 0 && item->fallspeed != 0)
+	{
+		//$5B7FC
+		lara_item->anim_number = 0x88;
+		lara_item->goal_anim_state = 8;
+		lara_item->current_anim_state = 8;
+	}
+	else
+	{
+		//$5B7E4
+		ObjectCollision(item_number, laraitem, coll);
+		lara_item->frame_number = anims[139].frame_base;
+		lara_item->gravity_status = 0;
+	}
+
+	//$5B838
+	return;
+}
+
+void DrawScaledSpike(struct ITEM_INFO* item)//5B854, 5BCD0
 {
 	UNIMPLEMENTED();
 	return;
 }
 
-void FallingCeiling(short item_number)//59720, 59B9C
+void TwoBlockPlatformFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//5BA80, 5BEFC (F)
+{
+	if (OnTwoBlockPlatform(item, x, z))
+	{
+		if (y <= item->pos.y_pos + 32 && item->pos.y_pos < *height)
+		{
+			*height = item->pos.y_pos;
+			OnObject = 1;
+			height_type = WALL;
+		}
+	}
+}
+
+int OnTwoBlockPlatform(struct ITEM_INFO* item, long x, long z)//5BB80, 5BFFC (F)
+{
+	int tx = item->pos.x_pos >> 10;
+	int tz = item->pos.z_pos >> 10;
+
+	if (item->mesh_bits == 0)
+		return FALSE;
+
+	x >>= 10;
+	z >>= 10;
+
+	if (item->pos.y_rot == 0 && (x == tx || x == tx - 1) && (z == tz || z == tz + 1))
+		return TRUE;
+
+	if (item->pos.y_rot == ANGLE(-180) && (x == tx || x == tx + 1) && (z == tz || z == tz - 1))
+		return TRUE;
+
+	if (item->pos.y_rot == ANGLE(90) && (z == tz || z == tz - 1) && (x == tx || x == tx + 1))
+		return TRUE;
+
+	if (item->pos.y_rot == ANGLE(-90) && (z == tz || z == tz - 1) && (x == tx || x == tx - 1))
+		return TRUE;
+
+	return FALSE;
+}
+
+void ControlTwoBlockPlatform(short item_number)//5BC7C, 5C0F8
 {
 	UNIMPLEMENTED();
 	return;
 }
+
+int TestBoundsCollideTeethSpikes(struct ITEM_INFO* item)//5BE64(<), 5C2E0(<) (F)
+{
+	long x;
+	long y;
+	long z;
+	short* larabounds;
+	long minx;
+	long maxx;
+	long minz;
+	long maxz;
+	long size;
+
+	if ((item->trigger_flags & 8))
+	{
+		x = item->pos.x_pos | 0x200;
+		z = item->pos.z_pos + SPxzoffs[item->trigger_flags & 7] & -1024 | 0x200;
+	}
+	else
+	{
+
+		//loc_5BEC8
+		z = item->pos.z_pos & -1024 | 0x200;
+		x = item->pos.x_pos - SPxzoffs[item->trigger_flags & 7] & -1024 | 0x200;
+	}
+
+	//loc_5BEF8
+	size = 480;
+	if ((item->trigger_flags & 1))
+	{
+		size = 300;
+	}
+
+	//loc_5BF10
+	y = item->pos.y_pos + SPDETyoffs[item->trigger_flags & 7];
+	larabounds = GetBestFrame(lara_item);
+
+	if (y < lara_item->pos.y_pos + larabounds[2])
+		return 0;
+
+	if (lara_item->pos.y_pos + larabounds[3] < y - 900)
+		return 0;
+
+	minx = item->pos.x_pos + larabounds[0];
+	maxx = item->pos.x_pos + larabounds[1];
+	minz = item->pos.z_pos + larabounds[5];
+	maxz = item->pos.z_pos + larabounds[6];
+
+	if (x + size < minx)
+		return 0;
+
+	if (maxx < x - size)
+		return 0;
+
+	if (z + size < minz)
+		return 0;
+
+	if (maxz > z - size)
+		return 1;
+
+	return 0;
+}
+
 
 void FallingBlockCeiling(struct ITEM_INFO* item, long x, long y, long z, long* height)//596D4, 59B50 (F)
 {
@@ -356,133 +552,20 @@ void FallingBlockCeiling(struct ITEM_INFO* item, long x, long y, long z, long* h
 	}
 }
 
-void FallingBlockFloor(struct ITEM_INFO* item, long x, long y, long z, long* height)//59674, 59AF0 (F)
-{
-	int tx = item->pos.x_pos >> 10;
-	int tz = item->pos.z_pos >> 10;
-
-	x >>= 10;
-	z >>= 10;
-
-	if (x == tx && z == tz)
-	{
-		if (item->pos.y_pos >= y)
-		{
-			*height = item->pos.y_pos + 256;
-			height_type = WALL;
-			OnObject = 1;
-		}
-	}
-}
-
-void FallingBlock(short item_number)//59558, 599D4 (F)
-{
-	struct ITEM_INFO* item = &items[item_number];
-
-	if (item->trigger_flags)
-	{
-		item->trigger_flags--;
-	}
-	else
-	{
-		if (!item->item_flags[0])
-		{
-			item->mesh_bits = -2;
-			ExplodingDeath2(item_number, -1, 15265);
-			item->item_flags[0]++;
-		}
-		else
-		{
-			if (item->item_flags[0] >= 60)
-			{
-				KillItem(item_number);
-			}
-			else
-			{
-				if (item->item_flags[0] >= 52)
-				{
-					item->item_flags[1] += 2;			
-					item->pos.y_pos += item->item_flags[1];
-				}
-				else
-				{
-					if (!(GetRandomControl() % (0x3E - item->item_flags[0])))
-						item->pos.y_pos += (GetRandomControl() & 3) + 1;
-				}
-				item->item_flags[0]++;
-			}
-		}
-	}
-}
-
-void FallingBlockCollision(short item_number, struct ITEM_INFO* l, struct COLL_INFO* coll)//5947C, 598F8
+void ControlScaledSpike(short item_number)//5C000, 5C47C
 {
 	UNIMPLEMENTED();
 	return;
 }
 
-void TrapDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//593F8, 59874
+void ControlRaisingBlock(short item_number)//5C56C, 5C9E8
 {
 	UNIMPLEMENTED();
 	return;
 }
 
-void CeilingTrapDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//5912C, 595A8
+void ControlExplosion(short item_number)//5C8BC, 5CD38
 {
 	UNIMPLEMENTED();
-	return;
-}
-
-void FloorTrapDoorCollision(short item_num, struct ITEM_INFO* l, struct COLL_INFO* coll)//58E80, 592FC
-{
-	UNIMPLEMENTED();
-	return;
-}
-
-void TrapDoorControl(short item_number)//58D08, 59184
-{
-	UNIMPLEMENTED();
-	return;
-}
-
-void CloseTrapDoor(struct ITEM_INFO* item)//58B68, 59008
-{
-	UNIMPLEMENTED();
-
-}
-
-void OpenTrapDoor(struct ITEM_INFO* item)//58A1C(<), 58EBC (F)
-{
-	long x;
-	long z;
-	struct room_info* r;
-	struct FLOOR_INFO* floor;
-	unsigned short pitsky;
-
-	r = &room[item->room_number];
-	x = room->x;
-	z = room->z;
-
-	floor = &r->floor[((item->pos.z_pos - z) >> 10) + (((item->pos.x_pos - x) >> 10) * room->x_size)];
-	pitsky = item->item_flags[3];
-
-	if (z == x)
-	{
-		floor->pit_room = pitsky;
-		r = &room[pitsky & 0xFF];
-		floor = &r->floor[((item->pos.z_pos - room->z) >> 10) + (((item->pos.x_pos - r->x) >> 10) * r->x_size)];
-		floor->sky_room = pitsky >> 8;
-	}
-	else
-	{
-		//loc_58AFC
-		floor->sky_room = pitsky >> 8;
-		r = &room[(pitsky >> 8) & 0xFF];
-		floor = &r->floor[((item->pos.z_pos - r->z) >> 10) + (((item->pos.x_pos - r->x) >> 10) * r->x_size)];
-		floor->pit_room = pitsky;
-	}
-
-	//locret_58B60
-	item->item_flags[2] = 0;
 	return;
 }

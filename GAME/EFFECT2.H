@@ -31,7 +31,9 @@ extern void TriggerWaterfallMist(long x, long y, long z, long angle);
 extern void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly);
 extern void DetatchSpark(long num, long type);
 extern void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int arg7, int arg8, int arg9);
+#if PC_VERSION
 extern void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b);
+#endif
 extern void TriggerFireFlame(int x, int y, int z, int fxObj, signed int a5);
 extern void TriggerFontFire(struct ITEM_INFO* item, int a2, int a3);
 extern void TriggerHydraMissileFlame(struct PHD_VECTOR* pos, long x, long y, long z);

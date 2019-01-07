@@ -1023,125 +1023,96 @@ void InitialiseCreature(short item_number)//21800(<), ? (F)
 	return;
 }
 
-int StalkBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)
+int StalkBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)//(F)
 {
-	struct box_info *box; // $a0
-	int baddie_quad; // $a0
-	int box_quad; // $a1
-	int enemy_quad; // $v1
-	long x; // $a0
-	long z; // $t2
-	long xrange; // $a1
-	long zrange; // $a2
-
-	//t4 = item;
-	//t3 = enemy;
-	//v0 = box_number;
+	struct box_info* box;
+	int baddie_quad;
+	int box_quad;
+	int enemy_quad;
+	long x;
+	long z;
+	long xrange;
+	long zrange;
 
 	if (enemy == NULL)
 	{
 		return 0;
 	}
 
-	//box = &boxes[box_number];
-	//t1 = enemy->pos.z_pos;
-	//t0 = box->left;
-	//a2 = box->right;
-	//a3 = box->top;
-	//a1 = box->bottom;
+	zrange = (box->right - box->left) << 10 + 3072;
+	xrange = (box->bottom - box->top) << 10 + 3072;
 
-	//enemy_quad = (box->left - box->right) << 9;
-	//z = enemy_quad - enemy->pos.z_pos;
-	//v0 = (box->top + box->bottom) << 9;
-	//a2 -= t0
-#if 0
+	x = (box->top + box->bottom) << 9 - enemy->pos.x_pos;
 
-
+	if (xrange < x || x < -xrange || zrange < z || z < -zrange)
+		return 0;
 	
-		subu	$a2, $t0
-		sll	$a2, 10
-		addiu	$a2, 0xC00
-		subu	$a1, $a3
-		sll	$a1, 10
-		lw	$v1, 0x40($t3)
-		addiu	$a1, 0xC00
-		subu	$a0, $v0, $v1
-		slt	$v0, $a1, $a0
-		bnez	$v0, locret_21780
-		move	$a3, $v1
-		negu	$v0, $a1
-		slt	$v0, $a0, $v0
-		bnez	$v0, locret_21780
-		slt	$v0, $a2, $t2
-		bnez	$v0, locret_21780
-		negu	$v0, $a2
-		slt	$v0, $t2, $v0
-		bnez	$v0, locret_21780
-		nop
-		lhu	$v0, 0x4E($t3)
-		nop
-		sll	$v0, 16
-		sra	$v0, 30
-		blez	$t2, loc_2176C
-		addiu	$v1, $v0, 2
-		blez	$a0, loc_21778
-		li	$a1, 1
-		j	loc_21778
-		li	$a1, 2
+	enemy_quad = (enemy->pos.y_rot << 14) + 2;
 
-		loc_2176C:
-	blez	$a0, loc_21778
-		move	$a1, $zero
-		li	$a1, 3
+	if (z > 0)
+	{
+		if (x > 0)
+		{
+			box_quad = 2;
+		}
+		else
+		{
+			box_quad = 1;
+		}
+	}
+	else
+	{
+		//loc_2176C
+		if (x > 0)
+		{
+			box_quad = 3;
+		}
+		else
+		{
+			box_quad = 0;
+		}
+	}
+	
+	//loc_21778
+	if (enemy_quad == box_quad)
+		return 0;
 
-		loc_21778 :
-		bne	$v1, $a1, loc_21788
-		nop
+	//loc_21788
+	if (enemy->pos.z_pos < item->pos.z_pos)
+	{
+		if (enemy->pos.x_pos < item->pos.x_pos)
+		{
+			baddie_quad = 2;
+		}
+		else
+		{
+			baddie_quad = 1;
+		}
+	}
+	else
+	{
+		//loc_217B8
+		if (enemy->pos.x_pos < item->pos.x_pos)
+		{
+			baddie_quad = 3;
+		}
+		else
+		{
+			baddie_quad = 0;
+		}
+	}
 
-		locret_21780 :
-	jr	$ra
-		move	$v0, $zero
+	//loc_217D0
+	if (enemy_quad != baddie_quad)
+	{
+		return 1;
+	}
 
-		loc_21788 :
-	lw	$v0, 0x48($t4)
-		nop
-		slt	$v0, $t1, $v0
-		beqz	$v0, loc_217B8
-		nop
-		lw	$v0, 0x40($t4)
-		nop
-		slt	$v0, $a3, $v0
-		beqz	$v0, loc_217D0
-		li	$a0, 1
-		j	loc_217D0
-		li	$a0, 2
+	if (ABS(enemy_quad - box_quad) == 2)
+	{
+		return 0;
+	}
 
-		loc_217B8:
-	lw	$v0, 0x40($t4)
-		nop
-		slt	$v0, $a3, $v0
-		beqz	$v0, loc_217D0
-		move	$a0, $zero
-		li	$a0, 3
-
-		loc_217D0:
-	bne	$v1, $a0, locret_217F8
-		li	$v0, 1
-		subu	$v1, $a1
-		bgez	$v1, loc_217E8
-		nop
-		negu	$v1, $v1
-
-		loc_217E8 :
-	li	$a0, 2
-		beq	$v1, $a0, locret_217F8
-		move	$v0, $zero
-		li	$v0, 1
-
-		locret_217F8 :
-		jr	$ra
-#endif
-	UNIMPLEMENTED();
-	return 0;
+	return 1;
 }
 

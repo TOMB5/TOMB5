@@ -1,0 +1,2015 @@
+#include "SETUP.H"
+
+#include "3D_OBJ.H"
+#include "BOX.H"
+#include "CD.H"
+#include "COLLIDE.H"
+#include "CONTROL.H"
+#include "CODEWAD.H"
+#include "DELTAPAK.H"
+#include "DEBRIS.H"
+#include "DRAW.H"
+#include "DRAWPHAS.H"
+#include "DOOR.H"
+#include "EFFECTS.H"
+#include "EFFECT2.H"
+#include "FILE.H"
+#include "FLMTORCH.H"
+#include "GAMEFLOW.H"
+#include "GPU.H"
+#include "HAIR.H"
+#include "HEALTH.H"
+#include "ITEMS.H"
+#include "LARA.H"
+#include "LARAFIRE.H"
+#include "LARAMISC.H"
+#include "LOAD_LEV.H"
+#include "LOT.H"
+#include "MALLOC.H"
+#include "MATHS.H"
+#include "MISC.H"
+#include "NEWINV2.H"
+#include "OBJECTS.H"
+#include "OBJLIGHT.H"
+#include "PICKUP.H"
+#include "ROOMLOAD.H"
+#include "SAVEGAME.H"
+#include "SPECIFIC.H"
+#include "SPOTCAM.H"
+#include "SOUND.H"
+#include "SPUSOUND.H"
+#include "SWITCH.H"
+#include "TOMB4FX.H"
+#include "TYPES.H"
+#include "TYPEDEFS.H"
+#include "SPECTYPES.H"
+
+#include <assert.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
+
+#if PSX_VERSION
+	#if !DISC_VERSION
+		#include <LIBSN.H>
+	#endif
+#include <LIBSPU.H>
+#include <LIBGTE.H>
+
+#if PSX_VERSION && RELOC
+void* setupFunc[] __attribute__((section(".header"))) =
+{
+	&InitialiseGameFlags,
+	&InitialiseObjects,
+	&GetCarriedItems,
+	&GetAIPickups,
+	&SetupGame,
+	&LoadLevel
+};
+#endif
+
+RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
+
+#endif
+
+#if PSXPC_VERSION
+struct object_container objects_raw;
+struct object_info* objects = &objects_raw.m_objects[0];
+struct static_info* static_objects = &objects_raw.m_static_objects[0];
+extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
+extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
+#endif
+
+#if PSX_VERSION || PSXPC_VERSION
+int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundData, int soundWadSize)//?, B3974(F)
+{
+#ifndef NO_SOUND
+
+	int i;
+
+	if (numSoundEffects > MAX_NUM_SOUND_EFFECTS || soundWadSize > 524288)
+	{
+		return 0;
+	}
+
+	if (LnSamplesLoaded != 0)
+	{
+		SPU_FreeSamples();
+	}//loc_9C
+
+#if PSX_VERSION
+	LlVABAddr = SpuMalloc(soundWadSize);
+	if (LlVABAddr == -1)
+	{
+		return 0;
+	}
+
+	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
+	SpuSetTransferStartAddr(LlVABAddr);
+	SpuWrite((unsigned char*)pSoundData, soundWadSize);
+	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
+#endif
+
+	if (numSoundEffects > 0)
+	{
+		for (i = 0; i < numSoundEffects; i++)
+		{
+			LadwSampleAddr[i] = LlVABAddr + pSoundWadLengths[i];
+		}
+	}//loc_110
+
+	LnSamplesLoaded = numSoundEffects;
+
+	return 1;
+
+#else
+	return 0;
+#endif
+}
+#endif
+
+void InitialiseAnimatedTextures()//?(<), B4904(<)
+{
+	int i;
+	unsigned short* animTexRange = &AnimTextureRanges[0];
+#if 0
+	//000B4B50 3C03000A lui     v1, $A
+	//v0 = nAnimUVRanges;
+	//a1 = AnimTextureRanges;
+	if (nAnimUVRanges == 0)
+	{
+		return;
+	}
+
+	//a0 = 0;
+	//t4 = RoomTextInfo;
+	for (i = 0; i < nAnimUVRanges; i++)
+	{
+		//v1 = AnimTextureRanges[0];
+		animTexRange++;
+		//if(AnimTextureRanges[0] > -1)
+		{
+			//t1 = t4;
+			//t3 = AnimatingTexturesV;
+			//v0 = i << 1;
+			//v0 += i;
+			//t0 = v0 << 4;
+			while (v1 >= 0)
+			{
+				//a3 = animTexRange++;
+				//a2 = v1 - 1;
+				//v0 = v1 << 1;
+				//v0 += v1;
+				//v0 <<= 1;
+				//v0 += t0;
+				//a0 = v0 + t3;
+				//v1 = *animTexRange++;
+				//v0 = v1 << 1;
+				//v0 += v1;
+				//v0 <<= 4;
+				//v1 = t1 + v0;
+				//while(a1 >= 0)
+				{
+					//a1 -= 1;
+					//v0 = v1[1]//byte
+					//v1 += 16;//sizeof what?
+					//v0 = a0[0];
+					//a0 += 2;
+				}
+
+				//v1 = a2;
+				//a1 = a3;
+			}
+		}
+	}
+
+	return;
+#endif
+}
+
+void sub_B4A40()//(<), B4A40(<)
+{
+	long rand;
+	//a0 = 0x10000
+	rand = rand_2;//v0 @ 0x10(sp)
+
+	SeedRandomDraw(0x1D96D);
+
+	//fp = 0
+	//s5 = &WaterTable
+	//a0 = s5;
+
+}
+
+void InitialiseSqrtTable()//?(<), B4D14(<)
+{
+	int i;
+
+	for (i = 0; i < 1024; i++)
+	{
+		OurSqrt[i] = phd_sqrt_asm(i);
+	}
+
+	return;
+}
+
+void InitTarget()//(<), B4D64(<)
+{
+	int i;
+	int v0;
+	int v1;
+	struct MESH_STRUCT* mesh;
+
+	target_mesh_ptr = meshes[objects[TARGET_GRAPHICS].mesh_index];
+	mesh = (struct MESH_STRUCT*)target_mesh_ptr;
+
+	if (mesh->unk03 == 0)
+	{
+		return;
+	}
+
+	for (i = 0; i < mesh->unk03; i++, mesh++)
+	{
+		//a1 = mesh->unk03
+
+		//v0 = mesh->unk00;
+		//v1 = v0 << 2;//shift shrt.
+		//v1 += v0;
+		//v1 <<= 4;
+		//v0 = v1 * 0x2AAAAAAB;
+		//v1 >>= 0x1F;
+		//v0 >>= 4;
+		//v0 -= v1;
+		//v0 += 0x100;
+		//mesh->unk00 = v0;
+
+		v1 = (((mesh->unk01 << 4) - mesh->unk01) << 2) >> 0x1F;
+		v0 = (((((mesh->unk01 << 4) - mesh->unk01) << 2) * 0x92492493) + (((mesh->unk01 << 4) - mesh->unk01) << 2)) >> 7;
+		v0 -= v1;
+		v0 += 0x78;
+		mesh->unk01 = v0;
+	}
+
+	return;
+}
+
+void InitBinoculars()//?(<), B4E28(<)
+{
+	sizeof(struct object_info);
+
+#if 0
+	000B5074 3C040020 lui     a0, $20
+		000B5078 3C05000A lui     a1, $A
+
+
+		binoculars_mesh_ptr = meshes[objects[BINOCULAR_GRAPHICS].mesh_index];//$a0
+
+	if ()//TODO reconstruct struct.
+
+		000B5098 90820008 lbu     v0, $8(a0)
+		000B509C 00000000 nop
+		000B50A0 10400021 beq     v0, 0, $B5128
+		000B50A4 2484000C addiu   a0, $C
+		000B50A8 3C075555 li      a3, $55555556
+		000B50B0 3C069249 li      a2, $92492493
+		000B50B8 00402821 addu    a1, v0, 0
+		000B50BC 94830000 lhu     v1, $0(a0)
+		000B50C0 00000000 nop
+		000B50C4 00031C00 sll     v1, $10
+		000B50C8 00031403 sra     v0, v1, $10
+		000B50CC 00470018 mult    v0, a3
+		000B50D0 00031FC3 sra     v1, $1F
+		000B50D4 00001010 mfhi    v0
+		000B50D8 00431023 subu    v0, v1
+		000B50DC 24420100 addiu   v0, $100
+		000B50E0 A4820000 sh      v0, $0(a0)
+		000B50E4 24840002 addiu   a0, $2
+		000B50E8 84820000 lh      v0, $0(a0)
+		000B50EC 00000000 nop
+		000B50F0 00021900 sll     v1, v0, $4
+		000B50F4 00621823 subu    v1, v0
+		000B50F8 00031840 sll     v1, $1
+		000B50FC 00660018 mult    v1, a2
+		000B5100 24A5FFFF subiu   a1, $1
+		000B5104 00001010 mfhi    v0
+		000B5108 00431021 addu    v0, v1
+		000B510C 000211C3 sra     v0, $7
+		000B5110 00031FC3 sra     v1, $1F
+		000B5114 00431023 subu    v0, v1
+		000B5118 24420078 addiu   v0, $78
+		000B511C A4820000 sh      v0, $0(a0)
+		000B5120 14A0FFE6 bne     a1, 0, $B50BC
+		000B5124 24840006 addiu   a0, $6
+		000B5128 03E00008 jr      ra
+#endif
+}
+
+
+//InitialiseLaraCarriedItems
+void InitialiseLaraCarriedItems(long keep_carried_items)//?, B4EE4
+{
+	long i;
+	long gun_type;
+	struct lara_info lara_backup;
+
+	if (lara.item_number == -1)
+	{
+		return;
+	}
+
+	lara_item->meshswap_meshbits &= 0xFFDF;
+	lara_item->data = &lara;
+
+	if (keep_carried_items)
+	{
+		//$B51C0
+		memcpy(&lara_backup, &lara, sizeof(struct lara_info));
+		memset(&lara, 0, sizeof(struct lara_info));
+		memcpy(&lara.pistols_type_carried, &lara_backup.pistols_type_carried, 59);
+	}
+	else
+	{
+		memset(&lara, 0, sizeof(struct lara_info));
+	}
+
+	lara.item_number = lara.item_number;//?
+
+
+	lara.air = 0x708;
+	lara.hit_direction = -1;
+	lara.weapon_item = -1;
+	PoisonFlag = 0;
+	lara.holster = 0xE;
+	lara.RopePtr = -1;
+	lara.water_surface_dist = 0x64;
+	lara.dpoisoned = 0;
+	lara.poisoned = 0;
+	lara.location = -1;
+	lara.highest_location = -1;
+	lara.Unused1 = 1;
+
+	//a0 = 0xA0000;
+	//s3= lara_item
+	lara_item->hit_points = 0x3E8;
+
+	for (i = 0; i < gfNumPickups; i++)
+	{
+		DEL_picked_up_object(convert_invobj_to_obj(gfPickups[i]));
+	}//$B52AC
+
+	gfNumPickups = 0;
+	if (!(gfLevelFlags & 1) && objects[PISTOLS_ITEM].loaded)
+	{
+		gun_type = 1;
+	}
+	else
+	{
+		//$B52D8
+		gun_type = 0;
+	}
+
+	//v0 = &objects
+	if ((gfLevelFlags & 0x80) && objects[HK_ITEM].loaded)
+	{
+		//v1 = lara
+		if ((lara.hk_type_carried & 1))
+		{
+			gun_type = 5;
+		}//$B531C
+	}//$B531C
+
+	 //s1 = lara;
+	lara.gun_status = 0;
+	lara.last_gun_type = gun_type;
+	lara.gun_type = gun_type;
+	lara.request_gun_type = gun_type;
+
+	LaraInitialiseMeshes();
+
+	//a0 = &objects
+	lara.skelebob = 0;
+
+	//objects[PISTOLS_ITEM]
+
+	if (objects[PISTOLS_ITEM].loaded)
+	{
+		lara.pistols_type_carried = 9;
+	}//$B5354
+
+	lara.binoculars = 1;
+
+#if 0
+	000B535C 8FA20198 lw      v0, $198(sp)
+		000B5360 00000000 nop
+		000B5364 1440000B bne     v0, 0, $B5394
+		000B5368 00000000 nop
+		000B536C 8C8258F0 lw      v0, $58F0(a0)
+		000B5370 00000000 nop
+		000B5374 00431024 and v0, v1
+		000B5378 10400002 beq     v0, 0, $B5384
+		000B537C 24020003 addiu   v0, 0, $3
+		000B5380 A6220146 sh      v0, $146(s1)
+#endif
+
+		lara.num_small_medipack = 3;
+	lara.num_large_medipack = 1;
+
+	lara.num_pistols_ammo = -1;
+	InitialiseLaraAnims(lara_item);
+
+	//s0 = 0;
+	//v1 = 0x78
+	//a0 = gfNumTakeaways;
+	//v0 = 0xA0000
+	DashTimer = 120;
+
+	if (gfNumTakeaways != 0)
+	{
+		for (i = 0; i < gfNumTakeaways; i++)
+		{
+			convert_invobj_to_obj(gfTakeaways[i]);
+			NailInvItem(gfTakeaways[i]);
+		}
+	}//$B53F8
+
+	gfNumTakeaways = 0;
+
+	if (gfCurrentLevel < LVL5_BASE)
+	{
+		weapons[1].damage = 6;
+	}
+	else
+	{
+		//$B541C
+		weapons[1].damage = 15;
+	}
+
+	if (gfCurrentLevel == LVL5_DEEPSEA_DIVE)
+	{
+		lara.puzzleitems[0] = 10;
+	}//$B5450
+
+	if (gfCurrentLevel == LVL5_SUBMARINE)
+	{
+		lara.pickupitems = 0;
+		lara.pickupitemscombo = 0;
+		lara.keyitems = 0;
+		lara.keyitemscombo = 0;
+		lara.puzzleitemscombo = 0;
+
+		for (i = 0; i < 0xB; i++)
+		{
+			lara.puzzleitems[i] = 0;
+		}
+	}
+
+	if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
+	{
+		lara.puzzleitems[0] = 0;
+		lara.pickupitems = 0;
+	}//$B54A8
+
+	if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
+	{
+		lara.puzzleitems[2] = 0;
+		lara.puzzleitems[3] = 0;
+		lara.pickupitems &= -2;
+	}
+
+	if (gfCurrentLevel == LVL5_RED_ALERT)
+	{
+		lara.pickupitems &= -3;
+	}
+
+	if (gfCurrentLevel - 0xB < 4)
+	{
+		lara.bottle = 0;
+		lara.wetcloth = 0;
+	}
+
+	lara.pickupitems &= -9;
+}
+
+void InitialiseFootPrints()//?(<), B52FC(<)
+{
+	int i;
+
+	for (i = 0; i < 32; i++)
+	{
+		FootPrint[i].Active = 0;
+	}
+
+	return;
+}
+
+void BaddyObjects()//?, B5328
+{
+	struct object_info* object = &objects[LARA];//$t0
+												//lui     $a1, 0x1F
+												//t0 = &objects
+												//a0 = 0xFDFFFFFF
+												//v0 = 0x4B308
+												//v1 = 160
+
+	object->shadow_size = 160;
+	//v1 = 0x3E8
+	//t5 = 0x100000//object->save_hitpoints
+	//t4 = 0x80000//object->save_position
+	//t3 = 0x200000//object->intelligent
+	//t2 = 0x400000//object->save_anim
+	object->initialise = &InitialiseLaraLoad;
+	//v0 = *(int*)&objects[LARA].bite_offset //flags
+	//t1 = 0x10000
+	object->hit_points = 1000;
+	object->draw_routine = NULL;
+	object->using_drawanimating_item = 0;///@CHECK
+	object->save_hitpoints = 1;
+	object->save_position = 1;
+	object->save_flags = 1;
+	object->save_anim = 1;
+
+	object = &objects[SAS];
+	//v1 = *(int*)&object.bite_offset //flags
+	//t6 = 0x1F0000
+	if (object->loaded)
+	{
+		//v0 = 0xF3FFFFFF
+		//a0 = 0x20000
+		object->intelligent = 1;
+		object->HitEffect = 0;
+		//v1 = 0x4000000
+		object->HitEffect = 1;
+		//v0 = 0xFFFF8C7C
+		//v1 = 0x1F0000
+		///object->initialise = NULL;///@FIXME Local module 0xFFFF8C7C(IB), 0xFFFF8C08(RET)
+		//v0 = 0x30000
+		//a1 = RelocPtr[MOD_SAS]
+		//v0 = &CreatureCollision;
+		//a2 = RelocPtr[MOD_SAS][0];
+		//v1 = 0x80
+		object->collision = &CreatureCollision;
+		//v0 = 0x28
+		object->shadow_size = 46;
+		//v1 = 50
+		object->pivot_length = 50;
+		//v1 = 102
+		object->radius = 102;
+		//v1 = 0xA0000
+		object->hit_points = 40;
+		object->bite_offset = 0;
+		//v0 = *(int*)&object->bite_offset;
+		//a0 = object->bone_index;
+		//a1 = &bones
+		object->save_flags = 1;//t3
+		object->save_anim = 1;
+		object->save_hitpoints = 1;
+		object->save_position = 1;
+
+		//a0 = &bones[object->bone_index];
+
+#if PSX_VERSION
+		object->control = RelocPtr[MOD_SAS][0];
+#endif
+		((int*)bones[object->bone_index])[24] |= 8;
+		((int*)bones[object->bone_index])[24] |= 4;
+
+		((int*)bones[object->bone_index])[52] |= 8;
+		((int*)bones[object->bone_index])[52] |= 4;
+	}
+
+	//loc_1BA4
+	object = &objects[BLUE_GUARD];
+	//v0 = *(int*)&object->bite_offset;
+
+	//v0 = 0;
+	if (object->loaded)
+	{
+		//v0 = 0xFFFF8C7C
+		///object->initialise = 0xFFFF8C7C
+		//a0 = RelocPtr[MOD_SAS][0]
+		//a3 = &objects[LARA];
+#if PSX_VERSION
+		object->control = RelocPtr[MOD_SAS][0];
+#endif
+		//v0 = *(int*)&objects[SWAT].bite_offset
+
+		//a0 = 0xF3FF0000
+		if (objects[SWAT].loaded)
+		{
+			object->anim_index = objects[SWAT].anim_index;
+		}//loc_1BFC
+
+		 //a0 = 0xF3FFFFFF
+		 //v0 = &CreatureCollision;
+		object->collision = &CreatureCollision;
+		object->hit_points = 24;
+		object->radius = 102;
+
+		//v0 = *(int*)&object->bite_offset;
+		object->shadow_size = 128;
+		object->pivot_length = 50;
+		object->explodable_meshbits = 0x4000;
+
+		//v1 = 0x20000;
+		object->intelligent = 1;
+		object->HitEffect = 0;
+		//v1 = 0x4000000
+		object->HitEffect = 1;
+
+		//a0 = 4
+		//v1 = DrawBaddieGunFlash
+		object->draw_routine_extra = &DrawBaddieGunFlash;
+
+		//v1 = 0xA0000
+
+		object->bite_offset = 4;
+		//v0 = *(int*)&object->bite_offset;
+		//a0 = object->bone_index;
+		//a1 = &bones
+
+		object->intelligent = 1;
+		object->save_anim = 1;
+		object->save_hitpoints = 1;
+		object->save_position = 1;
+
+		((int*)bones[object->bone_index])[24] |= 8;
+		((int*)bones[object->bone_index])[24] |= 4;
+		((int*)bones[object->bone_index])[52] |= 8;
+		((int*)bones[object->bone_index])[52] |= 4;
+
+		//v1 = 0xA0000
+		//a0 = object->mesh_index;
+		//v0 = objects[MESHSWAP1].mesh_index
+		//a2 = &meshes[]
+		//v0 = meshes[objects[MESHSWAP1].mesh_index]
+		//a0 = ((int*)meshes[object->mesh_index])[21] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[20];
+
+		//v1 = meshes[object->mesh_index];
+		//v0 = meshes[objects[MESHSWAP1].mesh_index];
+
+		((int*)meshes[object->mesh_index])[28] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[26];
+
+		object->object_mip = 0x1400;
+	}//loc_1D50
+
+	object = &objects[SWAT];
+	//v1 = *(int*)&object->bite_offset
+	//t1 = 0x10000
+	if (object->loaded)
+	{
+		//v0 = 0xF3FFFFFF
+		//a0 = 0x20000
+		object->intelligent = 1;
+		object->HitEffect = 0;
+		//v1 = 0x4000000
+		object->HitEffect = 1;
+		//v0 = 0xFFFF8C7C
+		//v1 = 0x1F0000
+		///object->initialise = 0xFFFF8C7C
+		//v0 = 0x30000
+		//a1 = RelocPtr[MOD_SAS];
+		//v0 = &CreatureCollision
+		//a2 = RelocPtr[MOD_SAS][0];
+		//v1 = 0x80
+		object->collision = &CreatureCollision;
+		//v0 = 0x18
+		object->shadow_size = 128;
+		object->hit_points = 24;
+		//V1 = 0X32
+		object->radius = 102;
+		object->explodable_meshbits = 16384;
+		//v0 = 0x50594
+		object->pivot_length = 50;
+		//v1 = 0x200000
+		object->bite_offset = 0;
+		object->draw_routine_extra = &DrawBaddieGunFlash;
+		//v0 = *(int*)&object->bite_offset
+		object->save_flags = 1;
+		object->save_anim = 1;
+		object->save_hitpoints = 1;
+		object->save_position = 1;
+
+		//a0 = object->bone_index
+		//a1 = bones
+#if PSX_VERSION
+		object->control = RelocPtr[MOD_SAS][0];
+#endif
+
+		//a0 = &bones[object->bone_index];
+		((int*)bones[object->bone_index])[24] |= 8;
+		((int*)bones[object->bone_index])[24] |= 4;
+		((int*)bones[object->bone_index])[52] |= 8;
+		((int*)bones[object->bone_index])[52] |= 4;
+
+		//a3 = &objects[LARA]
+		//a0 = meshes[object->mesh_index]
+
+		//v0 = meshes[objects[BRIDGE_TILT2].mesh_index]
+		//a2 = meshes
+
+		((int*)meshes[object->mesh_index])[21] = ((int*)meshes[objects[BRIDGE_TILT2].mesh_index])[20];
+
+		//v1 = meshes[object->mesh_index]
+		//v0 = meshes[objects[BRIDGE_TILT2].mesh_index]
+
+		//a0 = ((int*)meshes[objects[BRIDGE_TILT2].mesh_index])[26]
+		((int*)meshes[object->mesh_index])[27] = ((int*)meshes[objects[BRIDGE_TILT2].mesh_index])[26];
+
+		object->object_mip = 0x1400;
+
+	}//loc_1EE4
+
+	object = &objects[SWAT_PLUS];
+
+	//v0 = 0x0
+	if (object->loaded)
+	{
+		//v0 = 0xFFFF8C7C
+		//v1 = 0x1F0000
+		///object->initialise = 0xFFFF8C7C;
+		//v0 = RelocPtr[SWAT];
+		//a0 = RelocPtr[SWAT][0];
+		//v1 = &objects[LARA];
+#if PSX_VERSION
+		object->control = RelocPtr[SWAT][0];
+#endif
+		//v0 = objects[SWAT].
+
+		if (objects[SWAT].loaded)
+		{
+			object->anim_index = objects[SWAT].anim_index;
+		}
+		else
+		{
+			//loc_1F3C
+			object->anim_index = objects[BLUE_GUARD].anim_index;
+		}
+
+		//a1 = 0xF3FFFFFF
+		//v0 = CreatureCollision
+		//v1 = 0x80
+		object->collision = &CreatureCollision;
+		//v0 = 0x18
+		object->shadow_size = 128;
+
+		//li      $v1, 0x32  # '2'
+		//li      $a0, 0x66  # 'f'
+		object->hit_points = 24;
+		object->pivot_length = 50;
+
+		//v1 = *(int*)&object->bite_offset
+		object->draw_routine_extra = DrawBaddieGunFlash;
+		//v0 = 0x20000
+		object->radius = 102;
+		//a0 = 0x400000
+		object->intelligent = 1;
+		object->HitEffect = 0;
+		//v0 = 0x4000000
+		object->HitEffect = 1;
+		object->bite_offset = 0;
+		//v0 = *(int*)&object->bite_offset
+		//v1 = 0x200000
+		object->save_flags = 1;
+		object->save_anim = 1;
+		//v1 = 0x100000
+		object->save_hitpoints = 1;
+		object->save_position = 1;
+		//0x80000
+
+		//a0 = object->bone_index
+		//a1 = bones
+		//a0 = &bones[object->bone_index];
+
+		((int*)bones[object->bone_index])[24] |= 8;
+		((int*)bones[object->bone_index])[24] |= 4;
+		((int*)bones[object->bone_index])[52] |= 8;
+		((int*)bones[object->bone_index])[52] |= 4;
+
+		//a3 = &objects
+		//a0 = meshes[object->mesh_index]
+		//v0 = meshes]objects[MESHSWAP1].mesh_index]
+		//a2 = meshes
+
+		((int*)meshes[object->mesh_index])[21] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[20];
+
+		//v1 = meshes[object->mesh_index]
+		//v0 = meshes[objects[MESHSWAP1].mesh_index]
+		((int*)meshes[object->mesh_index])[27] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[26];
+		object->object_mip = 0x1400;
+	}//loc_20A4
+}
+
+void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
+{
+	int i;
+
+	//loc_5E5C
+	for (i = 0; i < NUMBER_OBJECTS; i++)
+	{
+		objects[i].initialise = NULL;
+		objects[i].collision = NULL;
+		objects[i].control = NULL;
+		objects[i].draw_routine = NULL;
+		objects[i].ceiling = NULL;
+		objects[i].floor = NULL;
+		objects[i].pivot_length = 0;
+		objects[i].radius = 10;
+		objects[i].shadow_size = 0;
+		objects[i].hit_points = -16384;
+		objects[i].explodable_meshbits = 0;
+		objects[i].draw_routine_extra = 0;
+		objects[i].object_mip = 0;
+		objects[i].using_drawanimating_item = 1;
+		objects[i].water_creature = 0;
+		objects[i].intelligent = 0;
+		objects[i].save_mesh = 0;
+		objects[i].save_anim = 0;
+		objects[i].save_flags = 0;
+		objects[i].save_hitpoints = 0;
+		objects[i].save_position = 0;
+
+		((int*)&objects[i].frame_base)[0] += (int)frames;
+	}
+
+	BaddyObjects();
+	ObjectObjects();
+	TrapObjects();
+	InitialiseHair();
+	InitialiseEffects();
+
+	NumRPickups = 0;
+	CurrentSequence = 0;
+
+	SequenceResults[0][2][1] = 1;
+	SequenceResults[1][0][2] = 2;
+	SequenceResults[1][2][0] = 3;
+	SequenceResults[2][0][1] = 4;
+	SequenceResults[2][1][0] = 5;
+
+	for (i = 0; i < 6; i++)
+	{
+		SequenceUsed[i] = 0;
+	}
+
+	if (gfNumMips != 0)
+	{
+		for (i = 0; i < gfNumMips; i++)
+		{
+			objects[((gfMips[i] & 0xF) << 1) | ANIMATING1].object_mip = (gfMips[i] & 0xF0) << 6;
+		}
+	}//0xB98B8
+
+	if (gfCurrentLevel == LVL5_STREETS_OF_ROME)
+	{
+		find_a_fucking_item(ANIMATING10);
+	}
+
+	if (gfCurrentLevel == LVL5_OLD_MILL)
+	{
+		find_a_fucking_item(ANIMATING16)->mesh_bits = 0;
+	}//B98F0
+
+	if (objects[RAT].loaded)
+	{
+		Rats = (struct RAT_STRUCT*)game_malloc(sizeof(struct RAT_STRUCT) * 32);
+	}//B9914
+
+	if (objects[BAT].loaded)
+	{
+		Bats = (struct BAT_STRUCT*)game_malloc(sizeof(struct BAT_STRUCT) * 64);
+	}//B9938
+
+	if (objects[SPIDER].loaded)
+	{
+		Spiders = (struct SPIDER_STRUCT*)game_malloc(sizeof(struct SPIDER_STRUCT) * 64);
+	}
+}//0xB996C
+
+
+void sub_B3A7C(int a0)
+{
+	struct PSXSPRITESTRUCT* spr = &psxspriteinfo[objects[MISC_SPRITES].mesh_index];
+
+	envmap_data[0] = spr->tpage << 16 | spr->clut;
+	envmap_data[1] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+	spr++;
+
+	envmap_data[2] = spr->tpage << 16 | spr->clut;
+	envmap_data[3] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+	spr++;
+
+	envmap_data[4] = spr->tpage << 16 | spr->clut;
+	envmap_data[5] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+}
+
+/*
+ * [FUNCTIONALITY] - LoadLevel.
+ * Relocates all game data pointers from the level file to be loaded back into the engine.
+ * Note: The GAMEWAD reader must be initialised to a level file entry.
+ * Note: The GAMEWAD reader's position must point to the level file data.
+ * Note: This code is part of the SETUP.MOD module.
+ */
+#if DISC_VERSION
+void LoadLevel()//?(<), B3B50(<) (F)
+#else
+#if PSX_VERSION
+void LoadLevel(int nHandle)//?, B3B50(<)
+#elif PSXPC_VERSION
+void LoadLevel(FILE* nHandle)
+#endif
+#endif
+{
+	struct Level* level;
+#if PSX_VERSION
+	RECT tex[2];
+#endif
+	char* ptr = NULL;
+	char* ptr2 = NULL;
+	int size, i, j;
+	long* relocationPtr = NULL;
+	long gunType;
+
+	InItemControlLoop = 0;
+
+#if DISC_VERSION
+	DEL_CDFS_Read((char*)&tsv_buffer[0], sizeof(struct Level));
+#else
+	FILE_Read((char*)&tsv_buffer[0], sizeof(struct Level), 1, nHandle);
+#endif
+
+	level = (struct Level*)&tsv_buffer[0];
+
+#if DEBUG_VERSION
+	if (level->objectVersion != PSX_FILE_VERSION)
+	{
+		printf("Wrong Version Number!!!\n");
+		printf("Game Ver: %d  Level Ver: %d\n", OBJECT_VERSION, level->objectVersion);
+	}
+#endif
+
+	LaraDrawType = level->laraDrawType;
+	WeatherType = level->weatherType;
+	RoomDrawType = level->roomDrawType;
+
+#if !DISC_VERSION
+#if PSX_VERSION
+	PClseek(nHandle, level->offsetSoundPointers, 0);
+#elif PSXPC_VERSION
+	fseek(nHandle, level->offsetSoundPointers, SEEK_SET);
+#endif
+#endif
+
+	if (level->numSoundEffects != 0)
+	{
+		GtSFXEnabled = 0;
+		ptr = game_malloc(level->numSoundEffects * sizeof(int));
+
+#if DISC_VERSION
+		DEL_CDFS_Read(ptr, level->numSoundEffects * sizeof(int));
+#else
+		FILE_Read(ptr, sizeof(int), level->numSoundEffects, nHandle);
+#if PSX_VERSION
+		PClseek(nHandle, level->offsetSoundData, 0);
+#elif PSXPC_VERSION
+		fseek(nHandle, level->offsetSoundData, 0);
+#endif
+#endif
+		ptr2 = game_malloc(level->soundWadLength);
+
+#if DISC_VERSION
+		DEL_CDFS_Read(ptr2, level->soundWadLength);
+#else
+		FILE_Read(ptr, level->soundWadLength, sizeof(char), nHandle);
+#endif
+		GtSFXEnabled = LoadSoundEffects(level->numSoundEffects, (long*)ptr, ptr2, level->soundWadLength);//LoadSoundEffects
+
+		game_free(level->numSoundEffects * sizeof(int));
+		game_free(level->soundWadLength);
+
+	}//R loc_304, IB loc_36C
+
+#if !DISC_VERSION
+#if PSX_VERSION
+	PClseek(nHandle, level->offsetTextiles, 0);
+#elif PSXPC_VERSION
+	fseek(nHandle, level->offsetTextiles, SEEK_SET);
+#endif
+#endif
+
+	ptr = game_malloc(0x40000);///@TODO macro size
+
+	/*   PSX VRAM   (H)
+	*  --------------------- 1024px
+	*  | TL | TR | TPAGE1 |  |
+	*  ---------------------  v
+	*  | BL | BR | TPAGE2 |
+	*  ---------------------
+	*(W)1024px-->
+	*
+	* Loading texture pages+cluts into VRAM (TPAGE1, TPAGE2)
+	*
+	*/
+
+	//Setup rect
+#if PSX_VERSION
+	tex[0].x = 512;//x position of textile data in VRAM
+	tex[0].y = 0;
+	tex[0].w = 512;//Width of VRAM texture space
+	tex[0].h = 256;//Height of tpage
+#endif
+
+	//loc_340, loc_3B4
+	for (i = 1; i >= 0; i--)///@CHECK
+	{
+#if DISC_VERSION
+		DEL_CDFS_Read(ptr, 0x40000);
+#else
+		FILE_Read(ptr, 1, 0x40000, nHandle);
+#endif
+		LOAD_DrawEnable(0);
+
+#if PSX_VERSION
+		LoadImage(&tex[0], (unsigned long*)ptr);
+
+		DrawSync(0);
+#endif
+
+		LOAD_DrawEnable(1);
+
+#if PSX_VERSION
+		tex[0].y += 256;
+#endif
+	}
+
+	game_free(0x40000);
+
+	ClutStartY = level->clutStartY;
+
+#if !DISC_VERSION
+#if PSX_VERSION
+	PClseek(nHandle, level->offsetAnimFrames, 0);
+#elif PSXPC_VERSION
+	fseek(nHandle, level->offsetAnimFrames, SEEK_SET);
+#endif
+	AnimFilePos = level->offsetAnimFrames;
+#else
+	AnimFilePos = cdCurrentSector;
+#endif
+
+	ptr = game_malloc(level->frameDataLength);
+	frames = (short*)ptr;
+
+#if DISC_VERSION
+	DEL_CDFS_Read(ptr, level->frameDataLength);
+#else
+	FILE_Read(ptr, 1, level->frameDataLength, nHandle);
+#endif
+
+	AnimFileLen = level->frameDataLength;
+
+#if !DISC_VERSION
+#if PSX_VERSION
+	PClseek(nHandle, level->offsetRoomInfo, 0);
+#elif PSXPC_VERSION
+	fseek(nHandle, level->offsetRoomInfo, SEEK_SET);
+#endif
+#endif
+
+	ptr = game_malloc(level->roomInfoLength);
+
+#if DISC_VERSION
+	DEL_CDFS_Read(ptr, level->roomInfoLength);
+#else
+	FILE_Read(ptr, 1, level->roomInfoLength, nHandle);
+#endif
+
+	room = (struct room_info*)ptr;
+	ptr += sizeof(struct room_info) * level->numRooms;
+
+	number_rooms = level->numRooms;
+#define OLD_CODE 1
+	if (level->numRooms > 0)
+	{
+		//loc_4D4
+		for(i = 0; i < number_rooms; i++)
+		{
+
+#if OLD_CODE
+			size = *(unsigned int*)&room[i].data;
+			room[i].data = (short*)ptr;
+
+			for (j = 0; j < 24; j++)
+			{
+				*(int*)&ptr[4 + (j * 4)] += (*(int*)&room[i].data);
+			}///@CRITICAL the last relocated pointer seemingly points to invalid memory?!?!?!??
+
+			ptr += size;
+
+#elif UNOPTIMISED//Original
+			ptr2 = ptr;
+			ptr2 += 4;
+
+			size = (int)room[i].data;
+			room[i].data = (short*)ptr;
+			ptr += size;
+
+			//loc_4F8:
+			for (j = 23; j >= 0; j--)
+			{
+				((int*)ptr2)[1 + j] += (int)room[i].data;
+			}
+#else
+			size = (int)room[i].data;
+			room[i].data = (short*)ptr;
+			
+			//loc_4F8:
+			for (j = 23; j >= 0; j--)
+			{
+				((int*)ptr)[1 + j] += (int)room[i].data;
+			}
+
+			ptr += size;
+#endif
+
+			size = (int)room[i].door;
+			room[i].door = (short*)ptr;
+			ptr += size;
+
+			size = (int)room[i].floor;
+			room[i].floor = (struct FLOOR_INFO*)ptr;
+			ptr += size;
+
+			size = (int)room[i].light;
+			room[i].light = (struct LIGHTINFO*)ptr;
+			ptr += size;
+
+			size = (int)room[i].mesh;
+			room[i].mesh = (struct MESH_INFO*)ptr;
+			ptr += size;
+		}
+	}//loc_570
+
+	floor_data = (short*)ptr;
+	ptr += level->floorDataLength;
+
+	OutsideRoomOffsets = (short*)ptr;
+	ptr += 1460;
+
+	OutsideRoomTable = ptr;
+	ptr += level->outsideRoomTableLength;
+
+	RoomBBoxes = (struct SVECTOR*)ptr;
+	ptr += level->roomBoundingBoxesLength;
+
+	mesh_base = (short*)ptr;
+	ptr += level->meshBaseLength;
+
+	meshes = (short**)ptr;
+	ptr += level->meshesLength;
+
+	anims = (struct ANIM_STRUCT*)ptr;
+	ptr += level->animsLength;
+
+	changes = (struct CHANGE_STRUCT*)ptr;
+	ptr += level->changesLength;
+
+	ranges = (struct RANGE_STRUCT*)ptr;
+	ptr += level->rangesLength;
+
+	commands = (short*)ptr;
+	ptr += level->commandsLength;
+
+	bones = (long*)ptr;
+	ptr += level->bonesLength;
+
+	if (level->numBones * 2 > 0)
+	{
+		for (i = 0; i < level->numBones * 2; i++)
+		{
+#if OLD_CODE
+			*(int*)&meshes[i] += *(int*)&mesh_base;//Original game does add *(int*) &meshes[i] >> 0x1F too
+#else
+			((int*)&meshes)[i] += (int)mesh_base + ((((int)meshes[i] + ((int)meshes[i] >> 31)) >> 1) << 1);
+#endif
+		}
+	}
+	//loc_674
+
+	if (level->numAnims > 0)
+	{
+		for (i = 0; i < level->numAnims; i++)
+		{
+#if 0
+			*(int*)&anims[i].frame_ptr += *(int*)&frames;
+#else
+			((int*)&anims[i].frame_ptr)[0] += (int)frames;
+#endif
+		}
+	}//loc_6BC
+
+	AnimTextureRanges = (unsigned short*)ptr;
+	ptr += level->animTextureRangesLength;
+
+	psxtextinfo = (struct PSXTEXTSTRUCT*)ptr;
+	ptr += level->textureInfoLength;
+
+	psxspriteinfo = (struct PSXSPRITESTRUCT*)ptr;
+	ptr += level->spriteInfoLength;
+
+	RoomTextInfo = (struct MMTEXTURE*)ptr;
+	ptr += level->mmTextureInfoLength;
+
+	sound_effects = (struct OBJECT_VECTOR*)ptr;
+	ptr += level->soundEffectInfoLength;
+
+	sample_lut = (short*)ptr;
+	ptr += 900;
+
+	sample_infos = (struct SAMPLE_INFO*)ptr;
+	ptr += level->sampleInfoLength;
+
+	items = (struct ITEM_INFO*)ptr;
+	ptr += 0x9000;
+
+	AIObjects = (struct AIOBJECT*)ptr;
+	ptr += sizeof(struct AIOBJECT) * level->numAIObjects;
+
+	boxes = (struct box_info*)ptr;
+	ptr += level->boxesLength;
+
+	overlap = (unsigned short*)ptr;
+	ptr += level->overlapsLength;
+
+	ground_zone[0][0] = (short*)ptr;
+	ptr += level->groundZoneLength;
+
+	ground_zone[1][0] = (short*)ptr;
+	ptr += level->groundZone2Length;
+
+	ground_zone[2][0] = (short*)ptr;
+	ptr += level->groundZone3Length;
+
+	nAnimTextureRanges = level->numAnimTextureRanges;
+	number_sound_effects = level->soundEffectInfoLength / sizeof(struct OBJECT_VECTOR);
+	nAnimUVRanges = level->numAnimUVRanges;
+	level_items = level->numLevelItems;
+	nAIObjects = level->numAIObjects;
+
+	ground_zone[3][0] = (short*)ptr;
+	ptr += level->groundZone4Length;
+
+	ground_zone[4][0] = (short*)ptr;
+	ptr += level->groundZone5Length;
+
+	ground_zone[0][1] = (short*)ptr;
+	ptr += level->groundZoneLength;
+	
+	ground_zone[1][1] = (short*)ptr;
+	ptr += level->groundZone2Length;
+
+	ground_zone[2][1] = (short*)ptr;
+	ptr += level->groundZone3Length;
+
+	ground_zone[3][1] = (short*)ptr;
+	ptr += level->groundZone4Length;
+
+	ground_zone[4][1] = (short*)ptr;
+	ptr += level->groundZone5Length;
+
+	number_boxes = level->numBoxes;
+
+	if (level->numBoxes > 0)
+	{
+		for (i = level->numBoxes; i != 0; i--)
+		{
+			if ((boxes[i].overlap_index & BOX_LAST))
+			{
+				boxes[i].overlap_index |= BOX_BLOCKED;
+			}
+		}
+	}//loc_854
+
+	camera.fixed = (struct OBJECT_VECTOR*)ptr;
+	ptr += level->fixedCameraLength;
+
+	SpotCam = (struct SPOTCAM*)ptr;
+	NumFixedCameras = level->numFixedCameras;
+	number_spotcams = level->numSpotCameras;
+	number_cameras = level->numFixedCameras;
+
+#if DISC_VERSION
+#if PSX_VERSION
+	DEL_CDFS_Read((char*)&objects, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
+#elif PSXPC_VERSION
+	DEL_CDFS_Read((char*)&objects_raw, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
+#endif
+#else
+#if PSX_VERSION
+	PClseek(nHandle, level->offsetObjects, 0);
+	FILE_Read((char*)&objects, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
+	PCclose(nHandle);
+#elif PSXPC_VERSION
+	fseek(nHandle, level->offsetObjects, SEEK_SET);
+	FILE_Read((char*)&objects_raw, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
+	fclose(nHandle);
+#endif
+#endif
+
+	for (i = 63; i >= 0; i--)
+	{
+		RelocPtr[i] = NULL;
+	}
+
+	if (level->numAiModules != 0)
+	{
+#if DISC_VERSION
+		FRIG_CD_POS_TO_CUR();
+		DEL_CDFS_Read((char*)&tsv_buffer[256], 1920);
+#else
+#if PSX_VERSION
+		nHandle = PCopen("DATA\\CODE.WAD", 0, 0);
+#elif PSXPC_VERSION
+		nHandle = fopen("DATA\\CODE.WAD", "rb");
+#endif
+		char* ptr = (char*)&tsv_buffer[256];
+		FILE_Read((char*)&tsv_buffer[256], 20, 96, nHandle);
+		ptr++;
+#endif
+
+		if (level->numAiModules > 0)
+		{
+			//loc_938
+			for(i = 0; i < level->numAiModules; i++)
+			{
+				relocationPtr = (long*)((char*)&tsv_buffer[256] + (level->aiModuleIndices[i] * 20));
+				///relocationPtr = (long*)&((char*)&tsv_buffer)[level->aiModuleIndices[i] * 20];
+				ptr = game_malloc(relocationPtr[1]);
+
+#if DISC_VERSION
+				DEL_CDFS_Seek(relocationPtr[0]);
+				DEL_CDFS_Read(ptr, relocationPtr[1]);
+#else
+#if PSX_VERSION
+				PClseek(nHandle, relocationPtr[0], 0);
+#elif PSXPC_VERSION
+				fseek(nHandle, relocationPtr[0], SEEK_SET);
+#endif
+				FILE_Read(ptr, 1, relocationPtr[1], nHandle);
+#endif
+				ptr2 = game_malloc(relocationPtr[3]);
+
+#if DISC_VERSION
+				DEL_CDFS_Seek(relocationPtr[2]);
+				DEL_CDFS_Read(ptr2, relocationPtr[3]);
+#else
+#if PSX_VERSION
+				PClseek(nHandle, relocationPtr[2], 0);
+#elif PSXPC_VERSION
+				fseek(nHandle, relocationPtr[2], SEEK_SET);
+#endif
+				FILE_Read(ptr2, 1, relocationPtr[3], nHandle);
+#endif
+				RelocateModule((unsigned long)ptr, (unsigned long*)ptr2);
+
+				game_free(relocationPtr[3]);
+
+				RelocPtr[relocationPtr[4]] = (unsigned long*)ptr;
+			}
+		}
+		//loc_9F0
+#if !DISC_VERSION
+#if PSX_VERSION
+		PCclose(nHandle);
+#elif PSXPC_VERSION
+		fclose(nHandle);
+#endif
+#endif
+	}//loc_9F8
+
+	//B4228
+	InitialiseFXArray(1);
+	InitialiseLOTarray(1);
+	InitialiseObjects();
+	InitialiseClosedDoors();///sub_7BC4();//InitialiseClosedDoors();
+	InitialiseItemArray(256);
+
+	GlobalPulleyFrigItem = -1;
+
+	if (level_items > 0)
+	{
+		//loc_A3C
+		for(i = 0; i < level_items; i++)
+		{
+			InitialiseItem(i);
+		}
+	}
+	//loc_A5C
+	SetupGame();
+
+	if (number_rooms > 0)
+	{
+		//loc_A84
+		for(i = 0; i < number_rooms; i++)
+		{
+			if (room[i].num_meshes > 0)
+			{
+				struct FLOOR_INFO* t1;
+				struct box_info* v0;
+
+				//loc_A9C
+				for (j = room[i].num_meshes; j > 0; j--)
+				{
+					t1 = &room[i].floor[((room[i].mesh[j].z - room[i].z) >> 10) + ((room[i].mesh[j].x - room[i].x) >> 10) * room[i].x_size];
+					v0 = &boxes[t1->box];
+					if (!(v0->overlap_index & BOX_BLOCKED))
+					{
+						if (gfCurrentLevel == LVL5_BASE && i != 0x13 && i != 0x17 && i != 0x10)
+						{
+							struct static_info* v1 = &static_objects[room[i].mesh[j].static_number];
+							//loc_B30
+							if ((t1->floor << 8) < ((room[i].mesh[j].y - v1->y_maxc) + 512) && (room[i].mesh[j].y - v1->y_minc) < (t1->floor << 8))
+							{
+								if (v1->x_maxc != 0 && v1->x_minc != 0 && v1->z_maxc != 0 && v1->z_minc != 0 && !((v1->x_maxc ^ v1->x_minc) & 0x8000) && !((v1->z_maxc ^ v1->z_minc) & 0x8000))
+								{
+									//loc_BE8
+									room[i].floor[((room[i].mesh[j].z - room[i].z) >> 10) + ((room[i].mesh[j].x - room[i].x) >> 10) * room[i].x_size].stopper = 1;
+								}
+							}//loc_C20
+						}//loc_C20
+					}//loc_C20
+				}
+			}//loc_C2C
+		}
+	}//loc_C3C
+
+	InitialiseResidentCut(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);
+	
+	GLOBAL_default_sprites_ptr = &psxspriteinfo[objects[DEFAULT_SPRITES].mesh_index];
+
+	sub_B3A7C(0xB);
+
+	GLOBAL_gunflash_meshptr = meshes[objects[GUN_FLASH].mesh_index];
+
+	if (objects[SEARCH_OBJECT1].loaded && objects[SEARCH_OBJECT1_MIP].loaded)
+	{
+		((int*)meshes[objects[SEARCH_OBJECT1].mesh_index])[1] = ((int*)meshes[objects[SEARCH_OBJECT1_MIP].mesh_index])[0];
+	}//loc_CF4
+
+
+	//a3 = &AnimatingWaterfallsV
+	//v1 = 0xA0000
+	//a2 = &AnimatingWaterfalls
+	//v0 = &objects
+	//a1 = &objects[WATERFALL1];
+	//s4 = 5;
+	//t1 = meshes
+	//t0 = psxtextinfo
+
+	//loc_D20
+	for (i = 5; i >= 0; i--)
+	{
+		if (objects[WATERFALL1 + i].loaded)
+		{
+			short* meshptr;//a0
+			meshptr = meshes[objects[WATERFALL1 + i].mesh_index];
+			meshptr += 6;//0xC for next itr?
+			meshptr += meshptr[5] << 16 >> 17;
+			((int*)AnimatingWaterfalls[i])[0] = (int)&psxtextinfo[meshptr[2] << 4];//why << 4? 1<<4=16!
+			AnimatingWaterfallsV[i] = ((char*)&psxtextinfo[meshptr[2] << 4])[1];//why << 4? 1<<4=16!
+		}//loc_D84
+	}
+
+#if 1
+	MonitorScreenTI = NULL;
+#else
+	///@FIXME check 
+	//Retail: sw      $zero, 0xA6F5C
+	//Beta: sw      $zero, 0xA5534
+#endif
+	//a0 = &objects
+#if 0
+	if (objects[MONITOR_SCREEN].loaded)
+	{
+		short* meshptr;//v1
+		short* meshptr_2;//a1
+		short v0;
+		short t0;
+
+		//s4 = 0
+		//v0 = objects[MONITOR_SCREEN].mesh_index
+		//v1 = meshes
+		meshptr = meshes[objects[MONITOR_SCREEN].mesh_index];
+
+		meshptr_2 = (short*)meshptr[0];
+		//v0 = meshptr_2[5];
+		meshptr_2 += 6;
+		//v1 = meshptr_2[5] << 16 >> 17
+		meshptr_2 += meshptr_2[5] << 16 >> 17;
+
+		v0 = meshptr_2[0];
+		t0 = meshptr_2[1];
+
+		meshptr_2 += 2;
+		//a3 = 0
+
+		meshptr_2 += meshptr_2[0] << 1;
+		meshptr_2 += v0 + 3 >> 2 << 1;
+
+		if (t0 > 0)
+		{
+			//v1 = 0xA0000
+			//v0 = (meshptr_2[0] & 0xFFFF) << 3;
+			//a0 = psxtextinfo[(meshptr_2[0] & 0xFFFF)];
+			///@TODO can't find a2.....
+		}//loc_EA4
+
+
+	}//loc_EE4
+#endif
+
+	reset_cutseq_vars();
+
+#if RELOC
+	/*if (RelocPtr[MOD_STARS] != NULL)
+	{
+		((VOIDFUNCVOID*)RelocPtr[MOD_STARS][0])();
+	}*///loc_DFC, loc_F14
+#else
+	//Unimplemented
+#endif
+
+#if DISC_VERSION && !BETA_VERSION
+
+	if (gfCurrentLevel == LVL5_TITLE && Gameflow->Language - 1 < 2)
+	{
+#if PSX_VERSION
+		tex[0] = dword_BD7F4[0];
+		tex[1] = dword_BD7F4[1];
+#endif
+		ptr = game_malloc(0x2000);
+
+		LOAD_DrawEnable(0);
+
+		if (Gameflow->Language == 2)
+		{
+			DEL_CDFS_OpenFile(UNKNOWN_50);
+		}//loc_EA0
+		else if (Gameflow->Language == 1)
+		{
+			DEL_CDFS_OpenFile(UNKNOWN_49);
+		}
+
+		DEL_CDFS_Read(ptr, 7296);
+
+#if PSX_VERSION
+		LoadImage(&tex[0], (unsigned long*)ptr);
+
+		DrawSync(0);
+#endif
+		LOAD_DrawEnable(1);
+	}//loc_EDC
+
+#endif
+
+	if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
+	{
+		inventry_objects_list[7].yoff = 4;
+		inventry_objects_list[7].yrot = -16384;
+		inventry_objects_list[7].xrot = 8448;
+		inventry_objects_list[7].zrot = 16384;
+		inventry_objects_list[7].flags = 10;
+
+		inventry_objects_list[8].yoff = -16384;
+		inventry_objects_list[8].xrot = 8448;
+		inventry_objects_list[8].zrot = 16384;
+		inventry_objects_list[8].flags = 10;
+	}
+	else
+	{
+		//loc_F30
+		inventry_objects_list[7].yoff = 0;
+		inventry_objects_list[7].yrot = 0;
+		inventry_objects_list[7].xrot = -16384;
+		inventry_objects_list[7].zrot = 0;
+		inventry_objects_list[7].flags = 2;
+
+		inventry_objects_list[8].yoff = 0;
+		inventry_objects_list[8].xrot = -16384;
+		inventry_objects_list[8].zrot = 0;
+		inventry_objects_list[8].flags = 2;
+	}
+
+	if (gfCurrentLevel == LVL5_TITLE)
+	{
+		MGSaveGamePtr = game_malloc(8192);
+		FromTitle = 1;
+	}//loc_F94
+}
+
+void TrapObjects()//?, B7E04
+{
+}
+
+void ObjectObjects()//?, B84F0
+{
+}
+
+void GetCarriedItems()//?(<), B9974(<) (F)
+{
+	int i;
+	struct object_info* object;
+	struct ITEM_INFO* item;
+	int item_number;
+
+	//loc_60C0
+	for (i = 0; i < level_items; i++)
+	{
+		items[i].carried_item = -1;
+	}
+
+	//loc_60E4
+	for (i = 0; i < level_items; i++)
+	{
+		object = &objects[items[i].object_number];
+
+		if (!object->intelligent && items[i].object_number - SEARCH_OBJECT1 > 4)
+		{
+			continue;
+		}//loc_6124
+
+		item_number = room[items[i].room_number].item_number;
+
+		if (item_number != -1)
+		{
+			//loc_6164
+			do
+			{
+				item = &items[item_number];
+
+				//loc_6190
+				if (ABS(item->pos.x_pos - items[i].pos.x_pos) < 512 &&
+					ABS(item->pos.z_pos - items[i].pos.z_pos) < 512 &&
+					ABS(item->pos.y_pos - items[i].pos.y_pos) < 512 &&
+					objects[item->object_number].collision == &PickUpCollision)
+				{
+					item->carried_item = items[i].carried_item;
+					items[i].carried_item = item_number;
+					RemoveDrawnItem(item_number);
+					item->room_number = 255;
+
+				}//loc_6228
+
+				item_number = item->next_item;
+
+			} while (item_number != -1);
+		}//loc_6238
+	}
+}
+
+void GetAIPickups()//?, B9B84
+{
+	int i, j;
+
+	if (level_items > 0)
+	{
+		//loc_62CC
+		for (i = 0; i < level_items; i++)
+		{
+			if (objects[items[i].object_number].intelligent)
+			{
+				items[i].ai_bits = 0;
+
+				if (nAIObjects > 0)
+				{
+					//loc_6318
+					for (j = 0; j < nAIObjects; j++)
+					{
+						if (ABS(AIObjects[j].x - items[i].pos.x_pos) < 512 &&
+							ABS(AIObjects[j].z - items[i].pos.z_pos) < 512 &&
+							AIObjects[j].room_number == items[i].room_number &&
+							AIObjects[j].object_number < AI_PATROL2)
+						{
+							items[i].active = 0;
+							items[i].status = 0;
+							items[i].gravity_status = 0;
+							items[i].hit_status = 0;
+							items[i].collidable = 0;
+							items[i].looked_at = 0;
+							items[i].dynamic_light = 0;
+							items[i].poisoned = 0;
+							items[i].ai_bits = 0;
+							items[i].ai_bits |= 1 << (AIObjects[j].object_number - AI_PATROL2);
+							items[i].item_flags[3] = AIObjects[j].trigger_flags;
+
+							if (AIObjects[j].object_number != AI_GUARD)
+							{
+								AIObjects[j].room_number = 255;
+							}
+						}//loc_63D8
+					}
+				}
+				//loc_63F0
+				items[i].TOSSPAD |= (items[i].ai_bits | items[i].item_flags[3]);
+
+			}//loc_6410
+		}
+	}//loc_6420
+}
+
+void SetupGame()//?(<), B9DA8(<)
+{
+	SeedRandomDraw(0xD371F947);
+	SeedRandomControl(0xD371F947);
+
+	wibble = 0;
+	torchroom = 255;
+
+	sub_B4A40();
+	InitialiseSqrtTable();
+
+	InGameCnt = 0;
+
+	InitialiseAnimatedTextures();
+	InitialiseFootPrints();
+	InitBinoculars();
+	InitTarget();
+	InitialiseGameFlags();
+
+	if ((gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME) && gfInitialiseGame != 0)
+	{
+		//B9E50
+		InitialiseLaraCarriedItems(0);
+	}
+	else
+	{
+		//B9E60
+		InitialiseLaraCarriedItems(1);
+	}
+	//B9E68
+	GetCarriedItems();
+	GetAIPickups();
+
+	SeedRandomDraw(0xD371F947);
+	SeedRandomControl(0xD371F947);
+
+	return;
+}
+
+void InitialiseGameFlags()//?(<), B9D30(<) (F)
+{
+	int i;
+
+	//loc_6440:
+	for (i = 0; i < 10; i++)
+	{
+		flipmap[i] = 0;
+		flip_stats[i] = 0;
+	}
+
+	flip_status = 0;
+	flipeffect = -1;
+
+	//loc_647C
+	for (i = 0; i < 136; i++)
+	{
+		cd_flags[i] = 0;
+	}
+
+	IsAtmospherePlaying = 0;
+	camera.underwater = 0;
+}
+
+void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3)//?(<), B9EA0(<) (F)
+{
+	int i;
+	int s0;
+	int s1;
+	int s2;
+	char* s3;
+	char* s4;
+	char* s5;
+	char* s6;
+	int s7;
+	int mallocSize;//$a0
+#if PSX_VERSION
+	int nHandle;
+#elif PSXPC_VERSION
+	FILE* nHandle;
+#endif
+	int residentData[4];
+
+	residentData[0] = a0;//0x38(sp)
+	residentData[1] = a1;//0x3C(sp)
+	residentData[2] = a2;//0x40(sp)
+	residentData[3] = a3;//0x44(sp)
+
+	if ((a0 | a1 | a2 | a3))
+	{
+		lastcamnum = -1;
+		GLOBAL_playing_cutseq = 0;
+		cutseq_trig = 0;
+
+		//loc_6614
+		for (i = 46; i >= 0; i--)
+		{
+			cutseq_resident_addresses[i].packed_data = NULL;
+		}
+
+#if DISC_VERSION
+		DEL_CDFS_OpenFile(CUTSEQ);
+		DEL_CDFS_Read((char*)&tsv_buffer[0], 2048);
+#else
+#if PSX_VERSION
+		nHandle = PCopen("\\CUTSEQ.JIZ", 0, 0);
+#elif PSXPC_VERSION
+		nHandle = fopen("CUTSEQ.JIZ", "rb");
+#endif
+		FILE_Read((char*)&tsv_buffer[0], 1, 2048, nHandle);
+#endif
+		s3 = ReadResidentData(residentData[0], nHandle);
+		s4 = ReadResidentData(residentData[1], nHandle);
+		s5 = ReadResidentData(residentData[2], nHandle);
+		s6 = ReadResidentData(residentData[3], nHandle);
+
+		s7 = 0;
+		s2 = 0;
+		s1 = 0;
+		s0 = 0;
+
+		if (s3 != NULL)
+		{
+			s0 = sub_BA148((short*)s3);
+		}
+		//loc_66C0
+		if (s4 != NULL)
+		{
+			s1 = sub_BA148((short*)s4);
+		}
+		//loc_66D4
+		if (s5 != NULL)
+		{
+			s2 = sub_BA148((short*)s5);
+		}
+		//loc_66E8
+		if (s6 != NULL)
+		{
+			s7 = sub_BA148((short*)s6);
+		}
+
+		//loc_66FC
+		mallocSize = 0;
+
+		if (s0 > 0)
+		{
+			mallocSize = s0;
+		}
+
+		//loc_6708
+		if (mallocSize < s1)
+		{
+			mallocSize = s1;
+		}//loc_671C
+
+		if (mallocSize < s2)
+		{
+			mallocSize = s2;
+		}//loc_672C
+
+		if (mallocSize < s7)
+		{
+			mallocSize = s7;
+		}
+
+		//loc_6738
+		GLOBAL_resident_depack_buffers = game_malloc(mallocSize);
+
+		if (residentData[0] != 0)
+		{
+			cutseq_resident_addresses[residentData[0]].packed_data = s3;
+		}
+
+		//loc_6764
+		if (residentData[1] != 0)
+		{
+			cutseq_resident_addresses[residentData[1]].packed_data = s4;
+		}
+		//loc_6788
+		if (residentData[2] != 0)
+		{
+			cutseq_resident_addresses[residentData[2]].packed_data = s5;
+		}
+		//loc_67A4
+		if (residentData[3] != 0)
+		{
+			cutseq_resident_addresses[residentData[3]].packed_data = s6;
+		}
+	}//loc_67C8
+}
+
+#if PSX_VERSION
+char* ReadResidentData(int residentIndex, int nHandle)//(<), BA0DC(<) (F)
+#elif PSXPC_VERSION
+char* ReadResidentData(int residentIndex, FILE* nHandle)//(<), BA0DC(<) (F)
+#endif
+{
+	char* ptr;
+
+	if (residentIndex != 0)
+	{
+#if DISC_VERSION
+		DEL_CDFS_Seek(tsv_buffer[residentIndex].xy);
+#else
+#if PSX_VERSION
+		PClseek(nHandle, tsv_buffer[residentIndex].xy, 0);
+#elif PSXPC_VERSION
+		fseek(nHandle, tsv_buffer[residentIndex].xy, SEEK_SET);
+#endif
+#endif
+		ptr = game_malloc(tsv_buffer[residentIndex].rgz);
+
+#if DISC_VERSION
+		DEL_CDFS_Read(ptr, tsv_buffer[residentIndex].rgz);
+#else
+		FILE_Read(ptr, sizeof(char), tsv_buffer[residentIndex].rgz, nHandle);
+#endif
+		return ptr;
+	}
+
+	return NULL;
+}
+
+long sub_BA148(short* ptr)//?, BA148(<) (F)
+{
+	int i;//$a1
+	long addr = 0;//$a2
+	short v1;
+
+	GLOBAL_cutme = (struct NEW_CUTSCENE*)ptr;
+
+	if (ptr[0] > 0)
+	{
+		//loc_6894
+		for(i = ptr[0]; i != 0; i--)
+		{
+			v1 = ptr[15] + 1;
+			ptr += 4;
+			addr += (((((v1 + 1) << 2) + v1 + 1) << 2) + v1 + 1) << 2;///@FIXME * sizeof x
+		}
+	}//locret_68C0
+
+	return addr + 0xA8;
+}
+
+void reset_cutseq_vars()//?(<), BA194(<) (F)
+{
+	cutseq_num = 0;
+	cutseq_trig = 0;
+	GLOBAL_playing_cutseq = 0;
+	GLOBAL_cutseq_frame = 0;
+
+	SetFadeClip(0, 1);
+}
+
+void InitialiseEffects()//?(<), BA81C(<) (F)
+{
+	int i;
+
+	S_MemSet((char*)&spark, 0, sizeof(spark));
+	S_MemSet((char*)&fire_spark, 0, sizeof(fire_spark));
+	S_MemSet((char*)&smoke_spark, 0, sizeof(smoke_spark));
+	S_MemSet((char*)&Gunshells, 0, sizeof(Gunshells));
+	S_MemSet((char*)&Gunflashes, 0, sizeof(Gunflashes));
+	S_MemSet((char*)&debris, 0, sizeof(debris));
+	S_MemSet((char*)&blood, 0, sizeof(blood));
+	S_MemSet((char*)&splashes, 0, sizeof(splashes));
+	S_MemSet((char*)&ripples, 0, sizeof(ripples));
+	S_MemSet((char*)&Bubbles, 0, sizeof(Bubbles));
+	S_MemSet((char*)&Drips, 0, sizeof(Drips));
+	S_MemSet((char*)&ShockWaves, 0, sizeof(ShockWaves));
+
+	for (i = 0; i < sizeof(spark) / sizeof(struct SPARKS); i++)
+	{
+		spark[i].Dynamic = -1;
+	}
+
+	next_fire_spark = 1;
+	next_smoke_spark = 0;
+	next_gunshell = 0;
+	next_bubble = 0;
+	next_drip = 0;
+	next_debris = 0;
+	next_blood = 0;
+	WB_room = -1;
+}
+
+void InitialiseClosedDoors()//?(<), BB498(<) (F)
+{
+	int i;
+
+	for (i = 0; i < 32; i++)
+	{
+		ClosedDoors[i] = 0;
+	}
+
+	return;
+}
