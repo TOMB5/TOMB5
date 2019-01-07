@@ -2,10 +2,90 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF SPU_AllocChannel, S_SoundPlaySampleLooped, SoundEffect, S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume, SPU_UpdateStatus
+	XDEF SOUND_EndScene, SPU_AllocChannel, S_SoundPlaySampleLooped, SoundEffect, S_SetReverbType, SPU_StopAll, SPU_FreeChannel, S_SoundStopAllSamples, S_SoundSetPanAndVolume, S_SoundSetPitch, S_SoundStopSample, S_SoundSampleIsPlaying, GetPanVolume, SPU_UpdateStatus
 	XREF sva, LnSamplesLoaded, LadwSampleAddr, SpuSetKeyOnWithAttr, CalcVolumes_ASM, CamRot, LaSlot, mSqrt, GetRandomDraw, sample_lut, room, camera, sound_active, LabSampleType, LabFreeChannel, LnFreeChannels, DepthTable, camera, char_anim, local_mRotY, sample_infos, phd_sqrt_asm, phd_atan_asm, rcossin_tbl, GtSFXEnabled, SpuSetReverbModeDepth, SpuGetAllKeysStatus, SpuSetReverb, SpuGetKeyStatus, SpuSetVoicePitch, SpuSetVoiceVolume, CalcVolumes_ASM, SpuSetKey, CurrentReverb, SpuSetKey
 
 	
+SOUND_EndScene:
+	lw      v0, sound_active-GP_ADDR(gp)
+	addiu   sp, -0x20
+	sw      ra, 0x20-0x4(sp)
+	sw      s2, 0x20-0x8(sp)
+	sw      s1, 0x20-0xC(sp)
+	beqz    v0, loc_91E74
+	sw      s0, 0x20-0x10(sp)
+	move    s0, zero
+	lw      s2, sample_infos-GP_ADDR(gp)
+	la      s1, LaSlot
+
+	loc_91DAC:
+	lw      v0, 0x10(s1)
+	nop
+	bltz    v0, loc_91E64
+	sll     v0, 3
+	addu    v0, s2
+	lhu     v0, 6(v0)
+	li      v1, 3
+	andi    v0, 3
+	bne     v0, v1, loc_91E1C
+	nop
+	lw      a2, 4(s1)
+	nop
+	beqz    a2, loc_91E08
+	move    a0, s0
+	lh      a1, 8(s1)
+	lw      a3, 0x14(s1)
+	jal     S_SoundSetPanAndVolume
+	andi    a2, 0xFFFF
+	lw      a1, 0xC(s1)
+	jal     S_SoundSetPitch
+	move    a0, s0
+	j       loc_91E64
+	sw      zero, 4(s1)
+
+	loc_91E08:
+	jal     S_SoundStopSample
+	move    a0, s0
+	li      at, 0xFFFFFFFF
+
+	loc_91E14:
+	j       loc_91E64
+	sw      at, 0x10(s1)
+
+	loc_91E1C:
+	jal     S_SoundSampleIsPlaying
+	move    a0, s0
+	beqz    v0, loc_91E14
+	li      at, 0xFFFFFFFF
+	lw      a0, 0x18(s1)
+	lw      a1, 0x1C(s1)
+	lw      a2, 0x20(s1)
+	or      a0, a1
+	or      a0, a2
+	beqz    a0, loc_91E64
+	nop
+	jal     GetPanVolume
+	move    a0, s1
+	lh      a1, 8(s1)
+	lhu     a2, 4(s1)
+	lw      a3, 0x14(s1)
+	jal     S_SoundSetPanAndVolume
+	move    a0, s0
+
+	loc_91E64:
+	addiu   s0, 1
+	slti    v0, s0, 0x18
+	bnez    v0, loc_91DAC
+	addiu   s1, 0x24
+
+	loc_91E74:
+	lw      ra, 0x20-0x4(sp)
+	lw      s2, 0x20-0x8(sp)
+	lw      s1, 0x20-0xC(sp)
+	lw      s0, 0x20-0x10(sp)
+	jr      ra
+	addiu   sp, 0x20
+
 SPU_AllocChannel:
 	lw      v0, LnFreeChannels-GP_ADDR(gp)
 	addiu   sp, -0x18

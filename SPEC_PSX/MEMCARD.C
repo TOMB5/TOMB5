@@ -86,7 +86,7 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 #endif
 }
 
-void mcClose()//620AC
+void mcClose()//620AC //(F)
 {
 #ifndef PAELLA
 	MemCardStop();

@@ -210,8 +210,10 @@ extern int IsRoomOutside(long x, long y, long z);
 #endif
 extern short GetDoor(struct FLOOR_INFO* floor);
 extern int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
+#if PC_VERSION
 extern int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
+#endif
 extern int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor);

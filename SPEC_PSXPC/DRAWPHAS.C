@@ -48,15 +48,9 @@ short MonitorOff2;
 
 long DrawPhaseGame()//63F04, 645E0
 {
-	short scalarx = 0; // $a3
-	short scalary = 0; // $t0
-	short scalarz = 0; // $t1
-	struct lara_info* a1;
-	struct lara_info* a2;
-	int temp;
-	int a3;
-	int a22;
-	int v1111111;
+	short scalarx = 0;
+	short scalary = 0;
+	short scalarz = 0;
 
 	mQuickW2VMatrix();
 
@@ -67,14 +61,8 @@ long DrawPhaseGame()//63F04, 645E0
 			lara.dpoisoned = 4096;
 		}
 
-		temp = (lara.dpoisoned - lara.poisoned);
-		if (temp < 0)
-		{
-			temp = -(lara.dpoisoned - lara.poisoned);//temp @ a0
-		}
-
 		//loc_63F74
-		if (temp < 16)
+		if (ABS(lara.dpoisoned - lara.poisoned) < 16)
 		{
 			lara.poisoned = lara.dpoisoned;
 		}
@@ -90,45 +78,17 @@ long DrawPhaseGame()//63F04, 645E0
 	}
 	else
 	{
-		a3 = rcossin_tbl[(((XSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((XSoff2 >> 2) & 0x3FFC) / sizeof(short))];
-		/*
-		short scalarx = 0; // $a3
-		short scalary = 0; // $t0
-		short scalarz = 0; // $t1
-		*/
-
-		a3 >>= 2;
-		a3 *= -256;
-
-		a22 = rcossin_tbl[(((YSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((YSoff2 >> 2) & 0x3FFC) / sizeof(short))];
-		a22 >>= 2;
-		a22 *= -256;
-
-		v1111111 = rcossin_tbl[(((ZSoff1 >> 2) & 0x3FFC) / sizeof(short))] + rcossin_tbl[(((ZSoff2 >> 2) & 0x3FFC) / sizeof(short))];
-		v1111111 >>= 2;
-		v1111111 *= -256;
-
-		a3 <<= 3;
-		a3 >>= 16;
-		a22 <<= 3;
-		scalary = a22 >> 16;
-		v1111111 <<= 3;
-		scalarz = v1111111 >> 16;
+		scalarx = ((((SIN(XSoff1) + SIN(XSoff2)) >> 2) * (lara.poisoned - 256)) << 3) >> 16;
+		scalary = ((((SIN(YSoff1) + SIN(YSoff2)) >> 2) * (lara.poisoned - 256)) << 3) >> 16;
+		scalarz = ((((SIN(ZSoff1) + SIN(ZSoff2)) >> 2) * (lara.poisoned - 256)) << 3) >> 16;
 	}
 
 	//loc_64090
-	//underwater v0
-	if (camera.underwater > 0)
+	if (camera.underwater != 0)
 	{
-#if 0
-		short* a1 = &rcossin_tbl[0];
-		int v00 = (GlobalCounter & 0x3F) << 8;
-		int a22 = GlobalCounter;
-
-		short* v000 = &rcossin_tbl[v00 / sizeof(short)];
-		int v111 = v000[0];
-		int v0000 = ((a22 - 16) & 0x3F) << 8;
-#endif
+		scalarx = ((scalarx + (((rcossin_tbl[(GlobalCounter & 0x3F) << 7]) << 16) >> 24)) << 16) >> 16;
+		scalary = ((scalary + (((rcossin_tbl[((GlobalCounter - 16) & 0x3F) << 7]) << 16) >> 23)) << 16) >> 16;
+		scalarz = ((scalarz + (((rcossin_tbl[((64 - GlobalCounter) & 0x3F) << 7]) << 16) >> 25)) << 16) >> 16;
 	}
 
 	//loc_64130
@@ -163,10 +123,8 @@ long DrawPhaseGame()//63F04, 645E0
 
 		if (InfraRed)
 		{
-#if PSX_VERSION
 			DrawPsxTile(0, 0xF00200, 0x62202000, 2);//@a1 = 8bit window height 16bit window width
 			DrawPsxTile(0, 0xF00200, 0x62000020, 1);//@a1 = 8bit window height 16bit window width
-#endif
 		}
 	}
 
@@ -363,8 +321,8 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 				if (gfLevelFlags & GF_LVOP_LIGHTNING)
 				{
-					//Must convert a0 to CVector
-					//DrawFlatSky_ASM((LightningRGB[2] << 16) | (LightningRGB[1] << 8) | LightningRGB[0]) | 0x2C00, SkyPos, 0xFFFFFA00);
+					//Must convert a0 to CVector may have to use inline asm
+					//DrawFlatSky_ASM(((LightningRGB[2] << 16) | (LightningRGB[1] << 8) | LightningRGB[0]) | 0x2C00), SkyPos, 0xFFFFFA00);
 				}
 				else
 				{
@@ -505,8 +463,9 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 	else
 	{
+		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 		//loc_64BA0
-		//unsigned long* v1 = (unsigned long*)RelocPtr[3];
+		//unsigned long* v1 = (unsigned long*)RelocPtr[2];
 		//jalr v1[0];
 	}
 
@@ -546,7 +505,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	lara_item->pos.z_pos = camera.pos.z;
 	lara_item->room_number = camera.pos.room_number;
 
-	DrawAllFx();
+	//DrawAllFx();
 
 	if (RelocPtr[35] != NULL)
 	{
@@ -654,7 +613,7 @@ void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)//64EF8
 	POLY_FT4* polyft4;
 	struct PSXSPRITESTRUCT* pSpriteInfo;
 
-	polyft4 = (POLY_FT4*) &db.polyptr[0];
+	polyft4 = (POLY_FT4*)&db.polyptr[0];
 
 	polyft4->y0 = y - (ys / 2);
 	polyft4->y1 = y - (ys / 2);
@@ -665,9 +624,9 @@ void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)//64EF8
 	polyft4->x3 = x + (xs / 2);
 	polyft4->y3 = y + (ys / 2);
 
-	((char*) polyft4)[3] = 9;
+	((char*)polyft4)[3] = 9;
 	pSpriteInfo = &psxspriteinfo[objects[DEFAULT_SPRITES].mesh_index + def];
-	((long*) polyft4)[1] = rgb | 0x2E000000;
+	((long*)polyft4)[1] = rgb | 0x2E000000;
 
 	polyft4->tpage = pSpriteInfo->tpage;
 
@@ -687,9 +646,9 @@ void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)//64EF8
 
 	polyft4->tag = (polyft4->tag & 0xFF000000) | (db.ot[z] & 0xFFFFFF);
 
-	db.ot[z] = (db.ot[z] & 0xFF000000) | ((unsigned long) polyft4 & 0xFFFFFF);
+	db.ot[z] = (db.ot[z] & 0xFF000000) | ((unsigned long)polyft4 & 0xFFFFFF);
 
 	db.polyptr += sizeof(POLY_FT4);
 #endif
-	S_Warn("[MGDrawSprite] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }

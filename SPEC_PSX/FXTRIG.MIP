@@ -2,8 +2,411 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF SetGunFlash, subdiv_ripple
-	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1
+	XDEF TriggerGunShell, SetGunFlash, subdiv_ripple, DoBloodSplat, TriggerRicochetSpark, TriggerUnderwaterBlood
+	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1, GetFloor, GetFreeSpark, GetRandomControl, GetFreeBlood, rcossin_tbl, objects, room, ripples
+	
+TriggerBlood:
+	lw      t2, 0x10(sp)
+	move    t7, ra
+	move    t3, a0
+	move    t4, a1
+	move    t5, a2
+	blez    t2, loc_8D340
+	move    t6, a3
+
+	loc_8D1D4:
+	jal     GetFreeBlood
+	li      a0, 1
+	move    t1, v1
+	sb      v1, 0x1B(t1)
+	jal     GetRandomControl
+	sb      zero, 0x1C(t1)
+	andi    v0, 0x3F
+	addiu   v0, 0x30
+	sb      v0, 0x1D(t1)
+	li      v0, 4
+	li      v1, 8
+	sb      v0, 0x1F(t1)
+	jal     GetRandomControl
+	sb      v1, 0x20(t1)
+	andi    v0, 7
+	addiu   v0, 0x18
+	sb      v0, 0x21(t1)
+	jal     GetRandomControl
+	sb      v0, 0x22(t1)
+	andi    v0, 0x1F
+	addu    v0, t3, v0
+	addiu   v0, -0x10
+	jal     GetRandomControl
+	sw      v0, 0(t1)
+	andi    v0, 0x1F
+	addu    v0, t4, v0
+	addiu   v0, -0x10
+	jal     GetRandomControl
+	sw      v0, 4(t1)
+	andi    v0, 0x1F
+	addu    v0, t5, v0
+	addiu   v0, -0x10
+	sw      v0, 8(t1)
+	jal     GetRandomControl
+	li      a0, 0xFFFFFFFF
+	beq     t6, a0, loc_8D278
+	andi    a0, v0, 0xFFF
+	addiu   v1, t6, -0x10
+	andi    v0, 0x1F
+	addu    v1, v0
+	andi    a0, v1, 0xFFF
+
+	loc_8D278:
+	jal     GetRandomControl
+	sll     a0, 2
+	la      v1, rcossin_tbl
+	addu    a0, v1
+	lh      a1, 2(a0)
+	andi    v0, 0xF
+	mult    a1, v0
+	lh      a0, 0(a0)
+	mflo    a1
+	negu    a0, a0
+	sra     a1, 7
+	mult    a0, v0
+	sh      a1, 0x10(t1)
+	mflo    a0
+	sra     a0, 7
+	jal     GetRandomControl
+	sh      a0, 0xC(t1)
+	andi    v0, 0xFF
+	addiu   v0, 0x80
+	negu    v0, v0
+	sh      v0, 0xE(t1)
+	li      v0, 4
+	jal     GetRandomControl
+	sb      v0, 0x19(t1)
+	andi    v0, 0xFFF
+	jal     GetRandomControl
+	sh      v0, 0x14(t1)
+	jal     GetRandomControl
+	andi    a0, v0, 1
+	beqz    a0, loc_8D304
+	andi    v0, 0x3F
+	negu    v0, v0
+	j       loc_8D308
+	addiu   v0, -0x40
+
+	loc_8D304:
+	addiu   v0, 0x40
+
+	loc_8D308:
+	jal     GetRandomControl
+	sb      v0, 0x1A(t1)
+	andi    v0, 0x1F
+	addiu   v0, 0x1F
+	jal     GetRandomControl
+	sh      v0, 0x12(t1)
+	addiu   t2, -1
+	andi    v0, 7
+	addiu   v0, 8
+	sb      v0, 0x16(t1)
+	sb      v0, 0x18(t1)
+	sra     v0, 2
+	bnez    t2, loc_8D1D4
+	sb      v0, 0x17(t1)
+
+	loc_8D340:
+	jr      t7
+	nop
+	
+TriggerUnderwaterBlood:
+	la      t0, ripples
+	move    t1, ra
+	move    v1, zero
+
+	loc_8D3F8:
+	lbu     v0, 0xC(t0)
+	addiu   v1, 1
+	andi    v0, 1
+	beqz    v0, loc_8D418
+	slti    v0, v1, 0x20
+	bnez    v0, loc_8D3F8
+	addiu   t0, 0x10
+	jr      t1
+
+	loc_8D418:
+	li      v0, 0x31
+	jal     GetRandomControl
+	sb      v0, 0xC(t0)
+	andi    v0, 7
+	addiu   v0, 0xF0
+	sb      v0, 0xD(t0)
+	li      v0, 1
+	sb      a3, 0xE(t0)
+	jal     GetRandomControl
+	sb      v0, 0xF(t0)
+	andi    v0, 0x3F
+	addu    v0, a0, v0
+	addiu   v0, -0x20
+	sw      v0, 0(t0)
+	jal     GetRandomControl
+	sw      a1, 4(t0)
+	andi    v0, 0x3F
+	addu    v0, a2, v0
+	addiu   v0, -0x20
+	jr      t1
+	sw      v0, 8(t0)
+	
+DoBloodSplat:
+	addiu   sp, -0x28
+	sw      ra, 0x28-0x18(sp)
+	sw      a0, 0x28-0x10(sp)
+	sw      a1, 0x28-0xC(sp)
+	sw      a2, 0x28-0x8(sp)
+	sw      a3, 0x28-0x4(sp)
+	jal     GetFloor
+	addiu   a3, sp, 0x28+0x14
+	lw      t8, 0x28-0x18(sp)
+	lw      a0, 0x28-0x10(sp)
+	lw      a1, 0x28-0xC(sp)
+	lw      a2, 0x28-0x8(sp)
+	lw      a3, 0x28-0x4(sp)
+	addiu   sp, 0x28
+	lh      v1, 0x14(sp)
+	lw      at, room-GP_ADDR(gp)
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 4
+	addu    v0, at
+	lhu     v0, 0x4E(v0)
+	sll     a3, 16
+	andi    v0, 1
+	beqz    v0, loc_8D1A0
+	sra     a3, 16
+	jal     TriggerUnderwaterBlood
+	addiu   ra, 0x10
+
+	loc_8D1A0:
+	lh      at, 0x10(sp)
+	sw      a3, 0x10(sp)
+	jal     TriggerBlood
+	sra     a3, at, 4
+	jr      t8
+	li      v0, 0xFFFFFFFF
+	
+TriggerRicochetSpark:
+	lw      t7, 0(a0)
+	lw      t8, 4(a0)
+	lw      t9, 8(a0)
+	move    t6, ra
+	move    t5, a3
+	bnez    t5, loc_8B83C
+	move    t4, a1
+	blez    a2, loc_8B770
+	move    t3, a2
+
+	loc_8B6A0:
+	jal     GetFreeSpark
+	addiu   t3, -1
+	jal     GetRandomControl
+	move    t1, a0
+	move    t0, v0
+	li      v0, 0x8001
+	sh      v0, 0x20(t1)
+	andi    v0, t0, 0xF
+	addiu   v0, 0x10
+	sh      v0, 0x22(t1)
+	li      v0, 0x60
+	sb      v0, 0x24(t1)
+	sra     v0, t0, 4
+	andi    v0, 0x1F
+	addiu   v0, 0x30
+	sb      v0, 0x25(t1)
+	sb      zero, 0x26(t1)
+	li      v0, 0x402
+	sh      v0, 0x2A(t1)
+	sb      v0, 0x2E(t1)
+	li      v0, 0x909
+	sh      v0, 0x2C(t1)
+	sw      t7, 0(t1)
+	sw      t8, 4(t1)
+	sw      t9, 8(t1)
+	andi    a0, t0, 0xFFF
+	addiu   a0, -0x800
+	sh      a0, 0xE(t1)
+	sra     a1, t0, 7
+	andi    a1, 0x1F
+	sh      a1, 0x12(t1)
+	sra     v0, t0, 3
+	andi    v0, 0x7FF
+	addu    v0, t4, v0
+	addiu   v0, -0x400
+	andi    t0, v0, 0xFFF
+	sll     v0, t0, 2
+	la      a0, rcossin_tbl
+	addu    v0, a0
+	lh      v1, 2(v0)
+	lh      a0, 0(v0)
+	sra     v1, 2
+	sh      v1, 0x10(t1)
+	negu    a0, a0
+	sra     a0, 2
+	sh      a0, 0xC(t1)
+	li      v0, 0x22
+	sb      v0, 0x1B(t1)
+	sh      zero, 0x16(t1)
+	bnez    t3, loc_8B6A0
+	sb      zero, 0x1F(t1)
+
+	loc_8B770:
+	jal     GetFreeSpark
+	nop
+	jal     GetRandomControl
+	move    t1, a0
+	move    t0, v0
+	li      v0, 0x3001
+	sh      v0, 0x20(t1)
+	andi    v0, t0, 0xF
+	addiu   v0, 0x20
+	sh      v0, 0x22(t1)
+	sh      zero, 0x24(t1)
+	sb      zero, 0x25(t1)
+	li      v0, 4
+	sh      v0, 0x2A(t1)
+	li      v0, 0x404
+	sh      v0, 0x2C(t1)
+	li      v0, 2
+	sb      v0, 0x2E(t1)
+	lh      a0, objects+0x7282
+	sw      t7, 0(t1)
+	sw      t8, 4(t1)
+	sw      t9, 8(t1)
+	sw      zero, 0xC(t1)
+	sw      zero, 0x10(t1)
+	sra     v0, t0, 2
+	andi    v0, 0xFFF
+	sh      v0, 0x14(t1)
+	li      v1, 0x1A
+	sh      v1, 0x16(t1)
+	sra     v0, t0, 1
+	andi    at, t0, 1
+	beqz    at, loc_8B804
+	andi    v0, 0x3F
+	negu    v0, v0
+	j       loc_8B808
+	addiu   v0, -0x40
+
+	loc_8B804:
+	addiu   v0, 0x40
+
+	loc_8B808:
+	sb      v0, 0x1E(t1)
+	sb      zero, 0x1F(t1)
+	li      v1, 3
+	addiu   a0, 0xC
+	sb      v1, 0x1C(t1)
+	sb      a0, 0x1D(t1)
+	sra     v0, t0, 10
+	andi    v0, 7
+	addiu   v0, 8
+	li      v1, 1
+	sb      v0, 0x18(t1)
+	sb      v1, 0x19(t1)
+	sb      v0, 0x1A(t1)
+
+	loc_8B83C:
+	negu    t4, t5
+	addiu   t4, 1
+	blez    t4, loc_8B980
+	move    t3, zero
+
+	loc_8B84C:
+	jal     GetFreeSpark
+	addiu   t3, 1
+	jal     GetRandomControl
+	move    t0, v0
+	move    t1, a0
+	li      v0, 1
+	sw      v0, 0x20(t1)
+	li      v0, 0x2828
+	sh      v0, 0x24(t1)
+	li      v0, 0x30
+	sb      v0, 0x26(t1)
+	sw      t7, 0(t1)
+	sw      t8, 4(t1)
+	sw      t9, 8(t1)
+	andi    v0, t0, 3
+	addiu   v0, 4
+	li      v1, 8
+	sra     a0, t0, 2
+	andi    a0, 7
+	beqz    t5, loc_8B8DC
+	addiu   a0, 0x10
+	andi    at, t0, 0x1FF
+	addiu   at, -0x100
+	sh      at, 0xC(t1)
+	sra     at, t0, 2
+	andi    at, 0x1FF
+	addiu   at, -0x100
+	sh      at, 0xE(t1)
+	sra     at, t0, 4
+	andi    at, 0x1FF
+	addiu   at, -0x100
+	sh      at, 0x10(t1)
+	sra     v0, 1
+	sra     v1, 1
+	j       loc_8B8E4
+	sra     a0, 1
+
+	loc_8B8DC:
+	sw      zero, 0xC(t1)
+	sh      zero, 0x10(t1)
+
+	loc_8B8E4:
+	sb      v0, 0x2A(t1)
+	sb      v1, 0x2B(t1)
+	sb      a0, 0x2C(t1)
+	sb      a0, 0x2D(t1)
+	sra     v0, t0, 3
+	sh      v0, 0x14(t1)
+	li      v0, 0x1A
+	sh      v0, 0x16(t1)
+	sb      zero, 0x1B(t1)
+	li      v0, 2
+	sb      v0, 0x1C(t1)
+	sb      v0, 0x2E(t1)
+	andi    v0, t0, 1
+	beqz    v0, loc_8B92C
+	andi    v0, t0, 0xF
+	negu    v0, v0
+	j       loc_8B930
+	addiu   v0, -0x10
+
+	loc_8B92C:
+	addiu   v0, 0x10
+
+	loc_8B930:
+	sb      v0, 0x1E(t1)
+	sra     v0, t0, 9
+	andi    v0, 3
+	negu    v0, v0
+	addiu   v0, -4
+	sh      v0, 0x12(t1)
+	sra     v1, t0, 6
+	andi    v1, 3
+	negu    v1, v1
+	addiu   v1, -4
+	sb      v1, 0x1F(t1)
+	sra     v0, t0, 5
+	andi    v0, 7
+	addiu   v0, 4
+	sb      v0, 0x18(t1)
+	sb      v0, 0x1A(t1)
+	sll     v0, 2
+	slt     v1, t3, t4
+	bnez    v1, loc_8B84C
+	sb      v0, 0x19(t1)
+
+	loc_8B980:
+	jr      t6
+	nop
 	
 subdiv_ripple:
 	jr	ra
@@ -68,4 +471,8 @@ SetGunFlash:
 
 	loc_8D9EC:
 	jr      t9
+	nop
+	
+TriggerGunShell:
+	jr ra
 	nop

@@ -1,12 +1,14 @@
 #include "TEXT_S.H"
 
+#include "SPECIFIC.H"
 #include "GPU.H"
 #include "TEXT.H"
 #include "TYPES.H"
+#include "..\SPEC_PSX\TEXT_S.H"
 
 //char*, unsigned short*, unsigned short*
 #if 1
-long GetStringLength(char* string, unsigned short* a1, unsigned short* a2)//8DEDC(<), 8FF20(<)
+long GetStringLength(char* string, short* a1, short* a2)//8DEDC(<), 8FF20(<)
 {
 	char c;
 	long t0, t1, t2, t3, t5, v0;
@@ -104,6 +106,11 @@ long GetStringLength(char* string, unsigned short* a1, unsigned short* a2)//8DED
 	*a1 = t1;
 
 	return t0;
+}
+
+void GetStringDimensions(char* string, unsigned short* w, unsigned short* h)
+{
+	UNIMPLEMENTED();
 }
 #endif
 
