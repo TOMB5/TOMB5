@@ -170,5 +170,14 @@ extern char* SkinVertNums;
 extern char* ScratchVertNums;
 #endif
 
+enum setup_functions
+{
+	INITIALISE_GAME_FLAGS,
+	INITIALISE_OBJECTS,
+	GET_CARRIED_ITEMS,
+	GET_AI_PICKUPS,
+	SETUP_GAME,
+	LOAD_LEVEL
+};
 
 #endif

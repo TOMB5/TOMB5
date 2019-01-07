@@ -8,6 +8,6 @@ text		group
 		section	.bss,text
 		section	.sbss,text
 
-		include	GAME/JOBY5.OBJ
+		include	GAME/ANDY3.OBJ
 		incsym	DISC/MAIN.SYM
 		inclib	c:/psyq/lib/libc.lib

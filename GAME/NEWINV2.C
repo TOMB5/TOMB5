@@ -9,6 +9,7 @@
 #include "GAMEFLOW.H"
 #include "CONTROL.H"
 #include "SAVEGAME.H"
+#include "HEALTH.H"
 
 #include "LARA2GUN.H"
 #include "LARA1GUN.H"
@@ -25,6 +26,7 @@
 #include "SETUP.H"
 #include "LOADSAVE.H"
 #include "CD.H"
+#include "GPU.H"
 #endif
 
 enum invobj_types // update this whenever inventry_objects_list is modified
@@ -404,7 +406,7 @@ void do_playstation_button_prompts_v1()//416E0, 41B34
 	UNIMPLEMENTED();
 }
 
-void S_DrawPickup(short object_number)//41608, 41A5C
+void S_DrawPickup(short object_number)//41608(<), 41A5C(<) (F)
 {
 #if PC_VERSION
 	phd_LookAt(0, SECTOR(1), 0, 0, 0, 0, 0);
@@ -421,7 +423,12 @@ void S_DrawPickup(short object_number)//41608, 41A5C
 		0,
 		1);
 #else
-	UNIMPLEMENTED();
+	ClearOTagR(db.pickup_ot, 256);
+	DrawThreeDeeObject2D(PickupX + 448, 200, convert_obj_to_invobj(object_number), 128, 0, (GnFrameCounter & 0x7F) << 9, 0, 0, 1);
+
+	db.pickup_ot[0] = db.pickup_ot[0] & 0xFF000000 | db.ot[0] & 0xFFFFFF;
+	db.ot[0] = db.ot[0] & 0xFF000000 | (int)(db.pickup_ot + 255) & 0xFFFFFF;
+
 #endif
 }
 
