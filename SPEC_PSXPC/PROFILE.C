@@ -5,7 +5,7 @@
 	#include <windows.h>
 #endif
 
-static struct SCALE scales[3] =
+static struct SCALE scales[] =
 {
 	{ 260, 0, 2 },
 	{ 130, 1, 3 },
@@ -26,36 +26,36 @@ struct COCKSUCK ProfileInfo[32];
 
 void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 {
-	S_Warn("[ProfileAddDrawOT] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ProfileRGB(int r, int g, int b)//61C94, *
 {
-	S_Warn("[ProfileRGB] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ProfileAddOT(unsigned long* ot)//61A90, *
 {
-	S_Warn("[ProfileAddOT] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ProfileReadCount()//61A48, *
 {
-	S_Warn("[ProfileReadCount] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ProfileStartCount()//61A0C, *
 {
-	S_Warn("[ProfileStartCount] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ProfileInit(int scale)//61978, ?
 {
-	S_Warn("[ProfileInit] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void ProfileCallBack()//6194C, *
 {
-	S_Warn("[ProfileCallBack] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 

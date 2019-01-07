@@ -1,13 +1,8 @@
 #include "GPU.H"
 
-#include "CAMERA.H"
-#include "FXTRIG.H"
-#include "LOAD_LEV.H"
 #include "PROFILE.H"
 #include "PSXPCINPUT.H"
 #include "SHADOWS.H"
-#include "SPECIFIC.H"
-#include "SPECTYPES.H"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,33 +24,20 @@ SDL_Window* g_window = NULL;
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
 {
-#if 1
-	db.order_table[0] = &pBuffers[0];
-	db.order_table[1] = &pBuffers[nOTSize];
-	db.nOTSize = nOTSize;
-	db.pickup_order_table[0] = (unsigned long*)&db.disp[1];
-	db.pickup_order_table[1] = &GadwOrderingTables_V2[256];
-#else
 	//Should be safe to use 32-bit ptrs tho
-	db.order_table[0] = (unsigned long*)((unsigned long)pBuffers & 0xFFFFFF);
-	db.order_table[1] = (unsigned long*)((unsigned long)&pBuffers[nOTSize] & 0xFFFFFF);
+	db.order_table[0] = (unsigned long*)((unsigned long)pBuffers);
+	db.order_table[1] = (unsigned long*)((unsigned long)&pBuffers[nOTSize]);
 	db.nOTSize = nOTSize;
-	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&db.disp[1] & 0xFFFFFF);
-	db.pickup_order_table[1] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256] & 0xFFFFFF);
-#endif
+	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&db.disp[1]);
+	db.pickup_order_table[1] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256]);
+	return;
 }
 
 void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)//5DFB0(<), 
 {
-#if 1
 	db.nPBSize = nPBSize;
-	db.poly_buffer[0] = &pBuffers[0];
-	db.poly_buffer[1] = &pBuffers[nPBSize];
-#else
-	db.nPBSize = nPBSize;
-	db.poly_buffer[0] = (unsigned long*)((unsigned long)pBuffers & 0xFFFFFF);
-	db.poly_buffer[1] = (unsigned long*)((unsigned long)&pBuffers[nPBSize] & 0xFFFFFF);
-#endif
+	db.poly_buffer[0] = (unsigned long*)((unsigned long)pBuffers);
+	db.poly_buffer[1] = (unsigned long*)((unsigned long)&pBuffers[nPBSize]);
 	return;
 }
 
@@ -65,9 +47,7 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 	int nPolys = 0;
 	static int nWorstPolys;
 
-#if 0
-	nPolys = ((int) &db.polyptr[0] - (int) &db.curpolybuf[0]) * 0x4EC4EC4F / 16 - (((long) &db.polyptr[0] - (long) &db.curpolybuf[0]) >> 31);
-#endif
+	//nPolys = ((int)&db.polyptr[0] - (int)&db.curpolybuf[0]) * 0x4EC4EC4F / 16 - (((long)&db.polyptr[0] - (long)&db.curpolybuf[0]) >> 31);
 
 	if (psxtextinfo->u2v2pad < nPolys)
 	{
@@ -137,6 +117,7 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<)
 
 void do_gfx_debug_mode(unsigned long* otstart)
 {
+#if 0
 	unsigned long* data;
 	unsigned char code;
 	int ntri;
@@ -297,6 +278,7 @@ void do_gfx_debug_mode(unsigned long* otstart)
 
 	sprintf(&txbuf[0], "QUAD %d", nquad);
 	PrintString(34, 232, 3, &txbuf[0], 0);
+#endif
 }
 
 void GPU_FlipStory(unsigned long* gfx)//5E448(<), * (F)

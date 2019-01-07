@@ -8,6 +8,7 @@
 #include "LOAD_LEV.H"
 #include "MALLOC.H"
 #include "SETUP.H"
+#include "TYPEDEFS.H"
 
 #include <stdio.h>
 #include <string.h>
@@ -70,7 +71,6 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 #if DISC_VERSION
 	DEL_CDFS_Read((char*)mod, gwHeader.entries[NONE].fileSize);//jal 5E414
-	RelocateLevel();
 #else
 	len = FILE_Length("DATA\\SETUP.MOD");
 	file = fopen("DATA\\SETUP.MOD", "rb");
@@ -78,19 +78,33 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 
 	fclose(file);
 #endif
+	/*
+	*  SETUP.MOD
+	* Layout is:
+	* [SETUP.BIN]
+	* [SETUP.REL]
+	*/
+	RelocateModule((unsigned long)SetupPtr, (unsigned long*)(db.poly_buffer[0][1024] + (unsigned long)SetupPtr));
 
-	//RelocateModule((unsigned long)SetupPtr, (unsigned long*)(db.poly_buffer[0][1024] + (unsigned long)SetupPtr));
+#if DISC_VERSION
+	#if RELOC
+		((VOIDFUNCVOID*)SetupPtr[5])();
+	#else
+		LoadLevel();
+	#endif
+#else
+	strcpy(&buf[0], &gfFilenameWad[gfFilenameOffset[Name]]);
+	strcat(&buf[0], ".PSX");
 
-
-#if !DISC_VERSION
-	strcpy(buf, &gfFilenameWad[gfFilenameOffset[Name]]);
-	strcat(buf, ".PSX");
-
-	len = FILE_Length(buf);
+	FILE_Length(buf);
 
 	file = fopen(buf, "rb");
 
-	RelocateLevel(file);
+#if RELOC
+	((VOIDFUNCINT*)SetupPtr[5])(file);
+#else
+	LoadLevel(file);
+#endif
 #endif
 
 	 //jalr SetupPtr[5](len);, retail a0 = s1? len?

@@ -16,7 +16,7 @@ enum module_indices
 	MOD_ROOMLET,
 	MOD_UWPARTS,
 	MOD_MOVEBLOK,
-	MOD_SAS,
+	MOD_SAS,//0 - SAS->control
 	MOD_SUBSUIT,
 	MOD_TWOGUN,
 	MOD_HYDRA,

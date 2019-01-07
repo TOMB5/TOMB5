@@ -44,12 +44,11 @@ unsigned char MonitorHold;
 short MonitorOff;
 short MonitorOff2;
 
-long DrawPhaseGame()//63F04, 645E0
+long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 {
-	short scalarx = 0; // $a3
-	short scalary = 0; // $t0
-	short scalarz = 0; // $t1
-	int temp;
+	short scalarx = 0;
+	short scalary = 0;
+	short scalarz = 0;
 
 	mQuickW2VMatrix();
 
@@ -60,14 +59,8 @@ long DrawPhaseGame()//63F04, 645E0
 			lara.dpoisoned = 4096;
 		}
 
-		temp = (lara.dpoisoned - lara.poisoned);
-		if (temp < 0)
-		{
-			temp = -(lara.dpoisoned - lara.poisoned);//temp @ a0
-		}
-
 		//loc_63F74
-		if (temp < 16)
+		if (ABS(lara.dpoisoned - lara.poisoned) < 16)
 		{
 			lara.poisoned = lara.dpoisoned;
 		}
@@ -326,7 +319,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 				if (gfLevelFlags & GF_LVOP_LIGHTNING)
 				{
-					//Must convert a0 to CVector
+					//Must convert a0 to CVector may have to use inline asm
 					//DrawFlatSky_ASM(((LightningRGB[2] << 16) | (LightningRGB[1] << 8) | LightningRGB[0]) | 0x2C00), SkyPos, 0xFFFFFA00);
 				}
 				else

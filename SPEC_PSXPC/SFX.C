@@ -152,3 +152,59 @@ void GetPanVolume(struct SoundSlot* slot)
 {
 	S_Warn("[GetPanVolume] - Unimplemented!\n");
 }
+
+void SOUND_EndScene()//91D80(<) ? (F)
+{
+	struct SoundSlot* slot;//$s1
+	long i;//$s0
+
+	if (!sound_active)
+	{
+		return;
+	}
+
+	//loc_91DAC
+	for (i = 0, slot = &LaSlot[i]; i < 24; i++, slot++)
+	{
+		if (slot->nSampleInfo >= 0)
+		{
+			if ((sample_infos[slot->nSampleInfo].flags & 3) == 3)
+			{
+				if (slot->nVolume != 0)
+				{
+#if PSXENGINE
+					S_SoundSetPanAndVolume(i, slot->nPan, slot->nVolume & 0xFFFF, slot->distance);
+#endif
+					S_SoundSetPitch(i, slot->nPitch);
+					slot->nVolume = 0;
+				}
+				else
+				{
+					//loc_91E08
+					S_SoundStopSample(i);
+					slot->nSampleInfo = -1;
+				}
+			}
+			else
+			{
+				//loc_91E1C
+				if (S_SoundSampleIsPlaying(0) == 0)
+				{
+					slot->nSampleInfo = -1;
+				}
+				else
+				{
+					if ((slot->pos.x | slot->pos.y | slot->pos.z) != 0)
+					{
+#if PSXENGINE
+						GetPanVolume(slot);
+						S_SoundSetPanAndVolume(i, slot->nPan, slot->nVolume, slot->distance);
+#else
+						S_Warn("[SOUND_EndScene] - nope!\n");
+#endif
+					}//loc_91E64
+				}
+			}
+		}//loc_91E64
+	}
+}
