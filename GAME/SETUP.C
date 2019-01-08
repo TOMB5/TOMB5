@@ -187,17 +187,80 @@ void InitialiseAnimatedTextures()//?(<), B4904(<)
 #endif
 }
 
+int sub_B49C0(struct WATERTAB* s1, int s0)///@check args
+{
+	int a0;//i
+	int rand;//a1
+
+	//loc_10D4
+	do
+	{
+		rand = GetRandomDraw() & 0xFC;
+
+		a0 = 0;
+
+		if (s0 > 0)
+		{
+			if (s1->random != rand)
+			{
+				a0++;
+
+				//loc_10C4
+				do
+				{
+					s1++;
+
+					if (a0 > s0)
+					{
+						//loc_1120
+						break;
+					}
+					a0++;
+				} while (s1->random != rand);
+			}//loc_1120
+		}//loc_1120
+	} while (a0 != s0);
+
+	return rand;
+}
+
 void sub_B4A40()//(<), B4A40(<)
 {
-	long rand;
-	//a0 = 0x10000
-	rand = rand_2;//v0 @ 0x10(sp)
+	int var_10;//maybe GAME_VECTOR
+	int var_14;
+	int var_18;
+	int fp;//i?
 
+	var_10 = rand_2;//0x10($sp)
 	SeedRandomDraw(0x1D96D);
-
-	//fp = 0
+		
+	fp = 0;
+	//v0 = 0x1F0000
 	//s5 = &WaterTable
-	//a0 = s5;
+	//a0 = $s5
+
+	//loc_1190
+	//a1 = fp;//0
+	//s0 = fp << 2
+	var_14 = fp + 1;
+	//v1 = &rcossin_tbl
+	//v0 = fp << 8;
+	//v0 += v1;
+	//a2 = &WaterTable[0][fp];
+	var_18 = fp << 2;
+	//s6 = rcossin_tbl[fp << 7];
+	//v1 = WaterTable + fp << 2
+	//s1 = rcossin_tbl[fp << 7] << 6
+
+	//v0 = (((rcossin_tbl[fp << 7]) << 6) - rcossin_tbl[fp << 7]) >> 15
+
+	WaterTable[0][fp].shimmer = (((rcossin_tbl[fp << 7]) << 6) - rcossin_tbl[fp << 7]) >> 15;
+	//v0 = rcossin_tbl[fp << 7] >> 8
+	WaterTable[0][fp].choppy = rcossin_tbl[fp << 7] >> 8;
+
+	sub_B49C0(&WaterTable[0][0], fp);
+
+
 
 }
 
@@ -411,7 +474,7 @@ void InitialiseLaraCarriedItems(long keep_carried_items)//?, B4EE4
 		000B5380 A6220146 sh      v0, $146(s1)
 #endif
 
-		lara.num_small_medipack = 3;
+	lara.num_small_medipack = 3;
 	lara.num_large_medipack = 1;
 
 	lara.num_pistols_ammo = -1;
@@ -1390,7 +1453,7 @@ void LoadLevel(FILE* nHandle)
 	InitialiseFXArray(1);
 	InitialiseLOTarray(1);
 	InitialiseObjects();
-	InitialiseClosedDoors();///sub_7BC4();//InitialiseClosedDoors();
+	InitialiseClosedDoors();
 	InitialiseItemArray(256);
 
 	GlobalPulleyFrigItem = -1;
