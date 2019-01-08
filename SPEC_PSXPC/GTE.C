@@ -6,16 +6,14 @@ int gte_ldlzc(int input)
 
 	if (input > 0)
 	{
-		for (int i = 0; i < sizeof(int) * 8; i++)
+		for (int i = (sizeof(int) * 8)-1; i >= 0 ; i--)
 		{
 			if (input & (1 << i))
 			{
-				leadingZeroCount = 0;
+				break;
 			}
-			else
-			{
-				leadingZeroCount++;
-			}
+
+			leadingZeroCount++;
 		}
 	}
 	
