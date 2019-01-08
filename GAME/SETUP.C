@@ -1794,7 +1794,7 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 #if PSX_VERSION
 	int nHandle;
 #elif PSXPC_VERSION
-	FILE* nHandle;
+	FILE* nHandle = NULL;
 #endif
 	int residentData[4];
 
