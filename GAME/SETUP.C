@@ -258,8 +258,73 @@ void sub_B4A40()//(<), B4A40(<)
 	//v0 = rcossin_tbl[fp << 7] >> 8
 	WaterTable[0][fp].choppy = rcossin_tbl[fp << 7] >> 8;
 
-	sub_B49C0(&WaterTable[0][0], fp);
+	WaterTable[0][fp].random = sub_B49C0(&WaterTable[0][0], fp);
 
+	//loc_1190
+	//a0 = &WaterTable[1][0]
+	//a1 = fp
+	//v1 = s5 + fp << 2
+	//v1 = &WaterTable[0][0].abs
+	//v0 = &WaterTable[0][fp].abs
+	//a2 = &WaterTable[1][fp]
+	WaterTable[0][fp].abs = 0;
+	//v0 = rcossin_tbl[fp << 7] >> 10;
+	//v1 = &WaterTable[0][fp]
+	WaterTable[1][fp].shimmer = rcossin_tbl[fp << 7] >> 10;
+	WaterTable[1][fp].choppy = 0;
+
+	WaterTable[1][fp].random = sub_B49C0(&WaterTable[1][0], fp);
+
+	//a0 = &WaterTable[2][0]
+	//a1 = fp
+	//v1 =  &WaterTable[0][fp];
+	//a2 = &WaterTable[0][fp];
+	//v0 = 0xFD
+	//v1 = &WaterTable[2][fp]
+	//s1 = (rcossin_tbl[fp << 7] << 6) >> 15
+	WaterTable[1][fp].abs = 253;
+	//v0 = &WaterTable[0][fp];
+	WaterTable[2][fp].shimmer = (rcossin_tbl[fp << 7] << 6) >> 15;
+	WaterTable[2][fp].choppy = 0;
+
+	WaterTable[2][fp].random = sub_B49C0(&WaterTable[2][0], fp);
+
+	//a0 = &WaterTable[3][0]
+	//a1 = fp
+	//v1 = &WaterTable[0][fp]
+	//v0 = &WaterTable[0][fp]
+	//a2 = &WaterTable[3][fp]
+	WaterTable[2][fp].abs = 0;
+	//v0 = ((rcossin_tbl[fp << 7] << 1) + rcossin_tbl[fp << 7]) >> 10
+	WaterTable[3][fp].shimmer = ((rcossin_tbl[fp << 7] << 1) + rcossin_tbl[fp << 7]) >> 10;
+	WaterTable[3][fp].choppy = 0;
+	WaterTable[3][fp].random = sub_B49C0(&WaterTable[3][0], fp);
+
+	//a0 = &WaterTable[4][0]
+	//a1 = fp
+	//v1 =  &WaterTable[0][fp]
+	//a2 =  &WaterTable[0][fp]
+	//v0 = 4
+	//a3 = &WaterTable[4][fp]
+	WaterTable[3][fp].abs = 4;
+	//v0 = ((rcossin_tbl[fp << 7] << 7) - rcossin_tbl[fp << 7]) >> 15;
+	WaterTable[4][fp].shimmer = ((rcossin_tbl[fp << 7] << 7) - rcossin_tbl[fp << 7]) >> 15;
+	WaterTable[4][fp].choppy = 0;
+
+	WaterTable[4][fp].random = sub_B49C0(&WaterTable[4][0], fp);
+
+	//a0 = 0
+	//a1 = 5
+	//v1 =  &WaterTable[0][fp]
+	WaterTable[4][fp].abs = 8;
+	//loc_12E8
+	//s4 = 0
+	//a3 = a0 + 1;
+	//t0 = a1 + 4
+	//v1 = a0 << 1
+	//a0 = &unk_24 //offset 0x24
+	//s7 = v1 + a0
+	//v0 = a1 << 8
 
 
 }
