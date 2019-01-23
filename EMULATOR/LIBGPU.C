@@ -34,63 +34,20 @@ void* off_3348[]=
 
 int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
-#if USE_FRAME_BUFFERS
-	char* pixelData = new char[rect->w*rect->h * 3];
-	memset(pixelData, 0, rect->w*rect->h * 3);
-
-	for (int y = 0; y < rect->w*rect->h * 3; y += 3)
+	for (int y = rect->y; y < 512; y++)
 	{
-		pixelData[y + 0] = r;
-		pixelData[y + 1] = g;
-		pixelData[y + 2] = b;
-	}
-
-	GLuint blitFramebufferName = 0;
-	glGenFramebuffers(1, &blitFramebufferName);
-	glBindFramebuffer(GL_FRAMEBUFFER, blitFramebufferName);
-
-	GLuint blitTexture = 0;
-	glGenTextures(1, &blitTexture);
-
-	glBindTexture(GL_TEXTURE_2D, blitTexture);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rect->w, rect->h, 0, GL_RGB, GL_UNSIGNED_BYTE, pixelData);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, blitTexture, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, blitFramebufferName);
-
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blitTexture, 0);
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, vramFramebufferName);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, vramTexture, 0);
-	glDrawBuffer(GL_COLOR_ATTACHMENT1);
-
-	//tr glBlitNamedFramebuffer(blitFramebufferName, vramFramebufferName, 0, 0, rect->w, rect->h, 512,   0, 512+(rect->y*2), 256, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	//tl glBlitNamedFramebuffer(blitFramebufferName, vramFramebufferName, 0, 0, rect->w, rect->h, 0  ,   0, 512+(rect->y*2), 256, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	//bl glBlitNamedFramebuffer(blitFramebufferName, vramFramebufferName, 0, 0, rect->w, rect->h, 0,   256, 512,             512 + (rect->y * 2), GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-	glBlitNamedFramebuffer(blitFramebufferName, vramFramebufferName, 0, 0, rect->w, rect->h, rect->x, rect->y, 512 + (rect->x * 2), 256 + rect->y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	printf("X: %d Y: %d W: %d H: %d\n", 0, rect->y, 512 + (rect->x * 2), rect->h);
-
-#else
-	for (int y = 0; y < 512; y++)
-	{
-		for (int x = 0; x < 1024; x++)
+		for (int x = rect->x; x < 1024; x++)
 		{
 			unsigned short* pixel = vram + (y * 1024 + x);
 
 			if (x >= rect->x && x < rect->x + rect->w && 
 				y >= rect->y && y < rect->y + rect->h)
 			{
-				pixel[0] = ((r >> 3) << 11) | ((g >> 3) << 6) | ((b >> 3) << 1) | 1;
+				pixel[0] = ((r >> 3) << 11) | ((g >> 3) << 6) | ((b >> 3) << 1) | 0;
 			}
 		}
 	}
-#endif
+
 	return 0;
 }
 
@@ -101,49 +58,11 @@ int DrawSync(int mode)
 
 int LoadImagePSX(RECT16* rect, u_long* p)
 {
-#if USE_FRAME_BUFFERS
-	GLuint blitFramebufferName = 0;
-	glGenFramebuffers(1, &blitFramebufferName);
-	glBindFramebuffer(GL_FRAMEBUFFER, blitFramebufferName);
-
-	GLuint blitTexture = 0;
-	glGenTextures(1, &blitTexture);
-
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, blitTexture);
-
-	// Give an empty image to OpenGL ( the last "0" )
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rect->w, rect->h, 0, GL_RGB, GL_UNSIGNED_SHORT_4_4_4_4_REV, (unsigned short*)p);
-
-	///glCopyBufferSubData(blitTexture, vramTexture, 0, 0, rect->w * rect->h * 4)
-
-	// Poor filtering. Needed !
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, blitTexture, 0);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, blitFramebufferName);
-	// Bind input FBO + texture to a color attachment
-
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blitTexture, 0);
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-
-	// Bind destination FBO + texture to another color attachment
-	glBindFramebuffer(GL_FRAMEBUFFER, vramFramebufferName);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, vramTexture, 0);
-	glDrawBuffer(GL_COLOR_ATTACHMENT1);
-
-	//	glBlitFramebuffer(0, 0, rect->w, rect->h, 0, 0, rect->w, rect->h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-	glBlitNamedFramebuffer(blitFramebufferName, vramFramebufferName, 0, 0, rect->w, rect->h, rect->x, rect->y, 512 + (rect->x * 2), 256 + rect->y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-#else
 	unsigned short* dst = (unsigned short*)p;
 
-	for (int y = 0; y < 512; y++)
+	for (int y = rect->y; y < 512; y++)
 	{
-		for (int x = 0; x < 1024; x++)
+		for (int x = rect->x; x < 1024; x++)
 		{
 			unsigned short* src = vram + (y * 1024 + x);
 
@@ -154,9 +73,8 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 			}
 		}
 	}
-#endif
 
-#if 1
+#if _DEBUG
 	FILE* f = fopen("VRAM.BIN", "wb");
 	fwrite(&vram[0], 1, 1024 * 512 * 2, f);
 	fclose(f);
