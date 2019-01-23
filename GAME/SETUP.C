@@ -68,11 +68,11 @@ void* setupFunc[] __attribute__((section(".header"))) =
 };
 #endif
 
-RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
+RECT16 dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
 
 #endif
 
-#if PSXPC_VERSION
+#if PSXPC_VERSION || PSXPC_TEST
 struct object_container objects_raw;
 struct object_info* objects = &objects_raw.m_objects[0];
 struct static_info* static_objects = &objects_raw.m_static_objects[0];
@@ -567,7 +567,7 @@ void BaddyObjects()//?, B5328
 
 		//a0 = &bones[object->bone_index];
 
-#if PSX_VERSION
+#if PSX_VERSION && RELOC
 		object->control = RelocPtr[MOD_SAS][0];
 #endif
 		((int*)bones[object->bone_index])[24] |= 8;
@@ -588,7 +588,7 @@ void BaddyObjects()//?, B5328
 		///object->initialise = 0xFFFF8C7C
 		//a0 = RelocPtr[MOD_SAS][0]
 		//a3 = &objects[LARA];
-#if PSX_VERSION
+#if PSX_VERSION && RELOC
 		object->control = RelocPtr[MOD_SAS][0];
 #endif
 		//v0 = *(int*)&objects[SWAT].bite_offset
@@ -691,7 +691,7 @@ void BaddyObjects()//?, B5328
 
 		//a0 = object->bone_index
 		//a1 = bones
-#if PSX_VERSION
+#if PSX_VERSION && RELOC
 		object->control = RelocPtr[MOD_SAS][0];
 #endif
 
@@ -730,7 +730,7 @@ void BaddyObjects()//?, B5328
 		//v0 = RelocPtr[SWAT];
 		//a0 = RelocPtr[SWAT][0];
 		//v1 = &objects[LARA];
-#if PSX_VERSION
+#if PSX_VERSION && RELOC
 		object->control = RelocPtr[SWAT][0];
 #endif
 		//v0 = objects[SWAT].
@@ -921,7 +921,7 @@ void LoadLevel(FILE* nHandle)
 {
 	struct Level* level;
 #if PSX_VERSION
-	RECT tex[2];
+	RECT16 tex[2];
 #endif
 	char* ptr = NULL;
 	char* ptr2 = NULL;
@@ -1029,7 +1029,7 @@ void LoadLevel(FILE* nHandle)
 		LOAD_DrawEnable(0);
 
 #if PSX_VERSION
-		LoadImage(&tex[0], (unsigned long*)ptr);
+		LoadImagePSX(&tex[0], (unsigned long*)ptr);
 
 		DrawSync(0);
 #endif
@@ -1299,14 +1299,22 @@ void LoadLevel(FILE* nHandle)
 
 #if DISC_VERSION
 #if PSX_VERSION
+#if PSXPC_TEST
+	DEL_CDFS_Read((char*)&objects_raw, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
+#else
 	DEL_CDFS_Read((char*)&objects, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
+#endif
 #elif PSXPC_VERSION
 	DEL_CDFS_Read((char*)&objects_raw, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
 #endif
 #else
 #if PSX_VERSION
 	PClseek(nHandle, level->offsetObjects, 0);
+#if PSXPC_TEST
+	FILE_Read((char*)&objects_raw, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
+#else
 	FILE_Read((char*)&objects, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
+#endif
 	PCclose(nHandle);
 #elif PSXPC_VERSION
 	fseek(nHandle, level->offsetObjects, SEEK_SET);
@@ -1331,9 +1339,7 @@ void LoadLevel(FILE* nHandle)
 #elif PSXPC_VERSION
 		nHandle = fopen("DATA\\CODE.WAD", "rb");
 #endif
-		char* ptr = (char*)&tsv_buffer[256];
 		FILE_Read((char*)&tsv_buffer[256], 20, 96, nHandle);
-		ptr++;
 #endif
 
 		if (level->numAiModules > 0)
@@ -1562,7 +1568,7 @@ void LoadLevel(FILE* nHandle)
 		DEL_CDFS_Read(ptr, 7296);
 
 #if PSX_VERSION
-		LoadImage(&tex[0], (unsigned long*)ptr);
+		LoadImagePSX(&tex[0], (unsigned long*)ptr);
 
 		DrawSync(0);
 #endif
@@ -1792,7 +1798,11 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 	int s7;
 	int mallocSize;//$a0
 #if PSX_VERSION
+#if PSXPC_TEST
+	int nHandle = 0;
+#else
 	int nHandle;
+#endif
 #elif PSXPC_VERSION
 	FILE* nHandle;
 #endif

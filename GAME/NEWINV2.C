@@ -22,11 +22,15 @@
 #include "DRAWPRIMITIVE.H"
 #include "GAME.H"
 #include "WINMAIN.H"
-#else
+#elif PSX_VERSION || PSXPC_VERSION
 #include "SETUP.H"
 #include "LOADSAVE.H"
 #include "CD.H"
 #include "GPU.H"
+#endif
+
+#if PSX_VERSION
+#include <LIBGPU.H>
 #endif
 
 enum invobj_types // update this whenever inventry_objects_list is modified

@@ -22,6 +22,7 @@
 #include "GPU.H"
 #include "DRAWPHAS.H"
 #include "ROOMLOAD.H"
+#include <LIBAPI.H>
 #else
 #include "GAME.H"
 #include "INIT.H"
@@ -54,6 +55,7 @@
 
 #if PSX_VERSION
 typedef unsigned int uintptr_t;
+#include "FXTRIG.H"
 #endif
 
 #include <string.h>
