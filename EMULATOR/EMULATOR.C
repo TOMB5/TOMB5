@@ -147,12 +147,12 @@ void Emulator_EndScene()
 
 	float vertexBuffer[] =
 	{
-		0.0f, 240.0f, 0.0f, 0.0f, y,
-		0.0f, 0.0f, 0.0f, 0.0f, y + h,
-		512.0f, 0.0f, 0.0f, 0.5f, y + h,
-		512.0f, 240.0f, 0.0f, 0.5f, y,
-		512.0f, 0.0f, 0.0f, 0.5f, y + h,
-		0.0f, 240.0f, 0.0f, 0.0f, y,
+		0.0f, (float)word_33BC.disp.h, 0.0f, x, y,
+		0.0f, 0.0f, 0.0f, x, y + h,
+		(float)word_33BC.disp.w, 0.0f, 0.0f, x + w, y + h,
+		(float)word_33BC.disp.w, (float)word_33BC.disp.h, 0.0f, x + w, y,
+		(float)word_33BC.disp.w, 0.0f, 0.0f, x + w, y + h,
+		0.0f, (float)word_33BC.disp.h, 0.0f, x, y,
 	};
 
 	GLushort indexBuffer[] =
