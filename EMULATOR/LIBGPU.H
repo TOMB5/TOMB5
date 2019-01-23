@@ -3,6 +3,8 @@
 
 #include "TYPES.H"
 
+#include "LIBGTE.H"
+
 extern	int (*GPU_printf)(char *fmt, ...);
 
 #define WAIT_TIME	0x800000
@@ -32,7 +34,7 @@ extern	int (*GPU_printf)(char *fmt, ...);
 	GPU_printf("\t%5d,%5d,%5d\n",(x)->m[1][0],(x)->m[1][1],(x)->m[1][2]),\
 	GPU_printf("\t%5d,%5d,%5d\n",(x)->m[2][0],(x)->m[2][1],(x)->m[2][2])
 
-#define setRECT(r, _x, _y, _w, _h) \
+#define setRECT16(r, _x, _y, _w, _h) \
 	(r)->x = (_x),(r)->y = (_y),(r)->w = (_w),(r)->h = (_h)
 
 /*
@@ -118,7 +120,7 @@ extern	int (*GPU_printf)(char *fmt, ...);
 /*
  * Dump Primivie Parameters
  */
-#define dumpRECT(r)	\
+#define dumpRECT16(r)	\
 	GPU_printf("(%d,%d)-(%d,%d)\n", (r)->x,(r)->y,(r)->w,(r)->h)
 
 #define dumpWH(p)	GPU_printf("(%d,%d)\n", (p)->w,  (p)->h ) 
@@ -221,16 +223,16 @@ extern	int (*GPU_printf)(char *fmt, ...);
 	((u_long *)(p))[1] = _get_tw(tw),	\
 	((u_long *)(p))[2] = 0
 
-#define _get_len(rect)	\
-		(((rect)->w*(rect)->h+1)/2+4)
+#define _get_len(RECT16)	\
+		(((RECT16)->w*(RECT16)->h+1)/2+4)
 
-#define setDrawLoad(pt, rect)					\
-	(_get_len(rect) <= 16) ? (				\
-		(setlen(pt, _get_len(rect))),			\
+#define setDrawLoad(pt, RECT16)					\
+	(_get_len(RECT16) <= 16) ? (				\
+		(setlen(pt, _get_len(RECT16))),			\
 		((pt)->code[0] = 0xa0000000),			\
-		((pt)->code[1] = *((u_long *)&(rect)->x)),	\
-		((pt)->code[2] = *((u_long *)&(rect)->w)),	\
-		((pt)->p[_get_len(rect)-4] = 0x01000000)	\
+		((pt)->code[1] = *((u_long *)&(RECT16)->x)),	\
+		((pt)->code[2] = *((u_long *)&(RECT16)->w)),	\
+		((pt)->p[_get_len(RECT16)-4] = 0x01000000)	\
 	) : ( \
 		(setlen(pt,0)) \
 	)
@@ -243,7 +245,7 @@ extern	int (*GPU_printf)(char *fmt, ...);
 #define setDrawMode(p, dfe, dtd, tpage, tw) 		\
         setlen(p, 2),					\
         ((u_long *)p)[1] = _get_mode(dfe, dtd, tpage),	\
-        ((u_long *)p)[2] = _get_tw((RECT *)tw)
+        ((u_long *)p)[2] = _get_tw((RECT16 *)tw)
 
 	
 /*	Primitive 	Lentgh		Code				*/
@@ -276,12 +278,12 @@ extern	int (*GPU_printf)(char *fmt, ...);
 			(p)->p2 = 0, (p)->p3 = 0
 	
 /*
- * Rectangle:
+ * RECT16angle:
  */
 typedef struct {
 	short x, y;		/* offset point on VRAM */
 	short w, h;		/* width and height */
-} RECT;
+} RECT16;
 
 typedef struct {
 	int x, y;		/* offset point on VRAM */
@@ -297,9 +299,9 @@ typedef struct {
 } DR_ENV;				/* Packed Drawing Environment */
 	       
 typedef struct {
-	RECT	clip;		/* clip area */
+	RECT16	clip;		/* clip area */
 	short	ofs[2];		/* drawing offset */
-	RECT	tw;		/* texture window */
+	RECT16	tw;		/* texture window */
 	u_short tpage;		/* texture page */	
 	u_char	dtd;		/* dither flag (0:off, 1:on) */
 	u_char	dfe;		/* flag to draw on display area (0:off 1:on) */
@@ -309,8 +311,8 @@ typedef struct {
 } DRAWENV;
 	       
 typedef struct {
-	RECT	disp;		/* display area */
-	RECT	screen;		/* display start point */
+	RECT16	disp;		/* display area */
+	RECT16	screen;		/* display start point */
 	u_char	isinter;	/* interlace 0: off 1: on */
 	u_char	isrgb24;	/* RGB24 bit mode */
 	u_char	pad0, pad1;	/* reserved */
@@ -619,9 +621,9 @@ typedef struct {
  */
 typedef struct {
 	u_long  mode;		/* pixel mode */
-	RECT	*crect;		/* CLUT rectangle on frame buffer */
+	RECT16	*cRECT16;		/* CLUT RECT16angle on frame buffer */
 	u_long	*caddr;		/* CLUT address on main memory */
-	RECT	*prect;		/* texture image rectangle on frame buffer */
+	RECT16	*pRECT16;		/* texture image RECT16angle on frame buffer */
 	u_long	*paddr;		/* texture image address on main memory */
 } TIM_IMAGE;
 	       
@@ -646,8 +648,8 @@ extern DRAWENV *SetDefDrawEnv(DRAWENV *env, int x, int y, int w, int h);
 extern TIM_IMAGE *ReadTIM(TIM_IMAGE *timimg);
 extern TMD_PRIM *ReadTMD(TMD_PRIM *tmdprim);
 extern int CheckPrim(char *s, u_long *p);
-extern int ClearImage(RECT *rect, u_char r, u_char g, u_char b);
-extern int ClearImage2(RECT *rect, u_char r, u_char g, u_char b);
+extern int ClearImage(RECT16 *RECT16, u_char r, u_char g, u_char b);
+extern int ClearImage2(RECT16 *RECT16, u_char r, u_char g, u_char b);
 extern int DrawSync(int mode);
 extern int FntOpen(int x, int y, int w, int h, int isbg, int n);
 extern int GetGraphDebug(void) ;
@@ -656,14 +658,14 @@ extern int IsEndPrim(void *p) ;
 extern int KanjiFntOpen(int x, int y, int w, int h, int dx, int dy, int cx, int cy, int isbg, int n);
 extern void KanjiFntClose(void);
 extern int Krom2Tim(u_char *sjis, u_long *taddr, int dx, int dy, int cdx, int cdy, u_int fg, u_int bg);
-extern int LoadImage(RECT *rect, u_long *p);
+extern int LoadImagePSX(RECT16 *rect, u_long *p);
 extern int MargePrim(void *p0, void *p1);
-extern int MoveImage(RECT *rect, int x, int y);
+extern int MoveImage(RECT16 *RECT, int x, int y);
 extern int OpenTIM(u_long *addr);
 extern int OpenTMD(u_long *tmd, int obj_no);
 extern int ResetGraph(int mode);
 extern int SetGraphDebug(int level);
-extern int StoreImage(RECT *rect, u_long *p);
+extern int StoreImage(RECT16 *RECT16, u_long *p);
 extern u_long *ClearOTag(u_long *ot, int n);
 extern u_long *ClearOTagR(u_long *ot, int n);
 extern u_long *FntFlush(int id);
@@ -689,12 +691,12 @@ extern void DumpOTag(u_long *p);
 extern void DumpTPage(u_short tpage) ;
 extern void FntLoad(int tx, int ty);
 extern void SetDispMask(int mask);
-extern void SetDrawArea(DR_AREA *p, RECT *r);
+extern void SetDrawArea(DR_AREA *p, RECT16 *r);
 extern void SetDrawEnv(DR_ENV *dr_env, DRAWENV *env);
-extern void SetDrawLoad(DR_LOAD *p, RECT *rect);
-extern void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
+extern void SetDrawLoad(DR_LOAD *p, RECT16 *RECT16);
+extern void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT16 *tw);
 extern void SetDrawTPage(DR_TPAGE *p, int dfe, int dtd, int tpage);
-extern void SetDrawMove(DR_MOVE *p, RECT *rect, int x, int y) ;
+extern void SetDrawMove(DR_MOVE *p, RECT16 *RECT16, int x, int y) ;
 extern void SetDrawOffset(DR_OFFSET *p, u_short *ofs);
 extern void SetDrawStp(DR_STP *p, int pbw);
 extern void SetDumpFnt(int id);
@@ -717,7 +719,7 @@ extern void SetShadeTex(void *p, int tge) ;
 extern void SetSprt(SPRT *p) ;
 extern void SetSprt16(SPRT_16 *p) ;
 extern void SetSprt8(SPRT_8 *p) ;
-extern void SetTexWindow(DR_TWIN *p, RECT *tw);
+extern void SetTexWindow(DR_TWIN *p, RECT16 *tw);
 extern void SetTile(TILE *p) ;
 extern void SetTile1(TILE_1 *p) ;
 extern void SetTile16(TILE_16 *p) ;
@@ -727,9 +729,9 @@ extern u_long *BreakDraw(void);
 extern void ContinueDraw(u_long *insaddr, u_long *contaddr);
 extern int IsIdleGPU(int max_count);
 extern int GetODE(void);
-extern int LoadImage2(RECT *rect, u_long *p);
-extern int StoreImage2(RECT *rect, u_long *p);
-extern int MoveImage2(RECT *rect, int x, int y);
+extern int LoadImage2(RECT16 *RECT16, u_long *p);
+extern int StoreImage2(RECT16 *RECT16, u_long *p);
+extern int MoveImage2(RECT16 *RECT16, int x, int y);
 extern int DrawOTag2(u_long *p);
 extern void GetDrawMode(DR_MODE *p);
 extern void GetTexWindow(DR_TWIN *p);
@@ -737,4 +739,7 @@ extern void GetDrawArea(DR_AREA *p);
 extern void GetDrawOffset(DR_OFFSET *p);
 extern void GetDrawEnv2(DR_ENV *p);
 
-#endif /* _LIBGPU_H_ */
+extern unsigned short vram[];
+extern DISPENV word_33BC;
+
+#endif

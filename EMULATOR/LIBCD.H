@@ -130,9 +130,9 @@ typedef struct {
 /*
  *	Low Level File System for CdSearchFile() 
  */
-#define CdlMAXFILE	64	/* max number of files in a directory */
-#define CdlMAXDIR	128	/* max number of total directories */
-#define CdlMAXLEVEL	8	/* max levels of directories */
+#define CdlMAXFILE	64	/* max number of files in a diRECT16ory */
+#define CdlMAXDIR	128	/* max number of total diRECT16ories */
+#define CdlMAXLEVEL	8	/* max levels of diRECT16ories */
 
 typedef struct {
 	CdlLOC	pos;		/* file location */

@@ -4,5 +4,5 @@
 
 void exit()
 {
-	assert(0);
+	
 }

@@ -4,6 +4,6 @@
 
 int abs(int input)
 {
-	assert(0);
+	
 	return 0;
 }

@@ -59,7 +59,7 @@ extern void Exception();
 extern void SwEnterCriticalSection();
 extern void SwExitCriticalSection();
 
-extern unsigned long SetSp(unsigned long);
+extern unsigned long SetSp(unsigned long newsp);
 extern unsigned long GetSp();
 extern unsigned long GetGp();
 extern unsigned long GetCr();

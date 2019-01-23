@@ -38,18 +38,18 @@ extern int PadIdentifier;
 #define MODE_NTSC 0
 #define MODE_PAL 1 
 
-int CheckCallback(void) ;
-void PadInit(int mode);
-int ResetCallback(void) ;
-int RestartCallback(void) ;
-int StopCallback(void) ;
-int VSync(int mode);
-int VSyncCallback(void (*f)(void)) ;
-long GetVideoMode (void);
-long SetVideoMode (long mode);
-u_long PadRead(int id);
-void PadStop(void);
+extern int CheckCallback(void);
+extern void PadInit(int mode);
+extern int ResetCallback(void);
+extern int RestartCallback(void);
+extern int StopCallback(void);
+extern int VSync(int mode);
+extern int VSyncCallback(void (*f)(void)) ;
+extern long GetVideoMode (void);
+extern long SetVideoMode (long mode);
+extern u_long PadRead(int id);
+extern void PadStop(void);
 
-#endif /* _LIBETC_H_ */
+#endif
 
 

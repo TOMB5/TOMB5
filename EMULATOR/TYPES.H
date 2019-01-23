@@ -1,16 +1,5 @@
-/* 
- * File:types.h
- */
-/*
- * $PSLibId: Run-time Library Release 4.7$
- */
-
 #ifndef	_SYS_TYPES_H
 #define	_SYS_TYPES_H
-
-/*
- * Basic system types and major/minor device constructing/busting macros.
- */
 
 /* major part of a device */
 #define	major(x)	((int)(((unsigned)(x)>>8)&0377))
@@ -60,8 +49,8 @@ typedef	struct	label_t	{
 typedef	struct	_quad { long val[2]; } quad;
 typedef	long	daddr_t;
 typedef	char *	caddr_t;
-typedef	long *	qaddr_t;	/* should be typedef quad * qaddr_t; */
-typedef	u_long	ino_t;
+typedef	long *	qaddr_t;
+//typedef	u_long	ino_t;
 typedef	long	swblk_t;
 
 #ifndef _SIZE_T
@@ -69,12 +58,12 @@ typedef	long	swblk_t;
 typedef	unsigned int size_t;
 #endif
 
-typedef	long	time_t;
-typedef	short	dev_t;
+//typedef	long	time_t;
+//typedef	short	dev_t;
 typedef	long	off_t;
 typedef	u_short	uid_t;
 typedef	u_short	gid_t;
 
-#define	NBBY	8		/* number of bits in a byte */
+#define	NBBY	8
 
-#endif	/* _SYS_TYPES_H */
+#endif

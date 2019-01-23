@@ -7,12 +7,18 @@ int fileHandle = 0;
 
 int PCinit()
 {
-	assert(0);
+	
 	return 0;
 }
 
 int PCopen(char* name, int flags, int perms)
 {
+	//TOMB5 hack for CUTSEQ.JIZ
+	if (name[0] == '\\')
+	{
+		++name;
+	}
+
 	switch (flags)
 	{
 	case 0:
@@ -31,18 +37,19 @@ int PCopen(char* name, int flags, int perms)
 
 int PCcreat(char* name, int perms)
 {
-	assert(0);
+	
 	return 0;
 }
 
 int PClseek(int fd, int offset, int mode)
 {
-	return fseek((FILE*)fd, offset, mode);
+	fseek((FILE*)fd, offset, mode);
+	return ftell((FILE*)fd);
 }
 
 int PCread(int fd, char* buff, int len)
 {
-	return fread(buff, len, 1, (FILE*)fd);
+	return fread(buff, 1, len, (FILE*)fd);
 }
 
 int PCwrite(int fd, char* buff, int len)

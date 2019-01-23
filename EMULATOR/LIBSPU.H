@@ -152,7 +152,7 @@
 #define	SPU_VOICE_ADSR_ADSR1	(0x01 << 17) /* ADSR adsr1 for `VagAtr'  */
 #define	SPU_VOICE_ADSR_ADSR2	(0x01 << 18) /* ADSR adsr2 for `VagAtr'  */
 
-#define	SPU_VOICE_DIRECT	0
+#define	SPU_VOICE_DIRECT16	0
 #define	SPU_VOICE_LINEARIncN	1
 #define	SPU_VOICE_LINEARIncR	2
 #define	SPU_VOICE_LINEARDecN	3

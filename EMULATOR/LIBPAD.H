@@ -33,21 +33,21 @@
 #define PadMaxCurr		60
 #define PadCurrCTP1		10
 
-void PadInitDirect(unsigned char* unk00, unsigned char* unk01);
-void PadInitMtap(unsigned char* unk00, unsigned char* unk01);
-void PadInitGun(unsigned char* unk00, int unk01);
-int PadChkVsync();
-void PadStartCom();
-void PadStopCom();
-unsigned int PadEnableCom(unsigned int unk00);
-void PadEnableGun(unsigned char unk00);
-void PadRemoveGun();
-int PadGetState(int unk00);
-int PadInfoMode(int unk00, int, int unk01);
-int PadInfoAct(int unk00, int, int unk01);
-int PadInfoComb(int unk00, int, int unk01);
-int PadSetActAlign(int unk00, unsigned char* unk01);
-int PadSetMainMode(int socket, int offs, int lock);
-void PadSetAct(int unk00, unsigned char* unk01, int unk02);
+extern void PadInitDiect(unsigned char* unk00, unsigned char* unk01);
+extern void PadInitMtap(unsigned char* unk00, unsigned char* unk01);
+extern void PadInitGun(unsigned char* unk00, int unk01);
+extern int PadChkVsync();
+extern void PadStartCom();
+extern void PadStopCom();
+extern unsigned int PadEnableCom(unsigned int unk00);
+extern void PadEnableGun(unsigned char unk00);
+extern void PadRemoveGun();
+extern int PadGetState(int unk00);
+extern int PadInfoMode(int unk00, int, int unk01);
+extern int PadInfoAct(int unk00, int, int unk01);
+extern int PadInfoComb(int unk00, int, int unk01);
+extern int PadSetActAlign(int unk00, unsigned char* unk01);
+extern int PadSetMainMode(int socket, int offs, int lock);
+extern void PadSetAct(int unk00, unsigned char* unk01, int unk02);
 
 #endif

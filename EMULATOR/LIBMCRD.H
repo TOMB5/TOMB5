@@ -1,5 +1,5 @@
-#ifndef MEMCARD_H
-#define MEMCARD_H
+#ifndef LIBMCRD_H
+#define LIBMCRD_H
 
 #include <kernel.h>
 
@@ -22,24 +22,24 @@ typedef void (*MemCB)( long cmds, long rslt );
 #define	McErrBlockFull		(7)
 #define	McErrExtend		(0x8000)
 
-void MemCardInit( long val );
-void MemCardEnd( void );
-void MemCardStart(void);
-void MemCardStop(void);
-long MemCardExist( long chan );
-long MemCardAccept( long chan );
-long MemCardOpen( long chan, char* file, long flag );
-void MemCardClose(void);
-long MemCardReadData( unsigned long* adrs, long ofs, long bytes );
-long MemCardReadFile( long chan, char* file, unsigned long* adrs, long ofs, long bytes );
-long MemCardWriteData( unsigned long* adrs, long ofs, long bytes );
-long MemCardWriteFile( long chan, char* file, unsigned long* adrs, long ofs ,long bytes );
-long MemCardCreateFile( long chan, char* file, long blocks );
-long MemCardDeleteFile( long chan, char* file );
-long MemCardFormat( long chan );
-long MemCardUnformat(long chan);
-long MemCardSync( long mode, long* cmds, long* rslt );
-MemCB MemCardCallback( MemCB func );
-long MemCardGetDirentry( long chan, char* name, struct DIRENTRY* dir, long* files, long ofs, long max );
+extern void MemCardInit( long val );
+extern void MemCardEnd( void );
+extern void MemCardStart(void);
+extern void MemCardStop(void);
+extern long MemCardExist( long chan );
+extern long MemCardAccept( long chan );
+extern long MemCardOpen( long chan, char* file, long flag );
+extern void MemCardClose(void);
+extern long MemCardReadData( unsigned long* adrs, long ofs, long bytes );
+extern long MemCardReadFile( long chan, char* file, unsigned long* adrs, long ofs, long bytes );
+extern long MemCardWriteData( unsigned long* adrs, long ofs, long bytes );
+extern long MemCardWriteFile( long chan, char* file, unsigned long* adrs, long ofs ,long bytes );
+extern long MemCardCreateFile( long chan, char* file, long blocks );
+extern long MemCardDeleteFile( long chan, char* file );
+extern long MemCardFormat( long chan );
+extern long MemCardUnformat(long chan);
+extern long MemCardSync( long mode, long* cmds, long* rslt );
+extern MemCB MemCardCallback( MemCB func );
+extern long MemCardGetDirentry( long chan, char* name, struct DIRENTRY* dir, long* files, long ofs, long max );
 
 #endif
