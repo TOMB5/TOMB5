@@ -43,7 +43,7 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 			if (x >= rect->x && x < rect->x + rect->w && 
 				y >= rect->y && y < rect->y + rect->h)
 			{
-				pixel[0] = ((r >> 3) << 11) | ((g >> 3) << 6) | ((b >> 3) << 1) | 0;
+				pixel[0] = 1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3));
 			}
 		}
 	}
@@ -70,6 +70,8 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 				y >= rect->y && y < rect->y + rect->h)
 			{
 				src[0] = *dst++;
+
+				//pixel[0] = 1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3));
 			}
 		}
 	}
