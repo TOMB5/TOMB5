@@ -9,25 +9,10 @@
 #include <stdio.h>
 #include <LIBGPU.H>
 
-float vertex[] =
-{
-	-1.0f,1.0f,0.0f,  0.0f,0.0f,
-	-1.0f,-1.0f,0.0f, 0.0f,1.0f,
-	1.0f,1.0f,0.0f,   1.0f,0.0f,
-	1.0,-1.0f,0.0f,   1.0f,0.0f,
-};
-
-GLuint indices[] =
-{
-	0,1,2,
-	1,2,3,
-};
-
 SDL_Window* g_window = NULL;
 SDL_Renderer* g_renderer;
 
 GLuint vramTexture = 0;
-GLuint vramFramebufferName = 0;
 
 void Emulator_Init(int screen_width, int screen_height)
 {
@@ -128,10 +113,10 @@ void Emulator_BeginScene()
 
 void Emulator_EndScene()
 {
-	glActiveTexture(GL_TEXTURE0);
-	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glActiveTexture(GL_TEXTURE0);
+	glEnable(GL_TEXTURE_2D);
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 512, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
@@ -189,7 +174,7 @@ void Emulator_EndScene()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 #if USE_VBO
-	glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, sizeof(indexBuffer), GL_UNSIGNED_SHORT, 0);
 #else
 
 	glBegin(GL_TRIANGLES);
@@ -219,5 +204,4 @@ void Emulator_EndScene()
 void Emulator_ShutDown()
 {
 	glDeleteTextures(1, &vramTexture);
-	glDeleteFramebuffers(1, &vramFramebufferName);
 }
