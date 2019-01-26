@@ -5,7 +5,7 @@
 #include "EFFECTS.H"
 #include "MISC.H"
 
-#if PSX_VERSION
+#if PSX_VERSION && RELOC
 void* func[] __attribute__((section(".header"))) =
 {
 	&CODEWAD_Joby5_Func1,
@@ -24,7 +24,7 @@ unsigned short data[] __attribute__((section(".data"))) =
 
 void CODEWAD_Joby5_Func1()
 {
-#if PSX_VERSION
+#if PSX_VERSION && RELOC
 
 	if (!(GlobalCounter & 0x1FF))
 	{

@@ -2,6 +2,9 @@
 
 #if PC_VERSION
 #include "GLOBAL.H"
+#else
+#include <SYS\TYPES.H>
+#include <LIBGTE.H>
 #endif
 
 #include "SPECTYPES.H"
@@ -59,9 +62,9 @@ char AccentTable[46][2] =
 unsigned char PulseCnt = 0;
 unsigned char ScaleFlag;
 
-struct CVECTOR FontShades[10][16];
+CVECTOR FontShades[10][16];
 
-static struct CVECTOR ShadeFromTo[10][2] =
+static CVECTOR ShadeFromTo[10][2] =
 {
 	{{128, 128, 128, 0}, {128, 128, 128, 0}}, 
 	{{128, 128, 128, 0}, {128, 128, 128, 0}},

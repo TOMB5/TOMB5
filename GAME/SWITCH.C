@@ -16,6 +16,7 @@
 #include "GAME.H"
 #else
 #include "SETUP.H"
+#include "SPHERES.H"
 #endif
 
 unsigned char SequenceUsed[6];
