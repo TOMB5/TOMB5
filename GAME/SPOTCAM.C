@@ -27,6 +27,7 @@
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "MISC.H"
+#include "SPHERES.H"
 #endif
 
 #include <stdio.h>

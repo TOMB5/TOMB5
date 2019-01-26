@@ -181,7 +181,7 @@ void lara_col_climbing(struct ITEM_INFO* item, struct COLL_INFO* coll)//469B0, 4
 
 				AnimateLara(item);
 
-				if (abs(ledge_r - ledge_l) <= 120)
+				if (ABS(ledge_r - ledge_l) <= 120)
 				{
 					if (result_r != -1 || result_l != -1)
 					{
