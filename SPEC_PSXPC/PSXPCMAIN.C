@@ -20,7 +20,7 @@
 
 int gp_start_address = 'T' | ('W' << 8) | ('A' << 16) | ('T' << 24);
 
-void VSyncFunc()//10000(<), 10000(<) (F)
+void VSyncFunc()//10000(<), 10000(<) (F) (*)
 {
 	cbvsync();
 
@@ -38,7 +38,13 @@ void VSyncFunc()//10000(<), 10000(<) (F)
 
 int main(int argc, char* args[])//10064(<), 10064(!)
 {
+	SPU_Init();
+
+	GPU_ClearVRAM();
+	GPU_FlipToBuffer(0);
+
 	InitNewCDSystem();
+
 #if BETA_VERSION
 	CDDA_SetMasterVolume(192);
 #else
@@ -49,6 +55,11 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], sizeof(GadwPolygonBuffers) / 8);
 	GPU_GetScreenPosition(&savegame.ScreenX, &savegame.ScreenY);
 
+#if DEBUG_VERSION
+	ProfileInit(1);
+	ProfileDraw = 1;
+#endif
+
 #if BETA_VERSION
 	savegame.VolumeCD = 204;
 	savegame.VolumeFX = 255;
@@ -56,20 +67,21 @@ int main(int argc, char* args[])//10064(<), 10064(!)
 	savegame.VolumeCD = 178;
 	savegame.VolumeFX = 204;
 #endif
+
 	savegame.ControlOption = 0;
 	savegame.AutoTarget = 1;
 	savegame.VibrateOn = 0;
+
 #if BETA_VERSION
 	SoundFXVolume = 255;
 #else
 	SoundFXVolume = 204;
 #endif
 
-	InitialisePadSubsystem();
-
 	init_game_malloc();
 	InitFont();
 	SOUND_Init();
 	DoGameflow();
+
 	return 0;
 }

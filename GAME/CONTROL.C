@@ -24,27 +24,31 @@
 #include "GAMEFLOW.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "GPU.H"
-#endif
 #include "HAIR.H"
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
 #include "LARA1GUN.H"
-#if PSX_VERSION || PSXPC_VERSION
 #include "LOAD_LEV.H"
 #include "MATHS.H"
 #include "ROOMLOAD.H"
+#include "PSOUTPUT.H"
+#include "SETUP.H"
+#include "SPHERES.H"
+#include "GETSTUFF.H"
+#include "TEXT_S.H"
+#include "FXTRIG.H"
+#endif
+
+#if PSX_VERSION
+#include <LIBETC.H>
+#include <LIBGTE.H>
 #endif
 #include "LOT.H"
 
 #include "NEWINV2.H"
 #include "PICKUP.H"
 #include INPUT_H
-
-#if PSX_VERSION || PSXPC_VERSION
-#include "PSOUTPUT.H"
-#include "SETUP.H"
-#endif
 #include "SAVEGAME.H"
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -56,6 +60,7 @@
 #include <assert.h>
 #include <string.h>
 #include "LARAMISC.H"
+#include "..\SPEC_PSXPC_N\TEXT_S.H"
 
 #define MAX_FRAMES 10
 
@@ -1753,9 +1758,9 @@ int CheckGuardOnTrigger()//209AC(<), 20BB8(<) (F)
 			if (room_number == item->room_number && item->current_anim_state == 1)
 			{
 				//loc_20A70
-				if (abs(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
-					abs(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
-					abs(item->pos.y_pos - lara_item->pos.y_pos) < SECTOR(0.25))
+				if (ABS(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+					ABS(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+					ABS(item->pos.y_pos - lara_item->pos.y_pos) < SECTOR(0.25))
 				{
 					return 1;
 				}
@@ -1923,9 +1928,73 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)
 	UNIMPLEMENTED();
 }
 
-void RefreshCamera(short type, short* data)
+void RefreshCamera(short type, short* data)//1E7FC, ? (F)
 {
-	UNIMPLEMENTED();
+	short trigger;
+	short value;
+	short target_ok;
+
+	target_ok = 2;
+
+	//loc_1E814
+	do
+	{
+		trigger = *data++;
+		value = trigger & 0x3FF;
+
+		if ((trigger & 0x3FFF) >> 10 == 1)
+		{
+			//loc_1E840
+			data++;
+			if (value == camera.last)
+			{
+				camera.number = value;
+
+				if (camera.timer < 0)
+				{
+					//loc_1E894
+					camera.timer = -1;
+				}
+				else if (camera.type == LOOK_CAMERA || camera.fixed[value].flags & 3)
+				{
+					//loc_1E8A4
+					camera.type = FIXED_CAMERA;
+					target_ok = 1;
+				}
+				else
+				{
+					camera.timer = -1;
+				}
+			}
+			else
+			{
+				//loc_1E89C
+				target_ok = 0;
+			}
+		}
+		else if ((trigger & 0x3FFF) >> 10 == 6)
+		{
+			//loc_1E8B4
+			if (camera.type == LOOK_CAMERA || camera.number == -1 || camera.fixed[camera.number].flags & 3)
+			{
+				camera.item = &items[value];
+			}
+		}
+	} while (!(trigger & 0x8000));
+
+	//loc_1E91C
+	if (camera.item != NULL)
+	{
+		if (!target_ok || target_ok == 2 || camera.item->looked_at || camera.item != camera.last_item)
+		{
+			camera.item = NULL;
+		}
+	}//loc_1E97C
+
+	if (camera.number == -1 && camera.timer > 0)
+	{
+		camera.timer = camera.number;
+	}
 }
 
 long GetWaterHeight(long x, long y, long z, short room_number)
@@ -1943,7 +2012,7 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F
 
 	joby = 0;
 
-	if (abs(height) & 0xFF)
+	if (ABS(height) & 0xFF)
 	{
 		joby = 1;
 
@@ -2007,6 +2076,7 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F
 	}
 }
 
+#if PC_VERSION || PSXPC_VERSION || PSXPC_TEST
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
 {
 	UNIMPLEMENTED();
@@ -2092,7 +2162,7 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 			*room_number = floor->pit_room;
 			r = &room[floor->pit_room];
 			tmp = ((z - r->z) >> 10) + r->x_size * ((x - r->x) >> 10);
-			/*if (abs(tmp) > 1048576)
+			/*if (ABS(tmp) > 1048576)
 			{
 				S_Warn("[GetFloor] - sector num too big -> probably room array not initialized\n");
 				S_Warn("[GetFloor] - returning or the vc runtime will shit brixes\n");
@@ -2114,6 +2184,7 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 	UNIMPLEMENTED();
 	return 0;
 }
+#endif
 
 int TriggerActive(struct ITEM_INFO* item)// (F)
 {
@@ -2299,7 +2370,7 @@ int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(
 	struct FLOOR_INFO* floor;
 	int los1, los2;
 
-	if ((abs(target->z - start->z)) > (abs(target->x - start->x)))
+	if ((ABS(target->z - start->z)) > (ABS(target->x - start->x)))
 	{
 		los1 = xLOS(start, target);
 		los2 = zLOS(start, target);
@@ -2321,7 +2392,9 @@ int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(
 	return 0;
 }
 
-int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
+#if PC_VERSION 
+int 
+(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
 	UNIMPLEMENTED();
 	return 0;
@@ -2332,6 +2405,7 @@ int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 	UNIMPLEMENTED();
 	return 0;
 }
+#endif
 
 int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 {

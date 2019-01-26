@@ -1,0 +1,15 @@
+text		group
+
+		section	.header,text
+		section	.data,text
+		section	.text,text
+		section	.rdata,text
+		section .ctors,text
+		section .dtors,text
+		section	.sdata,text
+		section	.bss,text
+		section	.sbss,text
+
+		include	GAME/ANDY3.OBJ
+		incsym	DISC/MAIN.SYM
+		inclib	c:/psyq/lib/libc.lib

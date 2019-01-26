@@ -2,6 +2,7 @@
 
 #include "LOAD_LEV.H"
 #include "SPECIFIC.H"
+#include "GTE.H"
 
 void mQuickW2VMatrix()
 {
@@ -134,7 +135,7 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 	long v1;
 	long at;
 
-	//gte_ldlzc(value);
+	v1 = gte_ldlzc(value);
 
 	if (value != 0)
 	{

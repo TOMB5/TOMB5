@@ -249,6 +249,7 @@ enum command_types
 	COMMAND_EFFECT
 };
 
+#if !PSXPC_TEST
 struct VECTOR
 {
 	long vx;
@@ -258,22 +259,7 @@ struct VECTOR
 	long pad;
 #endif
 };
-
-struct SVECTOR
-{
-	short vx;
-	short vy;
-	short vz;
-	short pad;
-};
-
-struct CVECTOR
-{
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-	unsigned char cd;
-};
+#endif
 
 struct PHD_VECTOR
 {

@@ -65,8 +65,10 @@ extern void ControlElectricFence(short item_number);
 extern void ControlTeleporter(short item_number);
 extern void DrawWeaponMissile(struct ITEM_INFO *item);
 extern void TriggerLaraDrips();
+#if PC_VERSION
 extern void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num);
 extern void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4);
+#endif
 extern void Richochet(struct GAME_VECTOR* pos);
 extern void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int a4, char a5, char a6, char a7);
 extern void TriggerCoinGlow();

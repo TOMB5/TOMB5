@@ -1,7 +1,7 @@
 #include "EFFECTS.H"
 
 #include "CAMERA.H"
-
+#include "CDTRACKS.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
@@ -530,9 +530,9 @@ void SoundFlipEffect(struct ITEM_INFO* item)//39500(<), 39A00(<) (F)
 
 void floor_shake_effect(struct ITEM_INFO* item)//39410, 39910 (F)
 {
-	int x = abs(item->pos.x_pos - camera.pos.x);
-	int y = abs(item->pos.y_pos - camera.pos.y);     
-	int z = abs(item->pos.z_pos - camera.pos.z);
+	int x = ABS(item->pos.x_pos - camera.pos.x);
+	int y = ABS(item->pos.y_pos - camera.pos.y);     
+	int z = ABS(item->pos.z_pos - camera.pos.z);
 
 	if (z < SECTOR(16))
 	{
@@ -610,7 +610,7 @@ void SoundEffects()//39190(<), 39690 (F)
 	SOUND_EndScene();
 }
 
-#if PSXPC_VERSION
+#if PSXPC_VERSION || PSXPC_TEST
 long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<), 937C4(!)
 {
 	long r;

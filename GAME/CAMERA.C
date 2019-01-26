@@ -2,12 +2,12 @@
 
 #if PSXPC_VERSION || PSX_VERSION
 #include "CALCLARA.H"
-#endif
-#if !PC_VERSION
 #include "CD.H"
 #include "MATHS.H"
 #include "3D_GEN.H"
-#else
+#include "BUBBLES.H"
+#endif
+#if PC_VERSION
 #include "GLOBAL.H"
 #include "DS.H"
 #endif
@@ -32,6 +32,7 @@
 
 #if PSX_VERSION
 #include INLINE_H
+#include "SPHERES.H"
 #endif
 
 #include <stddef.h>
