@@ -77,7 +77,7 @@ void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly)//32EAC
 	long dx = lara_item->pos.x_pos - item->pos.x_pos;
 	long dz = lara_item->pos.z_pos - item->pos.z_pos;
 
-	if (abs(dx) <= 16384 && abs(dz) <= 16384)
+	if (ABS(dx) <= 16384 && ABS(dz) <= 16384)
 	{
 		long size = (GetRandomControl() & 0x1FF) - yvel;
 		struct SPARKS* sptr = &spark[GetFreeSpark()];

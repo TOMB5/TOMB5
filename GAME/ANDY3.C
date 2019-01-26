@@ -12,7 +12,7 @@
 #include "SETUP.H"
 #endif
 
-#if PSX_VERSION
+#if PSX_VERSION && RELOC
 void* func_andy3[] __attribute__((section(".header"))) =
 {
 	&CODEWAD_andy3_Func1,
