@@ -24,6 +24,7 @@
 #include "SETUP.H"
 #include "DRAWPHAS.H"
 #include "MATHS.H"
+#include "BUBBLES.H"
 #endif
 
 #if PSX_VERSION || PSXPC_VERSION

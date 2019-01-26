@@ -105,7 +105,7 @@ void ControlBodyPart(short fx_number)//4E600, 4EA64 (F)
 			}
 
 			fx->speed -= fx->speed >> 2;
-			if (abs(fx->speed) < 4)
+			if (ABS(fx->speed) < 4)
 				fx->speed = 0;
 			fx->pos.y_pos = oy;
 		}
