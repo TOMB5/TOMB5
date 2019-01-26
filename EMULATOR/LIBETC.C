@@ -22,12 +22,12 @@ int VSync(int mode)
 			vsync_callback();
 		}
 
-		Emulator_EndScene();
-	}
+		while (lastTime - SDL_GetTicks() < (1000 / 60))
+		{
+			SDL_Delay(1);
+		}
 
-	while (lastTime - SDL_GetTicks() < (1000 / 60))
-	{
-		SDL_Delay(1);
+		Emulator_EndScene();
 	}
 
 	return 0;

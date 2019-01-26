@@ -13,13 +13,18 @@ SDL_Window* g_window = NULL;
 SDL_Renderer* g_renderer;
 
 GLuint vramTexture = 0;
+int screenWidth = 0;
+int screenHeight = 0;
 
 void Emulator_Init(int screen_width, int screen_height)
 {
+	screenWidth = screen_width;
+	screenHeight = screen_height;
+
 	if (SDL_Init(SDL_INIT_VIDEO) == 0)
 	{
 		g_window = SDL_CreateWindow("TOMB5", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, SDL_WINDOW_OPENGL);
-		g_renderer = SDL_CreateRenderer(g_window, 0, 0);
+		g_renderer = SDL_CreateRenderer(g_window, 0, SDL_RENDERER_ACCELERATED);
 		if (g_renderer == NULL)
 		{
 			printf("Error initialising renderer\n");
@@ -36,25 +41,6 @@ void Emulator_Init(int screen_width, int screen_height)
 	{
 		printf("Error initialising GLEW!\n");
 	}
-
-#if USE_FRAME_BUFFERS
-	glGenFramebuffers(1, &vramFramebufferName);
-	glBindFramebuffer(GL_FRAMEBUFFER, vramFramebufferName);
-
-	glGenTextures(1, &vramTexture);
-
-	glBindTexture(GL_TEXTURE_2D, vramTexture);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
-
-	GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, DrawBuffers);
-#endif
 
 	SDL_memset(&vram, 0, sizeof(1024 * 512 * 2));
 	SDL_GL_SetSwapInterval(1);
@@ -96,7 +82,10 @@ int lastTime = 0;
 
 void Emulator_BeginScene()
 {
-	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+#if _DEBUG
+	//glClearColor(184.0f, 213.0f, 238.0f, 1.0f);
+#endif
+	glClear((GL_COLOR_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -109,6 +98,11 @@ void Emulator_BeginScene()
 	}
 
 	lastTime = SDL_GetTicks();
+}
+
+void Emulator_SwapWindow()
+{
+	SDL_GL_SwapWindow(g_window);
 }
 
 void Emulator_EndScene()
@@ -176,7 +170,6 @@ void Emulator_EndScene()
 #if USE_VBO
 	glDrawElements(GL_TRIANGLES, sizeof(indexBuffer), GL_UNSIGNED_SHORT, 0);
 #else
-
 	glBegin(GL_TRIANGLES);
 	glTexCoord2f(0, y + h); glVertex3f(0, 0, 0);
 	glTexCoord2f(0.5, y + h); glVertex3f(512, 0, 0);
@@ -187,7 +180,11 @@ void Emulator_EndScene()
 	glTexCoord2f(0.0, y); glVertex3f(0, 240, 0);
 	glEnd();
 #endif
-
+	/*glBegin(GL_TRIANGLES);
+	glVertex2f(0, 0);
+	glVertex2f(512, 0);
+	glVertex2f(0, 240);
+	glEnd();*/
 #if USE_VBO
 	glDeleteBuffers(1, &vbo);
 	glDeleteBuffers(1, &ibo);
@@ -195,7 +192,7 @@ void Emulator_EndScene()
 
 	glPopMatrix();
 	Emulator_SaveVRAM2(1024, 512);
-	SDL_GL_SwapWindow(g_window);
+	Emulator_SwapWindow();
 
 	glDisable(GL_TEXTURE_2D);
 	glDeleteTextures(1, &vramTexture);

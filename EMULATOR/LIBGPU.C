@@ -108,19 +108,7 @@ u_long * ClearOTag(u_long * ot, int n)
 
 u_long* ClearOTagR(u_long* ot, int n)
 {
-	//v0 = byte_3352;
-	//s0 = ot
-	//s1 = n
-
-	//v0 = v0 < 2 ? 1 : 0
-	if (byte_3352 > 1)
-	{
-		///GPU_printf("ClearOTagR(%08x,%d)...\n", ot, n);
-	}
-
-	//loc_CB0
-//	((void*)off_3348[11])();
-
+	memset(ot, 0, n * sizeof(int));
 	return 0;
 }
 
@@ -201,7 +189,108 @@ u_long DrawSyncCallback(void(*func)(void))
 	return u_long();
 }
 
+int test = 0;
+
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
-	printf("Debug");
+	P_TAG* pTag = (P_TAG*)*p;
+	if (pTag != NULL)
+	{
+		GLuint fbo = 0;
+		glGenFramebuffers(1, &fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+		glEnable(GL_TEXTURE_2D);
+		glGenTextures(1, &vramTexture);
+		glBindTexture(GL_TEXTURE_2D, vramTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 512, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
+		GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, DrawBuffers);
+
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		glOrtho(0, 1024, 0, 512, -1, 1);
+		glViewport(0, 0, 1024, 512);
+
+		while (1)
+		{
+			switch (pTag->code)
+			{
+			case 0x2C:
+			{
+				POLY_FT4* poly = (POLY_FT4*)pTag;
+
+				///@FIXME im unsure if this is stable.
+				int tpage = (poly->tpage & 0x1F) / 4 + 1;
+				int x = (tpage * 256) % 1024 - 256;
+				int y = (tpage / 4) * 256;
+
+
+				glBegin(GL_QUADS);
+				glTranslatef(1.0f, 0.0f, 0.0f);
+				//glColor3ub(poly->r0, poly->g0, poly->b0);
+				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u0 + x)), 1.0f / (512.0f / (float)(poly->v0 + y)));
+				glVertex2f(poly->x0, poly->y0);
+				
+				//glColor3ub(poly->r0, poly->g0, poly->b0);
+				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u1 + x)), 1.0f / (512.0f / (float)(poly->v1 + y)));
+				glVertex2f(poly->x1, poly->y1);
+				
+				//glColor3ub(poly->r0, poly->g0, poly->b0);
+				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u3 + x)), 1.0f / (512.0f / (float)(poly->v3 + y)));
+				glVertex2f(poly->x3, poly->y3);
+				
+				//glColor3ub(poly->r0, poly->g0, poly->b0);
+				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u2 + x)), 1.0f / (512.0f / (float)(poly->v2 + y)));
+				glVertex2f(poly->x2, poly->y2);
+				
+				glEnd();
+				break;
+			}
+			default:
+				//Unhandled poly
+				assert(0);
+				break;
+			}
+
+			if (pTag->addr == 0)
+			{
+				break;
+			}
+
+			pTag = (P_TAG*)((int)pTag - ((pTag->len * 4) + 4));
+		}
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			printf("Frame buffer error!\n");
+		}
+
+		unsigned short* pixels = new unsigned short[1024 * 512];
+		memset(&pixels[0], 0, 1024 * 512 * 2);
+		glReadPixels(0, 0, 1024, 512, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
+		memcpy(&vram[0], pixels, 1024 * 512 * 2);
+
+#if _DEBUG
+		FILE* f = fopen("VRAM2.TGA", "wb");
+		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+		unsigned char header[6] = { 1024 % 256, 1024 / 256, 512 % 256, 512 / 256,16,0 };
+		fwrite(TGAheader, sizeof(unsigned char), 12, f);
+		fwrite(header, sizeof(unsigned char), 6, f);
+		fwrite(pixels, sizeof(char), 1024 * 512 * 2, f);
+		fclose(f);
+#endif
+		delete[] pixels;
+		glDeleteFramebuffers(1, &fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, screenWidth, screenHeight);
+		glPopMatrix();
+		glDeleteTextures(1, &vramTexture);
+	}
 }
