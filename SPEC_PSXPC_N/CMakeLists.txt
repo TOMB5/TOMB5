@@ -10,6 +10,9 @@ get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR}
 #Find required libs for PSXPC_N
 find_package(GLEW REQUIRED)
 
+#Toggles debug code on/off
+OPTIONAL_DEFINE(DEBUG_VERSION "Enable/Disable Debug Code" OFF)
+
 #Required to build platform specific code properly
 OPTIONAL_DEFINE(PSX_VERSION "Enable PSX code building" ON)
 
