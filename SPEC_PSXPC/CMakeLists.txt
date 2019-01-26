@@ -5,6 +5,9 @@ project (TombRaiderChronicles_PSXPC${TARGET_ARCH})
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
+#Toggles debug code on/off
+OPTIONAL_DEFINE(DEBUG_VERSION "Enable/Disable Debug Code" ON)
+
 #Required to build platform specific code properly
 OPTIONAL_DEFINE(PSXPC_VERSION "Enable PSXPC code building" ON)
 
