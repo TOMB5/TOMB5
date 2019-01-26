@@ -191,17 +191,145 @@ void InitialiseAnimatedTextures()//?(<), B4904(<)
 #endif
 }
 
+int sub_B49C0(struct WATERTAB* s1, int s0)///@check args
+{
+	int a0;//i
+	int rand;//a1
+
+	//loc_10D4
+	do
+	{
+		rand = GetRandomDraw() & 0xFC;
+
+		a0 = 0;
+
+		if (s0 > 0)
+		{
+			if (s1->random != rand)
+			{
+				a0++;
+
+				//loc_10C4
+				do
+				{
+					s1++;
+
+					if (a0 > s0)
+					{
+						//loc_1120
+						break;
+					}
+					a0++;
+				} while (s1->random != rand);
+			}//loc_1120
+		}//loc_1120
+	} while (a0 != s0);
+
+	return rand;
+}
+
 void sub_B4A40()//(<), B4A40(<)
 {
-	long rand;
-	//a0 = 0x10000
-	rand = rand_2;//v0 @ 0x10(sp)
+	int var_10;//maybe GAME_VECTOR
+	int var_14;
+	int var_18;
+	int fp;//i?
 
+	var_10 = rand_2;//0x10($sp)
 	SeedRandomDraw(0x1D96D);
-
-	//fp = 0
+		
+	fp = 0;
+	//v0 = 0x1F0000
 	//s5 = &WaterTable
-	//a0 = s5;
+	//a0 = $s5
+
+	//loc_1190
+	//a1 = fp;//0
+	//s0 = fp << 2
+	var_14 = fp + 1;
+	//v1 = &rcossin_tbl
+	//v0 = fp << 8;
+	//v0 += v1;
+	//a2 = &WaterTable[0][fp];
+	var_18 = fp << 2;
+	//s6 = rcossin_tbl[fp << 7];
+	//v1 = WaterTable + fp << 2
+	//s1 = rcossin_tbl[fp << 7] << 6
+
+	//v0 = (((rcossin_tbl[fp << 7]) << 6) - rcossin_tbl[fp << 7]) >> 15
+
+	WaterTable[0][fp].shimmer = (((rcossin_tbl[fp << 7]) << 6) - rcossin_tbl[fp << 7]) >> 15;
+	//v0 = rcossin_tbl[fp << 7] >> 8
+	WaterTable[0][fp].choppy = rcossin_tbl[fp << 7] >> 8;
+
+	WaterTable[0][fp].random = sub_B49C0(&WaterTable[0][0], fp);
+
+	//loc_1190
+	//a0 = &WaterTable[1][0]
+	//a1 = fp
+	//v1 = s5 + fp << 2
+	//v1 = &WaterTable[0][0].abs
+	//v0 = &WaterTable[0][fp].abs
+	//a2 = &WaterTable[1][fp]
+	WaterTable[0][fp].abs = 0;
+	//v0 = rcossin_tbl[fp << 7] >> 10;
+	//v1 = &WaterTable[0][fp]
+	WaterTable[1][fp].shimmer = rcossin_tbl[fp << 7] >> 10;
+	WaterTable[1][fp].choppy = 0;
+
+	WaterTable[1][fp].random = sub_B49C0(&WaterTable[1][0], fp);
+
+	//a0 = &WaterTable[2][0]
+	//a1 = fp
+	//v1 =  &WaterTable[0][fp];
+	//a2 = &WaterTable[0][fp];
+	//v0 = 0xFD
+	//v1 = &WaterTable[2][fp]
+	//s1 = (rcossin_tbl[fp << 7] << 6) >> 15
+	WaterTable[1][fp].abs = 253;
+	//v0 = &WaterTable[0][fp];
+	WaterTable[2][fp].shimmer = (rcossin_tbl[fp << 7] << 6) >> 15;
+	WaterTable[2][fp].choppy = 0;
+
+	WaterTable[2][fp].random = sub_B49C0(&WaterTable[2][0], fp);
+
+	//a0 = &WaterTable[3][0]
+	//a1 = fp
+	//v1 = &WaterTable[0][fp]
+	//v0 = &WaterTable[0][fp]
+	//a2 = &WaterTable[3][fp]
+	WaterTable[2][fp].abs = 0;
+	//v0 = ((rcossin_tbl[fp << 7] << 1) + rcossin_tbl[fp << 7]) >> 10
+	WaterTable[3][fp].shimmer = ((rcossin_tbl[fp << 7] << 1) + rcossin_tbl[fp << 7]) >> 10;
+	WaterTable[3][fp].choppy = 0;
+	WaterTable[3][fp].random = sub_B49C0(&WaterTable[3][0], fp);
+
+	//a0 = &WaterTable[4][0]
+	//a1 = fp
+	//v1 =  &WaterTable[0][fp]
+	//a2 =  &WaterTable[0][fp]
+	//v0 = 4
+	//a3 = &WaterTable[4][fp]
+	WaterTable[3][fp].abs = 4;
+	//v0 = ((rcossin_tbl[fp << 7] << 7) - rcossin_tbl[fp << 7]) >> 15;
+	WaterTable[4][fp].shimmer = ((rcossin_tbl[fp << 7] << 7) - rcossin_tbl[fp << 7]) >> 15;
+	WaterTable[4][fp].choppy = 0;
+
+	WaterTable[4][fp].random = sub_B49C0(&WaterTable[4][0], fp);
+
+	//a0 = 0
+	//a1 = 5
+	//v1 =  &WaterTable[0][fp]
+	WaterTable[4][fp].abs = 8;
+	//loc_12E8
+	//s4 = 0
+	//a3 = a0 + 1;
+	//t0 = a1 + 4
+	//v1 = a0 << 1
+	//a0 = &unk_24 //offset 0x24
+	//s7 = v1 + a0
+	//v0 = a1 << 8
+
 
 }
 
@@ -415,7 +543,7 @@ void InitialiseLaraCarriedItems(long keep_carried_items)//?, B4EE4
 		000B5380 A6220146 sh      v0, $146(s1)
 #endif
 
-		lara.num_small_medipack = 3;
+	lara.num_small_medipack = 3;
 	lara.num_large_medipack = 1;
 
 	lara.num_pistols_ammo = -1;
@@ -1407,7 +1535,7 @@ void LoadLevel(FILE* nHandle)
 	InitialiseFXArray(1);
 	InitialiseLOTarray(1);
 	InitialiseObjects();
-	InitialiseClosedDoors();///sub_7BC4();//InitialiseClosedDoors();
+	InitialiseClosedDoors();
 	InitialiseItemArray(256);
 
 	GlobalPulleyFrigItem = -1;
@@ -1818,7 +1946,7 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 	int nHandle;
 #endif
 #elif PSXPC_VERSION
-	FILE* nHandle;
+	FILE* nHandle = NULL;
 #endif
 	int residentData[4];
 

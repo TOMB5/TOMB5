@@ -625,7 +625,7 @@ int BadFloor(long x, long y, long z, long box_height, long next_height, int room
 	struct FLOOR_INFO* floor = GetFloor(x, y, z, &room_num);	
 	long height;
 
-	if (floor->box == 32752)///@FIXME this is illegal always returns 0 because box is 11 bits it can never be 32752 shpuld be 0x7FF really
+	if (floor->box == 0x7FF)
 		return TRUE;
 
 	if (LOT->is_jumping)
