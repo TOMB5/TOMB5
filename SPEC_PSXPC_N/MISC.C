@@ -95,6 +95,7 @@ void DrawLineV(long a0, long a1, long a2, long a3, long a4, long a5)//5EF84(<),
 void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
 {
 	int a0, a1, a2;
+
 	if (!LtLoadingBarEnabled)
 	{
 		return;
@@ -118,7 +119,7 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
 	draw_rotate_sprite(a0, a1, a2);
 	db.current_buffer ^= 1;
 	GnLastFrameCount = 0;
-
+	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);
 	return;
 }
 
@@ -135,9 +136,7 @@ void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
 	db.polybuf_limit = (char*)(db.poly_buffer[db.current_buffer]) + 26000;
 	db.pickup_ot = db.pickup_order_table[db.current_buffer];
 
-#if 0
-
-#endif
+	ClearOTagR(db.order_table[db.current_buffer], db.nOTSize);
 
 	Emulator_BeginScene();
 
@@ -205,7 +204,6 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 
 	*(long*) &db.polyptr[0] = db.ot[0] | 0x9000000;
 	db.ot[0] = (unsigned long)db.polyptr;
-	
 	//sizeof(POLY_G3);
 	db.polyptr += 0x28;
 	return;
