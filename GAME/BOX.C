@@ -413,7 +413,7 @@ short CreatureEffectT(struct ITEM_INFO* item, struct BITE_INFO* bite, short dama
 	pos.y = bite->y;
 	pos.z = bite->z;
 
-	GetJointABSPosition(item, &pos, bite->mesh_num);
+	GetJointAbsPosition(item, &pos, bite->mesh_num);
 
 	return generate(pos.x, pos.y, pos.z, damage, angle, item->room_number);
 }
@@ -426,7 +426,7 @@ short CreatureEffect(struct ITEM_INFO* item, struct BITE_INFO* bite, short(*gene
 	pos.y = bite->y;
 	pos.z = bite->z;
 
-	GetJointABSPosition(item, &pos, bite->mesh_num);
+	GetJointAbsPosition(item, &pos, bite->mesh_num);
 
 	return generate(pos.x, pos.y, pos.z, item->speed, item->pos.y_rot, item->room_number);
 }
