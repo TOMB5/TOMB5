@@ -32,6 +32,7 @@
 
 #if PSX_VERSION
 #include INLINE_H
+#include "SPHERES.H"
 #endif
 
 #include <stddef.h>

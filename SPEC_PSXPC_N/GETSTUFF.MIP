@@ -1,0 +1,479 @@
+	opt at-,w-,c+,m-
+
+	SECTION	ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF MULFP, DIVFP, xLOS, zLOS, GetFloor, GetHeight, GetCeiling
+	XREF los_rooms, number_los_rooms
+
+GetFloor:
+	jr ra
+	nop
+	
+GetHeight:
+	jr ra
+	nop
+	
+GetCeiling:
+	jr ra
+	nop
+	
+MULFP:
+	mult    a0, a1
+	mflo    v1
+	mfhi    v0
+	srl     v1, 16
+	sll     v0, 16
+	jr      ra
+	or      v0, v1
+	
+DIVFP:
+	sra     a1, 8
+	div     a0, a1
+	mflo    v0
+	jr      ra
+	sll     v0, 8
+
+zLOS:
+	lw      v1, 8(a1)
+	lw      t1, 8(a0)
+	move    a2, a0
+	subu    a0, v1, t1
+	bnez    a0, loc_79578
+	li      v0, 1
+	jr      ra
+	nop
+
+	loc_79578:
+	addiu   sp, -0x5C
+	sw      ra, 0x5C-0x4(sp)
+	sw      s7, 0x5C-0x8(sp)
+	sw      s6, 0x5C-0xC(sp)
+	sw      s5, 0x5C-0x10(sp)
+	sw      s4, 0x5C-0x14(sp)
+	sw      s3, 0x5C-0x18(sp)
+	sw      s2, 0x5C-0x1C(sp)
+	sw      s1, 0x5C-0x20(sp)
+	sw      s0, 0x5C-0x24(sp)
+	lw      v1, 0(a1)
+	lw      v0, 0(a2)
+	move    s5, a1
+	subu    s4, v1, v0
+	sll     s4, 10
+	div     s4, a0
+	lw      v1, 4(s5)
+	lw      v0, 4(a2)
+	mflo    s4
+	subu    s7, v1, v0
+	sll     s7, 10
+	div     s7, a0
+	lh      s6, 0xC(a2)
+	li      v0, 1
+	sh      s6, 0x5C-0x4C(sp)
+	sh      s6, los_rooms-GP_ADDR(gp)
+	sw      v0, number_los_rooms-GP_ADDR(gp)
+	mflo    s7
+	bgez    a0, loc_796C4
+	li      v0, 0xFFFFFC00
+	and     s2, t1, v0
+	subu    v1, s2, t1
+	mult    s4, v1
+	lw      v0, 0(a2)
+	mflo    t0
+	sra     a0, t0, 10
+	addu    s1, a0, v0
+	mult    s7, v1
+	lw      v0, 4(a2)
+	mflo    t0
+	sra     v1, t0, 10
+	j       loc_796A8
+	addu    s0, v1, v0
+
+	loc_79624:
+	jal     sub_797FC
+	move    a1, s0
+	slt     v0, v0, s0
+	bnez    v0, loc_79728
+	move    a0, s3
+	move    a1, s1
+	move    a2, s0
+	jal     GetCeiling
+	move    a3, s2
+	slt     v0, s0, v0
+	bnez    v0, loc_79728
+	move    a0, s1
+	move    a1, s0
+	addiu   a2, s2, -1
+	jal     GetFloor
+	addiu   a3, sp, 0x5C-0x4C
+	lh      a0, 0x5C-0x4C(sp)
+	move    s3, v0
+	jal     sub_7981C
+	addiu   a3, s2, -1
+	slt     v0, v0, s0
+	bnez    v0, loc_7978C
+	move    a0, s3
+	move    a1, s1
+	move    a2, s0
+	jal     GetCeiling
+	addiu   a3, s2, -1
+	slt     v0, s0, v0
+	bnez    v0, loc_7978C
+	nop
+	addiu   s2, -0x400
+	subu    s1, s4
+	subu    s0, s7
+
+	loc_796A8:
+	lw      v0, 8(s5)
+	nop
+	slt     v0, v0, s2
+	bnez    v0, loc_79624
+	move    a0, s1
+	j       loc_797C4
+	nop
+
+	loc_796C4:
+	ori     s2, t1, 0x3FF
+	subu    v1, s2, t1
+	mult    s4, v1
+	lw      v0, 0(a2)
+	mflo    t0
+	sra     a0, t0, 10
+	addu    s1, a0, v0
+	mult    s7, v1
+	lw      v0, 4(a2)
+	mflo    t0
+	sra     v1, t0, 10
+	j       loc_797B0
+	addu    s0, v1, v0
+
+	loc_796F8:
+	jal     sub_797FC
+	move    a1, s0
+	slt     v0, v0, s0
+	bnez    v0, loc_79728
+	move    a0, s3
+	move    a1, s1
+	move    a2, s0
+	jal     GetCeiling
+	move    a3, s2
+	slt     v0, s0, v0
+	beqz    v0, loc_79744
+	move    a0, s1
+
+	loc_79728:
+	sw      s1, 0(s5)
+	sw      s0, 4(s5)
+	sw      s2, 8(s5)
+	lhu     v1, 0x5C-0x4C(sp)
+	li      v0, 0xFFFFFFFF
+	j       loc_797D0
+	sh      v1, 0xC(s5)
+
+	loc_79744:
+	move    a1, s0
+	addiu   a2, s2, 1
+	jal     GetFloor
+	addiu   a3, sp, 0x5C-0x4C
+	lh      a0, 0x5C-0x4C(sp)
+	move    s3, v0
+	jal     sub_7981C
+	addiu   a3, s2, 1
+	slt     v0, v0, s0
+	bnez    v0, loc_7978C
+	move    a0, s3
+	move    a1, s1
+	move    a2, s0
+	jal     GetCeiling
+	addiu   a3, s2, 1
+	slt     v0, s0, v0
+	beqz    v0, loc_797A4
+	nop
+
+	loc_7978C:
+	sw      s1, 0(s5)
+	sw      s0, 4(s5)
+	sw      s2, 8(s5)
+	sh      s6, 0xC(s5)
+	j       loc_797D0
+	move    v0, zero
+
+	loc_797A4:
+	addiu   s2, 0x400
+	addu    s1, s4
+	addu    s0, s7
+
+	loc_797B0:
+	lw      v0, 8(s5)
+	nop
+	slt     v0, s2, v0
+	bnez    v0, loc_796F8
+	move    a0, s1
+
+	loc_797C4:
+	lh      v1, 0x5C-0x4C(sp)
+	li      v0, 1
+	sh      v1, 0xC(s5)
+
+	loc_797D0:
+	lw      ra, 0x5C-0x4(sp)
+	lw      s7, 0x5C-0x8(sp)
+	lw      s6, 0x5C-0xC(sp)
+	lw      s5, 0x5C-0x10(sp)
+	lw      s4, 0x5C-0x14(sp)
+	lw      s3, 0x5C-0x18(sp)
+	lw      s2, 0x5C-0x1C(sp)
+	lw      s1, 0x5C-0x20(sp)
+	lw      s0, 0x5C-0x24(sp)
+	jr      ra
+	addiu   sp, 0x5C
+	
+xLOS:
+	lw      v1, 0(a1)
+	lw      t1, 0(a0)
+	move    a2, a0
+	subu    a0, v1, t1
+	bnez    a0, loc_79870
+	li      v0, 1
+	jr      ra
+	nop
+
+	loc_79870:
+	addiu   sp, -0x5C
+	sw      ra, 0x5C-0x4(sp)
+	sw      s7, 0x5C-0x8(sp)
+	sw      s6, 0x5C-0xC(sp)
+	sw      s5, 0x5C-0x10(sp)
+	sw      s4, 0x5C-0x14(sp)
+	sw      s3, 0x5C-0x18(sp)
+	sw      s2, 0x5C-0x1C(sp)
+	sw      s1, 0x5C-0x20(sp)
+	sw      s0, 0x5C-0x24(sp)
+	lw      v1, 8(a1)
+	lw      v0, 8(a2)
+	move    s5, a1
+	subu    s4, v1, v0
+	sll     s4, 10
+	div     s4, a0
+	lw      v1, 4(s5)
+	lw      v0, 4(a2)
+	mflo    s4
+	subu    s7, v1, v0
+	sll     s7, 10
+	div     s7, a0
+	lh      s6, 0xC(a2)
+	li      v0, 1
+	sh      s6, 0x5C-0x4C(sp)
+	sh      s6, los_rooms-GP_ADDR(gp)
+	sw      v0, number_los_rooms-GP_ADDR(gp)
+	mflo    s7
+	bgez    a0, loc_799BC
+	li      v0, 0xFFFFFC00
+	and     s1, t1, v0
+	subu    v1, s1, t1
+	mult    s4, v1
+	lw      v0, 8(a2)
+	mflo    t0
+	sra     a0, t0, 10
+	addu    s2, a0, v0
+	mult    s7, v1
+	lw      v0, 4(a2)
+	mflo    t0
+	sra     v1, t0, 10
+	j       loc_799A0
+	addu    s0, v1, v0
+
+	loc_7991C:
+	jal     sub_79AF4
+	move    a1, s0
+	slt     v0, v0, s0
+	bnez    v0, loc_79A20
+	move    a0, s3
+	move    a1, s1
+	move    a2, s0
+	jal     GetCeiling
+	move    a3, s2
+	slt     v0, s0, v0
+	bnez    v0, loc_79A20
+	addiu   a0, s1, -1
+	move    a1, s0
+	move    a2, s2
+	jal     GetFloor
+	addiu   a3, sp, 0x5C-0x4C
+	lh      a0, 0x5C-0x4C(sp)
+	move    s3, v0
+	jal     sub_79B14
+	addiu   a1, s1, -1
+	slt     v0, v0, s0
+	bnez    v0, loc_79A84
+	move    a0, s3
+	addiu   a1, s1, -1
+	move    a2, s0
+	jal     GetCeiling
+	move    a3, s2
+	slt     v0, s0, v0
+	bnez    v0, loc_79A84
+	nop
+	addiu   s1, -0x400
+	subu    s2, s4
+	subu    s0, s7
+
+	loc_799A0:
+	lw      v0, 0(s5)
+	nop
+	slt     v0, v0, s1
+	bnez    v0, loc_7991C
+	move    a0, s1
+	j       loc_79ABC
+	nop
+
+	loc_799BC:
+	ori     s1, t1, 0x3FF
+	subu    v1, s1, t1
+	mult    s4, v1
+	lw      v0, 8(a2)
+	mflo    t0
+	sra     a0, t0, 10
+	addu    s2, a0, v0
+	mult    s7, v1
+	lw      v0, 4(a2)
+	mflo    t0
+	sra     v1, t0, 10
+	j       loc_79AA8
+	addu    s0, v1, v0
+
+	loc_799F0:
+	jal     sub_79AF4
+	move    a1, s0
+	slt     v0, v0, s0
+	bnez    v0, loc_79A20
+	move    a0, s3
+	move    a1, s1
+	move    a2, s0
+	jal     GetCeiling
+	move    a3, s2
+	slt     v0, s0, v0
+	beqz    v0, loc_79A3C
+	addiu   a0, s1, 1
+
+	loc_79A20:
+	sw      s1, 0(s5)
+	sw      s0, 4(s5)
+	sw      s2, 8(s5)
+	lhu     v1, 0x5C-0x4C(sp)
+	li      v0, 0xFFFFFFFF
+	j       loc_79AC8
+	sh      v1, 0xC(s5)
+
+	loc_79A3C:
+	move    a1, s0
+	move    a2, s2
+	jal     GetFloor
+	addiu   a3, sp, 0x5C-0x4C
+	lh      a0, 0x5C-0x4C(sp)
+	move    s3, v0
+	jal     sub_79B14
+	addiu   a1, s1, 1
+	slt     v0, v0, s0
+	bnez    v0, loc_79A84
+	move    a0, s3
+	addiu   a1, s1, 1
+	move    a2, s0
+	jal     GetCeiling
+	move    a3, s2
+	slt     v0, s0, v0
+	beqz    v0, loc_79A9C
+	nop
+
+	loc_79A84:
+	sw      s1, 0(s5)
+	sw      s0, 4(s5)
+	sw      s2, 8(s5)
+	sh      s6, 0xC(s5)
+	j       loc_79AC8
+	move    v0, zero
+
+	loc_79A9C:
+	addiu   s1, 0x400
+	addu    s0, s7
+	addu    s2, s4
+
+	loc_79AA8:
+	lw      v0, 0(s5)
+	nop
+	slt     v0, s1, v0
+	bnez    v0, loc_799F0
+	move    a0, s1
+
+	loc_79ABC:
+	lh      v1, 0x5C-0x4C(sp)
+	li      v0, 1
+	sh      v1, 0xC(s5)
+
+	loc_79AC8:
+	lw      ra, 0x5C-0x4(sp)
+	lw      s7, 0x5C-0x8(sp)
+	lw      s6, 0x5C-0xC(sp)
+	lw      s5, 0x5C-0x10(sp)
+	lw      s4, 0x5C-0x14(sp)
+	lw      s3, 0x5C-0x18(sp)
+	lw      s2, 0x5C-0x1C(sp)
+	lw      s1, 0x5C-0x20(sp)
+	lw      s0, 0x5C-0x24(sp)
+	jr      ra
+	addiu   sp, 0x5C
+	
+	
+sub_7981C:
+	beq     a0, s6, loc_79840
+	move    s6, a0
+	lw      v0, number_los_rooms-GP_ADDR(gp)
+	addiu   t0, gp, los_rooms-GP_ADDR
+	addiu   v1, v0, 1
+	sw      v1, number_los_rooms-GP_ADDR(gp)
+	sll     v0, 1
+	addu    v0, t0
+	sh      a0, 0(v0)
+
+	loc_79840:
+	move    a0, s3
+	move    a1, s1
+	j       GetHeight
+	move    a2, s0
+	
+sub_79B14:
+	beq     a0, s6, loc_79B38
+	move    s6, a0
+	lw      v0, number_los_rooms-GP_ADDR(gp)
+	addiu   t0, gp, los_rooms-GP_ADDR
+	addiu   v1, v0, 1
+	sw      v1, number_los_rooms-GP_ADDR(gp)
+	sll     v0, 1
+	addu    v0, t0
+	sh      a0, 0(v0)
+
+	loc_79B38:
+	move    a3, s2
+	move    a0, s3
+	j       GetHeight
+	move    a2, s0
+	
+sub_797FC:
+	move    s3, ra
+	move    a2, s2
+	jal     GetFloor
+	addiu   a3, sp, 0x10
+	lh      a0, 0x10(sp)
+	move    ra, s3
+	move    s3, v0
+	move    a3, s2
+	
+sub_79AF4:
+	move    s3, ra
+	move    a2, s2
+	jal     GetFloor
+	addiu   a3, sp, 0x10
+	lh      a0, 0x10(sp)
+	move    ra, s3
+	move    s3, v0
+	move    a1, s1

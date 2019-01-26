@@ -1390,7 +1390,7 @@ void lara_as_pulley(struct ITEM_INFO* item, struct COLL_INFO* coll)//1B288, 1B3B
 				p->item_flags[2] = 1;
 
 				if (p->item_flags[3] >= 0)
-					p->trigger_flags = abs(p->item_flags[3]);
+					p->trigger_flags = ABS(p->item_flags[3]);
 				else
 					p->item_flags[0] = 1;
 			}
@@ -2095,7 +2095,7 @@ void lara_col_hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//19AC8, 19BFC
 					coll->front_floor >= coll->left_ceiling2 && 
 					coll->front_floor >= coll->right_ceiling2)
 				{
-					if (abs(coll->left_floor2 - coll->right_floor2) < 60 && !coll->hit_static)
+					if (ABS(coll->left_floor2 - coll->right_floor2) < 60 && !coll->hit_static)
 					{
 						if (input & IN_WALK)
 						{
@@ -2120,7 +2120,7 @@ void lara_col_hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//19AC8, 19BFC
 					coll->front_floor - coll->left_ceiling2 >= -256 &&
 					coll->front_floor - coll->right_ceiling2 >= -256 )
 				{
-					if (abs(coll->left_floor2 - coll->right_floor2) < 60 && !coll->hit_static)
+					if (ABS(coll->left_floor2 - coll->right_floor2) < 60 && !coll->hit_static)
 					{
 						item->goal_anim_state = STATE_LARA_CLIMB_TO_CRAWL;
 						item->required_anim_state = STATE_LARA_CROUCH_IDLE;
@@ -2132,7 +2132,7 @@ void lara_col_hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//19AC8, 19BFC
 
 			if (lara.climb_status != 0 &&
 				coll->mid_ceiling <= -256 &&
-				abs(coll->left_ceiling2 - coll->right_ceiling2) < 60)
+				ABS(coll->left_ceiling2 - coll->right_ceiling2) < 60)
 			{
 				if (LaraTestClimbStance(item, coll))
 				{
@@ -2567,7 +2567,7 @@ void lara_col_reach(struct ITEM_INFO* item, struct COLL_INFO* coll)//18D0C, 18E4
 			{
 				short angle = item->pos.y_rot;
 
-				if (abs(angle) > ANGLE(35))
+				if (ABS(angle) > ANGLE(35))
 				{
 					if (angle < 10014 || angle > 22754)
 					{
@@ -2801,7 +2801,7 @@ void lara_col_upjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1853C, 186
 				{
 					short angle = item->pos.y_rot;
 
-					if (abs(angle) > ANGLE(35))
+					if (ABS(angle) > ANGLE(35))
 					{
 						if (angle < 10014 || angle > 22754)
 						{
@@ -3011,7 +3011,7 @@ void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 
 
 	if (input & IN_LSTEP)
 	{
-		if (abs(LaraFloorFront(item, item->pos.y_rot - ANGLE(90), 116)) < 128 && 
+		if (ABS(LaraFloorFront(item, item->pos.y_rot - ANGLE(90), 116)) < 128 && 
 			height_type != BIG_SLOPE &&
 			LaraCeilingFront(item, item->pos.y_rot - ANGLE(90), 116, 762) <= 0)
 		{
@@ -3020,7 +3020,7 @@ void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 
 	}
 	else if (input & IN_RSTEP)
 	{
-		if (abs(LaraFloorFront(item, item->pos.y_rot + ANGLE(90), 116)) < 128 && 
+		if (ABS(LaraFloorFront(item, item->pos.y_rot + ANGLE(90), 116)) < 128 && 
 			height_type != BIG_SLOPE &&
 			LaraCeilingFront(item, item->pos.y_rot + ANGLE(90), 116, 762) <= 0)
 		{
@@ -3045,7 +3045,7 @@ void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 
 
 		if (input & IN_FORWARD)
 		{
-			if (abs(fheight) >= 383)
+			if (ABS(fheight) >= 383)
 			{
 				lara.move_angle = item->pos.y_rot;
 
@@ -3065,7 +3065,7 @@ void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 
 				lara_as_wade(item, coll);
 			}
 		}
-		else if(input & IN_BACK && abs(rheight) < 383)
+		else if(input & IN_BACK && ABS(rheight) < 383)
 		{
 			lara_as_back(item, coll);
 		}
@@ -3118,7 +3118,7 @@ void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 
 	{
 		if (input & IN_WALK)
 		{
-			if (abs(rheight) < 383 && height_type != BIG_SLOPE)
+			if (ABS(rheight) < 383 && height_type != BIG_SLOPE)
 				lara_as_back(item, coll);
 		}
 		else if(rheight > -383)
@@ -3167,8 +3167,8 @@ void lara_col_ropefwd(struct ITEM_INFO* item, struct COLL_INFO* coll)//17B74, 17
 		{
 			long Vel;
 
-			if (abs(lara.RopeLastX) < 9000)
-				Vel = 192 * (9000 - abs(lara.RopeLastX) / 9000);
+			if (ABS(lara.RopeLastX) < 9000)
+				Vel = 192 * (9000 - ABS(lara.RopeLastX) / 9000);
 			else
 				Vel = 0;
 
@@ -3356,7 +3356,7 @@ void JumpOffRope(struct ITEM_INFO* item)//17424, 17558 (F)
 
 void FallFromRope(struct ITEM_INFO* item)//17394, 174C8 (F)
 {
-	item->speed = (abs(CurrentPendulum.Velocity.x >> 16) + abs(CurrentPendulum.Velocity.z >> 16)) >> 1; // todo this may explode if the values are negative but im too lazy
+	item->speed = (ABS(CurrentPendulum.Velocity.x >> 16) + ABS(CurrentPendulum.Velocity.z >> 16)) >> 1; // todo this may explode if the values are negative but im too lazy
 	item->pos.x_rot = 0;
 	item->pos.y_pos += 320;
 
@@ -3728,7 +3728,7 @@ void lara_col_monkeyswing(struct ITEM_INFO* item, struct COLL_INFO* coll)//16828
 		GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 600);
 
 		if (coll->coll_type == CT_FRONT
-			|| abs(coll->mid_ceiling - coll->front_ceiling) > 50)
+			|| ABS(coll->mid_ceiling - coll->front_ceiling) > 50)
 		{
 			item->anim_number = ANIMATION_LARA_MONKEY_IDLE;
 			item->frame_number = anims[ANIMATION_LARA_MONKEY_IDLE].frame_base;
@@ -3738,9 +3738,9 @@ void lara_col_monkeyswing(struct ITEM_INFO* item, struct COLL_INFO* coll)//16828
 		}
 		else
 		{
-			if (abs(coll->mid_ceiling - coll->left_ceiling2) <= 50)
+			if (ABS(coll->mid_ceiling - coll->left_ceiling2) <= 50)
 			{
-				if (abs(coll->mid_ceiling - coll->right_ceiling2) > 50)
+				if (ABS(coll->mid_ceiling - coll->right_ceiling2) > 50)
 				{
 					ShiftItem(item, coll);
 					item->pos.y_rot -= ANGLE(5);
@@ -3821,7 +3821,7 @@ void lara_col_hang2(struct ITEM_INFO* item, struct COLL_INFO* coll)//163DC, 1651
 
 		GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 600);
 
-		if (input & IN_FORWARD && coll->coll_type != CT_FRONT && abs(coll->mid_ceiling - coll->front_ceiling) < 50)
+		if (input & IN_FORWARD && coll->coll_type != CT_FRONT && ABS(coll->mid_ceiling - coll->front_ceiling) < 50)
 		{
 			item->goal_anim_state = STATE_LARA_MONKEYSWING_FORWARD;
 		}
@@ -3939,7 +3939,7 @@ short TestMonkeyRight(struct ITEM_INFO* item, struct COLL_INFO* coll)//161EC(<),
 	coll->facing = lara.move_angle;
 	coll->radius = 100;
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 600);
-	if (abs(coll->mid_ceiling - coll->front_ceiling) > 50)
+	if (ABS(coll->mid_ceiling - coll->front_ceiling) > 50)
 		return 0;
 	if (!coll->coll_type)
 		return 1;
@@ -3970,7 +3970,7 @@ short TestMonkeyLeft(struct ITEM_INFO* item, struct COLL_INFO* coll)//160CC(<), 
 	coll->facing = lara.move_angle;
 	coll->radius = 100;
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 600);
-	if (abs(coll->mid_ceiling - coll->front_ceiling) > 50)
+	if (ABS(coll->mid_ceiling - coll->front_ceiling) > 50)
 		return 0;
 	if (!coll->coll_type)
 		return 1;
@@ -3993,7 +3993,7 @@ short TestMonkeyLeft(struct ITEM_INFO* item, struct COLL_INFO* coll)//160CC(<), 
 
 short GetDirOctant(long rot)//160B4(<), 161E8(<) (F)
 {
-	return abs(rot) >= ANGLE(45) && abs(rot) <= ANGLE(135);
+	return ABS(rot) >= ANGLE(45) && ABS(rot) <= ANGLE(135);
 }
 
 void MonkeySwingSnap(struct ITEM_INFO* item, struct COLL_INFO* coll)//1605C(<), 16190(<) (F)
@@ -4240,7 +4240,7 @@ void lara_col_crawl2hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//15770,
 			{
 				short angle = item->pos.y_rot;
 
-				if (abs(angle) > ANGLE(35))
+				if (ABS(angle) > ANGLE(35))
 				{
 					if (angle >= 10014 && angle <= 22754)
 					{
@@ -4248,7 +4248,7 @@ void lara_col_crawl2hang(struct ITEM_INFO* item, struct COLL_INFO* coll)//15770,
 					}
 					else
 					{
-						if (abs(angle) >= 26397)
+						if (ABS(angle) >= 26397)
 						{
 							angle = ANGLE(-180);
 						}
@@ -4558,7 +4558,7 @@ void lara_col_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14B40, 14C7
 		}
 		else if(!TestLaraSlide(item, coll))
 		{
-			int slope = abs(coll->left_floor2 - coll->right_floor2);
+			int slope = ABS(coll->left_floor2 - coll->right_floor2);
 
 			lara.keep_ducked = coll->mid_ceiling >= -362;
 			ShiftItem(item, coll);
@@ -4575,7 +4575,7 @@ void lara_col_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14B40, 14C7
 				{
 					if (input & IN_FORWARD)
 					{
-						if (abs(LaraFloorFront(item, item->pos.y_rot, 256)) < 255 && height_type != BIG_SLOPE)
+						if (ABS(LaraFloorFront(item, item->pos.y_rot, 256)) < 255 && height_type != BIG_SLOPE)
 							item->goal_anim_state = STATE_LARA_CRAWL_FORWARD;
 					}
 					else if(input & IN_BACK)
@@ -4607,7 +4607,7 @@ void lara_col_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14B40, 14C7
 
 							height = LaraFloorFront(item, item->pos.y_rot, -300);
 
-							if (abs(height) >= 255 || height_type == BIG_SLOPE)
+							if (ABS(height) >= 255 || height_type == BIG_SLOPE)
 							{
 								if (input & IN_ACTION)
 								{
@@ -5011,7 +5011,7 @@ int IsValidHangPos(struct ITEM_INFO* item, struct COLL_INFO* coll)//135BC, 1366C
 	if (coll->mid_ceiling >= 0 || coll->coll_type != CT_FRONT || coll->hit_static)
 		return FALSE;
 
-	return abs(coll->front_floor - coll->right_floor2) < 60;
+	return ABS(coll->front_floor - coll->right_floor2) < 60;
 }
 
 int LaraHangTest(struct ITEM_INFO* item, struct COLL_INFO* coll)//12F34, 12FE4
@@ -5097,7 +5097,7 @@ int LaraTestHangOnClimbWall(struct ITEM_INFO* item, struct COLL_INFO* coll)//12C
 		short l = LaraCeilingFront(item, item->pos.y_rot, 0, 0);
 		short r = LaraCeilingFront(item, lara.move_angle, 128, 0);
 
-		if (abs(l - r) > 60)
+		if (ABS(l - r) > 60)
 			return FALSE;
 	}
 
@@ -5231,7 +5231,7 @@ void lara_slide_slope(struct ITEM_INFO* item, struct COLL_INFO* coll)//127BC, 12
 
 			item->pos.y_pos += coll->mid_floor;
 
-			if (abs(coll->tilt_x) <= 2 && abs(coll->tilt_z) <= 2)
+			if (ABS(coll->tilt_x) <= 2 && ABS(coll->tilt_z) <= 2)
 			{
 				item->goal_anim_state = STATE_LARA_STOP;
 				StopSoundEffect(SFX_LARA_SLIPPING);
@@ -5385,7 +5385,7 @@ int LaraTestClimbStance(struct ITEM_INFO* item, struct COLL_INFO* coll)//11F78, 
 			if ((shift_r < 0 && shift_l < shift_r) ||
 				(shift_r > 0 && shift_l > shift_r))
 			/*if (SIGN(shift_r) == SIGN(shift_l) &&
-				abs(shift_l) > abs(shift_r))*/
+				ABS(shift_l) > ABS(shift_r))*/
 			{
 				item->pos.y_pos += shift_l;
 				return TRUE;
@@ -5424,7 +5424,7 @@ int LaraTestEdgeCatch(struct ITEM_INFO* item, struct COLL_INFO* coll, long* edge
 		return 0;
 	}
 
-	if (abs(coll->left_floor2 - coll->right_floor2) >= SLOPE_DIF)
+	if (ABS(coll->left_floor2 - coll->right_floor2) >= SLOPE_DIF)
 		return 0;
 
 	return 1;
@@ -5680,7 +5680,7 @@ void FireChaff()
 	UNIMPLEMENTED();
 }
 
-void GetLaraJointPosRot(struct PHD_VECTOR *a1, int a2, int a3, struct SVECTOR *a4)
+void GetLaraJointPosRot(struct PHD_VECTOR *a1, int a2, int a3, SVECTOR *a4)
 {
 	UNIMPLEMENTED();
 }

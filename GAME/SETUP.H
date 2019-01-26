@@ -47,7 +47,7 @@ extern char* ReadResidentData(int residentIndex, FILE* nHandle);
 #endif
 extern long sub_BA148(short* ptr);
 
-#if PSXPC_VERSION
+#if PSXPC_VERSION || PSXPC_TEST
 struct object_container
 {
 	struct object_info m_objects[NUMBER_OBJECTS];
@@ -158,12 +158,12 @@ struct Level
 	int unk57;
 };
 
-#if PSX_VERSION
+#if PSX_VERSION && !PSXPC_TEST
 extern struct object_info objects[NUMBER_OBJECTS];
 extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
 extern char SkinVertNums[480];
 extern char ScratchVertNums[480];
-#elif PSXPC_VERSION
+#elif PSXPC_VERSION || PSXPC_TEST
 extern struct object_info* objects;
 extern struct static_info* static_objects;
 extern char* SkinVertNums;

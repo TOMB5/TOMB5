@@ -22,11 +22,15 @@
 #include "DRAWPRIMITIVE.H"
 #include "GAME.H"
 #include "WINMAIN.H"
-#else
+#elif PSX_VERSION || PSXPC_VERSION
 #include "SETUP.H"
 #include "LOADSAVE.H"
 #include "CD.H"
 #include "GPU.H"
+#endif
+
+#if PSX_VERSION
+#include <LIBGPU.H>
 #endif
 
 enum invobj_types // update this whenever inventry_objects_list is modified
@@ -422,8 +426,10 @@ void S_DrawPickup(short object_number)//41608(<), 41A5C(<) (F)
 		0,
 		0,
 		1);
-#else
+#elif PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION
 	ClearOTagR(db.pickup_ot, 256);
+#endif
 	DrawThreeDeeObject2D(PickupX + 448, 200, convert_obj_to_invobj(object_number), 128, 0, (GnFrameCounter & 0x7F) << 9, 0, 0, 1);
 
 	db.pickup_ot[0] = db.pickup_ot[0] & 0xFF000000 | db.ot[0] & 0xFFFFFF;
