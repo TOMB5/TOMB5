@@ -26,7 +26,7 @@ void LaraWaterCurrent(struct COLL_INFO* coll)//4CD34, 4D198
 	UNIMPLEMENTED();
 }
 
-long GetWaterDepth(long x, long y, long z, short room_number)//4CA38, 4CE9C
+long GetWaterDepth(long x, long y, long z, short* room_number)//4CA38, 4CE9C
 {
 	UNIMPLEMENTED();
 	return 0;
@@ -487,7 +487,36 @@ void LaraSwimCollision(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B608, 4
 	UNIMPLEMENTED();
 }
 
-void LaraTestWaterDepth(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B4F8, 4B95C
+void LaraTestWaterDepth(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B4F8(<), 4B95C(<) (F)
 {
-	UNIMPLEMENTED();
+	int wd;
+	struct FLOOR_INFO* floor;
+	short room_number;
+
+	room_number = item->room_number;
+	floor = GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number);
+	wd = GetWaterDepth(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number);
+
+	if (wd == -32512)
+	{
+		item->pos.x_pos = coll->old.x;
+		item->pos.y_pos = coll->old.y;
+		item->fallspeed = 0;
+		item->pos.z_pos = coll->old.z;
+	}
+	else if(wd < 513)
+	{
+		//loc_4B580
+		item->anim_number = 192;
+		item->current_anim_state = 55;
+		item->goal_anim_state = 2;
+		item->pos.z_rot = 0;
+		item->pos.x_rot = 0;
+		item->speed = 0;
+		item->fallspeed = 0;
+		item->gravity_status = 0;
+		item->frame_number = anims[192].frame_base;
+		lara.water_status = 4;
+		item->pos.y_pos = GetHeight(floor, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+	}//loc_4B5F0
 }

@@ -22,6 +22,8 @@
 #include "GPU.H"
 #include "DRAWPHAS.H"
 #include "ROOMLOAD.H"
+#include <LIBAPI.H>
+#include <LIBGTE.H>
 #else
 #include "GAME.H"
 #include "INIT.H"
@@ -54,6 +56,7 @@
 
 #if PSX_VERSION
 typedef unsigned int uintptr_t;
+#include "FXTRIG.H"
 #endif
 
 #include <string.h>
@@ -94,11 +97,11 @@ unsigned char gfResetHubDest;
 char gfUVRotate;
 char gfLayer1Vel;
 char gfLayer2Vel;
-struct CVECTOR gfLayer1Col;
-struct CVECTOR gfLayer2Col;
+CVECTOR gfLayer1Col;
+CVECTOR gfLayer2Col;
 unsigned long GameTimer;
 struct PHD_VECTOR gfLensFlare;
-struct CVECTOR gfLensFlareColour;
+CVECTOR gfLensFlareColour;
 unsigned char gfMirrorRoom;
 unsigned char gfMips[8];
 char title_controls_locked_out;
@@ -224,7 +227,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 			break;
 		case GF_MIRROR:
 			gfMirrorRoom = *sequenceCommand++;
-			gfMirrorZPlane = *(int*)sequenceCommand;
+			gfMirrorZPlane = *(int*)sequenceCommand;///@FIXME illegal operation here?
 			sequenceCommand += 4;
 			break;
 		case GF_CUT:
@@ -662,7 +665,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 			if (bDoCredits)
 			{
-#if !PSXPC_VERSION
+#if !PSXPC_VERSION && 0
 				if (!((INTFUNCVOID*)RelocPtr[MOD_TITSEQ][1])())
 				{
 					bDoCredits = 0;
@@ -687,7 +690,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 #endif
 					//loc_10868
 					CreditsDone = 1;
-#if RELOC
+#if RELOC && 0
 					gfStatus = ((INTFUNCINT*)RelocPtr[MOD_TITSEQ][0])(Name);
 #else
 					gfStatus = TitleOptions(Name);

@@ -56,7 +56,7 @@
 #include <LIBSPU.H>
 #include <LIBGTE.H>
 
-#if RELOC
+#if PSX_VERSION && RELOC
 void* setupFunc[] __attribute__((section(".header"))) =
 {
 	&InitialiseGameFlags,
@@ -68,11 +68,15 @@ void* setupFunc[] __attribute__((section(".header"))) =
 };
 #endif
 
-RECT dword_BD7F4[] = { 0x00440240, 0x00390040 };
+#if PSXPC_TEST
+RECT16 dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
+#else
+RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
+#endif
 
 #endif
 
-#if PSXPC_VERSION
+#if PSXPC_VERSION || PSXPC_TEST
 struct object_container objects_raw;
 struct object_info* objects = &objects_raw.m_objects[0];
 struct static_info* static_objects = &objects_raw.m_static_objects[0];
@@ -187,17 +191,145 @@ void InitialiseAnimatedTextures()//?(<), B4904(<)
 #endif
 }
 
+int sub_B49C0(struct WATERTAB* s1, int s0)///@check args
+{
+	int a0;//i
+	int rand;//a1
+
+	//loc_10D4
+	do
+	{
+		rand = GetRandomDraw() & 0xFC;
+
+		a0 = 0;
+
+		if (s0 > 0)
+		{
+			if (s1->random != rand)
+			{
+				a0++;
+
+				//loc_10C4
+				do
+				{
+					s1++;
+
+					if (a0 > s0)
+					{
+						//loc_1120
+						break;
+					}
+					a0++;
+				} while (s1->random != rand);
+			}//loc_1120
+		}//loc_1120
+	} while (a0 != s0);
+
+	return rand;
+}
+
 void sub_B4A40()//(<), B4A40(<)
 {
-	long rand;
-	//a0 = 0x10000
-	rand = rand_2;//v0 @ 0x10(sp)
+	int var_10;//maybe GAME_VECTOR
+	int var_14;
+	int var_18;
+	int fp;//i?
 
+	var_10 = rand_2;//0x10($sp)
 	SeedRandomDraw(0x1D96D);
-
-	//fp = 0
+		
+	fp = 0;
+	//v0 = 0x1F0000
 	//s5 = &WaterTable
-	//a0 = s5;
+	//a0 = $s5
+
+	//loc_1190
+	//a1 = fp;//0
+	//s0 = fp << 2
+	var_14 = fp + 1;
+	//v1 = &rcossin_tbl
+	//v0 = fp << 8;
+	//v0 += v1;
+	//a2 = &WaterTable[0][fp];
+	var_18 = fp << 2;
+	//s6 = rcossin_tbl[fp << 7];
+	//v1 = WaterTable + fp << 2
+	//s1 = rcossin_tbl[fp << 7] << 6
+
+	//v0 = (((rcossin_tbl[fp << 7]) << 6) - rcossin_tbl[fp << 7]) >> 15
+
+	WaterTable[0][fp].shimmer = (((rcossin_tbl[fp << 7]) << 6) - rcossin_tbl[fp << 7]) >> 15;
+	//v0 = rcossin_tbl[fp << 7] >> 8
+	WaterTable[0][fp].choppy = rcossin_tbl[fp << 7] >> 8;
+
+	WaterTable[0][fp].random = sub_B49C0(&WaterTable[0][0], fp);
+
+	//loc_1190
+	//a0 = &WaterTable[1][0]
+	//a1 = fp
+	//v1 = s5 + fp << 2
+	//v1 = &WaterTable[0][0].abs
+	//v0 = &WaterTable[0][fp].abs
+	//a2 = &WaterTable[1][fp]
+	WaterTable[0][fp].abs = 0;
+	//v0 = rcossin_tbl[fp << 7] >> 10;
+	//v1 = &WaterTable[0][fp]
+	WaterTable[1][fp].shimmer = rcossin_tbl[fp << 7] >> 10;
+	WaterTable[1][fp].choppy = 0;
+
+	WaterTable[1][fp].random = sub_B49C0(&WaterTable[1][0], fp);
+
+	//a0 = &WaterTable[2][0]
+	//a1 = fp
+	//v1 =  &WaterTable[0][fp];
+	//a2 = &WaterTable[0][fp];
+	//v0 = 0xFD
+	//v1 = &WaterTable[2][fp]
+	//s1 = (rcossin_tbl[fp << 7] << 6) >> 15
+	WaterTable[1][fp].abs = 253;
+	//v0 = &WaterTable[0][fp];
+	WaterTable[2][fp].shimmer = (rcossin_tbl[fp << 7] << 6) >> 15;
+	WaterTable[2][fp].choppy = 0;
+
+	WaterTable[2][fp].random = sub_B49C0(&WaterTable[2][0], fp);
+
+	//a0 = &WaterTable[3][0]
+	//a1 = fp
+	//v1 = &WaterTable[0][fp]
+	//v0 = &WaterTable[0][fp]
+	//a2 = &WaterTable[3][fp]
+	WaterTable[2][fp].abs = 0;
+	//v0 = ((rcossin_tbl[fp << 7] << 1) + rcossin_tbl[fp << 7]) >> 10
+	WaterTable[3][fp].shimmer = ((rcossin_tbl[fp << 7] << 1) + rcossin_tbl[fp << 7]) >> 10;
+	WaterTable[3][fp].choppy = 0;
+	WaterTable[3][fp].random = sub_B49C0(&WaterTable[3][0], fp);
+
+	//a0 = &WaterTable[4][0]
+	//a1 = fp
+	//v1 =  &WaterTable[0][fp]
+	//a2 =  &WaterTable[0][fp]
+	//v0 = 4
+	//a3 = &WaterTable[4][fp]
+	WaterTable[3][fp].abs = 4;
+	//v0 = ((rcossin_tbl[fp << 7] << 7) - rcossin_tbl[fp << 7]) >> 15;
+	WaterTable[4][fp].shimmer = ((rcossin_tbl[fp << 7] << 7) - rcossin_tbl[fp << 7]) >> 15;
+	WaterTable[4][fp].choppy = 0;
+
+	WaterTable[4][fp].random = sub_B49C0(&WaterTable[4][0], fp);
+
+	//a0 = 0
+	//a1 = 5
+	//v1 =  &WaterTable[0][fp]
+	WaterTable[4][fp].abs = 8;
+	//loc_12E8
+	//s4 = 0
+	//a3 = a0 + 1;
+	//t0 = a1 + 4
+	//v1 = a0 << 1
+	//a0 = &unk_24 //offset 0x24
+	//s7 = v1 + a0
+	//v0 = a1 << 8
+
 
 }
 
@@ -411,7 +543,7 @@ void InitialiseLaraCarriedItems(long keep_carried_items)//?, B4EE4
 		000B5380 A6220146 sh      v0, $146(s1)
 #endif
 
-		lara.num_small_medipack = 3;
+	lara.num_small_medipack = 3;
 	lara.num_large_medipack = 1;
 
 	lara.num_pistols_ammo = -1;
@@ -567,7 +699,7 @@ void BaddyObjects()//?, B5328
 
 		//a0 = &bones[object->bone_index];
 
-#if PSX_VERSION
+#if PSX_VERSION && RELOC
 		object->control = RelocPtr[MOD_SAS][0];
 #endif
 		((int*)bones[object->bone_index])[24] |= 8;
@@ -588,7 +720,7 @@ void BaddyObjects()//?, B5328
 		///object->initialise = 0xFFFF8C7C
 		//a0 = RelocPtr[MOD_SAS][0]
 		//a3 = &objects[LARA];
-#if PSX_VERSION
+#if PSX_VERSION && RELOC
 		object->control = RelocPtr[MOD_SAS][0];
 #endif
 		//v0 = *(int*)&objects[SWAT].bite_offset
@@ -691,7 +823,7 @@ void BaddyObjects()//?, B5328
 
 		//a0 = object->bone_index
 		//a1 = bones
-#if PSX_VERSION
+#if PSX_VERSION && RELOC
 		object->control = RelocPtr[MOD_SAS][0];
 #endif
 
@@ -718,6 +850,85 @@ void BaddyObjects()//?, B5328
 		object->object_mip = 0x1400;
 
 	}//loc_1EE4
+
+	object = &objects[SWAT_PLUS];
+
+	//v0 = 0x0
+	if (object->loaded)
+	{
+		//v0 = 0xFFFF8C7C
+		//v1 = 0x1F0000
+		///object->initialise = 0xFFFF8C7C;
+		//v0 = RelocPtr[SWAT];
+		//a0 = RelocPtr[SWAT][0];
+		//v1 = &objects[LARA];
+#if PSX_VERSION && RELOC
+		object->control = RelocPtr[SWAT][0];
+#endif
+		//v0 = objects[SWAT].
+
+		if (objects[SWAT].loaded)
+		{
+			object->anim_index = objects[SWAT].anim_index;
+		}
+		else
+		{
+			//loc_1F3C
+			object->anim_index = objects[BLUE_GUARD].anim_index;
+		}
+
+		//a1 = 0xF3FFFFFF
+		//v0 = CreatureCollision
+		//v1 = 0x80
+		object->collision = &CreatureCollision;
+		//v0 = 0x18
+		object->shadow_size = 128;
+
+		//li      $v1, 0x32  # '2'
+		//li      $a0, 0x66  # 'f'
+		object->hit_points = 24;
+		object->pivot_length = 50;
+
+		//v1 = *(int*)&object->bite_offset
+		object->draw_routine_extra = DrawBaddieGunFlash;
+		//v0 = 0x20000
+		object->radius = 102;
+		//a0 = 0x400000
+		object->intelligent = 1;
+		object->HitEffect = 0;
+		//v0 = 0x4000000
+		object->HitEffect = 1;
+		object->bite_offset = 0;
+		//v0 = *(int*)&object->bite_offset
+		//v1 = 0x200000
+		object->save_flags = 1;
+		object->save_anim = 1;
+		//v1 = 0x100000
+		object->save_hitpoints = 1;
+		object->save_position = 1;
+		//0x80000
+
+		//a0 = object->bone_index
+		//a1 = bones
+		//a0 = &bones[object->bone_index];
+
+		((int*)bones[object->bone_index])[24] |= 8;
+		((int*)bones[object->bone_index])[24] |= 4;
+		((int*)bones[object->bone_index])[52] |= 8;
+		((int*)bones[object->bone_index])[52] |= 4;
+
+		//a3 = &objects
+		//a0 = meshes[object->mesh_index]
+		//v0 = meshes]objects[MESHSWAP1].mesh_index]
+		//a2 = meshes
+
+		((int*)meshes[object->mesh_index])[21] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[20];
+
+		//v1 = meshes[object->mesh_index]
+		//v0 = meshes[objects[MESHSWAP1].mesh_index]
+		((int*)meshes[object->mesh_index])[27] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[26];
+		object->object_mip = 0x1400;
+	}//loc_20A4
 }
 
 void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
@@ -842,7 +1053,11 @@ void LoadLevel(FILE* nHandle)
 {
 	struct Level* level;
 #if PSX_VERSION
+#if PSXPC_TEST
+	RECT16 tex[2];
+#else
 	RECT tex[2];
+#endif
 #endif
 	char* ptr = NULL;
 	char* ptr2 = NULL;
@@ -950,8 +1165,11 @@ void LoadLevel(FILE* nHandle)
 		LOAD_DrawEnable(0);
 
 #if PSX_VERSION
+#if PSXPC_TEST
+		LoadImagePSX(&tex[0], (unsigned long*)ptr);
+#else
 		LoadImage(&tex[0], (unsigned long*)ptr);
-
+#endif
 		DrawSync(0);
 #endif
 
@@ -1220,14 +1438,22 @@ void LoadLevel(FILE* nHandle)
 
 #if DISC_VERSION
 #if PSX_VERSION
+#if PSXPC_TEST
+	DEL_CDFS_Read((char*)&objects_raw, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
+#else
 	DEL_CDFS_Read((char*)&objects, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
+#endif
 #elif PSXPC_VERSION
 	DEL_CDFS_Read((char*)&objects_raw, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480);
 #endif
 #else
 #if PSX_VERSION
 	PClseek(nHandle, level->offsetObjects, 0);
+#if PSXPC_TEST
+	FILE_Read((char*)&objects_raw, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
+#else
 	FILE_Read((char*)&objects, 1, NUMBER_OBJECTS * sizeof(struct object_info) + NUMBER_STATIC_OBJECTS * sizeof(struct static_info) + 480 + 480, nHandle);
+#endif
 	PCclose(nHandle);
 #elif PSXPC_VERSION
 	fseek(nHandle, level->offsetObjects, SEEK_SET);
@@ -1252,9 +1478,7 @@ void LoadLevel(FILE* nHandle)
 #elif PSXPC_VERSION
 		nHandle = fopen("DATA\\CODE.WAD", "rb");
 #endif
-		char* ptr = (char*)&tsv_buffer[256];
 		FILE_Read((char*)&tsv_buffer[256], 20, 96, nHandle);
-		ptr++;
 #endif
 
 		if (level->numAiModules > 0)
@@ -1284,7 +1508,7 @@ void LoadLevel(FILE* nHandle)
 				DEL_CDFS_Read(ptr2, relocationPtr[3]);
 #else
 #if PSX_VERSION
-				PClseek(nHandle, relocationPtr[2], 0);///@FIXME For some reason this line doesn't exist in the original internal beta, this is probably why it keeps crashing
+				PClseek(nHandle, relocationPtr[2], 0);
 #elif PSXPC_VERSION
 				fseek(nHandle, relocationPtr[2], SEEK_SET);
 #endif
@@ -1311,9 +1535,8 @@ void LoadLevel(FILE* nHandle)
 	InitialiseFXArray(1);
 	InitialiseLOTarray(1);
 	InitialiseObjects();
-	InitialiseClosedDoors();///sub_7BC4();//InitialiseClosedDoors();
+	InitialiseClosedDoors();
 	InitialiseItemArray(256);
-	S_Warn("LoadLevel Marker 2\n");
 
 	GlobalPulleyFrigItem = -1;
 
@@ -1409,7 +1632,7 @@ void LoadLevel(FILE* nHandle)
 	//Beta: sw      $zero, 0xA5534
 #endif
 	//a0 = &objects
-
+#if 0
 	if (objects[MONITOR_SCREEN].loaded)
 	{
 		short* meshptr;//v1
@@ -1447,6 +1670,7 @@ void LoadLevel(FILE* nHandle)
 
 
 	}//loc_EE4
+#endif
 
 	reset_cutseq_vars();
 
@@ -1483,8 +1707,11 @@ void LoadLevel(FILE* nHandle)
 		DEL_CDFS_Read(ptr, 7296);
 
 #if PSX_VERSION
+#if PSXPC_TEST
+		LoadImagePSX(&tex[0], (unsigned long*)ptr);
+#else
 		LoadImage(&tex[0], (unsigned long*)ptr);
-
+#endif
 		DrawSync(0);
 #endif
 		LOAD_DrawEnable(1);
@@ -1525,8 +1752,6 @@ void LoadLevel(FILE* nHandle)
 		MGSaveGamePtr = game_malloc(8192);
 		FromTitle = 1;
 	}//loc_F94
-
-	S_Warn("End of LoadLevel");
 }
 
 void TrapObjects()//?, B7E04
@@ -1658,7 +1883,7 @@ void SetupGame()//?(<), B9DA8(<)
 	InitTarget();
 	InitialiseGameFlags();
 
-	if (gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME && gfInitialiseGame != 0)
+	if ((gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME) && gfInitialiseGame != 0)
 	{
 		//B9E50
 		InitialiseLaraCarriedItems(0);
@@ -1715,9 +1940,13 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 	int s7;
 	int mallocSize;//$a0
 #if PSX_VERSION
+#if PSXPC_TEST
+	int nHandle = 0;
+#else
 	int nHandle;
+#endif
 #elif PSXPC_VERSION
-	FILE* nHandle;
+	FILE* nHandle = NULL;
 #endif
 	int residentData[4];
 

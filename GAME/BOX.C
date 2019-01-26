@@ -25,6 +25,7 @@
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "MISC.H"
+#include "SPHERES.H"
 #endif
 
 
@@ -561,7 +562,7 @@ void CreatureTilt(struct ITEM_INFO* item, short angle)//24418(<), 24624(<) (F)
 	else if (angle > ANGLE(3))
 		angle = ANGLE(3);
 
-	if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
+	if (ABS(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
 	{
 		angle >>= 1;
 	}
@@ -624,7 +625,7 @@ int BadFloor(long x, long y, long z, long box_height, long next_height, int room
 	struct FLOOR_INFO* floor = GetFloor(x, y, z, &room_num);	
 	long height;
 
-	if (floor->box == 32752)
+	if (floor->box == 0x7FF)
 		return TRUE;
 
 	if (LOT->is_jumping)
@@ -664,8 +665,8 @@ int CreatureCreature(short item_number) // (F)
 
 		if (link != item_number && item != lara_item && item->status == ITEM_ACTIVE && item->hit_points > 0)
 		{
-			long xdistance = abs(item->pos.x_pos - x);
-			long zdistance = abs(item->pos.z_pos - z);
+			long xdistance = ABS(item->pos.x_pos - x);
+			long zdistance = ABS(item->pos.z_pos - z);
 			long radius = xdistance <= zdistance ? zdistance + (xdistance >> 1) : xdistance + (zdistance >> 1);
 			if (radius < objects[items[item_number].object_number].radius + objects[item->object_number].radius)
 			{
