@@ -7,6 +7,9 @@ set(OPT_DEFINITIONS "")
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
+#Find required libs for PSXPC_N
+find_package(GLEW REQUIRED)
+
 #Required to build platform specific code properly
 OPTIONAL_DEFINE(PSX_VERSION "Enable PSX code building" ON)
 
