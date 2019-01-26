@@ -1459,9 +1459,7 @@ void LoadLevel(FILE* nHandle)
 #elif PSXPC_VERSION
 		nHandle = fopen("DATA\\CODE.WAD", "rb");
 #endif
-		char* ptr = (char*)&tsv_buffer[256];
 		FILE_Read((char*)&tsv_buffer[256], 20, 96, nHandle);
-		ptr++;
 #endif
 
 		if (level->numAiModules > 0)
