@@ -21,6 +21,9 @@ endmacro()
 #This is used by platform specific CMake scripts to correctly use external libraries.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMAKE")
 
+#Set root path
+set(ROOT_DIR ${ROOT_DIR} "${CMAKE_CURRENT_SOURCE_DIR}")
+
 #include(GetGitRevisionDescription)
 #get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 
@@ -52,6 +55,9 @@ endif()
 #We want to be able to group projects in folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+list(APPEND CMAKE_PREFIX_PATH ${EXTERN_LIB_PATH}/glew)
+list(APPEND CMAKE_LIBRARY_PATH ${EXTERN_LIB_PATH}/glew/lib/Release/Win32)
+
 #Treat each platform specific directory as a sub-project.
 #Note: Travis/Appveyor ci only build PSXPC for now.
 if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))
@@ -66,3 +72,5 @@ endif()
 
 #Default
 add_subdirectory(SPEC_PSXPC)
+add_subdirectory(SPEC_PSXPC_N)
+add_subdirectory(EMULATOR)

@@ -52,6 +52,8 @@
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "MISC.H"
+#include "SPHERES.H"
+#include "FXTRIG.H"
 #endif
 
 
@@ -2328,9 +2330,9 @@ void stealth3_end()//2E99C, 2ECA8 (F)
 			item->object_number == SWAT ||
 			item->object_number == TWOGUN)
 		{
-			if (abs(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
-				abs(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
-				abs(item->pos.y_pos - lara_item->pos.y_pos) < CLICK)
+			if (ABS(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+				ABS(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+				ABS(item->pos.y_pos - lara_item->pos.y_pos) < CLICK)
 			{
 				item->hit_points = 0;
 				item->current_anim_state = 6;
@@ -2376,9 +2378,9 @@ void stealth3_start()//2E824, 2EB30 (F)
 			item->object_number == SWAT ||
 			item->object_number == TWOGUN)
 		{
-			if (abs(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
-				abs(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
-				abs(item->pos.y_pos - lara_item->pos.y_pos) < CLICK)
+			if (ABS(item->pos.x_pos - lara_item->pos.x_pos) < SECTOR(1) &&
+				ABS(item->pos.z_pos - lara_item->pos.z_pos) < SECTOR(1) &&
+				ABS(item->pos.y_pos - lara_item->pos.y_pos) < CLICK)
 			{
 				GLOBAL_cutme->actor_data[1].objslot = item->object_number;
 				item->status = ITEM_INVISIBLE;
