@@ -925,9 +925,11 @@ void LoadLevel(FILE* nHandle)
 {
 	struct Level* level;
 #if PSX_VERSION
-	RECT tex[2];
-#elif PSXPC_TEST
+#if PSXPC_TEST
 	RECT16 tex[2];
+#else
+	RECT tex[2];
+#endif
 #endif
 	char* ptr = NULL;
 	char* ptr2 = NULL;
