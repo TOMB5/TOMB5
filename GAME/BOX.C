@@ -412,7 +412,7 @@ short CreatureEffectT(struct ITEM_INFO* item, struct BITE_INFO* bite, short dama
 	pos.y = bite->y;
 	pos.z = bite->z;
 
-	GetJointAbsPosition(item, &pos, bite->mesh_num);
+	GetJointABSPosition(item, &pos, bite->mesh_num);
 
 	return generate(pos.x, pos.y, pos.z, damage, angle, item->room_number);
 }
@@ -425,7 +425,7 @@ short CreatureEffect(struct ITEM_INFO* item, struct BITE_INFO* bite, short(*gene
 	pos.y = bite->y;
 	pos.z = bite->z;
 
-	GetJointAbsPosition(item, &pos, bite->mesh_num);
+	GetJointABSPosition(item, &pos, bite->mesh_num);
 
 	return generate(pos.x, pos.y, pos.z, item->speed, item->pos.y_rot, item->room_number);
 }
@@ -561,7 +561,7 @@ void CreatureTilt(struct ITEM_INFO* item, short angle)//24418(<), 24624(<) (F)
 	else if (angle > ANGLE(3))
 		angle = ANGLE(3);
 
-	if (abs(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
+	if (ABS(item->pos.z_rot) - ANGLE(15) > ANGLE(15))
 	{
 		angle >>= 1;
 	}
@@ -664,8 +664,8 @@ int CreatureCreature(short item_number) // (F)
 
 		if (link != item_number && item != lara_item && item->status == ITEM_ACTIVE && item->hit_points > 0)
 		{
-			long xdistance = abs(item->pos.x_pos - x);
-			long zdistance = abs(item->pos.z_pos - z);
+			long xdistance = ABS(item->pos.x_pos - x);
+			long zdistance = ABS(item->pos.z_pos - z);
 			long radius = xdistance <= zdistance ? zdistance + (xdistance >> 1) : xdistance + (zdistance >> 1);
 			if (radius < objects[items[item_number].object_number].radius + objects[item->object_number].radius)
 			{
