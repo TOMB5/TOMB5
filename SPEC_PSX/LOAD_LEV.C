@@ -11,6 +11,11 @@
 #include <LIBGTE.H>
 #include <LIBETC.H>
 
+#if !DISC_VERSION
+#include "FILE.H"
+#include <LIBSN.H>
+#endif
+
 unsigned char LtLoadingBarEnabled;
 unsigned char LoadingBarEnabled;
 unsigned char _first_time_ever = 1;
@@ -335,7 +340,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 
 #if !DISC_VERSION
 	file = PCopen("data\\loadpic.raw", 0, file);
-	FILE_Read(gfx, 1, LOADING_SCREEN_IMG_SIZE);
+	FILE_Read(gfx, 1, LOADING_SCREEN_IMG_SIZE, file);
 	PCclose(file);
 #else
 	if (_first_time_ever)

@@ -624,7 +624,7 @@ int BadFloor(long x, long y, long z, long box_height, long next_height, int room
 	struct FLOOR_INFO* floor = GetFloor(x, y, z, &room_num);	
 	long height;
 
-	if (floor->box == 32752)
+	if (floor->box == 0x7FF)
 		return TRUE;
 
 	if (LOT->is_jumping)

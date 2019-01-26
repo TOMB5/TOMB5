@@ -4,6 +4,8 @@ text		group
 		section	.data,text
 		section	.text,text
 		section	.rdata,text
+		section .ctors,text
+		section .dtors,text
 		section	.sdata,text
 		section	.bss,text
 		section	.sbss,text
