@@ -3,6 +3,6 @@
 
 #include <LIBGTE.H>
 
-extern void DrawFlatSky_ASM(struct CVECTOR layer, short pos, int flags);
+extern void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags);
 
 #endif

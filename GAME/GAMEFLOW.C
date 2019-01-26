@@ -23,6 +23,7 @@
 #include "DRAWPHAS.H"
 #include "ROOMLOAD.H"
 #include <LIBAPI.H>
+#include <LIBGTE.H>
 #else
 #include "GAME.H"
 #include "INIT.H"
@@ -96,11 +97,11 @@ unsigned char gfResetHubDest;
 char gfUVRotate;
 char gfLayer1Vel;
 char gfLayer2Vel;
-struct CVECTOR gfLayer1Col;
-struct CVECTOR gfLayer2Col;
+CVECTOR gfLayer1Col;
+CVECTOR gfLayer2Col;
 unsigned long GameTimer;
 struct PHD_VECTOR gfLensFlare;
-struct CVECTOR gfLensFlareColour;
+CVECTOR gfLensFlareColour;
 unsigned char gfMirrorRoom;
 unsigned char gfMips[8];
 char title_controls_locked_out;

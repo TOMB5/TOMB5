@@ -5680,7 +5680,7 @@ void FireChaff()
 	UNIMPLEMENTED();
 }
 
-void GetLaraJointPosRot(struct PHD_VECTOR *a1, int a2, int a3, struct SVECTOR *a4)
+void GetLaraJointPosRot(struct PHD_VECTOR *a1, int a2, int a3, SVECTOR *a4)
 {
 	UNIMPLEMENTED();
 }

@@ -24,7 +24,6 @@ unsigned long GadwPolygonBuffers[52260];
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
 {
-	//Should be safe to use 32-bit ptrs tho
 	db.order_table[0] = (unsigned long*)((unsigned long) pBuffers & 0xFFFFFF);
 	db.order_table[1] = (unsigned long*)((unsigned long) &pBuffers[nOTSize] & 0xFFFFFF);
 	db.nOTSize = nOTSize;

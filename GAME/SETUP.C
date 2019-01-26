@@ -68,7 +68,11 @@ void* setupFunc[] __attribute__((section(".header"))) =
 };
 #endif
 
+#if PSXPC_TEST
 RECT16 dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
+#else
+RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
+#endif
 
 #endif
 
@@ -921,6 +925,8 @@ void LoadLevel(FILE* nHandle)
 {
 	struct Level* level;
 #if PSX_VERSION
+	RECT tex[2];
+#elif PSXPC_TEST
 	RECT16 tex[2];
 #endif
 	char* ptr = NULL;
@@ -1029,8 +1035,11 @@ void LoadLevel(FILE* nHandle)
 		LOAD_DrawEnable(0);
 
 #if PSX_VERSION
+#if PSXPC_TEST
 		LoadImagePSX(&tex[0], (unsigned long*)ptr);
-
+#else
+		LoadImage(&tex[0], (unsigned long*)ptr);
+#endif
 		DrawSync(0);
 #endif
 
@@ -1568,8 +1577,11 @@ void LoadLevel(FILE* nHandle)
 		DEL_CDFS_Read(ptr, 7296);
 
 #if PSX_VERSION
+#if PSXPC_TEST
 		LoadImagePSX(&tex[0], (unsigned long*)ptr);
-
+#else
+		LoadImage(&tex[0], (unsigned long*)ptr);
+#endif
 		DrawSync(0);
 #endif
 		LOAD_DrawEnable(1);
