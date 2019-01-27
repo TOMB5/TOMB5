@@ -264,7 +264,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				break;
 			}
 
-			pTag = (P_TAG*)((int)pTag - ((pTag->len * 4) + 4));
+			pTag = (P_TAG*)((ptrdiff_t)pTag - ((pTag->len * 4) + 4));
 		}
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
