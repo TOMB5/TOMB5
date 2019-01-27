@@ -29,6 +29,7 @@ install:
   - sh: sudo apt-get install -y libegl1-mesa-dev
   - sh: sudo apt-get install -y libgles2-mesa-dev
   - sh: sudo apt-get install -y libsdl2-dev
+  - sh: sudo apt-get install libglew-dev
   
 build_script:
   - sh: mkdir BUILD
