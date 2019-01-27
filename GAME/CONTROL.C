@@ -60,7 +60,6 @@
 #include <assert.h>
 #include <string.h>
 #include "LARAMISC.H"
-#include "..\SPEC_PSXPC_N\TEXT_S.H"
 
 #define MAX_FRAMES 10
 
