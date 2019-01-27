@@ -4,7 +4,7 @@
 #include "PSXINPUT.H"
 #include "SHADOWS.H"
 #include "FXTRIG.H"
-
+#include "TEXT_S.H"
 
 #include <LIBETC.H>
 #include <STDIO.H>
