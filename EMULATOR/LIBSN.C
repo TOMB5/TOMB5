@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <STDDEF.H>
 
 int fileHandle = 0;
 
