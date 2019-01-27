@@ -22,13 +22,13 @@ int PCopen(char* name, int flags, int perms)
 	switch (flags)
 	{
 	case 0:
-		fileHandle = (int)fopen(name, "rb");
+		fileHandle = (ptrdiff_t)fopen(name, "rb");
 		break;
 	case 1:
-		fileHandle = (int)fopen(name, "wb");
+		fileHandle = (ptrdiff_t)fopen(name, "wb");
 		break;
 	case 2:
-		fileHandle = (int)fopen(name, "rwb");
+		fileHandle = (ptrdiff_t)fopen(name, "rwb");
 		break;
 	}
 	
