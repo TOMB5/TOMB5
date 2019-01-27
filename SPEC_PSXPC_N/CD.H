@@ -3,8 +3,8 @@
 
 #include "SPECTYPES.H"
 
-#include <sys/types.h>
-#include <libcd.h>
+#include <SYS/TYPES.H>
+#include <LIBCD.H>
 
 #define CD_SECTOR_SIZE (2048)
 #define CD_SECTOR_SHIFT (11)
