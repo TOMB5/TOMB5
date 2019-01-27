@@ -6,7 +6,6 @@
 #include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
-#include <SDL_opengl_glext.h>
 
 extern void Emulator_Init(int screen_width, int screen_height);
 extern void Emulator_BeginScene();
