@@ -11,6 +11,7 @@
 #include "REQUEST.H"
 #include "SAVEGAME.H"
 #include "SPECIFIC.H"
+#include "TEXT_S.H"
 
 #include <STDIO.h>
 #include <STRING.h>

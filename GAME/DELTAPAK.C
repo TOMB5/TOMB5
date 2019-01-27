@@ -54,6 +54,7 @@
 #include "MISC.H"
 #include "SPHERES.H"
 #include "FXTRIG.H"
+#include "TEXT_S.H"
 #endif
 
 

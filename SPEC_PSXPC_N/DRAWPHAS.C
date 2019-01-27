@@ -36,6 +36,10 @@
 #include <LIBGPU.H>
 #include <stdio.h>
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "TEXT_S.H"
+#endif
+
 long StoreBoxes = -1;
 struct GAME_VECTOR LaraPos;
 struct PSXTEXTI* MonitorScreenTI;
