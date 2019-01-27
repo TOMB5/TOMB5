@@ -1,6 +1,5 @@
 #include "LIBETC.H"
 
-#include <dos.h>
 #include <stdio.h>
 
 #include "EMULATOR.H"
