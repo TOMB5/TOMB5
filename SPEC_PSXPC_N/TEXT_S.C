@@ -6,11 +6,12 @@
 #include "TEXT.H"
 #include "TYPES.H"
 #include "..\SPEC_PSX\TEXT_S.H"
+#include <assert.h>
 
 //char*, unsigned short*, unsigned short*
 #if 1
 
-void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, char* string, unsigned short flag)
+void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, char* string, unsigned short flag)//8DB4C, 8FB90
 {
 	char c;
 	unsigned short var_2E;
@@ -38,173 +39,146 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 	if (c != 0)
 	{
 		//v0 = 0x20
-		if (c == 0xA)
+		do
 		{
-			//v0 = *string
-			//a1 = &var_2E
-
-			if (c == *string)
+			if (c == 0xA)
 			{
-				//a0 = string
-				//var_30 = 0
-				y += 16;
+				//v0 = *string
+				//a1 = &var_2E
+
+				if (c == *string)
+				{
+					//a0 = string
+					//var_30 = 0
+					y += 16;
+					//j loc_8DD54
+				}
+				else
+				{
+					//loc_8DBE8
+					GetStringLength(string, &var_2E, &var_2C);
+					//jal sub_8DD90
+					//v1 = var_30
+					//v0 = var_2E
+					//a0 = var_2C
+					//v1 -= v0
+					//v1 += 2;
+					//y += v1;
+					//var_30 = a0;
+					//j       loc_8DD54
+				}
+			}//v0 = 0x9
+			else if (c == 0x20)
+			{
+				//loc_8DC14
+				if (!(flag & 0x1000))
+				{
+					s2 += 2;
+				}
+				else
+				{
+					s2 += 6;
+				}
 				//j loc_8DD54
 			}
-			else
+			else if (c == 0x9)
 			{
-				//loc_8DBE8
-				GetStringLength(string, &var_2E, &var_2C);
-				//jal sub_8DD90
-				//v1 = var_30
-				//v0 = var_2E
-				//a0 = var_2C
-				//v1 -= v0
-				//v1 += 2;
-				//y += v1;
-				//var_30 = a0;
+				//loc_8DC30
+				s2 += 0x28;
+				//j loc_8DD54
+			}//v0 = c - 1
+			else if (c < 0x14)
+			{
+				s3 = (c - 1) & 0xFF;
 				//j       loc_8DD54
 			}
-		}//v0 = 0x9
-		else if (c == 0x20)
-		{
-			//loc_8DC14
-			if (!(flag & 0x1000))
-			{
-				s2 += 2;
-			}
 			else
 			{
-				s2 += 6;
-			}
-			//j loc_8DD54
-		}
-		else if (c == 0x9)
-		{
-			//loc_8DC30
-			s2 += 0x28;
-			//j loc_8DD54
-		}//v0 = c - 1
-		else if (c < 0x14)
-		{
-			s3 = (c - 1) & 0xFF;
-			//j       loc_8DD54
-		}
-		else
-		{
-			//v0 = c - 0x80
-			//v0 <<= 1;
-			if ((c - 0x80) < 0x2E)
-			{
+				//v0 = c - 0x80
+				//v0 <<= 1;
+				if ((c - 0x80) < 0x2E)
+				{
+					//t1 = &aUEAAAAEEEAAEOO[(c- 0x80) << 1];
+					//v1 = t1[-1]
+					//s1 = &loc_92020[1];
 
-			}//loc_8DCDC
-		}
+					//v0 = v1 << 3;
+					//v0 -= v1;
+					//s1 += v0
+
+					///DrawChar(s2, y, s3, s1);
+
+					//v1 = t1[0]
+					//at = 0x20
+					//v0 = v1 << 3
+					///if (t1[0] == 0x20)
+					{
+						//jmp loc_8DD3C? continue?
+					}
+
+					//v0 -= v1
+					//a3 = &loc_92020[1];
+					//a3 = v0 + a3;
+
+					//a0 = ((s1[2] >> 1) + s2) - 3;
+					//a1 = s4 + s1[4]
+
+					///DrawChar(a0, a1, a2, a3);
+					//addiu   $ra, 0x60  ***************** check where i land!
+				}
+				else//CHECKME might not be else case see above addiu ra
+				{
+					//loc_8DCDC
+					//v0 = c << 3
+					//v0 -= c
+					//at = a0 < 0x20 ? 1 : 0
+					//a2 = s3
+					if (c < 0x20)
+					{
+						//v1 = &word_9230E
+						c -= 0x18;
+						//a0 = a0 < 4 ? 1 : 0
+						//s1 = v0 + v1
+						if (c > 3)
+						{
+							///DrawChar(s2, s4, 0, s1);
+							//addiu ra 0x1C ***************checkme
+						}//loc_8DD0C
+						else
+						{
+							///DrawChar(s2, s4, s3, s1);
+							//addiu ra 0x1C ***************checkme
+						}
+					}
+					//loc_8DD20
+					//a0 = &loc_92020[1];
+					//s1 = v0 + a0;
+					///DrawChar(s2, s4, s3, s1);
+
+					//v1 = s1[2]
+					if ((flag & 0x1000))
+					{
+						//v1 -= s1[2] >> 2
+
+					}//loc_8DD50
+
+					//s2 += v1
+				}
+			}
+			//loc_8DD54
+			c = *string++;
+		}while (c != 0);
 	}
 
 	ScaleFlag = 0;
-
-
-
-#if 0
-
-	loc_8DC50 :
-			  sltiu   $v1, $v0, 0x2E
-				  beqz    $v1, loc_8DCDC
-				  sll     $v0, 1
-				  la      $t1, aUEAAAAEEEAAEOO  # " u^e\\a]a^a[a\\{ e]e^e[|^|]|[A^A]E\\   "...
-				  addu    $t1, $v0
-				  lbu     $v1, -1($t1)
-				  la      $s1, (loc_92020 + 1)
-				  sll     $v0, $v1, 3
-				  subu    $v0, $v1
-				  addu    $s1, $v0
-				  move    $a0, $s2
-				  move    $a1, $s4
-				  move    $a2, $s3
-				  jal     sub_8DDBC
-				  move    $a3, $s1
-				  lbu     $v1, 0($t1)
-				  li      $at, 0x20
-				  beq     $v1, $at, loc_8DD3C
-				  sll     $v0, $v1, 3
-				  subu    $v0, $v1
-				  la      $a3, (loc_92020 + 1)
-				  addu    $a3, $v0, $a3
-				  lb      $a0, 2($s1)
-				  lb      $a1, 4($s1)
-				  sra     $a0, 1
-				  addu    $a0, $s2
-				  addiu   $a0, -3
-				  addu    $a1, $s4, $a1
-				  move    $a2, $s3
-				  jal     sub_8DDBC
-				  addiu   $ra, 0x60
-
-				  loc_8DCDC:
-			  sll     $v0, $a0, 3
-				  subu    $v0, $a0
-				  sltiu   $at, $a0, 0x20
-				  beqz    $at, loc_8DD20
-				  move    $a2, $s3
-				  la      $v1, word_9230E
-				  addiu   $a0, -0x18
-				  sltiu   $a0, 4
-				  bnez    $a0, loc_8DD0C
-				  addu    $s1, $v0, $v1
-				  move    $a2, $zero
-
-				  loc_8DD0C :
-			  move    $a0, $s2
-				  move    $a1, $s4
-				  move    $a3, $s1
-				  jal     sub_8DDBC
-				  addiu   $ra, 0x1C
-
-				  loc_8DD20 :
-				  la      $a0, (loc_92020 + 1)
-				  addu    $s1, $v0, $a0
-				  move    $a0, $s2
-				  move    $a1, $s4
-				  jal     sub_8DDBC
-				  move    $a3, $s1
-
-				  loc_8DD3C :
-			  lbu     $v1, 2($s1)
-				  andi    $v0, $s6, 0x1000
-				  beqz    $v0, loc_8DD50
-				  srl     $v0, $v1, 2
-				  subu    $v1, $v0
-
-				  loc_8DD50 :
-			  addu    $s2, $v1
-
-				  loc_8DD54 :
-			  lbu     $a0, 0($s5)
-				  addiu   $s5, 1
-				  bnez    $a0, loc_8DBC4
-				  li      $v0, 0xA
-				  sb      $zero, 0x1A8C($gp)
-
-				  loc_8DD68 :
-				  lw      $ra, 0x40 + var_4($sp)
-				  lw      $s6, 0x40 + var_8($sp)
-				  lw      $s5, 0x40 + var_C($sp)
-				  lw      $s4, 0x40 + var_10($sp)
-				  lw      $s3, 0x40 + var_14($sp)
-				  lw      $s2, 0x40 + var_18($sp)
-				  lw      $s1, 0x40 + var_1C($sp)
-				  lw      $s0, 0x40 + var_20($sp)
-				  jr      $ra
-				  addiu   $sp, 0x40
-
-#endif
 }
 
 int GetStringLength(char* string, unsigned short* a1, unsigned short* a2)//8DEDC(<), 8FF20(<)
 {
 	int t5 = 0;
 	int t0 = 0;
-	char c = *string++;//a3
 	int t2 = -1024;
+	char c = *string++;//a3
 	int t1 = 1024;
 	int a3 = 0;
 	int t3 = 0;
@@ -245,7 +219,7 @@ int GetStringLength(char* string, unsigned short* a1, unsigned short* a2)//8DEDC
 					t2 = 2;
 				}
 			}
-			else if (c < 0x14)
+			else if (c > 0x13)
 			{
 				//loc_8DF5C
 				if (c < 0x20)
@@ -255,14 +229,15 @@ int GetStringLength(char* string, unsigned short* a1, unsigned short* a2)//8DEDC
 				else
 				{
 					//loc_8DF7C
-					if ((c - 0x80) < 0x2E)
+					if ((unsigned int)(c - 0x80) < 0x2E)
 					{
 						a3 = AccentTable[0][c - 0x80];
 						t5 = 1;
+						assert(0);//Not debugged, colliding register type here!
 					}
 
 					//loc_8DF98
-					a33 = &CharDef[a3 - 33];
+					a33 = &CharDef[c - 33];
 				}
 				//loc_8DFA8
 				v0 = a33->w;
