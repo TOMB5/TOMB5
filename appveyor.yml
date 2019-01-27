@@ -31,6 +31,15 @@ install:
   - sh: sudo apt-get install -y libsdl2-dev
   - sh: sudo apt-get install libglew-dev -f
   
+before_build:
+  - cmd: cd %clone_folder%
+  #- cmd: dir /s
+  - cmd: md BUILD
+  - cmd: cd BUILD
+  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
+  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
+  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
+  
 build_script:
   - sh: mkdir BUILD
   - sh: cd BUILD
@@ -44,7 +53,6 @@ artifacts:
 after_build:
 
   - sh: cd SPEC_PSXPC
-
   - sh: 7z a TOMB5.zip MAIN
 #  - sh: 7z a TOMB5.zip "%configuration%\"
   
