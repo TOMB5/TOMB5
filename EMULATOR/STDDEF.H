@@ -31,11 +31,6 @@ typedef	unsigned int u_int;
 typedef unsigned long u_long;
 #endif
 
-#ifndef _PTRDT_T
-#define _PTRDT_T
-typedef int ptrdiff_t;
-#endif
-
 #ifndef WEOF
 #define WEOF    0xffffffff
 #endif

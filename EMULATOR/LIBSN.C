@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <STDDEF.H>
+#include <stdint.h>
 
 int fileHandle = 0;
 
@@ -23,13 +23,13 @@ int PCopen(char* name, int flags, int perms)
 	switch (flags)
 	{
 	case 0:
-		fileHandle = (ptrdiff_t)fopen(name, "rb");
+		fileHandle = (intptr_t)fopen(name, "rb");
 		break;
 	case 1:
-		fileHandle = (ptrdiff_t)fopen(name, "wb");
+		fileHandle = (intptr_t)fopen(name, "wb");
 		break;
 	case 2:
-		fileHandle = (ptrdiff_t)fopen(name, "rwb");
+		fileHandle = (intptr_t)fopen(name, "rwb");
 		break;
 	}
 	
