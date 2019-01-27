@@ -57,6 +57,7 @@
 #if PSX_VERSION
 typedef unsigned int uintptr_t;
 #include "FXTRIG.H"
+#include "TEXT_S.H"
 #endif
 
 #include <string.h>

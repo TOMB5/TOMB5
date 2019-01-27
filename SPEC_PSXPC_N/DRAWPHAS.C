@@ -36,6 +36,10 @@
 #include <LIBGPU.H>
 #include <stdio.h>
 
+#if PSX_VERSION || PSXPC_VERSION
+#include "TEXT_S.H"
+#endif
+
 long StoreBoxes = -1;
 struct GAME_VECTOR LaraPos;
 struct PSXTEXTI* MonitorScreenTI;
@@ -173,7 +177,7 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 	}
 
 	//loc_643C4
-	PrintString(256, 256, 0, "Testing", 0);
+	PrintString(256, 192, 2, "Load Game", 0x8000);
 
 	GPU_EndScene();
 	camera.number_frames = S_DumpScreen();

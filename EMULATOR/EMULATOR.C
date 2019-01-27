@@ -2,7 +2,7 @@
 
 #define GL_GLEXT_PROTOTYPES 1
 #define GLEW_STATIC 1
-#include <gl\glew.h>
+#include <GL\glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_opengl_glext.h>
