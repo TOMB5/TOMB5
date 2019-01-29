@@ -8,7 +8,9 @@ set(OPT_DEFINITIONS "")
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
 #Find required libs for PSXPC_N
+set(GLEW_USE_STATIC_LIBS ON)
 find_package(GLEW REQUIRED)
+find_package(SDL2 REQUIRED)
 
 #Toggles debug code on/off
 OPTIONAL_DEFINE(DEBUG_VERSION "Enable/Disable Debug Code" OFF)
@@ -37,7 +39,7 @@ include_directories(${GAME_CODE_DIR})
 
 #Additional library include directories
 include_directories(${ROOT_DIR}/EMULATOR)
-link_directories(${ROOT_DIR}/BUILD/EMULATOR/Debug)
+link_directories(${ROOT_DIR}/BUILD/EMULATOR/${CMAKE_BUILD_TYPE})
 include_directories(${GLEW_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIR})
 
@@ -56,13 +58,19 @@ ${PLATFORM_SPECIFIC_SRCS}
 
 BuildPreProcessorDefinitions()
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+set(PSX_LIB libLIBPSX.a)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+set(PSX_LIB libPSX.lib)
+endif()
+
 #Link against required libraries
 target_link_libraries(
 ${PROJECT_NAME}
+${PSX_LIB}
 ${SDL2_LIBRARY}
 ${OPENGL_gl_LIBRARY}
-${GLEW_LIBRARY_RELEASE}
-libPSX.lib
+${GLEW_LIBRARY}
 )
 
 set_target_properties(

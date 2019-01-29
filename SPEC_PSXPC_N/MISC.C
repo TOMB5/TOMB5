@@ -4,9 +4,18 @@
 #include "GPU.H"
 #include "LOAD_LEV.H"
 #include "SPECIFIC.H"
+#include "TEXT_S.H"
 
 #include <EMULATOR.H>
 #include <LIBETC.H>
+
+#if PSXPC_VERSION || PSXPC_TEST
+	#include <stdint.h>
+#endif
+
+#if PSX_VERSION && !PSXPC_TEST
+typedef unsigned int uintptr_t;
+#endif
 
 void S_MemSet(char* p, int value, int length)
 {
@@ -19,10 +28,10 @@ void S_MemSet(char* p, int value, int length)
 			value |= value << 8;
 			value |= value << 16;
 
-			if (((unsigned int)p) & 3)
+			if (((uintptr_t)p) & 3)
 			{
-				size = 4 - (((unsigned int)p) & 3);
-				length -= 4 - (((unsigned int)p) & 3);
+				size = 4 - (((uintptr_t)p) & 3);
+				length -= 4 - (((uintptr_t)p) & 3);
 
 				//loc_5E918
 				while (size--)
@@ -116,6 +125,7 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
 	}
 
 	//loc_5F0B4
+	//PrintString(256, 192, 2, "Load Game", 0x8000);
 	draw_rotate_sprite(a0, a1, a2);
 	db.current_buffer ^= 1;
 	GnLastFrameCount = 0;
@@ -135,12 +145,8 @@ void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
 	db.curpolybuf = (char*)db.poly_buffer[db.current_buffer];
 	db.polybuf_limit = (char*)(db.poly_buffer[db.current_buffer]) + 26000;
 	db.pickup_ot = db.pickup_order_table[db.current_buffer];
-
 	ClearOTagR(db.order_table[db.current_buffer], db.nOTSize);
-
 	Emulator_BeginScene();
-
-	return;
 }
 
 void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
