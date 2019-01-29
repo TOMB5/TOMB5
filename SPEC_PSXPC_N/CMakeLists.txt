@@ -10,6 +10,7 @@ get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR}
 #Find required libs for PSXPC_N
 set(GLEW_USE_STATIC_LIBS ON)
 find_package(GLEW REQUIRED)
+find_package(SDL2 REQUIRED)
 
 #Toggles debug code on/off
 OPTIONAL_DEFINE(DEBUG_VERSION "Enable/Disable Debug Code" OFF)
