@@ -8,6 +8,7 @@ set(OPT_DEFINITIONS "")
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
 #Find required libs for PSXPC_N
+set(GLEW_USE_STATIC_LIBS ON)
 find_package(GLEW REQUIRED)
 
 #Toggles debug code on/off
@@ -61,7 +62,7 @@ target_link_libraries(
 ${PROJECT_NAME}
 ${SDL2_LIBRARY}
 ${OPENGL_gl_LIBRARY}
-${GLEW_LIBRARY_RELEASE}
+${GLEW_LIBRARY}
 libPSX.lib
 )
 
