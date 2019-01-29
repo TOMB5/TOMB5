@@ -39,7 +39,7 @@ include_directories(${GAME_CODE_DIR})
 
 #Additional library include directories
 include_directories(${ROOT_DIR}/EMULATOR)
-link_directories(${ROOT_DIR}/BUILD/EMULATOR/Debug)
+link_directories(${ROOT_DIR}/BUILD/EMULATOR/${CMAKE_BUILD_TYPE})
 include_directories(${GLEW_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIR})
 
