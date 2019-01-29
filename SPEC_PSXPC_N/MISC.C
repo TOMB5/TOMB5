@@ -9,6 +9,14 @@
 #include <EMULATOR.H>
 #include <LIBETC.H>
 
+#if PSXPC_VERSION || PSXPC_TEST
+	#include <stdint.h>
+#endif
+
+#if PSX_VERSION && !PSXPC_TEST
+typedef unsigned int uintptr_t;
+#endif
+
 void S_MemSet(char* p, int value, int length)
 {
 	int size;
@@ -20,10 +28,10 @@ void S_MemSet(char* p, int value, int length)
 			value |= value << 8;
 			value |= value << 16;
 
-			if (((unsigned int)p) & 3)
+			if (((uintptr_t)p) & 3)
 			{
-				size = 4 - (((unsigned int)p) & 3);
-				length -= 4 - (((unsigned int)p) & 3);
+				size = 4 - (((uintptr_t)p) & 3);
+				length -= 4 - (((uintptr_t)p) & 3);
 
 				//loc_5E918
 				while (size--)
