@@ -53,8 +53,8 @@ endif()
 #We want to be able to group projects in folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-list(APPEND CMAKE_PREFIX_PATH ${EXTERN_LIB_PATH}/glew)
-list(APPEND CMAKE_LIBRARY_PATH ${EXTERN_LIB_PATH}/glew/lib/Release/Win32)
+list(APPEND CMAKE_PREFIX_PATH ${EXTERN_LIB_PATH}/glew-2.1.0)
+list(APPEND CMAKE_LIBRARY_PATH ${EXTERN_LIB_PATH}/glew-2.1.0/lib/Release/Win32)
 
 #Treat each platform specific directory as a sub-project.
 #Note: Travis/Appveyor ci only build PSXPC for now.
@@ -62,12 +62,12 @@ if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))
 	add_subdirectory(SPEC_PSX)
 	add_subdirectory(SPEC_PSX_PAELLA)
 	add_subdirectory(SPEC_PC)
+	add_subdirectory(SPEC_PSXPC)
 	#add_subdirectory(SPEC_PS2)
 	#add_subdirectory(SPEC_CE)
 	add_subdirectory(TOOLS)
 endif()
 
 #Default
-add_subdirectory(SPEC_PSXPC)
-add_subdirectory(SPEC_PSXPC_N)
 add_subdirectory(EMULATOR)
+add_subdirectory(SPEC_PSXPC_N)

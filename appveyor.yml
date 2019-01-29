@@ -31,6 +31,9 @@ install:
   - appveyor DownloadFile %SDL2_URL% -FileName SDL2.zip
   - 7z x SDL2.zip -oC:\projects\TOMB5\EXTERNAL\
   - set SDL2=C:\projects\TOMB5\EXTERNAL\SDL2-2.0.7
+  - set GLEW_URL="https://netix.dl.sourceforge.net/project/glew/glew/2.1.0/glew-2.1.0-win32.zip"
+  - appveyor DownloadFile %GLEW_URL% -FileName GLEW.zip
+  - 7z x GLEW.zip -oC:\projects\TOMB5\EXTERNAL\
   
 before_build:
   - cmd: cd %clone_folder%
@@ -42,11 +45,11 @@ before_build:
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
   
 artifacts:
-   - path: BUILD\SPEC_PSXPC\*.zip
+   - path: BUILD\SPEC_PSXPC_N\*.zip
      name: Binaries
   
 after_build:
-  - cmd: cd SPEC_PSXPC
+  - cmd: cd SPEC_PSXPC_N
   - cmd: copy "C:\projects\TOMB5\EXTERNAL\SDL2-2.0.7\lib\x86\SDL2.dll" "%configuration%\"
   - 7z a TOMB5.zip "%configuration%\"
   

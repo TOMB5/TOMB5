@@ -5,16 +5,22 @@
 #include "SAVEGAME.H"
 #include "SPECIFIC.H"
 
-#if PSX_VERSION
-typedef int ptrdiff_t;
+#if PSXPC_TEST
+#include <stdint.h>
+#elif PSX_VERSION
+typedef unsigned int uintptr_t;
+#endif
+
+#if PSXPC_TEST
+#include <stdint.h>
 #endif
 
 void SaveRope()// (F)
 {
 	WriteSG((char*)&Ropes[lara.RopePtr], sizeof(struct ROPE_STRUCT));
-	CurrentPendulum.Rope = (struct ROPE_STRUCT*)((char*)CurrentPendulum.Rope - (ptrdiff_t)Ropes);
+	CurrentPendulum.Rope = (struct ROPE_STRUCT*)((char*)CurrentPendulum.Rope - (uintptr_t)Ropes);
 	WriteSG((char*)&CurrentPendulum, sizeof(struct PENDULUM));
-	CurrentPendulum.Rope = (struct ROPE_STRUCT*)((char*)CurrentPendulum.Rope + (ptrdiff_t)Ropes);
+	CurrentPendulum.Rope = (struct ROPE_STRUCT*)((char*)CurrentPendulum.Rope + (uintptr_t)Ropes);
 }
 
 void LoadRope()// (F)
@@ -22,7 +28,7 @@ void LoadRope()// (F)
 	ReadSG((char*)&Ropes[lara.RopePtr], sizeof(struct ROPE_STRUCT));
 	ReadSG((char*)&CurrentPendulum, sizeof(struct PENDULUM));
 
-	CurrentPendulum.Rope = (struct ROPE_STRUCT*)((char*)CurrentPendulum.Rope + (ptrdiff_t)Ropes);
+	CurrentPendulum.Rope = (struct ROPE_STRUCT*)((char*)CurrentPendulum.Rope + (uintptr_t)Ropes);
 }
 
 void Straighten(struct ROPE_STRUCT* a1, struct PHD_VECTOR* a2, struct PHD_VECTOR* a3, long a4)

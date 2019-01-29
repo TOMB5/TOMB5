@@ -50,13 +50,17 @@
 #include "TOMB4FX.H"
 
 #include <assert.h>
-#if PSXPC_VERSION
+#if PSXPC_VERSION || PSXPC_TEST
 	#include <stdint.h>
 #endif
 
-#if PSX_VERSION
+#if PSX_VERSION && !PSXPC_TEST
 typedef unsigned int uintptr_t;
+#endif
+
+#if PSX_VERSION
 #include "FXTRIG.H"
+#include "TEXT_S.H"
 #endif
 
 #include <string.h>
@@ -293,7 +297,7 @@ void LoadGameflow()//102E0, 102B0
 	s += Gameflow->ScriptLen;
 
 	//Align
-	gfStringOffset = (unsigned short*)(char*)((uintptr_t)(s + 3) & (uintptr_t)-4);
+	gfStringOffset = (unsigned short*)((uintptr_t)(s) + 3 & -4);
 
 #if CORE_UNSAFE
 	//This is original code, unsafe (if no lang loc files exist on disk)
