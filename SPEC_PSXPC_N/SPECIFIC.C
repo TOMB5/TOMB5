@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <SYS/TYPES.h>
+#include <SYS/TYPES.H>
 #include <LIBSPU.H>
 #include <LIBAPI.H>
 
