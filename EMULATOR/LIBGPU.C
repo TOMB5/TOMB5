@@ -1,10 +1,9 @@
 #include "LIBGPU.H"
 
 #define GL_GLEXT_PROTOTYPES 1
-#include "GL/glew.h"
+#include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
-#include <SDL_opengl_glext.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
