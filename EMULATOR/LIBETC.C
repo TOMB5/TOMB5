@@ -2,8 +2,12 @@
 
 #include <dos.h>
 #include <stdio.h>
+#include <GL\glew.h>
+#include <SDL.h>
+#include <SDL_opengl.h>
 
 #include "EMULATOR.H"
+#include "EMULATOR_GLOBALS.H"
 
 
 void(*vsync_callback)(void) = NULL;
