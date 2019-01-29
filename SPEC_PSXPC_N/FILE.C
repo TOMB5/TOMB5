@@ -2,7 +2,7 @@
 
 #include "CD.H"
 
-#include <sys/types.h>
+#include <SYS/TYPES.H>
 #include <LIBCD.H>
 #include <STDIO.H>
 #if !DISC_VERSION

@@ -1,70 +1,96 @@
-# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
-# file Copyright.txt or https://cmake.org/licensing for details.
+#
+# Find GLEW
+#
+# Try to find GLEW : The OpenGL Extension Wrangler Library.
+# This module defines the following variables:
+# - GLEW_INCLUDE_DIRS
+# - GLEW_LIBRARIES
+# - GLEW_DEFINITIONS
+# - GLEW_FOUND
+#
+# The following variables can be set as arguments for the module.
+# - GLEW_ROOT_DIR : Root library directory of GLEW
+# - GLEW_USE_STATIC_LIBS : Specifies to use static version of GLEW library (Windows only)
+#
+# References:
+# - https://github.com/progschj/OpenGL-Examples/blob/master/cmake_modules/FindGLEW.cmake
+# - https://code.google.com/p/nvidia-texture-tools/source/browse/trunk/cmake/FindGLEW.cmake
+# - Mitsuba Renderer
+#
 
-#[=======================================================================[.rst:
-FindGLEW
---------
+# Additional modules
+include(FindPackageHandleStandardArgs)
 
-Find the OpenGL Extension Wrangler Library (GLEW)
+# Dependencies
+# GLEW depends on OpenGL
+find_package(OpenGL)
 
-IMPORTED Targets
-^^^^^^^^^^^^^^^^
+if (WIN32)
+	# Find include files
+	find_path(
+		GLEW_INCLUDE_DIR
+		NAMES GL/glew.h
+		PATHS
+		$ENV{PROGRAMFILES}/include
+		${GLEW_ROOT_DIR}/include
+		DOC "The directory where GL/glew.h resides")
 
-This module defines the :prop_tgt:`IMPORTED` target ``GLEW::GLEW``,
-if GLEW has been found.
+	# Use glew32s.lib for static library
+	# Define additional compiler definitions
+	if (GLEW_USE_STATIC_LIBS)
+		set(GLEW_LIBRARY_NAME glew32s)
+		set(GLEW_DEFINITIONS -DGLEW_STATIC)
+	else()
+		set(GLEW_LIBRARY_NAME glew32)
+	endif()
 
-Result Variables
-^^^^^^^^^^^^^^^^
+	# Find library files
+	find_library(
+		GLEW_LIBRARY
+		NAMES ${GLEW_LIBRARY_NAME}
+		PATHS
+		$ENV{PROGRAMFILES}/GLEW/lib
+		${GLEW_ROOT_DIR}/lib
+		DOC "The GLEW library")
 
-This module defines the following variables:
+	unset(GLEW_LIBRARY_NAME)
+else()
+	# Find include files
+	find_path(
+		GLEW_INCLUDE_DIR
+		NAMES GL/glew.h
+		PATHS
+		/usr/include
+		/usr/local/include
+		/sw/include
+		/opt/local/include
+		${GLEW_ROOT_DIR}/include
+		DOC "The directory where GL/glew.h resides")
 
-::
-
-  GLEW_INCLUDE_DIRS - include directories for GLEW
-  GLEW_LIBRARIES - libraries to link against GLEW
-  GLEW_FOUND - true if GLEW has been found and can be used
-#]=======================================================================]
-
-find_path(GLEW_INCLUDE_DIR GL/glew.h)
-
-if(NOT GLEW_LIBRARY)
-  find_library(GLEW_LIBRARY_RELEASE NAMES GLEW glew32 glew glew32s PATH_SUFFIXES lib64 libx32)
-  find_library(GLEW_LIBRARY_DEBUG NAMES GLEWd glew32d glewd PATH_SUFFIXES lib64)
-
-  include(${CMAKE_CURRENT_LIST_DIR}/SelectLibraryConfigurations.cmake)
-  select_library_configurations(GLEW)
-endif ()
-
-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
-find_package_handle_standard_args(GLEW
-                                  REQUIRED_VARS GLEW_INCLUDE_DIR GLEW_LIBRARY)
-
-if(GLEW_FOUND)
-  set(GLEW_INCLUDE_DIRS ${GLEW_INCLUDE_DIR})
-
-  if(NOT GLEW_LIBRARIES)
-    set(GLEW_LIBRARIES ${GLEW_LIBRARY})
-  endif()
-
-  if (NOT TARGET GLEW::GLEW)
-    add_library(GLEW::GLEW UNKNOWN IMPORTED)
-    set_target_properties(GLEW::GLEW PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${GLEW_INCLUDE_DIRS}")
-
-    if(GLEW_LIBRARY_RELEASE)
-      set_property(TARGET GLEW::GLEW APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
-      set_target_properties(GLEW::GLEW PROPERTIES IMPORTED_LOCATION_RELEASE "${GLEW_LIBRARY_RELEASE}")
-    endif()
-
-    if(GLEW_LIBRARY_DEBUG)
-      set_property(TARGET GLEW::GLEW APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
-      set_target_properties(GLEW::GLEW PROPERTIES IMPORTED_LOCATION_DEBUG "${GLEW_LIBRARY_DEBUG}")
-    endif()
-
-    if(NOT GLEW_LIBRARY_RELEASE AND NOT GLEW_LIBRARY_DEBUG)
-      set_property(TARGET GLEW::GLEW APPEND PROPERTY IMPORTED_LOCATION "${GLEW_LIBRARY}")
-    endif()
-  endif()
+	# Find library files
+	# Try to use static libraries
+	find_library(
+		GLEW_LIBRARY
+		NAMES libGLEW.a GLEW
+		PATHS
+		/usr/lib64
+		/usr/lib
+		/usr/local/lib64
+		/usr/local/lib
+		/sw/lib
+		/opt/local/lib
+		${GLEW_ROOT_DIR}/lib
+		DOC "The GLEW library")
 endif()
 
-mark_as_advanced(GLEW_INCLUDE_DIR)
+# Handle REQUIRD argument, define *_FOUND variable
+find_package_handle_standard_args(GLEW DEFAULT_MSG GLEW_INCLUDE_DIR GLEW_LIBRARY)
+
+# Define GLEW_LIBRARIES and GLEW_INCLUDE_DIRS
+if (GLEW_FOUND)
+	set(GLEW_LIBRARIES ${OPENGL_LIBRARIES} ${GLEW_LIBRARY})
+	set(GLEW_INCLUDE_DIRS ${GLEW_INCLUDE_DIR})
+endif()
+
+# Hide some variables
+mark_as_advanced(GLEW_INCLUDE_DIR GLEW_LIBRARY)

@@ -73,7 +73,12 @@ RECT16 dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
 #else
 RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
 #endif
+#endif
 
+#if PSXPC_TEST
+#include <stdint.h>
+#elif PSX_VERSION
+typedef unsigned int uintptr_t;
 #endif
 
 #if PSXPC_VERSION || PSXPC_TEST
@@ -960,7 +965,7 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 		objects[i].save_hitpoints = 0;
 		objects[i].save_position = 0;
 
-		((int*)&objects[i].frame_base)[0] += (int)frames;
+		((int*)&objects[i].frame_base)[0] += (uintptr_t)frames;
 	}
 
 	BaddyObjects();
@@ -1270,19 +1275,19 @@ void LoadLevel(FILE* nHandle)
 			ptr += size;
 #endif
 
-			size = (int)room[i].door;
+			size = (uintptr_t)room[i].door;
 			room[i].door = (short*)ptr;
 			ptr += size;
 
-			size = (int)room[i].floor;
+			size = (uintptr_t)room[i].floor;
 			room[i].floor = (struct FLOOR_INFO*)ptr;
 			ptr += size;
 
-			size = (int)room[i].light;
+			size = (uintptr_t)room[i].light;
 			room[i].light = (struct LIGHTINFO*)ptr;
 			ptr += size;
 
-			size = (int)room[i].mesh;
+			size = (uintptr_t)room[i].mesh;
 			room[i].mesh = (struct MESH_INFO*)ptr;
 			ptr += size;
 		}
@@ -1341,7 +1346,7 @@ void LoadLevel(FILE* nHandle)
 #if 0
 			*(int*)&anims[i].frame_ptr += *(int*)&frames;
 #else
-			((int*)&anims[i].frame_ptr)[0] += (int)frames;
+			((int*)&anims[i].frame_ptr)[0] += (uintptr_t)frames;
 #endif
 		}
 	}//loc_6BC
@@ -1619,7 +1624,7 @@ void LoadLevel(FILE* nHandle)
 			meshptr = meshes[objects[WATERFALL1 + i].mesh_index];
 			meshptr += 6;//0xC for next itr?
 			meshptr += meshptr[5] << 16 >> 17;
-			((int*)AnimatingWaterfalls[i])[0] = (int)&psxtextinfo[meshptr[2] << 4];//why << 4? 1<<4=16!
+			((int*)AnimatingWaterfalls[i])[0] = (uintptr_t)&psxtextinfo[meshptr[2] << 4];//why << 4? 1<<4=16!
 			AnimatingWaterfallsV[i] = ((char*)&psxtextinfo[meshptr[2] << 4])[1];//why << 4? 1<<4=16!
 		}//loc_D84
 	}

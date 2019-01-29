@@ -1,16 +1,17 @@
 #include "LIBGPU.H"
 
-#include "EMULATOR.H"
-
 #define GL_GLEXT_PROTOTYPES 1
+#include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
-#include <SDL_opengl_glext.h>
-
 #include <stdio.h>
-#include <cstring>
-#include <cassert>
+#include <stdint.h>
+#include <string.h>
+#include <assert.h>
 #include <LIBETC.H>
+
+#include "EMULATOR.H"
+#include "EMULATOR_GLOBALS.H"
 
 unsigned short vram[1024 * 512];
 DISPENV word_33BC;
@@ -264,7 +265,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				break;
 			}
 
-			pTag = (P_TAG*)((int)pTag - ((pTag->len * 4) + 4));
+			pTag = (P_TAG*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
 		}
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
