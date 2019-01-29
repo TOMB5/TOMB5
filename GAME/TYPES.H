@@ -2,7 +2,9 @@
 #define GTYPES_H
 
 // required for NULL macro because if we define it ourselves it shits brixes
+#if PSXPC_TEST
 #include <stdint.h>
+#endif
 #include <stdlib.h>
 #include <stddef.h>
 
