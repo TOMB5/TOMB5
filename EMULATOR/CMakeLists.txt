@@ -8,6 +8,7 @@ get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR}
 #Find required libs for PSXPC
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
+set(GLEW_USE_STATIC_LIBS ON)
 find_package(GLEW REQUIRED)
 
 #Setup platform specific / game code include folder
