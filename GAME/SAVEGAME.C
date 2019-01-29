@@ -31,6 +31,12 @@
 #include "MISC.H"
 #endif
 
+#if PSXPC_TEST
+#include <stdint.h>
+#elif PSX_VERSION
+typedef unsigned int uintptr_t;
+#endif
+
 
 char FromTitle = 0; // offset 0xA14AC
 char JustLoaded = 0; // offset 0xA14AD
@@ -40,10 +46,6 @@ static char* SGpoint; // offset 0xA3920
 struct savegame_info savegame;
 
 #define Write(a, b) WriteSG((char*)a, b)
-
-#if PSX_VERSION//@HACK not really needed, can just take int.
-	typedef int ptrdiff_t;
-#endif
 
 void sgRestoreGame()//55B88, 55FEC (F)
 {
@@ -301,9 +303,9 @@ void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 	memcpy(&lara, &savegame.Lara, sizeof(struct lara_info));
 	lara.target = NULL;
 	lara.spaz_effect = NULL;
-	lara.right_arm.frame_base = (short*)((char*)lara.right_arm.frame_base + (ptrdiff_t)objects[PISTOLS_ANIM].frame_base);
-	lara.left_arm.frame_base = (short*)((char *)lara.left_arm.frame_base + (ptrdiff_t)objects[PISTOLS_ANIM].frame_base);
-	lara.GeneralPtr = (char *)lara.GeneralPtr + (ptrdiff_t)malloc_buffer;
+	lara.right_arm.frame_base = (short*)((char*)lara.right_arm.frame_base + (uintptr_t)objects[PISTOLS_ANIM].frame_base);
+	lara.left_arm.frame_base = (short*)((char *)lara.left_arm.frame_base + (uintptr_t)objects[PISTOLS_ANIM].frame_base);
+	lara.GeneralPtr = (char *)lara.GeneralPtr + (uintptr_t)malloc_buffer;
 	if (lara.burn)
 	{
 		lara.burn = 0;
@@ -334,7 +336,7 @@ void RestoreLaraData(int FullSave)//538D0(<), 53D34(<) (F)
 	
 	for (i = 0; i < 15; i++)
 	{
-		lara.mesh_ptrs[i] = (short*)((char*)mesh_base + (ptrdiff_t)lara.mesh_ptrs[i]);
+		lara.mesh_ptrs[i] = (short*)((char*)mesh_base + (uintptr_t)lara.mesh_ptrs[i]);
 	}
 
 	_CutSceneTriggered1 = savegame.CutSceneTriggered1;
@@ -348,22 +350,22 @@ void SaveLaraData()//53738(<), 53B9C(<) (F)
 
 	for (i = 0; i < 15; i++)
 	{
-		lara.mesh_ptrs[i] = (short*)((char*)lara.mesh_ptrs[i] - (ptrdiff_t)mesh_base);
+		lara.mesh_ptrs[i] = (short*)((char*)lara.mesh_ptrs[i] - (uintptr_t)mesh_base);
 	}
 
-	lara.left_arm.frame_base = (short*)((char *)lara.left_arm.frame_base - (ptrdiff_t)objects[PISTOLS_ANIM].frame_base);
-	lara.right_arm.frame_base = (short*)((char *)lara.right_arm.frame_base - (ptrdiff_t)objects[PISTOLS_ANIM].frame_base);
-	lara.GeneralPtr = (char *)lara.GeneralPtr - (ptrdiff_t)malloc_buffer;
+	lara.left_arm.frame_base = (short*)((char *)lara.left_arm.frame_base - (uintptr_t)objects[PISTOLS_ANIM].frame_base);
+	lara.right_arm.frame_base = (short*)((char *)lara.right_arm.frame_base - (uintptr_t)objects[PISTOLS_ANIM].frame_base);
+	lara.GeneralPtr = (char *)lara.GeneralPtr - (uintptr_t)malloc_buffer;
 	memcpy(&savegame.Lara, &lara, sizeof(savegame.Lara));
 	
 	for (i = 0; i < 15; i++)
 	{
-		lara.mesh_ptrs[i] = (short*)((char*)mesh_base + (ptrdiff_t)lara.mesh_ptrs[i]);
+		lara.mesh_ptrs[i] = (short*)((char*)mesh_base + (uintptr_t)lara.mesh_ptrs[i]);
 	}
 
-	lara.left_arm.frame_base = (short*)((char *)lara.left_arm.frame_base + (ptrdiff_t)objects[PISTOLS_ANIM].frame_base);
-	lara.right_arm.frame_base = (short*)((char *)lara.right_arm.frame_base + (ptrdiff_t)objects[PISTOLS_ANIM].frame_base);
-	lara.GeneralPtr = (char *)lara.GeneralPtr + (ptrdiff_t)malloc_buffer;
+	lara.left_arm.frame_base = (short*)((char *)lara.left_arm.frame_base + (uintptr_t)objects[PISTOLS_ANIM].frame_base);
+	lara.right_arm.frame_base = (short*)((char *)lara.right_arm.frame_base + (uintptr_t)objects[PISTOLS_ANIM].frame_base);
+	lara.GeneralPtr = (char *)lara.GeneralPtr + (uintptr_t)malloc_buffer;
 
 	if (lara.weapon_item == -1)
 	{

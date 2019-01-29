@@ -10,7 +10,7 @@
 #include "SPECIFIC.H"
 #include <LIBPAD.H>
 #include <STDIO.H>
-#include <ASSERT.H>
+#include <assert.h>
 #include "FXTRIG.H"
 
 static struct pad_configs pad_cons[5] =

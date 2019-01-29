@@ -68,5 +68,5 @@ if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))
 endif()
 
 #Default
-add_subdirectory(SPEC_PSXPC_N)
 add_subdirectory(EMULATOR)
+add_subdirectory(SPEC_PSXPC_N)

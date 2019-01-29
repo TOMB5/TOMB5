@@ -1,10 +1,14 @@
 #ifndef SPECTYPES_H
 #define SPECTYPES_H
 
+#if PSXPC_TEST
+#include "../GAME/TYPES.H"
+#else
+#include "TYPES.H"
+#endif
+
 #define INPUT_H "PSXINPUT.H"
 #define CMATH_H <LIBMATH.H>
-
-#include "TYPES.H"
 
 #ifdef PAELLA
 #define exit(x) exit()
@@ -14,7 +18,6 @@
 #define _WCHAR_T
 #endif
 
-#include "TYPES.H"
 
 #ifdef PAELLA
 
