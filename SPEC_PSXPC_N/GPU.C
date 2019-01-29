@@ -27,10 +27,10 @@ unsigned long GadwPolygonBuffers[52260];
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
 {
-	db.order_table[0] = (unsigned long*)((unsigned long) pBuffers);
-	db.order_table[1] = (unsigned long*)((unsigned long) &pBuffers[nOTSize]);
+	db.order_table[0] = (unsigned long*)((unsigned long)&pBuffers[0]);
+	db.order_table[1] = (unsigned long*)((unsigned long)&pBuffers[nOTSize]);
 	db.nOTSize = nOTSize;
-	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&db.disp[1]);
+	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[0]);
 	db.pickup_order_table[1] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256]);
 	return;
 }
@@ -38,7 +38,7 @@ void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C
 void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize)//5DFB0(<), 
 {
 	db.nPBSize = nPBSize;
-	db.poly_buffer[0] = (unsigned long*)((unsigned long)pBuffers);
+	db.poly_buffer[0] = (unsigned long*)((unsigned long)&pBuffers[0]);
 	db.poly_buffer[1] = (unsigned long*)((unsigned long)&pBuffers[nPBSize]);
 	return;
 }

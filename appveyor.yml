@@ -47,12 +47,11 @@ build_script:
   - sh: make
    
 artifacts:
-   - path: BUILD\SPEC_PSXPC\*.zip
+   - path: BUILD\SPEC_PSXPC_N\*.zip
      name: Binaries
   
 after_build:
-
-  - sh: cd SPEC_PSXPC
+  - sh: cd SPEC_PSXPC_N
   - sh: 7z a TOMB5.zip MAIN
 #  - sh: 7z a TOMB5.zip "%configuration%\"
   
