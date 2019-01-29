@@ -11,6 +11,7 @@
 
 #if PSX_VERSION
 #include "PSXINPUT.H"
+#include "TEXT_S.H"
 #endif
 #if PSXPC_VERSION
 #include "PSXPCINPUT.H"

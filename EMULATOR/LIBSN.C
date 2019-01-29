@@ -1,5 +1,6 @@
 #include "LIBSN.H"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
 
@@ -22,13 +23,13 @@ int PCopen(char* name, int flags, int perms)
 	switch (flags)
 	{
 	case 0:
-		fileHandle = (int)fopen(name, "rb");
+		fileHandle = (uintptr_t)fopen(name, "rb");
 		break;
 	case 1:
-		fileHandle = (int)fopen(name, "wb");
+		fileHandle = (uintptr_t)fopen(name, "wb");
 		break;
 	case 2:
-		fileHandle = (int)fopen(name, "rwb");
+		fileHandle = (uintptr_t)fopen(name, "rwb");
 		break;
 	}
 	
