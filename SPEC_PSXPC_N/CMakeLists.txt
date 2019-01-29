@@ -58,13 +58,19 @@ ${PLATFORM_SPECIFIC_SRCS}
 
 BuildPreProcessorDefinitions()
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+set(PSX_LIB libLIBPSX.a)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+set(PSX_LIB libPSX.lib)
+endif()
+
 #Link against required libraries
 target_link_libraries(
 ${PROJECT_NAME}
+${PSX_LIB}
 ${SDL2_LIBRARY}
 ${OPENGL_gl_LIBRARY}
 ${GLEW_LIBRARY}
-libPSX.lib
 )
 
 set_target_properties(

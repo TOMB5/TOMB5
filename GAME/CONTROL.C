@@ -43,6 +43,7 @@
 #if PSX_VERSION
 #include <LIBETC.H>
 #include <LIBGTE.H>
+#include "TEXT_S.H"
 #endif
 #include "LOT.H"
 
@@ -60,7 +61,6 @@
 #include <assert.h>
 #include <string.h>
 #include "LARAMISC.H"
-#include "..\SPEC_PSXPC_N\TEXT_S.H"
 
 #define MAX_FRAMES 10
 

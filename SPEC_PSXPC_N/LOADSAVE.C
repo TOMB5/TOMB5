@@ -13,8 +13,8 @@
 #include "SPECIFIC.H"
 #include "TEXT_S.H"
 
-#include <STDIO.h>
-#include <STRING.h>
+#include <STDIO.H>
+#include <STRING.H>
 #include <LIBMCRD.H>
 
 static struct REQUESTER InsertReq;
