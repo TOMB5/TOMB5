@@ -50,7 +50,7 @@
 #include "TOMB4FX.H"
 
 #include <assert.h>
-#if PSXPC_VERSION
+#if PSXPC_VERSION || PSXPC_TEST
 	#include <stdint.h>
 #endif
 
