@@ -4,7 +4,11 @@
 
 #include <SYS/TYPES.H>
 #include <LIBCD.H>
+#if PSXPC_TEST
+#include <stdio.h>
+#elif PSX_VERSION
 #include <STDIO.H>
+#endif
 #if !DISC_VERSION
 #include <LIBSN.H>
 #include "SPECIFIC.H"
