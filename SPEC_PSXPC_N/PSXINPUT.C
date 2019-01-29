@@ -9,7 +9,11 @@
 #include "SOUND.H"
 #include "SPECIFIC.H"
 #include <LIBPAD.H>
+#if PSXPC_TEST
+#include <stdio.h>
+#elif PSX_VERSION
 #include <STDIO.H>
+#endif
 #include <assert.h>
 #include "FXTRIG.H"
 

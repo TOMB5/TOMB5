@@ -7,7 +7,11 @@
 #include "TEXT_S.H"
 
 #include <LIBETC.H>
+#if PSXPC_TEST
+#include <stdio.h>
+#elif PSX_VERSION
 #include <STDIO.H>
+#endif
 #include <EMULATOR.H>
 #include <LIBGPU.H>
 
