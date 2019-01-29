@@ -1,6 +1,9 @@
 #ifndef EMULATOR_GLOBALS_H
 #define EMULATOR_GLOBALS_H
 
+#include <SDL.h>
+#include <SDL_opengl.h>
+
 extern GLuint vramTexture;
 extern SDL_Renderer* g_renderer;
 extern int lastTime;
