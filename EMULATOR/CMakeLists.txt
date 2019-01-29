@@ -25,15 +25,13 @@ file(GLOB_RECURSE EMULATOR_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAK
 source_group("GAME" FILES ${GAME_SRCS})
 source_group(${PLATFORM_SPECIFIC_FOLDER_NAME} FILES ${EMULATOR_SPECIFIC_SRCS})
 
-add_compile_definitions(GLEW_STATIC)
-
-# Cmake does not support linking with a static library
-
 add_library(
 ${PROJECT_NAME}
 STATIC
 ${EMULATOR_SPECIFIC_SRCS}
 )
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE GLEW_STATIC)
 
 set_target_properties(
 ${PROJECT_NAME} PROPERTIES OUTPUT_NAME "LIBPSX"
