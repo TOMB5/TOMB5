@@ -5,35 +5,28 @@ branches:
   - master
 #  - appveyor
   - appveyor-testbranch
-  - test
+  - appveyor-ubuntu
   
 skip_tags: true
 
-image: Visual Studio 2017
+image: Ubuntu
 
 configuration:
 - Debug
 - Release
 
-clone_folder: c:\projects\TOMB5
 #lib_folder: %clone_folder%\EXTERNAL
 
-build:
-  project: c:\projects\TOMB5\BUILD\TOMB5.sln
-  verbosity: minimal
-  
 platform:
   - Win32
   #- x64
   
 install:
-  - set SDL2_URL="https://www.libsdl.org/release/SDL2-devel-2.0.7-VC.zip"
-  - appveyor DownloadFile %SDL2_URL% -FileName SDL2.zip
-  - 7z x SDL2.zip -oC:\projects\TOMB5\EXTERNAL\
-  - set SDL2=C:\projects\TOMB5\EXTERNAL\SDL2-2.0.7
-  - set GLEW_URL="https://netix.dl.sourceforge.net/project/glew/glew/2.1.0/glew-2.1.0-win32.zip"
-  - appveyor DownloadFile %GLEW_URL% -FileName GLEW.zip
-  - 7z x GLEW.zip -oC:\projects\TOMB5\EXTERNAL\
+  - sh: sudo apt-get update -qq
+  - sh: sudo apt-get install -y libegl1-mesa-dev
+  - sh: sudo apt-get install -y libgles2-mesa-dev
+  - sh: sudo apt-get install -y libsdl2-dev
+  - sh: sudo apt-get install -y libglew-dev
   
 before_build:
   - cmd: cd %clone_folder%
@@ -44,13 +37,19 @@ before_build:
   - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
   
+build_script:
+  - sh: mkdir BUILD
+  - sh: cd BUILD
+  - sh: cmake ..
+  - sh: make
+   
 artifacts:
    - path: BUILD\SPEC_PSXPC_N\*.zip
      name: Binaries
   
 after_build:
-  - cmd: cd SPEC_PSXPC_N
-  - cmd: copy "C:\projects\TOMB5\EXTERNAL\SDL2-2.0.7\lib\x86\SDL2.dll" "%configuration%\"
-  - 7z a TOMB5.zip "%configuration%\"
+  - sh: cd SPEC_PSXPC_N
+  - sh: 7z a TOMB5.zip MAIN
+#  - sh: 7z a TOMB5.zip "%configuration%\"
   
 #build: off
