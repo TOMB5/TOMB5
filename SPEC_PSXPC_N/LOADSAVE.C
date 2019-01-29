@@ -13,8 +13,13 @@
 #include "SPECIFIC.H"
 #include "TEXT_S.H"
 
+#if PSXPC_TEST
+#include <stdio.h>
+#include <string.h>
+#elif PSX_VERSION
 #include <STDIO.H>
 #include <STRING.H>
+#endif
 #include <LIBMCRD.H>
 
 static struct REQUESTER InsertReq;
