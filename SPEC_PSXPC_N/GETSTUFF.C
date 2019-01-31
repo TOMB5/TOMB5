@@ -9,14 +9,8 @@ long DIVFP(long A, long B)
 
 long MULFP(long A, long B)
 {
-	if (A && B != 0)
-	{
-		return ((A % B) << 16) | ((A * B) >> 16);
-	}
-	else
-	{
-		return ((A * B) >> 16);
-	}
+	unsigned long long result = (long long)((long long)(int)A * (long long)(int)B);
+	return ((result >> 32) << 16) | ((result & 0xFFFFFFFF) >> 16);
 }
 
 int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
