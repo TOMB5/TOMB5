@@ -793,7 +793,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 		return;
 	}
 
-	if (current_spline_position > 0xFFFF)
+	if (0x10000 - cspeed > current_spline_position)///@CHECK
 	{
 		return;
 	}
