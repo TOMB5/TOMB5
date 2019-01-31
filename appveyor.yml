@@ -5,52 +5,47 @@ branches:
   - master
 #  - appveyor
   - appveyor-testbranch
-  - test
+  - appveyor-psx
   
 skip_tags: true
 
-image: Visual Studio 2017
-
 configuration:
-- Debug
 - Release
 
 clone_folder: c:\projects\TOMB5
-#lib_folder: %clone_folder%\EXTERNAL
 
-build:
-  project: c:\projects\TOMB5\BUILD\TOMB5.sln
-  verbosity: minimal
-  
 platform:
   - Win32
-  #- x64
   
 install:
-  - set SDL2_URL="https://www.libsdl.org/release/SDL2-devel-2.0.7-VC.zip"
-  - appveyor DownloadFile %SDL2_URL% -FileName SDL2.zip
-  - 7z x SDL2.zip -oC:\projects\TOMB5\EXTERNAL\
-  - set SDL2=C:\projects\TOMB5\EXTERNAL\SDL2-2.0.7
-  - set GLEW_URL="https://netix.dl.sourceforge.net/project/glew/glew/2.1.0/glew-2.1.0-win32.zip"
-  - appveyor DownloadFile %GLEW_URL% -FileName GLEW.zip
-  - 7z x GLEW.zip -oC:\projects\TOMB5\EXTERNAL\
+  - set QTDIR=C:\Qt\5.7\mingw53_32
+  - set C_INCLUDE_PATH=C:\psyq\include
+  - set C_PLUS_INCLUDE_PATH=C:\psyq\include
+  - set COMPILER_PATH=C:\psyq\bin
+  - set G032TMP=C:\TEMP
+  - set GO32=DPMISTACK 1000000
+  - set LIBRARY_PATH=C:\psyq\lib
+  - set PSX_PATH=C:\psyq\bin
+  - set PSYQ_PATH=C:\psyq\bin
+  - set TMPDIR=C:\TEMP
+  - set PATH=%PATH%;C:\MinGW\bin;C:\psyq\bin;%QTDIR%\bin;%QTDIR%\Tools\mingw530_32\bin;
+  - set PSYQ_SDK_URL="https://cdn.discordapp.com/attachments/396080766892638215/540669802218258443/PSYQSDK.zip"
+  - appveyor DownloadFile %PSYQ_SDK_URL% -FileName PSXSDK.zip
+  - 7z x PSXSDK.zip -oC:\
   
-before_build:
-  - cmd: cd %clone_folder%
-  #- cmd: dir /s
-  - cmd: md BUILD
-  - cmd: cd BUILD
-  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
-  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
-  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% -DDART_MSVC_DEFAULT_OPTIONS="%MSVC_DEFAULT_OPTIONS%" ..
+build_script:
+  - cmd: mkdir C:\TEMP
+  - cmd: icacls "C:\psyq" /grant Users:F
+  - cmd: icacls "C:\TEMP" /grant Users:F
+  - cmd: mingw32-make
+  - cmd: cd DISC
+  - cmd: CPE2X MAIN.CPE
   
 artifacts:
-   - path: BUILD\SPEC_PSXPC_N\*.zip
+   - path: DISC\*.zip
      name: Binaries
   
 after_build:
-  - cmd: cd SPEC_PSXPC_N
-  - cmd: copy "C:\projects\TOMB5\EXTERNAL\SDL2-2.0.7\lib\x86\SDL2.dll" "%configuration%\"
-  - 7z a TOMB5.zip "%configuration%\"
+  - 7z a TOMB5.zip *.EXE
   
 #build: off
