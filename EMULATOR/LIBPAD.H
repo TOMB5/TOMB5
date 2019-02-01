@@ -1,6 +1,8 @@
 #ifndef LIBPAD_H
 #define LIBPAD_H
 
+#include <SDL.h>
+
 #ifndef TRUE
 #define TRUE		1
 #endif
@@ -33,6 +35,8 @@
 #define PadMaxCurr		60
 #define PadCurrCTP1		10
 
+#define MAX_CONTROLLERS 2
+
 extern void PadInitDirect(unsigned char* pad1, unsigned char* pad2);
 extern void PadInitMtap(unsigned char* unk00, unsigned char* unk01);
 extern void PadInitGun(unsigned char* unk00, int unk01);
@@ -42,12 +46,16 @@ extern void PadStopCom();
 extern unsigned int PadEnableCom(unsigned int unk00);
 extern void PadEnableGun(unsigned char unk00);
 extern void PadRemoveGun();
-extern int PadGetState(int unk00);
+extern int PadGetState(int port);
 extern int PadInfoMode(int unk00, int, int unk01);
 extern int PadInfoAct(int unk00, int, int unk01);
 extern int PadInfoComb(int unk00, int, int unk01);
 extern int PadSetActAlign(int unk00, unsigned char* unk01);
 extern int PadSetMainMode(int socket, int offs, int lock);
 extern void PadSetAct(int unk00, unsigned char* unk01, int unk02);
+extern unsigned short UpdateInput(SDL_GameController* pad);
+
+extern SDL_GameController* padHandle[];
+extern unsigned char* padData[];
 
 #endif

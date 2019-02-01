@@ -1,11 +1,39 @@
 #include "LIBPAD.H"
 
 #include <SDL.h>
+#include <stdio.h>
 #include <assert.h>
+
+SDL_GameController* padHandle[MAX_CONTROLLERS];
+
+unsigned char* padData[MAX_CONTROLLERS];
 
 void PadInitDirect(unsigned char* pad1, unsigned char* pad2)
 {
-	SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+	padData[0] = pad1;
+	padData[1] = pad2;
+
+	padData[0][0] = 0xFF;
+	padData[0][1] = 0xFF;
+
+	if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0)
+	{
+		printf("Failed to initialise subsystem GAMECONTROLLER\n");
+	}
+
+	if (SDL_NumJoysticks() < 1)
+	{
+		printf("Failed to locate a connected gamepad!\n");
+		return;
+	}
+
+	for (int i = 0; i < SDL_NumJoysticks(); i++)
+	{
+		if (SDL_IsGameController(i) && i < MAX_CONTROLLERS)
+		{
+			padHandle[i] = SDL_GameControllerOpen(i);///@TODO close joysticks
+		}
+	}
 }
 
 void PadInitMtap(unsigned char* unk00, unsigned char* unk01)
@@ -43,14 +71,23 @@ void PadRemoveGun()
 {
 }
 
-int PadGetState(int unk00)
+int PadGetState(int port)
 {
+	if (!(SDL_GameControllerGetAttached(padHandle[port])))
+	{
+		return PadStateDiscon;
+	}
+	else
+	{
+		return PadStateStable;
+	}
+
 	return 0;
 }
 
 int PadInfoMode(int unk00, int, int unk01)
 {
-	return 0;
+	return 7;//?
 }
 
 int PadInfoAct(int unk00, int, int unk01)
@@ -75,4 +112,32 @@ int PadSetMainMode(int socket, int offs, int lock)
 
 void PadSetAct(int unk00, unsigned char* unk01, int unk02)
 {
+}
+
+unsigned short UpdateInput(SDL_GameController* pad)
+{
+	unsigned short ret = -1;
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_X))//Square
+	{
+		ret &= ~0x8000;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_B))//Circle
+	{
+		ret &= ~0x2000;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_Y))//Triangle
+	{
+		ret &= ~0x1000;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A))//Cross
+	{
+		ret &= ~0x4000;
+		printf("LIBPAD_APRESSED!\n");
+	}
+
+	return ret;
 }
