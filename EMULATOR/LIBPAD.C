@@ -136,7 +136,46 @@ unsigned short UpdateInput(SDL_GameController* pad)
 	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A))//Cross
 	{
 		ret &= ~0x4000;
-		printf("LIBPAD_APRESSED!\n");
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_LEFTSHOULDER))//L1
+	{
+		ret &= ~0x400;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))//R1
+	{
+		ret &= ~0x800;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_UP))//UP
+	{
+		ret &= ~0x10;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_DOWN))//DOWN
+	{
+		ret &= ~0x40;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_LEFT))//LEFT
+	{
+		ret &= ~0x80;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_RIGHT))//RIGHT
+	{
+		ret &= ~0x20;
+	}
+
+	if (SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_TRIGGERLEFT))//L2
+	{
+		ret &= ~0x100;
+	}
+
+	if (SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_TRIGGERRIGHT))//R2
+	{
+		ret &= ~0x200;
 	}
 
 	return ret;
