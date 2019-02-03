@@ -169,8 +169,56 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 		{
 		case GF_LEVEL:
 		{
-			int test = 0;
-			test++;
+			gfLevelFlags = sequenceCommand[1] | (sequenceCommand[2] << 8);
+			if ((gfLevelFlags & 0x8000))
+			{
+				gfStatus = 0x3E7;
+				++gfCurrentLevel;
+			}//loc_112E4
+
+			DoLevel(sequenceCommand[3], sequenceCommand[4]);
+
+			//loc_112F8
+			gfLegendTime = 0;
+			LaserSight = 0;
+			BinocularRange = 0;
+			((int*)&gfResidentCut)[0] = 0;
+			gfUVRotate = 0;
+			gfNumMips = 0;
+			gfNumPickups = 0;
+			gfMirrorRoom = -1;
+
+			if (gfStatus == 2)
+			{
+				//loc_1146C
+				gfGameMode = 4;
+				gfCurrentLevel = savegame.CurrentLevel;
+				sequenceCommand = &gfScriptWad[gfScriptOffset[gfCurrentLevel]];
+			}
+			else if (gfStatus == 3)
+			{
+				//loc_1138C
+				if (Gameflow->DemoDisc || Gameflow->nLevels == 2 || Gameflow->nLevels < gfLevelComplete)
+				{
+					gfCurrentLevel = LVL5_TITLE;
+				}
+				else if (Gameflow->nLevels > gfLevelComplete)
+				{
+					gfCurrentLevel = gfLevelComplete;
+				}
+			}
+			else if (gfStatus == 4)
+			{
+				//loc_115DC
+				return;
+			}
+			else if (gfStatus == 1)
+			{
+				//loc_11364
+				gfInitialiseGame = gfStatus;//Possible optimisation since gfStatus is 1?
+				gfCurrentLevel = Gameflow->TitleEnabled < 1 ? 1 : 0;
+			}
+
 			break;
 		}
 		case GF_TITLE_LEVEL://IB = 113D8, 11488
@@ -348,7 +396,6 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 				invobj = (op + 0x80) & 0xFF;
 			}
 
-			//a0 = &inventry_objects_list[invobj];
 			inventry_objects_list[invobj].objname = sequenceCommand[0] | (sequenceCommand[1] << 8);
 			inventry_objects_list[invobj].yoff = sequenceCommand[2] | (sequenceCommand[3] << 8);
 			inventry_objects_list[invobj].scale1 = sequenceCommand[4] | (sequenceCommand[5] << 8);
