@@ -77,7 +77,7 @@ int main()//10064(<), 10064(<) (F) (*)
 #ifndef PAELLA
 	MemCardInit(1);
 
-	PadInitDirect((unsigned char*)&GPad1.transStatus, (unsigned char*)&GPad2.transStatus);
+	PadInitDirect((unsigned char*)&GPad1, (unsigned char*)&GPad2);
 	PadSetAct(0, &Motors[0], sizeof(Motors));
 	PadStartCom();
 #endif

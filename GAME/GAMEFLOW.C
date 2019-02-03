@@ -133,7 +133,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 {
 	//unsigned char* gf;
 	//unsigned char n;
-	int op;
+	unsigned char op;
 	unsigned short* scriptOffsetPtr;
 	unsigned char* sequenceCommand;
 
@@ -164,28 +164,124 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 
 	while (1)//?
 	{
-		op = *sequenceCommand;
-		sequenceCommand++;
+		op = *sequenceCommand++;
 		switch (op)
 		{
+		case GF_LEVEL:
+		{
+			gfLevelFlags = sequenceCommand[1] | (sequenceCommand[2] << 8);
+			if ((gfLevelFlags & 0x8000))
+			{
+				gfStatus = 0x3E7;
+				++gfCurrentLevel;
+			}//loc_112E4
+
+			DoLevel(sequenceCommand[3], sequenceCommand[4]);
+
+			//loc_112F8
+			gfLegendTime = 0;
+			LaserSight = 0;
+			BinocularRange = 0;
+			((int*)&gfResidentCut)[0] = 0;
+			gfUVRotate = 0;
+			gfNumMips = 0;
+			gfNumPickups = 0;
+			gfMirrorRoom = -1;
+
+			if (gfStatus == 2)
+			{
+				//loc_1146C
+				gfGameMode = 4;
+				gfCurrentLevel = savegame.CurrentLevel;
+				sequenceCommand = &gfScriptWad[gfScriptOffset[gfCurrentLevel]];
+			}
+			else if (gfStatus == 3)
+			{
+				//loc_1138C
+				if (Gameflow->DemoDisc || Gameflow->nLevels == 2 || Gameflow->nLevels < gfLevelComplete)
+				{
+					gfCurrentLevel = LVL5_TITLE;
+				}
+				else if (Gameflow->nLevels > gfLevelComplete)
+				{
+					gfCurrentLevel = gfLevelComplete;
+				}
+			}
+			else if (gfStatus == 4)
+			{
+				//loc_115DC
+				return;
+			}
+			else if (gfStatus == 1)
+			{
+				//loc_11364
+				gfInitialiseGame = gfStatus;//Possible optimisation since gfStatus is 1?
+				gfCurrentLevel = Gameflow->TitleEnabled < 1 ? 1 : 0;
+			}
+
+			break;
+		}
 		case GF_TITLE_LEVEL://IB = 113D8, 11488
+		{
 			gfLevelFlags = (sequenceCommand[0] | (sequenceCommand[1] << 8));
-			DoTitle(sequenceCommand[2], sequenceCommand[3]);//a3[2]unconfirmed
+			DoTitle(sequenceCommand[2], sequenceCommand[3]);
+			gfMirrorRoom = 255;
+			((int*)&gfResidentCut)[0] = 0;
+			gfUVRotate = 0;
+			gfNumMips = 0;
+			gfNumPickups = 0;
+
+			if (gfStatus == 3)
+			{
+				//loc_11450
+				gfGameMode = 0;
+				gfInitialiseGame = 1;
+				Gameflow->SecurityTag = gfLevelComplete;
+			}
+			else if (gfStatus > 3)
+			{
+				//loc_1143C
+				if (gfStatus == 4)
+				{
+					//loc_115DC
+					return;
+				}
+			}
+			else if (gfStatus == 2)
+			{
+				//loc_11470
+				gfGameMode = 4;
+				Gameflow->SecurityTag = savegame.CurrentLevel;
+			}
+
+			//loc_11480
+			sequenceCommand = &gfScriptWad[gfScriptOffset[Gameflow->SecurityTag]];
 			break;
+		}
 		case GF_LEVEL_DATA_END://11048
+		{
 			break;
+		}
 		case GF_RESIDENTCUT1://112B8
+		{
 			gfResidentCut[0] = *sequenceCommand++;
 			break;
+		}
 		case GF_RESIDENTCUT2://112CC
+		{
 			gfResidentCut[1] = *sequenceCommand++;
 			break;
+		}
 		case GF_RESIDENTCUT3:
+		{
 			gfResidentCut[2] = *sequenceCommand++;
 			break;
+		}
 		case GF_RESIDENTCUT4://112F4
+		{
 			gfResidentCut[3] = *sequenceCommand++;
 			break;
+		}
 		case GF_LAYER1://1107C
 		{
 			int a2 = 10;//?
@@ -211,41 +307,106 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 			break;
 		}
 		case GF_FOG:
+		{
 			gfUVRotate = *sequenceCommand++;
 			break;
+		}
 		case GF_LEGEND:
+		{
 			gfLegend = *sequenceCommand++;
 			if (gfGameMode != 4)
 				gfLegendTime = 150;
 			break;
+		}
 		case GF_ANIMATING_MIP:
+		{
 			gfMips[gfNumMips++] = *sequenceCommand++;
 			break;
+		}
 		case GF_GIVE_ITEM_AT_STARTUP:
+		{
 			gfPickups[gfNumPickups++] = sequenceCommand[0] | (sequenceCommand[1] << 8);
 			sequenceCommand += 2;
 			break;
+		}
 		case GF_LOSE_ITEM_AT_STARTUP:
+		{
 			gfTakeaways[gfNumTakeaways++] = sequenceCommand[0] | (sequenceCommand[1] << 8);
 			sequenceCommand += 2;
 			break;
+		}
 		case GF_MIRROR:
+		{
 			gfMirrorRoom = *sequenceCommand++;
 			gfMirrorZPlane = *(int*)sequenceCommand;///@FIXME illegal operation here?
 			sequenceCommand += 4;
 			break;
+		}
 		case GF_CUT:
+		{
 			gfCutNumber = *sequenceCommand++;
 			break;
+		}
 		case GF_RESET_HUB:
+		{
 			gfResetHubDest = *sequenceCommand++;
 			break;
+		}
 		case GF_FMV:
+		{
 			fmv_to_play[num_fmvs++] = *sequenceCommand++;
 			break;
-		default://11550
-			assert(1);
+		}
+		case GF_KEY_ITEM1:
+		case GF_KEY_ITEM2:
+		case PUZZLE_ITEM1:
+		case PICKUP_ITEM1:
+		case PICKUP_ITEM2:
+		default:
+		{
+			//def_10FE0
+			int invobj;//a1
+
+			if (((op + 0x6E) & 0xFF) < 8)
+			{
+				invobj = (op + 0xA3) & 0xFF;
+			}
+			else if (((op + 0x62) & 0xFF) < 8)
+			{
+				invobj = (op + 0x7F) & 0xFF;
+			}
+			else if (((op + 0x56) & 0xFF) < 4)
+			{
+				invobj = (op + 0xA3) & 0xFF;
+			}
+			else if (((op + 0x52) & 0xFF) < 3)
+			{
+				invobj = (op + 0xAD) & 0xFF;
+			}
+			else if (((op + 0x4F) & 0xFF) < 16)
+			{
+				invobj = (op + 0x8C) & 0xFF;
+			}
+			else if (((op + 0x3F) & 0xFF) < 16)
+			{
+				invobj = (op + 0x64) & 0xFF;
+			}
+			else if (((op + 0x2F) & 0xFF) < 8)
+			{
+				invobj = (op + 0x80) & 0xFF;
+			}
+
+			inventry_objects_list[invobj].objname = sequenceCommand[0] | (sequenceCommand[1] << 8);
+			inventry_objects_list[invobj].yoff = sequenceCommand[2] | (sequenceCommand[3] << 8);
+			inventry_objects_list[invobj].scale1 = sequenceCommand[4] | (sequenceCommand[5] << 8);
+			inventry_objects_list[invobj].yrot = sequenceCommand[6] | (sequenceCommand[7] << 8);
+			inventry_objects_list[invobj].xrot = sequenceCommand[8] | (sequenceCommand[9] << 8);
+			inventry_objects_list[invobj].zrot = sequenceCommand[10] | (sequenceCommand[11] << 8);
+			inventry_objects_list[invobj].flags = sequenceCommand[12] | (sequenceCommand[13] << 8);
+
+			sequenceCommand += 0xE;
 			break;
+		}
 		}
 	}
 }
@@ -699,8 +860,9 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 #else
 					gfStatus = TitleOptions(Name);
 #endif
+					//Early out
 					if (gfStatus != 0)
-						goto loc_10A24;
+						break;
 
 				}//loc_10890
 
@@ -761,8 +923,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 		}
 	}
 	//loc_10A24
-
-loc_10A24:
 	Motors[1] = 0;
 	Motors[0] = 0;
 
