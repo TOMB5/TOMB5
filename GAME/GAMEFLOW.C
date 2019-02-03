@@ -133,7 +133,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 {
 	//unsigned char* gf;
 	//unsigned char n;
-	int op;
+	unsigned char op;
 	unsigned short* scriptOffsetPtr;
 	unsigned char* sequenceCommand;
 
@@ -167,6 +167,12 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 		op = *sequenceCommand++;
 		switch (op)
 		{
+		case GF_LEVEL:
+		{
+			int test = 0;
+			test++;
+			break;
+		}
 		case GF_TITLE_LEVEL://IB = 113D8, 11488
 		{
 			gfLevelFlags = (sequenceCommand[0] | (sequenceCommand[1] << 8));
@@ -304,13 +310,54 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 			break;
 		}
 		case GF_KEY_ITEM1:
+		case GF_KEY_ITEM2:
+		case PUZZLE_ITEM1:
+		case PICKUP_ITEM1:
+		case PICKUP_ITEM2:
+		default:
 		{
-			assert(1);
-			break;
-		}
-		default://11550
-		{
-			assert(1);
+			//def_10FE0
+			int invobj;//a1
+
+			if (((op + 0x6E) & 0xFF) < 8)
+			{
+				invobj = (op + 0xA3) & 0xFF;
+			}
+			else if (((op + 0x62) & 0xFF) < 8)
+			{
+				invobj = (op + 0x7F) & 0xFF;
+			}
+			else if (((op + 0x56) & 0xFF) < 4)
+			{
+				invobj = (op + 0xA3) & 0xFF;
+			}
+			else if (((op + 0x52) & 0xFF) < 3)
+			{
+				invobj = (op + 0xAD) & 0xFF;
+			}
+			else if (((op + 0x4F) & 0xFF) < 16)
+			{
+				invobj = (op + 0x8C) & 0xFF;
+			}
+			else if (((op + 0x3F) & 0xFF) < 16)
+			{
+				invobj = (op + 0x64) & 0xFF;
+			}
+			else if (((op + 0x2F) & 0xFF) < 8)
+			{
+				invobj = (op + 0x80) & 0xFF;
+			}
+
+			//a0 = &inventry_objects_list[invobj];
+			inventry_objects_list[invobj].objname = sequenceCommand[0] | (sequenceCommand[1] << 8);
+			inventry_objects_list[invobj].yoff = sequenceCommand[2] | (sequenceCommand[3] << 8);
+			inventry_objects_list[invobj].scale1 = sequenceCommand[4] | (sequenceCommand[5] << 8);
+			inventry_objects_list[invobj].yrot = sequenceCommand[6] | (sequenceCommand[7] << 8);
+			inventry_objects_list[invobj].xrot = sequenceCommand[8] | (sequenceCommand[9] << 8);
+			inventry_objects_list[invobj].zrot = sequenceCommand[10] | (sequenceCommand[11] << 8);
+			inventry_objects_list[invobj].flags = sequenceCommand[12] | (sequenceCommand[13] << 8);
+
+			sequenceCommand += 0xE;
 			break;
 		}
 		}
