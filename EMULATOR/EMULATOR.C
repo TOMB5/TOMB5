@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <LIBPAD.H>
 #include <stdio.h>
 #include <LIBGPU.H>
 
@@ -193,9 +194,21 @@ void Emulator_EndScene()
 
 	glDisable(GL_TEXTURE_2D);
 	glDeleteTextures(1, &vramTexture);
+
+	//Update pad
+	for (int i = 0; i < MAX_CONTROLLERS; i++)
+	{
+		if (padHandle[i] != NULL)
+		{
+			padData[i][0] = 0;
+			padData[i][1] = 0x41;//?
+			((unsigned short*)padData[i])[1] = UpdateInput(padHandle[i]);
+		}
+	}
 }
 
 void Emulator_ShutDown()
 {
 	glDeleteTextures(1, &vramTexture);
+	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
 }

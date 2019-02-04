@@ -1,10 +1,16 @@
 # Project: Decompile Tomb Raider: Chronicles (TOMB5)
 
+Start Date: 12th July 2017.
+
+PSX:
 <p align="center">
 <img src="https://i.imgur.com/1o1EDew.png"/>
 </p>
 
-Start Date: 12th July 2017.
+PSXPC_N:
+<p align="center">
+<a href="https://streamable.com/z900z"><img src="https://i.imgur.com/GgG4to2.png"/><a>
+ </p>
 
 | Platform  | Build State |
 | ------------- | ------------- |

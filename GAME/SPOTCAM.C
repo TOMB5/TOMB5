@@ -85,9 +85,8 @@ void InitSpotCamSequences()//374B8(<), 379B8(<) (F)
 	int s, cc, n, ce;
 
 	n = number_spotcams;
-	cc = 1;
-
 	bTrackCamInit = 0;
+	cc = 1;
 
 	if (n != 0)
 	{
@@ -429,7 +428,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 }
 
 
-void CalculateSpotCams()//37ED0(<), ? 
+void CalculateSpotCams()//37ED0(<), 383D0(?) 
 {
 #if !PC_VERSION
 	long cpx; // stack offset -96
@@ -712,13 +711,13 @@ void CalculateSpotCams()//37ED0(<), ?
 
 	//loc_38420
 	camera.target.x = ctx;
-	camera.target.y = ctx;
+	camera.target.y = cty;
 	camera.target.z = ctz;
 
 	IsRoomOutsideNo = -1;
 	IsRoomOutside(cpx, cpy, cpz);
 
-	if (IsRoomOutsideNo != -1)
+	if (IsRoomOutsideNo != -1)///@FIXME IsRoomOutsideNo bad value
 	{
 		camera.pos.room_number = IsRoomOutsideNo;
 	}
@@ -794,7 +793,7 @@ void CalculateSpotCams()//37ED0(<), ?
 		return;
 	}
 
-	if (current_spline_position > 0xFFFF)
+	if (0x10000 - cspeed > current_spline_position)///@CHECK
 	{
 		return;
 	}
