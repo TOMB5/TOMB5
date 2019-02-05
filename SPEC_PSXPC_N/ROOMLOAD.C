@@ -58,7 +58,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	char buf[80];
 	unsigned long* mod;
 	int len;
-	int file;
+	uintptr_t file;
 
 #if DISC_VERSION
 	//TITLE is the base file entry index for levels, simply as a result, we must add gameflow level id to this.
@@ -89,7 +89,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	 * [SETUP.BIN]
 	 * [SETUP.REL]
 	 */
-	RelocateModule((unsigned long)SetupPtr, (unsigned long*)(db.poly_buffer[0][1024] + (unsigned long)SetupPtr));
+	RelocateModule((uintptr_t)SetupPtr, (unsigned int*)(db.poly_buffer[0][1024] + (uintptr_t)SetupPtr));
 
 #if DISC_VERSION
 	#if RELOC

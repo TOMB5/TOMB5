@@ -590,19 +590,21 @@ extern "C" {
 #include <LIBGTE.H>
 #include <LIBGPU.H>
 
+#pragma pack(push,1)
+
 struct DB_STRUCT
 {
 	int current_buffer;
-	unsigned long* ot;
+	uintptr_t* ot;
 	char* polyptr;
 	char* curpolybuf;
 	char* polybuf_limit;
 	int nOTSize;
 	int nPBSize;
-	unsigned long* order_table[2];
+	uintptr_t* order_table[2];
 	unsigned long* poly_buffer[2];
-	unsigned long* pickup_ot;
-	unsigned long* pickup_order_table[2];
+	uintptr_t* pickup_ot;
+	uintptr_t* pickup_order_table[2];
 	DRAWENV draw[2];
 	DISPENV disp[2];
 };
@@ -614,11 +616,11 @@ struct room_info
 	struct FLOOR_INFO* floor; // size=8, offset=8
 	struct LIGHTINFO* light; // size=32, offset=12
 	struct MESH_INFO* mesh; // size=20, offset=16
-	long x; // size=0, offset=20
-	long y; // size=0, offset=24
-	long z; // size=0, offset=28
-	long minfloor; // size=0, offset=32
-	long maxceiling; // size=0, offset=36
+	int x; // size=0, offset=20
+	int y; // size=0, offset=24
+	int z; // size=0, offset=28
+	int minfloor; // size=0, offset=32
+	int maxceiling; // size=0, offset=36
 	short x_size; // size=0, offset=40
 	short y_size; // size=0, offset=42
 	CVECTOR ambient; // size=4, offset=44
@@ -1017,5 +1019,7 @@ struct DRIP_STRUCT
 	unsigned char Outside; // size=0, offset=22
 	unsigned char Pad; // size=0, offset=23
 };
+
+#pragma pack(pop)
 
 #endif

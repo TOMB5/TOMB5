@@ -71,8 +71,6 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 				y >= rect->y && y < rect->y + rect->h)
 			{
 				src[0] = *dst++;
-
-				//pixel[0] = 1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3));
 			}
 		}
 	}
@@ -107,9 +105,9 @@ u_long * ClearOTag(u_long * ot, int n)
 	return 0;
 }
 
-u_long* ClearOTagR(u_long* ot, int n)
+u_long* ClearOTagR(uintptr_t* ot, int n)
 {
-	memset(ot, 0, n * sizeof(int));
+	memset(ot, 0, n * sizeof(uintptr_t));
 	return 0;
 }
 
@@ -192,7 +190,7 @@ u_long DrawSyncCallback(void(*func)(void))
 
 int test = 0;
 
-void DrawOTagEnv(u_long* p, DRAWENV* env)
+void DrawOTagEnv(uintptr_t* p, DRAWENV* env)
 {
 	P_TAG* pTag = (P_TAG*)*p;
 	if (pTag != NULL)
@@ -229,6 +227,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 				///@FIXME im unsure if this is stable.
 				int tpage = (poly->tpage & 0x1F) / 4 + 1;
+				int tpage2 = poly->tpage - floor(poly->tpage / 15) * 15;
+				int tpage3 = (((poly->tpage - 1) % (15 - 1)) + (15 - 1)) % (15 - 1) + 1;
 				int x = (tpage * 256) % 1024 - 256;
 				int y = (tpage / 4) * 256;
 

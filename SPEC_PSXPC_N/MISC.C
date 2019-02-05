@@ -17,6 +17,12 @@
 typedef unsigned int uintptr_t;
 #endif
 
+#ifdef _X64
+#define CODE_SHFT 1
+#else
+#define CODE_SHFT 0
+#endif
+
 void S_MemSet(char* p, int value, int length)
 {
 	int size;
@@ -190,7 +196,7 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 	*(short*) &db.polyptr[32] = a2 + (a2 / 2) + a0;
 	*(short*) &db.polyptr[34] = a1 + (-t5 - t6);
 
-	*(long*) &db.polyptr[0] = db.ot[0] | 0x09000000;
+	*(uintptr_t*) &db.polyptr[0] = db.ot[0] | (0x9000000 << (CODE_SHFT << 52));
 	db.ot[0] = (unsigned long)&db.polyptr[0];
 	
 	db.polyptr += 0x28;//sizeof(POLY_F3); * 2?
@@ -208,8 +214,8 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 
 	*(short*) &db.polyptr[36] = 0xDFFF;
 
-	*(long*) &db.polyptr[0] = db.ot[0] | 0x9000000;
-	db.ot[0] = (unsigned long)db.polyptr;
+	*(uintptr_t*) &db.polyptr[0] = db.ot[0] | (0x9000000 << (CODE_SHFT << 52));
+	db.ot[0] = (uintptr_t)db.polyptr;
 	//sizeof(POLY_G3);
 	db.polyptr += 0x28;
 	return;

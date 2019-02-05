@@ -313,7 +313,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	int x = 0;
 	int y = 0;
 	unsigned long* tmpptr = NULL;
-	int file = 0;
+	uintptr_t file = 0;
 	unsigned short dat = NULL;
 
 #if DEBUG_VERSION

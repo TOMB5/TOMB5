@@ -2,7 +2,7 @@
 #define LIBGPU_H
 
 #include "TYPES.H"
-
+#include <stdint.h>
 #include "LIBGTE.H"
 
 extern	int (*GPU_printf)(char *fmt, ...);
@@ -322,7 +322,13 @@ typedef struct {
  * Polygon Primitive Definitions
  */
 typedef struct {
+#if _X86
 	unsigned	addr: 24;
+#elif _X64
+	uintptr_t	addr : 56;
+#else
+#error Unsupported processor bit width
+#endif
 	unsigned 	len:   8;
 	u_char		r0, g0, b0, code;
 } P_TAG;
@@ -667,7 +673,7 @@ extern int ResetGraph(int mode);
 extern int SetGraphDebug(int level);
 extern int StoreImage(RECT16 *RECT16, u_long *p);
 extern u_long *ClearOTag(u_long *ot, int n);
-extern u_long *ClearOTagR(u_long *ot, int n);
+extern u_long *ClearOTagR(uintptr_t *ot, int n);
 extern u_long *FntFlush(int id);
 extern u_long *KanjiFntFlush(int id);
 extern u_long DrawSyncCallback(void (*func)(void));
@@ -682,7 +688,7 @@ extern void AddPrims(void *ot, void *p0, void *p1) ;
 extern void CatPrim(void *p0, void *p1) ;
 extern void DrawOTag(u_long *p);
 extern void DrawOTagIO(u_long *p);
-extern void DrawOTagEnv(u_long *p, DRAWENV *env);
+extern void DrawOTagEnv(uintptr_t *p, DRAWENV *env);
 extern void DrawPrim(void *p);
 extern void DumpClut(u_short clut) ;
 extern void DumpDispEnv(DISPENV *env);

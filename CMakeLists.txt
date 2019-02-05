@@ -41,12 +41,14 @@ string(CONCAT GAME_CODE_DIR ${CMAKE_CURRENT_SOURCE_DIR} "/GAME")
 #Find all source files in the game folder.
 file(GLOB_RECURSE GAME_SRCS ${GAME_CODE_DIR}/*.C  ${GAME_CODE_DIR}/*.H)
 
-#Extract target architecture (MSVC only)
-if (MSVC)
-    if (CMAKE_CL_64)
+#Extract target architecture (MSVC/Unix only)
+if (MSVC OR UNIX)
+    if (CMAKE_CL_64 OR CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(TARGET_ARCH "Win64")
+	add_compile_definitions(_X64)
     else()
         set(TARGET_ARCH "Win32")
+	add_compile_definitions(_X86)
     endif()
 endif()
 

@@ -30,7 +30,7 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F) (*) (*)
 	
 	return DEL_CDFS_Read((char*)pDest, fp.size);
 #else
-	int nHandle;
+	uintptr_t nHandle;
 	unsigned long dwFileSize;
 	unsigned long dwBytesRead;
 
@@ -76,13 +76,13 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F) (*) (*)
 	}
 
 #else
-	int nHandle;
+	uintptr_t nHandle;
 	unsigned long dwFileSize;
 
 	printf("Open\n");
 	nHandle = PCopen(szFileName, 0, 0);
 
-	if (nHandle < 0)
+	if (nHandle < 0 || nHandle == -1)
 	{
 		printf("FILE_Length: '%s' Could not find!\n", szFileName);
 		return -1;
@@ -101,22 +101,22 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F) (*) (*)
 }
 
 #if !DISC_VERSION
-int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? (F) (*)
+int FILE_Read(char* pDest, int nItemSize, int nItems, uintptr_t nHandle)//5E6A8(<), ? (F) (*)
 {
 	int nAmount = nItems * nItemSize;
 	return PCread(nHandle, pDest, nAmount);
 }
 #endif
 
-void RelocateModule(unsigned long Module, unsigned long* RelocData)//5E6D4(<), 5F430(<) (F) (*)
+void RelocateModule(uintptr_t Module, unsigned int* RelocData)//5E6D4(<), 5F430(<) (F) (*)
 {
-	unsigned int* rel;
+	uintptr_t* rel;
 
 	if (*RelocData != -1)
 	{
 		do
 		{
-			rel = (unsigned int*)(Module + (*RelocData & -4));
+			rel = (uintptr_t*)(Module + (*RelocData & -4));
 
 			switch (*RelocData++ & 3)
 			{

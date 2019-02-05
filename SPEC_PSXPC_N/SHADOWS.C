@@ -1,16 +1,18 @@
 #include "SHADOWS.H"
 
+#include <stdint.h>
+
 void S_DrawGouraudBar(int unk00, int unk01, int unk02, int time, GouraudBarColourSet* colour)
 {
 	return;
 }
 
-long OptimiseOTagR(unsigned long* ot, int nOTSize)//86CC4(<), 88D08(<)
+long OptimiseOTagR(uintptr_t* ot, int nOTSize)//86CC4(<), 88D08(<)
 {
-	unsigned long* a1;
-	unsigned long* a3;
-	unsigned long v0;
-	unsigned long* v1;
+	uintptr_t* a1;
+	uintptr_t* a3;
+	uintptr_t v0;
+	uintptr_t* v1;
 	long at = 0;
 
 	if (nOTSize < 8)
@@ -27,7 +29,7 @@ long OptimiseOTagR(unsigned long* ot, int nOTSize)//86CC4(<), 88D08(<)
 	{
 		a1--;
 
-		if ((unsigned long*)v0 == a1)
+		if ((uintptr_t*)v0 == a1)
 		{
 			a3 = a1 - 1;
 			if (a1 == ot)
@@ -46,7 +48,7 @@ long OptimiseOTagR(unsigned long* ot, int nOTSize)//86CC4(<), 88D08(<)
 				}
 
 				at++;
-			} while ((unsigned long*) v0 == a1);
+			} while ((uintptr_t*) v0 == a1);
 
 			//loc_86D08
 			a3[0] = v0;

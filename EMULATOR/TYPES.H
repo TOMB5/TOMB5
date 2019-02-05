@@ -53,11 +53,6 @@ typedef	long *	qaddr_t;
 //typedef	u_long	ino_t;
 typedef	long	swblk_t;
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef	unsigned int size_t;
-#endif
-
 //typedef	long	time_t;
 //typedef	short	dev_t;
 typedef	long	off_t;

@@ -1050,7 +1050,7 @@ void sub_B3A7C(int a0)
 void LoadLevel()//?(<), B3B50(<) (F)
 #else
 #if PSX_VERSION
-void LoadLevel(int nHandle)//?, B3B50(<)
+void LoadLevel(uintptr_t nHandle)//?, B3B50(<)
 #elif PSXPC_VERSION
 void LoadLevel(FILE* nHandle)
 #endif
@@ -1230,6 +1230,10 @@ void LoadLevel(FILE* nHandle)
 	room = (struct room_info*)ptr;
 	ptr += sizeof(struct room_info) * level->numRooms;
 
+#if _X64
+	ptr -= (5 * sizeof(int)) * level->numRooms;//HACK
+#endif
+
 	number_rooms = level->numRooms;
 #define OLD_CODE 1
 	if (level->numRooms > 0)
@@ -1244,7 +1248,9 @@ void LoadLevel(FILE* nHandle)
 
 			for (j = 0; j < 24; j++)
 			{
+#if !_X64///@FIXME impossible on x64
 				*(int*)&ptr[4 + (j * 4)] += (*(int*)&room[i].data);
+#endif
 			}///@CRITICAL the last relocated pointer seemingly points to invalid memory?!?!?!??
 
 			ptr += size;
@@ -1275,19 +1281,19 @@ void LoadLevel(FILE* nHandle)
 			ptr += size;
 #endif
 
-			size = (uintptr_t)room[i].door;
+			size = (int)room[i].door;
 			room[i].door = (short*)ptr;
 			ptr += size;
 
-			size = (uintptr_t)room[i].floor;
+			size = (int)room[i].floor;
 			room[i].floor = (struct FLOOR_INFO*)ptr;
 			ptr += size;
 
-			size = (uintptr_t)room[i].light;
+			size = (int)room[i].light;
 			room[i].light = (struct LIGHTINFO*)ptr;
 			ptr += size;
 
-			size = (uintptr_t)room[i].mesh;
+			size = (int)room[i].mesh;
 			room[i].mesh = (struct MESH_INFO*)ptr;
 			ptr += size;
 		}
@@ -1519,7 +1525,7 @@ void LoadLevel(FILE* nHandle)
 #endif
 				FILE_Read(ptr2, 1, relocationPtr[3], nHandle);
 #endif
-				RelocateModule((unsigned long)ptr, (unsigned long*)ptr2);
+				RelocateModule((uintptr_t)ptr, (unsigned int*)ptr2);
 
 				game_free(relocationPtr[3]);
 
@@ -1624,8 +1630,8 @@ void LoadLevel(FILE* nHandle)
 			meshptr = meshes[objects[WATERFALL1 + i].mesh_index];
 			meshptr += 6;//0xC for next itr?
 			meshptr += meshptr[5] << 16 >> 17;
-			((int*)AnimatingWaterfalls[i])[0] = (uintptr_t)&psxtextinfo[meshptr[2] << 4];//why << 4? 1<<4=16!
-			AnimatingWaterfallsV[i] = ((char*)&psxtextinfo[meshptr[2] << 4])[1];//why << 4? 1<<4=16!
+	///crash		((int*)AnimatingWaterfalls[i])[0] = (uintptr_t)&psxtextinfo[meshptr[2] << 4];//why << 4? 1<<4=16!
+	///crash		AnimatingWaterfallsV[i] = ((char*)&psxtextinfo[meshptr[2] << 4])[1];//why << 4? 1<<4=16!
 		}//loc_D84
 	}
 

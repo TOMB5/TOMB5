@@ -14,7 +14,7 @@
 	extern void LoadLevel();
 #else
 	#if PSX_VERSION
-		extern void LoadLevel(int nHandle);
+		extern void LoadLevel(uintptr_t nHandle);
 	#elif PSXPC_VERSION
 		extern void LoadLevel(FILE* nHandle);
 	#endif
@@ -57,6 +57,9 @@ struct object_container
 };
 #endif
 
+#if PSXPC_VERSION || PSXPC_TEST
+#pragma pack(push,1)
+#endif
 struct Level
 {
 	//0x0
@@ -157,6 +160,9 @@ struct Level
 	//0xE0
 	int unk57;
 };
+#if PSXPC_VERSION || PSXPC_TEST
+#pragma pack(pop)
+#endif
 
 #if PSX_VERSION && !PSXPC_TEST
 extern struct object_info objects[NUMBER_OBJECTS];
