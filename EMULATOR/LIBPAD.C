@@ -24,16 +24,18 @@ void PadInitDirect(unsigned char* pad1, unsigned char* pad2)
 	if (SDL_NumJoysticks() < 1)
 	{
 		printf("Failed to locate a connected gamepad!\n");
-		return;
 	}
-
-	for (int i = 0; i < SDL_NumJoysticks(); i++)
+	else
 	{
-		if (SDL_IsGameController(i) && i < MAX_CONTROLLERS)
+		for (int i = 0; i < SDL_NumJoysticks(); i++)
 		{
-			padHandle[i] = SDL_GameControllerOpen(i);///@TODO close joysticks
+			if (SDL_IsGameController(i) && i < MAX_CONTROLLERS)
+			{
+				padHandle[i] = SDL_GameControllerOpen(i);///@TODO close joysticks
+			}
 		}
 	}
+
 }
 
 void PadInitMtap(unsigned char* unk00, unsigned char* unk01)
@@ -73,6 +75,9 @@ void PadRemoveGun()
 
 int PadGetState(int port)
 {
+#if _DEBUG
+	return PadStateStable;//FIXME should check if keyboard is connected
+#endif
 	if (!(SDL_GameControllerGetAttached(padHandle[port])))
 	{
 		return PadStateDiscon;
@@ -114,7 +119,7 @@ void PadSetAct(int unk00, unsigned char* unk01, int unk02)
 {
 }
 
-unsigned short UpdateInput(SDL_GameController* pad)
+unsigned short UpdateGameControllerInput(SDL_GameController* pad)
 {
 	unsigned short ret = -1;
 
@@ -174,6 +179,76 @@ unsigned short UpdateInput(SDL_GameController* pad)
 	}
 
 	if (SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_TRIGGERRIGHT))//R2
+	{
+		ret &= ~0x200;
+	}
+
+	return ret;
+}
+
+unsigned short UpdateKeyboardInput()
+{
+	unsigned short ret = -1;
+
+	SDL_PumpEvents();
+	const unsigned char* keyboardState = SDL_GetKeyboardState(NULL);
+
+	if (keyboardState[SDL_SCANCODE_X])//Square
+	{
+		ret &= ~0x8000;
+	}
+
+	if (keyboardState[SDL_SCANCODE_V])//Circle
+	{
+		ret &= ~0x2000;
+	}
+
+	if (keyboardState[SDL_SCANCODE_Z])//Triangle
+	{
+		ret &= ~0x1000;
+	}
+
+	if (keyboardState[SDL_SCANCODE_C])//Cross
+	{
+		ret &= ~0x4000;
+	}
+
+	if (keyboardState[SDL_SCANCODE_LSHIFT])//L1
+	{
+		ret &= ~0x400;
+	}
+
+	if (keyboardState[SDL_SCANCODE_RSHIFT])//R1
+	{
+		ret &= ~0x800;
+	}
+
+	if (keyboardState[SDL_SCANCODE_UP])//UP
+	{
+		ret &= ~0x10;
+	}
+
+	if (keyboardState[SDL_SCANCODE_DOWN])//DOWN
+	{
+		ret &= ~0x40;
+	}
+
+	if (keyboardState[SDL_SCANCODE_LEFT])//LEFT
+	{
+		ret &= ~0x80;
+	}
+
+	if (keyboardState[SDL_SCANCODE_RIGHT])//RIGHT
+	{
+		ret &= ~0x20;
+	}
+
+	if (keyboardState[SDL_SCANCODE_LCTRL])//L2
+	{
+		ret &= ~0x100;
+	}
+
+	if (keyboardState[SDL_SCANCODE_RCTRL])//R2
 	{
 		ret &= ~0x200;
 	}

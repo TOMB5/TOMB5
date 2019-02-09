@@ -202,8 +202,13 @@ void Emulator_EndScene()
 		{
 			padData[i][0] = 0;
 			padData[i][1] = 0x41;//?
-			((unsigned short*)padData[i])[1] = UpdateInput(padHandle[i]);
+			((unsigned short*)padData[i])[1] |= UpdateGameControllerInput(padHandle[i]);
 		}
+	}
+
+	if (padData[0] != NULL)
+	{
+		((unsigned short*)padData[0])[1] |= UpdateKeyboardInput();
 	}
 }
 
