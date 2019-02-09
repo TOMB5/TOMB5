@@ -8,6 +8,7 @@
 #include "SPECTYPES.H"
 #include <assert.h>
 #include <LIBGTE.H>
+#include <stdio.h>
 
 struct CHARDEF loc_92020[139] =
 {
@@ -168,6 +169,10 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 	//s6 = flag
 	//at = GnFrameCounter
 
+#if _DEBUG
+	printf("PrintString: %s X: %d Y: %d\n", string, x, y);
+#endif
+
 	if ((flag & 0x2000) && (GnFrameCounter & 0x10))
 	{
 		//loc_8DD68
@@ -255,6 +260,7 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 			}
 			else if ((unsigned int)(c - 0x80) < 0x2E)
 			{
+				assert(0);//Not debugged
 				//t1 = &aUEAAAAEEEAAEOO[(c- 0x80) << 1];
 				//v1 = t1[-1]
 				//s1 = &loc_92020[1];
@@ -298,11 +304,13 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 					//s1 = v0 + v1
 					if (c > 3)
 					{
+						assert(0);//Not debugged
 						///DrawChar(s2, s4, 0, s1);
 						//addiu ra 0x1C ***************checkme
 					}//loc_8DD0C
 					else
 					{
+						assert(0);//Not debugged
 						///DrawChar(s2, s4, s3, s1);
 						//addiu ra 0x1C ***************checkme
 					}

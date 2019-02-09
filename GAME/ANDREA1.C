@@ -5,7 +5,6 @@ void* func_andrea1[] __attribute__((section(".header"))) =
 {
 	&CODEWAD_Andrea1_Func1,
 };
-
 #endif
 
 void CODEWAD_Andrea1_Func1()
