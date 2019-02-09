@@ -177,8 +177,6 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 	}
 
 	//loc_643C4
-	PrintString(256, 192, 2, "Load Game", 0x8000);
-
 	GPU_EndScene();
 	camera.number_frames = S_DumpScreen();
 

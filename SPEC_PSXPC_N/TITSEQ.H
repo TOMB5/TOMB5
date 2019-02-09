@@ -2,4 +2,5 @@
 #define TITSEQ_H
 
 extern int TitleOptions(int Name);
+
 #endif

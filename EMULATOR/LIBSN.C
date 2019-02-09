@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-int fileHandle = 0;
+uintptr_t fileHandle = 0;
 
 int PCinit()
 {
@@ -12,7 +12,7 @@ int PCinit()
 	return 0;
 }
 
-int PCopen(char* name, int flags, int perms)
+uintptr_t PCopen(char* name, int flags, int perms)
 {
 	//TOMB5 hack for CUTSEQ.JIZ
 	if (name[0] == '\\')
@@ -42,23 +42,23 @@ int PCcreat(char* name, int perms)
 	return 0;
 }
 
-int PClseek(int fd, int offset, int mode)
+int PClseek(uintptr_t fd, int offset, int mode)
 {
 	fseek((FILE*)fd, offset, mode);
 	return ftell((FILE*)fd);
 }
 
-int PCread(int fd, char* buff, int len)
+int PCread(uintptr_t fd, char* buff, int len)
 {
 	return fread(buff, 1, len, (FILE*)fd);
 }
 
-int PCwrite(int fd, char* buff, int len)
+int PCwrite(uintptr_t fd, char* buff, int len)
 {
 	return fwrite(buff, len, 1, (FILE*)fd);
 }
 
-int PCclose(int fd)
+int PCclose(uintptr_t fd)
 {
 	return fclose((FILE*)fd);
 }
