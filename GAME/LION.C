@@ -8,6 +8,9 @@
 #include "CONTROL.H"
 #include "TOMB4FX.H"
 #include "SPECTYPES.H"
+#if PC_VERSION
+#include "GAME.H"
+#endif
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "MISC.H"
