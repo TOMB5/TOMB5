@@ -20,7 +20,7 @@
 
 int gp_start_address = 'T' | ('W' << 8) | ('A' << 16) | ('T' << 24);
 
-void VSyncFunc()//10000(<), 10000(<) (F) (D)
+void VSyncFunc()//10000(<), 10000(<) (F) (D) (ND)
 {
 	cbvsync();
 
@@ -39,7 +39,7 @@ void VSyncFunc()//10000(<), 10000(<) (F) (D)
 #ifdef PAELLA
 int main(int argc, char* args[])
 #else
-int main()//10064(<), 10064(<) (F) (*) (D)
+int main()//10064(<), 10064(<) (F) (*) (D) (ND)
 #endif
 {
 	SetSp(0x801FFFE0);
