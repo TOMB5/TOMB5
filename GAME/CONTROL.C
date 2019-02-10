@@ -1,7 +1,8 @@
 #include "CONTROL.H"
 
-#if PSX_VERSION || PSXPC_VERSION
 #include "CALCHAIR.H"
+#if PSX_VERSION || PSXPC_VERSION
+
 #include "COLLIDE_S.H"
 #include "DRAWPHAS.H"
 #include "3D_GEN.H"
@@ -24,22 +25,25 @@
 #include "GAMEFLOW.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "GPU.H"
-#include "HAIR.H"
-#include "HEALTH.H"
-#include "ITEMS.H"
-#include "LARA.H"
-#include "LARA1GUN.H"
+
+
+
+
 #include "LOAD_LEV.H"
 #include "MATHS.H"
 #include "ROOMLOAD.H"
 #include "PSOUTPUT.H"
 #include "SETUP.H"
-#include "SPHERES.H"
+
 #include "GETSTUFF.H"
 #include "TEXT_S.H"
 #include "FXTRIG.H"
 #endif
-
+#include "LARA1GUN.H"
+#include "HAIR.H"
+#include "HEALTH.H"
+#include "ITEMS.H"
+#include "SPHERES.H"
 #if PSX_VERSION
 #include <LIBETC.H>
 #include <LIBGTE.H>
@@ -61,6 +65,7 @@
 #include <assert.h>
 #include <string.h>
 #include "LARAMISC.H"
+#include "LARA.H"
 
 #define MAX_FRAMES 10
 
@@ -2393,8 +2398,7 @@ int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(
 }
 
 #if PC_VERSION 
-int 
-(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
+int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
 	UNIMPLEMENTED();
 	return 0;

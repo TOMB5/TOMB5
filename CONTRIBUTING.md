@@ -1,12 +1,12 @@
 ## Contributing
 
-Pull requests which drastically alter the structure/architecture of the code will not be accepted. This is to maintain "santiy" whilst going back through code, comparing to the original MIPS disassembled output.
+Pull requests which drastically alter the structure or architecture of the code will not be accepted. This is to maintain "sanity" whilst going back through code, comparing to the original MIPS disassembled output.
 
-If you're able to code in C/C++ please feel free to contact me. I can assign you tasks to prevent collisions with my local code which is not pushed yet. I'm typically looking for pull requests which resolve bugs, finish existing decompiled methods, improve readability or introduce new decompiled methods.
+If you're able to code in C or C++ please feel free to contact me. I can assign you tasks to prevent collisions with my local code which is not pushed yet. I'm typically looking for pull requests which resolve bugs, finish existing decompiled methods, improve readability, introduce new decompiled methods and improve documentation.
 
 ## Code Formatting
 ```C
-int main()//10064(<), 10064(<) (F) (*)
+int main()//10064(<), 10064(<) (F) (*) (D) (ND)
 ```
 Methods are organised as follows:
 - The address on the left is the address of the function in the internal beta version.
@@ -18,10 +18,12 @@ Markers are as follows:
 - ** - This method when compiled, produces identical code to the original.
 - F - This method is final, meaning it has been fully decompiled.
 - D - This method has been debugged and is now functionally the same as the original.
+- ND - This method has not been debugged and may not be functionally the same as the original.
 
 ## Current Positions
 
 - MIPS R3000 Programmer/Interpreter - Translate TR5 PSX MIPS Disassembled output back to C.
+- PSX Emulator Programmer - Help improve the PSX emulator for PSXPC_N code path.
 - x86 Programmer/Interpreter - Translate TR5 PC x86 asm back to C. 
 - SH4 Programmer/Interpreter - Translate TR5 Dreamcast SH4 asm back to C. 
 - PPC Programmer/Interpreter - Translate TR5 Mac PPC asm back to C. 
@@ -36,30 +38,34 @@ Markers are as follows:
 - CMAKE - Default CMake module folder. 
 - GAME - Contains all Tomb Raider 5 game specific code.
 - SPEC_PC - Platform specific code for PC version.
+- SPEC_PC_N - New Platform specific code for PC version.
 - SPEC_PSX - Platform specific code for PSX version.
 - SPEC_PSXPC - Platform specific code for PSX version that runs on PC for debugging purposes (all psx sdk calls stripped).
+- SPEC_PSXPC_N - Platform specific code for PSX version that runs on PC emulated for debugging purposes.
 - TOOLS - Game tools folder, contains various tools to work with the game files.
 - DISC - Contains PSX specific disc project generation files.
+- RESOURCE - Contains useful resources for decompiling the code.
 
-## Base Version (PSX)
+## Base Versions (PSX)
 - PSX NTSC v1.0 SLUS_013.11 MD5: (4EF523E708D7A7D6571F39C6E47784F9)
+- PSX Internal Beta MAIN.EXE MD5: (238F15B1C6260F80DB79E31A94508354)
 
 ## Compiling
 1. Dependencies:
     - CMake 3.0+
-    - SDL 2.0.7.
+    - SDL 2.0.9.
 
-2. Windows (VS 2015-2017) PSXPC:
-    - Download SDL2-devel-2.0.7-VC.zip extract to project root EXTERNAL/ rename folder "SDL2-2.0.7" to "SDL2".
-    - Generate CMake project files for VS2015 or 2017, x86 ONLY! (x64 is currently unsupported so don't try it.)
+2. Windows (VS 2015-2019) PSXPC or PSXPC_N:
+    - Download SDL2-devel-2.0.9-VC.zip extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
+    - Generate CMake project files for VS2015, 2017 or 2019, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Open solution and build.
 
-3. Windows (CB MinGW32) PSXPC:
-    - Download SDL2-devel-2.0.7-mingw.tar.gz extract to project root EXTERNAL/ rename folder "SDL2-2.0.7" to "SDL2".
+3. Windows (CB MinGW32) PSXPC or PSXPC_N:
+    - Download SDL2-devel-2.0.9-mingw.tar.gz extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
     - Generate CMake project files for CodeBlocks MinGW Makefiles, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Open solution and build.
 4. Windows PSX:
-    - Download PSX PsyQ SDK 4.6 or 4.7, extract to c:/psyq
+    - Download PSX PsyQ SDK 4.6 or 4.6 + 4.7 update, extract to c:/psyq
     - Download and install TDM-GCC.
     - Run psxdev's pspath.reg file to update registry environment variables.
     - Compile all the TOOLS in the tool folder of the solution.
@@ -69,5 +75,10 @@ Markers are as follows:
 	- Copy DEL2FAB.EXE (from leaked TR4&5 PSX SDK) to root clone directory.
     - Go to root clone directory in commandline type PSX_BUILD and enter the command.
     - Go to root clone directory /DISC/ and run MAKEISO.bat (note: mkpsxiso required)
+5. Windows PC_N:
+    - Install the DirectX 7 SDK ([link](https://mega.nz/#!nFgAhQpS!RIM-lDf7-3bedzYGFxYZHxsRGqg1ybKvTYka_kpFP4A)) to a simple path, such as `C:\dx7sdk`
+    - Open project settings, in VC++ directories change the following:
+      - Include dirs: add `C:\dx7sdk\Include` and then `$(WindowsSDK_IncludePath)` (make sure that one is **above** the DX one, otherwise you'll get compile errors)
+      - Lib dirs: add `C:\dx7sdk\lib\x86`
     
 Feel free to contact us on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5
