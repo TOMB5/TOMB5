@@ -540,7 +540,9 @@ struct savegame_info
 	short ScreenY; // size=0, offset=8
 	unsigned char ControlOption; // size=0, offset=10
 	unsigned char VibrateOn; // size=0, offset=11
+#if PC_VERSION
 	char pad[3];
+#endif
 	unsigned char AutoTarget; // size=0, offset=12
 	struct lara_info Lara; // size=352, offset=16
 	struct STATS Level; // size=20, offset=368
