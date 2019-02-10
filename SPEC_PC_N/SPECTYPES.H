@@ -40,6 +40,10 @@ typedef unsigned int    uint32;
 #define SHIWORD(l)           ((sint16)((((DWORD_PTR)(l)) >> 16) & 0xffff))
 
 #pragma pack(push, 1)
+struct CVECTOR {		/* color type vector */
+	unsigned char	r, g, b, cd;
+};
+
 struct object_info {
 	short nmeshes; // size=0, offset=0
 	short mesh_index; // size=0, offset=2

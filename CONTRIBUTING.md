@@ -75,5 +75,10 @@ Markers are as follows:
 	- Copy DEL2FAB.EXE (from leaked TR4&5 PSX SDK) to root clone directory.
     - Go to root clone directory in commandline type PSX_BUILD and enter the command.
     - Go to root clone directory /DISC/ and run MAKEISO.bat (note: mkpsxiso required)
+5. Windows PC_N:
+    - Install the DirectX 7 SDK ([link](https://mega.nz/#!nFgAhQpS!RIM-lDf7-3bedzYGFxYZHxsRGqg1ybKvTYka_kpFP4A)) to a simple path, such as `C:\dx7sdk`
+    - Open project settings, in VC++ directories change the following:
+      - Include dirs: add `C:\dx7sdk\Include` and then `$(WindowsSDK_IncludePath)` (make sure that one is **above** the DX one, otherwise you'll get compile errors)
+      - Lib dirs: add `C:\dx7sdk\lib\x86`
     
 Feel free to contact us on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5
