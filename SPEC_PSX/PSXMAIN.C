@@ -12,7 +12,7 @@
 #include "SPUSOUND.H"
 #include "TEXT.H"
 
-#include <sys/types.h>
+#include <SYS/TYPES.H>
 #include <LIBCD.H>
 #include <LIBPAD.H>
 #include <LIBMCRD.H>
@@ -20,7 +20,7 @@
 
 int gp_start_address = 'T' | ('W' << 8) | ('A' << 16) | ('T' << 24);
 
-void VSyncFunc()//10000(<), 10000(<) (F) (*)
+void VSyncFunc()//10000(<), 10000(<) (F) (D)
 {
 	cbvsync();
 
@@ -39,7 +39,7 @@ void VSyncFunc()//10000(<), 10000(<) (F) (*)
 #ifdef PAELLA
 int main(int argc, char* args[])
 #else
-int main()//10064(<), 10064(<) (F) (*)
+int main()//10064(<), 10064(<) (F) (*) (D)
 #endif
 {
 	SetSp(0x801FFFE0);
