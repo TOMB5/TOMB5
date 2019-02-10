@@ -117,17 +117,17 @@ void InitFont()//115EC(<), 1169C(<) (F) (D) (ND)
 			g = (((ng << 4) + (-ng * j)) >> 4) + ((fg * j) >> 4);
 			b = (((nb << 4) + (-nb * j)) >> 4) + ((fb * j) >> 4);
 
-			if (r > 255)//Optimised out
+			if (r > 255)
 			{
 				r = 255;
 			}
 			//loc_116DC
-			if (g > 255)//Optimised out
+			if (g > 255)
 			{
 				g = 255;
 			}
 			//loc_116EC
-			if (b > 255)//Optimised out
+			if (b > 255)
 			{
 				b = 255;
 			}

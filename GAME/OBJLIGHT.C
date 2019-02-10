@@ -3,6 +3,7 @@
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "SPECIFIC.H"
+#include "EFFECT2.H"
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "SPHERES.H"
