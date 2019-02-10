@@ -25,7 +25,6 @@
 #include "TEXT.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
-#include "TYPEDEFS.H"
 
 #if PC_VERSION
 #include "GLOBAL.H"
@@ -41,6 +40,7 @@
 #include "DELTAPAK_S.H"
 #include "CD.H"
 #include "BUBBLES.H"
+#include "TYPEDEFS.H"
 #endif
 
 #include "SPECTYPES.H"
@@ -3203,9 +3203,13 @@ void frigup_lara()//2D000(<), ? (F)
 	bone = &bones[object->bone_index];
 
 	//updateAnimFrame(actor_pnodes[0], 0x10, frame);
+#if PSX_VERSION
 	DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 0);
+#endif
 	mPushUnitMatrix();
+#if PSX_VERSION
 	DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 1);
+#endif
 	mPopMatrix();
 
 	//HairControl(0, 0, frame);

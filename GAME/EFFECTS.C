@@ -607,7 +607,9 @@ void SoundEffects()//39190(<), 39690 (F)
 		effect_routines[flipeffect](NULL);
 	}//loc_39274
 
+#if PSX_VERSION || PSXPC_VERSION
 	SOUND_EndScene();
+#endif
 }
 
 #if PSXPC_VERSION || PSXPC_TEST
