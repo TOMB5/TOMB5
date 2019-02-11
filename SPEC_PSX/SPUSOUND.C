@@ -3,7 +3,7 @@
 #include "SFX.H"
 #include "SOUND.H"
 
-#include <sys/types.h>
+#include <SYS/TYPES.H>
 #include <LIBSPU.H>
 
 short DepthTable[] =
@@ -40,7 +40,7 @@ void SPU_FreeSamples()//62610, 62CF4 (F) (*)
 	return;
 }
 
-void SPU_Init()//62650(<), 62D34(<) (F) (*)
+void SPU_Init()//62650(<), 62D34(<) (F) (*) (D)
 {
 	int nChannel;
 	
@@ -63,6 +63,7 @@ void SPU_Init()//62650(<), 62D34(<) (F) (*)
 	
 	LlVABAddr = 0;
 	LnSamplesLoaded = 0;
+
 
 	return;
 }

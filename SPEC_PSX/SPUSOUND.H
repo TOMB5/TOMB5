@@ -5,7 +5,7 @@
 
 #define MAX_NUM_SOUND_EFFECTS 256
 
-extern short DepthTable[5];
+extern short DepthTable[];
 extern short CurrentReverb;
 extern int LnSamplesLoaded;
 extern long LlVABAddr;

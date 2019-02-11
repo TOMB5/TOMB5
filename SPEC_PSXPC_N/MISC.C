@@ -224,7 +224,7 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
  *(W)1024px-->
  * 
  */
-void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<) (F)
+void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<) (F) (D) (ND)
 {
 	RECT16 r;
 
@@ -250,13 +250,13 @@ void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<) (F)
 	return;
 }
 
-void clear_a_rect(RECT16* r)//5F334(<), 60014(<) (F)
+void clear_a_rect(RECT16* r)//5F334(<), 60014(<) (F) (D) (ND)
 {
 	ClearImage(r, 0, 48, 0);
 	return;
 }
 
-void GPU_GetScreenPosition(short* x, short* y)//5F34C, ?
+void GPU_GetScreenPosition(short* x, short* y)//5F34C, ? (*) (F) (D) (ND)
 {
 	*x = db.disp[0].screen.x;
 	*y = db.disp[0].screen.y;
@@ -290,10 +290,9 @@ void GPU_SyncBothScreens()//5F374(<), 60054(<)
 	return;
 }
 
-//@Gh0stblade - Not sure why this is so unoptimal, we can basically &disp[db.current_buffer]... double check code.
-void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F)
+///@Gh0stblade - Not sure why this is so unoptimal, we can basically &disp[db.current_buffer]... double check code.
+void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F) (D) (ND)
 {
-	//s0 = buffer_index & 1
 	DrawSync(0);
 	VSync(0);
 
