@@ -675,7 +675,7 @@ void LoadGameflow()//102E0, 102B0
 	}
 }
 
-void QuickControlPhase()//10274(<), 10264(<) (F)
+void QuickControlPhase()//10274(<), 10264(<) (F) (*) (D) (ND)
 {
 #if PSX_VERSION
 #if DEBUG_VERSION
@@ -685,7 +685,7 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 #endif
 
 #if PSX_VERSION || PSXPC_VERSION
-	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
+	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) == 0 ? 1 : 0);
 #else
 	gfStatus = ControlPhase(nframes, 0);
 #endif

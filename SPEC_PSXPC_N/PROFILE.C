@@ -9,7 +9,7 @@ static struct SCALE scales[] =
 {
 	{ 260, 0, 2 },
 	{ 130, 1, 3 },
-	{ 65, 2, 5 }
+	{ 65,  2, 5 }
 };
 
 char ProfileDraw;
@@ -24,13 +24,13 @@ static short drawCount;
 static short profile_xcnt;
 struct COCKSUCK ProfileInfo[32];
 
-void ProfileCallBack()//6194C, * (F) (*)
+void ProfileCallBack()//6194C, * (F) (*) (D)
 {
 	drawCount = GetRCnt(RCntCNT1) >> divisor;
 	return;
 }
 
-void ProfileInit(int scale)//61978, * (F) (*)
+void ProfileInit(int scale)//61978, * (F) (*) (D)
 {
 	grid = scales[scale].xgrid;
 	nummarks = scales[scale].nummarks;
@@ -48,7 +48,7 @@ void ProfileInit(int scale)//61978, * (F) (*)
 	return;
 }
 
-void ProfileStartCount()//61A0C, * (F) (*)
+void ProfileStartCount()//61A0C, * (F) (*) (D)
 {
 	ResetRCnt(RCntCNT1);
 	StartRCnt(RCntCNT1);
@@ -60,7 +60,7 @@ void ProfileStartCount()//61A0C, * (F) (*)
 	return;
 }
 
-void ProfileReadCount()//61A48(<), * (F) (*)
+void ProfileReadCount()//61A48(<), * (F) (*) (D)
 {
 	int lastCount = currentCount;
 
@@ -132,7 +132,7 @@ void ProfileAddOT(unsigned long* ot)//61A90, * (F)
 	}
 }
 
-void ProfileRGB(int r, int g, int b)//61C94, * (F)
+void ProfileRGB(int r, int g, int b)//61C94, * (F) (D)
 {
 	ProfileReadCount();
 

@@ -29,7 +29,7 @@ unsigned long GadwOrderingTables[5128];
 unsigned long GadwPolygonBuffers[52260];
 
 
-void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
+void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<) (D) (ND)
 {
 	db.order_table[0] = (unsigned long*)((unsigned long)&pBuffers[0]);
 	db.order_table[1] = (unsigned long*)((unsigned long)&pBuffers[nOTSize]);
