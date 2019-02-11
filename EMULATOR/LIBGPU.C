@@ -17,6 +17,7 @@ unsigned short vram[1024 * 512];
 DISPENV word_33BC;
 int dword_3410 = 0;
 char byte_3352 = 0;
+unsigned long terminator = -1;
 
 void* off_3348[]=
 {
@@ -86,6 +87,11 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	return 0;
 }
 
+int MoveImage(RECT16* RECT, int x, int y)
+{
+	return 0;
+}
+
 int ResetGraph(int mode)
 {
 	return 0;
@@ -101,16 +107,42 @@ int StoreImage(RECT16 * RECT16, u_long * p)
 	return 0;
 }
 
-u_long * ClearOTag(u_long * ot, int n)
+u_long* ClearOTag(u_long* ot, int n)
 {
-	assert(0);
-	return 0;
+	//Nothing to do here.
+	if (n == 0)
+		return NULL;
+
+	//Last is special terminator
+	ot[n-1] = (unsigned long)&terminator;
+
+	if (n > 1)
+	{
+		for (int i = n-1; i > -1; i--)
+		{
+			ot[i] = (unsigned long)&ot[i+1];
+		}
+	}
+	return NULL;
 }
 
 u_long* ClearOTagR(u_long* ot, int n)
 {
-	memset(ot, 0, n * sizeof(int));
-	return 0;
+	//Nothing to do here.
+	if (n == 0)
+		return NULL;
+
+	//First is special terminator
+	ot[0] = (unsigned long)&terminator;
+
+	if (n > 1)
+	{
+		for (int i = 1; i < n; i++)
+		{
+			ot[i] = (unsigned long)&ot[i - 1];
+		}
+	}
+	return NULL;
 }
 
 void SetDispMask(int mask)
@@ -223,6 +255,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		{
 			switch (pTag->code)
 			{
+			case 0x3C:
+				assert(0);
+				break;
 			case 0x2C:
 			{
 				POLY_FT4* poly = (POLY_FT4*)pTag;
@@ -256,7 +291,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			}
 			default:
 				//Unhandled poly
-				assert(0);
 				break;
 			}
 
