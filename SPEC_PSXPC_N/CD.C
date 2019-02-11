@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <sys/types.h>
+#include <SYS/TYPES.H>
 #include <LIBCD.H>
 #include <LIBSPU.H>
 #include <LIBETC.H>
@@ -368,7 +368,7 @@ void InitNewCDSystem()//5DDE8(<), 5E264(<) (F)
 		sprintf(&buf[0], XA_FILE_NAME, i + 1);
 		CdSearchFile(&fp, &buf[0]);
 		XATrackList[i][0] = CdPosToInt(&fp.pos);
-		XATrackList[i][1] = ((fp.size + ((1 << CD_SECTOR_SHIFT) - 1)) >> CD_SECTOR_SHIFT) + XATrackList[i][0];
+		XATrackList[i][1] = XATrackList[i][0] + ((fp.size + ((1 << CD_SECTOR_SHIFT) - 1)) >> CD_SECTOR_SHIFT);
 	}
 
 	XAFlag = 0;
