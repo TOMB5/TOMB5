@@ -26,15 +26,12 @@ struct COCKSUCK ProfileInfo[32];
 
 void ProfileCallBack()//6194C, * (F) (*)
 {
-#ifndef PAELLA
 	drawCount = GetRCnt(RCntCNT1) >> divisor;
 	return;
-#endif
 }
 
 void ProfileInit(int scale)//61978, * (F) (*)
 {
-#ifndef PAELLA
 	grid = scales[scale].xgrid;
 	nummarks = scales[scale].nummarks;
 	divisor = scales[scale].scalefactor;
@@ -49,12 +46,10 @@ void ProfileInit(int scale)//61978, * (F) (*)
 	ExitCriticalSection();
 
 	return;
-#endif
 }
 
 void ProfileStartCount()//61A0C, * (F) (*)
 {
-#ifndef PAELLA
 	ResetRCnt(RCntCNT1);
 	StartRCnt(RCntCNT1);
 
@@ -63,12 +58,10 @@ void ProfileStartCount()//61A0C, * (F) (*)
 	numprof = 0;
 
 	return;
-#endif
 }
 
 void ProfileReadCount()//61A48(<), * (F) (*)
 {
-#ifndef PAELLA
 	int lastCount = currentCount;
 
 	currentCount = GetRCnt(RCntCNT1);
@@ -76,12 +69,10 @@ void ProfileReadCount()//61A48(<), * (F) (*)
 	finalCount = (currentCount - lastCount) >> divisor;
 
 	return;
-#endif
 }
 
 void ProfileAddOT(unsigned long* ot)//61A90, * (F)
 {
-#ifndef PAELLA
 	int count;
 
 	if (nummarks > 0)
@@ -139,12 +130,10 @@ void ProfileAddOT(unsigned long* ot)//61A90, * (F)
 			}
 		}
 	}
-#endif
 }
 
 void ProfileRGB(int r, int g, int b)//61C94, * (F)
 {
-#ifndef PAELLA
 	ProfileReadCount();
 
 	ProfileInfo[numprof].r = r;
@@ -156,13 +145,11 @@ void ProfileRGB(int r, int g, int b)//61C94, * (F)
 
 	profile_xcnt += finalCount;
 	numprof++;
-#endif
 	return;
 }
 
 void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 {
-#ifndef PAELLA
 	char count = 0;
 
 	if (nummarks > 0)
@@ -226,7 +213,6 @@ void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 		db.polyptr += sizeof(POLY_G4);
 		
 	}
-#endif
 }
 
 

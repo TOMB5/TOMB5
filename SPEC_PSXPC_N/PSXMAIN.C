@@ -38,11 +38,7 @@ void VSyncFunc()//10000(<), 10000(<) (F) (*) (D) (ND)
 	return;
 }
 
-#ifdef PAELLA
-int main(int argc, char* args[])
-#else
 int main(int argc, char* argv[])//10064(<), 10064(<) (F) (*) (D) (ND)
-#endif
 {
 	Emulator_Init(SCREEN_WIDTH, SCREEN_HEIGHT);
 	SetSp(0x801FFFE0);
@@ -76,13 +72,11 @@ int main(int argc, char* argv[])//10064(<), 10064(<) (F) (*) (D) (ND)
 
 	PutDispEnv(&db.disp[db.current_buffer]);
 
-#ifndef PAELLA
 	MemCardInit(1);
 
 	PadInitDirect((unsigned char*)&GPad1, (unsigned char*)&GPad2);
 	PadSetAct(0, &Motors[0], sizeof(Motors));
 	PadStartCom();
-#endif
 	CdInit();
 	CdSetDebug(0);
 
