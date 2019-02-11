@@ -804,7 +804,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 	gfLevelComplete = 0;
 	nframes = 2;
 	gfStatus = ControlPhase(2, 0);
-	
 	JustLoaded = 0;
 
 #if PC_VERSION
@@ -889,7 +888,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 
 			if (gfGameMode == 2)
 			{
-				//v0 = -1;
 				if ((dbinput & 0x100))
 					goto loc_10970;
 
@@ -910,7 +908,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 			{
 				InitialiseItemArray(256);
 
-				for(i = 0; i < number_rooms; i++)
+				for (i = 0; i < number_rooms; i++)
 				{
 					room[i].item_number = -1;
 				}
