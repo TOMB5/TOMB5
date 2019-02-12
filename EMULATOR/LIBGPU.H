@@ -280,6 +280,7 @@ extern	int (*GPU_printf)(char *fmt, ...);
 /*
  * RECT16angle:
  */
+#pragma pack(push,1)
 typedef struct {
 	short x, y;		/* offset point on VRAM */
 	short w, h;		/* width and height */
@@ -626,7 +627,9 @@ typedef struct {
 	RECT16	*pRECT16;		/* texture image RECT16angle on frame buffer */
 	u_long	*paddr;		/* texture image address on main memory */
 } TIM_IMAGE;
-	       
+
+#pragma pack(pop)
+
 /*
  * Prototypes
  */
@@ -660,7 +663,7 @@ extern void KanjiFntClose(void);
 extern int Krom2Tim(u_char *sjis, u_long *taddr, int dx, int dy, int cdx, int cdy, u_int fg, u_int bg);
 extern int LoadImagePSX(RECT16 *rect, u_long *p);
 extern int MargePrim(void *p0, void *p1);
-extern int MoveImage(RECT16* RECT, int x, int y);
+extern int MoveImage(RECT16* rect, int x, int y);
 extern int OpenTIM(u_long *addr);
 extern int OpenTMD(u_long *tmd, int obj_no);
 extern int ResetGraph(int mode);

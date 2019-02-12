@@ -85,8 +85,24 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	return 0;
 }
 
-int MoveImage(RECT16* RECT, int x, int y)
+int MoveImage(RECT16* rect, int x, int y)
 {
+#if 0//TODO
+	for (int sy = rect->y; sy < 512; sy++)
+	{
+		for (int sx = rect->x; sx < 1024; sx++)
+		{
+			unsigned short* src = vram + (sy * 1024 + sx);
+			unsigned short* dst = vram + (y * 1024 + x);
+
+			if (sx >= rect->x && sx < rect->x + rect->w &&
+				sy >= rect->y && sy < rect->y + rect->h)
+			{
+				*dst++ = *src++;
+			}
+		}
+	}
+#endif
 	return 0;
 }
 
@@ -116,7 +132,7 @@ u_long* ClearOTag(u_long* ot, int n)
 
 	if (n > 1)
 	{
-		for (int i = n-1; i > -1; i--)
+		for (int i = n-2; i > -1; i--)
 		{
 			ot[i] = (unsigned long)&ot[i+1];
 		}
@@ -222,29 +238,19 @@ u_long DrawSyncCallback(void(*func)(void))
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
+	///PutDrawEnv(env);
+
+	GLuint fbo = 0;
+
 	if (p != NULL && *p != NULL)
 	{
-		GLuint fbo = 0;
-		glGenFramebuffers(1, &fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &vramTexture);
-		glBindTexture(GL_TEXTURE_2D, vramTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 512, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
-		GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-		glDrawBuffers(1, DrawBuffers);
-
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
 		glOrtho(0, 1024, 0, 512, -1, 1);
 		glViewport(0, 0, 1024, 512);
+
+		Emulator_GenerateFrameBuffer(fbo);
 
 		while (1)
 		{
@@ -258,31 +264,37 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				{
 					POLY_GT4* poly = (POLY_GT4*)pTag;
 
-					///@FIXME im unsure if this is stable.
-					int tpage = (poly->tpage & 0x1F) / 4 + 1;
-					int x = (tpage * 256) % 1024 - 256;
-					int y = (tpage / 4) * 256;
+					int x = ((poly->tpage) << 6) & 0x7C0 % 1024;
+					int y = (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200);
+					
+#if _DEBUG
+					printf("tpage: (%d,%d,%d,%d)\n", ((poly->tpage) >> 7) & 0x3, ((poly->tpage) >> 5) & 0x3, ((poly->tpage) << 6) & 0x7C0, (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200));
+					printf("clut: (%d,%d)\n", (poly->clut & 0x3F) << 4, (poly->clut >> 6));
+#endif
 
+					Emulator_GenerateAndBindTpage(((poly->tpage) >> 7) & 0x3, x, y, (poly->clut & 0x3F) << 4, (poly->clut >> 6));
 
 					glBegin(GL_QUADS);
-					glTranslatef(1.0f, 0.0f, 0.0f);
 					//glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u0 + x)), 1.0f / (512.0f / (float)(poly->v0 + y)));
+					glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
 					glVertex2f(poly->x0, poly->y0);
 
-					//glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u1 + x)), 1.0f / (512.0f / (float)(poly->v1 + y)));
+					//glColor3ub(poly->r1, poly->g1, poly->b1);
+					glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
 					glVertex2f(poly->x1, poly->y1);
 
-					//glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u3 + x)), 1.0f / (512.0f / (float)(poly->v3 + y)));
+					//glColor3ub(poly->r3, poly->g3, poly->b3);
+					glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
 					glVertex2f(poly->x3, poly->y3);
 
-					//glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u2 + x)), 1.0f / (512.0f / (float)(poly->v2 + y)));
+					//glColor3ub(poly->r2, poly->g2, poly->b2);
+					glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
 					glVertex2f(poly->x2, poly->y2);
 
 					glEnd();
+
+					Emulator_DestroyLastVRAMTexture();
+					Emulator_DeleteFrameBufferTexture();
 					break;
 				}
 				case 0x2C:
@@ -290,30 +302,39 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					POLY_FT4* poly = (POLY_FT4*)pTag;
 
 					///@FIXME im unsure if this is stable.
+#if 0
 					int tpage = (poly->tpage & 0x1F) / 4 + 1;
-					int x = (tpage * 256) % 1024 - 256;
-					int y = (tpage / 4) * 256;
+#endif
+					int x = ((poly->tpage) << 6) & 0x7C0 % 1024;
+					int y = (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200);
 
+#if _DEBUG
+					printf("tpage: (%d,%d,%d,%d)\n", ((poly->tpage) >> 7) & 0x003, ((poly->tpage) >> 5) & 0x003, ((poly->tpage) << 6) & 0x7c0, (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200));
+					printf("clut: (%d,%d)\n", (poly->clut & 0x3F) << 4, (poly->clut >> 6));
+#endif
 
+					Emulator_GenerateAndBindTpage(((poly->tpage) >> 7) & 0x3, x, y, (poly->clut & 0x3F) << 4, (poly->clut >> 6));
+					
 					glBegin(GL_QUADS);
-					glTranslatef(1.0f, 0.0f, 0.0f);
 					//glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u0 + x)), 1.0f / (512.0f / (float)(poly->v0 + y)));
+					glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
 					glVertex2f(poly->x0, poly->y0);
 
 					//glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u1 + x)), 1.0f / (512.0f / (float)(poly->v1 + y)));
+					glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
 					glVertex2f(poly->x1, poly->y1);
 
 					//glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u3 + x)), 1.0f / (512.0f / (float)(poly->v3 + y)));
+					glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
 					glVertex2f(poly->x3, poly->y3);
 
 					//glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u2 + x)), 1.0f / (512.0f / (float)(poly->v2 + y)));
+					glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
 					glVertex2f(poly->x2, poly->y2);
 
 					glEnd();
+					Emulator_DestroyLastVRAMTexture();
+					Emulator_DeleteFrameBufferTexture();
 					break;
 				}
 				default:
@@ -327,36 +348,18 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 			if (p == &terminator)
 			{
-				printf("YES");
 				break;
+			}
+
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			{
+				//printf("Frame buffer error! %d\n", fbo);
 			}
 		}
 
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			printf("Frame buffer error!\n");
-		}
-
-		unsigned short* pixels = new unsigned short[1024 * 512];
-		memset(&pixels[0], 0, 1024 * 512 * 2);
-		glReadPixels(0, 0, 1024, 512, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
-		memcpy(&vram[0], pixels, 1024 * 512 * 2);
-
-#if _DEBUG
-		FILE* f = fopen("VRAM2.TGA", "wb");
-		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-		unsigned char header[6] = { 1024 % 256, 1024 / 256, 512 % 256, 512 / 256,16,0 };
-		fwrite(TGAheader, sizeof(unsigned char), 12, f);
-		fwrite(header, sizeof(unsigned char), 6, f);
-		fwrite(pixels, sizeof(char), 1024 * 512 * 2, f);
-		fclose(f);
-#endif
-		delete[] pixels;
-		glDeleteFramebuffers(1, &fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, screenWidth, screenHeight);
 		glPopMatrix();
-		glDeleteTextures(1, &vramTexture);
+		Emulator_DestroyFrameBuffer(fbo);
 	}
 }
 
