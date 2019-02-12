@@ -72,8 +72,6 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 				y >= rect->y && y < rect->y + rect->h)
 			{
 				src[0] = *dst++;
-
-				//pixel[0] = 1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3));
 			}
 		}
 	}
@@ -222,12 +220,9 @@ u_long DrawSyncCallback(void(*func)(void))
 	return u_long();
 }
 
-int test = 0;
-
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
-	P_TAG* pTag = (P_TAG*)*p;
-	if (pTag != NULL)
+	if (p != NULL && *p != NULL)
 	{
 		GLuint fbo = 0;
 		glGenFramebuffers(1, &fbo);
@@ -253,53 +248,88 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 		while (1)
 		{
-			switch (pTag->code)
+			P_TAG* pTag = (P_TAG*)p;
+
+			if (pTag->len != 0)
 			{
-			case 0x3C:
-				assert(0);
-				break;
-			case 0x2C:
+				switch (pTag->code)
+				{
+				case 0x3C:
+				{
+					POLY_GT4* poly = (POLY_GT4*)pTag;
+
+					///@FIXME im unsure if this is stable.
+					int tpage = (poly->tpage & 0x1F) / 4 + 1;
+					int x = (tpage * 256) % 1024 - 256;
+					int y = (tpage / 4) * 256;
+
+
+					glBegin(GL_QUADS);
+					glTranslatef(1.0f, 0.0f, 0.0f);
+					//glColor3ub(poly->r0, poly->g0, poly->b0);
+					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u0 + x)), 1.0f / (512.0f / (float)(poly->v0 + y)));
+					glVertex2f(poly->x0, poly->y0);
+
+					//glColor3ub(poly->r0, poly->g0, poly->b0);
+					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u1 + x)), 1.0f / (512.0f / (float)(poly->v1 + y)));
+					glVertex2f(poly->x1, poly->y1);
+
+					//glColor3ub(poly->r0, poly->g0, poly->b0);
+					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u3 + x)), 1.0f / (512.0f / (float)(poly->v3 + y)));
+					glVertex2f(poly->x3, poly->y3);
+
+					//glColor3ub(poly->r0, poly->g0, poly->b0);
+					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u2 + x)), 1.0f / (512.0f / (float)(poly->v2 + y)));
+					glVertex2f(poly->x2, poly->y2);
+
+					glEnd();
+					break;
+				}
+				case 0x2C:
+				{
+					POLY_FT4* poly = (POLY_FT4*)pTag;
+
+					///@FIXME im unsure if this is stable.
+					int tpage = (poly->tpage & 0x1F) / 4 + 1;
+					int x = (tpage * 256) % 1024 - 256;
+					int y = (tpage / 4) * 256;
+
+
+					glBegin(GL_QUADS);
+					glTranslatef(1.0f, 0.0f, 0.0f);
+					//glColor3ub(poly->r0, poly->g0, poly->b0);
+					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u0 + x)), 1.0f / (512.0f / (float)(poly->v0 + y)));
+					glVertex2f(poly->x0, poly->y0);
+
+					//glColor3ub(poly->r0, poly->g0, poly->b0);
+					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u1 + x)), 1.0f / (512.0f / (float)(poly->v1 + y)));
+					glVertex2f(poly->x1, poly->y1);
+
+					//glColor3ub(poly->r0, poly->g0, poly->b0);
+					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u3 + x)), 1.0f / (512.0f / (float)(poly->v3 + y)));
+					glVertex2f(poly->x3, poly->y3);
+
+					//glColor3ub(poly->r0, poly->g0, poly->b0);
+					glTexCoord2f(1.0f / (1024.0f / (float)(poly->u2 + x)), 1.0f / (512.0f / (float)(poly->v2 + y)));
+					glVertex2f(poly->x2, poly->y2);
+
+					glEnd();
+					break;
+				}
+				default:
+					//Unhandled poly
+					break;
+				}
+			}
+
+			p = (unsigned long*)((P_TAG*)p)->addr;
+			//p = (unsigned long*)*p;
+
+			if (p == &terminator)
 			{
-				POLY_FT4* poly = (POLY_FT4*)pTag;
-
-				///@FIXME im unsure if this is stable.
-				int tpage = (poly->tpage & 0x1F) / 4 + 1;
-				int x = (tpage * 256) % 1024 - 256;
-				int y = (tpage / 4) * 256;
-
-
-				glBegin(GL_QUADS);
-				glTranslatef(1.0f, 0.0f, 0.0f);
-				//glColor3ub(poly->r0, poly->g0, poly->b0);
-				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u0 + x)), 1.0f / (512.0f / (float)(poly->v0 + y)));
-				glVertex2f(poly->x0, poly->y0);
-				
-				//glColor3ub(poly->r0, poly->g0, poly->b0);
-				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u1 + x)), 1.0f / (512.0f / (float)(poly->v1 + y)));
-				glVertex2f(poly->x1, poly->y1);
-				
-				//glColor3ub(poly->r0, poly->g0, poly->b0);
-				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u3 + x)), 1.0f / (512.0f / (float)(poly->v3 + y)));
-				glVertex2f(poly->x3, poly->y3);
-				
-				//glColor3ub(poly->r0, poly->g0, poly->b0);
-				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u2 + x)), 1.0f / (512.0f / (float)(poly->v2 + y)));
-				glVertex2f(poly->x2, poly->y2);
-				
-				glEnd();
+				printf("YES");
 				break;
 			}
-			default:
-				//Unhandled poly
-				break;
-			}
-
-			if (pTag->addr == 0)
-			{
-				break;
-			}
-
-			pTag = (P_TAG*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
 		}
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -329,3 +359,4 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		glDeleteTextures(1, &vramTexture);
 	}
 }
+
