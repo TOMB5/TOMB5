@@ -40,7 +40,7 @@ void SPU_FreeSamples()//62610, 62CF4 (F) (*)
 	return;
 }
 
-void SPU_Init()//62650(<), 62D34(<) (F) (*)
+void SPU_Init()//62650(<), 62D34(<) (F) (*) (D) (ND)
 {
 	int nChannel;
 	

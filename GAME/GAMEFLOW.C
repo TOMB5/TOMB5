@@ -3,13 +3,13 @@
 #if !PC_VERSION
 #include "3D_GEN.H"
 #include "TITSEQ.H"
+#include "TYPEDEFS.H"
 #endif
 #include "CDTRACKS.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
-#include "TYPEDEFS.H"
 
 #include "FILE.H"
 #if !PC_VERSION
@@ -675,7 +675,7 @@ void LoadGameflow()//102E0, 102B0
 	}
 }
 
-void QuickControlPhase()//10274(<), 10264(<) (F)
+void QuickControlPhase()//10274(<), 10264(<) (F) (*) (D) (ND)
 {
 #if PSX_VERSION
 #if DEBUG_VERSION
@@ -685,7 +685,7 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 #endif
 
 #if PSX_VERSION || PSXPC_VERSION
-	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
+	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) == 0 ? 1 : 0);
 #else
 	gfStatus = ControlPhase(nframes, 0);
 #endif
@@ -698,7 +698,7 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 #endif
 }
 
-void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
+void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*) (D) (ND)
 {
 /*#if PC_VERSION
 	S_Warn("DoTitle PC");
@@ -797,14 +797,13 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	lara_item->mesh_bits = 0;
 	gfGameMode = 1;
 
-#if 1//DEBUG_VERSION
+#if DEBUG_VERSION
 	show_game_malloc_totals();
 #endif
 
 	gfLevelComplete = 0;
 	nframes = 2;
 	gfStatus = ControlPhase(2, 0);
-	
 	JustLoaded = 0;
 
 #if PC_VERSION
@@ -830,7 +829,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 			if (bDoCredits)
 			{
-#if !PSXPC_VERSION && 0
+#if !PSXPC_VERSION && RELOC
 				if (!((INTFUNCVOID*)RelocPtr[MOD_TITSEQ][1])())
 				{
 					bDoCredits = 0;
@@ -848,14 +847,14 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 				if (ScreenFading == 0 && cutseq_num == 0)
 				{
 #if DEBUG_VERSION
-					if ((RawPad & 0x201))
+					if ((RawPad & 0x201) == 0x201)
 					{
 						dels_cutseq_selector_flag = 1;
 					}
 #endif
 					//loc_10868
 					CreditsDone = 1;
-#if RELOC && 0
+#if RELOC
 					gfStatus = ((INTFUNCINT*)RelocPtr[MOD_TITSEQ][0])(Name);
 #else
 					gfStatus = TitleOptions(Name);
@@ -889,7 +888,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 			if (gfGameMode == 2)
 			{
-				//v0 = -1;
 				if ((dbinput & 0x100))
 					goto loc_10970;
 
@@ -910,11 +908,9 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 			{
 				InitialiseItemArray(256);
 
-				if (number_rooms > 0)
+				for (i = 0; i < number_rooms; i++)
 				{
-					i = number_rooms;
-					while (i--)
-						room[i].item_number = -1;
+					room[i].item_number = -1;
 				}
 				//loc_10A10
 				gfGameMode = 1;
@@ -930,9 +926,13 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	{
 		mcClose();
 	}
+
+
 	//loc_10A58
-	while (XAVolume != 0)
+	do
+	{
 		XAReqVolume = 0;
+	} while (XAVolume != 0);
 #endif
 
 	NoInput = 0;

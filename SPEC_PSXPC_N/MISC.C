@@ -125,7 +125,6 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
 	}
 
 	//loc_5F0B4
-	//PrintString(256, 192, 2, "Load Game", 0x8000);
 	draw_rotate_sprite(a0, a1, a2);
 	db.current_buffer ^= 1;
 	GnLastFrameCount = 0;
@@ -143,9 +142,10 @@ void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
 	db.ot = db.order_table[db.current_buffer];
 	db.polyptr = (char*)db.poly_buffer[db.current_buffer];
 	db.curpolybuf = (char*)db.poly_buffer[db.current_buffer];
-	db.polybuf_limit = (char*)(db.poly_buffer[db.current_buffer]) + 26000;
+	db.polybuf_limit = (char*)(db.poly_buffer[db.current_buffer] + 26000);
 	db.pickup_ot = db.pickup_order_table[db.current_buffer];
 	ClearOTagR(db.order_table[db.current_buffer], db.nOTSize);
+
 	Emulator_BeginScene();
 }
 
@@ -224,7 +224,7 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
  *(W)1024px-->
  * 
  */
-void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<) (F)
+void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<) (F) (D) (ND)
 {
 	RECT16 r;
 
@@ -250,13 +250,13 @@ void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<) (F)
 	return;
 }
 
-void clear_a_rect(RECT16* r)//5F334(<), 60014(<) (F)
+void clear_a_rect(RECT16* r)//5F334(<), 60014(<) (F) (D) (ND)
 {
 	ClearImage(r, 0, 48, 0);
 	return;
 }
 
-void GPU_GetScreenPosition(short* x, short* y)//5F34C, ?
+void GPU_GetScreenPosition(short* x, short* y)//5F34C, ? (*) (F) (D) (ND)
 {
 	*x = db.disp[0].screen.x;
 	*y = db.disp[0].screen.y;
@@ -275,25 +275,26 @@ void GPU_SetScreenPosition(short x, short y)//5F360(<), 60040(<)
 
 void GPU_SyncBothScreens()//5F374(<), 60054(<)
 {
+	DrawSync(0);
 	db.current_buffer ^= 1;
 	if (db.current_buffer != 0)
 	{
-		//MoveImage(&db.disp[1].disp, db.disp[0].disp.x, db.disp[0].disp.y);
-		//TODO: Verify ra += 0x10;! prolly else skip loc_5F3A8 (implemented but should be checked).
+		MoveImage(&db.disp[1].disp, db.disp[0].disp.x, db.disp[0].disp.y);
 	}
 	else
 	{
 		//loc_5F3A8
-		//MoveImage(&db.disp[0].disp, db.disp[1].disp.x, db.disp[1].disp.y);
+		MoveImage(&db.disp[0].disp, db.disp[1].disp.x, db.disp[1].disp.y);
 	}
+
+	DrawSync(0);
 
 	return;
 }
 
-//@Gh0stblade - Not sure why this is so unoptimal, we can basically &disp[db.current_buffer]... double check code.
-void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F)
+///@Gh0stblade - Not sure why this is so unoptimal, we can basically &disp[db.current_buffer]... double check code.
+void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F) (D) (ND)
 {
-	//s0 = buffer_index & 1
 	DrawSync(0);
 	VSync(0);
 

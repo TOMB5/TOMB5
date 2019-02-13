@@ -6,6 +6,9 @@
 #include <LIBPAD.H>
 #include <stdio.h>
 #include <LIBGPU.H>
+#include <string.h>
+
+#define MAX_NUM_CACHED_TEXTURES (256)
 
 SDL_Window* g_window = NULL;
 SDL_Renderer* g_renderer;
@@ -13,6 +16,17 @@ SDL_Renderer* g_renderer;
 GLuint vramTexture = 0;
 int screenWidth = 0;
 int screenHeight = 0;
+int lastTextureCacheIndex = 0;
+
+struct CachedTexture
+{
+	GLuint textureID;
+	unsigned int tpageX;
+	unsigned int tpageY;
+	unsigned int lastAccess;
+};
+
+struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
 void Emulator_Init(int screen_width, int screen_height)
 {
@@ -80,10 +94,8 @@ int lastTime = 0;
 
 void Emulator_BeginScene()
 {
-#if _DEBUG
-	//glClearColor(184.0f, 213.0f, 238.0f, 1.0f);
-#endif
-	glClear((GL_COLOR_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -105,6 +117,7 @@ void Emulator_SwapWindow()
 
 void Emulator_EndScene()
 {
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glActiveTexture(GL_TEXTURE0);
@@ -189,26 +202,32 @@ void Emulator_EndScene()
 #endif
 
 	glPopMatrix();
+#if _DEBUG
 	Emulator_SaveVRAM2(1024, 512);
+#endif
 	Emulator_SwapWindow();
 
 	glDisable(GL_TEXTURE_2D);
 	glDeleteTextures(1, &vramTexture);
 
 	//Update pad
-	for (int i = 0; i < MAX_CONTROLLERS; i++)
+
+	if (SDL_NumJoysticks() > 0)
 	{
-		if (padHandle[i] != NULL)
+		for (int i = 0; i < MAX_CONTROLLERS; i++)
 		{
-			padData[i][0] = 0;
-			padData[i][1] = 0x41;//?
-			((unsigned short*)padData[i])[1] |= UpdateGameControllerInput(padHandle[i]);
+			if (padHandle[i] != NULL)
+			{
+				padData[i][0] = 0;
+				padData[i][1] = 0x41;//?
+				((unsigned short*)padData[i])[1] = UpdateGameControllerInput(padHandle[i]);
+			}
 		}
 	}
 
 	if (padData[0] != NULL)
 	{
-		((unsigned short*)padData[0])[1] |= UpdateKeyboardInput();
+		((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
 	}
 }
 
@@ -216,4 +235,267 @@ void Emulator_ShutDown()
 {
 	glDeleteTextures(1, &vramTexture);
 	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
+
+	for (int i = 0; i < lastTextureCacheIndex; i++)
+	{
+		glDeleteTextures(1, &cachedTextures[i].textureID);
+	}
+}
+
+void Emulator_GenerateFrameBuffer(GLuint& fbo)
+{
+	fbo = 0;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+}
+
+void Emulator_GenerateFrameBufferTexture()
+{
+	unsigned short* pixelData = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
+	unsigned short* dst = &pixelData[0];
+
+	for (int y = word_unknown00.clip.y; y < 512; y++)
+	{
+		for (int x = word_unknown00.clip.x; x < 1024; x++)
+		{
+			unsigned short* src = vram + (y * 1024 + x);
+
+			if (x >= word_unknown00.clip.x && x < word_unknown00.clip.x + word_unknown00.clip.w &&
+				y >= word_unknown00.clip.y && y < word_unknown00.clip.y + word_unknown00.clip.h)
+			{
+				*dst++ = src[0];
+			}
+		}
+	}
+
+	glGenTextures(1, &vramTexture);
+	glBindTexture(GL_TEXTURE_2D, vramTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, word_unknown00.clip.w, word_unknown00.clip.h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		printf("Frame buffer error");
+	}
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+#if _DEBUG
+	unsigned short* pixelData2 = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
+	glReadPixels(0, 0, word_unknown00.clip.w, word_unknown00.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData2);
+
+	FILE* f = fopen("VRAM4.TGA", "wb");
+	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+	unsigned char header[6] = { word_unknown00.clip.w % 256, word_unknown00.clip.w / 256, word_unknown00.clip.h % 256, word_unknown00.clip.h / 256,16,0 };
+	fwrite(TGAheader, sizeof(unsigned char), 12, f);
+	fwrite(header, sizeof(unsigned char), 6, f);
+	fwrite(pixelData2, sizeof(char), word_unknown00.clip.w * word_unknown00.clip.h * 2, f);
+	fclose(f);
+	delete[] pixelData2;
+#endif
+
+	delete[] pixelData;
+}
+
+void Emulator_DeleteFrameBufferTexture()
+{
+	glDeleteTextures(1, &vramTexture);
+}
+
+GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY)///@TODO check rectangular intersection plus clut x, y
+{
+	for (int i = lastTextureCacheIndex-1; i > -1; i--)
+	{
+		if (cachedTextures[i].tpageX == tpageX && cachedTextures[i].tpageY == tpageY)
+		{
+			cachedTextures[i].lastAccess = SDL_GetTicks();
+			return cachedTextures[i].textureID;
+		}
+	}
+
+
+	return -1;
+}
+
+void Emulator_GenerateAndBindTpage(unsigned int type, unsigned int tpageX, unsigned int tpageY, unsigned int clutX, unsigned int clutY)
+{
+	GLuint tpageTexture = Emulator_FindTextureInCache(tpageX, tpageY);
+	bool bMustAddTexture = tpageTexture == -1 ? 1 : 0;
+
+	if (bMustAddTexture)
+	{
+		cachedTextures[lastTextureCacheIndex].tpageX = tpageX;
+		cachedTextures[lastTextureCacheIndex].tpageY = tpageY;
+		glGenTextures(1, &cachedTextures[lastTextureCacheIndex].textureID);
+		tpageTexture = cachedTextures[lastTextureCacheIndex++].textureID;
+	}
+
+	glBindTexture(GL_TEXTURE_2D, tpageTexture);
+
+	if (bMustAddTexture)
+	{
+		switch (type)
+		{
+		case 2:
+		{
+			//ARGB1555
+			unsigned short texturePage[256 * 256];
+			unsigned short* dst = &texturePage[0];
+
+
+			for (int y = tpageY; y < tpageY + 256; y++)
+			{
+				for (int x = tpageX; x < tpageX + 256; x++)
+				{
+					unsigned short* src = vram + (y * 1024 + x);
+
+					if (x >= tpageX && x < tpageX + 256 &&
+						y >= tpageY && y < tpageY + 256)
+					{
+						*dst++ = *src;
+					}
+				}
+
+
+#if 0
+				FILE* f = fopen("TPAGE.TGA", "wb");
+				unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+				unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
+				fwrite(TGAheader, sizeof(unsigned char), 12, f);
+				fwrite(header, sizeof(unsigned char), 6, f);
+				fwrite(&texturePage[0], sizeof(char), 256 * 256 * 2, f);
+				fclose(f);
+#endif
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
+			}
+
+			break;
+		}
+		case 1:
+		{
+			//RGBA8888
+			unsigned int texturePage[256 * 256];
+			unsigned int* dst = &texturePage[0];
+
+			for (int y = tpageY; y < tpageY + 256; y++)
+			{
+				for (int x = tpageX; x < tpageX + 256; x++)
+				{
+					unsigned short* src = vram + (y * 1024 + x);
+
+					if (x >= tpageX && x < tpageX + 256 &&
+						y >= tpageY && y < tpageY + 256)
+					{
+						*dst++ = 255 << 24 | ((((*src & 0x1F)) << 3) << 16) | ((((*src & 0x3E0) >> 5) << 3) << 8) | ((((*src & 0x7C00) >> 10) << 3));
+					}
+				}
+			}
+
+#if 0
+			FILE* f = fopen("TPAGE.TGA", "wb");
+			unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+			unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,32,0 };
+			fwrite(TGAheader, sizeof(unsigned char), 12, f);
+			fwrite(header, sizeof(unsigned char), 6, f);
+			fwrite(&texturePage[0], sizeof(char), 256 * 256 * 4, f);
+			fclose(f);
+#endif
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texturePage[0]);
+			break;
+		}
+		case 0:
+		{
+			//RGBA8888
+			unsigned int texturePage[256 * 256];
+			unsigned int* dst = &texturePage[0];
+			unsigned int clut[16];
+			unsigned int* clutDst = &clut[0];
+
+			//Get CLUT
+			for (int y = clutY; y < clutY + 1; y++)
+			{
+				for (int x = clutX; x < clutX + 16; x++)
+				{
+					unsigned short* src = vram + (y * 1024 + x);
+					*clutDst++ = 255 << 24 | ((((*src & 0x1F)) << 3) << 16) | ((((*src & 0x3E0) >> 5) << 3) << 8) | ((((*src & 0x7C00) >> 10) << 3));
+				}
+			}
+
+			//Get Texture
+			for (int y = tpageY; y < tpageY + 256; y++)
+			{
+				for (int x = tpageX; x < tpageX + 256; x++)
+				{
+					unsigned short* src = vram + (y * 1024 + x);
+
+					if (x >= tpageX / 4 && x < (tpageX + 256 / 4) &&
+						y >= tpageY && y < tpageY + 256)
+					{
+						*dst++ = (255 << 24) | (((clut[(*src & 0xF)] & 0xFF0000) >> 16) << 16) | (((clut[(*src & 0xF)] & 0xFF00) >> 8) << 8) | (clut[(*src & 0xF)] & 0xFF);
+						*dst++ = (255 << 24) | (((clut[(*src & 0xF0) >> 4] & 0xFF0000) >> 16) << 16) | (((clut[(*src & 0xF0) >> 4] & 0xFF00) >> 8) << 8) | (clut[(*src & 0xF0) >> 4] & 0xFF);
+						*dst++ = (255 << 24) | (((clut[(*src & 0xF00) >> 8] & 0xFF0000) >> 16) << 16) | (((clut[(*src & 0xF00) >> 8] & 0xFF00) >> 8) << 8) | (clut[(*src & 0xF00) >> 8] & 0xFF);
+						*dst++ = (255 << 24) | (((clut[(*src & 0xF000) >> 12] & 0xFF0000) >> 16) << 16) | (((clut[(*src & 0xF000) >> 12] & 0xFF00) >> 8) << 8) | (clut[(*src & 0xF000) >> 12] & 0xFF);
+					}
+				}
+			}
+
+
+#if _DEBUG
+			FILE* f = fopen("TPAGE.TGA", "wb");
+			unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+			unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,32,0 };
+			fwrite(TGAheader, sizeof(unsigned char), 12, f);
+			fwrite(header, sizeof(unsigned char), 6, f);
+			fwrite(&texturePage[0], sizeof(char), 256 * 256 * 4, f);
+			fclose(f);
+#endif
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texturePage[0]);
+			break;
+		}
+		}
+	}
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+}
+
+void Emulator_DestroyFrameBuffer(GLuint& fbo)
+{
+	glDeleteFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Emulator_DestroyLastVRAMTexture()
+{
+	/*Read from frame buffer and send to VRAM*/
+	unsigned short* pixelData = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
+	unsigned short* dst = &pixelData[0];
+	glReadPixels(0, 0, word_unknown00.clip.w, word_unknown00.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
+
+	for (int y = word_unknown00.clip.y; y < 512; y++)
+	{
+		for (int x = word_unknown00.clip.x; x < 1024; x++)
+		{
+			unsigned short* src = vram + (y * 1024 + x);
+
+			if (x >= word_unknown00.clip.x && x < word_unknown00.clip.x + word_unknown00.clip.w &&
+				y >= word_unknown00.clip.y && y < word_unknown00.clip.y + word_unknown00.clip.h)
+			{
+				src[0] = *dst++;
+			}
+		}
+	}
+
+#if _DEBUG
+	FILE* f = fopen("VRAM2.TGA", "wb");
+	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+	unsigned char header[6] = { word_unknown00.clip.w % 256, word_unknown00.clip.w / 256, word_unknown00.clip.h % 256, word_unknown00.clip.h / 256,16,0 };
+	fwrite(TGAheader, sizeof(unsigned char), 12, f);
+	fwrite(header, sizeof(unsigned char), 6, f);
+	fwrite(pixelData, sizeof(char), word_unknown00.clip.w * word_unknown00.clip.h * 2, f);
+	fclose(f);
+#endif
+
+	delete[] pixelData;
 }

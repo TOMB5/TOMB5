@@ -34,7 +34,7 @@ void SayNo()//55BE0(<), 56044(<) (F)
 	return;
 }
 
-void SOUND_Init()//920DC(<), 94128(<) (F)
+void SOUND_Init()//920DC(<), 94128(<) (F) (D) (ND)
 {
 	int i;
 

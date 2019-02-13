@@ -55,6 +55,11 @@
 #include "SPHERES.H"
 #include "FXTRIG.H"
 #include "TEXT_S.H"
+
+#if DEBUG_VERSION
+#include <LIBETC.H>
+#endif
+
 #endif
 
 

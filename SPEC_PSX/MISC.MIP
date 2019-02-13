@@ -395,6 +395,7 @@ LOAD_VSyncHandler:
 	j       DrawOTagEnv
 	addu    a0, v1, a0
 	
+;(F) (*) (D) (ND)
 GPU_ClearVRAM:
 	addiu   sp, -0x20
 	sw      ra, 0x20-0x8(sp)
@@ -421,6 +422,8 @@ GPU_ClearVRAM:
 	j       VSync
 	move    a0, zero
 	
+;(F) (*) (D) (ND)
+;@OPTIMISE - a2 is set twice here :-S
 @clear_a_rect:
 	addiu   a0, sp, 0x10
 	move    a1, zero
@@ -446,7 +449,8 @@ GPU_BeginScene:
 	sw      v0, db+0x10-GP_ADDR(gp)
 	j       ClearOTagR
 	sw      at, db+0x2C-GP_ADDR(gp)
-	
+
+;(F) (*) (D) (ND)
 GPU_FlipToBuffer:
 	addiu   sp, -0x1C
 	sw      s0, 0x1C-0xC(sp)
@@ -476,6 +480,7 @@ GPU_FlipToBuffer:
 	jr      ra
 	addiu   sp, 0x1C
 
+;(F) (*) (D) (ND)
 GPU_GetScreenPosition:
 	lhu     at, db+0xF8-GP_ADDR(gp)
 	lhu     v0, db+0xFA-GP_ADDR(gp)
