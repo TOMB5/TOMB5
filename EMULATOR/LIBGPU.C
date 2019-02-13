@@ -261,7 +261,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			P_TAG* pTag = (P_TAG*)p;
 
 
-
 			if (pTag->len != 0)
 			{
 				switch (pTag->code)
@@ -281,23 +280,25 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					Emulator_GenerateAndBindTpage(((poly->tpage) >> 7) & 0x3, x, y, (poly->clut & 0x3F) << 4, (poly->clut >> 6));
 
 					glBegin(GL_QUADS);
-					//glColor3ub(poly->r0, poly->g0, poly->b0);
+					glColor3ub(poly->r0, poly->g0, poly->b0);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
 					glVertex2f(poly->x0, poly->y0);
 
-					//glColor3ub(poly->r1, poly->g1, poly->b1);
+					 glColor3ub(poly->r1, poly->g1, poly->b1);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
 					glVertex2f(poly->x1, poly->y1);
 
-					//glColor3ub(poly->r3, poly->g3, poly->b3);
+					glColor3ub(poly->r3, poly->g3, poly->b3);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
 					glVertex2f(poly->x3, poly->y3);
 
-					//glColor3ub(poly->r2, poly->g2, poly->b2);
+					glColor3ub(poly->r2, poly->g2, poly->b2);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
 					glVertex2f(poly->x2, poly->y2);
 
 					glEnd();
+
+					glColor3f(1.0f, 1.0f, 1.0f);
 
 					break;
 				}
@@ -305,10 +306,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				{
 					POLY_FT4* poly = (POLY_FT4*)pTag;
 
-					///@FIXME im unsure if this is stable.
-#if 0
-					int tpage = (poly->tpage & 0x1F) / 4 + 1;
-#endif
 					int x = ((poly->tpage) << 6) & 0x7C0 % 1024;
 					int y = (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200);
 
@@ -344,7 +341,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					break;
 				}
 			}
-
 			
 			p = (unsigned long*)((P_TAG*)p)->addr;
 			//p = (unsigned long*)*p;
@@ -353,12 +349,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			{
 				break;
 			}
-
-			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			{
-				//printf("Frame buffer error! %d\n", fbo);
-			}
 		}
+
 		Emulator_DestroyLastVRAMTexture();
 		Emulator_DeleteFrameBufferTexture();
 

@@ -94,7 +94,8 @@ int lastTime = 0;
 
 void Emulator_BeginScene()
 {
-	glClear((GL_COLOR_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -250,10 +251,51 @@ void Emulator_GenerateFrameBuffer(GLuint& fbo)
 
 void Emulator_GenerateFrameBufferTexture()
 {
+	unsigned short* pixelData = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
+	unsigned short* dst = &pixelData[0];
+
+	for (int y = word_unknown00.clip.y; y < 512; y++)
+	{
+		for (int x = word_unknown00.clip.x; x < 1024; x++)
+		{
+			unsigned short* src = vram + (y * 1024 + x);
+
+			if (x >= word_unknown00.clip.x && x < word_unknown00.clip.x + word_unknown00.clip.w &&
+				y >= word_unknown00.clip.y && y < word_unknown00.clip.y + word_unknown00.clip.h)
+			{
+				*dst++ = src[0];
+			}
+		}
+	}
+
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 512, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, word_unknown00.clip.w, word_unknown00.clip.h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		printf("Frame buffer error");
+	}
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+#if _DEBUG
+	unsigned short* pixelData2 = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
+	glReadPixels(0, 0, word_unknown00.clip.w, word_unknown00.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData2);
+
+	FILE* f = fopen("VRAM4.TGA", "wb");
+	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+	unsigned char header[6] = { word_unknown00.clip.w % 256, word_unknown00.clip.w / 256, word_unknown00.clip.h % 256, word_unknown00.clip.h / 256,16,0 };
+	fwrite(TGAheader, sizeof(unsigned char), 12, f);
+	fwrite(header, sizeof(unsigned char), 6, f);
+	fwrite(pixelData2, sizeof(char), word_unknown00.clip.w * word_unknown00.clip.h * 2, f);
+	fclose(f);
+	delete[] pixelData2;
+#endif
+
+	delete[] pixelData;
 }
 
 void Emulator_DeleteFrameBufferTexture()
@@ -426,9 +468,10 @@ void Emulator_DestroyFrameBuffer(GLuint& fbo)
 
 void Emulator_DestroyLastVRAMTexture()
 {
+	/*Read from frame buffer and send to VRAM*/
 	unsigned short* pixelData = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
 	unsigned short* dst = &pixelData[0];
-	glReadPixels(word_unknown00.clip.x, word_unknown00.clip.y, word_unknown00.clip.w, word_unknown00.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
+	glReadPixels(0, 0, word_unknown00.clip.w, word_unknown00.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
 
 	for (int y = word_unknown00.clip.y; y < 512; y++)
 	{
@@ -453,4 +496,6 @@ void Emulator_DestroyLastVRAMTexture()
 	fwrite(pixelData, sizeof(char), word_unknown00.clip.w * word_unknown00.clip.h * 2, f);
 	fclose(f);
 #endif
+
+	delete[] pixelData;
 }
