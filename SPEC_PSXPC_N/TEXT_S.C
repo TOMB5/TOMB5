@@ -464,20 +464,19 @@ void GetStringDimensions(char* string, unsigned short* w, unsigned short* h)
 }
 #endif
 
-void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CHARDEF* a3)//8DDBC(<), 8FE00(<) (F)
+void DrawChar(unsigned short a0, unsigned short a1, unsigned short colourFlag, struct CHARDEF* a3)//8DDBC(<), 8FE00(<) (F)
 {
 	CVECTOR* TopShade;//$v0
 	CVECTOR* BottomShade;//$at
 	long v1;
 
-	a2 &= 0xFFFF;
-
+	colourFlag &= 0xFFFF;
 	if ((unsigned long) &db.polyptr[0] < (unsigned long) &db.polybuf_limit[0])
 	{
 		//v1 = &FontShades[0][0];
 
-		TopShade = &FontShades[a2][a3->TopShade];
-		BottomShade = &FontShades[a2][a3->BottomShade];
+		TopShade = &FontShades[colourFlag][a3->TopShade];
+		BottomShade = &FontShades[colourFlag][a3->BottomShade];
 
 		*((long*) &db.polyptr[4])= *(long*) &TopShade->r;
 		*((long*) &db.polyptr[28]) = *(long*) &BottomShade->r;
@@ -521,8 +520,9 @@ void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CH
 
 		//a3 = db.ot
 		//v0 = db.ot[0] | 0xC000000;
-		db.ot[0] = (unsigned long)db.polyptr;
 		*(long*)&db.polyptr[0] = db.ot[0] | 0xC000000;
+		db.ot[0] = (unsigned long)db.polyptr;
+		
 
 		//db.ot[0] = (unsigned long)db.polyptr;
 		//*(long*)&db.polyptr[0] = db.ot[0] | 0xC000000;
@@ -530,7 +530,22 @@ void DrawChar(unsigned short a0, unsigned short a1, unsigned short a2, struct CH
 	}//locret_8DED4
 }
 
-void UpdatePulseColour()
+void UpdatePulseColour()//8E0F8(<), 9013C(<) (F)
 {
+	int i;
+	int localPulseCnt = 0;
 
+	localPulseCnt = PulseCnt = (PulseCnt + 1) & 0x1F;
+	if (localPulseCnt > 15)
+	{
+		localPulseCnt = -localPulseCnt;
+	}
+	//loc_8E11C
+
+	//loc_8E138
+	for (i = 0; i < 16; i++)
+	{
+		((int*)&FontShades[1][i])[0] = ((localPulseCnt << 3) & 0xFF) | (((localPulseCnt << 3) & 0xFF) << 8) | (((localPulseCnt << 3) & 0xFF) << 16);
+		((int*)&FontShades[9][i])[0] = (GlobalCounter << 3) - (GlobalCounter & 0x3F);
+	}
 }
