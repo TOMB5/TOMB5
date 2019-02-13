@@ -744,5 +744,6 @@ extern void GetDrawEnv2(DR_ENV *p);
 
 extern unsigned short vram[];
 extern DISPENV word_33BC;
+extern DRAWENV word_unknown00;
 
 #endif

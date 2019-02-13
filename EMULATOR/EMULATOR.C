@@ -201,7 +201,7 @@ void Emulator_EndScene()
 #endif
 
 	glPopMatrix();
-#if 1
+#if _DEBUG
 	Emulator_SaveVRAM2(1024, 512);
 #endif
 	Emulator_SwapWindow();
@@ -234,6 +234,11 @@ void Emulator_ShutDown()
 {
 	glDeleteTextures(1, &vramTexture);
 	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
+
+	for (int i = 0; i < lastTextureCacheIndex; i++)
+	{
+		glDeleteTextures(1, &cachedTextures[i].textureID);
+	}
 }
 
 void Emulator_GenerateFrameBuffer(GLuint& fbo)
@@ -256,7 +261,7 @@ void Emulator_DeleteFrameBufferTexture()
 	glDeleteTextures(1, &vramTexture);
 }
 
-GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY)
+GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY)///@TODO check rectangular intersection plus clut x, y
 {
 	for (int i = lastTextureCacheIndex-1; i > -1; i--)
 	{
@@ -273,8 +278,6 @@ GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY)
 
 void Emulator_GenerateAndBindTpage(unsigned int type, unsigned int tpageX, unsigned int tpageY, unsigned int clutX, unsigned int clutY)
 {
-	Emulator_GenerateFrameBufferTexture();
-
 	GLuint tpageTexture = Emulator_FindTextureInCache(tpageX, tpageY);
 	bool bMustAddTexture = tpageTexture == -1 ? 1 : 0;
 
@@ -423,15 +426,31 @@ void Emulator_DestroyFrameBuffer(GLuint& fbo)
 
 void Emulator_DestroyLastVRAMTexture()
 {
-	glReadPixels(0, 0, 1024, 512, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
+	unsigned short* pixelData = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
+	unsigned short* dst = &pixelData[0];
+	glReadPixels(word_unknown00.clip.x, word_unknown00.clip.y, word_unknown00.clip.w, word_unknown00.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
 
-#if 0//_DEBUG
+	for (int y = word_unknown00.clip.y; y < 512; y++)
+	{
+		for (int x = word_unknown00.clip.x; x < 1024; x++)
+		{
+			unsigned short* src = vram + (y * 1024 + x);
+
+			if (x >= word_unknown00.clip.x && x < word_unknown00.clip.x + word_unknown00.clip.w &&
+				y >= word_unknown00.clip.y && y < word_unknown00.clip.y + word_unknown00.clip.h)
+			{
+				src[0] = *dst++;
+			}
+		}
+	}
+
+#if _DEBUG
 	FILE* f = fopen("VRAM2.TGA", "wb");
 	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-	unsigned char header[6] = { 1024 % 256, 1024 / 256, 512 % 256, 512 / 256,16,0 };
+	unsigned char header[6] = { word_unknown00.clip.w % 256, word_unknown00.clip.w / 256, word_unknown00.clip.h % 256, word_unknown00.clip.h / 256,16,0 };
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
 	fwrite(header, sizeof(unsigned char), 6, f);
-	fwrite(&vram[0], sizeof(char), 1024 * 512 * 2, f);
+	fwrite(pixelData, sizeof(char), word_unknown00.clip.w * word_unknown00.clip.h * 2, f);
 	fclose(f);
 #endif
 }

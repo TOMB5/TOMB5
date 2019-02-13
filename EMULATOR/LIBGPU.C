@@ -15,6 +15,7 @@
 
 unsigned short vram[1024 * 512];
 DISPENV word_33BC;
+DRAWENV word_unknown00;//Guessed
 int dword_3410 = 0;
 char byte_3352 = 0;
 unsigned long terminator = -1;
@@ -192,9 +193,10 @@ DISPENV* SetDefDispEnv(DISPENV* env, int x, int y, int w, int h)//(F)
 	return 0;
 }
 
-DRAWENV* PutDrawEnv(DRAWENV* env)
+DRAWENV* PutDrawEnv(DRAWENV* env)//Guessed
 {
-	return NULL;
+	memcpy((char*)&word_unknown00, env, sizeof(DRAWENV));
+	return 0;
 }
 
 DRAWENV* SetDefDrawEnv(DRAWENV* env, int x, int y, int w, int h)//(F)
@@ -238,7 +240,7 @@ u_long DrawSyncCallback(void(*func)(void))
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
-	///PutDrawEnv(env);
+	PutDrawEnv(env);
 
 	GLuint fbo = 0;
 
@@ -252,10 +254,13 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 		glEnable(GL_TEXTURE_2D);
 		Emulator_GenerateFrameBuffer(fbo);
+		Emulator_GenerateFrameBufferTexture();
 
 		while (1)
 		{
 			P_TAG* pTag = (P_TAG*)p;
+
+
 
 			if (pTag->len != 0)
 			{
@@ -340,9 +345,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				}
 			}
 
-			Emulator_DestroyLastVRAMTexture();
-			Emulator_DeleteFrameBufferTexture();
-
+			
 			p = (unsigned long*)((P_TAG*)p)->addr;
 			//p = (unsigned long*)*p;
 
@@ -356,6 +359,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				//printf("Frame buffer error! %d\n", fbo);
 			}
 		}
+		Emulator_DestroyLastVRAMTexture();
+		Emulator_DeleteFrameBufferTexture();
 
 		glViewport(0, 0, screenWidth, screenHeight);
 		glPopMatrix();
