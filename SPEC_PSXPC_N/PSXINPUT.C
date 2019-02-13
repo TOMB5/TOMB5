@@ -106,19 +106,23 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	{
 		dbinput = inputBusy;
 		RawEdge = RawPad;
+
 	}
 
 	//loc_5F6D0
 	PadConnected = 1;
 	RawPad = (GPad1.data.pad ^ -1) & 0xFFFF;
+
 	if (SetDebounce != 0)
 	{
-		RawEdge ^= RawPad;
-		RawEdge &= RawPad;
+		RawEdge = (RawEdge ^ RawPad) & RawPad;
 	}
 
+	printf("RawPad PSXINPUT: %x\n", RawPad);
+	printf("RawEdge PSXINPUT: %x\n", RawEdge);
+
 	//loc_5F704
-	if (RawEdge & 1)
+	if ((RawEdge & 1))
 	{
 		dword_A1894 = 1;//static? sw
 	}
@@ -192,52 +196,52 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	}
 
 	//loc_5F8B0
-	if (RawPad & 0x4000)
+	if ((RawPad & 0x4000))
 	{
 		in |= 0x10000;
 	}//loc_5F8C8
 
-	if (RawPad & 0x1000)
+	if ((RawPad & 0x1000))
 	{
 		in |= 0x20000;
 	}//loc_5F8D8
 
-	if (RawPad & 0x8000)
+	if ((RawPad & 0x8000))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_square;
 	}//loc_5F904
 
-	if (RawPad & 0x2000)
+	if ((RawPad & 0x2000))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_circle;
 	}//loc_5F930
 
-	if (RawPad & 0x1000)//merge?
+	if ((RawPad & 0x1000))//merge?
 	{
 		in |= pad_cons[savegame.ControlOption].pad_triangle;
 	}//loc_5F958
 
-	if (RawPad & 0x4000)//merge?
+	if ((RawPad & 0x4000))//merge?
 	{
 		in |= pad_cons[savegame.ControlOption].pad_cross;
 	}//loc_5F980
 
-	if (RawPad & 0x400)
+	if ((RawPad & 0x400))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_L1;
 	}//loc_5F9AC
 
-	if (RawPad & 0x100)
+	if ((RawPad & 0x100))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_L2;
 	}//loc_5F9D8
 
-	if (RawPad & 0x800)
+	if ((RawPad & 0x800))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_R1;
 	}//loc_5FA04
 
-	if (RawPad & 0x200)
+	if ((RawPad & 0x200))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_R2;
 	}
@@ -258,7 +262,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		//v1 = in & 0x280;
 		if (in & 0x200)
 		{
-			assert(0);
+			//assert(0);
 			//lbu	$v1, 0x3F7E($gp) (GPad1+0x6)
 			//v1 = GPad1.data.mouse.xOffset;
 			//v0 = 0x7F;
@@ -307,7 +311,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		{
 			//loc_5FC04
 			///@FIXME GPad1+5 invalid!
-			assert(0);
+			//assert(0);
 #if 0
 			//v1 = GPad1.data.mouse.yOffset;
 
@@ -516,7 +520,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 
 	//Edge2 = Pad2.3;
 #if DEBUG_VERSION
-	assert(0);
+	//assert(0);
 	if (GPad2.transStatus != 0xFF)
 	{
 #if 0
