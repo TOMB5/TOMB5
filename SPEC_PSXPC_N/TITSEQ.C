@@ -9,6 +9,10 @@
 #include "SPOTCAM.H"
 #include "TEXT_S.H"
 
+#include <stdio.h>//deleteme
+
+#define MENU_HACK (0)
+
 #if PSX_VERSION && RELOC
 void* func_titseq[] __attribute__((section(".header"))) =
 {
@@ -30,12 +34,15 @@ int TitleOptions(int Name)
 	char buf[80];//0x18(sp)
 #endif
 	int ret; //0x68(sp)
-	int s1;
-	int y;//s3
+	int s1 = 0;
+	int y = 0;//s3 = 0 = runtimecheckfailure
 	//v0 = 0xA0000
 	//v1 = PadConnected
 	ret = 0;
 	//0x98(sp) = Name
+#if MENU_HACK
+	Chris_Menu = 2;//Tempdeleteme
+#endif
 
 	if (PadConnected == 0)
 	{
@@ -242,7 +249,11 @@ int TitleOptions(int Name)
 			if ((RawEdge & 0x4000))
 			{
 				SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#if MENU_HACK
+				ret = 0;
+#else
 				ret = 3;
+#endif
 				Chris_Menu = 0;
 				gfLevelComplete = byte_46 + 1;
 				byte_46 = 0;
@@ -267,9 +278,10 @@ int TitleOptions(int Name)
 		//loc_600
 		//v1 = Gameflow
 		//s3 = 0xC0
-		y = 192;
+		
 		if (!Gameflow->LoadSaveEnabled)
 		{
+			y = 192;
 			//loc_6B4
 			//s1 = a0
 			if (CanLoad == 1)
@@ -278,8 +290,9 @@ int TitleOptions(int Name)
 				CanLoad = 0;
 			}//loc_6D4
 		}
-		else if (mcGetStatus() != 0)
+		else if (mcGetStatus() == 0)
 		{
+			y = 192;
 			//loc_6B8
 			if (CanLoad == 1)
 			{
@@ -287,29 +300,29 @@ int TitleOptions(int Name)
 				CanLoad = 0;
 			}//loc_6D4
 		}
-		else if (mcNumFiles == 0)
+		else if (mcNumFiles != 0)
 		{
 			//loc_6B0
 			y = 208;
-			if (CanLoad == 1)
+			if (CanLoad == 0)
 			{
 				byte_46 = 0;
 				CanLoad = 0;
 			}//loc_6D4
-		}
-		else if (CanLoad == 0)
-		{
-			byte_46 = 0;
-			CanLoad = 1;
-		}//loc_664
 
-		if (byte_46 == 1)
-		{
-			PrintString(256, 192, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+			if (byte_46 == 1)
+			{
+				PrintString(256, 192, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+			}
+			else
+			{
+				PrintString(256, 192, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+			}
 		}
 		else
 		{
-			PrintString(256, 192, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+			//loc_6B0
+			y = 192;
 		}
 
 		//j loc_6D8
@@ -350,19 +363,19 @@ int TitleOptions(int Name)
 	//v0 = gfStringOffset
 	//a1 = y
 	//v1 = ;
-	if ((RawEdge & 0x10) && byte_46 != 0)
+	if ((RawEdge & 0x10) && byte_46 != 0)//Up
 	{
 		SoundEffect(SFX_MENU_SELECT, NULL, 2);
 		--byte_46;
 	}
-	else if((RawEdge & 0x40) && CanLoad+1 < byte_46)
+	else if((RawEdge & 0x40) && CanLoad+1 < byte_46)//Down
 	{
 		//loc_7C0
 		SoundEffect(SFX_MENU_SELECT, NULL, 2);
 		++byte_46;
 	}//loc_810
 
-	if ((RawEdge & 0x4000))
+	if ((RawEdge & 0x4000))//X pressed
 	{
 		if (byte_46 == 1)
 		{
@@ -425,7 +438,7 @@ int TitleOptions(int Name)
 	//loc_904
 	SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
 
-	s1 = LoadGame();
+	//s1 = LoadGame(); //Disabled due to crashing
 
 	if (s1 == 0)
 	{
