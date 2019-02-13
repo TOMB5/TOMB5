@@ -3,7 +3,7 @@
 #include "3D_OBJ.H"
 #include "GAMEFLOW.H"
 
-#include <STRING.H>
+#include <string.h>
 #include <KERNEL.H>
 
 #include <LIBMCRD.H>
