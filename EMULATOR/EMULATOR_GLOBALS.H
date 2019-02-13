@@ -5,7 +5,6 @@
 #include <SDL_opengl.h>
 
 extern GLuint vramTexture;
-extern GLuint tpageTexture;
 extern SDL_Renderer* g_renderer;
 extern int lastTime;
 extern int screenWidth;

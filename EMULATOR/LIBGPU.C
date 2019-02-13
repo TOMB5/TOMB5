@@ -250,6 +250,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		glOrtho(0, 1024, 0, 512, -1, 1);
 		glViewport(0, 0, 1024, 512);
 
+		glEnable(GL_TEXTURE_2D);
 		Emulator_GenerateFrameBuffer(fbo);
 
 		while (1)
@@ -293,8 +294,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 					glEnd();
 
-					Emulator_DestroyLastVRAMTexture();
-					Emulator_DeleteFrameBufferTexture();
 					break;
 				}
 				case 0x2C:
@@ -333,8 +332,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					glVertex2f(poly->x2, poly->y2);
 
 					glEnd();
-					Emulator_DestroyLastVRAMTexture();
-					Emulator_DeleteFrameBufferTexture();
 					break;
 				}
 				default:
@@ -342,6 +339,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					break;
 				}
 			}
+
+			Emulator_DestroyLastVRAMTexture();
+			Emulator_DeleteFrameBufferTexture();
 
 			p = (unsigned long*)((P_TAG*)p)->addr;
 			//p = (unsigned long*)*p;
