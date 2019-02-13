@@ -1308,7 +1308,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 	//loc_1E24C
 	AnimateWaterfalls();
-	//UpdatePulseColour();
+	UpdatePulseColour();
 
 	if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
 	{
