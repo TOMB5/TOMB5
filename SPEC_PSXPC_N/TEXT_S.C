@@ -533,19 +533,20 @@ void DrawChar(unsigned short a0, unsigned short a1, unsigned short colourFlag, s
 void UpdatePulseColour()//8E0F8(<), 9013C(<) (F)
 {
 	int i;
-	int localPulseCnt = 0;
+	unsigned int localPulseCnt = 0;
 
-	localPulseCnt = PulseCnt = (PulseCnt + 1) & 0x1F;
+	localPulseCnt = PulseCnt = (++PulseCnt & 0x1F);
 	if (localPulseCnt > 15)
 	{
 		localPulseCnt = -localPulseCnt;
 	}
-	//loc_8E11C
 
+	//loc_8E11C
 	//loc_8E138
 	for (i = 0; i < 16; i++)
 	{
 		((int*)&FontShades[1][i])[0] = ((localPulseCnt << 3) & 0xFF) | (((localPulseCnt << 3) & 0xFF) << 8) | (((localPulseCnt << 3) & 0xFF) << 16);
 		((int*)&FontShades[9][i])[0] = (GlobalCounter << 3) - (GlobalCounter & 0x3F);
 	}
+	return;
 }
