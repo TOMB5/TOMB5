@@ -258,15 +258,29 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 				else
 				{
 					//loc_8DBE8
-					GetStringLength(string, &var_2E, &var_2C);
+					v0 = GetStringLength(string, &var_2E, &var_2C);
+					
+					if ((flag & 0x8000))
+					{
+						s2 = x - (v0 >> 1);
+					}
+					else if ((flag & 0x4000))
+					{
+						s2 = x + v0;
+					}
+					else
+					{
+						s2 = x;
+					}
+
 					//jal sub_8DD90
 					//v1 = var_30
 					//v0 = var_2E
 					//a0 = var_2C
 					//v1 -= v0
 					//v1 += 2;
-					//y += v1;
-					//var_30 = a0;
+					y += (var_30 - var_2E) + 2;
+					var_30 = var_2C;
 					//j       loc_8DD54
 				}
 			}//v0 = 0x9
