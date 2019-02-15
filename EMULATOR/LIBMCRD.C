@@ -1,70 +1,220 @@
 #include "LIBMCRD.H"
+#include "LIBETC.H"
 
+#include <stdio.h>
 #include <assert.h>
+#include <string.h>
+
+#define MC_HEADER_FRAME_INDEX (0)
+
+#pragma pack(push,1)
+struct MemoryCardFrame
+{
+	unsigned int attr;
+	unsigned int size;
+	unsigned short unknown;
+	char name[20];
+	char padding[98];
+};
+#pragma pack(pop)
+
+int bIsInitialised = 0;
+int bCanUseMemoryCardFuncs = 0;
+int memoryCardStatus = -1;
+
+FILE* memoryCards[2];
+int memoryCardsNew[2];
+
+int memoryCardCmds = -1;
+int memoryCardResult = -1;
+int openFrameIndex = 0;
+int currentlyOpenedMemoryCard = -1;
 
 void MemCardInit(long val)
 {
-	
+	bIsInitialised = 1;
+	bCanUseMemoryCardFuncs = 0;
+	memoryCardStatus = -1;
+	memoryCardCmds = -1;
+	memoryCardResult = -1;
+	memoryCardsNew[0] = 1;
+	memoryCardsNew[1] = 1;
 }
 
 void MemCardEnd()
 {
-	
+	if (!bCanUseMemoryCardFuncs)
+		return;
+
 }
 
 void MemCardStart()
 {
-	
+	bCanUseMemoryCardFuncs = 1;
 }
 
 void MemCardStop()
 {
-	
+	if (!bCanUseMemoryCardFuncs)
+		return;
 
+	bCanUseMemoryCardFuncs = 0;
+	memoryCardStatus = -1;
+	memoryCardCmds = -1;
+	memoryCardResult = -1;
+	memoryCardsNew[0] = 1;
+	memoryCardsNew[1] = 1;
+
+	if (memoryCards[0] != NULL)
+	{
+		fclose(memoryCards[0]);
+	}
+
+	if (memoryCards[1] != NULL)
+	{
+		fclose(memoryCards[1]);
+	}
 }
+
 long MemCardExist(long chan)
 {
+	if (!bCanUseMemoryCardFuncs)
+		return 0;
+
+	char buf[16];
+	sprintf(&buf[0], "%d.MCD", chan);
+	memoryCards[chan] = fopen(&buf[0], "rb");
+
+	memoryCardCmds = McFuncExist;
+
+	if (memoryCards[chan] == NULL)
+	{
+		memoryCardStatus = -1;//CHECKME
+		memoryCardResult = McErrCardNotExist;//CHECKME
+		return 0;
+	}
+	else
+	{
+		fclose(memoryCards[chan]);
+
+		if (memoryCardResult == McErrNewCard)
+		{
+			memoryCardResult = McErrNone;
+			memoryCardStatus = 0;
+		}
+		else
+		{
+			memoryCardResult = McErrNewCard;
+			memoryCardStatus = 1;
+		}
+	}
+
 	
-	return 0;
+	return 1;
 }
 
 long MemCardAccept(long chan)
 {
-	
-	return 0;
+	if (!bCanUseMemoryCardFuncs)
+		return 0;
+
+	char buf[16];
+	sprintf(&buf[0], "%d.MCD", chan);
+	memoryCards[chan] = fopen(&buf[0], "rb");
+	memoryCardCmds = McFuncAccept;
+
+	unsigned int fileMagic = 0;
+	fread(&fileMagic, 4, 1, memoryCards[chan]);
+	fclose(memoryCards[chan]);
+
+	//Is this card formatted?
+	if (fileMagic != 0x0000434D)
+	{
+		//If not, this is a new card!
+		memoryCardResult = McErrNewCard;
+		memoryCardsNew[chan] = 0;
+		return 0;
+	}
+
+	memoryCardResult = 3;
+	memoryCardStatus = 1;
+	return 1;
 }
 long MemCardOpen(long chan, char* file, long flag)
 {
+	if (!bCanUseMemoryCardFuncs)
+		return 0;
+
+	char buf[16];
+	sprintf(&buf[0], "%d.MCD", chan);
+
+	switch (flag)
+	{
+	case 1:
+		memoryCards[chan] = fopen(&buf[0], "rb");
+		break;
+	case 2://Unchecked
+		memoryCards[chan] = fopen(&buf[0], "wb");
+		break;
+	}
 	
+	fseek(memoryCards[chan], 0, SEEK_SET);
+	currentlyOpenedMemoryCard = chan;
+
+	for (int i = 0; i < 16; i++)
+	{
+		MemoryCardFrame frame;
+		fread(&frame, sizeof(MemoryCardFrame), 1, memoryCards[chan]);
+
+		if (i > MC_HEADER_FRAME_INDEX && frame.name[0] != '\0')
+		{
+			if (strcmp(&frame.name[0], file) == 0)
+			{
+				openFrameIndex = i;
+				break;
+			}
+		}
+	}
+
 	return 0;
 }
 
 void MemCardClose()
 {
-	
+	openFrameIndex = -1;
+	fclose(memoryCards[currentlyOpenedMemoryCard]);
 }
 
 long MemCardReadData(unsigned long* adrs, long ofs, long bytes)
 {
-	
-	return 0;
+	memoryCardCmds = McFuncReadData;
+	if (bytes % 128)
+	{
+		return 0;
+	}
+
+	fseek(memoryCards[currentlyOpenedMemoryCard], (16 * 128) + (20 * 128) + 3456 + 128 + ((openFrameIndex-1) * 16384) + ofs, SEEK_SET);
+	fread(adrs, bytes, 1, memoryCards[currentlyOpenedMemoryCard]);
+
+	return 1;
 }
 
 long MemCardReadFile(long chan, char* file, unsigned long* adrs, long ofs, long bytes)
 {
-	
+	memoryCardCmds = McFuncReadFile;
 	return 0;
 }
 
 long MemCardWriteData(unsigned long* adrs, long ofs, long bytes)
 {
-	
+	memoryCardCmds = McFuncWriteData;
 	return 0;
 }
 
 long MemCardWriteFile(long chan, char* file, unsigned long* adrs, long ofs, long bytes)
 {
-	
+	memoryCardCmds = McFuncWriteFile;
+
 	return 0;
 }
 
@@ -94,7 +244,21 @@ long MemCardUnformat(long chan)
 
 long MemCardSync(long mode, long* cmds, long* rslt)
 {
-	
+	if (memoryCardCmds != -1)
+	{
+		*cmds = memoryCardCmds;
+	}
+
+	if (memoryCardResult != -1)
+	{
+		*rslt = memoryCardResult;
+	}
+
+	if (mode == 1)
+	{
+		return memoryCardStatus;
+	}
+
 	return 0;
 }
 
@@ -106,6 +270,34 @@ MemCB MemCardCallback(MemCB func)
 
 long MemCardGetDirentry(long chan, char* name, struct DIRENTRY* dir, long* files, long ofs, long max)
 {
-	
+	char buf[16];
+	sprintf(&buf[0], "%d.MCD", chan);
+	memoryCards[chan] = fopen(&buf[0], "rb");
+	fseek(memoryCards[chan], 0, SEEK_SET);
+
+	if (strcmp(name, "*") == 0)
+	{
+		for (int i = 0, head = -64; i < 16; i++, head += 128)
+		{
+			MemoryCardFrame frame;
+			fread(&frame, sizeof(MemoryCardFrame), 1, memoryCards[chan]);
+
+			if (i > MC_HEADER_FRAME_INDEX && frame.name[0] != '\0')
+			{
+				memcpy(dir->name, &frame.name, 20);
+				dir->attr = frame.attr & 0xF0;
+				dir->size = frame.size;
+				dir->next = (struct DIRENTRY*)9;
+				dir->head = head;
+				dir->system[0] = 9;
+				dir++;
+				files[0]++;
+			}
+		}
+	}
+	memoryCardCmds = McFuncExist;
+	memoryCardResult = 0;
+	memoryCardStatus = 1;
+
 	return 0;
 }

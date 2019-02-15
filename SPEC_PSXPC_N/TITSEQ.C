@@ -12,6 +12,7 @@
 #include <stdio.h>//deleteme
 
 #define MENU_HACK (0)
+#define BLOCK_SPLINE_CAM (1)
 
 #if PSX_VERSION && RELOC
 void* func_titseq[] __attribute__((section(".header"))) =
@@ -22,6 +23,14 @@ void* func_titseq[] __attribute__((section(".header"))) =
 
 unsigned char byte_46 = 0;
 unsigned char byte_47 = 0;
+
+enum
+{
+	MENU_DEFAULT,
+	MENU_UNKOWN,
+	MENU_UNKOWN2,
+	MENU_LOAD_GAME
+};
 
 void Test()
 {
@@ -42,6 +51,9 @@ int TitleOptions(int Name)
 	//0x98(sp) = Name
 #if MENU_HACK
 	Chris_Menu = 2;//Tempdeleteme
+#endif
+#if BLOCK_SPLINE_CAM
+	current_spline_position = 0;
 #endif
 
 	if (PadConnected == 0)
@@ -70,11 +82,14 @@ int TitleOptions(int Name)
 	//a0 = Chris_Menu
 	//v1 = 1
 	//s7 = v0
-	if (Chris_Menu != 1 && Chris_Menu != 3 && bDoCredits == 0)
+	if (Chris_Menu != 1 && Chris_Menu != 3)
 	{
-		///sub_2B0();
+		if (bDoCredits == 0)
+		{
+			///sub_2B0();
+		}
 	}
-	else
+	else if (bDoCredits == 0)
 	{
 		//loc_514
 #if DEBUG_VERSION
@@ -85,6 +100,8 @@ int TitleOptions(int Name)
 		}//loc_558
 #endif
 	}
+
+	
 	//loc_558
 	a1 = last_camera;
 	//a0 = current_sequence
@@ -270,6 +287,28 @@ int TitleOptions(int Name)
 		else if (Chris_Menu == 3)
 		{
 			//loc_C3C
+			//a0 = 256
+			//a1 = 32
+			//a2 = 6
+			//s1 = 0
+			//s2 = 0x404040
+			//s5 = 0
+			//v0 = gfStringOffset
+			//a3 = gfStringWad
+			PrintString(256, 32, 6, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+			//v0 = 0xB0000
+			//fp = &savegame.CampaignSecrets
+			//s4 = &unk_3C
+
+			/* Not actually used since s1 is always zero
+
+			if(s1 != 0)
+			{
+
+			}
+			
+			*/
+
 			
 		}
 	}
@@ -278,7 +317,8 @@ int TitleOptions(int Name)
 		//loc_600
 		//v1 = Gameflow
 		//s3 = 0xC0
-		
+
+		//Overidden in gameflow script disable loading now.
 		if (!Gameflow->LoadSaveEnabled)
 		{
 			y = 192;
@@ -290,7 +330,7 @@ int TitleOptions(int Name)
 				CanLoad = 0;
 			}//loc_6D4
 		}
-		else if (mcGetStatus() == 0)
+		else if (mcGetStatus() != 0)
 		{
 			y = 192;
 			//loc_6B8
@@ -307,8 +347,8 @@ int TitleOptions(int Name)
 			if (CanLoad == 0)
 			{
 				byte_46 = 0;
-				CanLoad = 0;
-			}//loc_6D4
+				CanLoad = 1;
+			}//loc_664
 
 			if (byte_46 == 1)
 			{
@@ -318,7 +358,7 @@ int TitleOptions(int Name)
 			{
 				PrintString(256, 192, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
 			}
-		}
+		}//loc_6B0 mcnumfiles
 		else
 		{
 			//loc_6B0
@@ -343,11 +383,13 @@ int TitleOptions(int Name)
 	}
 
 	//a0 = 0
+	
 	if (byte_46 == 2)
 	{
+		//v0 = 1
 		PrintString(0, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
 	}
-	else if (byte_46 == 1)
+	else if (byte_46 != 1)
 	{
 		PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
 	}
@@ -367,23 +409,35 @@ int TitleOptions(int Name)
 	{
 		SoundEffect(SFX_MENU_SELECT, NULL, 2);
 		--byte_46;
-	}
-	else if((RawEdge & 0x40) && CanLoad+1 < byte_46)//Down
+	}//loc_7C0
+	else if((RawEdge & 0x40) && byte_46 < CanLoad + 1)//Down
 	{
 		//loc_7C0
 		SoundEffect(SFX_MENU_SELECT, NULL, 2);
 		++byte_46;
 	}//loc_810
 
+
+
 	if ((RawEdge & 0x4000))//X pressed
 	{
 		if (byte_46 == 1)
 		{
-			//loc_850
-			///sub_3A8();
-			Chris_Menu = 3;
-			byte_46 = 0;
-		}
+			if (CanLoad != 0)
+			{
+				Chris_Menu = 1;
+			}
+			else
+			{
+				//loc_850
+				//sub_3A8();
+				Chris_Menu = 3;
+				byte_46 = 0;
+			}
+			
+			//loc_904
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+		}//loc_86C
 		else
 		{
 			//loc_86C
@@ -391,7 +445,7 @@ int TitleOptions(int Name)
 			{
 				//loc_8EC
 				//sub_3A8();
-				Chris_Menu = 0;
+				Chris_Menu = 3;
 				byte_46 = 0;
 			}
 			else

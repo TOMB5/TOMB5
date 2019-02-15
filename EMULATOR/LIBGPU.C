@@ -253,25 +253,61 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		glViewport(0, 0, 1024, 512);
 
 		glEnable(GL_TEXTURE_2D);
+
+#if 0
+		glBlendColor(0.25, 0.25, 0.25, 0.5);
+#endif
+
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
-
 		while (1)
 		{
 			P_TAG* pTag = (P_TAG*)p;
-
 
 			if (pTag->len != 0)
 			{
 				switch (pTag->code)
 				{
+				case 0x2A:
+				{
+					POLY_F4* poly = (POLY_F4*)pTag;
+					glBegin(GL_QUADS);
+
+					glColor3f(0.0f, 0.0f, 0.0f);
+					//glTexCoord2f(0.0, 0.0f);//Dummy
+					glVertex2f(poly->x0, poly->y0);
+
+					//glColor3f((float)poly->r0 / 255.0f, (float)poly->g0 / 255.0f, (float)poly->b0 / 255.0f);
+					//glTexCoord2f(0.01, 0.0f);//Dummy
+					glVertex2f(poly->x1, poly->y1);
+
+					//glColor3f((float)poly->r0 / 255.0f, (float)poly->g0 / 255.0f, (float)poly->b0 / 255.0f);
+					//glTexCoord2f(0.0, 0.01f);//Dummy
+					glVertex2f(poly->x3, poly->y3);
+
+					//glColor3f((float)poly->r0 / 255.0f, (float)poly->g0 / 255.0f, (float)poly->b0 / 255.0f);
+					//glTexCoord2f(0.01, 0.01f);//Dummy
+					glVertex2f(poly->x2, poly->y2);
+
+					glEnd();
+
+					//Reset for vertex colours
+					glColor3f(1.0f, 1.0f, 1.0f);
+
+					break;
+				}
 				case 0x3C:
 				{
 					POLY_GT4* poly = (POLY_GT4*)pTag;
 
 					int x = ((poly->tpage) << 6) & 0x7C0 % 1024;
 					int y = (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200);
-					
+
+#if 0
+					glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+					glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+#endif
+
 #if _DEBUG
 					printf("tpage: (%d,%d,%d,%d)\n", ((poly->tpage) >> 7) & 0x3, ((poly->tpage) >> 5) & 0x3, ((poly->tpage) << 6) & 0x7C0, (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200));
 					printf("clut: (%d,%d)\n", (poly->clut & 0x3F) << 4, (poly->clut >> 6));
@@ -279,27 +315,49 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 					Emulator_GenerateAndBindTpage(((poly->tpage) >> 7) & 0x3, x, y, (poly->clut & 0x3F) << 4, (poly->clut >> 6));
 
+#if 0
+					switch (((poly->tpage) >> 5) & 0x3)
+					{
+					case 0:
+						glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
+						glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+						break;
+					case 1:
+						glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+						glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+						break;
+					case 2:
+						glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+						glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
+						break;
+					case 3:
+						glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
+						glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
+						break;
+					}
+#endif
 					glBegin(GL_QUADS);
-					glColor3ub(poly->r0, poly->g0, poly->b0);
+
+					glColor3f((float)poly->r0 / 255.0f, (float)poly->g0 / 255.0f, (float)poly->b0 / 255.0f);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
 					glVertex2f(poly->x0, poly->y0);
 
-					 glColor3ub(poly->r1, poly->g1, poly->b1);
+					glColor3f((float)poly->r1 / 255.0f, (float)poly->g1 / 255.0f, (float)poly->b1 / 255.0f);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
 					glVertex2f(poly->x1, poly->y1);
 
-					glColor3ub(poly->r3, poly->g3, poly->b3);
+					glColor3f((float)poly->r3 / 255.0f, (float)poly->g3 / 255.0f, (float)poly->b3 / 255.0f);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
 					glVertex2f(poly->x3, poly->y3);
 
-					glColor3ub(poly->r2, poly->g2, poly->b2);
+					glColor3f((float)poly->r2 / 255.0f, (float)poly->g2 / 255.0f, (float)poly->b2 / 255.0f);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
 					glVertex2f(poly->x2, poly->y2);
 
 					glEnd();
 
+					//Reset for vertex colours
 					glColor3f(1.0f, 1.0f, 1.0f);
-
 					break;
 				}
 				case 0x2C:
@@ -334,10 +392,14 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					glVertex2f(poly->x2, poly->y2);
 
 					glEnd();
+
+					//Reset for vertex colours
+					glColor3f(1.0f, 1.0f, 1.0f);
 					break;
 				}
 				default:
 					//Unhandled poly
+					//assert(0);
 					break;
 				}
 			}
