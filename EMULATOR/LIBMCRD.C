@@ -45,7 +45,24 @@ void MemCardStop()
 	if (!bCanUseMemoryCardFuncs)
 		return;
 
+	bCanUseMemoryCardFuncs = 0;
+	memoryCardStatus = -1;
+	memoryCardCmds = -1;
+	memoryCardResult = -1;
+	memoryCardsNew[0] = 1;
+	memoryCardsNew[1] = 1;
+
+	if (memoryCards[0] != NULL)
+	{
+		fclose(memoryCards[0]);
+	}
+
+	if (memoryCards[1] != NULL)
+	{
+		fclose(memoryCards[1]);
+	}
 }
+
 long MemCardExist(long chan)
 {
 	if (!bCanUseMemoryCardFuncs)
@@ -97,7 +114,7 @@ long MemCardAccept(long chan)
 	fread(&fileMagic, 4, 1, memoryCards[chan]);
 
 	//Is this card formatted?
-	if (fileMagic != 0x0000434D || memoryCardsNew[chan] == 1)
+	if (fileMagic != 0x0000434D)
 	{
 		//If not, this is a new card!
 		memoryCardResult = McErrNewCard;
@@ -105,7 +122,8 @@ long MemCardAccept(long chan)
 		return 0;
 	}
 
-	memoryCardResult = McErrNone;
+	memoryCardResult = 3;
+	memoryCardStatus = 1;
 	return 1;
 }
 long MemCardOpen(long chan, char* file, long flag)
@@ -230,8 +248,9 @@ long MemCardGetDirentry(long chan, char* name, struct DIRENTRY* dir, long* files
 			}
 		}
 	}
-	
-	memoryCardStatus = -1;//?
+	memoryCardCmds = McFuncExist;
+	memoryCardResult = 0;
+	memoryCardStatus = 1;
 
 	return 0;
 }
