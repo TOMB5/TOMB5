@@ -170,9 +170,10 @@ long MemCardOpen(long chan, char* file, long flag)
 		{
 			if (strcmp(&frame.name[0], file) == 0)
 			{
-				openFrameIndex = i;
 				break;
 			}
+
+			openFrameIndex += frame.attr & 0xF;
 		}
 	}
 
@@ -193,7 +194,7 @@ long MemCardReadData(unsigned long* adrs, long ofs, long bytes)
 		return 0;
 	}
 
-	fseek(memoryCards[currentlyOpenedMemoryCard], (16 * 128) + (20 * 128) + 3456 + 128 + ((openFrameIndex-1) * 16384) + ofs, SEEK_SET);
+	fseek(memoryCards[currentlyOpenedMemoryCard], (64 * 128) + (openFrameIndex * 16384) + ofs, SEEK_SET);
 	fread(adrs, bytes, 1, memoryCards[currentlyOpenedMemoryCard]);
 
 	return 1;
@@ -284,7 +285,7 @@ long MemCardGetDirentry(long chan, char* name, struct DIRENTRY* dir, long* files
 
 			if (i > MC_HEADER_FRAME_INDEX && frame.name[0] != '\0')
 			{
-				memcpy(dir->name, &frame.name, 20);
+				memcpy(dir->name, &frame.name[0], 20);
 				dir->attr = frame.attr & 0xF0;
 				dir->size = frame.size;
 				dir->next = (struct DIRENTRY*)9;
