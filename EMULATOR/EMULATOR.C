@@ -28,14 +28,14 @@ struct CachedTexture
 
 struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
-void Emulator_Init(int screen_width, int screen_height)
+void Emulator_Init(char* windowName, int screen_width, int screen_height)
 {
 	screenWidth = screen_width;
 	screenHeight = screen_height;
 
 	if (SDL_Init(SDL_INIT_VIDEO) == 0)
 	{
-		g_window = SDL_CreateWindow("TOMB5", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, SDL_WINDOW_OPENGL);
+		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, SDL_WINDOW_OPENGL);
 		g_renderer = SDL_CreateRenderer(g_window, 0, SDL_RENDERER_ACCELERATED);
 		if (g_renderer == NULL)
 		{
@@ -273,6 +273,7 @@ void Emulator_GenerateFrameBufferTexture()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, word_unknown00.clip.w, word_unknown00.clip.h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
 
+
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		printf("Frame buffer error");
@@ -303,7 +304,9 @@ void Emulator_DeleteFrameBufferTexture()
 	glDeleteTextures(1, &vramTexture);
 }
 
-GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY)///@TODO check rectangular intersection plus clut x, y
+///@TODO check rectangular intersection plus clut x, y
+///@TODO check if LoadImage and ClearImage, FrameBuffer rect intersection updates a texture, if so, we delete the original and generate a new one
+GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY)
 {
 	for (int i = lastTextureCacheIndex-1; i > -1; i--)
 	{
@@ -313,7 +316,6 @@ GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY)///@
 			return cachedTextures[i].textureID;
 		}
 	}
-
 
 	return -1;
 }
