@@ -8,9 +8,10 @@
 
 #include <EMULATOR.H>
 #include <LIBETC.H>
+#include "GAMEFLOW.H"
 
 #if PSXPC_VERSION || PSXPC_TEST
-	#include <stdint.h>
+#include <stdint.h>
 #endif
 
 #if PSX_VERSION && !PSXPC_TEST
@@ -36,7 +37,6 @@ void S_MemSet(char* p, int value, int length)
 				//loc_5E918
 				while (size--)
 					*p++ = value;
-
 			}
 			//loc_5E928
 			size = length >> 2;
@@ -58,7 +58,7 @@ void S_MemSet(char* p, int value, int length)
 	}
 }
 
-void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size)//5E964(<), ? (F)
+void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size) //5E964(<), ? (F)
 {
 	int i;
 
@@ -72,7 +72,7 @@ void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size)
 			pDest[2] = pSrc[2];
 			pDest[3] = pSrc[3];
 		}
-		
+
 		//loc_5E9AC
 		for (i = size & 3; i > 0; i--)
 		{
@@ -81,27 +81,27 @@ void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size)
 	}
 }
 
-void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h, int unk, int unk2)//5EDF8
+void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h, int unk, int unk2) //5EDF8
 {
 	UNIMPLEMENTED();
 }
 
-void DrawTPage(unsigned char a0, unsigned char a1)//5EE78(<), 5FB58(<)
+void DrawTPage(unsigned char a0, unsigned char a1) //5EE78(<), 5FB58(<)
 {
 	UNIMPLEMENTED();
 }
 
-void DrawLineH(long a0, long a1, long a2, long a3, long a4, long a5)//5EECC(<)
+void DrawLineH(long a0, long a1, long a2, long a3, long a4, long a5) //5EECC(<)
 {
 	UNIMPLEMENTED();
 }
 
-void DrawLineV(long a0, long a1, long a2, long a3, long a4, long a5)//5EF84(<),
+void DrawLineV(long a0, long a1, long a2, long a3, long a4, long a5) //5EF84(<),
 {
 	UNIMPLEMENTED();
 }
 
-void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
+void LOAD_VSyncHandler() //5F074(<), 5FD54(<) (F)
 {
 	int a0, a1, a2;
 
@@ -113,9 +113,9 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
 	//loc_5F08C
 	GPU_BeginScene();
 
-	a0 = 440;//x?
-	a1 = 200;//y?
-	a2 = 64;//cd width or height?
+	a0 = 440; //x?
+	a1 = 200; //y?
+	a2 = 64; //cd width or height?
 
 	if (_first_time_ever)
 	{
@@ -132,12 +132,12 @@ void LOAD_VSyncHandler()//5F074(<), 5FD54(<) (F)
 	return;
 }
 
-void LOAD_DrawEnable(unsigned char isEnabled)//5F2C8, 5FFA8
+void LOAD_DrawEnable(unsigned char isEnabled) //5F2C8, 5FFA8
 {
 	LtLoadingBarEnabled = isEnabled;
 }
 
-void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
+void GPU_BeginScene() //5F0F0(<), 5FDD0(<)
 {
 	db.ot = db.order_table[db.current_buffer];
 	db.polyptr = (char*)db.poly_buffer[db.current_buffer];
@@ -149,7 +149,7 @@ void GPU_BeginScene()//5F0F0(<), 5FDD0(<)
 	Emulator_BeginScene();
 }
 
-void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
+void draw_rotate_sprite(long a0, long a1, long a2) //5F134, 5FE14 (F)
 {
 	long t0;
 	short* r_cossinptr;
@@ -164,9 +164,9 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 	t6 = ((-a2 / 2) * r_cossinptr[0]) / 4096;
 	t5 = ((-a2 / 2) * r_cossinptr[1]) / 4096;
 
-	*(long*) &db.polyptr[4] = 0x2C808080;
-	*(long*) &db.polyptr[12] = 0;
-	*(long*) &db.polyptr[20] = 0x1303F00;
+	*(long*)&db.polyptr[4] = 0x2C808080;
+	*(long*)&db.polyptr[12] = 0;
+	*(long*)&db.polyptr[20] = 0x1303F00;
 
 	t0 = t6 - t5;
 	a2 = -t6;
@@ -174,41 +174,41 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
 	a2 += t5;
 	t1 = t6 + t5;
 
-	*(short*) &db.polyptr[8] = t0 + (t0 / 2) + a0;
-	*(short*) &db.polyptr[10] = t5 + t6 + a1;
+	*(short*)&db.polyptr[8] = t0 + (t0 / 2) + a0;
+	*(short*)&db.polyptr[10] = t5 + t6 + a1;
 
-	*(short*) &db.polyptr[16] = t4 + (t4 / 2) + a0;
-	*(short*) &db.polyptr[18] = -t5 + t6 + a1;
+	*(short*)&db.polyptr[16] = t4 + (t4 / 2) + a0;
+	*(short*)&db.polyptr[18] = -t5 + t6 + a1;
 
 
-	*(short*) &db.polyptr[24] = t1 + (t1 / 2) + a0;
-	*(short*) &db.polyptr[26] = (t5 - t6) + a1;
+	*(short*)&db.polyptr[24] = t1 + (t1 / 2) + a0;
+	*(short*)&db.polyptr[26] = (t5 - t6) + a1;
 
-	*(short*) &db.polyptr[28] = 0x3F;//width/height of loading cd?
-	*(short*) &db.polyptr[36] = 0x3F3F;
+	*(short*)&db.polyptr[28] = 0x3F; //width/height of loading cd?
+	*(short*)&db.polyptr[36] = 0x3F3F;
 
-	*(short*) &db.polyptr[32] = a2 + (a2 / 2) + a0;
-	*(short*) &db.polyptr[34] = a1 + (-t5 - t6);
+	*(short*)&db.polyptr[32] = a2 + (a2 / 2) + a0;
+	*(short*)&db.polyptr[34] = a1 + (-t5 - t6);
 
-	*(long*) &db.polyptr[0] = db.ot[0] | 0x09000000;
+	*(long*)&db.polyptr[0] = db.ot[0] | 0x09000000;
 	db.ot[0] = (unsigned long)&db.polyptr[0];
-	
-	db.polyptr += 0x28;//sizeof(POLY_F3); * 2?
 
-	*(long*) &db.polyptr[4] = 0x2C808080;
-	*(long*) &db.polyptr[8] = 0x780100;
-	*(long*) &db.polyptr[12] = 0x6800;
-	*(long*) &db.polyptr[16] = 0x7801FF;
+	db.polyptr += 0x28; //sizeof(POLY_F3); * 2?
+
+	*(long*)&db.polyptr[4] = 0x2C808080;
+	*(long*)&db.polyptr[8] = 0x780100;
+	*(long*)&db.polyptr[12] = 0x6800;
+	*(long*)&db.polyptr[16] = 0x7801FF;
 
 
-	*(long*) &db.polyptr[20] = 0x13468FF;
-	*(long*) &db.polyptr[24] = 0xEF0100;
-	*(short*) &db.polyptr[28] = 0xDF00;
-	*(long*) &db.polyptr[32] = 0xEF01FF;
+	*(long*)&db.polyptr[20] = 0x13468FF;
+	*(long*)&db.polyptr[24] = 0xEF0100;
+	*(short*)&db.polyptr[28] = 0xDF00;
+	*(long*)&db.polyptr[32] = 0xEF01FF;
 
-	*(short*) &db.polyptr[36] = 0xDFFF;
+	*(short*)&db.polyptr[36] = 0xDFFF;
 
-	*(long*) &db.polyptr[0] = db.ot[0] | 0x9000000;
+	*(long*)&db.polyptr[0] = db.ot[0] | 0x9000000;
 	db.ot[0] = (unsigned long)db.polyptr;
 	//sizeof(POLY_G3);
 	db.polyptr += 0x28;
@@ -224,7 +224,7 @@ void draw_rotate_sprite(long a0, long a1, long a2)//5F134, 5FE14 (F)
  *(W)1024px-->
  * 
  */
-void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<) (F) (D) (ND)
+void GPU_ClearVRAM() //5F2D0(<), 5FFB0(<) (F) (D) (ND)
 {
 	RECT16 r;
 
@@ -250,20 +250,20 @@ void GPU_ClearVRAM()//5F2D0(<), 5FFB0(<) (F) (D) (ND)
 	return;
 }
 
-void clear_a_rect(RECT16* r)//5F334(<), 60014(<) (F) (D) (ND)
+void clear_a_rect(RECT16* r) //5F334(<), 60014(<) (F) (D) (ND)
 {
 	ClearImage(r, 0, 48, 0);
 	return;
 }
 
-void GPU_GetScreenPosition(short* x, short* y)//5F34C, ? (*) (F) (D) (ND)
+void GPU_GetScreenPosition(short* x, short* y) //5F34C, ? (*) (F) (D) (ND)
 {
 	*x = db.disp[0].screen.x;
 	*y = db.disp[0].screen.y;
 	return;
 }
 
-void GPU_SetScreenPosition(short x, short y)//5F360(<), 60040(<)
+void GPU_SetScreenPosition(short x, short y) //5F360(<), 60040(<)
 {
 	db.disp[0].screen.x = x;
 	db.disp[0].screen.y = y;
@@ -273,7 +273,7 @@ void GPU_SetScreenPosition(short x, short y)//5F360(<), 60040(<)
 	return;
 }
 
-void GPU_SyncBothScreens()//5F374(<), 60054(<)
+void GPU_SyncBothScreens() //5F374(<), 60054(<)
 {
 	DrawSync(0);
 	db.current_buffer ^= 1;
@@ -293,7 +293,7 @@ void GPU_SyncBothScreens()//5F374(<), 60054(<)
 }
 
 ///@Gh0stblade - Not sure why this is so unoptimal, we can basically &disp[db.current_buffer]... double check code.
-void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F) (D) (ND)
+void GPU_FlipToBuffer(int buffer_index) //5F3C8(<), 600A8(<) (F) (D) (ND)
 {
 	DrawSync(0);
 	VSync(0);
@@ -321,9 +321,74 @@ void GPU_FlipToBuffer(int buffer_index)//5F3C8(<), 600A8(<) (F) (D) (ND)
 	return;
 }
 
-void S_AnimateTextures(long nFrames)
+void frig_with_monitor_screen(int a0)
 {
 	UNIMPLEMENTED();
+}
+
+void S_AnimateTextures(long nFrames)
+{
+	AnimComp += nFrames;
+
+	while (AnimComp > 5)
+	{
+		uint16_t* ptr = AnimTextureRanges;
+
+		for (uint16_t i = *(ptr++); i > 0; i--, ptr++)
+		{
+			MMTEXTURE tmp = RoomTextInfo[*(ptr + 1)];
+
+			for (uint16_t j = *ptr++; j > 0; j--, ptr++)
+			{
+				RoomTextInfo[*ptr] = RoomTextInfo[*(ptr + 1)];
+			}
+
+			RoomTextInfo[*ptr] = tmp;
+		}
+
+		AnimComp -= 5;
+	}
+
+	if (gfUVRotate) // 19d8
+	{
+		uint16_t* t3 = AnimTextureRanges;
+		AnimatingTexturesVOffset = (AnimatingTexturesVOffset - gfUVRotate * (nFrames / 2)) & 0x1f;
+		auto t8 = RoomTextInfo;
+		if (nAnimUVRanges > 0)
+		{
+			short (*t2)[8][3] = AnimatingTexturesV;
+
+			for (int i = 0; i < nAnimUVRanges; i++, t2++)
+			{
+				unsigned short num = *t3++;
+				if (num > 0)
+				{
+					short* t1 = t2[i][num];
+
+					for (int j = 0; j <= num; j++, t1-=3, t3++)
+					{
+						int t0 = 32;
+						int a2 = AnimatingTexturesVOffset;
+						auto a0tm = &t8[*t3];
+						for (int a3 = 0; a3 < 3; a3++, a2 >>= 1, t0 >>= 1)
+						{
+							auto v0__ = (uint8_t)(t1[a3] >> 8);
+
+							a0tm->t[a3].v0 = v0__ + a2;
+
+							a0tm->t[a3].v1 = v0__ + a2;
+
+							a0tm->t[a3].v2 = v0__ + a2 + t0;
+
+							a0tm->t[a3].v3 = v0__ + a2 + t0;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	frig_with_monitor_screen(0);
 }
 
 void PrintGauge(int x, int y, int length)
@@ -331,24 +396,24 @@ void PrintGauge(int x, int y, int length)
 	UNIMPLEMENTED();
 }
 
-long GetRandomControl()//5E9F0, 926F8 (F)
+long GetRandomControl() //5E9F0, 926F8 (F)
 {
 	rand_1 = (rand_1 * 0x41C64E6D) + 0x3039;
 	return (rand_1 >> 16) & 0x7FFF;
 }
 
-void SeedRandomControl(long seed)//(F)
+void SeedRandomControl(long seed) //(F)
 {
 	rand_1 = seed;
 }
 
-long GetRandomDraw()//5EA18, 5F6F8 (F)
+long GetRandomDraw() //5EA18, 5F6F8 (F)
 {
 	rand_2 = (rand_2 * 0x41C64E6D) + 0x3039;
 	return (rand_2 >> 16) * 0x7FFF;
 }
 
-void SeedRandomDraw(long seed)//(F)
+void SeedRandomDraw(long seed) //(F)
 {
 	rand_2 = seed;
 }
