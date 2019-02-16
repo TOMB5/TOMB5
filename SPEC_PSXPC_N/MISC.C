@@ -353,7 +353,6 @@ void S_AnimateTextures(long nFrames)
 	{
 		uint16_t* t3 = AnimTextureRanges;
 		AnimatingTexturesVOffset = (AnimatingTexturesVOffset - gfUVRotate * (nFrames / 2)) & 0x1f;
-		auto t8 = RoomTextInfo;
 		if (nAnimUVRanges > 0)
 		{
 			short (*t2)[8][3] = AnimatingTexturesV;
@@ -369,7 +368,7 @@ void S_AnimateTextures(long nFrames)
 					{
 						int t0 = 32;
 						int a2 = AnimatingTexturesVOffset;
-						auto a0tm = &t8[*t3];
+						MMTEXTURE* a0tm = &RoomTextInfo[*t3];
 						for (int a3 = 0; a3 < 3; a3++, a2 >>= 1, t0 >>= 1)
 						{
 							auto v0__ = (uint8_t)(t1[a3] >> 8);
