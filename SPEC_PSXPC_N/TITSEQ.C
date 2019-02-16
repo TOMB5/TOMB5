@@ -13,7 +13,6 @@
 
 #include <stdio.h>//deleteme
 
-#define MENU_HACK (0)
 #define BLOCK_SPLINE_CAM (1)
 
 #if PSX_VERSION && RELOC
@@ -277,11 +276,7 @@ int TitleOptions(int Name)
 		if ((RawEdge & 0x4000))
 		{
 			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
-#if MENU_HACK
-			ret = 0;
-#else
 			ret = 3;
-#endif
 			Chris_Menu = MENU_MAIN_MENU;
 			gfLevelComplete = byte_46 + 1;
 			byte_46 = 0;
@@ -521,9 +516,7 @@ int TitleOptions(int Name)
 			}
 			else
 			{
-
-
-				if (Gameflow->PlayAnyLevel || 1)
+				if (Gameflow->PlayAnyLevel)
 				{
 					Chris_Menu = MENU_LEVEL_SELECT_MENU;
 				}
