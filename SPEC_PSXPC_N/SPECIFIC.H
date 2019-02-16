@@ -1,6 +1,7 @@
 #ifndef SPECIFIC_H
 #define SPECIFIC_H
 
+#include <stdio.h>
 #include "SPECTYPES.H"
 
 
@@ -11,10 +12,12 @@
 #define XSTR(x) STR(x)
 #define STR(x) #x
 #ifdef _MSC_VER
-#define UNIMPLEMENTED() S_Warn("[" __FUNCTION__ "] - Unimplemented!\n");
+#define FUNCNAME __FUNCTION__
 #else
-#define UNIMPLEMENTED() S_Warn("[" __func__ "] - Unimplemented!\n");
+#define FUNCNAME __func__
 #endif
+
+#define UNIMPLEMENTED() S_Warn("[%s] - Unimplemented!\n", FUNCNAME);
 #endif
 
 extern unsigned short AnimComp;
@@ -36,6 +39,7 @@ extern int DoPauseMenu();
 extern void gInit();
 extern short S_Death();
 extern void DisplayStatsUCunt();
-extern void S_Warn(const char* warning_message);
+//extern void S_Warn(const char* warning_message);
+#define S_Warn printf
 
 #endif
