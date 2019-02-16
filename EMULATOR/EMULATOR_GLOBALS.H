@@ -11,5 +11,6 @@ extern int screenWidth;
 extern int screenHeight;
 extern int windowWidth;
 extern int windowHeight;
+extern uint32_t DMAControlRegister;
 
 #endif
