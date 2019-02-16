@@ -5,9 +5,11 @@
 #include "LOADSAVE.H"
 #include "MEMCARD.H"
 #include "PSXINPUT.H"
+#include "SAVEGAME.H"
 #include "SOUND.H"
 #include "SPOTCAM.H"
 #include "TEXT_S.H"
+#include "MISC.H"
 
 #include <stdio.h>//deleteme
 
@@ -24,12 +26,15 @@ void* func_titseq[] __attribute__((section(".header"))) =
 unsigned char byte_46 = 0;
 unsigned char byte_47 = 0;
 
+unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
+unsigned int word_38 = 1;
+
 enum
 {
-	MENU_DEFAULT,
-	MENU_UNKOWN,
-	MENU_UNKOWN2,
-	MENU_LOAD_GAME
+	MENU_MAIN_MENU,
+	MENU_LOAD_MENU,
+	MENU_LEVEL_SELECT_MENU,
+	MENU_SPECIAL_FEATURES_MENU
 };
 
 void Test()
@@ -44,14 +49,19 @@ int TitleOptions(int Name)
 #endif
 	int ret; //0x68(sp)
 	int s1 = 0;
+	int s2 = 0;
+	int s3 = 0;
 	int y = 0;//s3 = 0 = runtimecheckfailure
+	int i = 0;//s4
+	unsigned short* s4;
+	int s5 = 0;
+	int s6;
+
 	//v0 = 0xA0000
 	//v1 = PadConnected
 	ret = 0;
 	//0x98(sp) = Name
-#if MENU_HACK
-	Chris_Menu = 2;//Tempdeleteme
-#endif
+
 #if BLOCK_SPLINE_CAM
 	current_spline_position = 0;
 #endif
@@ -59,7 +69,7 @@ int TitleOptions(int Name)
 	if (PadConnected == 0)
 	{
 		byte_46 = 0;
-		Chris_Menu = 0;
+		Chris_Menu = MENU_MAIN_MENU;
 		dels_cutseq_selector_flag = 0;
 	}
 	//loc_49C
@@ -74,7 +84,7 @@ int TitleOptions(int Name)
 	if (dels_cutseq_selector_flag != 0)
 	{
 		//v1 = 0x00000
-		Chris_Menu = 0;
+		Chris_Menu = MENU_MAIN_MENU;
 		byte_46 = 0;
 		///return sub_1054();
 	}//loc_4DC
@@ -82,7 +92,7 @@ int TitleOptions(int Name)
 	//a0 = Chris_Menu
 	//v1 = 1
 	//s7 = v0
-	if (Chris_Menu != 1 && Chris_Menu != 3)
+	if (Chris_Menu != MENU_LOAD_MENU && Chris_Menu != MENU_SPECIAL_FEATURES_MENU)
 	{
 		if (bDoCredits == 0)
 		{
@@ -127,99 +137,80 @@ int TitleOptions(int Name)
 	//loc_5C0
 	//v1 = Chris_Menu
 	//v0 = Chris_Menu < 2 ? 1 : 0 
-	if (Chris_Menu == 1)
+	if (Chris_Menu == MENU_LOAD_MENU)
 	{
 		//loc_91C
 		s1 = LoadGame();
-		if (!s1)
-		{
-			return 0;
-		}
 
-		Chris_Menu = 0;
-		byte_46 = 0;
-
-		if (s1 <= 0)
+		if (s1 != 0)
 		{
-			ret = 2;
-			return ret;
-		}
+			Chris_Menu = MENU_MAIN_MENU;
+			byte_46 = 0;
+			if (s1 > 0)
+			{
+				ret = 2;
+			}
+		}//loc_EB4
+
+		return ret;
 	}
-	else if (Chris_Menu > 1)
+	else if (Chris_Menu == MENU_LEVEL_SELECT_MENU)
 	{
-		//loc_5E8
-		if (Chris_Menu == 2)
+		//loc_948
+		//v0 = 0
+		//a0 = byte_46
+		s1 = byte_46 - 6;
+		if (s1 < 0)
 		{
-			//loc_948
+			s1 = 0;
+		}//loc_964
+
+		if ((RawEdge & 0x10) && byte_46 != 0)
+		{
+			SoundEffect(SFX_MENU_SELECT, NULL, 2);
+			--byte_46;
+		}
+		else if ((RawEdge & 0x40) && byte_46 < Gameflow->nLevels - 2)
+		{
+			SoundEffect(SFX_MENU_SELECT, NULL, 2);
+			++byte_46;
+		}
+		else if ((RawEdge & 0x200))
+		{
+			byte_46 = Gameflow->nLevels - 2;
+		}
+		else if ((RawEdge & 0x100))
+		{
+			byte_46 = 0;
+		}
+		else if ((RawEdge & 0x800))
+		{
+			byte_46 = ((Gameflow->nLevels - 2) + ((Gameflow->nLevels - 2) >> 31)) >> 1;
+		}
+		else if ((RawEdge & 0x400))
+		{
+			byte_47 ^= 1;
+
+		}
+		//loc_A98
+		//v1 = Gameflow
+		//Gameflow->nLevels -1
+		//v0 = s1 < v0 ? 1 : 0
+
+		i = 0;
+		if (s1 < Gameflow->nLevels - 1)
+		{
+			//s5 = 0x8000
+			//s6 = &gfLevelNames
+			y = 0x70;
+			//s2 = 0x70
 			//v0 = 0
-			//a0 = byte_46
-			s1 = byte_46 - 6;
-			if (s1 < 0)
-			{
-				s1 = 0;
-			}//loc_964
 
-			if ((RawEdge & 0x10) && byte_46 != 0)
+			//v1 = byte_47
+			//t0 = 5
+			//loc_AD8
+			do
 			{
-				SoundEffect(SFX_MENU_SELECT, NULL, 2);
-				--byte_46;
-			}
-			else
-			{
-				//loc_9A4
-				if ((RawEdge & 0x40) && byte_46 < Gameflow->nLevels - 2)
-				{
-					SoundEffect(SFX_MENU_SELECT, NULL, 2);
-					++byte_46;
-				}
-				else
-				{
-					//loc_9FC
-					if ((RawEdge & 0x200))
-					{
-						byte_46 = Gameflow->nLevels - 2;
-					}
-					else
-					{
-						//loc_A30
-						if ((RawEdge & 0x100))
-						{
-							byte_46 = 0;
-						}
-						else
-						{
-							if ((RawEdge & 0x800))
-							{
-								byte_46 = ((Gameflow->nLevels - 2) + ((Gameflow->nLevels - 2) >> 31)) >> 1;
-							}
-							else
-							{
-								//loc_A7C
-								if ((RawEdge & 0x400))
-								{
-									byte_47 ^= 1;
-								}
-							}
-						}
-					}
-				}
-			}
-			//loc_A98
-			//v1 = Gameflow
-			//Gameflow->nLevels -1
-			//v0 = s1 < v0 ? 1 : 0
-
-			//s4 = 0
-			if (s1 < Gameflow->nLevels - 1)
-			{
-				//s5 = 0x8000
-				//s6 = &gfLevelNames
-				//s3 = 0x70
-				//s2 = 0x70
-				//v0 = 0
-
-				//v1 = byte_47
-				//t0 = 5
 				if (byte_47)
 				{
 					//a3 = 0
@@ -243,11 +234,8 @@ int TitleOptions(int Name)
 					//v1 = 0
 					//v0 = byte_46
 					//a1 = s3 & 0xFFFF
-					if (byte_46 == s1)
-					{
-						//a2 = 1
-					}//loc_B64
 
+					//s5 = 0x8000
 					//a0 = 0x100
 					//s0 = s1 + 1
 					//v1 = &gfLevelNames[s0]
@@ -256,63 +244,146 @@ int TitleOptions(int Name)
 					//t0 = gfStringOffset
 					//a3 = gfStringWad
 					//a3 = &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]];
+
+
+
 				///@TODO tomorrow
 				}
 				//loc_B94
-			}
-			//loc_BD4
 
-			//v1 = RawEdge
-			if ((RawEdge & 0x4000))
-			{
-				SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
-#if MENU_HACK
-				ret = 0;
-#else
-				ret = 3;
-#endif
-				Chris_Menu = 0;
-				gfLevelComplete = byte_46 + 1;
-				byte_46 = 0;
-				return ret;
-			}
-			else if ((RawEdge & 0x1000))
-			{
-				//loc_C20
-				SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
-				Chris_Menu = 0;
-				return ret;
-			}
+				if (byte_46 == s1)
+				{
+					PrintString(256, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]], 0x8000);
+				}
+				else
+				{
+					PrintString(256, y & 0xFFFF, 5, &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]], 0x8000);
+				}
+				y += 18;
+				//v0 = s0
+				s1++;
+				s2 += 18;
+				//v0 = 
+				//s4++;
+				if (s1 > Gameflow->nLevels - 1)
+				{
+					break;
+				}
+			} while (++i < 7);
 		}
-		else if (Chris_Menu == 3)
+		//loc_BD4
+
+		//v1 = RawEdge
+		if ((RawEdge & 0x4000))
 		{
-			//loc_C3C
-			//a0 = 256
-			//a1 = 32
-			//a2 = 6
-			//s1 = 0
-			//s2 = 0x404040
-			//s5 = 0
-			//v0 = gfStringOffset
-			//a3 = gfStringWad
-			PrintString(256, 32, 6, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-			//v0 = 0xB0000
-			//fp = &savegame.CampaignSecrets
-			//s4 = &unk_3C
-
-			/* Not actually used since s1 is always zero
-
-			if(s1 != 0)
-			{
-
-			}
-			
-			*/
-
-			
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#if MENU_HACK
+			ret = 0;
+#else
+			ret = 3;
+#endif
+			Chris_Menu = MENU_MAIN_MENU;
+			gfLevelComplete = byte_46 + 1;
+			byte_46 = 0;
 		}
+		else if ((RawEdge & 0x1000))
+		{
+			//loc_C20
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+			Chris_Menu = MENU_MAIN_MENU;
+		}
+
+		return ret;
 	}
-	else if (Chris_Menu == 0)
+	else if (Chris_Menu == MENU_SPECIAL_FEATURES_MENU)
+	{
+		//loc_C3C
+		//a0 = 256
+		//a1 = 32
+		//a2 = 6
+		s6 = 0;
+		s1 = 0;
+		//s2 = 0x404040
+		//s5 = 0
+		//v0 = gfStringOffset
+		//a3 = gfStringWad
+		PrintString(256, 32, 6, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		//v0 = 0xB0000
+		//fp = &savegame.CampaignSecrets
+		s4 = &unk_3C[0];
+
+		//v1 = &savegame.CampaignSecrets[s1];
+		//loc_C8C
+		for (s1 = 0; s1 < 5; s1++, s4++)
+		{
+			if (s1 != 0)
+			{
+				if (savegame.CampaignSecrets[s1 - 1] < 9)
+				{
+					//loc_DDC
+					continue;
+				}
+			}
+
+			//loc_CA8
+			//v0 = 0
+			//v1 = dword_38
+			//a2 = 2
+
+			y = ((s5 - (word_38 * 12) + 0x70)) & 0xFF;
+
+			//nop
+			//addiu   $a1, $s3, 4
+			if (byte_46 == s6)
+			{
+				PrintString(256, y + 4, 1, &gfStringWad[gfStringOffset[s4[0]]], 0x8000);
+			}
+			else
+			{
+				PrintString(256, y + 4, 2, &gfStringWad[gfStringOffset[s4[0]]], 0x8000);
+			}
+
+			//loc_CE4
+			s5 += 24;
+
+			DrawF4(64, y - 11, 384, 22, 0, 0x2A800000);
+			DrawTPage(0, 0);
+			DrawLineH(66, y - 10, 380, 0, s2, 0);
+			DrawLineH(66, y + 9, 380, 0, s2, 0);
+			DrawLineV(66, y - 10, 20, 0, s2, 0);
+			DrawLineV(445, y - 10, 20, 0, s2, 0);
+
+			DrawTPage(0, 1);
+
+			s6++;
+
+			//loc_DDC
+		}
+
+		if ((RawEdge & 0x10) && byte_46 != 0)
+		{
+			--byte_46;
+			//j loc_EB4
+		}
+		else if ((RawEdge & 0x40) && byte_46 < word_38 - 1)
+		{
+			++byte_46;
+			//j loc_EB4
+		}
+		else if ((RawEdge & 0x1000))
+		{
+			Chris_Menu = MENU_MAIN_MENU;
+			byte_46 = CanLoad + 1;
+			//j loc_EB4
+		}
+		else if ((RawEdge & 0x4000))
+		{
+
+		}
+
+		return ret;
+	}
+	else if (Chris_Menu == MENU_MAIN_MENU)
 	{
 		//loc_600
 		//v1 = Gameflow
@@ -387,7 +458,7 @@ int TitleOptions(int Name)
 	if (byte_46 == 2)
 	{
 		//v0 = 1
-		PrintString(0, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
 	}
 	else if (byte_46 != 1)
 	{
@@ -425,13 +496,13 @@ int TitleOptions(int Name)
 		{
 			if (CanLoad != 0)
 			{
-				Chris_Menu = 1;
+				Chris_Menu = MENU_LOAD_MENU;
 			}
 			else
 			{
 				//loc_850
 				//sub_3A8();
-				Chris_Menu = 3;
+				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				byte_46 = 0;
 			}
 			
@@ -445,20 +516,22 @@ int TitleOptions(int Name)
 			{
 				//loc_8EC
 				//sub_3A8();
-				Chris_Menu = 3;
+				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				byte_46 = 0;
 			}
 			else
 			{
-				if (Gameflow->PlayAnyLevel)
+
+
+				if (Gameflow->PlayAnyLevel || 1)
 				{
-					Chris_Menu = 2;
+					Chris_Menu = MENU_LEVEL_SELECT_MENU;
 				}
 				else
 				{
 					//loc_89C
 					ret = 3;
-					Chris_Menu = 0;
+					Chris_Menu = MENU_MAIN_MENU;
 					
 					if ((RawPad & 0x400))
 					{
@@ -499,7 +572,7 @@ int TitleOptions(int Name)
 		return ret;
 	}
 
-	Chris_Menu = 0;
+	Chris_Menu = MENU_MAIN_MENU;
 	byte_46 = 0;
 
 	if (s1 <= 0)
