@@ -83,22 +83,88 @@ void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size)
 
 void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h, int unk, int unk2) //5EDF8
 {
-	UNIMPLEMENTED();
+	x &= 0xFFFF;
+	y &= 0xFFFF;
+	w &= 0xFFFF;
+	h &= 0xFFFF;
+
+	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
+	{
+		((int*)db.polyptr)[1] = unk2;
+		((short*)db.polyptr)[4] = x;
+		((short*)db.polyptr)[5] = y;
+		((short*)db.polyptr)[6] = x + w;
+		((short*)db.polyptr)[7] = y;
+		((short*)db.polyptr)[8] = x;
+		((short*)db.polyptr)[9] = y + h;
+		((short*)db.polyptr)[10] = x + w;
+		((short*)db.polyptr)[11] = y + h;
+
+		((int*)db.polyptr)[0] = db.ot[unk] | 0x5000000;
+		db.ot[unk] = (unsigned long)db.polyptr;
+		db.polyptr += 0x18;
+	}
+	//locret_5EE70
 }
 
 void DrawTPage(unsigned char a0, unsigned char a1) //5EE78(<), 5FB58(<)
 {
-	UNIMPLEMENTED();
+	a0 &= 0xFF;
+	a1 &= 0xFF;
+
+	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
+	{
+		((int*)db.polyptr)[0] = db.ot[a0] | 0x1000000;
+		db.ot[a0] = (unsigned long)db.polyptr;
+		((int*)db.polyptr)[1] = (a1 << 5) | 0xE1000000;
+		db.polyptr += sizeof(DR_TPAGE);
+	}
 }
 
-void DrawLineH(long a0, long a1, long a2, long a3, long a4, long a5) //5EECC(<)
+void DrawLineH(unsigned short a0, unsigned short a1, unsigned short a2, unsigned char a3, unsigned long a4, unsigned long a5)//5EECC(<)
 {
-	UNIMPLEMENTED();
+	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
+	{
+		((int*)db.polyptr)[1] = (a4 & 0xFFFFFF) | 0x52000000;
+		((short*)db.polyptr)[4] = a0;
+		((short*)db.polyptr)[5] = a1;
+		((int*)db.polyptr)[3] = (a5 & 0xFFFFFF) | 0x52000000;
+		((short*)db.polyptr)[8] = a0 + (a2 >> 1);
+		((short*)db.polyptr)[9] = a1;
+		((int*)db.polyptr)[6] = (a5 & 0xFFFFFF) | 0x52000000;
+		((short*)db.polyptr)[14] = a0 + (a2 >> 1) + 1;
+		((short*)db.polyptr)[15] = a1;
+		((int*)db.polyptr)[8] = (a4 & 0xFFFFFF) | 0x52000000;
+		((short*)db.polyptr)[18] = (a0 + a2) - 1;
+		((short*)db.polyptr)[19] = a1;
+		((int*)db.polyptr)[5] = 0;
+		((int*)db.polyptr)[0] = db.ot[a3] | 0x9000000;
+		db.ot[a3] = (unsigned long)db.polyptr;
+		db.polyptr += sizeof(LINE_G4);
+	}//locret_5EF7C
 }
 
-void DrawLineV(long a0, long a1, long a2, long a3, long a4, long a5) //5EF84(<),
+void DrawLineV(unsigned short a0, unsigned short a1, unsigned short a2, unsigned char a3, unsigned long a4, unsigned long a5)//5EF84(<),
 {
-	UNIMPLEMENTED();
+	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
+	{
+		((int*)db.polyptr)[1] = (a4 & 0xFFFFFF) | 0x52000000;
+		((short*)db.polyptr)[4] = a0;
+		((short*)db.polyptr)[5] = a1 + 1;
+		((int*)db.polyptr)[3] = (a5 & 0xFFFFFF) | 0x52000000;
+		((short*)db.polyptr)[8] = a0;
+		((short*)db.polyptr)[9] = a1 + (a2 >> 1);
+		((int*)db.polyptr)[6] = (a5 & 0xFFFFFF) | 0x52000000;
+		((short*)db.polyptr)[14] = a0;
+		((short*)db.polyptr)[15] = a1 + (a2 >> 1) + 2;
+		((int*)db.polyptr)[8] = (a4 & 0xFFFFFF) | 0x52000000;
+		((short*)db.polyptr)[18] = a0;
+		((short*)db.polyptr)[19] = a1 + a2 - 2;
+		((int*)db.polyptr)[5] = 0;
+		((int*)db.polyptr)[0] = db.ot[a3] | 0x9000000;
+		db.ot[a3] = (unsigned long)db.polyptr;
+		db.polyptr += sizeof(LINE_G4);
+	}//locret_5F038
 }
 
 void LOAD_VSyncHandler() //5F074(<), 5FD54(<) (F)

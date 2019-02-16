@@ -16,6 +16,7 @@ SDL_Window* g_window = NULL;
 SDL_Renderer* g_renderer;
 
 GLuint vramTexture = 0;
+GLuint nullWhiteTexture = 0;
 int screenWidth = 0;
 int screenHeight = 0;
 int windowWidth = 0;
@@ -63,6 +64,32 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 
 	SDL_memset(&vram, 0, sizeof(1024 * 512 * 2));
 	SDL_GL_SetSwapInterval(1);
+
+	Emulator_GenerateAndBindNullWhite();
+}
+
+void Emulator_GenerateAndBindNullWhite()
+{
+	unsigned int pixelData;
+	pixelData = -1;
+
+	glGenTextures(1, &nullWhiteTexture);
+	glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData);
+}
+
+void Emulator_CheckTextureIntersection(RECT16* rect)
+{
+	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
+	{
+		if (!(cachedTextures[i].tpageX > rect->x + rect->w || cachedTextures[i].tpageX + 256 < rect->x || cachedTextures[i].tpageY > rect->y + rect->h || cachedTextures[i].tpageY + 256 < rect->y))
+		{
+			cachedTextures[i].lastAccess = -1;
+			cachedTextures[i].tpageX = -1;
+			cachedTextures[i].tpageY = -1;
+			glDeleteTextures(1, &cachedTextures[i].textureID);
+		}
+	}
 }
 
 void Emulator_SaveVRAM(int width, int height)
@@ -245,6 +272,7 @@ void Emulator_EndScene()
 void Emulator_ShutDown()
 {
 	glDeleteTextures(1, &vramTexture);
+	glDeleteTextures(1, &nullWhiteTexture);
 	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
 
 	for (int i = 0; i < lastTextureCacheIndex; i++)
