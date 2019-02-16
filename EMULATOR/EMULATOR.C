@@ -10,6 +10,8 @@
 
 #define MAX_NUM_CACHED_TEXTURES (256)
 
+#define V_SCALE 2
+
 SDL_Window* g_window = NULL;
 SDL_Renderer* g_renderer;
 
@@ -17,6 +19,8 @@ GLuint vramTexture = 0;
 GLuint nullWhiteTexture = 0;
 int screenWidth = 0;
 int screenHeight = 0;
+int windowWidth = 0;
+int windowHeight = 0;
 int lastTextureCacheIndex = 0;
 
 struct CachedTexture
@@ -33,11 +37,14 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 {
 	screenWidth = screen_width;
 	screenHeight = screen_height;
+	windowWidth = screen_width * V_SCALE;
+	windowHeight = screen_height * V_SCALE;
 
-	if (SDL_Init(SDL_INIT_VIDEO) == 0)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0)
 	{
-		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, SDL_WINDOW_OPENGL);
+		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
 		g_renderer = SDL_CreateRenderer(g_window, 0, SDL_RENDERER_ACCELERATED);
+		SDL_RenderSetLogicalSize(g_renderer, screenWidth, screenHeight);
 		if (g_renderer == NULL)
 		{
 			printf("Error initialising renderer\n");
@@ -145,6 +152,7 @@ void Emulator_SwapWindow()
 void Emulator_EndScene()
 {
 
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glActiveTexture(GL_TEXTURE0);
@@ -229,6 +237,9 @@ void Emulator_EndScene()
 #endif
 
 	glPopMatrix();
+
+	
+
 #if _DEBUG
 	Emulator_SaveVRAM2(1024, 512);
 #endif

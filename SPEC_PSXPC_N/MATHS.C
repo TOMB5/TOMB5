@@ -4,6 +4,7 @@
 #include "SPECIFIC.H"
 
 #include <INLINE_C.H>
+#include "3D_GEN.H"
 
 void mQuickW2VMatrix()
 {
@@ -164,7 +165,17 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 
 void ScaleCurrentMatrix(long a0, long sx, long sy, long sz)
 {
-	S_Warn("[ScaleCurrentMatrix] - Unimplemented!\n");
+	Matrix->m00 *= sx / 16384.0f;
+	Matrix->m10 *= sx / 16384.0f;
+	Matrix->m20 *= sx / 16384.0f;
+
+	Matrix->m01 *= sy / 16384.0f;
+	Matrix->m11 *= sy / 16384.0f;
+	Matrix->m21 *= sy / 16384.0f;
+
+	Matrix->m02 *= sz / 16384.0f;
+	Matrix->m12 *= sz / 16384.0f;
+	Matrix->m22 *= sz / 16384.0f;
 }
 
 void mPushMatrix()//764D0(<), 78514(<) (F) (START)
@@ -177,9 +188,16 @@ void mPopMatrix()//76520(<), 78564(<) (F)
 	mLoadMatrix(--Matrix);
 }
 
+void mUnitMatrix()
+{
+
+}
+
 void mPushUnitMatrix()//76534(<), 78578(<) (! Incorrect, redo, ida asm is bad)
 {
-	setrot(++Matrix, 4096, 0, 4096, 0, 4096);
+	mPushMatrix();
+	//setrot(++Matrix, 4096, 0, 4096, 0, 4096);
+	mUnitMatrix();
 }
 
 void mTranslate()//76558(<) (!)
@@ -513,23 +531,95 @@ void mmPushMatrix(struct MATRIX3D* m)//81BBC(<) (F)
 
 void GetRoomBoundsAsm(short room_number)//
 {
-	S_Warn("[GetRoomBoundsAsm] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)
 {
-	S_Warn("[phd_GetVectorAngles] - Unimplemented!\n");
+	short	pitch;
+
+	angles[0] = phd_atan_asm(dz, dx);
+	while ((int16_t)dx != dx || (int16_t)dy != dy || (int16_t)dz != dz)
+	{
+		dx >>= 2;
+		dy >>= 2;
+		dz >>= 2;
+	}
+	pitch = phd_atan_asm(phd_sqrt_asm(dx * dx + dz * dz), dy);
+	if ((dy > 0 && pitch > 0) || (dy < 0 && pitch < 0))
+		pitch = -pitch;
+	angles[1] = pitch;
 }
 
-void phd_LookAt(long x, long y, long z, long tx, long ty, long tz, long croll)
+
+void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar, long roll)
 {
-	S_Warn("[phd_LookAt] - Unimplemented!\n");
+	short	angles[2];
+
+	CamPos.x = xsrc;
+	CamPos.y = ysrc;
+	CamPos.z = zsrc;
+
+	viewer.x_pos = xsrc;
+	viewer.y_pos = ysrc;
+	viewer.z_pos = zsrc;
+
+	viewer.z_rot = roll;
+
+	phd_GetVectorAngles(xtar - xsrc, ytar - ysrc, ztar - zsrc, angles);
+	
+	viewer.x_rot = angles[1];
+	viewer.y_rot = angles[0];
 }
 
-long phd_atan_asm(long x, long y)
+long phd_atan_asm(long x, long y)// (F)
 {
-	S_Warn("[phd_atan_asm] - Unimplemented!\n");
-	return 0;
+	if (x || y)
+	{
+		int octant = 0;
+
+		if (x < 0)
+		{
+			octant = 4;
+			x = -x;
+		}
+		if (y < 0)
+		{
+			octant += 2;
+			y = -y;
+		}
+
+		if (y > x)
+		{
+			long temp = x;
+			x = y;
+			y = temp;
+
+			octant++;
+		}
+
+		while ((short)y != y)
+		{
+			y >>= 1;
+			x >>= 1;
+		}
+
+		y <<= 11;
+
+		if (x == 0)
+			x = 1;
+
+		long res = atanOctantTab[octant] + atanTab[y / x];
+
+		if (res < 0)
+			res = -res;
+
+		return res;
+	}
+	else
+	{
+		return 0; 
+	}
 }
 
 void mRotBoundingBoxNoPersp(short* bounds, short* tbounds)

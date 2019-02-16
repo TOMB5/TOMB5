@@ -732,10 +732,11 @@ void DisplayStatsUCunt()//61928(<), 625A8(<) (F)
 	Requester(&StatisticsReq);
 }
 
-void S_Warn(const char* warning_message)//*
+/*
+void S_Warn(const char* warning_message)
 {
 	printf(warning_message);
 #ifndef NDEBUG
 	//assert(0);
 #endif
-}
+}*/

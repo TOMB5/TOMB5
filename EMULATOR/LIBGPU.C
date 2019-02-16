@@ -261,6 +261,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 	if (p != NULL && *p != NULL)
 	{
+
+
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
@@ -319,7 +321,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					int y = (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200);
 
 
-#if _DEBUG
+#if DEBUG_MSG
 					printf("tpage: (%d,%d,%d,%d)\n", ((poly->tpage) >> 7) & 0x3, ((poly->tpage) >> 5) & 0x3, ((poly->tpage) << 6) & 0x7C0, (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200));
 					printf("clut: (%d,%d)\n", (poly->clut & 0x3F) << 4, (poly->clut >> 6));
 #endif
@@ -378,7 +380,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					int x = ((poly->tpage) << 6) & 0x7C0 % 1024;
 					int y = (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200);
 
-#if _DEBUG
+#if DEBUG_MSG
 					printf("tpage: (%d,%d,%d,%d)\n", ((poly->tpage) >> 7) & 0x003, ((poly->tpage) >> 5) & 0x003, ((poly->tpage) << 6) & 0x7c0, (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200));
 					printf("clut: (%d,%d)\n", (poly->clut & 0x3F) << 4, (poly->clut >> 6));
 #endif
@@ -464,8 +466,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		Emulator_DestroyLastVRAMTexture();
 		Emulator_DeleteFrameBufferTexture();
 
-		glViewport(0, 0, screenWidth, screenHeight);
+		glViewport(0, 0, windowWidth, windowHeight);
 		glPopMatrix();
+
+
 		Emulator_DestroyFrameBuffer(fbo);
 	}
 

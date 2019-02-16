@@ -10,5 +10,8 @@ extern SDL_Renderer* g_renderer;
 extern int lastTime;
 extern int screenWidth;
 extern int screenHeight;
+extern int windowWidth;
+extern int windowHeight;
+extern uint32_t DMAControlRegister;
 
 #endif

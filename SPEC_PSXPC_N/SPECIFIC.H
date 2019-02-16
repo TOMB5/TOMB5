@@ -1,12 +1,23 @@
 #ifndef SPECIFIC_H
 #define SPECIFIC_H
 
+#include <stdio.h>
 #include "SPECTYPES.H"
+
+
 
 #if PSXPC_VERSION
 #define UNIMPLEMENTED() __asm("nop");
 #else
-#define UNIMPLEMENTED() S_Warn("");
+#define XSTR(x) STR(x)
+#define STR(x) #x
+#ifdef _MSC_VER
+#define FUNCNAME __FUNCTION__
+#else
+#define FUNCNAME __func__
+#endif
+
+#define UNIMPLEMENTED() S_Warn("[%s] - Unimplemented!\n", FUNCNAME);
 #endif
 
 extern unsigned short AnimComp;
@@ -28,6 +39,7 @@ extern int DoPauseMenu();
 extern void gInit();
 extern short S_Death();
 extern void DisplayStatsUCunt();
-extern void S_Warn(const char* warning_message);
+//extern void S_Warn(const char* warning_message);
+#define S_Warn printf
 
 #endif
