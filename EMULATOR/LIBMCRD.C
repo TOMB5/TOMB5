@@ -173,7 +173,7 @@ long MemCardOpen(long chan, char* file, long flag)
 				break;
 			}
 
-			openFrameIndex += frame.attr & 0xF;
+			openFrameIndex += frame.attr & 0x7;
 		}
 	}
 
