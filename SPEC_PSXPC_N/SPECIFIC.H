@@ -10,8 +10,11 @@
 #else
 #define XSTR(x) STR(x)
 #define STR(x) #x
-
+#ifdef _MSC_VER
 #define UNIMPLEMENTED() S_Warn("[" __FUNCTION__ "] - Unimplemented!\n");
+#else
+#define UNIMPLEMENTED() S_Warn("[" __func__ "] - Unimplemented!\n");
+#endif
 #endif
 
 extern unsigned short AnimComp;
