@@ -371,7 +371,7 @@ void S_AnimateTextures(long nFrames)
 						MMTEXTURE* a0tm = &RoomTextInfo[*t3];
 						for (int a3 = 0; a3 < 3; a3++, a2 >>= 1, t0 >>= 1)
 						{
-							auto v0__ = (uint8_t)(t1[a3] >> 8);
+							uint8_t v0__ = (uint8_t)(t1[a3] >> 8);
 
 							a0tm->t[a3].v0 = v0__ + a2;
 
