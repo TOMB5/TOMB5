@@ -3,10 +3,15 @@
 
 #include "SPECTYPES.H"
 
+
+
 #if PSXPC_VERSION
 #define UNIMPLEMENTED() __asm("nop");
 #else
-#define UNIMPLEMENTED() S_Warn("");
+#define XSTR(x) STR(x)
+#define STR(x) #x
+
+#define UNIMPLEMENTED() S_Warn("[" __FUNCTION__ "] - Unimplemented!\n");
 #endif
 
 extern unsigned short AnimComp;

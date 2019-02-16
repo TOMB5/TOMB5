@@ -165,7 +165,17 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 
 void ScaleCurrentMatrix(long a0, long sx, long sy, long sz)
 {
-	S_Warn("[ScaleCurrentMatrix] - Unimplemented!\n");
+	Matrix->m00 *= sx / 16384.0f;
+	Matrix->m10 *= sx / 16384.0f;
+	Matrix->m20 *= sx / 16384.0f;
+
+	Matrix->m01 *= sy / 16384.0f;
+	Matrix->m11 *= sy / 16384.0f;
+	Matrix->m21 *= sy / 16384.0f;
+
+	Matrix->m02 *= sz / 16384.0f;
+	Matrix->m12 *= sz / 16384.0f;
+	Matrix->m22 *= sz / 16384.0f;
 }
 
 void mPushMatrix()//764D0(<), 78514(<) (F) (START)
@@ -178,9 +188,16 @@ void mPopMatrix()//76520(<), 78564(<) (F)
 	mLoadMatrix(--Matrix);
 }
 
+void mUnitMatrix()
+{
+
+}
+
 void mPushUnitMatrix()//76534(<), 78578(<) (! Incorrect, redo, ida asm is bad)
 {
-	setrot(++Matrix, 4096, 0, 4096, 0, 4096);
+	mPushMatrix();
+	//setrot(++Matrix, 4096, 0, 4096, 0, 4096);
+	mUnitMatrix();
 }
 
 void mTranslate()//76558(<) (!)
@@ -514,7 +531,7 @@ void mmPushMatrix(struct MATRIX3D* m)//81BBC(<) (F)
 
 void GetRoomBoundsAsm(short room_number)//
 {
-	S_Warn("[GetRoomBoundsAsm] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)

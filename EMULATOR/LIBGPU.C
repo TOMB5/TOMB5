@@ -246,6 +246,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 	if (p != NULL && *p != NULL)
 	{
+
+
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
@@ -416,8 +418,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		Emulator_DestroyLastVRAMTexture();
 		Emulator_DeleteFrameBufferTexture();
 
-		glViewport(0, 0, screenWidth, screenHeight);
+		glViewport(0, 0, windowWidth, windowHeight);
 		glPopMatrix();
+
+
 		Emulator_DestroyFrameBuffer(fbo);
 	}
 }
