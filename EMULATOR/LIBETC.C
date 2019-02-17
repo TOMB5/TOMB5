@@ -14,6 +14,7 @@ void(*vsync_callback)(void) = NULL;
 int ResetCallback(void)
 {
 	vsync_callback = NULL;
+	UNIMPLEMENTED();
 	return 0;
 }
 

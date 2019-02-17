@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <stdio.h>
 #include <assert.h>
+#include "EMULATOR_GLOBALS.H"
 
 SDL_GameController* padHandle[MAX_CONTROLLERS];
 
@@ -40,37 +41,44 @@ void PadInitDirect(unsigned char* pad1, unsigned char* pad2)
 
 void PadInitMtap(unsigned char* unk00, unsigned char* unk01)
 {
+	UNIMPLEMENTED();
 }
 
 void PadInitGun(unsigned char* unk00, int unk01)
 {
+	UNIMPLEMENTED();
 }
 
 int PadChkVsync()
 {
-	
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void PadStartCom()
 {
+	UNIMPLEMENTED();
 }
 
 void PadStopCom()
 {
+	UNIMPLEMENTED();
 }
 
 unsigned int PadEnableCom(unsigned int unk00)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void PadEnableGun(unsigned char unk00)
 {
+	UNIMPLEMENTED();
 }
 
 void PadRemoveGun()
 {
+	UNIMPLEMENTED();
 }
 
 int PadGetState(int port)
@@ -97,26 +105,31 @@ int PadInfoMode(int unk00, int, int unk01)
 
 int PadInfoAct(int unk00, int, int unk01)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int PadInfoComb(int unk00, int, int unk01)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int PadSetActAlign(int unk00, unsigned char* unk01)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int PadSetMainMode(int socket, int offs, int lock)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void PadSetAct(int unk00, unsigned char* unk01, int unk02)
 {
+	UNIMPLEMENTED();
 }
 
 unsigned short UpdateGameControllerInput(SDL_GameController* pad)

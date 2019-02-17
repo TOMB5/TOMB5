@@ -2,6 +2,7 @@
 #include "LIBETC.H"
 #include <stdio.h>
 #include <stdint.h>
+#include "EMULATOR_GLOBALS.H"
 
 enum VV_Phase
 {
@@ -156,6 +157,7 @@ int IRQCallback = 0;
 
 unsigned long SpuWrite(unsigned char * addr, unsigned long size)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -171,11 +173,13 @@ long SpuSetTransferMode(long mode)
 
 unsigned long SpuSetTransferStartAddr(unsigned long addr)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 long SpuIsTransferCompleted(long flag)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -183,21 +187,24 @@ void SpuInit(void)
 {
 	printf("SpuInit\n");
 	ResetCallback();
-
+	UNIMPLEMENTED();
 }
 
 long SpuSetReverb(long on_off)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 unsigned long SpuSetReverbVoice(long on_off, unsigned long voice_bit)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void SpuSetCommonAttr(SpuCommonAttr * attr)
 {
+	UNIMPLEMENTED();
 }
 
 long SpuInitMalloc(long num, char * top)
@@ -216,16 +223,19 @@ long SpuInitMalloc(long num, char * top)
 
 long SpuMalloc(long size)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 long SpuMallocWithStartAddr(unsigned long addr, long size)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void SpuFree(unsigned long addr)
 {
+	UNIMPLEMENTED();
 }
 
 void SpuSetCommonMasterVolume(short mvol_left, short mvol_right)// (F)
@@ -236,9 +246,11 @@ void SpuSetCommonMasterVolume(short mvol_left, short mvol_right)// (F)
 
 long SpuSetReverbModeType(long mode)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 void SpuSetReverbModeDepth(short depth_left, short depth_right)
 {
+	UNIMPLEMENTED();
 }
