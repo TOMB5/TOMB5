@@ -13,6 +13,8 @@
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 
+int(*GPU_printf)(const char* fmt, ...) = printf;
+
 unsigned short vram[1024 * 512];
 DISPENV word_33BC;
 DRAWENV word_unknown00;//Guessed
@@ -291,9 +293,12 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 			if (pTag->len != 0)
 			{
-				switch (pTag->code)
+				int semiTrans = pTag->code & 2;
+				int shadeTex = pTag->code & 1;
+
+				switch (pTag->code & ~3)
 				{
-				case 0x2A:
+				case 0x28:
 				{
 					glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
@@ -437,9 +442,23 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					glEnd();
 					break;
 				}
-				case 0xE1:
+				case 0xE0:
 					break;
-				case 0x52:
+				case 0x40:
+				{
+					LINE_F2* poly = (LINE_F2*)pTag;
+					glLineWidth(1);
+					glColor3f((float)poly->r0 / 255.0f, (float)poly->g0 / 255.0f, (float)poly->b0 / 255.0f);
+					glBegin(GL_LINES);
+					glVertex2f(poly->x1, poly->y1);
+					glVertex2f(poly->x0, poly->y0);
+					poly++;
+					glVertex2f(poly->x1, poly->y1);
+					glVertex2f(poly->x0, poly->y0);
+					glEnd();
+					break;
+				}
+				case 0x50:
 				{
 					LINE_G2* poly = (LINE_G2*)pTag;
 					glLineWidth(1);
@@ -454,6 +473,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					break;
 				}
 				default:
+					printf("EMU - Unhandled primitive type 0x%02X\n", pTag->code);
 					//Unhandled poly
 					break;
 				}
