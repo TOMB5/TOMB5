@@ -7,6 +7,9 @@
 
 #define DISC_IMAGE_FILENAME "TOMB5.BIN"
 
+#define DECODE_BCD(x) (((x) >> 4) * 10 + ((x) & 0xF))
+#define ENCODE_BCD(x) ((((x) / 10) << 4) | ((x) % 10))
+
 FILE* openFile = NULL;
 
 typedef struct commandQueue
@@ -108,64 +111,12 @@ int mfhi(int a, int b)
 
 CdlLOC* CdIntToPos(int i, CdlLOC* p)
 {
-	CdlLOC* v0;
- 	int v1 = 0x1B4E81B5;
 	i += 150;
-	v1 = mfhi(i, v1);
-	v0 = p;
-	int a1 = 0x88888889;
-	int a3 = v1 >> 3;
-	v1 = i >> 31;
-	a3 -= v1;
-	int a2 = mfhi(a3, a1);
-	int t1 = 0x66666667;
-	a1 = a3 << 2;
-	a1 += a3;
-	v1 = a1 << 4;
-	v1 -= a1;
-	i -= v1;
-	a1 = mfhi(i, t1);
-	v1 = a3 >> 31;
-	int t0 = a2 + a3;
-	t0 >>= 5;
-	t0 -= v1;
-	v1 = t0 << 4;
-	v1 -= t0;
-	v1 <<= 2;
-	a3 -= v1;
-	int t3 = mfhi(a3, t1);
-	v1 = i >> 31;
-	a1 >>= 2;
-	a1 -= v1;
-	a2 = a1 << 4;
-	v1 = a1 << 2;
-	v1 += a1;
-	v1 <<= 1;
-	i -= v1;
-	a2 += i;
-	v1 = a3 >> 31;
-	t1 = mfhi(t0 , t1);
-	v0->sector = a2;
-	i = t3 >> 2;
-	i -= v1;
-	a1 = i << 4;
-	v1 = i << 2;
-	v1 += i;
-	v1 <<= 1;
-	a3 -= v1;
-	a1 += a3;
-	v1 = t0 >> 31;
-	v0->second = a1;
-	i = t1 >> 2;
-	i -= v1;
-	a1 = i << 4;
-	v1 = i << 2;
-	v1 += i;
-	v1 <<= 1;
-	t0 -= v1;
-	a1 += t0;
-	v0->minute = a1;
-	return v0;
+	p->sector = i % 75;
+	int rem = i / 75;
+	p->second = rem % 60;
+	p->minute = rem / 60;
+	return p;
 }
 
 int CdControl(u_char com, u_char * param, u_char * result)
@@ -219,43 +170,8 @@ int CdControlF(u_char com, u_char * param)
 
 int CdPosToInt(CdlLOC* p)
 {
-	int v1 = p->minute;
-	int a2 = p->second;
-
-	int a1 = v1 >> 4;
-	int v0 = a1 << 2;
-	v0 += a1;
-	v0 <<= 1;
-	v1 &= 0xF;
-	v0 += v1;
-
-	a1 = v0 << 4;
-	a1 -= v0;
-	a1 <<= 2;
-
-	v1 = a2 >> 4;
-	v0 = v1 << 2;
-	v0 += v1;
-	v0 <<= 1;
-	a2 &= 0xF;
-
-	v0 += a2;
-	a1 += v0;
-	v1 = a1 << 2;
-	v1 += a1;
-	v0 = v1 << 4;
-
-	a1 = p->sector;
-	v0 -= v1;
-	int a0 = a1 >> 4;
-	v1 = a0 << 2;
-	v1 += a0;
-	v1 <<= 1;
-	a1 &= 0xF;
-	v1 += a1;
-	v0 += v1;
-
-	return v0 - 150;
+	return
+		(75 * (60 * DECODE_BCD(p->minute) + DECODE_BCD(p->second))) + DECODE_BCD(p->sector) - 150;
 }
 
 int CdRead(int sectors, u_long* buf, int mode)
