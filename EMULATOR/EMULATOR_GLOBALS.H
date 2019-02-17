@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <stdint.h>
 
 #ifdef _MSC_VER
 #define FUNCNAME __FUNCTION__
