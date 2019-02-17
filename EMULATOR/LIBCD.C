@@ -112,10 +112,10 @@ int mfhi(int a, int b)
 CdlLOC* CdIntToPos(int i, CdlLOC* p)
 {
 	i += 150;
-	p->sector = i % 75;
+	p->sector = ENCODE_BCD(i % 75);
 	int rem = i / 75;
-	p->second = rem % 60;
-	p->minute = rem / 60;
+	p->second = ENCODE_BCD(rem % 60);
+	p->minute = ENCODE_BCD(rem / 60);
 	return p;
 }
 
