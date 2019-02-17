@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "EMULATOR_GLOBALS.H"
 
 #define DISC_IMAGE_FILENAME "TOMB5.BIN"
 
@@ -29,6 +30,7 @@ int comQueueIndex = 0;
 int comQueueCount = 0;
 int currentSector = 0;
 int sectorSize = 2352;//TODO obtain properly from cue sheet
+int lastCom = 0;
 
 #pragma pack(push, 1)
 struct TOC
@@ -100,15 +102,6 @@ CdlFILE* CdSearchFile(CdlFILE* fp, char* name)
 	return NULL;
 }
 
-int mfhi(int a, int b)
-{
-	unsigned long long temp = (long long)((long long)(int)a * (long long)(int)b);
-
-	int lo = temp & 0xffffffff;
-	int hi = temp >> 32;
-	return ((temp >> 32) & 0xFFFFFFFF);
-}
-
 CdlLOC* CdIntToPos(int i, CdlLOC* p)
 {
 	i += 150;
@@ -122,16 +115,19 @@ CdlLOC* CdIntToPos(int i, CdlLOC* p)
 int CdControl(u_char com, u_char * param, u_char * result)
 {
 	CdlFILE* cd = (CdlFILE*)param;
-	
+
+	lastCom = com;
+
 	switch (com)
 	{
 	case CdlSetloc:
 		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
 		break;
 	default:
-		printf("Uhandled command!\n");
+		printf("Unhandled command 0x%02X!\n", com);
 		break;
 	}
+
 	return 0;
 }
 
@@ -139,13 +135,15 @@ int CdControlB(u_char com, u_char* param, u_char* result)
 {
 	CdlFILE* cd = (CdlFILE*)param;
 
+	lastCom = com;
+
 	switch (com)
 	{
 	case CdlSetloc:
 		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
 		break;
 	default:
-		printf("Uhandled command!\n");
+		printf("Unhandled command 0x%02X!\n", com);
 		break;
 	}
 
@@ -155,23 +153,25 @@ int CdControlB(u_char com, u_char* param, u_char* result)
 int CdControlF(u_char com, u_char * param)
 {
 	CdlFILE* cd = (CdlFILE*)param;
-	
+
+	lastCom = com;
+
 	switch (com)
 	{
 	case CdlSetloc:
 		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
 		break;
 	default:
-		printf("Uhandled command!\n");
+		printf("Unhandled command 0x%02X!\n", com);
 		break;
 	}
+
 	return 0;
 }
 
 int CdPosToInt(CdlLOC* p)
 {
-	return
-		(75 * (60 * DECODE_BCD(p->minute) + DECODE_BCD(p->second))) + DECODE_BCD(p->sector) - 150;
+	return (75 * (60 * DECODE_BCD(p->minute) + DECODE_BCD(p->second))) + DECODE_BCD(p->sector) - 150;
 }
 
 int CdRead(int sectors, u_long* buf, int mode)
@@ -214,11 +214,13 @@ int CdReadSync(int mode, u_char* result)
 
 int CdSetDebug(int level)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int CdSync(int mode, u_char * result)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -231,6 +233,7 @@ int CdInit(void)
 	if (openFile == NULL)
 	{
 		printf("Error: CdInit() Failed to open disc image file! %s\n", DISC_IMAGE_FILENAME);
+		return 0;
 	}
 
 	return 1;
@@ -238,5 +241,5 @@ int CdInit(void)
 
 int CdLastCom(void)
 {
-	return 0;
+	return lastCom;
 }
