@@ -30,7 +30,7 @@ int comQueueIndex = 0;
 int comQueueCount = 0;
 int currentSector = 0;
 int sectorSize = 2352;//TODO obtain properly from cue sheet
-int lastCom = 0;
+int CD_com = 0;
 
 #pragma pack(push, 1)
 struct TOC
@@ -116,7 +116,7 @@ int CdControl(u_char com, u_char * param, u_char * result)
 {
 	CdlFILE* cd = (CdlFILE*)param;
 
-	lastCom = com;
+	CD_com = com;
 
 	switch (com)
 	{
@@ -135,7 +135,7 @@ int CdControlB(u_char com, u_char* param, u_char* result)
 {
 	CdlFILE* cd = (CdlFILE*)param;
 
-	lastCom = com;
+	CD_com = com;
 
 	switch (com)
 	{
@@ -154,7 +154,7 @@ int CdControlF(u_char com, u_char * param)
 {
 	CdlFILE* cd = (CdlFILE*)param;
 
-	lastCom = com;
+	CD_com = com;
 
 	switch (com)
 	{
@@ -241,5 +241,5 @@ int CdInit(void)
 
 int CdLastCom(void)
 {
-	return lastCom;
+	return CD_com;
 }
