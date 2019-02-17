@@ -90,7 +90,7 @@ CdlFILE* CdSearchFile(CdlFILE* fp, char* name)
 
 
 #if _DEBUG
-				printf("CDSearchFile() Found %s\n", name);
+				eprintf("Found %s\n", name);
 #endif
 				return fp;
 			}
@@ -124,7 +124,7 @@ int CdControl(u_char com, u_char * param, u_char * result)
 		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
 		break;
 	default:
-		printf("Unhandled command 0x%02X!\n", com);
+		eprinterr("Unhandled command 0x%02X!\n", com);
 		break;
 	}
 
@@ -143,7 +143,7 @@ int CdControlB(u_char com, u_char* param, u_char* result)
 		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
 		break;
 	default:
-		printf("Unhandled command 0x%02X!\n", com);
+		eprinterr("Unhandled command 0x%02X!\n", com);
 		break;
 	}
 
@@ -162,7 +162,7 @@ int CdControlF(u_char com, u_char * param)
 		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
 		break;
 	default:
-		printf("Unhandled command 0x%02X!\n", com);
+		eprinterr("Unhandled command 0x%02X!\n", com);
 		break;
 	}
 
@@ -232,7 +232,7 @@ int CdInit(void)
 
 	if (openFile == NULL)
 	{
-		printf("Error: CdInit() Failed to open disc image file! %s\n", DISC_IMAGE_FILENAME);
+		eprinterr("Failed to open disc image file! %s\n", DISC_IMAGE_FILENAME);
 		return 0;
 	}
 

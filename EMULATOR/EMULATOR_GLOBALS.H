@@ -13,7 +13,10 @@
 
 extern int(*printf_)(const char * format, ...);
 
-#define UNIMPLEMENTED() printf_("EMU - [%s] - Unimplemented!\n", FUNCNAME);
+#define eprintf(fmt, ...) printf_("[EMU] " fmt, __VA_ARGS__)
+#define eprinterr(fmt, ...) eprintf("[%s] - " fmt, FUNCNAME, __VA_ARGS__);
+
+#define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
 
 extern GLuint vramTexture;
 extern GLuint nullWhiteTexture;

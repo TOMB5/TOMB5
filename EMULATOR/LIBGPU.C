@@ -332,8 +332,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 
 #if DEBUG_MSG
-					printf("tpage: (%d,%d,%d,%d)\n", ((poly->tpage) >> 7) & 0x3, ((poly->tpage) >> 5) & 0x3, ((poly->tpage) << 6) & 0x7C0, (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200));
-					printf("clut: (%d,%d)\n", (poly->clut & 0x3F) << 4, (poly->clut >> 6));
+					eprintf("tpage: (%d,%d,%d,%d)\n", ((poly->tpage) >> 7) & 0x3, ((poly->tpage) >> 5) & 0x3, ((poly->tpage) << 6) & 0x7C0, (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200));
+					eprintf("clut: (%d,%d)\n", (poly->clut & 0x3F) << 4, (poly->clut >> 6));
 #endif
 					
 #if 0
@@ -391,8 +391,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					int y = (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200);
 
 #if DEBUG_MSG
-					printf("tpage: (%d,%d,%d,%d)\n", ((poly->tpage) >> 7) & 0x003, ((poly->tpage) >> 5) & 0x003, ((poly->tpage) << 6) & 0x7c0, (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200));
-					printf("clut: (%d,%d)\n", (poly->clut & 0x3F) << 4, (poly->clut >> 6));
+					eprintf("tpage: (%d,%d,%d,%d)\n", ((poly->tpage) >> 7) & 0x003, ((poly->tpage) >> 5) & 0x003, ((poly->tpage) << 6) & 0x7c0, (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200));
+					eprintf("clut: (%d,%d)\n", (poly->clut & 0x3F) << 4, (poly->clut >> 6));
 #endif
 
 					Emulator_GenerateAndBindTpage(((poly->tpage) >> 7) & 0x3, x, y, (poly->clut & 0x3F) << 4, (poly->clut >> 6));
@@ -473,7 +473,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					break;
 				}
 				default:
-					printf("EMU - Unhandled primitive type 0x%02X\n", pTag->code);
+					eprinterr("Unhandled primitive type 0x%02X\n", pTag->code);
 					//Unhandled poly
 					break;
 				}

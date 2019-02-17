@@ -185,7 +185,7 @@ long SpuIsTransferCompleted(long flag)
 
 void SpuInit(void)
 {
-	printf("SpuInit\n");
+	eprintf("SpuInit\n");
 	ResetCallback();
 	UNIMPLEMENTED();
 }

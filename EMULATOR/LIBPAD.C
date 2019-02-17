@@ -19,12 +19,12 @@ void PadInitDirect(unsigned char* pad1, unsigned char* pad2)
 
 	if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0)
 	{
-		printf("Failed to initialise subsystem GAMECONTROLLER\n");
+		eprinterr("Failed to initialise subsystem GAMECONTROLLER\n");
 	}
 
 	if (SDL_NumJoysticks() < 1)
 	{
-		printf("Failed to locate a connected gamepad!\n");
+		eprinterr("Failed to locate a connected gamepad!\n");
 	}
 	else
 	{
