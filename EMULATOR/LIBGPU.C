@@ -13,12 +13,16 @@
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 
+#define POLY_TAG_USE_ADDR (0)
+#define HACK_CLEAR_DRAW_AREA (0)
+
 unsigned short vram[1024 * 512];
 DISPENV word_33BC;
 DRAWENV word_unknown00;//Guessed
 int dword_3410 = 0;
 char byte_3352 = 0;
 unsigned long terminator = -1;
+void(*drawsync_callback)(void) = NULL;
 
 void* off_3348[]=
 {
@@ -58,6 +62,10 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 
 int DrawSync(int mode)
 {
+	if (drawsync_callback != NULL)
+	{
+		drawsync_callback();
+	}
 	return 0;
 }
 
@@ -238,11 +246,9 @@ DRAWENV* SetDefDrawEnv(DRAWENV* env, int x, int y, int w, int h)//(F)
 
 u_long DrawSyncCallback(void(*func)(void))
 {
-
-	return u_long();
+	drawsync_callback = func;
+	return 0;
 }
-
-#define HACK_CLEAR_DRAW_AREA (0)
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
@@ -261,8 +267,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 	if (p != NULL && *p != NULL)
 	{
-
-
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
@@ -270,19 +274,12 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		glViewport(0, 0, 1024, 512);
 
 		glEnable(GL_TEXTURE_2D);
-
-#if 1
-		glBlendColor(0.25, 0.25, 0.25, 0.5);
-#endif
-
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
 
 		while (1)
 		{
 			P_TAG* pTag = (P_TAG*)p;
-
-
 
 			if (pTag->len != 0)
 			{
@@ -293,80 +290,46 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 					POLY_F4* poly = (POLY_F4*)pTag;
-
-					glColor3f((float)poly->r0 / 255.0f, (float)poly->g0 / 255.0f, (float)poly->b0 / 255.0f);
 					glBegin(GL_QUADS);
 					
-					glTexCoord2f(0.0, 0.0f);
+					glColor3ubv(&poly->r0);
+					glTexCoord2f(0.0f, 0.0f);
 					glVertex2f(poly->x0, poly->y0);
 
-					glTexCoord2f(0.01, 0.0f);
+					glTexCoord2f(1.0f, 0.0f);
 					glVertex2f(poly->x1, poly->y1);
 
-					glTexCoord2f(0.0, 0.01f);
+					glTexCoord2f(0.0f, 1.0f);
 					glVertex2f(poly->x3, poly->y3);
 
-					glTexCoord2f(0.01, 0.01f);
+					glTexCoord2f(1.0f, 1.0f);
 					glVertex2f(poly->x2, poly->y2);
 
 					glEnd();
-
+					
 					break;
 				}
 				case 0x3C:
 				{
 					POLY_GT4* poly = (POLY_GT4*)pTag;
-
-					int x = ((poly->tpage) << 6) & 0x7C0 % 1024;
-					int y = (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200);
-
-
-#if DEBUG_MSG
-					printf("tpage: (%d,%d,%d,%d)\n", ((poly->tpage) >> 7) & 0x3, ((poly->tpage) >> 5) & 0x3, ((poly->tpage) << 6) & 0x7C0, (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200));
-					printf("clut: (%d,%d)\n", (poly->clut & 0x3F) << 4, (poly->clut >> 6));
-#endif
+					Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
 					
-#if 0
-					switch (((poly->tpage >> 5) & 0x3))
-					{
-					case 0://Average
-						glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
-						glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-						break;
-					case 1://Add
-						glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
-						glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-						break;
-					case 2://Subtract
-						glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
-						glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
-						break;
-					case 3://Addquatersource
-						glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
-						glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-						break;
-					}
-
-					glEnable(GL_BLEND);
-#endif
-
-					Emulator_GenerateAndBindTpage(((poly->tpage) >> 7) & 0x3, x, y, (poly->clut & 0x3F) << 4, (poly->clut >> 6));
 
 					glBegin(GL_QUADS);
 
-					glColor3f((float)poly->r0 / 255.0f, (float)poly->g0 / 255.0f, (float)poly->b0 / 255.0f);
+					glColor3ubv(&poly->r0);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
 					glVertex2f(poly->x0, poly->y0);
 
-					glColor3f((float)poly->r1 / 255.0f, (float)poly->g1 / 255.0f, (float)poly->b1 / 255.0f);
+					glColor3ubv(&poly->r1);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
 					glVertex2f(poly->x1, poly->y1);
 
-					glColor3f((float)poly->r3 / 255.0f, (float)poly->g3 / 255.0f, (float)poly->b3 / 255.0f);
+					glColor3ubv(&poly->r3);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
 					glVertex2f(poly->x3, poly->y3);
 
-					glColor3f((float)poly->r2 / 255.0f, (float)poly->g2 / 255.0f, (float)poly->b2 / 255.0f);
+					glColor3ubv(&poly->r2);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
 					glVertex2f(poly->x2, poly->y2);
 
@@ -376,44 +339,11 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				case 0x2C:
 				{
 					POLY_FT4* poly = (POLY_FT4*)pTag;
-
-					int x = ((poly->tpage) << 6) & 0x7C0 % 1024;
-					int y = (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200);
-
-#if DEBUG_MSG
-					printf("tpage: (%d,%d,%d,%d)\n", ((poly->tpage) >> 7) & 0x003, ((poly->tpage) >> 5) & 0x003, ((poly->tpage) << 6) & 0x7c0, (((poly->tpage) << 4) & 0x100) + (((poly->tpage) >> 2) & 0x200));
-					printf("clut: (%d,%d)\n", (poly->clut & 0x3F) << 4, (poly->clut >> 6));
-#endif
-
-					Emulator_GenerateAndBindTpage(((poly->tpage) >> 7) & 0x3, x, y, (poly->clut & 0x3F) << 4, (poly->clut >> 6));
-
-
-#if 0
-					switch (((poly->tpage >> 5) & 0x3))
-					{
-					case 0://Average
-						glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
-						glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-						break;
-					case 1://Add
-						glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
-						glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-						break;
-					case 2://Subtract
-						glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
-						glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
-						break;
-					case 3://Addquatersource
-						glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
-						glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-						break;
-					}
-
-					glEnable(GL_BLEND);
-#endif
+					Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
 					
+#if 1
 					glBegin(GL_QUADS);
-					//glColor3ub(poly->r0, poly->g0, poly->b0);
+					glColor3ub(poly->r0, poly->g0, poly->b0);
 					glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
 					glVertex2f(poly->x0, poly->y0);
 
@@ -430,21 +360,26 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					glVertex2f(poly->x2, poly->y2);
 
 					glEnd();
+#endif
 					break;
 				}
 				case 0xE1:
+				{
+					unsigned short tpage = ((unsigned short*)pTag)[2];
+					Emulator_GenerateAndBindTpage(tpage, 0);
 					break;
+				}
 				case 0x52:
 				{
+					Emulator_SetBlendMode(pTag->code & 2);
+					glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 					LINE_G2* poly = (LINE_G2*)pTag;
 					glLineWidth(1);
-					glColor3f((float)poly->r0 / 255.0f, (float)poly->g0 / 255.0f, (float)poly->b0 / 255.0f);
+					glColor3ubv(&poly->r0);
 					glBegin(GL_LINES);
-					glVertex2f(poly->x1, poly->y1);
 					glVertex2f(poly->x0, poly->y0);
-					poly++;
+					poly++;//Bug
 					glVertex2f(poly->x1, poly->y1);
-					glVertex2f(poly->x0, poly->y0);
 					glEnd();
 					break;
 				}
@@ -454,6 +389,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				}
 			}
 			
+			//p = (unsigned long*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
 			p = (unsigned long*)((P_TAG*)p)->addr;
 			//p = (unsigned long*)*p;
 
@@ -461,6 +397,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			{
 				break;
 			}
+
+			Emulator_SetBlendMode(-1);
 		}
 
 		Emulator_DestroyLastVRAMTexture();
@@ -476,6 +414,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 	Emulator_CheckTextureIntersection(&env->clip);
 
 	//Reset for vertex colours
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
