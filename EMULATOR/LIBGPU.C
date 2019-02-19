@@ -14,7 +14,8 @@
 #include "EMULATOR_GLOBALS.H"
 
 #define POLY_TAG_USE_ADDR (0)
-#define HACK_CLEAR_DRAW_AREA (0)
+#define HACK_CLEAR_DRAW_AREA (1)
+#define ENABLE_BLEND (0)
 
 unsigned short vram[1024 * 512];
 DISPENV word_33BC;
@@ -255,12 +256,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 	PutDrawEnv(env);
 
 #if HACK_CLEAR_DRAW_AREA
-	RECT16 rect;
-	rect.x = env->clip.x;
-	rect.y = env->clip.y;
-	rect.w = env->clip.w;
-	rect.h = env->clip.h;
-	ClearImage(&rect, 0, 0, 0);
+	ClearImage(&env->clip, 0, 0, 0);
 #endif
 
 	GLuint fbo = 0;
@@ -277,129 +273,127 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
 
-		while (1)
+		P_TAG* pLastValidTag;
+
+		do
 		{
 			P_TAG* pTag = (P_TAG*)p;
 
-			if (pTag->len != 0)
+
+			switch (pTag->code)
 			{
-				switch (pTag->code)
-				{
-				case 0x2A:
-				{
-					glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+			case 0x2A:
+			{
+				//Emulator_SetBlendMode((pTag->code & 2) != 0);
+				glEnable(GL_BLEND);
+				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
-					POLY_F4* poly = (POLY_F4*)pTag;
-					glBegin(GL_QUADS);
-					
-					glColor3ubv(&poly->r0);
-					glTexCoord2f(0.0f, 0.0f);
-					glVertex2f(poly->x0, poly->y0);
+				POLY_F4* poly = (POLY_F4*)pTag;
+				glBegin(GL_QUADS);
 
-					glTexCoord2f(1.0f, 0.0f);
-					glVertex2f(poly->x1, poly->y1);
+				glColor3ubv(&poly->r0);
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex2f(poly->x0, poly->y0);
 
-					glTexCoord2f(0.0f, 1.0f);
-					glVertex2f(poly->x3, poly->y3);
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex2f(poly->x1, poly->y1);
 
-					glTexCoord2f(1.0f, 1.0f);
-					glVertex2f(poly->x2, poly->y2);
+				glTexCoord2f(0.0f, 1.0f);
+				glVertex2f(poly->x3, poly->y3);
 
-					glEnd();
-					
-					break;
-				}
-				case 0x3C:
-				{
-					POLY_GT4* poly = (POLY_GT4*)pTag;
-					Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
-					
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex2f(poly->x2, poly->y2);
 
-					glBegin(GL_QUADS);
+				glEnd();
 
-					glColor3ubv(&poly->r0);
-					glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
-					glVertex2f(poly->x0, poly->y0);
-
-					glColor3ubv(&poly->r1);
-					glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
-					glVertex2f(poly->x1, poly->y1);
-
-					glColor3ubv(&poly->r3);
-					glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
-					glVertex2f(poly->x3, poly->y3);
-
-					glColor3ubv(&poly->r2);
-					glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
-					glVertex2f(poly->x2, poly->y2);
-
-					glEnd();
-					break;
-				}
-				case 0x2C:
-				{
-					POLY_FT4* poly = (POLY_FT4*)pTag;
-					Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
-					
-#if 1
-					glBegin(GL_QUADS);
-					glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
-					glVertex2f(poly->x0, poly->y0);
-
-					//glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
-					glVertex2f(poly->x1, poly->y1);
-
-					//glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
-					glVertex2f(poly->x3, poly->y3);
-
-					//glColor3ub(poly->r0, poly->g0, poly->b0);
-					glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
-					glVertex2f(poly->x2, poly->y2);
-
-					glEnd();
-#endif
-					break;
-				}
-				case 0xE1:
-				{
-					unsigned short tpage = ((unsigned short*)pTag)[2];
-					Emulator_GenerateAndBindTpage(tpage, 0);
-					break;
-				}
-				case 0x52:
-				{
-					Emulator_SetBlendMode(pTag->code & 2);
-					glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-					LINE_G2* poly = (LINE_G2*)pTag;
-					glLineWidth(1);
-					glColor3ubv(&poly->r0);
-					glBegin(GL_LINES);
-					glVertex2f(poly->x0, poly->y0);
-					poly++;//Bug
-					glVertex2f(poly->x1, poly->y1);
-					glEnd();
-					break;
-				}
-				default:
-					//Unhandled poly
-					break;
-				}
+				break;
 			}
-			
+			case 0x3C:
+			{
+				
+				POLY_GT4* poly = (POLY_GT4*)pTag;
+				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
+
+				glBegin(GL_QUADS);
+
+				glColor3ubv(&poly->r0);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
+				glVertex2f(poly->x0, poly->y0);
+
+				glColor3ubv(&poly->r1);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
+				glVertex2f(poly->x1, poly->y1);
+
+				glColor3ubv(&poly->r3);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
+				glVertex2f(poly->x3, poly->y3);
+
+				glColor3ubv(&poly->r2);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
+				glVertex2f(poly->x2, poly->y2);
+
+				glEnd();
+				break;
+			}
+			case 0x2C:
+			{
+				POLY_FT4* poly = (POLY_FT4*)pTag;
+				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
+
+#if 1
+				glBegin(GL_QUADS);
+				//glColor3ub(poly->r0, poly->g0, poly->b0);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
+				glVertex2f(poly->x0, poly->y0);
+
+				//glColor3ub(poly->r0, poly->g0, poly->b0);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
+				glVertex2f(poly->x1, poly->y1);
+
+				//glColor3ub(poly->r0, poly->g0, poly->b0);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
+				glVertex2f(poly->x3, poly->y3);
+
+				//glColor3ub(poly->r0, poly->g0, poly->b0);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
+				glVertex2f(poly->x2, poly->y2);
+
+				glEnd();
+#endif
+				break;
+			}
+			case 0xE1:
+			{
+				unsigned short tpage = ((unsigned short*)pTag)[2];
+				Emulator_GenerateAndBindTpage(tpage, 0);
+				break;
+			}
+			case 0x52:
+			{
+				//Emulator_SetBlendMode(-1);
+				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+				LINE_G2* poly = (LINE_G2*)pTag;
+				glLineWidth(1);
+				glColor3ubv(&poly->r0);
+				glBegin(GL_LINES);
+				glVertex2f(poly->x0, poly->y0);
+				poly++;//Bug
+				glVertex2f(poly->x1, poly->y1);
+				glEnd();
+				break;
+			}
+			default:
+				//Unhandled poly
+				break;
+			}
+
+
 			//p = (unsigned long*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
 			p = (unsigned long*)((P_TAG*)p)->addr;
 			//p = (unsigned long*)*p;
 
-			if (p == &terminator)
-			{
-				break;
-			}
-
-			Emulator_SetBlendMode(-1);
-		}
+			//Emulator_SetBlendMode(-1);
+		}while (p != &terminator);
 
 		Emulator_DestroyLastVRAMTexture();
 		Emulator_DeleteFrameBufferTexture();

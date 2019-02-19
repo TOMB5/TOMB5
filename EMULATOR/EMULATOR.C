@@ -29,6 +29,8 @@ struct CachedTexture
 	GLuint textureID;
 	unsigned int tpageX;
 	unsigned int tpageY;
+	unsigned int clutX;
+	unsigned int clutY;
 	unsigned int lastAccess;
 };
 
@@ -279,9 +281,6 @@ void Emulator_EndScene()
 	{
 		((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
 	}
-
-	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-	glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 }
 
 void Emulator_ShutDown()
@@ -355,7 +354,9 @@ void Emulator_GenerateFrameBufferTexture()
 #endif
 
 	delete[] pixelData;
+#if _DEBUG
 	delete[] pixelData2;
+#endif
 }
 
 void Emulator_DeleteFrameBufferTexture()
@@ -365,11 +366,12 @@ void Emulator_DeleteFrameBufferTexture()
 
 ///@TODO check rectangular intersection plus clut x, y
 ///@TODO check if LoadImage and ClearImage, FrameBuffer rect intersection updates a texture, if so, we delete the original and generate a new one
-GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY)
+GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY, unsigned int clutX, unsigned int clutY)
 {
 	for (int i = lastTextureCacheIndex-1; i > -1; i--)
 	{
-		if (cachedTextures[i].tpageX == tpageX && cachedTextures[i].tpageY == tpageY)
+		if (cachedTextures[i].tpageX == tpageX && cachedTextures[i].tpageY == tpageY &&
+		    cachedTextures[i].clutX == clutX && cachedTextures[i].clutY == clutY)
 		{
 			cachedTextures[i].lastAccess = SDL_GetTicks();
 			return cachedTextures[i].textureID;
@@ -388,20 +390,22 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
 	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
 
-	//Emulator_SetBlendMode(tpageAbr);
+	Emulator_SetBlendMode(tpageAbr);
 
 #if DEBUG_MSG
 	printf("tpage: (%d,%d,%d,%d)\n", ((tpage) >> 7) & 0x003, ((tpage) >> 5) & 0x003, ((tpage) << 6) & 0x7c0, (((tpage) << 4) & 0x100) + (((tpage) >> 2) & 0x200));
 	printf("clut: (%d,%d)\n", (clut & 0x3F) << 4, (clut >> 6));
 #endif
 
-	GLuint tpageTexture = Emulator_FindTextureInCache(tpageX, tpageY);
+	GLuint tpageTexture = Emulator_FindTextureInCache(tpageX, tpageY, clutX, clutY);
 	bool bMustAddTexture = tpageTexture == -1 ? 1 : 0;
 
 	if (bMustAddTexture)
 	{
 		cachedTextures[lastTextureCacheIndex].tpageX = tpageX;
 		cachedTextures[lastTextureCacheIndex].tpageY = tpageY;
+		cachedTextures[lastTextureCacheIndex].clutX = clutX;
+		cachedTextures[lastTextureCacheIndex].clutY = clutY;
 		glGenTextures(1, &cachedTextures[lastTextureCacheIndex].textureID);
 		tpageTexture = cachedTextures[lastTextureCacheIndex++].textureID;
 	}
@@ -433,7 +437,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
 				}
 
 
-#if 0
+#if 1
 				FILE* f = fopen("TPAGE.TGA", "wb");
 				unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 				unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
@@ -544,7 +548,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
 			fwrite(&texturePage[0], sizeof(char), 256 * 256 * 4, f);
 			fclose(f);
 #endif
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texturePage[0]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, &texturePage[0]);
 			break;
 		}
 		}
@@ -601,13 +605,14 @@ void Emulator_DestroyLastVRAMTexture()
 void Emulator_SetBlendMode(int mode)
 {
 	glEnable(GL_BLEND);
+#if 1
 	switch (mode)
 	{
 	case 0://Average
 		glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
 		break;
 	case 1://Add
-		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		break;
 	case 2://Subtract
 		glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
@@ -617,7 +622,35 @@ void Emulator_SetBlendMode(int mode)
 		break;
 	default:
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glDisable(GL_BLEND);
+		//glDisable(GL_BLEND);
 		break;
 	}
+#else
+	switch (mode)
+	{
+	case 0://Average
+		glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		break;
+	case 1://Add
+		//glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+		//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		break;
+	case 2://Subtract
+		glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+		glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
+
+		break;
+	case 3://Addquatersource
+		glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		break;
+	default:
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		break;
+	}
+#endif
 }

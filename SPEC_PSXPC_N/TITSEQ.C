@@ -1,7 +1,8 @@
-#include "TITSEQ.H"
+﻿#include "TITSEQ.H"
 
 #include "EFFECTS.H"
 #include "GAMEFLOW.H"
+#include "GPU.H"
 #include "LOADSAVE.H"
 #include "MEMCARD.H"
 #include "PSXINPUT.H"
@@ -24,6 +25,7 @@ void* func_titseq[] __attribute__((section(".header"))) =
 
 unsigned char byte_46 = 0;
 unsigned char byte_47 = 0;
+unsigned char byte_1A8 = 0;
 
 unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
 unsigned int word_38 = 1;
@@ -85,7 +87,7 @@ int TitleOptions(int Name)
 		//v1 = 0x00000
 		Chris_Menu = MENU_MAIN_MENU;
 		byte_46 = 0;
-		///return sub_1054();
+		return sub_1054();
 	}//loc_4DC
 
 	//a0 = Chris_Menu
@@ -95,7 +97,7 @@ int TitleOptions(int Name)
 	{
 		if (bDoCredits == 0)
 		{
-			///sub_2B0();
+			sub_2B0();
 		}
 	}
 	else if (bDoCredits == 0)
@@ -578,4 +580,179 @@ int TitleOptions(int Name)
 	}
 
 	return ret;
+}
+
+void sub_2B0()
+{
+	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
+	{
+		((int*)db.polyptr)[4] = 0x2C808080;
+		((char*)db.polyptr)[3] = 9;
+		((short*)db.polyptr)[5] = 24;
+		((short*)db.polyptr)[9] = 24;
+		((short*)db.polyptr)[13] = 80;
+		((short*)db.polyptr)[17] = 80;
+		((short*)db.polyptr)[4] = 56;
+		((short*)db.polyptr)[12] = 56;
+		((short*)db.polyptr)[8] = 440;
+		((short*)db.polyptr)[16] = 440;
+		((char*)db.polyptr)[13] = 68;
+		((char*)db.polyptr)[21] = 68;
+		((char*)db.polyptr)[29] = 124;
+		((char*)db.polyptr)[37] = 124;
+		((char*)db.polyptr)[12] = 0;
+		((char*)db.polyptr)[20] = 255;
+		((char*)db.polyptr)[28] = 0;
+		((char*)db.polyptr)[36] = 255;
+		((short*)db.polyptr)[7] = 7972;
+		((short*)db.polyptr)[11] = 41;
+
+		((unsigned long*)db.polyptr)[0] = ((unsigned long*)db.polyptr)[0] & 0xFFFFFF | (db.ot[0] & 0xFFFFFF);
+		db.ot[0] = (db.ot[0] & 0xFF000000) | ((unsigned long)db.polyptr & 0xFFFFFF);
+
+		db.polyptr += sizeof(POLY_FT4);
+	}//locret_3A0
+}
+
+int sub_1054()
+{
+	int s3;
+	sub_2B0();
+	PrintString(256, 102, 6, &gfStringWad[gfStringOffset[STR_SELECT_CUTSCENE]], 0x8000);
+
+	//v0 = 0
+	//fp = 0
+	//a0 = byte_1A8
+	//a3 = byte_1A8 - 4;
+	if ((byte_1A8 - 4) < 0)
+	{
+		//a3 = 0;
+	}//loc_10DC
+
+	//v0 = RawEdge
+	//s4 = v1
+	if ((RawEdge & 0x10) && byte_1A8 != 0)
+	{
+		--byte_1A8;
+		//j loc_1128
+	}
+	else if ((RawEdge & 0x40) && byte_1A8 < 35)
+	{
+		++byte_1A8;
+	}
+
+	//s2 = 0
+	//loc_1128
+	if ((byte_1A8 - 4) < 36)
+	{
+		//v0 = 0;
+		//s5 = &unk_1AC
+	}//loc_11B8
+
+
+
+#if 0
+		beqz    $v0, loc_11B8
+		move    $s2, $zero
+lui     $v0, 0
+addiu   $s5, $v0, unk_1AC
+li      $s1, 0x88
+li      $a2, 5
+
+loc_1144:                                # CODE XREF : sub_1054 + 15C↓j
+	lbu     $v0, 0x1A8($s3)
+	nop
+	bne     $v0, $a3, loc_1158
+	andi    $a1, $s1, 0xFFFF
+	li      $a2, 1
+
+	loc_1158 : # CODE XREF : sub_1054 + F8↑j
+	li      $a0, 0x100
+	addiu   $s1, 0x12
+	addiu   $s2, 1
+	addiu   $s0, $a3, 1
+	sll     $v0, $s0, 1
+	addu    $v0, $s0
+	sll     $v0, 1
+	addu    $v0, $s5
+	lhu     $v1, 0($v0)
+	lw      $a3, 0x202C($s6)
+	sll     $v1, 1
+	addu    $v1, $a3
+	lhu     $t0, 0($v1)
+	lw      $a3, 0x203C($s7)
+	li      $v0, 0x8000
+	sw      $v0, 0x40 + var_30($sp)
+	jal     0x8DB4C
+	addu    $a3, $t0
+	move    $a3, $s0
+	slti    $v0, $a3, 0x24
+	beqz    $v0, loc_11B8
+	slti    $v0, $s2, 5
+
+	bnez    $v0, loc_1144
+	li      $a2, 5
+
+	loc_11B8:                                # CODE XREF : sub_1054:loc_112C↑j
+	# sub_1054 + 154↑j
+	lw      $v0, 0x4520($s4)
+	nop
+	andi    $v0, 0x4000
+	beqz    $v0, loc_1240
+	li      $a0, 0x6F  # 'o'
+	move    $a1, $zero
+	jal     0x91780
+	li      $a2, 2
+	li      $fp, 3
+	lui     $v0, 0xA
+	sh      $zero, 0xA05C2
+	lui     $v0, 0xA
+	lui     $a1, 0
+	lbu     $v1, 0x1A8($s3)
+	la      $a1, unk_1AC
+	sw      $zero, 0xA09A0
+	move    $a2, $v1
+	addiu   $v1, 1
+	sll     $v0, $v1, 1
+	addu    $v0, $v1
+	sll     $v0, 1
+	addu    $v0, $a1, $v0
+	lui     $v1, 0xA
+	addiu   $a2, 1
+	sb      $zero, 0x1A8($s3)
+	lbu     $a0, 2($v0)
+	sll     $v0, $a2, 1
+	addu    $v0, $a2
+	sll     $v0, 1
+	addu    $a1, $v0
+	sb      $a0, 0xA2034
+	lhu     $v1, 4($a1)
+	lui     $v0, 0xA
+	sh      $v1, 0xA05C4
+
+	loc_1240:                                # CODE XREF : sub_1054 + 170↑j
+	lw      $v0, 0x4520($s4)
+	nop
+	andi    $v0, 0x1000
+	beqz    $v0, loc_1258
+	lui     $v0, 0xA
+	sh      $zero, 0xA05C2
+
+	loc_1258:                                # CODE XREF : sub_1054 + 1F8↑j
+	move    $v0, $fp
+	lw      $ra, 0x40 + var_4($sp)
+	lw      $fp, 0x40 + var_8($sp)
+	lw      $s7, 0x40 + var_C($sp)
+	lw      $s6, 0x40 + var_10($sp)
+	lw      $s5, 0x40 + var_14($sp)
+	lw      $s4, 0x40 + var_18($sp)
+	lw      $s3, 0x40 + var_1C($sp)
+	lw      $s2, 0x40 + var_20($sp)
+	lw      $s1, 0x40 + var_24($sp)
+	lw      $s0, 0x40 + var_28($sp)
+	jr      $ra
+	addiu   $sp, 0x40
+#endif
+
+	return 0;
 }
