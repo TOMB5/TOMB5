@@ -8,10 +8,21 @@
 
 void mQuickW2VMatrix()
 {
-	//v1  = &phd_mxptr;
-	//a0 = &MatrixStack[0];
 	MatrixSP = 0;
 	Matrix = &MatrixStack[0];
+
+	Matrix->m00 = phd_mxptr[M00];
+	Matrix->m01 = phd_mxptr[M01];
+	Matrix->m02 = phd_mxptr[M02];
+	Matrix->m10 = phd_mxptr[M10];
+	Matrix->m11 = phd_mxptr[M11];
+	Matrix->m12 = phd_mxptr[M12];
+	Matrix->m20 = phd_mxptr[M20];
+	Matrix->m21 = phd_mxptr[M21];
+	Matrix->m22 = phd_mxptr[M22];
+	Matrix->tx = phd_mxptr[M03];
+	Matrix->ty = phd_mxptr[M13];
+	Matrix->tz = phd_mxptr[M23];
 
 
 	//lhu	$at, 0($v1)

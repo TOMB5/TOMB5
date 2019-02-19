@@ -929,10 +929,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 
 
 	//loc_10A58
-	do
+	/*do
 	{
 		XAReqVolume = 0;
-	} while (XAVolume != 0);
+	} while (XAVolume != 0);*/
 #endif
 
 	NoInput = 0;

@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <LIBGPU.H>
 #include <string.h>
+#include "EMULATOR_GLOBALS.H"
 
 #define MAX_NUM_CACHED_TEXTURES (256)
 
@@ -50,19 +51,19 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 		SDL_RenderSetLogicalSize(g_renderer, screenWidth, screenHeight);
 		if (g_renderer == NULL)
 		{
-			printf("Error initialising renderer\n");
+			eprinterr("Error initialising renderer\n");
 		}
 	}
 	else
 	{
-		printf("Error: Failed to initialise SDL\n");
+		eprinterr("Error: Failed to initialise SDL\n");
 	}
 
 	SDL_GL_CreateContext(g_window);
 
 	if (glewInit() != GLEW_OK)
 	{
-		printf("Error initialising GLEW!\n");
+		eprinterr("Error initialising GLEW!\n");
 	}
 
 	SDL_memset(&vram, 0, sizeof(1024 * 512 * 2));
@@ -329,7 +330,7 @@ void Emulator_GenerateFrameBufferTexture()
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		printf("Frame buffer error");
+		eprinterr("Frame buffer error");
 	}
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

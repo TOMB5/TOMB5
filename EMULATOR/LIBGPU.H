@@ -5,7 +5,7 @@
 
 #include "LIBGTE.H"
 
-extern	int (*GPU_printf)(char *fmt, ...);
+extern	int (*GPU_printf)(const char *fmt, ...);
 
 #define WAIT_TIME	0x800000
 

@@ -122,16 +122,19 @@ int MoveImage(RECT16* rect, int x, int y)
 
 int ResetGraph(int mode)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int SetGraphDebug(int level)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int StoreImage(RECT16 * RECT16, u_long * p)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -175,6 +178,7 @@ u_long* ClearOTagR(u_long* ot, int n)
 
 void SetDispMask(int mask)
 {
+	UNIMPLEMENTED();
 }
 
 DISPENV* GetDispEnv(DISPENV* env)//(F)
