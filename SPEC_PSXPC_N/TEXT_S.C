@@ -350,7 +350,7 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 				{
 					//v1 = &word_9230E
 					c -= 0x18;
-					//s1 = v0 + v1
+					CHARDEF* s1 = &word_9230E[c + 0x18];
 					if (c > 3)
 					{
 						DrawChar(s2, y, 0, &word_9230E[c + 0x18]);
@@ -361,19 +361,32 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 						DrawChar(s2, y, s3, &word_9230E[c + 0x18]);
 						//addiu ra 0x1C ***************checkme
 					}
-				}
-				//loc_8DD20
-				CHARDEF* s1 = &loc_92020[c];
-				DrawChar(s2, y, s3, s1);
 
-				if ((flag & 0x1000))
-				{
-					s2 += s1->w - (s1->w >> 2);
+					if ((flag & 0x1000))
+					{
+						s2 += s1->w - (s1->w >> 2);
+					}
+					else
+					{
+						//loc_8DD50
+						s2 += s1->w;
+					}
 				}
 				else
 				{
-					//loc_8DD50
-					s2 += s1->w;
+					//loc_8DD20
+					CHARDEF* s1 = &loc_92020[c];
+					DrawChar(s2, y, s3, s1);
+
+					if ((flag & 0x1000))
+					{
+						s2 += s1->w - (s1->w >> 2);
+					}
+					else
+					{
+						//loc_8DD50
+						s2 += s1->w;
+					}
 				}
 			}
 
