@@ -9,6 +9,7 @@
 #include <EMULATOR.H>
 #include <LIBETC.H>
 #include "GAMEFLOW.H"
+#include "SHADOWS.H"
 
 #if PSXPC_VERSION || PSXPC_TEST
 #include <stdint.h>
@@ -93,13 +94,13 @@ void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short
 		POLY_F4* ptr = (POLY_F4*)db.polyptr;
 
 		setPolyF4(ptr);
-		setaddr(ptr, db.ot[unk]);
 
 		setRGB0(ptr, getR(unk2), getG(unk2), getB(unk2));
 
 		setXYWH(ptr, x, y, w, h);
 
-		db.ot[unk] = 0xFFFFFF & (unsigned long)(db.polyptr);
+		addPrim(db.ot + unk, ptr);
+		
 		db.polyptr += sizeof(POLY_F4);
 	}
 	//locret_5EE70
@@ -114,7 +115,8 @@ void DrawTPage(unsigned char a0, unsigned char a1) //5EE78(<), 5FB58(<)
 	{
 		setDrawTPage(db.polyptr, FALSE, FALSE, a1 * 32);
 
-		db.ot[a0] = 0xFFFFFF & (unsigned long)(db.polyptr);
+		addPrim(db.ot + a0, db.polyptr);
+
 		db.polyptr += sizeof(DR_TPAGE);
 	}
 }
@@ -127,7 +129,6 @@ void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigne
 
 		setLineG4(ptr);
 		setcode(ptr, 0x52); // todo: wtf?
-		setaddr(ptr, db.ot[a3]);
 
 		setRGB0(ptr, getR(a4), getG(a4), getB(a4));
 		setRGB1(ptr, getR(a5), getG(a5), getB(a5));
@@ -141,7 +142,7 @@ void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigne
 
 		//((int*)db.polyptr)[5] = 0; // todo
 
-		db.ot[a3] = 0xFFFFFF & (unsigned long)(db.polyptr);
+		addPrim(db.ot + a3, ptr);
 
 		db.polyptr += sizeof(LINE_G4);
 	}//locret_5EF7C
@@ -155,7 +156,6 @@ void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsign
 
 		setLineG4(ptr);
 		setcode(ptr, 0x52); // todo: wtf?
-		setaddr(ptr, db.ot[a3]);
 
 		setRGB0(ptr, getR(a4), getG(a4), getB(a4));
 		setRGB1(ptr, getR(a5), getG(a5), getB(a5));
@@ -169,7 +169,7 @@ void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsign
 
 		//((int*)db.polyptr)[5] = 0; // todo
 
-		db.ot[a3] = 0xFFFFFF & (unsigned long)(db.polyptr);
+		addPrim(db.ot + a3, ptr);
 
 		db.polyptr += sizeof(LINE_G4);
 	}//locret_5F038
@@ -197,7 +197,7 @@ void LOAD_VSyncHandler() //5F074(<), 5FD54(<) (F)
 		a1 += 8;
 		a2 = 48;
 	}
-
+	
 	//loc_5F0B4
 	draw_rotate_sprite(a0, a1, a2);
 	db.current_buffer ^= 1;
@@ -247,7 +247,6 @@ void draw_rotate_sprite(long a0, long a1, long a2) //5F134, 5FE14 (F)
 	t1 = t6 + t5;
 
 	setPolyFT4(ptr);
-	setaddr(ptr, db.ot[0]);
 	setRGB0(ptr, 128, 128, 128);
 
 	setUV4(ptr, 0, 0, 0, 63, 63, 0, 63, 63);
@@ -259,12 +258,12 @@ void draw_rotate_sprite(long a0, long a1, long a2) //5F134, 5FE14 (F)
 	setClut(ptr, 0, 0);
 	setTPage(ptr, 2, 1, 0, 256);
 
-	db.ot[0] = 0xFFFFFF & (unsigned long)(&db.polyptr[0]);
+	addPrim(db.ot, ptr);
+
 	db.polyptr += sizeof(POLY_FT4);
 	ptr++;
 
 	setPolyFT4(ptr);
-	setaddr(ptr, db.ot[0]);
 	setRGB0(ptr, 128, 128, 128);
 
 	setUV4(ptr, 0, 104, 255, 104, 0, 223, 255, 223);
@@ -276,7 +275,7 @@ void draw_rotate_sprite(long a0, long a1, long a2) //5F134, 5FE14 (F)
 	setClut(ptr, 0, 0);
 	setTPage(ptr, 2, 1, 100, 256);
 
-	db.ot[0] = 0xFFFFFF & (unsigned long)(&db.polyptr[0]);
+	addPrim(db.ot, ptr);
 	db.polyptr += sizeof(POLY_FT4);
 }
 

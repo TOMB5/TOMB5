@@ -284,9 +284,15 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			P_TAG* pTag = (P_TAG*)p;
 
 
-			switch (pTag->code)
+			switch (pTag->code & ~3)
 			{
-			case 0x2A:
+			case 0x00: // null poly
+				break;
+			case 0x20: // POLY_F3
+				goto unhandled;
+			case 0x24: // POLY_FT3
+				goto unhandled;
+			case 0x28: // POLY_F4
 			{
 				//Emulator_SetBlendMode((pTag->code & 2) != 0);
 				glEnable(GL_BLEND);
@@ -312,34 +318,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 				break;
 			}
-			case 0x3C:
-			{
-				
-				POLY_GT4* poly = (POLY_GT4*)pTag;
-				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
-
-				glBegin(GL_QUADS);
-
-				glColor3ubv(&poly->r0);
-				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
-				glVertex2f(poly->x0, poly->y0);
-
-				glColor3ubv(&poly->r1);
-				glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
-				glVertex2f(poly->x1, poly->y1);
-
-				glColor3ubv(&poly->r3);
-				glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
-				glVertex2f(poly->x3, poly->y3);
-
-				glColor3ubv(&poly->r2);
-				glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
-				glVertex2f(poly->x2, poly->y2);
-
-				glEnd();
-				break;
-			}
-			case 0x2C:
+			case 0x2C: // POLY_FT4
 			{
 				POLY_FT4* poly = (POLY_FT4*)pTag;
 				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
@@ -366,13 +345,42 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 #endif
 				break;
 			}
-			case 0xE1:
+			case 0x30: // POLY_G3
+				goto unhandled;
+			case 0x34: // POLY_GT3
+				goto unhandled;
+			case 0x38: // POLY_G4
+				goto unhandled;
+			case 0x3C: // POLY_GT4
 			{
-				unsigned short tpage = ((unsigned short*)pTag)[2];
-				Emulator_GenerateAndBindTpage(tpage, 0);
+				
+				POLY_GT4* poly = (POLY_GT4*)pTag;
+				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
+
+				glBegin(GL_QUADS);
+
+				glColor3ubv(&poly->r0);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
+				glVertex2f(poly->x0, poly->y0);
+
+				glColor3ubv(&poly->r1);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
+				glVertex2f(poly->x1, poly->y1);
+
+				glColor3ubv(&poly->r3);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
+				glVertex2f(poly->x3, poly->y3);
+
+				glColor3ubv(&poly->r2);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
+				glVertex2f(poly->x2, poly->y2);
+
+				glEnd();
 				break;
 			}
-			case 0x52:
+			case 0x40: // LINE_F2
+				goto unhandled;			
+			case 0x50: // LINE_G2
 			{
 				//Emulator_SetBlendMode(-1);
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
@@ -386,7 +394,29 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				glEnd();
 				break;
 			}
+			case 0x60: // TILE
+				goto unhandled;
+			case 0x64: // SPRT
+				goto unhandled;
+			case 0x68: // TILE_1
+				goto unhandled;
+			case 0x70: // TILE_8
+				goto unhandled;
+			case 0x74: // SPRT_8
+				goto unhandled;
+			case 0x78: // TILE_16
+				goto unhandled;
+			case 0x7C: // SPRT_16
+				goto unhandled;
+			case 0xE1: // TPAGE
+			{
+				unsigned short tpage = ((unsigned short*)pTag)[2];
+				Emulator_GenerateAndBindTpage(tpage, 0);
+				break;
+			}
+			unhandled:
 			default:
+				eprinterr("Unhandled primitive type: %02X\n", pTag->code);
 				//Unhandled poly
 				break;
 			}
