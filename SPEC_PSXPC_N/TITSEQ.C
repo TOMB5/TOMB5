@@ -1,5 +1,6 @@
-#include "TITSEQ.H"
+﻿#include "TITSEQ.H"
 
+#include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "EFFECTS.H"
 #include "GAMEFLOW.H"
@@ -7,12 +8,14 @@
 #include "LOADSAVE.H"
 #include "MEMCARD.H"
 #include "PSXINPUT.H"
+#include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
 #include "SPOTCAM.H"
 #include "TEXT_S.H"
 #include "MISC.H"
 
+#include <LIBETC.H>
 #include <stdio.h>//deleteme
 
 #define BLOCK_SPLINE_CAM (1)
@@ -30,6 +33,7 @@ unsigned char byte_1A8 = 0;
 
 unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
 unsigned int word_38 = 1;
+unsigned char byte_2600[] = { 0, 0, 0, 0, 0 }; ///@FIXME i don't know the len (maybe max of byte_46)
 
 struct CutseqMenuItem
 {
@@ -362,7 +366,8 @@ int TitleOptions(int Name)
 				if (savegame.CampaignSecrets[s1 - 1] < 9)
 				{
 					//loc_DDC
-					continue;
+					///continue;
+					word_38 = 5;//hack
 				}
 			}
 
@@ -419,7 +424,7 @@ int TitleOptions(int Name)
 		}
 		else if ((RawEdge & 0x4000))
 		{
-
+			sub_2154(Name, byte_2600[byte_46]);
 		}
 
 		return ret;
@@ -542,7 +547,7 @@ int TitleOptions(int Name)
 			else
 			{
 				//loc_850
-				sub_3A8();
+				///sub_3A8();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				byte_46 = 0;
 			}
@@ -556,7 +561,7 @@ int TitleOptions(int Name)
 			if (byte_46 != 0)
 			{
 				//loc_8EC
-				sub_3A8();
+				///sub_3A8();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				byte_46 = 0;
 			}
@@ -730,4 +735,118 @@ int sub_1054()
 	}
 
 	return ret;
+}
+
+void sub_2154(int Name, unsigned char a1)
+{
+	if (a1 != 0 && a1 != 4 || 1)
+	{
+		sub_219C(a1 - 1);
+		ReloadAnims(Name, cutseq_malloc_used);
+	}//loc_218C
+}
+
+void sub_219C(unsigned char a0)
+{
+	void* s1;
+	int fp;
+	int s4;
+	fp = 12;
+	//s7 = a0
+	//v0 = 1
+
+	if (a0 == 1)
+	{
+		fp = 15;
+	}
+
+	//loc_21DC
+	s4 = 0;
+
+#if DEBUG_VERSION
+	ProfileDraw = 0;
+#endif
+
+	DrawSync(0);
+	VSync(0);
+	//s0 = &db
+	//s1 = &db.disp[1]
+	//a0 = s1
+	db.draw[1].isbg = 0;
+	db.draw[0].isbg = 0;
+	db.draw[1].dtd = 0;
+	db.draw[0].dtd = 0;
+	db.current_buffer = 0;
+
+	PutDispEnv(&db.disp[1]);
+	ClearImage(&db.disp[1].disp, 0, 0, 0);
+
+	DrawSync(0);
+
+	//a0 = &db.disp[0];
+	ClearImage(&db.disp[0].disp, 0, 0, 0);
+	DrawSync(0);
+
+
+	init_cutseq_malloc();
+	s1 = cutseq_malloc(0x3C000);
+	///sub_2398(s1, a0, 0);
+
+	goto loc_22F4;
+
+	do
+	{
+		//loc_2290
+		if ((RawEdge & 0x80))
+		{
+			if (s4 < 0)
+			{
+				s4 = fp;
+			}
+			else
+			{//loc_22B4
+				s4--;
+			}
+
+			///sub_2398(s1, a0, s4);
+		}
+		//loc_22B4
+		//v0 = s4 < fp ? 1 : 0
+		if ((RawEdge & 0x20))
+		{
+			if (s4 < fp)
+			{
+				s4++;
+			}
+			else
+			{
+				s4 = 1;
+			}
+
+			//loc_22D4
+			///sub_2398(s1, a0, s4);
+
+		}//loc_22E4
+
+		DrawSync(0);
+		GPU_FlipStory((unsigned long*)s1);
+
+	loc_22F4:
+		GPU_BeginScene();
+		SetDebounce = 1;
+		S_UpdateInput();
+		PrintString(256, 220, 6, &gfStringWad[gfStringOffset[STR_PREVIOUS_NEXT_BACK]], 0x8000);
+
+	} while (!(RawEdge & 0x1000));
+
+	DrawSync(0);
+
+#if DEBUG_VERSION
+	ProfileDraw = 1;
+#endif
+
+	db.draw[1].isbg = 1;
+	db.draw[0].isbg = 1;
+	db.draw[1].dtd = 1;
+	db.draw[0].dtd = 1;
 }
