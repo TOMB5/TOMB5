@@ -223,7 +223,7 @@ void GPU_BeginScene() //5F0F0(<), 5FDD0(<)
 	Emulator_BeginScene();
 }
 
-void draw_rotate_sprite(long a0, long a1, long a2) //5F134, 5FE14 (F)
+void draw_rotate_sprite(long x, long y, long a2) //5F134, 5FE14 (F)
 {
 	long t0;
 	short* r_cossinptr;
@@ -251,10 +251,10 @@ void draw_rotate_sprite(long a0, long a1, long a2) //5F134, 5FE14 (F)
 
 	setUV4(ptr, 0, 0, 0, 63, 63, 0, 63, 63);
 	setXY4(ptr,
-		t0 + (t0 / 2) + a0, t5 + t6 + a1,
-		t4 + (t4 / 2) + a0, -t5 + t6 + a1,
-		t1 + (t1 / 2) + a0, (t5 - t6) + a1,
-		a2 + (a2 / 2) + a0, a1 + (-t5 - t6));
+		x + 1.5 * t0, y + t5 + t6,
+		x + 1.5 * t4, y - t5 + t6,
+		x + 1.5 * t1, y + t5 - t6,
+		x + 1.5 * a2, y - t5 - t6);
 	setClut(ptr, 0, 0);
 	setTPage(ptr, 2, 1, 0, 256);
 
