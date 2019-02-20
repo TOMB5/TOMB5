@@ -52,6 +52,9 @@
 #include <assert.h>
 #if PSXPC_VERSION || PSXPC_TEST
 	#include <stdint.h>
+#if DEBUG_VERSION
+#include "PROFILE.H"
+#endif
 #endif
 
 #if PSX_VERSION && !PSXPC_TEST
@@ -61,6 +64,10 @@ typedef unsigned int uintptr_t;
 #if PSX_VERSION
 #include "FXTRIG.H"
 #include "TEXT_S.H"
+#endif
+
+#if PSXPC_TEST
+#include <LIBETC.H>
 #endif
 
 #include <string.h>
@@ -362,7 +369,6 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 		case PUZZLE_ITEM1:
 		case PICKUP_ITEM1:
 		case PICKUP_ITEM2:
-		default:
 		{
 			//def_10FE0
 			int invobj;//a1
@@ -931,8 +937,13 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 	//loc_10A58
 	do
 	{
+#if PSXPC_TEST
+		//Because emulator doesn't call this every Vblank
+		VSync(0);
+#endif
 		XAReqVolume = 0;
 	} while (XAVolume != 0);
+
 #endif
 
 	NoInput = 0;
