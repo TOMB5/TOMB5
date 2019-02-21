@@ -64,6 +64,21 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 	
 #define setRGB3(p,_r3,_g3,_b3)						\
 	(p)->r3 = _r3,(p)->g3 = _g3,(p)->b3 = _b3
+
+
+
+
+#define setRGBP0(p,_r0,_g0,_b0,_p0)						\
+	(p)->r0 = _r0,(p)->g0 = _g0,(p)->b0 = _b0,(p)->p0 = _p0
+
+#define setRGBP1(p,_r1,_g1,_b1,_p1)						\
+	(p)->r1 = _r1,(p)->g1 = _g1,(p)->b1 = _b1,(p)->p1 = _p1
+
+#define setRGBP2(p,_r2,_g2,_b2,_p2)						\
+	(p)->r2 = _r2,(p)->g2 = _g2,(p)->b2 = _b2,(p)->p2 = _p2
+
+#define setRGBP3(p,_r3,_g3,_b3,_p3)						\
+	(p)->r3 = _r3,(p)->g3 = _g3,(p)->b3 = _b3,(p)->p3 = _p3
 	
 /*
  * Set Primitive Screen Points

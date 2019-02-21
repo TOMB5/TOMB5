@@ -111,6 +111,10 @@ void Emulator_CheckTextureIntersection(RECT16* rect)
 
 void Emulator_SaveVRAM(int width, int height)
 {
+#if NOFILE
+	return;
+#endif
+
 	FILE* f = fopen("VRAM.TGA", "wb");
 
 	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
@@ -128,6 +132,10 @@ void Emulator_SaveVRAM(int width, int height)
 
 void Emulator_SaveVRAM2(int width, int height)
 {
+#if NOFILE
+	return;
+#endif
+
 	FILE* f = fopen("VRAM.TGA", "wb");
 	if (f == NULL)
 	{
@@ -337,7 +345,7 @@ void Emulator_GenerateFrameBufferTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-#if _DEBUG
+#if _DEBUG && !NOFILE
 	unsigned short* pixelData2 = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
 	glReadPixels(0, 0, word_unknown00.clip.w, word_unknown00.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData2);
 
@@ -357,7 +365,7 @@ void Emulator_GenerateFrameBufferTexture()
 #endif
 
 	delete[] pixelData;
-#if _DEBUG
+#if _DEBUG && !NOFILE
 	delete[] pixelData2;
 #endif
 }
@@ -439,7 +447,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
 				}
 
 
-#if 1
+#if !NOFILE
 				FILE* f = fopen("TPAGE.TGA", "wb");
 				unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 				unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
@@ -542,7 +550,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
 			}
 
 
-#if _DEBUG
+#if _DEBUG && !NOFILE
 			FILE* f = fopen("TPAGE.TGA", "wb");
 			unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 			unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,32,0 };
@@ -588,7 +596,7 @@ void Emulator_DestroyLastVRAMTexture()
 		}
 	}
 
-#if _DEBUG
+#if _DEBUG && !NOFILE
 	FILE* f = fopen("VRAM2.TGA", "wb");
 	if (f == NULL)
 	{
