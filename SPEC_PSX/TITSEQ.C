@@ -652,10 +652,9 @@ int TitleOptions(int Name)
 
 void sub_2B0()
 {
-	printf("DEBUG!\n");
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		((int*)db.polyptr)[4] = 0x2C808080;
+		((int*)db.polyptr)[1] = 0x2C808080;
 		((char*)db.polyptr)[3] = 9;
 		((short*)db.polyptr)[5] = 24;
 		((short*)db.polyptr)[9] = 24;
