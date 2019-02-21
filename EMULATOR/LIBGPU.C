@@ -281,6 +281,11 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 		do
 		{
+#if 1
+			if (((unsigned)env & 0x1000000) && !((unsigned)pTag & 0x1000000))
+				pTag = (P_TAG*)((unsigned)pTag | 0x1000000);
+#endif
+
 			switch (pTag->code & ~3)
 			{
 			case 0x00: // null poly
