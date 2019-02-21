@@ -80,57 +80,63 @@ void ProfileAddOT(unsigned long* ot)//61A90, * (F)
 		//loc_61AD0
 		for (count = 0; count < nummarks; count++)
 		{
-			if ((unsigned long) &db.polyptr[0] > (unsigned long)&db.polybuf_limit[0])
+			if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 			{
+				((char*)db.polyptr)[3] = 4;
+				((char*)db.polyptr)[7] = 33;
+				((char*)db.polyptr)[4] = 50;
+				((char*)db.polyptr)[5] = 50;
+				((char*)db.polyptr)[6] = 150;
+				((short*)db.polyptr)[5] = 20;
+				((short*)db.polyptr)[7] = 20;
+				((short*)db.polyptr)[9] = 30;
+				((short*)db.polyptr)[6] = (count * grid) + 29;
+				((short*)db.polyptr)[4] = (count * grid) + 21;
+				((short*)db.polyptr)[8] = (count * grid) + 25;
+				((unsigned long*)db.polyptr)[0] = (((long*)db.polyptr)[0] & 0xFF000000) | (ot[0] & 0xFFFFFF);
+				ot[0] = (ot[0] & 0xFF000000) | (unsigned long)db.polyptr & 0xFFFFFF;
+				db.polyptr += 0x14;
+			}
+			else
+			{
+				//locret_61C8C
 				return;
 			}
-
-			setlen(db.polyptr, 4);
-			setcode(db.polyptr, 0x21);
-			setRGB0((POLY_F3*)db.polyptr, 50, 50, 150);
-
-			*(short*) &db.polyptr[10] = 20;//y0
-			*(short*) &db.polyptr[14] = 20;//clut
-			*(short*) &db.polyptr[18] = 30;//y1
-
-			*(short*) &db.polyptr[12] = count * grid + 29;
-			*(short*) &db.polyptr[8] = count * grid + 21;
-			*(short*) &db.polyptr[16] = count * grid + 25;
-
-			*(long*) &db.polyptr[0] = *(long*) &db.polyptr[0] & 0xFF000000 | ot[0] & 0xFFFFFF;
-			*(long*) &ot = ot[0] & 0xFF000000 | (unsigned long) db.polyptr & 0xFFFFFF;
-			db.polyptr += 0x14;
 		}
 	}
-
 	//loc_61B78
 	if (numprof > 0)
 	{
+		//loc_61BA8
 		for (count = 0; count < numprof; count++)
 		{
-			if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
+			if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 			{
-				setlen(db.polyptr, 5);
-				setcode(db.polyptr, 0x29);
-				setRGB0((POLY_F4*)db.polyptr, ProfileInfo[count].r, ProfileInfo[count].g, ProfileInfo[count].b);
-
-				((short*) db.polyptr)[10] = 0x19;
-				((short*) db.polyptr)[4] = ProfileInfo[count].profile_xcnt;
-				((short*) db.polyptr)[7] = 0x19;
-				((short*) db.polyptr)[6] = ProfileInfo[count].profile_xcnt + ProfileInfo[count].finalcnt;
-				((short*) db.polyptr)[9] = 0x21;
-				((short*) db.polyptr)[8] = ProfileInfo[count].profile_xcnt;
-				((short*) db.polyptr)[11] = 0x21;
-				((short*) db.polyptr)[10] = ProfileInfo[count].profile_xcnt + ProfileInfo[count].finalcnt;
-
-				((long*) db.polyptr)[0] = (((long*) db.polyptr)[0] & 0xFF000000) | (ot[0] & 0xFFFFFF);
-				ot[0] = (ot[0] & 0xFF000000) | ((unsigned long) db.polyptr & 0xFFFFFF);
-
+				((char*)db.polyptr)[3] = 5;
+				((char*)db.polyptr)[7] = 41;
+				((char*)db.polyptr)[4] = ProfileInfo[count].r;
+				((char*)db.polyptr)[5] = ProfileInfo[count].g;
+				((char*)db.polyptr)[6] = ProfileInfo[count].b;
+				((short*)db.polyptr)[5] = 25;
+				((short*)db.polyptr)[4] = ProfileInfo[count].profile_xcnt;
+				((short*)db.polyptr)[7] = 25;
+				((short*)db.polyptr)[6] = ProfileInfo[count].profile_xcnt + ProfileInfo[count].finalcnt;
+				((short*)db.polyptr)[9] = 33;
+				((short*)db.polyptr)[8] = ProfileInfo[count].profile_xcnt;
+				((short*)db.polyptr)[11] = 33;
+				((short*)db.polyptr)[10] = ProfileInfo[count].profile_xcnt + ProfileInfo[count].finalcnt;
+				((unsigned long*)db.polyptr)[0] = (((unsigned long*)db.polyptr)[0] & 0xFF000000) | (ot[0] & 0xFFFFFF);
+				ot[0] = (ot[0] & 0xFF000000) | ((unsigned long)db.polyptr & 0xFFFFFF);
 				db.polyptr += 0x18;
+			}
+			else
+			{
+				return;
 			}
 		}
 	}
 }
+
 
 void ProfileRGB(int r, int g, int b)//61C94, * (F) (D)
 {
@@ -157,62 +163,59 @@ void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 		//loc_61D5C
 		for (count = 0; count < nummarks; count++)
 		{
-			if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
+			if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 			{
-				setlen(db.polyptr, 4);
-				setcode(db.polyptr, 0x21);
-				setRGB0((POLY_F3*)db.polyptr, 50, 50, 150);
-
-				((short*) db.polyptr)[5] = 48;
-				((short*) db.polyptr)[3] = 48;
-				((short*) db.polyptr)[9] = 39;
-
-				((short*) db.polyptr)[6] = (count * grid) + 0x1D;
-				((short*) db.polyptr)[4] = (count * grid) + 0x15;
-				((short*) db.polyptr)[8] = (count * grid) + 0x19;
-
-				((long*) db.polyptr)[0] &= 0xFF000000;
-				((long*) db.polyptr)[0] |= ot[0] & 0xFFFFFF;
-
-				ot[0] = ot[0] & 0xFF000000 | ((long) db.polyptr & 0xFFFFFF);
+				((char*)db.polyptr)[3] = 4;
+				((char*)db.polyptr)[7] = 33;
+				((char*)db.polyptr)[4] = 50;
+				((char*)db.polyptr)[5] = 50;
+				((char*)db.polyptr)[6] = 150;
+				((short*)db.polyptr)[5] = 48;
+				((short*)db.polyptr)[7] = 48;
+				((short*)db.polyptr)[9] = 39;
+				((short*)db.polyptr)[6] = (count * grid) + 29;
+				((short*)db.polyptr)[4] = (count * grid) + 21;
+				((short*)db.polyptr)[8] = (count * grid) + 25;
+				((unsigned long*)db.polyptr)[0] = (((unsigned long*)db.polyptr)[0] & 0xFF000000) | (ot[0] & 0xFFFFFF);
+				ot[0] = (ot[0] & 0xFF000000) | (unsigned long)db.polyptr & 0xFFFFFF;
 				db.polyptr += 0x14;
 			}
 			else
 			{
-				//locret_61EE0
 				return;
 			}
 		}
 	}
 
-	//loc_61E08
-	if ((unsigned long) db.polyptr < (unsigned long) db.polybuf_limit)
+	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		setlen(db.polyptr, 8);
-		setcode(db.polyptr, 0x39);
-		setRGB0((POLY_G4*)db.polyptr, 0, 200, 0);
-		setRGB1((POLY_G4*)db.polyptr, 200, 0, 0);
-		setRGB2((POLY_G4*)db.polyptr, 0, 200, 0);
-		setRGB3((POLY_G4*)db.polyptr, 200, 0, 0);
+		((char*)db.polyptr)[3] = 8;
+		((char*)db.polyptr)[7] = 57;
+		((char*)db.polyptr)[4] = 0;
+		((char*)db.polyptr)[5] = 200;
+		((char*)db.polyptr)[6] = 0;
+		((char*)db.polyptr)[12] = 200;
+		((char*)db.polyptr)[13] = 0;
+		((char*)db.polyptr)[14] = 0;
+		((char*)db.polyptr)[20] = 0;
+		((char*)db.polyptr)[21] = 200;
+		((char*)db.polyptr)[22] = 0;
+		((char*)db.polyptr)[28] = 200;
+		((char*)db.polyptr)[29] = 0;
+		((char*)db.polyptr)[30] = 0;
+		((short*)db.polyptr)[5] = 36;
+		((short*)db.polyptr)[9] = 36;
+		((short*)db.polyptr)[4] = 25;
+		((short*)db.polyptr)[12] = 25;
+		((short*)db.polyptr)[13] = 44;
+		((short*)db.polyptr)[17] = 44;
+		((short*)db.polyptr)[8] = drawCount + 25;
+		((short*)db.polyptr)[16] = drawCount + 25;
+		((unsigned long*)db.polyptr)[0] = (((unsigned long*)db.polyptr)[0] & 0xFF000000) | (ot[0] & 0xFFFFFF);
+		ot[0] = (ot[0] & 0xFF000000) | ((unsigned long)db.polyptr & 0xFFFFFF);
+		db.polyptr += 0x24;
 
-		((short*) db.polyptr)[5] = 36;//y0
-		((short*) db.polyptr)[9] = 36;
-		((short*) db.polyptr)[4] = 25;
-
-		((short*) db.polyptr)[12] = 25;
-		((short*) db.polyptr)[13] = 44;
-		((short*) db.polyptr)[17] = 44;
-		
-		((short*) db.polyptr)[8] = drawCount + 25;
-		((short*) db.polyptr)[16] = drawCount + 25;
-
-		((long*) db.polyptr)[0] &= 0xFF000000;
-		((long*) db.polyptr)[0] |= ot[0] & 0xFFFFFF;
-
-		ot[0] = ot[0] & 0xFF000000 | (long) db.polyptr & 0xFFFFFF;
-		db.polyptr += sizeof(POLY_G4);
-		
-	}
+	}//locret_61EE0
 }
 
 

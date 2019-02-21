@@ -273,7 +273,7 @@ void draw_rotate_sprite(long x, long y, long a2) //5F134, 5FE14 (F)
 		256, 239,
 		511, 239);
 	setClut(ptr, 0, 0);
-	setTPage(ptr, 2, 1, 100, 256);
+	setTPage(ptr, 2, 1, 256, 256);
 
 	addPrim(db.ot, ptr);
 	/**(long*)&db.polyptr[4] = 0x2C808080;

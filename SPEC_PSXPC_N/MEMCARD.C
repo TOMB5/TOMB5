@@ -25,27 +25,29 @@ void mcDir()//61EE8(<), 625CC(<)
 	int k = 0;
 	struct DIRENTRY* dir = (struct DIRENTRY*)&tsv_buffer[0];
 
-	MemCardGetDirentry(0, "*", dir, (long*)&mcNumFiles, 0, 0);
+	MemCardGetDirentry(0, "*", dir, (long*)&mcNumFiles, 0, 15);
 
 	mcBlocksFree = 15;
 	
 	if(mcNumFiles > 0)
 	{
 		//loc_61F50
-		for(i = 0; i < mcNumFiles; i++, j++, k++, dir++)
+		for(i = 0; i < mcNumFiles; i++, dir++)
 		{
 			//loc_61F68
 			mcBlocksFree -= dir->size + 0x1FFF < 0 ? dir->size + 0x3FFE : dir->size + 0x1FFF;
 			
 			if(strncmp(&gfStringWad[gfStringOffset[STR_PSX_GAME_ID]], dir->name, 12) == 0)
 			{
-				((int*)&mcFileNames[i][0])[0] = ((int*)&dir->name)[0];
-				((int*)&mcFileNames[i][4])[0] = ((int*)&dir->name[4])[0];
-				((int*)&mcFileNames[i][8])[0] = ((int*)&dir->name[8])[0];
-				((int*)&mcFileNames[i][12])[0] = ((int*)&dir->name[12])[0];
-				((int*)&mcFileNames[i][16])[0] = ((int*)&dir->name[16])[0];
+				((int*)&mcFileNames[j][0])[0] = ((int*)&dir->name[0])[0];
+				((int*)&mcFileNames[j][4])[0] = ((int*)&dir->name[4])[0];
+				((int*)&mcFileNames[j][8])[0] = ((int*)&dir->name[8])[0];
+				((int*)&mcFileNames[j][12])[0] = ((int*)&dir->name[12])[0];
+				((int*)&mcFileNames[j][16])[0] = ((int*)&dir->name[16])[0];
 				
 				mcFileLengths[j] = dir->size;
+				j++;
+				k++;
 			}
 		}
 	}//loc_62028

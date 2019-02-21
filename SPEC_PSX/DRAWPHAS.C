@@ -117,19 +117,19 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 	if (BinocularRange == 0 && SCOverlay == 0 && SniperOverlay != 0)
 	{
 		//loc_641F4
-		DrawBinoculars();
+		//DrawBinoculars();
 
 		if (InfraRed)
 		{
-			DrawPsxTile(0, 0xF00200, 0x62202000, 2);//@a1 = 8bit window height 16bit window width
-			DrawPsxTile(0, 0xF00200, 0x62000020, 1);//@a1 = 8bit window height 16bit window width
+			//DrawPsxTile(0, 0xF00200, 0x62202000, 2);//@a1 = 8bit window height 16bit window width
+			//DrawPsxTile(0, 0xF00200, 0x62000020, 1);//@a1 = 8bit window height 16bit window width
 		}
 	}
 
 	//loc_6424C
 	if (FlashFader != 0)
 	{
-		DrawFlash();
+		//DrawFlash();
 		FlashFader -= 2;
 	}
 
@@ -142,7 +142,7 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 	}
 
 	//loc_642AC
-	DrawGameInfo(1);
+	//DrawGameInfo(1);
 
 	if (BinocularRange == 0 || SniperOverlay == 0 && SCOverlay != 0)
 	{
@@ -150,17 +150,17 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 		if (LaserSight != 0 || SCOverlay != 0 && SniperOverlay != 0)
 		{
 			//loc_6432C
-			insert_psx_clip_window(SCREEN_WIDTH / 2, 100, 23, 312, SCREEN_HEIGHT - 44);
+			//insert_psx_clip_window(SCREEN_WIDTH / 2, 100, 23, 312, SCREEN_HEIGHT - 44);
 
 			if (SniperOverlay != 0)
 			{
-				MGDrawSprite(0x100, 0x78, 0xE, 0, 4, 4, 0x80);
+				//MGDrawSprite(0x100, 0x78, 0xE, 0, 4, 4, 0x80);
 			}//loc_643C4
 		}
 		else
 		{
 			//loc_64380
-			insert_psx_clip_window(SCREEN_WIDTH / 2, 33, 23, 448, SCREEN_HEIGHT - 46);
+			//insert_psx_clip_window(SCREEN_WIDTH / 2, 33, 23, 448, SCREEN_HEIGHT - 46);
 		}
 	}
 	else
@@ -168,7 +168,7 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 		//loc_64398
 		if (FadeScreenHeight != 0)
 		{
-			insert_psx_clip_window(0, FadeScreenHeight, SCREEN_WIDTH, SCREEN_HEIGHT, FadeScreenHeight * 2);
+			//insert_psx_clip_window(0, FadeScreenHeight, SCREEN_WIDTH, SCREEN_HEIGHT, FadeScreenHeight * 2);
 		}//loc_643C4
 	}
 
@@ -300,17 +300,17 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 			{
 				if (gfCurrentLevel == LVL5_TITLE && jobyfrigger != 0)
 				{
-					DrawSkyMesh(meshes[objects[CHEF_MIP].mesh_index]);
+					//DrawSkyMesh(meshes[objects[CHEF_MIP].mesh_index]);
 				}
 				else
 				{
-					DrawSkyMesh(meshes[objects[HORIZON].mesh_index]);
+					//DrawSkyMesh(meshes[objects[HORIZON].mesh_index]);
 				}
 			}//loc_64728
 
 			if (gfLevelFlags & GF_LVOP_LAYER2_USED)
 			{
-				DrawFlatSky_ASM(gfLayer2Col, SkyPos2, 0xFFFFFA00);
+				//DrawFlatSky_ASM(gfLayer2Col, SkyPos2, 0xFFFFFA00);
 			}//loc_64758
 
 			if (gfLevelFlags & GF_LVOP_LAYER1_USED)
@@ -325,7 +325,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 				else
 				{
 					//loc_647D4
-					DrawFlatSky_ASM(gfLayer1Col, SkyPos, 0xFFFFFA00);
+					//DrawFlatSky_ASM(gfLayer1Col, SkyPos, 0xFFFFFA00);
 				}
 
 			}//loc_647F0
@@ -457,7 +457,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (BinocularRange != 0)
 	{
-		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
+		//DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 	}
 	else
 	{
@@ -479,7 +479,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (GLOBAL_playing_cutseq != 0)
 	{
-		DrawCutSeqActors();
+		//DrawCutSeqActors();
 	}//loc_64C04
 
 	 //unsigned long* v0 = (unsigned long*)RelocPtr[18];
@@ -541,7 +541,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 		//jalr v0[3];
 	}//loc_64D70
 
-	S_DrawSparks();
+	//S_DrawSparks();
 
 	lara_item->pos.x_pos = sp.x;
 	lara_item->pos.y_pos = sp.y;
@@ -576,8 +576,8 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 
 	//loc_64E50
-	S_DrawFootPrints();
-	DrawGunflashes();
+	//S_DrawFootPrints();
+	//DrawGunflashes();
 }
 
 void SortOutWreckingBallDraw()//64E78(<), 65528(<) (F)
