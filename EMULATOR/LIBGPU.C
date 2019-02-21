@@ -428,11 +428,12 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 
 			//p = (unsigned long*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
-			p = (unsigned long*)((P_TAG*)p)->addr;
+			pTag = (P_TAG*)pTag->addr;
 			//p = (unsigned long*)*p;
 
-			//Emulator_SetBlendMode(-1);
-		}while (p != &terminator);
+			//Reset for vertex colours
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		}while ((unsigned long*)pTag != &terminator && (unsigned long)pTag != 0xFFFFFF);
 
 		Emulator_DestroyLastVRAMTexture();
 		Emulator_DeleteFrameBufferTexture();
