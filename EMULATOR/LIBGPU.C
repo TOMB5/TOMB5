@@ -281,6 +281,11 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 		do
 		{
+#if 1
+			if (((unsigned)env & 0x1000000) && !((unsigned)p & 0x1000000))
+				p = (u_long*)((unsigned)p | 0x1000000);
+#endif
+
 			P_TAG* pTag = (P_TAG*)p;
 
 

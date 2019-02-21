@@ -251,10 +251,10 @@ void draw_rotate_sprite(long x, long y, long a2) //5F134, 5FE14 (F)
 
 	setUV4(ptr, 0, 0, 0, 63, 63, 0, 63, 63);
 	setXY4(ptr,
-		x + 1.5 * t0, y + t5 + t6,
-		x + 1.5 * t4, y - t5 + t6,
-		x + 1.5 * t1, y + t5 - t6,
-		x + 1.5 * a2, y - t5 - t6);
+		x + t0 + t0 / 2, y + t5 + t6,
+		x + t4 + t4 / 2, y - t5 + t6,
+		x + t1 + t1 / 2, y + t5 - t6,
+		x + a2 + a2 / 2, y - t5 - t6);
 	setClut(ptr, 0, 0);
 	setTPage(ptr, 2, 1, 0, 256);
 
