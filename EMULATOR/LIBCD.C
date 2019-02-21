@@ -8,8 +8,6 @@
 
 #define DISC_IMAGE_FILENAME "TOMB5.BIN"
 
-#define DECODE_BCD(x) (((x) >> 4) * 10 + ((x) & 0xF))
-#define ENCODE_BCD(x) ((((x) / 10) << 4) | ((x) % 10))
 
 FILE* openFile = NULL;
 

@@ -407,6 +407,10 @@ void frig_with_monitor_screen(int a0)
 
 void S_AnimateTextures(long nFrames)
 {
+#if DEBUGSKIP
+	return;
+#endif
+
 	AnimComp += nFrames;
 
 	while (AnimComp > 5)

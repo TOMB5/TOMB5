@@ -1616,6 +1616,7 @@ void LoadLevel(FILE* nHandle)
 	//t0 = psxtextinfo
 
 	//loc_D20
+#if 0
 	for (i = 5; i >= 0; i--)
 	{
 		if (objects[WATERFALL1 + i].loaded)
@@ -1624,18 +1625,14 @@ void LoadLevel(FILE* nHandle)
 			meshptr = meshes[objects[WATERFALL1 + i].mesh_index];
 			meshptr += 6;//0xC for next itr?
 			meshptr += meshptr[5] << 16 >> 17;
-			((int*)AnimatingWaterfalls[i])[0] = (uintptr_t)&psxtextinfo[meshptr[2] << 4];//why << 4? 1<<4=16!
+			AnimatingWaterfalls[i] = (PSXTEXTI*)&psxtextinfo[meshptr[2] << 4];//why << 4? 1<<4=16!
 			AnimatingWaterfallsV[i] = ((char*)&psxtextinfo[meshptr[2] << 4])[1];//why << 4? 1<<4=16!
 		}//loc_D84
 	}
-
-#if 1
-	MonitorScreenTI = NULL;
-#else
-	///@FIXME check 
-	//Retail: sw      $zero, 0xA6F5C
-	//Beta: sw      $zero, 0xA5534
 #endif
+
+	MonitorScreenTI = NULL;
+
 	//a0 = &objects
 #if 0
 	if (objects[MONITOR_SCREEN].loaded)

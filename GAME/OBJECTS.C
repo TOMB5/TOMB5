@@ -186,7 +186,7 @@ void ControlTriggerTriggerer(short item_number)
 
 void AnimateWaterfalls()//4FABC(<), 4FF20(<)
 {
-#if PSX_VERSION
+#if PSX_VERSION && 0
 	struct PSXTEXTI* Twaterfall;
 	long i;
 	long speed1;

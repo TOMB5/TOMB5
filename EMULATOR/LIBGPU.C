@@ -255,6 +255,15 @@ u_long DrawSyncCallback(void(*func)(void))
 	return 0;
 }
 
+void* fixptr(void* ptr)
+{
+#if 1
+	if (((unsigned)&terminator & 0x1000000) && !((unsigned)ptr & 0x1000000))
+		return (void*)((unsigned)ptr | 0x1000000);
+#endif
+	return ptr;
+}
+
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
 	PutDrawEnv(env);
@@ -277,15 +286,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
 
-		P_TAG* pTag = (P_TAG*)p;
+		P_TAG* pTag = (P_TAG*)fixptr(p);
 
 		do
 		{
-#if 1
-			if (((unsigned)env & 0x1000000) && !((unsigned)pTag & 0x1000000))
-				pTag = (P_TAG*)((unsigned)pTag | 0x1000000);
-#endif
-
 			switch (pTag->code & ~3)
 			{
 			case 0x00: // null poly
@@ -433,7 +437,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 
 			//p = (unsigned long*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
-			pTag = (P_TAG*)pTag->addr;
+			pTag = (P_TAG*)fixptr((void*)pTag->addr);
 			//p = (unsigned long*)*p;
 
 			//Reset for vertex colours
