@@ -13,8 +13,8 @@
 
 extern int(*printf_)(const char * format, ...);
 
-#define eprintf(fmt, ...) printf_("[EMU] " fmt, __VA_ARGS__)
-#define eprinterr(fmt, ...) eprintf("[%s] - " fmt, FUNCNAME, __VA_ARGS__);
+#define eprintf(fmt, ...) printf_("[EMU] " fmt, ##__VA_ARGS__)
+#define eprinterr(fmt, ...) eprintf("[%s] - " fmt, FUNCNAME, ##__VA_ARGS__);
 
 #define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
 
