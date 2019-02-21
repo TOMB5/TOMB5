@@ -465,7 +465,6 @@ int TitleOptions(int Name)
 		}
 		else if (mcGetStatus() != 0)
 		{
-			printf("mcGetStatus == 0*******************************************************\n");
 			y = 192;
 			//loc_6B8
 			if (CanLoad == 1)
@@ -476,7 +475,6 @@ int TitleOptions(int Name)
 		}
 		else if (mcNumFiles != 0)
 		{
-			printf("mcNumFiles != 0*******************************************************\n");
 			//loc_6B0
 			y = 208;
 			if (CanLoad == 0)
@@ -498,7 +496,6 @@ int TitleOptions(int Name)
 		{
 			//loc_6B0
 			y = 192;
-			printf("else *******************************************************\n");
 		}
 
 		//j loc_6D8
@@ -652,10 +649,9 @@ int TitleOptions(int Name)
 
 void sub_2B0()
 {
-	printf("DEBUG!\n");
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		((int*)db.polyptr)[4] = 0x2C808080;
+		((int*)db.polyptr)[1] = 0x2C808080;
 		((char*)db.polyptr)[3] = 9;
 		((short*)db.polyptr)[5] = 24;
 		((short*)db.polyptr)[9] = 24;
@@ -676,7 +672,7 @@ void sub_2B0()
 		((short*)db.polyptr)[7] = 7972;
 		((short*)db.polyptr)[11] = 41;
 
-		((unsigned long*)db.polyptr)[0] = (((unsigned long*)db.polyptr)[0] & 0xFFFFFF) | (db.ot[0] & 0xFFFFFF);
+		(((unsigned long*)db.polyptr)[0] = ((unsigned long*)db.polyptr)[0] & 0xFF000000 | db.ot[0] & 0xFFFFFF);
 		db.ot[0] = (db.ot[0] & 0xFF000000) | ((unsigned long)db.polyptr & 0xFFFFFF);
 		
 		db.polyptr += sizeof(POLY_FT4);

@@ -651,7 +651,7 @@ void sub_2B0()
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		((int*)db.polyptr)[4] = 0x2C808080;
+		((int*)db.polyptr)[1] = 0x2C808080;
 		((char*)db.polyptr)[3] = 9;
 		((short*)db.polyptr)[5] = 24;
 		((short*)db.polyptr)[9] = 24;
@@ -672,7 +672,7 @@ void sub_2B0()
 		((short*)db.polyptr)[7] = 7972;
 		((short*)db.polyptr)[11] = 41;
 
-		((unsigned long*)db.polyptr)[0] = ((unsigned long*)db.polyptr)[0] & 0xFFFFFF | (db.ot[0] & 0xFFFFFF);
+		(((unsigned long*)db.polyptr)[0] = ((unsigned long*)db.polyptr)[0] & 0xFF000000 | db.ot[0] & 0xFFFFFF);
 		db.ot[0] = (db.ot[0] & 0xFF000000) | ((unsigned long)db.polyptr & 0xFFFFFF);
 
 		db.polyptr += sizeof(POLY_FT4);

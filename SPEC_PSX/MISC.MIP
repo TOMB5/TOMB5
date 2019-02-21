@@ -166,8 +166,8 @@ DrawTPage:
 DrawLineH:
 	andi    a0, 0xFFFF
 	andi    a1, 0xFFFF
-	lw      t0, db+0x8
-	lw      at, db+0x10
+	lw      t0, db+0x8-GP_ADDR(gp)
+	lw      at, db+0x10-GP_ADDR(gp)
 	andi    a2, 0xFFFF
 	sltu    at, t0, at
 	beqz    at, locret_5EF7C
@@ -247,7 +247,7 @@ DrawLineV:
 	addiu   v0, -2
 	sh      a0, 0x24(t0)
 	sh      v0, 0x26(t0)
-	lw      t2, db+0x4
+	lw      t2, db+0x4;FIXME -GP_ADDR(gp)
 	sll     a3, 2
 	addu    a3, t2
 	lw      v0, 0(a3)
