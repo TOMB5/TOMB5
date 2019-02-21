@@ -1,7 +1,7 @@
 #ifndef EMULATOR_GLOBALS_H
 #define EMULATOR_GLOBALS_H
 
-#include <cstdint>
+#include <stdint.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 
