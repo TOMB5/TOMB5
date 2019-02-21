@@ -273,19 +273,28 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
 
-		P_TAG* pLastValidTag;
+		P_TAG* pTag = (P_TAG*)p;
 
 		do
 		{
-			P_TAG* pTag = (P_TAG*)p;
-
-
 			switch (pTag->code)
 			{
 			case 0x2A:
 			{
+
+
+
+
+
+
+
+
+
+
+
+
+
 				//Emulator_SetBlendMode((pTag->code & 2) != 0);
-				glEnable(GL_BLEND);
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 				POLY_F4* poly = (POLY_F4*)pTag;
@@ -314,7 +323,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				POLY_GT4* poly = (POLY_GT4*)pTag;
 				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
 
-				glBegin(GL_QUADS);
+
+				glBegin(GL_TRIANGLES);
+
 
 				glColor3ubv(&poly->r0);
 				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
@@ -323,6 +334,17 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				glColor3ubv(&poly->r1);
 				glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
 				glVertex2f(poly->x1, poly->y1);
+
+				glColor3ubv(&poly->r3);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
+				glVertex2f(poly->x3, poly->y3);
+
+				//
+
+
+				glColor3ubv(&poly->r0);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
+				glVertex2f(poly->x0, poly->y0);
 
 				glColor3ubv(&poly->r3);
 				glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
@@ -342,7 +364,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 #if 1
 				glBegin(GL_QUADS);
-				//glColor3ub(poly->r0, poly->g0, poly->b0);
+				glColor3ub(poly->r0, poly->g0, poly->b0);
 				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
 				glVertex2f(poly->x0, poly->y0);
 
@@ -377,7 +399,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				glColor3ubv(&poly->r0);
 				glBegin(GL_LINES);
 				glVertex2f(poly->x0, poly->y0);
-				poly++;//Bug
 				glVertex2f(poly->x1, poly->y1);
 				glEnd();
 				break;
@@ -389,11 +410,12 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 
 			//p = (unsigned long*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
-			p = (unsigned long*)((P_TAG*)p)->addr;
+			pTag = (P_TAG*)pTag->addr;
 			//p = (unsigned long*)*p;
 
-			//Emulator_SetBlendMode(-1);
-		}while (p != &terminator);
+			//Reset for vertex colours
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		}while ((unsigned long*)pTag != &terminator);
 
 		Emulator_DestroyLastVRAMTexture();
 		Emulator_DeleteFrameBufferTexture();
@@ -406,8 +428,5 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 	}
 
 	Emulator_CheckTextureIntersection(&env->clip);
-
-	//Reset for vertex colours
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 

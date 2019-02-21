@@ -1,4 +1,4 @@
-﻿#include "TITSEQ.H"
+#include "TITSEQ.H"
 
 #include "CONTROL.H"
 #include "DELTAPAK.H"
@@ -18,12 +18,24 @@
 #include <LIBETC.H>
 #include <stdio.h>//deleteme
 
+#if! DISC_VERSION
+#include <LIBSN.H>
+#include "FILE.H"
+#endif
+
 #define BLOCK_SPLINE_CAM (1)
 
 #if PSX_VERSION && RELOC
 void* func_titseq[] __attribute__((section(".header"))) =
 {
 	&TitleOptions(int Name),
+};
+
+unsigned char titseqData[] __attribute__((section(".data"))) =
+{
+	0,//byte_46
+	0,//byte_47
+	0,//byte_1A8
 };
 #endif
 
@@ -33,7 +45,12 @@ unsigned char byte_1A8 = 0;
 
 unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
 unsigned int word_38 = 1;
+
+#if BETA_VERSION
 unsigned char byte_2600[] = { 0, 0, 0, 0, 0 }; ///@FIXME i don't know the len (maybe max of byte_46)
+#else
+unsigned char byte_2600[] = { 0, 1, 2, 3, 4 }; ///@FIXME i don't know the len (maybe max of byte_46)
+#endif
 
 struct CutseqMenuItem
 {
@@ -366,8 +383,7 @@ int TitleOptions(int Name)
 				if (savegame.CampaignSecrets[s1 - 1] < 9)
 				{
 					//loc_DDC
-					///continue;
-					word_38 = 5;//hack
+					continue;
 				}
 			}
 
@@ -739,7 +755,7 @@ int sub_1054()
 
 void sub_2154(int Name, unsigned char a1)
 {
-	if (a1 != 0 && a1 != 4 || 1)
+	if (a1 != 0 && a1 != 4)
 	{
 		sub_219C(a1 - 1);
 		ReloadAnims(Name, cutseq_malloc_used);
@@ -787,10 +803,9 @@ void sub_219C(unsigned char a0)
 	ClearImage(&db.disp[0].disp, 0, 0, 0);
 	DrawSync(0);
 
-
 	init_cutseq_malloc();
 	s1 = cutseq_malloc(0x3C000);
-	///sub_2398(s1, a0, 0);
+	sub_2398((char*)s1, a0, 0);
 
 	goto loc_22F4;
 
@@ -808,7 +823,7 @@ void sub_219C(unsigned char a0)
 				s4--;
 			}
 
-			///sub_2398(s1, a0, s4);
+			sub_2398((char*)s1, a0, s4);
 		}
 		//loc_22B4
 		//v0 = s4 < fp ? 1 : 0
@@ -824,7 +839,7 @@ void sub_219C(unsigned char a0)
 			}
 
 			//loc_22D4
-			///sub_2398(s1, a0, s4);
+			sub_2398((char*)s1, a0, s4);
 
 		}//loc_22E4
 
@@ -849,4 +864,24 @@ void sub_219C(unsigned char a0)
 	db.draw[0].isbg = 1;
 	db.draw[1].dtd = 1;
 	db.draw[0].dtd = 1;
+}
+
+void sub_2398(char* gfx, unsigned char wadIndex, int a2)
+{
+	char buf[12];//var_20
+#if PSX_VERSION
+#if PSXPC_TEST
+	uintptr_t nHandle;//s0
+#else
+	int nHandle;//s0
+#endif
+#endif
+
+#if !DISC_VERSION
+	sprintf(&buf[0], "\\story%d.wad", wadIndex + 1);
+	nHandle = PCopen(&buf[0], 0, 0);
+	PClseek(nHandle, a2 * 0x3C000, 0);//0x3C000 storyboard image size
+	FILE_Read(gfx, 1, 0x3C000, nHandle);
+	PCclose(nHandle);
+#endif
 }

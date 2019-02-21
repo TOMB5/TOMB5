@@ -42,6 +42,7 @@ void mcDir()//61EE8(<), 625CC(<)
 				((int*)&mcFileNames[j][0])[0] = ((int*)&dir->name[0])[0];
 				((int*)&mcFileNames[j][4])[0] = ((int*)&dir->name[4])[0];
 				((int*)&mcFileNames[j][8])[0] = ((int*)&dir->name[8])[0];
+				((int*)&mcFileNames[j][12])[0] = ((int*)&dir->name[12])[0];
 				((int*)&mcFileNames[j][16])[0] = ((int*)&dir->name[16])[0];
 				
 				mcFileLengths[j] = dir->size;
