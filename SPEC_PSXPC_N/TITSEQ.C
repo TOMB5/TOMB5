@@ -1,18 +1,27 @@
-﻿#include "TITSEQ.H"
+#include "TITSEQ.H"
 
+#include "CONTROL.H"
+#include "DELTAPAK.H"
 #include "EFFECTS.H"
 #include "GAMEFLOW.H"
 #include "GPU.H"
 #include "LOADSAVE.H"
 #include "MEMCARD.H"
 #include "PSXINPUT.H"
+#include "ROOMLOAD.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
 #include "SPOTCAM.H"
 #include "TEXT_S.H"
 #include "MISC.H"
 
+#include <LIBETC.H>
 #include <stdio.h>//deleteme
+
+#if! DISC_VERSION
+#include <LIBSN.H>
+#include "FILE.H"
+#endif
 
 #define BLOCK_SPLINE_CAM (1)
 
@@ -20,6 +29,13 @@
 void* func_titseq[] __attribute__((section(".header"))) =
 {
 	&TitleOptions(int Name),
+};
+
+unsigned char titseqData[] __attribute__((section(".data"))) =
+{
+	0,//byte_46
+	0,//byte_47
+	0,//byte_1A8
 };
 #endif
 
@@ -30,6 +46,59 @@ unsigned char byte_1A8 = 0;
 unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
 unsigned int word_38 = 1;
 
+#if BETA_VERSION
+unsigned char byte_2600[] = { 0, 0, 0, 0, 0 }; ///@FIXME i don't know the len (maybe max of byte_46)
+#else
+unsigned char byte_2600[] = { 0, 1, 2, 3, 4 }; ///@FIXME i don't know the len (maybe max of byte_46)
+#endif
+
+struct CutseqMenuItem
+{
+	unsigned short menuText;
+	unsigned char unk00;
+	unsigned char unk01;
+	unsigned short cutseq;
+};
+
+struct CutseqMenuItem unk_1AC[] =
+{
+{ STR_SEVERAL_HOURS_LATER,0x00, 0x00,0x0000 },
+{ STR_ANDY4B,0x08, 0x00,0x0900 },
+{ STR_ANDY11,0x0A, 0x00,0x2C00 },
+{ STR_SWAMPY,0x0A, 0x00,0x2B00 },
+{ STR_MONK2,0x09, 0x00,0x2A00 },
+{ STR_ANDREA4,0x03, 0x00,0x2900 },
+{ STR_JOBY7,0x06, 0x00,0x2800 },
+{ STR_ANDY10,0x0A, 0x00,0x2700 },
+{ STR_ANDY8,0x0A, 0x00,0x2600 },
+{ STR_ANDY9,0x0A, 0x00,0x2500 },
+{ STR_COSSACK,0x0A, 0x00,0x2400 },
+{ STR_JOBY_CUT_2,0x04, 0x00,0x1900 },
+{ STR_JOBY_CRANE_CUT,0x04, 0x00,0x1B00 },
+{ STR_RICH_CUT_2,0x0D, 0x00,0x1A00 },
+{ STR_RICH_CUT_1,0x0B, 0x00,0x1800 },
+{ STR_RICH_CUT_3,0x0C, 0x00,0x1700 },
+{ STR_JOBY_CUT_3,0x04, 0x00,0x1600 },
+{ STR_ANDY1,0x08, 0x00,0x1500 },
+{ STR_RICH1,0x0B, 0x00,0x1400 },
+{ STR_ANDY2,0x08, 0x00,0x1300 },
+{ STR_JOBY4,0x05, 0x00,0x1200 },
+{ STR_ANDREA1,0x01, 0x00,0x1100 },
+{ STR_ANDREA2,0x01, 0x00,0x1000 },
+{ STR_JOBY5,0x05, 0x00,0x0F00 },
+{ STR_ANDY3,0x08, 0x00,0x0E00 },
+{ STR_JOBY9,0x07, 0x00,0x0D00 },
+{ STR_JOBY10,0x07, 0x00,0x0C00 },
+{ STR_RICHCUT4,0x0B, 0x00,0x0B00 },
+{ STR_ANDY4,0x08, 0x00,0x0A00 },
+{ STR_ANDREA3,0x02, 0x00,0x0800 },
+{ STR_ANDREA3B,0x02, 0x00,0x0700 },
+{ STR_ANDY5,0x09, 0x00,0x0600 },
+{ STR_JOBY6,0x05, 0x00,0x0500 },
+{ STR_JOBY8,0x07, 0x00,0x2000 },
+{ STR_ANDY6,0x09, 0x00,0x2100 }
+};
+
 enum
 {
 	MENU_MAIN_MENU,
@@ -37,10 +106,6 @@ enum
 	MENU_LEVEL_SELECT_MENU,
 	MENU_SPECIAL_FEATURES_MENU
 };
-
-void Test()
-{
-}
 
 int TitleOptions(int Name)
 {
@@ -375,7 +440,7 @@ int TitleOptions(int Name)
 		}
 		else if ((RawEdge & 0x4000))
 		{
-
+			sub_2154(Name, byte_2600[byte_46]);
 		}
 
 		return ret;
@@ -498,7 +563,7 @@ int TitleOptions(int Name)
 			else
 			{
 				//loc_850
-				//sub_3A8();
+				///sub_3A8();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				byte_46 = 0;
 			}
@@ -512,7 +577,7 @@ int TitleOptions(int Name)
 			if (byte_46 != 0)
 			{
 				//loc_8EC
-				//sub_3A8();
+				///sub_3A8();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				byte_46 = 0;
 			}
@@ -560,7 +625,7 @@ int TitleOptions(int Name)
 	//loc_904
 	SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
 
-	//s1 = LoadGame(); //Disabled due to crashing
+	s1 = LoadGame(); //Disabled due to crashing
 
 	if (s1 == 0)
 	{
@@ -616,143 +681,207 @@ void sub_2B0()
 
 int sub_1054()
 {
-	int s3;
+	int i;
+	int a3 = 0;
+	int y = 0;//s1
+	int ret = 0;//fp
+
 	sub_2B0();
 	PrintString(256, 102, 6, &gfStringWad[gfStringOffset[STR_SELECT_CUTSCENE]], 0x8000);
 
-	//v0 = 0
-	//fp = 0
-	//a0 = byte_1A8
-	//a3 = byte_1A8 - 4;
+	a3 = byte_1A8 - 4;
 	if ((byte_1A8 - 4) < 0)
 	{
-		//a3 = 0;
-	}//loc_10DC
+		a3 = 0;
+	}
+	//loc_10DC
 
-	//v0 = RawEdge
-	//s4 = v1
 	if ((RawEdge & 0x10) && byte_1A8 != 0)
 	{
 		--byte_1A8;
-		//j loc_1128
 	}
 	else if ((RawEdge & 0x40) && byte_1A8 < 35)
 	{
 		++byte_1A8;
 	}
 
-	//s2 = 0
+	i = 0;
 	//loc_1128
 	if ((byte_1A8 - 4) < 36)
 	{
-		//v0 = 0;
-		//s5 = &unk_1AC
+		y = 136;
+		//loc_1144
+		do
+		{
+			if (byte_1A8 == a3)
+			{
+				PrintString(256, y, 1, &gfStringWad[gfStringOffset[unk_1AC[a3 + 1].menuText]], 0x8000);
+			}
+			else
+			{
+				PrintString(256, y, 5, &gfStringWad[gfStringOffset[unk_1AC[a3 + 1].menuText]], 0x8000);
+			}
+
+			y += 18;
+
+			if (a3 + 1 > 0x23)
+			{
+				break;
+			}
+
+			a3++;
+		} while (++i < 5);
+
 	}//loc_11B8
 
+	if ((RawEdge & 0x4000))
+	{
+		SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+		ret = 3;
+		dels_cutseq_selector_flag = 0;
+		cutrot = 0;
+		gfLevelComplete = unk_1AC[byte_1A8 + 1].unk00;
+		dels_cutseq_player = unk_1AC[byte_1A8 + 1].cutseq;
+		byte_1A8 = 0;
+	}//loc_1240
 
+	if ((RawEdge & 0x1000))
+	{
+		dels_cutseq_selector_flag = 0;
+	}
 
-#if 0
-		beqz    $v0, loc_11B8
-		move    $s2, $zero
-lui     $v0, 0
-addiu   $s5, $v0, unk_1AC
-li      $s1, 0x88
-li      $a2, 5
+	return ret;
+}
 
-loc_1144:                                # CODE XREF : sub_1054 + 15C↓j
-	lbu     $v0, 0x1A8($s3)
-	nop
-	bne     $v0, $a3, loc_1158
-	andi    $a1, $s1, 0xFFFF
-	li      $a2, 1
+void sub_2154(int Name, unsigned char a1)
+{
+	if (a1 != 0 && a1 != 4)
+	{
+		sub_219C(a1 - 1);
+		ReloadAnims(Name, cutseq_malloc_used);
+	}//loc_218C
+}
 
-	loc_1158 : # CODE XREF : sub_1054 + F8↑j
-	li      $a0, 0x100
-	addiu   $s1, 0x12
-	addiu   $s2, 1
-	addiu   $s0, $a3, 1
-	sll     $v0, $s0, 1
-	addu    $v0, $s0
-	sll     $v0, 1
-	addu    $v0, $s5
-	lhu     $v1, 0($v0)
-	lw      $a3, 0x202C($s6)
-	sll     $v1, 1
-	addu    $v1, $a3
-	lhu     $t0, 0($v1)
-	lw      $a3, 0x203C($s7)
-	li      $v0, 0x8000
-	sw      $v0, 0x40 + var_30($sp)
-	jal     0x8DB4C
-	addu    $a3, $t0
-	move    $a3, $s0
-	slti    $v0, $a3, 0x24
-	beqz    $v0, loc_11B8
-	slti    $v0, $s2, 5
+void sub_219C(unsigned char a0)
+{
+	void* s1;
+	int fp;
+	int s4;
+	fp = 12;
+	//s7 = a0
+	//v0 = 1
 
-	bnez    $v0, loc_1144
-	li      $a2, 5
+	if (a0 == 1)
+	{
+		fp = 15;
+	}
 
-	loc_11B8:                                # CODE XREF : sub_1054:loc_112C↑j
-	# sub_1054 + 154↑j
-	lw      $v0, 0x4520($s4)
-	nop
-	andi    $v0, 0x4000
-	beqz    $v0, loc_1240
-	li      $a0, 0x6F  # 'o'
-	move    $a1, $zero
-	jal     0x91780
-	li      $a2, 2
-	li      $fp, 3
-	lui     $v0, 0xA
-	sh      $zero, 0xA05C2
-	lui     $v0, 0xA
-	lui     $a1, 0
-	lbu     $v1, 0x1A8($s3)
-	la      $a1, unk_1AC
-	sw      $zero, 0xA09A0
-	move    $a2, $v1
-	addiu   $v1, 1
-	sll     $v0, $v1, 1
-	addu    $v0, $v1
-	sll     $v0, 1
-	addu    $v0, $a1, $v0
-	lui     $v1, 0xA
-	addiu   $a2, 1
-	sb      $zero, 0x1A8($s3)
-	lbu     $a0, 2($v0)
-	sll     $v0, $a2, 1
-	addu    $v0, $a2
-	sll     $v0, 1
-	addu    $a1, $v0
-	sb      $a0, 0xA2034
-	lhu     $v1, 4($a1)
-	lui     $v0, 0xA
-	sh      $v1, 0xA05C4
+	//loc_21DC
+	s4 = 0;
 
-	loc_1240:                                # CODE XREF : sub_1054 + 170↑j
-	lw      $v0, 0x4520($s4)
-	nop
-	andi    $v0, 0x1000
-	beqz    $v0, loc_1258
-	lui     $v0, 0xA
-	sh      $zero, 0xA05C2
-
-	loc_1258:                                # CODE XREF : sub_1054 + 1F8↑j
-	move    $v0, $fp
-	lw      $ra, 0x40 + var_4($sp)
-	lw      $fp, 0x40 + var_8($sp)
-	lw      $s7, 0x40 + var_C($sp)
-	lw      $s6, 0x40 + var_10($sp)
-	lw      $s5, 0x40 + var_14($sp)
-	lw      $s4, 0x40 + var_18($sp)
-	lw      $s3, 0x40 + var_1C($sp)
-	lw      $s2, 0x40 + var_20($sp)
-	lw      $s1, 0x40 + var_24($sp)
-	lw      $s0, 0x40 + var_28($sp)
-	jr      $ra
-	addiu   $sp, 0x40
+#if DEBUG_VERSION
+	ProfileDraw = 0;
 #endif
 
-	return 0;
+	DrawSync(0);
+	VSync(0);
+	//s0 = &db
+	//s1 = &db.disp[1]
+	//a0 = s1
+	db.draw[1].isbg = 0;
+	db.draw[0].isbg = 0;
+	db.draw[1].dtd = 0;
+	db.draw[0].dtd = 0;
+	db.current_buffer = 0;
+
+	PutDispEnv(&db.disp[1]);
+	ClearImage(&db.disp[1].disp, 0, 0, 0);
+
+	DrawSync(0);
+
+	//a0 = &db.disp[0];
+	ClearImage(&db.disp[0].disp, 0, 0, 0);
+	DrawSync(0);
+
+	init_cutseq_malloc();
+	s1 = cutseq_malloc(0x3C000);
+	sub_2398((char*)s1, a0, 0);
+
+	goto loc_22F4;
+
+	do
+	{
+		//loc_2290
+		if ((RawEdge & 0x80))
+		{
+			if (s4 < 0)
+			{
+				s4 = fp;
+			}
+			else
+			{//loc_22B4
+				s4--;
+			}
+
+			sub_2398((char*)s1, a0, s4);
+		}
+		//loc_22B4
+		//v0 = s4 < fp ? 1 : 0
+		if ((RawEdge & 0x20))
+		{
+			if (s4 < fp)
+			{
+				s4++;
+			}
+			else
+			{
+				s4 = 1;
+			}
+
+			//loc_22D4
+			sub_2398((char*)s1, a0, s4);
+
+		}//loc_22E4
+
+		DrawSync(0);
+		GPU_FlipStory((unsigned long*)s1);
+
+	loc_22F4:
+		GPU_BeginScene();
+		SetDebounce = 1;
+		S_UpdateInput();
+		PrintString(256, 220, 6, &gfStringWad[gfStringOffset[STR_PREVIOUS_NEXT_BACK]], 0x8000);
+
+	} while (!(RawEdge & 0x1000));
+
+	DrawSync(0);
+
+#if DEBUG_VERSION
+	ProfileDraw = 1;
+#endif
+
+	db.draw[1].isbg = 1;
+	db.draw[0].isbg = 1;
+	db.draw[1].dtd = 1;
+	db.draw[0].dtd = 1;
+}
+
+void sub_2398(char* gfx, unsigned char wadIndex, int a2)
+{
+	char buf[12];//var_20
+#if PSX_VERSION
+#if PSXPC_TEST
+	uintptr_t nHandle;//s0
+#else
+	int nHandle;//s0
+#endif
+#endif
+
+#if !DISC_VERSION
+	sprintf(&buf[0], "\\story%d.wad", wadIndex + 1);
+	nHandle = PCopen(&buf[0], 0, 0);
+	PClseek(nHandle, a2 * 0x3C000, 0);//0x3C000 storyboard image size
+	FILE_Read(gfx, 1, 0x3C000, nHandle);
+	PCclose(nHandle);
+#endif
 }

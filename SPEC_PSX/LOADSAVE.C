@@ -99,11 +99,11 @@ int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 			DrawF4(0x20, y, 0x1C0, 0x17, 0, 0x2A800000);
 			DrawTPage(0, 0);
 
-			DrawLineH(0x22, (y + 1) & 0xFFFF, 0x1BC, 0, 0x404040, 0);
-			DrawLineH(0x22, (y + 15) & 0xFFFF, 0x1BC, 0, 0x404040, 0);
+			DrawLineH(0x22, (y + 1), 0x1BC, 0, 0x404040, 0);
+			DrawLineH(0x22, (y + 21), 0x1BC, 0, 0x404040, 0);
 
-			DrawLineV(0x22, (y + 1) & 0xFFFF, 0x15, 0, 0x404040, 0);
-			DrawLineV(0x1DD, (y + 1) & 0xFFFF, 0x15, 0, 0x404040, 0);
+			DrawLineV(0x22, (y + 1), 0x15, 0, 0x404040, 0);
+			DrawLineV(0x1DD, (y + 1), 0x15, 0, 0x404040, 0);
 
 			DrawTPage(0, 1);
 		}

@@ -139,8 +139,8 @@ DrawF4:
 	sw      t0, db+0x8-GP_ADDR(gp)
 	
 DrawTPage:
-	lw      a2, db+0x8
-	lw      at, db+0x10
+	lw      a2, db+0x8-GP_ADDR(gp)
+	lw      at, db+0x10-GP_ADDR(gp)
 	andi    a0, 0xFF
 	sltu    at, a2, at
 	beqz    at, locret_5EEC4
