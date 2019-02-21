@@ -13,7 +13,7 @@
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (0)
 
-#define V_SCALE 1
+#define V_SCALE 2
 
 SDL_Window* g_window = NULL;
 SDL_Renderer* g_renderer;
