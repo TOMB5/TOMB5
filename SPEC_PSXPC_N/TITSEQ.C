@@ -651,29 +651,28 @@ void sub_2B0()
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		((int*)db.polyptr)[1] = 0x2C808080;
-		((char*)db.polyptr)[3] = 9;
-		((short*)db.polyptr)[5] = 24;
-		((short*)db.polyptr)[9] = 24;
-		((short*)db.polyptr)[13] = 80;
-		((short*)db.polyptr)[17] = 80;
-		((short*)db.polyptr)[4] = 56;
-		((short*)db.polyptr)[12] = 56;
-		((short*)db.polyptr)[8] = 440;
-		((short*)db.polyptr)[16] = 440;
-		((char*)db.polyptr)[13] = 68;
-		((char*)db.polyptr)[21] = 68;
-		((char*)db.polyptr)[29] = 124;
-		((char*)db.polyptr)[37] = 124;
-		((char*)db.polyptr)[12] = 0;
-		((char*)db.polyptr)[20] = 255;
-		((char*)db.polyptr)[28] = 0;
-		((char*)db.polyptr)[36] = 255;
-		((short*)db.polyptr)[7] = 7972;
-		((short*)db.polyptr)[11] = 41;
+		POLY_FT4* ptr = (POLY_FT4*)db.polyptr;
 
-		(((unsigned long*)db.polyptr)[0] = ((unsigned long*)db.polyptr)[0] & 0xFF000000 | db.ot[0] & 0xFFFFFF);
-		db.ot[0] = (db.ot[0] & 0xFF000000) | ((unsigned long)db.polyptr & 0xFFFFFF);
+		setPolyFT4(ptr);
+
+		setRGB0(ptr, 128, 128, 128);
+
+		setXY4(ptr,
+			56, 24,
+			440, 24,
+			56, 80,
+			440, 80);
+
+		setClut(ptr, 240, 124);
+		setTPage(ptr, 0, 1, 576, 0);
+
+		setUV4(ptr,
+			0, 68,
+			255, 68,
+			0, 124,
+			255, 124);
+
+		addPrim(db.ot, ptr);
 
 		db.polyptr += sizeof(POLY_FT4);
 	}//locret_3A0
