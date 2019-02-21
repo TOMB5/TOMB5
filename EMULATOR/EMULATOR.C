@@ -6,10 +6,11 @@
 #include <LIBPAD.H>
 #include <stdio.h>
 #include <LIBGPU.H>
+#include <LIBETC.H>
 #include <string.h>
 
 #define MAX_NUM_CACHED_TEXTURES (256)
-
+#define BLEND_MODE (0)
 
 #define V_SCALE 2
 
@@ -79,7 +80,8 @@ void Emulator_InitialiseGL()
 //	glEnable(GL_SCISSOR_TEST);
 //	glEnable(GL_DEPTH_TEST);
 //	glDepthFunc(GL_LEQUAL);
-//	glBlendColor(0.25, 0.25, 0.25, 0.5);
+
+	glBlendColor(0.25, 0.25, 0.25, 0.5);
 }
 
 void Emulator_GenerateAndBindNullWhite()
@@ -162,6 +164,26 @@ void Emulator_BeginScene()
 	}
 
 	lastTime = SDL_GetTicks();
+
+	//Update pad
+	if (SDL_NumJoysticks() > 0)
+	{
+		for (int i = 0; i < MAX_CONTROLLERS; i++)
+		{
+			if (padHandle[i] != NULL)
+			{
+				padData[i][0] = 0;
+				padData[i][1] = 0x41;//?
+				((unsigned short*)padData[i])[1] = UpdateGameControllerInput(padHandle[i]);
+			}
+		}
+	}
+
+	//Update keyboard
+	if (padData[0] != NULL)
+	{
+		((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
+	}
 }
 
 void Emulator_SwapWindow()
@@ -171,7 +193,6 @@ void Emulator_SwapWindow()
 
 void Emulator_EndScene()
 {
-	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
@@ -252,8 +273,6 @@ void Emulator_EndScene()
 
 	glPopMatrix();
 
-	
-
 #if _DEBUG
 	Emulator_SaveVRAM2(1024, 512);
 #endif
@@ -261,26 +280,6 @@ void Emulator_EndScene()
 
 	glDisable(GL_TEXTURE_2D);
 	glDeleteTextures(1, &vramTexture);
-
-	//Update pad
-
-	if (SDL_NumJoysticks() > 0)
-	{
-		for (int i = 0; i < MAX_CONTROLLERS; i++)
-		{
-			if (padHandle[i] != NULL)
-			{
-				padData[i][0] = 0;
-				padData[i][1] = 0x41;//?
-				((unsigned short*)padData[i])[1] = UpdateGameControllerInput(padHandle[i]);
-			}
-		}
-	}
-
-	if (padData[0] != NULL)
-	{
-		((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
-	}
 }
 
 void Emulator_ShutDown()
@@ -390,7 +389,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
 	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
 
-	Emulator_SetBlendMode(tpageAbr);
+	//Emulator_SetBlendMode(tpageAbr);
 
 #if DEBUG_MSG
 	printf("tpage: (%d,%d,%d,%d)\n", ((tpage) >> 7) & 0x003, ((tpage) >> 5) & 0x003, ((tpage) << 6) & 0x7c0, (((tpage) << 4) & 0x100) + (((tpage) >> 2) & 0x200));
@@ -421,7 +420,6 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
 			//ARGB1555
 			unsigned short texturePage[256 * 256];
 			unsigned short* dst = &texturePage[0];
-
 
 			for (int y = tpageY; y < tpageY + 256; y++)
 			{

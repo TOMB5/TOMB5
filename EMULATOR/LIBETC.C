@@ -26,11 +26,6 @@ int VSync(int mode)
 			vsync_callback();
 		}
 
-		while (lastTime - SDL_GetTicks() < (1000 / 60))
-		{
-			SDL_Delay(1);
-		}
-
 		Emulator_EndScene();
 	}
 
