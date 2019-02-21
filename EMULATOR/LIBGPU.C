@@ -258,8 +258,8 @@ u_long DrawSyncCallback(void(*func)(void))
 void* fixptr(void* ptr)
 {
 #if 1
-	if (((unsigned)&terminator & 0x1000000) && !((unsigned)ptr & 0x1000000))
-		return (void*)((unsigned)ptr | 0x1000000);
+	if (((uintptr_t)&terminator & 0x1000000) && !((uintptr_t)ptr & 0x1000000))
+		return (void*)((uintptr_t)ptr | 0x1000000);
 #endif
 	return ptr;
 }
