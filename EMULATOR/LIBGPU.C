@@ -14,7 +14,6 @@
 #include "EMULATOR_GLOBALS.H"
 
 #define POLY_TAG_USE_ADDR (0)
-#define HACK_CLEAR_DRAW_AREA (1)
 #define ENABLE_BLEND (0)
 
 unsigned short vram[1024 * 512];
@@ -268,9 +267,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
 	PutDrawEnv(env);
 
-#if HACK_CLEAR_DRAW_AREA
-	ClearImage(&env->clip, 0, 0, 0);
-#endif
+	if (env->isbg)
+	{
+		ClearImage(&env->clip, env->r0, env->b0, env->g0);
+	}
 
 	GLuint fbo = 0;
 
