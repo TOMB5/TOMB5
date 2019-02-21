@@ -120,7 +120,8 @@ void Emulator_SaveVRAM(int width, int height)
 
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
 	fwrite(header, sizeof(unsigned char), 6, f);
-	fwrite(pixels, sizeof(char), width*height*3, f);
+	for (int line = height - 1; line >= 0; line--)
+		fwrite(&pixels[line * width * 3], sizeof(char), width * 3, f);
 	fclose(f);
 	delete[] pixels;
 }
@@ -139,7 +140,8 @@ void Emulator_SaveVRAM2(int width, int height)
 
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
 	fwrite(header, sizeof(unsigned char), 6, f);
-	fwrite(pixels, sizeof(char), width*height * 2, f);
+	for (int line = height - 1; line >= 0; line--)
+		fwrite(&pixels[line * width * 2], sizeof(char), width * 2, f);
 	fclose(f);
 	delete[] pixels;
 }
@@ -348,7 +350,8 @@ void Emulator_GenerateFrameBufferTexture()
 	unsigned char header[6] = { word_unknown00.clip.w % 256, word_unknown00.clip.w / 256, word_unknown00.clip.h % 256, word_unknown00.clip.h / 256,16,0 };
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
 	fwrite(header, sizeof(unsigned char), 6, f);
-	fwrite(pixelData2, sizeof(char), word_unknown00.clip.w * word_unknown00.clip.h * 2, f);
+	for (int line = word_unknown00.clip.h - 1; line >= 0; line--)
+		fwrite(&pixelData2[line * word_unknown00.clip.w], sizeof(short), word_unknown00.clip.w, f);
 	fclose(f);
 	
 #endif
@@ -442,7 +445,8 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
 				unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
 				fwrite(TGAheader, sizeof(unsigned char), 12, f);
 				fwrite(header, sizeof(unsigned char), 6, f);
-				fwrite(&texturePage[0], sizeof(char), 256 * 256 * 2, f);
+				for (int line = 255; line >= 0; line--)
+					fwrite(&texturePage[line * 256], sizeof(short), 256, f);
 				fclose(f);
 #endif
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
@@ -594,7 +598,8 @@ void Emulator_DestroyLastVRAMTexture()
 	unsigned char header[6] = { word_unknown00.clip.w % 256, word_unknown00.clip.w / 256, word_unknown00.clip.h % 256, word_unknown00.clip.h / 256,16,0 };
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
 	fwrite(header, sizeof(unsigned char), 6, f);
-	fwrite(pixelData, sizeof(char), word_unknown00.clip.w * word_unknown00.clip.h * 2, f);
+	for (int line = word_unknown00.clip.h - 1; line >= 0; line--)
+		fwrite(&pixelData[line * word_unknown00.clip.w], sizeof(short), word_unknown00.clip.w, f);
 	fclose(f);
 #endif
 

@@ -10,6 +10,7 @@
 #include <LIBCD.H>
 #include <LIBSPU.H>
 #include <LIBETC.H>
+#include "EMULATOR_GLOBALS.H"
 
 //Number of XA files on disc (XA1-17.XA)
 #define NUM_XA_FILES 17
@@ -475,6 +476,14 @@ int DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F) (*)
 		while (CdReadSync(1, 0) > 0)
 		{
 			VSync(0);
+
+#if _DEBUG
+			CdIntToPos(cdCurrentSector, &fp.pos); 
+			eprintf("Read %02d:%02d:%02d\n", 
+				DECODE_BCD(fp.pos.minute), 
+				DECODE_BCD(fp.pos.second), 
+				DECODE_BCD(fp.pos.sector));
+#endif
 		}
 
 		cdCurrentSector += numSectorsToRead;

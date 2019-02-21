@@ -1,9 +1,9 @@
 #ifndef EMULATOR_GLOBALS_H
 #define EMULATOR_GLOBALS_H
 
+#include <stdint.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
-#include <stdint.h>
 
 #ifdef _MSC_VER
 #define FUNCNAME __FUNCTION__
@@ -13,8 +13,8 @@
 
 extern int(*printf_)(const char * format, ...);
 
-#define eprintf(fmt, ...) printf_("[EMU] " fmt, __VA_ARGS__)
-#define eprinterr(fmt, ...) eprintf("[%s] - " fmt, FUNCNAME, __VA_ARGS__);
+#define eprintf(fmt, ...) printf_("[EMU] " fmt, ##__VA_ARGS__)
+#define eprinterr(fmt, ...) eprintf("[%s] - " fmt, FUNCNAME, ##__VA_ARGS__);
 
 #define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
 

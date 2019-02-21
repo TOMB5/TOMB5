@@ -218,7 +218,17 @@ void mTranslate()//76558(<) (!)
 
 void mTranslateAbsXYZ(long x, long y, long z)
 {
-	S_Warn("[mTranslateAbsXYZ] - Unimplemented!\n");
+	MATRIX3D* mat = Matrix;
+
+	x -= MatrixStack[0].tx;
+	y -= MatrixStack[0].ty;
+	z -= MatrixStack[0].tz;
+
+	mat->tx = ((mat->m00 * x) + (mat->m01 * y) + (mat->m02 * z)) >> 12;
+	mat->ty = ((mat->m10 * x) + (mat->m11 * y) + (mat->m12 * z)) >> 12;
+	mat->tz = ((mat->m20 * x) + (mat->m21 * y) + (mat->m22 * z)) >> 12;
+
+	mLoadMatrix(mat);
 }
 
 void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
