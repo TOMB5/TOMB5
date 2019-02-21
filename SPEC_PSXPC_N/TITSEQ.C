@@ -672,7 +672,7 @@ void sub_2B0()
 		((short*)db.polyptr)[7] = 7972;
 		((short*)db.polyptr)[11] = 41;
 
-		((unsigned long*)db.polyptr)[0] = ((unsigned long*)db.polyptr)[0] & 0xFFFFFF | (db.ot[0] & 0xFFFFFF);
+		(((unsigned long*)db.polyptr)[0] = ((unsigned long*)db.polyptr)[0] & 0xFF000000 | db.ot[0] & 0xFFFFFF);
 		db.ot[0] = (db.ot[0] & 0xFF000000) | ((unsigned long)db.polyptr & 0xFFFFFF);
 
 		db.polyptr += sizeof(POLY_FT4);
