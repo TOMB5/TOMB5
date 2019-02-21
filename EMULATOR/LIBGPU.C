@@ -338,6 +338,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
 				glVertex2f(poly->x0, poly->y0);
 
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
+				glVertex2f(poly->x2, poly->y2);
+
 				//glColor3ubv(&poly->r3);
 				glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
 				glVertex2f(poly->x3, poly->y3);
