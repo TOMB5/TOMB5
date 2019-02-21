@@ -276,21 +276,7 @@ void draw_rotate_sprite(long x, long y, long a2) //5F134, 5FE14 (F)
 	setTPage(ptr, 2, 1, 256, 256);
 
 	addPrim(db.ot, ptr);
-	/**(long*)&db.polyptr[4] = 0x2C808080;
-	*(long*)&db.polyptr[8] = 0x780100;
-	*(long*)&db.polyptr[12] = 0x6800;
-	*(long*)&db.polyptr[16] = 0x7801FF;
 
-
-	*(long*)&db.polyptr[20] = 0x13468FF;
-	*(long*)&db.polyptr[24] = 0xEF0100;
-	*(short*)&db.polyptr[28] = 0xDF00;
-	*(long*)&db.polyptr[32] = 0xEF01FF;
-
-	*(short*)&db.polyptr[36] = 0xDFFF;
-
-	*(long*)&db.polyptr[0] = db.ot[0] | 0x9000000;
-	db.ot[0] = (unsigned long)db.polyptr;*/
 	db.polyptr += sizeof(POLY_FT4);
 }
 
