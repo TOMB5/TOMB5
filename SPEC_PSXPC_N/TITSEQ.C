@@ -23,6 +23,10 @@
 #include "FILE.H"
 #endif
 
+#if DEBUG_VERSION
+#include <PROFILE.H>
+#endif
+
 #define BLOCK_SPLINE_CAM (1)
 
 #if PSX_VERSION && RELOC
@@ -663,7 +667,7 @@ void sub_2B0()
 			56, 80,
 			440, 80);
 
-		setClut(ptr, 240, 124);
+		setClut(ptr, 576, 124);
 		setTPage(ptr, 0, 1, 576, 0);
 
 		setUV4(ptr,
