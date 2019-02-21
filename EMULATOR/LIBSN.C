@@ -3,12 +3,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
+#include "EMULATOR_GLOBALS.H"
 
 uintptr_t fileHandle = 0;
 
 int PCinit()
 {
-	
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -38,7 +39,7 @@ uintptr_t PCopen(char* name, int flags, int perms)
 
 int PCcreat(char* name, int perms)
 {
-	
+	UNIMPLEMENTED();
 	return 0;
 }
 

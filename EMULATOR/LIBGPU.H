@@ -5,9 +5,13 @@
 
 #include "LIBGTE.H"
 
-extern	int (*GPU_printf)(char *fmt, ...);
+extern	int (*GPU_printf)(const char *fmt, ...);
 
 #define WAIT_TIME	0x800000
+
+#define getR(rgb) ((rgb) & 0xFF)
+#define getG(rgb) (((rgb) >> 8) & 0xFF)
+#define getB(rgb) (((rgb) >> 16) & 0xFF)
 
 
 #define limitRange(x, l, h)	((x)=((x)<(l)?(l):(x)>(h)?(h):(x)))
@@ -238,14 +242,14 @@ extern	int (*GPU_printf)(char *fmt, ...);
 	)
 
 #define setDrawStp(p, pbw) 				\
-        setlen(p, 2),					\
-        ((u_long *)p)[1] = 0xe6000000|(pbw?0x01:0),	\
-        ((u_long *)p)[2] = 0
+		setlen(p, 2),					\
+		((u_long *)p)[1] = 0xe6000000|(pbw?0x01:0),	\
+		((u_long *)p)[2] = 0
 
 #define setDrawMode(p, dfe, dtd, tpage, tw) 		\
-        setlen(p, 2),					\
-        ((u_long *)p)[1] = _get_mode(dfe, dtd, tpage),	\
-        ((u_long *)p)[2] = _get_tw((RECT16 *)tw)
+		setlen(p, 2),					\
+		((u_long *)p)[1] = _get_mode(dfe, dtd, tpage),	\
+		((u_long *)p)[2] = _get_tw((RECT16 *)tw)
 
 	
 /*	Primitive 	Lentgh		Code				*/
@@ -298,7 +302,7 @@ typedef struct {
 	u_long	tag;
 	u_long	code[15];
 } DR_ENV;				/* Packed Drawing Environment */
-	       
+		   
 typedef struct {
 	RECT16	clip;		/* clip area */
 	short	ofs[2];		/* drawing offset */
@@ -310,7 +314,7 @@ typedef struct {
 	u_char	r0, g0, b0;	/* initital background color */
 	DR_ENV	dr_env;		/* reserved */
 } DRAWENV;
-	       
+		   
 typedef struct {
 	RECT16	disp;		/* display area */
 	RECT16	screen;		/* display start point */
@@ -502,14 +506,14 @@ typedef struct {
 	short	x0, 	y0;
 	u_char	u0, v0;	u_short	clut;
 } SPRT_16;				/* 16x16 Sprite */
-	       
+		   
 typedef struct {
 	u_long	tag;
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	u0, v0;	u_short	clut;
 } SPRT_8;				/* 8x8 Sprite */
-	       
+		   
 /*
  * Tile Primitive Definitions
  */
@@ -550,17 +554,17 @@ typedef struct {
 	u_long	tag;
 	u_long	code[2];
 } DR_TWIN;				/* Texture Window */
-	       
+		   
 typedef struct {
 	u_long	tag;
 	u_long	code[2];
 } DR_AREA;				/* Drawing Area */
-	       
+		   
 typedef struct {
 	u_long	tag;
 	u_long	code[2];
 } DR_OFFSET;				/* Drawing Offset */
-	       
+		   
 typedef struct {			/* MoveImage */
 	u_long	tag;
 	u_long	code[5];
@@ -578,8 +582,8 @@ typedef	struct {
 } DR_TPAGE;				/* Drawing TPage */
 
 typedef struct {
-        u_long  tag;
-        u_long  code[2];
+		u_long  tag;
+		u_long  code[2];
 } DR_STP;                               /* Drawing STP */
 
 /*

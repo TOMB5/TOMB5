@@ -942,6 +942,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 		VSync(0);
 #endif
 		XAReqVolume = 0;
+		
 	} while (XAVolume != 0);
 
 #endif

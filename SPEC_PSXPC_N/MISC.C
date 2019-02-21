@@ -9,6 +9,7 @@
 #include <EMULATOR.H>
 #include <LIBETC.H>
 #include "GAMEFLOW.H"
+#include "SHADOWS.H"
 
 #if PSXPC_VERSION || PSXPC_TEST
 #include <stdint.h>
@@ -90,19 +91,17 @@ void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short
 
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		((int*)db.polyptr)[1] = unk2;
-		((short*)db.polyptr)[4] = x;
-		((short*)db.polyptr)[5] = y;
-		((short*)db.polyptr)[6] = x + w;
-		((short*)db.polyptr)[7] = y;
-		((short*)db.polyptr)[8] = x;
-		((short*)db.polyptr)[9] = y + h;
-		((short*)db.polyptr)[10] = x + w;
-		((short*)db.polyptr)[11] = y + h;
+		POLY_F4* ptr = (POLY_F4*)db.polyptr;
 
-		((int*)db.polyptr)[0] = db.ot[unk] | 0x5000000;
-		db.ot[unk] = (unsigned long)db.polyptr;
-		db.polyptr += 0x18;
+		setPolyF4(ptr);
+
+		setRGB0(ptr, getR(unk2), getG(unk2), getB(unk2));
+
+		setXYWH(ptr, x, y, w, h);
+
+		addPrim(db.ot + unk, ptr);
+		
+		db.polyptr += sizeof(POLY_F4);
 	}
 	//locret_5EE70
 }
@@ -114,55 +113,64 @@ void DrawTPage(unsigned char a0, unsigned char a1) //5EE78(<), 5FB58(<)
 
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		((int*)db.polyptr)[0] = db.ot[a0] | 0x1000000;
-		db.ot[a0] = (unsigned long)db.polyptr;
-		((int*)db.polyptr)[1] = (a1 << 5) | 0xE1000000;
+		setDrawTPage(db.polyptr, FALSE, FALSE, a1 * 32);
+
+		addPrim(db.ot + a0, db.polyptr);
+
 		db.polyptr += sizeof(DR_TPAGE);
 	}
 }
 
-void DrawLineH(unsigned short a0, unsigned short a1, unsigned short a2, unsigned char a3, unsigned long a4, unsigned long a5)//5EECC(<)
+void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigned char a3, unsigned long a4, unsigned long a5)//5EECC(<)
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		((int*)db.polyptr)[1] = (a4 & 0xFFFFFF) | 0x52000000;
-		((short*)db.polyptr)[4] = a0;
-		((short*)db.polyptr)[5] = a1;
-		((int*)db.polyptr)[3] = (a5 & 0xFFFFFF) | 0x52000000;
-		((short*)db.polyptr)[8] = a0 + (a2 >> 1);
-		((short*)db.polyptr)[9] = a1;
-		((int*)db.polyptr)[6] = (a5 & 0xFFFFFF) | 0x52000000;
-		((short*)db.polyptr)[14] = a0 + (a2 >> 1) + 1;
-		((short*)db.polyptr)[15] = a1;
-		((int*)db.polyptr)[8] = (a4 & 0xFFFFFF) | 0x52000000;
-		((short*)db.polyptr)[18] = (a0 + a2) - 1;
-		((short*)db.polyptr)[19] = a1;
-		((int*)db.polyptr)[5] = 0;
-		((int*)db.polyptr)[0] = db.ot[a3] | 0x9000000;
-		db.ot[a3] = (unsigned long)db.polyptr;
+		LINE_G4* ptr = (LINE_G4*)db.polyptr;
+
+		setLineG4(ptr);
+		setcode(ptr, 0x52); // todo: wtf?
+
+		setRGB0(ptr, getR(a4), getG(a4), getB(a4));
+		setRGB1(ptr, getR(a5), getG(a5), getB(a5));
+		setRGB2(ptr, getR(a5), getG(a5), getB(a5));
+		setRGB3(ptr, getR(a4), getG(a4), getB(a4));
+		setXY4(ptr, x, y, x + width / 2, y, x + width / 2 + 1, y, x + width - 1, y);
+
+		ptr->p1 = 0x52;
+		ptr->p2 = 0x52;
+		ptr->p3 = 0x52;
+
+		//((int*)db.polyptr)[5] = 0; // todo
+
+		addPrim(db.ot + a3, ptr);
+
 		db.polyptr += sizeof(LINE_G4);
 	}//locret_5EF7C
 }
 
-void DrawLineV(unsigned short a0, unsigned short a1, unsigned short a2, unsigned char a3, unsigned long a4, unsigned long a5)//5EF84(<),
+void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsigned char a3, unsigned long a4, unsigned long a5)//5EF84(<),
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		((int*)db.polyptr)[1] = (a4 & 0xFFFFFF) | 0x52000000;
-		((short*)db.polyptr)[4] = a0;
-		((short*)db.polyptr)[5] = a1 + 1;
-		((int*)db.polyptr)[3] = (a5 & 0xFFFFFF) | 0x52000000;
-		((short*)db.polyptr)[8] = a0;
-		((short*)db.polyptr)[9] = a1 + (a2 >> 1);
-		((int*)db.polyptr)[6] = (a5 & 0xFFFFFF) | 0x52000000;
-		((short*)db.polyptr)[14] = a0;
-		((short*)db.polyptr)[15] = a1 + (a2 >> 1) + 2;
-		((int*)db.polyptr)[8] = (a4 & 0xFFFFFF) | 0x52000000;
-		((short*)db.polyptr)[18] = a0;
-		((short*)db.polyptr)[19] = a1 + a2 - 2;
-		((int*)db.polyptr)[5] = 0;
-		((int*)db.polyptr)[0] = db.ot[a3] | 0x9000000;
-		db.ot[a3] = (unsigned long)db.polyptr;
+		LINE_G4* ptr = (LINE_G4*)db.polyptr;
+
+		setLineG4(ptr);
+		setcode(ptr, 0x52); // todo: wtf?
+
+		setRGB0(ptr, getR(a4), getG(a4), getB(a4));
+		setRGB1(ptr, getR(a5), getG(a5), getB(a5));
+		setRGB2(ptr, getR(a5), getG(a5), getB(a5));
+		setRGB3(ptr, getR(a4), getG(a4), getB(a4));
+		setXY4(ptr, x, y + 1, x, y + height / 2, x, y + height / 2 + 2, x, y + height - 2);
+
+		ptr->p1 = 0x52;
+		ptr->p2 = 0x52;
+		ptr->p3 = 0x52;
+
+		//((int*)db.polyptr)[5] = 0; // todo
+
+		addPrim(db.ot + a3, ptr);
+
 		db.polyptr += sizeof(LINE_G4);
 	}//locret_5F038
 }
@@ -189,7 +197,7 @@ void LOAD_VSyncHandler() //5F074(<), 5FD54(<) (F)
 		a1 += 8;
 		a2 = 48;
 	}
-
+	
 	//loc_5F0B4
 	draw_rotate_sprite(a0, a1, a2);
 	db.current_buffer ^= 1;
@@ -230,9 +238,7 @@ void draw_rotate_sprite(long a0, long a1, long a2) //5F134, 5FE14 (F)
 	t6 = ((-a2 / 2) * r_cossinptr[0]) / 4096;
 	t5 = ((-a2 / 2) * r_cossinptr[1]) / 4096;
 
-	*(long*)&db.polyptr[4] = 0x2C808080;
-	*(long*)&db.polyptr[12] = 0;
-	*(long*)&db.polyptr[20] = 0x1303F00;
+	POLY_FT4* ptr = (POLY_FT4*)db.polyptr;
 
 	t0 = t6 - t5;
 	a2 = -t6;
@@ -240,45 +246,37 @@ void draw_rotate_sprite(long a0, long a1, long a2) //5F134, 5FE14 (F)
 	a2 += t5;
 	t1 = t6 + t5;
 
-	*(short*)&db.polyptr[8] = t0 + (t0 / 2) + a0;
-	*(short*)&db.polyptr[10] = t5 + t6 + a1;
+	setPolyFT4(ptr);
+	setRGB0(ptr, 128, 128, 128);
 
-	*(short*)&db.polyptr[16] = t4 + (t4 / 2) + a0;
-	*(short*)&db.polyptr[18] = -t5 + t6 + a1;
+	setUV4(ptr, 0, 0, 0, 63, 63, 0, 63, 63);
+	setXY4(ptr,
+		t0 + (t0 / 2) + a0, t5 + t6 + a1,
+		t4 + (t4 / 2) + a0, -t5 + t6 + a1,
+		t1 + (t1 / 2) + a0, (t5 - t6) + a1,
+		a2 + (a2 / 2) + a0, a1 + (-t5 - t6));
+	setClut(ptr, 0, 0);
+	setTPage(ptr, 2, 1, 0, 256);
 
+	addPrim(db.ot, ptr);
 
-	*(short*)&db.polyptr[24] = t1 + (t1 / 2) + a0;
-	*(short*)&db.polyptr[26] = (t5 - t6) + a1;
+	db.polyptr += sizeof(POLY_FT4);
+	ptr++;
 
-	*(short*)&db.polyptr[28] = 0x3F; //width/height of loading cd?
-	*(short*)&db.polyptr[36] = 0x3F3F;
+	setPolyFT4(ptr);
+	setRGB0(ptr, 128, 128, 128);
 
-	*(short*)&db.polyptr[32] = a2 + (a2 / 2) + a0;
-	*(short*)&db.polyptr[34] = a1 + (-t5 - t6);
+	setUV4(ptr, 0, 104, 255, 104, 0, 223, 255, 223);
+	setXY4(ptr,
+		256, 120,
+		511, 120,
+		256, 239,
+		511, 239);
+	setClut(ptr, 0, 0);
+	setTPage(ptr, 2, 1, 100, 256);
 
-	*(long*)&db.polyptr[0] = db.ot[0] | 0x09000000;
-	db.ot[0] = (unsigned long)&db.polyptr[0];
-
-	db.polyptr += 0x28; //sizeof(POLY_F3); * 2?
-
-	*(long*)&db.polyptr[4] = 0x2C808080;
-	*(long*)&db.polyptr[8] = 0x780100;
-	*(long*)&db.polyptr[12] = 0x6800;
-	*(long*)&db.polyptr[16] = 0x7801FF;
-
-
-	*(long*)&db.polyptr[20] = 0x13468FF;
-	*(long*)&db.polyptr[24] = 0xEF0100;
-	*(short*)&db.polyptr[28] = 0xDF00;
-	*(long*)&db.polyptr[32] = 0xEF01FF;
-
-	*(short*)&db.polyptr[36] = 0xDFFF;
-
-	*(long*)&db.polyptr[0] = db.ot[0] | 0x9000000;
-	db.ot[0] = (unsigned long)db.polyptr;
-	//sizeof(POLY_G3);
-	db.polyptr += 0x28;
-	return;
+	addPrim(db.ot, ptr);
+	db.polyptr += sizeof(POLY_FT4);
 }
 
 /*   PSX VRAM   (H)

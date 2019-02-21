@@ -9,8 +9,6 @@
 #if PSXPC_VERSION
 #define UNIMPLEMENTED() __asm("nop");
 #else
-#define XSTR(x) STR(x)
-#define STR(x) #x
 #ifdef _MSC_VER
 #define FUNCNAME __FUNCTION__
 #else
