@@ -1,9 +1,9 @@
 #ifndef EMULATOR_GLOBALS_H
 #define EMULATOR_GLOBALS_H
 
+#include <cstdint>
 #include <SDL.h>
 #include <SDL_opengl.h>
-#include <stdint.h>
 
 #ifdef _MSC_VER
 #define FUNCNAME __FUNCTION__
