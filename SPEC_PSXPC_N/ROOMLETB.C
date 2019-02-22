@@ -3,7 +3,7 @@
 #include "CAMERA.H"
 #include "DRAW.H"
 #include "SPECIFIC.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 void DrawRoomsAsm()//0x1BC380
 {
