@@ -56,12 +56,8 @@ unsigned char byte_1A8 = 0;
 
 unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
 unsigned int word_38 = 1;
-
-#if BETA_VERSION
 unsigned char byte_2600[] = { 0, 0, 0, 0, 0 }; ///@FIXME i don't know the len (maybe max of byte_46)
-#else
-unsigned char byte_2600[] = { 0, 1, 2, 3, 4 }; ///@FIXME i don't know the len (maybe max of byte_46)
-#endif
+
 
 struct CutseqMenuItem
 {
@@ -568,8 +564,6 @@ int TitleOptions(int Name)
 		++byte_46;
 	}//loc_810
 
-
-
 	if ((RawEdge & 0x4000))//X pressed
 	{
 		if (byte_46 == 1)
@@ -632,6 +626,9 @@ int TitleOptions(int Name)
 					}
 				}
 			}
+			//loc_904
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+			return ret;
 		}
 	}
 	else
@@ -639,9 +636,6 @@ int TitleOptions(int Name)
 		//loc_EB4
 		return ret;
 	}
-
-	//loc_904
-	SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
 
 	s1 = LoadGame(); //Disabled due to crashing
 
