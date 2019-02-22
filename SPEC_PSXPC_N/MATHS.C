@@ -177,17 +177,17 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 
 void ScaleCurrentMatrix(long a0, long sx, long sy, long sz)
 {
-	Matrix->m00 *= sx / 16384.0f;
-	Matrix->m10 *= sx / 16384.0f;
-	Matrix->m20 *= sx / 16384.0f;
+	Matrix->m00 *= sx / 4096.0f;
+	Matrix->m10 *= sx / 4096.0f;
+	Matrix->m20 *= sx / 4096.0f;
 
-	Matrix->m01 *= sy / 16384.0f;
-	Matrix->m11 *= sy / 16384.0f;
-	Matrix->m21 *= sy / 16384.0f;
+	Matrix->m01 *= sy / 4096.0f;
+	Matrix->m11 *= sy / 4096.0f;
+	Matrix->m21 *= sy / 4096.0f;
 
-	Matrix->m02 *= sz / 16384.0f;
-	Matrix->m12 *= sz / 16384.0f;
-	Matrix->m22 *= sz / 16384.0f;
+	Matrix->m02 *= sz / 4096.0f;
+	Matrix->m12 *= sz / 4096.0f;
+	Matrix->m22 *= sz / 4096.0f;
 }
 
 void mPushMatrix()//764D0(<), 78514(<) (F) (START)
