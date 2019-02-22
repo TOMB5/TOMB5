@@ -329,7 +329,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				POLY_FT4* poly = (POLY_FT4*)pTag;
 				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
 
-				/*glBegin(GL_TRIANGLES);
+				glBegin(GL_TRIANGLES);
 
 				glColor3ubv(&poly->r0);
 				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
@@ -356,28 +356,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 				//glColor3ubv(&poly->r2);
 
-				glEnd();*/
-
-				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
-
-				glBegin(GL_QUADS);
-
-				glColor3ubv(&poly->r0);
-
-				glTexCoord2f(poly->u0 / 256.0f, poly->v0 / 256.0f);
-				glVertex2f(poly->x0, poly->y0);
-
-				glTexCoord2f(poly->u1 / 256.0f, poly->v1 / 256.0f);
-				glVertex2f(poly->x1, poly->y1);
-
-				glTexCoord2f(poly->u3 / 256.0f, poly->v3 / 256.0f);
-				glVertex2f(poly->x3, poly->y3);
-
-				glTexCoord2f(poly->u2 / 256.0f, poly->v2 / 256.0f);
-				glVertex2f(poly->x2, poly->y2);
-
 				glEnd();
-				break;
+
 				break;
 			}
 			case 0x30: // POLY_G3
