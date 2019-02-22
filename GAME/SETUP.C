@@ -42,7 +42,7 @@
 #include "TOMB4FX.H"
 #include "TYPES.H"
 #include "TYPEDEFS.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 #include <assert.h>
 #include <stddef.h>
