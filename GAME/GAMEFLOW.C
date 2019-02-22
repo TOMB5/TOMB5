@@ -66,7 +66,7 @@
 #endif
 #endif
 
-#if PSX_VERSION || SAT_VERSION && !PSXPC_TEST
+#if (PSX_VERSION || SAT_VERSION) && !PSXPC_TEST
 typedef unsigned int uintptr_t;
 #endif
 
