@@ -1,7 +1,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 #if PSX_VERSION
 #include <LIBGTE.H>

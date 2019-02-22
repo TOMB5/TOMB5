@@ -43,7 +43,7 @@
 #include "TYPEDEFS.H"
 #endif
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include <assert.h>
 #include <stddef.h>
 #include "SOUND.H"

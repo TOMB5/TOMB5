@@ -4,10 +4,10 @@
 #include "DELTAPAK.H"
 #include "GAMEFLOW.H"
 #include "LARA.H"
-#if PSXENGINE
+#if PSXENGINE || SAT_VERSION
 #include "MATHS.H"
 #include "GETSTUFF.H"
-#else
+#elif PC_VERSION
 #include "GLOBAL.H"
 #endif
 #include "OBJECTS.H"
@@ -25,7 +25,7 @@
 	#include <LIBMATH.H>
 #endif
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #include "SPHERES.H"
 #endif

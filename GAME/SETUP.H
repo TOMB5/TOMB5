@@ -1,7 +1,7 @@
 #ifndef SETUP_H
 #define SETUP_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include "OBJECTS.H"
 
 #include <stdio.h>
@@ -13,7 +13,7 @@
 #if DISC_VERSION
 	extern void LoadLevel();
 #else
-	#if PSX_VERSION
+	#if PSX_VERSION || SAT_VERSION
 		extern void LoadLevel(int nHandle);
 	#elif PSXPC_VERSION
 		extern void LoadLevel(FILE* nHandle);
@@ -158,7 +158,7 @@ struct Level
 	int unk57;
 };
 
-#if PSX_VERSION && !PSXPC_TEST
+#if PSX_VERSION || SAT_VERSION && !PSXPC_TEST
 extern struct object_info objects[NUMBER_OBJECTS];
 extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
 extern char SkinVertNums[480];

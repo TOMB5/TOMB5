@@ -1,7 +1,7 @@
 #ifndef HAIR_H
 #define HAIR_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern void InitialiseHair();
 extern int hair_wind;

@@ -1,7 +1,7 @@
 #ifndef LARAFIRE_H
 #define LARAFIRE_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern struct GAME_VECTOR bum_vdest;
 extern struct GAME_VECTOR bum_vsrc;

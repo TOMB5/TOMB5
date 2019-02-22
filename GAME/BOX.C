@@ -18,7 +18,7 @@
 #include "MATHS.H"
 #endif
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include <assert.h>
 #include "CAMERA.H"
 #include "LARA.H"

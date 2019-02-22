@@ -23,11 +23,8 @@
 #include "INPUT.H"
 #endif
 #include "GAMEFLOW.H"
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "GPU.H"
-
-
-
 
 #include "LOAD_LEV.H"
 #include "MATHS.H"

@@ -12,7 +12,7 @@
 #include "DRAW.H"
 
 #include "FILE.H"
-#if !PC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || PSXPC_TEST
 #include "CD.H"
 #include "MOVIE.H"
 #include "MEMCARD.H"
@@ -24,15 +24,24 @@
 #include "ROOMLOAD.H"
 #include <LIBAPI.H>
 #include <LIBGTE.H>
-#else
-#include "GAME.H"
-#include "INIT.H"
+#elif SAT_VERSION
+#include "CD.H"
+#include "MOVIE.H"
+#include "MEMCARD.H"
+#include "SPUSOUND.H"
+#include "MISC.H"
+#include "SFX.H"
+#include "GPU.H"
+#include "DRAWPHAS.H"
+#include "ROOMLOAD.H"
 #endif
 
 #if PC_VERSION
 #include "SPECIFIC.H"
 #include "DRAWPRIMITIVE.H"
 #include "DISPLAY.H"
+#include "GAME.H"
+#include "INIT.H"
 #endif
 
 #include "HEALTH.H"
@@ -57,7 +66,7 @@
 #endif
 #endif
 
-#if PSX_VERSION && !PSXPC_TEST
+#if PSX_VERSION || SAT_VERSION && !PSXPC_TEST
 typedef unsigned int uintptr_t;
 #endif
 
@@ -1117,7 +1126,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		if (gfLegendTime != 0 && DestFadeScreenHeight == 0 && FadeScreenHeight == 0 && cutseq_num == 0)
 		{
 			PrintString(
-#if PSXENGINE
+#if PSX_VERSION || PSXPC_TEST || PSXPC_VERSION || SAT_VERSION
 				0x100, 0xE8, 
 #else
 				phd_winwidth / 2, phd_winymax - font_height,

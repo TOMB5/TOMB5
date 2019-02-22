@@ -22,7 +22,7 @@
 #include "DRAWPRIMITIVE.H"
 #include "GAME.H"
 #include "WINMAIN.H"
-#elif PSX_VERSION || PSXPC_VERSION
+#elif PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "SETUP.H"
 #include "LOADSAVE.H"
 #include "CD.H"
@@ -35,7 +35,7 @@
 
 #if PSXPC_TEST
 #include <stdint.h>
-#elif PSX_VERSION
+#elif PSX_VERSION || SAT_VERSION
 typedef unsigned int uintptr_t;
 #endif
 

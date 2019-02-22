@@ -25,14 +25,14 @@
 #endif
 #include "SOUND.H"
 #include "SPECIFIC.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 #include <stddef.h>
 #include "TOMB4FX.H"
 
 #include <string.h>
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #endif
 

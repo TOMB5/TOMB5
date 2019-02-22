@@ -1,7 +1,7 @@
 #ifndef ITEMS_H
 #define ITEMS_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 enum item_flags
 {

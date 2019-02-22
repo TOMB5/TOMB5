@@ -1,7 +1,7 @@
 #ifndef LARAMISC_H
 #define LARAMISC_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 #if DEBUG_VERSION
 extern char* states[131];
