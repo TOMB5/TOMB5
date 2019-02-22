@@ -157,6 +157,7 @@ int IRQCallback = 0;
 
 unsigned long SpuWrite(unsigned char * addr, unsigned long size)
 {
+	eprintf("SPU WRITE size=%d\n", size);
 	UNIMPLEMENTED();
 	return 0;
 }
@@ -223,8 +224,7 @@ long SpuInitMalloc(long num, char * top)
 
 long SpuMalloc(long size)
 {
-	UNIMPLEMENTED();
-	return 0;
+	return (long)(uintptr_t)malloc(size);
 }
 
 long SpuMallocWithStartAddr(unsigned long addr, long size)
@@ -235,7 +235,7 @@ long SpuMallocWithStartAddr(unsigned long addr, long size)
 
 void SpuFree(unsigned long addr)
 {
-	UNIMPLEMENTED();
+	free((void*)(uintptr_t)addr);
 }
 
 void SpuSetCommonMasterVolume(short mvol_left, short mvol_right)// (F)
