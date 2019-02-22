@@ -8,9 +8,9 @@
 extern void S_MemSet(char* p, int value, int length);
 extern void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size);
 extern void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h, int unk, int unk2);
-extern void DrawTPage(unsigned char a0, unsigned char a1);
-extern void DrawLineH(unsigned short a0, unsigned short a1, unsigned short a2, unsigned char a3, unsigned long a4, unsigned long a5);
-extern void DrawLineV(unsigned short a0, unsigned short a1, unsigned short a2, unsigned char a3, unsigned long a4, unsigned long a5);
+extern void DrawTPage(unsigned char otnum, unsigned char tpage);
+extern void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigned char otnum, unsigned long color1, unsigned long color2);
+extern void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsigned char otnum, unsigned long color1, unsigned long color2);
 extern void LOAD_VSyncHandler();
 extern void LOAD_DrawEnable(unsigned char isEnabled);
 extern void GPU_BeginScene();

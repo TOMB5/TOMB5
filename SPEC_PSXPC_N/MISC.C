@@ -106,22 +106,19 @@ void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short
 	//locret_5EE70
 }
 
-void DrawTPage(unsigned char a0, unsigned char a1) //5EE78(<), 5FB58(<)
+void DrawTPage(unsigned char otnum, unsigned char tpage) //5EE78(<), 5FB58(<)
 {
-	a0 &= 0xFF;
-	a1 &= 0xFF;
-
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		setDrawTPage(db.polyptr, FALSE, FALSE, a1 * 32);
+		setDrawTPage(db.polyptr, FALSE, FALSE, tpage * 32);
 
-		addPrim(db.ot + a0, db.polyptr);
+		addPrim(db.ot + otnum, db.polyptr);
 
 		db.polyptr += sizeof(DR_TPAGE);
 	}
 }
 
-void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigned char a3, unsigned long a4, unsigned long a5)//5EECC(<)
+void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigned char otnum, unsigned long color1, unsigned long color2)//5EECC(<)
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
@@ -130,10 +127,10 @@ void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigne
 		setLineG4(ptr);
 		setcode(ptr, 0x52); // todo: wtf?
 
-		setRGB0(ptr, getR(a4), getG(a4), getB(a4));
-		setRGB1(ptr, getR(a5), getG(a5), getB(a5));
-		setRGB2(ptr, getR(a5), getG(a5), getB(a5));
-		setRGB3(ptr, getR(a4), getG(a4), getB(a4));
+		setRGB0(ptr, getR(color1), getG(color1), getB(color1));
+		setRGB1(ptr, getR(color2), getG(color2), getB(color2));
+		setRGB2(ptr, getR(color2), getG(color2), getB(color2));
+		setRGB3(ptr, getR(color1), getG(color1), getB(color1));
 		setXY4(ptr, x, y, x + width / 2, y, x + width / 2 + 1, y, x + width - 1, y);
 
 		ptr->p1 = 0x52;
@@ -142,13 +139,13 @@ void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigne
 
 		//((int*)db.polyptr)[5] = 0; // todo
 
-		addPrim(db.ot + a3, ptr);
+		addPrim(db.ot + otnum, ptr);
 
 		db.polyptr += sizeof(LINE_G4);
 	}//locret_5EF7C
 }
 
-void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsigned char a3, unsigned long a4, unsigned long a5)//5EF84(<),
+void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsigned char otnum, unsigned long color1, unsigned long color2)//5EF84(<),
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
@@ -157,10 +154,10 @@ void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsign
 		setLineG4(ptr);
 		setcode(ptr, 0x52); // todo: wtf?
 
-		setRGB0(ptr, getR(a4), getG(a4), getB(a4));
-		setRGB1(ptr, getR(a5), getG(a5), getB(a5));
-		setRGB2(ptr, getR(a5), getG(a5), getB(a5));
-		setRGB3(ptr, getR(a4), getG(a4), getB(a4));
+		setRGB0(ptr, getR(color1), getG(color1), getB(color1));
+		setRGB1(ptr, getR(color2), getG(color2), getB(color2));
+		setRGB2(ptr, getR(color2), getG(color2), getB(color2));
+		setRGB3(ptr, getR(color1), getG(color1), getB(color1));
 		setXY4(ptr, x, y + 1, x, y + height / 2, x, y + height / 2 + 2, x, y + height - 2);
 
 		ptr->p1 = 0x52;
@@ -169,7 +166,7 @@ void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsign
 
 		//((int*)db.polyptr)[5] = 0; // todo
 
-		addPrim(db.ot + a3, ptr);
+		addPrim(db.ot + otnum, ptr);
 
 		db.polyptr += sizeof(LINE_G4);
 	}//locret_5F038
