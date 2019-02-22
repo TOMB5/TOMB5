@@ -1,4 +1,4 @@
-#include "TITSEQ.H"
+﻿#include "TITSEQ.H"
 
 #include "CONTROL.H"
 #include "DELTAPAK.H"
@@ -28,11 +28,12 @@
 #endif
 
 #define BLOCK_SPLINE_CAM (1)
+#define HACK_SAVE_SECRETS (0)
 
 #if PSX_VERSION && RELOC
 void* func_titseq[] __attribute__((section(".header"))) =
 {
-	&TitleOptions(int Name),
+	&TitleOptions,
 };
 
 unsigned char titseqData[] __attribute__((section(".data"))) =
@@ -41,6 +42,12 @@ unsigned char titseqData[] __attribute__((section(".data"))) =
 	0,//byte_47
 	0,//byte_1A8
 };
+
+unsigned int titseqData2[] __attribute__((section(".data"))) =
+{
+	0,//word_38
+};
+
 #endif
 
 unsigned char byte_46 = 0;
@@ -134,6 +141,13 @@ int TitleOptions(int Name)
 
 #if BLOCK_SPLINE_CAM
 	current_spline_position = 0;
+#endif
+
+#if HACK_SAVE_SECRETS
+	savegame.CampaignSecrets[0] = 9;
+	savegame.CampaignSecrets[1] = 9;
+	savegame.CampaignSecrets[2] = 9;
+	savegame.CampaignSecrets[3] = 9;
 #endif
 
 	if (PadConnected == 0)
@@ -567,7 +581,7 @@ int TitleOptions(int Name)
 			else
 			{
 				//loc_850
-				///sub_3A8();
+				sub_3A8();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				byte_46 = 0;
 			}
@@ -581,7 +595,7 @@ int TitleOptions(int Name)
 			if (byte_46 != 0)
 			{
 				//loc_8EC
-				///sub_3A8();
+				sub_3A8();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				byte_46 = 0;
 			}
@@ -680,6 +694,46 @@ void sub_2B0()
 
 		db.polyptr += sizeof(POLY_FT4);
 	}//locret_3A0
+}
+
+void sub_3A8()
+{
+	int i = 0;//a2
+	//t1 = 1
+	//a2 = 0
+	//t4 = &savgame.CampaignSecrets[0]
+	//a1 = 0
+	//t0 = 0
+	//a0 = 0
+	//v1 = &byte_2600[0]
+	//t3 = &byte_2600[0]
+	//a3 = 0x20000
+	//t2 = 0x10000
+	//v0 = 1
+	word_38 = 1;
+
+	byte_2600[0] = 0;
+	byte_2600[1] = 0;
+	byte_2600[2] = 0;
+	byte_2600[3] = 0;
+	byte_2600[4] = 0;
+
+	//v0 = &savgame.CampaignSecrets[0]
+
+	//loc_3F4
+	do
+	{
+		//v1 = savgame.CampaignSecrets[0]
+		//v1 = savgame.CampaignSecrets[0] < 9 ? 1 : 0
+
+		//a1 = a2 + 1
+		if (savegame.CampaignSecrets[i] > 8)
+		{
+			byte_2600[i + 1] = i + 1;
+			word_38++;
+		}//loc_428
+
+	} while (++i < 4);
 }
 
 int sub_1054()
