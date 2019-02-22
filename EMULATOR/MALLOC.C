@@ -8,12 +8,12 @@ void InitHeap(unsigned long* unk00, unsigned long unk01)
 	UNIMPLEMENTED();
 }
 
-void free(void* unk00)
+/*void free(void* unk00)
 {
 	UNIMPLEMENTED();
 }
 
-void* malloc(size_t unk00)
+/*void* malloc(size_t unk00)
 {
 	UNIMPLEMENTED();
 	return NULL;
@@ -29,7 +29,7 @@ void* realloc(void * unk00, size_t unk01)
 {
 	UNIMPLEMENTED();
 	return NULL;
-}
+}*/
 
 void InitHeap2(unsigned long* unk00, unsigned long unk01)
 {
