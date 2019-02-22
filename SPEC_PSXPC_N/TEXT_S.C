@@ -562,7 +562,7 @@ void GetStringDimensions(char* string, unsigned short* w, unsigned short* h)
 }
 #endif
 
-void DrawChar(unsigned short a0, unsigned short a1, unsigned short colourFlag, struct CHARDEF* a3)//8DDBC(<), 8FE00(<) (F)
+void DrawChar(unsigned short x, unsigned short y, unsigned short colourFlag, struct CHARDEF* a3)//8DDBC(<), 8FE00(<) (F)
 {
 	CVECTOR* TopShade;//$v0
 	CVECTOR* BottomShade;//$at
@@ -573,58 +573,39 @@ void DrawChar(unsigned short a0, unsigned short a1, unsigned short colourFlag, s
 	{
 		//v1 = &FontShades[0][0];
 
+		POLY_GT4* ptr = (POLY_GT4*)db.polyptr;
+
+		setPolyGT4(ptr);
+
 		TopShade = &FontShades[colourFlag][a3->TopShade];
 		BottomShade = &FontShades[colourFlag][a3->BottomShade];
 
-		*((long*) &db.polyptr[4])= *(long*) &TopShade->r;
-		*((long*) &db.polyptr[28]) = *(long*) &BottomShade->r;
-		*((long*) &db.polyptr[16]) = *(long*) &TopShade->r;
-		*((long*) &db.polyptr[40]) = *(long*) &BottomShade->r;
+		setRGB0(ptr, TopShade->r, TopShade->g, TopShade->b);
+		setRGB1(ptr, TopShade->r, TopShade->g, TopShade->b);
+		setRGB2(ptr, BottomShade->r, BottomShade->g, BottomShade->b);
+		setRGB3(ptr, BottomShade->r, BottomShade->g, BottomShade->b);
 
-		((char*) db.polyptr)[7] = 0x3C;//#define TAG_PGT4                    0x3C
+		setClut(ptr, 592, 65);
+		setTPage(ptr, 0, 1, 576, 0);
 
-		*(short*) &db.polyptr[14] = 4197;
-		*(short*) &db.polyptr[26] = 41;
+	
 		//sizeof(POLY_GT4);
 
 		v1 = a3->w;
-		a1 += a3->YOffset;
+		y += a3->YOffset;
 
 		if (ScaleFlag != 0)
 		{
 			v1 = (a3->w >> 2) - a3->w + 1;
 		}
 
-		//loc_8DE5C
-		*(short*) &db.polyptr[8] = a0;
-		*(short*) &db.polyptr[10] = a1;
-		*(short*) &db.polyptr[20] = a0 + v1;
-		*(short*) &db.polyptr[22] = a1;
+		setXYWH(ptr, x, y, v1, a3->h);
 
-		*(short*) &db.polyptr[32] = a0;
-		*(short*) &db.polyptr[34] = a1 + a3->h;
-		*(short*) &db.polyptr[44] = a0 + v1;
-		*(short*) &db.polyptr[46] = a1 + a3->h;
+		setUVWH(ptr, a3->u, a3->v, v1, a3->h);
 
-		*(char*) &db.polyptr[12] = a3->u;
-		*(char*) &db.polyptr[13] = a3->v;
-		*(char*) &db.polyptr[24] = a3->u + v1;
-		*(char*) &db.polyptr[25] = a3->v;
+		addPrim(db.ot, ptr);
 
-		*(char*) &db.polyptr[36] = a3->u;
-		*(char*) &db.polyptr[37] = a3->v + a3->h;
-		*(char*) &db.polyptr[48] = a3->u + a3->w;
-		*(char*) &db.polyptr[49] = a3->v + a3->h;
-
-		//a3 = db.ot
-		//v0 = db.ot[0] | 0xC000000;
-		*(long*)&db.polyptr[0] = db.ot[0] | 0xC000000;
-		db.ot[0] = (unsigned long)db.polyptr;
-		
-
-		//db.ot[0] = (unsigned long)db.polyptr;
-		//*(long*)&db.polyptr[0] = db.ot[0] | 0xC000000;
-		db.polyptr += 0x34;
+		db.polyptr += sizeof(POLY_GT4);
 	}//locret_8DED4
 }
 

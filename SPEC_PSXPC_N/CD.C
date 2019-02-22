@@ -477,7 +477,7 @@ int DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F) (*)
 		{
 			VSync(0);
 
-#if _DEBUG
+#if _DEBUG && 0
 			CdIntToPos(cdCurrentSector, &fp.pos); 
 			eprintf("Read %02d:%02d:%02d\n", 
 				DECODE_BCD(fp.pos.minute), 

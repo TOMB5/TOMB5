@@ -224,114 +224,22 @@ void mTranslateAbsXYZ(long x, long y, long z)
 	y -= MatrixStack[0].ty;
 	z -= MatrixStack[0].tz;
 
-	mat->tx = ((mat->m00 * x) + (mat->m01 * y) + (mat->m02 * z)) >> 12;
-	mat->ty = ((mat->m10 * x) + (mat->m11 * y) + (mat->m12 * z)) >> 12;
-	mat->tz = ((mat->m20 * x) + (mat->m21 * y) + (mat->m22 * z)) >> 12;
+	mat->tx = (mat->m00 * x + mat->m01 * y + mat->m02 * z) >> 12;
+	mat->ty = (mat->m10 * x + mat->m11 * y + mat->m12 * z) >> 12;
+	mat->tz = (mat->m20 * x + mat->m21 * y + mat->m22 * z) >> 12;
 
 	mLoadMatrix(mat);
 }
 
 void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
 {
-	if (y < 0)
-	{
-		//a1 = -a1
-		//t4 = a1 >> 15
-		//a1 &= 0x7FFF
-		//t4 = -t4;
-		//a1 = -a1
-	}
-	else
-	{
-		//loc_765AC
-		//t4 = a1 >> 15;
-		y &= 0x7FFF;
-	}
+	MATRIX3D* mat = Matrix;
 
-	//loc_765B0
-	if (z < 0)
-	{
-		//a2 = -a2;
-		//t5 = a2 >> 15;
-		//a2 &= 0x7FFF;
-		//t5 = -t5;
-		//a2 = -a2;
-	}
-	else
-	{
-		//loc_765D0
-		//t5 = a2 >> 15;
-		//a2 &= 0x7FFF;
-	}
+	mat->tx = (mat->m00 * x + mat->m01 * y + mat->m02 * z) >> 12;
+	mat->ty = (mat->m10 * x + mat->m11 * y + mat->m12 * z) >> 12;
+	mat->tz = (mat->m20 * x + mat->m21 * y + mat->m22 * z) >> 12;
 
-	//loc_765D4
-	if (x < 0)
-	{
-		//a0 = -a0;
-		//t3 = a0 >> 15;
-		//a0 &= 0x7FFF;
-		//t3 = -t3;
-		//a0 = -a0;
-	}
-	else
-	{
-		//loc_765F4
-		//t3 = a0 >> 15;
-		//a0 &= 0x7FFF;
-	}
-
-#if 0
-	/*loc_765F8:
-	mtc2	$t3, $9
-	mtc2	$t4, $10
-	mtc2	$t5, $11
-	nop
-	cop2	0x41E012
-	mfc2	$t3, $25
-	mfc2	$t4, $26
-	mtc2	$a0, $9
-	mtc2	$a1, $10
-	mtc2	$a2, $11
-	mfc2	$t5, $27
-	cop2	0x498012
-	bgez	$t3, loc_7663C
-	sll	$t0, $t3, 3
-	negu	$t3, $t3
-	sll	$t3, 3
-	negu	$t0, $t3
-
-	//loc_7663C :
-	bgez	$t4, loc_76650
-	sll	$t1, $t4, 3
-	negu	$t4, $t4
-	sll	$t4, 3
-	negu	$t1, $t4
-
-	//loc_76650 :
-	bgez	$t5, loc_76664
-	sll	$t2, $t5, 3
-	negu	$t5, $t5
-	sll	$t5, 3
-	negu	$t2, $t5
-
-	//loc_76664 :
-	//mfc2	$t3, $25//gte_mvlvtr?
-	mfc2	$t4, $26
-	mfc2	$t5, $27
-	addu	$t0, $t3
-	addu	$t1, $t4
-	addu	$t2, $t5
-	lw	$v0, 0x1820($gp)
-	ctc2	$t0, $5
-	ctc2	$t1, $6
-	ctc2	$t2, $7
-	sw	$t0, 0x14($v0)//gte_sttr
-	sw	$t1, 0x18($v0)
-	jr	$ra
-	sw	$t2, 0x1C($v0)*/
-#endif
-
-	S_Warn("[mTranslateXYZ] - Unimplemented!\n");
+	mLoadMatrix(mat);
 }
 
 void mRotX(long rx)
