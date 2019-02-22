@@ -82,7 +82,7 @@ void Emulator_InitialiseGL()
 //	glEnable(GL_DEPTH_TEST);
 //	glDepthFunc(GL_LEQUAL);
 
-	glBlendColor(0.25, 0.25, 0.25, 0.5);
+//	glBlendColor(0.25, 0.25, 0.25, 0.5);
 }
 
 void Emulator_GenerateAndBindNullWhite()
@@ -168,6 +168,11 @@ void Emulator_BeginScene()
 
 	lastTime = SDL_GetTicks();
 
+	Emulator_UpdateInput();
+}
+
+void Emulator_UpdateInput()
+{
 	//Update pad
 	if (SDL_NumJoysticks() > 0)
 	{
@@ -384,7 +389,7 @@ GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY, uns
 	return -1;
 }
 
-void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
+void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent)
 {
 	unsigned int textureType = (tpage >> 7) & 0x3;
 	unsigned int tpageX = (tpage << 6) & 0x7C0 % 1024;
