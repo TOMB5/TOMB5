@@ -7,6 +7,8 @@ int sp = 0;
 
 long SetRCnt(long spec, unsigned short target, long mode)
 {
+	spec &= 0xFFFF;
+
 	if (spec >= 3)
 		return 0;
 
@@ -18,6 +20,8 @@ long SetRCnt(long spec, unsigned short target, long mode)
 
 long GetRCnt(long spec)
 {
+	spec &= 0xFFFF;
+
 	if (spec > 3)
 		return 0;
 
@@ -26,6 +30,8 @@ long GetRCnt(long spec)
 
 long ResetRCnt(long spec)
 {
+	spec &= 0xFFFF;
+
 	if (spec >= 3)
 		return 0;
 
@@ -36,6 +42,8 @@ long ResetRCnt(long spec)
 
 long StartRCnt(long spec)
 {
+	spec &= 0xFFFF;
+
 	if (spec >= 3)
 		return 0;
 
@@ -46,6 +54,8 @@ long StartRCnt(long spec)
 
 long StopRCnt(long spec)
 {
+	spec &= 0xFFFF;
+
 	if (spec >= 3)
 		return 0;
 

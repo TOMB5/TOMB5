@@ -1,7 +1,19 @@
 #ifndef EMULATOR_GLOBALS_H
 #define EMULATOR_GLOBALS_H
 
+
+#ifndef TRUE
+#define TRUE		1
+#endif
+#ifndef FALSE
+#define FALSE		0
+#endif
+#ifndef NULL
+#define NULL		0
+#endif
+
 #include <stdint.h>
+#include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "EMULATOR_GLOBALS.H"
 #include <stdlib.h>
+#include <cstring>
 
 enum VV_Phase
 {

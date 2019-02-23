@@ -1,6 +1,5 @@
 #include "EMULATOR.H"
 
-#include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <LIBPAD.H>
@@ -88,9 +87,12 @@ void Emulator_CounterLoop()
 		auto now = std::chrono::high_resolution_clock::now();
 		auto delta = std::chrono::duration_cast<std::chrono::microseconds>(now - last_time);
 
-		if (delta.count() >= 64)
+		if (!counters[1].IsStopped)
 		{
-			counters[1].Value++;
+			if (delta.count() >= 64)
+			{
+				counters[1].Value++;
+			}
 		}
 
 		for (int i = 0; i < 3; i++)
