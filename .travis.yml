@@ -13,9 +13,11 @@ before_install:
   - sudo apt-get install -y libgles2-mesa-dev
   - sudo apt-get install -y libsdl2-dev
   - sudo apt-get install -y libglew-dev
+
+env:
+  - CXXFLAGS="-std=c++11 -stdlib=libc++"
     
 script:
-  - export CXXFLAGS=”-std=c++11 -stdlib=libc++” 
   - mkdir BUILD
   - cd BUILD
   - cmake ..
