@@ -3,7 +3,7 @@
 #include "SFX.H"
 #include "SOUND.H"
 
-#include <sys/types.h>
+//#include <sys/types.h>
 #include <LIBSPU.H>
 
 short DepthTable[] =

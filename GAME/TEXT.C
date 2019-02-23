@@ -3,7 +3,7 @@
 #if PC_VERSION
 #include "GLOBAL.H"
 #else
-#include <SYS/TYPES.H>
+//#include <SYS/TYPES.H>
 #include <LIBGTE.H>
 #endif
 
