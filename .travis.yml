@@ -15,6 +15,7 @@ before_install:
   - sudo apt-get install -y libglew-dev
     
 script:
+  - export CXXFLAGS=”-std=c++11 -stdlib=libc++” 
   - mkdir BUILD
   - cd BUILD
   - cmake ..
