@@ -23,7 +23,10 @@
 #include "HEALTH.H"
 #include "NEWINV2.H"
 #include "LARAFIRE.H"
+
+#if !SAT_VERSION
 #include <string.h>
+#endif
 
 #if DEBUG_VERSION
 char* states[131] =

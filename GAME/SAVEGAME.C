@@ -19,8 +19,10 @@
 #include "ROOMLOAD.H"
 #endif
 
+#if !SAT_VERSION
 #include <stdio.h>
 #include <string.h>
+#endif
 #include "NEWINV2.H"
 #include "DRAW.H"
 #include "CAMERA.H"

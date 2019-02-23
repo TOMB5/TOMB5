@@ -18,7 +18,7 @@
 #include "LARAFIRE.H"
 #include "CODEWAD.H"
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #endif
 

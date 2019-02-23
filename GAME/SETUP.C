@@ -45,9 +45,11 @@
 #include "STYPES.H"
 
 #include <assert.h>
+#if !SAT_VERSION
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#endif
 
 #if PSX_VERSION
 	#if !DISC_VERSION
@@ -77,19 +79,20 @@ RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
 
 #if PSXPC_TEST
 #include <stdint.h>
-#elif PSX_VERSION
+#elif PSX_VERSION || SAT_VERSION
 typedef unsigned int uintptr_t;
 #endif
 
-#if PSXPC_VERSION || PSXPC_TEST
+#if PSXPC_VERSION || PSXPC_TEST || SAT_VERSION
 struct object_container objects_raw;
 struct object_info* objects = &objects_raw.m_objects[0];
 struct static_info* static_objects = &objects_raw.m_static_objects[0];
 extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
 extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
+
 #endif
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundData, int soundWadSize)//?, B3974(F)
 {
 #ifndef NO_SOUND
@@ -1049,7 +1052,7 @@ void sub_B3A7C(int a0)
 #if DISC_VERSION
 void LoadLevel()//?(<), B3B50(<) (F)
 #else
-#if PSX_VERSION
+#if PSX_VERSION || SAT_VERSION
 void LoadLevel(int nHandle)//?, B3B50(<)
 #elif PSXPC_VERSION
 void LoadLevel(FILE* nHandle)
@@ -1060,7 +1063,7 @@ void LoadLevel(FILE* nHandle)
 #if PSX_VERSION
 #if PSXPC_TEST
 	RECT16 tex[2];
-#else
+#elif PSX_VERSION
 	RECT tex[2];
 #endif
 #endif
@@ -1941,7 +1944,7 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 	char* s6;
 	int s7;
 	int mallocSize;//$a0
-#if PSX_VERSION
+#if PSX_VERSION || SAT_VERSION
 #if PSXPC_TEST
 	int nHandle = 0;
 #else
@@ -2060,7 +2063,7 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 	}//loc_67C8
 }
 
-#if PSX_VERSION
+#if PSX_VERSION || SAT_VERSION
 char* ReadResidentData(int residentIndex, int nHandle)//(<), BA0DC(<) (F)
 #elif PSXPC_VERSION
 char* ReadResidentData(int residentIndex, FILE* nHandle)//(<), BA0DC(<) (F)

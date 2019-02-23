@@ -59,8 +59,11 @@
 #include "TOMB4FX.H"
 #include "TYPES.H"
 
+#if !SAT_VERSION
 #include <assert.h>
 #include <string.h>
+#endif
+
 #include "LARAMISC.H"
 #include "LARA.H"
 
@@ -2078,7 +2081,7 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F
 	}
 }
 
-#if PC_VERSION || PSXPC_VERSION || PSXPC_TEST
+#if PC_VERSION || PSXPC_VERSION || PSXPC_TEST || SAT_VERSION
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
 {
 	UNIMPLEMENTED();
@@ -2497,7 +2500,7 @@ int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLO
 	return 0;
 }
 
-#if !PSX_VERSION
+#if !(PSX_VERSION || SAT_VERSION)
 void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint)
 {
 	UNIMPLEMENTED();

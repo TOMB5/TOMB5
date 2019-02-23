@@ -79,7 +79,9 @@ typedef unsigned int uintptr_t;
 #include <LIBETC.H>
 #endif
 
+#if !SAT_VERSION
 #include <string.h>
+#endif
 #include "LOT.H"
 #include "TEXT.H"
 

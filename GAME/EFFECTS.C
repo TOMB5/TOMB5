@@ -27,10 +27,12 @@
 #include "SPECIFIC.H"
 #include "STYPES.H"
 
-#include <stddef.h>
 #include "TOMB4FX.H"
 
+#if !SAT_VERSION
 #include <string.h>
+#include <stddef.h>
+#endif
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
