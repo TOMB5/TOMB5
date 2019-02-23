@@ -5,9 +5,11 @@
 #if PSXPC_TEST
 #include <stdint.h>
 #endif
-#include <stdlib.h>
-#include <stddef.h>
 
+#if !SAT_VERSION
+#include <stddef.h>
+#include <stdlib.h>
+#endif
 
 #ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))

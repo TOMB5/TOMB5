@@ -1,7 +1,7 @@
 #ifndef LARA_H
 #define LARA_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 #define LARA_FREEFALL_SPEED 131
 

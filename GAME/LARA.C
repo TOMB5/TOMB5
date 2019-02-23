@@ -20,7 +20,7 @@
 #include "3D_GEN.H"
 #include "MATHS.H"
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #endif
 

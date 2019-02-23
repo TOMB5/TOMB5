@@ -93,7 +93,8 @@ void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short
 	{
 		POLY_F4* ptr = (POLY_F4*)db.polyptr;
 
-		setPolyF4(ptr);
+		setlen(ptr, 5);
+		setcode(ptr, 0x2A);
 
 		setRGB0(ptr, getR(unk2), getG(unk2), getB(unk2));
 

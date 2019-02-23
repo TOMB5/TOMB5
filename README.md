@@ -4,12 +4,12 @@ Start Date: 12th July 2017.
 
 PSX:
 <p align="center">
-<img src="https://i.imgur.com/1o1EDew.png"/>
-</p>
+<a href="https://streamable.com/n4oop"><img src="https://i.imgur.com/yrZDlay.png"/><a>
+ </p>
 
 PSXPC_N:
 <p align="center">
-<a href="https://streamable.com/z900z"><img src="https://i.imgur.com/GgG4to2.png"/><a>
+<a href="https://streamable.com/bsutq"><img src="https://i.imgur.com/r3IwHdf.png"/><a>
  </p>
 
 | Platform  | Build State |

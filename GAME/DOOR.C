@@ -10,7 +10,7 @@
 #include "PICKUP.H"
 #include "SOUND.H"
 #include "SPECIFIC.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include "SPHERE.H"
 #include "SWITCH.H"
 #include "OBJECTS.H"

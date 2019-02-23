@@ -6,7 +6,7 @@
 #include "LARA.H"
 #include "OBJECTS.H"
 #include "SPECIFIC.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include <stddef.h>
 #include "TOMB4FX.H"
 #include "SPHERE.H"

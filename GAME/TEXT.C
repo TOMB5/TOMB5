@@ -2,12 +2,12 @@
 
 #if PC_VERSION
 #include "GLOBAL.H"
-#else
+#elif PSX_VERSION || PSXPC_VERSION || PSXPC_TEST
 #include <SYS/TYPES.H>
 #include <LIBGTE.H>
 #endif
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 char AccentTable[46][2] =
 {

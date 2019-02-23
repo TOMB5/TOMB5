@@ -1,7 +1,7 @@
 #ifndef PICKUP_H
 #define PICKUP_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern short SearchCollectFrames[4];
 extern short SearchAnims[4];

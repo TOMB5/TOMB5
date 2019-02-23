@@ -27,6 +27,7 @@
 #include "MISC.H"
 #include "ROOMLOAD.H"
 #include "ROOMLETB.H"
+#include "ROOMLET3.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
@@ -461,10 +462,13 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 	else
 	{
-		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
+#if RELOC
 		//loc_64BA0
 		//unsigned long* v1 = (unsigned long*)RelocPtr[2];
 		//jalr v1[0];
+#else
+		DrawRoomletList();
+#endif
 	}
 
 	//loc_64BBC

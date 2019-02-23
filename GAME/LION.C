@@ -7,12 +7,12 @@
 #include "SETUP.H"
 #include "CONTROL.H"
 #include "TOMB4FX.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #if PC_VERSION
 #include "GAME.H"
 #endif
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #endif
 

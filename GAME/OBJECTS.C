@@ -16,7 +16,7 @@
 #endif
 #include "SOUND.H"
 #include "SPECIFIC.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include "TOMB4FX.H"
 
 #include <stddef.h>

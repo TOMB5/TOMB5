@@ -247,7 +247,7 @@ DrawLineV:
 	addiu   v0, -2
 	sh      a0, 0x24(t0)
 	sh      v0, 0x26(t0)
-	lw      t2, db+0x4;FIXME -GP_ADDR(gp)
+	lw      t2, db+0x4-GP_ADDR(gp)
 	sll     a3, 2
 	addu    a3, t2
 	lw      v0, 0(a3)

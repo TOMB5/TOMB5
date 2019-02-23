@@ -10,11 +10,11 @@
 #include "LARA.H"
 #include "LARAFIRE.H"
 #include "SPECIFIC.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include "EFFECTS.H"
 #include "SOUND.H"
 
-#if PSXPC_VERSION || PSX_VERSION
+#if PSXPC_VERSION || PSX_VERSION || SAT_VERSION
 #include "BUBBLES.H"
 #endif
 

@@ -1,7 +1,7 @@
 #ifndef DELTAPAK_H
 #define DELTAPAK_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include "OBJECTS.H"
 
 enum cutseq_pistols_info
