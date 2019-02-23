@@ -7,12 +7,12 @@ void InitHeap(unsigned long* unk00, unsigned long unk01)
 	
 }
 
-void free(void* unk00)
+/*void free(void* unk00)
 {
 	
 }
 
-void* malloc(size_t unk00)
+/*void* malloc(size_t unk00)
 {
 	return NULL;
 }
@@ -25,7 +25,7 @@ void* calloc(size_t unk00, size_t unk01)
 void* realloc(void * unk00, size_t unk01)
 {
 	return NULL;
-}
+}*/
 
 void InitHeap2(unsigned long* unk00, unsigned long unk01)
 {

@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "EMULATOR_GLOBALS.H"
+#include <stdlib.h>
+#include <cstring>
 
 enum VV_Phase
 {
@@ -153,11 +155,15 @@ int mem_mode_unitM = 7;
 int inTransfer = 1;
 int transferCallback = 0;
 int IRQCallback = 0;
+char* spu_buf;
+long spu_b_size = 0;
 
 
 unsigned long SpuWrite(unsigned char * addr, unsigned long size)
 {
 	eprintf("SPU WRITE size=%d\n", size);
+	memcpy(spu_buf, addr, size);
+	spu_b_size = size;
 	UNIMPLEMENTED();
 	return 0;
 }
@@ -189,6 +195,7 @@ void SpuInit(void)
 	eprintf("SpuInit\n");
 	ResetCallback();
 	UNIMPLEMENTED();
+	spu_buf = (char*)malloc(1024 * 1024);
 }
 
 long SpuSetReverb(long on_off)

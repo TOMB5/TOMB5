@@ -17,6 +17,8 @@
 #include "GAMEFLOW.H"
 #include "LARAFIRE.H"
 #include "CODEWAD.H"
+#include "3D_GEN.H"
+#include "MATHS.H"
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
@@ -5593,10 +5595,34 @@ void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 762);
 }
 
-int GetLaraJointPos(struct PHD_VECTOR* arg1, long arg2)
+int GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
 {
-	UNIMPLEMENTED();
-	return 0;
+	phd_mxptr[0] = lara_joint_matrices[mat].m00;
+	phd_mxptr[1] = lara_joint_matrices[mat].m01;
+	phd_mxptr[2] = lara_joint_matrices[mat].m02;
+	phd_mxptr[3] = lara_joint_matrices[mat].m10;
+	phd_mxptr[4] = lara_joint_matrices[mat].m11;
+	phd_mxptr[5] = lara_joint_matrices[mat].m12;
+	phd_mxptr[6] = lara_joint_matrices[mat].m20;
+	phd_mxptr[7] = lara_joint_matrices[mat].m21;
+	phd_mxptr[8] = lara_joint_matrices[mat].m22;
+	phd_mxptr[9] = lara_joint_matrices[mat].tx;
+	phd_mxptr[10] = lara_joint_matrices[mat].ty;
+	phd_mxptr[11] = lara_joint_matrices[mat].tz;
+
+	mTranslateXYZ(vec->x, vec->y, vec->z);
+
+	vec->x = phd_mxptr[3] >> 12;
+	vec->y = phd_mxptr[7] >> 12; // todo this is wrong
+	vec->z = phd_mxptr[11] >> 12;
+
+	vec->x += lara_item->pos.x_pos;
+	vec->y += lara_item->pos.y_pos;
+	vec->z += lara_item->pos.z_pos;
+
+	mPopMatrix();
+
+	return 48;
 }
 
 void AnimateLara(struct ITEM_INFO* item)

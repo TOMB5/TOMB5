@@ -11,10 +11,10 @@ typedef unsigned int size_t;
 #endif
 
 extern void InitHeap(unsigned long* unk00, unsigned long unk01);
-extern void free(void* unk00);
+/*extern void free(void* unk00);
 extern void* malloc(size_t unk00);
 extern void* calloc(size_t unk00, size_t unk01);
-extern void* realloc(void* unk00, size_t unk01);
+extern void* realloc(void* unk00, size_t unk01);*/
 extern void InitHeap2(unsigned long* unk00, unsigned long unk01);
 extern void free2(void* unk00);
 extern void* malloc2(size_t unk00);

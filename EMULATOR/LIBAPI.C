@@ -1,37 +1,67 @@
 #include "LIBAPI.H"
 
 #include "EMULATOR_GLOBALS.H"
+#include "EMULATOR.H"
 
 int sp = 0;
 
-long SetRCnt(unsigned long unk00, unsigned short, long)
+long SetRCnt(long spec, unsigned short target, long mode)
 {
-	UNIMPLEMENTED();
-	return 0;
+	spec &= 0xFFFF;
+
+	if (spec >= 3)
+		return 0;
+
+	counters[spec].Target = target;
+	counters[spec].I2 = mode;
+	
+	return 1;
 }
 
-long GetRCnt(unsigned long unk00)
+long GetRCnt(long spec)
 {
-	UNIMPLEMENTED();
-	return 0;
+	spec &= 0xFFFF;
+
+	if (spec > 3)
+		return 0;
+
+	return counters[spec].Value;
 }
 
-long ResetRCnt(unsigned long unk00)
+long ResetRCnt(long spec)
 {
-	UNIMPLEMENTED();
-	return 0;
+	spec &= 0xFFFF;
+
+	if (spec >= 3)
+		return 0;
+
+	counters[spec].Value = 0;
+
+	return 1;
 }
 
-long StartRCnt(unsigned long unk00)
+long StartRCnt(long spec)
 {
-	UNIMPLEMENTED();
-	return 0;
+	spec &= 0xFFFF;
+
+	if (spec >= 3)
+		return 0;
+
+	counters[spec].IsStopped = FALSE;
+
+	return 1;
 }
 
-long StopRCnt(unsigned long unk00)
+long StopRCnt(long spec)
 {
-	UNIMPLEMENTED();	
-	return 0;
+	spec &= 0xFFFF;
+
+	if (spec >= 3)
+		return 0;
+
+	counters[spec].IsStopped = TRUE;
+
+	return 1;
 }
 #undef OpenEvent
 long OpenEvent(unsigned long unk00, long, long, long(*func)())

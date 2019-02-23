@@ -5,6 +5,7 @@
 
 #include <INLINE_C.H>
 #include "3D_GEN.H"
+#include "CAMERA.H"
 
 void mQuickW2VMatrix()
 {
@@ -122,14 +123,14 @@ long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
 		}
 
 		//7970C
-		while ((dz / 65536) != 0)
+		while (dz / 65536 != 0)
 		{
 			dx /= 2;
 			dz /= 2;
 		}
 
 		//79724
-		result_angle = atanTab[(dz * 2048) / dx];
+		result_angle = atanTab[dz * 2048 / dx];
 		result_angle += atanOctantTab[table_index];
 
 		if (result_angle < 0)
@@ -153,17 +154,17 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 	if (value != 0)
 	{
 		v1 &= 0xFFFFFFFE;
-		v0 = (v0 - v1) >> 1;
+		v0 = v0 - v1 >> 1;
 		at = v1 - 0x18;
 
 		if (v1 - 0x18 < 0)
 		{
 			//loc_85BA8
-			value >>= (0x18 - v1);
+			value >>= 0x18 - v1;
 		}
 		else
 		{
-			value <<= (v1 - 0x18);
+			value <<= v1 - 0x18;
 		}
 
 		//loc_85BB4
@@ -176,17 +177,17 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 
 void ScaleCurrentMatrix(long a0, long sx, long sy, long sz)
 {
-	Matrix->m00 *= sx / 16384.0f;
-	Matrix->m10 *= sx / 16384.0f;
-	Matrix->m20 *= sx / 16384.0f;
+	Matrix->m00 *= sx / 4096.0f;
+	Matrix->m10 *= sx / 4096.0f;
+	Matrix->m20 *= sx / 4096.0f;
 
-	Matrix->m01 *= sy / 16384.0f;
-	Matrix->m11 *= sy / 16384.0f;
-	Matrix->m21 *= sy / 16384.0f;
+	Matrix->m01 *= sy / 4096.0f;
+	Matrix->m11 *= sy / 4096.0f;
+	Matrix->m21 *= sy / 4096.0f;
 
-	Matrix->m02 *= sz / 16384.0f;
-	Matrix->m12 *= sz / 16384.0f;
-	Matrix->m22 *= sz / 16384.0f;
+	Matrix->m02 *= sz / 4096.0f;
+	Matrix->m12 *= sz / 4096.0f;
+	Matrix->m22 *= sz / 4096.0f;
 }
 
 void mPushMatrix()//764D0(<), 78514(<) (F) (START)
@@ -224,9 +225,9 @@ void mTranslateAbsXYZ(long x, long y, long z)
 	y -= MatrixStack[0].ty;
 	z -= MatrixStack[0].tz;
 
-	mat->tx = (mat->m00 * x + mat->m01 * y + mat->m02 * z) >> 12;
-	mat->ty = (mat->m10 * x + mat->m11 * y + mat->m12 * z) >> 12;
-	mat->tz = (mat->m20 * x + mat->m21 * y + mat->m22 * z) >> 12;
+	mat->tx = mat->m00 * x + mat->m01 * y + mat->m02 * z >> 12;
+	mat->ty = mat->m10 * x + mat->m11 * y + mat->m12 * z >> 12;
+	mat->tz = mat->m20 * x + mat->m21 * y + mat->m22 * z >> 12;
 
 	mLoadMatrix(mat);
 }
@@ -235,78 +236,79 @@ void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
 {
 	MATRIX3D* mat = Matrix;
 
-	mat->tx = (mat->m00 * x + mat->m01 * y + mat->m02 * z) >> 12;
-	mat->ty = (mat->m10 * x + mat->m11 * y + mat->m12 * z) >> 12;
-	mat->tz = (mat->m20 * x + mat->m21 * y + mat->m22 * z) >> 12;
+	mat->tx = mat->m00 * x + mat->m01 * y + mat->m02 * z >> 12;
+	mat->ty = mat->m10 * x + mat->m11 * y + mat->m12 * z >> 12;
+	mat->tz = mat->m20 * x + mat->m21 * y + mat->m22 * z >> 12;
 
 	mLoadMatrix(mat);
 }
 
-void mRotX(long rx)
+void mRotX(long rx)// (F)
 {
-}
-
-void mRotY(long ry)//76744
-{
-	ry /= 4;
-
-	if (ry & 0x3FFC)
+	if (rx & 0xFFFF)
 	{
-		//rcossin_tbl[0];
-		//loc_7675C
-		//t5 = rcossin_tbl[0];//word
-		//t6 = rcossin_tbl[1];
+		short sin = SIN(rx);
+		short cos = COS(rx);
 
-		//t2 = -t5;
+		Matrix->m01 = (cos * Matrix->m01 + sin * Matrix->m02) * 4 >> W2V_SHIFT;
+		Matrix->m02 = (cos * Matrix->m02 - sin * Matrix->m01) * 4 >> W2V_SHIFT;
 
-#if 0
-		lui	$t7, 0xFFFF
-			neg	$t2, $t5
-			mtc2	$t6, $0//?
-			mtc2	$t2, $1//?
-			cfc2	$t0, $0
-			cfc2	$t2, $2
-			cfc2	$t3, $3
-			cop2	0x486012
-			mtc2	$t5, $2
-			mtc2	$t6, $3
-			and	$t0, $t7
-			andi	$t2, 0xFFFF
-			and $t3, $t7
-			mfc2	$t4, $25
-			mfc2	$t1, $26
-			mfc2	$t5, $27
-			cop2	0x48E012
-			andi	$t4, 0xFFFF
-			or $t0, $t4
-			sll	$t1, 16
-			andi	$t5, 0xFFFF
-			or $t3, $t5
-			mfc2	$t5, $25
-			mfc2	$t6, $26
-			mfc2	$t4, $27
-			andi	$t5, 0xFFFF
-			or $t1, $t5
-			sll	$t6, 16
-			j	loc_7696C
-			or $t2, $t6
-#endif
+		Matrix->m11 = (cos * Matrix->m11 + sin * Matrix->m12) * 4 >> W2V_SHIFT;
+		Matrix->m12 = (cos * Matrix->m12 - sin * Matrix->m11) * 4 >> W2V_SHIFT;
+
+		Matrix->m21 = (cos * Matrix->m21 + sin * Matrix->m22) * 4 >> W2V_SHIFT;
+		Matrix->m22 = (cos * Matrix->m22 - sin * Matrix->m21) * 4 >> W2V_SHIFT;
 	}
 
-	//ret
-
-	S_Warn("[mRotY] - Unimplemented!\n");
+	mLoadMatrix(Matrix);
 }
 
-void mRotYXZ(short y, short x, short z)//767E8
+void mRotY(long ry)//76744 (F)
 {
-	S_Warn("[mRotYXZ] - Unimplemented!\n");
+	if (ry & 0xFFFF)
+	{
+		short sin = SIN(ry);
+		short cos = COS(ry);
+
+		Matrix->m00 = (cos * Matrix->m00 - sin * Matrix->m02) * 4 >> W2V_SHIFT;
+		Matrix->m02 = (cos * Matrix->m02 + sin * Matrix->m00) * 4 >> W2V_SHIFT;
+
+		Matrix->m10 = (cos * Matrix->m10 - sin * Matrix->m12) * 4 >> W2V_SHIFT;
+		Matrix->m12 = (cos * Matrix->m12 + sin * Matrix->m10) * 4 >> W2V_SHIFT;
+
+		Matrix->m20 = (cos * Matrix->m20 - sin * Matrix->m22) * 4 >> W2V_SHIFT;
+		Matrix->m22 = (cos * Matrix->m22 + sin * Matrix->m20) * 4 >> W2V_SHIFT;
+	}
+
+	mLoadMatrix(Matrix);
+}
+
+void mRotYXZ(short y, short x, short z)//767E8 (F)
+{
+	mRotY(y);
+	mRotX(x);
+	mRotZ(z);
 }
 
 
-void mRotZ()//76804
+void mRotZ(long rz)//76804 (F)
 {
+	if (rz & 0xFFFF)
+	{
+		short sin = SIN(rz);
+		short cos = COS(rz);
 
+		Matrix->m00 = (cos * Matrix->m00 + sin * Matrix->m01) * 4 >> W2V_SHIFT;
+		Matrix->m01 = (cos * Matrix->m01 - sin * Matrix->m00) * 4 >> W2V_SHIFT;
+
+		Matrix->m10 = (cos * Matrix->m10 + sin * Matrix->m11) * 4 >> W2V_SHIFT;
+		Matrix->m11 = (cos * Matrix->m11 - sin * Matrix->m10) * 4 >> W2V_SHIFT;
+
+		Matrix->m20 = (cos * Matrix->m20 + sin * Matrix->m21) * 4 >> W2V_SHIFT;
+		Matrix->m21 = (cos * Matrix->m21 - sin * Matrix->m20) * 4 >> W2V_SHIFT;
+	}
+
+	mLoadMatrix(Matrix);
 }
 
 void mRotSuperPackedYXZ()//768BC
@@ -314,9 +316,24 @@ void mRotSuperPackedYXZ()//768BC
 
 }
 
-void mRotPackedYXZ()//7693C
+void mRotPackedYXZ(long yxz)//7693C (F)
 {
+	long a;
 
+	if ((a = ((yxz >> 10) & 1023) << 6))
+	{
+		mRotY(a);
+	}
+
+	if ((a = ((yxz >> 20) & 1023) << 6))
+	{
+		mRotX(a);
+	}
+
+	if ((a = (yxz & 1023) << 6))
+	{
+		mRotZ(a);
+	}
 }
 
 void SetRotation()//7696C
@@ -475,7 +492,7 @@ void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)
 		dz >>= 2;
 	}
 	pitch = phd_atan_asm(phd_sqrt_asm(dx * dx + dz * dz), dy);
-	if ((dy > 0 && pitch > 0) || (dy < 0 && pitch < 0))
+	if (dy > 0 && pitch > 0 || dy < 0 && pitch < 0)
 		pitch = -pitch;
 	angles[1] = pitch;
 }

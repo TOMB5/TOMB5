@@ -15,6 +15,12 @@
 #include <LIBGTE.H>
 #include <LIBGPU.H>
 
+#define getR(rgb) ((rgb) & 0xFF)
+#define getG(rgb) (((rgb) >> 8) & 0xFF)
+#define getB(rgb) (((rgb) >> 16) & 0xFF)
+
+#define genRGB(r, g, b) ((((((b) & 0xFF) << 8) | ((g) & 0xFF)) << 8) | ((r) & 0xFF))
+
 struct DB_STRUCT
 {
 	int current_buffer;

@@ -566,7 +566,7 @@ void DrawChar(unsigned short x, unsigned short y, unsigned short colourFlag, str
 {
 	CVECTOR* TopShade;//$v0
 	CVECTOR* BottomShade;//$at
-	long v1;
+	long width;
 
 	colourFlag &= 0xFFFF;
 	if ((unsigned long) &db.polyptr[0] < (unsigned long) &db.polybuf_limit[0])
@@ -591,17 +591,18 @@ void DrawChar(unsigned short x, unsigned short y, unsigned short colourFlag, str
 	
 		//sizeof(POLY_GT4);
 
-		v1 = a3->w;
+		width = a3->w;
 		y += a3->YOffset;
 
 		if (ScaleFlag != 0)
 		{
-			v1 = (a3->w >> 2) - a3->w + 1;
+			width -= (width >> 2);
+			width += 1;
 		}
 
-		setXYWH(ptr, x, y, v1, a3->h);
+		setXYWH(ptr, x, y, width, a3->h);
 
-		setUVWH(ptr, a3->u, a3->v, v1, a3->h);
+		setUVWH(ptr, a3->u, a3->v, a3->w, a3->h);
 
 		addPrim(db.ot, ptr);
 

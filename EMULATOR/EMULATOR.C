@@ -1,6 +1,5 @@
 #include "EMULATOR.H"
 
-#include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <LIBPAD.H>
@@ -8,6 +7,8 @@
 #include <LIBGPU.H>
 #include <LIBETC.H>
 #include <string.h>
+#include <thread>
+#include <chrono>
 #include "EMULATOR_GLOBALS.H"
 
 #define MAX_NUM_CACHED_TEXTURES (256)
@@ -25,6 +26,9 @@ int screenHeight = 0;
 int windowWidth = 0;
 int windowHeight = 0;
 int lastTextureCacheIndex = 0;
+
+SysCounter counters[3] = {0};
+std::thread counter_thread;
 
 struct CachedTexture
 {
@@ -71,6 +75,34 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	SDL_GL_SetSwapInterval(1);
 
 	Emulator_InitialiseGL();
+
+	counter_thread = std::thread(Emulator_CounterLoop);
+}
+
+void Emulator_CounterLoop()
+{
+	auto last_time = std::chrono::high_resolution_clock::now();
+	while (TRUE)
+	{
+		auto now = std::chrono::high_resolution_clock::now();
+		auto delta = std::chrono::duration_cast<std::chrono::microseconds>(now - last_time);
+
+		if (!counters[1].IsStopped)
+		{
+			if (delta.count() >= 64)
+			{
+				counters[1].Value++;
+			}
+		}
+
+		for (int i = 0; i < 3; i++)
+		{
+			if (counters[i].Value >= (counters[i].TargetMode == CTR_MODE_TO_TARG ? counters[i].Target : 0xFFFF))
+				counters[i].Value = 0;
+		}
+
+		last_time = now;		
+	}
 }
 
 void Emulator_InitialiseGL()

@@ -17,6 +17,7 @@
 
 #include <LIBETC.H>
 #include <stdio.h>//deleteme
+#include "PROFILE.H"
 
 #if! DISC_VERSION
 #include <LIBSN.H>
