@@ -497,7 +497,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				glEnd();
 				//Hack
 				poly++;
-				poly = (LINE_G2*)((unsigned int)poly-4);
+				poly = (LINE_G2*)((uintptr_t)poly-4);
 				glBegin(GL_LINES);
 				glVertex2f(poly->x0, poly->y0);
 				glVertex2f(poly->x1, poly->y1);
