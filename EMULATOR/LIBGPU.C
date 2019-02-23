@@ -318,7 +318,29 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				break;
 			}
 			case 0x24: // POLY_FT3
-				goto unhandled;
+			{
+
+				//Emulator_SetBlendMode((pTag->code & 2) != 0);
+
+				POLY_FT3* poly = (POLY_FT3*)pTag;
+				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
+
+				glBegin(GL_TRIANGLES);
+
+				glColor3ubv(&poly->r0);
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex2f(poly->x0, poly->y0);
+
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex2f(poly->x1, poly->y1);
+
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex2f(poly->x2, poly->y2);
+
+				glEnd();
+
+				break;
+			}
 			case 0x28: // POLY_F4
 			{
 
