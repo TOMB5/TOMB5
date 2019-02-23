@@ -351,7 +351,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				//Emulator_SetBlendMode((pTag->code & 2) != 0);
 
 				POLY_FT3* poly = (POLY_FT3*)pTag;
-				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
+				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
 
 				glBegin(GL_TRIANGLES);
 
