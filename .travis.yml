@@ -2,7 +2,7 @@ dist: trusty
 sudo: required
 
 language:
-  - c
+  - cpp
   
 compiler:
   - gcc
