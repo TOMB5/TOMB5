@@ -295,7 +295,28 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			case 0x00: // null poly
 				break;
 			case 0x20: // POLY_F3
-				goto unhandled;
+			{
+
+				//Emulator_SetBlendMode((pTag->code & 2) != 0);
+				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+
+				POLY_F3* poly = (POLY_F3*)pTag;
+				glBegin(GL_TRIANGLES);
+
+				glColor3ubv(&poly->r0);
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex2f(poly->x0, poly->y0);
+
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex2f(poly->x1, poly->y1);
+
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex2f(poly->x2, poly->y2);
+
+				glEnd();
+
+				break;
+			}
 			case 0x24: // POLY_FT3
 				goto unhandled;
 			case 0x28: // POLY_F4
@@ -365,7 +386,30 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			case 0x34: // POLY_GT3
 				goto unhandled;
 			case 0x38: // POLY_G4
-				goto unhandled;
+			{
+				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+
+				POLY_G4* poly = (POLY_G4*)pTag;
+
+				glBegin(GL_QUADS);
+
+				glColor3ubv(&poly->r0);
+
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex2f(poly->x0, poly->y0);
+
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex2f(poly->x1, poly->y1);
+
+				glTexCoord2f(0.0f, 1.0f);
+				glVertex2f(poly->x3, poly->y3);
+
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex2f(poly->x2, poly->y2);
+
+				glEnd();
+				break;
+			}
 			case 0x3C: // POLY_GT4
 			{
 				
