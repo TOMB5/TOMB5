@@ -9,13 +9,6 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 
 #define WAIT_TIME	0x800000
 
-#define getR(rgb) ((rgb) & 0xFF)
-#define getG(rgb) (((rgb) >> 8) & 0xFF)
-#define getB(rgb) (((rgb) >> 16) & 0xFF)
-
-#define genRGB(r, g, b) ((((((b) & 0xFF) << 8) | ((g) & 0xFF)) << 8) | ((r) & 0xFF))
-
-
 #define limitRange(x, l, h)	((x)=((x)<(l)?(l):(x)>(h)?(h):(x)))
 
 #define setVector(v, _x, _y, _z) \
