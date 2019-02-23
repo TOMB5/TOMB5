@@ -82,7 +82,7 @@ void Emulator_InitialiseGL()
 //	glEnable(GL_DEPTH_TEST);
 //	glDepthFunc(GL_LEQUAL);
 
-//	glBlendColor(0.25, 0.25, 0.25, 0.5);
+	glBlendColor(0.25, 0.25, 0.25, 0.5);
 }
 
 void Emulator_GenerateAndBindNullWhite()
@@ -406,7 +406,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
 
-	//Emulator_SetBlendMode(tpageAbr);
+	Emulator_SetBlendMode(tpageAbr);
 
 #if DEBUG_MSG
 	printf("tpage: (%d,%d,%d,%d)\n", ((tpage) >> 7) & 0x003, ((tpage) >> 5) & 0x003, ((tpage) << 6) & 0x7c0, (((tpage) << 4) & 0x100) + (((tpage) >> 2) & 0x200));

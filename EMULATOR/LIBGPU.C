@@ -310,6 +310,14 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				blend_mode = 0;
 			}
 
+			glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+			glDisable(GL_BLEND);
+
+			if (semi_transparent)
+			{
+				Emulator_SetBlendMode(blend_mode);
+			}
+
 			switch (pTag->code & ~3)
 			{
 			case 0x00: // null poly
@@ -320,6 +328,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				goto unhandled;
 			case 0x28: // POLY_F4
 			{
+				
 				//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 				POLY_F4* poly = (POLY_F4*)pTag;
@@ -411,7 +420,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				goto unhandled;			
 			case 0x50: // LINE_G2
 			{
-				//Emulator_SetBlendMode(-1);
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 				LINE_G2* poly = (LINE_G2*)pTag;
 				glLineWidth(1);
@@ -420,6 +428,14 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				glVertex2f(poly->x0, poly->y0);
 				glVertex2f(poly->x1, poly->y1);
 				glEnd();
+				//Hack
+				poly++;
+				poly = (LINE_G2*)((unsigned int)poly-4);
+				glBegin(GL_LINES);
+				glVertex2f(poly->x0, poly->y0);
+				glVertex2f(poly->x1, poly->y1);
+				glEnd();
+				
 				break;
 			}
 			case 0x60: // TILE
@@ -451,6 +467,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 
 			//p = (unsigned long*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
+#if _DEBUG
+			//Actually not a stable solution -.-
+			//assert(primSizes[pTag->code]);
+#endif
 			pTag = (P_TAG*)fixptr((void*)pTag->addr);
 			//p = (unsigned long*)*p;
 
@@ -471,4 +491,3 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 	Emulator_CheckTextureIntersection(&env->clip);
 }
-
