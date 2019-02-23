@@ -1,7 +1,7 @@
 #ifndef NEWINV2_H
 #define NEWINV2_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 enum rings
 {

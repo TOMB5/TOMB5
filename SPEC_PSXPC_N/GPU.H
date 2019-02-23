@@ -1,7 +1,7 @@
 #ifndef GPU_H
 #define GPU_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 //#include <sys/types.h>
 #include <LIBGPU.H>

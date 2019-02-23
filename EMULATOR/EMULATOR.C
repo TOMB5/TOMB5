@@ -208,6 +208,11 @@ void Emulator_BeginScene()
 
 	lastTime = SDL_GetTicks();
 
+	Emulator_UpdateInput();
+}
+
+void Emulator_UpdateInput()
+{
 	//Update pad
 	if (SDL_NumJoysticks() > 0)
 	{
@@ -424,7 +429,7 @@ GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY, uns
 	return -1;
 }
 
-void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
+void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent)
 {
 	unsigned int textureType = (tpage >> 7) & 0x3;
 	unsigned int tpageX = (tpage << 6) & 0x7C0 % 1024;
@@ -433,7 +438,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
 	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
 
-	//Emulator_SetBlendMode(tpageAbr);
+	Emulator_SetBlendMode(tpageAbr);
 
 #if DEBUG_MSG
 	printf("tpage: (%d,%d,%d,%d)\n", ((tpage) >> 7) & 0x003, ((tpage) >> 5) & 0x003, ((tpage) << 6) & 0x7c0, (((tpage) << 4) & 0x100) + (((tpage) >> 2) & 0x200));

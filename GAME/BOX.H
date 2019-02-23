@@ -1,7 +1,7 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 #define BOX_BLOCKED (1 << 14) // unpassable for other enemies, always set for movable blocks & closed doors
 #define BOX_LAST    (1 << 15) // unpassable by large enemies (T-Rex, Centaur, etc), always set behind doors

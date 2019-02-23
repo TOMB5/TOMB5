@@ -63,7 +63,7 @@ extern void Emulator_SaveVRAM(int width, int height);
 extern void Emulator_SaveVRAM2(int width, int height);
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
-extern void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut);
+extern void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent);
 extern void Emulator_DestroyLastVRAMTexture();
 extern void Emulator_DestroyFrameBuffer(GLuint& fbo);
 extern void Emulator_GenerateFrameBuffer(GLuint& fbo);
@@ -72,6 +72,7 @@ extern void Emulator_DeleteFrameBufferTexture();
 extern void Emulator_GenerateAndBindNullWhite();
 extern void Emulator_CheckTextureIntersection(RECT16* rect);
 extern void Emulator_SetBlendMode(int mode);
+extern void Emulator_UpdateInput();
 extern void Emulator_CounterLoop();
 
 #endif

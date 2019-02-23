@@ -23,7 +23,12 @@
 #include "FILE.H"
 #endif
 
+#if DEBUG_VERSION
+#include <PROFILE.H>
+#endif
+
 #define BLOCK_SPLINE_CAM (1)
+#define HACK_SAVE_SECRETS (0)
 
 #if PSX_VERSION && RELOC
 void* func_titseq[] __attribute__((section(".header"))) =
@@ -33,24 +38,20 @@ void* func_titseq[] __attribute__((section(".header"))) =
 
 unsigned char titseqData[] __attribute__((section(".data"))) =
 {
-	0,//byte_46
-	0,//byte_47
-	0,//byte_1A8
+	0,//xyte_46
+	0,//xyte_47
+	0,//xyte_1A8
 };
 
 unsigned int titseqData2[] __attribute__((section(".data"))) =
 {
-	0,//word_38
+	0,//xord_38
 };
+
 #endif
 
 unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
-
-#if BETA_VERSION
 unsigned char byte_2600[] = { 0, 0, 0, 0, 0 }; ///@FIXME i don't know the len (maybe max of titseqData[0])
-#else
-unsigned char byte_2600[] = { 0, 1, 2, 3, 4 }; ///@FIXME i don't know the len (maybe max of titseqData[0])
-#endif
 
 struct CutseqMenuItem
 {
@@ -130,6 +131,13 @@ int TitleOptions(int Name)
 
 #if BLOCK_SPLINE_CAM
 	current_spline_position = 0;
+#endif
+
+#if HACK_SAVE_SECRETS
+	savegame.CampaignSecrets[0] = 9;
+	savegame.CampaignSecrets[1] = 9;
+	savegame.CampaignSecrets[2] = 9;
+	savegame.CampaignSecrets[3] = 9;
 #endif
 
 	if (PadConnected == 0)
@@ -389,7 +397,7 @@ int TitleOptions(int Name)
 
 			//loc_CA8
 			//v0 = 0
-			//v1 = dword_38
+			//v1 = dtitseqData2[0]
 			//a2 = 2
 
 			y = ((s5 - (titseqData2[0] * 12) + 0x70)) & 0xFF;
@@ -563,7 +571,7 @@ int TitleOptions(int Name)
 			else
 			{
 				//loc_850
-				///sub_3A8();
+				sub_3A8();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				titseqData[0] = 0;
 			}
@@ -577,7 +585,7 @@ int TitleOptions(int Name)
 			if (titseqData[0] != 0)
 			{
 				//loc_8EC
-				///sub_3A8();
+				sub_3A8();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				titseqData[0] = 0;
 			}
@@ -614,6 +622,9 @@ int TitleOptions(int Name)
 					}
 				}
 			}
+			//loc_904
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+			return ret;
 		}
 	}
 	else
@@ -621,9 +632,6 @@ int TitleOptions(int Name)
 		//loc_EB4
 		return ret;
 	}
-
-	//loc_904
-	SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
 
 	s1 = LoadGame(); //Disabled due to crashing
 
@@ -651,32 +659,71 @@ void sub_2B0()
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		((int*)db.polyptr)[1] = 0x2C808080;
-		((char*)db.polyptr)[3] = 9;
-		((short*)db.polyptr)[5] = 24;
-		((short*)db.polyptr)[9] = 24;
-		((short*)db.polyptr)[13] = 80;
-		((short*)db.polyptr)[17] = 80;
-		((short*)db.polyptr)[4] = 56;
-		((short*)db.polyptr)[12] = 56;
-		((short*)db.polyptr)[8] = 440;
-		((short*)db.polyptr)[16] = 440;
-		((char*)db.polyptr)[13] = 68;
-		((char*)db.polyptr)[21] = 68;
-		((char*)db.polyptr)[29] = 124;
-		((char*)db.polyptr)[37] = 124;
-		((char*)db.polyptr)[12] = 0;
-		((char*)db.polyptr)[20] = 255;
-		((char*)db.polyptr)[28] = 0;
-		((char*)db.polyptr)[36] = 255;
-		((short*)db.polyptr)[7] = 7972;
-		((short*)db.polyptr)[11] = 41;
+		POLY_FT4* ptr = (POLY_FT4*)db.polyptr;
 
-		(((unsigned long*)db.polyptr)[0] = ((unsigned long*)db.polyptr)[0] & 0xFF000000 | db.ot[0] & 0xFFFFFF);
-		db.ot[0] = (db.ot[0] & 0xFF000000) | ((unsigned long)db.polyptr & 0xFFFFFF);
-		
+		setPolyFT4(ptr);
+
+		setRGB0(ptr, 128, 128, 128);
+
+		setXY4(ptr,
+			56, 24,
+			440, 24,
+			56, 80,
+			440, 80);
+
+		setClut(ptr, 576, 124);
+		setTPage(ptr, 0, 1, 576, 0);
+
+		setUV4(ptr,
+			0, 68,
+			255, 68,
+			0, 124,
+			255, 124);
+
+		addPrim(db.ot, ptr);
+
 		db.polyptr += sizeof(POLY_FT4);
 	}//locret_3A0
+}
+
+void sub_3A8()
+{
+	int i = 0;//a2
+			  //t1 = 1
+			  //a2 = 0
+			  //t4 = &savgame.CampaignSecrets[0]
+			  //a1 = 0
+			  //t0 = 0
+			  //a0 = 0
+			  //v1 = &byte_2600[0]
+			  //t3 = &byte_2600[0]
+			  //a3 = 0x20000
+			  //t2 = 0x10000
+			  //v0 = 1
+	titseqData2[0] = 1;
+
+	byte_2600[0] = 0;
+	byte_2600[1] = 0;
+	byte_2600[2] = 0;
+	byte_2600[3] = 0;
+	byte_2600[4] = 0;
+
+	//v0 = &savgame.CampaignSecrets[0]
+
+	//loc_3F4
+	do
+	{
+		//v1 = savgame.CampaignSecrets[0]
+		//v1 = savgame.CampaignSecrets[0] < 9 ? 1 : 0
+
+		//a1 = a2 + 1
+		if (savegame.CampaignSecrets[i] > 8)
+		{
+			byte_2600[i + 1] = i + 1;
+			titseqData2[0]++;
+		}//loc_428
+
+	} while (++i < 4);
 }
 
 int sub_1054()

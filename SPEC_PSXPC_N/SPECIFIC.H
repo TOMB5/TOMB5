@@ -2,7 +2,7 @@
 #define SPECIFIC_H
 
 #include <stdio.h>
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 
 

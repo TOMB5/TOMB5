@@ -1,7 +1,7 @@
 #include "DRAW.H"
 
 #include "CONTROL.H"
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "DRAWSPKS.H"
 #include "SETUP.H"
 #include "MATHS.H"
@@ -10,7 +10,7 @@
 #include "OBJECTS.H"
 
 #include "SPECIFIC.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include "TOMB4FX.H"
 #include <stddef.h>
 //#include <INLINE_O.H>

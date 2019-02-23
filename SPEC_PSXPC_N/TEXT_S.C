@@ -5,7 +5,7 @@
 #include "GPU.H"
 #include "TEXT.H"
 #include "TYPES.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include <assert.h>
 #include <LIBGTE.H>
 #include <stdio.h>

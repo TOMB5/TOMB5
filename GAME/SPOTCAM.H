@@ -3,7 +3,7 @@
 
 #include "CAMERA.H"
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 enum spotcam_flags
 {
