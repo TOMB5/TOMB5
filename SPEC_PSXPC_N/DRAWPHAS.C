@@ -36,6 +36,7 @@
 #include INLINE_H
 #include <LIBGPU.H>
 #include <stdio.h>
+#include "DRAWSPKS.H"
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "TEXT_S.H"
