@@ -39,6 +39,13 @@ extern short S_Death();
 extern void DisplayStatsUCunt();
 extern void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light);
 //extern void S_Warn(const char* warning_message);
+#define BAR_W 133
+
+#define S_DrawHealthBar(val) S_DrawGouraudBar(343, 18, BAR_W, (val * BAR_W) / 100, PoisonFlag ? &poisonBarColourSet : &healthBarColourSet)
+#define S_DrawHealthBar2(val) S_DrawGouraudBar(189, 40, BAR_W, (val * BAR_W) / 100, PoisonFlag ? &poisonBarColourSet : &healthBarColourSet)
+#define S_DrawAirBar(val) S_DrawGouraudBar(343, 32, BAR_W, (val * BAR_W) / 100, &airBarColourSet)
+#define S_DrawDashBar(val) S_DrawGouraudBar(343, 46, BAR_W, (val * BAR_W) / 100, &dashBarColourSet)
+
 #define S_Warn printf
 
 #endif
