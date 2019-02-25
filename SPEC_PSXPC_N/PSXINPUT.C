@@ -48,10 +48,42 @@ long LaraLookX;
 volatile ControllerPacket GPad1;
 volatile ControllerPacket GPad2;
 unsigned long Edge2;
-struct GouraudBarColourSet healthBarColourSet;
-struct GouraudBarColourSet poisonBarColourSet;
-struct GouraudBarColourSet airBarColourSet;
-struct GouraudBarColourSet dashBarColourSet;
+struct GouraudBarColourSet healthBarColourSet =
+{
+	{64, 96, 128, 96, 64},
+	{0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0},
+	{128, 192, 255, 192, 128},
+	{0, 0, 0, 0, 0}
+};
+struct GouraudBarColourSet poisonBarColourSet =
+{
+	{96, 176, 240, 176, 96},
+	{96, 176, 240, 176, 96},
+	{0, 0, 0, 0, 0},
+	{96, 176, 240, 176, 96},
+	{96, 176, 240, 176, 96},
+	{0, 0, 0, 0, 0}
+};
+struct GouraudBarColourSet airBarColourSet =
+{
+	{0, 0, 0, 0, 0},
+	{113, 146, 113, 93, 74},
+	{123, 154, 123, 107, 91},
+	{0, 0, 0, 0, 0},
+	{113, 146, 113, 93, 74},
+	{0, 0, 0, 0, 0}
+};
+struct GouraudBarColourSet dashBarColourSet =
+{
+	{144, 192, 240, 192, 144},
+	{0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0},
+	{144, 192, 240, 192, 144},
+	{144, 192, 240, 192, 144},
+	{0, 0, 0, 0, 0}
+};
 
 int dword_A1894;
 int dword_A1890;

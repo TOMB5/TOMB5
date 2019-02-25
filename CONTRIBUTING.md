@@ -56,19 +56,21 @@ Markers are as follows:
     - SDL 2.0.9.
     - GLEW 2.1.0+
 
-2. Windows (VS 2015-2019) (**recommended**) PSXPC or PSXPC_N:
-    - Download SDL2-devel-2.0.9-VC.zip extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
-    - Download glew-2.1.0-win32.zip extract to project root EXTERNAL/ 
-    - Generate CMake project files for VS2015, 2017 or 2019, x86 ONLY! (x64 is currently unsupported so don't try it.)
-    - Open solution and build.
-    - Download TR5 retail version for PSX (NTSC, USA), you should get two files, a .BIN and a .CUE; put the .BIN file in the build/SPEC_PSXPC_N/Debug folder and rename it to TOMB5.BIN
-3. Windows (CB MinGW32) PSXPC or PSXPC_N:
-    - Download SDL2-devel-2.0.9-mingw.tar.gz extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
-    - Download glew-2.1.0-mingw.zip ((link)[http://www.grhmedia.com/glew/glew-2.1.0-mingw.zip]) extract to project root EXTERNAL/ 
-    - Generate CMake project files for CodeBlocks MinGW Makefiles, x86 ONLY! (x64 is currently unsupported so don't try it.)
-    - Open solution and build.
-    - Download TR5 retail version for PSX (NTSC, USA), you should get two files, a .BIN and a .CUE; put the .BIN file in the same folder as the .EXE file and rename it to TOMB5.BIN
-4. Windows PSX:
+2. PSXPC_N   
+    - Windows (VS 2015-2019) (**recommended**)
+        - Download SDL2-devel-2.0.9-VC.zip extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to  "SDL2".
+        - Download glew-2.1.0-win32.zip extract to project root EXTERNAL/ 
+        - Generate CMake project files for VS2015, 2017 or 2019, x86 ONLY! (x64 is currently unsupported so don't try it.)
+    - Windows (CB MinGW32)       
+        - Download SDL2-devel-2.0.9-mingw.tar.gz extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
+        - Download glew-2.1.0-mingw.zip ((link)[http://www.grhmedia.com/glew/glew-2.1.0-mingw.zip]) extract to project root EXTERNAL/ 
+        - Generate CMake project files for CodeBlocks MinGW Makefiles, x86 ONLY! (x64 is currently unsupported so don't try it.)
+
+    - Open solution
+    - In the project settings, set the `DISC_VERSION` to 1
+    - Build
+    - Download TR5 retail version for PSX (NTSC, USA), you should get two files, a .BIN and a .CUE; put the .BIN file in the the same folder as the .EXE file and rename it to TOMB5.BIN
+3. Windows PSX:
     - Download PSX PsyQ SDK 4.6 or 4.6 + 4.7 update, extract to c:/psyq
     - Download and install TDM-GCC.
     - Run psxdev's pspath.reg file to update registry environment variables.
@@ -79,7 +81,7 @@ Markers are as follows:
 	- Copy DEL2FAB.EXE (from leaked TR4&5 PSX SDK) to root clone directory.
     - Go to root clone directory in commandline type PSX_BUILD and enter the command.
     - Go to root clone directory /DISC/ and run MAKEISO.bat (note: mkpsxiso required)
-5. Windows PC_N:
+4. Windows PC_N:
     - Install the DirectX 7 SDK ([link](https://mega.nz/#!nFgAhQpS!RIM-lDf7-3bedzYGFxYZHxsRGqg1ybKvTYka_kpFP4A)) to a simple path, such as `C:\dx7sdk`
     - Open project settings, in VC++ directories change the following:
       - Include dirs: add `C:\dx7sdk\Include` and then `$(WindowsSDK_IncludePath)` (make sure that one is **above** the DX one, otherwise you'll get compile errors)
