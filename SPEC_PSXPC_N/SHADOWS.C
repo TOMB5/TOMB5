@@ -1,8 +1,72 @@
 #include "SHADOWS.H"
+#include "SPECIFIC.H"
+#include "GPU.H"
 
-void S_DrawGouraudBar(int unk00, int unk01, int unk02, int time, GouraudBarColourSet* colour)
+/*
+ * calcval :
+ * at = (v0 * value + at * (width - value)) / width
+ */
+
+#define BLEND(left, right, value, width) (((left) * (value) + (right) * ((width) - (value))) / (width))
+
+void DelLine(short x0, short y0, short x1, short y1, int color1, int color2)
 {
-	return;
+	LINE_G2* ptr = (LINE_G2*)db.polyptr;
+
+	setLineG2(ptr);	
+
+	setRGB0(ptr, getR(color1), getG(color1), getB(color1));
+	setRGB1(ptr, getR(color2), getG(color2), getB(color2));
+
+	setXY2(ptr, x0, y0, x1, y1);
+
+	addPrim(db.ot, ptr);
+
+	db.polyptr += sizeof(LINE_G2);
+}
+
+void DelBox(short x, short y, short w, short h, int color)
+{
+	TILE* ptr = (TILE*)db.polyptr;
+
+	setTile(ptr);
+
+	setRGB0(ptr, getR(color), getG(color), getB(color));
+
+	setXY0(ptr, x, y);
+	setWH(ptr, w, h);
+
+	addPrim(db.ot, ptr);
+
+	db.polyptr += sizeof(TILE);
+}
+
+void S_DrawGouraudBar(int x, int y, int width, int value, GouraudBarColourSet* colour)
+{
+	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
+	{
+		if (value-- != 0)
+		{
+			for(int i = 0; i < 5; i++)
+			{
+				u_char r = BLEND(colour->abLeftRed[i], colour->abRightRed[i], value, width);
+				u_char g = BLEND(colour->abLeftGreen[i], colour->abRightGreen[i], value, width);
+				u_char b = BLEND(colour->abLeftBlue[i], colour->abRightBlue[i], value, width);
+
+				DelLine(x, y + i, x + value, y + i, genRGB(r, g, b), genRGB(r, g, b));
+			}
+		}
+
+		DelLine(x - 2, y - 2, x + width + 2, y - 2, genRGB(80, 130, 130), genRGB(160, 160, 160));
+		DelLine(x + width + 2, y + 6, x - 2, y + 6, genRGB(80, 130, 130), genRGB(160, 160, 160));
+		DelLine(x + width + 2, y + 6, x + width + 2, y - 2, genRGB(80, 130, 130), genRGB(160, 160, 160));
+		DelLine(x - 2, y - 2, x - 2, y + 6, genRGB(80, 130, 130), genRGB(160, 160, 160));
+
+		DelLine(x - 3, y - 1, x - 3, y + 5, genRGB(40, 65, 65), genRGB(80, 80, 80));
+		DelLine(x + width + 5, y + 5, x + width + 5, y - 1, genRGB(40, 65, 65), genRGB(80, 80, 80));
+
+		DelBox(x - 1, y - 1, width + 3, 7, genRGB(0, 0, 0));
+	}
 }
 
 long OptimiseOTagR(unsigned long* ot, int nOTSize)//86CC4(<), 88D08(<)
