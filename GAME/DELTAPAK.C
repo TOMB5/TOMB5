@@ -50,7 +50,7 @@
 #include "EFFECTS.H"
 #include <stdio.h>
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #include "SPHERES.H"
 #include "FXTRIG.H"

@@ -5,7 +5,7 @@
 #include "SPECIFIC.H"
 #include "EFFECT2.H"
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "SPHERES.H"
 #include "BUBBLES.H"
 #endif

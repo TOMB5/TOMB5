@@ -7,6 +7,11 @@
 #include "DRAWPHAS.H"
 #include "3D_GEN.H"
 #include "CD.H"
+#elif SAT_VERSION
+#include "SCOLLIDE.H"
+#include "DRAWPHAS.H"
+#include "3D_GEN.H"
+#include "CD.H"
 #endif
 #include "BOX.H"
 #include "DELTAPAK.H"

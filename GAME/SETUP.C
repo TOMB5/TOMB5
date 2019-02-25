@@ -2063,7 +2063,7 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 	}//loc_67C8
 }
 
-#if PSX_VERSION || SAT_VERSION
+#if (PSX_VERSION || SAT_VERSION)
 char* ReadResidentData(int residentIndex, int nHandle)//(<), BA0DC(<) (F)
 #elif PSXPC_VERSION
 char* ReadResidentData(int residentIndex, FILE* nHandle)//(<), BA0DC(<) (F)
