@@ -115,6 +115,7 @@ void Emulator_InitialiseGL()
 //	glDepthFunc(GL_LEQUAL);
 
 	glBlendColor(0.25, 0.25, 0.25, 0.5);
+	glShadeModel(GL_SMOOTH);
 }
 
 void Emulator_GenerateAndBindNullWhite()
