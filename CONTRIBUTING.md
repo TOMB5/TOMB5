@@ -36,11 +36,11 @@ Markers are as follows:
 
 ## Folder Structure
 - CMAKE - Default CMake module folder. 
-- GAME - Contains all Tomb Raider 5 game specific code.
-- SPEC_PC - Platform specific code for PC version.
+- GAME - Contains all Tomb Raider 5 shared game logic code.
+- SPEC_PC - Platform specific code for PC version. ***DEPRECATED!***
 - SPEC_PC_N - New Platform specific code for PC version.
 - SPEC_PSX - Platform specific code for PSX version.
-- SPEC_PSXPC - Platform specific code for PSX version that runs on PC for debugging purposes (all psx sdk calls stripped).
+- SPEC_PSXPC - Platform specific code for PSX version that runs on PC for debugging purposes (all psx sdk calls stripped). ***DEPRECATED!***
 - SPEC_PSXPC_N - Platform specific code for PSX version that runs on PC emulated for debugging purposes.
 - TOOLS - Game tools folder, contains various tools to work with the game files.
 - DISC - Contains PSX specific disc project generation files.
@@ -54,16 +54,20 @@ Markers are as follows:
 1. Dependencies:
     - CMake 3.0+
     - SDL 2.0.9.
+    - GLEW 2.1.0+
 
-2. Windows (VS 2015-2019) PSXPC or PSXPC_N:
+2. Windows (VS 2015-2019) (**recommended**) PSXPC or PSXPC_N:
     - Download SDL2-devel-2.0.9-VC.zip extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
+    - Download glew-2.1.0-win32.zip extract to project root EXTERNAL/ 
     - Generate CMake project files for VS2015, 2017 or 2019, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Open solution and build.
-
+    - Download TR5 retail version for PSX (NTSC, USA), you should get two files, a .BIN and a .CUE; put the .BIN file in the build/SPEC_PSXPC_N/Debug folder and rename it to TOMB5.BIN
 3. Windows (CB MinGW32) PSXPC or PSXPC_N:
     - Download SDL2-devel-2.0.9-mingw.tar.gz extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
+    - Download glew-2.1.0-mingw.zip ((link)[http://www.grhmedia.com/glew/glew-2.1.0-mingw.zip]) extract to project root EXTERNAL/ 
     - Generate CMake project files for CodeBlocks MinGW Makefiles, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Open solution and build.
+    - Download TR5 retail version for PSX (NTSC, USA), you should get two files, a .BIN and a .CUE; put the .BIN file in the same folder as the .EXE file and rename it to TOMB5.BIN
 4. Windows PSX:
     - Download PSX PsyQ SDK 4.6 or 4.6 + 4.7 update, extract to c:/psyq
     - Download and install TDM-GCC.

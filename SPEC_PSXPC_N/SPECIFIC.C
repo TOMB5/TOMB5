@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <SYS/TYPES.H>
+//#include <SYS/TYPES.H>
 #include <LIBSPU.H>
 #include <LIBAPI.H>
 
@@ -740,3 +740,8 @@ void S_Warn(const char* warning_message)
 	//assert(0);
 #endif
 }*/
+
+void S_CalculateLight(long x, long y, long z, short room, struct ITEM_LIGHT* light)
+{
+	UNIMPLEMENTED();
+}

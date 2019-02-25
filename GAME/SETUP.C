@@ -644,37 +644,24 @@ void InitialiseFootPrints()//?(<), B52FC(<)
 
 void BaddyObjects()//?, B5328
 {
-	struct object_info* object = &objects[LARA];//$t0
-												//lui     $a1, 0x1F
-												//t0 = &objects
-												//a0 = 0xFDFFFFFF
-												//v0 = 0x4B308
-												//v1 = 160
+	struct object_info* object = &objects[LARA];
 
-	object->shadow_size = 160;
-	//v1 = 0x3E8
-	//t5 = 0x100000//object->save_hitpoints
-	//t4 = 0x80000//object->save_position
-	//t3 = 0x200000//object->intelligent
-	//t2 = 0x400000//object->save_anim
+	object->shadow_size = (10 * UNIT_SHADOW) / 16;
 	object->initialise = &InitialiseLaraLoad;
-	//v0 = *(int*)&objects[LARA].bite_offset //flags
-	//t1 = 0x10000
-	object->hit_points = 1000;
-	object->draw_routine = NULL;
-	object->using_drawanimating_item = 0;///@CHECK
-	object->save_hitpoints = 1;
-	object->save_position = 1;
-	object->save_flags = 1;
-	object->save_anim = 1;
+	object->hit_points = LARA_HITPOINTS;
+	object->draw_routine = nullptr;
+
+	object->using_drawanimating_item = false;
+	object->save_hitpoints = true;
+	object->save_position = true;
+	object->save_flags = true;
+	object->save_anim = true;
+
 
 	object = &objects[SAS];
-	//v1 = *(int*)&object.bite_offset //flags
-	//t6 = 0x1F0000
+
 	if (object->loaded)
 	{
-		//v0 = 0xF3FFFFFF
-		//a0 = 0x20000
 		object->intelligent = 1;
 		object->HitEffect = 0;
 		//v1 = 0x4000000
@@ -682,24 +669,13 @@ void BaddyObjects()//?, B5328
 		//v0 = 0xFFFF8C7C
 		//v1 = 0x1F0000
 		///object->initialise = NULL;///@FIXME Local module 0xFFFF8C7C(IB), 0xFFFF8C08(RET)
-		//v0 = 0x30000
-		//a1 = RelocPtr[MOD_SAS]
-		//v0 = &CreatureCollision;
-		//a2 = RelocPtr[MOD_SAS][0];
-		//v1 = 0x80
+
 		object->collision = &CreatureCollision;
-		//v0 = 0x28
 		object->shadow_size = 46;
-		//v1 = 50
 		object->pivot_length = 50;
-		//v1 = 102
 		object->radius = 102;
-		//v1 = 0xA0000
 		object->hit_points = 40;
 		object->bite_offset = 0;
-		//v0 = *(int*)&object->bite_offset;
-		//a0 = object->bone_index;
-		//a1 = &bones
 		object->save_flags = 1;//t3
 		object->save_anim = 1;
 		object->save_hitpoints = 1;
@@ -710,11 +686,10 @@ void BaddyObjects()//?, B5328
 #if PSX_VERSION && RELOC
 		object->control = RelocPtr[MOD_SAS][0];
 #endif
-		((int*)bones[object->bone_index])[24] |= 8;
-		((int*)bones[object->bone_index])[24] |= 4;
-
-		((int*)bones[object->bone_index])[52] |= 8;
-		((int*)bones[object->bone_index])[52] |= 4;
+		bones[object->bone_index + 24] |= 8u;
+		bones[object->bone_index + 24] |= 4u;
+		bones[object->bone_index + 52] |= 8u;
+		bones[object->bone_index + 52] |= 4u;
 	}
 
 	//loc_1BA4
@@ -1726,30 +1701,30 @@ void LoadLevel(FILE* nHandle)
 
 	if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
 	{
-		inventry_objects_list[7].yoff = 4;
-		inventry_objects_list[7].yrot = -16384;
-		inventry_objects_list[7].xrot = 8448;
-		inventry_objects_list[7].zrot = 16384;
-		inventry_objects_list[7].flags = 10;
+		inventry_objects_list[INV_HK_ITEM1].yoff = 4;
+		inventry_objects_list[INV_HK_ITEM1].yrot = ANGLE(-90);
+		inventry_objects_list[INV_HK_ITEM1].xrot = 8448;
+		inventry_objects_list[INV_HK_ITEM1].zrot = ANGLE(90);
+		inventry_objects_list[INV_HK_ITEM1].flags = 10;
 
-		inventry_objects_list[8].yoff = -16384;
-		inventry_objects_list[8].xrot = 8448;
-		inventry_objects_list[8].zrot = 16384;
-		inventry_objects_list[8].flags = 10;
+		inventry_objects_list[INV_HK_ITEM2].yoff = ANGLE(-90);
+		inventry_objects_list[INV_HK_ITEM2].xrot = 8448;
+		inventry_objects_list[INV_HK_ITEM2].zrot = ANGLE(90);
+		inventry_objects_list[INV_HK_ITEM2].flags = 10;
 	}
 	else
 	{
 		//loc_F30
-		inventry_objects_list[7].yoff = 0;
-		inventry_objects_list[7].yrot = 0;
-		inventry_objects_list[7].xrot = -16384;
-		inventry_objects_list[7].zrot = 0;
-		inventry_objects_list[7].flags = 2;
+		inventry_objects_list[INV_HK_ITEM1].yoff = 0;
+		inventry_objects_list[INV_HK_ITEM1].yrot = 0;
+		inventry_objects_list[INV_HK_ITEM1].xrot = ANGLE(-90);
+		inventry_objects_list[INV_HK_ITEM1].zrot = 0;
+		inventry_objects_list[INV_HK_ITEM1].flags = 2;
 
-		inventry_objects_list[8].yoff = 0;
-		inventry_objects_list[8].xrot = -16384;
-		inventry_objects_list[8].zrot = 0;
-		inventry_objects_list[8].flags = 2;
+		inventry_objects_list[INV_HK_ITEM2].yoff = 0;
+		inventry_objects_list[INV_HK_ITEM2].xrot = ANGLE(-90);
+		inventry_objects_list[INV_HK_ITEM2].zrot = 0;
+		inventry_objects_list[INV_HK_ITEM2].flags = 2;
 	}
 
 	if (gfCurrentLevel == LVL5_TITLE)
@@ -1761,10 +1736,12 @@ void LoadLevel(FILE* nHandle)
 
 void TrapObjects()//?, B7E04
 {
+	UNIMPLEMENTED();
 }
 
 void ObjectObjects()//?, B84F0
 {
+	UNIMPLEMENTED();
 }
 
 void GetCarriedItems()//?(<), B9974(<) (F)
@@ -1800,9 +1777,9 @@ void GetCarriedItems()//?(<), B9974(<) (F)
 				item = &items[item_number];
 
 				//loc_6190
-				if (ABS(item->pos.x_pos - items[i].pos.x_pos) < 512 &&
-					ABS(item->pos.z_pos - items[i].pos.z_pos) < 512 &&
-					ABS(item->pos.y_pos - items[i].pos.y_pos) < 512 &&
+				if (ABS(item->pos.x_pos - items[i].pos.x_pos) < SECTOR(0.5) &&
+					ABS(item->pos.z_pos - items[i].pos.z_pos) < SECTOR(0.5) &&
+					ABS(item->pos.y_pos - items[i].pos.y_pos) < SECTOR(0.5) &&
 					objects[item->object_number].collision == &PickUpCollision)
 				{
 					item->carried_item = items[i].carried_item;
@@ -1837,8 +1814,8 @@ void GetAIPickups()//?, B9B84
 					//loc_6318
 					for (j = 0; j < nAIObjects; j++)
 					{
-						if (ABS(AIObjects[j].x - items[i].pos.x_pos) < 512 &&
-							ABS(AIObjects[j].z - items[i].pos.z_pos) < 512 &&
+						if (ABS(AIObjects[j].x - items[i].pos.x_pos) < SECTOR(0.5) &&
+							ABS(AIObjects[j].z - items[i].pos.z_pos) < SECTOR(0.5) &&
 							AIObjects[j].room_number == items[i].room_number &&
 							AIObjects[j].object_number < AI_PATROL2)
 						{

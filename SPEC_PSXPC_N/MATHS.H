@@ -26,7 +26,7 @@ extern void mCopyMatrix(struct MATRIX3D* m);
 extern void ASM_GetBounds();
 extern void GetBounds();
 extern void mSetTrans(long x, long y, long z);
-extern void mClipBoundingBox();
+extern void mClipBoundingBox(short* bounds);
 extern void InitInterpolation(long frac, long rate, struct MATRIX3D* m);
 extern void iPushMatrix0();
 extern void iPushMatrix(struct MATRIX3D* m);

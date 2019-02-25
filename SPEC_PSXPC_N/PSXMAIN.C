@@ -12,7 +12,7 @@
 #include "SPUSOUND.H"
 #include "TEXT.H"
 
-#include <SYS/TYPES.H>
+//#include <SYS/TYPES.H>
 #include <LIBCD.H>
 #include <LIBPAD.H>
 #include <LIBMCRD.H>

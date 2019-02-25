@@ -123,26 +123,33 @@ void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigne
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		LINE_G4* ptr = (LINE_G4*)db.polyptr;
+		LINE_G2* ptr = (LINE_G2*)db.polyptr;
 
-		setLineG4(ptr);
-		setcode(ptr, 0x52); // todo: wtf?
+		setLineG2(ptr);
+		setSemiTrans(ptr, TRUE);
+		setlen(ptr, 9);
+
+		ptr->p1 = getcode(ptr);
 
 		setRGB0(ptr, getR(color1), getG(color1), getB(color1));
 		setRGB1(ptr, getR(color2), getG(color2), getB(color2));
-		setRGB2(ptr, getR(color2), getG(color2), getB(color2));
-		setRGB3(ptr, getR(color1), getG(color1), getB(color1));
-		setXY4(ptr, x, y, x + width / 2, y, x + width / 2 + 1, y, x + width - 1, y);
-
-		ptr->p1 = 0x52;
-		ptr->p2 = 0x52;
-		ptr->p3 = 0x52;
-
-		//((int*)db.polyptr)[5] = 0; // todo
+		setXY2(ptr, x, y, x + width / 2, y);
 
 		addPrim(db.ot + otnum, ptr);
 
-		db.polyptr += sizeof(LINE_G4);
+		ptr++;
+		db.polyptr += sizeof(LINE_G2);
+
+		setcode(ptr, 0);
+		setaddr(ptr, 0);
+
+		ptr->p1 = getcode(ptr);
+	
+		setRGB0(ptr, getR(color2), getG(color2), getB(color2));
+		setRGB1(ptr, getR(color1), getG(color1), getB(color1));
+		setXY2(ptr, x + width / 2 + 1, y, x + width - 1, y);
+
+		db.polyptr += sizeof(LINE_G2);
 	}//locret_5EF7C
 }
 
@@ -150,26 +157,33 @@ void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsign
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		LINE_G4* ptr = (LINE_G4*)db.polyptr;
+		LINE_G2* ptr = (LINE_G2*)db.polyptr;
 
-		setLineG4(ptr);
-		setcode(ptr, 0x52); // todo: wtf?
+		setLineG2(ptr);
+		setSemiTrans(ptr, TRUE);
+		setlen(ptr, 9);
+
+		ptr->p1 = getcode(ptr);
 
 		setRGB0(ptr, getR(color1), getG(color1), getB(color1));
 		setRGB1(ptr, getR(color2), getG(color2), getB(color2));
-		setRGB2(ptr, getR(color2), getG(color2), getB(color2));
-		setRGB3(ptr, getR(color1), getG(color1), getB(color1));
-		setXY4(ptr, x, y + 1, x, y + height / 2, x, y + height / 2 + 2, x, y + height - 2);
-
-		ptr->p1 = 0x52;
-		ptr->p2 = 0x52;
-		ptr->p3 = 0x52;
-
-		//((int*)db.polyptr)[5] = 0; // todo
+		setXY2(ptr, x, y + 1, x, y + height / 2);
 
 		addPrim(db.ot + otnum, ptr);
 
-		db.polyptr += sizeof(LINE_G4);
+		ptr++;
+		db.polyptr += sizeof(LINE_G2);
+
+		setcode(ptr, 0);
+		setaddr(ptr, 0);
+
+		ptr->p1 = getcode(ptr);
+
+		setRGB0(ptr, getR(color2), getG(color2), getB(color2));
+		setRGB1(ptr, getR(color1), getG(color1), getB(color1));
+		setXY2(ptr, x, y + height / 2 + 2, x, y + height - 2);
+
+		db.polyptr += sizeof(LINE_G2);
 	}//locret_5F038
 }
 

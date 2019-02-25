@@ -1,7 +1,7 @@
 #ifndef MISC_H
 #define MISC_H
 
-#include <SYS/TYPES.H>
+//#include <SYS/TYPES.H>
 #include <LIBGTE.H>
 #include <LIBGPU.H>
 

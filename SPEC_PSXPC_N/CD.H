@@ -3,7 +3,7 @@
 
 #include "STYPES.H"
 
-#include <SYS/TYPES.H>
+//#include <SYS/TYPES.H>
 #include <LIBCD.H>
 
 #define CD_SECTOR_SIZE (2048)

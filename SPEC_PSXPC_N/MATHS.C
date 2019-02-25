@@ -219,17 +219,11 @@ void mTranslate()//76558(<) (!)
 
 void mTranslateAbsXYZ(long x, long y, long z)
 {
-	MATRIX3D* mat = Matrix;
-
 	x -= MatrixStack[0].tx;
 	y -= MatrixStack[0].ty;
 	z -= MatrixStack[0].tz;
 
-	mat->tx = mat->m00 * x + mat->m01 * y + mat->m02 * z >> 12;
-	mat->ty = mat->m10 * x + mat->m11 * y + mat->m12 * z >> 12;
-	mat->tz = mat->m20 * x + mat->m21 * y + mat->m22 * z >> 12;
-
-	mLoadMatrix(mat);
+	mTranslateXYZ(x, y, z);
 }
 
 void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
@@ -390,7 +384,7 @@ void mSetTrans(long x, long y, long z)//76AF4(<), 78B38(<) TOCHECK
 	Matrix->tz = z;
 }
 
-void mClipBoundingBox()//76B14
+void mClipBoundingBox(short* bounds)//76B14
 {
 
 }

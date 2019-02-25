@@ -37,6 +37,7 @@ extern int DoPauseMenu();
 extern void gInit();
 extern short S_Death();
 extern void DisplayStatsUCunt();
+extern void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light);
 //extern void S_Warn(const char* warning_message);
 #define S_Warn printf
 

@@ -3,7 +3,7 @@
 
 #include "STYPES.H"
 
-#include <sys/types.h>
+//#include <sys/types.h>
 #include <LIBGPU.H>
 
 extern unsigned long GnFrameCounter;
