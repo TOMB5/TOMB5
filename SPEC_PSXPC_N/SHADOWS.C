@@ -60,13 +60,13 @@ void S_DrawGouraudBar(int x, int y, int width, int value, GouraudBarColourSet* c
 			}
 		}
 
-		DelLine(x - 2, y - 2, x + width + 2, y - 2, genRGB(80, 130, 130), genRGB(160, 160, 160));
-		DelLine(x + width + 2, y + 6, x - 2, y + 6, genRGB(80, 130, 130), genRGB(160, 160, 160));
-		DelLine(x + width + 2, y + 6, x + width + 2, y - 2, genRGB(80, 130, 130), genRGB(160, 160, 160));
-		DelLine(x - 2, y - 2, x - 2, y + 6, genRGB(80, 130, 130), genRGB(160, 160, 160));
+		DelLine(x - 2, y - 2, x + width + 2, y - 2, genRGB(80, 130, 130), genRGB(160, 160, 160)); // top
+		DelLine(x - 2, y + 6, x + width + 2, y + 6, genRGB(80, 130, 130), genRGB(160, 160, 160)); // bottom
+		DelLine(x + width + 2, y - 2, x + width + 2, y + 6, genRGB(80, 130, 130), genRGB(160, 160, 160)); // right
+		DelLine(x - 2, y - 2, x - 2, y + 6, genRGB(80, 130, 130), genRGB(160, 160, 160)); // left
 
 		DelLine(x - 3, y - 1, x - 3, y + 5, genRGB(40, 65, 65), genRGB(80, 80, 80));
-		DelLine(x + width + 5, y + 5, x + width + 5, y - 1, genRGB(40, 65, 65), genRGB(80, 80, 80));
+		DelLine(x + width + 3, y - 1, x + width + 3, y + 5, genRGB(40, 65, 65), genRGB(80, 80, 80));
 
 		DelBox(x - 1, y - 1, width + 3, 7, genRGB(0, 0, 0));
 	}
