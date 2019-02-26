@@ -1,7 +1,7 @@
 #ifndef DEBRIS_H
 #define DEBRIS_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern struct DEBRIS_STRUCT debris[128];
 extern short DebrisFlags;

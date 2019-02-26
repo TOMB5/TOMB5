@@ -428,6 +428,7 @@ void LOAD_Stop()//60434(<), 60FB4(<) (F)
 
 #if DEBUG_VERSION
 	ProfileDraw = 1;
-	_first_time_ever = 0;
 #endif
+
+	_first_time_ever = 0;
 }

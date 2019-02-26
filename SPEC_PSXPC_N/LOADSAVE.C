@@ -22,21 +22,21 @@
 #endif
 #include <LIBMCRD.H>
 
-static struct REQUESTER InsertReq;
-static struct REQUESTER CheckingReq;
-static struct REQUESTER FormatReq;
-static struct REQUESTER OverwriteReq;
-static struct REQUESTER LoadingReq;
-static struct REQUESTER SavingReq;
-static struct REQUESTER FormattingReq;
-static struct REQUESTER LoadOkReq;
-static struct REQUESTER LoadErrorReq;
-static struct REQUESTER SaveOkReq;
-static struct REQUESTER SaveErrorReq;
-static struct REQUESTER FormatErrorReq;
-static struct REQUESTER NotFormatReq;
-static struct REQUESTER NoSpaceReq;
-static struct REQUESTER NoGamesReq;
+static struct REQUESTER InsertReq = { STR_INSERT_MEMCARD_INTO_SLOT_1, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER CheckingReq = { STR_CHECKING_MEMORY_CARD, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER FormatReq = { STR_MEMCARD_UNFORMATTED_FORMAT_IT, 0x1148, 0x00000000, 0xA000, 0xA100, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER OverwriteReq = { STR_OVERWRITE_ON_MEMCARD, 0x1148, 0x00000000, 0xA000, 0xA100, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER LoadingReq = { STR_LOADING_DATA_DO_NOT_REMOVE, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER SavingReq = { STR_SAVING_DATA_DO_NOT_REMOVE, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER FormattingReq = { STR_FORMATTING_MEMCARD_DO_NOT_REMOVE, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER LoadOkReq = { STR_LOAD_OK, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER LoadErrorReq = { STR_LOAD_FAILED, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER SaveOkReq = { STR_SAVED_OK, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER SaveErrorReq = { STR_SAVE_FAILED, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER FormatErrorReq = { STR_FORMAT_OK, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER NotFormatReq = { STR_MEMCARD_IS_UNFORMATTED_INSERT_FORMATTED, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER NoSpaceReq = { STR_MEMCARD_INSUFFICIENT_FREE_BLOCKS, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER NoGamesReq = { STR_THERE_ARE_NO_SAVEGAMES, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
 
 int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 {
@@ -67,7 +67,7 @@ int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 	}
 	
 	//loc_62768:
-	y = (SCREEN_HEIGHT/2) - ((n << 1) + n) << 2;
+	y = (SCREEN_HEIGHT/2) - (((n << 1) + n) << 2);
 	
 	if(n > 1)
 	{
@@ -76,8 +76,8 @@ int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 		{
 			if(i < mcNumFiles)
 			{
-				pn = (struct PACKEDNAME*)&mcFileNames[0][i];
-				sprintf(&buf[0], "%s - %d %s %d:%.2d:%.2d", &gfStringWad[gfStringOffset[gfLevelNames[pn->Level & 0x3F]]], pn->Days & 0x3F, &gfStringWad[gfStringOffset[0xB9]], pn->Hours & 0x3F, pn->Min & 0x3F, pn->Sec & 0x3F);
+				pn = (struct PACKEDNAME*)&mcFileNames[i][0];
+				sprintf(&buf[0], "%s - %d %s %d:%.2d:%.2d", &gfStringWad[gfStringOffset[gfLevelNames[pn->Level & 0x3F]]], pn->Days & 0x3F, &gfStringWad[gfStringOffset[STR_DAYS]], pn->Hours & 0x3F, pn->Min & 0x3F, pn->Sec & 0x3F);
 			}
 			else
 			{
@@ -88,24 +88,24 @@ int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 			//loc_62858:
 			if(i == cursor)
 			{
-				PrintString(256, (y & 0xF) & 0xFFFF, 5, &buf[0], flags);
+				PrintString(256, (y + 0xF) & 0xFFFF, 1, &buf[0], flags);
 			}
 			else
 			{
-				PrintString(256, (y & 0xF) & 0xFFFF, 1, &buf[0], flags);
+				PrintString(256, (y + 0xF) & 0xFFFF, 5, &buf[0], flags);
 			}
 
 			//loc_62870:
-			DrawF4(0x20, y & 0xFFFF, 0x1C0, 0x17, 0, 0x2A80);
-			/*DrawTPage(0, 0);
+			DrawF4(0x20, y, 0x1C0, 0x17, 0, 0x2A800000);
+			DrawTPage(0, 0);
 			
-			DrawLineH(0x22, (y + 1) & 0xFFFF, 0x1BC, 0, 0x404040, 0);
-			DrawLineH(0x22, (y + 15) & 0xFFFF, 0x1BC, 0, 0x404040, 0);
+			DrawLineH(0x22, (y + 1), 0x1BC, 0, 0x404040, 0);
+			DrawLineH(0x22, (y + 21), 0x1BC, 0, 0x404040, 0);
 			
-			DrawLineV(0x22, (y + 1) & 0xFFFF, 0x15, 0, 0x404040, 0);
-			DrawLineV(0x1DD, (y + 1) & 0xFFFF, 0x15, 0, 0x404040, 0);
+			DrawLineV(0x22, (y + 1), 0x15, 0, 0x404040, 0);
+			DrawLineV(0x1DD, (y + 1), 0x15, 0, 0x404040, 0);
 
-			DrawTPage(0, 1);*/
+			DrawTPage(0, 1);
 		}
 	}
 	
@@ -246,7 +246,7 @@ int LoadGame()//6297C(<), 63060
 
 		if (AutoTime == 0)
 		{
-			if (AutoFunc == -1)
+			if (AutoFunc == 255)
 			{
 				ret = 1;
 				//loc_62DBC

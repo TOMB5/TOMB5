@@ -1,16 +1,22 @@
 # Project: Decompile Tomb Raider: Chronicles (TOMB5)
 
-<p align="center">
-<img src="https://i.imgur.com/1o1EDew.png"/>
-</p>
-
 Start Date: 12th July 2017.
+
+PSX:
+<p align="center">
+<a href="https://streamable.com/n4oop"><img src="https://i.imgur.com/yrZDlay.png"/><a>
+ </p>
+
+PSXPC_N:
+<p align="center">
+<a href="https://streamable.com/bsutq"><img src="https://i.imgur.com/r3IwHdf.png"/><a>
+ </p>
 
 | Platform  | Build State |
 | ------------- | ------------- |
-| Windows (PSXPC)  | [![Build status](https://ci.appveyor.com/api/projects/status/wbfndh3l1j605tow/branch/master?svg=true)](https://ci.appveyor.com/project/Gh0stBlade/tomb5/branch/master) |
-| Linux (PSXPC)  | [![Build status](https://ci.appveyor.com/api/projects/status/wbfndh3l1j605tow/branch/appveyor-ubuntu?svg=true)](https://ci.appveyor.com/project/Gh0stBlade/tomb5/branch/appveyor-ubuntu) |
-| Linux (PSXPC) | [![Build Status](https://travis-ci.org/TOMB5/TOMB5.svg?branch=master)](https://travis-ci.org/TOMB5/TOMB5) |
+| Windows (PSXPC_N)  | [![Build status](https://ci.appveyor.com/api/projects/status/wbfndh3l1j605tow/branch/master?svg=true)](https://ci.appveyor.com/project/Gh0stBlade/tomb5/branch/master) |
+| Linux (PSXPC_N)  | [![Build status](https://ci.appveyor.com/api/projects/status/wbfndh3l1j605tow/branch/appveyor-ubuntu?svg=true)](https://ci.appveyor.com/project/Gh0stBlade/tomb5/branch/appveyor-ubuntu) |
+| Linux (PSXPC_N) | [![Build Status](https://travis-ci.org/TOMB5/TOMB5.svg?branch=master)](https://travis-ci.org/TOMB5/TOMB5) |
 | PSX  | [![Build status](https://ci.appveyor.com/api/projects/status/wbfndh3l1j605tow/branch/appveyor-psx?svg=true)](https://ci.appveyor.com/project/Gh0stBlade/tomb5/branch/appveyor-psx)
 ## Disclaimer
 This project may be abandoned at any time, use this product at your own risk.
@@ -33,9 +39,9 @@ Depending on the amount of contributors it could take years.
 
 Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5
 
-## Fucky Credits
+## Credits
 
-- Gh0stBlade: Fucking Main developer.
-- zdimension: MIPS and x86 assembly to C translation crap, SPEC_PC branch main fucking developer.
-- Stohrendorf: Neat PSX Symbol poo dumper (symdump).
+- Gh0stBlade: Lead Programmer (PSX/PSXPC_N).
+- zdimension: Programmer (PSX/PSXPC_N,PC).
+- Stohrendorf: Symdump.
 - [You?](CONTRIBUTING.md)

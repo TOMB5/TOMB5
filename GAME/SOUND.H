@@ -1,7 +1,7 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 #define MAX_SOUND_SLOTS 24
 

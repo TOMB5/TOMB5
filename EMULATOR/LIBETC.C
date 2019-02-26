@@ -13,6 +13,8 @@ void(*vsync_callback)(void) = NULL;
 
 int ResetCallback(void)
 {
+	vsync_callback = NULL;
+	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -23,11 +25,6 @@ int VSync(int mode)
 		if (vsync_callback != NULL)
 		{
 			vsync_callback();
-		}
-
-		while (lastTime - SDL_GetTicks() < (1000 / 60))
-		{
-			SDL_Delay(1);
 		}
 
 		Emulator_EndScene();
@@ -44,5 +41,5 @@ int VSyncCallback(void(*f)(void))
 
 long GetVideoMode(void)
 {
-	return 0;
+	return MODE_NTSC;
 }

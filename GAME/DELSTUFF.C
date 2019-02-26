@@ -1,6 +1,11 @@
 #include "DELSTUFF.H"
 
 #include "SPECIFIC.H"
+#include "LARA.H"
+#include "SETUP.H"
+#include "DRAW.H"
+#include "CALCLARA.H"
+#include "COLLIDE.H"
 
 struct MATRIX3D lara_joint_matrices[15];
 struct MATRIX3D lara_matrices[15];
@@ -83,7 +88,48 @@ char HairRotScratchVertNums[5][12] =
 	{ 4, 5, 6, 7, -1, 0, 0, 0, 0, 0, 0, 0 }
 };
 
+
+
 void CalcLaraMatrices(int flag)//2C1DC, 2C504
 {
-	UNIMPLEMENTED();
+	short* frm[2];
+
+	if (lara.hit_direction >= 0)
+	{
+		int anim = -1;
+
+		switch(lara.hit_direction)
+		{
+		case NORTH:
+			anim = lara.IsDucked ? ANIMATION_LARA_CROUCH_SMASH_BACKWARD : ANIMATION_LARA_AH_FORWARD;
+			break;
+		case EAST:
+			anim = lara.IsDucked ? ANIMATION_LARA_CROUCH_SMASH_RIGHT : ANIMATION_LARA_AH_LEFT;
+			break;
+		case SOUTH:
+			anim = lara.IsDucked ? ANIMATION_LARA_CROUCH_SMASH_FORWARD : ANIMATION_LARA_AH_BACKWARD;
+			break;
+		case WEST:
+			anim = lara.IsDucked ? ANIMATION_LARA_CROUCH_SMASH_LEFT : ANIMATION_LARA_AH_RIGHT;
+			break;
+		}
+
+		frm[0] = &anims[anim].frame_ptr[lara.hit_frame * (anims[anim].interpolation >> 8)];
+	}
+	else
+	{
+		
+		int rate;
+		long frac = GetFrames(lara_item, frm, &rate);
+
+		if (frac != 0)
+		{
+			GLaraShadowframe = GetBoundsAccurate(lara_item);
+			S_Warn("[CalcLaraMatrices] - Unimplemented if body\n");
+			DEL_CalcLaraMatrices_Interpolated_ASM(frm[0], frm[1], frac, rate);// todo, check params
+			return;
+		}
+	}
+	
+	DEL_CalcLaraMatrices_Normal_ASM(frm[0], &bones[objects[lara_item->object_number].bone_index], flag);
 }

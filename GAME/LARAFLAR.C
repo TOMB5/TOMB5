@@ -2,11 +2,11 @@
 
 #include "SPECIFIC.H"
 #include "LARA.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include <stddef.h>
 #ifdef PC_VERSION
 #include "GAME.H"
-#elif PSX_VERSION || PSXPC_VERSION
+#elif PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "SETUP.H"
 #include "MISC.H"
 #include "BUBBLES.H"

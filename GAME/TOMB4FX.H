@@ -1,7 +1,7 @@
 #ifndef TOMB4FX_H
 #define TOMB4FX_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern char flare_table[121]; // offset 0x92A6C
 extern char LaserSightActive; // offset 0xA09FC

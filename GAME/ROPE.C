@@ -7,7 +7,7 @@
 
 #if PSXPC_TEST
 #include <stdint.h>
-#elif PSX_VERSION
+#elif PSX_VERSION || SAT_VERSION
 typedef unsigned int uintptr_t;
 #endif
 

@@ -25,7 +25,6 @@
 #include "TEXT.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
-#include "TYPEDEFS.H"
 
 #if PC_VERSION
 #include "GLOBAL.H"
@@ -41,20 +40,26 @@
 #include "DELTAPAK_S.H"
 #include "CD.H"
 #include "BUBBLES.H"
+#include "TYPEDEFS.H"
 #endif
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include <assert.h>
 #include <stddef.h>
 #include "SOUND.H"
 #include "EFFECTS.H"
 #include <stdio.h>
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #include "SPHERES.H"
 #include "FXTRIG.H"
 #include "TEXT_S.H"
+
+#if DEBUG_VERSION
+#include <LIBETC.H>
+#endif
+
 #endif
 
 
@@ -3203,9 +3208,13 @@ void frigup_lara()//2D000(<), ? (F)
 	bone = &bones[object->bone_index];
 
 	//updateAnimFrame(actor_pnodes[0], 0x10, frame);
+#if PSX_VERSION
 	DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 0);
+#endif
 	mPushUnitMatrix();
+#if PSX_VERSION
 	DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 1);
+#endif
 	mPopMatrix();
 
 	//HairControl(0, 0, frame);
@@ -3281,7 +3290,7 @@ void do_new_cutscene_camera()
 	UNIMPLEMENTED();
 }
 
-void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
+void handle_cutseq_triggering(int name)//2C3C4(<), 2C6EC(<) (F)
 {
 #if PC_VERSION
 	if (cutseq_num == CUT_NULL)
@@ -3297,7 +3306,7 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 		cutseq_trig = 1;
 		memset(cutseq_meshswapbits, 0, sizeof(cutseq_meshswapbits));
 		cutseq_busy_timeout = 50;
-		memset(cutseq_meshbits, 0xFF, sizeof(cutseq_meshbits));
+		memset(cutseq_meshbits, 0xFF, sizeof(cutseq_meshbits));///@FIXME (Gh0st) should be -1 not 0xFF
 
 		if (gfCurrentLevel)
 			SetFadeClip(28, 1);
@@ -3433,11 +3442,11 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 	{
 		if (lara.gun_status != LG_HANDS_BUSY
 			&& (lara.gun_status != LG_NO_ARMS || lara.flare_control_left)
-			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_IDLE
-			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_FORWARD
-			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_TURN_LEFT
-			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_TURN_RIGHT
-			&&  lara_item->current_anim_state != STATE_LARA_CRAWL_BACK)
+			&& lara_item->current_anim_state != STATE_LARA_CRAWL_IDLE
+			&& lara_item->current_anim_state != STATE_LARA_CRAWL_FORWARD
+			&& lara_item->current_anim_state != STATE_LARA_CRAWL_TURN_LEFT
+			&& lara_item->current_anim_state != STATE_LARA_CRAWL_TURN_RIGHT
+			&& lara_item->current_anim_state != STATE_LARA_CRAWL_BACK)
 		{
 			return;
 		}
@@ -3522,196 +3531,318 @@ void handle_cutseq_triggering(int name)//2C3C4, 2C6EC
 	if (GLOBAL_cutme->audio_track != -1 && !bDoCredits)
 		S_StartSyncedAudio(GLOBAL_cutme->audio_track);
 #else
-	int i;
-	int s1 = name;//guessed, moved but not used
+	int n; // $v0
+	int goin; // $a1
+	int fuck; // $a0
+
+	//s1 = Name
 
 	if (cutseq_num == 0)
 	{
-		int a1 = 0;//Must confirm initial value.
-		if (cutseq_trig == 0)
+		return;
+	}
+
+	//v1 = cutseq_trig
+	//s0 = 1
+	if (cutseq_trig == 0)
+	{
+		if (lara.gun_status != LG_NO_ARMS || lara.gun_type == WEAPON_FLARE && lara.gun_status != LG_HANDS_BUSY)
 		{
-			if (lara.gun_status == LG_NO_ARMS)
-			{
-				if (lara.gun_type == 7)
-				{
-					a1 = -1;
-				}//loc_2C448
-			}
-			else
-			{
-				//loc_2C41C
-				if (lara.gun_type != 1)
-				{
-					lara.gun_status = 3;
-				}
+			lara.gun_status = LG_UNDRAW_GUNS;
+		}//loc_2C444
 
-				//loc_2C430
-				if (lara.gun_status != LG_HANDS_BUSY)
-				{
-					lara.gun_status = 3;
-				}
+		//loc_2C454
+		for (n = 0; n < 10; n++)
+		{
+			cutseq_meshswapbits[n] = 0;
+			cutseq_meshbits[n] = -1;
+		}
 
-				//loc_2C444
-				a1 = -1;
-			}
+		cutseq_trig = 1;
+		cutseq_busy_timeout = 50;
 
-			//loc_2C448
-			//loc_2C454
-			for (i = 0; i < 9; i++)//TODO const
-			{
-				cutseq_meshswapbits[i] = 0;
-				cutseq_meshbits[i] = a1;
-			}
+		if (gfCurrentLevel != LVL5_TITLE)
+		{
+			SetFadeClip(28, 1);
+		}
 
-			cutseq_trig = 1;
-			cutseq_busy_timeout = 50;
-
-			//Not title
+		//loc_2C494
+		if (ScreenFadedOut == 0)
+		{
 			if (gfCurrentLevel != 0)
 			{
-				SetFadeClip(28, 1);
-			}
+				XAReqVolume = 0;
+			}//loc_2C4C8
 
-			//loc_2C494
-			if (ScreenFadedOut == 0)
-			{
-				//Not title
-				if (gfCurrentLevel != 0)
-				{
-					XAReqVolume = 0;
-				}
+			SetScreenFadeOut(16, 0);
+		}//loc_2C4D0
 
-				//loc_2C4C8
-				SetScreenFadeOut(16, 0);
-			}
-
-			//loc_2C4D0
-#if DEBUG_VERSION && PSX_VERSION
-			ProfileDraw = 0;
+#if DEBUG_VERSION
+		ProfileDraw = 0;
 #endif
-		}
-		else
+		return;
+	}
+	//loc_2C4E0
+	//v0 = 3
+	if (cutseq_trig != 1)
+	{
+		//loc_2C79C
+		//v0 = 4
+		if (cutseq_trig == 3)
 		{
-			if (cutseq_num == 1)
+			SetScreenFadeOut(16, 1);
+
+			//v0 = 4
+			if (gfCurrentLevel != LVL5_TITLE)
 			{
-				struct ITEM_INFO* v00 = lara_item;
-				int v1 = ScreenFadedOut;
-				int a0 = v00->current_anim_state;
-				int a1 = 0;
+				XAReqVolume = 0;
+			}
+			
+			//loc_2C7D0
+			cutseq_trig = 4;
+			return;
 
-				if (ScreenFadedOut != 0)
-				{
-					cutseq_busy_timeout--;
+		}//loc_2C7DC
 
-					if ((cutseq_busy_timeout & 0xFF) == 0)
-					{
-						cutseq_busy_timeout = 0;
-						a1 = 1;
+		if (cutseq_trig != 4 || ScreenFadedOut == 0)
+		{
+			return;
+		}
 
-					}//j loc_2C588
-					else
-					{
-						//loc_2C52C
-						if (lara.gun_status != LG_HANDS_BUSY && lara.gun_status == LG_NO_ARMS && lara.flare_control_left != 0)
-						{
-							//loc_2C55C
+		if (gfCurrentLevel != LVL5_TITLE)
+		{
+			S_CDStop();
+		}//loc_2C818
 
-							if ((lara_item->current_anim_state) > STATE_LARA_MONKEYSWING_TURN_LEFT ||
-								(lara_item->current_anim_state) != 164 ||
-								(lara_item->current_anim_state) != 165 ||
-								(lara_item->current_anim_state) == 166)
-							{
-								//2C584
-								a1 = 1;
-							}
+		//v0 = &cutseq_control_routines[cutseq_num]
+		//a0 = cutseq_num
+		//v0 = cutseq_control_routines[cutseq_num].end_func;
+		ScreenFadedOut = 0;
+		numnailed = 0;
 
-						}
-						//loc_2C584 - may merge
-						a1 = 1;
-					}
-				}
+		if (cutseq_control_routines[cutseq_num].end_func != NULL);
+		{
+			cutseq_control_routines[cutseq_num].end_func();
+		}
+		//loc_2C850
 
-				//loc_2C588
-				if (a1 == 0)
-				{
-					//loc_2CA50 cpy
-					return;
-				}
+		if (cutseq_num < 5)
+		{
+			DelsHandyTeleportLara(GLOBAL_cutme->orgx, GLOBAL_cutme->orgy, GLOBAL_cutme->orgz, cutrot << W2V_SHIFT);
+		}//loc_2C880
 
-				lara.IsClimbing = 0;
-				lara.flare_age = 0;
+		//v0 = bDoCredits
+		cutseq_trig = 0;
+		GLOBAL_playing_cutseq = 0;
+		//a0 = 0x1C
 
-				if ((gfLevelFlags & GF_LVOP_YOUNG_LARA))
-				{
-
-					lara.gun_type = 0;
-					lara.request_gun_type = 0;
-					lara.last_gun_type = 0;
-
-					if (objects[PISTOLS_ITEM].loaded && lara.pistols_type_carried != 0)
-					{
-						//loc_2C5FC
-						lara.last_gun_type = 1;
-					}
-					else
-					{
-						//loc_2C5F4
-						lara.last_gun_type = 0;
-					}
-
-					//loc_2C600
-					if ((gfLevelFlags & GF_LVOP_TRAIN) != 0)
-					{
-						if (objects[HK_ITEM].loaded)
-						{
-							//if ((objects[0x5670 + 0x121] & 1) != 0)
-							{
-								int v0000 = 5;
-								///TODO:
-								assert(0);
-							}//loc_2C644
-						}//loc_2C648
-
-					}//loc_2C644
-
-					 //assert(0);//intentional, not finished!
-					S_Warn("[handle_cutseq_triggering] - Unimplemented condition! loc_2C644\n");
-
-				}//loc_2C6E4
-
-			}//loc_2C79C
-
-			if (gfCurrentLevel != 3)
+		if (!bDoCredits)
+		{
+			//a0 = dels_cutseq_player
+			if (dels_cutseq_player)
 			{
-				//2C7DC
-				if (gfCurrentLevel == 4 && ScreenFadedOut != 0)
-				{
-					if (gfCurrentLevel != 0)
-					{
-						S_CDStop();
-
-					}//loc_2C818
-
-					 //loc_2C818
-					assert(0);//Data is malformed in IDA output, also jalr	$v0 must be debugged on emu.
-
-				}//loc_2CA50
-
-			}///@CHECK does jump to loc_2CA50 at end?
+				//loc_2C94C
+				reset_flag = 1;
+				dels_cutseq_player = 0;
+			}
 			else
 			{
-				SetScreenFadeOut(16, 1);
-
-				if (gfCurrentLevel != 0)
+				if (cutseq_num != CUT_RICH_CUT_2 &&
+					cutseq_num != CUT_JOBY_CUT_3 &&
+					cutseq_num != CUT_JOBY6 &&
+					cutseq_num != CUT_ANDREA2 &&
+					cutseq_num != CUT_ANDY6 &&
+					cutseq_num != CUT_ANDY11 &&
+					cutseq_num != CUT_JOBY10)
 				{
-					XAReqVolume = 0;
-				}//loc_2C7D0
+					//loc_2C9E4
+					finish_cutseq(name);
 
-				 //loc_2C7D0
-				cutseq_trig = 4;
-			}//loc_2CA50
+					//v0 = GLOBAL_oldcamtype
+					//v1 = gfCurrentLevel
+
+					cutseq_num = 0;
+
+#if DEBUG_VERSION
+					ProfileDraw = 1;
+#endif
+					camera.type = (enum camera_type)GLOBAL_oldcamtype;
+
+					if (gfCurrentLevel != LVL5_TITLE)
+					{
+						SetFadeClip(0, 1);
+					}
+
+					AlterFOV(0x3FFC);
+
+					if (gfCurrentLevel != LVL5_TITLE)
+					{
+						S_CDPlay(CurrentAtmosphere, 1);
+					}
+
+					//loc_2CA48
+					IsAtmospherePlaying = 1;
+					return;
+				}
+				else
+				{
+					//loc_2C944
+					gfLevelComplete = gfCurrentLevel + 1;
+				}
+			}
+			//loc_2C980
+			gfRequiredStartPos = 0;
+			cutseq_num = 0;
+			GLOBAL_playing_cutseq = 0;
+			cutseq_trig = 0;
+			AlterFOV(0x3FFC);
+
+#if DEBUG_VERSION
+			ProfileDraw = 1;
+#endif
+			ScreenFade = 0;
+			dScreenFade = 0;
+			ScreenFadeSpeed = 8;
+			ScreenFadeBack = 0;
+			ScreenFadedOut = 0;
+			ScreenFading = 0;
+
+			return;
+		}
+
+		switch(cutseq_num)
+		{
+		case 28:
+			cutseq_num = 29;
+			break;
+		case 29:
+			cutseq_num = 30;
+			break;
+		case 30:
+			cutseq_num = 28;
+			break;
+		}
+
+		Load_and_Init_Cutseq(cutseq_num);
+		cutseq_trig = 2;
+		return;
+	}
+
+	//v0 = 3
+	//v0 = lara_item
+	//v1 = ScreenFadedOut
+	//a0 = lara_item->current_anim_state
+	goin = 0;
+	if (!ScreenFadedOut && !goin)
+	{
+		return;
+	}
+
+	if (--cutseq_busy_timeout == 0)
+	{
+		cutseq_busy_timeout = 0;
+		goin = 1;
+	}
+	else
+	{
+		//loc_2C52C
+		//v0 = &lara
+		//v1 = lara.gun_status
+
+		if (lara.gun_status != LG_HANDS_BUSY
+			&& (lara.gun_status != LG_NO_ARMS || lara.flare_control_left)
+			&& lara_item->current_anim_state != STATE_LARA_CRAWL_IDLE
+			&& lara_item->current_anim_state != STATE_LARA_CRAWL_FORWARD
+			&& lara_item->current_anim_state != STATE_LARA_CRAWL_TURN_LEFT
+			&& lara_item->current_anim_state != STATE_LARA_CRAWL_TURN_RIGHT
+			&& lara_item->current_anim_state != STATE_LARA_CRAWL_BACK)
+		{
+			goin = 1;
 		}
 	}
+	//loc_2C588
+	if (goin == 0)
+		return;
+
+	//a0 = -2
+	//a1 = 0xA0000
+	//a2 = &lara
+	//v1 = gfLevelFlags
+	//s2 = goin
+	lara.flare_age = 0;
+	lara.flare_control_left = 0;
+	
+	//Below unchecked
+	if (!(gfLevelFlags & GF_LVOP_YOUNG_LARA))
+	{
+		lara.gun_type = WEAPON_NONE;
+		lara.request_gun_type = WEAPON_NONE;
+
+		lara.gun_status = LG_NO_ARMS;
+
+		lara.last_gun_type = WEAPON_PISTOLS;
+
+		if (!objects[PISTOLS_ITEM].loaded || lara.pistols_type_carried == WTYPE_MISSING)
+			lara.last_gun_type = WEAPON_NONE;
+
+		if (gfLevelFlags & GF_LVOP_TRAIN && objects[HK_ITEM].loaded && lara.hk_type_carried & WTYPE_PRESENT)
+			lara.last_gun_type = WEAPON_HK;
+
+		lara.mesh_ptrs[LM_LHAND] = meshes[objects[LARA].mesh_index + 2 * LM_LHAND];
+		lara.mesh_ptrs[LM_RHAND] = meshes[objects[LARA].mesh_index + 2 * LM_RHAND];
+
+		lara.left_arm.frame_number = 0;
+		lara.right_arm.frame_number = 0;
+
+		lara.target = 0;
+
+		lara.right_arm.lock = 0;
+		lara.left_arm.lock = 0;
+
+		lara_item->goal_anim_state = STATE_LARA_STOP;
+		lara_item->current_anim_state = STATE_LARA_STOP;
+		lara_item->frame_number = anims[ANIMATION_LARA_STAY_SOLID].frame_base;
+		lara_item->anim_number = ANIMATION_LARA_STAY_SOLID;
+
+		lara_item->speed = 0;
+		lara_item->fallspeed = 0;
+
+		lara_item->gravity_status = FALSE;
+
+		lara.back_gun = 0;
+
+		if (lara.weapon_item != -1)
+		{
+			KillItem(lara.weapon_item);
+			lara.weapon_item = -1;
+		}
+	}
+
+	lara.water_status = 0;
+
+	if (gfCurrentLevel)
+		S_CDStop();
+
+	numnailed = 0;
+	GLOBAL_oldcamtype = camera.type;
+
+	ScreenFading = 0;
+	SetScreenFadeIn(16);
+	Load_and_Init_Cutseq(cutseq_num);
+	cutseq_trig = 2;
+
+	cut_seethrough = 128;
+
+	if (cutseq_control_routines[cutseq_num].init_func != NULL)
+	{
+		cutseq_control_routines[cutseq_num].init_func();
+	}
+
+	AlterFOV(0x33FC);
+
+	if (GLOBAL_cutme->audio_track != -1 && !bDoCredits)
+		S_StartSyncedAudio(GLOBAL_cutme->audio_track);
+
 #endif
 	return;
 }
