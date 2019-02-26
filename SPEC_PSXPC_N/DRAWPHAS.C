@@ -37,6 +37,8 @@
 #include <LIBGPU.H>
 #include <stdio.h>
 #include "DRAWSPKS.H"
+#include "SOUND.H"
+#include "ITEMS.H"
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "TEXT_S.H"
@@ -258,7 +260,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 		{
 			if (BinocularRange != 0)
 			{
-				AlterFOV(0x3FFC - BinocularRange);
+				AlterFOV(ANGLE(90) - BinocularRange);
 			}
 
 			//loc_6457C
@@ -291,7 +293,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 					//loc_6460C
 					if (LightningSFXDelay == 0)
 					{
-						SoundEffect(182, NULL, 0);
+						SoundEffect(SFX_THUNDER_RUMBLE, NULL, 0);
 					}
 				}
 			}//loc_64690
@@ -317,7 +319,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 			if (gfLevelFlags & GF_LVOP_LAYER1_USED)
 			{
-				mRotY(32768);
+				mRotY(ANGLE(180));
 
 				if (gfLevelFlags & GF_LVOP_LIGHTNING)
 				{
@@ -347,7 +349,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 			if (BinocularRange != 0)
 			{
-				AlterFOV(0x3FFC - ((BinocularRange * 8) - BinocularRange));
+				AlterFOV(ANGLE(90) - BinocularRange * 7);
 			}
 		}
 		else
@@ -357,7 +359,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 		}
 	}//loc_64878
 
-	if (objects[LARA].loaded && !(lara_item->flags & 0x40))
+	if (objects[LARA].loaded && !(lara_item->flags & IFLAG_UNK40))
 	{
 		InitObjGTE();
 
