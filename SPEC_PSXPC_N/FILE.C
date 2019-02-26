@@ -2,7 +2,7 @@
 
 #include "CD.H"
 
-#include <SYS/TYPES.H>
+//#include <SYS/TYPES.H>
 #include <LIBCD.H>
 #if PSXPC_TEST
 #include <stdio.h>

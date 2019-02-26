@@ -8,7 +8,7 @@
 #include "ITEMS.H"
 #include "LARA.H"
 
-#if PSXENGINE
+#if PSXENGINE || SAT_VERSION
 #include "SETUP.H"
 #include "ROOMLOAD.H"
 #include "SPHERES.H"
@@ -16,7 +16,7 @@
 #endif
 #include "SOUND.H"
 #include "SPECIFIC.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include "TOMB4FX.H"
 
 #include <stddef.h>
@@ -186,7 +186,7 @@ void ControlTriggerTriggerer(short item_number)
 
 void AnimateWaterfalls()//4FABC(<), 4FF20(<)
 {
-#if PSX_VERSION
+#if PSX_VERSION && 0
 	struct PSXTEXTI* Twaterfall;
 	long i;
 	long speed1;

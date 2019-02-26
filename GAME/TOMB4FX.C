@@ -27,7 +27,7 @@
 #include "BUBBLES.H"
 #endif
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #include "FXTRIG.H"
 #endif
@@ -724,7 +724,7 @@ void Fade()//34B78(<), 35078(<) (F)
 
 	//loc_34C4C
 #if PSX_VERSION
-	 DrawPsxTile(0, 0xF00200, (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade | 0x62000000, 2);
+	 //DrawPsxTile(0, 0xF00200, (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade | 0x62000000, 2);
 #else
 	// todo add DrawPsxTile on spec_psxpc and spec_pc
 	//DrawPsxTile(0, window_width | (window_height << 16), (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade);

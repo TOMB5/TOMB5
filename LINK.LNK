@@ -111,7 +111,7 @@ bss	group	bss
 	include SPEC_PSX/DRAWPHAS.OBJ
 	;include GAME/SETUP.OBJ
 	include GAME/CODEWAD.OBJ
-	include SPEC_PSX/TITSEQ.OBJ
+	;include SPEC_PSX/TITSEQ.OBJ
 
 	inclib	C:/psyq/lib/LIBAPI.LIB
 	inclib	C:/psyq/lib/LIBC.LIB

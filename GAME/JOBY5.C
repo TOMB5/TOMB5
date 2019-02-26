@@ -3,7 +3,9 @@
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "EFFECTS.H"
+#if PSX_VERSION
 #include "MISC.H"
+#endif
 
 #if PSX_VERSION && RELOC
 void* func[] __attribute__((section(".header"))) =

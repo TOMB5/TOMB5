@@ -12,7 +12,7 @@
 #include "SPUSOUND.H"
 #include "TEXT.H"
 
-#include <sys/types.h>
+#include <SYS/TYPES.H>
 #include <LIBCD.H>
 #include <LIBPAD.H>
 #include <LIBMCRD.H>
@@ -20,7 +20,7 @@
 
 int gp_start_address = 'T' | ('W' << 8) | ('A' << 16) | ('T' << 24);
 
-void VSyncFunc()//10000(<), 10000(<) (F) (*)
+void VSyncFunc()//10000(<), 10000(<) (F) (D) (ND)
 {
 	cbvsync();
 
@@ -36,11 +36,7 @@ void VSyncFunc()//10000(<), 10000(<) (F) (*)
 	return;
 }
 
-#ifdef PAELLA
-int main(int argc, char* args[])
-#else
-int main()//10064(<), 10064(<) (F) (*)
-#endif
+int main()//10064(<), 10064(<) (F) (*) (D) (ND)
 {
 	SetSp(0x801FFFE0);
 	ResetCallback();
@@ -74,13 +70,11 @@ int main()//10064(<), 10064(<) (F) (*)
 
 	PutDispEnv(&db.disp[db.current_buffer]);
 
-#ifndef PAELLA
 	MemCardInit(1);
 
-	PadInitDirect((unsigned char*)&GPad1.transStatus, (unsigned char*)&GPad2.transStatus);
+	PadInitDirect((unsigned char*)&GPad1, (unsigned char*)&GPad2);
 	PadSetAct(0, &Motors[0], sizeof(Motors));
 	PadStartCom();
-#endif
 	CdInit();
 	CdSetDebug(0);
 

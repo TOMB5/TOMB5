@@ -61,11 +61,11 @@ list(APPEND CMAKE_LIBRARY_PATH ${EXTERN_LIB_PATH}/glew-2.1.0/lib/Release/Win32)
 if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR}))
 	add_subdirectory(SPEC_PSX)
 	add_subdirectory(SPEC_PSX_PAELLA)
-	add_subdirectory(SPEC_PC)
+	add_subdirectory(SPEC_PC_N)
 	add_subdirectory(SPEC_PSXPC)
 	#add_subdirectory(SPEC_PS2)
 	#add_subdirectory(SPEC_CE)
-	add_subdirectory(TOOLS)
+	add_subdirectory(TOOLS
 endif()
 
 #Default

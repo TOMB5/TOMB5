@@ -5,8 +5,14 @@
 #if PSXPC_TEST
 #include <stdint.h>
 #endif
-#include <stdlib.h>
+
+#if SAT_VERSION
+#include <SEGA_XPT.H>
+#endif
+
+#if !SAT_VERSION
 #include <stddef.h>
+#include <stdlib.h>
 
 
 #ifndef ABS
@@ -25,12 +31,16 @@
 #define MAX(x, y) (((x)>(y))?(x):(y))
 #endif
 
+#endif
+
+#if !SAT_VERSION
 #ifndef FALSE
 #define FALSE 0
 #endif
 
 #ifndef TRUE
 #define TRUE 1
+#endif
 #endif
 
 #ifndef SIGN
@@ -128,11 +138,13 @@ inline int phd_atan(long x, long y)
 #define W2V_SHIFT 		14				// Shift scale of View.Frame to World.Frame
 #define	W2V_SCALE 		(1<<W2V_SHIFT)	// Scale of View Frame to World Frame
 
+#if !SAT_VERSION
 enum msoff {
 	M00, M01, M02, M03,
 	M10, M11, M12, M13,
 	M20, M21, M22, M23
 };
+#endif
 
 #ifndef CLAMP
 #define CLAMP(x, a, b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
@@ -252,7 +264,7 @@ enum command_types
 	COMMAND_EFFECT
 };
 
-#if !PSXPC_TEST
+#if !(PSXPC_TEST || SAT_VERSION)
 struct VECTOR
 {
 	long vx;
@@ -540,7 +552,9 @@ struct savegame_info
 	short ScreenY; // size=0, offset=8
 	unsigned char ControlOption; // size=0, offset=10
 	unsigned char VibrateOn; // size=0, offset=11
+#if PC_VERSION
 	char pad[3];
+#endif
 	unsigned char AutoTarget; // size=0, offset=12
 	struct lara_info Lara; // size=352, offset=16
 	struct STATS Level; // size=20, offset=368

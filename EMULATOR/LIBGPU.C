@@ -13,10 +13,16 @@
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 
+#define POLY_TAG_USE_ADDR (0)
+#define ENABLE_BLEND (0)
+
 unsigned short vram[1024 * 512];
 DISPENV word_33BC;
+DRAWENV word_unknown00;//Guessed
 int dword_3410 = 0;
 char byte_3352 = 0;
+unsigned long terminator = -1;
+void(*drawsync_callback)(void) = NULL;
 
 void* off_3348[]=
 {
@@ -35,6 +41,8 @@ void* off_3348[]=
 
 int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
+	Emulator_CheckTextureIntersection(rect);
+
 	for (int y = rect->y; y < 512; y++)
 	{
 		for (int x = rect->x; x < 1024; x++)
@@ -54,11 +62,17 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 
 int DrawSync(int mode)
 {
+	if (drawsync_callback != NULL)
+	{
+		drawsync_callback();
+	}
 	return 0;
 }
 
 int LoadImagePSX(RECT16* rect, u_long* p)
 {
+	Emulator_CheckTextureIntersection(rect);
+
 	unsigned short* dst = (unsigned short*)p;
 
 	for (int y = rect->y; y < 512; y++)
@@ -71,8 +85,6 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 				y >= rect->y && y < rect->y + rect->h)
 			{
 				src[0] = *dst++;
-
-				//pixel[0] = 1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3));
 			}
 		}
 	}
@@ -86,35 +98,86 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	return 0;
 }
 
+int MoveImage(RECT16* rect, int x, int y)
+{
+#if 0//TODO
+	for (int sy = rect->y; sy < 512; sy++)
+	{
+		for (int sx = rect->x; sx < 1024; sx++)
+		{
+			unsigned short* src = vram + (sy * 1024 + sx);
+			unsigned short* dst = vram + (y * 1024 + x);
+
+			if (sx >= rect->x && sx < rect->x + rect->w &&
+				sy >= rect->y && sy < rect->y + rect->h)
+			{
+				*dst++ = *src++;
+			}
+		}
+	}
+#endif
+	return 0;
+}
+
 int ResetGraph(int mode)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int SetGraphDebug(int level)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
 int StoreImage(RECT16 * RECT16, u_long * p)
 {
+	UNIMPLEMENTED();
 	return 0;
 }
 
-u_long * ClearOTag(u_long * ot, int n)
+u_long* ClearOTag(u_long* ot, int n)
 {
-	assert(0);
-	return 0;
+	//Nothing to do here.
+	if (n == 0)
+		return NULL;
+
+	//Last is special terminator
+	ot[n-1] = (unsigned long)&terminator;
+
+	if (n > 1)
+	{
+		for (int i = n-2; i > -1; i--)
+		{
+			ot[i] = (unsigned long)&ot[i+1];
+		}
+	}
+	return NULL;
 }
 
 u_long* ClearOTagR(u_long* ot, int n)
 {
-	memset(ot, 0, n * sizeof(int));
-	return 0;
+	//Nothing to do here.
+	if (n == 0)
+		return NULL;
+
+	//First is special terminator
+	ot[0] = (unsigned long)&terminator;
+
+	if (n > 1)
+	{
+		for (int i = 1; i < n; i++)
+		{
+			ot[i] = (unsigned long)&ot[i - 1];
+		}
+	}
+	return NULL;
 }
 
 void SetDispMask(int mask)
 {
+	UNIMPLEMENTED();
 }
 
 DISPENV* GetDispEnv(DISPENV* env)//(F)
@@ -146,9 +209,10 @@ DISPENV* SetDefDispEnv(DISPENV* env, int x, int y, int w, int h)//(F)
 	return 0;
 }
 
-DRAWENV* PutDrawEnv(DRAWENV* env)
+DRAWENV* PutDrawEnv(DRAWENV* env)//Guessed
 {
-	return NULL;
+	memcpy((char*)&word_unknown00, env, sizeof(DRAWENV));
+	return 0;
 }
 
 DRAWENV* SetDefDrawEnv(DRAWENV* env, int x, int y, int w, int h)//(F)
@@ -186,112 +250,316 @@ DRAWENV* SetDefDrawEnv(DRAWENV* env, int x, int y, int w, int h)//(F)
 
 u_long DrawSyncCallback(void(*func)(void))
 {
-
-	return u_long();
+	drawsync_callback = func;
+	return 0;
 }
 
-int test = 0;
+void* fixptr(void* ptr)
+{
+#if 1
+	if (((uintptr_t)&terminator & 0x1000000) && !((uintptr_t)ptr & 0x1000000))
+		return (void*)((uintptr_t)ptr | 0x1000000);
+#endif
+	return ptr;
+}
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
-	P_TAG* pTag = (P_TAG*)*p;
-	if (pTag != NULL)
+	PutDrawEnv(env);
+
+	if (env->isbg)
 	{
-		GLuint fbo = 0;
-		glGenFramebuffers(1, &fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		ClearImage(&env->clip, env->r0, env->b0, env->g0);
+	}
 
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &vramTexture);
-		glBindTexture(GL_TEXTURE_2D, vramTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 512, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
+	GLuint fbo = 0;
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
-		GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-		glDrawBuffers(1, DrawBuffers);
-
+	if (p != NULL && *p != NULL)
+	{
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
 		glOrtho(0, 1024, 0, 512, -1, 1);
 		glViewport(0, 0, 1024, 512);
 
-		while (1)
+		glEnable(GL_TEXTURE_2D);
+		Emulator_GenerateFrameBuffer(fbo);
+		Emulator_GenerateFrameBufferTexture();
+
+		P_TAG* pTag = (P_TAG*)fixptr(p);
+
+		do
 		{
-			switch (pTag->code)
+			int textured = (pTag->code & 4) != 0;
+			int blend_mode = 0;
+			int semi_transparent = (pTag->code & 2) != 0;
+
+			if (textured)
 			{
-			case 0x2C:
+				if ((pTag->code & 1) != 0)
+				{
+					blend_mode = 2;
+				}
+				else
+				{
+					blend_mode = 1;
+				}
+			}
+			else
 			{
+				blend_mode = 0;
+			}
+
+			glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+			glDisable(GL_BLEND);
+
+			if (semi_transparent)
+			{
+				Emulator_SetBlendMode(blend_mode);
+			}
+
+			switch (pTag->code & ~3)
+			{
+			case 0x00: // null poly
+				break;
+			case 0x20: // POLY_F3
+			{
+
+				//Emulator_SetBlendMode((pTag->code & 2) != 0);
+				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+
+				POLY_F3* poly = (POLY_F3*)pTag;
+				glBegin(GL_TRIANGLES);
+
+				glColor3ubv(&poly->r0);
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex2f(poly->x0, poly->y0);
+
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex2f(poly->x1, poly->y1);
+
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex2f(poly->x2, poly->y2);
+
+				glEnd();
+
+				break;
+			}
+			case 0x24: // POLY_FT3
+			{
+
+				//Emulator_SetBlendMode((pTag->code & 2) != 0);
+
+				POLY_FT3* poly = (POLY_FT3*)pTag;
+				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
+
+				glBegin(GL_TRIANGLES);
+
+				glColor3ubv(&poly->r0);
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex2f(poly->x0, poly->y0);
+
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex2f(poly->x1, poly->y1);
+
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex2f(poly->x2, poly->y2);
+
+				glEnd();
+
+				break;
+			}
+			case 0x28: // POLY_F4
+			{
+				
+				//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+
+				POLY_F4* poly = (POLY_F4*)pTag;
+				glBegin(GL_QUADS);
+
+				glColor3ubv(&poly->r0);
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex2f(poly->x0, poly->y0);
+
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex2f(poly->x1, poly->y1);
+
+				glTexCoord2f(0.0f, 1.0f);
+				glVertex2f(poly->x3, poly->y3);
+
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex2f(poly->x2, poly->y2);
+
+				glEnd();
+
+				break;
+			}
+			case 0x2C: // POLY_FT4
+			{
+
 				POLY_FT4* poly = (POLY_FT4*)pTag;
+				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
 
-				///@FIXME im unsure if this is stable.
-				int tpage = (poly->tpage & 0x1F) / 4 + 1;
-				int x = (tpage * 256) % 1024 - 256;
-				int y = (tpage / 4) * 256;
+				glBegin(GL_TRIANGLES);
 
+				glColor3ubv(&poly->r0);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
+				glVertex2f(poly->x0, poly->y0);
+
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u1)), 1.0f / (256.0f / (float)(poly->v1)));
+				glVertex2f(poly->x1, poly->y1);
+
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
+				glVertex2f(poly->x3, poly->y3);
+
+				glColor3ubv(&poly->r0);
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
+				glVertex2f(poly->x0, poly->y0);
+
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u2)), 1.0f / (256.0f / (float)(poly->v2)));
+				glVertex2f(poly->x2, poly->y2);
+
+				glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
+				glVertex2f(poly->x3, poly->y3);
+
+				glEnd();
+
+				break;
+			}
+			case 0x30: // POLY_G3
+				goto unhandled;
+			case 0x34: // POLY_GT3
+				goto unhandled;
+			case 0x38: // POLY_G4
+			{
+				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+
+				POLY_G4* poly = (POLY_G4*)pTag;
 
 				glBegin(GL_QUADS);
-				glTranslatef(1.0f, 0.0f, 0.0f);
-				//glColor3ub(poly->r0, poly->g0, poly->b0);
-				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u0 + x)), 1.0f / (512.0f / (float)(poly->v0 + y)));
+
+				glColor3ubv(&poly->r0);
+
+				glTexCoord2f(0.0f, 0.0f);
 				glVertex2f(poly->x0, poly->y0);
-				
-				//glColor3ub(poly->r0, poly->g0, poly->b0);
-				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u1 + x)), 1.0f / (512.0f / (float)(poly->v1 + y)));
+
+				glTexCoord2f(1.0f, 0.0f);
 				glVertex2f(poly->x1, poly->y1);
-				
-				//glColor3ub(poly->r0, poly->g0, poly->b0);
-				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u3 + x)), 1.0f / (512.0f / (float)(poly->v3 + y)));
+
+				glTexCoord2f(0.0f, 1.0f);
 				glVertex2f(poly->x3, poly->y3);
-				
-				//glColor3ub(poly->r0, poly->g0, poly->b0);
-				glTexCoord2f(1.0f / (1024.0f / (float)(poly->u2 + x)), 1.0f / (512.0f / (float)(poly->v2 + y)));
+
+				glTexCoord2f(1.0f, 1.0f);
 				glVertex2f(poly->x2, poly->y2);
-				
+
 				glEnd();
 				break;
 			}
-			default:
-				//Unhandled poly
-				assert(0);
-				break;
-			}
-
-			if (pTag->addr == 0)
+			case 0x3C: // POLY_GT4
 			{
+				
+				POLY_GT4* poly = (POLY_GT4*)pTag;
+				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
+
+				glBegin(GL_QUADS);
+
+				glColor3ubv(&poly->r0);
+
+				glTexCoord2f(poly->u0 / 256.0f, poly->v0 / 256.0f);
+				glVertex2f(poly->x0, poly->y0);
+
+				glColor3ubv(&poly->r1);
+				glTexCoord2f(poly->u1 / 256.0f, poly->v1 / 256.0f);
+				glVertex2f(poly->x1, poly->y1);
+
+				glColor3ubv(&poly->r3);
+				glTexCoord2f(poly->u3 / 256.0f, poly->v3 / 256.0f);
+				glVertex2f(poly->x3, poly->y3);
+
+				glColor3ubv(&poly->r2);
+				glTexCoord2f(poly->u2 / 256.0f, poly->v2 / 256.0f);
+				glVertex2f(poly->x2, poly->y2);
+
+				glEnd();
+				break;
+			}
+			case 0x40: // LINE_F2
+				goto unhandled;			
+			case 0x50: // LINE_G2
+			{
+				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+				LINE_G2* poly = (LINE_G2*)pTag;
+				glLineWidth(1);
+				glBegin(GL_LINES);
+				glColor3ubv(&poly->r0);
+				glVertex2f(poly->x0, poly->y0);
+				glColor3ubv(&poly->r1);
+				glVertex2f(poly->x1, poly->y1);
+				glEnd();
+				
+				if (getlen(pTag) == 9)
+				{
+					poly++;
+					//poly = (LINE_G2*)((uintptr_t)poly - 4);
+					glBegin(GL_LINES);
+					glColor3ubv(&poly->r0);
+					glVertex2f(poly->x0, poly->y0);
+					glColor3ubv(&poly->r1);
+					glVertex2f(poly->x1, poly->y1);
+					glEnd();
+				}
+				break;
+			}
+			case 0x60: // TILE
+				goto unhandled;
+			case 0x64: // SPRT
+				goto unhandled;
+			case 0x68: // TILE_1
+				goto unhandled;
+			case 0x70: // TILE_8
+				goto unhandled;
+			case 0x74: // SPRT_8
+				goto unhandled;
+			case 0x78: // TILE_16
+				goto unhandled;
+			case 0x7C: // SPRT_16
+				goto unhandled;
+			case 0xE1: // TPAGE
+			{
+				unsigned short tpage = ((unsigned short*)pTag)[2];
+				Emulator_GenerateAndBindTpage(tpage, 0, semi_transparent);
+				break;
+			}
+			unhandled:
+			default:
+				eprinterr("Unhandled primitive type: %02X\n", pTag->code);
+				//Unhandled poly
 				break;
 			}
 
-			pTag = (P_TAG*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
-		}
 
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			printf("Frame buffer error!\n");
-		}
-
-		unsigned short* pixels = new unsigned short[1024 * 512];
-		memset(&pixels[0], 0, 1024 * 512 * 2);
-		glReadPixels(0, 0, 1024, 512, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
-		memcpy(&vram[0], pixels, 1024 * 512 * 2);
-
+			//p = (unsigned long*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
 #if _DEBUG
-		FILE* f = fopen("VRAM2.TGA", "wb");
-		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-		unsigned char header[6] = { 1024 % 256, 1024 / 256, 512 % 256, 512 / 256,16,0 };
-		fwrite(TGAheader, sizeof(unsigned char), 12, f);
-		fwrite(header, sizeof(unsigned char), 6, f);
-		fwrite(pixels, sizeof(char), 1024 * 512 * 2, f);
-		fclose(f);
+			//Actually not a stable solution -.-
+			//assert(primSizes[pTag->code]);
 #endif
-		delete[] pixels;
-		glDeleteFramebuffers(1, &fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, screenWidth, screenHeight);
+			pTag = (P_TAG*)fixptr((void*)pTag->addr);
+			//p = (unsigned long*)*p;
+
+			//Reset for vertex colours
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+		}while ((unsigned long*)pTag != &terminator && (unsigned long)pTag != 0xFFFFFF);
+
+		Emulator_DestroyLastVRAMTexture();
+		Emulator_DeleteFrameBufferTexture();
+
+		glViewport(0, 0, windowWidth, windowHeight);
 		glPopMatrix();
-		glDeleteTextures(1, &vramTexture);
+
+
+		Emulator_DestroyFrameBuffer(fbo);
 	}
+
+	Emulator_CheckTextureIntersection(&env->clip);
 }

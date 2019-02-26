@@ -1,7 +1,7 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 // guessed, some may be wrong on PSX
 enum input_buttons

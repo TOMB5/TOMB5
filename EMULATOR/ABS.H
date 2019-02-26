@@ -5,6 +5,6 @@
 #define ABS(x) (((x)>=0)?(x):(-(x)))
 #endif
 
-extern int abs(int input);
+//extern int abs(int input);
 
 #endif

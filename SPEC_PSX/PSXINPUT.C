@@ -9,17 +9,21 @@
 #include "SOUND.H"
 #include "SPECIFIC.H"
 #include <LIBPAD.H>
+#if PSXPC_TEST
+#include <stdio.h>
+#elif PSX_VERSION
 #include <STDIO.H>
-#include <ASSERT.H>
+#endif
+#include <assert.h>
 #include "FXTRIG.H"
 
 static struct pad_configs pad_cons[5] =
 {
 	{ IN_DUCK, IN_SPRINT, IN_LOOK, IN_WALK, IN_DRAW, IN_JUMP, IN_ROLL, IN_ACTION },
-	{ IN_LOOK, IN_WALK, IN_DUCK, IN_SPRINT, IN_ROLL, IN_DRAW, IN_ACTION, IN_JUMP },
-	{ IN_SPRINT, IN_DUCK, IN_WALK, IN_LOOK, IN_JUMP, IN_ROLL, IN_ACTION, IN_DRAW },
-	{ IN_DUCK, IN_SPRINT, IN_DRAW, IN_WALK, IN_LOOK, IN_ACTION, IN_JUMP, IN_ROLL },
-	{ IN_ROLL, IN_DRAW, IN_JUMP, IN_ACTION, IN_SPRINT, IN_LOOK, IN_DUCK, IN_WALK }
+{ IN_LOOK, IN_WALK, IN_DUCK, IN_SPRINT, IN_ROLL, IN_DRAW, IN_ACTION, IN_JUMP },
+{ IN_SPRINT, IN_DUCK, IN_WALK, IN_LOOK, IN_JUMP, IN_ROLL, IN_ACTION, IN_DRAW },
+{ IN_DUCK, IN_SPRINT, IN_DRAW, IN_WALK, IN_LOOK, IN_ACTION, IN_JUMP, IN_ROLL },
+{ IN_ROLL, IN_DRAW, IN_JUMP, IN_ACTION, IN_SPRINT, IN_LOOK, IN_DUCK, IN_WALK }
 };
 
 unsigned char DualShock;
@@ -55,7 +59,6 @@ int dword_A1898;
 
 void S_UpdateInput()//5F628(<), 6038C(<)
 {
-#ifndef PAELLA
 	int state; // $s1
 	unsigned char type; // $s2
 	unsigned long in; // $s0
@@ -64,7 +67,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	static int option_db; // offset 0x10
 	static char LookCnt; // offset 0x14
 
-	// line 151, offset 0x5fa3c
+						 // line 151, offset 0x5fa3c
 	char pos; // $a0
 	char walking; // $a1
 	static int send;
@@ -103,19 +106,23 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	{
 		dbinput = inputBusy;
 		RawEdge = RawPad;
+
 	}
 
 	//loc_5F6D0
 	PadConnected = 1;
 	RawPad = (GPad1.data.pad ^ -1) & 0xFFFF;
+
 	if (SetDebounce != 0)
 	{
-		RawEdge ^= RawPad;
-		RawEdge &= RawPad;
+		RawEdge = (RawEdge ^ RawPad) & RawPad;
 	}
 
+	printf("RawPad PSXINPUT: %x\n", RawPad);
+	printf("RawEdge PSXINPUT: %x\n", RawEdge);
+
 	//loc_5F704
-	if (RawEdge & 1)
+	if ((RawEdge & 1))
 	{
 		dword_A1894 = 1;//static? sw
 	}
@@ -189,52 +196,52 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	}
 
 	//loc_5F8B0
-	if (RawPad & 0x4000)
+	if ((RawPad & 0x4000))
 	{
 		in |= 0x10000;
 	}//loc_5F8C8
 
-	if (RawPad & 0x1000)
+	if ((RawPad & 0x1000))
 	{
 		in |= 0x20000;
 	}//loc_5F8D8
 
-	if (RawPad & 0x8000)
+	if ((RawPad & 0x8000))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_square;
 	}//loc_5F904
 
-	if (RawPad & 0x2000)
+	if ((RawPad & 0x2000))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_circle;
 	}//loc_5F930
 
-	if (RawPad & 0x1000)//merge?
+	if ((RawPad & 0x1000))//merge?
 	{
 		in |= pad_cons[savegame.ControlOption].pad_triangle;
 	}//loc_5F958
 
-	if (RawPad & 0x4000)//merge?
+	if ((RawPad & 0x4000))//merge?
 	{
 		in |= pad_cons[savegame.ControlOption].pad_cross;
 	}//loc_5F980
 
-	if (RawPad & 0x400)
+	if ((RawPad & 0x400))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_L1;
 	}//loc_5F9AC
 
-	if (RawPad & 0x100)
+	if ((RawPad & 0x100))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_L2;
 	}//loc_5F9D8
 
-	if (RawPad & 0x800)
+	if ((RawPad & 0x800))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_R1;
 	}//loc_5FA04
 
-	if (RawPad & 0x200)
+	if ((RawPad & 0x200))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_R2;
 	}
@@ -252,10 +259,10 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 			in |= pad_cons[savegame.ControlOption].pad_cross;
 		}//loc_5FA9C
 
-		//v1 = in & 0x280;
+		 //v1 = in & 0x280;
 		if (in & 0x200)
 		{
-			assert(0);
+			//assert(0);
 			//lbu	$v1, 0x3F7E($gp) (GPad1+0x6)
 			//v1 = GPad1.data.mouse.xOffset;
 			//v0 = 0x7F;
@@ -304,90 +311,90 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		{
 			//loc_5FC04
 			///@FIXME GPad1+5 invalid!
-			assert(0);
+			//assert(0);
 #if 0
 			//v1 = GPad1.data.mouse.yOffset;
 
 			loc_5FC04:
-			lbu	$v0, 0x3F7D($gp)
-			li	$v1, 0x7F
-			subu	$v1, $v0
-			sll	$v1, 24
-			sra	$a0, $v1, 24
-			slti	$v0, $a0, 0x21
-			bnez	$v0, loc_5FC40
-			addiu	$v0, $a0, -0x20
-			sll	$v1, $v0, 5
-			addu	$v1, $v0
-			sll	$v1, 1
-			negu	$v1, $v1
-			sw	$v1, 0x3FD0($gp)
-			j	loc_5FC6C
-			lui	$v0, 0x800
+					 lbu	$v0, 0x3F7D($gp)
+						 li	$v1, 0x7F
+						 subu	$v1, $v0
+						 sll	$v1, 24
+						 sra	$a0, $v1, 24
+						 slti	$v0, $a0, 0x21
+						 bnez	$v0, loc_5FC40
+						 addiu	$v0, $a0, -0x20
+						 sll	$v1, $v0, 5
+						 addu	$v1, $v0
+						 sll	$v1, 1
+						 negu	$v1, $v1
+						 sw	$v1, 0x3FD0($gp)
+						 j	loc_5FC6C
+						 lui	$v0, 0x800
 
-			loc_5FC40:
-			slti	$v0, $a0, -0x20
-			beqz	$v0, loc_5FC78
-			addiu	$v0, $a0, 0x20
-			sll	$v1, $v0, 2
-			addu	$v1, $v0
-			sll	$v1, 2
-			addu	$v1, $v0
-			sll	$v1, 1
-			negu	$v1, $v1
-			sw	$v1, 0x3FD0($gp)
-			lui	$v0, 0x1000
-			
-			loc_5FC6C:
-			ori	$v0, 0x200
-			j	loc_5FC7C
-			or $s0, $v0
+						 loc_5FC40:
+					 slti	$v0, $a0, -0x20
+						 beqz	$v0, loc_5FC78
+						 addiu	$v0, $a0, 0x20
+						 sll	$v1, $v0, 2
+						 addu	$v1, $v0
+						 sll	$v1, 2
+						 addu	$v1, $v0
+						 sll	$v1, 1
+						 negu	$v1, $v1
+						 sw	$v1, 0x3FD0($gp)
+						 lui	$v0, 0x1000
 
-			loc_5FC78 :
-			sw	$zero, 0x3FD0($gp)
+						 loc_5FC6C:
+					 ori	$v0, 0x200
+						 j	loc_5FC7C
+						 or $s0, $v0
 
-			loc_5FC7C :
-			lbu	$v0, 0x3F7C($gp)
-			li	$v1, 0x7F
-			subu	$v1, $v0
-			sll	$v1, 24
-			sra	$a0, $v1, 24
-			slti	$v0, $a0, 0x21
-			bnez	$v0, loc_5FCC4
-			slti	$v0, $a0, -0x20
-			addiu	$v0, $a0, -0x20
-			sll	$v1, $v0, 2
-			addu	$v1, $v0
-			sll	$v1, 2
-			addu	$v1, $v0
-			sll	$v1, 2
-			subu	$v0, $v1
-			sw	$v0, 0x3FD4($gp)
-			j	loc_5FCEC
-			lui	$v1, 0x400
+						 loc_5FC78 :
+					 sw	$zero, 0x3FD0($gp)
 
-			loc_5FCC4:
-			beqz	$v0, loc_5FCF8
-			addiu	$v0, $a0, 0x20
-			sll	$v1, $v0, 2
-			addu	$v1, $v0
-			sll	$v1, 2
-			addu	$v1, $v0
-			sll	$v1, 2
-			subu	$v0, $v1
-			sw	$v0, 0x3FD4($gp)
-			lui	$v1, 0x200
+						 loc_5FC7C :
+						 lbu	$v0, 0x3F7C($gp)
+						 li	$v1, 0x7F
+						 subu	$v1, $v0
+						 sll	$v1, 24
+						 sra	$a0, $v1, 24
+						 slti	$v0, $a0, 0x21
+						 bnez	$v0, loc_5FCC4
+						 slti	$v0, $a0, -0x20
+						 addiu	$v0, $a0, -0x20
+						 sll	$v1, $v0, 2
+						 addu	$v1, $v0
+						 sll	$v1, 2
+						 addu	$v1, $v0
+						 sll	$v1, 2
+						 subu	$v0, $v1
+						 sw	$v0, 0x3FD4($gp)
+						 j	loc_5FCEC
+						 lui	$v1, 0x400
 
-			loc_5FCEC:
-			ori	$v1, 0x200
-			j	loc_5FCFC
-			or $s0, $v1
+						 loc_5FCC4:
+					 beqz	$v0, loc_5FCF8
+						 addiu	$v0, $a0, 0x20
+						 sll	$v1, $v0, 2
+						 addu	$v1, $v0
+						 sll	$v1, 2
+						 addu	$v1, $v0
+						 sll	$v1, 2
+						 subu	$v0, $v1
+						 sw	$v0, 0x3FD4($gp)
+						 lui	$v1, 0x200
 
-			loc_5FCF8 :
-			sw	$zero, 0x3FD4($gp)
+						 loc_5FCEC:
+					 ori	$v1, 0x200
+						 j	loc_5FCFC
+						 or $s0, $v1
 
-			loc_5FCFC :
-			andi	$v0, $s0, 0xF
+						 loc_5FCF8 :
+					 sw	$zero, 0x3FD4($gp)
+
+						 loc_5FCFC :
+						 andi	$v0, $s0, 0xF
 #endif
 		}
 
@@ -511,9 +518,9 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		in |= 0x10000;
 	}//loc_5FF00
 
-	//Edge2 = Pad2.3;
+	 //Edge2 = Pad2.3;
 #if DEBUG_VERSION
-	assert(0);
+	 //assert(0);
 	if (GPad2.transStatus != 0xFF)
 	{
 #if 0
@@ -541,7 +548,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		gfLevelComplete = gfCurrentLevel + 1;
 	}//loc_5FF7C
 
-	//v0 = Edge2 & 0x20;
+	 //v0 = Edge2 & 0x20;
 	if (Edge2 & 0x40)
 	{
 		gfRequiredStartPos = 0;
@@ -554,8 +561,8 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		gfLevelComplete = gfCurrentLevel + 1;
 	}//loc_5FFC8
 
-	//v1 = Gameflow;//int flags
-	//v0 = 0xA000
+	 //v1 = Gameflow;//int flags
+	 //v0 = 0xA000
 	if (Gameflow->CheatEnabled)
 	{
 		if (RawPad == 0xC600)
@@ -570,8 +577,8 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 
 	}//loc_60010
 
-	//v0 = Pad2.3;
-	//v1 = 0xA0000
+	 //v0 = Pad2.3;
+	 //v1 = 0xA0000
 #if 0
 	if (Pad2.3 & 0x800)
 	{
@@ -612,5 +619,4 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	}//loc_600CC
 
 	return;
-#endif
 }

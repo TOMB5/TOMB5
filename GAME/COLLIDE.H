@@ -1,7 +1,7 @@
 #ifndef COLLIDE_H
 #define COLLIDE_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 enum collision_types
 {
