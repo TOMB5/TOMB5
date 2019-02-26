@@ -7,7 +7,7 @@
  * at = (v0 * value + at * (width - value)) / width
  */
 
-#define BLEND(left, right, value, width) (((left) * (value) + (right) * ((width) - (value))) / (width))
+#define BLEND(left, right, value, width) (((left) * ((width) - (value)) + (right) * (value)) / (width))
 
 void DelLine(short x0, short y0, short x1, short y1, int color1, int color2)
 {
