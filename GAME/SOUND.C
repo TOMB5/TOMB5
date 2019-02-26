@@ -3,12 +3,12 @@
 #include "GAMEFLOW.H"
 #include "SPECIFIC.H"
 #include "EFFECTS.H"
-#if !PC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || PSXPC_TEST || SAT_VERSION
 #include "SFX.H"
 #else
 #include "GLOBAL.H"
 #endif
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include <stddef.h>
 
 int sound_active = 0;
@@ -34,7 +34,7 @@ void SayNo()//55BE0(<), 56044(<) (F)
 	return;
 }
 
-void SOUND_Init()//920DC(<), 94128(<) (F)
+void SOUND_Init()//920DC(<), 94128(<) (F) (D) (ND)
 {
 	int i;
 

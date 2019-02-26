@@ -29,7 +29,7 @@ unsigned long GadwOrderingTables[5128];
 unsigned long GadwPolygonBuffers[52260];
 
 
-void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<)
+void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<) (D) (ND)
 {
 	db.order_table[0] = (unsigned long*)((unsigned long)&pBuffers[0]);
 	db.order_table[1] = (unsigned long*)((unsigned long)&pBuffers[nOTSize]);
@@ -67,7 +67,7 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 
 #if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
-	do_gfx_debug_mode(&db.ot[db.nOTSize - 1]);
+	//do_gfx_debug_mode(&db.ot[db.nOTSize - 1]);
 	ProfileRGB(0, 255, 255);
 #endif
 

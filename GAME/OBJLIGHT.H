@@ -1,7 +1,7 @@
 #ifndef OBJLIGHT_H
 #define OBJLIGHT_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 enum light_type
 {

@@ -1,7 +1,7 @@
 #ifndef LARAONEGUN_H
 #define LARAONEGUN_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern char HKTimer;
 extern char HKShotsFired;

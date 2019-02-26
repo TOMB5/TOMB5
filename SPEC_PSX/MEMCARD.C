@@ -3,10 +3,8 @@
 #include "3D_OBJ.H"
 #include "GAMEFLOW.H"
 
-#ifdef PAELLA
-#include <string.h>
+#include <STRING.H>
 #include <KERNEL.H>
-#endif
 
 #include <LIBMCRD.H>
 #include <LIBETC.H>
@@ -22,46 +20,45 @@ static unsigned char mcActualStatus;
 
 void mcDir()//61EE8(<), 625CC(<)
 {
-#ifndef PAELLA
 	int i = 0;
 	int j = 0;
 	int k = 0;
 	struct DIRENTRY* dir = (struct DIRENTRY*)&tsv_buffer[0];
 
-	MemCardGetDirentry(0, "*", dir, (long*)&mcNumFiles, 0, 0);
+	MemCardGetDirentry(0, "*", dir, (long*)&mcNumFiles, 0, 15);
 
 	mcBlocksFree = 15;
-	
-	if(mcNumFiles > 0)
+
+	if (mcNumFiles > 0)
 	{
 		//loc_61F50
-		for(i = 0; i < mcNumFiles; i++, j++, k++, dir++)
+		for (i = 0; i < mcNumFiles; i++, dir++)
 		{
 			//loc_61F68
 			mcBlocksFree -= dir->size + 0x1FFF < 0 ? dir->size + 0x3FFE : dir->size + 0x1FFF;
-			
-			if(strncmp(&gfStringWad[gfStringOffset[STR_PSX_GAME_ID]], dir->name, 12) == 0)
+
+			if (strncmp(&gfStringWad[gfStringOffset[STR_PSX_GAME_ID]], dir->name, 12) == 0)
 			{
-				mcFileNames[i][0] = *(int*)dir->name;
-				mcFileNames[i][4] = *(int*)dir->name+4;
-				mcFileNames[i][8] = *(int*)dir->name+8;
-				mcFileNames[i][12] = *(int*)dir->name+12;
-				mcFileNames[i][16] = *(int*)dir->name+16;
-				
+				((int*)&mcFileNames[j][0])[0] = ((int*)&dir->name[0])[0];
+				((int*)&mcFileNames[j][4])[0] = ((int*)&dir->name[4])[0];
+				((int*)&mcFileNames[j][8])[0] = ((int*)&dir->name[8])[0];
+				((int*)&mcFileNames[j][12])[0] = ((int*)&dir->name[12])[0];
+				((int*)&mcFileNames[j][16])[0] = ((int*)&dir->name[16])[0];
+
 				mcFileLengths[j] = dir->size;
+				j++;
+				k++;
 			}
 		}
 	}//loc_62028
-	
-	//loc_62028
+
+	 //loc_62028
 	mcNumFiles = k;//k
 	return;
-#endif
 }
 
 void mcOpen(int sync)//6204C(<), 62730(<) (F)
 {
-#ifndef PAELLA
 	int i;
 
 	mcInit = 1;
@@ -84,95 +81,98 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 
 	//loc_6209C
 	return;
-#endif
 }
 
 void mcClose()//620AC //(F)
 {
-#ifndef PAELLA
 	MemCardStop();
 	mcInit = 0;
-	
+
 	return;
-#endif
 }
 
-unsigned char mcGetStatus()//620CC(<), ? (F)
+unsigned char mcGetStatus()//620CC(<), 627B0 (F)
 {
-#ifndef PAELLA
 	long stat;
 	unsigned long cmd;
 	unsigned long res;
 
 	stat = MemCardSync(1, (long*)&cmd, (long*)&res);
-	
-	//Locked, Asynchronous memory card function is running.
+
 	if (stat == 0)
 	{
 		//loc_62130
-		if(cmd == McFuncReadFile)
+		if (cmd == McFuncReadFile)
 		{
-			return mcStatus = 5;
+			mcStatus = 5;
+		}//loc_62150
+		else if (cmd == McFuncWriteData)
+		{
+			mcStatus = cmd;
 		}
-		else if(cmd == McFuncWriteData)
+		else if (cmd == McFuncAccept)
 		{
-			//loc_62150
-			return mcStatus = 6;
-		}
-		else if(cmd == McFuncAccept)
-		{
-			//loc_62164
-			return mcStatus = 4;
+			mcStatus = 4;
 		}
 	}
-	else if(stat > 0)
+	else if (stat > 0)
 	{
 		//loc_62110
-		if(stat == 1)
+		if (stat == 1)
 		{
 			//loc_62178
-			if(cmd == McFuncAccept)
+			if (cmd == 2)
 			{
 				//loc_62210
-				if(res == 3)
+				if (res == 3)
 				{
 					//loc_62248
 					mcDir();
 					mcActualStatus = 0;
 					mcStatus = 0;
 				}
-				else if(res > 3)
+				else if (res > 3)
 				{
 					//loc_62238
-					if(res == 4)
+					if (res == 4)
 					{
 						//loc_6225C
-						mcActualStatus = mcStatus = cmd;
-					}
-					else
-					{
-						mcActualStatus = mcStatus = 3;
+						mcStatus = cmd;
+						mcActualStatus = cmd;
 					}
 				}
-				else if(res == 0)
+				else if (res == 0)
 				{
 					//loc_6228C
 					mcStatus = 0;
 				}
 				else
 				{
-					mcActualStatus = mcStatus = 3;
+					//loc_6226C
+					mcStatus = 3;
+					mcActualStatus = 3;
 				}
-				
-				return 3;
 			}
-			else if(cmd > McFuncAccept)
+			else if (cmd > 2)
 			{
 				//loc_621A0
-				if(cmd == McFuncReadFile)
+				if (cmd == 3)
 				{
 					//loc_6227C
-					if(res != 0)
+					if (res != 0)
+					{
+						MemCardAccept(0);
+						mcStatus = 3;
+					}
+					else
+					{
+						mcStatus = 0;
+					}
+				}
+				else if (cmd == 6)
+				{
+					//loc_62298
+					if (res != 0)
 					{
 						//loc_622B8
 						MemCardAccept(0);
@@ -180,71 +180,49 @@ unsigned char mcGetStatus()//620CC(<), ? (F)
 					}
 					else
 					{
-						//loc_6228C
+						mcDir();
 						mcStatus = 0;
 					}
-					
-					return res;
 				}
-				else if(cmd == McFuncWriteData)
+			}
+			else if (cmd == stat)
+			{
+				//loc_621B8
+				if (res != 0)
 				{
-					//loc_62298
-					if(res != 0)
+					//loc_621B8
+					if (res == 3)
 					{
+						//loc_621EC
 						MemCardAccept(0);
-						mcStatus = 3;
+						mcStatus = 4;
 					}
 					else
 					{
-						mcStatus = 0;
+						//loc_62204
+						mcStatus = 1;
 					}
-					
-					return res;
-				}
-				
-				return 6;
-			}
-			else if(cmd == stat)
-			{
-				//loc_621B8
-				if(res == 0)
-				{
-					//loc_621D8
-					return mcStatus = mcActualStatus;
-				}
-				else if(res == 3)
-				{
-					//loc_621EC
-					MemCardAccept(0);
-					mcStatus = 4;
-					return 1;
 				}
 				else
 				{
-					//loc_62204
-					mcStatus = 1;
-					return 1;
+					//loc_621D8
+					mcStatus = mcActualStatus;
 				}
 			}
 		}
-		
-		return 2;
 	}
-	else if(stat == -1)
+	else if (stat == -1)
 	{
 		//loc_62120
 		MemCardExist(0);
 	}
-	
-	return -1;
-#endif
 
-	return 0;
+	//loc_622C4
+	return mcStatus;
 }
 
 long mcFormat()//622D8(<), 629BC(<) (F)
 {
-#ifndef PAELLA
 	unsigned long cmd;
 	unsigned long res;
 
@@ -259,7 +237,4 @@ long mcFormat()//622D8(<), 629BC(<) (F)
 
 	//loc_6230C
 	return res;
-#endif
-
-	return 0;
 }

@@ -1,7 +1,7 @@
 #ifndef LOT_H
 #define LOT_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern int slots_used;
 extern short nAIObjects;

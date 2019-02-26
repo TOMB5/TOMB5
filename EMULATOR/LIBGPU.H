@@ -5,10 +5,9 @@
 
 #include "LIBGTE.H"
 
-extern	int (*GPU_printf)(char *fmt, ...);
+extern	int (*GPU_printf)(const char *fmt, ...);
 
 #define WAIT_TIME	0x800000
-
 
 #define limitRange(x, l, h)	((x)=((x)<(l)?(l):(x)>(h)?(h):(x)))
 
@@ -60,6 +59,21 @@ extern	int (*GPU_printf)(char *fmt, ...);
 	
 #define setRGB3(p,_r3,_g3,_b3)						\
 	(p)->r3 = _r3,(p)->g3 = _g3,(p)->b3 = _b3
+
+
+
+
+#define setRGBP0(p,_r0,_g0,_b0,_p0)						\
+	(p)->r0 = _r0,(p)->g0 = _g0,(p)->b0 = _b0,(p)->p0 = _p0
+
+#define setRGBP1(p,_r1,_g1,_b1,_p1)						\
+	(p)->r1 = _r1,(p)->g1 = _g1,(p)->b1 = _b1,(p)->p1 = _p1
+
+#define setRGBP2(p,_r2,_g2,_b2,_p2)						\
+	(p)->r2 = _r2,(p)->g2 = _g2,(p)->b2 = _b2,(p)->p2 = _p2
+
+#define setRGBP3(p,_r3,_g3,_b3,_p3)						\
+	(p)->r3 = _r3,(p)->g3 = _g3,(p)->b3 = _b3,(p)->p3 = _p3
 	
 /*
  * Set Primitive Screen Points
@@ -238,14 +252,14 @@ extern	int (*GPU_printf)(char *fmt, ...);
 	)
 
 #define setDrawStp(p, pbw) 				\
-        setlen(p, 2),					\
-        ((u_long *)p)[1] = 0xe6000000|(pbw?0x01:0),	\
-        ((u_long *)p)[2] = 0
+		setlen(p, 2),					\
+		((u_long *)p)[1] = 0xe6000000|(pbw?0x01:0),	\
+		((u_long *)p)[2] = 0
 
 #define setDrawMode(p, dfe, dtd, tpage, tw) 		\
-        setlen(p, 2),					\
-        ((u_long *)p)[1] = _get_mode(dfe, dtd, tpage),	\
-        ((u_long *)p)[2] = _get_tw((RECT16 *)tw)
+		setlen(p, 2),					\
+		((u_long *)p)[1] = _get_mode(dfe, dtd, tpage),	\
+		((u_long *)p)[2] = _get_tw((RECT16 *)tw)
 
 	
 /*	Primitive 	Lentgh		Code				*/
@@ -280,6 +294,7 @@ extern	int (*GPU_printf)(char *fmt, ...);
 /*
  * RECT16angle:
  */
+#pragma pack(push,1)
 typedef struct {
 	short x, y;		/* offset point on VRAM */
 	short w, h;		/* width and height */
@@ -297,7 +312,7 @@ typedef struct {
 	u_long	tag;
 	u_long	code[15];
 } DR_ENV;				/* Packed Drawing Environment */
-	       
+		   
 typedef struct {
 	RECT16	clip;		/* clip area */
 	short	ofs[2];		/* drawing offset */
@@ -309,7 +324,7 @@ typedef struct {
 	u_char	r0, g0, b0;	/* initital background color */
 	DR_ENV	dr_env;		/* reserved */
 } DRAWENV;
-	       
+		   
 typedef struct {
 	RECT16	disp;		/* display area */
 	RECT16	screen;		/* display start point */
@@ -501,14 +516,14 @@ typedef struct {
 	short	x0, 	y0;
 	u_char	u0, v0;	u_short	clut;
 } SPRT_16;				/* 16x16 Sprite */
-	       
+		   
 typedef struct {
 	u_long	tag;
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	u0, v0;	u_short	clut;
 } SPRT_8;				/* 8x8 Sprite */
-	       
+		   
 /*
  * Tile Primitive Definitions
  */
@@ -549,17 +564,17 @@ typedef struct {
 	u_long	tag;
 	u_long	code[2];
 } DR_TWIN;				/* Texture Window */
-	       
+		   
 typedef struct {
 	u_long	tag;
 	u_long	code[2];
 } DR_AREA;				/* Drawing Area */
-	       
+		   
 typedef struct {
 	u_long	tag;
 	u_long	code[2];
 } DR_OFFSET;				/* Drawing Offset */
-	       
+		   
 typedef struct {			/* MoveImage */
 	u_long	tag;
 	u_long	code[5];
@@ -577,8 +592,8 @@ typedef	struct {
 } DR_TPAGE;				/* Drawing TPage */
 
 typedef struct {
-        u_long  tag;
-        u_long  code[2];
+		u_long  tag;
+		u_long  code[2];
 } DR_STP;                               /* Drawing STP */
 
 /*
@@ -626,7 +641,9 @@ typedef struct {
 	RECT16	*pRECT16;		/* texture image RECT16angle on frame buffer */
 	u_long	*paddr;		/* texture image address on main memory */
 } TIM_IMAGE;
-	       
+
+#pragma pack(pop)
+
 /*
  * Prototypes
  */
@@ -660,7 +677,7 @@ extern void KanjiFntClose(void);
 extern int Krom2Tim(u_char *sjis, u_long *taddr, int dx, int dy, int cdx, int cdy, u_int fg, u_int bg);
 extern int LoadImagePSX(RECT16 *rect, u_long *p);
 extern int MargePrim(void *p0, void *p1);
-extern int MoveImage(RECT16 *RECT, int x, int y);
+extern int MoveImage(RECT16* rect, int x, int y);
 extern int OpenTIM(u_long *addr);
 extern int OpenTMD(u_long *tmd, int obj_no);
 extern int ResetGraph(int mode);
@@ -741,5 +758,6 @@ extern void GetDrawEnv2(DR_ENV *p);
 
 extern unsigned short vram[];
 extern DISPENV word_33BC;
+extern DRAWENV word_unknown00;
 
 #endif
