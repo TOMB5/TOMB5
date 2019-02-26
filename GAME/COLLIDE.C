@@ -11,6 +11,7 @@
 #include "TOMB4FX.H"
 #include "SPHERE.H"
 #include "TYPES.H"
+#include "EFFECTS.H"
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
