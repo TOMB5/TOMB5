@@ -1,7 +1,7 @@
 #ifndef ROOMLETB_H
 #define ROOMLETB_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern void DrawRoomsAsm();
 
