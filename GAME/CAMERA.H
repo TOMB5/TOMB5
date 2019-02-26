@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 enum camera_flags
 {

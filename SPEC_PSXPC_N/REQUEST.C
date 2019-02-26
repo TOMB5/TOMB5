@@ -166,9 +166,9 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 	DrawF4(rx, ry, rw, rh, 0, 0x2A800000);
 	DrawTPage(0, 1);
 	DrawLineH((rx + 2) & 0xFFFF, (ry + 1) & 0xFFFF, (rw - 4) & 0xFFFF, 0, 0x404040, 0);
-	DrawLineH((rx + 2) & 0xFFFF, ((ry - rh) - 2) & 0xFFFF, (rw - 4) & 0xFFFF, 0, 0x404040, 0);
+	DrawLineH((rx + 2) & 0xFFFF, ((ry + rh) - 2) & 0xFFFF, (rw - 4) & 0xFFFF, 0, 0x404040, 0);
 	DrawLineV((rx + 2) & 0xFFFF, (ry + 1) & 0xFFFF, (rh - 2) & 0xFFFF, 0, 0x404040, 0);
-	DrawLineV(((rx - rw) - 3) & 0xFFFF, (ry + 1) & 0xFFFF, (rh - 2) & 0xFFFF, 0, 0x404040, 0);
+	DrawLineV(((rx + rw) - 3) & 0xFFFF, (ry + 1) & 0xFFFF, (rh - 2) & 0xFFFF, 0, 0x404040, 0);
 	DrawTPage(0, 1);
 
 	if ((r->nOptions != 0))

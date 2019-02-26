@@ -1,6 +1,6 @@
 #include "CAMERA.H"
 
-#if PSXPC_VERSION || PSX_VERSION
+#if PSXPC_VERSION || PSX_VERSION || SAT_VERSION
 #include "CALCLARA.H"
 #include "CD.H"
 #include "MATHS.H"
@@ -23,7 +23,7 @@
 #include "SPOTCAM.H"
 
 #include <assert.h>
-#include "SPECTYPES.H"
+#include "STYPES.H"
 #include CMATH_H
 
 #if PSXPC_VERSION || PC_VERSION

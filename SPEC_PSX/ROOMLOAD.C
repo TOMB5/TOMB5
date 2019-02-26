@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #if !DISC_VERSION
+	#include "GAMEFLOW.H"
 	#include <LIBSN.H>
 #endif
 

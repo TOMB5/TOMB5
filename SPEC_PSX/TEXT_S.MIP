@@ -5,11 +5,15 @@
 	XDEF UpdatePulseColour, PrintString, DrawChar, GetStringLength, GetStringDimensions
 	XREF PulseCnt, FontShades, phd_mxptr, MatrixStack, Matrix, MatrixSP, AccentTable, LaSlot, CharDef, sound_active, sample_infos, sample_lut, ScaleFlag, GnFrameCounter, db, S_SoundStopSample, db.ot
 
-aUEAAAAEEEAAEOO equ 0
-loc_92020 equ 0
-word_9230E equ 0
+aUEAAAAEEEAAEOO dw 0;TODO asm really
+loc_92020 incbin SPEC_PSX//loc_92020.TBL
+word_9230E incbin SPEC_PSX//word_9230E.TBL
 
-UpdatePulseColour:
+padding dw 0
+padding2 dw 0
+padding3 dw 0
+
+UpdatePulseColour:;todo pull global counter
 	lbu     a0, PulseCnt-GP_ADDR(gp)
 	la      v1, FontShades
 	addiu   a0, 1
@@ -121,10 +125,10 @@ PrintString:
 	sltiu   v1, v0, 0x2E
 	beqz    v1, loc_8DCDC
 	sll     v0, 1
-	la      t1, aUEAAAAEEEAAEOO
+	la      t1, aUEAAAAEEEAAEOO  # " u^e\\a]a^a[a\\{ e]e^e[|^|]|[A^A]E\\   "...
 	addu    t1, v0
 	lbu     v1, -1(t1)
-	la      s1, loc_92020+1
+	la      s1, loc_92020
 	sll     v0, v1, 3
 	subu    v0, v1
 	addu    s1, v0
@@ -138,7 +142,7 @@ PrintString:
 	beq     v1, at, loc_8DD3C
 	sll     v0, v1, 3
 	subu    v0, v1
-	la      a3, loc_92020+1
+	la      a3, loc_92020
 	addu    a3, v0, a3
 	lb      a0, 2(s1)
 	lb      a1, 4(s1)
@@ -171,7 +175,7 @@ PrintString:
 	addiu   ra, 0x1C
 
 	loc_8DD20:
-	la      a0, loc_92020+1
+	la      a0, loc_92020
 	addu    s1, v0, a0
 	move    a0, s2
 	move    a1, s4
@@ -207,117 +211,6 @@ PrintString:
 	jr      ra
 	addiu   sp, 0x40
 	
-GetStringLength:
-	move    t5, zero
-	move    t0, zero
-	li      t2, 0xFFFFFC00
-	lbu     a3, 0(a0)
-	li      t1, 0x400
-	beqz    a3, loc_8DFFC
-	addiu   a0, 1
-	li      v0, 0xA
-	beq     a3, v0, loc_8DFFC
-	li      v0, 0x20
-	lbu     t3, ScaleFlag-GP_ADDR(gp)
-	la      t6, AccentTable
-	la      t4, CharDef
-
-	loc_8DF18:
-	bne     a3, v0, loc_8DF30
-	li      v0, 9
-	beqz    t3, loc_8DFE4
-	addiu   t0, 8
-	j       loc_8DFE4
-	addiu   t0, -2
-
-	loc_8DF30:
-	bne     a3, v0, loc_8DF5C
-	slti    v0, a3, 0x14
-	addiu   t0, 0x28
-	slti    v0, t1, -0xB
-	bnez    v0, loc_8DF4C
-	slti    v0, t2, 2
-	li      t1, 0xFFFFFFF4
-
-	loc_8DF4C:
-	beqz    v0, loc_8DFE4
-	nop
-	j       loc_8DFE4
-	li      t2, 2
-
-	loc_8DF5C:
-	bnez    v0, loc_8DFE4
-	slti    v0, a3, 0x20
-	beqz    v0, loc_8DF7C
-	sll     v0, a3, 3
-	subu    v0, a3
-	addiu   v0, 0x206
-	j       loc_8DFA8
-	addu    a3, v0, t4
-
-	loc_8DF7C:
-	addiu   v1, a3, -0x80
-	sltiu   v0, v1, 0x2E
-	beqz    v0, loc_8DF98
-	sll     v0, v1, 1
-	addu    v0, t6
-	lbu     a3, 0(v0)
-	li      t5, 1
-
-	loc_8DF98:
-	sll     v0, a3, 3
-	subu    v0, a3
-	addiu   v0, -0xE7
-	addu    a3, v0, t4
-
-	loc_8DFA8:
-	lbu     v0, 2(a3)
-	beqz    t3, loc_8DFB8
-	srl     v1, v0, 2
-	subu    v0, v1
-
-	loc_8DFB8:
-	lb      v1, 4(a3)
-	lbu     at, 3(a3)
-	addu    t0, v0
-	slt     v0, v1, t1
-	beqz    v0, loc_8DFD4
-	addu    v0, v1, at
-	move    t1, v1
-
-	loc_8DFD4:
-	slt     v1, t2, v0
-	beqz    v1, loc_8DFE4
-	nop
-	move    t2, v0
-
-	loc_8DFE4:
-	lbu     a3, 0(a0)
-	addiu   a0, 1
-	beqz    a3, loc_8DFFC
-	li      v0, 0xA
-	bne     a3, v0, loc_8DF18
-	li      v0, 0x20
-
-	loc_8DFFC:
-	beqz    a1, loc_8E014
-	nop
-	beqz    t5, loc_8E010
-	nop
-	addiu   t1, -4
-
-	loc_8E010:
-	sh      t1, 0(a1)
-
-	loc_8E014:
-	beqz    a2, locret_8E020
-	nop
-	sh      t2, 0(a2)
-
-	locret_8E020:
-	jr      ra
-	move    v0, t0
-	
 DrawChar:
 	lw      t0, db+0x8-GP_ADDR(gp)
 	lw      v0, db+0x10-GP_ADDR(gp)
@@ -328,7 +221,7 @@ DrawChar:
 	sltu    v0, t0, v0
 	beqz    v0, locret_8DED4
 	andi    a2, 0xFFFF
-	la      v1, FontShades
+	la      v1, FontShades;CHECKME is address right?
 	lbu     v0, 5(a3)
 	lbu     at, 6(a3)
 	sll     a2, 6
@@ -473,3 +366,114 @@ sub_8DD90:
 	locret_8DDB4:
 	jr      ra
 	nop
+
+GetStringLength:
+	move    t5, zero
+	move    t0, zero
+	li      t2, 0xFFFFFC00
+	lbu     a3, 0(a0)
+	li      t1, 0x400
+	beqz    a3, loc_8DFFC
+	addiu   a0, 1
+	li      v0, 0xA
+	beq     a3, v0, loc_8DFFC
+	li      v0, 0x20
+	lbu     t3, ScaleFlag-GP_ADDR(gp)
+	la      t6, AccentTable
+	la      t4, CharDef
+
+	loc_8DF18:
+	bne     a3, v0, loc_8DF30
+	li      v0, 9
+	beqz    t3, loc_8DFE4
+	addiu   t0, 8
+	j       loc_8DFE4
+	addiu   t0, -2
+
+	loc_8DF30:
+	bne     a3, v0, loc_8DF5C
+	slti    v0, a3, 0x14
+	addiu   t0, 0x28
+	slti    v0, t1, -0xB
+	bnez    v0, loc_8DF4C
+	slti    v0, t2, 2
+	li      t1, 0xFFFFFFF4
+
+	loc_8DF4C:
+	beqz    v0, loc_8DFE4
+	nop
+	j       loc_8DFE4
+	li      t2, 2
+
+	loc_8DF5C:
+	bnez    v0, loc_8DFE4
+	slti    v0, a3, 0x20
+	beqz    v0, loc_8DF7C
+	sll     v0, a3, 3
+	subu    v0, a3
+	addiu   v0, 0x206
+	j       loc_8DFA8
+	addu    a3, v0, t4
+
+	loc_8DF7C:
+	addiu   v1, a3, -0x80
+	sltiu   v0, v1, 0x2E
+	beqz    v0, loc_8DF98
+	sll     v0, v1, 1
+	addu    v0, t6
+	lbu     a3, 0(v0)
+	li      t5, 1
+
+	loc_8DF98:
+	sll     v0, a3, 3
+	subu    v0, a3
+	addiu   v0, -0xE7
+	addu    a3, v0, t4
+
+	loc_8DFA8:
+	lbu     v0, 2(a3)
+	beqz    t3, loc_8DFB8
+	srl     v1, v0, 2
+	subu    v0, v1
+
+	loc_8DFB8:
+	lb      v1, 4(a3)
+	lbu     at, 3(a3)
+	addu    t0, v0
+	slt     v0, v1, t1
+	beqz    v0, loc_8DFD4
+	addu    v0, v1, at
+	move    t1, v1
+
+	loc_8DFD4:
+	slt     v1, t2, v0
+	beqz    v1, loc_8DFE4
+	nop
+	move    t2, v0
+
+	loc_8DFE4:
+	lbu     a3, 0(a0)
+	addiu   a0, 1
+	beqz    a3, loc_8DFFC
+	li      v0, 0xA
+	bne     a3, v0, loc_8DF18
+	li      v0, 0x20
+
+	loc_8DFFC:
+	beqz    a1, loc_8E014
+	nop
+	beqz    t5, loc_8E010
+	nop
+	addiu   t1, -4
+
+	loc_8E010:
+	sh      t1, 0(a1)
+
+	loc_8E014:
+	beqz    a2, locret_8E020
+	nop
+	sh      t2, 0(a2)
+
+	locret_8E020:
+	jr      ra
+	move    v0, t0

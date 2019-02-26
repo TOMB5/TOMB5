@@ -6,10 +6,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <sys/types.h>
+//#include <SYS/TYPES.H>
 #include <LIBCD.H>
 #include <LIBSPU.H>
 #include <LIBETC.H>
+#include "EMULATOR_GLOBALS.H"
 
 //Number of XA files on disc (XA1-17.XA)
 #define NUM_XA_FILES 17
@@ -368,7 +369,7 @@ void InitNewCDSystem()//5DDE8(<), 5E264(<) (F)
 		sprintf(&buf[0], XA_FILE_NAME, i + 1);
 		CdSearchFile(&fp, &buf[0]);
 		XATrackList[i][0] = CdPosToInt(&fp.pos);
-		XATrackList[i][1] = ((fp.size + ((1 << CD_SECTOR_SHIFT) - 1)) >> CD_SECTOR_SHIFT) + XATrackList[i][0];
+		XATrackList[i][1] = XATrackList[i][0] + ((fp.size + ((1 << CD_SECTOR_SHIFT) - 1)) >> CD_SECTOR_SHIFT);
 	}
 
 	XAFlag = 0;
@@ -475,6 +476,14 @@ int DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F) (*)
 		while (CdReadSync(1, 0) > 0)
 		{
 			VSync(0);
+
+#if _DEBUG && 0
+			CdIntToPos(cdCurrentSector, &fp.pos); 
+			eprintf("Read %02d:%02d:%02d\n", 
+				DECODE_BCD(fp.pos.minute), 
+				DECODE_BCD(fp.pos.second), 
+				DECODE_BCD(fp.pos.sector));
+#endif
 		}
 
 		cdCurrentSector += numSectorsToRead;

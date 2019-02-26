@@ -1,7 +1,7 @@
 #ifndef SAVEGAME_H
 #define SAVEGAME_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern char FromTitle;
 extern char JustLoaded;

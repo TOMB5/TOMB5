@@ -1,9 +1,9 @@
 #include "ABS.H"
 
-#include <cassert>
+#include "EMULATOR_GLOBALS.H"
 
-int abs(int input)
+/*int abs(int input)
 {
-	
+	UNIMPLEMENTED();
 	return 0;
-}
+}*/

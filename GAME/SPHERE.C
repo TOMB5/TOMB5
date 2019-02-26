@@ -3,9 +3,9 @@
 #include "LARA.H"
 #include "SPECIFIC.H"
 
-#if PSX_VERSION || PSXPC_VERSION
+
 #include "SPHERES.H"
-#endif
+
 
 char GotLaraSpheres;
 int NumLaraSpheres;
