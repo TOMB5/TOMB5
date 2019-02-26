@@ -6,10 +6,14 @@
 #include <stdint.h>
 #endif
 
+#if SAT_VERSION
+#include <SEGA_XPT.H>
+#endif
+
 #if !SAT_VERSION
 #include <stddef.h>
 #include <stdlib.h>
-#endif
+
 
 #ifndef ABS
 #define ABS(x) (((x)<0)?(-(x)):(x))
@@ -27,12 +31,16 @@
 #define MAX(x, y) (((x)>(y))?(x):(y))
 #endif
 
+#endif
+
+#if !SAT_VERSION
 #ifndef FALSE
 #define FALSE 0
 #endif
 
 #ifndef TRUE
 #define TRUE 1
+#endif
 #endif
 
 #ifndef SIGN
@@ -130,11 +138,13 @@ inline int phd_atan(long x, long y)
 #define W2V_SHIFT 		14				// Shift scale of View.Frame to World.Frame
 #define	W2V_SCALE 		(1<<W2V_SHIFT)	// Scale of View Frame to World Frame
 
+#if !SAT_VERSION
 enum msoff {
 	M00, M01, M02, M03,
 	M10, M11, M12, M13,
 	M20, M21, M22, M23
 };
+#endif
 
 #ifndef CLAMP
 #define CLAMP(x, a, b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
@@ -254,7 +264,7 @@ enum command_types
 	COMMAND_EFFECT
 };
 
-#if !PSXPC_TEST
+#if !(PSXPC_TEST || SAT_VERSION)
 struct VECTOR
 {
 	long vx;

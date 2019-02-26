@@ -490,11 +490,13 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 				LINE_G2* poly = (LINE_G2*)pTag;
 				glLineWidth(1);
-				glColor3ubv(&poly->r0);
 				glBegin(GL_LINES);
+				glColor3ubv(&poly->r0);
 				glVertex2f(poly->x0, poly->y0);
+				glColor3ubv(&poly->r1);
 				glVertex2f(poly->x1, poly->y1);
 				glEnd();
+				
 				if (getlen(pTag) == 9)
 				{
 					poly++;
@@ -502,6 +504,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					glBegin(GL_LINES);
 					glColor3ubv(&poly->r0);
 					glVertex2f(poly->x0, poly->y0);
+					glColor3ubv(&poly->r1);
 					glVertex2f(poly->x1, poly->y1);
 					glEnd();
 				}

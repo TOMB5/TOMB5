@@ -19,7 +19,7 @@
 #include "DRAW.H"
 #include "LARA.H"
 #include "LARAFIRE.H"
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #endif
 #include "OBJECTS.H"

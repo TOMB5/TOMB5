@@ -14,7 +14,7 @@
 #include "TOMB4FX.H"
 #include <stddef.h>
 //#include <INLINE_O.H>
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #endif
 
