@@ -90,6 +90,13 @@ void mQuickW2VMatrix()
 	//sh	$t2, 0x4058($gp)
 }
 
+void gte_sttr(struct PHD_VECTOR* vec)
+{
+	vec->x = Matrix->tx >> 12;
+	vec->y = Matrix->ty >> 12;
+	vec->z = Matrix->tz >> 12;
+}
+
 long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
 {
 	long dx = tx - x;
@@ -202,7 +209,7 @@ void mPopMatrix()//76520(<), 78564(<) (F)
 
 void mUnitMatrix()
 {
-
+	UNIMPLEMENTED();
 }
 
 void mPushUnitMatrix()//76534(<), 78578(<) (! Incorrect, redo, ida asm is bad)
@@ -305,9 +312,9 @@ void mRotZ(long rz)//76804 (F)
 	mLoadMatrix(Matrix);
 }
 
-void mRotSuperPackedYXZ()//768BC
+void mRotSuperPackedYXZ(short* a0, long a1)//768BC
 {
-
+	UNIMPLEMENTED();
 }
 
 void mRotPackedYXZ(long yxz)//7693C (F)
