@@ -70,7 +70,7 @@
 typedef unsigned int uintptr_t;
 #endif
 
-#if PSX_VERSION
+#if PSX_VERSION || SAT_VERSION
 #include "FXTRIG.H"
 #include "TEXT_S.H"
 #endif

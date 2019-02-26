@@ -40,7 +40,7 @@ extern void InitialiseEffects();
 extern void reset_cutseq_vars();
 extern void GetAIPickups();
 extern void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3);
-#if PSX_VERSION
+#if (PSX_VERSION || SAT_VERSION)
 extern char* ReadResidentData(int residentIndex, int nHandle);
 #elif PSXPC_VERSION
 extern char* ReadResidentData(int residentIndex, FILE* nHandle);

@@ -8,7 +8,7 @@
 #include "ITEMS.H"
 #include "LARA.H"
 
-#if PSXENGINE
+#if PSXENGINE || SAT_VERSION
 #include "SETUP.H"
 #include "ROOMLOAD.H"
 #include "SPHERES.H"
