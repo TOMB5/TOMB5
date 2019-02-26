@@ -1,16 +1,16 @@
 #ifndef MISC_H
 #define MISC_H
 
-#include <SYS/TYPES.H>
+//#include <SYS/TYPES.H>
 #include <LIBGTE.H>
 #include <LIBGPU.H>
 
 extern void S_MemSet(char* p, int value, int length);
 extern void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size);
 extern void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h, int unk, int unk2);
-extern void DrawTPage(unsigned char a0, unsigned char a1);
-extern void DrawLineH(long a0, long a1, long a2, long a3, long a4, long a5);
-extern void DrawLineV(long a0, long a1, long a2, long a3, long a4, long a5);
+extern void DrawTPage(unsigned char otnum, unsigned char tpage);
+extern void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigned char otnum, unsigned long color1, unsigned long color2);
+extern void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsigned char otnum, unsigned long color1, unsigned long color2);
 extern void LOAD_VSyncHandler();
 extern void LOAD_DrawEnable(unsigned char isEnabled);
 extern void GPU_BeginScene();

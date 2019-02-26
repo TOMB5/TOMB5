@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <SYS/TYPES.H>
+//#include <SYS/TYPES.H>
 #include <LIBSPU.H>
 #include <LIBAPI.H>
 
@@ -732,10 +732,16 @@ void DisplayStatsUCunt()//61928(<), 625A8(<) (F)
 	Requester(&StatisticsReq);
 }
 
-void S_Warn(const char* warning_message)//*
+/*
+void S_Warn(const char* warning_message)
 {
 	printf(warning_message);
 #ifndef NDEBUG
 	//assert(0);
 #endif
+}*/
+
+void S_CalculateLight(long x, long y, long z, short room, struct ITEM_LIGHT* light)
+{
+	UNIMPLEMENTED();
 }

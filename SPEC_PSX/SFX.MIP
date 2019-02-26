@@ -148,10 +148,10 @@ S_SoundPlaySample:
 	move    a3, t2
 	
 loc_91518:
-	sh      a1, 0x4EE0(gp)
-	sh      a2, 0x4EE2(gp)
+	sh      a1, sva+0x8-GP_ADDR(gp)
+	sh      a2, sva+0xA-GP_ADDR(gp)
 	srl     a3, 6
-	sh      a3, 0x4EEC(gp)
+	sh      a3, sva+0x14-GP_ADDR(gp)
 	sll     v1, a0, 2
 	la		at, LadwSampleAddr
 	addu	at, at, v1
@@ -159,7 +159,7 @@ loc_91518:
 	lw      v0, LnSamplesLoaded-GP_ADDR(gp)
 	addiu   sp, -0x18
 	slt     v0, a0, v0
-	sw      v1, 0x4EF4(gp)
+	sw      v1, sva+0x1C-GP_ADDR(gp)
 	sw      ra, 0x18-0x4(sp)
 	sw      s0, 0x18-0x8(sp)
 	beqz    v0, loc_915A0

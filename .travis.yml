@@ -5,7 +5,7 @@ os: osx
 osx_image: xcode9.4
 
 language:
-  - c
+  - cpp
   
 compiler:
   - gcc
@@ -14,6 +14,9 @@ before_install:
   - ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
   - brew install glew
   - brew install sdl2
+  
+env:
+  - CXXFLAGS="-std=c++11"
     
 script:
   - mkdir BUILD

@@ -11,6 +11,7 @@
 #include "LARAFLAR.H"
 #include "SAVEGAME.H"
 #include "SOUND.H"
+#include "TOMB4FX.H"
 
 #ifdef PC_VERSION
 #include "GAME.H"

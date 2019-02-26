@@ -19,7 +19,9 @@
 #include "DRAW.H"
 #include "LARA.H"
 #include "LARAFIRE.H"
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
+#endif
 #include "OBJECTS.H"
 #include "ITEMS.H"
 
@@ -316,9 +318,13 @@ void FireHK(int running)//42CA8(<), 430FC(<) (F)
 	{
 		SmokeCountL = 12;
 		SmokeWeapon = WEAPON_HK;
+#if PSX_VERSION
 		TriggerGunShell(1, 369, 5);
+#endif
 		lara.right_arm.flash_gun = weapons[WEAPON_HK].flash_time;
+#if PSX_VERSION
 		SetupPadVibration(0, 4096, 4096, 2, 4096, 2);
+#endif
 	}//loc_42E04
 }
 
@@ -418,7 +424,9 @@ void FireShotgun()//429F0(<), 42E44(<) (F)
 		lara.right_arm.flash_gun = weapons[WEAPON_SHOTGUN].flash_time;
 		SoundEffect(SFX_EXPLOSION1, &lara_item->pos, 0x1400004);
 		SoundEffect(weapons[WEAPON_SHOTGUN].sample_num, &lara_item->pos, 0);
+#if PSX_VERSION
 		SetupPadVibration(0, 4096, 4096, 2, 1536, 5);
+#endif
 		savegame.Game.AmmoUsed++;
 	}//loc_42C78
 }

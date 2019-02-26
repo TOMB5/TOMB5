@@ -1,8 +1,14 @@
 #include "CONTROL.H"
 
-#if PSX_VERSION || PSXPC_VERSION
 #include "CALCHAIR.H"
+#if PSX_VERSION || PSXPC_VERSION
+
 #include "COLLIDE_S.H"
+#include "DRAWPHAS.H"
+#include "3D_GEN.H"
+#include "CD.H"
+#elif SAT_VERSION
+#include "SCOLLIDE.H"
 #include "DRAWPHAS.H"
 #include "3D_GEN.H"
 #include "CD.H"
@@ -22,24 +28,24 @@
 #include "INPUT.H"
 #endif
 #include "GAMEFLOW.H"
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "GPU.H"
-#include "HAIR.H"
-#include "HEALTH.H"
-#include "ITEMS.H"
-#include "LARA.H"
-#include "LARA1GUN.H"
+
 #include "LOAD_LEV.H"
 #include "MATHS.H"
 #include "ROOMLOAD.H"
 #include "PSOUTPUT.H"
 #include "SETUP.H"
-#include "SPHERES.H"
+
 #include "GETSTUFF.H"
 #include "TEXT_S.H"
 #include "FXTRIG.H"
 #endif
-
+#include "LARA1GUN.H"
+#include "HAIR.H"
+#include "HEALTH.H"
+#include "ITEMS.H"
+#include "SPHERES.H"
 #if PSX_VERSION
 #include <LIBETC.H>
 #include <LIBGTE.H>
@@ -58,9 +64,13 @@
 #include "TOMB4FX.H"
 #include "TYPES.H"
 
+#if !SAT_VERSION
 #include <assert.h>
 #include <string.h>
+#endif
+
 #include "LARAMISC.H"
+#include "LARA.H"
 
 #define MAX_FRAMES 10
 
@@ -1303,7 +1313,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 	//loc_1E24C
 	AnimateWaterfalls();
-	//UpdatePulseColour();
+	UpdatePulseColour();
 
 	if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
 	{
@@ -2076,7 +2086,7 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F
 	}
 }
 
-#if PC_VERSION || PSXPC_VERSION || PSXPC_TEST
+#if PC_VERSION || PSXPC_VERSION || PSXPC_TEST || SAT_VERSION
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
 {
 	UNIMPLEMENTED();
@@ -2393,8 +2403,7 @@ int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(
 }
 
 #if PC_VERSION 
-int 
-(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
+int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 {
 	UNIMPLEMENTED();
 	return 0;
@@ -2496,7 +2505,7 @@ int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLO
 	return 0;
 }
 
-#if !PSX_VERSION
+#if !(PSX_VERSION || SAT_VERSION)
 void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint)
 {
 	UNIMPLEMENTED();

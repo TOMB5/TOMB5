@@ -1,7 +1,7 @@
 #ifndef DRAWPHAS_H
 #define DRAWPHAS_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern long DrawPhaseGame();
 extern void DrawRooms(short current_room);

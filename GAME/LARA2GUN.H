@@ -1,7 +1,7 @@
 #ifndef LARATWOGUN_H
 #define LARATWOGUN_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern void AnimatePistols(int weapon_type);
 extern void PistolHandler(int weapon_type);

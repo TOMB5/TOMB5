@@ -2,7 +2,7 @@
 
 #include "PSXINPUT.H"
 #include "SAVEGAME.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 static struct VIBRATION vib[2];
 
@@ -23,7 +23,7 @@ void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int 
 void VibratePad()//604EC(<), 61064(<) (F)
 {
 	int i;
-	struct VIBRATION* v;
+	struct VIBRATION* v = NULL;
 
 	if (DualShock == 0 || savegame.VibrateOn == 0)
 	{

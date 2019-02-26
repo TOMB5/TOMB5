@@ -19,21 +19,23 @@
 #include "ROOMLOAD.H"
 #endif
 
+#if !SAT_VERSION
 #include <stdio.h>
 #include <string.h>
+#endif
 #include "NEWINV2.H"
 #include "DRAW.H"
 #include "CAMERA.H"
 #include "SPOTCAM.H"
 #include "LARA.H"
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #endif
 
 #if PSXPC_TEST
 #include <stdint.h>
-#elif PSX_VERSION
+#elif PSX_VERSION || SAT_VERSION
 typedef unsigned int uintptr_t;
 #endif
 
