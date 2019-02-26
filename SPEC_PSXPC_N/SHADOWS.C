@@ -49,11 +49,14 @@ void S_DrawGouraudBar(int x, int y, int width, int value, GouraudBarColourSet* c
 		{
 			for(int i = 0; i < 5; i++)
 			{
-				u_char r = BLEND(colour->abLeftRed[i], colour->abRightRed[i], value, width);
-				u_char g = BLEND(colour->abLeftGreen[i], colour->abRightGreen[i], value, width);
-				u_char b = BLEND(colour->abLeftBlue[i], colour->abRightBlue[i], value, width);
+				u_char r0 = colour->abLeftRed[i];
+				u_char g0 = colour->abLeftGreen[i];
+				u_char b0 = colour->abLeftBlue[i];
+				u_char r1 = BLEND(r0, colour->abRightRed[i], value, width);
+				u_char g1 = BLEND(g0, colour->abRightGreen[i], value, width);
+				u_char b1 = BLEND(b0, colour->abRightBlue[i], value, width);
 
-				DelLine(x, y + i, x + value, y + i, genRGB(r, g, b), genRGB(r, g, b));
+				DelLine(x, y + i, x + value, y + i, genRGB(r0, g0, b0), genRGB(r1, g1, b1));
 			}
 		}
 
