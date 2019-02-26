@@ -4,13 +4,26 @@
 #include "SPECIFIC.H"
 
 #include <INLINE_C.H>
+#include "3D_GEN.H"
+#include "CAMERA.H"
 
 void mQuickW2VMatrix()
 {
-	//v1  = &phd_mxptr;
-	//a0 = &MatrixStack[0];
 	MatrixSP = 0;
 	Matrix = &MatrixStack[0];
+
+	Matrix->m00 = phd_mxptr[M00];
+	Matrix->m01 = phd_mxptr[M01];
+	Matrix->m02 = phd_mxptr[M02];
+	Matrix->m10 = phd_mxptr[M10];
+	Matrix->m11 = phd_mxptr[M11];
+	Matrix->m12 = phd_mxptr[M12];
+	Matrix->m20 = phd_mxptr[M20];
+	Matrix->m21 = phd_mxptr[M21];
+	Matrix->m22 = phd_mxptr[M22];
+	Matrix->tx = phd_mxptr[M03];
+	Matrix->ty = phd_mxptr[M13];
+	Matrix->tz = phd_mxptr[M23];
 
 
 	//lhu	$at, 0($v1)
@@ -110,14 +123,14 @@ long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
 		}
 
 		//7970C
-		while ((dz / 65536) != 0)
+		while (dz / 65536 != 0)
 		{
 			dx /= 2;
 			dz /= 2;
 		}
 
 		//79724
-		result_angle = atanTab[(dz * 2048) / dx];
+		result_angle = atanTab[dz * 2048 / dx];
 		result_angle += atanOctantTab[table_index];
 
 		if (result_angle < 0)
@@ -141,17 +154,17 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 	if (value != 0)
 	{
 		v1 &= 0xFFFFFFFE;
-		v0 = (v0 - v1) >> 1;
+		v0 = v0 - v1 >> 1;
 		at = v1 - 0x18;
 
 		if (v1 - 0x18 < 0)
 		{
 			//loc_85BA8
-			value >>= (0x18 - v1);
+			value >>= 0x18 - v1;
 		}
 		else
 		{
-			value <<= (v1 - 0x18);
+			value <<= v1 - 0x18;
 		}
 
 		//loc_85BB4
@@ -164,7 +177,17 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 
 void ScaleCurrentMatrix(long a0, long sx, long sy, long sz)
 {
-	S_Warn("[ScaleCurrentMatrix] - Unimplemented!\n");
+	Matrix->m00 *= sx / 4096.0f;
+	Matrix->m10 *= sx / 4096.0f;
+	Matrix->m20 *= sx / 4096.0f;
+
+	Matrix->m01 *= sy / 4096.0f;
+	Matrix->m11 *= sy / 4096.0f;
+	Matrix->m21 *= sy / 4096.0f;
+
+	Matrix->m02 *= sz / 4096.0f;
+	Matrix->m12 *= sz / 4096.0f;
+	Matrix->m22 *= sz / 4096.0f;
 }
 
 void mPushMatrix()//764D0(<), 78514(<) (F) (START)
@@ -177,9 +200,16 @@ void mPopMatrix()//76520(<), 78564(<) (F)
 	mLoadMatrix(--Matrix);
 }
 
+void mUnitMatrix()
+{
+
+}
+
 void mPushUnitMatrix()//76534(<), 78578(<) (! Incorrect, redo, ida asm is bad)
 {
-	setrot(++Matrix, 4096, 0, 4096, 0, 4096);
+	mPushMatrix();
+	//setrot(++Matrix, 4096, 0, 4096, 0, 4096);
+	mUnitMatrix();
 }
 
 void mTranslate()//76558(<) (!)
@@ -189,177 +219,90 @@ void mTranslate()//76558(<) (!)
 
 void mTranslateAbsXYZ(long x, long y, long z)
 {
-	S_Warn("[mTranslateAbsXYZ] - Unimplemented!\n");
+	x -= MatrixStack[0].tx;
+	y -= MatrixStack[0].ty;
+	z -= MatrixStack[0].tz;
+
+	mTranslateXYZ(x, y, z);
 }
 
 void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
 {
-	if (y < 0)
-	{
-		//a1 = -a1
-		//t4 = a1 >> 15
-		//a1 &= 0x7FFF
-		//t4 = -t4;
-		//a1 = -a1
-	}
-	else
-	{
-		//loc_765AC
-		//t4 = a1 >> 15;
-		y &= 0x7FFF;
-	}
+	MATRIX3D* mat = Matrix;
 
-	//loc_765B0
-	if (z < 0)
-	{
-		//a2 = -a2;
-		//t5 = a2 >> 15;
-		//a2 &= 0x7FFF;
-		//t5 = -t5;
-		//a2 = -a2;
-	}
-	else
-	{
-		//loc_765D0
-		//t5 = a2 >> 15;
-		//a2 &= 0x7FFF;
-	}
+	mat->tx = mat->m00 * x + mat->m01 * y + mat->m02 * z >> 12;
+	mat->ty = mat->m10 * x + mat->m11 * y + mat->m12 * z >> 12;
+	mat->tz = mat->m20 * x + mat->m21 * y + mat->m22 * z >> 12;
 
-	//loc_765D4
-	if (x < 0)
-	{
-		//a0 = -a0;
-		//t3 = a0 >> 15;
-		//a0 &= 0x7FFF;
-		//t3 = -t3;
-		//a0 = -a0;
-	}
-	else
-	{
-		//loc_765F4
-		//t3 = a0 >> 15;
-		//a0 &= 0x7FFF;
-	}
-
-#if 0
-	/*loc_765F8:
-	mtc2	$t3, $9
-	mtc2	$t4, $10
-	mtc2	$t5, $11
-	nop
-	cop2	0x41E012
-	mfc2	$t3, $25
-	mfc2	$t4, $26
-	mtc2	$a0, $9
-	mtc2	$a1, $10
-	mtc2	$a2, $11
-	mfc2	$t5, $27
-	cop2	0x498012
-	bgez	$t3, loc_7663C
-	sll	$t0, $t3, 3
-	negu	$t3, $t3
-	sll	$t3, 3
-	negu	$t0, $t3
-
-	//loc_7663C :
-	bgez	$t4, loc_76650
-	sll	$t1, $t4, 3
-	negu	$t4, $t4
-	sll	$t4, 3
-	negu	$t1, $t4
-
-	//loc_76650 :
-	bgez	$t5, loc_76664
-	sll	$t2, $t5, 3
-	negu	$t5, $t5
-	sll	$t5, 3
-	negu	$t2, $t5
-
-	//loc_76664 :
-	//mfc2	$t3, $25//gte_mvlvtr?
-	mfc2	$t4, $26
-	mfc2	$t5, $27
-	addu	$t0, $t3
-	addu	$t1, $t4
-	addu	$t2, $t5
-	lw	$v0, 0x1820($gp)
-	ctc2	$t0, $5
-	ctc2	$t1, $6
-	ctc2	$t2, $7
-	sw	$t0, 0x14($v0)//gte_sttr
-	sw	$t1, 0x18($v0)
-	jr	$ra
-	sw	$t2, 0x1C($v0)*/
-#endif
-
-	S_Warn("[mTranslateXYZ] - Unimplemented!\n");
+	mLoadMatrix(mat);
 }
 
-void mRotX(long rx)
+void mRotX(long rx)// (F)
 {
-}
-
-void mRotY(long ry)//76744
-{
-	ry /= 4;
-
-	if (ry & 0x3FFC)
+	if (rx & 0xFFFF)
 	{
-		//rcossin_tbl[0];
-		//loc_7675C
-		//t5 = rcossin_tbl[0];//word
-		//t6 = rcossin_tbl[1];
+		short sin = SIN(rx);
+		short cos = COS(rx);
 
-		//t2 = -t5;
+		Matrix->m01 = (cos * Matrix->m01 + sin * Matrix->m02) * 4 >> W2V_SHIFT;
+		Matrix->m02 = (cos * Matrix->m02 - sin * Matrix->m01) * 4 >> W2V_SHIFT;
 
-#if 0
-		lui	$t7, 0xFFFF
-			neg	$t2, $t5
-			mtc2	$t6, $0//?
-			mtc2	$t2, $1//?
-			cfc2	$t0, $0
-			cfc2	$t2, $2
-			cfc2	$t3, $3
-			cop2	0x486012
-			mtc2	$t5, $2
-			mtc2	$t6, $3
-			and	$t0, $t7
-			andi	$t2, 0xFFFF
-			and $t3, $t7
-			mfc2	$t4, $25
-			mfc2	$t1, $26
-			mfc2	$t5, $27
-			cop2	0x48E012
-			andi	$t4, 0xFFFF
-			or $t0, $t4
-			sll	$t1, 16
-			andi	$t5, 0xFFFF
-			or $t3, $t5
-			mfc2	$t5, $25
-			mfc2	$t6, $26
-			mfc2	$t4, $27
-			andi	$t5, 0xFFFF
-			or $t1, $t5
-			sll	$t6, 16
-			j	loc_7696C
-			or $t2, $t6
-#endif
+		Matrix->m11 = (cos * Matrix->m11 + sin * Matrix->m12) * 4 >> W2V_SHIFT;
+		Matrix->m12 = (cos * Matrix->m12 - sin * Matrix->m11) * 4 >> W2V_SHIFT;
+
+		Matrix->m21 = (cos * Matrix->m21 + sin * Matrix->m22) * 4 >> W2V_SHIFT;
+		Matrix->m22 = (cos * Matrix->m22 - sin * Matrix->m21) * 4 >> W2V_SHIFT;
 	}
 
-	//ret
-
-	S_Warn("[mRotY] - Unimplemented!\n");
+	mLoadMatrix(Matrix);
 }
 
-void mRotYXZ(short y, short x, short z)//767E8
+void mRotY(long ry)//76744 (F)
 {
-	S_Warn("[mRotYXZ] - Unimplemented!\n");
+	if (ry & 0xFFFF)
+	{
+		short sin = SIN(ry);
+		short cos = COS(ry);
+
+		Matrix->m00 = (cos * Matrix->m00 - sin * Matrix->m02) * 4 >> W2V_SHIFT;
+		Matrix->m02 = (cos * Matrix->m02 + sin * Matrix->m00) * 4 >> W2V_SHIFT;
+
+		Matrix->m10 = (cos * Matrix->m10 - sin * Matrix->m12) * 4 >> W2V_SHIFT;
+		Matrix->m12 = (cos * Matrix->m12 + sin * Matrix->m10) * 4 >> W2V_SHIFT;
+
+		Matrix->m20 = (cos * Matrix->m20 - sin * Matrix->m22) * 4 >> W2V_SHIFT;
+		Matrix->m22 = (cos * Matrix->m22 + sin * Matrix->m20) * 4 >> W2V_SHIFT;
+	}
+
+	mLoadMatrix(Matrix);
+}
+
+void mRotYXZ(short y, short x, short z)//767E8 (F)
+{
+	mRotY(y);
+	mRotX(x);
+	mRotZ(z);
 }
 
 
-void mRotZ()//76804
+void mRotZ(long rz)//76804 (F)
 {
+	if (rz & 0xFFFF)
+	{
+		short sin = SIN(rz);
+		short cos = COS(rz);
 
+		Matrix->m00 = (cos * Matrix->m00 + sin * Matrix->m01) * 4 >> W2V_SHIFT;
+		Matrix->m01 = (cos * Matrix->m01 - sin * Matrix->m00) * 4 >> W2V_SHIFT;
+
+		Matrix->m10 = (cos * Matrix->m10 + sin * Matrix->m11) * 4 >> W2V_SHIFT;
+		Matrix->m11 = (cos * Matrix->m11 - sin * Matrix->m10) * 4 >> W2V_SHIFT;
+
+		Matrix->m20 = (cos * Matrix->m20 + sin * Matrix->m21) * 4 >> W2V_SHIFT;
+		Matrix->m21 = (cos * Matrix->m21 - sin * Matrix->m20) * 4 >> W2V_SHIFT;
+	}
+
+	mLoadMatrix(Matrix);
 }
 
 void mRotSuperPackedYXZ()//768BC
@@ -367,9 +310,24 @@ void mRotSuperPackedYXZ()//768BC
 
 }
 
-void mRotPackedYXZ()//7693C
+void mRotPackedYXZ(long yxz)//7693C (F)
 {
+	long a;
 
+	if ((a = ((yxz >> 10) & 1023) << 6))
+	{
+		mRotY(a);
+	}
+
+	if ((a = ((yxz >> 20) & 1023) << 6))
+	{
+		mRotX(a);
+	}
+
+	if ((a = (yxz & 1023) << 6))
+	{
+		mRotZ(a);
+	}
 }
 
 void SetRotation()//7696C
@@ -426,7 +384,7 @@ void mSetTrans(long x, long y, long z)//76AF4(<), 78B38(<) TOCHECK
 	Matrix->tz = z;
 }
 
-void mClipBoundingBox()//76B14
+void mClipBoundingBox(short* bounds)//76B14
 {
 
 }
@@ -513,23 +471,95 @@ void mmPushMatrix(struct MATRIX3D* m)//81BBC(<) (F)
 
 void GetRoomBoundsAsm(short room_number)//
 {
-	S_Warn("[GetRoomBoundsAsm] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)
 {
-	S_Warn("[phd_GetVectorAngles] - Unimplemented!\n");
+	short	pitch;
+
+	angles[0] = phd_atan_asm(dz, dx);
+	while ((int16_t)dx != dx || (int16_t)dy != dy || (int16_t)dz != dz)
+	{
+		dx >>= 2;
+		dy >>= 2;
+		dz >>= 2;
+	}
+	pitch = phd_atan_asm(phd_sqrt_asm(dx * dx + dz * dz), dy);
+	if (dy > 0 && pitch > 0 || dy < 0 && pitch < 0)
+		pitch = -pitch;
+	angles[1] = pitch;
 }
 
-void phd_LookAt(long x, long y, long z, long tx, long ty, long tz, long croll)
+
+void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar, long roll)
 {
-	S_Warn("[phd_LookAt] - Unimplemented!\n");
+	short	angles[2];
+
+	CamPos.x = xsrc;
+	CamPos.y = ysrc;
+	CamPos.z = zsrc;
+
+	viewer.x_pos = xsrc;
+	viewer.y_pos = ysrc;
+	viewer.z_pos = zsrc;
+
+	viewer.z_rot = roll;
+
+	phd_GetVectorAngles(xtar - xsrc, ytar - ysrc, ztar - zsrc, angles);
+	
+	viewer.x_rot = angles[1];
+	viewer.y_rot = angles[0];
 }
 
-long phd_atan_asm(long x, long y)
+long phd_atan_asm(long x, long y)// (F)
 {
-	S_Warn("[phd_atan_asm] - Unimplemented!\n");
-	return 0;
+	if (x || y)
+	{
+		int octant = 0;
+
+		if (x < 0)
+		{
+			octant = 4;
+			x = -x;
+		}
+		if (y < 0)
+		{
+			octant += 2;
+			y = -y;
+		}
+
+		if (y > x)
+		{
+			long temp = x;
+			x = y;
+			y = temp;
+
+			octant++;
+		}
+
+		while ((short)y != y)
+		{
+			y >>= 1;
+			x >>= 1;
+		}
+
+		y <<= 11;
+
+		if (x == 0)
+			x = 1;
+
+		long res = atanOctantTab[octant] + atanTab[y / x];
+
+		if (res < 0)
+			res = -res;
+
+		return res;
+	}
+	else
+	{
+		return 0; 
+	}
 }
 
 void mRotBoundingBoxNoPersp(short* bounds, short* tbounds)

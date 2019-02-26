@@ -3,13 +3,16 @@
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "EFFECT2.H"
-#include "LOAD_LEV.H"
 #include "OBJECTS.H"
 #include "TOMB4FX.H"
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #include "SETUP.H"
+#include "LOAD_LEV.H"
+#elif PC_VERSION
+#include "GLOBAL.H"
+#include "GAME.H"
 #endif
 
 #if PSX_VERSION && RELOC

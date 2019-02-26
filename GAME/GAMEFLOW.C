@@ -3,16 +3,16 @@
 #if !PC_VERSION
 #include "3D_GEN.H"
 #include "TITSEQ.H"
+#include "TYPEDEFS.H"
 #endif
 #include "CDTRACKS.H"
 #include "CODEWAD.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "DRAW.H"
-#include "TYPEDEFS.H"
 
 #include "FILE.H"
-#if !PC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || PSXPC_TEST
 #include "CD.H"
 #include "MOVIE.H"
 #include "MEMCARD.H"
@@ -24,15 +24,24 @@
 #include "ROOMLOAD.H"
 #include <LIBAPI.H>
 #include <LIBGTE.H>
-#else
-#include "GAME.H"
-#include "INIT.H"
+#elif SAT_VERSION
+#include "CD.H"
+#include "MOVIE.H"
+#include "MEMCARD.H"
+#include "SPUSOUND.H"
+#include "MISC.H"
+#include "SFX.H"
+#include "GPU.H"
+#include "DRAWPHAS.H"
+#include "ROOMLOAD.H"
 #endif
 
 #if PC_VERSION
 #include "SPECIFIC.H"
 #include "DRAWPRIMITIVE.H"
 #include "DISPLAY.H"
+#include "GAME.H"
+#include "INIT.H"
 #endif
 
 #include "HEALTH.H"
@@ -52,18 +61,27 @@
 #include <assert.h>
 #if PSXPC_VERSION || PSXPC_TEST
 	#include <stdint.h>
+#if DEBUG_VERSION
+#include "PROFILE.H"
+#endif
 #endif
 
-#if PSX_VERSION && !PSXPC_TEST
+#if (PSX_VERSION || SAT_VERSION) && !PSXPC_TEST
 typedef unsigned int uintptr_t;
 #endif
 
-#if PSX_VERSION
+#if PSX_VERSION || SAT_VERSION
 #include "FXTRIG.H"
 #include "TEXT_S.H"
 #endif
 
+#if PSXPC_TEST
+#include <LIBETC.H>
+#endif
+
+#if !SAT_VERSION
 #include <string.h>
+#endif
 #include "LOT.H"
 #include "TEXT.H"
 
@@ -133,7 +151,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 {
 	//unsigned char* gf;
 	//unsigned char n;
-	int op;
+	unsigned char op;
 	unsigned short* scriptOffsetPtr;
 	unsigned char* sequenceCommand;
 
@@ -164,28 +182,124 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 
 	while (1)//?
 	{
-		op = *sequenceCommand;
-		sequenceCommand++;
+		op = *sequenceCommand++;
 		switch (op)
 		{
+		case GF_LEVEL:
+		{
+			gfLevelFlags = sequenceCommand[1] | (sequenceCommand[2] << 8);
+			if ((gfLevelFlags & 0x8000))
+			{
+				gfStatus = 0x3E7;
+				++gfCurrentLevel;
+			}//loc_112E4
+
+			DoLevel(sequenceCommand[3], sequenceCommand[4]);
+
+			//loc_112F8
+			gfLegendTime = 0;
+			LaserSight = 0;
+			BinocularRange = 0;
+			((int*)&gfResidentCut)[0] = 0;
+			gfUVRotate = 0;
+			gfNumMips = 0;
+			gfNumPickups = 0;
+			gfMirrorRoom = -1;
+
+			if (gfStatus == 2)
+			{
+				//loc_1146C
+				gfGameMode = 4;
+				gfCurrentLevel = savegame.CurrentLevel;
+				sequenceCommand = &gfScriptWad[gfScriptOffset[gfCurrentLevel]];
+			}
+			else if (gfStatus == 3)
+			{
+				//loc_1138C
+				if (Gameflow->DemoDisc || Gameflow->nLevels == 2 || Gameflow->nLevels < gfLevelComplete)
+				{
+					gfCurrentLevel = LVL5_TITLE;
+				}
+				else if (Gameflow->nLevels > gfLevelComplete)
+				{
+					gfCurrentLevel = gfLevelComplete;
+				}
+			}
+			else if (gfStatus == 4)
+			{
+				//loc_115DC
+				return;
+			}
+			else if (gfStatus == 1)
+			{
+				//loc_11364
+				gfInitialiseGame = gfStatus;//Possible optimisation since gfStatus is 1?
+				gfCurrentLevel = Gameflow->TitleEnabled < 1 ? 1 : 0;
+			}
+
+			break;
+		}
 		case GF_TITLE_LEVEL://IB = 113D8, 11488
+		{
 			gfLevelFlags = (sequenceCommand[0] | (sequenceCommand[1] << 8));
-			DoTitle(sequenceCommand[2], sequenceCommand[3]);//a3[2]unconfirmed
+			DoTitle(sequenceCommand[2], sequenceCommand[3]);
+			gfMirrorRoom = 255;
+			((int*)&gfResidentCut)[0] = 0;
+			gfUVRotate = 0;
+			gfNumMips = 0;
+			gfNumPickups = 0;
+
+			if (gfStatus == 3)
+			{
+				//loc_11450
+				gfGameMode = 0;
+				gfInitialiseGame = 1;
+				Gameflow->SecurityTag = gfLevelComplete;
+			}
+			else if (gfStatus > 3)
+			{
+				//loc_1143C
+				if (gfStatus == 4)
+				{
+					//loc_115DC
+					return;
+				}
+			}
+			else if (gfStatus == 2)
+			{
+				//loc_11470
+				gfGameMode = 4;
+				Gameflow->SecurityTag = savegame.CurrentLevel;
+			}
+
+			//loc_11480
+			sequenceCommand = &gfScriptWad[gfScriptOffset[Gameflow->SecurityTag]];
 			break;
+		}
 		case GF_LEVEL_DATA_END://11048
+		{
 			break;
+		}
 		case GF_RESIDENTCUT1://112B8
+		{
 			gfResidentCut[0] = *sequenceCommand++;
 			break;
+		}
 		case GF_RESIDENTCUT2://112CC
+		{
 			gfResidentCut[1] = *sequenceCommand++;
 			break;
+		}
 		case GF_RESIDENTCUT3:
+		{
 			gfResidentCut[2] = *sequenceCommand++;
 			break;
+		}
 		case GF_RESIDENTCUT4://112F4
+		{
 			gfResidentCut[3] = *sequenceCommand++;
 			break;
+		}
 		case GF_LAYER1://1107C
 		{
 			int a2 = 10;//?
@@ -211,41 +325,105 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 			break;
 		}
 		case GF_FOG:
+		{
 			gfUVRotate = *sequenceCommand++;
 			break;
+		}
 		case GF_LEGEND:
+		{
 			gfLegend = *sequenceCommand++;
 			if (gfGameMode != 4)
 				gfLegendTime = 150;
 			break;
+		}
 		case GF_ANIMATING_MIP:
+		{
 			gfMips[gfNumMips++] = *sequenceCommand++;
 			break;
+		}
 		case GF_GIVE_ITEM_AT_STARTUP:
+		{
 			gfPickups[gfNumPickups++] = sequenceCommand[0] | (sequenceCommand[1] << 8);
 			sequenceCommand += 2;
 			break;
+		}
 		case GF_LOSE_ITEM_AT_STARTUP:
+		{
 			gfTakeaways[gfNumTakeaways++] = sequenceCommand[0] | (sequenceCommand[1] << 8);
 			sequenceCommand += 2;
 			break;
+		}
 		case GF_MIRROR:
+		{
 			gfMirrorRoom = *sequenceCommand++;
 			gfMirrorZPlane = *(int*)sequenceCommand;///@FIXME illegal operation here?
 			sequenceCommand += 4;
 			break;
+		}
 		case GF_CUT:
+		{
 			gfCutNumber = *sequenceCommand++;
 			break;
+		}
 		case GF_RESET_HUB:
+		{
 			gfResetHubDest = *sequenceCommand++;
 			break;
+		}
 		case GF_FMV:
+		{
 			fmv_to_play[num_fmvs++] = *sequenceCommand++;
 			break;
-		default://11550
-			assert(1);
+		}
+		case GF_KEY_ITEM1:
+		case GF_KEY_ITEM2:
+		case PUZZLE_ITEM1:
+		case PICKUP_ITEM1:
+		case PICKUP_ITEM2:
+		{
+			//def_10FE0
+			int invobj;//a1
+
+			if (((op + 0x6E) & 0xFF) < 8)
+			{
+				invobj = (op + 0xA3) & 0xFF;
+			}
+			else if (((op + 0x62) & 0xFF) < 8)
+			{
+				invobj = (op + 0x7F) & 0xFF;
+			}
+			else if (((op + 0x56) & 0xFF) < 4)
+			{
+				invobj = (op + 0xA3) & 0xFF;
+			}
+			else if (((op + 0x52) & 0xFF) < 3)
+			{
+				invobj = (op + 0xAD) & 0xFF;
+			}
+			else if (((op + 0x4F) & 0xFF) < 16)
+			{
+				invobj = (op + 0x8C) & 0xFF;
+			}
+			else if (((op + 0x3F) & 0xFF) < 16)
+			{
+				invobj = (op + 0x64) & 0xFF;
+			}
+			else if (((op + 0x2F) & 0xFF) < 8)
+			{
+				invobj = (op + 0x80) & 0xFF;
+			}
+
+			inventry_objects_list[invobj].objname = sequenceCommand[0] | (sequenceCommand[1] << 8);
+			inventry_objects_list[invobj].yoff = sequenceCommand[2] | (sequenceCommand[3] << 8);
+			inventry_objects_list[invobj].scale1 = sequenceCommand[4] | (sequenceCommand[5] << 8);
+			inventry_objects_list[invobj].yrot = sequenceCommand[6] | (sequenceCommand[7] << 8);
+			inventry_objects_list[invobj].xrot = sequenceCommand[8] | (sequenceCommand[9] << 8);
+			inventry_objects_list[invobj].zrot = sequenceCommand[10] | (sequenceCommand[11] << 8);
+			inventry_objects_list[invobj].flags = sequenceCommand[12] | (sequenceCommand[13] << 8);
+
+			sequenceCommand += 0xE;
 			break;
+		}
 		}
 	}
 }
@@ -514,7 +692,7 @@ void LoadGameflow()//102E0, 102B0
 	}
 }
 
-void QuickControlPhase()//10274(<), 10264(<) (F)
+void QuickControlPhase()//10274(<), 10264(<) (F) (*) (D) (ND)
 {
 #if PSX_VERSION
 #if DEBUG_VERSION
@@ -524,7 +702,7 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 #endif
 
 #if PSX_VERSION || PSXPC_VERSION
-	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) < 1 ? 1 : 0);
+	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) == 0 ? 1 : 0);
 #else
 	gfStatus = ControlPhase(nframes, 0);
 #endif
@@ -537,7 +715,7 @@ void QuickControlPhase()//10274(<), 10264(<) (F)
 #endif
 }
 
-void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
+void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*) (D) (ND)
 {
 /*#if PC_VERSION
 	S_Warn("DoTitle PC");
@@ -636,14 +814,13 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 	lara_item->mesh_bits = 0;
 	gfGameMode = 1;
 
-#if 1//DEBUG_VERSION
+#if DEBUG_VERSION
 	show_game_malloc_totals();
 #endif
 
 	gfLevelComplete = 0;
 	nframes = 2;
 	gfStatus = ControlPhase(2, 0);
-	
 	JustLoaded = 0;
 
 #if PC_VERSION
@@ -669,7 +846,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 			if (bDoCredits)
 			{
-#if !PSXPC_VERSION && 0
+#if !PSXPC_VERSION && RELOC
 				if (!((INTFUNCVOID*)RelocPtr[MOD_TITSEQ][1])())
 				{
 					bDoCredits = 0;
@@ -687,20 +864,21 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 				if (ScreenFading == 0 && cutseq_num == 0)
 				{
 #if DEBUG_VERSION
-					if ((RawPad & 0x201))
+					if ((RawPad & 0x201) == 0x201)
 					{
 						dels_cutseq_selector_flag = 1;
 					}
 #endif
 					//loc_10868
 					CreditsDone = 1;
-#if RELOC && 0
+#if RELOC
 					gfStatus = ((INTFUNCINT*)RelocPtr[MOD_TITSEQ][0])(Name);
 #else
 					gfStatus = TitleOptions(Name);
 #endif
+					//Early out
 					if (gfStatus != 0)
-						goto loc_10A24;
+						break;
 
 				}//loc_10890
 
@@ -727,7 +905,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 
 			if (gfGameMode == 2)
 			{
-				//v0 = -1;
 				if ((dbinput & 0x100))
 					goto loc_10970;
 
@@ -748,11 +925,9 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 			{
 				InitialiseItemArray(256);
 
-				if (number_rooms > 0)
+				for (i = 0; i < number_rooms; i++)
 				{
-					i = number_rooms;
-					while (i--)
-						room[i].item_number = -1;
+					room[i].item_number = -1;
 				}
 				//loc_10A10
 				gfGameMode = 1;
@@ -761,8 +936,6 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<)
 		}
 	}
 	//loc_10A24
-
-loc_10A24:
 	Motors[1] = 0;
 	Motors[0] = 0;
 
@@ -770,9 +943,19 @@ loc_10A24:
 	{
 		mcClose();
 	}
+
+
 	//loc_10A58
-	while (XAVolume != 0)
+	do
+	{
+#if PSXPC_TEST
+		//Because emulator doesn't call this every Vblank
+		VSync(0);
+#endif
 		XAReqVolume = 0;
+		
+	} while (XAVolume != 0);
+
 #endif
 
 	NoInput = 0;
@@ -945,7 +1128,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		if (gfLegendTime != 0 && DestFadeScreenHeight == 0 && FadeScreenHeight == 0 && cutseq_num == 0)
 		{
 			PrintString(
-#if PSXENGINE
+#if PSX_VERSION || PSXPC_TEST || PSXPC_VERSION || SAT_VERSION
 				0x100, 0xE8, 
 #else
 				phd_winwidth / 2, phd_winymax - font_height,

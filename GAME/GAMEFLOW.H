@@ -1,7 +1,7 @@
 #ifndef GAMEFLOW_H
 #define GAMEFLOW_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern void DoGameflow();
 extern void LoadGameflow();

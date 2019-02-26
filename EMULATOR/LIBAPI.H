@@ -5,11 +5,11 @@
 #include "KERNEL.H"
 #endif
 
-extern long SetRCnt(unsigned long unk00, unsigned short, long);
-extern long GetRCnt(unsigned long unk00);
-extern long ResetRCnt(unsigned long unk00);
-extern long StartRCnt(unsigned long unk00);
-extern long StopRCnt(unsigned long unk00);
+extern long SetRCnt(long spec, unsigned short target, long mode);
+extern long GetRCnt(long spec);
+extern long ResetRCnt(long spec);
+extern long StartRCnt(long spec);
+extern long StopRCnt(long spec);
 
 extern long OpenEvent(unsigned long unk00,long,long,long (*func)());
 extern long CloseEvent(long unk00);

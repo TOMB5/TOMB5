@@ -3,6 +3,10 @@
 
 #include "TYPES.H"
 
+
+#define DECODE_BCD(x) (((x) >> 4) * 10 + ((x) & 0xF))
+#define ENCODE_BCD(x) ((((x) / 10) << 4) | ((x) % 10))
+
 #define CdlModeStream  0x100    /* Normal Streaming                     */
 #define CdlModeStream2 0x120    /* SUB HEADER information includes      */
 #define CdlModeSpeed	0x80	/* 0: normal speed	1: double speed	*/

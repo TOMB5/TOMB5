@@ -17,3 +17,8 @@ void S_DrawDarts(struct ITEM_INFO* item)//62320, ?
 {
 	UNIMPLEMENTED();
 }
+
+void S_DrawSparks()
+{
+	UNIMPLEMENTED();
+}

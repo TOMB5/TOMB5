@@ -37,7 +37,7 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 			//loc_637B0
 			for (i = 0; i < r->nOptions; i++)
 			{
-				GetStringLength(&gfStringWad[gfStringOffset[r->OptionTxt[i]]], &OptionTop[i], &OptionBottom[i]);
+				GetStringLength(&gfStringWad[gfStringOffset[r->OptionTxt[i]]], (unsigned short*)&OptionTop[i], (unsigned short*)&OptionBottom[i]);
 				GetStringDimensions(&gfStringWad[gfStringOffset[r->OptionTxt[i]]], &rw, &rh);
 
 				if (i == 0 && r->Ignore != 0)
@@ -61,7 +61,7 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 	rx = (x - 16) & 0xFFFF;
 	ry = (y - 8) & 0xFFFF;
 
-	GetStringLength(&gfStringWad[gfStringOffset[r->TitleTxt]], &top, NULL);
+	GetStringLength(&gfStringWad[gfStringOffset[r->TitleTxt]], (unsigned short*)&top, NULL);
 	PrintString(256, ((y - top) + 2) & 0xFFFF, r->TitleCol, &gfStringWad[gfStringOffset[r->TitleTxt]], 0x8000);
 
 	if (r->nOptions != 0)
@@ -149,14 +149,14 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 					//v0 = i << 1;
 #if 0///@FIXME sp
 					sll     $v0, $s1, 1
-					addu    $a1, $sp, $v0
-					sll     $v1, $a2, 1
-					addu    $a0, $sp, $v1
-					lh      $v0, 0x28($a1)
-					lh      $v1, 0x18($a0)
-					addiu   $a1, $s2, 2
-					subu    $v0, $v1
-					addu    $s2, $a1, $v0
+						addu    $a1, $sp, $v0
+						sll     $v1, $a2, 1
+						addu    $a0, $sp, $v1
+						lh      $v0, 0x28($a1)
+						lh      $v1, 0x18($a0)
+						addiu   $a1, $s2, 2
+						subu    $v0, $v1
+						addu    $s2, $a1, $v0
 #endif
 				}//loc_63C48
 			}
@@ -166,9 +166,9 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 	DrawF4(rx, ry, rw, rh, 0, 0x2A800000);
 	DrawTPage(0, 1);
 	DrawLineH((rx + 2) & 0xFFFF, (ry + 1) & 0xFFFF, (rw - 4) & 0xFFFF, 0, 0x404040, 0);
-	DrawLineH((rx + 2) & 0xFFFF, ((ry - rh) - 2) & 0xFFFF, (rw - 4) & 0xFFFF, 0, 0x404040, 0);
+	DrawLineH((rx + 2) & 0xFFFF, ((ry + rh) - 2) & 0xFFFF, (rw - 4) & 0xFFFF, 0, 0x404040, 0);
 	DrawLineV((rx + 2) & 0xFFFF, (ry + 1) & 0xFFFF, (rh - 2) & 0xFFFF, 0, 0x404040, 0);
-	DrawLineV(((rx - rw) - 3) & 0xFFFF, (ry + 1) & 0xFFFF, (rh - 2) & 0xFFFF, 0, 0x404040, 0);
+	DrawLineV(((rx + rw) - 3) & 0xFFFF, (ry + 1) & 0xFFFF, (rh - 2) & 0xFFFF, 0, 0x404040, 0);
 	DrawTPage(0, 1);
 
 	if ((r->nOptions != 0))

@@ -27,6 +27,7 @@
 #include "MISC.H"
 #include "ROOMLOAD.H"
 #include "ROOMLETB.H"
+#include "ROOMLET3.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
@@ -35,6 +36,7 @@
 #include INLINE_H
 #include <LIBGPU.H>
 #include <stdio.h>
+#include "DRAWSPKS.H"
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "TEXT_S.H"
@@ -94,13 +96,9 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 	}
 
 	//loc_64130
-	if (scalarx == 0 && scalary == 0 && scalarz != 0 && GLOBAL_playing_cutseq == 0)
+	if (scalarx != 0 && scalary != 0 && scalarz != 0 && GLOBAL_playing_cutseq == 0)
 	{
-		//loc_64148
-		if (GLOBAL_playing_cutseq == 0)
-		{
-			ScaleCurrentMatrix(1, scalarx + 4096, scalary + 4096, scalarz + 4096);
-		}
+		ScaleCurrentMatrix(1, scalarx + 4096, scalary + 4096, scalarz + 4096);
 	}
 
 	//loc_6416C
@@ -177,8 +175,6 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 	}
 
 	//loc_643C4
-	PrintString(256, 192, 2, "Load Game", 0x8000);
-
 	GPU_EndScene();
 	camera.number_frames = S_DumpScreen();
 
@@ -467,10 +463,13 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 	else
 	{
-		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
+#if RELOC
 		//loc_64BA0
 		//unsigned long* v1 = (unsigned long*)RelocPtr[2];
 		//jalr v1[0];
+#else
+		DrawRoomletList();
+#endif
 	}
 
 	//loc_64BBC
@@ -612,43 +611,33 @@ void SortOutWreckingBallDraw()//64E78(<), 65528(<) (F)
 
 void MGDrawSprite(int x, int y, int def, int z, int xs, int ys, long rgb)//64EF8(<) ? (F)
 {
-	POLY_FT4* polyft4;
+	POLY_FT4* ptr;
 	struct PSXSPRITESTRUCT* pSpriteInfo;
 
-	polyft4 = (POLY_FT4*)&db.polyptr[0];
+	ptr = (POLY_FT4*)&db.polyptr[0];
 
-	polyft4->y0 = y - (ys / 2);
-	polyft4->y1 = y - (ys / 2);
-	polyft4->x0 = x - (xs / 2);
-	polyft4->x1 = x + (xs / 2);
-	polyft4->x2 = x - (xs / 2);
-	polyft4->y2 = y + (ys / 2);
-	polyft4->x3 = x + (xs / 2);
-	polyft4->y3 = y + (ys / 2);
+	setPolyFT4(ptr);
+	setSemiTrans(ptr, TRUE);
+	setRGB0(ptr, getR(rgb), getG(rgb), getB(rgb));
+	setXY4(ptr,
+		x - xs / 2, y - ys / 2,
+		x + xs / 2, y - ys / 2,
+		x - xs / 2, y + ys / 2,
+		x + xs / 2, y + ys / 2);
 
-	((char*)polyft4)[3] = 9;
 	pSpriteInfo = &psxspriteinfo[objects[DEFAULT_SPRITES].mesh_index + def];
-	((long*)polyft4)[1] = rgb | 0x2E000000;
 
-	polyft4->tpage = pSpriteInfo->tpage;
+	ptr->tpage = pSpriteInfo->tpage;
 
-	polyft4->u0 = pSpriteInfo->u1;
-	polyft4->v0 = pSpriteInfo->v1;
+	setUV4(ptr,
+		pSpriteInfo->u1, pSpriteInfo->v1,
+		pSpriteInfo->u2, pSpriteInfo->v1,
+		pSpriteInfo->u1, pSpriteInfo->v2,
+		pSpriteInfo->u2, pSpriteInfo->v2);
 
-	polyft4->u1 = pSpriteInfo->u2;
-	polyft4->v1 = pSpriteInfo->v1;
+	ptr->clut = pSpriteInfo->clut;
 
-	polyft4->u2 = pSpriteInfo->u1;
-	polyft4->v2 = pSpriteInfo->v2;
-
-	polyft4->u3 = pSpriteInfo->u2;
-	polyft4->v3 = pSpriteInfo->v2;
-
-	polyft4->clut = pSpriteInfo->clut;
-
-	polyft4->tag = (polyft4->tag & 0xFF000000) | (db.ot[z] & 0xFFFFFF);
-
-	db.ot[z] = (db.ot[z] & 0xFF000000) | ((unsigned long)polyft4 & 0xFFFFFF);
+	addPrim(db.ot + z, ptr);
 
 	db.polyptr += sizeof(POLY_FT4);
 }

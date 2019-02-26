@@ -42,12 +42,14 @@
 #include "TOMB4FX.H"
 #include "TYPES.H"
 #include "TYPEDEFS.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 #include <assert.h>
+#if !SAT_VERSION
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#endif
 
 #if PSX_VERSION
 	#if !DISC_VERSION
@@ -77,19 +79,20 @@ RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
 
 #if PSXPC_TEST
 #include <stdint.h>
-#elif PSX_VERSION
+#elif PSX_VERSION || SAT_VERSION
 typedef unsigned int uintptr_t;
 #endif
 
-#if PSXPC_VERSION || PSXPC_TEST
+#if PSXPC_VERSION || PSXPC_TEST || SAT_VERSION
 struct object_container objects_raw;
 struct object_info* objects = &objects_raw.m_objects[0];
 struct static_info* static_objects = &objects_raw.m_static_objects[0];
 extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
 extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
+
 #endif
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundData, int soundWadSize)//?, B3974(F)
 {
 #ifndef NO_SOUND
@@ -641,37 +644,24 @@ void InitialiseFootPrints()//?(<), B52FC(<)
 
 void BaddyObjects()//?, B5328
 {
-	struct object_info* object = &objects[LARA];//$t0
-												//lui     $a1, 0x1F
-												//t0 = &objects
-												//a0 = 0xFDFFFFFF
-												//v0 = 0x4B308
-												//v1 = 160
+	struct object_info* object = &objects[LARA];
 
-	object->shadow_size = 160;
-	//v1 = 0x3E8
-	//t5 = 0x100000//object->save_hitpoints
-	//t4 = 0x80000//object->save_position
-	//t3 = 0x200000//object->intelligent
-	//t2 = 0x400000//object->save_anim
+	object->shadow_size = (10 * UNIT_SHADOW) / 16;
 	object->initialise = &InitialiseLaraLoad;
-	//v0 = *(int*)&objects[LARA].bite_offset //flags
-	//t1 = 0x10000
-	object->hit_points = 1000;
-	object->draw_routine = NULL;
-	object->using_drawanimating_item = 0;///@CHECK
-	object->save_hitpoints = 1;
-	object->save_position = 1;
-	object->save_flags = 1;
-	object->save_anim = 1;
+	object->hit_points = LARA_HITPOINTS;
+	object->draw_routine = nullptr;
+
+	object->using_drawanimating_item = false;
+	object->save_hitpoints = true;
+	object->save_position = true;
+	object->save_flags = true;
+	object->save_anim = true;
+
 
 	object = &objects[SAS];
-	//v1 = *(int*)&object.bite_offset //flags
-	//t6 = 0x1F0000
+
 	if (object->loaded)
 	{
-		//v0 = 0xF3FFFFFF
-		//a0 = 0x20000
 		object->intelligent = 1;
 		object->HitEffect = 0;
 		//v1 = 0x4000000
@@ -679,24 +669,13 @@ void BaddyObjects()//?, B5328
 		//v0 = 0xFFFF8C7C
 		//v1 = 0x1F0000
 		///object->initialise = NULL;///@FIXME Local module 0xFFFF8C7C(IB), 0xFFFF8C08(RET)
-		//v0 = 0x30000
-		//a1 = RelocPtr[MOD_SAS]
-		//v0 = &CreatureCollision;
-		//a2 = RelocPtr[MOD_SAS][0];
-		//v1 = 0x80
+
 		object->collision = &CreatureCollision;
-		//v0 = 0x28
 		object->shadow_size = 46;
-		//v1 = 50
 		object->pivot_length = 50;
-		//v1 = 102
 		object->radius = 102;
-		//v1 = 0xA0000
 		object->hit_points = 40;
 		object->bite_offset = 0;
-		//v0 = *(int*)&object->bite_offset;
-		//a0 = object->bone_index;
-		//a1 = &bones
 		object->save_flags = 1;//t3
 		object->save_anim = 1;
 		object->save_hitpoints = 1;
@@ -707,11 +686,10 @@ void BaddyObjects()//?, B5328
 #if PSX_VERSION && RELOC
 		object->control = RelocPtr[MOD_SAS][0];
 #endif
-		((int*)bones[object->bone_index])[24] |= 8;
-		((int*)bones[object->bone_index])[24] |= 4;
-
-		((int*)bones[object->bone_index])[52] |= 8;
-		((int*)bones[object->bone_index])[52] |= 4;
+		bones[object->bone_index + 24] |= 8u;
+		bones[object->bone_index + 24] |= 4u;
+		bones[object->bone_index + 52] |= 8u;
+		bones[object->bone_index + 52] |= 4u;
 	}
 
 	//loc_1BA4
@@ -1049,7 +1027,7 @@ void sub_B3A7C(int a0)
 #if DISC_VERSION
 void LoadLevel()//?(<), B3B50(<) (F)
 #else
-#if PSX_VERSION
+#if PSX_VERSION || SAT_VERSION
 void LoadLevel(int nHandle)//?, B3B50(<)
 #elif PSXPC_VERSION
 void LoadLevel(FILE* nHandle)
@@ -1060,7 +1038,7 @@ void LoadLevel(FILE* nHandle)
 #if PSX_VERSION
 #if PSXPC_TEST
 	RECT16 tex[2];
-#else
+#elif PSX_VERSION
 	RECT tex[2];
 #endif
 #endif
@@ -1616,6 +1594,7 @@ void LoadLevel(FILE* nHandle)
 	//t0 = psxtextinfo
 
 	//loc_D20
+#if 0
 	for (i = 5; i >= 0; i--)
 	{
 		if (objects[WATERFALL1 + i].loaded)
@@ -1624,18 +1603,14 @@ void LoadLevel(FILE* nHandle)
 			meshptr = meshes[objects[WATERFALL1 + i].mesh_index];
 			meshptr += 6;//0xC for next itr?
 			meshptr += meshptr[5] << 16 >> 17;
-			((int*)AnimatingWaterfalls[i])[0] = (uintptr_t)&psxtextinfo[meshptr[2] << 4];//why << 4? 1<<4=16!
+			AnimatingWaterfalls[i] = (PSXTEXTI*)&psxtextinfo[meshptr[2] << 4];//why << 4? 1<<4=16!
 			AnimatingWaterfallsV[i] = ((char*)&psxtextinfo[meshptr[2] << 4])[1];//why << 4? 1<<4=16!
 		}//loc_D84
 	}
-
-#if 1
-	MonitorScreenTI = NULL;
-#else
-	///@FIXME check 
-	//Retail: sw      $zero, 0xA6F5C
-	//Beta: sw      $zero, 0xA5534
 #endif
+
+	MonitorScreenTI = NULL;
+
 	//a0 = &objects
 #if 0
 	if (objects[MONITOR_SCREEN].loaded)
@@ -1726,30 +1701,30 @@ void LoadLevel(FILE* nHandle)
 
 	if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
 	{
-		inventry_objects_list[7].yoff = 4;
-		inventry_objects_list[7].yrot = -16384;
-		inventry_objects_list[7].xrot = 8448;
-		inventry_objects_list[7].zrot = 16384;
-		inventry_objects_list[7].flags = 10;
+		inventry_objects_list[INV_HK_ITEM1].yoff = 4;
+		inventry_objects_list[INV_HK_ITEM1].yrot = ANGLE(-90);
+		inventry_objects_list[INV_HK_ITEM1].xrot = 8448;
+		inventry_objects_list[INV_HK_ITEM1].zrot = ANGLE(90);
+		inventry_objects_list[INV_HK_ITEM1].flags = 10;
 
-		inventry_objects_list[8].yoff = -16384;
-		inventry_objects_list[8].xrot = 8448;
-		inventry_objects_list[8].zrot = 16384;
-		inventry_objects_list[8].flags = 10;
+		inventry_objects_list[INV_HK_ITEM2].yoff = ANGLE(-90);
+		inventry_objects_list[INV_HK_ITEM2].xrot = 8448;
+		inventry_objects_list[INV_HK_ITEM2].zrot = ANGLE(90);
+		inventry_objects_list[INV_HK_ITEM2].flags = 10;
 	}
 	else
 	{
 		//loc_F30
-		inventry_objects_list[7].yoff = 0;
-		inventry_objects_list[7].yrot = 0;
-		inventry_objects_list[7].xrot = -16384;
-		inventry_objects_list[7].zrot = 0;
-		inventry_objects_list[7].flags = 2;
+		inventry_objects_list[INV_HK_ITEM1].yoff = 0;
+		inventry_objects_list[INV_HK_ITEM1].yrot = 0;
+		inventry_objects_list[INV_HK_ITEM1].xrot = ANGLE(-90);
+		inventry_objects_list[INV_HK_ITEM1].zrot = 0;
+		inventry_objects_list[INV_HK_ITEM1].flags = 2;
 
-		inventry_objects_list[8].yoff = 0;
-		inventry_objects_list[8].xrot = -16384;
-		inventry_objects_list[8].zrot = 0;
-		inventry_objects_list[8].flags = 2;
+		inventry_objects_list[INV_HK_ITEM2].yoff = 0;
+		inventry_objects_list[INV_HK_ITEM2].xrot = ANGLE(-90);
+		inventry_objects_list[INV_HK_ITEM2].zrot = 0;
+		inventry_objects_list[INV_HK_ITEM2].flags = 2;
 	}
 
 	if (gfCurrentLevel == LVL5_TITLE)
@@ -1761,10 +1736,12 @@ void LoadLevel(FILE* nHandle)
 
 void TrapObjects()//?, B7E04
 {
+	UNIMPLEMENTED();
 }
 
 void ObjectObjects()//?, B84F0
 {
+	UNIMPLEMENTED();
 }
 
 void GetCarriedItems()//?(<), B9974(<) (F)
@@ -1800,9 +1777,9 @@ void GetCarriedItems()//?(<), B9974(<) (F)
 				item = &items[item_number];
 
 				//loc_6190
-				if (ABS(item->pos.x_pos - items[i].pos.x_pos) < 512 &&
-					ABS(item->pos.z_pos - items[i].pos.z_pos) < 512 &&
-					ABS(item->pos.y_pos - items[i].pos.y_pos) < 512 &&
+				if (ABS(item->pos.x_pos - items[i].pos.x_pos) < SECTOR(0.5) &&
+					ABS(item->pos.z_pos - items[i].pos.z_pos) < SECTOR(0.5) &&
+					ABS(item->pos.y_pos - items[i].pos.y_pos) < SECTOR(0.5) &&
 					objects[item->object_number].collision == &PickUpCollision)
 				{
 					item->carried_item = items[i].carried_item;
@@ -1837,8 +1814,8 @@ void GetAIPickups()//?, B9B84
 					//loc_6318
 					for (j = 0; j < nAIObjects; j++)
 					{
-						if (ABS(AIObjects[j].x - items[i].pos.x_pos) < 512 &&
-							ABS(AIObjects[j].z - items[i].pos.z_pos) < 512 &&
+						if (ABS(AIObjects[j].x - items[i].pos.x_pos) < SECTOR(0.5) &&
+							ABS(AIObjects[j].z - items[i].pos.z_pos) < SECTOR(0.5) &&
 							AIObjects[j].room_number == items[i].room_number &&
 							AIObjects[j].object_number < AI_PATROL2)
 						{
@@ -1944,7 +1921,7 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 	char* s6;
 	int s7;
 	int mallocSize;//$a0
-#if PSX_VERSION
+#if PSX_VERSION || SAT_VERSION
 #if PSXPC_TEST
 	int nHandle = 0;
 #else
@@ -2063,7 +2040,7 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 	}//loc_67C8
 }
 
-#if PSX_VERSION
+#if (PSX_VERSION || SAT_VERSION)
 char* ReadResidentData(int residentIndex, int nHandle)//(<), BA0DC(<) (F)
 #elif PSXPC_VERSION
 char* ReadResidentData(int residentIndex, FILE* nHandle)//(<), BA0DC(<) (F)

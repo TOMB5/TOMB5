@@ -49,6 +49,7 @@ extern long GetVideoMode (void);
 extern long SetVideoMode (long mode);
 extern u_long PadRead(int id);
 extern void PadStop(void);
+extern void(*vsync_callback)(void);
 
 #endif
 
