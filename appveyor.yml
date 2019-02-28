@@ -29,7 +29,7 @@ install:
   - sh: sudo apt-get install -y libglew-dev
   
 before_build:
-  - export CXXFLAGS=-std=c++11
+  - sh: export CXXFLAGS=-std=c++11
   - cmd: cd %clone_folder%
   #- cmd: dir /s
   - cmd: md BUILD
