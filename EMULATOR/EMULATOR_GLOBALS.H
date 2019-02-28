@@ -32,7 +32,7 @@ extern int(*printf_)(const char * format, ...);
 
 extern GLuint vramTexture;
 extern GLuint nullWhiteTexture;
-extern SDL_Renderer* g_renderer;
+
 extern int lastTime;
 extern int screenWidth;
 extern int screenHeight;

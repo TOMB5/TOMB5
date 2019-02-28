@@ -2,7 +2,7 @@
 
 #include "PSXINPUT.H"
 #include "SAVEGAME.H"
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 static struct VIBRATION vib[2];
 

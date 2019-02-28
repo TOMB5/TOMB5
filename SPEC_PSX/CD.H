@@ -1,7 +1,7 @@
 #ifndef CD_H
 #define CD_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 #include <sys/types.h>
 #include <libcd.h>

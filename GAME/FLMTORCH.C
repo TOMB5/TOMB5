@@ -14,7 +14,7 @@
 #include "SPECIFIC.H"
 #include "TOMB4FX.H"
 
-#if PSX_VERSION || PSXPC_VERSION
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #endif
 

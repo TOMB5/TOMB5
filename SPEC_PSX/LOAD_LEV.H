@@ -1,7 +1,7 @@
 #ifndef LOAD_LEV_H
 #define LOAD_LEV_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern void LOAD_Start(int file_number);
 extern void LOAD_Stop();
