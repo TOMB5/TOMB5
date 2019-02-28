@@ -150,7 +150,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 
 	camera.bounce = 0;
 
-	lara.look = 0;
+	lara.Busy = 0;
 	CameraFade = -1;
 	LastSequence = Sequence;
 	bTrackCamInit = 0;
