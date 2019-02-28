@@ -10,7 +10,6 @@ branches:
 skip_tags: true
 
 image: Ubuntu
-platform: x86
 
 configuration:
 - Debug
