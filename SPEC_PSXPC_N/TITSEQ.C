@@ -28,7 +28,7 @@
 #include <PROFILE.H>
 #endif
 
-#define BLOCK_SPLINE_CAM (1)
+#define BLOCK_SPLINE_CAM (0)
 #define HACK_SAVE_SECRETS (0)
 
 #if PSX_VERSION && RELOC
