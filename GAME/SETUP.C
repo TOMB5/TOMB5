@@ -649,13 +649,13 @@ void BaddyObjects()//?, B5328
 	object->shadow_size = (10 * UNIT_SHADOW) / 16;
 	object->initialise = &InitialiseLaraLoad;
 	object->hit_points = LARA_HITPOINTS;
-	object->draw_routine = nullptr;
+	object->draw_routine = NULL;
 
-	object->using_drawanimating_item = false;
-	object->save_hitpoints = true;
-	object->save_position = true;
-	object->save_flags = true;
-	object->save_anim = true;
+	object->using_drawanimating_item = FALSE;
+	object->save_hitpoints = TRUE;
+	object->save_position = TRUE;
+	object->save_flags = TRUE;
+	object->save_anim = TRUE;
 
 
 	object = &objects[SAS];

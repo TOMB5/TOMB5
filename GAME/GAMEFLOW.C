@@ -959,7 +959,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 #endif
 
 	NoInput = 0;
-	S_SoundStopAllSamples();
+	///S_SoundStopAllSamples(); //Bug, infinite loop on PSX?
 	S_CDStop();
 	bUseSpotCam = 0;
 	bDisableLaraControl = 0;

@@ -313,6 +313,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 			glDisable(GL_BLEND);
 
+
 			if (semi_transparent)
 			{
 				Emulator_SetBlendMode(blend_mode);
@@ -355,7 +356,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 				glBegin(GL_TRIANGLES);
 
-				glColor3ubv(&poly->r0);
 				glTexCoord2f(0.0f, 0.0f);
 				glVertex2f(poly->x0, poly->y0);
 
@@ -402,7 +402,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 				glBegin(GL_TRIANGLES);
 
-				glColor3ubv(&poly->r0);
 				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
 				glVertex2f(poly->x0, poly->y0);
 
@@ -412,7 +411,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				glTexCoord2f(1.0f / (256.0f / (float)(poly->u3)), 1.0f / (256.0f / (float)(poly->v3)));
 				glVertex2f(poly->x3, poly->y3);
 
-				glColor3ubv(&poly->r0);
 				glTexCoord2f(1.0f / (256.0f / (float)(poly->u0)), 1.0f / (256.0f / (float)(poly->v0)));
 				glVertex2f(poly->x0, poly->y0);
 

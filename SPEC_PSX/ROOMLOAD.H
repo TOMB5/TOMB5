@@ -1,7 +1,7 @@
 #ifndef ROOMLOAD_H
 #define ROOMLOAD_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern long AnimFilePos;
 extern long AnimFileLen;

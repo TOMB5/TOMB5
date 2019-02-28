@@ -1,7 +1,7 @@
 #ifndef SPECIFIC_H
 #define SPECIFIC_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 
 #define UNIMPLEMENTED() __asm("nop");
