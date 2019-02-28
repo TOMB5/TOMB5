@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF calc_animating_item_clip_window, CalcAllAnimatingItems_ASM, init_scratchpad, stash_the_info
-	XREF InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, InterpolateMatrix, iPopMatrix, iPushMatrix, iTranslateXYZ, iRotY, iRotX, iRotZ, mRotSuperPackedYXZ, mTranslateXYZ, mRotX, mRotZ, GetFrames, mmPushMatrix, mTranslateAbsXYZ, mRotYXZ, MatrixStack, CalculateObjectLighting, S_CalculateStaticMeshLight, phd_PutPolygons, phd_PutPolygons_seethrough, mPopMatrix, mPushMatrix, phd_left, phd_right, phd_top, phd_bottom, mClipBoundingBox, draw_rooms, number_draw_rooms, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list
+	XREF InitInterpolation, iTranslateXYZ2, iRotSuperPackedYXZ, InterpolateMatrix, iPopMatrix, iPushMatrix, iTranslateXYZ, iRotY, iRotX, iRotZ, mRotSuperPackedYXZ, mTranslateXYZ, mRotX, mRotZ, GetFrames, mmPushMatrix, mTranslateAbsXYZ, mRotYXZ, MatrixStack, CalculateObjectLighting, S_CalculateStaticMeshLight, phd_PutPolygons, phd_PutPolygons_seethrough, mPopMatrix, mPushMatrix, phd_left, phd_right, phd_top, phd_bottom, mClipBoundingBox, draw_rooms, number_draw_rooms, bones, meshes, anims, room, camera, mmPushMatrix, items, static_objects, mmPopMatrix, objects, mTranslateAbsXYZ, mRotY, stashed_objects_list, stashed_matrix_list, BinocularRange
 	
 calc_animating_item_clip_window:
 	lhu     v0, 0xC(s3)
@@ -706,7 +706,7 @@ init_scratchpad:
 ;	lw      t1, MatrixStack+0x18-GP_ADDR(gp)
 ;	lw      t2, MatrixStack+0x1C-GP_ADDR(gp)
 	lw      s1, number_draw_rooms-GP_ADDR(gp)
-	lw      a0, 0x1A4(gp)
+	lw      a0, BinocularRange-GP_ADDR(gp)
 	la      s0, draw_rooms
 	sw      a0, 0xB8(fp)
 	sw      t0, 0x6C(fp)

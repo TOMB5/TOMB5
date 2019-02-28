@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF DrawAllFx, local_mTranslateAbsXYZ, local_mRotX, local_mRotY, local_mTranslateAbsXYZ, DrawLaserSightSprite_ASM
-	XREF db, MatrixStack, lara_item, room, GLOBAL_default_sprites_ptr, phd_persp, subdiv_ripple, rcossin_tbl, ASM_GetBounds
+	XREF db, MatrixStack, lara_item, room, GLOBAL_default_sprites_ptr, phd_persp, subdiv_ripple, rcossin_tbl, ASM_GetBounds, psxspriteinfo, wibble, ripples, CamRot, LaserSightActive, LaserSightCol, SmokeWindX, SmokeWindZ, gfMirrorZPlane
 	
 SplashLinks equ 0
 
@@ -305,8 +305,8 @@ DrawAllFx:
 	nop
 	andi    v0, 0x20
 	beqz    v0, loc_88D64
-	lw      v0, 0x2BF8(gp)
-	lw      at, 0x2BFC(gp)
+	lw      v0, SmokeWindX-GP_ADDR(gp)
+	lw      at, SmokeWindZ-GP_ADDR(gp)
 	sra     v0, 1
 	sra     at, 1
 	subu    v1, v0
@@ -721,7 +721,7 @@ DrawAllFx:
 	beqz    at, loc_89548
 	nop
 	lbu     v1, 0x1D(t7)
-	lw      a1, 0x11D8(gp)
+	lw      a1, psxspriteinfo-GP_ADDR(gp)
 	sll     v1, 4
 	addu    a1, v1
 	lhu     t2, 0xC(a1)
@@ -854,7 +854,7 @@ DrawAllFx:
 	addiu   t9, 0x28
 	beqz    s2, loc_89548
 	addiu   s2, -1
-	lw      v0, 0x2054(gp)
+	lw      v0, gfMirrorZPlane-GP_ADDR(gp)
 	lw      v1, 8(t7)
 	sll     v0, 1
 	j       loc_892A8
@@ -863,15 +863,15 @@ DrawAllFx:
 	loc_89548:
 	bnez    t3, loc_89294
 	addiu   t7, 0x2C
-	lbu     v0, 0x448(gp)
+	lbu     v0, LaserSightActive-GP_ADDR(gp)
 	sltu    at, t9, fp
 	beqz    at, loc_8A3D0
 	nop
 	beqz    v0, loc_89574
 	nop
 	jal     DrawLaserSightSprite_ASM
-	sb      zero, 0x448(gp)
-	sb      zero, 0x449(gp)
+	sb      zero, LaserSightActive-GP_ADDR(gp)
+	sb      zero, LaserSightCol-GP_ADDR(gp)
 
 	loc_89574:
 	li      s2, 0x20
@@ -1046,7 +1046,7 @@ DrawAllFx:
 	beqz    at, loc_89A34
 	nop
 	lbu     v1, 0x17(t7)
-	lw      at, 0x11D8(gp)
+	lw      at, psxspriteinfo-GP_ADDR(gp)
 	sll     v1, 4
 	addu    at, v1
 	lhu     t2, 0xC(at)
@@ -1435,7 +1435,7 @@ DrawAllFx:
 	nop
 
 	loc_89D7C:
-	lw      v0, 0x424(gp)
+	lw      v0, wibble-GP_ADDR(gp)
 	addiu   s5, 0x40
 	andi    v0, 0x30
 	j       loc_89D94
@@ -1724,9 +1724,9 @@ DrawAllFx:
 	loc_8A1A4:
 	bnez    s0, loc_89C34
 	addiu   s2, 0x28
-	li      s3, 0xA2944
+	la      s3, ripples
 	li      s4, 0x20
-	lh      v0, 0x46A6(gp)
+	lh      v0, CamRot+0x2-GP_ADDR(gp)
 	li      at, 0x600
 	subu    at, v0
 	sll     at, 2
@@ -1876,7 +1876,7 @@ DrawAllFx:
 	addiu   s3, 0x10
 
 	loc_8A3D0:
-	sw      t9, 0x3644(gp)
+	sw      t9, db+0x8-GP_ADDR(gp)
 	lw      at, 0(s7)
 	lw      v0, 4(s7)
 	lw      v1, 8(s7)
