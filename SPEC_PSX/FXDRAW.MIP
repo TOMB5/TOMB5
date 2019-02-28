@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF DrawAllFx, local_mTranslateAbsXYZ, local_mRotX, local_mRotY, local_mTranslateAbsXYZ, DrawLaserSightSprite_ASM
-	XREF db, MatrixStack, lara_item, room, GLOBAL_default_sprites_ptr, phd_persp, subdiv_ripple, rcossin_tbl, ASM_GetBounds, psxspriteinfo, wibble, ripples, CamRot, LaserSightActive, LaserSightCol, SmokeWindX, SmokeWindZ, gfMirrorZPlane
+	XREF splashes, debris, fire_spark, fires, smoke_spark, Bubbles, blood, Drips, db, MatrixStack, lara_item, room, GLOBAL_default_sprites_ptr, phd_persp, subdiv_ripple, rcossin_tbl, ASM_GetBounds, psxspriteinfo, wibble, ripples, CamRot, LaserSightActive, LaserSightCol, SmokeWindX, SmokeWindZ, gfMirrorZPlane
 	
 SplashLinks equ 0
 
@@ -261,7 +261,7 @@ DrawAllFx:
 	jal     local_mTranslateAbsXYZ
 	move    a2, s6
 	la      s3, rcossin_tbl
-	li      t2, Drips
+	la      t2, Drips
 	li      t1, 0x20
 
 	loc_88CAC:

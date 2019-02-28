@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF TriggerGunShell, SetGunFlash, subdiv_ripple, DoBloodSplat, TriggerRicochetSpark, TriggerUnderwaterBlood
-	XREF mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1, GetFloor, GetFreeSpark, GetRandomControl, GetFreeBlood, rcossin_tbl, objects, room, ripples
+	XREF Gunflashes, mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1, GetFloor, GetFreeSpark, GetRandomControl, GetFreeBlood, rcossin_tbl, objects, room, ripples
 	
 TriggerBlood:
 	lw      t2, 0x10(sp)
