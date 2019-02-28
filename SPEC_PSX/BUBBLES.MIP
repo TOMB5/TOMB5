@@ -105,7 +105,7 @@ TriggerDynamic:
 	bltz    a0, locret_8FF68
 	lui     t3, 0xA
 	bltz    a3, locret_8FF68
-	li      t3, 0xA2B6C
+	la      t3, dynamics
 	beqz    a3, locret_8FF68
 	lw      v1, number_dynamics-GP_ADDR(gp)
 	li      v0, 0x20

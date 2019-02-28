@@ -261,7 +261,7 @@ DrawAllFx:
 	jal     local_mTranslateAbsXYZ
 	move    a2, s6
 	la      s3, rcossin_tbl
-	li      t2, 0xA85FC
+	li      t2, Drips
 	li      t1, 0x20
 
 	loc_88CAC:
@@ -383,7 +383,7 @@ DrawAllFx:
 	loc_88E54:
 	bnez    t1, loc_88CAC
 	addiu   t2, 0x18
-	li      t6, 0xA88FC
+	la      t6, blood
 	lw      v0, 0x240(s7)
 	li      t1, 0x20
 	lw      t3, 0xF8(v0)
@@ -560,7 +560,7 @@ DrawAllFx:
 	cfc2    at, r28
 	or      t6, v0
 	subu    t4, at
-	li      t2, 0xA80FC
+	la      t2, Bubbles
 	li      t5, 0x28
 
 	loc_89108:
@@ -670,7 +670,7 @@ DrawAllFx:
 	loc_89280:
 	bnez    t5, loc_89108
 	addiu   t2, 0x20
-	li      t7, 0xA8F7C
+	la      t7, smoke_spark
 	li      t3, 0x20
 
 	loc_89294:
@@ -875,7 +875,7 @@ DrawAllFx:
 
 	loc_89574:
 	li      s2, 0x20
-	li      s0, 0xA8D7C
+	la      s0, fires
 
 	loc_89580:
 	lbu     s1, 0xC(s0)
@@ -994,7 +994,7 @@ DrawAllFx:
 	bnez    at, loc_89A3C
 	nop
 	lbu     t6, 0xD(s0)
-	li      t7, 0xA94FC
+	la      t7, fire_spark
 	bnez    t6, loc_89748
 	li      t3, 0x14
 	li      t3, 0xE
@@ -1207,7 +1207,7 @@ DrawAllFx:
 	loc_89A3C:
 	bnez    s2, loc_89580
 	addiu   s0, 0x10
-	li      s0, 0xA981C
+	la      s0, debris
 	li      s1, 0x80
 
 	loc_89A50:
@@ -1339,7 +1339,7 @@ DrawAllFx:
 	loc_89C20:
 	bnez    s1, loc_89A50
 	addiu   s0, 0x34
-	li      s2, 0xA28A4
+	la      s2, splashes
 	li      s0, 4
 
 	loc_89C34:

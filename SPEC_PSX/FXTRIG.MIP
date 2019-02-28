@@ -448,7 +448,7 @@ SetGunFlash:
 
 	loc_8D9A4:
 	move    a0, zero
-	li      t8, 0xA31D8
+	la      t8, Gunflashes
 	move    v1, zero
 
 	loc_8D9B4:
