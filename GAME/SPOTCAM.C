@@ -179,13 +179,10 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 	current_sequence = Sequence;
 	current_spline_camera = 0;
 
-	if (SpotRemap[Sequence] != 0)
+	//loc_377C0
+	for (i = 0; i < SpotRemap[Sequence]; i++)
 	{
-		//loc_377C0
-		for (i = 0; i < SpotRemap[Sequence]; i++)
-		{
-			current_spline_camera += CameraCnt[i];
-		}
+		current_spline_camera += CameraCnt[i];
 	}
 
 	//loc_377E0
@@ -463,42 +460,11 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 	long ly; // stack offset -48
 	int i; // $v1
 	int var_2C;
-
-	//} // line 142, offset 0x382c4
-
-	//{ // line 1, offset 0x386ac
-		//{ // line 1, offset 0x386ac
 	int ctype; // $s0
-		// // line 1, offset 0x38760
-	//} // line 1, offset 0x38760
-
-	//{ // line 396, offset 0x38a50
-		//int sp; // $s5
 	int cn = 0; // $s0
-	//} // line 396, offset 0x38a50
 
-	//{ // line 1, offset 0x38b04
-	//int sp = 0; // $s5
-	//	int cn; // $s0
-	//} // line 1, offset 0x38b04
+	struct CAMERA_INFO Backup; // stack offset -216
 
-	{ // line 1, offset 0x38c2c
-
-	} // line 1, offset 0x38c2c
-
-	{ // line 439, offset 0x38d68
-		struct CAMERA_INFO Backup; // stack offset -216
-		{ // line 441, offset 0x38d68
-
-		} // line 441, offset 0x38d68
-		{ // line 441, offset 0x38d68
-		} // line 441, offset 0x38d68
-	} // line 441, offset 0x38d68
-	{ // line 1, offset 0x38ff0
-		{ // line 1, offset 0x38ff0
-			int ctype; // $s0
-		} // line 1, offset 0x390a0
-	} // line 1, offset 0x390a0
 	printf("CX:%d, CY:%d CZ:%d CR:%d\n", camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number);
 	if (bDisableLaraControl)
 	{
@@ -1025,7 +991,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 			camera_fov[1] = SpotCam[current_spline_camera].fov;
 			camera_speed[1] = SpotCam[current_spline_camera].speed;
 
-			//S_MemCpy(&Backup, &camera, sizeof(struct CAMERA_INFO));
+			S_MemCpy((char*)&Backup, (char*)&camera, sizeof(struct CAMERA_INFO));
 			camera.old_type = FIXED_CAMERA;
 			camera.type = CHASE_CAMERA;
 			camera.speed = 1;
@@ -1063,7 +1029,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 			camera_fov[3] = CurrentFov;
 			camera_speed[3] = camera_speed[1] >> 1;
 
-			///S_MemCpy(&camera, &backup, sizeof(struct CAMERA_INFO));
+			S_MemCpy((char*)&camera, (char*)&Backup, sizeof(struct CAMERA_INFO));
 #if PSXENGINE
 			phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
 #endif
