@@ -125,7 +125,7 @@ void InitialisePickUpDisplay()//3B580, 3B9DC (F)
 void DrawAirBar(int flash_state)//3B3CC
 {
 	short val;
-#if !PSX_VERSION
+#if PC_VERSION
 #if !_DEBUG
 	if (lara.air == 1800 || lara_item->hit_points <= 0)
 		return;
@@ -205,7 +205,7 @@ void DrawAirBar(int flash_state)//3B3CC
 
 void DrawHealthBar(int flash_state)
 {
-#if !PSX_VERSION
+#if !(PSX_VERSION || SAT_VERSION)
 	static short old_val = 0;
 	short val = CLAMP(lara_item->hit_points, 0, 1000);
 
