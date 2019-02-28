@@ -313,6 +313,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 			glDisable(GL_BLEND);
 
+
 			if (semi_transparent)
 			{
 				Emulator_SetBlendMode(blend_mode);
@@ -350,7 +351,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 				glBegin(GL_TRIANGLES);
 
-				glColor3ubv(&poly->r0);
 				glTexCoord2f(0.0f, 0.0f);
 				glVertex2f(poly->x0, poly->y0);
 

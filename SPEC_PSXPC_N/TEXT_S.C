@@ -542,7 +542,7 @@ void GetStringDimensions(char* string, unsigned short* w, unsigned short* h)
 				{
 					strlength = GetStringLength(string, &dw, &dh);
 
-					fh = (fh + 2) + dh;
+					fh = (fh + 2) + (dh - dw);
 					if (fw < strlength)
 					{
 						fw = strlength;

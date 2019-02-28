@@ -37,7 +37,11 @@
 #include "ROOMLOAD.H"
 #include "MATHS.H"
 #include "DRAWPHAS.H"
+#if SAT_VERSION
+#include "SDELTAPA.H"
+#else
 #include "DELTAPAK_S.H"
+#endif
 #include "CD.H"
 #include "BUBBLES.H"
 #include "TYPEDEFS.H"

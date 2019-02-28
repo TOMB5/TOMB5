@@ -14,10 +14,9 @@
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (0)
 
-#define V_SCALE 2
+#define V_SCALE 1
 
 SDL_Window* g_window = NULL;
-SDL_Renderer* g_renderer;
 
 GLuint vramTexture = 0;
 GLuint nullWhiteTexture = 0;
@@ -52,12 +51,6 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0)
 	{
 		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
-		g_renderer = SDL_CreateRenderer(g_window, 0, SDL_RENDERER_ACCELERATED);
-		SDL_RenderSetLogicalSize(g_renderer, screenWidth, screenHeight);
-		if (g_renderer == NULL)
-		{
-			eprinterr("Error initialising renderer\n");
-		}
 	}
 	else
 	{
@@ -113,8 +106,9 @@ void Emulator_InitialiseGL()
 //	glEnable(GL_SCISSOR_TEST);
 //	glEnable(GL_DEPTH_TEST);
 //	glDepthFunc(GL_LEQUAL);
-
+#if BLEND_MODE
 	glBlendColor(0.25, 0.25, 0.25, 0.5);
+#endif
 	glShadeModel(GL_SMOOTH);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
@@ -656,7 +650,7 @@ void Emulator_DestroyLastVRAMTexture()
 void Emulator_SetBlendMode(int mode)
 {
 	glEnable(GL_BLEND);
-#if 1
+#if !BLEND_MODE
 	switch (mode)
 	{
 	case 0://Average
@@ -677,6 +671,7 @@ void Emulator_SetBlendMode(int mode)
 		break;
 	}
 #else
+	glBlendColor(0.25, 0.25, 0.25, 0.5);
 	switch (mode)
 	{
 	case 0://Average
@@ -684,6 +679,7 @@ void Emulator_SetBlendMode(int mode)
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		break;
 	case 1://Add
+		glBlendColor(0.0, 0.0, 0.0, 0.0);
 		//glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 		//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
@@ -699,7 +695,7 @@ void Emulator_SetBlendMode(int mode)
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		break;
 	default:
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		break;
 	}
