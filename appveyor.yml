@@ -18,9 +18,7 @@ configuration:
 
 #lib_folder: %clone_folder%\EXTERNAL
 
-platform:
-  - Win32
-  #- x64
+platform: x86
   
 install:
   - sh: sudo apt-get update -qq
