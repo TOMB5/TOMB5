@@ -142,11 +142,11 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 
 	lara_item->mesh_bits = 0xFFFFFFFF;
 
-	lara.head_x_rot = 0;
 	lara.head_y_rot = 0;
+	lara.head_x_rot = 0;
 
-	lara.torso_x_rot = 0;
 	lara.torso_y_rot = 0;
+	lara.torso_x_rot = 0;
 
 	camera.bounce = 0;
 
