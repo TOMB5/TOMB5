@@ -1067,7 +1067,6 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 	camera.type = CHASE_CAMERA;
 	camera.speed = 1;
 	bUseSpotCam = 0;
-	assert(0);
 	bDisableLaraControl = 0;
 	bCheckTrigger = 0;
 
@@ -1100,20 +1099,20 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 	long c2;
 
 	c2 = nk - 3;
-	x = MULFP(x, c2 << 16);
-	span = x >> 16;
 
-	if (c2 < span)
+	c1 = MULFP(x, c2 << 16);
+
+	span = c1 >> 16;
+
+	if (span > c2)
 	{
-		x -= span << 16;
-	}
-	else
-	{
-		x -= (nk - 4) << 16;
+		span = nk - 4;
 	}
 
 	//loc_375A0
+	c1 -= span << 16;
+
 	k = &knots[span];
 
-	return MULFP(MULFP(MULFP((((k[1]) + (k[1] >> 1)) + ((k[0] ^ -1) >> 2)) - ((k[2]) + (k[2] >> 1)) + (k[3] >> 1), x) + k[0] - (k[1] << 1) + (k[1] >> 1) + (k[2] << 1) - (k[3] >> 1), x) + ((k[0] ^ -1) >> 2) - (k[2] >> 1), x) + k[1];
+	return (MULFP(MULFP(MULFP((((k[0] ^ -1) >> 1) + (k[1]) + (k[1] >> 1)) - ((k[2]) + (k[2] >> 1)) + (k[3] >> 1), c1) + ((k[0]) - ((k[1] << 1) + (k[1] >> 1)) + (k[2] << 1) - (k[3] >> 1)), c1) + (((k[0] ^ -1) >> 1) + (k[2] >> 1)), c1)) + k[1];
 }
