@@ -398,8 +398,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 				glBegin(GL_QUADS);
 
-				glColor3ubv(&poly->r0);
-
 				glTexCoord2f(poly->u0 / 256.0f, poly->v0 / 256.0f);
 				glVertex2f(poly->x0, poly->y0);
 
