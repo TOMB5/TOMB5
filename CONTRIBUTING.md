@@ -65,7 +65,24 @@ Markers are as follows:
         - Download SDL2-devel-2.0.9-mingw.tar.gz extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
         - Download glew-2.1.0-mingw.zip ((link)[http://www.grhmedia.com/glew/glew-2.1.0-mingw.zip]) extract to project root EXTERNAL/ 
         - Generate CMake project files for CodeBlocks MinGW Makefiles, x86 ONLY! (x64 is currently unsupported so don't try it.)
-
+    - Linux 
+     Note: On x64 distributions GCC must be configured to build 32-bit binaries.
+     Note: Some later versions of GCC are currently unsupported.
+  
+    
+         - Open terminal and type in the following commands:
+	 - sudo apt-get update -qq
+         - sudo apt-get install -y libegl1-mesa-dev
+         - sudo apt-get install -y libgles2-mesa-dev
+         - sudo apt-get install -y libsdl2-dev
+         - sudo apt-get install -y libglew-dev
+	 - Open a new terminal window in the root directory where TOMB5 is cloned.
+	 - Type in the following commands.
+         - mkdir BUILD
+         - cd BUILD
+         - cmake ..
+         - make
+  
     - Open solution
     - In the project settings, set the `DISC_VERSION` to 1
     - Build
