@@ -107,9 +107,10 @@ void Emulator_InitialiseGL()
 //	glEnable(GL_DEPTH_TEST);
 //	glDepthFunc(GL_LEQUAL);
 #if BLEND_MODE
-	//glBlendColor(0.25, 0.25, 0.25, 0.5);
+	glBlendColor(0.25, 0.25, 0.25, 0.5);
 #endif
-//	glShadeModel(GL_SMOOTH);
+	glShadeModel(GL_SMOOTH);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 void Emulator_GenerateAndBindNullWhite()
@@ -700,3 +701,108 @@ void Emulator_SetBlendMode(int mode)
 	}
 #endif
 }
+
+#if GLTEST
+struct TEXTURE
+{
+	unsigned char u0;
+	unsigned char v0;
+	unsigned short clut;
+	unsigned char u1;
+	unsigned char v1;
+	unsigned short tpage;
+	unsigned char u2;
+	unsigned char v2;
+	unsigned char id[2];
+	unsigned char u3;
+	unsigned char v3;
+	unsigned short wclut;
+};
+
+struct MMTEXTURE
+{
+	TEXTURE t[3];
+};
+
+struct tr_vertex   // 6 bytes
+{
+	int16_t x;
+	int16_t y;
+	int16_t z;
+};
+
+
+struct mesh_header
+{
+	short x;
+	short y;
+	short z;
+	short radius;
+	char vertices;
+	char flags;
+	short face_offset;
+};
+
+struct tr4_mesh_face4    // 12 bytes
+{
+	uint16_t Vertices[4];
+	uint16_t Texture;
+	uint16_t Effects;
+};
+
+struct tr4_mesh_face3    // 10 bytes
+{
+	uint16_t Vertices[3];
+	uint16_t Texture;
+	uint16_t Effects;    // TR4-5 ONLY: alpha blending and environment mapping strength
+};
+
+
+void Emulator_TestDrawVertices(short* vptr, MMTEXTURE* tex)
+{
+	mesh_header* h = (mesh_header*)vptr;
+	uint8_t num_vert = h->vertices;
+
+	tr_vertex* ptr = (tr_vertex*)(h + 1);
+
+	vptr += 6;
+	short num_normals = *vptr;
+
+	if (num_normals > 0)
+		vptr += num_normals * 3;
+	else
+		vptr += -num_normals;
+
+	short num_rects = *vptr;
+	auto rects = (tr4_mesh_face4*)++vptr;
+
+	vptr += num_rects * 6;
+
+	short num_tris = *vptr;
+	auto tris = (tr4_mesh_face3*)++vptr;
+
+	for(int i = 0; i < num_rects; i++, rects++)
+	{
+		auto poly = &tex[rects->Texture].t[0];
+		Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, 0);
+
+		glBegin(GL_QUADS);
+
+		glTexCoord2f(poly->u0 / 256.0f, poly->v0 / 256.0f);
+		glVertex3s(ptr[rects->Vertices[0]].x, ptr[rects->Vertices[0]].y, ptr[rects->Vertices[0]].z);
+
+		glTexCoord2f(poly->u1 / 256.0f, poly->v1 / 256.0f);
+		glVertex3s(ptr[rects->Vertices[1]].x, ptr[rects->Vertices[1]].y, ptr[rects->Vertices[1]].z);
+
+		glTexCoord2f(poly->u3 / 256.0f, poly->v3 / 256.0f);
+		glVertex3s(ptr[rects->Vertices[3]].x, ptr[rects->Vertices[3]].y, ptr[rects->Vertices[3]].z);
+
+		glTexCoord2f(poly->u2 / 256.0f, poly->v2 / 256.0f);
+		glVertex3s(ptr[rects->Vertices[2]].x, ptr[rects->Vertices[2]].y, ptr[rects->Vertices[2]].z);
+
+		glEnd();
+	}
+
+
+
+#endif

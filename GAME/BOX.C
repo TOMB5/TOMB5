@@ -530,26 +530,28 @@ void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<
 		return;
 	}
 
-	change = ((short*) item->data)[joint] - required;
+	struct creature_info* crinfo = (struct creature_info*)item->data;
 
-	if (change < -0x222)
+	change = required - crinfo->joint_rotation[joint];
+
+	if (change < ANGLE(-3))
 	{
-		change -= 0x222;
+		change -= ANGLE(3);
 	}
 	else
 	{
-		change += 0x222;
+		change += ANGLE(3);
 	}
 
-	((short*) item->data)[joint] += change;
+	crinfo->joint_rotation[joint] += change;
 
-	if (((short*) item->data)[joint] < 0x3001)
+	if (crinfo->joint_rotation[joint] < 0x3001)
 	{
-		((short*) item->data)[joint] -= 0x3000;
+		crinfo->joint_rotation[joint] -= 0x3000;
 	}
 	else
 	{
-		((short*) item->data)[joint] += 0x3000;
+		crinfo->joint_rotation[joint] += 0x3000;
 	}
 }
 
@@ -730,7 +732,7 @@ int EscapeBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)
 	struct box_info *box; // $a0
 	long x; // $a3
 	long z; // $a2
-
+	UNIMPLEMENTED();
 
 	return 0;
 }
@@ -1026,7 +1028,7 @@ void InitialiseCreature(short item_number)//21800(<), ? (F)
 
 int StalkBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)//(F)
 {
-	struct box_info* box;
+	struct box_info* box = &boxes[box_number];
 	int baddie_quad;
 	int box_quad;
 	int enemy_quad;

@@ -14,11 +14,11 @@ void DrawRoomsAsm()//0x1BC380
 #ifndef USE_ASM
 void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 {
-	S_Warn("[DrawRoomletListAsmBinocular] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 void DrawRoomletListAsm(long unk, struct room_info* r)//0x1BC4D0
 {
-	S_Warn("[DrawRooms] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 #endif

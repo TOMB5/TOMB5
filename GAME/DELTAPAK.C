@@ -53,6 +53,7 @@
 #include "SOUND.H"
 #include "EFFECTS.H"
 #include <stdio.h>
+#include "LOAD_LEV.H"
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
@@ -2262,12 +2263,9 @@ void TriggerDelSmoke(long x, long y, long z, int sizeme)//2EED8(<), 2F1E4(<) (F)
 	}
 }
 
-#if PC_VERSION
 void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
 {
-	int i;
-
-	for(i = 0; i < 32; i++)
+	for(int i = 0; i < 32; i++)
 	{
 		if (!(ripples[i].flags & 1))
 		{
@@ -2282,7 +2280,6 @@ void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
 		}
 	}
 }
-#endif
 
 void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* pos, int direction, int speed)//2EE84(<), 2F190(<) (F)
 {
@@ -2292,7 +2289,39 @@ void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* p
 
 void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR* vec)
 {
-	UNIMPLEMENTED();
+	mPushMatrix();
+	updateAnimFrame(actor_pnodes[actornum], GLOBAL_cutme->actor_data[actornum].nodes + 1, temp_rotation_buffer);
+	mPushUnitMatrix();
+	mSetTrans(0, 0, 0);
+	mRotYXZ(duff_item.pos.y_rot, duff_item.pos.x_rot, duff_item.pos.z_rot);
+	long* bone = &bones[objects[GLOBAL_cutme->actor_data[actornum].objslot].bone_index];
+	mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
+	mRotSuperPackedYXZ(&temp_rotation_buffer[9], 0);
+
+	for (int i = 0; i < nodenum; i++, bone += 4)
+	{
+		if (*bone & 1)
+		{
+			mPopMatrix();
+		}
+
+		if (*bone & 2)
+		{
+			mPushMatrix();
+		}
+
+		mTranslateXYZ(bone[1], bone[2], bone[3]);
+		mRotSuperPackedYXZ(&temp_rotation_buffer[9], 0);
+	}
+
+	mTranslateXYZ(vec->x, vec->y, vec->z);
+	gte_sttr(vec);
+
+	vec->x += duff_item.pos.x_pos;
+	vec->y += duff_item.pos.y_pos;
+	vec->z += duff_item.pos.z_pos;
+
+	mCopyMatrix(Matrix);
 }
 
 void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix)

@@ -6,6 +6,7 @@
 #include <INLINE_C.H>
 #include "3D_GEN.H"
 #include "CAMERA.H"
+#include "DRAW.H"
 
 void mQuickW2VMatrix()
 {
@@ -90,6 +91,13 @@ void mQuickW2VMatrix()
 	//sh	$t2, 0x4058($gp)
 }
 
+void gte_sttr(struct PHD_VECTOR* vec)
+{
+	vec->x = Matrix->tx >> 12;
+	vec->y = Matrix->ty >> 12;
+	vec->z = Matrix->tz >> 12;
+}
+
 long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
 {
 	long dx = tx - x;
@@ -146,16 +154,14 @@ long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
 long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 {
 	long v0 = 0x1F;
-	long v1;
-	long at;
 
-	v1 = gte_ldlzc(value);
+	long v1 = gte_ldlzc(value);
 
 	if (value != 0)
 	{
 		v1 &= 0xFFFFFFFE;
 		v0 = v0 - v1 >> 1;
-		at = v1 - 0x18;
+		long at = v1 - 0x18;
 
 		if (v1 - 0x18 < 0)
 		{
@@ -202,7 +208,7 @@ void mPopMatrix()//76520(<), 78564(<) (F)
 
 void mUnitMatrix()
 {
-
+	UNIMPLEMENTED();
 }
 
 void mPushUnitMatrix()//76534(<), 78578(<) (! Incorrect, redo, ida asm is bad)
@@ -305,21 +311,21 @@ void mRotZ(long rz)//76804 (F)
 	mLoadMatrix(Matrix);
 }
 
-void mRotSuperPackedYXZ()//768BC
+void mRotSuperPackedYXZ(short* a0, long a1)//768BC
 {
-
+	UNIMPLEMENTED();
 }
 
 void mRotPackedYXZ(long yxz)//7693C (F)
 {
 	long a;
 
-	if ((a = ((yxz >> 10) & 1023) << 6))
+	if ((a = (yxz >> 10 & 1023) << 6))
 	{
 		mRotY(a);
 	}
 
-	if ((a = ((yxz >> 20) & 1023) << 6))
+	if ((a = (yxz >> 20 & 1023) << 6))
 	{
 		mRotX(a);
 	}
@@ -469,15 +475,241 @@ void mmPushMatrix(struct MATRIX3D* m)//81BBC(<) (F)
 	/*gte_ReadRotMatrix(*/++m;/*);*/
 }
 
+int bound_start = 0;
+int bound_end = 0;
+int bound_list[128];
+
+void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* parent)
+{
+	struct room_info* r = &room[room_number];
+
+	if (r->left <= parent->test_left && 
+		r->right >= parent->test_right && 
+		r->top <= parent->test_top && 
+		r->bottom >= parent->test_bottom)
+		return;
+
+	int left = parent->test_right;
+	int right = parent->test_left;
+	int top = parent->test_bottom;
+	int bottom = parent->test_top;
+
+	struct door_vbuf* dest = vbufdoor;
+	int t5 = 0;
+	int t6 = 0;
+
+	for (int i = 0; i < 4; i++, dest++)
+	{
+		int xv = vbufdoor[i].xv = 
+			phd_mxptr[M00] * portal->Vertices[i].x + 
+			phd_mxptr[M01] * portal->Vertices[i].y + 
+			phd_mxptr[M02] * portal->Vertices[i].z + 
+			phd_mxptr[M03];
+
+		int yv = vbufdoor[i].yv =
+			phd_mxptr[M10] * portal->Vertices[i].x + 
+			phd_mxptr[M11] * portal->Vertices[i].y + 
+			phd_mxptr[M12] * portal->Vertices[i].z + 
+			phd_mxptr[M13];
+
+		int zv = vbufdoor[i].zv =
+			phd_mxptr[M20] * portal->Vertices[i].x + 
+			phd_mxptr[M21] * portal->Vertices[i].y + 
+			phd_mxptr[M22] * portal->Vertices[i].z + 
+			phd_mxptr[M23];
+
+		if (zv > 0)
+		{
+			if (zv > 20480)
+				t6++;
+
+			zv /= phd_persp;
+
+			int xs, ys;
+
+			if (zv)
+			{
+				xs = xv / zv + 256;
+				ys = yv / zv + 120;
+			}
+			else
+			{
+				xs = xv >= 0 ? phd_right : phd_left;
+				ys = yv >= 0 ? phd_bottom : phd_top;
+			}
+
+			if (xs - 1 < left)
+				left = xs - 1;
+
+			if (xs + 1 > right)
+				right = xs + 1;
+
+			if (ys - 1 < top)
+				top = ys - 1;
+
+			if (ys + 1 > bottom)
+				bottom = ys + 1;
+		}
+		else
+		{
+			t5++;
+		}
+	}
+
+	if (t5 == 4 || t6 == 4)
+		return;
+
+	if (t5 > 0)
+	{
+		dest = vbufdoor;
+
+		struct door_vbuf* last = dest + 3;
+
+		for (int i = 0; i < 4; i++, last = dest, dest++)
+		{
+			if (dest->zv < 0 ^ last->zv < 0)
+			{
+				if (dest->xv < 0 && last->xv < 0)
+				{
+					left = 0;
+				}
+				else if (dest->xv > 0 && last->xv > 0)
+				{
+					right = 511;
+				}
+				else
+				{
+					left = 0;
+					right = 511;
+				}
+
+				if (dest->yv < 0 && last->yv < 0)
+				{
+					top = 0;
+				}
+				else if (dest->yv > 0 && last->yv > 0)
+				{
+					bottom = 239;
+				}
+				else
+				{
+					top = 0;
+					bottom = 239;
+				}
+			}
+		}
+	}
+
+	if (left < parent->test_left)
+		left = parent->test_left;
+
+	if (right > parent->test_right)
+		right = parent->test_right;
+
+	if (top < parent->test_top)
+		top = parent->test_top;
+
+	if (bottom > parent->test_bottom)
+		bottom = parent->test_bottom;
+
+	if (left >= right || top >= bottom)
+		return;
+
+	if (r->bound_active & 2)
+	{
+		if (left < r->test_left)
+			r->test_left = left;
+
+		if (top < r->test_top)
+			r->test_top = top;
+
+		if (right > r->test_right)
+			r->test_right = right;
+
+		if (bottom > r->test_bottom)
+			r->test_bottom = bottom;
+	}
+	else
+	{
+		bound_list[bound_end++ % 128] = room_number;
+
+		r->bound_active |= 2;
+
+		r->test_left = left;
+		r->test_right = right;
+		r->test_top = top;
+		r->test_bottom = bottom;
+	}
+}
+
 void GetRoomBoundsAsm(short room_number)//
 {
-	UNIMPLEMENTED();
+	bound_start = 0;
+	bound_end = 1;
+	bound_list[0] = room_number;
+
+	while (bound_start != bound_end)
+	{
+		int current = bound_list[bound_start++ % 128];
+		room_info* r = &room[room_number];
+		r->bound_active -= 2;
+
+		if (r->test_left < r->left)
+			r->left = r->test_left;
+		if (r->test_top < r->top)
+			r->top = r->test_top;
+		if (r->test_right > r->right)
+			r->right = r->test_right;
+		if (r->test_bottom > r->bottom)
+			r->bottom = r->test_bottom;
+
+		if (!(r->bound_active & 1))
+		{
+			draw_rooms[number_draw_rooms++] = room_number;
+			r->bound_active |= 1;
+
+			if (r->flags & RF_SKYBOX_VISIBLE)
+				outside = RF_SKYBOX_VISIBLE;
+		}
+
+		if (r->flags & RF_SKYBOX_VISIBLE)
+		{
+			if (r->left < outside_left)
+				outside_left = r->left;
+			if (r->right > outside_right)
+				outside_right = r->right;
+			if (r->top < outside_top)
+				outside_top = r->top;
+			if (r->bottom > outside_bottom)
+				outside_bottom = r->bottom;
+		}
+
+		mPushMatrix();
+		mTranslateAbsXYZ(r->x, r->y, r->z);
+
+		short* door;
+		if ((door = r->door))
+		{
+			tr_room_portal* portal = (tr_room_portal*)(door + 1);
+			for (short i = *door++; i > 0; i--, portal++)
+			{
+				if (portal->Normal.x * (r->x + portal->Vertices[0].x - w2v_matrix[M03]) +
+					portal->Normal.y * (r->y + portal->Vertices[0].y - w2v_matrix[M13]) +
+					portal->Normal.z * (r->z + portal->Vertices[0].z - w2v_matrix[M23])
+					>= 0)
+				{
+					continue;
+				}
+
+				SetRoomBounds(portal, portal->AdjoiningRoom, r);
+			}
+		}
+		mPopMatrix();
+	}
 }
 
 void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)
 {
-	short	pitch;
-
 	angles[0] = phd_atan_asm(dz, dx);
 	while ((int16_t)dx != dx || (int16_t)dy != dy || (int16_t)dz != dz)
 	{
@@ -485,7 +717,7 @@ void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)
 		dy >>= 2;
 		dz >>= 2;
 	}
-	pitch = phd_atan_asm(phd_sqrt_asm(dx * dx + dz * dz), dy);
+	short pitch = phd_atan_asm(phd_sqrt_asm(dx * dx + dz * dz), dy);
 	if (dy > 0 && pitch > 0 || dy < 0 && pitch < 0)
 		pitch = -pitch;
 	angles[1] = pitch;

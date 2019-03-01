@@ -14,6 +14,7 @@
 #endif
 #include <EMULATOR.H>
 #include <LIBGPU.H>
+#include "CONTROL.H"
 
 unsigned long GnFrameCounter = 19;
 unsigned long GnLastFrameCount = 19;
@@ -142,7 +143,7 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 	LINE_F2* line2;
 	char txbuf[64];
 
-	if (RawEdge & 8)
+	if (RawEdge & IN_UNK8)
 	{
 		gfx_debugging_mode++;
 	}

@@ -22,6 +22,8 @@
 #include <STRING.H>
 #endif
 #include <LIBMCRD.H>
+#include "CONTROL.H"
+#include "SOUND.H"
 
 static struct REQUESTER InsertReq = { STR_INSERT_MEMCARD_INTO_SLOT_1, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
 static struct REQUESTER CheckingReq = { STR_CHECKING_MEMORY_CARD, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
@@ -173,19 +175,19 @@ int LoadGame()//6297C(<), 63060
 			PrintString(SCREEN_WIDTH / 2, 32, 8, &gfStringWad[gfStringOffset[STR_SELECT_GAME_TO_LOAD]], 0x8000);
 			nfiles = DisplayFiles(cursor, mcNumFiles);
 
-			if ((RawEdge & 0x10) && cursor != 0)
+			if ((RawEdge & IN_DPAD_UP) && cursor != 0)
 			{
 				SoundEffect(SFX_MENU_SELECT, 0, 2);
 				--cursor;
 			}
 			//loc_62B9C
-			else if ((RawEdge & 0x40) && cursor < nfiles - 1)
+			else if ((RawEdge & IN_DPAD_DOWN) && cursor < nfiles - 1)
 			{
 				SoundEffect(SFX_MENU_SELECT, 0, 2);
 				++cursor;
 			}
 			//loc_62BEC
-			else if ((RawEdge & 0x4000))
+			else if ((RawEdge & IN_CROSS))
 			{
 				SoundEffect(SFX_MENU_CHOOSE, 0, 2);
 				func = 7;
@@ -314,7 +316,7 @@ int LoadGame()//6297C(<), 63060
 	if (cancel != 0)
 	{
 		PrintString(SCREEN_WIDTH / 2, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], 0x8000);
-		if ((RawEdge & 0x1000))
+		if ((RawEdge & IN_TRIANGLE))
 		{
 			init = 0;
 			ret = -1;

@@ -805,3 +805,15 @@ void AddFootprint(struct ITEM_INFO* item)
 	UNIMPLEMENTED();
 }
 #endif
+
+short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room_number)
+{
+	GetFloor(x, y, z, &room_number);
+
+	if (room[room_number].flags & RF_FILL_WATER)
+		TriggerUnderwaterBlood(x, y, z, random);
+	else
+		TriggerBlood(x, y, z, y_rot >> 4, random);
+
+	return -1;
+}

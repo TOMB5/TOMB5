@@ -19,6 +19,8 @@
 #define CTR_CLOCK_SYS_ONE (0)
 #define CTR_CLOCK_SYS_ONE_EIGHTH (1)
 
+struct MMTEXTURE;
+
 typedef struct
 {
 	uint16_t Value;
@@ -74,6 +76,9 @@ extern void Emulator_CheckTextureIntersection(RECT16* rect);
 extern void Emulator_SetBlendMode(int mode);
 extern void Emulator_UpdateInput();
 extern void Emulator_CounterLoop();
+#if GLTEST
+extern void Emulator_TestDrawVertices(short* vptr, MMTEXTURE* tex);
+#endif
 
 #endif
 

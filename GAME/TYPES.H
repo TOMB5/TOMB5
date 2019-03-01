@@ -1457,6 +1457,31 @@ struct MESH_STRUCT//maybe NODEOFFSET_INFO
 	unsigned char unk03;//8
 };
 
+struct mesh_header
+{
+	short x;
+	short y;
+	short z;
+	short radius;
+	char vertices;
+	char flags;
+	short face_offset;
+};
+
+struct tr_vertex   // 6 bytes
+{
+	int16_t x;
+	int16_t y;
+	int16_t z;
+};
+
+struct tr_room_portal  // 32 bytes
+{
+	uint16_t  AdjoiningRoom; // Which room this portal leads to
+	struct tr_vertex Normal;
+	struct tr_vertex Vertices[4];
+};
+
 #if PC_VERSION
 #pragma pop
 #endif

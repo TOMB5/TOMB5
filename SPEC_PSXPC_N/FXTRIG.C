@@ -6,13 +6,11 @@
 #include "TEXT.H"
 
 #include <stdio.h>
+#include "DRAW.H"
+#include "DELTAPAK.H"
+#include "TOMB4FX.H"
 
 void SetGunFlash(short gun_type)
-{
-	UNIMPLEMENTED();
-}
-
-void DoBloodSplat(long x, long y, long z, int random, short y_rot, short room_number)
 {
 	UNIMPLEMENTED();
 }
