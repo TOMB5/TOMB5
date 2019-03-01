@@ -16,6 +16,7 @@
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
+#include "FXTRIG.H"
 #endif
 
 struct BITE_INFO LION_BITE_1 = { -2, -10, 0x0FA, 0x15 };
@@ -47,6 +48,7 @@ void LionControl(short item_num)
 	int v9;
 	int v10;
 	struct AI_info info;
+	struct creature_info* crinfo;
 
 	if (CreatureActive(item_num))
 	{
@@ -54,7 +56,7 @@ void LionControl(short item_num)
 		Creature_Angle = 0;
 		angle = 0;
 		required = 0;
-		struct creature_info* crinfo = (struct creature_info*)items[item_num].data;
+		crinfo = (struct creature_info*)items[item_num].data;
 		item = &items[item_num];
 		if (items[item_num].hit_points <= 0)
 		{

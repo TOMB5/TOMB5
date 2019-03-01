@@ -1470,14 +1470,14 @@ struct mesh_header
 
 struct tr_vertex   // 6 bytes
 {
-	int16_t x;
-	int16_t y;
-	int16_t z;
+	short x;
+	short y;
+	short z;
 };
 
 struct tr_room_portal  // 32 bytes
 {
-	uint16_t  AdjoiningRoom; // Which room this portal leads to
+	unsigned short  AdjoiningRoom; // Which room this portal leads to
 	struct tr_vertex Normal;
 	struct tr_vertex Vertices[4];
 };
