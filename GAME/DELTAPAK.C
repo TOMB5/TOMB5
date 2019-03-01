@@ -2279,6 +2279,7 @@ void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VE
 	mPushUnitMatrix();
 	mSetTrans(0, 0, 0);
 	mRotYXZ(duff_item.pos.y_rot, duff_item.pos.x_rot, duff_item.pos.z_rot);
+	bone = &bones[objects[GLOBAL_cutme->actor_data[actornum].objslot].bone_index];
 	mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
 	mRotSuperPackedYXZ(&temp_rotation_buffer[9], 0);
 
