@@ -915,9 +915,9 @@ CalcAllAnimatingItems_ASM:
 
 	loc_827DC:
 	lw      s4, 0x80-0x38(fp)
-	lui     gp, 0xA
+	lw      gp, GP_ADDR
 	jal     DrawAllAnimatingItems_ASM
-	la      gp, GP_ADDR
+	nop
 	lw      ra, 0x80-0x44(sp)
 	lw      fp, 0x80-0x48(sp)
 	lw      s7, 0x80-0x4C(sp)
