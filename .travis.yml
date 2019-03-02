@@ -20,8 +20,6 @@ before_install:
   
 env:
   - CXXFLAGS="-std=c++11"
-  - MACPORTS_CI_EXEC=yes
-  - PRE=$HOME/opt MACPORTS_CI_EXEC=yes
     
 script:
 # this is required for curl to work correctly:
