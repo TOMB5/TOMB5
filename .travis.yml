@@ -10,6 +10,10 @@ language:
 compiler:
   - gcc
   
+cache:
+  directories:
+  - $HOME/.macports-ci-ccache
+
 before_install:
   - ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
   - brew install glew
@@ -17,8 +21,30 @@ before_install:
   
 env:
   - CXXFLAGS="-std=c++11"
+  - MACPORTS_CI_EXEC=yes
+  - PRE=$HOME/opt MACPORTS_CI_EXEC=yes
     
 script:
+# this is required for curl to work correctly:
+  - if test -z "$PRE" ; then PRE=/opt/local ; fi
+  - if test "$MACPORTS_CI_EXEC" = yes ; then
+      chmod +x ./macports-ci ;
+      ./macports-ci install --prefix="$PRE" $OPT ;
+      export COLUMNS=80 ;
+      PATH="$PRE/bin:$PATH" ;
+    else
+      source macports-ci install --prefix="$PRE" $OPT ;
+    fi
+  - port installed
+  - if test "$PRE" = /opt/local ; then source macports-ci ccache ; fi
+# install a small port for test:
+  - sudo port -N install xdrfile
+  - sudo port -N uninstall xdrfile
+  - source macports-ci localports test_portfiles
+# install a small local port for test:
+  - sudo port -N install xdrfile1
+# save ccache
+  - if test "$PRE" = /opt/local ; then source macports-ci ccache --save ; fi
   - mkdir BUILD
   - cd BUILD
   - cmake ..
