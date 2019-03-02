@@ -12,6 +12,10 @@
 #define NULL		0
 #endif
 
+#ifdef __APPLE__
+#include <stddef.h>
+#endif
+
 #include <stdint.h>
 #include <GL/glew.h>
 #include <SDL.h>
