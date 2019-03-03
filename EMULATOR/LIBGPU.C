@@ -21,7 +21,7 @@ DISPENV word_33BC;
 DRAWENV word_unknown00;//Guessed
 int dword_3410 = 0;
 char byte_3352 = 0;
-unsigned long terminator = -1;
+unsigned long* terminator;
 void(*drawsync_callback)(void) = NULL;
 
 void* off_3348[]=
@@ -254,15 +254,6 @@ u_long DrawSyncCallback(void(*func)(void))
 	return 0;
 }
 
-void* fixptr(void* ptr)
-{
-#if 1
-	if (((uintptr_t)&terminator & 0x1000000) && !((uintptr_t)ptr & 0x1000000))
-		return (void*)((uintptr_t)ptr | 0x1000000);
-#endif
-	return ptr;
-}
-
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
 	PutDrawEnv(env);
@@ -286,7 +277,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
 
-		P_TAG* pTag = (P_TAG*)fixptr(p);
+		P_TAG* pTag = (P_TAG*)p;
 
 		do
 		{
@@ -755,13 +746,13 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			//Actually not a stable solution -.-
 			//assert(primSizes[pTag->code]);
 #endif
-			pTag = (P_TAG*)fixptr((void*)pTag->addr);
+			pTag = (P_TAG*)(unsigned int)pTag->addr;
 			//p = (unsigned long*)*p;
 
 			//Reset for vertex colours
 			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-		}while ((unsigned long*)pTag != &terminator && (unsigned long)pTag != 0xFFFFFF);
+		}while ((unsigned long)pTag != (unsigned long)terminator && (unsigned long)pTag != 0xFFFFFF);
 
 		Emulator_DestroyLastVRAMTexture();
 		Emulator_DeleteFrameBufferTexture();

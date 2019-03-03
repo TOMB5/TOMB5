@@ -16,6 +16,10 @@
         #include <unistd.h>
 #endif
 
+#ifdef _WINDOWS
+#include <Windows.h>
+#endif
+
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (0)
 
@@ -30,7 +34,7 @@ int screenHeight = 0;
 int windowWidth = 0;
 int windowHeight = 0;
 int lastTextureCacheIndex = 0;
-
+char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
 
@@ -81,56 +85,43 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	counter_thread = std::thread(Emulator_CounterLoop);
 }
 
-char* Emulator_MapVirtualMemory(void* address, unsigned int size)
+void Emulator_AllocateVirtualMemory(void* address, unsigned int size)
 {
-	char* pMemory = NULL;
 #ifdef __linux__
-	pMemory = (char*)mmap(address, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
-#elif def WINDOWS
-
+	pageSize = getpagesize();
+	pVirtualMemory = (char*)mmap(address, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
 #endif
 
-	if (pMemory == NULL)
+#ifdef _WINDOWS
+	pVirtualMemory = (char*)VirtualAlloc(address, size, MEM_RESERVE, PAGE_READWRITE);
+	pVirtualMemory = (char*)VirtualAlloc(address, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+#endif
+
+	if (pVirtualMemory == NULL)
 	{
 		printf("Failed to map virtual memory!\n");
 	}
 
-	return pMemory;
+	return;
 }
 
 int Emulator_InitialiseGameVariables()
 {
-	///@TODO make memory page global variable then destroy when emulator exits
-	///@TODO port to windows
-	///1. get page size
-	///Get one virtual page
-	///If virtual page size < size of our variables exit
-	char* pMemory = NULL;
 	extern unsigned long* GadwOrderingTables;
 	extern unsigned long* GadwPolygonBuffers;
 	extern unsigned long* GadwOrderingTables_V2;
 	extern unsigned long* terminator;
 
-	pMemory = Emulator_MapVirtualMemory((void*)0x4FFFFF, 20512);
-	if (pMemory == NULL)
+	Emulator_AllocateVirtualMemory((void*)0x4FFFFF, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
+	if (pVirtualMemory == NULL)
 	{
-		return -1;
+		return 0;
 	}
-	GadwOrderingTables = (unsigned long*)pMemory;
 
-	pMemory = Emulator_MapVirtualMemory((void*)0x5FFFFF, 209040);
-	if (pMemory == NULL)
-	{
-		return -1;
-	}
-	GadwPolygonBuffers = (unsigned long*)pMemory;
-
-	pMemory = Emulator_MapVirtualMemory((void*)0x6FFFFF, 4);
-	if (pMemory == NULL)
-	{
-		return -1;
-	}
-	terminator = (unsigned long*)pMemory;
+	GadwOrderingTables = (unsigned long*)&pVirtualMemory;
+	GadwPolygonBuffers = (unsigned long*)&pVirtualMemory[(5128 * 4)];
+	GadwOrderingTables_V2 = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4)];
+	terminator = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4) + (512 * 4)];
 	*terminator = -1;
 
 	return 1;
