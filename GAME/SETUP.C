@@ -51,6 +51,12 @@
 #include <string.h>
 #endif
 
+#ifdef __linux__
+        #define CODE_WAD "DATA/CODE.WAD"
+#else
+        #define CODE_WAD "DATA\\CODE.WAD"
+#endif
+
 #if PSX_VERSION
 	#if !DISC_VERSION
 		#include <LIBSN.H>
@@ -1457,9 +1463,9 @@ void LoadLevel(FILE* nHandle)
 		DEL_CDFS_Read((char*)&tsv_buffer[256], 1920);
 #else
 #if PSX_VERSION
-		nHandle = PCopen("DATA\\CODE.WAD", 0, 0);
+		nHandle = PCopen(CODE_WAD, 0, 0);
 #elif PSXPC_VERSION
-		nHandle = fopen("DATA\\CODE.WAD", "rb");
+		nHandle = fopen(CODE_WAD, "rb");
 #endif
 		FILE_Read((char*)&tsv_buffer[256], 20, 96, nHandle);
 #endif

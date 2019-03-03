@@ -11,6 +11,11 @@
 #include <chrono>
 #include "EMULATOR_GLOBALS.H"
 
+#ifdef __linux__
+        #include <sys/mman.h>
+        #include <unistd.h>
+#endif
+
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (0)
 
@@ -68,8 +73,67 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	SDL_GL_SetSwapInterval(1);
 
 	Emulator_InitialiseGL();
+	if (!Emulator_InitialiseGameVariables())
+	{
+		return;
+	}
 
 	counter_thread = std::thread(Emulator_CounterLoop);
+}
+
+char* Emulator_MapVirtualMemory(void* address, unsigned int size)
+{
+	char* pMemory = NULL;
+#ifdef __linux__
+	pMemory = (char*)mmap(address, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
+#elif def WINDOWS
+
+#endif
+
+	if (pMemory == NULL)
+	{
+		printf("Failed to map virtual memory!\n");
+	}
+
+	return pMemory;
+}
+
+int Emulator_InitialiseGameVariables()
+{
+	///@TODO make memory page global variable then destroy when emulator exits
+	///@TODO port to windows
+	///1. get page size
+	///Get one virtual page
+	///If virtual page size < size of our variables exit
+	char* pMemory = NULL;
+	extern unsigned long* GadwOrderingTables;
+	extern unsigned long* GadwPolygonBuffers;
+	extern unsigned long* GadwOrderingTables_V2;
+	extern unsigned long* terminator;
+
+	pMemory = Emulator_MapVirtualMemory((void*)0x4FFFFF, 20512);
+	if (pMemory == NULL)
+	{
+		return -1;
+	}
+	GadwOrderingTables = (unsigned long*)pMemory;
+
+	pMemory = Emulator_MapVirtualMemory((void*)0x5FFFFF, 209040);
+	if (pMemory == NULL)
+	{
+		return -1;
+	}
+	GadwPolygonBuffers = (unsigned long*)pMemory;
+
+	pMemory = Emulator_MapVirtualMemory((void*)0x6FFFFF, 4);
+	if (pMemory == NULL)
+	{
+		return -1;
+	}
+	terminator = (unsigned long*)pMemory;
+	*terminator = -1;
+
+	return 1;
 }
 
 void Emulator_CounterLoop()
