@@ -144,7 +144,7 @@ u_long* ClearOTag(u_long* ot, int n)
 		return NULL;
 
 	//Last is special terminator
-	ot[n-1] = (unsigned long)&terminator;
+	ot[n-1] = (unsigned long)terminator;
 
 	if (n > 1)
 	{
@@ -163,7 +163,7 @@ u_long* ClearOTagR(u_long* ot, int n)
 		return NULL;
 
 	//First is special terminator
-	ot[0] = (unsigned long)&terminator;
+	ot[0] = (unsigned long)terminator;
 
 	if (n > 1)
 	{
@@ -265,7 +265,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 	GLuint fbo = 0;
 
-	if (p != NULL && *p != NULL)
+	if (p != NULL)
 	{
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();

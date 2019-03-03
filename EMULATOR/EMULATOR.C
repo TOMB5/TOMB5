@@ -102,24 +102,34 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 		{
 			if (memInfo.Type & MEM_MAPPED)
 			{
+#if _DEBUG
 				printf("Mapped\n");
+#endif
 			}
 			else
 			{
-				VirtualUnlock(memInfo.BaseAddress, memInfo.RegionSize);
-				VirtualFree((void*)memInfo.AllocationBase, NULL, MEM_RELEASE);
+#if _DEBUG
+				printf("Not Mapped\n");
+#endif
+				//VirtualUnlock(memInfo.BaseAddress, memInfo.RegionSize);
+				//VirtualFree((void*)memInfo.AllocationBase, NULL, MEM_RELEASE);
 			}
 		}
 		else
 		{
-			pVirtualMemory = (char*)VirtualAlloc((void*)baseAddress, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+			pVirtualMemory = (char*)VirtualAlloc((void*)baseAddress, size, MEM_RESERVE, PAGE_READWRITE);
+			pVirtualMemory = (char*)VirtualAlloc((void*)baseAddress, size, MEM_COMMIT, PAGE_READWRITE);
+
 			if (pVirtualMemory)
 			{
-				VirtualLock((void*)baseAddress, size);
+				//VirtualLock((void*)baseAddress, size);
 				break;
 			}
 		}
+
+#if _DEBUG
 		printf("%d\n", GetLastError());
+#endif
 #endif
 	} while (baseAddress += size);
 
