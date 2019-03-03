@@ -80,5 +80,8 @@ extern void Emulator_CounterLoop();
 extern void Emulator_TestDrawVertices(short* vptr, MMTEXTURE* tex);
 #endif
 
+extern void Emulator_AllocateVirtualMemory(void* address, unsigned int size);
+extern int Emulator_InitialiseGameVariables();
+
 #endif
 

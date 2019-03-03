@@ -34,7 +34,17 @@ ${EMULATOR_SPECIFIC_SRCS}
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLEW_STATIC)
 
+#Someone should actually fix these errors at some point
+if(UNIX)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-narrowing -m32 -g")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wno-narrowing -m32 -g")
+	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wno-narrowing -m32 -g")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing -m32 -g")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-narrowing -m32 -g")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-narrowing -m32 -g")
+endif()
+
 set_target_properties(
-${PROJECT_NAME} PROPERTIES OUTPUT_NAME "LIBPSX"
+${PROJECT_NAME} PROPERTIES OUTPUT_NAME "PSX"
 ${PROJECT_NAME} PROPERTIES FOLDER "Libs"
 )

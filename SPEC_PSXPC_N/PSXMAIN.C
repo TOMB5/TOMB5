@@ -88,8 +88,8 @@ int main(int argc, char* argv[])//10064(<), 10064(<) (F) (*) (D) (ND)
 	CDDA_SetMasterVolume(178);
 #endif
 
-	GPU_UseOrderingTables(&GadwOrderingTables[0], sizeof(GadwOrderingTables) / 8);
-	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], sizeof(GadwPolygonBuffers) / 8);
+	GPU_UseOrderingTables(&GadwOrderingTables[0], 5128 * 4 / 8);
+	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], 52260 * 4 / 8);
 	GPU_GetScreenPosition(&savegame.ScreenX, &savegame.ScreenY);
 
 #if DEBUG_VERSION
