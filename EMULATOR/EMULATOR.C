@@ -11,6 +11,15 @@
 #include <chrono>
 #include "EMULATOR_GLOBALS.H"
 
+#ifdef __linux__
+        #include <sys/mman.h>
+        #include <unistd.h>
+#endif
+
+#ifdef _WINDOWS
+#include <Windows.h>
+#endif
+
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (0)
 
@@ -25,7 +34,7 @@ int screenHeight = 0;
 int windowWidth = 0;
 int windowHeight = 0;
 int lastTextureCacheIndex = 0;
-
+char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
 
@@ -68,8 +77,54 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	SDL_GL_SetSwapInterval(1);
 
 	Emulator_InitialiseGL();
+	if (!Emulator_InitialiseGameVariables())
+	{
+		return;
+	}
 
 	counter_thread = std::thread(Emulator_CounterLoop);
+}
+
+void Emulator_AllocateVirtualMemory(void* address, unsigned int size)
+{
+#ifdef __linux__
+	pageSize = getpagesize();
+	pVirtualMemory = (char*)mmap(address, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
+#endif
+
+#ifdef _WINDOWS
+	pVirtualMemory = (char*)VirtualAlloc(address, size, MEM_RESERVE, PAGE_READWRITE);
+	pVirtualMemory = (char*)VirtualAlloc(address, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+#endif
+
+	if (pVirtualMemory == NULL)
+	{
+		printf("Failed to map virtual memory!\n");
+	}
+
+	return;
+}
+
+int Emulator_InitialiseGameVariables()
+{
+	extern unsigned long* GadwOrderingTables;
+	extern unsigned long* GadwPolygonBuffers;
+	extern unsigned long* GadwOrderingTables_V2;
+	extern unsigned long* terminator;
+
+	Emulator_AllocateVirtualMemory((void*)0x4FFFFF, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
+	if (pVirtualMemory == NULL)
+	{
+		return 0;
+	}
+
+	GadwOrderingTables = (unsigned long*)&pVirtualMemory;
+	GadwPolygonBuffers = (unsigned long*)&pVirtualMemory[(5128 * 4)];
+	GadwOrderingTables_V2 = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4)];
+	terminator = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4) + (512 * 4)];
+	*terminator = -1;
+
+	return 1;
 }
 
 void Emulator_CounterLoop()

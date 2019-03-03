@@ -17,6 +17,12 @@
 
 #include <LIBGTE.H>
 
+#ifdef __linux__
+#define LOADING_PIC "DATA/LOADPIC.RAW"
+#else
+#define LOADING_PIC "data\\loadpic.raw"
+#endif
+
 unsigned char LtLoadingBarEnabled;
 unsigned char LoadingBarEnabled;
 unsigned char _first_time_ever = 1;
@@ -340,7 +346,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 	gfx2 = (unsigned short*) &gfx[0x4000];//256*256 rect icrm
 
 #if !DISC_VERSION
-	file = PCopen("data\\loadpic.raw", 0, file);
+	file = PCopen(LOADING_PIC, 0, file);
 	FILE_Read(gfx, 1, LOADING_SCREEN_IMG_SIZE, file);//Skips loading CD should fix in the far future
 	PCclose(file);
 #else
@@ -421,7 +427,7 @@ void LOAD_Stop()//60434(<), 60FB4(<) (F)
 	db.draw[1].dtd = 1;
 	db.draw[0].dtd = 1;
 
-	GPU_UseOrderingTables(&GadwOrderingTables[0], sizeof(GadwOrderingTables) / 8);
+	GPU_UseOrderingTables(&GadwOrderingTables[0], 5128 * 4 / 8);
 	db.current_buffer = 0;
 
 	GPU_SyncBothScreens();
