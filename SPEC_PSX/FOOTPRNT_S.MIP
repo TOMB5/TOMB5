@@ -133,7 +133,7 @@ S_DrawFootPrints:
 	addiu   s2, 0x10
 
 	loc_82BD4:
-	sw      s0, 0x3644(gp)
+	sw      s0, db+0x8-GP_ADDR(gp)
 	lw      ra, 0x30-0x4(sp)
 	lw      s6, 0x30-0x8(sp)
 	lw      s5, 0x30-0xC(sp)

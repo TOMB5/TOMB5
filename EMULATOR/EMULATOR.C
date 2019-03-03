@@ -79,23 +79,59 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	Emulator_InitialiseGL();
 	if (!Emulator_InitialiseGameVariables())
 	{
-		return;
+		exit(0);
 	}
 
-	counter_thread = std::thread(Emulator_CounterLoop);
+	//counter_thread = std::thread(Emulator_CounterLoop);
 }
 
-void Emulator_AllocateVirtualMemory(void* address, unsigned int size)
+void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 {
+	do
+	{
 #ifdef __linux__
-	pageSize = getpagesize();
-	pVirtualMemory = (char*)mmap(address, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
+		pVirtualMemory = (char*)mmap((void*)baseAddress, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
 #endif
 
 #ifdef _WINDOWS
-	pVirtualMemory = (char*)VirtualAlloc(address, size, MEM_RESERVE, PAGE_READWRITE);
-	pVirtualMemory = (char*)VirtualAlloc(address, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		size = size + (1024 - 1) & ~(1024 - 1);
+		MEMORY_BASIC_INFORMATION memInfo;
+		VirtualQuery((void*)baseAddress, &memInfo, size);
+
+		if (!(memInfo.State & MEM_FREE))
+		{
+			if (memInfo.Type & MEM_MAPPED)
+			{
+#if _DEBUG
+				printf("Mapped\n");
 #endif
+			}
+			else
+			{
+#if _DEBUG
+				printf("Not Mapped\n");
+#endif
+				//VirtualUnlock(memInfo.BaseAddress, memInfo.RegionSize);
+				//VirtualFree((void*)memInfo.AllocationBase, NULL, MEM_RELEASE);
+			}
+		}
+		else
+		{
+			pVirtualMemory = (char*)VirtualAlloc((void*)baseAddress, size, MEM_RESERVE, PAGE_READWRITE);
+			pVirtualMemory = (char*)VirtualAlloc((void*)baseAddress, size, MEM_COMMIT, PAGE_READWRITE);
+
+			if (pVirtualMemory)
+			{
+				//VirtualLock((void*)baseAddress, size);
+				break;
+			}
+		}
+
+#if _DEBUG
+		printf("%d\n", GetLastError());
+#endif
+#endif
+	} while (baseAddress += size);
 
 	if (pVirtualMemory == NULL)
 	{
@@ -112,13 +148,17 @@ int Emulator_InitialiseGameVariables()
 	extern unsigned long* GadwOrderingTables_V2;
 	extern unsigned long* terminator;
 
-	Emulator_AllocateVirtualMemory((void*)0x4FFFFF, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
+	Emulator_AllocateVirtualMemory(0x100000, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
 	if (pVirtualMemory == NULL)
 	{
 		return 0;
 	}
+	if ((uintptr_t)pVirtualMemory & 0xFF000000)
+	{
+		printf("*********************************************************************** And an error occured!\n");
+	}
 
-	GadwOrderingTables = (unsigned long*)&pVirtualMemory;
+	GadwOrderingTables = (unsigned long*)&pVirtualMemory[0];
 	GadwPolygonBuffers = (unsigned long*)&pVirtualMemory[(5128 * 4)];
 	GadwOrderingTables_V2 = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4)];
 	terminator = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4) + (512 * 4)];
@@ -250,8 +290,10 @@ void Emulator_BeginScene()
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
-		if (event.type == SDL_QUIT)
+		if (event.type == SDL_QUIT || (event.type == SDL_WINDOWEVENT &&
+			event.window.event == SDL_WINDOWEVENT_CLOSE))
 		{
+			Emulator_ShutDown();
 			SDL_Quit();
 			exit(0);
 		}
@@ -391,6 +433,10 @@ void Emulator_ShutDown()
 	{
 		glDeleteTextures(1, &cachedTextures[i].textureID);
 	}
+#ifdef _WINDOWS
+	VirtualFree(pVirtualMemory, 0, MEM_RELEASE);
+#endif
+
 }
 
 void Emulator_GenerateFrameBuffer(GLuint& fbo)

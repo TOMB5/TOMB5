@@ -1542,6 +1542,7 @@ void LoadLevel(FILE* nHandle)
 
 	if (number_rooms > 0)
 	{
+#ifndef __linux__
 		//loc_A84
 		for(i = 0; i < number_rooms; i++)
 		{
@@ -1574,6 +1575,7 @@ void LoadLevel(FILE* nHandle)
 				}
 			}//loc_C2C
 		}
+#endif
 	}//loc_C3C
 
 	InitialiseResidentCut(gfResidentCut[0], gfResidentCut[1], gfResidentCut[2], gfResidentCut[3]);

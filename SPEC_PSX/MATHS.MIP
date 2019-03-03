@@ -1839,15 +1839,15 @@ ScaleCurrentMatrix:
 ;0x77E70
 GetRoomBoundsAsm:
 	lui	a1, 0x1F80
-	sw	s0, 0x1F8000D8
-	sw	s1, 0x1F8000DC
-	sw	s2, 0x1F8000E0
-	sw	s3, 0x1F8000E4
-	sw	s4, 0x1F8000E8
-	sw	s5, 0x1F8000EC
-	sw	s6, 0x1F8000F0
-	sw	s7, 0x1F8000F4
-	sw	fp, 0x1F8000F8
+	sw	s0, 0xD8(a1)
+	sw	s1, 0xDC(a1)
+	sw	s2, 0xE0(a1)
+	sw	s3, 0xE4(a1)
+	sw	s4, 0xE8(a1)
+	sw	s5, 0xEC(a1)
+	sw	s6, 0xF0(a1)
+	sw	s7, 0xF4(a1)
+	sw	fp, 0xF8(a1)
 	move	s0, a1
 	lw	s1, room-GP_ADDR(gp)
 	move	s2, zero
@@ -2338,16 +2338,16 @@ GetRoomBoundsAsm:
 	sw	s5, number_draw_rooms-GP_ADDR(gp)
 	sw	fp, outside-GP_ADDR(gp)
 	lui	a0, 0x1F80
-	lw	s0, 0x1F8000D8
-	lw	s1, 0x1F8000DC
-	lw	s2, 0x1F8000E0
-	lw	s3, 0x1F8000E4
-	lw	s4, 0x1F8000E8
-	lw	s5, 0x1F8000EC
-	lw	s6, 0x1F8000F0
-	lw	s7, 0x1F8000F4
+	lw	s0, 0xD8(a0)
+	lw	s1, 0xDC(a0)
+	lw	s2, 0xE0(a0)
+	lw	s3, 0xE4(a0)
+	lw	s4, 0xE8(a0)
+	lw	s5, 0xEC(a0)
+	lw	s6, 0xF0(a0)
+	lw	s7, 0xF4(a0)
 	jr	ra
-	lw	fp, 0x1F8000F8
+	lw	fp, 0xF8(a0)
 	
 ;0x77728
 phd_LookAt:

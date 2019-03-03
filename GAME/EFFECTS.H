@@ -51,7 +51,5 @@ extern long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2);
 extern void StopSoundEffect(short sample_index);
 extern void LaraBubbles(struct ITEM_INFO* item);
 extern void AddFootprint(struct ITEM_INFO* item);
-extern short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room_number);
-
 
 #endif

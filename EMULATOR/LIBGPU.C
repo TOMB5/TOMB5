@@ -144,7 +144,7 @@ u_long* ClearOTag(u_long* ot, int n)
 		return NULL;
 
 	//Last is special terminator
-	ot[n-1] = (unsigned long)&terminator;
+	ot[n-1] = (unsigned long)terminator;
 
 	if (n > 1)
 	{
@@ -163,7 +163,7 @@ u_long* ClearOTagR(u_long* ot, int n)
 		return NULL;
 
 	//First is special terminator
-	ot[0] = (unsigned long)&terminator;
+	ot[0] = (unsigned long)terminator;
 
 	if (n > 1)
 	{
@@ -265,7 +265,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 	GLuint fbo = 0;
 
-	if (p != NULL && *p != NULL)
+	if (p != NULL)
 	{
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
@@ -388,8 +388,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
 
 				glBegin(GL_QUADS);
-
-				glColor3ubv(&poly->r0);
 
 				glTexCoord2f(poly->u0 / 256.0f, poly->v0 / 256.0f);
 				glVertex2f(poly->x0, poly->y0);
@@ -740,14 +738,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				break;
 			}
 
-
-			//p = (unsigned long*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
-#if _DEBUG
-			//Actually not a stable solution -.-
-			//assert(primSizes[pTag->code]);
-#endif
 			pTag = (P_TAG*)(unsigned int)pTag->addr;
-			//p = (unsigned long*)*p;
 
 			//Reset for vertex colours
 			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);

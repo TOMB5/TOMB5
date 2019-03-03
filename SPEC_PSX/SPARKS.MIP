@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF S_DrawSparks, local_GetRandomDraw
-	XREF mPushMatrix, rand_2, mTranslateAbsXYZ, items, lara_item, effects, mPopMatrix, db, psxspriteinfo, phd_persp, spark, NodeVectors, NodeOffsets, GetLaraJointPos, GetJointAbsPosition, rcossin_tbl
+	XREF mPushMatrix, rand_2, mTranslateAbsXYZ, items, lara_item, effects, mPopMatrix, db, psxspriteinfo, phd_persp, spark, NodeVectors, NodeOffsets, GetLaraJointPos, GetJointAbsPosition, rcossin_tbl, LaraPos
 	
 local_GetRandomDraw:
 	lw      v0, rand_2-GP_ADDR(gp)
@@ -151,9 +151,9 @@ S_DrawSparks:
 	subu    at, a0
 	subu    v0, a1
 	subu    v1, a2
-	lw      a0, 0x4F94(gp)
-	lw      a1, 0x4F98(gp)
-	lw      a2, 0x4F9C(gp)
+	lw      a0, LaraPos+0x0-GP_ADDR(gp)
+	lw      a1, LaraPos+0x4-GP_ADDR(gp)
+	lw      a2, LaraPos+0x8-GP_ADDR(gp)
 	addu    at, a0
 	addu    v0, a1
 	addu    v1, a2

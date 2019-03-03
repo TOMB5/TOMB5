@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF DrawCutSeqActors, updateAnimFrame, CalcVolumes_ASM
-	XREF SoundFXVolume, rcossin_tbl, GLOBAL_cutme, meshes, cutrot, mPushMatrix, cutseq_meshbits, cutseq_meshswapbits, temp_rotation_buffer, mTranslateAbsXYZ, objects, bones, mTranslateXYZ, mRotSuperPackedYXZ, phd_PutPolygons_seethrough, phd_PutPolygons, cut_seethrough, mPopMatrix, phd_PutPolygons_seethrough, actor_pnodes, duff_item, mSetTrans, IsRoomOutside, mPushUnitMatrix, S_CalculateLight
+	XREF SoundFXVolume, rcossin_tbl, GLOBAL_cutme, meshes, cutrot, mPushMatrix, cutseq_meshbits, cutseq_meshswapbits, temp_rotation_buffer, mTranslateAbsXYZ, objects, bones, mTranslateXYZ, mRotSuperPackedYXZ, phd_PutPolygons_seethrough, phd_PutPolygons, cut_seethrough, mPopMatrix, phd_PutPolygons_seethrough, actor_pnodes, duff_item, mSetTrans, IsRoomOutside, mPushUnitMatrix, S_CalculateLight, IsRoomOutsideNo
 
 CalcVolumes_ASM:
 	la      v1, rcossin_tbl
@@ -373,7 +373,7 @@ CalcActorLighting:
 	lw      a1, 4(s1)
 	jal     IsRoomOutside
 	lw      a2, 8(s1)
-	lh      v0, 0x1C54(gp)
+	lh      v0, IsRoomOutsideNo-GP_ADDR(gp)
 	li      at, 0xFFFFFFFF
 	beq     v0, at, loc_911C8
 	lh      a3, 0x18(s2)

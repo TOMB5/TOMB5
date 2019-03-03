@@ -486,7 +486,7 @@ int DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F) (*)
 		
 		CdIntToPos(cdCurrentSector, &fp.pos);
 		CdControlB(CdlSetloc, (unsigned char*)&fp, NULL);
-		CdRead(1, &buf, CdlModeSpeed);
+		CdRead(1, (unsigned long*)&buf[0], CdlModeSpeed);
 
 		while (CdReadSync(1, 0) > 0)
 		{

@@ -524,14 +524,14 @@ void CreatureFloat(short item_number)//24524(<), (?) (F)
 void CreatureJoint(struct ITEM_INFO* item, short joint, short required)//24484(<) ? (F)
 {
 	short change;
+	struct creature_info* crinfo;
 
 	if (item->data == NULL)
 	{
 		return;
 	}
 
-	struct creature_info* crinfo = (struct creature_info*)item->data;
-
+	crinfo = (struct creature_info*)item->data;
 	change = required - crinfo->joint_rotation[joint];
 
 	if (change < ANGLE(-3))

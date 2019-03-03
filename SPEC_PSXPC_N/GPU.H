@@ -14,9 +14,9 @@ extern int rgbscaleme;
 extern int gfx_debugging_mode;
 extern struct DB_STRUCT db;
 extern struct MMTEXTURE* RoomTextInfo;
-extern unsigned long GadwOrderingTables_V2[512];
-extern unsigned long GadwOrderingTables[5128];
-extern unsigned long GadwPolygonBuffers[52260];
+extern unsigned long* GadwOrderingTables_V2;
+extern unsigned long* GadwOrderingTables;
+extern unsigned long* GadwPolygonBuffers;
 
 extern void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize);
 extern void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize);

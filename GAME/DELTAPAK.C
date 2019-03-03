@@ -2263,24 +2263,6 @@ void TriggerDelSmoke(long x, long y, long z, int sizeme)//2EED8(<), 2F1E4(<) (F)
 	}
 }
 
-void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
-{
-	for(int i = 0; i < 32; i++)
-	{
-		if (!(ripples[i].flags & 1))
-		{
-			ripples[i].flags = 0x31;
-			ripples[i].init = 1;
-			ripples[i].life = (GetRandomControl() & 7) - 16;
-			ripples[i].size = sizeme;
-			ripples[i].x = (GetRandomControl() & 0x3F) + x - 32;
-			ripples[i].y = y;
-			ripples[i].z = (GetRandomControl() & 0x3F) + z - 32;
-			return;
-		}
-	}
-}
-
 void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* pos, int direction, int speed)//2EE84(<), 2F190(<) (F)
 {
 	GetActorJointAbsPosition(actornum, nodenum, pos);
@@ -2289,16 +2271,19 @@ void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* p
 
 void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR* vec)
 {
+	int i;
+	long* bone;
+
 	mPushMatrix();
 	updateAnimFrame(actor_pnodes[actornum], GLOBAL_cutme->actor_data[actornum].nodes + 1, temp_rotation_buffer);
 	mPushUnitMatrix();
 	mSetTrans(0, 0, 0);
 	mRotYXZ(duff_item.pos.y_rot, duff_item.pos.x_rot, duff_item.pos.z_rot);
-	long* bone = &bones[objects[GLOBAL_cutme->actor_data[actornum].objslot].bone_index];
+	bone = &bones[objects[GLOBAL_cutme->actor_data[actornum].objslot].bone_index];
 	mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
 	mRotSuperPackedYXZ(&temp_rotation_buffer[9], 0);
 
-	for (int i = 0; i < nodenum; i++, bone += 4)
+	for (i = 0; i < nodenum; i++, bone += 4)
 	{
 		if (*bone & 1)
 		{
@@ -2315,7 +2300,9 @@ void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VE
 	}
 
 	mTranslateXYZ(vec->x, vec->y, vec->z);
+#if PSXPC_TEST //?
 	gte_sttr(vec);
+#endif
 
 	vec->x += duff_item.pos.x_pos;
 	vec->y += duff_item.pos.y_pos;
