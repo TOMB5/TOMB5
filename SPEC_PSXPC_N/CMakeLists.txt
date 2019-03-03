@@ -80,12 +80,12 @@ ${PROJECT_NAME} PROPERTIES FOLDER "Build Targets/PlayStation"
 
 #Someone should actually fix these errors at some point
 if(UNIX)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -Wno-narrowing")
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -m32 -Wno-narrowing")
-	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -m32 -Wno-narrowing")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -Wno-narrowing")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -m32 -Wno-narrowing")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -m32 -Wno-narrowing")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-narrowing")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wno-narrowing")
+	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wno-narrowing")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-narrowing")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-narrowing")
 endif()
 
 set(TARGET_BINARY_DIR "${PROJECT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
