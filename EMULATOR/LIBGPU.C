@@ -738,14 +738,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				break;
 			}
 
-
-			//p = (unsigned long*)((uintptr_t)pTag - ((pTag->len * 4) + 4));
-#if _DEBUG
-			//Actually not a stable solution -.-
-			//assert(primSizes[pTag->code]);
-#endif
 			pTag = (P_TAG*)(unsigned int)pTag->addr;
-			//p = (unsigned long*)*p;
 
 			//Reset for vertex colours
 			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
