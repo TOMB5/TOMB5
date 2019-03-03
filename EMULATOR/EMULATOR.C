@@ -90,7 +90,7 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 	do
 	{
 #ifdef __linux__
-		pVirtualMemory = (char*)mmap(baseAddress, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
+		pVirtualMemory = (char*)mmap((void*)baseAddress, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
 #endif
 
 #ifdef _WINDOWS
