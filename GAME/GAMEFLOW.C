@@ -378,8 +378,12 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 		case GF_KEY_ITEM1:
 		case GF_KEY_ITEM2:
 		case GF_PUZZLE_ITEM1:
+		case GF_PUZZLE_ITEM2:
+		case GF_PUZZLE_ITEM3:
 		case GF_PICKUP_ITEM1:
 		case GF_PICKUP_ITEM2:
+		case GF_PUZZLE_ITEM2_COMBO1:
+		case GF_PUZZLE_ITEM2_COMBO2:
 		{
 			//def_10FE0
 			int invobj;//a1
