@@ -113,23 +113,24 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 	}
 	case 2:
 	{
-		cnt = XATrack = XAReqTrack;
+		XATrack = XAReqTrack;
 
 		if (XAReqTrack < 0)
 		{
 			cnt = XAReqTrack + 7;
 		}
+		else
+		{
+			cnt = XAReqTrack;
+		}
 
-		cnt = (cnt >> 3) << 3;//>>3<<3
-		XAStartPos = XATrackList[cnt][0];
+		XAStartPos = XATrackList[cnt >> 3][0];
 		io[0] = 1;
-		XAEndPos = XATrackList[cnt][1] + XATrackClip[XAReqTrack];
-		XAStartPos = 0;
+		XAEndPos = XATrackList[cnt >> 3][1] + (short)XATrackClip[XAReqTrack];
 		io[1] = XATrack & 7;
 		XACurPos = XAStartPos;
 		CdControlF(CdlSetfilter, &io[0]);
 		XAFlag++;
-
 		break;
 	}
 	case 3:
@@ -138,7 +139,7 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 		XAReplay();
 		XAReqVolume = XAMasterVolume;
 		XAFlag++;
-		
+
 		break;
 	}
 	case 4:
@@ -149,7 +150,7 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 			XAFlag++;
 			XAWait = 60;
 		}
-		
+
 		break;
 	}
 	case 5:
@@ -161,7 +162,7 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 		}
 
 		XAWait--;
-		
+
 		break;
 	}
 	case 6:
@@ -177,7 +178,7 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 			}
 			else if (ret == 2)
 			{
-				if (XACurPos > XAEndPos)
+				if (XACurPos >= XAEndPos)
 				{
 					if (XARepeat)
 					{
@@ -207,7 +208,7 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 					//5DAEC
 					if (CdLastCom() == 0x11)
 					{
-						cnt = CdPosToInt((CdlLOC*) &io[5]);
+						cnt = CdPosToInt((CdlLOC*)&io[5]);
 						if (cnt > 0)
 						{
 							XACurPos = cnt;
@@ -230,18 +231,18 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 	{
 		XAVolume += XAFadeRate;
 
-		if (XAVolume > XAReqVolume)
+		if (XAVolume >= XAReqVolume)
 		{
 			XAVolume = XAReqVolume;
 		}
 
 		CDDA_SetVolume(XAVolume);
 	}
-	else if (XAReqVolume < XAVolume)
+	else if (XAVolume > XAReqVolume)
 	{
 		XAVolume -= XAFadeRate;
 
-		if (XAReqVolume > XAVolume)
+		if (XAVolume <= XAVolume)
 		{
 			XAVolume = XAReqVolume;
 		}
