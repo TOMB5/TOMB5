@@ -86,10 +86,12 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	SDL_GL_SetSwapInterval(1);
 
 	Emulator_InitialiseGL();
+#if __linux__
 	if (!Emulator_InitialiseGameVariables())
 	{
 		exit(0);
 	}
+#endif
 
 	//counter_thread = std::thread(Emulator_CounterLoop);
 }
