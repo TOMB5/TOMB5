@@ -1,9 +1,18 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
+#if __APPLE__
+#include <stddef.h>
+#endif
+
 #include <GL/glew.h>
+#if __APPLE__
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#else
 #include <SDL.h>
 #include <SDL_opengl.h>
+#endif
 #include <LIBGPU.H>
 
 #define CTR_RUNNING (0)

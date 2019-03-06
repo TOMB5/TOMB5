@@ -13,9 +13,6 @@
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 
-#define POLY_TAG_USE_ADDR (0)
-#define ENABLE_BLEND (0)
-
 unsigned short vram[1024 * 512];
 DISPENV word_33BC;
 DRAWENV word_unknown00;//Guessed
@@ -260,7 +257,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 	if (env->isbg)
 	{
-		ClearImage(&env->clip, env->r0, env->b0, env->g0);
+		ClearImage(&env->clip, env->b0, env->g0, env->r0);
 	}
 
 	GLuint fbo = 0;
