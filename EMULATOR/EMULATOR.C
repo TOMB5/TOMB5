@@ -92,8 +92,7 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 		exit(0);
 	}
 #endif
-
-	//counter_thread = std::thread(Emulator_CounterLoop);
+	counter_thread = std::thread(Emulator_CounterLoop);
 }
 
 void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
@@ -159,6 +158,7 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 
 int Emulator_InitialiseGameVariables()
 {
+#if __linux__
 	extern unsigned long* GadwOrderingTables;
 	extern unsigned long* GadwPolygonBuffers;
 	extern unsigned long* GadwOrderingTables_V2;
@@ -187,7 +187,7 @@ int Emulator_InitialiseGameVariables()
 	GadwOrderingTables_V2 = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4)];
 	terminator = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4) + (512 * 4)];
 	*terminator = -1;
-
+#endif
 	return 1;
 }
 
@@ -324,8 +324,6 @@ void Emulator_BeginScene()
 	}
 
 	lastTime = SDL_GetTicks();
-
-	Emulator_UpdateInput();
 }
 
 void Emulator_UpdateInput()
@@ -445,6 +443,7 @@ void Emulator_EndScene()
 
 	glDisable(GL_TEXTURE_2D);
 	glDeleteTextures(1, &vramTexture);
+	Emulator_UpdateInput();
 }
 
 void Emulator_ShutDown()
