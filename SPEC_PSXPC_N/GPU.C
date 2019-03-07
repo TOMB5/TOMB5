@@ -25,7 +25,7 @@ int gfx_debugging_mode;
 struct DB_STRUCT db;
 struct MMTEXTURE* RoomTextInfo;
 #if __linux__
-extern unsigned long* GadwOrderingTables_V2;
+unsigned long* GadwOrderingTables_V2;
 #else
 unsigned long GadwOrderingTables_V2[512];
 #endif
