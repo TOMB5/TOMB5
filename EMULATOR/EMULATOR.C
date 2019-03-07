@@ -58,7 +58,7 @@ struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
 void Emulator_Init(char* windowName, int screen_width, int screen_height)
 {
-#if _DEBUG || 1
+#if _DEBUG && _WINDOWS
 	SetUnhandledExceptionFilter(unhandled_handler);
 #endif
 	screenWidth = screen_width;
