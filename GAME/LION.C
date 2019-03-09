@@ -8,10 +8,11 @@
 #include "CONTROL.H"
 #include "TOMB4FX.H"
 #include "STYPES.H"
-#include "FXTRIG.H"
+
 #include "EFFECTS.H"
 #if PC_VERSION
 #include "GAME.H"
+#include "FXTRIG.H"
 #endif
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION

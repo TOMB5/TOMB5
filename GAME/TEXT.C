@@ -8,6 +8,7 @@
 #endif
 
 #include "STYPES.H"
+#include "SPECIFIC.H"
 
 char AccentTable[46][2] =
 {

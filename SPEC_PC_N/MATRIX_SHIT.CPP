@@ -8,7 +8,7 @@
 #include "CONTROL.H"
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 	struct SVECTOR CamRot;
 	int32_t		phd_left;  				/* Left Clipping Value */
@@ -50,7 +50,7 @@ extern "C" {
 	float		w2v_matrix_f[12];		// World to View Matrix...
 	int32_t		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
 	float		matrix_stack_dx[12 * MAX_MAT];
-	float		sin_flt_table[(int)ANGLE(360)];
+	float		sin_flt_table[65536];
 
 	D3DMATRIX transform_projection;
 	D3DMATRIX w2v_matrix_d3d;
@@ -421,5 +421,5 @@ extern "C" {
 	
 
 #ifdef __cplusplus
-}
+//}
 #endif

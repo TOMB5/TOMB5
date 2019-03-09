@@ -89,7 +89,7 @@ RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
 typedef unsigned int uintptr_t;
 #endif
 
-#if PSXPC_VERSION || PSXPC_TEST || SAT_VERSION
+#if (PSXPC_VERSION || PSXPC_TEST || SAT_VERSION) && !PC_VERSION
 struct object_container objects_raw;
 struct object_info* objects = &objects_raw.m_objects[0];
 struct static_info* static_objects = &objects_raw.m_static_objects[0];

@@ -3,7 +3,7 @@
 #include "GLOBAL.H"
 #include <dinput.h>
 #include "SOUND.H"
-#include "SETUP.H"
+#include "PCSETUP.H"
 #include <mmreg.h>
 #include <msacm.h>
 #include "INPUT.H"

@@ -53,14 +53,14 @@
 #include "SOUND.H"
 #include "EFFECTS.H"
 #include <stdio.h>
-#include "LOAD_LEV.H"
+
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #include "SPHERES.H"
 #include "FXTRIG.H"
 #include "TEXT_S.H"
-
+#include "LOAD_LEV.H"
 #if DEBUG_VERSION
 #include <LIBETC.H>
 #endif

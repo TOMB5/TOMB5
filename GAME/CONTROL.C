@@ -35,12 +35,13 @@
 #include "MATHS.H"
 #include "ROOMLOAD.H"
 #include "PSOUTPUT.H"
-#include "SETUP.H"
+
 
 #include "GETSTUFF.H"
 #include "TEXT_S.H"
 #include "FXTRIG.H"
 #endif
+#include "SETUP.H"
 #include "LARA1GUN.H"
 #include "HAIR.H"
 #include "HEALTH.H"

@@ -12,7 +12,11 @@
 #include "SETUP.H"
 #include "ROOMLOAD.H"
 #include "SPHERES.H"
+#include "MATHS.H"
 #include "LIGHT.H"
+#endif
+#if PC_VERSION
+#include "GLOBAL.H"
 #endif
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -394,12 +398,12 @@ void CutsceneRopeControl(short item_number)//50454(<), ? (F)
 	item->pos.x_pos = pos2.x;
 	item->pos.y_pos = pos2.y;
 	item->pos.z_pos = pos2.z;
-
+	
 	dx = (pos2.x - pos1.x) * (pos2.x - pos1.x);
 	dy = (pos2.y - pos1.y) * (pos2.y - pos1.y);
 	dz = (pos2.z - pos1.z) * (pos2.z - pos1.z);
 	
-	item->item_flags[1] = ((mSqrt(dx + dy + dz) << 1) + mSqrt(dx + dy + dz)) << 1;
+	item->item_flags[1] = ((phd_sqrt_asm(dx + dy + dz) << 1) + phd_sqrt_asm(dx + dy + dz)) << 1;
 	item->pos.x_rot = -4869;
 }
 

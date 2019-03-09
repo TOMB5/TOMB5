@@ -75,6 +75,12 @@ extern int S_LoadSave(int input, int in_inventory);
 extern int S_DisplayPauseMenu(int a1);
 extern int S_PauseMenu();
 
+extern void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate);
+
+extern void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag);
+
+extern int TitleOptions();
+
 #ifdef __cplusplus
 }
 #endif

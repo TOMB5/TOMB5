@@ -158,7 +158,7 @@ struct Level
 	int unk57;
 };
 
-#if PSX_VERSION && !(PSXPC_TEST || SAT_VERSION)
+#if (PSX_VERSION && !(PSXPC_TEST || SAT_VERSION)) || PC_VERSION
 extern struct object_info objects[NUMBER_OBJECTS];
 extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
 extern char SkinVertNums[480];

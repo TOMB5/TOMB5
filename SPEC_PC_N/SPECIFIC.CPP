@@ -30,7 +30,7 @@
 #include "HEALTH.H"
 #include "DELTAPAK.H"
 #include "NEWINV2.H"
-#include <time.h>
+#include <ctime>
 #include <zlib.h>
 
 #pragma comment(lib, "zlibstatic.lib")
@@ -913,6 +913,22 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 	}
 
 	return surf;
+}
+
+void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate)
+{
+	UNIMPLEMENTED();
+}
+
+void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
+{
+	UNIMPLEMENTED();
+}
+
+int TitleOptions()
+{
+	UNIMPLEMENTED();
+	return 0;
 }
 
 #ifdef __cplusplus

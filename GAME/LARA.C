@@ -17,11 +17,12 @@
 #include "GAMEFLOW.H"
 #include "LARAFIRE.H"
 #include "CODEWAD.H"
-#include "3D_GEN.H"
-#include "MATHS.H"
+
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
+#include "3D_GEN.H"
 #include "MISC.H"
+#include "MATHS.H"
 #endif
 
 

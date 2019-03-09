@@ -3,8 +3,8 @@
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "LARA.H"
-#include INPUT_H
 #include "SPECIFIC.H"
+#include INPUT_H
 #include "DRAW.H"
 
 static short LeftIntRightExtTab[4] = // offset 0xA0B7C

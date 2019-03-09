@@ -12,7 +12,7 @@ extern struct WINAPP App;
 #define mPopMatrix phd_PopMatrix
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 	extern uint32	phd_sqrt(uint32 n);
@@ -103,7 +103,7 @@ extern void SetViewMatrix();
 #define phd_PopMatrix()		{ phd_mxptr -= 12; phd_dxptr -= 12; }
 
 #ifdef __cplusplus
-}
+//}
 #endif
 
 extern WATERTAB	WaterTable[22][64];

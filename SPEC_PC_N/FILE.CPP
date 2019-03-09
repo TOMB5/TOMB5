@@ -62,7 +62,7 @@ OBJECT_TEXTURE* waterfall_textures[6];
 float waterfall_y[6];
 int num_room_lights;
 
-#ifdef __cplusplus
+#ifdef __cplusplusa
 extern "C"
 {
 #endif
@@ -1747,6 +1747,6 @@ extern "C"
 		return res;
 	}
 
-#ifdef __cplusplus
+#ifdef __cplusplusa
 }
 #endif

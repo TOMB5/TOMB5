@@ -14,9 +14,10 @@
 #include "GAME.H"
 #include "GLOBAL.H"
 #else
-#include "SETUP.H"
 #include "MATHS.H"
 #endif
+
+#include "SETUP.H"
 
 #include "STYPES.H"
 #include <assert.h>
