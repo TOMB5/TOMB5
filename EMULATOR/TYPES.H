@@ -41,6 +41,7 @@ typedef	unsigned long	ulong;		/* sys V compat */
 #endif
 #endif /* ! __psx__ */
 
+#if !__APPLE__
 typedef	struct	_physadr { int r[1]; } *physadr;
 typedef	struct	label_t	{
 	int	val[12];
@@ -63,6 +64,7 @@ typedef	unsigned int size_t;
 typedef	long	off_t;
 typedef	u_short	uid_t;
 typedef	u_short	gid_t;
+#endif
 
 #define	NBBY	8
 

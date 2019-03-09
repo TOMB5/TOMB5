@@ -24,11 +24,19 @@ int rgbscaleme = 256;
 int gfx_debugging_mode;
 struct DB_STRUCT db;
 struct MMTEXTURE* RoomTextInfo;
+#if __linux__
 unsigned long* GadwOrderingTables_V2;
+#else
+unsigned long GadwOrderingTables_V2[512];
+#endif
 static int LnFlipFrame;
+#if __linux__
 unsigned long* GadwOrderingTables;
 unsigned long* GadwPolygonBuffers;
-
+#else
+unsigned long GadwOrderingTables[5128];
+unsigned long GadwPolygonBuffers[52260];
+#endif
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<) (D) (ND)
 {

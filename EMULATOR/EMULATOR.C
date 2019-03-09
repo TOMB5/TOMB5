@@ -1,7 +1,12 @@
 #include "EMULATOR.H"
 
+#if __APPLE__
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#else
 #include <SDL.h>
 #include <SDL_opengl.h>
+#endif
 #include <LIBPAD.H>
 #include <stdio.h>
 #include <LIBGPU.H>
@@ -10,6 +15,7 @@
 #include <thread>
 #include <chrono>
 #include "EMULATOR_GLOBALS.H"
+#include "CRASHHANDLER.H"
 
 #ifdef __linux__
         #include <sys/mman.h>
@@ -52,6 +58,9 @@ struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
 void Emulator_Init(char* windowName, int screen_width, int screen_height)
 {
+#if _DEBUG && _WINDOWS
+	SetUnhandledExceptionFilter(unhandled_handler);
+#endif
 	screenWidth = screen_width;
 	screenHeight = screen_height;
 	windowWidth = screen_width * V_SCALE;
@@ -77,12 +86,13 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	SDL_GL_SetSwapInterval(1);
 
 	Emulator_InitialiseGL();
+#if __linux__
 	if (!Emulator_InitialiseGameVariables())
 	{
 		exit(0);
 	}
-
-	//counter_thread = std::thread(Emulator_CounterLoop);
+#endif
+	counter_thread = std::thread(Emulator_CounterLoop);
 }
 
 void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
@@ -94,10 +104,13 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 #endif
 
 #ifdef _WINDOWS
-		size = size + (1024 - 1) & ~(1024 - 1);
+		size = size + (4096 - 1) & ~(4096 - 1);
+		baseAddress = baseAddress + (4096 - 1) & ~(4096 - 1);
 		MEMORY_BASIC_INFORMATION memInfo;
 		VirtualQuery((void*)baseAddress, &memInfo, size);
-
+#if _DEBUG
+		printf("VQ: %d\n", GetLastError());
+#endif
 		if (!(memInfo.State & MEM_FREE))
 		{
 			if (memInfo.Type & MEM_MAPPED)
@@ -111,25 +124,27 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 #if _DEBUG
 				printf("Not Mapped\n");
 #endif
-				//VirtualUnlock(memInfo.BaseAddress, memInfo.RegionSize);
-				//VirtualFree((void*)memInfo.AllocationBase, NULL, MEM_RELEASE);
+				VirtualUnlock((void*)baseAddress, memInfo.RegionSize);
+				VirtualFree((void*)baseAddress, NULL, MEM_RELEASE);
 			}
 		}
 		else
 		{
-			pVirtualMemory = (char*)VirtualAlloc((void*)baseAddress, size, MEM_RESERVE, PAGE_READWRITE);
-			pVirtualMemory = (char*)VirtualAlloc((void*)baseAddress, size, MEM_COMMIT, PAGE_READWRITE);
+			
+			pVirtualMemory = (char*)VirtualAlloc((void*)memInfo.BaseAddress, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
+#if _DEBUG
+			printf("VA: %d\n", GetLastError());
+#endif
 			if (pVirtualMemory)
 			{
+				printf("%x\n", (unsigned int)baseAddress);
 				//VirtualLock((void*)baseAddress, size);
 				break;
 			}
+			
 		}
 
-#if _DEBUG
-		printf("%d\n", GetLastError());
-#endif
 #endif
 	} while (baseAddress += size);
 
@@ -143,12 +158,20 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 
 int Emulator_InitialiseGameVariables()
 {
+#if __linux__
 	extern unsigned long* GadwOrderingTables;
 	extern unsigned long* GadwPolygonBuffers;
 	extern unsigned long* GadwOrderingTables_V2;
 	extern unsigned long* terminator;
 
-	Emulator_AllocateVirtualMemory(0x100000, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
+#if _WINDOWS
+	SYSTEM_INFO info;
+	GetSystemInfo(&info);
+	Emulator_AllocateVirtualMemory((unsigned int)info.lpMinimumApplicationAddress, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
+#else
+	Emulator_AllocateVirtualMemory(0x400000, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
+#endif
+	
 	if (pVirtualMemory == NULL)
 	{
 		return 0;
@@ -156,6 +179,7 @@ int Emulator_InitialiseGameVariables()
 	if ((uintptr_t)pVirtualMemory & 0xFF000000)
 	{
 		printf("*********************************************************************** And an error occured!\n");
+		return 0;
 	}
 
 	GadwOrderingTables = (unsigned long*)&pVirtualMemory[0];
@@ -163,7 +187,7 @@ int Emulator_InitialiseGameVariables()
 	GadwOrderingTables_V2 = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4)];
 	terminator = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4) + (512 * 4)];
 	*terminator = -1;
-
+#endif
 	return 1;
 }
 
@@ -300,8 +324,6 @@ void Emulator_BeginScene()
 	}
 
 	lastTime = SDL_GetTicks();
-
-	Emulator_UpdateInput();
 }
 
 void Emulator_UpdateInput()
@@ -421,6 +443,7 @@ void Emulator_EndScene()
 
 	glDisable(GL_TEXTURE_2D);
 	glDeleteTextures(1, &vramTexture);
+	Emulator_UpdateInput();
 }
 
 void Emulator_ShutDown()
