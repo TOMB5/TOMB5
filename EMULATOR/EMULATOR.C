@@ -17,7 +17,7 @@
 #include "EMULATOR_GLOBALS.H"
 #include "CRASHHANDLER.H"
 
-#ifdef __linux__
+#ifdef __linux__ || __APPLE__
         #include <sys/mman.h>
         #include <unistd.h>
 #endif
@@ -28,8 +28,16 @@
 
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (0)
-
+#define DX9 0
 #define V_SCALE 1
+
+#if DX9
+#include <d3dx9.h>
+#include <d3d9.h>
+
+#pragma comment(lib, "d3dx9.lib")
+#pragma comment(lib, "d3d9.lib")
+#endif
 
 SDL_Window* g_window = NULL;
 
@@ -56,6 +64,31 @@ struct CachedTexture
 
 struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
+int callGameMain(void *ptr)
+{
+	extern int psx_main();
+	psx_main();
+	return 1;
+}
+
+int main(int argc, char* argv[])
+{
+	SDL_Thread* gameThread = SDL_CreateThread(callGameMain, "GameThread", (void *)NULL);
+	if (gameThread ==  NULL)
+	{
+		printf("Failed to create thread %s\n", SDL_GetError());
+	}
+	
+	while (true)
+	{
+		///@FIXME Warning SDL was not initialised in this thread!
+		Emulator_UpdateInput();
+	}
+
+	return 0;
+}
+
+
 void Emulator_Init(char* windowName, int screen_width, int screen_height)
 {
 #if _DEBUG && _WINDOWS
@@ -68,7 +101,22 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0)
 	{
+#if !DX9
+#if CORE_PROF_3_1
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#endif
 		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
+#else
+
+		Direct3D_object = Direct3DCreate9(D3D_SDK_VERSION);
+		if (Direct3D_object == NULL)
+		{
+			MessageBox(GetActiveWindow(), "Could not create Direct3D Object", "D3D_OBJ ERR", MB_OK);
+			return 0;
+		}
+#endif
 	}
 	else
 	{
@@ -86,7 +134,7 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	SDL_GL_SetSwapInterval(1);
 
 	Emulator_InitialiseGL();
-#if __linux__
+#if __linux__ || __APPLE__
 	if (!Emulator_InitialiseGameVariables())
 	{
 		exit(0);
@@ -99,7 +147,7 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 {
 	do
 	{
-#ifdef __linux__
+#ifdef __linux__ || __APPLE__
 		pVirtualMemory = (char*)mmap((void*)baseAddress, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
 #endif
 
@@ -158,7 +206,7 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 
 int Emulator_InitialiseGameVariables()
 {
-#if __linux__
+#if __linux__ || __APPLE__
 	extern unsigned long* GadwOrderingTables;
 	extern unsigned long* GadwPolygonBuffers;
 	extern unsigned long* GadwOrderingTables_V2;
@@ -443,7 +491,6 @@ void Emulator_EndScene()
 
 	glDisable(GL_TEXTURE_2D);
 	glDeleteTextures(1, &vramTexture);
-	Emulator_UpdateInput();
 }
 
 void Emulator_ShutDown()
@@ -457,9 +504,8 @@ void Emulator_ShutDown()
 		glDeleteTextures(1, &cachedTextures[i].textureID);
 	}
 #ifdef _WINDOWS
-	VirtualFree(pVirtualMemory, 0, MEM_RELEASE);
+	//VirtualFree(pVirtualMemory, 0, MEM_RELEASE);
 #endif
-
 }
 
 void Emulator_GenerateFrameBuffer(GLuint& fbo)
@@ -491,8 +537,12 @@ void Emulator_GenerateFrameBufferTexture()
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, word_unknown00.clip.w, word_unknown00.clip.h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
 
+#if !CORE_PROF_3_1
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, vramTexture, 0);
+#else
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
+#endif
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
