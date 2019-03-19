@@ -1,9 +1,11 @@
 #ifndef STDDEF_H
 #define STDDEF_H
 
+#ifndef __APPLE__
 #ifndef _SIZE_T
 #define _SIZE_T
 //typedef unsigned int size_t;
+#endif
 #endif
 
 #ifndef _WCHAR_T
