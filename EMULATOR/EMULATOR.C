@@ -184,16 +184,16 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 #if _DEBUG
 			printf("VA: %d\n", GetLastError());
 #endif
-			if (pVirtualMemory)
-			{
-				printf("%x\n", (unsigned int)baseAddress);
-				//VirtualLock((void*)baseAddress, size);
-				break;
-			}
-			
+		}
+#endif
+
+		if (pVirtualMemory)
+		{
+			printf("%x\n", (unsigned int)baseAddress);
+			//VirtualLock((void*)baseAddress, size);
+			break;
 		}
 
-#endif
 	} while (baseAddress += size);
 
 	if (pVirtualMemory == NULL)
