@@ -24,13 +24,13 @@ int rgbscaleme = 256;
 int gfx_debugging_mode;
 struct DB_STRUCT db;
 struct MMTEXTURE* RoomTextInfo;
-#if __linux__
+#if __linux__ || __APPLE__
 unsigned long* GadwOrderingTables_V2;
 #else
 unsigned long GadwOrderingTables_V2[512];
 #endif
 static int LnFlipFrame;
-#if __linux__
+#if __linux__ || __APPLE__
 unsigned long* GadwOrderingTables;
 unsigned long* GadwPolygonBuffers;
 #else
