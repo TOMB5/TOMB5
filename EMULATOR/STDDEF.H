@@ -4,7 +4,7 @@
 #ifndef __APPLE__
 #ifndef _SIZE_T
 #define _SIZE_T
-//typedef unsigned int size_t;
+typedef unsigned int size_t;
 #endif
 #endif
 
