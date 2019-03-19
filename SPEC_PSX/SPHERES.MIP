@@ -482,7 +482,7 @@ GetJointAbsPosition:
 	addiu   ra, 0x170
 
 	loc_8E9EC:
-	li      a2, 0xA5278
+	la      a2, iMatrixStack+0x200
 	lw      a1, 0x50-0x30(sp)
 	jal     InitInterpolation
 	move    a0, s0

@@ -13,9 +13,21 @@
 #endif
 
 #include <stdint.h>
-#include <GL/glew.h>
+
+#if __APPLE__
+#include <stddef.h>
+#include <SDL2/SDL.H>
+#else
 #include <SDL.h>
+#endif
+
+#include <GL/glew.h>
+
+#if __APPLE__
+#include <SDL2/SDL_opengl.h>
+#else
 #include <SDL_opengl.h>
+#endif
 
 #ifdef _MSC_VER
 #define FUNCNAME __FUNCTION__
@@ -32,7 +44,7 @@ extern int(*printf_)(const char * format, ...);
 
 extern GLuint vramTexture;
 extern GLuint nullWhiteTexture;
-extern SDL_Renderer* g_renderer;
+
 extern int lastTime;
 extern int screenWidth;
 extern int screenHeight;

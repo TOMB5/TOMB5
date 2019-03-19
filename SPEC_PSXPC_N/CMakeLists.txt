@@ -58,10 +58,10 @@ ${PLATFORM_SPECIFIC_SRCS}
 
 BuildPreProcessorDefinitions()
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
-set(PSX_LIB libLIBPSX.a)
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR UNIX)
+set(PSX_LIB libPSX.a)
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-set(PSX_LIB libPSX.lib)
+set(PSX_LIB PSX.lib)
 endif()
 
 #Link against required libraries
@@ -92,6 +92,7 @@ set(TARGET_BINARY_DIR "${PROJECT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
 
 #This will be a console application, alter linker subsystem accordingly or main method won't be found
 if(MSVC)
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /BASE:0x400000 /DYNAMICBASE:NO /FIXED")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	set_target_properties(
 	${PROJECT_NAME}

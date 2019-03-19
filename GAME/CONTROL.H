@@ -3,6 +3,24 @@
 
 #include "STYPES.H"
 
+enum input_raw
+{
+	IN_UNK1 = (1 << 0),			// 0x0001
+	IN_UNK8 = (1 << 3),			// 0x0008
+	IN_DPAD_UP = (1 << 4),		// 0x0010
+	IN_DPAD_RIGHT = (1 << 5),	// 0x0020
+	IN_DPAD_DOWN = (1 << 6),	// 0x0040
+	IN_DPAD_LEFT = (1 << 7),	// 0x0080
+	IN_L2 = (1 << 8),			// 0x0100
+	IN_R2 = (1 << 9),			// 0x0200
+	IN_L1 = (1 << 10),			// 0x0400
+	IN_R1 = (1 << 11),			// 0x0800
+	IN_TRIANGLE = (1 << 12),	// 0x1000
+	IN_CIRCLE = (1 << 13),		// 0x2000
+	IN_CROSS = (1 << 14),		// 0x4000
+	IN_SQUARE = (1 << 15),		// 0x8000
+};
+
 // guessed, some may be wrong on PSX
 enum input_buttons
 {

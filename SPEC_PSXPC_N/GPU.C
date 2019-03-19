@@ -14,6 +14,7 @@
 #endif
 #include <EMULATOR.H>
 #include <LIBGPU.H>
+#include "CONTROL.H"
 
 unsigned long GnFrameCounter = 19;
 unsigned long GnLastFrameCount = 19;
@@ -23,11 +24,19 @@ int rgbscaleme = 256;
 int gfx_debugging_mode;
 struct DB_STRUCT db;
 struct MMTEXTURE* RoomTextInfo;
+#if __linux__ || __APPLE__
+unsigned long* GadwOrderingTables_V2;
+#else
 unsigned long GadwOrderingTables_V2[512];
+#endif
 static int LnFlipFrame;
+#if __linux__ || __APPLE__
+unsigned long* GadwOrderingTables;
+unsigned long* GadwPolygonBuffers;
+#else
 unsigned long GadwOrderingTables[5128];
 unsigned long GadwPolygonBuffers[52260];
-
+#endif
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<) (D) (ND)
 {
@@ -72,7 +81,6 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 #endif
 
 	Emulator_EndScene();
-	Emulator_SaveVRAM2(1024, 512);
 	return;
 }
 
@@ -142,7 +150,7 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 	LINE_F2* line2;
 	char txbuf[64];
 
-	if (RawEdge & 8)
+	if (RawEdge & IN_UNK8)
 	{
 		gfx_debugging_mode++;
 	}

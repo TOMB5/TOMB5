@@ -377,9 +377,13 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 		}
 		case GF_KEY_ITEM1:
 		case GF_KEY_ITEM2:
-		case PUZZLE_ITEM1:
-		case PICKUP_ITEM1:
-		case PICKUP_ITEM2:
+		case GF_PUZZLE_ITEM1:
+		case GF_PUZZLE_ITEM2:
+		case GF_PUZZLE_ITEM3:
+		case GF_PICKUP_ITEM1:
+		case GF_PICKUP_ITEM2:
+		case GF_PUZZLE_ITEM2_COMBO1:
+		case GF_PUZZLE_ITEM2_COMBO2:
 		{
 			//def_10FE0
 			int invobj;//a1
@@ -959,7 +963,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 #endif
 
 	NoInput = 0;
-	S_SoundStopAllSamples();
+	///S_SoundStopAllSamples(); //Bug, infinite loop on PSX?
 	S_CDStop();
 	bUseSpotCam = 0;
 	bDisableLaraControl = 0;

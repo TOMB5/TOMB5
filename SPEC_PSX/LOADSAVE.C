@@ -11,6 +11,7 @@
 #include "REQUEST.H"
 #include "SAVEGAME.H"
 #include "SPECIFIC.H"
+#include "SOUND.H"
 #include "TEXT_S.H"
 
 #if PSXPC_TEST
@@ -22,21 +23,21 @@
 #endif
 #include <LIBMCRD.H>
 
-static struct REQUESTER InsertReq = { STR_INSERT_MEMCARD_INTO_SLOT_1, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER CheckingReq = { STR_CHECKING_MEMORY_CARD, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER FormatReq = { STR_MEMCARD_UNFORMATTED_FORMAT_IT, 0x1148, 0x00000000, 0xA000, 0xA100, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER OverwriteReq = { STR_OVERWRITE_ON_MEMCARD, 0x1148, 0x00000000, 0xA000, 0xA100, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER LoadingReq = { STR_LOADING_DATA_DO_NOT_REMOVE, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER SavingReq = { STR_SAVING_DATA_DO_NOT_REMOVE, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER FormattingReq = { STR_FORMATTING_MEMCARD_DO_NOT_REMOVE, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER LoadOkReq = { STR_LOAD_OK, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER LoadErrorReq = { STR_LOAD_FAILED, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER SaveOkReq = { STR_SAVED_OK, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER SaveErrorReq = { STR_SAVE_FAILED, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER FormatErrorReq = { STR_FORMAT_OK, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER NotFormatReq = { STR_MEMCARD_IS_UNFORMATTED_INSERT_FORMATTED, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER NoSpaceReq = { STR_MEMCARD_INSUFFICIENT_FREE_BLOCKS, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-static struct REQUESTER NoGamesReq = { STR_THERE_ARE_NO_SAVEGAMES, 0x08, 0x00000000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
+static struct REQUESTER InsertReq = { STR_INSERT_MEMCARD_INTO_SLOT_1, 8, 0, 0, 0, 0, 0, 0, 0, {0, 0, 0, 0, 0} };
+static struct REQUESTER CheckingReq = { STR_CHECKING_MEMORY_CARD, 8, 0, 0, 0, 0, 0, 0, 0, {0, 0, 0, 0, 0 } };
+static struct REQUESTER FormatReq = { STR_MEMCARD_UNFORMATTED_FORMAT_IT, 8, 2, 1, 2, 0, 0, 0, 0, {STR_YES, STR_NO, 0, 0, 0 } };
+static struct REQUESTER OverwriteReq = { STR_OVERWRITE_ON_MEMCARD, 8, 2, 1, 2, 0, 0, 0, 0, {STR_YES, STR_NO, 0, 0, 0 } };
+static struct REQUESTER LoadingReq = { STR_LOADING_DATA_DO_NOT_REMOVE, 8, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0, 0 } };
+static struct REQUESTER SavingReq = { STR_SAVING_DATA_DO_NOT_REMOVE, 8, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0, 0 } };
+static struct REQUESTER FormattingReq = { STR_FORMATTING_MEMCARD_DO_NOT_REMOVE, 8, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0, 0 } };
+static struct REQUESTER LoadOkReq = { STR_LOAD_OK, 8, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0, 0 } };
+static struct REQUESTER LoadErrorReq = { STR_LOAD_FAILED, 8, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0, 0 } };
+static struct REQUESTER SaveOkReq = { STR_SAVED_OK, 8, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0, 0 } };
+static struct REQUESTER SaveErrorReq = { STR_SAVE_FAILED, 8, 0, 0, 0, 0, 0, 0, 0, {0, 0, 0, 0, 0 } };
+static struct REQUESTER FormatErrorReq = { STR_FORMAT_FAILED, 8, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0, 0 } };
+static struct REQUESTER NotFormatReq = { STR_MEMCARD_IS_UNFORMATTED_INSERT_FORMATTED, 8, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0, 0 } };
+static struct REQUESTER NoSpaceReq = { STR_MEMCARD_INSUFFICIENT_FREE_BLOCKS, 8, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0, 0 } };
+static struct REQUESTER NoGamesReq = { STR_THERE_ARE_NO_SAVEGAMES, 8, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0, 0 } };
 
 int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 {
@@ -82,17 +83,17 @@ int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 			else
 			{
 				//loc_62838
-				strcpy(&buf[0], &gfStringWad[gfStringOffset[0xDC]]);
+				strcpy(&buf[0], &gfStringWad[gfStringOffset[STR_RESUME]]);
 			}
 
 			//loc_62858:
 			if (i == cursor)
 			{
-				PrintString(256, (y + 0xF) & 0xFFFF, 1, &buf[0], flags);
+				PrintString(256, (y + 15), 1, &buf[0], flags);
 			}
 			else
 			{
-				PrintString(256, (y + 0xF) & 0xFFFF, 5, &buf[0], flags);
+				PrintString(256, (y + 15), 5, &buf[0], flags);
 			}
 
 			//loc_62870:
@@ -169,24 +170,24 @@ int LoadGame()//6297C(<), 63060
 		else
 		{
 			//loc_62B10
-			PrintString(SCREEN_WIDTH / 2, 0x20, 8, &gfStringWad[gfStringOffset[STR_SELECT_GAME_TO_LOAD]], 0x8000);
+			PrintString(SCREEN_WIDTH / 2, 32, 8, &gfStringWad[gfStringOffset[STR_SELECT_GAME_TO_LOAD]], 0x8000);
 			nfiles = DisplayFiles(cursor, mcNumFiles);
 
 			if ((RawEdge & 0x10) && cursor != 0)
 			{
-				SoundEffect(0x6D, 0, 2);
+				SoundEffect(SFX_MENU_SELECT, 0, 2);
 				--cursor;
 			}
 			//loc_62B9C
 			else if ((RawEdge & 0x40) && cursor < nfiles - 1)
 			{
-				SoundEffect(0x6D, 0, 2);
+				SoundEffect(SFX_MENU_SELECT, 0, 2);
 				++cursor;
 			}
 			//loc_62BEC
 			else if ((RawEdge & 0x4000))
 			{
-				SoundEffect(0x6F, 0, 2);
+				SoundEffect(SFX_MENU_CHOOSE, 0, 2);
 				func = 7;
 				AutoRequester = &LoadingReq;
 				AutoTime = 3;
@@ -312,7 +313,7 @@ int LoadGame()//6297C(<), 63060
 	//def_62A38
 	if (cancel != 0)
 	{
-		PrintString(SCREEN_WIDTH / 2, 0xE8, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], 0x8000);
+		PrintString(SCREEN_WIDTH / 2, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], 0x8000);
 		if ((RawEdge & 0x1000))
 		{
 			init = 0;

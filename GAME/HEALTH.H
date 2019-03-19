@@ -19,4 +19,12 @@ extern short PickupY;
 extern short PickupVel;
 extern short CurrentPickup;
 
+#define BAR_W 133
+
+#define S_DrawHealthBar(val) S_DrawGouraudBar(343, 18, BAR_W, (val * BAR_W) / 100, PoisonFlag ? &poisonBarColourSet : &healthBarColourSet)
+#define S_DrawHealthBar2(val) S_DrawGouraudBar(189, 40, BAR_W, (val * BAR_W) / 100, PoisonFlag ? &poisonBarColourSet : &healthBarColourSet)
+#define S_DrawAirBar(val) S_DrawGouraudBar(343, 32, BAR_W, (val * BAR_W) / 100, &airBarColourSet)
+#define S_DrawDashBar(val) S_DrawGouraudBar(343, 46, BAR_W, (val * BAR_W) / 100, &dashBarColourSet)
+
+
 #endif

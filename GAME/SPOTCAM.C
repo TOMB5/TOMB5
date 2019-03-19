@@ -142,15 +142,15 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 
 	lara_item->mesh_bits = 0xFFFFFFFF;
 
-	lara.head_x_rot = 0;
 	lara.head_y_rot = 0;
+	lara.head_x_rot = 0;
 
-	lara.torso_x_rot = 0;
 	lara.torso_y_rot = 0;
+	lara.torso_x_rot = 0;
 
 	camera.bounce = 0;
 
-	lara.look = 0;
+	lara.Busy = 0;
 	CameraFade = -1;
 	LastSequence = Sequence;
 	bTrackCamInit = 0;
@@ -179,13 +179,10 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 	current_sequence = Sequence;
 	current_spline_camera = 0;
 
-	if (SpotRemap[Sequence] != 0)
+	//loc_377C0
+	for (i = 0; i < SpotRemap[Sequence]; i++)
 	{
-		//loc_377C0
-		for (i = 0; i < SpotRemap[Sequence]; i++)
-		{
-			current_spline_camera += CameraCnt[i];
-		}
+		current_spline_camera += CameraCnt[i];
 	}
 
 	//loc_377E0
@@ -314,7 +311,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 
 			current_spline_camera++;
 
-			if (current_spline_camera < last_camera)
+			if (current_spline_camera > last_camera)
 			{
 				current_spline_camera = first_camera;
 			}
@@ -463,42 +460,15 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 	long ly; // stack offset -48
 	int i; // $v1
 	int var_2C;
-
-	//} // line 142, offset 0x382c4
-
-	//{ // line 1, offset 0x386ac
-		//{ // line 1, offset 0x386ac
 	int ctype; // $s0
-		// // line 1, offset 0x38760
-	//} // line 1, offset 0x38760
-
-	//{ // line 396, offset 0x38a50
-		//int sp; // $s5
+#if PSXPC_TEST
 	int cn = 0; // $s0
-	//} // line 396, offset 0x38a50
+#else
+	int cn; // $s0
+#endif
 
-	//{ // line 1, offset 0x38b04
-	//int sp = 0; // $s5
-	//	int cn; // $s0
-	//} // line 1, offset 0x38b04
+	struct CAMERA_INFO Backup; // stack offset -216
 
-	{ // line 1, offset 0x38c2c
-
-	} // line 1, offset 0x38c2c
-
-	{ // line 439, offset 0x38d68
-		struct CAMERA_INFO Backup; // stack offset -216
-		{ // line 441, offset 0x38d68
-
-		} // line 441, offset 0x38d68
-		{ // line 441, offset 0x38d68
-		} // line 441, offset 0x38d68
-	} // line 441, offset 0x38d68
-	{ // line 1, offset 0x38ff0
-		{ // line 1, offset 0x38ff0
-			int ctype; // $s0
-		} // line 1, offset 0x390a0
-	} // line 1, offset 0x390a0
 	printf("CX:%d, CY:%d CZ:%d CR:%d\n", camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number);
 	if (bDisableLaraControl)
 	{
@@ -563,17 +533,17 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 		long s7;
 		long v0;
 
-		//v0 = lara_item;
-		//a0 = lara_item->pos.x_pos;
 		cp = 0;
-		lx = lara_item->pos.x_pos;
 		cs = 0x2000;
-		ly = lara_item->pos.y_pos;
 		tlen = 0;
+		//i = 0;
+
+		lx = lara_item->pos.x_pos;
+		ly = lara_item->pos.y_pos;
 		lz = lara_item->pos.z_pos;
 
 		//loc_38144
-		while (var_2C < 8)
+		do
 		{
 			clen = 1;
 			n = 0;
@@ -601,9 +571,6 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 				}//loc_381F0
 
 				sp = cs;
-				//v0 = 0x10000;
-				//v0 = 0x10000 < sp ? 1 : 0
-
 				v0 = s7 >> 1;
 
 				if (0x10000 < sp)
@@ -624,7 +591,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 			}//loc_38228
 
 			//v1 = var_2c;
-		}
+		} while (var_2C < 8);
 
 		current_spline_position += (cp - current_spline_position) >> 5;
 		if ((s->flags & SCF_CUT_PAN))
@@ -668,7 +635,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 	}
 
 	//loc_38310
-	if ((s->flags & SCF_DISABLE_BREAKOUT) && (input & IN_LOOK) && gfGameMode != 1)
+	if (!(s->flags & SCF_DISABLE_BREAKOUT) && (input & IN_LOOK) && gfGameMode != 1)
 	{
 		if ((s->flags & SCF_TRACKING_CAM))
 		{
@@ -687,6 +654,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 			//loc_3837C
 			SetFadeClip(0, 1);
 			bUseSpotCam = 0;
+			//assert(0);
 			bDisableLaraControl = 0;
 			camera.speed = 1;
 
@@ -716,7 +684,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 
 	IsRoomOutsideNo = -1;
 	IsRoomOutside(cpx, cpy, cpz);
-
+	
 	if (IsRoomOutsideNo != -1)///@FIXME IsRoomOutsideNo bad value
 	{
 		camera.pos.room_number = IsRoomOutsideNo;
@@ -754,18 +722,6 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 #if PSXENGINE
 	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, croll);
 #endif
-#if 0
-	lw      $a3, camera.target.x
-		lw      $v0, 0xF8 + var_40($sp)//croll?
-		lw      $v1, camera.target.y
-		lw      $t0, camera.target.z
-		sll     $s0, $v0, 16
-		sra     $v0, $s0, 16
-		sw      $v0, 0xF8 + var_E0($sp)
-		sw      $v1, 0xF8 + var_E8($sp)
-		sw      $t0, 0xF8 + var_E4($sp)
-		phd_LookAt();
-#endif
 
 	///sp = s0
 	if (bCheckTrigger)
@@ -785,6 +741,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 		}
 
 		camera.type = (enum camera_type)ctype;
+		bCheckTrigger = 0;
 	}//loc_3876C
 
 	if ((s->flags & SCF_TRACKING_CAM))
@@ -793,7 +750,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 		return;
 	}
 
-	if (0x10000 - cspeed > current_spline_position)///@CHECK
+	if (0x10000 - cspeed >= current_spline_position)
 	{
 		return;
 	}
@@ -828,12 +785,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 	//loc_3885C
 	if ((SpotCam[current_spline_camera].flags & SCF_STOP_MOVEMENT))
 	{
-		if (quakecam.spos.box_number != 0 && SpotCam[current_spline_camera].timer != -1)
-		{
-			//loc_38990
-			quakecam.spos.box_number = 0;
-		}
-		else
+		if (quakecam.spos.box_number == 0 || SpotCam[current_spline_camera].timer != -1)
 		{
 			//loc_38888
 			quakecam.spos.x = SpotCam[current_spline_camera].x;
@@ -867,11 +819,16 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 
 			//loc_38930
 			quakecam.epos.box_number = phd_sqrt_asm(((quakecam.spos.x - quakecam.epos.x) * (quakecam.spos.x - quakecam.epos.x)) + ((quakecam.spos.y - quakecam.epos.y) * (quakecam.spos.y - quakecam.epos.y) + ((quakecam.spos.z - quakecam.epos.z) * (quakecam.spos.z - quakecam.epos.z))));
+			
+		}
+		else
+		{
+			//loc_38990
+			quakecam.spos.box_number = 0;
 		}
 	}
 
 	//loc_38994
-
 	if (spotcam_timer != 0)
 	{
 		return;
@@ -879,15 +836,18 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 
 	current_spline_position = 0;
 
-	if (current_spline_camera == first_camera)
+	if (current_spline_camera != first_camera)///@FIXME current_spline_camera bad value when switching
 	{
-		last_camera = current_spline_camera - 1;
+		cn = current_spline_camera - 1;
+	}
+	else
+	{
+		cn = last_camera;
 	}
 
 	//loc_389BC
-	if (spline_from_camera)
+	if (spline_from_camera != 0)
 	{
-		sp = 1;
 		spline_from_camera = 0;
 		cn = first_camera - 1;
 	}
@@ -932,7 +892,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 		camera_xtarget[sp] = SpotCam[cn].tx;
 		camera_ytarget[sp] = SpotCam[cn].ty;
 		camera_ztarget[sp] = SpotCam[cn].tz;
-		sp = 1;
+		sp++;
 		camera_xtarget[sp] = SpotCam[cn].tx;
 		camera_ytarget[sp] = SpotCam[cn].ty;
 		camera_ztarget[sp] = SpotCam[cn].tz;
@@ -941,7 +901,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 		camera_speed[sp] = SpotCam[cn].speed;
 	}
 
-	cn = 1;
+	cn++;
 	if (sp < 4)
 	{
 		//loc_38BEC
@@ -1025,7 +985,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 			camera_fov[1] = SpotCam[current_spline_camera].fov;
 			camera_speed[1] = SpotCam[current_spline_camera].speed;
 
-			//S_MemCpy(&Backup, &camera, sizeof(struct CAMERA_INFO));
+			S_MemCpy((char*)&Backup, (char*)&camera, sizeof(struct CAMERA_INFO));
 			camera.old_type = FIXED_CAMERA;
 			camera.type = CHASE_CAMERA;
 			camera.speed = 1;
@@ -1063,7 +1023,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 			camera_fov[3] = CurrentFov;
 			camera_speed[3] = camera_speed[1] >> 1;
 
-			///S_MemCpy(&camera, &backup, sizeof(struct CAMERA_INFO));
+			S_MemCpy((char*)&camera, (char*)&Backup, sizeof(struct CAMERA_INFO));
 #if PSXENGINE
 			phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
 #endif
@@ -1132,20 +1092,20 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 	long c2;
 
 	c2 = nk - 3;
-	x = MULFP(x, c2 << 16);
-	span = x >> 16;
 
-	if (c2 > span)
+	c1 = MULFP(x, c2 << 16);
+
+	span = c1 >> 16;
+
+	if (span > c2)
 	{
-		x -= (nk - 4) << 16;
-	}
-	else
-	{
-		x -= span << 16;
+		span = nk - 4;
 	}
 
 	//loc_375A0
+	c1 -= span << 16;
+
 	k = &knots[span];
 
-	return MULFP(MULFP(MULFP((((k[1]) + (k[1] >> 1)) + ((k[0] ^ -1) >> 2)) - ((k[2]) + (k[2] >> 1)) + (k[3] >> 1), x) + k[0] - (k[1] << 1) + (k[1] >> 1) + (k[2] << 1) - (k[3] >> 1), x) + ((k[0] ^ -1) >> 2) - (k[2] >> 1), x) + k[1];
+	return (MULFP(MULFP(MULFP((((k[0] ^ -1) >> 1) + (k[1]) + (k[1] >> 1)) - ((k[2]) + (k[2] >> 1)) + (k[3] >> 1), c1) + ((k[0]) - ((k[1] << 1) + (k[1] >> 1)) + (k[2] << 1) - (k[3] >> 1)), c1) + (((k[0] ^ -1) >> 1) + (k[2] >> 1)), c1)) + k[1];
 }

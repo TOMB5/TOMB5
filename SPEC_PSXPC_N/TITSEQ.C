@@ -28,7 +28,7 @@
 #include <PROFILE.H>
 #endif
 
-#define BLOCK_SPLINE_CAM (1)
+#define BLOCK_SPLINE_CAM (0)
 #define HACK_SAVE_SECRETS (0)
 
 #if PSX_VERSION && RELOC
@@ -246,29 +246,29 @@ int TitleOptions(int Name)
 			s1 = 0;
 		}//loc_964
 
-		if ((RawEdge & 0x10) && byte_46 != 0)
+		if ((RawEdge & IN_DPAD_UP) && byte_46 != 0)
 		{
 			SoundEffect(SFX_MENU_SELECT, NULL, 2);
 			--byte_46;
 		}
-		else if ((RawEdge & 0x40) && byte_46 < Gameflow->nLevels - 2)
+		else if ((RawEdge & IN_DPAD_DOWN) && byte_46 < Gameflow->nLevels - 2)
 		{
 			SoundEffect(SFX_MENU_SELECT, NULL, 2);
 			++byte_46;
 		}
-		else if ((RawEdge & 0x200))
+		else if ((RawEdge & IN_R2))
 		{
 			byte_46 = Gameflow->nLevels - 2;
 		}
-		else if ((RawEdge & 0x100))
+		else if ((RawEdge & IN_L2))
 		{
 			byte_46 = 0;
 		}
-		else if ((RawEdge & 0x800))
+		else if ((RawEdge & IN_R1))
 		{
 			byte_46 = ((Gameflow->nLevels - 2) + ((Gameflow->nLevels - 2) >> 31)) >> 1;
 		}
-		else if ((RawEdge & 0x400))
+		else if ((RawEdge & IN_L1))
 		{
 			byte_47 ^= 1;
 
@@ -355,7 +355,7 @@ int TitleOptions(int Name)
 		//loc_BD4
 
 		//v1 = RawEdge
-		if ((RawEdge & 0x4000))
+		if ((RawEdge & IN_CROSS))
 		{
 			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
 			ret = 3;
@@ -363,7 +363,7 @@ int TitleOptions(int Name)
 			gfLevelComplete = byte_46 + 1;
 			byte_46 = 0;
 		}
-		else if ((RawEdge & 0x1000))
+		else if ((RawEdge & IN_TRIANGLE))
 		{
 			//loc_C20
 			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
@@ -437,23 +437,23 @@ int TitleOptions(int Name)
 			//loc_DDC
 		}
 
-		if ((RawEdge & 0x10) && byte_46 != 0)
+		if ((RawEdge & IN_DPAD_UP) && byte_46 != 0)
 		{
 			--byte_46;
 			//j loc_EB4
 		}
-		else if ((RawEdge & 0x40) && byte_46 < word_38 - 1)
+		else if ((RawEdge & IN_DPAD_DOWN) && byte_46 < word_38 - 1)
 		{
 			++byte_46;
 			//j loc_EB4
 		}
-		else if ((RawEdge & 0x1000))
+		else if ((RawEdge & IN_TRIANGLE))
 		{
 			Chris_Menu = MENU_MAIN_MENU;
 			byte_46 = CanLoad + 1;
 			//j loc_EB4
 		}
-		else if ((RawEdge & 0x4000))
+		else if ((RawEdge & IN_CROSS))
 		{
 			sub_2154(Name, byte_2600[byte_46]);
 		}
@@ -553,19 +553,19 @@ int TitleOptions(int Name)
 	//v0 = gfStringOffset
 	//a1 = y
 	//v1 = ;
-	if ((RawEdge & 0x10) && byte_46 != 0)//Up
+	if ((RawEdge & IN_DPAD_UP) && byte_46 != 0)//Up
 	{
 		SoundEffect(SFX_MENU_SELECT, NULL, 2);
 		--byte_46;
 	}//loc_7C0
-	else if((RawEdge & 0x40) && byte_46 < CanLoad + 1)//Down
+	else if((RawEdge & IN_DPAD_DOWN) && byte_46 < CanLoad + 1)//Down
 	{
 		//loc_7C0
 		SoundEffect(SFX_MENU_SELECT, NULL, 2);
 		++byte_46;
 	}//loc_810
 
-	if ((RawEdge & 0x4000))//X pressed
+	if ((RawEdge & IN_CROSS))//X pressed
 	{
 		if (byte_46 == 1)
 		{
@@ -748,11 +748,11 @@ int sub_1054()
 	}
 	//loc_10DC
 
-	if ((RawEdge & 0x10) && byte_1A8 != 0)
+	if ((RawEdge & IN_DPAD_UP) && byte_1A8 != 0)
 	{
 		--byte_1A8;
 	}
-	else if ((RawEdge & 0x40) && byte_1A8 < 35)
+	else if ((RawEdge & IN_DPAD_DOWN) && byte_1A8 < 35)
 	{
 		++byte_1A8;
 	}
@@ -786,7 +786,7 @@ int sub_1054()
 
 	}//loc_11B8
 
-	if ((RawEdge & 0x4000))
+	if ((RawEdge & IN_CROSS))
 	{
 		SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
 		ret = 3;
@@ -797,7 +797,7 @@ int sub_1054()
 		byte_1A8 = 0;
 	}//loc_1240
 
-	if ((RawEdge & 0x1000))
+	if ((RawEdge & IN_TRIANGLE))
 	{
 		dels_cutseq_selector_flag = 0;
 	}
@@ -864,7 +864,7 @@ void sub_219C(unsigned char a0)
 	do
 	{
 		//loc_2290
-		if ((RawEdge & 0x80))
+		if ((RawEdge & IN_DPAD_LEFT))
 		{
 			if (s4 < 0)
 			{
@@ -879,7 +879,7 @@ void sub_219C(unsigned char a0)
 		}
 		//loc_22B4
 		//v0 = s4 < fp ? 1 : 0
-		if ((RawEdge & 0x20))
+		if ((RawEdge & IN_DPAD_RIGHT))
 		{
 			if (s4 < fp)
 			{
@@ -904,7 +904,7 @@ void sub_219C(unsigned char a0)
 		S_UpdateInput();
 		PrintString(256, 220, 6, &gfStringWad[gfStringOffset[STR_PREVIOUS_NEXT_BACK]], 0x8000);
 
-	} while (!(RawEdge & 0x1000));
+	} while (!(RawEdge & IN_TRIANGLE));
 
 	DrawSync(0);
 

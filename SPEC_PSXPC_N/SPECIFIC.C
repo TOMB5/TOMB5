@@ -665,31 +665,31 @@ short S_Death()//61658(<), 622C8
 
 						if (Cursor != 0)
 						{
-							if ((RawEdge & 0x10))
+							if ((RawEdge & IN_DPAD_UP))
 							{
-								SoundEffect(0x6D, NULL, 2);
+								SoundEffect(SFX_MENU_SELECT, NULL, 2);
 								Cursor = 0;
 							}
 							else
 							{
 								//loc_617E0
-								if ((RawEdge & 0x4000))
+								if ((RawEdge & IN_CROSS))
 								{
-									SoundEffect(0x6F, NULL, 2);
+									SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
 									Cursor = 1;
 								}
 							}
 						}
 						//loc_61800
-						if ((RawEdge & 0x40))
+						if ((RawEdge & IN_DPAD_DOWN))
 						{
-							SoundEffect(0x6D, NULL, 2);
+							SoundEffect(SFX_MENU_SELECT, NULL, 2);
 							Cursor = 1;
 						}
 						//loc_6182C
-						if ((RawEdge & 0x4000))
+						if ((RawEdge & IN_CROSS))
 						{
-							SoundEffect(0x6F, NULL, 2);
+							SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
 							Cursor = 1;
 						}
 					}

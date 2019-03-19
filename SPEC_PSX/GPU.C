@@ -3,6 +3,7 @@
 #include "PROFILE.H"
 #include "PSXINPUT.H"
 #include "SHADOWS.H"
+#include "TEXT_S.H"
 
 #include <LIBGPU.H>
 #include <LIBETC.H>
@@ -60,7 +61,7 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 
 #if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
-	do_gfx_debug_mode(&db.ot[db.nOTSize - 1]);
+	//do_gfx_debug_mode(&db.ot[db.nOTSize - 1]);
 	ProfileRGB(0, 255, 255);
 #endif
 

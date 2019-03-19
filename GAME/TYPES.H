@@ -131,7 +131,7 @@ inline int phd_atan(long x, long y)
 
 #define XZ_GET_SECTOR(room, x, z) (r->floor[(int)((z) / 1024 + r->x_size * ((x) / 1024))])
 
-#define PSXENGINE (PSXPC_VERSION || PSX_VERSION)
+#define PSXENGINE (PSXPC_VERSION || PSX_VERSION || SAT_VERSION || PS2_VERSION)
 
 #define TEXTURE_PAGE (256 * 256)
 
@@ -1455,6 +1455,31 @@ struct MESH_STRUCT//maybe NODEOFFSET_INFO
 	short unk01;//2
 	long unk02;//4
 	unsigned char unk03;//8
+};
+
+struct mesh_header
+{
+	short x;
+	short y;
+	short z;
+	short radius;
+	char vertices;
+	char flags;
+	short face_offset;
+};
+
+struct tr_vertex   // 6 bytes
+{
+	short x;
+	short y;
+	short z;
+};
+
+struct tr_room_portal  // 32 bytes
+{
+	unsigned short  AdjoiningRoom; // Which room this portal leads to
+	struct tr_vertex Normal;
+	struct tr_vertex Vertices[4];
 };
 
 #if PC_VERSION

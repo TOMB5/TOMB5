@@ -1,7 +1,7 @@
 #ifndef DRAWSPKS_H
 #define DRAWSPKS_H
 
-#include "SPECTYPES.H"
+#include "STYPES.H"
 
 extern long TorchWibble[8];
 extern struct MATRIX3D CamGTE;

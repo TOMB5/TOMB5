@@ -1,7 +1,13 @@
 ﻿#include "ROOMLET3.H"
 
+#include "3D_OBJ.H"
 #include "CAMERA.H"
 #include "DRAW.H"
+#include "LOAD_LEV.H"
+
+#if GTE
+#include "GTE.H"
+#endif
 
 void DrawRoomletList()
 {
@@ -14,168 +20,137 @@ void DrawRoomletList()
 
 void sub_158(long camera_underwater, struct room_info* room)
 {
+	short* s4 = 0;
+	struct room_info* fp = NULL;
+	int t7 = 0;
+	int t6 = 0;
+	int t8 = 0;
+	int t0 = 0;
+	int t1 = 0;
+	int t2 = 0;
+	int t3 = 0;
+	int t4 = 0;
+	int t5 = 0;
+
 	//ctc2    $a0, $21
 	//mtc2    $a1, $20
 
 	//s0 = number_draw_rooms
 	//s3 = RoomBBoxes
-	//s4 = &draw_rooms[0]
+	s4 = &draw_rooms[0];
 	//t2 = wibble & 0xFC
 	//s2 = &tsv_buffer[0]
 
 	//ctc2    $t2, $20
+	//t0 = *draw_rooms++
+	//t0 <<= 4;
+	//at = t0 << 2;
+	//t1 = room
+	//t0 += at
+	fp = &room[*s4++];
+	//t0 = fp.MeshEffect
+	//t1 = &WaterTable[0][fp.MeshEffect]
+
+	((unsigned int*)&tsv_buffer)[0] = (unsigned long)fp;
+	((unsigned int*)&tsv_buffer)[1] = (unsigned long)&WaterTable[0][fp->MeshEffect];
+	
+	//s1 = fp.data
+	//s5 = room
+	t0 = fp->x;
+	t1 = fp->y;
+	t2 = fp->z;
+
+	//t3 = room.x
+	//t4 = room.y
+	//t5 = room.z
+
+	t6 = room->x - fp->x;
+	t7 = room->y - fp->y;
+	t8 = room->z - fp->z;
+
+	if (t6 > -0x7BFF && t6 < 0x7C00 &&
+		t7 > -0x7BFF && t7 < 0x7C00 &&
+		t8 > -0x7BFF && t8 < 0x7C00)
+	{
+		t7 = fp->minfloor - fp->y;
+		t6 = ((((fp->x_size - 2) << 10) + fp->z) - room->z);
+		t8 = ((((fp->y_size - 2) << 10) + fp->x) - room->x);
+
+		if (t6 > -0x7BFF && t6 < 0x7C00 &&
+			t7 > -0x7BFF && t7 < 0x7C00 &&
+			t8 > -0x7BFF && t8 < 0x7C00)
+		{
+			t7 = room->minfloor - fp->y;
+			t6 = (((room->x_size - 2) << 10) + room->x) - fp->x;
+			t8 = (((room->y_size - 2) << 10) + room->z) - fp->z;
+
+			if (t6 > -0x7BFF && t6 < 0x7C00 &&
+				t7 > -0x7BFF && t7 < 0x7C00 &&
+				t8 > -0x7BFF && t8 < 0x7C00)
+			{
+				t6 = fp->x - room->x;
+				t7 = fp->y - room->y;
+				t8 = fp->z - room->z;
+
+				t0 = room->x;
+				t1 = room->y;
+				t2 = room->z;
+			}
+			else
+			{
+				//loc_320
+				t6 = 0;
+				t7 = 0;
+				t8 = 0;
+			}
+		}
+		else
+		{
+			//loc_320
+			t6 = 0;
+			t7 = 0;
+			t8 = 0;
+		}
+	}
+	else
+	{
+		//loc_320
+		t6 = 0;
+		t7 = 0;
+		t8 = 0;
+	}
+
+	//loc_32C
+	((unsigned int*)&tsv_buffer[0])[5] = t6;
+	((unsigned int*)&tsv_buffer[0])[6] = t7;
+	((unsigned int*)&tsv_buffer[0])[7] = t8;
+
+	//t3 = MatrixStack[0].tx
+	//t4 = MatrixStack[0].ty
+	//t5 = MatrixStack[0].tz
+
+	t0 -= MatrixStack[0].tx;
+	t1 -= MatrixStack[0].ty;
+	t2 -= MatrixStack[0].tz;
+
+	t3 = (ABS(t0) >> 15) & 0x7FFF;
+	t4 = (ABS(t1) >> 15) & 0x7FFF;
+	t5 = (ABS(t2) >> 15) & 0x7FFF;
+
+	t3 = 1;
+	t4 = 2;
+	t5 = 3;
+
+#if GTE
+	long long SSX, SSY, SSZ;
+	_MVMVA_FUNC((short)t3, (short)t4, (short)t5, gteR);
+#endif
+
+	t3 = (Matrix->m00 * t3) + (Matrix->m01 * t4) + (Matrix->m02 * t5);
+	t4 = (Matrix->m10 * t3) + (Matrix->m11 * t4) + (Matrix->m12 * t5);
+	t5 = (Matrix->m20 * t3) + (Matrix->m21 * t4) + (Matrix->m22 * t5);
+
 #if 0
-		lh      $t0, 0($s4)
-		addi    $s4, 2
-		sll     $t0, 4
-		sll     $at, $t0, 2
-		lw      $t1, 0x1F28($gp)
-		add     $t0, $at
-		add     $fp, $t0, $t1
-		lbu     $t0, 0x38 + var_2($fp)
-		li      $t1, 0x1F0A80
-		sll     $t0, 8
-		add     $t1, $t0
-		sw      $fp, 0($s2)
-		sw      $t1, 4($s2)
-		lw      $s1, 0x38 + var_38($fp)
-		lw      $t0, 0x38 + var_24($fp)
-		lw      $t1, 0x38 + var_20($fp)
-		mfc2    $s5, $20
-		lw      $t2, 0x38 + var_1C($fp)
-		lw      $t3, 0x14($s5)
-		lw      $t4, 0x18($s5)
-		lw      $t5, 0x1C($s5)
-		sub     $t6, $t3, $t0
-		sub     $t7, $t4, $t1
-		sub     $t8, $t5, $t2
-		slti    $at, $t6, -0x7C00
-		bnez    $at, loc_320
-		slti    $at, $t6, 0x7C00
-		beqz    $at, loc_320
-		slti    $at, $t7, -0x7C00
-		bnez    $at, loc_320
-		slti    $at, $t7, 0x7C00
-		beqz    $at, loc_320
-		slti    $at, $t8, -0x7C00
-		bnez    $at, loc_320
-		slti    $at, $t8, 0x7C00
-		beqz    $at, loc_320
-		lw      $t7, 0x38 + var_18($fp)
-		lh      $t6, 0x38 + var_10($fp)
-		lh      $t8, 0x38 + var_10 + 2($fp)
-		addi    $t6, -2
-		addi    $t8, -2
-		sll     $t6, 10
-		sll     $t8, 10
-		add     $t8, $t0
-		add     $t6, $t2
-		sub     $t6, $t5
-		sub     $t7, $t4
-		sub     $t8, $t3
-		slti    $at, $t6, -0x7C00
-		bnez    $at, loc_320
-		slti    $at, $t6, 0x7C00
-		beqz    $at, loc_320
-		slti    $at, $t7, -0x7C00
-		bnez    $at, loc_320
-		slti    $at, $t7, 0x7C00
-		beqz    $at, loc_320
-		slti    $at, $t8, -0x7C00
-		bnez    $at, loc_320
-		slti    $at, $t8, 0x7C00
-		beqz    $at, loc_320
-		lw      $t7, 0x20($s5)
-		lh      $t6, 0x28($s5)
-		lh      $t8, 0x2A($s5)
-		addi    $t6, -2
-		addi    $t8, -2
-		sll     $t6, 10
-		sll     $t8, 10
-		add     $t8, $t5
-		add     $t6, $t3
-		sub     $t6, $t0
-		sub     $t7, $t1
-		sub     $t8, $t2
-		slti    $at, $t6, -0x7C00
-		bnez    $at, loc_320
-		slti    $at, $t6, 0x7C00
-		beqz    $at, loc_320
-		slti    $at, $t7, -0x7C00
-		bnez    $at, loc_320
-		slti    $at, $t7, 0x7C00
-		beqz    $at, loc_320
-		slti    $at, $t8, -0x7C00
-		bnez    $at, loc_320
-		slti    $at, $t8, 0x7C00
-		beqz    $at, loc_320
-		sub     $t6, $t0, $t3
-		sub     $t7, $t1, $t4
-		sub     $t8, $t2, $t5
-		move    $t0, $t3
-		move    $t1, $t4
-		j       loc_32C
-		move    $t2, $t5
-# ---------------------------------------------------------------------------
-
-		loc_320:                                 # CODE XREF : sub_158 + C0↑j
-		# sub_158 + C8↑j ...
-		move    $t6, $zero
-		move    $t7, $zero
-		move    $t8, $zero
-
-		loc_32C : # CODE XREF : sub_158 + 1C0↑j
-		sw      $t6, 0x14($s2)
-		sw      $t7, 0x18($s2)
-		sw      $t8, 0x1C($s2)
-		lw      $t3, 0x46D8($gp)
-		lw      $t4, 0x46DC($gp)
-		lw      $t5, 0x46E0($gp)
-		sub     $t0, $t3
-		sub     $t1, $t4
-		sub     $t2, $t5
-		bgez    $t0, loc_370
-		sra     $t3, $t0, 15
-		negu    $t0, $t0
-		sra     $t3, $t0, 15
-		andi    $t0, 0x7FFF
-		negu    $t3, $t3
-		j       loc_374
-		negu    $t0, $t0
-# ---------------------------------------------------------------------------
-
-		loc_370:                                 # CODE XREF : sub_158 + 1F8↑j
-		andi    $t0, 0x7FFF
-
-		loc_374 : # CODE XREF : sub_158 + 210↑j
-		bgez    $t1, loc_394
-		sra     $t4, $t1, 15
-		negu    $t1, $t1
-		sra     $t4, $t1, 15
-		andi    $t1, 0x7FFF
-		negu    $t4, $t4
-		j       loc_398
-		negu    $t1, $t1
-# ---------------------------------------------------------------------------
-
-		loc_394:                                 # CODE XREF : sub_158:loc_374↑j
-		andi    $t1, 0x7FFF
-
-		loc_398 : # CODE XREF : sub_158 + 234↑j
-		bgez    $t2, loc_3B8
-		sra     $t5, $t2, 15
-		negu    $t2, $t2
-		sra     $t5, $t2, 15
-		andi    $t2, 0x7FFF
-		negu    $t5, $t5
-		j       loc_3BC
-		negu    $t2, $t2
-# ---------------------------------------------------------------------------
-
-		loc_3B8:                                 # CODE XREF : sub_158:loc_398↑j
-		andi    $t2, 0x7FFF
-
-		loc_3BC : # CODE XREF : sub_158 + 258↑j
 		mtc2    $t3, $9
 		mtc2    $t4, $10
 		mtc2    $t5, $11
@@ -184,6 +159,9 @@ void sub_158(long camera_underwater, struct room_info* room)
 		mfc2    $t3, $25
 		mfc2    $t4, $26
 		mtc2    $t0, $9
+#endif
+
+#if 0
 		mtc2    $t1, $10
 		mtc2    $t2, $11
 		mfc2    $t5, $27

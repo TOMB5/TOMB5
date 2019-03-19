@@ -1,6 +1,7 @@
 #ifndef	_SYS_TYPES_H
 #define	_SYS_TYPES_H
 
+#ifndef __APPLE__
 /* major part of a device */
 #define	major(x)	((int)(((unsigned)(x)>>8)&0377))
 
@@ -9,6 +10,8 @@
 
 /* make a device number */
 #define	makedev(x,y)	((dev_t)(((x)<<8) | (y)))
+
+#endif
 
 #ifndef _UCHAR_T
 #define _UCHAR_T
@@ -41,6 +44,7 @@ typedef	unsigned long	ulong;		/* sys V compat */
 #endif
 #endif /* ! __psx__ */
 
+#if !__APPLE__
 typedef	struct	_physadr { int r[1]; } *physadr;
 typedef	struct	label_t	{
 	int	val[12];
@@ -63,6 +67,7 @@ typedef	unsigned int size_t;
 typedef	long	off_t;
 typedef	u_short	uid_t;
 typedef	u_short	gid_t;
+#endif
 
 #define	NBBY	8
 

@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF DrawAllFx, local_mTranslateAbsXYZ, local_mRotX, local_mRotY, local_mTranslateAbsXYZ, DrawLaserSightSprite_ASM
-	XREF db, MatrixStack, lara_item, room, GLOBAL_default_sprites_ptr, phd_persp, subdiv_ripple, rcossin_tbl, ASM_GetBounds
+	XREF splashes, debris, fire_spark, fires, smoke_spark, Bubbles, blood, Drips, db, MatrixStack, lara_item, room, GLOBAL_default_sprites_ptr, phd_persp, subdiv_ripple, rcossin_tbl, ASM_GetBounds, psxspriteinfo, wibble, ripples, CamRot, LaserSightActive, LaserSightCol, SmokeWindX, SmokeWindZ, gfMirrorZPlane
 	
 SplashLinks equ 0
 
@@ -261,7 +261,7 @@ DrawAllFx:
 	jal     local_mTranslateAbsXYZ
 	move    a2, s6
 	la      s3, rcossin_tbl
-	li      t2, 0xA85FC
+	la      t2, Drips
 	li      t1, 0x20
 
 	loc_88CAC:
@@ -305,8 +305,8 @@ DrawAllFx:
 	nop
 	andi    v0, 0x20
 	beqz    v0, loc_88D64
-	lw      v0, 0x2BF8(gp)
-	lw      at, 0x2BFC(gp)
+	lw      v0, SmokeWindX-GP_ADDR(gp)
+	lw      at, SmokeWindZ-GP_ADDR(gp)
 	sra     v0, 1
 	sra     at, 1
 	subu    v1, v0
@@ -383,7 +383,7 @@ DrawAllFx:
 	loc_88E54:
 	bnez    t1, loc_88CAC
 	addiu   t2, 0x18
-	li      t6, 0xA88FC
+	la      t6, blood
 	lw      v0, 0x240(s7)
 	li      t1, 0x20
 	lw      t3, 0xF8(v0)
@@ -560,7 +560,7 @@ DrawAllFx:
 	cfc2    at, r28
 	or      t6, v0
 	subu    t4, at
-	li      t2, 0xA80FC
+	la      t2, Bubbles
 	li      t5, 0x28
 
 	loc_89108:
@@ -670,7 +670,7 @@ DrawAllFx:
 	loc_89280:
 	bnez    t5, loc_89108
 	addiu   t2, 0x20
-	li      t7, 0xA8F7C
+	la      t7, smoke_spark
 	li      t3, 0x20
 
 	loc_89294:
@@ -721,7 +721,7 @@ DrawAllFx:
 	beqz    at, loc_89548
 	nop
 	lbu     v1, 0x1D(t7)
-	lw      a1, 0x11D8(gp)
+	lw      a1, psxspriteinfo-GP_ADDR(gp)
 	sll     v1, 4
 	addu    a1, v1
 	lhu     t2, 0xC(a1)
@@ -854,7 +854,7 @@ DrawAllFx:
 	addiu   t9, 0x28
 	beqz    s2, loc_89548
 	addiu   s2, -1
-	lw      v0, 0x2054(gp)
+	lw      v0, gfMirrorZPlane-GP_ADDR(gp)
 	lw      v1, 8(t7)
 	sll     v0, 1
 	j       loc_892A8
@@ -863,19 +863,19 @@ DrawAllFx:
 	loc_89548:
 	bnez    t3, loc_89294
 	addiu   t7, 0x2C
-	lbu     v0, 0x448(gp)
+	lbu     v0, LaserSightActive-GP_ADDR(gp)
 	sltu    at, t9, fp
 	beqz    at, loc_8A3D0
 	nop
 	beqz    v0, loc_89574
 	nop
 	jal     DrawLaserSightSprite_ASM
-	sb      zero, 0x448(gp)
-	sb      zero, 0x449(gp)
+	sb      zero, LaserSightActive-GP_ADDR(gp)
+	sb      zero, LaserSightCol-GP_ADDR(gp)
 
 	loc_89574:
 	li      s2, 0x20
-	li      s0, 0xA8D7C
+	la      s0, fires
 
 	loc_89580:
 	lbu     s1, 0xC(s0)
@@ -994,7 +994,7 @@ DrawAllFx:
 	bnez    at, loc_89A3C
 	nop
 	lbu     t6, 0xD(s0)
-	li      t7, 0xA94FC
+	la      t7, fire_spark
 	bnez    t6, loc_89748
 	li      t3, 0x14
 	li      t3, 0xE
@@ -1046,7 +1046,7 @@ DrawAllFx:
 	beqz    at, loc_89A34
 	nop
 	lbu     v1, 0x17(t7)
-	lw      at, 0x11D8(gp)
+	lw      at, psxspriteinfo-GP_ADDR(gp)
 	sll     v1, 4
 	addu    at, v1
 	lhu     t2, 0xC(at)
@@ -1207,7 +1207,7 @@ DrawAllFx:
 	loc_89A3C:
 	bnez    s2, loc_89580
 	addiu   s0, 0x10
-	li      s0, 0xA981C
+	la      s0, debris
 	li      s1, 0x80
 
 	loc_89A50:
@@ -1339,7 +1339,7 @@ DrawAllFx:
 	loc_89C20:
 	bnez    s1, loc_89A50
 	addiu   s0, 0x34
-	li      s2, 0xA28A4
+	la      s2, splashes
 	li      s0, 4
 
 	loc_89C34:
@@ -1435,7 +1435,7 @@ DrawAllFx:
 	nop
 
 	loc_89D7C:
-	lw      v0, 0x424(gp)
+	lw      v0, wibble-GP_ADDR(gp)
 	addiu   s5, 0x40
 	andi    v0, 0x30
 	j       loc_89D94
@@ -1724,9 +1724,9 @@ DrawAllFx:
 	loc_8A1A4:
 	bnez    s0, loc_89C34
 	addiu   s2, 0x28
-	li      s3, 0xA2944
+	la      s3, ripples
 	li      s4, 0x20
-	lh      v0, 0x46A6(gp)
+	lh      v0, CamRot+0x2-GP_ADDR(gp)
 	li      at, 0x600
 	subu    at, v0
 	sll     at, 2
@@ -1876,7 +1876,7 @@ DrawAllFx:
 	addiu   s3, 0x10
 
 	loc_8A3D0:
-	sw      t9, 0x3644(gp)
+	sw      t9, db+0x8-GP_ADDR(gp)
 	lw      at, 0(s7)
 	lw      v0, 4(s7)
 	lw      v1, 8(s7)
