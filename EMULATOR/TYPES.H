@@ -1,6 +1,7 @@
 #ifndef	_SYS_TYPES_H
 #define	_SYS_TYPES_H
 
+#ifndef __APPLE__
 /* major part of a device */
 #define	major(x)	((int)(((unsigned)(x)>>8)&0377))
 
@@ -9,6 +10,8 @@
 
 /* make a device number */
 #define	makedev(x,y)	((dev_t)(((x)<<8) | (y)))
+
+#endif
 
 #ifndef _UCHAR_T
 #define _UCHAR_T
@@ -56,7 +59,7 @@ typedef	long	swblk_t;
 
 #ifndef _SIZE_T
 #define _SIZE_T
-typedef	unsigned int size_t;
+//typedef	unsigned int size_t;
 #endif
 
 //typedef	long	time_t;

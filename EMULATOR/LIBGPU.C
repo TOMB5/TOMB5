@@ -2,8 +2,13 @@
 
 #define GL_GLEXT_PROTOTYPES 1
 #include <GL/glew.h>
+#if __APPLE__
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#else
 #include <SDL.h>
 #include <SDL_opengl.h>
+#endif
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -243,6 +248,11 @@ DRAWENV* SetDefDrawEnv(DRAWENV* env, int x, int y, int w, int h)//(F)
 	env->isbg = 0;
 
 	return env;
+}
+
+void SetDrawEnv(DR_ENV* dr_env, DRAWENV* env)
+{
+
 }
 
 u_long DrawSyncCallback(void(*func)(void))
@@ -747,7 +757,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 		glViewport(0, 0, windowWidth, windowHeight);
 		glPopMatrix();
-
 
 		Emulator_DestroyFrameBuffer(fbo);
 	}
