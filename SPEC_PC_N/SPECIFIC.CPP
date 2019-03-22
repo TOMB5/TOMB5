@@ -931,6 +931,52 @@ int TitleOptions()
 	return 0;
 }
 
+
+void updateAnimFrame(struct PACKNODE* node, int flags, short* frame)// (F)
+{
+	frame[7] = 3 * node->yrot_run;
+
+	short x = 3 * node->xrot_run;
+	short z = 3 * node->zrot_run;
+
+	switch (cutrot)
+	{
+	case 0:
+		frame[6] = x;
+		frame[8] = z;
+		break;
+	case 1:
+		frame[6] = z;
+		frame[8] = -x;
+		break;
+	case 2:
+		frame[6] = -x;
+		frame[8] = -z;
+		break;
+	case 3:
+		frame[6] = -z;
+		frame[8] = x;
+		break;
+	}
+
+	short* next = frame + 9;
+
+	for (int i = 1; i < flags; i++, next += 2)
+	{
+		short x = node[i].yrot_run;
+		short y = node[i].zrot_run;
+		short z = node[i].xrot_run;
+
+		if (cutrot && i == 1)
+		{
+			x = (x + ((short)cutrot << 8)) & 0x3FF;
+		}
+
+		next[0] = (y | ((x | (z << 10)) << 10)) >> 16;
+		next[1] = y | ((x | (z << 10)) << 10);
+	}
+}
+
 #ifdef __cplusplus
 }
 #endif

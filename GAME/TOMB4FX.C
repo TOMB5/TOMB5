@@ -874,17 +874,16 @@ void DrawWeaponMissile(struct ITEM_INFO *item)
 }
 
 #if PC_VERSION
-void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num)// (F)
+short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room_number)// (F)
 {
-	GetFloor(x, y, z, &room_num);
-	if (room[room_num].flags & RF_FILL_WATER)
-	{
-		TriggerUnderwaterBlood(x, y, z, speed);
-	}
+	GetFloor(x, y, z, &room_number);
+
+	if (room[room_number].flags & RF_FILL_WATER)
+		TriggerUnderwaterBlood(x, y, z, random);
 	else
-	{
-		TriggerBlood(x, y, z, direction, speed);
-	}
+		TriggerBlood(x, y, z, y_rot >> 4, random);
+
+	return -1;
 }
 
 void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)

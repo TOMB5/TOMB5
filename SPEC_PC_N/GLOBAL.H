@@ -102,6 +102,11 @@ extern void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest);
 extern void SetViewMatrix();
 #define phd_PopMatrix()		{ phd_mxptr -= 12; phd_dxptr -= 12; }
 
+#define mPushMatrix phd_PushMatrix
+#define mPopMatrix phd_PopMatrix
+#define mRotYXZ phd_RotYXZ
+#define mTranslateXYZ phd_TranslateAbs
+
 #ifdef __cplusplus
 //}
 #endif
@@ -113,6 +118,6 @@ void WaitUntilFalse(DWORD* ptr);
 void WaitUntilTrue(DWORD* ptr);
 void Sleep1ms();
 void* GetSleepFunc();
-
+void updateAnimFrame(struct PACKNODE* node, int flags, short* frame);
 
 #endif
