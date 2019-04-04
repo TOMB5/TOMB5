@@ -626,7 +626,7 @@ void UpdatePulseColour()//8E0F8(<), 9013C(<) (F)
 	for (i = 0; i < 16; i++)
 	{
 		((int*)&FontShades[1][i])[0] = ((localPulseCnt << 3) & 0xFF) | (((localPulseCnt << 3) & 0xFF) << 8) | (((localPulseCnt << 3) & 0xFF) << 16);
-		((int*)&FontShades[9][i])[0] = (GlobalCounter << 3) - (GlobalCounter & 0x3F);
+		((int*)&FontShades[9][i])[0] = (GlobalCounter - (GlobalCounter << 3)) & 0x3F;
 	}
 	return;
 }
