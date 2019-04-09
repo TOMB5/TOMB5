@@ -22,7 +22,7 @@ long GetRCnt(long spec)
 {
 	spec &= 0xFFFF;
 
-	if (spec > 3)
+	if (spec > 2)
 		return 0;
 
 	return counters[spec].Value;
@@ -266,7 +266,7 @@ void ReturnFromException()
 	UNIMPLEMENTED();
 }
 
-int  EnterCriticalSection()
+int EnterCriticalSection()
 {
 	UNIMPLEMENTED();
 	return 0;
