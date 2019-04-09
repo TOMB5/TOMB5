@@ -57,7 +57,7 @@ void mcDir()//61EE8(<), 625CC(<)
 	return;
 }
 
-void mcOpen(int sync)//6204C(<), 62730(<) (F)
+void mcOpen(int sync)//6204C(<), 62730(<) (F) (*)
 {
 	int i;
 
@@ -71,7 +71,7 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 
 	if (sync != 0)
 	{
-		for (i = 0; i < 4; i++)
+		for (i = 0; i < 5; i++)
 		{
 			//loc_62084
 			mcGetStatus();
