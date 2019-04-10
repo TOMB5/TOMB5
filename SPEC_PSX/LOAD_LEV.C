@@ -304,7 +304,7 @@ short atanTab[] =
 	0x1FEC, 0x1FEE, 0x1FF1, 0x1FF3, 0x1FF6, 0x1FF8, 0x1FFB, 0x1FFD, 0x2000, 0x2000
 };
 
-void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
+void LOAD_Start(int file_number)//602AC(<), 60DEC(<) (F) (*) (*) (D) (D)
 {
 	char* gfx = NULL;
 	unsigned short* gfx2 = NULL;
@@ -409,7 +409,7 @@ void LOAD_Start(int file_number)//602AC, 60DEC(<) (F)
 #endif
 }
 
-void LOAD_Stop()//60434(<), 60FB4(<) (F)
+void LOAD_Stop()//60434(<), 60FB4(<) (F) (*) (*) (D) (D)
 {
 	LOAD_DrawEnable(0);
 

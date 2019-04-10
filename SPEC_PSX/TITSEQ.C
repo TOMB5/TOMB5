@@ -40,18 +40,18 @@ void* func_titseq[] __attribute__((section(".header"))) =
 
 unsigned char titseqData[] __attribute__((section(".data"))) =
 {
-	0,//xyte_46
-	0,//xyte_47
-	0,//xyte_1A8
+	0,//byte_46
+	0,//byte_47
+	0,//byte_1A8
 };
 
 unsigned int titseqData2[] __attribute__((section(".data"))) =
 {
-	0,//xord_38
+	0,//word_38
 };
 
 unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
-unsigned char byte_2600[] = { 0, 0, 0, 0, 0 }; ///@FIXME i don't know the len (maybe max of titseqData[0])
+unsigned char byte_2600[] = { 0, 0, 0, 0, 0 };
 
 struct CutseqMenuItem
 {
