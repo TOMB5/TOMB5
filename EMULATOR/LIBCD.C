@@ -8,6 +8,7 @@
 
 #define DISC_IMAGE_FILENAME "TOMB5.BIN"
 
+int CD_Debug = 0;
 
 FILE* openFile = NULL;
 
@@ -212,8 +213,9 @@ int CdReadSync(int mode, u_char* result)
 
 int CdSetDebug(int level)
 {
-	UNIMPLEMENTED();
-	return 0;
+	int lastLevel = CD_Debug;
+	CD_Debug = level;
+	return lastLevel;
 }
 
 int CdSync(int mode, u_char * result)

@@ -17,7 +17,7 @@
 #include "EMULATOR_GLOBALS.H"
 #include "CRASHHANDLER.H"
 
-#ifdef __linux__ || __APPLE__
+#if __linux__ || __APPLE__
         #include <sys/mman.h>
         #include <unistd.h>
 #endif
@@ -26,6 +26,8 @@
 #include <Windows.h>
 #endif
 
+#define CORE_PROF_3_1 (1)
+#define CORE_PROF_3_2 (0)
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (0)
 #define DX9 0
@@ -38,6 +40,10 @@
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "d3d9.lib")
 #endif
+
+#define MAX_NUM_VERTICES (4)
+Vertex vertices[MAX_NUM_VERTICES];
+int vertexCount = 0;
 
 SDL_Window* g_window = NULL;
 
@@ -84,7 +90,6 @@ int main(int argc, char* argv[])
 		///@FIXME Warning SDL was not initialised in this thread!
 		Emulator_UpdateInput();
 	}
-
 	return 0;
 }
 
@@ -101,15 +106,17 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0)
 	{
-#if !DX9
 #if CORE_PROF_3_1
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-#endif
+		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
+#elif CORE_PROF_3_2
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
 #else
-
 		Direct3D_object = Direct3DCreate9(D3D_SDK_VERSION);
 		if (Direct3D_object == NULL)
 		{
@@ -124,16 +131,28 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	}
 
 	SDL_GL_CreateContext(g_window);
-
-	if (glewInit() != GLEW_OK)
+	if (g_window == NULL)
 	{
-		eprinterr("Error initialising GLEW!\n");
+		eprinterr("Failed to initialise GL context!\n");
+	}
+
+#if CORE_PROF_3_1 || CORE_PROF_3_2
+	glewExperimental = GL_TRUE;
+#endif
+
+	GLenum err = glewInit();
+
+	if (err != GLEW_OK)
+	{
+		/* Problem: glewInit failed, something is seriously wrong. */
+		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 	}
 
 	SDL_memset(&vram, 0, sizeof(1024 * 512 * 2));
 	SDL_GL_SetSwapInterval(1);
-
+	
 	Emulator_InitialiseGL();
+	
 #if __linux__ || __APPLE__
 	if (!Emulator_InitialiseGameVariables())
 	{
@@ -147,7 +166,7 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 {
 	do
 	{
-#ifdef __linux__ || __APPLE__
+#if __linux__ || __APPLE__
 		pVirtualMemory = (char*)mmap((void*)baseAddress, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
 #endif
 
@@ -265,8 +284,126 @@ void Emulator_CounterLoop()
 	}
 }
 
+char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p3)
+{
+	//Copy over position
+	if (p0 != NULL)
+	{
+		vertices[0].x = (float)p0[0];
+		vertices[0].y = (float)p0[1];
+	}
+
+	if (p1 != NULL)
+	{
+		vertices[1].x = (float)p1[0];
+		vertices[1].y = (float)p1[1];
+	}
+	
+	if (p2 != NULL)
+	{
+		vertices[2].x = (float)p2[0];
+		vertices[2].y = (float)p2[1];
+	}
+
+	if (p3 != NULL)
+	{
+		vertices[3].x = (float)p3[0];
+		vertices[3].y = (float)p3[1];
+	}
+
+	return (char*)&vertices[0].x;
+}
+
+char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3)
+{
+	//Copy over uvs
+	if (uv0 != NULL)
+	{
+		vertices[0].u0 = ((float)uv0[0]) / 256.0f;
+		vertices[0].v0 = ((float)uv0[1]) / 256.0f;
+	}
+	
+	if (uv1 != NULL)
+	{
+		vertices[1].u0 = ((float)uv1[0]) / 256.0f;
+		vertices[1].v0 = ((float)uv1[1]) / 256.0f;
+	}
+	
+	if (uv2 != NULL)
+	{
+		vertices[2].u0 = ((float)uv2[0]) / 256.0f;
+		vertices[2].v0 = ((float)uv2[1]) / 256.0f;
+	}
+
+	if (uv3 != NULL)
+	{
+		vertices[3].u0 = ((float)uv3[0]) / 256.0f;
+		vertices[3].v0 = ((float)uv3[1]) / 256.0f;
+	}
+
+	return (char*)&vertices[0].u0;
+}
+
+char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3)
+{
+	//Copy over rgb vertex colours
+	vertices[0].col[0] = ((float)col0[0]) / 255.0f;
+	vertices[0].col[1] = ((float)col0[1]) / 255.0f;
+	vertices[0].col[2] = ((float)col0[2]) / 255.0f;
+	vertices[0].col[3] = ((float)0xFF) / 255.0f;
+
+	if (col1 != NULL)
+	{
+		vertices[1].col[0] = ((float)col1[0]) / 255.0f;
+		vertices[1].col[1] = ((float)col1[1]) / 255.0f;
+		vertices[1].col[2] = ((float)col1[2]) / 255.0f;
+		vertices[1].col[3] = ((float)0xFF) / 255.0f;
+	}
+	else
+	{
+		vertices[1].col[0] = ((float)col0[0]) / 255.0f;
+		vertices[1].col[1] = ((float)col0[1]) / 255.0f;
+		vertices[1].col[2] = ((float)col0[2]) / 255.0f;
+		vertices[1].col[3] = ((float)0xFF) / 255.0f;
+	}
+
+	if (col2 != NULL)
+	{
+		vertices[2].col[0] = ((float)col2[0]) / 255.0f;
+		vertices[2].col[1] = ((float)col2[1]) / 255.0f;
+		vertices[2].col[2] = ((float)col2[2]) / 255.0f;
+		vertices[2].col[3] = ((float)0xFF) / 255.0f;
+	}
+	else
+	{
+		vertices[2].col[0] = ((float)col0[0]) / 255.0f;
+		vertices[2].col[1] = ((float)col0[1]) / 255.0f;
+		vertices[2].col[2] = ((float)col0[2]) / 255.0f;
+		vertices[2].col[3] = ((float)0xFF) / 255.0f;
+	}
+
+	if (col3 != NULL)
+	{
+		vertices[3].col[0] = ((float)col3[0]) / 255.0f;
+		vertices[3].col[1] = ((float)col3[1]) / 255.0f;
+		vertices[3].col[2] = ((float)col3[2]) / 255.0f;
+		vertices[3].col[3] = ((float)0xFF) / 255.0f;
+	}
+	else
+	{
+		vertices[3].col[0] = ((float)col0[0]) / 255.0f;
+		vertices[3].col[1] = ((float)col0[1]) / 255.0f;
+		vertices[3].col[2] = ((float)col0[2]) / 255.0f;
+		vertices[3].col[3] = ((float)0xFF) / 255.0f;
+	}
+
+	return (char*)&vertices[0].col[0];
+}
+
 void Emulator_InitialiseGL()
 {
+	//Initialise vertex array
+	memset(&vertices[0].x, 0, sizeof(Vertex) * MAX_NUM_VERTICES);
 	Emulator_GenerateAndBindNullWhite();
 
 //	glPolygonMode(GL_FRONT_AND_BACK, self.command_polygon_mode);
@@ -517,17 +654,18 @@ void Emulator_GenerateFrameBuffer(GLuint& fbo)
 
 void Emulator_GenerateFrameBufferTexture()
 {
-	unsigned short* pixelData = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
+	unsigned short* pixelData = new unsigned short[activeDrawEnv.clip.w * activeDrawEnv.clip.h];
 	unsigned short* dst = &pixelData[0];
 
-	for (int y = word_unknown00.clip.y; y < 512; y++)
+	//Read disp env area from vram
+	for (int y = activeDrawEnv.clip.y; y < 512; y++)
 	{
-		for (int x = word_unknown00.clip.x; x < 1024; x++)
+		for (int x = activeDrawEnv.clip.x; x < 1024; x++)
 		{
 			unsigned short* src = vram + (y * 1024 + x);
 
-			if (x >= word_unknown00.clip.x && x < word_unknown00.clip.x + word_unknown00.clip.w &&
-				y >= word_unknown00.clip.y && y < word_unknown00.clip.y + word_unknown00.clip.h)
+			if (x >= activeDrawEnv.clip.x && x < activeDrawEnv.clip.x + activeDrawEnv.clip.w &&
+				y >= activeDrawEnv.clip.y && y < activeDrawEnv.clip.y + activeDrawEnv.clip.h)
 			{
 				*dst++ = src[0];
 			}
@@ -536,9 +674,11 @@ void Emulator_GenerateFrameBufferTexture()
 
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, word_unknown00.clip.w, word_unknown00.clip.h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, activeDrawEnv.clip.w, activeDrawEnv.clip.h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-#if !CORE_PROF_3_1
+#if CORE_PROF_3_1
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, vramTexture, 0);
 #else
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
@@ -548,27 +688,22 @@ void Emulator_GenerateFrameBufferTexture()
 	{
 		eprinterr("Frame buffer error");
 	}
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
+	
 #if _DEBUG && !NOFILE
-	unsigned short* pixelData2 = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
-	glReadPixels(0, 0, word_unknown00.clip.w, word_unknown00.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData2);
+	unsigned short* pixelData2 = new unsigned short[activeDrawEnv.clip.w * activeDrawEnv.clip.h];
+	glReadPixels(0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData2);
 
 	FILE* f = fopen("VRAM4.TGA", "wb");
-	if (f == NULL)
+	if (f != NULL)
 	{
-		return;
+		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+		unsigned char header[6] = { activeDrawEnv.clip.w % 256, activeDrawEnv.clip.w / 256, activeDrawEnv.clip.h % 256, activeDrawEnv.clip.h / 256,16,0 };
+		fwrite(TGAheader, sizeof(unsigned char), 12, f);
+		fwrite(header, sizeof(unsigned char), 6, f);
+		for (int line = activeDrawEnv.clip.h - 1; line >= 0; line--)
+			fwrite(&pixelData2[line * activeDrawEnv.clip.w], sizeof(short), activeDrawEnv.clip.w, f);
+		fclose(f);
 	}
-	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-	unsigned char header[6] = { word_unknown00.clip.w % 256, word_unknown00.clip.w / 256, word_unknown00.clip.h % 256, word_unknown00.clip.h / 256,16,0 };
-	fwrite(TGAheader, sizeof(unsigned char), 12, f);
-	fwrite(header, sizeof(unsigned char), 6, f);
-	for (int line = word_unknown00.clip.h - 1; line >= 0; line--)
-		fwrite(&pixelData2[line * word_unknown00.clip.w], sizeof(short), word_unknown00.clip.w, f);
-	fclose(f);
-	
 #endif
 
 	delete[] pixelData;
@@ -785,37 +920,32 @@ void Emulator_DestroyFrameBuffer(GLuint& fbo)
 void Emulator_DestroyLastVRAMTexture()
 {
 	/*Read from frame buffer and send to VRAM*/
-	unsigned short* pixelData = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
+	unsigned short* pixelData = new unsigned short[activeDrawEnv.clip.w * activeDrawEnv.clip.h];
 	unsigned short* dst = &pixelData[0];
-	glReadPixels(0, 0, word_unknown00.clip.w, word_unknown00.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
+	glReadPixels(0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
 
-	for (int y = word_unknown00.clip.y; y < 512; y++)
+	for (int y = activeDrawEnv.clip.y; y < activeDrawEnv.clip.y + activeDrawEnv.clip.h; y++)
 	{
-		for (int x = word_unknown00.clip.x; x < 1024; x++)
+		for (int x = activeDrawEnv.clip.x; x < activeDrawEnv.clip.x + activeDrawEnv.clip.w; x++)
 		{
 			unsigned short* src = vram + (y * 1024 + x);
 
-			if (x >= word_unknown00.clip.x && x < word_unknown00.clip.x + word_unknown00.clip.w &&
-				y >= word_unknown00.clip.y && y < word_unknown00.clip.y + word_unknown00.clip.h)
-			{
-				src[0] = *dst++;
-			}
+			src[0] = *dst++;
 		}
 	}
 
 #if _DEBUG && !NOFILE
 	FILE* f = fopen("VRAM2.TGA", "wb");
-	if (f == NULL)
+	if (f != NULL)
 	{
-		return;
+		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+		unsigned char header[6] = { activeDrawEnv.clip.w % 256, activeDrawEnv.clip.w / 256, activeDrawEnv.clip.h % 256, activeDrawEnv.clip.h / 256,16,0 };
+		fwrite(TGAheader, sizeof(unsigned char), 12, f);
+		fwrite(header, sizeof(unsigned char), 6, f);
+		for (int line = activeDrawEnv.clip.h - 1; line >= 0; line--)
+			fwrite(&pixelData[line * activeDrawEnv.clip.w], sizeof(short), activeDrawEnv.clip.w, f);
+		fclose(f);
 	}
-	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-	unsigned char header[6] = { word_unknown00.clip.w % 256, word_unknown00.clip.w / 256, word_unknown00.clip.h % 256, word_unknown00.clip.h / 256,16,0 };
-	fwrite(TGAheader, sizeof(unsigned char), 12, f);
-	fwrite(header, sizeof(unsigned char), 6, f);
-	for (int line = word_unknown00.clip.h - 1; line >= 0; line--)
-		fwrite(&pixelData[line * word_unknown00.clip.w], sizeof(short), word_unknown00.clip.w, f);
-	fclose(f);
 #endif
 
 	delete[] pixelData;
@@ -845,7 +975,7 @@ void Emulator_SetBlendMode(int mode)
 		break;
 	}
 #else
-	glBlendColor(0.25, 0.25, 0.25, 0.5);
+
 	switch (mode)
 	{
 	case 0://Average
@@ -853,23 +983,15 @@ void Emulator_SetBlendMode(int mode)
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		break;
 	case 1://Add
-		glBlendColor(0.0, 0.0, 0.0, 0.0);
-		//glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
-		//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		break;
 	case 2://Subtract
 		glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 		glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
-
 		break;
 	case 3://Addquatersource
 		glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
-		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-		break;
-	default:
-		glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		break;
 	}
@@ -904,7 +1026,6 @@ struct tr_vertex   // 6 bytes
 	int16_t y;
 	int16_t z;
 };
-
 
 struct mesh_header
 {
@@ -976,7 +1097,5 @@ void Emulator_TestDrawVertices(short* vptr, MMTEXTURE* tex)
 
 		glEnd();
 	}
-
-
 
 #endif
