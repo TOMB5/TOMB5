@@ -28,13 +28,15 @@
 #endif
 
 #define BLOCK_SPLINE_CAM (0)
-#define HACK_SAVE_SECRETS (0)
+#define HACK_SAVE_SECRETS (1)
 
 #if PSX_VERSION && RELOC
 void* func_titseq[] __attribute__((section(".header"))) =
 {
 	&TitleOptions,
 };
+
+#endif
 
 unsigned char titseqData[] __attribute__((section(".data"))) =
 {
@@ -47,8 +49,6 @@ unsigned int titseqData2[] __attribute__((section(".data"))) =
 {
 	0,//xord_38
 };
-
-#endif
 
 unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
 unsigned char byte_2600[] = { 0, 0, 0, 0, 0 }; ///@FIXME i don't know the len (maybe max of titseqData[0])
