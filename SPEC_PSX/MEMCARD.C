@@ -102,26 +102,18 @@ unsigned char mcGetStatus()//620CC(<), 627B0 (F)
 
 	stat = MemCardSync(1, (long*)&cmd, (long*)&res);
 
-	if (stat == 0)
-	{
-		//loc_62130
-		if (cmd == McFuncReadFile)
-		{
-			mcStatus = 5;
-		}//loc_62150
-		else if (cmd == McFuncWriteData)
-		{
-			mcStatus = cmd;
-		}
-		else if (cmd == McFuncAccept)
-		{
-			mcStatus = 4;
-		}
-	}
-	else if (stat > 0)
+	if (stat != 0)
 	{
 		//loc_62110
-		if (stat == 1)
+		if (stat < 1)
+		{
+			if (stat == -1)
+			{
+				//loc_62120
+				MemCardExist(0);
+			}
+		}
+		else if (stat == 1)
 		{
 			//loc_62178
 			if (cmd == 2)
@@ -214,10 +206,21 @@ unsigned char mcGetStatus()//620CC(<), 627B0 (F)
 			}
 		}
 	}
-	else if (stat == -1)
+	else if (stat == 0)
 	{
-		//loc_62120
-		MemCardExist(0);
+		//loc_62130
+		if (cmd == McFuncReadFile)
+		{
+			mcStatus = 5;
+		}//loc_62150
+		else if (cmd == McFuncWriteData)
+		{
+			mcStatus = cmd;
+		}
+		else if (cmd == McFuncAccept)
+		{
+			mcStatus = 4;
+		}
 	}
 
 	//loc_622C4
