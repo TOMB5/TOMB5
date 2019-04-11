@@ -6,7 +6,7 @@
 
 static struct VIBRATION vib[2];
 
-void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int len)//604A4(<), 6101C(<) (F)
+void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int len)//604A4(<), 6101C(<) (F) (*) (D)
 {
 	struct VIBRATION* v = &vib[num];
 
@@ -15,7 +15,7 @@ void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int 
 	v->Flag = 0;
 	v->Rate = 0;
 	v->Vib = 0;
-	v->Sus = len - dec;
+	v->Sus = len - sus;
 	v->Dec = dec;
 	v->Len = len;
 }
