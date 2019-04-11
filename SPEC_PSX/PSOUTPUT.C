@@ -20,10 +20,10 @@ void SetupPadVibration(short num, short acc, short lev, short sus, int dec, int 
 	v->Len = len;
 }
 
-void VibratePad()//604EC(<), 61064(<) (F)
+void VibratePad()//604EC(<), 61064(<) (F) (*) (D)
 {
 	int i;
-	struct VIBRATION* v;
+	struct VIBRATION* v = &vib[0];
 
 	if (DualShock == 0 || savegame.VibrateOn == 0)
 	{
@@ -34,7 +34,7 @@ void VibratePad()//604EC(<), 61064(<) (F)
 	}
 
 	//loc_6052C
-	for (i = 0; i < 2; i++, v = &vib[i])
+	for (i = 0; i < 2; i++, v++)
 	{
 		if (v->Len != 0)
 		{
@@ -42,7 +42,7 @@ void VibratePad()//604EC(<), 61064(<) (F)
 			{
 				v->Rate += v->Acc;
 
-				if (v->Rate > v->Lev)
+				if (v->Rate >= v->Lev)
 				{
 					v->Rate = v->Lev;
 					v->Flag = 1;
@@ -51,7 +51,7 @@ void VibratePad()//604EC(<), 61064(<) (F)
 			else if (v->Flag == 1)
 			{
 				//loc_60588
-				if (v->Sus > v->Len)
+				if (v->Len <= v->Sus)
 				{
 					v->Flag = 2;
 				}//loc_605DC
@@ -61,7 +61,7 @@ void VibratePad()//604EC(<), 61064(<) (F)
 				//loc_605AC
 				v->Rate -= v->Dec;
 
-				if (v->Rate * 65536 < 0)
+				if (v->Rate << 16 < 0)
 				{
 					v->Rate = 0;
 					v->Flag = 3;
@@ -73,9 +73,9 @@ void VibratePad()//604EC(<), 61064(<) (F)
 
 			if (i != 0)
 			{
-				if (v->Vib / 16 != 0)
+				if (v->Vib >> 8 != 0)
 				{
-					Motors[1] = v->Vib / 16;
+					Motors[1] = v->Vib >> 8;
 					v->Vib &= 0xFF;
 				}//loc_60650
 				else
@@ -87,7 +87,7 @@ void VibratePad()//604EC(<), 61064(<) (F)
 			else
 			{
 				//loc_60628
-				if (v->Vib / 24 != 0)
+				if (v->Vib >> 12 != 0)
 				{
 					Motors[0] = 1;
 					v->Vib -= 4096;
