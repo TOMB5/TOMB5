@@ -8,8 +8,8 @@
 static struct SCALE scales[] =
 {
 	{ 260, 0, 2 },
-{ 130, 1, 3 },
-{ 65,  2, 5 }
+	{ 130, 1, 3 },
+	{ 65,  2, 5 }
 };
 
 char ProfileDraw;
@@ -75,29 +75,30 @@ void ProfileReadCount()//61A48(<), * (F) (*) (D)
 
 void ProfileAddOT(unsigned long* ot)//61A90, * (F)
 {
-	int count;
+	int count = 0;
 
 	if (nummarks > 0)
 	{
 		//loc_61AD0
-		for (count = 0; count < nummarks; count++)
+		for (; count < nummarks; count++)
 		{
 			if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 			{
-				((char*)db.polyptr)[3] = 4;
-				((char*)db.polyptr)[7] = 33;
-				((char*)db.polyptr)[4] = 50;
-				((char*)db.polyptr)[5] = 50;
-				((char*)db.polyptr)[6] = 150;
-				((short*)db.polyptr)[5] = 20;
-				((short*)db.polyptr)[7] = 20;
-				((short*)db.polyptr)[9] = 30;
-				((short*)db.polyptr)[6] = (count * grid) + 29;
-				((short*)db.polyptr)[4] = (count * grid) + 21;
-				((short*)db.polyptr)[8] = (count * grid) + 25;
-				((unsigned long*)db.polyptr)[0] = (((long*)db.polyptr)[0] & 0xFF000000) | (ot[0] & 0xFFFFFF);
-				ot[0] = (ot[0] & 0xFF000000) | (unsigned long)db.polyptr & 0xFFFFFF;
-				db.polyptr += 0x14;
+				POLY_F3* ptr = (POLY_F3*)db.polyptr;
+
+				setPolyF3(ptr);
+				setShadeTex(ptr, TRUE);
+
+				setRGB0(ptr, 50, 50, 150);
+
+				setXY3(ptr,
+					(count * grid) + 21, 20,
+					(count * grid) + 29, 20,
+					(count * grid) + 25, 30);
+
+				addPrim(ot, ptr);
+
+				db.polyptr += sizeof(POLY_F3);
 			}
 			else
 			{
@@ -114,22 +115,25 @@ void ProfileAddOT(unsigned long* ot)//61A90, * (F)
 		{
 			if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 			{
-				((char*)db.polyptr)[3] = 5;
-				((char*)db.polyptr)[7] = 41;
-				((char*)db.polyptr)[4] = ProfileInfo[count].r;
-				((char*)db.polyptr)[5] = ProfileInfo[count].g;
-				((char*)db.polyptr)[6] = ProfileInfo[count].b;
-				((short*)db.polyptr)[5] = 25;
-				((short*)db.polyptr)[4] = ProfileInfo[count].profile_xcnt;
-				((short*)db.polyptr)[7] = 25;
-				((short*)db.polyptr)[6] = ProfileInfo[count].profile_xcnt + ProfileInfo[count].finalcnt;
-				((short*)db.polyptr)[9] = 33;
-				((short*)db.polyptr)[8] = ProfileInfo[count].profile_xcnt;
-				((short*)db.polyptr)[11] = 33;
-				((short*)db.polyptr)[10] = ProfileInfo[count].profile_xcnt + ProfileInfo[count].finalcnt;
-				((unsigned long*)db.polyptr)[0] = (((unsigned long*)db.polyptr)[0] & 0xFF000000) | (ot[0] & 0xFFFFFF);
-				ot[0] = (ot[0] & 0xFF000000) | ((unsigned long)db.polyptr & 0xFFFFFF);
-				db.polyptr += 0x18;
+				POLY_F4* ptr = (POLY_F4*)db.polyptr;
+
+				setPolyF4(ptr);
+				setShadeTex(ptr, TRUE);
+
+				setRGB0(ptr,
+					ProfileInfo[count].r,
+					ProfileInfo[count].g,
+					ProfileInfo[count].b);
+
+				setXY4(ptr,
+					ProfileInfo[count].profile_xcnt, 25,
+					ProfileInfo[count].profile_xcnt + ProfileInfo[count].finalcnt, 25,
+					ProfileInfo[count].profile_xcnt, 33,
+					ProfileInfo[count].profile_xcnt + ProfileInfo[count].finalcnt, 33);
+
+				addPrim(ot, ptr);
+
+				db.polyptr += sizeof(POLY_F4);
 			}
 			else
 			{
@@ -166,20 +170,21 @@ void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 		{
 			if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 			{
-				((char*)db.polyptr)[3] = 4;
-				((char*)db.polyptr)[7] = 33;
-				((char*)db.polyptr)[4] = 50;
-				((char*)db.polyptr)[5] = 50;
-				((char*)db.polyptr)[6] = 150;
-				((short*)db.polyptr)[5] = 48;
-				((short*)db.polyptr)[7] = 48;
-				((short*)db.polyptr)[9] = 39;
-				((short*)db.polyptr)[6] = (count * grid) + 29;
-				((short*)db.polyptr)[4] = (count * grid) + 21;
-				((short*)db.polyptr)[8] = (count * grid) + 25;
-				((unsigned long*)db.polyptr)[0] = (((unsigned long*)db.polyptr)[0] & 0xFF000000) | (ot[0] & 0xFFFFFF);
-				ot[0] = (ot[0] & 0xFF000000) | (unsigned long)db.polyptr & 0xFFFFFF;
-				db.polyptr += 0x14;
+				POLY_F3* ptr = (POLY_F3*)db.polyptr;
+
+				setPolyF3(ptr);
+				setShadeTex(ptr, TRUE);
+
+				setRGB0(ptr, 50, 50, 150);
+
+				setXY3(ptr,
+					(count * grid) + 21, 48,
+					(count * grid) + 29, 48,
+					(count * grid) + 25, 39);
+
+				addPrim(ot, ptr);
+
+				db.polyptr += sizeof(POLY_F3);
 			}
 			else
 			{
@@ -190,31 +195,26 @@ void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
-		((char*)db.polyptr)[3] = 8;
-		((char*)db.polyptr)[7] = 57;
-		((char*)db.polyptr)[4] = 0;
-		((char*)db.polyptr)[5] = 200;
-		((char*)db.polyptr)[6] = 0;
-		((char*)db.polyptr)[12] = 200;
-		((char*)db.polyptr)[13] = 0;
-		((char*)db.polyptr)[14] = 0;
-		((char*)db.polyptr)[20] = 0;
-		((char*)db.polyptr)[21] = 200;
-		((char*)db.polyptr)[22] = 0;
-		((char*)db.polyptr)[28] = 200;
-		((char*)db.polyptr)[29] = 0;
-		((char*)db.polyptr)[30] = 0;
-		((short*)db.polyptr)[5] = 36;
-		((short*)db.polyptr)[9] = 36;
-		((short*)db.polyptr)[4] = 25;
-		((short*)db.polyptr)[12] = 25;
-		((short*)db.polyptr)[13] = 44;
-		((short*)db.polyptr)[17] = 44;
-		((short*)db.polyptr)[8] = drawCount + 25;
-		((short*)db.polyptr)[16] = drawCount + 25;
-		((unsigned long*)db.polyptr)[0] = (((unsigned long*)db.polyptr)[0] & 0xFF000000) | (ot[0] & 0xFFFFFF);
-		ot[0] = (ot[0] & 0xFF000000) | ((unsigned long)db.polyptr & 0xFFFFFF);
-		db.polyptr += 0x24;
+
+		POLY_G4* ptr = (POLY_G4*)db.polyptr;
+
+		setPolyG4(ptr);
+		setShadeTex(ptr, TRUE);
+
+		setRGB0(ptr, 0, 200, 0);
+		setRGB1(ptr, 200, 0, 0);
+		setRGB2(ptr, 0, 200, 0);
+		setRGB3(ptr, 200, 0, 0);
+
+		setXY4(ptr,
+			25, 36,
+			drawCount + 25, 36,
+			25, 44,
+			drawCount + 25, 44);
+
+		addPrim(ot, ptr);
+
+		db.polyptr += sizeof(POLY_G4);
 
 	}//locret_61EE0
 }
