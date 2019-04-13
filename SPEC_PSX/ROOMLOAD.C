@@ -28,7 +28,7 @@ int AnimatingWaterfallsV[6];
 unsigned long envmap_data[6];
 unsigned long* RelocPtr[128];
 
-void ReloadAnims(int name, long len)//600E4(<), 60D20(<) (*) (?)
+void ReloadAnims(int name, long len)//600E4(<), 60D20(<) (*) (*) (D) (D)
 {
 #if DISC_VERSION
 	cdCurrentSector = AnimFilePos;
@@ -50,9 +50,11 @@ void ReloadAnims(int name, long len)//600E4(<), 60D20(<) (*) (?)
 	return;
 }
 
-void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
+void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F) (*) () (D) (D)
 {
+#if !DISC_VERSION
 	char buf[80];
+#endif
 	unsigned long* mod;
 	int len;
 	int file;
@@ -86,7 +88,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F)
 	 * [SETUP.BIN]
 	 * [SETUP.REL]
 	 */
-	RelocateModule((unsigned long)SetupPtr, (unsigned long*)(db.poly_buffer[0][1024] + (unsigned long)SetupPtr));
+	RelocateModule((unsigned long)SetupPtr, (unsigned long*)(*mod + (unsigned long)SetupPtr));
 
 #if DISC_VERSION
 	#if RELOC
