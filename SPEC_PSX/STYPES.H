@@ -228,18 +228,29 @@ typedef struct
 
 typedef struct
 {
+	unsigned short digitalButtons;
+	unsigned char  right_x;
+	unsigned char  right_y;
+	unsigned char  left_x;
+	unsigned char  left_y;
+} AnalogjoyData;
+
+typedef struct
+{
 	unsigned char transStatus;
 	unsigned char dataFormat;
 
 	union
 	{
-		PadData      pad;
-		MouseData    mouse;
-		NegconData   negcon;
-		MultiTapData tap;
+		PadData       pad;
+		MouseData     mouse;
+		NegconData    negcon;
+		AnalogjoyData joystick;
+		MultiTapData  tap;
 	}
 	data;
-} ControllerPacket;
+}
+ControllerPacket;
 
 struct pad_configs
 {
