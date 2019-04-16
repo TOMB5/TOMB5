@@ -1,5 +1,6 @@
 ﻿#include "TITSEQ.H"
 
+#include "CD.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "EFFECTS.H"
@@ -29,7 +30,7 @@
 #endif
 
 #define BLOCK_SPLINE_CAM (0)
-#define HACK_SAVE_SECRETS (0)
+#define HACK_SAVE_SECRETS (1)
 
 #if PSX_VERSION && RELOC
 void* func_titseq[] __attribute__((section(".header"))) =
@@ -935,5 +936,10 @@ void sub_2398(char* gfx, unsigned char wadIndex, int a2)
 	PClseek(nHandle, a2 * 0x3C000, 0);//0x3C000 storyboard image size
 	FILE_Read(gfx, 1, 0x3C000, nHandle);
 	PCclose(nHandle);
+#else
+	DEL_CDFS_OpenFile(wadIndex + STORY_1);
+	DEL_CDFS_Seek(a2 * 0x3C000);
+	DEL_CDFS_Read(gfx, 0x3C000);
+
 #endif
 }

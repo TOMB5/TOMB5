@@ -75,9 +75,9 @@ enum gw_files
 	RESERVED_27,
 	RESERVED_28,
 	RESERVED_29,
-	UNKNOWN_30, //16bpp TR5 Extras Storyboards (ENG) 512x
-	UNKNOWN_31, //16bpp TRN Extras Storyboards 512x
-	UNKNOWN_32, //16bpp TR5 Extras Storyboards (ENG) 512x
+	STORY_1, //16bpp TR5 Extras Storyboards (ENG) 512x
+	STORY_2, //16bpp TRN Extras Storyboards 512x
+	STORY_3, //16bpp TR5 Extras Storyboards (ENG) 512x
 	RESERVED_33,
 	RESERVED_34,
 	RESERVED_35,
