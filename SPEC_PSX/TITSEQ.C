@@ -805,15 +805,6 @@ void sub_2154(int Name, unsigned char a1)
 {
 	if (a1 != 0 && a1 != 4)
 	{
-		sub_219C(a1 - 1);
-		ReloadAnims(Name, cutseq_malloc_used);
-	}//loc_218C
-}
-
-void sub_2154(int Name, unsigned char a1)
-{
-	if (a1 != 0 && a1 != 4)
-	{
 		TITSEQ_StoryBoardMenuControl(a1 - 1);
 		ReloadAnims(Name, cutseq_malloc_used);
 	}//loc_218C
