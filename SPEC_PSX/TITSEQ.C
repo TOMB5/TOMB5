@@ -810,22 +810,29 @@ void sub_2154(int Name, unsigned char a1)
 	}//loc_218C
 }
 
-void sub_219C(unsigned char a0)
+void sub_2154(int Name, unsigned char a1)
 {
-	void* s1;
-	int fp;
-	int s4;
-	fp = 12;
-	//s7 = a0
-	//v0 = 1
+	if (a1 != 0 && a1 != 4)
+	{
+		TITSEQ_StoryBoardMenuControl(a1 - 1);
+		ReloadAnims(Name, cutseq_malloc_used);
+	}//loc_218C
+}
 
+void TITSEQ_StoryBoardMenuControl(unsigned char a0)//219C(<), 21A8(<) (F)
+{
+	void* gfx;//$s1
+	int maxNumberOfImages;//$fp
+	int currentlySelectedImage;//$s4
+
+	maxNumberOfImages = 12;
 	if (a0 == 1)
 	{
-		fp = 15;
+		maxNumberOfImages = 15;
 	}
 
 	//loc_21DC
-	s4 = 0;
+	currentlySelectedImage = 0;
 
 #if DEBUG_VERSION
 	ProfileDraw = 0;
@@ -833,9 +840,7 @@ void sub_219C(unsigned char a0)
 
 	DrawSync(0);
 	VSync(0);
-	//s0 = &db
-	//s1 = &db.disp[1]
-	//a0 = s1
+
 	db.draw[1].isbg = 0;
 	db.draw[0].isbg = 0;
 	db.draw[1].dtd = 0;
@@ -846,53 +851,58 @@ void sub_219C(unsigned char a0)
 	ClearImage(&db.disp[1].disp, 0, 0, 0);
 
 	DrawSync(0);
-
-	//a0 = &db.disp[0];
 	ClearImage(&db.disp[0].disp, 0, 0, 0);
 	DrawSync(0);
 
 	init_cutseq_malloc();
-	s1 = cutseq_malloc(0x3C000);
-	sub_2398((char*)s1, a0, 0);
+	gfx = cutseq_malloc(STORY_BOARD_IMG_SIZE);
+	TITSEQ_ReadStoryboardImage((char*)gfx, a0, 0);
 
 	goto loc_22F4;
 
 	do
 	{
 		//loc_2290
-		if ((RawEdge & 0x80))
+		if ((RawEdge & IN_DPAD_LEFT))
 		{
-			if (s4 < 0)
+			if (currentlySelectedImage < 0)
 			{
-				s4 = fp;
+				currentlySelectedImage = maxNumberOfImages;
 			}
 			else
-			{//loc_22B4
-				s4--;
+			{
+				//loc_22B4
+				currentlySelectedImage--;
 			}
 
-			sub_2398((char*)s1, a0, s4);
+			TITSEQ_ReadStoryboardImage((char*)gfx, a0, currentlySelectedImage);
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#endif
 		}
 		//loc_22B4
-		//v0 = s4 < fp ? 1 : 0
-		if ((RawEdge & 0x20))
+		if ((RawEdge & IN_DPAD_RIGHT))
 		{
-			if (s4 < fp)
+			if (currentlySelectedImage < maxNumberOfImages)
 			{
-				s4++;
+				currentlySelectedImage++;
 			}
 			else
 			{
-				s4 = 1;
+				currentlySelectedImage = 1;
 			}
 
 			//loc_22D4
-			sub_2398((char*)s1, a0, s4);
+			TITSEQ_ReadStoryboardImage((char*)gfx, a0, currentlySelectedImage);
 
-		}//loc_22E4
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#endif
+		}
 
+		//loc_22E4
 		DrawSync(0);
-		GPU_FlipStory((unsigned long*)s1);
+		GPU_FlipStory((unsigned long*)gfx);
 
 	loc_22F4:
 		GPU_BeginScene();
@@ -900,7 +910,11 @@ void sub_219C(unsigned char a0)
 		S_UpdateInput();
 		PrintString(256, 220, 6, &gfStringWad[gfStringOffset[STR_PREVIOUS_NEXT_BACK]], 0x8000);
 
-	} while (!(RawEdge & 0x1000));
+	} while (!(RawEdge & IN_TRIANGLE));
+
+#if !BETA_VERSION
+	SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#endif
 
 	DrawSync(0);
 
@@ -914,7 +928,7 @@ void sub_219C(unsigned char a0)
 	db.draw[0].dtd = 1;
 }
 
-void sub_2398(char* gfx, unsigned char wadIndex, int a2)
+void TITSEQ_ReadStoryboardImage(char* gfx, unsigned char wadIndex, int a2)//2398(<) 23C4(<) (F)
 {
 	char buf[12];//var_20
 #if PSX_VERSION
@@ -928,12 +942,12 @@ void sub_2398(char* gfx, unsigned char wadIndex, int a2)
 #if !DISC_VERSION
 	sprintf(&buf[0], "\\story%d.wad", wadIndex + 1);
 	nHandle = PCopen(&buf[0], 0, 0);
-	PClseek(nHandle, a2 * 0x3C000, 0);//0x3C000 storyboard image size
-	FILE_Read(gfx, 1, 0x3C000, nHandle);
+	PClseek(nHandle, a2 * STORY_BOARD_IMG_SIZE, 0);
+	FILE_Read(gfx, 1, STORY_BOARD_IMG_SIZE, nHandle);
 	PCclose(nHandle);
 #else
 	DEL_CDFS_OpenFile(wadIndex + STORY_1);
-	DEL_CDFS_Seek(a2 * 0x3C000);
-	DEL_CDFS_Read(gfx, 0x3C000);
+	DEL_CDFS_Seek(a2 * STORY_BOARD_IMG_SIZE);
+	DEL_CDFS_Read(gfx, STORY_BOARD_IMG_SIZE);
 #endif
 }
