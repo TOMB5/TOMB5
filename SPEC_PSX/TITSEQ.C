@@ -51,7 +51,11 @@ unsigned int titseqData2[] __attribute__((section(".data"))) =
 	0,//word_38
 };
 
+#if BETA_VERSON
 unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
+#else
+unsigned short unk_3C[] = { STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
+#endif
 unsigned char byte_2600[] = { 0, 0, 0, 0, 0 };
 
 struct CutseqMenuItem
@@ -171,7 +175,7 @@ int TitleOptions(int Name)
 	{
 		if (bDoCredits == 0)
 		{
-			sub_2B0();
+			TITSEQ_DrawLogo();
 		}
 	}
 	else if (bDoCredits == 0)
@@ -572,7 +576,7 @@ int TitleOptions(int Name)
 			else
 			{
 				//loc_850
-				sub_3A8();
+				TITSEQ_CheckSecretsCollected();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				titseqData[0] = 0;
 			}
@@ -586,7 +590,7 @@ int TitleOptions(int Name)
 			if (titseqData[0] != 0)
 			{
 				//loc_8EC
-				sub_3A8();
+				TITSEQ_CheckSecretsCollected();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				titseqData[0] = 0;
 			}
@@ -656,7 +660,7 @@ int TitleOptions(int Name)
 	return ret;
 }
 
-void sub_2B0()
+void TITSEQ_DrawLogo()//2B0(<) 29C(<) (F)
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
@@ -687,43 +691,33 @@ void sub_2B0()
 	}//locret_3A0
 }
 
-void sub_3A8()
+void TITSEQ_CheckSecretsCollected()//3A8(<) 394(<) (F)
 {
-	int i = 0;//a2
-			  //t1 = 1
-			  //a2 = 0
-			  //t4 = &savgame.CampaignSecrets[0]
-			  //a1 = 0
-			  //t0 = 0
-			  //a0 = 0
-			  //v1 = &byte_2600[0]
-			  //t3 = &byte_2600[0]
-			  //a3 = 0x20000
-			  //t2 = 0x10000
-			  //v0 = 1
+	int i = 0;
+
+#if BETA_VERSION
 	titseqData2[0] = 1;
+#else
+	titseqData2[0] = 0;
+#endif
 
 	byte_2600[0] = 0;
 	byte_2600[1] = 0;
 	byte_2600[2] = 0;
 	byte_2600[3] = 0;
+#if BETA_VERSION
 	byte_2600[4] = 0;
+#endif
 
-	//v0 = &savgame.CampaignSecrets[0]
-
-	//loc_3F4
+	//loc_3D8:
 	do
 	{
-		//v1 = savgame.CampaignSecrets[0]
-		//v1 = savgame.CampaignSecrets[0] < 9 ? 1 : 0
-
-		//a1 = a2 + 1
 		if (savegame.CampaignSecrets[i] > 8)
 		{
 			byte_2600[i + 1] = i + 1;
 			titseqData2[0]++;
-		}//loc_428
-
+		}
+		//loc_414
 	} while (++i < 4);
 }
 
@@ -734,7 +728,7 @@ int sub_1054()
 	int y = 0;//s1
 	int ret = 0;//fp
 
-	sub_2B0();
+	TITSEQ_DrawLogo();
 	PrintString(256, 102, 6, &gfStringWad[gfStringOffset[STR_SELECT_CUTSCENE]], 0x8000);
 
 	a3 = titseqData[2] - 4;
@@ -810,14 +804,14 @@ void sub_2154(int Name, unsigned char a1)
 	}//loc_218C
 }
 
-void TITSEQ_StoryBoardMenuControl(unsigned char a0)//219C(<), 21A8(<) (F)
+void TITSEQ_StoryBoardMenuControl(unsigned char extrasMenuIndex)//219C(<), 21A8(<) (F)
 {
 	void* gfx;//$s1
 	int maxNumberOfImages;//$fp
 	int currentlySelectedImage;//$s4
 
 	maxNumberOfImages = 12;
-	if (a0 == 1)
+	if (extrasMenuIndex == 1)
 	{
 		maxNumberOfImages = 15;
 	}
@@ -847,7 +841,7 @@ void TITSEQ_StoryBoardMenuControl(unsigned char a0)//219C(<), 21A8(<) (F)
 
 	init_cutseq_malloc();
 	gfx = cutseq_malloc(STORY_BOARD_IMG_SIZE);
-	TITSEQ_ReadStoryboardImage((char*)gfx, a0, 0);
+	TITSEQ_ReadStoryboardImage((char*)gfx, extrasMenuIndex, 0);
 
 	goto loc_22F4;
 
@@ -866,7 +860,7 @@ void TITSEQ_StoryBoardMenuControl(unsigned char a0)//219C(<), 21A8(<) (F)
 				currentlySelectedImage--;
 			}
 
-			TITSEQ_ReadStoryboardImage((char*)gfx, a0, currentlySelectedImage);
+			TITSEQ_ReadStoryboardImage((char*)gfx, extrasMenuIndex, currentlySelectedImage);
 #if !BETA_VERSION
 			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
 #endif
@@ -884,7 +878,7 @@ void TITSEQ_StoryBoardMenuControl(unsigned char a0)//219C(<), 21A8(<) (F)
 			}
 
 			//loc_22D4
-			TITSEQ_ReadStoryboardImage((char*)gfx, a0, currentlySelectedImage);
+			TITSEQ_ReadStoryboardImage((char*)gfx, extrasMenuIndex, currentlySelectedImage);
 
 #if !BETA_VERSION
 			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
@@ -919,7 +913,7 @@ void TITSEQ_StoryBoardMenuControl(unsigned char a0)//219C(<), 21A8(<) (F)
 	db.draw[0].dtd = 1;
 }
 
-void TITSEQ_ReadStoryboardImage(char* gfx, unsigned char wadIndex, int a2)//2398(<) 23C4(<) (F)
+void TITSEQ_ReadStoryboardImage(char* gfx, unsigned char wadIndex, int imageIndex)//2398(<) 23C4(<) (F)
 {
 	char buf[12];//var_20
 #if PSX_VERSION
@@ -933,12 +927,12 @@ void TITSEQ_ReadStoryboardImage(char* gfx, unsigned char wadIndex, int a2)//2398
 #if !DISC_VERSION
 	sprintf(&buf[0], "\\story%d.wad", wadIndex + 1);
 	nHandle = PCopen(&buf[0], 0, 0);
-	PClseek(nHandle, a2 * STORY_BOARD_IMG_SIZE, 0);
+	PClseek(nHandle, imageIndex * STORY_BOARD_IMG_SIZE, 0);
 	FILE_Read(gfx, 1, STORY_BOARD_IMG_SIZE, nHandle);
 	PCclose(nHandle);
 #else
 	DEL_CDFS_OpenFile(wadIndex + STORY_1);
-	DEL_CDFS_Seek(a2 * STORY_BOARD_IMG_SIZE);
+	DEL_CDFS_Seek(imageIndex * STORY_BOARD_IMG_SIZE);
 	DEL_CDFS_Read(gfx, STORY_BOARD_IMG_SIZE);
 #endif
 }
