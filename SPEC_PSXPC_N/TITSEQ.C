@@ -8,6 +8,7 @@
 #include "GPU.H"
 #include "LOADSAVE.H"
 #include "MEMCARD.H"
+#include "MOVIE.H"
 #include "PSXINPUT.H"
 #include "ROOMLOAD.H"
 #include "SAVEGAME.H"
@@ -139,10 +140,7 @@ int TitleOptions(int Name)
 	int s5 = 0;
 	int s6;
 
-	//v0 = 0xA0000
-	//v1 = PadConnected
 	ret = 0;
-	//0x98(sp) = Name
 
 #if BLOCK_SPLINE_CAM
 	current_spline_position = 0;
@@ -162,14 +160,11 @@ int TitleOptions(int Name)
 		dels_cutseq_selector_flag = 0;
 	}
 	//loc_49C
-	//a0 = gfGameMode
 	if (gfGameMode == 2)
 	{
 		return 0;
 	}
 
-	//v1 = dels_cutseq_selector_flag
-	//v0 = 0xA0000
 	if (dels_cutseq_selector_flag != 0)
 	{
 		//v1 = 0x00000
@@ -178,9 +173,6 @@ int TitleOptions(int Name)
 		return sub_1054();
 	}//loc_4DC
 
-	//a0 = Chris_Menu
-	//v1 = 1
-	//s7 = v0
 	if (Chris_Menu != MENU_LOAD_MENU && Chris_Menu != MENU_SPECIAL_FEATURES_MENU)
 	{
 		if (bDoCredits == 0)
@@ -188,30 +180,25 @@ int TitleOptions(int Name)
 			TITSEQ_DrawLogo();
 		}
 	}
+#if DEBUG_VERSION
 	else if (bDoCredits == 0)
 	{
 		//loc_514
-#if DEBUG_VERSION
 		if (bDoCredits == 0)
 		{
 			sprintf(&buf[0], "Savegame = %d bytes", 0x3B4);
 			PrintString(256, 232, 5, &buf[0], 0x9064);
 		}//loc_558
-#endif
 	}
-
+#endif
 	
 	//loc_558
 	a1 = last_camera;
-	//a0 = current_sequence
-
 	if (current_sequence == 2)
 	{
 		a1 = current_sequence - 1;
 	}
 	//loc_57C
-	//v0 = current_spline_camera
-
 	if (current_spline_camera > a1 && 0xCB20 < current_spline_position)
 	{
 		title_controls_locked_out = 1;
@@ -224,8 +211,6 @@ int TitleOptions(int Name)
 	}
 
 	//loc_5C0
-	//v1 = Chris_Menu
-	//v0 = Chris_Menu < 2 ? 1 : 0 
 	if (Chris_Menu == MENU_LOAD_MENU)
 	{
 		//loc_91C
@@ -383,27 +368,28 @@ int TitleOptions(int Name)
 	else if (Chris_Menu == MENU_SPECIAL_FEATURES_MENU)
 	{
 		//loc_C3C
-		//a0 = 256
-		//a1 = 32
-		//a2 = 6
-		s6 = 0;
 		s1 = 0;
-		//s2 = 0x404040
-		//s5 = 0
-		//v0 = gfStringOffset
-		//a3 = gfStringWad
-		PrintString(256, 32, 6, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-		//v0 = 0xB0000
-		//fp = &savegame.CampaignSecrets
-		s4 = &unk_3C[0];
+		s5 = 0;
 
-		//v1 = &savegame.CampaignSecrets[s1];
+#if !BETA_VERSION
+		PrintString(256, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], 0x8000);
+#endif
+		PrintString(256, 32, 6, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+
 		//loc_C8C
-		for (s1 = 0; s1 < 5; s1++, s4++)
+#if BETA_VERSION
+		for (s1 = 0; s1 < 5; s1++)
+#else
+		for (s1 = 0; s1 < 4; s1++)
+#endif
 		{
 			if (s1 != 0)
 			{
+#if !BETA_VERSION
+				if (savegame.CampaignSecrets[s1] < 9)
+#else
 				if (savegame.CampaignSecrets[s1 - 1] < 9)
+#endif
 				{
 					//loc_DDC
 					continue;
@@ -411,21 +397,15 @@ int TitleOptions(int Name)
 			}
 
 			//loc_CA8
-			//v0 = 0
-			//v1 = dword_38
-			//a2 = 2
+			y = (s5 - ((word_38 * 12) + 0x70)) & 0xFF;
 
-			y = ((s5 - (word_38 * 12) + 0x70)) & 0xFF;
-
-			//nop
-			//addiu   $a1, $s3, 4
-			if (byte_46 == s6)
+			if (byte_46 == s1)
 			{
-				PrintString(256, y + 4, 1, &gfStringWad[gfStringOffset[s4[0]]], 0x8000);
+				PrintString(256, y + 4, 1, &gfStringWad[gfStringOffset[unk_3C[s1]]], 0x8000);
 			}
 			else
 			{
-				PrintString(256, y + 4, 2, &gfStringWad[gfStringOffset[s4[0]]], 0x8000);
+				PrintString(256, y + 4, 2, &gfStringWad[gfStringOffset[unk_3C[s1]]], 0x8000);
 			}
 
 			//loc_CE4
@@ -437,32 +417,36 @@ int TitleOptions(int Name)
 			DrawLineH(66, y + 9, 380, 0, s2, 0);
 			DrawLineV(66, y - 10, 20, 0, s2, 0);
 			DrawLineV(445, y - 10, 20, 0, s2, 0);
-
 			DrawTPage(0, 1);
-
-			s6++;
-
-			//loc_DDC
 		}
 
 		if ((RawEdge & IN_DPAD_UP) && byte_46 != 0)
 		{
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_SELECT, NULL, 2);
+#endif
 			--byte_46;
-			//j loc_EB4
 		}
 		else if ((RawEdge & IN_DPAD_DOWN) && byte_46 < word_38 - 1)
 		{
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_SELECT, NULL, 2);
+#endif
 			++byte_46;
-			//j loc_EB4
 		}
 		else if ((RawEdge & IN_TRIANGLE))
 		{
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#endif
 			Chris_Menu = MENU_MAIN_MENU;
 			byte_46 = CanLoad + 1;
-			//j loc_EB4
 		}
 		else if ((RawEdge & IN_CROSS))
 		{
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#endif
 			sub_2154(Name, byte_2600[byte_46]);
 		}
 
@@ -668,7 +652,7 @@ int TitleOptions(int Name)
 	return ret;
 }
 
-void TITSEQ_DrawLogo()
+void TITSEQ_DrawLogo()//2B0(<) 29C(<) (F)
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
