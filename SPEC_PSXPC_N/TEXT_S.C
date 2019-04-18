@@ -287,13 +287,10 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 			else if (c == 0x20)
 			{
 				//loc_8DC14
+				s2 += 6;
 				if (!(flag & 0x1000))
 				{
 					s2 += 2;
-				}
-				else
-				{
-					s2 += 6;
 				}
 				//j loc_8DD54
 			}
