@@ -345,7 +345,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
 				char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
-				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, false);
 
 				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -368,7 +368,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
 				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
 				char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
-				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, true);
 
 				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -390,7 +390,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
 				char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
-				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, false);
 				
 				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -434,7 +434,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
 				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
-				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL, false);
 
 				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -458,7 +458,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
 				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u2, NULL);
-				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL, true);
 
 				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -482,7 +482,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
 				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
-				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, &poly->r3);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, &poly->r3, false);
 
 				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -506,7 +506,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
 				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2);
-				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, &poly->r3);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, &poly->r3, true);
 
 				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);

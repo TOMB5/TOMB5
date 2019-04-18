@@ -29,9 +29,10 @@
 #define CORE_PROF_3_1 (1)
 #define CORE_PROF_3_2 (0)
 #define MAX_NUM_CACHED_TEXTURES (256)
-#define BLEND_MODE (0)
+#define BLEND_MODE (1)
 #define DX9 0
 #define V_SCALE 1
+#define VERTEX_COLOUR_MULT (2)
 
 #if DX9
 #include <d3dx9.h>
@@ -149,8 +150,8 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	}
 
 	SDL_memset(&vram, 0, sizeof(1024 * 512 * 2));
-	SDL_GL_SetSwapInterval(1);
-	
+	SDL_GL_SetSwapInterval(-1);
+
 	Emulator_InitialiseGL();
 	
 #if __linux__ || __APPLE__
@@ -280,7 +281,7 @@ void Emulator_CounterLoop()
 				counters[i].Value = 0;
 		}
 
-		last_time = now;		
+		last_time = now;
 	}
 }
 
@@ -344,57 +345,147 @@ char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1,
 	return (char*)&vertices[0].u0;
 }
 
-char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3)
+char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour)
 {
 	//Copy over rgb vertex colours
-	vertices[0].col[0] = ((float)col0[0]) / 255.0f;
-	vertices[0].col[1] = ((float)col0[1]) / 255.0f;
-	vertices[0].col[2] = ((float)col0[2]) / 255.0f;
-	vertices[0].col[3] = ((float)0xFF) / 255.0f;
-
-	if (col1 != NULL)
+	if (col0 != NULL)
 	{
-		vertices[1].col[0] = ((float)col1[0]) / 255.0f;
-		vertices[1].col[1] = ((float)col1[1]) / 255.0f;
-		vertices[1].col[2] = ((float)col1[2]) / 255.0f;
-		vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		if (bMultiplyColour)
+		{
+			vertices[0].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[0].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[0].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[0].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[0].col[0] = ((float)col0[0]) / 255.0f;
+			vertices[0].col[1] = ((float)col0[1]) / 255.0f;
+			vertices[0].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[0].col[3] = ((float)0xFF) / 255.0f;
+		}
 	}
 	else
 	{
-		vertices[1].col[0] = ((float)col0[0]) / 255.0f;
-		vertices[1].col[1] = ((float)col0[1]) / 255.0f;
-		vertices[1].col[2] = ((float)col0[2]) / 255.0f;
-		vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		if (bMultiplyColour)
+		{
+			vertices[1].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[1].col[0] = ((float)col0[0]) / 255.0f;
+			vertices[1].col[1] = ((float)col0[1]) / 255.0f;
+			vertices[1].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
+	}
+
+	if (col1 != NULL)
+	{
+		if (bMultiplyColour)
+		{
+			vertices[1].col[0] = ((float)col1[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[1] = ((float)col1[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[2] = ((float)col1[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[1].col[0] = ((float)col1[0]) / 255.0f;
+			vertices[1].col[1] = ((float)col1[1]) / 255.0f;
+			vertices[1].col[2] = ((float)col1[2]) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
+	}
+	else
+	{
+		if (bMultiplyColour)
+		{
+			vertices[1].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[1].col[0] = ((float)col0[0]) / 255.0f;
+			vertices[1].col[1] = ((float)col0[1]) / 255.0f;
+			vertices[1].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
 	}
 
 	if (col2 != NULL)
 	{
-		vertices[2].col[0] = ((float)col2[0]) / 255.0f;
-		vertices[2].col[1] = ((float)col2[1]) / 255.0f;
-		vertices[2].col[2] = ((float)col2[2]) / 255.0f;
-		vertices[2].col[3] = ((float)0xFF) / 255.0f;
+		if (bMultiplyColour)
+		{
+			vertices[2].col[0] = ((float)col2[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[1] = ((float)col2[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[2] = ((float)col2[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[2].col[0] = ((float)col2[0]) / 255.0f;
+			vertices[2].col[1] = ((float)col2[1]) / 255.0f;
+			vertices[2].col[2] = ((float)col2[2]) / 255.0f;
+			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+		}
 	}
 	else
 	{
-		vertices[2].col[0] = ((float)col0[0]) / 255.0f;
-		vertices[2].col[1] = ((float)col0[1]) / 255.0f;
-		vertices[2].col[2] = ((float)col0[2]) / 255.0f;
-		vertices[2].col[3] = ((float)0xFF) / 255.0f;
+		if (bMultiplyColour)
+		{
+			vertices[2].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[2].col[0] = ((float)col0[0]) / 255.0f;
+			vertices[2].col[1] = ((float)col0[1]) / 255.0f;
+			vertices[2].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+		}
 	}
 
 	if (col3 != NULL)
 	{
-		vertices[3].col[0] = ((float)col3[0]) / 255.0f;
-		vertices[3].col[1] = ((float)col3[1]) / 255.0f;
-		vertices[3].col[2] = ((float)col3[2]) / 255.0f;
-		vertices[3].col[3] = ((float)0xFF) / 255.0f;
+		if (bMultiplyColour)
+		{
+			vertices[3].col[0] = ((float)col3[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[1] = ((float)col3[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[2] = ((float)col3[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[3].col[0] = ((float)col0[0]) / 255.0f;
+			vertices[3].col[1] = ((float)col0[1]) / 255.0f;
+			vertices[3].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+		}
 	}
 	else
 	{
-		vertices[3].col[0] = ((float)col0[0]) / 255.0f;
-		vertices[3].col[1] = ((float)col0[1]) / 255.0f;
-		vertices[3].col[2] = ((float)col0[2]) / 255.0f;
-		vertices[3].col[3] = ((float)0xFF) / 255.0f;
+		if (bMultiplyColour)
+		{
+			vertices[3].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[3].col[0] = ((float)col0[0]) / 255.0f;
+			vertices[3].col[1] = ((float)col0[1]) / 255.0f;
+			vertices[3].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+		}
 	}
 
 	return (char*)&vertices[0].col[0];
@@ -553,10 +644,6 @@ void Emulator_EndScene()
 	float h = 1.0f / (512.0f / (float)(word_33BC.disp.h));
 	float w = 1.0f / (1024.0f / (float)(word_33BC.disp.w));
 
-#define USE_VBO 1
-
-#if USE_VBO
-
 	float vertexBuffer[] =
 	{
 		0.0f, (float)word_33BC.disp.h, 0.0f, x, y,
@@ -567,58 +654,17 @@ void Emulator_EndScene()
 		0.0f, (float)word_33BC.disp.h, 0.0f, x, y,
 	};
 
-	GLushort indexBuffer[] =
-	{
-		3,2,0,
-		0,1,2,
-	};
-
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
-
-	GLuint ibo;
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexBuffer), indexBuffer, GL_STATIC_DRAW);
-
-	glVertexPointer(3, GL_FLOAT, 5 * sizeof(float), (void*)0);
-	glTexCoordPointer(2, GL_FLOAT, 5 * sizeof(float), (void*)(sizeof(float) * 3));
-
+	glVertexPointer(3, GL_FLOAT, 5 * sizeof(float), vertexBuffer);
+	glTexCoordPointer(2, GL_FLOAT, 5 * sizeof(float), vertexBuffer+3);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-#endif
 
 	glDisable(GL_LIGHTING);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(0, word_33BC.disp.w, 0, word_33BC.disp.h, -1, 1);
-
-#if USE_VBO
-	glDrawElements(GL_TRIANGLES, sizeof(indexBuffer), GL_UNSIGNED_SHORT, 0);
-#else
-	glBegin(GL_TRIANGLES);
-	glTexCoord2f(0, y + h); glVertex3f(0, 0, 0);
-	glTexCoord2f(0.5, y + h); glVertex3f(512, 0, 0);
-	glTexCoord2f(0, y); glVertex3f(0, 240, 0);
-
-	glTexCoord2f(0.5, y); glVertex3f(512, 240, 0);
-	glTexCoord2f(0.5, y + h); glVertex3f(512, 0, 0);
-	glTexCoord2f(0.0, y); glVertex3f(0, 240, 0);
-	glEnd();
-#endif
-	/*glBegin(GL_TRIANGLES);
-	glVertex2f(0, 0);
-	glVertex2f(512, 0);
-	glVertex2f(0, 240);
-	glEnd();*/
-#if USE_VBO
-	glDeleteBuffers(1, &vbo);
-	glDeleteBuffers(1, &ibo);
-#endif
-
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glPopMatrix();
 
 #if _DEBUG
