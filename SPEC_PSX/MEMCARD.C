@@ -86,7 +86,7 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F) (*) (D)
 	return;
 }
 
-void mcClose()//620AC(<), 62790(<) (F) (*)
+void mcClose()//620AC(<), 62790(<) (F) (*) (D)
 {
 	MemCardStop();
 	mcInit = 0;
@@ -180,7 +180,7 @@ unsigned char mcGetStatus()//620CC(<), 627B0 (F)
 					}
 				}
 			}
-			else if (cmd == stat)
+			else if (cmd == 1)
 			{
 				//loc_621B8
 				if (res != 0)
