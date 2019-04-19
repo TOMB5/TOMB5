@@ -139,6 +139,7 @@ int TitleOptions(int Name)
 	unsigned short* s4;
 	int s5 = 0;
 	int s6;
+	int s0 = 0;
 
 	ret = 0;
 
@@ -231,8 +232,6 @@ int TitleOptions(int Name)
 	else if (Chris_Menu == MENU_LEVEL_SELECT_MENU)
 	{
 		//loc_948
-		//v0 = 0
-		//a0 = byte_46
 		s1 = byte_46 - 6;
 		if (s1 < 0)
 		{
@@ -249,6 +248,7 @@ int TitleOptions(int Name)
 			SoundEffect(SFX_MENU_SELECT, NULL, 2);
 			++byte_46;
 		}
+#if DEBUG_VERSION
 		else if ((RawEdge & IN_R2))
 		{
 			byte_46 = Gameflow->nLevels - 2;
@@ -266,12 +266,10 @@ int TitleOptions(int Name)
 			byte_47 ^= 1;
 
 		}
+#endif
 		//loc_A98
-		//v1 = Gameflow
-		//Gameflow->nLevels -1
-		//v0 = s1 < v0 ? 1 : 0
-
 		i = 0;
+
 		if (s1 < Gameflow->nLevels - 1)
 		{
 			//s5 = 0x8000
@@ -285,6 +283,7 @@ int TitleOptions(int Name)
 			//loc_AD8
 			do
 			{
+#if BETA_VERSION///@TODO
 				if (byte_47)
 				{
 					//a3 = 0
@@ -324,7 +323,7 @@ int TitleOptions(int Name)
 				///@TODO tomorrow
 				}
 				//loc_B94
-
+#else
 				if (byte_46 == s1)
 				{
 					PrintString(256, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]], 0x8000);
@@ -343,11 +342,10 @@ int TitleOptions(int Name)
 				{
 					break;
 				}
+#endif
 			} while (++i < 7);
 		}
-		//loc_BD4
-
-		//v1 = RawEdge
+		//loc_BD4, loc_AB4
 		if ((RawEdge & IN_CROSS))
 		{
 			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
@@ -455,41 +453,54 @@ int TitleOptions(int Name)
 	else if (Chris_Menu == MENU_MAIN_MENU)
 	{
 		//loc_600
-		//v1 = Gameflow
-		//s3 = 0xC0
-
-		//Overidden in gameflow script disable loading now.
+#if !BETA_VERSION
+		s0 = 1;
+		if (savegame.CampaignSecrets[0] != 9 && savegame.CampaignSecrets[1] != 9 &&
+			savegame.CampaignSecrets[2] != 9 && savegame.CampaignSecrets[3] != 9)
+		{
+			s0 = 0;
+		}
+		else
+		{
+			s0 = 1;
+		}
+#endif
+		//loc_5EC
 		if (!Gameflow->LoadSaveEnabled)
 		{
 			y = 192;
-			//loc_6B4
-			//s1 = a0
+			//loc_6A0
 			if (CanLoad == 1)
 			{
 				byte_46 = 0;
 				CanLoad = 0;
-			}//loc_6D4
+			}//loc_6C4
 		}
 		else if (mcGetStatus() != 0)
 		{
 			y = 192;
-			//loc_6B8
+			//loc_6A4
 			if (CanLoad == 1)
 			{
 				byte_46 = 0;
 				CanLoad = 0;
-			}//loc_6D4
+			}//loc_6C4
 		}
-		else if (mcNumFiles != 0)
+		else if (mcNumFiles == 0)
 		{
-			//loc_6B0
 			y = 208;
-			if (CanLoad == 0)
+			//loc_6A0
+			if (CanLoad == 1)
 			{
 				byte_46 = 0;
-				CanLoad = 1;
-			}//loc_664
+				CanLoad = 0;
+			}//loc_6C4
+		}
+		else if (CanLoad)
+		{
+			y = 208;
 
+			//loc_658
 			if (byte_46 == 1)
 			{
 				PrintString(256, 192, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
@@ -498,14 +509,13 @@ int TitleOptions(int Name)
 			{
 				PrintString(256, 192, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
 			}
-		}//loc_6B0 mcnumfiles
+		}
 		else
 		{
-			//loc_6B0
 			y = 192;
+			byte_46 = 0;
+			CanLoad = 1;
 		}
-
-		//j loc_6D8
 	}
 	else
 	{
@@ -522,42 +532,41 @@ int TitleOptions(int Name)
 		PrintString(256, 176, 2, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], 0x8000);
 	}
 
-	//a0 = 0
-	
-	if (byte_46 == 2)
+	if (s0)
 	{
-		//v0 = 1
-		PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-	}
-	else if (byte_46 != 1)
-	{
-		PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-	}
-	else if (CanLoad != 0)
-	{
-		PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-	}
-	else
-	{
-		PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-	}
-
+		if (byte_46 == 2)
+		{
+			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
+		else if (byte_46 != 1)
+		{
+			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
+		else if (CanLoad != 0)
+		{
+			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
+		else
+		{
+			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
+	}//loc_764
 	//v0 = gfStringOffset
 	//a1 = y
 	//v1 = ;
-	if ((RawEdge & IN_DPAD_UP) && byte_46 != 0)//Up
+	if ((RawEdge & IN_DPAD_UP) && byte_46 != 0)
 	{
 		SoundEffect(SFX_MENU_SELECT, NULL, 2);
 		--byte_46;
 	}//loc_7C0
-	else if((RawEdge & IN_DPAD_DOWN) && byte_46 < CanLoad + 1)//Down
+	else if((RawEdge & IN_DPAD_DOWN) && byte_46 < CanLoad + 1)
 	{
 		//loc_7C0
 		SoundEffect(SFX_MENU_SELECT, NULL, 2);
 		++byte_46;
 	}//loc_810
 
-	if ((RawEdge & IN_CROSS))//X pressed
+	if ((RawEdge & IN_CROSS))
 	{
 		if (byte_46 == 1)
 		{
@@ -630,7 +639,7 @@ int TitleOptions(int Name)
 		return ret;
 	}
 
-	s1 = LoadGame(); //Disabled due to crashing
+	s1 = LoadGame();
 
 	if (s1 == 0)
 	{

@@ -129,6 +129,7 @@ int TitleOptions(int Name)
 	unsigned short* s4;
 	int s5 = 0;
 	int s6;
+	int s0;
 
 	//v0 = 0xA0000
 	//v1 = PadConnected
@@ -462,15 +463,23 @@ int TitleOptions(int Name)
 	else if (Chris_Menu == MENU_MAIN_MENU)
 	{
 		//loc_600
-		//v1 = Gameflow
-		//s3 = 0xC0
-
-		//Overidden in gameflow script disable loading now.
+#if !BETA_VERSION
+		s0 = 1;
+		if (savegame.CampaignSecrets[0] != 9 && savegame.CampaignSecrets[1] != 9 &&
+			savegame.CampaignSecrets[2] != 9 && savegame.CampaignSecrets[3] != 9)
+		{
+			s0 = 0;
+		}
+		else
+		{
+			s0 = 1;
+		}
+#endif
+		//loc_5EC
 		if (!Gameflow->LoadSaveEnabled)
 		{
 			y = 192;
 			//loc_6B4
-			//s1 = a0
 			if (CanLoad == 1)
 			{
 				titseqData[0] = 0;
@@ -480,23 +489,28 @@ int TitleOptions(int Name)
 		else if (mcGetStatus() != 0)
 		{
 			y = 192;
-			//loc_6B8
+			//loc_6A4
 			if (CanLoad == 1)
 			{
 				titseqData[0] = 0;
 				CanLoad = 0;
-			}//loc_6D4
+			}//loc_6C4
 		}
-		else if (mcNumFiles != 0)
+		else if (mcNumFiles == 0)
 		{
-			//loc_6B0
 			y = 208;
+			//loc_6A0
 			if (CanLoad == 0)
 			{
 				titseqData[0] = 0;
 				CanLoad = 1;
-			}//loc_664
+			}//loc_6C4
+		}
+		else if (CanLoad)
+		{
+			y = 208;
 
+			//loc_658
 			if (titseqData[0] == 1)
 			{
 				PrintString(256, 192, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
@@ -505,14 +519,13 @@ int TitleOptions(int Name)
 			{
 				PrintString(256, 192, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
 			}
-		}//loc_6B0 mcnumfiles
+		}
 		else
 		{
-			//loc_6B0
 			y = 192;
+			titseqData[0] = 0;
+			CanLoad = 1;
 		}
-
-		//j loc_6D8
 	}
 	else
 	{
@@ -529,26 +542,25 @@ int TitleOptions(int Name)
 		PrintString(256, 176, 2, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], 0x8000);
 	}
 
-	//a0 = 0
-
-	if (titseqData[0] == 2)
+	if (s0)
 	{
-		//v0 = 1
-		PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		if (titseqData[0] == 2)
+		{
+			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
+		else if (titseqData[0] != 1)
+		{
+			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
+		else if (CanLoad != 0)
+		{
+			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
+		else
+		{
+			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
 	}
-	else if (titseqData[0] != 1)
-	{
-		PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-	}
-	else if (CanLoad != 0)
-	{
-		PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-	}
-	else
-	{
-		PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-	}
-
 	//v0 = gfStringOffset
 	//a1 = y
 	//v1 = ;
@@ -563,8 +575,6 @@ int TitleOptions(int Name)
 		SoundEffect(SFX_MENU_SELECT, NULL, 2);
 		++titseqData[0];
 	}//loc_810
-
-
 
 	if ((RawEdge & 0x4000))//X pressed
 	{
@@ -639,7 +649,7 @@ int TitleOptions(int Name)
 		return ret;
 	}
 
-	s1 = LoadGame(); //Disabled due to crashing
+	s1 = LoadGame();
 
 	if (s1 == 0)
 	{
