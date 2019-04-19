@@ -9,7 +9,7 @@ PSX:
 
 PSXPC_N:
 <p align="center">
-<a href="https://streamable.com/bsutq"><img src="https://i.imgur.com/r3IwHdf.png"/><a>
+<a href="https://streamable.com/ip8lx"><img src="https://i.imgur.com/CkmdIzs.png"/><a>
  </p>
 
 | Platform  | Build State |
@@ -37,7 +37,7 @@ Assuming you have compiled the most recent code or downloaded the latest binarie
 
 Depending on the amount of contributors it could take years.
 
-Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5
+Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5-decompile
 
 ## Credits
 
