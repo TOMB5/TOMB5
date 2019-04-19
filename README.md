@@ -37,7 +37,7 @@ Assuming you have compiled the most recent code or downloaded the latest binarie
 
 Depending on the amount of contributors it could take years.
 
-Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5
+Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5-decompile
 
 ## Credits
 
