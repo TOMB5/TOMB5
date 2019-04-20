@@ -30,9 +30,15 @@
 #define CORE_PROF_3_2 (0)
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (1)
-#define DX9 0
-#define V_SCALE 1
+#define DX9 (0)
+#define V_SCALE (0)
 #define VERTEX_COLOUR_MULT (2)
+
+#if NTSC_VERSION
+#define COUNTER_UPATE_INTERVAL (263)
+#else
+#define COUNTER_UPATE_INTERVAL (313)
+#endif
 
 #if DX9
 #include <d3dx9.h>
@@ -261,26 +267,30 @@ int Emulator_InitialiseGameVariables()
 
 void Emulator_CounterLoop()
 {
-	auto last_time = std::chrono::high_resolution_clock::now();
+	int last_time = SDL_GetTicks();
+	
 	while (TRUE)
 	{
-		auto now = std::chrono::high_resolution_clock::now();
-		auto delta = std::chrono::duration_cast<std::chrono::microseconds>(now - last_time);
+		int now = SDL_GetTicks();
+		int delta = now - last_time;
 
-		if (!counters[1].IsStopped)
+		if (1000 / 60 - delta > 0)
 		{
-			if (delta.count() >= 64)
+			SDL_Delay(1000 / 60 - delta);
+		}
+		else
+		{
+			if (!counters[1].IsStopped)
 			{
-				counters[1].Value++;
+				counters[1].Value += 263;
+			}
+
+			for (int i = 0; i < 3; i++)
+			{
+				if (counters[i].Value >= (counters[i].TargetMode == CTR_MODE_TO_TARG ? counters[i].Target : 0xFFFF))
+					counters[i].Value = 0;
 			}
 		}
-
-		for (int i = 0; i < 3; i++)
-		{
-			if (counters[i].Value >= (counters[i].TargetMode == CTR_MODE_TO_TARG ? counters[i].Target : 0xFFFF))
-				counters[i].Value = 0;
-		}
-
 		last_time = now;
 	}
 }
@@ -500,6 +510,8 @@ void Emulator_InitialiseGL()
 //	glPolygonMode(GL_FRONT_AND_BACK, self.command_polygon_mode);
 //	glEnable(GL_SCISSOR_TEST);
 //	glEnable(GL_DEPTH_TEST);
+//	glEnable(GL_DITHER);
+//	glShadeModel(GL_SMOOTH);
 //	glDepthFunc(GL_LEQUAL);
 #if BLEND_MODE
 	glBlendColor(0.25, 0.25, 0.25, 0.5);
