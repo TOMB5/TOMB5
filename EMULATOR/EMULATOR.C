@@ -13,7 +13,6 @@
 #include <LIBETC.H>
 #include <string.h>
 #include <thread>
-#include <chrono>
 #include "EMULATOR_GLOBALS.H"
 #include "CRASHHANDLER.H"
 
@@ -31,7 +30,7 @@
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (1)
 #define DX9 (0)
-#define V_SCALE (0)
+#define V_SCALE (1)
 #define VERTEX_COLOUR_MULT (2)
 
 #if NTSC_VERSION
@@ -474,9 +473,9 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 		}
 		else
 		{
-			vertices[3].col[0] = ((float)col0[0]) / 255.0f;
-			vertices[3].col[1] = ((float)col0[1]) / 255.0f;
-			vertices[3].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[3].col[0] = ((float)col3[0]) / 255.0f;
+			vertices[3].col[1] = ((float)col3[1]) / 255.0f;
+			vertices[3].col[2] = ((float)col3[2]) / 255.0f;
 			vertices[3].col[3] = ((float)0xFF) / 255.0f;
 		}
 	}
