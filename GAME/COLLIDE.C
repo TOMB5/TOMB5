@@ -57,7 +57,7 @@ void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)//2A940
 		s.y = -256;
 		s.z = 0;
 
-		GetLaraJointPos((struct PHD_VECTOR*)&s, 8);
+		GetLaraJointPos((struct PHD_VECTOR*)&s, LJ_HEAD);
 		s.room_number = lara_item->room_number;
 
 		d.x = 0;
