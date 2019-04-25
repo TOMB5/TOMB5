@@ -169,7 +169,7 @@ loc_91518:
 	move    s0, v0
 	bltz    s0, loc_915A0
 	li      v0, 0xFFFFFFFF
-	lw      v0, 0x18+0x10(sp)
+	lw      v0, 0x18-0x10(sp)
 	la      a0, sva
 	la		at, LabSampleType
 	addu	at, at, s0
