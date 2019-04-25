@@ -32,7 +32,7 @@ long ResetRCnt(long spec)
 {
 	spec &= 0xFFFF;
 
-	if (spec >= 3)
+	if (spec > 2)
 		return 0;
 
 	counters[spec].Value = 0;
@@ -44,19 +44,19 @@ long StartRCnt(long spec)
 {
 	spec &= 0xFFFF;
 
-	if (spec >= 3)
+	if (spec > 2)
 		return 0;
 
 	counters[spec].IsStopped = FALSE;
 
-	return 1;
+	return spec < 3 ? 1 : 0;
 }
 
 long StopRCnt(long spec)
 {
 	spec &= 0xFFFF;
 
-	if (spec >= 3)
+	if (spec > 2)
 		return 0;
 
 	counters[spec].IsStopped = TRUE;
