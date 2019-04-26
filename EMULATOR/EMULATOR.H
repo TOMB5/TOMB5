@@ -87,7 +87,7 @@ extern void Emulator_UpdateInput();
 extern void Emulator_CounterLoop();
 extern char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p3);
 extern char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3);
-extern char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3);
+extern char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour);
 
 #if GLTEST
 extern void Emulator_TestDrawVertices(short* vptr, MMTEXTURE* tex);
