@@ -1,9 +1,18 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
+#if __APPLE__
+#include <stddef.h>
+#endif
+
 #include <GL/glew.h>
+#if __APPLE__
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#else
 #include <SDL.h>
 #include <SDL_opengl.h>
+#endif
 #include <LIBGPU.H>
 
 #define CTR_RUNNING (0)
@@ -18,6 +27,8 @@
 
 #define CTR_CLOCK_SYS_ONE (0)
 #define CTR_CLOCK_SYS_ONE_EIGHTH (1)
+
+struct MMTEXTURE;
 
 typedef struct
 {
@@ -74,6 +85,26 @@ extern void Emulator_CheckTextureIntersection(RECT16* rect);
 extern void Emulator_SetBlendMode(int mode);
 extern void Emulator_UpdateInput();
 extern void Emulator_CounterLoop();
+extern char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p3);
+extern char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3);
+extern char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour);
+
+#if GLTEST
+extern void Emulator_TestDrawVertices(short* vptr, MMTEXTURE* tex);
+#endif
+
+extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
+extern int Emulator_InitialiseGameVariables();
+
+#pragma pack(push,1)
+struct Vertex
+{
+	GLfloat x, y;
+	GLfloat u0, v0;
+	GLfloat col[4];
+	GLuint padding[3];
+};
+#pragma pack(pop)
 
 #endif
 

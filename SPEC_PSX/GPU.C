@@ -3,6 +3,7 @@
 #include "PROFILE.H"
 #include "PSXINPUT.H"
 #include "SHADOWS.H"
+#include "TEXT_S.H"
 
 #include <LIBGPU.H>
 #include <LIBETC.H>

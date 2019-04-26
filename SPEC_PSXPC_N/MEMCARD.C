@@ -18,46 +18,49 @@ char mcFileNames[7][20];
 int mcFileLengths[7];
 static unsigned char mcActualStatus;
 
-void mcDir()//61EE8(<), 625CC(<)
+void mcDir()//61EE8(<), 625CC(<) (F) (D)
 {
-	int i = 0;
-	int j = 0;
-	int k = 0;
+	int i;
+	int j;
+	int k;
+	int dirSize;
 	struct DIRENTRY* dir = (struct DIRENTRY*)&tsv_buffer[0];
 
 	MemCardGetDirentry(0, "*", dir, (long*)&mcNumFiles, 0, 15);
 
+	j = 0;
+	i = 0;
+	k = 0;
 	mcBlocksFree = 15;
-	
-	if(mcNumFiles > 0)
+
+	//loc_61F50
+	for (; i < mcNumFiles; i++, dir++)
 	{
-		//loc_61F50
-		for(i = 0; i < mcNumFiles; i++, dir++)
+		//loc_61F68
+		dirSize = dir->size + 0x1FFF;
+		if (dirSize < 0)
 		{
-			//loc_61F68
-			mcBlocksFree -= dir->size + 0x1FFF < 0 ? dir->size + 0x3FFE : dir->size + 0x1FFF;
-			
-			if(strncmp(&gfStringWad[gfStringOffset[STR_PSX_GAME_ID]], dir->name, 12) == 0)
-			{
-				((int*)&mcFileNames[j][0])[0] = ((int*)&dir->name[0])[0];
-				((int*)&mcFileNames[j][4])[0] = ((int*)&dir->name[4])[0];
-				((int*)&mcFileNames[j][8])[0] = ((int*)&dir->name[8])[0];
-				((int*)&mcFileNames[j][12])[0] = ((int*)&dir->name[12])[0];
-				((int*)&mcFileNames[j][16])[0] = ((int*)&dir->name[16])[0];
-				
-				mcFileLengths[j] = dir->size;
-				j++;
-				k++;
-			}
+			dirSize = dir->size + 0x3FFE;
 		}
-	}//loc_62028
-	
+
+		mcBlocksFree -= dirSize >> 13;
+
+		if (strncmp(&gfStringWad[gfStringOffset[STR_PSX_GAME_ID]], dir->name, 12) == 0)
+		{
+			memcpy(&mcFileNames[j][0], &dir->name[0], 20);
+			mcFileLengths[j] = dir->size;
+			j++;
+			k++;
+		}
+	}
+
 	//loc_62028
-	mcNumFiles = k;//k
+	mcNumFiles = k;
+	return;
 	return;
 }
 
-void mcOpen(int sync)//6204C(<), 62730(<) (F)
+void mcOpen(int sync)//6204C(<), 62730(<) (F) (*) (D)
 {
 	int i;
 
@@ -71,7 +74,7 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 
 	if (sync != 0)
 	{
-		for (i = 0; i < 4; i++)
+		for (i = 0; i < 5; i++)
 		{
 			//loc_62084
 			mcGetStatus();
@@ -83,7 +86,7 @@ void mcOpen(int sync)//6204C(<), 62730(<) (F)
 	return;
 }
 
-void mcClose()//620AC //(F)
+void mcClose()//620AC(<), 62790(<) (F) (*) (D)
 {
 	MemCardStop();
 	mcInit = 0;
@@ -99,26 +102,18 @@ unsigned char mcGetStatus()//620CC(<), 627B0 (F)
 
 	stat = MemCardSync(1, (long*)&cmd, (long*)&res);
 
-	if (stat == 0)
-	{
-		//loc_62130
-		if (cmd == McFuncReadFile)
-		{
-			mcStatus = 5;
-		}//loc_62150
-		else if (cmd == McFuncWriteData)
-		{
-			mcStatus = cmd;
-		}
-		else if (cmd == McFuncAccept)
-		{
-			mcStatus = 4;
-		}
-	}
-	else if (stat > 0)
+	if (stat != 0)
 	{
 		//loc_62110
-		if (stat == 1)
+		if (stat < 1)
+		{
+			if (stat == -1)
+			{
+				//loc_62120
+				MemCardExist(0);
+			}
+		}
+		else if (stat == 1)
 		{
 			//loc_62178
 			if (cmd == 2)
@@ -185,7 +180,7 @@ unsigned char mcGetStatus()//620CC(<), 627B0 (F)
 					}
 				}
 			}
-			else if (cmd == stat)
+			else if (cmd == 1)
 			{
 				//loc_621B8
 				if (res != 0)
@@ -211,10 +206,21 @@ unsigned char mcGetStatus()//620CC(<), 627B0 (F)
 			}
 		}
 	}
-	else if (stat == -1)
+	else if (stat == 0)
 	{
-		//loc_62120
-		MemCardExist(0);
+		//loc_62130
+		if (cmd == McFuncReadFile)
+		{
+			mcStatus = 5;
+		}//loc_62150
+		else if (cmd == McFuncWriteData)
+		{
+			mcStatus = cmd;
+		}
+		else if (cmd == McFuncAccept)
+		{
+			mcStatus = 4;
+		}
 	}
 
 	//loc_622C4

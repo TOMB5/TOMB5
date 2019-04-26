@@ -17,6 +17,30 @@ void CalcAllAnimatingItems_ASM()
 	UNIMPLEMENTED();
 }
 
+void DrawEffect(short item_num)
+{
+	struct FX_INFO* fx = &effects[item_num];
+	struct object_info* obj = &objects[fx->object_number];
+
+	if (obj->draw_routine != NULL && obj->loaded)
+	{
+		mPushMatrix();
+		mTranslateAbsXYZ(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos);
+
+		if (Matrix->tz < 20480)
+		{
+			mRotYXZ(fx->pos.y_rot, fx->pos.x_rot, fx->pos.z_rot);
+
+			S_CalculateLight(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, fx->room_number, &duff_item.il);
+			duff_item.il.Light[3].pad = 0;
+
+			phd_PutPolygons(meshes[obj->nmeshes != 0 ? obj->mesh_index : fx->frame_number], -1);
+		}
+
+		mPopMatrix();
+	}
+}
+
 void PrintAllOtherObjects_ASM(short room_num)//(F)
 {
 	struct room_info* r = &room[room_num];
@@ -35,6 +59,13 @@ void PrintAllOtherObjects_ASM(short room_num)//(F)
 	{
 		struct ITEM_INFO* item = &items[item_num];
 		struct object_info* obj = &objects[item->object_number];
+
+#if _DEBUG
+		if (item->object_number == LARA)
+		{
+			phd_PutPolygons(meshes[obj->mesh_index], -1);
+		}
+#endif
 
 		if (item->status != ITEM_INVISIBLE && !obj->using_drawanimating_item && obj->draw_routine != NULL)
 		{
@@ -55,26 +86,7 @@ void PrintAllOtherObjects_ASM(short room_num)//(F)
 
 	for (short item_num = r->fx_number; item_num != -1; item_num = effects[item_num].next_fx)
 	{
-		struct FX_INFO* fx = &effects[item_num];
-		struct object_info* obj = &objects[fx->object_number];
-
-		if (obj->draw_routine != NULL && obj->loaded)
-		{
-			mPushMatrix();
-			mTranslateAbsXYZ(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos);
-
-			if (Matrix->tz < 20480)
-			{
-				mRotYXZ(fx->pos.y_rot, fx->pos.x_rot, fx->pos.z_rot);
-
-				S_CalculateLight(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, fx->room_number, &duff_item.il);
-				duff_item.il.Light[3].pad = 0;
-
-				phd_PutPolygons(meshes[obj->nmeshes != 0 ? obj->mesh_index : fx->frame_number], -1);
-			}
-
-			mPopMatrix();
-		}
+		DrawEffect(item_num);
 	}
 
 	mPopMatrix();

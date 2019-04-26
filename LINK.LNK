@@ -109,10 +109,13 @@ bss	group	bss
 	include SPEC_PSX/REQUEST.OBJ
 	include SPEC_PSX/GLOBALS.OBJ
 	include SPEC_PSX/DRAWPHAS.OBJ
-	;include GAME/SETUP.OBJ
 	include GAME/CODEWAD.OBJ
+	
+	
+	;Reloc objects (Uncomment when RELOC disabled)
 	;include SPEC_PSX/TITSEQ.OBJ
-
+	;include GAME/SETUP.OBJ
+	
 	inclib	C:/psyq/lib/LIBAPI.LIB
 	inclib	C:/psyq/lib/LIBC.LIB
 	inclib	C:/psyq/lib/LIBCARD.LIB

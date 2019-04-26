@@ -1,20 +1,55 @@
 #include "EMULATOR.H"
 
+#if __APPLE__
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#else
 #include <SDL.h>
 #include <SDL_opengl.h>
+#endif
 #include <LIBPAD.H>
 #include <stdio.h>
 #include <LIBGPU.H>
 #include <LIBETC.H>
 #include <string.h>
 #include <thread>
-#include <chrono>
 #include "EMULATOR_GLOBALS.H"
+#include "CRASHHANDLER.H"
 
+#if __linux__ || __APPLE__
+        #include <sys/mman.h>
+        #include <unistd.h>
+#endif
+
+#ifdef _WINDOWS
+#include <Windows.h>
+#endif
+
+#define CORE_PROF_3_1 (1)
+#define CORE_PROF_3_2 (0)
 #define MAX_NUM_CACHED_TEXTURES (256)
-#define BLEND_MODE (0)
+#define BLEND_MODE (1)
+#define DX9 (0)
+#define V_SCALE (1)
+#define VERTEX_COLOUR_MULT (2)
 
-#define V_SCALE 1
+#if NTSC_VERSION
+#define COUNTER_UPATE_INTERVAL (263)
+#else
+#define COUNTER_UPATE_INTERVAL (313)
+#endif
+
+#if DX9
+#include <d3dx9.h>
+#include <d3d9.h>
+
+#pragma comment(lib, "d3dx9.lib")
+#pragma comment(lib, "d3d9.lib")
+#endif
+
+#define MAX_NUM_VERTICES (4)
+Vertex vertices[MAX_NUM_VERTICES];
+int vertexCount = 0;
 
 SDL_Window* g_window = NULL;
 
@@ -25,7 +60,7 @@ int screenHeight = 0;
 int windowWidth = 0;
 int windowHeight = 0;
 int lastTextureCacheIndex = 0;
-
+char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
 
@@ -41,8 +76,35 @@ struct CachedTexture
 
 struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
+int callGameMain(void *ptr)
+{
+	extern int psx_main();
+	psx_main();
+	return 1;
+}
+
+int main(int argc, char* argv[])
+{
+	SDL_Thread* gameThread = SDL_CreateThread(callGameMain, "GameThread", (void *)NULL);
+	if (gameThread ==  NULL)
+	{
+		printf("Failed to create thread %s\n", SDL_GetError());
+	}
+	
+	while (true)
+	{
+		///@FIXME Warning SDL was not initialised in this thread!
+		Emulator_UpdateInput();
+	}
+	return 0;
+}
+
+
 void Emulator_Init(char* windowName, int screen_width, int screen_height)
 {
+#if _DEBUG && _WINDOWS
+	SetUnhandledExceptionFilter(unhandled_handler);
+#endif
 	screenWidth = screen_width;
 	screenHeight = screen_height;
 	windowWidth = screen_width * V_SCALE;
@@ -50,7 +112,24 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0)
 	{
+#if CORE_PROF_3_1
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
+#elif CORE_PROF_3_2
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
+#else
+		Direct3D_object = Direct3DCreate9(D3D_SDK_VERSION);
+		if (Direct3D_object == NULL)
+		{
+			MessageBox(GetActiveWindow(), "Could not create Direct3D Object", "D3D_OBJ ERR", MB_OK);
+			return 0;
+		}
+#endif
 	}
 	else
 	{
@@ -58,58 +137,386 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	}
 
 	SDL_GL_CreateContext(g_window);
-
-	if (glewInit() != GLEW_OK)
+	if (g_window == NULL)
 	{
-		eprinterr("Error initialising GLEW!\n");
+		eprinterr("Failed to initialise GL context!\n");
+	}
+
+#if CORE_PROF_3_1 || CORE_PROF_3_2
+	glewExperimental = GL_TRUE;
+#endif
+
+	GLenum err = glewInit();
+
+	if (err != GLEW_OK)
+	{
+		/* Problem: glewInit failed, something is seriously wrong. */
+		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 	}
 
 	SDL_memset(&vram, 0, sizeof(1024 * 512 * 2));
-	SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(-1);
 
 	Emulator_InitialiseGL();
-
+	
+#if __linux__ || __APPLE__
+	if (!Emulator_InitialiseGameVariables())
+	{
+		exit(0);
+	}
+#endif
 	counter_thread = std::thread(Emulator_CounterLoop);
+}
+
+void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
+{
+	do
+	{
+#if __linux__ || __APPLE__
+		pVirtualMemory = (char*)mmap((void*)baseAddress, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
+#endif
+
+#ifdef _WINDOWS
+		size = size + (4096 - 1) & ~(4096 - 1);
+		baseAddress = baseAddress + (4096 - 1) & ~(4096 - 1);
+		MEMORY_BASIC_INFORMATION memInfo;
+		VirtualQuery((void*)baseAddress, &memInfo, size);
+#if _DEBUG
+		printf("VQ: %d\n", GetLastError());
+#endif
+		if (!(memInfo.State & MEM_FREE))
+		{
+			if (memInfo.Type & MEM_MAPPED)
+			{
+#if _DEBUG
+				printf("Mapped\n");
+#endif
+			}
+			else
+			{
+#if _DEBUG
+				printf("Not Mapped\n");
+#endif
+				VirtualUnlock((void*)baseAddress, memInfo.RegionSize);
+				VirtualFree((void*)baseAddress, NULL, MEM_RELEASE);
+			}
+		}
+		else
+		{
+			
+			pVirtualMemory = (char*)VirtualAlloc((void*)memInfo.BaseAddress, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+
+#if _DEBUG
+			printf("VA: %d\n", GetLastError());
+#endif
+		}
+#endif
+
+		if (pVirtualMemory)
+		{
+			printf("%x\n", (unsigned int)baseAddress);
+			//VirtualLock((void*)baseAddress, size);
+			break;
+		}
+
+	} while (baseAddress += size);
+
+	if (pVirtualMemory == NULL)
+	{
+		printf("Failed to map virtual memory!\n");
+	}
+
+	return;
+}
+
+int Emulator_InitialiseGameVariables()
+{
+#if __linux__ || __APPLE__
+	extern unsigned long* GadwOrderingTables;
+	extern unsigned long* GadwPolygonBuffers;
+	extern unsigned long* GadwOrderingTables_V2;
+	extern unsigned long* terminator;
+
+#if _WINDOWS
+	SYSTEM_INFO info;
+	GetSystemInfo(&info);
+	Emulator_AllocateVirtualMemory((unsigned int)info.lpMinimumApplicationAddress, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
+#else
+	Emulator_AllocateVirtualMemory(0x400000, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
+#endif
+	
+	if (pVirtualMemory == NULL)
+	{
+		return 0;
+	}
+	if ((uintptr_t)pVirtualMemory & 0xFF000000)
+	{
+		printf("*********************************************************************** And an error occured!\n");
+		return 0;
+	}
+
+	GadwOrderingTables = (unsigned long*)&pVirtualMemory[0];
+	GadwPolygonBuffers = (unsigned long*)&pVirtualMemory[(5128 * 4)];
+	GadwOrderingTables_V2 = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4)];
+	terminator = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4) + (512 * 4)];
+	*terminator = -1;
+#endif
+	return 1;
 }
 
 void Emulator_CounterLoop()
 {
-	auto last_time = std::chrono::high_resolution_clock::now();
+	int last_time = SDL_GetTicks();
+	
 	while (TRUE)
 	{
-		auto now = std::chrono::high_resolution_clock::now();
-		auto delta = std::chrono::duration_cast<std::chrono::microseconds>(now - last_time);
+		int now = SDL_GetTicks();
+		int delta = now - last_time;
 
-		if (!counters[1].IsStopped)
+		if (1000 / 60 - delta > 0)
 		{
-			if (delta.count() >= 64)
+			SDL_Delay(1000 / 60 - delta);
+		}
+		else
+		{
+			if (!counters[1].IsStopped)
 			{
-				counters[1].Value++;
+				counters[1].Value += 263;
+			}
+
+			for (int i = 0; i < 3; i++)
+			{
+				if (counters[i].Value >= (counters[i].TargetMode == CTR_MODE_TO_TARG ? counters[i].Target : 0xFFFF))
+					counters[i].Value = 0;
 			}
 		}
-
-		for (int i = 0; i < 3; i++)
-		{
-			if (counters[i].Value >= (counters[i].TargetMode == CTR_MODE_TO_TARG ? counters[i].Target : 0xFFFF))
-				counters[i].Value = 0;
-		}
-
-		last_time = now;		
+		last_time = now;
 	}
+}
+
+char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p3)
+{
+	//Copy over position
+	if (p0 != NULL)
+	{
+		vertices[0].x = (float)p0[0];
+		vertices[0].y = (float)p0[1];
+	}
+
+	if (p1 != NULL)
+	{
+		vertices[1].x = (float)p1[0];
+		vertices[1].y = (float)p1[1];
+	}
+	
+	if (p2 != NULL)
+	{
+		vertices[2].x = (float)p2[0];
+		vertices[2].y = (float)p2[1];
+	}
+
+	if (p3 != NULL)
+	{
+		vertices[3].x = (float)p3[0];
+		vertices[3].y = (float)p3[1];
+	}
+
+	return (char*)&vertices[0].x;
+}
+
+char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3)
+{
+	//Copy over uvs
+	if (uv0 != NULL)
+	{
+		vertices[0].u0 = ((float)uv0[0]) / 256.0f;
+		vertices[0].v0 = ((float)uv0[1]) / 256.0f;
+	}
+	
+	if (uv1 != NULL)
+	{
+		vertices[1].u0 = ((float)uv1[0]) / 256.0f;
+		vertices[1].v0 = ((float)uv1[1]) / 256.0f;
+	}
+	
+	if (uv2 != NULL)
+	{
+		vertices[2].u0 = ((float)uv2[0]) / 256.0f;
+		vertices[2].v0 = ((float)uv2[1]) / 256.0f;
+	}
+
+	if (uv3 != NULL)
+	{
+		vertices[3].u0 = ((float)uv3[0]) / 256.0f;
+		vertices[3].v0 = ((float)uv3[1]) / 256.0f;
+	}
+
+	return (char*)&vertices[0].u0;
+}
+
+char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour)
+{
+	//Copy over rgb vertex colours
+	if (col0 != NULL)
+	{
+		if (bMultiplyColour)
+		{
+			vertices[0].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[0].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[0].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[0].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[0].col[0] = ((float)col0[0]) / 255.0f;
+			vertices[0].col[1] = ((float)col0[1]) / 255.0f;
+			vertices[0].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[0].col[3] = ((float)0xFF) / 255.0f;
+		}
+	}
+	else
+	{
+		if (bMultiplyColour)
+		{
+			vertices[1].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[1].col[0] = ((float)col0[0]) / 255.0f;
+			vertices[1].col[1] = ((float)col0[1]) / 255.0f;
+			vertices[1].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
+	}
+
+	if (col1 != NULL)
+	{
+		if (bMultiplyColour)
+		{
+			vertices[1].col[0] = ((float)col1[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[1] = ((float)col1[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[2] = ((float)col1[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[1].col[0] = ((float)col1[0]) / 255.0f;
+			vertices[1].col[1] = ((float)col1[1]) / 255.0f;
+			vertices[1].col[2] = ((float)col1[2]) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
+	}
+	else
+	{
+		if (bMultiplyColour)
+		{
+			vertices[1].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[1].col[0] = ((float)col0[0]) / 255.0f;
+			vertices[1].col[1] = ((float)col0[1]) / 255.0f;
+			vertices[1].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+		}
+	}
+
+	if (col2 != NULL)
+	{
+		if (bMultiplyColour)
+		{
+			vertices[2].col[0] = ((float)col2[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[1] = ((float)col2[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[2] = ((float)col2[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[2].col[0] = ((float)col2[0]) / 255.0f;
+			vertices[2].col[1] = ((float)col2[1]) / 255.0f;
+			vertices[2].col[2] = ((float)col2[2]) / 255.0f;
+			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+		}
+	}
+	else
+	{
+		if (bMultiplyColour)
+		{
+			vertices[2].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[2].col[0] = ((float)col0[0]) / 255.0f;
+			vertices[2].col[1] = ((float)col0[1]) / 255.0f;
+			vertices[2].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+		}
+	}
+
+	if (col3 != NULL)
+	{
+		if (bMultiplyColour)
+		{
+			vertices[3].col[0] = ((float)col3[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[1] = ((float)col3[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[2] = ((float)col3[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[3].col[0] = ((float)col3[0]) / 255.0f;
+			vertices[3].col[1] = ((float)col3[1]) / 255.0f;
+			vertices[3].col[2] = ((float)col3[2]) / 255.0f;
+			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+		}
+	}
+	else
+	{
+		if (bMultiplyColour)
+		{
+			vertices[3].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
+			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+		}
+		else
+		{
+			vertices[3].col[0] = ((float)col0[0]) / 255.0f;
+			vertices[3].col[1] = ((float)col0[1]) / 255.0f;
+			vertices[3].col[2] = ((float)col0[2]) / 255.0f;
+			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+		}
+	}
+
+	return (char*)&vertices[0].col[0];
 }
 
 void Emulator_InitialiseGL()
 {
+	//Initialise vertex array
+	memset(&vertices[0].x, 0, sizeof(Vertex) * MAX_NUM_VERTICES);
 	Emulator_GenerateAndBindNullWhite();
 
 //	glPolygonMode(GL_FRONT_AND_BACK, self.command_polygon_mode);
 //	glEnable(GL_SCISSOR_TEST);
 //	glEnable(GL_DEPTH_TEST);
+//	glEnable(GL_DITHER);
+//	glShadeModel(GL_SMOOTH);
 //	glDepthFunc(GL_LEQUAL);
 #if BLEND_MODE
-	//glBlendColor(0.25, 0.25, 0.25, 0.5);
+	glBlendColor(0.25, 0.25, 0.25, 0.5);
 #endif
-//	glShadeModel(GL_SMOOTH);
+	glShadeModel(GL_SMOOTH);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 void Emulator_GenerateAndBindNullWhite()
@@ -194,16 +601,16 @@ void Emulator_BeginScene()
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
-		if (event.type == SDL_QUIT)
+		if (event.type == SDL_QUIT || (event.type == SDL_WINDOWEVENT &&
+			event.window.event == SDL_WINDOWEVENT_CLOSE))
 		{
+			Emulator_ShutDown();
 			SDL_Quit();
 			exit(0);
 		}
 	}
 
 	lastTime = SDL_GetTicks();
-
-	Emulator_UpdateInput();
 }
 
 void Emulator_UpdateInput()
@@ -248,10 +655,6 @@ void Emulator_EndScene()
 	float h = 1.0f / (512.0f / (float)(word_33BC.disp.h));
 	float w = 1.0f / (1024.0f / (float)(word_33BC.disp.w));
 
-#define USE_VBO 1
-
-#if USE_VBO
-
 	float vertexBuffer[] =
 	{
 		0.0f, (float)word_33BC.disp.h, 0.0f, x, y,
@@ -262,58 +665,17 @@ void Emulator_EndScene()
 		0.0f, (float)word_33BC.disp.h, 0.0f, x, y,
 	};
 
-	GLushort indexBuffer[] =
-	{
-		3,2,0,
-		0,1,2,
-	};
-
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
-
-	GLuint ibo;
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexBuffer), indexBuffer, GL_STATIC_DRAW);
-
-	glVertexPointer(3, GL_FLOAT, 5 * sizeof(float), (void*)0);
-	glTexCoordPointer(2, GL_FLOAT, 5 * sizeof(float), (void*)(sizeof(float) * 3));
-
+	glVertexPointer(3, GL_FLOAT, 5 * sizeof(float), vertexBuffer);
+	glTexCoordPointer(2, GL_FLOAT, 5 * sizeof(float), vertexBuffer+3);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-#endif
 
 	glDisable(GL_LIGHTING);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(0, word_33BC.disp.w, 0, word_33BC.disp.h, -1, 1);
-
-#if USE_VBO
-	glDrawElements(GL_TRIANGLES, sizeof(indexBuffer), GL_UNSIGNED_SHORT, 0);
-#else
-	glBegin(GL_TRIANGLES);
-	glTexCoord2f(0, y + h); glVertex3f(0, 0, 0);
-	glTexCoord2f(0.5, y + h); glVertex3f(512, 0, 0);
-	glTexCoord2f(0, y); glVertex3f(0, 240, 0);
-
-	glTexCoord2f(0.5, y); glVertex3f(512, 240, 0);
-	glTexCoord2f(0.5, y + h); glVertex3f(512, 0, 0);
-	glTexCoord2f(0.0, y); glVertex3f(0, 240, 0);
-	glEnd();
-#endif
-	/*glBegin(GL_TRIANGLES);
-	glVertex2f(0, 0);
-	glVertex2f(512, 0);
-	glVertex2f(0, 240);
-	glEnd();*/
-#if USE_VBO
-	glDeleteBuffers(1, &vbo);
-	glDeleteBuffers(1, &ibo);
-#endif
-
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glPopMatrix();
 
 #if _DEBUG
@@ -335,6 +697,9 @@ void Emulator_ShutDown()
 	{
 		glDeleteTextures(1, &cachedTextures[i].textureID);
 	}
+#ifdef _WINDOWS
+	//VirtualFree(pVirtualMemory, 0, MEM_RELEASE);
+#endif
 }
 
 void Emulator_GenerateFrameBuffer(GLuint& fbo)
@@ -346,17 +711,18 @@ void Emulator_GenerateFrameBuffer(GLuint& fbo)
 
 void Emulator_GenerateFrameBufferTexture()
 {
-	unsigned short* pixelData = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
+	unsigned short* pixelData = new unsigned short[activeDrawEnv.clip.w * activeDrawEnv.clip.h];
 	unsigned short* dst = &pixelData[0];
 
-	for (int y = word_unknown00.clip.y; y < 512; y++)
+	//Read disp env area from vram
+	for (int y = activeDrawEnv.clip.y; y < 512; y++)
 	{
-		for (int x = word_unknown00.clip.x; x < 1024; x++)
+		for (int x = activeDrawEnv.clip.x; x < 1024; x++)
 		{
 			unsigned short* src = vram + (y * 1024 + x);
 
-			if (x >= word_unknown00.clip.x && x < word_unknown00.clip.x + word_unknown00.clip.w &&
-				y >= word_unknown00.clip.y && y < word_unknown00.clip.y + word_unknown00.clip.h)
+			if (x >= activeDrawEnv.clip.x && x < activeDrawEnv.clip.x + activeDrawEnv.clip.w &&
+				y >= activeDrawEnv.clip.y && y < activeDrawEnv.clip.y + activeDrawEnv.clip.h)
 			{
 				*dst++ = src[0];
 			}
@@ -365,35 +731,36 @@ void Emulator_GenerateFrameBufferTexture()
 
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, word_unknown00.clip.w, word_unknown00.clip.h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, activeDrawEnv.clip.w, activeDrawEnv.clip.h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+#if CORE_PROF_3_1
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, vramTexture, 0);
+#else
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
+#endif
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		eprinterr("Frame buffer error");
 	}
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
+	
 #if _DEBUG && !NOFILE
-	unsigned short* pixelData2 = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
-	glReadPixels(0, 0, word_unknown00.clip.w, word_unknown00.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData2);
+	unsigned short* pixelData2 = new unsigned short[activeDrawEnv.clip.w * activeDrawEnv.clip.h];
+	glReadPixels(0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData2);
 
 	FILE* f = fopen("VRAM4.TGA", "wb");
-	if (f == NULL)
+	if (f != NULL)
 	{
-		return;
+		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+		unsigned char header[6] = { activeDrawEnv.clip.w % 256, activeDrawEnv.clip.w / 256, activeDrawEnv.clip.h % 256, activeDrawEnv.clip.h / 256,16,0 };
+		fwrite(TGAheader, sizeof(unsigned char), 12, f);
+		fwrite(header, sizeof(unsigned char), 6, f);
+		for (int line = activeDrawEnv.clip.h - 1; line >= 0; line--)
+			fwrite(&pixelData2[line * activeDrawEnv.clip.w], sizeof(short), activeDrawEnv.clip.w, f);
+		fclose(f);
 	}
-	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-	unsigned char header[6] = { word_unknown00.clip.w % 256, word_unknown00.clip.w / 256, word_unknown00.clip.h % 256, word_unknown00.clip.h / 256,16,0 };
-	fwrite(TGAheader, sizeof(unsigned char), 12, f);
-	fwrite(header, sizeof(unsigned char), 6, f);
-	for (int line = word_unknown00.clip.h - 1; line >= 0; line--)
-		fwrite(&pixelData2[line * word_unknown00.clip.w], sizeof(short), word_unknown00.clip.w, f);
-	fclose(f);
-	
 #endif
 
 	delete[] pixelData;
@@ -610,37 +977,32 @@ void Emulator_DestroyFrameBuffer(GLuint& fbo)
 void Emulator_DestroyLastVRAMTexture()
 {
 	/*Read from frame buffer and send to VRAM*/
-	unsigned short* pixelData = new unsigned short[word_unknown00.clip.w * word_unknown00.clip.h];
+	unsigned short* pixelData = new unsigned short[activeDrawEnv.clip.w * activeDrawEnv.clip.h];
 	unsigned short* dst = &pixelData[0];
-	glReadPixels(0, 0, word_unknown00.clip.w, word_unknown00.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
+	glReadPixels(0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
 
-	for (int y = word_unknown00.clip.y; y < 512; y++)
+	for (int y = activeDrawEnv.clip.y; y < activeDrawEnv.clip.y + activeDrawEnv.clip.h; y++)
 	{
-		for (int x = word_unknown00.clip.x; x < 1024; x++)
+		for (int x = activeDrawEnv.clip.x; x < activeDrawEnv.clip.x + activeDrawEnv.clip.w; x++)
 		{
 			unsigned short* src = vram + (y * 1024 + x);
 
-			if (x >= word_unknown00.clip.x && x < word_unknown00.clip.x + word_unknown00.clip.w &&
-				y >= word_unknown00.clip.y && y < word_unknown00.clip.y + word_unknown00.clip.h)
-			{
-				src[0] = *dst++;
-			}
+			src[0] = *dst++;
 		}
 	}
 
 #if _DEBUG && !NOFILE
 	FILE* f = fopen("VRAM2.TGA", "wb");
-	if (f == NULL)
+	if (f != NULL)
 	{
-		return;
+		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+		unsigned char header[6] = { activeDrawEnv.clip.w % 256, activeDrawEnv.clip.w / 256, activeDrawEnv.clip.h % 256, activeDrawEnv.clip.h / 256,16,0 };
+		fwrite(TGAheader, sizeof(unsigned char), 12, f);
+		fwrite(header, sizeof(unsigned char), 6, f);
+		for (int line = activeDrawEnv.clip.h - 1; line >= 0; line--)
+			fwrite(&pixelData[line * activeDrawEnv.clip.w], sizeof(short), activeDrawEnv.clip.w, f);
+		fclose(f);
 	}
-	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-	unsigned char header[6] = { word_unknown00.clip.w % 256, word_unknown00.clip.w / 256, word_unknown00.clip.h % 256, word_unknown00.clip.h / 256,16,0 };
-	fwrite(TGAheader, sizeof(unsigned char), 12, f);
-	fwrite(header, sizeof(unsigned char), 6, f);
-	for (int line = word_unknown00.clip.h - 1; line >= 0; line--)
-		fwrite(&pixelData[line * word_unknown00.clip.w], sizeof(short), word_unknown00.clip.w, f);
-	fclose(f);
 #endif
 
 	delete[] pixelData;
@@ -670,7 +1032,7 @@ void Emulator_SetBlendMode(int mode)
 		break;
 	}
 #else
-	glBlendColor(0.25, 0.25, 0.25, 0.5);
+
 	switch (mode)
 	{
 	case 0://Average
@@ -678,25 +1040,119 @@ void Emulator_SetBlendMode(int mode)
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		break;
 	case 1://Add
-		glBlendColor(0.0, 0.0, 0.0, 0.0);
-		//glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
-		//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		break;
 	case 2://Subtract
 		glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 		glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
-
 		break;
 	case 3://Addquatersource
 		glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		break;
-	default:
-		glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
-		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-		break;
 	}
 #endif
 }
+
+#if GLTEST
+struct TEXTURE
+{
+	unsigned char u0;
+	unsigned char v0;
+	unsigned short clut;
+	unsigned char u1;
+	unsigned char v1;
+	unsigned short tpage;
+	unsigned char u2;
+	unsigned char v2;
+	unsigned char id[2];
+	unsigned char u3;
+	unsigned char v3;
+	unsigned short wclut;
+};
+
+struct MMTEXTURE
+{
+	TEXTURE t[3];
+};
+
+struct tr_vertex   // 6 bytes
+{
+	int16_t x;
+	int16_t y;
+	int16_t z;
+};
+
+struct mesh_header
+{
+	short x;
+	short y;
+	short z;
+	short radius;
+	char vertices;
+	char flags;
+	short face_offset;
+};
+
+struct tr4_mesh_face4    // 12 bytes
+{
+	uint16_t Vertices[4];
+	uint16_t Texture;
+	uint16_t Effects;
+};
+
+struct tr4_mesh_face3    // 10 bytes
+{
+	uint16_t Vertices[3];
+	uint16_t Texture;
+	uint16_t Effects;    // TR4-5 ONLY: alpha blending and environment mapping strength
+};
+
+
+void Emulator_TestDrawVertices(short* vptr, MMTEXTURE* tex)
+{
+	mesh_header* h = (mesh_header*)vptr;
+	uint8_t num_vert = h->vertices;
+
+	tr_vertex* ptr = (tr_vertex*)(h + 1);
+
+	vptr += 6;
+	short num_normals = *vptr;
+
+	if (num_normals > 0)
+		vptr += num_normals * 3;
+	else
+		vptr += -num_normals;
+
+	short num_rects = *vptr;
+	auto rects = (tr4_mesh_face4*)++vptr;
+
+	vptr += num_rects * 6;
+
+	short num_tris = *vptr;
+	auto tris = (tr4_mesh_face3*)++vptr;
+
+	for(int i = 0; i < num_rects; i++, rects++)
+	{
+		auto poly = &tex[rects->Texture].t[0];
+		Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, 0);
+
+		glBegin(GL_QUADS);
+
+		glTexCoord2f(poly->u0 / 256.0f, poly->v0 / 256.0f);
+		glVertex3s(ptr[rects->Vertices[0]].x, ptr[rects->Vertices[0]].y, ptr[rects->Vertices[0]].z);
+
+		glTexCoord2f(poly->u1 / 256.0f, poly->v1 / 256.0f);
+		glVertex3s(ptr[rects->Vertices[1]].x, ptr[rects->Vertices[1]].y, ptr[rects->Vertices[1]].z);
+
+		glTexCoord2f(poly->u3 / 256.0f, poly->v3 / 256.0f);
+		glVertex3s(ptr[rects->Vertices[3]].x, ptr[rects->Vertices[3]].y, ptr[rects->Vertices[3]].z);
+
+		glTexCoord2f(poly->u2 / 256.0f, poly->v2 / 256.0f);
+		glVertex3s(ptr[rects->Vertices[2]].x, ptr[rects->Vertices[2]].y, ptr[rects->Vertices[2]].z);
+
+		glEnd();
+	}
+
+#endif
