@@ -1,21 +1,30 @@
 #include "LIBPAD.H"
 
+#if __APPLE__
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include <stdio.h>
 #include <assert.h>
 #include "EMULATOR_GLOBALS.H"
 
 SDL_GameController* padHandle[MAX_CONTROLLERS];
-
 unsigned char* padData[MAX_CONTROLLERS];
 
 void PadInitDirect(unsigned char* pad1, unsigned char* pad2)
 {
-	padData[0] = pad1;
-	padData[1] = pad2;
+	if (pad1 != NULL)
+	{
+		padData[0] = pad1;
+		padData[0][0] = 0xFF;
+	}
 
-	padData[0][0] = 0xFF;
-	padData[0][1] = 0xFF;
+	if (pad2 != NULL)
+	{
+		padData[1] = pad2;
+		padData[1][0] = 0xFF;
+	}
 
 	if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0)
 	{

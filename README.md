@@ -9,7 +9,7 @@ PSX:
 
 PSXPC_N:
 <p align="center">
-<a href="https://streamable.com/bsutq"><img src="https://i.imgur.com/r3IwHdf.png"/><a>
+<a href="https://streamable.com/ip8lx"><img src="https://i.imgur.com/CkmdIzs.png"/><a>
  </p>
 
 | Platform  | Build State |
@@ -23,7 +23,7 @@ This project may be abandoned at any time, use this product at your own risk.
 
 ## What is this?
 
-This repository contains decompiled code for the game Tomb Raider: Chronicles. All decompiled code is based off the final PlayStation and PC version. The goal is to decompile as much as possible since the original source code is reportedly lost. It is not expected for decompiled code to be 1:1 with the original source code. However, functionality wise it will be the same. Further debugging of the original PlayStation version at a later phase will help map out any existing bugs. All information (variable and method names) have been obtained from debugging symbols (.SYM, .MAP) and TRosettastone 3.0.
+This repository contains decompiled code for the game Tomb Raider: Chronicles. All decompiled code is based off the final PlayStation and PC version. The goal is to decompile as much as possible since the original source code is reportedly lost. It is not expected for decompiled code to be 1:1 with the original source code. However, functionality wise it will be the same. Further debugging of the original PlayStation version at a later phase will help map out any existing bugs. All information (variable, file names, method names and data structures) have been obtained from debugging symbols (.SYM, .MAP), TRosettastone 3.0 and GAMEWAD.OBJ.
 
 ## What are the current goals?
 
@@ -37,11 +37,11 @@ Assuming you have compiled the most recent code or downloaded the latest binarie
 
 Depending on the amount of contributors it could take years.
 
-Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5
+Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5-decompile
 
 ## Credits
 
 - Gh0stBlade: Lead Programmer (PSX/PSXPC_N).
 - zdimension: Programmer (PSX/PSXPC_N,PC).
-- Stohrendorf: Symdump.
+- Stohrendorf: Symdump tool creator.
 - [You?](CONTRIBUTING.md)

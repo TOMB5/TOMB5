@@ -2,8 +2,13 @@ cmake_minimum_required (VERSION 3.0)
 
 project (Emulator_${TARGET_ARCH})
 
+set(OPT_DEFINITIONS "")
+
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+
+#Enable NTSC mode
+OPTIONAL_DEFINE(NTSC_VERSION "Enable/Disable NTSC Mode" ON)
 
 #Find required libs for PSXPC
 find_package(SDL2 REQUIRED)
@@ -32,9 +37,21 @@ STATIC
 ${EMULATOR_SPECIFIC_SRCS}
 )
 
+BuildPreProcessorDefinitions()
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLEW_STATIC)
 
+#Someone should actually fix these errors at some point
+if(UNIX)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-narrowing")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wno-narrowing")
+	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wno-narrowing")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-narrowing")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-narrowing")
+endif()
+
 set_target_properties(
-${PROJECT_NAME} PROPERTIES OUTPUT_NAME "LIBPSX"
+${PROJECT_NAME} PROPERTIES OUTPUT_NAME "PSX"
 ${PROJECT_NAME} PROPERTIES FOLDER "Libs"
 )

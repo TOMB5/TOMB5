@@ -160,10 +160,11 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	}
 
 	//loc_5F71C
-	if (RawPad & 1)
+	if (RawPad & IN_UNK1)
 	{
-		if (RawPad & 0x800)
+		if (RawPad & IN_R1)
 		{
+			// todo fix this big if, condition is wrong
 			if (lara_item->current_anim_state - 80 < 2 || lara_item->current_anim_state == 0x54 && lara_item->current_anim_state == 0x55 || lara_item->current_anim_state == 0x56 || lara_item->current_anim_state == 0x58)
 			{
 				//loc_5F780
@@ -184,12 +185,12 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 			else
 			{
 				//loc_5F818
-				in = 0x8000;
+				in = IN_B;
 			}
 
 			//loc_5F81C
 			dword_A1894 = 0;
-			RawPad &= -513;
+			RawPad &= ~IN_LOOK;
 		}
 		//loc_5F830
 		if (RawPad & 8)
@@ -221,59 +222,59 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		reset_count = 0;
 		dword_A1894 = 0;
 
-		if (RawEdge & 8)
+		if (RawEdge & IN_UNK8)
 		{
-			in |= 0x2000;
+			in |= IN_PAUSE;
 		}//loc_5F8B0
 	}
 
 	//loc_5F8B0
-	if ((RawPad & 0x4000))
+	if ((RawPad & IN_CROSS))
 	{
-		in |= 0x10000;
+		in |= IN_CHEAT;
 	}//loc_5F8C8
 
-	if ((RawPad & 0x1000))
+	if ((RawPad & IN_TRIANGLE))
 	{
-		in |= 0x20000;
+		in |= IN_D;
 	}//loc_5F8D8
 
-	if ((RawPad & 0x8000))
+	if ((RawPad & IN_SQUARE))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_square;
 	}//loc_5F904
 
-	if ((RawPad & 0x2000))
+	if ((RawPad & IN_CIRCLE))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_circle;
 	}//loc_5F930
 
-	if ((RawPad & 0x1000))//merge?
+	if ((RawPad & IN_TRIANGLE))//merge?
 	{
 		in |= pad_cons[savegame.ControlOption].pad_triangle;
 	}//loc_5F958
 
-	if ((RawPad & 0x4000))//merge?
+	if ((RawPad & IN_CROSS))//merge?
 	{
 		in |= pad_cons[savegame.ControlOption].pad_cross;
 	}//loc_5F980
 
-	if ((RawPad & 0x400))
+	if ((RawPad & IN_L1))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_L1;
 	}//loc_5F9AC
 
-	if ((RawPad & 0x100))
+	if ((RawPad & IN_L2))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_L2;
 	}//loc_5F9D8
 
-	if ((RawPad & 0x800))
+	if ((RawPad & IN_R1))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_R1;
 	}//loc_5FA04
 
-	if ((RawPad & 0x200))
+	if ((RawPad & IN_R2))
 	{
 		in |= pad_cons[savegame.ControlOption].pad_R2;
 	}
@@ -292,7 +293,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		}//loc_5FA9C
 
 		//v1 = in & 0x280;
-		if (in & 0x200)
+		if (in & IN_LOOK)
 		{
 			//assert(0);
 			//lbu	$v1, 0x3F7E($gp) (GPad1+0x6)
@@ -320,26 +321,26 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 			}
 		}//loc_5FB8C
 
-		if (in & 0x280 == 0x80 && BinocularRange == 0 && !(in & 3))
+		if ((in & 0x280) == 0x80 && BinocularRange == 0 && !(in & IN_FORWARD) && !(in & IN_BACK))
 		{
-			if (in & 4)
+			if (in & IN_LSTEP)
 			{
-				in &= -5;
-				in |= 0x400;
+				in &= ~IN_LEFT;
+				in |= IN_LSTEP;
 			}
 			else
 			{
 				//loc_5FBD0
-				if (in & 8)
+				if (in & IN_RIGHT)
 				{
-					in &= -9;
-					in |= 0x800;
+					in &= ~IN_RIGHT;
+					in |= IN_RSTEP;
 				}//loc_5FBE4
 			}
 			//loc_5FBE4
 		}//loc_5FBE8
 
-		if (!(in & 0x200) && BinocularRange != 0)
+		if (!(in & IN_LOOK) && BinocularRange != 0)
 		{
 			//loc_5FC04
 			///@FIXME GPad1+5 invalid!
@@ -432,49 +433,49 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 
 	}//loc_5FD00
 
-	if (in & 0xF)
+	if (in & (IN_FORWARD | IN_BACK | IN_LEFT | IN_RIGHT))
 	{
-		if (RawPad & 0x10)
+		if (RawPad & IN_DPAD_UP)
 		{
-			in |= 1;
+			in |= IN_FORWARD;
 		}
-		else if (RawPad & 0x40)
+		else if (RawPad & IN_DPAD_DOWN)
 		{
 			//loc_5FD24
-			in |= 2;
+			in |= IN_BACK;
 		}//loc_5FD34
 
-		if (RawPad & 0x80)
+		if (RawPad & IN_DPAD_LEFT)
 		{
-			in |= 4;
+			in |= IN_LEFT;
 		}
-		else if (RawPad & 0x20)
+		else if (RawPad & IN_DPAD_RIGHT)
 		{
 			//loc_5FD4C
-			in |= 8;
+			in |= IN_RIGHT;
 		}
 
 		//loc_5FD58
 		if (in & 0x280 == 0x80 && BinocularRange == 0 && !(in & 3))
 		{
-			if (in & 4)
+			if (in & IN_LSTEP)
 			{
-				in &= -5;
-				in |= 0x400;
+				in &= ~IN_LEFT;
+				in |= IN_LSTEP;
 			}
 			else
 			{
 				//loc_5FDA0
-				if (in & 8)
+				if (in & IN_RIGHT)
 				{
-					in &= -9;
-					in |= 0x800;
-				}
-			}//loc_5FDB4
+					in &= ~IN_RIGHT;
+					in |= IN_RSTEP;
+				}//loc_5FDB4
+			}
 		}//loc_5FDB8
 	}//loc_5FDB8
 
-	if (in & 0x200)
+	if (in & IN_LOOK)
 	{
 		if (lara_item->current_anim_state != 2 && lara_item->goal_anim_state == 2)
 		{
@@ -492,7 +493,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		if (dword_A1898 < 6)
 		{
 			dword_A1898++;
-			in &= -513;
+			in &= ~IN_LOOK;
 			//loc_5FE58
 			pos = 0;
 		}
@@ -507,7 +508,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		//loc_5FE38
 		if (dword_A1898 != 0 && dword_A1898 != 0x64)
 		{
-			in |= 0x8000;
+			in |= IN_B;
 		}
 
 		dword_A1898 = 0;
@@ -545,9 +546,9 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	}
 
 	//loc_5FEEC
-	if (RawPad == 0xC600)
+	if (RawPad == (IN_SQUARE | IN_CROSS | IN_L1 | IN_R2))
 	{
-		in |= 0x10000;
+		in |= IN_CHEAT;
 	}//loc_5FF00
 
 	//Edge2 = Pad2.3;
@@ -574,20 +575,20 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	//Edge2 = v1;
 
 	//v0 = Edge2 & 0x40;
-	if (Edge2 & 0x10)
+	if (Edge2 & IN_DPAD_UP)
 	{
 		gfRequiredStartPos = 0;
 		gfLevelComplete = gfCurrentLevel + 1;
 	}//loc_5FF7C
 
 	//v0 = Edge2 & 0x20;
-	if (Edge2 & 0x40)
+	if (Edge2 & IN_DPAD_DOWN)
 	{
 		gfRequiredStartPos = 0;
 		gfLevelComplete = gfCurrentLevel - 1;
 	}//loc_5FFA4
 
-	if (Edge2 & 0x20)
+	if (Edge2 & IN_DPAD_RIGHT)
 	{
 		gfRequiredStartPos = 0;
 		gfLevelComplete = gfCurrentLevel + 1;
@@ -597,14 +598,14 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	//v0 = 0xA000
 	if (Gameflow->CheatEnabled)
 	{
-		if (RawPad == 0xC600)
+		if (RawPad == (IN_SQUARE | IN_CROSS | IN_L1 | IN_R2))
 		{
-			in |= 0x10000;
+			in |= IN_CHEAT;
 		}//loc_60004
 
-		if (RawPad == 0xA000)
+		if (RawPad == (IN_SQUARE | IN_CIRCLE))
 		{
-			in |= 0x20000;
+			in |= IN_D;
 		}
 
 	}//loc_60010
