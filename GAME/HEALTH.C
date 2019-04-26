@@ -46,7 +46,7 @@ void AddDisplayPickup(short object_number)//3B6F4, ? (F)
 		object_number = CROWBAR_ITEM;
 	}
 
-	for(lp = 0; lp < 8; lp++, pu++)
+	for (lp = 0; lp < 8; lp++, pu++)
 	{
 		if (pu->life < 0)
 		{
@@ -124,16 +124,18 @@ void InitialisePickUpDisplay()//3B580, 3B9DC (F)
 
 void DrawAirBar(int flash_state)//3B3CC
 {
+	int air;
+
 #if !_DEBUG
 	if (lara.air == 1800 || lara_item->hit_points <= 0)
 		return;
 #endif
 
-	short val = CLAMP(lara.air, 0, 1800);
+	air = CLAMP(lara.air, 0, 1800);
 
-	if (val > 450 || flash_state)
+	if (air > 450 || flash_state)
 	{
-		S_DrawAirBar(100 * val / 1800);
+		S_DrawAirBar(100 * air / 1800);
 	}
 	else
 	{
@@ -179,8 +181,8 @@ void DrawHealthBar(int flash_state)
 #if _DEBUG
 		|| 1
 #endif
-		|| val <= 0 
-		|| lara.gun_status == LG_READY && lara.gun_type == WEAPON_FLARE_2 
+		|| val <= 0
+		|| lara.gun_status == LG_READY && lara.gun_type == WEAPON_FLARE_2
 		|| lara.poisoned >= 256)
 	{
 		if (BinocularRange || SniperOverlay)

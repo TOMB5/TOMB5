@@ -287,13 +287,10 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 			else if (c == 0x20)
 			{
 				//loc_8DC14
+				s2 += 6;
 				if (!(flag & 0x1000))
 				{
 					s2 += 2;
-				}
-				else
-				{
-					s2 += 6;
 				}
 				//j loc_8DD54
 			}
@@ -542,7 +539,7 @@ void GetStringDimensions(char* string, unsigned short* w, unsigned short* h)
 				{
 					strlength = GetStringLength(string, &dw, &dh);
 
-					fh = (fh + 2) + dh;
+					fh = (fh + 2) + (dh - dw);
 					if (fw < strlength)
 					{
 						fw = strlength;
@@ -626,7 +623,7 @@ void UpdatePulseColour()//8E0F8(<), 9013C(<) (F)
 	for (i = 0; i < 16; i++)
 	{
 		((int*)&FontShades[1][i])[0] = ((localPulseCnt << 3) & 0xFF) | (((localPulseCnt << 3) & 0xFF) << 8) | (((localPulseCnt << 3) & 0xFF) << 16);
-		((int*)&FontShades[9][i])[0] = (GlobalCounter << 3) - (GlobalCounter & 0x3F);
+		((int*)&FontShades[9][i])[0] = (GlobalCounter - (GlobalCounter << 3)) & 0x3F;
 	}
 	return;
 }

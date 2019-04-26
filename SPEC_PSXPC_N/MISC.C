@@ -82,25 +82,20 @@ void S_LongMemCpy(unsigned long* pDest, unsigned long* pSrc, unsigned long size)
 	}
 }
 
-void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h, int unk, int unk2) //5EDF8
+void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short h, int otnum, int color) //5EDF8
 {
-	x &= 0xFFFF;
-	y &= 0xFFFF;
-	w &= 0xFFFF;
-	h &= 0xFFFF;
-
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
 		POLY_F4* ptr = (POLY_F4*)db.polyptr;
 
-		setlen(ptr, 5);
-		setcode(ptr, 0x2A);
+		setPolyF4(ptr);
+		setSemiTrans(ptr, TRUE);
 
-		setRGB0(ptr, getR(unk2), getG(unk2), getB(unk2));
+		setRGB0(ptr, getR(color), getG(color), getB(color));
 
 		setXYWH(ptr, x, y, w, h);
 
-		addPrim(db.ot + unk, ptr);
+		addPrim(db.ot + otnum, ptr);
 		
 		db.polyptr += sizeof(POLY_F4);
 	}

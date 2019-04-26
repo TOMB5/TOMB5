@@ -38,7 +38,7 @@ void VSyncFunc()//10000(<), 10000(<) (F) (*) (D) (ND)
 	return;
 }
 
-int main(int argc, char* argv[])//10064(<), 10064(<) (F) (*) (D) (ND)
+int psx_main()//10064(<), 10064(<) (F) (*) (D) (ND)
 {
 	Emulator_Init("Tomb Raider: Chronicles", SCREEN_WIDTH, SCREEN_HEIGHT);
 	SetSp(0x801FFFE0);
@@ -88,8 +88,8 @@ int main(int argc, char* argv[])//10064(<), 10064(<) (F) (*) (D) (ND)
 	CDDA_SetMasterVolume(178);
 #endif
 
-	GPU_UseOrderingTables(&GadwOrderingTables[0], sizeof(GadwOrderingTables) / 8);
-	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], sizeof(GadwPolygonBuffers) / 8);
+	GPU_UseOrderingTables(&GadwOrderingTables[0], 5128 * 4 / 8);
+	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], 52260 * 4 / 8);
 	GPU_GetScreenPosition(&savegame.ScreenX, &savegame.ScreenY);
 
 #if DEBUG_VERSION

@@ -11,6 +11,7 @@
 #include "TOMB4FX.H"
 #include "SPHERE.H"
 #include "TYPES.H"
+#include "EFFECTS.H"
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
@@ -41,95 +42,34 @@ char LM[] =
 	LJ_HEAD,
 };
 
-void TestForObjectOnLedge(struct ITEM_INFO* item /*$a0*/, struct COLL_INFO* coll /*$s3*/)//2A940, 2AB68
+void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)//2A940(<), 2AB68(<) (F)
 {
-	struct GAME_VECTOR s; // stack offset -88
-	struct GAME_VECTOR d; // stack offset -72
-	struct MESH_INFO* StaticMesh; // stack offset -40
-	struct PHD_VECTOR v; // stack offset -56
-	long lp; // $s0
-	//lp = 0;
-	//s5 = &v
-	//s4 = &StaticMesh
-	//v0 = 0xA0000
-	//s2 = &rcossin_tbl
-	//s1 = &d
+	struct GAME_VECTOR s;
+	struct GAME_VECTOR d;
+	struct MESH_INFO* StaticMesh;
+	struct PHD_VECTOR v;
+	long lp;
 
 	//loc_2A97C
-	//a0 = &s
-	//a1 = 8
-	//v0 = (lp << 8) - 128;
-	//v1 = -256
-	s.x = (lp << 8) - 128;
-	s.y = -256;
-	s.z = 0;
-	GetLaraJointPos((struct PHD_VECTOR*)&s, 0);
+	for(lp = 0; lp < 2; lp++)
+	{
+		s.x = (lp << 8) - 0x80;
+		s.y = -256;
+		s.z = 0;
 
-	//a2 = lara_item
+		GetLaraJointPos((struct PHD_VECTOR*)&s, LJ_HEAD);
+		s.room_number = lara_item->room_number;
 
-#if 0
-				 lhu     $v1, 0x18($a2)
-				 nop
-				 sh      $v1, 0x68 + var_4C($sp)
-				 lhu     $v0, 0x4E($a2)
-				 nop
-				 srl     $v0, 2
-				 andi    $v0, 0x3FFC
-				 addu    $v0, $s2
-				 lh      $a1, 0($v0)
-				 lw      $a0, 0x68 + var_58($sp)
-				 sll     $v1, $a1, 1
-				 addu    $v1, $a1
-				 sra     $v1, 4
-				 addu    $a0, $v1
-				 sw      $a0, 0x68 + var_48($sp)
-				 addiu   $a0, $sp, 0x68 + var_58
-				 lhu     $v0, 0x4E($a2)
-				 lw      $v1, 0x68 + var_54($sp)
-				 srl     $v0, 3
-				 ori     $v0, 1
-				 sll     $v0, 1
-				 addu    $v0, $s2
-				 lh      $a2, 0($v0)
-				 move    $a1, $s1
-				 sw      $v1, 0x68 + var_44($sp)
-				 lw      $v1, 0x68 + var_50($sp)
-				 sll     $v0, $a2, 1
-				 addu    $v0, $a2
-				 sra     $v0, 4
-				 addu    $v1, $v0
-				 jal     sub_79460
-				 sw      $v1, 0x68 + var_40($sp)
-
-				 addiu   $a0, $sp, 0x68 + var_58
-				 move    $a1, $s1
-				 move    $a2, $s5
-				 jal     sub_79D24
-				 move    $a3, $s4
-
-				 li      $v1, 0x3E7
-				 beq     $v0, $v1, loc_2AA54
-				 li      $v0, 1
-				 j       loc_2AA64
-				 sb      $v0, 0x83($s3)
-
-				 loc_2AA54:
-			 addiu   $s0, 1
-				 slti    $v0, $s0, 2
-				 bnez    $v0, loc_2A97C
-				 sb      $zero, 0x83($s3)
-
-				 loc_2AA64 :
-				 lw      $ra, 0x68 + var_8($sp)
-				 lw      $s5, 0x68 + var_C($sp)
-				 lw      $s4, 0x68 + var_10($sp)
-				 lw      $s3, 0x68 + var_14($sp)
-				 lw      $s2, 0x68 + var_18($sp)
-				 lw      $s1, 0x68 + var_1C($sp)
-				 lw      $s0, 0x68 + var_20($sp)
-				 jr      $ra
-				 addiu   $sp, 0x68
-#endif
+		d.x = 0;
+		d.x = s.x + ((SIN(lara_item->pos.y_rot) << 1) + SIN(lara_item->pos.y_rot)) >> 4;
+		d.y = s.y;
+		d.z = s.z + ((COS(lara_item->pos.y_rot) << 1) + COS(lara_item->pos.y_rot)) >> 4;
+		LOS(&s, &d);
+		if (ObjectOnLOS2(&s, &d, &v, &StaticMesh) != 0x3E7)
+		{
+			coll->hit_static = 1;
+		}
+	}
 }
 
 void TriggerLaraBlood()//2A838, 2AA60 (F)
