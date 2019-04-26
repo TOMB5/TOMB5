@@ -2,8 +2,13 @@ cmake_minimum_required (VERSION 3.0)
 
 project (Emulator_${TARGET_ARCH})
 
+set(OPT_DEFINITIONS "")
+
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+
+#Enable NTSC mode
+OPTIONAL_DEFINE(NTSC_VERSION "Enable/Disable NTSC Mode" ON)
 
 #Find required libs for PSXPC
 find_package(SDL2 REQUIRED)
@@ -31,6 +36,8 @@ ${PROJECT_NAME}
 STATIC
 ${EMULATOR_SPECIFIC_SRCS}
 )
+
+BuildPreProcessorDefinitions()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLEW_STATIC)
 

@@ -1,5 +1,6 @@
 #include "TITSEQ.H"
 
+#include "CD.H"
 #include "CONTROL.H"
 #include "DELTAPAK.H"
 #include "EFFECTS.H"
@@ -7,6 +8,7 @@
 #include "GPU.H"
 #include "LOADSAVE.H"
 #include "MEMCARD.H"
+#include "MOVIE.H"
 #include "PSXINPUT.H"
 #include "ROOMLOAD.H"
 #include "SAVEGAME.H"
@@ -28,7 +30,7 @@
 #endif
 
 #define BLOCK_SPLINE_CAM (0)
-#define HACK_SAVE_SECRETS (0)
+#define HACK_SAVE_SECRETS (1)
 
 #if PSX_VERSION && RELOC
 void* func_titseq[] __attribute__((section(".header"))) =
@@ -36,22 +38,26 @@ void* func_titseq[] __attribute__((section(".header"))) =
 	&TitleOptions,
 };
 
+#endif
+
 unsigned char titseqData[] __attribute__((section(".data"))) =
 {
-	0,//xyte_46
-	0,//xyte_47
-	0,//xyte_1A8
+	0,//byte_46
+	0,//byte_47
+	0,//byte_1A8
 };
 
 unsigned int titseqData2[] __attribute__((section(".data"))) =
 {
-	0,//xord_38
+	0,//word_38
 };
 
-#endif
-
+#if BETA_VERSON
 unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
-unsigned char byte_2600[] = { 0, 0, 0, 0, 0 }; ///@FIXME i don't know the len (maybe max of titseqData[0])
+#else
+unsigned short unk_3C[] = { STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
+#endif
+unsigned char byte_2600[] = { 0, 0, 0, 0, 0 };
 
 struct CutseqMenuItem
 {
@@ -123,6 +129,7 @@ int TitleOptions(int Name)
 	unsigned short* s4;
 	int s5 = 0;
 	int s6;
+	int s0;
 
 	//v0 = 0xA0000
 	//v1 = PadConnected
@@ -170,7 +177,7 @@ int TitleOptions(int Name)
 	{
 		if (bDoCredits == 0)
 		{
-			sub_2B0();
+			TITSEQ_DrawLogo();
 		}
 	}
 	else if (bDoCredits == 0)
@@ -368,27 +375,28 @@ int TitleOptions(int Name)
 	else if (Chris_Menu == MENU_SPECIAL_FEATURES_MENU)
 	{
 		//loc_C3C
-		//a0 = 256
-		//a1 = 32
-		//a2 = 6
-		s6 = 0;
 		s1 = 0;
-		//s2 = 0x404040
-		//s5 = 0
-		//v0 = gfStringOffset
-		//a3 = gfStringWad
-		PrintString(256, 32, 6, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-		//v0 = 0xB0000
-		//fp = &savegame.CampaignSecrets
-		s4 = &unk_3C[0];
+		s5 = 0;
 
-		//v1 = &savegame.CampaignSecrets[s1];
+#if !BETA_VERSION
+		PrintString(256, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], 0x8000);
+#endif
+		PrintString(256, 32, 6, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+
 		//loc_C8C
-		for (s1 = 0; s1 < 5; s1++, s4++)
+#if BETA_VERSION
+		for (s1 = 0; s1 < 5; s1++)
+#else
+		for (s1 = 0; s1 < 4; s1++)
+#endif
 		{
 			if (s1 != 0)
 			{
+#if !BETA_VERSION
+				if (savegame.CampaignSecrets[s1] < 9)
+#else
 				if (savegame.CampaignSecrets[s1 - 1] < 9)
+#endif
 				{
 					//loc_DDC
 					continue;
@@ -396,21 +404,16 @@ int TitleOptions(int Name)
 			}
 
 			//loc_CA8
-			//v0 = 0
-			//v1 = dtitseqData2[0]
-			//a2 = 2
-
-			y = ((s5 - (titseqData2[0] * 12) + 0x70)) & 0xFF;
+			y = (s5 - ((titseqData2[0] * 12) + 0x70)) & 0xFF;
 
 			//nop
-			//addiu   $a1, $s3, 4
-			if (titseqData[0] == s6)
+			if (titseqData[0] == s1)
 			{
-				PrintString(256, y + 4, 1, &gfStringWad[gfStringOffset[s4[0]]], 0x8000);
+				PrintString(256, y + 4, 1, &gfStringWad[gfStringOffset[unk_3C[s1]]], 0x8000);
 			}
 			else
 			{
-				PrintString(256, y + 4, 2, &gfStringWad[gfStringOffset[s4[0]]], 0x8000);
+				PrintString(256, y + 4, 2, &gfStringWad[gfStringOffset[unk_3C[s1]]], 0x8000);
 			}
 
 			//loc_CE4
@@ -422,32 +425,36 @@ int TitleOptions(int Name)
 			DrawLineH(66, y + 9, 380, 0, s2, 0);
 			DrawLineV(66, y - 10, 20, 0, s2, 0);
 			DrawLineV(445, y - 10, 20, 0, s2, 0);
-
 			DrawTPage(0, 1);
-
-			s6++;
-
-			//loc_DDC
 		}
 
-		if ((RawEdge & 0x10) && titseqData[0] != 0)
+		if ((RawEdge & IN_DPAD_UP) && titseqData[0] != 0)
 		{
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_SELECT, NULL, 2);
+#endif
 			--titseqData[0];
-			//j loc_EB4
 		}
-		else if ((RawEdge & 0x40) && titseqData[0] < titseqData2[0] - 1)
+		else if ((RawEdge & IN_DPAD_DOWN) && titseqData[0] < titseqData2[0] - 1)
 		{
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_SELECT, NULL, 2);
+#endif
 			++titseqData[0];
-			//j loc_EB4
 		}
-		else if ((RawEdge & 0x1000))
+		else if ((RawEdge & IN_TRIANGLE))
 		{
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#endif
 			Chris_Menu = MENU_MAIN_MENU;
 			titseqData[0] = CanLoad + 1;
-			//j loc_EB4
 		}
-		else if ((RawEdge & 0x4000))
+		else if ((RawEdge & IN_CROSS))
 		{
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#endif
 			sub_2154(Name, byte_2600[titseqData[0]]);
 		}
 
@@ -456,15 +463,23 @@ int TitleOptions(int Name)
 	else if (Chris_Menu == MENU_MAIN_MENU)
 	{
 		//loc_600
-		//v1 = Gameflow
-		//s3 = 0xC0
-
-		//Overidden in gameflow script disable loading now.
+#if !BETA_VERSION
+		s0 = 1;
+		if (savegame.CampaignSecrets[0] != 9 && savegame.CampaignSecrets[1] != 9 &&
+			savegame.CampaignSecrets[2] != 9 && savegame.CampaignSecrets[3] != 9)
+		{
+			s0 = 0;
+		}
+		else
+		{
+			s0 = 1;
+		}
+#endif
+		//loc_5EC
 		if (!Gameflow->LoadSaveEnabled)
 		{
 			y = 192;
 			//loc_6B4
-			//s1 = a0
 			if (CanLoad == 1)
 			{
 				titseqData[0] = 0;
@@ -474,23 +489,28 @@ int TitleOptions(int Name)
 		else if (mcGetStatus() != 0)
 		{
 			y = 192;
-			//loc_6B8
+			//loc_6A4
 			if (CanLoad == 1)
 			{
 				titseqData[0] = 0;
 				CanLoad = 0;
-			}//loc_6D4
+			}//loc_6C4
 		}
-		else if (mcNumFiles != 0)
+		else if (mcNumFiles == 0)
 		{
-			//loc_6B0
 			y = 208;
+			//loc_6A0
 			if (CanLoad == 0)
 			{
 				titseqData[0] = 0;
 				CanLoad = 1;
-			}//loc_664
+			}//loc_6C4
+		}
+		else if (CanLoad)
+		{
+			y = 208;
 
+			//loc_658
 			if (titseqData[0] == 1)
 			{
 				PrintString(256, 192, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
@@ -499,14 +519,13 @@ int TitleOptions(int Name)
 			{
 				PrintString(256, 192, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
 			}
-		}//loc_6B0 mcnumfiles
+		}
 		else
 		{
-			//loc_6B0
 			y = 192;
+			titseqData[0] = 0;
+			CanLoad = 1;
 		}
-
-		//j loc_6D8
 	}
 	else
 	{
@@ -523,26 +542,25 @@ int TitleOptions(int Name)
 		PrintString(256, 176, 2, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], 0x8000);
 	}
 
-	//a0 = 0
-
-	if (titseqData[0] == 2)
+	if (s0)
 	{
-		//v0 = 1
-		PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		if (titseqData[0] == 2)
+		{
+			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
+		else if (titseqData[0] != 1)
+		{
+			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
+		else if (CanLoad != 0)
+		{
+			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
+		else
+		{
+			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		}
 	}
-	else if (titseqData[0] != 1)
-	{
-		PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-	}
-	else if (CanLoad != 0)
-	{
-		PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-	}
-	else
-	{
-		PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
-	}
-
 	//v0 = gfStringOffset
 	//a1 = y
 	//v1 = ;
@@ -558,8 +576,6 @@ int TitleOptions(int Name)
 		++titseqData[0];
 	}//loc_810
 
-
-
 	if ((RawEdge & 0x4000))//X pressed
 	{
 		if (titseqData[0] == 1)
@@ -571,7 +587,7 @@ int TitleOptions(int Name)
 			else
 			{
 				//loc_850
-				sub_3A8();
+				TITSEQ_CheckSecretsCollected();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				titseqData[0] = 0;
 			}
@@ -585,7 +601,7 @@ int TitleOptions(int Name)
 			if (titseqData[0] != 0)
 			{
 				//loc_8EC
-				sub_3A8();
+				TITSEQ_CheckSecretsCollected();
 				Chris_Menu = MENU_SPECIAL_FEATURES_MENU;
 				titseqData[0] = 0;
 			}
@@ -633,7 +649,7 @@ int TitleOptions(int Name)
 		return ret;
 	}
 
-	s1 = LoadGame(); //Disabled due to crashing
+	s1 = LoadGame();
 
 	if (s1 == 0)
 	{
@@ -655,7 +671,7 @@ int TitleOptions(int Name)
 	return ret;
 }
 
-void sub_2B0()
+void TITSEQ_DrawLogo()//2B0(<) 29C(<) (F)
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{
@@ -686,43 +702,33 @@ void sub_2B0()
 	}//locret_3A0
 }
 
-void sub_3A8()
+void TITSEQ_CheckSecretsCollected()//3A8(<) 394(<) (F)
 {
-	int i = 0;//a2
-			  //t1 = 1
-			  //a2 = 0
-			  //t4 = &savgame.CampaignSecrets[0]
-			  //a1 = 0
-			  //t0 = 0
-			  //a0 = 0
-			  //v1 = &byte_2600[0]
-			  //t3 = &byte_2600[0]
-			  //a3 = 0x20000
-			  //t2 = 0x10000
-			  //v0 = 1
+	int i = 0;
+
+#if BETA_VERSION
 	titseqData2[0] = 1;
+#else
+	titseqData2[0] = 0;
+#endif
 
 	byte_2600[0] = 0;
 	byte_2600[1] = 0;
 	byte_2600[2] = 0;
 	byte_2600[3] = 0;
+#if BETA_VERSION
 	byte_2600[4] = 0;
+#endif
 
-	//v0 = &savgame.CampaignSecrets[0]
-
-	//loc_3F4
+	//loc_3D8:
 	do
 	{
-		//v1 = savgame.CampaignSecrets[0]
-		//v1 = savgame.CampaignSecrets[0] < 9 ? 1 : 0
-
-		//a1 = a2 + 1
 		if (savegame.CampaignSecrets[i] > 8)
 		{
 			byte_2600[i + 1] = i + 1;
 			titseqData2[0]++;
-		}//loc_428
-
+		}
+		//loc_414
 	} while (++i < 4);
 }
 
@@ -733,7 +739,7 @@ int sub_1054()
 	int y = 0;//s1
 	int ret = 0;//fp
 
-	sub_2B0();
+	TITSEQ_DrawLogo();
 	PrintString(256, 102, 6, &gfStringWad[gfStringOffset[STR_SELECT_CUTSCENE]], 0x8000);
 
 	a3 = titseqData[2] - 4;
@@ -800,31 +806,59 @@ int sub_1054()
 	return ret;
 }
 
-void sub_2154(int Name, unsigned char a1)
+void sub_2154(int Name, unsigned char a1)//2154(<) 2098(<) (F)
 {
+#if !BETA_VERSION
+	if (a1 == 3)
+	{
+		DrawSync(0);
+		ClearOTagR(db.order_table[0], db.nOTSize);
+		ClearOTagR(db.order_table[1], db.nOTSize);
+		DrawSync(0);
+
+#if DISC_VERSION
+		S_PlayFMV(7, 1);
+#endif
+
+		ReloadAnims(Name, cutseq_malloc_free);
+		S_CDPlay(XATrack, 0);
+	}
+	else
+	{
+		//loc_2130
+		DrawSync(0);
+		ClearOTagR(db.order_table[0], db.nOTSize);
+		ClearOTagR(db.order_table[1], db.nOTSize);
+		DrawSync(0);
+
+		TITSEQ_StoryBoardMenuControl(a1);//-1?
+		ReloadAnims(Name, cutseq_malloc_free);
+		S_CDPlay(XATrack, 0);
+	}
+	//loc_218C
+#else
 	if (a1 != 0 && a1 != 4)
 	{
-		sub_219C(a1 - 1);
+		TITSEQ_StoryBoardMenuControl(a1 - 1);
 		ReloadAnims(Name, cutseq_malloc_used);
 	}//loc_218C
+#endif
 }
 
-void sub_219C(unsigned char a0)
+void TITSEQ_StoryBoardMenuControl(unsigned char extrasMenuIndex)//219C(<), 21A8(<) (F)
 {
-	void* s1;
-	int fp;
-	int s4;
-	fp = 12;
-	//s7 = a0
-	//v0 = 1
+	void* gfx;//$s1
+	int maxNumberOfImages;//$fp
+	int currentlySelectedImage;//$s4
 
-	if (a0 == 1)
+	maxNumberOfImages = 12;
+	if (extrasMenuIndex == 1)
 	{
-		fp = 15;
+		maxNumberOfImages = 15;
 	}
 
 	//loc_21DC
-	s4 = 0;
+	currentlySelectedImage = 0;
 
 #if DEBUG_VERSION
 	ProfileDraw = 0;
@@ -832,9 +866,7 @@ void sub_219C(unsigned char a0)
 
 	DrawSync(0);
 	VSync(0);
-	//s0 = &db
-	//s1 = &db.disp[1]
-	//a0 = s1
+
 	db.draw[1].isbg = 0;
 	db.draw[0].isbg = 0;
 	db.draw[1].dtd = 0;
@@ -845,53 +877,58 @@ void sub_219C(unsigned char a0)
 	ClearImage(&db.disp[1].disp, 0, 0, 0);
 
 	DrawSync(0);
-
-	//a0 = &db.disp[0];
 	ClearImage(&db.disp[0].disp, 0, 0, 0);
 	DrawSync(0);
 
 	init_cutseq_malloc();
-	s1 = cutseq_malloc(0x3C000);
-	sub_2398((char*)s1, a0, 0);
+	gfx = cutseq_malloc(STORY_BOARD_IMG_SIZE);
+	TITSEQ_ReadStoryboardImage((char*)gfx, extrasMenuIndex, 0);
 
 	goto loc_22F4;
 
 	do
 	{
 		//loc_2290
-		if ((RawEdge & 0x80))
+		if ((RawEdge & IN_DPAD_LEFT))
 		{
-			if (s4 < 0)
+			if (currentlySelectedImage < 0)
 			{
-				s4 = fp;
+				currentlySelectedImage = maxNumberOfImages;
 			}
 			else
-			{//loc_22B4
-				s4--;
+			{
+				//loc_22B4
+				currentlySelectedImage--;
 			}
 
-			sub_2398((char*)s1, a0, s4);
+			TITSEQ_ReadStoryboardImage((char*)gfx, extrasMenuIndex, currentlySelectedImage);
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#endif
 		}
 		//loc_22B4
-		//v0 = s4 < fp ? 1 : 0
-		if ((RawEdge & 0x20))
+		if ((RawEdge & IN_DPAD_RIGHT))
 		{
-			if (s4 < fp)
+			if (currentlySelectedImage < maxNumberOfImages)
 			{
-				s4++;
+				currentlySelectedImage++;
 			}
 			else
 			{
-				s4 = 1;
+				currentlySelectedImage = 1;
 			}
 
 			//loc_22D4
-			sub_2398((char*)s1, a0, s4);
+			TITSEQ_ReadStoryboardImage((char*)gfx, extrasMenuIndex, currentlySelectedImage);
 
-		}//loc_22E4
+#if !BETA_VERSION
+			SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#endif
+		}
 
+		//loc_22E4
 		DrawSync(0);
-		GPU_FlipStory((unsigned long*)s1);
+		GPU_FlipStory((unsigned long*)gfx);
 
 	loc_22F4:
 		GPU_BeginScene();
@@ -899,7 +936,11 @@ void sub_219C(unsigned char a0)
 		S_UpdateInput();
 		PrintString(256, 220, 6, &gfStringWad[gfStringOffset[STR_PREVIOUS_NEXT_BACK]], 0x8000);
 
-	} while (!(RawEdge & 0x1000));
+	} while (!(RawEdge & IN_TRIANGLE));
+
+#if !BETA_VERSION
+	SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+#endif
 
 	DrawSync(0);
 
@@ -913,7 +954,7 @@ void sub_219C(unsigned char a0)
 	db.draw[0].dtd = 1;
 }
 
-void sub_2398(char* gfx, unsigned char wadIndex, int a2)
+void TITSEQ_ReadStoryboardImage(char* gfx, unsigned char wadIndex, int imageIndex)//2398(<) 23C4(<) (F)
 {
 	char buf[12];//var_20
 #if PSX_VERSION
@@ -927,8 +968,12 @@ void sub_2398(char* gfx, unsigned char wadIndex, int a2)
 #if !DISC_VERSION
 	sprintf(&buf[0], "\\story%d.wad", wadIndex + 1);
 	nHandle = PCopen(&buf[0], 0, 0);
-	PClseek(nHandle, a2 * 0x3C000, 0);//0x3C000 storyboard image size
-	FILE_Read(gfx, 1, 0x3C000, nHandle);
+	PClseek(nHandle, imageIndex * STORY_BOARD_IMG_SIZE, 0);
+	FILE_Read(gfx, 1, STORY_BOARD_IMG_SIZE, nHandle);
 	PCclose(nHandle);
+#else
+	DEL_CDFS_OpenFile(wadIndex + STORY_1);
+	DEL_CDFS_Seek(imageIndex * STORY_BOARD_IMG_SIZE);
+	DEL_CDFS_Read(gfx, STORY_BOARD_IMG_SIZE);
 #endif
 }

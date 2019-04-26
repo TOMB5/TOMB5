@@ -9,7 +9,7 @@
 #include <LIBSN.H>
 #endif
 
-int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F) (*) (*)
+int FILE_Load(char* szFileName, void* pDest)//5E528(<), 5E5D8(<) (F) (*) (*) (D) (D)
 {
 #if DISC_VERSION
 	CdlFILE fp;
@@ -52,7 +52,7 @@ int FILE_Load(char* szFileName, void* pDest)//5E528, 5E5D8(<) (F) (*) (*)
 #endif
 }
 
-unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F) (*) (*)
+unsigned long FILE_Length(char* szFileName)//5E60C(<), 5E578(<) (F) (*) (*) (D) (D)
 {
 #if DISC_VERSION
 	CdlFILE fp;
@@ -96,9 +96,9 @@ unsigned long FILE_Length(char* szFileName)//5E60C, 5E578(<) (F) (*) (*)
 }
 
 #if !DISC_VERSION
-int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? (F) (*)
+int FILE_Read(char* pDest, int nItemSize, int nItems, int nHandle)//5E6A8(<), ? (F) (*) (D)
 {
-	int nAmount = nItems * nItemSize;
+	int nAmount = nItemSize * nItems;
 	return PCread(nHandle, pDest, nAmount);
 }
 #endif
