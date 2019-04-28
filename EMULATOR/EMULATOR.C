@@ -32,6 +32,7 @@
 #define DX9 (0)
 #define V_SCALE (1)
 #define VERTEX_COLOUR_MULT (2)
+#define DOUBLE_BUFFERED (1)
 
 #if NTSC_VERSION
 #define COUNTER_UPATE_INTERVAL (263)
@@ -112,6 +113,10 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0)
 	{
+#if !DOUBLE_BUFFERED
+		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
+#endif
+
 #if CORE_PROF_3_1
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -638,7 +643,11 @@ void Emulator_UpdateInput()
 
 void Emulator_SwapWindow()
 {
+#if DOUBLE_BUFFERED
 	SDL_GL_SwapWindow(g_window);
+#else
+	glFinish();
+#endif
 }
 
 void Emulator_EndScene()
