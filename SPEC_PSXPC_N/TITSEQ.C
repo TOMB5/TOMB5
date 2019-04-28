@@ -807,7 +807,7 @@ void sub_2154(int Name, unsigned char a1)//2154(<) 2098(<) (F)
 		DrawSync(0);
 
 #if DISC_VERSION
-		S_PlayFMV(7, 1);
+		S_PlayFMV(FMV_NEXT_GENERATION_PREVIEW, 1);
 #endif
 
 		ReloadAnims(Name, cutseq_malloc_free);
