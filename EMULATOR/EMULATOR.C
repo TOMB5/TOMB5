@@ -281,7 +281,7 @@ void Emulator_CounterLoop()
 		{
 			if (!counters[1].IsStopped)
 			{
-				counters[1].Value += 263;
+				counters[1].Value += COUNTER_UPATE_INTERVAL;
 			}
 
 			for (int i = 0; i < 3; i++)
