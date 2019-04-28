@@ -205,6 +205,16 @@ unsigned short UpdateGameControllerInput(SDL_GameController* pad)
 		ret &= ~0x200;
 	}
 
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_LEFTSTICK))//L3
+	{
+		ret &= ~0x2;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_RIGHTSTICK))//R3
+	{
+		ret &= ~0x4;
+	}
+
 	return ret;
 }
 
