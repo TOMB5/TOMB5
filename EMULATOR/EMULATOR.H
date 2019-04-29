@@ -28,6 +28,17 @@
 #define CTR_CLOCK_SYS_ONE (0)
 #define CTR_CLOCK_SYS_ONE_EIGHTH (1)
 
+#define INT24_MAX						0xFFFFFF
+#define INT16_MAX                       0xFFFF
+#define INT8_MAX						0xFF
+
+#define INT8_4_BYTE_F000				0xFF000000
+#define INT8_3_BYTE_F00					0xFF0000
+#define INT8_2_BYTE_F0					0xFF00
+#define HALF_2_BYTE_F000				0xF000
+#define HALF_1_BYTE_F0					0xF0
+#define INT16_LOW_HALF					0xF00
+
 struct MMTEXTURE;
 
 typedef struct

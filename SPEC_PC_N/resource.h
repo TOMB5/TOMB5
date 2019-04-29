@@ -2,8 +2,8 @@
 // fichier Include Microsoft Visual C++.
 // Utilisé par SETUP.RC
 //
-#define SUBLANG_ENGLISH_US              0x01
-#define LANG_ENGLISH                    0x09
+#define SUBLANG_ENGLISH_US              1
+#define LANG_ENGLISH                    9
 #define IDC_GFXADAPTER                  1000
 #define IDC_GFXADAPTERTXT				1001
 #define IDC_OUTSETTINGS                 1003

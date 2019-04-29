@@ -235,11 +235,11 @@ DRAWENV* SetDefDrawEnv(DRAWENV* env, int x, int y, int w, int h)//(F)
 
 	if (GetVideoMode() == 0)
 	{
-		env->dfe = h < 0x121 ? 1 : 0;
+		env->dfe = h < 289 ? 1 : 0;
 	}
 	else
 	{
-		env->dfe = h < 0x101 ? 1 : 0;
+		env->dfe = h < 257 ? 1 : 0;
 	}
 
 	env->ofs[0] = x;
@@ -274,7 +274,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 	//sub_17C0(&env->dr_env, env);
 
-	env->dr_env.tag = env->dr_env.tag & 0xFF000000 | (ptrdiff_t)p & 0xFFFFFF;
+	env->dr_env.tag = env->dr_env.tag & INT8_4_BYTE_F000 | (ptrdiff_t)p & INT24_MAX;
 	//a0 = off_3348[6];
 	//v0 = off_3348[2];
 	///jalr off_3348[2](off_3348[6]);
@@ -336,9 +336,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 			switch (pTag->code & ~3)
 			{
-			case 0x00: // null poly
+			case 0: // null poly
 				break;
-			case 0x20: // POLY_F3
+			case 32: // POLY_F3
 			{
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 				POLY_F3* poly = (POLY_F3*)pTag;
@@ -360,7 +360,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x24: // POLY_FT3
+			case 36: // POLY_FT3
 			{
 				
 				POLY_FT3* poly = (POLY_FT3*)pTag;
@@ -383,7 +383,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x28: // POLY_F4
+			case 40: // POLY_F4
 			{
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 				POLY_F4* poly = (POLY_F4*)pTag;
@@ -405,7 +405,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x2C: // POLY_FT4
+			case 44: // POLY_FT4
 			{
 
 				POLY_FT4* poly = (POLY_FT4*)pTag;
@@ -426,7 +426,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x30: // POLY_G3
+			case 48: // POLY_G3
 			{
 				POLY_G3* poly = (POLY_G3*)pTag;
 
@@ -450,7 +450,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x34: // POLY_GT3
+			case 52: // POLY_GT3
 			{
 				POLY_GT3* poly = (POLY_GT3*)pTag;
 
@@ -474,7 +474,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x38: // POLY_G4
+			case 56: // POLY_G4
 			{
 				POLY_G4* poly = (POLY_G4*)pTag;
 
@@ -498,7 +498,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x3C: // POLY_GT4
+			case 60: // POLY_GT4
 			{				
 				POLY_GT4* poly = (POLY_GT4*)pTag;
 				
@@ -521,7 +521,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				glDisableClientState(GL_VERTEX_ARRAY);
 				break;
 			}
-			case 0x40: // LINE_F2
+			case 64: // LINE_F2
 			{
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
@@ -537,7 +537,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				glEnd();
 				break;
 			}
-			case 0x50: // LINE_G2
+			case 80: // LINE_G2
 			{
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
@@ -563,7 +563,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				}
 				break;
 			}
-			case 0x60: // TILE
+			case 96: // TILE
 			{
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
@@ -589,7 +589,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x64: // SPRT
+			case 100: // SPRT
 			{
 				SPRT* poly = (SPRT*)pTag;
 
@@ -613,7 +613,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x68: // TILE_1
+			case 104: // TILE_1
 			{
 				const int width = 1;
 
@@ -641,7 +641,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x70: // TILE_8
+			case 112: // TILE_8
 			{
 				const int width = 8;
 				
@@ -669,7 +669,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x74: // SPRT_8
+			case 116: // SPRT_8
 			{
 				SPRT_8* poly = (SPRT_8*)pTag;
 
@@ -693,7 +693,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x78: // TILE_16
+			case 120: // TILE_16
 			{
 				const int width = 16;
 
@@ -721,7 +721,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0x7C: // SPRT_16
+			case 124: // SPRT_16
 			{
 				SPRT_16* poly = (SPRT_16*)pTag;
 
@@ -745,7 +745,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				break;
 			}
-			case 0xE1: // TPAGE
+			case 225: // TPAGE
 			{
 				unsigned short tpage = ((unsigned short*)pTag)[2];
 				Emulator_GenerateAndBindTpage(tpage, 0, semi_transparent);
@@ -762,7 +762,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			//Reset for vertex colours
 			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-		}while ((unsigned long)pTag != (unsigned long)terminator && (unsigned long)pTag != 0xFFFFFF);
+		} while ((unsigned long)pTag != (unsigned long)terminator && (unsigned long)pTag != INT24_MAX);
 
 		Emulator_DestroyLastVRAMTexture();
 		Emulator_DeleteFrameBufferTexture();

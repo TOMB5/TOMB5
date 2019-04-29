@@ -237,19 +237,22 @@ int Emulator_InitialiseGameVariables()
 	extern unsigned long* GadwOrderingTables_V2;
 	extern unsigned long* terminator;
 
+// MAGICAL CONST 231604 is equal to (5128 * 4) + (52260 * 4) + (512 * 4) + 4 WHY?
 #if _WINDOWS
 	SYSTEM_INFO info;
 	GetSystemInfo(&info);
-	Emulator_AllocateVirtualMemory((unsigned int)info.lpMinimumApplicationAddress, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
+	Emulator_AllocateVirtualMemory((unsigned int)info.lpMinimumApplicationAddress, 231604);
 #else
-	Emulator_AllocateVirtualMemory(0x400000, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
+	// Interested to know why this does this. Where were these magical numbers divined from?
+	#define WIN95_32BIT_APP_ENTRYPOINT						0x400000
+	Emulator_AllocateVirtualMemory(WIN95_32BIT_APP_ENTRYPOINT, 231604);
 #endif
 	
 	if (pVirtualMemory == NULL)
 	{
 		return 0;
 	}
-	if ((uintptr_t)pVirtualMemory & 0xFF000000)
+	if ((uintptr_t)pVirtualMemory & INT8_4_BYTE_F000)
 	{
 		printf("*********************************************************************** And an error occured!\n");
 		return 0;
@@ -286,7 +289,7 @@ void Emulator_CounterLoop()
 
 			for (int i = 0; i < 3; i++)
 			{
-				if (counters[i].Value >= (counters[i].TargetMode == CTR_MODE_TO_TARG ? counters[i].Target : 0xFFFF))
+				if (counters[i].Value >= (counters[i].TargetMode == CTR_MODE_TO_TARG ? counters[i].Target : INT16_MAX))
 					counters[i].Value = 0;
 			}
 		}
@@ -364,14 +367,14 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 			vertices[0].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[0].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[0].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
-			vertices[0].col[3] = ((float)0xFF) / 255.0f;
+			vertices[0].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 		else
 		{
 			vertices[0].col[0] = ((float)col0[0]) / 255.0f;
 			vertices[0].col[1] = ((float)col0[1]) / 255.0f;
 			vertices[0].col[2] = ((float)col0[2]) / 255.0f;
-			vertices[0].col[3] = ((float)0xFF) / 255.0f;
+			vertices[0].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 	}
 	else
@@ -381,14 +384,14 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 			vertices[1].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[1].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[1].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
-			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+			vertices[1].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 		else
 		{
 			vertices[1].col[0] = ((float)col0[0]) / 255.0f;
 			vertices[1].col[1] = ((float)col0[1]) / 255.0f;
 			vertices[1].col[2] = ((float)col0[2]) / 255.0f;
-			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+			vertices[1].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 	}
 
@@ -399,14 +402,14 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 			vertices[1].col[0] = ((float)col1[0] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[1].col[1] = ((float)col1[1] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[1].col[2] = ((float)col1[2] * VERTEX_COLOUR_MULT) / 255.0f;
-			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+			vertices[1].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 		else
 		{
 			vertices[1].col[0] = ((float)col1[0]) / 255.0f;
 			vertices[1].col[1] = ((float)col1[1]) / 255.0f;
 			vertices[1].col[2] = ((float)col1[2]) / 255.0f;
-			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+			vertices[1].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 	}
 	else
@@ -416,14 +419,14 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 			vertices[1].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[1].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[1].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
-			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+			vertices[1].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 		else
 		{
 			vertices[1].col[0] = ((float)col0[0]) / 255.0f;
 			vertices[1].col[1] = ((float)col0[1]) / 255.0f;
 			vertices[1].col[2] = ((float)col0[2]) / 255.0f;
-			vertices[1].col[3] = ((float)0xFF) / 255.0f;
+			vertices[1].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 	}
 
@@ -434,14 +437,14 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 			vertices[2].col[0] = ((float)col2[0] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[2].col[1] = ((float)col2[1] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[2].col[2] = ((float)col2[2] * VERTEX_COLOUR_MULT) / 255.0f;
-			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+			vertices[2].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 		else
 		{
 			vertices[2].col[0] = ((float)col2[0]) / 255.0f;
 			vertices[2].col[1] = ((float)col2[1]) / 255.0f;
 			vertices[2].col[2] = ((float)col2[2]) / 255.0f;
-			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+			vertices[2].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 	}
 	else
@@ -451,14 +454,14 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 			vertices[2].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[2].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[2].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
-			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+			vertices[2].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 		else
 		{
 			vertices[2].col[0] = ((float)col0[0]) / 255.0f;
 			vertices[2].col[1] = ((float)col0[1]) / 255.0f;
 			vertices[2].col[2] = ((float)col0[2]) / 255.0f;
-			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+			vertices[2].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 	}
 
@@ -469,14 +472,14 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 			vertices[3].col[0] = ((float)col3[0] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[3].col[1] = ((float)col3[1] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[3].col[2] = ((float)col3[2] * VERTEX_COLOUR_MULT) / 255.0f;
-			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+			vertices[3].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 		else
 		{
 			vertices[3].col[0] = ((float)col3[0]) / 255.0f;
 			vertices[3].col[1] = ((float)col3[1]) / 255.0f;
 			vertices[3].col[2] = ((float)col3[2]) / 255.0f;
-			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+			vertices[3].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 	}
 	else
@@ -486,14 +489,14 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 			vertices[3].col[0] = ((float)col0[0] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[3].col[1] = ((float)col0[1] * VERTEX_COLOUR_MULT) / 255.0f;
 			vertices[3].col[2] = ((float)col0[2] * VERTEX_COLOUR_MULT) / 255.0f;
-			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+			vertices[3].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 		else
 		{
 			vertices[3].col[0] = ((float)col0[0]) / 255.0f;
 			vertices[3].col[1] = ((float)col0[1]) / 255.0f;
 			vertices[3].col[2] = ((float)col0[2]) / 255.0f;
-			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+			vertices[3].col[3] = ((float)INT8_MAX) / 255.0f;
 		}
 	}
 
@@ -623,7 +626,7 @@ void Emulator_UpdateInput()
 			if (padHandle[i] != NULL)
 			{
 				padData[i][0] = 0;
-				padData[i][1] = 0x41;//?
+				padData[i][1] = 65;//?
 				((unsigned short*)padData[i])[1] = UpdateGameControllerInput(padHandle[i]);
 			}
 		}
@@ -793,18 +796,18 @@ GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY, uns
 
 void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent)
 {
-	unsigned int textureType = (tpage >> 7) & 0x3;
-	unsigned int tpageX = (tpage << 6) & 0x7C0 % 1024;
-	unsigned int tpageY = ((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200);
-	unsigned int clutX = (clut & 0x3F) << 4;
+	unsigned int textureType = (tpage >> 7) & 3;
+	unsigned int tpageX = (tpage << 6) & 1984 % 1024;
+	unsigned int tpageY = ((tpage << 4) & 256) + ((tpage >> 2) & 512);
+	unsigned int clutX = (clut & 63) << 4;
 	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
 
 	Emulator_SetBlendMode(tpageAbr);
 
 #if DEBUG_MSG
-	printf("tpage: (%d,%d,%d,%d)\n", ((tpage) >> 7) & 0x003, ((tpage) >> 5) & 0x003, ((tpage) << 6) & 0x7c0, (((tpage) << 4) & 0x100) + (((tpage) >> 2) & 0x200));
-	printf("clut: (%d,%d)\n", (clut & 0x3F) << 4, (clut >> 6));
+	printf("tpage: (%d,%d,%d,%d)\n", ((tpage) >> 7) & 3, ((tpage) >> 5) & 3, ((tpage) << 6) & 1984, (((tpage) << 4) & 256) + (((tpage) >> 2) & 512));
+	printf("clut: (%d,%d)\n", (clut & 63) << 4, (clut >> 6));
 #endif
 
 	GLuint tpageTexture = Emulator_FindTextureInCache(tpageX, tpageY, clutX, clutY);
@@ -876,7 +879,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 					if (x >= tpageX && x < tpageX + 256 &&
 						y >= tpageY && y < tpageY + 256)
 					{
-						*dst++ = 255 << 24 | ((((*src & 0x1F)) << 3) << 16) | ((((*src & 0x3E0) >> 5) << 3) << 8) | ((((*src & 0x7C00) >> 10) << 3));
+						*dst++ = 255 << 24 | ((((*src & 31)) << 3) << 16) | ((((*src & 992) >> 5) << 3) << 8) | ((((*src & 31744) >> 10) << 3));
 					}
 				}
 			}
@@ -907,7 +910,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 				for (int x = clutX; x < clutX + 16; x++)
 				{
 					unsigned short* src = vram + (y * 1024 + x);
-					*clutDst++ = 255 << 24 | ((((*src & 0x1F)) << 3) << 16) | ((((*src & 0x3E0) >> 5) << 3) << 8) | ((((*src & 0x7C00) >> 10) << 3));
+					*clutDst++ = 255 << 24 | ((((*src & 31)) << 3) << 16) | ((((*src & 992) >> 5) << 3) << 8) | ((((*src & 31744) >> 10) << 3));
 				}
 			}
 
@@ -921,26 +924,26 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 					if (x >= tpageX / 4 && x < (tpageX + 256 / 4) &&
 						y >= tpageY && y < tpageY + 256)
 					{
-						*dst++ = (255 << 24) | (((clut[(*src & 0xF)] & 0xFF0000) >> 16) << 16) | (((clut[(*src & 0xF)] & 0xFF00) >> 8) << 8) | (clut[(*src & 0xF)] & 0xFF);
-						if (((dst[-1] & 0xFF) | ((dst[-1] & 0xFF00) >> 8) | ((dst[-1] & 0xFF0000) >> 16)) == 0)
+						*dst++ = (255 << 24) | (((clut[(*src & 15)] & INT8_3_BYTE_F00) >> 16) << 16) | (((clut[(*src & 15)] & INT8_2_BYTE_F0) >> 8) << 8) | (clut[(*src & 15)] & INT8_MAX);
+						if (((dst[-1] & INT8_MAX) | ((dst[-1] & INT8_2_BYTE_F0) >> 8) | ((dst[-1] & INT8_3_BYTE_F00) >> 16)) == 0)
 						{
 							dst[-1] &= ~(255 << 24);
 						}
 
-						*dst++ = (255 << 24) | (((clut[(*src & 0xF0) >> 4] & 0xFF0000) >> 16) << 16) | (((clut[(*src & 0xF0) >> 4] & 0xFF00) >> 8) << 8) | (clut[(*src & 0xF0) >> 4] & 0xFF);
-						if (((dst[-1] & 0xFF) | ((dst[-1] & 0xFF00) >> 8) | ((dst[-1] & 0xFF0000) >> 16)) == 0)
+						*dst++ = (255 << 24) | (((clut[(*src & HALF_1_BYTE_F0) >> 4] & INT8_3_BYTE_F00) >> 16) << 16) | (((clut[(*src & HALF_1_BYTE_F0) >> 4] & INT8_2_BYTE_F0) >> 8) << 8) | (clut[(*src & HALF_1_BYTE_F0) >> 4] & INT8_MAX);
+						if (((dst[-1] & INT8_MAX) | ((dst[-1] & INT8_2_BYTE_F0) >> 8) | ((dst[-1] & INT8_3_BYTE_F00) >> 16)) == 0)
 						{
 							dst[-1] &= ~(255 << 24);
 						}
 
-						*dst++ = (255 << 24) | (((clut[(*src & 0xF00) >> 8] & 0xFF0000) >> 16) << 16) | (((clut[(*src & 0xF00) >> 8] & 0xFF00) >> 8) << 8) | (clut[(*src & 0xF00) >> 8] & 0xFF);
-						if (((dst[-1] & 0xFF) | ((dst[-1] & 0xFF00) >> 8) | ((dst[-1] & 0xFF0000) >> 16)) == 0)
+						*dst++ = (255 << 24) | (((clut[(*src & INT16_LOW_HALF) >> 8] & INT8_3_BYTE_F00) >> 16) << 16) | (((clut[(*src & INT16_LOW_HALF) >> 8] & INT8_2_BYTE_F0) >> 8) << 8) | (clut[(*src & INT16_LOW_HALF) >> 8] & INT8_MAX);
+						if (((dst[-1] & INT8_MAX) | ((dst[-1] & INT8_2_BYTE_F0) >> 8) | ((dst[-1] & INT8_3_BYTE_F00) >> 16)) == 0)
 						{
 							dst[-1] &= ~(255 << 24);
 						}
 
-						*dst++ = (255 << 24) | (((clut[(*src & 0xF000) >> 12] & 0xFF0000) >> 16) << 16) | (((clut[(*src & 0xF000) >> 12] & 0xFF00) >> 8) << 8) | (clut[(*src & 0xF000) >> 12] & 0xFF);
-						if (((dst[-1] & 0xFF) | ((dst[-1] & 0xFF00) >> 8) | ((dst[-1] & 0xFF0000) >> 16)) == 0)
+						*dst++ = (255 << 24) | (((clut[(*src & HALF_2_BYTE_F000) >> 12] & INT8_3_BYTE_F00) >> 16) << 16) | (((clut[(*src & HALF_2_BYTE_F000) >> 12] & INT8_2_BYTE_F0) >> 8) << 8) | (clut[(*src & HALF_2_BYTE_F000) >> 12] & INT8_MAX);
+						if (((dst[-1] & INT8_MAX) | ((dst[-1] & INT8_2_BYTE_F0) >> 8) | ((dst[-1] & INT8_3_BYTE_F00) >> 16)) == 0)
 						{
 							dst[-1] &= ~(255 << 24);
 						}
