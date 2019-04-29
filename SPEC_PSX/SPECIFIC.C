@@ -583,7 +583,7 @@ void gInit()//615CC(<), 6210C(<) (F)
 	return;
 }
 
-short S_Death()//61658(<), 622C8
+short S_Death()//61658(<), 622C8(<) (F)
 {
 	short ret;
 	unsigned char flag;
@@ -596,124 +596,115 @@ short S_Death()//61658(<), 622C8
 	gInit();
 	mcOpen(0);
 
-	//loc_6169C:
+	//loc_6169C, loc_63230C
 	while (ret == 0)
 	{
+
+#if !BETA_VERSION
+		Motors[1] = 0;
+		Motors[0] = 0;
+#endif
+
 		XAReqVolume = 0;
 
 		GPU_BeginScene();
-
 		SetDebounce = 1;
-
 		S_UpdateInput();
 		UpdatePulseColour();
+		lara.death_count++;
 
-		++lara.death_count;
 
-		if (PadConnected == 0)
+		if (!PadConnected)
 		{
 			PrintString(SCREEN_WIDTH / 2, 0x40, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], 0xA000);
 		}
 		else
 		{
-			//loc_61704
-			if (flag != 0)
-			{
-				if (flag == 1)
-				{
-					//loc_6189C
-					ret = LoadGame();
-
-					if (ret != 0)
-					{
-						ret = 2;
-						if (ret < 0)
-						{
-							flag = 0;
-							ret = 0;
-						}
-					}
-				}//loc_618C4
-			}
-			else
+			if (flag == 0)
 			{
 				//loc_6171C
-				if (mcGetStatus() == 0)
+				if (mcGetStatus() == 0 && mcNumFiles != 0)
 				{
-					if (mcNumFiles != 0)
+					if (Cursor != 0)
 					{
-						if (Cursor == 0)
-						{
-							//loc_6174C
-							PrintString(SCREEN_WIDTH / 2, 0xC0, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
-						}
-						else
-						{
-							//loc_6174C
-							PrintString(SCREEN_WIDTH / 2, 0xC0, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
-						}
+						PrintString(SCREEN_WIDTH / 2, 0xC0, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+					}
+					else
+					{
+						PrintString(SCREEN_WIDTH / 2, 0xC0, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+					}
 
-						if (Cursor == 0)
-						{
-							PrintString(SCREEN_WIDTH / 2, 0xD0, 2, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], 0x8000);
-						}
-						else
-						{
-							PrintString(SCREEN_WIDTH / 2, 0xD0, 1, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], 0x8000);
-						}
+					if (Cursor != 0)
+					{
+						PrintString(SCREEN_WIDTH / 2, 0xD0, 1, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], 0x8000);
+					}
+					else
+					{
+						PrintString(SCREEN_WIDTH / 2, 0xD0, 2, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], 0x8000);
+					}
 
-						if (Cursor != 0)
+					if (Cursor != 0)
+					{
+						if ((RawEdge & IN_DPAD_UP))
 						{
-							if ((RawEdge & 0x10))
-							{
-								SoundEffect(0x6D, NULL, 2);
-								Cursor = 0;
-							}
-							else
-							{
-								//loc_617E0
-								if ((RawEdge & 0x4000))
-								{
-									SoundEffect(0x6F, NULL, 2);
-									Cursor = 1;
-								}
-							}
+							SoundEffect(SFX_MENU_SELECT, NULL, 2);
+							Cursor = 0;
 						}
-						//loc_61800
-						if ((RawEdge & 0x40))
+						else if ((RawEdge & IN_CROSS))
 						{
-							SoundEffect(0x6D, NULL, 2);
-							Cursor = 1;
-						}
-						//loc_6182C
-						if ((RawEdge & 0x4000))
-						{
-							SoundEffect(0x6F, NULL, 2);
-							Cursor = 1;
+							//loc_617E0
+							SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+							ret = 1;
 						}
 					}
 					else
 					{
-						//loc_6184C
-						if (lara.death_count > 0x12C)
+						//loc_61800
+						if ((RawEdge & IN_DPAD_DOWN))
 						{
+							SoundEffect(SFX_MENU_SELECT, NULL, 2);
 							Cursor = 1;
+						}
+						else if ((RawEdge & IN_CROSS))
+						{
+							//loc_617E0
+							SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+							flag = 1;
 						}
 					}
 				}
 				else
 				{
 					//loc_6184C
-					if (lara.death_count > 0x12C)
+					if (lara.death_count > 300)
 					{
-						Cursor = 1;
+						ret = 1;
 					}
 				}
 
-				//loc_61864
-				PrintString(SCREEN_WIDTH/2, 0x78, 3, &gfStringWad[gfStringOffset[STR_GAME_OVER]], 0x8000);
+				//loc_61888
+				PrintString(SCREEN_WIDTH / 2, 0x78, 3, &gfStringWad[gfStringOffset[STR_GAME_OVER]], 0x8000);
+			}
+			else if (flag == 1)
+			{
+				//loc_6189C
+				ret = LoadGame();
+
+				if (ret != 0)
+				{
+					if (ret > 0)
+					{
+						ret = 2;
+					}
+					else
+					{
+						flag = 0;
+						ret = 0;
+					}
+				}
 			}
 		}
+
 		//loc_618C4
 		SOUND_EndScene();
 		DrawMonoScreen(0x203040);
@@ -722,7 +713,6 @@ short S_Death()//61658(<), 622C8
 	}
 
 	mcClose();
-
 	return ret;
 }
 
