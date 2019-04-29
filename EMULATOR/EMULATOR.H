@@ -32,36 +32,33 @@ struct MMTEXTURE;
 
 typedef struct
 {
-	uint16_t Value;
-	uint16_t _pad1;
+	unsigned int i_cycle;
 
 	union
 	{
-		struct
-		{
-			uint32_t _pad2 : 2;
-			uint32_t IsStopped : 1;
-			uint32_t _pad3 : 1;
-			uint32_t TargetMode : 1;
-			uint32_t IRQ1 : 1;
-			uint32_t _pad4 : 1;
-			uint32_t IRQ2 : 1;
-			uint32_t _pad5 : 1;
-			uint32_t Clock : 1;
-			uint32_t Division : 1;
-			uint32_t _pad6 : 21;
-		};
-		uint32_t I2;
+		unsigned short cycle;
+		unsigned short unk00;
 	};
+
+	unsigned int i_value;
+
 	union
 	{
-		struct
-		{
-			uint16_t Target;
-			uint16_t _pad7;
-		};
-		uint32_t I3;
+		unsigned short value;
+		unsigned short unk01;
 	};
+
+	unsigned int i_target;
+
+	union
+	{
+		unsigned short target;
+		unsigned short unk02;
+	};
+
+
+	unsigned int padding00;
+	unsigned int padding01;
 } SysCounter;
 
 extern SysCounter counters[3];

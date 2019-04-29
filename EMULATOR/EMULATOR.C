@@ -35,9 +35,9 @@
 #define DOUBLE_BUFFERED (1)
 
 #if NTSC_VERSION
-#define COUNTER_UPATE_INTERVAL (263)
+#define COUNTER_UPDATE_INTERVAL (263)
 #else
-#define COUNTER_UPATE_INTERVAL (313)
+#define COUNTER_UPDATE_INTERVAL (313)
 #endif
 
 #if DX9
@@ -271,31 +271,33 @@ int Emulator_InitialiseGameVariables()
 
 void Emulator_CounterLoop()
 {
-	int last_time = SDL_GetTicks();
+	static int numUpdates = 0;
+	int last_time = 0;
 	
 	while (TRUE)
 	{
 		int now = SDL_GetTicks();
-		int delta = now - last_time;
 
-		if (1000 / 60 - delta > 0)
+		if (now > last_time + 1000)
 		{
-			SDL_Delay(1000 / 60 - delta);
+			numUpdates = 0;
+			last_time = now;
 		}
-		else
-		{
-			if (!counters[1].IsStopped)
-			{
-				counters[1].Value += COUNTER_UPATE_INTERVAL;
-			}
 
+		if(numUpdates++ <= 60)
+		{
 			for (int i = 0; i < 3; i++)
 			{
-				if (counters[i].Value >= (counters[i].TargetMode == CTR_MODE_TO_TARG ? counters[i].Target : 0xFFFF))
-					counters[i].Value = 0;
+				//if (!counters[i].IsStopped)
+				{
+					counters[i].cycle += COUNTER_UPDATE_INTERVAL;
+					if (counters[i].target > 0)
+					{
+						counters[i].cycle %= counters[i].target;
+					}
+				}
 			}
 		}
-		last_time = now;
 	}
 }
 
