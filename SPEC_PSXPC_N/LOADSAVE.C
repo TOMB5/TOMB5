@@ -172,7 +172,7 @@ int LoadGame()//6297C(<), 63060
 		else
 		{
 			//loc_62B10
-			PrintString(SCREEN_WIDTH / 2, 32, 8, &gfStringWad[gfStringOffset[STR_SELECT_GAME_TO_LOAD]], 0x8000);
+			PrintString(SCREEN_WIDTH / 2, 32, 8, &gfStringWad[gfStringOffset[STR_SELECT_GAME_TO_LOAD]], FF_CENTER);
 			nfiles = DisplayFiles(cursor, mcNumFiles);
 
 			if ((RawEdge & IN_DPAD_UP) && cursor != 0)
@@ -315,7 +315,7 @@ int LoadGame()//6297C(<), 63060
 	//def_62A38
 	if (cancel != 0)
 	{
-		PrintString(SCREEN_WIDTH / 2, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], 0x8000);
+		PrintString(SCREEN_WIDTH / 2, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], FF_CENTER);
 		if ((RawEdge & IN_TRIANGLE))
 		{
 			init = 0;

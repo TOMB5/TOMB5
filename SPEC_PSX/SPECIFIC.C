@@ -616,7 +616,7 @@ short S_Death()//61658(<), 622C8(<) (F)
 
 		if (!PadConnected)
 		{
-			PrintString(SCREEN_WIDTH / 2, 0x40, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], 0xA000);
+			PrintString(SCREEN_WIDTH / 2, 0x40, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_UNK13));
 		}
 		else
 		{
@@ -627,20 +627,20 @@ short S_Death()//61658(<), 622C8(<) (F)
 				{
 					if (Cursor != 0)
 					{
-						PrintString(SCREEN_WIDTH / 2, 0xC0, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+						PrintString(SCREEN_WIDTH / 2, 0xC0, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], FF_CENTER);
 					}
 					else
 					{
-						PrintString(SCREEN_WIDTH / 2, 0xC0, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+						PrintString(SCREEN_WIDTH / 2, 0xC0, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], FF_CENTER);
 					}
 
 					if (Cursor != 0)
 					{
-						PrintString(SCREEN_WIDTH / 2, 0xD0, 1, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], 0x8000);
+						PrintString(SCREEN_WIDTH / 2, 0xD0, 1, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], FF_CENTER);
 					}
 					else
 					{
-						PrintString(SCREEN_WIDTH / 2, 0xD0, 2, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], 0x8000);
+						PrintString(SCREEN_WIDTH / 2, 0xD0, 2, &gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]], FF_CENTER);
 					}
 
 					if (Cursor != 0)
@@ -683,7 +683,7 @@ short S_Death()//61658(<), 622C8(<) (F)
 				}
 
 				//loc_61888
-				PrintString(SCREEN_WIDTH / 2, 0x78, 3, &gfStringWad[gfStringOffset[STR_GAME_OVER]], 0x8000);
+				PrintString(SCREEN_WIDTH / 2, 0x78, 3, &gfStringWad[gfStringOffset[STR_GAME_OVER]], FF_CENTER);
 			}
 			else if (flag == 1)
 			{

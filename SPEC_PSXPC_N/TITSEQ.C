@@ -188,7 +188,7 @@ int TitleOptions(int Name)
 		if (bDoCredits == 0)
 		{
 			sprintf(&buf[0], "Savegame = %d bytes", 0x3B4);
-			PrintString(256, 232, 5, &buf[0], 0x9064);
+			PrintString(256, 232, 5, &buf[0], (FF_CENTER | FF_SMALL | FF_UNK6 | FF_UNK5 | FF_UNK2));
 		}//loc_558
 	}
 #endif
@@ -326,11 +326,11 @@ int TitleOptions(int Name)
 #else
 				if (byte_46 == s1)
 				{
-					PrintString(256, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]], 0x8000);
+					PrintString(256, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]], FF_CENTER);
 				}
 				else
 				{
-					PrintString(256, y & 0xFFFF, 5, &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]], 0x8000);
+					PrintString(256, y & 0xFFFF, 5, &gfStringWad[gfStringOffset[gfLevelNames[s1 + 1]]], FF_CENTER);
 				}
 				y += 18;
 				//v0 = s0
@@ -370,9 +370,9 @@ int TitleOptions(int Name)
 		s5 = 0;
 
 #if !BETA_VERSION
-		PrintString(256, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], 0x8000);
+		PrintString(256, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], FF_CENTER);
 #endif
-		PrintString(256, 32, 6, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+		PrintString(256, 32, 6, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
 
 		//loc_C8C
 #if BETA_VERSION
@@ -399,11 +399,11 @@ int TitleOptions(int Name)
 
 			if (byte_46 == s1)
 			{
-				PrintString(256, y + 4, 1, &gfStringWad[gfStringOffset[unk_3C[s1]]], 0x8000);
+				PrintString(256, y + 4, 1, &gfStringWad[gfStringOffset[unk_3C[s1]]], FF_CENTER);
 			}
 			else
 			{
-				PrintString(256, y + 4, 2, &gfStringWad[gfStringOffset[unk_3C[s1]]], 0x8000);
+				PrintString(256, y + 4, 2, &gfStringWad[gfStringOffset[unk_3C[s1]]], FF_CENTER);
 			}
 
 			//loc_CE4
@@ -503,11 +503,11 @@ int TitleOptions(int Name)
 			//loc_658
 			if (byte_46 == 1)
 			{
-				PrintString(256, 192, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+				PrintString(256, 192, 1, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], FF_CENTER);
 			}
 			else
 			{
-				PrintString(256, 192, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], 0x8000);
+				PrintString(256, 192, 2, &gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]], FF_CENTER);
 			}
 		}
 		else
@@ -525,35 +525,33 @@ int TitleOptions(int Name)
 	//loc_6D8
 	if (byte_46 == 0)
 	{
-		PrintString(256, 176, 1, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], 0x8000);
+		PrintString(256, 176, 1, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], FF_CENTER);
 	}
 	else
 	{
-		PrintString(256, 176, 2, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], 0x8000);
+		PrintString(256, 176, 2, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], FF_CENTER);
 	}
 
 	if (s0)
 	{
 		if (byte_46 == 2)
 		{
-			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
 		}
 		else if (byte_46 != 1)
 		{
-			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
 		}
 		else if (CanLoad != 0)
 		{
-			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+			PrintString(256, y, 2, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
 		}
 		else
 		{
-			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], 0x8000);
+			PrintString(256, y, 1, &gfStringWad[gfStringOffset[STR_SPECIAL_FEATURES]], FF_CENTER);
 		}
 	}//loc_764
-	//v0 = gfStringOffset
-	//a1 = y
-	//v1 = ;
+
 	if ((RawEdge & IN_DPAD_UP) && byte_46 != 0)
 	{
 		SoundEffect(SFX_MENU_SELECT, NULL, 2);
@@ -607,7 +605,7 @@ int TitleOptions(int Name)
 					ret = 3;
 					Chris_Menu = MENU_MAIN_MENU;
 					
-					if ((RawPad & 0x400))
+					if ((RawPad & IN_L1))
 					{
 						gfLevelComplete = 4;
 					}
@@ -617,12 +615,12 @@ int TitleOptions(int Name)
 					}
 
 					//loc_8C8
-					if ((RawPad & 0x100))
+					if ((RawPad & IN_L2))
 					{
 						gfLevelComplete = 8;
 					}
 
-					if ((RawPad & 0x800))
+					if ((RawPad & IN_R1))
 					{
 						gfLevelComplete = 11;
 					}
@@ -730,7 +728,7 @@ int sub_1054()//1054(<) F98(<)
 	int ret = 0;//fp
 
 	TITSEQ_DrawLogo();
-	PrintString(256, 102, 6, &gfStringWad[gfStringOffset[STR_SELECT_CUTSCENE]], 0x8000);
+	PrintString(256, 102, 6, &gfStringWad[gfStringOffset[STR_SELECT_CUTSCENE]], FF_CENTER);
 
 	a3 = byte_1A8 - 4;
 	if ((byte_1A8 - 4) < 0)
@@ -758,11 +756,11 @@ int sub_1054()//1054(<) F98(<)
 		{
 			if (byte_1A8 == a3)
 			{
-				PrintString(256, y, 1, &gfStringWad[gfStringOffset[unk_1AC[a3 + 1].menuText]], 0x8000);
+				PrintString(256, y, 1, &gfStringWad[gfStringOffset[unk_1AC[a3 + 1].menuText]], FF_CENTER);
 			}
 			else
 			{
-				PrintString(256, y, 5, &gfStringWad[gfStringOffset[unk_1AC[a3 + 1].menuText]], 0x8000);
+				PrintString(256, y, 5, &gfStringWad[gfStringOffset[unk_1AC[a3 + 1].menuText]], FF_CENTER);
 			}
 
 			y += 18;
@@ -924,7 +922,7 @@ void TITSEQ_StoryBoardMenuControl(unsigned char extrasMenuIndex)//219C(<), 21A8(
 		GPU_BeginScene();
 		SetDebounce = 1;
 		S_UpdateInput();
-		PrintString(256, 220, 6, &gfStringWad[gfStringOffset[STR_PREVIOUS_NEXT_BACK]], 0x8000);
+		PrintString(256, 220, 6, &gfStringWad[gfStringOffset[STR_PREVIOUS_NEXT_BACK]], FF_CENTER);
 
 	} while (!(RawEdge & IN_TRIANGLE));
 
