@@ -160,7 +160,7 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	}
 
 	SDL_memset(&vram, 0, sizeof(1024 * 512 * 2));
-	SDL_GL_SetSwapInterval(-1);
+	SDL_GL_SetSwapInterval(1);
 
 	Emulator_InitialiseGL();
 	
@@ -550,47 +550,47 @@ void Emulator_CheckTextureIntersection(RECT16* rect)
 	}
 }
 
-void Emulator_SaveVRAM(int width, int height)
+void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
 {
 #if NOFILE
 	return;
 #endif
 
-	FILE* f = fopen("VRAM.TGA", "wb");
-
-	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-	unsigned char header[6] = { width % 256, width / 256, height % 256, height / 256,24,0 };
-	char* pixels = new char[width * height * 3];
-	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-
-	fwrite(TGAheader, sizeof(unsigned char), 12, f);
-	fwrite(header, sizeof(unsigned char), 6, f);
-	for (int line = height - 1; line >= 0; line--)
-		fwrite(&pixels[line * width * 3], sizeof(char), width * 3, f);
-	fclose(f);
-	delete[] pixels;
-}
-
-void Emulator_SaveVRAM2(int width, int height)
-{
-#if NOFILE
-	return;
-#endif
-
-	FILE* f = fopen("VRAM.TGA", "wb");
+	FILE* f = fopen(outputFileName, "wb");
 	if (f == NULL)
 	{
 		return;
 	}
 	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 	unsigned char header[6] = { width % 256, width / 256, height % 256, height / 256,16,0 };
-	char* pixels = new char[width * height * 2];
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+	unsigned short* pixels = new unsigned short[width * height];
+
+	if (bReadFromFrameBuffer)
+	{
+		glReadPixels(x, y, width, height, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+	}
+	else
+	{
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+	}
 
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
 	fwrite(header, sizeof(unsigned char), 6, f);
-	for (int line = height - 1; line >= 0; line--)
-		fwrite(&pixels[line * width * 2], sizeof(char), width * 2, f);
+
+	//512 const is hdd sector size
+	int numSectorsToWrite = (width * height * 2) / 512;
+	int numRemainingSectorsToWrite = (width * height * 2) % 512;
+
+	for (int i = 0; i < numSectorsToWrite; i++)
+	{
+		fwrite(&pixels[i * 512 / 2], 512, 1, f);
+	}
+
+	for (int i = 0; i < numRemainingSectorsToWrite; i++)
+	{
+		fwrite(&pixels[numSectorsToWrite * 512 / 2], numRemainingSectorsToWrite, 1, f);
+	}
+
 	fclose(f);
 	delete[] pixels;
 }
@@ -690,7 +690,7 @@ void Emulator_EndScene()
 	glPopMatrix();
 
 #if _DEBUG
-	Emulator_SaveVRAM2(1024, 512);
+	Emulator_SaveVRAM("VRAM.TGA", 0, 0, 1024, 512, FALSE);
 #endif
 	Emulator_SwapWindow();
 
@@ -757,27 +757,9 @@ void Emulator_GenerateFrameBufferTexture()
 		eprinterr("Frame buffer error");
 	}
 	
-#if _DEBUG && !NOFILE
-	unsigned short* pixelData2 = new unsigned short[activeDrawEnv.clip.w * activeDrawEnv.clip.h];
-	glReadPixels(0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData2);
-
-	FILE* f = fopen("VRAM4.TGA", "wb");
-	if (f != NULL)
-	{
-		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-		unsigned char header[6] = { activeDrawEnv.clip.w % 256, activeDrawEnv.clip.w / 256, activeDrawEnv.clip.h % 256, activeDrawEnv.clip.h / 256,16,0 };
-		fwrite(TGAheader, sizeof(unsigned char), 12, f);
-		fwrite(header, sizeof(unsigned char), 6, f);
-		for (int line = activeDrawEnv.clip.h - 1; line >= 0; line--)
-			fwrite(&pixelData2[line * activeDrawEnv.clip.w], sizeof(short), activeDrawEnv.clip.w, f);
-		fclose(f);
-	}
-#endif
+	Emulator_SaveVRAM("VRAM4.TGA", 0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, TRUE);
 
 	delete[] pixelData;
-#if _DEBUG && !NOFILE
-	delete[] pixelData2;
-#endif
 }
 
 void Emulator_DeleteFrameBufferTexture()
@@ -855,7 +837,6 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 						*dst++ = *src;
 					}
 				}
-
 
 #if !NOFILE
 				FILE* f = fopen("TPAGE.TGA", "wb");
@@ -1003,17 +984,7 @@ void Emulator_DestroyLastVRAMTexture()
 	}
 
 #if _DEBUG && !NOFILE
-	FILE* f = fopen("VRAM2.TGA", "wb");
-	if (f != NULL)
-	{
-		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-		unsigned char header[6] = { activeDrawEnv.clip.w % 256, activeDrawEnv.clip.w / 256, activeDrawEnv.clip.h % 256, activeDrawEnv.clip.h / 256,16,0 };
-		fwrite(TGAheader, sizeof(unsigned char), 12, f);
-		fwrite(header, sizeof(unsigned char), 6, f);
-		for (int line = activeDrawEnv.clip.h - 1; line >= 0; line--)
-			fwrite(&pixelData[line * activeDrawEnv.clip.w], sizeof(short), activeDrawEnv.clip.w, f);
-		fclose(f);
-	}
+	Emulator_SaveVRAM("VRAM2.TGA", 0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, TRUE);
 #endif
 
 	delete[] pixelData;

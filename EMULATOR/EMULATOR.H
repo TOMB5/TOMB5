@@ -67,8 +67,7 @@ extern void Emulator_Init(char* windowName, int screen_width, int screen_height)
 extern void Emulator_InitialiseGL();
 extern void Emulator_BeginScene();
 extern void Emulator_EndScene();
-extern void Emulator_SaveVRAM(int width, int height);
-extern void Emulator_SaveVRAM2(int width, int height);
+extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
 extern void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent);
