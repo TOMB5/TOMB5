@@ -292,13 +292,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 	
 	if (p != NULL)
 	{
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
 		glLoadIdentity();
 		glOrtho(0, 1024, 0, 512, -1, 1);
 		glViewport(0, 0, 1024, 512);
 
-		glEnable(GL_TEXTURE_2D);
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
 
@@ -325,9 +322,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			{
 				blend_mode = 0;
 			}
-
-			glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
-			glDisable(GL_BLEND);
 
 			if (semi_transparent)
 			{
@@ -768,7 +762,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		Emulator_DeleteFrameBufferTexture();
 
 		glViewport(0, 0, windowWidth, windowHeight);
-		glPopMatrix();
 
 		Emulator_DestroyFrameBuffer(fbo);
 	}

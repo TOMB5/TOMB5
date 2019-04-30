@@ -510,20 +510,16 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 void Emulator_InitialiseGL()
 {
 	//Initialise vertex array
+	glEnable(GL_TEXTURE_2D);
 	memset(&vertices[0].x, 0, sizeof(Vertex) * MAX_NUM_VERTICES);
 	Emulator_GenerateAndBindNullWhite();
 
-//	glPolygonMode(GL_FRONT_AND_BACK, self.command_polygon_mode);
-//	glEnable(GL_SCISSOR_TEST);
-//	glEnable(GL_DEPTH_TEST);
-//	glEnable(GL_DITHER);
-//	glShadeModel(GL_SMOOTH);
-//	glDepthFunc(GL_LEQUAL);
 #if BLEND_MODE
 	glBlendColor(0.25, 0.25, 0.25, 0.5);
 #endif
 	glShadeModel(GL_SMOOTH);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
 }
 
 void Emulator_GenerateAndBindNullWhite()
@@ -578,30 +574,26 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 	fwrite(header, sizeof(unsigned char), 6, f);
 
 	//512 const is hdd sector size
-	int numSectorsToWrite = (width * height * 2) / 512;
-	int numRemainingSectorsToWrite = (width * height * 2) % 512;
+	int numSectorsToWrite = (width * height * sizeof(unsigned short)) / 512;
+	int numRemainingSectorsToWrite = (width * height * sizeof(unsigned short)) % 512;
 
 	for (int i = 0; i < numSectorsToWrite; i++)
 	{
-		fwrite(&pixels[i * 512 / 2], 512, 1, f);
+		fwrite(&pixels[i * 512 / sizeof(unsigned short)], 512, 1, f);
 	}
 
 	for (int i = 0; i < numRemainingSectorsToWrite; i++)
 	{
-		fwrite(&pixels[numSectorsToWrite * 512 / 2], numRemainingSectorsToWrite, 1, f);
+		fwrite(&pixels[numSectorsToWrite * 512 / sizeof(unsigned short)], numRemainingSectorsToWrite, 1, f);
 	}
 
 	fclose(f);
 	delete[] pixels;
 }
 
-int lastTime = 0;
-
 void Emulator_BeginScene()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
@@ -616,8 +608,6 @@ void Emulator_BeginScene()
 			exit(0);
 		}
 	}
-
-	lastTime = SDL_GetTicks();
 }
 
 void Emulator_UpdateInput()
@@ -654,7 +644,6 @@ void Emulator_SwapWindow()
 
 void Emulator_EndScene()
 {
-	glEnable(GL_TEXTURE_2D);
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 512, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
@@ -681,20 +670,15 @@ void Emulator_EndScene()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	glDisable(GL_LIGHTING);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(0, word_33BC.disp.w, 0, word_33BC.disp.h, -1, 1);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glPopMatrix();
 
 #if _DEBUG
 	Emulator_SaveVRAM("VRAM.TGA", 0, 0, 1024, 512, FALSE);
 #endif
 	Emulator_SwapWindow();
 
-	glDisable(GL_TEXTURE_2D);
 	glDeleteTextures(1, &vramTexture);
 }
 
@@ -715,7 +699,6 @@ void Emulator_ShutDown()
 
 void Emulator_GenerateFrameBuffer(GLuint& fbo)
 {
-	fbo = 0;
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 }
@@ -757,7 +740,9 @@ void Emulator_GenerateFrameBufferTexture()
 		eprinterr("Frame buffer error");
 	}
 	
+#if _DEBUG
 	Emulator_SaveVRAM("VRAM4.TGA", 0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, TRUE);
+#endif
 
 	delete[] pixelData;
 }
@@ -838,7 +823,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 					}
 				}
 
-#if !NOFILE
+#if _DEBUG && !NOFILE
 				FILE* f = fopen("TPAGE.TGA", "wb");
 				unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 				unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
