@@ -15,6 +15,12 @@
 #endif
 #include <LIBGPU.H>
 
+#define VRAM_WIDTH (1024)
+#define VRAM_HEIGHT (512)
+
+#define TPAGE_WIDTH (256)
+#define TPAGE_HEIGHT (256)
+
 #define CTR_RUNNING (0)
 #define CTR_STOPPED (1)
 

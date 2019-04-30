@@ -18,7 +18,7 @@
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 
-unsigned short vram[1024 * 512];
+unsigned short vram[VRAM_WIDTH * VRAM_HEIGHT];
 DISPENV word_33BC;
 DRAWENV activeDrawEnv;
 DRAWENV byte_9CCA4;
@@ -46,11 +46,11 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
 	Emulator_CheckTextureIntersection(rect);
 
-	for (int y = rect->y; y < 512; y++)
+	for (int y = rect->y; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = rect->x; x < 1024; x++)
+		for (int x = rect->x; x < VRAM_WIDTH; x++)
 		{
-			unsigned short* pixel = vram + (y * 1024 + x);
+			unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
 
 			if (x >= rect->x && x < rect->x + rect->w && 
 				y >= rect->y && y < rect->y + rect->h)
@@ -78,11 +78,11 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 	unsigned short* dst = (unsigned short*)p;
 
-	for (int y = rect->y; y < 512; y++)
+	for (int y = rect->y; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = rect->x; x < 1024; x++)
+		for (int x = rect->x; x < VRAM_WIDTH; x++)
 		{
-			unsigned short* src = vram + (y * 1024 + x);
+			unsigned short* src = vram + (y * VRAM_WIDTH + x);
 
 			if (x >= rect->x && x < rect->x + rect->w &&
 				y >= rect->y && y < rect->y + rect->h)
@@ -104,12 +104,12 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 int MoveImage(RECT16* rect, int x, int y)
 {
 #if 0//TODO
-	for (int sy = rect->y; sy < 512; sy++)
+	for (int sy = rect->y; sy < VRAM_HEIGHT; sy++)
 	{
-		for (int sx = rect->x; sx < 1024; sx++)
+		for (int sx = rect->x; sx < VRAM_WIDTH; sx++)
 		{
-			unsigned short* src = vram + (sy * 1024 + sx);
-			unsigned short* dst = vram + (y * 1024 + x);
+			unsigned short* src = vram + (sy * VRAM_WIDTH + sx);
+			unsigned short* dst = vram + (y * VRAM_WIDTH + x);
 
 			if (sx >= rect->x && sx < rect->x + rect->w &&
 				sy >= rect->y && sy < rect->y + rect->h)
@@ -293,8 +293,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 	if (p != NULL)
 	{
 		glLoadIdentity();
-		glOrtho(0, 1024, 0, 512, -1, 1);
-		glViewport(0, 0, 1024, 512);
+		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, -1, 1);
+		glViewport(0, 0, VRAM_WIDTH, VRAM_HEIGHT);
 
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
