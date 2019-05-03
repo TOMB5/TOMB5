@@ -24,7 +24,14 @@ DRAWENV activeDrawEnv;
 DRAWENV byte_9CCA4;
 int dword_3410 = 0;
 char byte_3352 = 0;
+
+//Nasty hack, win32 is like original but due to memory differences
+//Between Linux and Windows we must do this unfortunately.
+#if _WIN32 || _WIN64
+unsigned long terminator = -1;
+#else
 unsigned long* terminator;
+#endif
 void(*drawsync_callback)(void) = NULL;
 
 void* off_3348[]=
