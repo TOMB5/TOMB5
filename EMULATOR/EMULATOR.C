@@ -600,12 +600,28 @@ void Emulator_BeginScene()
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
-		if (event.type == SDL_QUIT || (event.type == SDL_WINDOWEVENT &&
-			event.window.event == SDL_WINDOWEVENT_CLOSE))
+		switch (event.type)
 		{
+		case SDL_JOYDEVICEADDED:
+			if (SDL_IsGameController(event.jbutton.which))
+			{
+				padHandle[event.jbutton.which] = SDL_GameControllerOpen(event.jbutton.which);
+			}
+			break;
+		case SDL_JOYDEVICEREMOVED:
+			SDL_GameControllerClose(padHandle[event.jbutton.which]);
+			break;
+		case SDL_QUIT:
 			Emulator_ShutDown();
-			SDL_Quit();
-			exit(0);
+			break;
+		case SDL_WINDOWEVENT:
+			switch (event.window.event)
+			{
+			case SDL_WINDOWEVENT_CLOSE:
+				Emulator_ShutDown();
+				break;
+			}
+			break;
 		}
 	}
 }
@@ -695,6 +711,9 @@ void Emulator_ShutDown()
 #ifdef _WINDOWS
 	//VirtualFree(pVirtualMemory, 0, MEM_RELEASE);
 #endif
+
+	SDL_Quit();
+	exit(0);
 }
 
 void Emulator_GenerateFrameBuffer(GLuint& fbo)
