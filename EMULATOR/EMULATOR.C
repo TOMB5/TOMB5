@@ -30,7 +30,7 @@
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (1)
 #define DX9 (0)
-#define V_SCALE (1)
+#define V_SCALE (2)
 #define VERTEX_COLOUR_MULT (2)
 #define DOUBLE_BUFFERED (1)
 

@@ -469,7 +469,7 @@ void S_AnimateTextures(long nFrames)
 
 void PrintGauge(int x, int y, int length)
 {
-	S_DrawGouraudBar(x & 0xFFFF, y & 0xFFFF, 100, (length * 100) / 255, &dashBarColourSet[0]);
+	S_DrawGouraudBar(x & 0xFFFF, y & 0xFFFF, 100, (length * 100) / 255, &dashBarColourSet);
 }
 
 long GetRandomControl() //5E9F0, 926F8 (F)
