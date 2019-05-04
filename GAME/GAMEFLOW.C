@@ -782,8 +782,9 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 	S_InitialiseScreen();
 #endif
 	
+#if !PSXPC_TEST//Im sure this causes an infinite loop for PSXPC_N, disable for now.
 	SOUND_Stop();
-
+#endif
 	IsAtmospherePlaying = 0;
 	
 	S_SetReverbType(1);
@@ -868,7 +869,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 				if (ScreenFading == 0 && cutseq_num == 0)
 				{
 #if DEBUG_VERSION
-					if ((RawPad & 0x201) == 0x201)
+					if ((RawPad & (IN_R2 | 1)) == (IN_R2 | 1))
 					{
 						dels_cutseq_selector_flag = 1;
 					}
@@ -893,7 +894,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 			//loc_108A4
 			if (bDoCredits == 0 && CreditsDone)
 			{
-				PrintString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 20, 1, &gfStringWad[gfStringOffset[STR_DEMO_MODE]], 0x8000);
+				PrintString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 20, 1, &gfStringWad[gfStringOffset[STR_DEMO_MODE]], FF_CENTER);
 			}
 			//loc_108EC
 		loc_108EC:
@@ -902,7 +903,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 			if (!PadConnected)
 			{
 				
-				PrintString(SCREEN_WIDTH / 2, (SCREEN_HEIGHT / 2) + 8, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], 0xA000);
+				PrintString(SCREEN_WIDTH / 2, (SCREEN_HEIGHT / 2) + 8, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_UNK13 | FF_CENTER));
 			}
 			//loc_1092C
 			handle_cutseq_triggering(Name);
@@ -1137,7 +1138,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 #else
 				phd_winwidth / 2, phd_winymax - font_height,
 #endif
-				2, &gfStringWad[gfStringOffset[gfLegend]], PRINT_CENTER);
+				2, &gfStringWad[gfStringOffset[gfLegend]], FF_CENTER);
 			gfLegendTime--;
 		}
 
