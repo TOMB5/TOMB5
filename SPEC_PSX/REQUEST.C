@@ -62,7 +62,7 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 	ry = (y - 8) & 0xFFFF;
 
 	GetStringLength(&gfStringWad[gfStringOffset[r->TitleTxt]], (unsigned short*)&top, NULL);
-	PrintString(256, ((y - top) + 2) & 0xFFFF, r->TitleCol, &gfStringWad[gfStringOffset[r->TitleTxt]], 0x8000);
+	PrintString(256, ((y - top) + 2) & 0xFFFF, r->TitleCol, &gfStringWad[gfStringOffset[r->TitleTxt]], FF_CENTER);
 
 	if (r->nOptions != 0)
 	{
@@ -86,11 +86,11 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 					{
 						if (i != r->CursorPos)
 						{
-							PrintString(x & 0xFFFF, y & 0xFFFF, r->OptionCol, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], 0);
+							PrintString(x & 0xFFFF, y & 0xFFFF, r->OptionCol, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], FF_NONE);
 						}//loc_63A34
 						else
 						{
-							PrintString(x & 0xFFFF, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], 0);
+							PrintString(x & 0xFFFF, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], FF_NONE);
 						}
 					}
 					else
@@ -110,12 +110,12 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 							//loc_63AA8
 							if (i == r->CursorPos)
 							{
-								PrintString(((rw + x) - 32) & 0xFFFF, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], 0x4000);
+								PrintString(((rw + x) - 32) & 0xFFFF, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], FF_R_JUSTIFY);
 							}
 							else
 							{
 								//loc_63AD0
-								PrintString(((rw + x) - 32) & 0xFFFF, y & 0xFFFF, r->OptionCol, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], 0x4000);
+								PrintString(((rw + x) - 32) & 0xFFFF, y & 0xFFFF, r->OptionCol, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], FF_R_JUSTIFY);
 							}
 
 							PrintGauge(((rw + x) - 140) & 0xFFFF, (y - 7) & 0xFFFF, val);
@@ -125,11 +125,11 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 							//loc_63B30
 							if (i == r->CursorPos)
 							{
-								PrintString(0x100, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], 0x8000);
+								PrintString(0x100, y & 0xFFFF, 1, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], FF_CENTER);
 							}
 							else
 							{
-								PrintString(0x100, y & 0xFFFF, r->OptionCol, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], 0x8000);
+								PrintString(0x100, y & 0xFFFF, r->OptionCol, &gfStringWad[gfStringOffset[r->OptionTxt[i]]], FF_CENTER);
 							}
 						}
 					}
@@ -139,8 +139,8 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 				{
 					if ((r->Arrows >> i) & 1)
 					{
-						PrintString((rx - 4) & 0xFFFF, y & 0xFFFF, 2, "\x00000019", 0);
-						PrintString(((rx + rw) - 8) & 0xFFFF, y & 0xFFFF, 1, "\x0000001B", 0);
+						PrintString((rx - 4) & 0xFFFF, y & 0xFFFF, 2, "\x00000019", FF_NONE);
+						PrintString(((rx + rw) - 8) & 0xFFFF, y & 0xFFFF, 1, "\x0000001B", FF_NONE);
 					}//loc_63C04
 				}//loc_63C04
 

@@ -175,21 +175,23 @@ int CdPosToInt(CdlLOC* p)
 
 int CdRead(int sectors, u_long* buf, int mode)
 {
-	if (comQueueIndex == COMMAND_QUEUE_SIZE)
-		comQueueIndex = 0;
-
-	comStart[comQueueIndex].mode = CdlReadS;
-	comStart[comQueueIndex].p = (unsigned char*)buf;
-	comStart[comQueueIndex].processed = 0;
-	comStart[comQueueIndex].count = sectors;
-	comQueueCount++;
-	comQueueIndex++;
+	for (int i = 0; i < COMMAND_QUEUE_SIZE; i++)
+	{
+		if (comQueue[i].processed == 1)
+		{
+			comQueue[i].mode = CdlReadS;
+			comQueue[i].p = (unsigned char*)buf;
+			comQueue[i].processed = 0;
+			comQueue[i].count = sectors;
+			break;
+		}
+	}
 	return 0;
 }
 
 int CdReadSync(int mode, u_char* result)
 {
-	for (int i = 0; i < comQueueCount; i++)
+	for (int i = 0; i < COMMAND_QUEUE_SIZE; i++)
 	{
 		if (comQueue[i].processed == 0)
 		{
@@ -234,6 +236,11 @@ int CdInit(void)
 	{
 		eprinterr("Failed to open disc image file! %s\n", DISC_IMAGE_FILENAME);
 		return 0;
+	}
+
+	for (int i = 0; i < COMMAND_QUEUE_SIZE; i++)
+	{
+		comQueue[i].processed = 1;
 	}
 
 	return 1;

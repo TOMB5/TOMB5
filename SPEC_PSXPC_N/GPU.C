@@ -293,10 +293,10 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 	}
 
 	sprintf(&txbuf[0], "TRI %d", ntri);
-	PrintString(34, 220, 3, &txbuf[0], 0);
+	PrintString(34, 220, 3, &txbuf[0], FF_NONE);
 
 	sprintf(&txbuf[0], "QUAD %d", nquad);
-	PrintString(34, 232, 3, &txbuf[0], 0);
+	PrintString(34, 232, 3, &txbuf[0], FF_NONE);
 }
 
 void GPU_FlipStory(unsigned long* gfx)//5E448(<), * (F)

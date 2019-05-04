@@ -32,11 +32,12 @@
 #define DX9 (0)
 #define V_SCALE (1)
 #define VERTEX_COLOUR_MULT (2)
+#define DOUBLE_BUFFERED (1)
 
 #if NTSC_VERSION
-#define COUNTER_UPATE_INTERVAL (263)
+#define COUNTER_UPDATE_INTERVAL (263)
 #else
-#define COUNTER_UPATE_INTERVAL (313)
+#define COUNTER_UPDATE_INTERVAL (313)
 #endif
 
 #if DX9
@@ -112,6 +113,10 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0)
 	{
+#if !DOUBLE_BUFFERED
+		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
+#endif
+
 #if CORE_PROF_3_1
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -154,8 +159,8 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 	}
 
-	SDL_memset(&vram, 0, sizeof(1024 * 512 * 2));
-	SDL_GL_SetSwapInterval(-1);
+	SDL_memset(&vram, 0, sizeof(VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short)));
+	SDL_GL_SetSwapInterval(1);
 
 	Emulator_InitialiseGL();
 	
@@ -266,31 +271,33 @@ int Emulator_InitialiseGameVariables()
 
 void Emulator_CounterLoop()
 {
-	int last_time = SDL_GetTicks();
+	static int numUpdates = 0;
+	int last_time = 0;
 	
 	while (TRUE)
 	{
 		int now = SDL_GetTicks();
-		int delta = now - last_time;
 
-		if (1000 / 60 - delta > 0)
+		if (now > last_time + 1000)
 		{
-			SDL_Delay(1000 / 60 - delta);
+			numUpdates = 0;
+			last_time = now;
 		}
-		else
-		{
-			if (!counters[1].IsStopped)
-			{
-				counters[1].Value += 263;
-			}
 
+		if(numUpdates++ <= 60)
+		{
 			for (int i = 0; i < 3; i++)
 			{
-				if (counters[i].Value >= (counters[i].TargetMode == CTR_MODE_TO_TARG ? counters[i].Target : 0xFFFF))
-					counters[i].Value = 0;
+				//if (!counters[i].IsStopped)
+				{
+					counters[i].cycle += COUNTER_UPDATE_INTERVAL;
+					if (counters[i].target > 0)
+					{
+						counters[i].cycle %= counters[i].target;
+					}
+				}
 			}
 		}
-		last_time = now;
 	}
 }
 
@@ -329,26 +336,26 @@ char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1,
 	//Copy over uvs
 	if (uv0 != NULL)
 	{
-		vertices[0].u0 = ((float)uv0[0]) / 256.0f;
-		vertices[0].v0 = ((float)uv0[1]) / 256.0f;
+		vertices[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
+		vertices[0].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
 	}
 	
 	if (uv1 != NULL)
 	{
-		vertices[1].u0 = ((float)uv1[0]) / 256.0f;
-		vertices[1].v0 = ((float)uv1[1]) / 256.0f;
+		vertices[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH;
+		vertices[1].v0 = ((float)uv1[1]) / TPAGE_WIDTH;
 	}
 	
 	if (uv2 != NULL)
 	{
-		vertices[2].u0 = ((float)uv2[0]) / 256.0f;
-		vertices[2].v0 = ((float)uv2[1]) / 256.0f;
+		vertices[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH;
+		vertices[2].v0 = ((float)uv2[1]) / TPAGE_WIDTH;
 	}
 
 	if (uv3 != NULL)
 	{
-		vertices[3].u0 = ((float)uv3[0]) / 256.0f;
-		vertices[3].v0 = ((float)uv3[1]) / 256.0f;
+		vertices[3].u0 = ((float)uv3[0]) / TPAGE_WIDTH;
+		vertices[3].v0 = ((float)uv3[1]) / TPAGE_WIDTH;
 	}
 
 	return (char*)&vertices[0].u0;
@@ -503,20 +510,16 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 void Emulator_InitialiseGL()
 {
 	//Initialise vertex array
+	glEnable(GL_TEXTURE_2D);
 	memset(&vertices[0].x, 0, sizeof(Vertex) * MAX_NUM_VERTICES);
 	Emulator_GenerateAndBindNullWhite();
 
-//	glPolygonMode(GL_FRONT_AND_BACK, self.command_polygon_mode);
-//	glEnable(GL_SCISSOR_TEST);
-//	glEnable(GL_DEPTH_TEST);
-//	glEnable(GL_DITHER);
-//	glShadeModel(GL_SMOOTH);
-//	glDepthFunc(GL_LEQUAL);
 #if BLEND_MODE
 	glBlendColor(0.25, 0.25, 0.25, 0.5);
 #endif
 	glShadeModel(GL_SMOOTH);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
 }
 
 void Emulator_GenerateAndBindNullWhite()
@@ -533,7 +536,7 @@ void Emulator_CheckTextureIntersection(RECT16* rect)
 {
 	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
 	{
-		if (!(cachedTextures[i].tpageX > rect->x + rect->w || cachedTextures[i].tpageX + 256 < rect->x || cachedTextures[i].tpageY > rect->y + rect->h || cachedTextures[i].tpageY + 256 < rect->y))
+		if (!(cachedTextures[i].tpageX > rect->x + rect->w || cachedTextures[i].tpageX + TPAGE_WIDTH < rect->x || cachedTextures[i].tpageY > rect->y + rect->h || cachedTextures[i].tpageY + TPAGE_HEIGHT < rect->y))
 		{
 			cachedTextures[i].lastAccess = -1;
 			cachedTextures[i].tpageX = -1;
@@ -543,58 +546,54 @@ void Emulator_CheckTextureIntersection(RECT16* rect)
 	}
 }
 
-void Emulator_SaveVRAM(int width, int height)
+void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
 {
 #if NOFILE
 	return;
 #endif
 
-	FILE* f = fopen("VRAM.TGA", "wb");
-
-	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-	unsigned char header[6] = { width % 256, width / 256, height % 256, height / 256,24,0 };
-	char* pixels = new char[width * height * 3];
-	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-
-	fwrite(TGAheader, sizeof(unsigned char), 12, f);
-	fwrite(header, sizeof(unsigned char), 6, f);
-	for (int line = height - 1; line >= 0; line--)
-		fwrite(&pixels[line * width * 3], sizeof(char), width * 3, f);
-	fclose(f);
-	delete[] pixels;
-}
-
-void Emulator_SaveVRAM2(int width, int height)
-{
-#if NOFILE
-	return;
-#endif
-
-	FILE* f = fopen("VRAM.TGA", "wb");
+	FILE* f = fopen(outputFileName, "wb");
 	if (f == NULL)
 	{
 		return;
 	}
 	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 	unsigned char header[6] = { width % 256, width / 256, height % 256, height / 256,16,0 };
-	char* pixels = new char[width * height * 2];
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+	unsigned short* pixels = new unsigned short[width * height];
+
+	if (bReadFromFrameBuffer)
+	{
+		glReadPixels(x, y, width, height, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+	}
+	else
+	{
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+	}
 
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
 	fwrite(header, sizeof(unsigned char), 6, f);
-	for (int line = height - 1; line >= 0; line--)
-		fwrite(&pixels[line * width * 2], sizeof(char), width * 2, f);
+
+	//512 const is hdd sector size
+	int numSectorsToWrite = (width * height * sizeof(unsigned short)) / 512;
+	int numRemainingSectorsToWrite = (width * height * sizeof(unsigned short)) % 512;
+
+	for (int i = 0; i < numSectorsToWrite; i++)
+	{
+		fwrite(&pixels[i * 512 / sizeof(unsigned short)], 512, 1, f);
+	}
+
+	for (int i = 0; i < numRemainingSectorsToWrite; i++)
+	{
+		fwrite(&pixels[numSectorsToWrite * 512 / sizeof(unsigned short)], numRemainingSectorsToWrite, 1, f);
+	}
+
 	fclose(f);
 	delete[] pixels;
 }
 
-int lastTime = 0;
-
 void Emulator_BeginScene()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
@@ -609,8 +608,6 @@ void Emulator_BeginScene()
 			exit(0);
 		}
 	}
-
-	lastTime = SDL_GetTicks();
 }
 
 void Emulator_UpdateInput()
@@ -638,22 +635,25 @@ void Emulator_UpdateInput()
 
 void Emulator_SwapWindow()
 {
+#if DOUBLE_BUFFERED
 	SDL_GL_SwapWindow(g_window);
+#else
+	glFinish();
+#endif
 }
 
 void Emulator_EndScene()
 {
-	glEnable(GL_TEXTURE_2D);
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 512, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-	float x = 1.0f / (1024.0f / (float)(word_33BC.disp.x));
-	float y = 1.0f / (512.0f / (float)(word_33BC.disp.y));
-	float h = 1.0f / (512.0f / (float)(word_33BC.disp.h));
-	float w = 1.0f / (1024.0f / (float)(word_33BC.disp.w));
+	float x = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.x));
+	float y = 1.0f / (VRAM_HEIGHT / (float)(word_33BC.disp.y));
+	float h = 1.0f / (VRAM_HEIGHT / (float)(word_33BC.disp.h));
+	float w = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.w));
 
 	float vertexBuffer[] =
 	{
@@ -670,20 +670,15 @@ void Emulator_EndScene()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	glDisable(GL_LIGHTING);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(0, word_33BC.disp.w, 0, word_33BC.disp.h, -1, 1);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glPopMatrix();
 
 #if _DEBUG
-	Emulator_SaveVRAM2(1024, 512);
+	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, FALSE);
 #endif
 	Emulator_SwapWindow();
 
-	glDisable(GL_TEXTURE_2D);
 	glDeleteTextures(1, &vramTexture);
 }
 
@@ -704,7 +699,6 @@ void Emulator_ShutDown()
 
 void Emulator_GenerateFrameBuffer(GLuint& fbo)
 {
-	fbo = 0;
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 }
@@ -715,11 +709,11 @@ void Emulator_GenerateFrameBufferTexture()
 	unsigned short* dst = &pixelData[0];
 
 	//Read disp env area from vram
-	for (int y = activeDrawEnv.clip.y; y < 512; y++)
+	for (int y = activeDrawEnv.clip.y; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = activeDrawEnv.clip.x; x < 1024; x++)
+		for (int x = activeDrawEnv.clip.x; x < VRAM_WIDTH; x++)
 		{
-			unsigned short* src = vram + (y * 1024 + x);
+			unsigned short* src = vram + (y * VRAM_WIDTH + x);
 
 			if (x >= activeDrawEnv.clip.x && x < activeDrawEnv.clip.x + activeDrawEnv.clip.w &&
 				y >= activeDrawEnv.clip.y && y < activeDrawEnv.clip.y + activeDrawEnv.clip.h)
@@ -746,27 +740,11 @@ void Emulator_GenerateFrameBufferTexture()
 		eprinterr("Frame buffer error");
 	}
 	
-#if _DEBUG && !NOFILE
-	unsigned short* pixelData2 = new unsigned short[activeDrawEnv.clip.w * activeDrawEnv.clip.h];
-	glReadPixels(0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData2);
-
-	FILE* f = fopen("VRAM4.TGA", "wb");
-	if (f != NULL)
-	{
-		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-		unsigned char header[6] = { activeDrawEnv.clip.w % 256, activeDrawEnv.clip.w / 256, activeDrawEnv.clip.h % 256, activeDrawEnv.clip.h / 256,16,0 };
-		fwrite(TGAheader, sizeof(unsigned char), 12, f);
-		fwrite(header, sizeof(unsigned char), 6, f);
-		for (int line = activeDrawEnv.clip.h - 1; line >= 0; line--)
-			fwrite(&pixelData2[line * activeDrawEnv.clip.w], sizeof(short), activeDrawEnv.clip.w, f);
-		fclose(f);
-	}
+#if _DEBUG
+	Emulator_SaveVRAM("VRAM4.TGA", 0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, TRUE);
 #endif
 
 	delete[] pixelData;
-#if _DEBUG && !NOFILE
-	delete[] pixelData2;
-#endif
 }
 
 void Emulator_DeleteFrameBufferTexture()
@@ -829,24 +807,23 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 		case 2:
 		{
 			//ARGB1555
-			unsigned short texturePage[256 * 256];
+			unsigned short texturePage[TPAGE_WIDTH * TPAGE_HEIGHT];
 			unsigned short* dst = &texturePage[0];
 
-			for (int y = tpageY; y < tpageY + 256; y++)
+			for (int y = tpageY; y < tpageY + TPAGE_HEIGHT; y++)
 			{
-				for (int x = tpageX; x < tpageX + 256; x++)
+				for (int x = tpageX; x < tpageX + TPAGE_WIDTH; x++)
 				{
-					unsigned short* src = vram + (y * 1024 + x);
+					unsigned short* src = vram + (y * VRAM_WIDTH + x);
 
-					if (x >= tpageX && x < tpageX + 256 &&
-						y >= tpageY && y < tpageY + 256)
+					if (x >= tpageX && x < tpageX + TPAGE_WIDTH &&
+						y >= tpageY && y < tpageY + TPAGE_HEIGHT)
 					{
 						*dst++ = *src;
 					}
 				}
 
-
-#if !NOFILE
+#if _DEBUG && !NOFILE
 				FILE* f = fopen("TPAGE.TGA", "wb");
 				unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 				unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
@@ -864,17 +841,17 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 		case 1:
 		{
 			//RGBA8888
-			unsigned int texturePage[256 * 256];
+			unsigned int texturePage[TPAGE_WIDTH * TPAGE_HEIGHT];
 			unsigned int* dst = &texturePage[0];
 
-			for (int y = tpageY; y < tpageY + 256; y++)
+			for (int y = tpageY; y < tpageY + TPAGE_HEIGHT; y++)
 			{
-				for (int x = tpageX; x < tpageX + 256; x++)
+				for (int x = tpageX; x < tpageX + TPAGE_WIDTH; x++)
 				{
-					unsigned short* src = vram + (y * 1024 + x);
+					unsigned short* src = vram + (y * VRAM_WIDTH + x);
 
-					if (x >= tpageX && x < tpageX + 256 &&
-						y >= tpageY && y < tpageY + 256)
+					if (x >= tpageX && x < tpageX + TPAGE_WIDTH &&
+						y >= tpageY && y < tpageY + TPAGE_HEIGHT)
 					{
 						*dst++ = 255 << 24 | ((((*src & 0x1F)) << 3) << 16) | ((((*src & 0x3E0) >> 5) << 3) << 8) | ((((*src & 0x7C00) >> 10) << 3));
 					}
@@ -896,7 +873,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 		case 0:
 		{
 			//RGBA4444
-			unsigned int texturePage[256 * 256];
+			unsigned int texturePage[TPAGE_WIDTH * TPAGE_HEIGHT];
 			unsigned int* dst = &texturePage[0];
 			unsigned int clut[16];
 			unsigned int* clutDst = &clut[0];
@@ -912,14 +889,14 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 			}
 
 			//Get Texture
-			for (int y = tpageY; y < tpageY + 256; y++)
+			for (int y = tpageY; y < tpageY + TPAGE_HEIGHT; y++)
 			{
-				for (int x = tpageX; x < tpageX + 256; x++)
+				for (int x = tpageX; x < tpageX + TPAGE_WIDTH; x++)
 				{
-					unsigned short* src = vram + (y * 1024 + x);
+					unsigned short* src = vram + (y * VRAM_WIDTH + x);
 
-					if (x >= tpageX / 4 && x < (tpageX + 256 / 4) &&
-						y >= tpageY && y < tpageY + 256)
+					if (x >= tpageX / 4 && x < (tpageX + TPAGE_WIDTH / 4) &&
+						y >= tpageY && y < tpageY + TPAGE_HEIGHT)
 					{
 						*dst++ = (255 << 24) | (((clut[(*src & 0xF)] & 0xFF0000) >> 16) << 16) | (((clut[(*src & 0xF)] & 0xFF00) >> 8) << 8) | (clut[(*src & 0xF)] & 0xFF);
 						if (((dst[-1] & 0xFF) | ((dst[-1] & 0xFF00) >> 8) | ((dst[-1] & 0xFF0000) >> 16)) == 0)
@@ -985,24 +962,14 @@ void Emulator_DestroyLastVRAMTexture()
 	{
 		for (int x = activeDrawEnv.clip.x; x < activeDrawEnv.clip.x + activeDrawEnv.clip.w; x++)
 		{
-			unsigned short* src = vram + (y * 1024 + x);
+			unsigned short* src = vram + (y * VRAM_WIDTH + x);
 
 			src[0] = *dst++;
 		}
 	}
 
 #if _DEBUG && !NOFILE
-	FILE* f = fopen("VRAM2.TGA", "wb");
-	if (f != NULL)
-	{
-		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-		unsigned char header[6] = { activeDrawEnv.clip.w % 256, activeDrawEnv.clip.w / 256, activeDrawEnv.clip.h % 256, activeDrawEnv.clip.h / 256,16,0 };
-		fwrite(TGAheader, sizeof(unsigned char), 12, f);
-		fwrite(header, sizeof(unsigned char), 6, f);
-		for (int line = activeDrawEnv.clip.h - 1; line >= 0; line--)
-			fwrite(&pixelData[line * activeDrawEnv.clip.w], sizeof(short), activeDrawEnv.clip.w, f);
-		fclose(f);
-	}
+	Emulator_SaveVRAM("VRAM2.TGA", 0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, TRUE);
 #endif
 
 	delete[] pixelData;
