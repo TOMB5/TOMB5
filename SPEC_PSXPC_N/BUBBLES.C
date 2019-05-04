@@ -65,4 +65,36 @@ void SetInventoryLighting(struct MATRIX3D* m)
 
 void DrawMonoScreen(int a0)
 {
+	int i = 0;
+	int j = 0;
+	unsigned long* pp = db.ot;//a2
+	unsigned long t5 = db.ot[2000];
+	char* a00 = db.polyptr;
+
+	//loc_8F17C
+	for(i = 0; i < 4; i++)
+	{
+		//loc_8F180 
+		for (j = 0; j < 8; j++)
+		{
+			((int*)a00)[2] = 0;
+			((int*)a00)[3] = a0 | 0x64000000;
+			((int*)a00)[4] = ((i << 6) << 16) | (j << 6);
+			((int*)a00)[6] = 0x400040;
+
+			((int*)a00)[0] = t5 | 0x6000000;
+			((int*)a00)[1] = (((j << 6) >> 8) + 13) | 0xE1000610;
+			((short*)a00)[10] = (((i << 6) & 0xFF) << 8) | ((j << 6) & 0xFF);
+			((short*)a00)[11] = (ClutStartY << 6) | 0x3C;
+
+			t5 = (unsigned long)db.polyptr;
+			a00 += 0x1C;//TODO actual polytype
+		}
+		j = 0;
+	}
+
+	db.ot[2000] = (unsigned long)pp;
+	db.polyptr = (char*)a00;
+
+	return;
 }
