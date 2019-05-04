@@ -20,11 +20,9 @@ typedef struct commandQueue
 	unsigned int count;
 };
 
-#define COMMAND_QUEUE_SIZE 256
+#define COMMAND_QUEUE_SIZE 128
 
 commandQueue comQueue[COMMAND_QUEUE_SIZE];
-commandQueue* comStart = &comQueue[0];
-commandQueue* comEnd = &comQueue[COMMAND_QUEUE_SIZE-1];
 int comQueueIndex = 0;
 int comQueueCount = 0;
 int currentSector = 0;
