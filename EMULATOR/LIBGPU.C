@@ -153,8 +153,13 @@ u_long* ClearOTag(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-	//Last is special terminator
+#if _WIN32 || _WIN64
+	//First is special terminator
+	ot[n-1] = (unsigned long)&terminator;
+#else
+	//First is special terminator
 	ot[n-1] = (unsigned long)terminator;
+#endif
 
 	if (n > 1)
 	{
@@ -172,8 +177,13 @@ u_long* ClearOTagR(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
+#if _WIN32 || _WIN64
+	//First is special terminator
+	ot[0] = (unsigned long)&terminator;
+#else
 	//First is special terminator
 	ot[0] = (unsigned long)terminator;
+#endif
 
 	if (n > 1)
 	{

@@ -62,16 +62,15 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 	int nPolys;
 	static int nWorstPolys;
 
-	nPolys = ((int) &db.polyptr[0] - (int) &db.curpolybuf[0]) * 0x4EC4EC4F / 16 - (((long) &db.polyptr[0] - (long) &db.curpolybuf[0]) >> 31);
+	nPolys = (((unsigned long)db.polyptr - (unsigned long)db.curpolybuf) * 0x4EC4EC4F) >> 4 - ((unsigned long)db.polyptr - (unsigned long)db.curpolybuf) >> 31;
 
-	if (psxtextinfo->u2v2pad < nPolys)
+	if (nWorstPolys < nPolys)
 	{
-		psxtextinfo->u2v2pad = nPolys;
+		nWorstPolys = nPolys;
 	}
-
-	//loc_5E020
 #endif
 
+	//loc_5E020
 	OptimiseOTagR(&db.ot[0], db.nOTSize);
 
 #if DEBUG_VERSION
@@ -81,6 +80,7 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 #endif
 
 	Emulator_EndScene();
+
 	return;
 }
 
@@ -164,10 +164,10 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 	}
 
 	//loc_5E1F8
-	data = (unsigned long*)otstart[0];
+	data = (unsigned long*)(otstart[0] & 0xFFFFFF);
 	ntri = 0;
 
-	if (((unsigned long)data & 0xFFFFFF) != 0xFFFFFF)
+	if ((unsigned long)data != 0xFFFFFF)
 	{
 		do
 		{
@@ -282,7 +282,9 @@ void do_gfx_debug_mode(unsigned long* otstart)//5E1B4(<) ? (F)
 					}
 				}//loc_5E3C4
 			}
-		}while (data[0] != 0xFFFFFF);
+
+			data = (unsigned long*)(data[0] & 0xFFFFFF);
+		}while ((unsigned long)data != 0xFFFFFF);
 		//loc_5E3C4
 	}
 
