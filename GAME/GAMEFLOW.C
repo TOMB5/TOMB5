@@ -432,23 +432,18 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	}
 }
 
-void LoadGameflow()//102E0, 102B0
+void LoadGameflow()//102E0(<), 102B0(<) (F)
 {
-	char* s = NULL;
-	int len = 0;
-	int j = 0;
-	int i = 0;
+	int i;
+	int len;
+	unsigned char* s;
 	struct STRINGHEADER sh;
-
-	int num_strings, wad_len;
-
-	unsigned char* sequenceCommand;
-	int endOfSequence;
-	unsigned char op;
+	int j;
+	int flag;
 
 #if PSX_VERSION || PSXPC_VERSION
 	len = FILE_Length(GF_SCRIPT_FILENAME);
-	s = game_malloc(len);
+	s = (unsigned char*)game_malloc(len);
 	FILE_Load(GF_SCRIPT_FILENAME, s);
 #endif
 
@@ -460,240 +455,144 @@ void LoadGameflow()//102E0, 102B0
 	Gameflow = (struct GAMEFLOW*)s;
 	s += sizeof(struct GAMEFLOW);
 
-	gfExtensions = s;
-	s += 0x28;
+	gfExtensions = (char*)s;
+	s += 40;
+
+	i = 0;
 
 	gfFilenameOffset = (unsigned short*)s;
 	s += Gameflow->nFileNames * sizeof(unsigned short);
 
-	gfFilenameWad = s;
+	gfFilenameWad = (char*)s;
 	s += Gameflow->FileNameLen;
 
 	gfScriptOffset = (unsigned short*)s;
-	s += Gameflow->nLevels * sizeof(unsigned short);
 
 #if !PC_VERSION
-	gfScriptLen = len;
+	gfScriptLen = (len + 3) & -4;
 #endif
-	gfScriptWad = (unsigned char*)s;
+	s += Gameflow->nLevels * sizeof(unsigned short);
+
+	gfScriptWad = s;
 	s += Gameflow->ScriptLen;
 
-	//Align
-	gfStringOffset = (unsigned short*)((uintptr_t)(s) + 3 & -4);
+	gfStringOffset = (unsigned short*)(((uintptr_t)s + 3) & -4);
 
-#if CORE_UNSAFE
-	//This is original code, unsafe (if no lang loc files exist on disk)
-	while (FILE_Length(s) == -1)
+	//loc_103A8
+	while (FILE_Length((char*)s) == -1)
 	{
-		//Null terminated
-		s += strlen(s) + 1;
+		s += strlen((char*)s) + 1;
 		i++;
 	}
-#else
-	//Safer code (no inf loop).
-	for (i = 0; i < NUM_GF_LANGUAGES; i++)
-	{
-#if PC_VERSION
-		gfStringOffset = NULL;
-		if (LoadFile((char*)s, (void**)&gfStringOffset))
-#else
-		if (FILE_Length((char*)s) != -1)
-#endif
-		{
-			break;
-		}
 
-		//Null terminated
-		s += strlen((char*)s) + 1;
-	}
-#endif
-
-	Gameflow->Language = i;
+	Gameflow->Language = 0;
+	Gameflow->Language = (i & 7);
 
 #if !PC_VERSION
 	FILE_Load((char*)s, gfStringOffset);
 #endif
 
-	memcpy(&sh, gfStringOffset, sizeof(struct STRINGHEADER));
+	memcpy(&sh, &gfStringOffset[0], sizeof(struct STRINGHEADER));
 
-#if PC_VERSION
-	num_strings = sh.nStrings + sh.nPSXStrings + sh.nPCStrings;
-	wad_len = sh.StringWadLen + sh.PSXStringWadLen + sh.PCStringWadLen;
+#if PSX_VERSION || PSXPC_VERSION
+
+	memcpy(&gfStringOffset[0], &gfStringOffset[sizeof(struct STRINGHEADER) / sizeof(unsigned short)], (sh.nStrings + sh.nPSXStrings) * sizeof(unsigned short));
+
+	gfStringWad = (char*)&gfStringOffset[sh.nStrings + sh.nPSXStrings];
+
+#if BETA_VERSION
+	memcpy(&gfStringOffset[sh.nStrings + sh.nPSXStrings], &gfStringOffset[317], sh.StringWadLen + sh.PSXStringWadLen);
 #else
-	num_strings = sh.nStrings + sh.nPSXStrings;
-	wad_len = sh.StringWadLen + sh.PSXStringWadLen;
+	memcpy(&gfStringOffset[sh.nStrings + sh.nPSXStrings], &gfStringOffset[315], sh.StringWadLen + sh.PSXStringWadLen);
 #endif
 
-	memcpy(gfStringOffset, gfStringOffset + (sizeof(struct STRINGHEADER) / sizeof(unsigned short)), num_strings * sizeof(unsigned short));
+	gfScriptLen += (((sh.nStrings + sh.nPSXStrings * sizeof(unsigned short)) + sh.StringWadLen + sh.PSXStringWadLen + 3) & -4);
 
-	gfStringWad = (char*)(gfStringOffset + num_strings);
+#else
+	memcpy(&gfStringOffset[0], &gfStringOffset[sizeof(struct STRINGHEADER) / sizeof(unsigned short)], (sh.nStrings + sh.nPSXStrings + sh.nPCStrings) * sizeof(unsigned short));
 
-	memcpy(gfStringWad, gfStringOffset + NUM_STRING_ENTRIES + (sizeof(struct STRINGHEADER) / sizeof(unsigned short)), wad_len);
+	gfStringWad = (char*)&gfStringOffset[sh.nStrings + sh.nPSXStrings + sh.nPCStrings];
 
-	gfScriptLen += (((num_strings * sizeof(unsigned short) + wad_len) + 3) & -4);
+	memcpy(&gfStringOffset[sh.nStrings + sh.nPSXStrings], &gfStringOffset[315], sh.StringWadLen + sh.PSXStringWadLen + sh.PCStringWadLen);///@TODO check 315 const for PC
 
-	if (num_strings != 0)
+	gfScriptLen += (((sh.nStrings + sh.nPSXStrings + sh.nPCStrings * sizeof(unsigned short)) + sh.StringWadLen + sh.PSXStringWadLen + sh.PCStringWadLen + 3) & -4);
+
+#endif
+
+	//loc_10490
+	for (i = 0; i < sh.nStrings + sh.nPSXStrings; i++)
 	{
-		unsigned char* stringPtr = (unsigned char*)gfStringWad;//s?
-
-		for (i = 0; i < num_strings; i++)
+		for (j = 0; j < gfStringOffset[i + 1] - gfStringOffset[i] - 1; j++)
 		{
-			int next = i + 1 == num_strings ? wad_len : gfStringOffset[i + 1];
-			int stringLength = (next - gfStringOffset[i]) - 1;
-			if (stringLength > 0)
-			{
-				for (j = 0; j < stringLength; j++)
-				{
-					stringPtr[j] ^= 0xA5;
-				}
-			}
-
-			stringPtr += stringLength + 1;
+			gfStringWad[gfStringOffset[i] + j] ^= 0xA5;
 		}
-	}
+		//loc_104DC
+	}//loc_104F8
 
 	if (Gameflow->nLevels != 0)
 	{
-		sequenceCommand = gfScriptWad;
-		for (i = 0; i < Gameflow->nLevels; i++)
+		//loc_10510
+		for (i = 0; i + 1 < Gameflow->nLevels; i++)
 		{
-			endOfSequence = 0;
+			flag = 0;
+			s = &gfScriptWad[gfScriptOffset[i]];
 
-			while (!endOfSequence)
+			//loc_10530
+			do
 			{
-				op = *sequenceCommand;
-				sequenceCommand++;
-
-				switch (op)
+				switch (*s++)
 				{
-				case GF_LEVEL:
-					gfLevelNames[i] = *sequenceCommand;
-					sequenceCommand += 5;
-					break;
-
-				case GF_TITLE_LEVEL:
-
-				case GF_LAYER1:
-				case GF_LAYER2:
-					sequenceCommand += 4;
-					break;
-
-				case GF_LEVEL_DATA_END:
-					endOfSequence = 1;
-					break;
-
 				case GF_FMV:
 				case GF_CUT:
-
 				case GF_RESIDENTCUT1:
 				case GF_RESIDENTCUT2:
 				case GF_RESIDENTCUT3:
 				case GF_RESIDENTCUT4:
-
 				case GF_UV_ROTATE:
 				case GF_LEGEND:
 				case GF_ANIMATING_MIP:
 				case GF_RESET_HUB:
-					sequenceCommand += 1;
+					//loc_10568
+					s += 1;
+					break;
+				case GF_LEVEL:
+					//loc_10588
+					gfLevelNames[i] = *s;
+					gfWadNames[i] = s[3];
+					s += 5;
+					break;
+				case GF_TITLE_LEVEL:
+				case GF_LAYER1:
+				case GF_LAYER2:
+					//loc_10578
+					s += 4;
+					break;
+				case GF_LEVEL_DATA_END:
+					//loc_105BC
+					flag = 1;
 					break;
 				case GF_LENS_FLARE:
-					sequenceCommand += 9;
+					//loc_105B4
+					s += 9;
 					break;
 				case GF_MIRROR:
-					sequenceCommand += 5;
+					//loc_10580
+					s += 5;
 					break;
 				case GF_FOG:
-					sequenceCommand += 3;
-					break;
-
-				case GF_KEY_ITEM1:
-				case GF_KEY_ITEM2:
-				case GF_KEY_ITEM3:
-				case GF_KEY_ITEM4:
-				case GF_KEY_ITEM5:
-				case GF_KEY_ITEM6:
-				case GF_KEY_ITEM7:
-				case GF_KEY_ITEM8:
-				case GF_KEY_ITEM9:
-				case GF_KEY_ITEM10:
-				case GF_KEY_ITEM11:
-				case GF_KEY_ITEM12:
-
-				case GF_PUZZLE_ITEM1:
-				case GF_PUZZLE_ITEM2:
-				case GF_PUZZLE_ITEM3:
-				case GF_PUZZLE_ITEM4:
-				case GF_PUZZLE_ITEM5:
-				case GF_PUZZLE_ITEM6:
-				case GF_PUZZLE_ITEM7:
-				case GF_PUZZLE_ITEM8:
-				case GF_PUZZLE_ITEM9:
-				case GF_PUZZLE_ITEM10:
-				case GF_PUZZLE_ITEM11:
-				case GF_PUZZLE_ITEM12:
-
-				case GF_PICKUP_ITEM1:
-				case GF_PICKUP_ITEM2:
-				case GF_PICKUP_ITEM3:
-				case GF_PICKUP_ITEM4:
-				case GF_EXAMINE1:
-				case GF_EXAMINE2:
-				case GF_EXAMINE3:
-
-				case GF_KEY_ITEM1_COMBO1:
-				case GF_KEY_ITEM1_COMBO2:
-				case GF_KEY_ITEM2_COMBO1:
-				case GF_KEY_ITEM2_COMBO2:
-				case GF_KEY_ITEM3_COMBO1:
-				case GF_KEY_ITEM3_COMBO2:
-				case GF_KEY_ITEM4_COMBO1:
-				case GF_KEY_ITEM4_COMBO2:
-				case GF_KEY_ITEM5_COMBO1:
-				case GF_KEY_ITEM5_COMBO2:
-				case GF_KEY_ITEM6_COMBO1:
-				case GF_KEY_ITEM6_COMBO2:
-				case GF_KEY_ITEM7_COMBO1:
-				case GF_KEY_ITEM7_COMBO2:
-				case GF_KEY_ITEM8_COMBO1:
-				case GF_KEY_ITEM8_COMBO2:
-
-				case GF_PUZZLE_ITEM1_COMBO1:
-				case GF_PUZZLE_ITEM1_COMBO2:
-				case GF_PUZZLE_ITEM2_COMBO1:
-				case GF_PUZZLE_ITEM2_COMBO2:
-				case GF_PUZZLE_ITEM3_COMBO1:
-				case GF_PUZZLE_ITEM3_COMBO2:
-				case GF_PUZZLE_ITEM4_COMBO1:
-				case GF_PUZZLE_ITEM4_COMBO2:
-				case GF_PUZZLE_ITEM5_COMBO1:
-				case GF_PUZZLE_ITEM5_COMBO2:
-				case GF_PUZZLE_ITEM6_COMBO1:
-				case GF_PUZZLE_ITEM6_COMBO2:
-				case GF_PUZZLE_ITEM7_COMBO1:
-				case GF_PUZZLE_ITEM7_COMBO2:
-				case GF_PUZZLE_ITEM8_COMBO1:
-				case GF_PUZZLE_ITEM8_COMBO2:
-
-				case GF_PICKUP_ITEM1_COMBO1:
-				case GF_PICKUP_ITEM1_COMBO2:
-				case GF_PICKUP_ITEM2_COMBO1:
-				case GF_PICKUP_ITEM2_COMBO2:
-				case GF_PICKUP_ITEM3_COMBO1:
-				case GF_PICKUP_ITEM3_COMBO2:
-				case GF_PICKUP_ITEM4_COMBO1:
-				case GF_PICKUP_ITEM4_COMBO2:
-
-				case GF_GIVE_ITEM_AT_STARTUP:
-				case GF_LOSE_ITEM_AT_STARTUP:
-					sequenceCommand += 2;
+					//loc_10570
+					s += 3;
 					break;
 				default:
-					sequenceCommand += 2;
+					//def_10560
+					s += 2;
 					break;
 				}
-			}
+
+			} while (flag == 0);
 		}
 	}
+	//loc_105EC
 }
 
 void QuickControlPhase()//10274(<), 10264(<) (F) (*) (D) (ND)
