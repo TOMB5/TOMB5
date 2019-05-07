@@ -458,8 +458,6 @@ void LoadGameflow()//102E0(<), 102B0(<) (F)
 	gfExtensions = (char*)s;
 	s += 40;
 
-	i = 0;
-
 	gfFilenameOffset = (unsigned short*)s;
 	s += Gameflow->nFileNames * sizeof(unsigned short);
 
@@ -479,14 +477,12 @@ void LoadGameflow()//102E0(<), 102B0(<) (F)
 	gfStringOffset = (unsigned short*)(((uintptr_t)s + 3) & -4);
 
 	//loc_103A8
-	while (FILE_Length((char*)s) == -1)
+	for(i = 0; FILE_Length((char*)s) == -1; i++)
 	{
 		s += strlen((char*)s) + 1;
-		i++;
 	}
 
-	Gameflow->Language = 0;
-	Gameflow->Language = (i & 7);
+	Gameflow->Language = i;
 
 #if !PC_VERSION
 	FILE_Load((char*)s, gfStringOffset);
@@ -583,6 +579,79 @@ void LoadGameflow()//102E0(<), 102B0(<) (F)
 					//loc_10570
 					s += 3;
 					break;
+				case GF_KEY_ITEM1:
+				case GF_KEY_ITEM2:
+				case GF_KEY_ITEM3:
+				case GF_KEY_ITEM4:
+				case GF_KEY_ITEM5:
+				case GF_KEY_ITEM6:
+				case GF_KEY_ITEM7:
+				case GF_KEY_ITEM8:
+				case GF_KEY_ITEM9:
+				case GF_KEY_ITEM10:
+				case GF_KEY_ITEM11:
+				case GF_KEY_ITEM12:
+				case GF_PUZZLE_ITEM1:
+				case GF_PUZZLE_ITEM2:
+				case GF_PUZZLE_ITEM3:
+				case GF_PUZZLE_ITEM4:
+				case GF_PUZZLE_ITEM5:
+				case GF_PUZZLE_ITEM6:
+				case GF_PUZZLE_ITEM7:
+				case GF_PUZZLE_ITEM8:
+				case GF_PUZZLE_ITEM9:
+				case GF_PUZZLE_ITEM10:
+				case GF_PUZZLE_ITEM11:
+				case GF_PUZZLE_ITEM12:
+				case GF_PICKUP_ITEM1:
+				case GF_PICKUP_ITEM2:
+				case GF_PICKUP_ITEM3:
+				case GF_PICKUP_ITEM4:
+				case GF_EXAMINE1:
+				case GF_EXAMINE2:
+				case GF_EXAMINE3:
+				case GF_KEY_ITEM1_COMBO1:
+				case GF_KEY_ITEM1_COMBO2:
+				case GF_KEY_ITEM2_COMBO1:
+				case GF_KEY_ITEM2_COMBO2:
+				case GF_KEY_ITEM3_COMBO1:
+				case GF_KEY_ITEM3_COMBO2:
+				case GF_KEY_ITEM4_COMBO1:
+				case GF_KEY_ITEM4_COMBO2:
+				case GF_KEY_ITEM5_COMBO1:
+				case GF_KEY_ITEM5_COMBO2:
+				case GF_KEY_ITEM6_COMBO1:
+				case GF_KEY_ITEM6_COMBO2:
+				case GF_KEY_ITEM7_COMBO1:
+				case GF_KEY_ITEM7_COMBO2:
+				case GF_KEY_ITEM8_COMBO1:
+				case GF_KEY_ITEM8_COMBO2:
+				case GF_PUZZLE_ITEM1_COMBO1:
+				case GF_PUZZLE_ITEM1_COMBO2:
+				case GF_PUZZLE_ITEM2_COMBO1:
+				case GF_PUZZLE_ITEM2_COMBO2:
+				case GF_PUZZLE_ITEM3_COMBO1:
+				case GF_PUZZLE_ITEM3_COMBO2:
+				case GF_PUZZLE_ITEM4_COMBO1:
+				case GF_PUZZLE_ITEM4_COMBO2:
+				case GF_PUZZLE_ITEM5_COMBO1:
+				case GF_PUZZLE_ITEM5_COMBO2:
+				case GF_PUZZLE_ITEM6_COMBO1:
+				case GF_PUZZLE_ITEM6_COMBO2:
+				case GF_PUZZLE_ITEM7_COMBO1:
+				case GF_PUZZLE_ITEM7_COMBO2:
+				case GF_PUZZLE_ITEM8_COMBO1:
+				case GF_PUZZLE_ITEM8_COMBO2:
+				case GF_PICKUP_ITEM1_COMBO1:
+				case GF_PICKUP_ITEM1_COMBO2:
+				case GF_PICKUP_ITEM2_COMBO1:
+				case GF_PICKUP_ITEM2_COMBO2:
+				case GF_PICKUP_ITEM3_COMBO1:
+				case GF_PICKUP_ITEM3_COMBO2:
+				case GF_PICKUP_ITEM4_COMBO1:
+				case GF_PICKUP_ITEM4_COMBO2:
+				case GF_GIVE_ITEM_AT_STARTUP:
+				case GF_LOSE_ITEM_AT_STARTUP:
 				default:
 					//def_10560
 					s += 2;
@@ -605,7 +674,7 @@ void QuickControlPhase()//10274(<), 10264(<) (F) (*) (D) (ND)
 #endif
 
 #if PSX_VERSION || PSXPC_VERSION
-	gfStatus = ControlPhase(nframes, (gfGameMode ^ 2) == 0 ? 1 : 0);
+	gfStatus = ControlPhase(nframes, gfGameMode == 2);
 #else
 	gfStatus = ControlPhase(nframes, 0);
 #endif
@@ -863,7 +932,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 #endif
 
 	NoInput = 0;
-	///S_SoundStopAllSamples(); //Bug, infinite loop on PSX?
+	S_SoundStopAllSamples(); //Bug, infinite loop on PSX?
 	S_CDStop();
 	bUseSpotCam = 0;
 	bDisableLaraControl = 0;
