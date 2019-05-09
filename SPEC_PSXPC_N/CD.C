@@ -385,40 +385,32 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F) (*) (D)
 
 	if (mode == 0)
 	{
-		if (current_cd_mode == 0)
+		if (current_cd_mode != 0)
 		{
-			return;
+			current_cd_mode = 0;
+			param[0] = CdlModeSpeed;
+			CdControlB(CdlSetmode, param, NULL);
+			VSync(3);
 		}
-		
-		current_cd_mode = 0;
-
-		param[0] = CdlModeSpeed;
-		CdControlB(CdlSetmode, param, NULL);
-		VSync(3);
 	}
 	else if (mode == 1)
 	{
 		//loc_5DEF8
-		if (current_cd_mode == mode)
+		if (current_cd_mode != 1)
 		{
-			return;
+			current_cd_mode = mode;
 		}
-		
-		current_cd_mode = mode;
 	}
 	else if (mode == 2)
 	{
 		//loc_5DF20
-		if (current_cd_mode == mode)
+		if (current_cd_mode != 2)
 		{
-			return;
+			current_cd_mode = mode;
+			param[0] = CdlModeSpeed;
+			CdControlB(CdlSetmode, param, NULL);
+			VSync(3);
 		}
-
-		current_cd_mode = mode;
-		
-		param[0] = CdlModeSpeed;
-		CdControlB(CdlSetmode, param, NULL);
-		VSync(3);
 	}
 
 	//loc_5DF58
