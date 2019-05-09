@@ -149,102 +149,118 @@ const char* screens[5] =
 
 void DoGameflow()//10F5C(<), 10FD8(<)
 {
-	//unsigned char* gf;
-	//unsigned char n;
-	unsigned char op;
-	unsigned short* scriptOffsetPtr;
-	unsigned char* sequenceCommand;
+	unsigned char* gf; // $a3
+	unsigned char n; // $a1
 
-#if PSXENGINE
 	LoadGameflow();
-#endif
 
 #if DISC_VERSION && PSX_VERSION && PLAY_FMVS
 	S_PlayFMV(FMV_COPYRIGHT_INTRO, 0);
 	S_PlayFMV(FMV_GAME_INTRO, 0);
 #endif
 
-#if PC_VERSION
-	do_boot_screen(Gameflow->Language);
-	// todo
-#endif
-
+	//v1 = Gameflow
 	num_fmvs = 0;
-	fmv_to_play[0] = 0;
 	fmv_to_play[1] = 0;
+	fmv_to_play[0] = 0;
 
-	//The game's title is disabled in Gameflow script. Automatically override the level id to 1 (skip it).
-	gfCurrentLevel = Gameflow->TitleEnabled ? LVL5_TITLE : LVL5_STREETS_OF_ROME;
+	gfCurrentLevel = Gameflow->TitleEnabled == 0;
+	//v1 = gfCurrentLevel
+	//v1 = &gfScriptOffset[gfCurrentLevel]
+	//a0 = gfScriptOffset[gfCurrentLevel]
+	//v0 = &gfScriptWad[0]
 
-	//Current level's script offset
-	scriptOffsetPtr = gfScriptOffset + (gfCurrentLevel & 0xFF);
-	sequenceCommand = gfScriptWad + *scriptOffsetPtr;
+	gf = &gfScriptWad[gfScriptOffset[gfCurrentLevel]];
 
-	while (1)//?
+	while (1)
 	{
-		op = *sequenceCommand++;
-		switch (op)
+		switch (n = *gf++)
 		{
+		case GF_FMV:
+#if PLAY_FMVS
+			fmv_to_play[num_fmvs++] = *gf++;
+#else
+			gf++;
+#endif
+			break;
 		case GF_LEVEL:
-		{
-			gfLevelFlags = sequenceCommand[1] | (sequenceCommand[2] << 8);
+
+			gfLevelFlags = gf[1] | (gf[2] << 8);
+
 			if ((gfLevelFlags & 0x8000))
 			{
-				gfStatus = 0x3E7;
-				++gfCurrentLevel;
-			}//loc_112E4
-
-			DoLevel(sequenceCommand[3], sequenceCommand[4]);
-
+				gfStatus = 999;
+				gfCurrentLevel++;
+			}
+			else
+			{
+				//loc_112E4
+				DoLevel(gf[3], gf[4]);
+			}
 			//loc_112F8
+
 			gfLegendTime = 0;
 			LaserSight = 0;
 			BinocularRange = 0;
-			((int*)&gfResidentCut)[0] = 0;
+			gfResidentCut[0] = 0;///@CHECK in asm it's *(int*)&gfResidentCut[0] = 0, check if optimised to this
+			gfResidentCut[1] = 0;
+			gfResidentCut[2] = 0;
+			gfResidentCut[3] = 0;
 			gfUVRotate = 0;
 			gfNumMips = 0;
 			gfNumPickups = 0;
-			gfMirrorRoom = -1;
+			gfMirrorRoom = 255;
 
-			if (gfStatus == 2)
+			if (gfStatus != 2)
+			{
+				if (gfStatus < 3)
+				{
+					if (gfStatus == 1)
+					{
+						//loc_11364
+						gfInitialiseGame = 1;
+						gfCurrentLevel = Gameflow->TitleEnabled == 0;
+					}
+				}
+				else
+				{
+					//loc_11348
+					if (gfStatus == 3)
+					{
+						//loc_1138C
+						if (!Gameflow->DemoDisc && Gameflow->nLevels != 2 && gfLevelComplete <= Gameflow->nLevels)
+						{
+							//loc_11460
+							gfCurrentLevel = gfLevelComplete;
+						}
+						//loc_113CC
+						gfCurrentLevel = 0;
+					}
+					else if (gfStatus == 4)
+					{
+						//loc_115DC
+						return;
+					}
+				}
+			}
+			else
 			{
 				//loc_1146C
 				gfGameMode = 4;
 				gfCurrentLevel = savegame.CurrentLevel;
-				sequenceCommand = &gfScriptWad[gfScriptOffset[gfCurrentLevel]];
 			}
-			else if (gfStatus == 3)
-			{
-				//loc_1138C
-				if (Gameflow->DemoDisc || Gameflow->nLevels == 2 || Gameflow->nLevels < gfLevelComplete)
-				{
-					gfCurrentLevel = LVL5_TITLE;
-				}
-				else if (Gameflow->nLevels > gfLevelComplete)
-				{
-					gfCurrentLevel = gfLevelComplete;
-				}
-			}
-			else if (gfStatus == 4)
-			{
-				//loc_115DC
-				return;
-			}
-			else if (gfStatus == 1)
-			{
-				//loc_11364
-				gfInitialiseGame = gfStatus;//Possible optimisation since gfStatus is 1?
-				gfCurrentLevel = Gameflow->TitleEnabled < 1 ? 1 : 0;
-			}
-
+			//loc_11480
+			gf = &gfScriptWad[gfScriptOffset[gfCurrentLevel]];
 			break;
-		}
-		case GF_TITLE_LEVEL://IB = 113D8, 11488
-		{
-			gfLevelFlags = (sequenceCommand[0] | (sequenceCommand[1] << 8));
-			DoTitle(sequenceCommand[2], sequenceCommand[3]);
+		case GF_TITLE_LEVEL:
+
+			gfLevelFlags = gf[0] | (gf[1] << 8);
+			DoTitle(gf[2], gf[3]);
 			gfMirrorRoom = 255;
-			((int*)&gfResidentCut)[0] = 0;
+			gfResidentCut[0] = 0;///@CHECK in asm it's *(int*)&gfResidentCut[0] = 0, check if optimised to this
+			gfResidentCut[1] = 0;
+			gfResidentCut[2] = 0;
+			gfResidentCut[3] = 0;
 			gfUVRotate = 0;
 			gfNumMips = 0;
 			gfNumPickups = 0;
@@ -254,181 +270,271 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 				//loc_11450
 				gfGameMode = 0;
 				gfInitialiseGame = 1;
-				Gameflow->SecurityTag = gfLevelComplete;
+				gfCurrentLevel = gfLevelComplete;
 			}
-			else if (gfStatus > 3)
+			else if (gfStatus < 4)
 			{
-				//loc_1143C
-				if (gfStatus == 4)
+				if (gfStatus == 2)
 				{
-					//loc_115DC
-					return;
+					//loc_11470
+					gfGameMode = 4;
+					gfCurrentLevel = savegame.CurrentLevel;
 				}
 			}
-			else if (gfStatus == 2)
+			else if (gfStatus == 4)
 			{
-				//loc_11470
-				gfGameMode = 4;
-				Gameflow->SecurityTag = savegame.CurrentLevel;
+				//loc_115DC
+				return;
 			}
-
 			//loc_11480
-			sequenceCommand = &gfScriptWad[gfScriptOffset[Gameflow->SecurityTag]];
+			gf = &gfScriptWad[gfScriptOffset[gfCurrentLevel]];
 			break;
-		}
-		case GF_LEVEL_DATA_END://11048
-		{
+		case GF_LEVEL_DATA_END:
+			continue;
 			break;
-		}
-		case GF_RESIDENTCUT1://112B8
-		{
-			gfResidentCut[0] = *sequenceCommand++;
-			break;
-		}
-		case GF_RESIDENTCUT2://112CC
-		{
-			gfResidentCut[1] = *sequenceCommand++;
-			break;
-		}
-		case GF_RESIDENTCUT3:
-		{
-			gfResidentCut[2] = *sequenceCommand++;
-			break;
-		}
-		case GF_RESIDENTCUT4://112F4
-		{
-			gfResidentCut[3] = *sequenceCommand++;
-			break;
-		}
-		case GF_LAYER1://1107C
-		{
-			int a2 = 10;//?
-			int a1 = 10;//?
-
-			LightningRGB[0] = *sequenceCommand;
-			LightningRGBs[0] = *sequenceCommand;
-			gfLayer2Col.r = *sequenceCommand++;
-
-#if BETA_VERSION
-			GameTimer = 46;
-#else
-			GameTimer = 44;
-#endif
-			LightningRGB[1] = *sequenceCommand;
-			LightningRGBs[1] = *sequenceCommand;
-			gfLayer2Col.g = *sequenceCommand++;
-
-			GlobalRoomNumber = *sequenceCommand;
-			//GLOBAL_gunflash_meshptr = *sequenceCommand;
-			gfLayer1Col.cd = *sequenceCommand++;
-			gfLayer1Vel = *sequenceCommand++;
-			break;
-		}
-		case GF_FOG:
-		{
-			gfUVRotate = *sequenceCommand++;
-			break;
-		}
-		case GF_LEGEND:
-		{
-			gfLegend = *sequenceCommand++;
-			if (gfGameMode != 4)
-				gfLegendTime = 150;
-			break;
-		}
-		case GF_ANIMATING_MIP:
-		{
-			gfMips[gfNumMips++] = *sequenceCommand++;
-			break;
-		}
-		case GF_GIVE_ITEM_AT_STARTUP:
-		{
-			gfPickups[gfNumPickups++] = sequenceCommand[0] | (sequenceCommand[1] << 8);
-			sequenceCommand += 2;
-			break;
-		}
-		case GF_LOSE_ITEM_AT_STARTUP:
-		{
-			gfTakeaways[gfNumTakeaways++] = sequenceCommand[0] | (sequenceCommand[1] << 8);
-			sequenceCommand += 2;
-			break;
-		}
-		case GF_MIRROR:
-		{
-			gfMirrorRoom = *sequenceCommand++;
-			gfMirrorZPlane = *(int*)sequenceCommand;///@FIXME illegal operation here?
-			sequenceCommand += 4;
-			break;
-		}
 		case GF_CUT:
-		{
-			gfCutNumber = *sequenceCommand++;
+			gfCutNumber = *gf++;
 			break;
-		}
+		case GF_RESIDENTCUT1:
+			gfResidentCut[0] = *gf++;
+			break;
+		case GF_RESIDENTCUT2:
+			gfResidentCut[1] = *gf++;
+			break;
+		case GF_RESIDENTCUT3:
+			gfResidentCut[2] = *gf++;
+			break;
+		case GF_RESIDENTCUT4:
+			gfResidentCut[3] = *gf++;
+			break;
+		case GF_LAYER1:
+			LightningRGB[0] = *gf;
+			LightningRGBs[0] = *gf;
+			gfLayer1Col.r = *gf++;
+
+			LightningRGB[1] = *gf;
+			LightningRGBs[1] = *gf;
+			gfLayer1Col.g = *gf++;
+
+			gfLayer1Col.cd = 44;
+			LightningRGB[2] = *gf;
+			LightningRGBs[2] = *gf;
+			gfLayer1Col.b = *gf++;
+
+			gfLayer1Vel = *gf++;
+			break;
+		case GF_LAYER2:
+			LightningRGB[0] = *gf;
+			LightningRGBs[0] = *gf;
+			gfLayer2Col.r = *gf++;
+
+			LightningRGB[1] = *gf;
+			LightningRGBs[1] = *gf;
+			gfLayer2Col.g = *gf++;
+
+			gfLayer2Col.cd = 46;
+			LightningRGB[2] = *gf;
+			LightningRGBs[2] = *gf;
+			gfLayer2Col.b = *gf++;
+
+			gfLayer2Vel = *gf++;
+			break;
+		case GF_UV_ROTATE:
+			gfUVRotate = *gf++;
+			break;
+		case GF_LEGEND:
+			gfLegend = *gf++;
+			if (gfGameMode != 4)
+			{
+				gfLegendTime = 150;
+			}
+			break;
+		case GF_LENS_FLARE:
+
+			gfLensFlare.x = ((gf[1] << 8) | gf[0]) << 8;
+			gfLensFlare.y = ((gf[2] | (gf[3] << 8)) << 16) >> 8;
+			gfLensFlare.z = ((gf[5] << 8) | gf[4]) << 8;
+
+			gfLensFlareColour.r = gf[6];
+			gfLensFlareColour.g = gf[7];
+			gfLensFlareColour.b = gf[8];
+
+			gf += 9;
+			break;
+		case GF_MIRROR:
+			gfMirrorRoom = *gf;
+			gfMirrorZPlane = (gf[4] << 24) | (gf[3] << 16) | (gf[2] << 8) | gf[1];
+			gf += 5;
+			break;
+		case GF_FOG:
+			gf += 3;
+			break;
+		case GF_ANIMATING_MIP:
+			//loc_111DC:
+			gfMips[gfNumMips++] = *gf++;
+			break;
 		case GF_RESET_HUB:
-		{
-			gfResetHubDest = *sequenceCommand++;
+			//loc_11290:
+			gfResetHubDest = *gf++;
 			break;
-		}
-		case GF_FMV:
-		{
-			fmv_to_play[num_fmvs++] = *sequenceCommand++;
-			break;
-		}
 		case GF_KEY_ITEM1:
 		case GF_KEY_ITEM2:
+		case GF_KEY_ITEM3:
+		case GF_KEY_ITEM4:
+		case GF_KEY_ITEM5:
+		case GF_KEY_ITEM6:
+		case GF_KEY_ITEM7:
+		case GF_KEY_ITEM8:
+		case GF_KEY_ITEM9:
+		case GF_KEY_ITEM10:
+		case GF_KEY_ITEM11:
+		case GF_KEY_ITEM12:
 		case GF_PUZZLE_ITEM1:
 		case GF_PUZZLE_ITEM2:
 		case GF_PUZZLE_ITEM3:
+		case GF_PUZZLE_ITEM4:
+		case GF_PUZZLE_ITEM5:
+		case GF_PUZZLE_ITEM6:
+		case GF_PUZZLE_ITEM7:
+		case GF_PUZZLE_ITEM8:
+		case GF_PUZZLE_ITEM9:
+		case GF_PUZZLE_ITEM10:
+		case GF_PUZZLE_ITEM11:
+		case GF_PUZZLE_ITEM12:
 		case GF_PICKUP_ITEM1:
 		case GF_PICKUP_ITEM2:
+		case GF_PICKUP_ITEM3:
+		case GF_PICKUP_ITEM4:
+		case GF_EXAMINE1:
+		case GF_EXAMINE2:
+		case GF_EXAMINE3:
+		case GF_KEY_ITEM1_COMBO1:
+		case GF_KEY_ITEM1_COMBO2:
+		case GF_KEY_ITEM2_COMBO1:
+		case GF_KEY_ITEM2_COMBO2:
+		case GF_KEY_ITEM3_COMBO1:
+		case GF_KEY_ITEM3_COMBO2:
+		case GF_KEY_ITEM4_COMBO1:
+		case GF_KEY_ITEM4_COMBO2:
+		case GF_KEY_ITEM5_COMBO1:
+		case GF_KEY_ITEM5_COMBO2:
+		case GF_KEY_ITEM6_COMBO1:
+		case GF_KEY_ITEM6_COMBO2:
+		case GF_KEY_ITEM7_COMBO1:
+		case GF_KEY_ITEM7_COMBO2:
+		case GF_KEY_ITEM8_COMBO1:
+		case GF_KEY_ITEM8_COMBO2:
+		case GF_PUZZLE_ITEM1_COMBO1:
+		case GF_PUZZLE_ITEM1_COMBO2:
 		case GF_PUZZLE_ITEM2_COMBO1:
 		case GF_PUZZLE_ITEM2_COMBO2:
-		{
+		case GF_PUZZLE_ITEM3_COMBO1:
+		case GF_PUZZLE_ITEM3_COMBO2:
+		case GF_PUZZLE_ITEM4_COMBO1:
+		case GF_PUZZLE_ITEM4_COMBO2:
+		case GF_PUZZLE_ITEM5_COMBO1:
+		case GF_PUZZLE_ITEM5_COMBO2:
+		case GF_PUZZLE_ITEM6_COMBO1:
+		case GF_PUZZLE_ITEM6_COMBO2:
+		case GF_PUZZLE_ITEM7_COMBO1:
+		case GF_PUZZLE_ITEM7_COMBO2:
+		case GF_PUZZLE_ITEM8_COMBO1:
+		case GF_PUZZLE_ITEM8_COMBO2:
+		case GF_PICKUP_ITEM1_COMBO1:
+		case GF_PICKUP_ITEM1_COMBO2:
+		case GF_PICKUP_ITEM2_COMBO1:
+		case GF_PICKUP_ITEM2_COMBO2:
+		case GF_PICKUP_ITEM3_COMBO1:
+		case GF_PICKUP_ITEM3_COMBO2:
+		case GF_PICKUP_ITEM4_COMBO1:
+		case GF_PICKUP_ITEM4_COMBO2:
+		default:
 			//def_10FE0
-			int invobj;//a1
-
-			if (((op + 0x6E) & 0xFF) < 8)
+			if (((n + 0x6E) & 0xFF) < 8)
 			{
-				invobj = (op + 0xA3) & 0xFF;
+				inventry_objects_list[(n + 0xA3) & 0xFF].objname = gf[0] | (gf[1] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].yoff = gf[2] | (gf[3] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].scale1 = gf[4] | (gf[5] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].yrot = gf[6] | (gf[7] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].xrot = gf[8] | (gf[9] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].zrot = gf[10] | (gf[11] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].flags = gf[12] | (gf[13] << 8);
 			}
-			else if (((op + 0x62) & 0xFF) < 8)
+			else if (((n + 0x62) & 0xFF) < 8)
 			{
-				invobj = (op + 0x7F) & 0xFF;
+				inventry_objects_list[(n + 0x7F) & 0xFF].objname = gf[0] | (gf[1] << 8);
+				inventry_objects_list[(n + 0x7F) & 0xFF].yoff = gf[2] | (gf[3] << 8);
+				inventry_objects_list[(n + 0x7F) & 0xFF].scale1 = gf[4] | (gf[5] << 8);
+				inventry_objects_list[(n + 0x7F) & 0xFF].yrot = gf[6] | (gf[7] << 8);
+				inventry_objects_list[(n + 0x7F) & 0xFF].xrot = gf[8] | (gf[9] << 8);
+				inventry_objects_list[(n + 0x7F) & 0xFF].zrot = gf[10] | (gf[11] << 8);
+				inventry_objects_list[(n + 0x7F) & 0xFF].flags = gf[12] | (gf[13] << 8);
 			}
-			else if (((op + 0x56) & 0xFF) < 4)
+			else if (((n + 0x56) & 0xFF) < 4)
 			{
-				invobj = (op + 0xA3) & 0xFF;
+				inventry_objects_list[(n + 0xA3) & 0xFF].objname = gf[0] | (gf[1] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].yoff = gf[2] | (gf[3] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].scale1 = gf[4] | (gf[5] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].yrot = gf[6] | (gf[7] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].xrot = gf[8] | (gf[9] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].zrot = gf[10] | (gf[11] << 8);
+				inventry_objects_list[(n + 0xA3) & 0xFF].flags = gf[12] | (gf[13] << 8);
 			}
-			else if (((op + 0x52) & 0xFF) < 3)
+			else if (((n + 0x52) & 0xFF) < 3)
 			{
-				invobj = (op + 0xAD) & 0xFF;
+				inventry_objects_list[(n + 0xAD) & 0xFF].objname = gf[0] | (gf[1] << 8);
+				inventry_objects_list[(n + 0xAD) & 0xFF].yoff = gf[2] | (gf[3] << 8);
+				inventry_objects_list[(n + 0xAD) & 0xFF].scale1 = gf[4] | (gf[5] << 8);
+				inventry_objects_list[(n + 0xAD) & 0xFF].yrot = gf[6] | (gf[7] << 8);
+				inventry_objects_list[(n + 0xAD) & 0xFF].xrot = gf[8] | (gf[9] << 8);
+				inventry_objects_list[(n + 0xAD) & 0xFF].zrot = gf[10] | (gf[11] << 8);
+				inventry_objects_list[(n + 0xAD) & 0xFF].flags = gf[12] | (gf[13] << 8);
 			}
-			else if (((op + 0x4F) & 0xFF) < 16)
+			else if (((n + 0x4F) & 0xFF) < 16)
 			{
-				invobj = (op + 0x8C) & 0xFF;
+				inventry_objects_list[(n + 0x8C) & 0xFF].objname = gf[0] | (gf[1] << 8);
+				inventry_objects_list[(n + 0x8C) & 0xFF].yoff = gf[2] | (gf[3] << 8);
+				inventry_objects_list[(n + 0x8C) & 0xFF].scale1 = gf[4] | (gf[5] << 8);
+				inventry_objects_list[(n + 0x8C) & 0xFF].yrot = gf[6] | (gf[7] << 8);
+				inventry_objects_list[(n + 0x8C) & 0xFF].xrot = gf[8] | (gf[9] << 8);
+				inventry_objects_list[(n + 0x8C) & 0xFF].zrot = gf[10] | (gf[11] << 8);
+				inventry_objects_list[(n + 0x8C) & 0xFF].flags = gf[12] | (gf[13] << 8);
 			}
-			else if (((op + 0x3F) & 0xFF) < 16)
+			else if (((n + 0x3F) & 0xFF) < 16)
 			{
-				invobj = (op + 0x64) & 0xFF;
+				inventry_objects_list[(n + 0x64) & 0xFF].objname = gf[0] | (gf[1] << 8);
+				inventry_objects_list[(n + 0x64) & 0xFF].yoff = gf[2] | (gf[3] << 8);
+				inventry_objects_list[(n + 0x64) & 0xFF].scale1 = gf[4] | (gf[5] << 8);
+				inventry_objects_list[(n + 0x64) & 0xFF].yrot = gf[6] | (gf[7] << 8);
+				inventry_objects_list[(n + 0x64) & 0xFF].xrot = gf[8] | (gf[9] << 8);
+				inventry_objects_list[(n + 0x64) & 0xFF].zrot = gf[10] | (gf[11] << 8);
+				inventry_objects_list[(n + 0x64) & 0xFF].flags = gf[12] | (gf[13] << 8);
 			}
-			else if (((op + 0x2F) & 0xFF) < 8)
+			else if (((n + 0x2F) & 0xFF) < 8)
 			{
-				invobj = (op + 0x80) & 0xFF;
+				inventry_objects_list[(n + 0x80) & 0xFF].objname = gf[0] | (gf[1] << 8);
+				inventry_objects_list[(n + 0x80) & 0xFF].yoff = gf[2] | (gf[3] << 8);
+				inventry_objects_list[(n + 0x80) & 0xFF].scale1 = gf[4] | (gf[5] << 8);
+				inventry_objects_list[(n + 0x80) & 0xFF].yrot = gf[6] | (gf[7] << 8);
+				inventry_objects_list[(n + 0x80) & 0xFF].xrot = gf[8] | (gf[9] << 8);
+				inventry_objects_list[(n + 0x80) & 0xFF].zrot = gf[10] | (gf[11] << 8);
+				inventry_objects_list[(n + 0x80) & 0xFF].flags = gf[12] | (gf[13] << 8);
 			}
-
-			inventry_objects_list[invobj].objname = sequenceCommand[0] | (sequenceCommand[1] << 8);
-			inventry_objects_list[invobj].yoff = sequenceCommand[2] | (sequenceCommand[3] << 8);
-			inventry_objects_list[invobj].scale1 = sequenceCommand[4] | (sequenceCommand[5] << 8);
-			inventry_objects_list[invobj].yrot = sequenceCommand[6] | (sequenceCommand[7] << 8);
-			inventry_objects_list[invobj].xrot = sequenceCommand[8] | (sequenceCommand[9] << 8);
-			inventry_objects_list[invobj].zrot = sequenceCommand[10] | (sequenceCommand[11] << 8);
-			inventry_objects_list[invobj].flags = sequenceCommand[12] | (sequenceCommand[13] << 8);
-
-			sequenceCommand += 0xE;
+			gf += 14;
+			break;
+		case GF_GIVE_ITEM_AT_STARTUP:
+			//loc_11198
+			gfPickups[gfNumPickups++] = *gf;
+			gf += 2;
+			break;
+		case GF_LOSE_ITEM_AT_STARTUP:
+			//loc_111BC
+			gfTakeaways[gfNumTakeaways++] = *gf;
+			gf += 2;
 			break;
 		}
-		}
+
+		//loc_10FB4
 	}
 }
 
@@ -654,8 +760,8 @@ void LoadGameflow()//102E0(<), 102B0(<) (F)
 				case GF_PICKUP_ITEM3_COMBO2:
 				case GF_PICKUP_ITEM4_COMBO1:
 				case GF_PICKUP_ITEM4_COMBO2:
-				case GF_GIVE_ITEM_AT_STARTUP:
-				case GF_LOSE_ITEM_AT_STARTUP:
+				case GF_GIVE_ITEM_AT_STARTUP:///@CHECKME
+				case GF_LOSE_ITEM_AT_STARTUP:///@CHECKME
 				default:
 					//def_10560
 					s += 2;
