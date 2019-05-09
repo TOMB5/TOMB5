@@ -516,7 +516,11 @@ void LoadGameflow()//102E0(<), 102B0(<) (F)
 #endif
 
 	//loc_10490
+#if PSX_VERSION || PSXPC_VERSION
 	for (i = 0; i < sh.nStrings + sh.nPSXStrings; i++)
+#else
+	for (i = 0; i < sh.nStrings + sh.nPSXStrings + sh.nPCStrings; i++)
+#endif
 	{
 		for (j = 0; j < gfStringOffset[i + 1] - gfStringOffset[i] - 1; j++)
 		{
