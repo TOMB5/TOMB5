@@ -113,7 +113,7 @@ S_DrawGouraudBar:
 	li      a2, 0x828250
 	lui     a3, 0xA0
 	jal     DelLine
-	li      a3, 0xA0A0A0
+	or      a3, 0xA0A0
 	or      a0, t3, t4
 	jal     DelLine
 	or      a1, s0, t4
