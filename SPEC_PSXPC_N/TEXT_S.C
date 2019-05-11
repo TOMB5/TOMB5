@@ -607,6 +607,11 @@ void DrawChar(unsigned short x, unsigned short y, unsigned short colourFlag, str
 	}//locret_8DED4
 }
 
+void draw_outlines()
+{
+	UNIMPLEMENTED();
+}
+
 void UpdatePulseColour()//8E0F8(<), 9013C(<) (F)
 {
 	int i;
