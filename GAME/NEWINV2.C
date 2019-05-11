@@ -27,6 +27,12 @@
 #include "LOADSAVE.H"
 #include "CD.H"
 #include "GPU.H"
+#include "SFX.H"
+#include "MEMCARD.H"
+#include "PROFILE.H"
+#include "MISC.H"
+#include "TEXT_S.H"
+#include "DRAWOBJ.H"
 #endif
 
 #if PSX_VERSION
@@ -276,38 +282,139 @@ void do_playstation_button_prompts_v1()//416E0, 41B34
 {
 	if (examine_mode)
 	{
-		//auto i = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem;
-		// to be continued
+		//v1 = rings[0]
 	}
-	else
-	{
-		if (stats_mode)
-		{
-			
-		}
-		else
-		{
-			if (ammo_active)
-			{
-				
-			}
-			else
-			{
-				if (GLOBAL_invkeypadmode)
-				{
-					
-				}
-				else
-				{
-					if(rings[RING_AMMO]->ringactive)
-					{
-						
-					}
-				}
-			}
-		}
-	}
-	UNIMPLEMENTED();
+	//loc_41774
+#if 0
+				 lw      $v1, 0x3178($gp)
+				 nop
+				 lw      $a0, 0x260($v1)
+				 nop
+				 sll     $v0, $a0, 1
+				 addu    $v0, $a0
+				 sll     $v0, 1
+				 addu    $v1, $v0
+				 lh      $a0, 0($v1)
+				 li      $v0, 0x5C
+				 bne     $a0, $v0, loc_41784
+				 li      $a0, 0x100
+				 li      $a0, 0x10
+				 li      $a1, 0xE8
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x8A($v0)
+				 li      $a2, 5
+				 sw      $zero, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+				 li      $a0, 0x1F0
+				 li      $a1, 0xE8
+				 li      $a2, 5
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x192($v0)
+				 j       loc_417A4
+				 li      $v0, 0x4000
+
+				 loc_41774:
+			 lh      $v0, 0x576($gp)
+				 nop
+				 beqz    $v0, loc_417B8
+				 li      $a0, 0x100
+
+				 loc_41784 :
+				 li      $a1, 0xE8
+				 li      $a2, 5
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x18C($v0)
+				 li      $v0, 0x8000
+
+				 loc_417A4:
+			 sw      $v0, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+				 j       loc_418D8
+				 nop
+
+				 loc_417B8 :
+			 lbu     $v0, 0x31C8($gp)
+				 nop
+				 beqz    $v0, loc_417E4
+				 li      $a0, 0x10
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x8C($v0)
+				 j       loc_41868
+				 li      $a1, 0xE8
+
+				 loc_417E4:
+			 lw      $v0, 0x584($gp)
+				 nop
+				 beqz    $v0, loc_41838
+				 li      $a1, 0xE8
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x92($v0)
+				 li      $a2, 5
+				 sw      $zero, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+				 li      $a0, 0xC8
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x94($v0)
+				 j       loc_41868
+				 li      $a1, 0xE8
+
+				 loc_41838:
+			 lw      $v0, 0x317C($gp)
+				 nop
+				 lw      $v1, 0x258($v0)
+				 nop
+				 beqz    $v1, loc_41880
+				 li      $a0, 0x10
+				 li      $a1, 0xE8
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x90($v0)
+
+				 loc_41868:
+			 li      $a2, 5
+				 sw      $zero, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+				 j       loc_418AC
+				 li      $a0, 0x1F0
+
+				 loc_41880:
+			 li      $a1, 0xE8
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x8E($v0)
+				 li      $a2, 5
+				 sw      $zero, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+				 li      $a0, 0x1F0
+
+				 loc_418AC:
+			 li      $a1, 0xE8
+				 li      $a2, 5
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x192($v0)
+				 li      $v0, 0x4000
+				 sw      $v0, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+
+				 loc_418D8 :
+			 lw      $ra, 0x20 + var_8($sp)
+				 nop
+				 jr      $ra
+				 addiu   $sp, 0x20
+#endif
 }
 
 void S_DrawPickup(short object_number)//41608(<), 41A5C(<) (F)
@@ -1957,19 +2064,321 @@ void init_new_inventry()//3C024, 3C478 (F)
 
 int S_CallInventory2()//3B7A8, 3BC04
 {
-	UNIMPLEMENTED();
-#if 0
-	short flag; // $s2
-	int return_value; // $s3
-	{ // line 291, offset 0x3bd3c
-		int val; // $s0
-	} // line 335, offset 0x3be20
-	{ // line 387, offset 0x3bf3c
-		short room_number; // stack offset -32
-		struct ITEM_INFO* item; // $s0
-		int val; // $a1
-	} // line 415, offset 0x3c000
+#if PSX_VERSION || PSXPC_VERSION
+	short flag;
+	int return_value;
+	int val;
+	short room_number;
+	struct ITEM_INFO* item;
+
+	flag = 0;
+
+	if (gfCurrentLevel - 4 < 4)
+	{
+		inventry_objects_list[3].objname = STR_DESERTEAGLE;
+		inventry_objects_list[4].objname = STR_DESERTEAGLE_LASERSIGHT;
+		inventry_objects_list[17].objname = STR_DESERTEAGLE_AMMO;
+	}
+	else
+	{
+		//loc_3B7FC
+		inventry_objects_list[3].objname = STR_REVOLVER;
+		inventry_objects_list[4].objname = STR_REVOLVER_LASERSIGHT;
+		inventry_objects_list[17].objname = STR_REVOLVER_AMMO;
+	}
+
+	if (gfCurrentLevel - 0xB < 4)
+	{
+		inventry_objects_list[24].objname = STR_HEADSET;
+	}
+	else
+	{
+		inventry_objects_list[24].objname = STR_BINOCULARS;
+	}
+
+	//loc_3B848
+	_bullshitbollox = 0;
+
+	if (lara.gun_status == 1)
+	{
+		_bullshitbollox = 1;
+	}
+
+	//loc_3B870
+	bullshitbollox = 1;
+
+	SOUND_Stop();
+	SoundEffect(SFX_MENU_SELECT, NULL, 2);
+	S_SetReverbType(1);
+	friggrimmer = 0;
+	oldLaraBusy = lara.Busy;
+
+	if ((input & IN_SELECT))
+	{
+		friggrimmer = 1;
+	}
+
+	//loc_3B8C4
+	Motors[1] = 0;
+	Motors[0] = 0;
+
+	if (Gameflow->LoadSaveEnabled)
+	{
+		mcOpen(0);
+	}
+	//loc_3B900
+	XAFadeRate = 32;
+	XAReqVolume = 0;
+
+#if DEBUG_VERSION
+	ProfileDraw = 0;
 #endif
 
+	while (XAVolume != 0)
+	{
+		//loc_3B928
+		XAReqVolume = 0;
+	}//loc_3B944
+
+	S_CDPause();
+	DrawSync(0);
+
+	ClearOTagR(db.order_table[0], db.nOTSize);
+	return_value = 0;
+	ClearOTagR(db.order_table[1], db.nOTSize);
+	rings[RING_INVENTORY] = (struct RINGME*)&GadwPolygonBuffers[51748];
+	rings[RING_AMMO] = (struct RINGME*)&GadwPolygonBuffers[51236];
+	MGSaveGamePtr = (char*)&GadwPolygonBuffers[49188];
+
+	init_new_inventry();
+	camera.number_frames = 2;
+
+	//v0 = 0x80
+	if (!reset_flag)
+	{
+		//loc_3B9BC
+		while (!reset_flag)
+		{
+			OBJLIST_SPACING = 128;
+
+			XAReqVolume = 0;
+			GPU_BeginScene();
+			SetDebounce = 1;
+			S_UpdateInput();
+			input = inputBusy;
+			UpdatePulseColour();
+
+			GameTimer++;
+
+			if (!ammo_active && !rings[1]->ringactive && go_deselect)
+			{
+				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+			}//loc_3BA54
+
+			if ((dbinput & IN_OPTION))
+			{
+				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				flag = 1;
+			}//loc_3BA7C
+
+			if (!PadConnected)
+			{
+				PrintString(SCREEN_WIDTH / 2, 232, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_UNK13));
+				input = 0;
+				left_debounce = 0;
+				right_debounce = 0;
+				up_debounce = 0;
+				down_debounce = 0;
+				go_left = 0;
+				go_right = 0;
+				go_up = 0;
+				go_down = 0;
+				select_debounce = 0;
+				deselect_debounce = 0;
+				go_select = 0;
+				go_deselect = 0;
+				left_repeat = 0;
+				right_repeat = 0;
+			}
+			//loc_3BAFC
+			InitObjGTE();
+			do_debounced_joystick_poo();
+			draw_outlines();
+			if (rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem == INV_SMALLMEDI_ITEM &&
+				(RawPad & (IN_DPAD_UP | IN_R1 | IN_L2 | IN_R2 | IN_L1)))
+			{
+				dels_give_lara_guns_cheat();
+			}
+			//loc_3BB64
+			if (rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem == INV_BIGMEDI_ITEM &&
+				RawPad & (IN_DPAD_DOWN | IN_L2 | IN_R2 | IN_L1 | IN_R1))
+			{
+				dels_give_lara_items_cheat();
+			}//loc_3BBB4
+
+			if (GLOBAL_invkeypadmode)
+			{
+				do_keypad_mode();
+			}
+			else if (examine_mode)
+			{
+				//loc_3BC3C
+				do_examine_mode();
+
+				if (stats_mode)
+				{
+					do_stats_mode();
+				}
+			}
+			else if (stats_mode)
+			{
+				//loc_3BC54
+				do_stats_mode();
+			}
+			else
+			{
+				draw_current_object_list(0);
+				handle_inventry_menu();
+				if (rings[RING_AMMO]->ringactive)
+				{
+					draw_current_object_list(1);
+				}
+				//loc_3BC24
+				draw_ammo_selector();
+				fade_ammo_selector();
+			}
+
+			//loc_3BC5C
+			if (PadConnected)
+			{
+				do_playstation_button_prompts_v1();
+			}
+			//loc_3BC78
+
+			if (use_the_bitch && !input)
+			{
+				flag = 1;
+			}//loc_3BC9C
+
+			if (!(input & IN_SELECT))
+			{
+				bullshitbollox = 0;
+			}
+
+			//loc_3BCAC
+			if (use_the_bitch && rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem - 0x16 < 2
+				&& !bullshitbollox && _bullshitbollox)
+			{
+				flag = 1;
+			}
+			//loc_3BD18
+			GPU_EndScene();
+			camera.number_frames = S_DumpScreen();
+
+			if (loading_or_saving)
+			{
+				//loc_3BD3C
+				do
+				{
+					GPU_BeginScene();
+					val = 0;
+					SetDebounce = 1;
+					S_UpdateInput();
+					input = inputBusy;
+					UpdatePulseColour();
+					draw_outlines();
+
+					if (!PadConnected)
+					{
+						PrintString(SCREEN_WIDTH / 2, 64, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_UNK13));
+					}//loc_3BDB4
+
+					if (loading_or_saving == 1)
+					{
+						val = go_and_load_game();
+					}
+					else
+					{
+						//loc_3BDD4
+						if (go_and_save_game())
+						{
+							val = 1;
+						}
+					}
+					//loc_3BDE8
+					GPU_EndScene();
+					S_DumpScreen();
+
+				} while (val == 0);
+
+				//v0 = 1
+				if (val == 1 && loading_or_saving == val)
+				{
+					return_value = 1;
+					flag = 1;
+				}
+				//loc_3BE20
+				friggrimmer2 = 1;
+				friggrimmer = 1;
+				deselect_debounce = 0;
+				go_deselect = 0;
+				loading_or_saving = 0;
+			}
+			//loc_3BE34
+			if (flag)
+			{
+				break;
+			}
+		}
+	}
+	//loc_3BE50
+	InitialisePickUpDisplay();
+	GLOBAL_lastinvitem = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem;
+	update_laras_weapons_status();
+
+	if (use_the_bitch && GLOBAL_invkeypadmode == 0)
+	{
+		use_current_item();
+	}
+	//loc_3BEB4
+
+	XAFadeRate = 8;
+	XAReqVolume = XAMasterVolume;
+	S_CDRestart();
+
+	if (Gameflow->LoadSaveEnabled)
+	{
+		mcClose();
+	}
+
+#if DEBUG_VERSION
+	ProfileDraw = 1;
+#endif
+	lara.Busy - oldLaraBusy;
+
+	if (GLOBAL_invkeypadmode)
+	{
+		GLOBAL_invkeypadmode = 0;
+
+		if (keypadnuminputs == 4)
+		{
+			val = ((((keypadinputs[0] << 5) - keypadinputs[0]) << 2) + keypadinputs[0]) << 3;
+			val += ((((keypadinputs[1] << 1) + keypadinputs[1]) << 3) + keypadinputs[1]) << 2;
+			val += ((keypadinputs[2] << 2) + keypadinputs[2]) << 1;
+			val += keypadinputs[3];
+		}//loc_3BFA0
+
+		if (GLOBAL_invkeypadcombination == 0)
+		{
+			item = lara_item;
+			room_number = item->room_number;
+			GetHeight(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number), item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+			TestTriggers(trigger_index, 1, 0);
+		}//loc_3C004
+	}//loc_3C000
+
+	return return_value;
+#else
 	return -1;
+#endif
 }
