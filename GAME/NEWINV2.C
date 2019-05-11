@@ -1415,9 +1415,90 @@ void spinback(unsigned short* cock)//3F094, 3F4E8 (F)
 	}
 }
 
-void draw_ammo_selector()//3EDDC, 3F230
+void draw_ammo_selector()//3EDDC(<), 3F230(<) (F)
 {
-	UNIMPLEMENTED();
+	int n;
+	int xpos;
+	short yrot;
+	struct INVOBJ* objme;
+	char cunter[256];
+
+	if (ammo_selector_flag)
+	{
+		xpos = SCREEN_WIDTH - OBJLIST_SPACING;
+
+		if (num_ammo_slots == 2)
+		{
+			xpos -= (OBJLIST_SPACING + (OBJLIST_SPACING >> 31)) >> 1;
+		}
+		else if (num_ammo_slots == 3)
+		{
+			//loc_3EE40
+			xpos -= OBJLIST_SPACING;
+		}
+		//loc_3EE4C
+
+		if (num_ammo_slots != 0)
+		{
+			//loc_3EE74
+			for(n = 0; n < num_ammo_slots; n++)
+			{
+				objme = &inventry_objects_list[ammo_object_list[n].invitem];
+
+				if (n == current_ammo_type[0])
+				{
+					if ((objme->flags & 2))
+					{
+						ammo_object_list[n].yrot += 0x3FE;
+					}//loc_3EECC
+				}
+				else
+				{
+					//loc_3EEC0
+					///spinback(&ammo_object_list[n].yrot);
+				}
+				//loc_3EECC
+				yrot = ammo_object_list[n].yrot;
+
+				if (n == current_ammo_type[0])
+				{
+					if (ammo_object_list[n].amount == -1)
+					{
+						sprintf(&cunter[0], &gfStringWad[gfStringOffset[STR_UNLIMITED]], &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[n].invitem].objname]]);
+					}
+					else
+					{
+						//loc_3EF48
+						sprintf(&cunter[0], "%d x %s", ammo_object_list[n].amount, &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[n].invitem].objname]]);
+					}
+
+					//loc_3EF90
+					if (ammo_selector_fade_val != 0)
+					{
+						PrintString(SCREEN_WIDTH / 2, 165, 8, &cunter[0], FF_CENTER);
+					}//loc_3EFB8
+
+					if (n == current_ammo_type[0])
+					{
+						DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[0].amount, ammo_selector_fade_val, 0, yrot, 0, 0, 0);
+					}
+					else
+					{
+						//loc_3F00C
+						DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[0].amount, ammo_selector_fade_val, 0, yrot, 0, 1, 0);
+					}
+				}
+				else
+				{
+					//loc_3F00C
+					DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[0].amount, ammo_selector_fade_val, 0, yrot, 0, 1, 0);
+				}
+
+				//loc_3F048
+				xpos += OBJLIST_SPACING;
+			}
+		}//loc_3F068
+	}//loc_3F068
 }
 
 void fade_ammo_selector()//3ED08, 3F15C (F)
@@ -1867,9 +1948,10 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 	UNIMPLEMENTED();
 }
 
-void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay)//3C43C, 3C890
+void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay)//3C43C(<), 3C890(<) (F)
 {
-	UNIMPLEMENTED();
+	struct ITEM_INFO item; // stack offset -176
+	struct INVOBJ* objme; // $s1
 }
 
 void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
