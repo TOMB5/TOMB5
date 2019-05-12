@@ -88,7 +88,9 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F) (*) () (D) (D)
 	 * [SETUP.BIN]
 	 * [SETUP.REL]
 	 */
+#if RELOC
 	RelocateModule((unsigned long)SetupPtr, (unsigned long*)(*mod + (unsigned long)SetupPtr));
+#endif
 
 #if DISC_VERSION
 	#if RELOC

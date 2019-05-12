@@ -945,9 +945,10 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 	return;
 }
 
+#if !PSX_VERSION || PSXPC_TEST
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#if PSXENGINE//GetBoundsAccurate illegal, crash.
+#if 0//GetBoundsAccurate illegal, crash.
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -1374,6 +1375,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 #endif
 	return;
 }
+#endif
 
 void LookCamera(struct ITEM_INFO* item)
 {

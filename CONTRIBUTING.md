@@ -2,15 +2,15 @@
 
 Pull requests which drastically alter the structure or architecture of the code will not be accepted. This is to maintain "sanity" whilst going back through code, comparing to the original MIPS disassembled output.
 
-If you're able to code in C or C++ please feel free to contact me. I can assign you tasks to prevent collisions with my local code which is not pushed yet. I'm typically looking for pull requests which resolve bugs, finish existing decompiled methods, improve readability, introduce new decompiled methods and improve documentation.
+If you're able to program in C or C++ please feel free to contact me. I can assign you tasks to prevent collisions with my local code which is not pushed yet. I'm typically looking for pull requests which resolve bugs, finish existing decompiled methods, improve readability, introduce new decompiled methods and improve code documentation.
 
 ## Code Formatting
 ```C
 int main()//10064(<), 10064(<) (F) (*) (D) (ND)
 ```
 Methods are organised as follows:
-- The address on the left is the address of the function in the internal beta version.
-- The address on the right is the address of the function in the final version.
+- The address on the left is the address of the function in the PSX internal beta version.
+- The address on the right is the address of the function in the PSX final version.
 - The arrows "(<)" pointing to the address specify whether the code for this method belongs to that specific version
 - Then follows some markers.
 
@@ -22,13 +22,13 @@ Markers are as follows:
 
 ## Current Positions
 
-- MIPS R3000 Programmer/Interpreter - Translate TR5 PSX MIPS Disassembled output back to C.
-- PSX Emulator Programmer - Help improve the PSX emulator for PSXPC_N code path.
+- MIPS r3000a Programmer/Interpreter - Translate TR5 PSX MIPS disassembled output back to C.
+- PSX HLE Emulator Programmer - Help improve the PSX emulator for PSXPC_N code path.
 - x86 Programmer/Interpreter - Translate TR5 PC x86 asm back to C. 
 - SH4 Programmer/Interpreter - Translate TR5 Dreamcast SH4 asm back to C. 
 - PPC Programmer/Interpreter - Translate TR5 Mac PPC asm back to C. 
-- Platform Programmer (Mac) - (Maintain and ensure that PSXPC code compiles under Mac OSX).
-- Platform Programmer (Linux) - (Maintain and ensure that PSXPC code compiles under Linux).
+- Platform Programmer (Mac) - (Maintain and ensure that PSXPC_N code compiles under Mac OSX).
+- Platform Programmer (Linux) - (Maintain and ensure that PSXPC_N code compiles under Linux).
 - Code Analyser (ASM - PSX) - Compare compiled code to the original to help detect any possible errors in exising code.
 - Debugger - Debug existing code issues/crashes, propose a solution by basing the patch off the original disassembly.
 - General Programmer - Clean existing code to improve readability without changing the structure, improve code documentation.
@@ -36,7 +36,7 @@ Markers are as follows:
 
 ## Folder Structure
 - CMAKE - Default CMake module folder. 
-- GAME - Contains all Tomb Raider 5 shared game logic code.
+- GAME - Contains all Tomb Raider: Chronicles shared game logic code.
 - SPEC_PC - Platform specific code for PC version. ***DEPRECATED!***
 - SPEC_PC_N - New Platform specific code for PC version.
 - SPEC_PSX - Platform specific code for PSX version.
@@ -103,4 +103,4 @@ Open a new terminal window in the root directory where TOMB5 is cloned.
       - Include dirs: add `C:\dx7sdk\Include` and then `$(WindowsSDK_IncludePath)` (make sure that one is **above** the DX one, otherwise you'll get compile errors)
       - Lib dirs: add `C:\dx7sdk\lib\x86`
     
-Feel free to contact us on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5
+Feel free to contact us on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5-decompile

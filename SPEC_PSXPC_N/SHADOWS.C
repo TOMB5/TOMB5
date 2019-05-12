@@ -41,7 +41,7 @@ void DelBox(short x, short y, short w, short h, int color)
 	db.polyptr += sizeof(TILE);
 }
 
-void S_DrawGouraudBar(int x, int y, int width, int value, GouraudBarColourSet* colour)
+void S_DrawGouraudBar(int x, int y, int width, int value, struct GouraudBarColourSet* colour)
 {
 	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
 	{

@@ -27,6 +27,14 @@
 #include "LOADSAVE.H"
 #include "CD.H"
 #include "GPU.H"
+#include "SFX.H"
+#include "MEMCARD.H"
+#include "PROFILE.H"
+#include "MISC.H"
+#include "TEXT_S.H"
+#include "DRAWOBJ.H"
+#include "MATHS.H"
+#include "DRAW.H"
 #endif
 
 #if PSX_VERSION
@@ -276,38 +284,139 @@ void do_playstation_button_prompts_v1()//416E0, 41B34
 {
 	if (examine_mode)
 	{
-		//auto i = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem;
-		// to be continued
+		//v1 = rings[0]
 	}
-	else
-	{
-		if (stats_mode)
-		{
-			
-		}
-		else
-		{
-			if (ammo_active)
-			{
-				
-			}
-			else
-			{
-				if (GLOBAL_invkeypadmode)
-				{
-					
-				}
-				else
-				{
-					if(rings[RING_AMMO]->ringactive)
-					{
-						
-					}
-				}
-			}
-		}
-	}
-	UNIMPLEMENTED();
+	//loc_41774
+#if 0
+				 lw      $v1, 0x3178($gp)
+				 nop
+				 lw      $a0, 0x260($v1)
+				 nop
+				 sll     $v0, $a0, 1
+				 addu    $v0, $a0
+				 sll     $v0, 1
+				 addu    $v1, $v0
+				 lh      $a0, 0($v1)
+				 li      $v0, 0x5C
+				 bne     $a0, $v0, loc_41784
+				 li      $a0, 0x100
+				 li      $a0, 0x10
+				 li      $a1, 0xE8
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x8A($v0)
+				 li      $a2, 5
+				 sw      $zero, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+				 li      $a0, 0x1F0
+				 li      $a1, 0xE8
+				 li      $a2, 5
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x192($v0)
+				 j       loc_417A4
+				 li      $v0, 0x4000
+
+				 loc_41774:
+			 lh      $v0, 0x576($gp)
+				 nop
+				 beqz    $v0, loc_417B8
+				 li      $a0, 0x100
+
+				 loc_41784 :
+				 li      $a1, 0xE8
+				 li      $a2, 5
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x18C($v0)
+				 li      $v0, 0x8000
+
+				 loc_417A4:
+			 sw      $v0, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+				 j       loc_418D8
+				 nop
+
+				 loc_417B8 :
+			 lbu     $v0, 0x31C8($gp)
+				 nop
+				 beqz    $v0, loc_417E4
+				 li      $a0, 0x10
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x8C($v0)
+				 j       loc_41868
+				 li      $a1, 0xE8
+
+				 loc_417E4:
+			 lw      $v0, 0x584($gp)
+				 nop
+				 beqz    $v0, loc_41838
+				 li      $a1, 0xE8
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x92($v0)
+				 li      $a2, 5
+				 sw      $zero, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+				 li      $a0, 0xC8
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x94($v0)
+				 j       loc_41868
+				 li      $a1, 0xE8
+
+				 loc_41838:
+			 lw      $v0, 0x317C($gp)
+				 nop
+				 lw      $v1, 0x258($v0)
+				 nop
+				 beqz    $v1, loc_41880
+				 li      $a0, 0x10
+				 li      $a1, 0xE8
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x90($v0)
+
+				 loc_41868:
+			 li      $a2, 5
+				 sw      $zero, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+				 j       loc_418AC
+				 li      $a0, 0x1F0
+
+				 loc_41880:
+			 li      $a1, 0xE8
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x8E($v0)
+				 li      $a2, 5
+				 sw      $zero, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+				 li      $a0, 0x1F0
+
+				 loc_418AC:
+			 li      $a1, 0xE8
+				 li      $a2, 5
+				 lw      $v0, dword_800A202C
+				 lw      $a3, dword_800A203C
+				 lhu     $v1, 0x192($v0)
+				 li      $v0, 0x4000
+				 sw      $v0, 0x20 + var_10($sp)
+				 jal     sub_8DB4C
+				 addu    $a3, $v1
+
+				 loc_418D8 :
+			 lw      $ra, 0x20 + var_8($sp)
+				 nop
+				 jr      $ra
+				 addiu   $sp, 0x20
+#endif
 }
 
 void S_DrawPickup(short object_number)//41608(<), 41A5C(<) (F)
@@ -1308,9 +1417,90 @@ void spinback(unsigned short* cock)//3F094, 3F4E8 (F)
 	}
 }
 
-void draw_ammo_selector()//3EDDC, 3F230
+void draw_ammo_selector()//3EDDC(<), 3F230(<) (F)
 {
-	UNIMPLEMENTED();
+	int n;
+	int xpos;
+	short yrot;
+	struct INVOBJ* objme;
+	char cunter[256];
+
+	if (ammo_selector_flag)
+	{
+		xpos = SCREEN_WIDTH - OBJLIST_SPACING;
+
+		if (num_ammo_slots == 2)
+		{
+			xpos -= (OBJLIST_SPACING + (OBJLIST_SPACING >> 31)) >> 1;
+		}
+		else if (num_ammo_slots == 3)
+		{
+			//loc_3EE40
+			xpos -= OBJLIST_SPACING;
+		}
+		//loc_3EE4C
+
+		if (num_ammo_slots != 0)
+		{
+			//loc_3EE74
+			for(n = 0; n < num_ammo_slots; n++)
+			{
+				objme = &inventry_objects_list[ammo_object_list[n].invitem];
+
+				if (n == current_ammo_type[0])
+				{
+					if ((objme->flags & 2))
+					{
+						ammo_object_list[n].yrot += 0x3FE;
+					}//loc_3EECC
+				}
+				else
+				{
+					//loc_3EEC0
+					///spinback(&ammo_object_list[n].yrot);
+				}
+				//loc_3EECC
+				yrot = ammo_object_list[n].yrot;
+
+				if (n == current_ammo_type[0])
+				{
+					if (ammo_object_list[n].amount == -1)
+					{
+						sprintf(&cunter[0], &gfStringWad[gfStringOffset[STR_UNLIMITED]], &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[n].invitem].objname]]);
+					}
+					else
+					{
+						//loc_3EF48
+						sprintf(&cunter[0], "%d x %s", ammo_object_list[n].amount, &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[n].invitem].objname]]);
+					}
+
+					//loc_3EF90
+					if (ammo_selector_fade_val != 0)
+					{
+						PrintString(SCREEN_WIDTH / 2, 165, 8, &cunter[0], FF_CENTER);
+					}//loc_3EFB8
+
+					if (n == current_ammo_type[0])
+					{
+						DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[0].amount, ammo_selector_fade_val, 0, yrot, 0, 0, 0);
+					}
+					else
+					{
+						//loc_3F00C
+						DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[0].amount, ammo_selector_fade_val, 0, yrot, 0, 1, 0);
+					}
+				}
+				else
+				{
+					//loc_3F00C
+					DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[0].amount, ammo_selector_fade_val, 0, yrot, 0, 1, 0);
+				}
+
+				//loc_3F048
+				xpos += OBJLIST_SPACING;
+			}
+		}//loc_3F068
+	}//loc_3F068
 }
 
 void fade_ammo_selector()//3ED08, 3F15C (F)
@@ -1755,14 +1945,266 @@ int go_and_load_game()//3C900(<), 3CD54(<) (F)
 #endif
 }
 
-void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int shagflag)//3C6A0, 3CAF4
+void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int shagflag)//3C6A0(<), 3CAF4(<) (F)
 {
-	UNIMPLEMENTED();
+	struct ANIM_STRUCT* anim;
+	struct object_info* object;
+	long* bone;
+	short* rotation1;
+	short** meshpp;
+	short* frmptr;
+	long i;
+	long poppush;
+	unsigned long bit;
+
+	anim = &anims[item->anim_number];
+	frmptr = anim->frame_ptr;
+	object = &objects[item->object_number];
+
+	mPushMatrix();
+	mTranslateXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+	mRotYXZ(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
+	bit = 1;
+
+	if (item->object_number == PUZZLE_HOLE8 && GLOBAL_invkeypadmode)
+	{
+		ScaleCurrentMatrix(1, 6144, 6144, 6144);
+	}//loc_3C770
+
+	meshpp = &meshes[object->mesh_index];
+	bone = &bones[object->bone_index];
+
+	if (!shagflag)
+	{
+		mTranslateXYZ(frmptr[6], frmptr[7], frmptr[8]);
+	}
+
+	//loc_3C7B0
+	rotation1 = &frmptr[9];
+	mRotSuperPackedYXZ(&rotation1, 0);
+
+	if ((item->mesh_bits & 1))
+	{
+		if (overlay)
+		{
+			phd_PutPolygons_pickup(meshpp[0], 0);
+			meshpp += 2;
+		}
+		else
+		{
+			//loc_3C7F8
+			phd_PutPolygons_seethrough(meshpp[0], shade);
+
+			//loc_3C804
+			meshpp += 2;
+		}
+	}
+	else
+	{
+		//loc_3C804
+		meshpp += 2;
+	}
+
+	//loc_3C81C
+	for (i = 0; i < object->nmeshes - 1; i++, bone += 4, meshpp += 2)
+	{
+		poppush = bone[0];
+
+		if ((poppush & 1))
+		{
+			mPopMatrix();
+		}//loc_3C83C
+
+		if ((poppush & 2))
+		{
+			mPushMatrix();
+		}//loc_3C84C
+
+		mTranslateXYZ(bone[1], bone[2], bone[3]);
+		bit <<= 1;
+
+		mRotSuperPackedYXZ(&rotation1, 0);
+		if (bit & item->mesh_bits)
+		{
+			if (!overlay)
+			{
+				//loc_3C89C
+				phd_PutPolygons_seethrough(meshpp[0], shade);
+			}
+			else
+			{
+				phd_PutPolygons_pickup(meshpp[0], 1);
+			}
+		}
+		//loc_3C8A8
+	}
+
+	//loc_3C8C8
+	mPopMatrix();
 }
 
-void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay)//3C43C, 3C890
+void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay)//3C43C(<), 3C890(<) (F)
 {
-	UNIMPLEMENTED();
+	struct ITEM_INFO item; // stack offset -176
+	struct INVOBJ* objme; // $s1
+
+	//s5 = x
+	//a0 = 0
+	//v1 = num << 2
+	//v1 += num
+	//v1 <<= 2
+	//a2 = 0
+	//s4 = shade
+	//v0 = &inventry_objects_list[0];
+	objme = &inventry_objects_list[num];
+	//t0 = objme->yoff
+	//t1 = xrot
+	//a3 = 0
+
+	/*
+	sw      $zero, 0xD0 + var_C0($sp)
+	sw      $zero, 0xD0 + var_BC($sp)
+	sw      $zero, 0xD0 + var_B8($sp)
+	*/
+
+	//v0 = objme->yrot
+	//v1 = objme->xrot
+
+
+
+#if 0
+				 
+				 lw      $s0, 0xD0 + arg_1C($sp)
+				 lw      $s3, 0xD0 + arg_20($sp)
+				 addu    $s2, $a1, $t0
+				 lw      $t0, 0xD0 + arg_14($sp)
+				 li      $a1, 0x400
+				 addu    $v0, $t0
+				 lw      $t0, 0xD0 + arg_18($sp)
+				 addu    $v1, $t1
+				 sh      $v1, 0xD0 + var_64($sp)
+				 sh      $v0, 0xD0 + var_62($sp)
+				 lhu     $v0, 0xA($s1)
+				 lhu     $v1, 0($s1)
+				 addu    $v0, $t0
+				 sh      $v0, 0xD0 + var_60($sp)
+				 jal     phd_LookAt
+				 sh      $v1, 0xD0 + var_A4($sp)
+
+				 jal     mQuickW2VMatrix
+				 nop
+				 bnez    $s0, loc_3C520
+				 li      $v0, 1
+				 li      $a0, 0x505050
+				 li      $a1, 0x202020
+				 li      $a2, 0x404040
+				 lui     $a3, 0x80
+				 jal     SetInventoryLighting
+				 li      $a3, 0x808080
+				 j       loc_3C578
+				 nop
+
+				 loc_3C520 :
+			 bne     $s0, $v0, loc_3C550
+				 lui     $a0, 0x32
+				 li      $a0, 0x323232
+				 li      $a1, 0x101010
+				 li      $a2, 0x303030
+				 lui     $a3, 0x30
+				 jal     SetInventoryLighting
+				 li      $a3, 0x303030
+				 j       loc_3C578
+				 nop
+
+				 loc_3C550 :
+			 ori     $a0, 0x3232
+				 li      $a1, 0x101010
+				 li      $a2, 0x303030
+				 sll     $a3, $s0, 16
+				 sll     $v0, $s0, 8
+				 or $a3, $v0
+				 jal     SetInventoryLighting
+				 or $a3, $s0
+
+				 loc_3C578 :
+			 jal     mPushUnitMatrix
+				 nop
+				 lw      $a1, dword_A1DD4
+				 nop
+				 move    $a0, $a1
+				 lhu     $v1, 6($a1)
+				 lhu     $a2, 8($a1)
+				 sll     $v0, $v1, 16
+				 sra     $v0, 18
+				 subu    $v1, $v0
+				 sll     $v0, $a2, 16
+				 sra     $v0, 18
+				 sh      $v1, 6($a1)
+				 lhu     $v1, 0xA($a1)
+				 subu    $a2, $v0
+				 sh      $a2, 8($a1)
+				 sll     $v0, $v1, 16
+				 sra     $v0, 18
+				 subu    $v1, $v0
+				 jal     mLoadMatrix
+				 sh      $v1, 0xA($a1)
+				 move    $a0, $zero
+				 lh      $a2, 4($s1)
+				 jal     mSetTrans
+				 move    $a1, $zero
+				 move    $a0, $s5
+				 move    $a1, $s2
+				 li      $v1, 0x1F2480
+				 lh      $v0, 0xD0 + var_A4($sp)
+				 lw      $a2, 0x10($s1)
+				 sll     $v0, 6
+				 addu    $v0, $v1
+				 lhu     $a3, 0x26($v0)
+				 li      $v1, 0xFFFFFFFF
+				 sh      $v1, 0xD0 + var_86($sp)
+				 sw      $zero, 0xD0 + var_70($sp)
+				 sw      $zero, 0xD0 + var_6C($sp)
+				 sw      $zero, 0xD0 + var_68($sp)
+				 sh      $zero, 0xD0 + var_98($sp)
+				 sb      $zero, 0xD0 + var_2D($sp)
+				 sw      $a2, 0xD0 + var_A8($sp)
+				 jal     SetGeomOffset
+				 sh      $a3, 0xD0 + var_9C($sp)
+				 lhu     $v0, 0xC($s1)
+				 nop
+				 andi    $v0, 8
+				 bnez    $v0, loc_3C658
+				 addiu   $a0, $sp, 0xD0 + var_B0
+				 move    $a1, $s4
+				 move    $a2, $s3
+				 jal     DrawInventoryItemMe
+				 move    $a3, $zero
+				 j       loc_3C668
+				 nop
+
+				 loc_3C658 :
+			 move    $a1, $s4
+				 move    $a2, $s3
+				 jal     DrawInventoryItemMe
+				 li      $a3, 1
+
+				 loc_3C668 :
+				 jal     mPopMatrix
+				 nop
+				 li      $a0, 0x100
+				 jal     SetGeomOffset
+				 li      $a1, 0x78
+				 lw      $ra, 0xD0 + var_8($sp)
+				 lw      $s5, 0xD0 + var_C($sp)
+				 lw      $s4, 0xD0 + var_10($sp)
+				 lw      $s3, 0xD0 + var_14($sp)
+				 lw      $s2, 0xD0 + var_18($sp)
+				 lw      $s1, 0xD0 + var_1C($sp)
+				 lw      $s0, 0xD0 + var_20($sp)
+				 jr      $ra
+				 addiu   $sp, 0xD0
+#endif
+
 }
 
 void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
@@ -1957,19 +2399,321 @@ void init_new_inventry()//3C024, 3C478 (F)
 
 int S_CallInventory2()//3B7A8, 3BC04
 {
-	UNIMPLEMENTED();
-#if 0
-	short flag; // $s2
-	int return_value; // $s3
-	{ // line 291, offset 0x3bd3c
-		int val; // $s0
-	} // line 335, offset 0x3be20
-	{ // line 387, offset 0x3bf3c
-		short room_number; // stack offset -32
-		struct ITEM_INFO* item; // $s0
-		int val; // $a1
-	} // line 415, offset 0x3c000
+#if PSX_VERSION || PSXPC_VERSION
+	short flag;
+	int return_value;
+	int val;
+	short room_number;
+	struct ITEM_INFO* item;
+
+	flag = 0;
+
+	if (gfCurrentLevel - 4 < 4)
+	{
+		inventry_objects_list[3].objname = STR_DESERTEAGLE;
+		inventry_objects_list[4].objname = STR_DESERTEAGLE_LASERSIGHT;
+		inventry_objects_list[17].objname = STR_DESERTEAGLE_AMMO;
+	}
+	else
+	{
+		//loc_3B7FC
+		inventry_objects_list[3].objname = STR_REVOLVER;
+		inventry_objects_list[4].objname = STR_REVOLVER_LASERSIGHT;
+		inventry_objects_list[17].objname = STR_REVOLVER_AMMO;
+	}
+
+	if (gfCurrentLevel - 0xB < 4)
+	{
+		inventry_objects_list[24].objname = STR_HEADSET;
+	}
+	else
+	{
+		inventry_objects_list[24].objname = STR_BINOCULARS;
+	}
+
+	//loc_3B848
+	_bullshitbollox = 0;
+
+	if (lara.gun_status == 1)
+	{
+		_bullshitbollox = 1;
+	}
+
+	//loc_3B870
+	bullshitbollox = 1;
+
+	SOUND_Stop();
+	SoundEffect(SFX_MENU_SELECT, NULL, 2);
+	S_SetReverbType(1);
+	friggrimmer = 0;
+	oldLaraBusy = lara.Busy;
+
+	if ((input & IN_SELECT))
+	{
+		friggrimmer = 1;
+	}
+
+	//loc_3B8C4
+	Motors[1] = 0;
+	Motors[0] = 0;
+
+	if (Gameflow->LoadSaveEnabled)
+	{
+		mcOpen(0);
+	}
+	//loc_3B900
+	XAFadeRate = 32;
+	XAReqVolume = 0;
+
+#if DEBUG_VERSION
+	ProfileDraw = 0;
 #endif
 
+	while (XAVolume != 0)
+	{
+		//loc_3B928
+		XAReqVolume = 0;
+	}//loc_3B944
+
+	S_CDPause();
+	DrawSync(0);
+
+	ClearOTagR(db.order_table[0], db.nOTSize);
+	return_value = 0;
+	ClearOTagR(db.order_table[1], db.nOTSize);
+	rings[RING_INVENTORY] = (struct RINGME*)&GadwPolygonBuffers[51748];
+	rings[RING_AMMO] = (struct RINGME*)&GadwPolygonBuffers[51236];
+	MGSaveGamePtr = (char*)&GadwPolygonBuffers[49188];
+
+	init_new_inventry();
+	camera.number_frames = 2;
+
+	//v0 = 0x80
+	if (!reset_flag)
+	{
+		//loc_3B9BC
+		while (!reset_flag)
+		{
+			OBJLIST_SPACING = 128;
+
+			XAReqVolume = 0;
+			GPU_BeginScene();
+			SetDebounce = 1;
+			S_UpdateInput();
+			input = inputBusy;
+			UpdatePulseColour();
+
+			GameTimer++;
+
+			if (!ammo_active && !rings[1]->ringactive && go_deselect)
+			{
+				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+			}//loc_3BA54
+
+			if ((dbinput & IN_OPTION))
+			{
+				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				flag = 1;
+			}//loc_3BA7C
+
+			if (!PadConnected)
+			{
+				PrintString(SCREEN_WIDTH / 2, 232, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_UNK13));
+				input = 0;
+				left_debounce = 0;
+				right_debounce = 0;
+				up_debounce = 0;
+				down_debounce = 0;
+				go_left = 0;
+				go_right = 0;
+				go_up = 0;
+				go_down = 0;
+				select_debounce = 0;
+				deselect_debounce = 0;
+				go_select = 0;
+				go_deselect = 0;
+				left_repeat = 0;
+				right_repeat = 0;
+			}
+			//loc_3BAFC
+			InitObjGTE();
+			do_debounced_joystick_poo();
+			draw_outlines();
+			if (rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem == INV_SMALLMEDI_ITEM &&
+				(RawPad & (IN_DPAD_UP | IN_R1 | IN_L2 | IN_R2 | IN_L1)))
+			{
+				dels_give_lara_guns_cheat();
+			}
+			//loc_3BB64
+			if (rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem == INV_BIGMEDI_ITEM &&
+				RawPad & (IN_DPAD_DOWN | IN_L2 | IN_R2 | IN_L1 | IN_R1))
+			{
+				dels_give_lara_items_cheat();
+			}//loc_3BBB4
+
+			if (GLOBAL_invkeypadmode)
+			{
+				do_keypad_mode();
+			}
+			else if (examine_mode)
+			{
+				//loc_3BC3C
+				do_examine_mode();
+
+				if (stats_mode)
+				{
+					do_stats_mode();
+				}
+			}
+			else if (stats_mode)
+			{
+				//loc_3BC54
+				do_stats_mode();
+			}
+			else
+			{
+				draw_current_object_list(0);
+				handle_inventry_menu();
+				if (rings[RING_AMMO]->ringactive)
+				{
+					draw_current_object_list(1);
+				}
+				//loc_3BC24
+				draw_ammo_selector();
+				fade_ammo_selector();
+			}
+
+			//loc_3BC5C
+			if (PadConnected)
+			{
+				do_playstation_button_prompts_v1();
+			}
+			//loc_3BC78
+
+			if (use_the_bitch && !input)
+			{
+				flag = 1;
+			}//loc_3BC9C
+
+			if (!(input & IN_SELECT))
+			{
+				bullshitbollox = 0;
+			}
+
+			//loc_3BCAC
+			if (use_the_bitch && rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem - 0x16 < 2
+				&& !bullshitbollox && _bullshitbollox)
+			{
+				flag = 1;
+			}
+			//loc_3BD18
+			GPU_EndScene();
+			camera.number_frames = S_DumpScreen();
+
+			if (loading_or_saving)
+			{
+				//loc_3BD3C
+				do
+				{
+					GPU_BeginScene();
+					val = 0;
+					SetDebounce = 1;
+					S_UpdateInput();
+					input = inputBusy;
+					UpdatePulseColour();
+					draw_outlines();
+
+					if (!PadConnected)
+					{
+						PrintString(SCREEN_WIDTH / 2, 64, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_UNK13));
+					}//loc_3BDB4
+
+					if (loading_or_saving == 1)
+					{
+						val = go_and_load_game();
+					}
+					else
+					{
+						//loc_3BDD4
+						if (go_and_save_game())
+						{
+							val = 1;
+						}
+					}
+					//loc_3BDE8
+					GPU_EndScene();
+					S_DumpScreen();
+
+				} while (val == 0);
+
+				//v0 = 1
+				if (val == 1 && loading_or_saving == val)
+				{
+					return_value = 1;
+					flag = 1;
+				}
+				//loc_3BE20
+				friggrimmer2 = 1;
+				friggrimmer = 1;
+				deselect_debounce = 0;
+				go_deselect = 0;
+				loading_or_saving = 0;
+			}
+			//loc_3BE34
+			if (flag)
+			{
+				break;
+			}
+		}
+	}
+	//loc_3BE50
+	InitialisePickUpDisplay();
+	GLOBAL_lastinvitem = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem;
+	update_laras_weapons_status();
+
+	if (use_the_bitch && GLOBAL_invkeypadmode == 0)
+	{
+		use_current_item();
+	}
+	//loc_3BEB4
+
+	XAFadeRate = 8;
+	XAReqVolume = XAMasterVolume;
+	S_CDRestart();
+
+	if (Gameflow->LoadSaveEnabled)
+	{
+		mcClose();
+	}
+
+#if DEBUG_VERSION
+	ProfileDraw = 1;
+#endif
+	lara.Busy - oldLaraBusy;
+
+	if (GLOBAL_invkeypadmode)
+	{
+		GLOBAL_invkeypadmode = 0;
+
+		if (keypadnuminputs == 4)
+		{
+			val = ((((keypadinputs[0] << 5) - keypadinputs[0]) << 2) + keypadinputs[0]) << 3;
+			val += ((((keypadinputs[1] << 1) + keypadinputs[1]) << 3) + keypadinputs[1]) << 2;
+			val += ((keypadinputs[2] << 2) + keypadinputs[2]) << 1;
+			val += keypadinputs[3];
+		}//loc_3BFA0
+
+		if (GLOBAL_invkeypadcombination == 0)
+		{
+			item = lara_item;
+			room_number = item->room_number;
+			GetHeight(GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number), item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+			TestTriggers(trigger_index, 1, 0);
+		}//loc_3C004
+	}//loc_3C000
+
+	return return_value;
+#else
 	return -1;
+#endif
 }

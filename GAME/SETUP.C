@@ -1033,6 +1033,7 @@ void sub_B3A7C(int a0)
  * Note: The GAMEWAD reader's position must point to the level file data.
  * Note: This code is part of the SETUP.MOD module.
  */
+#if PSXPC_VERSION || PSX_VERSION || SAT_VERSION
 #if DISC_VERSION
 void LoadLevel()//?(<), B3B50(<) (F)
 #else
@@ -1040,6 +1041,7 @@ void LoadLevel()//?(<), B3B50(<) (F)
 void LoadLevel(int nHandle)//?, B3B50(<)
 #elif PSXPC_VERSION
 void LoadLevel(FILE* nHandle)
+#endif
 #endif
 #endif
 {
