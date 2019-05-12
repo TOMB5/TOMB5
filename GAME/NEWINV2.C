@@ -33,6 +33,8 @@
 #include "MISC.H"
 #include "TEXT_S.H"
 #include "DRAWOBJ.H"
+#include "MATHS.H"
+#include "DRAW.H"
 #endif
 
 #if PSX_VERSION
@@ -1943,15 +1945,266 @@ int go_and_load_game()//3C900(<), 3CD54(<) (F)
 #endif
 }
 
-void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int shagflag)//3C6A0, 3CAF4
+void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int shagflag)//3C6A0(<), 3CAF4(<) (F)
 {
-	UNIMPLEMENTED();
+	struct ANIM_STRUCT* anim;
+	struct object_info* object;
+	long* bone;
+	short* rotation1;
+	short** meshpp;
+	short* frmptr;
+	long i;
+	long poppush;
+	unsigned long bit;
+
+	anim = &anims[item->anim_number];
+	frmptr = anim->frame_ptr;
+	object = &objects[item->object_number];
+
+	mPushMatrix();
+	mTranslateXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+	mRotYXZ(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
+	bit = 1;
+
+	if (item->object_number == PUZZLE_HOLE8 && GLOBAL_invkeypadmode)
+	{
+		ScaleCurrentMatrix(1, 6144, 6144, 6144);
+	}//loc_3C770
+
+	meshpp = &meshes[object->mesh_index];
+	bone = &bones[object->bone_index];
+
+	if (!shagflag)
+	{
+		mTranslateXYZ(frmptr[6], frmptr[7], frmptr[8]);
+	}
+
+	//loc_3C7B0
+	rotation1 = &frmptr[9];
+	mRotSuperPackedYXZ(&rotation1, 0);
+
+	if ((item->mesh_bits & 1))
+	{
+		if (overlay)
+		{
+			phd_PutPolygons_pickup(meshpp[0], 0);
+			meshpp += 2;
+		}
+		else
+		{
+			//loc_3C7F8
+			phd_PutPolygons_seethrough(meshpp[0], shade);
+
+			//loc_3C804
+			meshpp += 2;
+		}
+	}
+	else
+	{
+		//loc_3C804
+		meshpp += 2;
+	}
+
+	//loc_3C81C
+	for (i = 0; i < object->nmeshes - 1; i++, bone += 4, meshpp += 2)
+	{
+		poppush = bone[0];
+
+		if ((poppush & 1))
+		{
+			mPopMatrix();
+		}//loc_3C83C
+
+		if ((poppush & 2))
+		{
+			mPushMatrix();
+		}//loc_3C84C
+
+		mTranslateXYZ(bone[1], bone[2], bone[3]);
+		bit <<= 1;
+
+		mRotSuperPackedYXZ(&rotation1, 0);
+		if (bit & item->mesh_bits)
+		{
+			if (!overlay)
+			{
+				//loc_3C89C
+				phd_PutPolygons_seethrough(meshpp[0], shade);
+			}
+			else
+			{
+				phd_PutPolygons_pickup(meshpp[0], 1);
+			}
+		}
+		//loc_3C8A8
+	}
+
+	//loc_3C8C8
+	mPopMatrix();
 }
 
 void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay)//3C43C(<), 3C890(<) (F)
 {
 	struct ITEM_INFO item; // stack offset -176
 	struct INVOBJ* objme; // $s1
+
+	//s5 = x
+	//a0 = 0
+	//v1 = num << 2
+	//v1 += num
+	//v1 <<= 2
+	//a2 = 0
+	//s4 = shade
+	//v0 = &inventry_objects_list[0];
+	objme = &inventry_objects_list[num];
+	//t0 = objme->yoff
+	//t1 = xrot
+	//a3 = 0
+
+	/*
+	sw      $zero, 0xD0 + var_C0($sp)
+	sw      $zero, 0xD0 + var_BC($sp)
+	sw      $zero, 0xD0 + var_B8($sp)
+	*/
+
+	//v0 = objme->yrot
+	//v1 = objme->xrot
+
+
+
+#if 0
+				 
+				 lw      $s0, 0xD0 + arg_1C($sp)
+				 lw      $s3, 0xD0 + arg_20($sp)
+				 addu    $s2, $a1, $t0
+				 lw      $t0, 0xD0 + arg_14($sp)
+				 li      $a1, 0x400
+				 addu    $v0, $t0
+				 lw      $t0, 0xD0 + arg_18($sp)
+				 addu    $v1, $t1
+				 sh      $v1, 0xD0 + var_64($sp)
+				 sh      $v0, 0xD0 + var_62($sp)
+				 lhu     $v0, 0xA($s1)
+				 lhu     $v1, 0($s1)
+				 addu    $v0, $t0
+				 sh      $v0, 0xD0 + var_60($sp)
+				 jal     phd_LookAt
+				 sh      $v1, 0xD0 + var_A4($sp)
+
+				 jal     mQuickW2VMatrix
+				 nop
+				 bnez    $s0, loc_3C520
+				 li      $v0, 1
+				 li      $a0, 0x505050
+				 li      $a1, 0x202020
+				 li      $a2, 0x404040
+				 lui     $a3, 0x80
+				 jal     SetInventoryLighting
+				 li      $a3, 0x808080
+				 j       loc_3C578
+				 nop
+
+				 loc_3C520 :
+			 bne     $s0, $v0, loc_3C550
+				 lui     $a0, 0x32
+				 li      $a0, 0x323232
+				 li      $a1, 0x101010
+				 li      $a2, 0x303030
+				 lui     $a3, 0x30
+				 jal     SetInventoryLighting
+				 li      $a3, 0x303030
+				 j       loc_3C578
+				 nop
+
+				 loc_3C550 :
+			 ori     $a0, 0x3232
+				 li      $a1, 0x101010
+				 li      $a2, 0x303030
+				 sll     $a3, $s0, 16
+				 sll     $v0, $s0, 8
+				 or $a3, $v0
+				 jal     SetInventoryLighting
+				 or $a3, $s0
+
+				 loc_3C578 :
+			 jal     mPushUnitMatrix
+				 nop
+				 lw      $a1, dword_A1DD4
+				 nop
+				 move    $a0, $a1
+				 lhu     $v1, 6($a1)
+				 lhu     $a2, 8($a1)
+				 sll     $v0, $v1, 16
+				 sra     $v0, 18
+				 subu    $v1, $v0
+				 sll     $v0, $a2, 16
+				 sra     $v0, 18
+				 sh      $v1, 6($a1)
+				 lhu     $v1, 0xA($a1)
+				 subu    $a2, $v0
+				 sh      $a2, 8($a1)
+				 sll     $v0, $v1, 16
+				 sra     $v0, 18
+				 subu    $v1, $v0
+				 jal     mLoadMatrix
+				 sh      $v1, 0xA($a1)
+				 move    $a0, $zero
+				 lh      $a2, 4($s1)
+				 jal     mSetTrans
+				 move    $a1, $zero
+				 move    $a0, $s5
+				 move    $a1, $s2
+				 li      $v1, 0x1F2480
+				 lh      $v0, 0xD0 + var_A4($sp)
+				 lw      $a2, 0x10($s1)
+				 sll     $v0, 6
+				 addu    $v0, $v1
+				 lhu     $a3, 0x26($v0)
+				 li      $v1, 0xFFFFFFFF
+				 sh      $v1, 0xD0 + var_86($sp)
+				 sw      $zero, 0xD0 + var_70($sp)
+				 sw      $zero, 0xD0 + var_6C($sp)
+				 sw      $zero, 0xD0 + var_68($sp)
+				 sh      $zero, 0xD0 + var_98($sp)
+				 sb      $zero, 0xD0 + var_2D($sp)
+				 sw      $a2, 0xD0 + var_A8($sp)
+				 jal     SetGeomOffset
+				 sh      $a3, 0xD0 + var_9C($sp)
+				 lhu     $v0, 0xC($s1)
+				 nop
+				 andi    $v0, 8
+				 bnez    $v0, loc_3C658
+				 addiu   $a0, $sp, 0xD0 + var_B0
+				 move    $a1, $s4
+				 move    $a2, $s3
+				 jal     DrawInventoryItemMe
+				 move    $a3, $zero
+				 j       loc_3C668
+				 nop
+
+				 loc_3C658 :
+			 move    $a1, $s4
+				 move    $a2, $s3
+				 jal     DrawInventoryItemMe
+				 li      $a3, 1
+
+				 loc_3C668 :
+				 jal     mPopMatrix
+				 nop
+				 li      $a0, 0x100
+				 jal     SetGeomOffset
+				 li      $a1, 0x78
+				 lw      $ra, 0xD0 + var_8($sp)
+				 lw      $s5, 0xD0 + var_C($sp)
+				 lw      $s4, 0xD0 + var_10($sp)
+				 lw      $s3, 0xD0 + var_14($sp)
+				 lw      $s2, 0xD0 + var_18($sp)
+				 lw      $s1, 0xD0 + var_1C($sp)
+				 lw      $s0, 0xD0 + var_20($sp)
+				 jr      $ra
+				 addiu   $sp, 0xD0
+#endif
+
 }
 
 void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)

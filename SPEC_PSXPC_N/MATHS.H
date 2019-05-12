@@ -18,7 +18,7 @@ extern void mRotY(long ry);
 extern void mRotYXZ(short y, short x, short z);
 extern void mRotZ(long rz);
 extern void gte_sttr(struct PHD_VECTOR* vec);
-extern void mRotSuperPackedYXZ(short* a0, long a1);
+extern void mRotSuperPackedYXZ(short** a0, long a1);
 extern void mRotPackedYXZ(long yxz);
 extern void SetRotation();
 extern void setrot(struct MATRIX3D* m, long m00, long m02, long m11, long m20, long m22);

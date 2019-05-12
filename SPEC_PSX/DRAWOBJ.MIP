@@ -2,8 +2,12 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF MakeMono, InitObjGTE, phd_PutPolygons, phd_PutPolygons_seethrough
+	XDEF MakeMono, InitObjGTE, phd_PutPolygons, phd_PutPolygons_seethrough, phd_PutPolygons_pickup
 	
+phd_PutPolygons_pickup:
+	jr  ra
+	nop
+
 phd_PutPolygons:
 	jr	ra
 	nop
