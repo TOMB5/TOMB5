@@ -282,143 +282,52 @@ char friggrimmer2; // offset 0xA36E4
 char oldLaraBusy; // offset 0xA3774
 struct MENUTHANG current_options[3]; // offset 0xA3740
 
-void do_playstation_button_prompts_v1()//416E0, 41B34
+void do_playstation_button_prompts_v1()//416E0(<), 41B34(<) (F)
 {
 	if (examine_mode)
 	{
-		//v1 = rings[0]
+		if (rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem == 0x5C)
+		{
+			PrintString(16, 232, 5, &gfStringWad[gfStringOffset[STR_MORE]], FF_NONE);
+			PrintString(496, 232, 5, &gfStringWad[gfStringOffset[STR_HAMMER]], FF_UNK10);
+		}
+		else
+		{
+			//loc_41784
+			PrintString(SCREEN_WIDTH / 2, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], FF_CENTER);
+		}
+
+		return;
 	}
-	//loc_41774
-#if 0
-				 lw      $v1, 0x3178($gp)
-				 nop
-				 lw      $a0, 0x260($v1)
-				 nop
-				 sll     $v0, $a0, 1
-				 addu    $v0, $a0
-				 sll     $v0, 1
-				 addu    $v1, $v0
-				 lh      $a0, 0($v1)
-				 li      $v0, 0x5C
-				 bne     $a0, $v0, loc_41784
-				 li      $a0, 0x100
-				 li      $a0, 0x10
-				 li      $a1, 0xE8
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x8A($v0)
-				 li      $a2, 5
-				 sw      $zero, 0x20 + var_10($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $v1
-				 li      $a0, 0x1F0
-				 li      $a1, 0xE8
-				 li      $a2, 5
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x192($v0)
-				 j       loc_417A4
-				 li      $v0, 0x4000
-
-				 loc_41774:
-			 lh      $v0, 0x576($gp)
-				 nop
-				 beqz    $v0, loc_417B8
-				 li      $a0, 0x100
-
-				 loc_41784 :
-				 li      $a1, 0xE8
-				 li      $a2, 5
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x18C($v0)
-				 li      $v0, 0x8000
-
-				 loc_417A4:
-			 sw      $v0, 0x20 + var_10($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $v1
-				 j       loc_418D8
-				 nop
-
-				 loc_417B8 :
-			 lbu     $v0, 0x31C8($gp)
-				 nop
-				 beqz    $v0, loc_417E4
-				 li      $a0, 0x10
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x8C($v0)
-				 j       loc_41868
-				 li      $a1, 0xE8
-
-				 loc_417E4:
-			 lw      $v0, 0x584($gp)
-				 nop
-				 beqz    $v0, loc_41838
-				 li      $a1, 0xE8
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x92($v0)
-				 li      $a2, 5
-				 sw      $zero, 0x20 + var_10($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $v1
-				 li      $a0, 0xC8
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x94($v0)
-				 j       loc_41868
-				 li      $a1, 0xE8
-
-				 loc_41838:
-			 lw      $v0, 0x317C($gp)
-				 nop
-				 lw      $v1, 0x258($v0)
-				 nop
-				 beqz    $v1, loc_41880
-				 li      $a0, 0x10
-				 li      $a1, 0xE8
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x90($v0)
-
-				 loc_41868:
-			 li      $a2, 5
-				 sw      $zero, 0x20 + var_10($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $v1
-				 j       loc_418AC
-				 li      $a0, 0x1F0
-
-				 loc_41880:
-			 li      $a1, 0xE8
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x8E($v0)
-				 li      $a2, 5
-				 sw      $zero, 0x20 + var_10($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $v1
-				 li      $a0, 0x1F0
-
-				 loc_418AC:
-			 li      $a1, 0xE8
-				 li      $a2, 5
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x192($v0)
-				 li      $v0, 0x4000
-				 sw      $v0, 0x20 + var_10($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $v1
-
-				 loc_418D8 :
-			 lw      $ra, 0x20 + var_8($sp)
-				 nop
-				 jr      $ra
-				 addiu   $sp, 0x20
-#endif
+	else if(stats_mode)
+	{
+		//loc_41774
+		PrintString(SCREEN_WIDTH / 2, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], FF_CENTER);
+		return;
+	}
+	else if (ammo_active)
+	{
+		//loc_417B8
+		PrintString(16, 232, 5, &gfStringWad[gfStringOffset[STR_SELECT_AMMO]], FF_NONE);
+	}
+	else if (GLOBAL_invkeypadmode)
+	{
+		//loc_417E4
+		PrintString(16, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], FF_NONE);
+		PrintString(200, 232, 5, &gfStringWad[gfStringOffset[STR_PUSH_KEYPAD]], FF_NONE);
+	}
+	else if (rings[RING_AMMO]->ringactive)
+	{
+		//loc_41838
+		PrintString(16, 232, 5, &gfStringWad[gfStringOffset[STR_COMBINE_BIS]], FF_NONE);
+	}
+	else
+	{
+		//loc_41880
+		PrintString(16, 232, 5, &gfStringWad[gfStringOffset[STR_SELECT_OPTION]], FF_NONE);
+	}
+	//loc_418AC
+	PrintString(496, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL_BIS]], FF_R_JUSTIFY);
 }
 
 void S_DrawPickup(short object_number)//41608(<), 41A5C(<) (F)
@@ -1702,52 +1611,45 @@ void handle_inventry_menu()//3DF44, 3E398
 
 		//a0 = rings[RING_INVENTORY].curobjinlist
 		//s3 = 2
+		//v0 = &rings[RING_INVENTORY].current_object_list[rings[RING_INVENTORY].curobjinlist];
+		//t1 = rings[RING_INVENTORY].current_object_list[rings[RING_INVENTORY].curobjinlist].invitem
+
+		//loc_3E0DC
+		for (n = 0; n < 3; n++)
+		{
+			current_options[n].type = 0;
+			current_options[n].text = NULL;
+		}
+
+		//s3 = 0;
+		if (!ammo_active)
+		{
+			//v0 = &options_table[0];
+			//v1 = &options_table[rings[RING_INVENTORY].current_object_list[rings[RING_INVENTORY].curobjinlist].invitem];
+			opts = options_table[rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem];
+
+			//v0 = 9
+			if ((opts & 0x1000))
+			{
+				current_options[0].type = 9;
+				//v0 = optmessages[6];
+				//a0 = gfStringOffset
+				//v1 = gfStringWad
+				//v0 = &gfStringOffset[optmessages[6]];
+				//a1 = gfStringOffset[optmessages[6]];
+				//s3 = 1
+				//v1 = &gfStringWad[gfStringOffset[optmessages[6]]];
+				current_options[0].text = &gfStringWad[gfStringOffset[optmessages[6]]];
+			}
+			else if ((opts & 0x2000))//a1 = s3 << 3
+			{
+				//loc_3E158
+				//s3++;
+			}//loc_3E1A4
+		}//loc_3E464
+
 	}
 #if 0
-				 li      $s3, 2
-				 sll     $v1, $a0, 1
-				 addu    $v1, $a0
-				 sll     $v1, 1
-				 addu    $v0, $v1
-				 lh      $t1, 0($v0)
-
-				 loc_3E0DC:
-			 sw      $zero, 0($a2)
-				 sw      $zero, 0($a3)
-				 addiu   $a3, 8
-				 addiu   $s3, -1
-				 bgez    $s3, loc_3E0DC
-				 addiu   $a2, 8
-
-				 lbu     $v0, 0x31C8($gp)
-				 nop
-				 bnez    $v0, loc_3E464
-				 move    $s3, $zero
-				 addiu   $v0, $a1, 0x33B8
-				 sll     $v1, $t1, 1
-				 addu    $v1, $v0
-				 lh      $s0, 0($v1)
-				 nop
-				 andi    $v0, $s0, 0x1000
-				 beqz    $v0, loc_3E158
-				 li      $v0, 9
-				 lui     $v1, 9
-				 sw      $v0, 0x318C($gp)
-				 lh      $v0, word_9348C
-				 lw      $a0, dword_800A202C
-				 lw      $v1, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 lhu     $a1, 0($v0)
-				 li      $s3, 1
-				 addu    $v1, $a1
-				 sw      $v1, 0x3190($gp)
-
-				 loc_3E158:
-			 andi    $v0, $s0, 0x2000
-				 beqz    $v0, loc_3E1A4
-				 sll     $a1, $s3, 3
-				 addiu   $s3, 1
 				 addu    $a0, $a1, $s6
 				 li      $v0, 0xA
 				 lui     $v1, 9
