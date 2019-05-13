@@ -148,18 +148,7 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 
 				if (i < (r->nOptions - 1))
 				{
-					//v0 = i << 1;
-#if 0///@FIXME sp
-					sll     $v0, $s1, 1
-					addu    $a1, $sp, $v0
-					sll     $v1, $a2, 1
-					addu    $a0, $sp, $v1
-					lh      $v0, 0x28($a1)
-					lh      $v1, 0x18($a0)
-					addiu   $a1, $s2, 2
-					subu    $v0, $v1
-					addu    $s2, $a1, $v0
-#endif
+					y = (y + 2) + OptionBottom[i] - OptionTop[i + 1];
 				}//loc_63C48
 			}
 		}//loc_63C58
