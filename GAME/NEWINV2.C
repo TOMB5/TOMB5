@@ -35,6 +35,8 @@
 #include "DRAWOBJ.H"
 #include "MATHS.H"
 #include "DRAW.H"
+#include "LOAD_LEV.H"
+#include "BUBBLES.H"
 #endif
 
 #if PSX_VERSION
@@ -1457,7 +1459,7 @@ void draw_ammo_selector()//3EDDC(<), 3F230(<) (F)
 				else
 				{
 					//loc_3EEC0
-					///spinback(&ammo_object_list[n].yrot);
+					spinback(&ammo_object_list[n].yrot);
 				}
 				//loc_3EECC
 				yrot = ammo_object_list[n].yrot;
@@ -1482,18 +1484,18 @@ void draw_ammo_selector()//3EDDC(<), 3F230(<) (F)
 
 					if (n == current_ammo_type[0])
 					{
-						DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[0].amount, ammo_selector_fade_val, 0, yrot, 0, 0, 0);
+						DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[n].invitem, ammo_selector_fade_val, 0, yrot, 0, 0, 0);
 					}
 					else
 					{
 						//loc_3F00C
-						DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[0].amount, ammo_selector_fade_val, 0, yrot, 0, 1, 0);
+						DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[n].invitem, ammo_selector_fade_val, 0, yrot, 0, 1, 0);
 					}
 				}
 				else
 				{
 					//loc_3F00C
-					DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[0].amount, ammo_selector_fade_val, 0, yrot, 0, 1, 0);
+					DrawThreeDeeObject2D(inventry_xpos + 64 + xpos, inventry_ypos + 190, ammo_object_list[n].invitem, ammo_selector_fade_val, 0, yrot, 0, 1, 0);
 				}
 
 				//loc_3F048
@@ -1537,6 +1539,9 @@ void fade_ammo_selector()//3ED08, 3F15C (F)
 
 void setup_ammo_selector()//3E9F8, 3EE4C (F)
 {
+#if 0//PSX_VERSION || PSXPC_VERSION
+
+#else
 	int num = 0;
 	int opts = options_table[rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem];
 	ammo_selector_flag = 0;
@@ -1619,11 +1624,730 @@ void setup_ammo_selector()//3E9F8, 3EE4C (F)
 			}
 		}
 	}
+#endif
 }
 
 void handle_inventry_menu()//3DF44, 3E398
 {
-	UNIMPLEMENTED();
+	int n; // $s3
+	int opts; // $s0
+	int i; // $s1
+	int ypos; // $s2
+	int num; // $t1
+	//v0 = rings[RING_AMMO]
+
+	if (rings[RING_AMMO]->ringactive)
+	{
+		PrintString(SCREEN_WIDTH / 2, 120, 1, &gfStringWad[gfStringOffset[optmessages[5]]], FF_CENTER);
+
+		//a1 = rings[RING_INVENTORY]
+		//v0 = rings[RING_INVENTORY]->objlistmovement
+
+		if (rings[RING_INVENTORY]->objlistmovement)
+		{
+			return;
+		}
+
+		if (rings[RING_AMMO]->objlistmovement)
+		{
+			return;
+		}
+
+		//a2 = rings[RING_AMMO]
+
+		if (go_select)
+		{
+			//v0 = rings[RING_INVENTORY]->curobjinlist
+			//a0 = rings[RING_AMMO]->curobjinlist
+			//v1 = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist]
+			//v0 = rings[RING_AMMO]->current_object_list[rings[RING_AMMO]->curobjinlist]
+
+			//s0 = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem
+			//s1 = rings[RING_AMMO]->current_object_list[rings[RING_AMMO]->curobjinlist].invitem
+
+			if(do_these_objects_combine(rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem, rings[RING_AMMO]->current_object_list[rings[RING_AMMO]->curobjinlist].invitem))
+			{
+				combine_ring_fade_dir = 2;
+				combine_type_flag = 1;
+				combine_obj1 = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem;
+				combine_obj2 = rings[RING_AMMO]->current_object_list[rings[RING_AMMO]->curobjinlist].invitem;
+				SoundEffect(SFX_MENU_COMBINE, 0, 2);
+			}
+			else
+			{
+				//loc_3E068
+				SayNo();
+				combine_ring_fade_dir = 2;
+			}
+		}
+		//loc_3E078
+		if (go_deselect)
+		{
+			SoundEffect(SFX_MENU_SELECT, 0, 2);
+			go_deselect = 0;
+			combine_ring_fade_dir = 2;
+		}
+
+		return;
+		
+	}
+	else
+	{
+		//loc_3E0A8
+		//s5 = &current_options[0].text
+		//a3 = s5
+		//s6 = &current_options[0]
+		//v0 = rings[RING_INVENTORY]
+		//a2 = s6
+
+		//a0 = rings[RING_INVENTORY].curobjinlist
+		//s3 = 2
+	}
+#if 0
+				 li      $s3, 2
+				 sll     $v1, $a0, 1
+				 addu    $v1, $a0
+				 sll     $v1, 1
+				 addu    $v0, $v1
+				 lh      $t1, 0($v0)
+
+				 loc_3E0DC:
+			 sw      $zero, 0($a2)
+				 sw      $zero, 0($a3)
+				 addiu   $a3, 8
+				 addiu   $s3, -1
+				 bgez    $s3, loc_3E0DC
+				 addiu   $a2, 8
+
+				 lbu     $v0, 0x31C8($gp)
+				 nop
+				 bnez    $v0, loc_3E464
+				 move    $s3, $zero
+				 addiu   $v0, $a1, 0x33B8
+				 sll     $v1, $t1, 1
+				 addu    $v1, $v0
+				 lh      $s0, 0($v1)
+				 nop
+				 andi    $v0, $s0, 0x1000
+				 beqz    $v0, loc_3E158
+				 li      $v0, 9
+				 lui     $v1, 9
+				 sw      $v0, 0x318C($gp)
+				 lh      $v0, word_9348C
+				 lw      $a0, dword_800A202C
+				 lw      $v1, dword_800A203C
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 lhu     $a1, 0($v0)
+				 li      $s3, 1
+				 addu    $v1, $a1
+				 sw      $v1, 0x3190($gp)
+
+				 loc_3E158:
+			 andi    $v0, $s0, 0x2000
+				 beqz    $v0, loc_3E1A4
+				 sll     $a1, $s3, 3
+				 addiu   $s3, 1
+				 addu    $a0, $a1, $s6
+				 li      $v0, 0xA
+				 lui     $v1, 9
+				 sw      $v0, 0($a0)
+				 lh      $v0, word_9348E
+				 lw      $a0, dword_800A202C
+				 lw      $v1, dword_800A203C
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 lhu     $a2, 0($v0)
+				 addu    $a1, $s5
+				 addu    $v1, $a2
+				 sw      $v1, 0($a1)
+
+				 loc_3E1A4:
+			 andi    $v0, $s0, 0x20
+				 beqz    $v0, loc_3E1F0
+				 sll     $a1, $s3, 3
+				 addiu   $s3, 1
+				 addu    $a0, $a1, $s6
+				 li      $v0, 0xB
+				 lui     $v1, 9
+				 sw      $v0, 0($a0)
+				 lh      $v0, word_93490
+				 lw      $a0, dword_800A202C
+				 lw      $v1, dword_800A203C
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 lhu     $a2, 0($v0)
+				 addu    $a1, $s5
+				 addu    $v1, $a2
+				 sw      $v1, 0($a1)
+
+				 loc_3E1F0:
+			 andi    $v0, $s0, 0x8000
+				 beqz    $v0, loc_3E23C
+				 sll     $a1, $s3, 3
+				 addiu   $s3, 1
+				 addu    $a0, $a1, $s6
+				 li      $v0, 0xC
+				 lui     $v1, 9
+				 sw      $v0, 0($a0)
+				 lh      $v0, word_93492
+				 lw      $a0, dword_800A202C
+				 lw      $v1, dword_800A203C
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 lhu     $a2, 0($v0)
+				 addu    $a1, $s5
+				 addu    $v1, $a2
+				 sw      $v1, 0($a1)
+
+				 loc_3E23C:
+			 andi    $v0, $s0, 4
+				 beqz    $v0, loc_3E288
+				 sll     $a1, $s3, 3
+				 addiu   $s3, 1
+				 addu    $a0, $a1, $s6
+				 li      $v0, 1
+				 lui     $v1, 9
+				 sw      $v0, 0($a0)
+				 lh      $v0, word_93480
+				 lw      $a0, dword_800A202C
+				 lw      $v1, dword_800A203C
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 lhu     $a2, 0($v0)
+				 addu    $a1, $s5
+				 addu    $v1, $a2
+				 sw      $v1, 0($a1)
+
+				 loc_3E288:
+			 andi    $v0, $s0, 2
+				 beqz    $v0, loc_3E2D4
+				 sll     $a1, $s3, 3
+				 addiu   $s3, 1
+				 addu    $a0, $a1, $s6
+				 li      $v0, 5
+				 lui     $v1, 9
+				 sw      $v0, 0($a0)
+				 lh      $v0, word_93488
+				 lw      $a0, dword_800A202C
+				 lw      $v1, dword_800A203C
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 lhu     $a2, 0($v0)
+				 addu    $a1, $s5
+				 addu    $v1, $a2
+				 sw      $v1, 0($a1)
+
+				 loc_3E2D4:
+			 andi    $v0, $s0, 0xC0
+				 beqz    $v0, loc_3E320
+				 sll     $a1, $s3, 3
+				 addiu   $s3, 1
+				 addu    $a0, $a1, $s6
+				 li      $v0, 2
+				 lui     $v1, 9
+				 sw      $v0, 0($a0)
+				 lh      $v0, word_93482
+				 lw      $a0, dword_800A202C
+				 lw      $v1, dword_800A203C
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 lhu     $a2, 0($v0)
+				 addu    $a1, $s5
+				 addu    $v1, $a2
+				 sw      $v1, 0($a1)
+
+				 loc_3E320:
+			 andi    $v0, $s0, 0x100
+				 beqz    $v0, loc_3E36C
+				 sll     $a1, $s3, 3
+				 addiu   $s3, 1
+				 addu    $a0, $a1, $s6
+				 li      $v0, 2
+				 lui     $v1, 9
+				 sw      $v0, 0($a0)
+				 lh      $v0, word_93494
+				 lw      $a0, dword_800A202C
+				 lw      $v1, dword_800A203C
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 lhu     $a2, 0($v0)
+				 addu    $a1, $s5
+				 addu    $v1, $a2
+				 sw      $v1, 0($a1)
+
+				 loc_3E36C:
+			 andi    $v0, $s0, 8
+				 beqz    $v0, loc_3E3CC
+				 andi    $v0, $s0, 1
+				 jal     is_item_currently_combinable
+				 move    $a0, $t1
+				 beqz    $v0, loc_3E3C8
+				 sll     $a1, $s3, 3
+				 addiu   $s3, 1
+				 addu    $a0, $a1, $s6
+				 li      $v0, 3
+				 lui     $v1, 9
+				 sw      $v0, 0($a0)
+				 lh      $v0, word_93484
+				 lw      $a0, dword_800A202C
+				 lw      $v1, dword_800A203C
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 lhu     $a2, 0($v0)
+				 addu    $a1, $s5
+				 addu    $v1, $a2
+				 sw      $v1, 0($a1)
+
+				 loc_3E3C8:
+			 andi    $v0, $s0, 1
+
+				 loc_3E3CC :
+				 beqz    $v0, loc_3E414
+				 sll     $a1, $s3, 3
+				 addiu   $s3, 1
+				 addu    $a0, $a1, $s6
+				 li      $v0, 3
+				 lui     $v1, 9
+				 sw      $v0, 0($a0)
+				 lh      $v0, word_93484
+				 lw      $a0, dword_800A202C
+				 lw      $v1, dword_800A203C
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 lhu     $a2, 0($v0)
+				 addu    $a1, $s5
+				 addu    $v1, $a2
+				 sw      $v1, 0($a1)
+
+				 loc_3E414:
+			 andi    $v0, $s0, 0x10
+				 beqz    $v0, loc_3E550
+				 sll     $a1, $s3, 3
+				 addiu   $s3, 1
+				 addu    $a0, $a1, $s6
+				 li      $v0, 4
+				 lui     $v1, 9
+				 sw      $v0, 0($a0)
+				 lh      $v0, word_93486
+				 lw      $a0, dword_800A202C
+				 lw      $v1, dword_800A203C
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 lhu     $a2, 0($v0)
+				 addu    $a1, $s5
+				 addu    $v1, $a2
+				 j       loc_3E550
+				 sw      $v1, 0($a1)
+
+				 loc_3E464:
+			 li      $v0, 6
+				 lui     $v1, 9
+				 addiu   $t0, $v1, (dword_92BE8 - 0x90000)
+				 lh      $a0, 0x31D0($gp)
+				 lw      $a3, dword_800A202C
+				 addiu   $a1, 0x33B8
+				 sw      $v0, 0x318C($gp)
+				 sll     $v0, $a0, 2
+				 addu    $v0, $a0
+				 sll     $v0, 2
+				 addu    $v0, $t0
+				 lh      $v1, 0xE($v0)
+				 lw      $a2, dword_800A203C
+				 sll     $v1, 1
+				 addu    $v1, $a3
+				 lhu     $a0, 0($v1)
+				 lh      $v1, 0x31D6($gp)
+				 li      $v0, 7
+				 sw      $v0, 0x3194($gp)
+				 addu    $a0, $a2, $a0
+				 sw      $a0, 0x3190($gp)
+				 sll     $a0, $t1, 1
+				 sll     $v0, $v1, 2
+				 addu    $v0, $v1
+				 sll     $v0, 2
+				 addu    $v0, $t0
+				 addu    $a0, $a1
+				 lh      $v1, 0xE($v0)
+				 lh      $s0, 0($a0)
+				 sll     $v1, 1
+				 addu    $v1, $a3
+				 lhu     $v0, 0($v1)
+				 andi    $v1, $s0, 0x100
+				 addu    $v0, $a2, $v0
+				 sw      $v0, 0x3198($gp)
+				 beqz    $v1, loc_3E53C
+				 li      $s3, 2
+				 lh      $v1, 0x31DC($gp)
+				 nop
+				 sll     $v0, $v1, 2
+				 addu    $v0, $v1
+				 sll     $v0, 2
+				 addu    $v0, $t0
+				 lh      $v1, 0xE($v0)
+				 li      $a0, 8
+				 sw      $a0, 0x319C($gp)
+				 sll     $v1, 1
+				 addu    $v1, $a3
+				 lhu     $v0, 0($v1)
+				 li      $s3, 3
+				 addu    $v0, $a2, $v0
+				 sw      $v0, 0x31A0($gp)
+
+				 loc_3E53C:
+			 lw      $v0, 0x314C($gp)
+				 nop
+				 lbu     $v1, 0($v0)
+				 nop
+				 sb      $v1, 0x312C($gp)
+
+				 loc_3E550 :
+				 li      $v0, 1
+				 bne     $s3, $v0, loc_3E564
+				 li      $s2, 0x66
+				 j       loc_3E574
+				 li      $s2, 0x78
+
+				 loc_3E564 :
+				 li      $v0, 2
+				 bne     $s3, $v0, loc_3E574
+				 nop
+				 li      $s2, 0x6F
+
+				 loc_3E574 :
+				 blez    $s3, loc_3E5D8
+				 move    $s1, $zero
+				 li      $s4, 0x8000
+				 move    $s0, $s5
+
+				 loc_3E584 :
+			 lbu     $v0, 0x312C($gp)
+				 nop
+				 bne     $s1, $v0, loc_3E5B0
+				 li      $a0, 0x100
+				 andi    $a1, $s2, 0xFFFF
+				 lw      $a3, 0($s0)
+				 li      $a2, 1
+				 jal     PrintString
+				 sw      $s4, 0x38 + var_28($sp)
+				 j       loc_3E5C8
+				 addiu   $s2, 0x12
+
+				 loc_3E5B0:
+			 andi    $a1, $s2, 0xFFFF
+				 lw      $a3, 0($s0)
+				 li      $a2, 5
+				 jal     PrintString
+				 sw      $s4, 0x38 + var_28($sp)
+				 addiu   $s2, 0x12
+
+				 loc_3E5C8:
+			 addiu   $s1, 1
+				 slt     $v0, $s1, $s3
+				 bnez    $v0, loc_3E584
+				 addiu   $s0, 8
+
+				 loc_3E5D8 :
+				 lbu     $v0, 0x313C($gp)
+				 nop
+				 beqz    $v0, loc_3E9D0
+				 nop
+				 lw      $v0, 0x3178($gp)
+				 nop
+				 lw      $v1, 0x25C($v0)
+				 nop
+				 bnez    $v1, loc_3E9D0
+				 nop
+				 lw      $v0, 0x317C($gp)
+				 nop
+				 lw      $v1, 0x25C($v0)
+				 nop
+				 bnez    $v1, loc_3E9D0
+				 nop
+				 lbu     $v0, 0x3150($gp)
+				 nop
+				 beqz    $v0, loc_3E64C
+				 nop
+				 lbu     $v0, 0x312C($gp)
+				 nop
+				 beqz    $v0, loc_3E64C
+				 addiu   $v0, -1
+				 sb      $v0, 0x312C($gp)
+				 li      $a0, 0x6D
+				 move    $a1, $zero
+				 jal     SoundEffect
+				 li      $a2, 2
+
+				 loc_3E64C:
+			 lbu     $v0, 0x3140($gp)
+				 nop
+				 beqz    $v0, loc_3E684
+				 addiu   $v0, $s3, -1
+				 lbu     $v1, 0x312C($gp)
+				 nop
+				 slt     $v0, $v1, $v0
+				 beqz    $v0, loc_3E684
+				 addiu   $v0, $v1, 1
+				 sb      $v0, 0x312C($gp)
+				 li      $a0, 0x6D
+				 move    $a1, $zero
+				 jal     SoundEffect
+				 li      $a2, 2
+
+				 loc_3E684:
+			 lbu     $v0, 0x31C8($gp)
+				 nop
+				 beqz    $v0, loc_3E710
+				 nop
+				 lbu     $v0, 0x3144($gp)
+				 nop
+				 beqz    $v0, loc_3E6C8
+				 nop
+				 lbu     $v0, 0x312C($gp)
+				 nop
+				 beqz    $v0, loc_3E6C8
+				 addiu   $v0, -1
+				 sb      $v0, 0x312C($gp)
+				 li      $a0, 0x6D
+				 move    $a1, $zero
+				 jal     SoundEffect
+				 li      $a2, 2
+
+				 loc_3E6C8:
+			 lbu     $v0, 0x3124($gp)
+				 nop
+				 beqz    $v0, loc_3E700
+				 addiu   $v0, $s3, -1
+				 lbu     $v1, 0x312C($gp)
+				 nop
+				 slt     $v0, $v1, $v0
+				 beqz    $v0, loc_3E700
+				 addiu   $v0, $v1, 1
+				 sb      $v0, 0x312C($gp)
+				 li      $a0, 0x6D
+				 move    $a1, $zero
+				 jal     SoundEffect
+				 li      $a2, 2
+
+				 loc_3E700:
+			 lw      $v1, 0x314C($gp)
+				 lbu     $v0, 0x312C($gp)
+				 nop
+				 sb      $v0, 0($v1)
+
+				 loc_3E710 :
+				 lbu     $v0, 0x3180($gp)
+				 nop
+				 beqz    $v0, loc_3E8C0
+				 li      $v1, 5
+				 lbu     $v0, 0x312C($gp)
+				 nop
+				 sll     $v0, 3
+				 addu    $v0, $s6
+				 lw      $a0, 0($v0)
+				 nop
+				 beq     $a0, $v1, loc_3E754
+				 li      $v0, 1
+				 beq     $a0, $v0, loc_3E754
+				 li      $a0, 0x6F
+				 move    $a1, $zero
+				 jal     SoundEffect
+				 li      $a2, 2
+
+				 loc_3E754:
+			 lbu     $v0, 0x312C($gp)
+				 nop
+				 sll     $v0, 3
+				 addu    $v0, $s6
+				 lw      $v1, 0($v0)
+				 li      $a0, 2
+				 bne     $v1, $a0, loc_3E7C8
+				 li      $v0, 9
+				 lw      $v0, 0x3178($gp)
+				 nop
+				 sw      $zero, 0x258($v0)
+				 lbu     $v1, 0x312C($gp)
+				 lbu     $a0, 0x3114($gp)
+				 lbu     $a1, 0x3115($gp)
+				 lbu     $a2, 0x3116($gp)
+				 lbu     $a3, 0x3117($gp)
+				 lbu     $t0, 0x3118($gp)
+				 lbu     $t1, 0x3119($gp)
+				 li      $v0, 1
+				 sb      $v0, 0x31C8($gp)
+				 sb      $v1, 0x3128($gp)
+				 sb      $a0, 0x311A($gp)
+				 sb      $a1, 0x311B($gp)
+				 sb      $a2, 0x311C($gp)
+				 sb      $a3, 0x311D($gp)
+				 sb      $t0, 0x311E($gp)
+				 sb      $t1, 0x311F($gp)
+				 j       loc_3E8C0
+				 nop
+
+				 loc_3E7C8 :
+			 bne     $v1, $v0, loc_3E7E0
+				 li      $v0, 0xA
+				 li      $v0, 1
+				 sb      $v0, 0x31C4($gp)
+				 j       loc_3E8C0
+				 nop
+
+				 loc_3E7E0 :
+			 bne     $v1, $v0, loc_3E7F4
+				 li      $v0, 0xB
+				 sb      $a0, 0x31C4($gp)
+				 j       loc_3E8C0
+				 nop
+
+				 loc_3E7F4 :
+			 bne     $v1, $v0, loc_3E80C
+				 li      $v0, 0xC
+				 li      $v0, 1
+				 sh      $v0, 0x574($gp)
+				 j       loc_3E8C0
+				 nop
+
+				 loc_3E80C :
+			 bne     $v1, $v0, loc_3E824
+				 addiu   $v0, $v1, -6
+				 li      $v0, 1
+				 sh      $v0, 0x576($gp)
+				 j       loc_3E8C0
+				 nop
+
+				 loc_3E824 :
+			 sltiu   $v0, 3
+				 beqz    $v0, loc_3E848
+				 li      $v0, 1
+				 lw      $v1, 0x3178($gp)
+				 sb      $zero, 0x31C8($gp)
+				 sw      $v0, 0x258($v1)
+				 sb      $zero, 0x312C($gp)
+				 j       loc_3E8C0
+				 nop
+
+				 loc_3E848 :
+			 li      $v0, 3
+				 bne     $v1, $v0, loc_3E888
+				 li      $v0, 4
+				 jal     construct_combine_object_list
+				 nop
+				 lw      $v0, 0x3178($gp)
+				 nop
+				 sw      $zero, 0x258($v0)
+				 lw      $v1, 0x317C($gp)
+				 li      $v0, 1
+				 sw      $v0, 0x258($v1)
+				 sb      $zero, 0x3174($gp)
+				 sb      $zero, 0x313C($gp)
+				 sh      $v0, 0x3164($gp)
+				 j       loc_3E8C0
+				 nop
+
+				 loc_3E888 :
+			 bne     $v1, $v0, loc_3E8A4
+				 li      $v0, 5
+				 li      $v0, 1
+				 sb      $v0, 0x3184($gp)
+				 sh      $a0, 0x3160($gp)
+				 j       loc_3E8C0
+				 nop
+
+				 loc_3E8A4 :
+			 beq     $v1, $v0, loc_3E8B4
+				 li      $v0, 1
+				 bne     $v1, $v0, loc_3E8C0
+				 nop
+
+				 loc_3E8B4 :
+			 li      $v0, 1
+				 sb      $zero, 0x313C($gp)
+				 sb      $v0, 0x3148($gp)
+
+				 loc_3E8C0 :
+				 lw      $v0, dword_800A457C
+				 lui     $v1, 0x10
+				 and $v0, $v1
+				 beqz    $v0, loc_3E958
+				 li      $v1, 1
+				 lbu     $v0, 0x312C($gp)
+				 nop
+				 sll     $v0, 3
+				 addu    $v0, $s6
+				 lw      $a1, 0($v0)
+				 nop
+				 bne     $a1, $v1, loc_3E958
+				 nop
+				 lw      $a0, 0x3178($gp)
+				 nop
+				 lw      $v1, 0x260($a0)
+				 nop
+				 sll     $v0, $v1, 1
+				 addu    $v0, $v1
+				 sll     $v0, 1
+				 addu    $a0, $v0
+				 lhu     $v1, 0($a0)
+				 nop
+				 addiu   $v1, -0x16
+				 sltiu   $v1, 2
+				 beqz    $v1, loc_3E958
+				 nop
+				 lbu     $v0, 0x31F0($gp)
+				 nop
+				 bnez    $v0, loc_3E958
+				 nop
+				 lbu     $v0, 0x31EC($gp)
+				 nop
+				 beqz    $v0, loc_3E958
+				 nop
+				 sb      $zero, 0x313C($gp)
+				 sb      $a1, 0x3148($gp)
+
+				 loc_3E958:
+			 lbu     $v0, 0x31E8($gp)
+				 nop
+				 beqz    $v0, loc_3E9D0
+				 nop
+				 lbu     $v0, 0x31C8($gp)
+				 nop
+				 beqz    $v0, loc_3E9D0
+				 li      $a0, 0x6D
+				 move    $a1, $zero
+				 jal     SoundEffect
+				 li      $a2, 2
+				 lw      $v1, 0x3178($gp)
+				 li      $v0, 1
+				 sb      $zero, 0x31E8($gp)
+				 sb      $zero, 0x31C8($gp)
+				 sw      $v0, 0x258($v1)
+				 lbu     $a0, 0x311A($gp)
+				 lbu     $v0, 0x311B($gp)
+				 lbu     $v1, 0x311C($gp)
+				 lbu     $a1, 0x311D($gp)
+				 lbu     $a2, 0x311E($gp)
+				 lbu     $a3, 0x311F($gp)
+				 lbu     $t0, 0x3128($gp)
+				 sb      $a0, 0x3114($gp)
+				 sb      $v0, 0x3115($gp)
+				 sb      $v1, 0x3116($gp)
+				 sb      $a1, 0x3117($gp)
+				 sb      $a2, 0x3118($gp)
+				 sb      $a3, 0x3119($gp)
+				 sb      $t0, 0x312C($gp)
+
+				 loc_3E9D0:
+			 lw      $ra, 0x38 + var_4($sp)
+				 lw      $s6, 0x38 + var_8($sp)
+				 lw      $s5, 0x38 + var_C($sp)
+				 lw      $s4, 0x38 + var_10($sp)
+				 lw      $s3, 0x38 + var_14($sp)
+				 lw      $s2, 0x38 + var_18($sp)
+				 lw      $s1, 0x38 + var_1C($sp)
+				 lw      $s0, 0x38 + var_20($sp)
+				 jr      $ra
+				 addiu   $sp, 0x38
+#endif
 }
 
 void handle_object_changeover(int ringnum)//3DF18, 3E36C (F)
@@ -1964,12 +2688,13 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 	mPushMatrix();
 	mTranslateXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
 	mRotYXZ(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
-	bit = 1;
-
+	
 	if (item->object_number == PUZZLE_HOLE8 && GLOBAL_invkeypadmode)
 	{
-		ScaleCurrentMatrix(1, 6144, 6144, 6144);
+		ScaleCurrentMatrix(1, 6144, 4096, 4096);
 	}//loc_3C770
+
+	bit = 1;
 
 	meshpp = &meshes[object->mesh_index];
 	bone = &bones[object->bone_index];
@@ -1987,28 +2712,22 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 	{
 		if (overlay)
 		{
-			phd_PutPolygons_pickup(meshpp[0], 0);
-			meshpp += 2;
+			//phd_PutPolygons_pickup(meshpp[0], 0);
 		}
 		else
 		{
 			//loc_3C7F8
-			phd_PutPolygons_seethrough(meshpp[0], shade);
-
-			//loc_3C804
-			meshpp += 2;
+			///phd_PutPolygons_seethrough(meshpp[0], shade);
 		}
 	}
-	else
-	{
-		//loc_3C804
-		meshpp += 2;
-	}
+
+	//loc_3C804
+	meshpp += 2;
 
 	//loc_3C81C
-	for (i = 0; i < object->nmeshes - 1; i++, bone += 4, meshpp += 2)
+	for (i = 0; i < object->nmeshes - 1; i++, meshpp += 2, bone += 4)
 	{
-		poppush = bone[0];
+		poppush = *bone;
 
 		if ((poppush & 1))
 		{
@@ -2024,19 +2743,20 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 		bit <<= 1;
 
 		mRotSuperPackedYXZ(&rotation1, 0);
-		if (bit & item->mesh_bits)
+		if ((bit & item->mesh_bits))
 		{
-			if (!overlay)
+			if (overlay)
+			{
+				phd_PutPolygons_pickup(meshpp[0], 1);
+			}
+			else
 			{
 				//loc_3C89C
 				phd_PutPolygons_seethrough(meshpp[0], shade);
 			}
-			else
-			{
-				phd_PutPolygons_pickup(meshpp[0], 1);
-			}
 		}
 		//loc_3C8A8
+
 	}
 
 	//loc_3C8C8
@@ -2045,166 +2765,63 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 
 void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay)//3C43C(<), 3C890(<) (F)
 {
-	struct ITEM_INFO item; // stack offset -176
-	struct INVOBJ* objme; // $s1
+	struct ITEM_INFO item;
+	struct INVOBJ* objme;
 
-	//s5 = x
-	//a0 = 0
-	//v1 = num << 2
-	//v1 += num
-	//v1 <<= 2
-	//a2 = 0
-	//s4 = shade
-	//v0 = &inventry_objects_list[0];
 	objme = &inventry_objects_list[num];
-	//t0 = objme->yoff
-	//t1 = xrot
-	//a3 = 0
 
-	/*
-	sw      $zero, 0xD0 + var_C0($sp)
-	sw      $zero, 0xD0 + var_BC($sp)
-	sw      $zero, 0xD0 + var_B8($sp)
-	*/
+	item.pos.x_rot = objme->xrot + xrot;
+	item.pos.y_rot = objme->yrot + yrot;
+	item.pos.z_rot = objme->zrot + zrot;
+	item.object_number = objme->object_number;
 
-	//v0 = objme->yrot
-	//v1 = objme->xrot
+	phd_LookAt(0, 1024, 0, 0, 0, 0, 0);
+	//mQuickW2VMatrix();
 
+	if (bright == 0)
+	{
+		//SetInventoryLighting(0x505050, 0x202020, 0x404040, 0x808080);
+	}
+	else if (bright == 1)
+	{
+		//SetInventoryLighting(0x323232, 0x101010, 0x303030, 0x303030);
+	}
+	else
+	{
+		//loc_3C550
+		//SetInventoryLighting(0x323232, 0x101010, 0x303030, (bright << 16) | (bright << 8) | bright);
+	}
 
+	//loc_3C578
+	mPushUnitMatrix();
+	Matrix->m10 -= (Matrix->m10 << 16) >> 18;//Maybe just >> 2
+	Matrix->m11 -= (Matrix->m11 << 16) >> 18;//Maybe just >> 2
+	Matrix->m12 -= (Matrix->m12 << 16) >> 18;//Maybe just >> 2
+	mLoadMatrix(Matrix);
+	mSetTrans(0, 0, objme->scale1);
+	SetGeomOffset(x, y + objme->yoff);
 
-#if 0
-				 
-				 lw      $s0, 0xD0 + arg_1C($sp)
-				 lw      $s3, 0xD0 + arg_20($sp)
-				 addu    $s2, $a1, $t0
-				 lw      $t0, 0xD0 + arg_14($sp)
-				 li      $a1, 0x400
-				 addu    $v0, $t0
-				 lw      $t0, 0xD0 + arg_18($sp)
-				 addu    $v1, $t1
-				 sh      $v1, 0xD0 + var_64($sp)
-				 sh      $v0, 0xD0 + var_62($sp)
-				 lhu     $v0, 0xA($s1)
-				 lhu     $v1, 0($s1)
-				 addu    $v0, $t0
-				 sh      $v0, 0xD0 + var_60($sp)
-				 jal     phd_LookAt
-				 sh      $v1, 0xD0 + var_A4($sp)
+	item.shade = -1;
+	item.pos.x_pos = 0;
+	item.pos.y_pos = 0;
+	item.pos.z_pos = 0;
+	item.required_anim_state = 0;
+	item.il.Light[3].pad = 0;
+	item.mesh_bits = objme->meshbits;
+	item.anim_number = objects[item.object_number].anim_index;
 
-				 jal     mQuickW2VMatrix
-				 nop
-				 bnez    $s0, loc_3C520
-				 li      $v0, 1
-				 li      $a0, 0x505050
-				 li      $a1, 0x202020
-				 li      $a2, 0x404040
-				 lui     $a3, 0x80
-				 jal     SetInventoryLighting
-				 li      $a3, 0x808080
-				 j       loc_3C578
-				 nop
+	if (!(objme->flags & 8))
+	{
+		DrawInventoryItemMe(&item, shade, overlay, 0);
+	}
+	else
+	{
+		//loc_3C658
+		DrawInventoryItemMe(&item, shade, overlay, 1);
+	}
 
-				 loc_3C520 :
-			 bne     $s0, $v0, loc_3C550
-				 lui     $a0, 0x32
-				 li      $a0, 0x323232
-				 li      $a1, 0x101010
-				 li      $a2, 0x303030
-				 lui     $a3, 0x30
-				 jal     SetInventoryLighting
-				 li      $a3, 0x303030
-				 j       loc_3C578
-				 nop
-
-				 loc_3C550 :
-			 ori     $a0, 0x3232
-				 li      $a1, 0x101010
-				 li      $a2, 0x303030
-				 sll     $a3, $s0, 16
-				 sll     $v0, $s0, 8
-				 or $a3, $v0
-				 jal     SetInventoryLighting
-				 or $a3, $s0
-
-				 loc_3C578 :
-			 jal     mPushUnitMatrix
-				 nop
-				 lw      $a1, dword_A1DD4
-				 nop
-				 move    $a0, $a1
-				 lhu     $v1, 6($a1)
-				 lhu     $a2, 8($a1)
-				 sll     $v0, $v1, 16
-				 sra     $v0, 18
-				 subu    $v1, $v0
-				 sll     $v0, $a2, 16
-				 sra     $v0, 18
-				 sh      $v1, 6($a1)
-				 lhu     $v1, 0xA($a1)
-				 subu    $a2, $v0
-				 sh      $a2, 8($a1)
-				 sll     $v0, $v1, 16
-				 sra     $v0, 18
-				 subu    $v1, $v0
-				 jal     mLoadMatrix
-				 sh      $v1, 0xA($a1)
-				 move    $a0, $zero
-				 lh      $a2, 4($s1)
-				 jal     mSetTrans
-				 move    $a1, $zero
-				 move    $a0, $s5
-				 move    $a1, $s2
-				 li      $v1, 0x1F2480
-				 lh      $v0, 0xD0 + var_A4($sp)
-				 lw      $a2, 0x10($s1)
-				 sll     $v0, 6
-				 addu    $v0, $v1
-				 lhu     $a3, 0x26($v0)
-				 li      $v1, 0xFFFFFFFF
-				 sh      $v1, 0xD0 + var_86($sp)
-				 sw      $zero, 0xD0 + var_70($sp)
-				 sw      $zero, 0xD0 + var_6C($sp)
-				 sw      $zero, 0xD0 + var_68($sp)
-				 sh      $zero, 0xD0 + var_98($sp)
-				 sb      $zero, 0xD0 + var_2D($sp)
-				 sw      $a2, 0xD0 + var_A8($sp)
-				 jal     SetGeomOffset
-				 sh      $a3, 0xD0 + var_9C($sp)
-				 lhu     $v0, 0xC($s1)
-				 nop
-				 andi    $v0, 8
-				 bnez    $v0, loc_3C658
-				 addiu   $a0, $sp, 0xD0 + var_B0
-				 move    $a1, $s4
-				 move    $a2, $s3
-				 jal     DrawInventoryItemMe
-				 move    $a3, $zero
-				 j       loc_3C668
-				 nop
-
-				 loc_3C658 :
-			 move    $a1, $s4
-				 move    $a2, $s3
-				 jal     DrawInventoryItemMe
-				 li      $a3, 1
-
-				 loc_3C668 :
-				 jal     mPopMatrix
-				 nop
-				 li      $a0, 0x100
-				 jal     SetGeomOffset
-				 li      $a1, 0x78
-				 lw      $ra, 0xD0 + var_8($sp)
-				 lw      $s5, 0xD0 + var_C($sp)
-				 lw      $s4, 0xD0 + var_10($sp)
-				 lw      $s3, 0xD0 + var_14($sp)
-				 lw      $s2, 0xD0 + var_18($sp)
-				 lw      $s1, 0xD0 + var_1C($sp)
-				 lw      $s0, 0xD0 + var_20($sp)
-				 jr      $ra
-				 addiu   $sp, 0xD0
-#endif
-
+	mPopMatrix();
+	SetGeomOffset(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 }
 
 void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
