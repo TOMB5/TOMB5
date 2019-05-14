@@ -51,6 +51,8 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 				{
 					w = rw;
 				}
+
+				h += rh;
 			}
 		}//loc_6389C
 	}
