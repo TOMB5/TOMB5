@@ -8,6 +8,7 @@
 
 #define DISC_IMAGE_FILENAME "TOMB5.BIN"
 
+int CD_Debug = 0;
 
 FILE* openFile = NULL;
 
@@ -19,11 +20,9 @@ typedef struct commandQueue
 	unsigned int count;
 };
 
-#define COMMAND_QUEUE_SIZE 256
+#define COMMAND_QUEUE_SIZE 128
 
 commandQueue comQueue[COMMAND_QUEUE_SIZE];
-commandQueue* comStart = &comQueue[0];
-commandQueue* comEnd = &comQueue[COMMAND_QUEUE_SIZE-1];
 int comQueueIndex = 0;
 int comQueueCount = 0;
 int currentSector = 0;
@@ -174,21 +173,23 @@ int CdPosToInt(CdlLOC* p)
 
 int CdRead(int sectors, u_long* buf, int mode)
 {
-	if (comQueueIndex == COMMAND_QUEUE_SIZE)
-		comQueueIndex = 0;
-
-	comStart[comQueueIndex].mode = CdlReadS;
-	comStart[comQueueIndex].p = (unsigned char*)buf;
-	comStart[comQueueIndex].processed = 0;
-	comStart[comQueueIndex].count = sectors;
-	comQueueCount++;
-	comQueueIndex++;
+	for (int i = 0; i < COMMAND_QUEUE_SIZE; i++)
+	{
+		if (comQueue[i].processed == 1)
+		{
+			comQueue[i].mode = CdlReadS;
+			comQueue[i].p = (unsigned char*)buf;
+			comQueue[i].processed = 0;
+			comQueue[i].count = sectors;
+			break;
+		}
+	}
 	return 0;
 }
 
 int CdReadSync(int mode, u_char* result)
 {
-	for (int i = 0; i < comQueueCount; i++)
+	for (int i = 0; i < COMMAND_QUEUE_SIZE; i++)
 	{
 		if (comQueue[i].processed == 0)
 		{
@@ -212,8 +213,9 @@ int CdReadSync(int mode, u_char* result)
 
 int CdSetDebug(int level)
 {
-	UNIMPLEMENTED();
-	return 0;
+	int lastLevel = CD_Debug;
+	CD_Debug = level;
+	return lastLevel;
 }
 
 int CdSync(int mode, u_char * result)
@@ -232,6 +234,11 @@ int CdInit(void)
 	{
 		eprinterr("Failed to open disc image file! %s\n", DISC_IMAGE_FILENAME);
 		return 0;
+	}
+
+	for (int i = 0; i < COMMAND_QUEUE_SIZE; i++)
+	{
+		comQueue[i].processed = 1;
 	}
 
 	return 1;

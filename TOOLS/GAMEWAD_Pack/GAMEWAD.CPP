@@ -31,10 +31,13 @@ namespace TombRaiderChronicles
 					gameWad.entries[i].fileOffset = currentOffset;
 					currentOffset++;//HACK - So next entry is aligned to 2048 bytes
 
-					if (modData == NULL)
+					if (gameWad.entries[i].fileSize > 0)
 					{
-						modData = new char[gameWad.entries[i].fileSize];
-						reader.readRaw(modData, gameWad.entries[i].fileSize);
+						if (modData == NULL)
+						{
+							modData = new char[gameWad.entries[i].fileSize];
+							reader.readRaw(modData, gameWad.entries[i].fileSize);
+						}
 					}
 
 					reader.close();
@@ -67,10 +70,14 @@ namespace TombRaiderChronicles
 				delete[] loadCdData;
 
 				gameWad.entries[i].fileSize += gameWad.entries[NONE].fileSize;
-				writer.write(modData, gameWad.entries[NONE].fileSize);
 
-				gameWad.entries[i].fileSize = gameWad.entries[i].fileSize + (CD_SECTOR_SIZE-1) & ~(CD_SECTOR_SIZE-1);
-				writer.seek((int)writer.m_pos + (CD_SECTOR_SIZE - 1) & ~(CD_SECTOR_SIZE - 1));
+				if (modData != NULL)
+				{
+					writer.write(modData, gameWad.entries[NONE].fileSize);
+
+					gameWad.entries[i].fileSize = gameWad.entries[i].fileSize + (CD_SECTOR_SIZE - 1) & ~(CD_SECTOR_SIZE - 1);
+					writer.seek((int)writer.m_pos + (CD_SECTOR_SIZE - 1) & ~(CD_SECTOR_SIZE - 1));
+				}
 
 				sprintf_s(buf, "%s.PSX", gwFileNames[i]);
 				reader.open(buf);

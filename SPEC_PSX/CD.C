@@ -66,7 +66,7 @@ static int cdStartSector = 0;
 //Current sector for the gamewad file entry, updated as data is read from disk.
 int cdCurrentSector = 0;
 
-void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F) (*)
+void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F) (*) (D)
 {
 #ifndef NO_SOUND
 	SpuCommonAttr attr;
@@ -80,7 +80,7 @@ void CDDA_SetVolume(int nVolume)//5D7FC(<), 5DC78(<) (F) (*)
 #endif
 }
 
-void XAReplay()//5D838(<), 5DCB4(<) (*)
+void XAReplay()//5D838(<), 5DCB4(<) (F) (*) (D)
 {
 	CdlLOC loc;
 
@@ -254,7 +254,7 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 	return;
 }
 
-void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F) (*)
+void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F) (*) (D)
 {
 	unsigned char param[4];
 
@@ -287,7 +287,7 @@ void S_CDPlay(short track, int mode)//5DC10(<), 5E08C(<) (F) (*)
 	return;
 }
 
-void S_CDStop()//5DCD0(<), 5E14C(<) (F) (*)
+void S_CDStop()//5DCD0(<), 5E14C(<) (F) (*) (D)
 {
 	XAFlag = 0;
 
@@ -300,7 +300,7 @@ void S_CDStop()//5DCD0(<), 5E14C(<) (F) (*)
 	return;
 }
 
-void S_CDPause()//5DD14(<), 5E190(<) (F) (*)
+void S_CDPause()//5DD14(<), 5E190(<) (F) (*) (D)
 {
 	if (XATrack >= 0)
 	{
@@ -320,7 +320,7 @@ void S_CDRestart()//5DD40(<) (F) (*)
 	return;
 }
 
-void S_StartSyncedAudio(int nTrack)//5DD78(<), 5E1F4(<) (F) (*)
+void S_StartSyncedAudio(int nTrack)//5DD78(<), 5E1F4(<) (F) (*) (D)
 {
 	IsAtmospherePlaying = 0;
 
@@ -333,7 +333,7 @@ void S_StartSyncedAudio(int nTrack)//5DD78(<), 5E1F4(<) (F) (*)
 	return;
 }
 
-void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F)
+void CDDA_SetMasterVolume(int nVolume)//5DDC4(<), 5E240(<) (F) (*) (D)
 {
 	XAMasterVolume = nVolume;
 	CDDA_SetVolume(nVolume);
@@ -378,46 +378,38 @@ void InitNewCDSystem()//5DDE8(<), 5E264(<) (F) (*) (D) (ND)
 	XATrack = -1;
 }
 
-void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F) (*)
+void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F) (*) (D)
 {
 	unsigned char param[4];
 
 	if (mode == 0)
 	{
-		if (current_cd_mode == 0)
+		if (current_cd_mode != 0)
 		{
-			return;
+			current_cd_mode = 0;
+			param[0] = CdlModeSpeed;
+			CdControlB(CdlSetmode, param, NULL);
+			VSync(3);
 		}
-		
-		current_cd_mode = 0;
-
-		param[0] = CdlModeSpeed;
-		CdControlB(CdlSetmode, param, NULL);
-		VSync(3);
 	}
 	else if (mode == 1)
 	{
 		//loc_5DEF8
-		if (current_cd_mode == mode)
+		if (current_cd_mode != 1)
 		{
-			return;
+			current_cd_mode = mode;
 		}
-		
-		current_cd_mode = mode;
 	}
 	else if (mode == 2)
 	{
 		//loc_5DF20
-		if (current_cd_mode == mode)
+		if (current_cd_mode != 2)
 		{
-			return;
+			current_cd_mode = mode;
+			param[0] = CdlModeSpeed;
+			CdControlB(CdlSetmode, param, NULL);
+			VSync(3);
 		}
-
-		current_cd_mode = mode;
-		
-		param[0] = CdlModeSpeed;
-		CdControlB(CdlSetmode, param, NULL);
-		VSync(3);
 	}
 
 	//loc_5DF58
@@ -436,7 +428,7 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F) (*)
 * @RETURN - Filesize of the gamewad entry in bytes.
 */
 
-int DEL_CDFS_OpenFile(int filenum /*$a0*/)//*, 5E3C0(<) (F)
+int DEL_CDFS_OpenFile(int filenum /*$a0*/)//*, 5E3C0(<) (F) (D)
 {
 	DEL_ChangeCDMode(0);
 	cdCurrentSector = cdStartSector = gwLba + (gwHeader.entries[filenum].fileOffset >> CD_SECTOR_SHIFT);
@@ -453,7 +445,7 @@ int DEL_CDFS_OpenFile(int filenum /*$a0*/)//*, 5E3C0(<) (F)
 * @PARAM - [size] the number of bytes you wish to read [addr] the memory location the data is read to.
 */
 
-int DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F) (*)
+int DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F) (*) (D)
 {
 	CdlFILE fp;
 	long numSectorsToRead;
@@ -510,7 +502,7 @@ int DEL_CDFS_Read(char* addr, int size)//*, 5E414(<) (F) (*)
 * @PARAM - [offset] the number of bytes you wish to seek (not in sectors).
 */
 
-int DEL_CDFS_Seek(int offset /*$a0*/)//*, 5E54C(<) (F) (*)
+int DEL_CDFS_Seek(int offset /*$a0*/)//*, 5E54C(<) (F) (*) (D)
 {
 	cdCurrentSector = cdStartSector + (offset >> CD_SECTOR_SHIFT);
 	return 0;

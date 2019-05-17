@@ -2,8 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF UpdatePulseColour, PrintString, DrawChar, GetStringLength, GetStringDimensions
-	XREF PulseCnt, FontShades, phd_mxptr, MatrixStack, Matrix, MatrixSP, AccentTable, LaSlot, CharDef, sound_active, sample_infos, sample_lut, ScaleFlag, GnFrameCounter, db, S_SoundStopSample, db.ot
+	XDEF _DelDrawSprite, _draw_gbackground2, UpdatePulseColour, PrintString, DrawChar, GetStringLength, GetStringDimensions, draw_outlines
+	XREF GLOBAL_default_sprites_ptr, PulseCnt, FontShades, phd_mxptr, MatrixStack, Matrix, MatrixSP, AccentTable, LaSlot, CharDef, sound_active, sample_infos, sample_lut, ScaleFlag, GnFrameCounter, db, S_SoundStopSample, db.ot
 
 aUEAAAAEEEAAEOO dw 0;TODO asm really
 loc_92020 incbin SPEC_PSX//loc_92020.TBL
@@ -477,3 +477,205 @@ GetStringLength:
 	locret_8E020:
 	jr      ra
 	move    v0, t0
+
+_draw_gbackground2:
+	lw		v0, 0x1F40(t8)
+	lui		at, 0xA00
+	li		v1, 0xE1000240
+	or		v0, at
+	sw		t9, 0x1F40(t8)
+	sw		v0, 0x0(t9)
+	sw		v1, 0x4(t9)
+	sw		zero, 0x8(t9)
+	sw		t0, 0xC(t9)
+	sh		a0, 0x10(t9)
+	sh		a1, 0x12(t9)
+	sw		t1, 0x14(t9)
+	addu	a3, a1, a3
+	addu	a2, a0, a2
+	sh		a2, 0x18(t9)
+	sh		a1, 0x1A(t9)
+	sw		t2, 0x1C(t9)
+	sh		a0, 0x20(t9)
+	sh		a3, 0x22(t9)
+	sw		t3, 0x24(t9)
+	sh		a2, 0x28(t9)
+	sh		a3, 0x2A(t9)
+	jr		ra
+	addiu	t9, 0x2C
+
+_DelDrawSprite:
+	sll		a2, 4
+	addu	a2, t0
+	lhu		v0, 0xA(a2)
+	lui		v1, 0xE100
+	andi	v0, 0x9FF
+	ori     v0, 0x600
+	or      v1, v0
+	sw		v1, 0x4(t9)
+	sw		zero, 0x8(t9)
+	lui		at, 0x6480
+	ori		at, 0x8080
+	sw		at, 0xC(t9)
+	sh		a0, 0x10(t9)
+	sh		a1, 0x12(t9)
+	lbu		v0, 0xC(a2)
+	lbu		a0, 0xD(a2)
+	lbu		at, 0xE(a2)
+	lbu		v1, 0xF(a2)
+	lhu		a1, 0x8(a2)
+	subu	at, v0
+	addiu	at, at, 1
+	subu	v1, v1, a0
+	addiu	v1, 1
+	sb		v0, 0x14(t9)
+	sb		a0, 0x15(t9)
+	sh		a1, 0x16(t9)
+	sh		at, 0x18(t9)
+	sll		a3, 2
+	addu	a3, t8
+	lw		v0, 0x0(a3)
+	lui		at, 0x600
+	or		v0,	at
+	sw		t9, 0x0(a3)
+	sw		v0, 0x0(t9)
+	sh		v1, 0x1A(t9)
+	jr		ra
+	addiu	t9, 0x1C
+
+draw_outlines:
+	lw      t8, db+0x4-GP_ADDR(gp)
+	lw      t9, db+0x8-GP_ADDR(gp)
+	move    t7, ra
+	lui     t4, 0x3A10
+	ori		t4, 0x1010
+	lui     t5, 0x3A40
+	ori     t5, 0x4040
+	move    a0, zero
+	li      a1, 8
+	li      a2, 0x200
+	li      a3, 0xE0
+	move    t0, t4
+	move    t1, t4
+	move    t2, t5
+	jal     _draw_gbackground2
+	move    t3, t5
+	li      a0, 0xC
+	li      a1, 0xDC
+	li      a2, 0x1E8
+	jal     _draw_gbackground2
+	li      a3, 4
+	li      a0, 0x1ED
+	li      a1, 8
+	li      a2, 7
+	li      a3, 0xE0
+	move    t1, t5
+	jal     _draw_gbackground2
+	move    t2, t4
+	li      a0, 0xC
+	li      a1, 8
+	li      a2, 7
+	li      a3, 0xE0
+	move    t0, t5
+	move    t1, t4
+	move    t2, t5
+	jal     _draw_gbackground2
+	move    t3, t4
+	li      a0, 0xC
+	li      a1, 0x10
+	li      a2, 0x1E8
+	li      a3, 4
+	move    t1, t5
+	jal     _draw_gbackground2
+	move    t2, t4
+	lw      t0, GLOBAL_default_sprites_ptr-GP_ADDR(gp)
+	move    a0, zero
+	li      a1, 8
+	li      a2, 0x14
+	jal     _DelDrawSprite
+	li      a3, 1
+	li      a0, 0x1D0
+	li      a1, 8
+	li      a2, 0x15
+	jal     _DelDrawSprite
+	li      a3, 1
+	move    a0, zero
+	li      a1, 0xC8
+	li      a2, 0x16
+	jal     _DelDrawSprite
+	li      a3, 1
+	li      a0, 0x1D0
+	li      a1, 0xC8
+	li      a2, 0x17
+	jal     _DelDrawSprite
+	li      a3, 1
+	li      t5, 0x30
+	li      t4, 0xC
+
+	loc_8E358:
+	move    a0, t5
+	li      a1, 8
+	li      a2, 0x18
+	jal     _DelDrawSprite
+	move    a3, zero
+	addiu   t4, -1
+	bgez    t4, loc_8E358
+	addiu   t5, 0x20
+	li      t5, 0x30
+	li      t4, 0xC
+
+	loc_8E380:
+	move    a0, t5
+	li      a1, 0xE0
+	li      a2, 0x19
+	jal     _DelDrawSprite
+	li      a3, 1
+	addiu   t4, -1
+	bgez    t4, loc_8E380
+	addiu   t5, 0x20
+	li      t5, 0x28
+	li      t4, 4
+
+	loc_8E3A8:
+	move    a0, zero
+	move    a1, t5
+	li      a2, 0x1B
+	jal     _DelDrawSprite
+	move    a3, zero
+	addiu   t4, -1
+	bgez    t4, loc_8E3A8
+	addiu   t5, 0x20
+	li      t5, 0x28
+	li      t4, 4
+
+	loc_8E3D0:
+	li      a0, 0x1F4
+	move    a1, t5
+	li      a2, 0x1A
+	jal     _DelDrawSprite
+	move    a3, zero
+	addiu   t4, -1
+	bgez    t4, loc_8E3D0
+	addiu   t5, 0x20
+	move    t4, zero
+	move    t5, zero
+
+	loc_8E3F8:
+	sll     t6, t4, 5
+	addiu   t4, 1
+	sll     a0, t5, 5
+
+	loc_8E404:
+	addiu   a1, t6, 8
+	li      a2, 0x13
+	jal     _DelDrawSprite
+	li      a3, 0x7D0
+	addiu   t5, 1
+	slti    v0, t5, 0x10
+	bnez    v0, loc_8E404
+	sll     a0, t5, 5
+	slti    v0, t4, 7
+	bnez    v0, loc_8E3F8
+	move    t5, zero
+	jr      t7
+	sw      t9, db+0x8-GP_ADDR(gp)

@@ -1936,7 +1936,7 @@ void joby4_control()//2FA0C, 2FD8C (F)
 #if PC_VERSION
 		//PrintString(middle_width, window_height_minus_1 - 3 * font_height, 5, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000);
 #else
-		PrintString(256, 200, 0, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], 0x8000); // todo maybe wrong on pc , @Gh0stBlade check third arg!
+		PrintString(256, 200, 0, &gfStringWad[gfStringOffset[STR_SEVERAL_HOURS_LATER]], FF_CENTER); // todo maybe wrong on pc , @Gh0stBlade check third arg!
 #endif
 	}
 	if (f == 575)
@@ -2281,7 +2281,7 @@ void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VE
 	mRotYXZ(duff_item.pos.y_rot, duff_item.pos.x_rot, duff_item.pos.z_rot);
 	bone = &bones[objects[GLOBAL_cutme->actor_data[actornum].objslot].bone_index];
 	mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
-	mRotSuperPackedYXZ(&temp_rotation_buffer[9], 0);
+	mRotSuperPackedYXZ((short**)&temp_rotation_buffer[9], 0);
 
 	for (i = 0; i < nodenum; i++, bone += 4)
 	{
@@ -2296,7 +2296,7 @@ void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VE
 		}
 
 		mTranslateXYZ(bone[1], bone[2], bone[3]);
-		mRotSuperPackedYXZ(&temp_rotation_buffer[9], 0);
+		mRotSuperPackedYXZ((short**)&temp_rotation_buffer[9], 0);
 	}
 
 	mTranslateXYZ(vec->x, vec->y, vec->z);

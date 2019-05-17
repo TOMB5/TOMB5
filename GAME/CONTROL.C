@@ -35,13 +35,14 @@
 #include "MATHS.H"
 #include "ROOMLOAD.H"
 #include "PSOUTPUT.H"
-
+#include "SETUP.H"
+#include "CODEWAD.H"
 
 #include "GETSTUFF.H"
 #include "TEXT_S.H"
 #include "FXTRIG.H"
+#include "TYPEDEFS.H"
 #endif
-#include "SETUP.H"
 #include "LARA1GUN.H"
 #include "HAIR.H"
 #include "HEALTH.H"
@@ -72,6 +73,8 @@
 
 #include "LARAMISC.H"
 #include "LARA.H"
+#include "TRAPS.H"
+#include "SWITCH.H"
 
 #define MAX_FRAMES 10
 
@@ -1180,26 +1183,13 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 	if (GLOBAL_playing_cutseq == 0 && gfGameMode == 0)
 	{
-		//assert(0);
-#if 0
-		lui	$v1, 0xFFFE
-			li	$v1, 0xFFFEFFFF
-			lw	$v0, 0x44($a1)
-			move	$a0, $zero
-			and	$v0, $v1
-			jal	sub_4A838
-			sw	$v0, 0x44($a1)
-			lbu	$v1, 0x1C58($gp)
-			li	$v0, 5
-			bne	$v1, $v0, loc_1DEF4
-			addiu	$v0, $s5, -0x2240
-			lw	$v1, 0x18($v0)
-			nop
-			lw	$a0, 0($v1)
-			nop
-			jalr	$a0
-			nop
-#endif
+		lara.Fired = 0;
+		LaraControl(LARA);
+
+		if (LaraDrawType == 5)
+		{
+			//((VOIDFUNCVOID*)RelocPtr[MOD_SUBSUIT][0])();
+		}
 	}
 	//loc_1DEF4
 	InItemControlLoop = 0;
@@ -1250,7 +1240,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 	//loc_1E054
 	CamRot.vy = mGetAngle(camera.pos.x, camera.pos.z, camera.target.x, camera.target.z) / 16;
 
-	wibble = wibble + 4 & 0xFC;
+	wibble = ((wibble + 4) & 0xFC);
 
 	TriggerLaraDrips();
 
@@ -1410,7 +1400,7 @@ void KillMoveEffects()//1D4AC(<), 1D640(<) (F)
 	ItemNewRoomNo = 0;
 }
 
-void TestTriggers(short* data, int heavy, int HeavyFlags)//(F)
+void TestTriggers(short* data, int heavy, int HeavyFlags)//1E9B4, 1EBC8(F)
 {
 	globoncuttrig = 0;
 	_TestTriggers(data, heavy, HeavyFlags);
@@ -1934,9 +1924,636 @@ void FlipMap(int FlipNumber)// (F)
 	}
 }
 
-void _TestTriggers(short* data, int heavy, int HeavyFlags)
+void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (F)
 {
-	UNIMPLEMENTED();
+	int key;
+	struct ITEM_INFO* item;
+	struct ITEM_INFO* camera_item;
+	short camera_timer;
+	short type;
+	short trigger;
+	short value;
+	short flags;
+	char timer;
+	char SwitchOnOnly;
+	int switch_off;
+	int flip;
+	int flip_available;
+	int neweffect;
+	int quad;
+	short CamSeq;
+	short lp;
+
+	flip = -1;
+	HeavyTriggered = 0;
+
+	if (!heavy)
+	{
+		lara.climb_status = 0;
+		lara.CanMonkeySwing = 0;
+	}
+
+	//loc_1EA6C
+	if (data == NULL)
+	{
+		return;
+	}
+
+	if ((*data & 0x1F))
+	{
+		if (!heavy)
+		{
+			if (lara_item->pos.y_pos == lara_item->floor || lara.water_status != 0)
+			{
+				//loc_1EAC0
+				LavaBurn(lara_item);
+			}
+		}
+
+		//loc_1EAC8
+		if ((*data++ & 0x8000))
+		{
+			return;
+		}
+	}
+	//loc_1EADC
+	if ((*data & 0x1F) == 6)
+	{
+		if (!heavy)
+		{
+			quad = (lara_item->pos.y_rot + 0x2000) >> 14;
+			if ((*data >> (quad + 8)) & 1)
+			{
+				lara.climb_status = 1;
+			}
+		}
+		//loc_1EB38
+		if ((*data++ & 0x8000))
+		{
+			return;
+		}
+	}
+	//loc_1EB4C
+	if ((data[0] & 0x1F) == 19)
+	{
+		if (!heavy)
+		{
+			lara.CanMonkeySwing = 1;
+		}
+
+		//loc_1EB7C
+		if ((*data++ & 0x8000))
+		{
+			return;
+		}
+	}
+	//loc_1EB90
+	if ((*data & 0x1F) == 20 && !(*data & 0x20) || (*data++ & 0x8000))
+	{
+		return;
+	}
+	//loc_1EBB4
+	type = ((*data++) >> 8) & 0x3F;
+	flags = *data++;
+	timer = ((flags << 24) >> 24);
+
+	if (camera.type != HEAVY_CAMERA)
+	{
+		RefreshCamera(type, data);
+	}
+	//loc_1EBF4
+	SwitchOnOnly = 0;
+
+	if (heavy)
+	{
+		if (type != HEAVY)
+		{
+			if (type == 10)
+			{
+				if (!HeavyFlags)
+				{
+					return;
+				}
+
+				if (HeavyFlags < 0)
+				{
+					if ((flags & 0x3E00) != HeavyFlags)
+						return;
+				}
+				else
+				{
+					flags = (flags | 0x3E00) + HeavyFlags;
+				}
+			}
+			else if (type != 11)
+			{
+				return;
+			}
+		}
+	}
+	else
+	{
+		//loc_1EC7C
+		switch (type)
+		{
+		case PAD:
+		case ANTIPAD:
+		{
+			//loc_1EE94
+			if (lara_item->pos.y_pos != lara_item->floor)
+			{
+				return;
+			}
+
+			break;
+		}
+		case SWITCH:
+			//loc_1ECA8
+			value = (*data++) & 0x3FF;
+			if ((flags & 0x100))
+			{
+				items[value].item_flags[0] = 1;
+			}
+
+			//loc_1ECD8
+			if (!SwitchTrigger(value, timer))
+			{
+				return;
+			}
+
+			if (items[value].object_number >= SWITCH_TYPE1 && items[value].object_number <= SWITCH_TYPE6 && items[value].trigger_flags == 5)
+			{
+				SwitchOnOnly = 1;
+			}
+
+			//loc_1ED2C
+			switch_off = items[value].current_anim_state = items[value].current_anim_state == 1;
+			switch_off = 1;
+			break;
+		case KEY:
+			//loc_1EEBC
+			key = KeyTrigger((*data++) & 0x3FF);
+			if (key == -1)
+			{
+				return;
+			}
+			break;
+		case PICKUP:
+			//loc_1EEE8
+			if (!PickupTrigger((*data++) & 0x3FF))
+			{
+				return;
+			}
+			break;
+		case COMBAT:
+		{
+			//loc_1EF08
+			if (lara.gun_status != 4)
+			{
+				return;
+			}
+			//j loc_1EF34
+			break;
+		}
+		case ANTITRIGGER:
+			//def_1ECA0
+			break;
+		case HEAVY:
+		case DUMMY:
+		case HEAVYSWITCH:
+		case HEAVYANTITRIGGER:
+			//loc_1F7A4
+			return;
+			break;
+		case MONKEY:
+		{
+			//loc_1ED50
+			if (lara_item->current_anim_state >= ANIMATION_LARA_JUMP_BACK && (lara_item->current_anim_state <= ANIMATION_LARA_JUMP_LEFT || lara_item->current_anim_state == ANIMATION_LARA_LANDING_MIDDLE || lara_item->current_anim_state == ANIMATION_LARA_FORWARD_TO_FREE_FALL))
+				break;
+			return;
+		}
+		case SKELETON_T:
+		{
+			//loc_1EF24
+			lara.skelebob = 2;
+			break;
+		}
+		case TIGHTROPE_T:
+		{
+			//loc_1ED90
+			if (lara_item->current_anim_state < ANIMATION_LARA_FREE_FALL_TO_UNDERWATER_ALTERNATE || lara_item->current_anim_state > ANIMATION_LARA_AH_LEFT || lara_item->current_anim_state == ANIMATION_LARA_AH_BACKWARD)
+			{
+				return;
+			}
+			break;
+		}
+		case CRAWLDUCK_T:
+		{
+			//loc_1EDCC
+			if (lara_item->current_anim_state != ANIMATION_LARA_JUMP_RIGHT_BEGIN
+				|| lara_item->current_anim_state != ANIMATION_LARA_JUMP_RIGHT
+				|| lara_item->current_anim_state != ANIMATION_LARA_LEFT_TO_FREE_FALL
+				|| lara_item->current_anim_state != ANIMATION_LARA_RIGHT_TO_FREE_FALL
+				|| lara_item->current_anim_state != ANIMATION_LARA_UNDERWATER_SWIM_FORWARD
+				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_FORWARD_END
+				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_FORWARD_STOP
+				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_BACKWARD
+				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_BACKWARD_END)
+			{
+				return;
+			}
+
+			break;
+			//def_1ECA0
+		}
+		case CLIMB_T:
+			//loc_1EE38
+
+			if (lara_item->current_anim_state != ANIMATION_LARA_RUN_TO_STAY_RIGHT || lara_item->current_anim_state != ANIMATION_LARA_RUN_UP_STEP_LEFT || lara_item->current_anim_state != ANIMATION_LARA_WALK_UP_STEP_RIGHT || lara_item->current_anim_state != ANIMATION_LARA_WALK_UP_STEP_LEFT || lara_item->current_anim_state != ANIMATION_LARA_WALK_DOWN_LEFT || lara_item->current_anim_state != ANIMATION_LARA_WALK_DOWN_RIGHT || lara_item->current_anim_state != ANIMATION_LARA_WALK_DOWN_BACK_LEFT || lara_item->current_anim_state != ANIMATION_LARA_JUMP_BACK)
+			{
+				return;
+			}
+
+			break;
+		}
+	}
+	//def_1ECA0
+	camera_item = NULL;
+
+	//loc_1EF34
+	do
+	{
+		trigger = *data++;
+		value = trigger & 0x3FF;
+
+		switch ((trigger & 0x3FFF) >> 10)
+		{
+		case TO_OBJECT:
+		{
+			//loc_1EF70
+			item = &items[value];
+			if (key < 2)
+			{
+				if (type == ANTIPAD || type == ANTITRIGGER || type == HEAVYANTITRIGGER && (item->flags & IFLAG_CLEAR_BODY))
+				{
+					break;
+				}
+
+				//loc_1EFC8
+				if (type == SWITCH && (item->flags & IFLAG_UNK40))
+				{
+					break;
+				}
+
+				//loc_1EFDC
+				if (type != ANTIPAD && type != ANTITRIGGER && type != HEAVYANTITRIGGER && (item->flags & 0x100))
+				{
+					break;
+				}
+
+				//loc_1F010
+				if (type != ANTIPAD && type != ANTITRIGGER && type != HEAVYANTITRIGGER && item->object_number == DART_EMITTER && item->active)
+				{
+					break;
+				}
+
+				//loc_1F04C
+				if (timer != 1)
+				{
+					item->timer *= 30;
+				}//loc_1F068
+
+
+				if (type != SWITCH || type == HEAVYSWITCH)
+				{
+					//loc_1F07C
+					if (!HeavyFlags)
+					{
+						if (((item->flags ^ (flags & 0x3E00)) & 0x3E00) == 0x3E00 && (flags & 0x100))
+						{
+							item->flags |= IFLAG_UNK40;
+						}//loc_1F1BC
+					}
+					else
+					{
+						//loc_1F0B8
+						if (SwitchOnOnly)
+						{
+							item->flags |= (flags & 0x3E00);
+						}
+						else
+						{
+							//loc_1F0D4
+							item->flags ^= (flags & 0x3E00);
+						}
+						//loc_1F0E0
+						if ((flags & 0x100))
+						{
+							item->flags |= IFLAG_UNK40;
+						}
+					}
+				}
+				else
+				{
+					//loc_1F0FC
+					if (type != 6 || type != 9 || type == 11)
+					{
+						//loc_1F1A4
+						if ((flags & 0x3E00))
+						{
+							item->flags |= (flags & 0x3E00);
+						}
+						//loc_1F1BC
+					}
+					else
+					{
+						//loc_1F114
+						if (item->object_number == EARTHQUAKE)
+						{
+							item->item_flags[0] = 0;
+							item->item_flags[1] = 100;
+						}
+						//loc_1F12C
+						item->flags &= 0x81FF;
+
+						if ((flags & 0x100))
+						{
+							item->flags |= 0x80;
+						}//loc_1F14C
+
+						if (item->active)
+						{
+							if (objects[item->object_number].intelligent)
+							{
+								item->hit_points = 0x3FFF;
+								DisableBaddieAI(value);
+								KillItem(value);
+							}//loc_1F1BC
+						}//loc_1F1BC
+					}
+				}
+				//loc_1F1B8
+				if ((item->flags & 0x3E00) == 0x3E00)
+				{
+					item->flags |= 0x20;
+					if ((flags & 0x100))
+					{
+						item->flags = (item->flags & 0x3E00) | 0x100;
+					}//loc_1F1E8
+
+					if (!item->active)
+					{
+						if (objects[item->object_number].intelligent)
+						{
+							if (!(item->status))
+							{
+								item->gravity_status = 0;
+								item->status = 1;
+								item->touch_bits = 0;
+								AddActiveItem(value);
+								EnableBaddieAI(value, 1);
+							}//loc_1F264
+							else if (item->status == 3)
+							{
+								item->touch_bits = 0;
+								if (EnableBaddieAI(value, 0))
+								{
+									item->status = 1;
+								}
+								else
+								{
+									//loc_1F298
+									item->status = 2;
+								}
+								//loc_1F2A4
+								AddActiveItem(value);
+							}//loc_1F720
+						}
+						else
+						{
+							//loc_1F2B8
+							item->touch_bits = 0;
+							AddActiveItem(value);
+							item->status = 1;
+							HeavyTriggered = heavy;
+						}
+					}//loc_1F720
+				}//loc_1F720
+			}//def_1EF68
+			break;
+		}
+		case TO_CAMERA:
+		{
+			//loc_1F2E4
+			trigger = *data++;
+			camera_timer = trigger & 0xFF;
+			if (key != trigger)
+			{
+				if (!(camera.fixed[value].flags & 0x100))
+				{
+					camera.number = value;
+
+					if (camera.type == FIXED_CAMERA || camera.type == CHASE_CAMERA && (camera.fixed[value].flags & 3))
+					{
+						break;
+					}//loc_1F35C
+
+					if (type != COMBAT && type != SWITCH || timer == 0 || switch_off == 0)
+					{
+						if (camera.number != camera.last || type == SWITCH)
+						{
+							camera.timer = 30 * camera_timer;
+							if ((trigger & 0x100))
+							{
+								camera.fixed[CamSeq].flags |= 0x100;
+							}//loc_1F3F0
+
+							camera.speed = ((trigger & 0x3E00) >> 6) + 1;
+							camera.type = heavy ? HEAVY_CAMERA : FIXED_CAMERA;
+						}
+					}
+
+				}//loc_1F720
+			}//def_1EF68
+			break;
+		}
+		case TO_SINK:
+		{
+			//loc_1F564
+			lara.current_active = value + 1;
+			break;
+		}
+		case TO_FLIPMAP:
+		{
+			//loc_1F574
+			flip_available = 1;
+
+			if (!(flipmap[value] & 0x100))
+			{
+				if (type == 2)
+				{
+					flipmap[value] ^= (flags & 0x3E00);
+				}
+				else if ((flags & 0x3E00))
+				{
+
+					flipmap[value] |= (flags & 0x3E00);
+				}
+				//loc_1F5B8
+				if ((flipmap[value] & 0x3E00) == 0x3E00)
+				{
+					if ((flags & 0x100))
+					{
+						flipmap[value] |= 0x100;
+					}
+					//loc_1F5E8
+					if (!(flip_stats[value]))
+					{
+						flip = value;
+					}
+				}
+				else
+				{
+					//loc_1F60C
+					if (flip_stats[value] != 0)
+					{
+						flip = value;
+					}
+				}
+			}//def_1EF68
+			break;
+		}
+		case TO_FLIPON:
+		{
+			//loc_1F62C
+			flip_available = 1;
+			if (flip_stats[value] == 0)
+			{
+				flipmap[value] |= 0x3E00;
+			}
+			flip = value;
+			break;
+		}
+		case TO_FLIPOFF:
+		{
+			//loc_1F66C
+			flip_available = 1;
+			if (flip_stats[value] != 0)
+			{
+				flipmap[value] &= -15873;
+				flip = value;
+			}
+			break;
+		}
+		case TO_TARGET:
+		{
+			//loc_1F548
+			camera_item = &items[value];
+			break;
+		}
+		case TO_FINISH:
+		{
+			//loc_1F6CC
+			gfRequiredStartPos = 0;
+			gfLevelComplete = gfCurrentLevel + 1;
+			break;
+		}
+		case TO_CD:
+		{
+			//loc_1F6F0
+			TriggerCDTrack(value, flags, type);
+			break;
+		}
+		case TO_FLIPEFFECT:
+		{
+			//loc_1F6B0
+			TriggerTimer = timer;
+			neweffect = value;
+			break;
+		}
+		case TO_SECRET:
+		{
+			//def_1EF68
+			break;
+		}
+		case TO_BODYBAG:
+		{
+			//loc_1F6BC
+			ResetGuards();
+			break;
+		}
+		case TO_FLYBY:
+		{
+			//loc_1F430
+			trigger = *data++;
+
+			if (trigger != key)
+			{
+				lp = 0;
+				if (type == 6 || type == 9 || type == 11)
+				{
+					//loc_1F460
+					bUseSpotCam = 0;
+				}
+				else
+				{
+					if (SpotRemap[value] != 0)
+					{
+						for (lp = 0, CamSeq = 0; lp < SpotRemap[value]; lp++)
+						{
+							CamSeq += CameraCnt[lp];
+						}
+					}
+					//loc_1F4CC
+					if (!(SpotCam[CamSeq].flags & SCF_CAMERA_ONE_SHOT))
+					{
+						if ((trigger & 0x100))
+						{
+							SpotCam[CamSeq].flags |= SCF_CAMERA_ONE_SHOT;
+						}
+						//loc_1F500
+						if (bUseSpotCam == 0)
+						{
+							bUseSpotCam = 1;
+
+							if (LastSequence != value)
+							{
+								bTrackCamInit = 0;
+							}//loc_1F538
+							InitialiseSpotCam(value);
+						}//loc_1F720
+					}//loc_1F720
+				}//loc_1F720
+			}//def_1EF68
+			break;
+		}
+		case TO_CUTSCENE:
+		{
+			//loc_1F708
+			globoncuttrig = 1;
+			NeatAndTidyTriggerCutscene(value, timer);
+			break;
+		}
+		}
+	} while (!(trigger & 8000));
+	//def_1EF68
+	//loc_1F720
+
+	if (camera_item != NULL && (camera.type == FIXED_CAMERA || camera.type == HEAVY_CAMERA))
+	{
+		camera.item = camera_item;
+	}
+	//loc_1F760
+	if (flip != -1)
+	{
+		FlipMap(flip);
+	}
+	//loc_1F774
+	if (neweffect != -1 && (flip == 0 || flip_available == 0))
+	{
+		fliptimer = 0;
+		flipeffect = neweffect;
+	}//loc_1F7A4
 }
 
 void RefreshCamera(short type, short* data)//1E7FC, ? (F)

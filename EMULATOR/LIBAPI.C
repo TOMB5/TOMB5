@@ -1,67 +1,94 @@
-#include "LIBAPI.H"
+﻿#include "LIBAPI.H"
 
 #include "EMULATOR_GLOBALS.H"
 #include "EMULATOR.H"
 
+#include <stdio.h>
+
 int sp = 0;
 
-long SetRCnt(long spec, unsigned short target, long mode)
+int dword_300[] = { 0x20, 0xD,  0x0,  0x0 };
+int dword_308[] = { 0x10, 0x20, 0x40, 0x1 };
+
+long SetRCnt(long spec, unsigned short target, long mode)//(F)
 {
+	int value = 0x48;
+
 	spec &= 0xFFFF;
-
-	if (spec >= 3)
+	if (spec > 2)
+	{
 		return 0;
+	}
 
-	counters[spec].Target = target;
-	counters[spec].I2 = mode;
-	
+	counters[spec].value = 0;
+	counters[spec].target = target;
+
+	if (spec < 2)
+	{
+		if ((mode & 0x10))
+		{
+			value = 0x49;
+		}
+		else if ((mode & 0x1))//loc_148
+		{
+			value |= 0x100;
+		}
+	}
+	else
+	{
+		//loc_158
+		if (spec == 2 && !(mode & 1))
+		{
+			value = 0x248;
+		}//loc_174
+	}
+	//loc_174
+	if ((mode & 0x1000))
+	{
+		value |= 0x10;
+	}//loc_180
+
+	counters[spec].value = value;
+
 	return 1;
 }
 
-long GetRCnt(long spec)
+long GetRCnt(long spec)//(F)
 {
 	spec &= 0xFFFF;
 
-	if (spec > 3)
+	if (spec > 2)
+	{
 		return 0;
+	}
 
-	return counters[spec].Value;
+	return counters[spec].cycle;
 }
 
-long ResetRCnt(long spec)
+long ResetRCnt(long spec)//(F)
 {
 	spec &= 0xFFFF;
 
-	if (spec >= 3)
+	if (spec > 2)
+	{
 		return 0;
+	}
 
-	counters[spec].Value = 0;
+	counters[spec].cycle = 0;
 
 	return 1;
 }
 
-long StartRCnt(long spec)
+long StartRCnt(long spec)//(F)
 {
 	spec &= 0xFFFF;
-
-	if (spec >= 3)
-		return 0;
-
-	counters[spec].IsStopped = FALSE;
-
-	return 1;
+	dword_300[1] |= dword_308[spec];
+	return spec < 3 ? 1 : 0;
 }
 
-long StopRCnt(long spec)
+long StopRCnt(long spec)//TODO
 {
-	spec &= 0xFFFF;
-
-	if (spec >= 3)
-		return 0;
-
-	counters[spec].IsStopped = TRUE;
-
-	return 1;
+	return 0;
 }
 #undef OpenEvent
 long OpenEvent(unsigned long unk00, long, long, long(*func)())
@@ -266,7 +293,7 @@ void ReturnFromException()
 	UNIMPLEMENTED();
 }
 
-int  EnterCriticalSection()
+int EnterCriticalSection()
 {
 	UNIMPLEMENTED();
 	return 0;

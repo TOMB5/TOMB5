@@ -753,11 +753,12 @@ void BaddyObjects()//?, B5328
 		object->save_hitpoints = 1;
 		object->save_position = 1;
 
+#if 0///@CRASH
 		((int*)bones[object->bone_index])[24] |= 8;
 		((int*)bones[object->bone_index])[24] |= 4;
 		((int*)bones[object->bone_index])[52] |= 8;
 		((int*)bones[object->bone_index])[52] |= 4;
-
+#endif
 		//v1 = 0xA0000
 		//a0 = object->mesh_index;
 		//v0 = objects[MESHSWAP1].mesh_index
@@ -816,12 +817,13 @@ void BaddyObjects()//?, B5328
 		object->control = RelocPtr[MOD_SAS][0];
 #endif
 
+#if 0///@CRASH
 		//a0 = &bones[object->bone_index];
 		((int*)bones[object->bone_index])[24] |= 8;
 		((int*)bones[object->bone_index])[24] |= 4;
 		((int*)bones[object->bone_index])[52] |= 8;
 		((int*)bones[object->bone_index])[52] |= 4;
-
+#endif
 		//a3 = &objects[LARA]
 		//a0 = meshes[object->mesh_index]
 
@@ -900,7 +902,7 @@ void BaddyObjects()//?, B5328
 		//a0 = object->bone_index
 		//a1 = bones
 		//a0 = &bones[object->bone_index];
-
+#if 0///@CRASH
 		((int*)bones[object->bone_index])[24] |= 8;
 		((int*)bones[object->bone_index])[24] |= 4;
 		((int*)bones[object->bone_index])[52] |= 8;
@@ -917,6 +919,7 @@ void BaddyObjects()//?, B5328
 		//v0 = meshes[objects[MESHSWAP1].mesh_index]
 		((int*)meshes[object->mesh_index])[27] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[26];
 		object->object_mip = 0x1400;
+#endif
 	}//loc_20A4
 }
 
@@ -1030,6 +1033,7 @@ void sub_B3A7C(int a0)
  * Note: The GAMEWAD reader's position must point to the level file data.
  * Note: This code is part of the SETUP.MOD module.
  */
+#if PSXPC_VERSION || PSX_VERSION || SAT_VERSION
 #if DISC_VERSION
 void LoadLevel()//?(<), B3B50(<) (F)
 #else
@@ -1037,6 +1041,7 @@ void LoadLevel()//?(<), B3B50(<) (F)
 void LoadLevel(int nHandle)//?, B3B50(<)
 #elif PSXPC_VERSION
 void LoadLevel(FILE* nHandle)
+#endif
 #endif
 #endif
 {
@@ -1542,7 +1547,7 @@ void LoadLevel(FILE* nHandle)
 
 	if (number_rooms > 0)
 	{
-#ifndef __linux__
+#if 0 ///@FIXME segfault under linux
 		//loc_A84
 		for(i = 0; i < number_rooms; i++)
 		{

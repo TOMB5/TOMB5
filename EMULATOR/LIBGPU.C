@@ -2,8 +2,13 @@
 
 #define GL_GLEXT_PROTOTYPES 1
 #include <GL/glew.h>
+#if __APPLE__
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#else
 #include <SDL.h>
 #include <SDL_opengl.h>
+#endif
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -13,12 +18,20 @@
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 
-unsigned short vram[1024 * 512];
+unsigned short vram[VRAM_WIDTH * VRAM_HEIGHT];
 DISPENV word_33BC;
-DRAWENV word_unknown00;//Guessed
+DRAWENV activeDrawEnv;
+DRAWENV byte_9CCA4;
 int dword_3410 = 0;
 char byte_3352 = 0;
+
+//Nasty hack, win32 is like original but due to memory differences
+//Between Linux and Windows we must do this unfortunately.
+#if _WIN32 || _WIN64
+unsigned long terminator = -1;
+#else
 unsigned long* terminator;
+#endif
 void(*drawsync_callback)(void) = NULL;
 
 void* off_3348[]=
@@ -40,11 +53,11 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
 	Emulator_CheckTextureIntersection(rect);
 
-	for (int y = rect->y; y < 512; y++)
+	for (int y = rect->y; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = rect->x; x < 1024; x++)
+		for (int x = rect->x; x < VRAM_WIDTH; x++)
 		{
-			unsigned short* pixel = vram + (y * 1024 + x);
+			unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
 
 			if (x >= rect->x && x < rect->x + rect->w && 
 				y >= rect->y && y < rect->y + rect->h)
@@ -72,11 +85,11 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 	unsigned short* dst = (unsigned short*)p;
 
-	for (int y = rect->y; y < 512; y++)
+	for (int y = rect->y; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = rect->x; x < 1024; x++)
+		for (int x = rect->x; x < VRAM_WIDTH; x++)
 		{
-			unsigned short* src = vram + (y * 1024 + x);
+			unsigned short* src = vram + (y * VRAM_WIDTH + x);
 
 			if (x >= rect->x && x < rect->x + rect->w &&
 				y >= rect->y && y < rect->y + rect->h)
@@ -98,12 +111,12 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 int MoveImage(RECT16* rect, int x, int y)
 {
 #if 0//TODO
-	for (int sy = rect->y; sy < 512; sy++)
+	for (int sy = rect->y; sy < VRAM_HEIGHT; sy++)
 	{
-		for (int sx = rect->x; sx < 1024; sx++)
+		for (int sx = rect->x; sx < VRAM_WIDTH; sx++)
 		{
-			unsigned short* src = vram + (sy * 1024 + sx);
-			unsigned short* dst = vram + (y * 1024 + x);
+			unsigned short* src = vram + (sy * VRAM_WIDTH + sx);
+			unsigned short* dst = vram + (y * VRAM_WIDTH + x);
 
 			if (sx >= rect->x && sx < rect->x + rect->w &&
 				sy >= rect->y && sy < rect->y + rect->h)
@@ -140,8 +153,13 @@ u_long* ClearOTag(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-	//Last is special terminator
+#if _WIN32 || _WIN64
+	//First is special terminator
+	ot[n-1] = (unsigned long)&terminator;
+#else
+	//First is special terminator
 	ot[n-1] = (unsigned long)terminator;
+#endif
 
 	if (n > 1)
 	{
@@ -159,8 +177,13 @@ u_long* ClearOTagR(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
+#if _WIN32 || _WIN64
+	//First is special terminator
+	ot[0] = (unsigned long)&terminator;
+#else
 	//First is special terminator
 	ot[0] = (unsigned long)terminator;
+#endif
 
 	if (n > 1)
 	{
@@ -208,7 +231,7 @@ DISPENV* SetDefDispEnv(DISPENV* env, int x, int y, int w, int h)//(F)
 
 DRAWENV* PutDrawEnv(DRAWENV* env)//Guessed
 {
-	memcpy((char*)&word_unknown00, env, sizeof(DRAWENV));
+	memcpy((char*)&activeDrawEnv, env, sizeof(DRAWENV));
 	return 0;
 }
 
@@ -245,14 +268,36 @@ DRAWENV* SetDefDrawEnv(DRAWENV* env, int x, int y, int w, int h)//(F)
 	return env;
 }
 
+void SetDrawEnv(DR_ENV* dr_env, DRAWENV* env)
+{
+
+}
+
 u_long DrawSyncCallback(void(*func)(void))
 {
 	drawsync_callback = func;
 	return 0;
 }
 
-void DrawOTagEnv(u_long* p, DRAWENV* env)
+void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
+#if 0
+	//if (byte_3352[0] > 1)
+	{
+		GPU_printf("DrawOTagEnv(%08x,&08x)...\n", p, env);
+	}//loc_EF8
+
+	//s0 = &env->dr_env
+
+	//sub_17C0(&env->dr_env, env);
+
+	env->dr_env.tag = env->dr_env.tag & 0xFF000000 | (ptrdiff_t)p & 0xFFFFFF;
+	//a0 = off_3348[6];
+	//v0 = off_3348[2];
+	///jalr off_3348[2](off_3348[6]);
+	memcpy(&byte_9CCA4, &env, sizeof(DRAWENV));
+
+#else
 	PutDrawEnv(env);
 
 	if (env->isbg)
@@ -261,16 +306,13 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 	}
 
 	GLuint fbo = 0;
-
+	
 	if (p != NULL)
 	{
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
 		glLoadIdentity();
-		glOrtho(0, 1024, 0, 512, -1, 1);
-		glViewport(0, 0, 1024, 512);
+		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, -1, 1);
+		glViewport(0, 0, VRAM_WIDTH, VRAM_HEIGHT);
 
-		glEnable(GL_TEXTURE_2D);
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
 
@@ -298,10 +340,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 				blend_mode = 0;
 			}
 
-			glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
-			glDisable(GL_BLEND);
-
-
 			if (semi_transparent)
 			{
 				Emulator_SetBlendMode(blend_mode);
@@ -314,67 +352,67 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			case 0x20: // POLY_F3
 			{
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-
 				POLY_F3* poly = (POLY_F3*)pTag;
-				glBegin(GL_TRIANGLES);
 
-				glColor3ubv(&poly->r0);
-				glTexCoord2f(0.0f, 0.0f);
-				glVertex2f(poly->x0, poly->y0);
+				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
+				char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, false);
 
-				glTexCoord2f(1.0f, 0.0f);
-				glVertex2f(poly->x1, poly->y1);
-
-				glTexCoord2f(1.0f, 1.0f);
-				glVertex2f(poly->x2, poly->y2);
-
-				glEnd();
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glEnableClientState(GL_COLOR_ARRAY);
+				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
+				glColorPointer(3, GL_FLOAT, sizeof(Vertex), colourPointer);
+				glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texCoordPointer);
+				glDrawArrays(GL_TRIANGLES, 0, 3);
+				glDisableClientState(GL_COLOR_ARRAY);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
 			case 0x24: // POLY_FT3
 			{
+				
 				POLY_FT3* poly = (POLY_FT3*)pTag;
+
 				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
+				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
+				char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, true);
 
-				glBegin(GL_TRIANGLES);
-
-				glTexCoord2f(0.0f, 0.0f);
-				glVertex2f(poly->x0, poly->y0);
-
-				glTexCoord2f(1.0f, 0.0f);
-				glVertex2f(poly->x1, poly->y1);
-
-				glTexCoord2f(1.0f, 1.0f);
-				glVertex2f(poly->x2, poly->y2);
-
-				glEnd();
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glEnableClientState(GL_COLOR_ARRAY);
+				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
+				glColorPointer(3, GL_FLOAT, sizeof(Vertex), colourPointer);
+				glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texCoordPointer);
+				glDrawArrays(GL_TRIANGLES, 0, 3);
+				glDisableClientState(GL_COLOR_ARRAY);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
 			case 0x28: // POLY_F4
 			{
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-
 				POLY_F4* poly = (POLY_F4*)pTag;
 
-				glBegin(GL_QUADS);
-
-				glColor3ubv(&poly->r0);
-
-				glTexCoord2f(0.0f, 0.0f);
-				glVertex2f(poly->x0, poly->y0);
-
-				glTexCoord2f(1.0f, 0.0f);
-				glVertex2f(poly->x1, poly->y1);
-
-				glTexCoord2f(0.0f, 1.0f);
-				glVertex2f(poly->x3, poly->y3);
-
-				glTexCoord2f(1.0f, 1.0f);
-				glVertex2f(poly->x2, poly->y2);
-
-				glEnd();
+				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
+				char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, false);
+				
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glEnableClientState(GL_COLOR_ARRAY);
+				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
+				glColorPointer(3, GL_FLOAT, sizeof(Vertex), colourPointer);
+				glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texCoordPointer);
+				glDrawArrays(GL_QUADS, 0, 4);
+				glDisableClientState(GL_COLOR_ARRAY);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
@@ -382,121 +420,116 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			{
 
 				POLY_FT4* poly = (POLY_FT4*)pTag;
+
 				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
 
-				glBegin(GL_QUADS);
+				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
+				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2);
 
-				glTexCoord2f(poly->u0 / 256.0f, poly->v0 / 256.0f);
-				glVertex2f(poly->x0, poly->y0);
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-				glTexCoord2f(poly->u1 / 256.0f, poly->v1 / 256.0f);
-				glVertex2f(poly->x1, poly->y1);
-
-				glTexCoord2f(poly->u3 / 256.0f, poly->v3 / 256.0f);
-				glVertex2f(poly->x3, poly->y3);
-
-				glTexCoord2f(poly->u2 / 256.0f, poly->v2 / 256.0f);
-				glVertex2f(poly->x2, poly->y2);
-
-				glEnd();
+				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
+				glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
+				glDrawArrays(GL_QUADS, 0, 4);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
 			case 0x30: // POLY_G3
 			{
+				POLY_G3* poly = (POLY_G3*)pTag;
+
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
-				POLY_G3* poly = (POLY_G3*)pTag;
-				glBegin(GL_TRIANGLES);
+				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
+				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL, false);
 
-				glColor3ubv(&poly->r0);
-				glTexCoord2f(0.0f, 0.0f);
-				glVertex2f(poly->x0, poly->y0);
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glEnableClientState(GL_COLOR_ARRAY);
 
-				glColor3ubv(&poly->r1);
-				glTexCoord2f(1.0f, 0.0f);
-				glVertex2f(poly->x1, poly->y1);
-
-				glColor3ubv(&poly->r2);
-				glTexCoord2f(1.0f, 1.0f);
-				glVertex2f(poly->x2, poly->y2);
-
-				glEnd();
+				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
+				glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
+				glColorPointer(4, GL_FLOAT, sizeof(Vertex), colourPointer);
+				glDrawArrays(GL_TRIANGLES, 0, 3);
+				glDisableClientState(GL_COLOR_ARRAY);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
 			case 0x34: // POLY_GT3
 			{
 				POLY_GT3* poly = (POLY_GT3*)pTag;
+
 				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
 
-				glBegin(GL_TRIANGLES);
+				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
+				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u2, NULL);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL, true);
 
-				glColor3ubv(&poly->r0);
-				glTexCoord2f(0.0f, 0.0f);
-				glVertex2f(poly->x0, poly->y0);
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glEnableClientState(GL_COLOR_ARRAY);
 
-				glColor3ubv(&poly->r1);
-				glTexCoord2f(1.0f, 0.0f);
-				glVertex2f(poly->x1, poly->y1);
-
-				glColor3ubv(&poly->r2);
-				glTexCoord2f(1.0f, 1.0f);
-				glVertex2f(poly->x2, poly->y2);
-
-				glEnd();
+				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
+				glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
+				glColorPointer(4, GL_FLOAT, sizeof(Vertex), colourPointer);
+				glDrawArrays(GL_TRIANGLES, 0, 3);
+				glDisableClientState(GL_COLOR_ARRAY);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
 			case 0x38: // POLY_G4
 			{
-				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-
 				POLY_G4* poly = (POLY_G4*)pTag;
 
-				glBegin(GL_QUADS);
+				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
-				glColor3ubv(&poly->r0);
+				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
+				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r3, &poly->r2, false);
 
-				glTexCoord2f(0.0f, 0.0f);
-				glVertex2f(poly->x0, poly->y0);
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glEnableClientState(GL_COLOR_ARRAY);
 
-				glTexCoord2f(1.0f, 0.0f);
-				glVertex2f(poly->x1, poly->y1);
+				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
+				glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
+				glColorPointer(4, GL_FLOAT, sizeof(Vertex), colourPointer);
+				glDrawArrays(GL_QUADS, 0, 4);
+				glDisableClientState(GL_COLOR_ARRAY);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisableClientState(GL_VERTEX_ARRAY);
 
-				glTexCoord2f(0.0f, 1.0f);
-				glVertex2f(poly->x3, poly->y3);
-
-				glTexCoord2f(1.0f, 1.0f);
-				glVertex2f(poly->x2, poly->y2);
-
-				glEnd();
 				break;
 			}
 			case 0x3C: // POLY_GT4
 			{				
 				POLY_GT4* poly = (POLY_GT4*)pTag;
+				
 				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
 
-				glBegin(GL_QUADS);
+				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
+				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, &poly->r3, true);
 
-				glColor3ubv(&poly->r0);
-				glTexCoord2f(poly->u0 / 256.0f, poly->v0 / 256.0f);
-				glVertex2f(poly->x0, poly->y0);
-
-				glColor3ubv(&poly->r1);
-				glTexCoord2f(poly->u1 / 256.0f, poly->v1 / 256.0f);
-				glVertex2f(poly->x1, poly->y1);
-
-				glColor3ubv(&poly->r3);
-				glTexCoord2f(poly->u3 / 256.0f, poly->v3 / 256.0f);
-				glVertex2f(poly->x3, poly->y3);
-
-				glColor3ubv(&poly->r2);
-				glTexCoord2f(poly->u2 / 256.0f, poly->v2 / 256.0f);
-				glVertex2f(poly->x2, poly->y2);
-
-				glEnd();
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glEnableClientState(GL_COLOR_ARRAY);
+				
+				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
+				glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
+				glColorPointer(4, GL_FLOAT, sizeof(Vertex), colourPointer);
+				glDrawArrays(GL_QUADS, 0, 4);
+				glDisableClientState(GL_COLOR_ARRAY);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisableClientState(GL_VERTEX_ARRAY);
 				break;
 			}
 			case 0x40: // LINE_F2
@@ -746,11 +779,11 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		Emulator_DeleteFrameBufferTexture();
 
 		glViewport(0, 0, windowWidth, windowHeight);
-		glPopMatrix();
-
 
 		Emulator_DestroyFrameBuffer(fbo);
 	}
 
 	Emulator_CheckTextureIntersection(&env->clip);
+
+#endif
 }

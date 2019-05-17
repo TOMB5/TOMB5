@@ -24,6 +24,8 @@ static short drawCount;
 static short profile_xcnt;
 struct COCKSUCK ProfileInfo[32];
 
+#if DEBUG_VERSION
+
 void ProfileCallBack()//6194C, * (F) (*) (D)
 {
 	drawCount = GetRCnt(RCntCNT1) >> divisor;
@@ -141,7 +143,6 @@ void ProfileAddOT(unsigned long* ot)//61A90, * (F)
 	}
 }
 
-
 void ProfileRGB(int r, int g, int b)//61C94, * (F) (D)
 {
 	ProfileReadCount();
@@ -218,4 +219,4 @@ void ProfileAddDrawOT(unsigned long* ot)//61D1C, *
 	}//locret_61EE0
 }
 
-
+#endif

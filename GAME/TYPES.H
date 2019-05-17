@@ -131,7 +131,7 @@ inline int phd_atan(long x, long y)
 
 #define XZ_GET_SECTOR(room, x, z) (r->floor[(int)((z) / 1024 + r->x_size * ((x) / 1024))])
 
-#define PSXENGINE (PSXPC_VERSION || PSX_VERSION)
+#define PSXENGINE (PSXPC_VERSION || PSX_VERSION || SAT_VERSION || PS2_VERSION)
 
 #define TEXTURE_PAGE (256 * 256)
 
