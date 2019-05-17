@@ -32,15 +32,15 @@
 static struct REQUESTER PauseReq = { STR_PAUSED,  8, 3, 0, 5, 0, 0, 0, 0, { STR_RESUME, STR_QUIT,  STR_GAME_SETTINGS, 0, 0 } };
 static struct REQUESTER AdjustReq = { STR_USE_DIRECTIONAL_BUTTONS, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
 static struct REQUESTER QuitReq = { STR_CONFIRM_QUIT, 8, 2, 1, 2, 0, 0, 0, 0,{ STR_YES, STR_NO, 0, 0, 0 } };
-static struct REQUESTER StatisticsReq = { 0xB2, 0x08, 0x01, 0x01, 0x05, 0x00, 0x00, 0x00, 0x01,{ 0xEE, 0x00, 0x00, 0x00, 0x00 } };
+static struct REQUESTER StatisticsReq = { STR_STATISTICS, 8, 1, 1, 5, 0, 0, 0, 1,{ STR_ELLIPSIS_BIS, 0, 0, 0, 0 } };
 
 static unsigned short PadStrings[5][8] =
 {
-	{ 0x00BC, 0xBE00, 0x00BE, 0xBD00, 0x00BD, 0xBF00, 0x00BF, 0xC100 },
-	{ 0x00BC, 0xBE00, 0x00BE, 0xBD00, 0x00BD, 0xBF00, 0x00BF, 0xC100 },
-	{ 0x00BC, 0xBE00, 0x00BE, 0xBD00, 0x00BD, 0xBF00, 0x00BF, 0xC100 },
-	{ 0x00BC, 0xBE00, 0x00BE, 0xBD00, 0x00BD, 0xBF00, 0x00BF, 0xC100 },
-	{ 0x00BC, 0xBE00, 0x00BE, 0xBD00, 0x00BD, 0xBF00, 0x00BF, 0xC100 }
+	{ STR_ACTION, STR_JUMP, STR_DRAW_WEAPON, STR_ROLL, STR_LOOK, STR_DUCK, STR_WALK, STR_DASH },
+	{ STR_JUMP, STR_DRAW_WEAPON, STR_ROLL, STR_ACTION, STR_DUCK, STR_LOOK, STR_DASH, STR_WALK },
+	{ STR_DRAW_WEAPON, STR_ROLL, STR_JUMP, STR_ACTION, STR_WALK, STR_DASH, STR_LOOK, STR_DUCK },
+	{ STR_ROLL, STR_ACTION, STR_LOOK, STR_JUMP, STR_DRAW_WEAPON, STR_DUCK, STR_WALK, STR_DASH },
+	{ STR_WALK, STR_LOOK, STR_DASH, STR_DUCK, STR_JUMP, STR_ROLL, STR_ACTION, STR_DRAW_WEAPON }
 };
 
 static unsigned char PauseMenuNum;
@@ -55,7 +55,6 @@ unsigned short nAnimUVRanges;
 int GtSFXEnabled;
 short AnimatingTexturesV[16][8][3];
 
-static int dword_A1A58[] = { 0x14, 0x15, 0x17, 0x16, 0x1E, 0x1F, 0x1C, 0x1D };
 static char byte_A1F40 = 0;
 static char byte_A1F41 = 4;
 
@@ -125,433 +124,65 @@ void S_ExitSystem(char* exit_message)//607C8, * (F)
 	}
 }
 
-void DisplayConfig(int x, int y)//6080C, 61340
+void DisplayConfig(int x, int y)//6080C(<), 61340(<) (F)
 {
-	unsigned short* wp; // $s1
-	char buf[80]; // stack offset -128
-	int seconds; // $s0
+	unsigned short* wp;
+	char buf[80];
+	int seconds;
 
-	//fp = y
-	//v1 = PauseMenuNum
-	//v0 = 0x14
-
-	if (PauseMenuNum == 0x14)
+	if (PauseMenuNum == 20)
 	{
-		//a0 = 0x70
-		//s5 = y & 0xFFFF
-		//a1 = s5
-		//a2 = 2
-		//a3 = &dword_A1A58[0]//FIXME might not be array?
-		//v0 = 0xB0000
-		//s0 = 0x8000
-		//s1 = savegame.ControlOption
-		//v0 = &PadStrings
+		PrintString(112, y, 2, "\x14\x00\x00\x00", FF_CENTER);
+		PrintString(112, y + 18, 2, "\x15\x00\x00\x00", FF_CENTER);
+		PrintString(400, y, 2, "\x17\x00\x00\x00", FF_CENTER);
+		PrintString(400, y + 18, 2, "\x16\x00\x00\x00", FF_CENTER);
+		PrintString(112, y + 36, 2, "\x1E\x00\x00\x00", FF_CENTER);
+		PrintString(112, y + 54, 2, "\x1F\x00\x00\x00", FF_CENTER);
+		PrintString(400, y + 36, 2, "\x1C\x00\x00\x00", FF_CENTER);
+		PrintString(400, y + 54, 2, "\x1D\x00\x00\x00", FF_CENTER);
+		
+		wp = &PadStrings[savegame.ControlOption][0];
 
-		PrintString(0x70, y, 2, (char*)&dword_A1A58[0], FF_CENTER);
-
+		PrintString(140, y, 5, &gfStringWad[gfStringOffset[wp[0]]], FF_NONE);
+		PrintString(140, y + 18, 5, &gfStringWad[gfStringOffset[wp[1]]], FF_NONE);
+		PrintString(372, y, 5, &gfStringWad[gfStringOffset[wp[2]]], FF_R_JUSTIFY);
+		PrintString(372, y + 18, 5, &gfStringWad[gfStringOffset[wp[3]]], FF_R_JUSTIFY);
+		PrintString(140, y + 36, 5, &gfStringWad[gfStringOffset[wp[4]]], FF_NONE);
+		PrintString(140, y + 54, 5, &gfStringWad[gfStringOffset[wp[5]]], FF_NONE);
+		PrintString(372, y + 36, 5, &gfStringWad[gfStringOffset[wp[6]]], FF_R_JUSTIFY);
+		PrintString(372, y + 54, 5, &gfStringWad[gfStringOffset[wp[7]]], FF_R_JUSTIFY);
 	}
+	else
+	{
+		//loc_60B2C
+		PrintString(x, y, 5, &gfStringWad[gfStringOffset[STR_TIME_TAKEN]], FF_NONE);
+		PrintString(x, y + 18, 5, &gfStringWad[gfStringOffset[STR_DISTANCE_TRAVELLED]], FF_NONE);
+		PrintString(x, y + 36, 5, &gfStringWad[gfStringOffset[STR_AMMO_USED]], FF_NONE);
+		PrintString(x, y + 54, 5, &gfStringWad[gfStringOffset[STR_HEALTH_PACKS_USED]], FF_NONE);
+		PrintString(x, y + 72, 5, &gfStringWad[gfStringOffset[STR_SECRETS_FOUND]], FF_NONE);
 
-#if 0
-				 li      $a0, 0x70
-				 addiu   $s2, $fp, 0xA0 + var_90 + 2
-				 andi    $s2, 0xFFFF
-				 move    $a1, $s2
-				 li      $a2, 2
-				 la      $a3, dword_A1A5C
-				 jal     sub_8DB4C
-				 sw      $s0, 0xA0 + var_90($sp)
+		seconds = GameTimer / 30;
 
-				 li      $a0, 0x190
-				 move    $a1, $s5
-				 li      $a2, 2
-				 la      $a3, dword_A1A60
-				 jal     sub_8DB4C
-				 sw      $s0, 0xA0 + var_90($sp)
+		sprintf(&buf[0], "%d %s %d:%.2d:%.2d", seconds / 86400, &gfStringWad[gfStringOffset[STR_DAYS]], seconds % 0x15180 / 0xE10, seconds / 0x3C, seconds % 0x3C);
+		PrintString(SCREEN_WIDTH - x, y, 5, &buf[0], FF_R_JUSTIFY);
 
-				 li      $a0, 0x190
-				 move    $a1, $s2
-				 li      $a2, 2
-				 la      $a3, dword_A1A64
-				 jal     sub_8DB4C
-				 sw      $s0, 0xA0 + var_90($sp)
+		sprintf(&buf[0], "%dm", savegame.Game.Distance / 0x1A3);
+		PrintString(SCREEN_WIDTH - x, y + 18, 5, &buf[0], FF_R_JUSTIFY);
 
-				 li      $a0, 0x70
-				 addiu   $s3, $fp, 0xA0 + var_7C
-				 andi    $s3, 0xFFFF
-				 move    $a1, $s3
-				 li      $a2, 2
-				 la      $a3, dword_A1A68
-				 jal     sub_8DB4C
-				 sw      $s0, 0xA0 + var_90($sp)
+		sprintf(&buf[0], "%d", savegame.Game.AmmoUsed);
+		PrintString(SCREEN_WIDTH - x, y + 36, 5, &buf[0], FF_R_JUSTIFY);
 
-				 li      $a0, 0x70
-				 addiu   $s4, $fp, 0xA0 + var_6A
-				 andi    $s4, 0xFFFF
-				 move    $a1, $s4
-				 li      $a2, 2
-				 la      $a3, dword_A1A6C
-				 jal     sub_8DB4C
-				 sw      $s0, 0xA0 + var_90($sp)
+		sprintf(&buf[0], "%d", savegame.Game.HealthUsed);
+		PrintString(SCREEN_WIDTH - x, y + 36, 5, &buf[0], FF_R_JUSTIFY);
 
-				 li      $a0, 0x190
-				 move    $a1, $s3
-				 li      $a2, 2
-				 la      $a3, dword_A1A70
-				 jal     sub_8DB4C
-				 sw      $s0, 0xA0 + var_90($sp)
+		sprintf(&buf[0], "%d / 36", savegame.Game.Secrets);
+		PrintString(SCREEN_WIDTH - x, y + 54, 5, &buf[0], FF_R_JUSTIFY);
 
-				 li      $a0, 0x190
-				 move    $a1, $s4
-				 li      $a2, 2
-				 la      $a3, dword_A1A74
-				 jal     sub_8DB4C
-				 sw      $s0, 0xA0 + var_90($sp)
-
-				 li      $a0, 0x8C
-				 move    $a1, $s5
-				 lhu     $v0, 0($s1)
-				 lw      $v1, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $v1
-				 lhu     $t0, 0($v0)
-				 li      $a2, 5
-				 sw      $zero, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $t0
-
-				 li      $a0, 0x8C
-				 move    $a1, $s2
-				 lhu     $v0, 2($s1)
-				 lw      $v1, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $v1
-				 lhu     $t0, 0($v0)
-				 li      $a2, 5
-				 sw      $zero, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $t0
-
-				 li      $a0, 0x174
-				 move    $a1, $s5
-				 li      $a2, 5
-				 lhu     $v0, 4($s1)
-				 lw      $v1, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $v1
-				 lhu     $t0, 0($v0)
-				 li      $s0, 0x4000
-				 sw      $s0, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $t0
-
-				 li      $a0, 0x174
-				 move    $a1, $s2
-				 lhu     $v0, 6($s1)
-				 lw      $v1, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $v1
-				 lhu     $t0, 0($v0)
-				 li      $a2, 5
-				 sw      $s0, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $t0
-
-				 li      $a0, 0x8C
-				 move    $a1, $s3
-				 lhu     $v0, 8($s1)
-				 lw      $v1, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $v1
-				 lhu     $t0, 0($v0)
-				 li      $a2, 5
-				 sw      $zero, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $t0
-
-				 li      $a0, 0x8C
-				 move    $a1, $s4
-				 lhu     $v0, 0xA($s1)
-				 lw      $v1, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $v1
-				 lhu     $t0, 0($v0)
-				 li      $a2, 5
-				 sw      $zero, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $t0
-
-				 li      $a0, 0x174
-				 move    $a1, $s3
-				 lhu     $v0, 0xC($s1)
-				 lw      $v1, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $v1
-				 lhu     $t0, 0($v0)
-				 li      $a2, 5
-				 sw      $s0, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $t0
-
-				 li      $a0, 0x174
-				 move    $a1, $s4
-				 lhu     $v0, 0xE($s1)
-				 lw      $v1, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $v1
-				 lhu     $t0, 0($v0)
-				 li      $a2, 5
-				 sw      $s0, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $t0
-				 j       loc_60F04
-				 nop
-
-				 loc_60B2C :
-			 li      $v0, 0x88888889
-				 lw      $s0, dword_A1FF8
-				 andi    $s2, $fp, 0xFFFF
-				 multu   $s0, $v0
-				 lw      $v0, 0xA0 + arg_0($sp)
-				 move    $a1, $s2
-				 andi    $v0, 0xFFFF
-				 move    $a0, $v0
-				 sw      $v0, 0xA0 + var_30($sp)
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x170($v0)
-				 li      $a2, 5
-				 sw      $zero, 0xA0 + var_90($sp)
-				 addu    $a3, $v1
-				 mfhi    $s0
-				 jal     sub_8DB4C
-				 srl     $s0, 4
-				 addiu   $s4, $fp, 0xA0 + var_90 + 2
-				 andi    $s4, 0xFFFF
-				 move    $a1, $s4
-				 lw      $a0, 0xA0 + var_30($sp)
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x166($v0)
-				 li      $a2, 5
-				 sw      $zero, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $v1
-				 addiu   $s7, $fp, 0xA0 + var_7C
-				 andi    $s7, 0xFFFF
-				 move    $a1, $s7
-				 lw      $a0, 0xA0 + var_30($sp)
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x168($v0)
-				 li      $a2, 5
-				 sw      $zero, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $v1
-				 addiu   $s5, $fp, 0xA0 + var_6A
-				 andi    $s5, 0xFFFF
-				 move    $a1, $s5
-				 lw      $a0, 0xA0 + var_30($sp)
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x16E($v0)
-				 li      $a2, 5
-				 sw      $zero, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $v1
-				 addiu   $s6, $fp, 0xA0 + var_58
-				 andi    $s6, 0xFFFF
-				 move    $a1, $s6
-				 lw      $a0, 0xA0 + var_30($sp)
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x16A($v0)
-				 li      $a2, 5
-				 sw      $zero, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $v1
-				 li      $a2, 0xC22E4507
-				 mult    $s0, $a2
-				 lui     $t3, 0x91A2
-				 mfhi    $a2
-				 li      $t2, 0x88888889
-				 mult    $s0, $t2
-				 li      $t3, 0x91A2B3C5
-				 sra     $t4, $s0, 31
-				 addu    $a2, $s0
-				 sra     $a2, 16
-				 subu    $a2, $t4
-				 sll     $v0, $a2, 1
-				 addu    $v0, $a2
-				 sll     $v1, $v0, 4
-				 subu    $v1, $v0
-				 sll     $t0, $v1, 4
-				 subu    $t0, $v1
-				 mfhi    $t1
-				 sll     $t0, 7
-				 subu    $t0, $s0, $t0
-				 mult    $t0, $t3
-				 addiu   $a0, $sp, 0xA0 + var_80
-				 lui     $a1, 0xA
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x172($v0)
-				 la      $a1, aDSD2d2d    # "%d %s %d:%.2d:%.2d"
-				 addu    $a3, $v1
-				 addu    $t1, $s0
-				 mfhi    $t3
-				 sra     $t1, 5
-				 subu    $t1, $t4
-				 mult    $t1, $t2
-				 sll     $v0, $t1, 4
-				 subu    $v0, $t1
-				 sll     $v0, 2
-				 subu    $s0, $v0
-				 sra     $v1, $t1, 31
-				 sw      $s0, 0xA0 + var_88($sp)
-				 addu    $t3, $t0
-				 sra     $t3, 11
-				 sra     $t0, 31
-				 subu    $t3, $t0
-				 sw      $t3, 0xA0 + var_90($sp)
-				 mfhi    $t2
-				 addu    $t2, $t1
-				 sra     $t2, 5
-				 subu    $t2, $v1
-				 sll     $v0, $t2, 4
-				 subu    $v0, $t2
-				 sll     $v0, 2
-				 subu    $t1, $v0
-				 jal     sub_68654
-				 sw      $t1, 0xA0 + var_8C($sp)
-				 li      $s1, 0x200
-				 move    $a1, $s2
-				 li      $a2, 5
-				 addiu   $a3, $sp, 0xA0 + var_80
-				 lw      $v0, 0xA0 + arg_0($sp)
-				 li      $s3, 0x4000
-				 sw      $s3, 0xA0 + var_90($sp)
-				 subu    $s1, $v0
-				 andi    $s1, 0xFFFF
-				 jal     sub_8DB4C
-				 move    $a0, $s1
-				 lui     $a2, 0x271A
-				 li      $s2, 0xAB3DC
-				 lw      $v0, 0x188($s2)
-				 li      $a2, 0x271A45A7
-				 mult    $v0, $a2
-				 addiu   $a0, $sp, 0xA0 + var_80
-				 la      $a1, aDm         # "%dm"
-				 sra     $v0, 31
-				 mfhi    $a2
-				 sra     $a2, 6
-				 jal     sub_68654
-				 subu    $a2, $v0
-				 move    $a0, $s1
-				 move    $a1, $s4
-				 li      $a2, 5
-				 addiu   $a3, $sp, 0xA0 + var_80
-				 jal     sub_8DB4C
-				 sw      $s3, 0xA0 + var_90($sp)
-				 addiu   $a0, $sp, 0xA0 + var_80
-				 la      $s0, aD          # "%d"
-				 lw      $a2, 0x18C($s2)
-				 jal     sub_68654
-				 move    $a1, $s0
-				 move    $a0, $s1
-				 move    $a1, $s7
-				 li      $a2, 5
-				 addiu   $a3, $sp, 0xA0 + var_80
-				 jal     sub_8DB4C
-				 sw      $s3, 0xA0 + var_90($sp)
-				 addiu   $a0, $sp, 0xA0 + var_80
-				 lbu     $a2, 0x197($s2)
-				 jal     sub_68654
-				 move    $a1, $s0
-				 move    $a0, $s1
-				 move    $a1, $s5
-				 li      $a2, 5
-				 addiu   $a3, $sp, 0xA0 + var_80
-				 jal     sub_8DB4C
-				 sw      $s3, 0xA0 + var_90($sp)
-				 addiu   $a0, $sp, 0xA0 + var_80
-				 lui     $a1, 0xA
-				 lbu     $a2, 0x196($s2)
-				 jal     sub_68654
-				 la      $a1, aD36        # "%d / 36"
-				 move    $a0, $s1
-				 move    $a1, $s6
-				 li      $a2, 5
-				 addiu   $a3, $sp, 0xA0 + var_80
-				 jal     sub_8DB4C
-				 sw      $s3, 0xA0 + var_90($sp)
-				 li      $a0, 0x100
-				 addiu   $a1, $fp, 0xA0 + var_3E
-				 andi    $a1, 0xFFFF
-				 li      $a2, 8
-				 lw      $v0, dword_800A202C
-				 lw      $a3, dword_800A203C
-				 lhu     $v1, 0x162($v0)
-				 li      $s0, 0x8000
-				 sw      $s0, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $v1
-				 li      $v0, 0xC0C0C0
-				 addiu   $a1, $fp, 0xA0 + var_3C
-				 andi    $a1, 0xFFFF
-				 li      $a2, 0x100
-				 lw      $a0, 0xA0 + var_30($sp)
-				 lw      $v1, 0xA0 + arg_0($sp)
-				 li      $a3, 1
-				 sw      $zero, 0xA0 + var_90($sp)
-				 sw      $v0, 0xA0 + var_8C($sp)
-				 subu    $a2, $v1
-				 sll     $a2, 1
-				 jal     sub_5EECC
-				 andi    $a2, 0xFFFE
-				 li      $a0, 1
-				 jal     sub_5EE78
-				 li      $a1, 1
-				 li      $a0, 0x100
-				 addiu   $a1, $fp, 0xA0 + var_2A
-				 andi    $a1, 0xFFFF
-				 la      $v1, dword_A1FB0
-				 lbu     $a2, byte_A1FA8
-				 lw      $a3, dword_800A203C
-				 addu    $a2, $v1
-				 lbu     $v0, 0($a2)
-				 lw      $v1, dword_800A202C
-				 sll     $v0, 1
-				 addu    $v0, $v1
-				 lhu     $t0, 0($v0)
-				 li      $a2, 5
-				 sw      $s0, 0xA0 + var_90($sp)
-				 jal     sub_8DB4C
-				 addu    $a3, $t0
-
-				 loc_60F04 :
-			 lw      $ra, 0xA0 + var_4($sp)
-				 lw      $fp, 0xA0 + var_8($sp)
-				 lw      $s7, 0xA0 + var_C($sp)
-				 lw      $s6, 0xA0 + var_10($sp)
-				 lw      $s5, 0xA0 + var_14($sp)
-				 lw      $s4, 0xA0 + var_18($sp)
-				 lw      $s3, 0xA0 + var_1C($sp)
-				 lw      $s2, 0xA0 + var_20($sp)
-				 lw      $s1, 0xA0 + var_24($sp)
-				 lw      $s0, 0xA0 + var_28($sp)
-				 jr      $ra
-				 addiu   $sp, 0xA0
-#endif
-
-		UNIMPLEMENTED();
+		PrintString(SCREEN_WIDTH / 2, y + 98, 8, &gfStringWad[gfStringOffset[STR_CURRENT_LOCATION]], FF_CENTER);
+		DrawLineH(x, (y + 100), ((256 - x) << 1) & 0xFFFE, 1, 0, 0xC0C0C0);
+		DrawTPage(1, 1);
+		PrintString(SCREEN_WIDTH / 2, y + 118, 5, &gfStringWad[gfStringOffset[gfLevelNames[gfCurrentLevel]]], FF_CENTER);
+	}
 }
 
 int DoPauseMenu()//60F34(<), 61A68(<) (F)
