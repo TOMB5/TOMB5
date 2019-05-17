@@ -8,6 +8,8 @@
 #include "SPECIFIC.H"
 #include "PSXINPUT.H"
 #include "TEXT_S.H"
+#include "SOUND.H"
+#include "CONTROL.H"
 
 long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 {
@@ -49,6 +51,8 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 				{
 					w = rw;
 				}
+
+				h += rh;
 			}
 		}//loc_6389C
 	}
@@ -146,18 +150,7 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 
 				if (i < (r->nOptions - 1))
 				{
-					//v0 = i << 1;
-#if 0///@FIXME sp
-					sll     $v0, $s1, 1
-						addu    $a1, $sp, $v0
-						sll     $v1, $a2, 1
-						addu    $a0, $sp, $v1
-						lh      $v0, 0x28($a1)
-						lh      $v1, 0x18($a0)
-						addiu   $a1, $s2, 2
-						subu    $v0, $v1
-						addu    $s2, $a1, $v0
-#endif
+					y = (y + 2) + OptionBottom[i] - OptionTop[i + 1];
 				}//loc_63C48
 			}
 		}//loc_63C58
@@ -173,24 +166,24 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 
 	if ((r->nOptions != 0))
 	{
-		if ((dbinput2 & 1) && r->CursorPos != 0 && !(r->Ignore >> (r->nOptions - 1) & 1))
+		if ((dbinput2 & IN_FORWARD) && r->CursorPos != 0 && !(r->Ignore >> (r->nOptions - 1) & 1))
 		{
 
-			SoundEffect(0x6D, NULL, 2);
+			SoundEffect(SFX_MENU_SELECT, NULL, 2);
 			r->OptionCol &= 0x18;
 			//loc_63E38
 			r->CursorPos--;
 		}
-		else if ((dbinput2 & 2) && r->CursorPos < (r->nOptions - 1)) //loc_63DDC
+		else if ((dbinput2 & IN_BACK) && r->CursorPos < (r->nOptions - 1)) //loc_63DDC
 		{
-			SoundEffect(0x6D, NULL, 2);
+			SoundEffect(SFX_MENU_SELECT, NULL, 2);
 			r->OptionCol &= 0x18;
 			//loc_63E38
 			r->CursorPos++;
 		}
 
 		//loc_63E4C
-		if ((RawEdge & 0x4000))
+		if ((RawEdge & IN_CROSS))
 		{
 			if (r->CursorPos < 2)
 			{
@@ -209,7 +202,7 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 			else
 			{
 				//loc_63EB0
-				SoundEffect(0x6F, NULL, 2);
+				SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
 				return r->CursorPos | 0x80000000;
 			}
 		}

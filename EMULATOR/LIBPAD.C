@@ -216,7 +216,17 @@ unsigned short UpdateGameControllerInput(SDL_GameController* pad)
 	{
 		ret &= ~0x4;
 	}
+	
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_BACK))//SELECT
+	{
+		ret &= ~0x1;
+	}
 
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_START))//START
+	{
+		ret &= ~0x8;
+	}
+	
 	return ret;
 }
 
@@ -290,6 +300,16 @@ unsigned short UpdateKeyboardInput()
 	if (keyboardState[SDL_SCANCODE_RCTRL])//R2
 	{
 		ret &= ~0x200;
+	}
+
+	if (keyboardState[SDL_SCANCODE_SPACE])//SELECT
+	{
+		ret &= ~0x1;
+	}
+
+	if (keyboardState[SDL_SCANCODE_RETURN])//START
+	{
+		ret &= ~0x8;
 	}
 
 	return ret;
