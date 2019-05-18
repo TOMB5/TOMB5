@@ -100,6 +100,7 @@ extern void S_InitD3DMatrix();
 extern void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll);
 extern void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest);
 extern void SetViewMatrix();
+extern void ScaleCurrentMatrix(VECTOR* vec);
 #define phd_PopMatrix()		{ phd_mxptr -= 12; phd_dxptr -= 12; }
 
 #define mPushMatrix phd_PushMatrix
