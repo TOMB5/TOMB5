@@ -22,6 +22,7 @@
 #include "DRAWPRIMITIVE.H"
 #include "GAME.H"
 #include "WINMAIN.H"
+#include "DRAW.H"
 #elif PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "SETUP.H"
 #include "LOADSAVE.H"

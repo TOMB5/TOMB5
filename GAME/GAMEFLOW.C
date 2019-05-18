@@ -555,7 +555,7 @@ void LoadGameflow()//102E0(<), 102B0(<) (F)
 
 #if PC_VERSION
 	LoadFile(GF_SCRIPT_FILENAME, (void**)&s);
-	gfScriptFile = s;
+	gfScriptFile = (char*)s;
 #endif
 
 	Gameflow = (struct GAMEFLOW*)s;
@@ -580,10 +580,16 @@ void LoadGameflow()//102E0(<), 102B0(<) (F)
 	gfScriptWad = s;
 	s += Gameflow->ScriptLen;
 
-	gfStringOffset = (unsigned short*)(((uintptr_t)s + 3) & -4);
+	
 
 	//loc_103A8
+#if PC_VERSION
+	for(gfStringOffset = NULL, i = 0; !LoadFile((char*)s, (void**)&gfStringOffset); i++, gfScriptOffset = NULL)
+#else
+	gfStringOffset = (unsigned short*)(((uintptr_t)s + 3) & -4);
+
 	for(i = 0; FILE_Length((char*)s) == -1; i++)
+#endif
 	{
 		s += strlen((char*)s) + 1;
 	}
