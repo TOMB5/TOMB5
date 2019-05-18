@@ -2593,7 +2593,7 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 	
 	if (item->object_number == PUZZLE_HOLE8 && GLOBAL_invkeypadmode)
 	{
-		ScaleCurrentMatrix(1, 6144, 4096, 4096);
+		ScaleCurrentMatrix({ 6144, 4096, 4096 });
 	}//loc_3C770
 
 	bit = 1;

@@ -25,7 +25,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 
 	if (flag == 2)
 	{
-		ScaleCurrentMatrix(0, -4096, -4096, -4096);
+		ScaleCurrentMatrix({ -4096, -4096, -4096 });
 	}
 
 	mPushMatrix();
