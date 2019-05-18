@@ -2,7 +2,7 @@
 #define INIT_H
 
 void	init_water_table();
-
+extern WATERTAB WaterTable[22][64];
 #ifdef __cplusplus
 extern "C" {
 #endif
