@@ -27,7 +27,7 @@ extern void ObjectObjects();
 extern void TrapObjects();
 extern void InitialiseClosedDoors();
 extern void SetupGame();
-extern void sub_B4A40();
+extern void init_water_table();
 extern void InitialiseSqrtTable();
 extern void InitialiseAnimatedTextures();
 extern void InitialiseFootPrints();

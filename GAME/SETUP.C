@@ -1,47 +1,46 @@
 #include "SETUP.H"
 
-#include "3D_OBJ.H"
+
 #include "BOX.H"
-#include "CD.H"
+
 #include "COLLIDE.H"
 #include "CONTROL.H"
 #include "CODEWAD.H"
 #include "DELTAPAK.H"
 #include "DEBRIS.H"
 #include "DRAW.H"
-#include "DRAWPHAS.H"
+
 #include "DOOR.H"
 #include "EFFECTS.H"
 #include "EFFECT2.H"
 #include "FILE.H"
 #include "FLMTORCH.H"
 #include "GAMEFLOW.H"
-#include "GPU.H"
+
 #include "HAIR.H"
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
 #include "LARAFIRE.H"
 #include "LARAMISC.H"
-#include "LOAD_LEV.H"
+
 #include "LOT.H"
 #include "MALLOC.H"
-#include "MATHS.H"
-#include "MISC.H"
+
 #include "NEWINV2.H"
 #include "OBJECTS.H"
 #include "OBJLIGHT.H"
 #include "PICKUP.H"
-#include "ROOMLOAD.H"
+
 #include "SAVEGAME.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "SOUND.H"
-#include "SPUSOUND.H"
+
 #include "SWITCH.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
-#include "TYPEDEFS.H"
+
 #include "STYPES.H"
 
 #include <assert.h>
@@ -49,6 +48,21 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#endif
+
+#if PC_VERSION
+#include "INIT.H"
+#else
+#include "3D_OBJ.H"
+#include "CD.H"
+#include "DRAWPHAS.H"
+#include "GPU.H"
+#include "LOAD_LEV.H"
+#include "MATHS.H"
+#include "MISC.H"
+#include "ROOMLOAD.H"
+#include "SPUSOUND.H"
+#include "TYPEDEFS.H"
 #endif
 
 #ifdef __linux__
@@ -205,146 +219,85 @@ void InitialiseAnimatedTextures()//?(<), B4904(<)
 #endif
 }
 
-int sub_B49C0(struct WATERTAB* s1, int s0)///@check args
+int GetRandom(struct WATERTAB* w, int n)///@check args
 {
-	int a0;//i
-	int rand;//a1
+	int i;
+	unsigned short random;
 
-	//loc_10D4
-	do
-	{
-		rand = GetRandomDraw() & 0xFC;
+	do {
+		random = GetRandomDraw() & 0xfc;
 
-		a0 = 0;
-
-		if (s0 > 0)
+		for (i = 0; i<n; i++)
 		{
-			if (s1->random != rand)
-			{
-				a0++;
+			if (w[i].random == random)
+				break;
+		}
 
-				//loc_10C4
-				do
-				{
-					s1++;
+		if (i == n)
+			return random;
 
-					if (a0 > s0)
-					{
-						//loc_1120
-						break;
-					}
-					a0++;
-				} while (s1->random != rand);
-			}//loc_1120
-		}//loc_1120
-	} while (a0 != s0);
+	} while (1);
 
-	return rand;
+	return 0;		// to stop warning
 }
 
-void sub_B4A40()//(<), B4A40(<)
+void init_water_table()//(<), B4A40(<)
 {
-	int var_10;//maybe GAME_VECTOR
-	int var_14;
-	int var_18;
-	int fp;//i?
+	long	lp;
 
-	var_10 = rand_2;//0x10($sp)
-	SeedRandomDraw(0x1D96D);
-		
-	fp = 0;
-	//v0 = 0x1F0000
-	//s5 = &WaterTable
-	//a0 = $s5
+	SeedRandomDraw(121197);
 
-	//loc_1190
-	//a1 = fp;//0
-	//s0 = fp << 2
-	var_14 = fp + 1;
-	//v1 = &rcossin_tbl
-	//v0 = fp << 8;
-	//v0 += v1;
-	//a2 = &WaterTable[0][fp];
-	var_18 = fp << 2;
-	//s6 = rcossin_tbl[fp << 7];
-	//v1 = WaterTable + fp << 2
-	//s1 = rcossin_tbl[fp << 7] << 6
+	for (lp = 0; lp<64; lp++)
+	{
+		int i, j, k;
+		short sin = rcossin_tbl[(lp << 7)];
 
-	//v0 = (((rcossin_tbl[fp << 7]) << 6) - rcossin_tbl[fp << 7]) >> 15
+		// underwater
 
-	WaterTable[0][fp].shimmer = (((rcossin_tbl[fp << 7]) << 6) - rcossin_tbl[fp << 7]) >> 15;
-	//v0 = rcossin_tbl[fp << 7] >> 8
-	WaterTable[0][fp].choppy = rcossin_tbl[fp << 7] >> 8;
+		WaterTable[0][lp].shimmer = (sin * 63) >> (12 + 3);
+		WaterTable[0][lp].choppy = (sin * 16) >> 12;
+		WaterTable[0][lp].random = GetRandom(&WaterTable[0][0], lp);
+		WaterTable[0][lp].abs = 0;
 
-	WaterTable[0][fp].random = sub_B49C0(&WaterTable[0][0], fp);
+		// mist
 
-	//loc_1190
-	//a0 = &WaterTable[1][0]
-	//a1 = fp
-	//v1 = s5 + fp << 2
-	//v1 = &WaterTable[0][0].abs
-	//v0 = &WaterTable[0][fp].abs
-	//a2 = &WaterTable[1][fp]
-	WaterTable[0][fp].abs = 0;
-	//v0 = rcossin_tbl[fp << 7] >> 10;
-	//v1 = &WaterTable[0][fp]
-	WaterTable[1][fp].shimmer = rcossin_tbl[fp << 7] >> 10;
-	WaterTable[1][fp].choppy = 0;
+		WaterTable[1][lp].shimmer = (sin * 32) >> (12 + 3);
+		WaterTable[1][lp].choppy = 0;
+		WaterTable[1][lp].random = GetRandom(&WaterTable[1][0], lp);
+		WaterTable[1][lp].abs = -3;
 
-	WaterTable[1][fp].random = sub_B49C0(&WaterTable[1][0], fp);
+		WaterTable[2][lp].shimmer = (sin * 64) >> (12 + 3);
+		WaterTable[2][lp].choppy = 0;
+		WaterTable[2][lp].random = GetRandom(&WaterTable[2][0], lp);
+		WaterTable[2][lp].abs = 0;
 
-	//a0 = &WaterTable[2][0]
-	//a1 = fp
-	//v1 =  &WaterTable[0][fp];
-	//a2 = &WaterTable[0][fp];
-	//v0 = 0xFD
-	//v1 = &WaterTable[2][fp]
-	//s1 = (rcossin_tbl[fp << 7] << 6) >> 15
-	WaterTable[1][fp].abs = 253;
-	//v0 = &WaterTable[0][fp];
-	WaterTable[2][fp].shimmer = (rcossin_tbl[fp << 7] << 6) >> 15;
-	WaterTable[2][fp].choppy = 0;
+		WaterTable[3][lp].shimmer = (sin * 96) >> (12 + 3);
+		WaterTable[3][lp].choppy = 0;
+		WaterTable[3][lp].random = GetRandom(&WaterTable[3][0], lp);
+		WaterTable[3][lp].abs = 4;
 
-	WaterTable[2][fp].random = sub_B49C0(&WaterTable[2][0], fp);
+		WaterTable[4][lp].shimmer = (sin * 127) >> (12 + 3);
+		WaterTable[4][lp].choppy = 0;
+		WaterTable[4][lp].random = GetRandom(&WaterTable[4][0], lp);
+		WaterTable[4][lp].abs = 8;
 
-	//a0 = &WaterTable[3][0]
-	//a1 = fp
-	//v1 = &WaterTable[0][fp]
-	//v0 = &WaterTable[0][fp]
-	//a2 = &WaterTable[3][fp]
-	WaterTable[2][fp].abs = 0;
-	//v0 = ((rcossin_tbl[fp << 7] << 1) + rcossin_tbl[fp << 7]) >> 10
-	WaterTable[3][fp].shimmer = ((rcossin_tbl[fp << 7] << 1) + rcossin_tbl[fp << 7]) >> 10;
-	WaterTable[3][fp].choppy = 0;
-	WaterTable[3][fp].random = sub_B49C0(&WaterTable[3][0], fp);
+		// ripple
 
-	//a0 = &WaterTable[4][0]
-	//a1 = fp
-	//v1 =  &WaterTable[0][fp]
-	//a2 =  &WaterTable[0][fp]
-	//v0 = 4
-	//a3 = &WaterTable[4][fp]
-	WaterTable[3][fp].abs = 4;
-	//v0 = ((rcossin_tbl[fp << 7] << 7) - rcossin_tbl[fp << 7]) >> 15;
-	WaterTable[4][fp].shimmer = ((rcossin_tbl[fp << 7] << 7) - rcossin_tbl[fp << 7]) >> 15;
-	WaterTable[4][fp].choppy = 0;
+		for (i = 0, j = 5; i<4; i++, j += 4)
+		{
+			for (k = 0; k<4; k++)
+			{
+				static unsigned char off[4] = { 4, 8, 12, 16 };
+				static short shim[4] = { 31, 63, 95, 127 };
+				static short chop[4] = { 16, 53, 90, 127 };
 
-	WaterTable[4][fp].random = sub_B49C0(&WaterTable[4][0], fp);
-
-	//a0 = 0
-	//a1 = 5
-	//v1 =  &WaterTable[0][fp]
-	WaterTable[4][fp].abs = 8;
-	//loc_12E8
-	//s4 = 0
-	//a3 = a0 + 1;
-	//t0 = a1 + 4
-	//v1 = a0 << 1
-	//a0 = &unk_24 //offset 0x24
-	//s7 = v1 + a0
-	//v0 = a1 << 8
-
-
+				WaterTable[j + k][lp].shimmer = -((sin*shim[k]) >> 15);
+				WaterTable[j + k][lp].choppy = (sin*chop[i]) >> 12;
+				WaterTable[j + k][lp].random = GetRandom(&WaterTable[j + k][0], lp);
+				WaterTable[j + k][lp].abs = off[k];
+			}
+		}
+	}
 }
 
 void InitialiseSqrtTable()//?(<), B4D14(<)
@@ -1043,7 +996,7 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 void LoadLevel(FILE* nHandle)
 #endif
 #endif
-#endif
+
 {
 	struct Level* level;
 #if PSX_VERSION
@@ -1746,6 +1699,7 @@ void LoadLevel(FILE* nHandle)
 		FromTitle = 1;
 	}//loc_F94
 }
+#endif
 
 void TrapObjects()//?, B7E04
 {
@@ -1867,7 +1821,7 @@ void SetupGame()//?(<), B9DA8(<)
 	wibble = 0;
 	torchroom = 255;
 
-	sub_B4A40();
+	init_water_table();
 	InitialiseSqrtTable();
 
 	InGameCnt = 0;
