@@ -1149,7 +1149,7 @@ void LoadLevel(FILE* nHandle)
 #endif
 
 	//loc_340, loc_3B4
-	for (i = 1; i >= 0; i--)///@CHECK
+	for (i = 0; i < 2; i++)///@CHECK
 	{
 #if DISC_VERSION
 		DEL_CDFS_Read(ptr, 0x40000);
@@ -1676,7 +1676,7 @@ void LoadLevel(FILE* nHandle)
 	//Unimplemented
 #endif
 
-#if DISC_VERSION && !BETA_VERSION
+#if 0//DISC_VERSION && !BETA_VERSION
 
 	if (gfCurrentLevel == LVL5_TITLE && Gameflow->Language - 1 < 2)
 	{
@@ -1703,7 +1703,7 @@ void LoadLevel(FILE* nHandle)
 #if PSXPC_TEST
 		LoadImagePSX(&tex[0], (unsigned long*)ptr);
 #else
-		LoadImage(&tex[0], (unsigned long*)ptr);
+		//LoadImage(&tex[0], (unsigned long*)ptr);
 #endif
 		DrawSync(0);
 #endif
