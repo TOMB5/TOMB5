@@ -24,6 +24,7 @@
 #include "WINMAIN.H"
 #include "DISPLAY.H"
 #include "DRAW.H"
+#include "TEXT.H"
 #elif PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "SETUP.H"
 #include "LOADSAVE.H"
@@ -284,6 +285,7 @@ char friggrimmer2; // offset 0xA36E4
 char oldLaraBusy; // offset 0xA3774
 struct MENUTHANG current_options[3]; // offset 0xA3740
 
+#if PSXENGINE
 void do_playstation_button_prompts_v1()//416E0(<), 41B34(<) (F)
 {
 	if (examine_mode)
@@ -331,6 +333,7 @@ void do_playstation_button_prompts_v1()//416E0(<), 41B34(<) (F)
 	//loc_418AC
 	PrintString(496, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL_BIS]], FF_R_JUSTIFY);
 }
+#endif
 
 void S_DrawPickup(short object_number)//41608(<), 41A5C(<) (F)
 {
@@ -1340,11 +1343,15 @@ void draw_ammo_selector()//3EDDC(<), 3F230(<) (F)
 
 	if (ammo_selector_flag)
 	{
+#if PC_VERSION
+		xpos = (2 * phd_centerx - OBJLIST_SPACING) >> 1;
+#else
 		xpos = SCREEN_WIDTH - OBJLIST_SPACING;
+#endif
 
 		if (num_ammo_slots == 2)
 		{
-			xpos -= (OBJLIST_SPACING + (OBJLIST_SPACING >> 31)) >> 1;
+			xpos -= OBJLIST_SPACING / 2;
 		}
 		else if (num_ammo_slots == 3)
 		{
@@ -1390,7 +1397,13 @@ void draw_ammo_selector()//3EDDC(<), 3F230(<) (F)
 					//loc_3EF90
 					if (ammo_selector_fade_val != 0)
 					{
-						PrintString(SCREEN_WIDTH / 2, 165, 8, &cunter[0], FF_CENTER);
+						PrintString(
+#if PC_VERSION
+							phd_centerx, font_height + phd_centery + 2 * font_height - 9,
+#else
+							SCREEN_WIDTH / 2, 165,
+#endif
+							8, &cunter[0], FF_CENTER);
 					}//loc_3EFB8
 
 					if (n == current_ammo_type[0])
@@ -2581,6 +2594,7 @@ int go_and_load_game()//3C900(<), 3CD54(<) (F)
 
 void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int shagflag)//3C6A0(<), 3CAF4(<) (F)
 {
+#if !PC_VERSION
 	struct ANIM_STRUCT* anim;
 	struct object_info* object;
 	long* bone;
@@ -2601,7 +2615,11 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 	
 	if (item->object_number == PUZZLE_HOLE8 && GLOBAL_invkeypadmode)
 	{
+#if PC_VERSION
+		ScaleCurrentMatrix({ 24576, 16384, 4096 });
+#else
 		ScaleCurrentMatrix({ 6144, 4096, 4096 });
+#endif
 	}//loc_3C770
 
 	bit = 1;
@@ -2671,10 +2689,12 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 
 	//loc_3C8C8
 	mPopMatrix();
+#endif
 }
 
 void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay)//3C43C(<), 3C890(<) (F)
 {
+#if !PC_VERSION
 	struct ITEM_INFO item;
 	struct INVOBJ* objme;
 
@@ -2732,6 +2752,7 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 
 	mPopMatrix();
 	SetGeomOffset(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+#endif
 }
 
 void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
@@ -3110,12 +3131,14 @@ int S_CallInventory2()//3B7A8, 3BC04
 				fade_ammo_selector();
 			}
 
+#if PSXENGINE
 			//loc_3BC5C
 			if (PadConnected)
 			{
 				do_playstation_button_prompts_v1();
 			}
 			//loc_3BC78
+#endif
 
 			if (use_the_bitch && !input)
 			{

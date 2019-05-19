@@ -614,7 +614,7 @@ void SoundEffects()//39190(<), 39690 (F)
 #endif
 }
 
-#if SAT_VERSION
+#if SAT_VERSION || PC_VERSION
 long SoundEffect(short sample_index, struct PHD_3DPOS* pos, int arg2)//91780(<), 937C4(!)
 {
 	return 0;
