@@ -22,6 +22,7 @@
 #include "DRAWPRIMITIVE.H"
 #include "GAME.H"
 #include "WINMAIN.H"
+#include "DISPLAY.H"
 #include "DRAW.H"
 #elif PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "SETUP.H"
@@ -1548,7 +1549,13 @@ void handle_inventry_menu()//3DF44, 3E398
 
 	if (rings[RING_AMMO]->ringactive)
 	{
-		PrintString(SCREEN_WIDTH / 2, 120, 1, &gfStringWad[gfStringOffset[optmessages[5]]], FF_CENTER);
+		PrintString(
+#if PC_VERSION
+			phd_centerx, phd_centery
+#else
+			SCREEN_WIDTH / 2, 120
+#endif
+			, 1, &gfStringWad[gfStringOffset[optmessages[5]]], FF_CENTER);
 
 		//a1 = rings[RING_INVENTORY]
 		//v0 = rings[RING_INVENTORY]->objlistmovement
