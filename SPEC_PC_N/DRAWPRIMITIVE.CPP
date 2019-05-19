@@ -68,6 +68,12 @@ D3DMATRIX d3d_camera;
 SNOWFLAKE raindrops[2048];
 SNOWFLAKE snowflakes[2048];
 
+bool visible_zclip(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3)
+{
+	return (v3->tu * v1->sz - v3->sz * v1->tu) * v2->tv
+		+ (v3->sz * v1->tv - v3->tv * v1->sz) * v2->tu
+		+ (v3->tv * v1->tu - v3->tu * v1->tv) * v2->sz < 0.0;
+}
 
 void SubdivideEdge(D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, short *a4, float u1, float v1, float u2, float v2, float *u, float *v)
 {
@@ -102,8 +108,191 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 
 void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
 {
-	Unimpl();
+	WORD vp1 = d9ab34[v1];
+	WORD vp2 = d9ab34[v2];
+	WORD vp3 = d9ab34[v3];
+	WORD vp4 = d9ab34[v4];
+
+	OBJECT_TEXTURE newtex;
+	OBJECT_TEXTURE* next;
+
+	int v1b = v1;
+	int v3b = v3;
+
+	if (vp1 & vp2 & vp3 & vp4)
+	{
+		if ((vp1 | vp2 | vp3 | vp4) & 0x8000u)
+		{
+			AddTriClippedSorted(v, v1b, v2, v3, tex, a7);
+			
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+
+			newtex.vertices[0] = tex->vertices[0];
+			newtex.vertices[1] = tex->vertices[2];
+			newtex.vertices[2] = tex->vertices[3];
+
+			AddTriClippedSorted(v, v1b, v3, v4, &newtex, a7);
+
+			return;
+		}
+
+		D3DTLVERTEX* vt2 = &v[v2];
+
+		if (PtrVisible(&v[v1], &v[v2], &v[v3]))
+		{
+			if (!a7)
+				return;
+
+			SWAP(v1b, v3b);
+
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+
+			newtex.vertices[0] = tex->vertices[2];
+			newtex.vertices[1] = tex->vertices[1];
+			newtex.vertices[2] = tex->vertices[0];
+			newtex.vertices[3] = tex->vertices[3];
+
+			next = &newtex;
+		}
+		else
+		{
+			next = tex;
+		}
+
+		if (a7 || !PtrVisible(&v[v1b], &v[v2], &v[v3b]))
+		{
+			if (d9ab34[v1b] | d9ab34[v2] | d9ab34[v3b] | d9ab34[v4])
+			{
+				AddTriClippedSorted(v, v1b, v2, v3b, next, a7);
+
+				newtex.attribute = tex->attribute;
+				newtex.new_flags = tex->new_flags;
+				newtex.tile_and_flag = tex->tile_and_flag;
+
+				newtex.vertices[0] = tex->vertices[0];
+				newtex.vertices[1] = tex->vertices[2];
+				newtex.vertices[2] = tex->vertices[3];
+
+				AddTriClippedSorted(v, v1b, v3b, v4, &newtex, a7);
+			}
+			else
+			{
+				short* info = info3dptrbf;
+
+				info[2] = next->attribute;
+				info[3] = next->tile_and_flag;
+				info[4] = 6;
+				info[5] = e4b100;
+				D3DTLVERTEX* vert = (D3DTLVERTEX*)&info[6];
+				info3dptrbf += 126;
+
+				*sort3dptrbf++ = (int)info;
+
+				surfacenumbf++;
+
+				D3DTLVERTEX* vp1b = &v[v1b];
+
+				vert->sx = vp1b->sx;
+				vert->sy = vp1b->sy;
+				vert->sz = f_a - f_boo * vp1b->rhw;
+				vert->rhw = vp1b->rhw;
+				vert->color = vp1b->color;
+				vert->specular = vp1b->specular;
+				vert->tu = next->vertices[0].x;
+				vert->tv = next->vertices[0].y;
+
+				D3DVALUE z = vp1b->sz;
+
+				if (!e4b100)
+				{
+					if (z <= 0.0)
+						z = 0.0;
+					else
+						z = vp1b->sz;
+				}
+
+				*(D3DTLVERTEX*)&info[66] = *(D3DTLVERTEX*)&info[6];
+
+				vert = (D3DTLVERTEX*)&info[26];
+
+				vert->sx = vt2->sx;
+				vert->sy = vt2->sy;
+				vert->sz = f_a - f_boo * vt2->rhw;
+				vert->rhw = vt2->rhw;
+				vert->color = vt2->color;
+				vert->specular = vt2->specular;
+				vert->tu = next->vertices[1].x;
+				vert->tv = next->vertices[1].y;
+
+				if (e4b100)
+				{
+					z = z + vt2->sz;
+				}
+				else if (z < vt2->sz)
+				{
+					z = vt2->sz;
+				}
+
+				vert = (D3DTLVERTEX*)&info[46];
+
+				D3DTLVERTEX* vt3 = &v[v3b];
+
+				vert->sx = vt3->sx;
+				vert->sy = vt3->sy;
+				vert->sz = f_a - f_boo * vt3->rhw;
+				vert->rhw = vt3->rhw;
+				vert->color = vt3->color;
+				vert->specular = vt3->specular;
+				vert->tu = next->vertices[2].x;
+				vert->tv = next->vertices[2].y;
+
+				if (e4b100)
+				{
+					z = z + vt3->sz;
+				}
+				else if (z < vt3->sz)
+				{
+					z = vt3->sz;
+				}
+
+				*(D3DTLVERTEX*)&info[86] = *(D3DTLVERTEX*)&info[46];
+
+				vert = (D3DTLVERTEX*)&info[106];
+
+				D3DTLVERTEX* vt4 = &v[v4];
+
+				vert->sx = vt4->sx;
+				vert->sy = vt4->sy;
+				vert->sz = f_a - f_boo * vt4->rhw;
+				vert->rhw = vt4->rhw;
+				vert->color = vt4->color;
+				vert->specular = vt4->specular;
+				vert->tu = next->vertices[3].x;
+				vert->tv = next->vertices[3].y;
+
+				if (e4b100)
+				{
+					z = z + vt4->sz;
+				}
+				else if (z < vt4->sz)
+				{
+					z = vt4->sz;
+				}
+				if (e4b100)
+					z = z * 0.25;
+
+				*(float *)info = z;
+
+				d9ab1c += 2;
+			}
+		}
+	}
 }
+
 void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
 {
 	Unimpl();
