@@ -303,6 +303,15 @@ struct PHD_VECTOR
 	long y;
 	long z;
 };
+
+struct WATERTAB
+{
+	char shimmer;
+	char choppy;
+	unsigned char random;
+	unsigned char abs;
+};
+
 #if PC_VERSION
 #pragma pack(push, 1)
 #endif

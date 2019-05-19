@@ -638,14 +638,6 @@ struct WINAPP
 };
 
 
-typedef struct
-{
-	signed char	  shimmer;
-	signed char   choppy;
-	unsigned char random;
-	unsigned char abs;
-} WATERTAB;
-
 struct CutsceneHeader
 {
 	uint32_t offset;
