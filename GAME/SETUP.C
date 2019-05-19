@@ -52,6 +52,7 @@
 
 #if PC_VERSION
 #include "INIT.H"
+#include "GAME.H"
 #else
 #include "3D_OBJ.H"
 #include "CD.H"
@@ -300,6 +301,7 @@ void init_water_table()//(<), B4A40(<)
 	}
 }
 
+#if !PC_VERSION
 void InitialiseSqrtTable()//?(<), B4D14(<)
 {
 	int i;
@@ -311,6 +313,7 @@ void InitialiseSqrtTable()//?(<), B4D14(<)
 
 	return;
 }
+#endif
 
 void InitTarget()//(<), B4D64(<)
 {
@@ -962,7 +965,7 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 	}
 }//0xB996C
 
-
+#if !PC_VERSION
 void sub_B3A7C(int a0)
 {
 	struct PSXSPRITESTRUCT* spr = &psxspriteinfo[objects[MISC_SPRITES].mesh_index];
@@ -978,7 +981,7 @@ void sub_B3A7C(int a0)
 	envmap_data[4] = spr->tpage << 16 | spr->clut;
 	envmap_data[5] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
 }
-
+#endif
 /*
  * [FUNCTIONALITY] - LoadLevel.
  * Relocates all game data pointers from the level file to be loaded back into the engine.
@@ -1821,18 +1824,21 @@ void SetupGame()//?(<), B9DA8(<)
 	wibble = 0;
 	torchroom = 255;
 
+#if !PC_VERSION
 	init_water_table();
 	InitialiseSqrtTable();
 
 	InGameCnt = 0;
 
 	InitialiseAnimatedTextures();
+#endif
+
 	InitialiseFootPrints();
 	InitBinoculars();
 	InitTarget();
 	InitialiseGameFlags();
 
-	if ((gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME) && gfInitialiseGame != 0)
+	if ((gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME) && gfInitialiseGame != 0)//TODO: On PC, it's || gfInitialiseGame
 	{
 		//B9E50
 		InitialiseLaraCarriedItems(0);
@@ -1878,6 +1884,7 @@ void InitialiseGameFlags()//?(<), B9D30(<) (F)
 
 void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3)//?(<), B9EA0(<) (F)
 {
+#if !PC_VERSION
 	int i;
 	int s0;
 	int s1;
@@ -1982,7 +1989,7 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 		}
 
 		//loc_6738
-		GLOBAL_resident_depack_buffers = game_malloc(mallocSize);
+		GLOBAL_resident_depack_buffers = (char*)game_malloc(mallocSize);
 
 		if (residentData[0] != 0)
 		{
@@ -2005,8 +2012,10 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 			cutseq_resident_addresses[residentData[3]].packed_data = s6;
 		}
 	}//loc_67C8
+#endif
 }
 
+#if !PC_VERSION
 #if (PSX_VERSION || SAT_VERSION)
 char* ReadResidentData(int residentIndex, int nHandle)//(<), BA0DC(<) (F)
 #elif PSXPC_VERSION
@@ -2035,10 +2044,10 @@ char* ReadResidentData(int residentIndex, FILE* nHandle)//(<), BA0DC(<) (F)
 #endif
 		return ptr;
 	}
-
+	
 	return NULL;
 }
-
+#endif
 long sub_BA148(short* ptr)//?, BA148(<) (F)
 {
 	int i;//$a1
@@ -2059,6 +2068,7 @@ long sub_BA148(short* ptr)//?, BA148(<) (F)
 	}//locret_68C0
 
 	return addr + 0xA8;
+
 }
 
 void reset_cutseq_vars()//?(<), BA194(<) (F)
