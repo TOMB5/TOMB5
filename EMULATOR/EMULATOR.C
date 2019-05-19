@@ -84,6 +84,8 @@ int callGameMain(void *ptr)
 	return 1;
 }
 
+#undef main
+
 int main(int argc, char* argv[])
 {
 	SDL_Thread* gameThread = SDL_CreateThread(callGameMain, "GameThread", (void *)NULL);

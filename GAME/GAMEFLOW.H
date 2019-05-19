@@ -2,6 +2,9 @@
 #define GAMEFLOW_H
 
 #include "STYPES.H"
+#if PC_VERSION
+#include "SPECTYPES.H"
+#endif
 
 extern void DoGameflow();
 extern void LoadGameflow();

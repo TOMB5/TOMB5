@@ -8,8 +8,8 @@
 #include "FILE.H"
 #include "DIRECTX.H"
 
-object_info objects[NUMBER_OBJECTS];
-static_info static_objects[NUMBER_STATIC_OBJECTS];
+//object_info objects[NUMBER_OBJECTS];
+//static_info static_objects[NUMBER_STATIC_OBJECTS];
 LPDIRECT3DVERTEXBUFFER vertex_buffer;
 bool game_running;
 WORD* d9ab34;

@@ -101,7 +101,7 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 	//loc_64130
 	if (scalarx != 0 && scalary != 0 && scalarz != 0 && GLOBAL_playing_cutseq == 0)
 	{
-		ScaleCurrentMatrix(1, scalarx + 4096, scalary + 4096, scalarz + 4096);
+		ScaleCurrentMatrix({ scalarx + 4096, scalary + 4096, scalarz + 4096 });
 	}
 
 	//loc_6416C

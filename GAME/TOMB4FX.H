@@ -66,7 +66,7 @@ extern void ControlTeleporter(short item_number);
 extern void DrawWeaponMissile(struct ITEM_INFO *item);
 extern void TriggerLaraDrips();
 #if PC_VERSION
-extern void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num);
+extern short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room_number);
 extern void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4);
 #endif
 extern void Richochet(struct GAME_VECTOR* pos);

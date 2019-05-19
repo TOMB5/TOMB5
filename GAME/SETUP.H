@@ -27,7 +27,7 @@ extern void ObjectObjects();
 extern void TrapObjects();
 extern void InitialiseClosedDoors();
 extern void SetupGame();
-extern void sub_B4A40();
+extern void init_water_table();
 extern void InitialiseSqrtTable();
 extern void InitialiseAnimatedTextures();
 extern void InitialiseFootPrints();
@@ -158,7 +158,7 @@ struct Level
 	int unk57;
 };
 
-#if PSX_VERSION && !(PSXPC_TEST || SAT_VERSION)
+#if (PSX_VERSION && !(PSXPC_TEST || SAT_VERSION)) || PC_VERSION
 extern struct object_info objects[NUMBER_OBJECTS];
 extern struct static_info static_objects[NUMBER_STATIC_OBJECTS];
 extern char SkinVertNums[480];
