@@ -4,7 +4,7 @@
 #include "DELTAPAK.H"
 #include "SPECIFIC.H"
 #include "LARA.H"
-
+#include "DOOR.H"
 #include "OBJECTS.H"
 #include "GAMEFLOW.H"
 #include "CONTROL.H"
@@ -1612,7 +1612,7 @@ void handle_inventry_menu()//3DF44, 3E398
 		//a0 = rings[RING_INVENTORY].curobjinlist
 		//s3 = 2
 		//v0 = &rings[RING_INVENTORY].current_object_list[rings[RING_INVENTORY].curobjinlist];
-		//t1 = rings[RING_INVENTORY].current_object_list[rings[RING_INVENTORY].curobjinlist].invitem
+		num = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem;
 
 		//loc_3E0DC
 		for (n = 0; n < 3; n++)
@@ -1631,7 +1631,7 @@ void handle_inventry_menu()//3DF44, 3E398
 			//v0 = 9
 			if ((opts & 0x1000))
 			{
-				current_options[0].type = 9;
+				///current_options[0].type = 9;
 				//v0 = optmessages[6];
 				//a0 = gfStringOffset
 				//v1 = gfStringWad
@@ -1639,435 +1639,292 @@ void handle_inventry_menu()//3DF44, 3E398
 				//a1 = gfStringOffset[optmessages[6]];
 				//s3 = 1
 				//v1 = &gfStringWad[gfStringOffset[optmessages[6]]];
-				current_options[0].text = &gfStringWad[gfStringOffset[optmessages[6]]];
-			}
+				///current_options[0].text = &gfStringWad[gfStringOffset[optmessages[6]]];
+			}///@TODO check if really else if
 			else if ((opts & 0x2000))//a1 = s3 << 3
 			{
 				//loc_3E158
-				//s3++;
+				//s3++
+				//a0 = &current_options[s3].type
+				//v0 = 0xA
+				//v1 = 0x90000
+				///current_options[s3].type = 10;
+				//v0 = optmessages[7];
+				//a0 = gfStringOffset
+				//v1 = &gfStringWad[gfStringOffset[optmessages[7]]]
+				//v0 = &gfStringOffset[optmessages[7]]
+				//a2 = gfStringOffset[optmessages[7]]
+				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[7]]];
 			}//loc_3E1A4
-		}//loc_3E464
+			//a1 = s3 << 3
+			if ((opts & 0x20))
+			{
+				//s3++;
+				//a0 = &current_options[s3].type
+				//v0 = 11
+				///current_options[s3].type = 11;
+				//v0 = &gfStringOffset[optmessages[8]];
+				//a2 = gfStringOffset[optmessages[8]];
+				//a0 = gfStringOffset
+				//v1 = &gfStringWad[gfStringOffset[optmessages[8]]]
+				//a1 = &current_options[s3].text
+				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[8]]];
+			}//loc_3E1F0
+			if ((opts & 0x8000))//a1 = s3 << 3
+			{
+				//s3++;
+				//a0 = &current_options[s3]
+				//v0 = 12
+				///current_options[s3].type = 12;
+				//v0 = optmessages[9]
+				//a0 = &gfStringOffset[optmessages[9]]
+				//v1 = &gfStringWad[gfStringOffset[optmessages[9]]]
+				//a2 = gfStringOffset[optmessages[9]]
+				//a1 = &current_options[s3].text
+				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[9]]];
+			}//loc_3E23C
+			if ((opts & 0x4))//a1 = s3 << 3
+			{
+				//s3++;
+				//a0 = &current_options[s3]
+				//v0 = 1
+				///current_options[s3].type = 1;
+				//v0 = &gfStringOffset[optmessages[0]]
+				//a0 = gfStringOffset
+				//v1 = &gfStringWad[gfStringOffset[optmessages[0]]];
+				//a2 = gfStringOffset[optmessages[0]]
+				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[0]]];
+			}//loc_3E288
+			if ((opts & 0x2))//a1 = s3 << 3
+			{
+				//s3++;
+				//a0 = &current_options[s3]
+				//v0 = 1
+				///current_options[s3].type = 5;
+				//v0 = &gfStringOffset[optmessages[4]]
+				//a0 = gfStringOffset
+				//v1 = &gfStringWad[gfStringOffset[optmessages[4]]];
+				//a2 = gfStringOffset[optmessages[4]]
+				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[4]]];
+			}//loc_3E2D4
+			if ((opts & 0xC0))//a1 = s3 << 3
+			{
+				//s3++;
+				//a0 = &current_options[s3]
+				//v0 = 1
+				///current_options[s3].type = 2;
+				//v0 = &gfStringOffset[optmessages[1]]
+				//a0 = gfStringOffset
+				//v1 = &gfStringWad[gfStringOffset[optmessages[1]]];
+				//a2 = gfStringOffset[optmessages[1]]
+				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[1]]];
+			}//loc_3E320
+			if ((opts & 0x100))//a1 = s3 << 3
+			{
+				//s3++;
+				//a0 = &current_options[s3]
+				//v0 = 1
+				///current_options[s3].type = 2;
+				//v0 = &gfStringOffset[optmessages[10]]
+				//a0 = gfStringOffset
+				//v1 = &gfStringWad[gfStringOffset[optmessages[10]]];
+				//a2 = gfStringOffset[optmessages[10]]
+				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[10]]];
+			}//loc_3E36C
+			if ((opts & 8) && is_item_currently_combinable(num))
+			{
+				//s3++;
+				//a0 = &current_options[s3]
+				//v0 = 1
+				///current_options[s3].type = 3;
+				//v0 = &gfStringOffset[optmessages[2]]
+				//a0 = gfStringOffset
+				//v1 = &gfStringWad[gfStringOffset[optmessages[2]]];
+				//a2 = gfStringOffset[optmessages[2]]
+				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[2]]];
+			}//loc_3E3CC
 
+			if ((opts & 0x1))
+			{
+				//s3++;
+				//a0 = &current_options[s3]
+				//v0 = 1
+				///current_options[s3].type = 3;
+				//v0 = &gfStringOffset[optmessages[2]]
+				//a0 = gfStringOffset
+				//v1 = &gfStringWad[gfStringOffset[optmessages[2]]];
+				//a2 = gfStringOffset[optmessages[2]]
+				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[2]]];
+			}//loc_3E414
+
+			if ((opts & 0x10))
+			{
+				//s3++;
+				//a0 = &current_options[s3]
+				//v0 = 1
+				///current_options[s3].type = 4;
+				//v0 = &gfStringOffset[optmessages[3]]
+				//a0 = gfStringOffset
+				//v1 = &gfStringWad[gfStringOffset[optmessages[3]]];
+				//a2 = gfStringOffset[optmessages[3]]
+				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[3]]];
+			}//j loc_3E550
+		}
+		else
+		{
+			//loc_3E464
+			//v0 = 6
+			//t0 = &inventry_objects_list[0]
+			//a0 = ammo_object_list[0].invitem
+			//a3 = gfStringOffset 
+			//a1 = &options_table[0]
+			current_options[0].type = 6;
+			//sizeof(OBJLIST);
+			//v0 = &inventry_objects_list[ammo_object_list[0].invitem]
+			//v1 = &gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]
+			//a0 = gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]
+			//a2 = &gfStringWad
+			//v1 = ammo_object_list[1].invitem
+			//v0 = 7
+			current_options[1].type = 7;
+			//a0 = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]]
+			current_options[0].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]];
+			//a0 = num << 1
+			//v0 = ammo_object_list[1].invitem << 2
+			//v0 += ammo_object_list[1].invitem
+			//v0 += ammo_object_list[1].invitem << 2
+			//v0 = &inventry_objects_list[ammo_object_list[1].invitem];
+			//a0 = &options_table[num]
+			//v1 = inventry_objects_list[ammo_object_list[1].invitem].objname
+			//s0 = options_table[num]
+			//v1 <<= 1
+			//v1 = &gfStringOffset[inventry_objects_list[ammo_object_list[1].invitem].objname]
+			//v1 = opts & 0x100
+			//v0 = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[1].invitem].objname]];
+			current_options[1].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[1].invitem].objname]];
+
+			//s3 = 2
+			//n = 2
+			if ((opts & 0x100))
+			{
+				//v1 = ammo_object_list[2].invitem
+				//v0 = &inventry_objects_list[ammo_object_list[2].invitem]
+				//v1 = inventry_objects_list[ammo_object_list[2].invitem].objname
+				//a0 = 8
+				current_options[2].type = 8;
+
+				//v1 = &gfStringOffset[inventry_objects_list[ammo_object_list[2].invitem].objname]
+				//v0 = gfStringOffset[inventry_objects_list[ammo_object_list[2].invitem].objname]
+				//n = 3
+				//v0 = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[2].invitem].objname]]
+				current_options[2].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[2].invitem].objname]];
+
+			}
+			//loc_3E53C
+			//v0 = current_ammo_type
+			//v1 = current_ammo_type[0]
+			current_selected_option = current_ammo_type[0];
+
+			//loc_3E550
+			if (n == 1)
+			{
+				ypos = 120;
+			}
+			else
+			{
+				ypos = 102;
+			}
+			//loc_3E564
+			if (n == 2)
+			{
+				ypos = 111;
+			}
+			//loc_3E574
+			if (n > 0)
+			{
+				//loc_3E584
+				for(i = 0; i < n; i++)
+				{
+					if (i == current_selected_option)
+					{
+						PrintString(256, ypos, 1, current_options[i].text, 0x8000);
+						ypos += 18;
+					}
+					else
+					{
+						//loc_3E5B0
+						PrintString(256, ypos, 5, current_options[i].text, 0x8000);
+						ypos += 18;
+					}
+					//loc_3E5C8
+				}
+			}
+			//loc_3E5D8
+			//v0 = menu_active
+			if (menu_active && !rings[RING_INVENTORY]->objlistmovement && !rings[RING_AMMO]->objlistmovement)
+			{
+				//v0 = rings[RING_INVENTORY]->
+				//v0 = go_up
+				if (go_up && current_selected_option)
+				{
+					current_selected_option++;
+					SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				}
+				else if(go_down && current_selected_option < n - 1)
+				{
+					//loc_3E64C
+					SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				}//loc_3E684
+
+				if (ammo_active)
+				{
+					if (go_left && current_selected_option)
+					{
+						current_selected_option--;
+						SoundEffect(SFX_MENU_SELECT, NULL, 2);
+					}//loc_3E6C8
+
+					//v0 = n - 1
+					if (go_right && current_selected_option < n - 1)
+					{
+						//v1 = current_selected_option
+						//v0 = current_selected_option < n - 1 ? 1 : 0
+						current_selected_option++;
+						SoundEffect(SFX_MENU_SELECT, NULL, 2);
+					}//loc_3E700
+
+					//v1 = current_ammo_type
+					//v0 = current_selected_option
+					current_ammo_type[0] = current_selected_option;
+				}//loc_3E710
+
+				//v1 = 5
+				if (go_select)
+				{
+					//v0 = current_selected_option
+					//v0 = &current_options[current_selected_option]
+					//a0 = current_options[current_selected_option].type
+					if (current_options[current_selected_option].type != 5 && current_options[current_selected_option].type != 1)
+					{
+						SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+					}//loc_3E754
+					//v0 = current_selected_option
+					//v0 = &current_options[current_selected_option]
+					//v1 = current_options[current_selected_option].type
+					//v0 - 9
+					if (current_options[current_selected_option].type == 2)
+					{
+						//v0 = rings[RING_INVENTORY]->
+						rings[RING_INVENTORY]->ringactive = 0;
+						///@continue
+					}//loc_3E7C8
+
+				}//loc_3E8C0
+
+			}//loc_3E9D0
+		}
 	}
 #if 0
-				 addu    $a0, $a1, $s6
-				 li      $v0, 0xA
-				 lui     $v1, 9
-				 sw      $v0, 0($a0)
-				 lh      $v0, word_9348E
-				 lw      $a0, dword_800A202C
-				 lw      $v1, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 lhu     $a2, 0($v0)
-				 addu    $a1, $s5
-				 addu    $v1, $a2
-				 sw      $v1, 0($a1)
-
-				 loc_3E1A4:
-			 andi    $v0, $s0, 0x20
-				 beqz    $v0, loc_3E1F0
-				 sll     $a1, $s3, 3
-				 addiu   $s3, 1
-				 addu    $a0, $a1, $s6
-				 li      $v0, 0xB
-				 lui     $v1, 9
-				 sw      $v0, 0($a0)
-				 lh      $v0, word_93490
-				 lw      $a0, dword_800A202C
-				 lw      $v1, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 lhu     $a2, 0($v0)
-				 addu    $a1, $s5
-				 addu    $v1, $a2
-				 sw      $v1, 0($a1)
-
-				 loc_3E1F0:
-			 andi    $v0, $s0, 0x8000
-				 beqz    $v0, loc_3E23C
-				 sll     $a1, $s3, 3
-				 addiu   $s3, 1
-				 addu    $a0, $a1, $s6
-				 li      $v0, 0xC
-				 lui     $v1, 9
-				 sw      $v0, 0($a0)
-				 lh      $v0, word_93492
-				 lw      $a0, dword_800A202C
-				 lw      $v1, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 lhu     $a2, 0($v0)
-				 addu    $a1, $s5
-				 addu    $v1, $a2
-				 sw      $v1, 0($a1)
-
-				 loc_3E23C:
-			 andi    $v0, $s0, 4
-				 beqz    $v0, loc_3E288
-				 sll     $a1, $s3, 3
-				 addiu   $s3, 1
-				 addu    $a0, $a1, $s6
-				 li      $v0, 1
-				 lui     $v1, 9
-				 sw      $v0, 0($a0)
-				 lh      $v0, word_93480
-				 lw      $a0, dword_800A202C
-				 lw      $v1, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 lhu     $a2, 0($v0)
-				 addu    $a1, $s5
-				 addu    $v1, $a2
-				 sw      $v1, 0($a1)
-
-				 loc_3E288:
-			 andi    $v0, $s0, 2
-				 beqz    $v0, loc_3E2D4
-				 sll     $a1, $s3, 3
-				 addiu   $s3, 1
-				 addu    $a0, $a1, $s6
-				 li      $v0, 5
-				 lui     $v1, 9
-				 sw      $v0, 0($a0)
-				 lh      $v0, word_93488
-				 lw      $a0, dword_800A202C
-				 lw      $v1, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 lhu     $a2, 0($v0)
-				 addu    $a1, $s5
-				 addu    $v1, $a2
-				 sw      $v1, 0($a1)
-
-				 loc_3E2D4:
-			 andi    $v0, $s0, 0xC0
-				 beqz    $v0, loc_3E320
-				 sll     $a1, $s3, 3
-				 addiu   $s3, 1
-				 addu    $a0, $a1, $s6
-				 li      $v0, 2
-				 lui     $v1, 9
-				 sw      $v0, 0($a0)
-				 lh      $v0, word_93482
-				 lw      $a0, dword_800A202C
-				 lw      $v1, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 lhu     $a2, 0($v0)
-				 addu    $a1, $s5
-				 addu    $v1, $a2
-				 sw      $v1, 0($a1)
-
-				 loc_3E320:
-			 andi    $v0, $s0, 0x100
-				 beqz    $v0, loc_3E36C
-				 sll     $a1, $s3, 3
-				 addiu   $s3, 1
-				 addu    $a0, $a1, $s6
-				 li      $v0, 2
-				 lui     $v1, 9
-				 sw      $v0, 0($a0)
-				 lh      $v0, word_93494
-				 lw      $a0, dword_800A202C
-				 lw      $v1, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 lhu     $a2, 0($v0)
-				 addu    $a1, $s5
-				 addu    $v1, $a2
-				 sw      $v1, 0($a1)
-
-				 loc_3E36C:
-			 andi    $v0, $s0, 8
-				 beqz    $v0, loc_3E3CC
-				 andi    $v0, $s0, 1
-				 jal     is_item_currently_combinable
-				 move    $a0, $t1
-				 beqz    $v0, loc_3E3C8
-				 sll     $a1, $s3, 3
-				 addiu   $s3, 1
-				 addu    $a0, $a1, $s6
-				 li      $v0, 3
-				 lui     $v1, 9
-				 sw      $v0, 0($a0)
-				 lh      $v0, word_93484
-				 lw      $a0, dword_800A202C
-				 lw      $v1, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 lhu     $a2, 0($v0)
-				 addu    $a1, $s5
-				 addu    $v1, $a2
-				 sw      $v1, 0($a1)
-
-				 loc_3E3C8:
-			 andi    $v0, $s0, 1
-
-				 loc_3E3CC :
-				 beqz    $v0, loc_3E414
-				 sll     $a1, $s3, 3
-				 addiu   $s3, 1
-				 addu    $a0, $a1, $s6
-				 li      $v0, 3
-				 lui     $v1, 9
-				 sw      $v0, 0($a0)
-				 lh      $v0, word_93484
-				 lw      $a0, dword_800A202C
-				 lw      $v1, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 lhu     $a2, 0($v0)
-				 addu    $a1, $s5
-				 addu    $v1, $a2
-				 sw      $v1, 0($a1)
-
-				 loc_3E414:
-			 andi    $v0, $s0, 0x10
-				 beqz    $v0, loc_3E550
-				 sll     $a1, $s3, 3
-				 addiu   $s3, 1
-				 addu    $a0, $a1, $s6
-				 li      $v0, 4
-				 lui     $v1, 9
-				 sw      $v0, 0($a0)
-				 lh      $v0, word_93486
-				 lw      $a0, dword_800A202C
-				 lw      $v1, dword_800A203C
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 lhu     $a2, 0($v0)
-				 addu    $a1, $s5
-				 addu    $v1, $a2
-				 j       loc_3E550
-				 sw      $v1, 0($a1)
-
-				 loc_3E464:
-			 li      $v0, 6
-				 lui     $v1, 9
-				 addiu   $t0, $v1, (dword_92BE8 - 0x90000)
-				 lh      $a0, 0x31D0($gp)
-				 lw      $a3, dword_800A202C
-				 addiu   $a1, 0x33B8
-				 sw      $v0, 0x318C($gp)
-				 sll     $v0, $a0, 2
-				 addu    $v0, $a0
-				 sll     $v0, 2
-				 addu    $v0, $t0
-				 lh      $v1, 0xE($v0)
-				 lw      $a2, dword_800A203C
-				 sll     $v1, 1
-				 addu    $v1, $a3
-				 lhu     $a0, 0($v1)
-				 lh      $v1, 0x31D6($gp)
-				 li      $v0, 7
-				 sw      $v0, 0x3194($gp)
-				 addu    $a0, $a2, $a0
-				 sw      $a0, 0x3190($gp)
-				 sll     $a0, $t1, 1
-				 sll     $v0, $v1, 2
-				 addu    $v0, $v1
-				 sll     $v0, 2
-				 addu    $v0, $t0
-				 addu    $a0, $a1
-				 lh      $v1, 0xE($v0)
-				 lh      $s0, 0($a0)
-				 sll     $v1, 1
-				 addu    $v1, $a3
-				 lhu     $v0, 0($v1)
-				 andi    $v1, $s0, 0x100
-				 addu    $v0, $a2, $v0
-				 sw      $v0, 0x3198($gp)
-				 beqz    $v1, loc_3E53C
-				 li      $s3, 2
-				 lh      $v1, 0x31DC($gp)
-				 nop
-				 sll     $v0, $v1, 2
-				 addu    $v0, $v1
-				 sll     $v0, 2
-				 addu    $v0, $t0
-				 lh      $v1, 0xE($v0)
-				 li      $a0, 8
-				 sw      $a0, 0x319C($gp)
-				 sll     $v1, 1
-				 addu    $v1, $a3
-				 lhu     $v0, 0($v1)
-				 li      $s3, 3
-				 addu    $v0, $a2, $v0
-				 sw      $v0, 0x31A0($gp)
-
-				 loc_3E53C:
-			 lw      $v0, 0x314C($gp)
-				 nop
-				 lbu     $v1, 0($v0)
-				 nop
-				 sb      $v1, 0x312C($gp)
-
-				 loc_3E550 :
-				 li      $v0, 1
-				 bne     $s3, $v0, loc_3E564
-				 li      $s2, 0x66
-				 j       loc_3E574
-				 li      $s2, 0x78
-
-				 loc_3E564 :
-				 li      $v0, 2
-				 bne     $s3, $v0, loc_3E574
-				 nop
-				 li      $s2, 0x6F
-
-				 loc_3E574 :
-				 blez    $s3, loc_3E5D8
-				 move    $s1, $zero
-				 li      $s4, 0x8000
-				 move    $s0, $s5
-
-				 loc_3E584 :
-			 lbu     $v0, 0x312C($gp)
-				 nop
-				 bne     $s1, $v0, loc_3E5B0
-				 li      $a0, 0x100
-				 andi    $a1, $s2, 0xFFFF
-				 lw      $a3, 0($s0)
-				 li      $a2, 1
-				 jal     PrintString
-				 sw      $s4, 0x38 + var_28($sp)
-				 j       loc_3E5C8
-				 addiu   $s2, 0x12
-
-				 loc_3E5B0:
-			 andi    $a1, $s2, 0xFFFF
-				 lw      $a3, 0($s0)
-				 li      $a2, 5
-				 jal     PrintString
-				 sw      $s4, 0x38 + var_28($sp)
-				 addiu   $s2, 0x12
-
-				 loc_3E5C8:
-			 addiu   $s1, 1
-				 slt     $v0, $s1, $s3
-				 bnez    $v0, loc_3E584
-				 addiu   $s0, 8
-
-				 loc_3E5D8 :
-				 lbu     $v0, 0x313C($gp)
-				 nop
-				 beqz    $v0, loc_3E9D0
-				 nop
-				 lw      $v0, 0x3178($gp)
-				 nop
-				 lw      $v1, 0x25C($v0)
-				 nop
-				 bnez    $v1, loc_3E9D0
-				 nop
-				 lw      $v0, 0x317C($gp)
-				 nop
-				 lw      $v1, 0x25C($v0)
-				 nop
-				 bnez    $v1, loc_3E9D0
-				 nop
-				 lbu     $v0, 0x3150($gp)
-				 nop
-				 beqz    $v0, loc_3E64C
-				 nop
-				 lbu     $v0, 0x312C($gp)
-				 nop
-				 beqz    $v0, loc_3E64C
-				 addiu   $v0, -1
-				 sb      $v0, 0x312C($gp)
-				 li      $a0, 0x6D
-				 move    $a1, $zero
-				 jal     SoundEffect
-				 li      $a2, 2
-
-				 loc_3E64C:
-			 lbu     $v0, 0x3140($gp)
-				 nop
-				 beqz    $v0, loc_3E684
-				 addiu   $v0, $s3, -1
-				 lbu     $v1, 0x312C($gp)
-				 nop
-				 slt     $v0, $v1, $v0
-				 beqz    $v0, loc_3E684
-				 addiu   $v0, $v1, 1
-				 sb      $v0, 0x312C($gp)
-				 li      $a0, 0x6D
-				 move    $a1, $zero
-				 jal     SoundEffect
-				 li      $a2, 2
-
-				 loc_3E684:
-			 lbu     $v0, 0x31C8($gp)
-				 nop
-				 beqz    $v0, loc_3E710
-				 nop
-				 lbu     $v0, 0x3144($gp)
-				 nop
-				 beqz    $v0, loc_3E6C8
-				 nop
-				 lbu     $v0, 0x312C($gp)
-				 nop
-				 beqz    $v0, loc_3E6C8
-				 addiu   $v0, -1
-				 sb      $v0, 0x312C($gp)
-				 li      $a0, 0x6D
-				 move    $a1, $zero
-				 jal     SoundEffect
-				 li      $a2, 2
-
-				 loc_3E6C8:
-			 lbu     $v0, 0x3124($gp)
-				 nop
-				 beqz    $v0, loc_3E700
-				 addiu   $v0, $s3, -1
-				 lbu     $v1, 0x312C($gp)
-				 nop
-				 slt     $v0, $v1, $v0
-				 beqz    $v0, loc_3E700
-				 addiu   $v0, $v1, 1
-				 sb      $v0, 0x312C($gp)
-				 li      $a0, 0x6D
-				 move    $a1, $zero
-				 jal     SoundEffect
-				 li      $a2, 2
-
-				 loc_3E700:
-			 lw      $v1, 0x314C($gp)
-				 lbu     $v0, 0x312C($gp)
-				 nop
-				 sb      $v0, 0($v1)
-
-				 loc_3E710 :
-				 lbu     $v0, 0x3180($gp)
-				 nop
-				 beqz    $v0, loc_3E8C0
-				 li      $v1, 5
-				 lbu     $v0, 0x312C($gp)
-				 nop
-				 sll     $v0, 3
-				 addu    $v0, $s6
-				 lw      $a0, 0($v0)
-				 nop
-				 beq     $a0, $v1, loc_3E754
-				 li      $v0, 1
-				 beq     $a0, $v0, loc_3E754
-				 li      $a0, 0x6F
-				 move    $a1, $zero
-				 jal     SoundEffect
-				 li      $a2, 2
-
-				 loc_3E754:
-			 lbu     $v0, 0x312C($gp)
-				 nop
-				 sll     $v0, 3
-				 addu    $v0, $s6
-				 lw      $v1, 0($v0)
-				 li      $a0, 2
-				 bne     $v1, $a0, loc_3E7C8
-				 li      $v0, 9
-				 lw      $v0, 0x3178($gp)
-				 nop
-				 sw      $zero, 0x258($v0)
 				 lbu     $v1, 0x312C($gp)
 				 lbu     $a0, 0x3114($gp)
 				 lbu     $a1, 0x3115($gp)
@@ -2614,12 +2471,12 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 	{
 		if (overlay)
 		{
-			//phd_PutPolygons_pickup(meshpp[0], 0);
+			phd_PutPolygons_pickup(meshpp[0], 0);
 		}
 		else
 		{
 			//loc_3C7F8
-			///phd_PutPolygons_seethrough(meshpp[0], shade);
+			phd_PutPolygons_seethrough(meshpp[0], shade);
 		}
 	}
 
@@ -2988,11 +2845,13 @@ int S_CallInventory2()//3B7A8, 3BC04
 	ProfileDraw = 0;
 #endif
 
+#if !PSXPC_TEST //Infinite loop on PSXPC_N
 	while (XAVolume != 0)
 	{
 		//loc_3B928
 		XAReqVolume = 0;
 	}//loc_3B944
+#endif
 
 	S_CDPause();
 	DrawSync(0);
@@ -3058,6 +2917,7 @@ int S_CallInventory2()//3B7A8, 3BC04
 			InitObjGTE();
 			do_debounced_joystick_poo();
 			draw_outlines();
+
 			if (rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem == INV_SMALLMEDI_ITEM &&
 				(RawPad & (IN_DPAD_UP | IN_R1 | IN_L2 | IN_R2 | IN_L1)))
 			{
