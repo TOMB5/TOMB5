@@ -542,7 +542,7 @@ void LoadGameflow()//102E0(<), 102B0(<) (F)
 {
 	int i;
 	int len;
-	unsigned char* s;
+	unsigned char* s = NULL;
 	struct STRINGHEADER sh;
 	int j;
 	int flag;
@@ -621,9 +621,7 @@ void LoadGameflow()//102E0(<), 102B0(<) (F)
 
 	gfStringWad = (char*)&gfStringOffset[sh.nStrings + sh.nPSXStrings + sh.nPCStrings];
 
-	memcpy(&gfStringOffset[sh.nStrings + sh.nPSXStrings], &gfStringOffset[315], sh.StringWadLen + sh.PSXStringWadLen + sh.PCStringWadLen);///@TODO check 315 const for PC
-
-	gfScriptLen += (((sh.nStrings + sh.nPSXStrings + sh.nPCStrings * sizeof(unsigned short)) + sh.StringWadLen + sh.PSXStringWadLen + sh.PCStringWadLen + 3) & -4);
+	memcpy(&gfStringOffset[sh.nStrings + sh.nPSXStrings + sh.nPCStrings], &gfStringOffset[315], sh.StringWadLen + sh.PSXStringWadLen + sh.PCStringWadLen);///@TODO check 315 const for PC
 
 #endif
 
@@ -631,7 +629,7 @@ void LoadGameflow()//102E0(<), 102B0(<) (F)
 #if PSX_VERSION || PSXPC_VERSION
 	for (i = 0; i < sh.nStrings + sh.nPSXStrings; i++)
 #else
-	for (i = 0; i < sh.nStrings + sh.nPSXStrings + sh.nPCStrings; i++)
+	for (i = 0; i < sh.nStrings + sh.nPSXStrings + sh.nPCStrings - 1; i++)
 #endif
 	{
 		for (j = 0; j < gfStringOffset[i + 1] - gfStringOffset[i] - 1; j++)
