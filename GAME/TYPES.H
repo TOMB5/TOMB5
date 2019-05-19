@@ -135,7 +135,11 @@ inline int phd_atan(long x, long y)
 
 #define TEXTURE_PAGE (256 * 256)
 
+#if PC_VERSION
 #define W2V_SHIFT 		14				// Shift scale of View.Frame to World.Frame
+#else
+#define W2V_SHIFT 12
+#endif
 #define	W2V_SCALE 		(1<<W2V_SHIFT)	// Scale of View Frame to World Frame
 
 #if !SAT_VERSION
