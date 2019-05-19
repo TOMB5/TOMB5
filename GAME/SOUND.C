@@ -46,7 +46,7 @@ void SOUND_Init()//920DC(<), 94128(<) (F) (D) (ND)
 	sound_active = 1;
 }
 
-#if PSXPC_VERSION
+#if PSXPC_VERSION || PC_VERSION
 void SOUND_Stop()//920A4(<), 940F0(<) (F)
 {
 	int i;
