@@ -185,7 +185,8 @@ long		S_DumpScreen()
 	}
 	GnFrameCounter++;
 
-	DrawDebugPost();
+	if (!keymap[DIK_D])
+		DrawDebugPost();
 	
 	ShowDebugInfo();
 
@@ -631,6 +632,11 @@ void S_AnimateTextures(long nFrames)
 	Unimpl();
 }
 
+void DrawPsxTile(long a0, long a1, long a2)
+{
+	Unimpl();
+}
+
 void S_OutputPolyList()
 {
 	//RestoreFPCW();
@@ -639,13 +645,24 @@ void S_OutputPolyList()
 	d9ab1c = 0;
 	d9ab10 = 0;
 
-	// todo
+	App.unk11200001 = 0;
+	App.DrawPrimitiveCnt = 0;
+
+	// todo (log)
 
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
 
-	// todo
+	if (App.ResChangeTimer)
+	{
+		WinDisplayString(8, App.height - 8, "%dx%d", App.width, App.height);
+
+		App.ResChangeTimer -= 30.0 / App.fps;
+
+		if (App.ResChangeTimer < 0)
+			App.ResChangeTimer = 0;
+	}
 
 	if (App.lpZBuffer != nullptr)
 		DrawBuckets();
@@ -671,7 +688,7 @@ void S_OutputPolyList()
 		DX_TRY(App.lpViewPort->Clear2(1, &r, D3DCLEAR_ZBUFFER, RGBA_MAKE(0, 0, 0, 0), 1.0f, 0));
 	}
 
-	if ((BinocularRange || SCOverlay || SniperOverlay) && !in_loading_screen) // TODO
+	if ((BinocularRange || SCOverlay || SniperOverlay) && !in_loading_screen)
 	{
 		InitialiseSortList();
 		DrawBinoculars();
@@ -680,7 +697,7 @@ void S_OutputPolyList()
 
 	if (pickups[CurrentPickup].life != -1 && !in_loading_screen && !GLOBAL_playing_cutseq)
 	{
-		// TODO
+		dword_7EE0D4 = 0;
 		InitialiseSortList();
 		S_DrawPickup(pickups[CurrentPickup].object_number);
 		SortPolyList(surfacenumbf, sort3d_bufferbf);
@@ -692,7 +709,8 @@ void S_OutputPolyList()
 	if (FadeScreenHeight != 0)
 	{
 		int height = phd_winymax / 256.0 * FadeScreenHeight;
-		//DrawPsxTile() TODO
+		DrawPsxTile(0, phd_winwidth | (height << 16), 0x62FFFFFF);
+		DrawPsxTile(phd_winheight - height, phd_winwidth | (height << 16), 0x62FFFFFF);
 	}
 
 	if (gfCurrentLevel != LVL5_TITLE)
@@ -710,9 +728,14 @@ void S_OutputPolyList()
 		DrawSortList();
 	}
 
-	// TODO TODO
+	if (++dword_921684 == 2)
+	{
+		if (keymap[DIK_B])                         
+			App.tBumpMap = App.tBumpMap != 1;
+		dword_921684 = 0;
+	}
 
-	Unimpl();
+	// MungeFPCW((int)&word_878654);
 }
 
 void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
@@ -928,8 +951,12 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	UNIMPLEMENTED();
 }
 
+
+
 int TitleOptions()
 {
+	// TODO TODO TODO
+	SuperShowLogo();
 	UNIMPLEMENTED();
 	return 0;
 }

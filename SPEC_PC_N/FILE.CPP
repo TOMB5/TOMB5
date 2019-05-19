@@ -33,6 +33,8 @@
 #include "SOUND.H"
 #include "DISPLAY.H"
 #include "PICTURE.H"
+#include <chrono>
+#include <thread>
 
 #define OUTSIDE_Z 64
 
@@ -1175,7 +1177,7 @@ int num_room_lights;
 		Log(LT_Info, "Begin LoadLevel");
 
 		FreeLevel();
-
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		num_pages = 1;
 		//
 		fp_level = FileOpen((char*)filename);

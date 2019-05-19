@@ -225,7 +225,7 @@ void DrawDebugPost()
 	RECT dest{ 256, 256, 512, 512 };
 	RECT src{ 0, 0, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height };
 	Log(LT_Info, "Debug draw %08x", DXTextureList[cur_tpage].surface);
-	DX_TRY(App.lpBackBuffer->Blt(&dest, DXTextureList[cur_tpage].surface, &src, DDBLT_WAIT, nullptr));
+	//DX_TRY(App.lpBackBuffer->Blt(&dest, DXTextureList[cur_tpage].surface, &src, DDBLT_WAIT, nullptr));
 }
 
 void ShowDebugInfo()// (F)

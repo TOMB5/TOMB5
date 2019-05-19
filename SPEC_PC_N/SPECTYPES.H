@@ -614,9 +614,10 @@ struct WINAPP
 	LPDIRECTDRAWPALETTE		Palette;				// Palette For SW Renderer
 	char pad111[272];
 	D3DMATRIX ViewMatrix;
-	char pad112[8];
+	char pad112[4];
+	DWORD unk11200001;
 	DWORD DrawPrimitiveCnt;
-	char pad11201[4];
+	int ResChangeTimer;
 	uint16_t* AnimTextureRanges;
 	char pad1121[4];
 	D3DMATRIX WorldMatrix;

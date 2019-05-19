@@ -16,6 +16,8 @@ WORD* d9ab34;
 int e4b100;
 int d9ab1c;
 int d9ab10;
+DWORD dword_921684;
+DWORD dword_7EE0D4;
 BYTE tsv_buffer[8192];
 
 void InitFX()// (F)

@@ -152,7 +152,11 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	unsigned char* gf; // $a3
 	unsigned char n; // $a1
 
+#if PC_VERSION
+	do_boot_screen(Gameflow->Language);
+#else
 	LoadGameflow();
+#endif
 
 #if DISC_VERSION && PSX_VERSION && PLAY_FMVS
 	S_PlayFMV(FMV_COPYRIGHT_INTRO, 0);

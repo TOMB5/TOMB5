@@ -90,11 +90,66 @@ void SubdivideTri (D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, OBJECT_
 
 void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
 {
-	Unimpl();
+	if (e4b100)
+	{
+		AddQuadClippedSorted(v, v1, v2, v3, v4, tex, a7);
+	}
+	else
+	{
+		D3DVALUE z = v[v4].sz;
+
+		if (z >= 3500.0)
+		{
+			AddQuadClippedSorted(v, v1, v2, v3, v4, tex, a7);
+		}
+		else
+		{
+			int num = 1;
+
+			if (z < 2000.0)
+				num = 2;
+
+			short face[4];
+
+			face[0] = d9ab34[v1];
+			face[1] = d9ab34[v2];
+			face[2] = d9ab34[v3];
+			face[3] = d9ab34[v4];
+
+			SubdivideQuad(&v[v1], &v[v2], &v[v3], &v[v4], tex, a7, num, face);
+		}
+	}
 }
 void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
 {
-	Unimpl();
+	if (e4b100)
+	{
+		AddTriClippedSorted(v, v1, v2, v3, tex, a7);
+	}
+	else
+	{
+		D3DVALUE z = v[v3].sz;
+
+		if (z >= 3500.0)
+		{
+			AddTriClippedSorted(v, v1, v2, v3, tex, a7);
+		}
+		else
+		{
+			int num = 1;
+
+			if (z < 2000.0)
+				num = 2;
+
+			short face[3];
+
+			face[0] = d9ab34[v1];
+			face[1] = d9ab34[v2];
+			face[2] = d9ab34[v3];
+
+			SubdivideTri(&v[v1], &v[v2], &v[v3], tex, a7, num, face);
+		}
+	}
 }
 
 void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
@@ -785,18 +840,18 @@ void InsertRoom(room_info* r)
 void SaveD3DCameraMatrix()// (F)
 {
 	D3DIdentityMatrix(&d3d_camera);
-	d3d_camera._11 = phd_dxptr[0];
-	d3d_camera._12 = phd_dxptr[4];
-	d3d_camera._13 = phd_dxptr[8];
-	d3d_camera._21 = phd_dxptr[1];
-	d3d_camera._22 = phd_dxptr[5];
-	d3d_camera._23 = phd_dxptr[9];
-	d3d_camera._31 = phd_dxptr[2];
-	d3d_camera._32 = phd_dxptr[6];
-	d3d_camera._33 = phd_dxptr[10];
-	d3d_camera._41 = phd_dxptr[3];
-	d3d_camera._42 = phd_dxptr[7];
-	d3d_camera._43 = phd_dxptr[11];
+	d3d_camera._11 = phd_dxptr[M00];
+	d3d_camera._12 = phd_dxptr[M10];
+	d3d_camera._13 = phd_dxptr[M20];
+	d3d_camera._21 = phd_dxptr[M01];
+	d3d_camera._22 = phd_dxptr[M11];
+	d3d_camera._23 = phd_dxptr[M21];
+	d3d_camera._31 = phd_dxptr[M02];
+	d3d_camera._32 = phd_dxptr[M12];
+	d3d_camera._33 = phd_dxptr[M22];
+	d3d_camera._41 = phd_dxptr[M03];
+	d3d_camera._42 = phd_dxptr[M13];
+	d3d_camera._43 = phd_dxptr[M23];
 }
 
 void ResetFogBulbList()
@@ -953,7 +1008,9 @@ void DrawRooms(short current_room)
 	}
 
 	DrawGunshells();
-	//
+
+	e4b100 = 3;
+
 	if (GLOBAL_playing_cutseq)
 		DrawCutSeqActors();
 

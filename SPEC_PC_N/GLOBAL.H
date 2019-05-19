@@ -81,6 +81,8 @@ extern WORD* d9ab34;
 extern int e4b100;
 extern int d9ab1c;
 extern int d9ab10;
+extern DWORD dword_921684;
+extern DWORD dword_7EE0D4;
 
 extern D3DMATRIX transform_projection;
 
