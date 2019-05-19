@@ -3066,7 +3066,7 @@ int S_CallInventory2()//3B7A8, 3BC04
 
 			if (!PadConnected)
 			{
-				PrintString(SCREEN_WIDTH / 2, 232, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_UNK13));
+				PrintString(SCREEN_WIDTH / 2, 232, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_BLINK));
 				input = 0;
 				left_debounce = 0;
 				right_debounce = 0;
@@ -3175,7 +3175,7 @@ int S_CallInventory2()//3B7A8, 3BC04
 
 					if (!PadConnected)
 					{
-						PrintString(SCREEN_WIDTH / 2, 64, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_UNK13));
+						PrintString(SCREEN_WIDTH / 2, 64, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_BLINK));
 					}//loc_3BDB4
 
 					if (loading_or_saving == 1)

@@ -636,6 +636,9 @@ void S_OutputPolyList()
 	//RestoreFPCW();
 	WinFrameRate();
 
+	d9ab1c = 0;
+	d9ab10 = 0;
+
 	// todo
 
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);

@@ -985,7 +985,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 			if (!PadConnected)
 			{
 				
-				PrintString(SCREEN_WIDTH / 2, (SCREEN_HEIGHT / 2) + 8, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_UNK13 | FF_CENTER));
+				PrintString(SCREEN_WIDTH / 2, (SCREEN_HEIGHT / 2) + 8, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_BLINK | FF_CENTER));
 			}
 			//loc_1092C
 			handle_cutseq_triggering(Name);

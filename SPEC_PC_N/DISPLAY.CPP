@@ -54,10 +54,10 @@ void InitWindow(int x, int y, int width, int height, int nearz, int farz, int vi
 	unk_55DA40 = unk_55DA34 - flt_55D664;*/
 }
 
-void PrintString(long x, long y, int unk1, char* string, int options)
+void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, char* string, unsigned short flag)
 {
 	char* buf = (char*)malloc(strlen(string) + 64);
-	sprintf(buf, "PrintString - X:%d Y:%d Unk1:%d Flags:%04x - %s\n", x, y, unk1, options, string);
+	sprintf(buf, "PrintString - X:%d Y:%d Col:%d Flags:%04x - %s\n", x, y, colourFlag, flag, string);
 	S_Warn(buf);
 	
 	char* b2 = (char*)malloc(strlen(string) + 1);

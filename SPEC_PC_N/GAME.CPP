@@ -14,6 +14,8 @@ LPDIRECT3DVERTEXBUFFER vertex_buffer;
 bool game_running;
 WORD* d9ab34;
 int e4b100;
+int d9ab1c;
+int d9ab10;
 BYTE tsv_buffer[8192];
 
 void InitFX()// (F)
