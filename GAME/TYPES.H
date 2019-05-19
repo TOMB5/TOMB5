@@ -182,7 +182,7 @@ enum font_flags
 	FF_UNK10 = (1 << 10),	// 0x0400
 	FF_UNK11 = (1 << 11),	// 0x0800
 	FF_SMALL = (1 << 12),	// 0x1000
-	FF_UNK13 = (1 << 13),	// 0x2000
+	FF_UNK13 = (1 << 13),	// 0x2000 Blinks text
 	FF_R_JUSTIFY = (1 << 14),	// 0x4000
 	FF_CENTER = (1 << 15),	// 0x8000
 };
