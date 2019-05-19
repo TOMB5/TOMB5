@@ -723,14 +723,14 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 		objects[i].draw_routine_extra = NULL;
 		objects[i].object_mip = 0;
 
-		objects[i].intelligent = false;
-		objects[i].save_position = false;
-		objects[i].save_hitpoints = false;
-		objects[i].save_flags = false;
-		objects[i].save_anim = false;
-		objects[i].water_creature = false;
-		objects[i].save_mesh = false;
-		objects[i].using_drawanimating_item = true;
+		objects[i].intelligent = FALSE;
+		objects[i].save_position = FALSE;
+		objects[i].save_hitpoints = FALSE;
+		objects[i].save_flags = FALSE;
+		objects[i].save_anim = FALSE;
+		objects[i].water_creature = FALSE;
+		objects[i].save_mesh = FALSE;
+		objects[i].using_drawanimating_item = TRUE;
 
 		((int*)&objects[i].frame_base)[0] += (uintptr_t)frames;
 	}
@@ -1540,12 +1540,15 @@ void ObjectObjects()//?, B84F0
 
 void GetCarriedItems()//?(<), B9974(<) (F)
 {
-	for (int i = 0; i < level_items; i++)
+	int i;
+	int j;
+
+	for (i = 0; i < level_items; i++)
 	{
 		items[i].carried_item = -1;
 	}
 
-	for (int i = 0; i < level_items; i++)
+	for (i = 0; i < level_items; i++)
 	{
 		struct ITEM_INFO* item = &items[i];
 
@@ -1554,7 +1557,7 @@ void GetCarriedItems()//?(<), B9974(<) (F)
 		{
 			struct ITEM_INFO* cur;
 
-			for (int j = room[item->room_number].item_number; j != -1; j = cur->next_item)
+			for (j =room[item->room_number].item_number; j != -1; j = cur->next_item)
 			{
 				cur = &items[j];
 
