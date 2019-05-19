@@ -1517,6 +1517,6 @@ struct tr_room_portal  // 32 bytes
 };
 
 #if PC_VERSION
-#pragma pop
+#pragma pack(pop)
 #endif
 #endif

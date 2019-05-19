@@ -638,6 +638,8 @@ struct WINAPP
 };
 
 
+
+
 struct CutsceneHeader
 {
 	uint32_t offset;
@@ -665,7 +667,7 @@ struct SNOWFLAKE
 
 
 
-#pragma pop
+#pragma pack(pop)
 
 enum WINAPP_FLAGS
 {
