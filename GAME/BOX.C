@@ -464,9 +464,9 @@ void CreatureUnderwater(struct ITEM_INFO* item, long depth)//?, 2468C(<) (F)
 			item->pos.y_pos = depth;
 		}
 
-		if (item->pos.x_rot > 0x16C)
+		if (item->pos.x_rot > ANGLE(2))
 		{
-			item->pos.x_rot -= 0x16C;
+			item->pos.x_rot -= ANGLE(2);
 		}
 		else if (item->pos.x_rot > 0)
 		{
