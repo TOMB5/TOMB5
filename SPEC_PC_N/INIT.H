@@ -1,6 +1,6 @@
 #ifndef INIT_H
 #define INIT_H
-
+#include "TYPES.H"
 void	init_water_table();
 extern WATERTAB WaterTable[22][64];
 #ifdef __cplusplus
