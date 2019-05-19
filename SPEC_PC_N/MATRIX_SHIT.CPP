@@ -250,9 +250,34 @@
 		mptr[M23] = mptr[M20] * x + mptr[M21] * y + mptr[M22] * z;
 	}
 
+	void TranslateRel(long x, long y, long z)// (F)
+	{
+		float* mptr = phd_dxptr;
+
+		mptr[M03] += mptr[M00] * x + mptr[M01] * y + mptr[M02] * z;
+		mptr[M13] += mptr[M10] * x + mptr[M11] * y + mptr[M12] * z;
+		mptr[M23] += mptr[M20] * x + mptr[M21] * y + mptr[M22] * z;
+	}
+
+	void phd_TranslateRel(long x, long y, long z)// (F)
+	{
+		int* mptr = phd_mxptr;
+
+		mptr[M03] += mptr[M00] * x + mptr[M01] * y + mptr[M02] * z;
+		mptr[M13] += mptr[M10] * x + mptr[M11] * y + mptr[M12] * z;
+		mptr[M23] += mptr[M20] * x + mptr[M21] * y + mptr[M22] * z;
+
+		TranslateRel(x, y, z);
+	}
+
 	void phd_RotYXZ(long y, long x, long z)
 	{
 		Unimpl();
+	}
+
+	void mRotSuperPackedYXZ(short** a0, long a1)
+	{
+		UNIMPLEMENTED();
 	}
 
 	void SetTransl(long x, long y, long z)// (F)
@@ -260,6 +285,13 @@
 		phd_dxptr[M03] = x;
 		phd_dxptr[M13] = y;
 		phd_dxptr[M23] = z;
+	}
+
+	void gte_sttr(PHD_VECTOR *v)
+	{
+		v->x = phd_mxptr[M03] >> W2V_SHIFT;
+		v->y = phd_mxptr[M13] >> W2V_SHIFT;
+		v->z = phd_mxptr[M23] >> W2V_SHIFT;
 	}
 
 	void phd_SetTrans(long x, long y, long z)// (F)
@@ -290,21 +322,21 @@
 		phd_dxptr[M22] = TRIGMULT2F(phd_dxptr[M22], vec->vz);
 	}
 
-	void ScaleCurrentMatrix(VECTOR* vec)// (F)
+	void ScaleCurrentMatrix(VECTOR vec)// (F)
 	{
-		phd_mxptr[M00] = TRIGMULT2(phd_mxptr[M00], vec->vx);
-		phd_mxptr[M10] = TRIGMULT2(phd_mxptr[M10], vec->vx);
-		phd_mxptr[M20] = TRIGMULT2(phd_mxptr[M20], vec->vx);
+		phd_mxptr[M00] = TRIGMULT2(phd_mxptr[M00], vec.vx);
+		phd_mxptr[M10] = TRIGMULT2(phd_mxptr[M10], vec.vx);
+		phd_mxptr[M20] = TRIGMULT2(phd_mxptr[M20], vec.vx);
 
-		phd_mxptr[M01] = TRIGMULT2(phd_mxptr[M01], vec->vy);
-		phd_mxptr[M11] = TRIGMULT2(phd_mxptr[M11], vec->vy);
-		phd_mxptr[M21] = TRIGMULT2(phd_mxptr[M21], vec->vy);
+		phd_mxptr[M01] = TRIGMULT2(phd_mxptr[M01], vec.vy);
+		phd_mxptr[M11] = TRIGMULT2(phd_mxptr[M11], vec.vy);
+		phd_mxptr[M21] = TRIGMULT2(phd_mxptr[M21], vec.vy);
 
-		phd_mxptr[M02] = TRIGMULT2(phd_mxptr[M02], vec->vz);
-		phd_mxptr[M12] = TRIGMULT2(phd_mxptr[M12], vec->vz);
-		phd_mxptr[M22] = TRIGMULT2(phd_mxptr[M22], vec->vz);
+		phd_mxptr[M02] = TRIGMULT2(phd_mxptr[M02], vec.vz);
+		phd_mxptr[M12] = TRIGMULT2(phd_mxptr[M12], vec.vz);
+		phd_mxptr[M22] = TRIGMULT2(phd_mxptr[M22], vec.vz);
 
-		ScaleCurrentMatrixF(vec);
+		ScaleCurrentMatrixF(&vec);
 	}
 
 	void phd_GenerateW2V(PHD_3DPOS* viewpos)// (F)
@@ -357,7 +389,7 @@
 				vec.vx = (x >> 12) + 0x4000;
 				vec.vy = (y >> 12) + 0x4000;
 				vec.vz = (z >> 12) + 0x4000;
-				ScaleCurrentMatrix(&vec);
+				ScaleCurrentMatrix(vec);
 			}
 		}
 
