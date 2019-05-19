@@ -664,6 +664,9 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 
 void Fade()//34B78(<), 35078(<) (F)
 {
+#if 1
+	ScreenFading = 0;//Dirty hack until this function is redone
+#endif
 	if (dScreenFade != 0)
 	{
 		if (dScreenFade > ScreenFade)
