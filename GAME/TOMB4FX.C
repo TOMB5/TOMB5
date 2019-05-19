@@ -873,8 +873,30 @@ void DrawWeaponMissile(struct ITEM_INFO *item)
 	UNIMPLEMENTED();
 }
 
-#if PC_VERSION
-short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room_number)// (F)
+void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
+{
+	int i;
+
+	for (i = 0; i < 32; i++)
+	{
+		if (!(ripples[i].flags & 1))
+		{
+			ripples[i].flags = 0x31;
+			ripples[i].init = 1;
+			ripples[i].life = (GetRandomControl() & 7) - 16;
+			ripples[i].size = sizeme;
+			ripples[i].x = (GetRandomControl() & 0x3F) + x - 32;
+			ripples[i].y = y;
+			ripples[i].z = (GetRandomControl() & 0x3F) + z - 32;
+			return;
+		}
+	}
+}
+
+
+
+
+short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room_number)
 {
 	GetFloor(x, y, z, &room_number);
 
@@ -885,7 +907,7 @@ short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room
 
 	return -1;
 }
-
+#if PC_VERSION
 void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
 {
 	UNIMPLEMENTED();
