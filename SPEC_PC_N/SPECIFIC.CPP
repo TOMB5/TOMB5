@@ -65,7 +65,7 @@ void DebugPrint(const char* message)// (F)
 }
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 	
@@ -932,7 +932,7 @@ int TitleOptions()
 }
 
 
-void updateAnimFrame(struct PACKNODE* node, int flags, short* frame)// (F)
+void updateAnimFrame(PACKNODE* node, int flags, short* frame)// (F)
 {
 	frame[7] = 3 * node->yrot_run;
 
@@ -977,6 +977,11 @@ void updateAnimFrame(struct PACKNODE* node, int flags, short* frame)// (F)
 	}
 }
 
-#ifdef __cplusplus
+void S_SetReverbType(short reverb)
+{
+
 }
+
+#ifdef __cplusplus
+//}
 #endif

@@ -5,7 +5,7 @@
 #include "TEXTURE.H"
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 	bool LoadPicture(char* File, LPDIRECTDRAWSURFACE3 lpPictureBuffer, int);
@@ -22,7 +22,7 @@ extern "C" {
 	extern DXTEXTURE PicTextureList[];
 
 #ifdef __cplusplus
-}
+//}
 #endif
 
 #endif

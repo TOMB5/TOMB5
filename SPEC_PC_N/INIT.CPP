@@ -15,7 +15,7 @@ WATERTAB	WaterTable[22][64];
 
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 	void init_game_malloc(void)// (F)
@@ -62,7 +62,7 @@ extern "C" {
 #endif
 	}
 
-	void game_free(int size, int type)// (F)
+	void game_free(int size)// (F)
 	{
 		size = (size + 3)&(~3);		// fuck Fuck FUck FUCk FUCK !FUCK!
 #ifdef GAMEDEBUG
@@ -74,5 +74,5 @@ extern "C" {
 	}
 
 #ifdef __cplusplus
-}
+//}
 #endif
