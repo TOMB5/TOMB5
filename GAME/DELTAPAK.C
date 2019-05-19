@@ -2300,7 +2300,7 @@ void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VE
 	}
 
 	mTranslateXYZ(vec->x, vec->y, vec->z);
-#if PSXPC_TEST //?
+#if PSXPC_TEST || PC_VERSION
 	gte_sttr(vec);
 #endif
 
@@ -2308,7 +2308,12 @@ void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VE
 	vec->y += duff_item.pos.y_pos;
 	vec->z += duff_item.pos.z_pos;
 
+#if PC_VERSION
+	mPopMatrix();
+	mPopMatrix();
+#else
 	mCopyMatrix(Matrix);
+#endif
 }
 
 void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix)
