@@ -90,65 +90,66 @@ ASM_GetBounds:
 
 ;0x77AEC
 mQuickW2VMatrix:
-	lw	v1, phd_mxptr
-	la	a0, MatrixStack
-	sh	zero, MatrixSP
-	sw	a0, Matrix
-	lhu	at, 0(v1)
-	lhu	v0, 4(v1)
-	lhu	a1, 8(v1)
-	lhu	a2, 0x10(v1)
-	sll	v0, 16
-	or	at, v0
-	sll	a2, 16
-	or	a1, a2
-	lhu	a3, 0x14(v1)
-	lhu	t0, 0x18(v1)
-	lhu	t1, 0x20(v1)
-	lhu	t2, 0x24(v1)
-	sll	t0, 16
-	or	a3, t0
-	sll	t2, 16
-	or	t1, t2
-	sw	at, 0(a0)
-	sw	a1, 4(a0)
-	sw	a3, 8(a0)
-	sw	t1, 0xC(a0)
-	ctc2	at, r0
-	ctc2	a1, r1
-	ctc2	a3, r2
-	ctc2	t1, r3
-	lhu	at, 0x28(v1)
-	lw	v0, 0xC(v1)
-	lw	a1, 0x1C(v1)
-	lw	a2, 0x2C(v1)
-	sh	at, 0x10(a0)
-	sw	v0, 0x14(a0)
-	sw	a1, 0x18(a0)
-	sw	a2, 0x1C(a0)
-	ctc2	at, r4
-	ctc2	v0, r5
-	ctc2	a1, r6
-	ctc2	a2, r7
-	lhu	v0, w2v_matrix
-	lhu	v1, w2v_matrix+0x4
-	lhu	a0, w2v_matrix+0x8
-	lhu	a1, w2v_matrix+0x10
-	lhu	a2, w2v_matrix+0x14
-	lhu	a3, w2v_matrix+0x18
-	lhu	t0, w2v_matrix+0x20
-	lhu	t1, w2v_matrix+0x24
-	lhu	t2, w2v_matrix+0x28
-	sh	v0, CamGTE+0x0
-	sh	v1, CamGTE+0x2
-	sh	a0, CamGTE+0x4
-	sh	a1, CamGTE+0x6
-	sh	a2, CamGTE+0x8
-	sh	a3, CamGTE+0xA
-	sh	t0, CamGTE+0xC
-	sh	t1, CamGTE+0xE
-	jr	ra
-	sh	t2, CamGTE+0x10
+	lw      v1, phd_mxptr-GP_ADDR(gp)
+	;addiu   a0, gp, MatrixStack-GP_ADDR(gp);original line
+	la      a0, MatrixStack
+	sh      zero, MatrixSP-GP_ADDR(gp)
+	sw      a0, Matrix-GP_ADDR(gp)
+	lhu     at, 0(v1)
+	lhu     v0, 4(v1)
+	lhu     a1, 8(v1)
+	lhu     a2, 0x10(v1)
+	sll     v0, 16
+	or      at, v0
+	sll     a2, 16
+	or      a1, a2
+	lhu     a3, 0x14(v1)
+	lhu     t0, 0x18(v1)
+	lhu     t1, 0x20(v1)
+	lhu     t2, 0x24(v1)
+	sll     t0, 16
+	or      a3, t0
+	sll     t2, 16
+	or      t1, t2
+	sw      at, 0(a0)
+	sw      a1, 4(a0)
+	sw      a3, 8(a0)
+	sw      t1, 0xC(a0)
+	ctc2    at, r0
+	ctc2    a1, r1
+	ctc2    a3, r2
+	ctc2    t1, r3
+	lhu     at, 0x28(v1)
+	lw      v0, 0xC(v1)
+	lw      a1, 0x1C(v1)
+	lw      a2, 0x2C(v1)
+	sh      at, 0x10(a0)
+	sw      v0, 0x14(a0)
+	sw      a1, 0x18(a0)
+	sw      a2, 0x1C(a0)
+	ctc2    at, r4
+	ctc2    v0, r5
+	ctc2    a1, r6
+	ctc2    a2, r7
+	lhu     v0, w2v_matrix+0x0-GP_ADDR(gp)
+	lhu     v1, w2v_matrix+0x4-GP_ADDR(gp)
+	lhu     a0, w2v_matrix+0x8-GP_ADDR(gp)
+	lhu     a1, w2v_matrix+0x10-GP_ADDR(gp)
+	lhu     a2, w2v_matrix+0x14-GP_ADDR(gp)
+	lhu     a3, w2v_matrix+0x18-GP_ADDR(gp)
+	lhu     t0, w2v_matrix+0x20-GP_ADDR(gp)
+	lhu     t1, w2v_matrix+0x24-GP_ADDR(gp)
+	lhu     t2, w2v_matrix+0x28-GP_ADDR(gp)
+	sh      v0, CamGTE+0x0-GP_ADDR(gp)
+	sh      v1, CamGTE+0x2-GP_ADDR(gp)
+	sh      a0, CamGTE+0x4-GP_ADDR(gp)
+	sh      a1, CamGTE+0x6-GP_ADDR(gp)
+	sh      a2, CamGTE+0x8-GP_ADDR(gp)
+	sh      a3, CamGTE+0xA-GP_ADDR(gp)
+	sh      t0, CamGTE+0xC-GP_ADDR(gp)
+	sh      t1, CamGTE+0xE-GP_ADDR(gp)
+	jr      ra
+	sh      t2, CamGTE+0x10-GP_ADDR(gp)
 
 ;0x764D0
 mPushMatrix:
@@ -2351,7 +2352,6 @@ GetRoomBoundsAsm:
 	
 ;0x77728
 phd_LookAt:
-sub_77728:
 	move    t5, ra
 	lhu     at, 0x18(sp)
 	lw      t0, 0x10(sp)
