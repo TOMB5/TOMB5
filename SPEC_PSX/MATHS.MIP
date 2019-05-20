@@ -186,17 +186,15 @@ mPopMatrix:
 
 ;0x76534
 mPushUnitMatrix:
-	lw	a0, Matrix
-	li	t0, 0x1000
-	addi	a0, 0x20
-	sw	a0, Matrix
-	move	t1, zero
-	move	t2, t0
-	move	t3, zero
-	j	loc_76970
-	move	t4, t0
-	jr	ra
-	nop
+	lw      a0, Matrix-GP_ADDR(gp)
+	li      t0, 0x1000
+	addi    a0, 0x20
+	sw      a0, Matrix-GP_ADDR(gp)
+	move    t1, zero
+	move    t2, t0
+	move    t3, zero
+	j       setrot
+	move    t4, t0
 	
 loc_76970:
 	ctc2	t0, r0
@@ -584,17 +582,17 @@ SetRotation:
 
 ;0x76970
 setrot:
-	ctc2 t0, r0
-	ctc2 t1, r1
-	ctc2 t2, r2
-	ctc2 t3, r3
-	ctc2 t4, r4
-	sw t0, 0(a0)
-	sw	t1, 4(a0)
-	sw	t2, 8(a0)
-	sw	t3, 0xC(a0)
-	jr	ra
-	sw	t4, 0x10(a0)
+	ctc2    t0, 0
+	ctc2    t1, 1
+	ctc2    t2, 2
+	ctc2    t3, 3
+	ctc2    t4, 4
+	sw      t0, 0(a0)
+	sw      t1, 4(a0)
+	sw      t2, 8(a0)
+	sw      t3, 0xC(a0)
+	jr      ra
+	sw      t4, 0x10(a0)
 
 ;0x7699C
 mLoadMatrix:
