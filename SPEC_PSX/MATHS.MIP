@@ -226,95 +226,95 @@ mTranslateAbsXYZ:
 
 ;0x7658C
 mTranslateXYZ:
-	bgez	a1, loc_765AC
-	sra	t4, a1, 15
-	negu	a1, a1
-	sra	t4, a1, 15
-	andi	a1, 0x7FFF
-	negu	t4, t4
-	j	loc_765B0
-	negu	a1, a1
+	bgez    a1, loc_765AC
+	sra     t4, a1, 15
+	negu    a1, a1
+	sra     t4, a1, 15
+	andi    a1, 0x7FFF
+	negu    t4, t4
+	j       loc_765B0
+	negu    a1, a1
 
 	loc_765AC:
-	andi	a1, 0x7FFF
+	andi    a1, 0x7FFF
 
 	loc_765B0:
-	bgez	a2, loc_765D0
-	sra	t5, a2, 15
-	negu	a2, a2
-	sra	t5, a2, 15
-	andi	a2, 0x7FFF
-	negu	t5, t5
-	j	loc_765D4
-	negu	a2, a2
+	bgez    a2, loc_765D0
+	sra     t5, a2, 15
+	negu    a2, a2
+	sra     t5, a2, 15
+	andi    a2, 0x7FFF
+	negu    t5, t5
+	j       loc_765D4
+	negu    a2, a2
 
 	loc_765D0:
-	andi	a2, 0x7FFF
+	andi    a2, 0x7FFF
 
 	loc_765D4:
-	bgez	a0, loc_765F4
-	sra	t3, a0, 15
-	negu	a0, a0
-	sra	t3, a0, 15
-	andi	a0, 0x7FFF
-	negu	t3, t3
-	j	loc_765F8
-	negu	a0, a0
+	bgez    a0, loc_765F4
+	sra     t3, a0, 15
+	negu    a0, a0
+	sra     t3, a0, 15
+	andi    a0, 0x7FFF
+	negu    t3, t3
+	j       loc_765F8
+	negu    a0, a0
 
 	loc_765F4:
-	andi	a0, 0x7FFF
+	andi    a0, 0x7FFF
 
 	loc_765F8:
-	mtc2	t3, r9
-	mtc2	t4, r10
-	mtc2	t5, r11
+	mtc2    t3, r9
+	mtc2    t4, r10
+	mtc2    t5, r11
 	nop
 	nop
-	cop2	0x41E012
-	mfc2	t3, r25
-	mfc2	t4, r26
-	mtc2	a0, r9
-	mtc2	a1, r10
-	mtc2	a2, r11
-	mfc2	t5, r27
+	cop2    0x41E012
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mtc2    a0, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	mfc2    t5, r27
 	nop
 	nop
-	cop2	0x498012
-	bgez	t3, loc_7663C
-	sll	t0, t3, 3
-	negu	t3, t3
-	sll	t3, 3
-	negu	t0, t3
+	cop2    0x498012
+	bgez    t3, loc_7663C
+	sll     t0, t3, 3
+	negu    t3, t3
+	sll     t3, 3
+	negu    t0, t3
 
 	loc_7663C:
-	bgez	t4, loc_76650
-	sll	t1, t4, 3
-	negu	t4, t4
-	sll	t4, 3
-	negu	t1, t4
+	bgez    t4, loc_76650
+	sll     t1, t4, 3
+	negu    t4, t4
+	sll     t4, 3
+	negu    t1, t4
 
 	loc_76650:
-	bgez	t5, loc_76664
-	sll	t2, t5, 3
-	negu	t5, t5
-	sll	t5, 3
-	negu	t2, t5
+	bgez    t5, loc_76664
+	sll     t2, t5, 3
+	negu    t5, t5
+	sll     t5, 3
+	negu    t2, t5
 
 	loc_76664:
-	mfc2	t3, r25
-	mfc2	t4, r26
-	mfc2	t5, r27
-	addu	t0, t3
-	addu	t1, t4
-	addu	t2, t5
-	lw	v0, Matrix
-	ctc2	t0, r5
-	ctc2	t1, r6
-	ctc2	t2, r7
-	sw	t0, 0x14(v0)
-	sw	t1, 0x18(v0)
-	jr	ra
-	sw	t2, 0x1C(v0)
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mfc2    t5, r27
+	addu    t0, t3
+	addu    t1, t4
+	addu    t2, t5
+	lw      v0, Matrix-GP_ADDR(gp)
+	ctc2    t0, r5
+	ctc2    t1, r6
+	ctc2    t2, r7
+	sw      t0, 0x14(v0)
+	sw      t1, 0x18(v0)
+	jr      ra
+	sw      t2, 0x1C(v0)
 
 ;0x81BBC
 mmPushMatrix:
