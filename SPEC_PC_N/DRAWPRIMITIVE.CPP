@@ -21,6 +21,62 @@
 #include "TEXTURE.H"
 #include "DEBUG.H"
 
+enum dinfo_type
+{
+	DI_LINE = 2,
+	DI_TRI = 3,
+	DI_QUAD = 4,
+	DI_6 = 6
+};
+struct dinfo_line // size 92
+{
+	float z;
+	short color;
+	short unk1;
+	short type;
+	short unk3;
+	D3DTLVERTEX v1;
+	char pad1[8];
+	D3DTLVERTEX v2;
+	char pad2[8];
+};
+
+struct dinfo_tri // size 132
+{
+	float z;
+	short texattr;
+	short tile_and_flag;
+	short type;
+	short e4b100;
+	D3DTLVERTEX v1;//12
+	char pad1[8];
+	D3DTLVERTEX v2;//52
+	char pad2[8];
+	D3DTLVERTEX v3;//92
+	char pad3[8];
+};
+
+struct dinfo_quad // size 252
+{
+	float z;//0
+	short texattr;//4
+	short tile_and_flag;//6
+	short type;//8
+	short e4b100;//10
+	D3DTLVERTEX v1;//12
+	char pad1[8];
+	D3DTLVERTEX v2;//52
+	char pad2[8];
+	D3DTLVERTEX v3;//92
+	char pad3[8];
+	D3DTLVERTEX v1bis;//132
+	char pad4[8];
+	D3DTLVERTEX v3bis;//172
+	char pad5[8];
+	D3DTLVERTEX v4;//212
+	char pad6[8];
+};
+
 HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
 HRESULT(*BeginScene)();
@@ -154,10 +210,12 @@ void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex
 
 void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
 {
+	d9ab34;
 	Unimpl();
 }
 void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
 {
+	d9ab34;
 	Unimpl();
 }
 
@@ -236,14 +294,14 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 			}
 			else
 			{
-				short* info = info3dptrbf;
+				auto info = (dinfo_quad*)info3dptrbf;
 
-				info[2] = next->attribute;
-				info[3] = next->tile_and_flag;
-				info[4] = 6;
-				info[5] = e4b100;
-				D3DTLVERTEX* vert = (D3DTLVERTEX*)&info[6];
-				info3dptrbf += 126;
+				info->texattr = next->attribute;
+				info->tile_and_flag = next->tile_and_flag;
+				info->type = DI_6;
+				info->e4b100 = e4b100;
+
+				info3dptrbf += sizeof(*info);
 
 				*sort3dptrbf++ = (int)info;
 
@@ -251,14 +309,14 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 
 				D3DTLVERTEX* vp1b = &v[v1b];
 
-				vert->sx = vp1b->sx;
-				vert->sy = vp1b->sy;
-				vert->sz = f_a - f_boo * vp1b->rhw;
-				vert->rhw = vp1b->rhw;
-				vert->color = vp1b->color;
-				vert->specular = vp1b->specular;
-				vert->tu = next->vertices[0].x;
-				vert->tv = next->vertices[0].y;
+				info->v1.sx = vp1b->sx;
+				info->v1.sy = vp1b->sy;
+				info->v1.sz = f_a - f_boo * vp1b->rhw;
+				info->v1.rhw = vp1b->rhw;
+				info->v1.color = vp1b->color;
+				info->v1.specular = vp1b->specular;
+				info->v1.tu = next->vertices[0].x;
+				info->v1.tv = next->vertices[0].y;
 
 				D3DVALUE z = vp1b->sz;
 
@@ -270,18 +328,16 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 						z = vp1b->sz;
 				}
 
-				*(D3DTLVERTEX*)&info[66] = *(D3DTLVERTEX*)&info[6];
+				info->v1bis = info->v1;
 
-				vert = (D3DTLVERTEX*)&info[26];
-
-				vert->sx = vt2->sx;
-				vert->sy = vt2->sy;
-				vert->sz = f_a - f_boo * vt2->rhw;
-				vert->rhw = vt2->rhw;
-				vert->color = vt2->color;
-				vert->specular = vt2->specular;
-				vert->tu = next->vertices[1].x;
-				vert->tv = next->vertices[1].y;
+				info->v2.sx = vt2->sx;
+				info->v2.sy = vt2->sy;
+				info->v2.sz = f_a - f_boo * vt2->rhw;
+				info->v2.rhw = vt2->rhw;
+				info->v2.color = vt2->color;
+				info->v2.specular = vt2->specular;
+				info->v2.tu = next->vertices[1].x;
+				info->v2.tv = next->vertices[1].y;
 
 				if (e4b100)
 				{
@@ -292,18 +348,16 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 					z = vt2->sz;
 				}
 
-				vert = (D3DTLVERTEX*)&info[46];
-
 				D3DTLVERTEX* vt3 = &v[v3b];
 
-				vert->sx = vt3->sx;
-				vert->sy = vt3->sy;
-				vert->sz = f_a - f_boo * vt3->rhw;
-				vert->rhw = vt3->rhw;
-				vert->color = vt3->color;
-				vert->specular = vt3->specular;
-				vert->tu = next->vertices[2].x;
-				vert->tv = next->vertices[2].y;
+				info->v3.sx = vt3->sx;
+				info->v3.sy = vt3->sy;
+				info->v3.sz = f_a - f_boo * vt3->rhw;
+				info->v3.rhw = vt3->rhw;
+				info->v3.color = vt3->color;
+				info->v3.specular = vt3->specular;
+				info->v3.tu = next->vertices[2].x;
+				info->v3.tv = next->vertices[2].y;
 
 				if (e4b100)
 				{
@@ -314,20 +368,18 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 					z = vt3->sz;
 				}
 
-				*(D3DTLVERTEX*)&info[86] = *(D3DTLVERTEX*)&info[46];
-
-				vert = (D3DTLVERTEX*)&info[106];
+				info->v3bis = info->v3;
 
 				D3DTLVERTEX* vt4 = &v[v4];
 
-				vert->sx = vt4->sx;
-				vert->sy = vt4->sy;
-				vert->sz = f_a - f_boo * vt4->rhw;
-				vert->rhw = vt4->rhw;
-				vert->color = vt4->color;
-				vert->specular = vt4->specular;
-				vert->tu = next->vertices[3].x;
-				vert->tv = next->vertices[3].y;
+				info->v4.sx = vt4->sx;
+				info->v4.sy = vt4->sy;
+				info->v4.sz = f_a - f_boo * vt4->rhw;
+				info->v4.rhw = vt4->rhw;
+				info->v4.color = vt4->color;
+				info->v4.specular = vt4->specular;
+				info->v4.tu = next->vertices[3].x;
+				info->v4.tv = next->vertices[3].y;
 
 				if (e4b100)
 				{
@@ -340,7 +392,7 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 				if (e4b100)
 					z = z * 0.25;
 
-				*(float *)info = z;
+				info->z = z;
 
 				d9ab1c += 2;
 			}
@@ -350,40 +402,17 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 
 void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
 {
+	d9ab34;
 	Unimpl();
 }
-enum dinfo_type
-{
-	DI_LINE = 2,
-	DI_TRI = 3,
-	DI_QUAD = 4,
-};
-struct dinfo_line
-{
-	float z;
-	short color;
-	short unk1;
-	short type;
-	short unk3;
-	D3DTLVERTEX v1;
-	int unk4;
-	int unk5;
-	D3DTLVERTEX v2;
-};
-struct dinfo_tri
-{
-	float z;
-	short texattr;
-	short unk1;
-	short type;
-	short unk3;
-};
+
+
 void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)// (F)
 {
 	auto ptr = (dinfo_line*)info3dptrbf;
 	ptr->unk1 = 0;
 	ptr->color = color;
-	ptr->type = 2;
+	ptr->type = DI_LINE;
 	info3dptrbf = (short*)(ptr + 1);
 
 	*sort3dptrbf++ = (int)ptr;
