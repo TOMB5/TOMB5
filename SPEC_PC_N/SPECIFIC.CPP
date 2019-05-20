@@ -74,7 +74,7 @@ void S_Warn(const char* warning_message, ...)// (F)
 {
 	char buf[1024];
 	time_t t = time(nullptr);
-	struct tm tm = *localtime(&t);
+	tm tm = *localtime(&t);
 
 	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
 

@@ -1302,13 +1302,83 @@ int num_room_lights;
 		return true;
 	}
 
+	LPDIRECTDRAWSURFACE4 surf_screen;
+
+	void LoadScreen(int frame, int num)// (F)
+	{
+		DDSURFACEDESC2 desc;
+		DXInit(desc);
+		desc.dwWidth = 640;
+		desc.dwHeight = 480;
+
+		DDPIXELFORMAT pf;
+		DXInit(pf);
+		pf.dwFlags = 64;
+		pf.dwRGBBitCount = 16;
+		pf.dwRBitMask = 0xF800;
+		pf.dwGBitMask = 0x7E0;
+		pf.dwBBitMask = 0x1F;
+		pf.dwRGBAlphaBitMask = 0;
+		desc.ddpfPixelFormat = pf;
+
+		desc.dwFlags = DDSD_PIXELFORMAT | DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS;
+		desc.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY | DDSCAPS_OFFSCREENPLAIN;
+
+		FILE* fp;
+		const int pix_num = 640 * 480;
+		const int pix_size = pix_num * sizeof(short);
+
+		if (!DXCreateSurface(App.lpDD, &desc, &surf_screen) || !(fp = FileOpen(screens[num])))
+		{
+			Log(LT_Default, "WHORE!");
+			return;
+		}
+
+		fseek(fp, pix_size * frame, SEEK_SET);
+		void* pix_buf = malloc(pix_size);
+		fread(pix_buf, pix_size, 1, fp);
+		fclose(fp);
+		DXInit(desc);
+		surf_screen->Lock(nullptr, &desc, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, nullptr);
+
+		short* src = (short*)pix_buf;
+		short* dest = (short*)desc.lpSurface;
+
+		for(int i = 0; i < pix_num; i++, src++, dest++)
+		{
+			*dest = (*src & 0x1F) | 2 * (*src & 0xFFE0);
+		}
+
+		surf_screen->Unlock(nullptr);
+		free(pix_buf);
+		in_loading_screen = true;
+	}
+
+	int dword_8751CC = 0;
+	int dword_8751C8 = 0;
+
 	int S_LoadLevelFile(int Name)
 	{
 		Log(LT_Enter, "S_LoadLevelFile");
 
 		if (!in_loading_screen)
 		{
-			// todo
+			int num = Name;
+
+			if (Name != LVL5_TITLE)
+			{
+				if (dword_8751CC)
+				{
+					num = dword_8751C8++ % 3 + 15;
+				}
+				else
+				{
+					dword_8751CC = 1;
+					num = -2;
+				}
+			}
+
+			LoadScreen(num + 2, 4);
 		}
 
 		char filename[80];
@@ -1323,9 +1393,9 @@ int num_room_lights;
 			InitialiseSortList();
 			DrawLoadingScreen();
 			SortPolyList(surfacenumbf, sort3d_bufferbf);
-			/*RestoreFPCW();
-			DrawSortList(word_878654);
-			MungeFPCW(&word_878654);*/
+			//RestoreFPCW();
+			DrawSortList();
+			//MungeFPCW(&word_878654);
 			S_DumpScreenFrame();
 		}
 
