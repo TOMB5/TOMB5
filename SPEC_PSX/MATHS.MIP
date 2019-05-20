@@ -177,12 +177,11 @@ mPushMatrix:
 
 ;0x76520
 mPopMatrix:
-	lw	a0, Matrix
+	lw      a0, Matrix-GP_ADDR(gp)
 	nop
-	addi	a0, -0x20
-	sw	a0, Matrix
-	j	mLoadMatrix
-	nop
+	addi    a0, -0x20
+	j       mLoadMatrix
+	sw      a0, Matrix-GP_ADDR(gp)
 
 ;0x76534
 mPushUnitMatrix:
@@ -808,14 +807,14 @@ GetBounds:
 
 ;0x76AF4
 mSetTrans:
-	lw	v0, Matrix-GP_ADDR(gp)
-	ctc2	a0, r5
-	ctc2	a1, r6
-	ctc2	a2, r7
-	sw	a0, 0x14(v0)
-	sw	a1, 0x18(v0)
-	jr	ra
-	sw	a2, 0x1C(v0)
+	lw      v0, Matrix-GP_ADDR(gp)
+	ctc2    a0, r5
+	ctc2    a1, r6
+	ctc2    a2, r7
+	sw      a0, 0x14(v0)
+	sw      a1, 0x18(v0)
+	jr      ra
+	sw      a2, 0x1C(v0)
 
 ;0x76B14
 mClipBoundingBox:
