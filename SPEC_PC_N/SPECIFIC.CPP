@@ -605,9 +605,19 @@ void ClearFXFogBulbs()// (F)
 	
 }
 
+DWORD dword_C87BF0;
+DWORD dword_C86BE8;
+DWORD dword_C713D4;
+DWORD dword_C713DC;
+DWORD dword_C713E0;
+
 void SetFade(int a1, int a2)
 {
-	Unimpl();
+	dword_C87BF0 = 1;
+	dword_C86BE8 = a1;
+	dword_C713D4 = (a2 - a1) >> 3;
+	dword_C713DC = 0;
+	dword_C713E0 = a2;
 }
 
 void S_InitialiseScreen()// (F)
