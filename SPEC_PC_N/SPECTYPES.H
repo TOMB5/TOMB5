@@ -124,6 +124,11 @@ struct ROOM_LIGHT   // 88 bytes
 	uint8_t Filler[3];     // Dummy values = 3 x 0xCD
 };
 
+struct room_light_thing
+{
+	char pad[168];
+};
+
 struct room_info {
 	short* data; // size=0, offset=0
 	short* door; // size=0, offset=4
