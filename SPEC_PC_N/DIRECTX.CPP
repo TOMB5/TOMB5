@@ -1528,7 +1528,13 @@ void InitACM()// (F)
 	ACMInited = true;
 }
 
-void ACMClose()
+HACMSTREAM stream_acm;
+WAVEFORMATEX stream_fmt;
+ACMSTREAMHEADER stream_hdr;
+DWORD dword_86BEC4;
+BYTE* dword_86CC78;
+BYTE* samples_buffer;
+WAVEFORMATEX stream_src{ 2, 1, 22050, 11155, 512, 4, 32 };
 
 void StreamOpen()// (F)
 {
@@ -1611,6 +1617,23 @@ bool DXCreateSampleADPCM(BYTE* buf, int comp, int uncomp, int id)
 	return true;
 }
 
+void StreamClose()// (F)
+{
+	stream_hdr.cbSrcLength = 262144;
+
+	dword_86BEC4 = acmStreamUnprepareHeader(stream_acm, &stream_hdr, 0);
+	if (dword_86BEC4)
+		Log(LT_Error, "UnPrepare Stream %d", dword_86BEC4);
+
+	dword_86BEC4 = acmStreamClose(stream_acm, 0);
+	if (dword_86BEC4)
+		Log(LT_Error, "Stream Close %d", dword_86BEC4);
+
+	free(dword_86CC78);
+	free(samples_buffer);
+}
+
+void ACMClose()// (F)
 {
 	if (ACMInited)
 	{
