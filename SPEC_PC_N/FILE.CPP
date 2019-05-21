@@ -1399,7 +1399,7 @@ int num_room_lights;
 			S_DumpScreenFrame();
 		}
 
-		while (in_loading_screen)
+		if (in_loading_screen)
 			ReleaseScreen();
 
 		levelLoading = true;
