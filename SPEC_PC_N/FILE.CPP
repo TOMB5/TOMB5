@@ -196,9 +196,60 @@ int numLvlMeshes;
 		malloc_free = malloc_size;
 	}
 
-	void MakeCutsceneResident(int r1, int r2, int r3, int r4)
+	int sub_40126C(NEW_CUTSCENE *cut)
 	{
-		Unimpl();
+		GLOBAL_cutme = cut;
+
+		int res = 168;
+
+		for(int i = 0; i < cut->numactors; i++)
+		{
+			res += sizeof(PACKNODE) * (cut->actor_data[i].nodes + 1);
+		}
+
+		return res;
+	}
+
+	void MakeCutsceneResident(int r1, int r2, int r3, int r4)// (F)
+	{
+		if (r1 | r2 | r3 | r4)
+		{
+			auto fp = FileOpen("DATA\\CUTSEQ.BIN");
+
+			if (!fp)
+				return;
+
+			fread(tsv_buffer, 1, 2048, fp);
+			ZeroArray(cutseq_resident_addresses);
+			lastcamnum = -1;
+			GLOBAL_playing_cutseq = 0;
+			cutseq_trig = 0;
+
+			auto c1 = ReadCutData(r1, fp);
+			auto c2 = ReadCutData(r2, fp);
+			auto c3 = ReadCutData(r3, fp);
+			auto c4 = ReadCutData(r4, fp);
+
+			fclose(fp);
+
+			if (c1)
+				sub_40126C(c1);
+			if (c2)
+				sub_40126C(c2);
+			if (c3)
+				sub_40126C(c3);
+			if (c4)
+				sub_40126C(c4);
+
+			if (r1)
+				cutseq_resident_addresses[r1].packed_data = (char*)c1;
+			if (r2)
+				cutseq_resident_addresses[r2].packed_data = (char*)c2;
+			if (r3)
+				cutseq_resident_addresses[r3].packed_data = (char*)c3;
+			if (r4)
+				cutseq_resident_addresses[r4].packed_data = (char*)c4;
+		}
 	}
 
 	void ClearFX()// (F)
