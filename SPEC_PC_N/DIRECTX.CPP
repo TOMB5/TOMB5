@@ -1534,8 +1534,8 @@ void ACMClose()
 	{
 		S_CDStop();
 
-		// todo
-		// todo
+		CloseHandle(events[0]);
+		CloseHandle(events[1]);
 
 		acmStreamUnprepareHeader(acm_stream, &acm_headers[0], 0);
 		acmStreamUnprepareHeader(acm_stream, &acm_headers[1], 0);
