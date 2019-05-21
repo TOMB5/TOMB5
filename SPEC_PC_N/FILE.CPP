@@ -1322,9 +1322,20 @@ int numLvlMeshes;
 		}
 	}
 
+	room_light_thing* d3d_lights_1;
+	room_light_thing* d3d_lights_2;
+
 	void MallocD3DLights()
 	{
-		Unimpl();
+		if (num_room_lights > MAX_ROOM_LIGHTS)
+		{
+			Log(LT_Error, "MAX Room Lights of %d Exceeded - %d", MAX_ROOM_LIGHTS, num_room_lights);
+		}
+
+		num_room_lights *= 2;
+
+		Alloc(d3d_lights_1, room_light_thing, num_room_lights);
+		Alloc(d3d_lights_1, room_light_thing, 16);
 	}
 
 	void CreateD3DLights()// (F)
