@@ -1289,6 +1289,25 @@ void ACMSetVolume()
 		ACMSoundBuffer->SetVolume(vol);
 }
 
+void GetADPCMData()
+{
+	if (acm_file_stream)
+	{
+		memset(wave_file_buf_bis, 0, 22528);
+
+		if (fread(wave_file_buf_bis, 1, 22528, acm_file_stream) < 22528 && acm_playing_mode == 1)
+		{
+			Log(LT_Default, "FileReset In GetADPCMData");
+			fseek(acm_file_stream, 90, SEEK_SET);
+		}
+
+		wave_file_buf_bis += 22528;
+
+		if (wave_file_buf_bis >= wave_file_buf + 225280)
+			wave_file_buf_bis = wave_file_buf;
+	}
+}
+
 void SetupNotifications()
 {
 	Unimpl();
