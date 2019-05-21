@@ -104,7 +104,19 @@ void S_CDPlay(sint16 track, int mode)
 
 void S_CDStop(void)
 {
-	Unimpl();
+	if (ACMInited && acm_file_stream)
+	{
+		memset(wave_file_buf, 0, 225280);
+		ACMSoundBuffer->Stop();
+		ACMSoundBuffer->SetCurrentPosition(0);
+		while (byte_57A01C)
+			;
+		fclose(acm_file_stream);
+		acm_file_stream = 0;
+		dword_57A018 = 0;
+		dword_510B18 = 7;
+		XATrack = -1;
+	}
 }
 
 void S_SoundStopSample(sint32 handle)// (F)
