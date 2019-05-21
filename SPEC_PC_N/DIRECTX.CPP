@@ -1391,7 +1391,42 @@ DWORD WINAPI NotifyThread(void*)
 
 void SetupNotifications()
 {
-	Unimpl();
+	events[0] = CreateEventA(nullptr, false, false, nullptr);
+	events[1] = CreateEventA(nullptr, false, false, nullptr);
+
+	DSBPOSITIONNOTIFY notify[5];
+
+	int offset = acm_max_length;
+
+	for(int i = 0; i < 4; i++)
+	{
+		notify[i].dwOffset = offset;
+		offset += acm_max_length;
+		notify[i].hEventNotify = events[0];
+		Log(LT_Sound, "Set notifies for position %lu", notify[i].dwOffset);
+	}
+
+	notify[4].dwOffset = DSBPN_OFFSETSTOP;
+	notify[3].dwOffset--;
+	notify[4].hEventNotify = events[1];
+
+	DWORD thread_id;
+	notify_thread = CreateThread(nullptr, 0, NotifyThread, nullptr, 0, &thread_id);
+	if (!notify_thread)
+		Log(LT_Error, "Create Notification Thread failed");
+
+	if (DSNotify->SetNotificationPositions(5, notify))
+	{
+		CloseHandle(events[0]);
+		CloseHandle(events[1]);
+		events[0] = nullptr;
+		events[1] = nullptr;
+		Log(LT_Sound, "Failed to set notification positions");
+	}
+	else
+	{
+		Log(LT_Sound, "Setup Notifications OK");
+	}
 }
 
 void InitACM()// (F)
