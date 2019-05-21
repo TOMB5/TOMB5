@@ -25,7 +25,7 @@
 #include "PROFILE.H"
 #include "MATHS.H"
 #include "MISC.H"
-#include "RAIN.H"
+//#include "RAIN.H"
 #include "ROOMLOAD.H"
 #include "ROOMLETB.H"
 #include "ROOMLET3.H"
