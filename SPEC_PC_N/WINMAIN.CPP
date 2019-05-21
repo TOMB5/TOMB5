@@ -406,18 +406,6 @@ void HandleCommand(WORD param)// (F)
 	}
 }
 
-typedef struct _iobuf_hack
-{
-	char*   _ptr;
-	int _cnt;
-	char*   _base;
-	int _flag;
-	int _file;
-	int _charbuf;
-	int _bufsiz;
-	char*   _tmpfname;
-};
-
 void HandleApp(LPARAM lParam, WPARAM wParam)
 {
 	byte_57A01C = true;
@@ -440,7 +428,7 @@ void HandleApp(LPARAM lParam, WPARAM wParam)
 	memset((void *)lParam, 0, 22528);
 	fread((void *)lParam, 1, 22528, acm_file_stream);
 
-	if (acm_file_stream && ((_iobuf_hack*)&acm_file_stream)->_flag & 0x10)
+	if (acm_file_stream && feof(acm_file_stream))
 	{
 		byte_57A01C = false;
 
