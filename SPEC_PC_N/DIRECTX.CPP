@@ -1529,6 +1529,36 @@ void InitACM()// (F)
 }
 
 void ACMClose()
+
+void StreamOpen()// (F)
+{
+	stream_fmt.wFormatTag = 1;
+	stream_fmt.cbSize = 0;
+	stream_fmt.nChannels = 1;
+	stream_fmt.nAvgBytesPerSec = 44100;
+	stream_fmt.nSamplesPerSec = 22050;
+	stream_fmt.nBlockAlign = 2;
+	stream_fmt.wBitsPerSample = 16;
+
+	dword_86BEC4 = acmStreamOpen(&stream_acm, acm_driver, &stream_src, &stream_fmt, nullptr, 0, 0, 0);
+	if (dword_86BEC4)
+		Log(LT_Error, "Stream Open %d", dword_86BEC4);
+
+	dword_86CC78 = (BYTE*)malloc(262144);
+	samples_buffer = (BYTE*)malloc(262234);
+
+	DSInit(stream_hdr);
+
+	stream_hdr.pbSrc = samples_buffer + 90;
+	stream_hdr.cbSrcLength = 262144;
+	stream_hdr.cbDstLength = 262144;
+	stream_hdr.pbDst = dword_86CC78;
+
+	dword_86BEC4 = acmStreamPrepareHeader(stream_acm, &stream_hdr, 0);
+	if (dword_86BEC4)
+		Log(LT_Error, "Prepare Stream %d", dword_86BEC4);
+}
+
 {
 	if (ACMInited)
 	{
