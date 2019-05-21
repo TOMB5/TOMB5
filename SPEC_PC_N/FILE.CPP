@@ -96,11 +96,15 @@ int numLvlMeshes;
 
 #define AllocT(d, s, n) d = (s*)game_malloc(sizeof(s) * (n))
 #define AllocReadT(d, s, n) AllocT((d), s, (n));OnlyReadT((d), s, (n))
+#define AllocReadTF(d, s, n) AllocT((d), s, (n));OnlyReadTF((d), s, (n))
 #define OnlyReadT(d, s, n) readBytes((d), sizeof(s) * (n))
+#define OnlyReadTF(d, s, n) freadBytes((d), sizeof(s) * (n))
 
 #define Alloc(d, s, n) d = (struct s*)game_malloc(sizeof(struct s) * (n))
 #define AllocRead(d, s, n) Alloc((d), s, (n));OnlyRead((d), s, (n))
+#define AllocReadF(d, s, n) Alloc((d), s, (n));OnlyReadF((d), s, (n))
 #define OnlyRead(d, s, n) readBytes((d), sizeof(struct s) * (n))
+#define OnlyReadF(d, s, n) freadBytes((d), sizeof(struct s) * (n))
 
 #define AddPtr(p, t, n) p = (t*)((char*)(p) + (ptrdiff_t)(n));
 
@@ -147,11 +151,16 @@ int numLvlMeshes;
 		level_data += count;
 	}
 
-	inline void freadBytes(unsigned int count)
+	inline void freadBytes(void* dst, unsigned int count)
 	{
-		void* buf = malloc(count);
-		fread(buf, 1, count, fp_level);
-		free(buf);
+		if (dst == nullptr)
+		{
+			fseek(fp_level, count, SEEK_CUR);
+		}
+		else
+		{
+			fread(dst, 1, count, fp_level);
+		}
 	}
 
 	void FreeTextures()
@@ -1434,7 +1443,7 @@ int numLvlMeshes;
 
 		AllocReadT(sample_lut, short, 450);
 
-		int numSampleInfos = freadDword();
+		int numSampleInfos = readDword();
 
 		Log(LT_Sound, "Number Of Sample Infos %d", numSampleInfos);
 
@@ -1446,7 +1455,7 @@ int numLvlMeshes;
 
 		AllocRead(sample_infos, SAMPLE_INFO, numSampleInfos);
 
-		int numSampleIndices = freadDword();
+		int numSampleIndices = readDword();
 
 		if (numSampleIndices == 0)
 		{
@@ -1455,20 +1464,21 @@ int numLvlMeshes;
 		}
 
 		Log(LT_Sound, "Number Of Samples %d", numSampleIndices);
+		Log(LT_Info, "pos=%x", ftell(fp_level));
 
-		int numUnk = freadDword();
+		int numSamples = freadDword();
 
 		if (feof(fp_level))
 			Log(LT_Error, "END OF FILE");
 
 		StreamOpen();
 
-		for(int i = 0; i < numUnk; i++)
+		for(int i = 0; i < numSamples; i++)
 		{
 			int uncomp = freadDword();
 			int comp = freadDword();
 
-			readBytes(samples_buffer, comp);
+			freadBytes(samples_buffer, comp);
 
 			if (!DXCreateSampleADPCM(samples_buffer, comp, uncomp, i))
 				break;
@@ -1503,7 +1513,7 @@ int numLvlMeshes;
 			LaraDrawType = freadWord() + 1;
 			WeatherType = freadWord();
 
-			freadBytes(28); // padding
+			freadBytes(nullptr, 28); // padding
 
 			int uncompSize = freadDword();
 			int compSize = freadDword();

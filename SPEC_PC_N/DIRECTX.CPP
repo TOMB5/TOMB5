@@ -419,7 +419,7 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 		return D3DENUMRET_OK;
 #endif
 
-	if (lpHWDesc->dwFlags == 0 && bSoftRend == true)
+	if (lpHWDesc->dwFlags == 0 && bSoftRend)
 		return D3DENUMRET_OK;
 
 	if (lpHWDesc->dwFlags == 0)
@@ -1534,11 +1534,25 @@ ACMSTREAMHEADER stream_hdr;
 DWORD dword_86BEC4;
 BYTE* dword_86CC78;
 BYTE* samples_buffer;
-WAVEFORMATEX stream_src{ 2, 1, 22050, 11155, 512, 4, 32 };
+ADPCMWAVEFORMAT stream_src
+{
+	{ WAVE_FORMAT_ADPCM, 1, 22050, 11155, 512, sizeof(DWORD), 32 },
+	1012,
+	7,
+	{
+		{ 256, 0 },
+		{ 512, -256 },
+		{ 0, 0 },
+		{ 192, 64 },
+		{ 240, 0 },
+		{ 460, -208 },
+		{ 392, -232 }
+	}
+};
 
 void StreamOpen()// (F)
 {
-	stream_fmt.wFormatTag = 1;
+	stream_fmt.wFormatTag = WAVE_FORMAT_PCM;
 	stream_fmt.cbSize = 0;
 	stream_fmt.nChannels = 1;
 	stream_fmt.nAvgBytesPerSec = 44100;
@@ -1546,7 +1560,7 @@ void StreamOpen()// (F)
 	stream_fmt.nBlockAlign = 2;
 	stream_fmt.wBitsPerSample = 16;
 
-	dword_86BEC4 = acmStreamOpen(&stream_acm, acm_driver, &stream_src, &stream_fmt, nullptr, 0, 0, 0);
+	dword_86BEC4 = acmStreamOpen(&stream_acm, acm_driver, (WAVEFORMATEX*)&stream_src, &stream_fmt, nullptr, 0, 0, 0);
 	if (dword_86BEC4)
 		Log(LT_Error, "Stream Open %d", dword_86BEC4);
 
@@ -1587,6 +1601,7 @@ bool DXCreateSampleADPCM(BYTE* buf, int comp, int uncomp, int id)
 
 	DSBUFFERDESC desc;
 	DXInit(desc);
+	
 	desc.dwReserved = 0;
 	desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | DSBCAPS_CTRLFREQUENCY | DSBCAPS_STATIC;
 	desc.dwBufferBytes = uncomp - 32;
