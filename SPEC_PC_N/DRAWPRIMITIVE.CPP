@@ -20,6 +20,8 @@
 #include "OBJLIGHT.H"
 #include "TEXTURE.H"
 #include "DEBUG.H"
+#include "DISPLAY.H"
+#include "FILE.H"
 
 enum dinfo_type
 {
@@ -1124,7 +1126,28 @@ void DrawBinoculars()
 
 void DrawLoadingScreen()
 {
-	Unimpl();
+	if (App.Flags & WA_BACK_BUFFER)
+	{
+		App.lpBackBuffer->Blt(nullptr, surf_screen, nullptr, DDBLT_WAIT, nullptr);
+	}
+	else
+	{
+		/*DDSURFACEDESC2 desc;
+		DXInit(desc);
+		surf_screen->Lock(nullptr, &desc, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, nullptr);
+
+		short* src = (short*)pix_buf;
+		short* dest = (short*)desc.lpSurface;
+
+		for (int i = 0; i < pix_num; i++, src++, dest++)
+		{
+			*dest = (*src & 0x1F) | 2 * (*src & 0xFFE0);
+		}
+
+		surf_screen->Unlock(nullptr);*/
+		S_Warn("NO BACK BUFFER BS!");
+		Unimpl();
+	}
 }
 
 void DrawFlash()
@@ -1134,7 +1157,8 @@ void DrawFlash()
 
 void ReleaseScreen()
 {
-	Unimpl();
+	in_loading_screen = false;
+	DXRelease(surf_screen, "Picture Surface");
 }
 
 void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// (F)
