@@ -1308,6 +1308,36 @@ void GetADPCMData()
 	}
 }
 
+void ACMEmulateCDPlay(short track, int mode)
+{
+	char path[256];
+	wsprintf(path, "audio\\%s", xa_filenames[track]);
+	char* abc = "Looped";
+	if (mode == 0)
+		abc = reg_class;
+	Log(LT_Sound, "Playing %s %s %d", path, abc, track);
+	XATrack = track;
+	acm_playing_track = track;
+	dword_510B18 = 6;
+	acm_playing_mode = mode;
+
+	OpenStreamFile(path);
+
+	if (acm_file_stream)
+	{
+		memcpy(source_buffer, wave_file_buf_bis, 22528);
+		DX_TRY(ACMSoundBuffer->Lock(0, acm_lock_length, (void**)&acm_audio_ptr, &acm_audio_bytes, nullptr, 0, 0));
+		acmStreamConvert(acm_stream, &acm_header_1, ACM_STREAMCONVERTF_START | ACM_STREAMCONVERTF_BLOCKALIGN);
+		GetADPCMData();
+		acmStreamConvert(acm_stream, &acm_header_2, ACM_STREAMCONVERTF_BLOCKALIGN);
+		DX_TRY(ACMSoundBuffer->Unlock(acm_audio_ptr, acm_lock_length, nullptr, 0));
+		acm_header_num = 2;
+		dword_579FD8 = 2 * acm_max_length;
+		ACMSetVolume();
+		ACMSoundBuffer->Play(0, 0, DSBPLAY_LOOPING);
+	}
+}
+
 void SetupNotifications()
 {
 	Unimpl();
