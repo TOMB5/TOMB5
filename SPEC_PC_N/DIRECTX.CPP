@@ -1253,6 +1253,27 @@ BOOL CALLBACK ACMEnumCallback(HACMDRIVERID hadid, DWORD_PTR dwInstance, DWORD fd
 	return false;
 }
 
+
+void OpenStreamFile(char* path)
+{
+	acm_file_stream = FileOpen(path);
+
+	if (!acm_file_stream)
+	{
+		Log(LT_Error, "%s - Not Found", path);
+		return;
+	}
+
+	fseek(acm_file_stream, 90, SEEK_SET);
+	wave_file_buf_bis = wave_file_buf;
+	memset(wave_file_buf, 0, 225280);
+
+	if (fread(wave_file_buf, 1, 225280, acm_file_stream) < 225280 && acm_playing_mode == 1)
+	{
+		fseek(acm_file_stream, 90, SEEK_SET);
+		Log(LT_Default, "FileReset In OpenStreamFile");
+	}
+}
 void SetupNotifications()
 {
 	Unimpl();
