@@ -1362,22 +1362,43 @@ int numLvlMeshes;
 
 		Log(LT_Sound, "Number Of Sample Infos %d", numSampleInfos);
 
-		if (numSampleInfos != 0)
+		if (numSampleInfos == 0)
 		{
-			AllocRead(sample_infos, SAMPLE_INFO, numSampleInfos);
-
-			int numSampleIndices = freadDword();
-
-			if (numSampleIndices != 0)
-			{
-				Log(LT_Sound, "Number Of Samples %d", numSampleIndices);
-
-				if (feof(fp_level))
-					Log(LT_Error, "END OF FILE");
-
-				Unimpl();
-			}
+			Log(LT_Error, "No Sample Infos");
+			return;
 		}
+
+		AllocRead(sample_infos, SAMPLE_INFO, numSampleInfos);
+
+		int numSampleIndices = freadDword();
+
+		if (numSampleIndices == 0)
+		{
+			Log(LT_Error, "No Samples");
+			return;
+		}
+
+		Log(LT_Sound, "Number Of Samples %d", numSampleIndices);
+
+		int numUnk = freadDword();
+
+		if (feof(fp_level))
+			Log(LT_Error, "END OF FILE");
+
+		StreamOpen();
+
+		for(int i = 0; i < numUnk; i++)
+		{
+			int uncomp = freadDword();
+			int comp = freadDword();
+
+			readBytes(samples_buffer, comp);
+
+			if (!DXCreateSampleADPCM(samples_buffer, comp, uncomp, i))
+				break;
+		}
+
+		StreamClose();
 	}
 
 	unsigned __stdcall LoadLevel(void* filename)
