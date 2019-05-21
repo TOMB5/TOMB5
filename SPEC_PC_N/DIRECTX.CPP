@@ -1338,6 +1338,57 @@ void ACMEmulateCDPlay(short track, int mode)
 	}
 }
 
+HANDLE events[2];
+HANDLE notify_thread;
+BYTE byte_579FE4;
+
+DWORD WINAPI NotifyThread(void*)
+{
+	void* audio_ptr;
+	DWORD audio_size;
+
+	for (int i = WaitForMultipleObjects(2, events, false, INFINITE);
+		i != -1 && ACMSoundBuffer;
+		i = WaitForMultipleObjects(2, events, false, INFINITE))
+	{
+		Log(LT_Info, "NotifyThread is still doing its job");
+		if (i == WAIT_OBJECT_0)
+		{
+			Log(LT_Info, "NotifyThread event=%d", i);
+
+			memcpy(source_buffer, wave_file_buf_bis, 22528);
+
+			if (XATrack == -1)
+				memset(source_buffer, 0, 22528);
+			else
+				HandleApp((LPARAM)wave_file_buf_bis, XATrack);
+
+			if (byte_579FE4)
+			{
+				wave_file_buf_bis += 22528;
+
+				if (wave_file_buf_bis >= wave_file_buf + 225280)
+					wave_file_buf_bis = wave_file_buf;
+
+				ACMSoundBuffer->Lock(dword_579FD8, acm_max_length, &audio_ptr, &audio_size, nullptr, nullptr, 0);
+
+				acmStreamConvert(acm_stream, &acm_header_1 + acm_header_num, 4);
+
+				ACMSoundBuffer->Unlock(audio_ptr, audio_size, nullptr, 0);
+
+				dword_579FD8 += audio_size;
+
+				if (dword_579FD8 >= acm_lock_length)
+					dword_579FD8 -= acm_lock_length;
+
+				acm_header_num = (acm_header_num + 1) % 4;
+			}
+		}
+	}
+	Log(LT_Error, "NotifyThread EXITING! SHOULDNT HAPPEN, ERR=%08X", GetLastError());
+	return 0;
+}
+
 void SetupNotifications()
 {
 	Unimpl();
