@@ -1559,6 +1559,58 @@ void StreamOpen()// (F)
 		Log(LT_Error, "Prepare Stream %d", dword_86BEC4);
 }
 
+dx_sample dx_samples[256];
+
+bool DXCreateSampleADPCM(BYTE* buf, int comp, int uncomp, int id)
+{
+	Log(LT_Sound, "DXCreateSampleADPCM");
+
+	if (!App.lpDS)
+		return false;
+
+	auto fmt = (WAVEFORMATEX*)&buf[20];
+
+	if (fmt->nSamplesPerSec != 22050)
+		Log(LT_Error, "Incorrect SamplesPerSec");
+
+	stream_hdr.cbSrcLength = comp - fmt->cbSize - 58;
+
+	dword_86BEC4 = acmStreamConvert(stream_acm, &stream_hdr, 20);
+	if (dword_86BEC4)
+		Log(LT_Error, "Stream Convert %d", dword_86BEC4);
+
+	DSBUFFERDESC desc;
+	DXInit(desc);
+	desc.dwReserved = 0;
+	desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | DSBCAPS_CTRLFREQUENCY | DSBCAPS_STATIC;
+	desc.dwBufferBytes = uncomp - 32;
+	desc.lpwfxFormat = &stream_fmt;
+
+	LPDIRECTSOUNDBUFFER dsbuf;
+	if (DX_TRY(App.lpDS->CreateSoundBuffer(&desc, &dsbuf, nullptr)))
+	{
+		Log(LT_Error, "Unable To Create Sound Buffer");
+		return false;
+	}
+
+	void* ptr;
+	DWORD bytes;
+	if (DX_TRY(dsbuf->Lock(0, uncomp - 32, &ptr, &bytes, nullptr, nullptr, 0)))
+	{
+		Log(LT_Error, "Unable To Lock Sound Buffer");
+		return false;
+	}
+
+	memcpy(ptr, dword_86CC78, uncomp - 32);
+
+	DX_TRY(dsbuf->Unlock(ptr, bytes, nullptr, 0));
+
+	dx_samples[id].samples_per_sec = stream_fmt.nSamplesPerSec;
+	dx_samples[id].buffer = dsbuf;
+
+	return true;
+}
+
 {
 	if (ACMInited)
 	{
