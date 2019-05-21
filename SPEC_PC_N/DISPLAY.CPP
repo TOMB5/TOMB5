@@ -66,8 +66,8 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 		strcat(b2, "\n");
 	HDC hdc;
 	App.lpBackBuffer->GetDC(&hdc);
-	SetTextColor(hdc, 0x00ff7f00);
-	SetBkColor(hdc, 0x000000);
+	SetTextColor(hdc, 0x000e0e0e);
+	SetBkColor(hdc, 0xffffff);
 	int last = 0;
 	int num = 0;
 	for(int i = 0; i < strlen(b2); i++)
