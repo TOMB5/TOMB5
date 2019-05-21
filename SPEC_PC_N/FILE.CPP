@@ -225,9 +225,34 @@ int numLvlMeshes;
 		Unimpl();
 	}
 
+	room_light_begin fog_bulb[40];
+
 	void BuildGlobalFogBulbList()
 	{
-		Unimpl();
+		if (number_rooms <= 0)
+		{
+			num_fog_bulbs = 0;
+			return;
+		}
+
+		int light = 0;
+
+		for(int i = 0; i < number_rooms; i++)
+		{
+			for(int j = 0; j < room[i].Unknown6; j++, light++)//TODO: WHAT THE FUCK, maybe NumLights2 instead
+			{
+				memcpy(&fog_bulb[light], &room[i].RoomLights[j], sizeof(room_light_begin));//TODO: WHAT THE FUCK
+
+				if (gfCurrentLevel == LVL5_TRAJAN_MARKETS || gfCurrentLevel == LVL5_COLOSSEUM)
+				{
+					fog_bulb[light].b = MAX(0, fog_bulb[light].b / 2);
+				}
+
+				fog_bulb[light].b = MAX(14, (90 - fog_bulb[light].b / 1024.0) * 0.8 + 0.2);
+			}
+		}
+
+		num_fog_bulbs = light;
 	}
 
 	void RoomInit()// (F)

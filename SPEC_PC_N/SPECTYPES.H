@@ -124,6 +124,17 @@ struct ROOM_LIGHT   // 88 bytes
 	uint8_t Filler[3];     // Dummy values = 3 x 0xCD
 };
 
+struct room_light_begin
+{
+	float x, y, z;       // Position of light, in world coordinates
+	float r, g, b;       // Colour of the light
+
+	uint32_t ShadowIntensity;    // only if LightType == LIGHT_SHADOW
+
+	float In;            // Cosine of the IN value for light / size of IN value
+	float Out;           // Cosine of the OUT value for light / size of OUT value
+};
+
 struct room_light_thing
 {
 	char pad[168];
