@@ -7,6 +7,7 @@
 #include <mmreg.h>
 #include <msacm.h>
 #include "INPUT.H"
+#include "FILE.H"
 #pragma comment (lib, "ddraw.lib")
 #pragma comment (lib, "dxguid.lib")
 #pragma comment (lib, "dinput.lib")
@@ -20,7 +21,7 @@ static LPDIRECT3DDEVICE3	enum_lpD3DDevice;
 static HWND					WindowHandle;
 static bool bSoftRend = false;
 static LPDIRECTSOUNDBUFFER DSSoundBuffer;
-static LPDIRECTSOUNDBUFFER ACMSoundBuffer;
+LPDIRECTSOUNDBUFFER ACMSoundBuffer;
 static LPDIRECTSOUNDNOTIFY DSNotify;
 
 int NumSamplesTable[3] =
@@ -36,7 +37,8 @@ ACMSTREAMHEADER acm_header_2;
 ACMSTREAMHEADER acm_header_3;
 ACMSTREAMHEADER acm_header_4;
 
-void* wave_file_buf;
+BYTE* wave_file_buf;
+BYTE* wave_file_buf_bis;
 BYTE* source_buffer;
 
 HACMSTREAM acm_stream;
@@ -1253,6 +1255,13 @@ BOOL CALLBACK ACMEnumCallback(HACMDRIVERID hadid, DWORD_PTR dwInstance, DWORD fd
 	return false;
 }
 
+int XATrack = -1;
+short acm_playing_track;
+int dword_510B18 = 7;
+int acm_playing_mode;
+FILE* acm_file_stream;
+int acm_header_num;
+int dword_579FD8;
 
 void OpenStreamFile(char* path)
 {
@@ -1274,6 +1283,7 @@ void OpenStreamFile(char* path)
 		Log(LT_Default, "FileReset In OpenStreamFile");
 	}
 }
+
 void ACMSetVolume()
 {
 	int vol;
@@ -1429,6 +1439,9 @@ void SetupNotifications()
 	}
 }
 
+WAVEFORMATEX pwfxDst = {0};
+bool byte_57A01C = false;
+
 void InitACM()// (F)
 {
 	DWORD ver = acmGetVersion();
@@ -1450,7 +1463,7 @@ void InitACM()// (F)
 	}
 
 	source_buffer = (BYTE*)malloc(22528);
-	wave_file_buf = malloc(22528 * 10);
+	wave_file_buf = (BYTE*)malloc(22528 * 10);
 
 	auto wfSrc = (ADPCMWAVEFORMAT*)malloc(sizeof(WAVEFORMATEX) + 32);	
 	wfSrc->wfx.wFormatTag = WAVE_FORMAT_ADPCM;
@@ -1469,15 +1482,13 @@ void InitACM()// (F)
 	wfSrc->aCoef[4] = { 240, 0 };
 	wfSrc->aCoef[5] = { 460, -208 };
 	wfSrc->aCoef[6] = { 392, -232 };
-	static WAVEFORMATEX* p = (WAVEFORMATEX*)malloc(1024); // TODO: BAD BAD BAD BAD BAD
-	static WAVEFORMATEX& wfDst = *p;
-	Zero(wfDst);
-	wfDst.wFormatTag = WAVE_FORMAT_PCM;
+
+	pwfxDst.wFormatTag = WAVE_FORMAT_PCM;
 
 	DWORD max_format;
 	acmMetrics(nullptr, ACM_METRIC_MAX_SIZE_FORMAT, &max_format);
 
-	acmFormatSuggest(acm_driver, &wfSrc->wfx, &wfDst, max_format, ACM_FORMATSUGGESTF_WFORMATTAG);
+	acmFormatSuggest(acm_driver, &wfSrc->wfx, &pwfxDst, max_format, ACM_FORMATSUGGESTF_WFORMATTAG);
 
 	acm_lock_length = 358336;
 	acm_max_length = 89584;
@@ -1486,11 +1497,11 @@ void InitACM()// (F)
 	DXInit(desc);
 	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
 	desc.dwBufferBytes = 358336;
-	desc.lpwfxFormat = &wfDst;
+	desc.lpwfxFormat = &pwfxDst;
 	App.lpDS->CreateSoundBuffer(&desc, &ACMSoundBuffer, nullptr);
 	ACMSoundBuffer->QueryInterface(IID_IDirectSoundNotify, (LPVOID*)&DSNotify);
 	SetupNotifications();
-	acmStreamOpen(&acm_stream, acm_driver, &wfSrc->wfx, &wfDst, nullptr, 0, 0, 0);
+	acmStreamOpen(&acm_stream, acm_driver, &wfSrc->wfx, &pwfxDst, nullptr, 0, 0, 0);
 	DWORD stream_size;
 	acmStreamSize(acm_stream, 22528, &stream_size, 0);
 	DX_TRY(ACMSoundBuffer->Lock(0, acm_lock_length, (LPVOID*)&acm_audio_ptr, &acm_audio_bytes, nullptr, nullptr, 0));
