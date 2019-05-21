@@ -64,9 +64,17 @@ extern "C" {
 extern int NumSamplesTable[3];
 extern int NumSamples;
 extern bool ACMInited;
-extern void* wave_file_buf;
+extern BYTE* wave_file_buf;
+extern BYTE* wave_file_buf_bis;
 extern BYTE* source_buffer;
-
+extern int XATrack;
+extern int dword_510B18;
+extern bool byte_57A01C;
+extern const char* xa_filenames[];
+extern BYTE byte_579FE4;
+extern int acm_playing_mode;
+extern LPDIRECTSOUNDBUFFER ACMSoundBuffer;
+void ACMEmulateCDPlay(short track, int mode);
 void DXInitialise(DEVICEINFO* DeviceInfo, HWND WindowHandle);
 bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2);
 BOOL DXDDCreate(GUID FAR* lpGuid, LPDIRECTDRAW* lpDD);

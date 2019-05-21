@@ -19,7 +19,7 @@
 #ifdef __cplusplus
 //}
 #endif
-
+	extern FILE* acm_file_stream;
 extern short* floor_data;
 extern short* mesh_base;
 
@@ -27,5 +27,6 @@ extern int num_pages;
 extern bool levelLoading;
 
 extern int AnimFileLen;
+extern LPDIRECTDRAWSURFACE4 surf_screen;
 
 #endif

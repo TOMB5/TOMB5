@@ -83,11 +83,13 @@ extern int d9ab1c;
 extern int d9ab10;
 extern DWORD dword_921684;
 extern DWORD dword_7EE0D4;
+extern DWORD dword_57A018;
+extern LPSTR reg_class;
 
 extern D3DMATRIX transform_projection;
 
 #define EndOfArray(a) ((a)+ArraySize(a))
-
+extern void HandleApp(LPARAM lParam, WPARAM wParam);
 extern void D3DIdentityMatrix(LPD3DMATRIX mat);
 extern void SetD3DMatrixF(LPD3DMATRIX dst, LPD3DMATRIX src);
 extern void phd_RotX(long angle);
