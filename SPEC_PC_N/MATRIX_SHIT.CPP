@@ -404,6 +404,18 @@
 		SetD3DMatrix(&w2v_matrix_d3d, w2v_matrix);
 	}
 
+	void D3DNormalise(LPD3DMATRIX m)
+	{
+		long double v1;
+
+		if (m->_11 == 0.0 && m->_12 == 0.0 && m->_13 == 0.0)
+			return;
+		v1 = 1.0 / sqrt(m->_13 * m->_13 + m->_12 * m->_12 + m->_11 * m->_11);
+		m->_11 = v1 * m->_11;
+		m->_12 = v1 * m->_12;
+		m->_13 = v1 * m->_13;
+	}
+
 	void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest)// (F)
 	{
 		short	pitch;
