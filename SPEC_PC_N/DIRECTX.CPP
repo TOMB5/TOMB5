@@ -32,10 +32,7 @@ int NumSamples;
 bool ACMInited;
 HACMDRIVERID acm_driver_id;
 HACMDRIVER acm_driver;
-ACMSTREAMHEADER acm_header_1;
-ACMSTREAMHEADER acm_header_2;
-ACMSTREAMHEADER acm_header_3;
-ACMSTREAMHEADER acm_header_4;
+ACMSTREAMHEADER acm_headers[4];
 
 BYTE* wave_file_buf;
 BYTE* wave_file_buf_bis;
@@ -1337,9 +1334,9 @@ void ACMEmulateCDPlay(short track, int mode)
 	{
 		memcpy(source_buffer, wave_file_buf_bis, 22528);
 		DX_TRY(ACMSoundBuffer->Lock(0, acm_lock_length, (void**)&acm_audio_ptr, &acm_audio_bytes, nullptr, 0, 0));
-		acmStreamConvert(acm_stream, &acm_header_1, ACM_STREAMCONVERTF_START | ACM_STREAMCONVERTF_BLOCKALIGN);
+		acmStreamConvert(acm_stream, &acm_headers[0], ACM_STREAMCONVERTF_START | ACM_STREAMCONVERTF_BLOCKALIGN);
 		GetADPCMData();
-		acmStreamConvert(acm_stream, &acm_header_2, ACM_STREAMCONVERTF_BLOCKALIGN);
+		acmStreamConvert(acm_stream, &acm_headers[1], ACM_STREAMCONVERTF_BLOCKALIGN);
 		DX_TRY(ACMSoundBuffer->Unlock(acm_audio_ptr, acm_lock_length, nullptr, 0));
 		acm_header_num = 2;
 		dword_579FD8 = 2 * acm_max_length;
@@ -1357,15 +1354,14 @@ DWORD WINAPI NotifyThread(void*)
 	void* audio_ptr;
 	DWORD audio_size;
 
-	for (int i = WaitForMultipleObjects(2, events, false, INFINITE);
-		i != -1 && ACMSoundBuffer;
+	for (DWORD i = WaitForMultipleObjects(2, events, false, INFINITE);
+		i != WAIT_FAILED && ACMSoundBuffer;
 		i = WaitForMultipleObjects(2, events, false, INFINITE))
 	{
-		Log(LT_Info, "NotifyThread is still doing its job");
+		Log(LT_Info, "NotifyThread is still doing its job, event=%d", i);
+		
 		if (i == WAIT_OBJECT_0)
 		{
-			Log(LT_Info, "NotifyThread event=%d", i);
-
 			memcpy(source_buffer, wave_file_buf_bis, 22528);
 
 			if (XATrack == -1)
@@ -1382,7 +1378,7 @@ DWORD WINAPI NotifyThread(void*)
 
 				ACMSoundBuffer->Lock(dword_579FD8, acm_max_length, &audio_ptr, &audio_size, nullptr, nullptr, 0);
 
-				acmStreamConvert(acm_stream, &acm_header_1 + acm_header_num, 4);
+				acmStreamConvert(acm_stream, &acm_headers[acm_header_num], 4);
 
 				ACMSoundBuffer->Unlock(audio_ptr, audio_size, nullptr, 0);
 
@@ -1508,24 +1504,24 @@ void InitACM()// (F)
 
 	memset(acm_audio_ptr, 0, acm_lock_length);
 
-	DSInit(acm_header_1);
-	DSInit(acm_header_2);
-	DSInit(acm_header_3);
-	DSInit(acm_header_4);
+	DSInit(acm_headers[0]);
+	DSInit(acm_headers[1]);
+	DSInit(acm_headers[2]);
+	DSInit(acm_headers[3]);
 
-	acm_header_1.pbSrc = acm_header_2.pbSrc = acm_header_3.pbSrc = acm_header_4.pbSrc = source_buffer;
-	acm_header_1.cbDstLength = acm_header_2.cbDstLength = acm_header_3.cbDstLength = acm_header_4.cbDstLength = stream_size;
-	acm_header_1.cbSrcLength = acm_header_2.cbSrcLength = acm_header_3.cbSrcLength = acm_header_4.cbSrcLength = 22528;
+	acm_headers[0].pbSrc = acm_headers[1].pbSrc = acm_headers[2].pbSrc = acm_headers[3].pbSrc = source_buffer;
+	acm_headers[0].cbDstLength = acm_headers[1].cbDstLength = acm_headers[2].cbDstLength = acm_headers[3].cbDstLength = stream_size;
+	acm_headers[0].cbSrcLength = acm_headers[1].cbSrcLength = acm_headers[2].cbSrcLength = acm_headers[3].cbSrcLength = 22528;
 
-	acm_header_1.pbDst = &acm_audio_ptr[0 * acm_max_length];
-	acm_header_2.pbDst = &acm_audio_ptr[1 * acm_max_length];
-	acm_header_3.pbDst = &acm_audio_ptr[2 * acm_max_length];
-	acm_header_4.pbDst = &acm_audio_ptr[3 * acm_max_length];
+	acm_headers[0].pbDst = &acm_audio_ptr[0 * acm_max_length];
+	acm_headers[1].pbDst = &acm_audio_ptr[1 * acm_max_length];
+	acm_headers[2].pbDst = &acm_audio_ptr[2 * acm_max_length];
+	acm_headers[3].pbDst = &acm_audio_ptr[3 * acm_max_length];
 
-	acmStreamPrepareHeader(acm_stream, &acm_header_1, 0);
-	acmStreamPrepareHeader(acm_stream, &acm_header_2, 0);
-	acmStreamPrepareHeader(acm_stream, &acm_header_3, 0);
-	acmStreamPrepareHeader(acm_stream, &acm_header_4, 0);
+	acmStreamPrepareHeader(acm_stream, &acm_headers[0], 0);
+	acmStreamPrepareHeader(acm_stream, &acm_headers[1], 0);
+	acmStreamPrepareHeader(acm_stream, &acm_headers[2], 0);
+	acmStreamPrepareHeader(acm_stream, &acm_headers[3], 0);
 					
 	DX_TRY(ACMSoundBuffer->Unlock(acm_audio_ptr, acm_lock_length, nullptr, 0));
 
@@ -1541,10 +1537,10 @@ void ACMClose()
 		// todo
 		// todo
 
-		acmStreamUnprepareHeader(acm_stream, &acm_header_1, 0);
-		acmStreamUnprepareHeader(acm_stream, &acm_header_2, 0);
-		acmStreamUnprepareHeader(acm_stream, &acm_header_3, 0);
-		acmStreamUnprepareHeader(acm_stream, &acm_header_4, 0);
+		acmStreamUnprepareHeader(acm_stream, &acm_headers[0], 0);
+		acmStreamUnprepareHeader(acm_stream, &acm_headers[1], 0);
+		acmStreamUnprepareHeader(acm_stream, &acm_headers[2], 0);
+		acmStreamUnprepareHeader(acm_stream, &acm_headers[3], 0);
 
 		acmStreamClose(acm_stream, 0);
 		acmDriverClose(acm_driver, 0);
