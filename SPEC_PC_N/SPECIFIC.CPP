@@ -32,6 +32,7 @@
 #include "NEWINV2.H"
 #include <ctime>
 #include <zlib.h>
+#include "CONTROL.H"
 
 #pragma comment(lib, "zlibstatic.lib")
 
@@ -88,37 +89,17 @@ void S_Warn(const char* warning_message, ...)// (F)
 	DebugPrint(buf);
 }
 
-void S_CDPlay(sint16 nTrack, int tMode)
+void S_CDPlay(sint16 track, int mode)
 {
-	Log(LT_Enter, "S_CDPlay: nTrack=%d; tMode=%d", nTrack, tMode);
+	Log(LT_Enter, "S_CDPlay: track=%d; mode=%d", track, mode);
 
-	Unimpl();
-
-	//if (!Option_Music_Volume)
-		return;
-/*
-#ifndef DUDE_DEMO
-#ifndef DEMO
-	MCI_PLAY_PARMS pp;
-	cdtrack = nTrack;
-	nTrack = GetRealTrack(nTrack);
-
-	OpenCD();
-
-	// start track
-	pp.dwFrom = MCI_MAKE_TMSF(nTrack, 0, 0, 0);
-	pp.dwTo = MCI_MAKE_TMSF(nTrack + 1, 0, 0, 0);
-	if (mciSendCommand(wDeviceID, MCI_PLAY, MCI_FROM | MCI_TO, (DWORD)&pp))
-		Log(LT_Error, "Can't play track %d", nTrack);
-
-	CloseCD();
-
-	// set looping flag if need be
-	if (tMode)
-		cd_looping = nTrack;
-#endif
-#endif
-	*/
+	if (ACMInited)
+	{
+		dword_57A018 = 0;
+		IsAtmospherePlaying = track == CurrentAtmosphere;
+		S_CDStop();
+		ACMEmulateCDPlay(track, mode);
+	}
 }
 
 void S_CDStop(void)
