@@ -19,6 +19,7 @@
 #ifdef __cplusplus
 //}
 #endif
+#define MAX_ROOM_LIGHTS 21
 	extern FILE* acm_file_stream;
 extern short* floor_data;
 extern short* mesh_base;
