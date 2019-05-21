@@ -48,21 +48,46 @@ FILE* fp_level;
 char* level_data;
 char* level_data_orig;
 
-struct mesh_vbuf_s
+#pragma pack(push, 1)
+struct mesh_bbox
 {
-	char pad0[4]; // pos 0 size 4
-	short* field1; // pos 4 size 4  APPARENTLY object texture index
-	char pad[22]; // pos 8 size 22
-	LPDIRECT3DVERTEXBUFFER vbuf; // pos 30 size 4
-	char pad2[36]; // pos 34 size 36
+	float minX, minY, minZ;
+	float maxX, maxY, maxZ;
 };
 
-mesh_vbuf_s** mesh_vbufs;
+struct mesh_thing
+{
+	tr5_vertex pos;
+	tr5_vertex norm;
+	int f6, f7;
+};
+
+struct tr4_mesh
+{
+	tr_vertex center;
+	int coll_radius;
+	short num_vert;
+	short num_normals;
+	short num_rectangles;
+	tr4_mesh_face4 *rectangles;
+	short num_triangles;
+	tr4_mesh_face3 *triangles;
+	int *lights;
+	LPDIRECT3DVERTEXBUFFER vbuf;
+	void* normals;
+	int attributes;
+	mesh_thing* vert;
+	mesh_bbox bbox;
+};
+#pragma pack(pop)
+
+tr4_mesh** mesh_infos;
 OBJECT_TEXTURE* object_textures;
 SPRITE_STRUCT* sprites;
 OBJECT_TEXTURE* waterfall_textures[6];
 float waterfall_y[6];
 int num_room_lights;
+int numLvlMeshes;
 
 #ifdef __cplusplusa
 //extern "C"
@@ -134,7 +159,13 @@ int num_room_lights;
 		DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
 		DX_TRY(App.lpD3D->EvictManagedTextures());
 
-		Unimpl();
+		for(int i = 0; i < num_pages; i++)
+		{
+			DXRelease(DXTextureList[i].tex, "Texture");
+
+			if (!DXTextureList[i].a11)
+				DXRelease(DXTextureList[i].surface, "Surface");
+		}
 	}
 
 	void FreeD3DLights()// (F)
@@ -521,9 +552,9 @@ int num_room_lights;
 			roomData->door = nullptr;
 		}
 
-		char* polyOff = (char*)roomData->PolyOffset;
-		char* polyOff2 = (char*)roomData->PolyOffset2;
-		char* vertOff = (char*)roomData->VerticesOffset;
+		auto* polyOff = (char*)roomData->PolyOffset;
+		auto* polyOff2 = (char*)roomData->PolyOffset2;
+		auto* vertOff = (char*)roomData->VerticesOffset;
 
 		for (int i = 0; i < roomData->NumLayers; i++)
 		{
@@ -719,14 +750,175 @@ int num_room_lights;
 
 	void ProcessMeshData(int nmeshes)
 	{
+		int v9; // esi
+		int v62; // [esp+30h] [ebp-10h]
+
 		Log(LT_Enter, "ProcessMeshData %d", nmeshes);
 
-		//numLvlMeshes = nmeshes;
+		numLvlMeshes = nmeshes;
 
-		AllocT(mesh_vbufs, struct mesh_vbuf_s*, nmeshes);
+		AllocT(mesh_infos, tr4_mesh*, nmeshes);
 		mesh_base = (short*)malloc_ptr;
 
-		Unimpl();
+		short* last_mesh = nullptr;
+		tr4_mesh* mesh_info;
+		for(int i = 0; i < nmeshes; i++)
+		{
+			short* mesh = meshes[i];
+			if (last_mesh == mesh)
+			{
+				meshes[i] = (short*)mesh_info;
+				mesh_infos[i] = mesh_info;
+			}
+			else
+			{
+				last_mesh = meshes[i];
+				float minZ = 20000.0;
+				float minY = 20000.0;
+				float minX = 20000.0;
+				float maxY = -20000.0;
+				float maxX = -20000.0;
+				float maxZ = -20000.0;
+				Alloc(mesh_info, tr4_mesh, 1);
+				Zero(*mesh_info);
+				meshes[i] = (short*)mesh_info;
+				short* mptr = mesh;
+				mesh_infos[i] = mesh_info;
+				mesh_info->center = *(tr_vertex*)mptr;
+				mesh_info->coll_radius = *(int*)&mptr[3];
+				mesh_info->num_vert = v62 = mptr[5] & 0xFF;
+				if ((mptr[5] & 0xFF) == 0)
+				{
+					v9 = v62 = mptr[5] >> 8;
+				}
+				else
+				{
+					v9 = v62;
+				}
+				mptr += 6;
+				AllocT(mesh_info->vert, mesh_thing, mesh_info->num_vert);
+				if (mesh_info->num_vert)
+				{
+					for(int j = 0; j < mesh_info->num_vert; j++)
+					{
+						float vX = mptr[0];
+						float vY = mptr[1];
+						float vZ = mptr[2];
+
+						mptr += 3;
+
+						mesh_info->vert[j].pos.x = vX;
+						mesh_info->vert[j].pos.y = vY;
+						mesh_info->vert[j].pos.z = vZ;
+
+						if (vX < minX)
+							minX = vX;
+						if (vX > maxX)
+							maxX = vX;
+
+						if (vY < minY)
+							minY = vY;
+						if (vY > maxY)
+							maxY = vY;
+
+						if (vZ < minZ)
+							minZ = vZ;
+						if (vZ > maxZ)
+							maxZ = vZ;
+					}
+
+					mesh_info->bbox.minX = minX;
+					mesh_info->bbox.minY = minY;
+					mesh_info->bbox.minZ = minZ;
+					mesh_info->bbox.maxX = maxX;
+					mesh_info->bbox.maxY = maxY;
+					mesh_info->bbox.maxZ = maxZ;
+
+					mesh_info->num_normals = *mptr++;
+
+					if (mesh_info->num_normals == 0)
+						mesh_info->num_normals = mesh_info->num_vert;
+
+					if (mesh_info->num_normals <= 0)
+					{
+						mesh_info->normals = nullptr;
+						AllocT(mesh_info->lights, int, mesh_info->num_vert);
+
+						for (int j = 0; j < mesh_info->num_vert; j++)
+						{
+							short v35 = 255 - (*mptr++ >> 5);
+									
+							int v36 = v35 | ((v35 | (v35 << 8)) << 8);
+							mesh_info->lights[j] = mesh_info->vert[j].f6 = v36;
+						}
+
+						mesh_info->attributes |= 2;
+					}
+					else
+					{
+						AllocT(mesh_info->normals, tr5_vertex, mesh_info->num_normals);
+
+						for (int j = 0; j < mesh_info->num_vert; j++)
+						{
+							const auto ver16 = *(tr_vertex*)mptr;
+							tr5_vertex ver{ ver16.x, ver16.y, ver16.z };
+
+							D3DNormalise((LPD3DMATRIX)&ver);
+
+							mesh_info->vert[j].norm.x = ver.x;
+							mesh_info->vert[j].norm.y = ver.y;
+							mesh_info->vert[j].norm.z = ver.z;
+
+							mptr += sizeof(tr_vertex) / sizeof(short);
+						}
+
+						mesh_info->lights = nullptr;
+					}
+				}
+				else
+				{
+					mptr += 6 * v9 + 1;
+				}
+
+				mesh_info->num_rectangles = *mptr++;
+
+				if (mesh_info->num_rectangles)
+				{
+					Alloc(mesh_info->rectangles, tr4_mesh_face4, mesh_info->num_rectangles);
+
+					memcpy(mesh_info->rectangles, mptr, sizeof(tr4_mesh_face4) * mesh_info->num_rectangles);
+
+					mptr += sizeof(tr4_mesh_face4) / sizeof(short) * mesh_info->num_rectangles;
+
+					for(int j = 0; j < mesh_info->num_rectangles; j++)
+					{
+						if (mesh_info->rectangles[j].Effects & 2)
+						{
+							mesh_info->attributes |= 1;
+							break;
+						}
+					}
+				}
+
+				mesh_info->num_triangles = *mptr++;
+
+				if (mesh_info->num_triangles != 0)
+				{
+					Alloc(mesh_info->triangles, tr4_mesh_face3, mesh_info->num_triangles);
+						
+					memcpy(mesh_info->triangles, mptr, sizeof(tr4_mesh_face3) * mesh_info->num_triangles);
+
+					for (int j = 0; j < mesh_info->num_triangles; j++)
+					{
+						if (mesh_info->triangles[j].Effects & 2)
+						{
+							mesh_info->attributes |= 1;
+							break;
+						}
+					}
+				}
+			}
+		}
 
 		Log(LT_Enter, "End ProcessMeshData");
 	}
@@ -856,7 +1048,7 @@ int num_room_lights;
 
 	void LoadSprites()// (F)
 	{
-		Log(2, "LoadSprites");
+		Log(LT_Enter, "LoadSprites");
 
 		readDword(); // SPR\0
 
@@ -1009,7 +1201,12 @@ int num_room_lights;
 
 	void AdjustUV(int numTex)
 	{
-		Log(2, "AdjustUV");
+		Log(LT_Enter, "AdjustUV");
+
+		for(int i = 0; i < numTex; i++)
+		{
+			
+		}
 
 		Unimpl();
 	}
@@ -1043,7 +1240,7 @@ int num_room_lights;
 
 		AdjustUV(numObjTex);
 
-		Log(5, "Created %d Texture Pages", num_pages - 1);
+		Log(LT_Info, "Created %d Texture Pages", num_pages - 1);
 	}
 
 	void LoadDemoData()// (F)
@@ -1260,12 +1457,12 @@ int num_room_lights;
 
 			for (int i = WATERFALL1; i <= WATERFALLSS2 && false; i++)
 			{
-				if (objects[i].loaded)
+				/*if (objects[i].loaded)
 				{
-					struct OBJECT_TEXTURE* tex = &object_textures[mesh_vbufs[objects[i].mesh_index]->field1[4]];
+					struct OBJECT_TEXTURE* tex = &object_textures[mesh_infos[objects[i].mesh_index]->field1[4]];
 					waterfall_textures[i] = tex;
 					waterfall_y[i] = tex->vertices[0].y;
-				}
+				}*/
 			}
 
 			S_LoadBar();
@@ -1425,7 +1622,6 @@ int num_room_lights;
 
 	FILE* FileOpen(const char* filename)// (F)
 	{
-		FILE* fp;
 		char fn[80];
 
 		memset(&fn, 0, 80u);
@@ -1436,7 +1632,7 @@ int num_room_lights;
 
 		Log(LT_Info, "FileOpen - %s", fn);
 
-		fp = fopen(fn, "rb");
+		FILE* fp = fopen(fn, "rb");
 
 		if (!fp)
 			Log(LT_Error, "Unable To Open %s", fn);
@@ -1453,10 +1649,8 @@ int num_room_lights;
 
 	unsigned long FileLength(FILE* nHandle)// (F)
 	{
-		unsigned long ret;
-
 		fseek(nHandle, 0, SEEK_END);
-		ret = ftell(nHandle);
+		unsigned long ret = ftell(nHandle);
 		fseek(nHandle, 0, SEEK_SET);
 
 		return ret;
@@ -1464,22 +1658,19 @@ int num_room_lights;
 
 	int LoadFile(char* szFileName, void** pDest)// (F)
 	{
-		FILE* fp;
-		int len, read;
-
 		Log(LT_Enter, "LoadFile");
 		Log(LT_Info, "File - %s", szFileName);
 
-		fp = FileOpen(szFileName);
+		FILE* fp = FileOpen(szFileName);
 		if (!fp)
 			return 0;
 
-		len = FileLength(fp);
+		int len = FileLength(fp);
 
 		if (!*pDest)
 			*pDest = malloc(len);
 
-		read = fread(*pDest, 1, len, fp);
+		int read = fread(*pDest, 1, len, fp);
 
 		Log(LT_Info, "Read - %d FileSize - %d", read, len);
 
@@ -1497,15 +1688,11 @@ int num_room_lights;
 
 	int FindCdDrive(void)// (F)
 	{
-		unsigned int type;
 		char root[5];
 		char file_check[] = "C:\\script.dat";
 
-		DWORD drives;
-		HANDLE file;
-
 		// WIN95: Bit mask of which drives available
-		drives = GetLogicalDrives();
+		DWORD drives = GetLogicalDrives();
 
 		cd_drive = 'A';
 		lstrcpy(root, "A:\\");
@@ -1516,12 +1703,12 @@ int num_room_lights;
 			{
 				root[0] = cd_drive;
 
-				type = GetDriveType(root);
+				unsigned int type = GetDriveType(root);
 				if (type == DRIVE_CDROM)
 				{
 					// NOTE: user may have more than one CD drive, so need to check this has Tomb 2 in it
 					file_check[0] = cd_drive;
-					file = CreateFile(file_check, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+					HANDLE file = CreateFile(file_check, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 					if (file != INVALID_HANDLE_VALUE)
 					{
 						CloseHandle(file);
