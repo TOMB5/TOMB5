@@ -581,7 +581,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	if (WeatherType != 0)
 #endif
 	{
-		DoRain();
+		//DoRain();
 	}
 
 	//loc_64E50
