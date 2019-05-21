@@ -1274,6 +1274,21 @@ void OpenStreamFile(char* path)
 		Log(LT_Default, "FileReset In OpenStreamFile");
 	}
 }
+void ACMSetVolume()
+{
+	int vol;
+
+	if (opt_MusicVolume == 0)
+		vol = -10000;
+	else
+		vol = -4000 * (100 - opt_MusicVolume) / 100;
+
+	Log(LT_Default, "ACMSetVolume = %d", vol);
+
+	if (ACMSoundBuffer)
+		ACMSoundBuffer->SetVolume(vol);
+}
+
 void SetupNotifications()
 {
 	Unimpl();
