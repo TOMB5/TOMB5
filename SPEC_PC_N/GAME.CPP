@@ -20,7 +20,7 @@ DWORD dword_921684;
 DWORD dword_7EE0D4;
 BYTE tsv_buffer[8192];
 DWORD dword_57A018;
-
+DWORD dword_51CE58 = 0;
 void InitFX()// (F)
 {
 	if (App.Flags & WA_BACK_BUFFER)  

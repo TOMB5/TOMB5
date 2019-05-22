@@ -58,7 +58,7 @@ extern uint32_t global_ambient;
 
 extern SNOWFLAKE raindrops[];
 extern SNOWFLAKE snowflakes[];
-
+extern D3DTLVERTEX vert_buf[1024];
 
 extern float sort3d_bufferbf[][10];
 extern short info3d_bufferbf[];

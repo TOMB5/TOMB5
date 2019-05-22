@@ -56,6 +56,11 @@ extern sint32		*phd_mxptr;				/* matrix pointer....*/
 extern sint32		phd_oopersp;
 extern float* phd_dxptr;
 
+extern float clip_xmin;
+extern float clip_xmax;
+extern float clip_ymin;
+extern float clip_ymax;
+
 extern	float		one;				// in 3dinsert.cpp
 extern	float		f_znear;			// phd_znear
 extern	float		f_zfar;				// phd_zfar
@@ -90,6 +95,8 @@ extern DWORD dword_C86BE8;
 extern DWORD dword_C713D4;
 extern DWORD dword_C713DC;
 extern DWORD dword_C713E0;
+
+extern DWORD dword_51CE58;
 
 extern D3DMATRIX transform_projection;
 
