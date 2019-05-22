@@ -427,7 +427,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 
 void CalculateSpotCams()//37ED0(<), 383D0(?) 
 {
-#if !PC_VERSION
+#if !PC_VERSION || true
 	long cpx; // stack offset -96
 	long cpy; // stack offset -92
 	long cpz; // stack offset -88
@@ -1086,16 +1086,25 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 
 long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 {
-	int span;
-	long* k;
-	long c1;
-	long c2;
+	long c2 = nk - 3;
+	long c1 = x * c2 << 16 >> 16;
+	long span = c1 >> 16;
+	if (c1 >> 16 >= c2) span = nk - 4;
+	int v5 = knots[span];
+	int v6 = knots[span + 2];
+	int nka = knots[span + 3] >> 1;
+	int v7 = knots[span + 1];
+	long a2 = (c1 - (span << 16));
+	long a4 = ((v5 + (((~v5 >> 1) + nka + v7 + (v7 >> 1) - (v6 >> 1) - v6) * (c1 - (span << 16)) >> 16) - (2 * v7) + (2 * v6) - (v7 >> 1) - nka) * (c1 - (span << 16)) >> 16);
+	long a3 = ((~v5 >> 1) + (v6 >> 1) + a4);
+	long a1 = a3 * a2 >> 16;
+	return (int)(v7 + a1);
 
-	c2 = nk - 3;
+	/*long c2 = nk - 3;
 
-	c1 = MULFP(x, c2 << 16);
+	long c1 = MULFP(x, c2 << 16);
 
-	span = c1 >> 16;
+	int span = c1 >> 16;
 
 	if (span > c2)
 	{
@@ -1105,7 +1114,18 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 	//loc_375A0
 	c1 -= span << 16;
 
-	k = &knots[span];
+	long* k = &knots[span];
 
-	return (MULFP(MULFP(MULFP((((k[0] ^ -1) >> 1) + (k[1]) + (k[1] >> 1)) - ((k[2]) + (k[2] >> 1)) + (k[3] >> 1), c1) + ((k[0]) - ((k[1] << 1) + (k[1] >> 1)) + (k[2] << 1) - (k[3] >> 1)), c1) + (((k[0] ^ -1) >> 1) + (k[2] >> 1)), c1)) + k[1];
+	return (MULFP(MULFP(
+		MULFP(
+			((~k[0] / 2) + (k[1]) + (k[1] / 2)) - ((k[2]) + (k[2] / 2)) + (k[3] / 2), 
+			c1) 
+		+ 
+		((k[0]) - ((k[1] * 2) + (k[1] / 2)) + (k[2] * 2) - (k[3] / 2)),
+		c1) 
+		+ 
+		(((~k[0]) / 2) + (k[2] / 2)), 
+		c1)) 
+	+ 
+		k[1];*/
 }
