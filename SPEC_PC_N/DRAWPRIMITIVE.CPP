@@ -136,11 +136,11 @@ void SubdivideTri (D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, OBJECT_
 	Unimpl();
 }
 
-void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
+void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
 {
 	if (e4b100)
 	{
-		AddQuadClippedSorted(v, v1, v2, v3, v4, tex, a7);
+		AddQuadClippedSorted(v, v1, v2, v3, v4, tex, dside);
 	}
 	else
 	{
@@ -148,7 +148,7 @@ void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEX
 
 		if (z >= 3500.0)
 		{
-			AddQuadClippedSorted(v, v1, v2, v3, v4, tex, a7);
+			AddQuadClippedSorted(v, v1, v2, v3, v4, tex, dside);
 		}
 		else
 		{
@@ -164,15 +164,15 @@ void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEX
 			face[2] = d9ab34[v3];
 			face[3] = d9ab34[v4];
 
-			SubdivideQuad(&v[v1], &v[v2], &v[v3], &v[v4], tex, a7, num, face);
+			SubdivideQuad(&v[v1], &v[v2], &v[v3], &v[v4], tex, dside, num, face);
 		}
 	}
 }
-void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
+void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
 	if (e4b100)
 	{
-		AddTriClippedSorted(v, v1, v2, v3, tex, a7);
+		AddTriClippedSorted(v, v1, v2, v3, tex, dside);
 	}
 	else
 	{
@@ -180,7 +180,7 @@ void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex
 
 		if (z >= 3500.0)
 		{
-			AddTriClippedSorted(v, v1, v2, v3, tex, a7);
+			AddTriClippedSorted(v, v1, v2, v3, tex, dside);
 		}
 		else
 		{
@@ -195,23 +195,12 @@ void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex
 			face[1] = d9ab34[v2];
 			face[2] = d9ab34[v3];
 
-			SubdivideTri(&v[v1], &v[v2], &v[v3], tex, a7, num, face);
+			SubdivideTri(&v[v1], &v[v2], &v[v3], tex, dside, num, face);
 		}
 	}
 }
 
-void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
-{
-	d9ab34;
-	Unimpl();
-}
-void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
-{
-	d9ab34;
-	Unimpl();
-}
-
-void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
+void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
 {
 	WORD vp1 = d9ab34[v1];
 	WORD vp2 = d9ab34[v2];
@@ -228,7 +217,150 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 	{
 		if ((vp1 | vp2 | vp3 | vp4) & 0x8000u)
 		{
-			AddTriClippedSorted(v, v1b, v2, v3, tex, a7);
+			AddTriClippedZBuffer(v, v1b, v2, v3, tex, dside);
+
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+
+			newtex.vertices[0] = tex->vertices[0];
+			newtex.vertices[1] = tex->vertices[2];
+			newtex.vertices[2] = tex->vertices[3];
+
+			AddTriClippedZBuffer(v, v1b, v3, v4, &newtex, dside);
+
+			return;
+		}
+
+		if (dside || !PtrVisible(&v[v1b], &v[v2], &v[v3b]))
+		{
+			D3DTLVERTEX* vt2 = &v[v2];
+
+			if (PtrVisible(&v[v1], &v[v2], &v[v3]))
+			{
+				if (!dside)
+					return;
+
+				SWAP(v1b, v3b);
+
+				newtex.attribute = tex->attribute;
+				newtex.new_flags = tex->new_flags;
+				newtex.tile_and_flag = tex->tile_and_flag;
+
+				newtex.vertices[0] = tex->vertices[2];
+				newtex.vertices[1] = tex->vertices[1];
+				newtex.vertices[2] = tex->vertices[0];
+				newtex.vertices[3] = tex->vertices[3];
+
+				next = &newtex;
+			}
+			else
+			{
+				next = tex;
+			}
+
+			if (d9ab34[v1b] | d9ab34[v2] | d9ab34[v3b] | d9ab34[v4])
+			{
+				AddTriClippedZBuffer(v, v1b, v2, v3b, next, dside);
+
+				newtex.attribute = tex->attribute;
+				newtex.new_flags = tex->new_flags;
+				newtex.tile_and_flag = tex->tile_and_flag;
+
+				newtex.vertices[0] = tex->vertices[0];
+				newtex.vertices[1] = tex->vertices[2];
+				newtex.vertices[2] = tex->vertices[3];
+
+				AddTriClippedZBuffer(v, v1b, v3b, v4, &newtex, dside);
+			}
+			else
+			{
+				TLVERTEX* vptr;
+				DWORD* cnt_ptr;
+
+				FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
+
+				D3DTLVERTEX* vp1b = &v[v1b];
+
+				vptr->v.sx = vp1b->sx;
+				vptr->v.sy = vp1b->sy;
+				vptr->v.sz = f_a - f_boo * vp1b->rhw;
+				vptr->v.rhw = vp1b->rhw;
+				vptr->v.color = vp1b->color;
+				vptr->v.specular = vp1b->specular;
+				vptr->v.tu = next->vertices[0].x;
+				vptr->v.tv = next->vertices[0].y;
+
+				vptr[3] = vptr[0];
+
+				vptr++;
+
+				vptr->v.sx = vt2->sx;
+				vptr->v.sy = vt2->sy;
+				vptr->v.sz = f_a - f_boo * vt2->rhw;
+				vptr->v.rhw = vt2->rhw;
+				vptr->v.color = vt2->color;
+				vptr->v.specular = vt2->specular;
+				vptr->v.tu = next->vertices[1].x;
+				vptr->v.tv = next->vertices[1].y;
+
+				vptr++;
+
+				D3DTLVERTEX* vt3 = &v[v3b];
+
+				vptr->v.sx = vt3->sx;
+				vptr->v.sy = vt3->sy;
+				vptr->v.sz = f_a - f_boo * vt3->rhw;
+				vptr->v.rhw = vt3->rhw;
+				vptr->v.color = vt3->color;
+				vptr->v.specular = vt3->specular;
+				vptr->v.tu = next->vertices[2].x;
+				vptr->v.tv = next->vertices[2].y;
+
+				vptr[2] = vptr[0];
+
+				vptr++;
+
+				D3DTLVERTEX* vt4 = &v[v4];
+
+				vptr->v.sx = vt4->sx;
+				vptr->v.sy = vt4->sy;
+				vptr->v.sz = f_a - f_boo * vt4->rhw;
+				vptr->v.rhw = vt4->rhw;
+				vptr->v.color = vt4->color;
+				vptr->v.specular = vt4->specular;
+				vptr->v.tu = next->vertices[3].x;
+				vptr->v.tv = next->vertices[3].y;
+
+				d9ab1c += 2;
+			}
+		}
+	}
+}
+void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
+{
+	d9ab34;
+	Unimpl();
+}
+
+void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
+{
+	WORD vp1 = d9ab34[v1];
+	WORD vp2 = d9ab34[v2];
+	WORD vp3 = d9ab34[v3];
+	WORD vp4 = d9ab34[v4];
+
+	OBJECT_TEXTURE newtex;
+	OBJECT_TEXTURE* next;
+
+	int v1b = v1;
+	int v3b = v3;
+
+	if (vp1 & vp2 & vp3 & vp4)
+	{
+		if ((vp1 | vp2 | vp3 | vp4) & 0x8000u)
+		{
+			AddTriClippedSorted(v, v1b, v2, v3, tex, dside);
 			
 			newtex.attribute = tex->attribute;
 			newtex.new_flags = tex->new_flags;
@@ -238,7 +370,7 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 			newtex.vertices[1] = tex->vertices[2];
 			newtex.vertices[2] = tex->vertices[3];
 
-			AddTriClippedSorted(v, v1b, v3, v4, &newtex, a7);
+			AddTriClippedSorted(v, v1b, v3, v4, &newtex, dside);
 
 			return;
 		}
@@ -247,7 +379,7 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 
 		if (PtrVisible(&v[v1], &v[v2], &v[v3]))
 		{
-			if (!a7)
+			if (!dside)
 				return;
 
 			SWAP(v1b, v3b);
@@ -268,11 +400,11 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 			next = tex;
 		}
 
-		if (a7 || !PtrVisible(&v[v1b], &v[v2], &v[v3b]))
+		if (dside || !PtrVisible(&v[v1b], &v[v2], &v[v3b]))
 		{
 			if (d9ab34[v1b] | d9ab34[v2] | d9ab34[v3b] | d9ab34[v4])
 			{
-				AddTriClippedSorted(v, v1b, v2, v3b, next, a7);
+				AddTriClippedSorted(v, v1b, v2, v3b, next, dside);
 
 				newtex.attribute = tex->attribute;
 				newtex.new_flags = tex->new_flags;
@@ -282,7 +414,7 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 				newtex.vertices[1] = tex->vertices[2];
 				newtex.vertices[2] = tex->vertices[3];
 
-				AddTriClippedSorted(v, v1b, v3b, v4, &newtex, a7);
+				AddTriClippedSorted(v, v1b, v3b, v4, &newtex, dside);
 			}
 			else
 			{
@@ -392,7 +524,7 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 	}
 }
 
-void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
+void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
 	d9ab34;
 	Unimpl();
@@ -625,9 +757,232 @@ void DoMonitorScreen()
 	Unimpl();
 }
 
+void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* parent)
+{
+	struct room_info* r = &room[room_number];
+
+	if (r->left <= parent->test_left &&
+		r->right >= parent->test_right &&
+		r->top <= parent->test_top &&
+		r->bottom >= parent->test_bottom)
+		return;
+
+	int left = parent->test_right;
+	int right = parent->test_left;
+	int top = parent->test_bottom;
+	int bottom = parent->test_top;
+
+	struct door_vbuf* dest = vbufdoor;
+	int t5 = 0;
+	int t6 = 0;
+
+	for (int i = 0; i < 4; i++, dest++)
+	{
+		int xv = vbufdoor[i].xv =
+			phd_mxptr[M00] * portal->Vertices[i].x +
+			phd_mxptr[M01] * portal->Vertices[i].y +
+			phd_mxptr[M02] * portal->Vertices[i].z +
+			phd_mxptr[M03];
+
+		int yv = vbufdoor[i].yv =
+			phd_mxptr[M10] * portal->Vertices[i].x +
+			phd_mxptr[M11] * portal->Vertices[i].y +
+			phd_mxptr[M12] * portal->Vertices[i].z +
+			phd_mxptr[M13];
+
+		int zv = vbufdoor[i].zv =
+			phd_mxptr[M20] * portal->Vertices[i].x +
+			phd_mxptr[M21] * portal->Vertices[i].y +
+			phd_mxptr[M22] * portal->Vertices[i].z +
+			phd_mxptr[M23];
+
+		if (zv > 0)
+		{
+			if (zv > 20480)
+				t6++;
+
+			zv /= phd_persp;
+
+			int xs, ys;
+
+			if (zv)
+			{
+				xs = xv / zv + 256;
+				ys = yv / zv + 120;
+			}
+			else
+			{
+				xs = xv >= 0 ? phd_right : phd_left;
+				ys = yv >= 0 ? phd_bottom : phd_top;
+			}
+
+			if (xs - 1 < left)
+				left = xs - 1;
+
+			if (xs + 1 > right)
+				right = xs + 1;
+
+			if (ys - 1 < top)
+				top = ys - 1;
+
+			if (ys + 1 > bottom)
+				bottom = ys + 1;
+		}
+		else
+		{
+			t5++;
+		}
+	}
+
+	if (t5 == 4 || t6 == 4)
+		return;
+
+	if (t5 > 0)
+	{
+		dest = vbufdoor;
+
+		struct door_vbuf* last = dest + 3;
+
+		for (int i = 0; i < 4; i++, last = dest, dest++)
+		{
+			if (dest->zv < 0 ^ last->zv < 0)
+			{
+				if (dest->xv < 0 && last->xv < 0)
+				{
+					left = 0;
+				}
+				else if (dest->xv > 0 && last->xv > 0)
+				{
+					right = 511;
+				}
+				else
+				{
+					left = 0;
+					right = 511;
+				}
+
+				if (dest->yv < 0 && last->yv < 0)
+				{
+					top = 0;
+				}
+				else if (dest->yv > 0 && last->yv > 0)
+				{
+					bottom = 239;
+				}
+				else
+				{
+					top = 0;
+					bottom = 239;
+				}
+			}
+		}
+	}
+
+	if (left < parent->test_left)
+		left = parent->test_left;
+
+	if (right > parent->test_right)
+		right = parent->test_right;
+
+	if (top < parent->test_top)
+		top = parent->test_top;
+
+	if (bottom > parent->test_bottom)
+		bottom = parent->test_bottom;
+
+	if (left >= right || top >= bottom)
+		return;
+
+	if (r->bound_active & 2)
+	{
+		if (left < r->test_left)
+			r->test_left = left;
+
+		if (top < r->test_top)
+			r->test_top = top;
+
+		if (right > r->test_right)
+			r->test_right = right;
+
+		if (bottom > r->test_bottom)
+			r->test_bottom = bottom;
+	}
+	else
+	{
+		bound_list[bound_end++ % 128] = room_number;
+
+		r->bound_active |= 2;
+
+		r->test_left = left;
+		r->test_right = right;
+		r->test_top = top;
+		r->test_bottom = bottom;
+	}
+}
+
 void GetRoomBounds()
 {
-	Unimpl();
+	bound_start = 0;
+	bound_end = 1;
+
+	while (bound_start != bound_end)
+	{
+		int current = bound_list[bound_start++ % 128];
+		room_info* r = &room[current];
+		r->bound_active -= 2;
+
+		if (r->test_left < r->left)
+			r->left = r->test_left;
+		if (r->test_top < r->top)
+			r->top = r->test_top;
+		if (r->test_right > r->right)
+			r->right = r->test_right;
+		if (r->test_bottom > r->bottom)
+			r->bottom = r->test_bottom;
+
+		if (!(r->bound_active & 1))
+		{
+			draw_rooms[number_draw_rooms++] = current;
+			r->bound_active |= 1;
+
+			if (r->flags & RF_SKYBOX_VISIBLE)
+				outside = RF_SKYBOX_VISIBLE;
+		}
+
+		if (r->flags & RF_SKYBOX_VISIBLE)
+		{
+			if (r->left < outside_left)
+				outside_left = r->left;
+			if (r->right > outside_right)
+				outside_right = r->right;
+			if (r->top < outside_top)
+				outside_top = r->top;
+			if (r->bottom > outside_bottom)
+				outside_bottom = r->bottom;
+		}
+
+		mPushMatrix();
+		mTranslateAbsXYZ(r->x, r->y, r->z);
+
+		short* door;
+		if ((door = r->door))
+		{
+			tr_room_portal* portal = (tr_room_portal*)(door + 1);
+			for (short i = *door++; i > 0; i--, portal++)
+			{
+				if (portal->Normal.x * (r->x + portal->Vertices[0].x - w2v_matrix[M03]) +
+					portal->Normal.y * (r->y + portal->Vertices[0].y - w2v_matrix[M13]) +
+					portal->Normal.z * (r->z + portal->Vertices[0].z - w2v_matrix[M23])
+					>= 0)
+				{
+					continue;
+				}
+
+				SetRoomBounds(portal, portal->AdjoiningRoom, r);
+			}
+		}
+		mPopMatrix();
+	}
 }
 
 void InitialiseFogBulbs()// (F)
@@ -862,9 +1217,172 @@ void DrawSpiders()
 	Unimpl();
 }
 
-void InsertRoom(room_info* r)
+DWORD dword_57A508;
+float room_top_flt, room_left_flt, room_bottom_flt, room_right_flt;
+float room_top_flt_2, room_left_flt_2, room_bottom_flt_2, room_right_flt_2;
+tr5_vertex cam_pos_flt, cam_tar_flt, cam_dir_flt;
+room_info* dword_7DFC0C;
+DWORD dword_7EE0C8;
+WORD word_511A68[8][3] = 
+{
+	{ 0, 1, 2 }, 
+	{ 3, 1, 2 }, 
+	{ 0, 1, 5 }, 
+	{ 3, 1, 5 }, 
+	{ 0, 4, 2 }, 
+	{ 3, 4, 2 },
+	{ 0, 4, 5 }, 
+	{ 3, 4, 5 }
+};
+tr5_vertex dword_921618[8];
+
+bool CheckBoundsClip(bounding_box_f* bbox)
+{
+	float minX = 10000, maxX = -10000;
+	float minY = 10000, maxY = -10000;
+	float minZ = 10000, maxZ = -10000;
+
+	auto ptr = (float*)bbox;
+
+	for (int i = 0; i < 8; i++)
+	{
+		auto idx = word_511A68[i];
+
+		float f1 = ptr[idx[0]];
+		float f2 = ptr[idx[1]];
+		float f3 = ptr[idx[2]];
+
+		float ox = App.ViewMatrix._41 + App.ViewMatrix._31 * f3 + App.ViewMatrix._21 * f2 + App.ViewMatrix._11 * f1;
+		float oy = App.ViewMatrix._42 + App.ViewMatrix._32 * f3 + App.ViewMatrix._22 * f2 + App.ViewMatrix._12 * f1;
+		float oz = App.ViewMatrix._43 + App.ViewMatrix._33 * f3 + App.ViewMatrix._23 * f2 + App.ViewMatrix._13 * f1;
+
+		dword_921618[i] = { ox, oy, oz };
+
+		float z = MAX(f_znear, oz);
+		float persp = f_persp / z;
+		float x = persp * ox + f_centerx;
+		float y = persp * oy + f_centery;
+
+		if (x < minX)
+			minX = x;
+		if (x > maxX)
+			maxX = x;
+
+		if (y < minY)
+			minY = y;
+		if (y > maxY)
+			maxY = y;
+
+		if (z < minZ)
+			minZ = z;
+		if (z > maxZ)
+			maxZ = z;
+
+		if (minX < clip_xmin)
+			minX = clip_xmin;
+		if (maxX > clip_xmax)
+			maxX = clip_xmax;
+		if (minY < clip_ymin)
+			minY = clip_ymin;
+		if (maxY > clip_ymax)
+			maxY = clip_ymax;
+	}
+
+	return minX <= room_right_flt_2
+		&& maxX >= room_left_flt_2
+		&& minY <= room_bottom_flt_2
+		&& maxY >= room_top_flt_2;
+}
+
+D3DTLVERTEX vert_buf[1024];
+
+int BuildRoomletLights(ROOMLET* r)
 {
 	Unimpl();
+	return 0;
+}
+
+void RoomletTransformLight(float* vert, int num_vert, int a3, int num_vert_2, int a5)
+{
+	Unimpl();
+}
+
+void InsertRoomlet(ROOMLET* r)
+{
+	if (r->NumLayerVertices == 0)
+		return;
+
+	RoomletTransformLight(
+		(float*)r->VerticesOffset, 
+		r->NumLayerVertices, 
+		BuildRoomletLights(r) & 0x7FFFFFFF, 
+		r->NumLayerVertices, 
+		r->UnknownL1);
+
+	char* poly = (char*)r->PolyOffset;
+
+	for(int i = 0; i < r->NumLayerRectangles; i++, poly += sizeof(tr_face4))
+	{
+		auto face = (tr_face4*)poly;
+		auto tex = &object_textures[face->Texture];
+
+		if (tex->attribute)
+		{
+			AddQuad2(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex, face->DoubleSided);
+		}
+		else
+		{
+			AddQuad1(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex, face->DoubleSided);
+		}
+	}
+
+	for (int i = 0; i < r->NumLayerTriangles; i++, poly += sizeof(tr_face3))
+	{
+		auto face = (tr_face3*)poly;
+		auto tex = &object_textures[face->Texture];
+
+		if (tex->attribute)
+		{
+			AddTri2(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], tex, face->DoubleSided);
+		}
+		else
+		{
+			AddTri1(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], tex, face->DoubleSided);
+		}
+	}
+}
+
+void InsertRoom(room_info* r)
+{
+	room_top_flt = room_top_flt_2 = r->top;
+	room_left_flt = room_left_flt_2 = r->left;
+	room_bottom_flt = room_bottom_flt_2 = r->bottom;
+	room_right_flt = room_right_flt_2 = r->right;
+
+	cam_pos_flt = { (float)camera.pos.x, (float)camera.pos.y, (float)camera.pos.z };
+	cam_tar_flt = { (float)camera.target.x, (float)camera.target.y, (float)camera.target.z };
+
+	float dx = cam_tar_flt.x - cam_pos_flt.x;
+	float dy = cam_tar_flt.y - cam_pos_flt.y;
+	float dz = cam_tar_flt.z - cam_pos_flt.z;
+
+	float norm = sqrt(dx * dx + dy * dy + dz * dz);
+
+	cam_dir_flt = { dx / norm, dy / norm, dz / norm };
+
+	if (r->Unknown1)
+	{
+		dword_7DFC0C = r;
+		dword_7EE0C8 = r->flags & RF_FILL_WATER;
+
+		for(int i = 0; i < r->NumLayers; i++)
+		{
+			if (CheckBoundsClip(&r->LayerOffset[i].BoundingBox))
+				InsertRoomlet(&r->LayerOffset[i]);
+		}
+
+		dword_57A508 = 0xFFFFFF;
+	}
 }
 
 void SaveD3DCameraMatrix()// (F)
@@ -1016,7 +1534,7 @@ void DrawRooms(short current_room)
 	RoomTestThing();
 	BuildFogBulbList();
 	BuildFXFogBulbList();
-
+	Log(LT_Info, "DrawRooms N=%d", number_draw_rooms);
 	for (int i = 0; i < number_draw_rooms; i++)
 	{
 		auto cr = &room[draw_rooms[i]];
@@ -1358,7 +1876,7 @@ void DrawSortList()
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
 							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
-
+							D3DFVF_VERTEX
 							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);

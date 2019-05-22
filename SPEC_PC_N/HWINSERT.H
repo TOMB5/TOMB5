@@ -16,7 +16,7 @@ extern "C" {
 	{
 		DWORD tpage;
 		int cnt;
-		D3DTLVERTEX Vertex[VERTSPERBUCKET];
+		TLVERTEX Vertex[VERTSPERBUCKET];
 	};
 
 	extern TEXTUREBUCKET Bucket[];

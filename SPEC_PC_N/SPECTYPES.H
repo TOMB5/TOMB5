@@ -376,12 +376,9 @@ struct ROOMLET   // 56 bytes
 
 								 // The following 6 floats define the bounding box for the layer
 
-	float    LayerBoundingBoxX1;
-	float    LayerBoundingBoxY1;
-	float    LayerBoundingBoxZ1;
-	float    LayerBoundingBoxX2;
-	float    LayerBoundingBoxY2;
-	float    LayerBoundingBoxZ2;
+
+
+	bounding_box_f BoundingBox;
 
 	uint32_t Filler3;     // Always 0 (4 bytes)
 	void* VerticesOffset;
@@ -704,7 +701,11 @@ struct SNOWFLAKE
 	short room_number;
 };
 
-
+struct TLVERTEX // size = 40 bytes
+{
+	D3DTLVERTEX v;
+	char pad[8];
+};
 
 #pragma pack(pop)
 
