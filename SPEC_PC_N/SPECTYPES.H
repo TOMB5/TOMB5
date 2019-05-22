@@ -333,6 +333,22 @@ struct creature_info {
 	struct lot_info LOT; // size=44, offset=5658
 };
 
+struct tr_face3    // 8 bytes
+{
+	uint16_t Vertices[3];
+	uint16_t Texture : 14;
+	uint16_t UnkFlag : 1;
+	uint16_t DoubleSided : 1;
+};
+
+struct tr_face4    // 12 bytes
+{
+	uint16_t Vertices[4];
+	uint16_t Texture : 14;
+	uint16_t UnkFlag : 1;
+	uint16_t DoubleSided : 1;
+};
+
 struct tr4_mesh_face3    // 10 bytes
 {
 	uint16_t Vertices[3];
