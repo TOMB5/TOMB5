@@ -1594,7 +1594,6 @@ bool DXCreateSampleADPCM(BYTE* buf, int comp, int uncomp, int id)
 		Log(LT_Error, "Incorrect SamplesPerSec");
 
 	stream_hdr.cbSrcLength = comp - fmt->cbSize - 58;
-
 	dword_86BEC4 = acmStreamConvert(stream_acm, &stream_hdr, 20);
 	if (dword_86BEC4)
 		Log(LT_Error, "Stream Convert %d", dword_86BEC4);
