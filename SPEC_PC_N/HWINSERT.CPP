@@ -12,6 +12,34 @@ void InitBuckets()// (F)
 	}
 }
 
+D3DVALUE specular_thing[2080];
+
+void SaveSpecular(TEXTUREBUCKET* buk)
+{
+	for(int i = 0; i < buk->cnt; i++)
+	{
+		if (buk->Vertex[i].specular & 0xFFFFFF)
+		{
+			specular_thing[i] = buk->Vertex[i].specular;
+			buk->Vertex[i].specular = 0;
+		}
+		else
+		{
+			specular_thing[i] = 0;
+		}
+	}
+}
+
+void RestoreSpecular(TEXTUREBUCKET* buk)
+{
+	for (int i = 0; i < buk->cnt; i++)
+	{
+		if (specular_thing[i])
+		{
+			buk->Vertex[i].specular = specular_thing[i];
+		}
+	}
+}
 void DrawBuckets()
 {
 	if (App.tBumpMap)
