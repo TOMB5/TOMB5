@@ -103,11 +103,67 @@ void DrawBuckets()
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ZERO);
+
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
-	}
 
-	Unimpl();
+		auto buk = Bucket;
+		for(int i = 0; i < MAXBUCKETS; i++, buk++)
+		{
+			if (DXTextureList[buk->tpage].alpha_blend && buk->cnt != 0)
+			{
+				SaveSpecular(buk);
+				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[DXTextureList[buk->tpage].other_id].tex));
+				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, buk->Vertex, buk->cnt, D3DDP_DONOTCLIP);
+				RestoreSpecular(buk);
+				App.unk11200001++;
+			}
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_DESTCOLOR);
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_SRCCOLOR);
+
+		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+
+		buk = Bucket;
+		for (int i = 0; i < MAXBUCKETS; i++, buk++)
+		{
+			if (DXTextureList[buk->tpage].alpha_blend && buk->cnt != 0)
+			{
+				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
+				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+				buk->tpage = -1;
+				buk->cnt = 0;
+				App.unk11200001++;
+			}
+		}
+
+		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+
+		buk = Bucket;
+		for (int i = 0; i < MAXBUCKETS; i++, buk++)
+		{
+			if (!DXTextureList[buk->tpage].alpha_blend && buk->cnt != 0)
+			{
+				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
+				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+				buk->tpage = -1;
+				buk->cnt = 0;
+				App.unk11200001++;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < MAXBUCKETS; i++)
+		{
+			DrawBucket(&Bucket[i]);
+		}
+	}
 }
