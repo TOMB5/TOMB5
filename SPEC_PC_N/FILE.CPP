@@ -421,7 +421,7 @@ int numLvlMeshes;
 			DXTextureList[page].surface = surf;
 			DXTextureList[page].width = App.textRes;
 			DXTextureList[page].height = App.textRes;
-			DXTextureList[page].a9 = 0;
+			DXTextureList[page].alpha_blend = 0;
 			DXTextureList[page].a10 = 0;
 			DXTextureList[page].a11 = 0;
 
@@ -450,7 +450,7 @@ int numLvlMeshes;
 			DXTextureList[page].surface = surf;
 			DXTextureList[page].width = App.textRes;
 			DXTextureList[page].height = App.textRes;
-			DXTextureList[page].a9 = 0;
+			DXTextureList[page].alpha_blend = 0;
 			DXTextureList[page].a11 = 0;
 
 			App.lpD3DDevice->SetTexture(0, tex);
@@ -487,7 +487,7 @@ int numLvlMeshes;
 			DXTextureList[page].surface = surf;
 			DXTextureList[page].width = res;
 			DXTextureList[page].height = res;
-			DXTextureList[page].a9 = 0;
+			DXTextureList[page].alpha_blend = 0;
 			DXTextureList[page].other_id = page + numBump / 2;
 			DXTextureList[page].a11 = 0;
 
@@ -585,7 +585,7 @@ int numLvlMeshes;
 				DXTextureList[page].surface = surf;
 				DXTextureList[page].width = 256;
 				DXTextureList[page].height = 256;
-				DXTextureList[page].a9 = 0;
+				DXTextureList[page].alpha_blend = 0;
 				DXTextureList[page].a11 = 0;
 
 				ptr1 += 3 * 256;
@@ -609,7 +609,7 @@ int numLvlMeshes;
 			DXTextureList[page].surface = surf;
 			DXTextureList[page].width = 256;
 			DXTextureList[page].height = 256;
-			DXTextureList[page].a9 = 0;
+			DXTextureList[page].alpha_blend = 0;
 			DXTextureList[page].a11 = 0;
 		}
 
