@@ -1086,6 +1086,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 
 long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 {
+#if PC_VERSION
 	long c2 = nk - 3;
 	long c1 = x * c2 << 16 >> 16;
 	long span = c1 >> 16;
@@ -1099,8 +1100,8 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 	long a3 = ((~v5 >> 1) + (v6 >> 1) + a4);
 	long a1 = a3 * a2 >> 16;
 	return (int)(v7 + a1);
-
-	/*long c2 = nk - 3;
+#else
+	long c2 = nk - 3;
 
 	long c1 = MULFP(x, c2 << 16);
 
@@ -1127,5 +1128,6 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 		(((~k[0]) / 2) + (k[2] / 2)), 
 		c1)) 
 	+ 
-		k[1];*/
+		k[1];
+#endif
 }
