@@ -102,6 +102,12 @@ struct static_info
 	short z_maxc;
 };
 
+struct bounding_box_f
+{
+	float minX, minY, minZ;
+	float maxX, maxY, maxZ;
+};
+
 struct ROOM_LIGHT   // 88 bytes
 {
 	float x, y, z;       // Position of light, in world coordinates

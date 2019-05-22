@@ -49,12 +49,6 @@ char* level_data;
 char* level_data_orig;
 
 #pragma pack(push, 1)
-struct mesh_bbox
-{
-	float minX, minY, minZ;
-	float maxX, maxY, maxZ;
-};
-
 struct mesh_thing
 {
 	tr5_vertex pos;
@@ -77,7 +71,7 @@ struct tr4_mesh
 	void* normals;
 	int attributes;
 	mesh_thing* vert;
-	mesh_bbox bbox;
+	bounding_box_f bbox;
 };
 #pragma pack(pop)
 
