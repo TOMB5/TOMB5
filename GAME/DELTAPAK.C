@@ -3483,14 +3483,14 @@ void handle_cutseq_triggering(int name)//2C3C4(<), 2C6EC(<) (F)
 
 		switch (cutseq_num)
 		{
-		case 28:
-			cutseq_num = 29;
+		case CUT_SPECIAL1:
+			cutseq_num = CUT_SPECIAL2;
 			break;
-		case 29:
-			cutseq_num = 30;
+		case CUT_SPECIAL2:
+			cutseq_num = CUT_SPECIAL3;
 			break;
-		case 30:
-			cutseq_num = 28;
+		case CUT_SPECIAL3:
+			cutseq_num = CUT_SPECIAL1;
 			break;
 		}
 
@@ -3776,14 +3776,14 @@ void handle_cutseq_triggering(int name)//2C3C4(<), 2C6EC(<) (F)
 
 		switch(cutseq_num)
 		{
-		case 28:
-			cutseq_num = 29;
+		case CUT_SPECIAL1:
+			cutseq_num = CUT_SPECIAL2;
 			break;
-		case 29:
-			cutseq_num = 30;
+		case CUT_SPECIAL2:
+			cutseq_num = CUT_SPECIAL3;
 			break;
-		case 30:
-			cutseq_num = 28;
+		case CUT_SPECIAL3:
+			cutseq_num = CUT_SPECIAL1;
 			break;
 		}
 
