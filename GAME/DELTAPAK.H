@@ -1,7 +1,9 @@
 #ifndef DELTAPAK_H
 #define DELTAPAK_H
 
+#if PC_VERSION
 #include "SPECTYPES.H"
+#endif
 #include "STYPES.H"
 #include "OBJECTS.H"
 

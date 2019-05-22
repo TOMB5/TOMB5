@@ -22,6 +22,7 @@
 #include "DEBUG.H"
 #include "DISPLAY.H"
 #include "FILE.H"
+#include "TWOGUN.H"
 
 enum dinfo_type
 {
