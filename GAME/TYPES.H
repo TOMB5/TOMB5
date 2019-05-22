@@ -1,6 +1,16 @@
 #ifndef GTYPES_H
 #define GTYPES_H
 
+#ifndef MATRIX_WRAPPER
+#define MATRIX_WRAPPER
+#if PC_VERSION
+#include <d3dtypes.h>
+typedef D3DMATRIX MatrixThing;
+#else
+typedef struct MATRIX3D MatrixThing;
+#endif
+#endif
+
 // required for NULL macro because if we define it ourselves it shits brixes
 #if PSXPC_TEST
 #include <stdint.h>
