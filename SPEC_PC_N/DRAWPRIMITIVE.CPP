@@ -823,9 +823,18 @@ void DrawLightning()
 	Unimpl();
 }
 
-void DrawTwogunLasers()
+void DrawTwogunLaser(TWOGUN_INFO* tg)
 {
 	Unimpl();
+}
+
+void DrawTwogunLasers()// (F)
+{
+	for(int i = 0; i < 4; i++)
+	{
+		if (twogun[i].life != 0)
+			DrawTwogunLaser(&twogun[i]);
+	}
 }
 
 void DrawGunshells()
