@@ -24,20 +24,17 @@
 #include "FILE.H"
 #include "TWOGUN.H"
 
-enum dinfo_type
+struct dinfo_head
 {
-	DI_LINE = 2,
-	DI_TRI = 3,
-	DI_QUAD = 4,
-	DI_6 = 6
+	float z;
+	short texattr;
+	short tile_and_flag;
+	short num_verts;
+	short e4b100;
 };
 struct dinfo_line // size 92
 {
-	float z;
-	short color;
-	short unk1;
-	short type;
-	short unk3;
+	dinfo_head head;
 	D3DTLVERTEX v1;
 	char pad1[8];
 	D3DTLVERTEX v2;
@@ -46,11 +43,7 @@ struct dinfo_line // size 92
 
 struct dinfo_tri // size 132
 {
-	float z;
-	short texattr;
-	short tile_and_flag;
-	short type;
-	short e4b100;
+	dinfo_head head;
 	D3DTLVERTEX v1;//12
 	char pad1[8];
 	D3DTLVERTEX v2;//52
@@ -61,11 +54,7 @@ struct dinfo_tri // size 132
 
 struct dinfo_quad // size 252
 {
-	float z;//0
-	short texattr;//4
-	short tile_and_flag;//6
-	short type;//8
-	short e4b100;//10
+	dinfo_head head;
 	D3DTLVERTEX v1;//12
 	char pad1[8];
 	D3DTLVERTEX v2;//52
@@ -299,10 +288,10 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 			{
 				auto info = (dinfo_quad*)info3dptrbf;
 
-				info->texattr = next->attribute;
-				info->tile_and_flag = next->tile_and_flag;
-				info->type = DI_6;
-				info->e4b100 = e4b100;
+				info->head.texattr = next->attribute;
+				info->head.tile_and_flag = next->tile_and_flag;
+				info->head.num_verts = 6;
+				info->head.e4b100 = e4b100;
 
 				info3dptrbf += sizeof(*info);
 
@@ -395,7 +384,7 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 				if (e4b100)
 					z = z * 0.25;
 
-				info->z = z;
+				info->head.z = z;
 
 				d9ab1c += 2;
 			}
@@ -413,14 +402,14 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)// (F)
 {
 	auto ptr = (dinfo_line*)info3dptrbf;
-	ptr->unk1 = 0;
-	ptr->color = color;
-	ptr->type = DI_LINE;
+	ptr->head.tile_and_flag = 0;
+	ptr->head.texattr = color;
+	ptr->head.num_verts = 2;
 	info3dptrbf = (short*)(ptr + 1);
 
 	*sort3dptrbf++ = (int)ptr;
 
-	ptr->z = v1->sz;
+	ptr->head.z = v1->sz;
 	surfacenumbf++;
 
 	ptr->v1.sx = v1->sx;
@@ -1317,33 +1306,272 @@ void DrawSortList()
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
 
+	int v3 = 0;
+
 	if (App.lpZBuffer)
 	{
-		S_Warn("No DrawSortList for ZBuffer");
-		if (surfacenumbf < 0)
+		dinfo_head* info = nullptr;
+		int i = 0;
+
+		//S_Warn("No DrawSortList for ZBuffer");
+		if (surfacenumbf <= 0)
 		{
-			// TODO
+			
 		}
 		else
 		{
-			for(int i = 0; i < surfacenumbf; i++)
+			auto ptr = (short**)&sort3d_bufferbf[0][0];
+			for (i = 0; i < surfacenumbf; i++, ptr++)
 			{
-				
+				info = (dinfo_head*)(*ptr);
+
+				if (info->texattr == 1 || info->texattr == 4 || info->texattr == 0)
+					break;
 			}
 		}
+
+		auto vert = Bucket[0].Vertex;
+		auto tile_and_flag = info->tile_and_flag;
+		auto type = info->texattr;
+
+		if (i < surfacenumbf)
+		{
+			auto ptr = (dinfo_head**)sort3d_bufferbf + i;
+
+			for (; i < surfacenumbf; i++)
+			{
+				info = (dinfo_head*)(*ptr);
+
+				if (info->texattr == 1 || info->texattr == 4 || info->texattr == 0)
+				{
+					if (info->tile_and_flag != tile_and_flag || info->texattr != type)
+					{
+						switch(type)
+						{
+						case 0:
+							if (App.lpZBuffer)
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+
+							break;
+						case 1:
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							break;
+						case 2:
+							if (App.lpZBuffer)
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+							break;
+						case 3:
+							if (App.lpZBuffer)
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+
+							break;
+						case 4:
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+
+							if (App.lpZBuffer)
+							{
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+							}
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							if (App.lpZBuffer)
+							{
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, TRUE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+							}
+
+							break;
+						case 6:
+							if (App.lpZBuffer)
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							break;
+						case 7:
+							if (App.lpZBuffer)
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+
+							break;
+						default:
+							break;
+						}
+
+						v3 = 0;
+
+						App.DrawPrimitiveCnt++;
+
+						tile_and_flag = info->tile_and_flag;
+						type = info->texattr;
+						vert = Bucket[0].Vertex;
+						--ptr;
+					}
+					else
+					{
+						auto vptr = (char*)(info + 1);
+						for(int j = 0; j < info->num_verts; j++)
+						{
+							*vert++ = *(D3DTLVERTEX*)vptr;
+							vptr += 40;
+							vert = (D3DTLVERTEX*)((char*)vert + 40);
+						}
+					}
+				}
+
+				ptr++;
+			}
+
+			if (v3)
+				HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+		}
+
+		i = surfacenumbf - 1;
+
+		if (i >= 0)
+		{
+			auto ptr = (short**)&sort3d_bufferbf[0][0];
+			for (; i >= 0; i--, ptr--)
+			{
+				info = (dinfo_head*)(*ptr);
+
+				if (info->texattr == 2 || info->texattr == 3 || info->texattr == 6 || info->texattr == 7)
+					break;
+			}
+		}
+
+		vert = Bucket[0].Vertex;
+		tile_and_flag = info->tile_and_flag;
+		type = info->texattr;
+		int sortptra = 0;
+
+		if (i >= 0)
+		{
+			auto ptr = (dinfo_head**)sort3d_bufferbf + i;
+
+			for(; i >= 0; i--, ptr--)
+			{
+				info = (dinfo_head*)(*ptr);
+
+				if (info->texattr == 2 || info->texattr == 3 || info->texattr == 6 || info->texattr == 7)
+				{
+					if (info->tile_and_flag != tile_and_flag || info->texattr != type)
+					{
+						HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+
+						v3 = 0;
+						tile_and_flag = info->tile_and_flag;
+						type = info->texattr;
+						vert = Bucket[0].Vertex;
+						ptr++;
+						i++;
+					}
+					else
+					{
+						sortptra += info->num_verts;
+
+						if (sortptra >= 2076)
+						{
+							HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+
+							v3 = 0;
+							vert = Bucket[0].Vertex;
+							sortptra = 0;
+						}
+
+						auto vptr = (char*)(info + 1);
+						for (int j = 0; j < info->num_verts; j++, v3++)
+						{
+							*vert = *(D3DTLVERTEX*)vptr;
+							vptr += 40;
+							vert = (D3DTLVERTEX*)((char*)vert + 40);
+						}
+					}
+				}
+			}
+
+			if (v3)
+				HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+		}
 	}
-	//else // LINE 421
+	else // LINE 421
 	{
-		int* ptr = (int*)&sort3d_bufferbf[0][0];
+		auto ptr = (short**)&sort3d_bufferbf[0][0];
 		for(int i = 0; i < surfacenumbf; i++, ptr++)
 		{
-			short* info = (short*)(*ptr);
-			if (info[5] == 4)
+			auto info = (dinfo_head*)(*ptr);
+
+			if (info->e4b100 == 4)
 				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, FALSE);
 
-			HWR_DrawRoutine(&info[6], info[4], info[3], info[2]);
+			HWR_DrawRoutine((short*)(info + 1), info->num_verts, info->tile_and_flag, info->texattr);
 
-			if (info[5] == 4)
+			if (info->e4b100 == 4)
 				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, TRUE);
 		}
 	}
