@@ -90,22 +90,22 @@ typedef unsigned int uintptr_t;
 unsigned char gfGameMode = 1;
 unsigned char gfNumMips;
 int scroll_pos;
-char DEL_playingamefmv;
-char num_fmvs;
+char DEL_playingamefmv = 0;
+char num_fmvs = 0;
 char fmv_to_play[2];
 unsigned short dels_cutseq_selector_flag;
-unsigned short dels_cutseq_player;
+unsigned short dels_cutseq_player = 0;
 char Chris_Menu;
-unsigned char gfLegendTime;
-unsigned char bDoCredits;
-static unsigned char gfCutNumber;
+unsigned char gfLegendTime = 0;
+unsigned char bDoCredits = 0;
+static unsigned char gfCutNumber = 0;
 unsigned char gfInitialiseGame = 1;
 long nframes = 1;
-unsigned char gfNumPickups;
-unsigned char gfNumTakeaways;
+unsigned char gfNumPickups = 0;
+unsigned char gfNumTakeaways = 0;
 char CanLoad;
 struct GAMEFLOW* Gameflow;
-unsigned short* gfStringOffset;
+unsigned short* gfStringOffset = 0;
 char* gfStringWad;
 unsigned short* gfFilenameOffset;
 char* gfFilenameWad;
@@ -805,6 +805,20 @@ void QuickControlPhase()//10274(<), 10264(<) (F) (*) (D) (ND)
 #endif
 }
 
+#if PC_VERSION
+bool initial_fmv_played = false;
+
+void DoFrontEndOneShotStuff()
+{
+	if (!initial_fmv_played)
+	{
+		PlayFmvNow(0);
+		PlayFmvNow(1);
+		initial_fmv_played = true;
+	}
+}
+#endif
+
 void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*) (D) (ND)
 {
 /*#if PC_VERSION
@@ -817,6 +831,11 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 	int i;
 
 	CreditsDone = 0;
+
+#if PC_VERSION
+	DoFrontEndOneShotStuff();
+#endif
+
 	CanLoad = 0;
 
 #if PC_VERSION
@@ -877,6 +896,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 
 	InitialiseCamera();
 
+#if PC_VERSION
+	dword_51CE58 = 1;
+#endif
+
 	if (!bDoCredits)
 	{
 		trigger_title_spotcam(1);
@@ -890,7 +913,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 	else
 	{
 		//loc_10730
-		cutseq_num = 28;
+		cutseq_num = CUT_SPECIAL1;
 		SetFadeClip(32, 1);
 		ScreenFadedOut = 1;
 		ScreenFade = 255;
@@ -1057,7 +1080,10 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 
 #if PSX_VERSION || PSXPC_VERSION
 	input = 0;
-#else
+#elif PC_VERSION
+	if (gfLevelComplete == 1 && gfStatus != 2)
+		PlayFmvNow(2);
+
 	if (gfStatus != 4)
 		input = 0;
 #endif
