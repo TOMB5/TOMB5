@@ -40,6 +40,61 @@ void RestoreSpecular(TEXTUREBUCKET* buk)
 		}
 	}
 }
+
+void DrawBucket(TEXTUREBUCKET* buk)
+{
+	if (buk->tpage == 1) // here be dragons
+		buk->tpage = 1;
+
+	if (buk->cnt != 0)
+	{
+		if (DXTextureList[buk->tpage].alpha_blend && App.tBumpMap)
+		{
+			SaveSpecular(buk);
+
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE, FALSE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ZERO);
+
+			App.lpD3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+			App.lpD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
+			App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+			App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+
+			DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[DXTextureList[buk->tpage].other_id].tex));
+
+			App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, buk->Vertex, buk->cnt, D3DDP_DONOTCLIP);
+
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_DESTCOLOR);
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_SRCCOLOR);
+
+			App.lpD3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+			App.lpD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+			App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+
+			RestoreSpecular(buk);
+
+			App.unk11200001++;
+		}
+
+		Log(LT_Info, "DrawBucket run");
+
+		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
+
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		buk->tpage = -1;
+		buk->cnt = 0;
+
+		if (App.tBumpMap)
+			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+
+		App.unk11200001++;
+	}
+}
+
 void DrawBuckets()
 {
 	if (App.tBumpMap)
