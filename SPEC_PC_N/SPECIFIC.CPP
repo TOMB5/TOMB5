@@ -1015,6 +1015,41 @@ void S_SetReverbType(short reverb)
 
 }
 
+void PlayFMV(int num)
+{
+	Unimpl();
+}
+
+void PlayFmvNow(int num)
+{
+	switch (num)
+	{
+	case 0:
+		PlayFMV(0);
+		break;
+	case 1:
+		PlayFMV(1);
+		break;
+	case 2:
+		PlayFMV(2);
+		break;
+	case 3:
+		PlayFMV(3);
+		PlayFMV(4);
+		break;
+	case 4:
+		PlayFMV(5);
+		PlayFMV(6);
+		break;
+	case 5:
+		PlayFMV(7);
+		break;
+	case 6:
+		PlayFMV(8);
+		break;
+	}
+}
+
 #ifdef __cplusplus
 //}
 #endif
