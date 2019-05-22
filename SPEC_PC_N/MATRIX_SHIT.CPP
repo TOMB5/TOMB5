@@ -33,6 +33,11 @@
 	int32_t		phd_oopersp;
 	float* phd_dxptr;
 
+	float clip_xmin;
+	float clip_xmax;
+	float clip_ymin;
+	float clip_ymax;
+
 	float		one;				// in 3dinsert.cpp
 	float		f_znear;			// phd_znear
 	float		f_zfar;				// phd_zfar
