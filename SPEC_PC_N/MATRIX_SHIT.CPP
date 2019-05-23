@@ -33,6 +33,11 @@
 	int32_t		phd_oopersp;
 	float* phd_dxptr;
 
+	float clip_xmin;
+	float clip_xmax;
+	float clip_ymin;
+	float clip_ymax;
+
 	float		one;				// in 3dinsert.cpp
 	float		f_znear;			// phd_znear
 	float		f_zfar;				// phd_zfar
@@ -45,7 +50,12 @@
 	float		f_invzfar;			// 1.0/phd_zfar (actually 65535/65536 at the moment)
 	float		f_oneozfar;			// one/phd_zfar
 	float		f_a, f_b, f_boo;		// a/b factors for z buffering (f_boo is f_b/one)
-
+	float f_persp_bis;
+	float f_znear3;
+	float f_persp_bis_over_znear3;
+	float LfAspectCorrection;
+	float flt_55D1F8;
+	float dword_50A440 = SECTOR(32768);
 	int32_t		w2v_matrix[12];		// World to View Matrix...
 	float		w2v_matrix_f[12];		// World to View Matrix...
 	int32_t		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
@@ -54,7 +64,6 @@
 
 	D3DMATRIX transform_projection;
 	D3DMATRIX w2v_matrix_d3d;
-	static float LfAspectCorrection;
 
 	void D3DIdentityMatrix(LPD3DMATRIX mat)// (F)
 	{
@@ -402,6 +411,18 @@
 		*(nptr + M12) = *(mptr + M12) = (int32_t)(float(*(mptr + M12))*LfAspectCorrection);
 
 		SetD3DMatrix(&w2v_matrix_d3d, w2v_matrix);
+	}
+
+	void D3DNormalise(LPD3DMATRIX m)
+	{
+		long double v1;
+
+		if (m->_11 == 0.0 && m->_12 == 0.0 && m->_13 == 0.0)
+			return;
+		v1 = 1.0 / sqrt(m->_13 * m->_13 + m->_12 * m->_12 + m->_11 * m->_11);
+		m->_11 = v1 * m->_11;
+		m->_12 = v1 * m->_12;
+		m->_13 = v1 * m->_13;
 	}
 
 	void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest)// (F)

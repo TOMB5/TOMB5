@@ -1,6 +1,16 @@
 #ifndef GTYPES_H
 #define GTYPES_H
 
+#ifndef MATRIX_WRAPPER
+#define MATRIX_WRAPPER
+#if PC_VERSION
+#include <d3dtypes.h>
+typedef D3DMATRIX MatrixThing;
+#else
+typedef struct MATRIX3D MatrixThing;
+#endif
+#endif
+
 // required for NULL macro because if we define it ourselves it shits brixes
 #if PSXPC_TEST
 #include <stdint.h>
@@ -182,16 +192,9 @@ enum font_flags
 	FF_UNK10 = (1 << 10),	// 0x0400
 	FF_UNK11 = (1 << 11),	// 0x0800
 	FF_SMALL = (1 << 12),	// 0x1000
-	FF_UNK13 = (1 << 13),	// 0x2000 Blinks text
+	FF_BLINK = (1 << 13),	// 0x2000
 	FF_R_JUSTIFY = (1 << 14),	// 0x4000
 	FF_CENTER = (1 << 15),	// 0x8000
-};
-
-enum PRINT_OPTIONS
-{
-	PRINT_BLINK = 1 << 13,			// 0x2000
-	PRINT_UNK14 = 1 << 14,			// 0x4000
-	PRINT_CENTER = 1 << 15,			// 0x8000
 };
 
 enum zone_type

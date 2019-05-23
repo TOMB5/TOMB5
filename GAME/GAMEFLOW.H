@@ -543,6 +543,8 @@ extern unsigned char gfPickups[16];
 extern unsigned char gfTakeaways[16];
 #if PC_VERSION
 extern char* gfScriptFile;
+
+extern const char* screens[5];
 #endif
 
 #endif

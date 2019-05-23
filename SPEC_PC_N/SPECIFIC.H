@@ -55,6 +55,8 @@ extern void SetFogColor(uint8_t r, uint8_t g, uint8_t b);
 
 extern void ClearFXFogBulbs();
 
+extern void PlayFmvNow(int num);
+
 extern void SetFade(int a1, int a2);
 
 extern void S_InitialiseScreen();
