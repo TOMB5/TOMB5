@@ -1,9 +1,24 @@
-	OPT L.,C+,at+
+	opt at-,w-,c+,m-
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF mLoadMatrix, phd_GetVectorAngles, mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mmPushMatrix, mmPopMatrix, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mClipBoundingBox
+	XDEF SetRotation, mLoadMatrix, phd_GetVectorAngles, mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mmPushMatrix, mmPopMatrix, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mClipBoundingBox
 	XREF mSqrt, viewer, phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
+
+;0x7696C
+SetRotation:
+	lw      a0, Matrix-GP_ADDR(gp)
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	ctc2    t4, r4
+	sw      t0, 0(a0)
+	sw      t1, 4(a0)
+	sw      t2, 8(a0)
+	sw      t3, 0xC(a0)
+	jr      ra
+	sw      t4, 0x10(a0)
 
 ASM_GetBounds:
 	slt     at, t0, a2
@@ -214,9 +229,9 @@ mTranslate:
 
 ;0x76568
 mTranslateAbsXYZ:
-	lw	t0, MatrixStack+0x0-GP_ADDR(gp)
-	lw	t1, MatrixStack+0x4-GP_ADDR(gp)
-	lw	t2, MatrixStack+0x8-GP_ADDR(gp)
+	;lw	t0, MatrixStack+0x0-GP_ADDR(gp)
+	;lw	t1, MatrixStack+0x4-GP_ADDR(gp)
+	;lw	t2, MatrixStack+0x8-GP_ADDR(gp)
 	ctc2	zero, r5
 	ctc2	zero, r6
 	ctc2	zero, r7
@@ -562,21 +577,6 @@ mRotSuperPackedYXZ:
 mRotPackedYXZ:
 	jr	ra
 	nop
-
-;0x7696C
-SetRotation:
-	lw      a0, Matrix-GP_ADDR(gp)
-	ctc2    t0, r0
-	ctc2    t1, r1
-	ctc2    t2, r2
-	ctc2    t3, r3
-	ctc2    t4, r4
-	sw      t0, 0(a0)
-	sw      t1, 4(a0)
-	sw      t2, 8(a0)
-	sw      t3, 0xC(a0)
-	jr      ra
-	sw      t4, 0x10(a0)
 
 ;0x76970
 setrot:
@@ -2494,22 +2494,22 @@ mRotBoundingBoxNoPersp:
 	lhu     t1, 8(a0)
 	lhu     a0, 0xA(a0)
 	lui     t5, 0x1F80
-	sh      a3, 0x1F800000
-	sh      t0, 0x1F800002
-	sh      t1, 0x1F800004
-	sh      t2, 0x1F800008
-	sh      t0, 0x1F80000A
-	sh      t1, 0x1F80000C
-	sh      t2, 0x1F800010
-	sh      t3, 0x1F800012
-	sh      t1, 0x1F800014
-	sh      a3, 0x1F800018
-	sh      t3, 0x1F80001A
-	sh      t1, 0x1F80001C
-	sh      a3, 0x1F800020
-	sh      t0, 0x1F800022
-	sh      a0, 0x1F800024
-	sh      t2, 0x1F800028
+	sh      a3, 0x0(t5)
+	sh      t0, 0x02(t5)
+	sh      t1, 0x04(t5)
+	sh      t2, 0x08(t5)
+	sh      t0, 0x0A(t5)
+	sh      t1, 0x0C(t5)
+	sh      t2, 0x10(t5)
+	sh      t3, 0x12(t5)
+	sh      t1, 0x14(t5)
+	sh      a3, 0x18(t5)
+	sh      t3, 0x1A(t5)
+	sh      t1, 0x1C(t5)
+	sh      a3, 0x20(t5)
+	sh      t0, 0x22(t5)
+	sh      a0, 0x24(t5)
+	sh      t2, 0x28(t5)
 	sh      t0, 0x2A(t5)
 	sh      a0, 0x2C(t5)
 	sh      t2, 0x30(t5)
