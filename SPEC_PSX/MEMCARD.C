@@ -215,7 +215,7 @@ unsigned char mcGetStatus()//620CC(<), 627B0 (F)
 		}//loc_62150
 		else if (cmd == McFuncWriteData)
 		{
-			mcStatus = cmd;
+			mcStatus = 6;
 		}
 		else if (cmd == McFuncAccept)
 		{
