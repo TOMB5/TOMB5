@@ -21,6 +21,8 @@ DWORD dword_7EE0D4;
 BYTE tsv_buffer[8192];
 DWORD dword_57A018;
 DWORD dword_51CE58 = 0;
+float flt_878658[32];
+PHD_VECTOR lookatpos;
 void InitFX()// (F)
 {
 	if (App.Flags & WA_BACK_BUFFER)  

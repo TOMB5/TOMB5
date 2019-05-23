@@ -55,7 +55,7 @@ extern sint32		phd_persp;				/* perspective thang*/
 extern sint32		*phd_mxptr;				/* matrix pointer....*/
 extern sint32		phd_oopersp;
 extern float* phd_dxptr;
-
+extern float flt_878658[32];
 extern float clip_xmin;
 extern float clip_xmax;
 extern float clip_ymin;
@@ -104,8 +104,9 @@ extern DWORD dword_C713E0;
 extern DWORD dword_51CE58;
 
 extern D3DMATRIX transform_projection;
-
+extern PHD_VECTOR lookatpos;
 #define EndOfArray(a) ((a)+ArraySize(a))
+extern void phd_QuickW2VMatrix(float a1, float a2, float a3, int a4, int a5, int a6, int a7);
 extern void D3DNormalise(LPD3DMATRIX m);
 extern void HandleApp(LPARAM lParam, WPARAM wParam);
 extern void D3DIdentityMatrix(LPD3DMATRIX mat);
