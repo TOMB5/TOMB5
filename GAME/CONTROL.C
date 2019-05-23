@@ -1395,6 +1395,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 	//loc_1E3B8
 	return 0;
+#endif
 }
 
 
