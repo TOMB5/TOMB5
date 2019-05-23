@@ -98,6 +98,8 @@ void DrawBucket(TEXTUREBUCKET* buk)
 	if (buk->tpage == 1) // here be dragons
 		buk->tpage = 1;
 
+	Log(LT_Info, "DrawBucket tpage=%d; cnt=%d", buk->tpage, buk->cnt);
+
 	if (buk->cnt != 0)
 	{
 		if (DXTextureList[buk->tpage].alpha_blend && App.tBumpMap)
@@ -131,8 +133,6 @@ void DrawBucket(TEXTUREBUCKET* buk)
 
 			App.unk11200001++;
 		}
-
-		Log(LT_Info, "DrawBucket run");
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
 

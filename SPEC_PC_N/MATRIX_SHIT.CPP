@@ -50,7 +50,12 @@
 	float		f_invzfar;			// 1.0/phd_zfar (actually 65535/65536 at the moment)
 	float		f_oneozfar;			// one/phd_zfar
 	float		f_a, f_b, f_boo;		// a/b factors for z buffering (f_boo is f_b/one)
-
+	float f_persp_bis;
+	float f_znear3;
+	float f_persp_bis_over_znear3;
+	float LfAspectCorrection;
+	float flt_55D1F8;
+	float dword_50A440 = SECTOR(32768);
 	int32_t		w2v_matrix[12];		// World to View Matrix...
 	float		w2v_matrix_f[12];		// World to View Matrix...
 	int32_t		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
@@ -59,7 +64,6 @@
 
 	D3DMATRIX transform_projection;
 	D3DMATRIX w2v_matrix_d3d;
-	static float LfAspectCorrection;
 
 	void D3DIdentityMatrix(LPD3DMATRIX mat)// (F)
 	{

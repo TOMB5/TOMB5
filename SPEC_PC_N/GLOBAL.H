@@ -60,7 +60,12 @@ extern float clip_xmin;
 extern float clip_xmax;
 extern float clip_ymin;
 extern float clip_ymax;
-
+extern float f_persp_bis;
+extern float f_znear3;
+extern float f_persp_bis_over_znear3;
+extern float LfAspectCorrection;
+extern float flt_55D1F8;
+extern float dword_50A440;
 extern	float		one;				// in 3dinsert.cpp
 extern	float		f_znear;			// phd_znear
 extern	float		f_zfar;				// phd_zfar

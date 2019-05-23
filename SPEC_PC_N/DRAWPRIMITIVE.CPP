@@ -1893,6 +1893,8 @@ void ReleaseScreen()
 
 void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// (F)
 {
+	Log(LT_Info, "HWR_DrawRoutine: num=%4d, tex=%4d, type=%4d", num_verts, texture, type);
+
 	switch (type)
 	{
 	case 0:
@@ -2287,10 +2289,10 @@ void DrawSortList()
 	}
 	else // LINE 421
 	{
-		auto ptr = (short**)&sort3d_bufferbf[0][0];
+		auto ptr = (dinfo_head**)sort3d_bufferbf;
 		for(int i = 0; i < surfacenumbf; i++, ptr++)
 		{
-			auto info = (dinfo_head*)(*ptr);
+			auto info = *ptr;
 
 			if (info->e4b100 == 4)
 				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, FALSE);
