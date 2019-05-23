@@ -10,6 +10,8 @@
 #endif
 #if PC_VERSION
 #include "GLOBAL.H"
+#include "DIRECTX.H"
+#include "CALCLARA.H"
 #include "DS.H"
 #endif
 #include "EFFECTS.H"
@@ -960,7 +962,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 #if !PSX_VERSION || PSXPC_TEST
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#if 0//GetBoundsAccurate illegal, crash.
+#if 0 || PC_VERSION//GetBoundsAccurate illegal, crash.
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -1192,7 +1194,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	}
 
 	//loc_281F4
-	if ((camera.type - LOOK_CAMERA) < 2)
+	if ((camera.type ) >= 2)
 	//if ((unsigned)(camera.type - LOOK_CAMERA) < 2)
 	{
 		if (camera.type == COMBAT_CAMERA)
@@ -1349,12 +1351,11 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		}
 
 		//loc_28578
-		if (camera.type != CHASE_CAMERA)
+		if (camera.type != CHASE_CAMERA && camera.flags != 3)
 		{
-			if (camera.flags != 3)
-			{
+
 				FixedCamera();
-			}
+
 		}//loc_28598
 		else
 		{
@@ -1513,15 +1514,15 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<)
 	camera.target_elevation += item->pos.x_rot;
 	UpdateCameraElevation();
 
-	if (camera.actual_elevation > 0x3C6E)
+	if (camera.actual_elevation > 15470)
 	{
-		camera.actual_elevation = 0x3C6E;
+		camera.actual_elevation = 15470;
 	}//loc_26428
 
 	//v0 = camera.actual_elevation < -0x3C6E ? 1 : 0
-	if (camera.actual_elevation < -0x3C6E)
+	if (camera.actual_elevation < -15470)
 	{
-		camera.actual_elevation = -0x3C6E;
+		camera.actual_elevation = -15470;
 	}
 
 	//loc_26434
@@ -1573,7 +1574,7 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<)
 	//loc_26590
 	for (lp = 0; lp < 5; lp++)
 	{
-		ideals[lp].y = camera.target.y + (camera.target_distance * SIN(camera.actual_elevation)) >> 12;
+		ideals[lp].y = camera.target.y + (camera.target_distance * SIN(camera.actual_elevation)) >> 12;//todo 4 on pc
 	}
 
 	farthest = 0x7FFFFFFF;
@@ -1582,7 +1583,10 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<)
 	//s3 = var_30
 	//s1 = &var_A8
 	//var_34 = 0
-
+#if DEBUG_VERSION
+	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
+	phd_QuickW2VMatrix(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
+#endif
 	//loc_265C0
 
 #if 0
