@@ -337,10 +337,61 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 		}
 	}
 }
-void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
+
+int ZClipper(int num_vert, D3DTLBUMPVERTEX* v1, D3DTLBUMPVERTEX* v2)
 {
-	d9ab34;
 	Unimpl();
+	return 0;
+}
+
+int XYUVGClipper(int num_vert, D3DTLBUMPVERTEX* v)
+{
+	Unimpl();
+	return 0;
+}
+
+void AddClippedPoly(D3DTLBUMPVERTEX* vt1, int num, D3DTLBUMPVERTEX* vt2)
+{
+	auto v1 = vt1;
+	auto v2 = vt2;
+
+	for(int i = 0; i < 3; i++, v1++, v2++)
+	{
+		v1->sx = v2->sx;
+		v1->sy = v2->sy;
+		v1->sz = f_a - f_boo * v2->rhw;
+
+		v1->rhw = v2->rhw;
+		v1->color = v2->color;
+		v1->specular = v2->specular;
+
+		v1->tu = v2->tv / v2->rhw;
+		v1->tv = v2->sx / v2->rhw;
+	}
+
+	d9ab10++;
+
+	num -= 3;
+
+	for(int i = 0; i < num; i++, d9ab10++, v2++)
+	{
+		*v1++ = *vt1;
+		*v1 = v1[-2];
+		v1++;
+
+		v1->sx = v2->sx;
+		v1->sy = v2->sy;
+		v1->sz = f_a - f_boo * v2->rhw;
+
+		v1->rhw = v2->rhw;
+		v1->color = v2->color;
+		v1->specular = v2->specular;
+
+		v1->tu = v2->tv / v2->rhw;
+		v1->tv = v2->sx / v2->rhw;
+	}
+}
+
 }
 
 void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
