@@ -1,5 +1,6 @@
 #include "LARASWIM.H"
 
+#include "SPECIFIC.H"
 #include "CAMERA.H"
 #include CMATH_H
 #include "COLLIDE.H"
@@ -9,7 +10,6 @@
 #include INPUT_H
 #include "LARA.H"
 #include "LARAFIRE.H"
-#include "SPECIFIC.H"
 #include "STYPES.H"
 #include "EFFECTS.H"
 #include "SOUND.H"

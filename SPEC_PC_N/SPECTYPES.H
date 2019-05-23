@@ -638,13 +638,7 @@ struct WINAPP
 };
 
 
-typedef struct
-{
-	signed char	  shimmer;
-	signed char   choppy;
-	unsigned char random;
-	unsigned char abs;
-} WATERTAB;
+
 
 struct CutsceneHeader
 {
@@ -673,7 +667,7 @@ struct SNOWFLAKE
 
 
 
-#pragma pop
+#pragma pack(pop)
 
 enum WINAPP_FLAGS
 {

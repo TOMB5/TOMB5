@@ -48,7 +48,7 @@ extern void S_Warn(const char* warning_message, ...);
 
 extern void S_SetReverbType(sint16 reverb);
 
-extern unsigned short *AnimTextureRanges; // offset 0xA4670
+//extern unsigned short *AnimTextureRanges; // offset 0xA4670
 extern unsigned short nAnimUVRanges; // offset 0xA4660
 
 extern void SetFogColor(uint8_t r, uint8_t g, uint8_t b);
@@ -74,6 +74,12 @@ extern void S_CDLoop();
 extern int S_LoadSave(int input, int in_inventory);
 extern int S_DisplayPauseMenu(int a1);
 extern int S_PauseMenu();
+
+extern void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate);
+
+extern void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag);
+
+extern int TitleOptions();
 
 #ifdef __cplusplus
 }

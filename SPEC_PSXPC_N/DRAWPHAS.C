@@ -25,6 +25,7 @@
 #include "PROFILE.H"
 #include "MATHS.H"
 #include "MISC.H"
+//#include "RAIN.H"
 #include "ROOMLOAD.H"
 #include "ROOMLETB.H"
 #include "ROOMLET3.H"
@@ -100,7 +101,7 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 	//loc_64130
 	if (scalarx != 0 && scalary != 0 && scalarz != 0 && GLOBAL_playing_cutseq == 0)
 	{
-		ScaleCurrentMatrix(1, scalarx + 4096, scalary + 4096, scalarz + 4096);
+		ScaleCurrentMatrix({ scalarx + 4096, scalary + 4096, scalarz + 4096 });
 	}
 
 	//loc_6416C
@@ -566,7 +567,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	ProfileRGB(255, 255, 255);
 #endif
 
-	print_all_object_NOW();
+	//print_all_object_NOW();
 
 #if DEBUG_VERSION
 	ProfileRGB(0, 255, 0);
@@ -576,10 +577,11 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	KillMoveItems();
 
+#if !PSXPC_TEST//Temporary since TITLE.PSX has no rain flag enabled
 	if (WeatherType != 0)
+#endif
 	{
-		//unsigned long* v0 = (unsigned long*)RelocPtr[0];
-		//jalr v0[0];
+		//DoRain();
 	}
 
 	//loc_64E50

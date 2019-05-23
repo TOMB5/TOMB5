@@ -55,6 +55,10 @@ static char XARepeat;
 int XAStartPos;
 static int XATrackList[17][2];
 
+#if PLAY_FMVS
+int dword_A5660[8];
+#endif
+
 //Holds all game data file positions or offsets in GAMEWAD.OBJ.
 struct GAMEWAD_header gwHeader;
 
@@ -377,6 +381,10 @@ void InitNewCDSystem()//5DDE8(<), 5E264(<) (F) (*) (D) (ND)
 	XAVolume = 0;
 	XAReqTrack = -1;
 	XATrack = -1;
+
+#if PLAY_FMVS
+	sub_5E708();
+#endif
 }
 
 void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F) (*) (D)
@@ -385,40 +393,32 @@ void DEL_ChangeCDMode(int mode)//5DEB0(<), 5E650 (F) (*) (D)
 
 	if (mode == 0)
 	{
-		if (current_cd_mode == 0)
+		if (current_cd_mode != 0)
 		{
-			return;
+			current_cd_mode = 0;
+			param[0] = CdlModeSpeed;
+			CdControlB(CdlSetmode, param, NULL);
+			VSync(3);
 		}
-		
-		current_cd_mode = 0;
-
-		param[0] = CdlModeSpeed;
-		CdControlB(CdlSetmode, param, NULL);
-		VSync(3);
 	}
 	else if (mode == 1)
 	{
 		//loc_5DEF8
-		if (current_cd_mode == mode)
+		if (current_cd_mode != 1)
 		{
-			return;
+			current_cd_mode = mode;
 		}
-		
-		current_cd_mode = mode;
 	}
 	else if (mode == 2)
 	{
 		//loc_5DF20
-		if (current_cd_mode == mode)
+		if (current_cd_mode != 2)
 		{
-			return;
+			current_cd_mode = mode;
+			param[0] = CdlModeSpeed;
+			CdControlB(CdlSetmode, param, NULL);
+			VSync(3);
 		}
-
-		current_cd_mode = mode;
-		
-		param[0] = CdlModeSpeed;
-		CdControlB(CdlSetmode, param, NULL);
-		VSync(3);
 	}
 
 	//loc_5DF58
@@ -534,3 +534,27 @@ void FRIG_CD_POS_TO_CUR()//*, 5E564(<) (F) (*)
 {
 	cdStartSector = cdCurrentSector;
 }
+
+#if PLAY_FMVS
+void sub_5E708()
+{
+	CdlFILE fp;
+	char buff[80];
+	int i;
+
+	//loc_5E738
+	for (i = 0; i < 8; i++)
+	{
+		sprintf(&buff[0], "\\FMV%d.STR;1", i);
+		if (CdSearchFile(&fp, &buff[0]))
+		{
+			//loc_5E764
+			dword_A5660[i] = CdPosToInt(&fp.pos);
+		}
+		else
+		{
+			dword_A5660[i] = -1;
+		}
+	}
+}
+#endif

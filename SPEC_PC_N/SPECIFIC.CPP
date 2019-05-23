@@ -30,7 +30,7 @@
 #include "HEALTH.H"
 #include "DELTAPAK.H"
 #include "NEWINV2.H"
-#include <time.h>
+#include <ctime>
 #include <zlib.h>
 
 #pragma comment(lib, "zlibstatic.lib")
@@ -65,7 +65,7 @@ void DebugPrint(const char* message)// (F)
 }
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 	
@@ -915,6 +915,73 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 	return surf;
 }
 
-#ifdef __cplusplus
+void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate)
+{
+	UNIMPLEMENTED();
 }
+
+void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
+{
+	UNIMPLEMENTED();
+}
+
+int TitleOptions()
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+
+void updateAnimFrame(PACKNODE* node, int flags, short* frame)// (F)
+{
+	frame[7] = 3 * node->yrot_run;
+
+	short x = 3 * node->xrot_run;
+	short z = 3 * node->zrot_run;
+
+	switch (cutrot)
+	{
+	case 0:
+		frame[6] = x;
+		frame[8] = z;
+		break;
+	case 1:
+		frame[6] = z;
+		frame[8] = -x;
+		break;
+	case 2:
+		frame[6] = -x;
+		frame[8] = -z;
+		break;
+	case 3:
+		frame[6] = -z;
+		frame[8] = x;
+		break;
+	}
+
+	short* next = frame + 9;
+
+	for (int i = 1; i < flags; i++, next += 2)
+	{
+		short x = node[i].yrot_run;
+		short y = node[i].zrot_run;
+		short z = node[i].xrot_run;
+
+		if (cutrot && i == 1)
+		{
+			x = (x + ((short)cutrot << 8)) & 0x3FF;
+		}
+
+		next[0] = (y | ((x | (z << 10)) << 10)) >> 16;
+		next[1] = y | ((x | (z << 10)) << 10);
+	}
+}
+
+void S_SetReverbType(short reverb)
+{
+
+}
+
+#ifdef __cplusplus
+//}
 #endif

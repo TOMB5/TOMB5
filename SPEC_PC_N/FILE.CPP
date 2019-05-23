@@ -62,9 +62,9 @@ OBJECT_TEXTURE* waterfall_textures[6];
 float waterfall_y[6];
 int num_room_lights;
 
-#ifdef __cplusplus
-extern "C"
-{
+#ifdef __cplusplusa
+//extern "C"
+//{
 #endif
 
 #define AllocT(d, s, n) d = (s*)game_malloc(sizeof(s) * (n))
@@ -715,121 +715,6 @@ extern "C"
 		Log(LT_Default, "Floor Data Size %d @ %x", numFloorData, floor_data);
 	}
 
-	void BaddyObjects()
-	{
-		struct object_info* obj = &objects[LARA];
-
-		obj->shadow_size = (10 * UNIT_SHADOW) / 16;
-		obj->initialise = &InitialiseLaraLoad;
-		obj->hit_points = LARA_HITPOINTS;
-		obj->draw_routine = nullptr;
-
-		obj->using_drawanimating_item = false;
-		obj->save_hitpoints = true;
-		obj->save_position = true;
-		obj->save_flags = true;
-		obj->save_anim = true;
-
-
-		obj = &objects[SAS];
-
-		if (obj->loaded)
-		{
-			obj->bite_offset = 0;
-		}
-
-		Unimpl();
-	}
-
-	void ObjectObjects()
-	{
-		Unimpl();
-	}
-
-	void TrapObjects()
-	{
-		Unimpl();
-	}
-
-	void InitialiseEffects()
-	{
-		Unimpl();
-	}
-
-	void InitialiseObjects()// (F)
-	{
-		for (int i = 0; i < NUMBER_OBJECTS; i++)
-		{
-			objects[i].initialise = nullptr;
-			objects[i].collision = nullptr;
-			objects[i].control = nullptr;
-
-			objects[i].intelligent = false;
-			objects[i].save_position = false;
-			objects[i].save_hitpoints = false;
-			objects[i].save_flags = false;
-			objects[i].save_anim = false;
-			objects[i].water_creature = false;
-			objects[i].save_mesh = false;
-			objects[i].using_drawanimating_item = true;
-
-			objects[i].draw_routine = DrawAnimatingItem;
-			objects[i].ceiling = nullptr;
-			objects[i].floor = nullptr;
-
-			objects[i].pivot_length = 0;
-			objects[i].radius = 10;
-			objects[i].shadow_size = 0;
-			objects[i].hit_points = -16384;
-			objects[i].explodable_meshbits = 0;
-			objects[i].draw_routine_extra = nullptr;
-
-			AddPtr(objects[i].frame_base, short, frames);
-
-			objects[i].object_mip = 0;
-		}
-
-		BaddyObjects();
-		ObjectObjects();
-		TrapObjects();
-		InitialiseHair();
-		InitialiseEffects();
-
-		SequenceUsed[0] = 0;
-		SequenceUsed[1] = 0;
-		SequenceUsed[2] = 0;
-		SequenceUsed[3] = 0;
-		SequenceUsed[4] = 0;
-		SequenceUsed[5] = 0;
-
-		NumRPickups = 0;
-
-		CurrentSequence = 0;
-
-		SequenceResults[0][1][2] = 0;
-		SequenceResults[0][2][1] = 1;
-		SequenceResults[1][0][2] = 2;
-		SequenceResults[1][2][0] = 3;
-		SequenceResults[2][0][1] = 4;
-		SequenceResults[2][1][0] = 5;
-
-		for (int i = 0; i < gfNumMips; i++)
-		{
-			const int mip = (gfMips[i] & 0xF0) << 6;
-			const int index = (gfMips[i] & 0xF) << 7;
-			objects[ANIMATING1 + 2 * index].object_mip = mip;
-		}
-
-		if (objects[RAT].loaded)
-			Alloc(Rats, RAT_STRUCT, 32); // todo: RAT_STRUCT size wrong, should be 26, is 28 (should be 832 B)
-
-		if (objects[BAT].loaded)
-			Alloc(Bats, BAT_STRUCT, 64); // todo: BAT_STRUCT size wrong, should be 30, is 32 (should be 1920 B)
-
-		if (objects[SPIDER].loaded)
-			Alloc(Spiders, SPIDER_STRUCT, 64); // todo: SPIDER_STRUCT size wrong, should be 26, is 28 (should be 1664 B)
-	}
-
 	void ProcessMeshData(int nmeshes)
 	{
 		Log(LT_Enter, "ProcessMeshData %d", nmeshes);
@@ -847,11 +732,6 @@ extern "C"
 	void CreateSkinningData()
 	{
 		Unimpl();
-	}
-
-	void InitialiseClosedDoors()// (F)
-	{
-		Zero(ClosedDoors);
 	}
 
 	void LoadObjects()// (F)
@@ -1120,7 +1000,7 @@ extern "C"
 	void LoadAnimatedTextures()// (F)
 	{
 		int numAnimTex = readDword();
-		AllocReadT(App.AnimTextureRanges, uint16_t, numAnimTex);
+		AllocReadT(AnimTextureRanges, uint16_t, numAnimTex);
 
 		nAnimUVRanges = readByte();
 	}
@@ -1252,79 +1132,6 @@ extern "C"
 	{
 	}
 
-	void GetCarriedItems()// (F)
-	{
-		for (int i = 0; i < level_items; i++)
-		{
-			items[i].carried_item = -1;
-		}
-
-		for (int i = 0; i < level_items; i++)
-		{
-			struct ITEM_INFO* item = &items[i];
-
-			if (objects[item->object_number].intelligent ||
-				item->object_number >= SEARCH_OBJECT1 && item->object_number <= SEARCH_OBJECT3)
-			{
-				struct ITEM_INFO* cur;
-
-				for (int j = room[item->room_number].item_number; j != -1; j = cur->next_item)
-				{
-					cur = &items[j];
-
-					if (abs(cur->pos.x_pos - item->pos.x_pos) < SECTOR(0.5) &&
-						abs(cur->pos.y_pos - item->pos.y_pos) < SECTOR(0.25) &&
-						abs(cur->pos.z_pos - item->pos.z_pos) < SECTOR(0.5) &&
-						objects[cur->object_number].collision == PickUpCollision)
-					{
-						cur->carried_item = item->carried_item;
-						item->carried_item = j;
-						RemoveDrawnItem(j);
-						cur->room_number = 255;
-					}
-				}
-			}
-		}
-	}
-
-	void GetAIPickups()// (F)
-	{
-		for (int i = 0; i < level_items; i++)
-		{
-			struct ITEM_INFO* item = &items[i];
-
-			if (objects[item->object_number].intelligent)
-			{
-				item->status = ITEM_INACTIVE;
-				item->gravity_status = FALSE;
-				item->hit_status = FALSE;
-				item->collidable = FALSE;
-
-				for (int j = 0; j < nAIObjects; j++)
-				{
-					struct AIOBJECT* cur = &AIObjects[j];
-
-					if (abs(cur->x - item->pos.x_pos) < SECTOR(0.5) &&
-						abs(cur->z - item->pos.z_pos) < SECTOR(0.5) &&
-						cur->room_number == item->room_number)
-					{
-						if (cur->object_number < AI_PATROL2)
-						{
-							item->ai_bits = 1 << (cur->object_number - AI_GUARD);
-							item->trigger_flags = cur->trigger_flags;
-
-							if (cur->object_number != AI_GUARD)
-								cur->room_number = 255;
-						}
-					}
-				}
-
-				item->meshswap_meshbits |= item->item_flags[3] << 8;
-				item->meshswap_meshbits |= item->ai_bits << 16;
-			}
-		}
-	}
-
 	void ClearFootPrints()// (F)
 	{
 		for (int i = 0; i < 32; i++)
@@ -1333,65 +1140,6 @@ extern "C"
 		}
 
 		FootPrintNum = 0;
-	}
-
-	void InitBinoculars()
-	{
-		Unimpl();
-	}
-
-	void InitTarget()
-	{
-		Unimpl();
-	}
-
-	void InitialiseGameFlags()// (F)
-	{
-		Zero(flipmap);
-		Zero(flip_stats);
-		flipeffect = -1;
-		Zero(cd_flags);
-		flip_status = 0;
-		IsAtmospherePlaying = 0;
-		camera.underwater = 0;
-	}
-
-	void SetupGame()// (F)
-	{
-		SeedRandomDraw(0xD371F947);
-		SeedRandomControl(0xD371F947);
-
-		wibble = 0;
-		torchroom = 255;
-
-		ClearFootPrints();
-		InitBinoculars();
-		InitTarget();
-		InitialiseGameFlags();
-
-		InitialiseLara(
-			gfCurrentLevel != LVL5_THIRTEENTH_FLOOR &&
-			gfCurrentLevel != LVL5_BASE &&
-			gfCurrentLevel != LVL5_GALLOWS_TREE &&
-			gfCurrentLevel != LVL5_STREETS_OF_ROME &&
-			!gfInitialiseGame);
-
-		GetCarriedItems();
-		GetAIPickups();
-
-		SeedRandomDraw(0xD371F947);
-		SeedRandomControl(0xD371F947);
-	}
-
-	void reset_cutseq_vars()// (F)
-	{
-		cutseq_num = 0;
-		cutseq_trig = 0;
-
-		GLOBAL_playing_cutseq = 0;
-		GLOBAL_cutseq_frame = 0;
-
-		SetFadeClip(0, 1);
 	}
 
 	void LoadSamples()
@@ -1747,6 +1495,6 @@ extern "C"
 		return res;
 	}
 
-#ifdef __cplusplus
-}
+#ifdef __cplusplusa
+//}
 #endif

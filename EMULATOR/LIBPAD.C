@@ -11,6 +11,7 @@
 
 SDL_GameController* padHandle[MAX_CONTROLLERS];
 unsigned char* padData[MAX_CONTROLLERS];
+const unsigned char* keyboardState;
 
 void PadInitDirect(unsigned char* pad1, unsigned char* pad2)
 {
@@ -46,6 +47,7 @@ void PadInitDirect(unsigned char* pad1, unsigned char* pad2)
 		}
 	}
 
+	keyboardState = SDL_GetKeyboardState(NULL);
 }
 
 void PadInitMtap(unsigned char* unk00, unsigned char* unk01)
@@ -205,6 +207,26 @@ unsigned short UpdateGameControllerInput(SDL_GameController* pad)
 		ret &= ~0x200;
 	}
 
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_LEFTSTICK))//L3
+	{
+		ret &= ~0x2;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_RIGHTSTICK))//R3
+	{
+		ret &= ~0x4;
+	}
+	
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_BACK))//SELECT
+	{
+		ret &= ~0x1;
+	}
+
+	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_START))//START
+	{
+		ret &= ~0x8;
+	}
+	
 	return ret;
 }
 
@@ -212,8 +234,13 @@ unsigned short UpdateKeyboardInput()
 {
 	unsigned short ret = -1;
 
+	//Not initialised yet
+	if (keyboardState == NULL)
+	{
+		return ret;
+	}
+
 	SDL_PumpEvents();
-	const unsigned char* keyboardState = SDL_GetKeyboardState(NULL);
 
 	if (keyboardState[SDL_SCANCODE_X])//Square
 	{
@@ -273,6 +300,16 @@ unsigned short UpdateKeyboardInput()
 	if (keyboardState[SDL_SCANCODE_RCTRL])//R2
 	{
 		ret &= ~0x200;
+	}
+
+	if (keyboardState[SDL_SCANCODE_SPACE])//SELECT
+	{
+		ret &= ~0x1;
+	}
+
+	if (keyboardState[SDL_SCANCODE_RETURN])//START
+	{
+		ret &= ~0x8;
 	}
 
 	return ret;
