@@ -191,6 +191,8 @@ void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex
 
 void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
 {
+	Log(LT_Enter, "AddQuadClippedZBuffer %4d;%4d;%4d;%4d tex=%d", v1, v2, v3, v4, tex->tile_and_flag);
+
 	WORD vp1 = d9ab34[v1];
 	WORD vp2 = d9ab34[v2];
 	WORD vp3 = d9ab34[v3];
@@ -269,6 +271,9 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 
 				FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
 
+				auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
+				Log(LT_Info, "QuadZ writing 6 verts to bucket %d", buk - Bucket);
+
 				*cnt_ptr += 6;
 
 				D3DTLVERTEX* vp1b = &v[v1b];
@@ -281,6 +286,8 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 				vptr->specular = vp1b->specular;
 				vptr->tu = next->vertices[0].x;
 				vptr->tv = next->vertices[0].y;
+
+				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
 
 				vptr[3] = vptr[0];
 
@@ -295,6 +302,8 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 				vptr->tu = next->vertices[1].x;
 				vptr->tv = next->vertices[1].y;
 
+				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+
 				vptr++;
 
 				D3DTLVERTEX* vt3 = &v[v3b];
@@ -307,6 +316,8 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 				vptr->specular = vt3->specular;
 				vptr->tu = next->vertices[2].x;
 				vptr->tv = next->vertices[2].y;
+
+				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
 
 				vptr[2] = vptr[0];
 
@@ -322,6 +333,8 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 				vptr->specular = vt4->specular;
 				vptr->tu = next->vertices[3].x;
 				vptr->tv = next->vertices[3].y;
+
+				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
 
 				d9ab1c += 2;
 			}
@@ -343,6 +356,8 @@ int XYUVGClipper(int num_vert, D3DTLBUMPVERTEX* v)
 
 void AddClippedPoly(D3DTLBUMPVERTEX* vt1, int num, D3DTLBUMPVERTEX* vt2)
 {
+	Log(LT_Enter, "AddClippedPoly n=%d", num);
+	
 	auto v1 = vt1;
 	auto v2 = vt2;
 
@@ -388,6 +403,8 @@ D3DTLBUMPVERTEX stru_923C88[20];
 
 void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
+	Log(LT_Enter, "AddTriClippedZBuffer %4d;%4d;%4d tex=%d", v1, v2, v3, tex->tile_and_flag);
+
 	WORD vp1 = d9ab34[v1];
 	WORD vp2 = d9ab34[v2];
 	WORD vp3 = d9ab34[v3];
@@ -469,6 +486,9 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 
 			FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
 
+			auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
+			Log(LT_Info, "TriZ writing 3 verts to bucket %d", buk - Bucket);
+
 			v31 = 0;
 
 			*cnt_ptr += 3;
@@ -488,6 +508,8 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 	vptr->tu = next->vertices[0].x;
 	vptr->tv = next->vertices[0].y;
 
+	Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+
 	vptr++;
 
 	D3DTLVERTEX* vt2 = &v[v2];
@@ -501,6 +523,8 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 	vptr->tu = next->vertices[1].x;
 	vptr->tv = next->vertices[1].y;
 
+	Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+
 	vptr++;
 
 	D3DTLVERTEX* vt3 = &v[v3];
@@ -513,6 +537,8 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 	vptr->specular = vt3->specular;
 	vptr->tu = next->vertices[2].x;
 	vptr->tv = next->vertices[2].y;
+
+	Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
 
 	if (v31)
 	{
@@ -885,7 +911,7 @@ void GPU_BeginScene()// (F)
 	rect.y2 = App.GnClientRect.top + App.GnClientRect.bottom;
 	rect.x2 = App.GnClientRect.left + App.GnClientRect.right;
 
-	DX_TRY(App.lpViewPort->Clear2(1, &rect, D3DCLEAR_TARGET, RGBA_MAKE(0, 0, 0, 0), 1.0f, 0));
+	DX_TRY(App.lpViewPort->Clear2(1, &rect, D3DCLEAR_TARGET, RGBA_MAKE(255, 0, 0, 0), 1.0f, 0));
 	BeginScene();
 	InitBuckets();
 	InitialiseSortList();
@@ -1434,7 +1460,7 @@ DWORD dword_57A508;
 float room_top_flt, room_left_flt, room_bottom_flt, room_right_flt;
 float room_top_flt_2, room_left_flt_2, room_bottom_flt_2, room_right_flt_2;
 tr5_vertex cam_pos_flt, cam_tar_flt, cam_dir_flt;
-room_info* dword_7DFC0C;
+room_info* inserting_room;
 DWORD dword_7EE0C8;
 WORD word_511A68[8][3] = 
 {
@@ -1508,15 +1534,80 @@ bool CheckBoundsClip(bounding_box_f* bbox)
 }
 
 D3DTLVERTEX vert_buf[1024];
+DYNTHING stru_7ED6B0[64];
+DWORD dword_7DFFDC;
+int dword_7EE0C4;
 
 int BuildRoomletLights(ROOMLET* r)
 {
-	Unimpl();
-	return 0;
+	auto dyn = dynamics;
+	auto vptr = stru_7ED6B0;
+	int nvert = 0;
+
+	float rx = inserting_room->RoomX;
+	float ry = inserting_room->RoomY;
+	float rz = inserting_room->RoomZ;
+
+	float minX = r->BoundingBox.minX;
+	float minZ = r->BoundingBox.minZ;
+	float maxX = r->BoundingBox.maxX;
+	float maxZ = r->BoundingBox.maxZ;
+
+	for(int i = 0; i < 32; i++, dyn++)
+	{
+		if (dyn->on)
+		{
+			float dx = dyn->x - rx;
+			float dy = dyn->y - ry;
+			float dz = dyn->z - rz;
+			float falloff = dyn->falloff / 2 + dyn->falloff / 8;
+
+			if (dx - falloff <= maxX && 
+				dx + falloff >= minX && 
+				dz - falloff <= maxZ && 
+				dz + falloff >= minZ)
+			{
+				vptr->sx = dx;
+				vptr->sy = dy;
+				vptr->sz = dz;
+
+				vptr->r = dyn->r / 255.0;
+				vptr->g = dyn->g / 255.0;
+				vptr->b = dyn->b / 255.0;
+
+				vptr->falloff = falloff;
+				vptr->falloff_inv = 1 / falloff;
+				vptr->falloff_sqr = falloff * falloff;
+				vptr->unk = 0;
+
+				vptr++;
+				nvert++;
+			}
+		}
+	}
+
+	dword_7DFFDC = 0;
+	if (dword_7EE0C4)
+		Log(LT_Info, "BuildRoomletLights - UNIMPL FOR");
+	for(int i = 0; i < dword_7EE0C4; i++)
+	{
+		
+	}
+
+	return nvert;
 }
 
-void RoomletTransformLight(float* vert, int num_vert, int a3, int num_vert_2, int a5)
+void RoomletTransformLight(float* vert, int num_vert, int num_lights, int num_vert_2, int a5)
 {
+	int v92 = camera.underwater;
+	if (!(App.Flags & WA_BACK_BUFFER))
+		v92 = 0;
+
+	for(int i = 0; i < num_vert; i++)
+	{
+		
+	}
+
 	Unimpl();
 }
 
@@ -1585,7 +1676,7 @@ void InsertRoom(room_info* r)
 
 	if (r->Unknown1)
 	{
-		dword_7DFC0C = r;
+		inserting_room = r;
 		dword_7EE0C8 = r->flags & RF_FILL_WATER;
 
 		for(int i = 0; i < r->NumLayers; i++)

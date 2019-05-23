@@ -8,12 +8,12 @@ void InitBuckets()// (F)
 {
 	for (int n = 0; n < MAXBUCKETS; n++)
 	{
-		Bucket[n].tpage = 0xffffffff;
+		Bucket[n].tpage = -1;
 		Bucket[n].cnt = 0;
 	}
 }
 
-D3DVALUE specular_thing[2080];
+D3DVALUE specular_thing[VERTSPERBUCKET];
 
 void SaveSpecular(TEXTUREBUCKET* buk)
 {
@@ -56,6 +56,7 @@ void FindBucket(uint16_t tile, D3DTLBUMPVERTEX** vptr, int** cntptr)
 
 		if (ptr->cnt > 2048)
 		{
+			Log(LT_Info, "Bucket count over 2048, resetting");
 			DrawBucket(ptr);
 
 			ptr->tpage = tile;
@@ -151,6 +152,8 @@ void DrawBuckets()
 {
 	if (App.tBumpMap)
 	{
+		Log(LT_Info, "DrawBuckets - bumpmap");
+
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE, FALSE);
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
@@ -213,6 +216,8 @@ void DrawBuckets()
 	}
 	else
 	{
+		Log(LT_Info, "DrawBuckets - NO bumpmap");
+
 		for (int i = 0; i < MAXBUCKETS; i++)
 		{
 			DrawBucket(&Bucket[i]);

@@ -393,6 +393,20 @@ struct tr5_vertex   // 12 bytes
 	float z;
 };
 
+struct DYNTHING // 40
+{
+	D3DVALUE sx;
+	D3DVALUE sy;
+	D3DVALUE sz;
+	D3DVALUE r;
+	D3DVALUE g;
+	D3DVALUE b;
+	D3DVALUE falloff;
+	D3DVALUE falloff_sqr;
+	D3DVALUE falloff_inv;
+	D3DVALUE unk;
+};
+
 struct tr5_room_vertex  // 28 bytes
 {
 	struct tr5_vertex Vertex;     // Vertex is now floating-point
