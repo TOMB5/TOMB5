@@ -25,6 +25,7 @@
 #include "PROFILE.H"
 #include "MATHS.H"
 #include "MISC.H"
+//#include "RAIN.H"
 #include "ROOMLOAD.H"
 #include "ROOMLETB.H"
 #include "ROOMLET3.H"
@@ -566,7 +567,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	ProfileRGB(255, 255, 255);
 #endif
 
-	print_all_object_NOW();
+	//print_all_object_NOW();
 
 #if DEBUG_VERSION
 	ProfileRGB(0, 255, 0);
@@ -576,10 +577,11 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	KillMoveItems();
 
+#if !PSXPC_TEST//Temporary since TITLE.PSX has no rain flag enabled
 	if (WeatherType != 0)
+#endif
 	{
-		//unsigned long* v0 = (unsigned long*)RelocPtr[0];
-		//jalr v0[0];
+		//DoRain();
 	}
 
 	//loc_64E50

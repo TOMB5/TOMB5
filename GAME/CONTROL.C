@@ -42,6 +42,7 @@
 #include "TEXT_S.H"
 #include "FXTRIG.H"
 #include "TYPEDEFS.H"
+#include "MISC.H"
 #endif
 #include "LARA1GUN.H"
 #include "HAIR.H"
@@ -495,7 +496,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 			|| SniperCamActive
 			|| bUseSpotCam
 			|| bTrackCamInit
-			|| 
+			||
 			((lara_item->current_anim_state != STATE_LARA_STOP || lara_item->anim_number != ANIMATION_LARA_STAY_IDLE)
 				&& (!lara.IsDucked
 					|| input & IN_DUCK
@@ -807,38 +808,46 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 #else
 	short item_num;
 	short nex;
+	struct FLOOR_INFO* floor; // $s0
+	int val;
 
-	//s0 = a0
-	//s6 = a1
-
-	if (SlowMotion == 0)
+	if (SlowMotion)
 	{
-		//loc_1D5B4
-		if (SlowMoFrameCount > 16)
+		SlowMotion--;
+
+		if (SlowMoFrameCount < 40)
 		{
-			//loc_1D5C8
-			SlowMoFrameCount--;
+			SlowMoFrameCount++;
+		}
+
+		//loc_1D5CC
+		if (nframes < (SlowMoFrameCount >> 3))
+		{
+			do
+			{
+				VSync(0);
+				nframes++;
+			} while (nframes < (SlowMoFrameCount >> 3));
 		}
 	}
 	else
 	{
-		SlowMotion--;
-		if (SlowMoFrameCount > 39)
+		//loc_1D5B4
+		if (SlowMoFrameCount > 16)
 		{
-			//loc_1D5C8
 			SlowMoFrameCount--;
-		}
-	}
 
-	//loc_1D5CC
-	while (nframes < SlowMoFrameCount / 8)
-	{
-#if PSX_VERSION
-		VSync(0);
-#endif
-		nframes++;
+			if (nframes < (SlowMoFrameCount >> 3))
+			{
+				//loc_1D5E8
+				do
+				{
+					VSync(0);
+					nframes++;
+				} while (nframes < (SlowMoFrameCount >> 3));
+			}//loc_1D60C
+		}//loc_1D618		
 	}
-
 	//loc_1D60C
 	nframes = 2;
 	GnLastFrameCount = 0;
@@ -849,22 +858,18 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 	if (nframes > 10)
 	{
 		nframes = 10;
-	}//loc_1D630
-
+	}
 
 	if (bTrackCamInit)
 	{
-		printf("bTrackCamInit Zero\n");
 		bUseSpotCam = 0;
 	}
-
-	//loc_1D64C
+	//1D64C
 	SetDebounce = 1;
 	framecount += nframes;
 
-	if (framecount <= 0)
+	if (nframes <= 0)
 	{
-		//loc_1E3B8
 		return 0;
 	}
 
@@ -873,11 +878,8 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 		return 0;
 	}
 
-	//s4 = -1
-	//s3 = 1
-
 	//loc_1D684
-	while (GLOBAL_enterinventory == -1)
+	do
 	{
 		GlobalCounter++;
 		UpdateSky();
@@ -888,56 +890,42 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 			if (gfCurrentLevel != LVL5_TITLE)
 			{
 				dbinput = 0;
-			}
+			}//loc_1D6D4
 
-			//loc_1D6D4
 			input &= IN_LOOK;
-		}
 
-		//loc_1D6EC
-		if (cutseq_trig != 0)
+		}//loc_1D6EC
+
+		if (cutseq_trig)
 		{
 			input = IN_NONE;
-		}
+		}//loc_1D708
 
-		//loc_1D708
 		SetDebounce = 0;
-		if (gfLevelComplete != 0)
+
+		if (gfLevelComplete)
 		{
 			return 3;
 		}
 
-		if (reset_flag != 0)
+		//v0 = reset_flag
+		if (reset_flag)
 		{
 			reset_flag = 0;
 			return 1;
 		}
 
-		if (lara.death_count > 90)//loc_1D708, loc_1D89C
+		if (lara.death_count > 90)
 		{
 			//loc_1D5A0
 			reset_flag = 0;
 			return S_Death();
 		}
 
-		if (demo_mode)
+		if (!demo_mode)
 		{
-			if (PadConnected && !ScreenFading)
-			{
-				PrintString(256, 230, 2, &gfStringWad[gfStringOffset[STR_DEMO_MODE]], 0);
-			}
-
-			//loc_1D7A0
-			if (input == -1)
-			{
-				input = IN_NONE;
-				Motors[0] = 0;
-				Motors[1] = 0;
-			}
-		}//loc_1D7D4
-		else
-		{
-			if (gfGameMode != 1 && Gameflow->CheatEnabled)
+			//loc_1D7D4
+			if (gfGameMode != 1 && Gameflow->DemoDisc)
 			{
 				if (input == IN_NONE)
 				{
@@ -945,407 +933,464 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 					{
 						return 1;
 					}
-				}//1D844
+				}
 				else
 				{
+					//loc_1D844
 					NoInput = 0;
 				}
 			}
 		}
-
-		//loc_1D848, loc_1D9DC 
-
-#if DISC_VERSION///@TODO
-	//loc_1D9DC
-		if (input == IN_NONE)
+		else
 		{
-			//lbu	$v0, byte_A335A
-			//lbu	$a0, 0x14DC($gp)
-			//bnez	$v0, loc_1DA5C
-			//andi	$v0, $a0, 0xFF
-			//lbu	$v0, byte_A2827
-			//nop
-			//bnez	$v0, loc_1DA5C
-			//andi	$v0, $a0, 0xFF
-			//sltiu	$v0, $a0, 4
-			//bnez	$v0, loc_1DA68
-			//addiu	$v0, $a0, 1
-			//addiu	$v0, $s2, 0x71E8
-			//lh	$v1, 0x1A($v0)
-			//nop
-			//bnez	$v1, loc_1DA5C
-			//andi	$v0, $a0, 0xFF
-		}
-		//loc_1DA3C:
-		//sb	$zero, byte_800A601D
-		// sb	$zero, byte_800A601C//motors maybe
-		//jal	sub_62190
-		//nop
-		//j	loc_1E5D0
-		// move	$v0, $zero
-#endif
+			if (!PadConnected && ScreenFading)
+			{
+				PrintString(SCREEN_WIDTH / 2, 230, 2, &gfStringWad[gfStringOffset[STR_DEMO_MODE]], (FF_CENTER | FF_UNK13));
+			}
 
-	//1D848
+			//loc_1D7A0
+			if (input == -1)
+			{
+				input = 0;
+				Motors[1] = 0;
+				Motors[0] = 0;
+			}
+		}
+
+		//loc_1D848
 		if (InGameCnt < 4)
 		{
 			InGameCnt++;
-		}
+		}//loc_1D860
 
-		//loc_1D860
-		//a1 = input
-#if 0//TODO highly mangled branching
-		if (!(input & IN_LOOK) && SniperCamActive && bUseSpotCam && bTrackCamInit)
+		if ((input & IN_LOOK) && !SniperCamActive && !bUseSpotCam && !bTrackCamInit)
 		{
-			//loc_1D9D0
-		}
-		//v0 = 2
-		//a0 = lara_item;
-		//v1 = lara_item->current_anim_state;
-		//v1 = lara (lara_info);
-		if (lara_item->current_anim_state == 2 && lara_item->anim_number != 0x67)
-		{
-			//loc_1D8E0
-			if (lara_item->pos.y_pos & 0x800 && !(input & 0x2000) && lara_item->anim_number == 0xDE && lara_item->goal_anim_state == 0x47)
+			if (lara_item->current_anim_state != 2 || lara_item->anim_number == 0x67)
 			{
-				//loc_1D920
-			}//loc_1D9D0
-			else
-			{
-			}
-
-		}//loc_1D920
-
-		//^TODO!!!
-	}
-	else
-	{
-		//loc_1D9D0 //***TODO
-	}
-
-	if (BinocularRange != 0)
-	{
-		if (LaserSight != 0)
-		{
-
-
-		}//loc_1DAC0
-	}//loc_1DA80
-#endif
-
-	//loc_1DAD0
-	if (BinocularRange != 0)
-	{
-		if (LaserSight != 0)
-		{
-			//loc_1DB28
-			if (gfLevelFlags & GF_LVOP_TRAIN)
-			{
-				InfraRed = 0;
-			}
-			else
-			{
-				InfraRed = 1;
+				//loc_1D8E0
+				if (lara.IsDucked && (input & IN_DUCK) && lara_item->anim_number == 0xDE && lara_item->goal_anim_state == 0x47)
+				{
+					//loc_1D920
+					if (BinocularRange == 0)
+					{
+						if (lara.gun_type == 5)
+						{
+							//loc_1D990
+							if (lara.gun_status == 2)
+							{
+								BinocularRange = 128;
+								LaserSight = 1;
+								BinocularOldCamera = camera.old_type;
+								lara.Busy = 1;
+							}
+						}
+						else if (lara.gun_type == 6)
+						{
+							//loc_1D97C
+							if ((lara.sixshooter_type_carried & 4))
+							{
+								//loc_1D990
+								if (lara.gun_status == 4)
+								{
+									BinocularRange = 128;
+									LaserSight = 1;
+									BinocularOldCamera = camera.old_type;
+									lara.Busy = 1;
+								}
+							}
+						}
+						else if (lara.gun_type == 2)
+						{
+							//loc_1D970
+							if ((lara.crossbow_type_carried & 4))
+							{
+								//loc_1D990
+								if (lara.gun_status == 4)
+								{
+									BinocularRange = 128;
+									LaserSight = 1;
+									BinocularOldCamera = camera.old_type;
+									lara.Busy = 1;
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		else
 		{
-			if (gfLevelFlags & GF_LVOP_TRAIN && inputBusy & 0x40)
+			//loc_1D9D0
+			if (BinocularRange != 0)
 			{
-				InfraRed = 1;
+				if (LaserSight != 0)
+				{
+					BinocularRange = 0;
+					LaserSight = 0;
+					AlterFOV(0x3FFC);
+					lara_item->mesh_bits = -1;
+					camera.type = BinocularOldCamera;
+					lara.head_y_rot = 0;
+					lara.head_x_rot = 0;
+					lara.torso_y_rot = 0;
+					lara.torso_x_rot = 0;
+					BinocularOn = -8;
+					camera.bounce = 0;
+					input &= IN_LOOK;
+					lara.Busy = 0;
+				}//loc_1DAC0
 			}
 			else
 			{
-				InfraRed = 0;
+				//loc_1DA80
+				if (SniperCamActive != 0 || bUseSpotCam != 0 || !bTrackCamInit)
+				{
+					input &= 0xFFFFFDFF;
+				}
 			}
 		}
-	}
-	else
-	{
-		InfraRed = 0;
-	}
-
-	//loc_1DB44 
-	//infr skp stre
-	ClearDynamics();
-	ClearFires();
-
-	item_num = next_item_active;
-	GotLaraSpheres = 0;
-	InItemControlLoop = 1;
-
-	if (item_num != -1)
-	{
-		//loc_1DB80
-		while (items[item_num].next_active != -1)
+		//loc_1DAC8
+		if (BinocularRange != 0)
 		{
-			if (items[item_num].after_death > 127)
+			//loc_1DB28
+			if (LaserSight != 0)
+			{
+				//loc_1DB28
+				if ((gfLevelFlags & GF_LVOP_TRAIN))
+				{
+					InfraRed = 0;
+				}
+				else
+				{
+					InfraRed = 1;
+				}
+			}
+			else
+			{
+				if ((gfLevelFlags & GF_LVOP_TRAIN) && (inputBusy & 0x40))
+				{
+					InfraRed = 1;
+				}
+				else
+				{
+					InfraRed = 0;
+				}
+			}
+		}
+		else
+		{
+			//loc_1DB44
+			InfraRed = 0;
+		}
+
+		ClearDynamics();
+		ClearFires();
+
+		item_num = next_item_active;
+		GotLaraSpheres = 0;
+		InItemControlLoop = 1;
+
+		while (item_num != -1)
+		{
+			if (items[next_item_active].after_death < 128)
+			{
+				//loc_1DBB4
+				if (objects[items[next_item_active].object_number].control != NULL)
+				{
+					objects[items[next_item_active].object_number].control(item_num);
+				}
+				//loc_1DBDC
+			}
+			else
 			{
 				KillItem(item_num);
 			}
+			//1DBE0
+			item_num = items[next_item_active].next_active;
+		}
+
+		InItemControlLoop = 0;
+		KillMoveItems();
+		nex = next_fx_active;
+		InItemControlLoop = 1;
+
+		//loc_1DC10
+		while (nex != -1)
+		{
+			if (objects[effects[nex].object_number].control != NULL)
+			{
+				objects[effects[nex].object_number].control(nex);
+			}//loc_1DC54
+
+			nex = effects[next_fx_active].next_active;
+		}
+		//loc_1DC60
+		InItemControlLoop = 0;
+		KillMoveEffects();
+
+		if (KillEverythingFlag != 0)
+		{
+			KillEverything();
+		}
+
+		//loc_1DC88
+		if (SmokeCountL != 0)
+		{
+			SmokeCountL--;
+		}
+
+		if (SmokeCountR != 0)
+		{
+			SmokeCountR--;
+		}
+
+		//loc_1DCC0
+		if (SplashCount != 0)
+		{
+			SplashCount--;
+		}
+
+		if (WeaponDelay != 0)
+		{
+			WeaponDelay--;
+		}
+		//loc_1DCF0
+		if (lara.has_fired && !(wibble & 0x7F))
+		{
+			AlertNearbyGuards(lara_item);
+			lara.has_fired = 0;
+		}//loc_1DD40
+
+		XSoff1 += 150;
+		ZSoff1 += 660;
+		YSoff1 += 230;
+
+		XSoff2 += 270;
+		YSoff2 += 440;
+		ZSoff2 += 160;
+
+		//loc_1DE84
+
+		if (lara.poisoned && GLOBAL_playing_cutseq == 0)
+		{
+			if (lara.poisoned > 4096)
+			{
+				lara.poisoned = 4096;
+			}
 			else
 			{
-				//loc_1DBB4
-				if (objects[items[item_num].object_number].control != NULL)
+				if (lara.dpoisoned)
 				{
-					objects[items[item_num].object_number].control(item_num);
+					lara.dpoisoned--;
 				}
 			}
 
-			item_num++;
-		}
-
-	}//loc_1DBE8, 1DDF4
-
-	InItemControlLoop = 0;
-	KillMoveItems();
-	InItemControlLoop = 1;
-	nex = next_fx_active;
-
-	while (nex != -1)
-	{
-		nex = effects[next_fx_active].next_active;
-		if (objects[effects[nex].object_number].control != NULL)
-		{
-			objects[effects[nex].object_number].control(nex);
-		}
-	}
-
-	//loc_1DC60
-	InItemControlLoop = 0;
-	KillMoveEffects();
-
-	if (KillEverythingFlag != 0)
-	{
-		KillEverything();
-	}
-
-	//loc_1DC88
-	if (SmokeCountL != 0)
-	{
-		SmokeCountL--;
-	}
-
-	//loc_1DCA4
-	if (SmokeCountR != 0)
-	{
-		SmokeCountR--;
-	}
-
-	//loc_1DCC0
-	if (SplashCount != 0)
-	{
-		SplashCount--;
-	}
-
-	//loc_1DCDC
-	if (WeaponDelay != 0)
-	{
-		WeaponDelay--;
-	}
-
-	//loc_1DCF0
-	if (lara.burn && !(wibble & 0x7F))
-	{
-		AlertNearbyGuards(lara_item);
-		lara.burn = 0;
-
-	}//loc_1DD40  // *VERIFIED TILL HERE, FIXME below looks very mangled?
-
-	XSoff1 += 150;
-	YSoff1 += 230;
-	ZSoff1 += 660;
-
-	XSoff2 += 270;
-	YSoff2 += 440;
-	ZSoff2 += 160;
-
-	////a000 = lara;
-
-	if (lara.poisoned)
-	{
-		if (GLOBAL_playing_cutseq == 0)
-		{
-			//assert(0);
-		}//loc_1DE90
-
-	}//loc_1DE84
-
-	//a1 = lara
-
-	//loc_1DE90
-	lara.skelebob = 0;
-	InItemControlLoop = 1;
-
-	if (GLOBAL_playing_cutseq == 0 && gfGameMode == 0)
-	{
-		lara.Fired = 0;
-		LaraControl(LARA);
-
-		if (LaraDrawType == 5)
-		{
-			//((VOIDFUNCVOID*)RelocPtr[MOD_SUBSUIT][0])();
-		}
-	}
-	//loc_1DEF4
-	InItemControlLoop = 0;
-
-	KillMoveItems();
-
-	if ((gfLevelFlags & GF_LVOP_TRAIN) && bUseSpotCam == 0)
-	{
-		//v0 = lara_item;
-		//assert(0);
-	}
-
-	//loc_1DF7C
-	if (GLOBAL_inventoryitemchosen != -1)
-	{
-		SayNo();
-		GLOBAL_inventoryitemchosen = 1;
-	}
-
-	//loc_1DFA0
-	if (GLOBAL_playing_cutseq == 0)//TODO
-	{
-		if (LaraDrawType != 5)
-		{
-			//HairControl(0, 0, 0);
-
-			if ((gfLevelFlags) & GF_LVOP_YOUNG_LARA)
+			//loc_1DDD4
+			if ((gfLevelFlags & GF_LVOP_TRAIN) && !lara.Gassed)
 			{
-				//HairControl(0, 1, 2); ///@FIXME bad arg
+				if (lara.dpoisoned)
+				{
+					lara.dpoisoned -= 8;
+
+					if (lara.dpoisoned < 0)
+					{
+						lara.dpoisoned = 0;
+					}
+				}//loc_1DE24
+			}//loc_1DE24
+
+			if (lara.poisoned > 255 && wibble == 0)
+			{
+				lara_item->hit_points -= lara.poisoned >> (8 - lara.Gassed);
+				PoisonFlag = 16;
+			}
+
+		}
+		//loc_1DE84
+		//loc_1DE90
+		lara.skelebob = 0;
+		InItemControlLoop = 1;
+
+		if (GLOBAL_playing_cutseq == 0 && gfGameMode == 0)
+		{
+			lara.Fired = 0;
+			LaraControl(LARA);
+
+			if (LaraDrawType == 5)
+			{
+				((VOIDFUNCVOID*)RelocPtr[MOD_SUBSUIT][0])();
+			}
+			//loc_1DEF4
+		}
+		//loc_1DEF4
+		InItemControlLoop = 0;
+
+		KillMoveItems();
+
+		if ((gfLevelFlags & GF_LVOP_TRAIN) && !bUseSpotCam)
+		{
+			if (room[lara_item->room_number].FlipNumber > 10)
+			{
+				InitialiseSpotCam(room[lara_item->room_number].FlipNumber);
+				bUseSpotCam = 1;
 			}
 		}
-		//loc_1DFF4
-		if (GLOBAL_playing_cutseq == 0)//redudant
+		//loc_1DF7C
+		if (GLOBAL_inventoryitemchosen != -1)
 		{
-			if (bUseSpotCam != 0)
+			SayNo();
+			GLOBAL_inventoryitemchosen = -1;
+		}
+		//loc_1DFA0
+		if (GLOBAL_playing_cutseq == 0)
+		{
+			if (LaraDrawType != 5)
 			{
-				CalculateSpotCams();
-				//j loc_1E054///@FIXME illegal jump?
-			}//loc_1E02C
-			CalculateCamera();
-		}//loc_1E044
+				//HairControl(0, 0, NULL);
 
-	}//loc_1E044
+				if ((gfLevelFlags & GF_LVOP_YOUNG_LARA))
+				{
+					//HairControl(0, 1, NULL);
+				}
+			}//loc_1DFF4
 
-	camera.type = CINEMATIC_CAMERA;
-	CalculateCamera();
-
-	//loc_1E054
-	CamRot.vy = mGetAngle(camera.pos.x, camera.pos.z, camera.target.x, camera.target.z) / 16;
-
-	wibble = ((wibble + 4) & 0xFC);
-
-	TriggerLaraDrips();
-
-	if (SmashedMeshCount != 0)//LOOP
-	{
-		//TODO
-		//SmashedMeshCount = v000000;
-		//v0 = CamRot.vy;
-	}
-
-	//loc_1E15C
-#if 0
-	UpdateSparks();
-	//addiu	$s0, $s5, -0x2240
-	UpdateFireSparks();
-	UpdateSmokeSparks();
-	UpdateBubbles();
-	UpdateSplashes();
-	UpdateDebris();
-	UpdateBlood();
-	UpdateDrips();
-	UpdateGunShells();
-
-#endif
-
-	if (RelocPtr[9] != NULL)//UpdateRats
-	{
-		//unsigned long* v0 = (unsigned long*)RelocPtr[9];
-		//jalr v0[5];
-	}
-
-	//loc_1E1C4
-	if (RelocPtr[21] != NULL)//UpdateBats
-	{
-		//unsigned long* v0 = (unsigned long*)RelocPtr[21];
-		//jalr v0[1];
-	}
-
-	//loc_1E1E4
-	if (RelocPtr[32] != NULL)//UpdateSpiders
-	{
-		//unsigned long* v0 = (unsigned long*)RelocPtr[32];
-		//jalr v0[5];
-	}
-
-	//loc_1E204
-	//UpdateShockwaves();
-
-	if (RelocPtr[35] != NULL)//UpdateLighting
-	{
-		//unsigned long* v0 = (unsigned long*)RelocPtr[35];
-		//jalr v0[1];
-	}
-
-	//loc_1E22C
-	if (RelocPtr[7] != NULL)//UpdateTwogunLasers
-	{
-		//unsigned long* v0 = (unsigned long*)RelocPtr[7];
-		//jalr v0[2];
-	}
-
-	//loc_1E24C
-	AnimateWaterfalls();
-	UpdatePulseColour();
-
-	if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
-	{
-		if (RelocPtr[48] != NULL)//KlaxonTremor
-		{
-			//unsigned long* v0 = (unsigned long*)RelocPtr[48];
-			//jalr v0[0];
+			if (GLOBAL_playing_cutseq == 0)
+			{
+				if (bUseSpotCam)
+				{
+					CalculateSpotCams();
+				}
+				else
+				{
+					bTrackCamInit = 0;
+					CalculateCamera();
+				}
+			}
+			else
+			{
+				//loc_1E044
+				camera.type = CINEMATIC_CAMERA;
+			}
 		}
-	}
-
-	//loc_1E288
-	SoundEffects();
-	health_bar_timer--;
-
-	if (gfGameMode == 0)
-	{
-		GameTimer++;
-
-		if (savegame.Level.Timer != 0 && GLOBAL_playing_cutseq == 0)
+		else
 		{
-			savegame.Level.Timer++;
+			//loc_1E044
+			camera.type = CINEMATIC_CAMERA;
 		}
-	}
 
-	//loc_1E2F0
-	VibratePad();
+		//loc_1E054
+		CamRot.vy = (mGetAngle(camera.pos.z, camera.pos.x, camera.target.z, camera.target.x) >> 4) & 0xFFF;
+		wibble = (wibble + 4) & 0xFC;
+		TriggerLaraDrips();
 
-	if (Motors[1] == 0 && camera.bounce)
-	{
-		//TODO
+		if (SmashedMeshCount != 0)
+		{
+			//loc_1E0C0
+			while (--SmashedMeshCount)
+			{
+				floor = GetFloor(SmashedMesh[SmashedMeshCount]->x, SmashedMesh[SmashedMeshCount]->y, SmashedMesh[SmashedMeshCount]->z, &SmashedMeshRoom[SmashedMeshCount]);
+				GetHeight(floor, SmashedMesh[SmashedMeshCount]->x, SmashedMesh[SmashedMeshCount]->y, SmashedMesh[SmashedMeshCount]->z);
+				TestTriggers(trigger_index, 1, 0);
+				floor->stopper = 0;
+				SmashedMesh[SmashedMeshCount] = NULL;
+			}
+		}//loc_1E15C
 
-	}
+		///UpdateSparks();
+		///UpdateFireSparks();
+		///UpdateSmokeSparks();
+		///UpdateBubbles();
+		///UpdateSplashes();
+		///UpdateDebris();
+		///UpdateBlood();
+		///UpdateDrips();
+		///UpdateGunShells();
 
-	//loc_1E384
-	UpdateFadeClip();
-	framecount -= 2;
+		if (RelocPtr[MOD_RAT] != NULL)
+		{
+			///((VOIDFUNCVOID*)RelocPtr[MOD_RAT][5])();
+		}
+		//loc_1E1C4
+		if (RelocPtr[MOD_BAT] != NULL)
+		{
+			///((VOIDFUNCVOID*)RelocPtr[MOD_BAT][1])();
+		}
+		//loc_1E1E4
+		if (RelocPtr[MOD_SPIDER] != NULL)
+		{
+			///((VOIDFUNCVOID*)RelocPtr[MOD_SPIDER][5])();
+		}
+		//loc_1E204
+		///UpdateShockwaves();
 
-	if (framecount <= 0)
-	{
-		break;
-	}
-	}
-#endif
+		//loc_1E1E4
+		if (RelocPtr[MOD_LIGHTNG] != NULL)
+		{
+			///((VOIDFUNCVOID*)RelocPtr[MOD_LIGHTNG][1])();
+		}
+
+		//loc_1E22C
+		if (RelocPtr[MOD_TWOGUN] != NULL)
+		{
+			///((VOIDFUNCVOID*)RelocPtr[MOD_TWOGUN][2])();
+		}
+		//loc_1E24C
+		AnimateWaterfalls();
+		UpdatePulseColour();
+
+		if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
+		{
+			///((VOIDFUNCVOID*)RelocPtr[MOD_JOBY5][0])();
+		}
+		//loc_1E288
+		SoundEffects();
+		health_bar_timer--;
+
+		if (gfGameMode == 0)
+		{
+			//a1 = &savegame
+			GameTimer++;
+			if (savegame.Level.Timer != 0 && GLOBAL_playing_cutseq == 0)
+			{
+				savegame.Level.Timer++;
+			}//loc_1E2F0
+		}
+		//loc_1E2F0
+		VibratePad();
+
+		if (Motors[0] == 0 && camera.bounce << 9 != 0)
+		{
+			val = camera.bounce << 9;
+			if (camera.bounce < 0)
+			{
+				val = -val;
+			}
+
+			//loc_1E32C
+
+			val += GetRandomControl() / val;
+			if (0xFF00 < val)
+			{
+				val = 0xFF00;
+			}
+
+			//loc_1E360
+			SetupPadVibration(1, 0x7F00, val, 8, val, 8);
+
+		}//loc_1E384
+
+		UpdateFadeClip();
+		framecount -= 2;
+
+		if (framecount <= 0)
+		{
+			return 0;
+		}
+	} while (GLOBAL_enterinventory == -1);
 
 	//loc_1E3B8
-return 0;
+	return 0;
+#endif
 }
 
 
@@ -1921,7 +1966,11 @@ void FlipMap(int FlipNumber)// (F)
 
 void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (F)
 {
+#if PSXPC_TEST
+	int key = 0;
+#else
 	int key;
+#endif
 	struct ITEM_INFO* item;
 	struct ITEM_INFO* camera_item;
 	short camera_timer;
@@ -1933,8 +1982,14 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 	char SwitchOnOnly;
 	int switch_off;
 	int flip;
+	
+#if PSXPC_TEST
+	int flip_available = 0;
+	int neweffect = 0;
+#else
 	int flip_available;
 	int neweffect;
+#endif
 	int quad;
 	short CamSeq;
 	short lp;
@@ -2700,9 +2755,373 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F
 }
 
 #if PC_VERSION || PSXPC_VERSION || PSXPC_TEST || SAT_VERSION
-short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)
+short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(<) (F)
 {
+	struct room_info* r;//a0
+	FLOOR_INFO* f;//s0
+	short* fd;//s1
+	short value;
+#if PSXENGINE
+	//s0 = floor
+	//s3 = x
+	OnObject = 0;
+	height_type = 0;
+	tiltyoff = 0;
+	tiltxoff = 0;
+	//s4 = z
+
+	//loc_78D18:
+	while(floor->pit_room != 0xFF)
+	{
+		//loc_78CB4
+		if (CheckNoColFloorTriangle(floor, x, z) == 1)
+		{
+			break;
+		}
+
+		r = &room[floor->pit_room];
+		f = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
+	}
+	//loc_78D28
+	//t7 = floor->floor << 8
+	//v0 = -32512
+
+	if (floor->floor << 8 == -32512)
+	{
+		return -32512;
+	}
+	//loc_78FCC
+	//v1 = floor->index << 1
+	trigger_index = NULL;
+
+	//v0 = floor->floor << 8
+	if (floor->index << 1 == 0)
+	{
+		return -32512;
+	}
+
+	//s1 = floor_data
+	fd = &floor_data[floor->index];
+
+	//loc_78D60
+	//s2 = *fd++;
+	//v0 = s2 & 0x1F
+	//v1 = v0 - 1
+
+	switch (*fd++ & 0x1F)//CHECKME at end of loop do we *fd++ if so then leave as is
+	{
+	case DOOR_TYPE:
+	case ROOF_TYPE:
+	case SPLIT3:
+	case SPLIT4:
+	case NOCOLC1T:
+	case NOCOLC1B:
+	case NOCOLC2T:
+	case NOCOLC2B:
+		break;
+	case TILT_TYPE:
+	{
+		//loc_78EA0
+		//a1 = fd[1]
+		//a2 = fd[0]
+		//loc_78EB4
+		tiltxoff = ABS(fd[1]);//v0
+		tiltyoff = fd[0];
+
+		//v0 = v0 < 3 ? 1 : 0
+
+#if 0
+						slti    $v0, 3
+						beqz    $v0, loc_78EE4
+						li      $v0, 2
+						bgez    $a2, loc_78ED4
+						move    $v0, $a2
+						negu    $v0, $v0
+
+						loc_78ED4 :
+					slti    $v0, 3
+						bnez    $v0, loc_78EE4
+						li      $v0, 1
+						li      $v0, 2
+
+						loc_78EE4 :
+						jal     sub_78FEC
+						sw      $v0, 0x1C6C($gp)
+
+						loc_78EEC : # jumptable 00078D8C cases 1, 3, 9, 10, 15 - 18
+						j       loc_78FC0
+						addiu   $s1, 2
+
+						loc_78EF4:               # jumptable 00078D8C cases 6, 19 - 21
+						lw      $v0, 0x1B3C($gp)
+						nop
+						bnez    $v0, loc_78FC0
+
+						loc_78F00 : # jumptable 00078D8C case 5
+						addiu   $v0, $s1, -2
+						j       loc_78FC0
+						sw      $v0, 0x1B3C($gp)
+#endif
+		break;
+	}
+	case TRIGGER_TYPE:
+		//loc_78F0C
+		//v0 = trigger_index
+		fd++;
+		if (trigger_index == NULL)
+		{
+			trigger_index = &fd[-1];
+		}
+		//loc_78F20
+		//s0 = *fd++
+		//v1 = (*fd++ & 0x3FFF) >> 10
+
+		value = (*fd++ & 0x3FFF) >> 10;//v1
+		
+		if (value == 0)
+		{
+			//loc_78F54
+			
+		}
+		else if (value == 12 || value == 1)
+		{
+			//loc_78F48
+		}
+
+#if 0///@? check pc for this, too complicated.
+			beqz    $v1, loc_78F54
+			li      $v0, 0xC
+			beq     $v1, $v0, loc_78F48
+			li      $v0, 1
+			bne     $v1, $v0, loc_78FB8
+			nop
+
+			loc_78F48 :
+			lhu     $s0, 0($s1)
+			j       loc_78FB8
+			addiu   $s1, 2
+
+			loc_78F54 :
+			lw      $a0, 0x1B38($gp)
+			andi    $v1, $s0, 0x3FF
+			sll     $v0, $v1, 7
+			sll     $v1, 4
+			addu    $v0, $v1
+			addu    $a0, $v0
+			lh      $v1, 0xC($a0)
+			lh      $v0, 0x28($a0)
+			li      $t0, 0x1F2480
+			andi    $v0, 0x8000
+			bnez    $v0, loc_78FB8
+			sll     $v1, 6
+			addu    $v0, $t0, $v1
+			lw      $v0, 0x14($v0)
+			move    $a1, $s3
+			beqz    $v0, loc_78FB8
+			move    $a3, $s4
+			lw      $a2, 0x68 + var_48($sp)
+			addiu   $at, $sp, 0x68 + var_50
+			sw      $t7, 0x68 + var_50($sp)
+			sw      $at, 0x68 + var_58($sp)
+			jalr    $v0
+			nop
+			lw      $t7, 0x68 + var_50($sp)
+#endif
+		break;
+	case LAVA_TYPE:
+	{
+		//loc_78F00
+		trigger_index = &fd[-1];
+		//j       loc_78FC0
+		break;
+	}
+	case CLIMB_TYPE:
+	case MONKEY_TYPE:
+	case TRIGTRIGGER_TYPE:
+	case MINER_TYPE:
+	{
+		//loc_78EF4
+		if (trigger_index == NULL)
+		{
+			trigger_index = &fd[-1];
+		}
+		//j       loc_78FC0
+		break;
+	}
+	case SPLIT1:
+	case SPLIT2:
+	case NOCOLF1T:
+	case NOCOLF1B:
+	case NOCOLF2T:
+	case NOCOLF2B:
+		//loc_78D94
+		break;
+	}
+
+#if 0
+		loc_78D94 : # jumptable 00078D8C cases 7, 8, 11 - 14
+		li      $v0, 4
+		lhu     $v1, 0($s1)
+		andi    $a0, $s2, 0x1F
+		sw      $v0, 0x1C6C($gp)
+		andi    $t0, $v1, 0xF
+		sra     $a3, $v1, 4
+		andi    $a3, 0xF
+		sra     $a2, $v1, 8
+		andi    $a2, 0xF
+		andi    $t1, $s4, 0x3FF
+		andi    $t2, $s3, 0x3FF
+		li      $v0, 7
+		beq     $a0, $v0, loc_78DD8
+		srl     $v1, 12
+		addiu   $v0, $a0, -0xB
+		sltiu   $v0, 2
+		beqz    $v0, loc_78E08
+
+		loc_78DD8 :
+	li      $v0, 0x400
+		subu    $v0, $t1
+		slt     $v0, $t2
+		bnez    $v0, loc_78DF8
+		srl     $v0, $s2, 10
+		subu    $a1, $a2, $a3
+		j       loc_78E2C
+		subu    $a2, $t0, $a3
+
+		loc_78DF8 :
+	srl     $v0, $s2, 5
+		subu    $a1, $v1, $t0
+		j       loc_78E2C
+		subu    $a2, $v1, $a2
+
+		loc_78E08 :
+	slt     $v0, $t1, $t2
+		bnez    $v0, loc_78E20
+		srl     $v0, $s2, 10
+		subu    $a1, $a2, $a3
+		j       loc_78E2C
+		subu    $a2, $v1, $a2
+
+		loc_78E20 :
+	srl     $v0, $s2, 5
+		subu    $a1, $v1, $t0
+		subu    $a2, $t0, $a3
+
+		loc_78E2C :
+	sw      $a1, 0x1ACC($gp)
+		sw      $a2, 0x1AD0($gp)
+		andi    $v0, 0x1F
+		andi    $at, $v0, 0x10
+		beqz    $at, loc_78E48
+		li      $at, 0xFFFFFFF0
+		or $v0, $at
+
+		loc_78E48 :
+	sll     $v0, 8
+		addu    $t7, $v0
+		bgez    $a1, loc_78E5C
+		move    $v0, $a1
+		negu    $v0, $v0
+
+		loc_78E5C :
+	slti    $v0, 3
+		beqz    $v0, loc_78E90
+		li      $v0, 3
+		bgez    $a2, loc_78E74
+		move    $v0, $a2
+		negu    $v0, $v0
+
+		loc_78E74 :
+	slti    $v0, 3
+		beqz    $v0, loc_78E90
+		li      $v0, 3
+		lw      $v1, 0x1C6C($gp)
+		li      $v0, 4
+		beq     $v1, $v0, loc_78E94
+		li      $v0, 1
+
+		loc_78E90:
+	sw      $v0, 0x1C6C($gp)
+
+		loc_78E94 :
+		addiu   $s1, 2
+		jal     sub_78FEC
+		addiu   $ra, 0x120
+
+		
+
+		loc_78F0C:               # jumptable 00078D8C case 4
+		lw      $v0, 0x1B3C($gp)
+		addiu   $s1, 2
+		bnez    $v0, loc_78F20
+		addiu   $v0, $s1, -4
+		sw      $v0, 0x1B3C($gp)
+
+		loc_78F20:
+			lhu     $s0, 0($s1)
+				addiu   $s1, 2
+				andi    $v0, $s0, 0x3FFF
+				srl     $v1, $v0, 10
+				beqz    $v1, loc_78F54
+				li      $v0, 0xC
+				beq     $v1, $v0, loc_78F48
+				li      $v0, 1
+				bne     $v1, $v0, loc_78FB8
+				nop
+
+				loc_78F48 :
+			lhu     $s0, 0($s1)
+				j       loc_78FB8
+				addiu   $s1, 2
+
+				loc_78F54 :
+				lw      $a0, 0x1B38($gp)
+				andi    $v1, $s0, 0x3FF
+				sll     $v0, $v1, 7
+				sll     $v1, 4
+				addu    $v0, $v1
+				addu    $a0, $v0
+				lh      $v1, 0xC($a0)
+				lh      $v0, 0x28($a0)
+				li      $t0, 0x1F2480
+				andi    $v0, 0x8000
+				bnez    $v0, loc_78FB8
+				sll     $v1, 6
+				addu    $v0, $t0, $v1
+				lw      $v0, 0x14($v0)
+				move    $a1, $s3
+				beqz    $v0, loc_78FB8
+				move    $a3, $s4
+				lw      $a2, 0x68 + var_48($sp)
+				addiu   $at, $sp, 0x68 + var_50
+				sw      $t7, 0x68 + var_50($sp)
+				sw      $at, 0x68 + var_58($sp)
+				jalr    $v0
+				nop
+				lw      $t7, 0x68 + var_50($sp)
+
+				loc_78FB8:
+			andi    $v0, $s0, 0x8000
+				beqz    $v0, loc_78F20
+
+				loc_78FC0 :
+			andi    $v0, $s2, 0x8000
+				beqz    $v0, loc_78D60
+				move    $v0, $t7
+
+				loc_78FCC :
+			lw      $ra, 0x68 + var_4($sp)
+				lw      $s4, 0x68 + var_18($sp)
+				lw      $s3, 0x68 + var_1C($sp)
+				lw      $s2, 0x68 + var_20($sp)
+				lw      $s1, 0x68 + var_24($sp)
+				lw      $s0, 0x68 + var_28($sp)
+				jr      $ra
+				addiu   $sp, 0x68
+#endif
+#else
 	UNIMPLEMENTED();
+#endif
 	return 0;
 }
 

@@ -664,6 +664,9 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 
 void Fade()//34B78(<), 35078(<) (F)
 {
+#if 1
+	ScreenFading = 0;//Dirty hack until this function is redone
+#endif
 	if (dScreenFade != 0)
 	{
 		if (dScreenFade > ScreenFade)
@@ -873,6 +876,7 @@ void DrawWeaponMissile(struct ITEM_INFO *item)
 	UNIMPLEMENTED();
 }
 
+#if 1//PC_VERSION
 void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
 {
 	int i;
@@ -892,9 +896,7 @@ void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
 		}
 	}
 }
-
-
-
+#endif
 
 short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room_number)
 {
@@ -907,6 +909,7 @@ short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room
 
 	return -1;
 }
+
 #if PC_VERSION
 void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
 {

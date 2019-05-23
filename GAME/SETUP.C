@@ -295,9 +295,9 @@ void init_water_table()//(<), B4A40(<)
 		{
 			for (k = 0; k<4; k++)
 			{
-				static unsigned char off[4] = { 4, 8, 12, 16 };
-				static short shim[4] = { 31, 63, 95, 127 };
-				static short chop[4] = { 16, 53, 90, 127 };
+				unsigned char off[4] = { 4, 8, 12, 16 };
+				short shim[4] = { 31, 63, 95, 127 };
+				short chop[4] = { 16, 53, 90, 127 };
 
 				WaterTable[j + k][lp].shimmer = -((sin*shim[k]) >> 15);
 				WaterTable[j + k][lp].choppy = (sin*chop[i]) >> 12;
@@ -413,7 +413,189 @@ void InitBinoculars()//?(<), B4E28(<)
 #endif
 }
 
+void InitialiseLaraCarriedItems(long keep_carried_items)//?, B4EE4
+{
+	long i;
+	long gun_type;
+	struct lara_info lara_backup;
 
+	if (lara.item_number == -1)
+	{
+		return;
+	}
+
+	lara_item->meshswap_meshbits &= 0xFFDF;
+	lara_item->data = &lara;
+
+	if (keep_carried_items)
+	{
+		//$B51C0
+		memcpy(&lara_backup, &lara, sizeof(struct lara_info));
+		memset(&lara, 0, sizeof(struct lara_info));
+		memcpy(&lara.pistols_type_carried, &lara_backup.pistols_type_carried, 59);
+	}
+	else
+	{
+		memset(&lara, 0, sizeof(struct lara_info));
+	}
+
+	lara.item_number = lara.item_number;//?
+
+
+	lara.air = 0x708;
+	lara.hit_direction = -1;
+	lara.weapon_item = -1;
+	PoisonFlag = 0;
+	lara.holster = 0xE;
+	lara.RopePtr = -1;
+	lara.water_surface_dist = 0x64;
+	lara.dpoisoned = 0;
+	lara.poisoned = 0;
+	lara.location = -1;
+	lara.highest_location = -1;
+	lara.Unused1 = 1;
+
+	//a0 = 0xA0000;
+	//s3= lara_item
+	lara_item->hit_points = 0x3E8;
+
+	for (i = 0; i < gfNumPickups; i++)
+	{
+		DEL_picked_up_object(convert_invobj_to_obj(gfPickups[i]));
+	}//$B52AC
+
+	gfNumPickups = 0;
+	if (!(gfLevelFlags & 1) && objects[PISTOLS_ITEM].loaded)
+	{
+		gun_type = 1;
+	}
+	else
+	{
+		//$B52D8
+		gun_type = 0;
+	}
+
+	//v0 = &objects
+	if ((gfLevelFlags & 0x80) && objects[HK_ITEM].loaded)
+	{
+		//v1 = lara
+		if ((lara.hk_type_carried & 1))
+		{
+			gun_type = 5;
+		}//$B531C
+	}//$B531C
+
+	 //s1 = lara;
+	lara.gun_status = 0;
+	lara.last_gun_type = gun_type;
+	lara.gun_type = gun_type;
+	lara.request_gun_type = gun_type;
+
+	LaraInitialiseMeshes();
+
+	//a0 = &objects
+	lara.skelebob = 0;
+
+	//objects[PISTOLS_ITEM]
+
+	if (objects[PISTOLS_ITEM].loaded)
+	{
+		lara.pistols_type_carried = 9;
+	}//$B5354
+
+	lara.binoculars = 1;
+
+#if 0
+	000B535C 8FA20198 lw      v0, $198(sp)
+		000B5360 00000000 nop
+		000B5364 1440000B bne     v0, 0, $B5394
+		000B5368 00000000 nop
+		000B536C 8C8258F0 lw      v0, $58F0(a0)
+		000B5370 00000000 nop
+		000B5374 00431024 and v0, v1
+		000B5378 10400002 beq     v0, 0, $B5384
+		000B537C 24020003 addiu   v0, 0, $3
+		000B5380 A6220146 sh      v0, $146(s1)
+#endif
+
+		lara.num_small_medipack = 3;
+	lara.num_large_medipack = 1;
+
+	lara.num_pistols_ammo = -1;
+	InitialiseLaraAnims(lara_item);
+
+	//s0 = 0;
+	//v1 = 0x78
+	//a0 = gfNumTakeaways;
+	//v0 = 0xA0000
+	DashTimer = 120;
+
+	if (gfNumTakeaways != 0)
+	{
+		for (i = 0; i < gfNumTakeaways; i++)
+		{
+			convert_invobj_to_obj(gfTakeaways[i]);
+			NailInvItem(gfTakeaways[i]);
+		}
+	}//$B53F8
+
+	gfNumTakeaways = 0;
+
+	if (gfCurrentLevel < LVL5_BASE)
+	{
+		weapons[1].damage = 6;
+	}
+	else
+	{
+		//$B541C
+		weapons[1].damage = 15;
+	}
+
+	if (gfCurrentLevel == LVL5_DEEPSEA_DIVE)
+	{
+		lara.puzzleitems[0] = 10;
+	}//$B5450
+
+	if (gfCurrentLevel == LVL5_SUBMARINE)
+	{
+		lara.pickupitems = 0;
+		lara.pickupitemscombo = 0;
+		lara.keyitems = 0;
+		lara.keyitemscombo = 0;
+		lara.puzzleitemscombo = 0;
+
+		for (i = 0; i < 0xB; i++)
+		{
+			lara.puzzleitems[i] = 0;
+		}
+	}
+
+	if (gfCurrentLevel == LVL5_SINKING_SUBMARINE)
+	{
+		lara.puzzleitems[0] = 0;
+		lara.pickupitems = 0;
+	}//$B54A8
+
+	if (gfCurrentLevel == LVL5_ESCAPE_WITH_THE_IRIS)
+	{
+		lara.puzzleitems[2] = 0;
+		lara.puzzleitems[3] = 0;
+		lara.pickupitems &= -2;
+	}
+
+	if (gfCurrentLevel == LVL5_RED_ALERT)
+	{
+		lara.pickupitems &= -3;
+	}
+
+	if (gfCurrentLevel - 0xB < 4)
+	{
+		lara.bottle = 0;
+		lara.wetcloth = 0;
+	}
+
+	lara.pickupitems &= -9;
+}
 
 void InitialiseFootPrints()//?(<), B52FC(<)
 {
@@ -723,14 +905,14 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 		objects[i].draw_routine_extra = NULL;
 		objects[i].object_mip = 0;
 
-		objects[i].intelligent = false;
-		objects[i].save_position = false;
-		objects[i].save_hitpoints = false;
-		objects[i].save_flags = false;
-		objects[i].save_anim = false;
-		objects[i].water_creature = false;
-		objects[i].save_mesh = false;
-		objects[i].using_drawanimating_item = true;
+		objects[i].intelligent = FALSE;
+		objects[i].save_position = FALSE;
+		objects[i].save_hitpoints = FALSE;
+		objects[i].save_flags = FALSE;
+		objects[i].save_anim = FALSE;
+		objects[i].water_creature = FALSE;
+		objects[i].save_mesh = FALSE;
+		objects[i].using_drawanimating_item = TRUE;
 
 		((int*)&objects[i].frame_base)[0] += (uintptr_t)frames;
 	}
@@ -929,7 +1111,7 @@ void LoadLevel(FILE* nHandle)
 #endif
 
 	//loc_340, loc_3B4
-	for (i = 1; i >= 0; i--)///@CHECK
+	for (i = 0; i < 2; i++)///@CHECK
 	{
 #if DISC_VERSION
 		DEL_CDFS_Read(ptr, 0x40000);
@@ -1456,7 +1638,7 @@ void LoadLevel(FILE* nHandle)
 	//Unimplemented
 #endif
 
-#if DISC_VERSION && !BETA_VERSION
+#if 0//DISC_VERSION && !BETA_VERSION
 
 	if (gfCurrentLevel == LVL5_TITLE && Gameflow->Language - 1 < 2)
 	{
@@ -1483,7 +1665,7 @@ void LoadLevel(FILE* nHandle)
 #if PSXPC_TEST
 		LoadImagePSX(&tex[0], (unsigned long*)ptr);
 #else
-		LoadImage(&tex[0], (unsigned long*)ptr);
+		//LoadImage(&tex[0], (unsigned long*)ptr);
 #endif
 		DrawSync(0);
 #endif
@@ -1540,12 +1722,15 @@ void ObjectObjects()//?, B84F0
 
 void GetCarriedItems()//?(<), B9974(<) (F)
 {
-	for (int i = 0; i < level_items; i++)
+	int i;
+	int j;
+
+	for (i = 0; i < level_items; i++)
 	{
 		items[i].carried_item = -1;
 	}
 
-	for (int i = 0; i < level_items; i++)
+	for (i = 0; i < level_items; i++)
 	{
 		struct ITEM_INFO* item = &items[i];
 
@@ -1554,7 +1739,7 @@ void GetCarriedItems()//?(<), B9974(<) (F)
 		{
 			struct ITEM_INFO* cur;
 
-			for (int j = room[item->room_number].item_number; j != -1; j = cur->next_item)
+			for (j =room[item->room_number].item_number; j != -1; j = cur->next_item)
 			{
 				cur = &items[j];
 
@@ -1642,12 +1827,26 @@ void SetupGame()//?(<), B9DA8(<) (F)
 	InitTarget();
 	InitialiseGameFlags();
 
+#if PC_VERSION
 	InitialiseLara(
 		gfCurrentLevel != LVL5_THIRTEENTH_FLOOR &&
 		gfCurrentLevel != LVL5_BASE &&
 		gfCurrentLevel != LVL5_GALLOWS_TREE &&
 		gfCurrentLevel != LVL5_STREETS_OF_ROME &&
 		!gfInitialiseGame);
+#else
+	if ((gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME) && gfInitialiseGame != 0)
+	{
+		//B9E50
+		InitialiseLaraCarriedItems(0);
+	}
+	else
+	{
+		//B9E60
+		InitialiseLaraCarriedItems(1);
+	}
+#endif
+
 	//B9E68
 	GetCarriedItems();
 	GetAIPickups();

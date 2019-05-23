@@ -22,6 +22,7 @@
 #include "GPU.H"
 #include "DRAWPHAS.H"
 #include "ROOMLOAD.H"
+#include "PROFILE.H"
 #include <LIBAPI.H>
 #include <LIBGTE.H>
 #elif SAT_VERSION
@@ -1246,7 +1247,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		{
 			PrintString(
 #if PSX_VERSION || PSXPC_TEST || PSXPC_VERSION || SAT_VERSION
-				0x100, 0xE8, 
+				0x100, 0xE8,
 #else
 				phd_winwidth / 2, phd_winymax - font_height,
 #endif
@@ -1266,30 +1267,24 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		//loc_10DEC
 		if (gfLevelComplete == 0)
 		{
-#if PSX_VERSION
-				if (dbinput & 0x100 && GLOBAL_enterinventory != -1)
+			if ((dbinput & IN_OPTION) || GLOBAL_enterinventory != -1)
+			{
+				//loc_10E28
+ 				if (cutseq_trig == 0 && lara_item->hit_points > 0 && ScreenFading == 0)
 				{
-					//loc_10E28
-					if (cutseq_trig == 0 && lara_item->hit_points > 0 && ScreenFading == 0)
+					if (S_CallInventory2())
 					{
-						if (S_CallInventory2() != 0)
-						{
-							//loc_10CB8
-							gfStatus = 2;
-						}
+						gfStatus = 2;
+						break;
 					}
 				}
-#endif
-
+			}
 			//loc_10E7C
 			QuickControlPhase();
 		}
 		else
 		{
-#if PSXENGINE
-				//loc_10CAC
-				gfStatus = 3;
-#endif
+			gfStatus = 3;
 			break;
 		}
 	}
