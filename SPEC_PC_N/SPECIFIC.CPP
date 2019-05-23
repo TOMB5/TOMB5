@@ -635,13 +635,75 @@ void S_AnimateTextures(long nFrames)
 	Unimpl();
 }
 
-void DrawPsxTile(long a0, long a1, long a2)
+void DrawPsxTile(long a1, long a2, long a3)
 {
-	Unimpl();
+	uint16 v7; // si
+	unsigned int v8; // eax
+	D3DTLVERTEX v[4]; // [esp+1Ch] [ebp-A8h]
+	OBJECT_TEXTURE tex; // [esp+9Ch] [ebp-28h]
+
+	e4b100 = 6;
+	if ((a3 & 0xFF000000) == 0x62000000)
+	{
+		v7 = 3;
+		v8 = a3 << 24;
+	}
+	else
+	{
+		v7 = 2;
+		v8 = a3 | 0xFF000000;
+	}
+	float v13 = f_oneoznear;
+	double v9 = f_znear3;
+
+	if (gfCurrentLevel == LVL5_TITLE)
+	{
+		v9 += 10.0;
+		v13 += 50.0;
+	}
+
+	v[0].sx = v9;
+	double v10 = a2 + 1.0 + (a1 >> 16);
+	v[0].color = v8;
+	v[0].sx = a1 >> 16;
+	v[0].sy = a1;
+	v[1].sx = v10;
+	v[0].rhw = v13;
+	v[1].sz = v9;
+	v[1].sy = a1;
+	v[2].sx = v10;
+	double v11 = (a2 >> 16) + 1.0 + a1;
+	v[1].rhw = v13;
+	v[2].rhw = v13;
+	v[1].color = v8;
+	v[2].color = v8;
+	v[3].sx = a1 >> 16;
+	v[2].sy = v11;
+	v[3].color = v8;
+	v[0].specular = 0xFF000000;
+	v[1].specular = 0xFF000000;
+	v[2].specular = 0xFF000000;
+	v[2].sz = v9;
+	v[3].rhw = v13;
+	v[3].specular = 0xFF000000;
+	v[3].sy = v11;
+	tex.attribute = v7;
+	tex.new_flags = 0;
+	v[3].sz = v9;
+	tex.tile_and_flag = 0;
+
+	d9ab34[0] = 0;
+	d9ab34[1] = 0;
+	d9ab34[2] = 0;
+	d9ab34[3] = 0;
+
+	return AddQuad2(v, 0, 1, 2, 3, &tex, 0);
 }
 
 void S_OutputPolyList()
 {
+	Log(LT_Info, "S_OutputPolyList - RENDER START");
+
 	//RestoreFPCW();
 	WinFrameRate();
 
@@ -739,6 +801,8 @@ void S_OutputPolyList()
 	}
 
 	// MungeFPCW((int)&word_878654);
+
+	Log(LT_Info, "S_OutputPolyList - RENDER END");
 }
 
 void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
