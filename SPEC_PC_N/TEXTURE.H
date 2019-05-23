@@ -17,7 +17,7 @@ struct DXTEXTURE
 	DWORD width;
 	DWORD height;
 	DWORD a8;
-	BYTE a9;
+	BYTE alpha_blend;
 	BYTE a10;
 	BYTE a11;
 	DWORD other_id;

@@ -2316,17 +2316,56 @@ void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VE
 #endif
 }
 
-void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix)
+void GrabActorMatrix(int actornum, int nodenum, MatrixThing* matrix)
 {
+#if !PC_VERSION
 	UNIMPLEMENTED();
+	return;
+	// matrix needs to be fixed
+#else
+
+
+	mPushMatrix();
+	updateAnimFrame(actor_pnodes[actornum], GLOBAL_cutme->actor_data[actornum].nodes + 1, temp_rotation_buffer);
+	mTranslateAbsXYZ(GLOBAL_cutme->orgx, GLOBAL_cutme->orgy, GLOBAL_cutme->orgz);
+	mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
+	short* rot = &temp_rotation_buffer[9];
+	mRotSuperPackedYXZ(&rot, 0);
+
+	if (nodenum == 0)
+	{
+		*matrix = *(MatrixThing*)phd_dxptr;
+	}
+
+	struct object_info* obj = &objects[GLOBAL_cutme->actor_data[actornum].objslot];
+	long* bone = &bones[obj->bone_index];
+
+	for(int i = 0; i < obj->nmeshes - 1; i++, bone += 4)
+	{
+		if (bone[0] & 1)
+			mPopMatrix();
+
+		if (bone[0] & 2)
+			mPushMatrix();
+
+		mTranslateXYZ(bone[1], bone[2], bone[3]);
+		mRotSuperPackedYXZ(&rot, 0);
+
+		if (i == nodenum)
+		{
+			*matrix = *(MatrixThing*)phd_dxptr;
+		}
+		
+	}
+#endif
 }
 
 void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, struct PHD_VECTOR* pos)// (F)
 {
 	int i;
 	unsigned short dat;
-	struct MATRIX3D arse;
-
+	MatrixThing arse;
+	
 	for(i = 0; shootdata[i] != -1; i++)
 	{
 		dat = shootdata[i];
@@ -3444,14 +3483,14 @@ void handle_cutseq_triggering(int name)//2C3C4(<), 2C6EC(<) (F)
 
 		switch (cutseq_num)
 		{
-		case 28:
-			cutseq_num = 29;
+		case CUT_SPECIAL1:
+			cutseq_num = CUT_SPECIAL2;
 			break;
-		case 29:
-			cutseq_num = 30;
+		case CUT_SPECIAL2:
+			cutseq_num = CUT_SPECIAL3;
 			break;
-		case 30:
-			cutseq_num = 28;
+		case CUT_SPECIAL3:
+			cutseq_num = CUT_SPECIAL1;
 			break;
 		}
 
@@ -3737,14 +3776,14 @@ void handle_cutseq_triggering(int name)//2C3C4(<), 2C6EC(<) (F)
 
 		switch(cutseq_num)
 		{
-		case 28:
-			cutseq_num = 29;
+		case CUT_SPECIAL1:
+			cutseq_num = CUT_SPECIAL2;
 			break;
-		case 29:
-			cutseq_num = 30;
+		case CUT_SPECIAL2:
+			cutseq_num = CUT_SPECIAL3;
 			break;
-		case 30:
-			cutseq_num = 28;
+		case CUT_SPECIAL3:
+			cutseq_num = CUT_SPECIAL1;
 			break;
 		}
 

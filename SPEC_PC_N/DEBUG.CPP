@@ -8,6 +8,7 @@
 #include "DELTAPAK.H"
 #include "PICTURE.H"
 #include "DIRECTX.H"
+#include "CAMERA.H"
 
 UINT dbm_logout, dbm_clearlog, dbm_deftype, dbm_command;
 DWORD dbginput;
@@ -216,7 +217,7 @@ void DrawDebugPre()
 
 void DrawDebugPost()
 {
-	DDBLTFX fx;
+	/*DDBLTFX fx;
 	DXInit(fx);
 	//fx.dwFillColor = GENRGB(0, 0, (5 * GnFrameCounter) % 256);
 	fx.dwFillColor = (64 + abs((int)((2 * GnFrameCounter) % 192 - 96))) << (8 * (((GnFrameCounter / 6) % 27) / 9));
@@ -225,15 +226,14 @@ void DrawDebugPost()
 	RECT dest{ 256, 256, 512, 512 };
 	RECT src{ 0, 0, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height };
 	Log(LT_Info, "Debug draw %08x", DXTextureList[cur_tpage].surface);
-	DX_TRY(App.lpBackBuffer->Blt(&dest, DXTextureList[cur_tpage].surface, &src, DDBLT_WAIT, nullptr));
+	//DX_TRY(App.lpBackBuffer->Blt(&dest, DXTextureList[cur_tpage].surface, &src, DDBLT_WAIT, nullptr));*/
 }
 
 void ShowDebugInfo()// (F)
 {
 	char buf[2048];
 	sprintf(buf,
-		"FPS : %3.2f\n"
-		"Game frame : %d\n"
+		"FPS : %3.2f, game frame : %d\n"
 		"Mouse : %4d ; %4d\n"
 		"Game mode : %d\n"
 		"Malloc : %5dK (%3d%%) used - %5dK free - %5dK total\n"
@@ -241,12 +241,16 @@ void ShowDebugInfo()// (F)
 		"DrawPrimitive calls : %9d\n"
 		"BF list : %6d\n"
 		"Texture page : %2d (%3d x %3d)\n"
+		"Playing XA : %3d (%s)\n"
+		"Camera : (%5d ; %5d ; %5d) room %3d\n"
 		"Input : ", App.fps, GnFrameCounter, mouse_x, mouse_y, gfGameMode, malloc_used / 1024, (int)(malloc_used * 100.0 / malloc_size), malloc_free / 1024, malloc_size / 1024,
 		gfCurrentLevel, cutseq_num, GLOBAL_playing_cutseq ? "TRUE" : "FALSE", App.DrawPrimitiveCnt, surfacenumbf, 
-		cur_tpage, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height);
+		cur_tpage, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height, 
+		XATrack, XATrack == -1 ? "---" : xa_filenames[XATrack],
+		camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number);
 	GetInputStr(buf + strlen(buf));
 	PrintString(10, 10, 0, buf, 0);
-
+	
 	if (keymap[DIK_U])
 	{
 		cur_tpage--;

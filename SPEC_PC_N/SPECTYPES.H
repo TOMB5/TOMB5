@@ -102,6 +102,12 @@ struct static_info
 	short z_maxc;
 };
 
+struct bounding_box_f
+{
+	float minX, minY, minZ;
+	float maxX, maxY, maxZ;
+};
+
 struct ROOM_LIGHT   // 88 bytes
 {
 	float x, y, z;       // Position of light, in world coordinates
@@ -122,6 +128,22 @@ struct ROOM_LIGHT   // 88 bytes
 	uint8_t LightType;
 
 	uint8_t Filler[3];     // Dummy values = 3 x 0xCD
+};
+
+struct room_light_begin
+{
+	float x, y, z;       // Position of light, in world coordinates
+	float r, g, b;       // Colour of the light
+
+	uint32_t ShadowIntensity;    // only if LightType == LIGHT_SHADOW
+
+	float In;            // Cosine of the IN value for light / size of IN value
+	float Out;           // Cosine of the OUT value for light / size of OUT value
+};
+
+struct room_light_thing
+{
+	char pad[168];
 };
 
 struct room_info {
@@ -311,6 +333,22 @@ struct creature_info {
 	struct lot_info LOT; // size=44, offset=5658
 };
 
+struct tr_face3    // 8 bytes
+{
+	uint16_t Vertices[3];
+	uint16_t Texture : 14;
+	uint16_t UnkFlag : 1;
+	uint16_t DoubleSided : 1;
+};
+
+struct tr_face4    // 12 bytes
+{
+	uint16_t Vertices[4];
+	uint16_t Texture : 14;
+	uint16_t UnkFlag : 1;
+	uint16_t DoubleSided : 1;
+};
+
 struct tr4_mesh_face3    // 10 bytes
 {
 	uint16_t Vertices[3];
@@ -338,12 +376,9 @@ struct ROOMLET   // 56 bytes
 
 								 // The following 6 floats define the bounding box for the layer
 
-	float    LayerBoundingBoxX1;
-	float    LayerBoundingBoxY1;
-	float    LayerBoundingBoxZ1;
-	float    LayerBoundingBoxX2;
-	float    LayerBoundingBoxY2;
-	float    LayerBoundingBoxZ2;
+
+
+	bounding_box_f BoundingBox;
 
 	uint32_t Filler3;     // Always 0 (4 bytes)
 	void* VerticesOffset;
@@ -356,6 +391,20 @@ struct tr5_vertex   // 12 bytes
 	float x;
 	float y;
 	float z;
+};
+
+struct DYNTHING // 40
+{
+	D3DVALUE sx;
+	D3DVALUE sy;
+	D3DVALUE sz;
+	D3DVALUE r;
+	D3DVALUE g;
+	D3DVALUE b;
+	D3DVALUE falloff;
+	D3DVALUE falloff_sqr;
+	D3DVALUE falloff_inv;
+	D3DVALUE unk;
 };
 
 struct tr5_room_vertex  // 28 bytes
@@ -614,9 +663,10 @@ struct WINAPP
 	LPDIRECTDRAWPALETTE		Palette;				// Palette For SW Renderer
 	char pad111[272];
 	D3DMATRIX ViewMatrix;
-	char pad112[8];
+	char pad112[4];
+	DWORD unk11200001;
 	DWORD DrawPrimitiveCnt;
-	char pad11201[4];
+	int ResChangeTimer;
 	uint16_t* AnimTextureRanges;
 	char pad1121[4];
 	D3DMATRIX WorldMatrix;
@@ -665,7 +715,21 @@ struct SNOWFLAKE
 	short room_number;
 };
 
+#define FVF (D3DFVF_TEX2 | D3DFVF_SPECULAR | D3DFVF_DIFFUSE | D3DFVF_XYZRHW)
 
+struct D3DTLBUMPVERTEX // size = 40 bytes
+{
+	D3DVALUE    sx;
+	D3DVALUE    sy;
+	D3DVALUE    sz;
+	D3DVALUE    rhw;
+	D3DCOLOR    color;
+	D3DCOLOR    specular;
+	D3DVALUE    tu;	
+	D3DVALUE    tv;
+	D3DVALUE    tu2;
+	D3DVALUE    tv2;
+};
 
 #pragma pack(pop)
 
