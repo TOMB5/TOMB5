@@ -392,6 +392,177 @@ void AddClippedPoly(D3DTLBUMPVERTEX* vt1, int num, D3DTLBUMPVERTEX* vt2)
 	}
 }
 
+D3DTLBUMPVERTEX stru_BA3FB0[24];
+D3DTLBUMPVERTEX stru_923C88[20];
+
+void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
+{
+	WORD vp1 = d9ab34[v1];
+	WORD vp2 = d9ab34[v2];
+	WORD vp3 = d9ab34[v3];
+
+	OBJECT_TEXTURE newtex;
+	OBJECT_TEXTURE* next;
+
+	D3DTLBUMPVERTEX* vptr;
+
+	if (vp1 & vp2 & vp3)
+		return;
+
+	int v27 = 0;
+	int v31 = 1;
+
+	if ((vp1 | vp2 | vp3) & 0x8000)
+	{
+		if (visible_zclip(&v[v1], &v[v2], &v[v3]))
+		{
+			next = tex;
+			vptr = stru_923C88;
+			v27 = 1;
+		}
+		else
+		{
+			if (!dside)
+				return;
+
+			SWAP(v2, v3);
+
+			if (!visible_zclip(&v[v1], &v[v2], &v[v3]))
+				return;
+
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+
+			newtex.vertices[0] = tex->vertices[0];
+			newtex.vertices[1] = tex->vertices[2];
+			newtex.vertices[2] = tex->vertices[1];
+
+			next = &newtex;
+
+			vptr = stru_923C88;
+		}
+	}
+	else
+	{
+		if (PtrVisible(&v[v1], &v[v2], &v[v3]))
+		{
+			if (!dside)
+				return;
+
+			SWAP(v2, v3);
+
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+
+			newtex.vertices[0] = tex->vertices[0];
+			newtex.vertices[1] = tex->vertices[2];
+			newtex.vertices[2] = tex->vertices[1];
+
+			next = &newtex;
+		}
+		else
+		{
+			next = tex;
+		}
+
+		if (d9ab34[v1] | d9ab34[v2] | d9ab34[v3])
+		{
+			vptr = stru_BA3FB0;
+		}
+		else
+		{
+				
+			int* cnt_ptr;
+
+			FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
+
+			v31 = 0;
+
+			*cnt_ptr += 3;
+		}
+	}
+
+	auto first = vptr;
+
+	D3DTLVERTEX * vt1 = &v[v1];
+
+	vptr->sx = vt1->sx;
+	vptr->sy = vt1->sy;
+	vptr->sz = f_a - f_boo * vt1->rhw;
+	vptr->rhw = vt1->rhw;
+	vptr->color = vt1->color;
+	vptr->specular = vt1->specular;
+	vptr->tu = next->vertices[0].x;
+	vptr->tv = next->vertices[0].y;
+
+	vptr++;
+
+	D3DTLVERTEX* vt2 = &v[v2];
+
+	vptr->sx = vt2->sx;
+	vptr->sy = vt2->sy;
+	vptr->sz = f_a - f_boo * vt2->rhw;
+	vptr->rhw = vt2->rhw;
+	vptr->color = vt2->color;
+	vptr->specular = vt2->specular;
+	vptr->tu = next->vertices[1].x;
+	vptr->tv = next->vertices[1].y;
+
+	vptr++;
+
+	D3DTLVERTEX* vt3 = &v[v3];
+
+	vptr->sx = vt3->sx;
+	vptr->sy = vt3->sy;
+	vptr->sz = f_a - f_boo * vt3->rhw;
+	vptr->rhw = vt3->rhw;
+	vptr->color = vt3->color;
+	vptr->specular = vt3->specular;
+	vptr->tu = next->vertices[2].x;
+	vptr->tv = next->vertices[2].y;
+
+	if (v31)
+	{
+		int v23 = 3;
+
+		if (v27)
+		{	
+			v23 = ZClipper(3, stru_923C88, stru_BA3FB0);
+
+			if (!v23)
+				return;
+		}
+		else
+		{
+			for (int i = 0; i < 3; i++, first++)
+			{
+				first->tu *= first->rhw;
+				first->tv *= first->rhw;
+			}
+		}
+
+		int v26 = XYUVGClipper(v23, stru_BA3FB0);
+		if (v26)
+		{
+			int* cnt_ptr;
+
+			FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
+
+			*cnt_ptr += 3 * v26 - 6;
+			AddClippedPoly(vptr, v26, stru_BA3FB0);
+		}
+	}
+	else
+	{
+		for(int i = 0; i < 3; i++, first++)
+		{
+			first->sz = f_a - f_boo * first->rhw;
+		}
+
+		d9ab1c++;
+	}
 }
 
 void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
