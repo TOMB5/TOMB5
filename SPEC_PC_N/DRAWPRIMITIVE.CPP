@@ -35,38 +35,27 @@ struct dinfo_head
 struct dinfo_line // size 92
 {
 	dinfo_head head;
-	D3DTLVERTEX v1;
-	char pad1[8];
-	D3DTLVERTEX v2;
-	char pad2[8];
+	D3DTLBUMPVERTEX v1;
+	D3DTLBUMPVERTEX v2;
 };
 
 struct dinfo_tri // size 132
 {
 	dinfo_head head;
-	D3DTLVERTEX v1;//12
-	char pad1[8];
-	D3DTLVERTEX v2;//52
-	char pad2[8];
-	D3DTLVERTEX v3;//92
-	char pad3[8];
+	D3DTLBUMPVERTEX v1;//12
+	D3DTLBUMPVERTEX v2;//52
+	D3DTLBUMPVERTEX v3;//92
 };
 
 struct dinfo_quad // size 252
 {
 	dinfo_head head;
-	D3DTLVERTEX v1;//12
-	char pad1[8];
-	D3DTLVERTEX v2;//52
-	char pad2[8];
-	D3DTLVERTEX v3;//92
-	char pad3[8];
-	D3DTLVERTEX v1bis;//132
-	char pad4[8];
-	D3DTLVERTEX v3bis;//172
-	char pad5[8];
-	D3DTLVERTEX v4;//212
-	char pad6[8];
+	D3DTLBUMPVERTEX v1;//12
+	D3DTLBUMPVERTEX v2;//52
+	D3DTLBUMPVERTEX v3;//92
+	D3DTLBUMPVERTEX v1bis;//132
+	D3DTLBUMPVERTEX v3bis;//172
+	D3DTLBUMPVERTEX v4;//212
 };
 
 HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
@@ -213,7 +202,7 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 	int v1b = v1;
 	int v3b = v3;
 
-	if (vp1 & vp2 & vp3 & vp4)
+	if (!(vp1 & vp2 & vp3 & vp4))
 	{
 		if ((vp1 | vp2 | vp3 | vp4) & 0x8000u)
 		{
@@ -275,47 +264,49 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 			}
 			else
 			{
-				TLVERTEX* vptr;
-				DWORD* cnt_ptr;
+				D3DTLBUMPVERTEX* vptr;
+				int* cnt_ptr;
 
 				FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
 
+				*cnt_ptr += 6;
+
 				D3DTLVERTEX* vp1b = &v[v1b];
 
-				vptr->v.sx = vp1b->sx;
-				vptr->v.sy = vp1b->sy;
-				vptr->v.sz = f_a - f_boo * vp1b->rhw;
-				vptr->v.rhw = vp1b->rhw;
-				vptr->v.color = vp1b->color;
-				vptr->v.specular = vp1b->specular;
-				vptr->v.tu = next->vertices[0].x;
-				vptr->v.tv = next->vertices[0].y;
+				vptr->sx = vp1b->sx;
+				vptr->sy = vp1b->sy;
+				vptr->sz = f_a - f_boo * vp1b->rhw;
+				vptr->rhw = vp1b->rhw;
+				vptr->color = vp1b->color;
+				vptr->specular = vp1b->specular;
+				vptr->tu = next->vertices[0].x;
+				vptr->tv = next->vertices[0].y;
 
 				vptr[3] = vptr[0];
 
 				vptr++;
 
-				vptr->v.sx = vt2->sx;
-				vptr->v.sy = vt2->sy;
-				vptr->v.sz = f_a - f_boo * vt2->rhw;
-				vptr->v.rhw = vt2->rhw;
-				vptr->v.color = vt2->color;
-				vptr->v.specular = vt2->specular;
-				vptr->v.tu = next->vertices[1].x;
-				vptr->v.tv = next->vertices[1].y;
+				vptr->sx = vt2->sx;
+				vptr->sy = vt2->sy;
+				vptr->sz = f_a - f_boo * vt2->rhw;
+				vptr->rhw = vt2->rhw;
+				vptr->color = vt2->color;
+				vptr->specular = vt2->specular;
+				vptr->tu = next->vertices[1].x;
+				vptr->tv = next->vertices[1].y;
 
 				vptr++;
 
 				D3DTLVERTEX* vt3 = &v[v3b];
 
-				vptr->v.sx = vt3->sx;
-				vptr->v.sy = vt3->sy;
-				vptr->v.sz = f_a - f_boo * vt3->rhw;
-				vptr->v.rhw = vt3->rhw;
-				vptr->v.color = vt3->color;
-				vptr->v.specular = vt3->specular;
-				vptr->v.tu = next->vertices[2].x;
-				vptr->v.tv = next->vertices[2].y;
+				vptr->sx = vt3->sx;
+				vptr->sy = vt3->sy;
+				vptr->sz = f_a - f_boo * vt3->rhw;
+				vptr->rhw = vt3->rhw;
+				vptr->color = vt3->color;
+				vptr->specular = vt3->specular;
+				vptr->tu = next->vertices[2].x;
+				vptr->tv = next->vertices[2].y;
 
 				vptr[2] = vptr[0];
 
@@ -323,14 +314,14 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 
 				D3DTLVERTEX* vt4 = &v[v4];
 
-				vptr->v.sx = vt4->sx;
-				vptr->v.sy = vt4->sy;
-				vptr->v.sz = f_a - f_boo * vt4->rhw;
-				vptr->v.rhw = vt4->rhw;
-				vptr->v.color = vt4->color;
-				vptr->v.specular = vt4->specular;
-				vptr->v.tu = next->vertices[3].x;
-				vptr->v.tv = next->vertices[3].y;
+				vptr->sx = vt4->sx;
+				vptr->sy = vt4->sy;
+				vptr->sz = f_a - f_boo * vt4->rhw;
+				vptr->rhw = vt4->rhw;
+				vptr->color = vt4->color;
+				vptr->specular = vt4->specular;
+				vptr->tu = next->vertices[3].x;
+				vptr->tv = next->vertices[3].y;
 
 				d9ab1c += 2;
 			}
@@ -578,7 +569,7 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 	int v1b = v1;
 	int v3b = v3;
 
-	if (vp1 & vp2 & vp3 & vp4)
+	if (!(vp1 & vp2 & vp3 & vp4))
 	{
 		if ((vp1 | vp2 | vp3 | vp4) & 0x8000u)
 		{
@@ -1917,7 +1908,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
@@ -1931,7 +1922,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		break;
 	case 2:
@@ -1947,7 +1938,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -1969,7 +1960,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
@@ -1985,7 +1976,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 		}
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		if (App.lpZBuffer)
 		{
@@ -2009,7 +2000,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		break;
 	case 7:
@@ -2026,7 +2017,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
@@ -2053,7 +2044,6 @@ void DrawSortList()
 		dinfo_head* info = nullptr;
 		int i = 0;
 
-		//S_Warn("No DrawSortList for ZBuffer");
 		if (surfacenumbf <= 0)
 		{
 			
@@ -2098,8 +2088,7 @@ void DrawSortList()
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
 							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
-							D3DFVF_VERTEX
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
@@ -2113,7 +2102,7 @@ void DrawSortList()
 
 							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 							break;
 						case 2:
@@ -2127,7 +2116,7 @@ void DrawSortList()
 
 							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -2146,7 +2135,7 @@ void DrawSortList()
 
 							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
@@ -2161,7 +2150,7 @@ void DrawSortList()
 								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 							}
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 							if (App.lpZBuffer)
 							{
@@ -2180,7 +2169,7 @@ void DrawSortList()
 
 							DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+							App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 							break;
 						case 7:
@@ -2194,7 +2183,7 @@ void DrawSortList()
 
 							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
 
-							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
@@ -2214,12 +2203,10 @@ void DrawSortList()
 					}
 					else
 					{
-						auto vptr = (char*)(info + 1);
-						for(int j = 0; j < info->num_verts; j++)
+						auto vptr = (D3DTLBUMPVERTEX*)(info + 1);
+						for(int j = 0; j < info->num_verts; j++, v3++)
 						{
-							*vert++ = *(D3DTLVERTEX*)vptr;
-							vptr += 40;
-							vert = (D3DTLVERTEX*)((char*)vert + 40);
+							*vert++ = *vptr++;
 						}
 					}
 				}
@@ -2235,16 +2222,17 @@ void DrawSortList()
 
 		if (i >= 0)
 		{
-			auto ptr = (short**)&sort3d_bufferbf[0][0];
+			auto ptr = (dinfo_head**)sort3d_bufferbf + i;
 			for (; i >= 0; i--, ptr--)
 			{
-				info = (dinfo_head*)(*ptr);
+				info = *ptr;
 
 				if (info->texattr == 2 || info->texattr == 3 || info->texattr == 6 || info->texattr == 7)
 					break;
 			}
 		}
 
+		v3 = 0;
 		vert = Bucket[0].Vertex;
 		tile_and_flag = info->tile_and_flag;
 		type = info->texattr;
@@ -2284,12 +2272,10 @@ void DrawSortList()
 							sortptra = 0;
 						}
 
-						auto vptr = (char*)(info + 1);
+						auto vptr = (D3DTLBUMPVERTEX*)(info + 1);
 						for (int j = 0; j < info->num_verts; j++, v3++)
 						{
-							*vert = *(D3DTLVERTEX*)vptr;
-							vptr += 40;
-							vert = (D3DTLVERTEX*)((char*)vert + 40);
+							*vert++ = *vptr++;
 						}
 					}
 				}
