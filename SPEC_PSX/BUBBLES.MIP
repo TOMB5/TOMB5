@@ -2,22 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF DEL_ApplyMatrixSV, TriggerDynamic, DrawMonoScreen, CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
+	XDEF SetInventoryLighting, DEL_ApplyMatrixSV, TriggerDynamic, DrawMonoScreen, CalcClipWindow_ONGTE, DrawFlash, DrawPsxTile, insert_psx_clip_window, PrintAllOtherObjects_ASM, print_all_object_NOW
 	XREF dynamics, LightPos, CamGTE, camera, number_dynamics, ClutStartY, lara_item, draw_rooms, number_draw_rooms, phd_PutPolygons, phd_bottom, phd_left, phd_top, room, objects, mPopMatrix, FlashFadeR, S_CalculateLight, effects, meshes, FlashFader, FlashFadeG, duff_item, FlashFadeB, db, SetDefDrawEnv, SetDrawEnv, items, CalcAllAnimatingItems_ASM, mPushMatrix, mTranslateAbsXYZ, KillItem, mRotYXZ, phd_right
-
-DEL_ApplyMatrixSV:
-	mtc2    v0, r0
-	mtc2    v1, r1
-	nop
-	nop
-	cop2    0x486012
-	mfc2    at, r9
-	mfc2    v0, r10
-	mfc2    v1, r11
-	sh      at, 0(a0)
-	sh      v0, 2(a0)
-	jr      ra
-	sh      v1, 4(a0)
 
 SetInventoryLighting:
 	move    t9, ra
@@ -30,7 +16,7 @@ SetInventoryLighting:
 	cfc2    t2, r2
 	cfc2    t3, r3
 	cfc2    t4, r4
-	addiu   a0, gp, CamGTE-GP_ADDR
+	addiu   a0, gp, CamGTE-GP_ADDR(gp)
 	lw      at, 0(a0)
 	lw      v0, 4(a0)
 	lw      v1, 8(a0)
@@ -44,15 +30,15 @@ SetInventoryLighting:
 	li      v0, 0xF000F000
 	li      v1, 0x1000
 	jal     DEL_ApplyMatrixSV
-	addiu   a0, gp, LightPos-GP_ADDR
+	addiu   a0, gp, LightPos+0x0-GP_ADDR(gp)
 	li      v0, 0xF0001000
 	li      v1, 0xFFFFF000
 	jal     DEL_ApplyMatrixSV
-	addiu   a0, gp, LightPos+0x6-GP_ADDR
+	addiu   a0, gp, LightPos+0x6-GP_ADDR(gp)
 	lui     v0, 0x1000
 	li      v1, 0xFFFFF000
 	jal     DEL_ApplyMatrixSV
-	addiu   a0, gp, LightPos+0xC-GP_ADDR
+	addiu   a0, gp, LightPos+0xC-GP_ADDR(gp)
 	ctc2    t0, r0
 	ctc2    t1, r1
 	ctc2    t2, r2
@@ -100,6 +86,20 @@ SetInventoryLighting:
 	ctc2    zero, r28
 	jr      t9
 	nop
+
+DEL_ApplyMatrixSV:
+	mtc2    v0, r0
+	mtc2    v1, r1
+	nop
+	nop
+	cop2    0x486012
+	mfc2    at, r9
+	mfc2    v0, r10
+	mfc2    v1, r11
+	sh      at, 0(a0)
+	sh      v0, 2(a0)
+	jr      ra
+	sh      v1, 4(a0)
 	
 TriggerDynamic:
 	bltz    a0, locret_8FF68
