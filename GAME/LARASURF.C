@@ -6,10 +6,10 @@
 #include "DRAW.H"
 #include "LARA.H"
 #include "LARAFIRE.H"
-
+#include "SPECIFIC.H"
 #include INPUT_H
 
-#include "SPECIFIC.H"
+
 #include "LARASWIM.H"
 
 

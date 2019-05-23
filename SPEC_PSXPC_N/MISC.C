@@ -3,6 +3,7 @@
 #include "CAMERA.H"
 #include "GPU.H"
 #include "LOAD_LEV.H"
+#include "PSXINPUT.H"
 #include "SPECIFIC.H"
 #include "TEXT_S.H"
 
@@ -400,7 +401,7 @@ void frig_with_monitor_screen(int a0)
 
 void S_AnimateTextures(long nFrames)
 {
-#if DEBUGSKIP
+#if DEBUGSKIP || 1///@FIXME @zdimension this doesn't work.
 	return;
 #endif
 
@@ -468,7 +469,7 @@ void S_AnimateTextures(long nFrames)
 
 void PrintGauge(int x, int y, int length)
 {
-	UNIMPLEMENTED();
+	S_DrawGouraudBar(x & 0xFFFF, y & 0xFFFF, 100, (length * 100) / 255, &dashBarColourSet);
 }
 
 long GetRandomControl() //5E9F0, 926F8 (F)

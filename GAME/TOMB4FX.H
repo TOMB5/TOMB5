@@ -1,6 +1,7 @@
 #ifndef TOMB4FX_H
 #define TOMB4FX_H
 
+#include "TYPES.H"
 #include "STYPES.H"
 
 extern char flare_table[121]; // offset 0x92A6C
@@ -59,14 +60,14 @@ extern void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb);
 extern int ExplodingDeath2(short item_number, long mesh_bits, short Flags);
 extern void DrawLensFlares(struct ITEM_INFO *item);
 extern void TriggerLightningGlow(long x, long y, long z, long rgb);
-extern void trig_actor_gunflash(struct MATRIX3D *matrix, struct PHD_VECTOR *pos);
+extern void trig_actor_gunflash(MatrixThing *matrix, struct PHD_VECTOR *pos);
 extern void TriggerFenceSparks(long x, long y, long z, long kill, long crane);
 extern void ControlElectricFence(short item_number);
 extern void ControlTeleporter(short item_number);
 extern void DrawWeaponMissile(struct ITEM_INFO *item);
 extern void TriggerLaraDrips();
 #if PC_VERSION
-extern void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num);
+extern short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room_number);
 extern void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4);
 #endif
 extern void Richochet(struct GAME_VECTOR* pos);

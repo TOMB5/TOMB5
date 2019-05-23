@@ -1,11 +1,11 @@
 #include "SWITCH.H"
 
+#include "SPECIFIC.H"
 #include "CONTROL.H"
 #include "EFFECTS.H"
 #include "GAMEFLOW.H"
 #include INPUT_H
 #include "SOUND.H"
-#include "SPECIFIC.H"
 #include "LARA.H"
 #include "COLLIDE.H"
 #include "DRAW.H"
@@ -15,9 +15,11 @@
 #ifdef PC_VERSION
 #include "GAME.H"
 #else
-#include "SETUP.H"
+
 #include "SPHERES.H"
 #endif
+
+#include "SETUP.H"
 
 unsigned char SequenceUsed[6];
 unsigned char SequenceResults[3][3][3];

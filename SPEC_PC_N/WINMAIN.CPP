@@ -10,6 +10,7 @@
 #include "DRAWPRIMITIVE.H"
 #include "HWRENDER.H"
 #include "UTILS.H"
+#include "CONTROL.H"
 #include "DI.H"
 #include "DS.H"
 #include "time.h"
@@ -20,7 +21,7 @@
 #include "FILE.H"
 #include "GAMEFLOW.H"
 #include "GAME.H"
-#include "SETUP.H"
+#include "PCSETUP.H"
 #include "DEBUG.H"
 #include "INPUT.H"
 #include "DISPLAY.H"
@@ -407,7 +408,72 @@ void HandleCommand(WORD param)// (F)
 
 void HandleApp(LPARAM lParam, WPARAM wParam)
 {
-	Unimpl();
+	byte_57A01C = true;
+
+	if (!acm_file_stream)
+	{
+		byte_57A01C = false;
+		byte_579FE4 = false;
+		return;
+	}
+
+	if (wParam != (WPARAM)XATrack || wParam == 0xFFFFFFFF)
+	{
+		Log(LT_Default, "Not Current Track %d", wParam);
+		byte_57A01C = false;
+		byte_579FE4 = false;
+		return;
+	}
+
+	memset((void *)lParam, 0, 22528);
+	fread((void *)lParam, 1, 22528, acm_file_stream);
+
+	if (acm_file_stream && feof(acm_file_stream))
+	{
+		byte_57A01C = false;
+
+		if (acm_playing_mode == 1)
+		{
+			fseek(acm_file_stream, 90, 0);
+
+			byte_579FE4 = true;
+		}
+		else
+		{
+			if (++dword_57A018 <= 8)
+			{
+				byte_579FE4 = true;
+			}
+			else
+			{
+				dword_57A018 = 0;
+
+				if (acm_playing_mode == 2)
+				{
+					byte_579FE4 = false;
+					S_CDStop();
+				}
+				else
+				{
+					if (CurrentAtmosphere == 0 || IsAtmospherePlaying)
+					{
+						byte_579FE4 = true;
+					}
+					else
+					{
+						byte_579FE4 = false;
+						S_CDStop();
+						S_CDPlay(CurrentAtmosphere, 1);
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		byte_57A01C = false;
+		byte_579FE4 = true;
+	}
 }
 
 HMODULE GetKernel32()// (F)

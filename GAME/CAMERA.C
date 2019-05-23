@@ -6,6 +6,7 @@
 #include "MATHS.H"
 #include "3D_GEN.H"
 #include "BUBBLES.H"
+#include "LIGHT.H"
 #endif
 #if PC_VERSION
 #include "GLOBAL.H"
@@ -935,8 +936,20 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 {
 	CurrentFov = fov;
 
-	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
+#if PC_VERSION
+	phd_persp = phd_winwidth / 2 * 4 * COS(fov / 2) / (4 * SIN(fov / 2));
+	f_persp_bis = phd_persp;
+	flt_55D1F8 = dword_50A440 / f_persp_bis;
+	f_persp_bis_over_znear3 = f_persp_bis / f_znear3;
+	LfAspectCorrection = (double)phd_winheight / phd_winwidth * 4.0 / 3.0;
+	f_persp = phd_persp;
+	f_oneopersp = one / f_persp;
+	f_perspoznear = f_persp / f_znear;
 
+
+#else
+	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
+#endif
 #if PSX_VERSION
 	gte_SetGeomScreen(phd_persp);
 #endif
@@ -944,9 +957,10 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 	return;
 }
 
+#if !PSX_VERSION || PSXPC_TEST
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#if 0//PSXENGINE//GetBoundsAccurate illegal, crash.
+#if 0//GetBoundsAccurate illegal, crash.
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -960,18 +974,18 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	int v0, v1;
 
 	SniperOverlay = 0;
-	camerasnaps = 0;
+	SniperCamActive = 0;
 
 	CamOldPos.x = camera.pos.x;
 	CamOldPos.y = camera.pos.y;
 	CamOldPos.z = camera.pos.z;
 
-	if (BinocularRange > 0)
+	if (BinocularRange != 0)
 	{
 		BinocularOn = 1;
 		BinocularCamera(lara_item);
 
-		if (BinocularRange > 0)
+		if (BinocularRange != 0)
 		{
 			return;
 		}
@@ -984,7 +998,6 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	}
 
 	//loc_27E28
-	//v0 = UseForcedFixedCamera;
 	if (UseForcedFixedCamera != 0)
 	{
 		camera.type = FIXED_CAMERA;
@@ -997,7 +1010,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	//loc_27E4C
 	if (gfCurrentLevel == 1 && XATrack == 51)
 	{
-		if (camera.underwater > 0 && GLOBAL_playing_cutseq == 0 && savegame.VolumeCD > 0)
+		if (camera.underwater != 0 && GLOBAL_playing_cutseq == 0 && savegame.VolumeCD != 0)
 		{
 			CDDA_SetMasterVolume(savegame.VolumeCD);
 		}
@@ -1008,29 +1021,26 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	else
 	{
 		//loc_27EC8
-		if (TLFlag == 1)
+		if (TLFlag == 1 && camera.underwater != 0)
 		{
-			if (camera.underwater != 0)
-			{
-				camera.underwater = 0;
-			}
+			camera.underwater = 0;
 		}
 		//loc_27EEC
 		TLFlag = 0;
 	}
 
 	//loc_27EF0
-	if (gfCurrentLevel != 6)
+	if (gfCurrentLevel != LVL5_DEEPSEA_DIVE)
 	{
 		//Camera is in a water room, play water sound effect.
-		if (room[camera.pos.room_number].flags & 1)
+		if (room[camera.pos.room_number].flags & RF_FILL_WATER)
 		{
 			SoundEffect(SFX_UNDERWATER, NULL, 2);//a0, a1, a2
-			if (camera.underwater > 0)
+			if (camera.underwater == 0)
 			{
 				if (GLOBAL_playing_cutseq == 0 && TLFlag == 0)
 				{
-					CDDA_SetMasterVolume(savegame.VolumeCD / 16);
+					CDDA_SetMasterVolume(savegame.VolumeCD >> 2);
 				}
 
 				//loc_27F88
@@ -1091,18 +1101,12 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	if (camera.item != NULL && fixed_camera == 0)
 	{
 		//Dist
-		//FIXME: long mSqrt(long); , check args
-		shift = sqrt((camera.item->pos.z_pos - item->pos.z_pos) * (camera.item->pos.z_pos - item->pos.z_pos) + (camera.item->pos.x_pos - item->pos.x_pos) * (camera.item->pos.x_pos - item->pos.x_pos));
-
-		//FIXME: phd_atan_asm(); , check args
-		change = atan2((item->pos.z_pos - camera.item->pos.z_pos), (item->pos.x_pos - camera.item->pos.x_pos)) - camera.item->pos.y_rot;
+		shift = mSqrt((camera.item->pos.z_pos - item->pos.z_pos) * (camera.item->pos.z_pos - item->pos.z_pos) + (camera.item->pos.x_pos - item->pos.x_pos) * (camera.item->pos.x_pos - item->pos.x_pos));
+		change = phd_atan_asm((item->pos.z_pos - camera.item->pos.z_pos), (item->pos.x_pos - camera.item->pos.x_pos)) - camera.item->pos.y_rot;
 		change *= 65536;
 
 		bounds = GetBoundsAccurate(camera.item);
-		//FIXME: phd_atan_asm(); , check args $a0, $a1
-		//phd_atan_asm(shift, (camera.item->pos.y_pos + ((((bounds[2] + bounds[3]) + (bounds[2] + bounds[3])) >> 31) >> 1)) - y); 
-
-		v0 = atan2(shift, (camera.item->pos.y_pos + ((((bounds[2] + bounds[3]) + (bounds[2] + bounds[3])) >> 31) >> 1)) - y);
+		v0 = phd_atan_asm(shift, (camera.item->pos.y_pos + ((((bounds[2] + bounds[3]) + (bounds[2] + bounds[3])) >> 31) >> 1)) - y);
 		v0 <<= 16;
 		tilt = v0 >> 17;//a3
 
@@ -1189,6 +1193,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 
 	//loc_281F4
 	if ((camera.type - LOOK_CAMERA) < 2)
+	//if ((unsigned)(camera.type - LOOK_CAMERA) < 2)
 	{
 		if (camera.type == COMBAT_CAMERA)
 		{
@@ -1380,8 +1385,10 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	camera.last_item = item;
 	camera.item = NULL;
 #endif
+	UNIMPLEMENTED();
 	return;
 }
+#endif
 
 void LookCamera(struct ITEM_INFO* item)
 {
@@ -1438,7 +1445,7 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 		//loc_26960
 
 
-		lw	$v0, 0x1DFC($gp)
+		lw	$v0, camera.target.y($gp)
 		addiu	$v1, $s2, -0x40
 		slt	$v0, $v1, $v0
 		beqz	$v0, loc_2697C
@@ -1447,7 +1454,7 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 		nop
 		
 		loc_2697C :
-		lw	$v0, 0x1DFC($gp)
+		lw	$v0, camera.target.y($gp)
 		addiu	$v1, $a0, 0x40
 		slt	$v0, $v1
 		beqz	$v0, loc_269A0
@@ -1456,7 +1463,7 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 		nop
 
 		loc_26998 :
-		sw	$v1, 0x1DFC($gp)
+		sw	$v1, camera.target.y($gp)
 
 	}
 	else
@@ -1477,9 +1484,284 @@ void FixedCamera()
 	UNIMPLEMENTED();
 }
 
-void ChaseCamera(struct ITEM_INFO* item)
+void ChaseCamera(struct ITEM_INFO* item)//263B4(<)
 {
-	UNIMPLEMENTED();
+	struct FLOOR_INFO* floor; // $s2
+	struct GAME_VECTOR ideal; // stack offset -184
+	struct GAME_VECTOR ideals[5]; // stack offset -168, -100
+	struct GAME_VECTOR temp[2]; // stack offset -88
+	long distance; // $s7
+	long lp; // $s2
+	long dx; // $t0
+	long dz; // $v1
+	long farthest; // $s4
+	long farthestnum; // stack offset -52
+	long h; // $s0
+	long c; // $v1
+	short angle; // $v0
+	// line 23, offset 0x26434
+	short room_number; // stack offset -56
+	long wx; // $s1
+	long wy; // $s3
+	long wz; // $s0
+
+	if (camera.target_elevation == 0)//v0
+	{
+		camera.target_elevation = -1820;
+	}
+	//loc_263F0
+	camera.target_elevation += item->pos.x_rot;
+	UpdateCameraElevation();
+
+	if (camera.actual_elevation > 0x3C6E)
+	{
+		camera.actual_elevation = 0x3C6E;
+	}//loc_26428
+
+	//v0 = camera.actual_elevation < -0x3C6E ? 1 : 0
+	if (camera.actual_elevation < -0x3C6E)
+	{
+		camera.actual_elevation = -0x3C6E;
+	}
+
+	//loc_26434
+	//v0 = ((camera.actual_elevation >> 3) | 1) << 1;
+	//v1 = rcossin_tbl
+	distance = (camera.target_distance * rcossin_tbl[((camera.actual_elevation >> 3) | 1)]) >> 12;
+	GetFloor(camera.target.x, camera.target.y, camera.target.z, &camera.target.room_number);
+	room_number = camera.target.room_number;
+	floor = GetFloor(camera.target.x, camera.target.y, camera.target.z, &room_number);
+	//a3 = &room_number
+	//s1 = camera.target.x
+	//s3 = camera.target.y
+	//s0 = camera.target.z
+	//v0 = camera.target.room_number
+	h = GetHeight(floor, camera.target.x, camera.target.y, camera.target.z);
+	c = GetCeiling(floor, camera.target.x, camera.target.y, camera.target.z);
+
+	//v0 = s3 < v1 ? 1 : 0
+	if (c < camera.target.y && camera.target.y < camera.target.z &&
+		c < camera.target.z && camera.target.z != -32512 && -32512 == c)
+	{
+		//loc_26540
+		TargetSnaps = 0;
+	}
+	else
+	{
+		//loc_26504
+		++TargetSnaps;
+		camera.target.x = last_target.x;
+		camera.target.y = last_target.y;
+		camera.target.z = last_target.z;
+		camera.target.room_number = last_target.room_number;
+	}
+	//loc_26544
+	//v0 = camera.actual_elevation
+	//v1 = rcossin_tbl
+	//a0 = SIN(camera.actual_elevation);
+	//v1 = camera.target_distance
+
+	//v1 = (camera.target_distance * SIN(camera.actual_elevation)) >> 12;
+	//s6 = &var_A4
+	//s5 = &var_A8
+	//s2 = 4;
+	//v0 = &var_A0
+	//var_30 = v0
+	//v0 = camera.target.y + (camera.target_distance * SIN(camera.actual_elevation)) >> 12;
+	//a0 = &var_64
+
+	//loc_26590
+	for (lp = 0; lp < 5; lp++)
+	{
+		ideals[lp].y = camera.target.y + (camera.target_distance * SIN(camera.actual_elevation)) >> 12;
+	}
+
+	farthest = 0x7FFFFFFF;
+	farthestnum = 0;//s2
+	//fp = &rcossin_tbl[0]
+	//s3 = var_30
+	//s1 = &var_A8
+	//var_34 = 0
+
+	//loc_265C0
+
+#if 0
+	loc_265c0:
+			 bnez    $s2, loc_265D4
+				 addiu   $v0, $s2, -1
+				 //v0 = camera.actual_angle
+				 j       loc_265E0
+				 sra     $v1, $v0, 3
+
+				 loc_265D4 :
+				 sll     $v0, 30
+				 sra     $v0, 16
+				 sra     $v1, $v0, 3
+
+				 loc_265E0 :
+				 andi    $v1, 0x1FFE
+				 sll     $v0, $v1, 1
+				 addu    $v0, $fp
+				 lh      $a3, 0($v0)
+				 nop
+				 mult    $s7, $a3
+				 addiu   $v1, 1
+				 sll     $v1, 1
+				 addu    $v1, $fp
+				 mflo    $a3
+				 lh      $t0, 0($v1)
+				 nop
+				 mult    $s7, $t0
+				 addiu   $a0, $gp, 0x1DF8
+				 move    $a1, $s1
+				 li      $a2, 0xC8
+				 sll     $s0, $s2, 4
+				 lw      $v0, 0x1DF8($gp)
+				 sra     $a3, 12
+				 subu    $v0, $a3
+				 sw      $v0, 0($s1)
+				 lw      $v0, 0x1E00($gp)
+				 lhu     $v1, 0x1E04($gp)
+				 mflo    $t0
+				 sra     $t0, 12
+				 subu    $v0, $t0
+				 sw      $v0, 0($s3)
+				 jal     sub_28B5C
+				 sh      $v1, 0xC($s1)
+				 beqz    $v0, loc_26708
+				 addu    $v1, $s6, $s0
+				 lw      $v0, 0($s1)
+				 lw      $a1, 0x1DE8($gp)
+				 lhu     $a0, 0x1DF4($gp)
+				 sw      $v0, 0xC8 + var_58($sp)
+				 lw      $v0, 0($v1)
+				 nop
+				 sw      $v0, 0xC8 + var_54($sp)
+				 lw      $v1, 0($s3)
+				 lw      $v0, 0x1DEC($gp)
+				 sw      $v1, 0xC8 + var_50($sp)
+				 lhu     $a2, 0xC($s1)
+				 lw      $v1, 0x1DF0($gp)
+				 sw      $a1, 0xC8 + var_48($sp)
+				 sw      $v0, 0xC8 + var_44($sp)
+				 sh      $a0, 0xC8 + var_3C($sp)
+				 sw      $v1, 0xC8 + var_40($sp)
+				 beqz    $s2, loc_26538
+				 sh      $a2, 0xC8 + var_4C($sp)
+				 addiu   $a0, $sp, 0xC8 + var_58
+				 addiu   $a1, $sp, 0xC8 + var_48
+				 jal     sub_28B5C
+				 move    $a2, $zero
+				 beqz    $v0, loc_26784
+				 nop
+				 lw      $v1, 0x1DE8($gp)
+				 lw      $v0, 0($s1)
+				 nop
+				 subu    $v1, $v0
+				 mult    $v1, $v1
+				 lw      $v0, 0x1DF0($gp)
+				 lw      $v1, 0($s3)
+				 mflo    $t0
+				 subu    $v0, $v1
+				 nop
+				 mult    $v0, $v0
+				 mflo    $v0
+				 addu    $t0, $v0
+				 slt     $v1, $t0, $s4
+				 beqz    $v1, loc_26784
+				 nop
+				 move    $s4, $t0
+				 j       loc_26784
+				 sw      $s2, 0xC8 + var_34($sp)
+
+				 loc_26708:
+			 bnez    $s2, loc_26784
+				 nop
+				 lw      $a1, 0xC8 + var_A8($sp)
+				 lw      $v0, 0x1DF8($gp)
+				 nop
+				 subu    $v0, $a1
+				 mult    $v0, $v0
+				 lw      $a0, 0xC8 + var_A4($sp)
+				 lw      $v1, 0x1E00($gp)
+				 lw      $a2, 0x1DE8($gp)
+				 lw      $v0, 0xC8 + var_A0($sp)
+				 sw      $a0, 0xC8 + var_54($sp)
+				 lw      $a0, 0x1DF0($gp)
+				 sw      $a1, 0xC8 + var_58($sp)
+				 mflo    $t0
+				 lhu     $a1, 0x1DF4($gp)
+				 subu    $v1, $v0
+				 mult    $v1, $v1
+				 sw      $v0, 0xC8 + var_50($sp)
+				 lhu     $a3, 0xC($s5)
+				 lw      $v0, 0x1DEC($gp)
+				 sw      $a2, 0xC8 + var_48($sp)
+				 sw      $a0, 0xC8 + var_40($sp)
+				 sh      $a1, 0xC8 + var_3C($sp)
+				 sw      $v0, 0xC8 + var_44($sp)
+				 lui     $v0, 9
+				 mflo    $v1
+				 addu    $v1, $t0, $v1
+				 slt     $v0, $v1
+				 bnez    $v0, loc_26538
+				 sh      $a3, 0xC8 + var_4C($sp)
+
+				 loc_26784:
+			 addiu   $s3, 0x10
+				 addiu   $s2, 1
+				 slti    $v0, $s2, 5
+				 bnez    $v0, loc_265C0
+				 addiu   $s1, 0x10
+#endif
+
+#if 0
+
+				 loc_26798 :
+				 lw      $v0, 0xC8 + var_34($sp)
+				 nop
+				 sll     $a1, $v0, 4
+				 addu    $a2, $s5, $a1
+				 lw      $v0, 0($a2)
+				 addu    $v1, $s6, $a1
+				 sw      $v0, 0xC8 + var_B8($sp)
+				 lw      $v0, 0($v1)
+				 nop
+				 sw      $v0, 0xC8 + var_B4($sp)
+				 lw      $v0, 0xC8 + var_30($sp)
+				 addiu   $a0, $sp, 0xC8 + var_B8
+				 addu    $a1, $v0, $a1
+				 lw      $v0, 0($a1)
+				 li      $a1, 0x180
+				 sw      $v0, 0xC8 + var_B0($sp)
+				 lhu     $v1, 0xC($a2)
+				 li      $a2, 1
+				 jal     sub_28634
+				 sh      $v1, 0xC8 + var_AC($sp)
+				 lw      $v1, 0x1E0C($gp)
+				 li      $v0, 1
+				 bne     $v1, $v0, loc_267FC
+				 nop
+				 sh      $v1, 0x1E3E($gp)
+
+				 loc_267FC:
+			 lh      $a1, 0x1E3E($gp)
+				 jal     sub_25B68
+				 addiu   $a0, $sp, 0xC8 + var_B8
+				 lw      $ra, 0xC8 + var_4($sp)
+				 lw      $fp, 0xC8 + var_8($sp)
+				 lw      $s7, 0xC8 + var_C($sp)
+				 lw      $s6, 0xC8 + var_10($sp)
+				 lw      $s5, 0xC8 + var_14($sp)
+				 lw      $s4, 0xC8 + var_18($sp)
+				 lw      $s3, 0xC8 + var_1C($sp)
+				 lw      $s2, 0xC8 + var_20($sp)
+				 lw      $s1, 0xC8 + var_24($sp)
+				 lw      $s0, 0xC8 + var_28($sp)
+				 jr      $ra
+				 addiu   $sp, 0xC8
+#endif
+
 }
 
 void BinocularCamera(struct ITEM_INFO* item)
@@ -1502,7 +1784,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	pos.y = 0;
 	pos.z = 0;
 	
-	GetJointAbsPosition(lara_item, &pos, 0xE);
+	GetJointAbsPosition(lara_item, &pos, LJ_LHAND);
 
 	if (camera.lara_node != -1)
 	{
@@ -1512,7 +1794,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	}
 	else
 	{
-		camera.target.y = camera.target.y + pos.y / 2;
+		camera.target.y = camera.target.y + pos.y >> 1;
 		camera.target.x = lara_item->pos.x_pos;
 		camera.target.z = lara_item->pos.z_pos;
 	}
@@ -1562,26 +1844,26 @@ void ScreenShake(struct ITEM_INFO* item, short MaxVal, short MaxDist)// (F)
 	}
 }
 
-void UpdateCameraElevation()//29890(<), 29AA4(<) (F)
+void UpdateCameraElevation()//29890(<), 29AA4(<) (F) (*) (*) (D) (D)
 {
 	struct PHD_VECTOR pos;
 	struct PHD_VECTOR pos1;
 
 	if (camera.lara_node != -1)
 	{
-		pos.x = 0;
-		pos.y = 0;
 		pos.z = 0;
+		pos.y = 0;
+		pos.x = 0;
 		GetLaraJointPos(&pos, camera.lara_node);
 
 		pos1.x = 0;
-		pos1.y = SECTOR(0.25);
+		pos1.y = -SECTOR(0.25);
 		pos1.z = SECTOR(2);
 		GetLaraJointPos(&pos1, camera.lara_node);
 
 		pos.z = pos1.z - pos.z;
 		pos.x = pos1.x - pos.x;
-		//camera.actual_angle = camera.target_angle + phd_atan_asm(pos.z, pos.x);
+		camera.actual_angle = camera.target_angle + phd_atan_asm(pos.z, pos.x);
 	}
 	else
 	{
@@ -1590,7 +1872,7 @@ void UpdateCameraElevation()//29890(<), 29AA4(<) (F)
 	}
 
 	//loc_29928
-	camera.actual_elevation = (camera.target_elevation - camera.actual_elevation) / 8 + camera.actual_elevation;
+	camera.actual_elevation += (camera.target_elevation - camera.actual_elevation) >> 3;
 }
 
 void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, short yrot, long brightness) // (F)
@@ -1637,6 +1919,15 @@ long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)
 
 long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)
 {
+#if 0
+	struct FLOOR_INFO *floor; // $s2
+	long wx; // $s4
+	long wy; // $s3
+	long wz; // $s5
+	long h; // $s1
+	long c; // $v1
+	short room_number; // stack offset -48
+#endif
 	UNIMPLEMENTED();
 	return 0;
 }

@@ -20,6 +20,43 @@
 #include "OBJLIGHT.H"
 #include "TEXTURE.H"
 #include "DEBUG.H"
+#include "DISPLAY.H"
+#include "FILE.H"
+#include "TWOGUN.H"
+
+struct dinfo_head
+{
+	float z;
+	short texattr;
+	short tile_and_flag;
+	short num_verts;
+	short e4b100;
+};
+struct dinfo_line // size 92
+{
+	dinfo_head head;
+	D3DTLBUMPVERTEX v1;
+	D3DTLBUMPVERTEX v2;
+};
+
+struct dinfo_tri // size 132
+{
+	dinfo_head head;
+	D3DTLBUMPVERTEX v1;//12
+	D3DTLBUMPVERTEX v2;//52
+	D3DTLBUMPVERTEX v3;//92
+};
+
+struct dinfo_quad // size 252
+{
+	dinfo_head head;
+	D3DTLBUMPVERTEX v1;//12
+	D3DTLBUMPVERTEX v2;//52
+	D3DTLBUMPVERTEX v3;//92
+	D3DTLBUMPVERTEX v1bis;//132
+	D3DTLBUMPVERTEX v3bis;//172
+	D3DTLBUMPVERTEX v4;//212
+};
 
 HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
@@ -68,6 +105,12 @@ D3DMATRIX d3d_camera;
 SNOWFLAKE raindrops[2048];
 SNOWFLAKE snowflakes[2048];
 
+bool visible_zclip(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3)
+{
+	return (v3->tu * v1->sz - v3->sz * v1->tu) * v2->tv
+		+ (v3->sz * v1->tv - v3->tv * v1->sz) * v2->tu
+		+ (v3->tv * v1->tu - v3->tu * v1->tv) * v2->sz < 0.0;
+}
 
 void SubdivideEdge(D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, short *a4, float u1, float v1, float u2, float v2, float *u, float *v)
 {
@@ -82,69 +125,662 @@ void SubdivideTri (D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, OBJECT_
 	Unimpl();
 }
 
-void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
+void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
+{
+	if (e4b100)
+	{
+		AddQuadClippedSorted(v, v1, v2, v3, v4, tex, dside);
+	}
+	else
+	{
+		D3DVALUE z = v[v4].sz;
+
+		if (z >= 3500.0)
+		{
+			AddQuadClippedSorted(v, v1, v2, v3, v4, tex, dside);
+		}
+		else
+		{
+			int num = 1;
+
+			if (z < 2000.0)
+				num = 2;
+
+			short face[4];
+
+			face[0] = d9ab34[v1];
+			face[1] = d9ab34[v2];
+			face[2] = d9ab34[v3];
+			face[3] = d9ab34[v4];
+
+			SubdivideQuad(&v[v1], &v[v2], &v[v3], &v[v4], tex, dside, num, face);
+		}
+	}
+}
+void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
+{
+	if (e4b100)
+	{
+		AddTriClippedSorted(v, v1, v2, v3, tex, dside);
+	}
+	else
+	{
+		D3DVALUE z = v[v3].sz;
+
+		if (z >= 3500.0)
+		{
+			AddTriClippedSorted(v, v1, v2, v3, tex, dside);
+		}
+		else
+		{
+			int num = 1;
+
+			if (z < 2000.0)
+				num = 2;
+
+			short face[3];
+
+			face[0] = d9ab34[v1];
+			face[1] = d9ab34[v2];
+			face[2] = d9ab34[v3];
+
+			SubdivideTri(&v[v1], &v[v2], &v[v3], tex, dside, num, face);
+		}
+	}
+}
+
+void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
+{
+	Log(LT_Enter, "AddQuadClippedZBuffer %4d;%4d;%4d;%4d tex=%d", v1, v2, v3, v4, tex->tile_and_flag);
+
+	WORD vp1 = d9ab34[v1];
+	WORD vp2 = d9ab34[v2];
+	WORD vp3 = d9ab34[v3];
+	WORD vp4 = d9ab34[v4];
+
+	OBJECT_TEXTURE newtex;
+	OBJECT_TEXTURE* next;
+
+	int v1b = v1;
+	int v3b = v3;
+
+	if (!(vp1 & vp2 & vp3 & vp4))
+	{
+		if ((vp1 | vp2 | vp3 | vp4) & 0x8000u)
+		{
+			AddTriClippedZBuffer(v, v1b, v2, v3, tex, dside);
+
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+
+			newtex.vertices[0] = tex->vertices[0];
+			newtex.vertices[1] = tex->vertices[2];
+			newtex.vertices[2] = tex->vertices[3];
+
+			AddTriClippedZBuffer(v, v1b, v3, v4, &newtex, dside);
+
+			return;
+		}
+
+		if (dside || !PtrVisible(&v[v1b], &v[v2], &v[v3b]))
+		{
+			D3DTLVERTEX* vt2 = &v[v2];
+
+			if (PtrVisible(&v[v1], &v[v2], &v[v3]))
+			{
+				if (!dside)
+					return;
+
+				SWAP(v1b, v3b);
+
+				newtex.attribute = tex->attribute;
+				newtex.new_flags = tex->new_flags;
+				newtex.tile_and_flag = tex->tile_and_flag;
+
+				newtex.vertices[0] = tex->vertices[2];
+				newtex.vertices[1] = tex->vertices[1];
+				newtex.vertices[2] = tex->vertices[0];
+				newtex.vertices[3] = tex->vertices[3];
+
+				next = &newtex;
+			}
+			else
+			{
+				next = tex;
+			}
+
+			if (d9ab34[v1b] | d9ab34[v2] | d9ab34[v3b] | d9ab34[v4])
+			{
+				AddTriClippedZBuffer(v, v1b, v2, v3b, next, dside);
+
+				newtex.attribute = tex->attribute;
+				newtex.new_flags = tex->new_flags;
+				newtex.tile_and_flag = tex->tile_and_flag;
+
+				newtex.vertices[0] = tex->vertices[0];
+				newtex.vertices[1] = tex->vertices[2];
+				newtex.vertices[2] = tex->vertices[3];
+
+				AddTriClippedZBuffer(v, v1b, v3b, v4, &newtex, dside);
+			}
+			else
+			{
+				D3DTLBUMPVERTEX* vptr;
+				int* cnt_ptr;
+
+				FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
+
+				auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
+				Log(LT_Info, "QuadZ writing 6 verts to bucket %d", buk - Bucket);
+
+				*cnt_ptr += 6;
+
+				D3DTLVERTEX* vp1b = &v[v1b];
+
+				vptr->sx = vp1b->sx;
+				vptr->sy = vp1b->sy;
+				vptr->sz = f_a - f_boo * vp1b->rhw;
+				vptr->rhw = vp1b->rhw;
+				vptr->color = vp1b->color;
+				vptr->specular = vp1b->specular;
+				vptr->tu = next->vertices[0].x;
+				vptr->tv = next->vertices[0].y;
+
+				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+
+				vptr[3] = vptr[0];
+
+				vptr++;
+
+				vptr->sx = vt2->sx;
+				vptr->sy = vt2->sy;
+				vptr->sz = f_a - f_boo * vt2->rhw;
+				vptr->rhw = vt2->rhw;
+				vptr->color = vt2->color;
+				vptr->specular = vt2->specular;
+				vptr->tu = next->vertices[1].x;
+				vptr->tv = next->vertices[1].y;
+
+				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+
+				vptr++;
+
+				D3DTLVERTEX* vt3 = &v[v3b];
+
+				vptr->sx = vt3->sx;
+				vptr->sy = vt3->sy;
+				vptr->sz = f_a - f_boo * vt3->rhw;
+				vptr->rhw = vt3->rhw;
+				vptr->color = vt3->color;
+				vptr->specular = vt3->specular;
+				vptr->tu = next->vertices[2].x;
+				vptr->tv = next->vertices[2].y;
+
+				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+
+				vptr[2] = vptr[0];
+
+				vptr++;
+
+				D3DTLVERTEX* vt4 = &v[v4];
+
+				vptr->sx = vt4->sx;
+				vptr->sy = vt4->sy;
+				vptr->sz = f_a - f_boo * vt4->rhw;
+				vptr->rhw = vt4->rhw;
+				vptr->color = vt4->color;
+				vptr->specular = vt4->specular;
+				vptr->tu = next->vertices[3].x;
+				vptr->tv = next->vertices[3].y;
+
+				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+
+				d9ab1c += 2;
+			}
+		}
+	}
+}
+
+int ZClipper(int num_vert, D3DTLBUMPVERTEX* v1, D3DTLBUMPVERTEX* v2)
 {
 	Unimpl();
+	return 0;
 }
-void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
+
+int XYUVGClipper(int num_vert, D3DTLBUMPVERTEX* v)
 {
+	Unimpl();
+	return 0;
+}
+
+void AddClippedPoly(D3DTLBUMPVERTEX* vt1, int num, D3DTLBUMPVERTEX* vt2)
+{
+	Log(LT_Enter, "AddClippedPoly n=%d", num);
+	
+	auto v1 = vt1;
+	auto v2 = vt2;
+
+	for(int i = 0; i < 3; i++, v1++, v2++)
+	{
+		v1->sx = v2->sx;
+		v1->sy = v2->sy;
+		v1->sz = f_a - f_boo * v2->rhw;
+
+		v1->rhw = v2->rhw;
+		v1->color = v2->color;
+		v1->specular = v2->specular;
+
+		v1->tu = v2->tv / v2->rhw;
+		v1->tv = v2->sx / v2->rhw;
+	}
+
+	d9ab10++;
+
+	num -= 3;
+
+	for(int i = 0; i < num; i++, d9ab10++, v2++)
+	{
+		*v1++ = *vt1;
+		*v1 = v1[-2];
+		v1++;
+
+		v1->sx = v2->sx;
+		v1->sy = v2->sy;
+		v1->sz = f_a - f_boo * v2->rhw;
+
+		v1->rhw = v2->rhw;
+		v1->color = v2->color;
+		v1->specular = v2->specular;
+
+		v1->tu = v2->tv / v2->rhw;
+		v1->tv = v2->sx / v2->rhw;
+	}
+}
+
+D3DTLBUMPVERTEX stru_BA3FB0[24];
+D3DTLBUMPVERTEX stru_923C88[20];
+
+void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
+{
+	Log(LT_Enter, "AddTriClippedZBuffer %4d;%4d;%4d tex=%d", v1, v2, v3, tex->tile_and_flag);
+
+	WORD vp1 = d9ab34[v1];
+	WORD vp2 = d9ab34[v2];
+	WORD vp3 = d9ab34[v3];
+
+	OBJECT_TEXTURE newtex;
+	OBJECT_TEXTURE* next;
+
+	D3DTLBUMPVERTEX* vptr;
+
+	if (vp1 & vp2 & vp3)
+		return;
+
+	int v27 = 0;
+	int v31 = 1;
+
+	if ((vp1 | vp2 | vp3) & 0x8000)
+	{
+		if (visible_zclip(&v[v1], &v[v2], &v[v3]))
+		{
+			next = tex;
+			vptr = stru_923C88;
+			v27 = 1;
+		}
+		else
+		{
+			if (!dside)
+				return;
+
+			SWAP(v2, v3);
+
+			if (!visible_zclip(&v[v1], &v[v2], &v[v3]))
+				return;
+
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+
+			newtex.vertices[0] = tex->vertices[0];
+			newtex.vertices[1] = tex->vertices[2];
+			newtex.vertices[2] = tex->vertices[1];
+
+			next = &newtex;
+
+			vptr = stru_923C88;
+		}
+	}
+	else
+	{
+		if (PtrVisible(&v[v1], &v[v2], &v[v3]))
+		{
+			if (!dside)
+				return;
+
+			SWAP(v2, v3);
+
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+
+			newtex.vertices[0] = tex->vertices[0];
+			newtex.vertices[1] = tex->vertices[2];
+			newtex.vertices[2] = tex->vertices[1];
+
+			next = &newtex;
+		}
+		else
+		{
+			next = tex;
+		}
+
+		if (d9ab34[v1] | d9ab34[v2] | d9ab34[v3])
+		{
+			vptr = stru_BA3FB0;
+		}
+		else
+		{
+				
+			int* cnt_ptr;
+
+			FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
+
+			auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
+			Log(LT_Info, "TriZ writing 3 verts to bucket %d", buk - Bucket);
+
+			v31 = 0;
+
+			*cnt_ptr += 3;
+		}
+	}
+
+	auto first = vptr;
+
+	D3DTLVERTEX * vt1 = &v[v1];
+
+	vptr->sx = vt1->sx;
+	vptr->sy = vt1->sy;
+	vptr->sz = f_a - f_boo * vt1->rhw;
+	vptr->rhw = vt1->rhw;
+	vptr->color = vt1->color;
+	vptr->specular = vt1->specular;
+	vptr->tu = next->vertices[0].x;
+	vptr->tv = next->vertices[0].y;
+
+	Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+
+	vptr++;
+
+	D3DTLVERTEX* vt2 = &v[v2];
+
+	vptr->sx = vt2->sx;
+	vptr->sy = vt2->sy;
+	vptr->sz = f_a - f_boo * vt2->rhw;
+	vptr->rhw = vt2->rhw;
+	vptr->color = vt2->color;
+	vptr->specular = vt2->specular;
+	vptr->tu = next->vertices[1].x;
+	vptr->tv = next->vertices[1].y;
+
+	Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+
+	vptr++;
+
+	D3DTLVERTEX* vt3 = &v[v3];
+
+	vptr->sx = vt3->sx;
+	vptr->sy = vt3->sy;
+	vptr->sz = f_a - f_boo * vt3->rhw;
+	vptr->rhw = vt3->rhw;
+	vptr->color = vt3->color;
+	vptr->specular = vt3->specular;
+	vptr->tu = next->vertices[2].x;
+	vptr->tv = next->vertices[2].y;
+
+	Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+
+	if (v31)
+	{
+		int v23 = 3;
+
+		if (v27)
+		{	
+			v23 = ZClipper(3, stru_923C88, stru_BA3FB0);
+
+			if (!v23)
+				return;
+		}
+		else
+		{
+			for (int i = 0; i < 3; i++, first++)
+			{
+				first->tu *= first->rhw;
+				first->tv *= first->rhw;
+			}
+		}
+
+		int v26 = XYUVGClipper(v23, stru_BA3FB0);
+		if (v26)
+		{
+			int* cnt_ptr;
+
+			FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
+
+			*cnt_ptr += 3 * v26 - 6;
+			AddClippedPoly(vptr, v26, stru_BA3FB0);
+		}
+	}
+	else
+	{
+		for(int i = 0; i < 3; i++, first++)
+		{
+			first->sz = f_a - f_boo * first->rhw;
+		}
+
+		d9ab1c++;
+	}
+}
+
+void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
+{
+	WORD vp1 = d9ab34[v1];
+	WORD vp2 = d9ab34[v2];
+	WORD vp3 = d9ab34[v3];
+	WORD vp4 = d9ab34[v4];
+
+	OBJECT_TEXTURE newtex;
+	OBJECT_TEXTURE* next;
+
+	int v1b = v1;
+	int v3b = v3;
+
+	if (!(vp1 & vp2 & vp3 & vp4))
+	{
+		if ((vp1 | vp2 | vp3 | vp4) & 0x8000u)
+		{
+			AddTriClippedSorted(v, v1b, v2, v3, tex, dside);
+			
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+
+			newtex.vertices[0] = tex->vertices[0];
+			newtex.vertices[1] = tex->vertices[2];
+			newtex.vertices[2] = tex->vertices[3];
+
+			AddTriClippedSorted(v, v1b, v3, v4, &newtex, dside);
+
+			return;
+		}
+
+		D3DTLVERTEX* vt2 = &v[v2];
+
+		if (PtrVisible(&v[v1], &v[v2], &v[v3]))
+		{
+			if (!dside)
+				return;
+
+			SWAP(v1b, v3b);
+
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+
+			newtex.vertices[0] = tex->vertices[2];
+			newtex.vertices[1] = tex->vertices[1];
+			newtex.vertices[2] = tex->vertices[0];
+			newtex.vertices[3] = tex->vertices[3];
+
+			next = &newtex;
+		}
+		else
+		{
+			next = tex;
+		}
+
+		if (dside || !PtrVisible(&v[v1b], &v[v2], &v[v3b]))
+		{
+			if (d9ab34[v1b] | d9ab34[v2] | d9ab34[v3b] | d9ab34[v4])
+			{
+				AddTriClippedSorted(v, v1b, v2, v3b, next, dside);
+
+				newtex.attribute = tex->attribute;
+				newtex.new_flags = tex->new_flags;
+				newtex.tile_and_flag = tex->tile_and_flag;
+
+				newtex.vertices[0] = tex->vertices[0];
+				newtex.vertices[1] = tex->vertices[2];
+				newtex.vertices[2] = tex->vertices[3];
+
+				AddTriClippedSorted(v, v1b, v3b, v4, &newtex, dside);
+			}
+			else
+			{
+				auto info = (dinfo_quad*)info3dptrbf;
+
+				info->head.texattr = next->attribute;
+				info->head.tile_and_flag = next->tile_and_flag;
+				info->head.num_verts = 6;
+				info->head.e4b100 = e4b100;
+
+				info3dptrbf += sizeof(*info);
+
+				*sort3dptrbf++ = (int)info;
+
+				surfacenumbf++;
+
+				D3DTLVERTEX* vp1b = &v[v1b];
+
+				info->v1.sx = vp1b->sx;
+				info->v1.sy = vp1b->sy;
+				info->v1.sz = f_a - f_boo * vp1b->rhw;
+				info->v1.rhw = vp1b->rhw;
+				info->v1.color = vp1b->color;
+				info->v1.specular = vp1b->specular;
+				info->v1.tu = next->vertices[0].x;
+				info->v1.tv = next->vertices[0].y;
+
+				D3DVALUE z = vp1b->sz;
+
+				if (!e4b100)
+				{
+					if (z <= 0.0)
+						z = 0.0;
+					else
+						z = vp1b->sz;
+				}
+
+				info->v1bis = info->v1;
+
+				info->v2.sx = vt2->sx;
+				info->v2.sy = vt2->sy;
+				info->v2.sz = f_a - f_boo * vt2->rhw;
+				info->v2.rhw = vt2->rhw;
+				info->v2.color = vt2->color;
+				info->v2.specular = vt2->specular;
+				info->v2.tu = next->vertices[1].x;
+				info->v2.tv = next->vertices[1].y;
+
+				if (e4b100)
+				{
+					z = z + vt2->sz;
+				}
+				else if (z < vt2->sz)
+				{
+					z = vt2->sz;
+				}
+
+				D3DTLVERTEX* vt3 = &v[v3b];
+
+				info->v3.sx = vt3->sx;
+				info->v3.sy = vt3->sy;
+				info->v3.sz = f_a - f_boo * vt3->rhw;
+				info->v3.rhw = vt3->rhw;
+				info->v3.color = vt3->color;
+				info->v3.specular = vt3->specular;
+				info->v3.tu = next->vertices[2].x;
+				info->v3.tv = next->vertices[2].y;
+
+				if (e4b100)
+				{
+					z = z + vt3->sz;
+				}
+				else if (z < vt3->sz)
+				{
+					z = vt3->sz;
+				}
+
+				info->v3bis = info->v3;
+
+				D3DTLVERTEX* vt4 = &v[v4];
+
+				info->v4.sx = vt4->sx;
+				info->v4.sy = vt4->sy;
+				info->v4.sz = f_a - f_boo * vt4->rhw;
+				info->v4.rhw = vt4->rhw;
+				info->v4.color = vt4->color;
+				info->v4.specular = vt4->specular;
+				info->v4.tu = next->vertices[3].x;
+				info->v4.tv = next->vertices[3].y;
+
+				if (e4b100)
+				{
+					z = z + vt4->sz;
+				}
+				else if (z < vt4->sz)
+				{
+					z = vt4->sz;
+				}
+				if (e4b100)
+					z = z * 0.25;
+
+				info->head.z = z;
+
+				d9ab1c += 2;
+			}
+		}
+	}
+}
+
+void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
+{
+	d9ab34;
 	Unimpl();
 }
 
-void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
-{
-	Unimpl();
-}
-void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
-{
-	Unimpl();
-}
 
-void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int a7)
-{
-	Unimpl();
-}
-void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int a7)
-{
-	Unimpl();
-}
-enum dinfo_type
-{
-	DI_LINE = 2,
-	DI_TRI = 3,
-	DI_QUAD = 4,
-};
-struct dinfo_line
-{
-	float z;
-	short color;
-	short unk1;
-	short type;
-	short unk3;
-	D3DTLVERTEX v1;
-	int unk4;
-	int unk5;
-	D3DTLVERTEX v2;
-};
-struct dinfo_tri
-{
-	float z;
-	short texattr;
-	short unk1;
-	short type;
-	short unk3;
-};
 void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)// (F)
 {
 	auto ptr = (dinfo_line*)info3dptrbf;
-	ptr->unk1 = 0;
-	ptr->color = color;
-	ptr->type = 2;
+	ptr->head.tile_and_flag = 0;
+	ptr->head.texattr = color;
+	ptr->head.num_verts = 2;
 	info3dptrbf = (short*)(ptr + 1);
 
 	*sort3dptrbf++ = (int)ptr;
 
-	ptr->z = v1->sz;
+	ptr->head.z = v1->sz;
 	surfacenumbf++;
 
 	ptr->v1.sx = v1->sx;
@@ -275,7 +911,7 @@ void GPU_BeginScene()// (F)
 	rect.y2 = App.GnClientRect.top + App.GnClientRect.bottom;
 	rect.x2 = App.GnClientRect.left + App.GnClientRect.right;
 
-	DX_TRY(App.lpViewPort->Clear2(1, &rect, D3DCLEAR_TARGET, RGBA_MAKE(0, 0, 0, 0), 1.0f, 0));
+	DX_TRY(App.lpViewPort->Clear2(1, &rect, D3DCLEAR_TARGET, RGBA_MAKE(255, 0, 0, 0), 1.0f, 0));
 	BeginScene();
 	InitBuckets();
 	InitialiseSortList();
@@ -360,9 +996,232 @@ void DoMonitorScreen()
 	Unimpl();
 }
 
+void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* parent)
+{
+	struct room_info* r = &room[room_number];
+
+	if (r->left <= parent->test_left &&
+		r->right >= parent->test_right &&
+		r->top <= parent->test_top &&
+		r->bottom >= parent->test_bottom)
+		return;
+
+	int left = parent->test_right;
+	int right = parent->test_left;
+	int top = parent->test_bottom;
+	int bottom = parent->test_top;
+
+	struct door_vbuf* dest = vbufdoor;
+	int t5 = 0;
+	int t6 = 0;
+
+	for (int i = 0; i < 4; i++, dest++)
+	{
+		int xv = vbufdoor[i].xv =
+			phd_mxptr[M00] * portal->Vertices[i].x +
+			phd_mxptr[M01] * portal->Vertices[i].y +
+			phd_mxptr[M02] * portal->Vertices[i].z +
+			phd_mxptr[M03];
+
+		int yv = vbufdoor[i].yv =
+			phd_mxptr[M10] * portal->Vertices[i].x +
+			phd_mxptr[M11] * portal->Vertices[i].y +
+			phd_mxptr[M12] * portal->Vertices[i].z +
+			phd_mxptr[M13];
+
+		int zv = vbufdoor[i].zv =
+			phd_mxptr[M20] * portal->Vertices[i].x +
+			phd_mxptr[M21] * portal->Vertices[i].y +
+			phd_mxptr[M22] * portal->Vertices[i].z +
+			phd_mxptr[M23];
+
+		if (zv > 0)
+		{
+			if (zv > 20480)
+				t6++;
+
+			zv /= phd_persp;
+
+			int xs, ys;
+
+			if (zv)
+			{
+				xs = xv / zv + 256;
+				ys = yv / zv + 120;
+			}
+			else
+			{
+				xs = xv >= 0 ? phd_right : phd_left;
+				ys = yv >= 0 ? phd_bottom : phd_top;
+			}
+
+			if (xs - 1 < left)
+				left = xs - 1;
+
+			if (xs + 1 > right)
+				right = xs + 1;
+
+			if (ys - 1 < top)
+				top = ys - 1;
+
+			if (ys + 1 > bottom)
+				bottom = ys + 1;
+		}
+		else
+		{
+			t5++;
+		}
+	}
+
+	if (t5 == 4 || t6 == 4)
+		return;
+
+	if (t5 > 0)
+	{
+		dest = vbufdoor;
+
+		struct door_vbuf* last = dest + 3;
+
+		for (int i = 0; i < 4; i++, last = dest, dest++)
+		{
+			if (dest->zv < 0 ^ last->zv < 0)
+			{
+				if (dest->xv < 0 && last->xv < 0)
+				{
+					left = 0;
+				}
+				else if (dest->xv > 0 && last->xv > 0)
+				{
+					right = 511;
+				}
+				else
+				{
+					left = 0;
+					right = 511;
+				}
+
+				if (dest->yv < 0 && last->yv < 0)
+				{
+					top = 0;
+				}
+				else if (dest->yv > 0 && last->yv > 0)
+				{
+					bottom = 239;
+				}
+				else
+				{
+					top = 0;
+					bottom = 239;
+				}
+			}
+		}
+	}
+
+	if (left < parent->test_left)
+		left = parent->test_left;
+
+	if (right > parent->test_right)
+		right = parent->test_right;
+
+	if (top < parent->test_top)
+		top = parent->test_top;
+
+	if (bottom > parent->test_bottom)
+		bottom = parent->test_bottom;
+
+	if (left >= right || top >= bottom)
+		return;
+
+	if (r->bound_active & 2)
+	{
+		if (left < r->test_left)
+			r->test_left = left;
+
+		if (top < r->test_top)
+			r->test_top = top;
+
+		if (right > r->test_right)
+			r->test_right = right;
+
+		if (bottom > r->test_bottom)
+			r->test_bottom = bottom;
+	}
+	else
+	{
+		bound_list[bound_end++ % 128] = room_number;
+
+		r->bound_active |= 2;
+
+		r->test_left = left;
+		r->test_right = right;
+		r->test_top = top;
+		r->test_bottom = bottom;
+	}
+}
+
 void GetRoomBounds()
 {
-	Unimpl();
+	bound_start = 0;
+	bound_end = 1;
+
+	while (bound_start != bound_end)
+	{
+		int current = bound_list[bound_start++ % 128];
+		room_info* r = &room[current];
+		r->bound_active -= 2;
+
+		if (r->test_left < r->left)
+			r->left = r->test_left;
+		if (r->test_top < r->top)
+			r->top = r->test_top;
+		if (r->test_right > r->right)
+			r->right = r->test_right;
+		if (r->test_bottom > r->bottom)
+			r->bottom = r->test_bottom;
+
+		if (!(r->bound_active & 1))
+		{
+			draw_rooms[number_draw_rooms++] = current;
+			r->bound_active |= 1;
+
+			if (r->flags & RF_SKYBOX_VISIBLE)
+				outside = RF_SKYBOX_VISIBLE;
+		}
+
+		if (r->flags & RF_SKYBOX_VISIBLE)
+		{
+			if (r->left < outside_left)
+				outside_left = r->left;
+			if (r->right > outside_right)
+				outside_right = r->right;
+			if (r->top < outside_top)
+				outside_top = r->top;
+			if (r->bottom > outside_bottom)
+				outside_bottom = r->bottom;
+		}
+
+		mPushMatrix();
+		mTranslateAbsXYZ(r->x, r->y, r->z);
+
+		short* door;
+		if ((door = r->door))
+		{
+			tr_room_portal* portal = (tr_room_portal*)(door + 1);
+			for (short i = *door++; i > 0; i--, portal++)
+			{
+				if (portal->Normal.x * (r->x + portal->Vertices[0].x - w2v_matrix[M03]) +
+					portal->Normal.y * (r->y + portal->Vertices[0].y - w2v_matrix[M13]) +
+					portal->Normal.z * (r->z + portal->Vertices[0].z - w2v_matrix[M23])
+					>= 0)
+				{
+					continue;
+				}
+
+				SetRoomBounds(portal, portal->AdjoiningRoom, r);
+			}
+		}
+		mPopMatrix();
+	}
 }
 
 void InitialiseFogBulbs()// (F)
@@ -548,9 +1407,18 @@ void DrawLightning()
 	Unimpl();
 }
 
-void DrawTwogunLasers()
+void DrawTwogunLaser(TWOGUN_INFO* tg)
 {
 	Unimpl();
+}
+
+void DrawTwogunLasers()// (F)
+{
+	for(int i = 0; i < 4; i++)
+	{
+		if (twogun[i].life != 0)
+			DrawTwogunLaser(&twogun[i]);
+	}
 }
 
 void DrawGunshells()
@@ -588,26 +1456,254 @@ void DrawSpiders()
 	Unimpl();
 }
 
+DWORD dword_57A508;
+float room_top_flt, room_left_flt, room_bottom_flt, room_right_flt;
+float room_top_flt_2, room_left_flt_2, room_bottom_flt_2, room_right_flt_2;
+tr5_vertex cam_pos_flt, cam_tar_flt, cam_dir_flt;
+room_info* inserting_room;
+DWORD dword_7EE0C8;
+WORD word_511A68[8][3] = 
+{
+	{ 0, 1, 2 }, 
+	{ 3, 1, 2 }, 
+	{ 0, 1, 5 }, 
+	{ 3, 1, 5 }, 
+	{ 0, 4, 2 }, 
+	{ 3, 4, 2 },
+	{ 0, 4, 5 }, 
+	{ 3, 4, 5 }
+};
+tr5_vertex dword_921618[8];
+
+bool CheckBoundsClip(bounding_box_f* bbox)
+{
+	float minX = 10000, maxX = -10000;
+	float minY = 10000, maxY = -10000;
+	float minZ = 10000, maxZ = -10000;
+
+	auto ptr = (float*)bbox;
+
+	for (int i = 0; i < 8; i++)
+	{
+		auto idx = word_511A68[i];
+
+		float f1 = ptr[idx[0]];
+		float f2 = ptr[idx[1]];
+		float f3 = ptr[idx[2]];
+
+		float ox = App.ViewMatrix._41 + App.ViewMatrix._31 * f3 + App.ViewMatrix._21 * f2 + App.ViewMatrix._11 * f1;
+		float oy = App.ViewMatrix._42 + App.ViewMatrix._32 * f3 + App.ViewMatrix._22 * f2 + App.ViewMatrix._12 * f1;
+		float oz = App.ViewMatrix._43 + App.ViewMatrix._33 * f3 + App.ViewMatrix._23 * f2 + App.ViewMatrix._13 * f1;
+
+		dword_921618[i] = { ox, oy, oz };
+
+		float z = MAX(f_znear, oz);
+		float persp = f_persp / z;
+		float x = persp * ox + f_centerx;
+		float y = persp * oy + f_centery;
+
+		if (x < minX)
+			minX = x;
+		if (x > maxX)
+			maxX = x;
+
+		if (y < minY)
+			minY = y;
+		if (y > maxY)
+			maxY = y;
+
+		if (z < minZ)
+			minZ = z;
+		if (z > maxZ)
+			maxZ = z;
+
+		if (minX < clip_xmin)
+			minX = clip_xmin;
+		if (maxX > clip_xmax)
+			maxX = clip_xmax;
+		if (minY < clip_ymin)
+			minY = clip_ymin;
+		if (maxY > clip_ymax)
+			maxY = clip_ymax;
+	}
+
+	return minX <= room_right_flt_2
+		&& maxX >= room_left_flt_2
+		&& minY <= room_bottom_flt_2
+		&& maxY >= room_top_flt_2;
+}
+
+D3DTLVERTEX vert_buf[1024];
+DYNTHING stru_7ED6B0[64];
+DWORD dword_7DFFDC;
+int dword_7EE0C4;
+
+int BuildRoomletLights(ROOMLET* r)
+{
+	auto dyn = dynamics;
+	auto vptr = stru_7ED6B0;
+	int nvert = 0;
+
+	float rx = inserting_room->RoomX;
+	float ry = inserting_room->RoomY;
+	float rz = inserting_room->RoomZ;
+
+	float minX = r->BoundingBox.minX;
+	float minZ = r->BoundingBox.minZ;
+	float maxX = r->BoundingBox.maxX;
+	float maxZ = r->BoundingBox.maxZ;
+
+	for(int i = 0; i < 32; i++, dyn++)
+	{
+		if (dyn->on)
+		{
+			float dx = dyn->x - rx;
+			float dy = dyn->y - ry;
+			float dz = dyn->z - rz;
+			float falloff = dyn->falloff / 2 + dyn->falloff / 8;
+
+			if (dx - falloff <= maxX && 
+				dx + falloff >= minX && 
+				dz - falloff <= maxZ && 
+				dz + falloff >= minZ)
+			{
+				vptr->sx = dx;
+				vptr->sy = dy;
+				vptr->sz = dz;
+
+				vptr->r = dyn->r / 255.0;
+				vptr->g = dyn->g / 255.0;
+				vptr->b = dyn->b / 255.0;
+
+				vptr->falloff = falloff;
+				vptr->falloff_inv = 1 / falloff;
+				vptr->falloff_sqr = falloff * falloff;
+				vptr->unk = 0;
+
+				vptr++;
+				nvert++;
+			}
+		}
+	}
+
+	dword_7DFFDC = 0;
+	if (dword_7EE0C4)
+		Log(LT_Info, "BuildRoomletLights - UNIMPL FOR");
+	for(int i = 0; i < dword_7EE0C4; i++)
+	{
+		
+	}
+
+	return nvert;
+}
+
+void RoomletTransformLight(float* vert, int num_vert, int num_lights, int num_vert_2, int a5)
+{
+	int v92 = camera.underwater;
+	if (!(App.Flags & WA_BACK_BUFFER))
+		v92 = 0;
+
+	for(int i = 0; i < num_vert; i++)
+	{
+		
+	}
+
+	Unimpl();
+}
+
+void InsertRoomlet(ROOMLET* r)
+{
+	if (r->NumLayerVertices == 0)
+		return;
+
+	RoomletTransformLight(
+		(float*)r->VerticesOffset, 
+		r->NumLayerVertices, 
+		BuildRoomletLights(r) & 0x7FFFFFFF, 
+		r->NumLayerVertices, 
+		r->UnknownL1);
+
+	char* poly = (char*)r->PolyOffset;
+
+	for(int i = 0; i < r->NumLayerRectangles; i++, poly += sizeof(tr_face4))
+	{
+		auto face = (tr_face4*)poly;
+		auto tex = &object_textures[face->Texture];
+
+		if (tex->attribute)
+		{
+			AddQuad2(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex, face->DoubleSided);
+		}
+		else
+		{
+			AddQuad1(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex, face->DoubleSided);
+		}
+	}
+
+	for (int i = 0; i < r->NumLayerTriangles; i++, poly += sizeof(tr_face3))
+	{
+		auto face = (tr_face3*)poly;
+		auto tex = &object_textures[face->Texture];
+
+		if (tex->attribute)
+		{
+			AddTri2(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], tex, face->DoubleSided);
+		}
+		else
+		{
+			AddTri1(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], tex, face->DoubleSided);
+		}
+	}
+}
+
 void InsertRoom(room_info* r)
 {
-	Unimpl();
+	room_top_flt = room_top_flt_2 = r->top;
+	room_left_flt = room_left_flt_2 = r->left;
+	room_bottom_flt = room_bottom_flt_2 = r->bottom;
+	room_right_flt = room_right_flt_2 = r->right;
+
+	cam_pos_flt = { (float)camera.pos.x, (float)camera.pos.y, (float)camera.pos.z };
+	cam_tar_flt = { (float)camera.target.x, (float)camera.target.y, (float)camera.target.z };
+
+	float dx = cam_tar_flt.x - cam_pos_flt.x;
+	float dy = cam_tar_flt.y - cam_pos_flt.y;
+	float dz = cam_tar_flt.z - cam_pos_flt.z;
+
+	float norm = sqrt(dx * dx + dy * dy + dz * dz);
+
+	cam_dir_flt = { dx / norm, dy / norm, dz / norm };
+
+	if (r->Unknown1)
+	{
+		inserting_room = r;
+		dword_7EE0C8 = r->flags & RF_FILL_WATER;
+
+		for(int i = 0; i < r->NumLayers; i++)
+		{
+			if (CheckBoundsClip(&r->LayerOffset[i].BoundingBox))
+				InsertRoomlet(&r->LayerOffset[i]);
+		}
+
+		dword_57A508 = 0xFFFFFF;
+	}
 }
 
 void SaveD3DCameraMatrix()// (F)
 {
 	D3DIdentityMatrix(&d3d_camera);
-	d3d_camera._11 = phd_dxptr[0];
-	d3d_camera._12 = phd_dxptr[4];
-	d3d_camera._13 = phd_dxptr[8];
-	d3d_camera._21 = phd_dxptr[1];
-	d3d_camera._22 = phd_dxptr[5];
-	d3d_camera._23 = phd_dxptr[9];
-	d3d_camera._31 = phd_dxptr[2];
-	d3d_camera._32 = phd_dxptr[6];
-	d3d_camera._33 = phd_dxptr[10];
-	d3d_camera._41 = phd_dxptr[3];
-	d3d_camera._42 = phd_dxptr[7];
-	d3d_camera._43 = phd_dxptr[11];
+	d3d_camera._11 = phd_dxptr[M00];
+	d3d_camera._12 = phd_dxptr[M10];
+	d3d_camera._13 = phd_dxptr[M20];
+	d3d_camera._21 = phd_dxptr[M01];
+	d3d_camera._22 = phd_dxptr[M11];
+	d3d_camera._23 = phd_dxptr[M21];
+	d3d_camera._31 = phd_dxptr[M02];
+	d3d_camera._32 = phd_dxptr[M12];
+	d3d_camera._33 = phd_dxptr[M22];
+	d3d_camera._41 = phd_dxptr[M03];
+	d3d_camera._42 = phd_dxptr[M13];
+	d3d_camera._43 = phd_dxptr[M23];
 }
 
 void ResetFogBulbList()
@@ -742,7 +1838,7 @@ void DrawRooms(short current_room)
 	RoomTestThing();
 	BuildFogBulbList();
 	BuildFXFogBulbList();
-
+	Log(LT_Info, "DrawRooms N=%d", number_draw_rooms);
 	for (int i = 0; i < number_draw_rooms; i++)
 	{
 		auto cr = &room[draw_rooms[i]];
@@ -764,7 +1860,9 @@ void DrawRooms(short current_room)
 	}
 
 	DrawGunshells();
-	//
+
+	e4b100 = 3;
+
 	if (GLOBAL_playing_cutseq)
 		DrawCutSeqActors();
 
@@ -849,7 +1947,28 @@ void DrawBinoculars()
 
 void DrawLoadingScreen()
 {
-	Unimpl();
+	if (App.Flags & WA_BACK_BUFFER)
+	{
+		App.lpBackBuffer->Blt(nullptr, surf_screen, nullptr, DDBLT_WAIT, nullptr);
+	}
+	else
+	{
+		/*DDSURFACEDESC2 desc;
+		DXInit(desc);
+		surf_screen->Lock(nullptr, &desc, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, nullptr);
+
+		short* src = (short*)pix_buf;
+		short* dest = (short*)desc.lpSurface;
+
+		for (int i = 0; i < pix_num; i++, src++, dest++)
+		{
+			*dest = (*src & 0x1F) | 2 * (*src & 0xFFE0);
+		}
+
+		surf_screen->Unlock(nullptr);*/
+		S_Warn("NO BACK BUFFER BS!");
+		Unimpl();
+	}
 }
 
 void DrawFlash()
@@ -859,11 +1978,14 @@ void DrawFlash()
 
 void ReleaseScreen()
 {
-	Unimpl();
+	in_loading_screen = false;
+	DXRelease(surf_screen, "Picture Surface");
 }
 
 void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// (F)
 {
+	Log(LT_Info, "HWR_DrawRoutine: num=%4d, tex=%4d, type=%4d", num_verts, texture, type);
+
 	switch (type)
 	{
 	case 0:
@@ -879,7 +2001,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
@@ -893,7 +2015,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		break;
 	case 2:
@@ -909,7 +2031,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -931,7 +2053,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
@@ -947,7 +2069,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 		}
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		if (App.lpZBuffer)
 		{
@@ -971,7 +2093,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		break;
 	case 7:
@@ -988,7 +2110,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 708, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
@@ -1008,33 +2130,267 @@ void DrawSortList()
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
 
+	int v3 = 0;
+
 	if (App.lpZBuffer)
 	{
-		S_Warn("No DrawSortList for ZBuffer");
-		if (surfacenumbf < 0)
+		dinfo_head* info = nullptr;
+		int i = 0;
+
+		if (surfacenumbf <= 0)
 		{
-			// TODO
+			
 		}
 		else
 		{
-			for(int i = 0; i < surfacenumbf; i++)
+			auto ptr = (short**)&sort3d_bufferbf[0][0];
+			for (i = 0; i < surfacenumbf; i++, ptr++)
 			{
-				
+				info = (dinfo_head*)(*ptr);
+
+				if (info->texattr == 1 || info->texattr == 4 || info->texattr == 0)
+					break;
 			}
 		}
+
+		auto vert = Bucket[0].Vertex;
+		auto tile_and_flag = info->tile_and_flag;
+		auto type = info->texattr;
+
+		if (i < surfacenumbf)
+		{
+			auto ptr = (dinfo_head**)sort3d_bufferbf + i;
+
+			for (; i < surfacenumbf; i++)
+			{
+				info = (dinfo_head*)(*ptr);
+
+				if (info->texattr == 1 || info->texattr == 4 || info->texattr == 0)
+				{
+					if (info->tile_and_flag != tile_and_flag || info->texattr != type)
+					{
+						switch(type)
+						{
+						case 0:
+							if (App.lpZBuffer)
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+
+							break;
+						case 1:
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							break;
+						case 2:
+							if (App.lpZBuffer)
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+							break;
+						case 3:
+							if (App.lpZBuffer)
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+
+							break;
+						case 4:
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+
+							if (App.lpZBuffer)
+							{
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+							}
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							if (App.lpZBuffer)
+							{
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, TRUE);
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+							}
+
+							break;
+						case 6:
+							if (App.lpZBuffer)
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_ONE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_ONE);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							break;
+						case 7:
+							if (App.lpZBuffer)
+								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
+
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+
+							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
+
+							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+
+							App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+
+							break;
+						default:
+							break;
+						}
+
+						v3 = 0;
+
+						App.DrawPrimitiveCnt++;
+
+						tile_and_flag = info->tile_and_flag;
+						type = info->texattr;
+						vert = Bucket[0].Vertex;
+						--ptr;
+					}
+					else
+					{
+						auto vptr = (D3DTLBUMPVERTEX*)(info + 1);
+						for(int j = 0; j < info->num_verts; j++, v3++)
+						{
+							*vert++ = *vptr++;
+						}
+					}
+				}
+
+				ptr++;
+			}
+
+			if (v3)
+				HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+		}
+
+		i = surfacenumbf - 1;
+
+		if (i >= 0)
+		{
+			auto ptr = (dinfo_head**)sort3d_bufferbf + i;
+			for (; i >= 0; i--, ptr--)
+			{
+				info = *ptr;
+
+				if (info->texattr == 2 || info->texattr == 3 || info->texattr == 6 || info->texattr == 7)
+					break;
+			}
+		}
+
+		v3 = 0;
+		vert = Bucket[0].Vertex;
+		tile_and_flag = info->tile_and_flag;
+		type = info->texattr;
+		int sortptra = 0;
+
+		if (i >= 0)
+		{
+			auto ptr = (dinfo_head**)sort3d_bufferbf + i;
+
+			for(; i >= 0; i--, ptr--)
+			{
+				info = (dinfo_head*)(*ptr);
+
+				if (info->texattr == 2 || info->texattr == 3 || info->texattr == 6 || info->texattr == 7)
+				{
+					if (info->tile_and_flag != tile_and_flag || info->texattr != type)
+					{
+						HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+
+						v3 = 0;
+						tile_and_flag = info->tile_and_flag;
+						type = info->texattr;
+						vert = Bucket[0].Vertex;
+						ptr++;
+						i++;
+					}
+					else
+					{
+						sortptra += info->num_verts;
+
+						if (sortptra >= 2076)
+						{
+							HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+
+							v3 = 0;
+							vert = Bucket[0].Vertex;
+							sortptra = 0;
+						}
+
+						auto vptr = (D3DTLBUMPVERTEX*)(info + 1);
+						for (int j = 0; j < info->num_verts; j++, v3++)
+						{
+							*vert++ = *vptr++;
+						}
+					}
+				}
+			}
+
+			if (v3)
+				HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+		}
 	}
-	//else // LINE 421
+	else // LINE 421
 	{
-		int* ptr = (int*)&sort3d_bufferbf[0][0];
+		auto ptr = (dinfo_head**)sort3d_bufferbf;
 		for(int i = 0; i < surfacenumbf; i++, ptr++)
 		{
-			short* info = (short*)(*ptr);
-			if (info[5] == 4)
+			auto info = *ptr;
+
+			if (info->e4b100 == 4)
 				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, FALSE);
 
-			HWR_DrawRoutine(&info[6], info[4], info[3], info[2]);
+			HWR_DrawRoutine((short*)(info + 1), info->num_verts, info->tile_and_flag, info->texattr);
 
-			if (info[5] == 4)
+			if (info->e4b100 == 4)
 				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, TRUE);
 		}
 	}

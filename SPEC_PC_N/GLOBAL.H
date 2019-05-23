@@ -8,11 +8,13 @@
 
 extern struct WINAPP App;
 
+#define AnimTextureRanges App.AnimTextureRanges
+
 #define mPushUnitMatrix phd_PushUnitMatrix
 #define mPopMatrix phd_PopMatrix
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 	extern uint32	phd_sqrt(uint32 n);
@@ -54,6 +56,16 @@ extern sint32		*phd_mxptr;				/* matrix pointer....*/
 extern sint32		phd_oopersp;
 extern float* phd_dxptr;
 
+extern float clip_xmin;
+extern float clip_xmax;
+extern float clip_ymin;
+extern float clip_ymax;
+extern float f_persp_bis;
+extern float f_znear3;
+extern float f_persp_bis_over_znear3;
+extern float LfAspectCorrection;
+extern float flt_55D1F8;
+extern float dword_50A440;
 extern	float		one;				// in 3dinsert.cpp
 extern	float		f_znear;			// phd_znear
 extern	float		f_zfar;				// phd_zfar
@@ -77,11 +89,25 @@ extern struct SVECTOR CamRot;
 
 extern WORD* d9ab34;
 extern int e4b100;
+extern int d9ab1c;
+extern int d9ab10;
+extern DWORD dword_921684;
+extern DWORD dword_7EE0D4;
+extern DWORD dword_57A018;
+extern LPSTR reg_class;
+extern DWORD dword_C87BF0;
+extern DWORD dword_C86BE8;
+extern DWORD dword_C713D4;
+extern DWORD dword_C713DC;
+extern DWORD dword_C713E0;
+
+extern DWORD dword_51CE58;
 
 extern D3DMATRIX transform_projection;
 
 #define EndOfArray(a) ((a)+ArraySize(a))
-
+extern void D3DNormalise(LPD3DMATRIX m);
+extern void HandleApp(LPARAM lParam, WPARAM wParam);
 extern void D3DIdentityMatrix(LPD3DMATRIX mat);
 extern void SetD3DMatrixF(LPD3DMATRIX dst, LPD3DMATRIX src);
 extern void phd_RotX(long angle);
@@ -92,6 +118,7 @@ extern void phd_PushUnitMatrix();
 extern void phd_UnitMatrix();
 extern void phd_TransposeMatrix();
 extern void phd_TranslateAbs(long x, long y, long z);
+extern void phd_TranslateRel(long x, long y, long z);
 extern void phd_RotYXZ(long y, long x, long z);
 extern void phd_SetTrans(long x, long y, long z);
 extern void SetD3DViewMatrix();
@@ -100,10 +127,20 @@ extern void S_InitD3DMatrix();
 extern void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll);
 extern void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest);
 extern void SetViewMatrix();
+extern void ScaleCurrentMatrix(VECTOR vec);
+extern void mRotSuperPackedYXZ(short** a0, long a1);
+extern void gte_sttr(PHD_VECTOR *v);
 #define phd_PopMatrix()		{ phd_mxptr -= 12; phd_dxptr -= 12; }
 
+#define mPushMatrix phd_PushMatrix
+#define mPopMatrix phd_PopMatrix
+#define mRotYXZ phd_RotYXZ
+#define mTranslateXYZ phd_TranslateRel
+#define mTranslateAbsXYZ phd_TranslateAbs
+#define mSetTrans phd_SetTrans
+void updateAnimFrame(PACKNODE* node, int flags, short* frame);
 #ifdef __cplusplus
-}
+//}
 #endif
 
 extern WATERTAB	WaterTable[22][64];

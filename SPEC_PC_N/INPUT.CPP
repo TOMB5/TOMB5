@@ -9,7 +9,7 @@
 //#include "display.h"
 //#include "frontend.h"
 #include "INIT.H"
-#include "SETUP.H"
+#include "PCSETUP.H"
 #include "CONTROL.H"
 #include "LARA.H"
 #include "EFFECTS.H"

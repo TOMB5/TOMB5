@@ -11,6 +11,13 @@
 			<file name="MAIN.EXE"	type="data"	source="MAIN.EXE"/>
 			<file name="US.DAT"	type="data"	source="US.DAT"/>
 			<file name="XA1.XA"	type="xa"	source="XA1.XA"/>
+			<file name="FMV0.STR"	type="data"	source="FMV0.STR"/>
+			<file name="FMV1.STR"	type="data"	source="FMV1.STR"/>
+			<file name="FMV2.STR"	type="data"	source="FMV2.STR"/>
+			<file name="FMV4.STR"	type="data"	source="FMV4.STR"/>
+			<file name="FMV5.STR"	type="data"	source="FMV5.STR"/>
+			<file name="FMV6.STR"	type="data"	source="FMV6.STR"/>
+			<file name="FMV7.STR"	type="data"	source="FMV7.STR"/>
 			<file name="XA2.XA"	type="xa"	source="XA2.XA"/>
 			<file name="XA3.XA"	type="xa"	source="XA3.XA"/>
 			<file name="XA4.XA"	type="xa"	source="XA4.XA"/>
@@ -27,7 +34,7 @@
 			<file name="XA15.XA"	type="xa"	source="XA15.XA"/>
 			<file name="XA16.XA"	type="xa"	source="XA16.XA"/>
 			<file name="XA17.XA"	type="xa"	source="XA17.XA"/>
-			<file name="FMV3.STR"	type="xa"	source="FMV3.STR"/>
+			<file name="FMV3.STR"	type="data"	source="FMV3.STR"/>
 		</directory_tree>
 	</track>
 </iso_project>

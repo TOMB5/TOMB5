@@ -27,7 +27,7 @@ extern "C" {
 typedef unsigned short ushort;
 typedef unsigned char uchar;
 
-#define mSqrt phd_sqrt
+#define mSqrt phd_sqrt_asm
 
 #ifdef __cplusplus
 }

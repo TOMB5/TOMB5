@@ -1,47 +1,46 @@
 #include "SETUP.H"
 
-#include "3D_OBJ.H"
+
 #include "BOX.H"
-#include "CD.H"
+
 #include "COLLIDE.H"
 #include "CONTROL.H"
 #include "CODEWAD.H"
 #include "DELTAPAK.H"
 #include "DEBRIS.H"
 #include "DRAW.H"
-#include "DRAWPHAS.H"
+
 #include "DOOR.H"
 #include "EFFECTS.H"
 #include "EFFECT2.H"
 #include "FILE.H"
 #include "FLMTORCH.H"
 #include "GAMEFLOW.H"
-#include "GPU.H"
+
 #include "HAIR.H"
 #include "HEALTH.H"
 #include "ITEMS.H"
 #include "LARA.H"
 #include "LARAFIRE.H"
 #include "LARAMISC.H"
-#include "LOAD_LEV.H"
+
 #include "LOT.H"
 #include "MALLOC.H"
-#include "MATHS.H"
-#include "MISC.H"
+
 #include "NEWINV2.H"
 #include "OBJECTS.H"
 #include "OBJLIGHT.H"
 #include "PICKUP.H"
-#include "ROOMLOAD.H"
+
 #include "SAVEGAME.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
 #include "SOUND.H"
-#include "SPUSOUND.H"
+
 #include "SWITCH.H"
 #include "TOMB4FX.H"
 #include "TYPES.H"
-#include "TYPEDEFS.H"
+
 #include "STYPES.H"
 
 #include <assert.h>
@@ -49,6 +48,23 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#endif
+
+#if PC_VERSION
+#include "INIT.H"
+#include "GAME.H"
+#include "GLOBAL.H"
+#else
+#include "3D_OBJ.H"
+#include "CD.H"
+#include "DRAWPHAS.H"
+#include "GPU.H"
+#include "LOAD_LEV.H"
+#include "MATHS.H"
+#include "MISC.H"
+#include "ROOMLOAD.H"
+#include "SPUSOUND.H"
+#include "TYPEDEFS.H"
 #endif
 
 #ifdef __linux__
@@ -88,8 +104,14 @@ RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
 #elif PSX_VERSION || SAT_VERSION
 typedef unsigned int uintptr_t;
 #endif
+#if PC_VERSION
+struct object_info objects[NUMBER_OBJECTS];
+struct static_info static_objects[NUMBER_STATIC_OBJECTS];
+char SkinVertNums[480];
+char ScratchVertNums[480];
+#endif
 
-#if PSXPC_VERSION || PSXPC_TEST || SAT_VERSION
+#if (PSXPC_VERSION || PSXPC_TEST || SAT_VERSION) && !PC_VERSION
 struct object_container objects_raw;
 struct object_info* objects = &objects_raw.m_objects[0];
 struct static_info* static_objects = &objects_raw.m_static_objects[0];
@@ -205,148 +227,88 @@ void InitialiseAnimatedTextures()//?(<), B4904(<)
 #endif
 }
 
-int sub_B49C0(struct WATERTAB* s1, int s0)///@check args
+int GetRandom(struct WATERTAB* w, int n)///@check args
 {
-	int a0;//i
-	int rand;//a1
+	int i;
+	unsigned short random;
 
-	//loc_10D4
-	do
-	{
-		rand = GetRandomDraw() & 0xFC;
+	do {
+		random = GetRandomDraw() & 0xfc;
 
-		a0 = 0;
-
-		if (s0 > 0)
+		for (i = 0; i<n; i++)
 		{
-			if (s1->random != rand)
-			{
-				a0++;
+			if (w[i].random == random)
+				break;
+		}
 
-				//loc_10C4
-				do
-				{
-					s1++;
+		if (i == n)
+			return random;
 
-					if (a0 > s0)
-					{
-						//loc_1120
-						break;
-					}
-					a0++;
-				} while (s1->random != rand);
-			}//loc_1120
-		}//loc_1120
-	} while (a0 != s0);
+	} while (1);
 
-	return rand;
+	return 0;		// to stop warning
 }
 
-void sub_B4A40()//(<), B4A40(<)
+void init_water_table()//(<), B4A40(<)
 {
-	int var_10;//maybe GAME_VECTOR
-	int var_14;
-	int var_18;
-	int fp;//i?
+	long	lp;
 
-	var_10 = rand_2;//0x10($sp)
-	SeedRandomDraw(0x1D96D);
-		
-	fp = 0;
-	//v0 = 0x1F0000
-	//s5 = &WaterTable
-	//a0 = $s5
+	SeedRandomDraw(121197);
 
-	//loc_1190
-	//a1 = fp;//0
-	//s0 = fp << 2
-	var_14 = fp + 1;
-	//v1 = &rcossin_tbl
-	//v0 = fp << 8;
-	//v0 += v1;
-	//a2 = &WaterTable[0][fp];
-	var_18 = fp << 2;
-	//s6 = rcossin_tbl[fp << 7];
-	//v1 = WaterTable + fp << 2
-	//s1 = rcossin_tbl[fp << 7] << 6
+	for (lp = 0; lp<64; lp++)
+	{
+		int i, j, k;
+		short sin = rcossin_tbl[(lp << 7)];
 
-	//v0 = (((rcossin_tbl[fp << 7]) << 6) - rcossin_tbl[fp << 7]) >> 15
+		// underwater
 
-	WaterTable[0][fp].shimmer = (((rcossin_tbl[fp << 7]) << 6) - rcossin_tbl[fp << 7]) >> 15;
-	//v0 = rcossin_tbl[fp << 7] >> 8
-	WaterTable[0][fp].choppy = rcossin_tbl[fp << 7] >> 8;
+		WaterTable[0][lp].shimmer = (sin * 63) >> (12 + 3);
+		WaterTable[0][lp].choppy = (sin * 16) >> 12;
+		WaterTable[0][lp].random = GetRandom(&WaterTable[0][0], lp);
+		WaterTable[0][lp].abs = 0;
 
-	WaterTable[0][fp].random = sub_B49C0(&WaterTable[0][0], fp);
+		// mist
 
-	//loc_1190
-	//a0 = &WaterTable[1][0]
-	//a1 = fp
-	//v1 = s5 + fp << 2
-	//v1 = &WaterTable[0][0].abs
-	//v0 = &WaterTable[0][fp].abs
-	//a2 = &WaterTable[1][fp]
-	WaterTable[0][fp].abs = 0;
-	//v0 = rcossin_tbl[fp << 7] >> 10;
-	//v1 = &WaterTable[0][fp]
-	WaterTable[1][fp].shimmer = rcossin_tbl[fp << 7] >> 10;
-	WaterTable[1][fp].choppy = 0;
+		WaterTable[1][lp].shimmer = (sin * 32) >> (12 + 3);
+		WaterTable[1][lp].choppy = 0;
+		WaterTable[1][lp].random = GetRandom(&WaterTable[1][0], lp);
+		WaterTable[1][lp].abs = -3;
 
-	WaterTable[1][fp].random = sub_B49C0(&WaterTable[1][0], fp);
+		WaterTable[2][lp].shimmer = (sin * 64) >> (12 + 3);
+		WaterTable[2][lp].choppy = 0;
+		WaterTable[2][lp].random = GetRandom(&WaterTable[2][0], lp);
+		WaterTable[2][lp].abs = 0;
 
-	//a0 = &WaterTable[2][0]
-	//a1 = fp
-	//v1 =  &WaterTable[0][fp];
-	//a2 = &WaterTable[0][fp];
-	//v0 = 0xFD
-	//v1 = &WaterTable[2][fp]
-	//s1 = (rcossin_tbl[fp << 7] << 6) >> 15
-	WaterTable[1][fp].abs = 253;
-	//v0 = &WaterTable[0][fp];
-	WaterTable[2][fp].shimmer = (rcossin_tbl[fp << 7] << 6) >> 15;
-	WaterTable[2][fp].choppy = 0;
+		WaterTable[3][lp].shimmer = (sin * 96) >> (12 + 3);
+		WaterTable[3][lp].choppy = 0;
+		WaterTable[3][lp].random = GetRandom(&WaterTable[3][0], lp);
+		WaterTable[3][lp].abs = 4;
 
-	WaterTable[2][fp].random = sub_B49C0(&WaterTable[2][0], fp);
+		WaterTable[4][lp].shimmer = (sin * 127) >> (12 + 3);
+		WaterTable[4][lp].choppy = 0;
+		WaterTable[4][lp].random = GetRandom(&WaterTable[4][0], lp);
+		WaterTable[4][lp].abs = 8;
 
-	//a0 = &WaterTable[3][0]
-	//a1 = fp
-	//v1 = &WaterTable[0][fp]
-	//v0 = &WaterTable[0][fp]
-	//a2 = &WaterTable[3][fp]
-	WaterTable[2][fp].abs = 0;
-	//v0 = ((rcossin_tbl[fp << 7] << 1) + rcossin_tbl[fp << 7]) >> 10
-	WaterTable[3][fp].shimmer = ((rcossin_tbl[fp << 7] << 1) + rcossin_tbl[fp << 7]) >> 10;
-	WaterTable[3][fp].choppy = 0;
-	WaterTable[3][fp].random = sub_B49C0(&WaterTable[3][0], fp);
+		// ripple
 
-	//a0 = &WaterTable[4][0]
-	//a1 = fp
-	//v1 =  &WaterTable[0][fp]
-	//a2 =  &WaterTable[0][fp]
-	//v0 = 4
-	//a3 = &WaterTable[4][fp]
-	WaterTable[3][fp].abs = 4;
-	//v0 = ((rcossin_tbl[fp << 7] << 7) - rcossin_tbl[fp << 7]) >> 15;
-	WaterTable[4][fp].shimmer = ((rcossin_tbl[fp << 7] << 7) - rcossin_tbl[fp << 7]) >> 15;
-	WaterTable[4][fp].choppy = 0;
+		for (i = 0, j = 5; i<4; i++, j += 4)
+		{
+			for (k = 0; k<4; k++)
+			{
+				unsigned char off[4] = { 4, 8, 12, 16 };
+				short shim[4] = { 31, 63, 95, 127 };
+				short chop[4] = { 16, 53, 90, 127 };
 
-	WaterTable[4][fp].random = sub_B49C0(&WaterTable[4][0], fp);
-
-	//a0 = 0
-	//a1 = 5
-	//v1 =  &WaterTable[0][fp]
-	WaterTable[4][fp].abs = 8;
-	//loc_12E8
-	//s4 = 0
-	//a3 = a0 + 1;
-	//t0 = a1 + 4
-	//v1 = a0 << 1
-	//a0 = &unk_24 //offset 0x24
-	//s7 = v1 + a0
-	//v0 = a1 << 8
-
-
+				WaterTable[j + k][lp].shimmer = -((sin*shim[k]) >> 15);
+				WaterTable[j + k][lp].choppy = (sin*chop[i]) >> 12;
+				WaterTable[j + k][lp].random = GetRandom(&WaterTable[j + k][0], lp);
+				WaterTable[j + k][lp].abs = off[k];
+			}
+		}
+	}
 }
 
+#if !PC_VERSION
 void InitialiseSqrtTable()//?(<), B4D14(<)
 {
 	int i;
@@ -358,6 +320,7 @@ void InitialiseSqrtTable()//?(<), B4D14(<)
 
 	return;
 }
+#endif
 
 void InitTarget()//(<), B4D64(<)
 {
@@ -450,8 +413,6 @@ void InitBinoculars()//?(<), B4E28(<)
 #endif
 }
 
-
-//InitialiseLaraCarriedItems
 void InitialiseLaraCarriedItems(long keep_carried_items)//?, B4EE4
 {
 	long i;
@@ -557,7 +518,7 @@ void InitialiseLaraCarriedItems(long keep_carried_items)//?, B4EE4
 		000B5380 A6220146 sh      v0, $146(s1)
 #endif
 
-	lara.num_small_medipack = 3;
+		lara.num_small_medipack = 3;
 	lara.num_large_medipack = 1;
 
 	lara.num_pistols_ammo = -1;
@@ -753,11 +714,12 @@ void BaddyObjects()//?, B5328
 		object->save_hitpoints = 1;
 		object->save_position = 1;
 
+#if 0///@CRASH
 		((int*)bones[object->bone_index])[24] |= 8;
 		((int*)bones[object->bone_index])[24] |= 4;
 		((int*)bones[object->bone_index])[52] |= 8;
 		((int*)bones[object->bone_index])[52] |= 4;
-
+#endif
 		//v1 = 0xA0000
 		//a0 = object->mesh_index;
 		//v0 = objects[MESHSWAP1].mesh_index
@@ -816,12 +778,13 @@ void BaddyObjects()//?, B5328
 		object->control = RelocPtr[MOD_SAS][0];
 #endif
 
+#if 0///@CRASH
 		//a0 = &bones[object->bone_index];
 		((int*)bones[object->bone_index])[24] |= 8;
 		((int*)bones[object->bone_index])[24] |= 4;
 		((int*)bones[object->bone_index])[52] |= 8;
 		((int*)bones[object->bone_index])[52] |= 4;
-
+#endif
 		//a3 = &objects[LARA]
 		//a0 = meshes[object->mesh_index]
 
@@ -900,7 +863,7 @@ void BaddyObjects()//?, B5328
 		//a0 = object->bone_index
 		//a1 = bones
 		//a0 = &bones[object->bone_index];
-
+#if 0///@CRASH
 		((int*)bones[object->bone_index])[24] |= 8;
 		((int*)bones[object->bone_index])[24] |= 4;
 		((int*)bones[object->bone_index])[52] |= 8;
@@ -917,6 +880,7 @@ void BaddyObjects()//?, B5328
 		//v0 = meshes[objects[MESHSWAP1].mesh_index]
 		((int*)meshes[object->mesh_index])[27] = ((int*)meshes[objects[MESHSWAP1].mesh_index])[26];
 		object->object_mip = 0x1400;
+#endif
 	}//loc_20A4
 }
 
@@ -938,16 +902,17 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 		objects[i].shadow_size = 0;
 		objects[i].hit_points = -16384;
 		objects[i].explodable_meshbits = 0;
-		objects[i].draw_routine_extra = 0;
+		objects[i].draw_routine_extra = NULL;
 		objects[i].object_mip = 0;
-		objects[i].using_drawanimating_item = 1;
-		objects[i].water_creature = 0;
-		objects[i].intelligent = 0;
-		objects[i].save_mesh = 0;
-		objects[i].save_anim = 0;
-		objects[i].save_flags = 0;
-		objects[i].save_hitpoints = 0;
-		objects[i].save_position = 0;
+
+		objects[i].intelligent = FALSE;
+		objects[i].save_position = FALSE;
+		objects[i].save_hitpoints = FALSE;
+		objects[i].save_flags = FALSE;
+		objects[i].save_anim = FALSE;
+		objects[i].water_creature = FALSE;
+		objects[i].save_mesh = FALSE;
+		objects[i].using_drawanimating_item = TRUE;
 
 		((int*)&objects[i].frame_base)[0] += (uintptr_t)frames;
 	}
@@ -1006,7 +971,7 @@ void InitialiseObjects()//?(<), B96EC(<) sub_5DE0
 	}
 }//0xB996C
 
-
+#if !PC_VERSION
 void sub_B3A7C(int a0)
 {
 	struct PSXSPRITESTRUCT* spr = &psxspriteinfo[objects[MISC_SPRITES].mesh_index];
@@ -1022,7 +987,7 @@ void sub_B3A7C(int a0)
 	envmap_data[4] = spr->tpage << 16 | spr->clut;
 	envmap_data[5] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
 }
-
+#endif
 /*
  * [FUNCTIONALITY] - LoadLevel.
  * Relocates all game data pointers from the level file to be loaded back into the engine.
@@ -1030,6 +995,7 @@ void sub_B3A7C(int a0)
  * Note: The GAMEWAD reader's position must point to the level file data.
  * Note: This code is part of the SETUP.MOD module.
  */
+#if PSXPC_VERSION || PSX_VERSION || SAT_VERSION
 #if DISC_VERSION
 void LoadLevel()//?(<), B3B50(<) (F)
 #else
@@ -1039,6 +1005,7 @@ void LoadLevel(int nHandle)//?, B3B50(<)
 void LoadLevel(FILE* nHandle)
 #endif
 #endif
+
 {
 	struct Level* level;
 #if PSX_VERSION
@@ -1144,7 +1111,7 @@ void LoadLevel(FILE* nHandle)
 #endif
 
 	//loc_340, loc_3B4
-	for (i = 1; i >= 0; i--)///@CHECK
+	for (i = 0; i < 2; i++)///@CHECK
 	{
 #if DISC_VERSION
 		DEL_CDFS_Read(ptr, 0x40000);
@@ -1542,7 +1509,7 @@ void LoadLevel(FILE* nHandle)
 
 	if (number_rooms > 0)
 	{
-#ifndef __linux__
+#if 0 ///@FIXME segfault under linux
 		//loc_A84
 		for(i = 0; i < number_rooms; i++)
 		{
@@ -1671,7 +1638,7 @@ void LoadLevel(FILE* nHandle)
 	//Unimplemented
 #endif
 
-#if DISC_VERSION && !BETA_VERSION
+#if 0//DISC_VERSION && !BETA_VERSION
 
 	if (gfCurrentLevel == LVL5_TITLE && Gameflow->Language - 1 < 2)
 	{
@@ -1698,7 +1665,7 @@ void LoadLevel(FILE* nHandle)
 #if PSXPC_TEST
 		LoadImagePSX(&tex[0], (unsigned long*)ptr);
 #else
-		LoadImage(&tex[0], (unsigned long*)ptr);
+		//LoadImage(&tex[0], (unsigned long*)ptr);
 #endif
 		DrawSync(0);
 #endif
@@ -1741,6 +1708,7 @@ void LoadLevel(FILE* nHandle)
 		FromTitle = 1;
 	}//loc_F94
 }
+#endif
 
 void TrapObjects()//?, B7E04
 {
@@ -1755,106 +1723,89 @@ void ObjectObjects()//?, B84F0
 void GetCarriedItems()//?(<), B9974(<) (F)
 {
 	int i;
-	struct object_info* object;
-	struct ITEM_INFO* item;
-	int item_number;
+	int j;
 
-	//loc_60C0
 	for (i = 0; i < level_items; i++)
 	{
 		items[i].carried_item = -1;
 	}
 
-	//loc_60E4
 	for (i = 0; i < level_items; i++)
 	{
-		object = &objects[items[i].object_number];
+		struct ITEM_INFO* item = &items[i];
 
-		if (!object->intelligent && items[i].object_number - SEARCH_OBJECT1 > 4)
+		if (objects[item->object_number].intelligent ||
+			item->object_number >= SEARCH_OBJECT1 && item->object_number <= SEARCH_OBJECT3)
 		{
-			continue;
-		}//loc_6124
+			struct ITEM_INFO* cur;
 
-		item_number = room[items[i].room_number].item_number;
-
-		if (item_number != -1)
-		{
-			//loc_6164
-			do
+			for (j =room[item->room_number].item_number; j != -1; j = cur->next_item)
 			{
-				item = &items[item_number];
+				cur = &items[j];
 
-				//loc_6190
-				if (ABS(item->pos.x_pos - items[i].pos.x_pos) < SECTOR(0.5) &&
-					ABS(item->pos.z_pos - items[i].pos.z_pos) < SECTOR(0.5) &&
-					ABS(item->pos.y_pos - items[i].pos.y_pos) < SECTOR(0.5) &&
-					objects[item->object_number].collision == &PickUpCollision)
+				if (abs(cur->pos.x_pos - item->pos.x_pos) < SECTOR(0.5) &&
+					abs(cur->pos.y_pos - item->pos.y_pos) < SECTOR(0.25) &&
+					abs(cur->pos.z_pos - item->pos.z_pos) < SECTOR(0.5) &&
+					objects[cur->object_number].collision == PickUpCollision)
 				{
-					item->carried_item = items[i].carried_item;
-					items[i].carried_item = item_number;
-					RemoveDrawnItem(item_number);
-					item->room_number = 255;
-
-				}//loc_6228
-
-				item_number = item->next_item;
-
-			} while (item_number != -1);
-		}//loc_6238
+					cur->carried_item = item->carried_item;
+					item->carried_item = j;
+					RemoveDrawnItem(j);
+					cur->room_number = 255;
+				}
+			}
+		}
 	}
 }
 
-void GetAIPickups()//?, B9B84
+void GetAIPickups()//?, B9B84 (F)
 {
 	int i, j;
 
-	if (level_items > 0)
+	//loc_62CC
+	for (i = 0; i < level_items; i++)
 	{
-		//loc_62CC
-		for (i = 0; i < level_items; i++)
+		if (objects[items[i].object_number].intelligent)
 		{
-			if (objects[items[i].object_number].intelligent)
+			items[i].ai_bits = 0;
+
+			if (nAIObjects > 0)
 			{
-				items[i].ai_bits = 0;
-
-				if (nAIObjects > 0)
+				//loc_6318
+				for (j = 0; j < nAIObjects; j++)
 				{
-					//loc_6318
-					for (j = 0; j < nAIObjects; j++)
+					if (ABS(AIObjects[j].x - items[i].pos.x_pos) < SECTOR(0.5) &&
+						ABS(AIObjects[j].z - items[i].pos.z_pos) < SECTOR(0.5) &&
+						AIObjects[j].room_number == items[i].room_number &&
+						AIObjects[j].object_number < AI_PATROL2)
 					{
-						if (ABS(AIObjects[j].x - items[i].pos.x_pos) < SECTOR(0.5) &&
-							ABS(AIObjects[j].z - items[i].pos.z_pos) < SECTOR(0.5) &&
-							AIObjects[j].room_number == items[i].room_number &&
-							AIObjects[j].object_number < AI_PATROL2)
+						items[i].active = FALSE;
+						items[i].status = ITEM_INACTIVE;
+						items[i].gravity_status = FALSE;
+						items[i].hit_status = FALSE;
+						items[i].collidable = FALSE;
+						items[i].looked_at = FALSE;
+						items[i].dynamic_light = FALSE;
+						items[i].poisoned = FALSE;
+						items[i].ai_bits = 1 << (AIObjects[j].object_number - AI_GUARD);
+						items[i].item_flags[3] = AIObjects[j].trigger_flags;
+
+						if (AIObjects[j].object_number != AI_GUARD)
 						{
-							items[i].active = 0;
-							items[i].status = 0;
-							items[i].gravity_status = 0;
-							items[i].hit_status = 0;
-							items[i].collidable = 0;
-							items[i].looked_at = 0;
-							items[i].dynamic_light = 0;
-							items[i].poisoned = 0;
-							items[i].ai_bits = 0;
-							items[i].ai_bits |= 1 << (AIObjects[j].object_number - AI_PATROL2);
-							items[i].item_flags[3] = AIObjects[j].trigger_flags;
-
-							if (AIObjects[j].object_number != AI_GUARD)
-							{
-								AIObjects[j].room_number = 255;
-							}
-						}//loc_63D8
-					}
+							AIObjects[j].room_number = 255;
+						}
+					}//loc_63D8
 				}
-				//loc_63F0
-				items[i].TOSSPAD |= (items[i].ai_bits | items[i].item_flags[3]);
+			}
+			//loc_63F0
+			items[i].TOSSPAD |= (items[i].ai_bits | items[i].item_flags[3]);
 
-			}//loc_6410
-		}
-	}//loc_6420
+		}//loc_6410
+	}
+	//loc_6420
 }
 
-void SetupGame()//?(<), B9DA8(<)
+void SetupGame()//?(<), B9DA8(<) (F)
 {
 	SeedRandomDraw(0xD371F947);
 	SeedRandomControl(0xD371F947);
@@ -1862,17 +1813,28 @@ void SetupGame()//?(<), B9DA8(<)
 	wibble = 0;
 	torchroom = 255;
 
-	sub_B4A40();
+#if !PC_VERSION
+	init_water_table();
 	InitialiseSqrtTable();
 
 	InGameCnt = 0;
 
 	InitialiseAnimatedTextures();
+#endif
+
 	InitialiseFootPrints();
 	InitBinoculars();
 	InitTarget();
 	InitialiseGameFlags();
 
+#if PC_VERSION
+	InitialiseLara(
+		gfCurrentLevel != LVL5_THIRTEENTH_FLOOR &&
+		gfCurrentLevel != LVL5_BASE &&
+		gfCurrentLevel != LVL5_GALLOWS_TREE &&
+		gfCurrentLevel != LVL5_STREETS_OF_ROME &&
+		!gfInitialiseGame);
+#else
 	if ((gfCurrentLevel == LVL5_THIRTEENTH_FLOOR || gfCurrentLevel == LVL5_BASE || gfCurrentLevel == LVL5_GALLOWS_TREE || gfCurrentLevel == LVL5_STREETS_OF_ROME) && gfInitialiseGame != 0)
 	{
 		//B9E50
@@ -1883,6 +1845,8 @@ void SetupGame()//?(<), B9DA8(<)
 		//B9E60
 		InitialiseLaraCarriedItems(1);
 	}
+#endif
+
 	//B9E68
 	GetCarriedItems();
 	GetAIPickups();
@@ -1919,6 +1883,7 @@ void InitialiseGameFlags()//?(<), B9D30(<) (F)
 
 void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2, unsigned char a3)//?(<), B9EA0(<) (F)
 {
+#if !PC_VERSION
 	int i;
 	int s0;
 	int s1;
@@ -2023,7 +1988,7 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 		}
 
 		//loc_6738
-		GLOBAL_resident_depack_buffers = game_malloc(mallocSize);
+		GLOBAL_resident_depack_buffers = (char*)game_malloc(mallocSize);
 
 		if (residentData[0] != 0)
 		{
@@ -2046,8 +2011,10 @@ void InitialiseResidentCut(unsigned char a0, unsigned char a1, unsigned char a2,
 			cutseq_resident_addresses[residentData[3]].packed_data = s6;
 		}
 	}//loc_67C8
+#endif
 }
 
+#if !PC_VERSION
 #if (PSX_VERSION || SAT_VERSION)
 char* ReadResidentData(int residentIndex, int nHandle)//(<), BA0DC(<) (F)
 #elif PSXPC_VERSION
@@ -2076,10 +2043,10 @@ char* ReadResidentData(int residentIndex, FILE* nHandle)//(<), BA0DC(<) (F)
 #endif
 		return ptr;
 	}
-
+	
 	return NULL;
 }
-
+#endif
 long sub_BA148(short* ptr)//?, BA148(<) (F)
 {
 	int i;//$a1
@@ -2100,6 +2067,7 @@ long sub_BA148(short* ptr)//?, BA148(<) (F)
 	}//locret_68C0
 
 	return addr + 0xA8;
+
 }
 
 void reset_cutseq_vars()//?(<), BA194(<) (F)

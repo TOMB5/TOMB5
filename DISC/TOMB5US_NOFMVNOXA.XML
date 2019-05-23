@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<iso_project image_name="TOMB5.BIN" cue_sheet="TOMB5.CUE">
+	<track type="data">
+		<identifiers system="PLAYSTATION" application="PLAYSTATION" volume="SLUS-01311" volume_set="TOMB5" publisher="EIDOS_INTERACTIVE" data_preparer ="CORE"/>
+		<license file="LICENSEA.DAT"/>
+		<directory_tree>
+			<file name="SYSTEM.CNF"	type="data"	source="SYSTEM.TXT"/>
+			<file name="GAMEWAD.OBJ"type="data"	source="GAMEWAD.OBJ"/>
+			<file name="SCRIPT.DAT"	type="data"	source="SCRIPT.DAT"/>
+			<file name="MAIN.EXE"	type="data"	source="MAIN.EXE"/>
+			<file name="US.DAT"	type="data"	source="US.DAT"/>
+		</directory_tree>
+	</track>
+</iso_project>

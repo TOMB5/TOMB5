@@ -2,11 +2,12 @@
 #define MATHS_H
 
 #include "TYPES.H"
+#include "LIBGTE.H"
 
 extern long mGetAngle(long x, long z, long tx, long tz);
 extern void mQuickW2VMatrix();
 extern long phd_sqrt_asm(long value);
-extern void ScaleCurrentMatrix(long a0, long sx, long sy, long sz);
+extern void ScaleCurrentMatrix(VECTOR vec);
 extern void mPushMatrix();
 extern void mPopMatrix();
 extern void mPushUnitMatrix();
@@ -18,7 +19,7 @@ extern void mRotY(long ry);
 extern void mRotYXZ(short y, short x, short z);
 extern void mRotZ(long rz);
 extern void gte_sttr(struct PHD_VECTOR* vec);
-extern void mRotSuperPackedYXZ(short* a0, long a1);
+extern void mRotSuperPackedYXZ(short** a0, long a1);
 extern void mRotPackedYXZ(long yxz);
 extern void SetRotation();
 extern void setrot(struct MATRIX3D* m, long m00, long m02, long m11, long m20, long m22);

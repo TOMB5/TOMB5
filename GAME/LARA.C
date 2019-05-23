@@ -17,11 +17,16 @@
 #include "GAMEFLOW.H"
 #include "LARAFIRE.H"
 #include "CODEWAD.H"
-#include "3D_GEN.H"
-#include "MATHS.H"
+
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
+#include "3D_GEN.H"
 #include "MISC.H"
+#include "MATHS.H"
+#endif
+
+#if PC_VERSION
+#include "GLOBAL.H"
 #endif
 
 
@@ -5612,9 +5617,9 @@ int GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
 
 	mTranslateXYZ(vec->x, vec->y, vec->z);
 
-	vec->x = phd_mxptr[3] >> 12;
-	vec->y = phd_mxptr[7] >> 12; // todo this is wrong
-	vec->z = phd_mxptr[11] >> 12;
+	vec->x = phd_mxptr[3] >> W2V_SHIFT;
+	vec->y = phd_mxptr[7] >> W2V_SHIFT; // todo this is wrong // todo actually not
+	vec->z = phd_mxptr[11] >> W2V_SHIFT;
 
 	vec->x += lara_item->pos.x_pos;
 	vec->y += lara_item->pos.y_pos;

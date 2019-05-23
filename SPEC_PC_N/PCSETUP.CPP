@@ -5,6 +5,7 @@
 #include "resource.h"
 #include "GAMEFLOW.H"
 #include "INPUT.H"
+#include "PCSETUP.H"
 
 Settings appsettings;
 HKEY reg_key;

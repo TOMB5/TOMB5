@@ -1,5 +1,5 @@
-#ifndef SETUP_H
-#define SETUP_H
+#ifndef PCSETUP_H
+#define PCSETUP_H
 
 #include "GLOBAL.H"
 
