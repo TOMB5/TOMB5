@@ -701,10 +701,20 @@ struct SNOWFLAKE
 	short room_number;
 };
 
-struct TLVERTEX // size = 40 bytes
+#define FVF (D3DFVF_TEX2 | D3DFVF_SPECULAR | D3DFVF_DIFFUSE | D3DFVF_XYZRHW)
+
+struct D3DTLBUMPVERTEX // size = 40 bytes
 {
-	D3DTLVERTEX v;
-	char pad[8];
+	D3DVALUE    sx;
+	D3DVALUE    sy;
+	D3DVALUE    sz;
+	D3DVALUE    rhw;
+	D3DCOLOR    color;
+	D3DCOLOR    specular;
+	D3DVALUE    tu;	
+	D3DVALUE    tv;
+	D3DVALUE    tu2;
+	D3DVALUE    tv2;
 };
 
 #pragma pack(pop)
