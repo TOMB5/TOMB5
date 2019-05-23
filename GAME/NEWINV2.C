@@ -2475,7 +2475,7 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 #if PC_VERSION
 		ScaleCurrentMatrix({ 24576, 16384, 4096 });
 #else
-		ScaleCurrentMatrix({ 6144, 4096, 4096 });
+		//ScaleCurrentMatrix(1, 6144, 4096, 4096);
 #endif
 	}//loc_3C770
 
@@ -2563,7 +2563,7 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.object_number = objme->object_number;
 
 	phd_LookAt(0, 1024, 0, 0, 0, 0, 0);
-	//mQuickW2VMatrix();
+	mQuickW2VMatrix();
 
 	if (bright == 0)
 	{
