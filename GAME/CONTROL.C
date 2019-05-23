@@ -945,7 +945,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 		{
 			if (!PadConnected && ScreenFading)
 			{
-				PrintString(SCREEN_WIDTH / 2, 230, 2, &gfStringWad[gfStringOffset[STR_DEMO_MODE]], (FF_CENTER | FF_UNK13));
+				PrintString(SCREEN_WIDTH / 2, 230, 2, &gfStringWad[gfStringOffset[STR_DEMO_MODE]], (FF_CENTER | FF_BLINK));
 			}
 
 			//loc_1D7A0
