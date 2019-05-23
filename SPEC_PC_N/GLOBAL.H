@@ -8,11 +8,13 @@
 
 extern struct WINAPP App;
 
+#define AnimTextureRanges App.AnimTextureRanges
+
 #define mPushUnitMatrix phd_PushUnitMatrix
 #define mPopMatrix phd_PopMatrix
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 	extern uint32	phd_sqrt(uint32 n);
@@ -92,6 +94,7 @@ extern void phd_PushUnitMatrix();
 extern void phd_UnitMatrix();
 extern void phd_TransposeMatrix();
 extern void phd_TranslateAbs(long x, long y, long z);
+extern void phd_TranslateRel(long x, long y, long z);
 extern void phd_RotYXZ(long y, long x, long z);
 extern void phd_SetTrans(long x, long y, long z);
 extern void SetD3DViewMatrix();
@@ -100,10 +103,20 @@ extern void S_InitD3DMatrix();
 extern void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll);
 extern void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest);
 extern void SetViewMatrix();
+extern void ScaleCurrentMatrix(VECTOR vec);
+extern void mRotSuperPackedYXZ(short** a0, long a1);
+extern void gte_sttr(PHD_VECTOR *v);
 #define phd_PopMatrix()		{ phd_mxptr -= 12; phd_dxptr -= 12; }
 
+#define mPushMatrix phd_PushMatrix
+#define mPopMatrix phd_PopMatrix
+#define mRotYXZ phd_RotYXZ
+#define mTranslateXYZ phd_TranslateRel
+#define mTranslateAbsXYZ phd_TranslateAbs
+#define mSetTrans phd_SetTrans
+void updateAnimFrame(PACKNODE* node, int flags, short* frame);
 #ifdef __cplusplus
-}
+//}
 #endif
 
 extern WATERTAB	WaterTable[22][64];

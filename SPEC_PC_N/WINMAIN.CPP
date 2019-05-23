@@ -20,7 +20,7 @@
 #include "FILE.H"
 #include "GAMEFLOW.H"
 #include "GAME.H"
-#include "SETUP.H"
+#include "PCSETUP.H"
 #include "DEBUG.H"
 #include "INPUT.H"
 #include "DISPLAY.H"

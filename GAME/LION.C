@@ -8,7 +8,7 @@
 #include "CONTROL.H"
 #include "TOMB4FX.H"
 #include "STYPES.H"
-#include "FXTRIG.H"
+
 #include "EFFECTS.H"
 #if PC_VERSION
 #include "GAME.H"

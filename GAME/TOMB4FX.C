@@ -664,6 +664,9 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 
 void Fade()//34B78(<), 35078(<) (F)
 {
+#if 1
+	ScreenFading = 0;//Dirty hack until this function is redone
+#endif
 	if (dScreenFade != 0)
 	{
 		if (dScreenFade > ScreenFade)
@@ -873,20 +876,41 @@ void DrawWeaponMissile(struct ITEM_INFO *item)
 	UNIMPLEMENTED();
 }
 
-#if PC_VERSION
-void DoBloodSplat(int x, int y, int z, short speed, short direction, short room_num)// (F)
+#if 1//PC_VERSION
+void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
 {
-	GetFloor(x, y, z, &room_num);
-	if (room[room_num].flags & RF_FILL_WATER)
+	int i;
+
+	for (i = 0; i < 32; i++)
 	{
-		TriggerUnderwaterBlood(x, y, z, speed);
-	}
-	else
-	{
-		TriggerBlood(x, y, z, direction, speed);
+		if (!(ripples[i].flags & 1))
+		{
+			ripples[i].flags = 0x31;
+			ripples[i].init = 1;
+			ripples[i].life = (GetRandomControl() & 7) - 16;
+			ripples[i].size = sizeme;
+			ripples[i].x = (GetRandomControl() & 0x3F) + x - 32;
+			ripples[i].y = y;
+			ripples[i].z = (GetRandomControl() & 0x3F) + z - 32;
+			return;
+		}
 	}
 }
+#endif
 
+short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room_number)
+{
+	GetFloor(x, y, z, &room_number);
+
+	if (room[room_number].flags & RF_FILL_WATER)
+		TriggerUnderwaterBlood(x, y, z, random);
+	else
+		TriggerBlood(x, y, z, y_rot >> 4, random);
+
+	return -1;
+}
+
+#if PC_VERSION
 void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
 {
 	UNIMPLEMENTED();

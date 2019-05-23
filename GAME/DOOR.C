@@ -6,7 +6,6 @@
 #include "ITEMS.H"
 #include "LARA.H"
 #include "NEWINV2.H"
-#include INPUT_H
 #include "PICKUP.H"
 #include "SOUND.H"
 #include "SPECIFIC.H"
@@ -14,6 +13,7 @@
 #include "SPHERE.H"
 #include "SWITCH.H"
 #include "OBJECTS.H"
+#include INPUT_H
 
 static struct PHD_VECTOR DoubleDoorPos = { 0, 0, 220 };
 static struct PHD_VECTOR PullDoorPos = { -201, 0, 322 };

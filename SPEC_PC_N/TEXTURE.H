@@ -22,7 +22,7 @@ struct DXTEXTURE
 	BYTE a11;
 	DWORD other_id;
 };
-#pragma pop
+#pragma pack(pop)
 
 extern  DXTEXTURE DXTextureList[MAX_D3D_TEXTURES];
 

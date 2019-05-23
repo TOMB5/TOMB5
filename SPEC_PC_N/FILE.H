@@ -3,7 +3,7 @@
 #include <cstdio>
 #include "SPECTYPES.H"
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 	int 		S_LoadLevelFile(int Name);
@@ -17,7 +17,7 @@ extern "C" {
 	NEW_CUTSCENE* FetchCutData(int num);
 
 #ifdef __cplusplus
-}
+//}
 #endif
 
 extern short* floor_data;
