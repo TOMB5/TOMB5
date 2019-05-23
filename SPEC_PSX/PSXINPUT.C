@@ -48,10 +48,42 @@ long LaraLookX;
 volatile ControllerPacket GPad1;
 volatile ControllerPacket GPad2;
 unsigned long Edge2;
-struct GouraudBarColourSet healthBarColourSet;
-struct GouraudBarColourSet poisonBarColourSet;
-struct GouraudBarColourSet airBarColourSet;
-struct GouraudBarColourSet dashBarColourSet;
+struct GouraudBarColourSet healthBarColourSet =
+{
+	{ 64, 96, 128, 96, 64 },
+{ 0, 0, 0, 0, 0 },
+{ 0, 0, 0, 0, 0 },
+{ 0, 0, 0, 0, 0 },
+{ 128, 192, 255, 192, 128 },
+{ 0, 0, 0, 0, 0 }
+};
+struct GouraudBarColourSet poisonBarColourSet =
+{
+	{ 96, 176, 240, 176, 96 },
+{ 96, 176, 240, 176, 96 },
+{ 0, 0, 0, 0, 0 },
+{ 96, 176, 240, 176, 96 },
+{ 96, 176, 240, 176, 96 },
+{ 0, 0, 0, 0, 0 }
+};
+struct GouraudBarColourSet airBarColourSet =
+{
+	{ 0, 0, 0, 0, 0 },
+{ 113, 146, 113, 93, 74 },
+{ 123, 154, 123, 107, 91 },
+{ 0, 0, 0, 0, 0 },
+{ 113, 146, 113, 93, 74 },
+{ 0, 0, 0, 0, 0 }
+};
+struct GouraudBarColourSet dashBarColourSet =
+{
+	{ 144, 192, 240, 192, 144 },
+{ 0, 0, 0, 0, 0 },
+{ 0, 0, 0, 0, 0 },
+{ 144, 192, 240, 192, 144 },
+{ 144, 192, 240, 192, 144 },
+{ 0, 0, 0, 0, 0 }
+};
 
 int dword_A1894;
 int dword_A1890;
@@ -82,11 +114,17 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 
 	//loc_5F650
 	state = PadGetState(0);
-	type = PadInfoMode(0, 1, 0);
+	type = PadInfoMode(0, InfoModeCurID, 0);
 	PadConnected = 0;
-	if (state == 0)
+
+	// == 0
+	// > 0 
+	// >= 0 *
+	// <= 0
+	// < 0
+	if (state != 0)
 	{
-		if (type != 4 || type != 7)
+		if (type != 4 && type != 7)
 		{
 			//loc_5F688
 			RawPad = 0;
@@ -99,6 +137,19 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 			reset_count = 0;
 			return;
 		}
+	}
+	else
+	{
+		//loc_5F688
+		RawPad = 0;
+		PadConnected = 0;
+		RawEdge = 0;
+		input = 0;
+
+		dword_A1894 = 0;//static? sw
+		dword_A1890 = 0;//static? sw
+		reset_count = 0;
+		return;
 	}
 
 	//loc_5F6AC
@@ -118,9 +169,6 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		RawEdge = (RawEdge ^ RawPad) & RawPad;
 	}
 
-	printf("RawPad PSXINPUT: %x\n", RawPad);
-	printf("RawEdge PSXINPUT: %x\n", RawEdge);
-
 	//loc_5F704
 	if ((RawEdge & 1))
 	{
@@ -132,7 +180,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	{
 		if (RawPad & 0x800)
 		{
-			if (lara_item->current_anim_state - 80 < 2 || lara_item->current_anim_state == 0x54 && lara_item->current_anim_state == 0x55 || lara_item->current_anim_state == 0x56 || lara_item->current_anim_state == 0x58)
+			if (lara_item->current_anim_state - 80 < 2 || lara_item->current_anim_state == 0x54 || lara_item->current_anim_state == 0x55 || lara_item->current_anim_state == 0x56 || lara_item->current_anim_state == 0x58)
 			{
 				//loc_5F780
 				if (lara_item->pos.x_pos != OldPickupPos.x || lara_item->pos.y_pos != OldPickupPos.y || lara_item->pos.z_pos != OldPickupPos.z)
@@ -152,7 +200,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 			else
 			{
 				//loc_5F818
-				in = 0x8000;
+				in = 0x80000;
 			}
 
 			//loc_5F81C
@@ -162,11 +210,11 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		//loc_5F830
 		if (RawPad & 8)
 		{
-			reset_count++;
+			++reset_count;
 
-			if (RawPad > 0x30)
+			if (RawPad > 48)
 			{
-				reset_flag = 0;
+				reset_flag = 1;
 			}
 
 			dword_A1894 = 0;
@@ -198,12 +246,12 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	//loc_5F8B0
 	if ((RawPad & 0x4000))
 	{
-		in |= 0x10000;
+		in |= 0x100000;
 	}//loc_5F8C8
 
 	if ((RawPad & 0x1000))
 	{
-		in |= 0x20000;
+		in |= 0x200000;
 	}//loc_5F8D8
 
 	if ((RawPad & 0x8000))
@@ -264,28 +312,36 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		{
 			//assert(0);
 			//lbu	$v1, 0x3F7E($gp) (GPad1+0x6)
-			//v1 = GPad1.data.mouse.xOffset;
-			//v0 = 0x7F;
-			//v0 -= v1;
-			//v0 <<= 24;
-			//a0 = v0 >> 24;
-			//v1 = in & 0x80;
-			//v1 <<= 24;
+			//v1 = GPad1.data.joystick.left_x;
+			//a0 = 0x7F - GPad1.data.joystick.left_x;
 			//v0 = a0 < 0x21 ? 1 : 0;
-			//a1 = v1 >> 24;
-			//if (a0 < 0x21)
+			//a1 = in & 0x80;
+			if (127 - GPad1.data.joystick.left_x > 32)
 			{
 				//loc_5FAE4
+				//v0 = 0x7F - GPad1.data.joystick.left_x < -32 ? 1 : 0
+				if (127 - GPad1.data.joystick.left_x < -32 && 0x7F - GPad1.data.joystick.left_x > -96)
+				{
+					in |= 8;
+
+					if (!(in & 0x1000000))
+					{
+						in |= 0x80;
+					}
+				}
 			}
-			//else if (a0 > 0x5F)
+			else if (0x7F - GPad1.data.joystick.left_x < 0x60 ? 1 : 0)
 			{
 				in |= 4;
-				//loc_5FAFC
+
+				if (!(in & 0x1000000))
+				{
+					in |= 0x80;
+				}
 			}
-			//else
-			{
-				in |= 4;
-			}
+
+			//loc_5FB0C todo
+
 		}//loc_5FB8C
 
 		if (in & 0x280 == 0x80 && BinocularRange == 0 && !(in & 3))

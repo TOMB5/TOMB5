@@ -33,6 +33,8 @@
 #include "SOUND.H"
 #include "DISPLAY.H"
 #include "PICTURE.H"
+#include <chrono>
+#include <thread>
 
 #define OUTSIDE_Z 64
 
@@ -46,34 +48,57 @@ FILE* fp_level;
 char* level_data;
 char* level_data_orig;
 
-struct mesh_vbuf_s
+#pragma pack(push, 1)
+struct mesh_thing
 {
-	char pad0[4]; // pos 0 size 4
-	short* field1; // pos 4 size 4  APPARENTLY object texture index
-	char pad[22]; // pos 8 size 22
-	LPDIRECT3DVERTEXBUFFER vbuf; // pos 30 size 4
-	char pad2[36]; // pos 34 size 36
+	tr5_vertex pos;
+	tr5_vertex norm;
+	int f6, f7;
 };
 
-mesh_vbuf_s** mesh_vbufs;
+struct tr4_mesh
+{
+	tr_vertex center;
+	int coll_radius;
+	short num_vert;
+	short num_normals;
+	short num_rectangles;
+	tr4_mesh_face4 *rectangles;
+	short num_triangles;
+	tr4_mesh_face3 *triangles;
+	int *lights;
+	LPDIRECT3DVERTEXBUFFER vbuf;
+	void* normals;
+	int attributes;
+	mesh_thing* vert;
+	bounding_box_f bbox;
+};
+#pragma pack(pop)
+
+tr4_mesh** mesh_infos;
 OBJECT_TEXTURE* object_textures;
 SPRITE_STRUCT* sprites;
 OBJECT_TEXTURE* waterfall_textures[6];
 float waterfall_y[6];
 int num_room_lights;
+int numLvlMeshes;
 
-#ifdef __cplusplus
-extern "C"
-{
+#ifdef __cplusplusa
+//extern "C"
+//{
 #endif
 
 #define AllocT(d, s, n) d = (s*)game_malloc(sizeof(s) * (n))
 #define AllocReadT(d, s, n) AllocT((d), s, (n));OnlyReadT((d), s, (n))
+#define AllocReadTF(d, s, n) AllocT((d), s, (n));OnlyReadTF((d), s, (n))
 #define OnlyReadT(d, s, n) readBytes((d), sizeof(s) * (n))
+#define OnlyReadTF(d, s, n) freadBytes((d), sizeof(s) * (n))
 
 #define Alloc(d, s, n) d = (struct s*)game_malloc(sizeof(struct s) * (n))
 #define AllocRead(d, s, n) Alloc((d), s, (n));OnlyRead((d), s, (n))
+#define AllocReadF(d, s, n) Alloc((d), s, (n));OnlyReadF((d), s, (n))
 #define OnlyRead(d, s, n) readBytes((d), sizeof(struct s) * (n))
+#define OnlyReadF(d, s, n) freadBytes((d), sizeof(struct s) * (n))
 
 #define AddPtr(p, t, n) p = (t*)((char*)(p) + (ptrdiff_t)(n));
 
@@ -120,11 +145,16 @@ extern "C"
 		level_data += count;
 	}
 
-	inline void freadBytes(unsigned int count)
+	inline void freadBytes(void* dst, unsigned int count)
 	{
-		void* buf = malloc(count);
-		fread(buf, 1, count, fp_level);
-		free(buf);
+		if (dst == nullptr)
+		{
+			fseek(fp_level, count, SEEK_CUR);
+		}
+		else
+		{
+			fread(dst, 1, count, fp_level);
+		}
 	}
 
 	void FreeTextures()
@@ -132,7 +162,13 @@ extern "C"
 		DX_TRY(App.lpD3DDevice->SetTexture(0, nullptr));
 		DX_TRY(App.lpD3D->EvictManagedTextures());
 
-		Unimpl();
+		for(int i = 0; i < num_pages; i++)
+		{
+			DXRelease(DXTextureList[i].tex, "Texture");
+
+			if (!DXTextureList[i].a11)
+				DXRelease(DXTextureList[i].surface, "Surface");
+		}
 	}
 
 	void FreeD3DLights()// (F)
@@ -163,9 +199,60 @@ extern "C"
 		malloc_free = malloc_size;
 	}
 
-	void MakeCutsceneResident(int r1, int r2, int r3, int r4)
+	int sub_40126C(NEW_CUTSCENE *cut)
 	{
-		Unimpl();
+		GLOBAL_cutme = cut;
+
+		int res = 168;
+
+		for(int i = 0; i < cut->numactors; i++)
+		{
+			res += sizeof(PACKNODE) * (cut->actor_data[i].nodes + 1);
+		}
+
+		return res;
+	}
+
+	void MakeCutsceneResident(int r1, int r2, int r3, int r4)// (F)
+	{
+		if (r1 | r2 | r3 | r4)
+		{
+			auto fp = FileOpen("DATA\\CUTSEQ.BIN");
+
+			if (!fp)
+				return;
+
+			fread(tsv_buffer, 1, 2048, fp);
+			ZeroArray(cutseq_resident_addresses);
+			lastcamnum = -1;
+			GLOBAL_playing_cutseq = 0;
+			cutseq_trig = 0;
+
+			auto c1 = ReadCutData(r1, fp);
+			auto c2 = ReadCutData(r2, fp);
+			auto c3 = ReadCutData(r3, fp);
+			auto c4 = ReadCutData(r4, fp);
+
+			fclose(fp);
+
+			if (c1)
+				sub_40126C(c1);
+			if (c2)
+				sub_40126C(c2);
+			if (c3)
+				sub_40126C(c3);
+			if (c4)
+				sub_40126C(c4);
+
+			if (r1)
+				cutseq_resident_addresses[r1].packed_data = (char*)c1;
+			if (r2)
+				cutseq_resident_addresses[r2].packed_data = (char*)c2;
+			if (r3)
+				cutseq_resident_addresses[r3].packed_data = (char*)c3;
+			if (r4)
+				cutseq_resident_addresses[r4].packed_data = (char*)c4;
+		}
 	}
 
 	void ClearFX()// (F)
@@ -192,9 +279,34 @@ extern "C"
 		Unimpl();
 	}
 
+	room_light_begin fog_bulb[40];
+
 	void BuildGlobalFogBulbList()
 	{
-		Unimpl();
+		if (number_rooms <= 0)
+		{
+			num_fog_bulbs = 0;
+			return;
+		}
+
+		int light = 0;
+
+		for(int i = 0; i < number_rooms; i++)
+		{
+			for(int j = 0; j < room[i].Unknown6; j++, light++)//TODO: WHAT THE FUCK, maybe NumLights2 instead
+			{
+				memcpy(&fog_bulb[light], &room[i].RoomLights[j], sizeof(room_light_begin));//TODO: WHAT THE FUCK
+
+				if (gfCurrentLevel == LVL5_TRAJAN_MARKETS || gfCurrentLevel == LVL5_COLOSSEUM)
+				{
+					fog_bulb[light].b = MAX(0, fog_bulb[light].b / 2);
+				}
+
+				fog_bulb[light].b = MAX(14, (90 - fog_bulb[light].b / 1024.0) * 0.8 + 0.2);
+			}
+		}
+
+		num_fog_bulbs = light;
 	}
 
 	void RoomInit()// (F)
@@ -303,7 +415,7 @@ extern "C"
 			DXTextureList[page].surface = surf;
 			DXTextureList[page].width = App.textRes;
 			DXTextureList[page].height = App.textRes;
-			DXTextureList[page].a9 = 0;
+			DXTextureList[page].alpha_blend = 0;
 			DXTextureList[page].a10 = 0;
 			DXTextureList[page].a11 = 0;
 
@@ -332,7 +444,7 @@ extern "C"
 			DXTextureList[page].surface = surf;
 			DXTextureList[page].width = App.textRes;
 			DXTextureList[page].height = App.textRes;
-			DXTextureList[page].a9 = 0;
+			DXTextureList[page].alpha_blend = 0;
 			DXTextureList[page].a11 = 0;
 
 			App.lpD3DDevice->SetTexture(0, tex);
@@ -369,7 +481,7 @@ extern "C"
 			DXTextureList[page].surface = surf;
 			DXTextureList[page].width = res;
 			DXTextureList[page].height = res;
-			DXTextureList[page].a9 = 0;
+			DXTextureList[page].alpha_blend = 0;
 			DXTextureList[page].other_id = page + numBump / 2;
 			DXTextureList[page].a11 = 0;
 
@@ -467,7 +579,7 @@ extern "C"
 				DXTextureList[page].surface = surf;
 				DXTextureList[page].width = 256;
 				DXTextureList[page].height = 256;
-				DXTextureList[page].a9 = 0;
+				DXTextureList[page].alpha_blend = 0;
 				DXTextureList[page].a11 = 0;
 
 				ptr1 += 3 * 256;
@@ -491,7 +603,7 @@ extern "C"
 			DXTextureList[page].surface = surf;
 			DXTextureList[page].width = 256;
 			DXTextureList[page].height = 256;
-			DXTextureList[page].a9 = 0;
+			DXTextureList[page].alpha_blend = 0;
 			DXTextureList[page].a11 = 0;
 		}
 
@@ -519,9 +631,9 @@ extern "C"
 			roomData->door = nullptr;
 		}
 
-		char* polyOff = (char*)roomData->PolyOffset;
-		char* polyOff2 = (char*)roomData->PolyOffset2;
-		char* vertOff = (char*)roomData->VerticesOffset;
+		auto* polyOff = (char*)roomData->PolyOffset;
+		auto* polyOff2 = (char*)roomData->PolyOffset2;
+		auto* vertOff = (char*)roomData->VerticesOffset;
 
 		for (int i = 0; i < roomData->NumLayers; i++)
 		{
@@ -715,131 +827,177 @@ extern "C"
 		Log(LT_Default, "Floor Data Size %d @ %x", numFloorData, floor_data);
 	}
 
-	void BaddyObjects()
-	{
-		struct object_info* obj = &objects[LARA];
-
-		obj->shadow_size = (10 * UNIT_SHADOW) / 16;
-		obj->initialise = &InitialiseLaraLoad;
-		obj->hit_points = LARA_HITPOINTS;
-		obj->draw_routine = nullptr;
-
-		obj->using_drawanimating_item = false;
-		obj->save_hitpoints = true;
-		obj->save_position = true;
-		obj->save_flags = true;
-		obj->save_anim = true;
-
-
-		obj = &objects[SAS];
-
-		if (obj->loaded)
-		{
-			obj->bite_offset = 0;
-		}
-
-		Unimpl();
-	}
-
-	void ObjectObjects()
-	{
-		Unimpl();
-	}
-
-	void TrapObjects()
-	{
-		Unimpl();
-	}
-
-	void InitialiseEffects()
-	{
-		Unimpl();
-	}
-
-	void InitialiseObjects()// (F)
-	{
-		for (int i = 0; i < NUMBER_OBJECTS; i++)
-		{
-			objects[i].initialise = nullptr;
-			objects[i].collision = nullptr;
-			objects[i].control = nullptr;
-
-			objects[i].intelligent = false;
-			objects[i].save_position = false;
-			objects[i].save_hitpoints = false;
-			objects[i].save_flags = false;
-			objects[i].save_anim = false;
-			objects[i].water_creature = false;
-			objects[i].save_mesh = false;
-			objects[i].using_drawanimating_item = true;
-
-			objects[i].draw_routine = DrawAnimatingItem;
-			objects[i].ceiling = nullptr;
-			objects[i].floor = nullptr;
-
-			objects[i].pivot_length = 0;
-			objects[i].radius = 10;
-			objects[i].shadow_size = 0;
-			objects[i].hit_points = -16384;
-			objects[i].explodable_meshbits = 0;
-			objects[i].draw_routine_extra = nullptr;
-
-			AddPtr(objects[i].frame_base, short, frames);
-
-			objects[i].object_mip = 0;
-		}
-
-		BaddyObjects();
-		ObjectObjects();
-		TrapObjects();
-		InitialiseHair();
-		InitialiseEffects();
-
-		SequenceUsed[0] = 0;
-		SequenceUsed[1] = 0;
-		SequenceUsed[2] = 0;
-		SequenceUsed[3] = 0;
-		SequenceUsed[4] = 0;
-		SequenceUsed[5] = 0;
-
-		NumRPickups = 0;
-
-		CurrentSequence = 0;
-
-		SequenceResults[0][1][2] = 0;
-		SequenceResults[0][2][1] = 1;
-		SequenceResults[1][0][2] = 2;
-		SequenceResults[1][2][0] = 3;
-		SequenceResults[2][0][1] = 4;
-		SequenceResults[2][1][0] = 5;
-
-		for (int i = 0; i < gfNumMips; i++)
-		{
-			const int mip = (gfMips[i] & 0xF0) << 6;
-			const int index = (gfMips[i] & 0xF) << 7;
-			objects[ANIMATING1 + 2 * index].object_mip = mip;
-		}
-
-		if (objects[RAT].loaded)
-			Alloc(Rats, RAT_STRUCT, 32); // todo: RAT_STRUCT size wrong, should be 26, is 28 (should be 832 B)
-
-		if (objects[BAT].loaded)
-			Alloc(Bats, BAT_STRUCT, 64); // todo: BAT_STRUCT size wrong, should be 30, is 32 (should be 1920 B)
-
-		if (objects[SPIDER].loaded)
-			Alloc(Spiders, SPIDER_STRUCT, 64); // todo: SPIDER_STRUCT size wrong, should be 26, is 28 (should be 1664 B)
-	}
-
 	void ProcessMeshData(int nmeshes)
 	{
+		int v9; // esi
+		int v62; // [esp+30h] [ebp-10h]
+
 		Log(LT_Enter, "ProcessMeshData %d", nmeshes);
 
-		//numLvlMeshes = nmeshes;
+		numLvlMeshes = nmeshes;
 
-		AllocT(mesh_vbufs, struct mesh_vbuf_s*, nmeshes);
+		AllocT(mesh_infos, tr4_mesh*, nmeshes);
 		mesh_base = (short*)malloc_ptr;
 
-		Unimpl();
+		short* last_mesh = nullptr;
+		tr4_mesh* mesh_info;
+		for(int i = 0; i < nmeshes; i++)
+		{
+			short* mesh = meshes[i];
+			if (last_mesh == mesh)
+			{
+				meshes[i] = (short*)mesh_info;
+				mesh_infos[i] = mesh_info;
+			}
+			else
+			{
+				last_mesh = meshes[i];
+				float minZ = 20000.0;
+				float minY = 20000.0;
+				float minX = 20000.0;
+				float maxY = -20000.0;
+				float maxX = -20000.0;
+				float maxZ = -20000.0;
+				Alloc(mesh_info, tr4_mesh, 1);
+				Zero(*mesh_info);
+				meshes[i] = (short*)mesh_info;
+				short* mptr = mesh;
+				mesh_infos[i] = mesh_info;
+				mesh_info->center = *(tr_vertex*)mptr;
+				mesh_info->coll_radius = *(int*)&mptr[3];
+				mesh_info->num_vert = v62 = mptr[5] & 0xFF;
+				if ((mptr[5] & 0xFF) == 0)
+				{
+					v9 = v62 = mptr[5] >> 8;
+				}
+				else
+				{
+					v9 = v62;
+				}
+				mptr += 6;
+				AllocT(mesh_info->vert, mesh_thing, mesh_info->num_vert);
+				if (mesh_info->num_vert)
+				{
+					for(int j = 0; j < mesh_info->num_vert; j++)
+					{
+						float vX = mptr[0];
+						float vY = mptr[1];
+						float vZ = mptr[2];
+
+						mptr += 3;
+
+						mesh_info->vert[j].pos.x = vX;
+						mesh_info->vert[j].pos.y = vY;
+						mesh_info->vert[j].pos.z = vZ;
+
+						if (vX < minX)
+							minX = vX;
+						if (vX > maxX)
+							maxX = vX;
+
+						if (vY < minY)
+							minY = vY;
+						if (vY > maxY)
+							maxY = vY;
+
+						if (vZ < minZ)
+							minZ = vZ;
+						if (vZ > maxZ)
+							maxZ = vZ;
+					}
+
+					mesh_info->bbox.minX = minX;
+					mesh_info->bbox.minY = minY;
+					mesh_info->bbox.minZ = minZ;
+					mesh_info->bbox.maxX = maxX;
+					mesh_info->bbox.maxY = maxY;
+					mesh_info->bbox.maxZ = maxZ;
+
+					mesh_info->num_normals = *mptr++;
+
+					if (mesh_info->num_normals == 0)
+						mesh_info->num_normals = mesh_info->num_vert;
+
+					if (mesh_info->num_normals <= 0)
+					{
+						mesh_info->normals = nullptr;
+						AllocT(mesh_info->lights, int, mesh_info->num_vert);
+
+						for (int j = 0; j < mesh_info->num_vert; j++)
+						{
+							short v35 = 255 - (*mptr++ >> 5);
+									
+							int v36 = v35 | ((v35 | (v35 << 8)) << 8);
+							mesh_info->lights[j] = mesh_info->vert[j].f6 = v36;
+						}
+
+						mesh_info->attributes |= 2;
+					}
+					else
+					{
+						AllocT(mesh_info->normals, tr5_vertex, mesh_info->num_normals);
+
+						for (int j = 0; j < mesh_info->num_vert; j++)
+						{
+							const auto ver16 = *(tr_vertex*)mptr;
+							tr5_vertex ver{ ver16.x, ver16.y, ver16.z };
+
+							D3DNormalise((LPD3DMATRIX)&ver);
+
+							mesh_info->vert[j].norm.x = ver.x;
+							mesh_info->vert[j].norm.y = ver.y;
+							mesh_info->vert[j].norm.z = ver.z;
+
+							mptr += sizeof(tr_vertex) / sizeof(short);
+						}
+
+						mesh_info->lights = nullptr;
+					}
+				}
+				else
+				{
+					mptr += 6 * v9 + 1;
+				}
+
+				mesh_info->num_rectangles = *mptr++;
+
+				if (mesh_info->num_rectangles)
+				{
+					Alloc(mesh_info->rectangles, tr4_mesh_face4, mesh_info->num_rectangles);
+
+					memcpy(mesh_info->rectangles, mptr, sizeof(tr4_mesh_face4) * mesh_info->num_rectangles);
+
+					mptr += sizeof(tr4_mesh_face4) / sizeof(short) * mesh_info->num_rectangles;
+
+					for(int j = 0; j < mesh_info->num_rectangles; j++)
+					{
+						if (mesh_info->rectangles[j].Effects & 2)
+						{
+							mesh_info->attributes |= 1;
+							break;
+						}
+					}
+				}
+
+				mesh_info->num_triangles = *mptr++;
+
+				if (mesh_info->num_triangles != 0)
+				{
+					Alloc(mesh_info->triangles, tr4_mesh_face3, mesh_info->num_triangles);
+						
+					memcpy(mesh_info->triangles, mptr, sizeof(tr4_mesh_face3) * mesh_info->num_triangles);
+
+					for (int j = 0; j < mesh_info->num_triangles; j++)
+					{
+						if (mesh_info->triangles[j].Effects & 2)
+						{
+							mesh_info->attributes |= 1;
+							break;
+						}
+					}
+				}
+			}
+		}
 
 		Log(LT_Enter, "End ProcessMeshData");
 	}
@@ -847,11 +1005,6 @@ extern "C"
 	void CreateSkinningData()
 	{
 		Unimpl();
-	}
-
-	void InitialiseClosedDoors()// (F)
-	{
-		Zero(ClosedDoors);
 	}
 
 	void LoadObjects()// (F)
@@ -974,7 +1127,7 @@ extern "C"
 
 	void LoadSprites()// (F)
 	{
-		Log(2, "LoadSprites");
+		Log(LT_Enter, "LoadSprites");
 
 		readDword(); // SPR\0
 
@@ -1120,14 +1273,19 @@ extern "C"
 	void LoadAnimatedTextures()// (F)
 	{
 		int numAnimTex = readDword();
-		AllocReadT(App.AnimTextureRanges, uint16_t, numAnimTex);
+		AllocReadT(AnimTextureRanges, uint16_t, numAnimTex);
 
 		nAnimUVRanges = readByte();
 	}
 
 	void AdjustUV(int numTex)
 	{
-		Log(2, "AdjustUV");
+		Log(LT_Enter, "AdjustUV");
+
+		for(int i = 0; i < numTex; i++)
+		{
+			
+		}
 
 		Unimpl();
 	}
@@ -1161,7 +1319,7 @@ extern "C"
 
 		AdjustUV(numObjTex);
 
-		Log(5, "Created %d Texture Pages", num_pages - 1);
+		Log(LT_Info, "Created %d Texture Pages", num_pages - 1);
 	}
 
 	void LoadDemoData()// (F)
@@ -1243,86 +1401,24 @@ extern "C"
 		}
 	}
 
+	room_light_thing* d3d_lights_1;
+	room_light_thing* d3d_lights_2;
+
 	void MallocD3DLights()
 	{
-		Unimpl();
+		if (num_room_lights > MAX_ROOM_LIGHTS)
+		{
+			Log(LT_Error, "MAX Room Lights of %d Exceeded - %d", MAX_ROOM_LIGHTS, num_room_lights);
+		}
+
+		num_room_lights *= 2;
+
+		Alloc(d3d_lights_1, room_light_thing, num_room_lights);
+		Alloc(d3d_lights_1, room_light_thing, 16);
 	}
 
 	void CreateD3DLights()// (F)
 	{
-	}
-
-	void GetCarriedItems()// (F)
-	{
-		for (int i = 0; i < level_items; i++)
-		{
-			items[i].carried_item = -1;
-		}
-
-		for (int i = 0; i < level_items; i++)
-		{
-			struct ITEM_INFO* item = &items[i];
-
-			if (objects[item->object_number].intelligent ||
-				item->object_number >= SEARCH_OBJECT1 && item->object_number <= SEARCH_OBJECT3)
-			{
-				struct ITEM_INFO* cur;
-
-				for (int j = room[item->room_number].item_number; j != -1; j = cur->next_item)
-				{
-					cur = &items[j];
-
-					if (abs(cur->pos.x_pos - item->pos.x_pos) < SECTOR(0.5) &&
-						abs(cur->pos.y_pos - item->pos.y_pos) < SECTOR(0.25) &&
-						abs(cur->pos.z_pos - item->pos.z_pos) < SECTOR(0.5) &&
-						objects[cur->object_number].collision == PickUpCollision)
-					{
-						cur->carried_item = item->carried_item;
-						item->carried_item = j;
-						RemoveDrawnItem(j);
-						cur->room_number = 255;
-					}
-				}
-			}
-		}
-	}
-
-	void GetAIPickups()// (F)
-	{
-		for (int i = 0; i < level_items; i++)
-		{
-			struct ITEM_INFO* item = &items[i];
-
-			if (objects[item->object_number].intelligent)
-			{
-				item->status = ITEM_INACTIVE;
-				item->gravity_status = FALSE;
-				item->hit_status = FALSE;
-				item->collidable = FALSE;
-
-				for (int j = 0; j < nAIObjects; j++)
-				{
-					struct AIOBJECT* cur = &AIObjects[j];
-
-					if (abs(cur->x - item->pos.x_pos) < SECTOR(0.5) &&
-						abs(cur->z - item->pos.z_pos) < SECTOR(0.5) &&
-						cur->room_number == item->room_number)
-					{
-						if (cur->object_number < AI_PATROL2)
-						{
-							item->ai_bits = 1 << (cur->object_number - AI_GUARD);
-							item->trigger_flags = cur->trigger_flags;
-
-							if (cur->object_number != AI_GUARD)
-								cur->room_number = 255;
-						}
-					}
-				}
-
-				item->meshswap_meshbits |= item->item_flags[3] << 8;
-				item->meshswap_meshbits |= item->ai_bits << 16;
-			}
-		}
 	}
 
 	void ClearFootPrints()// (F)
@@ -1335,91 +1431,54 @@ extern "C"
 		FootPrintNum = 0;
 	}
 
-	void InitBinoculars()
-	{
-		Unimpl();
-	}
-
-	void InitTarget()
-	{
-		Unimpl();
-	}
-
-	void InitialiseGameFlags()// (F)
-	{
-		Zero(flipmap);
-		Zero(flip_stats);
-		flipeffect = -1;
-		Zero(cd_flags);
-		flip_status = 0;
-		IsAtmospherePlaying = 0;
-		camera.underwater = 0;
-	}
-
-	void SetupGame()// (F)
-	{
-		SeedRandomDraw(0xD371F947);
-		SeedRandomControl(0xD371F947);
-
-		wibble = 0;
-		torchroom = 255;
-
-		ClearFootPrints();
-		InitBinoculars();
-		InitTarget();
-		InitialiseGameFlags();
-
-		InitialiseLara(
-			gfCurrentLevel != LVL5_THIRTEENTH_FLOOR &&
-			gfCurrentLevel != LVL5_BASE &&
-			gfCurrentLevel != LVL5_GALLOWS_TREE &&
-			gfCurrentLevel != LVL5_STREETS_OF_ROME &&
-			!gfInitialiseGame);
-
-		GetCarriedItems();
-		GetAIPickups();
-
-		SeedRandomDraw(0xD371F947);
-		SeedRandomControl(0xD371F947);
-	}
-
-	void reset_cutseq_vars()// (F)
-	{
-		cutseq_num = 0;
-		cutseq_trig = 0;
-
-		GLOBAL_playing_cutseq = 0;
-		GLOBAL_cutseq_frame = 0;
-
-		SetFadeClip(0, 1);
-	}
-
 	void LoadSamples()
 	{
 		Log(LT_Enter, "LoadSamples");
 
 		AllocReadT(sample_lut, short, 450);
 
-		int numSampleInfos = freadDword();
+		int numSampleInfos = readDword();
 
 		Log(LT_Sound, "Number Of Sample Infos %d", numSampleInfos);
 
-		if (numSampleInfos != 0)
+		if (numSampleInfos == 0)
 		{
-			AllocRead(sample_infos, SAMPLE_INFO, numSampleInfos);
-
-			int numSampleIndices = freadDword();
-
-			if (numSampleIndices != 0)
-			{
-				Log(LT_Sound, "Number Of Samples %d", numSampleIndices);
-
-				if (feof(fp_level))
-					Log(LT_Error, "END OF FILE");
-
-				Unimpl();
-			}
+			Log(LT_Error, "No Sample Infos");
+			return;
 		}
+
+		AllocRead(sample_infos, SAMPLE_INFO, numSampleInfos);
+
+		int numSampleIndices = readDword();
+
+		if (numSampleIndices == 0)
+		{
+			Log(LT_Error, "No Samples");
+			return;
+		}
+
+		Log(LT_Sound, "Number Of Samples %d", numSampleIndices);
+		Log(LT_Info, "pos=%x", ftell(fp_level));
+
+		int numSamples = freadDword();
+
+		if (feof(fp_level))
+			Log(LT_Error, "END OF FILE");
+
+		StreamOpen();
+
+		for(int i = 0; i < numSamples; i++)
+		{
+			int uncomp = freadDword();
+			int comp = freadDword();
+
+			freadBytes(samples_buffer, comp);
+
+			if (!DXCreateSampleADPCM(samples_buffer, comp, uncomp, i))
+				break;
+		}
+
+		StreamClose();
 	}
 
 	unsigned __stdcall LoadLevel(void* filename)
@@ -1427,7 +1486,7 @@ extern "C"
 		Log(LT_Info, "Begin LoadLevel");
 
 		FreeLevel();
-
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		num_pages = 1;
 		//
 		fp_level = FileOpen((char*)filename);
@@ -1448,7 +1507,7 @@ extern "C"
 			LaraDrawType = freadWord() + 1;
 			WeatherType = freadWord();
 
-			freadBytes(28); // padding
+			freadBytes(nullptr, 28); // padding
 
 			int uncompSize = freadDword();
 			int compSize = freadDword();
@@ -1510,12 +1569,12 @@ extern "C"
 
 			for (int i = WATERFALL1; i <= WATERFALLSS2 && false; i++)
 			{
-				if (objects[i].loaded)
+				/*if (objects[i].loaded)
 				{
-					struct OBJECT_TEXTURE* tex = &object_textures[mesh_vbufs[objects[i].mesh_index]->field1[4]];
+					struct OBJECT_TEXTURE* tex = &object_textures[mesh_infos[objects[i].mesh_index]->field1[4]];
 					waterfall_textures[i] = tex;
 					waterfall_y[i] = tex->vertices[0].y;
-				}
+				}*/
 			}
 
 			S_LoadBar();
@@ -1552,13 +1611,83 @@ extern "C"
 		return true;
 	}
 
+	LPDIRECTDRAWSURFACE4 surf_screen;
+
+	void LoadScreen(int frame, int num)// (F)
+	{
+		DDSURFACEDESC2 desc;
+		DXInit(desc);
+		desc.dwWidth = 640;
+		desc.dwHeight = 480;
+
+		DDPIXELFORMAT pf;
+		DXInit(pf);
+		pf.dwFlags = 64;
+		pf.dwRGBBitCount = 16;
+		pf.dwRBitMask = 0xF800;
+		pf.dwGBitMask = 0x7E0;
+		pf.dwBBitMask = 0x1F;
+		pf.dwRGBAlphaBitMask = 0;
+		desc.ddpfPixelFormat = pf;
+
+		desc.dwFlags = DDSD_PIXELFORMAT | DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS;
+		desc.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY | DDSCAPS_OFFSCREENPLAIN;
+
+		FILE* fp;
+		const int pix_num = 640 * 480;
+		const int pix_size = pix_num * sizeof(short);
+
+		if (!DXCreateSurface(App.lpDD, &desc, &surf_screen) || !(fp = FileOpen(screens[num])))
+		{
+			Log(LT_Default, "WHORE!");
+			return;
+		}
+
+		fseek(fp, pix_size * frame, SEEK_SET);
+		void* pix_buf = malloc(pix_size);
+		fread(pix_buf, pix_size, 1, fp);
+		fclose(fp);
+		DXInit(desc);
+		surf_screen->Lock(nullptr, &desc, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, nullptr);
+
+		short* src = (short*)pix_buf;
+		short* dest = (short*)desc.lpSurface;
+
+		for(int i = 0; i < pix_num; i++, src++, dest++)
+		{
+			*dest = (*src & 0x1F) | 2 * (*src & 0xFFE0);
+		}
+
+		surf_screen->Unlock(nullptr);
+		free(pix_buf);
+		in_loading_screen = true;
+	}
+
+	int dword_8751CC = 0;
+	int dword_8751C8 = 0;
+
 	int S_LoadLevelFile(int Name)
 	{
 		Log(LT_Enter, "S_LoadLevelFile");
 
 		if (!in_loading_screen)
 		{
-			// todo
+			int num = Name;
+
+			if (Name != LVL5_TITLE)
+			{
+				if (dword_8751CC)
+				{
+					num = dword_8751C8++ % 3 + 15;
+				}
+				else
+				{
+					dword_8751CC = 1;
+					num = -2;
+				}
+			}
+
+			LoadScreen(num + 2, 4);
 		}
 
 		char filename[80];
@@ -1573,13 +1702,13 @@ extern "C"
 			InitialiseSortList();
 			DrawLoadingScreen();
 			SortPolyList(surfacenumbf, sort3d_bufferbf);
-			/*RestoreFPCW();
-			DrawSortList(word_878654);
-			MungeFPCW(&word_878654);*/
+			//RestoreFPCW();
+			DrawSortList();
+			//MungeFPCW(&word_878654);
 			S_DumpScreenFrame();
 		}
 
-		while (in_loading_screen)
+		if (in_loading_screen)
 			ReleaseScreen();
 
 		levelLoading = true;
@@ -1605,7 +1734,6 @@ extern "C"
 
 	FILE* FileOpen(const char* filename)// (F)
 	{
-		FILE* fp;
 		char fn[80];
 
 		memset(&fn, 0, 80u);
@@ -1616,7 +1744,7 @@ extern "C"
 
 		Log(LT_Info, "FileOpen - %s", fn);
 
-		fp = fopen(fn, "rb");
+		FILE* fp = fopen(fn, "rb");
 
 		if (!fp)
 			Log(LT_Error, "Unable To Open %s", fn);
@@ -1633,10 +1761,8 @@ extern "C"
 
 	unsigned long FileLength(FILE* nHandle)// (F)
 	{
-		unsigned long ret;
-
 		fseek(nHandle, 0, SEEK_END);
-		ret = ftell(nHandle);
+		unsigned long ret = ftell(nHandle);
 		fseek(nHandle, 0, SEEK_SET);
 
 		return ret;
@@ -1644,22 +1770,19 @@ extern "C"
 
 	int LoadFile(char* szFileName, void** pDest)// (F)
 	{
-		FILE* fp;
-		int len, read;
-
 		Log(LT_Enter, "LoadFile");
 		Log(LT_Info, "File - %s", szFileName);
 
-		fp = FileOpen(szFileName);
+		FILE* fp = FileOpen(szFileName);
 		if (!fp)
 			return 0;
 
-		len = FileLength(fp);
+		int len = FileLength(fp);
 
 		if (!*pDest)
 			*pDest = malloc(len);
 
-		read = fread(*pDest, 1, len, fp);
+		int read = fread(*pDest, 1, len, fp);
 
 		Log(LT_Info, "Read - %d FileSize - %d", read, len);
 
@@ -1677,15 +1800,11 @@ extern "C"
 
 	int FindCdDrive(void)// (F)
 	{
-		unsigned int type;
 		char root[5];
 		char file_check[] = "C:\\script.dat";
 
-		DWORD drives;
-		HANDLE file;
-
 		// WIN95: Bit mask of which drives available
-		drives = GetLogicalDrives();
+		DWORD drives = GetLogicalDrives();
 
 		cd_drive = 'A';
 		lstrcpy(root, "A:\\");
@@ -1696,12 +1815,12 @@ extern "C"
 			{
 				root[0] = cd_drive;
 
-				type = GetDriveType(root);
+				unsigned int type = GetDriveType(root);
 				if (type == DRIVE_CDROM)
 				{
 					// NOTE: user may have more than one CD drive, so need to check this has Tomb 2 in it
 					file_check[0] = cd_drive;
-					file = CreateFile(file_check, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+					HANDLE file = CreateFile(file_check, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 					if (file != INVALID_HANDLE_VALUE)
 					{
 						CloseHandle(file);
@@ -1747,6 +1866,6 @@ extern "C"
 		return res;
 	}
 
-#ifdef __cplusplus
-}
+#ifdef __cplusplusa
+	//}
 #endif

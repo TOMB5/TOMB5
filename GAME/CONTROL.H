@@ -159,7 +159,6 @@ extern unsigned char InGameCnt;
 extern struct RAT_STRUCT* Rats;
 extern struct BAT_STRUCT* Bats;
 extern struct SPIDER_STRUCT* Spiders;
-extern struct TWOGUN_INFO twogun[4];
 extern int SetDebounce;
 extern short WB_room;
 extern struct ITEM_INFO* WB_item;

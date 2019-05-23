@@ -8,14 +8,19 @@
 #include "FILE.H"
 #include "DIRECTX.H"
 
-object_info objects[NUMBER_OBJECTS];
-static_info static_objects[NUMBER_STATIC_OBJECTS];
+//object_info objects[NUMBER_OBJECTS];
+//static_info static_objects[NUMBER_STATIC_OBJECTS];
 LPDIRECT3DVERTEXBUFFER vertex_buffer;
 bool game_running;
 WORD* d9ab34;
 int e4b100;
+int d9ab1c;
+int d9ab10;
+DWORD dword_921684;
+DWORD dword_7EE0D4;
 BYTE tsv_buffer[8192];
-
+DWORD dword_57A018;
+DWORD dword_51CE58 = 0;
 void InitFX()// (F)
 {
 	if (App.Flags & WA_BACK_BUFFER)  

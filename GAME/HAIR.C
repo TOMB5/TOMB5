@@ -2,7 +2,9 @@
 
 #include "DRAW.H"
 #include "OBJECTS.H"
+#include "TYPES.H"
 #ifdef PC_VERSION
+#include "SPECTYPES.H"
 #include "GAME.H"
 #else
 #include "SETUP.H"

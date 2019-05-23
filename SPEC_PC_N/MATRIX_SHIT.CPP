@@ -8,7 +8,7 @@
 #include "CONTROL.H"
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 	struct SVECTOR CamRot;
 	int32_t		phd_left;  				/* Left Clipping Value */
@@ -33,6 +33,11 @@ extern "C" {
 	int32_t		phd_oopersp;
 	float* phd_dxptr;
 
+	float clip_xmin;
+	float clip_xmax;
+	float clip_ymin;
+	float clip_ymax;
+
 	float		one;				// in 3dinsert.cpp
 	float		f_znear;			// phd_znear
 	float		f_zfar;				// phd_zfar
@@ -45,16 +50,20 @@ extern "C" {
 	float		f_invzfar;			// 1.0/phd_zfar (actually 65535/65536 at the moment)
 	float		f_oneozfar;			// one/phd_zfar
 	float		f_a, f_b, f_boo;		// a/b factors for z buffering (f_boo is f_b/one)
-
+	float f_persp_bis;
+	float f_znear3;
+	float f_persp_bis_over_znear3;
+	float LfAspectCorrection;
+	float flt_55D1F8;
+	float dword_50A440 = SECTOR(32768);
 	int32_t		w2v_matrix[12];		// World to View Matrix...
 	float		w2v_matrix_f[12];		// World to View Matrix...
 	int32_t		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
 	float		matrix_stack_dx[12 * MAX_MAT];
-	float		sin_flt_table[(int)ANGLE(360)];
+	float		sin_flt_table[65536];
 
 	D3DMATRIX transform_projection;
 	D3DMATRIX w2v_matrix_d3d;
-	static float LfAspectCorrection;
 
 	void D3DIdentityMatrix(LPD3DMATRIX mat)// (F)
 	{
@@ -250,9 +259,34 @@ extern "C" {
 		mptr[M23] = mptr[M20] * x + mptr[M21] * y + mptr[M22] * z;
 	}
 
+	void TranslateRel(long x, long y, long z)// (F)
+	{
+		float* mptr = phd_dxptr;
+
+		mptr[M03] += mptr[M00] * x + mptr[M01] * y + mptr[M02] * z;
+		mptr[M13] += mptr[M10] * x + mptr[M11] * y + mptr[M12] * z;
+		mptr[M23] += mptr[M20] * x + mptr[M21] * y + mptr[M22] * z;
+	}
+
+	void phd_TranslateRel(long x, long y, long z)// (F)
+	{
+		int* mptr = phd_mxptr;
+
+		mptr[M03] += mptr[M00] * x + mptr[M01] * y + mptr[M02] * z;
+		mptr[M13] += mptr[M10] * x + mptr[M11] * y + mptr[M12] * z;
+		mptr[M23] += mptr[M20] * x + mptr[M21] * y + mptr[M22] * z;
+
+		TranslateRel(x, y, z);
+	}
+
 	void phd_RotYXZ(long y, long x, long z)
 	{
 		Unimpl();
+	}
+
+	void mRotSuperPackedYXZ(short** a0, long a1)
+	{
+		UNIMPLEMENTED();
 	}
 
 	void SetTransl(long x, long y, long z)// (F)
@@ -260,6 +294,13 @@ extern "C" {
 		phd_dxptr[M03] = x;
 		phd_dxptr[M13] = y;
 		phd_dxptr[M23] = z;
+	}
+
+	void gte_sttr(PHD_VECTOR *v)
+	{
+		v->x = phd_mxptr[M03] >> W2V_SHIFT;
+		v->y = phd_mxptr[M13] >> W2V_SHIFT;
+		v->z = phd_mxptr[M23] >> W2V_SHIFT;
 	}
 
 	void phd_SetTrans(long x, long y, long z)// (F)
@@ -290,21 +331,21 @@ extern "C" {
 		phd_dxptr[M22] = TRIGMULT2F(phd_dxptr[M22], vec->vz);
 	}
 
-	void ScaleCurrentMatrix(VECTOR* vec)// (F)
+	void ScaleCurrentMatrix(VECTOR vec)// (F)
 	{
-		phd_mxptr[M00] = TRIGMULT2(phd_mxptr[M00], vec->vx);
-		phd_mxptr[M10] = TRIGMULT2(phd_mxptr[M10], vec->vx);
-		phd_mxptr[M20] = TRIGMULT2(phd_mxptr[M20], vec->vx);
+		phd_mxptr[M00] = TRIGMULT2(phd_mxptr[M00], vec.vx);
+		phd_mxptr[M10] = TRIGMULT2(phd_mxptr[M10], vec.vx);
+		phd_mxptr[M20] = TRIGMULT2(phd_mxptr[M20], vec.vx);
 
-		phd_mxptr[M01] = TRIGMULT2(phd_mxptr[M01], vec->vy);
-		phd_mxptr[M11] = TRIGMULT2(phd_mxptr[M11], vec->vy);
-		phd_mxptr[M21] = TRIGMULT2(phd_mxptr[M21], vec->vy);
+		phd_mxptr[M01] = TRIGMULT2(phd_mxptr[M01], vec.vy);
+		phd_mxptr[M11] = TRIGMULT2(phd_mxptr[M11], vec.vy);
+		phd_mxptr[M21] = TRIGMULT2(phd_mxptr[M21], vec.vy);
 
-		phd_mxptr[M02] = TRIGMULT2(phd_mxptr[M02], vec->vz);
-		phd_mxptr[M12] = TRIGMULT2(phd_mxptr[M12], vec->vz);
-		phd_mxptr[M22] = TRIGMULT2(phd_mxptr[M22], vec->vz);
+		phd_mxptr[M02] = TRIGMULT2(phd_mxptr[M02], vec.vz);
+		phd_mxptr[M12] = TRIGMULT2(phd_mxptr[M12], vec.vz);
+		phd_mxptr[M22] = TRIGMULT2(phd_mxptr[M22], vec.vz);
 
-		ScaleCurrentMatrixF(vec);
+		ScaleCurrentMatrixF(&vec);
 	}
 
 	void phd_GenerateW2V(PHD_3DPOS* viewpos)// (F)
@@ -357,7 +398,7 @@ extern "C" {
 				vec.vx = (x >> 12) + 0x4000;
 				vec.vy = (y >> 12) + 0x4000;
 				vec.vz = (z >> 12) + 0x4000;
-				ScaleCurrentMatrix(&vec);
+				ScaleCurrentMatrix(vec);
 			}
 		}
 
@@ -370,6 +411,18 @@ extern "C" {
 		*(nptr + M12) = *(mptr + M12) = (int32_t)(float(*(mptr + M12))*LfAspectCorrection);
 
 		SetD3DMatrix(&w2v_matrix_d3d, w2v_matrix);
+	}
+
+	void D3DNormalise(LPD3DMATRIX m)
+	{
+		long double v1;
+
+		if (m->_11 == 0.0 && m->_12 == 0.0 && m->_13 == 0.0)
+			return;
+		v1 = 1.0 / sqrt(m->_13 * m->_13 + m->_12 * m->_12 + m->_11 * m->_11);
+		m->_11 = v1 * m->_11;
+		m->_12 = v1 * m->_12;
+		m->_13 = v1 * m->_13;
 	}
 
 	void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest)// (F)
@@ -421,5 +474,5 @@ extern "C" {
 	
 
 #ifdef __cplusplus
-}
+//}
 #endif

@@ -29,7 +29,7 @@ static struct REQUESTER InsertReq = { STR_INSERT_MEMCARD_INTO_SLOT_1, 8, 0, 0, 0
 static struct REQUESTER CheckingReq = { STR_CHECKING_MEMORY_CARD, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
 static struct REQUESTER FormatReq = { STR_MEMCARD_UNFORMATTED_FORMAT_IT, 8, 2, 1, 2, 0, 0, 0, 0,{ STR_YES, STR_NO, 0, 0, 0 } };
 static struct REQUESTER OverwriteReq = { STR_OVERWRITE_ON_MEMCARD, 8, 2, 1, 2, 0, 0, 0, 0,{ STR_YES, STR_NO, 0, 0, 0 } };
-static struct REQUESTER LoadingReq = { STR_LOADING_DATA_DO_NOT_REMOVE, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
+struct REQUESTER LoadingReq = { STR_LOADING_DATA_DO_NOT_REMOVE, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
 static struct REQUESTER SavingReq = { STR_SAVING_DATA_DO_NOT_REMOVE, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
 static struct REQUESTER FormattingReq = { STR_FORMATTING_MEMCARD_DO_NOT_REMOVE, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
 static struct REQUESTER LoadOkReq = { STR_LOAD_OK, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
@@ -39,7 +39,7 @@ static struct REQUESTER SaveErrorReq = { STR_SAVE_FAILED, 8, 0, 0, 0, 0, 0, 0, 0
 static struct REQUESTER FormatErrorReq = { STR_FORMAT_FAILED, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
 static struct REQUESTER NotFormatReq = { STR_MEMCARD_IS_UNFORMATTED_INSERT_FORMATTED, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
 static struct REQUESTER NoSpaceReq = { STR_MEMCARD_INSUFFICIENT_FREE_BLOCKS, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
-static struct REQUESTER NoGamesReq = { STR_THERE_ARE_NO_SAVEGAMES, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
+struct REQUESTER NoGamesReq = { STR_THERE_ARE_NO_SAVEGAMES, 8, 0, 0, 0, 0, 0, 0, 0,{ 0, 0, 0, 0, 0 } };
 
 int DisplayFiles(int cursor, int maxfiles)//626E4(<), 62DC8(<)
 {
@@ -172,7 +172,7 @@ int LoadGame()//6297C(<), 63060
 		else
 		{
 			//loc_62B10
-			PrintString(SCREEN_WIDTH / 2, 32, 8, &gfStringWad[gfStringOffset[STR_SELECT_GAME_TO_LOAD]], 0x8000);
+			PrintString(SCREEN_WIDTH / 2, 32, 8, &gfStringWad[gfStringOffset[STR_SELECT_GAME_TO_LOAD]], FF_CENTER);
 			nfiles = DisplayFiles(cursor, mcNumFiles);
 
 			if ((RawEdge & IN_DPAD_UP) && cursor != 0)
@@ -315,7 +315,7 @@ int LoadGame()//6297C(<), 63060
 	//def_62A38
 	if (cancel != 0)
 	{
-		PrintString(SCREEN_WIDTH / 2, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], 0x8000);
+		PrintString(SCREEN_WIDTH / 2, 232, 5, &gfStringWad[gfStringOffset[STR_CANCEL]], FF_CENTER);
 		if ((RawEdge & IN_TRIANGLE))
 		{
 			init = 0;

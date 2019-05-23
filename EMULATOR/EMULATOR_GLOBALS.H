@@ -45,7 +45,6 @@ extern int(*printf_)(const char * format, ...);
 extern GLuint vramTexture;
 extern GLuint nullWhiteTexture;
 
-extern int lastTime;
 extern int screenWidth;
 extern int screenHeight;
 extern int windowWidth;

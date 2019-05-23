@@ -17,12 +17,12 @@ struct DXTEXTURE
 	DWORD width;
 	DWORD height;
 	DWORD a8;
-	BYTE a9;
+	BYTE alpha_blend;
 	BYTE a10;
 	BYTE a11;
 	DWORD other_id;
 };
-#pragma pop
+#pragma pack(pop)
 
 extern  DXTEXTURE DXTextureList[MAX_D3D_TEXTURES];
 

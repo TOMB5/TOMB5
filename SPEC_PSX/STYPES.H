@@ -288,14 +288,6 @@ struct STASHEDDAT
 	char matrix[32];
 };
 
-struct WATERTAB
-{
-	char shimmer;
-	char choppy;
-	unsigned char random;
-	unsigned char abs;
-};
-
 struct VIBRATION
 {
 	short Rate;

@@ -30,8 +30,9 @@
 #include "HEALTH.H"
 #include "DELTAPAK.H"
 #include "NEWINV2.H"
-#include <time.h>
+#include <ctime>
 #include <zlib.h>
+#include "CONTROL.H"
 
 #pragma comment(lib, "zlibstatic.lib")
 
@@ -65,7 +66,7 @@ void DebugPrint(const char* message)// (F)
 }
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 	
@@ -74,7 +75,7 @@ void S_Warn(const char* warning_message, ...)// (F)
 {
 	char buf[1024];
 	time_t t = time(nullptr);
-	struct tm tm = *localtime(&t);
+	tm tm = *localtime(&t);
 
 	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
 
@@ -88,42 +89,34 @@ void S_Warn(const char* warning_message, ...)// (F)
 	DebugPrint(buf);
 }
 
-void S_CDPlay(sint16 nTrack, int tMode)
+void S_CDPlay(sint16 track, int mode)
 {
-	Log(LT_Enter, "S_CDPlay: nTrack=%d; tMode=%d", nTrack, tMode);
+	Log(LT_Enter, "S_CDPlay: track=%d; mode=%d", track, mode);
 
-	Unimpl();
-
-	//if (!Option_Music_Volume)
-		return;
-/*
-#ifndef DUDE_DEMO
-#ifndef DEMO
-	MCI_PLAY_PARMS pp;
-	cdtrack = nTrack;
-	nTrack = GetRealTrack(nTrack);
-
-	OpenCD();
-
-	// start track
-	pp.dwFrom = MCI_MAKE_TMSF(nTrack, 0, 0, 0);
-	pp.dwTo = MCI_MAKE_TMSF(nTrack + 1, 0, 0, 0);
-	if (mciSendCommand(wDeviceID, MCI_PLAY, MCI_FROM | MCI_TO, (DWORD)&pp))
-		Log(LT_Error, "Can't play track %d", nTrack);
-
-	CloseCD();
-
-	// set looping flag if need be
-	if (tMode)
-		cd_looping = nTrack;
-#endif
-#endif
-	*/
+	if (ACMInited)
+	{
+		dword_57A018 = 0;
+		IsAtmospherePlaying = track == CurrentAtmosphere;
+		S_CDStop();
+		ACMEmulateCDPlay(track, mode);
+	}
 }
 
 void S_CDStop(void)
 {
-	Unimpl();
+	if (ACMInited && acm_file_stream)
+	{
+		memset(wave_file_buf, 0, 225280);
+		ACMSoundBuffer->Stop();
+		ACMSoundBuffer->SetCurrentPosition(0);
+		while (byte_57A01C)
+			;
+		fclose(acm_file_stream);
+		acm_file_stream = 0;
+		dword_57A018 = 0;
+		dword_510B18 = 7;
+		XATrack = -1;
+	}
 }
 
 void S_SoundStopSample(sint32 handle)// (F)
@@ -185,7 +178,8 @@ long		S_DumpScreen()
 	}
 	GnFrameCounter++;
 
-	DrawDebugPost();
+	if (!keymap[DIK_D])
+		DrawDebugPost();
 	
 	ShowDebugInfo();
 
@@ -611,9 +605,19 @@ void ClearFXFogBulbs()// (F)
 	
 }
 
+DWORD dword_C87BF0;
+DWORD dword_C86BE8;
+DWORD dword_C713D4;
+DWORD dword_C713DC;
+DWORD dword_C713E0;
+
 void SetFade(int a1, int a2)
 {
-	Unimpl();
+	dword_C87BF0 = 1;
+	dword_C86BE8 = a1;
+	dword_C713D4 = (a2 - a1) >> 3;
+	dword_C713DC = 0;
+	dword_C713E0 = a2;
 }
 
 void S_InitialiseScreen()// (F)
@@ -631,18 +635,99 @@ void S_AnimateTextures(long nFrames)
 	Unimpl();
 }
 
+void DrawPsxTile(long a1, long a2, long a3)
+{
+	uint16 v7; // si
+	unsigned int v8; // eax
+	D3DTLVERTEX v[4]; // [esp+1Ch] [ebp-A8h]
+	OBJECT_TEXTURE tex; // [esp+9Ch] [ebp-28h]
+
+	e4b100 = 6;
+	if ((a3 & 0xFF000000) == 0x62000000)
+	{
+		v7 = 3;
+		v8 = a3 << 24;
+	}
+	else
+	{
+		v7 = 2;
+		v8 = a3 | 0xFF000000;
+	}
+	float v13 = f_oneoznear;
+	double v9 = f_znear3;
+
+	if (gfCurrentLevel == LVL5_TITLE)
+	{
+		v9 += 10.0;
+		v13 += 50.0;
+	}
+
+	v[0].sx = v9;
+	double v10 = a2 + 1.0 + (a1 >> 16);
+	v[0].color = v8;
+	v[0].sx = a1 >> 16;
+	v[0].sy = a1;
+	v[1].sx = v10;
+	v[0].rhw = v13;
+	v[1].sz = v9;
+	v[1].sy = a1;
+	v[2].sx = v10;
+	double v11 = (a2 >> 16) + 1.0 + a1;
+	v[1].rhw = v13;
+	v[2].rhw = v13;
+	v[1].color = v8;
+	v[2].color = v8;
+	v[3].sx = a1 >> 16;
+	v[2].sy = v11;
+	v[3].color = v8;
+	v[0].specular = 0xFF000000;
+	v[1].specular = 0xFF000000;
+	v[2].specular = 0xFF000000;
+	v[2].sz = v9;
+	v[3].rhw = v13;
+	v[3].specular = 0xFF000000;
+	v[3].sy = v11;
+	tex.attribute = v7;
+	tex.new_flags = 0;
+	v[3].sz = v9;
+	tex.tile_and_flag = 0;
+
+	d9ab34[0] = 0;
+	d9ab34[1] = 0;
+	d9ab34[2] = 0;
+	d9ab34[3] = 0;
+
+	return AddQuad2(v, 0, 1, 2, 3, &tex, 0);
+}
+
 void S_OutputPolyList()
 {
+	Log(LT_Info, "S_OutputPolyList - RENDER START");
+
 	//RestoreFPCW();
 	WinFrameRate();
 
-	// todo
+	d9ab1c = 0;
+	d9ab10 = 0;
+
+	App.unk11200001 = 0;
+	App.DrawPrimitiveCnt = 0;
+
+	// todo (log)
 
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
 
-	// todo
+	if (App.ResChangeTimer)
+	{
+		WinDisplayString(8, App.height - 8, "%dx%d", App.width, App.height);
+
+		App.ResChangeTimer -= 30.0 / App.fps;
+
+		if (App.ResChangeTimer < 0)
+			App.ResChangeTimer = 0;
+	}
 
 	if (App.lpZBuffer != nullptr)
 		DrawBuckets();
@@ -668,7 +753,7 @@ void S_OutputPolyList()
 		DX_TRY(App.lpViewPort->Clear2(1, &r, D3DCLEAR_ZBUFFER, RGBA_MAKE(0, 0, 0, 0), 1.0f, 0));
 	}
 
-	if ((BinocularRange || SCOverlay || SniperOverlay) && !in_loading_screen) // TODO
+	if ((BinocularRange || SCOverlay || SniperOverlay) && !in_loading_screen)
 	{
 		InitialiseSortList();
 		DrawBinoculars();
@@ -677,7 +762,7 @@ void S_OutputPolyList()
 
 	if (pickups[CurrentPickup].life != -1 && !in_loading_screen && !GLOBAL_playing_cutseq)
 	{
-		// TODO
+		dword_7EE0D4 = 0;
 		InitialiseSortList();
 		S_DrawPickup(pickups[CurrentPickup].object_number);
 		SortPolyList(surfacenumbf, sort3d_bufferbf);
@@ -689,7 +774,8 @@ void S_OutputPolyList()
 	if (FadeScreenHeight != 0)
 	{
 		int height = phd_winymax / 256.0 * FadeScreenHeight;
-		//DrawPsxTile() TODO
+		DrawPsxTile(0, phd_winwidth | (height << 16), 0x62FFFFFF);
+		DrawPsxTile(phd_winheight - height, phd_winwidth | (height << 16), 0x62FFFFFF);
 	}
 
 	if (gfCurrentLevel != LVL5_TITLE)
@@ -707,9 +793,16 @@ void S_OutputPolyList()
 		DrawSortList();
 	}
 
-	// TODO TODO
+	if (++dword_921684 == 2)
+	{
+		if (keymap[DIK_B])                         
+			App.tBumpMap = App.tBumpMap != 1;
+		dword_921684 = 0;
+	}
 
-	Unimpl();
+	// MungeFPCW((int)&word_878654);
+
+	Log(LT_Info, "S_OutputPolyList - RENDER END");
 }
 
 void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
@@ -915,6 +1008,112 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 	return surf;
 }
 
-#ifdef __cplusplus
+void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate)
+{
+	UNIMPLEMENTED();
 }
+
+void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
+{
+	UNIMPLEMENTED();
+}
+
+
+
+int TitleOptions()
+{
+	// TODO TODO TODO
+	SuperShowLogo();
+	UNIMPLEMENTED();
+	return 0;
+}
+
+
+void updateAnimFrame(PACKNODE* node, int flags, short* frame)// (F)
+{
+	frame[7] = 3 * node->yrot_run;
+
+	short x = 3 * node->xrot_run;
+	short z = 3 * node->zrot_run;
+
+	switch (cutrot)
+	{
+	case 0:
+		frame[6] = x;
+		frame[8] = z;
+		break;
+	case 1:
+		frame[6] = z;
+		frame[8] = -x;
+		break;
+	case 2:
+		frame[6] = -x;
+		frame[8] = -z;
+		break;
+	case 3:
+		frame[6] = -z;
+		frame[8] = x;
+		break;
+	}
+
+	short* next = frame + 9;
+
+	for (int i = 1; i < flags; i++, next += 2)
+	{
+		short x = node[i].yrot_run;
+		short y = node[i].zrot_run;
+		short z = node[i].xrot_run;
+
+		if (cutrot && i == 1)
+		{
+			x = (x + ((short)cutrot << 8)) & 0x3FF;
+		}
+
+		next[0] = (y | ((x | (z << 10)) << 10)) >> 16;
+		next[1] = y | ((x | (z << 10)) << 10);
+	}
+}
+
+void S_SetReverbType(short reverb)
+{
+
+}
+
+void PlayFMV(int num)
+{
+	Unimpl();
+}
+
+void PlayFmvNow(int num)
+{
+	switch (num)
+	{
+	case 0:
+		PlayFMV(0);
+		break;
+	case 1:
+		PlayFMV(1);
+		break;
+	case 2:
+		PlayFMV(2);
+		break;
+	case 3:
+		PlayFMV(3);
+		PlayFMV(4);
+		break;
+	case 4:
+		PlayFMV(5);
+		PlayFMV(6);
+		break;
+	case 5:
+		PlayFMV(7);
+		break;
+	case 6:
+		PlayFMV(8);
+		break;
+	}
+}
+
+#ifdef __cplusplus
+//}
 #endif

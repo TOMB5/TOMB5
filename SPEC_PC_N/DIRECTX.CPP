@@ -3,10 +3,11 @@
 #include "GLOBAL.H"
 #include <dinput.h>
 #include "SOUND.H"
-#include "SETUP.H"
+#include "PCSETUP.H"
 #include <mmreg.h>
 #include <msacm.h>
 #include "INPUT.H"
+#include "FILE.H"
 #pragma comment (lib, "ddraw.lib")
 #pragma comment (lib, "dxguid.lib")
 #pragma comment (lib, "dinput.lib")
@@ -20,7 +21,7 @@ static LPDIRECT3DDEVICE3	enum_lpD3DDevice;
 static HWND					WindowHandle;
 static bool bSoftRend = false;
 static LPDIRECTSOUNDBUFFER DSSoundBuffer;
-static LPDIRECTSOUNDBUFFER ACMSoundBuffer;
+LPDIRECTSOUNDBUFFER ACMSoundBuffer;
 static LPDIRECTSOUNDNOTIFY DSNotify;
 
 int NumSamplesTable[3] =
@@ -31,12 +32,10 @@ int NumSamples;
 bool ACMInited;
 HACMDRIVERID acm_driver_id;
 HACMDRIVER acm_driver;
-ACMSTREAMHEADER acm_header_1;
-ACMSTREAMHEADER acm_header_2;
-ACMSTREAMHEADER acm_header_3;
-ACMSTREAMHEADER acm_header_4;
+ACMSTREAMHEADER acm_headers[4];
 
-void* wave_file_buf;
+BYTE* wave_file_buf;
+BYTE* wave_file_buf_bis;
 BYTE* source_buffer;
 
 HACMSTREAM acm_stream;
@@ -420,7 +419,7 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 		return D3DENUMRET_OK;
 #endif
 
-	if (lpHWDesc->dwFlags == 0 && bSoftRend == true)
+	if (lpHWDesc->dwFlags == 0 && bSoftRend)
 		return D3DENUMRET_OK;
 
 	if (lpHWDesc->dwFlags == 0)
@@ -1253,10 +1252,191 @@ BOOL CALLBACK ACMEnumCallback(HACMDRIVERID hadid, DWORD_PTR dwInstance, DWORD fd
 	return false;
 }
 
+int XATrack = -1;
+short acm_playing_track;
+int dword_510B18 = 7;
+int acm_playing_mode;
+FILE* acm_file_stream;
+int acm_header_num;
+int dword_579FD8;
+
+void OpenStreamFile(char* path)
+{
+	acm_file_stream = FileOpen(path);
+
+	if (!acm_file_stream)
+	{
+		Log(LT_Error, "%s - Not Found", path);
+		return;
+	}
+
+	fseek(acm_file_stream, 90, SEEK_SET);
+	wave_file_buf_bis = wave_file_buf;
+	memset(wave_file_buf, 0, 225280);
+
+	if (fread(wave_file_buf, 1, 225280, acm_file_stream) < 225280 && acm_playing_mode == 1)
+	{
+		fseek(acm_file_stream, 90, SEEK_SET);
+		Log(LT_Default, "FileReset In OpenStreamFile");
+	}
+}
+
+void ACMSetVolume()
+{
+	int vol;
+
+	if (opt_MusicVolume == 0)
+		vol = -10000;
+	else
+		vol = -4000 * (100 - opt_MusicVolume) / 100;
+
+	Log(LT_Default, "ACMSetVolume = %d", vol);
+
+	if (ACMSoundBuffer)
+		ACMSoundBuffer->SetVolume(vol);
+}
+
+void GetADPCMData()
+{
+	if (acm_file_stream)
+	{
+		memset(wave_file_buf_bis, 0, 22528);
+
+		if (fread(wave_file_buf_bis, 1, 22528, acm_file_stream) < 22528 && acm_playing_mode == 1)
+		{
+			Log(LT_Default, "FileReset In GetADPCMData");
+			fseek(acm_file_stream, 90, SEEK_SET);
+		}
+
+		wave_file_buf_bis += 22528;
+
+		if (wave_file_buf_bis >= wave_file_buf + 225280)
+			wave_file_buf_bis = wave_file_buf;
+	}
+}
+
+void ACMEmulateCDPlay(short track, int mode)
+{
+	char path[256];
+	wsprintf(path, "audio\\%s", xa_filenames[track]);
+	char* abc = "Looped";
+	if (mode == 0)
+		abc = reg_class;
+	Log(LT_Sound, "Playing %s %s %d", path, abc, track);
+	XATrack = track;
+	acm_playing_track = track;
+	dword_510B18 = 6;
+	acm_playing_mode = mode;
+
+	OpenStreamFile(path);
+
+	if (acm_file_stream)
+	{
+		memcpy(source_buffer, wave_file_buf_bis, 22528);
+		DX_TRY(ACMSoundBuffer->Lock(0, acm_lock_length, (void**)&acm_audio_ptr, &acm_audio_bytes, nullptr, 0, 0));
+		acmStreamConvert(acm_stream, &acm_headers[0], ACM_STREAMCONVERTF_START | ACM_STREAMCONVERTF_BLOCKALIGN);
+		GetADPCMData();
+		acmStreamConvert(acm_stream, &acm_headers[1], ACM_STREAMCONVERTF_BLOCKALIGN);
+		DX_TRY(ACMSoundBuffer->Unlock(acm_audio_ptr, acm_lock_length, nullptr, 0));
+		acm_header_num = 2;
+		dword_579FD8 = 2 * acm_max_length;
+		ACMSetVolume();
+		ACMSoundBuffer->Play(0, 0, DSBPLAY_LOOPING);
+	}
+}
+
+HANDLE events[2];
+HANDLE notify_thread;
+BYTE byte_579FE4;
+
+DWORD WINAPI NotifyThread(void*)
+{
+	void* audio_ptr;
+	DWORD audio_size;
+
+	for (DWORD i = WaitForMultipleObjects(2, events, false, INFINITE);
+		i != WAIT_FAILED && ACMSoundBuffer;
+		i = WaitForMultipleObjects(2, events, false, INFINITE))
+	{
+		Log(LT_Info, "NotifyThread is still doing its job, event=%d", i);
+		
+		if (i == WAIT_OBJECT_0)
+		{
+			memcpy(source_buffer, wave_file_buf_bis, 22528);
+
+			if (XATrack == -1)
+				memset(source_buffer, 0, 22528);
+			else
+				HandleApp((LPARAM)wave_file_buf_bis, XATrack);
+
+			if (byte_579FE4)
+			{
+				wave_file_buf_bis += 22528;
+
+				if (wave_file_buf_bis >= wave_file_buf + 225280)
+					wave_file_buf_bis = wave_file_buf;
+
+				ACMSoundBuffer->Lock(dword_579FD8, acm_max_length, &audio_ptr, &audio_size, nullptr, nullptr, 0);
+
+				acmStreamConvert(acm_stream, &acm_headers[acm_header_num], 4);
+
+				ACMSoundBuffer->Unlock(audio_ptr, audio_size, nullptr, 0);
+
+				dword_579FD8 += audio_size;
+
+				if (dword_579FD8 >= acm_lock_length)
+					dword_579FD8 -= acm_lock_length;
+
+				acm_header_num = (acm_header_num + 1) % 4;
+			}
+		}
+	}
+	Log(LT_Error, "NotifyThread EXITING! SHOULDNT HAPPEN, ERR=%08X", GetLastError());
+	return 0;
+}
+
 void SetupNotifications()
 {
-	Unimpl();
+	events[0] = CreateEventA(nullptr, false, false, nullptr);
+	events[1] = CreateEventA(nullptr, false, false, nullptr);
+
+	DSBPOSITIONNOTIFY notify[5];
+
+	int offset = acm_max_length;
+
+	for(int i = 0; i < 4; i++)
+	{
+		notify[i].dwOffset = offset;
+		offset += acm_max_length;
+		notify[i].hEventNotify = events[0];
+		Log(LT_Sound, "Set notifies for position %lu", notify[i].dwOffset);
+	}
+
+	notify[4].dwOffset = DSBPN_OFFSETSTOP;
+	notify[3].dwOffset--;
+	notify[4].hEventNotify = events[1];
+
+	DWORD thread_id;
+	notify_thread = CreateThread(nullptr, 0, NotifyThread, nullptr, 0, &thread_id);
+	if (!notify_thread)
+		Log(LT_Error, "Create Notification Thread failed");
+
+	if (DSNotify->SetNotificationPositions(5, notify))
+	{
+		CloseHandle(events[0]);
+		CloseHandle(events[1]);
+		events[0] = nullptr;
+		events[1] = nullptr;
+		Log(LT_Sound, "Failed to set notification positions");
+	}
+	else
+	{
+		Log(LT_Sound, "Setup Notifications OK");
+	}
 }
+
+WAVEFORMATEX pwfxDst = {0};
+bool byte_57A01C = false;
 
 void InitACM()// (F)
 {
@@ -1279,7 +1459,7 @@ void InitACM()// (F)
 	}
 
 	source_buffer = (BYTE*)malloc(22528);
-	wave_file_buf = malloc(22528 * 10);
+	wave_file_buf = (BYTE*)malloc(22528 * 10);
 
 	auto wfSrc = (ADPCMWAVEFORMAT*)malloc(sizeof(WAVEFORMATEX) + 32);	
 	wfSrc->wfx.wFormatTag = WAVE_FORMAT_ADPCM;
@@ -1298,15 +1478,13 @@ void InitACM()// (F)
 	wfSrc->aCoef[4] = { 240, 0 };
 	wfSrc->aCoef[5] = { 460, -208 };
 	wfSrc->aCoef[6] = { 392, -232 };
-	static WAVEFORMATEX* p = (WAVEFORMATEX*)malloc(1024); // TODO: BAD BAD BAD BAD BAD
-	static WAVEFORMATEX& wfDst = *p;
-	Zero(wfDst);
-	wfDst.wFormatTag = WAVE_FORMAT_PCM;
+
+	pwfxDst.wFormatTag = WAVE_FORMAT_PCM;
 
 	DWORD max_format;
 	acmMetrics(nullptr, ACM_METRIC_MAX_SIZE_FORMAT, &max_format);
 
-	acmFormatSuggest(acm_driver, &wfSrc->wfx, &wfDst, max_format, ACM_FORMATSUGGESTF_WFORMATTAG);
+	acmFormatSuggest(acm_driver, &wfSrc->wfx, &pwfxDst, max_format, ACM_FORMATSUGGESTF_WFORMATTAG);
 
 	acm_lock_length = 358336;
 	acm_max_length = 89584;
@@ -1315,54 +1493,173 @@ void InitACM()// (F)
 	DXInit(desc);
 	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
 	desc.dwBufferBytes = 358336;
-	desc.lpwfxFormat = &wfDst;
+	desc.lpwfxFormat = &pwfxDst;
 	App.lpDS->CreateSoundBuffer(&desc, &ACMSoundBuffer, nullptr);
 	ACMSoundBuffer->QueryInterface(IID_IDirectSoundNotify, (LPVOID*)&DSNotify);
 	SetupNotifications();
-	acmStreamOpen(&acm_stream, acm_driver, &wfSrc->wfx, &wfDst, nullptr, 0, 0, 0);
+	acmStreamOpen(&acm_stream, acm_driver, &wfSrc->wfx, &pwfxDst, nullptr, 0, 0, 0);
 	DWORD stream_size;
 	acmStreamSize(acm_stream, 22528, &stream_size, 0);
 	DX_TRY(ACMSoundBuffer->Lock(0, acm_lock_length, (LPVOID*)&acm_audio_ptr, &acm_audio_bytes, nullptr, nullptr, 0));
 
 	memset(acm_audio_ptr, 0, acm_lock_length);
 
-	DSInit(acm_header_1);
-	DSInit(acm_header_2);
-	DSInit(acm_header_3);
-	DSInit(acm_header_4);
+	DSInit(acm_headers[0]);
+	DSInit(acm_headers[1]);
+	DSInit(acm_headers[2]);
+	DSInit(acm_headers[3]);
 
-	acm_header_1.pbSrc = acm_header_2.pbSrc = acm_header_3.pbSrc = acm_header_4.pbSrc = source_buffer;
-	acm_header_1.cbDstLength = acm_header_2.cbDstLength = acm_header_3.cbDstLength = acm_header_4.cbDstLength = stream_size;
-	acm_header_1.cbSrcLength = acm_header_2.cbSrcLength = acm_header_3.cbSrcLength = acm_header_4.cbSrcLength = 22528;
+	acm_headers[0].pbSrc = acm_headers[1].pbSrc = acm_headers[2].pbSrc = acm_headers[3].pbSrc = source_buffer;
+	acm_headers[0].cbDstLength = acm_headers[1].cbDstLength = acm_headers[2].cbDstLength = acm_headers[3].cbDstLength = stream_size;
+	acm_headers[0].cbSrcLength = acm_headers[1].cbSrcLength = acm_headers[2].cbSrcLength = acm_headers[3].cbSrcLength = 22528;
 
-	acm_header_1.pbDst = &acm_audio_ptr[0 * acm_max_length];
-	acm_header_2.pbDst = &acm_audio_ptr[1 * acm_max_length];
-	acm_header_3.pbDst = &acm_audio_ptr[2 * acm_max_length];
-	acm_header_4.pbDst = &acm_audio_ptr[3 * acm_max_length];
+	acm_headers[0].pbDst = &acm_audio_ptr[0 * acm_max_length];
+	acm_headers[1].pbDst = &acm_audio_ptr[1 * acm_max_length];
+	acm_headers[2].pbDst = &acm_audio_ptr[2 * acm_max_length];
+	acm_headers[3].pbDst = &acm_audio_ptr[3 * acm_max_length];
 
-	acmStreamPrepareHeader(acm_stream, &acm_header_1, 0);
-	acmStreamPrepareHeader(acm_stream, &acm_header_2, 0);
-	acmStreamPrepareHeader(acm_stream, &acm_header_3, 0);
-	acmStreamPrepareHeader(acm_stream, &acm_header_4, 0);
+	acmStreamPrepareHeader(acm_stream, &acm_headers[0], 0);
+	acmStreamPrepareHeader(acm_stream, &acm_headers[1], 0);
+	acmStreamPrepareHeader(acm_stream, &acm_headers[2], 0);
+	acmStreamPrepareHeader(acm_stream, &acm_headers[3], 0);
 					
 	DX_TRY(ACMSoundBuffer->Unlock(acm_audio_ptr, acm_lock_length, nullptr, 0));
 
 	ACMInited = true;
 }
 
-void ACMClose()
+HACMSTREAM stream_acm;
+WAVEFORMATEX stream_fmt;
+ACMSTREAMHEADER stream_hdr;
+DWORD dword_86BEC4;
+BYTE* dword_86CC78;
+BYTE* samples_buffer;
+ADPCMWAVEFORMAT stream_src
+{
+	{ WAVE_FORMAT_ADPCM, 1, 22050, 11155, 512, sizeof(DWORD), 32 },
+	1012,
+	7,
+	{
+		{ 256, 0 },
+		{ 512, -256 },
+		{ 0, 0 },
+		{ 192, 64 },
+		{ 240, 0 },
+		{ 460, -208 },
+		{ 392, -232 }
+	}
+};
+
+void StreamOpen()// (F)
+{
+	stream_fmt.wFormatTag = WAVE_FORMAT_PCM;
+	stream_fmt.cbSize = 0;
+	stream_fmt.nChannels = 1;
+	stream_fmt.nAvgBytesPerSec = 44100;
+	stream_fmt.nSamplesPerSec = 22050;
+	stream_fmt.nBlockAlign = 2;
+	stream_fmt.wBitsPerSample = 16;
+
+	dword_86BEC4 = acmStreamOpen(&stream_acm, acm_driver, (WAVEFORMATEX*)&stream_src, &stream_fmt, nullptr, 0, 0, 0);
+	if (dword_86BEC4)
+		Log(LT_Error, "Stream Open %d", dword_86BEC4);
+
+	dword_86CC78 = (BYTE*)malloc(262144);
+	samples_buffer = (BYTE*)malloc(262234);
+
+	DSInit(stream_hdr);
+
+	stream_hdr.pbSrc = samples_buffer + 90;
+	stream_hdr.cbSrcLength = 262144;
+	stream_hdr.cbDstLength = 262144;
+	stream_hdr.pbDst = dword_86CC78;
+
+	dword_86BEC4 = acmStreamPrepareHeader(stream_acm, &stream_hdr, 0);
+	if (dword_86BEC4)
+		Log(LT_Error, "Prepare Stream %d", dword_86BEC4);
+}
+
+dx_sample dx_samples[256];
+
+bool DXCreateSampleADPCM(BYTE* buf, int comp, int uncomp, int id)
+{
+	Log(LT_Sound, "DXCreateSampleADPCM");
+
+	if (!App.lpDS)
+		return false;
+
+	auto fmt = (WAVEFORMATEX*)&buf[20];
+
+	if (fmt->nSamplesPerSec != 22050)
+		Log(LT_Error, "Incorrect SamplesPerSec");
+
+	stream_hdr.cbSrcLength = comp - fmt->cbSize - 58;
+	dword_86BEC4 = acmStreamConvert(stream_acm, &stream_hdr, 20);
+	if (dword_86BEC4)
+		Log(LT_Error, "Stream Convert %d", dword_86BEC4);
+
+	DSBUFFERDESC desc;
+	DXInit(desc);
+	
+	desc.dwReserved = 0;
+	desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | DSBCAPS_CTRLFREQUENCY | DSBCAPS_STATIC;
+	desc.dwBufferBytes = uncomp - 32;
+	desc.lpwfxFormat = &stream_fmt;
+
+	LPDIRECTSOUNDBUFFER dsbuf;
+	if (DX_TRY(App.lpDS->CreateSoundBuffer(&desc, &dsbuf, nullptr)))
+	{
+		Log(LT_Error, "Unable To Create Sound Buffer");
+		return false;
+	}
+
+	void* ptr;
+	DWORD bytes;
+	if (DX_TRY(dsbuf->Lock(0, uncomp - 32, &ptr, &bytes, nullptr, nullptr, 0)))
+	{
+		Log(LT_Error, "Unable To Lock Sound Buffer");
+		return false;
+	}
+
+	memcpy(ptr, dword_86CC78, uncomp - 32);
+
+	DX_TRY(dsbuf->Unlock(ptr, bytes, nullptr, 0));
+
+	dx_samples[id].samples_per_sec = stream_fmt.nSamplesPerSec;
+	dx_samples[id].buffer = dsbuf;
+
+	return true;
+}
+
+void StreamClose()// (F)
+{
+	stream_hdr.cbSrcLength = 262144;
+
+	dword_86BEC4 = acmStreamUnprepareHeader(stream_acm, &stream_hdr, 0);
+	if (dword_86BEC4)
+		Log(LT_Error, "UnPrepare Stream %d", dword_86BEC4);
+
+	dword_86BEC4 = acmStreamClose(stream_acm, 0);
+	if (dword_86BEC4)
+		Log(LT_Error, "Stream Close %d", dword_86BEC4);
+
+	free(dword_86CC78);
+	free(samples_buffer);
+}
+
+void ACMClose()// (F)
 {
 	if (ACMInited)
 	{
 		S_CDStop();
 
-		// todo
-		// todo
+		CloseHandle(events[0]);
+		CloseHandle(events[1]);
 
-		acmStreamUnprepareHeader(acm_stream, &acm_header_1, 0);
-		acmStreamUnprepareHeader(acm_stream, &acm_header_2, 0);
-		acmStreamUnprepareHeader(acm_stream, &acm_header_3, 0);
-		acmStreamUnprepareHeader(acm_stream, &acm_header_4, 0);
+		acmStreamUnprepareHeader(acm_stream, &acm_headers[0], 0);
+		acmStreamUnprepareHeader(acm_stream, &acm_headers[1], 0);
+		acmStreamUnprepareHeader(acm_stream, &acm_headers[2], 0);
+		acmStreamUnprepareHeader(acm_stream, &acm_headers[3], 0);
 
 		acmStreamClose(acm_stream, 0);
 		acmDriverClose(acm_driver, 0);

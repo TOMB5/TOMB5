@@ -61,12 +61,32 @@ extern "C" {
 
 #define KEYDOWN(key) ((key) & 0x80)
 
+struct dx_sample
+{
+	LPDIRECTSOUNDBUFFER buffer;
+	DWORD samples_per_sec;
+};
+
+extern dx_sample dx_samples[256];
+
 extern int NumSamplesTable[3];
 extern int NumSamples;
 extern bool ACMInited;
-extern void* wave_file_buf;
+extern BYTE* wave_file_buf;
+extern BYTE* wave_file_buf_bis;
 extern BYTE* source_buffer;
-
+extern int XATrack;
+extern int dword_510B18;
+extern bool byte_57A01C;
+extern const char* xa_filenames[];
+extern BYTE byte_579FE4;
+extern int acm_playing_mode;
+extern LPDIRECTSOUNDBUFFER ACMSoundBuffer;
+extern BYTE* samples_buffer;
+bool DXCreateSampleADPCM(BYTE* buf, int comp, int uncomp, int id);
+void StreamClose();
+void StreamOpen();
+void ACMEmulateCDPlay(short track, int mode);
 void DXInitialise(DEVICEINFO* DeviceInfo, HWND WindowHandle);
 bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2);
 BOOL DXDDCreate(GUID FAR* lpGuid, LPDIRECTDRAW* lpDD);

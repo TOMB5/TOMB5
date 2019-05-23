@@ -45,9 +45,9 @@ DelBox:
 
 S_DrawGouraudBar:
 	addiu   sp, -0x20
-	sw      s0, 0x20+0x10(sp)
-	sw      s1, 0x20+0xC(sp)
-	sw      ra, 0x20+0x8(sp)
+	sw      s0, 0x20-0x10(sp)
+	sw      s1, 0x20-0xC(sp)
+	sw      ra, 0x20-0x8(sp)
 	lw      t9, db+0x4-GP_ADDR(gp)
 	lw      t8, db+0x8-GP_ADDR(gp)
 	lw      at, db+0x10-GP_ADDR(gp)
@@ -113,7 +113,7 @@ S_DrawGouraudBar:
 	li      a2, 0x828250
 	lui     a3, 0xA0
 	jal     DelLine
-	li      a3, 0xA0A0A0
+	or      a3, 0xA0A0
 	or      a0, t3, t4
 	jal     DelLine
 	or      a1, s0, t4
@@ -146,9 +146,9 @@ S_DrawGouraudBar:
 	lui     a2, 0x6000
 
 	loc_87160:
-	lw      ra, 0x20+0x8(sp)
-	lw      s1, 0x20+0xC(sp)
-	lw      s0, 0x20+0x10(sp)
+	lw      ra, 0x20-0x8(sp)
+	lw      s1, 0x20-0xC(sp)
+	lw      s0, 0x20-0x10(sp)
 	addiu   sp, 0x20
 	sw      t7, 0(t9)
 	jr      ra

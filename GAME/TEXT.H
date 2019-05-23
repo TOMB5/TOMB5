@@ -2,6 +2,7 @@
 #define TEXT_H
 
 #include "STYPES.H"
+#include "SPECIFIC.H"
 
 #if PSX_VERSION
 #include <LIBGTE.H>

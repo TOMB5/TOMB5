@@ -6,6 +6,9 @@
 #include "DRAW.H"
 #include "CALCLARA.H"
 #include "COLLIDE.H"
+#if PC_VERSION
+#include "SETUP.H"
+#endif
 
 struct MATRIX3D lara_joint_matrices[15];
 struct MATRIX3D lara_matrices[15];
