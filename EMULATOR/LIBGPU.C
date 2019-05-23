@@ -110,7 +110,6 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 int MoveImage(RECT16* rect, int x, int y)
 {
-#if 0//TODO
 	for (int sy = rect->y; sy < VRAM_HEIGHT; sy++)
 	{
 		for (int sx = rect->x; sx < VRAM_WIDTH; sx++)
@@ -125,7 +124,6 @@ int MoveImage(RECT16* rect, int x, int y)
 			}
 		}
 	}
-#endif
 	return 0;
 }
 
@@ -141,9 +139,17 @@ int SetGraphDebug(int level)
 	return 0;
 }
 
-int StoreImage(RECT16 * RECT16, u_long * p)
+int StoreImage(RECT16* rect, u_long * p)
 {
-	UNIMPLEMENTED();
+	for (int y = rect->y; y < VRAM_HEIGHT; y++)
+	{
+		for (int x = rect->x; x < VRAM_WIDTH; x++)
+		{
+			unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
+			unsigned short* dst = (unsigned short*)p + (y * VRAM_WIDTH + x);
+			dst = pixel;
+		}
+	}
 	return 0;
 }
 
@@ -281,6 +287,7 @@ u_long DrawSyncCallback(void(*func)(void))
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
+
 #if 0
 	//if (byte_3352[0] > 1)
 	{
@@ -347,8 +354,11 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 			switch (pTag->code & ~3)
 			{
-			case 0x00: // null poly
+			case 0x0:
+			{
+				//+ =4 char
 				break;
+			}
 			case 0x20: // POLY_F3
 			{
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
@@ -760,6 +770,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			{
 				unsigned short tpage = ((unsigned short*)pTag)[2];
 				Emulator_GenerateAndBindTpage(tpage, 0, semi_transparent);
+				//pTag += ((char*)pTag) + sizeof(DR_TPAGE);
 				break;
 			}
 			default:
@@ -772,9 +783,12 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 			//Reset for vertex colours
 			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+#if __linux__ || __APPLE__
+		}while ((unsigned long)pTag != (unsigned long)&terminator);
+#else
 
-		}while ((unsigned long)pTag != (unsigned long)terminator && (unsigned long)pTag != 0xFFFFFF);
-
+		}while ((unsigned long)pTag != (unsigned long)&terminator);
+#endif
 		Emulator_DestroyLastVRAMTexture();
 		Emulator_DeleteFrameBufferTexture();
 

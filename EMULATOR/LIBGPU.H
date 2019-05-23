@@ -682,7 +682,7 @@ extern int OpenTIM(u_long *addr);
 extern int OpenTMD(u_long *tmd, int obj_no);
 extern int ResetGraph(int mode);
 extern int SetGraphDebug(int level);
-extern int StoreImage(RECT16 *RECT16, u_long *p);
+extern int StoreImage(RECT16 *rect, u_long *p);
 extern u_long *ClearOTag(u_long *ot, int n);
 extern u_long *ClearOTagR(u_long *ot, int n);
 extern u_long *FntFlush(int id);
