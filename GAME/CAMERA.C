@@ -936,8 +936,20 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 {
 	CurrentFov = fov;
 
-	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
+#if PC_VERSION
+	phd_persp = phd_winwidth / 2 * 4 * COS(fov / 2) / (4 * SIN(fov / 2));
+	f_persp_bis = phd_persp;
+	flt_55D1F8 = dword_50A440 / f_persp_bis;
+	f_persp_bis_over_znear3 = f_persp_bis / f_znear3;
+	LfAspectCorrection = (double)phd_winheight / phd_winwidth * 4.0 / 3.0;
+	f_persp = phd_persp;
+	f_oneopersp = one / f_persp;
+	f_perspoznear = f_persp / f_znear;
 
+
+#else
+	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
+#endif
 #if PSX_VERSION
 	gte_SetGeomScreen(phd_persp);
 #endif
@@ -1373,6 +1385,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	camera.last_item = item;
 	camera.item = NULL;
 #endif
+	UNIMPLEMENTED();
 	return;
 }
 #endif

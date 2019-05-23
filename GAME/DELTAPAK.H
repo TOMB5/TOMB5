@@ -1,6 +1,9 @@
 #ifndef DELTAPAK_H
 #define DELTAPAK_H
 
+#if PC_VERSION
+#include "SPECTYPES.H"
+#endif
 #include "STYPES.H"
 #include "OBJECTS.H"
 
@@ -302,7 +305,7 @@ extern void frigup_lara();
 extern void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* packed, int numnodes);
 extern void do_new_cutscene_camera();
 extern void handle_cutseq_triggering(int name);
-extern void GrabActorMatrix(int actornum, int nodenum, struct MATRIX3D* matrix);
+extern void GrabActorMatrix(int actornum, int nodenum, MatrixThing* matrix);
 extern void triggerwindowsmash(int item_num);
 extern void resetwindowsmash(int item_num);
 extern void ResetCutItem(int item_num);

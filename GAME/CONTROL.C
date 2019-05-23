@@ -76,6 +76,7 @@
 #include "LARA.H"
 #include "TRAPS.H"
 #include "SWITCH.H"
+#include "TWOGUN.H"
 
 #define MAX_FRAMES 10
 
@@ -146,7 +147,6 @@ unsigned char InGameCnt;
 struct RAT_STRUCT* Rats;
 struct BAT_STRUCT* Bats;
 struct SPIDER_STRUCT* Spiders;
-struct TWOGUN_INFO twogun[4];
 int SetDebounce;
 short WB_room;
 struct ITEM_INFO* WB_item;
@@ -349,11 +349,6 @@ void UpdateShockwaves()
 }
 
 void UpdateLightning()
-{
-	Unimpl();
-}
-
-void UpdateTwogunLasers()
 {
 	Unimpl();
 }
@@ -950,7 +945,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 		{
 			if (!PadConnected && ScreenFading)
 			{
-				PrintString(SCREEN_WIDTH / 2, 230, 2, &gfStringWad[gfStringOffset[STR_DEMO_MODE]], (FF_CENTER | FF_UNK13));
+				PrintString(SCREEN_WIDTH / 2, 230, 2, &gfStringWad[gfStringOffset[STR_DEMO_MODE]], (FF_CENTER | FF_BLINK));
 			}
 
 			//loc_1D7A0

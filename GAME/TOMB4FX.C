@@ -791,7 +791,7 @@ void TriggerLightningGlow(long x, long y, long z, long rgb)// (F)
 	sptr->Size = size;
 }
 
-void trig_actor_gunflash(struct MATRIX3D* matrix, struct PHD_VECTOR* pos)//(F)
+void trig_actor_gunflash(MatrixThing* matrix, struct PHD_VECTOR* pos)//(F)
 {
 #if PSX_VERSION//Likely different for PC
 	struct GUNFLASH_STRUCT* fx;

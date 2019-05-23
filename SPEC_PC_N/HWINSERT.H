@@ -7,19 +7,23 @@
 extern "C" {
 #endif
 
-	void InitBuckets();
-	void DrawBuckets();
 
-#define VERTSPERBUCKET	2600
+#define VERTSPERBUCKET	2080
 #define MAXBUCKETS		30
 	struct TEXTUREBUCKET
 	{
-		DWORD tpage;
+		int tpage;
 		int cnt;
-		D3DTLVERTEX Vertex[VERTSPERBUCKET];
+		D3DTLBUMPVERTEX Vertex[VERTSPERBUCKET];
 	};
 
 	extern TEXTUREBUCKET Bucket[];
+
+
+	void InitBuckets();
+	void DrawBuckets();
+	void FindBucket(uint16_t tile, D3DTLBUMPVERTEX** vptr, int** cntptr);
+	void DrawBucket(TEXTUREBUCKET* buk);
 
 #ifdef __cplusplus
 }

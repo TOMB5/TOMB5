@@ -49,11 +49,11 @@ enum
 #define LocalString(x) Lsz##x
 #define DefValueName(x) local char Lsz##x[]=#x
 #define ValueName(x) Lsz##x
-#define Align(x,b) (x)=(x)&~((b)-1)
+#define Align(x,b) ((x)=(x)&~((b)-1))
 
 void DebugPrint(const char* message);
 void Log_backend(char type, char* fmt, ...);
-inline void Log_real(char ctype, char* type, char* fmt, ...)
+inline void Log_real(char ctype, const char* type, const char* fmt, ...)
 {
 	char buf[128], pbuf[1024];
 	char tbuf[15];

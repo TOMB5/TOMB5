@@ -15,11 +15,15 @@
 	void FreeD3DLights();
 	void FreeLevel();
 	NEW_CUTSCENE* FetchCutData(int num);
+	NEW_CUTSCENE* ReadCutData(int num, FILE* fp);
 
 #ifdef __cplusplus
 //}
 #endif
-
+#define MAX_ROOM_LIGHTS 21
+	extern FILE* acm_file_stream;
+	extern OBJECT_TEXTURE* object_textures;
+extern room_light_begin fog_bulb[40];
 extern short* floor_data;
 extern short* mesh_base;
 
@@ -27,5 +31,6 @@ extern int num_pages;
 extern bool levelLoading;
 
 extern int AnimFileLen;
+extern LPDIRECTDRAWSURFACE4 surf_screen;
 
 #endif
