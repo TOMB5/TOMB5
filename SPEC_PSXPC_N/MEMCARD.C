@@ -57,7 +57,6 @@ void mcDir()//61EE8(<), 625CC(<) (F) (D)
 	//loc_62028
 	mcNumFiles = k;
 	return;
-	return;
 }
 
 void mcOpen(int sync)//6204C(<), 62730(<) (F) (*) (D)

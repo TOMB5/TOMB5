@@ -3109,6 +3109,8 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 				beqz    $v0, loc_78F20
 
 				loc_78FC0 :
+			andi    $v0, $s2, 0x8000
+				beqz    $v0, loc_78D60
 				move    $v0, $t7
 
 				loc_78FCC :
