@@ -239,15 +239,24 @@ void ShowDebugInfo()// (F)
 		"Malloc : %5dK (%3d%%) used - %5dK free - %5dK total\n"
 		"Current : level #%02d / cutseq #%02d (playing=%5s)\n"
 		"DrawPrimitive calls : %9d\n"
+		"ViewMatrix : (%f,%f,%f,%f)\n"
+		"             (%f,%f,%f,%f)\n"
+		"             (%f,%f,%f,%f)\n"
+		"             (%f,%f,%f,%f)\n"
 		"BF list : %6d\n"
 		"Texture page : %2d (%3d x %3d)\n"
 		"Playing XA : %3d (%s)\n"
-		"Camera : (%5d ; %5d ; %5d) room %3d\n"
+		"Camera : %d (%5d ; %5d ; %5d) room %3d\n"
 		"Input : ", App.fps, GnFrameCounter, mouse_x, mouse_y, gfGameMode, malloc_used / 1024, (int)(malloc_used * 100.0 / malloc_size), malloc_free / 1024, malloc_size / 1024,
-		gfCurrentLevel, cutseq_num, GLOBAL_playing_cutseq ? "TRUE" : "FALSE", App.DrawPrimitiveCnt, surfacenumbf, 
+		gfCurrentLevel, cutseq_num, GLOBAL_playing_cutseq ? "TRUE" : "FALSE", App.DrawPrimitiveCnt,
+		App.ViewMatrix._11, App.ViewMatrix._12, App.ViewMatrix._13, App.ViewMatrix._14,
+		App.ViewMatrix._21, App.ViewMatrix._22, App.ViewMatrix._23, App.ViewMatrix._24,
+		App.ViewMatrix._31, App.ViewMatrix._32, App.ViewMatrix._33, App.ViewMatrix._34,
+		App.ViewMatrix._41, App.ViewMatrix._42, App.ViewMatrix._43, App.ViewMatrix._44,
+		surfacenumbf, 
 		cur_tpage, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height, 
 		XATrack, XATrack == -1 ? "---" : xa_filenames[XATrack],
-		camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number);
+		camera.type, camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number);
 	GetInputStr(buf + strlen(buf));
 	PrintString(10, 10, 0, buf, 0);
 	
