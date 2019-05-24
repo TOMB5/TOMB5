@@ -26,6 +26,7 @@
 #include "INPUT.H"
 #include "DISPLAY.H"
 #include "TEXT.H"
+#include <ctime>
 
 WINAPP	 App;
 bool thread_started;
