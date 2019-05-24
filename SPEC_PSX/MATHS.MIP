@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF SetRotation, mLoadMatrix, phd_GetVectorAngles, mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mmPushMatrix, mmPopMatrix, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mClipBoundingBox
-	XREF mSqrt, viewer, phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
+	XREF matrix_stack, rcossin_tbl, mSqrt, viewer, phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
 
 ;0x7696C
 SetRotation:
@@ -2371,6 +2371,111 @@ phd_LookAt:
 	or      v0, at
 	sw      v0, viewer+0xC-GP_ADDR(gp)
 	move    ra, t5
+
+phd_GenerateW2V:
+	lhu     a2, 0xC(a0)
+	lhu     v1, 0xE(a0)
+	la      a3, rcossin_tbl
+	srl     a2, 2
+	andi    a2, 0x3FFC
+	srl     v1, 2
+	andi    v1, 0x3FFC
+	addu    v1, a3
+	addu    a2, a3
+	lh      t0, 0(a2)
+	lh      t2, 0(v1)
+	lhu     a1, 0x10(a0)
+	mult    t0, t2
+	lh      t3, 2(v1)
+	srl     a1, 2
+	andi    a1, 0x3FFC
+	addu    a1, a3
+	mflo    t4
+	lh      t1, 0(a1)
+	sra     t4, 12
+	mult    t4, t1
+	mflo    t5
+	la      v0, matrix_stack
+	mult    t0, t3
+	sw      v0, phd_mxptr-GP_ADDR(gp)
+	mflo    v1
+	lh      v0, 2(a2)
+	negu    t0, t0
+	mult    v0, t1
+	sw      t0, matrix_stack+0x24-GP_ADDR(gp)
+	sw      t0, w2v_matrix+0x24-GP_ADDR(gp)
+	mflo    t6
+	lh      a1, 2(a1)
+	sra     v1, 12
+	mult    v1, t1
+	sra     t6, 12
+	sw      t6, matrix_stack+0x4-GP_ADDR(gp)
+	sw      t6, w2v_matrix+0x4-GP_ADDR(gp)
+	mflo    t6
+	sra     t6, 12
+	nop
+	mult    t2, a1
+	mflo    a3
+	sra     a3, 12
+	subu    t6, a3
+	mult    t4, a1
+	sw      t6, matrix_stack+0x8-GP_ADDR(gp)
+	sw      t6, w2v_matrix+0x8-GP_ADDR(gp)
+	mflo    t6
+	lw      a3, 0(a0)
+	lw      t4, 4(a0)
+	mult    t3, t1
+	lw      a0, 8(a0)
+	sw      a3, matrix_stack+0xC-GP_ADDR(gp)
+	sw      a3, w2v_matrix+0xC-GP_ADDR(gp)
+	sw      t4, matrix_stack+0x1C-GP_ADDR(gp)
+	sw      t4, w2v_matrix+0x1C-GP_ADDR(gp)
+	mflo    a3
+	sw      a0, matrix_stack+0x2C-GP_ADDR(gp)
+	sw      a0, w2v_matrix+0x2C-GP_ADDR(gp)
+	mult    v0, a1
+	mflo    t4
+	sra     t0, t4, 12
+	sra     t4, 14
+	mult    v0, t2
+	sw      t0, w2v_matrix+0x14-GP_ADDR(gp)
+	mflo    a2
+	subu    t0, t4
+	sra     a2, 12
+	mult    v0, t3
+	sw      a2, matrix_stack+0x20-GP_ADDR(gp)
+	sw      a2, w2v_matrix+0x20-GP_ADDR(gp)
+	sw      t0, matrix_stack+0x14-GP_ADDR(gp)
+	mflo    a2
+	sra     a2, 12
+	sra     t6, 12
+	mult    v1, a1
+	sw      a2, matrix_stack+0x28-GP_ADDR(gp)
+	sw      a2, w2v_matrix+0x28-GP_ADDR(gp)
+	mflo    t0
+	sra     a3, 12
+	subu    t6, a3
+	mult    t2, t1
+	sw      t6, w2v_matrix+0x10-GP_ADDR(gp)
+	sra     at, t6, 2
+	subu    t6, at
+	sw      t6, matrix_stack+0x10-GP_ADDR(gp)
+	mflo    a2
+	sra     t0, 12
+	sra     v0, a2, 12
+	mult    t3, a1
+	addu    t0, v0
+	sw      t0, w2v_matrix+0x18-GP_ADDR(gp)
+	sra     at, t0, 2
+	subu    t0, at
+	sw      t0, matrix_stack+0x18-GP_ADDR(gp)
+	sra     v0, t5, 12
+	mflo    v1
+	sra     v1, 12
+	addu    v0, v1
+	sw      v0, matrix_stack+0x0-GP_ADDR(gp)
+	jr      ra
+	sw      v0, w2v_matrix+0x0-GP_ADDR(gp)
 	
 phd_GetVectorAngles:
 	move    t0, a0
