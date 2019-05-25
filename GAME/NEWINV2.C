@@ -1346,7 +1346,7 @@ void draw_ammo_selector()//3EDDC(<), 3F230(<) (F)
 #if PC_VERSION
 		xpos = (2 * phd_centerx - OBJLIST_SPACING) >> 1;
 #else
-		xpos = SCREEN_WIDTH - OBJLIST_SPACING;
+		xpos = (SCREEN_WIDTH - OBJLIST_SPACING) >> 1;
 #endif
 
 		if (num_ammo_slots == 2)
@@ -2475,7 +2475,7 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 #if PC_VERSION
 		ScaleCurrentMatrix({ 24576, 16384, 4096 });
 #else
-		//ScaleCurrentMatrix(1, 6144, 4096, 4096);
+		ScaleCurrentMatrix(1, 6144, 4096, 4096);
 #endif
 	}//loc_3C770
 
@@ -2541,7 +2541,6 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 			}
 		}
 		//loc_3C8A8
-
 	}
 
 	//loc_3C8C8
@@ -2562,31 +2561,30 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.pos.z_rot = objme->zrot + zrot;
 	item.object_number = objme->object_number;
 
-	phd_LookAt(0, 1024, 0, 0, 0, 0, 0);
+	phd_LookAt(0, 1024, 0, 0, 0, 0, 0);//working perfectly
 	mQuickW2VMatrix();
 
 	if (bright == 0)
 	{
-		//SetInventoryLighting(0x505050, 0x202020, 0x404040, 0x808080);
+		SetInventoryLighting(0x505050, 0x202020, 0x404040, 0x808080);
 	}
 	else if (bright == 1)
 	{
-		//SetInventoryLighting(0x323232, 0x101010, 0x303030, 0x303030);
+		SetInventoryLighting(0x323232, 0x101010, 0x303030, 0x303030);
 	}
 	else
 	{
 		//loc_3C550
-		//SetInventoryLighting(0x323232, 0x101010, 0x303030, (bright << 16) | (bright << 8) | bright);
+		SetInventoryLighting(0x323232, 0x101010, 0x303030, (bright << 16) | (bright << 8) | bright);
 	}
 
 	//loc_3C578
 	mPushUnitMatrix();
-	Matrix->m10 -= (Matrix->m10 << 16) >> 18;//Maybe just >> 2
-	Matrix->m11 -= (Matrix->m11 << 16) >> 18;//Maybe just >> 2
-	Matrix->m12 -= (Matrix->m12 << 16) >> 18;//Maybe just >> 2
+	Matrix->m10 -= (Matrix->m10 >> 2);//Maybe just >> 2
+	Matrix->m11 -= (Matrix->m11 >> 2);//Maybe just >> 2
+	Matrix->m12 -= (Matrix->m12 >> 2);//Maybe just >> 2
 	mLoadMatrix(Matrix);
 	mSetTrans(0, 0, objme->scale1);
-	SetGeomOffset(x, y + objme->yoff);
 
 	item.shade = -1;
 	item.pos.x_pos = 0;
@@ -2597,6 +2595,8 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.mesh_bits = objme->meshbits;
 	item.anim_number = objects[item.object_number].anim_index;
 
+	SetGeomOffset(x, y + objme->yoff);
+	//&item values dont look right here check original code
 	if (!(objme->flags & 8))
 	{
 		DrawInventoryItemMe(&item, shade, overlay, 0);
