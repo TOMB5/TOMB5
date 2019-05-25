@@ -2580,9 +2580,9 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 
 	//loc_3C578
 	mPushUnitMatrix();
-	Matrix->m10 -= (Matrix->m10 >> 2);//Maybe just >> 2
-	Matrix->m11 -= (Matrix->m11 >> 2);//Maybe just >> 2
-	Matrix->m12 -= (Matrix->m12 >> 2);//Maybe just >> 2
+	Matrix->m10 -= (Matrix->m10 >> 2);
+	Matrix->m11 -= (Matrix->m11 >> 2);
+	Matrix->m12 -= (Matrix->m12 >> 2);
 	mLoadMatrix(Matrix);
 	mSetTrans(0, 0, objme->scale1);
 

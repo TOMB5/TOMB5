@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF InitObjGTE, InitGT3_V2, SubDiv4, SubDiv, IniPrim, SubDiv, do_the_flat_colursub_poly_quad, do_the_flat_colursub_poly_tri, dirty_envmap_intensity_shit_QUAD, dirty_envmap_intensity_shit_TRI, InitSubDiv, DrawClippedMesh, WANK1, ultimate_clipper, InitGT3, InitGT4, initialise_light_matrix, MakeMono, InitObjGTE, phd_PutPolygons, phd_PutPolygons_seethrough, phd_PutPolygons_pickup
-	XREF SetRotation, LightPos, tsv_buffer, db, psxtextinfo
+	XREF rcossin_tbl, SetRotation, LightPos, tsv_buffer, db, psxtextinfo
 
 Div4Tab incbin SPEC_PSX//DIV4TAB.TBL
 Div3Tab incbin SPEC_PSX//DIV3TAB.TBL
@@ -701,12 +701,12 @@ mRotY:
 	srl     a0, 2
 	andi    a0, 0x3FFC
 	bnez    a0, loc_7675C
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_7675C:
-	ori     t0, 0xA8C8
+	la		t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
@@ -746,12 +746,12 @@ mRotX:
 	srl     a0, 2
 	andi    a0, 0x3FFC
 	bnez    a0, loc_766B4
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_766B4:
-	ori     t0, 0xA8C8
+	la		t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
