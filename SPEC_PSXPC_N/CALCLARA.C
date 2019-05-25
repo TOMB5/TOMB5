@@ -12,6 +12,7 @@ void S_SetupClutAdder(long unk)
 
 void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 {
+#if 0//Nope
 	S_Warn("[DEL_CalcLaraMatrices_Normal_ASM] - Unimplemented!\n");
 
 	mPushMatrix();
@@ -34,6 +35,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	/**/
 	mPopMatrix();
 	mPopMatrix();
+#endif
 }
 
 void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate)
