@@ -1577,7 +1577,7 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 
 		if (go_select)
 		{
-			if(do_these_objects_combine(rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem, rings[RING_AMMO]->current_object_list[rings[RING_AMMO]->curobjinlist].invitem))
+			if (do_these_objects_combine(rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem, rings[RING_AMMO]->current_object_list[rings[RING_AMMO]->curobjinlist].invitem))
 			{
 				combine_ring_fade_dir = 2;
 				combine_type_flag = 1;
@@ -1682,7 +1682,6 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 		else
 		{
 			//loc_3E464
-
 			current_options[0].type = 6;
 			current_options[1].type = 7;
 			current_options[0].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]];
@@ -1696,164 +1695,166 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 			}
 			//loc_3E53C
 			current_selected_option = current_ammo_type[0];
+		}
 
-			//loc_3E550
-			if (n == 1)
+		//loc_3E550
+		if (n == 1)
+		{
+			ypos = 120;
+		}
+		else
+		{
+			ypos = 102;
+		}
+		//loc_3E564
+		if (n == 2)
+		{
+			ypos = 111;
+		}
+		//loc_3E574
+		if (n > 0)
+		{
+			//loc_3E584
+			for (i = 0; i < n; i++)
 			{
-				ypos = 120;
-			}
-			else
-			{
-				ypos = 102;
-			}
-			//loc_3E564
-			if (n == 2)
-			{
-				ypos = 111;
-			}
-			//loc_3E574
-			if (n > 0)
-			{
-				//loc_3E584
-				for (i = 0; i < n; i++)
+				if (i == current_selected_option)
 				{
-					if (i == current_selected_option)
-					{
-						PrintString(256, ypos, 1, current_options[i].text, 0x8000);
-						ypos += 18;
-					}
-					else
-					{
-						//loc_3E5B0
-						PrintString(256, ypos, 5, current_options[i].text, 0x8000);
-						ypos += 18;
-					}
-					//loc_3E5C8
+					PrintString(256, ypos, 1, current_options[i].text, 0x8000);
+					ypos += 18;
 				}
+				else
+				{
+					//loc_3E5B0
+					PrintString(256, ypos, 5, current_options[i].text, 0x8000);
+					ypos += 18;
+				}
+				//loc_3E5C8
 			}
-			//loc_3E5D8
-			if (menu_active && !rings[RING_INVENTORY]->objlistmovement && !rings[RING_AMMO]->objlistmovement)
+		}
+		//loc_3E5D8
+		if (menu_active && !rings[RING_INVENTORY]->objlistmovement && !rings[RING_AMMO]->objlistmovement)
+		{
+			if (go_up && current_selected_option)
 			{
-				if (go_up && current_selected_option)
+				current_selected_option++;
+				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+			}
+			else if (go_down && current_selected_option < n - 1)
+			{
+				//loc_3E64C
+				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+			}//loc_3E684
+
+			if (ammo_active)
+			{
+				if (go_left && current_selected_option)
+				{
+					current_selected_option--;
+					SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				}//loc_3E6C8
+
+				 //v0 = n - 1
+				if (go_right && current_selected_option < n - 1)
 				{
 					current_selected_option++;
 					SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				}//loc_3E700
+
+				current_ammo_type[0] = current_selected_option;
+			}//loc_3E710
+
+			if (go_select)
+			{
+				if (current_options[current_selected_option].type != 5 && current_options[current_selected_option].type != 1)
+				{
+					SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+				}//loc_3E754
+				if (current_options[current_selected_option].type == 2)
+				{
+					rings[RING_INVENTORY]->ringactive = 0;
+					ammo_active = 1;
+					Stashedcurrent_selected_option = current_selected_option;
+					StashedCurrentPistolsAmmoType = CurrentPistolsAmmoType;
+					StashedCurrentUziAmmoType = CurrentUziAmmoType;
+					StashedCurrentRevolverAmmoType = CurrentRevolverAmmoType;
+					StashedCurrentShotGunAmmoType = CurrentShotGunAmmoType;
+					StashedCurrentGrenadeGunAmmoType = CurrentGrenadeGunAmmoType;
 				}
-				else if (go_down && current_selected_option < n - 1)
+				else if (current_options[current_selected_option].type == 9)
 				{
-					//loc_3E64C
-					SoundEffect(SFX_MENU_SELECT, NULL, 2);
-				}//loc_3E684
-
-				if (ammo_active)
-				{
-					if (go_left && current_selected_option)
-					{
-						current_selected_option--;
-						SoundEffect(SFX_MENU_SELECT, NULL, 2);
-					}//loc_3E6C8
-
-					//v0 = n - 1
-					if (go_right && current_selected_option < n - 1)
-					{
-						current_selected_option++;
-						SoundEffect(SFX_MENU_SELECT, NULL, 2);
-					}//loc_3E700
-
-					current_ammo_type[0] = current_selected_option;
-				}//loc_3E710
-
-				if (go_select)
-				{
-					if (current_options[current_selected_option].type != 5 && current_options[current_selected_option].type != 1)
-					{
-						SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
-					}//loc_3E754
-					if (current_options[current_selected_option].type == 2)
-					{
-						rings[RING_INVENTORY]->ringactive = 0;
-						ammo_active = 1;
-						Stashedcurrent_selected_option = current_selected_option;
-						StashedCurrentPistolsAmmoType = CurrentPistolsAmmoType;
-						StashedCurrentUziAmmoType = CurrentUziAmmoType;
-						StashedCurrentRevolverAmmoType = CurrentRevolverAmmoType;
-						StashedCurrentShotGunAmmoType = CurrentShotGunAmmoType;
-						StashedCurrentGrenadeGunAmmoType = CurrentGrenadeGunAmmoType;
-					}
-					else if (current_options[current_selected_option].type == 9)
-					{
-						//loc_3E7C8
-						loading_or_saving = 1;
-					}
-					else if (current_options[current_selected_option].type == 10)
-					{
-						loading_or_saving = 2;
-					}
-					else if (current_options[current_selected_option].type == 11)
-					{
-						examine_mode = 1;
-					}
-					else if (current_options[current_selected_option].type == 12)
-					{
-						stats_mode = 1;
-					}
-					else if (current_options[current_selected_option].type - 6 < 3)
-					{
-						//loc_3E848
-						ammo_active = 0;
-						rings[RING_INVENTORY]->ringactive = 1;
-						current_selected_option = 0;
-					}
-					else if (current_options[current_selected_option].type == 3)
-					{
-						construct_combine_object_list();
-						rings[RING_INVENTORY]->ringactive = 0;
-						rings[RING_AMMO]->ringactive = 1;
-						ammo_selector_flag = 0;
-						menu_active = 0;
-						combine_ring_fade_dir = 1;
-					}//loc_3E888
-					else if (current_options[current_selected_option].type == 4)
-					{
-						seperate_type_flag = 1;
-						normal_ring_fade_dir = 2;
-					}//loc_3E8A4
-					else if (current_options[current_selected_option].type == 5 || current_options[current_selected_option].type == 1) //v0 = 1
-					{
-						//loc_3E8B4
-						menu_active = 0;
-						use_the_bitch = 1;
-					}
-
+					//loc_3E7C8
+					loading_or_saving = 1;
 				}
-				//loc_3E8C0
-				if ((input & IN_SELECT) && current_options[current_selected_option].type == 1 &&
-					rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem - 22 < 2 &&
-					!bullshitbollox && _bullshitbollox)
+				else if (current_options[current_selected_option].type == 10)
 				{
-					menu_active = 0;
-					use_the_bitch = current_options[current_selected_option].type;
-				}//loc_3E958
-
-				if (go_deselect && ammo_active)
+					loading_or_saving = 2;
+				}
+				else if (current_options[current_selected_option].type == 11)
 				{
-					SoundEffect(SFX_MENU_SELECT, NULL, 2);
-					go_deselect = 0;
+					examine_mode = 1;
+				}
+				else if (current_options[current_selected_option].type == 12)
+				{
+					stats_mode = 1;
+				}
+				else if (current_options[current_selected_option].type - 6 < 3)
+				{
+					//loc_3E848
 					ammo_active = 0;
 					rings[RING_INVENTORY]->ringactive = 1;
-					CurrentPistolsAmmoType = StashedCurrentPistolsAmmoType;
-					CurrentUziAmmoType = StashedCurrentUziAmmoType;
-					CurrentRevolverAmmoType = StashedCurrentRevolverAmmoType;
-					CurrentShotGunAmmoType = StashedCurrentShotGunAmmoType;
-					CurrentGrenadeGunAmmoType = StashedCurrentGrenadeGunAmmoType;
-					CurrentCrossBowAmmoType = StashedCurrentCrossBowAmmoType;
-					current_selected_option = Stashedcurrent_selected_option;
+					current_selected_option = 0;
+				}
+				else if (current_options[current_selected_option].type == 3)
+				{
+					construct_combine_object_list();
+					rings[RING_INVENTORY]->ringactive = 0;
+					rings[RING_AMMO]->ringactive = 1;
+					ammo_selector_flag = 0;
+					menu_active = 0;
+					combine_ring_fade_dir = 1;
+				}//loc_3E888
+				else if (current_options[current_selected_option].type == 4)
+				{
+					seperate_type_flag = 1;
+					normal_ring_fade_dir = 2;
+				}//loc_3E8A4
+				else if (current_options[current_selected_option].type == 5 || current_options[current_selected_option].type == 1) //v0 = 1
+				{
+					//loc_3E8B4
+					menu_active = 0;
+					use_the_bitch = 1;
+				}
 
-				}//loc_3E9D0
-			}//loc_3E9D0
+			}
+			//loc_3E8C0
+			if ((input & IN_SELECT) && current_options[current_selected_option].type == 1 &&
+				rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem - 22 < 2 &&
+				!bullshitbollox && _bullshitbollox)
+			{
+				menu_active = 0;
+				use_the_bitch = current_options[current_selected_option].type;
+			}//loc_3E958
+
+			if (go_deselect && ammo_active)
+			{
+				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				go_deselect = 0;
+				ammo_active = 0;
+				rings[RING_INVENTORY]->ringactive = 1;
+				CurrentPistolsAmmoType = StashedCurrentPistolsAmmoType;
+				CurrentUziAmmoType = StashedCurrentUziAmmoType;
+				CurrentRevolverAmmoType = StashedCurrentRevolverAmmoType;
+				CurrentShotGunAmmoType = StashedCurrentShotGunAmmoType;
+				CurrentGrenadeGunAmmoType = StashedCurrentGrenadeGunAmmoType;
+				CurrentCrossBowAmmoType = StashedCurrentCrossBowAmmoType;
+				current_selected_option = Stashedcurrent_selected_option;
+
+			}
 		}
-	}
+
+	}//loc_3E9D0
 }
+
 
 void handle_object_changeover(int ringnum)//3DF18, 3E36C (F)
 {
@@ -1877,7 +1878,10 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 	short yrot; // $t1
 	struct INVOBJ* objme; // $v1
 	int activenum; // $v1
-
+#if 1//TEMP
+	i = 0;
+	shade = 0;
+#endif
 	//s6 = a0
 	//v0 = s6 << 2
 
@@ -2113,487 +2117,390 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 			//s0 = v0 << 1
 
 			//loc_3D680
-			//v1 = minobj
-
-			if (minobj == minobj)
+			while(maxobj >= minobj)
 			{
-				//v0 = rings[ring_num]
-				//v0 = rings[ringnum]->objlistmovement
+				//v1 = minobj
 
-			}//loc_3D6B0
+				if (minobj == minobj)
+				{
+					//v0 = rings[ring_num]
+					//v0 = rings[ringnum]->objlistmovement
+
+					//v0 <<= 7
+					if (rings[ringnum]->objlistmovement < 0)
+					{
+						shade = 0;
+						//j       loc_3D740
+					}//loc_3D73C
+				}
+				else
+				{
+					//loc_3D6B0
+					//a1 = minobj
+					//v0 = minobj + 1
+
+					if (minobj == minobj + 1 && maxobj != minobj)
+					{
+						//v0 = rings[ringnum]
+						//v0 = rings[ringnum]->objlistmovement
+						shade = 128;
+						if (rings[ringnum]->objlistmovement < 0)
+						{
+							if (rings[ringnum]->objlistmovement < 0)
+							{
+								//v0 = -rings[ringnum]->objlistmovement
+							}
+							//loc_3D6F0
+							//v0 <<= 7
+							//j       loc_3D71C
+
+						}//loc_3D740
+
+					}
+					else
+					{
+						//loc_3D6F8
+						shade = 128;
+						if (minobj == maxobj)
+						{
+							//v0 = rings[ringnum]
+							//v0 = rings[ringnum]->objlistmovement
+							if (rings[ringnum]->objlistmovement >= 0)
+							{
+								//v0 <<= 7
+								//loc_3D71C
+								//v0 >>= 16
+								//v1 = 128
+								shade = 128 - (rings[ringnum]->objlistmovement << 7) >> 16;
+								//j       loc_3D740
+							}//loc_3D72C
+							else if (rings[ringnum]->objlistmovement < 0)
+							{
+								//v0 = ((-rings[ringnum]->objlistmovement) << 7) >> 16;
+								shade = ((-rings[ringnum]->objlistmovement) << 7) >> 16;
+							}
+						}
+
+					}//loc_3D740
+				}//loc_3D740
+
+				 //loc_3D740
+				 //v0 = minobj
+				if (minobj == 0 && maxobj == 1)
+				{
+					shade = 128;
+				}//loc_3D75C
+
+				if (ringnum == RING_AMMO && combine_ring_fade_val < 128 && shade != 0)
+				{
+					//v1 = combine_ring_fade_val
+					//v0 = v1 < 128 ? 1 : 0
+					shade = combine_ring_fade_val;
+				}//loc_3D784
+				if (ringnum == RING_INVENTORY && normal_ring_fade_val < 128 && shade != 0)
+				{
+					shade = normal_ring_fade_val;
+				}
+				//loc_3D7AC
+				if (minobj == 0)
+				{
+					//v0 = rings[ringnum]->current_object_list[n]
+					//v1 = rings[ringnum]->current_object_list[n].invitem
+					//v0 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
+					//a0 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number
+					nummeup = 0;
+					if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == BIGMEDI_ITEM)
+					{
+						nummeup = lara.num_large_medipack;
+						//j       loc_3D930
+					}//loc_3D7FC//v0 = 0x163
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == SMALLMEDI_ITEM)
+					{
+						nummeup = lara.num_small_medipack;
+						//j       loc_3D930
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == FLARE_INV_ITEM)
+					{
+						nummeup = lara.num_flares;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - PUZZLE_ITEM1 < 8)
+					{
+						//loc_3D828
+						//a1 = &lara.puzzleitems
+						//v1 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - 0xAC
+						//v0 = &lara.puzzleitems[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - PUZZLE_ITEM1];
+						nummeup = lara.puzzleitems[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - PUZZLE_ITEM1];
+
+						if (nummeup < 2)
+						{
+							nummeup = 0;
+						}
+						//j loc_3D930
+					}//loc_3D858
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == SHOTGUN_AMMO1_ITEM)
+					{
+						nummeup = lara.num_shotgun_ammo1;
+						if (nummeup != -1)
+						{
+							nummeup = (nummeup * 0x2AAAAAAB) - (nummeup >> 15);
+						}
+						//j loc_3D930
+					}//v0 = 0x15A
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == SHOTGUN_AMMO2_ITEM)
+					{
+						nummeup = lara.num_shotgun_ammo2;
+						if (nummeup != -1)
+						{
+							nummeup = (nummeup * 0x2AAAAAAB) - (nummeup >> 15);
+						}
+						//j loc_3D930
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == HK_AMMO_ITEM)
+					{
+						nummeup = lara.num_hk_ammo1;
+						// j       loc_3D930
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == CROSSBOW_AMMO1_ITEM)
+					{
+						nummeup = lara.num_crossbow_ammo1;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == CROSSBOW_AMMO2_ITEM)
+					{
+						nummeup = lara.num_crossbow_ammo2;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == REVOLVER_AMMO_ITEM)
+					{
+						nummeup = lara.num_revolver_ammo;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == UZI_AMMO_ITEM)
+					{
+						nummeup = lara.num_uzi_ammo;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == BOTTLE)
+					{
+						nummeup = lara.bottle;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == PICKUP_ITEM4)
+					{
+						nummeup = savegame.Level.Secrets;
+					}
+
+					//v0 = 0xDF
+					if (nummeup == 0)
+					{
+						//v1 = rings[ringnum]
+						//a1 = gfStringWad
+						//v1 = rings[ringnum]->currentobjlist[n]
+						//a0 = rings[ringnum]->currentobjlist[n].object_number
+						//v1 = inventry_objects_list
+						//v0 = &inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number]
+						//v1 = inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname
+						//a0 = gfStringOffset
+						//v1 = &gfStringOffset[inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname]
+						//v0 = gfStringOffset[inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname]
+						//a1 = &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname]
+						sprintf(&textbufme[0], &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]);
+						// j       loc_3DA9C
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == PICKUP_ITEM4)
+					{
+						//loc_3D994
+						//v0 = -1
+						//a0 = &textbufme[0]
+						//a2 = nummeup
+						//v0 = &wanky_secrets_table
+						//v1 = gfCurrentLevel
+						//a1 = &gfStringOffset
+						//v1 = &wanky_secrets_table[gfCurrentLevel]
+						//t0 = gfStringOffset[STR_SECRETS_NUM]
+						//a1 = &gfStringWad[gfStringOffset[STR_SECRETS_NUM]]
+						//a3 = wanky_secrets_table[gfCurrentLevel]
+						sprintf(&textbufme[0], &gfStringWad[gfStringOffset[STR_SECRETS_NUM]], nummeup, wanky_secrets_table[gfCurrentLevel]);
+						//j       loc_3DA9C
+					}
+					else if (nummeup == -1)
+					{
+						//loc_3D9E0
+						//a0 = &textbufme[0]
+						//v0 = rings[ringnum]
+						//a1 = &inventry_objects_list[0]
+						//v0 = &rings[ringnum]->current_object_list[n]
+						//v1 = rings[ringnum]->current_object_list[n].invitem
+						//a2 = gfStringOffset
+						//v0 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
+						//v1 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname
+						//a1 = gfStringOffset[STR_UNLIMITED]
+						//v0 = gfStringWad
+						//v1 = &gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
+						//a2 = gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
+						//a1 = &gfStringWad[gfStringOffset[STR_UNLIMITED]]
+						//a2 = &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]
+						sprintf(&textbufme[0], &gfStringWad[gfStringOffset[STR_UNLIMITED]], &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]);
+					}
+					else
+					{
+						//loc_3DA44
+						//v0 = rings[ringnum]
+						//a2 = gfStringOffset
+						//v0 = &rings[ringnum]->current_object_list[n]
+						//v1 = rings[ringnum]->current_object_list[n].invitem
+						//a1 = "%d x %s"
+						//v1 = &inventry_objects_list[0]
+						//v0 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
+						//v1 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname
+						//a3 = &gfStringWad[0]
+						//v1 = &gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
+						//v0 = gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
+						sprintf(&textbufme[0], "%d x %s", nummeup, &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]);
+					}
+
+					//loc_3DA9C
+					if (ringnum == RING_INVENTORY)
+					{
+						PrintString(SCREEN_WIDTH / 2, 75, 8, &textbufme[0], FF_CENTER);
+						//j       loc_3DADC
+					}
+					else
+					{
+						//loc_3DAC4
+						PrintString(SCREEN_WIDTH / 2, 165, 8, &textbufme[0], FF_CENTER);
+					}
+				}
+				//loc_3DADC
+				//a1 = rings[ringnum]
+				//v0 = rings[ringnum]->current_object_list[n]
+				//a0 = rings[ringnum]->current_object_list[n].invitem
+				//v0 = &inventry_objects_list[0];
+				//v1 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
+
+				if (minobj == 0 && rings[ringnum]->objlistmovement == 0)
+				{
+					//v1 = rings[ringnum]->current_object_list[n]+0x2
+					if ((inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].flags & 2))
+					{
+						rings[ringnum]->current_object_list[n].yrot += 1022;
+						//j       loc_3DB58
+					}//loc_3DB58
+				}
+				else
+				{
+					//loc_3DB44
+					//s2 = &rings[ringnum]
+					//a0 = &rings[ringnum]->current_object_list[n].yrot
+					spinback(&rings[ringnum]->current_object_list[n].yrot);
+				}
+
+				//v1 = rings[ringnum]->
+				yrot = rings[ringnum]->current_object_list[n].yrot;
+
+				if (ringnum == RING_INVENTORY)
+				{
+					ymeup = 42;
+				}
+				else
+				{
+					ymeup = 190;
+				}
+
+				//loc_3DB74
+				activenum = 0;
+				if (rings[ringnum]->objlistmovement != 0)
+				{
+					if (rings[ringnum]->objlistmovement > 0)
+					{
+						activenum = -1;
+					}
+					else
+					{
+						activenum = 1;
+					}
+				}//loc_3DB90
+
+				if (minobj == activenum)
+				{
+					//v1 = &rings
+					//a1 = &rings[ringnum]
+					//v0 = rings[ringnum]
+					//v0 += 4
+					//a0 = rings[ringnum]->current_object_list[n] +0x4
+					//v1 = rings[ringnum]->current_object_list[n].bright
+
+					//v0 = rings[ringnum]->current_object_list[n].bright < 160 ? 1 : 0
+					if (rings[ringnum]->current_object_list[n].bright < 160)
+					{
+						rings[ringnum]->current_object_list[n].bright += 16;
+					}//loc_3DBC8
+
+					//v1 = rings[ringnum]->current_object_list[n].bright < 161 ? 1 : 0
+
+					//a3 = shade
+					if (rings[ringnum]->current_object_list[n].bright > 160)
+					{
+						rings[ringnum]->current_object_list[n].bright = 160;
+					}
+				}
+				else
+				{
+					//loc_3DBF4
+					//v0 = &rings
+					//a1 = &rings[ringnum]
+					//a0 = rings[ringnum]->current_object_list[n].+0x4
+					//v1 = rings[ringnum]->current_object_list[n].bright
+					//v0 = v1 < 33 ? 1 : 0
+
+					if (rings[ringnum]->current_object_list[n].bright > 32)
+					{
+						rings[ringnum]->current_object_list[n].bright -= 16;
+					}
+					//loc_3DC24
+					//v0 = rings[ringnum]+0x4
+					//a0 = rings[ringnum]->current_object_list[n].+0x4
+					//v1 = rings[ringnum]->current_object_list[n].bright
+
+					if (rings[ringnum]->current_object_list[n].bright < 32)
+					{
+						rings[ringnum]->current_object_list[n].bright = 32;
+					}
+					//loc_3DC4C
+					//a3 = shade
+				}
+
+				//loc_3DC50
+				//v1 = rings[ring_num]
+				//t0 = OBJLIST_SPACING
+				//a1 = inventry_ypos + ymeup
+				//a0 = inventry_xpos
+				//t0 = (i * OBJLIST_SPACING) + 256
+				//v0 = rings[ring_num]->current_object_list[n].
+				//a2 = rings[ring_num]->current_object_list[n].invitem
+				//v1 = rings[ring_num]->current_object_list[n].
+				//v0 = rings[ring_num]->current_object_list[n].bright
+				shade = 255;
+				DrawThreeDeeObject2D(inventry_xpos + (minobj * OBJLIST_SPACING) + 256 + xoff, inventry_ypos + ymeup, rings[ringnum]->current_object_list[n].invitem, shade, 0, yrot, 0, rings[ringnum]->current_object_list[n].bright, 0);
+
+				//v1 = rings[ringnum]
+				n++;
+				//v0 = rings[ringnum].numobjectsinlist
+				//s0 += 6 //next n
+				if (n >= rings[ringnum]->numobjectsinlist)
+				{
+					//s0 = 0//set n as 0?
+					n = 0;
+				}//loc_3DCC8
+
+				minobj++;
+				//v0 = maxobj > i ? 1 : 0
+			}
 		}//loc_3DCD8
 	}//loc_3DEE8
 
 #if 0
-				 bgez    $v0, loc_3D73C
-				 sll     $v0, 7
-				 j       loc_3D740
-				 move    $s1, $zero
-
-				 loc_3D6B0 :
-			 lw      $a1, 0xD8 + var_2C($sp)
-				 nop
-				 addiu   $v0, $a1, 1
-				 bne     $s3, $v0, loc_3D6F8
-				 nop
-				 beq     $s7, $s3, loc_3D6F8
-				 nop
-				 lw      $v0, 0($s2)
-				 nop
-				 lw      $v0, 0x25C($v0)
-				 nop
-				 bgez    $v0, loc_3D740
-				 li      $s1, 0x80
-				 bgez    $v0, loc_3D6F0
-				 nop
-				 negu    $v0, $v0
-
-				 loc_3D6F0 :
-			 j       loc_3D71C
-				 sll     $v0, 7
-
-				 loc_3D6F8 :
-				 bne     $s3, $s7, loc_3D740
-				 li      $s1, 0x80
-				 lw      $v0, 0($s2)
-				 nop
-				 lw      $v0, 0x25C($v0)
-				 nop
-				 bltz    $v0, loc_3D72C
-				 nop
-				 sll     $v0, 7
-
-				 loc_3D71C:
-			 sra     $v0, 16
-				 li      $v1, 0x80
-				 j       loc_3D740
-				 subu    $s1, $v1, $v0
-
-				 loc_3D72C :
-			 bgez    $v0, loc_3D738
-				 nop
-				 negu    $v0, $v0
-
-				 loc_3D738 :
-			 sll     $v0, 7
-
-				 loc_3D73C :
-				 sra     $s1, $v0, 16
-
-				 loc_3D740 :
-				 lw      $v0, 0xD8 + var_2C($sp)
-				 nop
-				 bnez    $v0, loc_3D75C
-				 li      $v0, 1
-				 bnez    $s7, loc_3D75C
-				 nop
-				 li      $s1, 0x80
-
-				 loc_3D75C:
-			 bne     $s6, $v0, loc_3D784
-				 nop
-				 lh      $v1, 0x3158($gp)
-				 nop
-				 slti    $v0, $v1, 0x80
-				 beqz    $v0, loc_3D784
-				 nop
-				 beqz    $s1, loc_3D784
-				 nop
-				 move    $s1, $v1
-
-				 loc_3D784 :
-			 bnez    $s6, loc_3D7AC
-				 nop
-				 lh      $v1, normal_ring_fade_val
-				 nop
-				 slti    $v0, $v1, 0x80
-				 beqz    $v0, loc_3D7AC
-				 nop
-				 beqz    $s1, loc_3D7AC
-				 nop
-				 move    $s1, $v1
-
-				 loc_3D7AC :
-			 bnez    $s3, loc_3DADC
-				 nop
-				 lw      $v0, 0($s2)
-				 nop
-				 addu    $v0, $s0
-				 lh      $v1, 0($v0)
-				 nop
-				 sll     $v0, $v1, 2
-				 addu    $v0, $v1
-				 sll     $v0, 2
-				 la      $v1, dword_92BE8
-				 addu    $v0, $v1
-				 lh      $a0, 0($v0)
-				 li      $v1, 0x15D
-				 bne     $a0, $v1, loc_3D7FC
-				 move    $t0, $zero
-				 lh      $t0, 0x144($s4)
-				 j       loc_3D930
-				 nop
-
-				 loc_3D7FC :
-			 li      $v0, 0x15E
-				 bne     $a0, $v0, loc_3D814
-				 li      $v0, 0x163
-				 lh      $t0, 0x142($s4)
-				 j       loc_3D930
-				 nop
-
-				 loc_3D814 :
-			 bne     $a0, $v0, loc_3D828
-				 addiu   $v1, $a0, -0xAC
-				 lh      $t0, 0x146($s4)
-				 j       loc_3D930
-				 nop
-
-				 loc_3D828 :
-			 sltiu   $v0, $v1, 8
-				 beqz    $v0, loc_3D858
-				 lui     $a1, 0xA
-				 li      $a1, 0xA5908
-				 addu    $v0, $v1, $a1
-				 lbu     $t0, 0($v0)
-				 nop
-				 slti    $v1, $t0, 2
-				 beqz    $v1, loc_3D930
-				 nop
-				 j       loc_3D930
-				 move    $t0, $zero
-
-				 loc_3D858 :
-			 li      $v0, 0x153
-				 bne     $a0, $v0, loc_3D870
-				 li      $v0, 0x154
-				 lhu     $v0, 0x14E($s4)
-				 j       loc_3D884
-				 sll     $v1, $v0, 16
-
-				 loc_3D870:
-			 bne     $a0, $v0, loc_3D8AC
-				 li      $v0, 0x15A
-				 lhu     $v0, 0x150($s4)
-				 nop
-				 sll     $v1, $v0, 16
-
-				 loc_3D884 :
-				 sra     $t0, $v1, 16
-				 li      $v0, 0xFFFFFFFF
-				 beq     $t0, $v0, loc_3D930
-				 lui     $v0, 0x2AAA
-				 li      $v0, 0x2AAAAAAB
-				 mult    $t0, $v0
-				 sra     $v1, 31
-				 mfhi    $v0
-				 j       loc_3D930
-				 subu    $t0, $v0, $v1
-
-				 loc_3D8AC :
-			 bne     $a0, $v0, loc_3D8C0
-				 li      $v0, 0x156
-				 lh      $t0, 0x152($s4)
-				 j       loc_3D930
-				 nop
-
-				 loc_3D8C0 :
-			 bne     $a0, $v0, loc_3D8D4
-				 li      $v0, 0x157
-				 lh      $t0, 0x154($s4)
-				 j       loc_3D930
-				 nop
-
-				 loc_3D8D4 :
-			 bne     $a0, $v0, loc_3D8E8
-				 li      $v0, 0x15C
-				 lh      $t0, 0x156($s4)
-				 j       loc_3D930
-				 nop
-
-				 loc_3D8E8 :
-			 bne     $a0, $v0, loc_3D8FC
-				 li      $v0, 0x151
-				 lh      $t0, 0x14C($s4)
-				 j       loc_3D930
-				 nop
-
-				 loc_3D8FC :
-			 bne     $a0, $v0, loc_3D910
-				 li      $v0, 0xEB
-				 lh      $t0, 0x14A($s4)
-				 j       loc_3D930
-				 nop
-
-				 loc_3D910 :
-			 bne     $a0, $v0, loc_3D924
-				 li      $v0, 0xDF
-				 lbu     $t0, 0x12B($s4)
-				 j       loc_3D930
-				 nop
-
-				 loc_3D924 :
-			 bne     $a0, $v0, loc_3D930
-				 lui     $v0, 0xB
-				 lbu     $t0, byte_800AB55E
-
-				 loc_3D930 :
-			 nop
-				 bnez    $t0, loc_3D994
-				 li      $v0, 0xDF
-				 lw      $v1, 0($s2)
-				 lw      $a1, dword_800A203C
-				 addu    $v1, $s0
-				 lh      $a0, 0($v1)
-				 la      $v1, dword_92BE8
-				 sll     $v0, $a0, 2
-				 addu    $v0, $a0
-				 sll     $v0, 2
-				 addu    $v0, $v1
-				 lh      $v1, 0xE($v0)
-				 lw      $a0, dword_800A202C
-				 sll     $v1, 1
-				 addu    $v1, $a0
-				 lhu     $v0, 0($v1)
-				 addiu   $a0, $sp, 0xD8 + var_B0
-				 jal     sub_68654
-				 addu    $a1, $v0
-				 j       loc_3DA9C
-				 nop
-
-				 loc_3D994 :
-			 bne     $a0, $v0, loc_3D9E0
-				 li      $v0, 0xFFFFFFFF
-				 addiu   $a0, $sp, 0xD8 + var_B0
-				 move    $a2, $t0
-				 la      $v0, dword_92BD4
-				 lbu     $v1, byte_A1FA8
-				 lw      $a1, dword_800A202C
-				 addu    $v1, $v0
-				 lhu     $t0, 0x176($a1)
-				 lw      $a1, dword_800A203C
-				 lbu     $a3, 0($v1)
-				 jal     sub_68654
-				 addu    $a1, $t0
-				 j       loc_3DA9C
-				 nop
-
-				 loc_3D9E0 :
-			 bne     $t0, $v0, loc_3DA44
-				 addiu   $a0, $sp, 0xD8 + var_B0
-				 lui     $a1, 9
-				 lw      $v0, 0($s2)
-				 la      $a1, dword_92BE8
-				 addu    $v0, $s0
-				 lh      $v1, 0($v0)
-				 lw      $a2, dword_800A202C
-				 sll     $v0, $v1, 2
-				 addu    $v0, $v1
-				 sll     $v0, 2
-				 addu    $v0, $a1
-				 lh      $v1, 0xE($v0)
-				 lhu     $a1, 0x74($a2)
-				 lw      $v0, dword_800A203C
-				 sll     $v1, 1
-				 addu    $v1, $a2
-				 lhu     $a2, 0($v1)
-				 addu    $a1, $v0, $a1
-				 jal     sub_68654
-				 addu    $a2, $v0, $a2
-				 j       loc_3DA9C
-				 nop
-
-				 loc_3DA44 :
-			 lw      $v0, 0($s2)
-				 lw      $a2, dword_800A202C
-				 addu    $v0, $s0
-				 lh      $v1, 0($v0)
-				 lui     $v0, 0xA
-				 addiu   $a1, $v0, (aDXS - 0xA0000)  # "%d x %s"
-				 sll     $v0, $v1, 2
-				 addu    $v0, $v1
-				 sll     $v0, 2
-				 la      $v1, dword_92BE8
-				 addu    $v0, $v1
-				 lh      $v1, 0xE($v0)
-				 lw      $a3, dword_800A203C
-				 sll     $v1, 1
-				 addu    $v1, $a2
-				 lhu     $v0, 0($v1)
-				 move    $a2, $t0
-				 jal     sub_68654
-				 addu    $a3, $v0
-
-				 loc_3DA9C :
-			 bnez    $s6, loc_3DAC4
-				 li      $v0, 0x8000
-				 sw      $v0, 0xD8 + var_C8($sp)
-				 li      $a0, 0x100
-				 li      $a1, 0x4B
-				 li      $a2, 8
-				 jal     sub_8DB4C
-				 addiu   $a3, $sp, 0xD8 + var_B0
-				 j       loc_3DADC
-				 nop
-
-				 loc_3DAC4 :
-			 sw      $v0, 0xD8 + var_C8($sp)
-				 li      $a0, 0x100
-				 li      $a1, 0xA5
-				 li      $a2, 8
-				 jal     sub_8DB4C
-				 addiu   $a3, $sp, 0xD8 + var_B0
-
-				 loc_3DADC :
-			 lw      $a1, 0($s2)
-				 nop
-				 addu    $v0, $a1, $s0
-				 lh      $a0, 0($v0)
-				 la      $v0, dword_92BE8
-				 sll     $v1, $a0, 2
-				 addu    $v1, $a0
-				 sll     $v1, 2
-				 bnez    $s3, loc_3DB44
-				 addu    $v1, $v0
-				 lw      $v0, 0x25C($a1)
-				 nop
-				 bnez    $v0, loc_3DB44
-				 nop
-				 lhu     $v0, 0xC($v1)
-				 nop
-				 andi    $v0, 2
-				 beqz    $v0, loc_3DB58
-				 addiu   $v1, $a1, 2
-				 addu    $v1, $s0
-				 lhu     $v0, 0($v1)
-				 nop
-				 addiu   $v0, 0x3FE
-				 j       loc_3DB58
-				 sh      $v0, 0($v1)
-
-				 loc_3DB44:
-			 lw      $a0, 0($s2)
-				 nop
-				 addu    $a0, $s0
-				 jal     sub_3F094
-				 addiu   $a0, 2
-
-				 loc_3DB58 :
-				 lw      $v1, 0($s2)
-				 nop
-				 addu    $v0, $v1, $s0
-				 lh      $t1, 2($v0)
-				 bnez    $s6, loc_3DB74
-				 li      $t2, 0xBE
-				 li      $t2, 0x2A
-
-				 loc_3DB74:
-			 lw      $v0, 0x25C($v1)
-				 nop
-				 beqz    $v0, loc_3DB90
-				 move    $v1, $zero
-				 blez    $v0, loc_3DB90
-				 li      $v1, 1
-				 li      $v1, 0xFFFFFFFF
-
-				 loc_3DB90:
-			 bne     $s3, $v1, loc_3DBF4
-				 nop
-				 addiu   $v1, $gp, 0x3178
-				 addu    $a1, $fp, $v1
-				 lw      $v0, 0($a1)
-				 nop
-				 addiu   $v0, 4
-				 addu    $a0, $v0, $s0
-				 lhu     $v1, 0($a0)
-				 nop
-				 sltiu   $v0, $v1, 0xA0
-				 beqz    $v0, loc_3DBC8
-				 addiu   $v0, $v1, 0x10
-				 sh      $v0, 0($a0)
-
-				 loc_3DBC8:
-			 lw      $v0, 0($a1)
-				 nop
-				 addiu   $v0, 4
-				 addu    $a0, $v0, $s0
-				 lhu     $v1, 0($a0)
-				 nop
-				 sltiu   $v1, 0xA1
-				 bnez    $v1, loc_3DC50
-				 move    $a3, $s1
-				 j       loc_3DC48
-				 li      $v0, 0xA0
-
-				 loc_3DBF4:
-			 addiu   $v0, $gp, 0x3178
-				 addu    $a1, $fp, $v0
-				 lw      $v0, 0($a1)
-				 nop
-				 addiu   $v0, 4
-				 addu    $a0, $v0, $s0
-				 lhu     $v1, 0($a0)
-				 nop
-				 sltiu   $v0, $v1, 0x21
-				 bnez    $v0, loc_3DC24
-				 addiu   $v0, $v1, -0x10
-				 sh      $v0, 0($a0)
-
-				 loc_3DC24:
-			 lw      $v0, 0($a1)
-				 nop
-				 addiu   $v0, 4
-				 addu    $a0, $v0, $s0
-				 lhu     $v1, 0($a0)
-				 nop
-				 sltiu   $v1, 0x20
-				 beqz    $v1, loc_3DC4C
-				 li      $v0, 0x20
-
-				 loc_3DC48:
-			 sh      $v0, 0($a0)
-
-				 loc_3DC4C :
-				 move    $a3, $s1
-
-				 loc_3DC50 :
-			 lw      $v1, 0($s2)
-				 lw      $t0, 0x31E4($gp)
-				 lh      $a1, 0x592($gp)
-				 lh      $a0, 0x590($gp)
-				 mult    $s3, $t0
-				 addu    $v0, $v1, $s0
-				 lh      $a2, 0($v0)
-				 move    $v1, $v0
-				 sw      $zero, 0xD8 + var_C8($sp)
-				 sw      $t1, 0xD8 + var_C4($sp)
-				 sw      $zero, 0xD8 + var_C0($sp)
-				 lhu     $v0, 4($v1)
-				 addu    $a1, $t2
-				 sw      $zero, 0xD8 + var_B8($sp)
-				 sw      $v0, 0xD8 + var_BC($sp)
-				 lw      $v0, 0xD8 + var_30($sp)
-				 mflo    $t0
-				 addiu   $t0, 0x100
-				 addu    $a0, $t0
-				 jal     sub_3C43C
-				 addu    $a0, $v0
-				 lw      $v1, 0($s2)
-				 addiu   $s5, 1
-				 lw      $v0, 0x264($v1)
-				 nop
-				 slt     $v0, $s5, $v0
-				 bnez    $v0, loc_3DCC8
-				 addiu   $s0, 6
-				 move    $s0, $zero
-				 move    $s5, $zero
-
-				 loc_3DCC8 :
-			 addiu   $s3, 1
 				 slt     $v0, $s7, $s3
 				 beqz    $v0, loc_3D680
 				 nop
+#endif
 
+#if 0
 				 loc_3DCD8 :
 			 addiu   $v1, $gp, 0x3178
 				 addu    $s0, $fp, $v1
@@ -2642,7 +2549,7 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 				 bnez    $v1, loc_3DDB0
 				 li      $a0, 0x6C
 				 move    $a1, $zero
-				 jal     sub_91780
+				 jal     SoundEffect
 				 li      $a2, 2
 				 lw      $v1, 0($s0)
 				 nop
@@ -2670,7 +2577,7 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 				 bnez    $v1, loc_3DE18
 				 li      $a0, 0x6C
 				 move    $a1, $zero
-				 jal     sub_91780
+				 jal     SoundEffect
 				 li      $a2, 2
 				 lw      $v1, 0($s0)
 				 nop
@@ -2713,7 +2620,7 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 			 lw      $v0, 0($a1)
 				 bnez    $s6, loc_3DEE8
 				 sw      $zero, 0x25C($v0)
-				 jal     sub_3DF18
+				 jal     handle_object_changeover
 				 move    $a0, $zero
 				 j       loc_3DEE8
 				 nop
