@@ -1630,7 +1630,7 @@ initialise_light_matrix:
 	ctc2    t2, r10
 	ctc2    t1, r11
 	ctc2    t4, r12
-	li      t9, 0xA461C
+	la      t9, LightPos
 	lw      t0, 0(t9)
 	lw      t1, 4(t9)
 	mtc2    t0, r0
@@ -1715,7 +1715,7 @@ phd_PutPolygons:
 	add     a1, a0
 	lui     a2, 0x1E
 	j       loc_7EF4C
-	li      a2, 0x1ECDC0
+	la      a2, tsv_buffer
 
 	loc_7EF40:
 	beqz    s7, loc_7EF4C
