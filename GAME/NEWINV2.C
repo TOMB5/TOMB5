@@ -1246,15 +1246,29 @@ int have_i_got_item(short obj)//3F29C, 3F6F0 (F)
 	return FALSE;
 }
 
-int is_item_currently_combinable(short obj)//3F200, 3F654 (F)
+int is_item_currently_combinable(short obj)//3F200(<), 3F654(<) (F)
 {
 	int n;
 
-	for (n = 0; n < 24; n++)
+	//loc_3F228
+	for(n = 0; n < 24; n++)
 	{
-		if ((dels_handy_combine_table[n].item1 != obj || !have_i_got_item(dels_handy_combine_table[n].item2)) &&
-			(dels_handy_combine_table[n].item2 != obj || !have_i_got_item(dels_handy_combine_table[n].item1)))
-			return TRUE;
+		if (dels_handy_combine_table[n].item1 == obj)
+		{
+			if (have_i_got_item(dels_handy_combine_table[n].item2))
+			{
+				return TRUE;
+			}
+
+			//loc_3F24C
+			if (dels_handy_combine_table[n].item2 == obj)
+			{
+				if (have_i_got_item(dels_handy_combine_table[n].item1))
+				{
+					return TRUE;
+				}
+			}//loc_3F270
+		}//loc_3F24C
 	}
 
 	return FALSE;
