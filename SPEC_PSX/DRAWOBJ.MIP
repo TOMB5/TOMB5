@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF InitObjGTE, InitGT3_V2, SubDiv4, SubDiv, IniPrim, SubDiv, do_the_flat_colursub_poly_quad, do_the_flat_colursub_poly_tri, dirty_envmap_intensity_shit_QUAD, dirty_envmap_intensity_shit_TRI, InitSubDiv, DrawClippedMesh, WANK1, ultimate_clipper, InitGT3, InitGT4, initialise_light_matrix, MakeMono, InitObjGTE, phd_PutPolygons, phd_PutPolygons_seethrough, phd_PutPolygons_pickup
-	XREF rcossin_tbl, SetRotation, LightPos, tsv_buffer, db, psxtextinfo
+	XREF mesh_base, rcossin_tbl, SetRotation, LightPos, tsv_buffer, db, psxtextinfo
 
 Div4Tab incbin SPEC_PSX//DIV4TAB.TBL
 Div3Tab incbin SPEC_PSX//DIV3TAB.TBL
@@ -2027,7 +2027,7 @@ phd_PutPolygons:
 	addi    sp, 0x2C
 
 	WANK2:
-	addiu   t7, gp, 0x4000
+	addiu   t7, gp, mesh_base-GP_ADDR
 	srl     at, 10
 	andi    at, 3
 	sll     at, 3
