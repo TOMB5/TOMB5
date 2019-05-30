@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF InitObjGTE, InitGT3_V2, SubDiv4, SubDiv, IniPrim, SubDiv, do_the_flat_colursub_poly_quad, do_the_flat_colursub_poly_tri, dirty_envmap_intensity_shit_QUAD, dirty_envmap_intensity_shit_TRI, InitSubDiv, DrawClippedMesh, WANK1, ultimate_clipper, InitGT3, InitGT4, initialise_light_matrix, MakeMono, InitObjGTE, phd_PutPolygons, phd_PutPolygons_seethrough, phd_PutPolygons_pickup
+	XDEF InitObjGTE, InitGT3_V2, SubDiv4, SubDiv, IniPrim, SubDiv, do_the_flat_colursub_poly_quad, do_the_flat_colursub_poly_tri, dirty_envmap_intensity_shit_QUAD, dirty_envmap_intensity_shit_TRI, InitSubDiv, DrawClippedMesh, WANK1, ultimate_clipper, InitGT3, InitGT4, initialise_light_matrix, MakeMono, InitObjGTE, phd_PutPolygons, phd_PutPolygons_seethrough, phd_PutPolygons_pickup, phd_PutPolygons_normal
 	XREF mesh_base, rcossin_tbl, SetRotation, LightPos, tsv_buffer, db, psxtextinfo
 
 Div4Tab incbin SPEC_PSX//DIV4TAB.TBL
@@ -1694,7 +1694,7 @@ phd_PutPolygons:
 	sw      fp, 0x2C-0xC(sp)
 	sw      gp, 0x2C-0x8(sp)
 
-	phd_PutPolygons_normal:
+phd_PutPolygons_normal:
 	jal     initialise_light_matrix
 	nop
 	lw      v0, 8(a0)
