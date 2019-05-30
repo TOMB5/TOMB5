@@ -20,7 +20,7 @@ struct VECTOR3D CamTgt;
 void phd_InitWindow(int view_angle)//5D74C(<), 5DBC8(<) (F)
 {
 	phd_right = SCREEN_WIDTH - 1;
-	phd_persp = COS((((((view_angle << 1) + view_angle) << 3) - view_angle) << 2) - view_angle) << 8 / SIN((((((view_angle << 1) + view_angle) << 3) - view_angle) << 2) - view_angle);
+	phd_persp = (COS((((((view_angle << 1) + view_angle) << 3) - view_angle) << 2) - view_angle) << 8) / (SIN((((((view_angle << 1) + view_angle) << 3) - view_angle) << 2) - view_angle));
 	phd_left = 0;
 	phd_top = 0;
 	phd_bottom = SCREEN_HEIGHT - 1;

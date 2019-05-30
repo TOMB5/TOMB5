@@ -39,15 +39,15 @@ S_SetupClutAdder:
 GetBoundsAccurate:
 	addiu   sp, -0x20
 	move    t7, ra
-	addiu   a1, sp, 0x20+0x10
+	addiu   a1, sp, 0x20-0x10
 	jal     GetFrames
-	addiu   a2, sp, 0x20+0x8
-	bnez    v0, loc_8591C
+	addiu   a2, sp, 0x20-0x8
+	bnez    v0, .interpolate_the_bitch
 	move    t0, v0
 	j       loc_85964
 	move    v0, t4
 
-	loc_8591C:
+	.interpolate_the_bitch:
 	la      a2, interpolated_bounds
 	li      a1, 6
 

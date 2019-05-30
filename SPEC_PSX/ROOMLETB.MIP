@@ -2,16 +2,41 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF UnpackRGB, DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, CreateNewVertex, ClipToScreen, SubdivSetup3
-	XREF MatrixStack, number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo
+	XDEF TriVertTables, TVertTableA, TVertTableB, TVertTableC, TVertTableD, TriVertTable, QVertTableA, QVertTableB, QVertTableC, QVertTableD, QuadVertTables, QuadVertTable, UnpackRGB, DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, CreateNewVertex, ClipToScreen, SubdivSetup3
+	XREF phd_GenerateW2V, number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo, MatrixStack
 	
-;FIXME
 LOffset incbin SPEC_PSX//LOFFSET.TBL
 LTab incbin SPEC_PSX//LTAB.TBL
-YOffset equ 0 ;FIXME not sure how to extract
-QuadVertTables equ 0
-TriVertTables equ 0
-	
+YOffset incbin SPEC_PSX//YOFFSET.TBL
+
+AlignMe dh 0;For unaligned memory read issue
+
+QVertTableA incbin SPEC_PSX//QVTBLA.TBL
+QVertTableB incbin SPEC_PSX//QVTBLB.TBL
+QVertTableC incbin SPEC_PSX//QVTBLC.TBL
+QVertTableD incbin SPEC_PSX//QVTBLD.TBL
+QuadVertTable incbin SPEC_PSX//QVTBL.TBL
+
+QuadVertTables
+	dw QVertTableD
+	dw QVertTableC
+	dw QVertTableB
+	dw QVertTableA
+	dw QuadVertTable
+
+TriVertTable incbin SPEC_PSX//TVTBL.TBL
+TVertTableA incbin SPEC_PSX//TVTBLA.TBL
+TVertTableB incbin SPEC_PSX//TVTBLB.TBL
+TVertTableC incbin SPEC_PSX//TVTBLC.TBL
+TVertTableD incbin SPEC_PSX//TVTBLD.TBL
+
+TriVertTables
+	dw TVertTableD
+	dw TVertTableC
+	dw TVertTableB
+	dw TVertTableA
+	dw TriVertTable
+
 UnpackRGB:
 	lui     s2, 0xF8
 	srl     t5, s4, 7
@@ -328,7 +353,8 @@ SubdivTri64:
 		
 SubPolyGTLoop:
 	lw      t0, 0(t0)
-	li      t2, 0xF8F8F8
+	lui		t2, 0xF8
+	ori     t2, 0xF8F8
 
 	loc_7576C:
 	lw      t3, 0(t0)
@@ -662,9 +688,12 @@ DrawMesh:
 	sw      gp, 0x38-0x10(sp)
 	lui     a2, 0x1F80
 	la      s0, LOffset
-	addi    s1, s0, 0x40
-	la      s5, OurSqrt ;addiu   s5, gp, OurSqrt-GP_ADDR
-	addi    fp, s0, 0x4240
+	;addi    s1, s0, LTab-GP_ADDR(gp)
+	;addiu   s5, gp, OurSqrt-GP_ADDR(gp)
+	;addi    fp, s0, YOffset-GP_ADDR(gp)
+	la       s1, LTab
+	la       s5, OurSqrt
+	la       fp, YOffset
 	lw      s2, 0x38+0x2C(sp)
 	lw      s3, 0x38+0x30(sp)
 	lw      s4, 0x38+0x34(sp)
@@ -889,6 +918,8 @@ DrawMesh:
 	mtc2    t3, r14
 	srl     t0, 21
 	andi    t0, 0x3FF
+	nop
+	nop
 	cop2    0x1400006
 	jal     ClipXY
 	move    t4, t3
@@ -945,7 +976,7 @@ DrawMesh:
 	move    s3, zero
 	addi    t1, s1, 0x324
 	jal     SubPolyGT3
-	addiu   t0, ra, -0x1680
+	addiu   t0, ra, -0x444-0x8C4+0x10;(-0x444 = start of DrawMesh) (-0x8C4 = TriVertTables - DrawMesh) (+0x10 offset into QuadVertTables)
 	cfc2    at, r23
 	cfc2    t0, r19
 	cfc2    t9, r27
@@ -1000,6 +1031,8 @@ DrawMesh:
 	mtc2    t3, r14
 	andi    t4, 0x3F8
 	add     s7, t4, s1
+	nop
+	nop
 	cop2    0x1400006
 	jal     ClipXY
 	lw      t4, 0(s7)
@@ -1102,7 +1135,7 @@ DrawMesh:
 	sh      t5, 0x330(s1)
 	addi    t1, s1, 0x338
 	jal     SubPolyGT4
-	addiu   t0, ra, -0x199C
+	addiu   t0, ra, -0x678-0xA64+0x10;(-0x678 = start of DrawMesh) (-0xA64 = QuadVertTables - DrawMesh) (+0x10 offset into QuadVertTables)
 	cfc2    t0, r19
 	cfc2    at, r23
 	cfc2    t9, r27
@@ -1160,7 +1193,7 @@ DrawRoomletListAsmBinocular:
 	mtc2    a1, r20
 	lw      s0, number_draw_rooms-GP_ADDR(gp)
 	lw      s3, RoomBBoxes-GP_ADDR(gp)
-	la   	s4, draw_rooms
+	addiu   s4, gp, draw_rooms-GP_ADDR
 	lw      t2, wibble-GP_ADDR(gp)
 	la      s2, tsv_buffer
 	andi    t2, 0xFC
@@ -1174,7 +1207,7 @@ DrawRoomletListAsmBinocular:
 	lw      t1, room-GP_ADDR(gp)
 	add     t0, at
 	add     fp, t0, t1
-	lbu     t0, 0x38+0x2(fp)
+	lbu     t0, 0x38-0x2(fp)
 	la      t1, WaterTable
 	sll     t0, 8
 	add     t1, t0
@@ -1268,9 +1301,15 @@ DrawRoomletListAsmBinocular:
 	sw      t6, 0x14(s2)
 	sw      t7, 0x18(s2)
 	sw      t8, 0x1C(s2)
-;	lw      t3, MatrixStack+0x14-GP_ADDR(gp)
-;	lw      t4, MatrixStack+0x18-GP_ADDR(gp)
-;	lw      t5, MatrixStack+0x1C-GP_ADDR(gp)
+	;lw      t3, MatrixStack+0x14-GP_ADDR(gp)
+	;lw      t4, MatrixStack+0x18-GP_ADDR(gp)
+	;lw      t5, MatrixStack+0x1C-GP_ADDR(gp)
+	la      t3, MatrixStack+0x14
+	la      t4, MatrixStack+0x18
+	la      t5, MatrixStack+0x1C
+	lw		t3, 0(t3)
+	lw		t4, 0(t4)
+	lw		t5, 0(t5)
 	sub     t0, t3
 	sub     t1, t4
 	sub     t2, t5
@@ -1498,7 +1537,7 @@ DrawRoomletListAsmBinocular:
 	sw      zero, 0(s2)
 	la      s2, tsv_buffer
 
-	RoomLoop:
+	loc_75124:
 	lw      a1, 0(s2)
 	lwc2    r20, 4(s2)
 	beqz    a1, loc_76420
@@ -1539,7 +1578,7 @@ DrawRoomletListAsmBinocular:
 	loc_751B4:
 	lw      a0, 0(s2)
 	addi    s2, 4
-	beqz    a0, RoomLoop
+	beqz    a0, loc_75124
 	lw      t5, 0(a0)
 	move    t6, zero
 	sll     t0, t5, 3
@@ -1568,7 +1607,8 @@ DrawRoomletListAsmBinocular:
 	li      t7, 1
 	lui     t8, 0x1F80
 	move    t9, zero
-	la   	s1, dynamics
+	la	    s1, dynamics
+	;addiu   s1, gp, dynamics-GP_ADDR
 	li      a3, 0x20
 
 	loc_75238:
@@ -1613,7 +1653,8 @@ DrawRoomletListAsmBinocular:
 	loc_752C4:
 	bnez    a3, loc_75238
 	addi    s1, 0x18
-	la   t8, dynamics+0x300
+	la		t8, dynamics+0x300
+	;addiu   t8, gp, dynamics+0x300-GP_ADDR
 
 	loc_752D0:
 	slti    at, t9, 0x60
@@ -1697,7 +1738,8 @@ DrawRoomletListAsmBinocular:
 	loc_753CC:
 	lw      t0, 0xC(t2)
 	lw      t1, 0xC(t3)
-	li      t7, 0x7C7C7C00
+	lui     t7, 0x7C7C
+	ori     t7, 0x7C00
 	srl     t0, 1
 	srl     t1, 1
 	and     t0, t7
@@ -1727,7 +1769,8 @@ DrawRoomletListAsmBinocular:
 	addi    t8, 0x18
 
 	loc_75448:
-	la   s1, dynamics;originally addiu
+	la		s1, dynamics
+	;addiu   s1, gp, dynamics-GP_ADDR
 	lui     a1, 0x1F80
 	addi    a1, 0x300
 	li      v1, 0xF
@@ -1766,8 +1809,8 @@ DrawRoomletListAsmBinocular:
 	loc_754C4:
 	sw      zero, 0xC(a1)
 	jal     DrawMesh
-	la   	a1, db
-	la   	a1, db
+	addiu   a1, gp, db-GP_ADDR
+	addiu   a1, gp, db-GP_ADDR
 	j       loc_751B4
 	sw      a3, 8(a1)
 

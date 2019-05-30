@@ -167,8 +167,9 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 	return value << v0;
 }
 
-void ScaleCurrentMatrix(VECTOR vec)
+void ScaleCurrentMatrix(long a0, long sx, long sy, long sz)
 {
+#if 0
 	Matrix->m00 *= vec.vx >> W2V_SHIFT;
 	Matrix->m10 *= vec.vx >> W2V_SHIFT;
 	Matrix->m20 *= vec.vx >> W2V_SHIFT;
@@ -180,6 +181,7 @@ void ScaleCurrentMatrix(VECTOR vec)
 	Matrix->m02 *= vec.vz >> W2V_SHIFT;
 	Matrix->m12 *= vec.vz >> W2V_SHIFT;
 	Matrix->m22 *= vec.vz >> W2V_SHIFT;
+#endif
 }
 
 void mPushMatrix()//764D0(<), 78514(<) (F) (START)

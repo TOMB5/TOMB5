@@ -614,7 +614,7 @@ short S_Death()//61658(<), 622C8(<) (F)
 
 		if (!PadConnected)
 		{
-			PrintString(SCREEN_WIDTH / 2, 0x40, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_UNK13));
+			PrintString(SCREEN_WIDTH / 2, 0x40, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_CENTER | FF_BLINK));
 		}
 		else
 		{

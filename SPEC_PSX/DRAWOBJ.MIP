@@ -2,8 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF InitObjGTE, InitGT3_V2, SubDiv4, SubDiv, IniPrim, SubDiv, do_the_flat_colursub_poly_quad, do_the_flat_colursub_poly_tri, dirty_envmap_intensity_shit_QUAD, dirty_envmap_intensity_shit_TRI, InitSubDiv, DrawClippedMesh, WANK1, ultimate_clipper, InitGT3, InitGT4, initialise_light_matrix, MakeMono, InitObjGTE, phd_PutPolygons, phd_PutPolygons_seethrough, phd_PutPolygons_pickup
-	XREF SetRotation, LightPos, tsv_buffer, db, psxtextinfo
+	XDEF InitObjGTE, InitGT3_V2, SubDiv4, SubDiv, IniPrim, SubDiv, do_the_flat_colursub_poly_quad, do_the_flat_colursub_poly_tri, dirty_envmap_intensity_shit_QUAD, dirty_envmap_intensity_shit_TRI, InitSubDiv, DrawClippedMesh, WANK1, ultimate_clipper, InitGT3, InitGT4, initialise_light_matrix, MakeMono, InitObjGTE, phd_PutPolygons, phd_PutPolygons_seethrough, phd_PutPolygons_pickup, phd_PutPolygons_normal
+	XREF mesh_base, rcossin_tbl, SetRotation, LightPos, tsv_buffer, db, psxtextinfo
 
 Div4Tab incbin SPEC_PSX//DIV4TAB.TBL
 Div3Tab incbin SPEC_PSX//DIV3TAB.TBL
@@ -701,12 +701,12 @@ mRotY:
 	srl     a0, 2
 	andi    a0, 0x3FFC
 	bnez    a0, loc_7675C
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_7675C:
-	ori     t0, 0xA8C8
+	la		t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
@@ -746,12 +746,12 @@ mRotX:
 	srl     a0, 2
 	andi    a0, 0x3FFC
 	bnez    a0, loc_766B4
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_766B4:
-	ori     t0, 0xA8C8
+	la		t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
@@ -1630,7 +1630,7 @@ initialise_light_matrix:
 	ctc2    t2, r10
 	ctc2    t1, r11
 	ctc2    t4, r12
-	li      t9, 0xA461C
+	la      t9, LightPos
 	lw      t0, 0(t9)
 	lw      t1, 4(t9)
 	mtc2    t0, r0
@@ -1694,7 +1694,7 @@ phd_PutPolygons:
 	sw      fp, 0x2C-0xC(sp)
 	sw      gp, 0x2C-0x8(sp)
 
-	phd_PutPolygons_normal:
+phd_PutPolygons_normal:
 	jal     initialise_light_matrix
 	nop
 	lw      v0, 8(a0)
@@ -1715,7 +1715,7 @@ phd_PutPolygons:
 	add     a1, a0
 	lui     a2, 0x1E
 	j       loc_7EF4C
-	li      a2, 0x1ECDC0
+	la      a2, tsv_buffer
 
 	loc_7EF40:
 	beqz    s7, loc_7EF4C
@@ -2027,7 +2027,7 @@ phd_PutPolygons:
 	addi    sp, 0x2C
 
 	WANK2:
-	addiu   t7, gp, 0x4000
+	addiu   t7, gp, mesh_base-GP_ADDR
 	srl     at, 10
 	andi    at, 3
 	sll     at, 3

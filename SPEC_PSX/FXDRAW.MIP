@@ -110,12 +110,12 @@ local_mTranslateAbsXYZ:
 local_mRotY:
 	andi    a0, 0x3FFC
 	bnez    a0, loc_8A688
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_8A688:
-	ori     t0, 0xA8C8
+	la     t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
@@ -160,12 +160,12 @@ local_mRotY:
 local_mRotX:
 	andi    a0, 0x3FFC
 	bnez    a0, loc_8A740
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_8A740:
-	ori     t0, 0xA8C8
+	la     t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
