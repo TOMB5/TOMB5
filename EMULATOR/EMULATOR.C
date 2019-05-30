@@ -23,6 +23,7 @@
 
 #ifdef _WINDOWS
 #include <Windows.h>
+#include <ddraw.h>
 #endif
 
 #define CORE_PROF_3_1 (1)
@@ -30,7 +31,7 @@
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (1)
 #define DX9 (0)
-#define V_SCALE (2)
+#define V_SCALE (1)
 #define VERTEX_COLOUR_MULT (2)
 #define DOUBLE_BUFFERED (1)
 
@@ -64,6 +65,10 @@ int lastTextureCacheIndex = 0;
 char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
+
+#if _WINDOWS
+LPDIRECTDRAW pDD;
+#endif
 
 struct CachedTexture
 {
@@ -105,6 +110,12 @@ int main(int argc, char* argv[])
 
 void Emulator_Init(char* windowName, int screen_width, int screen_height)
 {
+
+#if _WINDOWS
+	HRESULT hResult = DirectDrawCreate(NULL, &pDD, NULL);
+	if (FAILED(hResult)) exit(0);
+#endif
+
 #if _DEBUG && _WINDOWS
 	SetUnhandledExceptionFilter(unhandled_handler);
 #endif
@@ -162,7 +173,10 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 	}
 
 	SDL_memset(&vram, 0, sizeof(VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short)));
+	
+#if !_WINDOWS
 	SDL_GL_SetSwapInterval(1);
+#endif
 
 	Emulator_InitialiseGL();
 	
@@ -595,9 +609,11 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 
 void Emulator_BeginScene()
 {
+#if 0//Not needed
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+#endif
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -695,9 +711,10 @@ void Emulator_EndScene()
 #if _DEBUG
 	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, FALSE);
 #endif
-	Emulator_SwapWindow();
 
 	glDeleteTextures(1, &vramTexture);
+
+	Emulator_SwapWindow();
 }
 
 void Emulator_ShutDown()

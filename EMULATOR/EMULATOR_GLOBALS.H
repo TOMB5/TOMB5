@@ -35,6 +35,10 @@
 #define FUNCNAME __func__
 #endif
 
+#if _WINDOWS
+#include <ddraw.h>
+#endif
+
 extern int(*printf_)(const char * format, ...);
 
 #define eprintf(fmt, ...) printf_("[EMU] " fmt, ##__VA_ARGS__)
@@ -50,5 +54,9 @@ extern int screenHeight;
 extern int windowWidth;
 extern int windowHeight;
 extern uint32_t DMAControlRegister;
+
+#if _WINDOWS
+extern LPDIRECTDRAW pDD;
+#endif
 
 #endif
