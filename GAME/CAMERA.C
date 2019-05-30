@@ -899,35 +899,30 @@ short rcossin_tbl[8192] =
 
 void InitialiseCamera()//25AAC, 25CB8 (F)
 {
-	camera.pos.x = lara_item->pos.x_pos;
-	camera.pos.y = lara_item->pos.y_pos - SECTOR(1);
-	camera.pos.z = lara_item->pos.z_pos - 100;
-	camera.pos.room_number = lara_item->room_number;
-
-	camera.target.x = lara_item->pos.x_pos;
-	camera.target.y = lara_item->pos.y_pos - SECTOR(1);
-	camera.target.z = lara_item->pos.z_pos;
-	camera.target.room_number = lara_item->room_number;
-
 	last_target.x = lara_item->pos.x_pos;
-	last_target.y = lara_item->pos.y_pos - SECTOR(1);
-	last_target.z = lara_item->pos.z_pos;
-	last_target.room_number = lara_item->room_number;
-	
+	camera.target.x = lara_item->pos.x_pos;
 	camera.shift = lara_item->pos.y_pos - SECTOR(1);
+	last_target.y = lara_item->pos.y_pos - SECTOR(1);
+	camera.target.y = lara_item->pos.y_pos - SECTOR(1);
+	last_target.z = lara_item->pos.z_pos;
+	camera.target.z = lara_item->pos.z_pos;
+	camera.pos.y = lara_item->pos.y_pos - SECTOR(1);
 	camera.target_distance = 1536;
 	camera.number_frames = 1;
 	camera.speed = 1;
 	camera.flags = CF_FOLLOW_CENTER;
+	camera.pos.x = lara_item->pos.x_pos;
+	camera.pos.z = lara_item->pos.z_pos - 100;
 	camera.item = NULL;
 	camera.type = CHASE_CAMERA;
 	camera.bounce = 0;
 	camera.number = -1;
 	camera.fixed_camera = 0;
-
+	last_target.room_number = lara_item->room_number;
+	camera.target.room_number = lara_item->room_number;
+	camera.pos.room_number = lara_item->room_number;
 	AlterFOV(16380);
 	UseForcedFixedCamera = 0;
-
 	CalculateCamera();
 	return;
 }
@@ -959,7 +954,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#if 0//GetBoundsAccurate illegal, crash.
+#if PSX_VERSION && !PSXPC_TEST//GetBoundsAccurate illegal, crash.
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -1049,7 +1044,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		else
 		{
 			//loc_27F94
-			if (camera.underwater > 0)
+			if (camera.underwater != 0)
 			{
 				if (GLOBAL_playing_cutseq == 0 && TLFlag == 0 && savegame.VolumeCD > 0)
 				{
@@ -1095,7 +1090,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 
 	//loc_28040, loc_28254 ///@VERF
 	bounds = GetBoundsAccurate(item);
-	y = (item->pos.y_pos + ((bounds[2] + bounds[3]) / 2)) - CLICK;//$s4
+	y = item->pos.y_pos + ((bounds[2] + bounds[3]) >> 1) - CLICK;//$s4
 
 	if (camera.item != NULL && fixed_camera == 0)
 	{
@@ -1279,13 +1274,13 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		//loc_28370
 		if (gotit == 0)
 		{
-			int v1 = (((bounds[0] + bounds[4]) + bounds[4]) + bounds[5]) / 4;
-			camera.target.x = ((rcossin_tbl[((item->pos.y_rot >> 2) & 0x3FFC) / sizeof(short)] * v1) >> 12) + item->pos.x_pos;
-			camera.target.z = ((rcossin_tbl[(((item->pos.y_rot >> 3) | 1) << 1) / sizeof(short)] * v1) >> 12) + item->pos.z_pos;
+			int v1 = (((bounds[0] + bounds[1]) + bounds[4]) + bounds[5]) >> 2;
+			camera.target.x = ((SIN(item->pos.y_rot) * v1) >> 12) + item->pos.x_pos;
+			camera.target.z = ((COS(item->pos.y_rot) * v1) >> 12) + item->pos.z_pos;
 
 			if (item->object_number == LARA)
 			{
-				ConfirmCameraTargetPos();
+				ConfirmCameraTargetPos();///@TODEBUG
 			}
 		}
 
@@ -1321,24 +1316,11 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		//loc_284DC
 		GetFloor(camera.target.x, camera.target.y, camera.target.z, &camera.target.room_number);//$a0, $a1, $a2, $a3
 
-		v0 = camera.target.x - last_target.x;
-		if (v0 < 0)
-		{
-			v0 = -v0;
-		}
-
 		//loc_28510
-		if (v0 < 4)
+		if (ABS(last_target.x - camera.target.x) < 4)
 		{
-			int v00 = camera.target.y - last_target.y;
-
-			if (v00 < 0)
-			{
-				v00 = -v00;
-			}
-
 			//loc_28560:
-			if (v00 < 4)
+			if (ABS(camera.target.y - last_target.y) < 4)
 			{
 				camera.target.x = last_target.x;
 				camera.target.y = last_target.y;
@@ -1348,16 +1330,13 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		}
 
 		//loc_28578
-		if (camera.type != CHASE_CAMERA)
+		if (camera.type == CHASE_CAMERA || camera.flags == 3)
 		{
-			if (camera.flags != 3)
-			{
-				FixedCamera();
-			}
+			ChaseCamera(item);///@TODEBUG
 		}//loc_28598
 		else
 		{
-			ChaseCamera(item);
+			FixedCamera();
 		}
 	}
 
