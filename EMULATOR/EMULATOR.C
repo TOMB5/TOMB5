@@ -66,7 +66,7 @@ char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
 
-#if _WINDOWS
+#if _WINDOWS && USE_DDRAW
 LPDIRECTDRAW pDD;
 #endif
 
@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
 void Emulator_Init(char* windowName, int screen_width, int screen_height)
 {
 
-#if _WINDOWS
+#if _WINDOWS && USE_DDRAW
 	HRESULT hResult = DirectDrawCreate(NULL, &pDD, NULL);
 	if (FAILED(hResult)) exit(0);
 #endif

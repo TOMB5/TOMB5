@@ -55,7 +55,7 @@ extern int windowWidth;
 extern int windowHeight;
 extern uint32_t DMAControlRegister;
 
-#if _WINDOWS
+#if _WINDOWS && USE_DDRAW
 extern LPDIRECTDRAW pDD;
 #endif
 
