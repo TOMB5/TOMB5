@@ -1280,7 +1280,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 
 			if (item->object_number == LARA)
 			{
-				ConfirmCameraTargetPos();///@TODEBUG
+				ConfirmCameraTargetPos();
 			}
 		}
 
@@ -1758,9 +1758,9 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	long c;
 	long h;
 
-	pos.x = 0;
-	pos.y = 0;
 	pos.z = 0;
+	pos.y = 0;
+	pos.x = 0;
 	
 	GetJointAbsPosition(lara_item, &pos, LJ_LHAND);
 
@@ -1786,7 +1786,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	h = GetHeight(floor, wx, wy, wz);
 	c = GetCeiling(floor, wx, wx, wy);
 
-	if (wy < c || h < wy || h > c || h == -32512 || c == -32512)
+	if (wy < c || h < wy || h <= c || h == -32512 || c == -32512)
 	{
 		camera.target.x = pos.x;
 		camera.target.y = pos.y;
