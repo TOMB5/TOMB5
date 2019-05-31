@@ -102,8 +102,8 @@ DrawCutSeqActors:
 	sw      s2, 0x48-0x20(sp)
 	sw      s1, 0x48-0x24(sp)
 	sw      s0, 0x48-0x28(sp)
-	lw      s3, GLOBAL_cutme
-	lw      s0, meshes
+	lw      s3, GLOBAL_cutme-GP_ADDR(gp)
+	lw      s0, meshes-GP_ADDR(gp)
 	lh      v0, 0(s3)
 	li      s6, 1
 	slt     v0, s6, v0
@@ -151,7 +151,7 @@ DrawCutSeqActors:
 	lw      v1, 4(s4)
 	sll     v0, 2
 	addu    s1, s0, v0
-	lw      v0, bones
+	lw      v0, bones-GP_ADDR(gp)
 	sll     v1, 2
 	la      a2, temp_rotation_buffer
 	lh      a0, 0xC(a2)
@@ -175,7 +175,7 @@ DrawCutSeqActors:
 	addiu   at, s6, -1
 	bnez    at, loc_90F34
 	nop
-	lw      a1, cut_seethrough
+	lw      a1, cut_seethrough-GP_ADDR(gp)
 	jal     phd_PutPolygons_seethrough
 	addiu   ra, 8
 
@@ -224,7 +224,7 @@ DrawCutSeqActors:
 	addiu   at, s6, -1
 	bnez    at, loc_90FC8
 	nop
-	lw      a1, cut_seethrough
+	lw      a1, cut_seethrough-GP_ADDR(gp)
 	jal     phd_PutPolygons_seethrough
 	addiu   ra, 8
 
