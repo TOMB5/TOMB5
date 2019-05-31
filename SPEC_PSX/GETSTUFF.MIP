@@ -2,8 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF CheckNoColFloorTriangle, MULFP, DIVFP, xLOS, zLOS, GetFloor, GetHeight, GetCeiling
-	XREF los_rooms, number_los_rooms, room
+	XDEF CheckNoColCeilingTriangle, CheckNoColFloorTriangle, MULFP, DIVFP, xLOS, zLOS, GetFloor, GetHeight, GetCeiling
+	XREF los_rooms, number_los_rooms, room, floor_data
 
 GetDoor:
 	lhu     v1, 0(a0)
@@ -57,6 +57,77 @@ GetDoor:
 	lh      v0, 0(a0)
 
 	locret_78870:
+	jr      ra
+	nop
+
+CheckNoColCeilingTriangle:
+	lhu     v1, 0(a0)
+	andi    a1, 0x3FF
+	beqz    v1, locret_7894C
+	move    v0, zero
+	lw      at, floor_data-GP_ADDR(gp)
+	sll     v1, 1
+	addu    v1, at, v1
+	lhu     a0, 0(v1)
+	andi    a2, 0x3FF
+	andi    at, a0, 0x1F
+	li      v0, 2
+	beq     at, v0, loc_788C0
+	addiu   v0, at, -7
+	sltiu   v0, 2
+	bnez    v0, loc_788C0
+	addiu   v0, at, -0xB
+	sltiu   v0, 4
+	beqz    v0, loc_788D4
+
+	loc_788C0:
+	andi    at, a0, 0x8000
+	bnez    at, locret_7894C
+	move    v0, zero
+	lhu     a0, 4(v1)
+	nop
+
+	loc_788D4:
+	andi    v1, a0, 0x1F
+	addiu   v0, v1, -0xF
+	sltiu   v0, 4
+	beqz    v0, locret_7894C
+	move    v0, zero
+	li      v0, 0xF
+	bne     v1, v0, loc_78904
+	li      v0, 0x400
+	subu    v0, a2
+	slt     v0, a1
+	beqz    v0, locret_7894C
+	li      v0, 0xFFFFFFFF
+
+	loc_78904:
+	li      v0, 0x10
+	bne     v1, v0, loc_78920
+	li      v0, 0x400
+	subu    v0, a2
+	slt     v0, a1
+	bnez    v0, locret_7894C
+	li      v0, 0xFFFFFFFF
+
+	loc_78920:
+	li      v0, 0x11
+	bne     v1, v0, loc_78934
+	slt     v0, a2, a1
+	beqz    v0, locret_7894C
+	li      v0, 0xFFFFFFFF
+
+	loc_78934:
+	li      v0, 0x12
+	bne     v1, v0, loc_78948
+	slt     v0, a2, a1
+	bnez    v0, locret_7894C
+	li      v0, 0xFFFFFFFF
+
+	loc_78948:
+	li      v0, 1
+
+	locret_7894C:
 	jr      ra
 	nop
 
@@ -248,6 +319,59 @@ GetFloor:
 	loc_78BC8:
 	jr      t7
 	move    v0, t1
+
+CheckNoColFloorTriangle:
+	lhu     v1, 0(a0)
+	andi    a1, 0x3FF
+	beqz    v1, locret_78C6C
+	move    v0, zero
+	lw      at, floor_data-GP_ADDR(gp)
+	sll     v1, 1
+	addu    v1, at, v1
+	lhu     v1, 0(v1)
+	andi    a2, 0x3FF
+	andi    v1, 0x1F
+	addiu   v0, v1, -0xB
+	sltiu   v0, 4
+	beqz    v0, locret_78C6C
+	move    v0, zero
+	li      v0, 0xB
+	bne     v1, v0, loc_78C24
+	li      v0, 0x400
+	subu    v0, a2
+	slt     v0, a1
+	beqz    v0, locret_78C6C
+	li      v0, 0xFFFFFFFF
+
+	loc_78C24:
+	li      v0, 0xC
+	bne     v1, v0, loc_78C40
+	li      v0, 0x400
+	subu    v0, a2
+	slt     v0, a1
+	bnez    v0, locret_78C6C
+	li      v0, 0xFFFFFFFF
+
+	loc_78C40:
+	li      v0, 0xD
+	bne     v1, v0, loc_78C54
+	slt     v0, a2, a1
+	beqz    v0, locret_78C6C
+	li      v0, 0xFFFFFFFF
+
+	loc_78C54:
+	li      v0, 0xE
+	bne     v1, v0, loc_78C68
+	slt     v0, a2, a1
+	bnez    v0, locret_78C6C
+	li      v0, 0xFFFFFFFF
+
+	loc_78C68:
+	li      v0, 1
+
+	locret_78C6C:
+	jr      ra
+	nop
 	
 GetHeight:
 	jr ra
