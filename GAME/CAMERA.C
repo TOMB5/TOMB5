@@ -1772,10 +1772,104 @@ void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, short yro
 	}
 }
 
-long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)
+long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)//28B5C, 
 {
-	UNIMPLEMENTED();
-	return 0;
+	struct FLOOR_INFO* floor;
+	long x;
+	long y;
+	long z;
+	long h;
+	long c;
+	long cdiff;
+	long hdiff;
+	long dx;
+	long dy;
+	long dz;
+	long lp;
+	long clipped;
+	long nc;
+	short room_number;
+	short room_number2;
+
+	nc = 0;
+	clipped = 0;
+
+	dx = (target->x - start->x) >> 3;
+	dy = (target->y - start->y) >> 3;
+	x = start->x;
+	y = start->y;
+	dz = (target->z - start->z) >> 3;
+	z = start->z;
+
+	room_number2 = start->room_number;
+	room_number = start->room_number;
+
+	//loc_28BEC
+	for(lp = 0; lp < 8; lp++)
+	{
+		room_number = room_number2;
+		floor = GetFloor(x, y, z, &room_number2);
+		h = GetHeight(floor, x, y, z);
+		c = GetCeiling(floor, x, y, z);
+
+		if (h != -32512 && c != -32512)
+		{
+			if (c < h)
+			{
+				//loc_28C6C
+				if (h < y)
+				{
+					hdiff = y - h;
+
+					//v0 = 1
+					if (hdiff < push)
+					{
+						y = h;
+					}
+					else
+					{
+						//loc_28CAC
+						clipped = 1;
+						break;
+					}
+				}
+				//loc_28C8C
+				cdiff = c - y;
+				if (y < c)
+				{
+					//v0 = 1
+					if (cdiff < push)
+					{
+						//loc_28CB4
+						y = c;
+					}
+				}
+				//loc_28CB8
+				nc = 1;
+			}
+		}//loc_28C54
+		else if (nc != 0)
+		{
+			clipped = 1;
+			break;
+		}
+		//loc_28CC0
+		x += dx;
+		y += dy;
+		z += dz;
+	}
+
+	//loc_28CD8
+	if (lp != 0)
+	{
+		x -= dx;
+		y -= dy;
+		z -= dz;
+	}
+	//loc_28CF0
+	GetFloor(x, y, z, &room_number);
+
+	return clipped ^ 1;
 }
 
 long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)
