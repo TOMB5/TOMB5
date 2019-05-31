@@ -1029,7 +1029,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		//Camera is in a water room, play water sound effect.
 		if (room[camera.pos.room_number].flags & RF_FILL_WATER)
 		{
-			SoundEffect(SFX_UNDERWATER, NULL, 2);//a0, a1, a2
+			SoundEffect(SFX_UNDERWATER, NULL, 2);
 			if (camera.underwater == 0)
 			{
 				if (GLOBAL_playing_cutseq == 0 && TLFlag == 0)
@@ -1418,31 +1418,32 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 	h = GetHeight(floor, camera.target.x, camera.target.y, camera.target.z);
 	c = GetCeiling(floor, camera.target.x, camera.target.y, camera.target.z);
 
-	if (h - 64 > c + 64 && h == -3512 && c == -3512)
+	if (h - 64 > c + 64 && h == -32512 && c == -32512)
 	{
 		//loc_26960
+		//v0 = camera.target.y
+		//v1 = h - 64
+		//v0 = -32512
+		if (h - 64 < camera.target.y)
+		{
+			if (h != -32512)
+			{
+				//loc_26998
+				h = h - 64;
+			}
+		}
+		else
+		{
+			//loc_2697C
+			//v0 = camera.target.y
+			//v1 = c - 64
 
-
-		lw	$v0, camera.target.y($gp)
-		addiu	$v1, $s2, -0x40
-		slt	$v0, $v1, $v0
-		beqz	$v0, loc_2697C
-		li	$v0, 0xFFFF8100
-		bne	$s2, $v0, loc_26998
-		nop
-		
-		loc_2697C :
-		lw	$v0, camera.target.y($gp)
-		addiu	$v1, $a0, 0x40
-		slt	$v0, $v1
-		beqz	$v0, loc_269A0
-		li	$v0, 0xFFFF8100
-		beq	$a0, $v0, loc_269A0
-		nop
-
-		loc_26998 :
-		sw	$v1, camera.target.y($gp)
-
+			//v0 = -32512
+			if (camera.target.y < c - 64 && c != -32512)
+			{
+				h = c - 64;
+			}//loc_269A0
+		}
 	}
 	else
 	{
@@ -1462,28 +1463,27 @@ void FixedCamera()
 	UNIMPLEMENTED();
 }
 
-void ChaseCamera(struct ITEM_INFO* item)//263B4(<)
+void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 {
-	struct FLOOR_INFO* floor; // $s2
-	struct GAME_VECTOR ideal; // stack offset -184
-	struct GAME_VECTOR ideals[5]; // stack offset -168, -100
-	struct GAME_VECTOR temp[2]; // stack offset -88
-	long distance; // $s7
-	long lp; // $s2
-	long dx; // $t0
-	long dz; // $v1
-	long farthest; // $s4
-	long farthestnum; // stack offset -52
-	long h; // $s0
-	long c; // $v1
-	short angle; // $v0
-	// line 23, offset 0x26434
-	short room_number; // stack offset -56
-	long wx; // $s1
-	long wy; // $s3
-	long wz; // $s0
+	struct FLOOR_INFO* floor;
+	struct GAME_VECTOR ideal;
+	struct GAME_VECTOR ideals[5];
+	struct GAME_VECTOR temp[2];
+	long distance;
+	long lp;
+	long dx;
+	long dz;
+	long farthest;
+	long farthestnum;
+	long h;
+	long c;
+	short angle;
+	short room_number;
+	long wx;
+	long wy;
+	long wz;
 
-	if (camera.target_elevation == 0)//v0
+	if (camera.target_elevation == 0)
 	{
 		camera.target_elevation = -1820;
 	}
@@ -1491,255 +1491,138 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<)
 	camera.target_elevation += item->pos.x_rot;
 	UpdateCameraElevation();
 
-	if (camera.actual_elevation > 0x3C6E)
+	if (camera.actual_elevation > 15470)
 	{
-		camera.actual_elevation = 0x3C6E;
+		camera.actual_elevation = 15470;
 	}//loc_26428
 
-	//v0 = camera.actual_elevation < -0x3C6E ? 1 : 0
 	if (camera.actual_elevation < -0x3C6E)
 	{
 		camera.actual_elevation = -0x3C6E;
 	}
 
 	//loc_26434
-	//v0 = ((camera.actual_elevation >> 3) | 1) << 1;
-	//v1 = rcossin_tbl
-	distance = (camera.target_distance * rcossin_tbl[((camera.actual_elevation >> 3) | 1)]) >> 12;
+	distance = camera.target_distance * COS(camera.actual_elevation) >> 12;
 	GetFloor(camera.target.x, camera.target.y, camera.target.z, &camera.target.room_number);
 	room_number = camera.target.room_number;
-	floor = GetFloor(camera.target.x, camera.target.y, camera.target.z, &room_number);
-	//a3 = &room_number
-	//s1 = camera.target.x
-	//s3 = camera.target.y
-	//s0 = camera.target.z
-	//v0 = camera.target.room_number
-	h = GetHeight(floor, camera.target.x, camera.target.y, camera.target.z);
-	c = GetCeiling(floor, camera.target.x, camera.target.y, camera.target.z);
+	
+	wx = camera.target.x;
+	wy = camera.target.y;
+	wz = camera.target.z;
+	
+	floor = GetFloor(wx, wy, wz, &room_number);
+	h = GetHeight(floor, wx, wy, wz);
+	c = GetCeiling(floor, wx, wy, wz);
 
-	//v0 = s3 < v1 ? 1 : 0
-	if (c < camera.target.y && camera.target.y < camera.target.z &&
-		c < camera.target.z && camera.target.z != -32512 && -32512 == c)
+	if ((((wy < c) || (h < wy)) || (h <= c)) || ((h == -32512 || (c == -32512))))
+	{
+			//loc_26504
+			++TargetSnaps;
+			camera.target.x = last_target.x;
+			camera.target.y = last_target.y;
+			camera.target.z = last_target.z;
+			camera.target.room_number = last_target.room_number;
+	}
+	else
 	{
 		//loc_26540
 		TargetSnaps = 0;
 	}
-	else
-	{
-		//loc_26504
-		++TargetSnaps;
-		camera.target.x = last_target.x;
-		camera.target.y = last_target.y;
-		camera.target.z = last_target.z;
-		camera.target.room_number = last_target.room_number;
-	}
 	//loc_26544
-	//v0 = camera.actual_elevation
-	//v1 = rcossin_tbl
-	//a0 = SIN(camera.actual_elevation);
-	//v1 = camera.target_distance
-
-	//v1 = (camera.target_distance * SIN(camera.actual_elevation)) >> 12;
-	//s6 = &var_A4
-	//s5 = &var_A8
-	//s2 = 4;
-	//v0 = &var_A0
-	//var_30 = v0
-	//v0 = camera.target.y + (camera.target_distance * SIN(camera.actual_elevation)) >> 12;
-	//a0 = &var_64
 
 	//loc_26590
 	for (lp = 0; lp < 5; lp++)
 	{
-		ideals[lp].y = camera.target.y + (camera.target_distance * SIN(camera.actual_elevation)) >> 12;
+		ideals[lp].y = camera.target.y + (camera.target_distance * SIN(camera.actual_elevation) >> W2V_SHIFT);
 	}
 
 	farthest = 0x7FFFFFFF;
-	farthestnum = 0;//s2
-	//fp = &rcossin_tbl[0]
-	//s3 = var_30
-	//s1 = &var_A8
-	//var_34 = 0
+	farthestnum = 0;
 
 	//loc_265C0
+	for(lp = 0; lp < 5; lp++)
+	{
+		if (lp == 0)
+		{
+			angle = camera.actual_angle;
+		}
+		else
+		{
+			//loc_265D4
+			angle = (lp - 1) << 14;
+		}
+		//loc_265E0
+		ideals[lp].x = camera.target.x - ((distance * SIN(angle)) >> W2V_SHIFT);
+		ideals[lp].z = camera.target.z - ((distance * COS(angle)) >> W2V_SHIFT);
+		ideals[lp].room_number = camera.target.room_number;
 
-#if 0
-	loc_265c0:
-			 bnez    $s2, loc_265D4
-				 addiu   $v0, $s2, -1
-				 //v0 = camera.actual_angle
-				 j       loc_265E0
-				 sra     $v1, $v0, 3
+		if (mgLOS(&camera.target, &ideals[lp], 200))
+		{
+			temp[0].x = ideals[lp].x;
+			temp[0].y = ideals[lp].y;
+			temp[0].z = ideals[lp].z;
+			temp[0].room_number = ideals[lp].room_number;
+			temp[1].x = camera.pos.x;
+			temp[1].y = camera.pos.y;
+			temp[1].z = camera.pos.z;
+			temp[1].room_number = camera.pos.room_number;
 
-				 loc_265D4 :
-				 sll     $v0, 30
-				 sra     $v0, 16
-				 sra     $v1, $v0, 3
+			if (lp == 0 || mgLOS(&temp[0], &temp[1], 0))
+			{
+				if (lp == 0)
+				{
+					farthestnum = 0;
+					break;
+				}
 
-				 loc_265E0 :
-				 andi    $v1, 0x1FFE
-				 sll     $v0, $v1, 1
-				 addu    $v0, $fp
-				 lh      $a3, 0($v0)
-				 nop
-				 mult    $s7, $a3
-				 addiu   $v1, 1
-				 sll     $v1, 1
-				 addu    $v1, $fp
-				 mflo    $a3
-				 lh      $t0, 0($v1)
-				 nop
-				 mult    $s7, $t0
-				 addiu   $a0, $gp, 0x1DF8
-				 move    $a1, $s1
-				 li      $a2, 0xC8
-				 sll     $s0, $s2, 4
-				 lw      $v0, 0x1DF8($gp)
-				 sra     $a3, 12
-				 subu    $v0, $a3
-				 sw      $v0, 0($s1)
-				 lw      $v0, 0x1E00($gp)
-				 lhu     $v1, 0x1E04($gp)
-				 mflo    $t0
-				 sra     $t0, 12
-				 subu    $v0, $t0
-				 sw      $v0, 0($s3)
-				 jal     sub_28B5C
-				 sh      $v1, 0xC($s1)
-				 beqz    $v0, loc_26708
-				 addu    $v1, $s6, $s0
-				 lw      $v0, 0($s1)
-				 lw      $a1, 0x1DE8($gp)
-				 lhu     $a0, 0x1DF4($gp)
-				 sw      $v0, 0xC8 + var_58($sp)
-				 lw      $v0, 0($v1)
-				 nop
-				 sw      $v0, 0xC8 + var_54($sp)
-				 lw      $v1, 0($s3)
-				 lw      $v0, 0x1DEC($gp)
-				 sw      $v1, 0xC8 + var_50($sp)
-				 lhu     $a2, 0xC($s1)
-				 lw      $v1, 0x1DF0($gp)
-				 sw      $a1, 0xC8 + var_48($sp)
-				 sw      $v0, 0xC8 + var_44($sp)
-				 sh      $a0, 0xC8 + var_3C($sp)
-				 sw      $v1, 0xC8 + var_40($sp)
-				 beqz    $s2, loc_26538
-				 sh      $a2, 0xC8 + var_4C($sp)
-				 addiu   $a0, $sp, 0xC8 + var_58
-				 addiu   $a1, $sp, 0xC8 + var_48
-				 jal     sub_28B5C
-				 move    $a2, $zero
-				 beqz    $v0, loc_26784
-				 nop
-				 lw      $v1, 0x1DE8($gp)
-				 lw      $v0, 0($s1)
-				 nop
-				 subu    $v1, $v0
-				 mult    $v1, $v1
-				 lw      $v0, 0x1DF0($gp)
-				 lw      $v1, 0($s3)
-				 mflo    $t0
-				 subu    $v0, $v1
-				 nop
-				 mult    $v0, $v0
-				 mflo    $v0
-				 addu    $t0, $v0
-				 slt     $v1, $t0, $s4
-				 beqz    $v1, loc_26784
-				 nop
-				 move    $s4, $t0
-				 j       loc_26784
-				 sw      $s2, 0xC8 + var_34($sp)
+				dx = (camera.pos.x - ideals[lp].x) * (camera.pos.x - ideals[lp].x);
+				dx += (camera.pos.z - ideals[lp].z) * (camera.pos.z - ideals[lp].z);
+				if (dx < farthest)
+				{
+					farthest = dx;
+					farthestnum = lp;
+				}
+				//loc_26784
+			}
+		}//loc_26708
+		else if (lp == 0)
+		{
+			temp[0].x = ideals[lp].x;
+			temp[0].y = ideals[lp].y;
+			temp[0].z = ideals[lp].z;
+			temp[0].room_number = ideals[lp].room_number;
+			temp[1].x = camera.pos.x;
+			temp[1].y = camera.pos.y;
+			temp[1].z = camera.pos.z;
+			temp[1].room_number = camera.pos.room_number;
 
-				 loc_26708:
-			 bnez    $s2, loc_26784
-				 nop
-				 lw      $a1, 0xC8 + var_A8($sp)
-				 lw      $v0, 0x1DF8($gp)
-				 nop
-				 subu    $v0, $a1
-				 mult    $v0, $v0
-				 lw      $a0, 0xC8 + var_A4($sp)
-				 lw      $v1, 0x1E00($gp)
-				 lw      $a2, 0x1DE8($gp)
-				 lw      $v0, 0xC8 + var_A0($sp)
-				 sw      $a0, 0xC8 + var_54($sp)
-				 lw      $a0, 0x1DF0($gp)
-				 sw      $a1, 0xC8 + var_58($sp)
-				 mflo    $t0
-				 lhu     $a1, 0x1DF4($gp)
-				 subu    $v1, $v0
-				 mult    $v1, $v1
-				 sw      $v0, 0xC8 + var_50($sp)
-				 lhu     $a3, 0xC($s5)
-				 lw      $v0, 0x1DEC($gp)
-				 sw      $a2, 0xC8 + var_48($sp)
-				 sw      $a0, 0xC8 + var_40($sp)
-				 sh      $a1, 0xC8 + var_3C($sp)
-				 sw      $v0, 0xC8 + var_44($sp)
-				 lui     $v0, 9
-				 mflo    $v1
-				 addu    $v1, $t0, $v1
-				 slt     $v0, $v1
-				 bnez    $v0, loc_26538
-				 sh      $a3, 0xC8 + var_4C($sp)
+			if (lp == 0 || mgLOS(&temp[0], &temp[1], 0))
+			{
+				dx = (camera.target.x - ideals[lp].x) * (camera.target.x - ideals[lp].x);
+				dz = (camera.target.z - ideals[lp].z) * (camera.target.z - ideals[lp].z);
 
-				 loc_26784:
-			 addiu   $s3, 0x10
-				 addiu   $s2, 1
-				 slti    $v0, $s2, 5
-				 bnez    $v0, loc_265C0
-				 addiu   $s1, 0x10
-#endif
+				if ((dx + dz) > 0x90000)
+				{
+					farthestnum = 0;
+					break;
+				}
+			}
+		}
+	}
 
-#if 0
+	ideal.x = ideals[farthestnum].x;
+	ideal.y = ideals[farthestnum].y;
+	ideal.z = ideals[farthestnum].z;
+	ideal.room_number = ideals[farthestnum].room_number;
 
-				 loc_26798 :
-				 lw      $v0, 0xC8 + var_34($sp)
-				 nop
-				 sll     $a1, $v0, 4
-				 addu    $a2, $s5, $a1
-				 lw      $v0, 0($a2)
-				 addu    $v1, $s6, $a1
-				 sw      $v0, 0xC8 + var_B8($sp)
-				 lw      $v0, 0($v1)
-				 nop
-				 sw      $v0, 0xC8 + var_B4($sp)
-				 lw      $v0, 0xC8 + var_30($sp)
-				 addiu   $a0, $sp, 0xC8 + var_B8
-				 addu    $a1, $v0, $a1
-				 lw      $v0, 0($a1)
-				 li      $a1, 0x180
-				 sw      $v0, 0xC8 + var_B0($sp)
-				 lhu     $v1, 0xC($a2)
-				 li      $a2, 1
-				 jal     sub_28634
-				 sh      $v1, 0xC8 + var_AC($sp)
-				 lw      $v1, 0x1E0C($gp)
-				 li      $v0, 1
-				 bne     $v1, $v0, loc_267FC
-				 nop
-				 sh      $v1, 0x1E3E($gp)
+	CameraCollisionBounds(&ideal, 384, 1);
 
-				 loc_267FC:
-			 lh      $a1, 0x1E3E($gp)
-				 jal     sub_25B68
-				 addiu   $a0, $sp, 0xC8 + var_B8
-				 lw      $ra, 0xC8 + var_4($sp)
-				 lw      $fp, 0xC8 + var_8($sp)
-				 lw      $s7, 0xC8 + var_C($sp)
-				 lw      $s6, 0xC8 + var_10($sp)
-				 lw      $s5, 0xC8 + var_14($sp)
-				 lw      $s4, 0xC8 + var_18($sp)
-				 lw      $s3, 0xC8 + var_1C($sp)
-				 lw      $s2, 0xC8 + var_20($sp)
-				 lw      $s1, 0xC8 + var_24($sp)
-				 lw      $s0, 0xC8 + var_28($sp)
-				 jr      $ra
-				 addiu   $sp, 0xC8
-#endif
+	if (camera.old_type == FIXED_CAMERA)
+	{
+		camera.speed = 1;
+	}
 
+	MoveCamera(&ideal, camera.speed);
 }
 
 void BinocularCamera(struct ITEM_INFO* item)
