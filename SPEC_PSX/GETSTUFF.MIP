@@ -5,6 +5,61 @@
 	XDEF CheckNoColFloorTriangle, MULFP, DIVFP, xLOS, zLOS, GetFloor, GetHeight, GetCeiling
 	XREF los_rooms, number_los_rooms, room
 
+GetDoor:
+	lhu     v1, 0(a0)
+	lw      at, floor_data-GP_ADDR(gp)
+	beqz    v1, locret_78870
+	li      v0, 0xFF
+	sll     v1, 1
+	addu    a0, at, v1
+	lhu     v1, 0(a0)
+	li      v0, 2
+	andi    at, v1, 0x1F
+	beq     at, v0, loc_78810
+	addiu   a0, 2
+	addiu   v0, at, -7
+	sltiu   v0, 2
+	bnez    v0, loc_78810
+	addiu   v0, at, -0xB
+	sltiu   v0, 4
+	beqz    v0, loc_78828
+
+	loc_78810:
+	andi    v0, v1, 0x8000
+	bnez    v0, locret_78870
+	li      v0, 0xFF
+	lhu     v1, 2(a0)
+	addiu   a0, 4
+	andi    at, v1, 0x1F
+
+	loc_78828:
+	li      v0, 3
+	beq     at, v0, loc_78848
+	addiu   v0, at, -9
+	sltiu   v0, 2
+	bnez    v0, loc_78848
+	addiu   v0, at, -0xF
+	sltiu   v0, 4
+	beqz    v0, loc_7885C
+
+	loc_78848:
+	andi    v0, v1, 0x8000
+	bnez    v0, locret_78870
+	li      v0, 0xFF
+	lhu     v1, 2(a0)
+	addiu   a0, 4
+
+	loc_7885C:
+	andi    v1, 0x1F
+	li      v0, 1
+	bne     v1, v0, locret_78870
+	li      v0, 0xFF
+	lh      v0, 0(a0)
+
+	locret_78870:
+	jr      ra
+	nop
+
 GetFloor:
 	move    t5, a2
 	lh      a2, 0(a3)
