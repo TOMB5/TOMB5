@@ -34,6 +34,7 @@
 #if PSX_VERSION
 #include INLINE_H
 #include "SPHERES.H"
+#include "MISC.H"
 #endif
 
 #include <stddef.h>
@@ -927,6 +928,7 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 	return;
 }
 
+#if PC_VERSION || PSXPC_TEST
 void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 {
 	CurrentFov = fov;
@@ -948,9 +950,9 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 #if PSX_VERSION && !PSXPC_TEST
 	gte_SetGeomScreen(phd_persp);
 #endif
-
 	return;
 }
+#endif
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
@@ -1997,9 +1999,392 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 	return 0;
 }
 
-void MoveCamera(struct GAME_VECTOR* ideal, int speed)
+void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68
 {
-	UNIMPLEMENTED();
+	struct FLOOR_INFO* floor; // $s3
+	struct GAME_VECTOR tcp; // stack offset -96
+	long height; // $s2
+	long ceiling; // $v1
+	long shake; // $a0
+	long rndval; // $s0
+	short room_number; // stack offset -80
+	long wx; // $s1
+	long wy; // $s4
+	long wz; // $s0
+	long dx; // $v0
+	long dy; // $a0
+	long dz; // $v1
+	struct GAME_VECTOR temp1; // stack offset -72
+	struct GAME_VECTOR temp2; // stack offset -56
+	///short room_number; // stack offset -40
+	///long wx; // $s1
+	///long wy; // $s4
+	///long wz; // $s0
+
+	//s5 = ideal
+	//v0 = ideal->x;
+	//v1 = ideal->y;
+	//a0 = ideal->z;
+	//a2 = ideal->room_number
+	//a3 = BinocularOn
+	//t1 = speed
+	tcp.x = ideal->x;//var_60
+	tcp.y = ideal->y;//var_5C
+	tcp.z = ideal->z;//var_58
+	tcp.room_number = ideal->room_number;//var_58
+
+	if (BinocularOn < 0)//==-1?
+	{
+		speed = 1;
+		BinocularOn++;
+	}
+	//loc_25BC4
+	//a1 = 0xA0000
+	//v0 = lara_item
+	
+	if (((((((
+		(old_cam.pos.x_rot == lara_item->pos.x_rot) &&
+		(old_cam.pos.y_rot == lara_item->pos.y_rot) && 
+		(old_cam.pos.z_rot == lara_item->pos.z_rot))&& 
+		(old_cam.pos2.x_rot == lara.head_x_rot)) && 
+		((old_cam.pos2.y_rot == lara.head_y_rot &&
+		(old_cam.pos2.x_pos == lara.torso_x_rot)))) &&
+		(old_cam.pos2.y_pos == lara.torso_y_rot)) &&
+		(((old_cam.pos.x_pos == (lara_item->pos).x_pos &&
+		(old_cam.pos.y_pos == (lara_item->pos).y_pos)) &&
+		((old_cam.pos.z_pos == (lara_item->pos).z_pos &&
+		(((old_cam.current_anim_state == lara_item->current_anim_state &&
+		(old_cam.goal_anim_state == lara_item->goal_anim_state)) &&
+		(old_cam.target_distance == camera.target_distance)))))))) &&
+		((old_cam.target_elevation == camera.target_elevation &&
+		(old_cam.actual_elevation == camera.actual_elevation)))) &&
+		((old_cam.target_angle == camera.actual_angle &&
+		(((old_cam.t.x == camera.target.x && (old_cam.t.y == camera.target.y)) &&
+		((old_cam.t.z == camera.target.z &&
+		(((camera.old_type == camera.type && (SniperOverlay == 0)) && (-1 < BinocularOn))))))))))
+	{
+		ideal->x = last_ideal.x;
+		ideal->y = last_ideal.y;
+		ideal->z = last_ideal.z;
+		ideal->room_number = last_ideal.room_number;
+	}
+	else {
+		old_cam.pos.x_rot = lara_item->pos.x_rot;
+		old_cam.pos.y_rot = lara_item->pos.y_rot;
+		old_cam.pos.z_rot = lara_item->pos.z_rot;
+		old_cam.pos2.x_pos = lara.torso_x_rot;
+		old_cam.pos2.y_pos = lara.torso_y_rot;
+		old_cam.pos2.x_rot = lara.head_x_rot;
+		old_cam.pos2.y_rot = lara.head_y_rot;
+		old_cam.pos.x_pos = lara_item->pos.x_pos;
+		old_cam.pos.y_pos = lara_item->pos.y_pos;
+		old_cam.pos.z_pos = lara_item->pos.z_pos;
+		old_cam.current_anim_state = lara_item->current_anim_state;
+		old_cam.goal_anim_state = lara_item->goal_anim_state;
+		old_cam.target_distance = camera.target_distance;
+		old_cam.target_elevation = camera.target_elevation;
+		old_cam.target_angle = camera.actual_angle;
+		old_cam.actual_elevation = camera.actual_elevation;
+		old_cam.t.x = camera.target.x;
+		old_cam.t.y = camera.target.y;
+		old_cam.t.z = camera.target.z;
+		last_ideal.x = ideal->x;
+		last_ideal.y = ideal->y;
+		last_ideal.z = ideal->z;
+		last_ideal.room_number = ideal->room_number;
+	}
+
+	//loc_25E80
+	//v0 = ideal->x
+	//v1 = camera.pos.x
+	camera.pos.x += (ideal->x - camera.pos.x) / speed;
+	camera.pos.y += (ideal->y - camera.pos.y) / speed;
+	camera.pos.z += (ideal->z - camera.pos.z) / speed;
+
+	//loc_25EFC
+	//v0 = ideal->room_number
+	//s0 = camera.bounce
+	camera.pos.room_number = ideal->room_number;
+	//a3 = &room_number
+	//a0 = camera.pos.y
+	if (camera.bounce != 0)
+	{
+		//v0 = camera.pos.y + camera.bounce
+		if (camera.bounce > 0)
+		{
+			//v1 = camera.target.y
+			camera.pos.y += camera.bounce;
+			camera.bounce = 0;
+			camera.target.y += camera.bounce;
+		}//loc_25F3C
+		else
+		{
+			GetRandomControl();
+			//s0 = -camera.bounce
+			//v1 = (GetRandomControl() / -camera.bounce)
+			//s1 = -camera.bounce >> 1
+			//v0 = camera.target.x
+
+			shake = (GetRandomControl() / -camera.bounce) - (-camera.bounce >> 1);
+			camera.target.x += shake;
+			shake = (GetRandomControl() / -camera.bounce) - (-camera.bounce >> 1);
+			camera.target.y += shake;
+			//v1 = GetRandomControl() / -camera.bounce
+			shake = (GetRandomControl() / -camera.bounce) - (-camera.bounce >> 1);
+			camera.target.z += shake;
+			camera.bounce += 5;
+		}
+	}//loc_25FD4
+
+	wx = camera.pos.x;
+	wy = camera.pos.y;
+	wz = camera.pos.z;
+	room_number = camera.pos.room_number;
+	floor = GetFloor(wx, wy, wz, &room_number);
+	height = GetHeight(floor, wx, wy, wz);
+	ceiling = GetCeiling(floor, wx, wy, wz);
+
+	//v0 = wy < v0 ? 1 : 0
+
+	//a3 = &room_number
+	if (wy < ceiling || height < wy)
+	{
+		//loc_2603C
+		//a0 = &camera.target
+		//a1 = &camera.pos
+
+		mgLOS(&camera.target, &camera.pos, 0);
+
+		//t2 = camera.pos.x
+		//t4 = ideal->x
+		//t1 = camera.pos.y
+		//t3 = ideal->y
+		//a3 = camera.pos.z
+		//t0 = ideal->z
+
+		dx = ABS(camera.pos.x - ideal->x);
+		dy = ABS(camera.pos.y - ideal->y);
+		dz = ABS(camera.pos.z - ideal->z);
+
+		//a0 = &temp2
+		if (dx < 0x300 && dy < 0x300 && dz < 0x300)
+		{
+			//a1 = &temp1
+			//v0 = camera.pos.room_number
+			//v1 = ideal->room_number
+			//a2 = 0
+			temp1.x = camera.pos.x;
+			temp1.y = camera.pos.y;
+			temp1.z = camera.pos.z;
+			temp2.x = ideal->x;
+			temp2.y = ideal->y;
+			temp2.z = ideal->z;
+			temp1.room_number = camera.pos.room_number;
+			temp2.room_number = ideal->room_number;
+			
+			//a3 = &room_number
+			if (mgLOS(&temp2, &temp1, 0) == 0)
+			{
+				camerasnaps++;
+
+				if ((camerasnaps & 0xFF) > 7)
+				{
+
+
+				}//loc_26140
+			}//loc_26140
+		}//loc_2613C
+
+	}//loc_26140
+
+#if 0
+				 lw      $v0, 0($s5)
+				 nop
+				 sw      $v0, 0x1DE8($gp)
+				 lw      $v1, 4($s5)
+				 nop
+				 sw      $v1, 0x1DEC($gp)
+				 lw      $v0, 8($s5)
+				 nop
+				 sw      $v0, 0x1DF0($gp)
+				 lhu     $v1, 0xC($s5)
+				 sb      $zero, 0x1A0($gp)
+				 sh      $v1, 0x1DF4($gp)
+
+				 loc_2613C:
+			 addiu   $a3, $sp, 0x80 + var_28
+
+				 loc_26140 :
+			 lw      $s1, 0x1DE8($gp)
+				 lw      $s4, 0x1DEC($gp)
+				 lw      $s0, 0x1DF0($gp)
+				 lh      $v0, 0x1DF4($gp)
+				 move    $a0, $s1
+				 move    $a1, $s4
+				 move    $a2, $s0
+				 jal     sub_78954
+				 sh      $v0, 0x80 + var_28($sp)
+				 move    $s3, $v0
+				 move    $a0, $s3
+				 move    $a1, $s1
+				 move    $a2, $s4
+				 jal     sub_78C74
+				 move    $a3, $s0
+				 move    $s2, $v0
+				 move    $a0, $s3
+				 move    $a1, $s1
+				 move    $a2, $s4
+				 jal     sub_79060
+				 move    $a3, $s0
+				 move    $v1, $v0
+				 addiu   $v0, $s4, -0xFF
+				 slt     $v0, $v1
+				 beqz    $v0, loc_261DC
+				 addiu   $v0, $s4, 0xFF
+				 slt     $v0, $s2, $v0
+				 beqz    $v0, loc_26210
+				 slt     $a0, $v1, $s2
+				 beqz    $a0, loc_261DC
+				 li      $v0, 0xFFFF8100
+				 beq     $v1, $v0, loc_261DC
+				 nop
+				 beq     $s2, $v0, loc_261DC
+				 addu    $v0, $s2, $v1
+				 sra     $v0, 1
+				 sw      $v0, 0x1DEC($gp)
+				 j       loc_2628C
+				 nop
+
+				 loc_261DC :
+			 addiu   $v0, $s4, 0xFF
+				 slt     $v0, $s2, $v0
+				 beqz    $v0, loc_26210
+				 slt     $a0, $v1, $s2
+				 beqz    $a0, loc_26210
+				 li      $v0, 0xFFFF8100
+				 beq     $v1, $v0, loc_26210
+				 nop
+				 beq     $s2, $v0, loc_26210
+				 addiu   $v0, $s2, -0xFF
+				 sw      $v0, 0x1DEC($gp)
+				 j       loc_2628C
+				 nop
+
+				 loc_26210 :
+			 addiu   $v0, $s4, -0xFF
+				 slt     $v0, $v1
+				 beqz    $v0, loc_26244
+				 nop
+				 beqz    $a0, loc_2625C
+				 li      $v0, 0xFFFF8100
+				 beq     $v1, $v0, loc_26244
+				 nop
+				 beq     $s2, $v0, loc_26244
+				 addiu   $v0, $v1, 0xFF
+				 sw      $v0, 0x1DEC($gp)
+				 j       loc_2628C
+				 nop
+
+				 loc_26244 :
+			 beqz    $a0, loc_2625C
+				 li      $v0, 0xFFFF8100
+				 beq     $s2, $v0, loc_2625C
+				 nop
+				 bne     $v1, $v0, loc_2628C
+				 nop
+
+				 loc_2625C :
+			 lw      $v0, 0($s5)
+				 nop
+				 sw      $v0, 0x1DE8($gp)
+				 lw      $v1, 4($s5)
+				 nop
+				 sw      $v1, 0x1DEC($gp)
+				 lw      $v0, 8($s5)
+				 nop
+				 sw      $v0, 0x1DF0($gp)
+				 lhu     $v1, 0xC($s5)
+				 nop
+				 sh      $v1, 0x1DF4($gp)
+
+				 loc_2628C:
+			 lw      $a0, 0x1DE8($gp)
+				 lw      $a1, 0x1DEC($gp)
+				 lw      $a2, 0x1DF0($gp)
+				 addiu   $a3, $gp, 0x1DF4
+				 jal     sub_78954
+				 nop
+				 lw      $a0, 0x1DE8($gp)
+				 lw      $a1, 0x1DEC($gp)
+				 lw      $a2, 0x1DF0($gp)
+				 lw      $a3, 0x1DF8($gp)
+				 lw      $v0, 0x1DFC($gp)
+				 lw      $v1, 0x1E00($gp)
+				 sw      $zero, 0x80 + var_68($sp)
+				 sw      $v0, 0x80 + var_70($sp)
+				 jal     sub_77728
+				 sw      $v1, 0x80 + var_6C($sp)
+				 lw      $v1, 0x1E00($gp)
+				 lw      $a0, 0x1DF0($gp)
+				 lw      $v0, 0x1DF8($gp)
+				 lw      $a1, 0x1DE8($gp)
+				 subu    $a0, $v1, $a0
+				 jal     sub_77A40
+				 subu    $a1, $v0, $a1
+				 la      $a0, dword_9A8C8
+				 srl     $v0, 3
+				 andi    $v0, 0x1FFE
+				 sll     $v1, $v0, 1
+				 addu    $v1, $a0
+				 lh      $a1, 0($v1)
+				 lw      $a2, dword_800A3A80
+				 nop
+				 mult    $a2, $a1
+				 addiu   $v0, 1
+				 sll     $v0, 1
+				 addu    $v0, $a0
+				 mflo    $a1
+				 lh      $v1, 0($v0)
+				 lw      $v0, 0x1DEC($gp)
+				 mult    $a2, $v1
+				 sw      $v0, 0x1E58($gp)
+				 lw      $v0, 0x1DE8($gp)
+				 sra     $a1, 12
+				 lw      $v1, 0x1E08($gp)
+				 addu    $v0, $a1
+				 sw      $v0, 0x1E54($gp)
+				 sw      $v1, 0x1E0C($gp)
+				 lbu     $v1, byte_A1FA8
+				 lw      $v0, 0x1DF0($gp)
+				 addiu   $v1, -0xB
+				 sltiu   $v1, 2
+				 mflo    $a2
+				 sra     $a2, 12
+				 addu    $v0, $a2
+				 sw      $v0, 0x1E5C($gp)
+				 beqz    $v1, loc_26390
+				 lui     $v0, 0x1F
+				 lw      $v1, dword_801EDE88
+				 nop
+				 lw      $a0, 0($v1)
+				 nop
+				 jalr    $a0
+				 nop
+
+				 loc_26390 :
+			 lw      $ra, 0x80 + var_8($sp)
+				 lw      $s5, 0x80 + var_C($sp)
+				 lw      $s4, 0x80 + var_10($sp)
+				 lw      $s3, 0x80 + var_14($sp)
+				 lw      $s2, 0x80 + var_18($sp)
+				 lw      $s1, 0x80 + var_1C($sp)
+				 lw      $s0, 0x80 + var_20($sp)
+				 jr      $ra
+				 addiu   $sp, 0x80
+				 # End of function sub_25B68
+
+#endif
+
 }
 
 #if PC_VERSION
