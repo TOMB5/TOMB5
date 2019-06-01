@@ -945,7 +945,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 #else
 	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
 #endif
-#if PSX_VERSION
+#if PSX_VERSION && !PSXPC_TEST
 	gte_SetGeomScreen(phd_persp);
 #endif
 
@@ -1326,7 +1326,6 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 				camera.target.y = last_target.y;
 				camera.target.z = last_target.z;
 			}
-
 		}
 
 		//loc_28578
@@ -1502,7 +1501,7 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 	}
 
 	//loc_26434
-	distance = camera.target_distance * COS(camera.actual_elevation) >> 12;
+	distance = camera.target_distance * COS(camera.actual_elevation) >> W2V_SHIFT;
 	GetFloor(camera.target.x, camera.target.y, camera.target.z, &camera.target.room_number);
 	room_number = camera.target.room_number;
 	
@@ -1872,18 +1871,129 @@ long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)//28
 	return clipped ^ 1;
 }
 
-long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)
+long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//28634(<) (F)
 {
-#if 0
-	struct FLOOR_INFO *floor; // $s2
-	long wx; // $s4
-	long wy; // $s3
-	long wz; // $s5
-	long h; // $s1
-	long c; // $v1
-	short room_number; // stack offset -48
-#endif
-	UNIMPLEMENTED();
+	struct FLOOR_INFO* floor;
+	long wx;
+	long wy;
+	long wz;
+	long h;
+	long c;
+	short room_number;
+
+	wx = ideal->x;
+	wy = ideal->y;
+	wz = ideal->z;
+
+	if (yfirst != 0)
+	{
+		room_number = ideal->room_number;
+		floor = GetFloor(wx, wy, wz, &room_number);
+		h = GetHeight(floor, wx, wy, wz);
+		c = GetCeiling(floor, wx, wy, wz);
+
+		if ((wy - 255) < c && h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		{
+			wy = (h + c) >> 1;
+		}
+		else if (h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		{
+			//loc_2870C
+			wy = h - 255;
+		}//loc_28738
+		else if ((wy - 255) < c && c < h && c != -32512 && h != -32512)
+		{
+			wy = c + 255;
+		}//loc_28760
+	}
+	//loc_28760
+	//loc_28768
+	room_number = ideal->room_number;
+	floor = GetFloor(wx - push, wy, wz, &room_number);
+	h = GetHeight(floor, wx - push, wy, wz);
+	c = GetCeiling(floor, wx - push, wy, wz);
+
+	if (h < wy || h == -32512 || c == -32512 || c < h || wy < c)
+	{
+		//loc_287E4
+		wx = (wx & -1024) + push;
+	}//loc_287F4
+
+	room_number = ideal->room_number;
+	floor = GetFloor(wx, wy, wz - push, &room_number);
+	h = GetHeight(floor, wx, wy, wz - push);
+	c = GetCeiling(floor, wx, wy, wz - push);
+
+	if (h < wy || h == -32512 || c == -32512 || c < h || wy < c)
+	{
+		//loc_28878
+		wz = (wz & -1024) + push;
+	}
+
+	//loc_28884
+	room_number = ideal->room_number;
+	floor = GetFloor(wx + push, wy, wz, &room_number);
+	h = GetHeight(floor, wx + push, wy, wz);
+	c = GetCeiling(floor, wx + push, wy, wz);
+
+	//v0 = wx | 0x3FF
+	//a0 = wx
+	if (h < wy || h == -32512 || c == -32512 || c < h || wy < c)
+	{
+		//loc_28904
+		wx = (wx | 0x3FF) - push;
+	}
+
+	//loc_28910
+	room_number = ideal->room_number;
+	floor = GetFloor(wx, wy, wz + push, &room_number);
+	h = GetHeight(floor, wx, wy, wz + push);
+	c = GetCeiling(floor, wx, wy, wz + push);
+
+	//v0 = wz | 0x3FF
+	if (h < wy || h == -32512 || c == -32512 || c < h || wy < c)
+	{
+		//loc_28994
+
+		wz = (wz | 0x3FF) - push;
+	}
+
+	if (yfirst == 0)
+	{
+		room_number = ideal->room_number;
+		floor = GetFloor(wx, wy, wz, &room_number);
+		h = GetHeight(floor, wx, wy, wz);
+		c = GetCeiling(floor, wx, wy, wz);
+
+		if ((wy - 255) < c && h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		{
+			wy = (h + c) >> 1;
+		}//loc_28A2C
+		else if (h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		{
+			wy = h - 255;
+		}//loc_28A58
+		else if ((wy - 255) < c && c < h && c != -32512 && h != -32512)
+		{
+			wy = c + 255;
+		}
+	}//loc_28A80
+
+	room_number = ideal->room_number;
+	floor = GetFloor(wx, wy, wz, &room_number);
+	h = GetHeight(floor, wx, wy, wz);
+	c = GetCeiling(floor, wx, wy, wz);
+
+	if (h < wy || wy < c || h == -32512 || c == -32512 || h <= c)
+	{
+		return 1;
+	}
+
+	GetFloor(wx, wy, wz, &ideal->room_number);
+	ideal->x = wx;
+	ideal->y = wy;
+	ideal->z = wz;
+
 	return 0;
 }
 
