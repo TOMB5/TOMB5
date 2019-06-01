@@ -3358,7 +3358,7 @@ int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 }
 #endif
 
-#if PC_VERSION && PSXPC_TEST
+#if PC_VERSION || PSXPC_TEST
 short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 {
 	int type, fixtype;
