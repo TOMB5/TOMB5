@@ -174,7 +174,7 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 
 	SDL_memset(&vram, 0, sizeof(VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short)));
 	
-#if !_WINDOWS
+#if !USE_DDRAW
 	SDL_GL_SetSwapInterval(1);
 #endif
 
