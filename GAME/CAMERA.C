@@ -1319,16 +1319,25 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		GetFloor(camera.target.x, camera.target.y, camera.target.z, &camera.target.room_number);//$a0, $a1, $a2, $a3
 
 		//loc_28510
+		//a1 = last_target.x
+		//v0 = camera.target.x
+		//v0 = last_target.x - camera.target.x
+
+		//v0 = ABS(last_target.x - camera.target.x);
+
+		///@FIXME ABS is partially optimised out on PSX :/
 		if (ABS(last_target.x - camera.target.x) < 4)
 		{
-			//loc_28560:
-			if (ABS(camera.target.y - last_target.y) < 4)
+			if (ABS(last_target.y - camera.target.y) < 4)
 			{
-				camera.target.x = last_target.x;
-				camera.target.y = last_target.y;
-				camera.target.z = last_target.z;
-			}
-		}
+				if (ABS(last_target.z - camera.target.z) < 4)
+				{
+					camera.target.x = last_target.x;
+					camera.target.y = last_target.y;
+					camera.target.z = last_target.z;
+				}
+			}//loc_28578
+		}//loc_28578
 
 		//loc_28578
 		if (camera.type == CHASE_CAMERA || camera.flags == 3)
@@ -1868,8 +1877,12 @@ long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)//28
 		z -= dz;
 	}
 	//loc_28CF0
-	GetFloor(x, y, z, &room_number);
+	target->x = x;
+	target->y = y;
+	target->z = z;
 
+	GetFloor(x, y, z, &room_number);
+	target->room_number = room_number;
 	return clipped ^ 1;
 }
 
@@ -1915,7 +1928,7 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 	h = GetHeight(floor, wx - push, wy, wz);
 	c = GetCeiling(floor, wx - push, wy, wz);
 
-	if (h < wy || h == -32512 || c == -32512 || c < h || wy < c)
+	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
 	{
 		//loc_287E4
 		wx = (wx & -1024) + push;
@@ -1926,7 +1939,7 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 	h = GetHeight(floor, wx, wy, wz - push);
 	c = GetCeiling(floor, wx, wy, wz - push);
 
-	if (h < wy || h == -32512 || c == -32512 || c < h || wy < c)
+	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
 	{
 		//loc_28878
 		wz = (wz & -1024) + push;
@@ -1940,7 +1953,7 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 
 	//v0 = wx | 0x3FF
 	//a0 = wx
-	if (h < wy || h == -32512 || c == -32512 || c < h || wy < c)
+	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
 	{
 		//loc_28904
 		wx = (wx | 0x3FF) - push;
@@ -1953,7 +1966,7 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 	c = GetCeiling(floor, wx, wy, wz + push);
 
 	//v0 = wz | 0x3FF
-	if (h < wy || h == -32512 || c == -32512 || c < h || wy < c)
+	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
 	{
 		//loc_28994
 
@@ -2180,7 +2193,7 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 	{
 		camera.pos.y = ceiling + 255;
 	}
-	else if (ceiling > height || height == -32512 || ceiling == -32512)
+	else if (ceiling >= height || height == -32512 || ceiling == -32512)
 	{
 		//loc_26244
 		camera.pos.x = ideal->x;
@@ -2188,6 +2201,13 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 		camera.pos.z = ideal->z;
 		camera.pos.room_number = ideal->room_number;
 	}
+
+	if (gfCurrentLevel - 0xB < 2)
+	{
+#if PSX_VERSION
+		//RelocPtr[MOD_T12][0]();
+#endif
+	}//loc_26390
 
 	GetFloor(camera.pos.x, camera.pos.y, camera.pos.z, &camera.pos.room_number);
 	
@@ -2200,19 +2220,11 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 	*/
 
 	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
-	phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x);
 
 	camera.mike_pos.y = camera.pos.y;
 	camera.mike_pos.x = camera.pos.x + (phd_persp * SIN(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x))) >> W2V_SHIFT;
 	camera.old_type = camera.type;
 	camera.mike_pos.z = camera.pos.z + (phd_persp * COS(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x))) >> W2V_SHIFT;
-
-	if (gfCurrentLevel - 0xB < 2)
-	{
-#if PSX_VERSION
-		//RelocPtr[MOD_T12][0]();
-#endif
-	}//loc_26390
 }
 
 #if PC_VERSION

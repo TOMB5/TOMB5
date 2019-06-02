@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF phd_GenerateW2V, SetRotation, mLoadMatrix, phd_GetVectorAngles, mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mmPushMatrix, mmPopMatrix, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mClipBoundingBox
-	XREF SqrtTable, matrix_stack, rcossin_tbl, mSqrt, viewer, phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
+	XREF atanTab, SqrtTable, matrix_stack, rcossin_tbl, mSqrt, viewer, phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
 
 ;0x7696C
 SetRotation:
@@ -2540,12 +2540,14 @@ phd_GetVectorAngles:
 	
 phd_atan_asm:
 	bnez    a0, loc_77A50
-	lui     at, 9
+	;lui     at, 9 ;original
+	nop
 	beqz    a1, locret_77AE4
 	move    v0, zero
 
 	loc_77A50:
-	ori     at, 0x4004
+	;ori     at, 0x4004 ;original
+	la      at, atanTab
 	bgez    a0, loc_77A64
 	move    a2, zero
 	li      a2, 4
