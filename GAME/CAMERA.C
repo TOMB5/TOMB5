@@ -1999,39 +1999,31 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 	return 0;
 }
 
-void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68
+void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 {
-	struct FLOOR_INFO* floor; // $s3
-	struct GAME_VECTOR tcp; // stack offset -96
-	long height; // $s2
-	long ceiling; // $v1
-	long shake; // $a0
-	long rndval; // $s0
-	short room_number; // stack offset -80
-	long wx; // $s1
-	long wy; // $s4
-	long wz; // $s0
-	long dx; // $v0
-	long dy; // $a0
-	long dz; // $v1
-	struct GAME_VECTOR temp1; // stack offset -72
-	struct GAME_VECTOR temp2; // stack offset -56
-	///short room_number; // stack offset -40
-	///long wx; // $s1
-	///long wy; // $s4
-	///long wz; // $s0
+	struct FLOOR_INFO* floor;
+	struct GAME_VECTOR tcp;
+	long height;
+	long ceiling;
+	long shake;
+	long rndval;
+	short room_number;
+	long wx;
+	long wy;
+	long wz;
+	long dx;
+	long dy;
+	long dz;
+	struct GAME_VECTOR temp1;
+	struct GAME_VECTOR temp2;
 
-	//s5 = ideal
-	//v0 = ideal->x;
-	//v1 = ideal->y;
-	//a0 = ideal->z;
-	//a2 = ideal->room_number
-	//a3 = BinocularOn
-	//t1 = speed
+	/*
+	Dunno why this is a thing
+	*/
 	tcp.x = ideal->x;//var_60
 	tcp.y = ideal->y;//var_5C
 	tcp.z = ideal->z;//var_58
-	tcp.room_number = ideal->room_number;//var_58
+	tcp.room_number = ideal->room_number;
 
 	if (BinocularOn < 0)//==-1?
 	{
@@ -2039,9 +2031,6 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68
 		BinocularOn++;
 	}
 	//loc_25BC4
-	//a1 = 0xA0000
-	//v0 = lara_item
-	
 	if (((((((
 		(old_cam.pos.x_rot == lara_item->pos.x_rot) &&
 		(old_cam.pos.y_rot == lara_item->pos.y_rot) && 
@@ -2095,41 +2084,27 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68
 	}
 
 	//loc_25E80
-	//v0 = ideal->x
-	//v1 = camera.pos.x
 	camera.pos.x += (ideal->x - camera.pos.x) / speed;
 	camera.pos.y += (ideal->y - camera.pos.y) / speed;
 	camera.pos.z += (ideal->z - camera.pos.z) / speed;
 
 	//loc_25EFC
-	//v0 = ideal->room_number
-	//s0 = camera.bounce
 	camera.pos.room_number = ideal->room_number;
-	//a3 = &room_number
-	//a0 = camera.pos.y
+
 	if (camera.bounce != 0)
 	{
-		//v0 = camera.pos.y + camera.bounce
 		if (camera.bounce > 0)
 		{
-			//v1 = camera.target.y
 			camera.pos.y += camera.bounce;
 			camera.bounce = 0;
 			camera.target.y += camera.bounce;
 		}//loc_25F3C
 		else
 		{
-			GetRandomControl();
-			//s0 = -camera.bounce
-			//v1 = (GetRandomControl() / -camera.bounce)
-			//s1 = -camera.bounce >> 1
-			//v0 = camera.target.x
-
 			shake = (GetRandomControl() / -camera.bounce) - (-camera.bounce >> 1);
 			camera.target.x += shake;
 			shake = (GetRandomControl() / -camera.bounce) - (-camera.bounce >> 1);
 			camera.target.y += shake;
-			//v1 = GetRandomControl() / -camera.bounce
 			shake = (GetRandomControl() / -camera.bounce) - (-camera.bounce >> 1);
 			camera.target.z += shake;
 			camera.bounce += 5;
@@ -2144,35 +2119,17 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68
 	height = GetHeight(floor, wx, wy, wz);
 	ceiling = GetCeiling(floor, wx, wy, wz);
 
-	//v0 = wy < v0 ? 1 : 0
-
-	//a3 = &room_number
 	if (wy < ceiling || height < wy)
 	{
 		//loc_2603C
-		//a0 = &camera.target
-		//a1 = &camera.pos
-
 		mgLOS(&camera.target, &camera.pos, 0);
-
-		//t2 = camera.pos.x
-		//t4 = ideal->x
-		//t1 = camera.pos.y
-		//t3 = ideal->y
-		//a3 = camera.pos.z
-		//t0 = ideal->z
 
 		dx = ABS(camera.pos.x - ideal->x);
 		dy = ABS(camera.pos.y - ideal->y);
 		dz = ABS(camera.pos.z - ideal->z);
 
-		//a0 = &temp2
 		if (dx < 0x300 && dy < 0x300 && dz < 0x300)
 		{
-			//a1 = &temp1
-			//v0 = camera.pos.room_number
-			//v1 = ideal->room_number
-			//a2 = 0
 			temp1.x = camera.pos.x;
 			temp1.y = camera.pos.y;
 			temp1.z = camera.pos.z;
@@ -2189,202 +2146,73 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68
 
 				if ((camerasnaps & 0xFF) > 7)
 				{
-
-
+					//v0 = ideal->x
+					camera.pos.x = ideal->x;
+					//v1 = ideal->y
+					camera.pos.y = ideal->y;
+					//v0 = ideal->z
+					camera.pos.z = ideal->z;
+					camerasnaps = 0;
+					camera.pos.room_number = ideal->room_number;
 				}//loc_26140
 			}//loc_26140
 		}//loc_2613C
-
 	}//loc_26140
 
-#if 0
-				 lw      $v0, 0($s5)
-				 nop
-				 sw      $v0, 0x1DE8($gp)
-				 lw      $v1, 4($s5)
-				 nop
-				 sw      $v1, 0x1DEC($gp)
-				 lw      $v0, 8($s5)
-				 nop
-				 sw      $v0, 0x1DF0($gp)
-				 lhu     $v1, 0xC($s5)
-				 sb      $zero, 0x1A0($gp)
-				 sh      $v1, 0x1DF4($gp)
+	wx = camera.pos.x;
+	wy = camera.pos.y;
+	wz = camera.pos.z;
 
-				 loc_2613C:
-			 addiu   $a3, $sp, 0x80 + var_28
+	room_number = camera.pos.room_number;
+	floor = GetFloor(wx, wy, wz, &room_number);
+	height = GetHeight(floor, wx, wy, wz);
+	ceiling = GetCeiling(floor, wx, wy, wz);
 
-				 loc_26140 :
-			 lw      $s1, 0x1DE8($gp)
-				 lw      $s4, 0x1DEC($gp)
-				 lw      $s0, 0x1DF0($gp)
-				 lh      $v0, 0x1DF4($gp)
-				 move    $a0, $s1
-				 move    $a1, $s4
-				 move    $a2, $s0
-				 jal     sub_78954
-				 sh      $v0, 0x80 + var_28($sp)
-				 move    $s3, $v0
-				 move    $a0, $s3
-				 move    $a1, $s1
-				 move    $a2, $s4
-				 jal     sub_78C74
-				 move    $a3, $s0
-				 move    $s2, $v0
-				 move    $a0, $s3
-				 move    $a1, $s1
-				 move    $a2, $s4
-				 jal     sub_79060
-				 move    $a3, $s0
-				 move    $v1, $v0
-				 addiu   $v0, $s4, -0xFF
-				 slt     $v0, $v1
-				 beqz    $v0, loc_261DC
-				 addiu   $v0, $s4, 0xFF
-				 slt     $v0, $s2, $v0
-				 beqz    $v0, loc_26210
-				 slt     $a0, $v1, $s2
-				 beqz    $a0, loc_261DC
-				 li      $v0, 0xFFFF8100
-				 beq     $v1, $v0, loc_261DC
-				 nop
-				 beq     $s2, $v0, loc_261DC
-				 addu    $v0, $s2, $v1
-				 sra     $v0, 1
-				 sw      $v0, 0x1DEC($gp)
-				 j       loc_2628C
-				 nop
+	if ((wy - 255) < ceiling && height < (wy + 255) && ceiling < height && ceiling != -32512 && height != -32512)
+	{
+		camera.pos.y = (height + ceiling) >> 1;
+	}//loc_261DC
+	else if (height < (wy + 255) && ceiling < height && ceiling != -32512 && height != -32512)
+	{
+		camera.pos.y = height - 255;
+	}//loc_26210
+	else if ((wy - 255) < ceiling && ceiling < height && ceiling != -32512 && height != -32512)
+	{
+		camera.pos.y = ceiling + 255;
+	}
+	else if (ceiling > height || height == -32512 || ceiling == -32512)
+	{
+		//loc_26244
+		camera.pos.x = ideal->x;
+		camera.pos.y = ideal->y;
+		camera.pos.z = ideal->z;
+		camera.pos.room_number = ideal->room_number;
+	}
 
-				 loc_261DC :
-			 addiu   $v0, $s4, 0xFF
-				 slt     $v0, $s2, $v0
-				 beqz    $v0, loc_26210
-				 slt     $a0, $v1, $s2
-				 beqz    $a0, loc_26210
-				 li      $v0, 0xFFFF8100
-				 beq     $v1, $v0, loc_26210
-				 nop
-				 beq     $s2, $v0, loc_26210
-				 addiu   $v0, $s2, -0xFF
-				 sw      $v0, 0x1DEC($gp)
-				 j       loc_2628C
-				 nop
+	GetFloor(camera.pos.x, camera.pos.y, camera.pos.z, &camera.pos.room_number);
+	
+	/*
+	??? Unused/Dummy tcp var?
+	lw      $v0, 0x1DFC($gp)
+	lw      $v1, 0x1E00($gp)
+	sw      $v0, 0x80 + var_70($sp)
+	sw      $v1, 0x80 + var_6C($sp)
+	*/
 
-				 loc_26210 :
-			 addiu   $v0, $s4, -0xFF
-				 slt     $v0, $v1
-				 beqz    $v0, loc_26244
-				 nop
-				 beqz    $a0, loc_2625C
-				 li      $v0, 0xFFFF8100
-				 beq     $v1, $v0, loc_26244
-				 nop
-				 beq     $s2, $v0, loc_26244
-				 addiu   $v0, $v1, 0xFF
-				 sw      $v0, 0x1DEC($gp)
-				 j       loc_2628C
-				 nop
+	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
+	phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x);
 
-				 loc_26244 :
-			 beqz    $a0, loc_2625C
-				 li      $v0, 0xFFFF8100
-				 beq     $s2, $v0, loc_2625C
-				 nop
-				 bne     $v1, $v0, loc_2628C
-				 nop
+	camera.mike_pos.y = camera.pos.y;
+	camera.mike_pos.x = camera.pos.x + (phd_persp * SIN(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x))) >> W2V_SHIFT;
+	camera.old_type = camera.type;
+	camera.mike_pos.z = camera.pos.z + (phd_persp * COS(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x))) >> W2V_SHIFT;
 
-				 loc_2625C :
-			 lw      $v0, 0($s5)
-				 nop
-				 sw      $v0, 0x1DE8($gp)
-				 lw      $v1, 4($s5)
-				 nop
-				 sw      $v1, 0x1DEC($gp)
-				 lw      $v0, 8($s5)
-				 nop
-				 sw      $v0, 0x1DF0($gp)
-				 lhu     $v1, 0xC($s5)
-				 nop
-				 sh      $v1, 0x1DF4($gp)
-
-				 loc_2628C:
-			 lw      $a0, 0x1DE8($gp)
-				 lw      $a1, 0x1DEC($gp)
-				 lw      $a2, 0x1DF0($gp)
-				 addiu   $a3, $gp, 0x1DF4
-				 jal     sub_78954
-				 nop
-				 lw      $a0, 0x1DE8($gp)
-				 lw      $a1, 0x1DEC($gp)
-				 lw      $a2, 0x1DF0($gp)
-				 lw      $a3, 0x1DF8($gp)
-				 lw      $v0, 0x1DFC($gp)
-				 lw      $v1, 0x1E00($gp)
-				 sw      $zero, 0x80 + var_68($sp)
-				 sw      $v0, 0x80 + var_70($sp)
-				 jal     sub_77728
-				 sw      $v1, 0x80 + var_6C($sp)
-				 lw      $v1, 0x1E00($gp)
-				 lw      $a0, 0x1DF0($gp)
-				 lw      $v0, 0x1DF8($gp)
-				 lw      $a1, 0x1DE8($gp)
-				 subu    $a0, $v1, $a0
-				 jal     sub_77A40
-				 subu    $a1, $v0, $a1
-				 la      $a0, dword_9A8C8
-				 srl     $v0, 3
-				 andi    $v0, 0x1FFE
-				 sll     $v1, $v0, 1
-				 addu    $v1, $a0
-				 lh      $a1, 0($v1)
-				 lw      $a2, dword_800A3A80
-				 nop
-				 mult    $a2, $a1
-				 addiu   $v0, 1
-				 sll     $v0, 1
-				 addu    $v0, $a0
-				 mflo    $a1
-				 lh      $v1, 0($v0)
-				 lw      $v0, 0x1DEC($gp)
-				 mult    $a2, $v1
-				 sw      $v0, 0x1E58($gp)
-				 lw      $v0, 0x1DE8($gp)
-				 sra     $a1, 12
-				 lw      $v1, 0x1E08($gp)
-				 addu    $v0, $a1
-				 sw      $v0, 0x1E54($gp)
-				 sw      $v1, 0x1E0C($gp)
-				 lbu     $v1, byte_A1FA8
-				 lw      $v0, 0x1DF0($gp)
-				 addiu   $v1, -0xB
-				 sltiu   $v1, 2
-				 mflo    $a2
-				 sra     $a2, 12
-				 addu    $v0, $a2
-				 sw      $v0, 0x1E5C($gp)
-				 beqz    $v1, loc_26390
-				 lui     $v0, 0x1F
-				 lw      $v1, dword_801EDE88
-				 nop
-				 lw      $a0, 0($v1)
-				 nop
-				 jalr    $a0
-				 nop
-
-				 loc_26390 :
-			 lw      $ra, 0x80 + var_8($sp)
-				 lw      $s5, 0x80 + var_C($sp)
-				 lw      $s4, 0x80 + var_10($sp)
-				 lw      $s3, 0x80 + var_14($sp)
-				 lw      $s2, 0x80 + var_18($sp)
-				 lw      $s1, 0x80 + var_1C($sp)
-				 lw      $s0, 0x80 + var_20($sp)
-				 jr      $ra
-				 addiu   $sp, 0x80
-				 # End of function sub_25B68
-
+	if (gfCurrentLevel - 0xB < 2)
+	{
+#if PSX_VERSION
+		//RelocPtr[MOD_T12][0]();
 #endif
-
+	}//loc_26390
 }
 
 #if PC_VERSION
