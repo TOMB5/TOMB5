@@ -361,7 +361,7 @@ PrintAllOtherObjects_ASM:
 	lw      a0, 0(s4)
 	lw      a1, 4(s4)
 	lw      a2, 8(s4)
-	la      v0, duff_item+0x54-GP_ADDR(gp)
+	la      v0, duff_item+0x54
 	sw      v0, 0x10(sp)
 	jal     S_CalculateLight
 	sb      zero, 0x2F(v0)
@@ -596,7 +596,7 @@ insert_psx_clip_window:
 	jal     SetDefDrawEnv
 	sw      v0, 0x64(a0)
 	lui     a1, 0x1F80
-	lw      v0, 0x1F800064
+	lw      v0, 0x64(a1)
 	lw      a0, db+0x8-GP_ADDR(gp)
 	sw      v0, 0x8(a1)
 	li      v0, 1
