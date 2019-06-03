@@ -2,8 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF SetRotation, mLoadMatrix, phd_GetVectorAngles, mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mmPushMatrix, mmPopMatrix, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mClipBoundingBox
-	XREF matrix_stack, rcossin_tbl, mSqrt, viewer, phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
+	XDEF phd_GenerateW2V, SetRotation, mLoadMatrix, phd_GetVectorAngles, mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mmPushMatrix, mmPopMatrix, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mClipBoundingBox
+	XREF ScalarTable, atanTab, SqrtTable, matrix_stack, rcossin_tbl, mSqrt, viewer, phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
 
 ;0x7696C
 SetRotation:
@@ -1636,7 +1636,8 @@ mNormaliseXYZ:
 	sra     a3, 1
 	addi    at, v1, -0x18
 	bltz    at, loc_77628
-	lui     a0, 0xA
+	nop
+	;lui     a0, 0xA original
 	j       loc_77634
 	sllv    v0, at
 
@@ -1646,7 +1647,8 @@ mNormaliseXYZ:
 	srav    v0, at
 
 	loc_77634:
-	ori     a0, 0x1C48
+	la		 a0, ScalarTable
+	;ori     a0, 0x1C48 original
 	addi    v0, -0x40
 	sll     v0, 1
 	add     a0, v0
@@ -1733,8 +1735,10 @@ phd_sqrt_asm:
 	sub	v0, v1
 	sra	v0, 1
 	addi	at, v1, -0x18
+	la		a1, SqrtTable
 	bltz	at, loc_77A10
-	lui	a1, 0xA
+	;lui	a1, 0xA original
+	nop
 	j	loc_77A1C
 	sllv	a0, at
 
@@ -1744,7 +1748,7 @@ phd_sqrt_asm:
 	srav	a0, at
 
 	loc_77A1C:
-	ori	a1, 0x1AA4
+	;ori	a1, 0x1AA4 original
 	addi	a0, -0x40
 	sll	a0, 1
 	addu	a0, a1
@@ -1755,6 +1759,7 @@ phd_sqrt_asm:
 	locret_77A38:
 	jr	ra
 	srl	v0, a0, 12
+
 ;0x77D48
 ScaleCurrentMatrix:
 	cfc2	t0, r0
@@ -2537,12 +2542,14 @@ phd_GetVectorAngles:
 	
 phd_atan_asm:
 	bnez    a0, loc_77A50
-	lui     at, 9
+	;lui     at, 9 ;original
+	nop
 	beqz    a1, locret_77AE4
 	move    v0, zero
 
 	loc_77A50:
-	ori     at, 0x4004
+	;ori     at, 0x4004 ;original
+	la      at, atanTab
 	bgez    a0, loc_77A64
 	move    a2, zero
 	li      a2, 4

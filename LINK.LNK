@@ -97,7 +97,7 @@ bss	group	bss
 	include SPEC_PSX/CALCLARA.OBJ
 	include SPEC_PSX/LIGHT.OBJ
 	include SPEC_PSX/SHADOWS.OBJ
-	;include SPEC_PSX/FXCTRL.OBJ
+	include SPEC_PSX/FXCTRL.OBJ
 	include SPEC_PSX/FXDRAW.OBJ
 	include SPEC_PSX/FXTRIG.OBJ
 	include SPEC_PSX/TEXT_S.OBJ

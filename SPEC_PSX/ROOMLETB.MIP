@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF TriVertTables, TVertTableA, TVertTableB, TVertTableC, TVertTableD, TriVertTable, QVertTableA, QVertTableB, QVertTableC, QVertTableD, QuadVertTables, QuadVertTable, UnpackRGB, DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, CreateNewVertex, ClipToScreen, SubdivSetup3
+	XDEF SubdivTri64, TriVertTables, TVertTableA, TVertTableB, TVertTableC, TVertTableD, TriVertTable, QVertTableA, QVertTableB, QVertTableC, QVertTableD, QuadVertTables, QuadVertTable, UnpackRGB, DrawRoomletListAsm, DrawRoomletListAsmBinocular, DrawMesh, ClipXY, InitPrim, SubPolyGT3, SubPolyGT4, SubPolyGTLoop, CreateNewVertex, ClipToScreen, SubdivSetup3
 	XREF phd_GenerateW2V, number_draw_rooms, RoomBBoxes, wibble, tsv_buffer, draw_rooms, room, WaterTable, dynamics, db, OurSqrt, RoomTextInfo, MatrixStack
 	
 LOffset incbin SPEC_PSX//LOFFSET.TBL
@@ -48,7 +48,6 @@ UnpackRGB:
 	or      fp, t5
 	or      fp, t6
 	srl     t5, t8, 24
-	ori     t5, 0x40
 	sll     t5, 24
 	or      fp, t5
 	srl     t5, s5, 7
@@ -976,7 +975,7 @@ DrawMesh:
 	move    s3, zero
 	addi    t1, s1, 0x324
 	jal     SubPolyGT3
-	addiu   t0, ra, -0x444-0x8C4+0x10;(-0x444 = start of DrawMesh) (-0x8C4 = TriVertTables - DrawMesh) (+0x10 offset into QuadVertTables)
+	addiu   t0, ra, -0x444-0x8C0+0x10;(-0x444 = start of DrawMesh) (-0x8C0 = TriVertTables - DrawMesh) (+0x10 offset into TriVertTables)
 	cfc2    at, r23
 	cfc2    t0, r19
 	cfc2    t9, r27
@@ -1135,7 +1134,7 @@ DrawMesh:
 	sh      t5, 0x330(s1)
 	addi    t1, s1, 0x338
 	jal     SubPolyGT4
-	addiu   t0, ra, -0x678-0xA64+0x10;(-0x678 = start of DrawMesh) (-0xA64 = QuadVertTables - DrawMesh) (+0x10 offset into QuadVertTables)
+	addiu   t0, ra, -0x678-0xA60+0x10;(-0x678 = start of DrawMesh) (-0xA60 = QuadVertTables - DrawMesh) (+0x10 offset into QuadVertTables)
 	cfc2    t0, r19
 	cfc2    at, r23
 	cfc2    t9, r27

@@ -34,6 +34,7 @@
 #if PSX_VERSION
 #include INLINE_H
 #include "SPHERES.H"
+#include "MISC.H"
 #endif
 
 #include <stddef.h>
@@ -899,39 +900,35 @@ short rcossin_tbl[8192] =
 
 void InitialiseCamera()//25AAC, 25CB8 (F)
 {
-	camera.pos.x = lara_item->pos.x_pos;
-	camera.pos.y = lara_item->pos.y_pos - SECTOR(1);
-	camera.pos.z = lara_item->pos.z_pos - 100;
-	camera.pos.room_number = lara_item->room_number;
-
-	camera.target.x = lara_item->pos.x_pos;
-	camera.target.y = lara_item->pos.y_pos - SECTOR(1);
-	camera.target.z = lara_item->pos.z_pos;
-	camera.target.room_number = lara_item->room_number;
-
 	last_target.x = lara_item->pos.x_pos;
-	last_target.y = lara_item->pos.y_pos - SECTOR(1);
-	last_target.z = lara_item->pos.z_pos;
-	last_target.room_number = lara_item->room_number;
-	
+	camera.target.x = lara_item->pos.x_pos;
 	camera.shift = lara_item->pos.y_pos - SECTOR(1);
+	last_target.y = lara_item->pos.y_pos - SECTOR(1);
+	camera.target.y = lara_item->pos.y_pos - SECTOR(1);
+	last_target.z = lara_item->pos.z_pos;
+	camera.target.z = lara_item->pos.z_pos;
+	camera.pos.y = lara_item->pos.y_pos - SECTOR(1);
 	camera.target_distance = 1536;
 	camera.number_frames = 1;
 	camera.speed = 1;
 	camera.flags = CF_FOLLOW_CENTER;
+	camera.pos.x = lara_item->pos.x_pos;
+	camera.pos.z = lara_item->pos.z_pos - 100;
 	camera.item = NULL;
 	camera.type = CHASE_CAMERA;
 	camera.bounce = 0;
 	camera.number = -1;
 	camera.fixed_camera = 0;
-
+	last_target.room_number = lara_item->room_number;
+	camera.target.room_number = lara_item->room_number;
+	camera.pos.room_number = lara_item->room_number;
 	AlterFOV(16380);
 	UseForcedFixedCamera = 0;
-
 	CalculateCamera();
 	return;
 }
 
+#if PC_VERSION || PSXPC_TEST
 void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 {
 	CurrentFov = fov;
@@ -950,16 +947,16 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 #else
 	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
 #endif
-#if PSX_VERSION
+#if PSX_VERSION && !PSXPC_TEST
 	gte_SetGeomScreen(phd_persp);
 #endif
-
 	return;
 }
+#endif
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#if 0//GetBoundsAccurate illegal, crash.
+#if PSX_VERSION && !PSXPC_TEST//GetBoundsAccurate illegal, crash.
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -1034,7 +1031,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		//Camera is in a water room, play water sound effect.
 		if (room[camera.pos.room_number].flags & RF_FILL_WATER)
 		{
-			SoundEffect(SFX_UNDERWATER, NULL, 2);//a0, a1, a2
+			SoundEffect(SFX_UNDERWATER, NULL, 2);
 			if (camera.underwater == 0)
 			{
 				if (GLOBAL_playing_cutseq == 0 && TLFlag == 0)
@@ -1049,7 +1046,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		else
 		{
 			//loc_27F94
-			if (camera.underwater > 0)
+			if (camera.underwater != 0)
 			{
 				if (GLOBAL_playing_cutseq == 0 && TLFlag == 0 && savegame.VolumeCD > 0)
 				{
@@ -1095,7 +1092,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 
 	//loc_28040, loc_28254 ///@VERF
 	bounds = GetBoundsAccurate(item);
-	y = (item->pos.y_pos + ((bounds[2] + bounds[3]) / 2)) - CLICK;//$s4
+	y = item->pos.y_pos + ((bounds[2] + bounds[3]) >> 1) - CLICK;//$s4
 
 	if (camera.item != NULL && fixed_camera == 0)
 	{
@@ -1279,9 +1276,9 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		//loc_28370
 		if (gotit == 0)
 		{
-			int v1 = (((bounds[0] + bounds[4]) + bounds[4]) + bounds[5]) / 4;
-			camera.target.x = ((rcossin_tbl[((item->pos.y_rot >> 2) & 0x3FFC) / sizeof(short)] * v1) >> 12) + item->pos.x_pos;
-			camera.target.z = ((rcossin_tbl[(((item->pos.y_rot >> 3) | 1) << 1) / sizeof(short)] * v1) >> 12) + item->pos.z_pos;
+			int v1 = (((bounds[0] + bounds[1]) + bounds[4]) + bounds[5]) >> 2;
+			camera.target.x = ((SIN(item->pos.y_rot) * v1) >> 12) + item->pos.x_pos;
+			camera.target.z = ((COS(item->pos.y_rot) * v1) >> 12) + item->pos.z_pos;
 
 			if (item->object_number == LARA)
 			{
@@ -1321,43 +1318,35 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		//loc_284DC
 		GetFloor(camera.target.x, camera.target.y, camera.target.z, &camera.target.room_number);//$a0, $a1, $a2, $a3
 
-		v0 = camera.target.x - last_target.x;
-		if (v0 < 0)
-		{
-			v0 = -v0;
-		}
-
 		//loc_28510
-		if (v0 < 4)
+		//a1 = last_target.x
+		//v0 = camera.target.x
+		//v0 = last_target.x - camera.target.x
+
+		//v0 = ABS(last_target.x - camera.target.x);
+
+		///@FIXME ABS is partially optimised out on PSX :/
+		if (ABS(last_target.x - camera.target.x) < 4)
 		{
-			int v00 = camera.target.y - last_target.y;
-
-			if (v00 < 0)
+			if (ABS(last_target.y - camera.target.y) < 4)
 			{
-				v00 = -v00;
-			}
-
-			//loc_28560:
-			if (v00 < 4)
-			{
-				camera.target.x = last_target.x;
-				camera.target.y = last_target.y;
-				camera.target.z = last_target.z;
-			}
-
-		}
+				if (ABS(last_target.z - camera.target.z) < 4)
+				{
+					camera.target.x = last_target.x;
+					camera.target.y = last_target.y;
+					camera.target.z = last_target.z;
+				}
+			}//loc_28578
+		}//loc_28578
 
 		//loc_28578
-		if (camera.type != CHASE_CAMERA)
+		if (camera.type == CHASE_CAMERA || camera.flags == 3)
 		{
-			if (camera.flags != 3)
-			{
-				FixedCamera();
-			}
+			ChaseCamera(item);///@TODEBUG
 		}//loc_28598
 		else
 		{
-			ChaseCamera(item);
+			FixedCamera();
 		}
 	}
 
@@ -1439,31 +1428,32 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 	h = GetHeight(floor, camera.target.x, camera.target.y, camera.target.z);
 	c = GetCeiling(floor, camera.target.x, camera.target.y, camera.target.z);
 
-	if (h - 64 > c + 64 && h == -3512 && c == -3512)
+	if (h - 64 > c + 64 && h == -32512 && c == -32512)
 	{
 		//loc_26960
+		//v0 = camera.target.y
+		//v1 = h - 64
+		//v0 = -32512
+		if (h - 64 < camera.target.y)
+		{
+			if (h != -32512)
+			{
+				//loc_26998
+				h = h - 64;
+			}
+		}
+		else
+		{
+			//loc_2697C
+			//v0 = camera.target.y
+			//v1 = c - 64
 
-
-		lw	$v0, camera.target.y($gp)
-		addiu	$v1, $s2, -0x40
-		slt	$v0, $v1, $v0
-		beqz	$v0, loc_2697C
-		li	$v0, 0xFFFF8100
-		bne	$s2, $v0, loc_26998
-		nop
-		
-		loc_2697C :
-		lw	$v0, camera.target.y($gp)
-		addiu	$v1, $a0, 0x40
-		slt	$v0, $v1
-		beqz	$v0, loc_269A0
-		li	$v0, 0xFFFF8100
-		beq	$a0, $v0, loc_269A0
-		nop
-
-		loc_26998 :
-		sw	$v1, camera.target.y($gp)
-
+			//v0 = -32512
+			if (camera.target.y < c - 64 && c != -32512)
+			{
+				h = c - 64;
+			}//loc_269A0
+		}
 	}
 	else
 	{
@@ -1483,28 +1473,27 @@ void FixedCamera()
 	UNIMPLEMENTED();
 }
 
-void ChaseCamera(struct ITEM_INFO* item)//263B4(<)
+void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 {
-	struct FLOOR_INFO* floor; // $s2
-	struct GAME_VECTOR ideal; // stack offset -184
-	struct GAME_VECTOR ideals[5]; // stack offset -168, -100
-	struct GAME_VECTOR temp[2]; // stack offset -88
-	long distance; // $s7
-	long lp; // $s2
-	long dx; // $t0
-	long dz; // $v1
-	long farthest; // $s4
-	long farthestnum; // stack offset -52
-	long h; // $s0
-	long c; // $v1
-	short angle; // $v0
-	// line 23, offset 0x26434
-	short room_number; // stack offset -56
-	long wx; // $s1
-	long wy; // $s3
-	long wz; // $s0
+	struct FLOOR_INFO* floor;
+	struct GAME_VECTOR ideal;
+	struct GAME_VECTOR ideals[5];
+	struct GAME_VECTOR temp[2];
+	long distance;
+	long lp;
+	long dx;
+	long dz;
+	long farthest;
+	long farthestnum;
+	long h;
+	long c;
+	short angle;
+	short room_number;
+	long wx;
+	long wy;
+	long wz;
 
-	if (camera.target_elevation == 0)//v0
+	if (camera.target_elevation == 0)
 	{
 		camera.target_elevation = -1820;
 	}
@@ -1512,255 +1501,138 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<)
 	camera.target_elevation += item->pos.x_rot;
 	UpdateCameraElevation();
 
-	if (camera.actual_elevation > 0x3C6E)
+	if (camera.actual_elevation > 15470)
 	{
-		camera.actual_elevation = 0x3C6E;
+		camera.actual_elevation = 15470;
 	}//loc_26428
 
-	//v0 = camera.actual_elevation < -0x3C6E ? 1 : 0
 	if (camera.actual_elevation < -0x3C6E)
 	{
 		camera.actual_elevation = -0x3C6E;
 	}
 
 	//loc_26434
-	//v0 = ((camera.actual_elevation >> 3) | 1) << 1;
-	//v1 = rcossin_tbl
-	distance = (camera.target_distance * rcossin_tbl[((camera.actual_elevation >> 3) | 1)]) >> 12;
+	distance = camera.target_distance * COS(camera.actual_elevation) >> W2V_SHIFT;
 	GetFloor(camera.target.x, camera.target.y, camera.target.z, &camera.target.room_number);
 	room_number = camera.target.room_number;
-	floor = GetFloor(camera.target.x, camera.target.y, camera.target.z, &room_number);
-	//a3 = &room_number
-	//s1 = camera.target.x
-	//s3 = camera.target.y
-	//s0 = camera.target.z
-	//v0 = camera.target.room_number
-	h = GetHeight(floor, camera.target.x, camera.target.y, camera.target.z);
-	c = GetCeiling(floor, camera.target.x, camera.target.y, camera.target.z);
+	
+	wx = camera.target.x;
+	wy = camera.target.y;
+	wz = camera.target.z;
+	
+	floor = GetFloor(wx, wy, wz, &room_number);
+	h = GetHeight(floor, wx, wy, wz);
+	c = GetCeiling(floor, wx, wy, wz);
 
-	//v0 = s3 < v1 ? 1 : 0
-	if (c < camera.target.y && camera.target.y < camera.target.z &&
-		c < camera.target.z && camera.target.z != -32512 && -32512 == c)
+	if ((((wy < c) || (h < wy)) || (h <= c)) || ((h == -32512 || (c == -32512))))
+	{
+			//loc_26504
+			++TargetSnaps;
+			camera.target.x = last_target.x;
+			camera.target.y = last_target.y;
+			camera.target.z = last_target.z;
+			camera.target.room_number = last_target.room_number;
+	}
+	else
 	{
 		//loc_26540
 		TargetSnaps = 0;
 	}
-	else
-	{
-		//loc_26504
-		++TargetSnaps;
-		camera.target.x = last_target.x;
-		camera.target.y = last_target.y;
-		camera.target.z = last_target.z;
-		camera.target.room_number = last_target.room_number;
-	}
 	//loc_26544
-	//v0 = camera.actual_elevation
-	//v1 = rcossin_tbl
-	//a0 = SIN(camera.actual_elevation);
-	//v1 = camera.target_distance
-
-	//v1 = (camera.target_distance * SIN(camera.actual_elevation)) >> 12;
-	//s6 = &var_A4
-	//s5 = &var_A8
-	//s2 = 4;
-	//v0 = &var_A0
-	//var_30 = v0
-	//v0 = camera.target.y + (camera.target_distance * SIN(camera.actual_elevation)) >> 12;
-	//a0 = &var_64
 
 	//loc_26590
 	for (lp = 0; lp < 5; lp++)
 	{
-		ideals[lp].y = camera.target.y + (camera.target_distance * SIN(camera.actual_elevation)) >> 12;
+		ideals[lp].y = camera.target.y + (camera.target_distance * SIN(camera.actual_elevation) >> W2V_SHIFT);
 	}
 
 	farthest = 0x7FFFFFFF;
-	farthestnum = 0;//s2
-	//fp = &rcossin_tbl[0]
-	//s3 = var_30
-	//s1 = &var_A8
-	//var_34 = 0
+	farthestnum = 0;
 
 	//loc_265C0
+	for(lp = 0; lp < 5; lp++)
+	{
+		if (lp == 0)
+		{
+			angle = camera.actual_angle;
+		}
+		else
+		{
+			//loc_265D4
+			angle = (lp - 1) << 14;
+		}
+		//loc_265E0
+		ideals[lp].x = camera.target.x - ((distance * SIN(angle)) >> W2V_SHIFT);
+		ideals[lp].z = camera.target.z - ((distance * COS(angle)) >> W2V_SHIFT);
+		ideals[lp].room_number = camera.target.room_number;
 
-#if 0
-	loc_265c0:
-			 bnez    $s2, loc_265D4
-				 addiu   $v0, $s2, -1
-				 //v0 = camera.actual_angle
-				 j       loc_265E0
-				 sra     $v1, $v0, 3
+		if (mgLOS(&camera.target, &ideals[lp], 200))
+		{
+			temp[0].x = ideals[lp].x;
+			temp[0].y = ideals[lp].y;
+			temp[0].z = ideals[lp].z;
+			temp[0].room_number = ideals[lp].room_number;
+			temp[1].x = camera.pos.x;
+			temp[1].y = camera.pos.y;
+			temp[1].z = camera.pos.z;
+			temp[1].room_number = camera.pos.room_number;
 
-				 loc_265D4 :
-				 sll     $v0, 30
-				 sra     $v0, 16
-				 sra     $v1, $v0, 3
+			if (lp == 0 || mgLOS(&temp[0], &temp[1], 0))
+			{
+				if (lp == 0)
+				{
+					farthestnum = 0;
+					break;
+				}
 
-				 loc_265E0 :
-				 andi    $v1, 0x1FFE
-				 sll     $v0, $v1, 1
-				 addu    $v0, $fp
-				 lh      $a3, 0($v0)
-				 nop
-				 mult    $s7, $a3
-				 addiu   $v1, 1
-				 sll     $v1, 1
-				 addu    $v1, $fp
-				 mflo    $a3
-				 lh      $t0, 0($v1)
-				 nop
-				 mult    $s7, $t0
-				 addiu   $a0, $gp, 0x1DF8
-				 move    $a1, $s1
-				 li      $a2, 0xC8
-				 sll     $s0, $s2, 4
-				 lw      $v0, 0x1DF8($gp)
-				 sra     $a3, 12
-				 subu    $v0, $a3
-				 sw      $v0, 0($s1)
-				 lw      $v0, 0x1E00($gp)
-				 lhu     $v1, 0x1E04($gp)
-				 mflo    $t0
-				 sra     $t0, 12
-				 subu    $v0, $t0
-				 sw      $v0, 0($s3)
-				 jal     sub_28B5C
-				 sh      $v1, 0xC($s1)
-				 beqz    $v0, loc_26708
-				 addu    $v1, $s6, $s0
-				 lw      $v0, 0($s1)
-				 lw      $a1, 0x1DE8($gp)
-				 lhu     $a0, 0x1DF4($gp)
-				 sw      $v0, 0xC8 + var_58($sp)
-				 lw      $v0, 0($v1)
-				 nop
-				 sw      $v0, 0xC8 + var_54($sp)
-				 lw      $v1, 0($s3)
-				 lw      $v0, 0x1DEC($gp)
-				 sw      $v1, 0xC8 + var_50($sp)
-				 lhu     $a2, 0xC($s1)
-				 lw      $v1, 0x1DF0($gp)
-				 sw      $a1, 0xC8 + var_48($sp)
-				 sw      $v0, 0xC8 + var_44($sp)
-				 sh      $a0, 0xC8 + var_3C($sp)
-				 sw      $v1, 0xC8 + var_40($sp)
-				 beqz    $s2, loc_26538
-				 sh      $a2, 0xC8 + var_4C($sp)
-				 addiu   $a0, $sp, 0xC8 + var_58
-				 addiu   $a1, $sp, 0xC8 + var_48
-				 jal     sub_28B5C
-				 move    $a2, $zero
-				 beqz    $v0, loc_26784
-				 nop
-				 lw      $v1, 0x1DE8($gp)
-				 lw      $v0, 0($s1)
-				 nop
-				 subu    $v1, $v0
-				 mult    $v1, $v1
-				 lw      $v0, 0x1DF0($gp)
-				 lw      $v1, 0($s3)
-				 mflo    $t0
-				 subu    $v0, $v1
-				 nop
-				 mult    $v0, $v0
-				 mflo    $v0
-				 addu    $t0, $v0
-				 slt     $v1, $t0, $s4
-				 beqz    $v1, loc_26784
-				 nop
-				 move    $s4, $t0
-				 j       loc_26784
-				 sw      $s2, 0xC8 + var_34($sp)
+				dx = (camera.pos.x - ideals[lp].x) * (camera.pos.x - ideals[lp].x);
+				dx += (camera.pos.z - ideals[lp].z) * (camera.pos.z - ideals[lp].z);
+				if (dx < farthest)
+				{
+					farthest = dx;
+					farthestnum = lp;
+				}
+				//loc_26784
+			}
+		}//loc_26708
+		else if (lp == 0)
+		{
+			temp[0].x = ideals[lp].x;
+			temp[0].y = ideals[lp].y;
+			temp[0].z = ideals[lp].z;
+			temp[0].room_number = ideals[lp].room_number;
+			temp[1].x = camera.pos.x;
+			temp[1].y = camera.pos.y;
+			temp[1].z = camera.pos.z;
+			temp[1].room_number = camera.pos.room_number;
 
-				 loc_26708:
-			 bnez    $s2, loc_26784
-				 nop
-				 lw      $a1, 0xC8 + var_A8($sp)
-				 lw      $v0, 0x1DF8($gp)
-				 nop
-				 subu    $v0, $a1
-				 mult    $v0, $v0
-				 lw      $a0, 0xC8 + var_A4($sp)
-				 lw      $v1, 0x1E00($gp)
-				 lw      $a2, 0x1DE8($gp)
-				 lw      $v0, 0xC8 + var_A0($sp)
-				 sw      $a0, 0xC8 + var_54($sp)
-				 lw      $a0, 0x1DF0($gp)
-				 sw      $a1, 0xC8 + var_58($sp)
-				 mflo    $t0
-				 lhu     $a1, 0x1DF4($gp)
-				 subu    $v1, $v0
-				 mult    $v1, $v1
-				 sw      $v0, 0xC8 + var_50($sp)
-				 lhu     $a3, 0xC($s5)
-				 lw      $v0, 0x1DEC($gp)
-				 sw      $a2, 0xC8 + var_48($sp)
-				 sw      $a0, 0xC8 + var_40($sp)
-				 sh      $a1, 0xC8 + var_3C($sp)
-				 sw      $v0, 0xC8 + var_44($sp)
-				 lui     $v0, 9
-				 mflo    $v1
-				 addu    $v1, $t0, $v1
-				 slt     $v0, $v1
-				 bnez    $v0, loc_26538
-				 sh      $a3, 0xC8 + var_4C($sp)
+			if (lp == 0 || mgLOS(&temp[0], &temp[1], 0))
+			{
+				dx = (camera.target.x - ideals[lp].x) * (camera.target.x - ideals[lp].x);
+				dz = (camera.target.z - ideals[lp].z) * (camera.target.z - ideals[lp].z);
 
-				 loc_26784:
-			 addiu   $s3, 0x10
-				 addiu   $s2, 1
-				 slti    $v0, $s2, 5
-				 bnez    $v0, loc_265C0
-				 addiu   $s1, 0x10
-#endif
+				if ((dx + dz) > 0x90000)
+				{
+					farthestnum = 0;
+					break;
+				}
+			}
+		}
+	}
 
-#if 0
+	ideal.x = ideals[farthestnum].x;
+	ideal.y = ideals[farthestnum].y;
+	ideal.z = ideals[farthestnum].z;
+	ideal.room_number = ideals[farthestnum].room_number;
 
-				 loc_26798 :
-				 lw      $v0, 0xC8 + var_34($sp)
-				 nop
-				 sll     $a1, $v0, 4
-				 addu    $a2, $s5, $a1
-				 lw      $v0, 0($a2)
-				 addu    $v1, $s6, $a1
-				 sw      $v0, 0xC8 + var_B8($sp)
-				 lw      $v0, 0($v1)
-				 nop
-				 sw      $v0, 0xC8 + var_B4($sp)
-				 lw      $v0, 0xC8 + var_30($sp)
-				 addiu   $a0, $sp, 0xC8 + var_B8
-				 addu    $a1, $v0, $a1
-				 lw      $v0, 0($a1)
-				 li      $a1, 0x180
-				 sw      $v0, 0xC8 + var_B0($sp)
-				 lhu     $v1, 0xC($a2)
-				 li      $a2, 1
-				 jal     sub_28634
-				 sh      $v1, 0xC8 + var_AC($sp)
-				 lw      $v1, 0x1E0C($gp)
-				 li      $v0, 1
-				 bne     $v1, $v0, loc_267FC
-				 nop
-				 sh      $v1, 0x1E3E($gp)
+	CameraCollisionBounds(&ideal, 384, 1);
 
-				 loc_267FC:
-			 lh      $a1, 0x1E3E($gp)
-				 jal     sub_25B68
-				 addiu   $a0, $sp, 0xC8 + var_B8
-				 lw      $ra, 0xC8 + var_4($sp)
-				 lw      $fp, 0xC8 + var_8($sp)
-				 lw      $s7, 0xC8 + var_C($sp)
-				 lw      $s6, 0xC8 + var_10($sp)
-				 lw      $s5, 0xC8 + var_14($sp)
-				 lw      $s4, 0xC8 + var_18($sp)
-				 lw      $s3, 0xC8 + var_1C($sp)
-				 lw      $s2, 0xC8 + var_20($sp)
-				 lw      $s1, 0xC8 + var_24($sp)
-				 lw      $s0, 0xC8 + var_28($sp)
-				 jr      $ra
-				 addiu   $sp, 0xC8
-#endif
+	if (camera.old_type == FIXED_CAMERA)
+	{
+		camera.speed = 1;
+	}
 
+	MoveCamera(&ideal, camera.speed);
 }
 
 void BinocularCamera(struct ITEM_INFO* item)
@@ -1779,9 +1651,9 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	long c;
 	long h;
 
-	pos.x = 0;
-	pos.y = 0;
 	pos.z = 0;
+	pos.y = 0;
+	pos.x = 0;
 	
 	GetJointAbsPosition(lara_item, &pos, LJ_LHAND);
 
@@ -1807,7 +1679,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	h = GetHeight(floor, wx, wy, wz);
 	c = GetCeiling(floor, wx, wx, wy);
 
-	if (wy < c || h < wy || h > c || h == -32512 || c == -32512)
+	if (wy < c || h < wy || h <= c || h == -32512 || c == -32512)
 	{
 		camera.target.x = pos.x;
 		camera.target.y = pos.y;
@@ -1910,30 +1782,449 @@ void LaraTorch(struct PHD_VECTOR* Soffset, struct PHD_VECTOR* Eoffset, short yro
 	}
 }
 
-long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)
+long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)//28B5C, 
 {
-	UNIMPLEMENTED();
+	struct FLOOR_INFO* floor;
+	long x;
+	long y;
+	long z;
+	long h;
+	long c;
+	long cdiff;
+	long hdiff;
+	long dx;
+	long dy;
+	long dz;
+	long lp;
+	long clipped;
+	long nc;
+	short room_number;
+	short room_number2;
+
+	nc = 0;
+	clipped = 0;
+
+	dx = (target->x - start->x) >> 3;
+	dy = (target->y - start->y) >> 3;
+	x = start->x;
+	y = start->y;
+	dz = (target->z - start->z) >> 3;
+	z = start->z;
+
+	room_number2 = start->room_number;
+	room_number = start->room_number;
+
+	//loc_28BEC
+	for(lp = 0; lp < 8; lp++)
+	{
+		room_number = room_number2;
+		floor = GetFloor(x, y, z, &room_number2);
+		h = GetHeight(floor, x, y, z);
+		c = GetCeiling(floor, x, y, z);
+
+		if (h != -32512 && c != -32512)
+		{
+			if (c < h)
+			{
+				//loc_28C6C
+				if (h < y)
+				{
+					hdiff = y - h;
+
+					//v0 = 1
+					if (hdiff < push)
+					{
+						y = h;
+					}
+					else
+					{
+						//loc_28CAC
+						clipped = 1;
+						break;
+					}
+				}
+				//loc_28C8C
+				cdiff = c - y;
+				if (y < c)
+				{
+					//v0 = 1
+					if (cdiff < push)
+					{
+						//loc_28CB4
+						y = c;
+					}
+				}
+				//loc_28CB8
+				nc = 1;
+			}
+		}//loc_28C54
+		else if (nc != 0)
+		{
+			clipped = 1;
+			break;
+		}
+		//loc_28CC0
+		x += dx;
+		y += dy;
+		z += dz;
+	}
+
+	//loc_28CD8
+	if (lp != 0)
+	{
+		x -= dx;
+		y -= dy;
+		z -= dz;
+	}
+	//loc_28CF0
+	target->x = x;
+	target->y = y;
+	target->z = z;
+
+	GetFloor(x, y, z, &room_number);
+	target->room_number = room_number;
+	return clipped ^ 1;
+}
+
+long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//28634(<) (F)
+{
+	struct FLOOR_INFO* floor;
+	long wx;
+	long wy;
+	long wz;
+	long h;
+	long c;
+	short room_number;
+
+	wx = ideal->x;
+	wy = ideal->y;
+	wz = ideal->z;
+
+	if (yfirst != 0)
+	{
+		room_number = ideal->room_number;
+		floor = GetFloor(wx, wy, wz, &room_number);
+		h = GetHeight(floor, wx, wy, wz);
+		c = GetCeiling(floor, wx, wy, wz);
+
+		if ((wy - 255) < c && h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		{
+			wy = (h + c) >> 1;
+		}
+		else if (h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		{
+			//loc_2870C
+			wy = h - 255;
+		}//loc_28738
+		else if ((wy - 255) < c && c < h && c != -32512 && h != -32512)
+		{
+			wy = c + 255;
+		}//loc_28760
+	}
+	//loc_28760
+	//loc_28768
+	room_number = ideal->room_number;
+	floor = GetFloor(wx - push, wy, wz, &room_number);
+	h = GetHeight(floor, wx - push, wy, wz);
+	c = GetCeiling(floor, wx - push, wy, wz);
+
+	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
+	{
+		//loc_287E4
+		wx = (wx & -1024) + push;
+	}//loc_287F4
+
+	room_number = ideal->room_number;
+	floor = GetFloor(wx, wy, wz - push, &room_number);
+	h = GetHeight(floor, wx, wy, wz - push);
+	c = GetCeiling(floor, wx, wy, wz - push);
+
+	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
+	{
+		//loc_28878
+		wz = (wz & -1024) + push;
+	}
+
+	//loc_28884
+	room_number = ideal->room_number;
+	floor = GetFloor(wx + push, wy, wz, &room_number);
+	h = GetHeight(floor, wx + push, wy, wz);
+	c = GetCeiling(floor, wx + push, wy, wz);
+
+	//v0 = wx | 0x3FF
+	//a0 = wx
+	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
+	{
+		//loc_28904
+		wx = (wx | 0x3FF) - push;
+	}
+
+	//loc_28910
+	room_number = ideal->room_number;
+	floor = GetFloor(wx, wy, wz + push, &room_number);
+	h = GetHeight(floor, wx, wy, wz + push);
+	c = GetCeiling(floor, wx, wy, wz + push);
+
+	//v0 = wz | 0x3FF
+	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
+	{
+		//loc_28994
+
+		wz = (wz | 0x3FF) - push;
+	}
+
+	if (yfirst == 0)
+	{
+		room_number = ideal->room_number;
+		floor = GetFloor(wx, wy, wz, &room_number);
+		h = GetHeight(floor, wx, wy, wz);
+		c = GetCeiling(floor, wx, wy, wz);
+
+		if ((wy - 255) < c && h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		{
+			wy = (h + c) >> 1;
+		}//loc_28A2C
+		else if (h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		{
+			wy = h - 255;
+		}//loc_28A58
+		else if ((wy - 255) < c && c < h && c != -32512 && h != -32512)
+		{
+			wy = c + 255;
+		}
+	}//loc_28A80
+
+	room_number = ideal->room_number;
+	floor = GetFloor(wx, wy, wz, &room_number);
+	h = GetHeight(floor, wx, wy, wz);
+	c = GetCeiling(floor, wx, wy, wz);
+
+	if (h < wy || wy < c || h == -32512 || c == -32512 || h <= c)
+	{
+		return 1;
+	}
+
+	GetFloor(wx, wy, wz, &ideal->room_number);
+	ideal->x = wx;
+	ideal->y = wy;
+	ideal->z = wz;
+
 	return 0;
 }
 
-long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)
+void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 {
-#if 0
-	struct FLOOR_INFO *floor; // $s2
-	long wx; // $s4
-	long wy; // $s3
-	long wz; // $s5
-	long h; // $s1
-	long c; // $v1
-	short room_number; // stack offset -48
+	struct FLOOR_INFO* floor;
+	struct GAME_VECTOR tcp;
+	long height;
+	long ceiling;
+	long shake;
+	long rndval;
+	short room_number;
+	long wx;
+	long wy;
+	long wz;
+	long dx;
+	long dy;
+	long dz;
+	struct GAME_VECTOR temp1;
+	struct GAME_VECTOR temp2;
+
+	/*
+	Dunno why this is a thing
+	*/
+	tcp.x = ideal->x;//var_60
+	tcp.y = ideal->y;//var_5C
+	tcp.z = ideal->z;//var_58
+	tcp.room_number = ideal->room_number;
+
+	if (BinocularOn < 0)//==-1?
+	{
+		speed = 1;
+		BinocularOn++;
+	}
+	//loc_25BC4
+	if (((((((
+		(old_cam.pos.x_rot == lara_item->pos.x_rot) &&
+		(old_cam.pos.y_rot == lara_item->pos.y_rot) && 
+		(old_cam.pos.z_rot == lara_item->pos.z_rot))&& 
+		(old_cam.pos2.x_rot == lara.head_x_rot)) && 
+		((old_cam.pos2.y_rot == lara.head_y_rot &&
+		(old_cam.pos2.x_pos == lara.torso_x_rot)))) &&
+		(old_cam.pos2.y_pos == lara.torso_y_rot)) &&
+		(((old_cam.pos.x_pos == (lara_item->pos).x_pos &&
+		(old_cam.pos.y_pos == (lara_item->pos).y_pos)) &&
+		((old_cam.pos.z_pos == (lara_item->pos).z_pos &&
+		(((old_cam.current_anim_state == lara_item->current_anim_state &&
+		(old_cam.goal_anim_state == lara_item->goal_anim_state)) &&
+		(old_cam.target_distance == camera.target_distance)))))))) &&
+		((old_cam.target_elevation == camera.target_elevation &&
+		(old_cam.actual_elevation == camera.actual_elevation)))) &&
+		((old_cam.target_angle == camera.actual_angle &&
+		(((old_cam.t.x == camera.target.x && (old_cam.t.y == camera.target.y)) &&
+		((old_cam.t.z == camera.target.z &&
+		(((camera.old_type == camera.type && (SniperOverlay == 0)) && (-1 < BinocularOn))))))))))
+	{
+		ideal->x = last_ideal.x;
+		ideal->y = last_ideal.y;
+		ideal->z = last_ideal.z;
+		ideal->room_number = last_ideal.room_number;
+	}
+	else {
+		old_cam.pos.x_rot = lara_item->pos.x_rot;
+		old_cam.pos.y_rot = lara_item->pos.y_rot;
+		old_cam.pos.z_rot = lara_item->pos.z_rot;
+		old_cam.pos2.x_pos = lara.torso_x_rot;
+		old_cam.pos2.y_pos = lara.torso_y_rot;
+		old_cam.pos2.x_rot = lara.head_x_rot;
+		old_cam.pos2.y_rot = lara.head_y_rot;
+		old_cam.pos.x_pos = lara_item->pos.x_pos;
+		old_cam.pos.y_pos = lara_item->pos.y_pos;
+		old_cam.pos.z_pos = lara_item->pos.z_pos;
+		old_cam.current_anim_state = lara_item->current_anim_state;
+		old_cam.goal_anim_state = lara_item->goal_anim_state;
+		old_cam.target_distance = camera.target_distance;
+		old_cam.target_elevation = camera.target_elevation;
+		old_cam.target_angle = camera.actual_angle;
+		old_cam.actual_elevation = camera.actual_elevation;
+		old_cam.t.x = camera.target.x;
+		old_cam.t.y = camera.target.y;
+		old_cam.t.z = camera.target.z;
+		last_ideal.x = ideal->x;
+		last_ideal.y = ideal->y;
+		last_ideal.z = ideal->z;
+		last_ideal.room_number = ideal->room_number;
+	}
+
+	//loc_25E80
+	camera.pos.x += (ideal->x - camera.pos.x) / speed;
+	camera.pos.y += (ideal->y - camera.pos.y) / speed;
+	camera.pos.z += (ideal->z - camera.pos.z) / speed;
+
+	//loc_25EFC
+	camera.pos.room_number = ideal->room_number;
+
+	if (camera.bounce != 0)
+	{
+		if (camera.bounce > 0)
+		{
+			camera.pos.y += camera.bounce;
+			camera.bounce = 0;
+			camera.target.y += camera.bounce;
+		}//loc_25F3C
+		else
+		{
+			shake = (GetRandomControl() / -camera.bounce) - (-camera.bounce >> 1);
+			camera.target.x += shake;
+			shake = (GetRandomControl() / -camera.bounce) - (-camera.bounce >> 1);
+			camera.target.y += shake;
+			shake = (GetRandomControl() / -camera.bounce) - (-camera.bounce >> 1);
+			camera.target.z += shake;
+			camera.bounce += 5;
+		}
+	}//loc_25FD4
+
+	wx = camera.pos.x;
+	wy = camera.pos.y;
+	wz = camera.pos.z;
+	room_number = camera.pos.room_number;
+	floor = GetFloor(wx, wy, wz, &room_number);
+	height = GetHeight(floor, wx, wy, wz);
+	ceiling = GetCeiling(floor, wx, wy, wz);
+
+	if (wy < ceiling || height < wy)
+	{
+		//loc_2603C
+		mgLOS(&camera.target, &camera.pos, 0);
+
+		dx = ABS(camera.pos.x - ideal->x);
+		dy = ABS(camera.pos.y - ideal->y);
+		dz = ABS(camera.pos.z - ideal->z);
+
+		if (dx < 0x300 && dy < 0x300 && dz < 0x300)
+		{
+			temp1.x = camera.pos.x;
+			temp1.y = camera.pos.y;
+			temp1.z = camera.pos.z;
+			temp2.x = ideal->x;
+			temp2.y = ideal->y;
+			temp2.z = ideal->z;
+			temp1.room_number = camera.pos.room_number;
+			temp2.room_number = ideal->room_number;
+			
+			//a3 = &room_number
+			if (mgLOS(&temp2, &temp1, 0) == 0)
+			{
+				camerasnaps++;
+
+				if ((camerasnaps & 0xFF) > 7)
+				{
+					//v0 = ideal->x
+					camera.pos.x = ideal->x;
+					//v1 = ideal->y
+					camera.pos.y = ideal->y;
+					//v0 = ideal->z
+					camera.pos.z = ideal->z;
+					camerasnaps = 0;
+					camera.pos.room_number = ideal->room_number;
+				}//loc_26140
+			}//loc_26140
+		}//loc_2613C
+	}//loc_26140
+
+	wx = camera.pos.x;
+	wy = camera.pos.y;
+	wz = camera.pos.z;
+
+	room_number = camera.pos.room_number;
+	floor = GetFloor(wx, wy, wz, &room_number);
+	height = GetHeight(floor, wx, wy, wz);
+	ceiling = GetCeiling(floor, wx, wy, wz);
+
+	if ((wy - 255) < ceiling && height < (wy + 255) && ceiling < height && ceiling != -32512 && height != -32512)
+	{
+		camera.pos.y = (height + ceiling) >> 1;
+	}//loc_261DC
+	else if (height < (wy + 255) && ceiling < height && ceiling != -32512 && height != -32512)
+	{
+		camera.pos.y = height - 255;
+	}//loc_26210
+	else if ((wy - 255) < ceiling && ceiling < height && ceiling != -32512 && height != -32512)
+	{
+		camera.pos.y = ceiling + 255;
+	}
+	else if (ceiling >= height || height == -32512 || ceiling == -32512)
+	{
+		//loc_26244
+		camera.pos.x = ideal->x;
+		camera.pos.y = ideal->y;
+		camera.pos.z = ideal->z;
+		camera.pos.room_number = ideal->room_number;
+	}
+
+	if (gfCurrentLevel - 0xB < 2)
+	{
+#if PSX_VERSION
+		//RelocPtr[MOD_T12][0]();
 #endif
-	UNIMPLEMENTED();
-	return 0;
-}
+	}//loc_26390
 
-void MoveCamera(struct GAME_VECTOR* ideal, int speed)
-{
-	UNIMPLEMENTED();
+	GetFloor(camera.pos.x, camera.pos.y, camera.pos.z, &camera.pos.room_number);
+	
+	/*
+	??? Unused/Dummy tcp var?
+	lw      $v0, 0x1DFC($gp)
+	lw      $v1, 0x1E00($gp)
+	sw      $v0, 0x80 + var_70($sp)
+	sw      $v1, 0x80 + var_6C($sp)
+	*/
+
+	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
+
+	camera.mike_pos.y = camera.pos.y;
+	camera.mike_pos.x = camera.pos.x + (phd_persp * SIN(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x))) >> W2V_SHIFT;
+	camera.old_type = camera.type;
+	camera.mike_pos.z = camera.pos.z + (phd_persp * COS(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x))) >> W2V_SHIFT;
 }
 
 #if PC_VERSION

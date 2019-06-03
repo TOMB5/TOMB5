@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF S_CalculateLight, S_CalculateStaticMeshLight, CalculateObjectLighting, mSqrt
-	XREF room, number_dynamics, dynamics, CamGTE, LightPos, mNormaliseXYZ
+	XREF SqrtTable, room, number_dynamics, dynamics, CamGTE, LightPos, mNormaliseXYZ
 ;TODO, GP
 S_CalculateLight:
 	addi    sp, -0x2C
@@ -658,7 +658,8 @@ S_CalculateStaticMeshLight:
 	sra     v0, 1
 	addi    at, v1, -0x18
 	bltz    at, loc_86774
-	lui     a1, 0xA
+	;lui     a1, 0xA original
+	nop
 	j       loc_86780
 	sllv    a0, at
 
@@ -668,7 +669,8 @@ S_CalculateStaticMeshLight:
 	srav    a0, at
 
 	loc_86780:
-	ori     a1, 0x1AA4
+	la		a1, SqrtTable
+	;ori     a1, 0x1AA4 original
 	addi    a0, -0x40
 	sll     a0, 1
 	addu    a0, a1
@@ -778,7 +780,8 @@ mSqrt:
 	sra	v0, 1
 	addi	at, v1, -0x18
 	bltz	at, loc_77A10
-	lui	a1, 0xA
+	nop
+	;lui	a1, 0xA original
 	j	loc_77A1C
 	sllv	a0, at
 
@@ -788,7 +791,8 @@ mSqrt:
 	srav	a0, at
 
 	loc_77A1C:
-	ori	a1, 0x1AA4
+	;ori	a1, 0x1AA4 original
+	la		a1, SqrtTable
 	addi	a0, -0x40
 	sll	a0, 1
 	addu	a0, a1

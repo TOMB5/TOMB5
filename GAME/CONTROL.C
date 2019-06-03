@@ -3358,6 +3358,7 @@ int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 }
 #endif
 
+#if PC_VERSION || PSXPC_TEST
 short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 {
 	int type, fixtype;
@@ -3406,6 +3407,7 @@ short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 
 	return 255;
 }
+#endif
 
 int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(<) (F)
 {
@@ -3448,6 +3450,7 @@ int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 }
 #endif
 
+#if PC_VERSION || PSXPC_TEST
 int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 {
 	short* fd = &floor_data[floor->index];
@@ -3530,6 +3533,7 @@ int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 
 	return 1;
 }
+#endif
 
 int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor)
 {

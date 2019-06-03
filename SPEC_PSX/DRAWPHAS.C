@@ -142,7 +142,7 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 	}
 
 	//loc_642AC
-	//DrawGameInfo(1);
+	DrawGameInfo(1);
 
 	if (BinocularRange == 0 || SniperOverlay == 0 && SCOverlay != 0)
 	{
@@ -367,7 +367,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 			//unsigned long* ptr = (unsigned long*)RelocPtr[1];
 			//jalr ptr[0];
-
+			
 #if DEBUG_VERSION
 			ProfileRGB(255, 255, 0);
 #endif
@@ -457,11 +457,13 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (BinocularRange != 0)
 	{
-		//DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
+		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 	}
 	else
 	{
-		//DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
+		//65290 (final game)
+		printf("DRWRLET!\n");
+		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 		//loc_64BA0
 		//unsigned long* v1 = (unsigned long*)RelocPtr[2];
 		//jalr v1[0];
@@ -479,6 +481,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (GLOBAL_playing_cutseq != 0)
 	{
+		printf("DRWCUTSEQACTORS!\n");
 		//DrawCutSeqActors();
 	}//loc_64C04
 
@@ -559,7 +562,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	ProfileRGB(255, 255, 255);
 #endif
 
-	print_all_object_NOW();
+	//print_all_object_NOW();
 
 #if DEBUG_VERSION
 	ProfileRGB(0, 255, 0);
