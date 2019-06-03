@@ -300,11 +300,11 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 			{
 				if (gfCurrentLevel == LVL5_TITLE && jobyfrigger != 0)
 				{
-					//DrawSkyMesh(meshes[objects[CHEF_MIP].mesh_index]);
+					DrawSkyMesh(meshes[objects[CHEF_MIP].mesh_index]);
 				}
 				else
 				{
-					//DrawSkyMesh(meshes[objects[HORIZON].mesh_index]);
+					DrawSkyMesh(meshes[objects[HORIZON].mesh_index]);
 				}
 			}//loc_64728
 
@@ -562,7 +562,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	ProfileRGB(255, 255, 255);
 #endif
 
-	//print_all_object_NOW();
+	print_all_object_NOW();
 
 #if DEBUG_VERSION
 	ProfileRGB(0, 255, 0);

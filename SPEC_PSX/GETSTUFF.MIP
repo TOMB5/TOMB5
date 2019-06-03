@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF GC_switch_case_loop, GC_get_ceiling_case1, GC_trigger_type_case, GC_end_of_switch_case_loop, GC_exit_with_height, GC_exit, GC_adjust_height, GH_main_height_loop, GH_first_case, GH_tilt_type_case, GH_third_case, GH_fifth_case, GH_lava_type_case, GH_trigger_type_case, GH_end_of_case, GH_exit, GH_adjust_height, GetDoor, CheckNoColCeilingTriangle, CheckNoColCeilingTriangle, CheckNoColFloorTriangle, MULFP, DIVFP, xLOS, zLOS, GetFloor, GetHeight, GetCeiling
+	XDEF GC_switch_case_loop, GC_get_ceiling_case1, GC_trigger_type_case, GC_end_of_switch_case_loop, GC_exit_with_height, GC_exit, GC_adjust_height, GH_main_height_loop, GH_first_case, GH_tilt_type_case, GH_third_case, GH_fifth_case, GH_lava_type_case, GH_trigger_type_case, GH_end_of_case, GH_exit, GH_adjust_height, GetDoor, CheckNoColCeilingTriangle, CheckNoColFloorTriangle, MULFP, DIVFP, xLOS, zLOS, GetFloor, GetHeight, GetCeiling
 	XREF los_rooms, number_los_rooms, room, floor_data, items, objects, OnObject, trigger_index, height_type, tiltyoff, tiltxoff
 
 DEADBEEF equ $DEADBEEF
