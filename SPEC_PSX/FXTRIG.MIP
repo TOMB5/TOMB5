@@ -2,9 +2,140 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF TriggerGunShell, SetGunFlash, subdiv_ripple, DoBloodSplat, TriggerRicochetSpark, TriggerUnderwaterBlood
+	XDEF WadeSplash, TriggerGunShell, SetGunFlash, subdiv_ripple, DoBloodSplat, TriggerRicochetSpark, TriggerUnderwaterBlood
 	XREF Gunflashes, mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1, GetFloor, GetFreeSpark, GetRandomControl, GetFreeBlood, rcossin_tbl, objects, room, ripples
 	
+WadeSplash:
+	addiu   sp, -0x30
+	sw      s0, 0x30-0x10(sp)
+	sw      s1, 0x30-0xC(sp)
+	sw      s2, 0x30-0x8(sp)
+	sw      ra, 0x30-0x4(sp)
+	move    s0, a0
+	move    s1, a1
+	move    s2, a2
+	lw      a0, 0x40(s0)
+	lw      a1, 0x44(s0)
+	lw      a2, 0x48(s0)
+	lh      v0, 0x18(s0)
+	addiu   a3, sp, 0x30-0x18
+	jal     GetFloor
+	sh      v0, 0x30-0x18(sp)
+	jal     sub_8BD7C
+	lh      v1, 0x30-0x18(sp)
+	beqz    v0, loc_8BD64
+	addiu   a3, sp, 0x30-0x18
+	lw      a0, 0x40(s0)
+	lh      t0, 0x18(s0)
+	lw      a2, 0x48(s0)
+	sll     v0, t0, 2
+	addu    v0, t0
+	sll     v0, 4
+	addu    v0, a1
+	lw      a1, 0x18(v0)
+	sh      t0, 0x30-0x18(sp)
+	jal     GetFloor
+	addiu   a1, -0x80
+	jal     sub_8BD7C
+	lh      v1, 0x30-0x18(sp)
+	bnez    v0, loc_8BD64
+	nop
+	jal     GetBestFrame
+	move    a0, s0
+	lw      v1, 0x44(s0)
+	lh      a0, 4(v0)
+	lh      v0, 6(v0)
+	addu    a0, v1, a0
+	slt     at, s1, a0
+	bnez    at, loc_8BD64
+	addu    a0, v1, v0
+	slt     at, a0, s1
+	bnez    at, loc_8BD64
+	nop
+	lh      a2, 0x20(s0)
+	lw      v1, SplashCount-GP_ADDR(gp)
+	blez    a2, loc_8BD08
+	slti    at, s2, 0x1DA
+	beqz    at, loc_8BD08
+	lui     a0, 0xA
+	bnez    v1, loc_8BD08
+	li      a0, 0xA2B44
+	lw      v0, 0x40(s0)
+	lw      v1, 0x48(s0)
+	li      a1, 0xC0010
+	sw      v0, 0(a0)
+	sw      s1, 4(a0)
+	sw      v1, 8(a0)
+	sw      a1, 0xC(a0)
+	negu    a2, a2
+	sll     v0, a2, 3
+	addu    v0, a2
+	sll     v0, 3
+	li      at, 0xA0
+	li      v1, 0x18
+	sh      at, 0x10(a0)
+	sh      v0, 0x12(a0)
+	sra     v0, 1
+	sh      v1, 0x16(a0)
+	sh      v0, 0x1C(a0)
+	li      at, 0xE00018
+	li      v0, 0x200020
+	li      v1, 0x110
+	li      a1, 0x10
+	sw      at, 0x18(a0)
+	sw      v0, 0x20(a0)
+	sh      v1, 0x24(a0)
+	sw      a1, SplashCount-GP_ADDR(gp)
+	jal     SetupSplash
+	addiu   ra, 0x5C
+
+	loc_8BD08:
+	lw      v0, wibble-GP_ADDR(gp)
+	lh      t1, 0xE(s0)
+	andi    v0, 0xF
+	bnez    v0, loc_8BD64
+	nop
+	jal     GetRandomControl
+	nop
+	andi    v0, 0xF
+	beqz    v0, loc_8BD38
+	li      v0, 2
+	beq     t1, v0, loc_8BD64
+	nop
+
+	loc_8BD38:
+	beq     t1, v0, loc_8BD44
+	li      t0, 0x10
+	li      t0, 0x12
+
+	loc_8BD44:
+	jal     GetRandomControl
+	move    a1, s1
+	andi    a3, v0, 0xF
+	addiu   a3, 0x70
+	lw      a0, 0x40(s0)
+	lw      a2, 0x48(s0)
+	jal     SetupRipple
+	sw      t0, 0x30-0x20(sp)
+
+	loc_8BD64:
+	lw      ra, 0x30-0x4(sp)
+	lw      s2, 0x30-0x8(sp)
+	lw      s1, 0x30-0xC(sp)
+	lw      s0, 0x30-0x10(sp)
+	jr      ra
+	addiu   sp, 0x30
+
+sub_8BD7C:
+	lw      $a1, room-GP_ADDR(gp)
+	sll     $v0, $v1, 2
+	addu    $v0, $v1
+	sll     $v0, 4
+	addu    $v0, $a1
+	lhu     $v0, 0x4E($v0)
+	jr      $ra
+	andi    $v0, 1
+
 TriggerBlood:
 	lw      t2, 0x10(sp)
 	move    t7, ra
