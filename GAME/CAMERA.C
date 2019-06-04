@@ -1677,7 +1677,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 
 	floor = GetFloor(wx, wy, wz, &room_number);
 	h = GetHeight(floor, wx, wy, wz);
-	c = GetCeiling(floor, wx, wx, wy);
+	c = GetCeiling(floor, wx, wy, wz);
 
 	if (wy < c || h < wy || h <= c || h == -32512 || c == -32512)
 	{
