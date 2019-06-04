@@ -599,7 +599,161 @@ S_CalculateLight:
 	lw      fp, 0x2C-0x4(sp)
 	jr      ra
 	addi    sp, 0x2C
+
+;0x8649C
+mSqrt:
+	mtc2    a0, r30
+	beqz    a0, locret_864F8
+	li      v0, 0x1F
+	mfc2    v1, r31
+	li      at, 0xFFFFFFFE
+	and     v1, at
+	sub     v0, v1
+	sra     v0, 1
+	addi    at, v1, -0x18
+	bltz    at, loc_864D0
+	nop
+	;lui     a1, 0xA
+	j       loc_864DC
+	sllv    a0, at
+
+	loc_864D0:
+	li      at, 0x18
+	sub     at, v1
+	srav    a0, at
+
+	loc_864DC:
+	;ori     a1, 0x1AA4 original
+	la		a1, SqrtTable
+	addi    a0, -0x40
+	sll     a0, 1
+	addu    a0, a1
+	lh      a0, 0(a0)
+	nop
+	sllv    a0, v0
+
+	locret_864F8:
+	jr      ra
+	srl     v0, a0, 12
+
+;0x86500
+mNormaliseXYZ:
+	mtc2    a0, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	li      a3, 0x1F
+	nop
+	nop
+	cop2    0xA00428
+	mfc2    v0, r25
+	mfc2    v1, r26
+	mfc2    at, r27
+	add     v0, v1
+	add     v0, at
+	mtc2    v0, r30
+	mtc2    a0, r9
+	mtc2    a1, r10
+	mfc2    v1, r31
+	li      at, 0xFFFFFFFE
+	and     v1, at
+	sub     a3, v1
+	sra     a3, 1
+	addi    at, v1, -0x18
+	bltz    at, loc_8655C
+	nop
+	;lui     a0, 0xA
+	j       loc_86568
+	sllv    v0, at
+
+	loc_8655C:
+	li      at, 0x18
+	sub     at, v1
+	srav    v0, at
+
+	loc_86568:
+	la		a0, ScalarTable
+	;ori     a0, 0x1C48;original
+	addi    v0, -0x40
+	sll     v0, 1
+	add     a0, v0
+	lh      v0, 0(a0)
+	mtc2    a2, r11
+	mtc2    v0, r8
+	nop
+	nop
+	cop2    0x190003D
+	mfc2    a0, r25
+	mfc2    a1, r26
+	mfc2    a2, r27
+	srav    a0, a3
+	srav    a1, a3
+	jr      ra
+	srav    a2, a3
 	
+CalculateObjectLighting:
+	lh      a3, 0x2A(a0)
+	nop
+	bgez    a3, loc_8668C
+	nop
+	addiu   sp, -0x60
+	sw      s0, 0x60-0x18(sp)
+	sw      s1, 0x60-0xC(sp)
+	sw      ra, 0x60-0x8(sp)
+	move    s1, a0
+	move    s0, a1
+	lw      a0, Matrix-GP_ADDR(gp)
+	li      t0, 0x1000
+	ctc2    t0, r0
+	ctc2    zero, r1
+	ctc2    t0, r2
+	ctc2    zero, r3
+	ctc2    t0, r4
+	ctc2    zero, r5
+	ctc2    zero, r6
+	ctc2    zero, r7
+	addi    a0, 0x20
+	sw      a0, Matrix-GP_ADDR(gp)
+	lh      a0, 0x4E(s1)
+	lh      a1, 0x4C(s1)
+	jal     mRotYXZ
+	lh      a2, 0x50(s1)
+	lh      a0, 0(s0)
+	lh      v0, 2(s0)
+	lh      a1, 4(s0)
+	lh      a2, 8(s0)
+	addu    a0, v0
+	lh      v0, 6(s0)
+	sra     a0, 1
+	addu    a1, v0
+	lh      v0, 0xA(s0)
+	sra     a1, 1
+	addu    a2, v0
+	jal     mTranslateXYZ
+	sra     a2, 1
+	lw      a3, 0x40(s1)
+	lw      a1, 0x44(s1)
+	lw      a2, 0x48(s1)
+	addu    a3, t0
+	addu    a1, t1
+	jal     mPopMatrix
+	addu    a2, t2
+	move    a0, a3
+	lh      a3, 0x18(s1)
+	addiu   v0, s1, 0x54
+	jal     S_CalculateLight
+	sw      v0, 0x60-0x50(sp)
+	lw      ra, 0x60-0x8(sp)
+	lw      s1, 0x60-0xC(sp)
+	lw      s0, 0x60-0x18(sp)
+	jr      ra
+	addiu   sp, 0x60
+
+	loc_8668C:
+	lw      a1, 0x44(a0)
+	lw      a2, 0x48(a0)
+	lw      a0, 0x40(a0)
+	andi    a3, 0x7FFF
+
 S_CalculateStaticMeshLight:
 	lw      t1, number_dynamics-GP_ADDR(gp)
 	move    t5, zero
@@ -765,157 +919,3 @@ S_CalculateStaticMeshLight:
 	mtc2    a0, r6
 	jr      ra
 	nop
-	
-CalculateObjectLighting:
-	lh      a3, 0x2A(a0)
-	nop
-	bgez    a3, loc_8668C
-	nop
-	addiu   sp, -0x60
-	sw      s0, 0x60-0x18(sp)
-	sw      s1, 0x60-0xC(sp)
-	sw      ra, 0x60-0x8(sp)
-	move    s1, a0
-	move    s0, a1
-	lw      a0, Matrix-GP_ADDR(gp)
-	li      t0, 0x1000
-	ctc2    t0, r0
-	ctc2    zero, r1
-	ctc2    t0, r2
-	ctc2    zero, r3
-	ctc2    t0, r4
-	ctc2    zero, r5
-	ctc2    zero, r6
-	ctc2    zero, r7
-	addi    a0, 0x20
-	sw      a0, Matrix-GP_ADDR(gp)
-	lh      a0, 0x4E(s1)
-	lh      a1, 0x4C(s1)
-	jal     mRotYXZ
-	lh      a2, 0x50(s1)
-	lh      a0, 0(s0)
-	lh      v0, 2(s0)
-	lh      a1, 4(s0)
-	lh      a2, 8(s0)
-	addu    a0, v0
-	lh      v0, 6(s0)
-	sra     a0, 1
-	addu    a1, v0
-	lh      v0, 0xA(s0)
-	sra     a1, 1
-	addu    a2, v0
-	jal     mTranslateXYZ
-	sra     a2, 1
-	lw      a3, 0x40(s1)
-	lw      a1, 0x44(s1)
-	lw      a2, 0x48(s1)
-	addu    a3, t0
-	addu    a1, t1
-	jal     mPopMatrix
-	addu    a2, t2
-	move    a0, a3
-	lh      a3, 0x18(s1)
-	addiu   v0, s1, 0x54
-	jal     S_CalculateLight
-	sw      v0, 0x60-0x50(sp)
-	lw      ra, 0x60-0x8(sp)
-	lw      s1, 0x60-0xC(sp)
-	lw      s0, 0x60-0x18(sp)
-	jr      ra
-	addiu   sp, 0x60
-
-	loc_8668C:
-	lw      a1, 0x44(a0)
-	lw      a2, 0x48(a0)
-	lw      a0, 0x40(a0)
-	andi    a3, 0x7FFF
-
-;0x8649C
-mSqrt:
-	mtc2    a0, r30
-	beqz    a0, locret_864F8
-	li      v0, 0x1F
-	mfc2    v1, r31
-	li      at, 0xFFFFFFFE
-	and     v1, at
-	sub     v0, v1
-	sra     v0, 1
-	addi    at, v1, -0x18
-	bltz    at, loc_864D0
-	nop
-	;lui     a1, 0xA
-	j       loc_864DC
-	sllv    a0, at
-
-	loc_864D0:
-	li      at, 0x18
-	sub     at, v1
-	srav    a0, at
-
-	loc_864DC:
-	;ori     a1, 0x1AA4 original
-	la		a1, SqrtTable
-	addi    a0, -0x40
-	sll     a0, 1
-	addu    a0, a1
-	lh      a0, 0(a0)
-	nop
-	sllv    a0, v0
-
-	locret_864F8:
-	jr      ra
-	srl     v0, a0, 12
-
-;0x86500
-mNormaliseXYZ:
-	mtc2    a0, r9
-	mtc2    a1, r10
-	mtc2    a2, r11
-	li      a3, 0x1F
-	nop
-	nop
-	cop2    0xA00428
-	mfc2    v0, r25
-	mfc2    v1, r26
-	mfc2    at, r27
-	add     v0, v1
-	add     v0, at
-	mtc2    v0, r30
-	mtc2    a0, r9
-	mtc2    a1, r10
-	mfc2    v1, r31
-	li      at, 0xFFFFFFFE
-	and     v1, at
-	sub     a3, v1
-	sra     a3, 1
-	addi    at, v1, -0x18
-	bltz    at, loc_8655C
-	nop
-	;lui     a0, 0xA
-	j       loc_86568
-	sllv    v0, at
-
-	loc_8655C:
-	li      at, 0x18
-	sub     at, v1
-	srav    v0, at
-
-	loc_86568:
-	la		a0, ScalarTable
-	;ori     a0, 0x1C48;original
-	addi    v0, -0x40
-	sll     v0, 1
-	add     a0, v0
-	lh      v0, 0(a0)
-	mtc2    a2, r11
-	mtc2    v0, r8
-	nop
-	nop
-	cop2    0x190003D
-	mfc2    a0, r25
-	mfc2    a1, r26
-	mfc2    a2, r27
-	srav    a0, a3
-	srav    a1, a3
-	jr      ra
-	srav    a2, a3
