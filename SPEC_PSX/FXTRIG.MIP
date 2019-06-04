@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF WadeSplash, TriggerGunShell, SetGunFlash, subdiv_ripple, DoBloodSplat, TriggerRicochetSpark, TriggerUnderwaterBlood
-	XREF Gunflashes, mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1, GetFloor, GetFreeSpark, GetRandomControl, GetFreeBlood, rcossin_tbl, objects, room, ripples
+	XREF SoundEffect, splashes, SplashCount, wibble, GetBestFrame, Gunflashes, mTranslateXYZ, mRotX, snaff_current_gte_matrix_V1, GetFloor, GetFreeSpark, GetRandomControl, GetFreeBlood, rcossin_tbl, objects, room, ripples
 	
 WadeSplash:
 	addiu   sp, -0x30
@@ -127,14 +127,14 @@ WadeSplash:
 	addiu   sp, 0x30
 
 sub_8BD7C:
-	lw      $a1, room-GP_ADDR(gp)
-	sll     $v0, $v1, 2
-	addu    $v0, $v1
-	sll     $v0, 4
-	addu    $v0, $a1
-	lhu     $v0, 0x4E($v0)
-	jr      $ra
-	andi    $v0, 1
+	lw      a1, room-GP_ADDR(gp)
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 4
+	addu    v0, a1
+	lhu     v0, 0x4E(v0)
+	jr      ra
+	andi    v0, 1
 
 TriggerBlood:
 	lw      t2, 0x10(sp)
@@ -538,8 +538,101 @@ TriggerRicochetSpark:
 	loc_8B980:
 	jr      t6
 	nop
-	
-subdiv_ripple:
+
+SetupRipple:
+	move    t3, ra
+	lw      t0, 0x10(sp)
+	li      t1, 0x20
+	la      t2, ripples
+
+	loc_8B99C:
+	lbu     v0, 0xC(t2)
+	addiu   t1, -1
+	andi    v0, 1
+	bnez    v0, loc_8BA10
+	ori     v0, t0, 1
+	jal     GetRandomControl
+	sb      v0, 0xC(t2)
+	andi    v0, 0xF
+	addiu   v0, 0x30
+	sb      v0, 0xD(t2)
+	li      v0, 1
+	sb      v0, 0xF(t2)
+	sb      a3, 0xE(t2)
+	sw      a0, 0(t2)
+	sw      a1, 4(t2)
+	andi    v0, t0, 0x40
+	beqz    v0, loc_8BA18
+	sw      a2, 8(t2)
+	jal     GetRandomControl
+	addiu   a0, -0x40
+	andi    v0, 0x7F
+	addu    a0, v0
+	jal     GetRandomControl
+	sw      a0, 0(t2)
+	andi    v0, 0x7F
+	addiu   a2, -0x40
+	addu    a2, v0
+	j       loc_8BA18
+	sw      a2, 8(t2)
+
+	loc_8BA10:
+	bnez    t1, loc_8B99C
+	addiu   t2, 0x10
+
+	loc_8BA18:
+	jr      t3
+	nop
+
+SetupSplash:
+	move    a1, a0
+	la      a2, splashes
+	li      v1, 4
+
+	loc_8BA30:
+	lbu     v0, 0x26(a2)
+	addiu   v1, -1
+	andi    v0, 1
+	bnez    v0, loc_8BAB0
+	li      at, 0x3E01
+	lw      v0, 0(a1)
+	lw      v1, 4(a1)
+	lw      a0, 8(a1)
+	sh      at, 0x26(a2)
+	sw      v0, 0(a2)
+	sw      v1, 4(a2)
+	sw      a0, 8(a2)
+	lw      v0, 0xC(a1)
+	lw      v1, 0x10(a1)
+	lw      a0, 0x18(a1)
+	lw      at, 0x20(a1)
+	sw      v0, 0xC(a2)
+	sw      v1, 0x10(a2)
+	sw      a0, 0x18(a2)
+	sw      at, 0x20(a2)
+	lh      v0, 0x12(a1)
+	lhu     v1, 0x16(a1)
+	lh      a0, 0x1C(a1)
+	lhu     at, 0x24(a1)
+	sra     v0, 2
+	sh      v0, 0x14(a2)
+	sh      v1, 0x16(a2)
+	sh      a0, 0x1C(a2)
+	sra     a0, 2
+	sh      a0, 0x1E(a2)
+	j       loc_8BAB8
+	sh      at, 0x24(a2)
+
+	loc_8BAB0:
+	bnez    v1, loc_8BA30
+	addiu   a2, 0x28
+
+	loc_8BAB8:
+	li      a0, 0x21
+	j       SoundEffect
+	move    a2, zero
+
+subdiv_ripple:;todo
 	jr	ra
 	
 SetGunFlash:
