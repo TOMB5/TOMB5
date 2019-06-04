@@ -2,9 +2,67 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF UpdateSky
-	XREF GetChange, TranslateItem, UpdateLaraRoom, SoundEffect, DelAlignLaraToRope, rcossin_tbl, FXType, effect_routines, commands, lara, anims, gfLevelFlags, gfLayer1Vel, SkyPos, gfLayer2Vel, SkyPos2
+	XDEF UpdateSky, GetChange
+	XREF changes, ranges, TranslateItem, UpdateLaraRoom, SoundEffect, DelAlignLaraToRope, rcossin_tbl, FXType, effect_routines, commands, lara, anims, gfLevelFlags, gfLayer1Vel, SkyPos, gfLayer2Vel, SkyPos2
 	
+GetChange:
+	lh      v0, 0xE(a0)
+	lh      t4, 0x10(a0)
+	lh      a3, 0x16(a0)
+	beq     v0, t4, locret_7D51C
+	move    t2, zero
+	lh      v0, 0x22(a1)
+	lh      a1, 0x20(a1)
+	sll     v1, v0, 1
+	addu    v1, v0
+	lw      v0, changes-GP_ADDR(gp)
+	sll     v1, 1
+	blez    a1, locret_7D51C
+	addu    t1, v0, v1
+	lw      t3, ranges-GP_ADDR(gp)
+
+	loc_7D4C4:
+	lh      at, 0(t1)
+	lh      v0, 4(t1)
+	bne     at, t4, loc_7D50C
+	move    t0, zero
+	lh      a2, 2(t1)
+	sll     v0, 3
+	blez    a2, loc_7D50C
+	addu    v1, t3, v0
+
+	loc_7D4E4:
+	lh      at, 0(v1)
+	lh      v0, 2(v1)
+	slt     at, a3, at
+	bnez    at, loc_7D4FC
+	slt     at, v0, a3
+	beqz    at, loc_7D524
+
+	loc_7D4FC:
+	addiu   t0, 1
+	slt     v0, t0, a2
+	bnez    v0, loc_7D4E4
+	addiu   v1, 8
+
+	loc_7D50C:
+	addiu   t2, 1
+	slt     v0, t2, a1
+	bnez    v0, loc_7D4C4
+	addiu   t1, 6
+
+	locret_7D51C:
+	jr      ra
+	move    v0, zero
+
+	loc_7D524:
+	lhu     at, 4(v1)
+	lhu     v1, 6(v1)
+	li      v0, 1
+	sh      at, 0x14(a0)
+	jr      ra
+	sh      v1, 0x16(a0)
+
 UpdateSky:
 	lhu     a0, gfLevelFlags-GP_ADDR(gp)
 	lb      v0, gfLayer1Vel-GP_ADDR(gp)
