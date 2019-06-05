@@ -2,9 +2,41 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF UpdateSky, GetChange
-	XREF changes, ranges, TranslateItem, UpdateLaraRoom, SoundEffect, DelAlignLaraToRope, rcossin_tbl, FXType, effect_routines, commands, lara, anims, gfLevelFlags, gfLayer1Vel, SkyPos, gfLayer2Vel, SkyPos2
+	XDEF UpdateSky, GetChange, TranslateItem
+	XREF changes, ranges, UpdateLaraRoom, SoundEffect, DelAlignLaraToRope, rcossin_tbl, FXType, effect_routines, commands, lara, anims, gfLevelFlags, gfLayer1Vel, SkyPos, gfLayer2Vel, SkyPos2
 	
+TranslateItem:
+	lhu     v0, 0x4E(a0)
+	la      v1, rcossin_tbl
+	srl     v0, 2
+	andi    v0, 0x3FFC
+	addu    v0, v1
+	lh      t0, 2(v0)
+	lh      v1, 0(v0)
+	mult    t0, a1
+	lw      v0, 0x44(a0)
+	mflo    at
+	addu    a2, v0, a2
+	negu    v0, v1
+	mult    v1, a3
+	mflo    v1
+	addu    at, v1
+	sra     at, 12
+	mult    v0, a1
+	lw      v1, 0x40(a0)
+	lw      v0, 0x48(a0)
+	mflo    a1
+	addu    v1, at
+	sw      v1, 0x40(a0)
+	mult    t0, a3
+	sw      a2, 0x44(a0)
+	mflo    t0
+	addu    a1, t0
+	sra     a1, 12
+	addu    v0, a1
+	jr      ra
+	sw      v0, 0x48(a0)
+
 GetChange:
 	lh      v0, 0xE(a0)
 	lh      t4, 0x10(a0)
