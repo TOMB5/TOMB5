@@ -1087,27 +1087,26 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 	long a1 = a3 * a2 >> 16;
 	return (int)(v7 + a1);
 #else
-	int span;
-	long* k;
-	long c1;
-	long c2;
+	int span; // $s1
+	long* k; // $s1
+	long c1; // $s2
+	long c2; // $s0
+	int s3;
 
-	c2 = nk - 3;
-
-	c1 = MULFP(x, c2 << 16);
-
-	span = c1 >> 16;
+	c1 = nk;
+	c2 = c1 - 3;
+	s3 = MULFP(x, c2 << 16);
+	span = s3 >> 16;
 
 	if (span > c2)
 	{
-		span = nk - 4;
+		span = c1 - 4;
 	}
 
+	s3 -= span << 16;
+
 	//loc_375A0
-	c1 -= span << 16;
-
 	k = &knots[span];
-
-	return (MULFP(MULFP(MULFP((((k[0] ^ -1) >> 1) + (k[1]) + (k[1] >> 1)) - ((k[2]) + (k[2] >> 1)) + (k[3] >> 1), c1) + ((k[0]) - ((k[1] << 1) + (k[1] >> 1)) + (k[2] << 1) - (k[3] >> 1)), c1) + (((k[0] ^ -1) >> 1) + (k[2] >> 1)), c1)) + k[1];
+	return (MULFP(MULFP(MULFP((((k[0] ^ -1) >> 1) + (k[1]) + (k[1] >> 1)) - ((k[2]) + (k[2] >> 1)) + (k[3] >> 1), s3) + ((k[0]) - ((k[1] << 1) + (k[1] >> 1)) + (k[2] << 1) - (k[3] >> 1)), s3) + (((k[0] ^ -1) >> 1) + (k[2] >> 1)), s3)) + k[1];
 #endif
 }
