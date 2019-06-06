@@ -608,11 +608,19 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<) (F)
 	}
 	else if (num == 2)
 	{
+#if BETA_VERSION
 		S_CDPlay(CDA_XA11_FLYBY2, CD_PLAY_MODE);
+#else
+		S_CDPlay(CDA_XA11_FLYBY3, CD_PLAY_MODE);
+#endif
 	}
 	else if (num == 3)
 	{
+#if BETA_VERSION
 		S_CDPlay(CDA_XA11_FLYBY3, CD_PLAY_MODE);
+#else
+		S_CDPlay(CDA_XA11_FLYBY2, CD_PLAY_MODE);
+#endif
 	}
 	else if (num == 4)
 	{
