@@ -26,7 +26,7 @@ void LaraWaterCurrent(struct COLL_INFO* coll)//4CD34, 4D198
 	UNIMPLEMENTED();
 }
 
-long GetWaterDepth(long x, long y, long z, short* room_number)//4CA38, 4CE9C
+long GetWaterDepth(long x, long y, long z, short room_number)//4CA38, 4CE9C
 {
 	UNIMPLEMENTED();
 	return 0;
@@ -495,7 +495,7 @@ void LaraTestWaterDepth(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B4F8(<
 
 	room_number = item->room_number;
 	floor = GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number);
-	wd = GetWaterDepth(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number);
+	wd = GetWaterDepth(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, room_number);
 
 	if (wd == -32512)
 	{
