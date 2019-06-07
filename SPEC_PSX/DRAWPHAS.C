@@ -310,7 +310,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 			if (gfLevelFlags & GF_LVOP_LAYER2_USED)
 			{
-				//DrawFlatSky_ASM(gfLayer2Col, SkyPos2, 0xFFFFFA00);
+				///DrawFlatSky_ASM(gfLayer2Col, SkyPos2, 0xFFFFFA00);
 			}//loc_64758
 
 			if (gfLevelFlags & GF_LVOP_LAYER1_USED)
@@ -319,13 +319,14 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 				if (gfLevelFlags & GF_LVOP_LIGHTNING)
 				{
-					//Must convert a0 to CVector may have to use inline asm
-					//DrawFlatSky_ASM(((LightningRGB[2] << 16) | (LightningRGB[1] << 8) | LightningRGB[0]) | 0x2C00), SkyPos, 0xFFFFFA00);
+					//Maybe game does it like this
+					CVECTOR rgb = { LightningRGB[2] << 16 | LightningRGB[1] << 8 | LightningRGB[0] | 0x2C00 };
+					///DrawFlatSky_ASM(rgb, SkyPos, 0xFFFFFA00);
 				}
 				else
 				{
 					//loc_647D4
-					//DrawFlatSky_ASM(gfLayer1Col, SkyPos, 0xFFFFFA00);
+					///DrawFlatSky_ASM(gfLayer1Col, SkyPos, 0xFFFFFA00);
 				}
 
 			}//loc_647F0

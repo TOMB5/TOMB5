@@ -193,7 +193,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 
 	s = &SpotCam[current_spline_camera];
 
-	last_camera = current_spline_camera + (CameraCnt[SpotRemap[Sequence]] + -1);
+	last_camera = current_spline_camera + (CameraCnt[SpotRemap[Sequence]] - 1);
 	current_camera_cnt = CameraCnt[SpotRemap[Sequence]];
 
 	if ((s->flags & SCF_DISABLE_LARA_CONTROLS) || gfGameMode == 1)
@@ -412,7 +412,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 	}
 
 	//loc_37E90
-	if (s->flags & SCF_HIDE_LARA)
+	if ((s->flags & SCF_HIDE_LARA))
 	{
 		SCNoDrawLara = 1;
 	}
@@ -459,7 +459,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 	long lz; // stack offset -52
 	long ly; // stack offset -48
 	int i; // $v1
-	int var_2C;
+	int s7;
 	int ctype; // $s0
 #if PSXPC_TEST
 	int cn = 0; // $s0
@@ -469,7 +469,6 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 
 	struct CAMERA_INFO Backup; // stack offset -216
 
-	printf("CX:%d, CY:%d CZ:%d CR:%d\n", camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number);
 	if (bDisableLaraControl)
 	{
 		lara_item->hit_points = LaraHealth;
@@ -530,28 +529,20 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 
 	if ((s->flags & SCF_TRACKING_CAM))
 	{
-		long s7;
-		long v0;
-
 		cp = 0;
 		cs = 0x2000;
-		tlen = 0;
-		//i = 0;
 
 		lx = lara_item->pos.x_pos;
 		ly = lara_item->pos.y_pos;
 		lz = lara_item->pos.z_pos;
 
-		//loc_38144
-		do
+		//loc_38144:
+		for(tlen = 0; tlen < 8; tlen++)
 		{
-			clen = 1;
-			n = 0;
-			s7 = cs >> 1;
-			tlen++;
-			var_2C = 1;
+			clen = 0x10000;
+			//s7 = cs >> 1;
 
-			//loc_38158
+			//loc_38158:
 			for (n = 0; n < 8; n++)
 			{
 				cx = Spline(sp, &camera_xposition[0], spline_cnt);
@@ -559,39 +550,36 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 				cz = Spline(sp, &camera_zposition[0], spline_cnt);
 
 				dx = (cx - lx) * (cx - lx);
-				dz = (cz - lz) * (cz - lz);//v0
-				dy = (cy - ly) * (cy - ly);//s0
+				dz = (cz - lz) * (cz - lz);
+				dy = (cy - ly) * (cy - ly);
 
-				tlen = phd_sqrt_asm(dx + dz + dy);
+				tlen = phd_sqrt_asm(dx + dy + dz);
 
-				if (tlen > clen)
+				if (tlen <= clen)
 				{
 					cp = sp;
 					clen = tlen;
-				}//loc_381F0
+				}
 
-				sp = cs;
-				v0 = s7 >> 1;
-
+				sp += cs;
+				//v0 = 0x10000
+				//v0 = 0x10000 < sp ? 1 : 0
+				//v0 = s7 >> 1
 				if (0x10000 < sp)
 				{
-					//loc_38214
-					break;
+					break;//j loc_38214
 				}
 			}
 
-			v0 <<= 2;
-
-			sp = cp - v0;
+			//loc_38214
+			sp = cp - (cs >> 1);
 			cs = s7;
 
 			if (sp < 0)
 			{
 				sp = 0;
 			}//loc_38228
-
-			//v1 = var_2c;
-		} while (var_2C < 8);
+		}
 
 		current_spline_position += (cp - current_spline_position) >> 5;
 		if ((s->flags & SCF_CUT_PAN))
@@ -654,7 +642,6 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 			//loc_3837C
 			SetFadeClip(0, 1);
 			bUseSpotCam = 0;
-			//assert(0);
 			bDisableLaraControl = 0;
 			camera.speed = 1;
 
@@ -704,7 +691,6 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 		dx = (camera.pos.x - quakecam.epos.x);
 		dy = (camera.pos.y - quakecam.epos.y);
 		dz = (camera.pos.z - quakecam.epos.z);
-
 
 		if (phd_sqrt_asm(dx * dy * dz) < quakecam.epos.box_number)
 		{
@@ -1101,27 +1087,26 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 	long a1 = a3 * a2 >> 16;
 	return (int)(v7 + a1);
 #else
-	int span;
-	long* k;
-	long c1;
-	long c2;
+	int span; // $s1
+	long* k; // $s1
+	long c1; // $s2
+	long c2; // $s0
+	int s3;
 
-	c2 = nk - 3;
-
-	c1 = MULFP(x, c2 << 16);
-
-	span = c1 >> 16;
+	c1 = nk;
+	c2 = c1 - 3;
+	s3 = MULFP(x, c2 << 16);
+	span = s3 >> 16;
 
 	if (span > c2)
 	{
-		span = nk - 4;
+		span = c1 - 4;
 	}
 
+	s3 -= span << 16;
+
 	//loc_375A0
-	c1 -= span << 16;
-
 	k = &knots[span];
-
-	return (MULFP(MULFP(MULFP((((k[0] ^ -1) >> 1) + (k[1]) + (k[1] >> 1)) - ((k[2]) + (k[2] >> 1)) + (k[3] >> 1), c1) + ((k[0]) - ((k[1] << 1) + (k[1] >> 1)) + (k[2] << 1) - (k[3] >> 1)), c1) + (((k[0] ^ -1) >> 1) + (k[2] >> 1)), c1)) + k[1];
+	return (MULFP(MULFP(MULFP((((k[0] ^ -1) >> 1) + (k[1]) + (k[1] >> 1)) - ((k[2]) + (k[2] >> 1)) + (k[3] >> 1), s3) + ((k[0]) - ((k[1] << 1) + (k[1] >> 1)) + (k[2] << 1) - (k[3] >> 1)), s3) + (((k[0] ^ -1) >> 1) + (k[2] >> 1)), s3)) + k[1];
 #endif
 }

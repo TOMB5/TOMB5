@@ -4,7 +4,7 @@ Start Date: 12th July 2017.
 
 PSX:
 <p align="center">
-<a href="https://streamable.com/n4oop"><img src="https://i.imgur.com/yrZDlay.png"/><a>
+<a href="https://streamable.com/17ilj"><img src="https://i.imgur.com/YzFDlbRl.png"/><a>
  </p>
 
 PSXPC_N:

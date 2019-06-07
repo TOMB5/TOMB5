@@ -1,10 +1,100 @@
-	OPT at+,w-,c+,m-
+	opt at-,w-,c+,m-
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF UpdateSky
-	XREF gfLevelFlags, gfLayer1Vel, SkyPos, gfLayer2Vel, SkyPos2
+	XDEF UpdateSky, GetChange, TranslateItem
+	XREF changes, ranges, UpdateLaraRoom, SoundEffect, DelAlignLaraToRope, rcossin_tbl, FXType, effect_routines, commands, lara, anims, gfLevelFlags, gfLayer1Vel, SkyPos, gfLayer2Vel, SkyPos2
 	
+TranslateItem:
+	lhu     v0, 0x4E(a0)
+	la      v1, rcossin_tbl
+	srl     v0, 2
+	andi    v0, 0x3FFC
+	addu    v0, v1
+	lh      t0, 2(v0)
+	lh      v1, 0(v0)
+	mult    t0, a1
+	lw      v0, 0x44(a0)
+	mflo    at
+	addu    a2, v0, a2
+	negu    v0, v1
+	mult    v1, a3
+	mflo    v1
+	addu    at, v1
+	sra     at, 12
+	mult    v0, a1
+	lw      v1, 0x40(a0)
+	lw      v0, 0x48(a0)
+	mflo    a1
+	addu    v1, at
+	sw      v1, 0x40(a0)
+	mult    t0, a3
+	sw      a2, 0x44(a0)
+	mflo    t0
+	addu    a1, t0
+	sra     a1, 12
+	addu    v0, a1
+	jr      ra
+	sw      v0, 0x48(a0)
+
+GetChange:
+	lh      v0, 0xE(a0)
+	lh      t4, 0x10(a0)
+	lh      a3, 0x16(a0)
+	beq     v0, t4, locret_7D51C
+	move    t2, zero
+	lh      v0, 0x22(a1)
+	lh      a1, 0x20(a1)
+	sll     v1, v0, 1
+	addu    v1, v0
+	lw      v0, changes-GP_ADDR(gp)
+	sll     v1, 1
+	blez    a1, locret_7D51C
+	addu    t1, v0, v1
+	lw      t3, ranges-GP_ADDR(gp)
+
+	loc_7D4C4:
+	lh      at, 0(t1)
+	lh      v0, 4(t1)
+	bne     at, t4, loc_7D50C
+	move    t0, zero
+	lh      a2, 2(t1)
+	sll     v0, 3
+	blez    a2, loc_7D50C
+	addu    v1, t3, v0
+
+	loc_7D4E4:
+	lh      at, 0(v1)
+	lh      v0, 2(v1)
+	slt     at, a3, at
+	bnez    at, loc_7D4FC
+	slt     at, v0, a3
+	beqz    at, loc_7D524
+
+	loc_7D4FC:
+	addiu   t0, 1
+	slt     v0, t0, a2
+	bnez    v0, loc_7D4E4
+	addiu   v1, 8
+
+	loc_7D50C:
+	addiu   t2, 1
+	slt     v0, t2, a1
+	bnez    v0, loc_7D4C4
+	addiu   t1, 6
+
+	locret_7D51C:
+	jr      ra
+	move    v0, zero
+
+	loc_7D524:
+	lhu     at, 4(v1)
+	lhu     v1, 6(v1)
+	li      v0, 1
+	sh      at, 0x14(a0)
+	jr      ra
+	sh      v1, 0x16(a0)
+
 UpdateSky:
 	lhu     a0, gfLevelFlags-GP_ADDR(gp)
 	lb      v0, gfLayer1Vel-GP_ADDR(gp)
@@ -49,3 +139,314 @@ UpdateSky:
 	locret_7CEFC:
 	jr      ra
 	nop
+
+AnimateLara:
+	addiu   sp, -0x24
+	sw      s0, 0x24-0x14(sp)
+	sw      s1, 0x24-0x10(sp)
+	sw      s2, 0x24-0xC(sp)
+	sw      s3, 0x24-0x8(sp)
+	sw      ra, 0x24-0x4(sp)
+	move    s1, a0
+	lh      v1, 0x14(s1)
+	lw      a0, anims-GP_ADDR(gp)
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 3
+	addu    s2, a0, v0
+	lhu     v1, 0x16(s1)
+	lh      v0, 0x20(s2)
+	addiu   v1, 1
+	blez    v0, loc_7D5BC
+	sh      v1, 0x16(s1)
+	move    a0, s1
+	jal     GetChange
+	move    a1, s2
+	beqz    v0, loc_7D5BC
+	nop
+	lh      v1, 0x14(s1)
+	lw      a0, anims-GP_ADDR(gp)
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 3
+	addu    s2, a0, v0
+	lh      v1, 6(s2)
+	nop
+	sh      v1, 0xE(s1)
+
+	loc_7D5BC:
+	lh      v1, 0x16(s1)
+	lh      v0, 0x1A(s2)
+	nop
+	slt     v0, v0, v1
+	beqz    v0, loc_7D6D4
+	nop
+	lh      s3, 0x24(s2)
+	lh      v0, 0x26(s2)
+	lw      v1, commands-GP_ADDR(gp)
+	blez    s3, loc_7D6A4
+	sll     v0, 1
+	addu    s0, v1, v0
+
+	loc_7D5EC:
+	lhu     v0, 0(s0)
+	addiu   s0, 2
+	addiu   at, v0, -1
+	beqz    at, loc_7D628
+	addiu   at, v0, -2
+	beqz    at, loc_7D650
+	addiu   at, v0, -3
+	beqz    at, loc_7D684
+	addiu   at, v0, -5
+	beqz    at, loc_7D620
+	addiu   at, v0, -6
+	bnez    at, loc_7D698
+	nop
+
+	loc_7D620:
+	j       loc_7D698
+	addiu   s0, 4
+
+	loc_7D628:
+	move    a0, s1
+	lh      a1, 0(s0)
+	lh      a2, 2(s0)
+	lh      a3, 4(s0)
+	jal     TranslateItem
+	addiu   s0, 6
+	move    a0, s1
+	li      a1, 0xFFFFFE83
+	jal     UpdateLaraRoom
+	addiu   ra, 0x48
+
+	loc_7D650:
+	lw      v1, 0x84(s1)
+	lhu     at, 0(s0)
+	lhu     v0, 2(s0)
+	lh      a0, lara+0xA-GP_ADDR(gp)
+	addiu   s0, 4
+	ori     v1, 8
+	sh      at, 0x20(s1)
+	sh      v0, 0x1E(s1)
+	beqz    a0, loc_7D698
+	sw      v1, 0x84(s1)
+	sh      a0, 0x20(s1)
+	j       loc_7D698
+	sh      zero, lara+0xA-GP_ADDR(gp)
+
+	loc_7D684:
+	lh      v1, lara+0x2-GP_ADDR(gp)
+	li      v0, 5
+	beq     v1, v0, loc_7D698
+	nop
+	sh      zero, lara+0x2-GP_ADDR(gp)
+
+	loc_7D698:
+	addiu   s3, -1
+	bgtz    s3, loc_7D5EC
+	nop
+
+	loc_7D6A4:
+	lh      at, 0x1C(s2)
+	lhu     a0, 0x1E(s2)
+	lw      v0, anims-GP_ADDR(gp)
+	sh      at, 0x14(s1)
+	sh      a0, 0x16(s1)
+	sll     v1, at, 2
+	addu    v1, at
+	sll     v1, 3
+	addu    s2, v0, v1
+	lh      v0, 6(s2)
+	nop
+	sh      v0, 0xE(s1)
+
+	loc_7D6D4:
+	lh      s3, 0x24(s2)
+	lh      v0, 0x26(s2)
+	lw      v1, commands-GP_ADDR(gp)
+	blez    s3, loc_7D7C8
+	sll     v0, 1
+	addu    s0, v1, v0
+
+	loc_7D6EC:
+	lhu     v0, 0(s0)
+	addiu   s0, 2
+	addiu   at, v0, -2
+	beqz    at, loc_7D7B8
+	addiu   at, v0, -5
+	beqz    at, loc_7D720
+	addiu   at, v0, -6
+	beqz    at, loc_7D780
+	addiu   at, v0, -1
+	bnez    at, loc_7D7BC
+	nop
+	j       loc_7D7BC
+	addiu   s0, 6
+
+	loc_7D720:
+	lh      v1, 0x16(s1)
+	lh      v0, 0(s0)
+	lhu     a0, 2(s0)
+	bne     v1, v0, loc_7D7B8
+	andi    a1, a0, 0xC000
+	beqz    a1, loc_7D76C
+	li      v0, 0x4000
+	lw      v1, lara+0x48-GP_ADDR(gp)
+	bne     a1, v0, loc_7D754
+	nop
+	bgez    v1, loc_7D76C
+	li      v0, 0xFFFF8100
+	beq     v1, v0, loc_7D76C
+
+	loc_7D754:
+	li      v0, 0x8000
+	bne     a1, v0, loc_7D7B8
+	nop
+	bgez    v1, loc_7D7B8
+	li      v0, 0xFFFF8100
+	beq     v1, v0, loc_7D7B8
+
+	loc_7D76C:
+	andi    a0, 0x3FFF
+	addiu   a1, s1, 0x40
+	li      a2, 2
+	jal     SoundEffect
+	addiu   ra, 0x38
+
+	loc_7D780:
+	lh      at, 0x16(s1)
+	lh      v0, 0(s0)
+	lui     v1, 9
+	bne     at, v0, loc_7D7B8
+	la      v1, effect_routines
+	lhu     a1, 2(s0)
+	move    a0, s1
+	andi    a3, a1, 0x3FFF
+	sll     v0, a3, 2
+	addu    v0, v1
+	lw      a2, 0(v0)
+	andi    a1, 0xC000
+	jalr    a2
+	sh      a1, FXType-GP_ADDR(gp)
+
+	loc_7D7B8:
+	addiu   s0, 4
+
+	loc_7D7BC:
+	addiu   s3, -1
+	bgtz    s3, loc_7D6EC
+	nop
+
+	loc_7D7C8:
+	lw      a1, 0x14(s2)
+	lw      s0, 0x10(s2)
+	lh      t1, 0x16(s1)
+	lh      v0, 0x18(s2)
+	beqz    a1, loc_7D7EC
+	subu    t1, v0
+	mult    a1, t1
+	mflo    v0
+	addu    s0, v0
+
+	loc_7D7EC:
+	lw      v0, 0x84(s1)
+	nop
+	andi    v0, 8
+	bnez    v0, loc_7D828
+	sra     s0, 16
+	lw      a1, 0xC(s2)
+	lw      a0, 8(s2)
+	beqz    a1, loc_7D820
+	sra     v0, a0, 16
+	mult    a1, t1
+	mflo    v0
+	addu    a0, v0
+	sra     v0, a0, 16
+
+	loc_7D820:
+	j       loc_7D884
+	sh      v0, 0x1E(s1)
+
+	loc_7D828:
+	lw      a2, 0xC(s2)
+	addiu   v0, t1, -1
+	mult    a2, v0
+	lhu     a1, 0x1E(s1)
+	lw      v1, 8(s2)
+	mflo    a0
+	addu    a0, v1, a0
+	sra     v0, a0, 16
+	subu    a1, v0
+	addu    a0, a2
+	sra     v0, a0, 16
+	lh      a0, 0x20(s1)
+	addu    a1, v0
+	sh      a1, 0x1E(s1)
+	slti    v0, a0, 0x80
+	beqz    v0, loc_7D870
+	addiu   v0, a0, 1
+	addiu   v0, a0, 6
+
+	loc_7D870:
+	sh      v0, 0x20(s1)
+	lw      v1, 0x44(s1)
+	nop
+	addu    v1, v0
+	sw      v1, 0x44(s1)
+
+	loc_7D884:
+	lw      v1, lara+0x104-GP_ADDR(gp)
+	li      v0, 0xFFFFFFFF
+	beq     v1, v0, loc_7D89C
+	nop
+	jal     DelAlignLaraToRope
+	move    a0, s1
+
+	loc_7D89C:
+	lw      v0, lara+0x44-GP_ADDR(gp)
+	lui     t0, 9
+	andi    v0, 0x20
+	bnez    v0, loc_7D934
+	la      t0, rcossin_tbl
+	lhu     a2, lara+0xA6-GP_ADDR(gp)
+	lh      a3, 0x1E(s1)
+	srl     at, a2, 2
+	andi    at, 0x3FFC
+	addu    at, t0
+	lh      v0, 0(at)
+	lh      at, 2(at)
+	mult    v0, a3
+	lw      t2, 0x40(s1)
+	lw      t3, 0x48(s1)
+	mflo    v0
+	sra     v0, 12
+	addu    t2, v0
+	mult    at, a3
+	addiu   a2, 0x4000
+	sra     a2, 2
+	andi    a2, 0x3FFC
+	addu    a2, t0
+	lh      v1, 0(a2)
+	lh      a0, 2(a2)
+	mflo    at
+	sra     at, 12
+	addu    t3, at
+	mult    v1, s0
+	mflo    v1
+	sra     v1, v0, 12
+	addu    t2, v1
+	mult    a0, s0
+	sw      t2, 0x40(s1)
+	mflo    a0
+	sra     a0, 12
+	addu    t3, a0
+	sw      t3, 0x48(s1)
+
+	loc_7D934:
+	lw      ra, 0x24-0x4(sp)
+	lw      s3, 0x24-0x8(sp)
+	lw      s2, 0x24-0xC(sp)
+	lw      s1, 0x24-0x10(sp)
+	lw      s0, 0x24-0x14(sp)
+	jr      ra
+	addiu   sp, 0x24
