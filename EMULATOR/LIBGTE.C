@@ -211,7 +211,7 @@ void SetGeomOffset(int ofx, int ofy)
 	OFY = ofy << 16;
 }
 
-void SetGeomScreen(int val)
+void SetGeomScreen(int h)
 {
-	UNIMPLEMENTED();
+	H = h;
 }

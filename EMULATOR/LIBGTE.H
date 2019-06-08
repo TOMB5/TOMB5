@@ -28,6 +28,6 @@ typedef struct {		/* 2D short vector */
 
 extern void InitGeom();
 extern void SetGeomOffset(int ofx, int ofy);
-extern void SetGeomScreen(int val);
+extern void SetGeomScreen(int h);
 
 #endif
