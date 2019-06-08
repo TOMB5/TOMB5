@@ -8,6 +8,7 @@
 #include "CAMERA.H"
 #include "DRAW.H"
 #include "GPU.H"
+#include "GTEREG.H"
 
 void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 {
@@ -137,6 +138,36 @@ long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
 	return -result_angle & 0xFFFF;
 }
 
+long mSqrt(long value)//83B30(<), 85B74(<) (F)
+{
+	long v0 = 0x1F;
+
+	long v1 = gte_ldlzc(value);
+
+	if (value != 0)
+	{
+		v1 &= 0xFFFFFFFE;
+		v0 = v0 - v1 >> 1;
+		long at = v1 - 0x18;
+
+		if (v1 - 0x18 < 0)
+		{
+			//loc_85BA8
+			value >>= 0x18 - v1;
+		}
+		else
+		{
+			value <<= v1 - 0x18;
+		}
+
+		//loc_85BB4
+		value = SqrtTable[value - 0x40] << v0;
+
+	}//locret_85BD0
+
+	return value << v0;
+}
+
 long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 {
 	long v0 = 0x1F;
@@ -231,13 +262,113 @@ void mTranslateAbsXYZ(long x, long y, long z)
 
 void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
 {
-	MATRIX3D* mat = Matrix;
+	int t0;
+	int t1;
+	int t2;
 
-	mat->tx += ((mat->m00 * x) + (mat->m01 * y) + (mat->m02 * z)) >> 12;
-	mat->ty += ((mat->m10 * x) + (mat->m11 * y) + (mat->m12 * z)) >> 12;
-	mat->tz += ((mat->m20 * x) + (mat->m21 * y) + (mat->m22 * z)) >> 12;
+	int t3;
+	int t4;
+	int t5;
 
-	mLoadMatrix(mat);
+	t4 = y >> 15;
+	if (y < 0)
+	{
+		y = -y;
+		t4 = y >> 15;
+		y &= 0x7FFF;
+		t4 = -t4;
+		y = -y;
+	}//loc_765AC
+	else
+	{
+		y &= 0x7FFF;
+	}
+
+	//loc_765B0 :
+	t5 = z >> 15;
+	if (z < 0)
+	{
+		z = -z;
+		t5 = z >> 15;
+		z &= 0x7FFF;
+		t5 = -t5;
+		z = -z;
+	}
+	else
+	{
+		//loc_765D0
+		z &= 0x7FFF;
+	}
+	//loc_765D4
+	t3 = x >> 15;
+	if (x < 0)
+	{
+		x = -x;
+		t3 = x >> 15;
+		x &= 0x7FFF;
+		t3 = -t3;
+		x = -x;
+	}
+	else
+	{
+		x &= 0x7FFF;
+	}
+
+	IR1 = t3;
+	IR2 = t4;
+	IR3 = t5;
+
+	docop2(0x41E012);
+
+	t3 = MAC1;
+	t4 = MAC2;
+	t5 = MAC3;
+
+	IR1 = x;
+	IR2 = y;
+	IR3 = z;
+
+	docop2(0x498012);
+
+	t0 = t3 << 3;
+	if (t3 < 0)
+	{
+		t3 = -t3;
+		t3 <<= 3;
+		t0 = -t3;
+	}
+	//loc_7663C
+	t1 = t4 << 3;
+	if (t4 < 0)
+	{
+		t4 = -t4;
+		t4 <<= 3;
+		t1 = -t4;
+	}
+	//loc_76650
+	t2 = t5 << 3;
+	if (t5 < 0)
+	{
+		t5 = -t5;
+		t5 <<= 3;
+		t2 = -t5;
+	}//loc_76664
+
+	t3 = MAC1;
+	t4 = MAC2;
+	t5 = MAC3;
+
+	t0 += t3;
+	t1 += t4;
+	t2 += t5;
+
+	TRX = t0;
+	TRY = t1;
+	TRZ = t2;
+
+	Matrix->tx = t0;
+	Matrix->ty = t1;
+	Matrix->tz = t2;
 }
 
 void mRotX(long rx)// (F)
