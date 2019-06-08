@@ -9,71 +9,49 @@
 #include "DRAW.H"
 #include "GPU.H"
 #include "GTEREG.H"
+#include "DRAWSPKS.H"
 
 void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 {
-	//v1 = phd_mxptr
-	//a0 = &MatrixStack[0]
 	MatrixSP = 0;
 	Matrix = &MatrixStack[0];
-#if 0
-					   sw      a0, Matrix - GP_ADDR(gp)
-					   lhu     at, 0(v1)
-					   lhu     v0, 4(v1)
-					   lhu     a1, 8(v1)
-					   lhu     a2, 0x10(v1)
-					   sll     v0, 16
-					   or at, v0
-					   sll     a2, 16
-					   or a1, a2
-					   lhu     a3, 0x14(v1)
-					   lhu     t0, 0x18(v1)
-					   lhu     t1, 0x20(v1)
-					   lhu     t2, 0x24(v1)
-					   sll     t0, 16
-					   or a3, t0
-					   sll     t2, 16
-					   or t1, t2
-					   sw      at, 0(a0)
-					   sw      a1, 4(a0)
-					   sw      a3, 8(a0)
-					   sw      t1, 0xC(a0)
-					   ctc2    at, r0
-					   ctc2    a1, r1
-					   ctc2    a3, r2
-					   ctc2    t1, r3
-					   lhu     at, 0x28(v1)
-					   lw      v0, 0xC(v1)
-					   lw      a1, 0x1C(v1)
-					   lw      a2, 0x2C(v1)
-					   sh      at, 0x10(a0)
-					   sw      v0, 0x14(a0)
-					   sw      a1, 0x18(a0)
-					   sw      a2, 0x1C(a0)
-					   ctc2    at, r4
-					   ctc2    v0, r5
-					   ctc2    a1, r6
-					   ctc2    a2, r7
-					   lhu     v0, w2v_matrix + 0x0 - GP_ADDR(gp)
-					   lhu     v1, w2v_matrix + 0x4 - GP_ADDR(gp)
-					   lhu     a0, w2v_matrix + 0x8 - GP_ADDR(gp)
-					   lhu     a1, w2v_matrix + 0x10 - GP_ADDR(gp)
-					   lhu     a2, w2v_matrix + 0x14 - GP_ADDR(gp)
-					   lhu     a3, w2v_matrix + 0x18 - GP_ADDR(gp)
-					   lhu     t0, w2v_matrix + 0x20 - GP_ADDR(gp)
-					   lhu     t1, w2v_matrix + 0x24 - GP_ADDR(gp)
-					   lhu     t2, w2v_matrix + 0x28 - GP_ADDR(gp)
-					   sh      v0, CamGTE + 0x0 - GP_ADDR(gp)
-					   sh      v1, CamGTE + 0x2 - GP_ADDR(gp)
-					   sh      a0, CamGTE + 0x4 - GP_ADDR(gp)
-					   sh      a1, CamGTE + 0x6 - GP_ADDR(gp)
-					   sh      a2, CamGTE + 0x8 - GP_ADDR(gp)
-					   sh      a3, CamGTE + 0xA - GP_ADDR(gp)
-					   sh      t0, CamGTE + 0xC - GP_ADDR(gp)
-					   sh      t1, CamGTE + 0xE - GP_ADDR(gp)
-					   jr      ra
-					   sh      t2, CamGTE + 0x10 - GP_ADDR(gp)
-#endif
+
+	((int*)&MatrixStack)[0] = ((short*)&phd_mxptr)[0] | ((short*)&phd_mxptr)[2] << 16;
+	((int*)&MatrixStack)[1] = ((short*)&phd_mxptr)[4] | ((short*)&phd_mxptr)[8] << 16;
+	((int*)&MatrixStack)[2] = ((short*)&phd_mxptr)[10] | ((short*)&phd_mxptr)[12] << 16;
+	((int*)&MatrixStack)[3] = ((short*)&phd_mxptr)[16] | ((short*)&phd_mxptr)[18] << 16;
+
+	R11 = ((short*)&phd_mxptr)[0];
+	R12 = ((short*)&phd_mxptr)[2] << 16;
+
+	R13 = ((short*)&phd_mxptr)[4];
+	R21 = ((short*)&phd_mxptr)[8] << 16;
+
+	R22 = ((short*)&phd_mxptr)[10];
+	R23 = ((short*)&phd_mxptr)[12] << 16;
+
+	R31 = ((short*)&phd_mxptr)[16];
+	R32 = ((short*)&phd_mxptr)[18] << 16;
+
+	((short*)&MatrixStack)[8] = ((short*)&phd_mxptr)[20];
+	((short*)&MatrixStack)[10] = ((short*)&phd_mxptr)[6];
+	((short*)&MatrixStack)[12] = ((short*)&phd_mxptr)[14];
+	((short*)&MatrixStack)[14] = ((short*)&phd_mxptr)[22];
+
+	R33 = ((short*)&phd_mxptr)[20];
+	TRX = ((short*)&phd_mxptr)[6];
+	TRY = ((short*)&phd_mxptr)[14];
+	TRZ = ((short*)&phd_mxptr)[22];
+
+	CamGTE.m00 = ((short*)&w2v_matrix)[0];
+	CamGTE.m01 = ((short*)&w2v_matrix)[2];
+	CamGTE.m02 = ((short*)&w2v_matrix)[4];
+	CamGTE.m10 = ((short*)&w2v_matrix)[8];
+	CamGTE.m11 = ((short*)&w2v_matrix)[10];
+	CamGTE.m12 = ((short*)&w2v_matrix)[12];
+	CamGTE.m20 = ((short*)&w2v_matrix)[16];
+	CamGTE.m21 = ((short*)&w2v_matrix)[18];
+	CamGTE.m22 = ((short*)&w2v_matrix)[20];
 }
 
 void gte_sttr(struct PHD_VECTOR* vec)
