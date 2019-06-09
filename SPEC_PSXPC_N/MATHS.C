@@ -236,7 +236,7 @@ void mUnitMatrix()
 	UNIMPLEMENTED();
 }
 
-void mPushUnitMatrix()//76534(<), 78578(<) (! Incorrect, redo, ida asm is bad)
+void mPushUnitMatrix()//76534(<), 78578(<)
 {
 	UNIMPLEMENTED();
 }
@@ -248,7 +248,7 @@ void mTranslate()//76558(<) (!)
 
 void mTranslateAbsXYZ(long x, long y, long z)
 {
-	UNIMPLEMENTED();
+	mTranslateXYZ(x - MatrixStack[0].tx, y - MatrixStack[0].ty, z - MatrixStack[0].tz);
 }
 
 void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
