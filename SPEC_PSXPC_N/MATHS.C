@@ -474,10 +474,10 @@ void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) TOCHECK
 	R11 = m->m01;
 	R21 = m->m02;
 	R13 = m->m10;
-	R22 = m->m11;
-	R23 = m->m12;
-	R31 = m->m20;
-	R32 = m->m21;
+	R23 = m->m11;
+	R22 = m->m12;
+	R32 = m->m20;
+	R31 = m->m21;
 	R33 = m->m22;
 	TRX = m->tx;
 	TRY = m->ty;
