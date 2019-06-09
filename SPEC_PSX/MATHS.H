@@ -6,7 +6,7 @@
 extern long mGetAngle(long x, long z, long tx, long tz);
 extern void mQuickW2VMatrix();
 extern long phd_sqrt_asm(long value);
-extern void ScaleCurrentMatrix(long a0, long sx, long sy, long sz);
+extern void ScaleCurrentMatrix(long bStoreInMatrix, long sx, long sy, long sz);
 extern void mPushMatrix();
 extern void mPopMatrix();
 extern void mPushUnitMatrix();

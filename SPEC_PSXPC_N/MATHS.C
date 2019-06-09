@@ -174,9 +174,39 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 	return value << v0;
 }
 
-void ScaleCurrentMatrix(long a0, long sx, long sy, long sz)
+void ScaleCurrentMatrix(long bStoreInMatrix, long sx, long sy, long sz)
 {
-	UNIMPLEMENTED();
+	int t2, v0, v1;
+	unsigned int t0, t1, at;
+
+	t0 = R11;
+	t1 = R13;
+	t2 = R22;
+	v0 = R31;
+	v1 = R33;
+
+	R11 = ((((t0 << 16) >> 16) * sx) >> 12) & 0xFFFF;
+	R12 = ((((t0 >> 16) * sy) >> 12) << 16);
+	R13 = ((((t1 << 16) >> 16) * sz) >> 12) & 0xFFFF;
+	R21 = (((t1 >> 16) * sx) >> 12) << 16;
+	R22 = ((((t2 << 16) >> 16) * sy) >> 12) & 0xFFFF;
+	R23 = (((t2 >> 16) * sz) >> 12) << 16;
+	R31 = ((((v0 << 16) >> 16) * sx) >> 12) & 0xFFFF;
+	R32 = (((v0 >> 16)  * sy) >> 12) << 16;
+	R33 = ((((v1 << 16) >> 16) * sz) >> 12);
+
+	if (bStoreInMatrix)
+	{
+		Matrix->m00 = R12;
+		Matrix->m01 = R11;
+		Matrix->m02 = R21;
+		Matrix->m10 = R13;
+		Matrix->m11 = R23;
+		Matrix->m12 = R22;
+		Matrix->m20 = R32;
+		Matrix->m21 = R31;
+		Matrix->m22 = R33;
+	}//locret_77E68
 }
 
 void mPushMatrix()//764D0(<), 78514(<) (F) (START)
@@ -465,6 +495,7 @@ void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar
 long phd_atan_asm(long x, long y)// (F)
 {
 	UNIMPLEMENTED();
+	return 0;
 }
 
 void mRotBoundingBoxNoPersp(short* bounds, short* tbounds)
