@@ -362,9 +362,57 @@ void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
 	Matrix->tz = t2;
 }
 
-void mRotX(long rx)// (F)
+void mRotX(long rx)//7669C (F)
 {
-	UNIMPLEMENTED();
+	int t5;
+	int t0;
+	int t6;
+	int* rcossin_ptr = (int*)&rcossin_tbl[0];
+
+	rx = (rx >> 2) & 0x3FFC;
+	if (rx == 0)
+	{
+		return;
+	}
+
+	//loc_766B4 :
+	t5 = rcossin_ptr[rx];
+	//t7 = 0xFFFF0000
+	t6 = 0xFFFF0000 & t5;
+	VX0 = 0xFFFF0000 & t5;
+	VZ0 = rcossin_ptr[rx];
+
+#if 0
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t3, r3
+	cop2    0x486012
+	srl     t6, t5, 16
+	sll     t5, 16
+	neg     t5, t5
+	mtc2    t5, r2
+	mtc2    t6, r3
+	andi    t0, 0xFFFF
+	and t1, t7
+	andi    t3, 0xFFFF
+	mfc2    t4, r25
+	mfc2    t2, r26
+	mfc2    t5, r27
+	cop2    0x48E012
+	sll     t4, 16
+	or t0, t4
+	andi    t2, 0xFFFF
+	sll     t5, 16
+	or t3, t5
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    t4, r27
+	andi    t5, 0xFFFF
+	or t1, t5
+	sll     t6, 16
+	j       SetRotation
+	or t2, t6
+#endif
 }
 
 void mRotY(long ry)//76744 (F)
@@ -376,7 +424,6 @@ void mRotYXZ(short y, short x, short z)//767E8 (F)
 {
 	UNIMPLEMENTED();
 }
-
 
 void mRotZ(long rz)//76804 (F)
 {
@@ -485,10 +532,27 @@ void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)
 	UNIMPLEMENTED();
 }
 
-
 void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar, long roll)
 {
-	UNIMPLEMENTED();
+	CamPos.x = xsrc;
+	CamPos.y = ysrc;
+	CamPos.z = zsrc;
+
+	viewer.x_pos = xsrc;
+	viewer.y_pos = ysrc;
+	viewer.z_pos = zsrc;
+	viewer.z_rot = roll;
+
+	phd_GetVectorAngles(xtar - xsrc, ytar - ysrc, ztar - zsrc, &viewer.x_rot);
+
+	*(int*)&viewer.x_rot = *(int*)&viewer.x_rot >> 16 | *(int*)&viewer.x_rot << 16;//Swap xy?
+	
+	phd_GenerateW2V(&viewer);
+}
+
+void phd_GenerateW2V(struct PHD_3DPOS* view)
+{
+
 }
 
 long phd_atan_asm(long x, long y)// (F)
