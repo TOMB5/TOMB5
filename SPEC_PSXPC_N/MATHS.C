@@ -666,8 +666,62 @@ void phd_GenerateW2V(struct PHD_3DPOS* view)
 
 long phd_atan_asm(long x, long y)// (F)
 {
-	UNIMPLEMENTED();
-	return 0;
+	int a2, a3, v0;
+
+	if (x == 0 && y == 0)
+	{
+		return 0;
+	}
+
+	a2 = 0;
+	if (x < 0)
+	{
+		a2 = 4;
+		x = -x;
+	}
+	//loc_77A64
+	if (y < 0)
+	{
+		a2 += 2;
+		y = -y;
+	}
+
+	v0 = x;
+	if (x < y)
+	{
+		a2 += 1;
+		x = y;
+		y = v0;
+	}
+	else
+	{
+		//loc_77A90
+loc_77A90:
+		y >>= 1;
+		x >>= 1;
+	}
+
+	//loc_77A98
+	v0 = (y << 16) >> 16;
+	if (v0 != y)
+	{
+		goto loc_77A90;
+
+	}//loc_77A90
+
+	v0 = y << 11;
+	a3 = (v0 / x);
+
+	v0 = atanOctantTab[a2];
+	x = atanTab[a3];
+
+	v0 = x + v0;
+	if (v0 < 0)
+	{
+		v0 = -v0;
+	}
+
+	return v0;
 }
 
 void mRotBoundingBoxNoPersp(short* bounds, short* tbounds)
