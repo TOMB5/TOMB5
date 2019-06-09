@@ -16,32 +16,32 @@ void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 	MatrixSP = 0;
 	Matrix = &MatrixStack[0];
 
-	((int*)&MatrixStack)[0] = ((short*)&phd_mxptr)[0] | ((short*)&phd_mxptr)[2] << 16;
-	((int*)&MatrixStack)[1] = ((short*)&phd_mxptr)[4] | ((short*)&phd_mxptr)[8] << 16;
-	((int*)&MatrixStack)[2] = ((short*)&phd_mxptr)[10] | ((short*)&phd_mxptr)[12] << 16;
-	((int*)&MatrixStack)[3] = ((short*)&phd_mxptr)[16] | ((short*)&phd_mxptr)[18] << 16;
+	((int*)&MatrixStack)[0] = ((short*)phd_mxptr)[0] | ((short*)phd_mxptr)[2] << 16;
+	((int*)&MatrixStack)[1] = ((short*)phd_mxptr)[4] | ((short*)phd_mxptr)[8] << 16;
+	((int*)&MatrixStack)[2] = ((short*)phd_mxptr)[10] | ((short*)phd_mxptr)[12] << 16;
+	((int*)&MatrixStack)[3] = ((short*)phd_mxptr)[16] | ((short*)phd_mxptr)[18] << 16;
 
-	R11 = ((short*)&phd_mxptr)[0];
-	R12 = ((short*)&phd_mxptr)[2] << 16;
+	R11 = ((short*)phd_mxptr)[0];
+	R12 = ((short*)phd_mxptr)[2] << 16;
 
-	R13 = ((short*)&phd_mxptr)[4];
-	R21 = ((short*)&phd_mxptr)[8] << 16;
+	R13 = ((short*)phd_mxptr)[4];
+	R21 = ((short*)phd_mxptr)[8] << 16;
 
-	R22 = ((short*)&phd_mxptr)[10];
-	R23 = ((short*)&phd_mxptr)[12] << 16;
+	R22 = ((short*)phd_mxptr)[10];
+	R23 = ((short*)phd_mxptr)[12] << 16;
 
-	R31 = ((short*)&phd_mxptr)[16];
-	R32 = ((short*)&phd_mxptr)[18] << 16;
+	R31 = ((short*)phd_mxptr)[16];
+	R32 = ((short*)phd_mxptr)[18] << 16;
 
-	((short*)&MatrixStack)[8] = ((short*)&phd_mxptr)[20];
-	((short*)&MatrixStack)[10] = ((short*)&phd_mxptr)[6];
-	((short*)&MatrixStack)[12] = ((short*)&phd_mxptr)[14];
-	((short*)&MatrixStack)[14] = ((short*)&phd_mxptr)[22];
+	((short*)&MatrixStack)[8] = ((short*)phd_mxptr)[20];
+	((short*)&MatrixStack)[10] = ((short*)phd_mxptr)[6];
+	((short*)&MatrixStack)[12] = ((short*)phd_mxptr)[14];
+	((short*)&MatrixStack)[14] = ((short*)phd_mxptr)[22];
 
-	R33 = ((short*)&phd_mxptr)[20];
-	TRX = ((short*)&phd_mxptr)[6];
-	TRY = ((short*)&phd_mxptr)[14];
-	TRZ = ((short*)&phd_mxptr)[22];
+	R33 = ((short*)phd_mxptr)[20];
+	TRX = ((short*)phd_mxptr)[6];
+	TRY = ((short*)phd_mxptr)[14];
+	TRZ = ((short*)phd_mxptr)[22];
 
 	CamGTE.m00 = ((short*)&w2v_matrix)[0];
 	CamGTE.m01 = ((short*)&w2v_matrix)[2];
@@ -447,10 +447,17 @@ void SetRotation()//7696C
 
 void setrot(struct MATRIX3D* m, long t0, long t1, long t2, long t3, long t4)//76970 TOCHECK
 {
+	R12 = t0 >> 16;
 	R11 = t0;
+	R21 = t1 >> 16;
 	R13 = t1;
+	
+	R23 = t2 >> 16;
 	R22 = t2;
+	
+	R32 = t3 >> 16;
 	R31 = t3;
+
 	R33 = t4;
 
 	((int*)Matrix)[0] = t0;
