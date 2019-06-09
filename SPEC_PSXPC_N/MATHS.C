@@ -141,7 +141,7 @@ long mSqrt(long value)//83B30(<), 85B74(<) (F)
 
 	}//locret_85BD0
 
-	return value << v0;
+	return (value >> 12);
 }
 
 long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
@@ -171,7 +171,7 @@ long phd_sqrt_asm(long value)//83B30(<), 85B74(<) (F)
 
 	}//locret_85BD0
 
-	return value << v0;
+	return (value >> 12);
 }
 
 void ScaleCurrentMatrix(long bStoreInMatrix, long sx, long sy, long sz)
@@ -696,12 +696,14 @@ long phd_atan_asm(long x, long y)// (F)
 	else
 	{
 		//loc_77A90
-loc_77A90:
-		y >>= 1;
-		x >>= 1;
+		goto loc_77A98;
 	}
 
-	//loc_77A98
+loc_77A90:
+	y >>= 1;
+	x >>= 1;
+
+loc_77A98:
 	v0 = (y << 16) >> 16;
 	if (v0 != y)
 	{
