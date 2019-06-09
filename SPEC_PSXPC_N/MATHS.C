@@ -238,7 +238,8 @@ void mUnitMatrix()
 
 void mPushUnitMatrix()//76534(<), 78578(<)
 {
-	UNIMPLEMENTED();
+	++Matrix;
+	setrot(0x1000, 0, 0x1000, 0, 0x1000);
 }
 
 void mTranslate()//76558(<) (!)
@@ -445,7 +446,7 @@ void SetRotation()//7696C
 	UNIMPLEMENTED();
 }
 
-void setrot(struct MATRIX3D* m, long m00, long m02, long m11, long m20, long m22)//76970 TOCHECK
+void setrot(long t0, long t1, long t2, long t3, long t4)//76970 TOCHECK
 {
 	UNIMPLEMENTED();
 }
