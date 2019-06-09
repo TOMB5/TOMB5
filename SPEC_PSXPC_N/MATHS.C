@@ -527,9 +527,51 @@ void GetRoomBoundsAsm(short room_number)//77E70(<), 79EB4(<) ///@TODO check if i
 	UNIMPLEMENTED();
 }
 
-void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)
+void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)//77928
 {
-	UNIMPLEMENTED();
+	int t0, t1, t2;
+
+	t0 = dx;
+	t1 = dy;
+	t2 = dz;
+
+	angles[0] = phd_atan_asm(dz, dx);
+	goto loc_7795C;
+
+loc_77950:
+	t0 >>= 2;
+	t1 >>= 2;
+	t2 >>= 2;
+
+loc_7795C:
+	if (((t0 << 16) >> 16) != t0)
+	{
+		goto loc_77950;
+	}
+
+	if (((t1 << 16) >> 16) != t1)
+	{
+		goto loc_77950;
+	}
+
+	if (((t2 << 16) >> 16) != t2)
+	{
+		goto loc_77950;
+	}
+
+	IR1 = t0;
+	IR2 = t2;
+
+	docop2(0xA00428);
+
+	int v0 = phd_atan_asm(mSqrt(MAC1 + MAC2), t1);
+
+	if (t1 > 0 && (v0 << 16) > 0 || t1 < 0 && (v0 << 16) < 0)
+	{
+		v0 = -v0;
+	}
+
+	angles[1] = v0;
 }
 
 void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar, long roll)
