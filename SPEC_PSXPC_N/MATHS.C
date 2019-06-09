@@ -462,7 +462,18 @@ void setrot(struct MATRIX3D* m, long t0, long t1, long t2, long t3, long t4)//76
 
 void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) TOCHECK
 {
-	UNIMPLEMENTED();
+	R12 = m->m00;
+	R11 = m->m01;
+	R21 = m->m02;
+	R13 = m->m10;
+	R22 = m->m11;
+	R23 = m->m12;
+	R31 = m->m20;
+	R32 = m->m21;
+	R33 = m->m22;
+	TRX = m->tx;
+	TRY = m->ty;
+	TRZ = m->tz;
 	return;
 }
 
