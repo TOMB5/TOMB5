@@ -228,7 +228,7 @@ void mPushMatrix()//764D0(<), 78514(<) (F)
 
 void mPopMatrix()//76520(<), 78564(<) (F)
 {
-	UNIMPLEMENTED();
+	mLoadMatrix(--Matrix);
 }
 
 void mUnitMatrix()
