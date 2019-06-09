@@ -54,7 +54,7 @@ void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 	CamGTE.m22 = ((short*)&w2v_matrix)[20];
 }
 
-void gte_sttr(struct PHD_VECTOR* vec)
+void gte_sttr(struct PHD_VECTOR* vec)//To investigate, this should not be in this file.
 {
 	vec->x = Matrix->tx >> 12;
 	vec->y = Matrix->ty >> 12;
@@ -209,18 +209,21 @@ void ScaleCurrentMatrix(long bStoreInMatrix, long sx, long sy, long sz)
 	}//locret_77E68
 }
 
-void mPushMatrix()//764D0(<), 78514(<) (F) (START)
+void mPushMatrix()//764D0(<), 78514(<) (F)
 {
 	++Matrix;
-	Matrix->m00 = Matrix[-1].m00;
-	Matrix->m01 = Matrix[-1].m01;
-	Matrix->m02 = Matrix[-1].m02;
-	Matrix->m10 = Matrix[-1].m10;
-	Matrix->m11 = Matrix[-1].m11;
-	Matrix->m12 = Matrix[-1].m12;
-	Matrix->m20 = Matrix[-1].m20;
-	Matrix->m21 = Matrix[-1].m21;
-	Matrix->m22 = Matrix[-1].m22;
+	Matrix->m00 = R12;
+	Matrix->m01 = R11;
+	Matrix->m02 = R21;
+	Matrix->m10 = R13;
+	Matrix->m11 = R23;
+	Matrix->m12 = R22;
+	Matrix->m20 = R32;
+	Matrix->m21 = R31;
+	Matrix->m22 = R33;
+	Matrix->tx = TRX;
+	Matrix->ty = TRY;
+	Matrix->tz = TRZ;
 }
 
 void mPopMatrix()//76520(<), 78564(<) (F)
@@ -466,10 +469,6 @@ void mmPushMatrix(struct MATRIX3D* m)//81BBC(<) (F)
 {
 	UNIMPLEMENTED();
 }
-
-int bound_start = 0;
-int bound_end = 0;
-int bound_list[128];
 
 void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* parent)
 {
