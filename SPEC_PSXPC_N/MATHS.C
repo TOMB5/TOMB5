@@ -376,7 +376,7 @@ void mRotX(long rx)//7669C (F)
 	}
 
 	//loc_766B4 :
-	t5 = rcossin_ptr[rx];
+	t5 = rcossin_ptr[rx];//sin and cos?
 	//t7 = 0xFFFF0000
 	t6 = 0xFFFF0000 & t5;
 	VX0 = 0xFFFF0000 & t5;
@@ -587,14 +587,81 @@ void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar
 
 	phd_GetVectorAngles(xtar - xsrc, ytar - ysrc, ztar - zsrc, &viewer.x_rot);
 
-	*(int*)&viewer.x_rot = *(int*)&viewer.x_rot >> 16 | *(int*)&viewer.x_rot << 16;//Swap xy?
+	*(int*)&viewer.x_rot = *(int*)&viewer.x_rot >> 16 | *(int*)&viewer.x_rot << 16;//Swap xy
 	
 	phd_GenerateW2V(&viewer);
 }
 
 void phd_GenerateW2V(struct PHD_3DPOS* view)
 {
+	int t0, t1, t2, t3, t4, t5, t6, v0, v1, a0, a1, a2, a3, at;
 
+	t0 = SIN(view->x_rot);
+	t2 = SIN(view->y_rot);
+	t3 = COS(view->y_rot);
+	t1 = SIN(view->z_rot);
+	v0 = COS(view->x_rot);
+	a1 = COS(view->z_rot);
+
+	t4 = (t0 * t2) >> 12;
+	t5 = t4 * t1;
+	v1 = t0 * t3;
+	phd_mxptr = &matrix_stack[0];
+
+	t0 = -t0;
+	t6 = v0 * t1;
+	matrix_stack[9] = t0;
+	w2v_matrix[9] = t0;
+	matrix_stack[1] = t6 >> 12;
+	w2v_matrix[1] = t6 >> 12;
+	t6 = (((v1 >> 12) * t1) >> 12) - (t2 * a1) >> 12;
+	matrix_stack[2] = t6;
+	w2v_matrix[2] = t6;
+	t6 = t4 * a1;
+
+	a3 = view->x_pos;
+	t4 = view->y_pos;
+	a0 = view->z_pos;
+
+	matrix_stack[3] = a3;
+	w2v_matrix[3] = a3;
+	matrix_stack[7] = t4;
+	w2v_matrix[7] = t4;
+	a3 = t3 * t1;
+	matrix_stack[11] = a0;
+	w2v_matrix[11] = a0;
+	t4 = (v0 * a1) >> 14;
+	t0 = (v0 * a1) >> 12;
+	w2v_matrix[10] = t0;
+	a2 = (v0 * t2) >> 12;
+	t0 -= t4;
+	matrix_stack[8] = a2;
+	w2v_matrix[8] = a2;
+	matrix_stack[5] = t0;
+	a2 = (v0 * t3) >> 12;
+	t6 >>= 12;
+	matrix_stack[10] = a2;
+	w2v_matrix[10] = a2;
+	t0 = v1 * a1;
+	a3 >>= 12;
+	t6 -= a3;
+	w2v_matrix[4] = t6;
+	at = t6 >> 2;
+	t6 -= at;
+	matrix_stack[4] = t6;
+	a2 = t2 * t1;
+	t0 >>= 12;
+	v0 = a2 >> 12;
+	t0 += v0;
+	w2v_matrix[6] = t0;
+	at = t0 >> 2;
+	t0 -= at;
+	matrix_stack[6] = t0;
+	v0 = t5 >> 12;
+	v1 = (t3 * a1) >> 12;
+	v0 += v1;
+	matrix_stack[0] = v0;
+	w2v_matrix[0] = v0;
 }
 
 long phd_atan_asm(long x, long y)// (F)

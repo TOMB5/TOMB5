@@ -42,5 +42,6 @@ extern void phd_LookAt(long x, long y, long z, long tx, long ty, long tz, long c
 extern long phd_atan_asm(long x, long y);
 extern long mSqrt(long x);
 extern void mRotBoundingBoxNoPersp(short* bounds, short* tbounds);
+extern void phd_GenerateW2V(struct PHD_3DPOS* view);
 
 #endif
