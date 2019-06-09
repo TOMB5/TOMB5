@@ -15,43 +15,44 @@ void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 {
 	MatrixSP = 0;
 	Matrix = &MatrixStack[0];
+	unsigned short test = ((unsigned short*)phd_mxptr)[4];
+	test++;
+	((int*)&MatrixStack)[0] = ((unsigned short*)phd_mxptr)[0] | ((unsigned short*)phd_mxptr)[2] << 16;
+	((int*)&MatrixStack)[1] = ((unsigned short*)phd_mxptr)[4] | ((unsigned short*)phd_mxptr)[8] << 16;
+	((int*)&MatrixStack)[2] = ((unsigned short*)phd_mxptr)[10] | ((unsigned short*)phd_mxptr)[12] << 16;
+	((int*)&MatrixStack)[3] = ((unsigned short*)phd_mxptr)[16] | ((unsigned short*)phd_mxptr)[18] << 16;
 
-	((int*)&MatrixStack)[0] = ((short*)phd_mxptr)[0] | ((short*)phd_mxptr)[2] << 16;
-	((int*)&MatrixStack)[1] = ((short*)phd_mxptr)[4] | ((short*)phd_mxptr)[8] << 16;
-	((int*)&MatrixStack)[2] = ((short*)phd_mxptr)[10] | ((short*)phd_mxptr)[12] << 16;
-	((int*)&MatrixStack)[3] = ((short*)phd_mxptr)[16] | ((short*)phd_mxptr)[18] << 16;
+	R11 = ((short*)phd_mxptr)[2] << 16;
+	R12 = ((short*)phd_mxptr)[0];
 
-	R11 = ((short*)phd_mxptr)[0];
-	R12 = ((short*)phd_mxptr)[2] << 16;
+	R13 = ((short*)phd_mxptr)[8] << 16;
+	R21 = ((short*)phd_mxptr)[4];
 
-	R13 = ((short*)phd_mxptr)[4];
-	R21 = ((short*)phd_mxptr)[8] << 16;
+	R22 = ((short*)phd_mxptr)[12] << 16;
+	R23 = ((short*)phd_mxptr)[10];
 
-	R22 = ((short*)phd_mxptr)[10];
-	R23 = ((short*)phd_mxptr)[12] << 16;
+	R31 = ((short*)phd_mxptr)[18] << 16;
+	R32 = ((short*)phd_mxptr)[16];
 
-	R31 = ((short*)phd_mxptr)[16];
-	R32 = ((short*)phd_mxptr)[18] << 16;
+	((short*)&MatrixStack)[8] = ((unsigned short*)phd_mxptr)[20];
+	((short*)&MatrixStack)[10] = ((unsigned short*)phd_mxptr)[6];
+	((short*)&MatrixStack)[12] = ((unsigned short*)phd_mxptr)[14];
+	((short*)&MatrixStack)[14] = ((unsigned short*)phd_mxptr)[22];
 
-	((short*)&MatrixStack)[8] = ((short*)phd_mxptr)[20];
-	((short*)&MatrixStack)[10] = ((short*)phd_mxptr)[6];
-	((short*)&MatrixStack)[12] = ((short*)phd_mxptr)[14];
-	((short*)&MatrixStack)[14] = ((short*)phd_mxptr)[22];
+	R33 = ((unsigned short*)phd_mxptr)[20];
+	TRX = ((unsigned short*)phd_mxptr)[6];
+	TRY = ((unsigned short*)phd_mxptr)[14];
+	TRZ = ((unsigned short*)phd_mxptr)[22];
 
-	R33 = ((short*)phd_mxptr)[20];
-	TRX = ((short*)phd_mxptr)[6];
-	TRY = ((short*)phd_mxptr)[14];
-	TRZ = ((short*)phd_mxptr)[22];
-
-	CamGTE.m00 = ((short*)&w2v_matrix)[0];
-	CamGTE.m01 = ((short*)&w2v_matrix)[2];
-	CamGTE.m02 = ((short*)&w2v_matrix)[4];
-	CamGTE.m10 = ((short*)&w2v_matrix)[8];
-	CamGTE.m11 = ((short*)&w2v_matrix)[10];
-	CamGTE.m12 = ((short*)&w2v_matrix)[12];
-	CamGTE.m20 = ((short*)&w2v_matrix)[16];
-	CamGTE.m21 = ((short*)&w2v_matrix)[18];
-	CamGTE.m22 = ((short*)&w2v_matrix)[20];
+	CamGTE.m00 = ((unsigned short*)&w2v_matrix)[0];
+	CamGTE.m01 = ((unsigned short*)&w2v_matrix)[2];
+	CamGTE.m02 = ((unsigned short*)&w2v_matrix)[4];
+	CamGTE.m10 = ((unsigned short*)&w2v_matrix)[8];
+	CamGTE.m11 = ((unsigned short*)&w2v_matrix)[10];
+	CamGTE.m12 = ((unsigned short*)&w2v_matrix)[12];
+	CamGTE.m20 = ((unsigned short*)&w2v_matrix)[16];
+	CamGTE.m21 = ((unsigned short*)&w2v_matrix)[18];
+	CamGTE.m22 = ((unsigned short*)&w2v_matrix)[20];
 }
 
 void gte_sttr(struct PHD_VECTOR* vec)//To investigate, this should not be in this file.
