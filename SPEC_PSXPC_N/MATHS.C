@@ -576,6 +576,8 @@ loc_7795C:
 
 void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar, long roll)
 {
+	short temp;
+
 	CamPos.x = xsrc;
 	CamPos.y = ysrc;
 	CamPos.z = zsrc;
@@ -587,8 +589,10 @@ void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar
 
 	phd_GetVectorAngles(xtar - xsrc, ytar - ysrc, ztar - zsrc, &viewer.x_rot);
 
-	*(int*)&viewer.x_rot = *(int*)&viewer.x_rot >> 16 | *(int*)&viewer.x_rot << 16;//Swap xy
-	
+	temp = viewer.y_rot;
+	viewer.y_rot = viewer.x_rot;
+	viewer.x_rot = temp;
+
 	phd_GenerateW2V(&viewer);
 }
 
@@ -596,27 +600,43 @@ void phd_GenerateW2V(struct PHD_3DPOS* view)
 {
 	int t0, t1, t2, t3, t4, t5, t6, v0, v1, a0, a1, a2, a3, at;
 
-	t0 = SIN(view->x_rot);
-	t2 = SIN(view->y_rot);
-	t3 = COS(view->y_rot);
-	t1 = SIN(view->z_rot);
-	v0 = COS(view->x_rot);
-	a1 = COS(view->z_rot);
+	a2 = view->x_rot;
+	v1 = view->y_rot;
 
+	t0 = SIN(a2);
+	t2 = SIN(v1);
+
+	a1 = view->z_rot;
 	t4 = (t0 * t2) >> 12;
+
+	t3 = COS(v1);
+	t1 = SIN(a1);
+
 	t5 = t4 * t1;
-	v1 = t0 * t3;
+
 	phd_mxptr = &matrix_stack[0];
 
+	v1 = t0 * t3;
+	v0 = COS(a2);
 	t0 = -t0;
-	t6 = v0 * t1;
 	matrix_stack[9] = t0;
 	w2v_matrix[9] = t0;
-	matrix_stack[1] = t6 >> 12;
-	w2v_matrix[1] = t6 >> 12;
-	t6 = (((v1 >> 12) * t1) >> 12) - (t2 * a1) >> 12;
+
+	t6 = v0 * t1;
+	a1 = COS(a1);
+
+	v1 >>= 12;
+	t6 >>= 12;
+	matrix_stack[1] = t6;
+	w2v_matrix[1] = t6;
+
+	t6 = (v1 * t1) >> 12;
+	a3 = (t2 * a1) >> 12;
+	t6 -= a3;
+
 	matrix_stack[2] = t6;
 	w2v_matrix[2] = t6;
+
 	t6 = t4 * a1;
 
 	a3 = view->x_pos;
@@ -625,31 +645,43 @@ void phd_GenerateW2V(struct PHD_3DPOS* view)
 
 	matrix_stack[3] = a3;
 	w2v_matrix[3] = a3;
+	
 	matrix_stack[7] = t4;
 	w2v_matrix[7] = t4;
+
 	a3 = t3 * t1;
+
 	matrix_stack[11] = a0;
 	w2v_matrix[11] = a0;
+
 	t4 = (v0 * a1) >> 14;
 	t0 = (v0 * a1) >> 12;
-	w2v_matrix[10] = t0;
+
+	w2v_matrix[5] = t0;
 	a2 = (v0 * t2) >> 12;
+
 	t0 -= t4;
+
 	matrix_stack[8] = a2;
 	w2v_matrix[8] = a2;
 	matrix_stack[5] = t0;
+
 	a2 = (v0 * t3) >> 12;
 	t6 >>= 12;
+
 	matrix_stack[10] = a2;
 	w2v_matrix[10] = a2;
+
 	t0 = v1 * a1;
 	a3 >>= 12;
 	t6 -= a3;
+
+	a2 = t2 * t1;
 	w2v_matrix[4] = t6;
 	at = t6 >> 2;
 	t6 -= at;
 	matrix_stack[4] = t6;
-	a2 = t2 * t1;
+
 	t0 >>= 12;
 	v0 = a2 >> 12;
 	t0 += v0;
@@ -658,6 +690,7 @@ void phd_GenerateW2V(struct PHD_3DPOS* view)
 	t0 -= at;
 	matrix_stack[6] = t0;
 	v0 = t5 >> 12;
+
 	v1 = (t3 * a1) >> 12;
 	v0 += v1;
 	matrix_stack[0] = v0;
