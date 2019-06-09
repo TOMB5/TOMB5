@@ -501,9 +501,14 @@ void GetBounds()//76A28
 	UNIMPLEMENTED();
 }
 
-void mSetTrans(long x, long y, long z)//76AF4(<), 78B38(<) TOCHECK
+void mSetTrans(long x, long y, long z)//76AF4(<), 78B38(<)
 {
-	UNIMPLEMENTED();
+	TRX = x;
+	TRY = y;
+	TRZ = z;
+	Matrix->tx = x;
+	Matrix->ty = y;
+	Matrix->tz = z;
 }
 
 void mClipBoundingBox(short* bounds)//76B14
