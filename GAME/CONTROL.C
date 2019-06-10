@@ -2009,7 +2009,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 		return;
 	}
 
-	if ((*data & 0x1F))
+	if ((*data & 0x1F) == 5)
 	{
 		if (!heavy)
 		{
@@ -2044,7 +2044,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 		}
 	}
 	//loc_1EB4C
-	if ((data[0] & 0x1F) == 19)
+	if ((*data & 0x1F) == 19)
 	{
 		if (!heavy)
 		{
@@ -2058,14 +2058,18 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 		}
 	}
 	//loc_1EB90
-	if ((*data & 0x1F) == 20 && !(*data & 0x20) || (*data++ & 0x8000))
+	if ((*data & 0x1F) == 20 && !(*data & 0x20))
 	{
-		return;
+		if ((*data++ & 0x8000))
+		{
+			return;
+		}
 	}
+
 	//loc_1EBB4
 	type = ((*data++) >> 8) & 0x3F;
 	flags = *data++;
-	timer = ((flags << 24) >> 24);
+	timer = flags;//FIXME says << 24 >> 24 but this gets optimised out
 
 	if (camera.type != HEAVY_CAMERA)
 	{
@@ -2074,29 +2078,43 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 	//loc_1EBF4
 	SwitchOnOnly = 0;
 
-	if (heavy)
+	if (heavy)//fp
 	{
-		if (type != HEAVY)
+		if (type != 10)//s2 != v0
 		{
-			if (type == 10)
+			if (type > 10)
 			{
-				if (!HeavyFlags)
-				{
-					return;
-				}
+				return;
+			}
 
+			if(type != 5)
+			{
+				//loc_1EC20
+				return;
+			}
+		}
+		else
+		{
+			//loc_1EC34
+			if (HeavyFlags != 0)
+			{
 				if (HeavyFlags < 0)
-				{
-					if ((flags & 0x3E00) != HeavyFlags)
-						return;
-				}
-				else
 				{
 					flags = (flags | 0x3E00) + HeavyFlags;
 				}
+				else
+				{
+					//loc_1EC64
+					//v1 = HeavyFlags
+					if (flags & 0x3E00 != HeavyFlags)
+					{
+						return;
+					}
+				}
 			}
-			else if (type != 11)
+			else
 			{
+				//loc_1F7A4
 				return;
 			}
 		}
@@ -2268,16 +2286,17 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 				}
 
 				//loc_1F04C
+				///@FIXME sh s6, 26(s0) (s0 = item?)
 				if (timer != 1)
 				{
 					item->timer *= 30;
 				}//loc_1F068
 
 
-				if (type != SWITCH || type == HEAVYSWITCH)
+				if (type == SWITCH || type == HEAVYSWITCH)
 				{
 					//loc_1F07C
-					if (!HeavyFlags)
+					if (HeavyFlags < 0)
 					{
 						if (((item->flags ^ (flags & 0x3E00)) & 0x3E00) == 0x3E00 && (flags & 0x100))
 						{
@@ -2306,16 +2325,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 				else
 				{
 					//loc_1F0FC
-					if (type != 6 || type != 9 || type == 11)
-					{
-						//loc_1F1A4
-						if ((flags & 0x3E00))
-						{
-							item->flags |= (flags & 0x3E00);
-						}
-						//loc_1F1BC
-					}
-					else
+					if (type == 6 || type == 9 || type == 11)
 					{
 						//loc_1F114
 						if (item->object_number == EARTHQUAKE)
@@ -2340,6 +2350,15 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 								KillItem(value);
 							}//loc_1F1BC
 						}//loc_1F1BC
+					}
+					else
+					{
+						//loc_1F1A4
+						if ((flags & 0x3E00))
+						{
+							item->flags |= (flags & 0x3E00);
+						}
+						//loc_1F1BC
 					}
 				}
 				//loc_1F1B8
@@ -2585,7 +2604,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 			break;
 		}
 		}
-	} while (!(trigger & 8000));
+	} while (!(trigger & 0x8000));
 	//def_1EF68
 	//loc_1F720
 
@@ -3127,6 +3146,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 
 struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 7A998(<) (F)
 {
+#if !PSXPC_TEST
 	struct room_info* r;
 	struct FLOOR_INFO* floor;
 	int y_floor, x_floor, next_room;
@@ -3219,6 +3239,10 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 	}
 
 	return floor;
+#else
+	UNIMPLEMENTED();
+	return &room[0].floor[0];
+#endif
 }
 
 short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
@@ -3358,6 +3382,7 @@ int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 }
 #endif
 
+#if PC_VERSION || PSXPC_TEST
 short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 {
 	int type, fixtype;
@@ -3406,6 +3431,7 @@ short GetDoor(struct FLOOR_INFO* floor)//787CC(<), 7A810(<) (F)
 
 	return 255;
 }
+#endif
 
 int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)//79460(<), 7B4A4(<) (F)
 {
@@ -3448,6 +3474,7 @@ int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 }
 #endif
 
+#if PC_VERSION || PSXPC_TEST
 int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 {
 	short* fd = &floor_data[floor->index];
@@ -3530,6 +3557,7 @@ int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 
 	return 1;
 }
+#endif
 
 int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor)
 {

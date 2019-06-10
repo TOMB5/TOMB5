@@ -10,6 +10,10 @@
 #include <SDL_opengl.h>
 #endif
 
+#if _WIN32 || _WIN64
+#include <d3d9.h>
+#endif
+
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 
@@ -27,6 +31,10 @@ int VSync(int mode)
 {
 	if (mode == 0)
 	{
+#if _WINDOWS && USE_DDRAW
+		pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+#endif
+		//Executed at start of vblank
 		if (vsync_callback != NULL)
 		{
 			vsync_callback();
