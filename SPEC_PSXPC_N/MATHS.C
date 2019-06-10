@@ -386,7 +386,50 @@ void mRotZ(long rz)//76804 (F)
 
 void mRotSuperPackedYXZ(short** a0, long a1)//768BC
 {
-	UNIMPLEMENTED();
+	unsigned short* a2;
+	int v0;
+	int at;
+	a2 = (unsigned short*)a0[0];
+
+	if (a1 != 0)
+	{
+		//loc_768C4
+		do
+		{
+			v0 = *a2++;
+			a1--;
+
+			if (!(v0 & 0xC000))
+			{
+				a2++;
+			}//loc_768DC
+
+		} while (a1 == 0);
+	}//loc_768E8
+
+	v0 = *a2++;
+	at = (v0 >> 14);
+	at--;
+	if (at != 0)
+	{
+		a0[0] = (short*)a2;
+
+		if (at != 0)
+		{
+			mRotZ((v0 & 0xFFF) << 4);
+		}//loc_76914
+
+		mRotY((v0 & 0xFFF) << 4);
+		mRotX((v0 & 0xFFF) << 4);
+
+	}//loc_76928
+
+	at = *a2++;
+	a0[0] = (short*)a2;
+
+	mRotY((((v0 << 16) | at) >> 4) & 0xFFC0);
+	mRotX((((v0 << 16) | at) >> 14) & 0xFFC0);
+	mRotZ((((v0 << 16) | at) & 0x3FF) << 6);
 }
 
 void mRotPackedYXZ(long yxz)//7693C (F)
