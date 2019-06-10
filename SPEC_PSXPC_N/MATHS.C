@@ -364,55 +364,7 @@ void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
 
 void mRotX(long rx)//7669C (F)
 {
-	int t5;
-	int t0;
-	int t6;
-	int* rcossin_ptr = (int*)&rcossin_tbl[0];
-
-	rx = (rx >> 2) & 0x3FFC;
-	if (rx == 0)
-	{
-		return;
-	}
-
-	//loc_766B4 :
-	t5 = rcossin_ptr[rx];//sin and cos?
-	//t7 = 0xFFFF0000
-	t6 = 0xFFFF0000 & t5;
-	VX0 = 0xFFFF0000 & t5;
-	VZ0 = rcossin_ptr[rx];
-
-#if 0
-	cfc2    t0, r0
-	cfc2    t1, r1
-	cfc2    t3, r3
-	cop2    0x486012
-	srl     t6, t5, 16
-	sll     t5, 16
-	neg     t5, t5
-	mtc2    t5, r2
-	mtc2    t6, r3
-	andi    t0, 0xFFFF
-	and t1, t7
-	andi    t3, 0xFFFF
-	mfc2    t4, r25
-	mfc2    t2, r26
-	mfc2    t5, r27
-	cop2    0x48E012
-	sll     t4, 16
-	or t0, t4
-	andi    t2, 0xFFFF
-	sll     t5, 16
-	or t3, t5
-	mfc2    t5, r25
-	mfc2    t6, r26
-	mfc2    t4, r27
-	andi    t5, 0xFFFF
-	or t1, t5
-	sll     t6, 16
-	j       SetRotation
-	or t2, t6
-#endif
+	
 }
 
 void mRotY(long ry)//76744 (F)
@@ -442,9 +394,17 @@ void mRotPackedYXZ(long yxz)//7693C (F)
 	UNIMPLEMENTED();
 }
 
-void SetRotation()//7696C
+void SetRotation()//7696C(<) (F)
 {
-	UNIMPLEMENTED();
+	Matrix->m00 = R11;
+	Matrix->m01 = R12;
+	Matrix->m02 = R13;
+	Matrix->m10 = R21;
+	Matrix->m11 = R22;
+	Matrix->m12 = R22;
+	Matrix->m20 = R31;
+	Matrix->m21 = R32;
+	Matrix->m22 = R33;
 }
 
 void setrot(struct MATRIX3D* m, long t0, long t1, long t2, long t3, long t4)//76970 TOCHECK
