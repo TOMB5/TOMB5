@@ -4,6 +4,7 @@
 #include "LIBGPU.H"
 #include "EMULATOR.H"
 #include "GPU.H"
+#include "GTEREG.H"
 
 void MakeMono(unsigned short* s, unsigned char* d)//7F9E4, 81A28
 {
@@ -82,7 +83,11 @@ void MakeMono(unsigned short* s, unsigned char* d)//7F9E4, 81A28
 
 void InitObjGTE()
 {
-	S_Warn("[InitObjGTE] - Unimplemented!\n");
+	ZSF3 = 0xAA;
+	ZSF4 = 0x80;
+	RFC = 0;
+	GFC = 0;
+	BFC = 0;
 }
 
 void DrawClippedMesh(int vertcache, short* mesh, MMTEXTURE* text, char* ot, char* prim, char* prim_lim, long fp, long prim_len, long num_tri)
