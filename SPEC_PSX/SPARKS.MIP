@@ -1,4 +1,4 @@
-	opt at+,w-,c+,m-
+	opt at-,w-,c+,m-
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
@@ -48,10 +48,10 @@ S_DrawSparks:
 	lw      a0, 0x40(v0)
 	lw      a1, 0x44(v0)
 	lw      a2, 0x48(v0)
-	sw      a0, 0x1F800008
-	sw      a1, 0x1F80000C
+	sw      a0, 0x08(fp)
+	sw      a1, 0x0C(fp)
 	jal     mTranslateAbsXYZ
-	sw      a2, 0x1F800010
+	sw      a2, 0x10(fp)
 	li      s6, 0x80
 
 	loc_9001C:

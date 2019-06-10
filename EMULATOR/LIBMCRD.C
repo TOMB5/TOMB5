@@ -1,5 +1,6 @@
 #include "LIBMCRD.H"
 #include "LIBETC.H"
+#include "EMULATOR_GLOBALS.H"
 
 #include <stdio.h>
 #include <assert.h>
@@ -246,22 +247,29 @@ long MemCardUnformat(long chan)
 
 long MemCardSync(long mode, long* cmds, long* rslt)
 {
-	if (memoryCardCmds != -1)
+	static int timesCalled = 0;
+
+	//if (timesCalled++ >= 4) //Doesn't work o.o
 	{
-		*cmds = memoryCardCmds;
+		timesCalled = 0;
+
+		if (memoryCardCmds != -1)
+		{
+			*cmds = memoryCardCmds;
+		}
+
+		if (memoryCardResult != -1)
+		{
+			*rslt = memoryCardResult;
+		}
+
+		if (mode == 1)
+		{
+			return memoryCardStatus;
+		}
 	}
 
-	if (memoryCardResult != -1)
-	{
-		*rslt = memoryCardResult;
-	}
-
-	if (mode == 1)
-	{
-		return memoryCardStatus;
-	}
-
-	return 0;
+	return -1;
 }
 
 MemCB MemCardCallback(MemCB func)

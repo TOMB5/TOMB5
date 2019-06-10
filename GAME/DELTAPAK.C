@@ -56,14 +56,18 @@
 
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
+#include "3D_OBJ.H"
 #include "MISC.H"
 #include "SPHERES.H"
 #include "FXTRIG.H"
 #include "TEXT_S.H"
 #include "LOAD_LEV.H"
+#include "FILE.H"
 #if DEBUG_VERSION
 #include <LIBETC.H>
 #endif
+
+#include <LIBSN.H>
 
 #endif
 
@@ -540,7 +544,8 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<) (F)
 	struct ITEM_INFO* item;
 
 	jobyfrigger = 0;
-
+	printf("TRIGGERING TITLE SPOTCAM!\n");
+	printf("Num: %d\n", num);
 	if (num == 1)
 	{
 		/*
@@ -608,11 +613,19 @@ void trigger_title_spotcam(int num)//32904(<), 32D9C(<) (F)
 	}
 	else if (num == 2)
 	{
+#if BETA_VERSION
 		S_CDPlay(CDA_XA11_FLYBY2, CD_PLAY_MODE);
+#else
+		S_CDPlay(CDA_XA11_FLYBY3, CD_PLAY_MODE);
+#endif
 	}
 	else if (num == 3)
 	{
+#if BETA_VERSION
 		S_CDPlay(CDA_XA11_FLYBY3, CD_PLAY_MODE);
+#else
+		S_CDPlay(CDA_XA11_FLYBY2, CD_PLAY_MODE);
+#endif
 	}
 	else if (num == 4)
 	{
@@ -3025,7 +3038,59 @@ int Load_and_Init_Cutseq(int num)
 	}
 	init_cutseq_actors((char*)cut, FALSE);
 #else
-	UNIMPLEMENTED();
+	int file;
+	long* headerbuf;
+	int len;
+	char* packed;
+
+	SetCutPlayed(num);
+	nframes = 2;
+	camera.number_frames = 2;
+
+#if DEBUG_VERSION
+	ProfileDraw = 0;
+#endif
+
+#if BETA_VERSION//Not in retail code
+	DrawSync(0);
+	VSync(0);
+	S_CDStop();
+#endif
+
+	if (cutseq_resident_addresses[num].packed_data != NULL)
+	{
+		init_resident_cutseq(num);
+		return 0;
+	}
+
+	init_cutseq_malloc();
+
+#if DISC_VERSION
+	DEL_CDFS_OpenFile(1);
+	DEL_CDFS_Read((char*)&tsv_buffer[0], 0x800);
+	headerbuf = (long*)&tsv_buffer[num];
+	DEL_CDFS_Seek(headerbuf[0]);
+	packed = (char*)cutseq_malloc(headerbuf[1]);
+	DEL_CDFS_Read(packed, headerbuf[1]);
+#else
+	file = PCopen("\\CUTSEQ.JIZ", 0, 0);
+	FILE_Read((char*)&tsv_buffer[0], 1, 0x800, file);
+	headerbuf = (long*)&tsv_buffer[num];
+	PClseek(file, headerbuf[0], 0);
+	packed = (char*)cutseq_malloc(headerbuf[1]);
+	FILE_Read(packed, 1, headerbuf[1], file);
+	PCclose(file);
+#endif
+
+	if (cutseq_num < 5)
+	{
+		GLOBAL_cutme->orgx = (lara_item->pos.x_pos & 0xFFFFFC00) + 0x200;
+		GLOBAL_cutme->orgy = lara_item->pos.y_pos;
+		GLOBAL_cutme->orgz = (lara_item->pos.z_pos & 0xFFFFFC00) + 0x200;
+
+	}//loc_2D91C
+
+	init_cutseq_actors((char*)GLOBAL_cutme, 0);
 #endif
 
 	return 0;
@@ -3598,6 +3663,8 @@ void handle_cutseq_triggering(int name)//2C3C4(<), 2C6EC(<) (F)
 	int n; // $v0
 	int goin; // $a1
 	int fuck; // $a0
+
+	printf("Handle cutseq triggering name: %d\n", name);
 
 	//s1 = Name
 

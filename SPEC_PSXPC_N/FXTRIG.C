@@ -27,3 +27,8 @@ void TriggerGunShell(long x, long y, long z)
 	UNIMPLEMENTED();
 }
 
+void WadeSplash(struct ITEM_INFO* item, int water_height, int water_depth)
+{
+	UNIMPLEMENTED();
+}
+

@@ -876,7 +876,7 @@ void DrawWeaponMissile(struct ITEM_INFO *item)
 	UNIMPLEMENTED();
 }
 
-#if 1//PC_VERSION
+#if PC_VERSION || PSXPC_TEST || PSXPC_VERSION
 void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
 {
 	int i;
@@ -898,6 +898,7 @@ void TriggerUnderwaterBlood(int x, int y, int z, int sizeme)// (F)
 }
 #endif
 
+#if PC_VERSION || PSXPC_VERSION || PSXPC_TEST
 short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room_number)
 {
 	GetFloor(x, y, z, &room_number);
@@ -909,6 +910,7 @@ short DoBloodSplat(long x, long y, long z, short random, short y_rot, short room
 
 	return -1;
 }
+#endif
 
 #if PC_VERSION
 void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)

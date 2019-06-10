@@ -1,0 +1,25 @@
+	opt at-,w-,c+,m-
+
+	SECTION	ASM
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF AlterFOV
+	XREF CurrentFov, rcossin_tbl, phd_persp
+
+AlterFOV:
+	sh      a0, CurrentFov-GP_ADDR(gp)
+	sll     a0, 16
+	sra     v0, a0, 16
+	srl     a0, 31
+	addu    v0, a0
+	sra     v0, 3
+	andi    v0, 0x3FFC
+	la      a1, rcossin_tbl
+	addu    a1, v0
+	lh      a0, 2(a1)
+	lh      v0, 0(a1)
+	sll     a0, 8
+	div     a0, v0
+	mflo    a0
+	ctc2    a0, r26
+	jr      ra
+	sw      a0, phd_persp-GP_ADDR(gp)

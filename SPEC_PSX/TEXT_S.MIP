@@ -481,7 +481,8 @@ GetStringLength:
 _draw_gbackground2:
 	lw		v0, 0x1F40(t8)
 	lui		at, 0xA00
-	li		v1, 0xE1000240
+	lui		v1, 0xE100
+	ori		v1, 0x0240
 	or		v0, at
 	sw		t9, 0x1F40(t8)
 	sw		v0, 0x0(t9)
