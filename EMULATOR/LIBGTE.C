@@ -373,11 +373,13 @@ inline long long gte_shift(long long a, int sf) {
 	return a;
 }
 
+typedef int64_t s64;
+
 int BOUNDS(/*int44*/long long value, int max_flag, int min_flag) {
-	if (value/*.positive_overflow()*/ > long long(0x7ffffffffff))
+	if (value/*.positive_overflow()*/ > s64(0x7ffffffffff))
 		FLAG |= max_flag;
 
-	if (value/*.negative_overflow()*/ < long long(-0x80000000000))
+	if (value/*.negative_overflow()*/ < s64(-0x80000000000))
 		FLAG |= min_flag;
 
 	return gte_shift(value/*.value()*/, m_sf);
@@ -469,10 +471,10 @@ unsigned int Lm_E(unsigned int result) {
 long long F(long long a) {
 	m_mac0 = a;
 
-	if (a > long long(0x7fffffff))
+	if (a > s64(0x7fffffff))
 		FLAG |= (1 << 31) | (1 << 16);
 
-	if (a < long long(-0x80000000))
+	if (a < s64(-0x80000000))
 		FLAG |= (1 << 31) | (1 << 15);
 
 	return a;
