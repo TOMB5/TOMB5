@@ -7,7 +7,7 @@ extern struct SUBSUIT_INFO subsuit;
 extern char SubHitCount;
 
 extern void LaraWaterCurrent(struct COLL_INFO* coll);
-extern long GetWaterDepth(long x, long y, long z, short* room_number);
+extern long GetWaterDepth(long x, long y, long z, short room_number);
 extern void lara_col_waterroll(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern void lara_col_uwdeath(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern void lara_col_dive(struct ITEM_INFO* item, struct COLL_INFO* coll);

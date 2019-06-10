@@ -1,0 +1,119 @@
+#---------------------------------------------------------------------------------
+# Lameguy's general-purpose makefile for PSX development
+# (for official PlayStation SDK)
+# 2017 Meido-Tek Productions
+#
+# Use mingw32-make (included with MinGW GCC compiler) to run this makefile. You may
+# also need to setup msys and assign it to your PATH environment to get the clean
+# and cleanall rules to work as make cannot execute del and rm is used instead.
+#
+# Download msys here:
+# https://sourceforge.net/projects/devkitpro/files/tools/msys%201.0.17/msys-1.0.17-1.exe/download
+#
+# NOTE: Do not use msys' make program! Its bugged in Win9x and may delete your souce
+# files when you clean and some programs such as asmpsx cannot read the arguments
+# when run by it.
+#
+# For ISO build to work, you will need mkpsxiso and Orion's Win32 version of cpe2x.
+# mkpsxiso: https://github.com/Lameguy64/mkpsxiso
+# cpe2x: http://onorisoft.free.fr/rdl.php?url=psx/cpe2x.zip
+#---------------------------------------------------------------------------------
+
+#---------------------------------------------------------------------------------
+# TARGET	- Name of the output
+# PROGADDR	- Program load address (0x80010000 is the default)
+# SOURCES	- Source directories (. for current directory)
+# INCLUDES	- Include search directories
+# ISOXML	- Name of mkpsxiso ISO project script
+#---------------------------------------------------------------------------------
+TARGET      = MAIN
+PROGADDR	= 0x6004000
+SOURCES		= SPEC_SAT/ GAME/
+INCLUDES	= SPEC_SAT/ GAME/
+DEFS		= SAT_VERSION DISC_VERSION NTSC_VERSION USE_ASM RELOC
+ISOXML		= TOMB5US.XML
+DISC_ROOTFD	= DISC/
+
+#---------------------------------------------------------------------------------
+# USE_SLINK	- Flag to use SLINK, otherwise PSYLINK is used
+#---------------------------------------------------------------------------------
+USE_SLINK = FALSE
+
+#---------------------------------------------------------------------------------
+# LIBDIRS	- Library search directories
+# LIBS		- Libraries to link during linking stage
+#---------------------------------------------------------------------------------
+LIBDIRS		= c:/psyq2/lib/
+LIBS		= LIBCD.LIB LIBSGL.LIB LIBSAT.LIB
+
+#---------------------------------------------------------------------------------
+# CFLAGS	- Base C compiler options
+# AFLAGS	- Base assembler options
+#---------------------------------------------------------------------------------
+CFLAGS		= -comments-c++ -fomit-frame-pointer -O2 -g -W -v
+AFLAGS		= /g /l /zd /oat+,w-,c+ /q
+
+#---------------------------------------------------------------------------------
+# Specific options to debug capable environments (debug options are only usable with
+# SN Debugger and a DTL-H2000, 2500 or the Parallel Port based PsyQ/SN Blue Dongle)
+# (you must set an H2000 environment variable with TRUE to compile with debug options)
+#---------------------------------------------------------------------------------
+ifeq "$(H2000)" "TRUE"
+CFLAGS		+= -g -DH2000
+AFLAGS		+= /zd
+endif
+
+#---------------------------------------------------------------------------------
+## CC		- C compiler (usually ccpsx)
+## AS		- Assembler (usually asmpsx)
+#---------------------------------------------------------------------------------
+
+CC			= ccsh
+AS			= asmpsx
+
+#---------------------------------------------------------------------------------
+# Parse source directories for source files
+#---------------------------------------------------------------------------------
+CFILES		= $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.C))
+AFILES		= $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.MIP))
+
+#CFILES =    SPEC_SAT/PSXMAIN.C SPEC_SAT/SPUSOUND.C GAME/OBJLIGHT.C SPEC_SAT/GPU.C SPEC_SAT/LOAD_LEV.C GAME/GAMEFLOW.C GAME/CONTROL.C GAME/TEXT.C GAME/DELSTUFF.C GAME/DELTAPAK.C GAME/DOOR.C GAME/DRAW.C GAME/BOX.C GAME/CAMERA.C GAME/COLLIDE.C GAME/ITEMS.C GAME/DEBRIS.C GAME/SPOTCAM.C GAME/EFFECT2.C GAME/TOMB4FX.C GAME/EFFECTS.C GAME/FLMTORCH.C GAME/HAIR.C GAME/HEALTH.C GAME/NEWINV2.C GAME/LARAFIRE.C GAME/LARAFLAR.C GAME/LARA1GUN.C GAME/LARA2GUN.C GAME/LARACLMB.C GAME/LARASWIM.C GAME/LARASURF.C GAME/LOT.C GAME/LARAMISC.C GAME/MISSILE.C GAME/OBJECTS.C GAME/PEOPLE.C GAME/SAVEGAME.C GAME/SOUND.C GAME/SPHERE.C GAME/SWITCH.C GAME/PICKUP.C SPEC_SAT/3D_GEN.C SPEC_SAT/CD.C GAME/TRAPS.C SPEC_SAT/FILE.C SPEC_SAT/MALLOC.C SPEC_SAT/3D_OBJ.C SPEC_SAT/PSXINPUT.C SPEC_SAT/ROOMLOAD.C SPEC_SAT/DRAWSPKS.C SPEC_SAT/PSOUTPUT.C SPEC_SAT/SPECIFIC.C SPEC_SAT/PROFILE.C SPEC_SAT/MEMCARD.C SPEC_SAT/LOADSAVE.C SPEC_SAT/REQUEST.C SPEC_SAT/DRAWPHAS.C SPEC_SAT/MOVIE.C GAME/CODEWAD.C GAME/LION.C GAME/LARA.C SPEC_SAT/CALCLARA.C SPEC_SAT/BUBBLES.C SPEC_SAT/CALCHAIR.C SPEC_SAT/DRAWOBJ.C SPEC_SAT/DRAWSKY.C SPEC_SAT/FXTRIG.C SPEC_SAT/GETSTUFF.C SPEC_SAT/LIGHT.C SPEC_SAT/MATHS.C SPEC_SAT/MISC.C SPEC_SAT/PRINTOBJ.C SPEC_SAT/ROOMLET3.C SPEC_SAT/ROOMLETB.C SPEC_SAT/SCOLLIDE.C SPEC_SAT/SCONTROL.C SPEC_SAT/SFOOTPRNT.C SPEC_SAT/SFX.C SPEC_SAT/SHADOWS.C SPEC_SAT/SPHERES.C SPEC_SAT/TEXT_S.C SPEC_SAT/SDELTAPAK.C
+#---------------------------------------------------------------------------------
+# Generate file names for object binaries
+#---------------------------------------------------------------------------------
+OFILES		= $(AFILES:.MIP=.obj) $(CFILES:.C=.obj) $(RFILES:.C=.obj)
+
+#---------------------------------------------------------------------------------
+# Default rule, compiles all source files
+#---------------------------------------------------------------------------------
+all: $(OFILES)
+	$(CC) $(CFLAGS) $(addprefix -L,$(LIBDIRS)) $(addprefix -l,$(LIBS)) $(OFILES) $(ROFILES)
+ifeq "$(USE_SLINK)" "TRUE"
+	PSX_SLINK.BAT
+else
+	SAT_LINK.BAT
+endif
+#---------------------------------------------------------------------------------
+# Clean-up rule
+#---------------------------------------------------------------------------------
+clean: cleanall
+
+#---------------------------------------------------------------------------------
+# ISO build rule (requires MKPSXISO)
+#---------------------------------------------------------------------------------
+iso:
+	cpe2x $(DISC_ROOTFD)$(TARGET).CPE
+	cd DISC
+	mkpsxisox.exe $(ISOXML)
+
+#---------------------------------------------------------------------------------
+# Rule for compiling C source
+#---------------------------------------------------------------------------------
+%.obj: %.C
+	$(CC) -Xo$(PROGADDR) $(addprefix -D,$(DEFS)) $(CFLAGS) $(addprefix -I,$(INCLUDES)) -c $< -o $@
+
+#---------------------------------------------------------------------------------
+# Rule for assembling assembly source
+#---------------------------------------------------------------------------------
+%.obj: %.MIP
+	$(AS) $(AFLAGS) $<,$@

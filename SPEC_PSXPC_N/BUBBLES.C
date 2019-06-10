@@ -50,10 +50,9 @@ void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 	UNIMPLEMENTED();
 }
 
-#if PSXPC_VERSION
-void SetInventoryLighting(struct MATRIX3D* m)
+void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)
 {
-#if PSX_VERSION && !USE_ASM
+#if 0//PSX_VERSION && !USE_ASM
 	gte_ReadRotMatrix(m);
 	gte_SetRotMatrix(CamGTE);
 	//a0 = CamGTE
@@ -61,7 +60,6 @@ void SetInventoryLighting(struct MATRIX3D* m)
 	UNIMPLEMENTED();
 #endif
 }
-#endif
 
 void DrawMonoScreen(int a0)
 {

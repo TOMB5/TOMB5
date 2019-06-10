@@ -177,7 +177,7 @@ short options_table[99] = // offset 0x933B8
 
 short optmessages[11] = // offset 0x93480
 {
-	0x003B, 0x003C, 0x003E, 0x003F, 0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x00B2, 0x003D
+	STR_USE, STR_CHOOSE_AMMO, STR_COMBINE, STR_SEPARATE, STR_EQUIP, STR_COMBINE_WITH, STR_LOAD_GAME, STR_SAVE_GAME, STR_EXAMINE, STR_STATISTICS, STR_CHOOSE_WEAPON_MODE
 };
 
 struct COMBINELIST dels_handy_combine_table[24] = // offset 0x93498
@@ -352,14 +352,10 @@ void S_DrawPickup(short object_number)//41608(<), 41A5C(<) (F)
 		0,
 		1);
 #elif PSX_VERSION || PSXPC_VERSION
-#if PSX_VERSION
 	ClearOTagR(db.pickup_ot, 256);
-#endif
 	DrawThreeDeeObject2D(PickupX + 448, 200, convert_obj_to_invobj(object_number), 128, 0, (GnFrameCounter & 0x7F) << 9, 0, 0, 1);
-
-	db.pickup_ot[0] = db.pickup_ot[0] & 0xFF000000 | db.ot[0] & 0xFFFFFF;
-	db.ot[0] = db.ot[0] & 0xFF000000 | (uintptr_t)(&db.pickup_ot[255]) & 0xFFFFFF;
-
+	db.pickup_ot[0] = (db.pickup_ot[0] & 0xFF000000) | (db.ot[0] & 0xFFFFFF);
+	db.ot[0] = (db.ot[0] & 0xFF000000) | (uintptr_t)&db.pickup_ot[255] & 0xFFFFFF;
 #endif
 }
 
@@ -1250,15 +1246,29 @@ int have_i_got_item(short obj)//3F29C, 3F6F0 (F)
 	return FALSE;
 }
 
-int is_item_currently_combinable(short obj)//3F200, 3F654 (F)
+int is_item_currently_combinable(short obj)//3F200(<), 3F654(<) (F)
 {
 	int n;
 
-	for (n = 0; n < 24; n++)
+	//loc_3F228
+	for(n = 0; n < 24; n++)
 	{
-		if ((dels_handy_combine_table[n].item1 != obj || !have_i_got_item(dels_handy_combine_table[n].item2)) &&
-			(dels_handy_combine_table[n].item2 != obj || !have_i_got_item(dels_handy_combine_table[n].item1)))
-			return TRUE;
+		if (dels_handy_combine_table[n].item1 == obj)
+		{
+			if (have_i_got_item(dels_handy_combine_table[n].item2))
+			{
+				return TRUE;
+			}
+
+			//loc_3F24C
+			if (dels_handy_combine_table[n].item2 == obj)
+			{
+				if (have_i_got_item(dels_handy_combine_table[n].item1))
+				{
+					return TRUE;
+				}
+			}//loc_3F270
+		}//loc_3F24C
 	}
 
 	return FALSE;
@@ -1346,7 +1356,7 @@ void draw_ammo_selector()//3EDDC(<), 3F230(<) (F)
 #if PC_VERSION
 		xpos = (2 * phd_centerx - OBJLIST_SPACING) >> 1;
 #else
-		xpos = SCREEN_WIDTH - OBJLIST_SPACING;
+		xpos = (SCREEN_WIDTH - OBJLIST_SPACING) >> 1;
 #endif
 
 		if (num_ammo_slots == 2)
@@ -1551,14 +1561,13 @@ void setup_ammo_selector()//3E9F8, 3EE4C (F)
 #endif
 }
 
-void handle_inventry_menu()//3DF44, 3E398
+void handle_inventry_menu()//3DF44(<), 3E398 (F)
 {
-	int n; // $s3
-	int opts; // $s0
-	int i; // $s1
-	int ypos; // $s2
-	int num; // $t1
-	//v0 = rings[RING_AMMO]
+	int n;
+	int opts;
+	int i;
+	int ypos;
+	int num;
 
 	if (rings[RING_AMMO]->ringactive)
 	{
@@ -1570,9 +1579,6 @@ void handle_inventry_menu()//3DF44, 3E398
 #endif
 			, 1, &gfStringWad[gfStringOffset[optmessages[5]]], FF_CENTER);
 
-		//a1 = rings[RING_INVENTORY]
-		//v0 = rings[RING_INVENTORY]->objlistmovement
-
 		if (rings[RING_INVENTORY]->objlistmovement)
 		{
 			return;
@@ -1583,19 +1589,9 @@ void handle_inventry_menu()//3DF44, 3E398
 			return;
 		}
 
-		//a2 = rings[RING_AMMO]
-
 		if (go_select)
 		{
-			//v0 = rings[RING_INVENTORY]->curobjinlist
-			//a0 = rings[RING_AMMO]->curobjinlist
-			//v1 = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist]
-			//v0 = rings[RING_AMMO]->current_object_list[rings[RING_AMMO]->curobjinlist]
-
-			//s0 = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem
-			//s1 = rings[RING_AMMO]->current_object_list[rings[RING_AMMO]->curobjinlist].invitem
-
-			if(do_these_objects_combine(rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem, rings[RING_AMMO]->current_object_list[rings[RING_AMMO]->curobjinlist].invitem))
+			if (do_these_objects_combine(rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem, rings[RING_AMMO]->current_object_list[rings[RING_AMMO]->curobjinlist].invitem))
 			{
 				combine_ring_fade_dir = 2;
 				combine_type_flag = 1;
@@ -1619,20 +1615,10 @@ void handle_inventry_menu()//3DF44, 3E398
 		}
 
 		return;
-		
 	}
 	else
 	{
 		//loc_3E0A8
-		//s5 = &current_options[0].text
-		//a3 = s5
-		//s6 = &current_options[0]
-		//v0 = rings[RING_INVENTORY]
-		//a2 = s6
-
-		//a0 = rings[RING_INVENTORY].curobjinlist
-		//s3 = 2
-		//v0 = &rings[RING_INVENTORY].current_object_list[rings[RING_INVENTORY].curobjinlist];
 		num = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem;
 
 		//loc_3E0DC
@@ -1642,493 +1628,247 @@ void handle_inventry_menu()//3DF44, 3E398
 			current_options[n].text = NULL;
 		}
 
-		//s3 = 0;
+		n = 0;
 		if (!ammo_active)
 		{
-			//v0 = &options_table[0];
-			//v1 = &options_table[rings[RING_INVENTORY].current_object_list[rings[RING_INVENTORY].curobjinlist].invitem];
 			opts = options_table[rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem];
 
-			//v0 = 9
 			if ((opts & 0x1000))
 			{
-				///current_options[0].type = 9;
-				//v0 = optmessages[6];
-				//a0 = gfStringOffset
-				//v1 = gfStringWad
-				//v0 = &gfStringOffset[optmessages[6]];
-				//a1 = gfStringOffset[optmessages[6]];
-				//s3 = 1
-				//v1 = &gfStringWad[gfStringOffset[optmessages[6]]];
-				///current_options[0].text = &gfStringWad[gfStringOffset[optmessages[6]]];
-			}///@TODO check if really else if
-			else if ((opts & 0x2000))//a1 = s3 << 3
+				current_options[0].type = 9;
+				n = 1;
+				current_options[0].text = &gfStringWad[gfStringOffset[optmessages[6]]];
+			}
+			if ((opts & 0x2000))
 			{
 				//loc_3E158
-				//s3++
-				//a0 = &current_options[s3].type
-				//v0 = 0xA
-				//v1 = 0x90000
-				///current_options[s3].type = 10;
-				//v0 = optmessages[7];
-				//a0 = gfStringOffset
-				//v1 = &gfStringWad[gfStringOffset[optmessages[7]]]
-				//v0 = &gfStringOffset[optmessages[7]]
-				//a2 = gfStringOffset[optmessages[7]]
-				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[7]]];
+				current_options[n].type = 10;
+				current_options[n++].text = &gfStringWad[gfStringOffset[optmessages[7]]];
 			}//loc_3E1A4
-			//a1 = s3 << 3
 			if ((opts & 0x20))
 			{
-				//s3++;
-				//a0 = &current_options[s3].type
-				//v0 = 11
-				///current_options[s3].type = 11;
-				//v0 = &gfStringOffset[optmessages[8]];
-				//a2 = gfStringOffset[optmessages[8]];
-				//a0 = gfStringOffset
-				//v1 = &gfStringWad[gfStringOffset[optmessages[8]]]
-				//a1 = &current_options[s3].text
-				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[8]]];
+				current_options[n].type = 11;
+				current_options[n++].text = &gfStringWad[gfStringOffset[optmessages[8]]];
 			}//loc_3E1F0
-			if ((opts & 0x8000))//a1 = s3 << 3
+			if ((opts & 0x8000))
 			{
-				//s3++;
-				//a0 = &current_options[s3]
-				//v0 = 12
-				///current_options[s3].type = 12;
-				//v0 = optmessages[9]
-				//a0 = &gfStringOffset[optmessages[9]]
-				//v1 = &gfStringWad[gfStringOffset[optmessages[9]]]
-				//a2 = gfStringOffset[optmessages[9]]
-				//a1 = &current_options[s3].text
-				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[9]]];
+				current_options[n].type = 12;
+				current_options[n++].text = &gfStringWad[gfStringOffset[optmessages[9]]];
 			}//loc_3E23C
-			if ((opts & 0x4))//a1 = s3 << 3
+			if ((opts & 0x4))
 			{
-				//s3++;
-				//a0 = &current_options[s3]
-				//v0 = 1
-				///current_options[s3].type = 1;
-				//v0 = &gfStringOffset[optmessages[0]]
-				//a0 = gfStringOffset
-				//v1 = &gfStringWad[gfStringOffset[optmessages[0]]];
-				//a2 = gfStringOffset[optmessages[0]]
-				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[0]]];
+				current_options[n].type = 1;
+				current_options[n++].text = &gfStringWad[gfStringOffset[optmessages[0]]];
 			}//loc_3E288
-			if ((opts & 0x2))//a1 = s3 << 3
+			if ((opts & 0x2))
 			{
-				//s3++;
-				//a0 = &current_options[s3]
-				//v0 = 1
-				///current_options[s3].type = 5;
-				//v0 = &gfStringOffset[optmessages[4]]
-				//a0 = gfStringOffset
-				//v1 = &gfStringWad[gfStringOffset[optmessages[4]]];
-				//a2 = gfStringOffset[optmessages[4]]
-				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[4]]];
+				current_options[n].type = 5;
+				current_options[n++].text = &gfStringWad[gfStringOffset[optmessages[4]]];
 			}//loc_3E2D4
-			if ((opts & 0xC0))//a1 = s3 << 3
+			if ((opts & 0xC0))
 			{
-				//s3++;
-				//a0 = &current_options[s3]
-				//v0 = 1
-				///current_options[s3].type = 2;
-				//v0 = &gfStringOffset[optmessages[1]]
-				//a0 = gfStringOffset
-				//v1 = &gfStringWad[gfStringOffset[optmessages[1]]];
-				//a2 = gfStringOffset[optmessages[1]]
-				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[1]]];
+				current_options[n].type = 2;
+				current_options[n++].text = &gfStringWad[gfStringOffset[optmessages[1]]];
 			}//loc_3E320
-			if ((opts & 0x100))//a1 = s3 << 3
+			if ((opts & 0x100))
 			{
-				//s3++;
-				//a0 = &current_options[s3]
-				//v0 = 1
-				///current_options[s3].type = 2;
-				//v0 = &gfStringOffset[optmessages[10]]
-				//a0 = gfStringOffset
-				//v1 = &gfStringWad[gfStringOffset[optmessages[10]]];
-				//a2 = gfStringOffset[optmessages[10]]
-				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[10]]];
+				current_options[n].type = 2;
+				current_options[n++].text = &gfStringWad[gfStringOffset[optmessages[10]]];
 			}//loc_3E36C
 			if ((opts & 8) && is_item_currently_combinable(num))
 			{
-				//s3++;
-				//a0 = &current_options[s3]
-				//v0 = 1
-				///current_options[s3].type = 3;
-				//v0 = &gfStringOffset[optmessages[2]]
-				//a0 = gfStringOffset
-				//v1 = &gfStringWad[gfStringOffset[optmessages[2]]];
-				//a2 = gfStringOffset[optmessages[2]]
-				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[2]]];
+				current_options[n].type = 3;
+				current_options[n++].text = &gfStringWad[gfStringOffset[optmessages[2]]];
 			}//loc_3E3CC
 
 			if ((opts & 0x1))
 			{
-				//s3++;
-				//a0 = &current_options[s3]
-				//v0 = 1
-				///current_options[s3].type = 3;
-				//v0 = &gfStringOffset[optmessages[2]]
-				//a0 = gfStringOffset
-				//v1 = &gfStringWad[gfStringOffset[optmessages[2]]];
-				//a2 = gfStringOffset[optmessages[2]]
-				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[2]]];
+				current_options[n].type = 3;
+				current_options[n++].text = &gfStringWad[gfStringOffset[optmessages[2]]];
 			}//loc_3E414
 
 			if ((opts & 0x10))
 			{
-				//s3++;
-				//a0 = &current_options[s3]
-				//v0 = 1
-				///current_options[s3].type = 4;
-				//v0 = &gfStringOffset[optmessages[3]]
-				//a0 = gfStringOffset
-				//v1 = &gfStringWad[gfStringOffset[optmessages[3]]];
-				//a2 = gfStringOffset[optmessages[3]]
-				///current_options[s3].text = &gfStringWad[gfStringOffset[optmessages[3]]];
+				current_options[n].type = 4;
+				current_options[n++].text = &gfStringWad[gfStringOffset[optmessages[3]]];
 			}//j loc_3E550
 		}
 		else
 		{
 			//loc_3E464
-			//v0 = 6
-			//t0 = &inventry_objects_list[0]
-			//a0 = ammo_object_list[0].invitem
-			//a3 = gfStringOffset 
-			//a1 = &options_table[0]
 			current_options[0].type = 6;
-			//sizeof(OBJLIST);
-			//v0 = &inventry_objects_list[ammo_object_list[0].invitem]
-			//v1 = &gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]
-			//a0 = gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]
-			//a2 = &gfStringWad
-			//v1 = ammo_object_list[1].invitem
-			//v0 = 7
 			current_options[1].type = 7;
-			//a0 = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]]
 			current_options[0].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]];
-			//a0 = num << 1
-			//v0 = ammo_object_list[1].invitem << 2
-			//v0 += ammo_object_list[1].invitem
-			//v0 += ammo_object_list[1].invitem << 2
-			//v0 = &inventry_objects_list[ammo_object_list[1].invitem];
-			//a0 = &options_table[num]
-			//v1 = inventry_objects_list[ammo_object_list[1].invitem].objname
-			//s0 = options_table[num]
-			//v1 <<= 1
-			//v1 = &gfStringOffset[inventry_objects_list[ammo_object_list[1].invitem].objname]
-			//v1 = opts & 0x100
-			//v0 = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[1].invitem].objname]];
 			current_options[1].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[1].invitem].objname]];
 
-			//s3 = 2
-			//n = 2
 			if ((opts & 0x100))
 			{
-				//v1 = ammo_object_list[2].invitem
-				//v0 = &inventry_objects_list[ammo_object_list[2].invitem]
-				//v1 = inventry_objects_list[ammo_object_list[2].invitem].objname
-				//a0 = 8
 				current_options[2].type = 8;
-
-				//v1 = &gfStringOffset[inventry_objects_list[ammo_object_list[2].invitem].objname]
-				//v0 = gfStringOffset[inventry_objects_list[ammo_object_list[2].invitem].objname]
-				//n = 3
-				//v0 = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[2].invitem].objname]]
 				current_options[2].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[2].invitem].objname]];
 
 			}
 			//loc_3E53C
-			//v0 = current_ammo_type
-			//v1 = current_ammo_type[0]
 			current_selected_option = current_ammo_type[0];
+		}
 
-			//loc_3E550
-			if (n == 1)
+		//loc_3E550
+		if (n == 1)
+		{
+			ypos = 120;
+		}
+		else
+		{
+			ypos = 102;
+		}
+		//loc_3E564
+		if (n == 2)
+		{
+			ypos = 111;
+		}
+		//loc_3E574
+		if (n > 0)
+		{
+			//loc_3E584
+			for (i = 0; i < n; i++)
 			{
-				ypos = 120;
-			}
-			else
-			{
-				ypos = 102;
-			}
-			//loc_3E564
-			if (n == 2)
-			{
-				ypos = 111;
-			}
-			//loc_3E574
-			if (n > 0)
-			{
-				//loc_3E584
-				for(i = 0; i < n; i++)
+				if (i == current_selected_option)
 				{
-					if (i == current_selected_option)
-					{
-						PrintString(256, ypos, 1, current_options[i].text, 0x8000);
-						ypos += 18;
-					}
-					else
-					{
-						//loc_3E5B0
-						PrintString(256, ypos, 5, current_options[i].text, 0x8000);
-						ypos += 18;
-					}
-					//loc_3E5C8
+					PrintString(256, ypos, 1, current_options[i].text, 0x8000);
+					ypos += 18;
 				}
+				else
+				{
+					//loc_3E5B0
+					PrintString(256, ypos, 5, current_options[i].text, 0x8000);
+					ypos += 18;
+				}
+				//loc_3E5C8
 			}
-			//loc_3E5D8
-			//v0 = menu_active
-			if (menu_active && !rings[RING_INVENTORY]->objlistmovement && !rings[RING_AMMO]->objlistmovement)
+		}
+		//loc_3E5D8
+		if (menu_active && !rings[RING_INVENTORY]->objlistmovement && !rings[RING_AMMO]->objlistmovement)
+		{
+			if (go_up && current_selected_option)
 			{
-				//v0 = rings[RING_INVENTORY]->
-				//v0 = go_up
-				if (go_up && current_selected_option)
+				current_selected_option++;
+				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+			}
+			else if (go_down && current_selected_option < n - 1)
+			{
+				//loc_3E64C
+				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+			}//loc_3E684
+
+			if (ammo_active)
+			{
+				if (go_left && current_selected_option)
+				{
+					current_selected_option--;
+					SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				}//loc_3E6C8
+
+				 //v0 = n - 1
+				if (go_right && current_selected_option < n - 1)
 				{
 					current_selected_option++;
 					SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				}//loc_3E700
+
+				current_ammo_type[0] = current_selected_option;
+			}//loc_3E710
+
+			if (go_select)
+			{
+				if (current_options[current_selected_option].type != 5 && current_options[current_selected_option].type != 1)
+				{
+					SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+				}//loc_3E754
+				if (current_options[current_selected_option].type == 2)
+				{
+					rings[RING_INVENTORY]->ringactive = 0;
+					ammo_active = 1;
+					Stashedcurrent_selected_option = current_selected_option;
+					StashedCurrentPistolsAmmoType = CurrentPistolsAmmoType;
+					StashedCurrentUziAmmoType = CurrentUziAmmoType;
+					StashedCurrentRevolverAmmoType = CurrentRevolverAmmoType;
+					StashedCurrentShotGunAmmoType = CurrentShotGunAmmoType;
+					StashedCurrentGrenadeGunAmmoType = CurrentGrenadeGunAmmoType;
 				}
-				else if(go_down && current_selected_option < n - 1)
+				else if (current_options[current_selected_option].type == 9)
 				{
-					//loc_3E64C
-					SoundEffect(SFX_MENU_SELECT, NULL, 2);
-				}//loc_3E684
-
-				if (ammo_active)
+					//loc_3E7C8
+					loading_or_saving = 1;
+				}
+				else if (current_options[current_selected_option].type == 10)
 				{
-					if (go_left && current_selected_option)
-					{
-						current_selected_option--;
-						SoundEffect(SFX_MENU_SELECT, NULL, 2);
-					}//loc_3E6C8
-
-					//v0 = n - 1
-					if (go_right && current_selected_option < n - 1)
-					{
-						//v1 = current_selected_option
-						//v0 = current_selected_option < n - 1 ? 1 : 0
-						current_selected_option++;
-						SoundEffect(SFX_MENU_SELECT, NULL, 2);
-					}//loc_3E700
-
-					//v1 = current_ammo_type
-					//v0 = current_selected_option
-					current_ammo_type[0] = current_selected_option;
-				}//loc_3E710
-
-				//v1 = 5
-				if (go_select)
+					loading_or_saving = 2;
+				}
+				else if (current_options[current_selected_option].type == 11)
 				{
-					//v0 = current_selected_option
-					//v0 = &current_options[current_selected_option]
-					//a0 = current_options[current_selected_option].type
-					if (current_options[current_selected_option].type != 5 && current_options[current_selected_option].type != 1)
-					{
-						SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
-					}//loc_3E754
-					//v0 = current_selected_option
-					//v0 = &current_options[current_selected_option]
-					//v1 = current_options[current_selected_option].type
-					//v0 - 9
-					if (current_options[current_selected_option].type == 2)
-					{
-						//v0 = rings[RING_INVENTORY]->
-						rings[RING_INVENTORY]->ringactive = 0;
-						///@continue
-					}//loc_3E7C8
+					examine_mode = 1;
+				}
+				else if (current_options[current_selected_option].type == 12)
+				{
+					stats_mode = 1;
+				}
+				else if (current_options[current_selected_option].type - 6 < 3)
+				{
+					//loc_3E848
+					ammo_active = 0;
+					rings[RING_INVENTORY]->ringactive = 1;
+					current_selected_option = 0;
+				}
+				else if (current_options[current_selected_option].type == 3)
+				{
+					construct_combine_object_list();
+					rings[RING_INVENTORY]->ringactive = 0;
+					rings[RING_AMMO]->ringactive = 1;
+					ammo_selector_flag = 0;
+					menu_active = 0;
+					combine_ring_fade_dir = 1;
+				}//loc_3E888
+				else if (current_options[current_selected_option].type == 4)
+				{
+					seperate_type_flag = 1;
+					normal_ring_fade_dir = 2;
+				}//loc_3E8A4
+				else if (current_options[current_selected_option].type == 5 || current_options[current_selected_option].type == 1) //v0 = 1
+				{
+					//loc_3E8B4
+					menu_active = 0;
+					use_the_bitch = 1;
+				}
 
-				}//loc_3E8C0
+			}
+			//loc_3E8C0
+			if ((input & IN_SELECT) && current_options[current_selected_option].type == 1 &&
+				rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem - 22 < 2 &&
+				!bullshitbollox && _bullshitbollox)
+			{
+				menu_active = 0;
+				use_the_bitch = current_options[current_selected_option].type;
+			}//loc_3E958
 
-			}//loc_3E9D0
+			if (go_deselect && ammo_active)
+			{
+				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				go_deselect = 0;
+				ammo_active = 0;
+				rings[RING_INVENTORY]->ringactive = 1;
+				CurrentPistolsAmmoType = StashedCurrentPistolsAmmoType;
+				CurrentUziAmmoType = StashedCurrentUziAmmoType;
+				CurrentRevolverAmmoType = StashedCurrentRevolverAmmoType;
+				CurrentShotGunAmmoType = StashedCurrentShotGunAmmoType;
+				CurrentGrenadeGunAmmoType = StashedCurrentGrenadeGunAmmoType;
+				CurrentCrossBowAmmoType = StashedCurrentCrossBowAmmoType;
+				current_selected_option = Stashedcurrent_selected_option;
+
+			}
 		}
-	}
-#if 0
-				 lbu     $v1, 0x312C($gp)
-				 lbu     $a0, 0x3114($gp)
-				 lbu     $a1, 0x3115($gp)
-				 lbu     $a2, 0x3116($gp)
-				 lbu     $a3, 0x3117($gp)
-				 lbu     $t0, 0x3118($gp)
-				 lbu     $t1, 0x3119($gp)
-				 li      $v0, 1
-				 sb      $v0, 0x31C8($gp)
-				 sb      $v1, 0x3128($gp)
-				 sb      $a0, 0x311A($gp)
-				 sb      $a1, 0x311B($gp)
-				 sb      $a2, 0x311C($gp)
-				 sb      $a3, 0x311D($gp)
-				 sb      $t0, 0x311E($gp)
-				 sb      $t1, 0x311F($gp)
-				 j       loc_3E8C0
-				 nop
 
-				 loc_3E7C8 :
-			 bne     $v1, $v0, loc_3E7E0
-				 li      $v0, 0xA
-				 li      $v0, 1
-				 sb      $v0, 0x31C4($gp)
-				 j       loc_3E8C0
-				 nop
-
-				 loc_3E7E0 :
-			 bne     $v1, $v0, loc_3E7F4
-				 li      $v0, 0xB
-				 sb      $a0, 0x31C4($gp)
-				 j       loc_3E8C0
-				 nop
-
-				 loc_3E7F4 :
-			 bne     $v1, $v0, loc_3E80C
-				 li      $v0, 0xC
-				 li      $v0, 1
-				 sh      $v0, 0x574($gp)
-				 j       loc_3E8C0
-				 nop
-
-				 loc_3E80C :
-			 bne     $v1, $v0, loc_3E824
-				 addiu   $v0, $v1, -6
-				 li      $v0, 1
-				 sh      $v0, 0x576($gp)
-				 j       loc_3E8C0
-				 nop
-
-				 loc_3E824 :
-			 sltiu   $v0, 3
-				 beqz    $v0, loc_3E848
-				 li      $v0, 1
-				 lw      $v1, 0x3178($gp)
-				 sb      $zero, 0x31C8($gp)
-				 sw      $v0, 0x258($v1)
-				 sb      $zero, 0x312C($gp)
-				 j       loc_3E8C0
-				 nop
-
-				 loc_3E848 :
-			 li      $v0, 3
-				 bne     $v1, $v0, loc_3E888
-				 li      $v0, 4
-				 jal     construct_combine_object_list
-				 nop
-				 lw      $v0, 0x3178($gp)
-				 nop
-				 sw      $zero, 0x258($v0)
-				 lw      $v1, 0x317C($gp)
-				 li      $v0, 1
-				 sw      $v0, 0x258($v1)
-				 sb      $zero, 0x3174($gp)
-				 sb      $zero, 0x313C($gp)
-				 sh      $v0, 0x3164($gp)
-				 j       loc_3E8C0
-				 nop
-
-				 loc_3E888 :
-			 bne     $v1, $v0, loc_3E8A4
-				 li      $v0, 5
-				 li      $v0, 1
-				 sb      $v0, 0x3184($gp)
-				 sh      $a0, 0x3160($gp)
-				 j       loc_3E8C0
-				 nop
-
-				 loc_3E8A4 :
-			 beq     $v1, $v0, loc_3E8B4
-				 li      $v0, 1
-				 bne     $v1, $v0, loc_3E8C0
-				 nop
-
-				 loc_3E8B4 :
-			 li      $v0, 1
-				 sb      $zero, 0x313C($gp)
-				 sb      $v0, 0x3148($gp)
-
-				 loc_3E8C0 :
-				 lw      $v0, dword_800A457C
-				 lui     $v1, 0x10
-				 and $v0, $v1
-				 beqz    $v0, loc_3E958
-				 li      $v1, 1
-				 lbu     $v0, 0x312C($gp)
-				 nop
-				 sll     $v0, 3
-				 addu    $v0, $s6
-				 lw      $a1, 0($v0)
-				 nop
-				 bne     $a1, $v1, loc_3E958
-				 nop
-				 lw      $a0, 0x3178($gp)
-				 nop
-				 lw      $v1, 0x260($a0)
-				 nop
-				 sll     $v0, $v1, 1
-				 addu    $v0, $v1
-				 sll     $v0, 1
-				 addu    $a0, $v0
-				 lhu     $v1, 0($a0)
-				 nop
-				 addiu   $v1, -0x16
-				 sltiu   $v1, 2
-				 beqz    $v1, loc_3E958
-				 nop
-				 lbu     $v0, 0x31F0($gp)
-				 nop
-				 bnez    $v0, loc_3E958
-				 nop
-				 lbu     $v0, 0x31EC($gp)
-				 nop
-				 beqz    $v0, loc_3E958
-				 nop
-				 sb      $zero, 0x313C($gp)
-				 sb      $a1, 0x3148($gp)
-
-				 loc_3E958:
-			 lbu     $v0, 0x31E8($gp)
-				 nop
-				 beqz    $v0, loc_3E9D0
-				 nop
-				 lbu     $v0, 0x31C8($gp)
-				 nop
-				 beqz    $v0, loc_3E9D0
-				 li      $a0, 0x6D
-				 move    $a1, $zero
-				 jal     SoundEffect
-				 li      $a2, 2
-				 lw      $v1, 0x3178($gp)
-				 li      $v0, 1
-				 sb      $zero, 0x31E8($gp)
-				 sb      $zero, 0x31C8($gp)
-				 sw      $v0, 0x258($v1)
-				 lbu     $a0, 0x311A($gp)
-				 lbu     $v0, 0x311B($gp)
-				 lbu     $v1, 0x311C($gp)
-				 lbu     $a1, 0x311D($gp)
-				 lbu     $a2, 0x311E($gp)
-				 lbu     $a3, 0x311F($gp)
-				 lbu     $t0, 0x3128($gp)
-				 sb      $a0, 0x3114($gp)
-				 sb      $v0, 0x3115($gp)
-				 sb      $v1, 0x3116($gp)
-				 sb      $a1, 0x3117($gp)
-				 sb      $a2, 0x3118($gp)
-				 sb      $a3, 0x3119($gp)
-				 sb      $t0, 0x312C($gp)
-
-				 loc_3E9D0:
-			 lw      $ra, 0x38 + var_4($sp)
-				 lw      $s6, 0x38 + var_8($sp)
-				 lw      $s5, 0x38 + var_C($sp)
-				 lw      $s4, 0x38 + var_10($sp)
-				 lw      $s3, 0x38 + var_14($sp)
-				 lw      $s2, 0x38 + var_18($sp)
-				 lw      $s1, 0x38 + var_1C($sp)
-				 lw      $s0, 0x38 + var_20($sp)
-				 jr      $ra
-				 addiu   $sp, 0x38
-#endif
+	}//loc_3E9D0
 }
+
 
 void handle_object_changeover(int ringnum)//3DF18, 3E36C (F)
 {
@@ -2139,6 +1879,806 @@ void handle_object_changeover(int ringnum)//3DF18, 3E36C (F)
 
 void draw_current_object_list(int ringnum)//3D350, 3D7A4
 {
+	int n; // $s5
+	int maxobj; // $s7
+	int xoff; // stack offset -48
+	int i; // $s3
+	int shade; // $s1
+	int minobj; // stack offset -44
+	char textbufme[128]; // stack offset -176
+	int objmeup; // $a0
+	int nummeup; // $t0
+	short ymeup; // $t2
+	short yrot; // $t1
+	struct INVOBJ* objme; // $v1
+	int activenum; // $v1
+#if 1//TEMP
+	i = 0;
+	shade = 0;
+#endif
+	//s6 = a0
+	//v0 = s6 << 2
+
+	//a1 = &rings
+	//v0 = &rings[ringnum]
+	//v1 = rings[ringnum]
+	//a0 = rings[ringnum]->numobjectsinlist
+
+
+	if (rings[ringnum]->numobjectsinlist > 0)
+	{
+		if (ringnum == RING_AMMO)
+		{
+			//a0 = combine_ring_fade_dir
+			ammo_selector_fade_val = 0;
+			ammo_selector_fade_dir = 0;
+
+			//v0 = 2
+			if (combine_ring_fade_dir == 1)
+			{
+				//v0 = combine_ring_fade_val
+				//v1 = combine_ring_fade_val
+				//v0 = v0 < 128 ? 1 : 0
+
+				if (combine_ring_fade_val < 128)
+				{
+					combine_ring_fade_val += 32;
+				}
+				//loc_3D3DC
+				//v0 = combine_ring_fade_val < 0x81 ? 1 : 0
+
+				maxobj = 0;
+
+				if (combine_ring_fade_val > 128)
+				{
+					combine_ring_fade_val = 128;
+					combine_ring_fade_dir = 0;
+					n = 0;///@removeme when loop found
+					//j       loc_3D578
+				}//loc_3D574
+
+				n = 0;
+			}
+			else if (combine_ring_fade_dir == 2)
+			{
+				//loc_3D404
+				maxobj = 0;///@fixme done in delay slot before branch taken
+				//v0 = combine_ring_fade_val
+				//v1 = combine_ring_fade_val
+
+				//v0 = v1 - 0x20
+				if (combine_ring_fade_val > 0)
+				{
+					combine_ring_fade_val -= 32;
+					n = 0;///@fixme remove when loop found
+					///v0 = combine_ring_fade_val << 16
+					///if(v0 > 0)
+					{
+						//j loc_3D578 ///maybe have to use label here unfortunately
+					}
+				}
+				//loc_3D42C
+				//v0 = combine_type_flag
+
+				if (combine_type_flag)
+				{
+					normal_ring_fade_dir = combine_ring_fade_dir;
+				}
+				else
+				{
+					//loc_3D44C
+					//v0 = rings[RING_INVENTORY];
+					rings[RING_INVENTORY]->ringactive = 1;
+					//v1 = 
+					menu_active = 1;
+					rings[RING_AMMO]->ringactive = 0;
+
+					handle_object_changeover(0);
+				}
+
+				combine_ring_fade_val = 0;
+				combine_ring_fade_dir = 0;
+				//loc_3D46C
+				rings[RING_AMMO]->ringactive = 0;
+				maxobj = 0;
+				//j       loc_3D578
+			}
+		}//loc_3D478
+		else
+		{
+			//v1 = normal_ring_fade_dir
+			//v0 = 2
+			if (normal_ring_fade_dir == 1)
+			{
+				//v0 = normal_ring_fade_val
+				//v1 = normal_ring_fade_val
+				//v0 = v0 < 0x80 ? 1 : 0
+
+				//v0 = v1 + 32
+				if (normal_ring_fade_val < 128)
+				{
+					normal_ring_fade_val += 32;
+				}
+				//loc_3D4A0
+				//v0 = normal_ring_fade_val
+				//v0 = v0 < 129 ? 1 : 0
+				maxobj = 0;
+				if (normal_ring_fade_val > 128)
+				{
+					//v1 = rings[RING_INVENTORY]
+					//v0 = 128
+					normal_ring_fade_val = 128;
+					normal_ring_fade_dir = 0;
+					rings[RING_INVENTORY]->ringactive = 1;
+					menu_active = 1;
+					//j loc_3D578
+				}//loc_3D574
+				n = 0;
+			}
+			else if (normal_ring_fade_dir == 2)
+			{
+				//loc_3D4D4
+				maxobj = 0;///@FIXME executed before branch instruction
+				//v0 = normal_ring_fade_val
+				//v1 = normal_ring_fade_val
+
+				if (normal_ring_fade_val > 0)
+				{
+					normal_ring_fade_val -= 32;
+
+					//v0 <<= 16
+					n = 0;
+					//if (v0 > 0)
+					{
+						//j loc_3D578
+					}
+
+				}//loc_3D4FC
+
+				//v0 = combine_type_flag
+				normal_ring_fade_val = 0;
+				normal_ring_fade_dir = 1;
+
+				if (combine_type_flag == 1)
+				{
+					combine_type_flag = 0;
+					combine_these_two_objects(combine_obj1, combine_obj2);
+				}
+				else if(seperate_type_flag != 0)
+				{
+					//loc_3D52C
+					//v0 = rings[RING_INVENTORY];
+					//a0 = rings[RING_INVENTORY]->curobjinlist;
+					//v0 = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist]
+					//a0 = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem
+					seperate_object(rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem);
+				}
+				//loc_3D568
+				handle_object_changeover(0);
+
+			}
+		}
+		//loc_3D578
+		//v1 = ringnum << 2
+		//v0 = &rings
+		//a0 = &rings[ring_num]
+		minobj = 0;
+		xoff = 0;
+		//a1 = rings[ringnum]
+		//v0 = 1
+		//a2 = rings[ringnum]->numobjectsinlist
+		//fp = ringnum << 2
+		if (rings[ringnum]->numobjectsinlist != 1)
+		{
+			//v0 = rings[ringnum]->objlistmovement
+			//v1 = OBJLIST_SPACING
+			//v0 = (rings[ringnum]->objlistmovement * OBJLIST_SPACING) >> 16
+			xoff = (rings[ringnum]->objlistmovement * OBJLIST_SPACING) >> 16;
+		}//loc_3D5C0
+		if (rings[ringnum]->numobjectsinlist == 2)//v0 = 3
+		{
+			//v0 = rings[ringnum]->curobjinlist
+			//v1 = -1
+			minobj = -1;
+			n = rings[ringnum]->curobjinlist - 1;
+		}
+		//loc_3D5E0
+		if (rings[ringnum]->numobjectsinlist == 3)//v0 = 4
+		{
+			//v0 = -2
+			minobj = -2;
+			//v0 = rings[ringnum]->curobjinlist
+			maxobj = 1;
+			n = rings[ringnum]->curobjinlist - 2;
+		}//loc_3D600
+		if (rings[ringnum]->numobjectsinlist == 4)//v0 = a2 < 5 ? 1 : 0
+		{
+			//v1 = -2
+			minobj = -2;
+			//v0 = rings[ringnum]->curobjinlist
+			maxobj = 1;
+			n = rings[ringnum]->curobjinlist - 2;
+		}//loc_3D620
+		if (rings[ringnum]->numobjectsinlist > 4)
+		{
+			//v0 = -3
+			minobj = -3;
+			//v0 = rings[ringnum]->curobjinlist
+			maxobj = 2;
+			n = rings[ringnum]->curobjinlist - 3;
+		}//loc_3D638
+
+		if (n < 0)
+		{
+			n += rings[ringnum]->numobjectsinlist;
+		}//loc_3D644
+
+		//v0 = rings[ringnum]->objlistmovement
+		if (rings[ringnum]->objlistmovement < 0)
+		{
+			maxobj++;
+		}
+
+		//loc_3D658
+		//s3 = minobj
+		//v1 = 0xA0000
+		if (maxobj > minobj)
+		{
+			//s2 = &rings[ring_num]
+			//s4 = lara
+			//v0 = n << 1
+			//v0 += n
+			//s0 = v0 << 1
+
+			//loc_3D680
+			while(maxobj >= minobj)
+			{
+				//v1 = minobj
+
+				if (minobj == minobj)
+				{
+					//v0 = rings[ring_num]
+					//v0 = rings[ringnum]->objlistmovement
+
+					//v0 <<= 7
+					if (rings[ringnum]->objlistmovement < 0)
+					{
+						shade = 0;
+						//j       loc_3D740
+					}//loc_3D73C
+				}
+				else
+				{
+					//loc_3D6B0
+					//a1 = minobj
+					//v0 = minobj + 1
+
+					if (minobj == minobj + 1 && maxobj != minobj)
+					{
+						//v0 = rings[ringnum]
+						//v0 = rings[ringnum]->objlistmovement
+						shade = 128;
+						if (rings[ringnum]->objlistmovement < 0)
+						{
+							if (rings[ringnum]->objlistmovement < 0)
+							{
+								//v0 = -rings[ringnum]->objlistmovement
+							}
+							//loc_3D6F0
+							//v0 <<= 7
+							//j       loc_3D71C
+
+						}//loc_3D740
+
+					}
+					else
+					{
+						//loc_3D6F8
+						shade = 128;
+						if (minobj == maxobj)
+						{
+							//v0 = rings[ringnum]
+							//v0 = rings[ringnum]->objlistmovement
+							if (rings[ringnum]->objlistmovement >= 0)
+							{
+								//v0 <<= 7
+								//loc_3D71C
+								//v0 >>= 16
+								//v1 = 128
+								shade = 128 - (rings[ringnum]->objlistmovement << 7) >> 16;
+								//j       loc_3D740
+							}//loc_3D72C
+							else if (rings[ringnum]->objlistmovement < 0)
+							{
+								//v0 = ((-rings[ringnum]->objlistmovement) << 7) >> 16;
+								shade = ((-rings[ringnum]->objlistmovement) << 7) >> 16;
+							}
+						}
+
+					}//loc_3D740
+				}//loc_3D740
+
+				 //loc_3D740
+				 //v0 = minobj
+				if (minobj == 0 && maxobj == 1)
+				{
+					shade = 128;
+				}//loc_3D75C
+
+				if (ringnum == RING_AMMO && combine_ring_fade_val < 128 && shade != 0)
+				{
+					//v1 = combine_ring_fade_val
+					//v0 = v1 < 128 ? 1 : 0
+					shade = combine_ring_fade_val;
+				}//loc_3D784
+				if (ringnum == RING_INVENTORY && normal_ring_fade_val < 128 && shade != 0)
+				{
+					shade = normal_ring_fade_val;
+				}
+				//loc_3D7AC
+				if (minobj == 0)
+				{
+					//v0 = rings[ringnum]->current_object_list[n]
+					//v1 = rings[ringnum]->current_object_list[n].invitem
+					//v0 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
+					//a0 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number
+					nummeup = 0;
+					if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == BIGMEDI_ITEM)
+					{
+						nummeup = lara.num_large_medipack;
+						//j       loc_3D930
+					}//loc_3D7FC//v0 = 0x163
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == SMALLMEDI_ITEM)
+					{
+						nummeup = lara.num_small_medipack;
+						//j       loc_3D930
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == FLARE_INV_ITEM)
+					{
+						nummeup = lara.num_flares;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - PUZZLE_ITEM1 < 8)
+					{
+						//loc_3D828
+						//a1 = &lara.puzzleitems
+						//v1 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - 0xAC
+						//v0 = &lara.puzzleitems[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - PUZZLE_ITEM1];
+						nummeup = lara.puzzleitems[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - PUZZLE_ITEM1];
+
+						if (nummeup < 2)
+						{
+							nummeup = 0;
+						}
+						//j loc_3D930
+					}//loc_3D858
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == SHOTGUN_AMMO1_ITEM)
+					{
+						nummeup = lara.num_shotgun_ammo1;
+						if (nummeup != -1)
+						{
+							nummeup = (nummeup * 0x2AAAAAAB) - (nummeup >> 15);
+						}
+						//j loc_3D930
+					}//v0 = 0x15A
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == SHOTGUN_AMMO2_ITEM)
+					{
+						nummeup = lara.num_shotgun_ammo2;
+						if (nummeup != -1)
+						{
+							nummeup = (nummeup * 0x2AAAAAAB) - (nummeup >> 15);
+						}
+						//j loc_3D930
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == HK_AMMO_ITEM)
+					{
+						nummeup = lara.num_hk_ammo1;
+						// j       loc_3D930
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == CROSSBOW_AMMO1_ITEM)
+					{
+						nummeup = lara.num_crossbow_ammo1;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == CROSSBOW_AMMO2_ITEM)
+					{
+						nummeup = lara.num_crossbow_ammo2;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == REVOLVER_AMMO_ITEM)
+					{
+						nummeup = lara.num_revolver_ammo;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == UZI_AMMO_ITEM)
+					{
+						nummeup = lara.num_uzi_ammo;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == BOTTLE)
+					{
+						nummeup = lara.bottle;
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == PICKUP_ITEM4)
+					{
+						nummeup = savegame.Level.Secrets;
+					}
+
+					//v0 = 0xDF
+					if (nummeup == 0)
+					{
+						//v1 = rings[ringnum]
+						//a1 = gfStringWad
+						//v1 = rings[ringnum]->currentobjlist[n]
+						//a0 = rings[ringnum]->currentobjlist[n].object_number
+						//v1 = inventry_objects_list
+						//v0 = &inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number]
+						//v1 = inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname
+						//a0 = gfStringOffset
+						//v1 = &gfStringOffset[inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname]
+						//v0 = gfStringOffset[inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname]
+						//a1 = &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname]
+						sprintf(&textbufme[0], &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]);
+						// j       loc_3DA9C
+					}
+					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == PICKUP_ITEM4)
+					{
+						//loc_3D994
+						//v0 = -1
+						//a0 = &textbufme[0]
+						//a2 = nummeup
+						//v0 = &wanky_secrets_table
+						//v1 = gfCurrentLevel
+						//a1 = &gfStringOffset
+						//v1 = &wanky_secrets_table[gfCurrentLevel]
+						//t0 = gfStringOffset[STR_SECRETS_NUM]
+						//a1 = &gfStringWad[gfStringOffset[STR_SECRETS_NUM]]
+						//a3 = wanky_secrets_table[gfCurrentLevel]
+						sprintf(&textbufme[0], &gfStringWad[gfStringOffset[STR_SECRETS_NUM]], nummeup, wanky_secrets_table[gfCurrentLevel]);
+						//j       loc_3DA9C
+					}
+					else if (nummeup == -1)
+					{
+						//loc_3D9E0
+						//a0 = &textbufme[0]
+						//v0 = rings[ringnum]
+						//a1 = &inventry_objects_list[0]
+						//v0 = &rings[ringnum]->current_object_list[n]
+						//v1 = rings[ringnum]->current_object_list[n].invitem
+						//a2 = gfStringOffset
+						//v0 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
+						//v1 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname
+						//a1 = gfStringOffset[STR_UNLIMITED]
+						//v0 = gfStringWad
+						//v1 = &gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
+						//a2 = gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
+						//a1 = &gfStringWad[gfStringOffset[STR_UNLIMITED]]
+						//a2 = &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]
+						sprintf(&textbufme[0], &gfStringWad[gfStringOffset[STR_UNLIMITED]], &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]);
+					}
+					else
+					{
+						//loc_3DA44
+						//v0 = rings[ringnum]
+						//a2 = gfStringOffset
+						//v0 = &rings[ringnum]->current_object_list[n]
+						//v1 = rings[ringnum]->current_object_list[n].invitem
+						//a1 = "%d x %s"
+						//v1 = &inventry_objects_list[0]
+						//v0 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
+						//v1 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname
+						//a3 = &gfStringWad[0]
+						//v1 = &gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
+						//v0 = gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
+						sprintf(&textbufme[0], "%d x %s", nummeup, &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]);
+					}
+
+					//loc_3DA9C
+					if (ringnum == RING_INVENTORY)
+					{
+						PrintString(SCREEN_WIDTH / 2, 75, 8, &textbufme[0], FF_CENTER);
+						//j       loc_3DADC
+					}
+					else
+					{
+						//loc_3DAC4
+						PrintString(SCREEN_WIDTH / 2, 165, 8, &textbufme[0], FF_CENTER);
+					}
+				}
+				//loc_3DADC
+				//a1 = rings[ringnum]
+				//v0 = rings[ringnum]->current_object_list[n]
+				//a0 = rings[ringnum]->current_object_list[n].invitem
+				//v0 = &inventry_objects_list[0];
+				//v1 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
+
+				if (minobj == 0 && rings[ringnum]->objlistmovement == 0)
+				{
+					//v1 = rings[ringnum]->current_object_list[n]+0x2
+					if ((inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].flags & 2))
+					{
+						rings[ringnum]->current_object_list[n].yrot += 1022;
+						//j       loc_3DB58
+					}//loc_3DB58
+				}
+				else
+				{
+					//loc_3DB44
+					//s2 = &rings[ringnum]
+					//a0 = &rings[ringnum]->current_object_list[n].yrot
+					spinback(&rings[ringnum]->current_object_list[n].yrot);
+				}
+
+				//v1 = rings[ringnum]->
+				yrot = rings[ringnum]->current_object_list[n].yrot;
+
+				if (ringnum == RING_INVENTORY)
+				{
+					ymeup = 42;
+				}
+				else
+				{
+					ymeup = 190;
+				}
+
+				//loc_3DB74
+				activenum = 0;
+				if (rings[ringnum]->objlistmovement != 0)
+				{
+					if (rings[ringnum]->objlistmovement > 0)
+					{
+						activenum = -1;
+					}
+					else
+					{
+						activenum = 1;
+					}
+				}//loc_3DB90
+
+				if (minobj == activenum)
+				{
+					//v1 = &rings
+					//a1 = &rings[ringnum]
+					//v0 = rings[ringnum]
+					//v0 += 4
+					//a0 = rings[ringnum]->current_object_list[n] +0x4
+					//v1 = rings[ringnum]->current_object_list[n].bright
+
+					//v0 = rings[ringnum]->current_object_list[n].bright < 160 ? 1 : 0
+					if (rings[ringnum]->current_object_list[n].bright < 160)
+					{
+						rings[ringnum]->current_object_list[n].bright += 16;
+					}//loc_3DBC8
+
+					//v1 = rings[ringnum]->current_object_list[n].bright < 161 ? 1 : 0
+
+					//a3 = shade
+					if (rings[ringnum]->current_object_list[n].bright > 160)
+					{
+						rings[ringnum]->current_object_list[n].bright = 160;
+					}
+				}
+				else
+				{
+					//loc_3DBF4
+					//v0 = &rings
+					//a1 = &rings[ringnum]
+					//a0 = rings[ringnum]->current_object_list[n].+0x4
+					//v1 = rings[ringnum]->current_object_list[n].bright
+					//v0 = v1 < 33 ? 1 : 0
+
+					if (rings[ringnum]->current_object_list[n].bright > 32)
+					{
+						rings[ringnum]->current_object_list[n].bright -= 16;
+					}
+					//loc_3DC24
+					//v0 = rings[ringnum]+0x4
+					//a0 = rings[ringnum]->current_object_list[n].+0x4
+					//v1 = rings[ringnum]->current_object_list[n].bright
+
+					if (rings[ringnum]->current_object_list[n].bright < 32)
+					{
+						rings[ringnum]->current_object_list[n].bright = 32;
+					}
+					//loc_3DC4C
+					//a3 = shade
+				}
+
+				//loc_3DC50
+				//v1 = rings[ring_num]
+				//t0 = OBJLIST_SPACING
+				//a1 = inventry_ypos + ymeup
+				//a0 = inventry_xpos
+				//t0 = (i * OBJLIST_SPACING) + 256
+				//v0 = rings[ring_num]->current_object_list[n].
+				//a2 = rings[ring_num]->current_object_list[n].invitem
+				//v1 = rings[ring_num]->current_object_list[n].
+				//v0 = rings[ring_num]->current_object_list[n].bright
+				shade = 255;
+				DrawThreeDeeObject2D(inventry_xpos + (minobj * OBJLIST_SPACING) + 256 + xoff, inventry_ypos + ymeup, rings[ringnum]->current_object_list[n].invitem, shade, 0, yrot, 0, rings[ringnum]->current_object_list[n].bright, 0);
+
+				//v1 = rings[ringnum]
+				n++;
+				//v0 = rings[ringnum].numobjectsinlist
+				//s0 += 6 //next n
+				if (n >= rings[ringnum]->numobjectsinlist)
+				{
+					//s0 = 0//set n as 0?
+					n = 0;
+				}//loc_3DCC8
+
+				minobj++;
+				//v0 = maxobj > i ? 1 : 0
+			}
+		}//loc_3DCD8
+	}//loc_3DEE8
+
+#if 0
+				 slt     $v0, $s7, $s3
+				 beqz    $v0, loc_3D680
+				 nop
+#endif
+
+#if 0
+				 loc_3DCD8 :
+			 addiu   $v1, $gp, 0x3178
+				 addu    $s0, $fp, $v1
+				 lw      $a0, 0($s0)
+				 nop
+				 lw      $v0, 0x258($a0)
+				 nop
+				 beqz    $v0, loc_3DEE8
+				 li      $v1, 1
+				 lw      $v0, 0x264($a0)
+				 nop
+				 beq     $v0, $v1, loc_3DEE8
+				 nop
+				 bne     $s6, $v1, loc_3DD20
+				 li      $v0, 0x80
+				 lh      $v1, 0x3158($gp)
+				 nop
+				 bne     $v1, $v0, loc_3DEE8
+				 nop
+
+				 loc_3DD20 :
+			 lw      $v0, 0x25C($a0)
+				 nop
+				 blez    $v0, loc_3DD34
+				 addiu   $v0, 0x2000
+				 sw      $v0, 0x25C($a0)
+
+				 loc_3DD34 :
+				 lw      $v1, 0($s0)
+				 nop
+				 lw      $v0, 0x25C($v1)
+				 nop
+				 bgez    $v0, loc_3DD50
+				 addiu   $v0, -0x2000
+				 sw      $v0, 0x25C($v1)
+
+				 loc_3DD50:
+			 lbu     $v0, 0x3144($gp)
+				 nop
+				 beqz    $v0, loc_3DDB0
+				 nop
+				 lw      $v0, 0($s0)
+				 nop
+				 lw      $v1, 0x25C($v0)
+				 nop
+				 bnez    $v1, loc_3DDB0
+				 li      $a0, 0x6C
+				 move    $a1, $zero
+				 jal     SoundEffect
+				 li      $a2, 2
+				 lw      $v1, 0($s0)
+				 nop
+				 lw      $v0, 0x25C($v1)
+				 nop
+				 addiu   $v0, 0x2000
+				 sw      $v0, 0x25C($v1)
+				 lbu     $a0, 0x3174($gp)
+				 nop
+				 beqz    $a0, loc_3DDB0
+				 li      $v0, 2
+				 sh      $v0, 0x3168($gp)
+
+				 loc_3DDB0:
+			 lbu     $v0, 0x3124($gp)
+				 nop
+				 beqz    $v0, loc_3DE18
+				 nop
+				 addiu   $a1, $gp, 0x3178
+				 addu    $s0, $fp, $a1
+				 lw      $v0, 0($s0)
+				 nop
+				 lw      $v1, 0x25C($v0)
+				 nop
+				 bnez    $v1, loc_3DE18
+				 li      $a0, 0x6C
+				 move    $a1, $zero
+				 jal     SoundEffect
+				 li      $a2, 2
+				 lw      $v1, 0($s0)
+				 nop
+				 lw      $v0, 0x25C($v1)
+				 nop
+				 addiu   $v0, -0x2000
+				 sw      $v0, 0x25C($v1)
+				 lbu     $a0, 0x3174($gp)
+				 nop
+				 beqz    $a0, loc_3DE18
+				 li      $v0, 2
+				 sh      $v0, 0x3168($gp)
+
+				 loc_3DE18:
+			 addiu   $v0, $gp, 0x3178
+				 addu    $a1, $fp, $v0
+				 lw      $v1, 0($a1)
+				 nop
+				 lw      $a0, 0x25C($v1)
+				 li      $v0, 0xFFFF
+				 slt     $v0, $a0
+				 beqz    $v0, loc_3DE90
+				 lui     $v0, 0xFFFF
+				 lw      $v0, 0x260($v1)
+				 nop
+				 addiu   $v0, -1
+				 sw      $v0, 0x260($v1)
+				 lw      $v1, 0($a1)
+				 nop
+				 lw      $v0, 0x260($v1)
+				 nop
+				 bgez    $v0, loc_3DE74
+				 nop
+				 lw      $v0, 0x264($v1)
+				 nop
+				 addiu   $v0, -1
+				 sw      $v0, 0x260($v1)
+
+				 loc_3DE74:
+			 lw      $v0, 0($a1)
+				 bnez    $s6, loc_3DEE8
+				 sw      $zero, 0x25C($v0)
+				 jal     handle_object_changeover
+				 move    $a0, $zero
+				 j       loc_3DEE8
+				 nop
+
+				 loc_3DE90 :
+			 ori     $v0, 1
+				 slt     $v0, $a0, $v0
+				 beqz    $v0, loc_3DEE8
+				 nop
+				 lw      $v0, 0x260($v1)
+				 nop
+				 addiu   $v0, 1
+				 sw      $v0, 0x260($v1)
+				 lw      $a0, 0($a1)
+				 nop
+				 lw      $v0, 0x260($a0)
+				 lw      $v1, 0x264($a0)
+				 nop
+				 slt     $v0, $v1
+				 bnez    $v0, loc_3DED4
+				 nop
+				 sw      $zero, 0x260($a0)
+
+				 loc_3DED4:
+			 lw      $v0, 0($a1)
+				 bnez    $s6, loc_3DEE8
+				 sw      $zero, 0x25C($v0)
+				 jal     sub_3DF18
+				 move    $a0, $zero
+
+				 loc_3DEE8 :
+			 lw      $ra, 0xD8 + var_4($sp)
+				 lw      $fp, 0xD8 + var_8($sp)
+				 lw      $s7, 0xD8 + var_C($sp)
+				 lw      $s6, 0xD8 + var_10($sp)
+				 lw      $s5, 0xD8 + var_14($sp)
+				 lw      $s4, 0xD8 + var_18($sp)
+				 lw      $s3, 0xD8 + var_1C($sp)
+				 lw      $s2, 0xD8 + var_20($sp)
+				 lw      $s1, 0xD8 + var_24($sp)
+				 lw      $s0, 0xD8 + var_28($sp)
+				 jr      $ra
+				 addiu   $sp, 0xD8
+#endif
 	UNIMPLEMENTED();
 }
 
@@ -2475,7 +3015,7 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 #if PC_VERSION
 		ScaleCurrentMatrix({ 24576, 16384, 4096 });
 #else
-		//ScaleCurrentMatrix(1, 6144, 4096, 4096);
+		ScaleCurrentMatrix(1, 6144, 4096, 4096);
 #endif
 	}//loc_3C770
 
@@ -2541,7 +3081,6 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 			}
 		}
 		//loc_3C8A8
-
 	}
 
 	//loc_3C8C8
@@ -2562,31 +3101,30 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.pos.z_rot = objme->zrot + zrot;
 	item.object_number = objme->object_number;
 
-	phd_LookAt(0, 1024, 0, 0, 0, 0, 0);
+	phd_LookAt(0, 1024, 0, 0, 0, 0, 0);//working perfectly
 	mQuickW2VMatrix();
 
 	if (bright == 0)
 	{
-		//SetInventoryLighting(0x505050, 0x202020, 0x404040, 0x808080);
+		SetInventoryLighting(0x505050, 0x202020, 0x404040, 0x808080);
 	}
 	else if (bright == 1)
 	{
-		//SetInventoryLighting(0x323232, 0x101010, 0x303030, 0x303030);
+		SetInventoryLighting(0x323232, 0x101010, 0x303030, 0x303030);
 	}
 	else
 	{
 		//loc_3C550
-		//SetInventoryLighting(0x323232, 0x101010, 0x303030, (bright << 16) | (bright << 8) | bright);
+		SetInventoryLighting(0x323232, 0x101010, 0x303030, (bright << 16) | (bright << 8) | bright);
 	}
 
 	//loc_3C578
 	mPushUnitMatrix();
-	Matrix->m10 -= (Matrix->m10 << 16) >> 18;//Maybe just >> 2
-	Matrix->m11 -= (Matrix->m11 << 16) >> 18;//Maybe just >> 2
-	Matrix->m12 -= (Matrix->m12 << 16) >> 18;//Maybe just >> 2
+	Matrix->m10 -= (Matrix->m10 >> 2);
+	Matrix->m11 -= (Matrix->m11 >> 2);
+	Matrix->m12 -= (Matrix->m12 >> 2);
 	mLoadMatrix(Matrix);
 	mSetTrans(0, 0, objme->scale1);
-	SetGeomOffset(x, y + objme->yoff);
 
 	item.shade = -1;
 	item.pos.x_pos = 0;
@@ -2597,6 +3135,8 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.mesh_bits = objme->meshbits;
 	item.anim_number = objects[item.object_number].anim_index;
 
+	SetGeomOffset(x, y + objme->yoff);
+	//&item values dont look right here check original code
 	if (!(objme->flags & 8))
 	{
 		DrawInventoryItemMe(&item, shade, overlay, 0);
