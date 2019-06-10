@@ -22,17 +22,17 @@ void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 	((int*)&MatrixStack)[2] = ((unsigned short*)phd_mxptr)[10] | ((unsigned short*)phd_mxptr)[12] << 16;
 	((int*)&MatrixStack)[3] = ((unsigned short*)phd_mxptr)[16] | ((unsigned short*)phd_mxptr)[18] << 16;
 
-	R11 = ((short*)phd_mxptr)[2] << 16;
-	R12 = ((short*)phd_mxptr)[0];
+	R12 = ((short*)phd_mxptr)[2] << 16;
+	R11 = ((short*)phd_mxptr)[0];
 
-	R13 = ((short*)phd_mxptr)[8] << 16;
-	R21 = ((short*)phd_mxptr)[4];
+	R21 = ((short*)phd_mxptr)[8] << 16;
+	R13 = ((short*)phd_mxptr)[4];
 
-	R22 = ((short*)phd_mxptr)[12] << 16;
-	R23 = ((short*)phd_mxptr)[10];
+	R23 = ((short*)phd_mxptr)[12] << 16;
+	R22 = ((short*)phd_mxptr)[10];
 
-	R31 = ((short*)phd_mxptr)[18] << 16;
-	R32 = ((short*)phd_mxptr)[16];
+	R32 = ((short*)phd_mxptr)[18] << 16;
+	R31 = ((short*)phd_mxptr)[16];
 
 	((short*)&MatrixStack)[8] = ((unsigned short*)phd_mxptr)[20];
 	((short*)&MatrixStack)[10] = ((unsigned short*)phd_mxptr)[6];
@@ -186,26 +186,26 @@ void ScaleCurrentMatrix(long bStoreInMatrix, long sx, long sy, long sz)
 	v0 = R31;
 	v1 = R33;
 
-	R11 = ((((t0 << 16) >> 16) * sx) >> 12) & 0xFFFF;
-	R12 = ((((t0 >> 16) * sy) >> 12) << 16);
-	R13 = ((((t1 << 16) >> 16) * sz) >> 12) & 0xFFFF;
-	R21 = (((t1 >> 16) * sx) >> 12) << 16;
-	R22 = ((((t2 << 16) >> 16) * sy) >> 12) & 0xFFFF;
-	R23 = (((t2 >> 16) * sz) >> 12) << 16;
-	R31 = ((((v0 << 16) >> 16) * sx) >> 12) & 0xFFFF;
-	R32 = (((v0 >> 16)  * sy) >> 12) << 16;
+	R12 = ((((t0 << 16) >> 16) * sx) >> 12) & 0xFFFF;
+	R11 = ((((t0 >> 16) * sy) >> 12) << 16);
+	R21 = ((((t1 << 16) >> 16) * sz) >> 12) & 0xFFFF;
+	R13 = (((t1 >> 16) * sx) >> 12) << 16;
+	R23 = ((((t2 << 16) >> 16) * sy) >> 12) & 0xFFFF;
+	R22 = (((t2 >> 16) * sz) >> 12) << 16;
+	R32 = ((((v0 << 16) >> 16) * sx) >> 12) & 0xFFFF;
+	R31 = (((v0 >> 16)  * sy) >> 12) << 16;
 	R33 = ((((v1 << 16) >> 16) * sz) >> 12);
 
 	if (bStoreInMatrix)
 	{
-		Matrix->m00 = R12;
-		Matrix->m01 = R11;
-		Matrix->m02 = R21;
-		Matrix->m10 = R13;
-		Matrix->m11 = R23;
-		Matrix->m12 = R22;
-		Matrix->m20 = R32;
-		Matrix->m21 = R31;
+		Matrix->m00 = R11;
+		Matrix->m01 = R12;
+		Matrix->m02 = R13;
+		Matrix->m10 = R21;
+		Matrix->m11 = R22;
+		Matrix->m12 = R23;
+		Matrix->m20 = R31;
+		Matrix->m21 = R32;
 		Matrix->m22 = R33;
 	}//locret_77E68
 }
@@ -213,14 +213,14 @@ void ScaleCurrentMatrix(long bStoreInMatrix, long sx, long sy, long sz)
 void mPushMatrix()//764D0(<), 78514(<) (F)
 {
 	++Matrix;
-	Matrix->m00 = R12;
-	Matrix->m01 = R11;
-	Matrix->m02 = R21;
-	Matrix->m10 = R13;
-	Matrix->m11 = R23;
-	Matrix->m12 = R22;
-	Matrix->m20 = R32;
-	Matrix->m21 = R31;
+	Matrix->m00 = R11;
+	Matrix->m01 = R12;
+	Matrix->m02 = R13;
+	Matrix->m10 = R21;
+	Matrix->m11 = R22;
+	Matrix->m12 = R23;
+	Matrix->m20 = R31;
+	Matrix->m21 = R32;
 	Matrix->m22 = R33;
 	Matrix->tx = TRX;
 	Matrix->ty = TRY;
@@ -309,13 +309,19 @@ void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
 	IR1 = t3;
 	IR2 = t4;
 	IR3 = t5;
-
+	short* temp = &gteRegs.CP2C.p[0].sw.l;
+	temp++;
 	docop2(0x41E012);
-
+	
+#if 1
 	t3 = MAC1;
 	t4 = MAC2;
 	t5 = MAC3;
-
+#else
+	t3 = 0;
+	t4 = 0;
+	t5 = 0;
+#endif
 	IR1 = x;
 	IR2 = y;
 	IR3 = z;
@@ -448,16 +454,17 @@ void SetRotation()//7696C
 
 void setrot(struct MATRIX3D* m, long t0, long t1, long t2, long t3, long t4)//76970 TOCHECK
 {
-	R12 = t0 >> 16;
-	R11 = t0;
-	R21 = t1 >> 16;
-	R13 = t1;
+	R11 = t0 >> 16;
+	R12 = t0;
 	
-	R23 = t2 >> 16;
-	R22 = t2;
+	R13 = t1 >> 16;
+	R21 = t1;
 	
-	R32 = t3 >> 16;
-	R31 = t3;
+	R22 = t2 >> 16;
+	R23 = t2;
+	
+	R31 = t3 >> 16;
+	R32 = t3;
 
 	R33 = t4;
 
@@ -470,14 +477,14 @@ void setrot(struct MATRIX3D* m, long t0, long t1, long t2, long t3, long t4)//76
 
 void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) TOCHECK
 {
-	R12 = m->m00;
-	R11 = m->m01;
-	R21 = m->m02;
-	R13 = m->m10;
-	R23 = m->m11;
-	R22 = m->m12;
-	R32 = m->m20;
-	R31 = m->m21;
+	R11 = m->m00;
+	R12 = m->m01;
+	R13 = m->m02;
+	R21 = m->m10;
+	R22 = m->m11;
+	R23 = m->m12;
+	R31 = m->m20;
+	R32 = m->m21;
 	R33 = m->m22;
 	TRX = m->tx;
 	TRY = m->ty;
