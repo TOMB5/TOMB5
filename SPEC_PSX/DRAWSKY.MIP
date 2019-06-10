@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF DrawSkyMesh, DrawBinoculars, DrawFlatSky_ASM, DrawSubdivChunk, SkyClipXY
+	XDEF DrawMoon, DrawSkyMesh, DrawBinoculars, DrawFlatSky_ASM, DrawSubdivChunk, SkyClipXY
 	XREF gfLevelFlags, LaserSight, SniperOverlay, binoculars_mesh_ptr, db, target_mesh_ptr, psxtextinfo, psxspriteinfo, objects
 	
 DrawFlatSky_ASM:
@@ -233,7 +233,70 @@ SkyClipXY:
 	locret_7E2D8:
 	jr      ra
 	li      at, 1
-	
+
+DrawMoon:
+	lui     v0, 0xFC00
+	li      v1, 0x780
+	mtc2    v0, r0
+	mtc2    v1, r1
+	li      v0, 0x2CFFE0C0
+	cop2    0x180001
+	lh      a0, objects+0x72C2
+	lw      t1, psxspriteinfo-GP_ADDR(gp)
+	lw      a3, db+0x8-GP_ADDR(gp)
+	lw      t0, db+0x4-GP_ADDR(gp)
+	sll     a0, 4
+	mfc2    v1, r14
+	addu    t1, a0
+	sll     a0, v1, 16
+	sra     a0, 16
+	addiu   a1, a0, -0x18
+	addiu   a0, 0x17
+	bltz    a0, locret_7E3CC
+	sra     v1, 16
+	addiu   a2, v1, -0x10
+	addiu   v1, 0xF
+	bltz    v1, locret_7E3CC
+	slti    at, a1, 0x200
+	beqz    at, locret_7E3CC
+	slti    at, a2, 0xF0
+	beqz    at, locret_7E3CC
+	sw      v0, 4(a3)
+	sh      a1, 8(a3)
+	sh      a2, 0xA(a3)
+	sh      a0, 0x10(a3)
+	sh      a2, 0x12(a3)
+	sh      a1, 0x18(a3)
+	sh      v1, 0x1A(a3)
+	sh      a0, 0x20(a3)
+	sh      v1, 0x22(a3)
+	lw      at, 0x38(t1)
+	lbu     v1, 0x3C(t1)
+	lbu     v0, 0x3D(t1)
+	lbu     a2, 0x3E(t1)
+	lbu     a1, 0x3F(t1)
+	sb      v1, 0xC(a3)
+	sb      v0, 0xD(a3)
+	sh      at, 0xE(a3)
+	sb      a2, 0x14(a3)
+	srl     at, 16
+	sb      v0, 0x15(a3)
+	sh      at, 0x16(a3)
+	sb      v1, 0x1C(a3)
+	sb      a1, 0x1D(a3)
+	sb      a2, 0x24(a3)
+	sb      a1, 0x25(a3)
+	lw      v0, 0x280C(t0)
+	lui     at, 0x900
+	or      v0, at
+	sw      a3, 0x280C(t0)
+	sw      v0, 0(a3)
+	addiu   a3, 0x28
+
+	locret_7E3CC:
+	jr      ra
+	sw      a3, db+0x8-GP_ADDR(gp)
+
 DrawBinoculars:
 	addiu   sp, -0x30
 	sw      s5, 0x30-0x20(sp)

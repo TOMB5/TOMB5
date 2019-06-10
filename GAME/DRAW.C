@@ -147,6 +147,7 @@ void DrawMoon()
 }
 #endif
 
+#endif
 void DrawGunflashes()//8A924(<) 8C968(<)
 {
 #ifdef PC_VERSION

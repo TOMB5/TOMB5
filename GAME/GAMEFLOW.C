@@ -170,11 +170,6 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	fmv_to_play[0] = 0;
 
 	gfCurrentLevel = Gameflow->TitleEnabled == 0;
-	//v1 = gfCurrentLevel
-	//v1 = &gfScriptOffset[gfCurrentLevel]
-	//a0 = gfScriptOffset[gfCurrentLevel]
-	//v0 = &gfScriptWad[0]
-
 	gf = &gfScriptWad[gfScriptOffset[gfCurrentLevel]];
 
 	while (1)
@@ -585,8 +580,6 @@ void LoadGameflow()//102E0(<), 102B0(<) (F)
 	gfScriptWad = s;
 	s += Gameflow->ScriptLen;
 
-	
-
 	//loc_103A8
 #if PC_VERSION
 	for(gfStringOffset = NULL, i = 0; !LoadFile((char*)s, (void**)&gfStringOffset); i++, gfScriptOffset = NULL)
@@ -973,6 +966,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 					goto loc_10890;
 					
 			}
+			printf("GLOBAL_PLAYING_CUTSEQ: %d\n", GLOBAL_playing_cutseq);
 			//loc_10810
 			if (GLOBAL_playing_cutseq == 0)
 			{
@@ -1204,21 +1198,29 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		gfCutNumber = 0;
 	}//loc_10C50
 
-	if (gfCutNumber == 0 || CheckCutPlayed(gfCutNumber) != 0 && dels_cutseq_player == 0)
+	if (gfCutNumber == 0 || CheckCutPlayed(gfCutNumber) != 0)
 	{
-		//loc_10CC4
-		cutseq_num = 0;
-		gfCutNumber = 0;
-		SetScreenFadeIn(16);
+		//loc_10C7C
+		if (dels_cutseq_player != 0)
+		{
+			cutseq_num = dels_cutseq_player;
+			gfCutNumber = 0;
+			ScreenFadedOut = 1;
+		}
+		else
+		{
+			cutseq_num = 0;
+			gfCutNumber = 0;
+			SetScreenFadeIn(16);
+		}
 	}
 	else
 	{
 		//loc_10C90
-		gfCutNumber = 0;
-		ScreenFadedOut = TRUE;
 		cutseq_num = gfCutNumber;
+		gfCutNumber = 0;
+		ScreenFadedOut = 1;
 	}
-
 	//loc_10CD8
 	InitialiseCamera();
 	bUseSpotCam = 0;
@@ -1368,6 +1370,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	reset_flag = 0;
 }
 
+#if PC_VERSION
 void SpecialFeaturesDisplayScreens(int num)
 {
 	UNIMPLEMENTED();
@@ -1393,3 +1396,4 @@ void DoSpecialFeaturesServer()// (F)
 
 	special_features_num = -1;
 }
+#endif

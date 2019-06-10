@@ -5602,6 +5602,7 @@ void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764
 
 int GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
 {
+#if !PSXPC_TEST///@FIXME excuse me but this doesn't work.
 	phd_mxptr[0] = lara_joint_matrices[mat].m00;
 	phd_mxptr[1] = lara_joint_matrices[mat].m01;
 	phd_mxptr[2] = lara_joint_matrices[mat].m02;
@@ -5626,7 +5627,7 @@ int GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
 	vec->z += lara_item->pos.z_pos;
 
 	mPopMatrix();
-
+#endif
 	return 48;
 }
 
