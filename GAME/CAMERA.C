@@ -957,7 +957,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#if PSX_VERSION && !PSXPC_TEST//GetBoundsAccurate illegal, crash.
+#if PSX_VERSION
 	struct ITEM_INFO* item;
 	short* bounds;
 	short tilt;
@@ -1190,7 +1190,6 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 
 	//loc_281F4
 	if ((camera.type - LOOK_CAMERA) < 2)
-	//if ((unsigned)(camera.type - LOOK_CAMERA) < 2)
 	{
 		if (camera.type == COMBAT_CAMERA)
 		{
@@ -1966,7 +1965,6 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 	h = GetHeight(floor, wx, wy, wz + push);
 	c = GetCeiling(floor, wx, wy, wz + push);
 
-	//v0 = wz | 0x3FF
 	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
 	{
 		//loc_28994
