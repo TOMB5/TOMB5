@@ -26,11 +26,12 @@
 #include <ddraw.h>
 #endif
 
+#define D3D9 (0)
 #define CORE_PROF_3_1 (1)
 #define CORE_PROF_3_2 (0)
+
 #define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (1)
-#define DX9 (0)
 #define V_SCALE (1)
 #define VERTEX_COLOUR_MULT (2)
 #define DOUBLE_BUFFERED (1)
@@ -68,6 +69,12 @@ std::thread counter_thread;
 
 #if _WINDOWS && USE_DDRAW
 LPDIRECTDRAW pDD;
+#endif
+
+
+#if D3D9
+SDL_Renderer* g_Renderer;
+IDirect3DDevice9* g_Device;
 #endif
 
 struct CachedTexture
@@ -134,27 +141,28 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
 #elif CORE_PROF_3_2
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
-#else
-		Direct3D_object = Direct3DCreate9(D3D_SDK_VERSION);
-		if (Direct3D_object == NULL)
-		{
-			MessageBox(GetActiveWindow(), "Could not create Direct3D Object", "D3D_OBJ ERR", MB_OK);
-			return 0;
-		}
 #endif
+		g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
+
+#if D3D9
+		g_Renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+		g_Device = SDL_RenderGetD3D9Device(g_Renderer);
+#endif
+
 	}
 	else
 	{
 		eprinterr("Error: Failed to initialise SDL\n");
 	}
 
+#if CORE_PROF_3_1 || CORE_PROF_3_2
 	SDL_GL_CreateContext(g_window);
+#endif
+	
 	if (g_window == NULL)
 	{
 		eprinterr("Failed to initialise GL context!\n");
@@ -162,7 +170,6 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 
 #if CORE_PROF_3_1 || CORE_PROF_3_2
 	glewExperimental = GL_TRUE;
-#endif
 
 	GLenum err = glewInit();
 
@@ -171,15 +178,17 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 		/* Problem: glewInit failed, something is seriously wrong. */
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 	}
-
+#endif
 	SDL_memset(&vram, 0, sizeof(VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short)));
 	
 #if !USE_DDRAW
 	SDL_GL_SetSwapInterval(1);
 #endif
 
+#if CORE_PROF_3_1 || CORE_PROF_3_2
 	Emulator_InitialiseGL();
-	
+#endif
+
 #if __linux__ || __APPLE__
 	if (!Emulator_InitialiseGameVariables())
 	{
@@ -729,14 +738,21 @@ void Emulator_ShutDown()
 	//VirtualFree(pVirtualMemory, 0, MEM_RELEASE);
 #endif
 
+#if D3D9
+	SDL_DestroyRenderer(g_Renderer);
+#endif
+
+	SDL_DestroyWindow(g_window);
 	SDL_Quit();
 	exit(0);
 }
 
 void Emulator_GenerateFrameBuffer(GLuint& fbo)
 {
+#if CORE_PROF_3_1 || CORE_PROF_3_2
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+#endif
 }
 
 void Emulator_GenerateFrameBufferTexture()
@@ -759,23 +775,27 @@ void Emulator_GenerateFrameBufferTexture()
 		}
 	}
 
+#if CORE_PROF_3_1 || CORE_PROF_3_2
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, activeDrawEnv.clip.w, activeDrawEnv.clip.h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+#endif
 
 #if CORE_PROF_3_1
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, vramTexture, 0);
-#else
+#elif CORE_PROF_3_2
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
 #endif
 
+#if CORE_PROF_3_1 || CORE_PROF_3_2
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		eprinterr("Frame buffer error");
 	}
-	
+#endif
+
 #if _DEBUG
 	Emulator_SaveVRAM("VRAM4.TGA", 0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, TRUE);
 #endif
