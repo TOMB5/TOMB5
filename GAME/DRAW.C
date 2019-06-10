@@ -145,7 +145,6 @@ void DrawMoon()
 {
 	UNIMPLEMENTED();
 }
-#endif
 
 #endif
 void DrawGunflashes()//8A924(<) 8C968(<)
