@@ -7,6 +7,7 @@
 #include "DRAWPHAS.H"
 #include "FXTRIG.H"
 #include "SHADOWS.H"
+#include "MISC.H"
 #endif
 
 #if PSX_VERSION
@@ -224,17 +225,32 @@ void DrawGameInfo(int timed)//3AD68(<), 3B268(<)
 	{
 #if DEBUG_VERSION
 		sprintf(&sbuf[0], "Room:%d X:%d Y:%d Z:%d", lara_item->room_number, (lara_item->pos.z_pos - room[lara_item->room_number].z) >> 10, (lara_item->pos.y_pos - room[lara_item->room_number].minfloor) >> 8, (lara_item->pos.x_pos - room[lara_item->room_number].x) >> 10);
-		PrintString(SCREEN_WIDTH / 2, 24, 0, &sbuf[0], 0x8000);
+		
+(SCREEN_WIDTH / 2, 24, 0, &sbuf[0], FF_CENTER);
+#endif
+
+#if 1//GH0ST_TESTING
+	sprintf(&buf[0], "Camera X: %d Y: %d Z: %d", camera.pos.x, camera.pos.y, camera.pos.z);
+	PrintString(SCREEN_WIDTH / 2, 32, 0, &buf[0], FF_CENTER);
 #endif
 		if (gfGameMode != 1)
 		{
 
+#if 1//_DEBUG//Because everything in-game isn't working yet, provide a way to return to the title screen
+			//PrintGauge(20, 200, 510);
+			//S_Death();
+			//S_CallInventory2();
+			//S_UpdateInput();
+			//DoPauseMenu();
+			//do_stats_mode();
+			AddDisplayPickup(PISTOLS_ITEM);
+#endif
 			flash_state = FlashIt();
 			DrawHealthBar(flash_state);
 			DrawAirBar(flash_state);
 			DrawPickups(timed);
 
-#if !_DEBUG
+#if 1//!_DEBUG
 			if (DashTimer < 120)
 #endif
 			{
@@ -246,15 +262,15 @@ void DrawGameInfo(int timed)//3AD68(<), 3B268(<)
 				seconds = (savegame.Level.Timer * 0x88888889) >> 4;
 
 				sprintf(&buf[0], "%.2d", (((savegame.Level.Timer * 0x88888889) >> 4) * 0x88888889) + (seconds >> 31) >> 5 - 0x1A5DF);
-				PrintString(0x28, 0x18, 0, &buf[0], 0);
-				PrintString(0x3C, 0x18, 0, ":", 0);
+				PrintString(0x28, 0x18, 0, &buf[0], FF_NONE);
+				PrintString(0x3C, 0x18, 0, ":", FF_NONE);
 
 				sprintf(&buf[0], "%.2d", seconds - ((((savegame.Level.Timer * 0x88888889) >> 4) * 0x88888889) + (seconds >> 31) >> 5 - 0x1A5DF) << 4) - ((((savegame.Level.Timer * 0x88888889) >> 4) * 0x88888889) + (seconds >> 31) >> 5 - 0x1A5DF) << 2;
-				PrintString(0x42, 0x18, 0, &buf[0], 0);
-				PrintString(0x56, 0x18, 0, ":", 0);
+				PrintString(0x42, 0x18, 0, &buf[0], FF_NONE);
+				PrintString(0x56, 0x18, 0, ":", FF_NONE);
 
 				sprintf(&buf[0], "%.2d", ((((((((((savegame.Level.Timer - ((((savegame.Level.Timer * 0x88888889) >> 4) << 4) - ((savegame.Level.Timer * 0x88888889) >> 4)) << 1) << 2) + savegame.Level.Timer - ((((savegame.Level.Timer * 0x88888889) >> 4) << 4) - ((savegame.Level.Timer * 0x88888889) >> 4)) << 1) << 2) + savegame.Level.Timer - ((((savegame.Level.Timer * 0x88888889) >> 4) << 4) - ((savegame.Level.Timer * 0x88888889) >> 4)) << 1) << 3) - savegame.Level.Timer - ((((savegame.Level.Timer * 0x88888889) >> 4) << 4) - ((savegame.Level.Timer * 0x88888889) >> 4)) << 1) << 1) * 0x51EB851F) >> 5) - (((((((((savegame.Level.Timer - ((((savegame.Level.Timer * 0x88888889) >> 4) << 4) - ((savegame.Level.Timer * 0x88888889) >> 4)) << 1) << 2) + savegame.Level.Timer - ((((savegame.Level.Timer * 0x88888889) >> 4) << 4) - ((savegame.Level.Timer * 0x88888889) >> 4)) << 1) << 2) + savegame.Level.Timer - ((((savegame.Level.Timer * 0x88888889) >> 4) << 4) - ((savegame.Level.Timer * 0x88888889) >> 4)) << 1) << 3) - savegame.Level.Timer - ((((savegame.Level.Timer * 0x88888889) >> 4) << 4) - ((savegame.Level.Timer * 0x88888889) >> 4)) << 1) << 1) >> 31));
-				PrintString(0x5C, 0x18, 0, &buf[0], 0);
+				PrintString(0x5C, 0x18, 0, &buf[0], FF_NONE);
 			}//loc_3B0A0
 		}//loc_3B0A0
 	}//loc_3B0A0
