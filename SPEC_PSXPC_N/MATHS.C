@@ -15,8 +15,7 @@ void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 {
 	MatrixSP = 0;
 	Matrix = &MatrixStack[0];
-	unsigned short test = ((unsigned short*)phd_mxptr)[4];
-	test++;
+
 	((int*)&MatrixStack)[0] = ((unsigned short*)phd_mxptr)[0] | ((unsigned short*)phd_mxptr)[2] << 16;
 	((int*)&MatrixStack)[1] = ((unsigned short*)phd_mxptr)[4] | ((unsigned short*)phd_mxptr)[8] << 16;
 	((int*)&MatrixStack)[2] = ((unsigned short*)phd_mxptr)[10] | ((unsigned short*)phd_mxptr)[12] << 16;
@@ -309,8 +308,7 @@ void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
 	IR1 = t3;
 	IR2 = t4;
 	IR3 = t5;
-	short* temp = &gteRegs.CP2C.p[0].sw.l;
-	temp++;
+
 	docop2(0x41E012);
 	
 #if 1
