@@ -1,6 +1,10 @@
-#include "INLINE_C.H"
-#include "LIBGTE.H"
+#ifndef GTEREG_H
+#define GTEREG_H
 
+extern GTERegisters gteRegs;
+extern int docop2(int op);
+
+/* Data Registers mtc2 mfc2 */
 #define VX0  (gteRegs.CP2D.p[ 0 ].sw.l)
 #define VY0  (gteRegs.CP2D.p[ 0 ].sw.h)
 #define VZ0  (gteRegs.CP2D.p[ 1 ].sw.l)
@@ -60,6 +64,7 @@
 #define LZCS (gteRegs.CP2D.p[ 30 ].d)
 #define LZCR (gteRegs.CP2D.p[ 31 ].d)
 
+/* Control Registers ctc2 cfc2*/
 #define R11 (gteRegs.CP2C.p[ 0 ].sw.l)
 #define R12 (gteRegs.CP2C.p[ 0 ].sw.h)
 #define R13 (gteRegs.CP2C.p[ 1 ].sw.l)
@@ -105,27 +110,4 @@
 #define ZSF4 (gteRegs.CP2C.p[ 30 ].sw.l)
 #define FLAG (gteRegs.CP2C.p[ 31 ].d)
 
-void gte_SetGeomScreen(int h)
-{
-	H = h;
-}
-
-int gte_ldlzc(int input)
-{
-	int leadingZeroCount = 0;
-
-	if (input > 0)
-	{
-		for (int i = (sizeof(int) * 8)-1; i >= 0 ; i--)
-		{
-			if (input & (1 << i))
-			{
-				break;
-			}
-
-			leadingZeroCount++;
-		}
-	}
-	
-	return leadingZeroCount;
-}
+#endif

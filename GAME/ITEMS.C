@@ -160,7 +160,7 @@ void AddActiveItem(short item_num)//41FEC(<), 42440(<) (F)
 
 	item->flags |= 0x20;
 
-	if (objects[item->object_number].control == NULL)//Bug: Always zero due to incomplete level data relocation
+	if (objects[item->object_number].control == NULL)
 	{
 		item->status = ITEM_INACTIVE;
 		return;

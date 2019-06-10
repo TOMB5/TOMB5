@@ -3146,6 +3146,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 
 struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 7A998(<) (F)
 {
+#if !PSXPC_TEST
 	struct room_info* r;
 	struct FLOOR_INFO* floor;
 	int y_floor, x_floor, next_room;
@@ -3238,6 +3239,10 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 	}
 
 	return floor;
+#else
+	UNIMPLEMENTED();
+	return &room[0].floor[0];
+#endif
 }
 
 short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
