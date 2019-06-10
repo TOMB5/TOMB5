@@ -59,6 +59,7 @@ short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;
 
+#if PC_VERSION || PSXPC_TEST
 long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*$a2*/)//8582C
 {
 	struct ANIM_STRUCT* anim = &anims[item->anim_number];
@@ -87,6 +88,7 @@ long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*
 	rate[0] = anim->frame_end - anim->interpolation;
 	return (item->frame_number - anim->frame_base) / anim->interpolation;
 }
+#endif
 
 void UpdateSkyLightning()//2C0D0(<), ? (F)
 {

@@ -40,7 +40,9 @@ extern struct GAME_VECTOR last_target;
 extern short rcossin_tbl[];
 
 extern void InitialiseCamera();
+#if PC_VERSION || PSXPC_TEST
 extern void AlterFOV(short fov);
+#endif
 extern void CalculateCamera();
 extern void BinocularCamera(struct ITEM_INFO* item);
 extern void LookCamera(struct ITEM_INFO* item);

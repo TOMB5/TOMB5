@@ -3,6 +3,12 @@
 *.sdf
 *.opendb
 *.idb
+*.exe
+*.out
+*.id0
+*.id1
+*.nam
+*.til
 
 /BUILD/*
 /x64/*

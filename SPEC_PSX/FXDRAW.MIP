@@ -110,12 +110,12 @@ local_mTranslateAbsXYZ:
 local_mRotY:
 	andi    a0, 0x3FFC
 	bnez    a0, loc_8A688
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_8A688:
-	ori     t0, 0xA8C8
+	la     t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
@@ -160,12 +160,12 @@ local_mRotY:
 local_mRotX:
 	andi    a0, 0x3FFC
 	bnez    a0, loc_8A740
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_8A740:
-	ori     t0, 0xA8C8
+	la     t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
@@ -229,9 +229,9 @@ DrawAllFx:
 	cfc2    v1, r2
 	cfc2    a0, r3
 	sw      at, 0x1F800000
-	sw      v0, 0x1F800004
-	sw      v1, 0x1F800008
-	sw      a0, 0x1F80000C
+	sw      v0, 0x04(at)
+	sw      v1, 0x08(at)
+	sw      a0, 0x0C(at)
 	cfc2    at, r4
 	cfc2    v0, r5
 	cfc2    v1, r6

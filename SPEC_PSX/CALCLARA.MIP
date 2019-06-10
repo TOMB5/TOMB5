@@ -1,8 +1,9 @@
 	opt at-,w-,c+,m-
 
 	SECTION	ASM
-	XDEF S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM, DEL_CalcLaraMatrices_Interpolated_ASM
-	XREF GetFrames, interpolated_bounds
+	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XDEF GetFrames, S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM, DEL_CalcLaraMatrices_Interpolated_ASM
+	XREF anims, interpolated_bounds
 	
 DEL_CalcLaraMatrices_Interpolated_ASM
 		jr ra
@@ -36,18 +37,63 @@ S_SetupClutAdder:
 	jr      ra
 	nop
 	
+GetFrames:
+	lh      v1, 0x14(a0)
+	lh      a0, 0x16(a0)
+	sll     v0, v1, 2
+	addu    v0, v1
+	lw      v1, anims-GP_ADDR(gp)
+	sll     v0, 3
+	addu    t0, v1, v0
+	lh      v1, 0x18(t0)
+	lbu     a3, 4(t0)
+	subu    a0, v1
+	div     a0, a3
+	sw      a3, 0(a2)
+	lh      v0, 4(t0)
+	mflo    t1
+	mfhi    t2
+	sra     at, v0, 8
+	sll     v0, at, 1
+	mult    t1, at
+	lw      v1, 0(t0)
+	mflo    t3
+	sll     a0, t3, 1
+	addu    t4, v1, a0
+	sw      t4, 0(a1)
+	addu    t5, t4, v0
+	bnez    t2, loc_8589C
+	sw      t5, 4(a1)
+	jr      ra
+	move    v0, zero
+
+	loc_8589C:
+	mult    t1, a3
+	lh      v1, 0x1A(t0)
+	mflo    t3
+	addu    a0, t3, a3
+	slt     v0, v1, a0
+	beqz    v0, locret_858C0
+	subu    v0, a0, a3
+	subu    a3, v1, v0
+	sw      a3, 0(a2)
+
+	locret_858C0:
+	jr      ra
+	move    v0, t2
+
 GetBoundsAccurate:
 	addiu   sp, -0x20
 	move    t7, ra
-	addiu   a1, sp, 0x20+0x10
+	addiu   a1, sp, 0x20-0x10
 	jal     GetFrames
-	addiu   a2, sp, 0x20+0x8
-	bnez    v0, loc_8591C
+	addiu   a2, sp, 0x20-0x8
+	bnez    v0, .interpolate_the_bitch
 	move    t0, v0
 	j       loc_85964
 	move    v0, t4
 
-	loc_8591C:
+	.interpolate_the_bitch:
 	la      a2, interpolated_bounds
 	li      a1, 6
 

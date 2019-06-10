@@ -12,12 +12,12 @@ bss	group	bss
 	section	.bss,bss
 	
 	include SPEC_PSX/PSXMAIN.OBJ
-	include SPEC_PSX/GPU.OBJ
 	include GAME/GAMEFLOW.OBJ
 	include GAME/CONTROL.OBJ
+	include GAME/LARA.OBJ
+	include SPEC_PSX/GPU.OBJ
 	;include GAME/FONT.OBJ
 	include GAME/TEXT.OBJ
-	include GAME/LARA.OBJ
 	include GAME/DELSTUFF.OBJ
 	include GAME/DELTAPAK.OBJ
 	include GAME/DOOR.OBJ
@@ -61,6 +61,8 @@ bss	group	bss
 	include SPEC_PSX/MOVIE.OBJ
 	include SPEC_PSX/FILE.OBJ
 	include SPEC_PSX/MALLOC.OBJ
+	
+	;FIXME GPU.OBJ should be here ,_,
 	include SPEC_PSX/MISC.OBJ
 	include SPEC_PSX/3D_OBJ.OBJ
 	;include SPEC_PSX/C_MATH.OBJ
@@ -95,7 +97,7 @@ bss	group	bss
 	include SPEC_PSX/CALCLARA.OBJ
 	include SPEC_PSX/LIGHT.OBJ
 	include SPEC_PSX/SHADOWS.OBJ
-	;include SPEC_PSX/FXCTRL.OBJ
+	include SPEC_PSX/FXCTRL.OBJ
 	include SPEC_PSX/FXDRAW.OBJ
 	include SPEC_PSX/FXTRIG.OBJ
 	include SPEC_PSX/TEXT_S.OBJ

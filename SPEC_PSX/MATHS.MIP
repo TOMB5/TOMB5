@@ -1,9 +1,24 @@
-	OPT L.,C+,at+
+	opt at-,w-,c+,m-
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF mLoadMatrix, phd_GetVectorAngles, mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mmPushMatrix, mmPopMatrix, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mClipBoundingBox
-	XREF mSqrt, viewer, phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
+	XDEF mSqrt, phd_GenerateW2V, SetRotation, mLoadMatrix, phd_GetVectorAngles, mQuickW2VMatrix, ASM_GetBounds, mPushMatrix, mPopMatrix, mSetTrans, mTranslateXYZ, mTranslateAbsXYZ, mPushUnitMatrix, mRotY, mRotX, mRotZ, mNormaliseXYZ, mCopyMatrix, ScaleCurrentMatrix, phd_sqrt_asm, mGetAngle, GetRoomBoundsAsm, phd_LookAt, phd_atan_asm, mRotYXZ, mRotSuperPackedYXZ, iTranslateXYZ, iTranslateXYZ2, InitInterpolation, iRotSuperPackedYXZ, iPopMatrix, iPushMatrix, iRotX, iRotY, iRotZ, InterpolateMatrix, mRotBoundingBoxNoPersp, mClipBoundingBox
+	XREF ScalarTable, atanTab, SqrtTable, matrix_stack, rcossin_tbl, viewer, phd_right, phd_bottom, phd_left, phd_top, phd_mxptr, MatrixStack, Matrix, MatrixSP, w2v_matrix, CamGTE, iMatrix, atanOctantTab, iFrac, iRate, outside, number_draw_rooms, draw_rooms, room, iAmbientR, CamPos, iAmbientG, iAmbientB
+
+;0x7696C
+SetRotation:
+	lw      a0, Matrix-GP_ADDR(gp)
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	ctc2    t4, r4
+	sw      t0, 0(a0)
+	sw      t1, 4(a0)
+	sw      t2, 8(a0)
+	sw      t3, 0xC(a0)
+	jr      ra
+	sw      t4, 0x10(a0)
 
 ASM_GetBounds:
 	slt     at, t0, a2
@@ -214,15 +229,19 @@ mTranslate:
 
 ;0x76568
 mTranslateAbsXYZ:
-	lw	t0, MatrixStack+0x0-GP_ADDR(gp)
-	lw	t1, MatrixStack+0x4-GP_ADDR(gp)
-	lw	t2, MatrixStack+0x8-GP_ADDR(gp)
+	;lw	t0, MatrixStack+0x14-GP_ADDR(gp)
+	;lw	t1, MatrixStack+0x18-GP_ADDR(gp)
+	;lw	t2, MatrixStack+0x1C-GP_ADDR(gp)
+	la		t2,	  MatrixStack
+	lw	t0, 0x14(t2)
+	lw	t1, 0x18(t2)
+	lw	t2, 0x1C(t2)
 	ctc2	zero, r5
 	ctc2	zero, r6
 	ctc2	zero, r7
 	sub	a0, t0
 	sub	a1, t1
-	sub	a2, t2;fixme check bleed
+	sub	a2, t2
 
 ;0x7658C
 mTranslateXYZ:
@@ -316,46 +335,17 @@ mTranslateXYZ:
 	jr      ra
 	sw      t2, 0x1C(v0)
 
-;0x81BBC
-mmPushMatrix:
-	lw      a0, 0x50(fp)
-	cfc2    t0, r0
-	cfc2    t1, r1
-	cfc2    t2, r2
-	cfc2    t3, r3
-	cfc2    t4, r4
-	cfc2    t5, r5
-	cfc2    t6, r6
-	cfc2    t7, r7
-	addi    a0, 0x20
-	sw      t0, 0(a0)
-	sw      t1, 4(a0)
-	sw      t2, 8(a0)
-	sw      t3, 0xC(a0)
-	sw      t4, 0x10(a0)
-	sw      t5, 0x14(a0)
-	sw      t6, 0x18(a0)
-	sw      t7, 0x1C(a0)
-	jr      ra
-	sw      a0, 0x50(fp)
-	
-;0x81C0C
-mmPopMatrix:
-	lw      a0, 0x50(fp)
-	nop
-	addi    a0, -0x20
-
 ;0x7669C
 mRotX:
 	srl     a0, 2
 	andi    a0, 0x3FFC
 	bnez    a0, loc_766B4
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_766B4:
-	ori     t0, 0xA8C8
+	la      t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
@@ -397,12 +387,12 @@ mRotY:
 	srl     a0, 2
 	andi    a0, 0x3FFC
 	bnez    a0, loc_7675C
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_7675C:
-	ori     t0, 0xA8C8
+	la      t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
@@ -453,12 +443,12 @@ mRotZ:
 	srl     a0, 2
 	andi    a0, 0x3FFC
 	bnez    a0, loc_7681C
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_7681C:
-	ori     t0, 0xA8C8
+	la		t0, rcossin_tbl
 	add     t0, a0
 	lw      t0, 0(t0)
 	lui     t7, 0xFFFF
@@ -562,21 +552,6 @@ mRotSuperPackedYXZ:
 mRotPackedYXZ:
 	jr	ra
 	nop
-
-;0x7696C
-SetRotation:
-	lw      a0, Matrix-GP_ADDR(gp)
-	ctc2    t0, r0
-	ctc2    t1, r1
-	ctc2    t2, r2
-	ctc2    t3, r3
-	ctc2    t4, r4
-	sw      t0, 0(a0)
-	sw      t1, 4(a0)
-	sw      t2, 8(a0)
-	sw      t3, 0xC(a0)
-	jr      ra
-	sw      t4, 0x10(a0)
 
 ;0x76970
 setrot:
@@ -702,7 +677,7 @@ mCopyMatrix:
 	loc_76AC8:
 	beqz    at, loc_76AD4
 	sltiu   at, t4, 0x5000
-	addi    v0, 1
+	addi    v0, v0, 1
 
 	loc_76AD4:
 	beqz    at, loc_76AE0
@@ -1029,12 +1004,12 @@ iRotX:
 	srl     a0, 2
 	andi    a0, 0x3FFC
 	bnez    a0, loc_76DD0
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_76DD0:
-	ori     t0, 0xA8C8
+	la		t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
@@ -1076,12 +1051,12 @@ iRotY:
 	srl     a0, 2
 	andi    a0, 0x3FFC
 	bnez    a0, loc_76E78
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_76E78:
-	ori     t0, 0xA8C8
+	la		t0, rcossin_tbl
 	add     t0, a0
 	lw      t5, 0(t0)
 	lui     t7, 0xFFFF
@@ -1122,12 +1097,12 @@ iRotZ:
 	srl     a0, 2
 	andi    a0, 0x3FFC
 	bnez    a0, loc_76F1C
-	lui     t0, 9
+	nop
 	jr      ra
 	nop
 
 	loc_76F1C:
-	ori     t0, 0xA8C8
+	la		t0, rcossin_tbl
 	add     t0, a0
 	lw      t0, 0(t0)
 	lui     t7, 0xFFFF
@@ -1636,7 +1611,8 @@ mNormaliseXYZ:
 	sra     a3, 1
 	addi    at, v1, -0x18
 	bltz    at, loc_77628
-	lui     a0, 0xA
+	nop
+	;lui     a0, 0xA original
 	j       loc_77634
 	sllv    v0, at
 
@@ -1646,7 +1622,8 @@ mNormaliseXYZ:
 	srav    v0, at
 
 	loc_77634:
-	ori     a0, 0x1C48
+	la		 a0, ScalarTable
+	;ori     a0, 0x1C48 original
 	addi    v0, -0x40
 	sll     v0, 1
 	add     a0, v0
@@ -1669,16 +1646,19 @@ mGetAngle:
 	sub	t0, a2, a0
 	sub	t1, a3, a1
 	or	at, t0, t1
+	la  a0, atanTab
 	beqz	at, loc_7771C
 	move	v0, zero
 	bgez	t0, loc_7769C
-	lui	a0, 9
+	;lui	a0, 9 original
+	nop
 	ori	v0, 0x10
 	neg	t0, t0
 
 	loc_7769C:
 	bgez	t1, loc_776AC
-	ori	a0, 0x4004
+	nop
+	;ori	a0, 0x4004; original
 	addi	v0, 8
 	neg	t1, t1
 
@@ -1702,7 +1682,8 @@ mGetAngle:
 	loc_776E0:
 	sll	t1, 11
 	divu	t1, t0
-	ori	a1, 0x3FE4
+	la		a1, atanOctantTab
+	;ori	a1, 0x3FE4 original
 	add	a1, v0
 	lw	t1, 0(a1)
 	mflo	t0
@@ -1723,6 +1704,7 @@ mGetAngle:
 	nop
 
 ;0x779DC
+mSqrt:
 phd_sqrt_asm:
 	mtc2	a0, r30
 	beqz	a0, locret_77A38
@@ -1733,8 +1715,10 @@ phd_sqrt_asm:
 	sub	v0, v1
 	sra	v0, 1
 	addi	at, v1, -0x18
+	la		a1, SqrtTable
 	bltz	at, loc_77A10
-	lui	a1, 0xA
+	;lui	a1, 0xA original
+	nop
 	j	loc_77A1C
 	sllv	a0, at
 
@@ -1744,7 +1728,7 @@ phd_sqrt_asm:
 	srav	a0, at
 
 	loc_77A1C:
-	ori	a1, 0x1AA4
+	;ori	a1, 0x1AA4 original
 	addi	a0, -0x40
 	sll	a0, 1
 	addu	a0, a1
@@ -1755,6 +1739,7 @@ phd_sqrt_asm:
 	locret_77A38:
 	jr	ra
 	srl	v0, a0, 12
+
 ;0x77D48
 ScaleCurrentMatrix:
 	cfc2	t0, r0
@@ -1835,516 +1820,516 @@ ScaleCurrentMatrix:
 
 ;0x77E70
 GetRoomBoundsAsm:
-	lui	a1, 0x1F80
-	sw	s0, 0xD8(a1)
-	sw	s1, 0xDC(a1)
-	sw	s2, 0xE0(a1)
-	sw	s3, 0xE4(a1)
-	sw	s4, 0xE8(a1)
-	sw	s5, 0xEC(a1)
-	sw	s6, 0xF0(a1)
-	sw	s7, 0xF4(a1)
-	sw	fp, 0xF8(a1)
-	move	s0, a1
-	lw	s1, room-GP_ADDR(gp)
-	move	s2, zero
-	li	s3, 1
-	li	s4, 0x1F8000FC
-	move	s5, zero
-	lw	fp, outside-GP_ADDR(gp)
-	sb	a0, 0(s0)
-	sll	a0, 4
-	sll	at, a0, 2
-	add	a0, at
-	add	a0, s1
-	lui	t0, 0x1FF
-	lui	t1, 0xEF
-	li	t2, 2
-	sw	t0, 0x40(a0)
-	sw	t1, 0x44(a0)
-	sb	t2, 0x37(a0)
-	la	t6, CamPos;addiu
-	cfc2	t1, r5
-	cfc2	t2, r6
-	cfc2	t3, r7
-	sw	t1, 0xB0(s0)
-	sw	t2, 0xB4(s0)
-	sw	t3, 0xB8(s0)
-	lw	t1, 0(t6)
-	lw	t2, 4(t6)
-	lw	t3, 8(t6)
-	sw	t1, 0xBC(s0)
-	sw	t2, 0xC0(s0)
-	sw	t3, 0xC4(s0)
+	lui     a1, 0x1F80
+	sw      s0, 0xD8(a1)
+	sw      s1, 0xDC(a1)
+	sw      s2, 0xE0(a1)
+	sw      s3, 0xE4(a1)
+	sw      s4, 0xE8(a1)
+	sw      s5, 0xEC(a1)
+	sw      s6, 0xF0(a1)
+	sw      s7, 0xF4(a1)
+	sw      fp, 0xF8(a1)
+	move    s0, a1
+	lw      s1, room-GP_ADDR(gp)
+	move    s2, zero
+	li      s3, 1
+	li      s4, 0x1F8000FC
+	move    s5, zero
+	lw      fp, outside-GP_ADDR(gp)
+	sb      a0, 0(s0)
+	sll     a0, 4
+	sll     at, a0, 2
+	add     a0, at
+	add     a0, s1
+	lui     t0, 0x1FF
+	lui     t1, 0xEF
+	li      t2, 2
+	sw      t0, 0x40(a0)
+	sw      t1, 0x44(a0)
+	sb      t2, 0x37(a0)
+	addiu   t6, gp, CamPos-GP_ADDR
+	cfc2    t1, r5
+	cfc2    t2, r6
+	cfc2    t3, r7
+	sw      t1, 0xB0(s0)
+	sw      t2, 0xB4(s0)
+	sw      t3, 0xB8(s0)
+	lw      t1, 0(t6)
+	lw      t2, 4(t6)
+	lw      t3, 8(t6)
+	sw      t1, 0xBC(s0)
+	sw      t2, 0xC0(s0)
+	sw      t3, 0xC4(s0)
 
 	loc_77F18:
-	beq	s2, s3, loc_78490
-	add	t0, s0, s2
-	lbu	s6, 0(t0)
-	addi	s2, 1
-	andi	s2, 0x7F
-	sll	a0, s6, 4
-	sll	at, a0, 2
-	add	a0, at
-	add	a0, s1
-	lb	v0, 0x37(a0)
-	lw	t1, 0x38(a0)
-	addi	v0, -2
-	lw	t3, 0x3C(a0)
-	lw	t5, 0x40(a0)
-	lw	t7, 0x44(a0)
-	srl	t2, t1, 16
-	andi	t1, 0xFFFF
-	srl	t4, t3, 16
-	andi	t3, 0xFFFF
-	srl	t6, t5, 16
-	andi	t5, 0xFFFF
-	srl	t8, t7, 16
-	andi	t7, 0xFFFF
-	slt	at, t5, t1
-	beqz	at, loc_77F84
-	slt	at, t6, t2
-	move	t1, t5
+	beq     s2, s3, loc_78490
+	add     t0, s0, s2
+	lbu     s6, 0(t0)
+	addi    s2, 1
+	andi    s2, 0x7F
+	sll     a0, s6, 4
+	sll     at, a0, 2
+	add     a0, at
+	add     a0, s1
+	lb      v0, 0x37(a0)
+	lw      t1, 0x38(a0)
+	addi    v0, -2
+	lw      t3, 0x3C(a0)
+	lw      t5, 0x40(a0)
+	lw      t7, 0x44(a0)
+	srl     t2, t1, 16
+	andi    t1, 0xFFFF
+	srl     t4, t3, 16
+	andi    t3, 0xFFFF
+	srl     t6, t5, 16
+	andi    t5, 0xFFFF
+	srl     t8, t7, 16
+	andi    t7, 0xFFFF
+	slt     at, t5, t1
+	beqz    at, loc_77F84
+	slt     at, t6, t2
+	move    t1, t5
 
 	loc_77F84:
-	bnez	at, loc_77F90
-	slt	at, t7, t3
-	move	t2, t6
+	bnez    at, loc_77F90
+	slt     at, t7, t3
+	move    t2, t6
 
 	loc_77F90:
-	beqz	at, loc_77F9C
-	slt	at, t8, t4
-	move	t3, t7
+	beqz    at, loc_77F9C
+	slt     at, t8, t4
+	move    t3, t7
 
 	loc_77F9C:
-	bnez	at, loc_77FA8
-	sll	t6, t2, 16
-	move	t4, t8
+	bnez    at, loc_77FA8
+	sll     t6, t2, 16
+	move    t4, t8
 
 	loc_77FA8:
-	or	t5, t1, t6
-	sll	t6, t4, 16
-	or	t6, t3
-	sw	t5, 0x38(a0)
-	sw	t6, 0x3C(a0)
-	andi	at, v0, 1
-	bnez	at, loc_77FD4
-	ori	v0, 1
-	sh	s6, 0(s4)
-	addi	s4, 2
-	addi	s5, 1
+	or      t5, t1, t6
+	sll     t6, t4, 16
+	or      t6, t3
+	sw      t5, 0x38(a0)
+	sw      t6, 0x3C(a0)
+	andi    at, v0, 1
+	bnez    at, loc_77FD4
+	ori     v0, 1
+	sh      s6, 0(s4)
+	addi    s4, 2
+	addi    s5, 1
 
 	loc_77FD4:
-	lh	s6, 0x4E(a0)
-	sb	v0, 0x37(a0)
-	andi	s6, 8
-	or	fp, s6
-	lw	s7, 4(a0)
-	lw	t0, 0x14(a0)
-	beqz	s7, loc_77F18
-	lw	t1, 0x18(a0)
-	lw	t2, 0x1C(a0)
-	bgez	t0, loc_78018
-	sra	t3, t0, 15
-	negu	t0, t0
-	sra	t3, t0, 15
-	andi	t0, 0x7FFF
-	negu	t3, t3
-	j	loc_7801C
-	negu	t0, t0
+	lh      s6, 0x4E(a0)
+	sb      v0, 0x37(a0)
+	andi    s6, 8
+	or      fp, s6
+	lw      s7, 4(a0)
+	lw      t0, 0x14(a0)
+	beqz    s7, loc_77F18
+	lw      t1, 0x18(a0)
+	lw      t2, 0x1C(a0)
+	bgez    t0, loc_78018
+	sra     t3, t0, 15
+	negu    t0, t0
+	sra     t3, t0, 15
+	andi    t0, 0x7FFF
+	negu    t3, t3
+	j       loc_7801C
+	negu    t0, t0
 
 	loc_78018:
-	andi	t0, 0x7FFF
+	andi    t0, 0x7FFF
 
 	loc_7801C:
-	bgez	t1, loc_7803C
-	sra	t4, t1, 15
-	negu	t1, t1
-	sra	t4, t1, 15
-	andi	t1, 0x7FFF
-	negu	t4, t4
-	j	loc_78040
-	negu	t1, t1
+	bgez    t1, loc_7803C
+	sra     t4, t1, 15
+	negu    t1, t1
+	sra     t4, t1, 15
+	andi    t1, 0x7FFF
+	negu    t4, t4
+	j       loc_78040
+	negu    t1, t1
 
 	loc_7803C:
-	andi	t1, 0x7FFF
+	andi    t1, 0x7FFF
 
 	loc_78040:
-	bgez	t2, loc_78060
-	sra	t5, t2, 15
-	negu	t2, t2
-	sra	t5, t2, 15
-	andi	t2, 0x7FFF
-	negu	t5, t5
-	j	loc_78064
-	negu	t2, t2
+	bgez    t2, loc_78060
+	sra     t5, t2, 15
+	negu    t2, t2
+	sra     t5, t2, 15
+	andi    t2, 0x7FFF
+	negu    t5, t5
+	j       loc_78064
+	negu    t2, t2
 
 	loc_78060:
-	andi	t2, 0x7FFF
+	andi    t2, 0x7FFF
 
 	loc_78064:
-	mtc2	t3, r9
-	mtc2	t4, r10
-	mtc2	t5, r11
+	mtc2    t3, r9
+	mtc2    t4, r10
+	mtc2    t5, r11
 	nop
 	nop
-	cop2	0x41E012
-	lw	t3, 0xB0(s0)
-	lw	t4, 0xB4(s0)
-	lw	t5, 0xB8(s0)
-	ctc2	t3, r5
-	ctc2	t4, r6
-	ctc2	t5, r7
-	mfc2	t3, r25
-	mfc2	t4, r26
-	mtc2	t0, r9
-	mtc2	t1, r10
-	mtc2	t2, r11
-	mfc2	t5, r27
+	cop2    0x41E012
+	lw      t3, 0xB0(s0)
+	lw      t4, 0xB4(s0)
+	lw      t5, 0xB8(s0)
+	ctc2    t3, r5
+	ctc2    t4, r6
+	ctc2    t5, r7
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mtc2    t0, r9
+	mtc2    t1, r10
+	mtc2    t2, r11
+	mfc2    t5, r27
 	nop
 	nop
-	cop2	0x498012
-	bgez	t3, loc_780C0
-	sll	t0, t3, 3
-	negu	t3, t3
-	sll	t3, 3
-	negu	t0, t3
+	cop2    0x498012
+	bgez    t3, loc_780C0
+	sll     t0, t3, 3
+	negu    t3, t3
+	sll     t3, 3
+	negu    t0, t3
 
 	loc_780C0:
-	bgez	t4, loc_780D4
-	sll	t1, t4, 3
-	negu	t4, t4
-	sll	t4, 3
-	negu	t1, t4
+	bgez    t4, loc_780D4
+	sll     t1, t4, 3
+	negu    t4, t4
+	sll     t4, 3
+	negu    t1, t4
 
 	loc_780D4:
-	bgez	t5, loc_780E8
-	sll	t2, t5, 3
-	negu	t5, t5
-	sll	t5, 3
-	negu	t2, t5
+	bgez    t5, loc_780E8
+	sll     t2, t5, 3
+	negu    t5, t5
+	sll     t5, 3
+	negu    t2, t5
 
 	loc_780E8:
-	mfc2	t3, r25
-	mfc2	t4, r26
-	mfc2	t5, r27
-	addu	t0, t3
-	addu	t1, t4
-	addu	t2, t5
-	ctc2	t0, r5
-	ctc2	t1, r6
-	ctc2	t2, r7
-	lh	v0, 0(s7)
-	addi	s7, 2
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mfc2    t5, r27
+	addu    t0, t3
+	addu    t1, t4
+	addu    t2, t5
+	ctc2    t0, r5
+	ctc2    t1, r6
+	ctc2    t2, r7
+	lh      v0, 0(s7)
+	addi    s7, 2
 
 	loc_78114:
-	lh	a1, 0(s7)
-	addi	s7, 2
-	lh	t0, 0(s7)
-	lw	t1, 0x14(a0)
-	beqz	t0, loc_7814C
-	lh	t2, 6(s7)
-	lw	t3, 0xBC(s0)
-	add	t1, t2
-	sub	t1, t3
-	beqz	t1, loc_7847C
-	xor	t0, t1
-	bltz	t0, loc_781A8
-	move	a2, s7
-	j	loc_7847C
+	lh      a1, 0(s7)
+	addi    s7, 2
+	lh      t0, 0(s7)
+	lw      t1, 0x14(a0)
+	beqz    t0, loc_7814C
+	lh      t2, 6(s7)
+	lw      t3, 0xBC(s0)
+	add     t1, t2
+	sub     t1, t3
+	beqz    t1, loc_7847C
+	xor     t0, t1
+	bltz    t0, loc_781A8
+	move    a2, s7
+	j       loc_7847C
 
 	loc_7814C:
-	lh	t0, 2(s7)
-	lw	t1, 0x18(a0)
-	beqz	t0, loc_7817C
-	lh	t2, 8(s7)
-	lw	t3, 0xC0(s0)
-	add	t1, t2
-	sub	t1, t3
-	beqz	t1, loc_7847C
-	xor	t0, t1
-	bltz	t0, loc_781A8
-	move	a2, s7
-	j	loc_7847C
+	lh      t0, 2(s7)
+	lw      t1, 0x18(a0)
+	beqz    t0, loc_7817C
+	lh      t2, 8(s7)
+	lw      t3, 0xC0(s0)
+	add     t1, t2
+	sub     t1, t3
+	beqz    t1, loc_7847C
+	xor     t0, t1
+	bltz    t0, loc_781A8
+	move    a2, s7
+	j       loc_7847C
 
 	loc_7817C:
-	lh	t0, 4(s7)
-	lw	t1, 0x1C(a0)
-	beqz	t0, loc_7847C
-	lh	t2, 0xA(s7)
-	lw	t3, 0xC4(s0)
-	add	t1, t2
-	sub	t1, t3
-	beqz	t1, loc_7847C
-	xor	t0, t1
-	bgez	t0, loc_7847C
-	move	a2, s7
+	lh      t0, 4(s7)
+	lw      t1, 0x1C(a0)
+	beqz    t0, loc_7847C
+	lh      t2, 0xA(s7)
+	lw      t3, 0xC4(s0)
+	add     t1, t2
+	sub     t1, t3
+	beqz    t1, loc_7847C
+	xor     t0, t1
+	bgez    t0, loc_7847C
+	move    a2, s7
 
 	loc_781A8:
-	sll	a3, a1, 4
-	sll	at, a3, 2
-	add	a3, at
-	add	a3, s1
-	lw	t0, 0x38(a3)
-	lw	t2, 0x40(a0)
-	lw	t4, 0x3C(a3)
-	lw	t6, 0x44(a0)
-	srl	t1, t0, 16
-	andi	t0, 0xFFFF
-	srl	t3, t2, 16
-	andi	t2, 0xFFFF
-	srl	t5, t4, 16
-	andi	t4, 0xFFFF
-	srl	t7, t6, 16
-	andi	t6, 0xFFFF
-	slt	at, t0, t2
-	beqz	at, loc_78208
-	slt	at, t1, t3
-	bnez	at, loc_78208
-	slt	at, t4, t6
-	beqz	at, loc_78208
-	slt	at, t5, t7
-	beqz	at, loc_7847C
+	sll     a3, a1, 4
+	sll     at, a3, 2
+	add     a3, at
+	add     a3, s1
+	lw      t0, 0x38(a3)
+	lw      t2, 0x40(a0)
+	lw      t4, 0x3C(a3)
+	lw      t6, 0x44(a0)
+	srl     t1, t0, 16
+	andi    t0, 0xFFFF
+	srl     t3, t2, 16
+	andi    t2, 0xFFFF
+	srl     t5, t4, 16
+	andi    t4, 0xFFFF
+	srl     t7, t6, 16
+	andi    t6, 0xFFFF
+	slt     at, t0, t2
+	beqz    at, loc_78208
+	slt     at, t1, t3
+	bnez    at, loc_78208
+	slt     at, t4, t6
+	beqz    at, loc_78208
+	slt     at, t5, t7
+	beqz    at, loc_7847C
 
 	loc_78208:
-	move	t0, t3
-	move	t1, t2
-	move	t2, t7
-	move	t3, t6
-	addi	t4, s0, 0x80
-	move	t5, zero
-	move	t6, zero
-	li	v1, 3
+	move    t0, t3
+	move    t1, t2
+	move    t2, t7
+	move    t3, t6
+	addi    t4, s0, 0x80
+	move    t5, zero
+	move    t6, zero
+	li      v1, 3
 
 	loc_78228:
-	lhu	t7, 6(a2)
-	lhu	t9, 8(a2)
-	lhu	t8, 0xA(a2)
-	sll	t9, 16
-	or	t7, t9
-	mtc2	t7, r0
-	mtc2	t8, r1
-	addi	a2, 6
+	lhu     t7, 6(a2)
+	lhu     t9, 8(a2)
+	lhu     t8, 0xA(a2)
+	sll     t9, 16
+	or      t7, t9
+	mtc2    t7, r0
+	mtc2    t8, r1
+	addi    a2, 6
 	nop
 	nop
-	cop2	0x480012
-	mfc2	t7, r9
-	mfc2	t8, r10
-	mfc2	t9, r11
-	cop2	0x180001
-	sw	t7, 0(t4)
-	sw	t8, 4(t4)
-	sw	t9, 8(t4)
-	bgtz	t9, loc_78278
-	addi	t4, 0xC
-	j	loc_782C8
-	addi	t5, 1
+	cop2    0x480012
+	mfc2    t7, r9
+	mfc2    t8, r10
+	mfc2    t9, r11
+	cop2    0x180001
+	sw      t7, 0(t4)
+	sw      t8, 4(t4)
+	sw      t9, 8(t4)
+	bgtz    t9, loc_78278
+	addi    t4, 0xC
+	j       loc_782C8
+	addi    t5, 1
 
 	loc_78278:
-	slti	at, t9, 0x5000
-	mfc2	t7, r14
-	bnez	at, loc_7828C
-	sra	t8, t7, 16
-	addi	t6, 1
+	slti    at, t9, 0x5000
+	mfc2    t7, r14
+	bnez    at, loc_7828C
+	sra     t8, t7, 16
+	addi    t6, 1
 
 	loc_7828C:
-	sll	t7, 16
-	sra	t7, 16
-	slt	at, t7, t0
-	beqz	at, loc_782A4
-	slt	at, t7, t1
-	move	t0, t7
+	sll     t7, 16
+	sra     t7, 16
+	slt     at, t7, t0
+	beqz    at, loc_782A4
+	slt     at, t7, t1
+	move    t0, t7
 
 	loc_782A4:
-	bnez	at, loc_782B0
-	slt	at, t8, t2
-	move	t1, t7
+	bnez    at, loc_782B0
+	slt     at, t8, t2
+	move    t1, t7
 
 	loc_782B0:
-	beqz	at, loc_782BC
-	slt	at, t8, t3
-	move	t2, t8
+	beqz    at, loc_782BC
+	slt     at, t8, t3
+	move    t2, t8
 
 	loc_782BC:
-	bnez	at, loc_782C8
+	bnez    at, loc_782C8
 	nop
-	move	t3, t8
+	move    t3, t8
 
 	loc_782C8:
-	bnez	v1, loc_78228
-	addi	v1, -1
-	li	at, 4
-	beq	t5, at, loc_7847C
-	addi	t4, s0, 0x80
-	beq	t6, at, loc_7847C
-	li	v1, 3
-	beqz	t5, loc_78384
-	addi	t5, t4, 0x24
+	bnez    v1, loc_78228
+	addi    v1, -1
+	li      at, 4
+	beq     t5, at, loc_7847C
+	addi    t4, s0, 0x80
+	beq     t6, at, loc_7847C
+	li      v1, 3
+	beqz    t5, loc_78384
+	addi    t5, t4, 0x24
 
 	loc_782EC:
-	lw	t6, 8(t4)
-	lw	t7, 8(t5)
-	slti	t8, t6, 1
-	slti	t9, t7, 1
-	xor	t8, t9
-	beqz	t8, loc_78374
-	lw	t6, 0(t4)
-	lw	t7, 0(t5)
-	slt	t8, t6, zero
-	slt	t9, t7, zero
-	and	t8, t9
-	beqz	t8, loc_78328
-	slt	t8, zero, t6
-	j	loc_7833C
-	move	t0, zero
+	lw      t6, 8(t4)
+	lw      t7, 8(t5)
+	slti    t8, t6, 1
+	slti    t9, t7, 1
+	xor     t8, t9
+	beqz    t8, loc_78374
+	lw      t6, 0(t4)
+	lw      t7, 0(t5)
+	slt     t8, t6, zero
+	slt     t9, t7, zero
+	and     t8, t9
+	beqz    t8, loc_78328
+	slt     t8, zero, t6
+	j       loc_7833C
+	move    t0, zero
 
 	loc_78328:
-	slt	t9, zero, t7
-	and	t8, t9
-	bnez	t8, loc_7833C
-	li	t1, 0x1FF
-	move	t0, zero
+	slt     t9, zero, t7
+	and     t8, t9
+	bnez    t8, loc_7833C
+	li      t1, 0x1FF
+	move    t0, zero
 
 	loc_7833C:
-	lw	t6, 4(t4)
-	lw	t7, 4(t5)
-	slt	t8, t6, zero
-	slt	t9, t7, zero
-	and	t8, t9
-	beqz	t8, loc_78360
-	slt	t8, zero, t6
-	j	loc_78374
-	move	t2, zero
+	lw      t6, 4(t4)
+	lw      t7, 4(t5)
+	slt     t8, t6, zero
+	slt     t9, t7, zero
+	and     t8, t9
+	beqz    t8, loc_78360
+	slt     t8, zero, t6
+	j       loc_78374
+	move    t2, zero
 
 	loc_78360:
-	slt	t9, zero, t7
-	and	t8, t9
-	bnez	t8, loc_78374
-	li	t3, 0xEF
-	move	t2, zero
+	slt     t9, zero, t7
+	and     t8, t9
+	bnez    t8, loc_78374
+	li      t3, 0xEF
+	move    t2, zero
 
 	loc_78374:
-	move	t5, t4
-	addi	t4, 0xC
-	bnez	v1, loc_782EC
-	addi	v1, -1
+	move    t5, t4
+	addi    t4, 0xC
+	bnez    v1, loc_782EC
+	addi    v1, -1
 
 	loc_78384:
-	lw	t4, 0x40(a0)
-	lw	t6, 0x44(a0)
-	srl	t5, t4, 16
-	andi	t4, 0xFFFF
-	srl	t7, t6, 16
-	andi	t6, 0xFFFF
-	slt	at, t0, t4
-	beqz	at, loc_783AC
-	slt	at, t5, t1
-	move	t0, t4
+	lw      t4, 0x40(a0)
+	lw      t6, 0x44(a0)
+	srl     t5, t4, 16
+	andi    t4, 0xFFFF
+	srl     t7, t6, 16
+	andi    t6, 0xFFFF
+	slt     at, t0, t4
+	beqz    at, loc_783AC
+	slt     at, t5, t1
+	move    t0, t4
 
 	loc_783AC:
-	beqz	at, loc_783B8
-	slt	at, t2, t6
-	move	t1, t5
+	beqz    at, loc_783B8
+	slt     at, t2, t6
+	move    t1, t5
 
 	loc_783B8:
-	beqz	at, loc_783C4
-	slt	at, t7, t3
-	move	t2, t6
+	beqz    at, loc_783C4
+	slt     at, t7, t3
+	move    t2, t6
 
 	loc_783C4:
-	beqz	at, loc_783D0
-	sub	at, t0, t1
-	move	t3, t7
+	beqz    at, loc_783D0
+	sub     at, t0, t1
+	move    t3, t7
 
 	loc_783D0:
-	bgez	at, loc_7847C
-	sub	at, t2, t3
-	bgez	at, loc_7847C
-	lb	v1, 0x37(a3)
-	add	t4, s0, s3
-	andi	at, v1, 2
-	bnez	at, loc_7841C
-	ori	v1, 2
-	sb	a1, 0(t4)
-	addi	s3, 1
-	andi	s3, 0x7F
-	sll	t1, 16
-	or	t0, t1
-	sll	t3, 16
-	or	t2, t3
-	sw	t0, 0x40(a3)
-	sw	t2, 0x44(a3)
-	j	loc_7847C
-	sb	v1, 0x37(a3)
+	bgez    at, loc_7847C
+	sub     at, t2, t3
+	bgez    at, loc_7847C
+	lb      v1, 0x37(a3)
+	add     t4, s0, s3
+	andi    at, v1, 2
+	bnez    at, loc_7841C
+	ori     v1, 2
+	sb      a1, 0(t4)
+	addi    s3, 1
+	andi    s3, 0x7F
+	sll     t1, 16
+	or      t0, t1
+	sll     t3, 16
+	or      t2, t3
+	sw      t0, 0x40(a3)
+	sw      t2, 0x44(a3)
+	j       loc_7847C
+	sb      v1, 0x37(a3)
 
 	loc_7841C:
-	lw	t4, 0x40(a3)
-	lw	t6, 0x44(a3)
-	srl	t5, t4, 16
-	andi	t4, 0xFFFF
-	srl	t7, t6, 16
-	andi	t6, 0xFFFF
-	slt	at, t0, t4
-	beqz	at, loc_78444
-	slt	at, t5, t1
-	move	t4, t0
+	lw      t4, 0x40(a3)
+	lw      t6, 0x44(a3)
+	srl     t5, t4, 16
+	andi    t4, 0xFFFF
+	srl     t7, t6, 16
+	andi    t6, 0xFFFF
+	slt     at, t0, t4
+	beqz    at, loc_78444
+	slt     at, t5, t1
+	move    t4, t0
 
 	loc_78444:
-	beqz	at, loc_78450
-	slt	at, t2, t6
-	move	t5, t1
+	beqz    at, loc_78450
+	slt     at, t2, t6
+	move    t5, t1
 
 	loc_78450:
-	beqz	at, loc_7845C
-	slt	at, t7, t3
-	move	t6, t2
+	beqz    at, loc_7845C
+	slt     at, t7, t3
+	move    t6, t2
 
 	loc_7845C:
-	beqz	at, loc_78468
-	sll	t5, 16
-	move	t7, t3
+	beqz    at, loc_78468
+	sll     t5, 16
+	move    t7, t3
 
 	loc_78468:
-	or	t4, t5
-	sll	t7, 16
-	or	t6, t7
-	sw	t4, 0x40(a3)
-	sw	t6, 0x44(a3)
+	or      t4, t5
+	sll     t7, 16
+	or      t6, t7
+	sw      t4, 0x40(a3)
+	sw      t6, 0x44(a3)
 
 	loc_7847C:
-	addi	v0, -1
-	bgtz	v0, loc_78114
-	addi	s7, 0x1E
-	j	loc_77F18
+	addi    v0, -1
+	bgtz    v0, loc_78114
+	addi    s7, 0x1E
+	j       loc_77F18
 	nop
 
 	loc_78490:
-	la	t0, draw_rooms
-	li	s4, 0x1F8000FC
-	addiu	v0, s5, -1
-	move	s5, zero
+	addiu   t0, gp, draw_rooms-GP_ADDR
+	li      s4, 0x1F8000FC
+	addiu   v0, s5, -1
+	move    s5, zero
 
 	loc_784A4:
-	lh	a1, 0(s4)
-	addi	s4, 2
-	sh	a1, 0(t0)
-	addiu	t0, 2
-	addiu	s5, 1
-	bgtz	v0, loc_784A4
-	addi	v0, -1
-	sw	s5, number_draw_rooms-GP_ADDR(gp)
-	sw	fp, outside-GP_ADDR(gp)
-	lui	a0, 0x1F80
-	lw	s0, 0xD8(a0)
-	lw	s1, 0xDC(a0)
-	lw	s2, 0xE0(a0)
-	lw	s3, 0xE4(a0)
-	lw	s4, 0xE8(a0)
-	lw	s5, 0xEC(a0)
-	lw	s6, 0xF0(a0)
-	lw	s7, 0xF4(a0)
-	jr	ra
-	lw	fp, 0xF8(a0)
+	lh      a1, 0(s4)
+	addi    s4, 2
+	sh      a1, 0(t0)
+	addiu   t0, 2
+	addiu   s5, 1
+	bgtz    v0, loc_784A4
+	addi    v0, -1
+	sw      s5, number_draw_rooms-GP_ADDR(gp)
+	sw      fp, outside-GP_ADDR(gp)
+	lui     a0, 0x1F80
+	lw      s0, 0xD8(a0)
+	lw      s1, 0xDC(a0)
+	lw      s2, 0xE0(a0)
+	lw      s3, 0xE4(a0)
+	lw      s4, 0xE8(a0)
+	lw      s5, 0xEC(a0)
+	lw      s6, 0xF0(a0)
+	lw      s7, 0xF4(a0)
+	jr      ra
+	lw      fp, 0xF8(a0)
 	
 ;0x77728
 phd_LookAt:
@@ -2371,6 +2356,111 @@ phd_LookAt:
 	or      v0, at
 	sw      v0, viewer+0xC-GP_ADDR(gp)
 	move    ra, t5
+
+phd_GenerateW2V:
+	lhu     a2, 0xC(a0)
+	lhu     v1, 0xE(a0)
+	la      a3, rcossin_tbl
+	srl     a2, 2
+	andi    a2, 0x3FFC
+	srl     v1, 2
+	andi    v1, 0x3FFC
+	addu    v1, a3
+	addu    a2, a3
+	lh      t0, 0(a2)
+	lh      t2, 0(v1)
+	lhu     a1, 0x10(a0)
+	mult    t0, t2
+	lh      t3, 2(v1)
+	srl     a1, 2
+	andi    a1, 0x3FFC
+	addu    a1, a3
+	mflo    t4
+	lh      t1, 0(a1)
+	sra     t4, 12
+	mult    t4, t1
+	mflo    t5
+	la      v0, matrix_stack
+	mult    t0, t3
+	sw      v0, phd_mxptr-GP_ADDR(gp)
+	mflo    v1
+	lh      v0, 2(a2)
+	negu    t0, t0
+	mult    v0, t1
+	sw      t0, matrix_stack+0x24-GP_ADDR(gp)
+	sw      t0, w2v_matrix+0x24-GP_ADDR(gp)
+	mflo    t6
+	lh      a1, 2(a1)
+	sra     v1, 12
+	mult    v1, t1
+	sra     t6, 12
+	sw      t6, matrix_stack+0x4-GP_ADDR(gp)
+	sw      t6, w2v_matrix+0x4-GP_ADDR(gp)
+	mflo    t6
+	sra     t6, 12
+	nop
+	mult    t2, a1
+	mflo    a3
+	sra     a3, 12
+	subu    t6, a3
+	mult    t4, a1
+	sw      t6, matrix_stack+0x8-GP_ADDR(gp)
+	sw      t6, w2v_matrix+0x8-GP_ADDR(gp)
+	mflo    t6
+	lw      a3, 0(a0)
+	lw      t4, 4(a0)
+	mult    t3, t1
+	lw      a0, 8(a0)
+	sw      a3, matrix_stack+0xC-GP_ADDR(gp)
+	sw      a3, w2v_matrix+0xC-GP_ADDR(gp)
+	sw      t4, matrix_stack+0x1C-GP_ADDR(gp)
+	sw      t4, w2v_matrix+0x1C-GP_ADDR(gp)
+	mflo    a3
+	sw      a0, matrix_stack+0x2C-GP_ADDR(gp)
+	sw      a0, w2v_matrix+0x2C-GP_ADDR(gp)
+	mult    v0, a1
+	mflo    t4
+	sra     t0, t4, 12
+	sra     t4, 14
+	mult    v0, t2
+	sw      t0, w2v_matrix+0x14-GP_ADDR(gp)
+	mflo    a2
+	subu    t0, t4
+	sra     a2, 12
+	mult    v0, t3
+	sw      a2, matrix_stack+0x20-GP_ADDR(gp)
+	sw      a2, w2v_matrix+0x20-GP_ADDR(gp)
+	sw      t0, matrix_stack+0x14-GP_ADDR(gp)
+	mflo    a2
+	sra     a2, 12
+	sra     t6, 12
+	mult    v1, a1
+	sw      a2, matrix_stack+0x28-GP_ADDR(gp)
+	sw      a2, w2v_matrix+0x28-GP_ADDR(gp)
+	mflo    t0
+	sra     a3, 12
+	subu    t6, a3
+	mult    t2, t1
+	sw      t6, w2v_matrix+0x10-GP_ADDR(gp)
+	sra     at, t6, 2
+	subu    t6, at
+	sw      t6, matrix_stack+0x10-GP_ADDR(gp)
+	mflo    a2
+	sra     t0, 12
+	sra     v0, a2, 12
+	mult    t3, a1
+	addu    t0, v0
+	sw      t0, w2v_matrix+0x18-GP_ADDR(gp)
+	sra     at, t0, 2
+	subu    t0, at
+	sw      t0, matrix_stack+0x18-GP_ADDR(gp)
+	sra     v0, t5, 12
+	mflo    v1
+	sra     v1, 12
+	addu    v0, v1
+	sw      v0, matrix_stack+0x0-GP_ADDR(gp)
+	jr      ra
+	sw      v0, w2v_matrix+0x0-GP_ADDR(gp)
 	
 phd_GetVectorAngles:
 	move    t0, a0
@@ -2432,12 +2522,14 @@ phd_GetVectorAngles:
 	
 phd_atan_asm:
 	bnez    a0, loc_77A50
-	lui     at, 9
+	;lui     at, 9 ;original
+	nop
 	beqz    a1, locret_77AE4
 	move    v0, zero
 
 	loc_77A50:
-	ori     at, 0x4004
+	;ori     at, 0x4004 ;original
+	la      at, atanTab
 	bgez    a0, loc_77A64
 	move    a2, zero
 	li      a2, 4
@@ -2494,22 +2586,22 @@ mRotBoundingBoxNoPersp:
 	lhu     t1, 8(a0)
 	lhu     a0, 0xA(a0)
 	lui     t5, 0x1F80
-	sh      a3, 0x1F800000
-	sh      t0, 0x1F800002
-	sh      t1, 0x1F800004
-	sh      t2, 0x1F800008
-	sh      t0, 0x1F80000A
-	sh      t1, 0x1F80000C
-	sh      t2, 0x1F800010
-	sh      t3, 0x1F800012
-	sh      t1, 0x1F800014
-	sh      a3, 0x1F800018
-	sh      t3, 0x1F80001A
-	sh      t1, 0x1F80001C
-	sh      a3, 0x1F800020
-	sh      t0, 0x1F800022
-	sh      a0, 0x1F800024
-	sh      t2, 0x1F800028
+	sh      a3, 0x0(t5)
+	sh      t0, 0x02(t5)
+	sh      t1, 0x04(t5)
+	sh      t2, 0x08(t5)
+	sh      t0, 0x0A(t5)
+	sh      t1, 0x0C(t5)
+	sh      t2, 0x10(t5)
+	sh      t3, 0x12(t5)
+	sh      t1, 0x14(t5)
+	sh      a3, 0x18(t5)
+	sh      t3, 0x1A(t5)
+	sh      t1, 0x1C(t5)
+	sh      a3, 0x20(t5)
+	sh      t0, 0x22(t5)
+	sh      a0, 0x24(t5)
+	sh      t2, 0x28(t5)
 	sh      t0, 0x2A(t5)
 	sh      a0, 0x2C(t5)
 	sh      t2, 0x30(t5)

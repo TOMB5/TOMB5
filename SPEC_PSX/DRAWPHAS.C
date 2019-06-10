@@ -142,7 +142,7 @@ long DrawPhaseGame()//63F04(<), 645E0(<) (F)
 	}
 
 	//loc_642AC
-	//DrawGameInfo(1);
+	DrawGameInfo(1);
 
 	if (BinocularRange == 0 || SniperOverlay == 0 && SCOverlay != 0)
 	{
@@ -300,17 +300,17 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 			{
 				if (gfCurrentLevel == LVL5_TITLE && jobyfrigger != 0)
 				{
-					//DrawSkyMesh(meshes[objects[CHEF_MIP].mesh_index]);
+					DrawSkyMesh(meshes[objects[CHEF_MIP].mesh_index]);
 				}
 				else
 				{
-					//DrawSkyMesh(meshes[objects[HORIZON].mesh_index]);
+					DrawSkyMesh(meshes[objects[HORIZON].mesh_index]);
 				}
 			}//loc_64728
 
 			if (gfLevelFlags & GF_LVOP_LAYER2_USED)
 			{
-				//DrawFlatSky_ASM(gfLayer2Col, SkyPos2, 0xFFFFFA00);
+				///DrawFlatSky_ASM(gfLayer2Col, SkyPos2, 0xFFFFFA00);
 			}//loc_64758
 
 			if (gfLevelFlags & GF_LVOP_LAYER1_USED)
@@ -319,13 +319,14 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 				if (gfLevelFlags & GF_LVOP_LIGHTNING)
 				{
-					//Must convert a0 to CVector may have to use inline asm
-					//DrawFlatSky_ASM(((LightningRGB[2] << 16) | (LightningRGB[1] << 8) | LightningRGB[0]) | 0x2C00), SkyPos, 0xFFFFFA00);
+					//Maybe game does it like this
+					CVECTOR rgb = { LightningRGB[2] << 16 | LightningRGB[1] << 8 | LightningRGB[0] | 0x2C00 };
+					///DrawFlatSky_ASM(rgb, SkyPos, 0xFFFFFA00);
 				}
 				else
 				{
 					//loc_647D4
-					//DrawFlatSky_ASM(gfLayer1Col, SkyPos, 0xFFFFFA00);
+					///DrawFlatSky_ASM(gfLayer1Col, SkyPos, 0xFFFFFA00);
 				}
 
 			}//loc_647F0
@@ -367,7 +368,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 			//unsigned long* ptr = (unsigned long*)RelocPtr[1];
 			//jalr ptr[0];
-
+			
 #if DEBUG_VERSION
 			ProfileRGB(255, 255, 0);
 #endif
@@ -457,11 +458,13 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (BinocularRange != 0)
 	{
-		//DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
+		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 	}
 	else
 	{
-		//DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
+		//65290 (final game)
+		printf("DRWRLET!\n");
+		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 		//loc_64BA0
 		//unsigned long* v1 = (unsigned long*)RelocPtr[2];
 		//jalr v1[0];
@@ -479,6 +482,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (GLOBAL_playing_cutseq != 0)
 	{
+		printf("DRWCUTSEQACTORS!\n");
 		//DrawCutSeqActors();
 	}//loc_64C04
 
