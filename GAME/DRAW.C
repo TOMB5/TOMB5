@@ -135,6 +135,7 @@ void UpdateSkyLightning()//2C0D0(<), ? (F)
 	}
 }
 
+#if PC_VERSION || PSXPC_TEST
 void DrawSkyMesh(short* mesh)
 {
 	UNIMPLEMENTED();
@@ -144,6 +145,7 @@ void DrawMoon()
 {
 	UNIMPLEMENTED();
 }
+#endif
 
 void DrawGunflashes()//8A924(<) 8C968(<)
 {
