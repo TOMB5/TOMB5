@@ -311,15 +311,10 @@ void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
 
 	docop2(0x41E012);
 	
-#if 1
 	t3 = MAC1;
 	t4 = MAC2;
 	t5 = MAC3;
-#else
-	t3 = 0;
-	t4 = 0;
-	t5 = 0;
-#endif
+
 	IR1 = x;
 	IR2 = y;
 	IR3 = z;
@@ -427,7 +422,9 @@ void mRotY(long ry)//76744 (F)
 
 void mRotYXZ(short y, short x, short z)//767E8 (F)
 {
-	UNIMPLEMENTED();
+	mRotY(y);
+	mRotX(x);
+	mRotZ(z);
 }
 
 void mRotZ(long rz)//76804 (F)
