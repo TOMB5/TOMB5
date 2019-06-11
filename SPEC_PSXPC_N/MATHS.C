@@ -383,9 +383,9 @@ void mRotX(long rx)//7669C (F)
 		VY0 = ((0xFFFF0000 & t5) >> 16) & 0xFFFF;
 		VZ0 = t5 & 0xFFFF;
 
-		t0 = (R12 << 16 | R11) & 0xFFFF;
-		t1 = (R21 << 16 | R13) & 0xFFFF0000;
-		t3 = (R32 << 16 | R31) & 0xFFFF;
+		t0 = ((R12 << 16) | (R11 & 0xFFFF)) & 0xFFFF;
+		t1 = ((R21 << 16) | (R13 & 0xFFFF)) & 0xFFFF0000;
+		t3 = ((R32 << 16) | (R31 & 0xFFFF)) & 0xFFFF;
 
 		docop2(0x486012);
 
@@ -439,9 +439,9 @@ void mRotY(long ry)//76744 (F)
 		VY0 = (t5 >> 16) & 0xFFFF;
 		VZ0 = t2;
 
-		t0 = (R12 << 16 | R11) & 0xFFFF0000;
-		t2 = (R23 << 16 | R22);
-		t3 = (R32 << 16 | R31);
+		t0 = ((R12 << 16) | (R11 & 0xFFFF)) & 0xFFFF0000;
+		t2 = ((R23 << 16) | (R22 & 0xFFFF)) & 0xFFFF;
+		t3 = ((R32 << 16) | (R31 & 0xFFFF)) & 0xFFFF0000;
 
 		docop2(0x486012);
 
@@ -449,20 +449,20 @@ void mRotY(long ry)//76744 (F)
 		VY1 = (t5 >> 16) & 0xFFFF;
 		VZ1 = t6;
 
-		t4 = MAC1;
+		t4 = MAC1 & 0xFFFF;
 		t1 = MAC2;
-		t5 = MAC3;
+		t5 = MAC3 & 0xFFFF;
 
 		docop2(0x48E012);
 
-		t0 |= (t4 & 0xFFFF);
-		t3 |= (t5 & 0xFFFF);
+		t0 |= t4;
+		t3 |= t5;
 
-		t5 = MAC1;
+		t5 = MAC1 & 0xFFFF;
 		t6 = MAC2;
 		t4 = MAC3;
 
-		t1 = (t1 << 16) | (t5 & 0xFFFF);
+		t1 = (t1 << 16) | (t5);
 		t2 |= t6 << 16;
 
 		SetRotation(t0, t1, t2, t3, t4);
@@ -500,8 +500,8 @@ void mRotZ(long rz)//76804 (F)
 		VY0 = ((t1 >> 16) & 0xFFFF);
 		VZ0 = 0;
 
-		t1 = (R21 << 16 | R13) & 0xFFFF;
-		t2 = (R23 << 16 | R22) & 0xFFFF0000;
+		t1 = ((R21 << 16) | (R13 & 0xFFFF)) & 0xFFFF;
+		t2 = ((R23 << 16) | (R22 & 0xFFFF)) & 0xFFFF0000;
 		t4 = R33;
 
 		docop2(0x486012);
@@ -592,14 +592,14 @@ void mRotPackedYXZ(long yxz)//7693C (F)
 
 void SetRotation(int t0, int t1, int t2, int t3, int t4)//7696C(<) (F)
 {
-	R11 = t0 & 0xFFFF;
-	R12 = t0 >> 16;
-	R13 = t1 & 0xFFFF;
-	R21 = t1 >> 16;
-	R22 = t2 & 0xFFFF;
-	R23 = t2 >> 16;
-	R31 = t3 & 0xFFFF;
-	R32 = t3 >> 16;
+	R11 = (t0 & 0xFFFF);
+	R12 = (t0 >> 16) & 0xFFFF;
+	R13 = (t1 & 0xFFFF);
+	R21 = (t1 >> 16) & 0xFFFF;
+	R22 = (t2 & 0xFFFF);
+	R23 = (t2 >> 16) & 0xFFFF;
+	R31 = (t3 & 0xFFFF);
+	R32 = (t3 >> 16) & 0xFFFF;
 	R33 = t4;
 
 	((int*)&Matrix->m00)[0] = t0;
