@@ -52,12 +52,19 @@ void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 	UNIMPLEMENTED();
 }
 
-void DEL_ApplyMatrixSV(int v0, int v1, short* m)
+void DEL_ApplyMatrixSV(int v0, int v1, short* m)//(F)
 {
+	DAT(0) = v0;
+	DAT(1) = v1;
 
+	docop2(0x486012);
+
+	m[0] = IR1;
+	m[1] = IR2;
+	m[2] = IR3;
 }
 
-void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)
+void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)//(F)
 {
 	int t0, t1, t2, t3, t4;
 
