@@ -431,20 +431,22 @@ void mRotY(long ry)//76744 (F)
 
 	if (ry != 0)
 	{
-		t5 = rcossin_tbl[ry];
+		t5 = (rcossin_tbl[ry >> 1] & 0xFFFF) | ((rcossin_tbl[ry >> 1 | 1] & 0xFFFF) << 16);
 		t6 = t5 >> 16;
 		t5 &= 0xFFFF;
 		t2 = -t5;
 		VX0 = t6;
+		VY0 = (t5 >> 16) & 0xFFFF;
 		VZ0 = t2;
 
 		t0 = (R12 << 16 | R11) & 0xFFFF0000;
-		t2 = (R23 << 16 | R22) & 0xFFFF;
-		t3 = (R32 << 16 | R31) & 0xFFFF0000;
+		t2 = (R23 << 16 | R22);
+		t3 = (R32 << 16 | R31);
 
 		docop2(0x486012);
 
 		VX1 = t5;
+		VY1 = (t5 >> 16) & 0xFFFF;
 		VZ1 = t6;
 
 		t4 = MAC1;
@@ -455,12 +457,12 @@ void mRotY(long ry)//76744 (F)
 
 		t0 |= (t4 & 0xFFFF);
 		t3 |= (t5 & 0xFFFF);
-		t1 = (t1 << 16) | (t5 & 0xFFFF);
 
 		t5 = MAC1;
 		t6 = MAC2;
 		t4 = MAC3;
 
+		t1 = (t1 << 16) | (t5 & 0xFFFF);
 		t2 |= t6 << 16;
 
 		SetRotation(t0, t1, t2, t3, t4);
@@ -469,8 +471,8 @@ void mRotY(long ry)//76744 (F)
 
 void mRotYXZ(short y, short x, short z)//767E8 (F)
 {
-	//mRotY(y);
-	//mRotX(x);
+	mRotY(y);
+	mRotX(x);
 	mRotZ(z);
 }
 
