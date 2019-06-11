@@ -4,6 +4,8 @@
 #include "GPU.H"
 #include "ROOMLOAD.H"
 #include "SPECIFIC.H"
+#include "GTEREG.H"
+#include "DRAWSPKS.H"
 
 void DrawFlash()
 {
@@ -50,15 +52,49 @@ void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 	UNIMPLEMENTED();
 }
 
+void DEL_ApplyMatrixSV(int v0, int v1, short* m)
+{
+
+}
+
 void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)
 {
-#if 0//PSX_VERSION && !USE_ASM
-	gte_ReadRotMatrix(m);
-	gte_SetRotMatrix(CamGTE);
-	//a0 = CamGTE
-#else
-	UNIMPLEMENTED();
-#endif
+	int t0, t1, t2, t3, t4;
+
+	t0 = COP(0);
+	t1 = COP(1);
+	t2 = COP(2);
+	t3 = COP(3);
+	t4 = COP(4);
+
+	COP(0) = ((int*)&CamGTE.m00)[0];
+	COP(1) = ((int*)&CamGTE.m02)[0];
+	COP(2) = ((int*)&CamGTE.m11)[0];
+	COP(3) = ((int*)&CamGTE.m20)[0];
+	COP(4) = ((int*)&CamGTE.m22)[0];
+
+	DEL_ApplyMatrixSV(0xF000F000, 0x1000, &LightPos.m00);
+	DEL_ApplyMatrixSV(0xF0001000, 0xFFFFF000, &LightPos.m10);
+	DEL_ApplyMatrixSV(0x1000, 0xFFFFF000, &LightPos.m20);
+
+	COP(0) = t0;
+	COP(1) = t1;
+	COP(2) = t2;
+	COP(3) = t3;
+	COP(4) = t4;
+
+	COP(16) = ((rgb0 & 0xFF) << 4)   | ((rgb1 & 0xFF) << 20);
+	COP(17) = ((rgb2 & 0xFF) << 4)   | ((rgb0 & 0xFF00) << 12);
+	COP(18) = ((rgb1 >> 4) & 0xFF0)  | ((rgb2 & 0xFF00) << 12);
+	COP(19) = ((rgb0 >> 12) & 0xFF0) | (((rgb1 >> 12) & 0xFF0) << 16);
+
+	COP(20) = (rgb2 >> 12) & 0xFF0;
+	COP(13) = ((rgb3 & 0xFF) << 4);
+	COP(14) = ((rgb3 >> 4) & 0xFF0);
+	COP(15) = ((rgb3 >> 12) & 0xFF0);
+
+	DAT(16) = 0x808080;
+	COP(28) = 0;
 }
 
 void DrawMonoScreen(int a0)
