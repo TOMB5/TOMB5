@@ -371,18 +371,17 @@ void mRotX(long rx)//7669C (F)
 	int t4;
 	int t5;
 	int t6;
-	int t7;
 
 	rx = (rx >> 2) & 0x3FFC;
 
 	if (rx != 0)
 	{
 		//loc_766B4
-		t5 = rcossin_tbl[rx];
-		t5 = rcossin_tbl[rx + 1];
-		t6 = 0xFFFF0000 & t5;
+		t5 = (rcossin_tbl[rx >> 1] & 0xFFFF) | ((rcossin_tbl[rx >> 1 | 1] & 0xFFFF ) << 16);
+
 		VX0 = (0xFFFF0000 & t5) & 0xFFFF;
-		VY0 = (0xFFFF0000 & t5) >> 16;
+		VY0 = ((0xFFFF0000 & t5) >> 16) & 0xFFFF;
+		VZ0 = t5 & 0xFFFF;
 
 		t0 = (R12 << 16 | R11) & 0xFFFF;
 		t1 = (R21 << 16 | R13) & 0xFFFF0000;
@@ -395,6 +394,7 @@ void mRotX(long rx)//7669C (F)
 		t5 = -t5;
 
 		VX1 = t5;
+		VY1 = (t5 >> 16) & 0xFFFF;
 		VZ1 = t6;
 
 		t4 = MAC1;
@@ -469,7 +469,7 @@ void mRotY(long ry)//76744 (F)
 
 void mRotYXZ(short y, short x, short z)//767E8 (F)
 {
-	mRotY(y);
+	//mRotY(y);
 	mRotX(x);
 	mRotZ(z);
 }
