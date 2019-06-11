@@ -44,4 +44,5 @@ Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) ch
 - Gh0stBlade: Lead Programmer (PSX/PSXPC_N).
 - zdimension: Programmer (PSX/PSXPC_N,PC).
 - Stohrendorf: Symdump tool creator.
+- smf: GTE code for PSXPC_N code path.
 - [You?](CONTRIBUTING.md)
