@@ -7,6 +7,36 @@
 #include "GPU.H"
 #include "GTEREG.H"
 
+void UnpackRGB(int fp, int* t6, int* t7, int* t8, int* at)
+{
+	int t2;
+	int t3;
+
+	t2 = (*t6 >> 7) & fp;
+	t3 = (*t6 >> 10) & 0xF800;
+	*t6 = (*t6 >> 13) & 0xF8;
+
+	*t6 |= t3;
+	*t6 |= t2;
+	*at >>= 24;
+	*at <<= 24;
+	*t6 |= *at;
+
+	t2 = (*t7 >> 7) & fp;
+	t3 = (*t7 >> 10) & 0xF800;
+	*t7 = (*t7 >> 13) & 0xF8;
+
+	*t7 |= t3;
+	*t7 |= t2;
+
+	t2 = (*t8 >> 7) & fp;
+	t3 = (*t8 >> 10) & 0xF800;
+	*t8 = (*t8 >> 13) & 0xF8;
+	
+	*t8 |= t3;
+	*t8 |= t2;
+}
+
 void MakeMono(unsigned short* s, unsigned char* d)//7F9E4, 81A28
 {
 	//at = 0x421
@@ -226,142 +256,193 @@ void phd_PutPolygons(short* mesh, long shade)
 
 void phd_PutPolygons_pickup(short* mesh, long shade)
 {
+	int v0;
+	int* a1;
+	int t0;
+	int t1;
+	int t2;
+	int t3;
+	int t4;
+	int t5;
+	int t6;
+	int t7;
+	int t8;
+	int at;
+	int v1;
+	int* a3;
+	int sp[1024];//0x1F800000
+	int* a2;
+	int* s7;
+	int* a0;
+	int fp;
+	int s2;
+
 	initialise_light_matrix();
+
+	v0 = ((int*)mesh)[2];
+	mesh += 6;
+	a1 = (int*)&mesh[v0 >> 17];
+	v0 &= 0xFF;
+	a2 = &sp[0];
+	s7 = a2;
+	t0 = TRZ - 12288;
+	t1 = 0;
+
+	at = v0 << 3;
+
+	if (t0 > 0)
+	{
+		t1 = t0 >> 1;
+	}
+	//loc_80548
+	IR0 = t1;
+	v1 = v0;
+	a3 = (int*)&mesh[at >> 1];
+	t0 = 0x808080;
+	R = 128;
+	G = 128;
+	B = 128;
+
+	//loc_80560
+	do
+	{
+		VX0 = a3[0] & 0xFFFF;
+		VY0 = (a3[0] >> 16) & 0xFFFF;
+		VZ0 = a3[1];
+		a3 += 2;
+
+		docop2(0xE80413);
+		v1--;
+		a2 += 2;
+		t0 = ORGB;
+	} while (v1 != 0);
+
+	((short*)a2)[-1] = t0;
+
+	a2 = s7;
+
+	t0 = mesh[0];
+	t1 = mesh[1];
+	t2 = mesh[2];
+	t3 = mesh[3];
+	t4 = mesh[4];
+	t5 = mesh[5];
+
+	//loc_805A0
+	do
+	{
+		VX0 = (t0 & 0xFFFF);
+		VY0 = (t0 >> 16) & 0xFFFF;
+		VZ0 = t1;
+
+		VX1 = (t2 & 0xFFFF);
+		VY1 = (t2 >> 16) & 0xFFFF;
+		VZ1 = t3;
+
+		VX2 = (t4 & 0xFFFF);
+		VY2 = (t4 >> 16) & 0xFFFF;
+		VZ2 = t5;
+
+		mesh += 12;
+		v0 -= 3;
+
+		docop2(0x280030);
+
+		t0 = ((int*)mesh)[0];
+		t1 = ((int*)mesh)[1];
+		t2 = ((int*)mesh)[2];
+		t3 = ((int*)mesh)[3];
+		t4 = ((int*)mesh)[4];
+		t5 = ((int*)mesh)[5];
+
+		t6 = SZ1;
+		t7 = SZ2;
+		t8 = SZ3;
+
+		a2[0] = SXY0;
+		((short*)a2)[2] = t6;
+		a2[2] = SXY1;
+		((short*)a2)[6] = t7;
+		a2[4] = SXY2;
+		((short*)a2)[10] = t8;
+		a2 += 6;
+
+	} while (v0 > 0);
+
+	a0 = s7;
+	//a2 = psxtextinfo
+	//a3 = db.pickup_ot
+	//s0 = db.polyptr
+	//s1 = db.polybuf_limit
+	v0 = a1[0];
+	fp = 0xF80000;
+	at = v0 >> 16;
+	DQA = at;
+	v0 &= 0xFFFF;
+	s2 = 0x9000000;
+	a1 += 1;
+
+	if (v0 != 0)
+	{
+		t0 = a1[0];
+
+		//loc_80640
+		a1 += 1;
+		v1 = 3;
+
+		//loc_80648
+		t1 = a1[0];
+		v0--;
+
+		if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
+		{
+			int* t88;
+			int* t77;
+			int* t66;
+			t88 = &a0[((t1 >> 13) & 0x7F8) >> 2];
+			t77 = &a0[((t1 >> 5) & 0x7F8) >> 2];
+			t66 = &a0[((t1 << 3) & 0x7F8) >> 2];
+
+			SXY0 = t66[0];
+			SXY1 = t77[0];
+			SXY2 = t88[0];
+
+			t5 = t0 & 0xFF;
+			t0 >>= 8;
+
+			docop2(0x1400006);
+
+			t6 = t66[1];
+			t7 = t77[1];
+			t8 = t88[1];
+
+			SZ1 = t6;
+			SZ2 = t7;
+			SZ3 = t8;
+
+			t1 >>= 16;
+			t1 &= 0xF00;
+
+			at = MAC0;
+			docop2(0x158002D);
+			t5 |= t1;
+
+			if (at >= 0)
+			{
+				struct PSXTEXTSTRUCT* t55 = &psxtextinfo[t5];
+
+				t1 = OTZ >> 1;
+				at = t1;
+				t1 <<= 2;
+				if (at < 256)
+				{
+					UnpackRGB(fp, &t6, &t7, &t8, &at);
+				}//loc_80724
+			}//loc_80724
+		}//loc_80870
+	}//loc_8073C
+
 #if 0
-
-		jal     initialise_light_matrix
-		sw      fp, 0x2C - 0xC(sp)
-		lw      v0, 8(a0)
-		addi    a0, 0xC
-		srl     a1, v0, 16
-		andi    v0, 0xFF
-		add     a1, a0
-		lui     a2, 0x1F80
-		move    s7, a2
-		cfc2    t0, r7
-		move    t1, zero
-		addi    t0, -0x3000
-		blez    t0, loc_80548
-		sll     at, v0, 3
-		srl     t1, t0, 1
-
-		loc_80548:
-	mtc2    t1, r8
-		move    v1, v0
-		add     a3, a0, at
-		lui     t0, 0x80
-		ori		t0, 0x8080
-		mtc2    t0, r6
-
-		loc_80560 :
-	lwc2    r0, 0(a3)
-		lwc2    r1, 4(a3)
-		addi    a3, 8
-		nop
-		nop
-		cop2    0xE80413
-		addi    v1, -1
-		addi    a2, 8
-		mfc2    t0, r29
-		bnez    v1, loc_80560
-		sh      t0, -2(a2)
-		move    a2, s7
-		lw      t0, 0(a0)
-		lw      t1, 4(a0)
-		lw      t2, 8(a0)
-		lw      t3, 0xC(a0)
-		lw      t4, 0x10(a0)
-		lw      t5, 0x14(a0)
-
-		loc_805A0:
-	mtc2    t0, r0
-		mtc2    t1, r1
-		mtc2    t2, r2
-		mtc2    t3, r3
-		mtc2    t4, r4
-		mtc2    t5, r5
-		addi    a0, 0x18
-		addi    v0, -3
-		cop2    0x280030
-		lw      t0, 0(a0)
-		lw      t1, 4(a0)
-		lw      t2, 8(a0)
-		lw      t3, 0xC(a0)
-		lw      t4, 0x10(a0)
-		lw      t5, 0x14(a0)
-		mfc2    t6, r17
-		mfc2    t7, r18
-		mfc2    t8, r19
-		swc2    r12, 0(a2)
-		sh      t6, 4(a2)
-		swc2    r13, 8(a2)
-		sh      t7, 0xC(a2)
-		swc2    r14, 0x10(a2)
-		sh      t8, 0x14(a2)
-		bgtz    v0, loc_805A0
-		addi    a2, 0x18
-		move    a0, s7
-		lw      a2, psxtextinfo - GP_ADDR(gp)
-		lw      a3, db + 0x2C - GP_ADDR(gp)
-		lw      s0, db + 0x8 - GP_ADDR(gp)
-		lw      s1, db + 0x10 - GP_ADDR(gp)
-		lw      v0, 0(a1)
-		lui     fp, 0xF8
-		srl     at, v0, 16
-		ctc2    at, r27
-		andi    v0, 0xFFFF
-		lui     s2, 0x900
-		beqz    v0, loc_8073C
-		addi    a1, 4
-		lw      t0, 0(a1)
-
-		loc_80640:
-	addi    a1, 4
-		li      v1, 3
-
-		loc_80648 :
-		lw      t1, 0(a1)
-		slt     at, s0, s1
-		beqz    at, loc_80870
-		addi    v0, -1
-		srl     t8, t1, 13
-		andi    t8, 0x7F8
-		add     t8, a0
-		srl     t7, t1, 5
-		andi    t7, 0x7F8
-		add     t7, a0
-		sll     t6, t1, 3
-		andi    t6, 0x7F8
-		add     t6, a0
-		lw      s4, 0(t6)
-		lw      s5, 0(t7)
-		lw      s6, 0(t8)
-		mtc2    s4, r12
-		mtc2    s5, r13
-		mtc2    s6, r14
-		andi    t5, t0, 0xFF
-		srl     t0, 8
-		cop2    0x1400006
-		lw      t6, 4(t6)
-		lw      t7, 4(t7)
-		lw      t8, 4(t8)
-		mtc2    t6, r17
-		mtc2    t7, r18
-		mtc2    t8, r19
-		srl     t1, 16
-		andi    t1, 0xF00
-		mfc2    at, r24
-		cop2    0x158002D
-		bltz    at, loc_80724
-		or t5, t1
-		sll     t5, 4
-		add     t5, a2
-		mfc2    t1, r7
-		nop
-		sra     t1, 1
-		slti    at, t1, 0x100
-		beqz    at, loc_80724
-		sll     t1, 2
 		lw      t4, 8(t5)
 		jal     UnpackRGB
 		sll     at, t4, 8
