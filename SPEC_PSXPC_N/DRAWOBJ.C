@@ -348,8 +348,8 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 		docop2(0xE80413);
 		v1--;
 		a2 += 2;
-		t0 = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
-		((short*)a2)[-1] = t0;///@FIXME bad value for t0
+		t0 = LIM(IR1 >> 7, 0x1F, 0, 0) | (LIM(IR2 >> 7, 0x1F, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1F, 0, 0) << 10);
+		((short*)a2)[-1] = t0;
 	} while (v1 != 0);
 
 	a2 = s7;
@@ -500,107 +500,107 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 				t0 = a1[0];
 				goto loc_80640;
 			}
-			//loc_8073C
-			v0 = DQA;
-			s2 = 0xC000000;
+		}//loc_80870
+	}//loc_80870
+	 //loc_8073C
+	v0 = DQA;
+	s2 = 0xC000000;
 
-			t0 = a1[0];
+	t0 = a1[0];
+	if (v0 != 0)
+	{
+	loc_8074C:
+		a1++;
+		v1 = 1;
+
+	loc_80754:
+		t1 = a1[0];
+		v0--;
+		if ((unsigned long)s0 < (unsigned long)db.polybuf_limit)
+		{
+			int* t99;
+			int* t88;
+			int* t77;
+			int* t66;
+			int s77;
+
+			t88 = &a0[((t1 >> 13) & 0x7F8) >> 2];
+			t77 = &a0[((t1 >> 5) & 0x7F8) >> 2];
+			t66 = &a0[((t1 << 3) & 0x7F8) >> 2];
+
+			s4 = t66[0];
+			s5 = t77[0];
+			s6 = t88[0];
+			SXY0 = s4;
+			SXY1 = s5;
+			SXY2 = s6;
+
+			t99 = &a0[((t1 >> 21) & 0x7F8) >> 2];
+
+			docop2(0x1400006);
+
+			t6 = t66[1];
+			t7 = t77[1];
+			t8 = t88[1];
+			s77 = t99[0];
+			t9 = t99[1];
+
+			SZ0 = t6;
+			SZ1 = t7;
+			SZ2 = t8;
+			SZ3 = t9;
+
+			at = MAC0;
+
+			docop2(0x168002E);
+
+			t5 = (t0 & 0xFFF);
+			t0 >>= 16;
+
+			if (at > 0)
+			{
+				struct PSXTEXTSTRUCT* t55 = &psxtextinfo[t5];
+
+				t2 = t9 >> 7;
+				t1 = OTZ >> 1;
+				t2 &= fp;
+				at = t1;
+
+				if (at < 256)
+				{
+					t3 = (t9 >> 10) & 0xF800;
+					t9 = (t9 >> 13) & 0xF8;
+					t9 |= t3;
+					t9 |= t2;
+					t4 = t55->u2v2pad;
+					at = t4;
+					UnpackRGB(fp, &t6, &t7, &t8, &at);
+
+					t2 = t55->u0v0clut;
+					t3 = t55->u1v1tpage;
+					t5 = t55->u3v3pad;
+					InitGT4(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s77, t5);
+
+					unsigned long* t11 = &db.pickup_ot[t1];
+					t2 = t11[0] | s2;
+					t11[0] = (unsigned long)s0;
+					((unsigned long*)s0)[0] = t2;
+					s0 += 0x34;
+				}//loc_80858
+			}//loc_80858
+
+			a1++;
+
 			if (v0 != 0)
 			{
-			loc_8074C:
-				a1++;
-				v1 = 1;
-
-			loc_80754:
-				t1 = a1[0];
-				v0--;
-				if ((unsigned long)s0 < (unsigned long)db.polybuf_limit)
+				if (v1-- != 0)
 				{
-					int* t99;
-					int* t88;
-					int* t77;
-					int* t66;
-					int s77;
+					goto loc_80754;
+				}
 
-					t88 = &a0[((t1 >> 13) & 0x7F8) >> 2];
-					t77 = &a0[((t1 >> 5) & 0x7F8) >> 2];
-					t66 = &a0[((t1 << 3) & 0x7F8) >> 2];
-
-					s4 = t66[0];
-					s5 = t77[0];
-					s6 = t88[0];
-					SXY0 = s4;
-					SXY1 = s5;
-					SXY2 = s6;
-
-					t99 = &a0[((t1 >> 21) & 0x7F8) >> 2];
-
-					docop2(0x1400006);
-
-					t6 = t66[1];
-					t7 = t77[1];
-					t8 = t88[1];
-					s77 = t99[0];
-					t9 = t99[1];
-
-					SZ0 = t6;
-					SZ1 = t7;
-					SZ2 = t8;
-					SZ3 = t9;
-
-					at = MAC0;
-
-					docop2(0x168002E);
-
-					t5 = (t0 & 0xFFF);
-					t0 >>= 16;
-
-					if (at > 0)
-					{
-						struct PSXTEXTSTRUCT* t55 = &psxtextinfo[t5];
-
-						t2 = t9 >> 7;
-						t1 = OTZ >> 1;
-						t2 &= fp;
-						at = t1;
-
-						if (at < 256)
-						{
-							t3 = (t9 >> 10) & 0xF800;
-							t9 = (t9 >> 13) & 0xF8;
-							t9 |= t3;
-							t9 |= t2;
-							t4 = t55->u2v2pad;
-							at = t4;
-							UnpackRGB(fp, &t6, &t7, &t8, &at);
-
-							t2 = t55->u0v0clut;
-							t3 = t55->u1v1tpage;
-							t5 = t55->u3v3pad;
-							InitGT4(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s77, t5);
-
-							unsigned long* t11 = &db.pickup_ot[t1];
-							t2 = t11[0] | s2;
-							t11[0] = (unsigned long)s0;
-							((unsigned long*)s0)[0] = t2;
-							s0 += 0x34;
-						}//loc_80858
-					}//loc_80858
-
-					a1++;
-
-					if (v0 != 0)
-					{
-						if (v1-- != 0)
-						{
-							goto loc_80754;
-						}
-
-						t0 = a1[0];
-						goto loc_8074C;
-					}
-				}//loc_80870
-			}//loc_80870
+				t0 = a1[0];
+				goto loc_8074C;
+			}
 		}//loc_80870
 	}//loc_80870
 
