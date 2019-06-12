@@ -54,8 +54,9 @@ void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 
 void DEL_ApplyMatrixSV(int v0, int v1, short* m)//(F)
 {
-	DAT(0) = v0;
-	DAT(1) = v1;
+	VX0 = (v0 & 0xFFFF);
+	VY0 = (v0 >> 16) & 0xFFFF;
+	VZ0 = v1;
 
 	docop2(0x486012);
 
@@ -82,7 +83,7 @@ void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)//(F)
 
 	DEL_ApplyMatrixSV(0xF000F000, 0x1000, &LightPos.m00);
 	DEL_ApplyMatrixSV(0xF0001000, 0xFFFFF000, &LightPos.m10);
-	DEL_ApplyMatrixSV(0x1000, 0xFFFFF000, &LightPos.m20);
+	DEL_ApplyMatrixSV(0x10000000, 0xFFFFF000, &LightPos.m20);
 
 	COP(0) = t0;
 	COP(1) = t1;
