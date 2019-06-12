@@ -7,6 +7,35 @@
 #include "GPU.H"
 #include "GTEREG.H"
 
+void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)
+{
+	((int*)polyptr)[1] = t6;
+	((int*)polyptr)[2] = s4;
+	((int*)polyptr)[3] = t2;
+	((int*)polyptr)[4] = t7;
+	((int*)polyptr)[5] = s5;
+	((int*)polyptr)[6] = t3;
+	((int*)polyptr)[7] = t8;
+	((int*)polyptr)[8] = s6;
+	((int*)polyptr)[9] = t4;
+	((int*)polyptr)[10] = t9;
+	((int*)polyptr)[11] = s7;
+	((int*)polyptr)[12] = t5;
+}
+
+void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4)
+{
+	((int*)polyptr)[1] = t6;
+	((int*)polyptr)[2] = s4;
+	((int*)polyptr)[3] = t2;
+	((int*)polyptr)[4] = t7;
+	((int*)polyptr)[5] = s5;
+	((int*)polyptr)[6] = t3;
+	((int*)polyptr)[7] = t8;
+	((int*)polyptr)[8] = s6;
+	((int*)polyptr)[9] = t4;
+}
+
 void UnpackRGB(int fp, int* t6, int* t7, int* t8, int* at)
 {
 	int t2;
@@ -276,6 +305,11 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 	int* a0;
 	int fp;
 	int s2;
+	int s4;
+	int s5;
+	int s6;
+	char* s0;
+	int t9;
 
 	initialise_light_matrix();
 
@@ -372,7 +406,7 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 	a0 = s7;
 	//a2 = psxtextinfo
 	//a3 = db.pickup_ot
-	//s0 = db.polyptr
+	s0 = db.polyptr;
 	//s1 = db.polybuf_limit
 	v0 = a1[0];
 	fp = 0xF80000;
@@ -386,15 +420,15 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 	{
 		t0 = a1[0];
 
-		//loc_80640
+	loc_80640:
 		a1 += 1;
 		v1 = 3;
 
-		//loc_80648
+	loc_80648:
 		t1 = a1[0];
 		v0--;
 
-		if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
+		if ((unsigned long)s0 < (unsigned long)db.polybuf_limit)
 		{
 			int* t88;
 			int* t77;
@@ -403,9 +437,13 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 			t77 = &a0[((t1 >> 5) & 0x7F8) >> 2];
 			t66 = &a0[((t1 << 3) & 0x7F8) >> 2];
 
-			SXY0 = t66[0];
-			SXY1 = t77[0];
-			SXY2 = t88[0];
+			s4 = t66[0];
+			s5 = t77[0];
+			s6 = t88[0];
+
+			SXY0 = s4;
+			SXY1 = s5;
+			SXY2 = s6;
 
 			t5 = t0 & 0xFF;
 			t0 >>= 8;
@@ -433,140 +471,145 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 
 				t1 = OTZ >> 1;
 				at = t1;
-				t1 <<= 2;
+				//t1 <<= 2;
 				if (at < 256)
 				{
+					t4 = t55->u2v2pad;
+					at = t4 << 8;
 					UnpackRGB(fp, &t6, &t7, &t8, &at);
+					t2 = t55->u0v0clut;
+					t3 = t55->u1v1tpage;
+					InitGT3(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4);
+
+					unsigned long* t11 = &db.pickup_ot[t1];
+					t2 = t11[0] | s2;
+					t11[0] = (unsigned long)s0;
+					((unsigned long*)s0)[0] = t2;
+					s0 += 0x28;
 				}//loc_80724
 			}//loc_80724
+
+			a1++;
+
+			if (v0 != 0)
+			{
+				if (v1-- != 0)
+				{
+					goto loc_80648;
+				}
+
+				t0 = a1[0];
+				goto loc_80640;
+			}
+			//loc_8073C
+			v0 = DQA;
+			s2 = 0xC000000;
+
+			t0 = a1[0];
+			if (v0 != 0)
+			{
+			loc_8074C:
+				a1++;
+				v1 = 1;
+
+			loc_80754:
+				t1 = a1[0];
+				v0--;
+				if ((unsigned long)s0 < (unsigned long)db.polybuf_limit)
+				{
+					int* t99;
+					int* t88;
+					int* t77;
+					int* t66;
+					int s77;
+
+					t88 = &a0[((t1 >> 13) & 0x7F8) >> 2];
+					t77 = &a0[((t1 >> 5) & 0x7F8) >> 2];
+					t66 = &a0[((t1 << 3) & 0x7F8) >> 2];
+
+					s4 = t66[0];
+					s5 = t77[0];
+					s6 = t88[0];
+					SXY0 = s4;
+					SXY1 = s5;
+					SXY2 = s6;
+
+					t99 = &a0[((t1 >> 21) & 0x7F8) >> 2];
+
+					docop2(0x1400006);
+
+					t6 = t66[1];
+					t7 = t77[1];
+					t8 = t88[1];
+					s77 = t99[0];
+					t9 = t99[1];
+
+					SZ0 = t6;
+					SZ1 = t7;
+					SZ2 = t8;
+					SZ3 = t9;
+
+					at = MAC0;
+
+					docop2(0x168002E);
+
+					t5 = (t0 & 0xFFF);
+					t0 >>= 16;
+
+					if (at > 0)
+					{
+						struct PSXTEXTSTRUCT* t55;
+						t55 = &psxtextinfo[t5];
+
+						t2 = t9 >> 7;
+						t1 = OTZ >> 1;
+						t2 &= fp;
+						at = t1;
+
+						if (at < 256)
+						{
+							t3 = (t9 >> 10) & 0xF800;
+							t9 = (t9 >> 13) & 0xF8;
+							t9 |= t3;
+							t9 |= t2;
+							t4 = t55->u2v2pad;
+							at = t4;
+							UnpackRGB(fp, &t6, &t7, &t8, &at);
+
+							t2 = t55->u0v0clut;
+							t3 = t55->u1v1tpage;
+							t5 = t55->u3v3pad;
+							InitGT4(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s77, t5);
+
+							unsigned long* t11 = &db.pickup_ot[t1];
+							t2 = t11[0] | s2;
+							t11[0] = (unsigned long)s0;
+							((unsigned long*)s0)[0] = t2;
+							s0 += 0x34;
+						}//loc_80858
+					}//loc_80858
+
+					a1++;
+
+					if (v0 != 0)
+					{
+						v1--;
+
+						if (v1 != 0)
+						{
+							goto loc_80754;
+						}
+
+						t0 = a1[0];
+						goto loc_8074C;
+					}
+				}//loc_80870
+			}//loc_80870
 		}//loc_80870
-	}//loc_8073C
+	}//loc_80870
 
-#if 0
-		lw      t4, 8(t5)
-		jal     UnpackRGB
-		sll     at, t4, 8
-		lw      t2, 0(t5)
-		lw      t3, 4(t5)
-		jal     InitGT3
-		nop
-		add     t1, a3
-		lw      t2, 0(t1)
-		sw      s0, 0(t1)
-		or t2, s2
-		sw      t2, 0(s0)
-		addi    s0, 0x28
-
-		loc_80724:
-	beqz    v0, loc_8073C
-		addi    a1, 4
-		bnez    v1, loc_80648
-		addi    v1, -1
-		j       loc_80640
-		lw      t0, 0(a1)
-
-		loc_8073C:
-	cfc2    v0, r27
-		lui     s2, 0xC00
-		beqz    v0, loc_80870
-		lw      t0, 0(a1)
-
-		loc_8074C :
-		addi    a1, 4
-		li      v1, 1
-
-		loc_80754 :
-		lw      t1, 0(a1)
-		slt     at, s0, s1
-		beqz    at, loc_80870
-		addi    v0, -1
-		srl     t9, t1, 21
-		srl     t8, t1, 13
-		andi    t8, 0x7F8
-		add     t8, a0
-		srl     t7, t1, 5
-		andi    t7, 0x7F8
-		add     t7, a0
-		sll     t6, t1, 3
-		andi    t6, 0x7F8
-		add     t6, a0
-		lw      s4, 0(t6)
-		lw      s5, 0(t7)
-		lw      s6, 0(t8)
-		mtc2    s4, r12
-		mtc2    s5, r13
-		mtc2    s6, r14
-		andi    t9, 0x7F8
-		add     t9, a0
-		cop2    0x1400006
-		lw      t6, 4(t6)
-		lw      t7, 4(t7)
-		lw      t8, 4(t8)
-		lw      s7, 0(t9)
-		lw      t9, 4(t9)
-		mtc2    t6, r16
-		mtc2    t7, r17
-		mtc2    t8, r18
-		mtc2    t9, r19
-		mfc2    at, r24
-		nop
-		nop
-		cop2    0x168002E
-		andi    t5, t0, 0xFFF
-		srl     t0, 16
-		bltz    at, loc_80858
-		sll     t5, 4
-		add     t5, a2
-		srl     t2, t9, 7
-		mfc2    t1, r7
-		and     t2, fp
-		sra     t1, 1
-		slti    at, t1, 0x100
-		beqz    at, loc_80858
-		sll     t1, 2
-		srl     t3, t9, 10
-		andi    t3, 0xF800
-		srl     t9, 13
-		andi    t9, 0xF8
-		or t9, t3
-		or t9, t2
-		lw      t4, 8(t5)
-		jal     UnpackRGB
-		move    at, t4
-		lw      t2, 0(t5)
-		lw      t3, 4(t5)
-		jal     InitGT4
-		lw      t5, 0xC(t5)
-		add     t1, a3
-		lw      t2, 0(t1)
-		sw      s0, 0(t1)
-		or t2, s2
-		sw      t2, 0(s0)
-		addi    s0, 0x34
-
-		loc_80858:
-	beqz    v0, loc_80870
-		addi    a1, 4
-		bnez    v1, loc_80754
-		addi    v1, -1
-		j       loc_8074C
-		lw      t0, 0(a1)
-
-		loc_80870:
-	ctc2    zero, r21
-		sw      s0, db + 0x8 - GP_ADDR(gp)
-		lw      ra, 0x2C - 0x4(sp)
-		lw      s0, 0x2C - 0x2C(sp)
-		lw      s1, 0x2C - 0x28(sp)
-		lw      s2, 0x2C - 0x24(sp)
-		lw      s4, 0x2C - 0x1C(sp)
-		lw      s5, 0x2C - 0x18(sp)
-		lw      s6, 0x2C - 0x14(sp)
-		lw      s7, 0x2C - 0x10(sp)
-		lw      fp, 0x2C - 0xC(sp)
-		jr      ra
-		addi    sp, 0x2C
-#endif
+	RFC = 0;
+	db.polyptr = s0;
 }
 
 void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
