@@ -113,4 +113,7 @@ extern int docop2(int op);
 #define ZSF4 (gteRegs.CP2C.p[ 30 ].sw.l)
 #define FLAG (gteRegs.CP2C.p[ 31 ].d)
 
+//Externals
+extern int LIM(int value, int max, int min, unsigned int flag);
+
 #endif

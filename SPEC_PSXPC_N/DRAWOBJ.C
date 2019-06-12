@@ -299,7 +299,7 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 	int at;
 	int v1;
 	int* a3;
-	int sp[1024];//0x1F800000
+	int sp[256];//0x1F800000
 	int* a2;
 	int* s7;
 	int* a0;
@@ -348,19 +348,18 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 		docop2(0xE80413);
 		v1--;
 		a2 += 2;
-		t0 = ORGB;
+		t0 = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
+		((short*)a2)[-1] = t0;///@FIXME bad value for t0
 	} while (v1 != 0);
-
-	((short*)a2)[-1] = t0;
 
 	a2 = s7;
 
-	t0 = mesh[0];
-	t1 = mesh[1];
-	t2 = mesh[2];
-	t3 = mesh[3];
-	t4 = mesh[4];
-	t5 = mesh[5];
+	t0 = ((int*)mesh)[0];
+	t1 = ((int*)mesh)[1];
+	t2 = ((int*)mesh)[2];
+	t3 = ((int*)mesh)[3];
+	t4 = ((int*)mesh)[4];
+	t5 = ((int*)mesh)[5];
 
 	//loc_805A0
 	do
@@ -558,8 +557,7 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 
 					if (at > 0)
 					{
-						struct PSXTEXTSTRUCT* t55;
-						t55 = &psxtextinfo[t5];
+						struct PSXTEXTSTRUCT* t55 = &psxtextinfo[t5];
 
 						t2 = t9 >> 7;
 						t1 = OTZ >> 1;
@@ -593,9 +591,7 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 
 					if (v0 != 0)
 					{
-						v1--;
-
-						if (v1 != 0)
+						if (v1-- != 0)
 						{
 							goto loc_80754;
 						}
