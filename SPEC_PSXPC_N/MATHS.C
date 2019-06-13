@@ -432,7 +432,7 @@ void mRotY(long ry)//76744 (F)
 	if (ry != 0)
 	{
 		t5 = (rcossin_tbl[ry >> 1] & 0xFFFF) | ((rcossin_tbl[ry >> 1 | 1] & 0xFFFF) << 16);
-		t6 = t5 >> 16;
+		t6 = (t5 >> 16) & 0xFFFF;
 		t5 &= 0xFFFF;
 		t2 = -t5;
 		VX0 = t6;
@@ -563,8 +563,7 @@ void mRotSuperPackedYXZ(short** a0, long a1)//768BC
 
 	a2++;
 	at = (v0 >> 14);
-	at--;
-	if (at != 0)
+	if (at-- != 0)
 	{
 		at--;
 		a0[0] = (short*)a2;
