@@ -68,8 +68,8 @@ phd_PutPolygons_pickup:
 	mtc2    t1, r8
 	move    v1, v0
 	add     a3, a0, at
-	lui      t0, 0x8080
-	ori		t0, 0x8000
+	lui     t0, 0x80
+	ori		t0, 0x8080
 	mtc2    t0, r6
 
 	loc_80560:

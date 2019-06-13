@@ -371,22 +371,21 @@ void mRotX(long rx)//7669C (F)
 	int t4;
 	int t5;
 	int t6;
-	int t7;
 
 	rx = (rx >> 2) & 0x3FFC;
 
 	if (rx != 0)
 	{
 		//loc_766B4
-		t5 = rcossin_tbl[rx];
-		t5 = rcossin_tbl[rx + 1];
-		t6 = 0xFFFF0000 & t5;
-		VX0 = (0xFFFF0000 & t5) & 0xFFFF;
-		VY0 = (0xFFFF0000 & t5) >> 16;
+		t5 = (rcossin_tbl[rx >> 1] & 0xFFFF) | ((rcossin_tbl[rx >> 1 | 1] & 0xFFFF ) << 16);
 
-		t0 = (R12 << 16 | R11) & 0xFFFF;
-		t1 = (R21 << 16 | R13) & 0xFFFF0000;
-		t3 = (R32 << 16 | R31) & 0xFFFF;
+		VX0 = (0xFFFF0000 & t5) & 0xFFFF;
+		VY0 = ((0xFFFF0000 & t5) >> 16) & 0xFFFF;
+		VZ0 = t5 & 0xFFFF;
+
+		t0 = ((R12 << 16) | (R11 & 0xFFFF)) & 0xFFFF;
+		t1 = ((R21 << 16) | (R13 & 0xFFFF)) & 0xFFFF0000;
+		t3 = ((R32 << 16) | (R31 & 0xFFFF)) & 0xFFFF;
 
 		docop2(0x486012);
 
@@ -395,6 +394,7 @@ void mRotX(long rx)//7669C (F)
 		t5 = -t5;
 
 		VX1 = t5;
+		VY1 = (t5 >> 16) & 0xFFFF;
 		VZ1 = t6;
 
 		t4 = MAC1;
@@ -431,36 +431,38 @@ void mRotY(long ry)//76744 (F)
 
 	if (ry != 0)
 	{
-		t5 = rcossin_tbl[ry];
-		t6 = t5 >> 16;
+		t5 = (rcossin_tbl[ry >> 1] & 0xFFFF) | ((rcossin_tbl[ry >> 1 | 1] & 0xFFFF) << 16);
+		t6 = (t5 >> 16) & 0xFFFF;
 		t5 &= 0xFFFF;
 		t2 = -t5;
 		VX0 = t6;
+		VY0 = (t5 >> 16) & 0xFFFF;
 		VZ0 = t2;
 
-		t0 = (R12 << 16 | R11) & 0xFFFF0000;
-		t2 = (R23 << 16 | R22) & 0xFFFF;
-		t3 = (R32 << 16 | R31) & 0xFFFF0000;
+		t0 = ((R12 << 16) | (R11 & 0xFFFF)) & 0xFFFF0000;
+		t2 = ((R23 << 16) | (R22 & 0xFFFF)) & 0xFFFF;
+		t3 = ((R32 << 16) | (R31 & 0xFFFF)) & 0xFFFF0000;
 
 		docop2(0x486012);
 
 		VX1 = t5;
+		VY1 = (t5 >> 16) & 0xFFFF;
 		VZ1 = t6;
 
-		t4 = MAC1;
+		t4 = MAC1 & 0xFFFF;
 		t1 = MAC2;
-		t5 = MAC3;
+		t5 = MAC3 & 0xFFFF;
 
 		docop2(0x48E012);
 
-		t0 |= (t4 & 0xFFFF);
-		t3 |= (t5 & 0xFFFF);
-		t1 = (t1 << 16) | (t5 & 0xFFFF);
+		t0 |= t4;
+		t3 |= t5;
 
-		t5 = MAC1;
+		t5 = MAC1 & 0xFFFF;
 		t6 = MAC2;
 		t4 = MAC3;
 
+		t1 = (t1 << 16) | (t5);
 		t2 |= t6 << 16;
 
 		SetRotation(t0, t1, t2, t3, t4);
@@ -484,58 +486,55 @@ void mRotZ(long rz)//76804 (F)
 	int t5;
 	int t6;
 	int t7;
+	int a0;
 
 	rz = (rz >> 2) & 0x3FFC;
 
 	if (rz != 0)
 	{
-		t0 = rcossin_tbl[rz];
+		//loc_7681C
+		t0 = (rcossin_tbl[rz >> 1] & 0xFFFF) | ((rcossin_tbl[rz >> 1 | 1] & 0xFFFF) << 16);
+		t1 = ((t0 >> 16) & 0xFFFF) | (t0 << 16);
+		
+		VX0 = (t1 & 0xFFFF);
+		VY0 = ((t1 >> 16) & 0xFFFF);
+		VZ0 = 0;
+
+		t1 = ((R21 << 16) | (R13 & 0xFFFF)) & 0xFFFF;
+		t2 = ((R23 << 16) | (R22 & 0xFFFF)) & 0xFFFF0000;
+		t4 = R33;
+
+		docop2(0x486012);
+
+		t3 = t0 & 0xFFFF0000;
+		t0 &= 0xFFFF;
+		t0 = -t0;
+		t0 &= 0xFFFF;
+		t0 |= t3;
+
+		VX1 = t0;
+		VY1 = (t0 >> 16) & 0xFFFF;
+		VZ1 = 0;
+
+		t0 = MAC1 & 0xFFFF;
+		t5 = MAC2;
+		t3 = MAC3 & 0xFFFF;
+
+		docop2(0x48E012);
+
+		t5 <<= 16;
+		t1 |= t5;
+
+		t5 = MAC1;
+		t6 = MAC2 & 0xFFFF;
+		a0 = MAC3;
+
+		t0 |= t5 << 16;
+		t2 |= t6;
+		t3 |= a0 << 16;
+
+		SetRotation(t0, t1, t2, t3, t4);
 	}
-
-#if 0
-
-		loc_7681C :
-	la		t0, rcossin_tbl
-		add     t0, a0
-		lw      t0, 0(t0)
-		lui     t7, 0xFFFF
-		srl     t1, t0, 16
-		sll     t2, t0, 16
-		or t1, t2
-		mtc2    t1, r0
-		mtc2    zero, r1
-		cfc2    t1, r1
-		cfc2    t2, r2
-		cfc2    t4, r4
-		cop2    0x486012
-		and t3, t0, t7
-		andi    t0, 0xFFFF
-		neg     t0, t0
-		andi    t0, 0xFFFF
-		or t0, t3
-		mtc2    t0, r2
-		mtc2    zero, r3
-		andi    t1, 0xFFFF
-		mfc2    t0, r25
-		mfc2    t5, r26
-		mfc2    t3, r27
-		cop2    0x48E012
-		and t2, t7
-		andi    t0, 0xFFFF
-		sll     t5, 16
-		or t1, t5
-		andi    t3, 0xFFFF
-		mfc2    t5, r25
-		mfc2    t6, r26
-		mfc2    a0, r27
-		sll     t5, 16
-		or t0, t5
-		andi    t6, 0xFFFF
-		or t2, t6
-		sll     a0, 16
-		j       SetRotation
-		or t3, a0
-#endif
 }
 
 void mRotSuperPackedYXZ(short** a0, long a1)//768BC
@@ -544,13 +543,14 @@ void mRotSuperPackedYXZ(short** a0, long a1)//768BC
 	int v0;
 	int at;
 	a2 = (unsigned short*)a0[0];
+	v0 = *a2;
 
 	if (a1 != 0)
 	{
 		//loc_768C4
 		do
 		{
-			v0 = *a2++;
+			a2++;
 			a1--;
 
 			if (!(v0 & 0xC000))
@@ -561,16 +561,17 @@ void mRotSuperPackedYXZ(short** a0, long a1)//768BC
 		} while (a1 == 0);
 	}//loc_768E8
 
-	v0 = *a2++;
+	a2++;
 	at = (v0 >> 14);
-	at--;
-	if (at != 0)
+	if (at-- != 0)
 	{
+		at--;
 		a0[0] = (short*)a2;
 
 		if (at != 0)
 		{
 			mRotZ((v0 & 0xFFF) << 4);
+			return;
 		}//loc_76914
 
 		mRotY((v0 & 0xFFF) << 4);
@@ -593,14 +594,14 @@ void mRotPackedYXZ(long yxz)//7693C (F)
 
 void SetRotation(int t0, int t1, int t2, int t3, int t4)//7696C(<) (F)
 {
-	R11 = t0 & 0xFFFF;
-	R12 = t0 >> 16;
-	R13 = t1 & 0xFFFF;
-	R21 = t1 >> 16;
-	R22 = t2 & 0xFFFF;
-	R23 = t2 >> 16;
-	R31 = t3 & 0xFFFF;
-	R32 = t3 >> 16;
+	R11 = (t0 & 0xFFFF);
+	R12 = (t0 >> 16) & 0xFFFF;
+	R13 = (t1 & 0xFFFF);
+	R21 = (t1 >> 16) & 0xFFFF;
+	R22 = (t2 & 0xFFFF);
+	R23 = (t2 >> 16) & 0xFFFF;
+	R31 = (t3 & 0xFFFF);
+	R32 = (t3 >> 16) & 0xFFFF;
 	R33 = t4;
 
 	((int*)&Matrix->m00)[0] = t0;

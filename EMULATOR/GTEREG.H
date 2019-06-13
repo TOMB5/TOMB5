@@ -5,6 +5,7 @@ extern GTERegisters gteRegs;
 extern int docop2(int op);
 
 /* Data Registers mtc2 mfc2 */
+#define DAT(reg) gteRegs.CP2D.p[reg].d
 #define VX0  (gteRegs.CP2D.p[ 0 ].sw.l)
 #define VY0  (gteRegs.CP2D.p[ 0 ].sw.h)
 #define VZ0  (gteRegs.CP2D.p[ 1 ].sw.l)
@@ -65,6 +66,8 @@ extern int docop2(int op);
 #define LZCR (gteRegs.CP2D.p[ 31 ].d)
 
 /* Control Registers ctc2 cfc2*/
+#define COP(reg) gteRegs.CP2C.p[reg].d
+
 #define R11 (gteRegs.CP2C.p[ 0 ].sw.l)
 #define R12 (gteRegs.CP2C.p[ 0 ].sw.h)
 #define R13 (gteRegs.CP2C.p[ 1 ].sw.l)
@@ -109,5 +112,8 @@ extern int docop2(int op);
 #define ZSF3 (gteRegs.CP2C.p[ 29 ].sw.l)
 #define ZSF4 (gteRegs.CP2C.p[ 30 ].sw.l)
 #define FLAG (gteRegs.CP2C.p[ 31 ].d)
+
+//Externals
+extern int LIM(int value, int max, int min, unsigned int flag);
 
 #endif
