@@ -17,7 +17,6 @@
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 
-
 void(*vsync_callback)(void) = NULL;
 
 int ResetCallback(void)
@@ -31,17 +30,24 @@ int VSync(int mode)
 {
 	if (mode == 0)
 	{
-#if _WINDOWS && USE_DDRAW
-		pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
-#endif
-		//Executed at start of vblank
 		if (vsync_callback != NULL)
 		{
 			vsync_callback();
 		}
-
-		Emulator_EndScene();
 	}
+
+	while (mode-- >= 0)
+	{
+#if _WINDOWS && USE_DDRAW
+		pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+#endif
+		if (!assetsLoaded)///@FIXME dirty hack that fixes emulator lag.
+		{
+			Emulator_EndScene();
+		}
+	}
+
+	
 
 	return 0;
 }

@@ -66,6 +66,7 @@ int lastTextureCacheIndex = 0;
 char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
+int assetsLoaded = 0;
 
 #if _WINDOWS && USE_DDRAW
 LPDIRECTDRAW pDD;

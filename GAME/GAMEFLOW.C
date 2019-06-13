@@ -67,6 +67,10 @@
 #endif
 #endif
 
+#if PSXPC_TEST
+#include "../EMULATOR/EMULATOR_GLOBALS.H"
+#endif
+
 #if (PSX_VERSION || SAT_VERSION) && !PSXPC_TEST
 typedef unsigned int uintptr_t;
 #endif
@@ -853,7 +857,15 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 	S_MemSet((char*)&savegame.Level, 0, sizeof(struct STATS));
 	S_MemSet((char*)&savegame.Game, 0, sizeof(struct STATS));
 
+#if PSXPC_TEST
+	assetsLoaded = 0;
+#endif
+
 	S_LoadLevelFile(Name);
+
+#if PSXPC_TEST
+	assetsLoaded = 1;
+#endif
 	
 	GLOBAL_lastinvitem = -1;
 	dels_cutseq_player = 0;
@@ -1119,8 +1131,15 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		memset(&savegame.Level, 0, sizeof(struct STATS));
 	}
 
+#if PSXPC_TEST
+	assetsLoaded = 0;
+#endif
 	//loc_10B58
 	S_LoadLevelFile(Name);
+
+#if PSXPC_TEST
+	assetsLoaded = 1;
+#endif
 
 #if PC_VERSION
 	//SetFogColor(...); todo
