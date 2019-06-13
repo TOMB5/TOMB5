@@ -47,8 +47,6 @@ int VSync(int mode)
 		}
 	}
 
-	
-
 	return 0;
 }
 
