@@ -53,14 +53,14 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
 	Emulator_CheckTextureIntersection(rect);
 
-	for (int y = rect->y; y < VRAM_HEIGHT; y++)
+	for (int y = rect->y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = rect->x; x < VRAM_WIDTH; x++)
+		for (int x = rect->x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x++)
 		{
 			unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
 
-			if (x >= rect->x && x < rect->x + rect->w && 
-				y >= rect->y && y < rect->y + rect->h)
+			if (x >= rect->x * INTERNAL_RESOLUTION_SCALE && x < (rect->x + rect->w) * INTERNAL_RESOLUTION_SCALE &&
+				y >= rect->y * INTERNAL_RESOLUTION_SCALE && y < (rect->y + rect->h) * INTERNAL_RESOLUTION_SCALE)
 			{
 				pixel[0] = 1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3));
 			}
@@ -76,6 +76,9 @@ int DrawSync(int mode)
 	{
 		drawsync_callback();
 	}
+
+	glFinish();
+
 	return 0;
 }
 
@@ -85,14 +88,14 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 	unsigned short* dst = (unsigned short*)p;
 
-	for (int y = rect->y; y < VRAM_HEIGHT; y++)
+	for (int y = rect->y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = rect->x; x < VRAM_WIDTH; x++)
+		for (int x = rect->x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x++)
 		{
 			unsigned short* src = vram + (y * VRAM_WIDTH + x);
 
-			if (x >= rect->x && x < rect->x + rect->w &&
-				y >= rect->y && y < rect->y + rect->h)
+			if (x >= rect->x * INTERNAL_RESOLUTION_SCALE && x < rect->x + rect->w * INTERNAL_RESOLUTION_SCALE &&
+				y >= rect->y * INTERNAL_RESOLUTION_SCALE && y < rect->y + rect->h * INTERNAL_RESOLUTION_SCALE)
 			{
 				src[0] = *dst++;
 			}
@@ -101,7 +104,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 #if _DEBUG
 	FILE* f = fopen("VRAM.BIN", "wb");
-	fwrite(&vram[0], 1, 1024 * 512 * 2, f);
+	fwrite(&vram[0], 1, VRAM_WIDTH * VRAM_HEIGHT * 2, f);
 	fclose(f);
 #endif
 
@@ -110,15 +113,15 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 int MoveImage(RECT16* rect, int x, int y)
 {
-	for (int sy = rect->y; sy < VRAM_HEIGHT; sy++)
+	for (int sy = rect->y * INTERNAL_RESOLUTION_SCALE; sy < VRAM_HEIGHT; sy++)
 	{
-		for (int sx = rect->x; sx < VRAM_WIDTH; sx++)
+		for (int sx = rect->x * INTERNAL_RESOLUTION_SCALE; sx < VRAM_WIDTH; sx++)
 		{
 			unsigned short* src = vram + (sy * VRAM_WIDTH + sx);
 			unsigned short* dst = vram + (y * VRAM_WIDTH + x);
 
-			if (sx >= rect->x && sx < rect->x + rect->w &&
-				sy >= rect->y && sy < rect->y + rect->h)
+			if (sx >= rect->x * INTERNAL_RESOLUTION_SCALE && sx < rect->x + rect->w * INTERNAL_RESOLUTION_SCALE &&
+				sy >= rect->y * INTERNAL_RESOLUTION_SCALE && sy < rect->y + rect->h * INTERNAL_RESOLUTION_SCALE)
 			{
 				*dst++ = *src++;
 			}
@@ -141,9 +144,9 @@ int SetGraphDebug(int level)
 
 int StoreImage(RECT16* rect, u_long * p)
 {
-	for (int y = rect->y; y < VRAM_HEIGHT; y++)
+	for (int y = rect->y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = rect->x; x < VRAM_WIDTH; x++)
+		for (int x = rect->x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x++)
 		{
 			unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
 			unsigned short* dst = (unsigned short*)p + (y * VRAM_WIDTH + x);
@@ -319,7 +322,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glLoadIdentity();
 		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, -1, 1);
 		glViewport(0, 0, VRAM_WIDTH, VRAM_HEIGHT);
-
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
 

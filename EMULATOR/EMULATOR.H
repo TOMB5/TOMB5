@@ -15,8 +15,9 @@
 #endif
 #include <LIBGPU.H>
 
-#define VRAM_WIDTH (1024)
-#define VRAM_HEIGHT (512)
+#define INTERNAL_RESOLUTION_SCALE (1)
+#define VRAM_WIDTH (1024 * INTERNAL_RESOLUTION_SCALE)
+#define VRAM_HEIGHT (512 * INTERNAL_RESOLUTION_SCALE)
 
 #define TPAGE_WIDTH (256)
 #define TPAGE_HEIGHT (256)
@@ -90,11 +91,6 @@ extern void Emulator_CounterLoop();
 extern char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p3);
 extern char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3);
 extern char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour);
-
-#if GLTEST
-extern void Emulator_TestDrawVertices(short* vptr, MMTEXTURE* tex);
-#endif
-
 extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
 extern int Emulator_InitialiseGameVariables();
 

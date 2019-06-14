@@ -360,26 +360,26 @@ char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1,
 	//Copy over uvs
 	if (uv0 != NULL)
 	{
-		vertices[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
-		vertices[0].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
+		vertices[0].u0 = ((float)uv0[0] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
+		vertices[0].v0 = ((float)uv0[1] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
 	}
 	
 	if (uv1 != NULL)
 	{
-		vertices[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH;
-		vertices[1].v0 = ((float)uv1[1]) / TPAGE_WIDTH;
+		vertices[1].u0 = ((float)uv1[0] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
+		vertices[1].v0 = ((float)uv1[1] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
 	}
 	
 	if (uv2 != NULL)
 	{
-		vertices[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH;
-		vertices[2].v0 = ((float)uv2[1]) / TPAGE_WIDTH;
+		vertices[2].u0 = ((float)uv2[0] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
+		vertices[2].v0 = ((float)uv2[1] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
 	}
 
 	if (uv3 != NULL)
 	{
-		vertices[3].u0 = ((float)uv3[0]) / TPAGE_WIDTH;
-		vertices[3].v0 = ((float)uv3[1]) / TPAGE_WIDTH;
+		vertices[3].u0 = ((float)uv3[0] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
+		vertices[3].v0 = ((float)uv3[1] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
 	}
 
 	return (char*)&vertices[0].u0;
@@ -690,19 +690,19 @@ void Emulator_EndScene()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-	float x = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.x));
-	float y = 1.0f / (VRAM_HEIGHT / (float)(word_33BC.disp.y));
-	float h = 1.0f / (VRAM_HEIGHT / (float)(word_33BC.disp.h));
-	float w = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.w));
+	float x = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.x * INTERNAL_RESOLUTION_SCALE));
+	float y = 1.0f / (VRAM_HEIGHT / (float)(word_33BC.disp.y * INTERNAL_RESOLUTION_SCALE));
+	float h = 1.0f / (VRAM_HEIGHT/ (float)(word_33BC.disp.h * INTERNAL_RESOLUTION_SCALE));
+	float w = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.w * INTERNAL_RESOLUTION_SCALE));
 
 	float vertexBuffer[] =
 	{
-		0.0f, (float)word_33BC.disp.h, 0.0f, x, y,
+		0.0f, (float)word_33BC.disp.h * INTERNAL_RESOLUTION_SCALE, 0.0f, x, y,
 		0.0f, 0.0f, 0.0f, x, y + h,
-		(float)word_33BC.disp.w, 0.0f, 0.0f, x + w, y + h,
-		(float)word_33BC.disp.w, (float)word_33BC.disp.h, 0.0f, x + w, y,
-		(float)word_33BC.disp.w, 0.0f, 0.0f, x + w, y + h,
-		0.0f, (float)word_33BC.disp.h, 0.0f, x, y,
+		(float)word_33BC.disp.w * INTERNAL_RESOLUTION_SCALE, 0.0f, 0.0f, x + w, y + h,
+		(float)word_33BC.disp.w * INTERNAL_RESOLUTION_SCALE, (float)word_33BC.disp.h * INTERNAL_RESOLUTION_SCALE, 0.0f, x + w, y,
+		(float)word_33BC.disp.w * INTERNAL_RESOLUTION_SCALE, 0.0f, 0.0f, x + w, y + h,
+		0.0f, (float)word_33BC.disp.h * INTERNAL_RESOLUTION_SCALE, 0.0f, x, y,
 	};
 
 	glVertexPointer(3, GL_FLOAT, 5 * sizeof(float), vertexBuffer);
@@ -711,7 +711,7 @@ void Emulator_EndScene()
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glLoadIdentity();
-	glOrtho(0, word_33BC.disp.w, 0, word_33BC.disp.h, -1, 1);
+	glOrtho(0, word_33BC.disp.w * INTERNAL_RESOLUTION_SCALE, 0, word_33BC.disp.h * INTERNAL_RESOLUTION_SCALE, -1, 1);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 #if _DEBUG
@@ -756,18 +756,18 @@ void Emulator_GenerateFrameBuffer(GLuint& fbo)
 
 void Emulator_GenerateFrameBufferTexture()
 {
-	unsigned short* pixelData = new unsigned short[activeDrawEnv.clip.w * activeDrawEnv.clip.h];
+	unsigned short* pixelData = new unsigned short[(activeDrawEnv.clip.w  * INTERNAL_RESOLUTION_SCALE) * (activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE)];
 	unsigned short* dst = &pixelData[0];
 
 	//Read disp env area from vram
-	for (int y = activeDrawEnv.clip.y; y < VRAM_HEIGHT; y++)
+	for (int y = activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = activeDrawEnv.clip.x; x < VRAM_WIDTH; x++)
+		for (int x = activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x++)
 		{
 			unsigned short* src = vram + (y * VRAM_WIDTH + x);
 
-			if (x >= activeDrawEnv.clip.x && x < activeDrawEnv.clip.x + activeDrawEnv.clip.w &&
-				y >= activeDrawEnv.clip.y && y < activeDrawEnv.clip.y + activeDrawEnv.clip.h)
+			if (x >= activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE && x < activeDrawEnv.clip.x + activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE &&
+				y >= activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE && y < activeDrawEnv.clip.y + activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE)
 			{
 				*dst++ = src[0];
 			}
@@ -827,10 +827,10 @@ GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY, uns
 void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent)
 {
 	unsigned int textureType = (tpage >> 7) & 0x3;
-	unsigned int tpageX = (tpage << 6) & 0x7C0 % 1024;
-	unsigned int tpageY = ((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200);
-	unsigned int clutX = (clut & 0x3F) << 4;
-	unsigned int clutY = (clut >> 6);
+	unsigned int tpageX = INTERNAL_RESOLUTION_SCALE * ((tpage << 6) & 0x7C0 % 1024);
+	unsigned int tpageY = INTERNAL_RESOLUTION_SCALE * (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200));
+	unsigned int clutX = INTERNAL_RESOLUTION_SCALE * ((clut & 0x3F) << 4);
+	unsigned int clutY = INTERNAL_RESOLUTION_SCALE * (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
 
 	Emulator_SetBlendMode(tpageAbr);
@@ -1009,13 +1009,13 @@ void Emulator_DestroyFrameBuffer(GLuint& fbo)
 void Emulator_DestroyLastVRAMTexture()
 {
 	/*Read from frame buffer and send to VRAM*/
-	unsigned short* pixelData = new unsigned short[activeDrawEnv.clip.w * activeDrawEnv.clip.h];
+	unsigned short* pixelData = new unsigned short[(activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE) * (activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE)];
 	unsigned short* dst = &pixelData[0];
-	glReadPixels(0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
+	glReadPixels(0, 0, activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
 
-	for (int y = activeDrawEnv.clip.y; y < activeDrawEnv.clip.y + activeDrawEnv.clip.h; y++)
+	for (int y = activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE; y < activeDrawEnv.clip.y + activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE; y++)
 	{
-		for (int x = activeDrawEnv.clip.x; x < activeDrawEnv.clip.x + activeDrawEnv.clip.w; x++)
+		for (int x = activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE; x < activeDrawEnv.clip.x + activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE; x++)
 		{
 			unsigned short* src = vram + (y * VRAM_WIDTH + x);
 
@@ -1024,7 +1024,7 @@ void Emulator_DestroyLastVRAMTexture()
 	}
 
 #if _DEBUG && !NOFILE
-	Emulator_SaveVRAM("VRAM2.TGA", 0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, TRUE);
+	Emulator_SaveVRAM("VRAM2.TGA", 0, 0, activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE, TRUE);
 #endif
 
 	delete[] pixelData;
@@ -1076,105 +1076,3 @@ void Emulator_SetBlendMode(int mode)
 	}
 #endif
 }
-
-#if GLTEST
-struct TEXTURE
-{
-	unsigned char u0;
-	unsigned char v0;
-	unsigned short clut;
-	unsigned char u1;
-	unsigned char v1;
-	unsigned short tpage;
-	unsigned char u2;
-	unsigned char v2;
-	unsigned char id[2];
-	unsigned char u3;
-	unsigned char v3;
-	unsigned short wclut;
-};
-
-struct MMTEXTURE
-{
-	TEXTURE t[3];
-};
-
-struct tr_vertex   // 6 bytes
-{
-	int16_t x;
-	int16_t y;
-	int16_t z;
-};
-
-struct mesh_header
-{
-	short x;
-	short y;
-	short z;
-	short radius;
-	char vertices;
-	char flags;
-	short face_offset;
-};
-
-struct tr4_mesh_face4    // 12 bytes
-{
-	uint16_t Vertices[4];
-	uint16_t Texture;
-	uint16_t Effects;
-};
-
-struct tr4_mesh_face3    // 10 bytes
-{
-	uint16_t Vertices[3];
-	uint16_t Texture;
-	uint16_t Effects;    // TR4-5 ONLY: alpha blending and environment mapping strength
-};
-
-
-void Emulator_TestDrawVertices(short* vptr, MMTEXTURE* tex)
-{
-	mesh_header* h = (mesh_header*)vptr;
-	uint8_t num_vert = h->vertices;
-
-	tr_vertex* ptr = (tr_vertex*)(h + 1);
-
-	vptr += 6;
-	short num_normals = *vptr;
-
-	if (num_normals > 0)
-		vptr += num_normals * 3;
-	else
-		vptr += -num_normals;
-
-	short num_rects = *vptr;
-	auto rects = (tr4_mesh_face4*)++vptr;
-
-	vptr += num_rects * 6;
-
-	short num_tris = *vptr;
-	auto tris = (tr4_mesh_face3*)++vptr;
-
-	for(int i = 0; i < num_rects; i++, rects++)
-	{
-		auto poly = &tex[rects->Texture].t[0];
-		Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, 0);
-
-		glBegin(GL_QUADS);
-
-		glTexCoord2f(poly->u0 / 256.0f, poly->v0 / 256.0f);
-		glVertex3s(ptr[rects->Vertices[0]].x, ptr[rects->Vertices[0]].y, ptr[rects->Vertices[0]].z);
-
-		glTexCoord2f(poly->u1 / 256.0f, poly->v1 / 256.0f);
-		glVertex3s(ptr[rects->Vertices[1]].x, ptr[rects->Vertices[1]].y, ptr[rects->Vertices[1]].z);
-
-		glTexCoord2f(poly->u3 / 256.0f, poly->v3 / 256.0f);
-		glVertex3s(ptr[rects->Vertices[3]].x, ptr[rects->Vertices[3]].y, ptr[rects->Vertices[3]].z);
-
-		glTexCoord2f(poly->u2 / 256.0f, poly->v2 / 256.0f);
-		glVertex3s(ptr[rects->Vertices[2]].x, ptr[rects->Vertices[2]].y, ptr[rects->Vertices[2]].z);
-
-		glEnd();
-	}
-
-#endif
