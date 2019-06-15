@@ -70,8 +70,10 @@ int assetsLoaded = 0;
 
 #if _WINDOWS && USE_DDRAW
 LPDIRECTDRAW pDD;
+#pragma comment(lib, "ddraw.lib")
+#else
+#undef USE_DDRAW//Codeblocks?
 #endif
-
 
 #if D3D9
 SDL_Renderer* g_Renderer;
@@ -109,9 +111,9 @@ int main(int argc, char* argv[])
 	
 	while (true)
 	{
-		///@FIXME Warning SDL was not initialised in this thread!
 		Emulator_UpdateInput();
 	}
+
 	return 0;
 }
 
@@ -1009,15 +1011,15 @@ void Emulator_DestroyLastVRAMTexture()
 {
 	/*Read from frame buffer and send to VRAM*/
 	unsigned short* pixelData = new unsigned short[(activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE) * (activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE)];
-	unsigned short* dst = &pixelData[0];
+	unsigned int* dst = (unsigned int*)&pixelData[0];
+
 	glReadPixels(0, 0, activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
 
 	for (int y = activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE; y < activeDrawEnv.clip.y + activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE; y++)
 	{
-		for (int x = activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE; x < activeDrawEnv.clip.x + activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE; x++)
+		for (int x = activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE; x < (activeDrawEnv.clip.x + activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE); x+=2)
 		{
-			unsigned short* src = vram + (y * VRAM_WIDTH + x);
-
+			unsigned int* src = (unsigned int*)&vram[(y * VRAM_WIDTH + x)];
 			src[0] = *dst++;
 		}
 	}

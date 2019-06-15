@@ -10,6 +10,9 @@ get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR}
 #Enable NTSC mode
 OPTIONAL_DEFINE(NTSC_VERSION "Enable/Disable NTSC Mode" ON)
 
+#Enable DDRAW code for VSync
+OPTIONAL_DEFINE(USE_DDRAW "Enable/Disable DDRAW VSync" ON)
+
 #Find required libs for PSXPC
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
