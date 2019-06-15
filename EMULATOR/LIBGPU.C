@@ -59,8 +59,8 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 		{
 			unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
 
-			if (x >= rect->x * INTERNAL_RESOLUTION_SCALE && x < (rect->x + rect->w) * INTERNAL_RESOLUTION_SCALE &&
-				y >= rect->y * INTERNAL_RESOLUTION_SCALE && y < (rect->y + rect->h) * INTERNAL_RESOLUTION_SCALE)
+			if (x >= rect->x * INTERNAL_RESOLUTION_SCALE && x < rect->x + rect->w * INTERNAL_RESOLUTION_SCALE &&
+				y >= rect->y * INTERNAL_RESOLUTION_SCALE && y < rect->y + rect->h * INTERNAL_RESOLUTION_SCALE)
 			{
 				pixel[0] = 1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3));
 			}
@@ -316,12 +316,17 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 	}
 
 	GLuint fbo = 0;
-	
+
 	if (p != NULL)
 	{
 		glLoadIdentity();
 		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, -1, 1);
 		glViewport(0, 0, VRAM_WIDTH, VRAM_HEIGHT);
+		//glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+		glScaled(INTERNAL_RESOLUTION_SCALE, INTERNAL_RESOLUTION_SCALE, 0.0f);
+		//glScalef(1, 1, -1);
+
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
 

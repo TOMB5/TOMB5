@@ -360,26 +360,26 @@ char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1,
 	//Copy over uvs
 	if (uv0 != NULL)
 	{
-		vertices[0].u0 = ((float)uv0[0] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
-		vertices[0].v0 = ((float)uv0[1] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
+		vertices[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
+		vertices[0].v0 = ((float)uv0[1]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
 	}
 	
 	if (uv1 != NULL)
 	{
-		vertices[1].u0 = ((float)uv1[0] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
-		vertices[1].v0 = ((float)uv1[1] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
+		vertices[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
+		vertices[1].v0 = ((float)uv1[1]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
 	}
 	
 	if (uv2 != NULL)
 	{
-		vertices[2].u0 = ((float)uv2[0] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
-		vertices[2].v0 = ((float)uv2[1] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
+		vertices[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
+		vertices[2].v0 = ((float)uv2[1]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
 	}
 
 	if (uv3 != NULL)
 	{
-		vertices[3].u0 = ((float)uv3[0] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
-		vertices[3].v0 = ((float)uv3[1] * INTERNAL_RESOLUTION_SCALE) / TPAGE_WIDTH;
+		vertices[3].u0 = ((float)uv3[0]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
+		vertices[3].v0 = ((float)uv3[1]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
 	}
 
 	return (char*)&vertices[0].u0;
@@ -533,7 +533,6 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 
 void Emulator_InitialiseGL()
 {
-	//Initialise vertex array
 	glEnable(GL_TEXTURE_2D);
 	memset(&vertices[0].x, 0, sizeof(Vertex) * MAX_NUM_VERTICES);
 	Emulator_GenerateAndBindNullWhite();
@@ -756,7 +755,7 @@ void Emulator_GenerateFrameBuffer(GLuint& fbo)
 
 void Emulator_GenerateFrameBufferTexture()
 {
-	unsigned short* pixelData = new unsigned short[(activeDrawEnv.clip.w  * INTERNAL_RESOLUTION_SCALE) * (activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE)];
+	unsigned short* pixelData = new unsigned short[(activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE) * (activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE)];
 	unsigned short* dst = &pixelData[0];
 
 	//Read disp env area from vram
@@ -777,7 +776,7 @@ void Emulator_GenerateFrameBufferTexture()
 #if CORE_PROF_3_1 || CORE_PROF_3_2
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, activeDrawEnv.clip.w, activeDrawEnv.clip.h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 #endif
@@ -796,7 +795,7 @@ void Emulator_GenerateFrameBufferTexture()
 #endif
 
 #if _DEBUG
-	Emulator_SaveVRAM("VRAM4.TGA", 0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, TRUE);
+	Emulator_SaveVRAM("VRAM4.TGA", 0, 0, activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE, TRUE);
 #endif
 
 	delete[] pixelData;
