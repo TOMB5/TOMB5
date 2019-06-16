@@ -4,6 +4,7 @@
 #include "CAMERA.H"
 #include "DRAW.H"
 #include "EFFECT2.H"
+#include "GPU.H"
 #include "SPECIFIC.H"
 #include "STYPES.H"
 #include "MISC.H"
@@ -11,12 +12,141 @@
 #include "GTEREG.H"
 #include "ROOMLOAD.H"
 
+void DrawMesh(int* a0, struct DB_STRUCT* dbs)
+{
+
+}
+
 void DrawRoomsAsm()//0x1BC380
 {
 	DrawRoomletListAsm(0, &room[camera.pos.room_number]);
 }
 
 #ifndef USE_ASM
+
+void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, int* a1, int* a2, int* a3, int* v0, int* s5)
+{
+	int v1 = *t0 << 16;
+	v1 >>= 16;
+
+	if (v1 < *a0)
+	{
+		*a0 = v1;
+	}
+
+	//loc_74B40
+	*t0 >>= 16;
+
+	if (v1 > * a1)
+	{
+		*a1 = v1;
+	}
+
+	//loc_74B4C
+	if (*t0 < *a2)
+	{
+		*a2 = *t0;
+	}
+
+	//loc_74B5C
+	v1 = *t6 << 16;
+	if (*t0 > * a3)
+	{
+		*a3 = *t0;
+	}
+
+	//loc_74B68
+	v1 >>= 16;
+
+	if (v1 < *a0)
+	{
+		*a0 = v1;
+	}
+
+	//loc_74B7C
+	*t6 >>= 16;
+
+	if (v1 > * a1)
+	{
+		*a1 = v1;
+	}
+
+	//loc_74B88
+	if (*t6 < *a2)
+	{
+		*a2 = *t6;
+	}
+
+	//loc_74B98
+	v1 = *t8 << 16;
+	if (*t6 > * a3)
+	{
+		*a3 = *t6;
+	}
+
+	//loc_74BA4
+	v1 >>= 16;
+	if (v1 < *a0)
+	{
+		*a0 = v1;
+	}
+
+	//loc_74BB8
+	*t8 >>= 16;
+
+	if (v1 > * a1)
+	{
+		*a1 = v1;
+	}
+
+	//loc_74BC4
+	if (*t8 < *a2)
+	{
+		*a2 = *t8;
+	}
+
+	//loc_74BD4
+	if (*t8 > * a3)
+	{
+		*a3 = *t8;
+	}
+
+	//loc_74BE0
+	if (*t1 > 20479)
+	{
+		*v0 += 1;
+	}//loc_74BEC
+
+	if (*t7 > 20479)
+	{
+		*v0 += 1;
+	}
+
+	//loc_74BF8
+	if (*t9 > 20479)
+	{
+		*v0 += 1;
+	}
+
+	//loc_74C04
+	if (*t1 == 0)
+	{
+		*s5 += 1;
+	}
+
+	//loc_74C10
+	if (*t7 == 0)
+	{
+		*s5 += 1;
+	}
+
+	//loc_74C1C
+	if (*t9 == 0)
+	{
+		*s5 += 1;
+	}
+}
+
 void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 {
 	int s0;
@@ -37,12 +167,21 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	int fpp;
 	int s7;
 	int* a0;
-	SVECTOR* t00;
+	struct SVECTOR* t00;
 	struct room_info* fp;
 	struct WATERTAB* t11;
 	struct room_info* s5;
 	int at;
 	int t9;
+	int v0;
+	int* a1;
+	int sp[256];
+	int a3;
+	int a2;
+	int v1;
+	int* a22;
+	int* a33;
+	int ra;
 
 	RFC = underwater;
 	RGB0 = (unsigned long)r;
@@ -53,7 +192,7 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	LB3 = wibble & 0xFC;
 	s2 = (int*)&tsv_buffer[0];
 
-	//loc_74C88
+loc_74C88:
 	//t0 = *s4++;
 	fp = &room[*s4++];
 	
@@ -266,7 +405,8 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 
 	fpp = t7;
 	s7 = t8;
-	//loc_74F78
+
+loc_74F78:
 	
 	if (s6 != 0)
 	{
@@ -325,14 +465,14 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 		t4 |= t7;
 		t5 |= t6;
 
-		int a00, a11, a22, a33;
+		int a00, a11, a22, a33, s55;
 
 		a00 = 0x800;
 		a11 = 0xFFFFF800;
 		a22 = 0x800;
 		a33 = 0xFFFFF800;
 
-		s5 = 0;
+		s55 = 0;
 
 		t1 = SZ1;
 		t6 = SXY1;
@@ -352,341 +492,439 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 		t0 = SXY0;
 
 		docop2(0x280030);
-		//v0 = 0
-		//GetBounds();
+		v0 = 0;
+		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a22, &a33, &v0, &s55);
+
+		t0 = SXY0;
+		t1 = SZ1;
+		t6 = SXY1;
+		t7 = SZ2;
+		t8 = SXY2;
+		t9 = SZ3;
+
+		VZ0 = t3;
+		VZ1 = t3;
+
+		docop2(0x280030);
+		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a22, &a33, &v0, &s55);
+
+		t0 = SXY0;
+		t1 = SZ1;
+		t6 = SXY1;
+		t7 = SZ2;
+		t8 = t6;
+		t9 = t7;
+
+		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a22, &a33, &v0, &s55);
+
+		if (v0 < 9 && s55 < 9)
+		{
+			t0 = L11 | (L12 << 16);
+			t1 = L13 | (L21 << 16);
+			t2 = L22 | (L23 << 16);
+			t3 = L31 | (L32 << 16);
+
+			if (a11 > t0 && a00 < t1 && a33 > t2 && a22 < t3)
+			{
+				s2++;
+			}//loc_75100
+		}//loc_75100
+
+		s6--;
+		goto loc_74F78;
 
 	}//loc_75108
+	s2[0] = 0;
+	s0--;
+	s2++;
 
-#if 0
-	mfc2    t0, r12
-	mfc2    t1, r17
-	mfc2    t6, r13
-	mfc2    t7, r18
-	mfc2    t8, r14
-	mtc2    t3, r1
-	mtc2    t3, r3
-	mfc2    t9, r19
-	nop
-	nop
-	cop2    0x280030
-	jal     GetBounds
-	nop
-	mfc2    t0, r12
-	mfc2    t1, r17
-	mfc2    t6, r13
-	mfc2    t7, r18
-	move    t8, t6
-	jal     GetBounds
-	move    t9, t7
-	sltiu   at, v0, 9
-	beqz    at, loc_75100
-	sltiu   at, s5, 9
-	beqz    at, loc_75100
-	nop
-	cfc2    t0, r8
-	cfc2    t1, r9
-	cfc2    t2, r10
-	cfc2    t3, r11
-	slt     at, a1, t0
-	bnez    at, loc_75100
-	slt     at, a0, t1
-	beqz    at, loc_75100
-	slt     at, a3, t2
-	bnez    at, loc_75100
-	slt     at, a2, t3
-	beqz    at, loc_75100
-	nop
-	addi    s2, 4
+	if (s0 != 0)
+	{
+		goto loc_74C88;
+	}
 
-	loc_75100:
-	j       loc_74F78
-	addi    s6, -1
+	s2[0] = 0;
+	s2 = (int*)&tsv_buffer[0];
 
-	loc_75108:
-	sw      zero, 0(s2)
-	addi    s0, -1
-	bnez    s0, loc_74C88
-	addi    s2, 4
-	sw      zero, 0(s2)
-	la      s2, tsv_buffer
+loc_75124:
+	a1 = (int*)s2[0];
+	RGB0 = s2[1];
+	s2 += 8;
 
-	loc_75124:
-	lw      a1, 0(s2)
-	lwc2    r20, 4(s2)
-	beqz    a1, loc_76420
-	addi    s2, 0x20
-	lw      t0, -0x18(s2)
-	lw      t1, -0x14(s2)
-	lw      t2, -0x10(s2)
-	ctc2    t0, r5
-	ctc2    t1, r6
-	ctc2    t2, r7
-	lw      t0, 0x14(a1)
-	lw      t1, 0x18(a1)
-	lw      t2, 0x1C(a1)
-	sw      t0, 0x38-0xC(sp)
-	sw      t1, 0x38-0x8(sp)
-	sw      t2, 0x34(sp)
-	lw      t0, 0x38(a1)
-	lw      t2, 0x3C(a1)
-	lui     at, 0xFFFF
-	and     t1, t0, at
-	and     t3, t2, at
-	lui     at, 1
-	add     t1, at
-	add     t3, at
-	sll     t0, 16
-	sll     t2, 16
-	ctc2    t0, r8
-	ctc2    t1, r9
-	ctc2    t2, r10
-	ctc2    t3, r11
-	lw      t0, -0xC(s2)
-	lw      t1, -8(s2)
-	lw      t2, -4(s2)
-	ctc2    t0, r13
-	ctc2    t1, r14
-	ctc2    t2, r15
+	if (a1 != NULL)
+	{
+		t0 = s2[-6];
+		t1 = s2[-5];
+		t2 = s2[-4];
 
-	loc_751B4:
-	lw      a0, 0(s2)
-	addi    s2, 4
-	beqz    a0, loc_75124
-	lw      t5, 0(a0)
-	move    t6, zero
-	sll     t0, t5, 3
-	andi    t0, 0xFFF8
-	add     t0, s3
-	lh      t2, 4(t0)
-	lw      t0, 0(t0)
-	srl     t5, 13
-	andi    t5, 0xFFF8
-	add     t5, s3
-	lw      t3, 0(t5)
-	lh      t5, 4(t5)
-	srl     t1, t0, 16
-	andi    t0, 0xFFFF
-	srl     t4, t3, 16
-	andi    t3, 0xFFFF
-	lw      t7, 0x38-0xC(sp)
-	lw      t8, 0x38-0x8(sp)
-	lw      t9, 0x34(sp)
-	add     t0, t7
-	add     t1, t8
-	add     t2, t9
-	add     t3, t7
-	add     t4, t8
-	add     t5, t9
-	li      t7, 1
-	lui     t8, 0x1F80
-	move    t9, zero
-	la	    s1, dynamics
-	;addiu   s1, gp, dynamics-GP_ADDR
-	li      a3, 0x20
+		TRX = t0;
+		TRY = t1;
+		TRZ = t2;
+
+		t0 = a1[5];
+		t1 = a1[6];
+		t2 = a1[7];
+
+		sp[11] = t0;
+		sp[12] = t1;
+		sp[13] = t2;
+
+		t0 = a1[14];
+		t2 = a1[15];
+
+		at = 0xFFFF0000;
+
+		t1 = t0 & at;
+		t3 = t2 & at;
+
+		at = 0x10000;
+
+		t1 += at;
+		t3 += at;
+
+		t0 <<= 16;
+		t2 <<= 16;
+
+		L11 = t0 & 0xFFFF;
+		L12 = (t0 >> 16) & 0xFFFF;
+
+		L13 = t1 & 0xFFFF;
+		L21 = (t1 >> 16) & 0xFFFF;
+
+		L22 = t2 & 0xFFFF;
+		L23 = (t2 >> 16) & 0xFFFF;
+
+		L31 = t3;
+
+		t0 = s2[-3];
+		t1 = s2[-2];
+		t2 = s2[-1];
+
+		RBK = t0;
+		GBK = t1;
+		BBK = t2;
+
+		//loc_751B4
+		a0 = (int*)s2[0];
+		s2++;
+		t5 = a0[0];
+
+		if (a0 == NULL)
+		{
+			goto loc_75124;
+		}
+
+
+		t6 = 0;
+		t00 = &s3[t5 & 0xFFF8];///@checkme result of t0 :S
+
+		t2 = t00->vz;
+		t0 = *(int*)& t00->vx;
+
+		t5 >>= 13;
+		t5 &= 0xFFF8;
+		SVECTOR* t55 = &s3[t5];
+
+		t3 = *(int*)& t55->vx;
+		t5 = t55->vz;
+
+		t1 = (t0 >> 16);
+		t0 &= 0xFFFF;
+		t4 = t3 >> 16;
+		t3 &= 0xFFFF;
+
+		t7 = sp[11];
+		t8 = sp[12];
+		t9 = sp[13];
+
+		t0 += t7;
+		t1 += t8;
+		t2 += t9;
+		t3 += t7;
+		t4 += t8;
+		t5 += t9;
+		t7 = 1;
+
+		int* t88;
+		t88 = &sp[0];
+		t9 = 0;
+
+		struct DYNAMIC* s11 = dynamics;
+		a3 = 32;
 
 	loc_75238:
-	sb      zero, 0x30C(s1)
-	lb      at, 0xC(s1)
-	addi    a3, -1
-	beqz    at, loc_752C4
-	lh      a2, 0x10(s1)
-	lw      v0, 0(s1)
-	srl     a2, 1
-	add     v1, v0, a2
-	sub     v0, a2
-	slt     at, v1, t0
-	bnez    at, loc_752C0
-	slt     at, v0, t3
-	lw      v0, 4(s1)
-	beqz    at, loc_752C0
-	add     v1, v0, a2
-	sub     v0, a2
-	slt     at, v1, t1
-	bnez    at, loc_752C0
-	slt     at, v0, t4
-	lw      v0, 8(s1)
-	beqz    at, loc_752C0
-	add     v1, v0, a2
-	sub     v0, a2
-	slt     at, v1, t2
-	bnez    at, loc_752C0
-	slt     at, v0, t5
-	beqz    at, loc_752C0
-	srl     a2, 7
-	sb      t7, 0x12(s1)
-	add     t9, a2
-	sw      s1, 0(t8)
-	addi    t8, 4
-	j       loc_752C4
-	addi    t6, 1
+		dynamics[32].on = 0;
+		at = s11->on;
+		a3--;
+		a2 = s11->falloff;
 
-	loc_752C0:
-	sb      zero, 0x12(s1)
+		if (s11->on)
+		{
+			v0 = s11->x;
+			at >>= 1;
+			v1 = v0 + a2;
+			v0 -= a2;
 
-	loc_752C4:
-	bnez    a3, loc_75238
-	addi    s1, 0x18
-	la		t8, dynamics+0x300
-	;addiu   t8, gp, dynamics+0x300-GP_ADDR
+			if (v1 > t0 && v0 < t3)
+			{
+				v0 = s11->y;
+				v1 = v0 + a2;
+				v0 -= a2;
+
+				if (v1 > t1 && v0 < t4)
+				{
+					v0 = s11->z;
+					v1 = v0 + a2;
+					v0 -= a2;
+
+					if (v1 > t2 && v0 < t5)
+					{
+						a2 >>= 7;
+						s11->used = 1;
+						t9 += a2;
+						t88[0] = (int)s1;
+						t88++;
+						t6++;
+					}
+					else
+					{
+						//loc_752C0
+						s11->used = 0;
+					}
+				}
+				else
+				{
+					//loc_752C0
+					s11->used = 0;
+				}
+			}
+			else
+			{
+				//loc_752C0
+				s11->used = 0;
+			}
+		}
+		//loc_752C4
+		s11++;
+
+		if (a3 != 0)
+		{
+			goto loc_75238;
+		}
+
+
+		struct DYNAMIC* t888 = &dynamics[32];
 
 	loc_752D0:
-	slti    at, t9, 0x60
-	bnez    at, loc_75448
-	lui     t7, 0xFFF
-	move    t3, zero
-	lui     s1, 0x1F80
-	move    t5, t6
+		t7 = 0xFFF0000;
 
-	loc_752E8:
-	beqz    t5, loc_752D0
-	lw      a2, 0(s1)
-	addi    s1, 4
-	beqz    a2, loc_752E8
-	addi    t5, -1
-	move    a1, s1
-	addi    t4, t5, -1
+		if (t9 > 95)
+		{
+			t3 = 0;
+			s1 = &sp[0];
+			t5 = t6;
 
-	loc_75304:
-	beqz    t4, loc_75394
-	lw      a3, 0(a1)
-	addi    a1, 4
-	beqz    a3, loc_75304
-	addi    t4, -1
-	lw      t0, 0(a2)
-	lw      at, 0(a3)
-	lw      t1, 4(a2)
-	sub     t0, at
-	bgtz    t0, loc_75334
-	lw      at, 4(a3)
-	neg     t0, t0
+		loc_752E8:
+			a22 = (int*)s1[0];
+			if (t5 == 0)
+			{
+				goto loc_752D0;
+			}
 
-	loc_75334:
-	sltiu   s4, t0, 0x800
-	beqz    s4, loc_75304
-	sub     t1, at
-	lw      ra, 8(a2)
-	bgtz    t1, loc_75350
-	lw      at, 8(a3)
-	neg     t1, t1
+			s1++;
+			t5--;
 
-	loc_75350:
-	sltiu   s4, t1, 0x800
-	beqz    s4, loc_75304
-	sub     ra, at
-	bgtz    ra, loc_75368
-	add     t0, t1
-	neg     ra, ra
+			if (a22 == 0)
+			{
+				goto loc_752E8;
+			}
 
-	loc_75368:
-	sltiu   s4, ra, 0x800
-	beqz    s4, loc_75304
-	add     t0, ra
-	slt     at, t0, t7
-	beqz    at, loc_75304
-	move    t2, a2
-	move    t7, t0
-	addi    v0, s1, -4
-	addi    v1, a1, -4
-	j       loc_75304
-	move    t3, a3
+			a1 = s1;
+			t4 = t5 - 1;
 
-	loc_75394:
-	beqz    t3, loc_75448
-	lh      t0, 0x10(t2)
-	lh      t1, 0x10(t3)
-	sw      zero, 0(v1)
-	slt     at, t0, t1
-	bnez    at, loc_753C0
-	sw      t8, 0(v0)
-	sh      t0, 0x10(t8)
-	srl     t1, 8
-	j       loc_753CC
-	sub     t9, t1
+		loc_75304:
+			a33 = (int*)a1[0];
+			if (t4 != 0)
+			{
+				a1++;
+				t4--;
 
-	loc_753C0:
-	sh      t1, 0x10(t8)
-	srl     t0, 8
-	sub     t9, t0
+				if (a33 == 0)
+				{
+					goto loc_75304;
+				}
 
-	loc_753CC:
-	lw      t0, 0xC(t2)
-	lw      t1, 0xC(t3)
-	lui     t7, 0x7C7C
-	ori     t7, 0x7C00
-	srl     t0, 1
-	srl     t1, 1
-	and     t0, t7
-	and     t1, t7
-	addu    t0, t1
-	ori     t0, 1
-	sw      t0, 0xC(t8)
-	sb      t0, 0x12(t8)
-	lw      v0, 0(t2)
-	lw      v1, 0(t3)
-	lw      t0, 4(t2)
-	lw      t1, 4(t3)
-	add     v0, v1
-	srl     v0, 1
-	add     t0, t1
-	sra     t0, 1
-	sw      v0, 0(t8)
-	lw      v0, 8(t2)
-	lw      v1, 8(t3)
-	sw      t0, 4(t8)
-	add     v0, v1
-	srl     v0, 1
-	sw      v0, 8(t8)
-	sb      zero, 0x12(t2)
-	sb      zero, 0x12(t3)
-	j       loc_752D0
-	addi    t8, 0x18
+				t0 = a22[0];
+				at = a33[0];
+				t1 = a22[1];
 
-	loc_75448:
-	la		s1, dynamics
-	;addiu   s1, gp, dynamics-GP_ADDR
-	lui     a1, 0x1F80
-	addi    a1, 0x300
-	li      v1, 0xF
-	li      v0, 0x40
+				t0 -= at;
+				at = a33[1];
 
-	loc_7545C:
-	lb      at, 0xC(s1)
-	lb      t0, 0x12(s1)
-	beqz    at, loc_754B8
-	lw      t1, 4(s1)
-	beqz    t0, loc_754B8
-	lw      t0, 0(s1)
-	lw      t2, 8(s1)
-	srl     t0, 7
-	sw      t0, 0(a1)
-	sra     t1, 7
-	sw      t1, 4(a1)
-	srl     t2, 7
-	sw      t2, 8(a1)
-	lw      t1, 0xC(s1)
-	lh      t0, 0x10(s1)
-	srl     t1, 8
-	sll     t1, 8
-	srl     t0, 8
-	or      t1, t0
-	sw      t1, 0xC(a1)
-	addi    a1, 0x10
-	addi    v1, -1
-	beqz    v1, loc_754C4
+				if (t0 < 0)
+				{
+					t0 = -t0;
+				}//loc_75334
 
-	loc_754B8:
-	addi    v0, -1
-	bnez    v0, loc_7545C
-	addi    s1, 0x18
+				t1 -= at;
+				if (t0 > 0x7FF)
+				{
+					goto loc_75304;
+				}
 
-	loc_754C4:
-	sw      zero, 0xC(a1)
-	jal     DrawMesh
-	addiu   a1, gp, db-GP_ADDR
-	addiu   a1, gp, db-GP_ADDR
-	j       loc_751B4
-	sw      a3, 8(a1)
-#endif
+				ra = a22[2];
+
+				at = a33[2];
+
+				if (t1 < 0)
+				{
+					t1 = -t1;
+				}
+				//loc_75350
+
+				ra -= at;
+				if (t1 > 0x7FF)
+				{
+					goto loc_75304;
+				}
+
+				t0 += t1;
+
+				if (ra < 0)
+				{
+					ra = -ra;
+				}
+				//loc_75368
+
+				t0 += ra;
+				if (ra > 0x7FF)
+				{
+					goto loc_75304;
+				}
+
+				int t2 = (int)a22;
+				if (t7 > t0)
+				{
+					goto loc_75304;
+				}
+
+				t7 = t0;
+				v0 = (int)& s1[-1];
+				v1 = (int)& a1[-1];
+				t3 = a3;
+				goto loc_75304;
+			}
+			//loc_75394
+			t0 = ((short*)t2)[8];
+
+			if (t3 != 0)
+			{
+				t1 = ((short*)t3)[8];
+				((int*)v1)[0] = 0;
+				((int*)v0)[0] = (int)t888;
+				///@CONTINUE
+
+				if (t0 > t1)
+				{
+					((short*)t888)[8] = t0;
+					t1 >>= 8;
+					t9 -= t1;
+				}
+				else
+				{
+					//loc_753C0
+					((short*)t888)[8] = t1;
+					t0 >>= 8;
+					t9 -= t0;
+				}
+				//loc_753CC
+
+				t0 = ((int*)t2)[3];
+				t1 = ((int*)t3)[3];
+				t7 = 0x7C7C7C00;
+
+				t0 >>= 1;
+				t1 >>= 1;
+				t0 &= t7;
+				t1 &= t7;
+				t0 += t1;
+				t0 |= 1;
+				((int*)t888)[3] = t0;
+				((char*)t888)[18] = t0;
+
+				v0 = ((int*)t2)[0];
+				v1 = ((int*)t3)[0];
+				t0 = ((int*)t2)[1];
+				t1 = ((int*)t3)[1];
+
+				v0 += v1;
+				v0 >>= 1;
+				t0 += t1;
+				t0 >>= 1;
+
+				((int*)t888)[0] = v0;
+				v0 = ((int*)t2)[2];
+				v1 = ((int*)t3)[2];
+				((int*)t888)[1] = t0;
+
+				v0 += v1;
+				v0 >>= 1;
+				((int*)t888)[2] = v0;
+				((char*)t2)[18] = 0;
+				((char*)t3)[18] = 0;
+				t8++;
+				goto loc_752D0;
+			}
+			//loc_75448
+		}//loc_75448
+		
+		s11 = dynamics;
+		a1 = &sp[192];
+		v1 = 15;
+		v0 = 64;
+
+		//loc_7545C
+		do
+		{
+			t0 = s11->used;
+			t1 = s11->y >> 7;
+			if (s11->on && s11->used)
+			{
+				t0 = s11->x >> 7;
+				t2 = s11->z >> 7;
+
+				a1[0] = t0;
+				a1[1] = t1;
+				a1[2] = t2;
+
+				t1 = (*(int*)& s11->on >> 8) << 8;
+				t0 = s11->falloff >> 8;
+
+				t1 |= t0;
+				a1[3] = t1;
+				a1 += 4;
+				v1--;
+				if (v1 == 0)
+				{
+					//loc_754C4
+					break;
+				}
+			}//loc_754B8
+
+			v0--;
+			s11++;
+		} while (v0 != 0);
+
+		//loc_754C4
+		a1[3] = 0;
+
+		DrawMesh(a0, &db);
+
+		///a1 = &db
+		///a1[8] = a3 (db.polyptr store?)
+		///j loc_751B4
+	}///loc_76420?
+
 	UNIMPLEMENTED();
 }
 
@@ -695,126 +933,4 @@ void DrawRoomletListAsm(long unk, struct room_info* r)//0x1BC4D0
 	UNIMPLEMENTED();
 }
 
-void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, int* a1, int* a2, int* a3, int* v0, int* s5)
-{
-	int v1 = *t0 << 16;
-	v1 >>= 16;
-
-	if (v1 < *a0)
-	{
-		*a0 = v1;
-	}
-	
-	//loc_74B40
-	*t0 >>= 16;
-
-	if (v1 > * a1)
-	{
-		*a1 = v1;
-	}
-
-	//loc_74B4C
-	if (*t0 < *a2)
-	{
-		*a2 = *t0;
-	}
-	
-	//loc_74B5C
-	v1 = *t6 << 16;
-	if (*t0 > * a3)
-	{
-		*a3 = *t0;
-	}
-	
-	//loc_74B68
-	v1 >>= 16;
-
-	if (v1 < *a0)
-	{
-		*a0 = v1;
-	}
-	
-	//loc_74B7C
-	*t6 >>= 16;
-
-	if (v1 > *a1)
-	{
-		*a1 = v1;
-	}
-	
-	//loc_74B88
-	if (*t6 < *a2)
-	{
-		*a2 = *t6;
-	}
-	
-	//loc_74B98
-	v1 = *t8 << 16;
-	if (*t6 > *a3)
-	{
-		*a3 = *t6;
-	}
-	
-	//loc_74BA4
-	v1 >>= 16;
-	if (v1 < *a0)
-	{
-		*a0 = v1;
-	}
-	
-	//loc_74BB8
-	*t8 >>= 16;
-
-	if (v1 > *a1)
-	{
-		*a1 = v1;
-	}
-	
-	//loc_74BC4
-	if (*t8 < *a2)
-	{
-		*a2 = *t8;
-	}
-	
-	//loc_74BD4
-	if (*t8 > *a3)
-	{
-		*a3 = *t8;
-	}
-	
-	//loc_74BE0
-	if (*t1 > 20479)
-	{
-		*v0 += 1;
-	}//loc_74BEC
-
-	if (*t7 > 20479)
-	{
-		*v0 += 1;
-	}
-
-	//loc_74BF8
-	if (*t9 > 20479)
-	{
-		*v0 += 1;
-	}
-
-	//loc_74C04
-	if (*t1 == 0)
-	{
-		*s5 += 1;
-	}
-	
-	//loc_74C10
-	if (*t7 == 0)
-	{
-		*s5 += 1;
-	}
-
-	//loc_74C1C
-	if (*t9 == 0)
-	{
-		*s5 += 1;
-	}
-}
 #endif
