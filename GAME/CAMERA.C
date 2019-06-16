@@ -1128,7 +1128,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 					v1 -= a1;
 					v1 <<= 16;
 					change = v1 >> 16;
-					
+
 					a0 = change < 0x2D9 ? 1 : 0;
 					t0 = v0;
 
@@ -1141,9 +1141,9 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 						//loc_28178
 #if 0
 						slti	$v0, $s0, -0x2D8
-						bnez	$v0, loc_28188
-						addiu	$v0, $a1, -0x2D8
-						addu	$v0, $s0, $a1
+							bnez	$v0, loc_28188
+							addiu	$v0, $a1, -0x2D8
+							addu	$v0, $s0, $a1
 #endif
 					}
 
@@ -1189,7 +1189,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	}
 
 	//loc_281F4
-	if ((camera.type - LOOK_CAMERA) < 2)
+	if ((unsigned)(camera.type - LOOK_CAMERA) < 2)
 	{
 		if (camera.type == COMBAT_CAMERA)
 		{
@@ -1372,11 +1372,13 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	camera.lara_node = -1;
 	camera.last_item = item;
 	camera.item = NULL;
-#endif
+
+#else
 	UNIMPLEMENTED();
+#endif
+
 	return;
 }
-
 
 void LookCamera(struct ITEM_INFO* item)
 {
