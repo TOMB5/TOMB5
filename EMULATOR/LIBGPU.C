@@ -86,18 +86,18 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 {
 	Emulator_CheckTextureIntersection(rect);
 
-	unsigned short* dst = (unsigned short*)p;
+	unsigned int* dst = (unsigned int*)p;
 
 	for (int y = rect->y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = rect->x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x++)
+		for (int x = rect->x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x += 2)
 		{
-			unsigned short* src = vram + (y * VRAM_WIDTH + x);
+			unsigned int* src = (unsigned int*)&vram[(y * VRAM_WIDTH + x)];
 
 			if (x >= rect->x * INTERNAL_RESOLUTION_SCALE && x < rect->x + rect->w * INTERNAL_RESOLUTION_SCALE &&
 				y >= rect->y * INTERNAL_RESOLUTION_SCALE && y < rect->y + rect->h * INTERNAL_RESOLUTION_SCALE)
 			{
-				src[0] = *dst++;
+				*src = *dst++;
 			}
 		}
 	}
