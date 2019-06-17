@@ -364,26 +364,26 @@ char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1,
 	//Copy over uvs
 	if (uv0 != NULL)
 	{
-		vertices[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
-		vertices[0].v0 = ((float)uv0[1]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
+		vertices[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
+		vertices[0].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
 	}
 	
 	if (uv1 != NULL)
 	{
-		vertices[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
-		vertices[1].v0 = ((float)uv1[1]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
+		vertices[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH;
+		vertices[1].v0 = ((float)uv1[1]) / TPAGE_WIDTH;
 	}
 	
 	if (uv2 != NULL)
 	{
-		vertices[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
-		vertices[2].v0 = ((float)uv2[1]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
+		vertices[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH;
+		vertices[2].v0 = ((float)uv2[1]) / TPAGE_WIDTH;
 	}
 
 	if (uv3 != NULL)
 	{
-		vertices[3].u0 = ((float)uv3[0]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
-		vertices[3].v0 = ((float)uv3[1]) / TPAGE_WIDTH * INTERNAL_RESOLUTION_SCALE;
+		vertices[3].u0 = ((float)uv3[0]) / TPAGE_WIDTH;
+		vertices[3].v0 = ((float)uv3[1]) / TPAGE_WIDTH;
 	}
 
 	return (char*)&vertices[0].u0;
@@ -830,17 +830,24 @@ GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY, uns
 
 void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent)
 {
-#if _DEBUG
-	glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-	return;
-#endif
-
 	unsigned int textureType = (tpage >> 7) & 0x3;
 	unsigned int tpageX = ((tpage << 6) & 0x7C0 % 1024);
 	unsigned int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200));
 	unsigned int clutX = ((clut & 0x3F) << 4);
 	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
+
+	tpageX += ((VRAM_WIDTH - (VRAM_WIDTH / INTERNAL_RESOLUTION_SCALE)) / 2);
+	if (tpageY >= 256)
+	{
+		tpageY += ((VRAM_HEIGHT - (VRAM_HEIGHT / INTERNAL_RESOLUTION_SCALE)) / 2) * 2;
+	}
+
+	clutX += ((VRAM_WIDTH - (VRAM_WIDTH / INTERNAL_RESOLUTION_SCALE)) / 2);
+	if (clutY >= 256)
+	{
+		clutY += ((VRAM_HEIGHT - (VRAM_HEIGHT / INTERNAL_RESOLUTION_SCALE)) / 2);
+	}
 
 	Emulator_SetBlendMode(tpageAbr);
 
@@ -947,7 +954,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 			{
 				for (int x = clutX; x < clutX + 16; x++)
 				{
-					unsigned short* src = vram + (y * 1024 + x);
+					unsigned short* src = vram + (y * VRAM_WIDTH + x);
 					*clutDst++ = 255 << 24 | ((((*src & 0x1F)) << 3) << 16) | ((((*src & 0x3E0) >> 5) << 3) << 8) | ((((*src & 0x7C00) >> 10) << 3));
 				}
 			}
