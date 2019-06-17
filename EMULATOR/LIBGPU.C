@@ -53,6 +53,22 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
 	Emulator_CheckTextureIntersection(rect);
 
+#if 0
+	unsigned short* clearImageData = new unsigned short[(rect->w * rect->h) * INTERNAL_RESOLUTION_SCALE];
+	unsigned int* pixel = (unsigned int*)&clearImageData[0];
+
+	for (int xy = 0; xy < (rect->w * rect->h) * INTERNAL_RESOLUTION_SCALE; xy += 2)
+	{
+		*pixel++ = ((1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3))) << 16) | (1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3)));
+	}
+
+	glBindTexture(GL_TEXTURE_2D, vramTexture);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &clearImageData[0]);
+
+	Emulator_SaveVRAM("VRAM6.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, FALSE);
+
+	delete[] clearImageData;
+#else
 	for (int y = rect->y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
 	{
 		unsigned int* pixel = (unsigned int*)& vram[(y * VRAM_WIDTH)];
@@ -66,6 +82,9 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 		}
 	}
 
+	glBindTexture(GL_TEXTURE_2D, vramTexture);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[1]);
+#endif
 	return 0;
 }
 
