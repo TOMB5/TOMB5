@@ -55,14 +55,13 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 
 	for (int y = rect->y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
 	{
+		unsigned int* pixel = (unsigned int*)& vram[(y * VRAM_WIDTH)];
 		for (int x = rect->x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x += 2)
 		{
-			unsigned int* pixel = (unsigned int*)&vram[(y * VRAM_WIDTH + x)];
-
 			if (x >= rect->x * INTERNAL_RESOLUTION_SCALE && x < (rect->x + rect->w) * INTERNAL_RESOLUTION_SCALE &&
 				y >= rect->y * INTERNAL_RESOLUTION_SCALE && y < (rect->y + rect->h) * INTERNAL_RESOLUTION_SCALE)
 			{
-				pixel[0] = ((1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3))) << 16) | (1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3)));
+				*pixel++ = ((1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3))) << 16) | (1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3)));
 			}
 		}
 	}

@@ -766,14 +766,14 @@ void Emulator_GenerateFrameBufferTexture()
 	//Read disp env area from vram
 	for (int y = (activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE); y < VRAM_HEIGHT; y++)
 	{
+		unsigned int* src = (unsigned int*)& vram[(y * VRAM_WIDTH)];
+
 		for (int x = (activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE); x < VRAM_WIDTH; x += 2)
 		{
-			unsigned int* src = (unsigned int*)&vram[(y * VRAM_WIDTH + x)];
-			
 			if (x >= (activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE) && x < (activeDrawEnv.clip.x + activeDrawEnv.clip.w) * INTERNAL_RESOLUTION_SCALE &&
 				y >= (activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE) && y < (activeDrawEnv.clip.y + activeDrawEnv.clip.h) * INTERNAL_RESOLUTION_SCALE)
 			{
-				*dst++ = *src;
+				*dst++ = *src++;
 			}
 		}
 	}
@@ -1031,10 +1031,10 @@ void Emulator_DestroyLastVRAMTexture()
 
 	for (int y = activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE; y < (activeDrawEnv.clip.y + activeDrawEnv.clip.h) * INTERNAL_RESOLUTION_SCALE; y++)
 	{
+		unsigned int* src = (unsigned int*)& vram[(y * VRAM_WIDTH)];
 		for (int x = activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE; x < (activeDrawEnv.clip.x + activeDrawEnv.clip.w) * INTERNAL_RESOLUTION_SCALE; x += 2)
 		{
-			unsigned int* src = (unsigned int*)&vram[(y * VRAM_WIDTH + x)];
-			*src = *dst++;
+			*src++ = *dst++;
 		}
 	}
 
