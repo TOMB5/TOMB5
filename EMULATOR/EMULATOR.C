@@ -1026,16 +1026,15 @@ void Emulator_DestroyLastVRAMTexture()
 {
 	/*Read from frame buffer and send to VRAM*/
 	unsigned short* pixelData = new unsigned short[(activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE) * (activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE)];
-	unsigned short* dst = &pixelData[0];
+	unsigned int* dst = (unsigned int*)&pixelData[0];
 	glReadPixels(0, 0, activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
 
 	for (int y = activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE; y < (activeDrawEnv.clip.y + activeDrawEnv.clip.h) * INTERNAL_RESOLUTION_SCALE; y++)
 	{
-		for (int x = activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE; x < (activeDrawEnv.clip.x + activeDrawEnv.clip.w) * INTERNAL_RESOLUTION_SCALE; x++)
+		for (int x = activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE; x < (activeDrawEnv.clip.x + activeDrawEnv.clip.w) * INTERNAL_RESOLUTION_SCALE; x += 2)
 		{
-			unsigned short* src = vram + (y * VRAM_WIDTH + x);
-
-			src[0] = *dst++;
+			unsigned int* src = (unsigned int*)&vram[(y * VRAM_WIDTH + x)];
+			*src = *dst++;
 		}
 	}
 
