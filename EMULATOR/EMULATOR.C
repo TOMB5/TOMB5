@@ -761,19 +761,19 @@ void Emulator_GenerateFrameBuffer(GLuint& fbo)
 void Emulator_GenerateFrameBufferTexture()
 {
 	unsigned short* pixelData = new unsigned short[(activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE) * (activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE)];
-	unsigned short* dst = &pixelData[0];
+	unsigned int* dst = (unsigned int*)&pixelData[0];
 
 	//Read disp env area from vram
 	for (int y = (activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE); y < VRAM_HEIGHT; y++)
 	{
-		for (int x = (activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE); x < VRAM_WIDTH; x++)
+		for (int x = (activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE); x < VRAM_WIDTH; x += 2)
 		{
-			unsigned short* src = vram + (y * VRAM_WIDTH + x);
+			unsigned int* src = (unsigned int*)&vram[(y * VRAM_WIDTH + x)];
 			
 			if (x >= (activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE) && x < (activeDrawEnv.clip.x + activeDrawEnv.clip.w) * INTERNAL_RESOLUTION_SCALE &&
 				y >= (activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE) && y < (activeDrawEnv.clip.y + activeDrawEnv.clip.h) * INTERNAL_RESOLUTION_SCALE)
 			{
-				*dst++ = src[0];
+				*dst++ = *src;
 			}
 		}
 	}
