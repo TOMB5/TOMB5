@@ -59,8 +59,8 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 		{
 			unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
 
-			if (x >= rect->x * INTERNAL_RESOLUTION_SCALE && x < rect->x + rect->w * INTERNAL_RESOLUTION_SCALE &&
-				y >= rect->y * INTERNAL_RESOLUTION_SCALE && y < rect->y + rect->h * INTERNAL_RESOLUTION_SCALE)
+			if (x >= rect->x * INTERNAL_RESOLUTION_SCALE && x < (rect->x + rect->w) * INTERNAL_RESOLUTION_SCALE &&
+				y >= rect->y * INTERNAL_RESOLUTION_SCALE && y < (rect->y + rect->h) * INTERNAL_RESOLUTION_SCALE)
 			{
 				pixel[0] = 1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3));
 			}
@@ -104,7 +104,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 #if _DEBUG
 	FILE* f = fopen("VRAM.BIN", "wb");
-	fwrite(&vram[0], 1, VRAM_WIDTH * VRAM_HEIGHT * 2, f);
+	fwrite(&vram[0], 1, 1024 * 512 * 2, f);
 	fclose(f);
 #endif
 
@@ -274,6 +274,8 @@ DRAWENV* SetDefDrawEnv(DRAWENV* env, int x, int y, int w, int h)//(F)
 	env->tpage = 10;
 	env->isbg = 0;
 
+	glScissor(env->clip.x, env->clip.y, env->clip.w, env->clip.h);
+
 	return env;
 }
 
@@ -322,11 +324,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glLoadIdentity();
 		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, -1, 1);
 		glViewport(0, 0, VRAM_WIDTH, VRAM_HEIGHT);
-		//glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-		glScaled(INTERNAL_RESOLUTION_SCALE, INTERNAL_RESOLUTION_SCALE, 0.0f);
-		//glScalef(1, 1, -1);
-
+		glScaled(INTERNAL_RESOLUTION_SCALE, INTERNAL_RESOLUTION_SCALE, 1);
+		
+		
 		Emulator_GenerateFrameBuffer(fbo);
 		Emulator_GenerateFrameBufferTexture();
 
@@ -358,7 +358,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			{
 				Emulator_SetBlendMode(blend_mode);
 			}
-
+			
 			switch (pTag->code & ~3)
 			{
 			case 0x0:
@@ -394,6 +394,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				POLY_FT3* poly = (POLY_FT3*)pTag;
 
 				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
+
 				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
 				char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
 				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, true);
@@ -554,7 +555,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 				LINE_F2* poly = (LINE_F2*)pTag;
-				glLineWidth(1);
 				glBegin(GL_LINES);
 
 				glColor3ubv(&poly->r0);
@@ -570,7 +570,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 				LINE_G2* poly = (LINE_G2*)pTag;
-				glLineWidth(1);
 				glBegin(GL_LINES);
 				glColor3ubv(&poly->r0);
 				glVertex2f(poly->x0, poly->y0);

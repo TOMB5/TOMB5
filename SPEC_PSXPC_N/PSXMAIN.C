@@ -40,7 +40,7 @@ void VSyncFunc()//10000(<), 10000(<) (F) (*) (D) (ND)
 
 int psx_main()//10064(<), 10064(<) (F) (*) (D) (ND)
 {
-	Emulator_Init("Tomb Raider: Chronicles", SCREEN_WIDTH, SCREEN_HEIGHT);
+	Emulator_Init("Tomb Raider: Chronicles", SCREEN_WIDTH * INTERNAL_RESOLUTION_SCALE, SCREEN_HEIGHT * INTERNAL_RESOLUTION_SCALE);
 	SetSp(0x801FFFE0);
 	ResetCallback();
 

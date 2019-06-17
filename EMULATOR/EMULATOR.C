@@ -184,7 +184,9 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 #endif
 	SDL_memset(&vram, 0, sizeof(VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short)));
 	
+#if !USE_DDRAW
 	SDL_GL_SetSwapInterval(1);
+#endif
 
 #if CORE_PROF_3_1 || CORE_PROF_3_2
 	Emulator_InitialiseGL();
@@ -535,6 +537,7 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 
 void Emulator_InitialiseGL()
 {
+	glLineWidth(INTERNAL_RESOLUTION_SCALE);
 	glEnable(GL_TEXTURE_2D);
 	memset(&vertices[0].x, 0, sizeof(Vertex) * MAX_NUM_VERTICES);
 	Emulator_GenerateAndBindNullWhite();
@@ -761,14 +764,14 @@ void Emulator_GenerateFrameBufferTexture()
 	unsigned short* dst = &pixelData[0];
 
 	//Read disp env area from vram
-	for (int y = activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
+	for (int y = (activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE); y < VRAM_HEIGHT; y++)
 	{
-		for (int x = activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x++)
+		for (int x = (activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE); x < VRAM_WIDTH; x++)
 		{
 			unsigned short* src = vram + (y * VRAM_WIDTH + x);
-
-			if (x >= activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE && x < activeDrawEnv.clip.x + activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE &&
-				y >= activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE && y < activeDrawEnv.clip.y + activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE)
+			
+			if (x >= (activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE) && x < (activeDrawEnv.clip.x + activeDrawEnv.clip.w) * INTERNAL_RESOLUTION_SCALE &&
+				y >= (activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE) && y < (activeDrawEnv.clip.y + activeDrawEnv.clip.h) * INTERNAL_RESOLUTION_SCALE)
 			{
 				*dst++ = src[0];
 			}
@@ -827,11 +830,16 @@ GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY, uns
 
 void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent)
 {
+#if _DEBUG
+	glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+	return;
+#endif
+
 	unsigned int textureType = (tpage >> 7) & 0x3;
-	unsigned int tpageX = INTERNAL_RESOLUTION_SCALE * ((tpage << 6) & 0x7C0 % 1024);
-	unsigned int tpageY = INTERNAL_RESOLUTION_SCALE * (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200));
-	unsigned int clutX = INTERNAL_RESOLUTION_SCALE * ((clut & 0x3F) << 4);
-	unsigned int clutY = INTERNAL_RESOLUTION_SCALE * (clut >> 6);
+	unsigned int tpageX = ((tpage << 6) & 0x7C0 % 1024);
+	unsigned int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200));
+	unsigned int clutX = ((clut & 0x3F) << 4);
+	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
 
 	Emulator_SetBlendMode(tpageAbr);
@@ -1011,15 +1019,15 @@ void Emulator_DestroyLastVRAMTexture()
 {
 	/*Read from frame buffer and send to VRAM*/
 	unsigned short* pixelData = new unsigned short[(activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE) * (activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE)];
-	unsigned int* dst = (unsigned int*)&pixelData[0];
-
+	unsigned short* dst = &pixelData[0];
 	glReadPixels(0, 0, activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
 
-	for (int y = activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE; y < activeDrawEnv.clip.y + activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE; y++)
+	for (int y = activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE; y < (activeDrawEnv.clip.y + activeDrawEnv.clip.h) * INTERNAL_RESOLUTION_SCALE; y++)
 	{
-		for (int x = activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE; x < (activeDrawEnv.clip.x + activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE); x+=2)
+		for (int x = activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE; x < (activeDrawEnv.clip.x + activeDrawEnv.clip.w) * INTERNAL_RESOLUTION_SCALE; x++)
 		{
-			unsigned int* src = (unsigned int*)&vram[(y * VRAM_WIDTH + x)];
+			unsigned short* src = vram + (y * VRAM_WIDTH + x);
+
 			src[0] = *dst++;
 		}
 	}
