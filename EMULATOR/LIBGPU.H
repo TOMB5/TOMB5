@@ -756,7 +756,6 @@ extern void GetDrawArea(DR_AREA *p);
 extern void GetDrawOffset(DR_OFFSET *p);
 extern void GetDrawEnv2(DR_ENV *p);
 
-extern unsigned short vram[];
 extern DISPENV word_33BC;
 extern DRAWENV activeDrawEnv;
 

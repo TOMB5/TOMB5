@@ -34,17 +34,22 @@ int VSync(int mode)
 		{
 			vsync_callback();
 		}
-	}
 
-	while (mode-- >= 0)
-	{
-#if _WINDOWS && USE_DDRAW
 		pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
-#endif
-		if (!assetsLoaded)///@FIXME dirty hack that fixes emulator lag.
+		Emulator_EndScene();
+	}
+	else if (mode > 0)
+	{
+		while (mode--)
 		{
-			Emulator_EndScene();
+			pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
 		}
+		Emulator_EndScene();
+	}
+	else if (mode < 0)
+	{
+		//Unimplemented
+		return 7;
 	}
 
 	return 0;

@@ -18,7 +18,6 @@
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 
-unsigned short vram[VRAM_WIDTH * VRAM_HEIGHT];
 DISPENV word_33BC;
 DRAWENV activeDrawEnv;
 DRAWENV byte_9CCA4;
@@ -51,40 +50,11 @@ void* off_3348[]=
 
 int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 	Emulator_CheckTextureIntersection(rect);
-
-#if 0
-	unsigned short* clearImageData = new unsigned short[(rect->w * rect->h) * INTERNAL_RESOLUTION_SCALE];
-	unsigned int* pixel = (unsigned int*)&clearImageData[0];
-
-	for (int xy = 0; xy < (rect->w * rect->h) * INTERNAL_RESOLUTION_SCALE; xy += 2)
-	{
-		*pixel++ = ((1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3))) << 16) | (1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3)));
-	}
-
-	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &clearImageData[0]);
-
-	Emulator_SaveVRAM("VRAM6.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, FALSE);
-
-	delete[] clearImageData;
-#else
-	for (int y = rect->y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
-	{
-		unsigned int* pixel = (unsigned int*)& vram[(y * VRAM_WIDTH)];
-		for (int x = rect->x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x += 2)
-		{
-			if (x >= rect->x * INTERNAL_RESOLUTION_SCALE && x < (rect->x + rect->w) * INTERNAL_RESOLUTION_SCALE &&
-				y >= rect->y * INTERNAL_RESOLUTION_SCALE && y < (rect->y + rect->h) * INTERNAL_RESOLUTION_SCALE)
-			{
-				*pixel++ = ((1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3))) << 16) | (1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3)));
-			}
-		}
-	}
-
-	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[1]);
-#endif
+	glClearColor(r/255.0f, g/255.0f, b/255.0f, 1.0f);
+	glScissor(rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE);
+	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	return 0;
 }
 
@@ -95,36 +65,51 @@ int DrawSync(int mode)
 		drawsync_callback();
 	}
 
-	glFinish();
-
 	return 0;
 }
 
 int LoadImagePSX(RECT16* rect, u_long* p)
 {
+	glScissor(rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE);
 	Emulator_CheckTextureIntersection(rect);
 
-	unsigned int* dst = (unsigned int*)p;
+	GLuint srcTexture;
+	GLuint srcFrameBuffer;
 
-	for (int y = rect->y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
+	glGenTextures(1, &srcTexture);
+	glBindTexture(GL_TEXTURE_2D, srcTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	/* Generate src Frame Buffer */
+	glGenFramebuffers(1, &srcFrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
+
+	/* Bind src texture to src framebuffer */
+#if CORE_PROF_3_1
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
+#elif CORE_PROF_3_2
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
+#endif
+
+#if CORE_PROF_3_1 || CORE_PROF_3_2
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		for (int x = rect->x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x += 2)
-		{
-			unsigned int* src = (unsigned int*)&vram[(y * VRAM_WIDTH + x)];
-
-			if (x >= rect->x * INTERNAL_RESOLUTION_SCALE && x < rect->x + rect->w * INTERNAL_RESOLUTION_SCALE &&
-				y >= rect->y * INTERNAL_RESOLUTION_SCALE && y < rect->y + rect->h * INTERNAL_RESOLUTION_SCALE)
-			{
-				*src = *dst++;
-			}
-		}
+		eprinterr("Frame buffer error");
 	}
+#endif
 
 #if _DEBUG
-	FILE* f = fopen("VRAM.BIN", "wb");
-	fwrite(&vram[0], 1, 1024 * 512 * 2, f);
-	fclose(f);
+	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, TRUE);
 #endif
+
+	glDisable(GL_DEPTH_TEST);
+	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+	glBlitNamedFramebuffer(srcFrameBuffer, vramFrameBuffer, 0, 0, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->x + rect->w * INTERNAL_RESOLUTION_SCALE, rect->y + rect->h * INTERNAL_RESOLUTION_SCALE, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+	glDeleteTextures(1, &srcTexture);
+	Emulator_DestroyFrameBuffer(srcFrameBuffer);
 
 	return 0;
 }
@@ -135,13 +120,13 @@ int MoveImage(RECT16* rect, int x, int y)
 	{
 		for (int sx = rect->x * INTERNAL_RESOLUTION_SCALE; sx < VRAM_WIDTH; sx++)
 		{
-			unsigned short* src = vram + (sy * VRAM_WIDTH + sx);
-			unsigned short* dst = vram + (y * VRAM_WIDTH + x);
+			//unsigned short* src = vram + (sy * VRAM_WIDTH + sx);
+			//unsigned short* dst = vram + (y * VRAM_WIDTH + x);
 
 			if (sx >= rect->x * INTERNAL_RESOLUTION_SCALE && sx < rect->x + rect->w * INTERNAL_RESOLUTION_SCALE &&
 				sy >= rect->y * INTERNAL_RESOLUTION_SCALE && sy < rect->y + rect->h * INTERNAL_RESOLUTION_SCALE)
 			{
-				*dst++ = *src++;
+				//*dst++ = *src++;
 			}
 		}
 	}
@@ -166,9 +151,9 @@ int StoreImage(RECT16* rect, u_long * p)
 	{
 		for (int x = rect->x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x++)
 		{
-			unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
+			//unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
 			unsigned short* dst = (unsigned short*)p + (y * VRAM_WIDTH + x);
-			dst = pixel;
+			//dst = pixel;
 		}
 	}
 	return 0;
@@ -292,8 +277,6 @@ DRAWENV* SetDefDrawEnv(DRAWENV* env, int x, int y, int w, int h)//(F)
 	env->tpage = 10;
 	env->isbg = 0;
 
-	glScissor(env->clip.x, env->clip.y, env->clip.w, env->clip.h);
-
 	return env;
 }
 
@@ -332,21 +315,18 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 	if (env->isbg)
 	{
-		ClearImage(&env->clip, env->b0, env->g0, env->r0);
+		ClearImage(&env->clip, env->r0, env->g0, env->b0);
 	}
-
-	GLuint fbo = 0;
 
 	if (p != NULL)
 	{
 		glLoadIdentity();
 		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, -1, 1);
-		glViewport(0, 0, VRAM_WIDTH, VRAM_HEIGHT);
+		glViewport(activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		glScaled(INTERNAL_RESOLUTION_SCALE, INTERNAL_RESOLUTION_SCALE, 1);
 		glEnableClientState(GL_VERTEX_ARRAY);
-		
-		Emulator_GenerateFrameBuffer(fbo);
-		Emulator_GenerateFrameBufferTexture();
+		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+		glScissor(activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE);
 
 		P_TAG* pTag = (P_TAG*)p;
 
@@ -799,12 +779,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #endif
 
 		glDisableClientState(GL_VERTEX_ARRAY);
-		Emulator_DestroyLastVRAMTexture();
-		Emulator_DeleteFrameBufferTexture();
 
 		glViewport(0, 0, windowWidth, windowHeight);
-
-		Emulator_DestroyFrameBuffer(fbo);
 	}
 
 	Emulator_CheckTextureIntersection(&env->clip);

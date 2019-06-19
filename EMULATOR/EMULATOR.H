@@ -15,12 +15,19 @@
 #endif
 #include <LIBGPU.H>
 
+#define D3D9 (0)
+#define CORE_PROF_3_1 (1)
+#define CORE_PROF_3_2 (0)
+
 #define INTERNAL_RESOLUTION_SCALE (1)
 #define VRAM_WIDTH (1024 * INTERNAL_RESOLUTION_SCALE)
 #define VRAM_HEIGHT (512 * INTERNAL_RESOLUTION_SCALE)
 
 #define TPAGE_WIDTH (256)
 #define TPAGE_HEIGHT (256)
+
+#define CLUT_WIDTH (16)
+#define CLUT_HEIGHT (1)
 
 #define CTR_RUNNING (0)
 #define CTR_STOPPED (1)
@@ -78,11 +85,8 @@ extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int widt
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
 extern void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent);
-extern void Emulator_DestroyLastVRAMTexture();
 extern void Emulator_DestroyFrameBuffer(GLuint& fbo);
 extern void Emulator_GenerateFrameBuffer(GLuint& fbo);
-extern void Emulator_GenerateFrameBufferTexture();
-extern void Emulator_DeleteFrameBufferTexture();
 extern void Emulator_GenerateAndBindNullWhite();
 extern void Emulator_CheckTextureIntersection(RECT16* rect);
 extern void Emulator_SetBlendMode(int mode);

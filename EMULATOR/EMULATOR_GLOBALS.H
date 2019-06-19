@@ -46,9 +46,8 @@ extern int(*printf_)(const char * format, ...);
 
 #define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
 
-extern GLuint vramTexture;
 extern GLuint nullWhiteTexture;
-
+extern GLuint vramFrameBuffer;
 extern int screenWidth;
 extern int screenHeight;
 extern int windowWidth;
