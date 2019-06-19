@@ -34,15 +34,18 @@ int VSync(int mode)
 		{
 			vsync_callback();
 		}
-
+#if USE_DDRAW
 		pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+#endif
 		Emulator_EndScene();
 	}
 	else if (mode > 0)
 	{
 		while (mode--)
 		{
+#if USE_DDRAW
 			pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+#endif
 		}
 		Emulator_EndScene();
 	}
