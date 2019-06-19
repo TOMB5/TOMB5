@@ -58,7 +58,7 @@ struct Sector
 
 CdlFILE* CdSearchFile(CdlFILE* fp, char* name)
 {
-	memset(fp, 0, sizeof(CdlFILE));
+	SDL_memset(fp, 0, sizeof(CdlFILE));
 
 	if (name[0] == '\\')
 	{
@@ -226,7 +226,7 @@ int CdSync(int mode, u_char * result)
 
 int CdInit(void)
 {
-	memset(&comQueue, 0, sizeof(comQueue));
+	SDL_memset(&comQueue, 0, sizeof(comQueue));
 	currentSector = 0;
 	openFile = fopen(DISC_IMAGE_FILENAME, "rb");
 
