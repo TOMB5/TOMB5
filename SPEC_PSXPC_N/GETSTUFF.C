@@ -19,7 +19,51 @@ long MULFP(long A, long B)
 
 char GetDoor(struct FLOOR_INFO* floor)
 {
-	return 0;
+	short* fd;//a0
+	short at;
+	int v1;
+
+	if (!floor->index)
+	{
+		return -1;
+	}
+
+	fd = &floor_data[floor->index];
+	v1 = floor_data[floor->index];
+
+	at = *fd++ & 0x1F;
+
+	if ((at & 0x1F) == 2 || at - 7 < 2 || at - 11 < 4)
+	{
+		if ((v1 & 0x8000))
+		{
+			return -1;
+		}
+
+		v1 = fd[1];
+		fd += 2;
+		at = v1 & 0x1F;
+	}
+
+	//loc_78828
+	if (at == 3 || at - 9 < 2 || at - 15 < 4)
+	{
+		if ((v1 & 0x8000))
+		{
+			return -1;
+		}
+
+		v1 = fd[1];
+		fd += 2;
+	}
+
+	//loc_7885C
+	if ((v1 & 0x1F) != 1)
+	{
+		return -1;
+	}
+
+	return fd[0];
 }
 
 int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
@@ -325,7 +369,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	FLOOR_INFO* f;//s0
 	short* fd;//s1
 	short value;
-#if PSXENGINE
+#if 0
 	//s0 = floor
 	//s3 = x
 	OnObject = 0;
