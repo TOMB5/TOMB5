@@ -15,6 +15,10 @@ typedef unsigned int uintptr_t;
 #include <stdint.h>
 #endif
 
+#if PSX_VERSION || PSXPC_VERSION || SAT_VERSION || PS2_VERSION
+#include "GETSTUFF.H"
+#endif
+
 void SaveRope()// (F)
 {
 	WriteSG((char*)&Ropes[lara.RopePtr], sizeof(struct ROPE_STRUCT));

@@ -16,6 +16,7 @@
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 	#include "MISC.H"
 	#include "BUBBLES.H"
+	#include "GETSTUFF.H"
 #endif
 
 short SPDETyoffs[8] =

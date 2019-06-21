@@ -7,6 +7,7 @@
 #include "3D_GEN.H"
 #include "BUBBLES.H"
 #include "LIGHT.H"
+#include "GETSTUFF.H"
 #endif
 #if PC_VERSION
 #include "GLOBAL.H"

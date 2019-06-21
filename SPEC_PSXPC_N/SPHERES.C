@@ -3,6 +3,7 @@
 #include "DRAW.H"
 #include "CONTROL.H"
 #include "SPECIFIC.H"
+#include "GETSTUFF.H"
 
 int GetSpheres(struct ITEM_INFO* item, struct SPHERE* sptr, int worldspace)
 {

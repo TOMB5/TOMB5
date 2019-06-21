@@ -66,6 +66,7 @@
 #if DEBUG_VERSION
 #include <LIBETC.H>
 #endif
+#include "GETSTUFF.H"
 
 #include <LIBSN.H>
 
