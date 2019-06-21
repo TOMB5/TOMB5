@@ -225,9 +225,9 @@ extern void AddRoomFlipItems(struct room_info* r);
 #if PC_VERSION || PSXPC_VERSION
 extern int IsRoomOutside(long x, long y, long z);
 #endif
-extern short GetDoor(struct FLOOR_INFO* floor);
 extern int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 #if PC_VERSION
+extern short GetDoor(struct FLOOR_INFO* floor);
 extern int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 #endif
