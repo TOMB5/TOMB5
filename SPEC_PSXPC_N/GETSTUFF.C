@@ -1,5 +1,6 @@
 #include "GETSTUFF.H"
 
+#include "ROOMLOAD.H"
 #include "SPECIFIC.H"
 
 long DIVFP(long A, long B)
@@ -32,7 +33,44 @@ int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 
 long CheckNoColFloorTriangle(struct FLOOR_INFO* floor, long x, long z)
 {
-	return 0;
+	x &= 0x3FF;
+	if (!(floor->index))
+	{
+		return 0;
+	}
+
+	z &= 0x3FF;
+
+	if ((floor_data[floor->index] & 0x1F) - 11 > 3)
+	{
+		return 0;
+	}
+
+	//v0 = 0x400//1024?
+	if ((floor_data[floor->index] & 0x1F) == 11 && (1024 - z) > x)
+	{
+		return -1;
+	}
+
+	//loc_78C24
+	if ((floor_data[floor->index] & 0x1F) == 12 && (1024 - z) < x)
+	{
+		return -1;
+	}
+
+	//loc_78C40
+	if ((floor_data[floor->index] & 0x1F) == 13 && z > x)
+	{
+		return -1;
+	}
+
+	//loc_78C54
+	if ((floor_data[floor->index] & 0x1F) == 14 && z < x)
+	{
+		return -1;
+	}
+
+	return 1;
 }
 
 long CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, long x, long z)
