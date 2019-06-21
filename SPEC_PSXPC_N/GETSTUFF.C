@@ -164,7 +164,7 @@ long CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, long x, long z)
 
 struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 {
-	struct room_info* room = NULL;
+	struct room_info* r = NULL;
 	struct FLOOR_INFO* floor = NULL;
 	int v1;
 	int dz;
@@ -175,23 +175,23 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 	int v0;
 
 loc_78974:
-	room = &room[*room_number];
+	r = &room[*room_number];
 
-	dz = ((z - room->z) >> 10);
-	dx = ((x - room->x) >> 10);
+	dz = ((z - r->z) >> 10);
+	dx = ((x - r->x) >> 10);
 
 	if (dz > 0)
 	{
 		//loc_789B4
-		if (dz < (room->x_size & 0xFFFF) - 1)
+		if (dz < (r->x_size & 0xFFFF) - 1)
 		{
 			//loc_789EC
 			if (dx >= 0)
 			{
 				//loc_789FC
-				if (dx > (room->x_size >> 16))
+				if (dx > (r->x_size >> 16))
 				{
-					v1 = (room->x_size & 0xFFFF) - 1;
+					v1 = (r->x_size & 0xFFFF) - 1;
 				}
 			}
 			else
@@ -204,11 +204,11 @@ loc_78974:
 			dz = a0;
 			//loc_789CC
 			//loc_789D4
-			a0 = (room->x_size >> 16) - 2;
+			a0 = (r->x_size >> 16) - 2;
 
-			if ((room->x_size >> 16) - 2 < dx)
+			if ((r->x_size >> 16) - 2 < dx)
 			{
-				v1 = (room->x_size >> 16) - 2;
+				v1 = (r->x_size >> 16) - 2;
 			}
 		}
 		else
@@ -221,11 +221,11 @@ loc_78974:
 	{
 		dz = 0;
 		//loc_789D4
-		a0 = (room->x_size >> 16) - 2;
+		a0 = (r->x_size >> 16) - 2;
 
-		if ((room->x_size >> 16) - 2 < dx)
+		if ((r->x_size >> 16) - 2 < dx)
 		{
-			v1 = (room->x_size >> 16) - 2;
+			v1 = (r->x_size >> 16) - 2;
 		}
 	}
 	else
@@ -233,7 +233,7 @@ loc_78974:
 		v1 = 1;
 	}
 
-	floor = &room->floor[dz + (v1 * (room->x_size & 0xFFFF))];
+	floor = &r->floor[dz + (v1 * (r->x_size & 0xFFFF))];
 	door = GetDoor(floor);
 
 	//v1 = door
@@ -268,8 +268,8 @@ loc_78A68:
 		}
 		//loc_78AAC
 		*room_number = floor->pit_room;
-		room = &room[floor->pit_room];
-		floor = &room->floor[((z - room->z) >> 10) + room->x * ((x - room->x) >> 10)];
+		r = &room[floor->pit_room];
+		floor = &room->floor[((z - r->z) >> 10) + r->x * ((x - r->x) >> 10)];
 
 		if (y < floor->floor << 8)
 		{
@@ -306,8 +306,8 @@ loc_78A68:
 
 		//loc_78B60
 		*room_number = floor->sky_room;
-		room = &room[floor->sky_room];
-		floor = &room->floor[((z - room->z) >> 10) + ((x - room->x) >> 10) * room->x_size];
+		r = &room[floor->sky_room];
+		floor = &r->floor[((z - r->z) >> 10) + ((x - r->x) >> 10) * r->x_size];
 	}
 
 	return floor;
