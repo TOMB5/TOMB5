@@ -119,91 +119,66 @@ long CheckNoColFloorTriangle(struct FLOOR_INFO* floor, long x, long z)//(F)
 	return 1;
 }
 
-long CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, long x, long z)
+long CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, long x, long z)//(F)
 {
-	//v1 = floor->index
+	int at;
+	int a0;
+	short* v1;
+
 	x &= 0x3FF;
 
 	if (!floor->index)
 	{
 		return 0;
 	}
-	//at = &floor_data
-	//v1 = &floor_data[floor->index]
-	//a0 = floor_data[floor->index]
+
+	v1 = &floor_data[floor->index];
+	a0 = floor_data[floor->index];
 
 	z &= 0x3FF;
 
-	//at = (floor_data[floor->index] & 0x1F)
+	at = (floor_data[floor->index] & 0x1F);
 
-	//v0 = (floor_data[floor->index] & 0x1F) - 7
-	if ((floor_data[floor->index] & 0x1F) != 2)
+	if (at == 2 && at - 7 > 1 && at - 11 < 4)
 	{
+		//loc_788C0
+		if ((a0 & 0x8000))
+		{
+			return 0;
+		}
 
+		a0 = v1[2];
+	}
+	//loc_788D4
+	at = a0 & 0x1F;//v1
+
+	if (at - 15 > 14)
+	{
+		return 0;
 	}
 
-#if 0
-								 li      v0, 2
-								 beq     at, v0, loc_788C0
-								 addiu   v0, at, -7
-								 sltiu   v0, v0, 2
-								 bnez    v0, loc_788C0
-								 addiu   v0, at, -0xB
-								 sltiu   v0, v0, 4
-								 beqz    v0, loc_788D4
+	if (at == 15 && (1024 - z) > x)
+	{
+		return -1;
+	}
 
-								 loc_788C0 :
-							 andi    at, a0, 0x8000
-								 bnez    at, locret_7894C
-								 move    v0, zero
-								 lhu     a0, 4(v1)
-								 nop
+	//loc_78904
+	if (at == 16 && 1024 - z < x)
+	{
+		return -1;
+	}
 
-								 loc_788D4 :
-							 andi    v1, a0, 0x1F
-								 addiu   v0, v1, -0xF
-								 sltiu   v0, v0, 4
-								 beqz    v0, locret_7894C
-								 move    v0, zero
-								 li      v0, 0xF
-								 bne     v1, v0, loc_78904
-								 li      v0, 0x400
-								 subu    v0, a2
-								 slt     v0, v0, a1
-								 beqz    v0, locret_7894C
-								 li      v0, 0xFFFFFFFF
+	if (at == 17 && z > x)
+	{
+		return -1;
+	}
 
-								 loc_78904:
-							 li      v0, 0x10
-								 bne     v1, v0, loc_78920
-								 li      v0, 0x400
-								 subu    v0, a2
-								 slt     v0, v0, a1
-								 bnez    v0, locret_7894C
-								 li      v0, 0xFFFFFFFF
+	if (at == 18 && z < x)
+	{
+		return -1;
+	}
 
-								 loc_78920:
-							 li      v0, 0x11
-								 bne     v1, v0, loc_78934
-								 slt     v0, a2, a1
-								 beqz    v0, locret_7894C
-								 li      v0, 0xFFFFFFFF
-
-								 loc_78934 :
-								 li      v0, 0x12
-								 bne     v1, v0, loc_78948
-								 slt     v0, a2, a1
-								 bnez    v0, locret_7894C
-								 li      v0, 0xFFFFFFFF
-
-								 loc_78948 :
-								 li      v0, 1
-
-								 locret_7894C :
-								 jr      ra
-								 nop
-#endif
-	return 0;
+	return 1;
 }
 
 struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
@@ -324,10 +299,14 @@ loc_78A68:
 
 	}//loc_78BB0
 
-	//loc_78B1C
-
-	while (y < floor->ceiling << 8)
+	if (y > floor->ceiling << 8)
 	{
+		return floor;
+	}
+
+	do
+	{
+		//loc_78B1C
 		if (floor->sky_room == -1)
 		{
 			return floor;
@@ -349,10 +328,11 @@ loc_78A68:
 		}
 
 		//loc_78B60
-		*room_number = floor->sky_room;
+		*room_number = floor->sky_room;///@FIXME illegal room number, reporting 255 here
 		r = &room[floor->sky_room];
-		floor = &r->floor[((z - r->z) >> 10) + ((x - r->x) >> 10) * r->x_size];
-	}
+		floor = &r->floor[(((z - r->z) >> 10) + ((x - r->x) >> 10)) * r->x_size];
+	
+	} while (y < floor->ceiling << 8);
 
 	return floor;
 }
