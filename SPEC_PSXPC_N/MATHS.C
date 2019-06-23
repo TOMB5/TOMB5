@@ -1610,3 +1610,32 @@ void iTranslateXYZ(long x, long y, long z)//77090 (F)
 {
 	iTranslateXYZ2(x, y, z, x, y, z);
 }
+
+long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*$a2*/)//8582C
+{
+	struct ANIM_STRUCT* anim;
+	int t1;
+	int t2;
+
+	anim = &anims[item->anim_number];
+
+	*rate = (anim->interpolation & 0xFF);
+	t1 = (item->frame_number - anim->frame_base) / (anim->interpolation & 0xFF);
+	t2 = (item->frame_number - anim->frame_base) % (anim->interpolation & 0xFF);
+
+	frames[0] = &anim->frame_ptr[t1 * (anim->interpolation >> 8)];
+	frames[1] = &anim->frame_ptr[(t1 * (anim->interpolation >> 8)) + (anim->interpolation >> 8)];
+
+	if (t2 == 0)
+	{
+		return 0;
+	}
+
+	//loc_8589C
+	if (anim->frame_end < (t1 * (anim->interpolation & 0xFF)) + (anim->interpolation & 0xFF))
+	{
+		*rate = anim->frame_end - ((t1 * (anim->interpolation & 0xFF)) + (anim->interpolation & 0xFF)) - (anim->interpolation & 0xFF);
+	}
+
+	return t2;
+}
