@@ -651,10 +651,17 @@ void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) TOCHECK
 	return;
 }
 
-//Note: Original code is less optimal than this implementation.
-void mCopyMatrix(struct MATRIX3D* m)//769E4(<), 78A28(<) (F) TOCHECK
+void mCopyMatrix(struct MATRIX3D* m)//769E4(<), 78A28(<) (F)
 {
-	UNIMPLEMENTED();
+	TRX = ((int*)m)[5];
+	TRY = ((int*)m)[6];
+	TRZ = ((int*)m)[7];
+
+	((int*)Matrix)[5] = ((int*)m)[5];
+	((int*)Matrix)[6] = ((int*)m)[6];
+	((int*)Matrix)[7] = ((int*)m)[7];
+
+	setrot(Matrix, ((int*)m)[0], ((int*)m)[1], ((int*)m)[2], ((int*)m)[3], ((int*)m)[4]);
 }
 
 void ASM_GetBounds()//76A28
@@ -1240,7 +1247,7 @@ void GetRoomBoundsAsm(short room_number)//77E70(<), 79EB4(<) ///@TODO check if i
 	UNIMPLEMENTED();
 }
 
-void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)//77928
+void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)//77928 (F)
 {
 	int t0, t1, t2;
 
@@ -1287,7 +1294,7 @@ loc_7795C:
 	angles[1] = v0;
 }
 
-void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar, long roll)
+void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar, long roll)//(F)
 {
 	short temp;
 
@@ -1309,7 +1316,7 @@ void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar
 	phd_GenerateW2V(&viewer);
 }
 
-void phd_GenerateW2V(struct PHD_3DPOS* view)
+void phd_GenerateW2V(struct PHD_3DPOS* view)//(F)
 {
 	int t0, t1, t2, t3, t4, t5, t6, v0, v1, a0, a1, a2, a3, at;
 
@@ -1475,4 +1482,167 @@ loc_77A98:
 void mRotBoundingBoxNoPersp(short* bounds, short* tbounds)
 {
 	UNIMPLEMENTED();
+}
+
+void iTranslateXYZ2(short x, short y, short z, short x2, short y2, short z2)//7709C (F)
+{
+	int t0;
+	int t1;
+	int t2;
+	int t3;
+	int t4;
+	int t5;
+	int t6;
+	int a3;
+	int a1;
+	int a2;
+	int t7;
+	int t8;
+
+	mTranslateXYZ(x, y, z);
+
+	t0 = x2 >> 15;
+	if (x2 < 0)
+	{
+		x2 = -x2;
+		t0 = x2 >> 15;
+		x2 &= 0x7FFF;
+		t0 = -t0;
+		x2 = -x2;
+	}
+	else
+	{
+		//loc_770D0
+		x2 &= 0x7FFF;
+	}
+
+	t1 = y2 >> 15;
+	//loc_770D4
+	if (y2 < 0)
+	{
+		y2 = -y2;
+		t1 = y2 >> 15;
+		y2 &= 0x7FFF;
+		t1 = -t1;
+		y2 = -y2;
+	}
+	else
+	{
+		//loc_770F4
+		y2 &= 0x7FFF;
+	}
+
+	t2 = z2 >> 15;
+	if (z2 < 0)
+	{
+		z2 = -z2;
+		t2 = z2 >> 15;
+		z2 &= 0x7FFF;
+		t2 = -t2;
+		z2 = -z2;
+	}
+	else
+	{
+		//loc_77118
+		z2 &= 0x7FFF;
+	}
+
+	IR1 = t0;
+	IR2 = t1;
+	IR3 = t2;
+
+	docop2(0x43E012);
+
+	//v0 = iMatrix
+	t6 = MAC1;
+	a3 = IR1;
+	a1 = IR2;
+	a2 = IR3;
+	t7 = MAC2;
+	t8 = MAC3;
+
+	docop2(0x4BE012);
+
+	t3 = t6 << 3;
+	if (t6 < 0)
+	{
+		t6 = -t6;
+		t6 <<= 3;
+		t3 = -t6;
+	}
+	//loc_77164
+	t4 = t7 << 3;
+	if (t7 < 0)
+	{
+		t7 = -t7;
+		t7 <<= 3;
+		t4 = -t7;
+	}
+	//loc_77178
+	t5 = t8 << 3;
+	if (t8 < 0)
+	{
+		t8 = -t8;
+		t8 <<= 3;
+		t5 = -t8;
+	}
+	
+	//loc_7718C
+	t6 = MAC1;
+	t7 = MAC2;
+	t8 = MAC3;
+
+	t3 += t6;
+	t4 += t7;
+	t5 += t8;
+
+	t0 = RBK;
+	t1 = GBK;
+	t2 = BBK;
+
+	t0 += t3;
+	t1 += t4;
+	t2 += t5;
+
+	RBK = t0;
+	GBK = t1;
+	BBK = t2;
+
+	iMatrix->tx = t0;
+	iMatrix->ty = t1;
+	iMatrix->tz = t2;
+}
+
+void iTranslateXYZ(long x, long y, long z)//77090 (F)
+{
+	iTranslateXYZ2(x, y, z, x, y, z);
+}
+
+long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*$a2*/)//8582C
+{
+	struct ANIM_STRUCT* anim;
+	int t1;
+	int t2;
+
+	anim = &anims[item->anim_number];
+
+	*rate = (anim->interpolation & 0xFF);
+	t1 = (item->frame_number - anim->frame_base) / (anim->interpolation & 0xFF);
+	t2 = (item->frame_number - anim->frame_base) % (anim->interpolation & 0xFF);
+
+	frames[0] = &anim->frame_ptr[t1 * (anim->interpolation >> 8)];
+	frames[1] = &anim->frame_ptr[(t1 * (anim->interpolation >> 8)) + (anim->interpolation >> 8)];
+
+	if (t2 == 0)
+	{
+		return 0;
+	}
+
+	//loc_8589C
+	if (anim->frame_end < (t1 * (anim->interpolation & 0xFF)) + (anim->interpolation & 0xFF))
+	{
+		*rate = anim->frame_end - ((t1 * (anim->interpolation & 0xFF)) + (anim->interpolation & 0xFF)) - (anim->interpolation & 0xFF);
+	}
+
+	return t2;
 }

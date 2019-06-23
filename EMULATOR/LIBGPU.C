@@ -18,7 +18,6 @@
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 
-unsigned short vram[VRAM_WIDTH * VRAM_HEIGHT];
 DISPENV word_33BC;
 DRAWENV activeDrawEnv;
 DRAWENV byte_9CCA4;
@@ -51,22 +50,11 @@ void* off_3348[]=
 
 int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 	Emulator_CheckTextureIntersection(rect);
-
-	for (int y = rect->y; y < VRAM_HEIGHT; y++)
-	{
-		for (int x = rect->x; x < VRAM_WIDTH; x++)
-		{
-			unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
-
-			if (x >= rect->x && x < rect->x + rect->w && 
-				y >= rect->y && y < rect->y + rect->h)
-			{
-				pixel[0] = 1 << 15 | ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3));
-			}
-		}
-	}
-
+	glClearColor(r/255.0f, g/255.0f, b/255.0f, 1.0f);
+	glScissor(rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE);
+	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	return 0;
 }
 
@@ -76,51 +64,69 @@ int DrawSync(int mode)
 	{
 		drawsync_callback();
 	}
+
 	return 0;
 }
 
 int LoadImagePSX(RECT16* rect, u_long* p)
 {
+	glScissor(rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE);
 	Emulator_CheckTextureIntersection(rect);
 
-	unsigned short* dst = (unsigned short*)p;
+	GLuint srcTexture;
+	GLuint srcFrameBuffer;
 
-	for (int y = rect->y; y < VRAM_HEIGHT; y++)
+	glGenTextures(1, &srcTexture);
+	glBindTexture(GL_TEXTURE_2D, srcTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	/* Generate src Frame Buffer */
+	glGenFramebuffers(1, &srcFrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
+
+	/* Bind src texture to src framebuffer */
+#if CORE_PROF_3_1
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
+#elif CORE_PROF_3_2
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
+#endif
+
+#if CORE_PROF_3_1 || CORE_PROF_3_2
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		for (int x = rect->x; x < VRAM_WIDTH; x++)
-		{
-			unsigned short* src = vram + (y * VRAM_WIDTH + x);
-
-			if (x >= rect->x && x < rect->x + rect->w &&
-				y >= rect->y && y < rect->y + rect->h)
-			{
-				src[0] = *dst++;
-			}
-		}
+		eprinterr("Frame buffer error");
 	}
+#endif
 
 #if _DEBUG
-	FILE* f = fopen("VRAM.BIN", "wb");
-	fwrite(&vram[0], 1, 1024 * 512 * 2, f);
-	fclose(f);
+	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, TRUE);
 #endif
+
+	glDisable(GL_DEPTH_TEST);
+	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+	glBlitNamedFramebuffer(srcFrameBuffer, vramFrameBuffer, 0, 0, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->x + rect->w * INTERNAL_RESOLUTION_SCALE, rect->y + rect->h * INTERNAL_RESOLUTION_SCALE, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+	glDeleteTextures(1, &srcTexture);
+	Emulator_DestroyFrameBuffer(srcFrameBuffer);
 
 	return 0;
 }
 
 int MoveImage(RECT16* rect, int x, int y)
 {
-	for (int sy = rect->y; sy < VRAM_HEIGHT; sy++)
+	for (int sy = rect->y * INTERNAL_RESOLUTION_SCALE; sy < VRAM_HEIGHT; sy++)
 	{
-		for (int sx = rect->x; sx < VRAM_WIDTH; sx++)
+		for (int sx = rect->x * INTERNAL_RESOLUTION_SCALE; sx < VRAM_WIDTH; sx++)
 		{
-			unsigned short* src = vram + (sy * VRAM_WIDTH + sx);
-			unsigned short* dst = vram + (y * VRAM_WIDTH + x);
+			//unsigned short* src = vram + (sy * VRAM_WIDTH + sx);
+			//unsigned short* dst = vram + (y * VRAM_WIDTH + x);
 
-			if (sx >= rect->x && sx < rect->x + rect->w &&
-				sy >= rect->y && sy < rect->y + rect->h)
+			if (sx >= rect->x * INTERNAL_RESOLUTION_SCALE && sx < rect->x + rect->w * INTERNAL_RESOLUTION_SCALE &&
+				sy >= rect->y * INTERNAL_RESOLUTION_SCALE && sy < rect->y + rect->h * INTERNAL_RESOLUTION_SCALE)
 			{
-				*dst++ = *src++;
+				//*dst++ = *src++;
 			}
 		}
 	}
@@ -141,13 +147,13 @@ int SetGraphDebug(int level)
 
 int StoreImage(RECT16* rect, u_long * p)
 {
-	for (int y = rect->y; y < VRAM_HEIGHT; y++)
+	for (int y = rect->y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = rect->x; x < VRAM_WIDTH; x++)
+		for (int x = rect->x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x++)
 		{
-			unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
+			//unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
 			unsigned short* dst = (unsigned short*)p + (y * VRAM_WIDTH + x);
-			dst = pixel;
+			//dst = pixel;
 		}
 	}
 	return 0;
@@ -309,19 +315,18 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 	if (env->isbg)
 	{
-		ClearImage(&env->clip, env->b0, env->g0, env->r0);
+		ClearImage(&env->clip, env->r0, env->g0, env->b0);
 	}
 
-	GLuint fbo = 0;
-	
 	if (p != NULL)
 	{
 		glLoadIdentity();
 		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, -1, 1);
-		glViewport(0, 0, VRAM_WIDTH, VRAM_HEIGHT);
-
-		Emulator_GenerateFrameBuffer(fbo);
-		Emulator_GenerateFrameBufferTexture();
+		glViewport(activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
+		glScaled(INTERNAL_RESOLUTION_SCALE, INTERNAL_RESOLUTION_SCALE, 1);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+		glScissor(activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE);
 
 		P_TAG* pTag = (P_TAG*)p;
 
@@ -351,7 +356,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			{
 				Emulator_SetBlendMode(blend_mode);
 			}
-
+			
 			switch (pTag->code & ~3)
 			{
 			case 0x0:
@@ -368,7 +373,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
 				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, false);
 
-				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glEnableClientState(GL_COLOR_ARRAY);
 				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
@@ -377,7 +381,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				glDrawArrays(GL_TRIANGLES, 0, 3);
 				glDisableClientState(GL_COLOR_ARRAY);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
@@ -387,6 +390,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				POLY_FT3* poly = (POLY_FT3*)pTag;
 
 				Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
+
 				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
 				char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
 				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, true);
@@ -413,7 +417,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
 				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, false);
 				
-				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glEnableClientState(GL_COLOR_ARRAY);
 				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
@@ -422,7 +425,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				glDrawArrays(GL_QUADS, 0, 4);
 				glDisableClientState(GL_COLOR_ARRAY);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
@@ -436,14 +438,12 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
 				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2);
 
-				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
 				glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
 				glDrawArrays(GL_QUADS, 0, 4);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
@@ -457,17 +457,14 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
 				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL, false);
 
-				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glEnableClientState(GL_COLOR_ARRAY);
-
 				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
 				glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
 				glColorPointer(4, GL_FLOAT, sizeof(Vertex), colourPointer);
 				glDrawArrays(GL_TRIANGLES, 0, 3);
 				glDisableClientState(GL_COLOR_ARRAY);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
@@ -481,17 +478,14 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u2, NULL);
 				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL, true);
 
-				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glEnableClientState(GL_COLOR_ARRAY);
-
 				glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
 				glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
 				glColorPointer(4, GL_FLOAT, sizeof(Vertex), colourPointer);
 				glDrawArrays(GL_TRIANGLES, 0, 3);
 				glDisableClientState(GL_COLOR_ARRAY);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
@@ -505,7 +499,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
 				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r3, &poly->r2, false);
 
-				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glEnableClientState(GL_COLOR_ARRAY);
 
@@ -515,7 +508,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				glDrawArrays(GL_QUADS, 0, 4);
 				glDisableClientState(GL_COLOR_ARRAY);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glDisableClientState(GL_VERTEX_ARRAY);
 
 				break;
 			}
@@ -529,7 +521,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2);
 				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, &poly->r3, true);
 
-				glEnableClientState(GL_VERTEX_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glEnableClientState(GL_COLOR_ARRAY);
 				
@@ -539,7 +530,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				glDrawArrays(GL_QUADS, 0, 4);
 				glDisableClientState(GL_COLOR_ARRAY);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glDisableClientState(GL_VERTEX_ARRAY);
 				break;
 			}
 			case 0x40: // LINE_F2
@@ -547,7 +537,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 				LINE_F2* poly = (LINE_F2*)pTag;
-				glLineWidth(1);
 				glBegin(GL_LINES);
 
 				glColor3ubv(&poly->r0);
@@ -563,7 +552,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 				LINE_G2* poly = (LINE_G2*)pTag;
-				glLineWidth(1);
 				glBegin(GL_LINES);
 				glColor3ubv(&poly->r0);
 				glVertex2f(poly->x0, poly->y0);
@@ -789,12 +777,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 		}while ((unsigned long)pTag != (unsigned long)&terminator);
 #endif
-		Emulator_DestroyLastVRAMTexture();
-		Emulator_DeleteFrameBufferTexture();
+
+		glDisableClientState(GL_VERTEX_ARRAY);
 
 		glViewport(0, 0, windowWidth, windowHeight);
-
-		Emulator_DestroyFrameBuffer(fbo);
 	}
 
 	Emulator_CheckTextureIntersection(&env->clip);

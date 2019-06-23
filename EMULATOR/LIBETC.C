@@ -17,7 +17,6 @@
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 
-
 void(*vsync_callback)(void) = NULL;
 
 int ResetCallback(void)
@@ -31,16 +30,29 @@ int VSync(int mode)
 {
 	if (mode == 0)
 	{
-#if _WINDOWS && USE_DDRAW
-		pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
-#endif
-		//Executed at start of vblank
 		if (vsync_callback != NULL)
 		{
 			vsync_callback();
 		}
-
+#if USE_DDRAW
+		pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+#endif
 		Emulator_EndScene();
+	}
+	else if (mode > 0)
+	{
+		while (mode--)
+		{
+#if USE_DDRAW
+			pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+#endif
+		}
+		Emulator_EndScene();
+	}
+	else if (mode < 0)
+	{
+		//Unimplemented
+		return 7;
 	}
 
 	return 0;

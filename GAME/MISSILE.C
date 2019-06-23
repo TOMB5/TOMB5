@@ -13,6 +13,7 @@
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #include "FXTRIG.H"
+#include "GETSTUFF.H"
 #endif
 
 

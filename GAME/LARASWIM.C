@@ -16,6 +16,7 @@
 
 #if PSXPC_VERSION || PSX_VERSION || SAT_VERSION
 #include "BUBBLES.H"
+#include "GETSTUFF.H"
 #endif
 
 struct SUBSUIT_INFO subsuit;

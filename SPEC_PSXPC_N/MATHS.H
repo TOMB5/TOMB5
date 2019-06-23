@@ -43,5 +43,8 @@ extern long phd_atan_asm(long x, long y);
 extern long mSqrt(long x);
 extern void mRotBoundingBoxNoPersp(short* bounds, short* tbounds);
 extern void phd_GenerateW2V(struct PHD_3DPOS* view);
+extern void iTranslateXYZ2(short x, short y, short z, short x2, short y2, short z2);
+extern void iTranslateXYZ(long x, long y, long z);
+extern long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*$a2*/);
 
 #endif

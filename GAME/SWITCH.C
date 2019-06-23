@@ -15,7 +15,7 @@
 #ifdef PC_VERSION
 #include "GAME.H"
 #else
-
+#include "GETSTUFF.H"
 #include "SPHERES.H"
 #endif
 

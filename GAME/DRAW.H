@@ -43,7 +43,9 @@ extern short Sback_gun;
 extern short* SRhandPtr;
 extern short* SLhandPtr;
 
+#if PC_VERSION
 extern long GetFrames(struct ITEM_INFO* item, short* frames[], int* rate);
+#endif
 extern void UpdateSkyLightning();
 extern void DrawSkyMesh(short* mesh);
 extern void DrawMoon();

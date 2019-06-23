@@ -10,6 +10,11 @@ get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR}
 #Enable NTSC mode
 OPTIONAL_DEFINE(NTSC_VERSION "Enable/Disable NTSC Mode" ON)
 
+if(MSVC)
+#Enable DDRAW code for VSync
+OPTIONAL_DEFINE(USE_DDRAW "Enable/Disable DDRAW VSync" ON)
+endif()
+
 #Find required libs for PSXPC
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -43,12 +48,12 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE GLEW_STATIC)
 
 #Someone should actually fix these errors at some point
 if(UNIX)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-narrowing")
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wno-narrowing")
-	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wno-narrowing")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-narrowing")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-narrowing")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-narrowing -std=c++11")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wno-narrowing -std=c++11")
+	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wno-narrowing -std=c++11")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing -std=c++11")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-narrowing -std=c++11")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-narrowing -std=c++11")
 endif()
 
 set_target_properties(

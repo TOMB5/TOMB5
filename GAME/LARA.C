@@ -23,6 +23,7 @@
 #include "3D_GEN.H"
 #include "MISC.H"
 #include "MATHS.H"
+#include "GETSTUFF.H"
 #endif
 
 #if PC_VERSION

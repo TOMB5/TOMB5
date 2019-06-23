@@ -59,8 +59,10 @@ ${PLATFORM_SPECIFIC_SRCS}
 BuildPreProcessorDefinitions()
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR UNIX)
+add_dependencies(${PROJECT_NAME} Emulator_)
 set(PSX_LIB libPSX.a)
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+add_dependencies(${PROJECT_NAME} Emulator_Win32)
 set(PSX_LIB PSX.lib)
 endif()
 
