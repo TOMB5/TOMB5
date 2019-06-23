@@ -651,10 +651,17 @@ void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) TOCHECK
 	return;
 }
 
-//Note: Original code is less optimal than this implementation.
-void mCopyMatrix(struct MATRIX3D* m)//769E4(<), 78A28(<) (F) TOCHECK
+void mCopyMatrix(struct MATRIX3D* m)//769E4(<), 78A28(<) (F)
 {
-	UNIMPLEMENTED();
+	TRX = ((int*)m)[5];
+	TRY = ((int*)m)[6];
+	TRZ = ((int*)m)[7];
+
+	((int*)Matrix)[5] = ((int*)m)[5];
+	((int*)Matrix)[6] = ((int*)m)[6];
+	((int*)Matrix)[7] = ((int*)m)[7];
+
+	setrot(Matrix, ((int*)m)[0], ((int*)m)[1], ((int*)m)[2], ((int*)m)[3], ((int*)m)[4]);
 }
 
 void ASM_GetBounds()//76A28
