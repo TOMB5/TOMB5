@@ -28,7 +28,7 @@ struct STASHEDDAT stashed_matrix_list[240];
 unsigned char char_anim;
 unsigned char OurSqrt[1024];
 struct WATERTAB WaterTable[22][64];
-struct MATRIX3D* Matrix;
+struct MATRIX3D* Matrix = &MatrixStack[0];
 
 unsigned short SqrtTable[] =
 {
