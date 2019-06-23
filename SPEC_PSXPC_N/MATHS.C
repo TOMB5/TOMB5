@@ -1240,7 +1240,7 @@ void GetRoomBoundsAsm(short room_number)//77E70(<), 79EB4(<) ///@TODO check if i
 	UNIMPLEMENTED();
 }
 
-void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)//77928
+void phd_GetVectorAngles(long dx, long dy, long dz, short* angles)//77928 (F)
 {
 	int t0, t1, t2;
 
@@ -1287,7 +1287,7 @@ loc_7795C:
 	angles[1] = v0;
 }
 
-void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar, long roll)
+void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar, long roll)//(F)
 {
 	short temp;
 
@@ -1309,7 +1309,7 @@ void phd_LookAt(long xsrc, long ysrc, long zsrc, long xtar, long ytar, long ztar
 	phd_GenerateW2V(&viewer);
 }
 
-void phd_GenerateW2V(struct PHD_3DPOS* view)
+void phd_GenerateW2V(struct PHD_3DPOS* view)//(F)
 {
 	int t0, t1, t2, t3, t4, t5, t6, v0, v1, a0, a1, a2, a3, at;
 
@@ -1477,7 +1477,7 @@ void mRotBoundingBoxNoPersp(short* bounds, short* tbounds)
 	UNIMPLEMENTED();
 }
 
-void iTranslateXYZ2(short x, short y, short z, short x2, short y2, short z2)//7709C
+void iTranslateXYZ2(short x, short y, short z, short x2, short y2, short z2)//7709C (F)
 {
 	int t0;
 	int t1;
@@ -1604,4 +1604,9 @@ void iTranslateXYZ2(short x, short y, short z, short x2, short y2, short z2)//77
 	iMatrix->tx = t0;
 	iMatrix->ty = t1;
 	iMatrix->tz = t2;
+}
+
+void iTranslateXYZ(long x, long y, long z)//77090 (F)
+{
+	iTranslateXYZ2(x, y, z, x, y, z);
 }
