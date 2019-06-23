@@ -30,14 +30,14 @@ int FILE_Load(char* szFileName, void* pDest)//5E528(<), 5E5D8(<) (F) (*) (*) (D)
 	
 	return DEL_CDFS_Read((char*)pDest, fp.size);
 #else
-	int nHandle;
+	unsigned long nHandle;
 	unsigned long dwFileSize;
 	unsigned long dwBytesRead;
 
 	printf("Open\n");
 	nHandle = PCopen(szFileName, 0, 0);
 
-	if (nHandle < 0)
+	if (nHandle == -1)
 	{
 		printf("FILE_Load: '%s' Could not open!\n", szFileName);
 		S_ExitSystem("Can't open file");
@@ -76,13 +76,13 @@ unsigned long FILE_Length(char* szFileName)//5E60C(<), 5E578(<) (F) (*) (*) (D) 
 	}
 
 #else
-	int nHandle;
+	unsigned long nHandle;
 	unsigned long dwFileSize;
 
 	printf("Open\n");
 	nHandle = PCopen(szFileName, 0, 0);
 
-	if (nHandle < 0)
+	if (nHandle == -1)
 	{
 		printf("FILE_Length: '%s' Could not find!\n", szFileName);
 		return -1;
