@@ -1213,8 +1213,9 @@ iRotSuperPackedYXZ:
 
 ;0x77090
 iTranslateXYZ:
-	jr	ra
-	nop
+	move    a3, a0
+	sw      a1, 0x10(sp)
+	sw      a2, 0x14(sp)
 
 ;0x7709C
 iTranslateXYZ2:
