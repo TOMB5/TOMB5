@@ -201,7 +201,7 @@ loc_78974:
 	if (dz > 0)
 	{
 		//loc_789B4
-		if (dz < (r->x_size & 0xFFFF) - 1)
+		if (dz < r->x_size - 1)
 		{
 			//loc_789EC
 			if (dx >= 0)
@@ -209,7 +209,7 @@ loc_78974:
 				//loc_789FC
 				if (dx > (r->y_size))
 				{
-					dx = (r->x_size & 0xFFFF) - 1;
+					dx = r->x_size - 1;
 				}
 			}
 			else
@@ -251,7 +251,7 @@ loc_78974:
 		dx = 1;
 	}
 
-	floor = &r->floor[dz + (dx * (r->x_size & 0xFFFF))];
+	floor = &r->floor[dz + (dx * r->x_size)];
 	door = GetDoor(floor);
 
 	if (door != -1)
@@ -288,7 +288,7 @@ loc_78A68:
 		r = &room[floor->pit_room];
 		floor = &room->floor[((z - r->z) >> 10) + r->x * ((x - r->x) >> 10)];
 
-		if (y < floor->floor << 8)
+		if (y < (floor->floor << 8))
 		{
 			return floor;
 		}
@@ -297,7 +297,7 @@ loc_78A68:
 
 	}//loc_78BB0
 
-	if (y > floor->ceiling << 8)
+	if (y > (floor->ceiling << 8))
 	{
 		return floor;
 	}
@@ -305,7 +305,7 @@ loc_78A68:
 	do
 	{
 		//loc_78B1C
-		if (floor->sky_room == -1)
+		if (floor->sky_room == 255)
 		{
 			return floor;
 		}
@@ -330,7 +330,7 @@ loc_78A68:
 		r = &room[floor->sky_room];
 		floor = &r->floor[(((z - r->z) >> 10) + ((x - r->x) >> 10)) * r->x_size];
 	
-	} while (y < floor->ceiling << 8);
+	} while (y < (floor->ceiling << 8));
 
 	return floor;
 }
