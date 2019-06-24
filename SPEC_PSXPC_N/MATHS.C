@@ -613,17 +613,17 @@ void SetRotation(int t0, int t1, int t2, int t3, int t4)//7696C(<) (F)
 
 void setrot(struct MATRIX3D* m, long t0, long t1, long t2, long t3, long t4)//76970 TOCHECK
 {
-	R11 = t0 >> 16;
-	R12 = t0;
+	R11 = t0 & 0xFFFF;
+	R12 = t0 >> 16;
 	
-	R13 = t1 >> 16;
-	R21 = t1;
+	R13 = t1 & 0xFFFF;
+	R21 = t1 >> 16;
 	
-	R22 = t2 >> 16;
-	R23 = t2;
+	R22 = t2 & 0xFFFF;
+	R23 = t2 >> 16;
 	
-	R31 = t3 >> 16;
-	R32 = t3;
+	R31 = t3 & 0xFFFF;
+	R32 = t3 >> 16;
 
 	R33 = t4;
 
