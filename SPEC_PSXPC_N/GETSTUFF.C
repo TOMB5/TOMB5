@@ -195,7 +195,6 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 
 loc_78974:
 	r = &room[*room_number];
-
 	dz = ((z - r->z) >> 10);
 	dx = ((x - r->x) >> 10);
 
@@ -208,9 +207,9 @@ loc_78974:
 			if (dx >= 0)
 			{
 				//loc_789FC
-				if (dx > (r->x_size >> 16))
+				if (dx > (r->y_size))
 				{
-					v1 = (r->x_size & 0xFFFF) - 1;
+					dx = (r->x_size & 0xFFFF) - 1;
 				}
 			}
 			else
@@ -227,13 +226,13 @@ loc_78974:
 
 			if ((r->x_size >> 16) - 2 < dx)
 			{
-				v1 = (r->x_size >> 16) - 2;
+				dx = (r->x_size >> 16) - 2;
 			}
 		}
 		else
 		{
 			//loc_789CC
-			v1 = 1;
+			dx = 1;
 		}
 	}
 	else if (dx > 0)
@@ -244,18 +243,17 @@ loc_78974:
 
 		if ((r->x_size >> 16) - 2 < dx)
 		{
-			v1 = (r->x_size >> 16) - 2;
+			dx = (r->x_size >> 16) - 2;
 		}
 	}
 	else
 	{
-		v1 = 1;
+		dx = 1;
 	}
 
-	floor = &r->floor[dz + (v1 * (r->x_size & 0xFFFF))];
+	floor = &r->floor[dz + (dx * (r->x_size & 0xFFFF))];
 	door = GetDoor(floor);
 
-	//v1 = door
 	if (door != -1)
 	{
 		*room_number = door;
