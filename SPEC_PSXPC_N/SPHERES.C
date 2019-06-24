@@ -87,7 +87,7 @@ void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joi
 
 				bone += 4;
 
-			} while (joint--);
+			} while (--joint);
 		}
 		//loc_8E9D8
 		mTranslateXYZ(pos->x, pos->y, pos->z);///@FIXME reporting bad matrix here.
