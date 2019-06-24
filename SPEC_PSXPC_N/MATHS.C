@@ -565,18 +565,24 @@ void mRotSuperPackedYXZ(short** a0, long a1)//768BC
 	at = (v0 >> 14);
 	if (at-- != 0)
 	{
-		at--;
 		a0[0] = (short*)a2;
 
-		if (at != 0)
+		if (at-- != 0)
 		{
-			mRotZ((v0 & 0xFFF) << 4);
-			return;
+			if (at == 0)
+			{
+				mRotY((v0 & 0xFFF) << 4);
+				return;
+			}
+			else
+			{
+				mRotZ((v0 & 0xFFF) << 4);
+				return;
+			}
 		}//loc_76914
 
-		mRotY((v0 & 0xFFF) << 4);
 		mRotX((v0 & 0xFFF) << 4);
-
+		return;
 	}//loc_76928
 
 	at = *a2++;
