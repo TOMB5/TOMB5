@@ -44,7 +44,7 @@ void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joi
 	if (frac == 0)
 	{
 		frameptr = &frames[0][9];
-		mTranslateXYZ(frames[0][6], frames[0][7], frames[0][8]);///@FIXME reporting bad matrix here.
+		mTranslateXYZ(frames[0][6], frames[0][7], frames[0][8]);
 		mRotSuperPackedYXZ(&frameptr, 0);
 
 		if (joint > 0)
@@ -65,9 +65,12 @@ void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joi
 				mTranslateXYZ(bone[1], bone[2], bone[3]);
 				mRotSuperPackedYXZ(&frameptr, 0);
 
-				if (item_data != NULL && (*bone & 0x1C) && (*bone & 0x8))
+				if (item_data != NULL && (*bone & 0x1C))
 				{
-					mRotY(*item_data++);
+					if ((*bone & 0x8))
+					{
+						mRotY(*item_data++);
+					}
 
 					//loc_8E9A0
 					if ((*bone & 0x4))
@@ -87,7 +90,7 @@ void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joi
 			} while (joint--);
 		}
 		//loc_8E9D8
-		mTranslateXYZ(pos->x, pos->y, pos->z);
+		mTranslateXYZ(pos->x, pos->y, pos->z);///@FIXME reporting bad matrix here.
 	}
 	else
 	{
