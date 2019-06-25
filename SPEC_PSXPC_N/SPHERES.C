@@ -242,6 +242,7 @@ int IsRoomOutside(long x, long y, long z)//(F)
 		}
 
 		room_number = t0;
+		IsRoomOutsideNo = room_number;
 		floor = GetFloor(x, y, z, &room_number);
 		h = GetHeight(floor, x, y, z);
 
