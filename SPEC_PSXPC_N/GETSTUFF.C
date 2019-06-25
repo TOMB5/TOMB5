@@ -347,7 +347,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	FLOOR_INFO* f;//s0
 	short* fd;//s1
 	short value;
-#if 0
+#if 1
 	//s0 = floor
 	//s3 = x
 	OnObject = 0;
@@ -372,7 +372,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	//t7 = floor->floor << 8
 	//v0 = -32512
 
-	if (floor->floor << 8 == -32512)
+	if ((floor->floor << 8) == -32512)
 	{
 		return -32512;
 	}
@@ -381,9 +381,9 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	trigger_index = NULL;
 
 	//v0 = floor->floor << 8
-	if (floor->index << 1 == 0)
+	if ((floor->index << 1) == 0)
 	{
-		return -32512;
+		return (floor->floor << 8);
 	}
 
 	//s1 = floor_data
