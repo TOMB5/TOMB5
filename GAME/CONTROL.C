@@ -3106,7 +3106,7 @@ int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 }
 #endif
 
-#if PC_VERSION || PSXPC_TEST
+#if PC_VERSION
 int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z)// (F)
 {
 	short* fd = &floor_data[floor->index];
