@@ -264,7 +264,7 @@ loc_78974:
 	if (y > floor->floor << 8)
 	{
 loc_78A68:
-		if (floor->pit_room == -1)
+		if (floor->pit_room == 255)
 		{
 			return floor;
 		}
@@ -286,8 +286,8 @@ loc_78A68:
 		//loc_78AAC
 		*room_number = floor->pit_room;
 		r = &room[floor->pit_room];
-		floor = &room->floor[((z - r->z) >> 10) + r->x * ((x - r->x) >> 10)];
-
+		//v0 = z - v0
+		floor = &room->floor[(((x - r->x) >> 10) * r->x_size) + ((z - r->z) >> 10)];
 		if (y < (floor->floor << 8))
 		{
 			return floor;
