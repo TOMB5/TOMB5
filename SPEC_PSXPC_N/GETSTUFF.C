@@ -344,7 +344,6 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(<) (F)
 {
 	struct room_info* r;//a0
-	FLOOR_INFO* f;//s0
 	short* fd;//s1
 	short value;
 #if 1
@@ -355,7 +354,6 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	tiltyoff = 0;
 	tiltxoff = 0;
 	//s4 = z
-
 	//loc_78D18:
 	while (floor->pit_room != 0xFF)
 	{
@@ -366,7 +364,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 		}
 
 		r = &room[floor->pit_room];
-		f = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
+		floor = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
 	}
 	//loc_78D28
 	//t7 = floor->floor << 8
