@@ -104,7 +104,6 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, TRUE);
 #endif
 
-	glDisable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
 	glBlitFramebuffer(0, 0, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->x + rect->w * INTERNAL_RESOLUTION_SCALE, rect->y + rect->h * INTERNAL_RESOLUTION_SCALE, GL_COLOR_BUFFER_BIT, GL_LINEAR);
@@ -773,7 +772,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			//Reset for vertex colours
 			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #if __linux__ || __APPLE__
-		}while ((unsigned long)pTag != (unsigned long)&terminator);
+		}while ((unsigned long)pTag != 0xFFFFFF);
 #else
 
 		}while ((unsigned long)pTag != (unsigned long)&terminator);
