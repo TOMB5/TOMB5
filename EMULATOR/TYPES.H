@@ -64,9 +64,10 @@ typedef	unsigned int size_t;
 
 //typedef	long	time_t;
 //typedef	short	dev_t;
-typedef	long	off_t;
-typedef	u_short	uid_t;
-typedef	u_short	gid_t;
+//typedef	long	off_t;
+//typedef	u_short	uid_t;
+//typedef	u_short	gid_t;
+
 #endif
 
 #define	NBBY	8
