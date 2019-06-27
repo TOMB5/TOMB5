@@ -768,21 +768,13 @@ void GetRoomBoundsAsm(short room_number)//77E70(<), 79EB4(<) ///@TODO check if i
 	int* t55;
 	short* t00;
 
-	//a1 = 0x1F800000
-	//s0 = 0x1F800000
-	//s1 = &room[0];
 	s2 = 0;
 	s3 = 1;
 	s4 = (short*)&scratchPad[63];
 	s5 = 0;
-	//fp = outside
 
 	((char*)&scratchPad)[0] = room_number;
 	r = &room[room_number];
-
-	//t0 = 0x1FF0000
-	//t1 = 0xEF0000
-	//t2 = 2
 
 	((int*)&r->test_left)[0] = 0x1FF0000;
 	((int*)&r->test_top)[0] = 0xEF0000;
@@ -1064,7 +1056,7 @@ loc_77F18:
 								a33 = &room[a1];
 								t0 = ((int*)& a33->left)[0];
 								t2 = ((int*)& r->test_left)[0];
-								t4 = ((int*)& r->top)[0];
+								t4 = ((int*)& a33->top)[0];
 								t6 = ((int*)& r->test_top)[0];
 
 								t1 = t0 >> 16;
@@ -1076,10 +1068,10 @@ loc_77F18:
 								t5 = t4 >> 16;
 								t4 &= 0xFFFF;
 
-								t7 = t6 >> 26;
+								t7 = t6 >> 16;
 								t6 &= 0xFFFF;
 
-								if (t0 > t2 && t1 > t3 && t4 > t6 && t5 > t7)
+								if (t0 > t2 || t1 < t3 || t4 > t6 || t5 < t7)
 								{
 									//loc_78208
 									t0 = t3;
@@ -1096,7 +1088,7 @@ loc_77F18:
 									t9 = a2[4];
 									t8 = a2[5];
 									t9 <<= 16;
-									t7 |= 29;
+									t7 |= t9;
 
 									VX0 = t7 & 0xFFFF;
 									VY0 = t7 >> 16;
@@ -1264,8 +1256,8 @@ loc_77F18:
 											v1 = a33->bound_active;
 											if (at < 0)
 											{
+												at = v1 & 2;
 												v1 |= 2;
-
 												if (at == 0)
 												{
 													((char*)& scratchPad)[s3] = a1;
@@ -1275,47 +1267,49 @@ loc_77F18:
 													t0 |= t1;
 													t3 <<= 16;
 													t2 |= t3;
-													((int*)a33->test_left)[0] = t0;
-													((int*)a33->test_top)[0] = t2;
+													((int*)&a33->test_left)[0] = t0;
+													((int*)&a33->test_top)[0] = t2;
 													a33->bound_active = v1;
 												}
-												//loc_7841C
-												t4 = ((int*)a33->test_left)[0];
-												t6 = ((int*)a33->test_top)[0];
-												t5 = t4 >> 16;
-												t4 &= 0xFFFF;
-												t7 = t6 >> 16;
-												t6 &= 0xFFFF;
-
-												if (t0 < t4)
+												else
 												{
-													t4 = t0;
-												}//loc_78444
+													//loc_7841C
+													t4 = ((int*)& a33->test_left)[0];
+													t6 = ((int*)& a33->test_top)[0];
+													t5 = t4 >> 16;
+													t4 &= 0xFFFF;
+													t7 = t6 >> 16;
+													t6 &= 0xFFFF;
 
-												if (t5 < t1)
-												{
-													t5 = t1;
+													if (t0 < t4)
+													{
+														t4 = t0;
+													}//loc_78444
+
+													if (t5 < t1)
+													{
+														t5 = t1;
+													}
+													//loc_78450
+													if (t2 < t6)
+													{
+														t6 = t2;
+													}
+
+													//loc_7845C
+													t5 <<= 16;
+													if (t7 < t3)
+													{
+														t7 = t3;
+													}
+													//loc_78468
+													t4 |= t5;
+													t7 <<= 16;
+													t6 |= t7;
+
+													((int*)&a33->test_left)[0] = t4;
+													((int*)&a33->test_top)[0] = t6;
 												}
-												//loc_78450
-												if (t2 < t6)
-												{
-													t6 = t2;
-												}
-
-												//loc_7845C
-												t5 <<= 16;
-												if (t7 < t3)
-												{
-													t7 = t3;
-												}
-												//loc_78468
-												t4 |= t5;
-												t7 <<= 16;
-												t6 |= t7;
-
-												((int*)& a33->test_left)[0] = t4;
-												((int*)& a33->test_top)[0] = t6;
-
 											}//loc_7847C
 										}//loc_7847C
 									}//loc_7847C
