@@ -197,7 +197,7 @@ loc_74C88:
 	fp = &room[*s4++];
 	
 	t0 = fp->MeshEffect;
-	t11 = &WaterTable[0][fp->MeshEffect];
+	t11 = &WaterTable[0][fp->MeshEffect];///@FIXME WaterTable bad values...
 
 	s2[0] = (unsigned long)fp;
 	s2[1] = (unsigned long)t11;
@@ -410,7 +410,8 @@ loc_74F78:
 	
 	if (s6 != 0)
 	{
-		a0 = (int*)*s1++;
+		a0 = (int*)*s1;
+		s1++;
 		t3 = *a0;
 		s2[0] = (int)a0;
 		t6 = RBK;
@@ -429,7 +430,7 @@ loc_74F78:
 
 		t3 >>= 13;
 		t3 &= 0xFFF8;
-		t33 = &s3[t3];
+		t33 = &s3[t3 >> 3];
 
 		at = t33->vx;
 		t2 = t33->vy;
@@ -458,7 +459,7 @@ loc_74F78:
 		t4 = t0 & 0xFFFF;
 
 		docop2(0x280030);
-		t6 = t7 & 0xFFFF;
+		t6 = t2 & 0xFFFF;
 		t7 = 0xFFFF0000;
 		t5 = t0 & t7;
 		t7 &= t2;
