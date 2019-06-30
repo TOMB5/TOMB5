@@ -12,9 +12,628 @@
 #include "GTEREG.H"
 #include "ROOMLOAD.H"
 
-void DrawMesh(int* a0, struct DB_STRUCT* dbs)
-{
+//TODO
+short* LOffset = { 0x0 };
+char* LTab = { 0x0 };
+char* YOffset = { 0x0 };
 
+long ClipXY(int t0, int t1, int t2, int t3, int t4)
+{
+	int t9;
+	int t5;
+	int t6;
+	int t7;
+	int t8;
+	int fp;
+
+	t9 = IR2;
+	t5 = t1 << 16;
+
+	if (t1 < t9 && t2 < t9 && t3 < t9 && t4 < t9)
+	{
+		return 1;
+	}
+	//loc_7557C
+	t6 = t2 >> 16;
+	t9 = IR3;
+	t7 = t3 << 16;
+
+	if (t1 > t9 && t2 > t9 && t3 > t9 && t4 > t9)
+	{
+		return 1;
+	}
+	//loc_755A8
+	t8 = t4 << 16;
+	t9 = IR0;
+	fp = IR1;
+
+	if (t5 < t9 && t6 < t9 && t7 < t9 && t8 < t9)
+	{
+		return 1;
+	}
+
+	//loc_755D4
+	if (t5 > fp && t6 > fp && t7 > fp && t8 > fp)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
+{
+	int scratchPad[256];
+	int* a2;
+	int s2;
+	int s3;
+	int s4;
+	int* s7;
+	int* s6;
+	int v0;
+	int t0;
+	int t1;
+	int t2;
+	int t3;
+	int t4;
+	int t5;
+	int t6;
+	int t7;
+	int t8;
+	int t9;
+	int at;
+	int a3;
+	int v1;
+	int a1;
+	short* s0;
+	unsigned char* s5;
+	char* s1;
+	int* fp;
+
+	a2 = &sp[0];
+	s0 = &LOffset[0];
+	s1 = &LTab[0];
+	s5 = &OurSqrt[0];
+	fp = (int*)&YOffset[0];///@TODO check if YOffset is actually int[]
+	s2 = sp[25];
+	s3 = sp[26];
+	s4 = sp[27];
+	s7 = &sp[192];
+
+	v0 = ((short*)a0)[3];
+	a0 += 2;
+
+	LR1 = ((int)a0) & 0xFFFF;
+	LR2 = ((int)a0) >> 16;
+	DQA = v0;
+
+	LG2 = ((int)dbs) & 0xFFFF;
+	LG3 = ((int)dbs) >> 16;
+
+	v0 &= 0xFF;
+
+	//loc_75DF8
+	do
+	{
+
+
+		t0 = *a0++;
+		t3 = t0 >> 15;
+		t2 = (t0 & 0x1F) << 10;
+		t1 = (t0 & 0x3E0) << 3;
+		t9 = t0 >> 30;
+		L33 = 0;
+		t0 &= 0x7C00;
+
+		if (t9 != 0)
+		{
+			t6 = (t0 + s2) >> 6;
+			t7 = (t1 + s3) >> 6;
+			t8 = (t2 + s4) >> 7;
+
+			t6 += t7;
+			t6 += t8;
+			t7 = LB3;
+			t8 = RGB0;
+			t6 &= 0xFC;
+			t6 += t8;
+			t6 = ((short*)t6)[1];
+			t5 = t9 & 1;
+			at = t6 >> 8;
+			t6 += t7;
+			t6 &= 0xFC;
+			t6 += t8;
+			t8 = ((char*)t6)[0];
+			t6 = ((char*)t6)[1];
+			t9 &= 2;
+
+			if (t5 != 0)
+			{
+				if (t9 == 0)
+				{
+					t8 += at;
+				}
+
+				L33 = t8;
+			}//loc_75E8C
+
+			fp[0] = t6;
+			if (t9 != 0)
+			{
+				t1 += t6;
+			}
+			//loc_75E98
+		}//loc_75E98
+		t6 = RBK;
+		t7 = GBK;
+		t8 = BBK;
+
+		t0 += t6;
+		t1 += t7;
+		t2 += t8;
+
+		t4 = t1 << 16;
+		at = t0 & 0xFFFF;
+		t4 |= at;
+
+		VX0 = t0 & 0xFFFF;
+		VY0 = t0 >> 16;
+		VZ0 = t2;
+
+		t5 = t3 >> 10;
+		docop2(0x180001);
+
+		t4 = t3 >> 5;
+		t5 &= 0x1F;
+		t4 &= 0x1F;
+		t3 &= 0x1F;
+
+		t9 = s7[3];
+		s6 = s7;
+
+		t0 -= t6;
+
+		if (t9 != 0)
+		{
+			t1 -= t7;
+			t2 -= t8;
+			t0 += s2;
+			t1 += s3;
+			t2 += s4;
+
+			t0 >>= 7;
+			t1 >>= 7;
+			t2 >>= 7;
+
+		loc_75F0C:
+			t9 = s6[3];
+			s6 += 4;
+			t6 = s6[-4];
+
+			if (t0 != 0)
+			{
+				t7 = s6[-3];
+				t8 = s6[-2];
+
+				t6 -= t0;
+				t7 -= t1;
+				t8 -= t2;
+
+				IR1 = t6;
+				IR2 = t7;
+				IR3 = t8;
+
+				a3 = t9 >> 11;
+
+				docop2(0xA00428);
+
+				a3 &= 0x1F;
+				v1 = t9 >> 19;
+				v1 &= 0x1F;
+				a1 = t9 >> 27;
+				a1 &= 0x1F;
+
+				t6 = MAC1;
+				t7 = MAC2;
+				t8 = MAC3;
+
+				t6 += t7;
+				t6 += t8;
+
+				if (t6 > 0x3FE)
+				{
+					goto loc_75F0C;
+				}
+
+				t6 += s5[t6];
+				t9 &= 0xFF;
+
+				if (t6 > t9)
+				{
+					goto loc_75F0C;
+				}
+				t9 = s0[t9];
+				t6 <<= 5;
+				t6 += t9;
+
+				char* t66 = &((char*)s1)[t6];
+				char* a33 = &((char*)t6)[a3];
+				char* v11 = &((char*)t6)[v1];
+				char* a11 = &((char*)t6)[a1];
+
+				a3 = a33[0];///@CHECKME (loads)
+				v1 = v11[0];
+				a1 = a11[0];
+
+				t4 += v1;
+				t5 += a1;
+				t3 += a3;
+
+				goto loc_75F0C;
+			}
+			//loc_75FC8
+		}//loc_75FC8
+
+		t0 = L33;
+		fp++;
+		t3 += t0;
+
+		if (t0 != 0)
+		{
+			t4 += t0;
+			t5 += t0;
+		}
+
+		//loc_75FE0
+		t0 = IR1;
+		v1 = 0;
+
+		t6 = t0 - 12288;
+
+		if (t6 >= 0)
+		{
+			t6 >>= 8;
+			if (t6 < 0x1FFF)
+			{
+				t3 -= t6;
+				t4 -= t6;
+				t5 -= t6;
+			}
+			else
+			{
+				goto loc_76048;
+			}
+		}
+		//loc_76008
+		if (t3 > 0x1F)
+		{
+			t3 >>= 27;
+			t3 ^= 0x1F;
+		}
+
+		//loc_7601C
+		if (t4 > 0x1F)
+		{
+			t4 >>= 27;
+			t4 ^= 0x1F;
+		}
+		//loc_7602C
+		t4 <<= 5;
+		if (t5 > 0x1F)
+		{
+			t5 >>= 27;
+			t5 ^= 0x1F;
+		}
+
+		//loc_7603C
+		t5 <<= 10;
+		t3 |= t4;
+		v1 = t3 | t5;
+
+	loc_76048:
+		a2[0] = VX1 | (VY1 << 16);///@checkme
+
+		v1 <<= 16;
+		t0 |= v1;
+		a2[1] = t0;
+		v0--;
+		a2 += 2;
+	} while (v0 != 0);
+
+	int* a11 = (int*)(LG2 | (LG3 << 16));///@checkme
+	v0 = DQA;///@checkme
+
+	struct MMTEXTURE* a22 = RoomTextInfo;
+
+	a3 = a11[2];
+	int s00 = a11[1];
+
+	int* s11 = &sp[0];
+
+	v0 >>= 8;
+
+	//loc_76080
+	if (v0-- != 0)
+	{
+		t0 = a0[0];
+		s7 = 0;
+		DQB = t0;
+
+		char* s66 = &LTab[(t0 >> 11) & 0x3F8];
+		char* s55 = &LTab[(t0 >> 4) & 0x3F8];
+		char* s44 = &LTab[(t0 << 3) & 0x3F8];
+
+		t1 = ((int*)s44)[0];
+		t2 = ((int*)s55)[0];
+		t3 = ((int*)s66)[0];
+
+		SXY0 = t1;
+		SXY1 = t2;
+		SXY2 = t3;
+
+		t0 >>= 21;
+		t0 &= 0x3FF;
+
+		docop2(0x1400006);
+		t4 = t3;
+
+		t5 = ClipXY(t1, t2, t3, t4);
+
+	}//loc_761EC
+
+#if 0
+
+bnez    $t5, loc_761E4
+lw      $s4, 4($s4)
+lw      $s5, 4($s5)
+lw      $s6, 4($s6)
+andi    $t5, $s4, 0xFFFF
+andi    $t6, $s5, 0xFFFF
+slt     $at, $t5, $t6
+beqz    $at, loc_7610C
+andi    $t7, $s6, 0xFFFF
+move    $t5, $t6
+
+loc_7610C:
+slt     $at, $t5, $t7
+beqz    $at, loc_7611C
+srl     $t5, 3
+srl     $t5, $t7, 3
+
+loc_7611C:
+slti    $at, $t5, 0x9E0
+beqz    $at, loc_761E4
+slti    $at, $t5, 0x280
+mfc2    $t7, $24
+bnez    $at, loc_7613C
+sll     $t9, $t5, 2
+bltz    $t7, loc_761E4
+nop
+
+loc_7613C:
+ctc2    $t7, $19
+sll     $t0, 4
+move    $t7, $t0
+sll     $t0, 1
+add     $t0, $t7
+add     $t0, $a2
+lw      $t7, 8($t0)
+jal     sub_754DC
+sll     $t8, $t7, 8
+lw      $t5, 0($t0)
+cfc2    $a1, $21
+lw      $t6, 4($t0)
+jal     sub_75D48
+subu    $t5, $a1
+beqz    $at, loc_761D8
+sw      $t7, 0x24($a3)
+lw      $at, 0xC($t0)
+ctc2    $t9, $27
+ctc2    $at, $23
+ctc2    $a3, $18
+jal     sub_75608
+addi    $a3, 0x28
+move    $s3, $zero
+addi    $t1, $s1, 0x324
+jal     sub_75880
+addiu   $t0, $ra, -0x1680
+cfc2    $at, $23
+cfc2    $t0, $19
+cfc2    $t9, $27
+or      $t0, $at
+bltz    $t0, loc_761E4
+slti    $t1, $t9, 0x500
+bnez    $t1, loc_761E4
+move    $t3, $a3
+cfc2    $a3, $18
+jal     sub_75D6C
+lui     $t7, 0x900
+j       loc_761E4
+move    $a3, $t3
+
+loc_761D8:
+jal     sub_75D6C
+lui     $t7, 0x900
+addi    $a3, 0x28
+
+loc_761E4:
+j       loc_76080
+addi    $a0, 4
+
+loc_761EC:
+lw      $v0, 0($a0)
+addi    $a0, 4
+li      $v1, 2
+
+loc_761F8:
+andi    $t0, $v0, 0x3FF
+xori    $at, $t0, 0x3FF
+beqz    $at, loc_76420
+srl     $v0, 10
+lw      $t1, 0($a0)
+addi    $a0, 4
+ctc2    $t1, $28
+srl     $t4, $t1, 18
+srl     $t3, $t1, 11
+andi    $t3, 0x3F8
+add     $s6, $t3, $s1
+srl     $t2, $t1, 4
+andi    $t2, 0x3F8
+add     $s5, $t2, $s1
+sll     $t1, 3
+andi    $t1, 0x3F8
+add     $s4, $t1, $s1
+lw      $t1, 0($s4)
+lw      $t2, 0($s5)
+lw      $t3, 0($s6)
+mtc2    $t1, $12
+mtc2    $t2, $13
+mtc2    $t3, $14
+andi    $t4, 0x3F8
+add     $s7, $t4, $s1
+cop2    0x1400006
+jal     sub_75554
+lw      $t4, 0($s7)
+bnez    $t5, loc_76410
+lw      $s4, 4($s4)
+lw      $s5, 4($s5)
+lw      $s6, 4($s6)
+lw      $s7, 4($s7)
+andi    $t5, $s4, 0xFFFF
+andi    $t6, $s5, 0xFFFF
+slt     $at, $t5, $t6
+beqz    $at, loc_76294
+andi    $t7, $s6, 0xFFFF
+move    $t5, $t6
+
+loc_76294:
+slt     $at, $t5, $t7
+beqz    $at, loc_762A4
+andi    $t8, $s7, 0xFFFF
+move    $t5, $t7
+
+loc_762A4:
+slt     $at, $t5, $t8
+beqz    $at, loc_762B4
+move    $t6, $zero
+move    $t5, $t8
+
+loc_762B4:
+mfc2    $t7, $24
+srl     $t5, 3
+slti    $at, $t5, 0x9E0
+beqz    $at, loc_76410
+slti    $at, $t5, 0x280
+bnez    $at, loc_762D8
+sll     $t9, $t5, 2
+bltz    $t7, loc_76410
+nop
+
+loc_762D8:
+ctc2    $t7, $19
+sll     $t0, 4
+move    $t7, $t0
+sll     $t0, 1
+add     $t0, $t7
+add     $t0, $a2
+jal     sub_754DC
+lw      $t8, 8($t0)
+srl     $t5, $s7, 7
+and     $t5, $s2
+srl     $t6, $s7, 10
+andi    $t6, 0xF800
+srl     $t7, $s7, 13
+andi    $t7, 0xF8
+or      $t7, $t5
+or      $t7, $t6
+lw      $t5, 0($t0)
+cfc2    $a1, $21
+lw      $t6, 4($t0)
+subu    $t5, $a1
+lw      $t0, 0xC($t0)
+jal     sub_75D48
+sw      $t8, 0x24($a3)
+sw      $t7, 0x28($a3)
+sw      $t4, 0x2C($a3)
+beqz    $at, loc_76404
+sw      $t0, 0x30($a3)
+ctc2    $t0, $23
+ctc2    $t9, $27
+ctc2    $a3, $18
+addi    $a3, 0x34
+sw      $t4, 0x324($s1)
+sh      $s7, 0x328($s1)
+sw      $t7, 0x334($s1)
+sh      $t0, 0x332($s1)
+jal     sub_75608
+move    $t7, $t8
+cfc2    $t0, $28
+cfc2    $t5, $16
+srl     $at, $t0, 19
+andi    $at, 0x1FC
+add     $s6, $gp, $at
+add     $at, $t5
+lw      $at, 0($at)
+move    $s3, $zero
+lw      $t6, 0($s6)
+andi    $t4, $at, 0x3E0
+sll     $t4, 3
+bgtz    $at, loc_763A4
+andi    $t5, $at, 0x1F
+add     $t4, $t6
+
+loc_763A4:
+sll     $t5, 10
+andi    $at, 0x7C00
+add     $at, $t3
+add     $t4, $t7
+add     $t5, $s7
+sh      $at, 0x32C($s1)
+sh      $t4, 0x32E($s1)
+sh      $t5, 0x330($s1)
+addi    $t1, $s1, 0x338
+jal     sub_759BC
+addiu   $t0, $ra, -0x199C
+cfc2    $t0, $19
+cfc2    $at, $23
+cfc2    $t9, $27
+or      $t0, $at
+bltz    $t0, loc_76410
+slti    $t1, $t9, 0x500
+bnez    $t1, loc_76410
+move    $t3, $a3
+cfc2    $a3, $18
+jal     sub_75D6C
+lui     $t7, 0xC00
+j       loc_76410
+move    $a3, $t3
+
+loc_76404:
+jal     sub_75D6C
+lui     $t7, 0xC00
+addi    $a3, 0x34
+
+loc_76410:
+bnez    $v1, loc_761F8
+addi    $v1, -1
+j       loc_761EC
+nop
+
+loc_76420:
+lw      $s0, 0x38+var_38($sp)
+lw      $s1, 0x38+var_34($sp)
+lw      $s2, 0x38+var_30($sp)
+lw      $s3, 0x38+var_2C($sp)
+lw      $s4, 0x38+var_28($sp)
+lw      $s5, 0x38+var_24($sp)
+lw      $s6, 0x38+var_20($sp)
+lw      $ra, 0x38+var_18($sp)
+lw      $s7, 0x38+var_1C($sp)
+lw      $fp, 0x38+var_14($sp)
+lw      $gp, 0x38+var_10($sp)
+jr      $ra
+addi    $sp, 0x38
+#endif
 }
 
 void DrawRoomsAsm()//0x1BC380
@@ -919,7 +1538,7 @@ loc_75124:
 		//loc_754C4
 		a1[3] = 0;
 
-		DrawMesh(a0, &db);
+		DrawMesh(a0, &db, &sp[0]);
 
 		///a1 = &db
 		///a1[8] = a3 (db.polyptr store?)
