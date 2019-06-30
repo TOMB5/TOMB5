@@ -17,6 +17,18 @@ short* LOffset = { 0x0 };
 char* LTab = { 0x0 };
 char* YOffset = { 0x0 };
 
+void InitPrim(int* a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
+{
+	a3[1] = fp;
+	a3[2] = t1;
+	a3[3] = t5;
+	a3[4] = gp;
+	a3[5] = t2;
+	a3[6] = t6;
+	a3[7] = s3;
+	a3[8] = t3;
+}
+
 void UnpackRGB(int* s4, int* t8, int* s5, int* s6, int* fp, int* gp, int* t5)
 {
 	*fp = ((*s4 >> 13) & 0xF8) | ((*s4 >> 7) & 0xF80000) | ((*s4 >> 10) & 0xF800) | ((*t8 >> 24) << 24);
@@ -424,14 +436,15 @@ loc_76080:
 
 					int fpp;
 					UnpackRGB(&s4, &t8, &s555, &s666, &fpp, &gp, &t5);
-#if 0
-jal     sub_754DC
 
-lw      $t5, 0($t0)
-cfc2    $a1, $21
-lw      $t6, 4($t0)
+					t5 = ((int*)t00)[0];
+					a1 = RFC;
+					t6 = ((int*)t00)[1];
+					t5 -= a1;
+					InitPrim((int*)a3, fpp, t1, t5, gp, t2, t6, s3, t3);
+#if 0
 jal     sub_75D48
-subu    $t5, $a1
+
 beqz    $at, loc_761D8
 sw      $t7, 0x24($a3)
 lw      $at, 0xC($t0)
