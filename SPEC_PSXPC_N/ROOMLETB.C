@@ -17,6 +17,13 @@ short* LOffset = { 0x0 };
 char* LTab = { 0x0 };
 char* YOffset = { 0x0 };
 
+void UnpackRGB(int* s4, int* t8, int* s5, int* s6, int* fp, int* gp, int* t5)
+{
+	*fp = ((*s4 >> 13) & 0xF8) | ((*s4 >> 7) & 0xF80000) | ((*s4 >> 10) & 0xF800) | ((*t8 >> 24) << 24);
+	*gp = ((*s5 >> 13) & 0xF8) | ((*s5 >> 7) & 0xF80000) | ((*s5 >> 10) & 0xF800);
+	*t5 = ((*s6 >> 7) & 0xF80000) | (*s6 >> 13) & 0xF8 | ((*s6 >> 10) & 0xF800);
+}
+
 long ClipXY(int t0, int t1, int t2, int t3, int t4)
 {
 	int t9;
@@ -89,6 +96,7 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 	unsigned char* s5;
 	char* s1;
 	int* fp;
+	int gp;
 
 	a2 = &sp[0];
 	s0 = &LOffset[0];
@@ -340,11 +348,10 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 		a2 += 2;
 	} while (v0 != 0);
 
-	int* a11 = (int*)(LG2 | (LG3 << 16));///@checkme
+	int* a11 = (int*)(((LG3 & 0xFFFF) << 16) | (LG2 & 0xFFFF));///@checkme
 	v0 = DQA;///@checkme
 
 	struct MMTEXTURE* a22 = RoomTextInfo;
-
 	a3 = a11[2];
 	int s00 = a11[1];
 
@@ -352,7 +359,7 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 
 	v0 >>= 8;
 
-	//loc_76080
+loc_76080:
 	if (v0-- != 0)
 	{
 		t0 = a0[0];
@@ -377,49 +384,49 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 		docop2(0x1400006);
 		t4 = t3;
 
-		t5 = ClipXY(t1, t2, t3, t4);
+		t5 = ClipXY(t0, t1, t2, t3, t4);
 
-	}//loc_761EC
+		
+		if (t5 == 0)
+		{
+			int s444 = ((int*)s44)[1];
+			int s555 = ((int*)s55)[1];
+			int s666 = ((int*)s66)[1];
 
+			t5 = s444 & 0xFFFF;
+			t6 = s555 & 0xFFFF;
+			t7 = s666 & 0xFFFF;
+
+			if (t5 < t6)
+			{
+				t5 = t6;
+			}
+			//loc_7610C
+			t5 >>= 3;
+			if (t5 < t7)
+			{
+				t5 = t7 >> 3;
+			}
+
+			//loc_7611C
+			if (t5 < 0x9E0)
+			{
+				t7 = MAC0;
+				t9 = t5 << 2;
+
+				if (t5 < 0x280 && t7 >= 0)
+				{
+					//loc_7613C
+					t7 = LB1 | (LB2 << 16);
+					struct MMTEXTURE* t00 = &RoomTextInfo[t0];
+					t7 = ((int*)t00)[2];
+					t8 = t7 << 8;
+
+					int fpp;
+					UnpackRGB(&s4, &t8, &s555, &s666, &fpp, &gp, &t5);
 #if 0
-
-bnez    $t5, loc_761E4
-lw      $s4, 4($s4)
-lw      $s5, 4($s5)
-lw      $s6, 4($s6)
-andi    $t5, $s4, 0xFFFF
-andi    $t6, $s5, 0xFFFF
-slt     $at, $t5, $t6
-beqz    $at, loc_7610C
-andi    $t7, $s6, 0xFFFF
-move    $t5, $t6
-
-loc_7610C:
-slt     $at, $t5, $t7
-beqz    $at, loc_7611C
-srl     $t5, 3
-srl     $t5, $t7, 3
-
-loc_7611C:
-slti    $at, $t5, 0x9E0
-beqz    $at, loc_761E4
-slti    $at, $t5, 0x280
-mfc2    $t7, $24
-bnez    $at, loc_7613C
-sll     $t9, $t5, 2
-bltz    $t7, loc_761E4
-nop
-
-loc_7613C:
-ctc2    $t7, $19
-sll     $t0, 4
-move    $t7, $t0
-sll     $t0, 1
-add     $t0, $t7
-add     $t0, $a2
-lw      $t7, 8($t0)
 jal     sub_754DC
-sll     $t8, $t7, 8
+
 lw      $t5, 0($t0)
 cfc2    $a1, $21
 lw      $t6, 4($t0)
@@ -459,7 +466,31 @@ addi    $a3, 0x28
 loc_761E4:
 j       loc_76080
 addi    $a0, 4
+#endif
+				}
+				else
+				{
+					//loc_761E4
+					a0++;
+					goto loc_76080;
+				}
+			}
+			else
+			{
+				//loc_761E4
+				a0++;
+				goto loc_76080;
+			}
+		}
+		else
+		{
+			//loc_761E4
+			a0++;
+			goto loc_76080;
+		}
+	}//loc_761EC
 
+#if 0
 loc_761EC:
 lw      $v0, 0($a0)
 addi    $a0, 4
