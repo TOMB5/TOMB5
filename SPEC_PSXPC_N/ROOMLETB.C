@@ -48,6 +48,22 @@ unsigned short* TriVertTables[] =
 	&TriVertTable[0]
 };
 
+void MyAddPrim(int t7, int t9, int s0, int* a3)
+{
+	int t5;
+
+	t9 += s0;
+	t5 = ((int*)t9)[0];
+	((unsigned int*)t9)[0] = (unsigned int)a3;
+	t5 |= t7;
+	((unsigned int*)a3)[0] = (unsigned int)t5;
+}
+
+void SubdivTri64()
+{
+
+}
+
 void SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1)
 {
 	int t0;
@@ -128,7 +144,7 @@ void SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1)
 	} while (--nVertices);
 }
 
-void SubPolyGT3(int* t0, int* t1, int* s1)
+void SubPolyGT3(int* t0, int* t1, int* s1, int* a3)
 {
 	int gp;
 	int t11;
@@ -208,7 +224,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1)
 				s3 = 1;
 				s6 = (int)t0;
 
-				SubPolyGT3((int*)TriVertTables[gp], &s1[216], s1);
+				SubPolyGT3((int*)TriVertTables[gp], &s1[216], s1, a3);
 
 				t11 = RGB2;
 				t2 = RGB1;
@@ -227,7 +243,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1)
 			{
 				if (t9 < 0x80)
 				{
-					///SubdivTri64();
+					SubdivTri64();
 					return;
 				}
 				//loc_75980
@@ -239,9 +255,8 @@ void SubPolyGT3(int* t0, int* t1, int* s1)
 				{
 					t2 = RGB1;
 					///SubdivSetup3();
-					//t7 = 0x9000000
-					///MyAddPrim();
-					//a3 += 0x34 //TODO divide by 4 of int* likely this is the polyptr, also might need passing from callee
+					MyAddPrim(0x9000000, (int*)t9, (int*)s0, a3);
+					a3 += 0x34 //TODO divide by 4 of int* likely this is the polyptr, also might need passing from callee
 				}
 				//loc_759A8
 				ra = s7;
@@ -826,7 +841,7 @@ loc_76080:
 						InitSubdivision(s11, (int*)t1, s4, fpp, t5, t2, s555, gp, t6, t3, (int)s6, s3, t7);
 
 						s3 = 0;
-						SubPolyGT3((int*)TriVertTables[4], &s11[201], s11);
+						SubPolyGT3((int*)TriVertTables[4], &s11[201], s11, (int*)a3);
 					}
 #if 0
 addi    $t1, $s1, 0x324
