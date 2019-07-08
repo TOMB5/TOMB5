@@ -48,6 +48,86 @@ unsigned short* TriVertTables[] =
 	&TriVertTable[0]
 };
 
+void SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1)
+{
+	int t0;
+	int t2;
+	int t3;
+	int t4;
+	int t5;
+	int t6;
+	int t7;
+	int t8;
+
+	t0 = t00[0];
+	t2 = 0xF8F8F8;
+
+	//loc_7576C
+	do
+	{
+		t3 = ((int*)t0)[0];
+		t0 += 4;
+
+		t4 = (t3 >> 16) & 0xFFFF;
+		t3 += s1;
+		t4 += s1;
+
+		t5 = ((short*)t3)[4];
+		t6 = ((short*)t3)[5];
+		t7 = ((short*)t4)[4];
+		t8 = ((short*)t4)[5];
+
+		t5 += t7;
+		t5 >>= 1;
+		t6 += t8;
+
+		t7 = ((short*)t3)[6];
+		t8 = ((short*)t4)[6];
+
+		t6 >>= 1;
+		t7 += t8;
+		t7 >>= 1;
+
+		((short*)t1)[4] = t5;
+		((short*)t1)[5] = t6;
+		((short*)t1)[6] = t7;
+
+		t5 &= 0xFFFF;
+		t6 <<= 16;
+		t6 |= t5;
+
+		VX0 = t6 & 0xFFFF;
+		VY0 = t6 >> 16;
+		VZ0 = t7;
+
+		t5 = ((char*)t3)[14];
+		docop2(0x180001);
+		t6 = ((char*)t3)[15];
+		t7 = ((char*)t4)[14];
+		t8 = ((char*)t4)[15];
+
+		t5 += t7;
+		t5 >>= 1;
+		t6 += t8;
+
+		t7 = ((int*)t3)[4];
+		t8 = ((int*)t4)[4];
+
+		t6 >>= 1;
+		((char*)t1)[14] = t5;
+		t1[0] = SXY2;
+		t1[1] = SZ3;
+
+		t7 += t8;
+		t7 >>= 1;
+		t7 &= t2;
+
+		t1[4] = t7;
+		((char*)t1)[15] = t6;
+		t1 += 5;
+	} while (--nVertices);
+}
+
 void SubPolyGT3(int* t0, int* t1, int* s1)
 {
 	int gp;
@@ -69,7 +149,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1)
 	int s7;
 
 	gp = 3;
-	//SubPolyGTLoop();
+	SubPolyGTLoop(3, t0, (int)s1, t1);
 	gp = 3;
 
 	t11 = RGB2;
@@ -147,7 +227,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1)
 			{
 				if (t9 < 0x80)
 				{
-					SubdivTri64();
+					///SubdivTri64();
 					return;
 				}
 				//loc_75980
@@ -168,8 +248,10 @@ void SubPolyGT3(int* t0, int* t1, int* s1)
 			}//loc_759AC
 		}
 	loc_759AC:
+		int test = 0;
+		test++;
 
-	} while (gp--);
+	} while(gp--);
 }
 
 void InitSubdivision(int* s1, int* t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, short t7)
