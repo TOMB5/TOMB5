@@ -786,8 +786,8 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 		at = t0 & 0xFFFF;
 		t4 |= at;
 
-		VX0 = t0 & 0xFFFF;
-		VY0 = t0 >> 16;
+		VX0 = t4 & 0xFFFF;
+		VY0 = t4 >> 16;
 		VZ0 = t2;
 
 		t5 = t3 >> 10;
@@ -895,7 +895,7 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 		}
 
 		//loc_75FE0
-		t0 = IR1;
+		t0 = SZ3;
 		v1 = 0;
 
 		t6 = t0 - 12288;
@@ -941,7 +941,7 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 		v1 = t3 | t5;
 
 	loc_76048:
-		a2[0] = VX1 | (VY1 << 16);///@checkme
+		a2[0] = SXY2;
 
 		v1 <<= 16;
 		t0 |= v1;
@@ -950,8 +950,8 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 		a2 += 2;
 	} while (v0 != 0);
 
-	int* a11 = (int*)(((LG3 & 0xFFFF) << 16) | (LG2 & 0xFFFF));///@checkme
-	v0 = DQA;///@checkme
+	int* a11 = (int*)(((LG3 & 0xFFFF) << 16) | (LG2 & 0xFFFF));
+	v0 = DQA;
 
 	struct MMTEXTURE* a22 = RoomTextInfo;
 	a3 = a11[2];
