@@ -669,7 +669,6 @@ long ClipXY(int t0, int t1, int t2, int t3, int t4)
 
 void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 {
-	int scratchPad[256];
 	int* a2;
 	int s2;
 	int s3;
@@ -1443,6 +1442,9 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 #if !_DEBUG
 	return;
 #endif
+
+	S_MemSet((char*)&sp[0], 0, 1024);
+
 	RFC = underwater;
 	RGB0 = (unsigned long)r;
 
@@ -2185,7 +2187,7 @@ loc_75124:
 		//loc_754C4
 		a1[3] = 0;
 
-		DrawMesh(a0, &db, &sp[0]);
+		DrawMesh(a0, &db, &sp[-14]);
 
 		///a1 = &db
 		///a1[8] = a3 (db.polyptr store?)
