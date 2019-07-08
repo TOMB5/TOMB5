@@ -185,6 +185,167 @@ void SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1)
 
 void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0)
 {
+	int s7;
+	int gp;
+	int t11;
+	int t2;
+	int t3;
+	int t5;
+	int t4;
+	int t6;
+	int t9;
+	int t7;
+	int t8; //? find out where i come from
+	int at;
+	int s3; //? find out where i come from
+	int ra;
+	int s4;
+	int s5;
+	int s6;
+	int fp; //? find out where i come from
+	int t00;
+
+	SubPolyGTLoop(5, t0, (int)s1, t1);
+
+	gp = 3;
+	t11 = RGB2;
+	t2 = RGB1;
+
+	//loc_759D8
+	do
+	{
+		t3 = t0[0];
+		t5 = t0[1];
+		t0 += 2;
+
+		t4 = t3 >> 16;
+		t3 &= 0xFFFF;
+
+		t3 += (int)s1;
+		t4 += (int)s1;
+		t6 = t5 >> 16;
+		t5 &= 0xFFFF;
+		t5 += (int)s1;
+		t6 += (int)s1;
+
+		SXY0 = ((int*)t4)[0];
+		SXY1 = ((int*)t6)[0];
+		SXY2 = ((int*)t5)[0];
+
+		docop2(0x1400006);
+
+		t9 = ((short*)t5)[2];
+
+		if (t7 < t8)
+		{
+			t7 = t8;
+		}
+
+		//loc_75A30
+		t8 = ((short*)t5)[2];
+		if (t7 < t9)
+		{
+			t7 = t9;
+		}
+
+		//loc_75A40
+		t7 >>= 3;
+		if (t7 < t8)
+		{
+			t7 = t8 >> 3;
+		}
+
+		//loc_75A4C
+		at = DQB;
+		at >>= 31;
+		if (t7 != 0)
+		{
+			at = t7 << at;
+			at += 0x180;
+
+			t9 = t7 << 2;
+			if (at != 0 && s3 == 0)
+			{
+				s3 = 1;
+				s4 = gp;
+				s5 = ra;
+				s6 = (int)t0;
+
+				SubPolyGT4((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0);
+				t11 = RGB2;
+				t2 = RGB1;
+				s3 = 0;
+				gp = s4;
+				ra = s5;
+				t00 = s6;
+			}
+			else
+			{
+				//loc_75AB0
+				s3 = 1;
+				at = MAC0;
+				SXY0 = ((int*)t3)[0];
+				SXY1 = ((int*)t4)[0];
+
+				s7 = ra;
+				if (at <= 0)
+				{
+					docop2(0x1400006);
+					at = MAC0;
+
+					if (at < 0)
+					{
+						goto loc_75B24;
+					}
+				}//loc_75AD4
+
+				if (t9 < 0x80)
+				{
+					//loc_75B34
+					at = 0xF7000000;
+					fp &= at;
+
+					SubdivTri64();
+
+					t3 = t6;
+
+					SubdivTri64();
+
+					at = 0x8000000;
+					fp |= at;
+					goto loc_75B20;
+				}
+
+				t2 = ((int*)t6)[0];
+				at = ClipToScreen(t2);
+
+				if (at == 0)
+				{
+					t2 = RGB1;
+					///SubdivSetup3();
+
+					t5 = ((int*)t6)[0];
+					t7 = ((int*)t6)[4];
+					t8 = ((short*)t6)[7];
+
+					((int*)a3)[11] = t5;
+					((int*)a3)[10] = t7;
+					((int*)a3)[12] = t8;
+					MyAddPrim(0xC000000, t9, s0, a3);
+					a3 += 0x34;
+				}
+loc_75B20:
+				ra = s7;
+			}
+
+		}
+	loc_75B24:
+		int test = 0;
+		test++;
+
+	} while (gp--);
+
+	return;
 }
 
 void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0)
