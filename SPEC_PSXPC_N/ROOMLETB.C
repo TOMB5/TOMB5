@@ -48,6 +48,45 @@ unsigned short* TriVertTables[] =
 	&TriVertTable[0]
 };
 
+int ClipToScreen(int t2)
+{
+	int t7;
+	int t8;
+	int s2;
+	int at;
+
+	t7 = SXY0;
+	t8 = SXY1;
+	s2 = SXY2;
+
+	if ((t7 & 0xFE00) && (t8 & 0xFE00) && (t2 & 0xFE00) && (s2 & 0xFE00))
+	{
+		return 1;
+	}
+
+	//loc_75CF4
+	at = t7 & t8;
+	at &= s2;
+	at &= t2;
+
+	if (at < 0)
+	{
+		return 1;
+	}
+
+	t7 >>= 16;
+	t8 >>= 16;
+	s2 >>= 16;
+	t2 >>= 16;
+
+	if (!(t7 & 0xF0) && !(t8 & 0xF0) && !(t2 & 0xF0) && !(s2 & 0xF0))
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
 void MyAddPrim(int t7, int t9, int s0, int* a3)
 {
 	int t5;
@@ -144,7 +183,7 @@ void SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1)
 	} while (--nVertices);
 }
 
-void SubPolyGT3(int* t0, int* t1, int* s1, int* a3)
+void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0)
 {
 	int gp;
 	int t11;
@@ -224,7 +263,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3)
 				s3 = 1;
 				s6 = (int)t0;
 
-				SubPolyGT3((int*)TriVertTables[gp], &s1[216], s1, a3);
+				SubPolyGT3((int*)TriVertTables[gp], &s1[216], s1, a3, s0);
 
 				t11 = RGB2;
 				t2 = RGB1;
@@ -248,15 +287,14 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3)
 				}
 				//loc_75980
 				t2 = ((int*)t5)[0];
-				///ClipToScreen();
+				at = ClipToScreen(t2);
 
-				///@TODO at may be modified in ClipToScreen()
 				if (at == 0)
 				{
 					t2 = RGB1;
 					///SubdivSetup3();
-					MyAddPrim(0x9000000, (int*)t9, (int*)s0, a3);
-					a3 += 0x34 //TODO divide by 4 of int* likely this is the polyptr, also might need passing from callee
+					MyAddPrim(0x9000000, t9, s0, a3);
+					a3 += 0x34; //TODO divide by 4 of int* likely this is the polyptr, also might need passing from callee
 				}
 				//loc_759A8
 				ra = s7;
@@ -841,7 +879,7 @@ loc_76080:
 						InitSubdivision(s11, (int*)t1, s4, fpp, t5, t2, s555, gp, t6, t3, (int)s6, s3, t7);
 
 						s3 = 0;
-						SubPolyGT3((int*)TriVertTables[4], &s11[201], s11, (int*)a3);
+						SubPolyGT3((int*)TriVertTables[4], &s11[201], s11, (int*)a3, s00);
 					}
 #if 0
 addi    $t1, $s1, 0x324
