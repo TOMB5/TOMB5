@@ -1890,7 +1890,7 @@ loc_75124:
 
 		t5 >>= 13;
 		t5 &= 0xFFF8;
-		SVECTOR* t55 = &s3[t5];
+		SVECTOR* t55 = &s3[t5 >> 3];
 
 		t3 = *(int*)& t55->vx;
 		t5 = t55->vz;
