@@ -65,6 +65,8 @@ void SubPolyGT3(int* t0, int* t1, int* s1)
 	int s6;
 	int s4;
 	int s5;
+	int t00;
+	int s7;
 
 	gp = 3;
 	//SubPolyGTLoop();
@@ -74,107 +76,100 @@ void SubPolyGT3(int* t0, int* t1, int* s1)
 	t2 = RGB1;
 
 	//loc_7589C
-	t3 = t0[0];
-	t5 = ((short*)t5)[2];
-	t0 += 8;
-
-	t4 = t3 >> 16;
-	t3 &= 0xFFFF;
-
-	t3 += (int)s1;
-	t4 += (int)s1;
-	t4 += (int)s1;
-
-	SXY0 = ((int*)t3)[0];
-	SXY1 = ((int*)t4)[0];
-	SXY2 = ((int*)t5)[0];
-
-	t7 = ((short*)t3)[2];
-	t8 = ((short*)t4)[2];
-	docop2(0x1400006);
-	t9 = ((short*)t5)[2];
-
-	if (t7 < t8)
+	do
 	{
-		t7 = t8;
-	}
+		t3 = t0[0];
+		t5 = ((short*)t5)[2];
+		t0 += 8;
 
-	if (t7 < t9)
-	{
-		t7 = t9;
-	}
-	t7 >>= 3;
+		t4 = t3 >> 16;
+		t3 &= 0xFFFF;
 
-	//loc_758F4
-	at = DQB >> 31;
+		t3 += (int)s1;
+		t4 += (int)s1;
+		t4 += (int)s1;
 
-	if (t7 != 0)
-	{
-		at = t7 << at;
-		t9 = t7 << 2;
+		SXY0 = ((int*)t3)[0];
+		SXY1 = ((int*)t4)[0];
+		SXY2 = ((int*)t5)[0];
 
-		if (at < 0x180 && s3 == 0)
+		t7 = ((short*)t3)[2];
+		t8 = ((short*)t4)[2];
+		docop2(0x1400006);
+		t9 = ((short*)t5)[2];
+
+		if (t7 < t8)
 		{
-			s3 = 1;
-			s4 = gp;
-			s5 = ra;
+			t7 = t8;
 		}
-		else
+
+		if (t7 < t9)
 		{
+			t7 = t9;
+		}
+		t7 >>= 3;
+
+		//loc_758F4
+		at = DQB >> 31;
+
+		if (t7 != 0)
+		{
+			at = t7 << at;
+			t9 = t7 << 2;
+
+			if (at < 0x180 && s3 == 0)
+			{
+				s3 = 1;
+				s4 = gp;
+				s5 = ra;
+			}
+			else
+			{
+				s3 = 1;
+				s6 = (int)t0;
+
+				SubPolyGT3((int*)TriVertTables[gp], &s1[216], s1);
+
+				t11 = RGB2;
+				t2 = RGB1;
+				s3 = 0;
+				gp = s4;
+				ra = s5;
+				t00 = s6;
+
+				goto loc_759AC;
+			}
 			//loc_75958
-			s3 = 1;
-			s6 = (int)t0;
+			t7 = MAC0;
+			s7 = ra;
 
-			SubPolyGT3((int*)TriVertTables[gp], &s1[216], s1);
+			if (t7 >= 0)
+			{
+				if (t9 < 0x80)
+				{
+					SubdivTri64();
+					return;
+				}
+				//loc_75980
+				t2 = ((int*)t5)[0];
+				///ClipToScreen();
+
+				///@TODO at may be modified in ClipToScreen()
+				if (at == 0)
+				{
+					t2 = RGB1;
+					///SubdivSetup3();
+					//t7 = 0x9000000
+					///MyAddPrim();
+					//a3 += 0x34 //TODO divide by 4 of int* likely this is the polyptr, also might need passing from callee
+				}
+				//loc_759A8
+				ra = s7;
+			}//loc_759AC
 		}
-	}//loc_759AC
+	loc_759AC:
 
-#if 0
-				 jal     sub_75880
-				 addi    $t1, $s1, 0x360
-
-				 mfc2    $t1, $22
-				 mfc2    $t2, $21
-				 move    $s3, $zero
-				 move    $gp, $s4
-				 move    $ra, $s5
-				 j       loc_759AC
-				 move    $t0, $s6
-
-				 loc_75958 :
-			 mfc2    $t7, $24
-				 move    $s7, $ra
-				 bltz    $t7, loc_759AC
-				 slti    $at, $t9, 0x80
-				 beqz    $at, loc_75980
-				 nop
-				 jal     sub_75B64
-				 addi    $sp, -0x4C
-				 j       loc_759A8
-				 addi    $sp, 0x4C
-
-				 loc_75980:
-			 jal     sub_75CC8
-				 lw      $t2, 0($t5)
-				 bnez    $at, loc_759A8
-				 nop
-				 mfc2    $t2, $21
-				 jal     sub_75834
-				 nop
-				 jal     sub_75D6C
-				 lui     $t7, 0x900
-				 addi    $a3, 0x34
-
-				 loc_759A8:
-			 move    $ra, $s7
-
-				 loc_759AC :
-			 bnez    $gp, loc_7589C
-				 addi    $gp, -1
-				 jr      $ra
-				 nop
-#endif
-
+	} while (gp--);
 }
 
 void InitSubdivision(int* s1, int* t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, short t7)
