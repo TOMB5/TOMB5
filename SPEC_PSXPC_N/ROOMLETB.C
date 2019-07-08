@@ -183,6 +183,10 @@ void SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1)
 	} while (--nVertices);
 }
 
+void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0)
+{
+}
+
 void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0)
 {
 	int gp;
@@ -252,7 +256,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0)
 			at = t7 << at;
 			t9 = t7 << 2;
 
-			if (at < 0x180 && s3 == 0)
+			if (at < 0x180 && s3 == 0)///@FIXME S3, might come from callee
 			{
 				s3 = 1;
 				s4 = gp;
@@ -531,12 +535,16 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 	char* s1;
 	int* fp;
 	int gp;
+	char* s66;
+	char* s55;
+	char* s44;
+	char* s77;
 
 	a2 = &sp[0];
 	s0 = &LOffset[0];
 	s1 = &LTab[0];
 	s5 = &OurSqrt[0];
-	fp = (int*)&YOffset[0];///@TODO check if YOffset is actually int[]
+	fp = (int*)& YOffset[0];///@TODO check if YOffset is actually int[]
 	s2 = sp[25];
 	s3 = sp[26];
 	s4 = sp[27];
@@ -820,7 +828,7 @@ loc_76080:
 
 		t5 = ClipXY(t0, t1, t2, t3, t4);
 
-		
+
 		if (t5 == 0)
 		{
 			int s444 = ((int*)s44)[1];
@@ -880,34 +888,30 @@ loc_76080:
 
 						s3 = 0;
 						SubPolyGT3((int*)TriVertTables[4], &s11[201], s11, (int*)a3, s00);
+
+						at = BFC;
+						t0 = LB1 | (LB2 << 16);
+						t9 = DQA;
+						t0 |= at;
+
+						if (t0 < 0 || t9 < 0x500)
+						{
+							//loc_761E4
+							a0++;
+							goto loc_76080;
+						}
+
+						t3 = a3;
+						a3 = LG2 | (LG3 << 16);
+						MyAddPrim(0x9000000, t9, s00, (int*)a3);
+						a3 = t3;
+						a0++;
+						goto loc_76080;
 					}
-#if 0
-addi    $t1, $s1, 0x324
-jal     sub_75880
-addiu   $t0, $ra, -0x1680
-cfc2    $at, $23
-cfc2    $t0, $19
-cfc2    $t9, $27
-or      $t0, $at
-bltz    $t0, loc_761E4
-slti    $t1, $t9, 0x500
-bnez    $t1, loc_761E4
-move    $t3, $a3
-cfc2    $a3, $18
-jal     sub_75D6C
-lui     $t7, 0x900
-j       loc_761E4
-move    $a3, $t3
-
-loc_761D8:
-jal     sub_75D6C
-lui     $t7, 0x900
-addi    $a3, 0x28
-
-loc_761E4:
-j       loc_76080
-addi    $a0, 4
-#endif
+					//loc_761D8
+					MyAddPrim(0x9000000, t9, s00, (int*)(a3 + 0x28));
+					a0++;
+					goto loc_76080;
 				}
 				else
 				{
@@ -929,184 +933,185 @@ addi    $a0, 4
 			a0++;
 			goto loc_76080;
 		}
-	}//loc_761EC
+	}
 
-#if 0
 loc_761EC:
-lw      $v0, 0($a0)
-addi    $a0, 4
-li      $v1, 2
 
-loc_761F8:
-andi    $t0, $v0, 0x3FF
-xori    $at, $t0, 0x3FF
-beqz    $at, loc_76420
-srl     $v0, 10
-lw      $t1, 0($a0)
-addi    $a0, 4
-ctc2    $t1, $28
-srl     $t4, $t1, 18
-srl     $t3, $t1, 11
-andi    $t3, 0x3F8
-add     $s6, $t3, $s1
-srl     $t2, $t1, 4
-andi    $t2, 0x3F8
-add     $s5, $t2, $s1
-sll     $t1, 3
-andi    $t1, 0x3F8
-add     $s4, $t1, $s1
-lw      $t1, 0($s4)
-lw      $t2, 0($s5)
-lw      $t3, 0($s6)
-mtc2    $t1, $12
-mtc2    $t2, $13
-mtc2    $t3, $14
-andi    $t4, 0x3F8
-add     $s7, $t4, $s1
-cop2    0x1400006
-jal     sub_75554
-lw      $t4, 0($s7)
-bnez    $t5, loc_76410
-lw      $s4, 4($s4)
-lw      $s5, 4($s5)
-lw      $s6, 4($s6)
-lw      $s7, 4($s7)
-andi    $t5, $s4, 0xFFFF
-andi    $t6, $s5, 0xFFFF
-slt     $at, $t5, $t6
-beqz    $at, loc_76294
-andi    $t7, $s6, 0xFFFF
-move    $t5, $t6
+	v0 = a0[0];
+	a0++;
+	v1 = 2;
 
-loc_76294:
-slt     $at, $t5, $t7
-beqz    $at, loc_762A4
-andi    $t8, $s7, 0xFFFF
-move    $t5, $t7
+	//loc_761F8
+	do
+	{
+		t0 = v0 & 0x3FF;
+		at = t0 ^ 0x3FF;
+		v0 >>= 10;
 
-loc_762A4:
-slt     $at, $t5, $t8
-beqz    $at, loc_762B4
-move    $t6, $zero
-move    $t5, $t8
+		if (at != 0)
+		{
+			t1 = a0[0];
+			a0++;
+			DQB = t1;
+			t4 = t1 >> 18;
+			t3 = (t1 >> 11) & 0x3F8;
+			s66 = &((char*)s11)[t3];
+			t2 = (t1 >> 4) & 0x3F8;
+			s55 = &((char*)s11)[t3];
+			t1 <<= 3;
+			t1 &= 0x3F8;
+			s44 = &((char*)s11)[t1];
 
-loc_762B4:
-mfc2    $t7, $24
-srl     $t5, 3
-slti    $at, $t5, 0x9E0
-beqz    $at, loc_76410
-slti    $at, $t5, 0x280
-bnez    $at, loc_762D8
-sll     $t9, $t5, 2
-bltz    $t7, loc_76410
-nop
+			t1 = ((int*)s44)[0];
+			t2 = ((int*)s55)[0];
+			t3 = ((int*)s66)[0];
 
-loc_762D8:
-ctc2    $t7, $19
-sll     $t0, 4
-move    $t7, $t0
-sll     $t0, 1
-add     $t0, $t7
-add     $t0, $a2
-jal     sub_754DC
-lw      $t8, 8($t0)
-srl     $t5, $s7, 7
-and     $t5, $s2
-srl     $t6, $s7, 10
-andi    $t6, 0xF800
-srl     $t7, $s7, 13
-andi    $t7, 0xF8
-or      $t7, $t5
-or      $t7, $t6
-lw      $t5, 0($t0)
-cfc2    $a1, $21
-lw      $t6, 4($t0)
-subu    $t5, $a1
-lw      $t0, 0xC($t0)
-jal     sub_75D48
-sw      $t8, 0x24($a3)
-sw      $t7, 0x28($a3)
-sw      $t4, 0x2C($a3)
-beqz    $at, loc_76404
-sw      $t0, 0x30($a3)
-ctc2    $t0, $23
-ctc2    $t9, $27
-ctc2    $a3, $18
-addi    $a3, 0x34
-sw      $t4, 0x324($s1)
-sh      $s7, 0x328($s1)
-sw      $t7, 0x334($s1)
-sh      $t0, 0x332($s1)
-jal     sub_75608
-move    $t7, $t8
-cfc2    $t0, $28
-cfc2    $t5, $16
-srl     $at, $t0, 19
-andi    $at, 0x1FC
-add     $s6, $gp, $at
-add     $at, $t5
-lw      $at, 0($at)
-move    $s3, $zero
-lw      $t6, 0($s6)
-andi    $t4, $at, 0x3E0
-sll     $t4, 3
-bgtz    $at, loc_763A4
-andi    $t5, $at, 0x1F
-add     $t4, $t6
+			SXY0 = t1;
+			SXY1 = t2;
+			SXY2 = t3;
 
-loc_763A4:
-sll     $t5, 10
-andi    $at, 0x7C00
-add     $at, $t3
-add     $t4, $t7
-add     $t5, $s7
-sh      $at, 0x32C($s1)
-sh      $t4, 0x32E($s1)
-sh      $t5, 0x330($s1)
-addi    $t1, $s1, 0x338
-jal     sub_759BC
-addiu   $t0, $ra, -0x199C
-cfc2    $t0, $19
-cfc2    $at, $23
-cfc2    $t9, $27
-or      $t0, $at
-bltz    $t0, loc_76410
-slti    $t1, $t9, 0x500
-bnez    $t1, loc_76410
-move    $t3, $a3
-cfc2    $a3, $18
-jal     sub_75D6C
-lui     $t7, 0xC00
-j       loc_76410
-move    $a3, $t3
+			t4 &= 0x3F8;
+			s77 = &((char*)s11)[t4];
+			docop2(0x1400006);
+			t4 = ((int*)s77)[0];
+			t5 = ClipXY(t0, t1, t2, t3, t4);
 
-loc_76404:
-jal     sub_75D6C
-lui     $t7, 0xC00
-addi    $a3, 0x34
+			if (t5 == 0)
+			{
+				int s44 = ((int*)s4)[1];
+				int s55 = ((int*)s5)[1];
+				int s66 = ((int*)s6)[1];
+				int s77 = ((int*)s7)[1];
 
-loc_76410:
-bnez    $v1, loc_761F8
-addi    $v1, -1
-j       loc_761EC
-nop
+				t5 = s44 & 0xFFFF;
+				t6 = s55 & 0xFFFF;
+				t7 = s66 & 0xFFFF;
+				if (t5 < t6)
+				{
+					t5 = t6;
+				}//loc_76294
 
-loc_76420:
-lw      $s0, 0x38+var_38($sp)
-lw      $s1, 0x38+var_34($sp)
-lw      $s2, 0x38+var_30($sp)
-lw      $s3, 0x38+var_2C($sp)
-lw      $s4, 0x38+var_28($sp)
-lw      $s5, 0x38+var_24($sp)
-lw      $s6, 0x38+var_20($sp)
-lw      $ra, 0x38+var_18($sp)
-lw      $s7, 0x38+var_1C($sp)
-lw      $fp, 0x38+var_14($sp)
-lw      $gp, 0x38+var_10($sp)
-jr      $ra
-addi    $sp, 0x38
-#endif
-}
+				t8 = s77 & 0xFFFF;
+				if (t5 < t7)
+				{
+					t5 = t7;
+				}//loc_762A4
+
+				t6 = 0;
+				if (t5 < t8)
+				{
+					t5 = t8;
+				}
+
+				//loc_762B4
+				t7 = MAC0;
+				t5 >>= 3;
+
+				if (t5 < 0x9E0)
+				{
+					t9 = t5 << 2;
+					if (t5 < 0x280 || t7 >= 0)
+					{
+						//loc_762D8
+						LB1 = t7 & 0xFFFF;
+						LB2 = t7 >> 16;
+
+						struct MMTEXTURE* t00 = &RoomTextInfo[t0];
+						int fpp;
+						t8 = ((int*)t0)[3];
+						UnpackRGB(&s4, &t8, &s55, &s66, &fpp, &gp, &t5);
+
+						t5 = t7 >> 7;
+						t5 &= s2;
+						t6 = (s77 >> 10) & 0xF800;
+						t7 = (s77 >> 13) & 0xF8;
+						t7 |= t5;
+						t7 |= t6;
+						t5 = ((int*)t00)[0];
+						a1 = RFC;
+						t6 = ((int*)t00)[1];
+						t5 -= a1;
+						t0 = ((int*)t00)[3];
+
+						InitPrim(&a3, fpp, t1, t5, gp, t2, t6, s3, t3);
+
+						((int*)a3)[9] = t8;
+						((int*)a3)[10] = t7;
+						((int*)a3)[11] = t4;
+						((int*)a3)[12] = t0;
+
+						if (at != 0)
+						{
+							BFC = t0;
+							DQA = t9;
+							LG2 = a3 & 0xFFFF;
+							LG3 = a3 >> 16;
+							a3 += 0x34;
+
+							((int*)s11)[201] = t4;
+							((short*)s11)[404] = s77;
+							((int*)s11)[205] = t7;
+							((short*)s11)[409] = t0;
+							t7 = t8;
+							InitSubdivision(&s11[0], &t1, s44, fpp, t5, t2, s55, gp, t6, t3, s66, s3, t7);
+							t0 = DQB;
+							t5 = LR1 | (LR2 << 16);
+							at = (t0 >> 19) & 0x1FC;
+							s66 = gp + at;
+							at += t5;
+							at = ((int*)at)[0];
+							s3 = 0;
+							t6 = ((int*)s66)[0];
+							t4 = (at & 0x3E0) << 3;
+							t5 = at & 0x1F;
+
+							if (at < 0)
+							{
+								t4 = t6;
+							}
+
+							//loc_763A4
+							t5 <<= 10;
+							at &= 0x7C00;
+							at += t3;
+							t4 += t7;
+							t5 += s77;
+
+							((short*)s11)[406] = at;
+							((short*)s11)[407] = t4;
+							((short*)s11)[408] = t5;
+
+							SubPolyGT4((int*)& QuadVertTables[4], &t1, s11, &a3, s00);
+
+							t0 = LB1 | (LB2 << 16);
+							at = BFC;
+							t9 = DQA;
+
+							t0 |= at;
+
+							t3 = a3;
+							if (t0 >= 0 && t9 > 0x4FF)
+							{
+								a3 = LG2 | (LG3 << 16);
+								MyAddPrim(0xC000000, t9, s00, &a3);
+								a3 = t3;
+							}//loc_76410
+						}
+						else
+						{
+							//loc_76404
+							MyAddPrim(0xC000000, t9, s00, &a3);
+							a3 += 0x34;
+						}
+					}
+				}//loc_76410
+			}//loc_76410
+		}
+	} while (v1--);
+
+	goto loc_761EC;
+
+}//loc_76420
 
 void DrawRoomsAsm()//0x1BC380
 {
