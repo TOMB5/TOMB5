@@ -1684,7 +1684,8 @@ loc_74F78:
 		at = t00->vx;
 		t0 = t00->vy;
 
-		at = (at + t6) & 0xFFFF;
+		at += t6;
+		at &= 0xFFFF;
 		t0 += fpp;
 		t1 += s7;
 		t0 <<= 16;
@@ -1771,6 +1772,8 @@ loc_74F78:
 		VZ1 = t3;
 
 		docop2(0x280030);
+
+		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a22, &a33, &v0, &s55);
 
 		t0 = SXY0;
 		t1 = SZ1;
