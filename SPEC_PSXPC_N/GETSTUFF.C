@@ -195,22 +195,21 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 
 loc_78974:
 	r = &room[*room_number];
-
 	dz = ((z - r->z) >> 10);
 	dx = ((x - r->x) >> 10);
 
 	if (dz > 0)
 	{
 		//loc_789B4
-		if (dz < (r->x_size & 0xFFFF) - 1)
+		if (dz < r->x_size - 1)
 		{
 			//loc_789EC
 			if (dx >= 0)
 			{
 				//loc_789FC
-				if (dx > (r->x_size >> 16))
+				if (dx > (r->y_size))
 				{
-					v1 = (r->x_size & 0xFFFF) - 1;
+					dx = r->x_size - 1;
 				}
 			}
 			else
@@ -227,13 +226,13 @@ loc_78974:
 
 			if ((r->x_size >> 16) - 2 < dx)
 			{
-				v1 = (r->x_size >> 16) - 2;
+				dx = (r->x_size >> 16) - 2;
 			}
 		}
 		else
 		{
 			//loc_789CC
-			v1 = 1;
+			dx = 1;
 		}
 	}
 	else if (dx > 0)
@@ -244,18 +243,17 @@ loc_78974:
 
 		if ((r->x_size >> 16) - 2 < dx)
 		{
-			v1 = (r->x_size >> 16) - 2;
+			dx = (r->x_size >> 16) - 2;
 		}
 	}
 	else
 	{
-		v1 = 1;
+		dx = 1;
 	}
 
-	floor = &r->floor[dz + (v1 * (r->x_size & 0xFFFF))];
+	floor = &r->floor[dz + (dx * r->x_size)];
 	door = GetDoor(floor);
 
-	//v1 = door
 	if (door != -1)
 	{
 		*room_number = door;
@@ -266,7 +264,7 @@ loc_78974:
 	if (y > floor->floor << 8)
 	{
 loc_78A68:
-		if (floor->pit_room == -1)
+		if (floor->pit_room == 255)
 		{
 			return floor;
 		}
@@ -288,9 +286,9 @@ loc_78A68:
 		//loc_78AAC
 		*room_number = floor->pit_room;
 		r = &room[floor->pit_room];
-		floor = &room->floor[((z - r->z) >> 10) + r->x * ((x - r->x) >> 10)];
-
-		if (y < floor->floor << 8)
+		//v0 = z - v0
+		floor = &room->floor[(((x - r->x) >> 10) * r->x_size) + ((z - r->z) >> 10)];
+		if (y < (floor->floor << 8))
 		{
 			return floor;
 		}
@@ -299,7 +297,7 @@ loc_78A68:
 
 	}//loc_78BB0
 
-	if (y > floor->ceiling << 8)
+	if (y > (floor->ceiling << 8))
 	{
 		return floor;
 	}
@@ -307,7 +305,7 @@ loc_78A68:
 	do
 	{
 		//loc_78B1C
-		if (floor->sky_room == -1)
+		if (floor->sky_room == 255)
 		{
 			return floor;
 		}
@@ -332,7 +330,7 @@ loc_78A68:
 		r = &room[floor->sky_room];
 		floor = &r->floor[(((z - r->z) >> 10) + ((x - r->x) >> 10)) * r->x_size];
 	
-	} while (y < floor->ceiling << 8);
+	} while (y < (floor->ceiling << 8));
 
 	return floor;
 }
@@ -346,10 +344,9 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(<) (F)
 {
 	struct room_info* r;//a0
-	FLOOR_INFO* f;//s0
 	short* fd;//s1
 	short value;
-#if 0
+#if 1
 	//s0 = floor
 	//s3 = x
 	OnObject = 0;
@@ -357,7 +354,6 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	tiltyoff = 0;
 	tiltxoff = 0;
 	//s4 = z
-
 	//loc_78D18:
 	while (floor->pit_room != 0xFF)
 	{
@@ -368,13 +364,13 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 		}
 
 		r = &room[floor->pit_room];
-		f = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
+		floor = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
 	}
 	//loc_78D28
 	//t7 = floor->floor << 8
 	//v0 = -32512
 
-	if (floor->floor << 8 == -32512)
+	if ((floor->floor << 8) == -32512)
 	{
 		return -32512;
 	}
@@ -383,9 +379,9 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	trigger_index = NULL;
 
 	//v0 = floor->floor << 8
-	if (floor->index << 1 == 0)
+	if ((floor->index << 1) == 0)
 	{
-		return -32512;
+		return (floor->floor << 8);
 	}
 
 	//s1 = floor_data

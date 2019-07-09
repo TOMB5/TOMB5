@@ -232,9 +232,9 @@ extern int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern short GetDoor(struct FLOOR_INFO* floor);
 extern int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
-#endif
 extern int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z);
+#endif
 extern int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor);
 #if !PSX_VERSION || PSXPC_VERSION///@FIXME @pc
 extern void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint);
