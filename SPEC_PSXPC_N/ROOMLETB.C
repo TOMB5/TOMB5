@@ -186,9 +186,8 @@ void CreateNewVertex(int* t2, int* t7, int* t8, int t1)
 	((unsigned int*)t2)[8] = a1;
 }
 
-void Add2DPrim(int* t3, int* t4, int* t5)
+void Add2DPrim(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int* t9, int* s0)
 {
-#if 0
 	int t2;
 
 	SXY0 = t3[0];
@@ -199,24 +198,14 @@ void Add2DPrim(int* t3, int* t4, int* t5)
 	{
 		t2 = RGB1;
 		SubdivSetup3(a3, fp, t3, t4, t5, t1, t2);
-		MyAddPrim(0x9000000, t9, s0, a3);
+		MyAddPrim(0x9000000, *t9, *s0, a3);
+
+		*t9 += *s0;
+		a3 += 10;
 	}//loc_75CC0
-#endif
-
-#if 0
-jal     MyAddPrim
-lui     $t7, 0x900
-sub     $t9, $s0
-jr      $a1
-addi    $a3, 0x28
-
-loc_75CC0:
-jr      $a1
-nop
-#endif
 }
 
-void SubdivTri64(int t3, int t4, int t5)
+void SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)
 {
 	int sp[256];
 	int* t2 = &sp[0];
@@ -232,10 +221,10 @@ void SubdivTri64(int t3, int t4, int t5)
 
 	t1 = RGB2;
 
-	Add2DPrim((int*)sp[1], &sp[4], &sp[14]);
-	Add2DPrim(&sp[9], &sp[4], &sp[2]);
-	Add2DPrim(&sp[9], (int*)sp[3], &sp[14]);
-	Add2DPrim(&sp[9], (int*)sp[14], &sp[4]);
+	Add2DPrim((int*)sp[1], &sp[4], &sp[14], a3, fp, t1, t9, s0);
+	Add2DPrim(&sp[9], &sp[4], &sp[2], a3, fp, t1, t9, s0);
+	Add2DPrim(&sp[9], (int*)sp[3], &sp[14], a3, fp, t1, t9, s0);
+	Add2DPrim(&sp[9], (int*)sp[14], &sp[4], a3, fp, t1, t9, s0);
 }
 
 int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1, int* t7, int* t8)
@@ -443,11 +432,11 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
 					at = 0xF7000000;
 					fp &= at;
 
-					SubdivTri64(t3, t4, t5);
+					SubdivTri64(t3, t4, t5, a3, fp, &t9, &s0);
 
 					t3 = t6;
 
-					SubdivTri64(t3, t4, t5);
+					SubdivTri64(t3, t4, t5, a3, fp, &t9, &s0);
 
 					at = 0x8000000;
 					fp |= at;
@@ -581,7 +570,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 			{
 				if (t9 < 0x80)
 				{
-					SubdivTri64(t3, t4, t5);
+					SubdivTri64(t3, t4, t5, a3, fp, &t9, &s0);
 					return;
 				}
 				//loc_75980
