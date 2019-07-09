@@ -129,9 +129,101 @@ void MyAddPrim(int t7, int t9, int s0, int* a3)
 	((unsigned int*)a3)[0] = (unsigned int)t5;
 }
 
-void SubdivTri64()
+void CreateNewVertex(int* t2, int* t7, int* t8, int t1)
 {
+	int a1;
+	int at;
+	int s2;
 
+	a1 = ((short*)t7)[4];
+	at = ((short*)t8)[4];
+	s2 = ((short*)t7)[5];
+	a1 += at;
+
+	at = ((short*)t8)[5];
+	a1 >>= 1;
+	at += s2;
+	at >>= 1;
+	at <<= 16;
+	a1 &= 0xFFFF;
+	at |= a1;
+
+	a1 = ((short*)t7)[6];
+	s2 = ((short*)t8)[6];
+
+	VX0 = at & 0xFFFF;
+	VY0 = at >> 16;
+
+	a1 += s2;
+	a1 >>= 1;
+
+	VZ0 = a1;
+
+	a1 = ((unsigned char*)t7)[14];
+	at = ((unsigned char*)t8)[14];
+
+	docop2(0x180001);
+
+	s2 = ((unsigned char*)t7)[15];
+	a1 += at;
+	at = ((unsigned char*)t8)[15];
+	a1 >>= 1;
+	at += s2;
+	at >>= 1;
+
+	((unsigned char*)a1)[30] = a1;
+
+	a1 = ((unsigned int*)t7)[4];
+	s2 = ((unsigned int*)t8)[4];
+
+	((unsigned char*)t2)[31] = at;
+
+	a1 += s2;
+	a1 >>= 1;
+	a1 &= t1;
+
+	((unsigned int*)t2)[4] = SXY2;
+	((unsigned int*)t2)[8] = a1;
+}
+
+void SubdivTri64(int t3, int t4, int t5)
+{
+	int sp[256];
+	int* t2 = &sp[0];
+	int t1 = 0xFFF8F8F8;
+
+	CreateNewVertex(t2, (int*)t3, (int*)t4, t1);
+	t2 += 5;
+
+	CreateNewVertex(t2, (int*)t5, (int*)t4, t1);
+	t2 += 5;
+
+	CreateNewVertex(t2, (int*)t5, (int*)t3, t1);
+
+	t1 = RGB2;
+
+#if 0
+	t3 = sp[1];
+	t4 = &sp[4];
+	t5 = &sp[14]
+
+	jal     Add2DPrim
+	addi    $t5, $sp, arg_38
+
+	addi    $t3, $sp, arg_24
+	jal     Add2DPrim
+	lw      $t5, arg_8($sp)
+
+	lw      $t4, arg_C($sp)
+	jal     Add2DPrim
+	addi    $t5, $sp, arg_38
+
+	addi    $t4, $sp, arg_38
+	jal     Add2DPrim
+	addi    $t5, $sp, arg_10
+
+#endif
+	UNIMPLEMENTED();
 }
 
 int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1, int* t7, int* t8)
@@ -311,7 +403,7 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
 				s3 = 0;
 				gp = s4;
 				ra = s5;
-				t00 = s6;
+				t0 = (int*)s6;
 			}
 			else
 			{
@@ -339,11 +431,11 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
 					at = 0xF7000000;
 					fp &= at;
 
-					SubdivTri64();
+					SubdivTri64(t3, t4, t5);
 
 					t3 = t6;
 
-					SubdivTri64();
+					SubdivTri64(t3, t4, t5);
 
 					at = 0x8000000;
 					fp |= at;
@@ -477,7 +569,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 			{
 				if (t9 < 0x80)
 				{
-					SubdivTri64();
+					SubdivTri64(t3, t4, t5);
 					return;
 				}
 				//loc_75980
@@ -554,7 +646,7 @@ int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, in
 	RGB1 = t6;
 
 	t00 = DQB;
-	t55 = LR1 | (LR2 << 16);///@FIXME could be a ptr
+	t55 = LR1 | (LR2 << 16);
 
 	t22 = (t00 >> 12) & 0x1FC;
 	s55 = &gpp[t22];
@@ -1078,7 +1170,7 @@ loc_76080:
 						LG3 = a3 >> 16;
 						a3 += 0x28;
 
-						InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, t3, (int)s6, s3, t7);
+						InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7);
 
 						s3 = 0;
 						SubPolyGT3((int*)&TriVertTables[4], &s11[201], s11, (int*)a3, s00, s3, fpp);
@@ -1247,7 +1339,16 @@ loc_761EC:
 							((int*)s11)[205] = t7;
 							((short*)s11)[409] = t0;
 							t7 = t8;
+
+							static int numCalls = 0;
+							if (numCalls == 28588)
+							{
+								numCalls = 0;
+							}
 							gp = (int)InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7);
+							
+							numCalls++;
+							
 							t0 = DQB;
 							t5 = LR1 | (LR2 << 16);
 							at = (t0 >> 19) & 0x1FC;
