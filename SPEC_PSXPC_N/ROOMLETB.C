@@ -263,6 +263,9 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
 		SXY1 = ((int*)t6)[0];
 		SXY2 = ((int*)t5)[0];
 
+		t7 = ((short*)t3)[2];
+		t8 = ((short*)t4)[2];
+
 		docop2(0x1400006);
 
 		t9 = ((short*)t5)[2];
@@ -1204,8 +1207,8 @@ loc_761EC:
 					if (t5 < 0x280 || t7 >= 0)
 					{
 						//loc_762D8
-						LB1 = t7 & 0xFFFF;
-						LB2 = t7 >> 16;
+						LB1 = (t7 & 0xFFFF);
+						LB2 = (t7 >> 16);
 
 						struct MMTEXTURE* t00 = &RoomTextInfo[t0];
 						int fpp;
@@ -1244,7 +1247,7 @@ loc_761EC:
 							((int*)s11)[205] = t7;
 							((short*)s11)[409] = t0;
 							t7 = t8;
-							gp = (int)InitSubdivision(&s11[0], t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7);
+							gp = (int)InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7);
 							t0 = DQB;
 							t5 = LR1 | (LR2 << 16);
 							at = (t0 >> 19) & 0x1FC;
@@ -1272,9 +1275,9 @@ loc_761EC:
 							((short*)s11)[407] = t4;
 							((short*)s11)[408] = t5;
 
-							SubPolyGT4((int*)& QuadVertTables[4], &t1, s11, &a3, s00, s3);
+							SubPolyGT4((int*)& QuadVertTables[4], &s11[206], s11, (int*)a3, s00, s3);
 
-							t0 = LB1 | (LB2 << 16);
+							t0 = (LB1 & 0xFFFF) | (LB2 << 16);
 							at = BFC;
 							t9 = DQA;
 
