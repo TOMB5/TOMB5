@@ -103,7 +103,7 @@ void SubdivTri64()
 
 }
 
-void SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1)
+void SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1, int* t7, int* t8)
 {
 	int t0;
 	int t2;
@@ -111,8 +111,6 @@ void SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1)
 	int t4;
 	int t5;
 	int t6;
-	int t7;
-	int t8;
 
 	t0 = t00[0];
 	t2 = 0xF8F8F8;
@@ -129,23 +127,23 @@ void SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1)
 
 		t5 = ((short*)t3)[4];
 		t6 = ((short*)t3)[5];
-		t7 = ((short*)t4)[4];
-		t8 = ((short*)t4)[5];
+		*t7 = ((short*)t4)[4];
+		*t8 = ((short*)t4)[5];
 
-		t5 += t7;
+		t5 += *t7;
 		t5 >>= 1;
-		t6 += t8;
+		t6 += *t8;
 
-		t7 = ((short*)t3)[6];
-		t8 = ((short*)t4)[6];
+		*t7 = ((short*)t3)[6];
+		*t8 = ((short*)t4)[6];
 
 		t6 >>= 1;
-		t7 += t8;
-		t7 >>= 1;
+		*t7 += *t8;
+		*t7 >>= 1;
 
 		((short*)t1)[4] = t5;
 		((short*)t1)[5] = t6;
-		((short*)t1)[6] = t7;
+		((short*)t1)[6] = *t7;
 
 		t5 &= 0xFFFF;
 		t6 <<= 16;
@@ -153,31 +151,31 @@ void SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1)
 
 		VX0 = t6 & 0xFFFF;
 		VY0 = t6 >> 16;
-		VZ0 = t7;
+		VZ0 = *t7;
 
 		t5 = ((char*)t3)[14];
 		docop2(0x180001);
 		t6 = ((char*)t3)[15];
-		t7 = ((char*)t4)[14];
-		t8 = ((char*)t4)[15];
+		*t7 = ((char*)t4)[14];
+		*t8 = ((char*)t4)[15];
 
-		t5 += t7;
+		t5 += *t7;
 		t5 >>= 1;
-		t6 += t8;
+		t6 += *t8;
 
-		t7 = ((int*)t3)[4];
-		t8 = ((int*)t4)[4];
+		*t7 = ((int*)t3)[4];
+		*t8 = ((int*)t4)[4];
 
 		t6 >>= 1;
 		((char*)t1)[14] = t5;
 		t1[0] = SXY2;
 		t1[1] = SZ3;
 
-		t7 += t8;
-		t7 >>= 1;
-		t7 &= t2;
+		*t7 += *t8;
+		*t7 >>= 1;
+		*t7 &= t2;
 
-		t1[4] = t7;
+		t1[4] = *t7;
 		((char*)t1)[15] = t6;
 		t1 += 5;
 	} while (--nVertices);
@@ -205,7 +203,7 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0)
 	int fp; //? find out where i come from
 	int t00;
 
-	SubPolyGTLoop(5, t0, (int)s1, t1);
+	SubPolyGTLoop(5, t0, (int)s1, t1, &t7, &t8);
 
 	gp = 3;
 	t11 = RGB2;
@@ -369,7 +367,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0)
 	int s7;
 
 	gp = 3;
-	SubPolyGTLoop(3, t0, (int)s1, t1);
+	SubPolyGTLoop(3, t0, (int)s1, t1, &t7, &t8);
 	gp = 3;
 
 	t11 = RGB2;
@@ -561,7 +559,7 @@ void InitSubdivision(int* s1, int* t1, int s4, int fp, int t5, int t2, int s5, i
 	((short*)s1)[377] = t44;
 	((short*)s1)[378] = t55;
 
-	t66 = ((int*)s4)[0];
+	t66 = ((int*)s44)[0];
 	t44 = (t11 & 0x3E0) << 3;
 	t55 = t11 & 0x1F;
 
@@ -1117,7 +1115,7 @@ loc_761EC:
 			t3 = (t1 >> 11) & 0x3F8;
 			s66 = &((char*)s11)[t3];
 			t2 = (t1 >> 4) & 0x3F8;
-			s55 = &((char*)s11)[t3];
+			s55 = &((char*)s11)[t2];
 			t1 <<= 3;
 			t1 &= 0x3F8;
 			s44 = &((char*)s11)[t1];
@@ -1138,20 +1136,20 @@ loc_761EC:
 
 			if (t5 == 0)
 			{
-				int s44 = ((int*)s4)[1];
-				int s55 = ((int*)s5)[1];
-				int s66 = ((int*)s6)[1];
-				int s77 = ((int*)s7)[1];
+				int s444 = ((int*)s44)[1];
+				int s555 = ((int*)s55)[1];
+				int s666 = ((int*)s66)[1];
+				int s777 = ((int*)s77)[1];
 
-				t5 = s44 & 0xFFFF;
-				t6 = s55 & 0xFFFF;
-				t7 = s66 & 0xFFFF;
+				t5 = s444 & 0xFFFF;
+				t6 = s555 & 0xFFFF;
+				t7 = s666 & 0xFFFF;
 				if (t5 < t6)
 				{
 					t5 = t6;
 				}//loc_76294
 
-				t8 = s77 & 0xFFFF;
+				t8 = s777 & 0xFFFF;
 				if (t5 < t7)
 				{
 					t5 = t7;
@@ -1178,13 +1176,13 @@ loc_761EC:
 
 						struct MMTEXTURE* t00 = &RoomTextInfo[t0];
 						int fpp;
-						t8 = ((int*)t0)[3];
-						UnpackRGB(&s4, &t8, &s55, &s66, &fpp, &gp, &t5);
+						t8 = ((int*)t00)[3];
+						UnpackRGB(&s4, &t8, &s555, &s666, &fpp, &gp, &t5);
 
 						t5 = t7 >> 7;
 						t5 &= s2;
-						t6 = (s77 >> 10) & 0xF800;
-						t7 = (s77 >> 13) & 0xF8;
+						t6 = (s777 >> 10) & 0xF800;
+						t7 = (s777 >> 13) & 0xF8;
 						t7 |= t5;
 						t7 |= t6;
 						t5 = ((int*)t00)[0];
@@ -1209,15 +1207,15 @@ loc_761EC:
 							a3 += 0x34;
 
 							((int*)s11)[201] = t4;
-							((short*)s11)[404] = s77;
+							((short*)s11)[404] = s777;
 							((int*)s11)[205] = t7;
 							((short*)s11)[409] = t0;
 							t7 = t8;
-							InitSubdivision(&s11[0], &t1, s44, fpp, t5, t2, s55, gp, t6, t3, s66, s3, t7);
+							InitSubdivision(&s11[0], &t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7);
 							t0 = DQB;
 							t5 = LR1 | (LR2 << 16);
 							at = (t0 >> 19) & 0x1FC;
-							s66 = gp + at;
+							s666 = gp + at;
 							at += t5;
 							at = ((int*)at)[0];
 							s3 = 0;
@@ -1235,7 +1233,7 @@ loc_761EC:
 							at &= 0x7C00;
 							at += t3;
 							t4 += t7;
-							t5 += s77;
+							t5 += s777;
 
 							((short*)s11)[406] = at;
 							((short*)s11)[407] = t4;
@@ -1267,7 +1265,7 @@ loc_761EC:
 				}//loc_76410
 			}//loc_76410
 		}
-	} while (v1--);
+	} while (--v1);///@check
 
 	goto loc_761EC;
 
