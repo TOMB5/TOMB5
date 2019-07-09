@@ -48,6 +48,37 @@ unsigned short* TriVertTables[] =
 	&TriVertTable[0]
 };
 
+void SubdivSetup3(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)
+{
+	int t7;
+	short t8;
+
+	a3[2] = SXY0;
+	a3[5] = SXY1;
+	a3[8] = SXY2;
+
+	t7 = t3[4];
+	t8 = ((short*)t3)[7];
+	t7 |= fp;
+	t8 |= t1;
+
+	a3[1] = t7;
+	a3[3] = t8;
+
+	t7 = t4[4];
+	t8 = ((short*)t4)[7];
+
+	a3[4] = t7;
+	t8 |= t2;
+
+	a3[6] = t8;
+	t7 = t5[4];
+	t8 = ((short*)t5)[7];
+
+	a3[7] = t7;
+	a3[9] = t8;
+}
+
 int ClipToScreen(int t2)
 {
 	int t7;
@@ -184,7 +215,7 @@ int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1, int* t7, int
 	return (int*)t0;
 }
 
-void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0)
+void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
 {
 	int s7;
 	int gp;
@@ -198,15 +229,14 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0)
 	int t7;
 	int t8; //? find out where i come from
 	int at;
-	int s3 = 0; //? find out where i come from
-	int ra;
+	int ra = 0;
 	int s4;
 	int s5;
 	int s6;
 	int fp; //? find out where i come from
 	int t00;
 
-	SubPolyGTLoop(5, t0, (int)s1, t1, &t7, &t8);
+	t0 = SubPolyGTLoop(5, t0, (int)s1, t1, &t7, &t8);
 
 	gp = 3;
 	t11 = RGB2;
@@ -272,7 +302,7 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0)
 				s5 = ra;
 				s6 = (int)t0;
 
-				SubPolyGT4((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0);
+				SubPolyGT4((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3);
 				t11 = RGB2;
 				t2 = RGB1;
 				s3 = 0;
@@ -323,7 +353,7 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0)
 				if (at == 0)
 				{
 					t2 = RGB1;
-					///SubdivSetup3();
+					SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, t11, t2);
 
 					t5 = ((int*)t6)[0];
 					t7 = ((int*)t6)[4];
@@ -344,12 +374,12 @@ loc_75B20:
 		int test = 0;
 		test++;
 
-	} while (gp--);
+	} while (gp-- != 0);
 
 	return;
 }
 
-void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
+void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 {
 	int gp;
 	int t11;
@@ -425,7 +455,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
 
 				s6 = (int)t0;
 
-				SubPolyGT3((int*)&TriVertTables[gp], &s1[216], s1, a3, s0, s3);
+				SubPolyGT3((int*)&TriVertTables[gp], &s1[216], s1, a3, s0, s3, fp);
 
 				t11 = RGB2;
 				t2 = RGB1;
@@ -454,9 +484,9 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
 				if (at == 0)
 				{
 					t2 = RGB1;
-					///SubdivSetup3();
+					SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, t11, t2);
 					MyAddPrim(0x9000000, t9, s0, a3);
-					a3 += 0x34; //TODO divide by 4 of int* likely this is the polyptr, also might need passing from callee
+					a3 += 13; //TODO divide by 4 of int* likely this is the polyptr, also might need passing from callee
 				}
 				//loc_759A8
 				ra = s7;
@@ -466,10 +496,10 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
 		int test = 0;
 		test++;
 
-	} while(gp--);
+	} while(gp-- != 0);
 }
 
-void InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, short t7)
+int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, short t7)
 {
 	int t11;
 	int t33;
@@ -599,6 +629,8 @@ void InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, in
 	((short*)s1)[396] = t22;
 	((short*)s1)[397] = t44;
 	((short*)s1)[398] = t55;
+
+	return (int*)gpp;
 }
 
 void InitPrim(int* a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
@@ -638,7 +670,7 @@ long ClipXY(int t0, int t1, int t2, int t3, int t4)
 	}
 	//loc_7557C
 	t6 = t2 << 16;
-	t9 = L31 | (L32 << 16);///@FIXME keeps reporting zero ***************************CRITICAL***************
+	t9 = L31 | (L32 << 16);
 	t7 = t3 << 16;
 
 	if (t1 > t9 && t2 > t9 && t3 > t9 && t4 > t9)
@@ -1046,7 +1078,7 @@ loc_76080:
 						InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, t3, (int)s6, s3, t7);
 
 						s3 = 0;
-						SubPolyGT3((int*)&TriVertTables[4], &s11[201], s11, (int*)a3, s00, 0);
+						SubPolyGT3((int*)&TriVertTables[4], &s11[201], s11, (int*)a3, s00, s3, fpp);
 
 						at = BFC;
 						t0 = LB1 | (LB2 << 16);
@@ -1121,9 +1153,9 @@ loc_761EC:
 			t1 &= 0x3F8;
 			s44 = &((char*)s11)[t1];
 
-			t1 = ((int*)s44)[0];
-			t2 = ((int*)s55)[0];
-			t3 = ((int*)s66)[0];
+			t1 = ((unsigned int*)s44)[0];
+			t2 = ((unsigned int*)s55)[0];
+			t3 = ((unsigned int*)s66)[0];
 
 			SXY0 = t1;
 			SXY1 = t2;
@@ -1177,10 +1209,10 @@ loc_761EC:
 
 						struct MMTEXTURE* t00 = &RoomTextInfo[t0];
 						int fpp;
-						t8 = ((int*)t00)[3];
-						UnpackRGB(&s4, &t8, &s555, &s666, &fpp, &gp, &t5);
+						t8 = ((int*)t00)[2];
+						UnpackRGB(&s444, &t8, &s555, &s666, &fpp, &gp, &t5);
 
-						t5 = t7 >> 7;
+						t5 = s777 >> 7;
 						t5 &= s2;
 						t6 = (s777 >> 10) & 0xF800;
 						t7 = (s777 >> 13) & 0xF8;
@@ -1192,7 +1224,7 @@ loc_761EC:
 						t5 -= a1;
 						t0 = ((int*)t00)[3];
 
-						InitPrim(&a3, fpp, t1, t5, gp, t2, t6, s3, t3);
+						InitPrim((int*)a3, fpp, t1, t5, gp, t2, t6, s3, t3);
 
 						((int*)a3)[9] = t8;
 						((int*)a3)[10] = t7;
@@ -1212,7 +1244,7 @@ loc_761EC:
 							((int*)s11)[205] = t7;
 							((short*)s11)[409] = t0;
 							t7 = t8;
-							InitSubdivision(&s11[0], t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7);
+							gp = (int)InitSubdivision(&s11[0], t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7);
 							t0 = DQB;
 							t5 = LR1 | (LR2 << 16);
 							at = (t0 >> 19) & 0x1FC;
@@ -1220,7 +1252,7 @@ loc_761EC:
 							at += t5;
 							at = ((int*)at)[0];
 							s3 = 0;
-							t6 = ((int*)s66)[0];
+							t6 = ((int*)s666)[0];
 							t4 = (at & 0x3E0) << 3;
 							t5 = at & 0x1F;
 
@@ -1240,7 +1272,7 @@ loc_761EC:
 							((short*)s11)[407] = t4;
 							((short*)s11)[408] = t5;
 
-							SubPolyGT4((int*)& QuadVertTables[4], &t1, s11, &a3, s00);
+							SubPolyGT4((int*)& QuadVertTables[4], &t1, s11, &a3, s00, s3);
 
 							t0 = LB1 | (LB2 << 16);
 							at = BFC;
@@ -1266,7 +1298,7 @@ loc_761EC:
 				}//loc_76410
 			}//loc_76410
 		}
-	} while (--v1);///@check
+	} while (v1--);
 
 	goto loc_761EC;
 
@@ -2189,8 +2221,7 @@ loc_75124:
 
 		DrawMesh(a0, &db, &sp[-14]);
 
-		///a1 = &db
-		///a1[8] = a3 (db.polyptr store?)
+		db.polyptr = (char*)a3;
 		///j loc_751B4
 	}///loc_76420?
 
