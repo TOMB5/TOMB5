@@ -171,7 +171,7 @@ void CreateNewVertex(int* t2, int* t7, int* t8, int t1)
 	at += s2;
 	at >>= 1;
 
-	((unsigned char*)a1)[30] = a1;
+	((unsigned char*)t2)[30] = a1;
 
 	a1 = ((unsigned int*)t7)[4];
 	s2 = ((unsigned int*)t8)[4];
@@ -231,17 +231,6 @@ void SubdivTri64(int t3, int t4, int t5)
 	Add2DPrim(&sp[9], &sp[4], &sp[2]);
 	Add2DPrim(&sp[9], (int*)sp[3], &sp[14]);
 	Add2DPrim(&sp[9], (int*)sp[14], &sp[4]);
-#if 0
-	t3 = &sp[9];
-	t4 = &sp[4];
-	t5 = &sp[2]
-
-	addi    $t4, $sp, arg_38
-	jal     Add2DPrim
-	addi    $t5, $sp, arg_10
-
-#endif
-	UNIMPLEMENTED();
 }
 
 int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1, int* t7, int* t8)
