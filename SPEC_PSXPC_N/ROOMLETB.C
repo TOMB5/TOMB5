@@ -470,7 +470,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0)
 	} while(gp--);
 }
 
-void InitSubdivision(int* s1, int* t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, short t7)
+void InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, short t7)
 {
 	int t11;
 	int t33;
@@ -486,7 +486,7 @@ void InitSubdivision(int* s1, int* t1, int s4, int fp, int t5, int t2, int s5, i
 	int t66;
 	int t44;
 
-	s1[186] = *t1;
+	s1[186] = t1;
 	((short*)s1)[374] = s4;
 
 	t11 = (fp << 8) >> 8;
@@ -1044,7 +1044,7 @@ loc_76080:
 						LG3 = a3 >> 16;
 						a3 += 0x28;
 
-						InitSubdivision(s11, (int*)t1, s4, fpp, t5, t2, s555, gp, t6, t3, (int)s6, s3, t7);
+						InitSubdivision(s11, t1, s4, fpp, t5, t2, s555, gp, t6, t3, (int)s6, s3, t7);
 
 						s3 = 0;
 						SubPolyGT3((int*)TriVertTables[4], &s11[201], s11, (int*)a3, s00);
@@ -1213,7 +1213,7 @@ loc_761EC:
 							((int*)s11)[205] = t7;
 							((short*)s11)[409] = t0;
 							t7 = t8;
-							InitSubdivision(&s11[0], &t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7);
+							InitSubdivision(&s11[0], t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7);
 							t0 = DQB;
 							t5 = LR1 | (LR2 << 16);
 							at = (t0 >> 19) & 0x1FC;
