@@ -1185,7 +1185,7 @@ loc_76080:
 						InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
 
 						s3 = 0;
-						SubPolyGT3((int*)&TriVertTables[4], &s11[201], s11, (int*)a3, s00, s3, fpp);
+						SubPolyGT3((int*)& TriVertTables[4], &s11[201], s11, (int*)a3, s00, s3, fpp);
 
 						at = BFC;
 						t0 = LB1 | (LB2 << 16);
@@ -1246,174 +1246,176 @@ loc_761EC:
 		at = t0 ^ 0x3FF;
 		v0 >>= 10;
 
-		if (at != 0)
+		if (at == 0)
 		{
-			t1 = a0[0];
-			a0++;
-			DQB = t1;
-			t4 = t1 >> 18;
-			t3 = (t1 >> 11) & 0x3F8;
-			s66 = &((char*)s11)[t3];
-			t2 = (t1 >> 4) & 0x3F8;
-			s55 = &((char*)s11)[t2];
-			t1 <<= 3;
-			t1 &= 0x3F8;
-			s44 = &((char*)s11)[t1];
-
-			t1 = ((unsigned int*)s44)[0];
-			t2 = ((unsigned int*)s55)[0];
-			t3 = ((unsigned int*)s66)[0];
-
-			SXY0 = t1;
-			SXY1 = t2;
-			SXY2 = t3;
-
-			t4 &= 0x3F8;
-			s77 = &((char*)s11)[t4];
-			docop2(0x1400006);
-			t4 = ((int*)s77)[0];
-			t5 = ClipXY(t0, t1, t2, t3, t4);
-
-			if (t5 == 0)
-			{
-				int s444 = ((int*)s44)[1];
-				int s555 = ((int*)s55)[1];
-				int s666 = ((int*)s66)[1];
-				int s777 = ((int*)s77)[1];
-
-				t5 = s444 & 0xFFFF;
-				t6 = s555 & 0xFFFF;
-				t7 = s666 & 0xFFFF;
-				if (t5 < t6)
-				{
-					t5 = t6;
-				}//loc_76294
-
-				t8 = s777 & 0xFFFF;
-				if (t5 < t7)
-				{
-					t5 = t7;
-				}//loc_762A4
-
-				t6 = 0;
-				if (t5 < t8)
-				{
-					t5 = t8;
-				}
-
-				//loc_762B4
-				t7 = MAC0;
-				t5 >>= 3;
-
-				if (t5 < 0x9E0)
-				{
-					t9 = t5 << 2;
-					if (t5 < 0x280 || t7 >= 0)
-					{
-						//loc_762D8
-						LB1 = (t7 & 0xFFFF);
-						LB2 = (t7 >> 16);
-
-						struct MMTEXTURE* t00 = &RoomTextInfo[t0];
-						int fpp;
-						t8 = ((int*)t00)[2];
-						UnpackRGB(&s444, &t8, &s555, &s666, &fpp, &gp, &t5);
-
-						t5 = s777 >> 7;
-						t5 &= s2;
-						t6 = (s777 >> 10) & 0xF800;
-						t7 = (s777 >> 13) & 0xF8;
-						t7 |= t5;
-						t7 |= t6;
-						t5 = ((int*)t00)[0];
-						a1 = RFC;
-						t6 = ((int*)t00)[1];
-						t5 -= a1;
-						t0 = ((int*)t00)[3];
-
-						InitPrim((int*)a3, fpp, t1, t5, gp, t2, t6, s3, t3);
-
-						((int*)a3)[9] = t8;
-						((int*)a3)[10] = t7;
-						((int*)a3)[11] = t4;
-						((int*)a3)[12] = t0;
-
-						if (at != 0)
-						{
-							BFC = t0;
-							DQA = t9;
-							LG2 = a3 & 0xFFFF;
-							LG3 = a3 >> 16;
-							a3 += 0x34;
-
-							((int*)s11)[201] = t4;
-							((short*)s11)[404] = s777;
-							((int*)s11)[205] = t7;
-							((short*)s11)[409] = t0;
-							t7 = t8;
-
-							static int numCalls = 0;
-							if (numCalls == 28588)
-							{
-								numCalls = 0;
-							}
-							gp = (int)InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
-							
-							numCalls++;
-							
-							t0 = DQB;
-							t5 = LR1 | (LR2 << 16);
-							at = (t0 >> 19) & 0x1FC;
-							s666 = gp + at;
-							at += t5;
-							at = ((int*)at)[0];
-							s3 = 0;
-							t6 = ((int*)s666)[0];
-							t4 = (at & 0x3E0) << 3;
-							t5 = at & 0x1F;
-
-							if (at < 0)
-							{
-								t4 = t6;
-							}
-
-							//loc_763A4
-							t5 <<= 10;
-							at &= 0x7C00;
-							at += t3;
-							t4 += t7;
-							t5 += s777;
-
-							((short*)s11)[406] = at;
-							((short*)s11)[407] = t4;
-							((short*)s11)[408] = t5;
-
-							SubPolyGT4((int*)& QuadVertTables[4], &s11[206], s11, (int*)a3, s00, s3);
-
-							t0 = (LB1 & 0xFFFF) | (LB2 << 16);
-							at = BFC;
-							t9 = DQA;
-
-							t0 |= at;
-
-							t3 = a3;
-							if (t0 >= 0 && t9 > 0x4FF)
-							{
-								a3 = LG2 | (LG3 << 16);
-								MyAddPrim(0xC000000, t9, s00, &a3);
-								a3 = t3;
-							}//loc_76410
-						}
-						else
-						{
-							//loc_76404
-							MyAddPrim(0xC000000, t9, s00, &a3);
-							a3 += 0x34;
-						}
-					}
-				}//loc_76410
-			}//loc_76410
+			//loc_76420
+			return;
 		}
+		t1 = a0[0];
+		a0++;
+		DQB = t1;
+		t4 = t1 >> 18;
+		t3 = (t1 >> 11) & 0x3F8;
+		s66 = &((char*)s11)[t3];
+		t2 = (t1 >> 4) & 0x3F8;
+		s55 = &((char*)s11)[t2];
+		t1 <<= 3;
+		t1 &= 0x3F8;
+		s44 = &((char*)s11)[t1];
+
+		t1 = ((unsigned int*)s44)[0];
+		t2 = ((unsigned int*)s55)[0];
+		t3 = ((unsigned int*)s66)[0];
+
+		SXY0 = t1;
+		SXY1 = t2;
+		SXY2 = t3;
+
+		t4 &= 0x3F8;
+		s77 = &((char*)s11)[t4];
+		docop2(0x1400006);
+		t4 = ((int*)s77)[0];
+		t5 = ClipXY(t0, t1, t2, t3, t4);
+
+		if (t5 == 0)
+		{
+			int s444 = ((int*)s44)[1];
+			int s555 = ((int*)s55)[1];
+			int s666 = ((int*)s66)[1];
+			int s777 = ((int*)s77)[1];
+
+			t5 = s444 & 0xFFFF;
+			t6 = s555 & 0xFFFF;
+			t7 = s666 & 0xFFFF;
+			if (t5 < t6)
+			{
+				t5 = t6;
+			}//loc_76294
+
+			t8 = s777 & 0xFFFF;
+			if (t5 < t7)
+			{
+				t5 = t7;
+			}//loc_762A4
+
+			t6 = 0;
+			if (t5 < t8)
+			{
+				t5 = t8;
+			}
+
+			//loc_762B4
+			t7 = MAC0;
+			t5 >>= 3;
+
+			if (t5 < 0x9E0)
+			{
+				t9 = t5 << 2;
+				if (t5 < 0x280 || t7 >= 0)
+				{
+					//loc_762D8
+					LB1 = (t7 & 0xFFFF);
+					LB2 = (t7 >> 16);
+
+					struct MMTEXTURE* t00 = &RoomTextInfo[t0];
+					int fpp;
+					t8 = ((int*)t00)[2];
+					UnpackRGB(&s444, &t8, &s555, &s666, &fpp, &gp, &t5);
+
+					t5 = s777 >> 7;
+					t5 &= s2;
+					t6 = (s777 >> 10) & 0xF800;
+					t7 = (s777 >> 13) & 0xF8;
+					t7 |= t5;
+					t7 |= t6;
+					t5 = ((int*)t00)[0];
+					a1 = RFC;
+					t6 = ((int*)t00)[1];
+					t5 -= a1;
+					t0 = ((int*)t00)[3];
+
+					InitPrim((int*)a3, fpp, t1, t5, gp, t2, t6, s3, t3);
+
+					((int*)a3)[9] = t8;
+					((int*)a3)[10] = t7;
+					((int*)a3)[11] = t4;
+					((int*)a3)[12] = t0;
+
+					if (at != 0)
+					{
+						BFC = t0;
+						DQA = t9;
+						LG2 = a3 & 0xFFFF;
+						LG3 = a3 >> 16;
+						a3 += 0x34;
+
+						((int*)s11)[201] = t4;
+						((short*)s11)[404] = s777;
+						((int*)s11)[205] = t7;
+						((short*)s11)[409] = t0;
+						t7 = t8;
+
+						static int numCalls = 0;
+						if (numCalls == 28588)
+						{
+							numCalls = 0;
+						}
+						gp = (int)InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
+
+						numCalls++;
+
+						t0 = DQB;
+						t5 = LR1 | (LR2 << 16);
+						at = (t0 >> 19) & 0x1FC;
+						s666 = gp + at;
+						at += t5;
+						at = ((int*)at)[0];
+						s3 = 0;
+						t6 = ((int*)s666)[0];
+						t4 = (at & 0x3E0) << 3;
+						t5 = at & 0x1F;
+
+						if (at < 0)
+						{
+							t4 = t6;
+						}
+
+						//loc_763A4
+						t5 <<= 10;
+						at &= 0x7C00;
+						at += t3;
+						t4 += t7;
+						t5 += s777;
+
+						((short*)s11)[406] = at;
+						((short*)s11)[407] = t4;
+						((short*)s11)[408] = t5;
+
+						SubPolyGT4((int*)& QuadVertTables[4], &s11[206], s11, (int*)a3, s00, s3);
+
+						t0 = (LB1 & 0xFFFF) | (LB2 << 16);
+						at = BFC;
+						t9 = DQA;
+
+						t0 |= at;
+
+						t3 = a3;
+						if (t0 >= 0 && t9 > 0x4FF)
+						{
+							a3 = LG2 | (LG3 << 16);
+							MyAddPrim(0xC000000, t9, s00, &a3);
+							a3 = t3;
+						}//loc_76410
+					}
+					else
+					{
+						//loc_76404
+						MyAddPrim(0xC000000, t9, s00, &a3);
+						a3 += 0x34;
+					}
+				}
+			}//loc_76410
+		}//loc_76410
 	} while (v1--);
 
 	goto loc_761EC;
