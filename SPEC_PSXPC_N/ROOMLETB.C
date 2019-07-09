@@ -1017,7 +1017,9 @@ loc_76080:
 				if (t5 < 0x280 && t7 >= 0)
 				{
 					//loc_7613C
-					t7 = LB1 | (LB2 << 16);
+					LB1 = t7 & 0xFFFF;
+					LB2 = t7 >> 16;
+
 					struct MMTEXTURE* t00 = &RoomTextInfo[t0];
 					t7 = ((int*)t00)[2];
 					t8 = t7 << 8;
