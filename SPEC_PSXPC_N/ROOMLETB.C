@@ -632,7 +632,7 @@ long ClipXY(int t0, int t1, int t2, int t3, int t4)
 	int t8;
 	int fp;
 
-	t9 = IR2;
+	t9 = L22 | (L23 << 16);
 	t5 = t1 << 16;
 
 	if (t1 < t9 && t2 < t9 && t3 < t9 && t4 < t9)
@@ -640,8 +640,8 @@ long ClipXY(int t0, int t1, int t2, int t3, int t4)
 		return 1;
 	}
 	//loc_7557C
-	t6 = t2 >> 16;
-	t9 = IR3;
+	t6 = t2 << 16;
+	t9 = L31 | (L32 << 16);///@FIXME keeps reporting zero ***************************CRITICAL***************
 	t7 = t3 << 16;
 
 	if (t1 > t9 && t2 > t9 && t3 > t9 && t4 > t9)
@@ -650,8 +650,8 @@ long ClipXY(int t0, int t1, int t2, int t3, int t4)
 	}
 	//loc_755A8
 	t8 = t4 << 16;
-	t9 = IR0;
-	fp = IR1;
+	t9 = L11 | (L12 << 16);
+	fp = L13 | (L21 << 16);
 
 	if (t5 < t9 && t6 < t9 && t7 < t9 && t8 < t9)
 	{
@@ -968,9 +968,9 @@ loc_76080:
 		s7 = 0;
 		DQB = t0;
 
-		char* s66 = &LTab[(t0 >> 11) & 0x3F8];
-		char* s55 = &LTab[(t0 >> 4) & 0x3F8];
-		char* s44 = &LTab[(t0 << 3) & 0x3F8];
+		char* s66 = &((char*)s11)[(t0 >> 11) & 0x3F8];
+		char* s55 = &((char*)s11)[(t0 >> 4) & 0x3F8];
+		char* s44 = &((char*)s11)[(t0 << 3) & 0x3F8];
 
 		t1 = ((int*)s44)[0];
 		t2 = ((int*)s55)[0];
