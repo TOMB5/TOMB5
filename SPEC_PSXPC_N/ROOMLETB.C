@@ -189,16 +189,21 @@ void CreateNewVertex(int* t2, int* t7, int* t8, int t1)
 void Add2DPrim(int* t3, int* t4, int* t5)
 {
 #if 0
-lwc2    $12, 0($t3)
-lwc2    $13, 0($t4)
-lwc2    $14, 0($t5)
-jal     ClipToScreen
-lw      $t2, 0($t5)
-bnez    $at, loc_75CC0
-nop
-mfc2    $t2, $21
-jal     SubdivSetup3
-nop
+	int t2;
+
+	SXY0 = t3[0];
+	SXY1 = t4[0];
+	SXY2 = t5[0];
+
+	if (!ClipToScreen(t5[0]))
+	{
+		t2 = RGB1;
+		SubdivSetup3(a3, fp, t3, t4, t5, t1, t2);
+		MyAddPrim(0x9000000, t9, s0, a3);
+	}//loc_75CC0
+#endif
+
+#if 0
 jal     MyAddPrim
 lui     $t7, 0x900
 sub     $t9, $s0
@@ -309,7 +314,7 @@ int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1, int* t7, int
 		t1[4] = *t7;
 		((char*)t1)[15] = t6;
 		t1 += 5;
-	} while (--nVertices);
+	} while (--nVertices != 0);
 
 	return (int*)t0;
 }
@@ -535,11 +540,11 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 			t7 = t8;
 		}
 
+		t7 >>= 3;
 		if (t7 < t9)
 		{
-			t7 = t9;
+			t7 = t9 >> 3;
 		}
-		t7 >>= 3;
 
 		//loc_758F4
 		at = DQB >> 31;
@@ -549,7 +554,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 			at = t7 << at;
 			t9 = t7 << 2;
 
-			if (at < 0x180 && s3 == 0)///@FIXME S3, might come from callee
+			if (at < 0x180 && s3 == 0)
 			{
 				s3 = 1;
 				s4 = gp;
@@ -564,7 +569,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 				s3 = 0;
 				gp = s4;
 				ra = s5;
-				t00 = s6;
+				t0 = (int*)s6;
 
 				goto loc_759AC;
 			}
@@ -601,12 +606,10 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 	} while(gp-- != 0);
 }
 
-int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, short t7)
+int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int* t3, int s6, int s3, int* t7, int* s7)
 {
 	int t11;
-	int t33;
 	int t77;
-	int s77;
 	char* gpp;
 	int t00;
 	int t55;
@@ -631,15 +634,15 @@ int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, in
 	s1[195] = gp;
 	((short*)s1)[389] = t6;
 
-	s1[196] = t3;
+	s1[196] = *t3;
 	((short*)s1)[394] = s6;
 
 	s1[200] = s3;
-	((short*)s1)[399] = t7;
+	((short*)s1)[399] = *t7;
 
-	t33 = RBK;
-	t77 = GBK;
-	s77 = BBK;
+	*t3 = RBK;
+	*t7 = GBK;
+	*s7 = BBK;
 
 	gpp = (char*)&YOffset[0];
 
@@ -682,9 +685,9 @@ int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, in
 	//loc_756CC
 	t55 <<= 10;
 	t00 &= 0x7C00;
-	t00 += t33;
-	t44 += t77;
-	t55 += s77;
+	t00 += *t3;
+	t44 += *t7;
+	t55 += *s7;
 
 	((short*)s1)[376] = t00;
 	((short*)s1)[377] = t44;
@@ -702,9 +705,9 @@ int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, in
 	//loc_75704
 	t55 <<= 10;
 	t11 &= 0x7C00;
-	t11 += t33;
-	t44 += t77;
-	t55 += s77;
+	t11 += *t3;
+	t44 += *t7;
+	t55 += *s7;
 
 	((short*)s1)[386] = t11;
 	((short*)s1)[387] = t44;
@@ -724,9 +727,9 @@ int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, in
 	t55 <<= 10;
 	t22 &= 0x7C00;
 
-	t22 += t33;
-	t44 += t77;
-	t55 += s77;
+	t22 += *t3;
+	t44 += *t7;
+	t55 += *s7;
 
 	((short*)s1)[396] = t22;
 	((short*)s1)[397] = t44;
@@ -830,6 +833,7 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 	char* s55;
 	char* s44;
 	char* s77;
+	int s777;
 
 	a2 = &sp[0];
 	s0 = &LOffset[0];
@@ -868,6 +872,7 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 
 		if (t9 != 0)
 		{
+			///@TODO debug me
 			t6 = (t0 + s2) >> 6;
 			t7 = (t1 + s3) >> 6;
 			t8 = (t2 + s4) >> 7;
@@ -936,6 +941,7 @@ void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 
 		if (t9 != 0)
 		{
+			///@TODO debug
 			t1 -= t7;
 			t2 -= t8;
 			t0 += s2;
@@ -1096,7 +1102,7 @@ loc_76080:
 	if (v0-- != 0)
 	{
 		t0 = a0[0];
-		s7 = 0;
+		s777 = 0;
 		DQB = t0;
 
 		char* s66 = &((char*)s11)[(t0 >> 11) & 0x3F8];
@@ -1176,8 +1182,7 @@ loc_76080:
 						LG2 = a3 & 0xFFFF;
 						LG3 = a3 >> 16;
 						a3 += 0x28;
-
-						InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7);
+						InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
 
 						s3 = 0;
 						SubPolyGT3((int*)&TriVertTables[4], &s11[201], s11, (int*)a3, s00, s3, fpp);
@@ -1352,7 +1357,7 @@ loc_761EC:
 							{
 								numCalls = 0;
 							}
-							gp = (int)InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7);
+							gp = (int)InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
 							
 							numCalls++;
 							
