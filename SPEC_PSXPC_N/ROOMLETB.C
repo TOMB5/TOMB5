@@ -186,6 +186,31 @@ void CreateNewVertex(int* t2, int* t7, int* t8, int t1)
 	((unsigned int*)t2)[8] = a1;
 }
 
+void Add2DPrim(int* t3, int* t4, int* t5)
+{
+#if 0
+lwc2    $12, 0($t3)
+lwc2    $13, 0($t4)
+lwc2    $14, 0($t5)
+jal     ClipToScreen
+lw      $t2, 0($t5)
+bnez    $at, loc_75CC0
+nop
+mfc2    $t2, $21
+jal     SubdivSetup3
+nop
+jal     MyAddPrim
+lui     $t7, 0x900
+sub     $t9, $s0
+jr      $a1
+addi    $a3, 0x28
+
+loc_75CC0:
+jr      $a1
+nop
+#endif
+}
+
 void SubdivTri64(int t3, int t4, int t5)
 {
 	int sp[256];
@@ -202,21 +227,14 @@ void SubdivTri64(int t3, int t4, int t5)
 
 	t1 = RGB2;
 
+	Add2DPrim((int*)sp[1], &sp[4], &sp[14]);
+	Add2DPrim(&sp[9], &sp[4], &sp[2]);
+	Add2DPrim(&sp[9], (int*)sp[3], &sp[14]);
+	Add2DPrim(&sp[9], (int*)sp[14], &sp[4]);
 #if 0
-	t3 = sp[1];
+	t3 = &sp[9];
 	t4 = &sp[4];
-	t5 = &sp[14]
-
-	jal     Add2DPrim
-	addi    $t5, $sp, arg_38
-
-	addi    $t3, $sp, arg_24
-	jal     Add2DPrim
-	lw      $t5, arg_8($sp)
-
-	lw      $t4, arg_C($sp)
-	jal     Add2DPrim
-	addi    $t5, $sp, arg_38
+	t5 = &sp[2]
 
 	addi    $t4, $sp, arg_38
 	jal     Add2DPrim
