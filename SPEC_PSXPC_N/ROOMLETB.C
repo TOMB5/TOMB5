@@ -51,14 +51,14 @@ unsigned short* TriVertTables[] =
 void SubdivSetup3(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)
 {
 	int t7;
-	short t8;
+	int t8;
 
 	a3[2] = SXY0;
 	a3[5] = SXY1;
 	a3[8] = SXY2;
 
 	t7 = t3[4];
-	t8 = ((short*)t3)[7];
+	t8 = ((unsigned short*)t3)[7];
 	t7 |= fp;
 	t8 |= t1;
 
@@ -66,14 +66,14 @@ void SubdivSetup3(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)
 	a3[3] = t8;
 
 	t7 = t4[4];
-	t8 = ((short*)t4)[7];
+	t8 = ((unsigned short*)t4)[7];
 
 	a3[4] = t7;
 	t8 |= t2;
 
 	a3[6] = t8;
 	t7 = t5[4];
-	t8 = ((short*)t5)[7];
+	t8 = ((unsigned short*)t5)[7];
 
 	a3[7] = t7;
 	a3[9] = t8;
