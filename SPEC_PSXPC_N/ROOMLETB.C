@@ -123,7 +123,7 @@ void MyAddPrim(int t7, int t9, int s0, int* a3)
 	int t5;
 
 	t9 += s0;
-	t5 = ((int*)t9)[0];
+	t5 = ((unsigned int*)t9)[0];
 	((unsigned int*)t9)[0] = (unsigned int)a3;
 	t5 |= t7;
 	((unsigned int*)a3)[0] = (unsigned int)t5;
@@ -311,7 +311,7 @@ int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1, int* t7, int
 	return (int*)t0;
 }
 
-void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
+int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 {
 	int s7;
 	int gp;
@@ -400,7 +400,7 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 				s5 = ra;
 				s6 = (int)t0;
 
-				SubPolyGT4((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
+				a3 = SubPolyGT4((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
 				t11 = RGB2;
 				t2 = RGB1;
 				s3 = 0;
@@ -474,10 +474,10 @@ loc_75B20:
 
 	} while (gp-- != 0);
 
-	return;
+	return a3;
 }
 
-void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
+int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 {
 	int gp;
 	int t11;
@@ -553,7 +553,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 
 				s6 = (int)t0;
 
-				SubPolyGT3((int*)&TriVertTables[gp], &s1[216], s1, a3, s0, s3, fp);
+				a3 = SubPolyGT3((int*)&TriVertTables[gp], &s1[216], s1, a3, s0, s3, fp);
 
 				t11 = RGB2;
 				t2 = RGB1;
@@ -573,7 +573,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 				if (t9 < 0x80)
 				{
 					SubdivTri64(t3, t4, t5, a3, fp, t9, &s0);
-					return;
+					return a3;
 				}
 				//loc_75980
 				t2 = ((int*)t5)[0];
@@ -595,6 +595,8 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 		test++;
 
 	} while(gp-- != 0);
+
+	return a3;
 }
 
 int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int* t3, int s6, int s3, int* t7, int* s7)
@@ -647,7 +649,7 @@ int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, in
 	RGB1 = t6;
 
 	t00 = DQB;
-	t55 = LR1 | (LR2 << 16);
+	t55 = (LR1 & 0xFFFF) | (LR2 << 16);
 
 	t22 = (t00 >> 12) & 0x1FC;
 	s55 = &gpp[t22];
@@ -948,7 +950,7 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 			s6 += 4;
 			t6 = s6[-4];
 
-			if (t0 != 0)
+			if (t9 != 0)
 			{
 				t7 = s6[-3];
 				t8 = s6[-2];
@@ -983,25 +985,27 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 					goto loc_75F0C;
 				}
 
-				t6 += s5[t6];
+				t6 += (int)s5;
+				t6 = ((char*)t6)[0];
 				t9 &= 0xFF;
 
 				if (t6 > t9)
 				{
 					goto loc_75F0C;
 				}
-				t9 = s0[t9];
+				t9 <<= 1;
+				t9 += (int)s0;
+				t9 = ((short*)t9)[0];
 				t6 <<= 5;
 				t6 += t9;
+				t6 += (int)s1;
+				a3 += t6;
+				v1 += t6;
+				a1 += t6;
 
-				char* t66 = &((char*)s1)[t6];
-				char* a33 = &((char*)t6)[a3];
-				char* v11 = &((char*)t6)[v1];
-				char* a11 = &((char*)t6)[a1];
-
-				a3 = a33[0];///@CHECKME (loads)
-				v1 = v11[0];
-				a1 = a11[0];
+				a3 = ((char*)a3)[0];
+				v1 = ((char*)v1)[0];
+				a1 = ((char*)a1)[0];
 
 				t4 += v1;
 				t5 += a1;
@@ -1176,7 +1180,7 @@ loc_76080:
 						InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
 
 						s3 = 0;
-						SubPolyGT3((int*)& TriVertTables[4], &s11[201], s11, (int*)a3, s00, s3, fpp);
+						a3 = (int)SubPolyGT3((int*)& TriVertTables[4], &s11[201], s11, (int*)a3, s00, s3, fpp);
 
 						at = BFC;
 						t0 = LB1 | (LB2 << 16);
@@ -1347,7 +1351,7 @@ loc_761EC:
 						t7 = t8;
 
 						static int numCalls = 0;
-						if (numCalls == 28588)
+						if (numCalls == 33)
 						{
 							numCalls = 0;
 						}
@@ -1356,7 +1360,7 @@ loc_761EC:
 						numCalls++;
 
 						t0 = DQB;
-						t5 = LR1 | (LR2 << 16);
+						t5 = (LR1 & 0xFFFF) | (LR2 << 16);
 						at = (t0 >> 19) & 0x1FC;
 						s666 = gp + at;
 						at += t5;
@@ -1382,7 +1386,7 @@ loc_761EC:
 						((short*)s11)[407] = t4;
 						((short*)s11)[408] = t5;
 
-						SubPolyGT4((int*)& QuadVertTables[4], &s11[206], s11, (int*)a3, s00, s3, fpp);
+						a3 = (int)SubPolyGT4((int*)& QuadVertTables[4], &s11[206], s11, (int*)a3, s00, s3, fpp);
 
 						t0 = (LB1 & 0xFFFF) | (LB2 << 16);
 						at = BFC;
@@ -1407,7 +1411,7 @@ loc_761EC:
 				}
 			}//loc_76410
 		}//loc_76410
-	} while (v1--);
+	} while (v1-- != 0);
 
 	goto loc_761EC;
 
@@ -1571,7 +1575,8 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	int t9;
 	int v0;
 	int* a1;
-	int sp[256];
+	int scratchPad[256];
+	int* sp = &scratchPad[14];
 	int a3;
 	int a2;
 	int v1;
@@ -1583,7 +1588,7 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	return;
 #endif
 
-	S_MemSet((char*)&sp[0], 0, 1024);
+	S_MemSet((char*)&scratchPad[0], 0, 1024);
 
 	RFC = underwater;
 	RGB0 = (unsigned long)r;
@@ -2014,17 +2019,16 @@ loc_75124:
 		GBK = t1;
 		BBK = t2;
 
-		//loc_751B4
+loc_751B4:
 		a0 = (int*)s2[0];
 		s2++;
-		t5 = a0[0];
 
 		if (a0 == NULL)
 		{
 			goto loc_75124;
 		}
 
-
+		t5 = a0[0];
 		t6 = 0;
 		t00 = &s3[t5 & 0xFFF8];///@checkme result of t0 :S
 
@@ -2329,10 +2333,10 @@ loc_75124:
 		a1[3] = 0;
 
 		a3 = DrawMesh(a0, &db, &sp[-14]);
-		a1 = (int*)&db.polyptr;
+		a1 = (int*)db.polyptr;
 
 		db.polyptr = (char*)a3;
-		///j loc_751B4
+		goto loc_751B4;
 	}///loc_76420?
 
 	UNIMPLEMENTED();
