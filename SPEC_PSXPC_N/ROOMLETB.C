@@ -90,7 +90,7 @@ int ClipToScreen(int t2)
 	t8 = SXY1;
 	s2 = SXY2;
 
-	if ((t7 & 0xFE00) && (t8 & 0xFE00) && (t2 & 0xFE00) && (s2 & 0xFE00))
+	if ((t7 & 0xFE00) || (t8 & 0xFE00) || (t2 & 0xFE00) || (s2 & 0xFE00))
 	{
 		return 1;
 	}
@@ -118,13 +118,13 @@ int ClipToScreen(int t2)
 	return 1;
 }
 
-void MyAddPrim(int t7, int t9, int s0, int* a3)
+void MyAddPrim(int t7, int* t9, int* s0, int* a3)
 {
 	int t5;
 
-	t9 += s0;
-	t5 = ((unsigned int*)t9)[0];
-	((unsigned int*)t9)[0] = (unsigned int)a3;
+	*t9 += *s0;
+	t5 = ((unsigned int*)*t9)[0];
+	((unsigned int*)*t9)[0] = (unsigned int)a3;
 	t5 |= t7;
 	((unsigned int*)a3)[0] = (unsigned int)t5;
 }
@@ -186,7 +186,7 @@ void CreateNewVertex(int* t2, int* t7, int* t8, int t1)
 	((unsigned int*)t2)[8] = a1;
 }
 
-void Add2DPrim(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int t9, int* s0)
+int* Add2DPrim(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int* t9, int* s0)
 {
 	int t2;
 
@@ -194,18 +194,29 @@ void Add2DPrim(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int t9, int* 
 	SXY1 = t4[0];
 	SXY2 = t5[0];
 
+	static int numCalls = 0;
+	numCalls++;
+
 	if (!ClipToScreen(t5[0]))
 	{
 		t2 = RGB1;
 		SubdivSetup3(a3, fp, t3, t4, t5, t1, t2);
-		MyAddPrim(0x9000000, t9, *s0, a3);
+		if ((unsigned int)a3 == 0x50d598)
+		{
+			int test = 0;
+			test++;
+		}
+		MyAddPrim(0x9000000, t9, s0, a3);
 
-		t9 += *s0;
+
+		*t9 -= *s0;
 		a3 += 10;
 	}//loc_75CC0
+
+	return a3;
 }
 
-void SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int t9, int* s0)
+int* SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)
 {
 	int sp[256];
 
@@ -224,10 +235,12 @@ void SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int t9, int* s0)
 
 	t1 = RGB2;
 
-	Add2DPrim((int*)t3, &sp[4], &sp[14], a3, fp, t1, t9, s0);
-	Add2DPrim(&sp[9], &sp[4], (int*)t4, a3, fp, t1, t9, s0);
-	Add2DPrim(&sp[9], (int*)t5, &sp[14], a3, fp, t1, t9, s0);
-	Add2DPrim(&sp[9], &sp[14], &sp[4], a3, fp, t1, t9, s0);
+	a3 = Add2DPrim((int*)t3, &sp[4], &sp[14], a3, fp, t1, t9, s0);
+	a3 = Add2DPrim(&sp[9], &sp[4], (int*)t4, a3, fp, t1, t9, s0);
+	a3 = Add2DPrim(&sp[9], (int*)t5, &sp[14], a3, fp, t1, t9, s0);
+	a3 = Add2DPrim(&sp[9], &sp[14], &sp[4], a3, fp, t1, t9, s0);
+
+	return a3;
 }
 
 int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1, int* t7, int* t8)
@@ -390,10 +403,8 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 		if (t7 != 0)
 		{
 			at = t7 << at;
-			at += 0x180;
-
 			t9 = t7 << 2;
-			if (at != 0 && s3 == 0)
+			if ((unsigned)at < 0x180 && s3 == 0)
 			{
 				s3 = 1;
 				s4 = gp;
@@ -434,34 +445,37 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 					at = 0xF7000000;
 					fp &= at;
 
-					SubdivTri64(t3, t4, t5, a3, fp, t9, &s0);
+					a3 = SubdivTri64(t3, t4, t5, a3, fp, &t9, &s0);
 
 					t3 = t6;
 
-					SubdivTri64(t3, t4, t5, a3, fp, t9, &s0);
+					a3 = SubdivTri64(t3, t4, t5, a3, fp, &t9, &s0);
 
 					at = 0x8000000;
 					fp |= at;
-					goto loc_75B20;
 				}
-
-				t2 = ((int*)t6)[0];
-				at = ClipToScreen(t2);
-
-				if (at == 0)
+				else
 				{
-					t2 = RGB1;
-					SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, t11, t2);
+					t2 = ((int*)t6)[0];
+					at = ClipToScreen(t2);
 
-					t5 = ((int*)t6)[0];
-					t7 = ((int*)t6)[4];
-					t8 = ((short*)t6)[7];
+					if (at == 0)
+					{
+						t2 = RGB1;
 
-					((int*)a3)[11] = t5;
-					((int*)a3)[10] = t7;
-					((int*)a3)[12] = t8;
-					MyAddPrim(0xC000000, t9, s0, a3);
-					a3 += 0x34;
+						SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, t11, t2);
+
+						t5 = ((int*)t6)[0];
+						t7 = ((int*)t6)[4];
+						t8 = ((unsigned short*)t6)[7];
+
+						((int*)a3)[11] = t5;
+						((int*)a3)[10] = t7;
+						((int*)a3)[12] = t8;
+
+						MyAddPrim(0xC000000, &t9, &s0, a3);
+						a3 += 13;
+					}
 				}
 loc_75B20:
 				ra = s7;
@@ -545,7 +559,7 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 			at = t7 << at;
 			t9 = t7 << 2;
 
-			if (at < 0x180 && s3 == 0)
+			if ((unsigned)at < 0x180 && s3 == 0)
 			{
 				s3 = 1;
 				s4 = gp;
@@ -572,19 +586,21 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 			{
 				if (t9 < 0x80)
 				{
-					SubdivTri64(t3, t4, t5, a3, fp, t9, &s0);
-					return a3;
+					a3 = SubdivTri64(t3, t4, t5, a3, fp, &t9, &s0);
 				}
-				//loc_75980
-				t2 = ((int*)t5)[0];
-				at = ClipToScreen(t2);
-
-				if (at == 0)
+				else
 				{
-					t2 = RGB1;
-					SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, t11, t2);
-					MyAddPrim(0x9000000, t9, s0, a3);
-					a3 += 13; //TODO divide by 4 of int* likely this is the polyptr, also might need passing from callee
+					//loc_75980
+					t2 = ((int*)t5)[0];
+					at = ClipToScreen(t2);
+
+					if (at == 0)
+					{
+						t2 = RGB1;
+						SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, t11, t2);
+						MyAddPrim(0x9000000, &t9, &s0, (int*)a3);
+						a3 += 13;
+					}
 				}
 				//loc_759A8
 				ra = s7;
@@ -733,6 +749,11 @@ int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, in
 
 void InitPrim(int* a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
 {
+	if (fp == 0xFFF8F898)
+	{
+		int test = 0;
+		test++;
+	}
 	a3[1] = fp;
 	a3[2] = t1;
 	a3[3] = t5;
@@ -853,8 +874,6 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 	//loc_75DF8
 	do
 	{
-
-
 		t0 = *a0++;
 		t3 = t0 >> 15;
 		t2 = (t0 & 0x1F) << 10;
@@ -980,37 +999,33 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 				t6 += t7;
 				t6 += t8;
 
-				if (t6 > 0x3FE)
+				if (t6 < 0x3FF)
 				{
-					goto loc_75F0C;
+					t6 += (int)s5;
+					t6 = ((char*)t6)[0];
+					t9 &= 0xFF;
+
+					if (t6 < t9)
+					{
+						t9 <<= 1;
+						t9 += (int)s0;
+						t9 = ((short*)t9)[0];
+						t6 <<= 5;
+						t6 += t9;
+						t6 += (int)s1;
+						a3 += t6;
+						v1 += t6;
+						a1 += t6;
+
+						a3 = ((char*)a3)[0];
+						v1 = ((char*)v1)[0];
+						a1 = ((char*)a1)[0];
+
+						t4 += v1;
+						t5 += a1;
+						t3 += a3;
+					}
 				}
-
-				t6 += (int)s5;
-				t6 = ((char*)t6)[0];
-				t9 &= 0xFF;
-
-				if (t6 > t9)
-				{
-					goto loc_75F0C;
-				}
-				t9 <<= 1;
-				t9 += (int)s0;
-				t9 = ((short*)t9)[0];
-				t6 <<= 5;
-				t6 += t9;
-				t6 += (int)s1;
-				a3 += t6;
-				v1 += t6;
-				a1 += t6;
-
-				a3 = ((char*)a3)[0];
-				v1 = ((char*)v1)[0];
-				a1 = ((char*)a1)[0];
-
-				t4 += v1;
-				t5 += a1;
-				t3 += a3;
-
 				goto loc_75F0C;
 			}
 			//loc_75FC8
@@ -1047,21 +1062,21 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 			}
 		}
 		//loc_76008
-		if (t3 > 0x1F)
+		if ((unsigned)t3 > 0x1F)
 		{
 			t3 >>= 27;
 			t3 ^= 0x1F;
 		}
 
 		//loc_7601C
-		if (t4 > 0x1F)
+		if ((unsigned)t4 > 0x1F)
 		{
 			t4 >>= 27;
 			t4 ^= 0x1F;
 		}
 		//loc_7602C
 		t4 <<= 5;
-		if (t5 > 0x1F)
+		if ((unsigned)t5 > 0x1F)
 		{
 			t5 >>= 27;
 			t5 ^= 0x1F;
@@ -1183,26 +1198,27 @@ loc_76080:
 						a3 = (int)SubPolyGT3((int*)& TriVertTables[4], &s11[201], s11, (int*)a3, s00, s3, fpp);
 
 						at = BFC;
-						t0 = LB1 | (LB2 << 16);
+						t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
 						t9 = DQA;
 						t0 |= at;
 
+						t3 = a3;
 						if (t0 < 0 || t9 < 0x500)
 						{
 							//loc_761E4
 							a0++;
 							goto loc_76080;
 						}
-
-						t3 = a3;
-						a3 = (LG2 & 0xFFFF) | (LG3 << 16);
-						MyAddPrim(0x9000000, t9, s00, (int*)a3);
+						
+						a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
+						MyAddPrim(0x9000000, &t9, &s00, (int*)a3);
 						a3 = t3;
 						a0++;
 						goto loc_76080;
 					}
 					//loc_761D8
-					MyAddPrim(0x9000000, t9, s00, (int*)(a3 + 0x28));
+					MyAddPrim(0x9000000, &t9, &s00, (int*)(a3 + 0x28));
+					a3 += 0x28;
 					a0++;
 					goto loc_76080;
 				}
@@ -1350,17 +1366,10 @@ loc_761EC:
 						((short*)s11)[409] = t0;
 						t7 = t8;
 
-						static int numCalls = 0;
-						if (numCalls == 33)
-						{
-							numCalls = 0;
-						}
 						gp = (int)InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
 
-						numCalls++;
-
 						t0 = DQB;
-						t5 = (LR1 & 0xFFFF) | (LR2 << 16);
+						t5 = (LR1 & 0xFFFF) | ((LR2 & 0xFFFF) << 16);
 						at = (t0 >> 19) & 0x1FC;
 						s666 = gp + at;
 						at += t5;
@@ -1370,7 +1379,7 @@ loc_761EC:
 						t4 = (at & 0x3E0) << 3;
 						t5 = at & 0x1F;
 
-						if (at < 0)
+						if (at <= 0)
 						{
 							t4 = t6;
 						}
@@ -1388,7 +1397,7 @@ loc_761EC:
 
 						a3 = (int)SubPolyGT4((int*)& QuadVertTables[4], &s11[206], s11, (int*)a3, s00, s3, fpp);
 
-						t0 = (LB1 & 0xFFFF) | (LB2 << 16);
+						t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
 						at = BFC;
 						t9 = DQA;
 
@@ -1397,15 +1406,20 @@ loc_761EC:
 						t3 = a3;
 						if (t0 >= 0 && t9 > 0x4FF)
 						{
-							a3 = (LG2 & 0xFFFF) | (LG3 << 16);
-							MyAddPrim(0xC000000, t9, s00, (int*)a3);
+							a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
+							MyAddPrim(0xC000000, &t9, &s00, (int*)a3);
+							if ((unsigned int)a3 == 0x526560)
+							{
+								int test = 0;
+								test++;
+							}
 							a3 = t3;
 						}//loc_76410
 					}
 					else
 					{
 						//loc_76404
-						MyAddPrim(0xC000000, t9, s00, (int*)a3);
+						MyAddPrim(0xC000000, &t9, &s00, (int*)a3);
 						a3 += 0x34;
 					}
 				}
@@ -1929,10 +1943,10 @@ loc_74F78:
 
 		if (v0 < 9 && s55 < 9)
 		{
-			t0 = L11 | (L12 << 16);
-			t1 = L13 | (L21 << 16);
-			t2 = L22 | (L23 << 16);
-			t3 = L31 | (L32 << 16);
+			t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+			t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+			t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+			t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 
 			if (a11 > t0 && a00 < t1 && a33 > t2 && a22 < t3)
 			{
@@ -2334,8 +2348,6 @@ loc_751B4:
 		db.polyptr = (char*)a3;
 		goto loc_751B4;
 	}///loc_76420?
-
-	UNIMPLEMENTED();
 }
 
 void DrawRoomletListAsm(long unk, struct room_info* r)//0x1BC4D0
