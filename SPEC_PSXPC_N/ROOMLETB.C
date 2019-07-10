@@ -110,12 +110,12 @@ int ClipToScreen(int t2)
 	s2 >>= 16;
 	t2 >>= 16;
 
-	if (!(t7 & 0xF0) && !(t8 & 0xF0) && !(t2 & 0xF0) && !(s2 & 0xF0))
+	if ((t7 < 0xF0) || (t8 < 0xF0) || (t2 < 0xF0) || (s2 < 0xF0))
 	{
-		return 1;
+		return 0;
 	}
 
-	return 0;
+	return 1;
 }
 
 void MyAddPrim(int t7, int t9, int s0, int* a3)
@@ -186,7 +186,7 @@ void CreateNewVertex(int* t2, int* t7, int* t8, int t1)
 	((unsigned int*)t2)[8] = a1;
 }
 
-void Add2DPrim(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int* t9, int* s0)
+void Add2DPrim(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int t9, int* s0)
 {
 	int t2;
 
@@ -198,16 +198,19 @@ void Add2DPrim(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int* t9, int*
 	{
 		t2 = RGB1;
 		SubdivSetup3(a3, fp, t3, t4, t5, t1, t2);
-		MyAddPrim(0x9000000, *t9, *s0, a3);
+		MyAddPrim(0x9000000, t9, *s0, a3);
 
-		*t9 += *s0;
+		t9 += *s0;
 		a3 += 10;
 	}//loc_75CC0
 }
 
-void SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)
+void SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int t9, int* s0)
 {
 	int sp[256];
+
+	S_MemSet((char*)&sp[0], 0, 1024);
+
 	int* t2 = &sp[0];
 	int t1 = 0xFFF8F8F8;
 
@@ -221,10 +224,10 @@ void SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)
 
 	t1 = RGB2;
 
-	Add2DPrim((int*)sp[1], &sp[4], &sp[14], a3, fp, t1, t9, s0);
-	Add2DPrim(&sp[9], &sp[4], &sp[2], a3, fp, t1, t9, s0);
-	Add2DPrim(&sp[9], (int*)sp[3], &sp[14], a3, fp, t1, t9, s0);
-	Add2DPrim(&sp[9], (int*)sp[14], &sp[4], a3, fp, t1, t9, s0);
+	Add2DPrim((int*)t3, &sp[4], &sp[14], a3, fp, t1, t9, s0);
+	Add2DPrim(&sp[9], &sp[4], (int*)t4, a3, fp, t1, t9, s0);
+	Add2DPrim(&sp[9], (int*)t5, &sp[14], a3, fp, t1, t9, s0);
+	Add2DPrim(&sp[9], &sp[14], &sp[4], a3, fp, t1, t9, s0);
 }
 
 int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1, int* t7, int* t8)
@@ -308,7 +311,7 @@ int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int* t1, int* t7, int
 	return (int*)t0;
 }
 
-void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
+void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 {
 	int s7;
 	int gp;
@@ -326,7 +329,6 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
 	int s4;
 	int s5;
 	int s6;
-	int fp; //? find out where i come from
 	int t00;
 
 	t0 = SubPolyGTLoop(5, t0, (int)s1, t1, &t7, &t8);
@@ -398,7 +400,7 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
 				s5 = ra;
 				s6 = (int)t0;
 
-				SubPolyGT4((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3);
+				SubPolyGT4((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
 				t11 = RGB2;
 				t2 = RGB1;
 				s3 = 0;
@@ -432,11 +434,11 @@ void SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3)
 					at = 0xF7000000;
 					fp &= at;
 
-					SubdivTri64(t3, t4, t5, a3, fp, &t9, &s0);
+					SubdivTri64(t3, t4, t5, a3, fp, t9, &s0);
 
 					t3 = t6;
 
-					SubdivTri64(t3, t4, t5, a3, fp, &t9, &s0);
+					SubdivTri64(t3, t4, t5, a3, fp, t9, &s0);
 
 					at = 0x8000000;
 					fp |= at;
@@ -570,7 +572,7 @@ void SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 			{
 				if (t9 < 0x80)
 				{
-					SubdivTri64(t3, t4, t5, a3, fp, &t9, &s0);
+					SubdivTri64(t3, t4, t5, a3, fp, t9, &s0);
 					return;
 				}
 				//loc_75980
@@ -790,7 +792,7 @@ long ClipXY(int t0, int t1, int t2, int t3, int t4)
 	return 0;
 }
 
-void DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
+int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 {
 	int* a2;
 	int s2;
@@ -1238,7 +1240,7 @@ loc_761EC:
 		if (at == 0)
 		{
 			//loc_76420
-			return;
+			return a3;
 		}
 		t1 = a0[0];
 		a0++;
@@ -1380,7 +1382,7 @@ loc_761EC:
 						((short*)s11)[407] = t4;
 						((short*)s11)[408] = t5;
 
-						SubPolyGT4((int*)& QuadVertTables[4], &s11[206], s11, (int*)a3, s00, s3);
+						SubPolyGT4((int*)& QuadVertTables[4], &s11[206], s11, (int*)a3, s00, s3, fpp);
 
 						t0 = (LB1 & 0xFFFF) | (LB2 << 16);
 						at = BFC;
@@ -2326,7 +2328,8 @@ loc_75124:
 		//loc_754C4
 		a1[3] = 0;
 
-		DrawMesh(a0, &db, &sp[-14]);
+		a3 = DrawMesh(a0, &db, &sp[-14]);
+		a1 = (int*)&db.polyptr;
 
 		db.polyptr = (char*)a3;
 		///j loc_751B4
