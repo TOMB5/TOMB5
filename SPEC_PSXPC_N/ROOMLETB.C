@@ -1195,7 +1195,7 @@ loc_76080:
 						}
 
 						t3 = a3;
-						a3 = LG2 | (LG3 << 16);
+						a3 = (LG2 & 0xFFFF) | (LG3 << 16);
 						MyAddPrim(0x9000000, t9, s00, (int*)a3);
 						a3 = t3;
 						a0++;
@@ -1397,15 +1397,15 @@ loc_761EC:
 						t3 = a3;
 						if (t0 >= 0 && t9 > 0x4FF)
 						{
-							a3 = LG2 | (LG3 << 16);
-							MyAddPrim(0xC000000, t9, s00, &a3);
+							a3 = (LG2 & 0xFFFF) | (LG3 << 16);
+							MyAddPrim(0xC000000, t9, s00, (int*)a3);
 							a3 = t3;
 						}//loc_76410
 					}
 					else
 					{
 						//loc_76404
-						MyAddPrim(0xC000000, t9, s00, &a3);
+						MyAddPrim(0xC000000, t9, s00, (int*)a3);
 						a3 += 0x34;
 					}
 				}
@@ -1583,10 +1583,6 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	int* a22;
 	int* a33;
 	int ra;
-
-#if !_DEBUG
-	return;
-#endif
 
 	S_MemSet((char*)&scratchPad[0], 0, 1024);
 
