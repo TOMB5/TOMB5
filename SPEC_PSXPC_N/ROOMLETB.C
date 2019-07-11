@@ -90,29 +90,27 @@ int ClipToScreen(int t2)
 	t8 = SXY1;
 	s2 = SXY2;
 
-	if ((t7 & 0xFE00) || (t8 & 0xFE00) || (t2 & 0xFE00) || (s2 & 0xFE00))
+	if (!(t7 & 0xFE00) || !(t8 & 0xFE00) || !(t2 & 0xFE00) || !(s2 & 0xFE00))
 	{
-		return 1;
-	}
+		//loc_75CF4
+		at = t7 & t8;
+		at &= s2;
+		at &= t2;
 
-	//loc_75CF4
-	at = t7 & t8;
-	at &= s2;
-	at &= t2;
+		if (at < 0)
+		{
+			return 1;
+		}
 
-	if (at < 0)
-	{
-		return 1;
-	}
+		t7 >>= 16;
+		t8 >>= 16;
+		s2 >>= 16;
+		t2 >>= 16;
 
-	t7 >>= 16;
-	t8 >>= 16;
-	s2 >>= 16;
-	t2 >>= 16;
-
-	if ((t7 < 0xF0) || (t8 < 0xF0) || (t2 < 0xF0) || (s2 < 0xF0))
-	{
-		return 0;
+		if ((t7 < 0xF0) || (t8 < 0xF0) || (t2 < 0xF0) || (s2 < 0xF0))
+		{
+			return 0;
+		}
 	}
 
 	return 1;
@@ -422,7 +420,6 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 			else
 			{
 				//loc_75AB0
-				s3 = 1;
 				at = MAC0;
 				SXY0 = ((int*)t3)[0];
 				SXY1 = ((int*)t4)[0];
@@ -462,7 +459,6 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 					if (at == 0)
 					{
 						t2 = RGB1;
-
 						SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, t11, t2);
 
 						t5 = ((int*)t6)[0];
@@ -615,7 +611,7 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)
 	return a3;
 }
 
-int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int* t3, int s6, int s3, int* t7, int* s7)
+int* InitSubdivision(int* s1, int t1, int s4, int* fp, int t5, int t2, int s5, int gp, int t6, int* t3, int s6, int s3, int* t7, int* s7)
 {
 	int t11;
 	int t77;
@@ -632,7 +628,7 @@ int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, in
 	s1[186] = t1;
 	((short*)s1)[374] = s4;
 
-	t11 = (fp << 8) >> 8;
+	t11 = (*fp << 8) >> 8;
 
 	s1[190] = t11;
 	((short*)s1)[379] = t5;
@@ -655,8 +651,8 @@ int* InitSubdivision(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, in
 
 	gpp = (char*)&YOffset[0];
 
-	fp >>= 24;
-	fp <<= 24;
+	*fp >>= 24;
+	*fp <<= 24;
 
 	t5 &= 0xFFFF0000;
 	t6 &= 0xFFFF0000;
@@ -780,7 +776,7 @@ long ClipXY(int t0, int t1, int t2, int t3, int t4)
 	int t8;
 	int fp;
 
-	t9 = L22 | (L23 << 16);
+	t9 = (L22 & 0xFFFF) | (L23 << 16);
 	t5 = t1 << 16;
 
 	if (t1 < t9 && t2 < t9 && t3 < t9 && t4 < t9)
@@ -789,7 +785,7 @@ long ClipXY(int t0, int t1, int t2, int t3, int t4)
 	}
 	//loc_7557C
 	t6 = t2 << 16;
-	t9 = L31 | (L32 << 16);
+	t9 = (L31 & 0xFFFF) | (L32 << 16);
 	t7 = t3 << 16;
 
 	if (t1 > t9 && t2 > t9 && t3 > t9 && t4 > t9)
@@ -798,8 +794,8 @@ long ClipXY(int t0, int t1, int t2, int t3, int t4)
 	}
 	//loc_755A8
 	t8 = t4 << 16;
-	t9 = L11 | (L12 << 16);
-	fp = L13 | (L21 << 16);
+	t9 = (L11 & 0xFFFF) | (L12 << 16);
+	fp = (L13 & 0xFFFF) | (L21 << 16);
 
 	if (t5 < t9 && t6 < t9 && t7 < t9 && t8 < t9)
 	{
@@ -859,7 +855,7 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 	s4 = sp[27];
 	s7 = &sp[192];
 
-	v0 = ((short*)a0)[3];
+	v0 = ((unsigned short*)a0)[3];
 	a0 += 2;
 
 	LR1 = ((int)a0) & 0xFFFF;
@@ -999,7 +995,7 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 				t6 += t7;
 				t6 += t8;
 
-				if (t6 < 0x3FF)
+				if ((unsigned)t6 < 0x3FF != 0)
 				{
 					t6 += (int)s5;
 					t6 = ((char*)t6)[0];
@@ -1192,7 +1188,7 @@ loc_76080:
 						LG2 = a3 & 0xFFFF;
 						LG3 = a3 >> 16;
 						a3 += 0x28;
-						InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
+						InitSubdivision(s11, t1, s444, &fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
 
 						s3 = 0;
 						a3 = (int)SubPolyGT3((int*)& TriVertTables[4], &s11[201], s11, (int*)a3, s00, s3, fpp);
@@ -1366,7 +1362,7 @@ loc_761EC:
 						((short*)s11)[409] = t0;
 						t7 = t8;
 
-						gp = (int)InitSubdivision(s11, t1, s444, fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
+						gp = (int)InitSubdivision(s11, t1, s444, &fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
 
 						t0 = DQB;
 						t5 = (LR1 & 0xFFFF) | ((LR2 & 0xFFFF) << 16);
@@ -1408,11 +1404,6 @@ loc_761EC:
 						{
 							a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
 							MyAddPrim(0xC000000, &t9, &s00, (int*)a3);
-							if ((unsigned int)a3 == 0x526560)
-							{
-								int test = 0;
-								test++;
-							}
 							a3 = t3;
 						}//loc_76410
 					}
