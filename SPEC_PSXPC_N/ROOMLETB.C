@@ -745,11 +745,6 @@ int* InitSubdivision(int* s1, int t1, int s4, int* fp, int t5, int t2, int s5, i
 
 void InitPrim(int* a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
 {
-	if (fp == 0xFFF8F898)
-	{
-		int test = 0;
-		test++;
-	}
 	a3[1] = fp;
 	a3[2] = t1;
 	a3[3] = t5;
@@ -760,11 +755,38 @@ void InitPrim(int* a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, i
 	a3[8] = t3;
 }
 
-void UnpackRGB(int* s4, int* t8, int* s5, int* s6, int* fp, int* gp, int* t5)
+void UnpackRGB(int* s4, int* t8, int* s5, int* s6, int* fp, int* gp, int* t5, int* t6, int* s3)
 {
-	*fp = ((*s4 >> 13) & 0xF8) | ((*s4 >> 7) & 0xF80000) | ((*s4 >> 10) & 0xF800) | ((*t8 >> 24) << 24);
-	*gp = ((*s5 >> 13) & 0xF8) | ((*s5 >> 7) & 0xF80000) | ((*s5 >> 10) & 0xF800);
-	*t5 = ((*s6 >> 7) & 0xF80000) | (*s6 >> 13) & 0xF8 | ((*s6 >> 10) & 0xF800);
+	*t5 = *s4 >> 7;
+	*t5 &= 0xF80000;
+	*t6 = *s4 >> 10;
+	*t6 &= 0xF800;
+	*fp = *s4 >> 13;
+	*fp &= 0xF8;
+	*fp |= *t5;
+	*fp |= *t6;
+	*t5 = *t8 >> 24;
+	*t5 <<= 24;
+	*fp |= *t5;
+	*t5 = *s5 >> 7;
+	*t5 &= 0xF80000;
+	*t6 = *s5 >> 10;
+	*t6 &= 0xF800;
+	*gp = *s5 >> 13;
+	*gp &= 0xF8;
+	*gp |= *t5;
+	*gp |= *t6;
+	*t5 = *s6 >> 7;
+	*t5 &= 0xF80000;
+	*t6 = *s6 >> 10;
+	*t6 &= 0xF800;
+	*s3 = *s6 >> 13;
+	*s3 &= 0xF8;
+	*s3 |= *t5;
+	*s3 |= *t6;
+	///*fp = ((*s4 >> 13) & 0xF8) | ((*s4 >> 7) & 0xF80000) | ((*s4 >> 10) & 0xF800) | ((*t8 >> 24) << 24);
+	///*gp = ((*s5 >> 13) & 0xF8) | ((*s5 >> 7) & 0xF80000) | ((*s5 >> 10) & 0xF800);
+	///*t5 = ((*s6 >> 7) & 0xF80000) | (*s6 >> 13) & 0xF8 | ((*s6 >> 10) & 0xF800);
 }
 
 long ClipXY(int t0, int t1, int t2, int t3, int t4)
@@ -1170,7 +1192,7 @@ loc_76080:
 					t8 = t7 << 8;
 
 					int fpp;
-					UnpackRGB(&s444, &t8, &s555, &s666, &fpp, &gp, &t5);
+					UnpackRGB(&s444, &t8, &s555, &s666, &fpp, &gp, &t5, &t6, &s3);
 
 					t5 = ((int*)t00)[0];
 					a1 = RFC;
@@ -1327,10 +1349,10 @@ loc_761EC:
 					struct MMTEXTURE* t00 = &RoomTextInfo[t0];
 					int fpp;
 					t8 = ((int*)t00)[2];
-					UnpackRGB(&s444, &t8, &s555, &s666, &fpp, &gp, &t5);
+					UnpackRGB(&s444, &t8, &s555, &s666, &fpp, &gp, &t5, &t6, &s3);
 
 					t5 = s777 >> 7;
-					t5 &= s2;
+					t5 &= 0xF80000;
 					t6 = (s777 >> 10) & 0xF800;
 					t7 = (s777 >> 13) & 0xF8;
 					t7 |= t5;
