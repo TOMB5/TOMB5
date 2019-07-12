@@ -11,6 +11,7 @@
 #include "LOAD_LEV.H"
 #include "GTEREG.H"
 #include "ROOMLOAD.H"
+#include <assert.h>
 
 ///@FIXME short may need swap {
 short LOffset[] = { 0000,0x2000,0x6000,0xC000,0x4001,0xE001,0xA002,0x8003,0x8004,0xA005,0xE006,0x4008,0xC009,0x600B,0x200D,0x000F,0x0011,0x2013,0x6015,0xC017,0x401A,0xE01C,0xA01F,0x8022,0x8025,0xA028,0xE02B,0x402F,0xC032,0x6036,0x203A,0x003E };
@@ -199,13 +200,7 @@ int* Add2DPrim(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int* t9, int*
 	{
 		t2 = RGB1;
 		SubdivSetup3(a3, fp, t3, t4, t5, t1, t2);
-		if ((unsigned int)a3 == 0x50d598)
-		{
-			int test = 0;
-			test++;
-		}
 		MyAddPrim(0x9000000, t9, s0, a3);
-
 
 		*t9 -= *s0;
 		a3 += 10;
@@ -219,7 +214,6 @@ int* SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)
 	int sp[256];
 
 	S_MemSet((char*)&sp[0], 0, 1024);
-
 	int* t2 = &sp[0];
 	int t1 = 0xFFF8F8F8;
 
@@ -628,7 +622,9 @@ int* InitSubdivision(int* s1, int t1, int s4, int* fp, int t5, int t2, int s5, i
 	s1[186] = t1;
 	((short*)s1)[374] = s4;
 
-	t11 = (*fp << 8) >> 8;
+	/* Original does this but it is unsafe/doesn't work properly? */
+	//t11 = (*fp << 8) >> 8;
+	t11 = *fp & 0xFFFFFF;
 
 	s1[190] = t11;
 	((short*)s1)[379] = t5;
@@ -1235,7 +1231,7 @@ loc_76080:
 						goto loc_76080;
 					}
 					//loc_761D8
-					MyAddPrim(0x9000000, &t9, &s00, (int*)(a3 + 0x28));
+					MyAddPrim(0x9000000, &t9, &s00, (int*)a3);
 					a3 += 0x28;
 					a0++;
 					goto loc_76080;
