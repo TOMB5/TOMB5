@@ -35,9 +35,9 @@ void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 	R31 = ((short*)phd_mxptr)[16];
 
 	((short*)&MatrixStack)[8] = ((unsigned short*)phd_mxptr)[20];
-	((short*)&MatrixStack)[10] = ((unsigned short*)phd_mxptr)[6];
-	((short*)&MatrixStack)[12] = ((unsigned short*)phd_mxptr)[14];
-	((short*)&MatrixStack)[14] = ((unsigned short*)phd_mxptr)[22];
+	((int*)&MatrixStack)[5] = ((int*)phd_mxptr)[3];
+	((int*)&MatrixStack)[6] = ((int*)phd_mxptr)[7];
+	((int*)&MatrixStack)[7] = ((int*)phd_mxptr)[11];
 
 	R33 = ((unsigned short*)phd_mxptr)[20];
 	TRX = ((unsigned short*)phd_mxptr)[6];
