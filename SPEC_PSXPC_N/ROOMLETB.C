@@ -1464,7 +1464,7 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 	//loc_74B40
 	*t0 >>= 16;
 
-	if (v1 > * a1)
+	if (v1 > *a1)
 	{
 		*a1 = v1;
 	}
@@ -1477,7 +1477,7 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 
 	//loc_74B5C
 	v1 = *t6 << 16;
-	if (*t0 > * a3)
+	if (*t0 > *a3)
 	{
 		*a3 = *t0;
 	}
@@ -1493,7 +1493,7 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 	//loc_74B7C
 	*t6 >>= 16;
 
-	if (v1 > * a1)
+	if (v1 > *a1)
 	{
 		*a1 = v1;
 	}
@@ -1506,7 +1506,7 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 
 	//loc_74B98
 	v1 = *t8 << 16;
-	if (*t6 > * a3)
+	if (*t6 > *a3)
 	{
 		*a3 = *t6;
 	}
@@ -1521,7 +1521,7 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 	//loc_74BB8
 	*t8 >>= 16;
 
-	if (v1 > * a1)
+	if (v1 > *a1)
 	{
 		*a1 = v1;
 	}
@@ -1533,24 +1533,24 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 	}
 
 	//loc_74BD4
-	if (*t8 > * a3)
+	if (*t8 > *a3)
 	{
 		*a3 = *t8;
 	}
 
 	//loc_74BE0
-	if (*t1 > 20479)
+	if ((unsigned)*t1 > 20479)
 	{
 		*v0 += 1;
 	}//loc_74BEC
 
-	if (*t7 > 20479)
+	if ((unsigned)*t7 > 20479)
 	{
 		*v0 += 1;
 	}
 
 	//loc_74BF8
-	if (*t9 > 20479)
+	if ((unsigned)*t9 > 20479)
 	{
 		*v0 += 1;
 	}
@@ -1633,10 +1633,10 @@ loc_74C88:
 	s2[1] = (unsigned long)t11;
 
 	s1 = (int*)fp->data;
-	//t0 = room.x (fp)
-	//t1 = room.y (fp)
+	t0 = fp->x;
+	t1 = fp->y;
 	s5 = (struct room_info*)RGB0;
-	//t2 = room.z(fp)
+	t2 = fp->z;
 	//t3 = r->x
 	//t4 = r->y
 	//t5 = r->z
@@ -1801,6 +1801,7 @@ loc_74C88:
 	t4 = MAC2;
 	t5 = MAC3;
 
+	/* todo addu*/
 	t0 += t3;
 	t1 += t4;
 	t2 += t5;
@@ -1841,12 +1842,11 @@ loc_74C88:
 	s7 = t8;
 
 loc_74F78:
-	
+	a0 = (int*)s1[0];
 	if (s6 != 0)
 	{
-		a0 = (int*)*s1;
 		s1++;
-		t3 = *a0;
+		t3 = a0[0];
 		s2[0] = (int)a0;
 		t6 = RBK;
 		t00 = &s3[t3 & 0xFFF8];///@TODO check when not zero!
@@ -1901,7 +1901,8 @@ loc_74F78:
 		t4 |= t7;
 		t5 |= t6;
 
-		int a00, a11, a22, a33, s55;
+		int a00, a22, a11, a33;
+		int s55;
 
 		a00 = 0x800;
 		a11 = 0xFFFFF800;
@@ -1954,7 +1955,7 @@ loc_74F78:
 
 		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a22, &a33, &v0, &s55);
 
-		if (v0 < 9 && s55 < 9)
+		if ((unsigned int)v0 < 9 && (unsigned int)s55 < 9)
 		{
 			t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
 			t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
@@ -2198,13 +2199,13 @@ loc_751B4:
 				t0 -= at;
 				at = a33[1];
 
-				if (t0 < 0)
+				if (t0 <= 0)
 				{
 					t0 = -t0;
 				}//loc_75334
 
 				t1 -= at;
-				if (t0 > 0x7FF)
+				if ((unsigned int)t0 > 0x7FF)
 				{
 					goto loc_75304;
 				}
@@ -2213,21 +2214,21 @@ loc_751B4:
 
 				at = a33[2];
 
-				if (t1 < 0)
+				if (t1 <= 0)
 				{
 					t1 = -t1;
 				}
 				//loc_75350
 
 				ra -= at;
-				if (t1 > 0x7FF)
+				if ((unsigned int)t1 > 0x7FF)
 				{
 					goto loc_75304;
 				}
 
 				t0 += t1;
 
-				if (ra < 0)
+				if (ra <= 0)
 				{
 					ra = -ra;
 				}
@@ -2356,8 +2357,6 @@ loc_751B4:
 		a1[3] = 0;
 
 		a3 = DrawMesh(a0, &db, &sp[-14]);
-		a1 = (int*)db.polyptr;
-
 		db.polyptr = (char*)a3;
 		goto loc_751B4;
 	}///loc_76420?
