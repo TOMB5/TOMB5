@@ -274,17 +274,16 @@ int IsRoomOutside(long x, long y, long z)//(F)
 		}
 
 		//loc_8F000
-		i = 0;
-		while(i++)
+		for(i = 0; ; i++)
 		{
-			r = &room[OutsideRoomTable[roomOffset]];
+			r = &room[OutsideRoomTable[roomOffset + i]];
 
 			if (y > r->maxceiling && r->minfloor > y &&
 				z > (r->z + 1024) && r->z + ((r->x_size - 1) << 10) > z &&
 				x > (r->x + 1024) && r->x + ((r->y_size - 1) << 10) > x)
 			{
 				//loc_8F07C
-				IsRoomOutsideNo = OutsideRoomTable[roomOffset];
+				IsRoomOutsideNo = OutsideRoomTable[roomOffset + i];
 				room_number = IsRoomOutsideNo;
 				floor = GetFloor(x, y, z, &room_number);
 				h = GetHeight(floor, x, y, z);
