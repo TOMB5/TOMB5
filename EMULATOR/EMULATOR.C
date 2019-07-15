@@ -184,6 +184,13 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 	}
 #endif
+
+	//Initialise texture cache
+	SDL_memset(&cachedTextures[0], 0, MAX_NUM_CACHED_TEXTURES * sizeof(CachedTexture));
+	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
+	{
+		cachedTextures[i].textureID = -1;
+	}
 	
 #if !USE_DDRAW
 	SDL_GL_SetSwapInterval(1);
@@ -457,10 +464,10 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 		}
 		else
 		{
-			vertices[2].col[0] = ((float)col2[0]) / 255.0f;
-			vertices[2].col[1] = ((float)col2[1]) / 255.0f;
-			vertices[2].col[2] = ((float)col2[2]) / 255.0f;
-			vertices[2].col[3] = ((float)0xFF) / 255.0f;
+			vertices[2].col[0] = (1.0f / 255) * col2[0];
+			vertices[2].col[1] = (1.0f / 255) * col2[1];
+			vertices[2].col[2] = (1.0f / 255) * col2[2];
+			vertices[2].col[3] = (1.0f / 255) * 255;
 		}
 	}
 	else
@@ -492,10 +499,10 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 		}
 		else
 		{
-			vertices[3].col[0] = ((float)col3[0]) / 255.0f;
-			vertices[3].col[1] = ((float)col3[1]) / 255.0f;
-			vertices[3].col[2] = ((float)col3[2]) / 255.0f;
-			vertices[3].col[3] = ((float)0xFF) / 255.0f;
+			vertices[3].col[0] = (1.0f / 255) * col0[0];
+			vertices[3].col[1] = (1.0f / 255) * col0[1];
+			vertices[3].col[2] = (1.0f / 255) * col0[2];
+			vertices[3].col[3] = (1.0f / 255) * 255;
 		}
 	}
 	else
@@ -584,18 +591,22 @@ void Emulator_GenerateAndBindNullWhite()
 void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 {
 	assert(lastTextureCacheIndex < MAX_NUM_CACHED_TEXTURES);
+	
+#if 0
 	for (int i = lastTextureCacheIndex - 1; i > -1; i--)
 	{
-		if (!(cachedTextures[i].tpageX > rect->x + rect->w || cachedTextures[i].tpageX + TPAGE_WIDTH < rect->x || cachedTextures[i].tpageY > rect->y + rect->h || cachedTextures[i].tpageY + TPAGE_HEIGHT < rect->y))
+		if (rect->x + rect->w < cachedTextures[i].tpageX || rect->y + rect->h < cachedTextures[i].tpageY ||
+		    rect->x > cachedTextures[i].tpageX + TPAGE_WIDTH || rect->y > cachedTextures[i].tpageY + TPAGE_HEIGHT)
 		{
-			cachedTextures[i].lastAccess = -1;
-			cachedTextures[i].tpageX = -1;
-			cachedTextures[i].tpageY = -1;
+			cachedTextures[i].lastAccess = 0;
+			cachedTextures[i].tpageX = 0;
+			cachedTextures[i].tpageY = 0;
 			glDeleteTextures(1, &cachedTextures[i].textureID);
 		}
 	}
+#endif
 }
-#define NOFILE (0)
+#define NOFILE (1)
 
 void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
 {
@@ -644,6 +655,12 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 
 void Emulator_BeginScene()
 {
+#if OLD_RENDERER
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glEnable(GL_DEPTH_TEST);
+	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+#endif
+
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
@@ -757,7 +774,10 @@ void Emulator_ShutDown()
 
 	for (int i = 0; i < lastTextureCacheIndex; i++)
 	{
-		glDeleteTextures(1, &cachedTextures[i].textureID);
+		if (cachedTextures[i].textureID != -1)
+		{
+			glDeleteTextures(1, &cachedTextures[i].textureID);
+		}
 	}
 #ifdef _WINDOWS
 	//VirtualFree(pVirtualMemory, 0, MEM_RELEASE);
@@ -826,7 +846,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 #endif
 
 	GLuint tpageTexture = Emulator_FindTextureInCache(tpageX, tpageY, clutX, clutY);
-	bool bMustAddTexture = tpageTexture == -1 ? 1 : 0;
+	bool bMustAddTexture = (tpageTexture == -1) ? 1 : 0;
 
 	if (bMustAddTexture)
 	{
@@ -887,7 +907,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 				*convertPixel++ = clut[(texturePage[xy] & (0xF << 3 * 4)) >> (3 * 4)];
 			}
 
-#if _DEBUG
+#if _DEBUG && 0
 			FILE* f = fopen("TPAGE.TGA", "wb");
 			unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 			unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
