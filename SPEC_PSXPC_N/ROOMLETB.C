@@ -315,7 +315,6 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 {
 	int s7;
 	int gp;
-	int t11;
 	int t2;
 	int t3;
 	int t5;
@@ -334,7 +333,7 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 	t0 = SubPolyGTLoop(5, t0, (int)s1, t1);
 
 	gp = 3;
-	t11 = RGB2;
+	t1 = (int*)RGB2;
 	t2 = RGB1;
 
 	//loc_759D8
@@ -378,10 +377,13 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 		}
 
 		//loc_75A40
-		t7 >>= 3;
 		if (t7 < t8)
 		{
 			t7 = t8 >> 3;
+		}
+		else
+		{
+			t7 >>= 3;
 		}
 
 		//loc_75A4C
@@ -391,6 +393,7 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 		{
 			at = t7 << at;
 			t9 = t7 << 2;
+			
 			if ((unsigned)at < 0x180 && s3 == 0)
 			{
 				s3 = 1;
@@ -399,7 +402,7 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 				s6 = (int)t0;
 
 				a3 = SubPolyGT4((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
-				t11 = RGB2;
+				t1 = (int*)RGB2;
 				t2 = RGB1;
 				s3 = 0;
 				gp = s4;
@@ -448,9 +451,7 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 					if (at == 0)
 					{
 						t2 = RGB1;
-
-						SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, t11, t2);
-
+						SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
 						t5 = ((int*)t6)[0];
 						t7 = ((int*)t6)[4];
 						t8 = ((unsigned short*)t6)[7];
@@ -480,7 +481,6 @@ loc_75B20:
 int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 {
 	int gp;
-	int t11;
 	int t2;
 	int t3;
 	int t5;
@@ -499,7 +499,7 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 	t0 = SubPolyGTLoop(3, t0, (int)s1, t1);
 	gp = 3;
 
-	t11 = RGB2;
+	t1 = (int*)RGB2;
 	t2 = RGB1;
 
 	//loc_7589C
@@ -530,10 +530,14 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 			t7 = t8;
 		}
 
-		t7 >>= 3;
+		
 		if (t7 < t9)
 		{
 			t7 = t9 >> 3;
+		}
+		else
+		{
+			t7 >>= 3;
 		}
 
 		//loc_758F4
@@ -543,6 +547,7 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 		{
 			at = t7 << at;
 			t9 = t7 << 2;
+			
 
 			if ((unsigned)at < 0x180 && s3 == 0)
 			{
@@ -554,7 +559,7 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 
 				a3 = SubPolyGT3((int*)&TriVertTables[gp], &s1[216], s1, a3, s0, s3, fp);
 
-				t11 = RGB2;
+				t1 = (int*)RGB2;
 				t2 = RGB1;
 				s3 = 0;
 				gp = s4;
@@ -582,7 +587,7 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 						if (at == 0)
 						{
 							t2 = RGB1;
-							SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, t11, t2);
+							SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
 							MyAddPrim(0x9000000, &t9, &s0, (int*)a3);
 							a3 += 13;
 						}
@@ -824,7 +829,7 @@ long ClipXY(int t0, int t1, int t2, int t3, int t4)
 	return 1;
 }
 
-int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
+int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)
 {
 	int* a2;
 	int s2;
@@ -858,16 +863,14 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 	char* s77;
 	int s777;
 
-	S_MemSet((char*)&sp[0], 0, 1024);
-
 	a2 = &sp[0];
 	s0 = &LOffset[0];
 	s1 = &LTab[0];
 	s5 = &OurSqrt[0];
 	fp = (int*)& YOffset[0];///@TODO check if YOffset is actually int[]
-	s2 = sp[25];
-	s3 = sp[26];
-	s4 = sp[27];
+	s2 = sp2[25];
+	s3 = sp2[26];
+	s4 = sp2[27];
 	s7 = &sp[192];
 
 	v0 = ((unsigned short*)a0)[3];
@@ -1009,7 +1012,7 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 				t6 += t7;
 				t6 += t8;
 
-				if (t6 < 0x3FF != 0)
+				if ((unsigned int)t6 < 0x3FF != 0)
 				{
 					t6 += (int)s5;
 					t6 = ((char*)t6)[0];
@@ -1059,9 +1062,9 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 
 		if (t6 >= 0)
 		{
-			t6 >>= 8;
 			if (t6 < 0x1FFF)
 			{
+				t6 >>= 8;
 				t3 -= t6;
 				t4 -= t6;
 				t5 -= t6;
@@ -1072,23 +1075,23 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp)
 			}
 		}
 		//loc_76008
-		if ((unsigned)t3 > 0x1F)
+		if ((unsigned int)t3 > 0x1F)
 		{
-			t3 >>= 27;
+			t3 = (unsigned int)t3 >> 27;
 			t3 ^= 0x1F;
 		}
 
 		//loc_7601C
-		if ((unsigned)t4 > 0x1F)
+		if ((unsigned int)t4 > 0x1F)
 		{
-			t4 >>= 27;
+			t4 = (unsigned int)t4 >> 27;
 			t4 ^= 0x1F;
 		}
 		//loc_7602C
 		t4 <<= 5;
-		if ((unsigned)t5 > 0x1F)
+		if ((unsigned int)t5 > 0x1F)
 		{
-			t5 >>= 27;
+			t5 = (unsigned int)t5 >> 27;
 			t5 ^= 0x1F;
 		}
 
@@ -1161,10 +1164,13 @@ loc_76080:
 				t5 = t6;
 			}
 			//loc_7610C
-			t5 >>= 3;
 			if (t5 < t7)
 			{
 				t5 = t7 >> 3;
+			}
+			else
+			{
+				t5 >>= 3;
 			}
 
 			//loc_7611C
@@ -1172,7 +1178,6 @@ loc_76080:
 			{
 				t7 = MAC0;
 				t9 = t5 << 2;
-
 				if (t5 < 0x280 || t7 >= 0)
 				{
 					//loc_7613C
@@ -1310,6 +1315,7 @@ loc_761EC:
 			t7 = MAC0;
 			t5 >>= 3;
 
+			//at = t5 < 0x9E0 ? 1 : 0
 			if (t5 < 0x9E0)
 			{
 				t9 = t5 << 2;
@@ -1437,7 +1443,7 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 	//loc_74B40
 	*t0 >>= 16;
 
-	if (v1 > *a1)
+	if (v1 >= *a1)
 	{
 		*a1 = v1;
 	}
@@ -1450,7 +1456,7 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 
 	//loc_74B5C
 	v1 = *t6 << 16;
-	if (*t0 > *a3)
+	if (*t0 >= *a3)
 	{
 		*a3 = *t0;
 	}
@@ -1466,7 +1472,7 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 	//loc_74B7C
 	*t6 >>= 16;
 
-	if (v1 > *a1)
+	if (v1 >= *a1)
 	{
 		*a1 = v1;
 	}
@@ -1479,7 +1485,7 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 
 	//loc_74B98
 	v1 = *t8 << 16;
-	if (*t6 > *a3)
+	if (*t6 >= *a3)
 	{
 		*a3 = *t6;
 	}
@@ -1494,7 +1500,7 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 	//loc_74BB8
 	*t8 >>= 16;
 
-	if (v1 > *a1)
+	if (v1 >= *a1)
 	{
 		*a1 = v1;
 	}
@@ -1506,24 +1512,24 @@ void GetBounds(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* a0, in
 	}
 
 	//loc_74BD4
-	if (*t8 > *a3)
+	if (*t8 >= *a3)
 	{
 		*a3 = *t8;
 	}
 
 	//loc_74BE0
-	if ((unsigned)*t1 > 20479)
+	if ((unsigned int)*t1 > 20479)
 	{
 		*v0 += 1;
 	}//loc_74BEC
 
-	if ((unsigned)*t7 > 20479)
+	if ((unsigned int)*t7 > 20479)
 	{
 		*v0 += 1;
 	}
 
 	//loc_74BF8
-	if ((unsigned)*t9 > 20479)
+	if ((unsigned int)*t9 > 20479)
 	{
 		*v0 += 1;
 	}
@@ -1576,7 +1582,9 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	int v0;
 	int* a1;
 	int scratchPad[256];
+	int scratchPad2[256];
 	int* sp = &scratchPad[14];
+	int* sp2 = &scratchPad2[14];
 	int a3;
 	int a2;
 	int v1;
@@ -1584,7 +1592,10 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	int* a33;
 	int ra;
 
+	///@FIXME there are two sps, the 0x1F800000 one and a different one, emulate them both!
+
 	S_MemSet((char*)&scratchPad[0], 0, 1024);
+	S_MemSet((char*)&scratchPad2[0], 0, 1024);
 
 	RFC = underwater;
 	RGB0 = (unsigned long)r;
@@ -1608,11 +1619,9 @@ loc_74C88:
 	s1 = (int*)fp->data;
 	t0 = fp->x;
 	t1 = fp->y;
-	s5 = (struct room_info*)RGB0;
 	t2 = fp->z;
-	//t3 = r->x
-	//t4 = r->y
-	//t5 = r->z
+
+	s5 = (struct room_info*)RGB0;
 
 	t6 = r->x - fp->x;
 	t7 = r->y - fp->y;
@@ -1671,9 +1680,9 @@ loc_74C88:
 	}
 
 	//loc_74E04
-	s2[5] = (int)t6;
-	s2[6] = (int)t7;
-	s2[7] = (int)t8;
+	s2[5] = t6;
+	s2[6] = t7;
+	s2[7] = t8;
 
 	t3 = ((int*)MatrixStack)[5];
 	t4 = ((int*)MatrixStack)[6];
@@ -1775,9 +1784,9 @@ loc_74C88:
 	t5 = MAC3;
 
 	/* todo addu*/
-	t0 += t3;
-	t1 += t4;
-	t2 += t5;
+	t0 += (unsigned int)t3;
+	t1 += (unsigned int)t4;
+	t2 += (unsigned int)t5;
 
 	TRX = t0;
 	TRY = t1;
@@ -1976,9 +1985,9 @@ loc_75124:
 		t1 = a1[6];
 		t2 = a1[7];
 
-		sp[11] = t0;
-		sp[12] = t1;
-		sp[13] = t2;
+		sp2[11] = t0;
+		sp2[12] = t1;
+		sp2[13] = t2;
 
 		t0 = a1[14];
 		t2 = a1[15];
@@ -2044,9 +2053,9 @@ loc_751B4:
 		t4 = t3 >> 16;
 		t3 &= 0xFFFF;
 
-		t7 = sp[11];
-		t8 = sp[12];
-		t9 = sp[13];
+		t7 = sp2[11];
+		t8 = sp2[12];
+		t9 = sp2[13];
 
 		t0 += t7;
 		t1 += t8;
@@ -2076,19 +2085,19 @@ loc_751B4:
 			v1 = v0 + a2;
 			v0 -= a2;
 
-			if (v1 > t0 && v0 < t3)
+			if (v1 >= t0 && v0 < t3)
 			{
 				v0 = s11->y;
 				v1 = v0 + a2;
 				v0 -= a2;
 
-				if (v1 > t1 && v0 < t4)
+				if (v1 >= t1 && v0 < t4)
 				{
 					v0 = s11->z;
 					v1 = v0 + a2;
 					v0 -= a2;
 
-					if (v1 > t2 && v0 < t5)
+					if (v1 >= t2 && v0 < t5)
 					{
 						a2 >>= 7;
 						s11->used = 1;
@@ -2214,7 +2223,7 @@ loc_751B4:
 				}
 
 				int t2 = (int)a22;
-				if (t7 > t0)
+				if (t7 >= t0)
 				{
 					goto loc_75304;
 				}
@@ -2235,7 +2244,7 @@ loc_751B4:
 				((int*)v0)[0] = (int)t888;
 				///@CONTINUE
 
-				if (t0 > t1)
+				if (t0 >= t1)
 				{
 					((short*)t888)[8] = t0;
 					t1 >>= 8;
@@ -2329,7 +2338,7 @@ loc_751B4:
 		//loc_754C4
 		a1[3] = 0;
 
-		a3 = DrawMesh(a0, &db, &sp[-14]);
+		a3 = DrawMesh(a0, &db, &sp[-14], &sp2[-14]);
 		db.polyptr = (char*)a3;
 		goto loc_751B4;
 	}///loc_76420?
