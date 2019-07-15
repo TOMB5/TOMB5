@@ -364,20 +364,22 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 
 		t9 = ((short*)t5)[2];
 
+		at = t7 < t9 ? 1 : 0;
 		if (t7 < t8)
 		{
 			t7 = t8;
 		}
 
 		//loc_75A30
-		t8 = ((short*)t5)[2];
-		if (t7 < t9)
+		t8 = ((short*)t6)[2];
+		int att = t7 < t8 ? 1 : 0;
+		if (at != 0)
 		{
 			t7 = t9;
 		}
 
 		//loc_75A40
-		if (t7 < t8)
+		if (att != 0)
 		{
 			t7 = t8 >> 3;
 		}
@@ -394,7 +396,7 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 			at = t7 << at;
 			t9 = t7 << 2;
 			
-			if ((unsigned)at < 0x180 && s3 == 0)
+			if ((unsigned int)at < 0x180 && s3 == 0)
 			{
 				s3 = 1;
 				s4 = gp;
@@ -412,6 +414,7 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 			else
 			{
 				//loc_75AB0
+				s3 = 1;
 				at = MAC0;
 				SXY0 = ((int*)t3)[0];
 				SXY1 = ((int*)t4)[0];
@@ -525,13 +528,13 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 		docop2(0x1400006);
 		t9 = ((short*)t5)[2];
 
+		at = t7 < t9 ? 1 : 0;
 		if (t7 < t8)
 		{
 			t7 = t8;
 		}
-
 		
-		if (t7 < t9)
+		if (at != 0)
 		{
 			t7 = t9 >> 3;
 		}
@@ -547,9 +550,8 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 		{
 			at = t7 << at;
 			t9 = t7 << 2;
-			
 
-			if ((unsigned)at < 0x180 && s3 == 0)
+			if ((unsigned int)at < 0x180 && s3 == 0)
 			{
 				s3 = 1;
 				s4 = gp;
@@ -569,6 +571,7 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 			else
 			{
 				//loc_75958
+				s3 = 1;
 				t7 = MAC0;
 				s7 = ra;
 
