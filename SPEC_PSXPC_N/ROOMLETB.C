@@ -1787,9 +1787,9 @@ loc_74C88:
 	t5 = MAC3;
 
 	/* todo addu*/
-	t0 += (unsigned int)t3;
-	t1 += (unsigned int)t4;
-	t2 += (unsigned int)t5;
+	t0 = (unsigned int)t0 + (unsigned int)t3;
+	t1 = (unsigned int)t1 + (unsigned int)t4;
+	t2 = (unsigned int)t2 + (unsigned int)t5;
 
 	TRX = t0;
 	TRY = t1;
@@ -1834,7 +1834,7 @@ loc_74F78:
 		t3 = a0[0];
 		s2[0] = (int)a0;
 		t6 = RBK;
-		t00 = &s3[t3 & 0xFFF8];///@TODO check when not zero!
+		t00 = &s3[((t3 << 3) & 0xFFF8) >> 3];///@TODO check when not zero!
 		t1 = t00->vz;
 		at = t00->vx;
 		t0 = t00->vy;
@@ -1847,7 +1847,6 @@ loc_74F78:
 		t0 |= at;
 
 		SVECTOR* t33;///@CHECKME result of t3 :S
-
 		t3 >>= 13;
 		t3 &= 0xFFF8;
 		t33 = &s3[t3 >> 3];
@@ -1889,10 +1888,10 @@ loc_74F78:
 		int a00, a22, a11, a33;
 		int s55;
 
-		a00 = 0x800;
-		a11 = 0xFFFFF800;
-		a22 = 0x800;
-		a33 = 0xFFFFF800;
+		a00 = 2048;
+		a11 = -2048;
+		a22 = 2048;
+		a33 = -2048;
 
 		s55 = 0;
 
@@ -2039,7 +2038,7 @@ loc_751B4:
 
 		t5 = a0[0];
 		t6 = 0;
-		t00 = &s3[t5 & 0xFFF8];///@checkme result of t0 :S
+		t00 = &s3[((t5 << 3) & 0xFFF8) >> 3];///@checkme result of t0 :S
 
 		t2 = t00->vz;
 		t0 = *(int*)& t00->vx;
