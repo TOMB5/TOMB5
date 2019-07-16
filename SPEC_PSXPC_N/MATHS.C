@@ -10,6 +10,7 @@
 #include "GPU.H"
 #include "GTEREG.H"
 #include "DRAWSPKS.H"
+#include "MISC.H"
 
 void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 {
@@ -34,9 +35,9 @@ void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 	R31 = ((short*)phd_mxptr)[16];
 
 	((short*)&MatrixStack)[8] = ((unsigned short*)phd_mxptr)[20];
-	((short*)&MatrixStack)[10] = ((unsigned short*)phd_mxptr)[6];
-	((short*)&MatrixStack)[12] = ((unsigned short*)phd_mxptr)[14];
-	((short*)&MatrixStack)[14] = ((unsigned short*)phd_mxptr)[22];
+	((int*)&MatrixStack)[5] = ((int*)phd_mxptr)[3];
+	((int*)&MatrixStack)[6] = ((int*)phd_mxptr)[7];
+	((int*)&MatrixStack)[7] = ((int*)phd_mxptr)[11];
 
 	R33 = ((unsigned short*)phd_mxptr)[20];
 	TRX = ((unsigned short*)phd_mxptr)[6];
@@ -768,11 +769,13 @@ void GetRoomBoundsAsm(short room_number)//77E70(<), 79EB4(<) ///@TODO check if i
 	int* t55;
 	short* t00;
 
+	S_MemSet((char*)& scratchPad[0], 0, 1024);
+
 	s2 = 0;
 	s3 = 1;
 	s4 = (short*)&scratchPad[63];
 	s5 = 0;
-
+	fp = outside;
 	((char*)&scratchPad)[0] = room_number;
 	r = &room[room_number];
 
@@ -801,7 +804,7 @@ loc_77F18:
 	if (s2 != s3)
 	{
 		//t0 = ((char*)&scratchPad)[s2]
-		s6 = ((char*)& scratchPad)[s2];
+		s6 = ((unsigned char*)& scratchPad)[s2];
 		s2++;
 		s2 &= 0x7F;
 		
@@ -1071,7 +1074,7 @@ loc_77F18:
 								t7 = t6 >> 16;
 								t6 &= 0xFFFF;
 
-								if (t0 > t2 || t1 < t3 || t4 > t6 || t5 < t7)
+								if (t0 >= t2 || t1 < t3 || t4 >= t6 || t5 < t7)
 								{
 									//loc_78208
 									t0 = t3;
@@ -1084,9 +1087,9 @@ loc_77F18:
 									v1 = 3;
 
 								loc_78228:
-									t7 = a2[3];
-									t9 = a2[4];
-									t8 = a2[5];
+									t7 = ((unsigned short*)a2)[3];
+									t9 = ((unsigned short*)a2)[4];
+									t8 = ((unsigned short*)a2)[5];
 									t9 <<= 16;
 									t7 |= t9;
 
@@ -1180,7 +1183,7 @@ loc_77F18:
 													if (t8 != 0)
 													{
 														t0 = 0;
-														//j       loc_7833C
+														goto loc_7833C;
 													}
 													else
 													{
@@ -1191,7 +1194,7 @@ loc_77F18:
 														{
 															t0 = 0;
 														}
-														//loc_7833C
+loc_7833C:
 														t6 = t44[1];
 														t7 = t55[1];
 														t8 = (t6 < 0) ? 1 : 0 & (t7 < 0) ? 1 : 0;
@@ -1205,7 +1208,7 @@ loc_77F18:
 														{
 															//loc_78360
 															t8 = (0 < t6) ? 1 : 0 & (0 < t7) ? 1 : 0;
-															t3 = 255;
+															t3 = 239;
 															if (t8 == 0)
 															{
 																t2 = 0;

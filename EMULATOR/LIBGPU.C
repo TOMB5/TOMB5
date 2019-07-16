@@ -329,7 +329,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glScissor(activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE);
 
 		P_TAG* pTag = (P_TAG*)p;
-
 		do
 		{
 			int textured = (pTag->code & 4) != 0;
@@ -519,7 +518,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 				char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
 				char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2);
-				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, &poly->r3, true);
+				char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r3, &poly->r2, true);
 
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glEnableClientState(GL_COLOR_ARRAY);
@@ -767,6 +766,11 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				break;
 			}
 
+			if ((unsigned int)pTag->addr == 2)
+			{
+				assert(0);
+			}
+
 			pTag = (P_TAG*)(unsigned int)pTag->addr;
 
 			//Reset for vertex colours
@@ -779,8 +783,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #endif
 
 		glDisableClientState(GL_VERTEX_ARRAY);
-
-		glViewport(0, 0, windowWidth, windowHeight);
 	}
 
 	Emulator_CheckTextureIntersection(&env->clip);

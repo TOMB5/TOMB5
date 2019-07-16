@@ -1,6 +1,6 @@
 # Project: Decompile Tomb Raider: Chronicles (TOMB5)
 
-Start Date: 12th July 2017.
+Start Date: 21st June 2017.
 
 PSX:
 <p align="center">
