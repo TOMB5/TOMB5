@@ -53,7 +53,7 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 	Emulator_CheckTextureIntersection(rect);
 	glClearColor(r/255.0f, g/255.0f, b/255.0f, 1.0f);
-	glScissor(rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE);
+	glScissor(rect->x, rect->y, rect->w, rect->h);
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	return 0;
 }
@@ -70,7 +70,7 @@ int DrawSync(int mode)
 
 int LoadImagePSX(RECT16* rect, u_long* p)
 {
-	glScissor(rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE);
+	glScissor(rect->x, rect->y, rect->w, rect->h);
 	Emulator_CheckTextureIntersection(rect);
 
 	GLuint srcTexture;
@@ -78,7 +78,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 	glGenTextures(1, &srcTexture);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -101,12 +101,12 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 #endif
 
 #if _DEBUG
-	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, TRUE);
+	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
 #endif
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
-	glBlitFramebuffer(0, 0, rect->w * INTERNAL_RESOLUTION_SCALE, rect->h * INTERNAL_RESOLUTION_SCALE, rect->x * INTERNAL_RESOLUTION_SCALE, rect->y * INTERNAL_RESOLUTION_SCALE, rect->x + rect->w * INTERNAL_RESOLUTION_SCALE, rect->y + rect->h * INTERNAL_RESOLUTION_SCALE, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	glBlitFramebuffer(0, 0, rect->w, rect->h, rect->x, rect->y, rect->x + rect->w, rect->y + rect->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 	glDeleteTextures(1, &srcTexture);
 	Emulator_DestroyFrameBuffer(srcFrameBuffer);
@@ -116,15 +116,15 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 int MoveImage(RECT16* rect, int x, int y)
 {
-	for (int sy = rect->y * INTERNAL_RESOLUTION_SCALE; sy < VRAM_HEIGHT; sy++)
+	for (int sy = rect->y; sy < VRAM_HEIGHT; sy++)
 	{
-		for (int sx = rect->x * INTERNAL_RESOLUTION_SCALE; sx < VRAM_WIDTH; sx++)
+		for (int sx = rect->x; sx < VRAM_WIDTH; sx++)
 		{
 			//unsigned short* src = vram + (sy * VRAM_WIDTH + sx);
 			//unsigned short* dst = vram + (y * VRAM_WIDTH + x);
 
-			if (sx >= rect->x * INTERNAL_RESOLUTION_SCALE && sx < rect->x + rect->w * INTERNAL_RESOLUTION_SCALE &&
-				sy >= rect->y * INTERNAL_RESOLUTION_SCALE && sy < rect->y + rect->h * INTERNAL_RESOLUTION_SCALE)
+			if (sx >= rect->x && sx < rect->x + rect->w &&
+				sy >= rect->y && sy < rect->y + rect->h)
 			{
 				//*dst++ = *src++;
 			}
@@ -147,9 +147,9 @@ int SetGraphDebug(int level)
 
 int StoreImage(RECT16* rect, u_long * p)
 {
-	for (int y = rect->y * INTERNAL_RESOLUTION_SCALE; y < VRAM_HEIGHT; y++)
+	for (int y = rect->y; y < VRAM_HEIGHT; y++)
 	{
-		for (int x = rect->x * INTERNAL_RESOLUTION_SCALE; x < VRAM_WIDTH; x++)
+		for (int x = rect->x; x < VRAM_WIDTH; x++)
 		{
 			//unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
 			unsigned short* dst = (unsigned short*)p + (y * VRAM_WIDTH + x);
@@ -313,6 +313,15 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #else
 	PutDrawEnv(env);
 
+	if (env->dtd)
+	{
+		glEnable(GL_DITHER);
+	}
+	else
+	{
+		glDisable(GL_DITHER);
+	}
+
 	if (env->isbg)
 	{
 		ClearImage(&env->clip, env->r0, env->g0, env->b0);
@@ -322,11 +331,11 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 	{
 		glLoadIdentity();
 		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, -1, 1);
-		glViewport(activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
-		glScaled(INTERNAL_RESOLUTION_SCALE, INTERNAL_RESOLUTION_SCALE, 1);
-		glEnableClientState(GL_VERTEX_ARRAY);
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-		glScissor(activeDrawEnv.clip.x * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.y * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.w * INTERNAL_RESOLUTION_SCALE, activeDrawEnv.clip.h * INTERNAL_RESOLUTION_SCALE);
+		glViewport(activeDrawEnv.clip.x, activeDrawEnv.clip.y, VRAM_WIDTH, VRAM_HEIGHT);
+		glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, 1);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glScissor(activeDrawEnv.clip.x, activeDrawEnv.clip.y, activeDrawEnv.clip.w, activeDrawEnv.clip.h);
 
 		P_TAG* pTag = (P_TAG*)p;
 		do
@@ -783,6 +792,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #endif
 
 		glDisableClientState(GL_VERTEX_ARRAY);
+#if 1//OLD_RENDERER
+		glViewport(0, 0, windowWidth, windowHeight);
+#endif
 	}
 
 	Emulator_CheckTextureIntersection(&env->clip);
