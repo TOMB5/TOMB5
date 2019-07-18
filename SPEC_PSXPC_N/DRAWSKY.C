@@ -52,16 +52,16 @@ void DrawSkyMesh(short* mesh)
 	//loc_7DD00
 	do
 	{
-		VX0 = t0 & 0xFFFF;
-		VY0 = t0 >> 16;
+		VX0 = (t0 & 0xFFFF);
+		VY0 = (t0 >> 16) & 0xFFFF;
 		VZ0 = t1;
 
-		VX1 = t2 & 0xFFFF;
-		VY1 = t2 >> 16;
+		VX1 = (t2 & 0xFFFF);
+		VY1 = (t2 >> 16) & 0xFFFF;
 		VZ1 = t3;
 
-		VX2 = t4 & 0xFFFF;
-		VY2 = t4 >> 16;
+		VX2 = (t4 & 0xFFFF);
+		VY2 = (t4 >> 16) & 0xFFFF;
 		VZ2 = t5;
 
 		mesh += 12;
@@ -188,6 +188,7 @@ loc_7DD84:
 					((int*)s5)[10] = at;
 					((int*)s5)[3] = t2;
 					((int*)s5)[6] = t3;
+					((int*)s5)[9] = t4;
 					((int*)s5)[12] = t5;
 
 					at = 0xC000000;
