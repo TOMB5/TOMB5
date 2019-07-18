@@ -22,17 +22,17 @@ void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 	((int*)&MatrixStack)[2] = ((unsigned short*)phd_mxptr)[10] | ((unsigned short*)phd_mxptr)[12] << 16;
 	((int*)&MatrixStack)[3] = ((unsigned short*)phd_mxptr)[16] | ((unsigned short*)phd_mxptr)[18] << 16;
 
-	R12 = ((short*)phd_mxptr)[2] << 16;
-	R11 = ((short*)phd_mxptr)[0];
+	R12 = ((unsigned short*)phd_mxptr)[2];
+	R11 = ((unsigned short*)phd_mxptr)[0];
 
-	R21 = ((short*)phd_mxptr)[8] << 16;
-	R13 = ((short*)phd_mxptr)[4];
+	R21 = ((unsigned short*)phd_mxptr)[8];
+	R13 = ((unsigned short*)phd_mxptr)[4];
 
-	R23 = ((short*)phd_mxptr)[12] << 16;
-	R22 = ((short*)phd_mxptr)[10];
+	R23 = ((unsigned short*)phd_mxptr)[12];
+	R22 = ((unsigned short*)phd_mxptr)[10];
 
-	R32 = ((short*)phd_mxptr)[18] << 16;
-	R31 = ((short*)phd_mxptr)[16];
+	R32 = ((unsigned short*)phd_mxptr)[18];
+	R31 = ((unsigned short*)phd_mxptr)[16];
 
 	((short*)&MatrixStack)[8] = ((unsigned short*)phd_mxptr)[20];
 	((int*)&MatrixStack)[5] = ((int*)phd_mxptr)[3];
@@ -40,9 +40,9 @@ void mQuickW2VMatrix()//77AEC(<), 79B30(<)
 	((int*)&MatrixStack)[7] = ((int*)phd_mxptr)[11];
 
 	R33 = ((unsigned short*)phd_mxptr)[20];
-	TRX = ((unsigned short*)phd_mxptr)[6];
-	TRY = ((unsigned short*)phd_mxptr)[14];
-	TRZ = ((unsigned short*)phd_mxptr)[22];
+	TRX = ((int*)phd_mxptr)[3];
+	TRY = ((int*)phd_mxptr)[7];
+	TRZ = ((int*)phd_mxptr)[11];
 
 	CamGTE.m00 = ((unsigned short*)&w2v_matrix)[0];
 	CamGTE.m01 = ((unsigned short*)&w2v_matrix)[2];
@@ -249,7 +249,17 @@ void mTranslate()//76558(<) (!)
 
 void mTranslateAbsXYZ(long x, long y, long z)
 {
-	mTranslateXYZ(x - MatrixStack[0].tx, y - MatrixStack[0].ty, z - MatrixStack[0].tz);
+	int t0 = ((int*)MatrixStack)[5];
+	int t1 = ((int*)MatrixStack)[6];
+	int t2 = ((int*)MatrixStack)[7];
+	TRX = 0;
+	TRY = 0;
+	TRZ = 0;
+	x -= t0;
+	y -= t1;
+	z -= t2;
+
+	mTranslateXYZ(x, y, z);
 }
 
 void mTranslateXYZ(long x, long y, long z)//7658C(<), 785D0(<) (!)
