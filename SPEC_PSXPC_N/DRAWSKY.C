@@ -32,9 +32,9 @@ void DrawSkyMesh(short* mesh)
 	s7 = gfLevelFlags & 0x200;
 	s5 = db.polyptr;
 	t9 = db.ot;
-	v0 = mesh[2];
+	v0 = ((int*)mesh)[2];
 	s6 = t9[2563];
-	mesh += 3;
+	mesh += 6;
 	a1 = v0 >> 16;
 	v0 &= 0xFF;
 	a1 += (int)mesh;
@@ -42,12 +42,12 @@ void DrawSkyMesh(short* mesh)
 	at = v0 << 3;
 	v1 = v0;
 
-	t0 = mesh[0];
-	t1 = mesh[1];
-	t2 = mesh[2];
-	t3 = mesh[3];
-	t4 = mesh[4];
-	t5 = mesh[5];
+	t0 = ((int*)mesh)[0];
+	t1 = ((int*)mesh)[1];
+	t2 = ((int*)mesh)[2];
+	t3 = ((int*)mesh)[3];
+	t4 = ((int*)mesh)[4];
+	t5 = ((int*)mesh)[5];
 
 	//loc_7DD00
 	do
@@ -64,17 +64,17 @@ void DrawSkyMesh(short* mesh)
 		VY2 = t4 >> 16;
 		VZ2 = t5;
 
-		mesh += 6;
+		mesh += 12;
 		v0 -= 3;
 
 		docop2(0x280030);
 
-		t0 = mesh[0];
-		t1 = mesh[1];
-		t2 = mesh[2];
-		t3 = mesh[3];
-		t4 = mesh[4];
-		t5 = mesh[5];
+		t0 = ((int*)mesh)[0];
+		t1 = ((int*)mesh)[1];
+		t2 = ((int*)mesh)[2];
+		t3 = ((int*)mesh)[3];
+		t4 = ((int*)mesh)[4];
+		t5 = ((int*)mesh)[5];
 
 		a2[0] = SXY0;
 		a2[1] = SXY1;
@@ -100,87 +100,118 @@ void DrawSkyMesh(short* mesh)
 
 	if (v0 != 0)
 	{
-		//loc_7DD84
+loc_7DD84:
 		a1 += 4;
 		v1 = 1;
 		//loc_7DD8C
-		t1 = ((int*)a1)[0];
-		v0--;
-		t4 = (t1 >> 22) & 0x3FC;
-		t4 += (int)a0;
-		t8 = (t1 >> 14) & 0x3FC;
-		t8 += (int)a0;
-		t7 = (t1 >> 6) & 0x3FC;
-		t7 += (int)a0;
-		t6 = (t1 << 2) & 0x3FC;
-		t6 += (int)a0;
-
-		SXY0 = ((int*)t6)[0];
-		SXY1 = ((int*)t7)[0];
-		SXY2 = ((int*)t8)[0];
-
-		docop2(0x1400006);
-		t6 = 0x3C808080;
-
-		t4 = ((int*)t4)[0];
-		at = MAC0;
-
-		t5 = (t0 & 0xFFF) << 4;
-		t0 >>= 16;
-
-		if (at >= 0)
+		do
 		{
-			t1 = SXY0;
-			t2 = SXY1;
-			t3 = SXY2;
+			t1 = ((int*)a1)[0];
+			v0--;
+			t4 = (t1 >> 22) & 0x3FC;
+			t4 += (int)a0;
+			t8 = (t1 >> 14) & 0x3FC;
+			t8 += (int)a0;
+			t7 = (t1 >> 6) & 0x3FC;
+			t7 += (int)a0;
+			t6 = (t1 << 2) & 0x3FC;
+			t6 += (int)a0;
 
-			at = HorClipXY(t1, t2, t3, t4);
+			SXY0 = ((int*)t6)[0];
+			SXY1 = ((int*)t7)[0];
+			SXY2 = ((int*)t8)[0];
 
-			
-		}//loc_7DEB4
-	}//loc_7DECC
+			docop2(0x1400006);
+			t6 = 0x3C808080;
+
+			t4 = ((int*)t4)[0];
+			at = MAC0;
+
+			t5 = (t0 & 0xFFF) << 4;
+			t0 >>= 16;
+
+			if (at >= 0)
+			{
+				t1 = SXY0;
+				t2 = SXY1;
+				t3 = SXY2;
+
+				at = HorClipXY(t1, t2, t3, t4);
+
+				if (at == 0)
+				{
+					t5 += (int)a22;
+					((int*)s5)[2] = SXY0;
+					((int*)s5)[5] = SXY1;
+					((int*)s5)[8] = SXY2;
+					((int*)s5)[11] = t4;
+
+					t4 = ((int*)t5)[2];
+					at = DQB;
+
+					t2 = ((int*)t5)[0];
+					t3 = ((int*)t5)[1];
+					t5 = ((int*)t5)[3];
+
+					t2 -= at;
+
+					at = ((t4 >> 16) & 0x200) << 16;
+
+					t6 |= at;
+					t3 &= 0xFF9FFFFF;
+
+					if (s7 == 0)
+					{
+						at = 0x400000;
+					}
+					else
+					{
+						at = 0x200000;
+					}
+
+					//loc_7DE64
+					t3 |= at;
+
+					at = t6;
+					if (!(v0 < 16))
+					{
+						if (s7 == 0)
+						{
+							at = 0;
+						}//loc_7DE80
+					}//loc_7DE80
 
 
-#if 0
+					((int*)s5)[1] = t6;
+					((int*)s5)[4] = t6;
+					((int*)s5)[7] = at;
+					((int*)s5)[10] = at;
+					((int*)s5)[3] = t2;
+					((int*)s5)[6] = t3;
+					((int*)s5)[12] = t5;
 
-loc_7DE80:
-sw      $t6, 4($s5)
-sw      $t6, 0x10($s5)
-sw      $at, 0x1C($s5)
-sw      $at, 0x28($s5)
-sw      $t2, 0xC($s5)
-sw      $t3, 0x18($s5)
-sw      $t4, 0x24($s5)
-sw      $t5, 0x30($s5)
-lui     $at, 0xC00
-or      $t2, $s6, $at
-sw      $t2, 0($s5)
-move    $s6, $s5
-addi    $s5, 0x34
+					at = 0xC000000;
+					t2 = s6 | at;
+					((int*)s5)[0] = t2;
+					s6 = (int)s5;
+					s5 += 0x34;
+				}//loc_7DEB4
+			}//loc_7DEB4
 
-loc_7DEB4:
-beqz    $v0, loc_7DECC
-addi    $a1, 4
-bnez    $v1, loc_7DD8C
-addi    $v1, -1
-j       loc_7DD84
-lw      $t0, 0($a1)
+			a1 += 4;
+			if (v0 == 0)
+			{
+				goto loc_7DECC;//break
+			}
 
+		} while (v1--);
+
+		t0 = ((int*)a1)[0];
+		goto loc_7DD84;//while true
+	}
 loc_7DECC:
-sw      $s5, 0x3644($gp)
-sw      $s6, 0x280C($t9)
-lw      $ra, 0x34+var_4($sp)
-lw      $s0, 0x34+var_24($sp)
-lw      $s1, 0x34+var_20($sp)
-lw      $s2, 0x34+var_1C($sp)
-lw      $s3, 0x34+var_18($sp)
-lw      $s4, 0x34+var_14($sp)
-lw      $s5, 0x34+var_10($sp)
-lw      $s6, 0x34+var_C($sp)
-lw      $s7, 0x34+var_8($sp)
-jr      $ra
-addiu   $sp, 0x34
-#endif
+	db.polyptr = s5;
+	t9[2563] = s6;
 }
 
 int HorClipXY(int t1, int t2, int t3, int t4)//7DF00, ? (F)
@@ -197,7 +228,7 @@ int HorClipXY(int t1, int t2, int t3, int t4)//7DF00, ? (F)
 	if (!(t1 < s0) || !(t2 < s0) || !(t3 < s0) || !(t4 < s0))
 	{
 		//loc_7DF28
-		if (t1 < s1 || t2 < s1 || t3 < s1 || t3 < s1)
+		if (t1 < s1 || t2 < s1 || t3 < s1 || t4 < s1)
 		{
 			//loc_7DF48
 			s2 = t1 << 16;
