@@ -6,6 +6,7 @@
 #include "SPECIFIC.H"
 #include "GTEREG.H"
 #include "DRAWSPKS.H"
+#include "LARA.H"
 
 void DrawFlash()
 {
@@ -39,7 +40,114 @@ void insert_psx_clip_window(long x, long y, long w, long h, long arg_10)
 
 void CalcClipWindow_ONGTE(short room_number, long unknown)//8F374,
 {
-	UNIMPLEMENTED();
+	int t2;
+	int t5;
+	int t4;
+	int t7;
+	int a0;
+	int a1;
+	int a2;
+	int a3;
+	int t3;
+	short* t1;
+	int t0;
+	struct room_info* r;//v1
+	int v0;
+
+	t2 = unknown & 0xFFFF;
+	t5 = room_number & 0xFFFF;
+	//t7 = lara_item;
+	t4 = number_draw_rooms;
+	//t6 = room;
+	t7 = ((int*)lara_item)[6];
+	a0 = 512;
+	a1 = 0;
+	a2 = 256;
+	a3 = 0;
+
+	t3 = 0;
+	if (t4 > 0)
+	{
+		t1 = &draw_rooms[0];
+
+		//loc_8F3AC
+		do
+		{
+			t0 = t1[0];
+			t3++;
+
+			r = &room[t0];
+
+			if (t2 != 0)
+			{
+				if (!(r->flags & (RF_WIND_BLOWS_PONYTAIL | RF_SKYBOX_VISIBLE)))
+				{
+					goto loc_8F440;
+				}
+			}//loc_8F3DC
+
+			if (t0 == t5)
+			{
+				if (t2 == 0)
+				{
+					goto loc_8F440;
+				}
+			}
+
+			//loc_8F3EC
+			if (t0 == t7)
+			{
+				if (t2 == 0)
+				{
+					goto loc_8F440;
+				}
+			}
+
+			//loc_8F3FC
+			t0 = r->left;
+			v0 = r->right;
+
+			if (t0 < a0)
+			{
+				a0 = t0 + 1;
+			}
+			//loc_8F414
+			t0 = r->top;
+			if (a1 < v0)
+			{
+				a1 = v0 - 1;
+			}
+			//loc_8F420
+			v0 = r->bottom;
+
+			if (t0 < a2)
+			{
+				a2 = t0 + 1;
+			}
+
+			if (a3 < v0)
+			{
+				a3 = v0 - 1;
+			}
+
+loc_8F440:
+			t1++;
+		} while (t3 < t4);
+
+		a0 <<= 16;
+		a1 <<= 16;
+		a2 <<= 16;
+		a3 <<= 16;
+
+		R = a0 & 0xFF;
+		G = (a0 >> 8) & 0xFF;
+		B = (a0 >> 16) & 0xFF;
+		CODE = (a0 >> 24) & 0xFF;
+		RGB0 = a1;
+		RGB1 = a2;
+		RGB2 = a3;
+
+	}//locret_8F46C
 }
 
 void DrawPsxTile(long a0, long a1, long a2, long a3)//8F770(<), 917B4(<) (F)
