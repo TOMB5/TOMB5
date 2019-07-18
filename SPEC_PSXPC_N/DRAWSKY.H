@@ -4,5 +4,6 @@
 #include <LIBGTE.H>
 
 extern void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags);
+extern void DrawSkyMesh(short* mesh);
 
 #endif
