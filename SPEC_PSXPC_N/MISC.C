@@ -134,9 +134,10 @@ void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigne
 		addPrim(db.ot + otnum, ptr);
 
 		ptr++;
-		db.polyptr += sizeof(LINE_G2);
 
-		setcode(ptr, 0);
+		setLineG2(ptr);
+		setSemiTrans(ptr, TRUE);
+		setlen(ptr, 0);
 		setaddr(ptr, 0);
 
 		ptr->p1 = getcode(ptr);
@@ -145,7 +146,7 @@ void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigne
 		setRGB1(ptr, getR(color1), getG(color1), getB(color1));
 		setXY2(ptr, x + width / 2 + 1, y, x + width - 1, y);
 
-		db.polyptr += sizeof(LINE_G2);
+		db.polyptr += sizeof(LINE_G2) * 2;
 	}//locret_5EF7C
 }
 
@@ -389,7 +390,7 @@ void GPU_FlipToBuffer(int buffer_index) //5F3C8(<), 600A8(<) (F) (D) (ND)
 		PutDrawEnv(&db.draw[0]);
 	}
 
-	db.current_buffer = buffer_index & 1 ^ 1;
+	db.current_buffer = (buffer_index & 1) ^ 1;
 
 	return;
 }
