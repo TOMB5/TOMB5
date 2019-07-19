@@ -531,6 +531,10 @@ struct ITEM_INFO* ResetCutanimate(int objnum)//32A80(<), 32F18(<) (F)
 {
 	struct ITEM_INFO* item = find_a_fucking_item(objnum);
 
+#if SEPT_VERSION || AUG_VERSION || JULY_VERSION//Dirty hack
+	return &items[0];
+#endif
+
 	item->anim_number = objects[objnum].anim_index;
 	item->frame_number = anims[item->anim_number].frame_base;
 	RemoveActiveItem(item - items);	
