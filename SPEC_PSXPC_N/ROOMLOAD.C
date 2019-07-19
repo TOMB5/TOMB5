@@ -18,7 +18,7 @@
 
 #include <STRINGS.H>
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__EMSCRIPTEN__)
 #define SETUP_MOD "DATA/SETUP.MOD"
 #else
 #define SETUP_MOD "DATA\\SETUP.MOD"
@@ -108,7 +108,7 @@ void S_LoadLevelFile(int Name)//60188(<), 60D54(<) (F) (*) () (D) (D)
 #else
 	strcpy(&buf[0], &gfFilenameWad[gfFilenameOffset[Name]]);
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__EMSCRIPTEN__)
 	//Fix paths for Linux
 	for (int i = 0; i < strlen(&buf[0]); i++)
 	{
