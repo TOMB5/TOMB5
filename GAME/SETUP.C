@@ -67,7 +67,7 @@
 #include "TYPEDEFS.H"
 #endif
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__EMSCRIPTEN__)
         #define CODE_WAD "DATA/CODE.WAD"
 #else
         #define CODE_WAD "DATA\\CODE.WAD"
