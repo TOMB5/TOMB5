@@ -758,5 +758,6 @@ extern void GetDrawEnv2(DR_ENV *p);
 
 extern DISPENV word_33BC;
 extern DRAWENV activeDrawEnv;
+extern P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd);
 
 #endif

@@ -1,14 +1,25 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #if __APPLE__
 #include <stddef.h>
 #endif
 
+#if !defined(__EMSCRIPTEN__)
 #include <GL/glew.h>
+#endif
+
 #if __APPLE__
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#elif __EMSCRIPTEN__
+#include <SDL2/SDL.h>
+#define GL_GLEXT_PROTOTYPES 1
+#include <SDL_opengles2.h>
 #else
 #include <SDL.h>
 #include <SDL_opengl.h>
