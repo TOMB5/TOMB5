@@ -384,9 +384,9 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 
 				docop2(0x280030);
 
-				SXY0 = t0[4];
-				SXY1 = t0[10];
-				SXY2 = t0[16];
+				t0[4] = SXY0;
+				t0[10] = SXY1;
+				t0[16] = SXY2;
 
 				DrawSubdivChunk(&t0[0], t6, t7, &t4, (int*)&layer);
 				DrawSubdivChunk(&t0[2], t6, t7, &t4, (int*)&layer);
