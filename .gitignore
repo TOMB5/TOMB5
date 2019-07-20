@@ -43,3 +43,4 @@
 /GAME/*.BIN
 /GAME/*.MOD
 /GAME/*.O
+/EMSCRIPTEN/*

@@ -67,7 +67,7 @@
 #include "TYPEDEFS.H"
 #endif
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__EMSCRIPTEN__)
         #define CODE_WAD "DATA/CODE.WAD"
 #else
         #define CODE_WAD "DATA\\CODE.WAD"
@@ -119,6 +119,8 @@ extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
 extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
 
 #endif
+
+#define SEPT_VERSION (1)
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 int LoadSoundEffects(int numSoundEffects, long* pSoundWadLengths, char* pSoundData, int soundWadSize)//?, B3974(F)
@@ -1318,7 +1320,11 @@ void LoadLevel(FILE* nHandle)
 	ptr += level->soundEffectInfoLength;
 
 	sample_lut = (short*)ptr;
+#if AUG_VERSION || JULY_VERSION
+	ptr += 740;
+#else
 	ptr += 900;
+#endif
 
 	sample_infos = (struct SAMPLE_INFO*)ptr;
 	ptr += level->sampleInfoLength;
@@ -1824,7 +1830,9 @@ void SetupGame()//?(<), B9DA8(<) (F)
 
 	InitialiseFootPrints();
 	InitBinoculars();
+#if !AUG_VERSION
 	InitTarget();
+#endif
 	InitialiseGameFlags();
 
 #if PC_VERSION

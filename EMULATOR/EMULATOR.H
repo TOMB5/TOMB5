@@ -1,14 +1,25 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #if __APPLE__
 #include <stddef.h>
 #endif
 
+#if !defined(__EMSCRIPTEN__)
 #include <GL/glew.h>
+#endif
+
 #if __APPLE__
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#elif __EMSCRIPTEN__
+#include <SDL2/SDL.h>
+#define GL_GLEXT_PROTOTYPES 1
+#include <SDL_opengles2.h>
 #else
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -19,9 +30,9 @@
 #define CORE_PROF_3_1 (1)
 #define CORE_PROF_3_2 (0)
 
-#define INTERNAL_RESOLUTION_SCALE (1)
-#define VRAM_WIDTH (1024 * INTERNAL_RESOLUTION_SCALE)
-#define VRAM_HEIGHT (512 * INTERNAL_RESOLUTION_SCALE)
+#define RESOLUTION_SCALE (1)
+#define VRAM_WIDTH (1024)
+#define VRAM_HEIGHT (512)
 
 #define TPAGE_WIDTH (256)
 #define TPAGE_HEIGHT (256)

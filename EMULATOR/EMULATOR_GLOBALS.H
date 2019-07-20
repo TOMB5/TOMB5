@@ -17,14 +17,20 @@
 #if __APPLE__
 #include <stddef.h>
 #include <SDL2/SDL.H>
+#elif __EMSCRIPTEN__
+#include <SDL2/SDL.h>
 #else
 #include <SDL.h>
 #endif
 
+#ifndef __EMSCRIPTEN__
 #include <GL/glew.h>
+#endif
 
 #if __APPLE__
 #include <SDL2/SDL_opengl.h>
+#elif __EMSCRIPTEN__
+#include <SDL_opengles2.h>
 #else
 #include <SDL_opengl.h>
 #endif

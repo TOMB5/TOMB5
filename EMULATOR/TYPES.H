@@ -57,9 +57,11 @@ typedef	long *	qaddr_t;
 //typedef	u_long	ino_t;
 typedef	long	swblk_t;
 
+#if !defined(__EMSCRIPTEN__)
 #ifndef _SIZE_T
 #define _SIZE_T
 typedef	unsigned int size_t;
+#endif
 #endif
 
 //typedef	long	time_t;

@@ -3,6 +3,9 @@
 #if __APPLE__
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#elif __EMSCRIPTEN__
+#include <SDL2/SDL.h>
+#include <SDL_opengles2.h>
 #else
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -33,7 +36,6 @@
 #define MAX_NUM_CACHED_TEXTURES (256)
 #endif
 #define BLEND_MODE (1)
-#define V_SCALE (1)
 #define VERTEX_COLOUR_MULT (2)
 #define DOUBLE_BUFFERED (1)
 
@@ -88,41 +90,15 @@ struct CachedTexture
 	unsigned int tpageY;
 	unsigned int clutX;
 	unsigned int clutY;
+	unsigned short tpage;
+	unsigned short clut;
 	unsigned int lastAccess;
 };
 
 struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
-int callGameMain(void *ptr)
-{
-	extern int psx_main();
-	psx_main();
-	return 1;
-}
-
-#undef main
-
-int main(int argc, char* argv[])
-{
-
-	SDL_Thread* gameThread = SDL_CreateThread(callGameMain, "GameThread", (void *)NULL);
-	if (gameThread ==  NULL)
-	{
-		printf("Failed to create thread %s\n", SDL_GetError());
-	}
-	
-	while (true)
-	{
-		Emulator_UpdateInput();
-	}
-
-	return 0;
-}
-
-
 void Emulator_Init(char* windowName, int screen_width, int screen_height)
 {
-
 #if _WINDOWS && USE_DDRAW
 	HRESULT hResult = DirectDrawCreate(NULL, &pDD, NULL);
 	if (FAILED(hResult)) exit(0);
@@ -133,8 +109,8 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 #endif
 	screenWidth = screen_width;
 	screenHeight = screen_height;
-	windowWidth = screen_width * V_SCALE;
-	windowHeight = screen_height * V_SCALE;
+	windowWidth = screen_width * RESOLUTION_SCALE;
+	windowHeight = screen_height * RESOLUTION_SCALE;
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0)
 	{
@@ -142,7 +118,11 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
 #endif
 
-#if CORE_PROF_3_1
+#if __EMSCRIPTEN__
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#elif CORE_PROF_3_1
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -173,7 +153,7 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 		eprinterr("Failed to initialise GL context!\n");
 	}
 
-#if CORE_PROF_3_1 || CORE_PROF_3_2
+#if (CORE_PROF_3_1 || CORE_PROF_3_2) && !defined(__EMSCRIPTEN__)
 	glewExperimental = GL_TRUE;
 
 	GLenum err = glewInit();
@@ -206,7 +186,7 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 		exit(0);
 	}
 #endif
-	counter_thread = std::thread(Emulator_CounterLoop);
+	//counter_thread = std::thread(Emulator_CounterLoop);
 }
 
 void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
@@ -542,7 +522,9 @@ void Emulator_InitialiseGL()
 	/* Generate VRAM texture */
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
+#if !defined(__EMSCRIPTEN__)
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RGBA,  GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
+#endif
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -564,16 +546,19 @@ void Emulator_InitialiseGL()
 	}
 #endif
 
-	glLineWidth(INTERNAL_RESOLUTION_SCALE);
+	glLineWidth(RESOLUTION_SCALE);
 	
 	SDL_memset(&vertices[0].x, 0, sizeof(Vertex) * MAX_NUM_VERTICES);
 
 #if BLEND_MODE
 	glBlendColor(0.25, 0.25, 0.25, 0.5);
 #endif
+
+#if !defined(__EMSCRIPTEN__)
 	glShadeModel(GL_SMOOTH);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
+#endif
 
 	delete[] vram;
 }
@@ -608,6 +593,7 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 }
 #define NOFILE (1)
 
+#if !__EMSCRIPTEN__
 void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
 {
 #if NOFILE
@@ -625,11 +611,15 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 
 	if (bReadFromFrameBuffer)
 	{
-		glReadPixels(x, y, width, height, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+#if !defined(__EMSCRIPTEN__)
+		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+#endif
 	}
 	else
 	{
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+#if !defined(__EMSCRIPTEN__)
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+#endif
 	}
 
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
@@ -652,15 +642,10 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 	fclose(f);
 	delete[] pixels;
 }
+#endif
 
 void Emulator_BeginScene()
 {
-#if OLD_RENDERER
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glEnable(GL_DEPTH_TEST);
-	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-#endif
-
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
@@ -722,8 +707,48 @@ void Emulator_SwapWindow()
 #endif
 }
 
+unsigned short* pixels[VRAM_WIDTH * VRAM_HEIGHT];
+
 void Emulator_EndScene()
 {
+	
+#if 1//OLD_RENDERER
+	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+#if !defined(__EMSCRIPTEN__)
+	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
+#endif
+	glBindTexture(GL_TEXTURE_2D, vramTexture);
+#if !defined(__EMSCRIPTEN__)
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
+#endif
+	glScissor(0, 0, windowWidth, windowHeight);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	float x = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.x * RESOLUTION_SCALE));
+	float y = 1.0f / (VRAM_HEIGHT / (float)(word_33BC.disp.y * RESOLUTION_SCALE));
+	float h = 1.0f / (VRAM_HEIGHT / (float)(word_33BC.disp.h * RESOLUTION_SCALE));
+	float w = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.w * RESOLUTION_SCALE));
+
+	float vertexBuffer[] =
+	{
+		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y,
+		0.0f, 0.0f, 0.0f, x, y + h,
+		(float)word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, 0.0f, x + w, y + h,
+		(float)word_33BC.disp.w * RESOLUTION_SCALE, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x + w, y,
+		(float)word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, 0.0f, x + w, y + h,
+		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y,
+	};
+#if !defined(__EMSCRIPTEN__)
+	glVertexPointer(3, GL_FLOAT, 5 * sizeof(float), vertexBuffer);
+	glTexCoordPointer(2, GL_FLOAT, 5 * sizeof(float), vertexBuffer + 3);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glLoadIdentity();
+	glOrtho(0, word_33BC.disp.w * RESOLUTION_SCALE, 0, word_33BC.disp.h * RESOLUTION_SCALE, -1, 1);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+#endif
+#else
 	GLint currentBufferBound;
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentBufferBound);
 
@@ -758,8 +783,10 @@ void Emulator_EndScene()
 			0,//dy1
 			GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
+#endif
+
 #if _DEBUG
-	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
+	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, FALSE);
 #endif
 
 	Emulator_SwapWindow();
@@ -819,6 +846,7 @@ GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY, uns
 
 void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent)
 {
+	unsigned int bShouldUseLastTexture = (tpage == 0xFFFF) ? 1 : 0;
 	unsigned int textureType = (tpage >> 7) & 0x3;
 	unsigned int tpageX = ((tpage << 6) & 0x7C0 % 1024);
 	unsigned int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200));
@@ -826,6 +854,19 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
 
+
+	if (bShouldUseLastTexture)
+	{
+		tpage = cachedTextures[lastTextureCacheIndex-1].tpage;
+		textureType = (tpage >> 7) & 0x3;
+		tpageX = ((tpage << 6) & 0x7C0 % 1024);
+		tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200));
+		///clutX = ((clut & 0x3F) << 4);
+		///clutY = (clut >> 6);
+		tpageAbr = (tpage >> 5) & 3;
+	}
+
+#if 0//For old internal res scaling code
 	tpageX += ((VRAM_WIDTH - (VRAM_WIDTH / INTERNAL_RESOLUTION_SCALE)) / 2);
 	if (tpageY >= 256)
 	{
@@ -837,6 +878,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 	{
 		clutY += ((VRAM_HEIGHT - (VRAM_HEIGHT / INTERNAL_RESOLUTION_SCALE)) / 2);
 	}
+#endif
 
 	Emulator_SetBlendMode(tpageAbr);
 
@@ -854,6 +896,8 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 		cachedTextures[lastTextureCacheIndex].tpageY = tpageY;
 		cachedTextures[lastTextureCacheIndex].clutX = clutX;
 		cachedTextures[lastTextureCacheIndex].clutY = clutY;
+		cachedTextures[lastTextureCacheIndex].tpage = tpage;
+		cachedTextures[lastTextureCacheIndex].clut = clut;
 		glGenTextures(1, &cachedTextures[lastTextureCacheIndex].textureID);
 		tpageTexture = cachedTextures[lastTextureCacheIndex++].textureID;
 	}
@@ -873,8 +917,10 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 		{
 			//ARGB1555
 			unsigned short* texturePage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
-			glReadPixels(tpageX * INTERNAL_RESOLUTION_SCALE, tpageY * INTERNAL_RESOLUTION_SCALE, TPAGE_WIDTH, TPAGE_HEIGHT, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
+#if !defined(__EMSCRIPTEN__)
+			glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
+#endif
 			delete[] texturePage;
 			break;
 		}
@@ -892,11 +938,12 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 			unsigned short* clut = new unsigned short[16];
 			unsigned short* convertedTpage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
 			//Read CLUT
-			glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &clut[0]);
+#if !defined(__EMSCRIPTEN__)
+			glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &clut[0]);
 
 			//Read texture data
 			glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
-
+#endif
 			unsigned short* convertPixel = &convertedTpage[0];
 
 			for (int xy = 0; xy < TPAGE_WIDTH / 4 * TPAGE_HEIGHT; xy++)
@@ -924,7 +971,9 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 			fwrite(&texturePage[0], sizeof(char), 256/4 * 256 * 2, f2);
 			fclose(f2);
 #endif
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
+#if !defined(__EMSCRIPTEN__)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
+#endif
 			delete[] clut;
 			delete[] texturePage;
 			delete[] convertedTpage;
