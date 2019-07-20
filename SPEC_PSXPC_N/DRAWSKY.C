@@ -395,7 +395,7 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 
 			} while (s0 != 9840);
 			s1 += 3280;
-		} while (s1 != at);
+		} while (s1 != 9840);
 
 		t8 += 1;
 		t1++;
