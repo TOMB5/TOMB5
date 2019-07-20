@@ -169,9 +169,10 @@ void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsign
 		addPrim(db.ot + otnum, ptr);
 
 		ptr++;
-		db.polyptr += sizeof(LINE_G2);
 
-		setcode(ptr, 0);
+		setLineG2(ptr);
+		setSemiTrans(ptr, TRUE);
+		setlen(ptr, 0);
 		setaddr(ptr, 0);
 
 		ptr->p1 = getcode(ptr);
@@ -180,7 +181,7 @@ void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsign
 		setRGB1(ptr, getR(color1), getG(color1), getB(color1));
 		setXY2(ptr, x, y + height / 2 + 2, x, y + height - 2);
 
-		db.polyptr += sizeof(LINE_G2);
+		db.polyptr += sizeof(LINE_G2) * 2;
 	}//locret_5F038
 }
 
