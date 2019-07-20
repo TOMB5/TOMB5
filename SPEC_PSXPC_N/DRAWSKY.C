@@ -478,7 +478,7 @@ int SkyClipXY(int v0, int v1, int a0, int a1)
 			s6 = R | (G << 8) | (B << 16) | (CODE << 24);
 			s3 = a1 << 16;
 
-			if ((!s4 < s6) || !(s5 < s6) || !(s2 < s6) || !(s3 < s6))
+			if (!(s4 < s6) || !(s5 < s6) || !(s2 < s6) || !(s3 < s6))
 			{
 				//loc_7E2A0
 				s6 = RGB0;
