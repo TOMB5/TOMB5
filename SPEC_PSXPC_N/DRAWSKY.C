@@ -421,7 +421,7 @@ void DrawSubdivChunk(int* a3, int t6, int t7, unsigned long* t4, int* t9)
 	if (SkyClipXY(a3[0], a3[2], a3[6], a3[8]) == 0)
 	{
 		at = MAC0;
-		a1 = SXY2;
+		SXY2 = a3[8];
 
 		if (at >= 0)
 		{
@@ -450,8 +450,8 @@ void DrawSubdivChunk(int* a3, int t6, int t7, unsigned long* t4, int* t9)
 
 				at = 0x9000000;
 				*t4 |= at;
-				((short*)db.polyptr)[0] = *t4;
-				((short*)db.polyptr)[1] = *t9;
+				((unsigned int*)db.polyptr)[0] = *t4;
+				((unsigned int*)db.polyptr)[1] = *t9;
 				*t4 = (unsigned int)db.polyptr;
 				db.polyptr += 0x28;
 			}
