@@ -283,135 +283,128 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 	t8 = 0;
 
 	//loc_7E010
-	//v0 = t1->u1 + 32
-	//v1 = t1->v1 + 32
-	t7 = ((int*)&t1->clut)[0];
-
-	((char*)&scratchPad[0])[28] = t1->u1;
-	((char*)&scratchPad[0])[4] = t1->u1;
-	((char*)&scratchPad[0])[36] = t1->u1 + 32;
-	((char*)&scratchPad[0])[12] = t1->u1 + 32;
-	((char*)&scratchPad[0])[13] = t1->v1;
-	((char*)&scratchPad[0])[5] = t1->v1;
-	((char*)& scratchPad[0])[37] = t1->v1 + 32;
-	((char*)& scratchPad[0])[29] = t1->v1 + 32;
-
-	t6 = t7 << 16;
-	t7 >>= 16;
-	t7 <<= 16;
-	s1 = 0;
-
-	//loc_7E054
-	t2 = t0[20];
-	at = t8 & 1;//delete me
-	t2 -= 8200;
-	t2 += s1;
-
-	if ((t8 & 1))
+	do
 	{
-		t2 += 1640;
-	}
+		//v0 = t1->u1 + 32
+		//v1 = t1->v1 + 32
+		t7 = ((int*)& t1->clut)[0];
 
-	//loc_7E06C
-	s0 = 0;
+		((char*)& scratchPad[0])[28] = t1->u1;
+		((char*)& scratchPad[0])[4] = t1->u1;
+		((char*)& scratchPad[0])[36] = t1->u1 + 32;
+		((char*)& scratchPad[0])[12] = t1->u1 + 32;
+		((char*)& scratchPad[0])[13] = t1->v1;
+		((char*)& scratchPad[0])[5] = t1->v1;
+		((char*)& scratchPad[0])[37] = t1->v1 + 32;
+		((char*)& scratchPad[0])[29] = t1->v1 + 32;
 
-	t3 = s0 - 4920;
-	if ((t8 & 2))
-	{
-		t3 -= 1640;
-	}
+		t6 = t7 << 16;
+		t7 >>= 16;
+		t7 <<= 16;
+		s1 = 0;
 
-	//loc_7E080
-	VZ0 = t3;
-	at = t3 + 820;
-	VZ1 = at;
-	at += 820;
-	VZ2 = at;
+		//loc_7E054
+		do
+		{
+			t2 = t0[20];
+			at = t8 & 1;//delete me
+			t2 -= 8200;
+			t2 += s1;
 
-	((short*)t0)[36] = t2;
+			if ((t8 & 1))
+			{
+				t2 += 1640;
+			}
 
-	VX0 = t0[18] & 0xFFFF;
-	VY0 = t0[18] >> 16;
+			//loc_7E06C
+			s0 = 0;
 
-	VX1 = t0[18] & 0xFFFF;
-	VY1 = t0[18] >> 16;
+			//loc_7E070
+			do
+			{
+				t3 = s0 - 4920;
+				if ((t8 & 2))
+				{
+					t3 -= 1640;
+				}
 
-	VX2 = t0[18] & 0xFFFF;
-	VY2 = t0[18] >> 16;
+				//loc_7E080
+				VZ0 = t3;
+				at = t3 + 820;
+				VZ1 = at;
+				at += 820;
+				VZ2 = at;
 
-	at = t2 + 820;
-	((short*)t0)[36] = at;
-	docop2(0x280030);
+				((short*)t0)[36] = t2;
 
-	t0[0] = SXY0;
-	t0[6] = SXY1;
-	t0[12] = SXY2;
+				VX0 = t0[18] & 0xFFFF;
+				VY0 = t0[18] >> 16;
 
-	VX0 = t0[18] & 0xFFFF;
-	VY0 = t0[18] >> 16;
+				VX1 = t0[18] & 0xFFFF;
+				VY1 = t0[18] >> 16;
 
-	VX1 = t0[18] & 0xFFFF;
-	VY1 = t0[18] >> 16;
+				VX2 = t0[18] & 0xFFFF;
+				VY2 = t0[18] >> 16;
 
-	VX2 = t0[18] & 0xFFFF;
-	VY2 = t0[18] >> 16;
+				at = t2 + 820;
+				((short*)t0)[36] = at;
+				docop2(0x280030);
 
-	at += 820;
-	((short*)t0)[36] = at;
-	docop2(0x280030);
+				t0[0] = SXY0;
+				t0[6] = SXY1;
+				t0[12] = SXY2;
 
-	t0[2] = SXY0;
-	t0[8] = SXY1;
-	t0[14] = SXY2;
+				VX0 = t0[18] & 0xFFFF;
+				VY0 = t0[18] >> 16;
 
-	VX0 = t0[18] & 0xFFFF;
-	VY0 = t0[18] >> 16;
+				VX1 = t0[18] & 0xFFFF;
+				VY1 = t0[18] >> 16;
 
-	VX1 = t0[18] & 0xFFFF;
-	VY1 = t0[18] >> 16;
+				VX2 = t0[18] & 0xFFFF;
+				VY2 = t0[18] >> 16;
 
-	VX2 = t0[18] & 0xFFFF;
-	VY2 = t0[18] >> 16;
+				at += 820;
+				((short*)t0)[36] = at;
+				docop2(0x280030);
 
-	s0 += 3280;
+				t0[2] = SXY0;
+				t0[8] = SXY1;
+				t0[14] = SXY2;
 
-	docop2(0x280030);
+				VX0 = t0[18] & 0xFFFF;
+				VY0 = t0[18] >> 16;
 
-	SXY0 = t0[4];
-	SXY1 = t0[10];
-	SXY2 = t0[16];
+				VX1 = t0[18] & 0xFFFF;
+				VY1 = t0[18] >> 16;
 
-	DrawSubdivChunk(&t0[0]);
-	DrawSubdivChunk(&t0[2]);
-	DrawSubdivChunk(&t0[6]);
-	DrawSubdivChunk(&t0[8]);
+				VX2 = t0[18] & 0xFFFF;
+				VY2 = t0[18] >> 16;
 
-#if 0
-	li      at, 0x2670
-	bne     s0, at, loc_7E070
-	li      at, 0x2670
-	bne     s1, at, loc_7E054
-	addiu   s1, 0xCD0
-	addiu   t8, 1
-	slti    v0, t8, 4
-	bnez    v0, loc_7E010
-	addiu   t1, 0x10
-	lw      s0, 0x54(t0)
-	lw      s1, 0x58(t0)
-	lw      s2, 0x5C(t0)
-	lw      s3, 0x60(t0)
-	lw      s4, 0x64(t0)
-	lw      s5, 0x68(t0)
-	lw      s6, 0x6C(t0)
-	lw      ra, 0x70(t0)
-	lw      v0, db+0x4-GP_ADDR(gp)
-	sw      t5, db+0x8-GP_ADDR(gp)
-	jr      ra
-	sw      t4, 0x280C(v0)
-#endif
+				s0 += 3280;
+
+				docop2(0x280030);
+
+				SXY0 = t0[4];
+				SXY1 = t0[10];
+				SXY2 = t0[16];
+
+				DrawSubdivChunk(&t0[0], t6, t7, &t4, (int*)&layer);
+				DrawSubdivChunk(&t0[2], t6, t7, &t4, (int*)&layer);
+				DrawSubdivChunk(&t0[6], t6, t7, &t4, (int*)&layer);
+				DrawSubdivChunk(&t0[8], t6, t7, &t4, (int*)&layer);
+
+			} while (s0 != 9840);
+			s1 += 3280;
+		} while (s1 != at);
+
+		t8 += 1;
+		t1++;
+	} while (t8 < 4);
+
+	db.ot[2563] = t4;
 }
 
-void DrawSubdivChunk(int* a3, int t6, int t7, unsigned int* t4, int t9, int t5)
+void DrawSubdivChunk(int* a3, int t6, int t7, unsigned long* t4, int* t9)
 {
 	int at;
 	int a1;
@@ -458,8 +451,8 @@ void DrawSubdivChunk(int* a3, int t6, int t7, unsigned int* t4, int t9, int t5)
 				at = 0x9000000;
 				*t4 |= at;
 				((short*)db.polyptr)[0] = *t4;
-				((short*)db.polyptr)[1] = t9;
-				*t4 = (unsigned int)t5;
+				((short*)db.polyptr)[1] = *t9;
+				*t4 = (unsigned int)db.polyptr;
 				db.polyptr += 0x28;
 			}
 		}//locret_7E21C
