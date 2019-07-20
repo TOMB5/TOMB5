@@ -411,58 +411,59 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 #endif
 }
 
-void DrawSubdivChunk(int* a3)
+void DrawSubdivChunk(int* a3, int t6, int t7, unsigned int* t4, int t9, int t5)
 {
+	int at;
+	int a1;
+	int a2;
+	int v1;
+	int a0;
+
 	SXY0 = a3[0];
 	SXY1 = a3[2];
 	SXY2 = a3[6];
 
-	//v0 = a3[0]
-	//v1 = a3[2]
-	//a0 = a3[6]
-	//a1 = a3[8]
-
 	docop2(0x1400006);
 
-	SkyClipXY(a3[0], a3[2], a3[6], a3[8]);
-#if 0
-				 jal     sub_7E224
-				 nop
-				 bnez    $at, locret_7E21C
-				 mflo    $ra
-				 mfc2    $at, $24
-				 mtc2    $a1, $14
-				 bltz    $at, locret_7E21C
-				 nop
-				 cop2    0x1400006
-				 mfc2    $at, $24
-				 lhu     $a2, 4($a3)
-				 bltz    $at, locret_7E21C
-				 sw      $v0, 8($t5)
-				 sw      $v1, 0x10($t5)
-				 sw      $a0, 0x18($t5)
-				 sw      $a1, 0x20($t5)
-				 addiu   $at, $a2, 0x1F
-				 addiu   $v1, $a2, 0x1F00
-				 addiu   $a0, $v1, 0x1F
-				 or $a2, $t6
-				 or $at, $t7
-				 sw      $a2, 0xC($t5)
-				 sw      $at, 0x14($t5)
-				 sh      $v1, 0x1C($t5)
-				 sh      $a0, 0x24($t5)
-				 lui     $at, 0x900
-				 or $t4, $at
-				 sw      $t4, 0($t5)
-				 sw      $t9, 4($t5)
-				 move    $t4, $t5
-				 jr      $ra
-				 addiu   $t5, 0x28
+	if (SkyClipXY(a3[0], a3[2], a3[6], a3[8]) == 0)
+	{
+		at = MAC0;
+		a1 = SXY2;
 
-				 locret_7E21C:
-			 jr      $ra
-				 nop
-#endif
+		if (at >= 0)
+		{
+			docop2(0x1400006);
+			at = MAC0;
+			a2 = ((unsigned short*)a3)[2];
+			((int*)db.polyptr)[2] = a3[0];
+
+			if (at >= 0)
+			{
+				((int*)db.polyptr)[4] = a3[2];
+				((int*)db.polyptr)[6] = a3[6];
+				((int*)db.polyptr)[8] = a3[8];
+
+				at = a2 + 0x1F;
+				v1 = a2 + 0x1F00;
+				a0 = v1 + 0x1F;
+
+				a2 |= t6;
+				at |= t7;
+
+				((int*)db.polyptr)[3] = a2;
+				((int*)db.polyptr)[5] = at;
+				((short*)db.polyptr)[14] = v1;
+				((short*)db.polyptr)[18] = a0;
+
+				at = 0x9000000;
+				*t4 |= at;
+				((short*)db.polyptr)[0] = *t4;
+				((short*)db.polyptr)[1] = t9;
+				*t4 = (unsigned int)t5;
+				db.polyptr += 0x28;
+			}
+		}//locret_7E21C
+	}//locret_7E21C
 }
 
 int SkyClipXY(int v0, int v1, int a0, int a1)
