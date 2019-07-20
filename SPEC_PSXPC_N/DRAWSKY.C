@@ -2,7 +2,8 @@
 
 #include "GAMEFLOW.H"
 #include "GPU.H"
-
+#include "OBJECTS.H"
+#include "SETUP.H"
 #include "GTEREG.H"
 
 void DrawSkyMesh(short* mesh)
@@ -256,4 +257,243 @@ int HorClipXY(int t1, int t2, int t3, int t4)//7DF00, ? (F)
 
 void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 {
+	int scratchPad[256];
+	int* t0 = &scratchPad[0];
+	unsigned long t4;
+	char* t5;
+	int v0;
+	struct PSXSPRITESTRUCT* t1;
+	int t8;
+	int t7;
+	int t6;
+	int s1;
+	int t2;
+	int at;
+	int s0;
+	int t3;
+
+	t0[20] = pos;
+	((short*)t0)[37] = flags;
+
+	//t9 = layer
+	t4 = db.ot[2563];
+	t5 = db.polyptr;
+	v0 = objects[SKY_GRAPHICS].mesh_index;//Offset by 2
+	t1 = &psxspriteinfo[objects[SKY_GRAPHICS].mesh_index];
+	t8 = 0;
+
+	//loc_7E010
+	//v0 = t1->u1 + 32
+	//v1 = t1->v1 + 32
+	t7 = ((int*)&t1->clut)[0];
+
+	((char*)&scratchPad[0])[28] = t1->u1;
+	((char*)&scratchPad[0])[4] = t1->u1;
+	((char*)&scratchPad[0])[36] = t1->u1 + 32;
+	((char*)&scratchPad[0])[12] = t1->u1 + 32;
+	((char*)&scratchPad[0])[13] = t1->v1;
+	((char*)&scratchPad[0])[5] = t1->v1;
+	((char*)& scratchPad[0])[37] = t1->v1 + 32;
+	((char*)& scratchPad[0])[29] = t1->v1 + 32;
+
+	t6 = t7 << 16;
+	t7 >>= 16;
+	t7 <<= 16;
+	s1 = 0;
+
+	//loc_7E054
+	t2 = t0[20];
+	at = t8 & 1;//delete me
+	t2 -= 8200;
+	t2 += s1;
+
+	if ((t8 & 1))
+	{
+		t2 += 1640;
+	}
+
+	//loc_7E06C
+	s0 = 0;
+
+	t3 = s0 - 4920;
+	if ((t8 & 2))
+	{
+		t3 -= 1640;
+	}
+
+	//loc_7E080
+	VZ0 = t3;
+	at = t3 + 820;
+	VZ1 = at;
+	at += 820;
+	VZ2 = at;
+
+	((short*)t0)[36] = t2;
+
+	VX0 = t0[18] & 0xFFFF;
+	VY0 = t0[18] >> 16;
+
+	VX1 = t0[18] & 0xFFFF;
+	VY1 = t0[18] >> 16;
+
+	VX2 = t0[18] & 0xFFFF;
+	VY2 = t0[18] >> 16;
+
+	at = t2 + 820;
+	((short*)t0)[36] = at;
+	docop2(0x280030);
+
+	t0[0] = SXY0;
+	t0[6] = SXY1;
+	t0[12] = SXY2;
+
+	VX0 = t0[18] & 0xFFFF;
+	VY0 = t0[18] >> 16;
+
+	VX1 = t0[18] & 0xFFFF;
+	VY1 = t0[18] >> 16;
+
+	VX2 = t0[18] & 0xFFFF;
+	VY2 = t0[18] >> 16;
+
+	at += 820;
+	((short*)t0)[36] = at;
+	docop2(0x280030);
+
+	t0[2] = SXY0;
+	t0[8] = SXY1;
+	t0[14] = SXY2;
+
+	VX0 = t0[18] & 0xFFFF;
+	VY0 = t0[18] >> 16;
+
+	VX1 = t0[18] & 0xFFFF;
+	VY1 = t0[18] >> 16;
+
+	VX2 = t0[18] & 0xFFFF;
+	VY2 = t0[18] >> 16;
+
+	s0 += 3280;
+
+	docop2(0x280030);
+
+	SXY0 = t0[4];
+	SXY1 = t0[10];
+	SXY2 = t0[16];
+
+	DrawSubdivChunk(&t0[0]);
+	DrawSubdivChunk(&t0[2]);
+	DrawSubdivChunk(&t0[6]);
+	DrawSubdivChunk(&t0[8]);
+
+#if 0
+	li      at, 0x2670
+	bne     s0, at, loc_7E070
+	li      at, 0x2670
+	bne     s1, at, loc_7E054
+	addiu   s1, 0xCD0
+	addiu   t8, 1
+	slti    v0, t8, 4
+	bnez    v0, loc_7E010
+	addiu   t1, 0x10
+	lw      s0, 0x54(t0)
+	lw      s1, 0x58(t0)
+	lw      s2, 0x5C(t0)
+	lw      s3, 0x60(t0)
+	lw      s4, 0x64(t0)
+	lw      s5, 0x68(t0)
+	lw      s6, 0x6C(t0)
+	lw      ra, 0x70(t0)
+	lw      v0, db+0x4-GP_ADDR(gp)
+	sw      t5, db+0x8-GP_ADDR(gp)
+	jr      ra
+	sw      t4, 0x280C(v0)
+#endif
+}
+
+void DrawSubdivChunk(int* a3)
+{
+	SXY0 = a3[0];
+	SXY1 = a3[2];
+	SXY2 = a3[6];
+
+	//v0 = a3[0]
+	//v1 = a3[2]
+	//a0 = a3[6]
+	//a1 = a3[8]
+
+	docop2(0x1400006);
+
+	SkyClipXY(a3[0], a3[2], a3[6], a3[8]);
+#if 0
+				 jal     sub_7E224
+				 nop
+				 bnez    $at, locret_7E21C
+				 mflo    $ra
+				 mfc2    $at, $24
+				 mtc2    $a1, $14
+				 bltz    $at, locret_7E21C
+				 nop
+				 cop2    0x1400006
+				 mfc2    $at, $24
+				 lhu     $a2, 4($a3)
+				 bltz    $at, locret_7E21C
+				 sw      $v0, 8($t5)
+				 sw      $v1, 0x10($t5)
+				 sw      $a0, 0x18($t5)
+				 sw      $a1, 0x20($t5)
+				 addiu   $at, $a2, 0x1F
+				 addiu   $v1, $a2, 0x1F00
+				 addiu   $a0, $v1, 0x1F
+				 or $a2, $t6
+				 or $at, $t7
+				 sw      $a2, 0xC($t5)
+				 sw      $at, 0x14($t5)
+				 sh      $v1, 0x1C($t5)
+				 sh      $a0, 0x24($t5)
+				 lui     $at, 0x900
+				 or $t4, $at
+				 sw      $t4, 0($t5)
+				 sw      $t9, 4($t5)
+				 move    $t4, $t5
+				 jr      $ra
+				 addiu   $t5, 0x28
+
+				 locret_7E21C:
+			 jr      $ra
+				 nop
+#endif
+}
+
+int SkyClipXY(int v0, int v1, int a0, int a1)
+{
+	int s2 = RGB1;
+	int s3 = RGB2;
+	int s4;
+	int s5;
+	int s6;
+
+	if (!(v0 < s2) || !(v1 < s2) || !(a0 < s2) || !(a1 < s2))
+	{
+		if (v0 < s3 || v1 < s3 || a0 < s3 || a1 < s3)
+		{
+			//loc_7E26C
+			s4 = v0 << 16;
+			s5 = v1 << 16;
+			s2 = a0 << 16;
+			s6 = R | (G << 8) | (B << 16) | (CODE << 24);
+			s3 = a1 << 16;
+
+			if ((!s4 < s6) || !(s5 < s6) || !(s2 < s6) || !(s3 < s6))
+			{
+				//loc_7E2A0
+				s6 = RGB0;
+				if (s4 < s6 || s5 < s6 || s2 < s6 || s3 < s6)
+				{
+					return 0;
+				}//locret_7E2D8
+			}//locret_7E2D8
+		}//locret_7E2D8
+	}//locret_7E2D8
+	return 1;
 }
