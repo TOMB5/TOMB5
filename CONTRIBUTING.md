@@ -58,12 +58,13 @@ Markers are as follows:
 
 2. PSXPC_N   
     - Windows (VS 2015-2019) (**recommended**)
-        - Download SDL2-devel-2.0.9-VC.zip extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to  "SDL2".
-        - Download glew-2.1.0-win32.zip extract to project root EXTERNAL/ 
-        - Generate CMake project files for VS2015, 2017 or 2019, x86 ONLY! (x64 is currently unsupported so don't try it.)
+    	- Create a folder called "EXTERNAL" in the root clone directory of TOMB5. This is where all libraries will be placed.
+        - Download [SDL2-devel-2.0.9-VC.zip](https://www.libsdl.org/release/SDL2-devel-2.0.9-VC.zip) extract the contents to [project root]/EXTERNAL/ rename folder "SDL2-2.0.9" to  "SDL2".
+        - Download [glew-2.1.0-win32.zip](https://sourceforge.net/projects/glew/files/glew/2.1.0/glew-2.1.0-win32.zip/download) extract the contents to [project root]/EXTERNAL/ 
+        - Generate CMake project files for Visual Studio 2015, 2017 or 2019, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Windows (CB MinGW32)       
-        - Download SDL2-devel-2.0.9-mingw.tar.gz extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
-        - Download glew-2.1.0-mingw.zip ((link)[http://www.grhmedia.com/glew/glew-2.1.0-mingw.zip]) extract to project root EXTERNAL/ 
+        - Download [SDL2-devel-2.0.9-mingw.tar.gz](https://www.libsdl.org/release/SDL2-devel-2.0.9-mingw.tar.gz) extract the contents to [project root]/EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
+        - Download [glew-2.1.0-mingw.zip](http://www.grhmedia.com/glew/glew-2.1.0-mingw.zip) extract the contents to [project root]/EXTERNAL/ 
         - Generate CMake project files for CodeBlocks MinGW Makefiles, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Linux 
 Note: On x64 distributions GCC must be configured to build 32-bit binaries.
