@@ -63,7 +63,7 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 	Emulator_CheckTextureIntersection(rect);
 	glClearColor(r/255.0f, g/255.0f, b/255.0f, 1.0f);
-	glScissor(rect->x, rect->y, rect->w, rect->h);
+	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 	glClear(GL_COLOR_BUFFER_BIT);
 	return 0;
 }
@@ -124,7 +124,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 #if defined(__EMSCRIPTEN__)
 	glBlitFramebuffer(0, 0, rect->w, rect->h, rect->x, rect->y, rect->x + rect->w, rect->y + rect->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 #else
-	glBlitFramebuffer(0, 0, rect->w, rect->h, rect->x, rect->y, rect->x + rect->w, rect->y + rect->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	glBlitFramebuffer(0, 0, rect->w, rect->h, rect->x, rect->y, (rect->x + rect->w), (rect->y + rect->h), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 #endif
 
 	glDeleteTextures(1, &srcTexture);
@@ -355,9 +355,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glLoadIdentity();
 		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-		glViewport(activeDrawEnv.clip.x, activeDrawEnv.clip.y, VRAM_WIDTH, VRAM_HEIGHT);
+		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		
-		//glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, 1);
+		glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 #endif
@@ -839,11 +839,6 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			eprinterr("Unhandled primitive type: %02X type2:%02X\n", pTag->code, pTag->code & ~3);
 			//Unhandled poly
 			break;
-		}
-
-		if ((unsigned int)pTag->addr == 2)
-		{
-			assert(0);
 		}
 
 		//Reset for vertex colours

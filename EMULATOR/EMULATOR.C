@@ -113,8 +113,8 @@ void Emulator_Init(char* windowName, int screen_width, int screen_height)
 #endif
 	screenWidth = screen_width;
 	screenHeight = screen_height;
-	windowWidth = screen_width * RESOLUTION_SCALE;
-	windowHeight = screen_height * RESOLUTION_SCALE;
+	windowWidth = screen_width;
+	windowHeight = screen_height;
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0)
 	{
@@ -925,17 +925,17 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
 
-#if 0//For old internal res scaling code
-	tpageX += ((VRAM_WIDTH - (VRAM_WIDTH / INTERNAL_RESOLUTION_SCALE)) / 2);
+#if 0// RESOLUTION_SCALE > 1//For old internal res scaling code
+	tpageX += ((VRAM_WIDTH - (VRAM_WIDTH / RESOLUTION_SCALE)) / 2);
 	if (tpageY >= 256)
 	{
-		tpageY += ((VRAM_HEIGHT - (VRAM_HEIGHT / INTERNAL_RESOLUTION_SCALE)) / 2) * 2;
+		tpageY += ((VRAM_HEIGHT - (VRAM_HEIGHT / RESOLUTION_SCALE)) / 2) * 2;
 	}
 
-	clutX += ((VRAM_WIDTH - (VRAM_WIDTH / INTERNAL_RESOLUTION_SCALE)) / 2);
+	clutX += ((VRAM_WIDTH - (VRAM_WIDTH / RESOLUTION_SCALE)) / 2);
 	if (clutY >= 256)
 	{
-		clutY += ((VRAM_HEIGHT - (VRAM_HEIGHT / INTERNAL_RESOLUTION_SCALE)) / 2);
+		clutY += ((VRAM_HEIGHT - (VRAM_HEIGHT / RESOLUTION_SCALE)) / 2);
 	}
 #endif
 
