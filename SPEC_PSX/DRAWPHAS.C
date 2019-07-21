@@ -1,5 +1,6 @@
 #include "DRAWPHAS.H"
 
+#include "CAMERA.H"
 #include "3D_GEN.H"
 #include "BUBBLES.H"
 #include "CALCLARA.H"
@@ -310,7 +311,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 			if (gfLevelFlags & GF_LVOP_LAYER2_USED)
 			{
-				///DrawFlatSky_ASM(gfLayer2Col, SkyPos2, 0xFFFFFA00);
+				DrawFlatSky_ASM(gfLayer2Col, SkyPos2, 0xFFFFFA00);
 			}//loc_64758
 
 			if (gfLevelFlags & GF_LVOP_LAYER1_USED)
@@ -320,13 +321,17 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 				if (gfLevelFlags & GF_LVOP_LIGHTNING)
 				{
 					//Maybe game does it like this
-					CVECTOR rgb = { LightningRGB[2] << 16 | LightningRGB[1] << 8 | LightningRGB[0] | 0x2C00 };
-					///DrawFlatSky_ASM(rgb, SkyPos, 0xFFFFFA00);
+					CVECTOR rgb;
+					rgb.r = LightningRGB[2];
+					rgb.g = LightningRGB[1];
+					rgb.b = LightningRGB[0];
+					((int*)& rgb)[0] |= 0x2C000000;
+					DrawFlatSky_ASM(rgb, SkyPos, 0xFFFFFA00);
 				}
 				else
 				{
 					//loc_647D4
-					///DrawFlatSky_ASM(gfLayer1Col, SkyPos, 0xFFFFFA00);
+					DrawFlatSky_ASM(gfLayer1Col, SkyPos, 0xFFFFFA00);
 				}
 
 			}//loc_647F0
@@ -463,7 +468,10 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	else
 	{
 		//65290 (final game)
-		printf("DRWRLET!\n");
+		if (camera.pos.room_number == 71 && camera.pos.x == 27683 && camera.pos.y == -1011 && camera.pos.z == 74751)
+		{
+			printf("YES2!\n");
+		}
 		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 		//loc_64BA0
 		//unsigned long* v1 = (unsigned long*)RelocPtr[2];

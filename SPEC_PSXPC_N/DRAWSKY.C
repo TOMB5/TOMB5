@@ -5,6 +5,7 @@
 #include "OBJECTS.H"
 #include "SETUP.H"
 #include "GTEREG.H"
+#include "MISC.H"
 
 void DrawSkyMesh(short* mesh)
 {
@@ -260,7 +261,6 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 	int scratchPad[256];
 	int* t0 = &scratchPad[0];
 	unsigned long t4;
-	char* t5;
 	int v0;
 	struct PSXSPRITESTRUCT* t1;
 	int t8;
@@ -271,13 +271,15 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 	int at;
 	int s0;
 	int t3;
+	int t9;
+
+	S_MemSet((char*)&scratchPad[0], 0, 1024);
 
 	t0[20] = pos;
 	((short*)t0)[37] = flags;
 
-	//t9 = layer
+	t9 = ((int*)&layer)[0];
 	t4 = db.ot[2563];
-	t5 = db.polyptr;
 	v0 = objects[SKY_GRAPHICS].mesh_index;//Offset by 2
 	t1 = &psxspriteinfo[objects[SKY_GRAPHICS].mesh_index];
 	t8 = 0;
@@ -285,18 +287,16 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 	//loc_7E010
 	do
 	{
-		//v0 = t1->u1 + 32
-		//v1 = t1->v1 + 32
-		t7 = ((int*)& t1->clut)[0];
+		t7 = ((int*)&t1->clut)[0];
 
-		((char*)& scratchPad[0])[28] = t1->u1;
-		((char*)& scratchPad[0])[4] = t1->u1;
-		((char*)& scratchPad[0])[36] = t1->u1 + 32;
-		((char*)& scratchPad[0])[12] = t1->u1 + 32;
-		((char*)& scratchPad[0])[13] = t1->v1;
-		((char*)& scratchPad[0])[5] = t1->v1;
-		((char*)& scratchPad[0])[37] = t1->v1 + 32;
-		((char*)& scratchPad[0])[29] = t1->v1 + 32;
+		((char*)&scratchPad[0])[28] = t1->u1;
+		((char*)&scratchPad[0])[4] = t1->u1;
+		((char*)&scratchPad[0])[36] = t1->u1 + 32;
+		((char*)&scratchPad[0])[12] = t1->u1 + 32;
+		((char*)&scratchPad[0])[13] = t1->v1;
+		((char*)&scratchPad[0])[5] = t1->v1;
+		((char*)&scratchPad[0])[37] = t1->v1 + 32;
+		((char*)&scratchPad[0])[29] = t1->v1 + 32;
 
 		t6 = t7 << 16;
 		t7 >>= 16;
@@ -307,7 +307,6 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 		do
 		{
 			t2 = t0[20];
-			at = t8 & 1;//delete me
 			t2 -= 8200;
 			t2 += s1;
 
@@ -325,7 +324,7 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 				t3 = s0 - 4920;
 				if ((t8 & 2))
 				{
-					t3 -= 1640;
+					t3 += 1640;
 				}
 
 				//loc_7E080
@@ -394,8 +393,10 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 				DrawSubdivChunk(&t0[8], t6, t7, &t4, (int*)&layer);
 
 			} while (s0 != 9840);
+
+			at = s1 != 9840 ? 1 : 0;
 			s1 += 3280;
-		} while (s1 != 9840);
+		} while (at != 0);
 
 		t8 += 1;
 		t1++;
@@ -448,8 +449,7 @@ void DrawSubdivChunk(int* a3, int t6, int t7, unsigned long* t4, int* t9)
 				((short*)db.polyptr)[14] = v1;
 				((short*)db.polyptr)[18] = a0;
 
-				at = 0x9000000;
-				*t4 |= at;
+				*t4 |= 0x9000000;
 				((unsigned int*)db.polyptr)[0] = *t4;
 				((unsigned int*)db.polyptr)[1] = *t9;
 				*t4 = (unsigned int)db.polyptr;
