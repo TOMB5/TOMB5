@@ -30,7 +30,8 @@
 #if __APPLE__
 #include <SDL2/SDL_opengl.h>
 #elif __EMSCRIPTEN__
-#include <SDL_opengles2.h>
+#include <GLES3/gl3.h>
+#include <GLES3/gl2ext.h>
 #else
 #include <SDL_opengl.h>
 #endif
@@ -60,6 +61,7 @@ extern int windowWidth;
 extern int windowHeight;
 extern uint32_t DMAControlRegister;
 extern int assetsLoaded;
+extern unsigned short GlobalTpageTexture;
 
 #if _WINDOWS && USE_DDRAW
 extern LPDIRECTDRAW pDD;

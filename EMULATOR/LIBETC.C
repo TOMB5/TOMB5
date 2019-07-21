@@ -10,7 +10,8 @@
 #include <SDL2/SDL_opengl.h>
 #elif __EMSCRIPTEN__
 #include <SDL2/SDL.h>
-#include <SDL_opengles2.h>
+#include <GLES3/gl3.h>
+#include <GLES3/gl2ext.h>
 #else
 #include <SDL.h>
 #include <SDL_opengl.h>

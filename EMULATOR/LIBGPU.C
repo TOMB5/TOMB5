@@ -1,6 +1,7 @@
 #include "LIBGPU.H"
 
 #define GL_GLEXT_PROTOTYPES 1
+
 #ifndef __EMSCRIPTEN__
 #include <GL/glew.h>
 #endif
@@ -10,7 +11,8 @@
 #include <SDL2/SDL_opengl.h>
 #elif __EMSCRIPTEN__
 #include <SDL2/SDL.h>
-#include <SDL_opengles2.h>
+#include <GLES3/gl3.h>
+#include <GLES3/gl2ext.h>
 #else
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -29,6 +31,8 @@ DRAWENV activeDrawEnv;
 DRAWENV byte_9CCA4;
 int dword_3410 = 0;
 char byte_3352 = 0;
+
+//#define WIREFRAME_MODE
 
 //Nasty hack, win32 is like original but due to memory differences
 //Between Linux and Windows we must do this unfortunately.
@@ -60,7 +64,7 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 	Emulator_CheckTextureIntersection(rect);
 	glClearColor(r/255.0f, g/255.0f, b/255.0f, 1.0f);
 	glScissor(rect->x, rect->y, rect->w, rect->h);
-	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+	glClear(GL_COLOR_BUFFER_BIT);
 	return 0;
 }
 
@@ -84,7 +88,9 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 	glGenTextures(1, &srcTexture);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
-#if !defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__)
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &p[0]);
+#else
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
 #endif
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -111,11 +117,16 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 #if _DEBUG
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
 #endif
-#if !defined(__EMSCRIPTEN__)
+
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
+
+#if defined(__EMSCRIPTEN__)
+	glBlitFramebuffer(0, 0, rect->w, rect->h, rect->x, rect->y, rect->x + rect->w, rect->y + rect->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+#else
 	glBlitFramebuffer(0, 0, rect->w, rect->h, rect->x, rect->y, rect->x + rect->w, rect->y + rect->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 #endif
+
 	glDeleteTextures(1, &srcTexture);
 	Emulator_DestroyFrameBuffer(srcFrameBuffer);
 
@@ -174,10 +185,10 @@ u_long* ClearOTag(u_long* ot, int n)
 		return NULL;
 
 #if _WIN32 || _WIN64
-	//First is special terminator
+	//last is special terminator
 	ot[n-1] = (unsigned long)&terminator;
 #else
-	//First is special terminator
+	//last is special terminator
 	ot[n-1] = (unsigned long)terminator;
 #endif
 
@@ -301,6 +312,9 @@ u_long DrawSyncCallback(void(*func)(void))
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
+#if defined(WIREFRAME_MODE)
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#endif
 
 #if 0
 	//if (byte_3352[0] > 1)
@@ -339,9 +353,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 	{
 #if !defined(__EMSCRIPTEN__)
 		glLoadIdentity();
-		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, -1, 1);
+		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x, activeDrawEnv.clip.y, VRAM_WIDTH, VRAM_HEIGHT);
+		
 		//glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, 1);
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
@@ -355,7 +370,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				ParsePrimitive((int)pTag, (int)pTag + (int)(pTag->len * 4) + 4);
 			}
 			pTag = (P_TAG*)pTag->addr;
-#if __linux__ || __APPLE__
+#if __linux__ || __APPLE_
 		}while ((unsigned long)pTag != 0xFFFFFF);
 #else
 
@@ -370,39 +385,27 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 	}
 
 	Emulator_CheckTextureIntersection(&env->clip);
-
+#if defined(WIREFRAME_MODE)
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 #endif
 }
 
-P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
+void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 {
 	unsigned int currentAddress = packetStart;
-	unsigned int lastPolyType;
-	unsigned int currentPolyType;
 
 	while (currentAddress != packetEnd)
 	{
 		P_TAG* pTag = (P_TAG*)currentAddress;
 		
-		//Use last poly type
-		if (pTag->addr == 0 /*|| (pTag->addr == 0 && pTag->len != 0)*/)
-		{
-			currentPolyType = lastPolyType;
-		}
-		else
-		{
-			currentPolyType = pTag->code;
-		}
-
-		lastPolyType = pTag->code;
-		
-		int textured = (currentPolyType & 4) != 0;
+		int textured = (pTag->code & 4) != 0;
 		int blend_mode = 0;
-		int semi_transparent = (currentPolyType & 2) != 0;
+		int semi_transparent = (pTag->code & 2) != 0;
 
 		if (textured)
 		{
-			if ((currentPolyType & 1) != 0)
+			if ((pTag->code & 1) != 0)
 			{
 				blend_mode = 2;
 			}
@@ -421,7 +424,7 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			Emulator_SetBlendMode(blend_mode);
 		}
 
-		switch (currentPolyType & ~3)
+		switch (pTag->code & ~3)
 		{
 		case 0x0:
 		{
@@ -434,8 +437,8 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 			POLY_F3* poly = (POLY_F3*)pTag;
 
-			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
-			char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
+			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
+			char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, false);
 
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -458,8 +461,8 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
 
-			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
-			char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
+			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
+			char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, true);
 #if !defined(__EMSCRIPTEN__)
 			glEnableClientState(GL_VERTEX_ARRAY);
@@ -481,8 +484,8 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 			POLY_F4* poly = (POLY_F4*)pTag;
 
-			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
-			char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
+			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
+			char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, false);
 #if !defined(__EMSCRIPTEN__)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -504,8 +507,8 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
 
-			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
-			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2);
+			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
+			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
 #if !defined(__EMSCRIPTEN__)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
@@ -523,8 +526,8 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
-			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
-			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
+			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
+			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL, false);
 #if !defined(__EMSCRIPTEN__)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -545,8 +548,8 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
 
-			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL);
-			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u2, NULL);
+			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
+			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL, true);
 #if !defined(__EMSCRIPTEN__)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -565,10 +568,8 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		{
 			POLY_G4* poly = (POLY_G4*)pTag;
 
-			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-
-			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
-			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL);
+			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
+			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r3, &poly->r2, false);
 #if !defined(__EMSCRIPTEN__)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -590,8 +591,8 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
 
-			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2);
-			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2);
+			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
+			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r3, &poly->r2, true);
 #if !defined(__EMSCRIPTEN__)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -673,23 +674,19 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			SPRT* poly = (SPRT*)pTag;
 			Emulator_GenerateAndBindTpage(-1, poly->clut, semi_transparent);
 
+			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, NULL, NULL, NULL, poly->w, poly->h);
+			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, NULL, NULL, NULL, poly->w, poly->h);
+			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, true);
 #if !defined(__EMSCRIPTEN__)
-			glBegin(GL_QUADS);
-			glColor3ubv(&poly->r0);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glEnableClientState(GL_COLOR_ARRAY);
 
-			glVertex2f(poly->x0, poly->y0);
-			glTexCoord2f(poly->u0 / 256.0f, poly->v0 / 256.0f);//TL
-
-			glVertex2f(poly->x0 + poly->w, poly->y0);
-			glTexCoord2f((poly->u0 + poly->w) / 256.0f, poly->v0 / 256.0f);//TR
-
-			glVertex2f(poly->x0 + poly->w, poly->y0 + poly->h);
-			glTexCoord2f((poly->u0 + poly->w) / 256.0f, (poly->v0 + poly->h) / 256.0f);//BR
-			
-			glVertex2f(poly->x0, poly->y0 + poly->h);
-			glTexCoord2f((poly->u0) / 256.0f, (poly->v0 + poly->h) / 256.0f);//BL
-
-			glEnd();
+			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
+			glColorPointer(4, GL_FLOAT, sizeof(Vertex), colourPointer);
+			glDrawArrays(GL_QUADS, 0, 4);
+			glDisableClientState(GL_COLOR_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #endif
 			currentAddress += sizeof(SPRT);
 			break;
@@ -834,7 +831,7 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		case 0xE0: // TPAGE
 		{
 			unsigned short tpage = ((unsigned short*)pTag)[2];
-			Emulator_GenerateAndBindTpage(tpage, tpage, semi_transparent);
+			GlobalTpageTexture = tpage;
 			currentAddress += 8;
 			break;
 		}
@@ -854,6 +851,4 @@ P_TAG* ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #endif
 	}
-
-	return (P_TAG*)currentAddress;
 }

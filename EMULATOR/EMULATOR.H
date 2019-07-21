@@ -1,6 +1,8 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
+#define GL_GLEXT_PROTOTYPES 1
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -19,7 +21,8 @@
 #elif __EMSCRIPTEN__
 #include <SDL2/SDL.h>
 #define GL_GLEXT_PROTOTYPES 1
-#include <SDL_opengles2.h>
+#include <GLES3/gl3.h>
+#include <GLES3/gl2ext.h>
 #else
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -103,8 +106,8 @@ extern void Emulator_CheckTextureIntersection(RECT16* rect);
 extern void Emulator_SetBlendMode(int mode);
 extern void Emulator_UpdateInput();
 extern void Emulator_CounterLoop();
-extern char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p3);
-extern char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3);
+extern char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p3, short w, short h);
+extern char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
 extern char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour);
 extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
 extern int Emulator_InitialiseGameVariables();
