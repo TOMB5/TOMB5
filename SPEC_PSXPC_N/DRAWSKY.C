@@ -94,7 +94,7 @@ void DrawSkyMesh(short* mesh)
 	a1 += 4;
 	if (v0 != 0)
 	{
-		t5 = ((int*)s5)[4164];
+		t5 = ((int*)s5)[-4164];
 	}
 	//loc_7DD78
 	v0 = DQA;
