@@ -168,15 +168,12 @@ int SetGraphDebug(int level)
 
 int StoreImage(RECT16* rect, u_long * p)
 {
-	for (int y = rect->y; y < VRAM_HEIGHT; y++)
-	{
-		for (int x = rect->x; x < VRAM_WIDTH; x++)
-		{
-			//unsigned short* pixel = vram + (y * VRAM_WIDTH + x);
-			unsigned short* dst = (unsigned short*)p + (y * VRAM_WIDTH + x);
-			//dst = pixel;
-		}
-	}
+	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+#if defined(OGL)
+	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
+#elif defined(OGLES)
+	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &p[0]);
+#endif
 	return 0;
 }
 
@@ -522,11 +519,38 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
 			glDrawArrays(GL_QUADS, 0, 4);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#elif defined(OGLES) && 0
+#elif defined(OGLES)
 			GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)vertexPointer);
-			glEnableVertexAttribArray(0);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indexBuffer);
+			GLuint vao;
+			glGenVertexArrays(1, &vao);
+			glBindVertexArray(vao);
+
+			// Create a Vertex Buffer Object and copy the vertex data to it
+			GLuint vbo;
+			glGenBuffers(1, &vbo);
+
+			GLuint ibo;
+			glGenBuffers(1, &ibo);
+
+			glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, vertexPointer, GL_STATIC_DRAW);
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 6, indexBuffer, GL_STATIC_DRAW);
+			// Specify the layout of the vertex data
+			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
+			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
+			glEnableVertexAttribArray(posAttrib);
+			glEnableVertexAttribArray(colAttrib);
+			glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+			glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
+
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+
+
+			glDeleteBuffers(1, &vbo);
+			glDeleteBuffers(1, &ibo);
+			glDeleteVertexArrays(1, &vao);
 #endif
 			currentAddress += sizeof(POLY_FT4);
 			break;
@@ -617,19 +641,37 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glDisableClientState(GL_COLOR_ARRAY);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #elif defined(OGLES)
-			//GLuint vbo;
-			//glGenBuffers(1, &vbo);
-			//glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			//glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, &vertexPointer[0], GL_STATIC_DRAW);
-
 			GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
-			glVertexAttribPointer(glGetAttribLocation(g_defaultShaderProgram, "a_position"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)vertexPointer);
-			glVertexAttribPointer(glGetAttribLocation(g_defaultShaderProgram, "a_texcoord"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(vertexPointer + sizeof(float) * 2));
-			glVertexAttribPointer(glGetAttribLocation(g_defaultShaderProgram, "a_colour"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(vertexPointer + sizeof(float) * 4));
-			glEnableVertexAttribArray(glGetAttribLocation(g_defaultShaderProgram, "a_position"));
-			glEnableVertexAttribArray(glGetAttribLocation(g_defaultShaderProgram, "a_texcoord"));
-			glEnableVertexAttribArray(glGetAttribLocation(g_defaultShaderProgram, "a_colour"));
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indexBuffer);
+			GLuint vao;
+			glGenVertexArrays(1, &vao);
+			glBindVertexArray(vao);
+
+			// Create a Vertex Buffer Object and copy the vertex data to it
+			GLuint vbo;
+			glGenBuffers(1, &vbo);
+			
+			GLuint ibo;
+			glGenBuffers(1, &ibo);
+
+			glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*4, vertexPointer, GL_STATIC_DRAW);
+			
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*6, indexBuffer, GL_STATIC_DRAW);
+			// Specify the layout of the vertex data
+			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
+			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
+			glEnableVertexAttribArray(posAttrib);
+			glEnableVertexAttribArray(colAttrib);
+			glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+			glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
+			
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+
+
+			glDeleteBuffers(1, &vbo);
+			glDeleteBuffers(1, &ibo);
+			glDeleteVertexArrays(1, &vao);
 #endif
 			currentAddress += sizeof(POLY_GT4);
 			break;
