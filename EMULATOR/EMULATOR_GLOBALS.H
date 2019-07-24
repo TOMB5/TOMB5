@@ -1,6 +1,7 @@
 #ifndef EMULATOR_GLOBALS_H
 #define EMULATOR_GLOBALS_H
 
+#include "EMULATOR.H"
 
 #ifndef TRUE
 #define TRUE		1
@@ -14,36 +15,10 @@
 
 #include <stdint.h>
 
-#if __APPLE__
-#include <stddef.h>
-#include <SDL2/SDL.H>
-#elif __EMSCRIPTEN__
-#include <SDL2/SDL.h>
-#else
-#include <SDL.h>
-#endif
-
-#ifndef __EMSCRIPTEN__
-#include <GL/glew.h>
-#endif
-
-#if __APPLE__
-#include <SDL2/SDL_opengl.h>
-#elif __EMSCRIPTEN__
-#include <GLES3/gl3.h>
-#include <GLES3/gl2ext.h>
-#else
-#include <SDL_opengl.h>
-#endif
-
 #ifdef _MSC_VER
 #define FUNCNAME __FUNCTION__
 #else
 #define FUNCNAME __func__
-#endif
-
-#if _WINDOWS
-#include <ddraw.h>
 #endif
 
 extern int(*printf_)(const char * format, ...);
@@ -62,9 +37,7 @@ extern int windowHeight;
 extern uint32_t DMAControlRegister;
 extern int assetsLoaded;
 extern unsigned short GlobalTpageTexture;
-
-#if _WINDOWS && USE_DDRAW
-extern LPDIRECTDRAW pDD;
-#endif
+extern GLuint g_defaultShaderProgram;
+extern GLint g_defaultFBO;
 
 #endif

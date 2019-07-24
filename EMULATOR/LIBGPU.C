@@ -1,30 +1,13 @@
 #include "LIBGPU.H"
 
-#define GL_GLEXT_PROTOTYPES 1
+#include "EMULATOR.H"
+#include "EMULATOR_GLOBALS.H"
 
-#ifndef __EMSCRIPTEN__
-#include <GL/glew.h>
-#endif
-
-#if __APPLE__
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
-#elif __EMSCRIPTEN__
-#include <SDL2/SDL.h>
-#include <GLES3/gl3.h>
-#include <GLES3/gl2ext.h>
-#else
-#include <SDL.h>
-#include <SDL_opengl.h>
-#endif
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
 #include <LIBETC.H>
-
-#include "EMULATOR.H"
-#include "EMULATOR_GLOBALS.H"
 
 DISPENV word_33BC;
 DRAWENV activeDrawEnv;
@@ -36,7 +19,7 @@ char byte_3352 = 0;
 
 //Nasty hack, win32 is like original but due to memory differences
 //Between Linux and Windows we must do this unfortunately.
-#if _WIN32 || _WIN64
+#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
 unsigned long terminator = -1;
 #else
 unsigned long* terminator;
@@ -88,26 +71,54 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 	glGenTextures(1, &srcTexture);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
-#if defined(__EMSCRIPTEN__)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+#if defined(OGLES)
+	/* Convert texture from 1_5_5_5 to 5_5_5_1 */
+	/*for (int i = 0; i < rect->w * rect->h; i++)
+	{
+		p[i] = ((unsigned short*)p[i])[0] >> 1)
+	}*/
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &p[0]);
-#else
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
-#endif
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
 	/* Generate src Frame Buffer */
 	glGenFramebuffers(1, &srcFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
 
 	/* Bind src texture to src framebuffer */
-#if CORE_PROF_3_1
+#if defined(CORE_PROF_3_1)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
-#elif CORE_PROF_3_2
+#elif defined(CORE_PROF_3_2)
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
 #endif
 
-#if CORE_PROF_3_1 || CORE_PROF_3_2
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
+
+	glBlitFramebuffer(0, 0, rect->w, rect->h, rect->x, rect->y, (rect->x + rect->w), (rect->y + rect->h), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+#elif defined(OGL)
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	/* Generate src Frame Buffer */
+	glGenFramebuffers(1, &srcFrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
+
+	/* Bind src texture to src framebuffer */
+#if defined(CORE_PROF_3_1)
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
+#elif defined(CORE_PROF_3_2)
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
+#endif
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
+
+	glBlitFramebuffer(0, 0, rect->w, rect->h, rect->x, rect->y, (rect->x + rect->w), (rect->y + rect->h), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+#endif
+
+#if defined(OGL) || defined(OGLES)
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		eprinterr("Frame buffer error");
@@ -116,15 +127,6 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 #if _DEBUG
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
-#endif
-
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
-
-#if defined(__EMSCRIPTEN__)
-	glBlitFramebuffer(0, 0, rect->w, rect->h, rect->x, rect->y, rect->x + rect->w, rect->y + rect->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-#else
-	glBlitFramebuffer(0, 0, rect->w, rect->h, rect->x, rect->y, (rect->x + rect->w), (rect->y + rect->h), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 #endif
 
 	glDeleteTextures(1, &srcTexture);
@@ -184,7 +186,7 @@ u_long* ClearOTag(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-#if _WIN32 || _WIN64
+#if _WIN32 || _WIN64 || defined(__EMSCRIPTEN__)
 	//last is special terminator
 	ot[n-1] = (unsigned long)&terminator;
 #else
@@ -208,7 +210,7 @@ u_long* ClearOTagR(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-#if _WIN32 || _WIN64
+#if _WIN32 || _WIN64 || defined(__EMSCRIPTEN__)
 	//First is special terminator
 	ot[0] = (unsigned long)&terminator;
 #else
@@ -351,16 +353,21 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 	if (p != NULL)
 	{
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 		glLoadIdentity();
 		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
+#elif defined(OGLES)
+		glUseProgram(g_defaultShaderProgram);
+		Emulator_Ortho2D(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
+#endif
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		
-		glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
+#if !defined(OGLES)
+		//glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
 		glEnableClientState(GL_VERTEX_ARRAY);
-		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 #endif
+		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 		P_TAG* pTag = (P_TAG*)p;
 
 		do
@@ -373,10 +380,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #if __linux__ || __APPLE_
 		}while ((unsigned long)pTag != 0xFFFFFF);
 #else
-
 		}while ((unsigned long)pTag != (unsigned long)&terminator);
 #endif
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 		glDisableClientState(GL_VERTEX_ARRAY);
 #endif
 #if 1//OLD_RENDERER
@@ -390,6 +396,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #endif
 #endif
 }
+
 
 void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 {
@@ -433,7 +440,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		}
 		case 0x20: // POLY_F3
 		{
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 			POLY_F3* poly = (POLY_F3*)pTag;
 
@@ -464,7 +471,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
 			char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, true);
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
@@ -487,7 +494,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, false);
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
 			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
@@ -509,13 +516,17 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
-#if !defined(__EMSCRIPTEN__)
+#if defined(OGL)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
 			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
 			glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
 			glDrawArrays(GL_QUADS, 0, 4);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#elif defined(OGLES) && 0
+			GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)vertexPointer);
+			glEnableVertexAttribArray(0);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indexBuffer);
 #endif
 			currentAddress += sizeof(POLY_FT4);
 			break;
@@ -529,7 +540,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
 			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL, false);
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
 			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
@@ -551,7 +562,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
 			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL, true);
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
 			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
@@ -571,7 +582,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r3, &poly->r2, false);
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
 
@@ -581,6 +592,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glDrawArrays(GL_QUADS, 0, 4);
 			glDisableClientState(GL_COLOR_ARRAY);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
 #endif
 			currentAddress += sizeof(POLY_G4);
 			break;
@@ -594,7 +606,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r3, &poly->r2, true);
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
 
@@ -604,6 +616,20 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glDrawArrays(GL_QUADS, 0, 4);
 			glDisableClientState(GL_COLOR_ARRAY);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#elif defined(OGLES)
+			//GLuint vbo;
+			//glGenBuffers(1, &vbo);
+			//glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			//glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, &vertexPointer[0], GL_STATIC_DRAW);
+
+			GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
+			glVertexAttribPointer(glGetAttribLocation(g_defaultShaderProgram, "a_position"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)vertexPointer);
+			glVertexAttribPointer(glGetAttribLocation(g_defaultShaderProgram, "a_texcoord"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(vertexPointer + sizeof(float) * 2));
+			glVertexAttribPointer(glGetAttribLocation(g_defaultShaderProgram, "a_colour"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(vertexPointer + sizeof(float) * 4));
+			glEnableVertexAttribArray(glGetAttribLocation(g_defaultShaderProgram, "a_position"));
+			glEnableVertexAttribArray(glGetAttribLocation(g_defaultShaderProgram, "a_texcoord"));
+			glEnableVertexAttribArray(glGetAttribLocation(g_defaultShaderProgram, "a_colour"));
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indexBuffer);
 #endif
 			currentAddress += sizeof(POLY_GT4);
 			break;
@@ -613,7 +639,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			LINE_F2* poly = (LINE_F2*)pTag;
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glBegin(GL_LINES);
 
 			glColor3ubv(&poly->r0);
@@ -631,7 +657,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			LINE_G2* poly = (LINE_G2*)pTag;
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glBegin(GL_LINES);
 			glColor3ubv(&poly->r0);
 			glVertex2f(poly->x0, poly->y0);
@@ -647,7 +673,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			TILE* poly = (TILE*)pTag;
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glBegin(GL_QUADS);
 
 			glColor3ubv(&poly->r0);
@@ -677,7 +703,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, NULL, NULL, NULL, poly->w, poly->h);
 			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, NULL, NULL, NULL, poly->w, poly->h);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, true);
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
 
@@ -698,7 +724,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			TILE_1* poly = (TILE_1*)pTag;
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glBegin(GL_QUADS);
 
 			glColor3ubv(&poly->r0);
@@ -725,7 +751,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			const int width = 8;
 
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			TILE_1* poly = (TILE_1*)pTag;
 
 			glBegin(GL_QUADS);
@@ -752,7 +778,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		case 0x74: // SPRT_8
 		{
 			SPRT_8* poly = (SPRT_8*)pTag;
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glBegin(GL_QUADS);
 
 			glColor3ubv(&poly->r0);
@@ -781,7 +807,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			TILE_1* poly = (TILE_1*)pTag;
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glBegin(GL_QUADS);
 
 			glColor3ubv(&poly->r0);
@@ -806,7 +832,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		case 0x7C: // SPRT_16
 		{
 			SPRT_16* poly = (SPRT_16*)pTag;
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 			glBegin(GL_QUADS);
 
 			glColor3ubv(&poly->r0);
@@ -842,7 +868,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		}
 
 		//Reset for vertex colours
-#if !defined(__EMSCRIPTEN__)
+#if !defined(OGLES)
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #endif
 	}

@@ -2,38 +2,63 @@
 #define EMULATOR_H
 
 #define GL_GLEXT_PROTOTYPES 1
+/*
+ * Platform specific emulator setup
+ */
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
+#if defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__)
+#define OGL
+//#define D3D9
+#define CORE_PROF_3_1 1
+//#define CORE_PROF_3_2
+#define SDL2
+#define GLEW
+#elif defined(__EMSCRIPTEN__)
+#define OGLES
 #endif
 
-#if __APPLE__
-#include <stddef.h>
-#endif
-
-#if !defined(__EMSCRIPTEN__)
+#if defined(GLEW)
 #include <GL/glew.h>
 #endif
 
-#if __APPLE__
+/*
+ * Emulator render options.
+ */
+#define RO_DOUBLE_BUFFERED
+
+#if defined(__APPLE__) || defined(__EMSCRIPTEN__)
+#include <stddef.h>
+#endif
+
+#if defined(__APPLE__)
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
-#elif __EMSCRIPTEN__
-#include <SDL2/SDL.h>
-#define GL_GLEXT_PROTOTYPES 1
+#elif defined(__EMSCRIPTEN__)
+#include <SDL.h>
+#if defined (OGLES)
+#include <SDL_syswm.h>
 #include <GLES3/gl3.h>
-#include <GLES3/gl2ext.h>
-#else
+#include <EGL/egl.h>
+#include <emscripten.h>
+#endif
+#elif defined(__linux__)
 #include <SDL.h>
 #include <SDL_opengl.h>
+#elif defined(_WINDOWS)
+#include <SDL.h>
+
+#if defined (OGL)
+#include <SDL_opengl.h>
+#elif defined (OGLES)
+#include <SDL_syswm.h>
+#include <GLES3/gl3.h>
+#include <EGL/egl.h>
 #endif
+#endif
+
 #include <LIBGPU.H>
 
-#define D3D9 (0)
-#define CORE_PROF_3_1 (1)
-#define CORE_PROF_3_2 (0)
-
-#define RESOLUTION_SCALE (2)
+#define RESOLUTION_SCALE (1)
 #define VRAM_WIDTH (1024 * RESOLUTION_SCALE)
 #define VRAM_HEIGHT (512 * RESOLUTION_SCALE)
 
@@ -55,8 +80,6 @@
 
 #define CTR_CLOCK_SYS_ONE (0)
 #define CTR_CLOCK_SYS_ONE_EIGHTH (1)
-
-struct MMTEXTURE;
 
 typedef struct
 {
@@ -91,7 +114,7 @@ typedef struct
 
 extern SysCounter counters[3];
 
-extern void Emulator_Init(char* windowName, int screen_width, int screen_height);
+extern void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight);
 extern void Emulator_InitialiseGL();
 extern void Emulator_BeginScene();
 extern void Emulator_EndScene();
@@ -111,6 +134,7 @@ extern char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned cha
 extern char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour);
 extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
 extern int Emulator_InitialiseGameVariables();
+extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
 
 #pragma pack(push,1)
 struct Vertex

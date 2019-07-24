@@ -5,8 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include "EMULATOR_GLOBALS.H"
-
-#define DISC_IMAGE_FILENAME "TOMB5.BIN"
+#include "EMULATOR_SETUP.H"
 
 int CD_Debug = 0;
 
