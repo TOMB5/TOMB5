@@ -12,7 +12,7 @@
 #elif PSX_VERSION
 #include <STDIO.H>
 #endif
-#include <EMULATOR.H>
+#include <EMULATOR_PRIVATE.H>
 #include <LIBGPU.H>
 #include "CONTROL.H"
 

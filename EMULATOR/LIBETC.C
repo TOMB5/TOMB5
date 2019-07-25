@@ -2,6 +2,7 @@
 
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
+#include "EMULATOR_PRIVATE.H"
 
 #include <stdio.h>
 #if defined(_WINDOWS)

@@ -11,7 +11,7 @@
 #include <LIBPAD.H>
 #if PSXPC_TEST
 #include <stdio.h>
-#include "EMULATOR.H"
+#include "EMULATOR_PRIVATE.H"
 #elif PSX_VERSION
 #include <STDIO.H>
 #endif

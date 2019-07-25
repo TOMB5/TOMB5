@@ -7,12 +7,15 @@
  */
 
 #if defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__)
-#define OGL
+//#define OGL
 //#define D3D9
 #define CORE_PROF_3_1 1
 //#define CORE_PROF_3_2
 #define SDL2
+#if defined(OGL)
 #define GLEW
+#endif
+#define OGLES
 #elif defined(__EMSCRIPTEN__)
 #define OGLES
 #endif
@@ -46,7 +49,6 @@
 #include <SDL_opengl.h>
 #elif defined(_WINDOWS)
 #include <SDL.h>
-
 #if defined (OGL)
 #include <SDL_opengl.h>
 #elif defined (OGLES)
@@ -114,10 +116,7 @@ typedef struct
 
 extern SysCounter counters[3];
 
-extern void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight);
 extern void Emulator_InitialiseGL();
-extern void Emulator_BeginScene();
-extern void Emulator_EndScene();
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
@@ -127,7 +126,6 @@ extern void Emulator_GenerateFrameBuffer(GLuint& fbo);
 extern void Emulator_GenerateAndBindNullWhite();
 extern void Emulator_CheckTextureIntersection(RECT16* rect);
 extern void Emulator_SetBlendMode(int mode);
-extern void Emulator_UpdateInput();
 extern void Emulator_CounterLoop();
 extern char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p3, short w, short h);
 extern char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
