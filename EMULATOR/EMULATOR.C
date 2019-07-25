@@ -645,12 +645,12 @@ GLuint g_defaultShaderProgram;
 
 void Emulator_CreateGlobalShaders()
 {
-	const char* vertexShaderSource = "attribute vec4 a_position; attribute vec2 a_texcoord; attribute vec4 a_colour; varying vec4 v_colour; uniform mat4 Projection; void main() { v_colour = a_colour; gl_Position = Projection*a_position; }";
+	const char* vertexShaderSource = "attribute vec4 a_position; attribute vec2 a_texcoord; varying vec2 v_texcoord; attribute vec4 a_colour; varying vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
 
-	const char* fragmentShaderSource = "precision mediump float; varying vec4 v_colour; void main() { gl_FragColor = v_colour; }";
+	const char* fragmentShaderSource = "precision mediump float; varying vec2 v_texcoord; varying vec4 v_colour; uniform sampler2D s_texture; void main() { gl_FragColor = texture2D(s_texture, v_texcoord) * v_colour; }";
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
@@ -734,11 +734,11 @@ void Emulator_InitialiseGL()
 
 void Emulator_GenerateAndBindNullWhite()
 {
-	unsigned int pixelData;
-	pixelData = -1;
+	unsigned char pixelData[4];
+	((int*)&pixelData[0])[0] = -1;
 	glGenTextures(1, &nullWhiteTexture);
 	glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData[0]);
 }
 
 void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
@@ -759,7 +759,7 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 	}
 #endif
 }
-#define NOFILE (0)
+#define NOFILE (1)
 
 #if !__EMSCRIPTEN__
 void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
@@ -782,7 +782,7 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
 #elif defined(OGL)
 		
-		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
 #endif
 	}
 	else
@@ -1192,6 +1192,44 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 				*convertPixel++ = clut[(texturePage[xy] & (0xF << 2 * 4)) >> (2 * 4)];
 				*convertPixel++ = clut[(texturePage[xy] & (0xF << 3 * 4)) >> (3 * 4)];
 			}
+
+#if defined(OGLES)
+#define ARGB1555toRGBA1555(x) ((x & 0x8000) >> 15) | ((x & 0x7FFF) << 1)
+#pragma pack(push,1)
+			struct rgba5551
+			{
+				unsigned short r : 5;
+				unsigned short g : 5;
+				unsigned short b : 5;
+				unsigned short a : 1;
+			};
+
+			struct abgr1555
+			{
+				unsigned short a : 1;
+				unsigned short b : 5;
+				unsigned short g : 5;
+				unsigned short r : 5;
+			};
+#pragma pack(pop)
+
+			for (int xy = 0; xy < TPAGE_WIDTH * TPAGE_HEIGHT; xy++)
+			{
+				rgba5551* pixel = (rgba5551*)&convertedTpage[xy];
+				abgr1555* pixel2 = (abgr1555*)&convertedTpage[xy];
+
+				unsigned short r = pixel->r;
+				unsigned short g = pixel->g;
+				unsigned short b = pixel->b;
+				unsigned short a = pixel->a;
+				pixel2->a = a;
+				pixel2->r = r;
+				pixel2->g = g;
+				pixel2->b = b;
+			}
+
+#endif
+
 
 #if _DEBUG && 0
 			FILE* f = fopen("TPAGE.TGA", "wb");
