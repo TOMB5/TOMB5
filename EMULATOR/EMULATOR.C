@@ -888,14 +888,12 @@ unsigned short* pixels[VRAM_WIDTH * VRAM_HEIGHT];
 void Emulator_EndScene()
 {
 #if defined(OGLES)
-	GLint currentBufferBound;
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentBufferBound);
-
+	static int buffer = 0;
 
 	printf("EGL Error: %x\n", glGetError());
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, vramFrameBuffer);
 
-#if 1
+#if 0
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g_defaultFBO);
 	glBlitFramebuffer(
 		word_33BC.disp.x,//sx0 
@@ -908,7 +906,7 @@ void Emulator_EndScene()
 		0,//dy1
 		GL_COLOR_BUFFER_BIT, GL_NEAREST);
 #else
-	if (currentBufferBound == 1)
+	if (buffer == 1)
 	{
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g_defaultFBO);
 		glBlitFramebuffer(
@@ -936,6 +934,8 @@ void Emulator_EndScene()
 			0,//dy1
 			GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
+
+	buffer ^= 1;
 #endif
 
 	//glBlitFramebuffer(0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);

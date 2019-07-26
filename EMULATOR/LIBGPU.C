@@ -71,7 +71,6 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 	glGenTextures(1, &srcTexture);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 //#if defined(OGLES) && 1
 #if defined(OGL)
@@ -288,6 +287,13 @@ u_long DrawSyncCallback(void(*func)(void))
 	return 0;
 }
 
+#if defined(OGLES)
+GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
+GLuint ibo;
+GLuint vbo;
+GLuint vao;
+#endif
+
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
 #if defined(WIREFRAME_MODE)
@@ -346,6 +352,19 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 		P_TAG* pTag = (P_TAG*)p;
 
+#if defined(OGLES)
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		glGenBuffers(1, &ibo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 6, indexBuffer, GL_STATIC_DRAW);
+
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, NULL, GL_DYNAMIC_DRAW);
+#endif
+
 		do
 		{
 			if (pTag->len > 0)
@@ -357,6 +376,11 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		}while ((unsigned long)pTag != 0xFFFFFF);
 #else
 		}while ((unsigned long)pTag != (unsigned long)&terminator);
+#endif
+#if defined(OGLES)
+		glDeleteBuffers(1, &ibo);
+		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
 #endif
 #if !defined(OGLES)
 		glDisableClientState(GL_VERTEX_ARRAY);
@@ -499,39 +523,23 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glDrawArrays(GL_QUADS, 0, 4);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #elif defined(OGLES)
-			GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
-			GLuint vao;
-			glGenVertexArrays(1, &vao);
-			glBindVertexArray(vao);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
 
-			GLuint vbo;
-			glGenBuffers(1, &vbo);
-
-			GLuint ibo;
-			glGenBuffers(1, &ibo);
-
-			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, vertexPointer, GL_STATIC_DRAW);
-
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 6, indexBuffer, GL_STATIC_DRAW);
-			// Specify the layout of the vertex data
 			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
 			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
 			GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
 			glEnableVertexAttribArray(posAttrib);
-			glEnableVertexAttribArray(colAttrib);
 			glEnableVertexAttribArray(texAttrib);
+			glEnableVertexAttribArray(colAttrib);
 			glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 			glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)8);
 			glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
 
-
-			glDeleteBuffers(1, &vbo);
-			glDeleteBuffers(1, &ibo);
-			glDeleteVertexArrays(1, &vao);
+			glDisableVertexAttribArray(posAttrib);
+			glDisableVertexAttribArray(colAttrib);
+			glDisableVertexAttribArray(texAttrib);
 #endif
 			currentAddress += sizeof(POLY_FT4);
 			break;
@@ -576,6 +584,24 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glDrawArrays(GL_TRIANGLES, 0, 3);
 			glDisableClientState(GL_COLOR_ARRAY);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#elif defined(OGLES)
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
+
+			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
+			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
+			GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
+			glEnableVertexAttribArray(posAttrib);
+			glEnableVertexAttribArray(colAttrib);
+			glEnableVertexAttribArray(texAttrib);
+			glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+			glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)8);
+			glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
+			
+			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, NULL);
+
+			glDisableVertexAttribArray(posAttrib);
+			glDisableVertexAttribArray(colAttrib);
+			glDisableVertexAttribArray(texAttrib);
 #endif
 			currentAddress += sizeof(POLY_GT3);
 			break;
@@ -617,23 +643,8 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glDisableClientState(GL_COLOR_ARRAY);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #elif defined(OGLES)
-			GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
-			GLuint vao;
-			glGenVertexArrays(1, &vao);
-			glBindVertexArray(vao);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
 
-			GLuint vbo;
-			glGenBuffers(1, &vbo);
-			
-			GLuint ibo;
-			glGenBuffers(1, &ibo);
-
-			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*4, vertexPointer, GL_STATIC_DRAW);
-			
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*6, indexBuffer, GL_STATIC_DRAW);
-			// Specify the layout of the vertex data
 			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
 			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
 			GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
@@ -643,13 +654,12 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 			glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)8);
 			glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
-			
+
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
 
-
-			glDeleteBuffers(1, &vbo);
-			glDeleteBuffers(1, &ibo);
-			glDeleteVertexArrays(1, &vao);
+			glDisableVertexAttribArray(posAttrib);
+			glDisableVertexAttribArray(colAttrib);
+			glDisableVertexAttribArray(texAttrib);
 #endif
 			currentAddress += sizeof(POLY_GT4);
 			break;
@@ -723,7 +733,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, NULL, NULL, NULL, poly->w, poly->h);
 			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, NULL, NULL, NULL, poly->w, poly->h);
 			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r0, &poly->r0, &poly->r0, true);
-#if !defined(OGLES)
+#if defined(OGL)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
 
@@ -733,6 +743,24 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glDrawArrays(GL_QUADS, 0, 4);
 			glDisableClientState(GL_COLOR_ARRAY);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#elif defined(OGLES)
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
+
+			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
+			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
+			GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
+			glEnableVertexAttribArray(posAttrib);
+			glEnableVertexAttribArray(texAttrib);
+			glEnableVertexAttribArray(colAttrib);
+			glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+			glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)8);
+			glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
+
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+
+			glDisableVertexAttribArray(posAttrib);
+			glDisableVertexAttribArray(colAttrib);
+			glDisableVertexAttribArray(texAttrib);
 #endif
 			currentAddress += sizeof(SPRT);
 			break;
