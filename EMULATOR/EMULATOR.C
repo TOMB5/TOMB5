@@ -1042,7 +1042,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
 
-#if 0// RESOLUTION_SCALE > 1//For old internal res scaling code
+#if  RESOLUTION_SCALE > 1//For old internal res scaling code
 	tpageX += ((VRAM_WIDTH - (VRAM_WIDTH / RESOLUTION_SCALE)) / 2);
 	if (tpageY >= 256)
 	{

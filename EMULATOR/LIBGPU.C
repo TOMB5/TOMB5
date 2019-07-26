@@ -63,7 +63,7 @@ int DrawSync(int mode)
 
 int LoadImagePSX(RECT16* rect, u_long* p)
 {
-	glScissor(rect->x, rect->y, rect->w, rect->h);
+	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 	Emulator_CheckTextureIntersection(rect);
 
 	GLuint srcTexture;
@@ -105,7 +105,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
 
-	glBlitFramebuffer(0, 0, rect->w, rect->h, rect->x, rect->y, (rect->x + rect->w), (rect->y + rect->h), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	glBlitFramebuffer(0, 0, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, (rect->x + rect->w) * RESOLUTION_SCALE, (rect->y + rect->h) * RESOLUTION_SCALE, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 #if _DEBUG
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
@@ -119,11 +119,11 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 int MoveImage(RECT16* rect, int x, int y)
 {
-	glScissor(x, y, x + rect->w, y + rect->h);
+	glScissor(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
 	GLuint srcTexture;
 	GLuint srcFrameBuffer;
 
-	unsigned short* pixels = new unsigned short[rect->w * rect->h];
+	unsigned short* pixels = new unsigned short[rect->w * rect->h];///@FIXME res scale
 
 	/* Read in src pixels for rect */
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
@@ -214,13 +214,11 @@ u_long* ClearOTag(u_long* ot, int n)
 	ot[n-1] = (unsigned long)terminator;
 #endif
 
-	if (n > 1)
+	for (int i = n - 2; i > -1; i--)
 	{
-		for (int i = n-2; i > -1; i--)
-		{
-			ot[i] = (unsigned long)&ot[i+1];
-		}
+		ot[i] = (unsigned long)& ot[i + 1];
 	}
+
 	return NULL;
 }
 
@@ -238,13 +236,11 @@ u_long* ClearOTagR(u_long* ot, int n)
 	ot[0] = (unsigned long)terminator;
 #endif
 
-	if (n > 1)
+	for (int i = 1; i < n; i++)
 	{
-		for (int i = 1; i < n; i++)
-		{
-			ot[i] = (unsigned long)&ot[i - 1];
-		}
+		ot[i] = (unsigned long)& ot[i - 1];
 	}
+
 	return NULL;
 }
 
@@ -390,7 +386,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		
 #if !defined(OGLES)
-		//glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
+		
+#if RESOLUTION_SCALE > 1
+		glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
+#endif
 		glEnableClientState(GL_VERTEX_ARRAY);
 #endif
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
