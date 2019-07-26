@@ -367,7 +367,7 @@ void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 	}
 #endif
 
-
+	printf("GLError7: %x\n", glGetError());
 	//counter_thread = std::thread(Emulator_CounterLoop);
 }
 
@@ -655,17 +655,24 @@ void Emulator_CreateGlobalShaders()
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
 
+#if 1
+	char buff[1024];
+	int maxLength = 1024;
+	glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &buff[0]);
+	printf("FRAG: %s\n", &buff[0]);
+
+	maxLength = 1024;
+	glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &buff[0]);
+	printf("VERTEX: %s\n", &buff[0]);
+#endif
+
 	g_defaultShaderProgram = glCreateProgram();
 	glAttachShader(g_defaultShaderProgram, vertexShader);
 	glAttachShader(g_defaultShaderProgram, fragmentShader);
 	glLinkProgram(g_defaultShaderProgram);
+	glUseProgram(g_defaultShaderProgram);
 }
 #endif
-
-
-void Emulator_Test()
-{
-}
 
 void Emulator_InitialiseGL()
 {
@@ -685,6 +692,7 @@ void Emulator_InitialiseGL()
 
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 #if defined(OGLES)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &vram[0]);
@@ -694,7 +702,6 @@ void Emulator_InitialiseGL()
 	/* Generate VRAM Frame Buffer */
 	glGenFramebuffers(1, &vramFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-	
 	/* Bind VRAM texture to vram framebuffer */
 #if defined(CORE_PROF_3_1) || defined (OGLES)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, vramTexture, 0);
@@ -728,7 +735,6 @@ void Emulator_InitialiseGL()
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
-
 	delete[] vram;
 }
 
@@ -759,7 +765,7 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 	}
 #endif
 }
-#define NOFILE (1)
+#define NOFILE 0
 
 #if !__EMSCRIPTEN__
 void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
@@ -882,9 +888,7 @@ void Emulator_SwapWindow()
 	glFinish();
 #endif
 }
-
-unsigned short* pixels[VRAM_WIDTH * VRAM_HEIGHT];
-
+unsigned short pixels[VRAM_WIDTH * VRAM_HEIGHT];
 void Emulator_EndScene()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
@@ -921,8 +925,8 @@ void Emulator_EndScene()
 	};
 
 #if defined(OGL)
-	glVertexPointer(3, GL_FLOAT, 5 * sizeof(float), vertexBuffer);
-	glTexCoordPointer(2, GL_FLOAT, 5 * sizeof(float), vertexBuffer + 3);
+	glVertexPointer(3, GL_FLOAT, 9 * sizeof(float), vertexBuffer);
+	glTexCoordPointer(2, GL_FLOAT, 9 * sizeof(float), vertexBuffer + 3);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glLoadIdentity();
