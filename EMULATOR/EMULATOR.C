@@ -887,67 +887,16 @@ unsigned short* pixels[VRAM_WIDTH * VRAM_HEIGHT];
 
 void Emulator_EndScene()
 {
-#if defined(OGLES)
-	static int buffer = 0;
-
-	printf("EGL Error: %x\n", glGetError());
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, vramFrameBuffer);
-
-#if 0
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g_defaultFBO);
-	glBlitFramebuffer(
-		word_33BC.disp.x,//sx0 
-		word_33BC.disp.y,//sy0
-		(word_33BC.disp.x + word_33BC.disp.w),//sx1
-		(word_33BC.disp.y + word_33BC.disp.h),//sy1
-		0,//dx0 
-		word_33BC.disp.h,//dy0 
-		word_33BC.disp.w,//dx1
-		0,//dy1
-		GL_COLOR_BUFFER_BIT, GL_NEAREST);
-#else
-	if (buffer == 1)
-	{
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g_defaultFBO);
-		glBlitFramebuffer(
-			word_33BC.disp.x,//sx0 
-			word_33BC.disp.y,//sy0
-			(word_33BC.disp.x + word_33BC.disp.w),//sx1
-			(word_33BC.disp.y + word_33BC.disp.h),//sy1
-			0,//dx0 
-			word_33BC.disp.h,//dy0 
-			word_33BC.disp.w,//dx1
-			0,//dy1
-			GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	}
-	else
-	{
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g_defaultFBO);
-		glBlitFramebuffer(
-			word_33BC.disp.x,//sx0 
-			0,//sy0
-			(word_33BC.disp.x + word_33BC.disp.w),//sx1
-			(0 + word_33BC.disp.h),//sy1
-			0,//dx0 
-			word_33BC.disp.h,//dy0 
-			word_33BC.disp.w,//dx1
-			0,//dy1
-			GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	}
-
-	buffer ^= 1;
-#endif
-
-	//glBlitFramebuffer(0, 0, activeDrawEnv.clip.w, activeDrawEnv.clip.h, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-#else
-#if !defined(__EMSCRIPTEN__)//OLD_RENDERER
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+
 #if defined(OGLES)
 	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
 #elif defined(OGL)
 	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
 #endif
+
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
+
 #if defined(OGLES)
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
 #elif defined(OGL)
@@ -963,12 +912,12 @@ void Emulator_EndScene()
 
 	float vertexBuffer[] =
 	{
-		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y,
-		0.0f, 0.0f, 0.0f, x, y + h,
-		(float)word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, 0.0f, x + w, y + h,
-		(float)word_33BC.disp.w * RESOLUTION_SCALE, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x + w, y,
-		(float)word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, 0.0f, x + w, y + h,
-		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y,
+		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y, 1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f, x, y + h, 1.0f, 1.0f, 1.0f, 1.0f,
+		(float)word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, 0.0f, x + w, y + h, 1.0f, 1.0f, 1.0f, 1.0f,
+		(float)word_33BC.disp.w * RESOLUTION_SCALE, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x + w, y, 1.0f, 1.0f, 1.0f, 1.0f,
+		(float)word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, 0.0f, x + w, y + h, 1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y, 1.0f, 1.0f, 1.0f, 1.0f,
 	};
 
 #if defined(OGL)
@@ -979,46 +928,38 @@ void Emulator_EndScene()
 	glLoadIdentity();
 	glOrtho(0, word_33BC.disp.w * RESOLUTION_SCALE, 0, word_33BC.disp.h * RESOLUTION_SCALE, 0, 1);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-#endif
+#elif defined(OGLES)
+	GLuint vbo, ibo, vao;
+	GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
 
-#else
-#if 0
-	GLint currentBufferBound;
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentBufferBound);
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 6, indexBuffer, GL_STATIC_DRAW);
 
-	printf("GL Error: %x\n", glGetError());
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, vramFrameBuffer);
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), &vertexBuffer[0], GL_STATIC_DRAW);
 
-	if (currentBufferBound == 1)
-	{
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glBlitFramebuffer(
-			word_33BC.disp.x,//sx0 
-			word_33BC.disp.y,//sy0
-			(word_33BC.disp.x + word_33BC.disp.w),//sx1
-			(word_33BC.disp.y + word_33BC.disp.h),//sy1
-			0,//dx0 
-			word_33BC.disp.h,//dy0 
-			word_33BC.disp.w,//dx1
-			0,//dy1
-			GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	}
-	else
-	{
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glBlitFramebuffer(
-			word_33BC.disp.x,//sx0 
-			0,//sy0
-			(word_33BC.disp.x + word_33BC.disp.w),//sx1
-			(0 + word_33BC.disp.h),//sy1
-			0,//dx0 
-			word_33BC.disp.h,//dy0 
-			word_33BC.disp.w,//dx1
-			0,//dy1
-			GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	}
-#endif
-#endif
+	GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
+	GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
+	GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
+	glEnableVertexAttribArray(posAttrib);
+	glEnableVertexAttribArray(colAttrib);
+	glEnableVertexAttribArray(texAttrib);
+	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 9, 0);
+	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)20);
+	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)12);
+	Emulator_Ortho2D(0, word_33BC.disp.w * RESOLUTION_SCALE, 0, word_33BC.disp.h * RESOLUTION_SCALE, 0, 1);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+	glDisableVertexAttribArray(posAttrib);
+	glDisableVertexAttribArray(colAttrib);
+	glDisableVertexAttribArray(texAttrib);
+
+	glDeleteBuffers(1, &ibo);
+	glDeleteBuffers(1, &vbo);
+	glDeleteVertexArrays(1, &vao);
 #endif
 
 #if _DEBUG && 1

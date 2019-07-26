@@ -92,7 +92,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 #endif
 
 #if defined(OGL) || defined(OGLES)
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	while (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		eprinterr("Frame buffer error");
 	}
@@ -161,7 +161,7 @@ u_long* ClearOTag(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-#if _WIN32 || _WIN64 || defined(__EMSCRIPTEN__)
+#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
 	//last is special terminator
 	ot[n-1] = (unsigned long)&terminator;
 #else
@@ -185,7 +185,7 @@ u_long* ClearOTagR(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-#if _WIN32 || _WIN64 || defined(__EMSCRIPTEN__)
+#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
 	//First is special terminator
 	ot[0] = (unsigned long)&terminator;
 #else
