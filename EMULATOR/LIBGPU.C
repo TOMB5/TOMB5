@@ -71,28 +71,32 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 	glGenTextures(1, &srcTexture);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
-
-//#if defined(OGLES) && 1
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	printf("srcTexture: %x\n", srcTexture);
 #if defined(OGL)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
 #elif defined(OGLES)
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, (unsigned short*)&p[0]);
+	unsigned short* picture = (unsigned short*)&p[0];
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &picture[0]);
 #endif
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	printf("LoadImagePSX GLError: %x\n", glGetError());
+
 	/* Generate src Frame Buffer */
 	glGenFramebuffers(1, &srcFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
-
+	printf("LoadImagePSX GLError: %x\n", glGetError());
 	/* Bind src texture to src framebuffer */
 #if defined(CORE_PROF_3_1)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
 #elif defined(CORE_PROF_3_2)
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
 #endif
-
+	
+	printf("LoadImagePSX GLError: %x\n", glGetError());
+	 
 #if defined(OGL) || defined(OGLES)
-	while (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		eprinterr("Frame buffer error");
 	}
@@ -115,20 +119,61 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 int MoveImage(RECT16* rect, int x, int y)
 {
-	for (int sy = rect->y; sy < VRAM_HEIGHT; sy++)
-	{
-		for (int sx = rect->x; sx < VRAM_WIDTH; sx++)
-		{
-			//unsigned short* src = vram + (sy * VRAM_WIDTH + sx);
-			//unsigned short* dst = vram + (y * VRAM_WIDTH + x);
+	glScissor(x, y, x + rect->w, y + rect->h);
+	GLuint srcTexture;
+	GLuint srcFrameBuffer;
 
-			if (sx >= rect->x && sx < rect->x + rect->w &&
-				sy >= rect->y && sy < rect->y + rect->h)
-			{
-				//*dst++ = *src++;
-			}
-		}
+	unsigned short* pixels = new unsigned short[rect->w * rect->h];
+
+	/* Read in src pixels for rect */
+	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+#if defined(OGLES)
+	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
+#elif defined(OGL)
+	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
+#endif
+
+	glGenTextures(1, &srcTexture);
+	glBindTexture(GL_TEXTURE_2D, srcTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+#if defined(OGL)
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
+#elif defined(OGLES)
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
+#endif
+
+	/* Generate src Frame Buffer */
+	glGenFramebuffers(1, &srcFrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
+
+	/* Bind src texture to src framebuffer */
+#if defined(CORE_PROF_3_1)
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
+#elif defined(CORE_PROF_3_2)
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
+#endif
+
+#if defined(OGL) || defined(OGLES)
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		eprinterr("Frame buffer error");
 	}
+#endif
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
+	glBlitFramebuffer(0, 0, rect->w, rect->h, x, y, x+rect->w, y + rect->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+#if _DEBUG
+	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
+#endif
+
+	glDeleteTextures(1, &srcTexture);
+	Emulator_DestroyFrameBuffer(srcFrameBuffer);
+
+	delete[] pixels;
+
 	return 0;
 }
 
@@ -150,7 +195,7 @@ int StoreImage(RECT16* rect, u_long * p)
 #if defined(OGL)
 	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
 #elif defined(OGLES)
-	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &p[0]);
+	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, (unsigned short*)&p[0]);
 #endif
 	return 0;
 }
@@ -339,7 +384,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glLoadIdentity();
 		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
 #elif defined(OGLES)
-		glUseProgram(g_defaultShaderProgram);
 		Emulator_Ortho2D(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
 #endif
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
