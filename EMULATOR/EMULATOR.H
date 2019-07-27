@@ -7,7 +7,7 @@
  */
 
 #if defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__)
-//#define OGL
+#define OGL
 //#define D3D9
 #define CORE_PROF_3_1 1
 //#define CORE_PROF_3_2
@@ -15,8 +15,8 @@
 #if defined(OGL)
 #define GLEW
 #endif
-#define OGLES
-#define ES3_SHADERS
+//#define OGLES
+//#define ES3_SHADERS
 #elif defined(__EMSCRIPTEN__)
 #define OGLES
 #define ES3_SHADERS

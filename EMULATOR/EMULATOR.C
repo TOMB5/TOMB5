@@ -74,10 +74,6 @@ IDirect3DDevice9* g_Device;
 struct CachedTexture
 {
 	GLuint textureID;
-	unsigned int tpageX;
-	unsigned int tpageY;
-	unsigned int clutX;
-	unsigned int clutY;
 	unsigned short tpage;
 	unsigned short clut;
 	unsigned int lastAccess;
@@ -911,8 +907,6 @@ void Emulator_EndScene()
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
 #elif defined(OGL)
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
-	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "s_texture"), 0);
 #endif
 	glScissor(0, 0, windowWidth, windowHeight);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
@@ -1021,19 +1015,34 @@ void Emulator_GenerateFrameBuffer(GLuint& fbo)
 
 ///@TODO check rectangular intersection plus clut x, y
 ///@TODO check if LoadImage and ClearImage, FrameBuffer rect intersection updates a texture, if so, we delete the original and generate a new one
-GLuint Emulator_FindTextureInCache(unsigned int tpageX, unsigned int tpageY, unsigned int clutX, unsigned int clutY)
+CachedTexture* Emulator_FindTextureInCache(unsigned short tpage, unsigned short clut)
 {
-	for (int i = lastTextureCacheIndex-1; i > -1; i--)
+	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
 	{
-		if (cachedTextures[i].tpageX == tpageX && cachedTextures[i].tpageY == tpageY &&
-		    cachedTextures[i].clutX == clutX && cachedTextures[i].clutY == clutY)
+		if (cachedTextures[i].tpage == tpage && cachedTextures[i].clut == clut)
 		{
 			cachedTextures[i].lastAccess = SDL_GetTicks();
-			return cachedTextures[i].textureID;
+			return &cachedTextures[i];
 		}
 	}
 
-	return -1;
+	return NULL;
+}
+
+CachedTexture* Emulator_GetFreeCachedTexture()
+{
+	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
+	{
+		if (cachedTextures[i].textureID == 0xFFFFFFFF)
+		{
+			return &cachedTextures[i];
+		}
+	}
+
+	//Cache is full, this should never happen
+	assert(0);
+
+	return NULL;
 }
 
 void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent)
@@ -1046,8 +1055,8 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 	}
 
 	unsigned int textureType = (tpage >> 7) & 0x3;
-	unsigned int tpageX = ((tpage << 6) & 0x7C0 % VRAM_WIDTH);
-	unsigned int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200)) % VRAM_HEIGHT;
+	unsigned int tpageX = ((tpage << 6) & 0x7C0) & (VRAM_WIDTH - 1);
+	unsigned int tpageY = ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) & (VRAM_HEIGHT - 1);
 	unsigned int clutX = ((clut & 0x3F) << 4);
 	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
@@ -1068,28 +1077,18 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 
 	Emulator_SetBlendMode(tpageAbr);
 
-#if DEBUG_MSG
-	printf("tpage: (%d,%d,%d,%d)\n", ((tpage) >> 7) & 0x003, ((tpage) >> 5) & 0x003, ((tpage) << 6) & 0x7c0, (((tpage) << 4) & 0x100) + (((tpage) >> 2) & 0x200));
-	printf("clut: (%d,%d)\n", (clut & 0x3F) << 4, (clut >> 6));
-#endif
-
-	GLuint tpageTexture = Emulator_FindTextureInCache(tpageX, tpageY, clutX, clutY);
-	bool bMustAddTexture = (tpageTexture == -1) ? 1 : 0;
+	CachedTexture* tpageTexture = Emulator_FindTextureInCache(tpage, clut);
+	bool bMustAddTexture = (tpageTexture == NULL) ? 1 : 0;
 
 	if (bMustAddTexture)
 	{
-		cachedTextures[lastTextureCacheIndex].tpageX = tpageX;
-		cachedTextures[lastTextureCacheIndex].tpageY = tpageY;
-		cachedTextures[lastTextureCacheIndex].clutX = clutX;
-		cachedTextures[lastTextureCacheIndex].clutY = clutY;
-		cachedTextures[lastTextureCacheIndex].tpage = tpage;
-		cachedTextures[lastTextureCacheIndex].clut = clut;
-		cachedTextures[lastTextureCacheIndex].textureID = 0;
-		glGenTextures(1, &cachedTextures[lastTextureCacheIndex].textureID);
-		tpageTexture = cachedTextures[lastTextureCacheIndex++].textureID;
+		tpageTexture = Emulator_GetFreeCachedTexture();
+		tpageTexture->tpage = tpage;
+		tpageTexture->clut = clut;
+		glGenTextures(1, &tpageTexture->textureID);
 	}
 
-	glBindTexture(GL_TEXTURE_2D, tpageTexture);
+	glBindTexture(GL_TEXTURE_2D, tpageTexture->textureID);
 
 	if (!bMustAddTexture)
 	{
