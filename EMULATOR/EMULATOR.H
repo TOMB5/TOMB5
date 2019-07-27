@@ -16,8 +16,10 @@
 #define GLEW
 #endif
 #define OGLES
+#define ES3_SHADERS
 #elif defined(__EMSCRIPTEN__)
 #define OGLES
+#define ES3_SHADERS
 #endif
 
 #if defined(GLEW)

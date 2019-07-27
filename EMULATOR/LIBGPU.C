@@ -71,40 +71,36 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 	glGenTextures(1, &srcTexture);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	printf("srcTexture: %x\n", srcTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
 #if defined(OGL)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
 #elif defined(OGLES)
-	unsigned short* picture = (unsigned short*)&p[0];
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &picture[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &p[0]);
 #endif
-	printf("LoadImagePSX GLError: %x\n", glGetError());
 
 	/* Generate src Frame Buffer */
 	glGenFramebuffers(1, &srcFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
-	printf("LoadImagePSX GLError: %x\n", glGetError());
+
 	/* Bind src texture to src framebuffer */
-#if defined(CORE_PROF_3_1)
+#if defined(CORE_PROF_3_1) || defined(OGLES)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
 #elif defined(CORE_PROF_3_2)
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
 #endif
-	
-	printf("LoadImagePSX GLError: %x\n", glGetError());
-	 
+
 #if defined(OGL) || defined(OGLES)
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	while (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		eprinterr("Frame buffer error");
+		eprinterr("Frame buffer error: %x\n", glCheckFramebufferStatus(GL_FRAMEBUFFER));
 	}
+
 #endif
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
-
 	glBlitFramebuffer(0, 0, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, (rect->x + rect->w) * RESOLUTION_SCALE, (rect->y + rect->h) * RESOLUTION_SCALE, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 #if _DEBUG
@@ -135,8 +131,8 @@ int MoveImage(RECT16* rect, int x, int y)
 
 	glGenTextures(1, &srcTexture);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 #if defined(OGL)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
@@ -149,16 +145,16 @@ int MoveImage(RECT16* rect, int x, int y)
 	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
 
 	/* Bind src texture to src framebuffer */
-#if defined(CORE_PROF_3_1)
+#if defined(CORE_PROF_3_1) || defined(OGLES)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
 #elif defined(CORE_PROF_3_2)
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
 #endif
 
 #if defined(OGL) || defined(OGLES)
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	while (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		eprinterr("Frame buffer error");
+		eprinterr("Frame buffer error: %x\n", glCheckFramebufferStatus(GL_FRAMEBUFFER));
 	}
 #endif
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
