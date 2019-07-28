@@ -752,21 +752,25 @@ void Emulator_GenerateAndBindNullWhite()
 
 void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 {
-	assert(lastTextureCacheIndex < MAX_NUM_CACHED_TEXTURES);
-	
-#if 0
-	for (int i = lastTextureCacheIndex - 1; i > -1; i--)
+	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
 	{
-		if (rect->x + rect->w < cachedTextures[i].tpageX || rect->y + rect->h < cachedTextures[i].tpageY ||
-		    rect->x > cachedTextures[i].tpageX + TPAGE_WIDTH || rect->y > cachedTextures[i].tpageY + TPAGE_HEIGHT)
+		//Unused texture
+		if (cachedTextures[i].textureID == 0xFFFFFFFF)
+			continue;
+
+		unsigned short tpage = cachedTextures[i].tpage;
+		unsigned int tpageX = ((tpage << 6) & 0x7C0) % VRAM_WIDTH;
+		unsigned int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200)) % VRAM_HEIGHT;
+
+		if (!(rect->x > tpageX + TPAGE_WIDTH || rect->x + rect->w < tpageX || rect->y > tpageY + TPAGE_HEIGHT || rect->y + rect->h < tpageY))
 		{
 			cachedTextures[i].lastAccess = 0;
-			cachedTextures[i].tpageX = 0;
-			cachedTextures[i].tpageY = 0;
+			cachedTextures[i].tpage = 0;
+			cachedTextures[i].clut = 0;
 			glDeleteTextures(1, &cachedTextures[i].textureID);
+			cachedTextures[i].textureID = -1;
 		}
 	}
-#endif
 }
 #define NOFILE 0
 

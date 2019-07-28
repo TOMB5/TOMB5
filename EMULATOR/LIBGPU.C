@@ -63,8 +63,8 @@ int DrawSync(int mode)
 
 int LoadImagePSX(RECT16* rect, u_long* p)
 {
-	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 	Emulator_CheckTextureIntersection(rect);
+	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 
 	GLuint srcTexture;
 	GLuint srcFrameBuffer;
@@ -115,6 +115,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 int MoveImage(RECT16* rect, int x, int y)
 {
+	Emulator_CheckTextureIntersection(rect);
 	glScissor(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
 	GLuint srcTexture;
 	GLuint srcFrameBuffer;
