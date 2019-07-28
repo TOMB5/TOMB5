@@ -417,6 +417,17 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, NULL, GL_DYNAMIC_DRAW);
+
+
+		GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
+		GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
+		GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
+		glEnableVertexAttribArray(posAttrib);
+		glEnableVertexAttribArray(colAttrib);
+		glEnableVertexAttribArray(texAttrib);
+		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)8);
+		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
 #endif
 
 		do
@@ -448,6 +459,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glDeleteBuffers(1, &ibo);
 		glDeleteBuffers(1, &vbo);
 		glDeleteVertexArrays(1, &vao);
+
+		glDisableVertexAttribArray(posAttrib);
+		glDisableVertexAttribArray(colAttrib);
+		glDisableVertexAttribArray(texAttrib);
 #endif
 #if !defined(OGLES)
 		glDisableClientState(GL_VERTEX_ARRAY);
@@ -712,22 +727,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			
 #elif defined(OGLES) || defined(CORE_PROF_3_3)
 			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
-
-			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
-			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
-			GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
-			glEnableVertexAttribArray(posAttrib);
-			glEnableVertexAttribArray(colAttrib);
-			glEnableVertexAttribArray(texAttrib);
-			glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-			glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)8);
-			glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
-
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
-
-			glDisableVertexAttribArray(posAttrib);
-			glDisableVertexAttribArray(colAttrib);
-			glDisableVertexAttribArray(texAttrib);
 #endif
 			currentAddress += sizeof(POLY_GT4);
 			polyGT4Index += 4;
@@ -995,9 +995,8 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		}
 
 		//Reset for vertex colours
-#if !defined(OGLES)
+#if !defined(OGLES) && !defined(CORE_PROF_3_3)
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #endif
-		Emulator_SetBlendMode(1);
 	}
 }

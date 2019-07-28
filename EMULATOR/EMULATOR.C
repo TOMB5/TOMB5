@@ -677,6 +677,8 @@ unsigned short vram[VRAM_WIDTH * VRAM_HEIGHT];
 
 void Emulator_InitialiseGL()
 {
+	glEnable(GL_BLEND);
+
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &g_defaultFBO);
 
 	/* Initialise VRAM */
@@ -769,7 +771,7 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 		}
 	}
 }
-#define NOFILE 0
+#define NOFILE 1
 
 #if !__EMSCRIPTEN__
 void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
@@ -785,22 +787,22 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 	}
 	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 	unsigned char header[6] = { width % 256, width / 256, height % 256, height / 256,16,0 };
-	unsigned short* pixels = new unsigned short[width * height];
+	unsigned short* pixelData = new unsigned short[width * height];
 	if (bReadFromFrameBuffer)
 	{
 #if defined(OGLES)
-		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
+		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixelData[0]);
 #elif defined(OGL)
 		
-		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
+		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
 #endif
 	}
 	else
 	{
 #if defined(OGLES)
-		//glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, pixels);
+		//glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, pixelData);
 #elif defined(OGL)
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixels);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
 #endif
 	}
 
@@ -813,16 +815,16 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 
 	for (int i = 0; i < numSectorsToWrite; i++)
 	{
-		fwrite(&pixels[i * 512 / sizeof(unsigned short)], 512, 1, f);
+		fwrite(&pixelData[i * 512 / sizeof(unsigned short)], 512, 1, f);
 	}
 
 	for (int i = 0; i < numRemainingSectorsToWrite; i++)
 	{
-		fwrite(&pixels[numSectorsToWrite * 512 / sizeof(unsigned short)], numRemainingSectorsToWrite, 1, f);
+		fwrite(&pixelData[numSectorsToWrite * 512 / sizeof(unsigned short)], numRemainingSectorsToWrite, 1, f);
 	}
 
 	fclose(f);
-	delete[] pixels;
+	delete[] pixelData;
 }
 #endif
 
@@ -1047,6 +1049,7 @@ CachedTexture* Emulator_GetFreeCachedTexture()
 void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent)
 {
 	unsigned int bShouldUseGlobalTpageTexture = (tpage == 0xFFFF) ? 1 : 0;
+	static GLuint lastTextureId = 0xFFFFFFFF;
 
 	if (bShouldUseGlobalTpageTexture)
 	{
@@ -1093,7 +1096,11 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 		glGenTextures(1, &tpageTexture->textureID);
 	}
 
-	glBindTexture(GL_TEXTURE_2D, tpageTexture->textureID);
+	if (tpageTexture->textureID != lastTextureId)
+	{
+		glBindTexture(GL_TEXTURE_2D, tpageTexture->textureID);
+		lastTextureId = tpageTexture->textureID;
+	}
 
 	if (!bMustAddTexture)
 	{
@@ -1229,47 +1236,57 @@ void Emulator_DestroyFrameBuffer(GLuint& fbo)
 
 void Emulator_SetBlendMode(int mode)
 {
-	glEnable(GL_BLEND);
+	static int lastBlendMode = -1;
+
 #if !BLEND_MODE
-	switch (mode)
+	if (lastBlendMode != mode)
 	{
-	case 0://Average
-		glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
-		break;
-	case 1://Add
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		break;
-	case 2://Subtract
-		glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-		break;
-	case 3://Addquatersource
-		glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_ONE);
-		break;
-	default:
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glDisable(GL_BLEND);
-		break;
+		switch (mode)
+		{
+		case 0://Average
+			glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
+			break;
+		case 1://Add
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		case 2://Subtract
+			glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+			break;
+		case 3://Addquatersource
+			glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_ONE);
+			break;
+		default:
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			//glDisable(GL_BLEND);
+			break;
+		}
+
+		lastBladeMode = mode;
 	}
 #else
-
-	switch (mode)
+	if (lastBlendMode != mode)
 	{
-	case 0://Average
-		glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
-		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-		break;
-	case 1://Add
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-		break;
-	case 2://Subtract
-		glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
-		glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
-		break;
-	case 3://Addquatersource
-		glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
-		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-		break;
+		switch (mode)
+		{
+		case 0://Average
+			glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
+			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+			break;
+		case 1://Add
+			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+			break;
+		case 2://Subtract
+			glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+			glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
+			break;
+		case 3://Addquatersource
+			glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
+			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+			break;
+		}
+
+		lastBlendMode = mode;
 	}
 #endif
 }
