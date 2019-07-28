@@ -22,11 +22,7 @@
 #include <ddraw.h>
 #endif
 
-#if defined(_DEBUG)
 #define MAX_NUM_CACHED_TEXTURES (256)
-#else
-#define MAX_NUM_CACHED_TEXTURES (256)
-#endif
 #define BLEND_MODE (1)
 #define VERTEX_COLOUR_MULT (2)
 
@@ -59,7 +55,6 @@ int screenWidth = 0;
 int screenHeight = 0;
 int windowWidth = 0;
 int windowHeight = 0;
-int lastTextureCacheIndex = 0;
 char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
@@ -772,7 +767,7 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 		}
 	}
 }
-#define NOFILE 0
+#define NOFILE 1
 
 #if !__EMSCRIPTEN__
 void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
@@ -1017,8 +1012,6 @@ void Emulator_GenerateFrameBuffer(GLuint& fbo)
 #endif
 }
 
-///@TODO check rectangular intersection plus clut x, y
-///@TODO check if LoadImage and ClearImage, FrameBuffer rect intersection updates a texture, if so, we delete the original and generate a new one
 CachedTexture* Emulator_FindTextureInCache(unsigned short tpage, unsigned short clut)
 {
 	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
@@ -1059,20 +1052,26 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 	}
 
 	unsigned int textureType = (tpage >> 7) & 0x3;
-	unsigned int tpageX = ((tpage << 6) & 0x7C0) & (VRAM_WIDTH - 1);
-	unsigned int tpageY = ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) & (VRAM_HEIGHT - 1);
+	unsigned int tpageX = ((tpage << 6) & 0x7C0) % (VRAM_WIDTH / RESOLUTION_SCALE);
+	unsigned int tpageY = ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT / RESOLUTION_SCALE);
 	unsigned int clutX = ((clut & 0x3F) << 4);
 	unsigned int clutY = (clut >> 6);
 	unsigned int tpageAbr = (tpage >> 5) & 3;
 
-#if  RESOLUTION_SCALE > 1//For old internal res scaling code
-	tpageX += ((VRAM_WIDTH - (VRAM_WIDTH / RESOLUTION_SCALE)) / 2);
-	if (tpageY >= 256)
+#if RESOLUTION_SCALE > 1
+	if (tpageX >= 256)
 	{
-		tpageY += ((VRAM_HEIGHT - (VRAM_HEIGHT / RESOLUTION_SCALE)) / 2) * 2;
+		tpageX += ((VRAM_WIDTH - (VRAM_WIDTH / RESOLUTION_SCALE)) / 2);
 	}
 
-	clutX += ((VRAM_WIDTH - (VRAM_WIDTH / RESOLUTION_SCALE)) / 2);
+	if (tpageY >= 256)
+	{
+		tpageY += ((VRAM_HEIGHT - (VRAM_HEIGHT / RESOLUTION_SCALE)) / 2);
+	}
+	if (clutX >= 256)
+	{
+		clutX += ((VRAM_WIDTH - (VRAM_WIDTH / RESOLUTION_SCALE)) / 2);
+	}
 	if (clutY >= 256)
 	{
 		clutY += ((VRAM_HEIGHT - (VRAM_HEIGHT / RESOLUTION_SCALE)) / 2);
