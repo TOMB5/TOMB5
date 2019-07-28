@@ -633,24 +633,24 @@ void _DelDrawSprite(int x, int y, int w, int h)
 	db.polyptr += 0x1C;
 }
 
-void _draw_gbackground2(int x, int y, int w, int h)
+void _draw_gbackground2(int x, int y, int w, int h, int t0, int t1, int t2, int t3)
 {
 	int v0 = ((int*)db.ot)[2000] | 0xA000000;
 	db.ot[2000] = (unsigned long)db.polyptr;
 	((int*)db.polyptr)[0] = v0;
 	((int*)db.polyptr)[1] = 0xE1000240;
 	((int*)db.polyptr)[2] = 0x0;
-	((int*)db.polyptr)[3] = 0x3A101010;
+	((int*)db.polyptr)[3] = t0;
 	((short*)db.polyptr)[8] = x;
 	((short*)db.polyptr)[9] = y;
-	((int*)db.polyptr)[5] = 0x3A101010;
+	((int*)db.polyptr)[5] = t1;
 	((short*)db.polyptr)[12] = x + w;
 	((short*)db.polyptr)[13] = y;
-	((int*)db.polyptr)[7] = 0x3A404040;
+	((int*)db.polyptr)[7] = t2;
 	((short*)db.polyptr)[16] = x;
 	((short*)db.polyptr)[17] = h + y;
-	((int*)db.polyptr)[9] = 0x3A404040;
-	((short*)db.polyptr)[20] = w;
+	((int*)db.polyptr)[9] = t3;
+	((short*)db.polyptr)[20] = x + w;
 	((short*)db.polyptr)[21] = h + y;
 	db.polyptr += 0x2C;
 }
@@ -659,26 +659,23 @@ void draw_outlines()
 {
 	int i;
 	int j;
-	//t8 = db.ot
-	//t9 = db.polyptr
-	_draw_gbackground2(0, 8, 512, 224);
-	_draw_gbackground2(12, 220, 488, 4);
-	_draw_gbackground2(493, 8, 7, 224);
-	_draw_gbackground2(12, 8, 7, 224);
-	_draw_gbackground2(12, 16, 488, 4);
+
 #if 1
-	//t0 = GLOBAL_default_sprites_ptr
+	_draw_gbackground2(0, 8, 512, 224, 0x3A101010, 0x3A101010, 0x3A404040, 0x3A404040);
+	_draw_gbackground2(12, 220, 488, 4, 0x3A101010, 0x3A101010, 0x3A404040, 0x3A404040);
+	_draw_gbackground2(493, 8, 7, 224, 0x3A101010, 0x3A404040, 0x3A101010, 0x3A404040);
+	_draw_gbackground2(12, 8, 7, 224, 0x3A404040, 0x3A101010, 0x3A404040, 0x3A101010);
+	_draw_gbackground2(12, 16, 488, 4, 0x3A404040, 0x3A404040, 0x3A101010, 0x3A101010);
+
 	_DelDrawSprite(0, 8, 20, 1);
 	_DelDrawSprite(464, 8, 21, 1);
 	_DelDrawSprite(0, 200, 22, 1);
 	_DelDrawSprite(464, 200, 23, 1);
-#endif
 
-#if 0///@FIXME doesn't seem right
 	//loc_8E358
-	for (i = 0; i < 12; i++)
+	for (i = 0; i < 13; i++)
 	{
-		_DelDrawSprite((i * 32) + 0x30, 8, 24, 0);
+		_DelDrawSprite((i * 32) + 48, 8, 24, 0);
 	}
 
 	//loc_8E380
@@ -688,13 +685,13 @@ void draw_outlines()
 	}
 
 	//loc_8E3A8
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < 5; i++)
 	{
 		_DelDrawSprite(0, (i * 32) + 40, 27, 0);
 	}
 
 	//loc_8E3D0
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < 5; i++)
 	{
 		_DelDrawSprite(500, (i * 32) + 40, 26, 0);
 	}

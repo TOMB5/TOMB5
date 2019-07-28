@@ -2,6 +2,7 @@
 #define LIBPAD_H
 
 #include <SDL.h>
+#include <SDL_gamecontroller.h>
 
 #ifndef TRUE
 #define TRUE		1

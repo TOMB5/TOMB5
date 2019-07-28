@@ -10,24 +10,26 @@ get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR}
 #Enable NTSC mode
 OPTIONAL_DEFINE(NTSC_VERSION "Enable/Disable NTSC Mode" ON)
 
-if(MSVC)
-#Enable DDRAW code for VSync
-OPTIONAL_DEFINE(USE_DDRAW "Enable/Disable DDRAW VSync" ON)
-endif()
-
 #Find required libs for PSXPC
+if(NOT(EMSCRIPTEN))
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
 set(GLEW_USE_STATIC_LIBS ON)
 find_package(GLEW REQUIRED)
+else()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 --emrun -s ASSERTIONS=1 --std=c++11 -s ALLOW_MEMORY_GROWTH=1 -s GLOBAL_BASE=1048576 -s USE_WEBGL2=1 -s FULL_ES3=1")
+set(SDL2_LIBRARIES "-s USE_SDL=2")
+endif()
 
 #Setup platform specific / game code include folder
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${GAME_CODE_DIR})
 
 #Additional library include directories
+if(NOT(EMSCRIPTEN))
 include_directories(${GLEW_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIR})
+endif()
 
 #Recursively locate the source files for SPEC_PSX.
 file(GLOB_RECURSE EMULATOR_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAKE_CURRENT_SOURCE_DIR}/*.S ${CMAKE_CURRENT_SOURCE_DIR}/*.H ${CMAKE_CURRENT_SOURCE_DIR}/*.CUR ${CMAKE_CURRENT_SOURCE_DIR}/*.RC)

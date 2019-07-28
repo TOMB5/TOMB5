@@ -7,7 +7,7 @@
 #include "SPECIFIC.H"
 #include "TEXT_S.H"
 
-#include <EMULATOR.H>
+#include <EMULATOR_PRIVATE.H>
 #include <LIBETC.H>
 #include "GAMEFLOW.H"
 #include "SHADOWS.H"

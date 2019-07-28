@@ -567,6 +567,7 @@ void gInit()//615CC(<), 6210C(<) (F)
 #endif
 	CreateMonoScreen();
 
+#if !PSXPC_TEST
 	if (XAVolume != 0)
 	{
 		do
@@ -574,6 +575,7 @@ void gInit()//615CC(<), 6210C(<) (F)
 			XAReqVolume = 0;
 		} while (XAVolume != 0);
 	}
+#endif
 
 	S_CDPause();
 	S_SetReverbType(1);

@@ -1,5 +1,6 @@
 #include "DRAWOBJ.H"
 
+#include "3D_OBJ.H"
 #include "DRAWSPKS.H"
 #include "SPECIFIC.H"
 #include "LIBGPU.H"
@@ -7,7 +8,7 @@
 #include "GPU.H"
 #include "GTEREG.H"
 
-void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)
+void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)//(F)
 {
 	((int*)polyptr)[1] = t6;
 	((int*)polyptr)[2] = s4;
@@ -23,7 +24,7 @@ void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int 
 	((int*)polyptr)[12] = t5;
 }
 
-void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4)
+void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4)//(F)
 {
 	((int*)polyptr)[1] = t6;
 	((int*)polyptr)[2] = s4;
@@ -36,7 +37,7 @@ void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int 
 	((int*)polyptr)[9] = t4;
 }
 
-void UnpackRGB(int fp, int* t6, int* t7, int* t8, int* at)
+void UnpackRGB(int fp, int* t6, int* t7, int* t8, int* at)//(F)
 {
 	int t2;
 	int t3;
@@ -68,83 +69,83 @@ void UnpackRGB(int fp, int* t6, int* t7, int* t8, int* at)
 
 void MakeMono(unsigned short* s, unsigned char* d)//7F9E4, 81A28
 {
-	//at = 0x421
-#if 0
-	ctc2    $at, $29
-	lw      $t0, 0($a0)
-	li      $v0, 0x3FFF
-	li      $v1, 0xD371F947
-	li      $t4, 0x41C64E6D
+	ZSF3 = 1057;
+	int t0 = ((int*)s)[0];
+	int v0 = 0x3FFF;
+	int v1 = 0xD371F947;
+	int t4 = 0x41C64E6D;
 
-	 loc_7FA04:
-			 mult    $v1, $t4
-				 srl     $t3, $t0, 26
-				 srl     $t2, $t0, 21
-				 srl     $t1, $t0, 16
-				 andi    $t3, 0x1F
-				 andi    $t2, 0x1F
-				 andi    $t1, 0x1F
-				 mtc2    $t3, $17
-				 mtc2    $t2, $18
-				 mtc2    $t1, $19
-				 addi    $a0, 4
-				 cop2    0x158002D
-				 srl     $t2, $t0, 10
-				 srl     $t1, $t0, 5
-				 andi    $t2, 0x1F
-				 andi    $t1, 0x1F
-				 andi    $t0, 0x1F
-				 mtc2    $t2, $17
-				 mtc2    $t1, $18
-				 mtc2    $t0, $19
-				 mfc2    $t1, $7
-				 cop2    0x158002D
-				 mflo    $v1
-				 addiu   $v1, 0x3039
-				 lw      $t0, 0($a0)
-				 mfc2    $at, $7
-				 srl     $t3, $v1, 16
-				 srl     $t5, $v1, 24
-				 andi    $t3, 1
-				 andi    $t5, 1
-				 sltiu   $t2, $t1, 0xF
-				 bnez    $t2, loc_7FA8C
-				 sltiu   $t2, $at, 0xF
-				 li      $t1, 0xF
+	//loc_7FA04
+	do
+	{
+		v1 = (v1 * t4) + 0x3039;
+		int t3 = (t0 >> 26) & 0x1F;
+		int t2 = (t0 >> 21) & 0x1F;
+		int t1 = (t0 >> 16) & 0x1F;
 
-				 loc_7FA8C:
-			 bnez    $t2, loc_7FA98
-				 sub     $t1, $t3
-				 li      $at, 0xF
+		SZ1 = t3;
+		SZ2 = t2;
+		SZ3 = t1;
 
-				 loc_7FA98 :
-				 bgez    $t1, loc_7FAA4
-				 sub     $at, $t5
-				 move    $t1, $zero
+		s += 2;
 
-				 loc_7FAA4 :
-			 bgez    $at, loc_7FAB0
-				 sll     $t1, 4
-				 move    $at, $zero
+		docop2(0x158002D);
 
-				 loc_7FAB0 :
-			 or $t1, $at
-				 sb      $t1, 0($a1)
-				 addi    $a1, 1
-				 bnez    $v0, loc_7FA04
-				 addi    $v0, -1
-				 li      $v0, 0xAA
-				 ctc2    $v0, $29
-				 jr      $ra
-				 nop
-#endif
-	S_Warn("[MakeMono] - Unimplemented!\n");
+		t2 = (t0 >> 10) & 0x1F;
+		t1 = (t0 >> 5) & 0x1F;
+		t0 &= 0x1F;
+
+		SZ1 = t2;
+		SZ2 = t1;
+		SZ3 = t0;
+
+		t1 = OTZ;
+
+		docop2(0x158002D);
+
+		t0 = ((int*)s)[0];
+		int at = OTZ;
+
+		t3 = (v1 >> 16) & 1;
+		int t5 = (v1 >> 24) & 1;
+
+		if (!(t1 < 15))
+		{
+			t1 = 15;
+		}
+		//loc_7FA8C
+		t1 -= t3;
+		if (!(at < 15))
+		{
+			at = 15;
+		}
+
+		//loc_7FA98
+		at -= t5;
+		if (t1 < 0)
+		{
+			t1 = 0;
+		}
+
+		//loc_7FAA4
+		t1 <<= 4;
+		if (at < 0)
+		{
+			at = 0;
+		}
+
+		//loc_7FAB0
+		t1 |= at;
+		*d++ = t1;
+	} while (v0-- != 0);
+
+	ZSF3 = 0xAA;
 }
 
 void InitObjGTE()
 {
-	ZSF3 = 0xAA;
-	ZSF4 = 0x80;
+	ZSF3 = (int)(short)0xAA;
+	ZSF4 = (int)(short)0x80;
 	RFC = 0;
 	GFC = 0;
 	BFC = 0;
@@ -265,12 +266,328 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 {
 	initialise_light_matrix();
 
-	mesh_header* mptr = (mesh_header*)mesh;
+#if 0
+	loc_7EEF4:
+jal     sub_7EDAC
+nop
+lw      $v0, 8($a0)
+addi    $a0, 0xC
+move    $s5, $a1
+move    $s6, $v0
+srl     $a1, $v0, 16
+andi    $v1, $v0, 0x8000
+andi    $v0, 0xFF
+andi    $s7, $s6, 0x100
+beqz    $s7, loc_7EF28
+li      $a2, 0x7E
+li      $a2, 0x69
 
-#if GLTEST
-	Emulator_TestDrawVertices(mesh, RoomTextInfo);
+loc_7EF28:
+slt     $at, $v0, $a2
+bnez    $at, loc_7EF40
+add     $a1, $a0
+lui     $a2, 0x1E
+j       loc_7EF4C
+li      $a2, 0x1ECDC0
+
+loc_7EF40:
+beqz    $s7, loc_7EF4C
+lui     $a2, 0x1F80
+li      $a2, 0x1F8000B4
+
+loc_7EF4C:
+move    $s7, $a2
+beqz    $v0, loc_7F068
+nop
+cfc2    $t0, $7
+move    $t1, $zero
+move    $s4, $t0
+addi    $t0, -0x3000
+blez    $t0, loc_7EF74
+sll     $at, $v0, 3
+srl     $t1, $t0, 1
+
+loc_7EF74:
+mtc2    $t1, $8
+beqz    $v1, loc_7EFB4
+move    $v1, $v0
+move    $a3, $a0
+
+loc_7EF84:
+lh      $t0, 6($a3)
+addi    $a3, 8
+mtc2    $t0, $28
+addi    $v1, -1
+addi    $a2, 8
+nop
+cop2    0x680029
+mfc2    $t0, $29
+bnez    $v1, loc_7EF84
+sh      $t0, -2($a2)
+j       loc_7EFE4
+move    $a2, $s7
+
+loc_7EFB4:
+add     $a3, $a0, $at
+move    $s3, $a3
+
+loc_7EFBC:
+lwc2    $0, 0($a3)
+lwc2    $1, 4($a3)
+addi    $a3, 8
+cop2    0xE80413
+addi    $v1, -1
+addi    $a2, 8
+mfc2    $t0, $29
+bnez    $v1, loc_7EFBC
+sh      $t0, -2($a2)
+move    $a2, $s7
+
+loc_7EFE4:
+lw      $t0, 0($a0)
+
+loc_7EFE8:
+lw      $t1, 4($a0)
+lw      $t2, 8($a0)
+
+loc_7EFF0:
+lw      $t3, 0xC($a0)
+lw      $t4, 0x10($a0)
+lw      $t5, 0x14($a0)
+ctc2    $a0, $21
+
+loc_7F000:
+mtc2    $t0, $0
+mtc2    $t1, $1
+mtc2    $t2, $2
+mtc2    $t3, $3
+mtc2    $t4, $4
+mtc2    $t5, $5
+addi    $a0, 0x18
+addi    $v0, -3
+cop2    0x280030
+lw      $t0, 0($a0)
+lw      $t1, 4($a0)
+lw      $t2, 8($a0)
+lw      $t3, 0xC($a0)
+lw      $t4, 0x10($a0)
+lw      $t5, 0x14($a0)
+mfc2    $t6, $17
+mfc2    $t7, $18
+mfc2    $t8, $19
+swc2    $12, 0($a2)
+sh      $t6, 4($a2)
+swc2    $13, 8($a2)
+sh      $t7, 0xC($a2)
+swc2    $14, 0x10($a2)
+sh      $t8, 0x14($a2)
+bgtz    $v0, loc_7F000
+addi    $a2, 0x18
+
+loc_7F068:
+move    $a0, $s7
+lw      $a2, 0x11D4($gp)
+lw      $a3, 0x3640($gp)
+lw      $s0, 0x3644($gp)
+lw      $s1, 0x364C($gp)
+lw      $v0, 0($a1)
+lui     $fp, 0xF8
+srl     $at, $v0, 16
+ctc2    $at, $27
+andi    $at, $s6, 0xC00
+bnez    $at, loc_7F340
+andi    $s6, 0x100
+beqz    $s6, loc_7F0A8
+addi    $s4, -0xC00
+bltz    $s4, loc_7E408
+andi    $v0, 0xFFFF
+
+loc_7F0A8:
+bltz    $s5, loc_7EA08
+andi    $v0, 0xFFFF
+lui     $gp, 0x900
+beqz    $v0, loc_7F1C4
+addi    $a1, 4
+lw      $t0, 0($a1)
+
+loc_7F0C0:
+addi    $a1, 4
+li      $v1, 3
+
+loc_7F0C8:
+lw      $t1, 0($a1)
+slt     $at, $s0, $s1
+beqz    $at, loc_7F304
+addi    $v0, -1
+srl     $t8, $t1, 13
+andi    $t8, 0x7F8
+add     $t8, $a0
+srl     $t7, $t1, 5
+andi    $t7, 0x7F8
+add     $t7, $a0
+sll     $t6, $t1, 3
+andi    $t6, 0x7F8
+add     $t6, $a0
+lw      $s4, 0($t6)
+lw      $s5, 0($t7)
+lw      $s6, 0($t8)
+mtc2    $s4, $12
+mtc2    $s5, $13
+mtc2    $s6, $14
+andi    $t5, $t0, 0xFF
+srl     $t0, 8
+cop2    0x1400006
+lw      $t6, 4($t6)
+lw      $t7, 4($t7)
+lw      $t8, 4($t8)
+mtc2    $t6, $17
+mtc2    $t7, $18
+mtc2    $t8, $19
+srl     $t1, 16
+andi    $t1, 0xF00
+mfc2    $at, $24
+cop2    0x158002D
+bltz    $at, loc_7F1AC
+or      $t5, $t1
+sll     $t5, 4
+add     $t5, $a2
+mfc2    $t1, $7
+nop
+slti    $at, $t1, 0xA02
+beqz    $at, loc_7F1AC
+slti    $at, $t1, 0x21
+bnez    $at, loc_7F1AC
+sll     $t1, 2
+lw      $t4, 8($t5)
+jal     sub_7EC6C
+sll     $at, $t4, 8
+cfc2    $at, $28
+lw      $t2, 0($t5)
+lw      $t3, 4($t5)
+jal     sub_7ED50
+subu    $t2, $at
+add     $t1, $a3
+lw      $t2, 0($t1)
+sw      $s0, 0($t1)
+or      $t2, $gp
+sw      $t2, 0($s0)
+addi    $s0, 0x28
+
+loc_7F1AC:
+beqz    $v0, loc_7F1C4
+addi    $a1, 4
+bnez    $v1, loc_7F0C8
+addi    $v1, -1
+j       loc_7F0C0
+lw      $t0, 0($a1)
+
+loc_7F1C4:
+cfc2    $v0, $27
+lui     $gp, 0xC00
+beqz    $v0, loc_7F304
+lw      $t0, 0($a1)
+
+loc_7F1D4:
+addi    $a1, 4
+li      $v1, 1
+
+loc_7F1DC:
+lw      $t1, 0($a1)
+slt     $at, $s0, $s1
+beqz    $at, loc_7F304
+addi    $v0, -1
+srl     $t9, $t1, 21
+srl     $t8, $t1, 13
+andi    $t8, 0x7F8
+add     $t8, $a0
+srl     $t7, $t1, 5
+andi    $t7, 0x7F8
+add     $t7, $a0
+sll     $t6, $t1, 3
+andi    $t6, 0x7F8
+add     $t6, $a0
+lw      $s4, 0($t6)
+lw      $s5, 0($t7)
+lw      $s6, 0($t8)
+mtc2    $s4, $12
+mtc2    $s5, $13
+mtc2    $s6, $14
+andi    $t9, 0x7F8
+add     $t9, $a0
+cop2    0x1400006
+lw      $t6, 4($t6)
+lw      $t7, 4($t7)
+lw      $t8, 4($t8)
+lw      $s7, 0($t9)
+lw      $t9, 4($t9)
+mtc2    $t6, $16
+mtc2    $t7, $17
+mtc2    $t8, $18
+mtc2    $t9, $19
+mfc2    $at, $24
+cop2    0x168002E
+andi    $t5, $t0, 0xFFF
+srl     $t0, 16
+bltz    $at, loc_7F2EC
+sll     $t5, 4
+add     $t5, $a2
+srl     $t2, $t9, 7
+mfc2    $t1, $7
+and     $t2, $fp
+slti    $at, $t1, 0xA02
+beqz    $at, loc_7F2EC
+slti    $at, $t1, 0x21
+bnez    $at, loc_7F2EC
+sll     $t1, 2
+srl     $t3, $t9, 10
+andi    $t3, 0xF800
+srl     $t9, 13
+andi    $t9, 0xF8
+or      $t9, $t3
+or      $t9, $t2
+lw      $t4, 8($t5)
+jal     sub_7EC6C
+move    $at, $t4
+cfc2    $at, $28
+lw      $t2, 0($t5)
+lw      $t3, 4($t5)
+lw      $t5, 0xC($t5)
+jal     sub_7ED78
+subu    $t2, $at
+add     $t1, $a3
+lw      $t2, 0($t1)
+sw      $s0, 0($t1)
+or      $t2, $gp
+sw      $t2, 0($s0)
+addi    $s0, 0x34
+
+loc_7F2EC:
+beqz    $v0, loc_7F304
+addi    $a1, 4
+bnez    $v1, loc_7F1DC
+addi    $v1, -1
+j       loc_7F1D4
+lw      $t0, 0($a1)
+
+loc_7F304:
+ctc2    $zero, $21
+lw      $gp, arg_24($sp)
+lw      $ra, arg_28($sp)
+sw      $s0, 0x3644($gp)
+lw      $s0, arg_0($sp)
+lw      $s1, arg_4($sp)
+lw      $s2, arg_8($sp)
+lw      $s3, arg_C($sp)
+lw      $s4, arg_10($sp)
+lw      $s5, arg_14($sp)
+lw      $s6, arg_18($sp)
+lw      $s7, arg_1C($sp)
+lw      $fp, arg_20($sp)
+jr      $ra
+addi    $sp, 0x2C
 #endif
-	UNIMPLEMENTED();
+
+
 }
 
 void phd_PutPolygons_train(short* mesh, long shade)
@@ -403,10 +720,7 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 	} while (v0 > 0);
 
 	a0 = s7;
-	//a2 = psxtextinfo
-	//a3 = db.pickup_ot
 	s0 = db.polyptr;
-	//s1 = db.polybuf_limit
 	v0 = a1[0];
 	fp = 0xF80000;
 	at = v0 >> 16;
@@ -470,7 +784,7 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 
 				t1 = OTZ >> 1;
 				at = t1;
-				//t1 <<= 2;
+
 				if (at < 256)
 				{
 					t4 = t55->u2v2pad;
@@ -501,8 +815,8 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 				goto loc_80640;
 			}
 		}//loc_80870
-	}//loc_80870
-	 //loc_8073C
+	}
+	//loc_8073C
 	v0 = DQA;
 	s2 = 0xC000000;
 
@@ -603,13 +917,29 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 			}
 		}//loc_80870
 	}//loc_80870
-
 	RFC = 0;
 	db.polyptr = s0;
-}
+}	
 
 void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 {
+	int v0;
+	int s6;
+	int* a1;
+	int v1;
+	int* a2;
+	int sp[256];
+	int* s7;
+	int t0;
+	int t1;
+	int t2;
+	int t3;
+	int t4;
+	int t5;
+	int s4;
+	int at;
+	int* a3;
+
 	if (shade == 0)
 	{
 		return;
@@ -619,81 +949,90 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 	//s2 = shade & 0xFF
 	if (shade == 128)
 	{
-		phd_PutPolygons_normal(mesh, shade);
+		phd_PutPolygons_normal(mesh, 1);
 	}
 
 	initialise_light_matrix();
 
+	v0 = ((int*)mesh)[2];
+	mesh += 6;
+	s6 = v0;
+	a1 = (int*)&mesh[v0 >> 17];
+	v1 = v0 & 0x8000;
+	v0 &= 0xFF;
 
+	if (v0 > 0x7D)
+	{
+		a2 = (int*)&tsv_buffer[0];
+	}
+	else
+	{
+		a2 = &sp[0];
+	}
+
+	//loc_7FB64
+	s7 = a2;
+	t0 = TRZ - 12288;
+	t1 = 0;
+	s4 = t0;
+	at = v0 << 3;
+
+	if (t0 > 0)
+	{
+		t1 = t0 >> 1;
+	}
+	//loc_7FB84
+
+	IR0 = t1;
+	v1 = v0;
+
+	if (v1 != 0)
+	{
+		a3 = (int*)mesh;
+
+		//loc_7FB94
+		do
+		{
+			t0 = ((short*)a3)[3];
+			a3 += 2;
+			IRGB = t0;
+			v1--;
+			a2 += 2;
+
+			docop2(0x680029);
+
+			t0 = ORGB;
+			((short*)a2)[-1] = t0;
+
+		} while (v1 != 0);
+
+		a2 = s7;
+	}
+	else
+	{
+		//loc_7FBC4
+		a3 = (int*)&mesh[v0 << 2];
+		
+		//loc_7FBC8
+		do
+		{
+			VX0 = a3[0] & 0xFFFF;
+			VY0 = (a3[0] >> 16) & 0xFFFF;
+			VZ0 = a3[1];
+			a3 += 2;
+
+			docop2(0xE80413);
+			v1--;
+			a2 += 2;
+			t0 = ORGB;
+			((short*)a2)[-1] = t0;
+		} while (v1 != 0);
+
+		a2 = s7;
+	}
+	//loc_7FBF0
+	//t0 = 
 #if 0
-	li      a1, 1
-	jal     initialise_light_matrix
-	nop
-	lw      v0, 8(a0)
-	addi    a0, 0xC
-	move    s6, v0
-	srl     a1, v0, 16
-	andi    v1, v0, 0x8000
-	andi    v0, 0xFF
-	li      a2, 0x7E
-	slt     at, v0, a2
-	bnez    at, loc_7FB60
-	add     a1, a0
-	lui     a2, 0x1E
-	j       loc_7FB64
-	la      a2, tsv_buffer
-
-	loc_7FB60:
-	lui     a2, 0x1F80
-
-	loc_7FB64:
-	move    s7, a2
-	cfc2    t0, r7
-	move    t1, zero
-	move    s4, t0
-	addi    t0, -0x3000
-	blez    t0, loc_7FB84
-	sll     at, v0, 3
-	srl     t1, t0, 1
-
-	loc_7FB84:
-	mtc2    t1, r8
-	beqz    v1, loc_7FBC4
-	move    v1, v0
-	move    a3, a0
-
-	loc_7FB94:
-	lh      t0, 6(a3)
-	addi    a3, 8
-	mtc2    t0, r28
-	addi    v1, -1
-	addi    a2, 8
-	nop
-	nop
-	cop2    0x680029
-	mfc2    t0, r29
-	bnez    v1, loc_7FB94
-	sh      t0, -2(a2)
-	j       loc_7FBF0
-	move    a2, s7
-
-	loc_7FBC4:
-	add     a3, a0, at
-
-	loc_7FBC8:
-	lwc2    r0, 0(a3)
-	lwc2    r1, 4(a3)
-	addi    a3, 8
-	nop
-	nop
-	cop2    0xE80413
-	addi    v1, -1
-	addi    a2, 8
-	mfc2    t0, r29
-	bnez    v1, loc_7FBC8
-	sh      t0, -2(a2)
-	move    a2, s7
-
 	loc_7FBF0:
 	lw      t0, 0(a0)
 	lw      t1, 4(a0)
@@ -1103,81 +1442,6 @@ WANK1:
 	j       DrawExit
 	nop
 
-	MakeMono:
-	li      at, 0x421
-	ctc2    at, r29
-	lw      t0, 0(a0)
-	li      v0, 0x3FFF
-	li      v1, 0xD371
-	ori     v1, 0xF947
-	li      t4, 0x41C6
-	ori     t4, 0x4E6D
-
-	loc_7FA04:
-	mult    v1, t4
-	srl     t3, t0, 26
-	srl     t2, t0, 21
-	srl     t1, t0, 16
-	andi    t3, 0x1F
-	andi    t2, 0x1F
-	andi    t1, 0x1F
-	mtc2    t3, r17
-	mtc2    t2, r18
-	mtc2    t1, r19
-	addi    a0, 4
-	nop
-	nop
-	cop2    0x158002D
-	srl     t2, t0, 10
-	srl     t1, t0, 5
-	andi    t2, 0x1F
-	andi    t1, 0x1F
-	andi    t0, 0x1F
-	mtc2    t2, r17
-	mtc2    t1, r18
-	mtc2    t0, r19
-	mfc2    t1, r7
-	nop
-	nop
-	cop2    0x158002D
-	mflo    v1
-	addiu   v1, 0x3039
-	lw      t0, 0(a0)
-	mfc2    at, r7
-	srl     t3, v1, 16
-	srl     t5, v1, 24
-	andi    t3, 1
-	andi    t5, 1
-	sltiu   t2, t1, 0xF
-	bnez    t2, loc_7FA8C
-	sltiu   t2, at, 0xF
-	li      t1, 0xF
-
-	loc_7FA8C:
-	bnez    t2, loc_7FA98
-	sub     t1, t3
-	li      at, 0xF
-
-	loc_7FA98:
-	bgez    t1, loc_7FAA4
-	sub     at, t5
-	move    t1, zero
-
-	loc_7FAA4:
-	bgez    at, loc_7FAB0
-	sll     t1, 4
-	move    at, zero
-
-	loc_7FAB0:
-	or      t1, at
-	sb      t1, 0(a1)
-	addi    a1, 1
-	bnez    v0, loc_7FA04
-	addi    v0, -1
-	li      v0, 0xAA
-	ctc2    v0, r29
-	jr      ra
-	nop
 #endif
 	UNIMPLEMENTED();
 }

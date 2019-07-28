@@ -1,27 +1,13 @@
 #include "LIBETC.H"
 
-#include <stdio.h>
-#if !defined(__EMSCRIPTEN__)
-#include <GL/glew.h>
-#endif
-
-#if __APPLE__
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
-#elif __EMSCRIPTEN__
-#include <SDL2/SDL.h>
-#include <SDL_opengles2.h>
-#else
-#include <SDL.h>
-#include <SDL_opengl.h>
-#endif
-
-#if _WIN32 || _WIN64
-#include <d3d9.h>
-#endif
-
 #include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
+#include "EMULATOR_PRIVATE.H"
+
+#include <stdio.h>
+#if defined(_WINDOWS)
+#include <d3d9.h>
+#endif
 
 void(*vsync_callback)(void) = NULL;
 
@@ -40,18 +26,14 @@ int VSync(int mode)
 		{
 			vsync_callback();
 		}
-#if USE_DDRAW
-		pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
-#endif
+
 		Emulator_EndScene();
 	}
 	else if (mode > 0)
 	{
 		while (mode--)
 		{
-#if USE_DDRAW
-			pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
-#endif
+			//vblank
 		}
 		Emulator_EndScene();
 	}
