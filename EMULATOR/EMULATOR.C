@@ -27,18 +27,21 @@
 #define VERTEX_COLOUR_MULT (2)
 
 
-#if NTSC_VERSION
+#if defined(NTSC_VERSION)
 #define COUNTER_UPDATE_INTERVAL (263)
 #else
 #define COUNTER_UPDATE_INTERVAL (313)
 #endif
 
-#if DX9
+#if defined(DX9)
 #include <d3dx9.h>
 #include <d3d9.h>
 
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "d3d9.lib")
+
+SDL_Renderer* g_Renderer;
+IDirect3DDevice9* g_Device;
 #endif
 
 #define MAX_NUM_VERTICES (4)
@@ -58,13 +61,7 @@ int windowHeight = 0;
 char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
-int assetsLoaded = 0;
 unsigned short GlobalTpageTexture = 0;
-
-#if D3D9
-SDL_Renderer* g_Renderer;
-IDirect3DDevice9* g_Device;
-#endif
 
 struct CachedTexture
 {
@@ -192,8 +189,11 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#elif defined(CORE_PROF_3_3)
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 #endif
-
 #endif
 		
 #if defined(OGL)
@@ -306,13 +306,13 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 
 int Emulator_InitialiseGameVariables()
 {
-#if __linux__ || __APPLE__
+#if defined(__linux__) || defined(__APPLE__)
 	extern unsigned long* GadwOrderingTables;
 	extern unsigned long* GadwPolygonBuffers;
 	extern unsigned long* GadwOrderingTables_V2;
 	extern unsigned long* terminator;
 
-#if _WINDOWS
+#if defined(_WINDOWS)
 	SYSTEM_INFO info;
 	GetSystemInfo(&info);
 	Emulator_AllocateVirtualMemory((unsigned int)info.lpMinimumApplicationAddress, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
@@ -415,7 +415,7 @@ char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p
 			vertices[1].y = (float)p0[1] + h;
 		}
 	}
-	
+
 	if (p2 != NULL)
 	{
 		vertices[2].x = (float)p2[0];
@@ -444,8 +444,9 @@ char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p
 		}
 	}
 
-	return (char*)&vertices[0].x;
+	return (char*)& vertices[0].x;
 }
+
 
 char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h)
 {
@@ -455,7 +456,7 @@ char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1,
 		vertices[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
 		vertices[0].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
 	}
-	
+
 	if (uv1 != NULL)
 	{
 		vertices[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH;
@@ -469,7 +470,7 @@ char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1,
 			vertices[1].v0 = ((float)uv0[1] + h) / TPAGE_WIDTH;
 		}
 	}
-	
+
 	if (uv2 != NULL)
 	{
 		vertices[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH;
@@ -498,7 +499,7 @@ char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1,
 		}
 	}
 
-	return (char*)&vertices[0].u0;
+	return (char*)& vertices[0].u0;
 }
 
 char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour)
@@ -627,10 +628,9 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 		}
 	}
 
-	return (char*)&vertices[0].col[0];
+	return (char*)& vertices[0].col[0];
 }
-
-#if defined(OGLES)
+#if defined(OGLES) || defined(CORE_PROF_3_3)
 GLuint g_defaultShaderProgram;
 
 void Emulator_CreateGlobalShaders()
@@ -639,6 +639,8 @@ void Emulator_CreateGlobalShaders()
 	const char* vertexShaderSource = "attribute vec4 a_position; attribute vec2 a_texcoord; varying vec2 v_texcoord; attribute vec4 a_colour; varying vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
 #elif defined(ES3_SHADERS)
 	const char* vertexShaderSource = "#version 300 es\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
+#elif defined(CORE_PROF_3_3)
+	const char* vertexShaderSource = "#version 330 core\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
 #endif
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -647,6 +649,8 @@ void Emulator_CreateGlobalShaders()
 	const char* fragmentShaderSource = "precision mediump float; varying vec2 v_texcoord; varying vec4 v_colour; uniform sampler2D s_texture; void main() { gl_FragColor = texture2D(s_texture, v_texcoord) * v_colour; }";
 #elif defined(ES3_SHADERS)
 	const char* fragmentShaderSource = "#version 300 es\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord) * v_colour; }";
+#elif defined(CORE_PROF_3_3)
+	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord) * v_colour; }";
 #endif
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
@@ -704,7 +708,7 @@ void Emulator_InitialiseGL()
 #if defined(CORE_PROF_3_1) || defined (OGLES)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, vramTexture, 0);
-#elif defined(CORE_PROF_3_2)
+#elif defined(CORE_PROF_3_2) || defined(CORE_PROF_3_3)
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
 #endif
 
@@ -716,8 +720,6 @@ void Emulator_InitialiseGL()
 #endif
 
 	glLineWidth(RESOLUTION_SCALE);
-	
-	SDL_memset(&vertices[0].x, 0, sizeof(Vertex) * MAX_NUM_VERTICES);
 
 #if BLEND_MODE
 	glBlendColor(0.25, 0.25, 0.25, 0.5);
@@ -728,7 +730,7 @@ void Emulator_InitialiseGL()
 	glDisable(GL_DEPTH_TEST);
 #endif
 
-#if defined(OGLES)
+#if defined(OGLES) || defined(CORE_PROF_3_3)
 	Emulator_CreateGlobalShaders();
 #endif
 
@@ -767,7 +769,7 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 		}
 	}
 }
-#define NOFILE 1
+#define NOFILE 0
 
 #if !__EMSCRIPTEN__
 void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
@@ -925,7 +927,7 @@ void Emulator_EndScene()
 		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y, 1.0f, 1.0f, 1.0f, 1.0f,
 	};
 
-#if defined(OGL)
+#if defined(OGL) && !defined(CORE_PROF_3_3)
 	glVertexPointer(3, GL_FLOAT, 9 * sizeof(float), vertexBuffer);
 	glTexCoordPointer(2, GL_FLOAT, 9 * sizeof(float), vertexBuffer + 3);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -935,7 +937,7 @@ void Emulator_EndScene()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#elif defined(OGLES)
+#elif defined(OGLES) || defined (CORE_PROF_3_3)
 	GLuint vbo, ibo, vao;
 	GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
 	glGenVertexArrays(1, &vao);
@@ -969,7 +971,7 @@ void Emulator_EndScene()
 	glDeleteVertexArrays(1, &vao);
 #endif
 
-#if _DEBUG && 0
+#if _DEBUG && 1
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, vramFrameBuffer);
 	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
 #endif
@@ -1197,11 +1199,13 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 			fwrite(&convertedTpage[0], sizeof(char), 256 * 256 * 2, f);
 			fclose(f);
 #endif
+#if defined(OGLES) || defined(CORE_PROF_3_3)
+			glActiveTexture(GL_TEXTURE0);
+			glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "s_texture"), 0);
+#endif
 #if defined(OGL)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
 #elif defined(OGLES)
-			glActiveTexture(GL_TEXTURE0);
-			glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "s_texture"), 0);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &convertedTpage[0]);
 #endif
 			delete[] clut;
@@ -1270,7 +1274,7 @@ void Emulator_SetBlendMode(int mode)
 #endif
 }
 
-#if defined(OGLES)
+#if defined(OGLES) || defined(CORE_PROF_3_3)
 void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar)
 {
 	float a = 2.0f / (right - left);

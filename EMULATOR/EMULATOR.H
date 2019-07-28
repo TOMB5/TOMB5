@@ -9,8 +9,9 @@
 #if defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__)
 #define OGL
 //#define D3D9
-#define CORE_PROF_3_1 1
+//#define CORE_PROF_3_1 1
 //#define CORE_PROF_3_2
+#define CORE_PROF_3_3
 #define SDL2
 #if defined(OGL)
 #define GLEW
@@ -118,6 +119,16 @@ typedef struct
 
 extern SysCounter counters[3];
 
+#pragma pack(push,1)
+struct Vertex
+{
+	GLfloat x, y;
+	GLfloat u0, v0;
+	GLfloat col[4];
+	GLuint padding[3];
+};
+#pragma pack(pop)
+
 extern void Emulator_InitialiseGL();
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_ShutDown();
@@ -135,16 +146,6 @@ extern char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char
 extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
 extern int Emulator_InitialiseGameVariables();
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
-
-#pragma pack(push,1)
-struct Vertex
-{
-	GLfloat x, y;
-	GLfloat u0, v0;
-	GLfloat col[4];
-	GLuint padding[3];
-};
-#pragma pack(pop)
 
 #endif
 
