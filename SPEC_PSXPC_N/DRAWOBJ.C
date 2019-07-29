@@ -7,6 +7,76 @@
 #include "GPU.H"
 #include "GTEREG.H"
 
+char* do_the_flat_colursub_poly_tri(char* s0, int s2, int t6, int t7, int t8, int s4, int s5, int s6, int t1)
+{
+	int at;
+	int s3;
+
+	((int*)s0)[1] = 0xE1000240;
+
+	//loc_800CC
+	at = s2 & 0xFF;
+
+	if (at != 128)
+	{
+		s3 = t6 & 0xFF;
+		at = (t6 >> 8) & 0xFF;
+		s3 += at;
+		at = (t6 >> 16) & 0xFF;
+		s3 += at;
+		at = t7 & 0xFF;
+		s3 += at;
+
+		//loc_80100
+		at = (t7 >> 8) & 0xFF;
+		s3 += at;
+		at = (t7 >> 16) & 0xFF;
+		s3 += at;
+		at = (t8 & 0xFF);
+		s3 += at;
+		at = (t8 >> 8) & 0xFF;
+		s3 += at;
+		at = (t8 >> 16) & 0xFF;
+		s3 += at;
+		s3 /= 9;
+		s3 += 128;
+
+		if (s3 >= 0x100)
+		{
+			s3 = 0xFF;
+		}
+
+		at = s2 & 0xFF;
+		s3 *= at;
+		s3 >>= 8;
+
+		if (s3 >= 0x100)
+		{
+			s3 = 0xFF;
+		}
+	}//loc_80178
+	else
+	{
+		s3 = 0xFF;
+	}
+
+	((char*)s0)[12] = s3;
+	((char*)s0)[13] = s3;
+	((char*)s0)[14] = s3;
+	((char*)s0)[15] = 34;
+	((int*)s0)[2] = 0;
+	((int*)s0)[4] = s4;
+	((int*)s0)[5] = s5;
+	((int*)s0)[6] = s6;
+	at = ((int*)t1)[0];
+	((int*)t1)[0] = (int)s0;
+	at |= 0x6000000;
+	((int*)s0)[0] = (int)at;
+	s0 += 0x1C;
+
+	return s0;
+}
+
 void InitGT3_V2(int* s0, int s4, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)
 {
 	int s3;
@@ -1263,19 +1333,20 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 				t3 |= at;
 				at = shade & 0xFF;
 				InitGT3_V2((int*)s0, s4, t6, at, t7, t8, s5, t3, t2, s6, t4);
+
+				t2 = ((int*)t1)[0];
+				((int*)t1)[0] = (int)s0;
+				t2 |= gp;
+				((int*)s0)[0] = (int)t2;
+				s0 += 0x28;
+
+				s0 = do_the_flat_colursub_poly_tri(s0, shade & 0xFF, t6, t7, t8, s4, s5, s6, t1);
+
 			}//loc_7FDB8
 		}//loc_7FDB8
 	}//loc_7FDD0
 
 #if 0
-	lw      t2, 0(t1)
-	sw      s0, 0(t1)
-	or      t2, gp
-	sw      t2, 0(s0)
-	addi    s0, 0x28
-	jal     do_the_flat_colursub_poly_tri
-	nop
-
 	loc_7FDB8:
 	beqz    v0, loc_7FDD0
 	addi    a1, 4
