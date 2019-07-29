@@ -4,9 +4,43 @@
 #include "DRAWSPKS.H"
 #include "SPECIFIC.H"
 #include "LIBGPU.H"
-#include "EMULATOR.H"
 #include "GPU.H"
 #include "GTEREG.H"
+
+void UnpackRGB(int* t2, int* t6, int* fp, int* t3, int* at, int* t7, int* t8)
+{
+	*t2 = *t6 >> 7;
+	*t2 &= *fp;
+	*t3 = *t6 >> 10;
+	*t3 &= 0xF800;
+	*t6 >>= 13;
+	*t6 &= 0xF8;
+	*t6 |= *t3;
+	*t6 |= *t2;
+	*at >>= 24;///@checkme
+	*at <<= 24;
+	*t6 |= *at;
+	*t2 = *t7 >> 7;
+	*t2 &= *fp;
+	*t3 = *t7 >> 10;
+	*t3 &= 0xF800;
+	*t7 >>= 13;
+	*t7 &= 0xF8;
+	*t7 |= *t3;
+	*t7 |= *t2;
+	*t2 = *t8 >> 7;
+	*t2 &= *fp;
+	*t3 = *t8 >> 10;
+	*t3 &= 0xF800;
+	*t8 >>= 13;
+	*t8 &= 0xF8;
+	*t8 |= *t3;
+	*t8 |= *t2;
+#if 0
+	jr      ra
+	or      t8, t2
+#endif
+}
 
 void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)//(F)
 {
@@ -939,6 +973,16 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 	int s4;
 	int at;
 	int* a3;
+	int t6;
+	int t7;
+	int t8;
+	int* a0;
+	char* s0;
+	char* s1;
+	int fp;
+	int gp;
+	int s5;
+	int s6;
 
 	if (shade == 0)
 	{
@@ -1031,116 +1075,137 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 		a2 = s7;
 	}
 	//loc_7FBF0
-	//t0 = 
+	t0 = ((int*)mesh)[0];
+	t1 = ((int*)mesh)[1];
+	t2 = ((int*)mesh)[2];
+	t3 = ((int*)mesh)[3];
+	t4 = ((int*)mesh)[4];
+	t5 = ((int*)mesh)[5];
+
+	RFC = (unsigned int)mesh;
+
+	//loc_7FC0C
+	do
+	{
+		VX0 = t0 & 0xFFFF;
+		VY0 = t0 >> 16;
+		VZ0 = t1;
+
+		VX1 = t2 & 0xFFFF;
+		VY1 = t2 >> 16;
+		VZ1 = t3;
+
+		VX2 = t4 & 0xFFFF;
+		VY2 = t4 >> 16;
+		VZ2 = t5;
+
+		mesh += 12;
+		v0 -= 3;
+
+		docop2(0x280030);
+
+		t0 = ((int*)mesh)[0];
+		t1 = ((int*)mesh)[1];
+		t2 = ((int*)mesh)[2];
+		t3 = ((int*)mesh)[3];
+		t4 = ((int*)mesh)[4];
+		t5 = ((int*)mesh)[5];
+
+		t6 = SZ1;
+		t7 = SZ2;
+		t8 = SZ3;
+
+		a2[0] = SXY0;
+		((short*)a2)[2] = t6;
+		a2[2] = SXY1;
+		((short*)a2)[6] = t7;
+		a2[4] = SXY2;
+		((short*)a2)[10] = t8;
+		a2 += 6;
+	} while (v0 > 0);
+
+	a0 = s7;
+	a2 = (int*)psxtextinfo;
+	a3 = (int*)db.ot;
+	s0 = db.polyptr;
+	s1 = db.polybuf_limit;
+
+	v0 = a1[0];
+	fp = 0xF80000;
+	at = v0 >> 16;
+	DQA = at;
+	v0 &= 0xFFFF;
+	gp = 0x9000000;
+	a1++;
+
+	if (v0 != 0)
+	{
+		t0 = a1[0];
+
+		//loc_7FCAC
+		a1++;
+		v1 = 3;
+
+		//loc_7FCB4
+		t1 = a1[0];
+		v0--;
+		if (s0 >= s1)
+		{
+			goto DrawExit;
+		}
+
+		t8 = (t1 >> 13) & 0x7F8;
+		t8 += (int)a0;
+
+		t7 = (t1 >> 5) & 0x7F8;
+		t7 += (int)a0;
+
+		t6 = (t1 << 3) & 0x7F8;
+		t6 = (int)a0;
+
+		s4 = ((int*)t6)[0];
+		s5 = ((int*)t7)[0];
+		s6 = ((int*)t8)[0];
+
+		SXY0 = s4;
+		SXY1 = s5;
+		SXY2 = s6;
+
+		t5 = t0 & 0xFF;
+		t0 >>= 8;
+		docop2(0x1400006);
+
+		t6 = ((int*)t6)[1];
+		t7 = ((int*)t7)[1];
+		t8 = ((int*)t8)[1];
+		SZ1 = t6;
+		SZ2 = t7;
+		SZ3 = t8;
+
+		t1 >>= 16;
+		t1 &= 0xF00;
+		at = MAC0;
+		docop2(0x158002D);
+		t5 |= t1;
+
+		if (at >= 0)
+		{
+			t5 <<= 4;
+			t5 += (int)a2;
+			t1 = OTZ;
+
+			if (t1 < 0xA02 && t1 < 0x21)
+			{
+				t1 <<= 2;
+				t4 = ((int*)t5)[3];
+				at = t4 << 8;
+			}//loc_7FDB8
+		}//loc_7FDB8
+	}//loc_7FDD0
+
 #if 0
-	loc_7FBF0:
-	lw      t0, 0(a0)
-	lw      t1, 4(a0)
-	lw      t2, 8(a0)
-	lw      t3, 0xC(a0)
-	lw      t4, 0x10(a0)
-	lw      t5, 0x14(a0)
-	ctc2    a0, r21
-
-	loc_7FC0C:
-	mtc2    t0, r0
-	mtc2    t1, r1
-	mtc2    t2, r2
-	mtc2    t3, r3
-	mtc2    t4, r4
-	mtc2    t5, r5
-	addi    a0, 0x18
-	addi    v0, -3
-	nop
-	nop
-	cop2    0x280030
-	lw      t0, 0(a0)
-	lw      t1, 4(a0)
-	lw      t2, 8(a0)
-	lw      t3, 0xC(a0)
-	lw      t4, 0x10(a0)
-	lw      t5, 0x14(a0)
-	mfc2    t6, r17
-	mfc2    t7, r18
-	mfc2    t8, r19
-	swc2    r12, 0(a2)
-	sh      t6, 4(a2)
-	swc2    r13, 8(a2)
-	sh      t7, 0xC(a2)
-	swc2    r14, 0x10(a2)
-	sh      t8, 0x14(a2)
-	bgtz    v0, loc_7FC0C
-	addi    a2, 0x18
-	move    a0, s7
-	lw      a2, psxtextinfo-GP_ADDR(gp)
-	lw      a3, db+0x4-GP_ADDR(gp)
-	lw      s0, db+0x8-GP_ADDR(gp)
-	lw      s1, db+0x10-GP_ADDR(gp)
-	lw      v0, 0(a1)
-	lui     fp, 0xF8
-	srl     at, v0, 16
-	ctc2    at, r27
-	andi    v0, 0xFFFF
-	lui     gp, 0x900
-	beqz    v0, loc_7FDD0
-	addi    a1, 4
-	lw      t0, 0(a1)
-
-	loc_7FCAC:
-	addi    a1, 4
-	li      v1, 3
-
-	loc_7FCB4:
-	lw      t1, 0(a1)
-	slt     at, s0, s1
-	beqz    at, DrawExit
-	addi    v0, -1
-	srl     t8, t1, 13
-	andi    t8, 0x7F8
-	add     t8, a0
-	srl     t7, t1, 5
-	andi    t7, 0x7F8
-	add     t7, a0
-	sll     t6, t1, 3
-	andi    t6, 0x7F8
-	add     t6, a0
-	lw      s4, 0(t6)
-	lw      s5, 0(t7)
-	lw      s6, 0(t8)
-	mtc2    s4, r12
-	mtc2    s5, r13
-	mtc2    s6, r14
-	andi    t5, t0, 0xFF
-	srl     t0, 8
-	nop
-	nop
-	cop2    0x1400006
-	lw      t6, 4(t6)
-	lw      t7, 4(t7)
-	lw      t8, 4(t8)
-	mtc2    t6, r17
-	mtc2    t7, r18
-	mtc2    t8, r19
-	srl     t1, 16
-	andi    t1, 0xF00
-	mfc2    at, r24
-	nop
-	nop
-	cop2    0x158002D
-	bltz    at, loc_7FDB8
-	or      t5, t1
-	sll     t5, 4
-	add     t5, a2
-	mfc2    t1, r7
-	nop
-	slti    at, t1, 0xA02
-	beqz    at, loc_7FDB8
-	slti    at, t1, 0x21
-	bnez    at, loc_7FDB8
-	sll     t1, 2
-	lw      t4, 8(t5)
 	jal     UnpackRGB
-	sll     at, t4, 8
+	nop
 	cfc2    at, r28
 	lw      t2, 0(t5)
 	lw      t3, 4(t5)
@@ -1443,5 +1508,4 @@ WANK1:
 	nop
 
 #endif
-	UNIMPLEMENTED();
 }
