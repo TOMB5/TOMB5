@@ -15,13 +15,21 @@ DRAWENV byte_9CCA4;
 int dword_3410 = 0;
 char byte_3352 = 0;
 
-#define MAX_NUM_POLY_BUFFER_VERTICES (4096)
+struct VertexBufferSplitIndex
+{
+	unsigned short splitIndex;
+	unsigned short numVertices;
+	GLuint textureId;
+};
 
-Vertex polyGT4Buffer[MAX_NUM_POLY_BUFFER_VERTICES];
-Vertex polyGT3Buffer[MAX_NUM_POLY_BUFFER_VERTICES];
-
-int polyGT4Index = 0;
-int polyGT3Index = 0;
+#define MAX_NUM_POLY_BUFFER_VERTICES (8192)
+#define MAX_NUM_INDEX_BUFFERS (4096)
+Vertex g_vertexBuffer[MAX_NUM_POLY_BUFFER_VERTICES];
+unsigned char* g_IndexBuffer[MAX_NUM_INDEX_BUFFERS];
+VertexBufferSplitIndex g_splitIndices[MAX_NUM_INDEX_BUFFERS];
+int g_vertexIndex = 0;
+int currentIndexBuffer = 0;
+int g_numSplitIndices = 0;
 
 //#define WIREFRAME_MODE
 
@@ -79,8 +87,8 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 	glGenTextures(1, &srcTexture);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 #if defined(OGL)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
@@ -140,8 +148,8 @@ int MoveImage(RECT16* rect, int x, int y)
 
 	glGenTextures(1, &srcTexture);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 #if defined(OGL)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
@@ -333,12 +341,14 @@ u_long DrawSyncCallback(void(*func)(void))
 	return 0;
 }
 
-#if defined(OGLES) || defined(CORE_PROF_3_3)
-GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
-GLuint ibo;
+#if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
 GLuint vbo;
 GLuint vao;
 #endif
+
+static unsigned short lastTpage = -1;
+static unsigned short lastClut = -1;
+static unsigned short numVertices = 0;
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
@@ -381,11 +391,13 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 	if (p != NULL)
 	{
-		SDL_memset(&polyGT4Buffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(Vertex));
-		SDL_memset(&polyGT3Buffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(Vertex));
-
-		polyGT4Index = 0;
-		polyGT3Index = 0;
+		lastClut = 0xFFFF;
+		lastTpage = 0xFFFF;
+		numVertices = 0;
+		g_vertexIndex = 0;
+		g_numSplitIndices = 0;
+		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(Vertex));
+		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(VertexBufferSplitIndex));
 
 #if defined(OGL) && !defined(CORE_PROF_3_3)
 		glLoadIdentity();
@@ -398,26 +410,24 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		
 #if !defined(OGLES)
 		
-#if RESOLUTION_SCALE > 1
+#if RESOLUTION_SCALE > 1 && defined(CORE_PROF_3_1)
 		glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
 #endif
+#if defined(CORE_PROF_3_1)
 		glEnableClientState(GL_VERTEX_ARRAY);
+#endif
 #endif
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 		P_TAG* pTag = (P_TAG*)p;
 
+#if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+#endif
+
 #if defined(OGLES) || defined(CORE_PROF_3_3)
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
-
-		glGenBuffers(1, &ibo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 6, indexBuffer, GL_STATIC_DRAW);
-
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, NULL, GL_DYNAMIC_DRAW);
-
 
 		GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
 		GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
@@ -429,7 +439,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)8);
 		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
 #endif
-
 		do
 		{
 			if (pTag->len > 0)
@@ -442,29 +451,31 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #else
 		}while ((unsigned long)pTag != (unsigned long)&terminator);
 #endif
-#if defined(CORE_PROF_3_1)
-		/* Draw primitive buffers */
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
+		if (g_numSplitIndices > 0)
+		{
+			g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+		}
 
-		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &polyGT4Buffer[0].x);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &polyGT4Buffer[0].u0);
-		glColorPointer(4, GL_FLOAT, sizeof(Vertex), &polyGT4Buffer[0].col[0]);
-		glDrawArrays(GL_QUADS, 0, 4);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#endif
+#if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
-#if defined(OGLES) || defined(CORE_PROF_3_3)
-		glDeleteBuffers(1, &ibo);
+		for (int i = 0; i < g_numSplitIndices; i++)
+		{
+			glBindTexture(GL_TEXTURE_2D, g_splitIndices[i].textureId);
+			glDrawArrays(GL_TRIANGLES, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
+		}
+
 		glDeleteBuffers(1, &vbo);
+#endif
+#if defined(OGLES) || defined(CORE_PROF_3_3)
+
 		glDeleteVertexArrays(1, &vao);
 
 		glDisableVertexAttribArray(posAttrib);
 		glDisableVertexAttribArray(colAttrib);
 		glDisableVertexAttribArray(texAttrib);
 #endif
-#if !defined(OGLES)
+#if defined(OGL) && defined(CORE_PROF_3_1)
 		glDisableClientState(GL_VERTEX_ARRAY);
 #endif
 #if 1//OLD_RENDERER
@@ -541,7 +552,6 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 #endif
 
 			currentAddress += sizeof(POLY_F3);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x24: // POLY_FT3
@@ -549,7 +559,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			POLY_FT3* poly = (POLY_FT3*)pTag;
 
-			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
+			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
 
 			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
 			//char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
@@ -567,7 +577,6 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			//glDisableClientState(GL_VERTEX_ARRAY);
 #endif
 			currentAddress += sizeof(POLY_FT3);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x28: // POLY_F4
@@ -589,7 +598,6 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #endif
 			currentAddress += sizeof(POLY_F4);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x2C: // POLY_FT4
@@ -597,7 +605,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			POLY_FT4* poly = (POLY_FT4*)pTag;
 
-			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
+			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
 
 			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			//char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
@@ -608,7 +616,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			//glDrawArrays(GL_QUADS, 0, 4);
 			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #elif defined(OGLES) || defined(CORE_PROF_3_3)
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
+			/*glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
 
 			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
 			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
@@ -624,10 +632,9 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			glDisableVertexAttribArray(posAttrib);
 			glDisableVertexAttribArray(colAttrib);
-			glDisableVertexAttribArray(texAttrib);
+			glDisableVertexAttribArray(texAttrib);*/
 #endif
 			currentAddress += sizeof(POLY_FT4);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x30: // POLY_G3
@@ -650,14 +657,13 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #endif
 			currentAddress += sizeof(POLY_G3);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x34: // POLY_GT3
 		{
 			POLY_GT3* poly = (POLY_GT3*)pTag;
 
-			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
+			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
 
 			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
 			//char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
@@ -672,7 +678,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			//glDisableClientState(GL_COLOR_ARRAY);
 			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #elif defined(OGLES)
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
+			/*glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
 
 			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
 			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
@@ -688,10 +694,9 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			glDisableVertexAttribArray(posAttrib);
 			glDisableVertexAttribArray(colAttrib);
-			glDisableVertexAttribArray(texAttrib);
+			glDisableVertexAttribArray(texAttrib);*/
 #endif
 			currentAddress += sizeof(POLY_GT3);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x38: // POLY_G4
@@ -709,28 +714,42 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 #endif
 			currentAddress += sizeof(POLY_G4);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x3C: // POLY_GT4
 		{
 			POLY_GT4* poly = (POLY_GT4*)pTag;
 
-			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut, semi_transparent);
+			if (lastClut == 0xFFFF || lastTpage == 0xFFFF)
+			{
+				lastClut = poly->clut;
+				lastTpage = poly->tpage;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateAndBindTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (poly->tpage != lastTpage || poly->clut != lastClut)
+			{
+				lastClut = poly->clut;
+				lastTpage = poly->tpage;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateAndBindTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
 
-			char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
-			char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
-			char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r3, &poly->r2, true);
-			
+			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2, true);
 
-#if defined(OGL) && !defined(CORE_PROF_3_3)
-			
-#elif defined(OGLES) || defined(CORE_PROF_3_3)
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
-#endif
+			//Make tri
+			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex+3];
+			g_vertexBuffer[g_vertexIndex + 3] = g_vertexBuffer[g_vertexIndex];
+			g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex+2];
+
 			currentAddress += sizeof(POLY_GT4);
-			polyGT4Index += 4;
+			g_vertexIndex += 6;
+			numVertices += 6;
+
 			break;
 		}
 		case 0x40: // LINE_F2
@@ -749,7 +768,6 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glEnd();
 #endif
 			currentAddress += sizeof(LINE_F2);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x50: // LINE_G2
@@ -766,7 +784,6 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glEnd();
 #endif
 			currentAddress += sizeof(LINE_G2);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x60: // TILE
@@ -774,7 +791,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			TILE* poly = (TILE*)pTag;
-#if !defined(OGLES)
+#if !defined(OGLES) && 0
 			glBegin(GL_QUADS);
 
 			glColor3ubv(&poly->r0);
@@ -794,13 +811,12 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glEnd();
 #endif
 			currentAddress += sizeof(TILE);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x64: // SPRT
 		{
 			SPRT* poly = (SPRT*)pTag;
-			Emulator_GenerateAndBindTpage(-1, poly->clut, semi_transparent);
+			Emulator_GenerateAndBindTpage(-1, poly->clut);
 
 			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, NULL, NULL, NULL, poly->w, poly->h);
 			//char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, NULL, NULL, NULL, poly->w, poly->h);
@@ -816,7 +832,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			//glDisableClientState(GL_COLOR_ARRAY);
 			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #elif defined(OGLES)
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
+			/*glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
 
 			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
 			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
@@ -832,10 +848,9 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			glDisableVertexAttribArray(posAttrib);
 			glDisableVertexAttribArray(colAttrib);
-			glDisableVertexAttribArray(texAttrib);
+			glDisableVertexAttribArray(texAttrib);*/
 #endif
 			currentAddress += sizeof(SPRT);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x68: // TILE_1
@@ -845,7 +860,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			TILE_1* poly = (TILE_1*)pTag;
-#if !defined(OGLES)
+#if !defined(OGLES) && 0
 			glBegin(GL_QUADS);
 
 			glColor3ubv(&poly->r0);
@@ -865,7 +880,6 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glEnd();
 #endif
 			currentAddress += sizeof(TILE_1);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x70: // TILE_8
@@ -873,7 +887,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			const int width = 8;
 
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-#if !defined(OGLES)
+#if !defined(OGLES) && 0
 			TILE_1* poly = (TILE_1*)pTag;
 
 			glBegin(GL_QUADS);
@@ -895,13 +909,12 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glEnd();
 #endif
 			currentAddress += sizeof(TILE_8);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x74: // SPRT_8
 		{
 			SPRT_8* poly = (SPRT_8*)pTag;
-#if !defined(OGLES)
+#if !defined(OGLES) && 0
 			glBegin(GL_QUADS);
 
 			glColor3ubv(&poly->r0);
@@ -921,7 +934,6 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glEnd();
 #endif
 			currentAddress += sizeof(SPRT_8);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x78: // TILE_16
@@ -931,7 +943,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			TILE_1* poly = (TILE_1*)pTag;
-#if !defined(OGLES)
+#if !defined(OGLES) && 0
 			glBegin(GL_QUADS);
 
 			glColor3ubv(&poly->r0);
@@ -951,13 +963,12 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glEnd();
 #endif
 			currentAddress += sizeof(TILE_16);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0x7C: // SPRT_16
 		{
 			SPRT_16* poly = (SPRT_16*)pTag;
-#if !defined(OGLES)
+#if !defined(OGLES) && 0
 			glBegin(GL_QUADS);
 
 			glColor3ubv(&poly->r0);
@@ -977,7 +988,6 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			glEnd();
 #endif
 			currentAddress += sizeof(SPRT_16);
-			polyGT4Index += 4;
 			break;
 		}
 		case 0xE0: // TPAGE
@@ -985,7 +995,6 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			unsigned short tpage = ((unsigned short*)pTag)[2];
 			GlobalTpageTexture = tpage;
 			currentAddress += 8;
-			polyGT4Index += 4;
 			break;
 		}
 		default:

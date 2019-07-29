@@ -42,4 +42,15 @@ extern GLuint g_defaultShaderProgram;
 #endif
 extern GLint g_defaultFBO;
 
+
+struct CachedTexture
+{
+	GLuint textureID;
+	unsigned short tpage;
+	unsigned short clut;
+	unsigned int lastAccess;
+};
+
+extern struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
+
 #endif

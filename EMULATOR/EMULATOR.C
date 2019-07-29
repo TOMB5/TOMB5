@@ -22,7 +22,6 @@
 #include <ddraw.h>
 #endif
 
-#define MAX_NUM_CACHED_TEXTURES (256)
 #define BLEND_MODE (1)
 #define VERTEX_COLOUR_MULT (2)
 
@@ -44,10 +43,6 @@ SDL_Renderer* g_Renderer;
 IDirect3DDevice9* g_Device;
 #endif
 
-#define MAX_NUM_VERTICES (4)
-Vertex vertices[MAX_NUM_VERTICES];
-int vertexCount = 0;
-
 SDL_Window* g_window = NULL;
 GLuint vramTexture;
 GLuint vramFrameBuffer = 0;
@@ -63,16 +58,12 @@ SysCounter counters[3] = {0};
 std::thread counter_thread;
 unsigned short GlobalTpageTexture = 0;
 
-struct CachedTexture
-{
-	GLuint textureID;
-	unsigned short tpage;
-	unsigned short clut;
-	unsigned int lastAccess;
-};
 
 struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
+///@OPTIMISE
+//If tpage matches but the CLUT doesn't use same texture and glTexSubImage it with the new clut should save us some texture gen, binding and texture space
+// Actualy we can't do this cause we'd need to know the coords of the said texture data that is binded to the clut
 static int Emulator_InitialiseGLContext(char* windowName)
 {
 
@@ -393,133 +384,133 @@ void Emulator_CounterLoop()
 	}
 }
 
-char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p3, short w, short h)
+void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h)
 {
 	//Copy over position
 	if (p0 != NULL)
 	{
-		vertices[0].x = (float)p0[0];
-		vertices[0].y = (float)p0[1];
+		vertex[0].x = (float)p0[0];
+		vertex[0].y = (float)p0[1];
 	}
 
 	if (p1 != NULL)
 	{
-		vertices[1].x = (float)p1[0];
-		vertices[1].y = (float)p1[1];
+		vertex[1].x = (float)p1[0];
+		vertex[1].y = (float)p1[1];
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertices[1].x = (float)p0[0];
-			vertices[1].y = (float)p0[1] + h;
+			vertex[1].x = (float)p0[0];
+			vertex[1].y = (float)p0[1] + h;
 		}
 	}
 
 	if (p2 != NULL)
 	{
-		vertices[2].x = (float)p2[0];
-		vertices[2].y = (float)p2[1];
+		vertex[2].x = (float)p2[0];
+		vertex[2].y = (float)p2[1];
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertices[2].x = (float)p0[0] + w;
-			vertices[2].y = (float)p0[1] + h;
+			vertex[2].x = (float)p0[0] + w;
+			vertex[2].y = (float)p0[1] + h;
 		}
 	}
 
 	if (p3 != NULL)
 	{
-		vertices[3].x = (float)p3[0];
-		vertices[3].y = (float)p3[1];
+		vertex[3].x = (float)p3[0];
+		vertex[3].y = (float)p3[1];
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertices[3].x = (float)p0[0] + w;
-			vertices[3].y = (float)p0[1];
+			vertex[3].x = (float)p0[0] + w;
+			vertex[3].y = (float)p0[1];
 		}
 	}
 
-	return (char*)& vertices[0].x;
+	return;
 }
 
 
-char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h)
+void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h)
 {
 	//Copy over uvs
 	if (uv0 != NULL)
 	{
-		vertices[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
-		vertices[0].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
+		vertex[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
+		vertex[0].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
 	}
 
 	if (uv1 != NULL)
 	{
-		vertices[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH;
-		vertices[1].v0 = ((float)uv1[1]) / TPAGE_WIDTH;
+		vertex[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH;
+		vertex[1].v0 = ((float)uv1[1]) / TPAGE_WIDTH;
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertices[1].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
-			vertices[1].v0 = ((float)uv0[1] + h) / TPAGE_WIDTH;
+			vertex[1].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
+			vertex[1].v0 = ((float)uv0[1] + h) / TPAGE_WIDTH;
 		}
 	}
 
 	if (uv2 != NULL)
 	{
-		vertices[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH;
-		vertices[2].v0 = ((float)uv2[1]) / TPAGE_WIDTH;
+		vertex[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH;
+		vertex[2].v0 = ((float)uv2[1]) / TPAGE_WIDTH;
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertices[2].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
-			vertices[2].v0 = ((float)uv0[1] + h) / TPAGE_WIDTH;
+			vertex[2].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
+			vertex[2].v0 = ((float)uv0[1] + h) / TPAGE_WIDTH;
 		}
 	}
 
 	if (uv3 != NULL)
 	{
-		vertices[3].u0 = ((float)uv3[0]) / TPAGE_WIDTH;
-		vertices[3].v0 = ((float)uv3[1]) / TPAGE_WIDTH;
+		vertex[3].u0 = ((float)uv3[0]) / TPAGE_WIDTH;
+		vertex[3].v0 = ((float)uv3[1]) / TPAGE_WIDTH;
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertices[3].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
-			vertices[3].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
+			vertex[3].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
+			vertex[3].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
 		}
 	}
 
-	return (char*)& vertices[0].u0;
+	return;
 }
 
-char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour)
+void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour)
 {
 	//Copy over rgb vertex colours
 	if (col0 != NULL)
 	{
 		if (bMultiplyColour)
 		{
-			vertices[0].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertices[0].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertices[0].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertices[0].col[3] = (1.0f / 255) * 255;
+			vertex[0].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+			vertex[0].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+			vertex[0].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+			vertex[0].col[3] = (1.0f / 255) * 255;
 		}
 		else
 		{
-			vertices[0].col[0] = (1.0f / 255) * col0[0];
-			vertices[0].col[1] = (1.0f / 255) * col0[1];
-			vertices[0].col[2] = (1.0f / 255) * col0[2];
-			vertices[0].col[3] = (1.0f / 255) * 255;
+			vertex[0].col[0] = (1.0f / 255) * col0[0];
+			vertex[0].col[1] = (1.0f / 255) * col0[1];
+			vertex[0].col[2] = (1.0f / 255) * col0[2];
+			vertex[0].col[3] = (1.0f / 255) * 255;
 		}
 	}
 
@@ -527,34 +518,34 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 	{
 		if (bMultiplyColour)
 		{
-			vertices[1].col[0] = (1.0f / 255) * (col1[0] * VERTEX_COLOUR_MULT);
-			vertices[1].col[1] = (1.0f / 255) * (col1[1] * VERTEX_COLOUR_MULT);
-			vertices[1].col[2] = (1.0f / 255) * (col1[2] * VERTEX_COLOUR_MULT);
-			vertices[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = (1.0f / 255) * (col1[0] * VERTEX_COLOUR_MULT);
+			vertex[1].col[1] = (1.0f / 255) * (col1[1] * VERTEX_COLOUR_MULT);
+			vertex[1].col[2] = (1.0f / 255) * (col1[2] * VERTEX_COLOUR_MULT);
+			vertex[1].col[3] = (1.0f / 255) * 255;
 		}
 		else
 		{
-			vertices[1].col[0] = (1.0f / 255) * col1[0];
-			vertices[1].col[1] = (1.0f / 255) * col1[1];
-			vertices[1].col[2] = (1.0f / 255) * col1[2];
-			vertices[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = (1.0f / 255) * col1[0];
+			vertex[1].col[1] = (1.0f / 255) * col1[1];
+			vertex[1].col[2] = (1.0f / 255) * col1[2];
+			vertex[1].col[3] = (1.0f / 255) * 255;
 		}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
-			vertices[1].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertices[1].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertices[1].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertices[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+			vertex[1].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+			vertex[1].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+			vertex[1].col[3] = (1.0f / 255) * 255;
 		}
 		else
 		{
-			vertices[1].col[0] = (1.0f / 255) * col0[0];
-			vertices[1].col[1] = (1.0f / 255) * col0[1];
-			vertices[1].col[2] = (1.0f / 255) * col0[2];
-			vertices[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = (1.0f / 255) * col0[0];
+			vertex[1].col[1] = (1.0f / 255) * col0[1];
+			vertex[1].col[2] = (1.0f / 255) * col0[2];
+			vertex[1].col[3] = (1.0f / 255) * 255;
 		}
 	}
 
@@ -562,34 +553,34 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 	{
 		if (bMultiplyColour)
 		{
-			vertices[2].col[0] = (1.0f / 255) * (col2[0] * VERTEX_COLOUR_MULT);
-			vertices[2].col[1] = (1.0f / 255) * (col2[1] * VERTEX_COLOUR_MULT);
-			vertices[2].col[2] = (1.0f / 255) * (col2[2] * VERTEX_COLOUR_MULT);
-			vertices[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = (1.0f / 255) * (col2[0] * VERTEX_COLOUR_MULT);
+			vertex[2].col[1] = (1.0f / 255) * (col2[1] * VERTEX_COLOUR_MULT);
+			vertex[2].col[2] = (1.0f / 255) * (col2[2] * VERTEX_COLOUR_MULT);
+			vertex[2].col[3] = (1.0f / 255) * 255;
 		}
 		else
 		{
-			vertices[2].col[0] = (1.0f / 255) * col2[0];
-			vertices[2].col[1] = (1.0f / 255) * col2[1];
-			vertices[2].col[2] = (1.0f / 255) * col2[2];
-			vertices[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = (1.0f / 255) * col2[0];
+			vertex[2].col[1] = (1.0f / 255) * col2[1];
+			vertex[2].col[2] = (1.0f / 255) * col2[2];
+			vertex[2].col[3] = (1.0f / 255) * 255;
 		}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
-			vertices[2].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertices[2].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertices[2].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertices[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+			vertex[2].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+			vertex[2].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+			vertex[2].col[3] = (1.0f / 255) * 255;
 		}
 		else
 		{
-			vertices[2].col[0] = (1.0f / 255) * col0[0];
-			vertices[2].col[1] = (1.0f / 255) * col0[1];
-			vertices[2].col[2] = (1.0f / 255) * col0[2];
-			vertices[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = (1.0f / 255) * col0[0];
+			vertex[2].col[1] = (1.0f / 255) * col0[1];
+			vertex[2].col[2] = (1.0f / 255) * col0[2];
+			vertex[2].col[3] = (1.0f / 255) * 255;
 		}
 	}
 
@@ -597,38 +588,38 @@ char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1,
 	{
 		if (bMultiplyColour)
 		{
-			vertices[3].col[0] = (1.0f / 255) * (col3[0] * VERTEX_COLOUR_MULT);
-			vertices[3].col[1] = (1.0f / 255) * (col3[1] * VERTEX_COLOUR_MULT);
-			vertices[3].col[2] = (1.0f / 255) * (col3[2] * VERTEX_COLOUR_MULT);
-			vertices[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = (1.0f / 255) * (col3[0] * VERTEX_COLOUR_MULT);
+			vertex[3].col[1] = (1.0f / 255) * (col3[1] * VERTEX_COLOUR_MULT);
+			vertex[3].col[2] = (1.0f / 255) * (col3[2] * VERTEX_COLOUR_MULT);
+			vertex[3].col[3] = (1.0f / 255) * 255;
 		}
 		else
 		{
-			vertices[3].col[0] = (1.0f / 255) * col3[0];
-			vertices[3].col[1] = (1.0f / 255) * col3[1];
-			vertices[3].col[2] = (1.0f / 255) * col3[2];
-			vertices[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = (1.0f / 255) * col3[0];
+			vertex[3].col[1] = (1.0f / 255) * col3[1];
+			vertex[3].col[2] = (1.0f / 255) * col3[2];
+			vertex[3].col[3] = (1.0f / 255) * 255;
 		}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
-			vertices[3].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertices[3].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertices[3].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertices[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+			vertex[3].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+			vertex[3].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+			vertex[3].col[3] = (1.0f / 255) * 255;
 		}
 		else
 		{
-			vertices[3].col[0] = (1.0f / 255) * col0[0];
-			vertices[3].col[1] = (1.0f / 255) * col0[1];
-			vertices[3].col[2] = (1.0f / 255) * col0[2];
-			vertices[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = (1.0f / 255) * col0[0];
+			vertex[3].col[1] = (1.0f / 255) * col0[1];
+			vertex[3].col[2] = (1.0f / 255) * col0[2];
+			vertex[3].col[3] = (1.0f / 255) * 255;
 		}
 	}
 
-	return (char*)& vertices[0].col[0];
+	return;
 }
 #if defined(OGLES) || defined(CORE_PROF_3_3)
 GLuint g_defaultShaderProgram;
@@ -694,10 +685,8 @@ void Emulator_InitialiseGL()
 
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 #if defined(OGLES)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &vram[0]);
 #elif defined(OGL)
@@ -728,7 +717,9 @@ void Emulator_InitialiseGL()
 #endif
 
 #if defined(OGL)
+#if defined(CORE_PROF_3_1)
 	glShadeModel(GL_SMOOTH);
+#endif
 	glDisable(GL_DEPTH_TEST);
 #endif
 
@@ -1046,10 +1037,9 @@ CachedTexture* Emulator_GetFreeCachedTexture()
 	return NULL;
 }
 
-void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent)
+GLuint Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut)
 {
 	unsigned int bShouldUseGlobalTpageTexture = (tpage == 0xFFFF) ? 1 : 0;
-	static GLuint lastTextureId = 0xFFFFFFFF;
 
 	if (bShouldUseGlobalTpageTexture)
 	{
@@ -1094,17 +1084,11 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 		tpageTexture->tpage = tpage;
 		tpageTexture->clut = clut;
 		glGenTextures(1, &tpageTexture->textureID);
-	}
-
-	if (tpageTexture->textureID != lastTextureId)
-	{
 		glBindTexture(GL_TEXTURE_2D, tpageTexture->textureID);
-		lastTextureId = tpageTexture->textureID;
 	}
-
-	if (!bMustAddTexture)
+	else
 	{
-		return;
+		return tpageTexture->textureID;
 	}
 
 	if (bMustAddTexture)
@@ -1206,10 +1190,6 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 			fwrite(&convertedTpage[0], sizeof(char), 256 * 256 * 2, f);
 			fclose(f);
 #endif
-#if defined(OGLES) || defined(CORE_PROF_3_3)
-			glActiveTexture(GL_TEXTURE0);
-			glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "s_texture"), 0);
-#endif
 #if defined(OGL)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
 #elif defined(OGLES)
@@ -1226,6 +1206,7 @@ void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, in
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+	return tpageTexture->textureID;
 }
 
 void Emulator_DestroyFrameBuffer(GLuint& fbo)
