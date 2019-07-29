@@ -7,39 +7,89 @@
 #include "GPU.H"
 #include "GTEREG.H"
 
-void UnpackRGB(int* t2, int* t6, int* fp, int* t3, int* at, int* t7, int* t8)
+void InitGT3_V2(int* s0, int s4, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)
 {
-	*t2 = *t6 >> 7;
-	*t2 &= *fp;
-	*t3 = *t6 >> 10;
-	*t3 &= 0xF800;
-	*t6 >>= 13;
-	*t6 &= 0xF8;
-	*t6 |= *t3;
-	*t6 |= *t2;
-	*at >>= 24;///@checkme
-	*at <<= 24;
-	*t6 |= *at;
-	*t2 = *t7 >> 7;
-	*t2 &= *fp;
-	*t3 = *t7 >> 10;
-	*t3 &= 0xF800;
-	*t7 >>= 13;
-	*t7 &= 0xF8;
-	*t7 |= *t3;
-	*t7 |= *t2;
-	*t2 = *t8 >> 7;
-	*t2 &= *fp;
-	*t3 = *t8 >> 10;
-	*t3 &= 0xF800;
-	*t8 >>= 13;
-	*t8 &= 0xF8;
-	*t8 |= *t3;
-	*t8 |= *t2;
-#if 0
-	jr      ra
-	or      t8, t2
-#endif
+	int s3;
+
+	((int*)s0)[3] = s4;
+	((char*)s0)[7] = 0x36;
+	s3 = ((t6 & 0xFF) * at) >> 7;
+	if (s3 >= 0x100)
+	{
+		s3 = 0xFF;
+	}
+
+	//loc_7FF64
+	((int*)s0)[4] = s3;
+	s3 = (((t6 >> 8) & 0xFF) * at) >> 7;
+	if (s3 >= 0x100)
+	{
+		s3 = 0xFF;
+	}
+
+	//loc_7FF8C
+	((char*)s0)[5] = s3;
+	s3 = (((t6 >> 16) & 0xFF) * at) >> 7;
+	if (s3 >= 0x100)
+	{
+		s3 = 0xFF;
+	}
+
+	//loc_7FFB4
+	((char*)s0)[6] = s3;
+	s3 = ((t7 & 0xFF) * at) >> 7;
+	if (s3 >= 0x100)
+	{
+		s3 = 0xFF;
+	}
+
+	//loc_7FFD8
+	((char*)s0)[16] = s3;
+	s3 = (((t7 >> 8) & 0xFF) * at) >> 7;
+	if (s3 >= 0x100)
+	{
+		s3 = 0xFF;
+	}
+
+	//loc_80000
+	((char*)s3)[17] = s3;
+	s3 = (((t7 >> 16) & 0xFF) * at) >> 7;
+	if (s3 >= 0x100)
+	{
+		s3 = 0xFF;
+	}
+
+	((char*)s3)[18] = s3;
+	s3 = ((t8 & 0xFF) * at) >> 7;
+	if (s3 >= 0x100)
+	{
+		s3 = 0xFF;
+	}
+
+	//loc_8004C
+	((char*)s3)[28] = s3;
+	s3 = (((t8 >> 8) & 0xFF) * at) >> 7;
+	if (s3 >= 0x100)
+	{
+		s3 = 0xFF;
+	}
+
+	//loc_80074
+	((char*)s3)[29] = s3;
+	s3 = (((t8 >> 16) & 0xFF) * at) >> 7;
+	if (s3 >= 0x100)
+	{
+		s3 = 0xFF;
+	}
+
+	//loc_8009C
+	((char*)s0)[30] = s3;
+	((int*)s0)[3] = t2;
+	((int*)s0)[5] = s5;
+	((int*)s0)[6] = t3;
+	((int*)s0)[8] = s6;
+	((int*)s0)[9] = t4;
+	((int*)s0)[2] = s4;
 }
 
 void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)//(F)
@@ -1199,25 +1249,25 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 				t1 <<= 2;
 				t4 = ((int*)t5)[3];
 				at = t4 << 8;
+
+				UnpackRGB(fp, &t6, &t7, &t8, &at);
+
+				at = IRGB;
+				t2 = ((int*)t5)[0];
+				t3 = ((int*)t5)[1];
+				t2 -= at;
+				t1 += (int)a3;
+				at = 0xFF9FFFFF;
+				t3 &= at;
+				at = 0x200000;
+				t3 |= at;
+				at = shade & 0xFF;
+				InitGT3_V2((int*)s0, s4, t6, at, t7, t8, s5, t3, t2, s6, t4);
 			}//loc_7FDB8
 		}//loc_7FDB8
 	}//loc_7FDD0
 
 #if 0
-	jal     UnpackRGB
-	nop
-	cfc2    at, r28
-	lw      t2, 0(t5)
-	lw      t3, 4(t5)
-	subu    t2, at
-	add     t1, a3
-	lui     at, 0xFF9F
-	ori		at, 0xFFFF
-	and     t3, at
-	lui     at, 0x20
-	or      t3, at
-	jal     InitGT3_V2
-	andi    at, s2, 0xFF
 	lw      t2, 0(t1)
 	sw      s0, 0(t1)
 	or      t2, gp
