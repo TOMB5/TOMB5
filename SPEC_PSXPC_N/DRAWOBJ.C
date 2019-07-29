@@ -7,96 +7,184 @@
 #include "GPU.H"
 #include "GTEREG.H"
 
-void InitGT4_V2(char* s0, int* s4, int s3, int t6, int at, int t7, int t8, int t9, int t2, int s5, int t3, int s6, int t4, int s7, int t5)
+char* do_the_flat_colursub_poly_quad(char* s0, int s2, int t6, int t7, int t8, int t9, int s4, int s5, int s6, int s7, int t1)
+{
+	int at;
+	int s3;
+
+	((int*)s0)[1] = 0xE1000240;
+
+	at = s2 & 0xFF;
+
+	if (at != 128)
+	{
+		s3 = t6 & 0xFF;
+
+		at = (t6 >> 8) & 0xFF;
+		s3 += at;
+
+		at = (t6 >> 16) & 0xFF;
+		s3 += at;
+
+		at = (t7 & 0xFF);
+		s3 += at;
+
+		at = (t7 >> 8) & 0xFF;
+		s3 += at;
+
+		at = (t7 >> 16) & 0xFF;
+		s3 += at;
+
+		at = (t8 & 0xFF);
+		s3 += at;
+
+		at = (t8 >> 8) & 0xFF;
+		s3 += at;
+
+		at = (t8 >> 16) & 0xFF;
+		s3 += at;
+
+		at = (t9 & 0xFF);
+		s3 += at;
+
+		at = (t9 >> 8) & 0xFF;
+		s3 += at;
+
+		at = (t9 >> 16) & 0xFF;
+		s3 += at;
+
+		s3 /= 12;
+		s3 += 128;
+
+		if (s3 >= 0x100)
+		{
+			s3 = 0xFF;
+		}
+
+		at = s2 & 0xFF;
+
+		s3 *= at;
+		s3 >>= 8;
+
+		if (s3 >= 0x100)
+		{
+			s3 = 0xFF;
+		}
+
+	}//loc_8049C
+	else
+	{
+		s3 = 0xFF;
+	}
+
+	((char*)s0)[12] = s3;
+	((char*)s0)[13] = s3;
+	((char*)s0)[14] = s3;
+	((char*)s0)[15] = 0x2A;
+	((int*)s0)[3] = 0;
+	((int*)s0)[4] = s4;
+	((int*)s0)[5] = s5;
+	((int*)s0)[6] = s6;
+	((int*)s0)[7] = s7;
+	at = ((int*)t1)[0];
+	((int*)t1)[0] = (int)s0;
+	s3 = 0x7000000;
+	at |= s3;
+	((int*)s0)[0] = (int)at;
+	s0 += 0x20;
+	return s0;
+}
+
+void InitGT4_V2(char* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int t9, int t2, int s5, int t3, int s6, int t4, int s7, int t5)
 {
 	((int*)s0)[2] = *s4;
 	((char*)s0)[7] = 0x3E;
 
-	s3 = ((t6 & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	*s3 = ((t6 & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
 	//loc_801EC
-	((char*)s0)[4] = s3;
-	s3 = (((t6 >> 8) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[4] = *s3;
+	*s3 = (((t6 >> 8) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s0)[5] = s3;
-	s3 = (((t6 >> 16) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[5] = *s3;
+	*s3 = (((t6 >> 16) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s0)[6] = s3;
-	s3 = ((t7 & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[6] = *s3;
+	*s3 = ((t7 & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s0)[16] = s3;
-	s3 = (((t7 >> 8) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[16] = *s3;
+	*s3 = (((t7 >> 8) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s0)[17] = s3;
-	s3 = (((t7 >> 16) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[17] = *s3;
+	*s3 = (((t7 >> 16) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s0)[18] = s3;
-	s3 = ((t8 & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[18] = *s3;
+	*s3 = ((t8 & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s0)[28] = s3;
-	s3 = (((t8 >> 8) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[28] = *s3;
+	*s3 = (((t8 >> 8) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s0)[29] = s3;
-	s3 = (((t8 >> 16) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[29] = *s3;
+	*s3 = (((t8 >> 16) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s0)[30] = s3;
-	s3 = ((t9 & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[30] = *s3;
+	*s3 = ((t9 & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s0)[40] = s3;
-	s3 = (((t9 >> 8) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[40] = *s3;
+	*s3 = (((t9 >> 8) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s0)[41] = s3;
-	s3 = (((t9 >> 16) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[41] = *s3;
+	*s3 = (((t9 >> 16) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s0)[42] = s3;
+	((char*)s0)[42] = *s3;
 	((int*)s0)[3] = t2;
 	((int*)s0)[5] = s5;
 	((int*)s0)[6] = t3;
@@ -177,83 +265,81 @@ char* do_the_flat_colursub_poly_tri(char* s0, int s2, int t6, int t7, int t8, in
 	return s0;
 }
 
-void InitGT3_V2(int* s0, int s4, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)
+void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)
 {
-	int s3;
-
 	((int*)s0)[3] = s4;
 	((char*)s0)[7] = 0x36;
-	s3 = ((t6 & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	*s3 = ((t6 & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
 	//loc_7FF64
-	((int*)s0)[4] = s3;
-	s3 = (((t6 >> 8) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((int*)s0)[4] = *s3;
+	*s3 = (((t6 >> 8) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
 	//loc_7FF8C
-	((char*)s0)[5] = s3;
-	s3 = (((t6 >> 16) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[5] = *s3;
+	*s3 = (((t6 >> 16) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
 	//loc_7FFB4
-	((char*)s0)[6] = s3;
-	s3 = ((t7 & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[6] = *s3;
+	*s3 = ((t7 & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
 	//loc_7FFD8
-	((char*)s0)[16] = s3;
-	s3 = (((t7 >> 8) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s0)[16] = *s3;
+	*s3 = (((t7 >> 8) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
 	//loc_80000
-	((char*)s3)[17] = s3;
-	s3 = (((t7 >> 16) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s3)[17] = *s3;
+	*s3 = (((t7 >> 16) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
-	((char*)s3)[18] = s3;
-	s3 = ((t8 & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s3)[18] = *s3;
+	*s3 = ((t8 & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
 	//loc_8004C
-	((char*)s3)[28] = s3;
-	s3 = (((t8 >> 8) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s3)[28] = *s3;
+	*s3 = (((t8 >> 8) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
 	//loc_80074
-	((char*)s3)[29] = s3;
-	s3 = (((t8 >> 16) & 0xFF) * at) >> 7;
-	if (s3 >= 0x100)
+	((char*)s3)[29] = *s3;
+	*s3 = (((t8 >> 16) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
 	{
-		s3 = 0xFF;
+		*s3 = 0xFF;
 	}
 
 	//loc_8009C
-	((char*)s0)[30] = s3;
+	((char*)s0)[30] = *s3;
 	((int*)s0)[3] = t2;
 	((int*)s0)[5] = s5;
 	((int*)s0)[6] = t3;
@@ -302,7 +388,7 @@ void UnpackRGB(int fp, int* t6, int* t7, int* t8, int* at)//(F)
 
 	*t6 |= t3;
 	*t6 |= t2;
-	*at >>= 24;
+	*at >>= 24;///@CHECKME
 	*at <<= 24;
 	*t6 |= *at;
 
@@ -881,6 +967,7 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 	int s6;
 	char* s0;
 	int t9;
+	int s3;
 
 	initialise_light_matrix();
 
@@ -1202,9 +1289,8 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 	int fp;
 	int gp;
 	int s5;
-	int s6;
-	int t8;
 	int t9;
+	int s3;
 
 	if (shade == 0)
 	{
@@ -1434,7 +1520,7 @@ loc_7FCB4:
 				at = 0x200000;
 				t3 |= at;
 				at = shade & 0xFF;
-				InitGT3_V2((int*)s0, s4, t6, at, t7, t8, s5, t3, t2, s6, t4);
+				InitGT3_V2((int*)s0, s4, &s3, t6, at, t7, t8, s5, t3, t2, s6, t4);
 
 				t2 = ((int*)t1)[0];
 				((int*)t1)[0] = (int)s0;
@@ -1470,11 +1556,11 @@ loc_7FCB4:
 		goto DrawExit;
 	}
 
-	//loc_7FDE0
+loc_7FDE0:
 	a1++;
 	v1 = 1;
 
-	//loc_7FDE8
+loc_7FDE8:
 	t1 = a1[0];
 
 	v0--;
@@ -1550,205 +1636,37 @@ loc_7FCB4:
 				at = 0x200000;
 				t3 |= at;
 				at = shade & 0xFF;
-
+				InitGT4_V2(s0, &s4, &s3, t6, at, t7, t8, t9, t2, s5, t3, s6, t4, s77, t5);
+				at = ((int*)t1)[0];
+				((int*)t1)[0] = (int)s0;
+				at |= gp;
+				((int*)s0)[0] = (int)at;
+				s0 += 0x34;
+				s0 = do_the_flat_colursub_poly_quad(s0, shade & 0xFF, t6, t7, t8, t9, s4, s5, s6, s77, t1);;
 			}
 
-		}//loc_7FF20
+		}
+		//loc_7FF20
+		a1++;
+		if (v0 == 0)
+		{
+			goto DrawExit;
+		}
 
+		if (v1-- != 0)
+		{
+			goto loc_7FDE8;
+		}
+
+		t0 = a1[0];
+		goto loc_7FDE0;
 	}
 	else
 	{
 		goto DrawExit;
 	}
-#if 0
-	jal     InitGT4_V2
-	nop
-	lw      at, 0(t1)
-	sw      s0, 0(t1)
-	or      at, gp
-	sw      at, 0(s0)
-	addi    s0, 0x34
-	jal     do_the_flat_colursub_poly_quad
-	nop
 
-	loc_7FF20:
-	beqz    v0, DrawExit
-	addi    a1, 4
-	bnez    v1, loc_7FDE8
-	addi    v1, -1
-	j       loc_7FDE0
-	lw      t0, 0(a1)
-
-WANK1:
-	lui     gp, 0x900
-	beqz    v0, loc_7E514
-	addi    a1, 4
-	lw      t0, 0(a1)
-
-	loc_7E418:
-	addi    a1, 4
-	li      v1, 3
-
-	loc_7E420:
-	lw      t1, 0(a1)
-	slt     at, s0, s1
-	beqz    at, loc_7E64C
-	addi    v0, -1
-	ctc2    t1, r22
-	srl     t8, t1, 13
-	andi    t8, 0x7F8
-	add     t8, a0
-	srl     t7, t1, 5
-	andi    t7, 0x7F8
-	add     t7, a0
-	sll     t6, t1, 3
-	andi    t6, 0x7F8
-	add     t6, a0
-	lw      s4, 0(t6)
-	lw      s5, 0(t7)
-	lw      s6, 0(t8)
-	mtc2    s4, r12
-	mtc2    s5, r13
-	mtc2    s6, r14
-	andi    t5, t0, 0xFF
-	srl     t1, 16
-	cop2    0x1400006
-	andi    t1, 0xF00
-	or      t5, t1
-	jal     ultimate_clipper
-	move    s7, s6
-	bnez    at, loc_7E4FC
-	srl     t0, 8
-	lwc2    r17, 4(t6)
-	lwc2    r18, 4(t7)
-	lwc2    r19, 4(t8)
-	mfc2    at, r24
-	nop
-	nop
-	cop2    0x158002D
-	bltz    at, loc_7E4FC
-	lw      t6, 4(t6)
-	lw      t7, 4(t7)
-	lw      t8, 4(t8)
-	sll     t5, 4
-	mfc2    t1, r7
-	add     t5, a2
-	slti    at, t1, 0xA02
-	beqz    at, loc_7E4FC
-	slti    at, t1, 0x21
-	bnez    at, loc_7E4FC
-	sll     t1, 2
-	lw      t4, 8(t5)
-	jal     UnpackRGB
-	sll     at, t4, 8
-	cfc2    at, r28
-	lw      t2, 0(t5)
-	lw      t3, 4(t5)
-	subu    t2, at
-	jal     SubDiv3
-	add     t1, a3
-
-	loc_7E4FC:
-	beqz    v0, loc_7E514
-	addi    a1, 4
-	bnez    v1, loc_7E420
-	addi    v1, -1
-	j       loc_7E418
-	lw      t0, 0(a1)
-
-	loc_7E514:
-	cfc2    v0, r27
-	lui     gp, 0xC00
-	beqz    v0, loc_7E64C
-	lw      t0, 0(a1)
-
-	loc_7E524:
-	addi    a1, 4
-	li      v1, 1
-
-	loc_7E52C:
-	lw      t1, 0(a1)
-	slt     at, s0, s1
-	beqz    at, loc_7E64C
-	addi    v0, -1
-	ctc2    t1, r22
-	srl     t9, t1, 21
-	andi    t9, 0x7F8
-	srl     t8, t1, 13
-	andi    t8, 0x7F8
-	add     t8, a0
-	srl     t7, t1, 5
-	andi    t7, 0x7F8
-	add     t7, a0
-	sll     t6, t1, 3
-	andi    t6, 0x7F8
-	add     t6, a0
-	lw      s4, 0(t6)
-	lw      s5, 0(t7)
-	lw      s6, 0(t8)
-	mtc2    s4, r12
-	mtc2    s5, r13
-	mtc2    s6, r14
-	add     t9, a0
-	andi    t5, t0, 0xFFF
-	cop2    0x1400006
-	jal     ultimate_clipper
-	lw      s7, 0(t9)
-	bnez    at, loc_7E634
-	srl     t0, 16
-	lwc2    r16, 4(t6)
-	lwc2    r17, 4(t7)
-	lwc2    r18, 4(t8)
-	lwc2    r19, 4(t9)
-	mfc2    at, r24
-	nop
-	nop
-	cop2    0x168002E
-	bltz    at, loc_7E634
-	lw      t6, 4(t6)
-	lw      t7, 4(t7)
-	lw      t8, 4(t8)
-	lw      t9, 4(t9)
-	sll     t5, 4
-	mfc2    t1, r7
-	add     t5, a2
-	slti    at, t1, 0xA02
-	beqz    at, loc_7E634
-	slti    at, t1, 0x21
-	bnez    at, loc_7E634
-	sll     t1, 2
-	srl     t2, t9, 7
-	and     t2, fp
-	srl     t3, t9, 10
-	andi    t3, 0xF800
-	srl     t9, 13
-	andi    t9, 0xF8
-	or      t9, t3
-	or      t9, t2
-	lw      t4, 8(t5)
-	jal     UnpackRGB
-	move    at, t4
-	cfc2    at, r28
-	lw      t2, 0(t5)
-	lw      t3, 4(t5)
-	lw      t5, 0xC(t5)
-	subu    t2, at
-	jal     SubDiv4
-	add     t1, a3
-
-	loc_7E634:
-	beqz    v0, loc_7E64C
-	addi    a1, 4
-	bnez    v1, loc_7E52C
-	addi    v1, -1
-	j       loc_7E524
-	lw      t0, 0(a1)
-
-	loc_7E64C:
-	ctc2    zero, r22
-	ctc2    zero, r23
-	j       DrawExit
-	nop
-
-#endif
+DrawExit:
+	RFC = 0;
+	db.polyptr = s0;
 }
