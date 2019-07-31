@@ -86,7 +86,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	GLuint srcFrameBuffer;
 
 	glGenTextures(1, &srcTexture);
-	glBindTexture(GL_TEXTURE_2D, srcTexture);
+	Emulator_BindTexture(srcTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -131,7 +131,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 int MoveImage(RECT16* rect, int x, int y)
 {
-	Emulator_CheckTextureIntersection(rect);
+	//Emulator_CheckTextureIntersection(rect); Not yet need to construct actual rect
 	glScissor(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
 	GLuint srcTexture;
 	GLuint srcFrameBuffer;
@@ -147,7 +147,7 @@ int MoveImage(RECT16* rect, int x, int y)
 #endif
 
 	glGenTextures(1, &srcTexture);
-	glBindTexture(GL_TEXTURE_2D, srcTexture);
+	Emulator_BindTexture(srcTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -461,19 +461,18 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 		for (int i = 0; i < g_numSplitIndices; i++)
 		{
-			glBindTexture(GL_TEXTURE_2D, g_splitIndices[i].textureId);
+			Emulator_BindTexture(g_splitIndices[i].textureId);
 			glDrawArrays(GL_TRIANGLES, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
 		}
 
 		glDeleteBuffers(1, &vbo);
 #endif
 #if defined(OGLES) || defined(CORE_PROF_3_3)
-
-		glDeleteVertexArrays(1, &vao);
-
 		glDisableVertexAttribArray(posAttrib);
 		glDisableVertexAttribArray(colAttrib);
 		glDisableVertexAttribArray(texAttrib);
+
+		glDeleteVertexArrays(1, &vao);
 #endif
 #if defined(OGL) && defined(CORE_PROF_3_1)
 		glDisableClientState(GL_VERTEX_ARRAY);
@@ -534,7 +533,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		case 0x20: // POLY_F3
 		{
 #if !defined(OGLES)
-			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 			POLY_F3* poly = (POLY_F3*)pTag;
 
 			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
@@ -559,7 +558,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			POLY_FT3* poly = (POLY_FT3*)pTag;
 
-			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
+			Emulator_GenerateTpage(poly->tpage, poly->clut);
 
 			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
 			//char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
@@ -581,7 +580,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		}
 		case 0x28: // POLY_F4
 		{
-			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 			POLY_F4* poly = (POLY_F4*)pTag;
 
 			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
@@ -605,7 +604,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			POLY_FT4* poly = (POLY_FT4*)pTag;
 
-			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
+			Emulator_GenerateTpage(poly->tpage, poly->clut);
 
 			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			//char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
@@ -641,7 +640,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		{
 			POLY_G3* poly = (POLY_G3*)pTag;
 
-			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&polyGT4Buffer[polyGT4Index], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
 			//char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&polyGT4Buffer[polyGT4Index], NULL, NULL, NULL, NULL, -1, -1);
@@ -663,40 +662,30 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		{
 			POLY_GT3* poly = (POLY_GT3*)pTag;
 
-			Emulator_GenerateAndBindTpage(poly->tpage, poly->clut);
+			if (lastTpage == 0xFFFF || lastClut == 0xFFFF)
+			{
+				lastTpage = poly->tpage;
+				lastClut = poly->clut;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (poly->tpage != lastTpage || poly->clut != lastClut)
+			{
+				lastTpage = poly->tpage;
+				lastClut = poly->clut;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
 
-			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
-			//char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
-			//char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r2, NULL, true);
-#if defined(OGL)
-			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			//glEnableClientState(GL_COLOR_ARRAY);
-			//glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
-			//glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
-			//glColorPointer(4, GL_FLOAT, sizeof(Vertex), colourPointer);
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
-			//glDisableClientState(GL_COLOR_ARRAY);
-			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#elif defined(OGLES)
-			/*glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
+			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL, true);
 
-			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
-			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
-			GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
-			glEnableVertexAttribArray(posAttrib);
-			glEnableVertexAttribArray(colAttrib);
-			glEnableVertexAttribArray(texAttrib);
-			glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-			glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)8);
-			glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
-			
-			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, NULL);
-
-			glDisableVertexAttribArray(posAttrib);
-			glDisableVertexAttribArray(colAttrib);
-			glDisableVertexAttribArray(texAttrib);*/
-#endif
 			currentAddress += sizeof(POLY_GT3);
+			g_vertexIndex += 3;
+			numVertices += 3;
 			break;
 		}
 		case 0x38: // POLY_G4
@@ -720,18 +709,18 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		{
 			POLY_GT4* poly = (POLY_GT4*)pTag;
 
-			if (lastClut == 0xFFFF || lastTpage == 0xFFFF)
+			if (lastTpage == 0xFFFF || lastClut == 0xFFFF)
 			{
-				lastClut = poly->clut;
 				lastTpage = poly->tpage;
-				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateAndBindTpage(lastTpage, lastClut);
+				lastClut = poly->clut;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
 			else if (poly->tpage != lastTpage || poly->clut != lastClut)
 			{
 				lastClut = poly->clut;
 				lastTpage = poly->tpage;
-				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateAndBindTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 				numVertices = 0;
@@ -754,7 +743,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		}
 		case 0x40: // LINE_F2
 		{
-			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			LINE_F2* poly = (LINE_F2*)pTag;
 #if !defined(OGLES)
@@ -772,7 +761,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		}
 		case 0x50: // LINE_G2
 		{
-			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			LINE_G2* poly = (LINE_G2*)pTag;
 #if !defined(OGLES)
@@ -788,7 +777,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		}
 		case 0x60: // TILE
 		{
-			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			TILE* poly = (TILE*)pTag;
 #if !defined(OGLES) && 0
@@ -816,7 +805,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		case 0x64: // SPRT
 		{
 			SPRT* poly = (SPRT*)pTag;
-			Emulator_GenerateAndBindTpage(-1, poly->clut);
+			Emulator_GenerateTpage(-1, poly->clut);
 
 			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, NULL, NULL, NULL, poly->w, poly->h);
 			//char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, NULL, NULL, NULL, poly->w, poly->h);
@@ -857,7 +846,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		{
 			const int width = 1;
 
-			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			TILE_1* poly = (TILE_1*)pTag;
 #if !defined(OGLES) && 0
@@ -886,7 +875,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		{
 			const int width = 8;
 
-			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 #if !defined(OGLES) && 0
 			TILE_1* poly = (TILE_1*)pTag;
 
@@ -940,7 +929,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		{
 			const int width = 16;
 
-			glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
+			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 
 			TILE_1* poly = (TILE_1*)pTag;
 #if !defined(OGLES) && 0

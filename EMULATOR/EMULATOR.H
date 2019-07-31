@@ -65,7 +65,7 @@
 
 #define RESOLUTION_SCALE (1)
 
-#define MAX_NUM_CACHED_TEXTURES (256)
+#define MAX_NUM_CACHED_TEXTURES (128)
 
 #define VRAM_WIDTH (1024 * RESOLUTION_SCALE)
 #define VRAM_HEIGHT (512 * RESOLUTION_SCALE)
@@ -128,15 +128,16 @@ struct Vertex
 	GLfloat x, y;
 	GLfloat u0, v0;
 	GLfloat col[4];
-	GLuint padding[3];
 };
 #pragma pack(pop)
+
+extern GLuint g_lastBoundTexture;
 
 extern void Emulator_InitialiseGL();
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
-extern GLuint Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut);
+extern GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut);
 extern void Emulator_DestroyFrameBuffer(GLuint& fbo);
 extern void Emulator_GenerateFrameBuffer(GLuint& fbo);
 extern void Emulator_GenerateAndBindNullWhite();
@@ -149,6 +150,7 @@ extern void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0
 extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
 extern int Emulator_InitialiseGameVariables();
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
+extern void Emulator_BindTexture(GLuint textureId);
 
 #endif
 
