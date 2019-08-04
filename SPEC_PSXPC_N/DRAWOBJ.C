@@ -939,7 +939,7 @@ loc_7F1DC:
 			t9 = (t1 >> 21) & 0x7F8;
 			t8 = (t1 >> 13) & 0x7F8;
 			t8 += (int)a0;
-			t7 = (t1 >> 15) & 0x7F8;
+			t7 = (t1 >> 5) & 0x7F8;
 			t7 += (int)a0;
 			t6 = (t1 << 3) & 0x7F8;
 			t6 += (int)a0;
@@ -960,7 +960,7 @@ loc_7F1DC:
 			t7 = ((int*)t7)[1];
 			t8 = ((int*)t8)[1];
 			int s77 = ((int*)t9)[0];
-			t9 = ((int*)t9)[0];
+			t9 = ((int*)t9)[1];
 
 			SZ0 = t6;
 			SZ1 = t7;
@@ -990,7 +990,7 @@ loc_7F1DC:
 					t9 |= t3;
 					t9 |= t2;
 					t4 = ((int*)t5)[2];
-					at = MAC0;
+					at = t4;
 					UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
 					at = DQB;
 
@@ -1029,7 +1029,7 @@ loc_7F304:
 	return;
 
 WANK2:
-
+	return;
 }
 
 void phd_PutPolygons_train(short* mesh, long shade)
@@ -1405,6 +1405,8 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 	{
 		phd_PutPolygons_normal(mesh, 1);
 	}
+
+	return;///@fixme this crashes on stack corruption
 
 	initialise_light_matrix();
 
