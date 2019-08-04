@@ -22,7 +22,7 @@ struct VertexBufferSplitIndex
 	GLuint textureId;
 };
 
-#define MAX_NUM_POLY_BUFFER_VERTICES (8192)
+#define MAX_NUM_POLY_BUFFER_VERTICES (12040)//?FIXME
 #define MAX_NUM_INDEX_BUFFERS (4096)
 Vertex g_vertexBuffer[MAX_NUM_POLY_BUFFER_VERTICES];
 unsigned char* g_IndexBuffer[MAX_NUM_INDEX_BUFFERS];
@@ -451,10 +451,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #else
 		}while ((unsigned long)pTag != (unsigned long)&terminator);
 #endif
-		if (g_numSplitIndices > 0)
-		{
-			g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
-		}
 
 #if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
 		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
@@ -604,36 +600,35 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			POLY_FT4* poly = (POLY_FT4*)pTag;
 
-			Emulator_GenerateTpage(poly->tpage, poly->clut);
+			if (lastTpage == 0xFFFF || lastClut == 0xFFFF)
+			{
+				lastTpage = poly->tpage;
+				lastClut = poly->clut;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (poly->tpage != lastTpage || poly->clut != lastClut)
+			{
+				lastClut = poly->clut;
+				lastTpage = poly->tpage;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
 
-			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
-			//char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
-#if defined(OGL)
-			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			//glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
-			//glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
-			//glDrawArrays(GL_QUADS, 0, 4);
-			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#elif defined(OGLES) || defined(CORE_PROF_3_3)
-			/*glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
+			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, false);
 
-			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
-			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
-			GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
-			glEnableVertexAttribArray(posAttrib);
-			glEnableVertexAttribArray(texAttrib);
-			glEnableVertexAttribArray(colAttrib);
-			glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-			glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)8);
-			glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
+			//Make tri
+			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
+			g_vertexBuffer[g_vertexIndex + 3] = g_vertexBuffer[g_vertexIndex];
+			g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex + 2];
 
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
-
-			glDisableVertexAttribArray(posAttrib);
-			glDisableVertexAttribArray(colAttrib);
-			glDisableVertexAttribArray(texAttrib);*/
-#endif
 			currentAddress += sizeof(POLY_FT4);
+			g_vertexIndex += 6;
+			numVertices += 6;
 			break;
 		}
 		case 0x30: // POLY_G3
@@ -683,9 +678,10 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
 			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL, true);
 
-			currentAddress += sizeof(POLY_GT3);
+			
 			g_vertexIndex += 3;
 			numVertices += 3;
+			currentAddress += sizeof(POLY_GT3);
 			break;
 		}
 		case 0x38: // POLY_G4
@@ -735,10 +731,10 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			g_vertexBuffer[g_vertexIndex + 3] = g_vertexBuffer[g_vertexIndex];
 			g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex+2];
 
-			currentAddress += sizeof(POLY_GT4);
+			
 			g_vertexIndex += 6;
 			numVertices += 6;
-
+			currentAddress += sizeof(POLY_GT4);
 			break;
 		}
 		case 0x40: // LINE_F2
@@ -997,4 +993,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #endif
 	}
+
+	g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+	//g_splitIndices[g_numSplitIndices].splitIndex = g_vertexIndex;
 }
