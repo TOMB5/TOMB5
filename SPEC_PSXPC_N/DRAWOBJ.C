@@ -7,6 +7,255 @@
 #include "GPU.H"
 #include "GTEREG.H"
 #include "MISC.H"
+#include <assert.h>
+
+int ultimate_clipper(int s4, int s5, int s6, int s7)
+{
+	int at;
+
+	if (!(s4 & 0xFE00) || !(s5 & 0xFE00) || !(s6 & 0xFE00) || !(s7 & 0xFE00))
+	{
+		at = s4 & s5;
+		at &= s6;
+		at &= s7;
+
+		if(at >= 0 && (s4 >> 16) < 0xF0 || (s5 >> 16) < 0xF0 || (s6 >> 16) < 0xF0 || (s7 >> 16) < 0xF0)
+		{
+			return 0;
+		}
+
+	}
+	//locret_7ED48
+	return 1;
+}
+
+void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0)
+{
+	int t7;
+	int t8;
+	int t0;
+	int v1;
+	int t1;
+	int s2;
+	int t6;
+	int s4;
+	int s5;
+	int s6;
+	int t5;
+	int s7;
+
+	//loc_7F340
+	t7 = gp + 0x4000;
+	at >>= 10;
+	at &= 3;
+	at <<= 3;
+	t7 += at;
+	t8 = ((int*)t7)[1];
+	t7 = ((int*)t7)[0];
+	t8 = RGB1;
+	t7 = RGB2;
+	v0 &= 0xFFFF;
+	gp = 0x9000000;
+	*a1 += 4;
+
+	if (v0 != 0)
+	{
+		t0 = ((int*)a1)[0];
+
+		//loc_7F378
+		a1 += 4;
+		v1 = 3;
+
+		//loc_7F380
+		t1 = ((int*)a1)[0];
+		v0--;
+
+		if ((unsigned int)s0 < (unsigned int)s1)
+		{
+			RGB0 = t1;
+			s2 = (t1 >> 27) & 0x1E;
+			t8 = (t1 >> 13) & 0x7F8;
+			t8 += (int)a0;
+			t7 = (t1 >> 5) & 0x7F8;
+			t7 += (int)a0;
+			t6 = (t1 << 3) & 0x7F8;
+			t6 += (int)a0;
+
+			s4 = ((int*)t6)[0];
+			s5 = ((int*)t7)[0];
+			s6 = ((int*)t8)[0];
+
+			SXY0 = s4;
+			SXY1 = s5;
+			SXY2 = s6;
+
+			t5 = t0 & 0xFF;
+			t1 >>= 16;
+			docop2(0x1400006);
+			t1 &= 0xF00;
+			t5 |= t1;
+			s7 = s6;
+			ultimate_clipper
+		}
+		else
+		{
+			//loc_7F304
+			goto DrawExit;
+		}
+	}//loc_7F4A4
+#if 0 
+jal     sub_7ECDC
+move    $s7, $s6
+bnez    $at, loc_7F48C
+srl     $t0, 8
+lwc2    $17, 4($t6)
+lwc2    $18, 4($t7)
+lwc2    $19, 4($t8)
+mfc2    $at, $24
+cop2    0x158002D
+bltz    $at, loc_7F48C
+lw      $t6, 4($t6)
+lw      $t7, 4($t7)
+lw      $t8, 4($t8)
+sll     $t5, 4
+mfc2    $t1, $7
+add     $t5, $a2
+slti    $at, $t1, 0xA02
+beqz    $at, loc_7F48C
+slti    $at, $t1, 0x21
+bnez    $at, loc_7F48C
+sll     $t1, 2
+lw      $t4, 8($t5)
+jal     sub_7EC6C
+sll     $at, $t4, 8
+cfc2    $at, $28
+lw      $t2, 0($t5)
+lw      $t3, 4($t5)
+jal     sub_7ED50
+subu    $t2, $at
+beqz    $s2, loc_7F470
+add     $t1, $a3
+jal     sub_7F60C
+srl     $t2, $t6, 3
+
+loc_7F470:
+lw      $t2, 0($t1)
+sw      $s0, 0($t1)
+or      $t2, $gp
+sw      $t2, 0($s0)
+beqz    $s2, loc_7F48C
+addi    $s0, 0x28
+addi    $s0, 0x20
+
+loc_7F48C:
+beqz    $v0, loc_7F4A4
+addi    $a1, 4
+bnez    $v1, loc_7F380
+addi    $v1, -1
+j       loc_7F378
+lw      $t0, 0($a1)
+
+loc_7F4A4:
+cfc2    $v0, $27
+lui     $gp, 0xC00
+beqz    $v0, loc_7F304
+lw      $t0, 0($a1)
+
+loc_7F4B4:
+addi    $a1, 4
+li      $v1, 1
+
+loc_7F4BC:
+lw      $t1, 0($a1)
+slt     $at, $s0, $s1
+beqz    $at, loc_7F304
+addi    $v0, -1
+mtc2    $t1, $20
+srl     $s2, $t0, 11
+andi    $s2, 0x1E
+srl     $t9, $t1, 21
+andi    $t9, 0x7F8
+srl     $t8, $t1, 13
+andi    $t8, 0x7F8
+add     $t8, $a0
+srl     $t7, $t1, 5
+andi    $t7, 0x7F8
+add     $t7, $a0
+sll     $t6, $t1, 3
+andi    $t6, 0x7F8
+add     $t6, $a0
+lw      $s4, 0($t6)
+lw      $s5, 0($t7)
+lw      $s6, 0($t8)
+mtc2    $s4, $12
+mtc2    $s5, $13
+mtc2    $s6, $14
+add     $t9, $a0
+andi    $t5, $t0, 0xFFF
+cop2    0x1400006
+jal     sub_7ECDC
+lw      $s7, 0($t9)
+bnez    $at, loc_7F5F4
+srl     $t0, 16
+lwc2    $16, 4($t6)
+lwc2    $17, 4($t7)
+lwc2    $18, 4($t8)
+lwc2    $19, 4($t9)
+mfc2    $at, $24
+cop2    0x168002E
+bltz    $at, loc_7F5F4
+lw      $t6, 4($t6)
+lw      $t7, 4($t7)
+lw      $t8, 4($t8)
+lw      $t9, 4($t9)
+sll     $t5, 4
+mfc2    $t1, $7
+add     $t5, $a2
+slti    $at, $t1, 0xA02
+beqz    $at, loc_7F5F4
+slti    $at, $t1, 0x21
+bnez    $at, loc_7F5F4
+sll     $t1, 2
+srl     $t2, $t9, 7
+and     $t2, $fp
+srl     $t3, $t9, 10
+andi    $t3, 0xF800
+srl     $t9, 13
+andi    $t9, 0xF8
+or      $t9, $t3
+or      $t9, $t2
+lw      $t4, 8($t5)
+jal     sub_7EC6C
+move    $at, $t4
+cfc2    $at, $28
+lw      $t2, 0($t5)
+lw      $t3, 4($t5)
+lw      $t5, 0xC($t5)
+jal     sub_7ED78
+subu    $t2, $at
+beqz    $s2, loc_7F5D8
+add     $t1, $a3
+jal     sub_7F7BC
+srl     $t2, $t6, 3
+
+loc_7F5D8:
+lw      $t2, 0($t1)
+sw      $s0, 0($t1)
+or      $t2, $gp
+sw      $t2, 0($s0)
+beqz    $s2, loc_7F5F4
+addi    $s0, 0x34
+addi    $s0, 0x28
+
+loc_7F5F4:
+beqz    $v0, loc_7F304
+addi    $a1, 4
+bnez    $v1, loc_7F4BC
+addi    $v1, -1
+j       loc_7F4B4
+lw      $t0, 0($a1)
+#endif
+}
 
 char* do_the_flat_colursub_poly_quad(char* s0, int s2, int t6, int t7, int t8, int t9, int s4, int s5, int s6, int s7, int t1)
 {
@@ -803,6 +1052,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 
 	if (at)
 	{
+		assert(0);
 		///goto DrawMesh_Env;
 	}
 
@@ -812,6 +1062,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 		v0 &= 0xFFFF;
 		if (s4 < 0)
 		{
+			assert(0);
 			///goto DrawSubDivMesh;
 		}
 	}
@@ -820,6 +1071,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 
 	if (s5 < 0)
 	{
+		assert(0);
 		///goto DrawClippedMesh;
 	}
 
