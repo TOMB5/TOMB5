@@ -152,6 +152,162 @@ void UnpackRGB(int* t2, int* t6, int* fp, int* t3, int* at, int* t7, int* t8)
 	*t8 |= *t2;
 }
 
+char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8, int t9, int s3, int t1, int s2, int s4, int s5, int s6, int s7)
+{
+	int at;
+	int t22;
+	int t5;
+
+	t2 &= 0x1F;
+
+	at = (t6 >> 11) & 0x1F;
+	t2 += at;
+
+	at = (t6 >> 19) & 0x1F;
+	t2 += at;
+
+	at = (t7 >> 3) & 0x1F;
+	t2 += at;
+
+	at = (t7 >> 11) & 0x1F;
+	t2 += at;
+
+	at = (t7 >> 19) & 0x1F;
+	t2 += at;
+
+	at = (t8 >> 3) & 0x1F;
+	t2 += at;
+
+	at = (t8 >> 11) & 0x1F;
+	t2 += at;
+
+	at = (t8 >> 19) & 0x1F;
+	t2 += at;
+
+	at = (t9 >> 3) & 0x1F;
+	t2 += at;
+
+	at = (t9 >> 19) & 0x1F;
+	t2 += at;
+
+	t22 = t2 / 12;
+	at = RGB0;
+
+	t9 = at >> 21;
+	t8 = (at >> 13) & 0x7F8;
+	t8 += s3;
+
+	t7 = (at >> 5) & 0x7F8;
+	t7 += s3;
+
+	t6 = (at << 3) & 0x7F8;
+	t6 += s3;
+
+	VX0 = ((int*)t6)[0] & 0xFFFF;
+	VY0 = ((int*)t6)[0] >> 16;
+	VZ0 = ((int*)t6)[1];
+
+	VX1 = ((int*)t7)[0] & 0xFFFF;
+	VY1 = ((int*)t7)[0] >> 16;
+	VZ1 = ((int*)t7)[1];
+
+	VX2 = ((int*)t8)[0] & 0xFFFF;
+	VY2 = ((int*)t8)[0] >> 16;
+	VZ2 = ((int*)t8)[1];
+
+	t9 &= 0x7F8;
+	t9 += s3;
+	docop2(0x486012);
+	t8 = RGB1;
+	t5 = MAC1;
+	t6 = MAC1;
+
+	t2 = (t8 >> 8) & 0xFF;
+	t5 >>= 7;
+	t5 += t8;
+	t6 >>= 7;
+	t6 += t2;
+
+	((char*)s0)[64] = t5;
+	((char*)s0)[65] = t6;
+
+	docop2(0x48E012);
+
+	t7 = RGB2;
+	t5 = MAC1;
+	t6 = MAC2;
+
+	t5 >>= 7;
+	t5 += t8;
+	t6 >>= 7;
+	t6 += t2;
+
+	((char*)s0)[72] = t5;
+	((char*)s0)[73] = t6;
+
+	docop2(0x496012);
+	t5 = MAC1;
+	t6 = MAC2;
+	t5 >>= 7;
+	t5 += t8;
+	t6 >>= 7;
+	t6 += t2;
+
+	VX0 = ((int*)t9)[0] & 0xFFFF;
+	VY0 = ((int*)t9)[0] >> 16;
+	VZ0 = ((int*)t9)[1];
+
+	((char*)s0)[80] = t5;
+	((char*)s0)[81] = t6;
+
+	docop2(0x486012);
+
+	t5 = MAC1;
+	t6 = MAC2;
+	t5 >>= 7;
+	t5 += t8;
+	t6 >>= 7;
+	t6 += t2;
+
+	((char*)s0)[88] = t5;
+	((char*)s0)[89] = t6;
+	((short*)s0)[33] = t7;
+	t7 >>= 16;
+	((short*)s0)[37] = t7;
+	s0 += 0x34;
+
+	t2 = ((int*)t1)[0];
+	((int*)t1)[0] = (int)s0;
+	at = 0x9000000;
+	t2 |= at;
+	((int*)s0)[0] = t2;
+	s0 -= 0x34;
+
+	t22 = (s2 * t22) >> 4;
+
+	((int*)s0)[15] = s4;
+	((int*)s0)[17] = s5;
+	((int*)s0)[19] = s6;
+	((int*)s0)[21] = s7;
+
+	at = 0x2E000000;
+	if (t2 >= 0x1F)
+	{
+		t2 = 0x1F;
+	}
+
+	//loc_7F9A0
+	t2 <<= 3;
+	at |= t2;
+	t2 <<= 8;
+	at |= t2;
+	t2 <<= 8;
+	at |= t2;
+	((int*)s0)[14] = at;
+
+	return s0;
+}
+
 char* dirty_envmap_intensity_shit_TRI(int* t2, int* t6, int* t7, int* t8, int s3, char* s0, int* t1, int s2, int s4, int s5, int s6)
 {
 	int at;
@@ -309,6 +465,7 @@ void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0, in
 	int t5;
 	int s7;
 	int t4;
+	int t9;
 
 	//loc_7F340
 	t7 = gp + 0x4000;
@@ -328,11 +485,11 @@ void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0, in
 	{
 		t0 = ((int*)a1)[0];
 
-		//loc_7F378
+	loc_7F378:
 		a1 += 4;
 		v1 = 3;
 
-		//loc_7F380
+	loc_7F380:
 		t1 = ((int*)a1)[0];
 		v0--;
 
@@ -401,140 +558,159 @@ void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0, in
 						{
 							*t2 = t6 >> 3;
 							s0 = (int*)dirty_envmap_intensity_shit_TRI(t2, &t6, &t7, &t8, (int)s3, (char*)s0, &t1, s2, s4, s5, s6);
+
 						}//loc_7F470
+
+						*t2 = ((int*)t1)[0];
+						((int*)t1)[0] = (int)s0;
+						*t2 |= gp;
+						((int*)s0)[0] = *t2;
+						s0 += 0x28;
+
+						if (s2 != 0)
+						{
+							s0 += 0x20;
+						}
 					}//loc_7F48C
 				}//loc_7F48C
 			}//loc_7F48C
+
+			a1 += 4;
+			if (v0 != 0)
+			{
+				if (v1-- != 0)
+				{
+					goto loc_7F380;
+				}
+
+				t0 = ((int*)a1)[0];
+				goto loc_7F378;
+
+			}//loc_7F4A4
+
+			else
+			{
+				//loc_7F304
+				goto DrawExit;
+			}
+		}
+		//loc_7F4A4
+		v0 = DQA;
+		gp = 0xC000000;
+		t0 = a1[0];
+
+		if (v0 == 0)
+		{
+			goto DrawExit;
+		}
+
+		a1++;
+		v1 = 1;
+
+		//loc_7F4BC
+		t1 = a1[0];
+
+		v0--;
+		if ((unsigned int)s0 < (unsigned int)s1)
+		{
+			t1 = RGB0;
+			s2 = (t0 >> 11) & 0x1E;
+			t9 = (t1 >> 21) & 0x7F8;
+			t8 = (t1 >> 13) & 0x7F8;
+			t8 += (int)a0;
+			t7 = (t1 >> 5) & 0x7F8;
+			t7 += (int)a0;
+			t6 = (t1 << 3) & 0x7F8;
+			t6 += (int)a0;
+
+			s4 = ((int*)t6)[0];
+			s5 = ((int*)t7)[0];
+			s6 = ((int*)t8)[0];
+
+			s4 = SXY0;
+			s5 = SXY1;
+			s6 = SXY2;
+
+			t9 += (int)a0;
+			t5 = t0 & 0xFFF;
+			docop2(0x1400006);
+			s7 = ((int*)t9)[0];
+			t0 >>= 16;
+			if (ultimate_clipper(s4, s5, s6, s7) == 0)
+			{
+				SZ0 = ((int*)t6)[1];
+				SZ1 = ((int*)t7)[1];
+				SZ2 = ((int*)t8)[1];
+				SZ3 = ((int*)t9)[1];
+				at = MAC0;
+				docop2(0x168002E);
+
+				if (at >= 0)
+				{
+					t6 = ((int*)t6)[1];
+					t7 = ((int*)t7)[1];
+					t8 = ((int*)t8)[1];
+					t9 = ((int*)t9)[1];
+					t5 <<= 4;
+					t1 = OTZ;
+					t5 += (int)a2;
+
+					if (t1 < 0xA02 && t1 >= 0x21)
+					{
+						t1 <<= 2;
+						*t2 = t9 >> 7;
+						*t2 &= *fp;
+						*t3 = (t9 >> 10) & 0xF800;
+						t9 >>= 13;
+						t9 &= 0xF8;
+						t9 |= *t3;
+						t9 |= *t2;
+						((int*)t5)[2] = t4;
+						at = t4;
+						UnpackRGB(t2, &t6, fp, t3, &at, &t7, &t8);
+
+						*t2 = ((int*)t5)[0];
+						*t3 = ((int*)t5)[1];
+						t5 = ((int*)t5)[3];
+						*t2 -= at;
+						InitGT4((char*)s0, t6, s4, (int)t2, t7, s5, (int)t3, t8, s6, t4, t9, s7, t5);
+
+						t1 += a3;
+						if (s2 != 0)
+						{
+							*t2 = t6 >> 3;
+							dirty_envmap_intensity_shit_QUAD((char*)s0, (int)t2, t6, t7, t8, t9, (int)s3, t1, s2, s4, s5, s6, s7);
+						}
+
+					}//loc_7F5F4
+				}//loc_7F5F4
+			}//loc_7F5F4
 		}
 		else
 		{
-			//loc_7F304
 			goto DrawExit;
 		}
-	}//loc_7F4A4
 #if 0 
-beqz    $s2, loc_7F470
-add     $t1, $a3
-jal     sub_7F60C
-srl     $t2, $t6, 3
 
-loc_7F470:
-lw      $t2, 0($t1)
-sw      $s0, 0($t1)
-or      $t2, $gp
-sw      $t2, 0($s0)
-beqz    $s2, loc_7F48C
-addi    $s0, 0x28
-addi    $s0, 0x20
+			loc_7F5D8:
+		lw      $t2, 0($t1)
+			sw      $s0, 0($t1)
+			or $t2, $gp
+			sw      $t2, 0($s0)
+			beqz    $s2, loc_7F5F4
+			addi    $s0, 0x34
+			addi    $s0, 0x28
 
-loc_7F48C:
-beqz    $v0, loc_7F4A4
-addi    $a1, 4
-bnez    $v1, loc_7F380
-addi    $v1, -1
-j       loc_7F378
-lw      $t0, 0($a1)
-
-loc_7F4A4:
-cfc2    $v0, $27
-lui     $gp, 0xC00
-beqz    $v0, loc_7F304
-lw      $t0, 0($a1)
-
-loc_7F4B4:
-addi    $a1, 4
-li      $v1, 1
-
-loc_7F4BC:
-lw      $t1, 0($a1)
-slt     $at, $s0, $s1
-beqz    $at, loc_7F304
-addi    $v0, -1
-mtc2    $t1, $20
-srl     $s2, $t0, 11
-andi    $s2, 0x1E
-srl     $t9, $t1, 21
-andi    $t9, 0x7F8
-srl     $t8, $t1, 13
-andi    $t8, 0x7F8
-add     $t8, $a0
-srl     $t7, $t1, 5
-andi    $t7, 0x7F8
-add     $t7, $a0
-sll     $t6, $t1, 3
-andi    $t6, 0x7F8
-add     $t6, $a0
-lw      $s4, 0($t6)
-lw      $s5, 0($t7)
-lw      $s6, 0($t8)
-mtc2    $s4, $12
-mtc2    $s5, $13
-mtc2    $s6, $14
-add     $t9, $a0
-andi    $t5, $t0, 0xFFF
-cop2    0x1400006
-jal     sub_7ECDC
-lw      $s7, 0($t9)
-bnez    $at, loc_7F5F4
-srl     $t0, 16
-lwc2    $16, 4($t6)
-lwc2    $17, 4($t7)
-lwc2    $18, 4($t8)
-lwc2    $19, 4($t9)
-mfc2    $at, $24
-cop2    0x168002E
-bltz    $at, loc_7F5F4
-lw      $t6, 4($t6)
-lw      $t7, 4($t7)
-lw      $t8, 4($t8)
-lw      $t9, 4($t9)
-sll     $t5, 4
-mfc2    $t1, $7
-add     $t5, $a2
-slti    $at, $t1, 0xA02
-beqz    $at, loc_7F5F4
-slti    $at, $t1, 0x21
-bnez    $at, loc_7F5F4
-sll     $t1, 2
-srl     $t2, $t9, 7
-and     $t2, $fp
-srl     $t3, $t9, 10
-andi    $t3, 0xF800
-srl     $t9, 13
-andi    $t9, 0xF8
-or      $t9, $t3
-or      $t9, $t2
-lw      $t4, 8($t5)
-jal     sub_7EC6C
-move    $at, $t4
-cfc2    $at, $28
-lw      $t2, 0($t5)
-lw      $t3, 4($t5)
-lw      $t5, 0xC($t5)
-jal     sub_7ED78
-subu    $t2, $at
-beqz    $s2, loc_7F5D8
-add     $t1, $a3
-jal     sub_7F7BC
-srl     $t2, $t6, 3
-
-loc_7F5D8:
-lw      $t2, 0($t1)
-sw      $s0, 0($t1)
-or      $t2, $gp
-sw      $t2, 0($s0)
-beqz    $s2, loc_7F5F4
-addi    $s0, 0x34
-addi    $s0, 0x28
-
-loc_7F5F4:
-beqz    $v0, loc_7F304
-addi    $a1, 4
-bnez    $v1, loc_7F4BC
-addi    $v1, -1
-j       loc_7F4B4
-lw      $t0, 0($a1)
+			loc_7F5F4:
+		beqz    $v0, loc_7F304
+			addi    $a1, 4
+			bnez    $v1, loc_7F4BC
+			addi    $v1, -1
+			j       loc_7F4B4
+			lw      $t0, 0($a1)
 #endif
+	}
+	//loc_7F4A4
 
 DrawExit:
 	//todo
