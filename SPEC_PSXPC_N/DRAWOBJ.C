@@ -9,6 +9,271 @@
 #include "MISC.H"
 #include <assert.h>
 
+void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)
+{
+	((int*)s0)[3] = s4;
+	((char*)s0)[7] = 0x36;
+	*s3 = ((t6 & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
+	{
+		*s3 = 0xFF;
+	}
+
+	//loc_7FF64
+	((int*)s0)[4] = *s3;
+	*s3 = (((t6 >> 8) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
+	{
+		*s3 = 0xFF;
+	}
+
+	//loc_7FF8C
+	((char*)s0)[5] = *s3;
+	*s3 = (((t6 >> 16) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
+	{
+		*s3 = 0xFF;
+	}
+
+	//loc_7FFB4
+	((char*)s0)[6] = *s3;
+	*s3 = ((t7 & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
+	{
+		*s3 = 0xFF;
+	}
+
+	//loc_7FFD8
+	((char*)s0)[16] = *s3;
+	*s3 = (((t7 >> 8) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
+	{
+		*s3 = 0xFF;
+	}
+
+	//loc_80000
+	((char*)s3)[17] = *s3;
+	*s3 = (((t7 >> 16) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
+	{
+		*s3 = 0xFF;
+	}
+
+	((char*)s3)[18] = *s3;
+	*s3 = ((t8 & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
+	{
+		*s3 = 0xFF;
+	}
+
+	//loc_8004C
+	((char*)s3)[28] = *s3;
+	*s3 = (((t8 >> 8) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
+	{
+		*s3 = 0xFF;
+	}
+
+	//loc_80074
+	((char*)s3)[29] = *s3;
+	*s3 = (((t8 >> 16) & 0xFF) * at) >> 7;
+	if (*s3 >= 0x100)
+	{
+		*s3 = 0xFF;
+	}
+
+	//loc_8009C
+	((char*)s0)[30] = *s3;
+	((int*)s0)[3] = t2;
+	((int*)s0)[5] = s5;
+	((int*)s0)[6] = t3;
+	((int*)s0)[8] = s6;
+	((int*)s0)[9] = t4;
+	((int*)s0)[2] = s4;
+}
+
+void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)//(F)
+{
+	((int*)polyptr)[1] = t6;
+	((int*)polyptr)[2] = s4;
+	((int*)polyptr)[3] = t2;
+	((int*)polyptr)[4] = t7;
+	((int*)polyptr)[5] = s5;
+	((int*)polyptr)[6] = t3;
+	((int*)polyptr)[7] = t8;
+	((int*)polyptr)[8] = s6;
+	((int*)polyptr)[9] = t4;
+	((int*)polyptr)[10] = t9;
+	((int*)polyptr)[11] = s7;
+	((int*)polyptr)[12] = t5;
+}
+
+void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4)//(F)
+{
+	((int*)polyptr)[1] = t6;
+	((int*)polyptr)[2] = s4;
+	((int*)polyptr)[3] = t2;
+	((int*)polyptr)[4] = t7;
+	((int*)polyptr)[5] = s5;
+	((int*)polyptr)[6] = t3;
+	((int*)polyptr)[7] = t8;
+	((int*)polyptr)[8] = s6;
+	((int*)polyptr)[9] = t4;
+}
+
+void UnpackRGB(int* t2, int* t6, int* fp, int* t3, int* at, int* t7, int* t8)
+{
+	*t2 = *t6 >> 7;
+	*t2 &= *fp;
+	*t3 = *t6 >> 10;
+	*t3 &= 0xF800;
+	*t6 >>= 13;
+	*t6 &= 0xF8;
+	*t6 |= *t3;
+	*t6 |= *t2;
+	*at >>= 24;///@checkme
+	*at <<= 24;
+	*t6 |= *at;
+	*t2 = *t7 >> 7;
+	*t2 &= *fp;
+	*t3 = *t7 >> 10;
+	*t3 &= 0xF800;
+	*t7 >>= 13;
+	*t7 &= 0xF8;
+	*t7 |= *t3;
+	*t7 |= *t2;
+	*t2 = *t8 >> 7;
+	*t2 &= *fp;
+	*t3 = *t8 >> 10;
+	*t3 &= 0xF800;
+	*t8 >>= 13;
+	*t8 &= 0xF8;
+	*t8 |= *t3;
+	*t8 |= *t2;
+}
+
+char* dirty_envmap_intensity_shit_TRI(int* t2, int* t6, int* t7, int* t8, int s3, char* s0, int* t1, int s2, int s4, int s5, int s6)
+{
+	int at;
+	int t22;
+	int t5;
+
+	*t2 &= 0x1F;
+	at = (*t6 >> 3) & 0x1F;
+	*t2 += at;
+	at = (*t6 >> 11) & 0x1F;
+	*t2 += at;
+	at = (*t6 >> 19) & 0x1F;
+	*t2 += at;
+	at = (*t7 >> 3) & 0x1F;
+	*t2 += at;
+	at = (*t7 >> 11) & 0x1F;
+	*t2 += at;
+	at = (*t7 >> 19) & 0x1F;
+	*t2 += at;
+	at = (*t8 >> 3) & 0x1F;
+	*t2 += at;
+	at = (*t8 >> 11) & 0x1F;
+	*t2 += at;
+	at = (*t8 >> 19) & 0x1F;
+	*t2 += at;
+
+	t22 = *t2 / 9;
+	at = RGB0;
+
+	*t8 = (at >> 13) & 0x7F8;
+	*t8 += s3;
+	
+	*t7 = (at >> 5) & 0x7F8;
+	*t7 += s3;
+
+	*t6 = (at << 3) & 0x7F8;
+	*t6 += s3;
+
+	VX0 = ((int*)t6)[0] & 0xFFFF;
+	VY0 = ((int*)t6)[0] >> 16;
+	VZ0 = ((int*)t6)[1];
+
+	VX1 = ((int*)t7)[0] & 0xFFFF;
+	VY1 = ((int*)t7)[0] >> 16;
+	VZ1 = ((int*)t7)[1];
+	
+	VX2 = ((int*)t8)[0] & 0xFFFF;
+	VY2 = ((int*)t8)[0] >> 16;
+	VZ2 = ((int*)t8)[1];
+
+	docop2(0x486012);
+
+	*t8 = RGB1;
+	t5 = MAC1;
+	*t6 = MAC2;
+	*t2 = (*t8 >> 8) & 0xFF;
+	t5 >>= 7;
+	t5 += *t8;
+	*t6 >>= 7;
+	*t6 += *t2;
+
+	s0[52] = t5;
+	s0[53] = *t6;
+
+	docop2(0x48E012);
+	*t7 = RGB2;
+	t5 = MAC1;
+	*t6 = MAC2;
+
+	t5 >>= 7;
+	t5 += *t8;
+	*t6 >>= 7;
+	*t6 += *t2;
+	s0[60] = t5;
+	s0[61] = *t6;
+
+	docop2(0x496012);
+	t5 = MAC1;
+	*t6 = MAC2;
+	t5 >>= 7;
+	t5 += *t8;
+	*t6 >>= 7;
+	*t6 += *t2;
+
+	s0[68] = t5;
+	s0[69] = *t6;
+
+	((short*)t7)[27] = *t7;
+	*t7 >>= 16;
+	((short*)t7)[31] = *t7;
+
+	s0 += 0x28;
+
+	*t2 = *t1;
+	t1[0] = (int)s0;
+	at = 0x7000000;
+	*t2 |= at;
+	((int*)s0)[0] = *t2;
+	s0 -= 0x28;
+
+	t22 = (s2 * t22) >> 4;
+	((int*)s0)[12] = s4;
+	((int*)s0)[14] = s5;
+	((int*)s0)[16] = s6;
+	at = 0x260000;
+	if (t22 >= 0x1F)
+	{
+		t22 = 0x1F;
+	}
+
+	//loc_7F79C
+	t22 <<= 3;
+	at |= t22;
+	t22 <<= 8;
+	at |= t22;
+	t22 <<= 8;
+	at |= t22;
+	((int*)s0)[11] = at;
+
+	return s0;
+}
+
 int ultimate_clipper(int s4, int s5, int s6, int s7)
 {
 	int at;
@@ -29,7 +294,7 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 	return 1;
 }
 
-void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0)
+void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0, int a2, int* t2, int* fp, int* t3, int a3, int* s3)
 {
 	int t7;
 	int t8;
@@ -43,6 +308,7 @@ void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0)
 	int s6;
 	int t5;
 	int s7;
+	int t4;
 
 	//loc_7F340
 	t7 = gp + 0x4000;
@@ -95,7 +361,50 @@ void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0)
 			t1 &= 0xF00;
 			t5 |= t1;
 			s7 = s6;
-			ultimate_clipper
+			t0 >>= 8;
+			if (ultimate_clipper(s4, s5, s6, s7) == 0)
+			{
+				SZ1 = ((int*)t6)[1];
+				SZ2 = ((int*)t7)[1];
+				SZ3 = ((int*)t8)[1];
+
+				at = MAC0;
+				docop2(0x158002D);
+
+				if (at >= 0)
+				{
+					t6 = ((int*)t6)[1];
+					t7 = ((int*)t7)[1];
+					t8 = ((int*)t8)[1];
+					t5 <<= 4;
+					t1 = OTZ;
+					t5 += a2;
+
+					if (t1 < 0xA02 && t1 >= 0x21)
+					{
+						t1 <<= 2;
+						t4 = ((int*)t5)[2];
+						at = t4 << 8;
+
+						UnpackRGB(t2, &t6, fp, t3, &at, &t7, &t8);
+
+						at = DQB;
+
+						*t2 = ((int*)t5)[0];
+						*t3 = ((int*)t5)[1];
+						t2 -= at;
+						InitGT3((char*)s0, t6, s4, *t2, t7, s5, *t3, t8, s6, t4);
+
+						t1 += a3;
+
+						if (s2 != 0)
+						{
+							*t2 = t6 >> 3;
+							s0 = (int*)dirty_envmap_intensity_shit_TRI(t2, &t6, &t7, &t8, (int)s3, (char*)s0, &t1, s2, s4, s5, s6);
+						}//loc_7F470
+					}//loc_7F48C
+				}//loc_7F48C
+			}//loc_7F48C
 		}
 		else
 		{
@@ -104,35 +413,6 @@ void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0)
 		}
 	}//loc_7F4A4
 #if 0 
-jal     sub_7ECDC
-move    $s7, $s6
-bnez    $at, loc_7F48C
-srl     $t0, 8
-lwc2    $17, 4($t6)
-lwc2    $18, 4($t7)
-lwc2    $19, 4($t8)
-mfc2    $at, $24
-cop2    0x158002D
-bltz    $at, loc_7F48C
-lw      $t6, 4($t6)
-lw      $t7, 4($t7)
-lw      $t8, 4($t8)
-sll     $t5, 4
-mfc2    $t1, $7
-add     $t5, $a2
-slti    $at, $t1, 0xA02
-beqz    $at, loc_7F48C
-slti    $at, $t1, 0x21
-bnez    $at, loc_7F48C
-sll     $t1, 2
-lw      $t4, 8($t5)
-jal     sub_7EC6C
-sll     $at, $t4, 8
-cfc2    $at, $28
-lw      $t2, 0($t5)
-lw      $t3, 4($t5)
-jal     sub_7ED50
-subu    $t2, $at
 beqz    $s2, loc_7F470
 add     $t1, $a3
 jal     sub_7F60C
@@ -255,6 +535,10 @@ addi    $v1, -1
 j       loc_7F4B4
 lw      $t0, 0($a1)
 #endif
+
+DrawExit:
+	//todo
+	return;
 }
 
 char* do_the_flat_colursub_poly_quad(char* s0, int s2, int t6, int t7, int t8, int t9, int s4, int s5, int s6, int s7, int t1)
@@ -513,150 +797,6 @@ char* do_the_flat_colursub_poly_tri(char* s0, int s2, int t6, int t7, int t8, in
 	s0 += 0x1C;
 
 	return s0;
-}
-
-void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)
-{
-	((int*)s0)[3] = s4;
-	((char*)s0)[7] = 0x36;
-	*s3 = ((t6 & 0xFF) * at) >> 7;
-	if (*s3 >= 0x100)
-	{
-		*s3 = 0xFF;
-	}
-
-	//loc_7FF64
-	((int*)s0)[4] = *s3;
-	*s3 = (((t6 >> 8) & 0xFF) * at) >> 7;
-	if (*s3 >= 0x100)
-	{
-		*s3 = 0xFF;
-	}
-
-	//loc_7FF8C
-	((char*)s0)[5] = *s3;
-	*s3 = (((t6 >> 16) & 0xFF) * at) >> 7;
-	if (*s3 >= 0x100)
-	{
-		*s3 = 0xFF;
-	}
-
-	//loc_7FFB4
-	((char*)s0)[6] = *s3;
-	*s3 = ((t7 & 0xFF) * at) >> 7;
-	if (*s3 >= 0x100)
-	{
-		*s3 = 0xFF;
-	}
-
-	//loc_7FFD8
-	((char*)s0)[16] = *s3;
-	*s3 = (((t7 >> 8) & 0xFF) * at) >> 7;
-	if (*s3 >= 0x100)
-	{
-		*s3 = 0xFF;
-	}
-
-	//loc_80000
-	((char*)s3)[17] = *s3;
-	*s3 = (((t7 >> 16) & 0xFF) * at) >> 7;
-	if (*s3 >= 0x100)
-	{
-		*s3 = 0xFF;
-	}
-
-	((char*)s3)[18] = *s3;
-	*s3 = ((t8 & 0xFF) * at) >> 7;
-	if (*s3 >= 0x100)
-	{
-		*s3 = 0xFF;
-	}
-
-	//loc_8004C
-	((char*)s3)[28] = *s3;
-	*s3 = (((t8 >> 8) & 0xFF) * at) >> 7;
-	if (*s3 >= 0x100)
-	{
-		*s3 = 0xFF;
-	}
-
-	//loc_80074
-	((char*)s3)[29] = *s3;
-	*s3 = (((t8 >> 16) & 0xFF) * at) >> 7;
-	if (*s3 >= 0x100)
-	{
-		*s3 = 0xFF;
-	}
-
-	//loc_8009C
-	((char*)s0)[30] = *s3;
-	((int*)s0)[3] = t2;
-	((int*)s0)[5] = s5;
-	((int*)s0)[6] = t3;
-	((int*)s0)[8] = s6;
-	((int*)s0)[9] = t4;
-	((int*)s0)[2] = s4;
-}
-
-void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)//(F)
-{
-	((int*)polyptr)[1] = t6;
-	((int*)polyptr)[2] = s4;
-	((int*)polyptr)[3] = t2;
-	((int*)polyptr)[4] = t7;
-	((int*)polyptr)[5] = s5;
-	((int*)polyptr)[6] = t3;
-	((int*)polyptr)[7] = t8;
-	((int*)polyptr)[8] = s6;
-	((int*)polyptr)[9] = t4;
-	((int*)polyptr)[10] = t9;
-	((int*)polyptr)[11] = s7;
-	((int*)polyptr)[12] = t5;
-}
-
-void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4)//(F)
-{
-	((int*)polyptr)[1] = t6;
-	((int*)polyptr)[2] = s4;
-	((int*)polyptr)[3] = t2;
-	((int*)polyptr)[4] = t7;
-	((int*)polyptr)[5] = s5;
-	((int*)polyptr)[6] = t3;
-	((int*)polyptr)[7] = t8;
-	((int*)polyptr)[8] = s6;
-	((int*)polyptr)[9] = t4;
-}
-
-
-void UnpackRGB(int* t2, int* t6, int* fp, int* t3, int* at, int* t7, int* t8)
-{
-	*t2 = *t6 >> 7;
-	*t2 &= *fp;
-	*t3 = *t6 >> 10;
-	*t3 &= 0xF800;
-	*t6 >>= 13;
-	*t6 &= 0xF8;
-	*t6 |= *t3;
-	*t6 |= *t2;
-	*at >>= 24;///@checkme
-	*at <<= 24;
-	*t6 |= *at;
-	*t2 = *t7 >> 7;
-	*t2 &= *fp;
-	*t3 = *t7 >> 10;
-	*t3 &= 0xF800;
-	*t7 >>= 13;
-	*t7 &= 0xF8;
-	*t7 |= *t3;
-	*t7 |= *t2;
-	*t2 = *t8 >> 7;
-	*t2 &= *fp;
-	*t3 = *t8 >> 10;
-	*t3 &= 0xF800;
-	*t8 >>= 13;
-	*t8 &= 0xF8;
-	*t8 |= *t3;
-	*t8 |= *t2;
 }
 
 void MakeMono(unsigned short* s, unsigned char* d)//7F9E4, 81A28
@@ -952,7 +1092,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 				a2 += 2;
 
 				docop2(0x680029);
-				t0 = ORGB;//checkme mfc
+				t0 = ORGB;//checkme mfc maybe lim
 				((short*)a2)[-1] = t0;
 			} while (v1 != 0);
 
@@ -1052,8 +1192,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 
 	if (at)
 	{
-		assert(0);
-		///goto DrawMesh_Env;
+		DrawMesh_Env(gp, at, v0, &a1, (int*)s0, (int*)s1, a0, (int)a2, &t2, &fp, &t3, (int)a3, s3);
 	}
 
 	s4 -= 0xC00;
