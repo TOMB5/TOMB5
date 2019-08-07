@@ -801,40 +801,34 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		case 0x64: // SPRT
 		{
 			SPRT* poly = (SPRT*)pTag;
-			Emulator_GenerateTpage(-1, poly->clut);
 
-			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, NULL, NULL, NULL, poly->w, poly->h);
-			//char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&poly->u0, NULL, NULL, NULL, poly->w, poly->h);
-			//char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r0, &poly->r0, &poly->r0, true);
-#if defined(OGL)
-			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			//glEnableClientState(GL_COLOR_ARRAY);
+			if (lastClut == 0xFFFF)
+			{
+				lastClut = poly->clut;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (poly->clut != lastClut)
+			{
+				lastClut = poly->clut;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
 
-			//glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
-			//glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
-			//glColorPointer(4, GL_FLOAT, sizeof(Vertex), colourPointer);
-			//glDrawArrays(GL_QUADS, 0, 4);
-			//glDisableClientState(GL_COLOR_ARRAY);
-			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#elif defined(OGLES)
-			/*glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, vertexPointer);
+			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, poly->w, poly->h);
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, NULL, NULL, NULL, poly->w, poly->h);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, false);
 
-			GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
-			GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
-			GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
-			glEnableVertexAttribArray(posAttrib);
-			glEnableVertexAttribArray(texAttrib);
-			glEnableVertexAttribArray(colAttrib);
-			glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-			glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)8);
-			glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)16);
+			//Make tri
+			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
+			g_vertexBuffer[g_vertexIndex + 3] = g_vertexBuffer[g_vertexIndex];
+			g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex + 2];
 
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+			g_vertexIndex += 6;
+			numVertices += 6;
 
-			glDisableVertexAttribArray(posAttrib);
-			glDisableVertexAttribArray(colAttrib);
-			glDisableVertexAttribArray(texAttrib);*/
-#endif
 			currentAddress += sizeof(SPRT);
 			break;
 		}
