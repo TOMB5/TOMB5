@@ -7,6 +7,7 @@
 #include "GPU.H"
 #include "GTEREG.H"
 #include "MISC.H"
+#include "ROOMLOAD.H"
 #include <assert.h>
 
 void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)
@@ -468,7 +469,7 @@ void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0, in
 	int t9;
 
 	//loc_7F340
-	t7 = gp + 0x4000;
+	t7 = (int)mesh_base;
 	at >>= 10;
 	at &= 3;
 	at <<= 3;
@@ -1549,7 +1550,7 @@ loc_7F1DC:
 			at = MAC0;
 			docop2(0x168002E);
 
-			t5 = t0 & 0xFF;
+			t5 = t0 & 0xFFF;
 			t0 >>= 16;
 			t5 <<= 4;
 
