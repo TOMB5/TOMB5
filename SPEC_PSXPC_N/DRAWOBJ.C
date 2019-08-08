@@ -292,18 +292,18 @@ char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8,
 	((int*)s0)[21] = s7;
 
 	at = 0x2E000000;
-	if (t2 >= 0x1F)
+	if (t22 >= 0x1F)
 	{
-		t2 = 0x1F;
+		t22 = 0x1F;
 	}
 
 	//loc_7F9A0
-	t2 <<= 3;
-	at |= t2;
-	t2 <<= 8;
-	at |= t2;
-	t2 <<= 8;
-	at |= t2;
+	t22 <<= 3;
+	at |= t22;
+	t22 <<= 8;
+	at |= t22;
+	t22 <<= 8;
+	at |= t22;
 	((int*)s0)[14] = at;
 
 	return s0;
