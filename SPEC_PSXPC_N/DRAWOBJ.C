@@ -221,7 +221,7 @@ char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8,
 	docop2(0x486012);
 	t8 = RGB1;
 	t5 = MAC1;
-	t6 = MAC1;
+	t6 = MAC2;
 
 	t2 = (t8 >> 8) & 0xFF;
 	t5 >>= 7;
@@ -309,43 +309,43 @@ char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8,
 	return s0;
 }
 
-char* dirty_envmap_intensity_shit_TRI(int* t2, int* t6, int* t7, int* t8, int s3, char* s0, int* t1, int s2, int s4, int s5, int s6)
+char* dirty_envmap_intensity_shit_TRI(int t2, int t6, int t7, int t8, int s3, char* s0, int t1, int s2, int s4, int s5, int s6)
 {
 	int at;
 	int t22;
 	int t5;
 
-	*t2 &= 0x1F;
-	at = (*t6 >> 3) & 0x1F;
-	*t2 += at;
-	at = (*t6 >> 11) & 0x1F;
-	*t2 += at;
-	at = (*t6 >> 19) & 0x1F;
-	*t2 += at;
-	at = (*t7 >> 3) & 0x1F;
-	*t2 += at;
-	at = (*t7 >> 11) & 0x1F;
-	*t2 += at;
-	at = (*t7 >> 19) & 0x1F;
-	*t2 += at;
-	at = (*t8 >> 3) & 0x1F;
-	*t2 += at;
-	at = (*t8 >> 11) & 0x1F;
-	*t2 += at;
-	at = (*t8 >> 19) & 0x1F;
-	*t2 += at;
+	t2 &= 0x1F;
+	at = (t6 >> 3) & 0x1F;
+	t2 += at;
+	at = (t6 >> 11) & 0x1F;
+	t2 += at;
+	at = (t6 >> 19) & 0x1F;
+	t2 += at;
+	at = (t7 >> 3) & 0x1F;
+	t2 += at;
+	at = (t7 >> 11) & 0x1F;
+	t2 += at;
+	at = (t7 >> 19) & 0x1F;
+	t2 += at;
+	at = (t8 >> 3) & 0x1F;
+	t2 += at;
+	at = (t8 >> 11) & 0x1F;
+	t2 += at;
+	at = (t8 >> 19) & 0x1F;
+	t2 += at;
 
-	t22 = *t2 / 9;
+	t22 = t2 / 9;
 	at = RGB0;
 
-	*t8 = (at >> 13) & 0x7F8;
-	*t8 += s3;
-	
-	*t7 = (at >> 5) & 0x7F8;
-	*t7 += s3;
+	t8 = (at >> 13) & 0x7F8;
+	t8 += s3;
 
-	*t6 = (at << 3) & 0x7F8;
-	*t6 += s3;
+	t7 = (at >> 5) & 0x7F8;
+	t7 += s3;
+
+	t6 = (at << 3) & 0x7F8;
+	t6 += s3;
 
 	VX0 = ((int*)t6)[0] & 0xFFFF;
 	VY0 = ((int*)t6)[0] >> 16;
@@ -354,66 +354,66 @@ char* dirty_envmap_intensity_shit_TRI(int* t2, int* t6, int* t7, int* t8, int s3
 	VX1 = ((int*)t7)[0] & 0xFFFF;
 	VY1 = ((int*)t7)[0] >> 16;
 	VZ1 = ((int*)t7)[1];
-	
+
 	VX2 = ((int*)t8)[0] & 0xFFFF;
 	VY2 = ((int*)t8)[0] >> 16;
 	VZ2 = ((int*)t8)[1];
 
 	docop2(0x486012);
 
-	*t8 = RGB1;
+	t8 = RGB1;
 	t5 = MAC1;
-	*t6 = MAC2;
-	*t2 = (*t8 >> 8) & 0xFF;
+	t6 = MAC2;
+	t2 = (t8 >> 8) & 0xFF;
 	t5 >>= 7;
-	t5 += *t8;
-	*t6 >>= 7;
-	*t6 += *t2;
+	t5 += t8;
+	t6 >>= 7;
+	t6 += t2;
 
 	s0[52] = t5;
-	s0[53] = *t6;
+	s0[53] = t6;
 
 	docop2(0x48E012);
-	*t7 = RGB2;
+	t7 = RGB2;
 	t5 = MAC1;
-	*t6 = MAC2;
+	t6 = MAC2;
 
 	t5 >>= 7;
-	t5 += *t8;
-	*t6 >>= 7;
-	*t6 += *t2;
+	t5 += t8;
+	t6 >>= 7;
+	t6 += t2;
 	s0[60] = t5;
-	s0[61] = *t6;
+	s0[61] = t6;
 
 	docop2(0x496012);
 	t5 = MAC1;
-	*t6 = MAC2;
+	t6 = MAC2;
 	t5 >>= 7;
-	t5 += *t8;
-	*t6 >>= 7;
-	*t6 += *t2;
+	t5 += t8;
+	t6 >>= 7;
+	t6 += t2;
 
 	s0[68] = t5;
-	s0[69] = *t6;
+	s0[69] = t6;
 
-	((short*)t7)[27] = *t7;
-	*t7 >>= 16;
-	((short*)t7)[31] = *t7;
+	((short*)s0)[27] = t7;
+	t7 >>= 16;
+	((short*)s0)[31] = t7;
 
 	s0 += 0x28;
 
-	*t2 = *t1;
-	t1[0] = (int)s0;
+	t2 = t1;
+	((int*)t1)[0] = (int)s0;
 	at = 0x7000000;
-	*t2 |= at;
-	((int*)s0)[0] = *t2;
+	t2 |= at;
+	((int*)s0)[0] = t2;
 	s0 -= 0x28;
 
 	t22 = (s2 * t22) >> 4;
 	((int*)s0)[12] = s4;
 	((int*)s0)[14] = s5;
 	((int*)s0)[16] = s6;
-	at = 0x260000;
+	at = 0x26000000;
 	if (t22 >= 0x1F)
 	{
 		t22 = 0x1F;
@@ -451,7 +451,7 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 	return 1;
 }
 
-void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0, int a2, int* t2, int* fp, int* t3, int a3, int* s3)
+void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int a2, int t2, int* fp, int t3, int a3, int* s3)
 {
 	int t7;
 	int t8;
@@ -476,11 +476,11 @@ void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0, in
 	t7 += at;
 	t8 = ((int*)t7)[1];
 	t7 = ((int*)t7)[0];
-	t8 = RGB1;
-	t7 = RGB2;
+	RGB1 = t8;
+	RGB2 = t7;
 	v0 &= 0xFFFF;
 	gp = 0x9000000;
-	*a1 += 4;
+	a1 += 4;
 
 	if (v0 != 0)
 	{
@@ -544,28 +544,28 @@ void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0, in
 						t4 = ((int*)t5)[2];
 						at = t4 << 8;
 
-						UnpackRGB(t2, &t6, fp, t3, &at, &t7, &t8);
+						UnpackRGB(&t2, &t6, fp, &t3, &at, &t7, &t8);
 
 						at = DQB;
 
-						*t2 = ((int*)t5)[0];
-						*t3 = ((int*)t5)[1];
+						t2 = ((int*)t5)[0];
+						t3 = ((int*)t5)[1];
 						t2 -= at;
-						InitGT3((char*)s0, t6, s4, *t2, t7, s5, *t3, t8, s6, t4);
+						InitGT3((char*)s0, t6, s4, t2, t7, s5, t3, t8, s6, t4);
 
 						t1 += a3;
 
 						if (s2 != 0)
 						{
-							*t2 = t6 >> 3;
-							s0 = (int*)dirty_envmap_intensity_shit_TRI(t2, &t6, &t7, &t8, (int)s3, (char*)s0, &t1, s2, s4, s5, s6);
+							t2 = t6 >> 3;
+							s0 = (int*)dirty_envmap_intensity_shit_TRI(t2, t6, t7, t8, (int)s3, (char*)s0, t1, s2, s4, s5, s6);
 
 						}//loc_7F470
 
-						*t2 = ((int*)t1)[0];
+						t2 = ((int*)t1)[0];
 						((int*)t1)[0] = (int)s0;
-						*t2 |= gp;
-						((int*)s0)[0] = *t2;
+						t2 |= gp;
+						((int*)s0)[0] = t2;
 						s0 += 0x28;
 
 						if (s2 != 0)
@@ -588,34 +588,33 @@ void DrawMesh_Env(int gp, int at, int v0, int* a1, int* s0, int* s1, int* a0, in
 				goto loc_7F378;
 
 			}//loc_7F4A4
-
-			else
-			{
-				//loc_7F304
-				goto DrawExit;
-			}
+		}
+		else
+		{
+			goto DrawExit;
 		}
 	}//loc_7F4A4
-		//loc_7F4A4
+
 	v0 = DQA;
 	gp = 0xC000000;
-	t0 = a1[0];
+	t0 = ((int*)a1)[0];
 
 	if (v0 == 0)
 	{
 		goto DrawExit;
 	}
 
-	a1++;
+loc_7F4B4:
+	a1 += 4;
 	v1 = 1;
 
 loc_7F4BC:
-	t1 = a1[0];
+	t1 = ((int*)a1)[0];
 
 	v0--;
 	if ((unsigned int)s0 < (unsigned int)s1)
 	{
-		t1 = RGB0;
+		RGB0 = t1;
 		s2 = (t0 >> 11) & 0x1E;
 		t9 = (t1 >> 21) & 0x7F8;
 		t8 = (t1 >> 13) & 0x7F8;
@@ -629,9 +628,9 @@ loc_7F4BC:
 		s5 = ((int*)t7)[0];
 		s6 = ((int*)t8)[0];
 
-		s4 = SXY0;
-		s5 = SXY1;
-		s6 = SXY2;
+		SXY0 = s4;
+		SXY1 = s5;
+		SXY2 = s6;
 
 		t9 += (int)a0;
 		t5 = t0 & 0xFFF;
@@ -660,40 +659,40 @@ loc_7F4BC:
 				if (t1 < 0xA02 && t1 >= 0x21)
 				{
 					t1 <<= 2;
-					*t2 = t9 >> 7;
-					*t2 &= *fp;
-					*t3 = (t9 >> 10) & 0xF800;
+					t2 = t9 >> 7;
+					t2 &= *fp;
+					t3 = (t9 >> 10) & 0xF800;
 					t9 >>= 13;
 					t9 &= 0xF8;
-					t9 |= *t3;
-					t9 |= *t2;
-					((int*)t5)[2] = t4;
+					t9 |= t3;
+					t9 |= t2;
+					t4 = ((int*)t5)[2];
 					at = t4;
-					UnpackRGB(t2, &t6, fp, t3, &at, &t7, &t8);
+					UnpackRGB(&t2, &t6, fp, &t3, &at, &t7, &t8);
 
-					*t2 = ((int*)t5)[0];
-					*t3 = ((int*)t5)[1];
+					at = DQB;
+
+					t2 = ((int*)t5)[0];
+					t3 = ((int*)t5)[1];
 					t5 = ((int*)t5)[3];
-					*t2 -= at;
-					InitGT4((char*)s0, t6, s4, (int)t2, t7, s5, (int)t3, t8, s6, t4, t9, s7, t5);
+					t2 -= at;
+					InitGT4((char*)s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s7, t5);
 
 					t1 += a3;
 					if (s2 != 0)
 					{
-						*t2 = t6 >> 3;
-						dirty_envmap_intensity_shit_QUAD((char*)s0, (int)t2, t6, t7, t8, t9, (int)s3, t1, s2, s4, s5, s6, s7);
+						t2 = t6 >> 3;
+						s0 = (int*)dirty_envmap_intensity_shit_QUAD((char*)s0, t2, t6, t7, t8, t9, (int)s3, t1, s2, s4, s5, s6, s7);
 					}
 					//loc_7F5D8
-					*t2 = ((int*)t1)[0];
-					((int*)s0)[0] = t1;
-					*t2 |= gp;
+					t2 = ((int*)t1)[0];
+					((int*)t1)[0] = (int)s0;
+					t2 |= gp;
 					((int*)s0)[0] = (int)t2;
 
+					s0 += 0x34;
+
 					if (s2 != 0)
-					{
-						s0 += 0x34;
-					}
-					else
 					{
 						s0 += 0x28;
 					}
@@ -706,7 +705,7 @@ loc_7F4BC:
 		goto DrawExit;
 	}
 
-	a1++;
+	a1 += 4;
 	if (v0 == 0)
 	{
 		goto DrawExit;
@@ -714,8 +713,12 @@ loc_7F4BC:
 
 	if (v1-- != 0)
 	{
-		t0 = a1[0];
 		goto loc_7F4BC;
+	}
+	else
+	{
+		t0 = ((int*)a1)[0];
+		goto loc_7F4B4;
 	}
 
 
@@ -1122,15 +1125,24 @@ void initialise_light_matrix()
 	L32 = (t1 >> 16) & 0xFFFF;
 	L33 = t4;
 
-	VX0 = LightPos.m00;
-	VY0 = LightPos.m01;
-	VZ0 = LightPos.m02;
+	t0 = ((int*)&LightPos)[0];
+	t1 = ((int*)&LightPos)[1];
+
+	VX0 = t0 & 0xFFFF;
+	VY0 = t0 >> 16;
+	VZ0 = t1;
 
 	docop2(0x4A6012);
 
-	VX1 = LightPos.m10;
-	VY1 = LightPos.m11;
-	VZ1 = LightPos.m12;
+	t0 = ((int*)&LightPos.m11)[0];
+	t1 >>= 16;
+	at = t0 << 16;
+	t1 |= at;
+	t0 >>= 16;
+
+	VX1 = t1 & 0xFFFF;
+	VY1 = t1 >> 16;
+	VZ1 = t0;
 
 	t0 = IR1;
 	t2 = IR2;
@@ -1209,6 +1221,8 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 	int gp = 0;
 	int t9;
 
+	S_MemSet((char*)& sp[0], 0, sizeof(sp));
+
 	initialise_light_matrix();
 
 	v0 = ((int*)mesh)[2];
@@ -1259,7 +1273,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 		at = v0 << 3;
 		if (t0 > 0)
 		{
-			t1 >>= t0;
+			t1 = t0 >> 1;
 		}
 		//loc_7EF74
 		IR0 = t1;
@@ -1282,7 +1296,8 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 				a2 += 2;
 
 				docop2(0x680029);
-				t0 = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
+				ORGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
+				t0 = ORGB;
 				((short*)a2)[-1] = t0;
 			} while (v1 != 0);
 
@@ -1298,14 +1313,16 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 			//loc_7EFBC
 			do
 			{
-				VX0 = a3[0] & 0xFFFF;
-				VY0 = a3[0] >> 16;
-				VZ0 = a3[1];
+				VX0 = (a3[0] & 0xFFFF);
+				VY0 = (a3[0] >> 16) & 0xFFFF;
+				VZ0 = (a3[1] & 0xFFFF);
 				a3 += 2;
 				docop2(0xE80413);
 				v1--;
 				a2 += 2;
-				t0 = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
+				
+				ORGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
+				t0 = ORGB;///@FIXME bad value
 				((short*)a2)[-1] = t0;
 			} while (v1 != 0);
 
@@ -1382,7 +1399,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 
 	if (at)
 	{
-		DrawMesh_Env(gp, at, v0, &a1, (int*)s0, (int*)s1, a0, (int)a2, &t2, &fp, &t3, (int)a3, s3);
+		DrawMesh_Env(gp, at, v0, a1, (int*)s0, (int*)s1, a0, (int)a2, t2, &fp, t3, (int)a3, s3);
 	}
 
 	s4 -= 0xC00;
@@ -1458,7 +1475,7 @@ loc_7F0C8:
 			{
 				t5 <<= 4;
 				t5 += (int)a2;
-				t1 = VZ0;
+				t1 = OTZ;
 
 				if (t1 < 0xA02 && t1 >= 0x21)
 				{
@@ -1474,7 +1491,7 @@ loc_7F0C8:
 
 					InitGT3(s0, t6, s4, t2, t7, s5, t3, t8, s6, s4);
 					t1 += (int)a3;
-					t2 = ((int*)t2)[0];
+					t2 = ((int*)t1)[0];
 					((int*)t1)[0] = (int)s0;
 					t2 |= gp;
 					((int*)s0)[0] = t2;
@@ -1490,14 +1507,13 @@ loc_7F0C8:
 					goto loc_7F0C8;
 				}
 
-				goto loc_7F0C0;
 				t0 = ((int*)a1)[0];
-
+				goto loc_7F0C0;
 			}//loc_7F1C4
 		}
 		else
 		{
-			goto loc_7F304;
+			goto DrawExit;
 		}
 	}
 	//loc_7F1C4
@@ -1598,18 +1614,14 @@ loc_7F1DC:
 					goto loc_7F1DC;
 				}
 
-				goto loc_7F1D4;
 				t0 = ((int*)a1)[0];
-
+				goto loc_7F1D4;
 			}//loc_7F304
 		}//loc_7F304
 	}
-loc_7F304:
+DrawExit:
 	RFC = 0;
 	db.polyptr = s0;
-	return;
-
-WANK2:
 	return;
 }
 
