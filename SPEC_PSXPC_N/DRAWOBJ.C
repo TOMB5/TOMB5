@@ -802,8 +802,8 @@ char* do_the_flat_colursub_poly_quad(char* s0, int s2, int t6, int t7, int t8, i
 	((char*)s0)[12] = s3;
 	((char*)s0)[13] = s3;
 	((char*)s0)[14] = s3;
-	((char*)s0)[15] = 0x2A;
-	((int*)s0)[3] = 0;
+	((char*)s0)[15] = 42;
+	((int*)s0)[2] = 0;
 	((int*)s0)[4] = s4;
 	((int*)s0)[5] = s5;
 	((int*)s0)[6] = s6;
@@ -812,7 +812,7 @@ char* do_the_flat_colursub_poly_quad(char* s0, int s2, int t6, int t7, int t8, i
 	((int*)t1)[0] = (int)s0;
 	s3 = 0x7000000;
 	at |= s3;
-	((int*)s0)[0] = (int)at;
+	((int*)s0)[0] = at;
 	s0 += 0x20;
 	return s0;
 }
@@ -1999,6 +1999,7 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 	if (shade == 128)
 	{
 		phd_PutPolygons_normal(mesh, 1);
+		return;///@VERIFY should we actually return here?
 	}
 
 	initialise_light_matrix();
@@ -2021,9 +2022,10 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 
 	//loc_7FB64
 	s7 = a2;
-	t0 = TRZ - 12288;
+	t0 = TRZ;
 	t1 = 0;
 	s4 = t0;
+	t0 -= 12288;
 	at = v0 << 3;
 
 	if (t0 > 0)
@@ -2065,14 +2067,14 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 		v1 = v0;
 
 		//loc_7FBC4
-		a3 = (int*)&mesh[at >> 1];//checkme
+		a3 = (int*)&mesh[at >> 1];
 		
 		//loc_7FBC8
 		do
 		{
-			VX0 = a3[0] & 0xFFFF;
+			VX0 = (a3[0] & 0xFFFF);
 			VY0 = (a3[0] >> 16) & 0xFFFF;
-			VZ0 = a3[1];
+			VZ0 = (a3[1] & 0xFFFF);
 			a3 += 2;
 
 			docop2(0xE80413);
