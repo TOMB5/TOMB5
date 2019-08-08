@@ -2001,8 +2001,6 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 		phd_PutPolygons_normal(mesh, 1);
 	}
 
-	return;///@fixme this crashes on stack corruption
-
 	initialise_light_matrix();
 
 	v0 = ((int*)mesh)[2];
@@ -2045,12 +2043,16 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 		{
 			t0 = ((short*)a3)[3];
 			a3 += 2;
+			IR1 = (t0 & 0x1f) << 7;
+			IR2 = (t0 & 0x3e0) << 2;
+			IR3 = (t0 & 0x7c00) >> 3;
 			IRGB = t0;
 			v1--;
 			a2 += 2;
 
 			docop2(0x680029);
 
+			ORGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
 			t0 = ORGB;
 			((short*)a2)[-1] = t0;
 
@@ -2076,6 +2078,7 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 			docop2(0xE80413);
 			v1--;
 			a2 += 2;
+			ORGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
 			t0 = ORGB;
 			((short*)a2)[-1] = t0;
 		} while (v1 != 0);
@@ -2208,7 +2211,9 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 
 					UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
 
+					IRGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
 					at = IRGB;
+
 					t2 = ((int*)t5)[0];
 					t3 = ((int*)t5)[1];
 					t2 -= at;
