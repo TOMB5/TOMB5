@@ -469,7 +469,7 @@ void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int
 	int t9;
 
 	//loc_7F340
-	t7 = (int)mesh_base;
+	t7 = (int)&mesh_base;
 	at >>= 10;
 	at &= 3;
 	at <<= 3;
@@ -1222,7 +1222,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 	int gp = 0;
 	int t9;
 
-	S_MemSet((char*)& sp[0], 0, sizeof(sp));
+	S_MemSet((char*)&sp[0], 0, sizeof(sp));
 
 	initialise_light_matrix();
 
@@ -1401,7 +1401,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 	if (at)
 	{
 		DrawMesh_Env(gp, at, v0, a1, (int*)s0, (int*)s1, a0, (int)a2, t2, fp, t3, (int)a3, (int)s3);
-		return;
+		return;///@TODO verify
 	}
 
 	s4 -= 0xC00;
