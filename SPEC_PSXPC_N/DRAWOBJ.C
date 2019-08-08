@@ -1963,7 +1963,7 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 {
 	int v0;
 	int s6;
-	int* a1;
+	int a1;
 	int v1;
 	int* a2;
 	int sp[256];
@@ -2006,7 +2006,7 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 	v0 = ((int*)mesh)[2];
 	mesh += 6;
 	s6 = v0;
-	a1 = (int*)&mesh[v0 >> 17];
+	a1 = (int)&mesh[v0 >> 17];
 	v1 = v0 & 0x8000;
 	v0 &= 0xFF;
 
@@ -2099,15 +2099,15 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 	do
 	{
 		VX0 = t0 & 0xFFFF;
-		VY0 = t0 >> 16;
+		VY0 = (t0 >> 16) & 0xFFFF;
 		VZ0 = t1;
 
 		VX1 = t2 & 0xFFFF;
-		VY1 = t2 >> 16;
+		VY1 = (t2 >> 16) & 0xFFFF;
 		VZ1 = t3;
 
 		VX2 = t4 & 0xFFFF;
-		VY2 = t4 >> 16;
+		VY2 = (t4 >> 16) & 0xFFFF;
 		VZ2 = t5;
 
 		mesh += 12;
@@ -2141,24 +2141,24 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 	s0 = db.polyptr;
 	s1 = db.polybuf_limit;
 
-	v0 = a1[0];
+	v0 = ((int*)a1)[0];
 	fp = 0xF80000;
 	at = v0 >> 16;
 	DQA = at;
 	v0 &= 0xFFFF;
 	gp = 0x9000000;
-	a1++;
+	a1 += 4;
 
 	if (v0 != 0)
 	{
-		t0 = a1[0];
+		t0 = ((int*)a1)[0];
 
 	loc_7FCAC:
-		a1++;
+		a1 += 4;
 		v1 = 3;
 
 	loc_7FCB4:
-		t1 = a1[0];
+		t1 = ((int*)a1)[0];
 		v0--;
 		if ((unsigned long)s0 < (unsigned long)s1)
 		{
@@ -2210,9 +2210,7 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 					at = t4 << 8;
 
 					UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
-
-					IRGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
-					at = IRGB;
+					at = DQB;
 
 					t2 = ((int*)t5)[0];
 					t3 = ((int*)t5)[1];
@@ -2236,7 +2234,7 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 				}//loc_7FDB8
 			}//loc_7FDB8
 
-			a1++;
+			a1 += 4;
 			if (v0 != 0)
 			{
 				if (v1-- != 0)
@@ -2244,7 +2242,7 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 					goto loc_7FCB4;
 				}
 
-				t0 = a1[0];
+				t0 = ((int*)a1)[0];
 				goto loc_7FCAC;
 
 			}//loc_7FDD0
@@ -2253,22 +2251,23 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 		{
 			goto DrawExit;
 		}
-
-		DQA = v0;
-		gp = 0xC000000;
-		t0 = a1[0];
 	}
+
+	v0 = DQA;
+	gp = 0xC000000;
+	t0 = ((int*)a1)[0];
+
 	if (v0 == 0)
 	{
 		goto DrawExit;
 	}
 
 loc_7FDE0:
-	a1++;
+	a1 += 4;
 	v1 = 1;
 
 loc_7FDE8:
-	t1 = a1[0];
+	t1 = ((int*)a1)[0];
 
 	v0--;
 	if ((unsigned long)s0 < (unsigned long)s1)
@@ -2354,7 +2353,7 @@ loc_7FDE8:
 
 		}
 		//loc_7FF20
-		a1++;
+		a1 += 4;
 		if (v0 == 0)
 		{
 			goto DrawExit;
@@ -2365,7 +2364,7 @@ loc_7FDE8:
 			goto loc_7FDE8;
 		}
 
-		t0 = a1[0];
+		t0 = ((int*)a1)[0];
 		goto loc_7FDE0;
 	}
 	else
