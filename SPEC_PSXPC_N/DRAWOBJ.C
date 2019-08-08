@@ -402,7 +402,7 @@ char* dirty_envmap_intensity_shit_TRI(int t2, int t6, int t7, int t8, int s3, ch
 
 	s0 += 0x28;
 
-	t2 = t1;
+	t2 = ((int*)t1)[0];
 	((int*)t1)[0] = (int)s0;
 	at = 0x7000000;
 	t2 |= at;
@@ -451,7 +451,7 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 	return 1;
 }
 
-void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int a2, int t2, int* fp, int t3, int a3, int* s3)
+void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int a2, int t2, int fp, int t3, int a3, int s3)
 {
 	int t7;
 	int t8;
@@ -544,7 +544,7 @@ void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int
 						t4 = ((int*)t5)[2];
 						at = t4 << 8;
 
-						UnpackRGB(&t2, &t6, fp, &t3, &at, &t7, &t8);
+						UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
 
 						at = DQB;
 
@@ -558,7 +558,7 @@ void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int
 						if (s2 != 0)
 						{
 							t2 = t6 >> 3;
-							s0 = (int*)dirty_envmap_intensity_shit_TRI(t2, t6, t7, t8, (int)s3, (char*)s0, t1, s2, s4, s5, s6);
+							s0 = (int*)dirty_envmap_intensity_shit_TRI(t2, t6, t7, t8, s3, (char*)s0, t1, s2, s4, s5, s6);
 
 						}//loc_7F470
 
@@ -597,12 +597,13 @@ void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int
 
 	v0 = DQA;
 	gp = 0xC000000;
-	t0 = ((int*)a1)[0];
 
 	if (v0 == 0)
 	{
 		goto DrawExit;
 	}
+
+	t0 = ((int*)a1)[0];
 
 loc_7F4B4:
 	a1 += 4;
@@ -660,7 +661,7 @@ loc_7F4BC:
 				{
 					t1 <<= 2;
 					t2 = t9 >> 7;
-					t2 &= *fp;
+					t2 &= fp;
 					t3 = (t9 >> 10) & 0xF800;
 					t9 >>= 13;
 					t9 &= 0xF8;
@@ -668,7 +669,7 @@ loc_7F4BC:
 					t9 |= t2;
 					t4 = ((int*)t5)[2];
 					at = t4;
-					UnpackRGB(&t2, &t6, fp, &t3, &at, &t7, &t8);
+					UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
 
 					at = DQB;
 
@@ -682,7 +683,7 @@ loc_7F4BC:
 					if (s2 != 0)
 					{
 						t2 = t6 >> 3;
-						s0 = (int*)dirty_envmap_intensity_shit_QUAD((char*)s0, t2, t6, t7, t8, t9, (int)s3, t1, s2, s4, s5, s6, s7);
+						s0 = (int*)dirty_envmap_intensity_shit_QUAD((char*)s0, t2, t6, t7, t8, t9, s3, t1, s2, s4, s5, s6, s7);
 					}
 					//loc_7F5D8
 					t2 = ((int*)t1)[0];
@@ -1399,7 +1400,8 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 
 	if (at)
 	{
-		DrawMesh_Env(gp, at, v0, a1, (int*)s0, (int*)s1, a0, (int)a2, t2, &fp, t3, (int)a3, s3);
+		DrawMesh_Env(gp, at, v0, a1, (int*)s0, (int*)s1, a0, (int)a2, t2, fp, t3, (int)a3, (int)s3);
+		return;
 	}
 
 	s4 -= 0xC00;
