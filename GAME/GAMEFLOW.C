@@ -1,5 +1,9 @@
 #include "GAMEFLOW.H"
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#endif
+
 #if !PC_VERSION
 #include "3D_GEN.H"
 #include "TITSEQ.H"
@@ -65,10 +69,6 @@
 #if DEBUG_VERSION
 #include "PROFILE.H"
 #endif
-#endif
-
-#if PSXPC_TEST
-#include "../EMULATOR/EMULATOR_GLOBALS.H"
 #endif
 
 #if (PSX_VERSION || SAT_VERSION) && !PSXPC_TEST
@@ -168,7 +168,6 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 	S_PlayFMV(FMV_GAME_INTRO, 0);
 #endif
 
-	//v1 = Gameflow
 	num_fmvs = 0;
 	fmv_to_play[1] = 0;
 	fmv_to_play[0] = 0;
@@ -260,6 +259,7 @@ void DoGameflow()//10F5C(<), 10FD8(<)
 
 			gfLevelFlags = gf[0] | (gf[1] << 8);
 			DoTitle(gf[2], gf[3]);
+
 			gfMirrorRoom = 255;
 			gfResidentCut[0] = 0;///@CHECK in asm it's *(int*)&gfResidentCut[0] = 0, check if optimised to this
 			gfResidentCut[1] = 0;
@@ -817,6 +817,117 @@ void DoFrontEndOneShotStuff()
 }
 #endif
 
+#if defined(__EMSCRIPTEN__)
+void DoTitleGameLoop(void* arg)
+{
+	int i;
+	unsigned char Name = ((unsigned char*)arg)[0];
+	printf("Name %d\n", Name);
+	if (gfStatus == 0)
+	{
+		GPU_BeginScene();
+
+		if (bDoCredits)
+		{
+#if !PSXPC_VERSION && RELOC
+			if (!((INTFUNCVOID*)RelocPtr[MOD_TITSEQ][1])())
+			{
+				bDoCredits = 0;
+				SetFadeClip(0, 2);
+			}
+#endif
+			//loc_10800
+			if (bDoCredits)
+				goto loc_10890;
+
+		}
+		printf("GLOBAL_PLAYING_CUTSEQ: %d\n", GLOBAL_playing_cutseq);
+		//loc_10810
+		if (GLOBAL_playing_cutseq == 0)
+		{
+			if (ScreenFading == 0 && cutseq_num == 0)
+			{
+#if DEBUG_VERSION
+				if ((RawPad & (IN_R2 | 1)) == (IN_R2 | 1))
+				{
+					dels_cutseq_selector_flag = 1;
+				}
+#endif
+				//loc_10868
+				CreditsDone = 1;
+#if RELOC
+				gfStatus = ((INTFUNCINT*)RelocPtr[MOD_TITSEQ][0])(Name);
+#else
+				gfStatus = TitleOptions(Name);
+				printf("EMSCRIPTEN TITLE OPTS! %d\n", gfStatus);
+#endif
+				//Early out
+				if (gfStatus != 0)
+					goto breakLoop;
+
+			}//loc_10890
+
+		loc_10890:
+			if (GLOBAL_playing_cutseq == 0)
+				goto loc_108EC;
+		}
+		//loc_108A4
+		if (bDoCredits == 0 && CreditsDone)
+		{
+			PrintString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 20, 1, &gfStringWad[gfStringOffset[STR_DEMO_MODE]], FF_CENTER);
+		}
+		//loc_108EC
+	loc_108EC:
+		nframes = DrawPhaseGame();
+
+		if (!PadConnected)
+		{
+
+			PrintString(SCREEN_WIDTH / 2, (SCREEN_HEIGHT / 2) + 8, 3, &gfStringWad[gfStringOffset[STR_CONTROLLER_REMOVED]], (FF_BLINK | FF_CENTER));
+		}
+		//loc_1092C
+		handle_cutseq_triggering(Name);
+
+		if (gfGameMode == 2)
+		{
+			if ((dbinput & 0x100))
+				goto loc_10970;
+
+			if (GLOBAL_enterinventory == -1)
+				goto loc_109A8;
+
+			//loc_10970
+		loc_10970:
+			if (cutseq_trig == 0 && lara_item->hit_points > 0)
+			{
+				S_CallInventory2();
+			}//loc_109A8
+		}//loc_109A8
+	loc_109A8:
+		QuickControlPhase();
+
+		if (gfGameMode == 2 && ScreenFadedOut != 0)
+		{
+			InitialiseItemArray(256);
+
+			for (i = 0; i < number_rooms; i++)
+			{
+				room[i].item_number = -1;
+			}
+			//loc_10A10
+			gfGameMode = 1;
+
+		}//loc_10A14
+	}
+	else
+	{
+	breakLoop:
+		emscripten_cancel_main_loop();
+		printf("Cancelling main loop!\n");
+	}
+}
+#endif
+
 void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*) (D) (ND)
 {
 /*#if PC_VERSION
@@ -857,15 +968,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 	S_MemSet((char*)&savegame.Level, 0, sizeof(struct STATS));
 	S_MemSet((char*)&savegame.Game, 0, sizeof(struct STATS));
 
-#if PSXPC_TEST
-	assetsLoaded = 0;
-#endif
-
 	S_LoadLevelFile(Name);
-
-#if PSXPC_TEST
-	assetsLoaded = 1;
-#endif
 	
 	GLOBAL_lastinvitem = -1;
 	dels_cutseq_player = 0;
@@ -957,6 +1060,7 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 		DoSpecialFeaturesServer();
 	}
 #else
+#if !defined(__EMSCRIPTEN__)
 	if (gfStatus == 0)
 	{
 		//loc_107BC
@@ -1056,6 +1160,11 @@ void DoTitle(unsigned char Name, unsigned char Audio)//10604(<), 105C4(<) (F) (*
 			}//loc_10A14
 		}
 	}
+#else
+	printf("Name %d\n", Name);
+	emscripten_set_main_loop_arg(DoTitleGameLoop, &Name, 0, 1);
+#endif
+
 	//loc_10A24
 	Motors[1] = 0;
 	Motors[0] = 0;
@@ -1131,15 +1240,8 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 		memset(&savegame.Level, 0, sizeof(struct STATS));
 	}
 
-#if PSXPC_TEST
-	assetsLoaded = 0;
-#endif
 	//loc_10B58
 	S_LoadLevelFile(Name);
-
-#if PSXPC_TEST
-	assetsLoaded = 1;
-#endif
 
 #if PC_VERSION
 	//SetFogColor(...); todo
@@ -1261,7 +1363,6 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 	//loc_10D30
 	while (gfStatus == 0)
 	{
-
 		GPU_BeginScene();
 
 		if (gfLegendTime != 0 && DestFadeScreenHeight == 0 && FadeScreenHeight == 0 && cutseq_num == 0)
@@ -1342,13 +1443,13 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 		if (fmv_to_play[0] & 0x80)
 		{
-			if (fmv_to_play[0] & 0x7F == 9 && gfLevelComplete != 10)
+			if ((fmv_to_play[0] & 0x7F) == 9 && gfLevelComplete != 10)
 			{
 				fmv_to_play[0] = 0;
 			}
 			
 			//loc_10EF8
-			if (fmv_to_play[0] & 0x7F == 8 && gfLevelComplete != 22)
+			if ((fmv_to_play[0] & 0x7F) == 8 && gfLevelComplete != 22)
 			{
 				fmv_to_play[0] = 0;
 			}
