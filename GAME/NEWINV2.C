@@ -2340,7 +2340,7 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 		}//loc_3DCD8
 		if (rings[ringnum]->ringactive && rings[ringnum]->numobjectsinlist != 1)
 		{
-			if (ringnum != RING_AMMO && combine_ring_fade_val == 128)
+			if (ringnum != RING_AMMO || combine_ring_fade_val == 128)
 			{
 				//loc_3DD20
 				if (rings[ringnum]->objlistmovement > 0)
@@ -3185,9 +3185,10 @@ int S_CallInventory2()//3B7A8, 3BC04
 			GPU_BeginScene();
 			SetDebounce = 1;
 			S_UpdateInput();
+			printf("Input Normal: %x\n", input);
 			input = inputBusy;
 			UpdatePulseColour();
-			printf("Input: %x\n", input);
+			printf("Input Busy: %x\n", input);
 			GameTimer++;
 
 			if (!ammo_active && !rings[1]->ringactive && go_deselect)
