@@ -1,5 +1,6 @@
 #include "NEWINV2.H"
 
+#include "CAMERA.H"
 #include "CDTRACKS.H"
 #include "DELTAPAK.H"
 #include "SPECIFIC.H"
@@ -1697,19 +1698,19 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 		}
 		else
 		{
-			//loc_3E464
 			current_options[0].type = 6;
 			current_options[1].type = 7;
 			current_options[0].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]];
 			current_options[1].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[1].invitem].objname]];
+			n = 2;
 
-			if ((opts & 0x100))//@FIXME Ghidra says something else
+			if ((options_table[rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem] & 0x100))
 			{
-				current_options[2].type = 8;
+				n = 3;
 				current_options[2].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[2].invitem].objname]];
 
-			}
-			//loc_3E53C
+			}//loc_3E53C
+
 			current_selected_option = current_ammo_type[0];
 		}
 
