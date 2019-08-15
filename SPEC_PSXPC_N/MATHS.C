@@ -180,10 +180,10 @@ void ScaleCurrentMatrix(long bStoreInMatrix, long sx, long sy, long sz)
 	int t2, v0, v1;
 	unsigned int t0, t1, at;
 
-	t0 = R11;
-	t1 = R13;
-	t2 = R22;
-	v0 = R31;
+	t0 = R11 | (R12 << 16);
+	t1 = R13 | (R21 << 16);
+	t2 = R22 | (R23 << 16);
+	v0 = R31 | (R32 << 16);
 	v1 = R33;
 
 	R12 = ((((t0 << 16) >> 16) * sx) >> 12) & 0xFFFF;
