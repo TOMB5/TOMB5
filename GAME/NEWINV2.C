@@ -2896,88 +2896,125 @@ void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 	go_select = 0;
 	go_deselect = 0;
 
-	if (input & IN_LEFT)
+	if ((input & IN_LEFT))
 	{
-		if (left_repeat >= 8u)
-			go_left = 1;
+		if (left_repeat < 8)
+		{
+			left_repeat++;
+		}
 		else
-			++left_repeat;
-		if (!left_debounce)
+		{
 			go_left = 1;
+		}
+
+		//loc_3C278
+		if (left_debounce == 0)
+		{
+			go_left = 1;
+		}
+
+		//loc_3C290
 		left_debounce = 1;
 	}
 	else
 	{
+		//loc_3C29C
 		left_debounce = 0;
 		left_repeat = 0;
 	}
-
-	if (input & IN_RIGHT)
+	//loc_3C2A4
+	if ((input & IN_RIGHT))
 	{
-		if (right_repeat >= 8u)
-			go_right = 1;
+		if (right_repeat < 8)
+		{
+			right_repeat++;
+		}
 		else
-			++right_repeat;
-		if (!right_debounce)
+		{
+			//loc_3C2DC
 			go_right = 1;
+		}
+
+		//loc_3C2E4
+		if (right_debounce == 0)
+		{
+			go_right = 1;
+		}
+		//loc_3C2FC
 		right_debounce = 1;
 	}
 	else
 	{
+		//loc_3C308
 		right_debounce = 0;
 		right_repeat = 0;
 	}
 
-	if (input & IN_FORWARD)
+	//loc_3C310
+	if ((input & IN_FORWARD))
 	{
-		if (!up_debounce)
+		if (up_debounce == 0)
+		{
 			go_up = 1;
+		}
+		//loc_3C340
 		up_debounce = 1;
 	}
 	else
 	{
+		//loc_3C34C
 		up_debounce = 0;
 	}
 
-	if (input & IN_BACK)
+	if ((input & IN_BACK))
 	{
-		if (!down_debounce)
+		if (down_debounce == 0)
+		{
 			go_down = 1;
+		}
+
+		//loc_3C380
 		down_debounce = 1;
 	}
 	else
 	{
+		//loc_3C38C
 		down_debounce = 0;
 	}
 
+	//loc_3C390
 #if PC_VERSION
 	if (input & IN_ACTION || input & IN_SELECT)
 #else
-	if (input & IN_JUMP)
+	if (input & IN_SELECT)
 #endif
 	{
 		select_debounce = 1;
 	}
 	else
 	{
-		if (select_debounce == 1 && !friggrimmer)
+		//loc_3C3B4
+		if (select_debounce == 1 && friggrimmer == 0)
+		{
 			go_select = 1;
+		}
+		//loc_3C3D8
 		select_debounce = 0;
 		friggrimmer = 0;
 	}
-
-#if PC_VERSION
-	if (input & IN_DESELECT)
-#else
-	if (input & IN_DRAW)
-#endif
+	//loc_3C3E0
+	if ((input & IN_DESELECT))
 	{
 		deselect_debounce = 1;
 	}
 	else
 	{
-		if (deselect_debounce == 1 && !friggrimmer2)
+		//loc_3C408
+		if (deselect_debounce == 1 && friggrimmer2 == 0)
+		{
 			go_deselect = 1;
+		}
+		//loc_3C42C
 		deselect_debounce = 0;
 		friggrimmer2 = 0;
 	}
