@@ -1814,7 +1814,7 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 				{
 					stats_mode = 1;
 				}
-				else if (current_options[current_selected_option].type - 6 < 3)
+				else if ((unsigned)(current_options[current_selected_option].type - 6) < 3)
 				{
 					//loc_3E848
 					ammo_active = 0;
