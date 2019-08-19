@@ -1753,12 +1753,13 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 		{
 			if (go_up && current_selected_option)
 			{
-				current_selected_option++;
+				current_selected_option--;
 				SoundEffect(SFX_MENU_SELECT, NULL, 2);
 			}
 			else if (go_down && current_selected_option < n - 1)
 			{
 				//loc_3E64C
+				current_selected_option++;
 				SoundEffect(SFX_MENU_SELECT, NULL, 2);
 			}//loc_3E684
 
@@ -2399,17 +2400,20 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 				else
 				{
 					//loc_3DE90
-					if (rings[ringnum]->objlistmovement < 0xFFFF0001)
+					if (rings[ringnum]->objlistmovement < -0xFFFF)
 					{
-						rings[ringnum]->curobjinlist--;
+						rings[ringnum]->curobjinlist++;
 
-						if (rings[ringnum]->numobjectsinlist > rings[ringnum]->curobjinlist)
+						if (rings[ringnum]->curobjinlist >= rings[ringnum]->numobjectsinlist)
 						{
 							rings[ringnum]->curobjinlist = 0;
 						}
 						//loc_3DED4
 						rings[ringnum]->objlistmovement = 0;
-						handle_object_changeover(0);
+						if (ringnum == RING_INVENTORY)
+						{
+							handle_object_changeover(0);
+						}
 					}//loc_3DEE8
 				}
 			}
