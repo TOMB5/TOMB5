@@ -2388,7 +2388,7 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 
 					if (rings[ringnum]->curobjinlist < 0)
 					{
-						rings[ringnum]->numobjectsinlist--;
+						rings[ringnum]->curobjinlist = rings[ringnum]->numobjectsinlist-1;
 					}//loc_3DE74
 
 					rings[ringnum]->objlistmovement = 0;
@@ -3146,7 +3146,7 @@ int S_CallInventory2()//3B7A8, 3BC04
 		inventry_objects_list[17].objname = STR_REVOLVER_AMMO;
 	}
 
-	if (gfCurrentLevel - 0xB < 4)
+	if ((unsigned)gfCurrentLevel - 0xB < 4)
 	{
 		inventry_objects_list[24].objname = STR_HEADSET;
 	}
