@@ -1112,6 +1112,8 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		tpageTexture->clut = clut;
 		glGenTextures(1, &tpageTexture->textureID);
 		Emulator_BindTexture(tpageTexture->textureID);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
 	else
 	{
@@ -1146,7 +1148,7 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 			unsigned short* texturePage = new unsigned short[TPAGE_WIDTH / 4 * TPAGE_HEIGHT];
 			unsigned short* clut = new unsigned short[16];
 			unsigned short* convertedTpage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
-			
+
 #if defined (OGLES)
 			//Read CLUT
 			glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &clut[0]);
@@ -1209,7 +1211,9 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 
 
 #if _DEBUG && 0
-			FILE* f = fopen("TPAGE.TGA", "wb");
+			char buff[64];
+			sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
+			FILE* f = fopen(buff, "wb");
 			unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 			unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
 			fwrite(TGAheader, sizeof(unsigned char), 12, f);
@@ -1229,9 +1233,6 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		}
 		}
 	}
-	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	return tpageTexture->textureID;
 }
