@@ -1100,7 +1100,7 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	}
 #endif
 
-	Emulator_SetBlendMode(tpageAbr);
+	//Emulator_SetBlendMode(tpageAbr);
 
 	CachedTexture* tpageTexture = Emulator_FindTextureInCache(tpage, clut);
 	bool bMustAddTexture = (tpageTexture == NULL) ? 1 : 0;
@@ -1270,7 +1270,7 @@ void Emulator_SetBlendMode(int mode)
 			break;
 		}
 
-		lastBladeMode = mode;
+		lastBlendMode = mode;
 	}
 #else
 	if (lastBlendMode != mode)

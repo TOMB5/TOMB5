@@ -577,23 +577,37 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		}
 		case 0x28: // POLY_F4
 		{
-			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 			POLY_F4* poly = (POLY_F4*)pTag;
 
-			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
-			//char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
-			//char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, false);
-#if defined(OGL)
-			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			//glEnableClientState(GL_COLOR_ARRAY);
-			//glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
-			//glColorPointer(3, GL_FLOAT, sizeof(Vertex), colourPointer);
-			///glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texCoordPointer);
-			//glDrawArrays(GL_QUADS, 0, 4);
-			//glDisableClientState(GL_COLOR_ARRAY);
-			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#endif
+			if (lastBlendMode == 0xFFFF)
+			{
+				lastBlendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (blend_mode != lastBlendMode)
+			{
+				lastBlendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
+
+			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, -1, -1);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, FALSE);
+
+			//Make tri
+			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
+			g_vertexBuffer[g_vertexIndex + 3] = g_vertexBuffer[g_vertexIndex];
+			g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex + 2];
+
 			currentAddress += sizeof(POLY_F4);
+			g_vertexIndex += 6;
+			numVertices += 6;
 			break;
 		}
 		case 0x2C: // POLY_FT4
@@ -624,6 +638,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -684,7 +699,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL, true);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL, TRUE);
 
 			
 			g_vertexIndex += 3;
@@ -735,7 +750,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2, true);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2, TRUE);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex+3];
@@ -832,7 +847,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, poly->w, poly->h);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, NULL, NULL, NULL, poly->w, poly->h);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, false);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, FALSE);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
