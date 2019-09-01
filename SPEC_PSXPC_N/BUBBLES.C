@@ -179,10 +179,10 @@ void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)//(F)
 	int t6 = rgb1;
 	int t7 = rgb2;
 	int t8 = rgb3;
-	int t0 = R11 | (R12 << 16);
-	int t1 = R13 | (R21 << 16);
-	int t2 = R22 | (R23 << 16);
-	int t3 = R31 | (R32 << 16);
+	int t0 = R11 | ((R12 & 0xFFFF) << 16);
+	int t1 = R13 | ((R21 & 0xFFFF) << 16);
+	int t2 = R22 | ((R23 & 0xFFFF) << 16);
+	int t3 = R31 | ((R32 & 0xFFFF) << 16);
 	int t4 = R33;
 
 	int at = ((int*)&CamGTE.m00)[0];
@@ -192,13 +192,13 @@ void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)//(F)
 	int a0 = ((int*)&CamGTE.m00)[4];
 
 	R11 = at & 0xFFFF;
-	R12 = at >> 16;
+	R12 = (at >> 16) & 0xFFFF;
 	R13 = v0 & 0xFFFF;
-	R21 = v0 >> 16;
+	R21 = (v0 >> 16) & 0xFFFF;
 	R22 = v1 & 0xFFFF;
-	R23 = v1 >> 16;
+	R23 = (v1 >> 16) & 0xFFFF;
 	R31 = a1 & 0xFFFF;
-	R32 = a1 >> 16;
+	R32 = (a1 >> 16) & 0xFFFF;
 	R33 = a0;
 
 	DEL_ApplyMatrixSV(0xF000F000, 0x1000, &LightPos.m00);
@@ -206,13 +206,13 @@ void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)//(F)
 	DEL_ApplyMatrixSV(0x10000000, 0xFFFFF000, &LightPos.m20);
 
 	R11 = t0 & 0xFFFF;
-	R12 = t0 >> 16;
+	R12 = (t0 >> 16) & 0xFFFF;
 	R13 = t1 & 0xFFFF;
-	R21 = t1 >> 16;
+	R21 = (t1 >> 16) & 0xFFFF;
 	R22 = t2 & 0xFFFF;
-	R23 = t2 >> 16;
+	R23 = (t2 >> 16) & 0xFFFF;
 	R31 = t3 & 0xFFFF;
-	R32 = t3 >> 16;
+	R32 = (t3 >> 16) & 0xFFFF;
 	R33 = t4;
 
 	v0 = (t5 & 0xFF) << 4;
@@ -252,9 +252,10 @@ void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)//(F)
 	GBK = a1;
 	BBK = a2;
 
-	R = 0x80;
-	G = 0x80;
-	B = 0x80;
+	R = 128;
+	G = 128;
+	B = 128;
+	CODE = 0;
 
 	DQB = 0;
 }
