@@ -1218,7 +1218,9 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 			if (LaraDrawType == 5)
 			{
+#if !PSXPC_TEST
 				((VOIDFUNCVOID*)RelocPtr[MOD_SUBSUIT][0])();
+#endif
 			}
 			//loc_1DEF4
 		}
