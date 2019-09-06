@@ -175,42 +175,89 @@ void DEL_ApplyMatrixSV(int v0, int v1, short* m)//(F)
 
 void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)//(F)
 {
-	int t0, t1, t2, t3, t4;
+	int t5 = rgb0;
+	int t6 = rgb1;
+	int t7 = rgb2;
+	int t8 = rgb3;
+	int t0 = R11 | ((R12 & 0xFFFF) << 16);
+	int t1 = R13 | ((R21 & 0xFFFF) << 16);
+	int t2 = R22 | ((R23 & 0xFFFF) << 16);
+	int t3 = R31 | ((R32 & 0xFFFF) << 16);
+	int t4 = R33;
 
-	t0 = COP(0);
-	t1 = COP(1);
-	t2 = COP(2);
-	t3 = COP(3);
-	t4 = COP(4);
+	int at = ((int*)&CamGTE.m00)[0];
+	int v0 = ((int*)&CamGTE.m00)[1];
+	int v1 = ((int*)&CamGTE.m00)[2];
+	int a1 = ((int*)&CamGTE.m00)[3];
+	int a0 = ((int*)&CamGTE.m00)[4];
 
-	COP(0) = ((int*)&CamGTE.m00)[0];
-	COP(1) = ((int*)&CamGTE.m02)[0];
-	COP(2) = ((int*)&CamGTE.m11)[0];
-	COP(3) = ((int*)&CamGTE.m20)[0];
-	COP(4) = ((int*)&CamGTE.m22)[0];
+	R11 = at & 0xFFFF;
+	R12 = (at >> 16) & 0xFFFF;
+	R13 = v0 & 0xFFFF;
+	R21 = (v0 >> 16) & 0xFFFF;
+	R22 = v1 & 0xFFFF;
+	R23 = (v1 >> 16) & 0xFFFF;
+	R31 = a1 & 0xFFFF;
+	R32 = (a1 >> 16) & 0xFFFF;
+	R33 = a0;
 
 	DEL_ApplyMatrixSV(0xF000F000, 0x1000, &LightPos.m00);
 	DEL_ApplyMatrixSV(0xF0001000, 0xFFFFF000, &LightPos.m10);
 	DEL_ApplyMatrixSV(0x10000000, 0xFFFFF000, &LightPos.m20);
 
-	COP(0) = t0;
-	COP(1) = t1;
-	COP(2) = t2;
-	COP(3) = t3;
-	COP(4) = t4;
+	R11 = t0 & 0xFFFF;
+	R12 = (t0 >> 16) & 0xFFFF;
+	R13 = t1 & 0xFFFF;
+	R21 = (t1 >> 16) & 0xFFFF;
+	R22 = t2 & 0xFFFF;
+	R23 = (t2 >> 16) & 0xFFFF;
+	R31 = t3 & 0xFFFF;
+	R32 = (t3 >> 16) & 0xFFFF;
+	R33 = t4;
 
-	COP(16) = ((rgb0 & 0xFF) << 4)   | ((rgb1 & 0xFF) << 20);
-	COP(17) = ((rgb2 & 0xFF) << 4)   | ((rgb0 & 0xFF00) << 12);
-	COP(18) = ((rgb1 >> 4) & 0xFF0)  | ((rgb2 & 0xFF00) << 12);
-	COP(19) = ((rgb0 >> 12) & 0xFF0) | (((rgb1 >> 12) & 0xFF0) << 16);
+	v0 = (t5 & 0xFF) << 4;
+	v1 = (t6 & 0xFF) << 20;
+	v0 |= v1;
 
-	COP(20) = (rgb2 >> 12) & 0xFF0;
-	COP(13) = ((rgb3 & 0xFF) << 4);
-	COP(14) = ((rgb3 >> 4) & 0xFF0);
-	COP(15) = ((rgb3 >> 12) & 0xFF0);
+	LR1 = v0 & 0xFFFF;
+	LR2 = v0 >> 16;
 
-	DAT(16) = 0x808080;
-	COP(28) = 0;
+	v0 = (t7 & 0xFF) << 4;
+	v1 = (t5 & 0xFF00) << 12;
+	v0 |= v1;
+
+	LR3 = v0 & 0xFFFF;
+	LG1 = v0 >> 16;
+
+	v0 = (t6 >> 4) & 0xFF0;
+	v1 = (t7 & 0xFF00) << 12;
+	v0 |= v1;
+	LG2 = v0 & 0xFFFF;
+	LG3 = v0 >> 16;
+
+	v0 = (t5 >> 12) & 0xFF0;
+	v1 = ((t6 >> 12) & 0xFF0) << 16;
+	v0 |= v1;
+
+	LB1 = v0 & 0xFFFF;
+	LB2 = v0 >> 16;
+
+	v0 = (t7 >> 12) & 0xFF0;
+	LB3 = v0;
+
+	a0 = (t8 & 0xFF) << 4;
+	a1 = (t8 >> 4) & 0xFF0;
+	int a2 = (t8 >> 12) & 0xFF0;
+	RBK = a0;
+	GBK = a1;
+	BBK = a2;
+
+	R = 128;
+	G = 128;
+	B = 128;
+	CODE = 0;
+
+	DQB = 0;
 }
 
 void DrawMonoScreen(int a0)
@@ -237,13 +284,13 @@ void DrawMonoScreen(int a0)
 			((short*)a00)[10] = (((i << 6) & 0xFF) << 8) | ((j << 6) & 0xFF);
 			((short*)a00)[11] = (ClutStartY << 6) | 0x3C;
 
-			t5 = (unsigned long)db.polyptr;
+			t5 = (unsigned long)a00;
 			a00 += 0x1C;//TODO actual polytype
 		}
 		j = 0;
 	}
 
-	db.ot[2000] = (unsigned long)pp;
+	db.ot[2000] = (unsigned long)t5;
 	db.polyptr = (char*)a00;
 
 	return;

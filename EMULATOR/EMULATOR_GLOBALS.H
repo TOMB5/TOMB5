@@ -37,9 +37,20 @@ extern int windowHeight;
 extern uint32_t DMAControlRegister;
 extern int assetsLoaded;
 extern unsigned short GlobalTpageTexture;
-#if defined(OGLES)
+#if defined(OGLES) || defined(CORE_PROF_3_3)
 extern GLuint g_defaultShaderProgram;
 #endif
 extern GLint g_defaultFBO;
+
+
+struct CachedTexture
+{
+	GLuint textureID;
+	unsigned short tpage;
+	unsigned short clut;
+	unsigned int lastAccess;
+};
+
+extern struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
 #endif

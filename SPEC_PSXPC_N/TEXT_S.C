@@ -205,7 +205,6 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 	//s5 = string
 	//s6 = flag
 	//at = GnFrameCounter
-
 #if _DEBUG
 	printf("PrintString: %s X: %d Y: %d\n", string, x, y);
 #endif
@@ -660,7 +659,6 @@ void draw_outlines()
 	int i;
 	int j;
 
-#if 1
 	_draw_gbackground2(0, 8, 512, 224, 0x3A101010, 0x3A101010, 0x3A404040, 0x3A404040);
 	_draw_gbackground2(12, 220, 488, 4, 0x3A101010, 0x3A101010, 0x3A404040, 0x3A404040);
 	_draw_gbackground2(493, 8, 7, 224, 0x3A101010, 0x3A404040, 0x3A101010, 0x3A404040);
@@ -679,7 +677,7 @@ void draw_outlines()
 	}
 
 	//loc_8E380
-	for(i = 0; i < 12; i++)
+	for(i = 0; i < 13; i++)
 	{
 		_DelDrawSprite((i * 32) + 48, 224, 25, 1);
 	}
@@ -695,7 +693,7 @@ void draw_outlines()
 	{
 		_DelDrawSprite(500, (i * 32) + 40, 26, 0);
 	}
-
+	
 	//loc_8E3F8
 	for (i = 0; i < 7; i++)
 	{
@@ -705,7 +703,6 @@ void draw_outlines()
 			_DelDrawSprite(j << 5, (i << 5) + 8, 19, 2000);
 		}
 	}
-#endif
 }
 
 void UpdatePulseColour()//8E0F8(<), 9013C(<) (F)

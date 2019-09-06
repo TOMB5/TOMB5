@@ -1,5 +1,6 @@
 #include "NEWINV2.H"
 
+#include "CAMERA.H"
 #include "CDTRACKS.H"
 #include "DELTAPAK.H"
 #include "SPECIFIC.H"
@@ -1697,19 +1698,19 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 		}
 		else
 		{
-			//loc_3E464
 			current_options[0].type = 6;
 			current_options[1].type = 7;
 			current_options[0].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]];
 			current_options[1].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[1].invitem].objname]];
+			n = 2;
 
-			if ((opts & 0x100))//@FIXME Ghidra says something else
+			if ((options_table[rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem] & 0x100))
 			{
-				current_options[2].type = 8;
+				n = 3;
 				current_options[2].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[2].invitem].objname]];
 
-			}
-			//loc_3E53C
+			}//loc_3E53C
+
 			current_selected_option = current_ammo_type[0];
 		}
 
@@ -1752,12 +1753,13 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 		{
 			if (go_up && current_selected_option)
 			{
-				current_selected_option++;
+				current_selected_option--;
 				SoundEffect(SFX_MENU_SELECT, NULL, 2);
 			}
 			else if (go_down && current_selected_option < n - 1)
 			{
 				//loc_3E64C
+				current_selected_option++;
 				SoundEffect(SFX_MENU_SELECT, NULL, 2);
 			}//loc_3E684
 
@@ -1813,7 +1815,7 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 				{
 					stats_mode = 1;
 				}
-				else if (current_options[current_selected_option].type - 6 < 3)
+				else if ((unsigned)(current_options[current_selected_option].type - 6) < 3)
 				{
 					//loc_3E848
 					ammo_active = 0;
@@ -2339,7 +2341,7 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 		}//loc_3DCD8
 		if (rings[ringnum]->ringactive && rings[ringnum]->numobjectsinlist != 1)
 		{
-			if (ringnum != RING_AMMO && combine_ring_fade_val == 128)
+			if (ringnum != RING_AMMO || combine_ring_fade_val == 128)
 			{
 				//loc_3DD20
 				if (rings[ringnum]->objlistmovement > 0)
@@ -2386,7 +2388,7 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 
 					if (rings[ringnum]->curobjinlist < 0)
 					{
-						rings[ringnum]->numobjectsinlist--;
+						rings[ringnum]->curobjinlist = rings[ringnum]->numobjectsinlist-1;
 					}//loc_3DE74
 
 					rings[ringnum]->objlistmovement = 0;
@@ -2398,17 +2400,20 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 				else
 				{
 					//loc_3DE90
-					if (rings[ringnum]->objlistmovement < 0xFFFF0001)
+					if (rings[ringnum]->objlistmovement < -0xFFFF)
 					{
-						rings[ringnum]->curobjinlist--;
+						rings[ringnum]->curobjinlist++;
 
-						if (rings[ringnum]->numobjectsinlist > rings[ringnum]->curobjinlist)
+						if (rings[ringnum]->curobjinlist >= rings[ringnum]->numobjectsinlist)
 						{
 							rings[ringnum]->curobjinlist = 0;
 						}
 						//loc_3DED4
 						rings[ringnum]->objlistmovement = 0;
-						handle_object_changeover(0);
+						if (ringnum == RING_INVENTORY)
+						{
+							handle_object_changeover(0);
+						}
 					}//loc_3DEE8
 				}
 			}
@@ -2895,88 +2900,125 @@ void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 	go_select = 0;
 	go_deselect = 0;
 
-	if (input & IN_LEFT)
+	if ((input & IN_LEFT))
 	{
-		if (left_repeat >= 8u)
-			go_left = 1;
+		if (left_repeat < 8)
+		{
+			left_repeat++;
+		}
 		else
-			++left_repeat;
-		if (!left_debounce)
+		{
 			go_left = 1;
+		}
+
+		//loc_3C278
+		if (left_debounce == 0)
+		{
+			go_left = 1;
+		}
+
+		//loc_3C290
 		left_debounce = 1;
 	}
 	else
 	{
+		//loc_3C29C
 		left_debounce = 0;
 		left_repeat = 0;
 	}
-
-	if (input & IN_RIGHT)
+	//loc_3C2A4
+	if ((input & IN_RIGHT))
 	{
-		if (right_repeat >= 8u)
-			go_right = 1;
+		if (right_repeat < 8)
+		{
+			right_repeat++;
+		}
 		else
-			++right_repeat;
-		if (!right_debounce)
+		{
+			//loc_3C2DC
 			go_right = 1;
+		}
+
+		//loc_3C2E4
+		if (right_debounce == 0)
+		{
+			go_right = 1;
+		}
+		//loc_3C2FC
 		right_debounce = 1;
 	}
 	else
 	{
+		//loc_3C308
 		right_debounce = 0;
 		right_repeat = 0;
 	}
 
-	if (input & IN_FORWARD)
+	//loc_3C310
+	if ((input & IN_FORWARD))
 	{
-		if (!up_debounce)
+		if (up_debounce == 0)
+		{
 			go_up = 1;
+		}
+		//loc_3C340
 		up_debounce = 1;
 	}
 	else
 	{
+		//loc_3C34C
 		up_debounce = 0;
 	}
 
-	if (input & IN_BACK)
+	if ((input & IN_BACK))
 	{
-		if (!down_debounce)
+		if (down_debounce == 0)
+		{
 			go_down = 1;
+		}
+
+		//loc_3C380
 		down_debounce = 1;
 	}
 	else
 	{
+		//loc_3C38C
 		down_debounce = 0;
 	}
 
+	//loc_3C390
 #if PC_VERSION
 	if (input & IN_ACTION || input & IN_SELECT)
 #else
-	if (input & IN_JUMP)
+	if (input & IN_SELECT)
 #endif
 	{
 		select_debounce = 1;
 	}
 	else
 	{
-		if (select_debounce == 1 && !friggrimmer)
+		//loc_3C3B4
+		if (select_debounce == 1 && friggrimmer == 0)
+		{
 			go_select = 1;
+		}
+		//loc_3C3D8
 		select_debounce = 0;
 		friggrimmer = 0;
 	}
-
-#if PC_VERSION
-	if (input & IN_DESELECT)
-#else
-	if (input & IN_DRAW)
-#endif
+	//loc_3C3E0
+	if ((input & IN_DESELECT))
 	{
 		deselect_debounce = 1;
 	}
 	else
 	{
-		if (deselect_debounce == 1 && !friggrimmer2)
+		//loc_3C408
+		if (deselect_debounce == 1 && friggrimmer2 == 0)
+		{
 			go_deselect = 1;
+		}
+		//loc_3C42C
 		deselect_debounce = 0;
 		friggrimmer2 = 0;
 	}
@@ -3104,7 +3146,7 @@ int S_CallInventory2()//3B7A8, 3BC04
 		inventry_objects_list[17].objname = STR_REVOLVER_AMMO;
 	}
 
-	if (gfCurrentLevel - 0xB < 4)
+	if ((unsigned)gfCurrentLevel - 0xB < 4)
 	{
 		inventry_objects_list[24].objname = STR_HEADSET;
 	}
@@ -3184,9 +3226,10 @@ int S_CallInventory2()//3B7A8, 3BC04
 			GPU_BeginScene();
 			SetDebounce = 1;
 			S_UpdateInput();
+			printf("Input Normal: %x\n", input);
 			input = inputBusy;
 			UpdatePulseColour();
-			printf("Input: %x\n", input);
+			printf("Input Busy: %x\n", input);
 			GameTimer++;
 
 			if (!ammo_active && !rings[1]->ringactive && go_deselect)

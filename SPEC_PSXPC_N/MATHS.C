@@ -180,10 +180,10 @@ void ScaleCurrentMatrix(long bStoreInMatrix, long sx, long sy, long sz)
 	int t2, v0, v1;
 	unsigned int t0, t1, at;
 
-	t0 = R11;
-	t1 = R13;
-	t2 = R22;
-	v0 = R31;
+	t0 = R11 | (R12 << 16);
+	t1 = R13 | (R21 << 16);
+	t2 = R22 | (R23 << 16);
+	v0 = R31 | (R32 << 16);
 	v1 = R33;
 
 	R12 = ((((t0 << 16) >> 16) * sx) >> 12) & 0xFFFF;
@@ -736,9 +736,31 @@ void mPushMatrix0()//764D0 (F)
 	UNIMPLEMENTED();
 }
 
-void mmPushMatrix(struct MATRIX3D* m)//81BBC(<) (F)
+void mmPushMatrix(int* fp)//81BBC(<) (F)
 {
-	UNIMPLEMENTED();
+	int* a0 = &fp[20];
+
+	int t0 = R11 | (R12 << 16);
+	int t1 = R13 | (R21 << 16);
+	int t2 = R22 | (R23 << 16);
+	int t3 = R31 | (R32 << 16);
+	int t4 = R33;
+	int t5 = TRX;
+	int t6 = TRY;
+	int t7 = TRZ;
+
+	a0 += 8;
+
+	a0[0] = t0;
+	a0[1] = t1;
+	a0[2] = t2;
+	a0[3] = t3;
+	a0[4] = t4;
+	a0[5] = t5;
+	a0[6] = t6;
+	a0[7] = t7;
+
+	fp[20] = (int)a0;
 }
 
 void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* parent)

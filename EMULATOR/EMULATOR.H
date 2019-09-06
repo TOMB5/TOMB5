@@ -9,8 +9,9 @@
 #if defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__)
 #define OGL
 //#define D3D9
-#define CORE_PROF_3_1 1
+//#define CORE_PROF_3_1
 //#define CORE_PROF_3_2
+#define CORE_PROF_3_3
 #define SDL2
 #if defined(OGL)
 #define GLEW
@@ -63,6 +64,9 @@
 #include <LIBGPU.H>
 
 #define RESOLUTION_SCALE (1)
+
+#define MAX_NUM_CACHED_TEXTURES (512)
+
 #define VRAM_WIDTH (1024 * RESOLUTION_SCALE)
 #define VRAM_HEIGHT (512 * RESOLUTION_SCALE)
 
@@ -118,33 +122,35 @@ typedef struct
 
 extern SysCounter counters[3];
 
-extern void Emulator_InitialiseGL();
-extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
-extern void Emulator_ShutDown();
-extern void Emulator_SwapWindow();
-extern void Emulator_GenerateAndBindTpage(unsigned short tpage, unsigned short clut, int semiTransparent);
-extern void Emulator_DestroyFrameBuffer(GLuint& fbo);
-extern void Emulator_GenerateFrameBuffer(GLuint& fbo);
-extern void Emulator_GenerateAndBindNullWhite();
-extern void Emulator_CheckTextureIntersection(RECT16* rect);
-extern void Emulator_SetBlendMode(int mode);
-extern void Emulator_CounterLoop();
-extern char* Emulator_GenerateVertexArrayQuad(short* p0, short* p1, short* p2, short* p3, short w, short h);
-extern char* Emulator_GenerateTexcoordArrayQuad(unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
-extern char* Emulator_GenerateColourArrayQuad(unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour);
-extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
-extern int Emulator_InitialiseGameVariables();
-extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
-
 #pragma pack(push,1)
 struct Vertex
 {
 	GLfloat x, y;
 	GLfloat u0, v0;
 	GLfloat col[4];
-	GLuint padding[3];
 };
 #pragma pack(pop)
+
+extern GLuint g_lastBoundTexture;
+
+extern void Emulator_InitialiseGL();
+extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
+extern void Emulator_ShutDown();
+extern void Emulator_SwapWindow();
+extern GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut);
+extern void Emulator_DestroyFrameBuffer(GLuint& fbo);
+extern void Emulator_GenerateFrameBuffer(GLuint& fbo);
+extern void Emulator_GenerateAndBindNullWhite();
+extern void Emulator_CheckTextureIntersection(RECT16* rect);
+extern void Emulator_SetBlendMode(int mode);
+extern void Emulator_CounterLoop();
+extern void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h);
+extern void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
+extern void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour);
+extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
+extern int Emulator_InitialiseGameVariables();
+extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
+extern void Emulator_BindTexture(GLuint textureId);
 
 #endif
 
