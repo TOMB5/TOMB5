@@ -3,9 +3,9 @@
 #include "IO.H"
 #include "CD.H"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 char wadHeader[NUM_OVERLAYS * sizeof(fileEntry)];
 
@@ -33,7 +33,7 @@ void CODEWAD_Pack(const char* fileName)
 
 		IO::StreamReader readerBin(&nameBin[0]);
 		IO::StreamReader readerRel(&nameRel[0]);
-		
+
 		if (!readerBin.m_isOpen)
 		{
 			printf("Warning: failed to open file: %s\n", &nameBin[0]);
@@ -45,7 +45,7 @@ void CODEWAD_Pack(const char* fileName)
 			printf("Warning: failed to open file: %s\n", &nameRel[0]);
 			return;
 		}
-		
+
 		entry->moduleIndex = moduleIndices[i];
 
 		currentOffset = (currentOffset + (CD_SECTOR_SIZE - 1) & ~(CD_SECTOR_SIZE - 1));
