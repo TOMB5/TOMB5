@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
 #include "EMULATOR_SETUP.H"
 
@@ -203,7 +204,7 @@ int CdReadSync(int mode, u_char* result)
 				comQueue[i].processed = 1;
 				break;
 			}
-			
+
 			return 1;
 		}
 	}

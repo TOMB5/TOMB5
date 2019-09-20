@@ -6,7 +6,7 @@
  * Platform specific emulator setup
  */
 
-#if defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__)
+#if defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__) || defined(__MINGW32__)
 #define OGL
 //#define D3D9
 //#define CORE_PROF_3_1
@@ -50,7 +50,7 @@
 #elif defined(__linux__)
 #include <SDL.h>
 #include <SDL_opengl.h>
-#elif defined(_WINDOWS)
+#elif defined(_WINDOWS) || defined(__MINGW32__)
 #include <SDL.h>
 #if defined (OGL)
 #include <SDL_opengl.h>
