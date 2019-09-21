@@ -94,7 +94,7 @@ void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s
 	*s4 = ((int*)s0)[2];
 }
 
-void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)//(F)
+void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)//7ED78(<), (F)
 {
 	((int*)polyptr)[1] = t6;
 	((int*)polyptr)[2] = s4;
@@ -110,7 +110,7 @@ void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int 
 	((int*)polyptr)[12] = t5;
 }
 
-void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4)//(F)
+void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4)//7ED50(<), (F)
 {
 	((int*)polyptr)[1] = t6;
 	((int*)polyptr)[2] = s4;
@@ -915,7 +915,7 @@ void InitGT4_V2(char* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int 
 	((int*)s0)[9] = t4;
 	((int*)s0)[11] = s7;
 	((int*)s0)[12] = t5;
-	*s4 = ((int*)s0)[3];
+	*s4 = ((int*)s0)[2];
 }
 
 char* do_the_flat_colursub_poly_tri(char* s0, int s2, int t6, int t7, int t8, int s4, int s5, int s6, int t1)
