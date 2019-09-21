@@ -10,9 +10,9 @@
 #include "ROOMLOAD.H"
 #include <assert.h>
 
-void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)
+void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)//7FF38(<) ? (F)
 {
-	((int*)s0)[3] = s4;
+	((int*)s0)[2] = *s4;
 	((char*)s0)[7] = 0x36;
 	*s3 = ((t6 & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
@@ -21,7 +21,7 @@ void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5
 	}
 
 	//loc_7FF64
-	((int*)s0)[4] = *s3;
+	((char*)s0)[4] = *s3;
 	*s3 = (((t6 >> 8) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -53,14 +53,14 @@ void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5
 	}
 
 	//loc_80000
-	((char*)s3)[17] = *s3;
+	((char*)s0)[17] = *s3;
 	*s3 = (((t7 >> 16) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
 
-	((char*)s3)[18] = *s3;
+	((char*)s0)[18] = *s3;
 	*s3 = ((t8 & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -68,7 +68,7 @@ void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5
 	}
 
 	//loc_8004C
-	((char*)s3)[28] = *s3;
+	((char*)s0)[28] = *s3;
 	*s3 = (((t8 >> 8) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -76,7 +76,7 @@ void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5
 	}
 
 	//loc_80074
-	((char*)s3)[29] = *s3;
+	((char*)s0)[29] = *s3;
 	*s3 = (((t8 >> 16) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -90,7 +90,8 @@ void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5
 	((int*)s0)[6] = t3;
 	((int*)s0)[8] = s6;
 	((int*)s0)[9] = t4;
-	((int*)s0)[2] = s4;
+	((int*)s0)[2] = *s4;
+	*s4 = ((int*)s0)[2];
 }
 
 void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)//(F)
@@ -132,7 +133,7 @@ void UnpackRGB(int* t2, int* t6, int* fp, int* t3, int* at, int* t7, int* t8)
 	*t6 &= 0xF8;
 	*t6 |= *t3;
 	*t6 |= *t2;
-	*at >>= 24;///@checkme
+	*at >>= 24;
 	*at <<= 24;
 	*t6 |= *at;
 	*t2 = *t7 >> 7;
@@ -1081,7 +1082,7 @@ void DrawSubDivMesh()
 	UNIMPLEMENTED();
 }
 
-void initialise_light_matrix()
+void initialise_light_matrix()//(F)
 {
 	int t0;
 	int t1;
@@ -1130,7 +1131,7 @@ void initialise_light_matrix()
 	t1 = ((int*)&LightPos)[1];
 
 	VX0 = t0 & 0xFFFF;
-	VY0 = t0 >> 16;
+	VY0 = (t0 >> 16) & 0xFFFF;
 	VZ0 = t1;
 
 	docop2(0x4A6012);
@@ -1191,7 +1192,7 @@ void initialise_light_matrix()
 	L33 = t4;
 }
 
-void phd_PutPolygons_normal(short* mesh, short clip)
+void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 {
 	int v0;
 	int s5;
@@ -1234,7 +1235,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 	v1 = v0 & 0x8000;
 	v0 &= 0xFF;
 
-	if ((s6 & 0x100) != 0)
+	if ((s6 & 0x100))
 	{
 		a22 = 0x69;
 	}
@@ -1245,14 +1246,10 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 
 	//loc_7EF28
 	a1 += (int)mesh;
-	if (v0 >= a22)
-	{
-		a2 = (int*)& tsv_buffer[0];
-	}
-	else
+	if (v0 < a22)
 	{
 		//loc_7EF40
-		if ((s6 & 0x100) != 0)
+		if ((s6 & 0x100))
 		{
 			a2 = &sp[45];
 		}
@@ -1260,6 +1257,10 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 		{
 			a2 = &sp[0];
 		}
+	}
+	else
+	{
+		a2 = (int*)&tsv_buffer[0];
 	}
 
 	//loc_7EF4C
@@ -1289,15 +1290,15 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 			{
 				t0 = ((short*)a3)[3];
 				a3 += 2;
-				IR1 = (t0 & 0x1f) << 7;
-				IR2 = (t0 & 0x3e0) << 2;
-				IR3 = (t0 & 0x7c00) >> 3;
+				IR1 = (t0 & 0x1F) << 7;
+				IR2 = (t0 & 0x3E0) << 2;
+				IR3 = (t0 & 0x7C00) >> 3;
 				IRGB = t0;
 				v1--;
 				a2 += 2;
 
 				docop2(0x680029);
-				ORGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
+				ORGB = LIM(IR1 >> 7, 0x1F, 0, 0) | (LIM(IR2 >> 7, 0x1F, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1F, 0, 0) << 10);
 				t0 = ORGB;
 				((short*)a2)[-1] = t0;
 			} while (v1 != 0);
@@ -1322,7 +1323,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 				v1--;
 				a2 += 2;
 				
-				ORGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
+				ORGB = LIM(IR1 >> 7, 0x1F, 0, 0) | (LIM(IR2 >> 7, 0x1F, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1F, 0, 0) << 10);
 				t0 = ORGB;///@FIXME bad value
 				((short*)a2)[-1] = t0;
 			} while (v1 != 0);
@@ -1347,15 +1348,15 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 		do
 		{
 			VX0 = t0 & 0xFFFF;
-			VY0 = t0 >> 16;
+			VY0 = (t0 >> 16) & 0xFFFF;
 			VZ0 = t1;
 
 			VX1 = t2 & 0xFFFF;
-			VY1 = t2 >> 16;
+			VY1 = (t2 >> 16) & 0xFFFF;
 			VZ1 = t3;
 
 			VX2 = t4 & 0xFFFF;
-			VY2 = t4 >> 16;
+			VY2 = (t4 >> 16) & 0xFFFF;
 			VZ2 = t5;
 
 			mesh += 12;
@@ -1393,7 +1394,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 	v0 = ((int*)a1)[0];
 	fp = 0xF80000;
 	at = v0 >> 16;
-	DQA = at;
+	DQA = (int)(short)at;
 
 	at = s6 & 0xC00;
 	s6 &= 0x100;
@@ -1405,18 +1406,15 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 	}
 
 	s4 -= 0xC00;
-	if (s6)
-	{
-		v0 &= 0xFFFF;
-		if (s4 < 0)
-		{
-			assert(0);
-			///goto DrawSubDivMesh;
-		}
-	}
-	//loc_7F0A8
 	v0 &= 0xFFFF;
 
+	if (s6 && s4 < 0)
+	{
+		assert(0);
+		//goto DrawSubDivMesh
+	}
+
+	//loc_7F0A8
 	if (s5 < 0)
 	{
 		assert(0);
@@ -1604,8 +1602,7 @@ loc_7F1DC:
 					t2 |= gp;
 					((int*)s0)[0] = t2;
 					s0 += 0x34;
-				}
-				//loc_7F2EC
+				}//loc_7F2EC
 			}
 			//loc_7F2EC
 			a1 += 4;
@@ -2223,7 +2220,7 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 					at = 0x200000;
 					t3 |= at;
 					at = shade & 0xFF;
-					InitGT3_V2((int*)s0, s4, &s3, t6, at, t7, t8, s5, t3, t2, s6, t4);
+					InitGT3_V2((int*)s0, &s4, &s3, t6, at, t7, t8, s5, t3, t2, s6, t4);
 
 					t2 = ((int*)t1)[0];
 					((int*)t1)[0] = (int)s0;
