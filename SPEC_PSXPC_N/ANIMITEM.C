@@ -5,12 +5,25 @@
 
 void mmPushMatrix(int* fp)//81C0C(<)
 {
-	mLoadMatrix((int*)fp[20]);
+	mLoadMatrix((int*)fp[20], fp);
 }
 
-void mLoadMatrix(int* a0)
+void mLoadMatrix(int* a0, int* fp)//81C18(<)
 {
+	R11 = (a0[0] & 0xFFFF);
+	R12 = (a0[0] >> 16) & 0xFFFF;
+	R13 = (a0[1] & 0xFFFF);
+	R21 = (a0[1] >> 16) & 0xFFFF;
+	R22 = (a0[2] & 0xFFFF);
+	R23 = (a0[2] >> 16) & 0xFFFF;
+	R31 = (a0[3] & 0xFFFF);
+	R32 = (a0[3] >> 16) & 0xFFFF;
+	R33 = (a0[4] & 0xFFFF);
+	TRX = a0[5];
+	TRY = a0[6];
+	TRZ = a0[7];
 
+	fp[50] = (int)a0;
 }
 
 void stash_the_info(int meshp/*a0*/, int* fp)//81750
