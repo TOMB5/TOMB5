@@ -396,8 +396,8 @@ void CalcAllAnimatingItems_ASM()
 					if ((r->mesh[j].Flags) & 1)
 					{
 						mmPushMatrix2(fp);
-						mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z); ///@check if calling right function here
-						mRotY2(r->mesh[j].y_rot);///@check if calling right function here
+						//mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z); ///@check if calling right function here
+						//mRotY2(r->mesh[j].y_rot);///@check if calling right function here
 						v1 = ((s5->flags) >> 2) << 10;
 						at = TRZ;
 
