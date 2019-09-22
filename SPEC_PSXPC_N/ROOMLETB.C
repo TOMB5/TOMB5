@@ -11,6 +11,8 @@
 #include "LOAD_LEV.H"
 #include "GTEREG.H"
 #include "ROOMLOAD.H"
+#include "PSXINPUT.H"
+#include "CONTROL.H"
 #include <assert.h>
 
 short LOffset[] = { 0x0000,0x0020,0x0060,0x00C0,0x0140,0x01E0,0x02A0,0x0380,0x0480,0x05A0,0x06E0,0x0840,0x09C0,0x0B60,0x0D20,0x0F00,0x1100,0x1320,0x1560,0x17C0,0x1A40,0x1CE0,0x1FA0,0x2280,0x2580,0x28A0,0x2BE0,0x2F40,0x32C0,0x3660,0x3A20,0x3E00 };
@@ -47,7 +49,7 @@ unsigned short* TriVertTables[] =
 	&TriVertTable[0]
 };
 
-void SubdivSetup3(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)
+void SubdivSetup3(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)//(F)
 {
 	int t7;
 	int t8;
@@ -116,12 +118,18 @@ int ClipToScreen(int t2)
 void MyAddPrim(int t7, int* t9, int* s0, int* a3)
 {
 	int t5;
-
+	static int numCalls = 0;
+	if (numCalls == 324287)
+	{
+		numCalls--;
+	}
+	
 	*t9 += *s0;
 	t5 = ((unsigned int*)*t9)[0];
-	((unsigned int*)* t9)[0] = (unsigned int)a3;
+	((unsigned int*)*t9)[0] = (unsigned int)a3;
 	t5 |= t7;
 	((unsigned int*)a3)[0] = (unsigned int)t5;
+	numCalls++;
 }
 
 void CreateNewVertex(int* t2, int* t7, int* t8, int t1)
@@ -396,12 +404,17 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 			at = t7 << at;
 			t9 = t7 << 2;
 			
-			if ((unsigned int)at < 0x180 && s3 == 0)
+			if (at < 0x180u && s3 == 0)
 			{
 				s3 = 1;
 				s4 = gp;
 				s5 = ra;
 				s6 = (int)t0;
+
+				if (s0 == 0x3C000000)
+				{
+					s0 = 0;
+				}
 
 				a3 = SubPolyGT4((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
 				t1 = (int*)RGB2;
@@ -551,7 +564,7 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 			at = t7 << at;
 			t9 = t7 << 2;
 
-			if ((unsigned int)at < 0x180 && s3 == 0)
+			if (at < 0x180u && s3 == 0)
 			{
 				s3 = 1;
 				s4 = gp;
@@ -591,7 +604,7 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 						{
 							t2 = RGB1;
 							SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
-							MyAddPrim(0x9000000, &t9, &s0, (int*)a3);
+							MyAddPrim(0x9000000, &t9, &s0, a3);
 							a3 += 13;
 						}
 					}
@@ -792,7 +805,7 @@ void UnpackRGB(int* s4, int* t8, int* s5, int* s6, int* fp, int* gp, int* t5, in
 	///*t5 = ((*s6 >> 7) & 0xF80000) | (*s6 >> 13) & 0xF8 | ((*s6 >> 10) & 0xF800);
 }
 
-long ClipXY(int t0, int t1, int t2, int t3, int t4)
+long ClipXY(int t1, int t2, int t3, int t4)
 {
 	int t9;
 	int t5;
@@ -832,7 +845,7 @@ long ClipXY(int t0, int t1, int t2, int t3, int t4)
 	return 1;
 }
 
-int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)
+int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)//(F)
 {
 	int* a2;
 	int s2;
@@ -866,11 +879,12 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)
 	char* s77;
 	int s777;
 
+	sp2 = &sp2[-14];
 	a2 = &sp[0];
 	s0 = &LOffset[0];
 	s1 = &LTab[0];
 	s5 = &OurSqrt[0];
-	fp = (int*)& YOffset[0];///@TODO check if YOffset is actually int[]
+	fp = (int*)&YOffset[0];///@TODO check if YOffset is actually int[]
 	s2 = sp2[25];
 	s3 = sp2[26];
 	s4 = sp2[27];
@@ -879,12 +893,12 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)
 	v0 = ((unsigned short*)a0)[3];
 	a0 += 2;
 
-	LR1 = ((int)a0) & 0xFFFF;
-	LR2 = (((int)a0) >> 16) & 0xFFFF;
-	DQA = v0;
+	LR1 = ((unsigned int)a0) & 0xFFFF;
+	LR2 = (((unsigned int)a0) >> 16) & 0xFFFF;
+	DQA = (int)(short)v0;
 
-	LG2 = ((int)dbs) & 0xFFFF;
-	LG3 = (((int)dbs) >> 16) & 0xFFFF;
+	LG2 = ((unsigned int)dbs) & 0xFFFF;
+	LG3 = (((unsigned int)dbs) >> 16) & 0xFFFF;
 
 	v0 &= 0xFF;
 
@@ -896,7 +910,7 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)
 		t2 = (t0 & 0x1F) << 10;
 		t1 = (t0 & 0x3E0) << 3;
 		t9 = t0 >> 30;
-		L33 = 0;
+		L33 = (int)(short)0;
 		t0 &= 0x7C00;
 
 		if (t9 != 0)
@@ -909,7 +923,7 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)
 			t6 += t7;
 			t6 += t8;
 			t7 = LB3;
-			t8 = RGB0;
+			t8 = RGB0;//WaterTable@FIXME bad values!
 			t6 &= 0xFC;
 			t6 += t8;
 			t6 = ((short*)t6)[1];
@@ -929,7 +943,7 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)
 					t8 += at;
 				}
 
-				L33 = t8;
+				L33 = (int)(short)t8;
 			}//loc_75E8C
 
 			fp[0] = t6;
@@ -1015,7 +1029,7 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)
 				t6 += t7;
 				t6 += t8;
 
-				if ((unsigned int)t6 < 0x3FF != 0)
+				if (t6 < 0x3FF != 0)
 				{
 					t6 += (int)s5;
 					t6 = ((char*)t6)[0];
@@ -1065,9 +1079,10 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)
 
 		if (t6 >= 0)
 		{
-			if (t6 < 0x1FFF)
+			at = t6 < 0x1FFF ? 1 : 0;
+			t6 >>= 8;
+			if (at != 0)
 			{
-				t6 >>= 8;
 				t3 -= t6;
 				t4 -= t6;
 				t5 -= t6;
@@ -1078,21 +1093,21 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)
 			}
 		}
 		//loc_76008
-		if ((unsigned int)t3 > 0x1F)
+		if (!(t3 < 0x20u))
 		{
 			t3 = (unsigned int)t3 >> 27;
 			t3 ^= 0x1F;
 		}
 
 		//loc_7601C
-		if ((unsigned int)t4 > 0x1F)
+		if (!(t4 < 0x20u))
 		{
 			t4 = (unsigned int)t4 >> 27;
 			t4 ^= 0x1F;
 		}
 		//loc_7602C
 		t4 <<= 5;
-		if ((unsigned int)t5 > 0x1F)
+		if (!(t5 < 0x20u))
 		{
 			t5 = (unsigned int)t5 >> 27;
 			t5 ^= 0x1F;
@@ -1119,7 +1134,6 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)
 	struct MMTEXTURE* a22 = RoomTextInfo;
 	a3 = a11[2];
 	int s00 = a11[1];
-
 	int* s11 = &sp[0];
 
 	v0 >>= 8;
@@ -1149,7 +1163,7 @@ loc_76080:
 		docop2(0x1400006);
 		t4 = t3;
 
-		t5 = ClipXY(t0, t1, t2, t3, t4);
+		t5 = ClipXY(t1, t2, t3, t4);
 
 
 		if (t5 == 0)
@@ -1186,25 +1200,29 @@ loc_76080:
 					//loc_7613C
 					LB1 = (t7 & 0xFFFF);
 					LB2 = (t7 >> 16) & 0xFFFF;
-
-					struct MMTEXTURE* t00 = &RoomTextInfo[t0];
-					t7 = ((int*)t00)[2];
+					
+					t0 <<= 4;
+					t7 = t0;
+					t0 <<= 1;
+					t0 += t7;
+					t0 += (int)a22;
+					t7 = ((int*)t0)[2];
 					t8 = t7 << 8;
 
 					int fpp;
 					UnpackRGB(&s444, &t8, &s555, &s666, &fpp, &gp, &t5, &t6, &s3);
 
-					t5 = ((int*)t00)[0];
+					t5 = ((int*)t0)[0];
 					a1 = RFC;
-					t6 = ((int*)t00)[1];
+					t6 = ((int*)t0)[1];
 					t5 -= a1;
 					InitPrim((int*)a3, fpp, t1, t5, gp, t2, t6, s3, t3);
 					((int*)a3)[9] = t7;
 
 					if (at != 0)
 					{
-						at = ((int*)t00)[3];
-						DQA = t9;
+						at = ((int*)t0)[3];
+						DQA = (int)(short)t9;
 						BFC = at;
 
 						LG2 = (a3 & 0xFFFF);
@@ -1284,15 +1302,15 @@ loc_761EC:
 		t4 &= 0x3F8;
 		s77 = &((char*)s11)[t4];
 		docop2(0x1400006);
-		t4 = ((int*)s77)[0];
-		t5 = ClipXY(t0, t1, t2, t3, t4);
+		t4 = ((unsigned int*)s77)[0];
+		t5 = ClipXY(t1, t2, t3, t4);
 
 		if (t5 == 0)
 		{
-			int s444 = ((int*)s44)[1];
-			int s555 = ((int*)s55)[1];
-			int s666 = ((int*)s66)[1];
-			int s777 = ((int*)s77)[1];
+			int s444 = ((unsigned int*)s44)[1];
+			int s555 = ((unsigned int*)s55)[1];
+			int s666 = ((unsigned int*)s66)[1];
+			int s777 = ((unsigned int*)s77)[1];
 
 			t5 = s444 & 0xFFFF;
 			t6 = s555 & 0xFFFF;
@@ -1355,7 +1373,7 @@ loc_761EC:
 					if (at != 0)
 					{
 						BFC = t0;
-						DQA = t9;
+						DQA = (int)(short)t9;
 						LG2 = (a3 & 0xFFFF);
 						LG3 = (a3 >> 16) & 0xFFFF;
 						a3 += 0x34;
@@ -1381,7 +1399,7 @@ loc_761EC:
 
 						if (at <= 0)
 						{
-							t4 = t6;
+							t4 += t6;
 						}
 
 						//loc_763A4
@@ -1403,12 +1421,15 @@ loc_761EC:
 
 						t0 |= at;
 
-						t3 = a3;
-						if (t0 >= 0 && t9 > 0x4FF)
+						if (t0 >= 0)
 						{
-							a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
-							MyAddPrim(0xC000000, &t9, &s00, (int*)a3);
-							a3 = t3;
+							t3 = a3;
+							if (t9 > 0x4FF)
+							{
+								a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
+								MyAddPrim(0xC000000, &t9, &s00, (int*)a3);
+								a3 = t3;
+							}
 						}//loc_76410
 					}
 					else
@@ -1585,9 +1606,9 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	int v0;
 	int* a1;
 	int scratchPad[256];
-	int scratchPad2[256];
-	int* sp = &scratchPad[14];
-	int* sp2 = &scratchPad2[14];
+	int scratchPad2[512];
+	int* sp = &scratchPad[0];
+	int* sp2 = &scratchPad2[0];
 	int a3;
 	int a2;
 	int v1;
@@ -1595,10 +1616,8 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	int* a33;
 	int ra;
 
-	///@FIXME there are two sps, the 0x1F800000 one and a different one, emulate them both!
-
 	S_MemSet((char*)&scratchPad[0], 0, 1024);
-	S_MemSet((char*)&scratchPad2[0], 0, 1024);
+	S_MemSet((char*)&scratchPad2[0], 0, 2048);
 
 	RFC = underwater;
 	RGB0 = (unsigned long)r;
@@ -1606,8 +1625,24 @@ void DrawRoomletListAsmBinocular(long underwater, struct room_info* r)//roomletb
 	s0 = number_draw_rooms;
 	s3 = &RoomBBoxes[0];
 	s4 = &draw_rooms[0];
-	LB3 = wibble & 0xFC;
+	LB3 = (int)(short)(wibble & 0xFC);
 	s2 = (int*)&tsv_buffer[0];
+
+#if 0//Draw all rooms at once (not working yet)
+	int maxNumRooms = 100;// number_rooms;
+	int startRoom = 0;
+	for (int i = startRoom; i < maxNumRooms; i++)
+	{
+		draw_rooms[i] = i;
+	}
+
+	if ((RawPad & IN_CROSS))
+	{
+		startRoom += 32;
+	}
+
+	number_draw_rooms = maxNumRooms;
+#endif
 
 loc_74C88:
 	//t0 = *s4++;
@@ -1626,37 +1661,37 @@ loc_74C88:
 
 	s5 = (struct room_info*)RGB0;
 
-	t6 = r->x - fp->x;
-	t7 = r->y - fp->y;
-	t8 = r->z - fp->z;
+	t6 = s5->x - fp->x;
+	t7 = s5->y - fp->y;
+	t8 = s5->z - fp->z;
 
-	if (t6 > -31745 && t6 < 31744 &&
-		t7 > -31745 && t6 < 37144 &&
-		t8 > -31745 && t8 < 37144)
+	if (!(t6 < -31744) && t6 < 31744 &&
+		!(t7 < -31744) && t6 < 37144 &&
+		!(t8 < -31744) && t8 < 37144)
 	{
-		t7 = fp->minfloor - r->y;
-		t6 = (((fp->x_size - 2) << 10) + fp->z) - r->z;
-		t8 = (((fp->y_size - 2) << 10) + fp->x) - r->x;
+		t7 = fp->minfloor - s5->y;
+		t6 = (((fp->x_size - 2) << 10) + fp->z) - s5->z;
+		t8 = (((fp->y_size - 2) << 10) + fp->x) - s5->x;
 
-		if (t6 > -31745 && t6 < 37144 &&
-			t7 > -31745 && t7 < 37144 &&
-			t8 > -31745 && t8 < 37144)
+		if (!(t6 < -31744) && t6 < 37144 &&
+			!(t7 < -31744) && t7 < 37144 &&
+			!(t8 < -31744) && t8 < 37144)
 		{
 			t7 = s5->minfloor - fp->y;
-			t6 = (((s5->x_size - 2) << 10) + r->x) - fp->x;
-			t8 = (((s5->y_size - 2) << 10) + r->z) - fp->z;
+			t6 = (((s5->x_size - 2) << 10) + s5->x) - fp->x;
+			t8 = (((s5->y_size - 2) << 10) + s5->z) - fp->z;
 
-			if (t6 > -31745 && t6 < 37144 &&
-				t7 > -31745 && t7 < 37144 &&
-				t8 > -31745 && t8 < 37144)
+			if (!(t6 < -37144) && t6 < 37144 &&
+				!(t7 < -37144) && t7 < 37144 &&
+				!(t8 < -37144) && t8 < 37144)
 			{
-				t6 = fp->x - r->x;
-				t7 = fp->y - r->y;
-				t8 = fp->z - r->z;
+				t6 = fp->x - s5->x;
+				t7 = fp->y - s5->y;
+				t8 = fp->z - s5->z;
 
-				t0 = r->x;
-				t1 = r->y;
-				t2 = r->z;
+				t0 = s5->x;
+				t1 = s5->y;
+				t2 = s5->z;
 			}
 			else
 			{
@@ -1847,9 +1882,7 @@ loc_74F78:
 		t0 |= at;
 
 		SVECTOR* t33;///@CHECKME result of t3 :S
-		t3 >>= 13;
-		t3 &= 0xFFF8;
-		t33 = &s3[t3 >> 3];
+		t33 = &s3[((t3 >> 13) & 0xFFF8) >> 3];
 
 		at = t33->vx;
 		t2 = t33->vy;
@@ -1939,7 +1972,7 @@ loc_74F78:
 
 		GetBounds(&t0, &t1, &t6, &t7, &t8, &t9, &a00, &a11, &a22, &a33, &v0, &s55);
 
-		if ((unsigned int)v0 < 9 && (unsigned int)s55 < 9)
+		if (v0 < 9u && s55 < 9u)
 		{
 			t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
 			t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
@@ -2189,7 +2222,7 @@ loc_751B4:
 				}//loc_75334
 
 				t1 -= at;
-				if ((unsigned int)t0 > 0x7FF)
+				if (t0 > 0x7FFu)
 				{
 					goto loc_75304;
 				}
@@ -2205,7 +2238,7 @@ loc_751B4:
 				//loc_75350
 
 				ra -= at;
-				if ((unsigned int)t1 > 0x7FF)
+				if (t1 > 0x7FFu)
 				{
 					goto loc_75304;
 				}
@@ -2340,7 +2373,7 @@ loc_751B4:
 		//loc_754C4
 		a1[3] = 0;
 
-		a3 = DrawMesh(a0, &db, &sp[-14], &sp2[-14]);
+		a3 = DrawMesh(a0, &db, &sp[0], &sp2[0]);
 		db.polyptr = (char*)a3;
 		goto loc_751B4;
 	}///loc_76420?
