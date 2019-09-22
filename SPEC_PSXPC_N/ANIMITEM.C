@@ -1,10 +1,13 @@
 #include "ANIMITEM.H"
 
+#include "3D_GEN.H"
 #include "CONTROL.H"
 #include "LOAD_LEV.H"
 #include "DRAW.H"
 #include "CAMERA.H"
 #include "SETUP.H"
+#include "DRAWOBJ.H"
+#include "MATHS.H"
 
 #include <LIBGTE.H>
 #include "GTEREG.H"
@@ -12,6 +15,22 @@
 void mmPopMatrix2(int* fp)//81C0C(<)
 {
 	mLoadMatrix2((int*)(fp[20]-0x20), fp);
+}
+
+void mmPushMatrix2(int* fp)
+{
+	int* a0 = (int*)fp[20];
+	a0 += 8;
+	a0[0] = R11 | R12 << 16;
+	a0[1] = R13 | R21 << 16;
+	a0[2] = R22 | R23 << 16;
+	a0[3] = R31 | R32 << 16;
+	a0[4] = R33;
+	a0[5] = TRX;
+	a0[6] = TRY;
+	a0[7] = TRZ;
+
+	fp[20] = (int)a0;
 }
 
 void mLoadMatrix2(int* a0, int* fp)//81C18(<)
@@ -354,36 +373,21 @@ void CalcAllAnimatingItems_ASM()
 	fp = &scratchPad[0];
 	init_scratchpad(fp);
 
-	//s1 = number_draw_rooms 
-	//s0 = &draw_rooms[0];
-
 	if (number_draw_rooms > 0)
 	{
 		//loc_82658
 		for (i = 0; i < number_draw_rooms; i++)
 		{
-			//a0 = draw_rooms[0]
-			/*
-			lw      $v1, 0x80 + arg_18($fp)
-			sll     $v0, $a0, 2
-			addu    $v0, $a0
-			sll     $v0, 4
-			addu    $s2, $v1, $v0
-			*/
 			r = &room[draw_rooms[i]];
 			((short*)& fp[0])[52] = draw_rooms[i];
 			((short*)& fp[0])[16] = (int)r;
-			mmPushMatrix(fp);
-
-			//s3 = r->num_meshes
-			//s4 = r->mesh[0]
-			//v0 = ((int*)&r->left)[0];
+			mmPushMatrix2(fp);
 
 			if (r->num_meshes > 0)
 			{
-				//v1 = ((int*)&r->top)[0];
-				fp[36] = ((int*)& r->left)[0];
-				fp[37] = ((int*)& r->top)[0];
+				fp[36] = ((int*)&r->left)[0];
+				fp[37] = ((int*)&r->top)[0];
+
 				//loc_82698
 				for (j = 0; j < r->num_meshes; j++)
 				{
@@ -391,9 +395,9 @@ void CalcAllAnimatingItems_ASM()
 
 					if ((r->mesh[j].Flags) & 1)
 					{
-						mmPushMatrix(fp);///@CHECKME should be in ANIMITEM.C...
-						mTranslateAbsXYZ(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z); ///@check if calling right function here
-						mRotY(r->mesh[j].y_rot);///@check if calling right function here
+						mmPushMatrix2(fp);
+						mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z); ///@check if calling right function here
+						mRotY2(r->mesh[j].y_rot);///@check if calling right function here
 						v1 = ((s5->flags) >> 2) << 10;
 						at = TRZ;
 
@@ -462,6 +466,10 @@ void CalcAllAnimatingItems_ASM()
 
 void DrawAllAnimatingItems_ASM(int s4)
 {
+	struct ITEM_INFO* item;//$a3
+	int i;//$s4
+	int j;//$s1
+
 	//s5 = ra
 	if (s4 > 0)
 	{
@@ -470,81 +478,60 @@ void DrawAllAnimatingItems_ASM(int s4)
 		//s2 = &stashed_matrix_list
 
 		//loc_8291C
+		for(i = 0; i < s4; i++)
+		{
+			if (stashed_objects_list[i].numnodestodraw == 0)
+			{
+				item = stashed_objects_list[i].item;
+				///S_CalculateStaticMeshLight(item->floor, item->touch_bits, item->mesh_bits, item->current_anim_state);//maybe returns s6
+			}
+			else
+			{
+				//loc_82950
+				///CalculateObjectLighting();//maybe returns s6?
+			}
+
+			//loc_82964
+			for (j = 0; j < stashed_objects_list[i].numnodestodraw; j++)
+			{
+				R11 = ((int*)& stashed_matrix_list[j].matrix[0])[0] & 0xFFFF;
+				R12 = (((int*)& stashed_matrix_list[j].matrix[0])[0] >> 16) & 0xFFFF;
+				R13 = ((int*)& stashed_matrix_list[j].matrix[0])[1] & 0xFFFF;
+				R21 = (((int*)& stashed_matrix_list[j].matrix[0])[1] >> 16) & 0xFFFF;
+				R22 = ((int*)& stashed_matrix_list[j].matrix[0])[2] & 0xFFFF;
+				R23 = (((int*)& stashed_matrix_list[j].matrix[0])[2] >> 16) & 0xFFFF;
+				R31 = ((int*)& stashed_matrix_list[j].matrix[0])[3] & 0xFFFF;
+				R32 = (((int*)& stashed_matrix_list[j].matrix[0])[3] >> 16) & 0xFFFF;
+				R33 = ((int*)& stashed_matrix_list[j].matrix[0])[4] & 0xFFFF;
+				TRX = ((int*)& stashed_matrix_list[j].matrix[0])[5];
+				TRY = ((int*)& stashed_matrix_list[j].matrix[0])[6];
+				TRZ = ((int*)& stashed_matrix_list[j].matrix[0])[7];
+
+				//@FIXME below is something to do with shade
+				if (0x80 != 0x80)///@FIXME s6 != at??? s6 should be variable maybe returned from earlier function calls
+				{
+					//loc_829C4
+					if (0x80 > 4)//s6 > 4 really
+					{
+						phd_PutPolygons_seethrough(stashed_matrix_list[j].mesh, 4);//second arg is s6
+					}
+					else
+					{
+
+					}
+				}//loc_829C4
+				else
+				{
+					phd_PutPolygons(stashed_matrix_list[j].mesh, stashed_objects_list[j].clip);
+				}
+			}
+		}
+		//loc_829E8
+		mPopMatrix();
 	}
 	//loc_829E8
-
-
-#if 0
-	loc_8291C:
-	lh      s1, 2(s0)
-	lh      s3, 0(s0)
-	li      s6, 0x80
-	bnez    s1, loc_82950
-	lw      a0, 4(s0)
-	li      s1, 1
-	move    a3, a0
-	lw      a0, 0(a3)
-	lw      a1, 4(a3)
-	lw      a2, 8(a3)
-	lh      a3, 0xE(a3)
-	nop
-	jal     S_CalculateStaticMeshLight
-	addiu   ra, 0x18
-
-	loc_82950:
-	lw      a1, 8(s0)
-	lh      at, 0x30(a0)
-	li      s6, 0x80
-	nop
-	jal     CalculateObjectLighting
-	subu    s6, at
-
-	loc_82964:
-	lw      t0, 4(s2)
-	lw      t1, 8(s2)
-	lw      t2, 0xC(s2)
-	lw      t3, 0x10(s2)
-	ctc2    t0, r0
-	ctc2    t1, r1
-	ctc2    t2, r2
-	ctc2    t3, r3
-	lw      t0, 0x14(s2)
-	lw      t1, 0x18(s2)
-	lw      t2, 0x1C(s2)
-	lw      t3, 0x20(s2)
-	ctc2    t0, r4
-	ctc2    t1, r5
-	ctc2    t2, r6
-	ctc2    t3, r7
-	li      at, 0x80
-	beq     s6, at, loc_829C4
-	lw      a0, 0(s2)
-	slti    at, s6, 5
-	bnez    at, loc_829CC
-	move    a1, s6
-	jal     phd_PutPolygons_seethrough
-	addiu   ra, 8
-
-	loc_829C4:
-	jal     phd_PutPolygons
-	move    a1, s3
-
-	loc_829CC:
-	addiu   s1, -1
-	bgtz    s1, loc_82964
-	addiu   s2, 0x24
-	addiu   s4, -1
-	bgtz    s4, loc_8291C
-	addiu   s0, 0xC
-	jal     mPopMatrix
-
-	loc_829E8:
-	sw      zero, phd_left-GP_ADDR(gp)
-	li      v0, 0x1FF
-	li      at, 0xEF
-	sw      v0, phd_right-GP_ADDR(gp)
-	sw      zero, phd_top-GP_ADDR(gp)
-	jr      s5
-	sw      at, phd_bottom-GP_ADDR(gp)
-#endif
+	phd_left = 0;
+	phd_right = 0x1FF;
+	phd_top = 0;
+	phd_bottom = 0xEF;
 }
