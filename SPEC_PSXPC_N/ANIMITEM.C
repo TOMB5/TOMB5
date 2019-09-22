@@ -3,12 +3,12 @@
 #include <LIBGTE.H>
 #include "GTEREG.H"
 
-void mmPushMatrix(int* fp)//81C0C(<)
+void mmPopMatrix2(int* fp)//81C0C(<)
 {
-	mLoadMatrix((int*)fp[20], fp);
+	mLoadMatrix2((int*)(fp[20]-0x20), fp);
 }
 
-void mLoadMatrix(int* a0, int* fp)//81C18(<)
+void mLoadMatrix2(int* a0, int* fp)//81C18(<)
 {
 	R11 = (a0[0] & 0xFFFF);
 	R12 = (a0[0] >> 16) & 0xFFFF;
