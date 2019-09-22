@@ -8,6 +8,7 @@
 #include "SETUP.H"
 #include "DRAWOBJ.H"
 #include "MATHS.H"
+#include "MISC.H"
 
 #include <LIBGTE.H>
 #include "GTEREG.H"
@@ -48,7 +49,7 @@ void mLoadMatrix2(int* a0, int* fp)//81C18(<)
 	TRY = a0[6];
 	TRZ = a0[7];
 
-	fp[50] = (int)a0;
+	fp[20] = (int)a0;
 }
 
 void stash_the_info(int meshp/*a0*/, int* fp)//81750
@@ -328,11 +329,11 @@ void init_scratchpad(int* fp)//8281C(<) (F)
 	at[6] = t6;
 	at[7] = t7;
 
-	fp[16] = (int)stashed_objects_list;
-	fp[17] = (int)stashed_matrix_list;
+	fp[16] = (int)&stashed_objects_list[0];
+	fp[17] = (int)&stashed_matrix_list[0];
 	fp[18] = 0;
-	fp[24] = (int)items;
-	fp[38] = (int)room;
+	fp[24] = (int)&items[0];
+	fp[38] = (int)&room[0];
 
 	((short*)fp)[53] = camera.pos.room_number;
 	fp[39] = (int)anims;
@@ -370,6 +371,8 @@ void CalcAllAnimatingItems_ASM()
 	struct object_info* object;//$s6
 	int item_number;//$s2
 
+	S_MemSet((char*)&scratchPad[0], 0, 1024);
+
 	fp = &scratchPad[0];
 	init_scratchpad(fp);
 
@@ -379,8 +382,8 @@ void CalcAllAnimatingItems_ASM()
 		for (i = 0; i < number_draw_rooms; i++)
 		{
 			r = &room[draw_rooms[i]];
-			((short*)& fp[0])[52] = draw_rooms[i];
-			((short*)& fp[0])[16] = (int)r;
+			((short*)fp)[52] = draw_rooms[i];
+			((short*)fp)[25] = (int)r;
 			mmPushMatrix2(fp);
 
 			if (r->num_meshes > 0)
