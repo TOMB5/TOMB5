@@ -3,6 +3,16 @@
 #include <LIBGTE.H>
 #include "GTEREG.H"
 
+void mmPushMatrix(int* fp)//81C0C(<)
+{
+	mLoadMatrix((int*)fp[20]);
+}
+
+void mLoadMatrix(int* a0)
+{
+
+}
+
 void stash_the_info(int meshp/*a0*/, int* fp)//81750
 {
 	int* at;
