@@ -92,7 +92,7 @@ int GetBounds(int t0, int a2, int a3, int t1, int t2, int v0, int a0, int a1, in
 	return v0;
 }
 
-int mClipBoundingBox2(short* bounds)//811FC
+int mClipBoundingBox2(short* bounds, int* sp /*fp*/)//811FC
 {
 	int t0 = TRZ - 20480;
 	int t3;
@@ -137,9 +137,8 @@ int mClipBoundingBox2(short* bounds)//811FC
 		VY2 = at >> 16;
 		VZ2 = t2;
 
-		//v1 = ra
-
 		docop2(0x280030);
+
 		t9 = t3 | t4;
 		t8 = t2;
 
@@ -164,73 +163,64 @@ int mClipBoundingBox2(short* bounds)//811FC
 		t3 -= 33;
 		t4 -= 33;
 		t5 -= 33;
+
 		v0 = 0;
+		v0 = GetBounds(t0, a2, a3, t1, t2, v0, a0, a1, t3, t4, t5);
+
+		t0 = SXY0;
+		t1 = SXY1;
+		t2 = SXY2;
+		t3 = SZ1;
+		t4 = SZ2;
+		t5 = SZ3;
+
+		VX0 = (t9 & 0xFFFF);
+		VY0 = (t9 >> 16) & 0xFFFF;
+		VZ0 = t8;
+
+		VX1 = (t9 & 0xFFFF);
+		VY1 = (t9 >> 16) & 0xFFFF;
+
+		t2 -= 0x21;
+		docop2(0x280030);
+		t4 -= 0x21;
+		t5 -= 0x21;
+
+		v0 = GetBounds(t0, a2, a3, t1, t2, v0, a0, a1, t3, t4, t5);
+	
+		t0 = SXY0;
+		t1 = SXY1;
+		t3 = SZ1;
+		t4 = SZ2;
+
+		t3 -= 0x21;
+		t4 -= 0x21;
+		t2 = t1;
+		t5 = t4;
+
+		v0 = GetBounds(t0, at, a3, t1, t2, v0, a0, a1, t3, t4, t5);
+		t0 = ((short*)sp)[73];
+		t1 = ((short*)sp)[75];
+		t2 = ((short*)sp)[72];
+		t3 = ((short*)sp)[74];
+
+		a0 >>= 16;
+		a1 >>= 16;
+		a2 >>= 16;
+		a3 >>= 16;
+
+		if (v0 == 0 || t0 < a0 || t1 < a2 || a1 < t2 || a3 < t3)
+		{
+			return 0;
+		}
+
+		if (v0 < 9 || a0 < t2 || a2 < t3 || t0 < a1 || t1 < a3)
+		{
+			return -1;
+		}
+
+		return 1;
 	}
 
-#if 0
-jal     sub_8139C
-nop
-mfc2    $t0, $12
-mfc2    $t1, $13
-mfc2    $t2, $14
-mfc2    $t3, $17
-mfc2    $t4, $18
-mfc2    $t5, $19
-mtc2    $t9, $0
-mtc2    $t8, $1
-mtc2    $t9, $2
-addi    $t3, -0x21
-cop2    0x280030
-addi    $t4, -0x21
-jal     sub_8139C
-addi    $t5, -0x21
-mfc2    $t0, $12
-mfc2    $t1, $13
-mfc2    $t3, $17
-mfc2    $t4, $18
-addi    $t3, -0x21
-addi    $t4, -0x21
-move    $t2, $t1
-jal     sub_8139C
-move    $t5, $t4
-move    $ra, $v1
-lh      $t0, arg_92($fp)
-lh      $t1, arg_96($fp)
-lh      $t2, arg_90($fp)
-lh      $t3, arg_94($fp)
-sra     $a0, 16
-sra     $a1, 16
-sra     $a2, 16
-sra     $a3, 16
-move    $v1, $v0
-beqz    $v1, locret_81394
-move    $v0, $zero
-slt     $at, $t0, $a0
-bnez    $at, locret_81394
-slt     $at, $t1, $a2
-bnez    $at, locret_81394
-slt     $at, $a1, $t2
-bnez    $at, locret_81394
-slt     $at, $a3, $t3
-bnez    $at, locret_81394
-nop
-slti    $at, $v1, 9
-bnez    $at, locret_81394
-li      $v0, 0xFFFFFFFF
-slt     $at, $a0, $t2
-bnez    $at, locret_81394
-slt     $at, $a2, $t3
-bnez    $at, locret_81394
-slt     $at, $t0, $a1
-bnez    $at, locret_81394
-slt     $at, $t1, $a3
-bnez    $at, locret_81394
-nop
-li      $v0, 1
-
-locret_81394:
-jr      $ra
-nop
-#endif
 	return v0;
 }
