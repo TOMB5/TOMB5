@@ -3,6 +3,30 @@
 #include <LIBGTE.H>
 #include "GTEREG.H"
 
+void stash_the_info(int meshp/*a0*/, int* fp)//81750
+{
+	int* at;
+
+	at = (int*)fp[17];
+
+	((int*)at)[0] = meshp;
+
+	at[1] = R11 | (R12 << 16);
+	at[2] = R13 | (R21 << 16);
+	at[3] = R22 | (R23 << 16);
+	at[4] = R31 | (R32 << 16);
+
+	at[5] = R33;
+	at[6] = TRX;
+	at[7] = TRY;
+	at[8] = TRZ;
+
+	at += 9;
+
+	fp[19]++;
+	fp[17] = (int)at;
+}
+
 int GetBounds(int t0, int a2, int a3, int t1, int t2, int v0, int a0, int a1, int t3, int t4, int t5)//8139C
 {
 	if (t0 < a2)
