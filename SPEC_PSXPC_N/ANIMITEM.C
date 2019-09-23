@@ -13,6 +13,18 @@
 #include <LIBGTE.H>
 #include "GTEREG.H"
 
+void mTranslateAbsXYZ2(int tx, int ty, int tz, int* fp)
+{
+	TRX = 0;
+	TRY = 0;
+	TRZ = 0;
+	tx -= fp[27];
+	ty -= fp[28];
+	tz -= fp[29];
+
+	//mTranslateXYZ();
+}
+
 void mmPopMatrix2(int* fp)//81C0C(<)
 {
 	mLoadMatrix2((int*)(fp[20]-0x20), fp);
@@ -399,8 +411,8 @@ void CalcAllAnimatingItems_ASM()
 					if ((r->mesh[j].Flags) & 1)
 					{
 						mmPushMatrix2(fp);
-						//mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z); ///@check if calling right function here
-						//mRotY2(r->mesh[j].y_rot);///@check if calling right function here
+						mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z); ///@check if calling right function here
+						mRotY2(r->mesh[j].y_rot);///@check if calling right function here
 						v1 = ((s5->flags) >> 2) << 10;
 						at = TRZ;
 
@@ -467,7 +479,7 @@ void CalcAllAnimatingItems_ASM()
 }
 
 
-void DrawAllAnimatingItems_ASM(int s4)
+void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 {
 	struct ITEM_INFO* item;//$a3
 	int i;//$s4
