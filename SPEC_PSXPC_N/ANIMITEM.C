@@ -615,10 +615,10 @@ void CalcAllAnimatingItems_ASM()
 							a2 = (int*)fp[16];
 							fp[18]++;
 							((short*)a2)[0] = v0;
-							((int*)a2)[1] = (int)& r->mesh[j];///@checkme
+							((int*)a2)[1] = (int)& r->mesh[j];
 							((short*)a2)[1] = 0;
 							a2 += 3;
-							((int*)a2)[16] = (int)a2;///@checkme
+							fp[16] = (int)a2;
 							v1 = s5->mesh_number;
 							v0 = fp[40];
 
@@ -711,7 +711,7 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 				TRZ = ((int*)& stashed_matrix_list[j].matrix[0])[7];
 
 				//@FIXME below is something to do with shade
-				if (0x80 != 0x80)///@FIXME s6 != at??? s6 should be variable maybe returned from earlier function calls
+				if (0)///@FIXME s6 != at??? s6 should be variable maybe returned from earlier function calls
 				{
 					//loc_829C4
 					if (0x80 > 4)//s6 > 4 really
