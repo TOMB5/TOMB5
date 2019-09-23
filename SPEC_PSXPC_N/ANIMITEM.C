@@ -621,7 +621,8 @@ void CalcAllAnimatingItems_ASM()
 							((int*)a2)[16] = (int)a2;///@checkme
 							v1 = s5->mesh_number;
 							v0 = fp[40];
-							stash_the_info(((int*)fp[s5->mesh_number])[0], fp);//((int*)meshes[s5->mesh_number])[0]
+
+							stash_the_info(((int*)v0)[s5->mesh_number], fp);//((int*)meshes[s5->mesh_number])[0]
 						}
 						//loc_8274C
 						mmPopMatrix2(fp);
