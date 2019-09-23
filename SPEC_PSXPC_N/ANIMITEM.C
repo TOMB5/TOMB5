@@ -33,7 +33,7 @@ void mRotY2(int ry, int* fp)
 	VZ0 = t2;
 
 	int t0 = R11 | (R12 << 16);
-	int t2 = R12 | (R21 << 16);
+	t2 = R12 | (R21 << 16);
 	int t3 = R31 | (R32 << 16);
 
 	docop2(0x486012);
@@ -47,7 +47,7 @@ void mRotY2(int ry, int* fp)
 	t3 &= t7;
 	int t4 = MAC1;
 	int t1 = MAC2;
-	int t5 = MAC3;
+	t5 = MAC3;
 
 	docop2(0x48E012);
 
