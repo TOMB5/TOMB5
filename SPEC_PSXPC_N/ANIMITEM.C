@@ -13,7 +13,7 @@
 #include <LIBGTE.H>
 #include "GTEREG.H"
 
-void mRotY2(int ry)
+void mRotY2(int ry, int* fp)
 {
 	ry = (ry >> 2) & 0x3FFC;
 	if (ry == 0)
@@ -66,7 +66,28 @@ void mRotY2(int ry)
 	t6 <<= 16;
 	t2 |= t6;
 
-	//SetRotation2();
+	SetRotation2(fp, t0, t1, t2, t3, t4);
+}
+
+void SetRotation2(int* fp, int t0, int t1, int t2, int t3, int t4)
+{
+	int a0 = fp[20];
+
+	R11 = t0 & 0xFFFF;
+	R12 = (t0 >> 16) & 0xFFFF;
+	R13 = t1 & 0xFFFF;
+	R21 = (t1 >> 16) & 0xFFFF;
+	R22 = t2 & 0xFFFF;
+	R23 = (t2 >> 16) & 0xFFFF;
+	R31 = t3 & 0xFFFF;
+	R32 = (t3 >> 16) & 0xFFFF;
+	R33 = t4 & 0xFFFF;
+
+	((int*)fp)[0] = t0;
+	((int*)fp)[1] = t1;
+	((int*)fp)[2] = t2;
+	((int*)fp)[3] = t3;
+	((int*)fp)[4] = t4;
 }
 
 void mTranslateXYZ2(int tx, int ty, int tz, int* fp)//81AB0
@@ -580,7 +601,7 @@ void CalcAllAnimatingItems_ASM()
 					{
 						mmPushMatrix2(fp);
 						mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z, fp); ///@check if calling right function here
-						mRotY2(r->mesh[j].y_rot);///@check if calling right function here
+						mRotY2(r->mesh[j].y_rot, fp);///@check if calling right function here
 						v1 = ((s5->flags) >> 2) << 10;
 						at = TRZ;
 
