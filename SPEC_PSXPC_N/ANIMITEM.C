@@ -13,6 +13,62 @@
 #include <LIBGTE.H>
 #include "GTEREG.H"
 
+void mRotY2(int ry)
+{
+	ry = (ry >> 2) & 0x3FFC;
+	if (ry == 0)
+	{
+		return;
+	}
+
+	//t0 = 0x9A8C8 rcossin_tbl
+	//loc_81870
+	int t5 = ((int*)&rcossin_tbl[ry >> 1])[0];
+	int t7 = 0xFFFF0000;
+	int t6 = (t5 >> 16) & 0xFFFF;
+	t5 &= 0xFFFF;
+	int t2 = -t5;
+	VX0 = t6;
+	VY0 = (t6 >> 16) & 0xFFFF;
+	VZ0 = t2;
+
+	int t0 = R11 | (R12 << 16);
+	int t2 = R12 | (R21 << 16);
+	int t3 = R31 | (R32 << 16);
+
+	docop2(0x486012);
+
+	VX1 = t5 & 0xFFFF;
+	VY1 = (t5 >> 16) & 0xFFFF;
+	VZ1 = t6 & 0xFFFF;
+
+	t0 &= t7;
+	t2 &= 0xFFFF;
+	t3 &= t7;
+	int t4 = MAC1;
+	int t1 = MAC2;
+	int t5 = MAC3;
+
+	docop2(0x48E012);
+
+	t4 &= 0xFFFF;
+	t0 |= t4;
+	t1 <<= 16;
+	t5 &= 0xFFFF;
+	t3 |= t5;
+
+	t5 = MAC1;
+	t6 = MAC2;
+	t4 = MAC3;
+
+	t5 &= 0xFFFF;
+	t1 |= t5;
+	t6 <<= 16;
+	t2 |= t6;
+
+	//SetRotation2();
+}
+
 void mTranslateXYZ2(int tx, int ty, int tz, int* fp)//81AB0
 {
 	int t4 = ty >> 15;
@@ -134,7 +190,7 @@ void mTranslateAbsXYZ2(int tx, int ty, int tz, int* fp)
 	ty -= fp[28];
 	tz -= fp[29];
 
-	mTranslateXYZ2(tx, ty, tz);
+	mTranslateXYZ2(tx, ty, tz, fp);
 }
 
 void mmPopMatrix2(int* fp)//81C0C(<)
@@ -524,7 +580,7 @@ void CalcAllAnimatingItems_ASM()
 					{
 						mmPushMatrix2(fp);
 						mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z, fp); ///@check if calling right function here
-						//mRotY2(r->mesh[j].y_rot);///@check if calling right function here
+						mRotY2(r->mesh[j].y_rot);///@check if calling right function here
 						v1 = ((s5->flags) >> 2) << 10;
 						at = TRZ;
 
