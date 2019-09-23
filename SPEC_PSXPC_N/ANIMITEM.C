@@ -277,96 +277,94 @@ void stash_the_info(int meshp/*a0*/, int* fp)//81750
 	fp[17] = (int)at;
 }
 
-int GetBounds(int t0, int a2, int a3, int t1, int t2, int v0, int a0, int a1, int t3, int t4, int t5)//8139C
+void GetBounds(int* t0, int* a2, int* a3, int* t1, int* t2, int* v0, int* a0, int* a1, int* t3, int* t4, int* t5)//8139C
 {
-	if (t0 < a2)
+	if (*t0 < *a2)
 	{
-		a2 = t0;
+		*a2 = *t0;
 	}
 
 	//loc_813AC
-	if (t0 >= a3)
+	if (*t0 >= *a3)
 	{
-		a3 = t0;
+		*a3 = *t0;
 	}
 
 	//loc_813B8
-	if (t1 < a2)
+	if (*t1 < *a2)
 	{
-		a2 = t1;
+		*a2 = *t1;
 	}
 
 	//loc_813C4
-	if (t1 >= a3)
+	if (*t1 >= *a3)
 	{
-		a3 = t1;
+		*a3 = *t1;
 	}
 
-	if (t2 < a2)
+	if (*t2 < *a2)
 	{
-		a3 = t2;
+		*a3 = *t2;
 	}
 
 	//loc_813DC
-	t0 <<= 16;
-	if (t2 >= a3)
+	*t0 <<= 16;
+	if (*t2 >= *a3)
 	{
-		a3 = t2;
+		*a3 = *t2;
 	}
 
 	//loc_813E8
-	t1 <<= 16;
-	t2 <<= 16;
+	*t1 <<= 16;
+	*t2 <<= 16;
 
-	if (t0 < a0)
+	if (*t0 < *a0)
 	{
-		a0 = t0;
+		*a0 = *t0;
 	}
 
-	if (t0 >= a1)
+	if (*t0 >= *a1)
 	{
-		a1 = t0;
+		*a1 = *t0;
 	}
 
-	if (t1 < a0)
+	if (*t1 < *a0)
 	{
-		a0 = t1;
+		*a0 = *t1;
 	}
 
-	if (t1 >= a1)
+	if (*t1 >= *a1)
 	{
-		a1 = t1;
+		*a1 = *t1;
 	}
 
-	if (t2 < a0)
+	if (*t2 < *a0)
 	{
-		a0 = t2;
+		*a0 = *t2;
 	}
 
-	if (t2 >= a1)
+	if (*t2 >= *a1)
 	{
-		a1 = t2;
+		*a1 = *t2;
 	}
 
-	if (t3 < 0x5000)
+	if (*t3 < 0x5000)
 	{
-		v0 = 1;
+		v0[0]++;
 	}
 
-	if (t4 < 0x5000)
+	if (*t4 < 0x5000)
 	{
-		v0 = 1;
+		v0[0]++;
 	}
 
-	if (t5 < 0x5000)
+	if (*t5 < 0x5000)
 	{
-		v0 = 1;
+		v0[0]++;
 	}
-
-	return v0;
 }
 
-int mClipBoundingBox2(short* bounds, int* sp /*fp*/)//811FC
+int mClipBoundingBox2(unsigned short* bounds, int* sp /*fp*/)//811FC
 {
 	int t0 = TRZ - 20480;
 	int t3;
@@ -397,18 +395,18 @@ int mClipBoundingBox2(short* bounds, int* sp /*fp*/)//811FC
 		t4 <<= 16;
 
 		at = t0 | t1;
-		VX0 = at & 0xFFFF;
-		VY0 = at >> 16;
+		VX0 = (at & 0xFFFF);
+		VY0 = (at >> 16) & 0xFFFF;
 		VZ0 = t2;
 
 		at = t3 | t1;
-		VX1 = at & 0xFFFF;
-		VY1 = at >> 16;
+		VX1 = (at & 0xFFFF);
+		VY1 = (at >> 16) & 0xFFFF;
 		VZ1 = t2;
 
 		at = t0 | t4;
-		VX2 = at & 0xFFFF;
-		VY2 = at >> 16;
+		VX2 = (at & 0xFFFF);
+		VY2 = (at >> 16) & 0xFFFF;
 		VZ2 = t2;
 
 		docop2(0x280030);
@@ -439,7 +437,7 @@ int mClipBoundingBox2(short* bounds, int* sp /*fp*/)//811FC
 		t5 -= 33;
 
 		v0 = 0;
-		v0 = GetBounds(t0, a2, a3, t1, t2, v0, a0, a1, t3, t4, t5);
+		GetBounds(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
 
 		t0 = SXY0;
 		t1 = SXY1;
@@ -460,7 +458,7 @@ int mClipBoundingBox2(short* bounds, int* sp /*fp*/)//811FC
 		t4 -= 0x21;
 		t5 -= 0x21;
 
-		v0 = GetBounds(t0, a2, a3, t1, t2, v0, a0, a1, t3, t4, t5);
+		GetBounds(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
 	
 		t0 = SXY0;
 		t1 = SXY1;
@@ -472,7 +470,7 @@ int mClipBoundingBox2(short* bounds, int* sp /*fp*/)//811FC
 		t2 = t1;
 		t5 = t4;
 
-		v0 = GetBounds(t0, at, a3, t1, t2, v0, a0, a1, t3, t4, t5);
+		GetBounds(&t0, &a2, &a3, &t1, &t2, &v0, &a0, &a1, &t3, &t4, &t5);
 		t0 = ((short*)sp)[73];
 		t1 = ((short*)sp)[75];
 		t2 = ((short*)sp)[72];
@@ -610,7 +608,7 @@ void CalcAllAnimatingItems_ASM()
 							s5++;
 						}//loc_82704
 
-						v0 = mClipBoundingBox2(&s5->x_minp, fp);
+						v0 = mClipBoundingBox2((unsigned short*)&s5->x_minp, fp);
 
 						if (v0)
 						{
@@ -624,7 +622,7 @@ void CalcAllAnimatingItems_ASM()
 							v1 = s5->mesh_number;
 							v0 = fp[40];
 							stash_the_info(((int*)fp[s5->mesh_number])[0], fp);//((int*)meshes[s5->mesh_number])[0]
-}
+						}
 						//loc_8274C
 						mmPopMatrix2(fp);
 					}//loc_82750
