@@ -13,6 +13,118 @@
 #include <LIBGTE.H>
 #include "GTEREG.H"
 
+void mTranslateXYZ2(int tx, int ty, int tz, int* fp)//81AB0
+{
+	int t4 = ty >> 15;
+	if (ty < 0)
+	{
+		ty = -ty;
+		t4 = ty >> 15;
+		ty &= 0x7FFF;
+		t4 = -t4;
+		ty = -ty;
+
+	}
+	else
+	{
+		//loc_81AD0
+		ty &= 0x7FFF;
+	}
+
+	//loc_81AD4
+	int t5 = tz >> 15;
+	if (tz < 0)
+	{
+		tz = -tz;
+		t5 = tz >> 15;
+		tz &= 0x7FFF;
+		t5 = -t5;
+		tz = -tz;
+	}
+	else
+	{
+		//loc_81AF4
+		tz &= 0x7FFF;
+	}
+
+	//loc_81AF8
+	int t3 = tx >> 15;
+	if (tx < 0)
+	{
+		tx = -tx;
+		t3 = tx >> 15;
+		tx &= 0x7FFF;
+		t3 = -t3;
+		tx = -tx;
+	}
+	else
+	{
+		//loc_81B18
+		tx &= 0x7FFF;
+	}
+
+	//loc_81B1C
+	IR1 = t3;
+	IR2 = t4;
+	IR3 = t5;
+
+	int v0 = fp[20];
+
+	docop2(0x41E012);
+
+	t3 = MAC1;
+	t4 = MAC2;
+	t5 = MAC3;
+
+	IR1 = tx;
+	IR2 = ty;
+	IR3 = tz;
+
+	docop2(0x498012);
+
+	int t0 = t3 << 3;
+	if (t3 < 0)
+	{
+		t3 = -t3;
+		t3 <<= 3;
+		t0 = -t3;
+	}//loc_81B60
+
+	int t1 = t4 << 3;
+	if (t4 < 0)
+	{
+		t4 = -t4;
+		t4 <<= 3;
+		t1 = -t4;
+	}
+
+	//loc_81B74
+	int t2 = t5 << 3;
+	if (t5 < 0)
+	{
+		t5 = -t5;
+		t5 <<= 3;
+		t2 = -t5;
+	}
+	//loc_81B88
+	t3 = MAC1;
+	t4 = MAC2;
+	t5 = MAC3;
+
+	t0 += t3;
+	t1 += t4;
+	t2 += t5;
+
+	TRX = t0;
+	TRY = t1;
+	TRZ = t2;
+
+	((int*)v0)[5] = t0;
+	((int*)v0)[6] = t1;
+	((int*)v0)[7] = t2;
+}
+
+
 void mTranslateAbsXYZ2(int tx, int ty, int tz, int* fp)
 {
 	TRX = 0;
@@ -22,7 +134,7 @@ void mTranslateAbsXYZ2(int tx, int ty, int tz, int* fp)
 	ty -= fp[28];
 	tz -= fp[29];
 
-	//mTranslateXYZ();
+	mTranslateXYZ2(tx, ty, tz);
 }
 
 void mmPopMatrix2(int* fp)//81C0C(<)
@@ -411,8 +523,8 @@ void CalcAllAnimatingItems_ASM()
 					if ((r->mesh[j].Flags) & 1)
 					{
 						mmPushMatrix2(fp);
-						mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z); ///@check if calling right function here
-						mRotY2(r->mesh[j].y_rot);///@check if calling right function here
+						mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z, fp); ///@check if calling right function here
+						//mRotY2(r->mesh[j].y_rot);///@check if calling right function here
 						v1 = ((s5->flags) >> 2) << 10;
 						at = TRZ;
 
