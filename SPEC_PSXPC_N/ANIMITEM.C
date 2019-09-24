@@ -697,18 +697,18 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 			//loc_82964
 			for (j = 0; j < 1; j++)
 			{
-				R11 = ((int*)& stashed_matrix_list[j].matrix[0])[1] & 0xFFFF;
-				R12 = (((int*)& stashed_matrix_list[j].matrix[0])[1] >> 16) & 0xFFFF;
-				R13 = ((int*)& stashed_matrix_list[j].matrix[0])[2] & 0xFFFF;
-				R21 = (((int*)& stashed_matrix_list[j].matrix[0])[2] >> 16) & 0xFFFF;
-				R22 = ((int*)& stashed_matrix_list[j].matrix[0])[3] & 0xFFFF;
-				R23 = (((int*)& stashed_matrix_list[j].matrix[0])[3] >> 16) & 0xFFFF;
-				R31 = ((int*)& stashed_matrix_list[j].matrix[0])[4] & 0xFFFF;
-				R32 = (((int*)& stashed_matrix_list[j].matrix[0])[4] >> 16) & 0xFFFF;
-				R33 = ((int*)& stashed_matrix_list[j].matrix[0])[5] & 0xFFFF;
-				TRX = ((int*)& stashed_matrix_list[j].matrix[0])[6];
-				TRY = ((int*)& stashed_matrix_list[j].matrix[0])[7];
-				TRZ = ((int*)& stashed_matrix_list[j].matrix[0])[8];
+				R11 = ((int*)& stashed_matrix_list[j].matrix[0])[0] & 0xFFFF;
+				R12 = (((int*)& stashed_matrix_list[j].matrix[0])[0] >> 16) & 0xFFFF;
+				R13 = ((int*)& stashed_matrix_list[j].matrix[0])[1] & 0xFFFF;
+				R21 = (((int*)& stashed_matrix_list[j].matrix[0])[1] >> 16) & 0xFFFF;
+				R22 = ((int*)& stashed_matrix_list[j].matrix[0])[2] & 0xFFFF;
+				R23 = (((int*)& stashed_matrix_list[j].matrix[0])[2] >> 16) & 0xFFFF;
+				R31 = ((int*)& stashed_matrix_list[j].matrix[0])[3] & 0xFFFF;
+				R32 = (((int*)& stashed_matrix_list[j].matrix[0])[3] >> 16) & 0xFFFF;
+				R33 = ((int*)& stashed_matrix_list[j].matrix[0])[4] & 0xFFFF;
+				TRX = ((int*)& stashed_matrix_list[j].matrix[0])[5];
+				TRY = ((int*)& stashed_matrix_list[j].matrix[0])[6];
+				TRZ = ((int*)& stashed_matrix_list[j].matrix[0])[7];
 
 				//@FIXME below is something to do with shade
 				if (0)///@FIXME s6 != at??? s6 should be variable maybe returned from earlier function calls
