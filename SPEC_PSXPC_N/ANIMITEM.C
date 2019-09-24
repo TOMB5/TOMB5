@@ -695,7 +695,7 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 			}
 
 			//loc_82964
-			for (j = 0; j < stashed_objects_list[i].numnodestodraw; j++)
+			for (j = 0; j < 1; j++)
 			{
 				R11 = ((int*)& stashed_matrix_list[j].matrix[0])[0] & 0xFFFF;
 				R12 = (((int*)& stashed_matrix_list[j].matrix[0])[0] >> 16) & 0xFFFF;

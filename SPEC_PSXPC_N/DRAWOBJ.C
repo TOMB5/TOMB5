@@ -452,6 +452,224 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 	return 1;
 }
 
+void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2, int t2, int fp, int t3, int* a3)
+{
+	int gp = 0x9000000;
+	int t0;
+	int t1;
+	int t8;
+	int t7;
+	int t6;
+	int s4;
+	int s5;
+	int s6;
+	int t5;
+	int at;
+	int t4;
+	int v1;
+	int t9;
+
+	a1++;
+	if (v0 != 0)
+	{
+		t0 = a1[0];
+
+	loc_7EA18:
+		a1++;
+		v1 = 3;
+
+	loc_7EA20:
+		t1 = a1[0];
+
+		v0--;
+
+		if ((unsigned int)s0 < (unsigned int)s1)
+		{
+			t8 = (t1 >> 13) & 0x7F8;
+			t8 += (int)a0;
+
+			t7 = (t1 >> 5) & 0x7F8;
+			t7 += (int)a0;
+
+			t6 = (t1 << 3) & 0x7F8;
+			t6 += (int)a0;
+
+			s4 = ((int*)t6)[0];
+			s5 = ((int*)t7)[0];
+			s6 = ((int*)t8)[0];
+
+			SXY0 = s4;
+			SXY1 = s5;
+			SXY2 = s6;
+
+			t5 = t0 & 0xFF;
+			t1 >>= 16;
+			docop2(0x1400006);
+			t1 &= 0xF00;
+			t5 |= t1;
+			s6 = s7;
+			t0 >>= 8;
+			if (ultimate_clipper(s4, s5, s6, s7) == 0)
+			{
+				SZ1 = ((int*)t6)[1];
+				SZ2 = ((int*)t7)[1];
+				SZ3 = ((int*)t8)[1];
+
+				at = MAC0;
+
+				docop2(0x158002D);
+				t6 = ((int*)t6)[1];
+
+				if (at >= 0)
+				{
+					t7 = ((int*)t7)[1];
+					t8 = ((int*)t8)[1];
+					t5 <<= 4;
+					t1 = OTZ;
+					t5 += a2;
+
+					if (t1 < 0xA02 && t1 >= 0x21)
+					{
+						t1 <<= 2;
+						t4 = ((int*)t5)[2];
+						at = t4 << 8;
+						UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
+						at = DQB;
+						((int*)t5)[0] = t2;
+						((int*)t5)[1] = t3;
+						t2 -= at;
+						InitGT3(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4);
+						t1 += (int)a3;
+						t2 = ((int*)t1)[0];
+						((int*)t1)[0] = (int)s0;
+						t2 |= gp;
+						((int*)s0)[0] = t2;
+						s0 += 0x28;
+					}//loc_7EB0C
+				}//loc_7EB0C
+			}
+			//loc_7EB0C
+			a1++;
+			if (v0 != 0)
+			{
+				if (v1-- != 0)
+				{
+					goto loc_7EA20;
+				}
+				t0 = a1[0];
+				goto loc_7EA18;
+			}//loc_7EB24
+		}
+		else
+		{
+			//loc_7F304
+			goto DrawExit;
+		}
+	}//loc_7EB24
+	v0 = DQA;
+	gp = 0xC000000;
+	t0 = ((int*)a1)[0];
+
+	if (v0 != 0)
+	{
+	loc_7EB34:
+		a1++;
+		v1 = 1;
+
+	loc_7EB3C:
+		t1 = ((int*)a1)[0];
+
+		v0--;
+		if ((unsigned int)s0 < (unsigned int)s1)
+		{
+			t9 = (t1 >> 21) & 0x7F8;
+			t8 = (t1 >> 13) & 0x7F8;
+			t8 += (int)a0;
+			t7 = (t1 >> 5) & 0x7F8;
+			t7 += (int)a0;
+			t6 = (t1 << 3) & 0x7F8;
+			t6 += (int)a0;
+
+			s4 = ((int*)t6)[0];
+			s5 = ((int*)t7)[0];
+			s6 = ((int*)t8)[0];
+
+			SXY0 = s4;
+			SXY1 = s5;
+			SXY2 = s6;
+
+			t9 += (int)a0;
+			t5 = t0 & 0xFFF;
+			docop2(0x1400006);
+			((int*)t9)[0] = s7;
+
+			t0 >>= 16;
+			if (ultimate_clipper(s4, s5, s6, s7) == 0)
+			{
+				SZ0 = ((int*)t6)[1];
+				SZ1 = ((int*)t7)[2];
+				SZ2 = ((int*)t8)[3];
+				SZ3 = ((int*)t9)[4];
+
+				at = MAC0;
+				docop2(0x168002E);
+				t6 = ((int*)t6)[1];
+				t7 = ((int*)t7)[1];
+				t8 = ((int*)t8)[1];
+				t9 = ((int*)t9)[1];
+				t5 <<= 4;
+				t1 = OTZ;
+				t5 += a2;
+
+				if (t1 < 0xA02 && t1 >= 0x21)
+				{
+					t1 <<= 2;
+					t2 = t9 >> 7;
+					t2 &= fp;
+					t3 = t9 >> 10;
+					t3 = 0xF800;
+					t9 >>= 13;
+					t9 &= 0xF8;
+					t9 |= t3;
+					t9 |= t2;
+					t4 = ((int*)t5)[2];
+					at = t4;
+					UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
+					at = DQB;
+
+					t2 = ((int*)t5)[0];
+					t3 = ((int*)t5)[1];
+					t5 = ((int*)t5)[3];
+					t2 -= at;
+					InitGT4(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s7, t5);
+					t1 += (int)a3;
+
+					t2 = ((int*)t1)[0];
+					((int*)t1)[0] = (int)s0;
+					t2 |= gp;
+					((int*)s0)[0] = t2;
+					s0 += 0x34;
+				}//loc_7EC54
+			}//loc_7EC54
+
+			a1++;
+			if (v0 != 0)
+			{
+				if (v1-- != 0)
+				{
+					goto loc_7EB3C;
+				}
+
+				t0 = a1[0];
+				goto loc_7EB34;
+			}//loc_7F304
+		}//loc_7F304
+	}//loc_7F304
+DrawExit:
+	RFC = 0;
+	db.polyptr = s0;
+}
+
 void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int a2, int t2, int fp, int t3, int a3, int s3)
 {
 	int t7;
@@ -1072,11 +1290,6 @@ void InitObjGTE()
 	BFC = 0;
 }
 
-void DrawClippedMesh(int vertcache, short* mesh, MMTEXTURE* text, char* ot, char* prim, char* prim_lim, long fp, long prim_len, long num_tri)
-{
-	UNIMPLEMENTED();
-}
-
 void DrawSubDivMesh()
 {
 	UNIMPLEMENTED();
@@ -1417,8 +1630,8 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 	//loc_7F0A8
 	if (s5 < 0)
 	{
-		assert(0);
-		///goto DrawClippedMesh;
+		//DrawClippedMesh(v0, &a1, s0, s1, (int)a0, (int)s7, (int)a2, t2, fp, t3, a3);
+		return;///@TODO verify
 	}
 
 	gp = 0x9000000;
