@@ -1630,7 +1630,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 	//loc_7F0A8
 	if (s5 < 0)
 	{
-		//DrawClippedMesh(v0, &a1, s0, s1, (int)a0, (int)s7, (int)a2, t2, fp, t3, a3);
+		DrawClippedMesh(v0, (int*)a1, s0, s1, (int)a0, (int)s7, (int)a2, t2, fp, t3, a3);
 		return;///@TODO verify
 	}
 
