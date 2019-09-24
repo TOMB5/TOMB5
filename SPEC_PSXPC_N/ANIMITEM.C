@@ -223,10 +223,10 @@ void mmPushMatrix2(int* fp)
 {
 	int* a0 = (int*)fp[20];
 	a0 += 8;
-	a0[0] = R11 | R12 << 16;
-	a0[1] = R13 | R21 << 16;
-	a0[2] = R22 | R23 << 16;
-	a0[3] = R31 | R32 << 16;
+	a0[0] = (R11 & 0xFFFF) | (R12 & 0xFFFF) << 16;
+	a0[1] = (R13 & 0xFFFF) | (R21 & 0xFFFF) << 16;
+	a0[2] = (R22 & 0xFFFF) | (R23 & 0xFFFF) << 16;
+	a0[3] = (R31 & 0xFFFF) | (R32 & 0xFFFF) << 16;
 	a0[4] = R33;
 	a0[5] = TRX;
 	a0[6] = TRY;
@@ -510,10 +510,10 @@ void init_scratchpad(int* fp)//8281C(<) (F)
 	int* at = &fp[47];
 	fp[20] = (int)at;
 
-	t0 = R11 | (R12 << 16);
-	t1 = R13 | (R21 << 16);
-	t2 = R22 | (R23 << 16);
-	t3 = R31 | (R32 << 16);
+	t0 = (R11 & 0xFFFF) | (R12 & 0xFFFF) << 16;
+	t1 = (R13 & 0xFFFF) | (R21 & 0xFFFF) << 16;
+	t2 = (R22 & 0xFFFF) | (R23 & 0xFFFF) << 16;
+	t3 = (R31 & 0xFFFF) | (R32 & 0xFFFF) << 16;
 	t4 = R33;
 	t5 = TRX;
 	t6 = TRY;
