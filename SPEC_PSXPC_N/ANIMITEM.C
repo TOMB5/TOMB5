@@ -261,12 +261,12 @@ void stash_the_info(int meshp/*a0*/, int* fp)//81750
 
 	((int*)at)[0] = meshp;
 
-	at[1] = R11 | (R12 << 16);
-	at[2] = R13 | (R21 << 16);
-	at[3] = R22 | (R23 << 16);
-	at[4] = R31 | (R32 << 16);
+	at[1] = (R11 & 0xFFFF) | (R12 & 0xFFFF) << 16;
+	at[2] = (R13 & 0xFFFF) | (R21 & 0xFFFF) << 16;
+	at[3] = (R22 & 0xFFFF) | (R23 & 0xFFFF) << 16;
+	at[4] = (R31 & 0xFFFF) | (R32 & 0xFFFF) << 16;
 
-	at[5] = R33;
+	at[5] = (R33 & 0xFFFF);
 	at[6] = TRX;
 	at[7] = TRY;
 	at[8] = TRZ;
@@ -697,18 +697,18 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 			//loc_82964
 			for (j = 0; j < 1; j++)
 			{
-				R11 = ((int*)& stashed_matrix_list[j].matrix[0])[0] & 0xFFFF;
-				R12 = (((int*)& stashed_matrix_list[j].matrix[0])[0] >> 16) & 0xFFFF;
-				R13 = ((int*)& stashed_matrix_list[j].matrix[0])[1] & 0xFFFF;
-				R21 = (((int*)& stashed_matrix_list[j].matrix[0])[1] >> 16) & 0xFFFF;
-				R22 = ((int*)& stashed_matrix_list[j].matrix[0])[2] & 0xFFFF;
-				R23 = (((int*)& stashed_matrix_list[j].matrix[0])[2] >> 16) & 0xFFFF;
-				R31 = ((int*)& stashed_matrix_list[j].matrix[0])[3] & 0xFFFF;
-				R32 = (((int*)& stashed_matrix_list[j].matrix[0])[3] >> 16) & 0xFFFF;
-				R33 = ((int*)& stashed_matrix_list[j].matrix[0])[4] & 0xFFFF;
-				TRX = ((int*)& stashed_matrix_list[j].matrix[0])[5];
-				TRY = ((int*)& stashed_matrix_list[j].matrix[0])[6];
-				TRZ = ((int*)& stashed_matrix_list[j].matrix[0])[7];
+				R11 = ((int*)& stashed_matrix_list[j].matrix[0])[1] & 0xFFFF;
+				R12 = (((int*)& stashed_matrix_list[j].matrix[0])[1] >> 16) & 0xFFFF;
+				R13 = ((int*)& stashed_matrix_list[j].matrix[0])[2] & 0xFFFF;
+				R21 = (((int*)& stashed_matrix_list[j].matrix[0])[2] >> 16) & 0xFFFF;
+				R22 = ((int*)& stashed_matrix_list[j].matrix[0])[3] & 0xFFFF;
+				R23 = (((int*)& stashed_matrix_list[j].matrix[0])[3] >> 16) & 0xFFFF;
+				R31 = ((int*)& stashed_matrix_list[j].matrix[0])[4] & 0xFFFF;
+				R32 = (((int*)& stashed_matrix_list[j].matrix[0])[4] >> 16) & 0xFFFF;
+				R33 = ((int*)& stashed_matrix_list[j].matrix[0])[5] & 0xFFFF;
+				TRX = ((int*)& stashed_matrix_list[j].matrix[0])[6];
+				TRY = ((int*)& stashed_matrix_list[j].matrix[0])[7];
+				TRZ = ((int*)& stashed_matrix_list[j].matrix[0])[8];
 
 				//@FIXME below is something to do with shade
 				if (0)///@FIXME s6 != at??? s6 should be variable maybe returned from earlier function calls
