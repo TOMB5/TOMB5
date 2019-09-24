@@ -507,7 +507,7 @@ void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2
 			docop2(0x1400006);
 			t1 &= 0xF00;
 			t5 |= t1;
-			s6 = s7;
+			s7 = s6;
 			t0 >>= 8;
 			if (ultimate_clipper(s4, s5, s6, s7) == 0)
 			{
