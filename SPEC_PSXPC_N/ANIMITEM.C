@@ -27,11 +27,11 @@ void SetRotation2(int* fp, int t0, int t1, int t2, int t3, int t4)
 	R32 = (t3 >> 16) & 0xFFFF;
 	R33 = t4 & 0xFFFF;
 
-	((int*)fp)[0] = t0;
-	((int*)fp)[1] = t1;
-	((int*)fp)[2] = t2;
-	((int*)fp)[3] = t3;
-	((int*)fp)[4] = t4;
+	((int*)a0)[0] = t0;
+	((int*)a0)[1] = t1;
+	((int*)a0)[2] = t2;
+	((int*)a0)[3] = t3;
+	((int*)a0)[4] = t4;
 }
 
 void mRotY2(int ry, int* fp)
