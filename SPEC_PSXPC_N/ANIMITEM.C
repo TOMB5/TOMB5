@@ -53,9 +53,9 @@ void mRotY2(int ry, int* fp)
 	VY0 = (t6 >> 16) & 0xFFFF;
 	VZ0 = t2;
 
-	int t0 = R11 | (R12 << 16);
-	t2 = R12 | (R21 << 16);
-	int t3 = R31 | (R32 << 16);
+	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	    t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 	docop2(0x486012);
 
@@ -598,8 +598,8 @@ void CalcAllAnimatingItems_ASM()
 					if ((r->mesh[j].Flags) & 1)
 					{
 						mmPushMatrix2(fp);
-						mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z, fp); ///@check if calling right function here
-						mRotY2(r->mesh[j].y_rot, fp);///@check if calling right function here
+						mTranslateAbsXYZ2(r->mesh[j].x, r->mesh[j].y, r->mesh[j].z, fp);
+						mRotY2(r->mesh[j].y_rot, fp);
 						v1 = ((s5->flags) >> 2) << 10;
 						at = TRZ;
 
