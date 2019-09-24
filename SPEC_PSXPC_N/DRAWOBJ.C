@@ -455,7 +455,7 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2, int t2, int fp, int t3, int* a3)
 {
 	int gp = 0x9000000;
-	int t0;
+	unsigned int t0;
 	int t1;
 	int t8;
 	int t7;
@@ -472,7 +472,7 @@ void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2
 	a1++;
 	if (v0 != 0)
 	{
-		t0 = a1[0];
+		t0 = ((unsigned int*)a1)[0];
 
 	loc_7EA18:
 		a1++;
@@ -535,8 +535,8 @@ void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2
 						at = t4 << 8;
 						UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
 						at = DQB;
-						((int*)t5)[0] = t2;
-						((int*)t5)[1] = t3;
+						t2 = ((int*)t5)[0];
+						t3 = ((int*)t5)[1];
 						t2 -= at;
 						InitGT3(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4);
 						t1 += (int)a3;
@@ -607,9 +607,9 @@ void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2
 			if (ultimate_clipper(s4, s5, s6, s7) == 0)
 			{
 				SZ0 = ((int*)t6)[1];
-				SZ1 = ((int*)t7)[2];
-				SZ2 = ((int*)t8)[3];
-				SZ3 = ((int*)t9)[4];
+				SZ1 = ((int*)t7)[1];
+				SZ2 = ((int*)t8)[1];
+				SZ3 = ((int*)t9)[1];
 
 				at = MAC0;
 				docop2(0x168002E);
