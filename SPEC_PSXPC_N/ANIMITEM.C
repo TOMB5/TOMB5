@@ -670,20 +670,22 @@ void CalcAllAnimatingItems_ASM()
 void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 {
 	struct ITEM_INFO* item;//$a3
+	STASHEDOBJ* sobject;//$s0
+	STASHEDDAT* sdat;//$s2
 	int i;//$s4
 	int j;//$s1
 
 	//s5 = ra
 	if (s4 > 0)
 	{
-		//s0 = &stashed_objects_list
+		sobject = &stashed_objects_list[0];
 		mPushMatrix();
-		//s2 = &stashed_matrix_list
+		sdat = &stashed_matrix_list[0];
 
 		//loc_8291C
-		for(i = 0; i < s4; i++)
+		for(i = 0; i < s4; i++, sobject++)
 		{
-			if (stashed_objects_list[i].numnodestodraw == 0)
+			if (sobject->numnodestodraw == 0)
 			{
 				item = stashed_objects_list[i].item;
 				///S_CalculateStaticMeshLight(item->floor, item->touch_bits, item->mesh_bits, item->current_anim_state);//maybe returns s6
@@ -695,20 +697,20 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 			}
 
 			//loc_82964
-			for (j = 0; j < 1; j++)
+			for (j = 0; j < 1; j++, sdat++)
 			{
-				R11 = ((int*)& stashed_matrix_list[j].matrix[0])[0] & 0xFFFF;
-				R12 = (((int*)& stashed_matrix_list[j].matrix[0])[0] >> 16) & 0xFFFF;
-				R13 = ((int*)& stashed_matrix_list[j].matrix[0])[1] & 0xFFFF;
-				R21 = (((int*)& stashed_matrix_list[j].matrix[0])[1] >> 16) & 0xFFFF;
-				R22 = ((int*)& stashed_matrix_list[j].matrix[0])[2] & 0xFFFF;
-				R23 = (((int*)& stashed_matrix_list[j].matrix[0])[2] >> 16) & 0xFFFF;
-				R31 = ((int*)& stashed_matrix_list[j].matrix[0])[3] & 0xFFFF;
-				R32 = (((int*)& stashed_matrix_list[j].matrix[0])[3] >> 16) & 0xFFFF;
-				R33 = ((int*)& stashed_matrix_list[j].matrix[0])[4] & 0xFFFF;
-				TRX = ((int*)& stashed_matrix_list[j].matrix[0])[5];
-				TRY = ((int*)& stashed_matrix_list[j].matrix[0])[6];
-				TRZ = ((int*)& stashed_matrix_list[j].matrix[0])[7];
+				R11 = ((int*)&sdat->matrix[0])[0] & 0xFFFF;
+				R12 = (((int*)&sdat->matrix[0])[0] >> 16) & 0xFFFF;
+				R13 = ((int*)&sdat->matrix[0])[1] & 0xFFFF;
+				R21 = (((int*)&sdat->matrix[0])[1] >> 16) & 0xFFFF;
+				R22 = ((int*)&sdat->matrix[0])[2] & 0xFFFF;
+				R23 = (((int*)&sdat->matrix[0])[2] >> 16) & 0xFFFF;
+				R31 = ((int*)&sdat->matrix[0])[3] & 0xFFFF;
+				R32 = (((int*)&sdat->matrix[0])[3] >> 16) & 0xFFFF;
+				R33 = ((int*)&sdat->matrix[0])[4] & 0xFFFF;
+				TRX = ((int*)&sdat->matrix[0])[5];
+				TRY = ((int*)&sdat->matrix[0])[6];
+				TRZ = ((int*)&sdat->matrix[0])[7];
 
 				//@FIXME below is something to do with shade
 				if (0)///@FIXME s6 != at??? s6 should be variable maybe returned from earlier function calls
@@ -716,7 +718,7 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 					//loc_829C4
 					if (0x80 > 4)//s6 > 4 really
 					{
-						phd_PutPolygons_seethrough(stashed_matrix_list[j].mesh, 4);//second arg is s6
+						phd_PutPolygons_seethrough(sdat->mesh, 4);//second arg is s6
 					}
 					else
 					{
@@ -725,7 +727,7 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 				}//loc_829C4
 				else
 				{
-					phd_PutPolygons(stashed_matrix_list[j].mesh, stashed_objects_list[j].clip);
+					phd_PutPolygons(sdat->mesh, sobject->clip);
 				}
 			}
 		}
