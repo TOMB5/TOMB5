@@ -452,6 +452,319 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 	return 1;
 }
 
+void InitSubDiv()//7E6C8(<)
+{
+#if 0
+ctc2    $t0, $23
+lui     $at, 0xFFFF
+and     $fp, $t2, $at
+and     $gp, $t3, $at
+move    $s3, $t1
+lui     $t0, 0x1F80
+lui     $at, 0xFF00
+and     $at, $t6
+cfc2    $t1, $22
+cfc2    $s7, $21
+sw      $t6, 0x1F800000
+sh      $t2, 0x1F800012
+sw      $s4, 0x1F800004
+sll     $s4, $t1, 3
+andi    $s4, 0x7F8
+add     $s4, $s7
+lw      $t6, 0($s4)
+lh      $t2, 4($s4)
+sw      $t6, 0x1F80000C
+sh      $t2, 0x1F800010
+or      $t7, $at
+sw      $t7, 0x1F800014
+sh      $t3, 0x26($t0)
+sw      $s5, 0x18($t0)
+srl     $s5, $t1, 5
+andi    $s5, 0x7F8
+add     $s5, $s7
+lw      $t7, 0($s5)
+lh      $t3, 4($s5)
+sw      $t7, 0x20($t0)
+sh      $t3, 0x24($t0)
+or      $t8, $at
+sw      $t8, 0x28($t0)
+sh      $t4, 0x3A($t0)
+sw      $s6, 0x2C($t0)
+srl     $s6, $t1, 13
+andi    $s6, 0x7F8
+add     $s6, $s7
+lw      $t8, 0($s6)
+lh      $t4, 4($s6)
+sw      $t8, 0x34($t0)
+jr      $ra
+sh      $t4, 0x38($t0)
+#endif
+}
+
+void SubDiv3()//7E830(<)
+{
+	InitSubDiv();
+#if 0
+jal     sub_7E6C8
+move    $s3, $gp
+swc2    $17, 8($t0)
+swc2    $18, 0x1C($t0)
+swc2    $19, 0x30($t0)
+la      $s4, dword_7E3D4
+ori     $s5, $t0, 0x3C
+move    $s6, $t0
+li      $s7, 2
+lui     $t9, 0xFEFE
+jal     sub_7E774
+li      $t9, 0xFEFEFEFE
+li      $t5, 3
+
+loc_7E86C:
+slt     $at, $s0, $s1
+beqz    $at, loc_7E8D4
+addi    $t0, 4
+lw      $t9, -4($t0)
+lui     $at, 0x1F80
+andi    $t6, $t9, 0xFF
+or      $t6, $at
+srl     $t7, $t9, 8
+andi    $t7, 0xFF
+or      $t7, $at
+srl     $t8, $t9, 16
+or      $t8, $at
+lwc2    $17, 8($t6)
+lwc2    $18, 8($t7)
+lwc2    $19, 8($t8)
+lw      $s4, 4($t6)
+lw      $s5, 4($t7)
+lw      $s6, 4($t8)
+cop2    0x158002D
+jal     sub_7ECDC
+move    $s7, $s6
+bnez    $at, loc_7E8D4
+nop
+jal     sub_7E65C
+lui     $at, 0x900
+addi    $s0, 0x28
+
+loc_7E8D4:
+bnez    $t5, loc_7E86C
+addi    $t5, -1
+mfc2    $ra, $20
+cfc2    $t0, $23
+move    $t1, $s3
+lui     $fp, 0xF8
+jr      $ra
+lui     $gp, 0x900
+#endif
+}
+
+void DrawSubDivMesh(int v0, int* a1, char* s0, char* s1, int* a0, int a2, int t2, int fp, int* a3)
+{
+	int gp = 0x9000000;
+	int t0;
+	int t1;
+	int v1;
+	int t8;
+	int t7;
+	int t6;
+	int s4;
+	int s5;
+	int s6;
+	int t5;
+	int s7;
+	int at;
+	int t4;
+	int t3;
+
+	a1++;
+	if (v0 != 0)
+	{
+		t0 = a1[0];
+
+		//loc_7E418
+		a1++;
+		v1 = 3;
+
+		//loc_7E420
+		t1 = a1[0];
+
+		v0--;
+		if ((unsigned int)s0 < (unsigned int)s1)
+		{
+			GFC = t1;
+			t8 = (t1 >> 13) & 0x7F8;
+			t8 += (int)a0;
+
+			t7 = (t1 >> 5) & 0x7F8;
+			t7 += (int)a0;
+
+			t6 = (t1 << 3) & 0x7F8;
+			t6 += (int)a0;
+
+			s4 = ((int*)t6)[0];
+			s5 = ((int*)t7)[0];
+			s6 = ((int*)t8)[0];
+
+			SXY0 = s4;
+			SXY1 = s5;
+			SXY2 = s6;
+
+			t5 = t0 & 0xFF;
+			t1 >>= 16;
+
+			docop2(0x1400006);
+
+			t1 &= 0xF00;
+			t5 |= t1;
+			s7 = s6;
+
+			t0 >>= 8;
+			if (ultimate_clipper(s4, s5, s6, s7) == 0)
+			{
+				SZ1 = ((int*)t6)[1];
+				SZ2 = ((int*)t7)[1];
+				SZ3 = ((int*)t8)[1];
+				at = MAC0;
+				docop2(0x158002D);
+
+				t6 = ((int*)t6)[1];
+				t7 = ((int*)t7)[1];
+				t8 = ((int*)t8)[1];
+
+				if (at >= 0)
+				{
+					t5 <<= 4;
+					t1 = OTZ;
+					t5 += a2;
+
+					if (t1 < 0xA02 && t1 >= 0x21)
+					{
+						t1 <<= 2;
+						t4 = ((int*)t5)[2];
+						at = t4 << 8;
+						UnpackRGB(&t2, &t6, &fp, &t4, &at, &t7, &t8);
+						at = IRGB;
+						t2 = ((int*)t5)[0];
+						t3 = ((int*)t5)[1];
+						t2 -= at;
+						t1 += (int)a3;
+
+						//SubDiv3()
+
+					}//loc_7E4FC
+				}//loc_7E4FC
+			}//loc_7E4FC
+		}//loc_7E64C
+	}//loc_7E514
+
+#if 0
+subu    $t2, $at
+jal     sub_7E830
+add     $t1, $a3
+
+loc_7E4FC:
+beqz    $v0, loc_7E514
+addi    $a1, 4
+bnez    $v1, loc_7E420
+addi    $v1, -1
+j       loc_7E418
+lw      $t0, 0($a1)
+
+loc_7E514:
+cfc2    $v0, $27
+lui     $gp, 0xC00
+beqz    $v0, loc_7E64C
+lw      $t0, 0($a1)
+
+loc_7E524:
+addi    $a1, 4
+li      $v1, 1
+
+loc_7E52C:
+lw      $t1, 0($a1)
+slt     $at, $s0, $s1
+beqz    $at, loc_7E64C
+addi    $v0, -1
+ctc2    $t1, $22
+srl     $t9, $t1, 21
+andi    $t9, 0x7F8
+srl     $t8, $t1, 13
+andi    $t8, 0x7F8
+add     $t8, $a0
+srl     $t7, $t1, 5
+andi    $t7, 0x7F8
+add     $t7, $a0
+sll     $t6, $t1, 3
+andi    $t6, 0x7F8
+add     $t6, $a0
+lw      $s4, 0($t6)
+lw      $s5, 0($t7)
+lw      $s6, 0($t8)
+mtc2    $s4, $12
+mtc2    $s5, $13
+mtc2    $s6, $14
+add     $t9, $a0
+andi    $t5, $t0, 0xFFF
+cop2    0x1400006
+jal     sub_7ECDC
+lw      $s7, 0($t9)
+bnez    $at, loc_7E634
+srl     $t0, 16
+lwc2    $16, 4($t6)
+lwc2    $17, 4($t7)
+lwc2    $18, 4($t8)
+lwc2    $19, 4($t9)
+mfc2    $at, $24
+cop2    0x168002E
+bltz    $at, loc_7E634
+lw      $t6, 4($t6)
+lw      $t7, 4($t7)
+lw      $t8, 4($t8)
+lw      $t9, 4($t9)
+sll     $t5, 4
+mfc2    $t1, $7
+add     $t5, $a2
+slti    $at, $t1, 0xA02
+beqz    $at, loc_7E634
+slti    $at, $t1, 0x21
+bnez    $at, loc_7E634
+sll     $t1, 2
+srl     $t2, $t9, 7
+and     $t2, $fp
+srl     $t3, $t9, 10
+andi    $t3, 0xF800
+srl     $t9, 13
+andi    $t9, 0xF8
+or      $t9, $t3
+or      $t9, $t2
+lw      $t4, 8($t5)
+jal     sub_7EC6C
+move    $at, $t4
+cfc2    $at, $28
+lw      $t2, 0($t5)
+lw      $t3, 4($t5)
+lw      $t5, 0xC($t5)
+subu    $t2, $at
+jal     sub_7E8F4
+add     $t1, $a3
+
+loc_7E634:
+beqz    $v0, loc_7E64C
+addi    $a1, 4
+bnez    $v1, loc_7E52C
+addi    $v1, -1
+j       loc_7E524
+lw      $t0, 0($a1)
+
+loc_7E64C:
+ctc2    $zero, $22
+ctc2    $zero, $23
+j       loc_7F304
+nop
+#endif
+}
+
 void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2, int t2, int fp, int t3, int* a3)
 {
 	int gp = 0x9000000;
@@ -1290,11 +1603,6 @@ void InitObjGTE()
 	BFC = 0;
 }
 
-void DrawSubDivMesh()
-{
-	UNIMPLEMENTED();
-}
-
 void initialise_light_matrix()//(F)
 {
 	int t0;
@@ -1388,7 +1696,7 @@ void initialise_light_matrix()//(F)
 
 	t3 = IR1;
 	t5 = IR2;
-	t6 = IR3;
+	t4 = IR3;
 
 	t3 &= 0xFFFF;
 	t5 <<= 16;
@@ -1623,8 +1931,8 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 
 	if (s6 && s4 < 0)
 	{
-		assert(0);
-		//goto DrawSubDivMesh
+		///DrawSubDivMesh();
+		//assert(0);//TODO draw sub div mesh
 	}
 
 	//loc_7F0A8
@@ -1842,9 +2150,9 @@ void phd_PutPolygons_train(short* mesh, long shade)
 	UNIMPLEMENTED();
 }
 
-void phd_PutPolygons(short* mesh, long shade)
+void phd_PutPolygons(short* mesh, long clip)
 {
-	phd_PutPolygons_normal(mesh, shade);
+	phd_PutPolygons_normal(mesh, clip);
 }
 
 void phd_PutPolygons_pickup(short* mesh, long shade)
