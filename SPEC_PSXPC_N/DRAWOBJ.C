@@ -926,45 +926,47 @@ void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2
 
 				at = MAC0;
 				docop2(0x168002E);
-				t6 = ((int*)t6)[1];
-				t7 = ((int*)t7)[1];
-				t8 = ((int*)t8)[1];
-				t9 = ((int*)t9)[1];
-				t5 <<= 4;
-				t1 = OTZ;
-				t5 += a2;
-
-				if (t1 < 0xA02 && t1 >= 0x21)
+				if (at >= 0)
 				{
-					t1 <<= 2;
-					t2 = t9 >> 7;
-					t2 &= fp;
-					t3 = t9 >> 10;
-					t3 = 0xF800;
-					t9 >>= 13;
-					t9 &= 0xF8;
-					t9 |= t3;
-					t9 |= t2;
-					t4 = ((int*)t5)[2];
-					at = t4;
-					UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
-					at = DQB;
+					t6 = ((int*)t6)[1];
+					t7 = ((int*)t7)[1];
+					t8 = ((int*)t8)[1];
+					t9 = ((int*)t9)[1];
+					t5 <<= 4;
+					t1 = OTZ;
+					t5 += a2;
 
-					t2 = ((int*)t5)[0];
-					t3 = ((int*)t5)[1];
-					t5 = ((int*)t5)[3];
-					t2 -= at;
-					InitGT4(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s7, t5);
-					t1 += (int)a3;
+					if (t1 < 0xA02 && t1 >= 0x21)
+					{
+						t1 <<= 2;
+						t2 = t9 >> 7;
+						t2 &= fp;
+						t3 = t9 >> 10;
+						t3 &= 0xF800;
+						t9 >>= 13;
+						t9 &= 0xF8;
+						t9 |= t3;
+						t9 |= t2;
+						t4 = ((int*)t5)[2];
+						at = t4;
+						UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
+						at = DQB;
 
-					t2 = ((int*)t1)[0];
-					((int*)t1)[0] = (int)s0;
-					t2 |= gp;
-					((int*)s0)[0] = t2;
-					s0 += 0x34;
+						t2 = ((int*)t5)[0];
+						t3 = ((int*)t5)[1];
+						t5 = ((int*)t5)[3];
+						t2 -= at;
+						InitGT4(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s7, t5);
+						t1 += (int)a3;
+
+						t2 = ((int*)t1)[0];
+						((int*)t1)[0] = (int)s0;
+						t2 |= gp;
+						((int*)s0)[0] = t2;
+						s0 += 0x34;
+					}//loc_7EC54
 				}//loc_7EC54
 			}//loc_7EC54
-
 			a1++;
 			if (v0 != 0)
 			{
