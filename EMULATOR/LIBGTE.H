@@ -124,5 +124,6 @@ typedef struct
 } GTERegisters;
 
 extern GTERegisters gteRegs;
+extern unsigned int gte_leadingzerocount(unsigned int lzcs);
 
 #endif

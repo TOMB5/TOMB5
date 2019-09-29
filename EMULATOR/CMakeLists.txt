@@ -17,7 +17,7 @@ find_package(OpenGL REQUIRED)
 set(GLEW_USE_STATIC_LIBS ON)
 find_package(GLEW REQUIRED)
 else()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 --emrun -s ASSERTIONS=1 --std=c++11 -s ALLOW_MEMORY_GROWTH=1 -s GLOBAL_BASE=1048576 -s USE_WEBGL2=1 -s FULL_ES3=1")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 --emrun -s ASSERTIONS=1 --std=c++11 -s GLOBAL_BASE=1048576 -s USE_WEBGL2=1 -s FULL_ES3=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1")
 set(SDL2_LIBRARIES "-s USE_SDL=2")
 endif()
 
@@ -49,7 +49,7 @@ BuildPreProcessorDefinitions()
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLEW_STATIC)
 
 #Someone should actually fix these errors at some point
-if(UNIX)
+if(UNIX OR MINGW)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-narrowing -std=c++11")
 	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wno-narrowing -std=c++11")
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wno-narrowing -std=c++11")

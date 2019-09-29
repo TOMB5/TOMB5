@@ -9,7 +9,7 @@ PSX:
 
 PSXPC_N:
 <p align="center">
-<a href="https://streamable.com/ip8lx"><img src="https://i.imgur.com/CkmdIzs.png"/><a>
+<a href="https://streamable.com/hfn3t"><img src="https://i.imgur.com/Utuazgml.png"/><a>
  </p>
 
 | Platform  | Build State |

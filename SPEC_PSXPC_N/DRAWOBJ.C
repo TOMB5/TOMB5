@@ -10,9 +10,9 @@
 #include "ROOMLOAD.H"
 #include <assert.h>
 
-void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)
+void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)//7FF38(<) ? (F)
 {
-	((int*)s0)[3] = s4;
+	((int*)s0)[2] = *s4;
 	((char*)s0)[7] = 0x36;
 	*s3 = ((t6 & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
@@ -21,7 +21,7 @@ void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5
 	}
 
 	//loc_7FF64
-	((int*)s0)[4] = *s3;
+	((char*)s0)[4] = *s3;
 	*s3 = (((t6 >> 8) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -53,14 +53,14 @@ void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5
 	}
 
 	//loc_80000
-	((char*)s3)[17] = *s3;
+	((char*)s0)[17] = *s3;
 	*s3 = (((t7 >> 16) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
 
-	((char*)s3)[18] = *s3;
+	((char*)s0)[18] = *s3;
 	*s3 = ((t8 & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -68,7 +68,7 @@ void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5
 	}
 
 	//loc_8004C
-	((char*)s3)[28] = *s3;
+	((char*)s0)[28] = *s3;
 	*s3 = (((t8 >> 8) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -76,7 +76,7 @@ void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5
 	}
 
 	//loc_80074
-	((char*)s3)[29] = *s3;
+	((char*)s0)[29] = *s3;
 	*s3 = (((t8 >> 16) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -90,10 +90,11 @@ void InitGT3_V2(int* s0, int s4, int* s3, int t6, int at, int t7, int t8, int s5
 	((int*)s0)[6] = t3;
 	((int*)s0)[8] = s6;
 	((int*)s0)[9] = t4;
-	((int*)s0)[2] = s4;
+	((int*)s0)[2] = *s4;
+	*s4 = ((int*)s0)[2];
 }
 
-void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)//(F)
+void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)//7ED78(<), (F)
 {
 	((int*)polyptr)[1] = t6;
 	((int*)polyptr)[2] = s4;
@@ -109,7 +110,7 @@ void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int 
 	((int*)polyptr)[12] = t5;
 }
 
-void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4)//(F)
+void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4)//7ED50(<), (F)
 {
 	((int*)polyptr)[1] = t6;
 	((int*)polyptr)[2] = s4;
@@ -132,7 +133,7 @@ void UnpackRGB(int* t2, int* t6, int* fp, int* t3, int* at, int* t7, int* t8)
 	*t6 &= 0xF8;
 	*t6 |= *t3;
 	*t6 |= *t2;
-	*at >>= 24;///@checkme
+	*at >>= 24;
 	*at <<= 24;
 	*t6 |= *at;
 	*t2 = *t7 >> 7;
@@ -449,6 +450,539 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 	}
 	//locret_7ED48
 	return 1;
+}
+
+void InitSubDiv()//7E6C8(<)
+{
+#if 0
+ctc2    $t0, $23
+lui     $at, 0xFFFF
+and     $fp, $t2, $at
+and     $gp, $t3, $at
+move    $s3, $t1
+lui     $t0, 0x1F80
+lui     $at, 0xFF00
+and     $at, $t6
+cfc2    $t1, $22
+cfc2    $s7, $21
+sw      $t6, 0x1F800000
+sh      $t2, 0x1F800012
+sw      $s4, 0x1F800004
+sll     $s4, $t1, 3
+andi    $s4, 0x7F8
+add     $s4, $s7
+lw      $t6, 0($s4)
+lh      $t2, 4($s4)
+sw      $t6, 0x1F80000C
+sh      $t2, 0x1F800010
+or      $t7, $at
+sw      $t7, 0x1F800014
+sh      $t3, 0x26($t0)
+sw      $s5, 0x18($t0)
+srl     $s5, $t1, 5
+andi    $s5, 0x7F8
+add     $s5, $s7
+lw      $t7, 0($s5)
+lh      $t3, 4($s5)
+sw      $t7, 0x20($t0)
+sh      $t3, 0x24($t0)
+or      $t8, $at
+sw      $t8, 0x28($t0)
+sh      $t4, 0x3A($t0)
+sw      $s6, 0x2C($t0)
+srl     $s6, $t1, 13
+andi    $s6, 0x7F8
+add     $s6, $s7
+lw      $t8, 0($s6)
+lh      $t4, 4($s6)
+sw      $t8, 0x34($t0)
+jr      $ra
+sh      $t4, 0x38($t0)
+#endif
+}
+
+void SubDiv3()//7E830(<)
+{
+	InitSubDiv();
+#if 0
+jal     sub_7E6C8
+move    $s3, $gp
+swc2    $17, 8($t0)
+swc2    $18, 0x1C($t0)
+swc2    $19, 0x30($t0)
+la      $s4, dword_7E3D4
+ori     $s5, $t0, 0x3C
+move    $s6, $t0
+li      $s7, 2
+lui     $t9, 0xFEFE
+jal     sub_7E774
+li      $t9, 0xFEFEFEFE
+li      $t5, 3
+
+loc_7E86C:
+slt     $at, $s0, $s1
+beqz    $at, loc_7E8D4
+addi    $t0, 4
+lw      $t9, -4($t0)
+lui     $at, 0x1F80
+andi    $t6, $t9, 0xFF
+or      $t6, $at
+srl     $t7, $t9, 8
+andi    $t7, 0xFF
+or      $t7, $at
+srl     $t8, $t9, 16
+or      $t8, $at
+lwc2    $17, 8($t6)
+lwc2    $18, 8($t7)
+lwc2    $19, 8($t8)
+lw      $s4, 4($t6)
+lw      $s5, 4($t7)
+lw      $s6, 4($t8)
+cop2    0x158002D
+jal     sub_7ECDC
+move    $s7, $s6
+bnez    $at, loc_7E8D4
+nop
+jal     sub_7E65C
+lui     $at, 0x900
+addi    $s0, 0x28
+
+loc_7E8D4:
+bnez    $t5, loc_7E86C
+addi    $t5, -1
+mfc2    $ra, $20
+cfc2    $t0, $23
+move    $t1, $s3
+lui     $fp, 0xF8
+jr      $ra
+lui     $gp, 0x900
+#endif
+}
+
+void DrawSubDivMesh(int v0, int* a1, char* s0, char* s1, int* a0, int a2, int t2, int fp, int* a3)
+{
+	int gp = 0x9000000;
+	int t0;
+	int t1;
+	int v1;
+	int t8;
+	int t7;
+	int t6;
+	int s4;
+	int s5;
+	int s6;
+	int t5;
+	int s7;
+	int at;
+	int t4;
+	int t3;
+
+	a1++;
+	if (v0 != 0)
+	{
+		t0 = a1[0];
+
+		//loc_7E418
+		a1++;
+		v1 = 3;
+
+		//loc_7E420
+		t1 = a1[0];
+
+		v0--;
+		if ((unsigned int)s0 < (unsigned int)s1)
+		{
+			GFC = t1;
+			t8 = (t1 >> 13) & 0x7F8;
+			t8 += (int)a0;
+
+			t7 = (t1 >> 5) & 0x7F8;
+			t7 += (int)a0;
+
+			t6 = (t1 << 3) & 0x7F8;
+			t6 += (int)a0;
+
+			s4 = ((int*)t6)[0];
+			s5 = ((int*)t7)[0];
+			s6 = ((int*)t8)[0];
+
+			SXY0 = s4;
+			SXY1 = s5;
+			SXY2 = s6;
+
+			t5 = t0 & 0xFF;
+			t1 >>= 16;
+
+			docop2(0x1400006);
+
+			t1 &= 0xF00;
+			t5 |= t1;
+			s7 = s6;
+
+			t0 >>= 8;
+			if (ultimate_clipper(s4, s5, s6, s7) == 0)
+			{
+				SZ1 = ((int*)t6)[1];
+				SZ2 = ((int*)t7)[1];
+				SZ3 = ((int*)t8)[1];
+				at = MAC0;
+				docop2(0x158002D);
+
+				t6 = ((int*)t6)[1];
+				t7 = ((int*)t7)[1];
+				t8 = ((int*)t8)[1];
+
+				if (at >= 0)
+				{
+					t5 <<= 4;
+					t1 = OTZ;
+					t5 += a2;
+
+					if (t1 < 0xA02 && t1 >= 0x21)
+					{
+						t1 <<= 2;
+						t4 = ((int*)t5)[2];
+						at = t4 << 8;
+						UnpackRGB(&t2, &t6, &fp, &t4, &at, &t7, &t8);
+						at = IRGB;
+						t2 = ((int*)t5)[0];
+						t3 = ((int*)t5)[1];
+						t2 -= at;
+						t1 += (int)a3;
+
+						//SubDiv3()
+
+					}//loc_7E4FC
+				}//loc_7E4FC
+			}//loc_7E4FC
+		}//loc_7E64C
+	}//loc_7E514
+
+#if 0
+subu    $t2, $at
+jal     sub_7E830
+add     $t1, $a3
+
+loc_7E4FC:
+beqz    $v0, loc_7E514
+addi    $a1, 4
+bnez    $v1, loc_7E420
+addi    $v1, -1
+j       loc_7E418
+lw      $t0, 0($a1)
+
+loc_7E514:
+cfc2    $v0, $27
+lui     $gp, 0xC00
+beqz    $v0, loc_7E64C
+lw      $t0, 0($a1)
+
+loc_7E524:
+addi    $a1, 4
+li      $v1, 1
+
+loc_7E52C:
+lw      $t1, 0($a1)
+slt     $at, $s0, $s1
+beqz    $at, loc_7E64C
+addi    $v0, -1
+ctc2    $t1, $22
+srl     $t9, $t1, 21
+andi    $t9, 0x7F8
+srl     $t8, $t1, 13
+andi    $t8, 0x7F8
+add     $t8, $a0
+srl     $t7, $t1, 5
+andi    $t7, 0x7F8
+add     $t7, $a0
+sll     $t6, $t1, 3
+andi    $t6, 0x7F8
+add     $t6, $a0
+lw      $s4, 0($t6)
+lw      $s5, 0($t7)
+lw      $s6, 0($t8)
+mtc2    $s4, $12
+mtc2    $s5, $13
+mtc2    $s6, $14
+add     $t9, $a0
+andi    $t5, $t0, 0xFFF
+cop2    0x1400006
+jal     sub_7ECDC
+lw      $s7, 0($t9)
+bnez    $at, loc_7E634
+srl     $t0, 16
+lwc2    $16, 4($t6)
+lwc2    $17, 4($t7)
+lwc2    $18, 4($t8)
+lwc2    $19, 4($t9)
+mfc2    $at, $24
+cop2    0x168002E
+bltz    $at, loc_7E634
+lw      $t6, 4($t6)
+lw      $t7, 4($t7)
+lw      $t8, 4($t8)
+lw      $t9, 4($t9)
+sll     $t5, 4
+mfc2    $t1, $7
+add     $t5, $a2
+slti    $at, $t1, 0xA02
+beqz    $at, loc_7E634
+slti    $at, $t1, 0x21
+bnez    $at, loc_7E634
+sll     $t1, 2
+srl     $t2, $t9, 7
+and     $t2, $fp
+srl     $t3, $t9, 10
+andi    $t3, 0xF800
+srl     $t9, 13
+andi    $t9, 0xF8
+or      $t9, $t3
+or      $t9, $t2
+lw      $t4, 8($t5)
+jal     sub_7EC6C
+move    $at, $t4
+cfc2    $at, $28
+lw      $t2, 0($t5)
+lw      $t3, 4($t5)
+lw      $t5, 0xC($t5)
+subu    $t2, $at
+jal     sub_7E8F4
+add     $t1, $a3
+
+loc_7E634:
+beqz    $v0, loc_7E64C
+addi    $a1, 4
+bnez    $v1, loc_7E52C
+addi    $v1, -1
+j       loc_7E524
+lw      $t0, 0($a1)
+
+loc_7E64C:
+ctc2    $zero, $22
+ctc2    $zero, $23
+j       loc_7F304
+nop
+#endif
+}
+
+void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2, int t2, int fp, int t3, int* a3)
+{
+	int gp = 0x9000000;
+	unsigned int t0;
+	int t1;
+	int t8;
+	int t7;
+	int t6;
+	int s4;
+	int s5;
+	int s6;
+	int t5;
+	int at;
+	int t4;
+	int v1;
+	int t9;
+
+	a1++;
+	if (v0 != 0)
+	{
+		t0 = ((unsigned int*)a1)[0];
+
+	loc_7EA18:
+		a1++;
+		v1 = 3;
+
+	loc_7EA20:
+		t1 = a1[0];
+
+		v0--;
+
+		if ((unsigned int)s0 < (unsigned int)s1)
+		{
+			t8 = (t1 >> 13) & 0x7F8;
+			t8 += (int)a0;
+
+			t7 = (t1 >> 5) & 0x7F8;
+			t7 += (int)a0;
+
+			t6 = (t1 << 3) & 0x7F8;
+			t6 += (int)a0;
+
+			s4 = ((int*)t6)[0];
+			s5 = ((int*)t7)[0];
+			s6 = ((int*)t8)[0];
+
+			SXY0 = s4;
+			SXY1 = s5;
+			SXY2 = s6;
+
+			t5 = t0 & 0xFF;
+			t1 >>= 16;
+			docop2(0x1400006);
+			t1 &= 0xF00;
+			t5 |= t1;
+			s7 = s6;
+			t0 >>= 8;
+			if (ultimate_clipper(s4, s5, s6, s7) == 0)
+			{
+				SZ1 = ((int*)t6)[1];
+				SZ2 = ((int*)t7)[1];
+				SZ3 = ((int*)t8)[1];
+
+				at = MAC0;
+
+				docop2(0x158002D);
+				t6 = ((int*)t6)[1];
+
+				if (at >= 0)
+				{
+					t7 = ((int*)t7)[1];
+					t8 = ((int*)t8)[1];
+					t5 <<= 4;
+					t1 = OTZ;
+					t5 += a2;
+
+					if (t1 < 0xA02 && t1 >= 0x21)
+					{
+						t1 <<= 2;
+						t4 = ((int*)t5)[2];
+						at = t4 << 8;
+						UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
+						at = DQB;
+						t2 = ((int*)t5)[0];
+						t3 = ((int*)t5)[1];
+						t2 -= at;
+						InitGT3(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4);
+						t1 += (int)a3;
+						t2 = ((int*)t1)[0];
+						((int*)t1)[0] = (int)s0;
+						t2 |= gp;
+						((int*)s0)[0] = t2;
+						s0 += 0x28;
+					}//loc_7EB0C
+				}//loc_7EB0C
+			}
+			//loc_7EB0C
+			a1++;
+			if (v0 != 0)
+			{
+				if (v1-- != 0)
+				{
+					goto loc_7EA20;
+				}
+				t0 = a1[0];
+				goto loc_7EA18;
+			}//loc_7EB24
+		}
+		else
+		{
+			//loc_7F304
+			goto DrawExit;
+		}
+	}//loc_7EB24
+	v0 = DQA;
+	gp = 0xC000000;
+	t0 = ((int*)a1)[0];
+
+	if (v0 != 0)
+	{
+	loc_7EB34:
+		a1++;
+		v1 = 1;
+
+	loc_7EB3C:
+		t1 = ((int*)a1)[0];
+
+		v0--;
+		if ((unsigned int)s0 < (unsigned int)s1)
+		{
+			t9 = (t1 >> 21) & 0x7F8;
+			t8 = (t1 >> 13) & 0x7F8;
+			t8 += (int)a0;
+			t7 = (t1 >> 5) & 0x7F8;
+			t7 += (int)a0;
+			t6 = (t1 << 3) & 0x7F8;
+			t6 += (int)a0;
+
+			s4 = ((int*)t6)[0];
+			s5 = ((int*)t7)[0];
+			s6 = ((int*)t8)[0];
+
+			SXY0 = s4;
+			SXY1 = s5;
+			SXY2 = s6;
+
+			t9 += (int)a0;
+			t5 = t0 & 0xFFF;
+			docop2(0x1400006);
+			s7 = ((int*)t9)[0];
+
+			t0 >>= 16;
+			if (ultimate_clipper(s4, s5, s6, s7) == 0)
+			{
+				SZ0 = ((int*)t6)[1];
+				SZ1 = ((int*)t7)[1];
+				SZ2 = ((int*)t8)[1];
+				SZ3 = ((int*)t9)[1];
+
+				at = MAC0;
+				docop2(0x168002E);
+				if (at >= 0)
+				{
+					t6 = ((int*)t6)[1];
+					t7 = ((int*)t7)[1];
+					t8 = ((int*)t8)[1];
+					t9 = ((int*)t9)[1];
+					t5 <<= 4;
+					t1 = OTZ;
+					t5 += a2;
+
+					if (t1 < 0xA02 && t1 >= 0x21)
+					{
+						t1 <<= 2;
+						t2 = t9 >> 7;
+						t2 &= fp;
+						t3 = t9 >> 10;
+						t3 &= 0xF800;
+						t9 >>= 13;
+						t9 &= 0xF8;
+						t9 |= t3;
+						t9 |= t2;
+						t4 = ((int*)t5)[2];
+						at = t4;
+						UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
+						at = DQB;
+
+						t2 = ((int*)t5)[0];
+						t3 = ((int*)t5)[1];
+						t5 = ((int*)t5)[3];
+						t2 -= at;
+						InitGT4(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s7, t5);
+						t1 += (int)a3;
+
+						t2 = ((int*)t1)[0];
+						((int*)t1)[0] = (int)s0;
+						t2 |= gp;
+						((int*)s0)[0] = t2;
+						s0 += 0x34;
+					}//loc_7EC54
+				}//loc_7EC54
+			}//loc_7EC54
+			a1++;
+			if (v0 != 0)
+			{
+				if (v1-- != 0)
+				{
+					goto loc_7EB3C;
+				}
+
+				t0 = a1[0];
+				goto loc_7EB34;
+			}//loc_7F304
+		}//loc_7F304
+	}//loc_7F304
+DrawExit:
+	RFC = 0;
+	db.polyptr = s0;
 }
 
 void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int a2, int t2, int fp, int t3, int a3, int s3)
@@ -914,7 +1448,7 @@ void InitGT4_V2(char* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int 
 	((int*)s0)[9] = t4;
 	((int*)s0)[11] = s7;
 	((int*)s0)[12] = t5;
-	*s4 = ((int*)s0)[3];
+	*s4 = ((int*)s0)[2];
 }
 
 char* do_the_flat_colursub_poly_tri(char* s0, int s2, int t6, int t7, int t8, int s4, int s5, int s6, int t1)
@@ -1071,17 +1605,7 @@ void InitObjGTE()
 	BFC = 0;
 }
 
-void DrawClippedMesh(int vertcache, short* mesh, MMTEXTURE* text, char* ot, char* prim, char* prim_lim, long fp, long prim_len, long num_tri)
-{
-	UNIMPLEMENTED();
-}
-
-void DrawSubDivMesh()
-{
-	UNIMPLEMENTED();
-}
-
-void initialise_light_matrix()
+void initialise_light_matrix()//(F)
 {
 	int t0;
 	int t1;
@@ -1130,7 +1654,7 @@ void initialise_light_matrix()
 	t1 = ((int*)&LightPos)[1];
 
 	VX0 = t0 & 0xFFFF;
-	VY0 = t0 >> 16;
+	VY0 = (t0 >> 16) & 0xFFFF;
 	VZ0 = t1;
 
 	docop2(0x4A6012);
@@ -1174,7 +1698,7 @@ void initialise_light_matrix()
 
 	t3 = IR1;
 	t5 = IR2;
-	t6 = IR3;
+	t4 = IR3;
 
 	t3 &= 0xFFFF;
 	t5 <<= 16;
@@ -1191,7 +1715,7 @@ void initialise_light_matrix()
 	L33 = t4;
 }
 
-void phd_PutPolygons_normal(short* mesh, short clip)
+void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 {
 	int v0;
 	int s5;
@@ -1234,7 +1758,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 	v1 = v0 & 0x8000;
 	v0 &= 0xFF;
 
-	if ((s6 & 0x100) != 0)
+	if ((s6 & 0x100))
 	{
 		a22 = 0x69;
 	}
@@ -1245,14 +1769,10 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 
 	//loc_7EF28
 	a1 += (int)mesh;
-	if (v0 >= a22)
-	{
-		a2 = (int*)& tsv_buffer[0];
-	}
-	else
+	if (v0 < a22)
 	{
 		//loc_7EF40
-		if ((s6 & 0x100) != 0)
+		if ((s6 & 0x100))
 		{
 			a2 = &sp[45];
 		}
@@ -1260,6 +1780,10 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 		{
 			a2 = &sp[0];
 		}
+	}
+	else
+	{
+		a2 = (int*)&tsv_buffer[0];
 	}
 
 	//loc_7EF4C
@@ -1289,15 +1813,15 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 			{
 				t0 = ((short*)a3)[3];
 				a3 += 2;
-				IR1 = (t0 & 0x1f) << 7;
-				IR2 = (t0 & 0x3e0) << 2;
-				IR3 = (t0 & 0x7c00) >> 3;
+				IR1 = (t0 & 0x1F) << 7;
+				IR2 = (t0 & 0x3E0) << 2;
+				IR3 = (t0 & 0x7C00) >> 3;
 				IRGB = t0;
 				v1--;
 				a2 += 2;
 
 				docop2(0x680029);
-				ORGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
+				ORGB = LIM(IR1 >> 7, 0x1F, 0, 0) | (LIM(IR2 >> 7, 0x1F, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1F, 0, 0) << 10);
 				t0 = ORGB;
 				((short*)a2)[-1] = t0;
 			} while (v1 != 0);
@@ -1322,7 +1846,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 				v1--;
 				a2 += 2;
 				
-				ORGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
+				ORGB = LIM(IR1 >> 7, 0x1F, 0, 0) | (LIM(IR2 >> 7, 0x1F, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1F, 0, 0) << 10);
 				t0 = ORGB;///@FIXME bad value
 				((short*)a2)[-1] = t0;
 			} while (v1 != 0);
@@ -1347,15 +1871,15 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 		do
 		{
 			VX0 = t0 & 0xFFFF;
-			VY0 = t0 >> 16;
+			VY0 = (t0 >> 16) & 0xFFFF;
 			VZ0 = t1;
 
 			VX1 = t2 & 0xFFFF;
-			VY1 = t2 >> 16;
+			VY1 = (t2 >> 16) & 0xFFFF;
 			VZ1 = t3;
 
 			VX2 = t4 & 0xFFFF;
-			VY2 = t4 >> 16;
+			VY2 = (t4 >> 16) & 0xFFFF;
 			VZ2 = t5;
 
 			mesh += 12;
@@ -1393,7 +1917,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 	v0 = ((int*)a1)[0];
 	fp = 0xF80000;
 	at = v0 >> 16;
-	DQA = at;
+	DQA = (int)(short)at;
 
 	at = s6 & 0xC00;
 	s6 &= 0x100;
@@ -1405,22 +1929,19 @@ void phd_PutPolygons_normal(short* mesh, short clip)
 	}
 
 	s4 -= 0xC00;
-	if (s6)
-	{
-		v0 &= 0xFFFF;
-		if (s4 < 0)
-		{
-			assert(0);
-			///goto DrawSubDivMesh;
-		}
-	}
-	//loc_7F0A8
 	v0 &= 0xFFFF;
 
+	if (s6 && s4 < 0)
+	{
+		///DrawSubDivMesh();
+		//assert(0);//TODO draw sub div mesh
+	}
+
+	//loc_7F0A8
 	if (s5 < 0)
 	{
-		assert(0);
-		///goto DrawClippedMesh;
+		DrawClippedMesh(v0, (int*)a1, s0, s1, (int)a0, (int)s7, (int)a2, t2, fp, t3, a3);
+		return;///@TODO verify
 	}
 
 	gp = 0x9000000;
@@ -1604,8 +2125,7 @@ loc_7F1DC:
 					t2 |= gp;
 					((int*)s0)[0] = t2;
 					s0 += 0x34;
-				}
-				//loc_7F2EC
+				}//loc_7F2EC
 			}
 			//loc_7F2EC
 			a1 += 4;
@@ -1632,9 +2152,9 @@ void phd_PutPolygons_train(short* mesh, long shade)
 	UNIMPLEMENTED();
 }
 
-void phd_PutPolygons(short* mesh, long shade)
+void phd_PutPolygons(short* mesh, long clip)
 {
-	phd_PutPolygons_normal(mesh, shade);
+	phd_PutPolygons_normal(mesh, clip);
 }
 
 void phd_PutPolygons_pickup(short* mesh, long shade)
@@ -2223,7 +2743,7 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 					at = 0x200000;
 					t3 |= at;
 					at = shade & 0xFF;
-					InitGT3_V2((int*)s0, s4, &s3, t6, at, t7, t8, s5, t3, t2, s6, t4);
+					InitGT3_V2((int*)s0, &s4, &s3, t6, at, t7, t8, s5, t3, t2, s6, t4);
 
 					t2 = ((int*)t1)[0];
 					((int*)t1)[0] = (int)s0;
