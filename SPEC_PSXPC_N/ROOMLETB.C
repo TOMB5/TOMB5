@@ -411,11 +411,6 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 				s5 = ra;
 				s6 = (int)t0;
 
-				if (s0 == 0x3C000000)
-				{
-					s0 = 0;
-				}
-
 				a3 = SubPolyGT4((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
 				t1 = (int*)RGB2;
 				t2 = RGB1;
