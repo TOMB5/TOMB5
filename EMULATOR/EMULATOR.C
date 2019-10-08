@@ -66,7 +66,6 @@ struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 // Actualy we can't do this cause we'd need to know the coords of the said texture data that is binded to the clut
 static int Emulator_InitialiseGLContext(char* windowName)
 {
-
 	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
 
 #if defined(OGL)
