@@ -835,7 +835,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (poly->clut != lastClut)
+			else if (GlobalTpageTexture != lastTpage || poly->clut != lastClut)
 			{
 				lastClut = poly->clut;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
