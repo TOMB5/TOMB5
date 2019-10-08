@@ -1680,7 +1680,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	}
 	else
 	{
-		camera.target.y = camera.target.y + pos.y >> 1;
+		camera.target.y = (camera.target.y + pos.y) >> 1;
 		camera.target.x = lara_item->pos.x_pos;
 		camera.target.z = lara_item->pos.z_pos;
 	}
@@ -2238,9 +2238,9 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
 #endif
 	camera.mike_pos.y = camera.pos.y;
-	camera.mike_pos.x = camera.pos.x + (phd_persp * SIN(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x))) >> W2V_SHIFT;
+	camera.mike_pos.x = (camera.pos.x + (phd_persp * SIN(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x)))) >> W2V_SHIFT;
 	camera.old_type = camera.type;
-	camera.mike_pos.z = camera.pos.z + (phd_persp * COS(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x))) >> W2V_SHIFT;
+	camera.mike_pos.z = (camera.pos.z + (phd_persp * COS(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x)))) >> W2V_SHIFT;
 }
 
 #if PC_VERSION
