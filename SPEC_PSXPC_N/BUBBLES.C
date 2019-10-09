@@ -256,7 +256,6 @@ void SetInventoryLighting(int rgb0, int rgb1, int rgb2, int rgb3)//(F)
 	G = 128;
 	B = 128;
 	CODE = 0;
-
 	DQB = 0;
 }
 
