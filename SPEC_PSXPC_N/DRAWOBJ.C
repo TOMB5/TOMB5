@@ -189,6 +189,9 @@ char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8,
 	at = (t9 >> 3) & 0x1F;
 	t2 += at;
 
+	at = (t9 >> 11) & 0x1F;
+	t2 += at;
+
 	at = (t9 >> 19) & 0x1F;
 	t2 += at;
 
@@ -1223,11 +1226,11 @@ loc_7F4BC:
 					t2 |= gp;
 					((int*)s0)[0] = (int)t2;
 
-					s0 += 0x34;
+					s0 += 13;
 
 					if (s2 != 0)
 					{
-						s0 += 0x28;
+						s0 += 10;
 					}
 				}//loc_7F5F4
 			}//loc_7F5F4
