@@ -1,11 +1,22 @@
 	opt at-,w-,c+,m-
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XREF mPushMatrix, CalculateObjectLightingLara, mSqrt, phd_atan_asm, mPopMatrix, SkinUseMatrix, objects, NodesToStashToScratch, LaraNodeUnderwater, lara_underwater_skin_sweetness_table, tsv_buffer, ScratchVertNums, lara_matrices, db, lara_mesh_sweetness_table, NodesToStashFromScratch, SkinVertNums, LaraNodeAmbient, lara_item, rcossin_tbl, meshes, lara, bones, LightPos, psxtextinfo, hairs, HairRotScratchVertNums, Gunshells, GLaraShadowframe, S_PrintNiceShadow
+	XREF mPushMatrix, CalculateObjectLightingLara, mSqrt, phd_atan_asm, mPopMatrix, SkinUseMatrix, objects, NodesToStashToScratch, LaraNodeUnderwater, lara_underwater_skin_sweetness_table, tsv_buffer, ScratchVertNums, lara_matrices, db, lara_mesh_sweetness_table, NodesToStashFromScratch, SkinVertNums, LaraNodeAmbient, lara_item, rcossin_tbl, meshes, lara, bones, LightPos, psxtextinfo, hairs, HairRotScratchVertNums, Gunshells, GLaraShadowframe, S_PrintNiceShadow, CamRot
 
 addressToEntryPoint dw DrawLara
 
 DrawLara:
+    lw      a0, lara_item-GP_ADDR(gp)
+    addiu   sp, -0x18
+    sw      ra, 0x10(sp)
+    jal     sub_2C
+    nop
+    lw      ra, 0x10(sp)
+    nop
+    jr      ra
+    addiu   sp, 0x18
+
+sub_2C:
 	addiu   sp, -0x60
 	sw      ra, 0x60-0x50(sp)
 	sw      s0, 0x60-0x4C(sp)
@@ -125,7 +136,7 @@ DrawLara:
 	lw      a0, 0(s0)
 	addiu   s0, 4
 	sll     a0, 2
-	li      v1, 0xA583C
+	la      v1, lara+0x60
 	addu    a0, v1
 	li      v0, 1
 	sllv    v0, s2
@@ -309,7 +320,7 @@ DrawLara:
 	sll     v0, 2
 	addu    s0, v1, v0
 	addiu   s0, 0x20
-	li      v1, 0xA5D5C;#####################################TODO
+	la      v1, lara_matrices+0x20
 	lw      t0, 0(v1)
 	lw      t1, 4(v1)
 	lw      t2, 8(v1)
@@ -329,7 +340,7 @@ DrawLara:
 	jal     sub_658
 	lw      a0, 0(s0)
 	addiu   s0, 0x20
-	li      v1, 0xA5DBC;#####################################TODO looks like matrix?
+	la      v1, lara_matrices+0x80
 	lw      t0, 0(v1)
 	lw      t1, 4(v1)
 	lw      t2, 8(v1)
@@ -1007,7 +1018,7 @@ sub_E38:
 	sw      t5, 0x214(a3)
 	sw      t6, 0x218(a3)
 	sw      t7, 0x21C(a3)
-	li      s0, 0xAB23C;###################################TODO
+	la      s0, hairs+0x20
 	lh      v0, objects+0x782
 	lw      s4, meshes-GP_ADDR(gp)
 	sll     v0, 2
@@ -1188,7 +1199,7 @@ sub_10DC:
 	addu    a0, v0, v1
 	bnez    a1, loc_1108
 	li      a1, 0
-	lhu     v0, 0x46A6(gp);#####################################################TODO
+	lhu     v0, CamRot+0x2-GP_ADDR(gp)
 	li      v1, 0xFFFF8000
 	sll     v0, 4
 	j       loc_110C
@@ -1285,7 +1296,7 @@ sub_1184:
 	jr      s4
 	nop
 	
-	sub_1244:
+sub_1244:
 	move    v0, ra
 	jal     sub_D7C
 	nop
@@ -1348,7 +1359,7 @@ sub_1184:
 	jr      ra
 	nop
 
-	sub_1330:
+sub_1330:
 	move    a2, a0
 	lh      v1, 0xC(a2)
 	la      at, objects
