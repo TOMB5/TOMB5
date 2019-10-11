@@ -93,10 +93,9 @@ char HairRotScratchVertNums[5][12] =
 	{ 4, 5, 6, 7, -1, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-
-
 void CalcLaraMatrices(int flag)//2C1DC, 2C504
 {
+#if PC_VERSION
 	short* frm[2];
 
 	if (lara.hit_direction >= 0)
@@ -137,4 +136,93 @@ void CalcLaraMatrices(int flag)//2C1DC, 2C504
 	}
 	
 	DEL_CalcLaraMatrices_Normal_ASM(frm[0], &bones[objects[lara_item->object_number].bone_index], flag);
+
+#elif PSX_VERSION || PSXPC_TEST
+	struct object_info* object;
+	short* frame;
+	short* frmptr[2];
+	int frac;
+	int rate;
+	struct ITEM_INFO* item;
+	long* bone;
+	short spaz;
+	struct ANIM_STRUCT* anim;
+	int size;
+
+	item = lara_item;
+	object = &objects[item->object_number];
+	bone = &bones[object->bone_index];
+
+	if (lara.hit_direction < 0)
+	{
+		frac = GetFrames(item, &frmptr[0], &rate);
+		if (frac != 0)
+		{
+			GLaraShadowframe = GetBoundsAccurate(item);
+			DEL_CalcLaraMatrices_Interpolated_ASM(frmptr[0], frmptr[1], frac, bone, flag);
+			return;
+		}
+	}//loc_2C2A4
+	else
+	{
+		//loc_2C294
+		//loc_2C2A4
+		if (lara.hit_direction == 1)
+		{
+			//loc_2C318
+			if (lara.IsDucked)
+			{
+				spaz = 295;
+			}
+			else
+			{
+				spaz = 127;
+			}
+			//loc_2C34C
+		}
+		else if (lara.hit_direction == 2)
+		{
+			//loc_2C2FC
+			if (lara.IsDucked)
+			{
+				spaz = 293;
+			}
+			else
+			{
+				spaz = 126;
+			}
+		}
+		else if (lara.hit_direction == 0)
+		{
+			//loc_2C2E0
+			if (lara.IsDucked)
+			{
+				spaz = 294;
+			}
+			else
+			{
+				spaz = 125;
+			}
+		}
+		else
+		{
+			if (lara.IsDucked)
+			{
+				spaz = 296;
+			}
+			else
+			{
+				spaz = 128;
+			}
+		}
+
+		//loc_2C34C
+		anim = &anims[spaz];
+		frame = &anim->frame_ptr[(lara.hit_frame * ((anim->interpolation << 16) >> 24))];
+		DEL_CalcLaraMatrices_Normal_ASM(frame, bone, flag);
+		return;
+	}
+	//loc_2C390
+	DEL_CalcLaraMatrices_Normal_ASM(frmptr[0], bone, flag);
+#endif
 }
