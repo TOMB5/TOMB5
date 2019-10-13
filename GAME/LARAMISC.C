@@ -36,7 +36,7 @@
 #include "SFX.H"
 #include "CD.H"
 
-#if PSX_VERSION
+#if PSX_VERSION && !PSXPC_TEST
 #include <STDIO.H>
 #endif
 
