@@ -37,6 +37,9 @@
 #include <LIBGPU.H>
 #include <stdio.h>
 
+#include "TYPEDEFS.H"
+#include "CODEWAD.H"
+
 long StoreBoxes = -1;
 struct GAME_VECTOR LaraPos;
 struct PSXTEXTI* MonitorScreenTI;
@@ -370,9 +373,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 #if DEBUG_VERSION
 			ProfileRGB(0, 255, 0);
 #endif
-
-			//unsigned long* ptr = (unsigned long*)RelocPtr[1];
-			//jalr ptr[0];
+			((VOIDFUNCVOID*)RelocPtr[MOD_LARA][0])();
 			
 #if DEBUG_VERSION
 			ProfileRGB(255, 255, 0);
