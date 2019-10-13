@@ -31,8 +31,14 @@
 #if !SAT_VERSION
 #include <string.h>
 #endif
+#include "EFFECTS.H"
+#include "SOUND.H"
+#include "SFX.H"
+#include "CD.H"
 
+#if PSX_VERSION
 #include <STDIO.H>
+#endif
 
 #if DEBUG_VERSION
 char* states[131] =
@@ -220,656 +226,248 @@ void LaraControl(short item_number)//4A838, 4AC9C
 	//s1 = &lara
 	//a2 = lara.water_status
 
-	if (lara.water_status == 1)
+	switch (lara.water_status)
 	{
-		//loc_4AD88
-	}//v0 = 2
-	else if (lara.water_status > 1)
-	{
-		//loc_4AA34
-		if (lara.water_status == 2)
-		{
-			//loc_4ACCC
-		}//v0 = 0xFFFFF05C
-		else if (lara.water_status == 4)
-		{
-			//loc_4AB94
-
-		}
-	}
-	else if (lara.water_status == 0)
+	case 0:///@DONE
 	{
 		//loc_4AA4C
-	}
-	//slti    $v0, $s2, 0x100
-	//j       loc_4AF90
-
-#if 0
-		loc_4AA4C :
-	bnez    $v0, loc_4AF90
-		slti    $v0, $s4, 0x1DB
-		bnez    $v0, loc_4AB60
-		slti    $v0, $s2, 0x101
-		beqz    $s5, loc_4AB90
-		move    $a1, $zero
-		li      $v0, 0x708
-		lw      $a0, dword_800A2048
-		li      $a2, 0xFFFFFFF7
-		sh      $v0, 0x16($s1)
-		sh      $v1, 0xC($s1)
-		lw      $v0, 0x84($s0)
-		lw      $v1, 0x44($s0)
-		and $v0, $a2
-		addiu   $v1, 0x64
-		sw      $v0, 0x84($s0)
-		jal     UpdateLaraRoom
-		sw      $v1, 0x44($s0)
-		jal     StopSoundEffect
-		li      $a0, 0x1E
-		lh      $v1, 0xE($s0)
-		li      $v0, 0x34
-		bne     $v1, $v0, loc_4AABC
-		li      $v0, 0x35
-		move    $a0, $s0
-		j       loc_4AACC
-		li      $v0, 0xFFFFE002
-
-		loc_4AABC:
-	bne     $v1, $v0, loc_4AAF0
-		li      $v0, 0xFFFFE002
-		move    $a0, $s0
-		li      $v0, 0xFFFFC392
-
-		loc_4AACC :
-		li      $v1, 0x23
-		sh      $v0, 0x4C($s0)
-		jal     AnimateLara
-		sh      $v1, 0x10($s0)
-		lh      $v0, 0x20($s0)
-		nop
-		sll     $v0, 1
-		j       loc_4AB38
-		sh      $v0, 0x20($s0)
-
-		loc_4AAF0:
-	lw      $v1, dword_800A25E0
-		sh      $v0, 0x4C($s0)
-		li      $v0, 0x70
-		lh      $a0, 0x20($s0)
-		lhu     $a1, 0x1198($v1)
-		li      $v1, 0x23
-		sh      $v1, 0xE($s0)
-		li      $v1, 0x11
-		sh      $v0, 0x14($s0)
-		sll     $v0, $a0, 1
-		addu    $v0, $a0
-		sh      $v1, 0x10($s0)
-		srl     $v1, $v0, 31
-		addu    $v0, $v1
-		sra     $v0, 1
-		sh      $v0, 0x20($s0)
-		sh      $a1, 0x16($s0)
-
-		loc_4AB38:
-	lw      $a0, dword_800A2048
-		addiu   $v0, $s6, 0x57DC
-		sh      $zero, 0xAE($v0)
-		sh      $zero, 0xB0($v0)
-		sh      $zero, 0xA8($v0)
-		jal     Splash
-		sh      $zero, 0xAA($v0)
-		j       loc_4AB94
-		li      $v0, 0xFFFFF05C
-
-		loc_4AB60:
-	bnez    $v0, loc_4AB94
-		li      $v0, 0xFFFFF05C
-		li      $v1, 4
-		sh      $v1, 0xC($s1)
-		lw      $v0, 0x84($s0)
-		nop
-		srl     $v0, 3
-		andi    $v0, 1
-		bnez    $v0, loc_4AB94
-		li      $v0, 0xFFFFF05C
-		li      $v0, 2
-		sh      $v0, 0x10($s0)
-
-		loc_4AB90:
-	li      $v0, 0xFFFFF05C
-
-		loc_4AB94 :
-		sh      $v0, word_800A23E2
-		slti    $v1, $s2, 0x100
-		beqz    $v1, loc_4ABC4
-		addiu   $v0, $s6, 0x57DC
-		sh      $zero, 0xC($v0)
-		lh      $v1, 0xE($s0)
-		li      $v0, 0x41
-		bne     $v1, $v0, loc_4AF90
-		li      $v0, 1
-		j       loc_4AF90
-		sh      $v0, 0x10($s0)
-
-		loc_4ABC4:
-	slti    $v0, $s2, 0x2DB
-		bnez    $v0, loc_4AF90
-		addiu   $a0, $s6, 0x57DC
-		li      $v1, 2
-		sh      $v1, 0xC($a0)
-		lw      $v0, 0x44($s0)
-		addiu   $v1, $s2, -1
-		subu    $v0, $v1
-		lh      $v1, 0xE($s0)
-		sw      $v0, 0x44($s0)
-		li      $v0, 0x10
-		bne     $v1, $v0, loc_4AC10
-		nop
-		lw      $v0, dword_800A25E0
-		li      $v1, 0x8C
-		lhu     $a0, 0x15F8($v0)
-		j       loc_4AC6C
-		li      $v0, 0x2F
-
-		loc_4AC10:
-	li      $v0, 0x15
-		bne     $v1, $v0, loc_4AC34
-		nop
-		lw      $v0, dword_800A25E0
-		li      $v1, 0x90
-		lhu     $a0, 0x1698($v0)
-		j       loc_4AC6C
-		li      $v0, 0x31
-
-		loc_4AC34:
-	li      $v0, 0x16
-		bne     $v1, $v0, loc_4AC58
-		li      $v1, 0x74
-		lw      $v0, dword_800A25E0
-		li      $v1, 0x8F
-		lhu     $a0, 0x1670($v0)
-		j       loc_4AC6C
-		li      $v0, 0x30
-
-		loc_4AC58:
-	lw      $v0, dword_800A25E0
-		nop
-		lhu     $a0, 0x1238($v0)
-		li      $v0, 0x22
-
-		loc_4AC6C :
-		sh      $v1, 0x14($s0)
-		sh      $v0, 0x10($s0)
-		sh      $v0, 0xE($s0)
-		sh      $a0, 0x16($s0)
-		move    $a0, $s0
-		lw      $v0, 0x84($s0)
-		li      $v1, 0xFFFFFFF7
-		and $v0, $v1
-		lw      $v1, dword_800A2048
-		move    $a1, $zero
-		sh      $zero, 0x20($s0)
-		sw      $v0, 0x84($s0)
-		addiu   $v0, $s6, 0x57DC
-		sh      $zero, 0x18($v0)
-		sh      $zero, 0x50($v1)
-		sh      $zero, 0x4C($s0)
-		sh      $zero, 0xAE($v0)
-		sh      $zero, 0xB0($v0)
-		sh      $zero, 0xA8($v0)
-		jal     UpdateLaraRoom
-		sh      $zero, 0xAA($v0)
-		j       loc_4AF90
-		nop
-
-		loc_4ACCC :
-	bnez    $s5, loc_4AF90
-		slti    $v0, $s2, 0x101
-		bnez    $v0, loc_4AD18
-		li      $v0, 0x22
-		li      $v0, 4
-		sh      $v0, 0xC($s1)
-		li      $v0, 0x67
-		lw      $v1, dword_800A25E0
-		move    $a0, $s0
-		sh      $v0, 0x14($s0)
-		lhu     $a1, 0x1030($v1)
-		li      $v0, 0x41
-		sh      $a2, 0xE($s0)
-		sh      $v0, 0x10($s0)
-		jal     AnimateItem
-		sh      $a1, 0x16($s0)
-		j       loc_4AD5C
-		nop
-
-		loc_4AD18 :
-	lw      $v1, anims
-		sh      $zero, 0xC($s1)
-		lh      $a1, 0x20($s0)
-		lhu     $a0, 0x568($v1)
-		li      $v1, 3
-		sh      $v0, 0x14($s0)
-		sh      $v1, 0x10($s0)
-		sh      $v1, 0xE($s0)
-		bgez    $a1, loc_4AD48
-		sh      $a0, 0x16($s0)
-		addiu   $a1, 3
-
-		loc_4AD48:
-	lw      $v0, 0x84($s0)
-		sra     $v1, $a1, 2
-		sh      $v1, 0x1E($s0)
-		ori     $v0, 8
-		sw      $v0, 0x84($s0)
-
-		loc_4AD5C :
-		lw      $v0, lara_item
-		sh      $zero, 0x20($s0)
-		sh      $zero, 0x50($v0)
-		addiu   $v0, $s6, 0x57DC
-		sh      $zero, 0x4C($s0)
-		sh      $zero, 0xAE($v0)
-		sh      $zero, 0xB0($v0)
-		sh      $zero, 0xA8($v0)
-		j       loc_4AF90
-		sh      $zero, 0xAA($v0)
-
-		loc_4AD88:
-	addiu   $a3, $sp, 0x40 + var_30
-		lw      $a0, 0x40($s0)
-		lw      $a2, 0x48($s0)
-		lw      $a1, 0x44($s0)
-		lh      $v0, 0x18($s0)
-		addiu   $a1, -0x100
-		jal     GetFloor
-		sh      $v0, 0x40 + var_30($sp)
-		lh      $v1, 0x40 + var_30($sp)
-		lw      $a0, room
-		sll     $v0, $v1, 2
-		addu    $v0, $v1
-		sll     $v0, 4
-		addu    $v0, $a0
-		lhu     $v1, 0x4E($v0)
-		li      $v0, 0xFFFF8100
-		beq     $s4, $v0, loc_4AE70
-		andi    $v1, 1
-		bgez    $s2, loc_4ADE0
-		move    $v0, $s2
-		negu    $v0, $v0
-
-		loc_4ADE0 :
-	slti    $v0, 0x100
-		beqz    $v0, loc_4AE70
-		nop
-		bnez    $v1, loc_4AE70
-		li      $a3, 0x72
-		lh      $v1, 0x14($s0)
-		nop
-		beq     $v1, $a3, loc_4AE70
-		li      $v0, 0x77
-		beq     $v1, $v0, loc_4AE70
-		move    $a0, $s0
-		li      $v0, 2
-		sh      $v0, 0xC($s1)
-		addiu   $v0, $s3, 1
-		lw      $v1, dword_800A25E0
-		move    $a1, $zero
-		sw      $v0, 0x44($s0)
-		lhu     $a2, 0x11E8($v1)
-		lw      $v1, dword_800A2048
-		li      $v0, 0x21
-		sh      $v0, 0x10($s0)
-		sh      $v0, 0xE($s0)
-		li      $v0, 0xB
-		sh      $a3, 0x14($s0)
-		sh      $zero, 0x20($s0)
-		sh      $a2, 0x16($s0)
-		sh      $v0, 0x18($s1)
-		sh      $zero, 0x50($v1)
-		sh      $zero, 0x4C($s0)
-		sh      $zero, 0xAE($s1)
-		sh      $zero, 0xB0($s1)
-		sh      $zero, 0xA8($s1)
-		j       loc_4AEFC
-		sh      $zero, 0xAA($s1)
-
-		loc_4AE70:
-	bnez    $s5, loc_4AF90
-		li      $v0, 0xFFFF8100
-		beq     $s4, $v0, loc_4AF24
-		addiu   $a2, $s6, 0x57DC
-		bgez    $s2, loc_4AE8C
-		move    $v0, $s2
-		negu    $v0, $v0
-
-		loc_4AE8C :
-	slti    $v0, 0x100
-		beqz    $v0, loc_4AF24
-		move    $a0, $s0
-		li      $a1, 0xFFFFFE83
-		addiu   $a2, $s6, 0x57DC
-		lw      $v1, dword_800A25E0
-		li      $v0, 2
-		sh      $v0, 0xC($a2)
-		sw      $s3, 0x44($s0)
-		lhu     $a3, 0x11E8($v1)
-		li      $v1, 0x21
-		sh      $v1, 0x10($s0)
-		sh      $v1, 0xE($s0)
-		lw      $v1, dword_800A2048
-		li      $v0, 0x72
-		sh      $v0, 0x14($s0)
-		li      $v0, 0xB
-		sh      $zero, 0x20($s0)
-		sh      $a3, 0x16($s0)
-		sh      $v0, 0x18($a2)
-		sh      $zero, 0x50($v1)
-		sh      $zero, 0x4C($s0)
-		sh      $zero, 0xAE($a2)
-		sh      $zero, 0xB0($a2)
-		sh      $zero, 0xA8($a2)
-		sh      $zero, 0xAA($a2)
-
-		loc_4AEFC:
-	jal     sub_7C58C
-		nop
-		li      $a0, 0x24
-		lw      $a1, dword_800A2048
-		li      $a2, 2
-		jal     sub_91780
-		addiu   $a1, 0x40
-		j       loc_4AF90
-		nop
-
-		loc_4AF24 :
-	lw      $v1, dword_800A25E0
-		li      $v0, 0x22
-		sh      $zero, 0xC($a2)
-		lh      $a1, 0x20($s0)
-		lhu     $a0, 0x568($v1)
-		li      $v1, 3
-		sh      $v0, 0x14($s0)
-		sh      $v1, 0x10($s0)
-		sh      $v1, 0xE($s0)
-		bgez    $a1, loc_4AF58
-		sh      $a0, 0x16($s0)
-		addiu   $a1, 3
-
-		loc_4AF58:
-	sra     $v0, $a1, 2
-		sh      $v0, 0x1E($s0)
-		lw      $v0, 0x84($s0)
-		lw      $v1, dword_800A2048
-		sh      $zero, 0x20($s0)
-		ori     $v0, 8
-		sw      $v0, 0x84($s0)
-		sh      $zero, 0x50($v1)
-		sh      $zero, 0x4C($s0)
-		sh      $zero, 0xAE($a2)
-		sh      $zero, 0xB0($a2)
-		sh      $zero, 0xA8($a2)
-		sh      $zero, 0xAA($a2)
-
-		loc_4AF90:
-	lh      $v1, 0x18($s0)
-		lw      $a0, dword_800A24DC
-		sll     $v0, $v1, 2
-		addu    $v0, $v1
-		sll     $v0, 4
-		addu    $v0, $a0
-		lbu     $a0, 0x34($v0)
-		jal     sub_91CF4
-		nop
-		lh      $v0, 0x22($s0)
-		nop
-		bgtz    $v0, loc_4B020
-		addiu   $v0, $s6, 0x57DC
-		li      $v0, 0xFFFFFFFF
-		addiu   $s1, $s6, 0x57DC
-		sh      $v0, 0x22($s0)
-		lh      $v0, 0x1A($s1)
-		nop
-		bnez    $v0, loc_4AFEC
-		nop
-		jal     sub_5DCD0
-		nop
-
-		loc_4AFEC :
-	lhu     $v0, 0x1A($s1)
-		lw      $v1, dword_800A2048
-		addiu   $a0, $v0, 1
-		sh      $a0, 0x1A($s1)
-		lhu     $v0, 0x28($v1)
-		nop
-		andi    $v0, 0x100
-		beqz    $v0, loc_4B01C
-		addiu   $v0, $a0, 1
-		j       loc_4B2D8
-		sh      $v0, 0x1A($s1)
-
-		loc_4B01C:
-	addiu   $v0, $s6, 0x57DC
-
-		loc_4B020 :
-		lh      $v1, 0xC($v0)
-		nop
-		sltiu   $v0, $v1, 5      # switch 5 cases
-		beqz    $v0, def_4B04C   # jumptable 0004B04C default case
-		lui     $s1, 0xB
-		la      $v0, jpt_4B04C
-		sll     $v1, 2
-		addu    $v1, $v0
-		lw      $a0, 0($v1)
-		nop
-		jr      $a0              # switch jump
-		nop
-
-		loc_4B054 : # jumptable 0004B04C cases 0, 4
-		addiu   $a0, $s6, 0x57DC
-		lw      $v0, 0x44($a0)
-		nop
-		andi    $v0, 0x200
-		beqz    $v0, loc_4B0B0
-		nop
-		lh      $v0, 0x22($s0)
-		nop
-		bltz    $v0, loc_4B0F0
-		nop
-		lhu     $v0, 0x16($a0)
-		nop
-		addiu   $v0, -1
-		sh      $v0, 0x16($a0)
-		sll     $v0, 16
-		bgez    $v0, loc_4B0F0
-		li      $v1, 0xFFFFFFFF
-		sh      $v1, 0x16($a0)
-		lhu     $v0, 0x22($s0)
-		nop
-		addiu   $v0, -5
-		j       loc_4B0F0
-		sh      $v0, 0x22($s0)
-
-		loc_4B0B0:
-	lh      $v0, 0x16($a0)
-		lhu     $v1, 0x16($a0)
-		slti    $v0, 0x708
-		beqz    $v0, loc_4B0F0
-		nop
-		lh      $v0, 0x22($s0)
-		nop
-		bltz    $v0, loc_4B0F0
-		addiu   $v0, $v1, 0xA
-		sh      $v0, 0x16($a0)
-		sll     $v0, 16
-		sra     $v0, 16
-		slti    $v0, 0x709
-		bnez    $v0, loc_4B0F0
-		li      $v0, 0x708
-		sh      $v0, 0x16($a0)
-
-		loc_4B0F0:
-	move    $a0, $s0
-		lw      $a1, 0x5D8($gp)
-		jal     sub_14228
-		lui     $s1, 0xB
-		j       def_4B04C        # jumptable 0004B04C default case
-		nop
-
-		loc_4B108 : # jumptable 0004B04C case 1
-		lh      $v0, 0x22($s0)
-		nop
-		bltz    $v0, loc_4B204
-		lui     $s1, 0xB
-		lbu     $v1, byte_800A220C
-		li      $v0, 5
-		bne     $v1, $v0, loc_4B198
-		addiu   $v1, $s6, 0x57DC
-		jal     sub_20E34
-		li      $a0, 0x28
-		beqz    $v0, loc_4B1A8
-		addiu   $a0, $s6, 0x57DC
-		lbu     $v1, 0x34($a0)
-		lhu     $v0, 0xC7A($gp)
-		addiu   $v1, 8
-		addu    $v0, $v1
-		sh      $v0, 0xC7A($gp)
-		sll     $v0, 16
-		sra     $v0, 16
-		slti    $v0, 0x51
-		bnez    $v0, loc_4B1AC
-		nop
-
-		loc_4B164 :
-	lhu     $v1, 0x16($a0)
-		lhu     $v0, 0xC7A($gp)
-		addiu   $v1, -1
-		addiu   $v0, -0x50
-		sh      $v1, 0x16($a0)
-		sh      $v0, 0xC7A($gp)
-		sll     $v0, 16
-		sra     $v0, 16
-		slti    $v0, 0x51
-		beqz    $v0, loc_4B164
-		nop
-		j       loc_4B1AC
-		addiu   $a0, $s6, 0x57DC
-
-		loc_4B198:
-	lhu     $v0, 0x16($v1)
-		nop
-		addiu   $v0, -1
-		sh      $v0, 0x16($v1)
-
-		loc_4B1A8 :
-		addiu   $a0, $s6, 0x57DC
-
-		loc_4B1AC :
-		lh      $v0, 0x16($a0)
-		nop
-		bgez    $v0, loc_4B204
-		li      $v0, 5
-		lbu     $v1, byte_800A220C
-		nop
-		bne     $v1, $v0, loc_4B1E8
-		nop
-		lbu     $v1, 0x34($a0)
-		nop
-		sltiu   $v0, $v1, 0xFB
-		beqz    $v0, loc_4B1E8
-		addiu   $v0, $v1, 4
-		sb      $v0, 0x34($a0)
-
-		loc_4B1E8:
-	addiu   $a0, $s6, 0x57DC
-		li      $v1, 0xFFFFFFFF
-		sh      $v1, 0x16($a0)
-		lhu     $v0, 0x22($s0)
-		nop
-		addiu   $v0, -5
-		sh      $v0, 0x22($s0)
-
-		loc_4B204:
-	lw      $a1, 0x5D8($gp)
-		jal     sub_4BFB4
-		move    $a0, $s0
-		j       def_4B04C        # jumptable 0004B04C default case
-		nop
-
-		loc_4B218 : # jumptable 0004B04C case 2
-		lh      $v0, 0x22($s0)
-		nop
-		bltz    $v0, loc_4B250
-		addiu   $v1, $s6, 0x57DC
-		lhu     $v0, 0x16($v1)
-		nop
-		addiu   $v0, 0xA
-		sh      $v0, 0x16($v1)
-		sll     $v0, 16
-		sra     $v0, 16
-		slti    $v0, 0x709
-		bnez    $v0, loc_4B250
-		li      $v0, 0x708
-		sh      $v0, 0x16($v1)
-
-		loc_4B250:
-	move    $a0, $s0
-		lw      $a1, 0x5D8($gp)
-		jal     sub_4D684
-		lui     $s1, 0xB
-		j       def_4B04C        # jumptable 0004B04C default case
-		nop
-
-		loc_4B268 : # jumptable 0004B04C case 3
-		move    $a0, $s0
-		lw      $a1, 0x5D8($gp)
-		jal     sub_4A790
-		lui     $s1, 0xB
-
-		def_4B04C:               # jumptable 0004B04C default case
-		lw      $v0, 0x40($s0)
-		nop
-		subu    $v0, $s7
-		mult    $v0, $v0
-		lw      $v1, 0x44($s0)
-		mflo    $v0
-		subu    $v1, $fp
-		nop
-		mult    $v1, $v1
-		lw      $a0, 0x48($s0)
-		lw      $a1, 0x40 + var_2C($sp)
-		mflo    $v1
-		subu    $a0, $a1
-		nop
-		mult    $a0, $a0
-		addu    $v0, $v1
-		mflo    $a0
-		jal     sub_779DC
-		addu    $a0, $v0, $a0
-		addiu   $a0, $s1, -0x4C24
-		lw      $v1, 0x188($a0)
-		nop
-		addu    $v1, $v0
-		sw      $v1, 0x188($a0)
-
-		loc_4B2D8:
-	lw      $ra, 0x40 + var_4($sp)
-		lw      $fp, 0x40 + var_8($sp)
-		lw      $s7, 0x40 + var_C($sp)
-		lw      $s6, 0x40 + var_10($sp)
-		lw      $s5, 0x40 + var_14($sp)
-		lw      $s4, 0x40 + var_18($sp)
-		lw      $s3, 0x40 + var_1C($sp)
-		lw      $s2, 0x40 + var_20($sp)
-		lw      $s1, 0x40 + var_24($sp)
-		lw      $s0, 0x40 + var_28($sp)
-		jr      $ra
-		addiu   $sp, 0x40
-#endif
-#if 1 //CONTROLS_TEST
-		if (lara.water_status == 1)
+		if (hfw < 256)
 		{
+			//loc_4AF90
+			break;
+		}
+
+		if (wd >= 475)
+		{
+			if (hfw < 257 && room_water_state != 0)
+			{
+				lara.air = 1800;
+				lara.water_status = 1;
+				item->status = 0;
+
+				UpdateLaraRoom(lara_item, 0);
+				StopSoundEffect(SFX_LARA_FALL);
+
+				if (item->current_anim_state == 0x34)
+				{
+					item->goal_anim_state = 0x23;
+					item->pos.x_rot = -0x1FFE;
+					AnimateLara(item);
+					item->fallspeed <<= 1;
+				}//loc_4AABC
+				else if (item->current_anim_state == 0x35)
+				{
+					item->goal_anim_state = 0x23;
+					item->pos.x_rot = -0x36CE;
+					AnimateLara(item);
+					item->fallspeed <<= 1;
+				}
+				else
+				{
+					item->pos.x_rot = -0x1FFE;
+					item->current_anim_state = 0x23;
+					item->anim_number = 0x11;
+					item->goal_anim_state = 0x11;
+					item->fallspeed = (((item->fallspeed << 1) + item->fallspeed) + (((item->fallspeed << 1) + item->fallspeed) >> 31)) >> 1;
+					item->frame_number = anims[112].frame_base;
+				}
+				//loc_4AB38
+				//a0 = lara_item
+				//v0 = lara
+				lara.torso_y_rot = 0;
+				lara.torso_x_rot = 0;
+				lara.head_y_rot = 0;
+				lara.head_x_rot = 0;
+
+				///Splash();
+				//v0 = -0xFA4
+
+			}//loc_4AB90
+		}
+		else
+		{
+			//loc_4AB60
+			if (hfw >= 257)
+			{
+				//v0 = -0xFA4
+				//v1 = 4
+				lara.water_status = 4;
+
+				//v0 = -0xFA4
+				if (!item->gravity_status)
+				{
+					item->goal_anim_state = 2;
+				}//loc_4AB94
+			}//loc_4AB94
+
+			camera.target_elevation = -0xFA4;
+
+			if (hfw < 256)
+			{
+				//v0 = &lara
+				lara.water_status = 0;
+
+				if (lara.climb_status == 0x41)
+				{
+					item->goal_anim_state = 1;
+				}
+			}//loc_4ABC4
 
 		}
+		break;
+	}
+	case 1:///@TODO
+	{
+		//loc_4AD88
+		room_number = item->room_number;
+		GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number);
+		//v1 = room_number
+		//a0 = room
+		//v1 = room[room_number].flags
+		//v0 = -32512
+
+		//a0 = item
+		if (wd != -32512 && hfw < 0
+			&& ABS(hfw) < 0x100
+			&& !(room[room_number].flags & RF_FILL_WATER)
+			&& item->anim_number != 0x72
+			&& item->anim_number != 0x77)
+		{
+			lara.water_status = 2;
+			//v0 = s3 + 1
+			//v1 = anims
+			//a1 = 0;
+			item->pos.y_pos = wh + 1;
+			//a2 = anims[114].frame_base;
+			//v1 = lara_item
+			item->goal_anim_state = 0x21;
+			item->current_anim_state = 0x21;
+			//v0 = 0xB
+			item->anim_number = 0x72;
+			item->fallspeed = 0;
+			item->frame_number = anims[114].frame_base;
+			lara.dive_count = 0xB;
+			lara_item->pos.z_rot = 0;
+			item->pos.x_rot = 0;
+			lara.torso_y_rot = 0;
+			lara.torso_x_rot = 0;
+			lara.head_y_rot = 0;
+			lara.head_x_rot = 0;
+			//j       loc_4AEFC
+		}
+		else
+		{
+			//loc_4AE70
+			//v0 = -32512
+			if (room_water_state == 0)
+			{
+				//a2 = &lara
+				if (wd != -32512)
+				{
+					if (hfw < 0)
+					{
+						//a0 = item
+						if (ABS(hfw) < 256)
+						{
+							//a1 = -381
+							//a2 = &lara
+							//v1 = anims
+							//v0 = 2
+							lara.water_status = 2;
+							item->pos.y_pos = wh;
+							//a3 = anims[114].frame_base
+							//v1 = 0x21
+							item->goal_anim_state = 0x21;
+							item->current_anim_state = 0x21;
+							//v1 = lara_item
+							//v0 = 0x72
+							item->anim_number = 0x72;
+							//v0 = 0xb
+							item->fallspeed = 0;
+							item->frame_number = anims[114].frame_base;
+							lara.dive_count = 0xB;
+							lara_item->pos.z_rot = 0;
+							item->pos.x_rot = 0;
+							lara.torso_y_rot = 0;
+							lara.torso_x_rot = 0;
+							lara.head_y_rot = 0;
+							lara.head_x_rot = 0;
+						}//loc_4AF24
+					}//loc_4AE8C ***********************************************
+				}//loc_4AF24
+			}//loc_4AF90
+		}
+		break;
+	}
+	case 2:///@TODO
+		//loc_4ACCC
+		break;
+	case 3:///@TODO
+		break;
+	case 4:///@TODO
+		//loc_4AB94
+		break;
+	}
+
+	//loc_4AF90
+	S_SetReverbType(room[item->room_number].ReverbType);
+
+	if (item->hit_points <= 0)
+	{
+		item->hit_points = -1;
+
+		if (lara.death_count == 0)
+		{
+			S_CDStop();
+		}
+
+		lara.death_count++;
+
+		if ((lara_item->flags & 0x100))
+		{
+			lara.death_count++;
+			return;
+		}
+	}
+
+	//loc_4B020
+	switch (lara.water_status)
+	{
+	case 0:
+		//a0 = lara
+		//v0 = lara
+		if (lara.Gassed)
+		{
+			if (item->hit_points >= 0)
+			{
+				lara.air--;
+
+				if (lara.air < 0)
+				{
+					lara.air = -1;
+					item->hit_points -= 5;
+				}
+			}
+		}
+		else
+		{
+			//loc_4B0B0
+			if (lara.air < 1800 && item->hit_points >= 0)
+			{
+				lara.air += 10;
+			}
+
+			if (lara.air > 1800)
+			{
+				lara.air = 1800;
+			}
+		}
+		//loc_4B0F0
+		LaraAboveWater(item, coll);
+		break;
+	}
+
+#if 1 //CONTROLS_TEST
 
 	if ((RawPad & 0x10))
 	{
