@@ -4,10 +4,11 @@
 #include "DRAW.H"
 #include "MATHS.H"
 #include "LARA.H"
+#include "GTEREG.H"
 
-void S_SetupClutAdder(long unk)
+void S_SetupClutAdder(long underwater)
 {
-	S_Warn("[S_SetupClutAdder] - Unimplemented!\n");
+	DQB = underwater;
 }
 
 void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)

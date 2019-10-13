@@ -255,7 +255,7 @@ static int m_sf;
 static long long m_mac0;
 static long long m_mac3;
 
-static unsigned int gte_leadingzerocount(unsigned int lzcs) {
+unsigned int gte_leadingzerocount(unsigned int lzcs) {
 	unsigned int lzcr = 0;
 
 	if ((lzcs & 0x80000000) == 0)

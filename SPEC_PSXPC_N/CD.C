@@ -10,7 +10,6 @@
 #include <LIBCD.H>
 #include <LIBSPU.H>
 #include <LIBETC.H>
-#include "EMULATOR_GLOBALS.H"
 
 //Number of XA files on disc (XA1-17.XA)
 #define NUM_XA_FILES 17
@@ -331,7 +330,9 @@ void S_StartSyncedAudio(int nTrack)//5DD78(<), 5E1F4(<) (F) (*) (D)
 
 	S_CDPlay(nTrack, 0);
 
+#if !PSXPC_TEST//? inf loop @PSXPC_N
 	while (XAFlag < 4) {}
+#endif
 
 	VSync(29);
 

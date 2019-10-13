@@ -4,7 +4,6 @@
 #include "GPU.H"
 
 #include <LIBGTE.H>
-#include <EMULATOR.H>
 
 long phd_left;
 long phd_right;

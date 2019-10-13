@@ -6,6 +6,7 @@
 #include "TEXT.H"
 #include "TYPES.H"
 #include "STYPES.H"
+#include "ROOMLOAD.H"
 #include <assert.h>
 #include <LIBGTE.H>
 #include <stdio.h>
@@ -204,7 +205,6 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 	//s5 = string
 	//s6 = flag
 	//at = GnFrameCounter
-
 #if _DEBUG
 	printf("PrintString: %s X: %d Y: %d\n", string, x, y);
 #endif
@@ -609,64 +609,47 @@ void DrawChar(unsigned short x, unsigned short y, unsigned short colourFlag, str
 
 void _DelDrawSprite(int x, int y, int w, int h)
 {
-#if 0
-		sll		a2, 4
-		addu	a2, t0
-		lhu		v0, 0xA(a2)
-		lui		v1, 0xE100
-		andi	v0, 0x9FF
-		ori     v0, 0x600
-		or v1, v0
-		sw		v1, 0x4(t9)
-		sw		zero, 0x8(t9)
-		lui		at, 0x6480
-		ori		at, 0x8080
-		sw		at, 0xC(t9)
-		sh		a0, 0x10(t9)
-		sh		a1, 0x12(t9)
-		lbu		v0, 0xC(a2)
-		lbu		a0, 0xD(a2)
-		lbu		at, 0xE(a2)
-		lbu		v1, 0xF(a2)
-		lhu		a1, 0x8(a2)
-		subu	at, v0
-		addiu	at, at, 1
-		subu	v1, v1, a0
-		addiu	v1, 1
-		sb		v0, 0x14(t9)
-		sb		a0, 0x15(t9)
-		sh		a1, 0x16(t9)
-		sh		at, 0x18(t9)
-		sll		a3, 2
-		addu	a3, t8
-		lw		v0, 0x0(a3)
-		lui		at, 0x600
-		or v0, at
-		sw		t9, 0x0(a3)
-		sw		v0, 0x0(t9)
-		sh		v1, 0x1A(t9)
-		jr		ra
-		addiu	t9, 0x1C
-#endif
-}
+	struct PSXSPRITESTRUCT* a2 = &GLOBAL_default_sprites_ptr[w];
 
-void _draw_gbackground2(int x, int y, int w, int h)
-{
-	((int*)db.polyptr)[0] = (unsigned long)db.ot[2000] | 0xA000000;
-	db.ot[2000] = (unsigned long)db.polyptr;
-	((int*)db.polyptr)[1] = 0xE1000240;
-	((int*)db.polyptr)[2] = 0x0;
-	((int*)db.polyptr)[3] = 0x3A101010;
+	((int*)db.polyptr)[1] = 0xE1000000 | (a2->tpage & 0x9FF) | 0x600;
+	((int*)db.polyptr)[2] = 0;
+	((int*)db.polyptr)[3] = 0x64808080;
 	((short*)db.polyptr)[8] = x;
 	((short*)db.polyptr)[9] = y;
-	((int*)db.polyptr)[5] = 0x3A101010;
+
+	((char*)db.polyptr)[20] = a2->u1;
+	((char*)db.polyptr)[21] = a2->v1;
+
+	((short*)db.polyptr)[11] = a2->clut;
+	((short*)db.polyptr)[12] = (a2->u2 - a2->u1) + 1;
+
+	int v0 = db.ot[h] | 0x6000000;
+
+	db.ot[h] = (unsigned long)db.polyptr;
+	((unsigned long*)db.polyptr)[0] = v0;
+	((short*)db.polyptr)[13] = (a2->v2 - a2->v1) + 1;
+
+	db.polyptr += 0x1C;
+}
+
+void _draw_gbackground2(int x, int y, int w, int h, int t0, int t1, int t2, int t3)
+{
+	int v0 = ((int*)db.ot)[2000] | 0xA000000;
+	db.ot[2000] = (unsigned long)db.polyptr;
+	((int*)db.polyptr)[0] = v0;
+	((int*)db.polyptr)[1] = 0xE1000240;
+	((int*)db.polyptr)[2] = 0x0;
+	((int*)db.polyptr)[3] = t0;
+	((short*)db.polyptr)[8] = x;
+	((short*)db.polyptr)[9] = y;
+	((int*)db.polyptr)[5] = t1;
 	((short*)db.polyptr)[12] = x + w;
 	((short*)db.polyptr)[13] = y;
-	((int*)db.polyptr)[7] = 0x3A404040;
+	((int*)db.polyptr)[7] = t2;
 	((short*)db.polyptr)[16] = x;
 	((short*)db.polyptr)[17] = h + y;
-	((int*)db.polyptr)[9] = 0x3A404040;
-	((short*)db.polyptr)[20] = w;
+	((int*)db.polyptr)[9] = t3;
+	((short*)db.polyptr)[20] = x + w;
 	((short*)db.polyptr)[21] = h + y;
 	db.polyptr += 0x2C;
 }
@@ -676,41 +659,41 @@ void draw_outlines()
 	int i;
 	int j;
 
-	_draw_gbackground2(0, 8, 512, 224);
-	_draw_gbackground2(12, 220, 488, 4);
-	_draw_gbackground2(493, 8, 7, 224);
-	_draw_gbackground2(12, 8, 7, 224);
-	_draw_gbackground2(12, 16, 488, 4);
-	//t0 = GLOBAL_default_sprites_ptr
+	_draw_gbackground2(0, 8, 512, 224, 0x3A101010, 0x3A101010, 0x3A404040, 0x3A404040);
+	_draw_gbackground2(12, 220, 488, 4, 0x3A101010, 0x3A101010, 0x3A404040, 0x3A404040);
+	_draw_gbackground2(493, 8, 7, 224, 0x3A101010, 0x3A404040, 0x3A101010, 0x3A404040);
+	_draw_gbackground2(12, 8, 7, 224, 0x3A404040, 0x3A101010, 0x3A404040, 0x3A101010);
+	_draw_gbackground2(12, 16, 488, 4, 0x3A404040, 0x3A404040, 0x3A101010, 0x3A101010);
+
 	_DelDrawSprite(0, 8, 20, 1);
 	_DelDrawSprite(464, 8, 21, 1);
 	_DelDrawSprite(0, 200, 22, 1);
 	_DelDrawSprite(464, 200, 23, 1);
 
 	//loc_8E358
-	for (i = 0; i < 12; i++)
+	for (i = 0; i < 13; i++)
 	{
-		_DelDrawSprite((i * 32) + 0x30, 8, 24, 0);
+		_DelDrawSprite((i * 32) + 48, 8, 24, 0);
 	}
 
 	//loc_8E380
-	for(i = 0; i < 12; i++)
+	for(i = 0; i < 13; i++)
 	{
 		_DelDrawSprite((i * 32) + 48, 224, 25, 1);
 	}
 
 	//loc_8E3A8
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < 5; i++)
 	{
 		_DelDrawSprite(0, (i * 32) + 40, 27, 0);
 	}
 
 	//loc_8E3D0
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < 5; i++)
 	{
 		_DelDrawSprite(500, (i * 32) + 40, 26, 0);
 	}
-
+	
 	//loc_8E3F8
 	for (i = 0; i < 7; i++)
 	{

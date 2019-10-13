@@ -12,7 +12,7 @@
 #elif PSX_VERSION
 #include <STDIO.H>
 #endif
-#include <EMULATOR.H>
+#include <EMULATOR_PRIVATE.H>
 #include <LIBGPU.H>
 #include "CONTROL.H"
 
@@ -79,8 +79,12 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 	ProfileRGB(0, 255, 255);
 #endif
 
-	Emulator_EndScene();
-
+	//specific hack, should be enough to hack the framerate from 90 to 60
+	//todo: emulator, only allow 60 flips per second, in TRC flip is called twice per frame
+	if (LnFlipFrame % 2)
+	{
+		Emulator_EndScene();
+	}
 	return;
 }
 
@@ -309,6 +313,7 @@ void GPU_FlipStory(unsigned long* gfx)//5E448(<), * (F)
 	DrawSync(0);
 	VSync(0);
 
+	GnLastFrameCount = 0;
 	PutDispEnv(&db.disp[db.current_buffer]);
 	fuckmyanalpassage = (RECT16*) &db.disp[db.current_buffer ^ 1].disp;
 	r.x = fuckmyanalpassage->x;

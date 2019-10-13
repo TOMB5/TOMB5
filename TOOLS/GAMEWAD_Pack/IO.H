@@ -20,7 +20,7 @@ namespace IO
 			open(filePath);
 		}
 
-		StreamReader::~StreamReader()
+		~StreamReader()
 		{
 			if (m_stream.is_open())
 			{
@@ -35,9 +35,9 @@ namespace IO
 
 			if (m_isOpen)
 			{
-				m_stream.seekg(0, SEEK_END);
+				m_stream.seekg(0, std::ios::end);
 				m_length = tell();
-				m_stream.seekg(0, SEEK_SET);
+				m_stream.seekg(0, std::ios::beg);
 			}
 		}
 
@@ -101,7 +101,7 @@ namespace IO
 			if (m_stream.is_open())
 			{
 				m_pos = pos;
-				m_stream.seekg(m_pos, SEEK_SET);
+				m_stream.seekg(m_pos, std::ios::beg);
 			}
 		}
 
@@ -127,7 +127,7 @@ namespace IO
 			open(filePath);
 		}
 
-		StreamWriter::~StreamWriter()
+		~StreamWriter()
 		{
 			if (m_stream.is_open())
 			{
@@ -185,7 +185,7 @@ namespace IO
 			if (m_stream.is_open())
 			{
 				m_pos = pos;
-				m_stream.seekp(m_pos, SEEK_SET);
+				m_stream.seekp(m_pos, std::ios::beg);
 			}
 		}
 

@@ -35,7 +35,7 @@ extern void iPushMatrix(struct MATRIX3D* m);
 extern void iPopMatrix0();
 extern void iPopMatrix(struct MATRIX3D* m, struct MATRIX3D* m2);
 extern void mPushMatrix0();
-extern void mmPushMatrix(struct MATRIX3D* m);
+extern void mmPushMatrix(int* fp);
 extern void GetRoomBoundsAsm(short room_number);
 extern void phd_GetVectorAngles(long dx, long dy, long dz, short* angles);
 extern void phd_LookAt(long x, long y, long z, long tx, long ty, long tz, long croll);
@@ -43,5 +43,8 @@ extern long phd_atan_asm(long x, long y);
 extern long mSqrt(long x);
 extern void mRotBoundingBoxNoPersp(short* bounds, short* tbounds);
 extern void phd_GenerateW2V(struct PHD_3DPOS* view);
+extern void iTranslateXYZ2(short x, short y, short z, short x2, short y2, short z2);
+extern void iTranslateXYZ(long x, long y, long z);
+extern long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*$a2*/);
 
 #endif

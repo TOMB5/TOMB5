@@ -107,9 +107,8 @@ long OptimiseOTagR(unsigned long* ot, int nOTSize)//86CC4(<), 88D08(<)
 			do
 			{
 				v0 = a1[0];
-				a1--;
 
-				if (&a1[1] == v1)
+				if (a1-- == v1)
 				{
 					break;
 				}

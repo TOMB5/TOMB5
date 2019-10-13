@@ -217,22 +217,24 @@ extern void _TestTriggers(short* data, int heavy, int HeavyFlags);
 extern void RefreshCamera(short type, short* data);
 extern long GetWaterHeight(long x, long y, long z, short room_number);
 extern void AlterFloorHeight(struct ITEM_INFO* item, int height);
+#if PC_VERSION
 extern short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z);
 extern struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number);
 extern short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z);
+#endif
 extern int TriggerActive(struct ITEM_INFO* item);
 extern void AddRoomFlipItems(struct room_info* r);
 #if PC_VERSION || PSXPC_VERSION
 extern int IsRoomOutside(long x, long y, long z);
 #endif
-extern short GetDoor(struct FLOOR_INFO* floor);
 extern int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 #if PC_VERSION
+extern short GetDoor(struct FLOOR_INFO* floor);
 extern int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
-#endif
 extern int CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, int x, int z);
 extern int CheckNoColFloorTriangle(struct FLOOR_INFO* floor, int x, int z);
+#endif
 extern int ClipTarget(struct GAME_VECTOR* start, struct GAME_VECTOR* target, struct FLOOR_INFO* floor);
 #if !PSX_VERSION || PSXPC_VERSION///@FIXME @pc
 extern void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joint);

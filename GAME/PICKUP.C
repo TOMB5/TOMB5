@@ -18,9 +18,10 @@
 #include "DELTAPAK.H"
 #ifdef PC_VERSION
 #include "GAME.H"
-#else
+#elif PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "SETUP.H"
 #include "CD.H"
+#include "GETSTUFF.H"
 #endif
 
 static short PickUpBounds[12] = // offset 0xA1338

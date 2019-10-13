@@ -7,6 +7,10 @@
 #include INPUT_H
 #include "DRAW.H"
 
+#if PSX_VERSION || SAT_VERSION || PSXPC_VERSION
+#include "GETSTUFF.H"
+#endif
+
 static short LeftIntRightExtTab[4] = // offset 0xA0B7C
 {
 	0x0800, 0x0100, 0x0200, 0x0400

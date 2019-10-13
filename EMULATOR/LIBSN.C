@@ -33,7 +33,7 @@ uintptr_t PCopen(char* name, int flags, int perms)
 		fileHandle = (uintptr_t)fopen(name, "rwb");
 		break;
 	}
-	
+
 	return fileHandle == 0 ? -1 : fileHandle;
 }
 
@@ -51,7 +51,7 @@ int PClseek(uintptr_t fd, int offset, int mode)
 
 int PCread(uintptr_t fd, char* buff, int len)
 {
-	return fread(buff, 1, len, (FILE*)fd);
+ 	return fread(buff, len, 1, (FILE*)fd);
 }
 
 int PCwrite(uintptr_t fd, char* buff, int len)

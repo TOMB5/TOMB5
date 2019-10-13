@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
-
-#define DISC_IMAGE_FILENAME "TOMB5.BIN"
+#include "EMULATOR_SETUP.H"
 
 int CD_Debug = 0;
 
@@ -58,7 +58,7 @@ struct Sector
 
 CdlFILE* CdSearchFile(CdlFILE* fp, char* name)
 {
-	memset(fp, 0, sizeof(CdlFILE));
+	SDL_memset(fp, 0, sizeof(CdlFILE));
 
 	if (name[0] == '\\')
 	{
@@ -204,7 +204,7 @@ int CdReadSync(int mode, u_char* result)
 				comQueue[i].processed = 1;
 				break;
 			}
-			
+
 			return 1;
 		}
 	}
@@ -226,7 +226,7 @@ int CdSync(int mode, u_char * result)
 
 int CdInit(void)
 {
-	memset(&comQueue, 0, sizeof(comQueue));
+	SDL_memset(&comQueue, 0, sizeof(comQueue));
 	currentSector = 0;
 	openFile = fopen(DISC_IMAGE_FILENAME, "rb");
 

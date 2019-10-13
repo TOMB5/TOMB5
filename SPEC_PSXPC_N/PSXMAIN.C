@@ -18,7 +18,7 @@
 #include <LIBMCRD.H>
 #include <LIBETC.H>
 #include <LIBAPI.H>
-#include <EMULATOR.H>
+#include <EMULATOR_PRIVATE.H>
 
 int gp_start_address = 'T' | ('W' << 8) | ('A' << 16) | ('T' << 24);
 
@@ -38,9 +38,9 @@ void VSyncFunc()//10000(<), 10000(<) (F) (*) (D) (ND)
 	return;
 }
 
-int psx_main()//10064(<), 10064(<) (F) (*) (D) (ND)
+int main(int argc, char* argv[])//10064(<), 10064(<) (F) (*) (D) (ND)
 {
-	Emulator_Init("Tomb Raider: Chronicles", SCREEN_WIDTH, SCREEN_HEIGHT);
+	Emulator_Initialise("Tomb Raider: Chronicles", 512, 240);
 	SetSp(0x801FFFE0);
 	ResetCallback();
 
@@ -88,8 +88,8 @@ int psx_main()//10064(<), 10064(<) (F) (*) (D) (ND)
 	CDDA_SetMasterVolume(178);
 #endif
 
-	GPU_UseOrderingTables(&GadwOrderingTables[0], 5128 * 4 / 8);
-	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], 52260 * 4 / 8);
+	GPU_UseOrderingTables(&GadwOrderingTables[0], sizeof(GadwOrderingTables) / 8);
+	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], sizeof(GadwPolygonBuffers) / 8);
 	GPU_GetScreenPosition(&savegame.ScreenX, &savegame.ScreenY);
 
 #if DEBUG_VERSION

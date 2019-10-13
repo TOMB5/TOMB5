@@ -8,6 +8,8 @@
 #include "COLLIDE.H"
 #if PC_VERSION
 #include "SETUP.H"
+#elif PSX_VERSION || PSXPC_VERSION || SAT_VERSION || PS2_VERSION
+#include "MATHS.H"
 #endif
 
 struct MATRIX3D lara_joint_matrices[15];
