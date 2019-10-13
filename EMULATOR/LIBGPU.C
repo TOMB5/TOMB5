@@ -446,7 +446,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		{
 			if (pTag->len > 0)
 			{
-				ParsePrimitive((int)pTag, (int)pTag + (int)(pTag->len * 4) + 4);
+				ParsePrimitive((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
 			}
 			pTag = (P_TAG*)pTag->addr;
 #if __linux__ || __APPLE_
