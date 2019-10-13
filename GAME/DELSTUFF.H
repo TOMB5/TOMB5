@@ -4,9 +4,11 @@
 #include "STYPES.H"
 #include "SPECIFIC.H"
 
+#include <LIBGTE.H>
+
 extern struct MATRIX3D lara_joint_matrices[15];
 extern struct MATRIX3D lara_matrices[15];
-extern struct CVECTOR LaraNodeAmbient[2];
+extern CVECTOR LaraNodeAmbient[2];
 extern short* GLaraShadowframe;
 extern unsigned char LaraNodeUnderwater[15];
 extern long LaraGlobalClipFlag;
