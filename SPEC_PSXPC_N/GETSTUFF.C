@@ -5,6 +5,7 @@
 #include "OBJECTS.H"
 #include "ROOMLOAD.H"
 #include "SPECIFIC.H"
+#include "TEXT_S.H"
 
 long DIVFP(long A, long B)
 {
@@ -19,21 +20,19 @@ long MULFP(long A, long B)
 
 char GetDoor(struct FLOOR_INFO* floor)
 {
-	short* fd;//a0
-	short at;
-	int v1;
+	unsigned short* fd;//$a0
+	unsigned short v1;//$v1
 
-	if (!floor->index)
+	if (floor->index == 0)
 	{
+		//locret_78870
 		return -1;
 	}
 
-	fd = &floor_data[floor->index];
-	v1 = floor_data[floor->index];
+	fd = (unsigned short*)&floor_data[floor->index];
+	v1 = *fd++;
 
-	at = *fd++ & 0x1F;
-
-	if ((at & 0x1F) == 2 || at - 7 < 2 || at - 11 < 4)
+	if ((v1 & 0x1F) == 2 || (v1 & 0x1F) - 7 < 2 || (v1 & 0x1F) - 11 < 4)
 	{
 		if ((v1 & 0x8000))
 		{
@@ -42,12 +41,11 @@ char GetDoor(struct FLOOR_INFO* floor)
 
 		v1 = fd[1];
 		fd += 2;
-		at = v1 & 0x1F;
 	}
-
 	//loc_78828
-	if (at == 3 || at - 9 < 2 || at - 15 < 4)
+	if ((v1 & 0x1F) == 3 || (v1 & 0x1F) - 9 < 2 || (v1 & 0x1F) - 15 < 4)
 	{
+		//loc_78848
 		if ((v1 & 0x8000))
 		{
 			return -1;
@@ -56,14 +54,13 @@ char GetDoor(struct FLOOR_INFO* floor)
 		v1 = fd[1];
 		fd += 2;
 	}
-
 	//loc_7885C
-	if ((v1 & 0x1F) != 1)
+	if ((v1 & 0x1F))
 	{
-		return -1;
+		return fd[0];
 	}
 
-	return fd[0];
+	return -1;
 }
 
 int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
@@ -189,14 +186,19 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 	int dz;
 	int dx;
 	int a1;
-	int a0;
+	int a0 = 0;///@REMOVE ME this is hack crash fix.
 	char door;
 	int v0;
+	char str[64];
 
 loc_78974:
 	r = &room[*room_number];
 	dz = ((z - r->z) >> 10);
 	dx = ((x - r->x) >> 10);
+
+#if 1//DEBUG_CAM
+	//return &r->floor[0];
+#endif
 
 	if (dz > 0)
 	{
@@ -253,6 +255,8 @@ loc_78974:
 
 	floor = &r->floor[dz + (dx * r->x_size)];
 	door = GetDoor(floor);
+	sprintf(str, "DOOR %d\n", door);
+	PrintString(20, 210, 1, str, 0);
 
 	if (door != -1)
 	{
@@ -287,7 +291,8 @@ loc_78A68:
 		*room_number = floor->pit_room;
 		r = &room[floor->pit_room];
 		//v0 = z - v0
-		floor = &room->floor[(((x - r->x) >> 10) * r->x_size) + ((z - r->z) >> 10)];
+		floor = &room->floor[(((x - r->x) >> 10) * r->x_size) + ((z - r->z) >> 10)];	
+		
 		if (y < (floor->floor << 8))
 		{
 			return floor;
@@ -337,7 +342,264 @@ loc_78A68:
 
 short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 {
-	UNIMPLEMENTED();
+	struct room_info* r;//$a0
+	struct FLOOR_INFO* f;//$s0
+	//s1 = floor
+	//t4 = x
+	//t5 = z
+	f = floor;
+
+	while (f->sky_room != 0xFF)
+	{
+		//loc_7908C
+		if (CheckNoColCeilingTriangle(floor, x, z) == 1)
+		{
+			break;
+		}
+
+		r = &room[f->sky_room];
+		f = &r->floor[((z - r->z) >> 10) - ((x - r->x) >> 10) * r->x_size];;
+	}
+
+	//loc_79100:
+	//t7 = f->ceiling << 8;
+	//v1 = f->index << 1
+	//v0 = 0xFFFF8100
+
+	if ((f->ceiling << 8) != -32512)
+	{
+		if ((f->index << 1) != 0)//Don't really need to shift here, see below shrt shft to floor dtp
+		{
+			unsigned short* s0 = (unsigned short*)&floor_data[f->index];
+			//v0 = 2
+			int s2 = (*s0++) & 0x1F;
+
+			//v0 = s2 - 7
+			if (s2 != 2 && (s2 - 7) > 1)
+			{
+
+			}//loc_79154
+		}//loc_792BC
+	}//loc_793D4
+
+#if 0
+sltiu   $v0, 2
+bnez    $v0, loc_79154
+addiu   $v0, $s2, -0xB
+sltiu   $v0, 4
+beqz    $v0, loc_7916C
+
+loc_79154:
+andi    $at, $a0, 0x8000
+lhu     $a0, 2($s0)
+addiu   $s0, 4
+andi    $s2, $a0, 0x1F
+sll     $at, 16
+bnez    $at, loc_792BC
+
+loc_7916C:
+li      $v0, 3
+beq     $s2, $v0, loc_7924C
+addiu   $v0, $s2, -9
+sltiu   $v0, 2
+bnez    $v0, loc_7918C
+addiu   $v0, $s2, -0xF
+sltiu   $v0, 4
+beqz    $v0, loc_792BC
+
+loc_7918C:
+andi    $a2, $t4, 0x3FF
+lhu     $v1, 0($s0)
+andi    $a1, $t5, 0x3FF
+andi    $t1, $v1, 0xF
+srl     $t0, $v1, 4
+andi    $t0, 0xF
+srl     $a3, $v1, 8
+andi    $a3, 0xF
+srl     $v1, 12
+negu    $t1, $t1
+negu    $t0, $t0
+negu    $a3, $a3
+negu    $v1, $v1
+li      $v0, 9
+beq     $s2, $v0, loc_791D4
+addiu   $v0, $s2, -0xF
+sltiu   $v0, 2
+beqz    $v0, loc_79204
+
+loc_791D4:
+li      $v0, 0x400
+subu    $v0, $a1
+slt     $v0, $a2
+bnez    $v0, loc_791F8
+srl     $a0, 5
+srl     $a0, 5
+subu    $a1, $a3, $t0
+j       loc_79228
+subu    $a2, $v1, $a3
+
+loc_791F8:
+subu    $a1, $v1, $t1
+j       loc_79228
+subu    $a2, $t1, $t0
+
+loc_79204:
+slt     $v0, $a1, $a2
+bnez    $v0, loc_79220
+srl     $a0, 5
+srl     $a0, 5
+subu    $a1, $a3, $t0
+j       loc_79228
+subu    $a2, $t1, $t0
+
+loc_79220:
+subu    $a1, $v1, $t1
+subu    $a2, $v1, $a3
+
+loc_79228:
+andi    $a0, 0x1F
+andi    $at, $a0, 0x10
+beqz    $at, loc_7923C
+li      $at, 0xFFFFFFF0
+or      $a0, $at
+
+loc_7923C:
+sll     $a0, 8
+addu    $t7, $a0
+
+loc_79244:
+jal     sub_793EC
+addiu   $ra, 0x70
+
+loc_7924C:
+lb      $a1, 1($s0)
+j       loc_79244
+lb      $a2, 0($s0)
+
+loc_79258:
+move    $a1, $t4
+jal     sub_78BD0
+move    $a2, $t5
+li      $v1, 1
+beq     $v0, $v1, loc_792CC
+nop
+lbu     $v1, 4($s1)
+lw      $a0, 0x1F28($gp)
+sll     $v0, $v1, 2
+addu    $v0, $v1
+sll     $v0, 4
+addu    $a0, $v0
+lw      $v0, 0x14($a0)
+lh      $v1, 0x28($a0)
+subu    $v0, $t4, $v0
+sra     $v0, 10
+mult    $v0, $v1
+lw      $v0, 0x1C($a0)
+lw      $v1, 8($a0)
+subu    $v0, $t5, $v0
+sra     $v0, 10
+mflo    $t1
+addu    $v0, $t1
+sll     $v0, 3
+addu    $s1, $v1, $v0
+
+loc_792BC:
+lbu     $v1, 4($s1)
+li      $v0, 0xFF
+bne     $v1, $v0, loc_79258
+move    $a0, $s1
+
+loc_792CC:
+lhu     $v0, 0($s1)
+lw      $v1, 0x4004($gp)
+beqz    $v0, loc_793D0
+sll     $v0, 1
+addu    $s0, $v1, $v0
+
+loc_792E0:
+lhu     $s2, 0($s0)
+addiu   $s0, 2
+andi    $v0, $s2, 0x1F
+addiu   $v1, $v0, -1     # switch 21 cases
+sltiu   $v0, $v1, 0x15
+beqz    $v0, def_7930C   # jumptable 00078D8C default case
+sll     $v0, $v1, 2
+lw      $v0, jpt_7930C($v0)
+nop
+jr      $v0              # switch jump
+nop
+
+loc_79314:               # jumptable 0007930C cases 1-3,7-18
+j       loc_793C8
+
+loc_79318:               # jumptable 0007930C case 4
+addiu   $s0, 2
+
+loc_7931C:
+lhu     $s1, 0($s0)
+addiu   $s0, 2
+andi    $v0, $s1, 0x3FFF
+srl     $v1, $v0, 10
+beqz    $v1, loc_79350
+li      $v0, 0xC
+beq     $v1, $v0, loc_79344
+li      $v0, 1
+bne     $v1, $v0, loc_793C0
+nop
+
+loc_79344:
+lhu     $s1, 0($s0)
+j       loc_793C0
+addiu   $s0, 2
+
+loc_79350:
+lw      $a0, 0x1B38($gp)
+andi    $v1, $s1, 0x3FF
+sll     $v0, $v1, 7
+sll     $v1, 4
+addu    $v0, $v1
+addu    $a0, $v0
+lh      $v0, 0x28($a0)
+lh      $v1, 0xC($a0)
+andi    $v0, 0x8000
+bnez    $v0, loc_793C0
+sll     $v1, 6
+li      $a2, 0x1F2480
+addu    $v1, $a2
+lw      $v0, 0x18($v1)
+move    $a3, $t5
+beqz    $v0, loc_793C0
+move    $a1, $t4
+sw      $t4, 0x40+var_14($sp)
+sw      $t5, 0x40+var_10($sp)
+sw      $t7, 0x40+var_28($sp)
+lw      $a2, 0x40+var_C($sp)
+addiu   $at, $sp, 0x40+var_28
+jalr    $v0
+sw      $at, 0x40+var_30($sp)
+lw      $t7, 0x40+var_28($sp)
+lw      $t4, 0x40+var_14($sp)
+lw      $t5, 0x40+var_10($sp)
+
+loc_793C0:
+andi    $v0, $s1, 0x8000
+beqz    $v0, loc_7931C
+
+loc_793C8:               # jumptable 0007930C cases 5,6,19-21
+andi    $v0, $s2, 0x8000
+beqz    $v0, loc_792E0
+
+loc_793D0:
+move    $v0, $t7
+
+loc_793D4:
+lw      $ra, 0x40+var_8($sp)
+lw      $s2, 0x40+var_18($sp)
+lw      $s1, 0x40+var_1C($sp)
+lw      $s0, 0x40+var_20($sp)
+jr      $ra
+addiu   $sp, 0x40
+#endif
 	return 0;
 }
 
@@ -346,6 +608,11 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	struct room_info* r;//a0
 	short* fd;//s1
 	short value;
+
+#if 1//DEBUG_CAM
+	return 0;
+#endif
+
 #if 1
 	//s0 = floor
 	//s3 = x
