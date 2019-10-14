@@ -219,7 +219,7 @@ loc_78974:
 		}
 		else if (dx > 0)
 		{
-			dz = a0;
+			dz = 0;
 			//loc_789CC
 			//loc_789D4
 			a0 = (r->x_size >> 16) - 2;
