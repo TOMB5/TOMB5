@@ -159,7 +159,7 @@ int CdControlF(u_char com, u_char * param)
 		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
 		break;
 	case CdlSetfilter:
-		fseek(openFile, CdPosToInt(&cd->pos) * sectorSize, SEEK_SET);
+		//fseek(openFile, CdPosToInt(&cd->pos) * sectorSize, SEEK_SET);
 		break;
 	default:
 		eprinterr("Unhandled command 0x%02X!\n", com);
