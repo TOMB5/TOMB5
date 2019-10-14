@@ -344,11 +344,13 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 {
 	struct room_info* r;//$a0
 	struct FLOOR_INFO* f;//$s0
+
 	//s1 = floor
 	//t4 = x
 	//t5 = z
 	f = floor;
 
+	//loc_790F0
 	while (f->sky_room != 0xFF)
 	{
 		//loc_7908C
@@ -358,31 +360,27 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 		}
 
 		r = &room[f->sky_room];
-		f = &r->floor[((z - r->z) >> 10) - ((x - r->x) >> 10) * r->x_size];;
+		f = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
 	}
-
-	//loc_79100:
-	//t7 = f->ceiling << 8;
-	//v1 = f->index << 1
-	//v0 = 0xFFFF8100
-
-	if ((f->ceiling << 8) != -32512)
-	{
-		if ((f->index << 1) != 0)//Don't really need to shift here, see below shrt shft to floor dtp
-		{
-			unsigned short* s0 = (unsigned short*)&floor_data[f->index];
-			//v0 = 2
-			int s2 = (*s0++) & 0x1F;
-
-			//v0 = s2 - 7
-			if (s2 != 2 && (s2 - 7) > 1)
-			{
-
-			}//loc_79154
-		}//loc_792BC
-	}//loc_793D4
-
+	//loc_79100
 #if 0
+loc_79100:
+lb      $t7, 7($s0)
+lhu     $v1, 0($s0)
+li      $v0, 0xFFFF8100
+sll     $t7, 8
+beq     $t7, $v0, loc_793D4
+sll     $v1, 1
+beqz    $v1, loc_792BC
+nop
+lw      $s0, 0x4004($gp)
+li      $v0, 2
+addu    $s0, $v1
+lhu     $a0, 0($s0)
+addiu   $s0, 2
+andi    $s2, $a0, 0x1F
+beq     $s2, $v0, loc_79154
+addiu   $v0, $s2, -7
 sltiu   $v0, 2
 bnez    $v0, loc_79154
 addiu   $v0, $s2, -0xB
@@ -600,6 +598,7 @@ lw      $s0, 0x40+var_20($sp)
 jr      $ra
 addiu   $sp, 0x40
 #endif
+
 	return 0;
 }
 
