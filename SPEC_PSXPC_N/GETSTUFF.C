@@ -6,6 +6,7 @@
 #include "ROOMLOAD.H"
 #include "SPECIFIC.H"
 #include "TEXT_S.H"
+#include "SETUP.H"
 
 long DIVFP(long A, long B)
 {
@@ -197,7 +198,7 @@ loc_78974:
 	dx = ((x - r->x) >> 10);
 
 #if 1//DEBUG_CAM
-	//return &r->floor[0];
+	return &r->floor[0];
 #endif
 
 	if (dz > 0)
@@ -340,11 +341,51 @@ loc_78A68:
 	return floor;
 }
 
+void GC_adjust_height(unsigned char a0, unsigned char a1, unsigned char a2, int t4, int t5, int* t7/*ret*/)
+{
+	int v0;
+
+	v0 = t5 & 0x3FF;
+	if (a1 < 0)
+	{
+		v0 = (v0 * a1) >> 2;
+		*t7 += v0;
+	}
+
+	//loc_79408
+	v0 = 0x3FF;
+	v0 -= t5;
+	v0 &= 0x3FF;
+	v0 = (v0 * a1) >> 2;
+	t7 -= v0;
+
+	//loc_79424
+	v0 = 0x3FF;
+	if (a2 < 0)
+	{
+		v0 -= t4;
+		v0 &= 0x3FF;
+		v0 = (v0 * a2) >> 2;
+		t7 += v0;
+		return;
+	}
+	//loc_79448
+	v0 = t4 & 0x3FF;
+	v0 = (v0 * a2) >> 2;
+	t7 -= v0;
+	return;
+}
+
 short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 {
 	struct room_info* r;//$a0
 	struct FLOOR_INFO* f;//$s0
-
+	unsigned short* fd;//$s0
+	unsigned short a0;
+	unsigned short v1;
+	int a1;
+	int a2;
+	int t7;
 	//s1 = floor
 	//t4 = x
 	//t5 = z
@@ -363,243 +404,214 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 		f = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
 	}
 	//loc_79100
-#if 0
-loc_79100:
-lb      $t7, 7($s0)
-lhu     $v1, 0($s0)
-li      $v0, 0xFFFF8100
-sll     $t7, 8
-beq     $t7, $v0, loc_793D4
-sll     $v1, 1
-beqz    $v1, loc_792BC
-nop
-lw      $s0, 0x4004($gp)
-li      $v0, 2
-addu    $s0, $v1
-lhu     $a0, 0($s0)
-addiu   $s0, 2
-andi    $s2, $a0, 0x1F
-beq     $s2, $v0, loc_79154
-addiu   $v0, $s2, -7
-sltiu   $v0, 2
-bnez    $v0, loc_79154
-addiu   $v0, $s2, -0xB
-sltiu   $v0, 4
-beqz    $v0, loc_7916C
+	t7 = f->ceiling << 8;
+	//v1 = f->index << 1
+	//v0 = -32512
 
-loc_79154:
-andi    $at, $a0, 0x8000
-lhu     $a0, 2($s0)
-addiu   $s0, 4
-andi    $s2, $a0, 0x1F
-sll     $at, 16
-bnez    $at, loc_792BC
+	if ((f->ceiling << 8) != -32512)
+	{
+		if(f->index != 0)
+		{
+			//s0 = floor_data
+			//v0 = 2
+			fd = (unsigned short*)&floor_data[f->index];
+			a0 = *fd++;
+			if ((a0 & 0x1F) != 2 || (a0 & 0x1F) - 7 < 2 || (a0 & 0x1F) - 11 < 4)
+			{
+				//loc_79154
+				if ((a0 & 0x8000))
+				{
+					a0 = fd[1];
+					fd += 2;
+					//s2 = a0 & 0x1F
+					///goto loc_792BC;
+				}
+				else
+				{
+					a0 = fd[1];
+					fd += 2;
+					//s2 = a0 & 0x1F
+				}
+			}
+			//loc_7916C
+			if ((a0 & 0x1F) == 3)
+			{
+				//loc_7924C
+				//Below todo pass as args
+				///lb      $a1, 1($s0)
+				///j       loc_79244
+				///lb      $a2, 0($s0)
+				GC_adjust_height(a0, ((char*)&fd)[1], ((char*)&fd)[0], x, z, &t7);
+				//j loc_792BC
+			}
+			else if ((a0 & 0x1F) - 9 < 2 || (a0 & 0x1F) - 15 < 4)
+			{
+				//loc_7918C
+				//a2 = x & 0x3FF
+				v1 = fd[0];
+				//a1 = z & 0x3FF
+				//t1 = -(fd[0] & 0xF)
+				//t0 = -((fd[0] >> 4) & 0xF);
+				//a3 = -((fd[0] >> 8) & 0xF);
+				//v1 = -(fd[0] >> 12);
+				//v0 = 9
 
-loc_7916C:
-li      $v0, 3
-beq     $s2, $v0, loc_7924C
-addiu   $v0, $s2, -9
-sltiu   $v0, 2
-bnez    $v0, loc_7918C
-addiu   $v0, $s2, -0xF
-sltiu   $v0, 4
-beqz    $v0, loc_792BC
+				if ((a0 & 0x1F) == 9 || (a0 & 0x1F) - 15  < 2)
+				{
+					//loc_791D4
+					//v0 = (1024 - (z & 1023));
+					if ((1024 - (z & 1023)) < (x & 1023))
+					{
+						//loc_791F8
+						a0 >>= 5;
+						a1 = -(fd[0] >> 12) - -(fd[0] & 0xF);
+						a2 = -(fd[0] & 0xF) - -((fd[0] >> 4) & 0xF);
+						//j       loc_79228
+					}
+					else
+					{
+						//loc_791F8
+						a0 >>= 10;
+						a1 = -((fd[0] >> 8) & 0xF) - -((fd[0] >> 4) & 0xF);
+						a2 = -(fd[0] >> 12) - -((fd[0] >> 8) & 0xF);
+						//j       loc_79228
+					}
+				}//loc_79204
+				else if (z & 0x3FF < x & 0x3FF)
+				{
+					//loc_79220
+					a0 >>= 5;
+					a1 = -(fd[0] >> 12) - -(fd[0] & 0xF);
+					a2 = -(fd[0] >> 12) - -((fd[0] >> 8) & 0xF);
+				}
+				else
+				{
+					a0 >>= 10;
+					a1 = -((fd[0] >> 8) & 0xF) - -((fd[0] >> 4) & 0xF);
+					a2 = -(fd[0] & 0xF) - -((fd[0] >> 4) & 0xF);
+				}
+				//loc_79228
+				a0 &= 0x1F;
 
-loc_7918C:
-andi    $a2, $t4, 0x3FF
-lhu     $v1, 0($s0)
-andi    $a1, $t5, 0x3FF
-andi    $t1, $v1, 0xF
-srl     $t0, $v1, 4
-andi    $t0, 0xF
-srl     $a3, $v1, 8
-andi    $a3, 0xF
-srl     $v1, 12
-negu    $t1, $t1
-negu    $t0, $t0
-negu    $a3, $a3
-negu    $v1, $v1
-li      $v0, 9
-beq     $s2, $v0, loc_791D4
-addiu   $v0, $s2, -0xF
-sltiu   $v0, 2
-beqz    $v0, loc_79204
+				if ((a0 & 0x10))
+				{
+					a0 |= -0x10;
+				}
+				//loc_7923C
+				a0 <<= 8;
+				t7 += a0;
 
-loc_791D4:
-li      $v0, 0x400
-subu    $v0, $a1
-slt     $v0, $a2
-bnez    $v0, loc_791F8
-srl     $a0, 5
-srl     $a0, 5
-subu    $a1, $a3, $t0
-j       loc_79228
-subu    $a2, $v1, $a3
+				GC_adjust_height(a0, a1, a2, x, z, &t7);
+				//j loc_792BC
+			}
+		}
+		//loc_792BC
+		//v1 = floor->pit_room
+		f = floor;
+		while (f->pit_room != 0xFF)
+		{
+			//loc_79258
+			if (CheckNoColFloorTriangle(floor, x, z) == 1)
+			{
+				break;
+			}
 
-loc_791F8:
-subu    $a1, $v1, $t1
-j       loc_79228
-subu    $a2, $t1, $t0
+			r = &room[f->pit_room];
+			f = &r->floor[((z - r->z) >> 10) + ((x - r->x) >> 10) * r->x_size];
+		}
+		//loc_792CC
+		//v0 = floor->index
+		//v1 = floor_data
+		if (floor->index == 0)
+		{
+			return t7;
+		}
 
-loc_79204:
-slt     $v0, $a1, $a2
-bnez    $v0, loc_79220
-srl     $a0, 5
-srl     $a0, 5
-subu    $a1, $a3, $t0
-j       loc_79228
-subu    $a2, $t1, $t0
-
-loc_79220:
-subu    $a1, $v1, $t1
-subu    $a2, $v1, $a3
-
-loc_79228:
-andi    $a0, 0x1F
-andi    $at, $a0, 0x10
-beqz    $at, loc_7923C
-li      $at, 0xFFFFFFF0
-or      $a0, $at
-
-loc_7923C:
-sll     $a0, 8
-addu    $t7, $a0
-
-loc_79244:
-jal     sub_793EC
-addiu   $ra, 0x70
-
-loc_7924C:
-lb      $a1, 1($s0)
-j       loc_79244
-lb      $a2, 0($s0)
-
-loc_79258:
-move    $a1, $t4
-jal     sub_78BD0
-move    $a2, $t5
-li      $v1, 1
-beq     $v0, $v1, loc_792CC
-nop
-lbu     $v1, 4($s1)
-lw      $a0, 0x1F28($gp)
-sll     $v0, $v1, 2
-addu    $v0, $v1
-sll     $v0, 4
-addu    $a0, $v0
-lw      $v0, 0x14($a0)
-lh      $v1, 0x28($a0)
-subu    $v0, $t4, $v0
-sra     $v0, 10
-mult    $v0, $v1
-lw      $v0, 0x1C($a0)
-lw      $v1, 8($a0)
-subu    $v0, $t5, $v0
-sra     $v0, 10
-mflo    $t1
-addu    $v0, $t1
-sll     $v0, 3
-addu    $s1, $v1, $v0
-
-loc_792BC:
-lbu     $v1, 4($s1)
-li      $v0, 0xFF
-bne     $v1, $v0, loc_79258
-move    $a0, $s1
-
-loc_792CC:
-lhu     $v0, 0($s1)
-lw      $v1, 0x4004($gp)
-beqz    $v0, loc_793D0
-sll     $v0, 1
-addu    $s0, $v1, $v0
+		fd = (unsigned short*)&floor_data[floor->index];
 
 loc_792E0:
-lhu     $s2, 0($s0)
-addiu   $s0, 2
-andi    $v0, $s2, 0x1F
-addiu   $v1, $v0, -1     # switch 21 cases
-sltiu   $v0, $v1, 0x15
-beqz    $v0, def_7930C   # jumptable 00078D8C default case
-sll     $v0, $v1, 2
-lw      $v0, jpt_7930C($v0)
-nop
-jr      $v0              # switch jump
-nop
+		unsigned short s2 = *fd++;
+		unsigned short v0 = (s2) & 0x1F;
+		unsigned short s1;
 
-loc_79314:               # jumptable 0007930C cases 1-3,7-18
-j       loc_793C8
-
-loc_79318:               # jumptable 0007930C case 4
-addiu   $s0, 2
-
+		switch (v0)
+		{
+		case 1:
+		case 2:
+		case 3:
+		case 7:
+		case 8:
+		case 9:
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+		case 14:
+		case 15:
+		case 16:
+		case 17:
+		case 18:
+			//loc_79314
+			//j loc_793C8
+			break;
+		case 4:
+			//loc_79318
+			fd++;
 loc_7931C:
-lhu     $s1, 0($s0)
-addiu   $s0, 2
-andi    $v0, $s1, 0x3FFF
-srl     $v1, $v0, 10
-beqz    $v1, loc_79350
-li      $v0, 0xC
-beq     $v1, $v0, loc_79344
-li      $v0, 1
-bne     $v1, $v0, loc_793C0
-nop
+			s1 = *fd++;
+			v0 = s1 & 0x3FFF;
 
-loc_79344:
-lhu     $s1, 0($s0)
-j       loc_793C0
-addiu   $s0, 2
+			//v0 = 0xC
+			if ((v0 >> 10) != 0)
+			{
+				if ((v0 >> 10) == 0xC || (v0 >> 10) == 0x1)
+				{
+					//loc_79344
+					s1 = *fd++;
+				}
+			}
+			else
+			{
+				//loc_79350
+				//a0 = items
+				v1 = s1 & 0x3FF;
+				struct ITEM_INFO* item = &items[s1 & 0x3FF];//$a0
+				//v0 = item->flags & 0x8000
+				//v1 = item->object_number
 
-loc_79350:
-lw      $a0, 0x1B38($gp)
-andi    $v1, $s1, 0x3FF
-sll     $v0, $v1, 7
-sll     $v1, 4
-addu    $v0, $v1
-addu    $a0, $v0
-lh      $v0, 0x28($a0)
-lh      $v1, 0xC($a0)
-andi    $v0, 0x8000
-bnez    $v0, loc_793C0
-sll     $v1, 6
-li      $a2, 0x1F2480
-addu    $v1, $a2
-lw      $v0, 0x18($v1)
-move    $a3, $t5
-beqz    $v0, loc_793C0
-move    $a1, $t4
-sw      $t4, 0x40+var_14($sp)
-sw      $t5, 0x40+var_10($sp)
-sw      $t7, 0x40+var_28($sp)
-lw      $a2, 0x40+var_C($sp)
-addiu   $at, $sp, 0x40+var_28
-jalr    $v0
-sw      $at, 0x40+var_30($sp)
-lw      $t7, 0x40+var_28($sp)
-lw      $t4, 0x40+var_14($sp)
-lw      $t5, 0x40+var_10($sp)
+				if (!(item->flags & 0x8000))
+				{
+					struct object_info* object = &objects[item->object_number];
 
-loc_793C0:
-andi    $v0, $s1, 0x8000
-beqz    $v0, loc_7931C
+					if (object->ceiling != NULL)
+					{
+						///@CHECKME args?!?!?
+						object->ceiling(item, x, y, z, NULL);
+					}
+				}//loc_793C0
+			}
+			//loc_793C0
 
-loc_793C8:               # jumptable 0007930C cases 5,6,19-21
-andi    $v0, $s2, 0x8000
-beqz    $v0, loc_792E0
+			if (!(s1 & 0x8000))
+				goto loc_7931C;
 
-loc_793D0:
-move    $v0, $t7
+		case 5:
+		case 6:
+		case 19:
+		case 20:
+		case 21:
+			//loc_793C8
+			if (!(s2 & 0x8000))
+				goto loc_792E0;
+			break;
+		}
 
-loc_793D4:
-lw      $ra, 0x40+var_8($sp)
-lw      $s2, 0x40+var_18($sp)
-lw      $s1, 0x40+var_1C($sp)
-lw      $s0, 0x40+var_20($sp)
-jr      $ra
-addiu   $sp, 0x40
-#endif
+		//loc_793D0
+		return t7;
 
-	return 0;
+	}//loc_793D4
+
+	return 0;///@CHECKME
 }
 
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(<) (F)
