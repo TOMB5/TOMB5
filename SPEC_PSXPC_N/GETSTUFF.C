@@ -611,7 +611,7 @@ loc_7931C:
 
 	}//loc_793D4
 
-	return 0;///@CHECKME
+	return -32512;
 }
 
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(<) (F)
