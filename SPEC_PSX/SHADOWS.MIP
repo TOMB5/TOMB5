@@ -2,9 +2,13 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF S_DrawGouraudBar, OptimiseOTagR, calcval, DelLine, DelBox
+	XDEF S_DrawGouraudBar, OptimiseOTagR, calcval, DelLine, DelBox, S_PrintNiceShadow
 	XREF db
 
+S_PrintNiceShadow:
+	jr ra
+	nop
+	
 calcval:
 	mult    at, t5
 	mflo    at

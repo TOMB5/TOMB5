@@ -4,6 +4,8 @@
 #include "STYPES.H"
 #include "SPECIFIC.H"
 
+#include <LIBGTE.H>
+
 extern struct MATRIX3D lara_joint_matrices[15];
 extern struct MATRIX3D lara_matrices[15];
 extern CVECTOR LaraNodeAmbient[2];

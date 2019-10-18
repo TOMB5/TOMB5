@@ -59,6 +59,12 @@ short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;
 
+void CalculateObjectLightingLara()
+{
+	short room_no;
+	struct PHD_VECTOR pos;
+}
+
 #if PC_VERSION
 long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*$a2*/)//8582C
 {

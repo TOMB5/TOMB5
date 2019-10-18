@@ -446,7 +446,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		{
 			if (pTag->len > 0)
 			{
-				ParsePrimitive((int)pTag, (int)pTag + (int)(pTag->len * 4) + 4);
+				ParsePrimitive((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
 			}
 			pTag = (P_TAG*)pTag->addr;
 #if __linux__ || __APPLE_
@@ -835,7 +835,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (poly->clut != lastClut)
+			else if (GlobalTpageTexture != lastTpage || poly->clut != lastClut)
 			{
 				lastClut = poly->clut;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);

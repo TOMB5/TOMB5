@@ -5,6 +5,8 @@
 #include "OBJECTS.H"
 #include "ROOMLOAD.H"
 #include "SPECIFIC.H"
+#include "TEXT_S.H"
+#include "SETUP.H"
 
 long DIVFP(long A, long B)
 {
@@ -19,21 +21,19 @@ long MULFP(long A, long B)
 
 char GetDoor(struct FLOOR_INFO* floor)
 {
-	short* fd;//a0
-	short at;
-	int v1;
+	unsigned short* fd;//$a0
+	unsigned short v1;//$v1
 
-	if (!floor->index)
+	if (floor->index == 0)
 	{
+		//locret_78870
 		return -1;
 	}
 
-	fd = &floor_data[floor->index];
-	v1 = floor_data[floor->index];
+	fd = (unsigned short*)&floor_data[floor->index];
+	v1 = *fd++;
 
-	at = *fd++ & 0x1F;
-
-	if ((at & 0x1F) == 2 || at - 7 < 2 || at - 11 < 4)
+	if ((v1 & 0x1F) == 2 || (v1 & 0x1F) - 7 < 2 || (v1 & 0x1F) - 11 < 4)
 	{
 		if ((v1 & 0x8000))
 		{
@@ -42,12 +42,11 @@ char GetDoor(struct FLOOR_INFO* floor)
 
 		v1 = fd[1];
 		fd += 2;
-		at = v1 & 0x1F;
 	}
-
 	//loc_78828
-	if (at == 3 || at - 9 < 2 || at - 15 < 4)
+	if ((v1 & 0x1F) == 3 || (v1 & 0x1F) - 9 < 2 || (v1 & 0x1F) - 15 < 4)
 	{
+		//loc_78848
 		if ((v1 & 0x8000))
 		{
 			return -1;
@@ -56,14 +55,13 @@ char GetDoor(struct FLOOR_INFO* floor)
 		v1 = fd[1];
 		fd += 2;
 	}
-
 	//loc_7885C
-	if ((v1 & 0x1F) != 1)
+	if ((v1 & 0x1F))
 	{
-		return -1;
+		return fd[0];
 	}
 
-	return fd[0];
+	return -1;
 }
 
 int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
@@ -189,14 +187,19 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 	int dz;
 	int dx;
 	int a1;
-	int a0;
+	int a0 = 0;///@REMOVE ME this is hack crash fix.
 	char door;
 	int v0;
+	char str[64];
 
 loc_78974:
 	r = &room[*room_number];
 	dz = ((z - r->z) >> 10);
 	dx = ((x - r->x) >> 10);
+
+#if 1//DEBUG_CAM
+	return &r->floor[0];
+#endif
 
 	if (dz > 0)
 	{
@@ -253,6 +256,8 @@ loc_78974:
 
 	floor = &r->floor[dz + (dx * r->x_size)];
 	door = GetDoor(floor);
+	sprintf(str, "DOOR %d\n", door);
+	PrintString(20, 210, 1, str, 0);
 
 	if (door != -1)
 	{
@@ -287,7 +292,8 @@ loc_78A68:
 		*room_number = floor->pit_room;
 		r = &room[floor->pit_room];
 		//v0 = z - v0
-		floor = &room->floor[(((x - r->x) >> 10) * r->x_size) + ((z - r->z) >> 10)];
+		floor = &room->floor[(((x - r->x) >> 10) * r->x_size) + ((z - r->z) >> 10)];	
+		
 		if (y < (floor->floor << 8))
 		{
 			return floor;
@@ -335,10 +341,277 @@ loc_78A68:
 	return floor;
 }
 
+void GC_adjust_height(unsigned char a0, unsigned char a1, unsigned char a2, int t4, int t5, int* t7/*ret*/)
+{
+	int v0;
+
+	v0 = t5 & 0x3FF;
+	if (a1 < 0)
+	{
+		v0 = (v0 * a1) >> 2;
+		*t7 += v0;
+	}
+
+	//loc_79408
+	v0 = 0x3FF;
+	v0 -= t5;
+	v0 &= 0x3FF;
+	v0 = (v0 * a1) >> 2;
+	t7 -= v0;
+
+	//loc_79424
+	v0 = 0x3FF;
+	if (a2 < 0)
+	{
+		v0 -= t4;
+		v0 &= 0x3FF;
+		v0 = (v0 * a2) >> 2;
+		t7 += v0;
+		return;
+	}
+	//loc_79448
+	v0 = t4 & 0x3FF;
+	v0 = (v0 * a2) >> 2;
+	t7 -= v0;
+	return;
+}
+
 short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 {
-	UNIMPLEMENTED();
-	return 0;
+	struct room_info* r;//$a0
+	struct FLOOR_INFO* f;//$s0
+	unsigned short* fd;//$s0
+	unsigned short a0;
+	unsigned short v1;
+	int a1;
+	int a2;
+	int t7;
+	//s1 = floor
+	//t4 = x
+	//t5 = z
+	f = floor;
+
+	//loc_790F0
+	while (f->sky_room != 0xFF)
+	{
+		//loc_7908C
+		if (CheckNoColCeilingTriangle(floor, x, z) == 1)
+		{
+			break;
+		}
+
+		r = &room[f->sky_room];
+		f = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
+	}
+	//loc_79100
+	t7 = f->ceiling << 8;
+	//v1 = f->index << 1
+	//v0 = -32512
+
+	if ((f->ceiling << 8) != -32512)
+	{
+		if(f->index != 0)
+		{
+			//s0 = floor_data
+			//v0 = 2
+			fd = (unsigned short*)&floor_data[f->index];
+			a0 = *fd++;
+			if ((a0 & 0x1F) != 2 || (a0 & 0x1F) - 7 < 2 || (a0 & 0x1F) - 11 < 4)
+			{
+				//loc_79154
+				if ((a0 & 0x8000))
+				{
+					a0 = fd[1];
+					fd += 2;
+					//s2 = a0 & 0x1F
+					///goto loc_792BC;
+				}
+				else
+				{
+					a0 = fd[1];
+					fd += 2;
+					//s2 = a0 & 0x1F
+				}
+			}
+			//loc_7916C
+			if ((a0 & 0x1F) == 3)
+			{
+				//loc_7924C
+				//Below todo pass as args
+				///lb      $a1, 1($s0)
+				///j       loc_79244
+				///lb      $a2, 0($s0)
+				GC_adjust_height(a0, ((char*)&fd)[1], ((char*)&fd)[0], x, z, &t7);
+				//j loc_792BC
+			}
+			else if ((a0 & 0x1F) - 9 < 2 || (a0 & 0x1F) - 15 < 4)
+			{
+				//loc_7918C
+				//a2 = x & 0x3FF
+				v1 = fd[0];
+				//a1 = z & 0x3FF
+				//t1 = -(fd[0] & 0xF)
+				//t0 = -((fd[0] >> 4) & 0xF);
+				//a3 = -((fd[0] >> 8) & 0xF);
+				//v1 = -(fd[0] >> 12);
+				//v0 = 9
+
+				if ((a0 & 0x1F) == 9 || (a0 & 0x1F) - 15  < 2)
+				{
+					//loc_791D4
+					//v0 = (1024 - (z & 1023));
+					if ((1024 - (z & 1023)) < (x & 1023))
+					{
+						//loc_791F8
+						a0 >>= 5;
+						a1 = -(fd[0] >> 12) - -(fd[0] & 0xF);
+						a2 = -(fd[0] & 0xF) - -((fd[0] >> 4) & 0xF);
+						//j       loc_79228
+					}
+					else
+					{
+						//loc_791F8
+						a0 >>= 10;
+						a1 = -((fd[0] >> 8) & 0xF) - -((fd[0] >> 4) & 0xF);
+						a2 = -(fd[0] >> 12) - -((fd[0] >> 8) & 0xF);
+						//j       loc_79228
+					}
+				}//loc_79204
+				else if (z & 0x3FF < x & 0x3FF)
+				{
+					//loc_79220
+					a0 >>= 5;
+					a1 = -(fd[0] >> 12) - -(fd[0] & 0xF);
+					a2 = -(fd[0] >> 12) - -((fd[0] >> 8) & 0xF);
+				}
+				else
+				{
+					a0 >>= 10;
+					a1 = -((fd[0] >> 8) & 0xF) - -((fd[0] >> 4) & 0xF);
+					a2 = -(fd[0] & 0xF) - -((fd[0] >> 4) & 0xF);
+				}
+				//loc_79228
+				a0 &= 0x1F;
+
+				if ((a0 & 0x10))
+				{
+					a0 |= -0x10;
+				}
+				//loc_7923C
+				a0 <<= 8;
+				t7 += a0;
+
+				GC_adjust_height(a0, a1, a2, x, z, &t7);
+				//j loc_792BC
+			}
+		}
+		//loc_792BC
+		//v1 = floor->pit_room
+		f = floor;
+		while (f->pit_room != 0xFF)
+		{
+			//loc_79258
+			if (CheckNoColFloorTriangle(floor, x, z) == 1)
+			{
+				break;
+			}
+
+			r = &room[f->pit_room];
+			f = &r->floor[((z - r->z) >> 10) + ((x - r->x) >> 10) * r->x_size];
+		}
+		//loc_792CC
+		//v0 = floor->index
+		//v1 = floor_data
+		if (floor->index == 0)
+		{
+			return t7;
+		}
+
+		fd = (unsigned short*)&floor_data[floor->index];
+
+loc_792E0:
+		unsigned short s2 = *fd++;
+		unsigned short v0 = (s2) & 0x1F;
+		unsigned short s1;
+
+		switch (v0)
+		{
+		case 1:
+		case 2:
+		case 3:
+		case 7:
+		case 8:
+		case 9:
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+		case 14:
+		case 15:
+		case 16:
+		case 17:
+		case 18:
+			//loc_79314
+			//j loc_793C8
+			break;
+		case 4:
+			//loc_79318
+			fd++;
+loc_7931C:
+			s1 = *fd++;
+			v0 = s1 & 0x3FFF;
+
+			//v0 = 0xC
+			if ((v0 >> 10) != 0)
+			{
+				if ((v0 >> 10) == 0xC || (v0 >> 10) == 0x1)
+				{
+					//loc_79344
+					s1 = *fd++;
+				}
+			}
+			else
+			{
+				//loc_79350
+				//a0 = items
+				v1 = s1 & 0x3FF;
+				struct ITEM_INFO* item = &items[s1 & 0x3FF];//$a0
+				//v0 = item->flags & 0x8000
+				//v1 = item->object_number
+
+				if (!(item->flags & 0x8000))
+				{
+					struct object_info* object = &objects[item->object_number];
+
+					if (object->ceiling != NULL)
+					{
+						///@CHECKME args?!?!?
+						object->ceiling(item, x, y, z, NULL);
+					}
+				}//loc_793C0
+			}
+			//loc_793C0
+
+			if (!(s1 & 0x8000))
+				goto loc_7931C;
+
+		case 5:
+		case 6:
+		case 19:
+		case 20:
+		case 21:
+			//loc_793C8
+			if (!(s2 & 0x8000))
+				goto loc_792E0;
+			break;
+		}
+
+		//loc_793D0
+		return t7;
+
+	}//loc_793D4
+
+	return -32512;
 }
 
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(<) (F)
@@ -346,6 +619,11 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	struct room_info* r;//a0
 	short* fd;//s1
 	short value;
+
+#if 1//DEBUG_CAM
+	return 0;
+#endif
+
 #if 1
 	//s0 = floor
 	//s3 = x

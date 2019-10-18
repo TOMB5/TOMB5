@@ -3,14 +3,861 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF GetFrames, S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM, DEL_CalcLaraMatrices_Interpolated_ASM
-	XREF anims, interpolated_bounds
+	XREF anims, interpolated_bounds, lara_item, rcossin_tbl, GLaraShadowframe, lara_joint_matrices, lara_matrices, ScaleCurrentMatrix, Matrix, lara, items
+	
+jpt_83E58 dw loc_83E60
+case1 dw loc_83F5C
+case2 dw loc_840B0
+case3 dw loc_83F5C
+case4 dw loc_84204
+case5 dw loc_84204
+case6 dw loc_84204
+case7 dw loc_83E60
+case8 dw loc_83E60
+	
+setup_rotation_matrix:
+	lw      t0, 0(a0)
+	lw      t1, 4(a0)
+	lw      t2, 8(a0)
+	lw      t3, 0xC(a0)
+	j       SetRotation
+	lw      t4, 0x10(a0)
+	
+copy_matrix_from_scratch:
+	lw      t0, 0(a0)
+	lw      t1, 4(a0)
+	lw      t2, 8(a0)
+	lw      t3, 0xC(a0)
+	sw      t0, 0(a1)
+	sw      t1, 4(a1)
+	sw      t2, 8(a1)
+	sw      t3, 0xC(a1)
+	lw      t4, 0x10(a0)
+	lw      t5, 0x14(a0)
+	lw      t6, 0x18(a0)
+	lw      t7, 0x1C(a0)
+	sw      t4, 0x10(a1)
+	sw      t5, 0x14(a1)
+	sw      t6, 0x18(a1)
+	jr      ra
+	sw      t7, 0x1C(a1)
+	
+mTranslateAbsXYZ:
+	lw      t0, Matrix+0x20-GP_ADDR(gp)
+	lw      t1, Matrix+0x24-GP_ADDR(gp)
+	lw      t2, Matrix+0x28-GP_ADDR(gp)
+	ctc2    zero, r5
+	ctc2    zero, r6
+	ctc2    zero, r7
+	sub     a0, t0
+	sub     a1, t1
+	j       mTranslateXYZ
+	sub     a2, t2
+	
+mRotX:
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_84D04
+	add     t0, s2, a0
+	jr      ra
+	nop
+
+	loc_84D04:
+	lw      t5, 0(t0)
+	lui     t7, 0xFFFF
+	and     t6, t7, t5
+	mtc2    t6, r0
+	mtc2    t5, r1
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t3, r3
+	cop2    0x486012
+	srl     t6, t5, 16
+	sll     t5, 16
+	neg     t5, t5
+	mtc2    t5, r2
+	mtc2    t6, r3
+	andi    t0, 0xFFFF
+	and     t1, t7
+	andi    t3, 0xFFFF
+	mfc2    t4, r25
+	mfc2    t2, r26
+	mfc2    t5, r27
+	cop2    0x48E012
+	sll     t4, 16
+	or      t0, t4
+	andi    t2, 0xFFFF
+	sll     t5, 16
+	or      t3, t5
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    t4, r27
+	andi    t5, 0xFFFF
+	or      t1, t5
+	sll     t6, 16
+	j       SetRotation
+	or      t2, t6
+	
+mRotY:
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_84DA4
+	add     t0, s2, a0
+	jr      ra
+	nop
+
+	loc_84DA4:
+	lw      t5, 0(t0)
+	lui     t7, 0xFFFF
+	srl     t6, t5, 16
+	andi    t5, 0xFFFF
+	neg     t2, t5
+	mtc2    t6, r0
+	mtc2    t2, r1
+	cfc2    t0, r0
+	cfc2    t2, r2
+	cfc2    t3, r3
+	cop2    0x486012
+	mtc2    t5, r2
+	mtc2    t6, r3
+	and     t0, t7
+	andi    t2, 0xFFFF
+	and     t3, t7
+	mfc2    t4, r25
+	mfc2    t1, r26
+	mfc2    t5, r27
+	cop2    0x48E012
+	andi    t4, 0xFFFF
+	or      t0, t4
+	sll     t1, 16
+	andi    t5, 0xFFFF
+	or      t3, t5
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    t4, r27
+	andi    t5, 0xFFFF
+	or      t1, t5
+	sll     t6, 16
+	j       SetRotation
+	or      t2, t6
+	
+mRotYXZ:
+	move    v0, ra
+	jal     mRotY
+	nop
+	jal     mRotX
+	move    a0, a1
+	move    a0, a2
+	move    ra, v0
+
+	mRotZ:
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_84E5C
+	add     t0, s2, a0
+	jr      ra
+	nop
+
+	loc_84E5C:
+	lw      t0, 0(t0)
+	lui     t7, 0xFFFF
+	srl     t1, t0, 16
+	sll     t2, t0, 16
+	or      t1, t2
+	mtc2    t1, r0
+	mtc2    zero, r1
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t4, r4
+	cop2    0x486012
+	and     t3, t0, t7
+	andi    t0, 0xFFFF
+	neg     t0, t0
+	andi    t0, 0xFFFF
+	or      t0, t3
+	mtc2    t0, r2
+	mtc2    zero, r3
+	andi    t1, 0xFFFF
+	mfc2    t0, r25
+	mfc2    t5, r26
+	mfc2    t3, r27
+	cop2    0x48E012
+	and     t2, t7
+	andi    t0, 0xFFFF
+	sll     t5, 16
+	or      t1, t5
+	andi    t3, 0xFFFF
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    a0, r27
+	sll     t5, 16
+	or      t0, t5
+	andi    t6, 0xFFFF
+	or      t2, t6
+	sll     a0, 16
+	j       SetRotation
+	or      t3, a0
+	
+Hardcore_mTranslateXYZ:
+	lw      a0, 0(a2)
+	lw      a1, 4(a2)
+	lw      a2, 8(a2)
+	
+mTranslateXYZ:
+	bgez    a1, loc_84B5C
+	sra     t4, a1, 15
+	negu    a1, a1
+	sra     t4, a1, 15
+	andi    a1, 0x7FFF
+	negu    t4, t4
+	j       loc_84B60
+	negu    a1, a1
+
+	loc_84B5C:
+	andi    a1, 0x7FFF
+
+	loc_84B60:
+	bgez    a2, loc_84B80
+	sra     t5, a2, 15
+	negu    a2, a2
+	sra     t5, a2, 15
+	andi    a2, 0x7FFF
+	negu    t5, t5
+	j       loc_84B84
+	negu    a2, a2
+
+	loc_84B80:
+	andi    a2, 0x7FFF
+
+	loc_84B84:
+	bgez    a0, loc_84BA4
+	sra     t3, a0, 15
+	negu    a0, a0
+	sra     t3, a0, 15
+	andi    a0, 0x7FFF
+	negu    t3, t3
+	j       loc_84BA8
+	negu    a0, a0
+
+	loc_84BA4:
+	andi    a0, 0x7FFF
+
+	loc_84BA8:
+	mtc2    t3, r9
+	mtc2    t4, r10
+	mtc2    t5, r11
+	nop
+	nop
+	cop2    0x41E012
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mtc2    a0, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	mfc2    t5, r27
+	nop
+	nop
+	cop2    0x498012
+	bgez    t3, loc_84BEC
+	sll     t0, t3, 3
+	negu    t3, t3
+	sll     t3, 3
+	negu    t0, t3
+
+	loc_84BEC:
+	bgez    t4, loc_84C00
+	sll     t1, t4, 3
+	negu    t4, t4
+	sll     t4, 3
+	negu    t1, t4
+
+	loc_84C00:
+	bgez    t5, loc_84C14
+	sll     t2, t5, 3
+	negu    t5, t5
+	sll     t5, 3
+	negu    t2, t5
+
+	loc_84C14:
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mfc2    t5, r27
+	addu    t0, t3
+	addu    t1, t4
+	addu    t2, t5
+	ctc2    t0, r5
+	ctc2    t1, r6
+	ctc2    t2, r7
+	jr      ra
+	nop
+	
+mRotSuperPackedYXZ:
+	lw      a2, 0x24(t8)
+	beqz    a1, loc_84C6C
+
+	loc_84C48:
+	lhu     v0, 0(a2)
+	addi    a1, -1
+	andi    at, v0, 0xC000
+	bnez    at, loc_84C60
+	addi    a2, 2
+	addi    a2, 2
+
+	loc_84C60:
+	bnez    a1, loc_84C48
+	nop
+	lhu     v0, 0(a2)
+
+	loc_84C6C:
+	addi    a2, 2
+	srl     at, v0, 14
+	beqz    at, loc_84CAC
+	addi    at, -1
+	sw      a2, 0x24(t8)
+	beqz    at, loc_84CA0
+	addi    at, -1
+	beqz    at, loc_84C98
+	andi    a0, v0, 0xFFF
+	j       mRotZ
+	sll     a0, 4
+
+	loc_84C98:
+	j       mRotY
+	sll     a0, 4
+
+	loc_84CA0:
+	andi    a0, v0, 0xFFF
+	j       mRotX
+	sll     a0, 4
+
+	loc_84CAC:
+	lhu     at, 0(a2)
+	addi    a2, 2
+	sw      a2, 0x24(t8)
+	sll     v0, 16
+	or      v0, at
+	move    v1, ra
+	sra     a0, v0, 4
+	jal     mRotY
+	andi    a0, 0xFFC0
+	sra     a0, v0, 14
+	jal     mRotX
+	andi    a0, 0xFFC0
+	andi    a0, v0, 0x3FF
+	sll     a0, 6
+	j       mRotZ
+	move    ra, v1
+	
+mLoadMatrix:
+	lw      t5, 0x14(a0)
+	lw      t6, 0x18(a0)
+	lw      t7, 0x1C(a0)
+	lw      t0, 0(a0)
+	lw      t1, 4(a0)
+	lw      t2, 8(a0)
+	lw      t3, 0xC(a0)
+	lw      t4, 0x10(a0)
+	ctc2    t5, r5
+	ctc2    t6, r6
+	ctc2    t7, r7
+
+	SetRotation:
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	ctc2    t4, r4
+	jr      ra
+	nop
 	
 DEL_CalcLaraMatrices_Interpolated_ASM
 		jr ra
 		nop
 
 DEL_CalcLaraMatrices_Normal_ASM:
-	jr ra;fixme jmptbl
+	lui     t8, 0x1F80
+	sw      s0, 0x00(t8)
+	sw      s1, 0x04(t8)
+	sw      s2, 0x08(t8)
+	sw      ra, 0x20(t8)
+	lw      s0, lara_item-GP_ADDR(gp)
+	la      s2, rcossin_tbl
+	move    t9, a0
+	move    s1, a1
+	addi    a0, 0x12
+	sw      t9, GLaraShadowframe-GP_ADDR(gp)
+	sw      a0, 0x24(t8)
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, t8, 0x98
+	andi    a3, a2, 1
+	beqz    a3, loc_83C40
+	andi    a3, a2, 2
+	la      a0, lara_joint_matrices
+	ctc2    zero, r5
+	ctc2    zero, r6
+	ctc2    zero, r7
+	j       loc_83C74
+	sw      a0, 0x34(t8)
+
+	loc_83C40:
+	la      a0, lara_matrices
+	sw      a0, 0x34(t8)
+	lw      a0, 0x40(s0)
+	lw      a1, 0x44(s0)
+	jal     mTranslateAbsXYZ
+	lw      a2, 0x48(s0)
+	beqz    a3, loc_83C74
+	li      a0, 0
+	li      a1, 0xFFFFF000
+	li      a2, 0xFFFFF000
+	jal     ScaleCurrentMatrix
+	li      a3, 0xFFFFF000
+
+	loc_83C74:
+	lh      a0, 0x4E(s0)
+	lh      a1, 0x4C(s0)
+	jal     mRotYXZ
+	lh      a2, 0x50(s0)
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, t8, 0x38
+	lh      a0, 0xC(t9)
+	lh      a1, 0xE(t9)
+	jal     mTranslateXYZ
+	lh      a2, 0x10(t9)
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	lw      s0, 0x34(t8)
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, t8, 0x58
+	li      a3, 6
+
+	loc_83CB4:
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 4
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x20
+	addiu   a3, -1
+	li      at, 3
+	bne     a3, at, loc_83CE4
+	addiu   s1, 0x10
+	jal     mLoadMatrix
+	addiu   a0, t8, 0x58
+
+	loc_83CE4:
+	bnez    a3, loc_83CB4
+	addiu   s0, 0x20
+	jal     mLoadMatrix
+	addiu   a0, t8, 0x58
+	addiu   s1, -0x60
+	addiu   s0, -0xC0
+	lw      t9, anims-GP_ADDR(gp)
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0x64
+	lh      a0, lara+0x2A-GP_ADDR(gp)
+	li      at, 0xFFFFFFFF
+	beq     a0, at, loc_83DA8
+	li      at, 5
+	lh      v1, lara+0x4-GP_ADDR(gp)
+	sll     v0, a0, 2
+	bne     v1, at, loc_83DA8
+	addu    v0, a0
+	sll     v0, 2
+	subu    v0, a0
+	lw      v1, items-GP_ADDR(gp)
+	sll     v0, 3
+	addu    v0, v1
+	lh      v1, 0xE(v0)
+	nop
+	beqz    v1, loc_83D5C
+	li      v0, 2
+	beq     v1, v0, loc_83D5C
+	li      v0, 4
+	bne     v1, v0, loc_83DA8
+	nop
+
+	loc_83D5C:
+	lh      v1, lara+0xCE-GP_ADDR(gp)
+	nop
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 3
+	addu    v0, t9
+	lh      v0, 4(v0)
+	lh      v1, lara+0xCC-GP_ADDR(gp)
+	sra     v0, 8
+	mult    v1, v0
+	li      a1, 7
+	lw      v0, lara+0xC8-GP_ADDR(gp)
+	mflo    a3
+	sll     v1, a3, 1
+	addu    v0, v1
+	addiu   v0, 0x12
+	sw      v0, 0x24(t8)
+	jal     mRotSuperPackedYXZ
+	addiu   ra, 8
+
+	loc_83DA8:
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	lh      a0, lara+0xAE-GP_ADDR(gp)
+	lh      a1, lara+0xB0-GP_ADDR(gp)
+	jal     mRotYXZ
+	lh      a2, lara+0xB2-GP_ADDR(gp)
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, t8, 0x78
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xD4
+	lw      a3, 0x24(t8)
+	jal     mRotSuperPackedYXZ
+	li      a1, 6
+	sw      a3, 0x24(t8)
+	lh      a0, lara+0xA8-GP_ADDR(gp)
+	lh      a1, lara+0xAA-GP_ADDR(gp)
+	jal     mRotYXZ
+	lh      a2, lara+0xAC-GP_ADDR(gp)
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x100
+	jal     mLoadMatrix
+	addiu   a0, t8, 0x78
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0x74
+	lhu     a0, lara+0x2-GP_ADDR(gp)
+	move    v1, zero
+	li      v0, 2
+	beq     a0, v0, loc_83E34
+	li      v0, 3
+	beq     a0, v0, loc_83E34
+	li      v0, 4
+	beq     a0, v0, loc_83E34
+	li      v0, 5
+	bne     a0, v0, loc_83E60
+	nop
+
+	loc_83E34:
+	lh      v1, lara+0x4-GP_ADDR(gp)
+	la      v0, jpt_83E58
+	sltiu   at, v1, 0xA
+	beqz    at, def_83E58
+	sll     v1, 2
+	addu    v1, v0
+	lw      v1, 0(v1)
+	nop
+	jr      v1
+	nop
+
+	loc_83E60:
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x120
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0x84
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x140
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0x94
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x160
+	jal     mLoadMatrix
+	addiu   a0, t8, 0x78
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xA4
+	lw      v0, lara+0x44-GP_ADDR(gp)
+	nop
+	andi    v0, 1
+	beqz    v0, loc_83F14
+	nop
+	lh      v1, lara+0xBA-GP_ADDR(gp)
+	nop
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 3
+	addu    v0, t9
+	lh      v1, lara+0xB8-GP_ADDR(gp)
+	lh      a0, 0x18(v0)
+	lh      v0, 4(v0)
+	subu    v1, a0
+	sra     v0, 8
+	mult    v1, v0
+	li      a1, 0xB
+	lw      v0, lara+0xB4-GP_ADDR(gp)
+	mflo    a3
+	sll     v1, a3, 1
+	addu    v0, v1
+	addiu   v0, 0x12
+	j       loc_83F18
+	sw      v0, 0x24(t8)
+
+	loc_83F14:
+	move    a1, zero
+
+	loc_83F18:
+	jal     mRotSuperPackedYXZ
+	nop
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x180
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xB4
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x1A0
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xC4
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	addiu   a0, s0, 0x1C0
+	jal     snaff_current_gte_matrix_V1
+	addiu   ra, 0x378
+
+	loc_83F5C:
+	jal     setup_rotation_matrix
+	addiu   a0, t8, 0x38
+	lh      a0, lara+0xD2-GP_ADDR(gp)
+	lh      a1, lara+0xD4-GP_ADDR(gp)
+	jal     mRotYXZ
+	lh      a2, lara+0xD6-GP_ADDR(gp)
+	lh      v1, lara+0xCE-GP_ADDR(gp)
+	nop
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 3
+	addu    v0, t9
+	lh      v1, lara+0xCC-GP_ADDR(gp)
+	lh      a0, 0x18(v0)
+	lh      v0, 4(v0)
+	subu    v1, a0
+	sra     v0, 8
+	mult    v1, v0
+	li      a1, 8
+	lw      v0, lara+0xC8-GP_ADDR(gp)
+	mflo    a3
+	sll     v1, a3, 1
+	addu    v0, v1
+	addiu   v0, 0x12
+	jal     mRotSuperPackedYXZ
+	sw      v0, 0x24(t8)
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x120
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0x84
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x140
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0x94
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x160
+	jal     mLoadMatrix
+	addiu   a0, t8, 0x78
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xA4
+	jal     setup_rotation_matrix
+	addiu   a0, t8, 0x38
+	lh      a0, lara+0xBE-GP_ADDR(gp)
+	lh      a1, lara+0xC0-GP_ADDR(gp)
+	jal     mRotYXZ
+	lh      a2, lara+0xC2-GP_ADDR(gp)
+	lh      v1, lara+0xBA-GP_ADDR(gp)
+	nop
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 3
+	addu    v0, t9
+	lh      v1, lara+0xB8-GP_ADDR(gp)
+	lh      a0, 0x18(v0)
+	lh      v0, 4(v0)
+	subu    v1, a0
+	sra     v0, 8
+	mult    v1, v0
+	li      a1, 0xB
+	lw      v0, lara+0xB4-GP_ADDR(gp)
+	mflo    a3
+	sll     v1, a3, 1
+	addu    v0, v1
+	addiu   v0, 0x12
+	jal     mRotSuperPackedYXZ
+	sw      v0, 0x24(t8)
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x180
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xB4
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x1A0
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xC4
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	addiu   a0, s0, 0x1C0
+	jal     snaff_current_gte_matrix_V1
+	addiu   ra, 0x224
+
+	loc_840B0:
+	jal     setup_rotation_matrix
+	addiu   a0, t8, 0x38
+	lh      a0, lara+0xAE-GP_ADDR(gp)
+	lh      a1, lara+0xB0-GP_ADDR(gp)
+	jal     mRotYXZ
+	lh      a2, lara+0xB2-GP_ADDR(gp)
+	lh      v1, lara+0xCE-GP_ADDR(gp)
+	nop
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 3
+	addu    v0, t9
+	lh      v1, lara+0xCC-GP_ADDR(gp)
+	lh      a0, 0x18(v0)
+	lh      v0, 4(v0)
+	subu    v1, a0
+	sra     v0, 8
+	mult    v1, v0
+	li      a1, 8
+	lw      v0, lara+0xC8-GP_ADDR(gp)
+	mflo    a3
+	sll     v1, a3, 1
+	addu    v0, v1
+	addiu   v0, 0x12
+	jal     mRotSuperPackedYXZ
+	sw      v0, 0x24(t8)
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x120
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0x84
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x140
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0x94
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x160
+	jal     mLoadMatrix
+	addiu   a0, t8, 0x78
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xA4
+	jal     setup_rotation_matrix
+	addiu   a0, t8, 0x38
+	lh      a0, lara+0xAE-GP_ADDR(gp)
+	lh      a1, lara+0xB0-GP_ADDR(gp)
+	jal     mRotYXZ
+	lh      a2, lara+0xB2-GP_ADDR(gp)
+	lh      v1, lara+0xBA-GP_ADDR(gp)
+	nop
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 3
+	addu    v0, t9
+	lh      v1, lara+0xB8-GP_ADDR(gp)
+	lh      a0, 0x18(v0)
+	lh      v0, 4(v0)
+	subu    v1, a0
+	sra     v0, 8
+	mult    v1, v0
+	li      a1, 0xB
+	lw      v0, lara+0xB4-GP_ADDR(gp)
+	mflo    a3
+	sll     v1, a3, 1
+	addu    v0, v1
+	addiu   v0, 0x12
+	jal     mRotSuperPackedYXZ
+	sw      v0, 0x24(t8)
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x180
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xB4
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x1A0
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xC4
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	addiu   a0, s0, 0x1C0
+	jal     snaff_current_gte_matrix_V1
+	addiu   ra, 0xD0
+
+	loc_84204:
+	lh      v1, lara+0xCE-GP_ADDR(gp)
+	nop
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 3
+	addu    v0, t9
+	lh      v0, 4(v0)
+	lh      v1, lara+0xCC-GP_ADDR(gp)
+	sra     v0, 8
+	mult    v1, v0
+	li      a1, 8
+	lw      v0, lara+0xC8-GP_ADDR(gp)
+	mflo    a3
+	sll     v1, a3, 1
+	addu    v0, v1
+	addiu   v0, 0x12
+	jal     mRotSuperPackedYXZ
+	sw      v0, 0x24(t8)
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x120
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0x84
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x140
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0x94
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x160
+	jal     mLoadMatrix
+	addiu   a0, t8, 0x78
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xA4
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x180
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xB4
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x1A0
+	jal     Hardcore_mTranslateXYZ
+	addiu   a2, s1, 0xC4
+	jal     mRotSuperPackedYXZ
+	move    a1, zero
+	jal     snaff_current_gte_matrix_V1
+	addiu   a0, s0, 0x1C0
+
+	def_83E58:
+	addiu   a0, t8, 0x58
+	jal     copy_matrix_from_scratch
+	move    a1, s0
+	addiu   a0, t8, 0x78
+	jal     copy_matrix_from_scratch
+	addiu   a1, s0, 0xE0
+	jal     mLoadMatrix
+	addiu   a0, t8, 0x98
+	lw      ra, 0x20(t8)
+	lw      s2, 8(t8)
+	lw      s1, 4(t8)
+	lw      s0, 0(t8)
+	jr      ra
 	nop
 	
 snaff_current_gte_matrix_V1:

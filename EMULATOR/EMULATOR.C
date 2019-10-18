@@ -66,7 +66,6 @@ struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 // Actualy we can't do this cause we'd need to know the coords of the said texture data that is binded to the clut
 static int Emulator_InitialiseGLContext(char* windowName)
 {
-
 	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
 
 #if defined(OGL)
@@ -876,11 +875,13 @@ void Emulator_UpdateInput()
 			}
 		}
 	}
-
-	//Update keyboard
-	if (padData[0] != NULL)
+	else
 	{
-		((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
+		//Update keyboard
+		if (padData[0] != NULL)
+		{
+			((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
+		}
 	}
 }
 
@@ -1026,7 +1027,7 @@ CachedTexture* Emulator_FindTextureInCache(unsigned short tpage, unsigned short 
 	{
 		for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
 		{
-			if (cachedTextures[i].tpage == tpage)
+			if (cachedTextures[i].tpage == tpage && cachedTextures[i].clut == clut)
 			{
 				cachedTextures[i].lastAccess = SDL_GetTicks();
 				return &cachedTextures[i];
@@ -1071,6 +1072,7 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	if (bShouldUseGlobalTpageTexture)
 	{
 		tpage = GlobalTpageTexture;
+		GlobalTpageTexture = 0xFFFF;
 	}
 
 	unsigned int textureType = (tpage >> 7) & 0x3;
@@ -1100,8 +1102,6 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	}
 #endif
 
-	//Emulator_SetBlendMode(tpageAbr);
-
 	CachedTexture* tpageTexture = Emulator_FindTextureInCache(tpage, clut);
 	bool bMustAddTexture = (tpageTexture == NULL) ? 1 : 0;
 
@@ -1120,121 +1120,118 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		return tpageTexture->textureID;
 	}
 
-	if (bMustAddTexture)
+	switch (textureType)
 	{
-		switch (textureType)
-		{
-		case 2:
-		{
-			//ARGB1555
-			unsigned short* texturePage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
+	case 2:
+	{
+		//ARGB1555
+		unsigned short* texturePage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
 #if defined(OGL)
-			glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
+		glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
 #endif
-			delete[] texturePage;
-			break;
-		}
-		case 1:
-		{
-			//RGBA8888
-			assert(0);
-			//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texturePage[0]);
-			break;
-		}
-		case 0:
-		{
-			//RGBA4444
-			unsigned short* texturePage = new unsigned short[TPAGE_WIDTH / 4 * TPAGE_HEIGHT];
-			unsigned short* clut = new unsigned short[16];
-			unsigned short* convertedTpage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
+		delete[] texturePage;
+		break;
+	}
+	case 1:
+	{
+		//RGBA8888
+		assert(0);
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texturePage[0]);
+		break;
+	}
+	case 0:
+	{
+		//RGBA4444
+		unsigned short* texturePage = new unsigned short[TPAGE_WIDTH / 4 * TPAGE_HEIGHT];
+		unsigned short* clut = new unsigned short[16];
+		unsigned short* convertedTpage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
 
 #if defined (OGLES)
-			//Read CLUT
-			glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &clut[0]);
+		//Read CLUT
+		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &clut[0]);
 
-			//Read texture data
-			glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &texturePage[0]);
+		//Read texture data
+		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &texturePage[0]);
 #elif defined(OGL)
-			//Read CLUT
-			glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &clut[0]);
+		//Read CLUT
+		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &clut[0]);
 
-			//Read texture data
-			glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
+		//Read texture data
+		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
 #endif
-			unsigned short* convertPixel = &convertedTpage[0];
+		unsigned short* convertPixel = &convertedTpage[0];
 
-			for (int xy = 0; xy < TPAGE_WIDTH / 4 * TPAGE_HEIGHT; xy++)
-			{
-				*convertPixel++ = clut[(texturePage[xy] & (0xF << 0 * 4)) >> (0 * 4)];
-				*convertPixel++ = clut[(texturePage[xy] & (0xF << 1 * 4)) >> (1 * 4)];
-				*convertPixel++ = clut[(texturePage[xy] & (0xF << 2 * 4)) >> (2 * 4)];
-				*convertPixel++ = clut[(texturePage[xy] & (0xF << 3 * 4)) >> (3 * 4)];
-			}
+		for (int xy = 0; xy < TPAGE_WIDTH / 4 * TPAGE_HEIGHT; xy++)
+		{
+			*convertPixel++ = clut[(texturePage[xy] & (0xF << 0 * 4)) >> (0 * 4)];
+			*convertPixel++ = clut[(texturePage[xy] & (0xF << 1 * 4)) >> (1 * 4)];
+			*convertPixel++ = clut[(texturePage[xy] & (0xF << 2 * 4)) >> (2 * 4)];
+			*convertPixel++ = clut[(texturePage[xy] & (0xF << 3 * 4)) >> (3 * 4)];
+		}
 
 #if defined(OGLES)
 #define ARGB1555toRGBA1555(x) ((x & 0x8000) >> 15) | ((x & 0x7FFF) << 1)
 #pragma pack(push,1)
-			struct rgba5551
-			{
-				unsigned short r : 5;
-				unsigned short g : 5;
-				unsigned short b : 5;
-				unsigned short a : 1;
-			};
+		struct rgba5551
+		{
+			unsigned short r : 5;
+			unsigned short g : 5;
+			unsigned short b : 5;
+			unsigned short a : 1;
+		};
 
-			struct abgr1555
-			{
-				unsigned short a : 1;
-				unsigned short b : 5;
-				unsigned short g : 5;
-				unsigned short r : 5;
-			};
+		struct abgr1555
+		{
+			unsigned short a : 1;
+			unsigned short b : 5;
+			unsigned short g : 5;
+			unsigned short r : 5;
+		};
 #pragma pack(pop)
 
-			for (int xy = 0; xy < TPAGE_WIDTH * TPAGE_HEIGHT; xy++)
-			{
-				rgba5551* pixel = (rgba5551*)&convertedTpage[xy];
-				abgr1555* pixel2 = (abgr1555*)&convertedTpage[xy];
+		for (int xy = 0; xy < TPAGE_WIDTH * TPAGE_HEIGHT; xy++)
+		{
+			rgba5551* pixel = (rgba5551*)& convertedTpage[xy];
+			abgr1555* pixel2 = (abgr1555*)& convertedTpage[xy];
 
-				unsigned short r = pixel->r;
-				unsigned short g = pixel->g;
-				unsigned short b = pixel->b;
-				unsigned short a = pixel->a;
-				pixel2->a = a;
-				pixel2->r = r;
-				pixel2->g = g;
-				pixel2->b = b;
-			}
+			unsigned short r = pixel->r;
+			unsigned short g = pixel->g;
+			unsigned short b = pixel->b;
+			unsigned short a = pixel->a;
+			pixel2->a = a;
+			pixel2->r = r;
+			pixel2->g = g;
+			pixel2->b = b;
+		}
 
 #endif
 
 
 #if _DEBUG && 0
-			char buff[64];
-			sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
-			FILE* f = fopen(buff, "wb");
-			unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
-			unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
-			fwrite(TGAheader, sizeof(unsigned char), 12, f);
-			fwrite(header, sizeof(unsigned char), 6, f);
-			fwrite(&convertedTpage[0], sizeof(char), 256 * 256 * 2, f);
-			fclose(f);
+		char buff[64];
+		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
+		FILE* f = fopen(buff, "wb");
+		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+		unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
+		fwrite(TGAheader, sizeof(unsigned char), 12, f);
+		fwrite(header, sizeof(unsigned char), 6, f);
+		fwrite(&convertedTpage[0], sizeof(char), 256 * 256 * 2, f);
+		fclose(f);
 #endif
 #if defined(OGL)
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
 #elif defined(OGLES)
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &convertedTpage[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &convertedTpage[0]);
 #endif
-			delete[] clut;
-			delete[] texturePage;
-			delete[] convertedTpage;
-			break;
-		}
-		}
+		delete[] clut;
+		delete[] texturePage;
+		delete[] convertedTpage;
+		break;
 	}
 
 	return tpageTexture->textureID;
+	}
 }
 
 void Emulator_DestroyFrameBuffer(GLuint& fbo)
@@ -1679,4 +1676,27 @@ void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned short 
 	//Set this to false so the emulator can search up and add textures
 	//That are not atlas hinted
 	g_hasHintedTextureAtlas = 1;
+}
+
+void Emulator_DestroyAllTextures()
+{
+	//Initial texture value is -1
+	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
+	{
+		if (cachedTextures[i].textureID != 0xFFFFFFFF)
+		{
+			glDeleteTextures(1, &cachedTextures[i].textureID);
+		}
+	}
+
+	//Initialise texture cache
+	SDL_memset(&cachedTextures[0], 0, MAX_NUM_CACHED_TEXTURES * sizeof(CachedTexture));
+	
+	//Initial texture value is -1
+	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
+	{
+		cachedTextures[i].textureID = -1;
+	}
+
+	return;
 }

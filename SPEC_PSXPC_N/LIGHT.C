@@ -186,6 +186,6 @@ void CalculateObjectLighting(struct ITEM_INFO* item/*a0*/, short* frmptr/*a1*/, 
 	else
 	{
 		//loc_8668C
-		//S_CalculateStaticMeshLight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 0x7FFF);
+		S_CalculateStaticMeshLight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 0x7FFF);
 	}
 }

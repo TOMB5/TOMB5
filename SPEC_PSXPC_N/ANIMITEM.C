@@ -9,9 +9,11 @@
 #include "DRAWOBJ.H"
 #include "MATHS.H"
 #include "MISC.H"
+#include "LIGHT.H"
 
 #include <LIBGTE.H>
 #include "GTEREG.H"
+#include <assert.h>
 
 void SetRotation2(int* fp, int t0, int t1, int t2, int t3, int t4)
 {
@@ -663,7 +665,9 @@ void CalcAllAnimatingItems_ASM()
 			}
 		}
 	}//loc_827DC
+#if !JULY_VERSION
 	DrawAllAnimatingItems_ASM(fp[18]);
+#endif
 }
 
 
@@ -674,8 +678,8 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 	STASHEDDAT* sdat;//$s2
 	int i;//$s4
 	int j;//$s1
+	int s6;
 
-	//s5 = ra
 	if (s4 > 0)
 	{
 		sobject = &stashed_objects_list[0];
@@ -685,15 +689,18 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 		//loc_8291C
 		for(i = 0; i < s4; i++, sobject++)
 		{
+			s6 = 0x80;
+
 			if (sobject->numnodestodraw == 0)
 			{
 				item = stashed_objects_list[i].item;
-				///S_CalculateStaticMeshLight(item->floor, item->touch_bits, item->mesh_bits, item->current_anim_state);//maybe returns s6
+				S_CalculateStaticMeshLight(item->floor, item->touch_bits, item->mesh_bits, item->current_anim_state);
 			}
 			else
 			{
 				//loc_82950
-				///CalculateObjectLighting();//maybe returns s6?
+				s6 -= item->after_death;
+				CalculateObjectLighting(item, sobject->frmptr0, sobject, sobject->numnodestodraw);
 			}
 
 			//loc_82964
@@ -712,17 +719,12 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 				TRY = ((int*)&sdat->matrix[0])[6];
 				TRZ = ((int*)&sdat->matrix[0])[7];
 
-				//@FIXME below is something to do with shade
-				if (0)///@FIXME s6 != at??? s6 should be variable maybe returned from earlier function calls
+				if (s6 != 0x80)
 				{
 					//loc_829C4
-					if (0x80 > 4)//s6 > 4 really
+					if (s6 >= 5)
 					{
-						phd_PutPolygons_seethrough(sdat->mesh, 4);//second arg is s6
-					}
-					else
-					{
-
+						//phd_PutPolygons_seethrough(sdat->mesh, s6);
 					}
 				}//loc_829C4
 				else

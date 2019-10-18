@@ -1044,10 +1044,10 @@ int StalkBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)/
 		return 0;
 	}
 
-	zrange = (box->right - box->left) << 10 + 3072;
-	xrange = (box->bottom - box->top) << 10 + 3072;
+	zrange = ((box->right - box->left) << 10) + 3072;
+	xrange = ((box->bottom - box->top) << 10) + 3072;
 
-	x = (box->top + box->bottom) << 9 - enemy->pos.x_pos;
+	x = ((box->top + box->bottom) << 9) - enemy->pos.x_pos;
 
 	if (xrange < x || x < -xrange || zrange < z || z < -zrange)
 		return 0;

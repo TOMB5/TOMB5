@@ -18,7 +18,7 @@ typedef struct commandQueue
 	unsigned char* p;
 	unsigned int processed;
 	unsigned int count;
-};
+}commandQueue_s, *commandQueue_p;
 
 #define COMMAND_QUEUE_SIZE 128
 
@@ -157,6 +157,9 @@ int CdControlF(u_char com, u_char * param)
 	{
 	case CdlSetloc:
 		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
+		break;
+	case CdlSetfilter:
+		//fseek(openFile, CdPosToInt(&cd->pos) * sectorSize, SEEK_SET);
 		break;
 	default:
 		eprinterr("Unhandled command 0x%02X!\n", com);

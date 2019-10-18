@@ -189,6 +189,9 @@ char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8,
 	at = (t9 >> 3) & 0x1F;
 	t2 += at;
 
+	at = (t9 >> 11) & 0x1F;
+	t2 += at;
+
 	at = (t9 >> 19) & 0x1F;
 	t2 += at;
 
@@ -310,7 +313,7 @@ char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8,
 	return s0;
 }
 
-char* dirty_envmap_intensity_shit_TRI(int t2, int t6, int t7, int t8, int s3, char* s0, int t1, int s2, int s4, int s5, int s6)
+char* dirty_envmap_intensity_shit_TRI(int t2, int t6, int t7, int t8, int s3, char* s0, int t1, int s2, int s4, int s5, int s6)//(F)
 {
 	int at;
 	int t22;
@@ -446,7 +449,6 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 		{
 			return 0;
 		}
-
 	}
 	//locret_7ED48
 	return 1;
@@ -1093,18 +1095,17 @@ void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int
 						{
 							t2 = t6 >> 3;
 							s0 = (int*)dirty_envmap_intensity_shit_TRI(t2, t6, t7, t8, s3, (char*)s0, t1, s2, s4, s5, s6);
-
 						}//loc_7F470
 
 						t2 = ((int*)t1)[0];
 						((int*)t1)[0] = (int)s0;
 						t2 |= gp;
 						((int*)s0)[0] = t2;
-						s0 += 0x28;
+						s0 += 0xA;
 
 						if (s2 != 0)
 						{
-							s0 += 0x20;
+							s0 += 0x8;
 						}
 					}//loc_7F48C
 				}//loc_7F48C
@@ -1225,11 +1226,11 @@ loc_7F4BC:
 					t2 |= gp;
 					((int*)s0)[0] = (int)t2;
 
-					s0 += 0x34;
+					s0 += 13;
 
 					if (s2 != 0)
 					{
-						s0 += 0x28;
+						s0 += 10;
 					}
 				}//loc_7F5F4
 			}//loc_7F5F4
@@ -1745,7 +1746,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 	int fp;
 	int gp = 0;
 	int t9;
-
+#if !JULY_VERSION
 	S_MemSet((char*)&sp[0], 0, sizeof(sp));
 
 	initialise_light_matrix();
@@ -1933,8 +1934,8 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 
 	if (s6 && s4 < 0)
 	{
-		///DrawSubDivMesh();
-		//assert(0);//TODO draw sub div mesh
+		//DrawSubDivMesh();
+	///	assert(0);//TODO draw sub div mesh
 	}
 
 	//loc_7F0A8
@@ -2144,6 +2145,8 @@ loc_7F1DC:
 DrawExit:
 	RFC = 0;
 	db.polyptr = s0;
+#endif
+
 	return;
 }
 

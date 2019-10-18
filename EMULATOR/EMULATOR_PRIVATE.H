@@ -8,5 +8,6 @@ extern void Emulator_EndScene();
 extern void Emulator_UpdateInput();
 extern void Emulator_ShutDown();
 extern void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned short texClut, unsigned char u0, unsigned char v0, unsigned char u1, unsigned char v1, unsigned char u2, unsigned char v2, unsigned char u3, unsigned char v3);
+extern void Emulator_DestroyAllTextures();
 
 #endif
