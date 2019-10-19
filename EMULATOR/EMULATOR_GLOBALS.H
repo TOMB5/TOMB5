@@ -26,7 +26,11 @@ extern int(*printf_)(const char * format, ...);
 #define eprintf(fmt, ...) printf_("[EMU] " fmt, ##__VA_ARGS__)
 #define eprinterr(fmt, ...) eprintf("[%s] - " fmt, FUNCNAME, ##__VA_ARGS__);
 
+#if defined(__EMSCRIPTEN__)
+#define UNIMPLEMENTED()
+#else
 #define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
+#endif
 
 extern GLuint nullWhiteTexture;
 extern GLuint vramFrameBuffer;

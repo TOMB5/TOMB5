@@ -15,7 +15,12 @@
 #define FUNCNAME __func__
 #endif
 
+#if defined(__EMSCRIPTEN__)
+#define UNIMPLEMENTED()
+#else
 #define UNIMPLEMENTED() S_Warn("[%s] - Unimplemented!\n", FUNCNAME);
+#endif
+
 #endif
 
 extern unsigned short AnimComp;
