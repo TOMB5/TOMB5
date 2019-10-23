@@ -616,15 +616,16 @@ loc_7931C:
 
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(<) (F)
 {
-	struct room_info* r;//a0
-	short* fd;//s1
-	short value;
+	struct room_info* r;//$a0
+	struct FLOOR_INFO* f;//$s0
+	unsigned short* fd;//$s1
+	unsigned short value;//$s2
+	short ret;//$t7 @ret
+	unsigned short trigger_value;//$s0
+	struct ITEM_INFO* item;//$a0
+	struct object_info* object;//$v0
+	int height;
 
-#if 1//DEBUG_CAM
-	return 0;
-#endif
-
-#if 1
 	//s0 = floor
 	//s3 = x
 	OnObject = 0;
@@ -632,357 +633,137 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	tiltyoff = 0;
 	tiltxoff = 0;
 	//s4 = z
-	//loc_78D18:
-	while (floor->pit_room != 0xFF)
-	{
-		//loc_78CB4
-		if (CheckNoColFloorTriangle(floor, x, z) == 1)
-		{
-			break;
-		}
+	f = floor;
 
-		r = &room[floor->pit_room];
-		floor = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
+	//loc_78CB4
+	while (f->pit_room != 0xFF)
+	{
+		if (CheckNoColFloorTriangle(f, x, z) == 1)
+			break;//loc_78D28
+
+		r = &room[f->pit_room];
+		f = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
 	}
+
 	//loc_78D28
-	//t7 = floor->floor << 8
+	ret = f->floor << 8;
 	//v0 = -32512
 
-	if ((floor->floor << 8) == -32512)
+	if ((f->floor << 8) == -32512)
 	{
-		return -32512;
+		return ret;
 	}
-	//loc_78FCC
-	//v1 = floor->index << 1
+
+	//v1 = f->index
+	//v1 <<= 1;
 	trigger_index = NULL;
 
-	//v0 = floor->floor << 8
-	if ((floor->index << 1) == 0)
+	if (f->index == 0)
 	{
-		return (floor->floor << 8);
+		return ret;
 	}
 
-	//s1 = floor_data
-	fd = &floor_data[floor->index];
+	fd = (unsigned short*)&floor_data[f->index];
 
 	//loc_78D60
-	//s2 = *fd++;
-	//v0 = s2 & 0x1F
-	//v1 = v0 - 1
-
-	switch (*fd++ & 0x1F)//CHECKME at end of loop do we *fd++ if so then leave as is
+	do
 	{
-	case DOOR_TYPE:
-	case ROOF_TYPE:
-	case SPLIT3:
-	case SPLIT4:
-	case NOCOLC1T:
-	case NOCOLC1B:
-	case NOCOLC2T:
-	case NOCOLC2B:
-		break;
-	case TILT_TYPE:
-	{
-		//loc_78EA0
-		//a1 = fd[1]
-		//a2 = fd[0]
-		//loc_78EB4
-		tiltxoff = ABS(fd[1]);//v0
-		tiltyoff = fd[0];
+		value = *fd++;
 
-		//v0 = v0 < 3 ? 1 : 0
+		//v0 = value & 0x1F
+		//v1 = v0 - 1
+		//v0 = v1 < 0x15 ? 1 : 0
+		//v0 = v1 << 2
 
-#if 0
-		slti    $v0, 3
-			beqz    $v0, loc_78EE4
-			li      $v0, 2
-			bgez    $a2, loc_78ED4
-			move    $v0, $a2
-			negu    $v0, $v0
-
-			loc_78ED4 :
-		slti    $v0, 3
-			bnez    $v0, loc_78EE4
-			li      $v0, 1
-			li      $v0, 2
-
-			loc_78EE4 :
-			jal     sub_78FEC
-			sw      $v0, 0x1C6C($gp)
-
-			loc_78EEC : # jumptable 00078D8C cases 1, 3, 9, 10, 15 - 18
-			j       loc_78FC0
-			addiu   $s1, 2
-
-			loc_78EF4:               # jumptable 00078D8C cases 6, 19 - 21
-			lw      $v0, 0x1B3C($gp)
-			nop
-			bnez    $v0, loc_78FC0
-
-			loc_78F00 : # jumptable 00078D8C case 5
-			addiu   $v0, $s1, -2
-			j       loc_78FC0
-			sw      $v0, 0x1B3C($gp)
-#endif
+		switch ((value & 0x1F))
+		{
+		case DOOR_TYPE:
+		case ROOF_TYPE:
+		case SPLIT3:
+		case SPLIT4:
+		case NOCOLC1T:
+		case NOCOLC1B:
+		case NOCOLC2T:
+		case NOCOLC2B://COMPLETE
+		{
+			//loc_78EEC
+			fd++;
 			break;
-	}
-	case TRIGGER_TYPE:
-		//loc_78F0C
-		//v0 = trigger_index
-		fd++;
-		if (trigger_index == NULL)
-		{
-			trigger_index = &fd[-1];
 		}
-		//loc_78F20
-		//s0 = *fd++
-		//v1 = (*fd++ & 0x3FFF) >> 10
-
-		value = (*fd++ & 0x3FFF) >> 10;//v1
-
-		if (value == 0)
+		case TILT_TYPE:
 		{
-			//loc_78F54
-
-		}
-		else if (value == 12 || value == 1)
-		{
-			//loc_78F48
-		}
-
-#if 0///@? check pc for this, too complicated.
-		beqz    $v1, loc_78F54
-			li      $v0, 0xC
-			beq     $v1, $v0, loc_78F48
-			li      $v0, 1
-			bne     $v1, $v0, loc_78FB8
-			nop
-
-			loc_78F48 :
-		lhu     $s0, 0($s1)
-			j       loc_78FB8
-			addiu   $s1, 2
-
-			loc_78F54 :
-			lw      $a0, 0x1B38($gp)
-			andi    $v1, $s0, 0x3FF
-			sll     $v0, $v1, 7
-			sll     $v1, 4
-			addu    $v0, $v1
-			addu    $a0, $v0
-			lh      $v1, 0xC($a0)
-			lh      $v0, 0x28($a0)
-			li      $t0, 0x1F2480
-			andi    $v0, 0x8000
-			bnez    $v0, loc_78FB8
-			sll     $v1, 6
-			addu    $v0, $t0, $v1
-			lw      $v0, 0x14($v0)
-			move    $a1, $s3
-			beqz    $v0, loc_78FB8
-			move    $a3, $s4
-			lw      $a2, 0x68 + var_48($sp)
-			addiu   $at, $sp, 0x68 + var_50
-			sw      $t7, 0x68 + var_50($sp)
-			sw      $at, 0x68 + var_58($sp)
-			jalr    $v0
-			nop
-			lw      $t7, 0x68 + var_50($sp)
-#endif
+			//loc_78EA0
 			break;
-	case LAVA_TYPE:
-	{
-		//loc_78F00
-		trigger_index = &fd[-1];
-		//j       loc_78FC0
-		break;
-	}
-	case CLIMB_TYPE:
-	case MONKEY_TYPE:
-	case TRIGTRIGGER_TYPE:
-	case MINER_TYPE:
-	{
-		//loc_78EF4
-		if (trigger_index == NULL)
-		{
-			trigger_index = &fd[-1];
 		}
-		//j       loc_78FC0
-		break;
-	}
-	case SPLIT1:
-	case SPLIT2:
-	case NOCOLF1T:
-	case NOCOLF1B:
-	case NOCOLF2T:
-	case NOCOLF2B:
-		//loc_78D94
-		break;
-	}
+		case TRIGGER_TYPE://COMPLETE
+		{
+			//loc_78F0C
+			fd++;
 
-#if 0
-	loc_78D94 : # jumptable 00078D8C cases 7, 8, 11 - 14
-		li      $v0, 4
-		lhu     $v1, 0($s1)
-		andi    $a0, $s2, 0x1F
-		sw      $v0, 0x1C6C($gp)
-		andi    $t0, $v1, 0xF
-		sra     $a3, $v1, 4
-		andi    $a3, 0xF
-		sra     $a2, $v1, 8
-		andi    $a2, 0xF
-		andi    $t1, $s4, 0x3FF
-		andi    $t2, $s3, 0x3FF
-		li      $v0, 7
-		beq     $a0, $v0, loc_78DD8
-		srl     $v1, 12
-		addiu   $v0, $a0, -0xB
-		sltiu   $v0, 2
-		beqz    $v0, loc_78E08
+			if (trigger_index == 0)
+			{
+				trigger_index = (short*)&fd[-2];
+			}
+			//loc_78F20
+			do
+			{
+				trigger_value = *fd++;
 
-		loc_78DD8 :
-				li      $v0, 0x400
-					subu    $v0, $t1
-					slt     $v0, $t2
-					bnez    $v0, loc_78DF8
-					srl     $v0, $s2, 10
-					subu    $a1, $a2, $a3
-					j       loc_78E2C
-					subu    $a2, $t0, $a3
+				if (((trigger_value & 0x3FFF) >> 10) == 0xC || ((trigger_value & 0x3FFF) >> 10) == 0x1)
+				{
+					trigger_value = *fd++;
+					continue;
+				}
+				//loc_78F54
+				item = &items[trigger_value & 0x3FF];
 
-					loc_78DF8 :
-				srl     $v0, $s2, 5
-					subu    $a1, $v1, $t0
-					j       loc_78E2C
-					subu    $a2, $v1, $a2
+				if (!(item->flags & 0x8000))
+				{
+					object = &objects[item->object_number];
 
-					loc_78E08 :
-				slt     $v0, $t1, $t2
-					bnez    $v0, loc_78E20
-					srl     $v0, $s2, 10
-					subu    $a1, $a2, $a3
-					j       loc_78E2C
-					subu    $a2, $v1, $a2
+					if (object->floor != NULL)
+					{
+						object->floor(item, x, y, z, &height);
+					}//loc_78FB8
+				}//loc_78FB8
+			} while (!(trigger_value & 0x8000));
+			break;
+		}
+		case LAVA_TYPE://COMPLETE
+		{
+			//loc_78F00
+			trigger_index = (short*)--fd;
+			break;
+		}
+		case CLIMB_TYPE:
+		case MONKEY_TYPE:
+		case TRIGTRIGGER_TYPE:
+		case MINER_TYPE://COMPLETE
+		{
+			//loc_78EF4
+			if (trigger_index == NULL)
+			{
+				trigger_index = (short*)&fd[-1];
+			}
+			break;
+		}
+		case SPLIT1:
+		case SPLIT2:
+		case NOCOLF1T:
+		case NOCOLF1B:
+		case NOCOLF2T:
+		case NOCOLF2B:
+		{
+			//loc_78D94
+			break;
+		}
+		default:
+			//WE_GOT_AN_ERROR();
+			break;
+		}
 
-					loc_78E20 :
-				srl     $v0, $s2, 5
-					subu    $a1, $v1, $t0
-					subu    $a2, $t0, $a3
+		//loc_78FC0
+	} while (!(value & 0x8000));
 
-					loc_78E2C :
-				sw      $a1, 0x1ACC($gp)
-					sw      $a2, 0x1AD0($gp)
-					andi    $v0, 0x1F
-					andi    $at, $v0, 0x10
-					beqz    $at, loc_78E48
-					li      $at, 0xFFFFFFF0
-					or $v0, $at
-
-					loc_78E48 :
-				sll     $v0, 8
-					addu    $t7, $v0
-					bgez    $a1, loc_78E5C
-					move    $v0, $a1
-					negu    $v0, $v0
-
-					loc_78E5C :
-				slti    $v0, 3
-					beqz    $v0, loc_78E90
-					li      $v0, 3
-					bgez    $a2, loc_78E74
-					move    $v0, $a2
-					negu    $v0, $v0
-
-					loc_78E74 :
-				slti    $v0, 3
-					beqz    $v0, loc_78E90
-					li      $v0, 3
-					lw      $v1, 0x1C6C($gp)
-					li      $v0, 4
-					beq     $v1, $v0, loc_78E94
-					li      $v0, 1
-
-					loc_78E90:
-				sw      $v0, 0x1C6C($gp)
-
-					loc_78E94 :
-					addiu   $s1, 2
-					jal     sub_78FEC
-					addiu   $ra, 0x120
-
-
-
-					loc_78F0C : # jumptable 00078D8C case 4
-					lw      $v0, 0x1B3C($gp)
-					addiu   $s1, 2
-					bnez    $v0, loc_78F20
-					addiu   $v0, $s1, -4
-					sw      $v0, 0x1B3C($gp)
-
-					loc_78F20:
-						lhu     $s0, 0($s1)
-							addiu   $s1, 2
-							andi    $v0, $s0, 0x3FFF
-							srl     $v1, $v0, 10
-							beqz    $v1, loc_78F54
-							li      $v0, 0xC
-							beq     $v1, $v0, loc_78F48
-							li      $v0, 1
-							bne     $v1, $v0, loc_78FB8
-							nop
-
-							loc_78F48 :
-						lhu     $s0, 0($s1)
-							j       loc_78FB8
-							addiu   $s1, 2
-
-							loc_78F54 :
-							lw      $a0, 0x1B38($gp)
-							andi    $v1, $s0, 0x3FF
-							sll     $v0, $v1, 7
-							sll     $v1, 4
-							addu    $v0, $v1
-							addu    $a0, $v0
-							lh      $v1, 0xC($a0)
-							lh      $v0, 0x28($a0)
-							li      $t0, 0x1F2480
-							andi    $v0, 0x8000
-							bnez    $v0, loc_78FB8
-							sll     $v1, 6
-							addu    $v0, $t0, $v1
-							lw      $v0, 0x14($v0)
-							move    $a1, $s3
-							beqz    $v0, loc_78FB8
-							move    $a3, $s4
-							lw      $a2, 0x68 + var_48($sp)
-							addiu   $at, $sp, 0x68 + var_50
-							sw      $t7, 0x68 + var_50($sp)
-							sw      $at, 0x68 + var_58($sp)
-							jalr    $v0
-							nop
-							lw      $t7, 0x68 + var_50($sp)
-
-							loc_78FB8:
-						andi    $v0, $s0, 0x8000
-							beqz    $v0, loc_78F20
-
-							loc_78FC0 :
-						andi    $v0, $s2, 0x8000
-							beqz    $v0, loc_78D60
-							move    $v0, $t7
-
-							loc_78FCC :
-						lw      $ra, 0x68 + var_4($sp)
-							lw      $s4, 0x68 + var_18($sp)
-							lw      $s3, 0x68 + var_1C($sp)
-							lw      $s2, 0x68 + var_20($sp)
-							lw      $s1, 0x68 + var_24($sp)
-							lw      $s0, 0x68 + var_28($sp)
-							jr      $ra
-							addiu   $sp, 0x68
-#endif
-#else
-	UNIMPLEMENTED();
-#endif
-	return 0;
+	return ret;
 }
