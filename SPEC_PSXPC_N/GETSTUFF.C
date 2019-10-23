@@ -614,6 +614,41 @@ loc_7931C:
 	return -32512;
 }
 
+void GH_adjust_height(int a1, int s4, short* t7, int a2, int s3)
+{
+	int v0;
+
+	v0 = s4 & 0x3FF;
+	if (a1 < 0)
+	{
+		v0 = (v0 * a1) >> 2;
+		*t7 -= v0;
+	}
+
+	//loc_79008
+	v0 = 0x3FF;
+	v0 -= s4;
+	v0 &= 0x3FF;
+	v0 *= a1;
+	v0 >>= 2;
+	*t7 += v0;
+
+	//loc_79024
+	v0 = s3 & 0x3FF;
+	if (a2 < 0)
+	{
+		v0 = (v0 * a2) >> 2;
+		*t7 -= v0;
+		return;
+	}//loc_79040
+
+	v0 = 0x3FF;
+	v0 -= s3;
+	v0 &= 0x3FF;
+	v0 = (v0 * a2) >> 2;
+	*t7 += v0;
+}
+
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(<) (F)
 {
 	struct room_info* r;//$a0
@@ -693,6 +728,33 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 		case TILT_TYPE:
 		{
 			//loc_78EA0
+			unsigned char a1 = ((unsigned char*)fd)[1];
+			unsigned char a2 = ((unsigned char*)fd)[0];
+
+			//loc_78EB4
+			tiltxoff = a1;
+			tiltyoff = a1;
+
+			if (ABS(a1) < 3)
+			{
+				if (ABS(a2) < 3)
+				{
+					height_type = 1;
+					GH_adjust_height(a1, z, &ret, a2, x);
+				}
+				else
+				{
+					height_type = 2;
+					GH_adjust_height(a1, z, &ret, a2, x);
+				}
+			}
+			else
+			{
+				//loc_78EE4
+				height_type = 2;
+				GH_adjust_height(a1, z, &ret, a2, x);
+			}
+			fd++;
 			break;
 		}
 		case TRIGGER_TYPE://COMPLETE
