@@ -8,6 +8,8 @@
 #include "TEXT_S.H"
 #include "SETUP.H"
 
+#include <assert.h>
+
 long DIVFP(long A, long B)
 {
 	return (A / (B >> 8)) << 8;
@@ -614,6 +616,11 @@ loc_7931C:
 	return -32512;
 }
 
+void WE_GOT_AN_ERROR()
+{
+	assert(0);
+}
+
 void GH_adjust_height(int a1, int s4, short* t7, int a2, int s3)
 {
 	int v0;
@@ -660,6 +667,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 	struct ITEM_INFO* item;//$a0
 	struct object_info* object;//$v0
 	int height;
+	unsigned short v1;//$v1
 
 	//s0 = floor
 	//s3 = x
@@ -725,7 +733,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 			fd++;
 			break;
 		}
-		case TILT_TYPE:
+		case TILT_TYPE://COMPLETE
 		{
 			//loc_78EA0
 			unsigned char a1 = ((unsigned char*)fd)[1];
@@ -817,10 +825,96 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 		case NOCOLF2B:
 		{
 			//loc_78D94
+			//v0 = 4
+			v1 = *fd;
+			//a0 = value & 0x1F;
+			height_type = 4;
+			int t0 = v1 & 0xF;
+			int a3 = (v1 >> 4) & 0xF;
+			int a2 = (v1 >> 8) & 0xF;
+			int t1 = z & 0x3FF;
+			int t2 = x & 0x3FF;
+			//v0 = 7
+			int a1;
+			int v0;
+
+			v1 >>= 12;
+			if ((value & 0x1F) == 7 || (value & 0x1F) - 11 < 2)
+			{
+				//loc_78DD8
+				v0 = value >> 10;
+				if (0x400 - t1 < t2)
+				{
+					//loc_78DF8
+					a1 = a2 - a3;
+					a2 = t0 - a3;
+					//j loc_78E2C
+				}
+				else
+				{
+					//loc_78DF8
+					v0 = value >> 5;
+					a1 = v1 - t0;
+					a2 = v1 - a2;
+					//j loc_78E2C
+				}
+			}
+			else
+			{
+				//loc_78E08
+				v0 = value >> 10;
+				if (t1 < t2)
+				{
+					//loc_78E20
+					a1 = a2 - a3;
+					a2 = v1 - a2;
+					//j       loc_78E2C
+				}
+				else
+				{
+					v0 = value >> 5;
+					a1 = v1 - t0;
+					a2 = t0 - a3;
+				}
+			}
+
+			//loc_78E2C
+			tiltxoff = a1;
+			tiltyoff = a2;
+
+			v0 &= 0x1F;
+
+			int at = -16;
+			if ((v0 & 0x10))
+			{
+				v0 |= at;
+			}
+			//loc_78E48
+			v0 <<= 8;
+			ret += v0;
+
+			if (!(ABS(a1) < 3))
+			{
+				//loc_78E90
+				height_type = 3;
+			}
+			else if(!(ABS(2) < 3))
+			{
+				//loc_78E90
+				height_type = 3;
+			}
+			else if (height_type != 4)
+			{
+				height_type = 1;
+			}
+
+			//loc_78E94
+			fd++;
+			GH_adjust_height(a1, z, &ret, a2, x);
 			break;
 		}
 		default:
-			//WE_GOT_AN_ERROR();
+			WE_GOT_AN_ERROR();
 			break;
 		}
 
