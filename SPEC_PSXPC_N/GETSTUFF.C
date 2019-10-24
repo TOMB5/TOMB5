@@ -35,7 +35,7 @@ char GetDoor(struct FLOOR_INFO* floor)
 	fd = (unsigned short*)&floor_data[floor->index];
 	v1 = *fd++;
 
-	if ((v1 & 0x1F) == 2 || (v1 & 0x1F) - 7 < 2 || (v1 & 0x1F) - 11 < 4)
+	if ((v1 & 0x1F) == 2 || (unsigned)((v1 & 0x1F) - 7) < 2 || (unsigned)((v1 & 0x1F) - 11) < 4)
 	{
 		if ((v1 & 0x8000))
 		{
@@ -46,7 +46,7 @@ char GetDoor(struct FLOOR_INFO* floor)
 		fd += 2;
 	}
 	//loc_78828
-	if ((v1 & 0x1F) == 3 || (v1 & 0x1F) - 9 < 2 || (v1 & 0x1F) - 15 < 4)
+	if ((v1 & 0x1F) == 3 || (unsigned)((v1 & 0x1F) - 9) < 2 || (unsigned)((v1 & 0x1F) - 15) < 4)
 	{
 		//loc_78848
 		if ((v1 & 0x8000))
@@ -58,7 +58,7 @@ char GetDoor(struct FLOOR_INFO* floor)
 		fd += 2;
 	}
 	//loc_7885C
-	if ((v1 & 0x1F))
+	if ((v1 & 0x1F) == 1)
 	{
 		return fd[0];
 	}
