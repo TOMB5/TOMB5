@@ -195,67 +195,67 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 	char str[64];
 
 loc_78974:
-	r = &room[*room_number];
-	dz = ((z - r->z) >> 10);
-	dx = ((x - r->x) >> 10);
+	r = &room[*room_number];//$t2
+	dz = ((z - r->z) >> 10);//$a1
+	dx = ((x - r->x) >> 10);//$v1
 
-#if 1//DEBUG_CAM
-	return &r->floor[0];
-#endif
+	//t1 = r->x_size
+	//t0 = r->x_size >> 16
 
 	if (dz > 0)
 	{
-		//loc_789B4
-		if (dz < r->x_size - 1)
+		if (dz < (r->x_size - 1))
 		{
 			//loc_789EC
 			if (dx >= 0)
 			{
 				//loc_789FC
-				if (dx > (r->y_size))
+				if (!(dx < (r->y_size)))
 				{
-					dx = r->x_size - 1;
+					dx = (r->y_size) - 1;
 				}
 			}
 			else
 			{
-				v1 = 0;
+				//j loc_78A0C
+				dx = 0;
 			}
 		}
 		else if (dx > 0)
 		{
-			dz = 0;
-			//loc_789CC
 			//loc_789D4
-			a0 = (r->x_size >> 16) - 2;
+			dz = r->x_size - 1;
 
-			if ((r->x_size >> 16) - 2 < dx)
+			if ((((r->y_size) - 2) < dx))
 			{
-				dx = (r->x_size >> 16) - 2;
+				dx = ((r->y_size) - 2);
 			}
 		}
 		else
 		{
-			//loc_789CC
+			dz = r->x_size - 1;
 			dx = 1;
 		}
 	}
-	else if (dx > 0)
+	else if (dx <= 0)
 	{
+		//loc_789CC
 		dz = 0;
-		//loc_789D4
-		a0 = (r->x_size >> 16) - 2;
-
-		if ((r->x_size >> 16) - 2 < dx)
-		{
-			dx = (r->x_size >> 16) - 2;
-		}
+		dx = 1;
 	}
 	else
 	{
-		dx = 1;
+		//loc_789D4
+		dz = 0;
+		//a0 = ((r->x_size >> 16) - 2)
+		//v0 = ((r->x_size >> 16) - 2) < dx ? 1 : 0
+		if (!(((r->y_size) - 2) < dx))
+		{
+			dx = ((r->y_size) - 2);
+		}
 	}
 
+	//loc_78A0C
 	floor = &r->floor[dz + (dx * r->x_size)];
 	door = GetDoor(floor);
 	sprintf(str, "DOOR %d\n", door);
