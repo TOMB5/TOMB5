@@ -121,63 +121,72 @@ long CheckNoColFloorTriangle(struct FLOOR_INFO* floor, long x, long z)//(F)
 
 long CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, long x, long z)//(F)
 {
-	int at;
-	int a0;
-	short* v1;
+	unsigned short* fd;//$v1
+	unsigned short data;//$a0
 
 	x &= 0x3FF;
 
 	if (!floor->index)
-	{
 		return 0;
-	}
 
-	v1 = &floor_data[floor->index];
-	a0 = floor_data[floor->index];
+	fd = (unsigned short*)&floor_data[floor->index];
+	data = fd[0];
 
 	z &= 0x3FF;
 
-	at = (floor_data[floor->index] & 0x1F);
-
-	if (at == 2 && at - 7 > 1 && at - 11 < 4)
+	if ((data & 0x1F) == 2 || (unsigned)((data & 0x1F) - 7) < 2 || (unsigned)((data & 0x1F) - 0xB) < 4)
 	{
 		//loc_788C0
-		if ((a0 & 0x8000))
+		if ((data & 0x8000))
 		{
 			return 0;
 		}
 
-		a0 = v1[2];
+		data = fd[2];
 	}
+	
 	//loc_788D4
-	at = a0 & 0x1F;//v1
-
-	if (at - 15 > 14)
+	if ((unsigned)((data & 0x1F) - 0xF) >= 4)
 	{
 		return 0;
 	}
 
-	if (at == 15 && (1024 - z) > x)
+	if ((data & 0x1F) == 0xF)
 	{
-		return -1;
+		if ((0x400 - z) >= x)
+		{
+			return -1;
+		}
 	}
 
 	//loc_78904
-	if (at == 16 && 1024 - z < x)
+	if ((data & 0x1F) == 0x10)
 	{
-		return -1;
+		if ((0x400 - z) < x)
+		{
+			return -1;
+		}
 	}
 
-	if (at == 17 && z > x)
+	//loc_78920
+	if ((data & 0x1F) == 0x11)
 	{
-		return -1;
+		if (z >= x)
+		{
+			return -1;
+		}
 	}
 
-	if (at == 18 && z < x)
+	//loc_78934
+	if ((data & 0x1F) == 0x12)
 	{
-		return -1;
+		if ((z < x))
+		{
+			return -1;
+		}
 	}
 
+	//loc_78948
 	return 1;
 }
 
