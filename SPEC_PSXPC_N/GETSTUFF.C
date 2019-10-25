@@ -184,91 +184,82 @@ long CheckNoColCeilingTriangle(struct FLOOR_INFO* floor, long x, long z)//(F)
 struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 {
 	struct room_info* r = NULL;
-	struct FLOOR_INFO* floor = NULL;
-	int v1;
+	struct FLOOR_INFO* floor = NULL;//$t1
 	int dz;
 	int dx;
-	int a1;
-	int a0 = 0;///@REMOVE ME this is hack crash fix.
-	char door;
+	char door;//$a0
 	int v0;
-	char str[64];
 
-loc_78974:
-	r = &room[*room_number];//$t2
-	dz = ((z - r->z) >> 10);//$a1
-	dx = ((x - r->x) >> 10);//$v1
-
-	//t1 = r->x_size
-	//t0 = r->x_size >> 16
-
-	if (dz > 0)
+	//loc_78974:
+	do
 	{
-		if (dz < (r->x_size - 1))
+		r = &room[*room_number];//$t2
+		dz = ((z - r->z) >> 10);//$a1
+		dx = ((x - r->x) >> 10);//$v1
+
+		if (dz > 0)
 		{
-			//loc_789EC
-			if (dx >= 0)
+			if (dz < (r->x_size - 1))
 			{
-				//loc_789FC
-				if (!(dx < (r->y_size)))
+				//loc_789EC
+				if (dx >= 0)
 				{
-					dx = (r->y_size) - 1;
+					//loc_789FC
+					if (!(dx < (r->y_size)))
+					{
+						dx = (r->y_size) - 1;
+					}
+				}
+				else
+				{
+					//j loc_78A0C
+					dx = 0;
+				}
+			}
+			else if (dx > 0)
+			{
+				//loc_789D4
+				dz = r->x_size - 1;
+
+				if ((((r->y_size) - 2) < dx))
+				{
+					dx = ((r->y_size) - 2);
 				}
 			}
 			else
 			{
-				//j loc_78A0C
-				dx = 0;
+				dz = r->x_size - 1;
+				dx = 1;
 			}
 		}
-		else if (dx > 0)
+		else if (dx <= 0)
+		{
+			//loc_789CC
+			dz = 0;
+			dx = 1;
+		}
+		else
 		{
 			//loc_789D4
-			dz = r->x_size - 1;
-
-			if ((((r->y_size) - 2) < dx))
+			dz = 0;
+			if (!(((r->y_size) - 2) < dx))
 			{
 				dx = ((r->y_size) - 2);
 			}
 		}
-		else
-		{
-			dz = r->x_size - 1;
-			dx = 1;
-		}
-	}
-	else if (dx <= 0)
-	{
-		//loc_789CC
-		dz = 0;
-		dx = 1;
-	}
-	else
-	{
-		//loc_789D4
-		dz = 0;
-		//a0 = ((r->x_size >> 16) - 2)
-		//v0 = ((r->x_size >> 16) - 2) < dx ? 1 : 0
-		if (!(((r->y_size) - 2) < dx))
-		{
-			dx = ((r->y_size) - 2);
-		}
-	}
 
-	//loc_78A0C
-	floor = &r->floor[dz + (dx * r->x_size)];
-	door = GetDoor(floor);
-	sprintf(str, "DOOR %d\n", door);
-	PrintString(20, 210, 1, str, 0);
+		//loc_78A0C
+		floor = &r->floor[dz + (dx * r->x_size)];
+		door = GetDoor(floor);
 
-	if (door != -1)
-	{
-		*room_number = door;
-		goto loc_78974;
-	}
+		if (door != -1)
+		{
+			*room_number = door;
+		}
+	} while (door != -1);
 
 	//loc_78A50
-	if (y > floor->floor << 8)
+	if (y >= floor->floor << 8)
 	{
 loc_78A68:
 		if (floor->pit_room == 255)
@@ -285,7 +276,7 @@ loc_78A68:
 
 		if (v0 == -1)
 		{
-			if (y > room->minfloor)
+			if (y >= room->minfloor)
 			{
 				return floor;
 			}
@@ -294,7 +285,7 @@ loc_78A68:
 		*room_number = floor->pit_room;
 		r = &room[floor->pit_room];
 		//v0 = z - v0
-		floor = &room->floor[(((x - r->x) >> 10) * r->x_size) + ((z - r->z) >> 10)];	
+		floor = &r->floor[(((x - r->x) >> 10) * r->x_size) + ((z - r->z) >> 10)];	
 		
 		if (y < (floor->floor << 8))
 		{
@@ -327,16 +318,16 @@ loc_78A68:
 
 		if (v0 == -1)
 		{
-			if (y > room->y)
+			if (y >= r->y)
 			{
 				return floor;
 			}
 		}
 
 		//loc_78B60
-		*room_number = floor->sky_room;///@FIXME illegal room number, reporting 255 here
+		*room_number = floor->sky_room;
 		r = &room[floor->sky_room];
-		floor = &r->floor[(((z - r->z) >> 10) + ((x - r->x) >> 10)) * r->x_size];
+		floor = &r->floor[(((z - r->z) >> 10) + (((x - r->x) >> 10)) * r->x_size)];
 	
 	} while (y < (floor->ceiling << 8));
 
