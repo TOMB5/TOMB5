@@ -80,40 +80,59 @@ int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target)
 
 long CheckNoColFloorTriangle(struct FLOOR_INFO* floor, long x, long z)//(F)
 {
+	unsigned short* fd;//$v1
+	unsigned short data;//$v1
+
 	x &= 0x3FF;
-	if (!(floor->index))
+
+	if (!floor->index)
 	{
 		return 0;
 	}
+
+	fd = (unsigned short*)&floor_data[floor->index];
+	data = fd[0];
 
 	z &= 0x3FF;
 
-	if ((floor_data[floor->index] & 0x1F) - 11 > 3)
+	if ((unsigned)((data & 0x1F) - 0xB) >= 4)
 	{
 		return 0;
 	}
 
-	if ((floor_data[floor->index] & 0x1F) == 11 && (1024 - z) > x)
+	if ((data & 0x1F) == 0xB)
 	{
-		return -1;
+		if (0x400 - z >= x)
+		{
+			return -1;
+		}
 	}
 
 	//loc_78C24
-	if ((floor_data[floor->index] & 0x1F) == 12 && (1024 - z) < x)
+	if ((data & 0x1F) == 0xC)
 	{
-		return -1;
+		if (0x400 - z < x)
+		{
+			return -1;
+		}
 	}
 
 	//loc_78C40
-	if ((floor_data[floor->index] & 0x1F) == 13 && z > x)
+	if ((data & 0x1F) == 0xD)
 	{
-		return -1;
+		if (z >= x)
+		{
+			return -1;
+		}
 	}
 
 	//loc_78C54
-	if ((floor_data[floor->index] & 0x1F) == 14 && z < x)
+	if ((data & 0x1F) == 0xE)
 	{
-		return -1;
+		if (z < x)
+		{
+			return -1;
+		}
 	}
 
 	return 1;
