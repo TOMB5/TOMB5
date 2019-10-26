@@ -7,15 +7,12 @@ set(OPT_DEFINITIONS "")
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
-#Find required libs for PSXPC_N
-set(GLEW_USE_STATIC_LIBS ON)
-if(NOT(EMSCRIPTEN))
-find_package(GLEW REQUIRED)
-find_package(SDL2 REQUIRED)
-else()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 --emrun -s ASSERTIONS=1 --std=c++11 --preload-file ${ROOT_DIR}/EMSCRIPTEN/ASSETS@/ -s USE_WEBGL2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1")
-set(SDL2_LIBRARIES "-s USE_SDL=2")
-endif()
+#Include all platform specific cmake files.
+include("PLATFORM/Windows.cmake")
+include("PLATFORM/Mingw.cmake")
+include("PLATFORM/Linux.cmake")
+include("PLATFORM/Emscripten.cmake")
+include("PLATFORM/Android.cmake")
 
 #Toggles debug code on/off
 OPTIONAL_DEFINE(DEBUG_VERSION "Enable/Disable Debug Code" OFF)
@@ -45,8 +42,7 @@ include_directories(${GAME_CODE_DIR})
 #Additional library include directories
 include_directories(${ROOT_DIR}/EMULATOR)
 link_directories(${ROOT_DIR}/BUILD/EMULATOR/${CMAKE_BUILD_TYPE})
-include_directories(${GLEW_INCLUDE_DIR})
-include_directories(${SDL2_INCLUDE_DIR})
+link_directories(${ROOT_DIR}/BUILD1/EMULATOR/)
 
 #Recursively locate the source files for SPEC_PSX.
 file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAKE_CURRENT_SOURCE_DIR}/*.MIP ${CMAKE_CURRENT_SOURCE_DIR}/*.H ${CMAKE_CURRENT_SOURCE_DIR}/*.CUR ${CMAKE_CURRENT_SOURCE_DIR}/*.RC)
@@ -63,30 +59,6 @@ ${PLATFORM_SPECIFIC_SRCS}
 
 BuildPreProcessorDefinitions()
 
-#Additional library include directories
-include_directories(${ROOT_DIR}/EMULATOR)
-link_directories(${ROOT_DIR}/BUILD/EMULATOR/${CMAKE_BUILD_TYPE})
-if(NOT(EMSCRIPTEN))
-include_directories(${GLEW_INCLUDE_DIR})
-include_directories(${SDL2_INCLUDE_DIR})
-else()
-Message(STATUS ${ROOT_DIR}/EMSCRIPTEN/EMULATOR/)
-link_directories(${ROOT_DIR}/EMSCRIPTEN/EMULATOR/)
-link_directories(${ROOT_DIR})
-set(CMAKE_EXECUTABLE_SUFFIX ".html")
-endif()
-
-BuildPreProcessorDefinitions()
-if (EMSCRIPTEN)
-set(PSX_LIB ${ROOT_DIR}/EMSCRIPTEN/EMULATOR/libPSX.bc)
-elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR UNIX)
-add_dependencies(${PROJECT_NAME} Emulator_)
-set(PSX_LIB libPSX.a)
-elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-add_dependencies(${PROJECT_NAME} Emulator_Win32)
-set(PSX_LIB PSX.lib)
-endif()
-
 #Link against required libraries
 target_link_libraries(
 ${PROJECT_NAME}
@@ -100,16 +72,6 @@ set_target_properties(
 ${PROJECT_NAME} PROPERTIES OUTPUT_NAME "MAIN"
 ${PROJECT_NAME} PROPERTIES FOLDER "Build Targets/PlayStation"
 )
-
-#Someone should actually fix these errors at some point
-if(UNIX)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-narrowing")
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wno-narrowing")
-	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wno-narrowing")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-narrowing")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-narrowing")
-endif()
 
 set(TARGET_BINARY_DIR "${PROJECT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
 
