@@ -10,14 +10,14 @@
 #define MC_HEADER_FRAME_INDEX (0)
 
 #pragma pack(push,1)
-struct MemoryCardFrame
+typedef struct MemoryCardFrame
 {
 	unsigned int attr;
 	unsigned int size;
 	unsigned short unknown;
 	char name[20];
 	char padding[98];
-};
+} MemoryCardFrame_s, *MemoryCardFrame_p;
 #pragma pack(pop)
 
 int bIsInitialised = 0;
@@ -84,7 +84,7 @@ long MemCardExist(long chan)
 		return 0;
 
 	char buf[16];
-	sprintf(&buf[0], "%d.MCD", chan);
+	sprintf(&buf[0], "%ld.MCD", chan);
 	memoryCards[chan] = fopen(&buf[0], "rb");
 
 	memoryCardCmds = McFuncExist;
@@ -121,7 +121,7 @@ long MemCardAccept(long chan)
 		return 0;
 
 	char buf[16];
-	sprintf(&buf[0], "%d.MCD", chan);
+	sprintf(&buf[0], "%ld.MCD", chan);
 	memoryCards[chan] = fopen(&buf[0], "rb");
 	memoryCardCmds = McFuncAccept;
 
@@ -148,7 +148,7 @@ long MemCardOpen(long chan, char* file, long flag)
 		return 0;
 
 	char buf[16];
-	sprintf(&buf[0], "%d.MCD", chan);
+	sprintf(&buf[0], "%ld.MCD", chan);
 
 	switch (flag)
 	{
@@ -281,7 +281,7 @@ MemCB MemCardCallback(MemCB func)
 long MemCardGetDirentry(long chan, char* name, struct DIRENTRY* dir, long* files, long ofs, long max)
 {
 	char buf[16];
-	sprintf(&buf[0], "%d.MCD", chan);
+	sprintf(&buf[0], "%ld.MCD", chan);
 	memoryCards[chan] = fopen(&buf[0], "rb");
 	fseek(memoryCards[chan], 0, SEEK_SET);
 

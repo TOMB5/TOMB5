@@ -5,6 +5,10 @@
 #if PSX_VERSION || PSXPC_VERSION
 #include "CALCLARA.H"
 #include "MATHS.H"
+#include "FXTRIG.H"
+#include "LARASURF.H"
+#include "GETSTUFF.H"
+#include "COLLIDE.H"
 #endif
 #include "CONTROL.H"
 #include "DRAW.H"
@@ -23,9 +27,17 @@
 #include "HEALTH.H"
 #include "NEWINV2.H"
 #include "LARAFIRE.H"
-
+#include "SPOTCAM.H"
 #if !SAT_VERSION
 #include <string.h>
+#endif
+#include "EFFECTS.H"
+#include "SOUND.H"
+#include "SFX.H"
+#include "CD.H"
+
+#if PSX_VERSION && !PSXPC_TEST
+#include <STDIO.H>
 #endif
 
 #if DEBUG_VERSION
@@ -107,6 +119,8 @@ void GetLaraDeadlyBounds()//4B408(<), 4B86C (F)
 	DeadlyBounds[3] = lara_item->pos.y_pos + tbounds[3];
 	DeadlyBounds[4] = lara_item->pos.z_pos + tbounds[4];
 	DeadlyBounds[5] = lara_item->pos.z_pos + tbounds[5];
+#else
+	UNIMPLEMENTED();
 #endif
 }
 
@@ -144,7 +158,380 @@ void InitialiseLaraLoad(short item_num)//4B308, 4B76C (F)
 
 void LaraControl(short item_number)//4A838, 4AC9C
 {
-	UNIMPLEMENTED();
+	long oldx; // $s7
+	long oldy; // $fp
+	long oldz; // stack offset -44
+	struct ITEM_INFO* item; // $s0
+	int wh; // $s3
+	int wd; // $s4
+	int hfw; // $s2
+	int room_water_state; // $s5
+	short room_number; // stack offset -48
+
+	//a1 = &lara
+	//a0 = lara.bitfield
+	//v1 = lara.IsMoving
+	//v0 = lara.MoveCount & 0xFF
+	//v1 = lara.MoveCount + 1;
+
+	item = lara_item;
+
+	if (lara.IsMoving)
+	{
+		if (++lara.MoveCount > 90)
+		{
+			lara.IsMoving = 0;
+			lara.gun_status = 0;
+		}//loc_4A8B0
+	}//loc_4A8B0
+
+	//a1 = &lara
+	if (!bDisableLaraControl)
+	{
+		//v1 = &lara
+		lara.locationPad = -128;
+	}//loc_4A8D0
+
+	oldx = lara_item->pos.x_pos;//s7
+	oldy = lara_item->pos.y_pos;//fp
+	oldz = lara_item->pos.z_pos;//a0
+
+	//a0 = lara_item
+	if (lara.gun_status == 1 && lara_item->current_anim_state == 2 &&
+		lara_item->goal_anim_state == 2 && lara_item->anim_number == 0x67 &&
+		lara_item->gravity_status == 0)
+	{
+		lara.gun_status = 0;
+	}//loc_4A944
+
+	//a0 = &lara
+	if (item->current_anim_state != 0x49 && DashTimer < 120)
+	{
+		DashTimer++;
+	}//loc_4A978
+
+	lara.IsDucked = 0;
+	//v0 = &room[item->room_number]
+	room_water_state = room[item->room_number].flags & RF_FILL_WATER;
+	wd = GetWaterDepth(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
+	wh = GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
+
+	hfw = -32152;
+	if (wh != -32152)
+	{
+		hfw = item->pos.y_pos - wh;
+	}//loc_4A9F0
+	lara.water_surface_dist = -hfw;
+	WadeSplash(item, wh, wd);
+	//s1 = &lara
+	//a2 = lara.water_status
+
+	switch (lara.water_status)
+	{
+	case 0:///@DONE
+	{
+		//loc_4AA4C
+		if (hfw < 256)
+		{
+			//loc_4AF90
+			break;
+		}
+
+		if (wd >= 475)
+		{
+			if (hfw < 257 && room_water_state != 0)
+			{
+				lara.air = 1800;
+				lara.water_status = 1;
+				item->status = 0;
+
+				UpdateLaraRoom(lara_item, 0);
+				StopSoundEffect(SFX_LARA_FALL);
+
+				if (item->current_anim_state == 0x34)
+				{
+					item->goal_anim_state = 0x23;
+					item->pos.x_rot = -0x1FFE;
+					AnimateLara(item);
+					item->fallspeed <<= 1;
+				}//loc_4AABC
+				else if (item->current_anim_state == 0x35)
+				{
+					item->goal_anim_state = 0x23;
+					item->pos.x_rot = -0x36CE;
+					AnimateLara(item);
+					item->fallspeed <<= 1;
+				}
+				else
+				{
+					item->pos.x_rot = -0x1FFE;
+					item->current_anim_state = 0x23;
+					item->anim_number = 0x11;
+					item->goal_anim_state = 0x11;
+					item->fallspeed = (((item->fallspeed << 1) + item->fallspeed) + (((item->fallspeed << 1) + item->fallspeed) >> 31)) >> 1;
+					item->frame_number = anims[112].frame_base;
+				}
+				//loc_4AB38
+				//a0 = lara_item
+				//v0 = lara
+				lara.torso_y_rot = 0;
+				lara.torso_x_rot = 0;
+				lara.head_y_rot = 0;
+				lara.head_x_rot = 0;
+
+				///Splash();
+				//v0 = -0xFA4
+
+			}//loc_4AB90
+		}
+		else
+		{
+			//loc_4AB60
+			if (hfw >= 257)
+			{
+				//v0 = -0xFA4
+				//v1 = 4
+				lara.water_status = 4;
+
+				//v0 = -0xFA4
+				if (!item->gravity_status)
+				{
+					item->goal_anim_state = 2;
+				}//loc_4AB94
+			}//loc_4AB94
+
+			camera.target_elevation = -0xFA4;
+
+			if (hfw < 256)
+			{
+				//v0 = &lara
+				lara.water_status = 0;
+
+				if (lara.climb_status == 0x41)
+				{
+					item->goal_anim_state = 1;
+				}
+			}//loc_4ABC4
+
+		}
+		break;
+	}
+	case 1:///@TODO
+	{
+		//loc_4AD88
+		room_number = item->room_number;
+		GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number);
+		//v1 = room_number
+		//a0 = room
+		//v1 = room[room_number].flags
+		//v0 = -32512
+
+		//a0 = item
+		if (wd != -32512 && hfw < 0
+			&& ABS(hfw) < 0x100
+			&& !(room[room_number].flags & RF_FILL_WATER)
+			&& item->anim_number != 0x72
+			&& item->anim_number != 0x77)
+		{
+			lara.water_status = 2;
+			//v0 = s3 + 1
+			//v1 = anims
+			//a1 = 0;
+			item->pos.y_pos = wh + 1;
+			//a2 = anims[114].frame_base;
+			//v1 = lara_item
+			item->goal_anim_state = 0x21;
+			item->current_anim_state = 0x21;
+			//v0 = 0xB
+			item->anim_number = 0x72;
+			item->fallspeed = 0;
+			item->frame_number = anims[114].frame_base;
+			lara.dive_count = 0xB;
+			lara_item->pos.z_rot = 0;
+			item->pos.x_rot = 0;
+			lara.torso_y_rot = 0;
+			lara.torso_x_rot = 0;
+			lara.head_y_rot = 0;
+			lara.head_x_rot = 0;
+			//j       loc_4AEFC
+		}
+		else
+		{
+			//loc_4AE70
+			//v0 = -32512
+			if (room_water_state == 0)
+			{
+				//a2 = &lara
+				if (wd != -32512)
+				{
+					if (hfw < 0)
+					{
+						//a0 = item
+						if (ABS(hfw) < 256)
+						{
+							//a1 = -381
+							//a2 = &lara
+							//v1 = anims
+							//v0 = 2
+							lara.water_status = 2;
+							item->pos.y_pos = wh;
+							//a3 = anims[114].frame_base
+							//v1 = 0x21
+							item->goal_anim_state = 0x21;
+							item->current_anim_state = 0x21;
+							//v1 = lara_item
+							//v0 = 0x72
+							item->anim_number = 0x72;
+							//v0 = 0xb
+							item->fallspeed = 0;
+							item->frame_number = anims[114].frame_base;
+							lara.dive_count = 0xB;
+							lara_item->pos.z_rot = 0;
+							item->pos.x_rot = 0;
+							lara.torso_y_rot = 0;
+							lara.torso_x_rot = 0;
+							lara.head_y_rot = 0;
+							lara.head_x_rot = 0;
+						}//loc_4AF24
+					}//loc_4AE8C ***********************************************
+				}//loc_4AF24
+			}//loc_4AF90
+		}
+		break;
+	}
+	case 2:///@TODO
+		//loc_4ACCC
+		break;
+	case 3:///@TODO
+		break;
+	case 4:///@TODO
+		//loc_4AB94
+		break;
+	}
+
+	//loc_4AF90
+	S_SetReverbType(room[item->room_number].ReverbType);
+
+	if (item->hit_points <= 0)
+	{
+		item->hit_points = -1;
+
+		if (lara.death_count == 0)
+		{
+			S_CDStop();
+		}
+
+		lara.death_count++;
+
+		if ((lara_item->flags & 0x100))
+		{
+			lara.death_count++;
+			return;
+		}
+	}
+
+	//loc_4B020
+	switch (lara.water_status)
+	{
+	case 0:
+		//a0 = lara
+		//v0 = lara
+		if (lara.Gassed)
+		{
+			if (item->hit_points >= 0)
+			{
+				lara.air--;
+
+				if (lara.air < 0)
+				{
+					lara.air = -1;
+					item->hit_points -= 5;
+				}
+			}
+		}
+		else
+		{
+			//loc_4B0B0
+			if (lara.air < 1800 && item->hit_points >= 0)
+			{
+				lara.air += 10;
+			}
+
+			if (lara.air > 1800)
+			{
+				lara.air = 1800;
+			}
+		}
+		//loc_4B0F0
+		LaraAboveWater(item, coll);
+		break;
+	}
+
+#if 1 //CONTROLS_TEST
+
+	if ((RawPad & 0x10))
+	{
+		camera.pos.x += 0x20;
+		lara_item->pos.x_pos += 0x20;
+	}
+	if ((RawPad & 0x40))
+	{
+		camera.pos.x -= 0x20;
+		lara_item->pos.x_pos -= 0x20;
+	}
+
+	if ((RawPad & 0x80))
+	{
+		camera.pos.z -= 0x20;
+		lara_item->pos.z_pos -= 0x20;
+	}
+
+	if ((RawPad & 0x20))
+	{
+		camera.pos.z += 0x20;
+		lara_item->pos.z_pos += 0x20;
+	}
+
+	if ((RawPad & 0x100))
+	{
+		camera.pos.y -= 0x20;
+		lara_item->pos.y_pos -= 0x20;
+	}
+
+	if ((RawPad & 0x400))
+	{
+		camera.pos.y += 0x20;
+		lara_item->pos.y_pos += 0x20;
+	}
+
+	if ((RawPad & IN_R2) && (RawPad & IN_DPAD_UP))
+	{
+		camera.pos.room_number++;
+		camera.pos.room_number %= number_rooms;
+		//lara_item->pos.y_rot += 0x40;
+	}
+	if ((RawPad & IN_R2) && (RawPad & IN_DPAD_DOWN))
+	{
+		camera.pos.room_number--;
+		if (camera.pos.room_number < 0)
+		{
+			camera.pos.room_number = 0;
+		}
+		//lara_item->pos.y_rot += 0x40;
+	}
+	/*struct FLOOR_INFO* floor;
+	short rn = camera.pos.room_number;
+	floor = GetFloor(camera.pos.x, camera.pos.y, camera.pos.z, &rn);
+	int height = GetHeight(floor, camera.pos.x, camera.pos.y, camera.pos.z);
+	UpdateLaraRoom(lara_item, height);
+	if (floor != NULL)
+	{
+		camera.pos.room_number = rn;
+	}*/
+
+	//item->pos.x_pos += (SIN(lara.move_angle) * item->speed) >> W2V_SHIFT;
+	//item->pos.z_pos += (COS(lara.move_angle) * item->speed) >> W2V_SHIFT;
+#endif
 }
 
 void LaraCheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4A790(<), 4ABF4(<) (F)

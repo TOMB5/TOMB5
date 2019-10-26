@@ -17,7 +17,7 @@
 
 #include <LIBGTE.H>
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__EMSCRIPTEN__)
 #define LOADING_PIC "DATA/LOADPIC.RAW"
 #else
 #define LOADING_PIC "data\\loadpic.raw"
@@ -35,7 +35,7 @@ struct STASHEDDAT stashed_matrix_list[240];
 unsigned char char_anim;
 unsigned char OurSqrt[1024];
 struct WATERTAB WaterTable[22][64];
-struct MATRIX3D* Matrix;
+struct MATRIX3D* Matrix = &MatrixStack[0];
 
 unsigned short SqrtTable[] =
 {

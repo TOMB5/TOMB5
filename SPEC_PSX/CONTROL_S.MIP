@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF UpdateSky, GetChange, TranslateItem
+	XDEF AnimateLara, UpdateSky, GetChange, TranslateItem
 	XREF changes, ranges, UpdateLaraRoom, SoundEffect, DelAlignLaraToRope, rcossin_tbl, FXType, effect_routines, commands, lara, anims, gfLevelFlags, gfLayer1Vel, SkyPos, gfLayer2Vel, SkyPos2
 	
 TranslateItem:
@@ -139,7 +139,7 @@ UpdateSky:
 	locret_7CEFC:
 	jr      ra
 	nop
-
+	
 AnimateLara:
 	addiu   sp, -0x24
 	sw      s0, 0x24-0x14(sp)

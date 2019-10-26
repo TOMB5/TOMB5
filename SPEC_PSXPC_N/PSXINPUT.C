@@ -11,6 +11,7 @@
 #include <LIBPAD.H>
 #if PSXPC_TEST
 #include <stdio.h>
+#include "EMULATOR_PRIVATE.H"
 #elif PSX_VERSION
 #include <STDIO.H>
 #endif
@@ -107,6 +108,9 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 					 // line 374, offset 0x5fed4
 
 					 //v0 = SayNoCount
+
+	Emulator_UpdateInput();
+
 	in = 0;
 
 	if (SayNoCount != 0)

@@ -58,12 +58,13 @@ Markers are as follows:
 
 2. PSXPC_N   
     - Windows (VS 2015-2019) (**recommended**)
-        - Download SDL2-devel-2.0.9-VC.zip extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to  "SDL2".
-        - Download glew-2.1.0-win32.zip extract to project root EXTERNAL/ 
-        - Generate CMake project files for VS2015, 2017 or 2019, x86 ONLY! (x64 is currently unsupported so don't try it.)
+    	- Create a folder called "EXTERNAL" in the root clone directory of TOMB5. This is where all libraries will be placed.
+        - Download [SDL2-devel-2.0.9-VC.zip](https://www.libsdl.org/release/SDL2-devel-2.0.9-VC.zip) extract the contents to [project root]/EXTERNAL/ rename folder "SDL2-2.0.9" to  "SDL2".
+        - Download [glew-2.1.0-win32.zip](https://sourceforge.net/projects/glew/files/glew/2.1.0/glew-2.1.0-win32.zip/download) extract the contents to [project root]/EXTERNAL/ 
+        - Generate CMake project files for Visual Studio 2015, 2017 or 2019, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Windows (CB MinGW32)       
-        - Download SDL2-devel-2.0.9-mingw.tar.gz extract to project root EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
-        - Download glew-2.1.0-mingw.zip ((link)[http://www.grhmedia.com/glew/glew-2.1.0-mingw.zip]) extract to project root EXTERNAL/ 
+        - Download [SDL2-devel-2.0.9-mingw.tar.gz](https://www.libsdl.org/release/SDL2-devel-2.0.9-mingw.tar.gz) extract the contents to [project root]/EXTERNAL/ rename folder "SDL2-2.0.9" to "SDL2".
+        - Download [glew-2.1.0-mingw.zip](http://www.grhmedia.com/glew/glew-2.1.0-mingw.zip) extract the contents to [project root]/EXTERNAL/ 
         - Generate CMake project files for CodeBlocks MinGW Makefiles, x86 ONLY! (x64 is currently unsupported so don't try it.)
     - Linux 
 Note: On x64 distributions GCC must be configured to build 32-bit binaries.
@@ -81,19 +82,27 @@ Open a new terminal window in the root directory where TOMB5 is cloned.
          - cd BUILD
          - cmake ..
          - make
-  
-    - Open solution
-    - In the project settings, set the `DISC_VERSION` to 1
-    - Build
-    - Download TR5 retail version for PSX (NTSC, USA), you should get two files, a .BIN and a .CUE; put the .BIN file in the the same folder as the .EXE file and rename it to TOMB5.BIN
+    - EMSCRIPTEN (MinGW32)
+    	 - Install TDM-GCC(32)
+         - Download EMSCRIPTEN SDK from ([link](https://emscripten.org/docs/getting_started/downloads.html))
+         - Ensure the EMSCRIPTEN SDK is extracted to External/emsdk
+         - Open a new commandline window and seek to the root folder of TOMB5.
+	 - Enter the command "EMSCRIPTEN.bat" this should generate all project files for EMSCRIPTEN in /EMSCRIPTEN/ directory.
+	 - Enter the command cd EMSCRIPTEN
+	 - It is recommended that all game assets are placed in ROOT/EMSCRIPTEN/ASSETS/ otherwise the game will not be packaged with assets.
+	 -Enter the command mingw32-make
+	 
 3. Windows PSX:
     - Download PSX PsyQ SDK 4.6 or 4.6 + 4.7 update, extract to c:/psyq
     - Download and install TDM-GCC.
     - Run psxdev's pspath.reg file to update registry environment variables.
     - Compile all the TOOLS in the tool folder of the solution.
 	- Create a /DATA/ folder in BUILD\TOOLS\GAMEWAD_Unpack\Release
-	- Extract GAMEWAD.OBJ using GAMEWAD_Unpack tool (drag and drop onto exe).
+	- Extract GAMEWAD.OBJ using GAMEWAD_Unpack tool (drag and drop onto GAMEWAD_Unpack.exe).
 	- Copy the /DATA/ FOLDER to BUILD\TOOLS\GAMEWAD_Pack\Release
+	- Create a /GAME/ folder in BUILD\TOOLS\CODEWAD_Unpack\Release
+	- Extract CODE.WAD using CODEWAD_Unpack tool (drag and drop onto CODEWAD_Unpack.exe).
+	- Copy the /GAME/ FOLDER to BUILD\TOOLS\CODEWAD_Pack\Release
 	- Copy DEL2FAB.EXE (from leaked TR4&5 PSX SDK) to root clone directory.
     - Go to root clone directory in commandline type PSX_BUILD and enter the command.
     - Go to root clone directory /DISC/ and run MAKEISO.bat (note: mkpsxiso required)
@@ -102,5 +111,5 @@ Open a new terminal window in the root directory where TOMB5 is cloned.
     - Open project settings, in VC++ directories change the following:
       - Include dirs: add `C:\dx7sdk\Include` and then `$(WindowsSDK_IncludePath)` (make sure that one is **above** the DX one, otherwise you'll get compile errors)
       - Lib dirs: add `C:\dx7sdk\lib\x86`
-    
+
 Feel free to contact us on this: [Discord server](https://discord.gg/KYSx8Q7) channel #TOMB5-decompile

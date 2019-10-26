@@ -59,7 +59,13 @@ short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;
 
-#if PC_VERSION || PSXPC_TEST
+void CalculateObjectLightingLara()
+{
+	short room_no;
+	struct PHD_VECTOR pos;
+}
+
+#if PC_VERSION
 long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*$a2*/)//8582C
 {
 	struct ANIM_STRUCT* anim = &anims[item->anim_number];
@@ -135,11 +141,14 @@ void UpdateSkyLightning()//2C0D0(<), ? (F)
 	}
 }
 
-#if PC_VERSION || PSXPC_TEST
+#if PC_VERSION && !PSXPC_TEST
 void DrawSkyMesh(short* mesh)
 {
 	UNIMPLEMENTED();
 }
+#endif
+
+#if PC_VERSION || PSXPC_TEST
 
 void DrawMoon()
 {
@@ -176,7 +185,7 @@ void DrawGunflashes()//8A924(<) 8C968(<)
 			mCopyMatrix(&Gunflashes[i].matrix);
 			//mRotZ(GetRandomDraw() << 1);
 			mesh = meshes[objects[GUN_FLASH].mesh_index];
-			//phd_PutPolygons(((long*) mesh)[0], -1);
+			//phd_PutPolygons(mesh[0], -1);
 			mesh[16] = 0;
 		}
 	}

@@ -12,7 +12,7 @@ void InitHeap(unsigned long* unk00, unsigned long unk01)
 	
 }
 
-/*void* malloc(size_t unk00)
+void* malloc(size_t unk00)
 {
 	return NULL;
 }

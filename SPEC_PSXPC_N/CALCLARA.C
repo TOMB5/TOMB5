@@ -4,10 +4,11 @@
 #include "DRAW.H"
 #include "MATHS.H"
 #include "LARA.H"
+#include "GTEREG.H"
 
-void S_SetupClutAdder(long unk)
+void S_SetupClutAdder(long underwater)
 {
-	S_Warn("[S_SetupClutAdder] - Unimplemented!\n");
+	DQB = underwater;
 }
 
 void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
@@ -38,9 +39,9 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 #endif
 }
 
-void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate)
+void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, long* bone, int flag)
 {
-	S_Warn("[DEL_CalcLaraMatrices_Interpolated_ASM] - Unimplemented!\n");
+	UNIMPLEMENTED();
 }
 
 short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C

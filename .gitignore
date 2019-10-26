@@ -11,6 +11,7 @@
 *.til
 
 /BUILD/*
+/BUILD1/*
 /x64/*
 /EXTERNAL/*
 /SPEC_PC/RCe55348
@@ -43,3 +44,5 @@
 /GAME/*.BIN
 /GAME/*.MOD
 /GAME/*.O
+/EMSCRIPTEN/*
+/ANDROID/*

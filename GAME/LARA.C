@@ -23,6 +23,7 @@
 #include "3D_GEN.H"
 #include "MISC.H"
 #include "MATHS.H"
+#include "GETSTUFF.H"
 #endif
 
 #if PC_VERSION
@@ -5631,10 +5632,12 @@ int GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
 	return 48;
 }
 
+#if PC_VERSION || PSXPC_TEST///@TODO move for PSXPC_N
 void AnimateLara(struct ITEM_INFO* item)
 {
 	UNIMPLEMENTED();
 }
+#endif
 
 void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F) 
 {

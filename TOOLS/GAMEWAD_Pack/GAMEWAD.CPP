@@ -5,6 +5,7 @@
 #include "CD.H"
 
 #include <cstdio>
+#include <cstring>
 
 namespace TombRaiderChronicles
 {
@@ -17,7 +18,7 @@ namespace TombRaiderChronicles
 		IO::StreamWriter writer(GAMEWAD_FILENAME);
 		char* modData = NULL;
 
-		for (auto i = 0; i < NUM_GAMEWAD_FILE_ENTRIES; i++)
+		for (int i = 0; i < NUM_GAMEWAD_FILE_ENTRIES; i++)
 		{
 			writer.seek(currentOffset);
 
@@ -47,7 +48,7 @@ namespace TombRaiderChronicles
 			{
 				gameWad.entries[i].fileOffset = currentOffset;
 				char buf[32];
-				sprintf_s(buf, "%s.RAW", gwFileNames[i]);
+				sprintf(buf, "%s.RAW", gwFileNames[i]);
 				IO::StreamReader reader(buf);
 				int dataSize = (int)reader.m_length;
 				char* loadScreenData = new char[dataSize];
@@ -58,7 +59,7 @@ namespace TombRaiderChronicles
 				writer.write(loadScreenData, dataSize);
 				delete[] loadScreenData;
 
-				sprintf_s(buf, "%s_CD.RAW", gwFileNames[i]);
+				sprintf(buf, "%s_CD.RAW", gwFileNames[i]);
 				reader.open(buf);
 				dataSize = (int)reader.m_length;
 				char* loadCdData = new char[dataSize];
@@ -79,7 +80,7 @@ namespace TombRaiderChronicles
 					writer.seek((int)writer.m_pos + (CD_SECTOR_SIZE - 1) & ~(CD_SECTOR_SIZE - 1));
 				}
 
-				sprintf_s(buf, "%s.PSX", gwFileNames[i]);
+				sprintf(buf, "%s.PSX", gwFileNames[i]);
 				reader.open(buf);
 				dataSize = (int)reader.m_length;
 				char* levelData = new char[dataSize];
@@ -106,7 +107,7 @@ namespace TombRaiderChronicles
 			{
 				gameWad.entries[i].fileOffset = currentOffset;
 				char buf[32];
-				sprintf_s(buf, "%s.RAW", gwFileNames[i]);
+				sprintf(buf, "%s.RAW", gwFileNames[i]);
 				IO::StreamReader reader(buf);
 				int dataSize = (int)reader.m_length;
 				char* loadScreenData = new char[dataSize];
@@ -117,7 +118,7 @@ namespace TombRaiderChronicles
 				writer.write(loadScreenData, dataSize);
 				delete[] loadScreenData;
 
-				sprintf_s(buf, "%s_CD.RAW", gwFileNames[i]);
+				sprintf(buf, "%s_CD.RAW", gwFileNames[i]);
 				reader.open(buf);
 				dataSize = (int)reader.m_length;
 				char* loadCdData = new char[dataSize];

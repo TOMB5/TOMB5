@@ -57,16 +57,19 @@ typedef	long *	qaddr_t;
 //typedef	u_long	ino_t;
 typedef	long	swblk_t;
 
+#if !defined(__EMSCRIPTEN__)
 #ifndef _SIZE_T
 #define _SIZE_T
 typedef	unsigned int size_t;
 #endif
+#endif
 
 //typedef	long	time_t;
 //typedef	short	dev_t;
-typedef	long	off_t;
-typedef	u_short	uid_t;
-typedef	u_short	gid_t;
+//typedef	long	off_t;
+//typedef	u_short	uid_t;
+//typedef	u_short	gid_t;
+
 #endif
 
 #define	NBBY	8

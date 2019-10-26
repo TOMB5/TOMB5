@@ -68,8 +68,8 @@ phd_PutPolygons_pickup:
 	mtc2    t1, r8
 	move    v1, v0
 	add     a3, a0, at
-	lui      t0, 0x8080
-	ori		t0, 0x8000
+	lui     t0, 0x80
+	ori		t0, 0x8080
 	mtc2    t0, r6
 
 	loc_80560:
@@ -1713,13 +1713,14 @@ phd_PutPolygons_normal:
 	slt     at, v0, a2
 	bnez    at, loc_7EF40
 	add     a1, a0
-	lui     a2, 0x1E
-	j       loc_7EF4C
 	la      a2, tsv_buffer
+	j       loc_7EF4C
+	nop
 
 	loc_7EF40:
-	beqz    s7, loc_7EF4C
 	lui     a2, 0x1F80
+	beqz    s7, loc_7EF4C
+	nop
 	ori     a2, 0x00B4
 
 	loc_7EF4C:

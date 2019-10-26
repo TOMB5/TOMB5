@@ -5,6 +5,7 @@
 #include "CD.H"
 
 #include <cstdio>
+#include <cstring>
 
 namespace TombRaiderChronicles
 {
@@ -37,7 +38,7 @@ namespace TombRaiderChronicles
 					char* loadingScreenData = new char[LOADING_SCREEN_IMG_SIZE];
 					reader.readRaw(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
 					char buf[32];
-					sprintf_s(buf, "%s.RAW", gwFileNames[i]);
+					sprintf(buf, "%s.RAW", gwFileNames[i]);
 					IO::StreamWriter writer(buf);
 					writer.write(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
 					delete[] loadingScreenData;
@@ -47,7 +48,7 @@ namespace TombRaiderChronicles
 					//Loading CD
 					char* loadingCdData = new char[LOADING_CD_IMG_SIZE];
 					reader.readRaw(loadingCdData, LOADING_CD_IMG_SIZE);
-					sprintf_s(buf, "%s_CD.RAW", gwFileNames[i]);
+					sprintf(buf, "%s_CD.RAW", gwFileNames[i]);
 					writer.open(buf);
 					writer.write(loadingCdData, LOADING_CD_IMG_SIZE);
 					delete[] loadingCdData;
@@ -67,7 +68,7 @@ namespace TombRaiderChronicles
 					int dataSize = entry[i].fileSize - ((int)reader.m_pos - entry[i].fileOffset) - 0x691B4;///@HACK
 					char* levelData = new char[dataSize];
 					reader.readRaw(levelData, dataSize);
-					sprintf_s(buf, "%s.PSX", gwFileNames[i]);
+					sprintf(buf, "%s.PSX", gwFileNames[i]);
 					writer.open(buf);
 					writer.write(levelData, dataSize);
 					delete[] levelData;
@@ -101,7 +102,7 @@ namespace TombRaiderChronicles
 					char* loadingScreenData = new char[LOADING_SCREEN_IMG_SIZE];
 					reader.readRaw(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
 					char buf[32];
-					sprintf_s(buf, "%s.RAW", gwFileNames[i]);
+					sprintf(buf, "%s.RAW", gwFileNames[i]);
 					IO::StreamWriter writer(buf);
 					writer.write(loadingScreenData, LOADING_SCREEN_IMG_SIZE);
 					delete[] loadingScreenData;
@@ -111,7 +112,7 @@ namespace TombRaiderChronicles
 					//Loading CD
 					char* loadingCdData = new char[LOADING_CD_IMG_SIZE];
 					reader.readRaw(loadingCdData, LOADING_CD_IMG_SIZE);
-					sprintf_s(buf, "%s_CD.RAW", gwFileNames[i]);
+					sprintf(buf, "%s_CD.RAW", gwFileNames[i]);
 					writer.open(buf);
 					writer.write(loadingCdData, LOADING_CD_IMG_SIZE);
 					delete[] loadingCdData;

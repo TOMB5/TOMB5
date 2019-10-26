@@ -1,6 +1,6 @@
 # Project: Decompile Tomb Raider: Chronicles (TOMB5)
 
-Start Date: 12th July 2017.
+Start Date: 21st June 2017.
 
 PSX:
 <p align="center">
@@ -9,7 +9,7 @@ PSX:
 
 PSXPC_N:
 <p align="center">
-<a href="https://streamable.com/ip8lx"><img src="https://i.imgur.com/CkmdIzs.png"/><a>
+<a href="https://streamable.com/hfn3t"><img src="https://i.imgur.com/Utuazgml.png"/><a>
  </p>
 
 | Platform  | Build State |
@@ -44,4 +44,5 @@ Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) ch
 - Gh0stBlade: Lead Programmer (PSX/PSXPC_N).
 - zdimension: Programmer (PSX/PSXPC_N,PC).
 - Stohrendorf: Symdump tool creator.
+- smf: GTE code for PSXPC_N code path.
 - [You?](CONTRIBUTING.md)

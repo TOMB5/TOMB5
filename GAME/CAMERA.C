@@ -7,6 +7,7 @@
 #include "3D_GEN.H"
 #include "BUBBLES.H"
 #include "LIGHT.H"
+#include "GETSTUFF.H"
 #endif
 #if PC_VERSION
 #include "GLOBAL.H"
@@ -1030,7 +1031,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	if (gfCurrentLevel != LVL5_DEEPSEA_DIVE)
 	{
 		//Camera is in a water room, play water sound effect.
-		if (room[camera.pos.room_number].flags & RF_FILL_WATER)
+		if ((room[camera.pos.room_number].flags & RF_FILL_WATER))
 		{
 			SoundEffect(SFX_UNDERWATER, NULL, 2);
 			if (camera.underwater == 0)
@@ -1128,7 +1129,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 					v1 -= a1;
 					v1 <<= 16;
 					change = v1 >> 16;
-					
+
 					a0 = change < 0x2D9 ? 1 : 0;
 					t0 = v0;
 
@@ -1141,9 +1142,9 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 						//loc_28178
 #if 0
 						slti	$v0, $s0, -0x2D8
-						bnez	$v0, loc_28188
-						addiu	$v0, $a1, -0x2D8
-						addu	$v0, $s0, $a1
+							bnez	$v0, loc_28188
+							addiu	$v0, $a1, -0x2D8
+							addu	$v0, $s0, $a1
 #endif
 					}
 
@@ -1189,7 +1190,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	}
 
 	//loc_281F4
-	if ((camera.type - LOOK_CAMERA) < 2)
+	if ((unsigned)(camera.type - LOOK_CAMERA) < 2)
 	{
 		if (camera.type == COMBAT_CAMERA)
 		{
@@ -1276,7 +1277,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		//loc_28370
 		if (gotit == 0)
 		{
-			int v1 = (((bounds[0] + bounds[1]) + bounds[4]) + bounds[5]) >> 2;
+			int v1 = (bounds[0] + bounds[1] + bounds[4] + bounds[5]) >> 2;
 			camera.target.x = ((SIN(item->pos.y_rot) * v1) >> 12) + item->pos.x_pos;
 			camera.target.z = ((COS(item->pos.y_rot) * v1) >> 12) + item->pos.z_pos;
 
@@ -1372,11 +1373,13 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	camera.lara_node = -1;
 	camera.last_item = item;
 	camera.item = NULL;
-#endif
+
+#else
 	UNIMPLEMENTED();
+#endif
+
 	return;
 }
-
 
 void LookCamera(struct ITEM_INFO* item)
 {
@@ -1498,8 +1501,12 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 		camera.target_elevation = -1820;
 	}
 	//loc_263F0
+#if 0
 	camera.target_elevation += item->pos.x_rot;
 	UpdateCameraElevation();
+#else
+	camera.target_elevation = item->pos.x_rot;
+#endif
 
 	if (camera.actual_elevation > 15470)
 	{
@@ -1625,13 +1632,21 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 	ideal.z = ideals[farthestnum].z;
 	ideal.room_number = ideals[farthestnum].room_number;
 
+#if 0
 	CameraCollisionBounds(&ideal, 384, 1);
+#endif
 
 	if (camera.old_type == FIXED_CAMERA)
 	{
 		camera.speed = 1;
 	}
-
+#if 1//Debug camera
+	ideal.x = camera.pos.x;
+	ideal.y = camera.pos.y;
+	ideal.z = camera.pos.z;
+	ideal.room_number = camera.pos.room_number;
+	ideal.box_number = camera.box;
+#endif
 	MoveCamera(&ideal, camera.speed);
 }
 
@@ -1665,7 +1680,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	}
 	else
 	{
-		camera.target.y = camera.target.y + pos.y >> 1;
+		camera.target.y = (camera.target.y + pos.y) >> 1;
 		camera.target.x = lara_item->pos.x_pos;
 		camera.target.z = lara_item->pos.z_pos;
 	}
@@ -2217,13 +2232,15 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 	sw      $v0, 0x80 + var_70($sp)
 	sw      $v1, 0x80 + var_6C($sp)
 	*/
-
+#if 1//DEBUG_CAM
+	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.x, camera.pos.y, camera.pos.z, camera.actual_angle);
+#else
 	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
-
+#endif
 	camera.mike_pos.y = camera.pos.y;
-	camera.mike_pos.x = camera.pos.x + (phd_persp * SIN(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x))) >> W2V_SHIFT;
+	camera.mike_pos.x = (camera.pos.x + (phd_persp * SIN(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x)))) >> W2V_SHIFT;
 	camera.old_type = camera.type;
-	camera.mike_pos.z = camera.pos.z + (phd_persp * COS(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x))) >> W2V_SHIFT;
+	camera.mike_pos.z = (camera.pos.z + (phd_persp * COS(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x)))) >> W2V_SHIFT;
 }
 
 #if PC_VERSION

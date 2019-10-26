@@ -293,6 +293,7 @@ void GPU_FlipStory(unsigned long* gfx)//5E448(<), * (F)
 	DrawSync(0);
 	VSync(0);
 
+	GnLastFrameCount = 0;
 	PutDispEnv(&db.disp[db.current_buffer]);
 	fuckmyanalpassage = (RECT*) &db.disp[db.current_buffer ^ 1].disp;
 	r.x = fuckmyanalpassage->x;

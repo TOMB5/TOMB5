@@ -192,7 +192,8 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 					return 0x7000000;
 				}
 			}
-			else if (r->CursorPos == 0x1000000)//loc_63E90
+
+			if (r->CursorPos == 0x1000000)//loc_63E90
 			{
 				if (r == &ConfigReq)
 				{

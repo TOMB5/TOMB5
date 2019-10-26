@@ -173,10 +173,10 @@ void DisplayConfig(int x, int y)//6080C(<), 61340(<) (F)
 		PrintString(SCREEN_WIDTH - x, y + 36, 5, &buf[0], FF_R_JUSTIFY);
 
 		sprintf(&buf[0], "%d", savegame.Game.HealthUsed);
-		PrintString(SCREEN_WIDTH - x, y + 36, 5, &buf[0], FF_R_JUSTIFY);
+		PrintString(SCREEN_WIDTH - x, y + 54, 5, &buf[0], FF_R_JUSTIFY);
 
 		sprintf(&buf[0], "%d / 36", savegame.Game.Secrets);
-		PrintString(SCREEN_WIDTH - x, y + 54, 5, &buf[0], FF_R_JUSTIFY);
+		PrintString(SCREEN_WIDTH - x, y + 72, 5, &buf[0], FF_R_JUSTIFY);
 
 		PrintString(SCREEN_WIDTH / 2, y + 98, 8, &gfStringWad[gfStringOffset[STR_CURRENT_LOCATION]], FF_CENTER);
 		DrawLineH(x, (y + 100), ((256 - x) << 1) & 0xFFFE, 1, 0, 0xC0C0C0);
@@ -567,6 +567,7 @@ void gInit()//615CC(<), 6210C(<) (F)
 #endif
 	CreateMonoScreen();
 
+#if !PSXPC_TEST
 	if (XAVolume != 0)
 	{
 		do
@@ -574,6 +575,7 @@ void gInit()//615CC(<), 6210C(<) (F)
 			XAReqVolume = 0;
 		} while (XAVolume != 0);
 	}
+#endif
 
 	S_CDPause();
 	S_SetReverbType(1);

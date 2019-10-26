@@ -16,6 +16,7 @@
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
 #include "FXTRIG.H"
+#include "GETSTUFF.H"
 #endif
 
 
@@ -61,9 +62,9 @@ void TestForObjectOnLedge(struct ITEM_INFO* item, struct COLL_INFO* coll)//2A940
 		s.room_number = lara_item->room_number;
 
 		d.x = 0;
-		d.x = s.x + ((SIN(lara_item->pos.y_rot) << 1) + SIN(lara_item->pos.y_rot)) >> 4;
+		d.x = (s.x + ((SIN(lara_item->pos.y_rot) << 1) + SIN(lara_item->pos.y_rot))) >> 4;
 		d.y = s.y;
-		d.z = s.z + ((COS(lara_item->pos.y_rot) << 1) + COS(lara_item->pos.y_rot)) >> 4;
+		d.z = (s.z + ((COS(lara_item->pos.y_rot) << 1) + COS(lara_item->pos.y_rot))) >> 4;
 		LOS(&s, &d);
 		if (ObjectOnLOS2(&s, &d, &v, &StaticMesh) != 0x3E7)
 		{

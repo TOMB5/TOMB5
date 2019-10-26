@@ -67,7 +67,7 @@
 #include "TYPEDEFS.H"
 #endif
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__EMSCRIPTEN__)
         #define CODE_WAD "DATA/CODE.WAD"
 #else
         #define CODE_WAD "DATA\\CODE.WAD"
@@ -100,7 +100,9 @@ RECT dword_BD7F4[] = { { 576, 68, 64, 57 },{ 32768, 40960, 49152, 57344 } };
 #endif
 
 #if PSXPC_TEST
+#include <EMULATOR_PRIVATE.H>
 #include <stdint.h>
+#include "TEXT_S.H"
 #elif PSX_VERSION || SAT_VERSION
 typedef unsigned int uintptr_t;
 #endif
@@ -117,7 +119,6 @@ struct object_info* objects = &objects_raw.m_objects[0];
 struct static_info* static_objects = &objects_raw.m_static_objects[0];
 extern char* SkinVertNums = &objects_raw.m_SkinVertNums[0];
 extern char* ScratchVertNums = &objects_raw.m_ScratchVertNums[0];
-
 #endif
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
@@ -1318,7 +1319,11 @@ void LoadLevel(FILE* nHandle)
 	ptr += level->soundEffectInfoLength;
 
 	sample_lut = (short*)ptr;
+#if AUG_VERSION || JULY_VERSION
+	ptr += 740;
+#else
 	ptr += 900;
+#endif
 
 	sample_infos = (struct SAMPLE_INFO*)ptr;
 	ptr += level->sampleInfoLength;
@@ -1707,6 +1712,48 @@ void LoadLevel(FILE* nHandle)
 		MGSaveGamePtr = game_malloc(8192);
 		FromTitle = 1;
 	}//loc_F94
+
+	/* Now we hint to the emulator how to build the texture atlas*/
+#if PSXPC_TEST
+
+	/* Destroy all emulator textures */
+	Emulator_DestroyAllTextures();
+
+	/* Object Textures */
+	for (i = 0; i < level->textureInfoLength / sizeof(struct PSXTEXTSTRUCT); i++)
+	{
+		//Emulator_HintTextureAtlas(psxtextinfo[i].u1v1tpage >> 16, psxtextinfo[i].u0v0clut >> 16, (psxtextinfo[i].u0v0clut & 0xFF00) >> 8, (psxtextinfo[i].u0v0clut & 0xFF), (psxtextinfo[i].u1v1tpage & 0xFF00) >> 8, (psxtextinfo[i].u1v1tpage & 0xFF), (psxtextinfo[i].u2v2pad & 0xFF00) >> 8, (psxtextinfo[i].u2v2pad & 0xFF), (psxtextinfo[i].u3v3pad & 0xFF00) >> 8, (psxtextinfo[i].u3v3pad & 0xFF), (psxtextinfo[i].u2v2pad >> 16) == 0x3C34 ? 1 : 0);
+	}
+
+	/* Sprite Textures */
+	for (i = 0; i < level->spriteInfoLength / sizeof(struct PSXSPRITESTRUCT); i++)
+	{
+		//Emulator_HintTextureAtlas(psxspriteinfo[i].tpage, psxspriteinfo[i].clut, psxspriteinfo[i].u1, psxspriteinfo[i].v1, psxspriteinfo[i].u2, psxspriteinfo[i].v2, psxspriteinfo[i].u2, psxspriteinfo[i].v1, psxspriteinfo[i].u1, psxspriteinfo[i].v2, 1);
+	}
+
+	/* Room Textures */
+	for (i = 0; i < level->mmTextureInfoLength / sizeof(struct MMTEXTURE); i++)
+	{
+		//Emulator_HintTextureAtlas(RoomTextInfo[i].t[0].tpage, RoomTextInfo[i].t[0].clut, RoomTextInfo[i].t[0].u0, RoomTextInfo[i].t[0].v0, RoomTextInfo[i].t[0].u1, RoomTextInfo[i].t[0].v1, RoomTextInfo[i].t[0].u2, RoomTextInfo[i].t[0].v2, RoomTextInfo[i].t[0].u3, RoomTextInfo[i].t[0].v3, 1);
+	}
+
+	/* Font glyph*/
+	//Emulator_HintTextureAtlas(41, 4197, 0, 0, 255, 0, 0, 68, 255, 68, 0);
+
+	/* Title Logo */
+	if (gfCurrentLevel == LVL5_TITLE)
+	{
+		//Emulator_HintTextureAtlas(41, 7972, 0, 68, 255, 68, 0, 123, 255, 123, 0);
+		//Emulator_InjectTIM("LOGO.TIM", 41, 7972, 0, 0, 0, 56, 255, 56, 255, 0);
+	}
+
+	//word_9230E
+	for (i = 0; i < 32; i++)
+	{
+	}
+
+#endif
+
 }
 #endif
 
@@ -1824,7 +1871,9 @@ void SetupGame()//?(<), B9DA8(<) (F)
 
 	InitialiseFootPrints();
 	InitBinoculars();
+#if !AUG_VERSION
 	InitTarget();
+#endif
 	InitialiseGameFlags();
 
 #if PC_VERSION

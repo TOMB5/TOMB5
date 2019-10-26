@@ -1,5 +1,6 @@
 #include "NEWINV2.H"
 
+#include "CAMERA.H"
 #include "CDTRACKS.H"
 #include "DELTAPAK.H"
 #include "SPECIFIC.H"
@@ -40,6 +41,7 @@
 #include "DRAW.H"
 #include "LOAD_LEV.H"
 #include "BUBBLES.H"
+#include "GETSTUFF.H"
 #endif
 
 #if PSX_VERSION
@@ -978,6 +980,7 @@ void DEL_picked_up_object(short objnum)//3FEB0, 40304 (F)
 
 void use_current_item()//3F9A0, 3FDF4
 {
+	SayNo();
 	UNIMPLEMENTED();
 }
 
@@ -1695,19 +1698,19 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 		}
 		else
 		{
-			//loc_3E464
 			current_options[0].type = 6;
 			current_options[1].type = 7;
 			current_options[0].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[0].invitem].objname]];
 			current_options[1].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[1].invitem].objname]];
+			n = 2;
 
-			if ((opts & 0x100))
+			if ((options_table[rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem] & 0x100))
 			{
-				current_options[2].type = 8;
+				n = 3;
 				current_options[2].text = &gfStringWad[gfStringOffset[inventry_objects_list[ammo_object_list[2].invitem].objname]];
 
-			}
-			//loc_3E53C
+			}//loc_3E53C
+
 			current_selected_option = current_ammo_type[0];
 		}
 
@@ -1733,13 +1736,13 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 			{
 				if (i == current_selected_option)
 				{
-					PrintString(256, ypos, 1, current_options[i].text, 0x8000);
+					PrintString(256, ypos, 1, current_options[i].text, FF_CENTER);
 					ypos += 18;
 				}
 				else
 				{
 					//loc_3E5B0
-					PrintString(256, ypos, 5, current_options[i].text, 0x8000);
+					PrintString(256, ypos, 5, current_options[i].text, FF_CENTER);
 					ypos += 18;
 				}
 				//loc_3E5C8
@@ -1750,12 +1753,13 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 		{
 			if (go_up && current_selected_option)
 			{
-				current_selected_option++;
+				current_selected_option--;
 				SoundEffect(SFX_MENU_SELECT, NULL, 2);
 			}
 			else if (go_down && current_selected_option < n - 1)
 			{
 				//loc_3E64C
+				current_selected_option++;
 				SoundEffect(SFX_MENU_SELECT, NULL, 2);
 			}//loc_3E684
 
@@ -1811,7 +1815,7 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 				{
 					stats_mode = 1;
 				}
-				else if (current_options[current_selected_option].type - 6 < 3)
+				else if ((unsigned)(current_options[current_selected_option].type - 6) < 3)
 				{
 					//loc_3E848
 					ammo_active = 0;
@@ -1892,49 +1896,28 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 	short yrot; // $t1
 	struct INVOBJ* objme; // $v1
 	int activenum; // $v1
-#if 1//TEMP
-	i = 0;
-	shade = 0;
-#endif
-	//s6 = a0
-	//v0 = s6 << 2
-
-	//a1 = &rings
-	//v0 = &rings[ringnum]
-	//v1 = rings[ringnum]
-	//a0 = rings[ringnum]->numobjectsinlist
-
 
 	if (rings[ringnum]->numobjectsinlist > 0)
 	{
 		if (ringnum == RING_AMMO)
 		{
-			//a0 = combine_ring_fade_dir
 			ammo_selector_fade_val = 0;
 			ammo_selector_fade_dir = 0;
 
-			//v0 = 2
 			if (combine_ring_fade_dir == 1)
 			{
-				//v0 = combine_ring_fade_val
-				//v1 = combine_ring_fade_val
-				//v0 = v0 < 128 ? 1 : 0
-
 				if (combine_ring_fade_val < 128)
 				{
 					combine_ring_fade_val += 32;
 				}
 				//loc_3D3DC
-				//v0 = combine_ring_fade_val < 0x81 ? 1 : 0
-
 				maxobj = 0;
 
 				if (combine_ring_fade_val > 128)
 				{
 					combine_ring_fade_val = 128;
 					combine_ring_fade_dir = 0;
-					n = 0;///@removeme when loop found
-					//j       loc_3D578
+					n = 0;
 				}//loc_3D574
 
 				n = 0;
@@ -1942,42 +1925,52 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 			else if (combine_ring_fade_dir == 2)
 			{
 				//loc_3D404
-				maxobj = 0;///@fixme done in delay slot before branch taken
-				//v0 = combine_ring_fade_val
-				//v1 = combine_ring_fade_val
+				maxobj = 0;
 
-				//v0 = v1 - 0x20
 				if (combine_ring_fade_val > 0)
 				{
 					combine_ring_fade_val -= 32;
-					n = 0;///@fixme remove when loop found
-					///v0 = combine_ring_fade_val << 16
-					///if(v0 > 0)
+					n = 0;
+
+					///DUPLICATION 
+					if(combine_ring_fade_val << 16 < 0)
 					{
-						//j loc_3D578 ///maybe have to use label here unfortunately
+						if (combine_type_flag)
+						{
+							normal_ring_fade_dir = combine_ring_fade_dir;
+						}
+						else
+						{
+							//loc_3D44C
+							rings[RING_INVENTORY]->ringactive = 1;
+							menu_active = 1;
+							rings[RING_AMMO]->ringactive = 0;
+							handle_object_changeover(0);
+						}
+
+						combine_ring_fade_val = 0;
+						combine_ring_fade_dir = 0;
 					}
 				}
-				//loc_3D42C
-				//v0 = combine_type_flag
-
-				if (combine_type_flag)
-				{
-					normal_ring_fade_dir = combine_ring_fade_dir;
-				}
 				else
-				{
-					//loc_3D44C
-					//v0 = rings[RING_INVENTORY];
-					rings[RING_INVENTORY]->ringactive = 1;
-					//v1 = 
-					menu_active = 1;
-					rings[RING_AMMO]->ringactive = 0;
+				{//loc_3D42C
+					if (combine_type_flag)
+					{
+						normal_ring_fade_dir = combine_ring_fade_dir;
+					}
+					else
+					{
+						//loc_3D44C
+						rings[RING_INVENTORY]->ringactive = 1;
+						menu_active = 1;
+						rings[RING_AMMO]->ringactive = 0;
 
-					handle_object_changeover(0);
+						handle_object_changeover(0);
+					}
+
+					combine_ring_fade_val = 0;
+					combine_ring_fade_dir = 0;
 				}
-
-				combine_ring_fade_val = 0;
-				combine_ring_fade_dir = 0;
 				//loc_3D46C
 				rings[RING_AMMO]->ringactive = 0;
 				maxobj = 0;
@@ -1986,27 +1979,16 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 		}//loc_3D478
 		else
 		{
-			//v1 = normal_ring_fade_dir
-			//v0 = 2
 			if (normal_ring_fade_dir == 1)
 			{
-				//v0 = normal_ring_fade_val
-				//v1 = normal_ring_fade_val
-				//v0 = v0 < 0x80 ? 1 : 0
-
-				//v0 = v1 + 32
 				if (normal_ring_fade_val < 128)
 				{
 					normal_ring_fade_val += 32;
 				}
 				//loc_3D4A0
-				//v0 = normal_ring_fade_val
-				//v0 = v0 < 129 ? 1 : 0
 				maxobj = 0;
 				if (normal_ring_fade_val > 128)
 				{
-					//v1 = rings[RING_INVENTORY]
-					//v0 = 128
 					normal_ring_fade_val = 128;
 					normal_ring_fade_dir = 0;
 					rings[RING_INVENTORY]->ringactive = 1;
@@ -2018,9 +2000,7 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 			else if (normal_ring_fade_dir == 2)
 			{
 				//loc_3D4D4
-				maxobj = 0;///@FIXME executed before branch instruction
-				//v0 = normal_ring_fade_val
-				//v1 = normal_ring_fade_val
+				maxobj = 0;
 
 				if (normal_ring_fade_val > 0)
 				{
@@ -2035,7 +2015,6 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 
 				}//loc_3D4FC
 
-				//v0 = combine_type_flag
 				normal_ring_fade_val = 0;
 				normal_ring_fade_dir = 1;
 
@@ -2044,13 +2023,9 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 					combine_type_flag = 0;
 					combine_these_two_objects(combine_obj1, combine_obj2);
 				}
-				else if(seperate_type_flag != 0)
+				else if (seperate_type_flag != 0)
 				{
 					//loc_3D52C
-					//v0 = rings[RING_INVENTORY];
-					//a0 = rings[RING_INVENTORY]->curobjinlist;
-					//v0 = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist]
-					//a0 = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem
 					seperate_object(rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem);
 				}
 				//loc_3D568
@@ -2059,51 +2034,34 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 			}
 		}
 		//loc_3D578
-		//v1 = ringnum << 2
-		//v0 = &rings
-		//a0 = &rings[ring_num]
 		minobj = 0;
 		xoff = 0;
-		//a1 = rings[ringnum]
-		//v0 = 1
-		//a2 = rings[ringnum]->numobjectsinlist
-		//fp = ringnum << 2
+
 		if (rings[ringnum]->numobjectsinlist != 1)
 		{
-			//v0 = rings[ringnum]->objlistmovement
-			//v1 = OBJLIST_SPACING
-			//v0 = (rings[ringnum]->objlistmovement * OBJLIST_SPACING) >> 16
 			xoff = (rings[ringnum]->objlistmovement * OBJLIST_SPACING) >> 16;
 		}//loc_3D5C0
 		if (rings[ringnum]->numobjectsinlist == 2)//v0 = 3
 		{
-			//v0 = rings[ringnum]->curobjinlist
-			//v1 = -1
 			minobj = -1;
 			n = rings[ringnum]->curobjinlist - 1;
 		}
 		//loc_3D5E0
 		if (rings[ringnum]->numobjectsinlist == 3)//v0 = 4
 		{
-			//v0 = -2
 			minobj = -2;
-			//v0 = rings[ringnum]->curobjinlist
 			maxobj = 1;
 			n = rings[ringnum]->curobjinlist - 2;
 		}//loc_3D600
 		if (rings[ringnum]->numobjectsinlist == 4)//v0 = a2 < 5 ? 1 : 0
 		{
-			//v1 = -2
 			minobj = -2;
-			//v0 = rings[ringnum]->curobjinlist
 			maxobj = 1;
 			n = rings[ringnum]->curobjinlist - 2;
 		}//loc_3D620
 		if (rings[ringnum]->numobjectsinlist > 4)
 		{
-			//v0 = -3
 			minobj = -3;
-			//v0 = rings[ringnum]->curobjinlist
 			maxobj = 2;
 			n = rings[ringnum]->curobjinlist - 3;
 		}//loc_3D638
@@ -2113,50 +2071,36 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 			n += rings[ringnum]->numobjectsinlist;
 		}//loc_3D644
 
-		//v0 = rings[ringnum]->objlistmovement
 		if (rings[ringnum]->objlistmovement < 0)
 		{
 			maxobj++;
 		}
 
 		//loc_3D658
-		//s3 = minobj
-		//v1 = 0xA0000
+		i = minobj;
+
 		if (maxobj > minobj)
 		{
-			//s2 = &rings[ring_num]
-			//s4 = lara
-			//v0 = n << 1
-			//v0 += n
-			//s0 = v0 << 1
-
 			//loc_3D680
-			while(maxobj >= minobj)
+			while (maxobj >= i)
 			{
-				//v1 = minobj
-
-				if (minobj == minobj)
+				if (minobj == i)
 				{
-					//v0 = rings[ring_num]
-					//v0 = rings[ringnum]->objlistmovement
-
-					//v0 <<= 7
 					if (rings[ringnum]->objlistmovement < 0)
 					{
 						shade = 0;
-						//j       loc_3D740
-					}//loc_3D73C
+					}
+					else
+					{
+						//loc_3D73C
+						shade = rings[ringnum]->objlistmovement >> 9;
+					}
 				}
 				else
 				{
 					//loc_3D6B0
-					//a1 = minobj
-					//v0 = minobj + 1
-
-					if (minobj == minobj + 1 && maxobj != minobj)
+					if (i == minobj + 1 && maxobj != i)
 					{
-						//v0 = rings[ringnum]
-						//v0 = rings[ringnum]->objlistmovement
 						shade = 128;
 						if (rings[ringnum]->objlistmovement < 0)
 						{
@@ -2167,9 +2111,8 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 							//loc_3D6F0
 							//v0 <<= 7
 							//j       loc_3D71C
-
+							///@TODO why incomplete
 						}//loc_3D740
-
 					}
 					else
 					{
@@ -2177,20 +2120,14 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 						shade = 128;
 						if (minobj == maxobj)
 						{
-							//v0 = rings[ringnum]
-							//v0 = rings[ringnum]->objlistmovement
 							if (rings[ringnum]->objlistmovement >= 0)
 							{
-								//v0 <<= 7
 								//loc_3D71C
-								//v0 >>= 16
-								//v1 = 128
 								shade = 128 - (rings[ringnum]->objlistmovement << 7) >> 16;
 								//j       loc_3D740
 							}//loc_3D72C
 							else if (rings[ringnum]->objlistmovement < 0)
 							{
-								//v0 = ((-rings[ringnum]->objlistmovement) << 7) >> 16;
 								shade = ((-rings[ringnum]->objlistmovement) << 7) >> 16;
 							}
 						}
@@ -2199,7 +2136,6 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 				}//loc_3D740
 
 				 //loc_3D740
-				 //v0 = minobj
 				if (minobj == 0 && maxobj == 1)
 				{
 					shade = 128;
@@ -2207,8 +2143,6 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 
 				if (ringnum == RING_AMMO && combine_ring_fade_val < 128 && shade != 0)
 				{
-					//v1 = combine_ring_fade_val
-					//v0 = v1 < 128 ? 1 : 0
 					shade = combine_ring_fade_val;
 				}//loc_3D784
 				if (ringnum == RING_INVENTORY && normal_ring_fade_val < 128 && shade != 0)
@@ -2216,12 +2150,8 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 					shade = normal_ring_fade_val;
 				}
 				//loc_3D7AC
-				if (minobj == 0)
+				if (i == 0)
 				{
-					//v0 = rings[ringnum]->current_object_list[n]
-					//v1 = rings[ringnum]->current_object_list[n].invitem
-					//v0 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
-					//a0 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number
 					nummeup = 0;
 					if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == BIGMEDI_ITEM)
 					{
@@ -2240,9 +2170,6 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - PUZZLE_ITEM1 < 8)
 					{
 						//loc_3D828
-						//a1 = &lara.puzzleitems
-						//v1 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - 0xAC
-						//v0 = &lara.puzzleitems[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - PUZZLE_ITEM1];
 						nummeup = lara.puzzleitems[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number - PUZZLE_ITEM1];
 
 						if (nummeup < 2)
@@ -2302,69 +2229,23 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 					//v0 = 0xDF
 					if (nummeup == 0)
 					{
-						//v1 = rings[ringnum]
-						//a1 = gfStringWad
-						//v1 = rings[ringnum]->currentobjlist[n]
-						//a0 = rings[ringnum]->currentobjlist[n].object_number
-						//v1 = inventry_objects_list
-						//v0 = &inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number]
-						//v1 = inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname
-						//a0 = gfStringOffset
-						//v1 = &gfStringOffset[inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname]
-						//v0 = gfStringOffset[inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname]
-						//a1 = &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->currentobjlist[n].object_number].objname]
 						sprintf(&textbufme[0], &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]);
 						// j       loc_3DA9C
 					}
 					else if (inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].object_number == PICKUP_ITEM4)
 					{
 						//loc_3D994
-						//v0 = -1
-						//a0 = &textbufme[0]
-						//a2 = nummeup
-						//v0 = &wanky_secrets_table
-						//v1 = gfCurrentLevel
-						//a1 = &gfStringOffset
-						//v1 = &wanky_secrets_table[gfCurrentLevel]
-						//t0 = gfStringOffset[STR_SECRETS_NUM]
-						//a1 = &gfStringWad[gfStringOffset[STR_SECRETS_NUM]]
-						//a3 = wanky_secrets_table[gfCurrentLevel]
 						sprintf(&textbufme[0], &gfStringWad[gfStringOffset[STR_SECRETS_NUM]], nummeup, wanky_secrets_table[gfCurrentLevel]);
 						//j       loc_3DA9C
 					}
 					else if (nummeup == -1)
 					{
 						//loc_3D9E0
-						//a0 = &textbufme[0]
-						//v0 = rings[ringnum]
-						//a1 = &inventry_objects_list[0]
-						//v0 = &rings[ringnum]->current_object_list[n]
-						//v1 = rings[ringnum]->current_object_list[n].invitem
-						//a2 = gfStringOffset
-						//v0 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
-						//v1 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname
-						//a1 = gfStringOffset[STR_UNLIMITED]
-						//v0 = gfStringWad
-						//v1 = &gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
-						//a2 = gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
-						//a1 = &gfStringWad[gfStringOffset[STR_UNLIMITED]]
-						//a2 = &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]
 						sprintf(&textbufme[0], &gfStringWad[gfStringOffset[STR_UNLIMITED]], &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]);
 					}
 					else
 					{
 						//loc_3DA44
-						//v0 = rings[ringnum]
-						//a2 = gfStringOffset
-						//v0 = &rings[ringnum]->current_object_list[n]
-						//v1 = rings[ringnum]->current_object_list[n].invitem
-						//a1 = "%d x %s"
-						//v1 = &inventry_objects_list[0]
-						//v0 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
-						//v1 = inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname
-						//a3 = &gfStringWad[0]
-						//v1 = &gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
-						//v0 = gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]
 						sprintf(&textbufme[0], "%d x %s", nummeup, &gfStringWad[gfStringOffset[inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].objname]]);
 					}
 
@@ -2381,15 +2262,8 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 					}
 				}
 				//loc_3DADC
-				//a1 = rings[ringnum]
-				//v0 = rings[ringnum]->current_object_list[n]
-				//a0 = rings[ringnum]->current_object_list[n].invitem
-				//v0 = &inventry_objects_list[0];
-				//v1 = &inventry_objects_list[rings[ringnum]->current_object_list[n].invitem]
-
-				if (minobj == 0 && rings[ringnum]->objlistmovement == 0)
+				if (i == 0 && rings[ringnum]->objlistmovement == 0)
 				{
-					//v1 = rings[ringnum]->current_object_list[n]+0x2
 					if ((inventry_objects_list[rings[ringnum]->current_object_list[n].invitem].flags & 2))
 					{
 						rings[ringnum]->current_object_list[n].yrot += 1022;
@@ -2399,12 +2273,9 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 				else
 				{
 					//loc_3DB44
-					//s2 = &rings[ringnum]
-					//a0 = &rings[ringnum]->current_object_list[n].yrot
 					spinback(&rings[ringnum]->current_object_list[n].yrot);
 				}
 
-				//v1 = rings[ringnum]->
 				yrot = rings[ringnum]->current_object_list[n].yrot;
 
 				if (ringnum == RING_INVENTORY)
@@ -2430,24 +2301,13 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 					}
 				}//loc_3DB90
 
-				if (minobj == activenum)
+				if (i == activenum)
 				{
-					//v1 = &rings
-					//a1 = &rings[ringnum]
-					//v0 = rings[ringnum]
-					//v0 += 4
-					//a0 = rings[ringnum]->current_object_list[n] +0x4
-					//v1 = rings[ringnum]->current_object_list[n].bright
-
-					//v0 = rings[ringnum]->current_object_list[n].bright < 160 ? 1 : 0
 					if (rings[ringnum]->current_object_list[n].bright < 160)
 					{
 						rings[ringnum]->current_object_list[n].bright += 16;
 					}//loc_3DBC8
 
-					//v1 = rings[ringnum]->current_object_list[n].bright < 161 ? 1 : 0
-
-					//a3 = shade
 					if (rings[ringnum]->current_object_list[n].bright > 160)
 					{
 						rings[ringnum]->current_object_list[n].bright = 160;
@@ -2456,230 +2316,109 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 				else
 				{
 					//loc_3DBF4
-					//v0 = &rings
-					//a1 = &rings[ringnum]
-					//a0 = rings[ringnum]->current_object_list[n].+0x4
-					//v1 = rings[ringnum]->current_object_list[n].bright
-					//v0 = v1 < 33 ? 1 : 0
-
 					if (rings[ringnum]->current_object_list[n].bright > 32)
 					{
 						rings[ringnum]->current_object_list[n].bright -= 16;
 					}
 					//loc_3DC24
-					//v0 = rings[ringnum]+0x4
-					//a0 = rings[ringnum]->current_object_list[n].+0x4
-					//v1 = rings[ringnum]->current_object_list[n].bright
-
 					if (rings[ringnum]->current_object_list[n].bright < 32)
 					{
 						rings[ringnum]->current_object_list[n].bright = 32;
 					}
 					//loc_3DC4C
-					//a3 = shade
 				}
 
 				//loc_3DC50
-				//v1 = rings[ring_num]
-				//t0 = OBJLIST_SPACING
-				//a1 = inventry_ypos + ymeup
-				//a0 = inventry_xpos
-				//t0 = (i * OBJLIST_SPACING) + 256
-				//v0 = rings[ring_num]->current_object_list[n].
-				//a2 = rings[ring_num]->current_object_list[n].invitem
-				//v1 = rings[ring_num]->current_object_list[n].
-				//v0 = rings[ring_num]->current_object_list[n].bright
-				shade = 255;
-				DrawThreeDeeObject2D(inventry_xpos + (minobj * OBJLIST_SPACING) + 256 + xoff, inventry_ypos + ymeup, rings[ringnum]->current_object_list[n].invitem, shade, 0, yrot, 0, rings[ringnum]->current_object_list[n].bright, 0);
-
-				//v1 = rings[ringnum]
+				DrawThreeDeeObject2D(inventry_xpos + (i * OBJLIST_SPACING) + 256 + xoff, inventry_ypos + ymeup, rings[ringnum]->current_object_list[n].invitem, shade, 0, yrot, 0, rings[ringnum]->current_object_list[n].bright, 0);
 				n++;
-				//v0 = rings[ringnum].numobjectsinlist
-				//s0 += 6 //next n
 				if (n >= rings[ringnum]->numobjectsinlist)
 				{
-					//s0 = 0//set n as 0?
 					n = 0;
 				}//loc_3DCC8
 
-				minobj++;
-				//v0 = maxobj > i ? 1 : 0
+				i++;
 			}
 		}//loc_3DCD8
+		if (rings[ringnum]->ringactive && rings[ringnum]->numobjectsinlist != 1)
+		{
+			if (ringnum != RING_AMMO || combine_ring_fade_val == 128)
+			{
+				//loc_3DD20
+				if (rings[ringnum]->objlistmovement > 0)
+				{
+					rings[ringnum]->objlistmovement += 0x2000;
+				}
+
+				//loc_3DD34
+				if (rings[ringnum]->objlistmovement < 0)
+				{
+					rings[ringnum]->objlistmovement -= 0x2000;
+				}//loc_3DD50
+
+				if (go_left && rings[ringnum]->objlistmovement == 0)
+				{
+					SoundEffect(SFX_MENU_ROTATE, NULL, 2);
+					rings[ringnum]->objlistmovement += 0x2000;
+
+					if (ammo_selector_flag)
+					{
+						ammo_selector_fade_dir = 2;
+					}
+				}//loc_3DDB0
+
+				if (go_right)
+				{
+					if (rings[ringnum]->objlistmovement == 0)
+					{
+						SoundEffect(SFX_MENU_ROTATE, NULL, 0);
+
+						rings[ringnum]->objlistmovement -= 0x2000;
+
+						if (ammo_selector_flag)
+						{
+							ammo_selector_fade_dir = 2;
+						}//loc_3DE18
+					}
+
+				}
+				//loc_3DE18
+				if (0xFFFF < rings[ringnum]->objlistmovement)
+				{
+					rings[ringnum]->curobjinlist--;
+
+					if (rings[ringnum]->curobjinlist < 0)
+					{
+						rings[ringnum]->curobjinlist = rings[ringnum]->numobjectsinlist-1;
+					}//loc_3DE74
+
+					rings[ringnum]->objlistmovement = 0;
+					if (ringnum == RING_INVENTORY)
+					{
+						handle_object_changeover(0);
+					}//loc_3DEE8
+				}
+				else
+				{
+					//loc_3DE90
+					if (rings[ringnum]->objlistmovement < -0xFFFF)
+					{
+						rings[ringnum]->curobjinlist++;
+
+						if (rings[ringnum]->curobjinlist >= rings[ringnum]->numobjectsinlist)
+						{
+							rings[ringnum]->curobjinlist = 0;
+						}
+						//loc_3DED4
+						rings[ringnum]->objlistmovement = 0;
+						if (ringnum == RING_INVENTORY)
+						{
+							handle_object_changeover(0);
+						}
+					}//loc_3DEE8
+				}
+			}
+		}//loc_3DEE8
 	}//loc_3DEE8
-
-#if 0
-				 slt     $v0, $s7, $s3
-				 beqz    $v0, loc_3D680
-				 nop
-#endif
-
-#if 0
-				 loc_3DCD8 :
-			 addiu   $v1, $gp, 0x3178
-				 addu    $s0, $fp, $v1
-				 lw      $a0, 0($s0)
-				 nop
-				 lw      $v0, 0x258($a0)
-				 nop
-				 beqz    $v0, loc_3DEE8
-				 li      $v1, 1
-				 lw      $v0, 0x264($a0)
-				 nop
-				 beq     $v0, $v1, loc_3DEE8
-				 nop
-				 bne     $s6, $v1, loc_3DD20
-				 li      $v0, 0x80
-				 lh      $v1, 0x3158($gp)
-				 nop
-				 bne     $v1, $v0, loc_3DEE8
-				 nop
-
-				 loc_3DD20 :
-			 lw      $v0, 0x25C($a0)
-				 nop
-				 blez    $v0, loc_3DD34
-				 addiu   $v0, 0x2000
-				 sw      $v0, 0x25C($a0)
-
-				 loc_3DD34 :
-				 lw      $v1, 0($s0)
-				 nop
-				 lw      $v0, 0x25C($v1)
-				 nop
-				 bgez    $v0, loc_3DD50
-				 addiu   $v0, -0x2000
-				 sw      $v0, 0x25C($v1)
-
-				 loc_3DD50:
-			 lbu     $v0, 0x3144($gp)
-				 nop
-				 beqz    $v0, loc_3DDB0
-				 nop
-				 lw      $v0, 0($s0)
-				 nop
-				 lw      $v1, 0x25C($v0)
-				 nop
-				 bnez    $v1, loc_3DDB0
-				 li      $a0, 0x6C
-				 move    $a1, $zero
-				 jal     SoundEffect
-				 li      $a2, 2
-				 lw      $v1, 0($s0)
-				 nop
-				 lw      $v0, 0x25C($v1)
-				 nop
-				 addiu   $v0, 0x2000
-				 sw      $v0, 0x25C($v1)
-				 lbu     $a0, 0x3174($gp)
-				 nop
-				 beqz    $a0, loc_3DDB0
-				 li      $v0, 2
-				 sh      $v0, 0x3168($gp)
-
-				 loc_3DDB0:
-			 lbu     $v0, 0x3124($gp)
-				 nop
-				 beqz    $v0, loc_3DE18
-				 nop
-				 addiu   $a1, $gp, 0x3178
-				 addu    $s0, $fp, $a1
-				 lw      $v0, 0($s0)
-				 nop
-				 lw      $v1, 0x25C($v0)
-				 nop
-				 bnez    $v1, loc_3DE18
-				 li      $a0, 0x6C
-				 move    $a1, $zero
-				 jal     SoundEffect
-				 li      $a2, 2
-				 lw      $v1, 0($s0)
-				 nop
-				 lw      $v0, 0x25C($v1)
-				 nop
-				 addiu   $v0, -0x2000
-				 sw      $v0, 0x25C($v1)
-				 lbu     $a0, 0x3174($gp)
-				 nop
-				 beqz    $a0, loc_3DE18
-				 li      $v0, 2
-				 sh      $v0, 0x3168($gp)
-
-				 loc_3DE18:
-			 addiu   $v0, $gp, 0x3178
-				 addu    $a1, $fp, $v0
-				 lw      $v1, 0($a1)
-				 nop
-				 lw      $a0, 0x25C($v1)
-				 li      $v0, 0xFFFF
-				 slt     $v0, $a0
-				 beqz    $v0, loc_3DE90
-				 lui     $v0, 0xFFFF
-				 lw      $v0, 0x260($v1)
-				 nop
-				 addiu   $v0, -1
-				 sw      $v0, 0x260($v1)
-				 lw      $v1, 0($a1)
-				 nop
-				 lw      $v0, 0x260($v1)
-				 nop
-				 bgez    $v0, loc_3DE74
-				 nop
-				 lw      $v0, 0x264($v1)
-				 nop
-				 addiu   $v0, -1
-				 sw      $v0, 0x260($v1)
-
-				 loc_3DE74:
-			 lw      $v0, 0($a1)
-				 bnez    $s6, loc_3DEE8
-				 sw      $zero, 0x25C($v0)
-				 jal     handle_object_changeover
-				 move    $a0, $zero
-				 j       loc_3DEE8
-				 nop
-
-				 loc_3DE90 :
-			 ori     $v0, 1
-				 slt     $v0, $a0, $v0
-				 beqz    $v0, loc_3DEE8
-				 nop
-				 lw      $v0, 0x260($v1)
-				 nop
-				 addiu   $v0, 1
-				 sw      $v0, 0x260($v1)
-				 lw      $a0, 0($a1)
-				 nop
-				 lw      $v0, 0x260($a0)
-				 lw      $v1, 0x264($a0)
-				 nop
-				 slt     $v0, $v1
-				 bnez    $v0, loc_3DED4
-				 nop
-				 sw      $zero, 0x260($a0)
-
-				 loc_3DED4:
-			 lw      $v0, 0($a1)
-				 bnez    $s6, loc_3DEE8
-				 sw      $zero, 0x25C($v0)
-				 jal     sub_3DF18
-				 move    $a0, $zero
-
-				 loc_3DEE8 :
-			 lw      $ra, 0xD8 + var_4($sp)
-				 lw      $fp, 0xD8 + var_8($sp)
-				 lw      $s7, 0xD8 + var_C($sp)
-				 lw      $s6, 0xD8 + var_10($sp)
-				 lw      $s5, 0xD8 + var_14($sp)
-				 lw      $s4, 0xD8 + var_18($sp)
-				 lw      $s3, 0xD8 + var_1C($sp)
-				 lw      $s2, 0xD8 + var_20($sp)
-				 lw      $s1, 0xD8 + var_24($sp)
-				 lw      $s0, 0xD8 + var_28($sp)
-				 jr      $ra
-				 addiu   $sp, 0xD8
-#endif
-	UNIMPLEMENTED();
 }
 
 void insert_object_into_list(int num)//3D2C4(<), 3D718(<) (F)
@@ -3050,7 +2789,7 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 	meshpp += 2;
 
 	//loc_3C81C
-	for (i = 0; i < object->nmeshes - 1; i++, meshpp += 2, bone += 4)
+	for (i = 0; i < object->nmeshes - 1; i++, bone += 4, meshpp += 2)
 	{
 		poppush = *bone;
 
@@ -3101,7 +2840,7 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.pos.z_rot = objme->zrot + zrot;
 	item.object_number = objme->object_number;
 
-	phd_LookAt(0, 1024, 0, 0, 0, 0, 0);//working perfectly
+	phd_LookAt(0, 1024, 0, 0, 0, 0, 0);
 	mQuickW2VMatrix();
 
 	if (bright == 0)
@@ -3130,13 +2869,13 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.pos.x_pos = 0;
 	item.pos.y_pos = 0;
 	item.pos.z_pos = 0;
-	item.required_anim_state = 0;
+	item.room_number = 0;
 	item.il.Light[3].pad = 0;
 	item.mesh_bits = objme->meshbits;
 	item.anim_number = objects[item.object_number].anim_index;
 
 	SetGeomOffset(x, y + objme->yoff);
-	//&item values dont look right here check original code
+
 	if (!(objme->flags & 8))
 	{
 		DrawInventoryItemMe(&item, shade, overlay, 0);
@@ -3161,88 +2900,125 @@ void do_debounced_joystick_poo()//3C224(<), 3C678(<) (F)
 	go_select = 0;
 	go_deselect = 0;
 
-	if (input & IN_LEFT)
+	if ((input & IN_LEFT))
 	{
-		if (left_repeat >= 8u)
-			go_left = 1;
+		if (left_repeat < 8)
+		{
+			left_repeat++;
+		}
 		else
-			++left_repeat;
-		if (!left_debounce)
+		{
 			go_left = 1;
+		}
+
+		//loc_3C278
+		if (left_debounce == 0)
+		{
+			go_left = 1;
+		}
+
+		//loc_3C290
 		left_debounce = 1;
 	}
 	else
 	{
+		//loc_3C29C
 		left_debounce = 0;
 		left_repeat = 0;
 	}
-
-	if (input & IN_RIGHT)
+	//loc_3C2A4
+	if ((input & IN_RIGHT))
 	{
-		if (right_repeat >= 8u)
-			go_right = 1;
+		if (right_repeat < 8)
+		{
+			right_repeat++;
+		}
 		else
-			++right_repeat;
-		if (!right_debounce)
+		{
+			//loc_3C2DC
 			go_right = 1;
+		}
+
+		//loc_3C2E4
+		if (right_debounce == 0)
+		{
+			go_right = 1;
+		}
+		//loc_3C2FC
 		right_debounce = 1;
 	}
 	else
 	{
+		//loc_3C308
 		right_debounce = 0;
 		right_repeat = 0;
 	}
 
-	if (input & IN_FORWARD)
+	//loc_3C310
+	if ((input & IN_FORWARD))
 	{
-		if (!up_debounce)
+		if (up_debounce == 0)
+		{
 			go_up = 1;
+		}
+		//loc_3C340
 		up_debounce = 1;
 	}
 	else
 	{
+		//loc_3C34C
 		up_debounce = 0;
 	}
 
-	if (input & IN_BACK)
+	if ((input & IN_BACK))
 	{
-		if (!down_debounce)
+		if (down_debounce == 0)
+		{
 			go_down = 1;
+		}
+
+		//loc_3C380
 		down_debounce = 1;
 	}
 	else
 	{
+		//loc_3C38C
 		down_debounce = 0;
 	}
 
+	//loc_3C390
 #if PC_VERSION
 	if (input & IN_ACTION || input & IN_SELECT)
 #else
-	if (input & IN_JUMP)
+	if (input & IN_SELECT)
 #endif
 	{
 		select_debounce = 1;
 	}
 	else
 	{
-		if (select_debounce == 1 && !friggrimmer)
+		//loc_3C3B4
+		if (select_debounce == 1 && friggrimmer == 0)
+		{
 			go_select = 1;
+		}
+		//loc_3C3D8
 		select_debounce = 0;
 		friggrimmer = 0;
 	}
-
-#if PC_VERSION
-	if (input & IN_DESELECT)
-#else
-	if (input & IN_DRAW)
-#endif
+	//loc_3C3E0
+	if ((input & IN_DESELECT))
 	{
 		deselect_debounce = 1;
 	}
 	else
 	{
-		if (deselect_debounce == 1 && !friggrimmer2)
+		//loc_3C408
+		if (deselect_debounce == 1 && friggrimmer2 == 0)
+		{
 			go_deselect = 1;
+		}
+		//loc_3C42C
 		deselect_debounce = 0;
 		friggrimmer2 = 0;
 	}
@@ -3253,8 +3029,11 @@ void init_new_inventry()//3C024, 3C478 (F)
 	examine_mode = 0;
 	stats_mode = 0;
 
+#if PSX_VERSION
+	AlterFOV(0x3FFC);
+#else
 	AlterFOV(ANGLE(80));
-
+#endif
 	lara.Busy = 0;
 
 	GLOBAL_inventoryitemchosen = -1;
@@ -3367,7 +3146,7 @@ int S_CallInventory2()//3B7A8, 3BC04
 		inventry_objects_list[17].objname = STR_REVOLVER_AMMO;
 	}
 
-	if (gfCurrentLevel - 0xB < 4)
+	if ((unsigned)gfCurrentLevel - 0xB < 4)
 	{
 		inventry_objects_list[24].objname = STR_HEADSET;
 	}
@@ -3447,9 +3226,10 @@ int S_CallInventory2()//3B7A8, 3BC04
 			GPU_BeginScene();
 			SetDebounce = 1;
 			S_UpdateInput();
+			printf("Input Normal: %x\n", input);
 			input = inputBusy;
 			UpdatePulseColour();
-
+			printf("Input Busy: %x\n", input);
 			GameTimer++;
 
 			if (!ammo_active && !rings[1]->ringactive && go_deselect)

@@ -1,4 +1,4 @@
-#ifdef WIN32
+#ifdef _WINDOWS
 
 #include <windows.h>
 #include <Dbghelp.h>
@@ -8,18 +8,17 @@ typedef BOOL(WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFi
 
 void CreateMiniDump(struct _EXCEPTION_POINTERS* exceptionInfo)
 {
-	HMODULE mhLib = ::LoadLibrary(_T("dbghelp.dll"));
+	HMODULE mhLib = LoadLibrary(_T("dbghelp.dll"));
 	MINIDUMPWRITEDUMP pDump = (MINIDUMPWRITEDUMP)::GetProcAddress(mhLib, "MiniDumpWriteDump");
-
-	HANDLE  hFile = ::CreateFile(_T("CORE.DMP"), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE  hFile = CreateFile(_T("CORE.DMP"), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	_MINIDUMP_EXCEPTION_INFORMATION ExInfo;
-	ExInfo.ThreadId = ::GetCurrentThreadId();
+	ExInfo.ThreadId = GetCurrentThreadId();
 	ExInfo.ExceptionPointers = exceptionInfo;
 	ExInfo.ClientPointers = FALSE;
 
 	pDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &ExInfo, NULL, NULL);
-	::CloseHandle(hFile);
+	CloseHandle(hFile);
 }
 
 LONG WINAPI unhandled_handler(struct _EXCEPTION_POINTERS* exceptionInfo)
@@ -28,4 +27,4 @@ LONG WINAPI unhandled_handler(struct _EXCEPTION_POINTERS* exceptionInfo)
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
-#endif // WIN32
+#endif

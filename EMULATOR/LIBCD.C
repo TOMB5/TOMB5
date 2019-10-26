@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "EMULATOR.H"
 #include "EMULATOR_GLOBALS.H"
-
-#define DISC_IMAGE_FILENAME "TOMB5.BIN"
+#include "EMULATOR_SETUP.H"
 
 int CD_Debug = 0;
 
@@ -18,7 +18,7 @@ typedef struct commandQueue
 	unsigned char* p;
 	unsigned int processed;
 	unsigned int count;
-};
+}commandQueue_s, *commandQueue_p;
 
 #define COMMAND_QUEUE_SIZE 128
 
@@ -58,7 +58,7 @@ struct Sector
 
 CdlFILE* CdSearchFile(CdlFILE* fp, char* name)
 {
-	memset(fp, 0, sizeof(CdlFILE));
+	SDL_memset(fp, 0, sizeof(CdlFILE));
 
 	if (name[0] == '\\')
 	{
@@ -158,6 +158,9 @@ int CdControlF(u_char com, u_char * param)
 	case CdlSetloc:
 		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
 		break;
+	case CdlSetfilter:
+		//fseek(openFile, CdPosToInt(&cd->pos) * sectorSize, SEEK_SET);
+		break;
 	default:
 		eprinterr("Unhandled command 0x%02X!\n", com);
 		break;
@@ -204,7 +207,7 @@ int CdReadSync(int mode, u_char* result)
 				comQueue[i].processed = 1;
 				break;
 			}
-			
+
 			return 1;
 		}
 	}
@@ -226,7 +229,7 @@ int CdSync(int mode, u_char * result)
 
 int CdInit(void)
 {
-	memset(&comQueue, 0, sizeof(comQueue));
+	SDL_memset(&comQueue, 0, sizeof(comQueue));
 	currentSector = 0;
 	openFile = fopen(DISC_IMAGE_FILENAME, "rb");
 

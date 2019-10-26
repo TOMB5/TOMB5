@@ -2,16 +2,16 @@
 #include "FILES.H"
 #include "IO.H"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 char wadHeader[NUM_OVERLAYS*sizeof(fileEntry)];
 
 void CODEWAD_Unpack(const char* fileName)
 {
 	fileEntry* entry = (fileEntry*)&wadHeader[0];
-	
+
 	IO::StreamReader reader(fileName);
 	if (!reader.m_isOpen)
 	{
@@ -29,11 +29,11 @@ void CODEWAD_Unpack(const char* fileName)
 		memset(&nameBin[0], 0, 32);
 		memset(&nameRel[0], 0, 32);
 
-		strcat(&nameBin[0], cwFileNames[i]); 
-		strcat(&nameRel[0], cwFileNames[i]); 
+		strcat(&nameBin[0], cwFileNames[i]);
+		strcat(&nameRel[0], cwFileNames[i]);
 
-		strcat(&nameBin[0], ".BIN"); 
-		strcat(&nameRel[0], ".REL"); 
+		strcat(&nameBin[0], ".BIN");
+		strcat(&nameRel[0], ".REL");
 
 		printf("Name: %s, Name: %s Index: %i\n", &nameBin[0], &nameRel[0], entry[i].moduleIndex);
 
