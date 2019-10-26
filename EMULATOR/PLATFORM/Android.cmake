@@ -1,7 +1,6 @@
 if(ANDROID)
 
-Message("Compiling for Android!")
-
 #TODO
+set(PSX_LIB ${ROOT_DIR}/EMSCRIPTEN/EMULATOR/libPSX.bc)
 
 endif()
