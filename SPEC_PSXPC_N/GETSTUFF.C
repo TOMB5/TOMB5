@@ -233,9 +233,9 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 				if (dx >= 0)
 				{
 					//loc_789FC
-					if (!(dx < (r->y_size)))
+					if (dx >= r->y_size - 1)
 					{
-						dx = (r->y_size) - 1;
+						dx = r->y_size - 1;
 					}
 				}
 				else
@@ -249,15 +249,15 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 				//loc_789D4
 				dz = r->x_size - 1;
 
-				if ((((r->y_size) - 2) < dx))
+				if (r->y_size - 2 < dx)
 				{
-					dx = ((r->y_size) - 2);
+					dx = r->y_size - 2;
 				}
 			}
 			else
 			{
 				dz = r->x_size - 1;
-				dx = 1;
+				dx = r->y_size - 2;
 			}
 		}
 		else if (dx <= 0)
@@ -270,9 +270,9 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 		{
 			//loc_789D4
 			dz = 0;
-			if (!(((r->y_size) - 2) < dx))
+			if ((r->y_size - 2) < dx)
 			{
-				dx = ((r->y_size) - 2);
+				dx = r->y_size - 2;
 			}
 		}
 
@@ -498,7 +498,7 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 						//j       loc_79228
 					}
 				}//loc_79204
-				else if (z & 0x3FF < x & 0x3FF)
+				else if ((z & 0x3FF) < (x & 0x3FF))
 				{
 					//loc_79220
 					a0 >>= 5;
