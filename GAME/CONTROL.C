@@ -2763,7 +2763,7 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 
 		r = &room[data];
 
-	} while (true);
+	} while (TRUE);
 
 	//loc_1E680
 
@@ -2793,7 +2793,7 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 				}
 			}
 
-		} while (true);
+		} while (TRUE);
 
 		//loc_1E740
 		return r->y;
