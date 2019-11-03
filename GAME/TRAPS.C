@@ -17,6 +17,11 @@
 	#include "MISC.H"
 	#include "BUBBLES.H"
 	#include "GETSTUFF.H"
+	#include <STDIO.H>
+#endif
+
+#if PSXPC_TEST
+#include <stdio.h>
 #endif
 
 short SPDETyoffs[8] =
@@ -114,9 +119,51 @@ void OpenTrapDoor(struct ITEM_INFO* item)//58A1C(<), 58EBC (F)
 	return;
 }
 
-void CloseTrapDoor(struct ITEM_INFO* item)//58B68, 59008
+void CloseTrapDoor(struct ITEM_INFO* item)//58B68(<), 59008(<)
 {
-	UNIMPLEMENTED();
+	long x;
+	long z;
+	struct room_info* r;
+	unsigned short pitsky;
+	struct FLOOR_INFO* floor;
+	char buf[80];
+
+	r = &room[item->room_number];
+
+	x = ((item->pos.x_pos - r->x) >> 10) * r->x_size;
+	z = ((item->pos.z_pos - r->z) >> 10);
+
+	floor = &r->floor[x + z];
+
+	if (item->pos.y_pos == r->minfloor)
+	{
+		pitsky = floor->pit_room;
+		floor->pit_room = 0xFF;
+		r = &room[pitsky];
+		floor = &r->floor[((item->pos.z_pos - r->z) >> 10) + (((item->pos.x_pos - r->x) >> 10) * r->x_size)];
+		floor->sky_room = 0xFF;
+		pitsky |= (floor->sky_room << 8);
+	}
+	else if (item->pos.y_pos == r->maxceiling)
+	{
+		//loc_58CDC
+		floor->sky_room = 0xFF;
+		r = &room[floor->sky_room];
+		floor = &r->floor[((item->pos.z_pos - r->z) >> 10) + (((item->pos.x_pos - r->x) >> 10) * r->x_size)];
+		pitsky = floor->sky_room << 8;
+		floor->pit_room = 0xFF;
+		pitsky |= floor->pit_room;
+	}
+	else
+	{
+		sprintf(&buf[0], "Illegal trapdoor room #%d\n", item->room_number);
+		while (1)
+		{
+		}
+	}
+
+	item->item_flags[2] = 1;
+	item->item_flags[3] = pitsky;
 }
 
 void TrapDoorControl(short item_number)//58D08, 59184
