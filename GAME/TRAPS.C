@@ -12,6 +12,8 @@
 #include "SOUND.H"
 #include "SPHERE.H"
 #include "COLLIDE.H"
+#include "GAMEFLOW.H"
+#include "SAVEGAME.H"
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 	#include "MISC.H"
@@ -119,7 +121,7 @@ void OpenTrapDoor(struct ITEM_INFO* item)//58A1C(<), 58EBC (F)
 	return;
 }
 
-void CloseTrapDoor(struct ITEM_INFO* item)//58B68(<), 59008(<)
+void CloseTrapDoor(struct ITEM_INFO* item)//58B68(<), 59008(<) (F)
 {
 	long x;
 	long z;
@@ -166,9 +168,48 @@ void CloseTrapDoor(struct ITEM_INFO* item)//58B68(<), 59008(<)
 	item->item_flags[3] = pitsky;
 }
 
-void TrapDoorControl(short item_number)//58D08, 59184
+void TrapDoorControl(short item_number)//58D08(<), 59184 (F)
 {
-	UNIMPLEMENTED();
+	struct ITEM_INFO* item = &items[item_number]; // $s0
+
+	if (TriggerActive(item))
+	{
+		if (item->current_anim_state == 0 && item->trigger_flags >= 0)
+		{
+			item->goal_anim_state = 1;
+		}
+		else
+		{
+			//0x58D6C
+			if (item->frame_number == anims[item->anim_number].frame_end && gfCurrentLevel == LVL5_RED_ALERT && item->object_number == TRAPDOOR1)
+			{
+				item->status = 3;
+			}//0x58DFC
+		}
+	}
+	else
+	{
+		//58DD4
+		item->meshswap_meshbits &= -7;
+		item->status = 1;
+
+		if (item->current_anim_state == 1)
+		{
+			item->goal_anim_state = 0;
+		}
+	}
+
+	AnimateItem(item);
+
+	if (item->current_anim_state == 1 && item->item_flags[2] == 0 || JustLoaded)
+	{
+		OpenTrapDoor(item);
+	}
+	else if(item->current_anim_state == 0 && item->item_flags[2] == 0)
+	{
+		CloseTrapDoor(item);
+	}
+
 	return;
 }
 
