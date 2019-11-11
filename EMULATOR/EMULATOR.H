@@ -6,7 +6,7 @@
  * Platform specific emulator setup
  */
 
-#if defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__) || defined(__MINGW32__)
+#if (defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__) || defined(__MINGW32__)) && !defined(__ANDROID__)
 #define OGL
 //#define D3D9
 //#define CORE_PROF_3_1
@@ -18,7 +18,7 @@
 #endif
 //#define OGLES
 //#define ES3_SHADERS
-#elif defined(__EMSCRIPTEN__)
+#elif defined(__EMSCRIPTEN__) || defined(__ANDROID__)
 #define OGLES
 #define ES3_SHADERS
 #endif
@@ -47,10 +47,9 @@
 #include <EGL/egl.h>
 #include <emscripten.h>
 #endif
-#elif defined(__linux__)
+#elif (defined(_WINDOWS) || defined(__MINGW32__) || defined(__linux__)) && !defined(__ANDROID__)
 #include <SDL.h>
-#include <SDL_opengl.h>
-#elif defined(_WINDOWS) || defined(__MINGW32__)
+#elif defined (__ANDROID__)
 #include <SDL.h>
 #if defined (OGL)
 #include <SDL_opengl.h>
