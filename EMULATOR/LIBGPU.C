@@ -354,10 +354,6 @@ static unsigned short numVertices = 0;
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
-#if defined(WIREFRAME_MODE)
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-#endif
-
 #if 0
 	//if (byte_3352[0] > 1)
 	{
@@ -465,7 +461,15 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			{
 				Emulator_SetBlendMode(g_splitIndices[i].blendMode);
 			}
+			
+#if defined(WIREFRAME_MODE) || 1
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#endif
 			glDrawArrays(GL_TRIANGLES, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
+
+#if defined(WIREFRAME_MODE) || 1
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 		}
 
 		glDeleteBuffers(1, &vbo);
