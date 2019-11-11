@@ -143,7 +143,7 @@ static int Emulator_InitialiseGLESContext(char* windowName)
 	}
 
 	eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
-	eglSwapInterval(eglDisplay, 1);
+	
 	return TRUE;
 }
 
@@ -201,9 +201,15 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 	Emulator_InitialiseGLESContext(windowName);
 #endif
 
+#if defined(OGL)
 	SDL_GL_SetSwapInterval(1);
+#elif defined(OGLES)
+	//eglSwapInterval(1);
+	eglSwapInterval(eglDisplay, 1);
+#endif
 
 	return TRUE;
+
 }
 
 static int Emulator_InitialiseGLEW()
@@ -1027,7 +1033,7 @@ CachedTexture* Emulator_FindTextureInCache(unsigned short tpage, unsigned short 
 	{
 		for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
 		{
-			if (cachedTextures[i].tpage == tpage && cachedTextures[i].clut == clut)
+			if (cachedTextures[i].tpage == tpage)
 			{
 				cachedTextures[i].lastAccess = SDL_GetTicks();
 				return &cachedTextures[i];
@@ -1393,8 +1399,8 @@ void Emulator_GetTopLeftAndBottomLeftTextureCoordinate(int& x, int& y, int& w, i
 	//Emulator_NXPOT(bottomCoordY);
 	x = topCoordX;
 	y = topCoordY;
-	w = (bottomCoordX - topCoordX);
-	h = (bottomCoordY - topCoordY);
+	w = (bottomCoordX - topCoordX) + 1;
+	h = (bottomCoordY - topCoordY) + 1;
 
 	//Round up next multiple of 2
 	w = (w + 1) & ~0x1;
@@ -1410,41 +1416,11 @@ void Emulator_GetTopLeftAndBottomLeftTextureCoordinate(int& x, int& y, int& w, i
 void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, unsigned char u0, unsigned char v0, unsigned char u1, unsigned char v1, unsigned char u2, unsigned char v2, unsigned char u3, unsigned char v3, unsigned short bIsQuad)
 {
 	//Locate the 4-bit texture in vram, convert it and glTexSubImage to the atlas
-	unsigned int tpageX = ((texTpage << 6) & 0x7C0);
-	unsigned int tpageY = (((texTpage << 4) & 0x100) + ((texTpage >> 2) & 0x200));
+	unsigned int tpageX = ((texTpage << 6) & 0x7C0) % (VRAM_WIDTH / RESOLUTION_SCALE);
+	unsigned int tpageY = ((((texTpage << 4) & 0x100) + ((texTpage >> 2) & 0x200))) % (VRAM_HEIGHT / RESOLUTION_SCALE);
 	unsigned int clutX = ((texClut & 0x3F) << 4);
 	unsigned int clutY = (texClut >> 6);
 
-	static int test = 0;
-
-	if (texTpage == 41)
-	{
-		if (test == 20)
-		{
-			test = 20;
-		}
-		test++;
-	}
-
-	if (tpageX >= VRAM_WIDTH)
-	{
-		tpageX &= (VRAM_WIDTH-1);
-	}
-
-	if (tpageY >= VRAM_HEIGHT)
-	{
-		tpageY &= (VRAM_HEIGHT-1);
-	}
-
-	if (clutX >= VRAM_WIDTH)
-	{
-		clutX &= (VRAM_WIDTH-1);
-	}
-
-	if (clutY >= VRAM_HEIGHT)
-	{
-		clutY &= (VRAM_HEIGHT-1);
-	}
 	//Set this to true so the emulator uses atlas textures
 	g_hasHintedTextureAtlas = 1;
 
