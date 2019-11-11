@@ -866,6 +866,30 @@ void Emulator_BeginScene()
 	}
 }
 
+///@FIXME keyboardState only accessible if padInitDirect called! Let the emulator manage input not the sub library!
+void Emulator_DoDebugKeys()
+{
+	static unsigned int currentTime;
+	static unsigned int lastTime;
+
+	currentTime = SDL_GetTicks();
+
+	if (currentTime > lastTime + 60)
+	{
+		if (keyboardState[SDL_SCANCODE_1])
+		{
+			g_wireframeMode ^= 1;
+		}
+
+		if (keyboardState[SDL_SCANCODE_2])
+		{
+			g_texturelessMode ^= 1;
+		}
+
+		lastTime = currentTime;
+	}
+}
+
 void Emulator_UpdateInput()
 {
 	//Update pad
@@ -889,6 +913,8 @@ void Emulator_UpdateInput()
 			((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
 		}
 	}
+
+	Emulator_DoDebugKeys();
 }
 
 void Emulator_SwapWindow()

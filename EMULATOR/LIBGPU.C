@@ -15,6 +15,9 @@ DRAWENV byte_9CCA4;
 int dword_3410 = 0;
 char byte_3352 = 0;
 
+int g_wireframeMode = 0;
+int g_texturelessMode = 0;
+
 struct VertexBufferSplitIndex
 {
 	unsigned short splitIndex;
@@ -456,20 +459,31 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 		for (int i = 0; i < g_numSplitIndices; i++)
 		{
-			Emulator_BindTexture(g_splitIndices[i].textureId);
+			if (g_texturelessMode)
+			{
+				Emulator_BindTexture(nullWhiteTexture);
+			}
+			else
+			{
+				Emulator_BindTexture(g_splitIndices[i].textureId);
+			}
+
 			if (g_splitIndices[i].blendMode)
 			{
 				Emulator_SetBlendMode(g_splitIndices[i].blendMode);
 			}
 			
-#if defined(WIREFRAME_MODE) || 1
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			if (g_wireframeMode)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
 #endif
 			glDrawArrays(GL_TRIANGLES, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
 
-#if defined(WIREFRAME_MODE) || 1
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
+			if (g_wireframeMode)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
 		}
 
 		glDeleteBuffers(1, &vbo);
@@ -490,10 +504,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 	}
 
 	Emulator_CheckTextureIntersection(&env->clip);
-#if defined(WIREFRAME_MODE)
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
-#endif
 }
 
 

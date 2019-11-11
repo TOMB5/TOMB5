@@ -759,5 +759,7 @@ extern void GetDrawEnv2(DR_ENV *p);
 extern DISPENV word_33BC;
 extern DRAWENV activeDrawEnv;
 extern void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd);
+extern int g_wireframeMode;
+extern int g_texturelessMode;
 
 #endif
