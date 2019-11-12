@@ -921,7 +921,7 @@ DEL_CalcLaraMatrices_Interpolated_ASM:
 	addiu   a1, 0x12
 	sw      a0, 0x24(t8)
 	sw      a1, 0x28(t8)
-	lw      t9, 0x1A94(gp)
+	lw      t9, lara_item-GP_ADDR(gp)
 	la      s2, rcossin_tbl
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, t8, 0x120
@@ -1009,21 +1009,21 @@ DEL_CalcLaraMatrices_Interpolated_ASM:
 	addiu   a0, t8, 0xC0
 	addiu   s0, -0xC0
 	addiu   s1, -0x60
-	lw      t9, 0x202C(gp)
+	lw      t9, anims-GP_ADDR(gp)
 	jal     Hardcore_iTranslateXYZ
 	addiu   a2, s1, 0x64
-	lh      a0, 0x5252(gp)
+	lh      a0, lara+0x2A-GP_ADDR(gp)
 	li      v0, 0xFFFFFFFF
 	beq     a0, v0, loc_84594
 	li      v0, 5
-	lh      v1, 0x522C(gp)
+	lh      v1, lara+0x4-GP_ADDR(gp)
 	nop
 	bne     v1, v0, loc_84594
 	sll     v0, a0, 2
 	addu    v0, a0
 	sll     v0, 2
 	subu    v0, a0
-	lw      v1, 0x1B38(gp)
+	lw      v1, items-GP_ADDR(gp)
 	sll     v0, 3
 	addu    v0, v1
 	lh      v1, 0xE(v0)
@@ -1036,18 +1036,18 @@ DEL_CalcLaraMatrices_Interpolated_ASM:
 	nop
 
 	loc_84534:
-	lh      v1, 0x52F6(gp)
+	lh      v1, lara+0xCE-GP_ADDR(gp)
 	nop
 	sll     v0, v1, 2
 	addu    v0, v1
 	sll     v0, 3
 	addu    v0, t9
 	lh      v0, 4(v0)
-	lh      v1, 0x52F4(gp)
+	lh      v1, lara+0xCC-GP_ADDR(gp)
 	sra     v0, 8
 	mult    v1, v0
 	li      a1, 7
-	lw      v0, 0x52F0(gp)
+	lw      v0, lara+0xC8-GP_ADDR(gp)
 	mflo    t0
 	nop
 	nop
@@ -1066,14 +1066,14 @@ DEL_CalcLaraMatrices_Interpolated_ASM:
 	move    a1, zero
 	jal     iRotSuperPackedYXZ
 	move    a1, zero
-	lh      a0, 0x52D6(gp)
-	lh      a1, 0x52D8(gp)
+	lh      a0, lara+0xAE-GP_ADDR(gp)
+	lh      a1, lara+0xB0-GP_ADDR(gp)
 	jal     mRotYXZ
-	lh      a2, 0x52DA(gp)
-	lh      a0, 0x52D6(gp)
-	lh      a1, 0x52D8(gp)
+	lh      a2, lara+0xB2-GP_ADDR(gp)
+	lh      a0, lara+0xAE-GP_ADDR(gp)
+	lh      a1, lara+0xB0-GP_ADDR(gp)
 	jal     iRotYXZ
-	lh      a2, 0x52DA(gp)
+	lh      a2, lara+0xB2-GP_ADDR(gp)
 	jal     InterpolateMatrix
 	addiu   a0, s0, 0xE0
 	jal     DEL_stash_both_matrices
@@ -1092,21 +1092,21 @@ DEL_CalcLaraMatrices_Interpolated_ASM:
 	lw      v1, 0x30(t8)
 	sw      v0, 0x24(t8)
 	sw      v1, 0x28(t8)
-	lh      a0, 0x52D0(gp)
-	lh      a1, 0x52D2(gp)
+	lh      a0, lara+0xA8-GP_ADDR(gp)
+	lh      a1, lara+0xAA-GP_ADDR(gp)
 	jal     mRotYXZ
-	lh      a2, 0x52D4(gp)
-	lh      a0, 0x52D0(gp)
-	lh      a1, 0x52D2(gp)
+	lh      a2, lara+0xAC-GP_ADDR(gp)
+	lh      a0, lara+0xA8-GP_ADDR(gp)
+	lh      a1, lara+0xAA-GP_ADDR(gp)
 	jal     iRotYXZ
-	lh      a2, 0x52D4(gp)
+	lh      a2, lara+0xAC-GP_ADDR(gp)
 	jal     InterpolateMatrix
 	addiu   a0, s0, 0x100
 	jal     DEL_restore_both_matrices
 	addiu   a0, t8, 0xC0
 	jal     Hardcore_iTranslateXYZ
 	addiu   a2, s1, 0x74
-	lhu     a0, 0x522A(gp)
+	lhu     a0, lara+0x2-GP_ADDR(gp)
 	move    v1, zero
 	li      v0, 2
 	beq     a0, v0, loc_84670
@@ -1119,7 +1119,7 @@ DEL_CalcLaraMatrices_Interpolated_ASM:
 	nop
 
 	loc_84670:
-	lh      v1, 0x522C(gp)
+	lh      v1, lara+0x4-GP_ADDR(gp)
 	la      v0, .firearms_jumptable
 	sltiu   at, v1, 0xA    # switch 9 cases
 	beqz    at, def_84694   # jumptable 00084694 default case
@@ -1157,25 +1157,25 @@ DEL_CalcLaraMatrices_Interpolated_ASM:
 	addiu   a0, t8, 0xC0
 	jal     Hardcore_iTranslateXYZ
 	addiu   a2, s1, 0xA4
-	lw      v0, 0x526C(gp)
+	lw      v0, lara+0x44-GP_ADDR(gp)
 	nop
 	andi    v0, 1
 	beqz    v0, loc_84778
 	nop
-	lh      v1, 0x52E2(gp)
+	lh      v1, lara+0xBA-GP_ADDR(gp)
 	nop
 	sll     v0, v1, 2
 	addu    v0, v1
 	sll     v0, 3
 	addu    v0, t9
-	lh      v1, 0x52E0(gp)
+	lh      v1, lara+0xB8-GP_ADDR(gp)
 	lh      a0, 0x18(v0)
 	lh      v0, 4(v0)
 	subu    v1, a0
 	sra     v0, 8
 	mult    v1, v0
 	li      a1, 0xB
-	lw      v0, 0x52DC(gp)
+	lw      v0, lara+0xB4-GP_ADDR(gp)
 	mflo    t0
 	sll     v1, t0, 1
 	addu    v0, v1
@@ -1203,24 +1203,24 @@ DEL_CalcLaraMatrices_Interpolated_ASM:
 	loc_847A4:
 	jal     InterpolateArmMatrix
 	addiu   a0, t8, 0x100
-	lh      a0, 0x52FA(gp)
-	lh      a1, 0x52FC(gp)
+	lh      a0, lara+0xD2-GP_ADDR(gp)
+	lh      a1, lara+0xD4-GP_ADDR(gp)
 	jal     mRotYXZ
-	lh      a2, 0x52FE(gp)
-	lh      v1, 0x52F6(gp)
+	lh      a2, lara+0xD6-GP_ADDR(gp)
+	lh      v1, lara+0xCE-GP_ADDR(gp)
 	nop
 	sll     v0, v1, 2
 	addu    v0, v1
 	sll     v0, 3
 	addu    v0, t9
-	lh      v1, 0x52F4(gp)
+	lh      v1, lara+0xCC-GP_ADDR(gp)
 	lh      a0, 0x18(v0)
 	lh      v0, 4(v0)
 	subu    v1, a0
 	sra     v0, 8
 	mult    v1, v0
 	li      a1, 8
-	lw      v0, 0x52F0(gp)
+	lw      v0, lara+0xC8-GP_ADDR(gp)
 	mflo    t0
 	sll     v1, t0, 1
 	addu    v0, v1
@@ -1247,37 +1247,37 @@ DEL_CalcLaraMatrices_Interpolated_ASM:
 	addiu   a2, s1, 0xA4
 	jal     InterpolateArmMatrix
 	addiu   a0, t8, 0x100
-	lh      a0, 0x52E6(gp)
-	lh      a1, 0x52E8(gp)
-	lh      a2, 0x52EA(gp)
+	lh      a0, lara+0xBE-GP_ADDR(gp)
+	lh      a1, lara+0xC0-GP_ADDR(gp)
+	lh      a2, lara+0xC2-GP_ADDR(gp)
 	jal     mRotYXZ
 	addiu   ra, 0xE8
 
 	loc_84870:
 	jal     InterpolateArmMatrix
 	addiu   a0, t8, 0x100
-	lh      a0, 0x52D6(gp)
-	lh      a1, 0x52D8(gp)
+	lh      a0, lara+0xAE-GP_ADDR(gp)
+	lh      a1, lara+0xB0-GP_ADDR(gp)
 	jal     mRotYXZ
-	lh      a2, 0x52DA(gp)
-	lh      a0, 0x52D6(gp)
-	lh      a1, 0x52D8(gp)
+	lh      a2, lara+0xB2-GP_ADDR(gp)
+	lh      a0, lara+0xAE-GP_ADDR(gp)
+	lh      a1, lara+0xB0-GP_ADDR(gp)
 	jal     iRotYXZ
-	lh      a2, 0x52DA(gp)
-	lh      v1, 0x52F6(gp)
+	lh      a2, lara+0xB2-GP_ADDR(gp)
+	lh      v1, lara+0xCE-GP_ADDR(gp)
 	nop
 	sll     v0, v1, 2
 	addu    v0, v1
 	sll     v0, 3
 	addu    v0, t9
-	lh      v1, 0x52F4(gp)
+	lh      v1, lara+0xCC-GP_ADDR(gp)
 	lh      a0, 0x18(v0)
 	lh      v0, 4(v0)
 	subu    v1, a0
 	sra     v0, 8
 	mult    v1, v0
 	li      a1, 8
-	lw      v0, 0x52F0(gp)
+	lw      v0, lara+0xC8-GP_ADDR(gp)
 	mflo    t0
 	sll     v1, t0, 1
 	addu    v0, v1
@@ -1304,28 +1304,28 @@ DEL_CalcLaraMatrices_Interpolated_ASM:
 	addiu   a2, s1, 0xA4
 	jal     InterpolateArmMatrix
 	addiu   a0, t8, 0x100
-	lh      a0, 0x52D6(gp)
-	lh      a1, 0x52D8(gp)
+	lh      a0, lara+0xAE-GP_ADDR(gp)
+	lh      a1, lara+0xB0-GP_ADDR(gp)
 	jal     mRotYXZ
-	lh      a2, 0x52DA(gp)
-	lh      a0, 0x52D6(gp)
-	lh      a1, 0x52D8(gp)
+	lh      a2, lara+0xB2-GP_ADDR(gp)
+	lh      a0, lara+0xAE-GP_ADDR(gp)
+	lh      a1, lara+0xB0-GP_ADDR(gp)
 	jal     iRotYXZ
-	lh      a2, 0x52DA(gp)
-	lh      v1, 0x52E2(gp)
+	lh      a2, lara+0xB2-GP_ADDR(gp)
+	lh      v1, lara+0xBA-GP_ADDR(gp)
 	nop
 	sll     v0, v1, 2
 	addu    v0, v1
 	sll     v0, 3
 	addu    v0, t9
-	lh      v1, 0x52E0(gp)
+	lh      v1, lara+0xB8-GP_ADDR(gp)
 	lh      a0, 0x18(v0)
 	lh      v0, 4(v0)
 	subu    v1, a0
 	sra     v0, 8
 	mult    v1, v0
 	li      a1, 0xB
-	lw      v0, 0x52DC(gp)
+	lw      v0, lara+0xB4-GP_ADDR(gp)
 	mflo    t0
 	sll     v1, t0, 1
 	addu    v0, v1
@@ -1349,18 +1349,18 @@ DEL_CalcLaraMatrices_Interpolated_ASM:
 	addiu   ra, 0x104
 
 	loc_849E4:
-	lh      v1, 0x52F6(gp)
+	lh      v1, lara+0xCE-GP_ADDR(gp)
 	nop
 	sll     v0, v1, 2
 	addu    v0, v1
 	sll     v0, 3
 	addu    v0, t9
 	lh      v0, 4(v0)
-	lh      v1, 0x52F4(gp)
+	lh      v1, lara+0xCC-GP_ADDR(gp)
 	sra     v0, 8
 	mult    v1, v0
 	li      a1, 8
-	lw      v0, 0x52F0(gp)
+	lw      v0, lara+0xC8-GP_ADDR(gp)
 	mflo    t0
 	sll     v1, t0, 1
 	addu    v0, v1
