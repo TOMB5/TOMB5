@@ -2704,6 +2704,9 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 	struct FLOOR_INFO* floor;
 	short data;
 
+	//Disabled due to infinite looping on PSX
+	return 0;
+
 	//loc_1E570
 	r = &room[room_number];
 

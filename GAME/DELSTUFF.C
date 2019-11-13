@@ -137,7 +137,7 @@ void CalcLaraMatrices(int flag)//2C1DC, 2C504
 	
 	DEL_CalcLaraMatrices_Normal_ASM(frm[0], &bones[objects[lara_item->object_number].bone_index], flag);
 
-#elif PSX_VERSION || PSXPC_TEST
+#elif 0
 	struct object_info* object;
 	short* frame;
 	short* frmptr[2];
