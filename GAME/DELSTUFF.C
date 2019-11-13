@@ -137,7 +137,7 @@ void CalcLaraMatrices(int flag)//2C1DC, 2C504
 	
 	DEL_CalcLaraMatrices_Normal_ASM(frm[0], &bones[objects[lara_item->object_number].bone_index], flag);
 
-#elif 0
+#elif PSX_VERSION || PSXPC_TEST
 	struct object_info* object;
 	short* frame;
 	short* frmptr[2];
@@ -159,7 +159,7 @@ void CalcLaraMatrices(int flag)//2C1DC, 2C504
 		if (frac != 0)
 		{
 			GLaraShadowframe = GetBoundsAccurate(item);
-			DEL_CalcLaraMatrices_Interpolated_ASM(frmptr[0], frmptr[1], frac, bone, flag);
+			DEL_CalcLaraMatrices_Interpolated_ASM(frmptr[0], frmptr[1], frac, rate, bone, flag);
 			return;
 		}
 	}//loc_2C2A4
