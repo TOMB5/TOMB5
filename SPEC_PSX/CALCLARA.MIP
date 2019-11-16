@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF GetFrames, S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM, DEL_CalcLaraMatrices_Interpolated_ASM
-	XREF anims, interpolated_bounds, lara_item, rcossin_tbl, GLaraShadowframe, lara_joint_matrices, lara_matrices, ScaleCurrentMatrix, Matrix, lara, items
+	XREF anims, interpolated_bounds, lara_item, rcossin_tbl, GLaraShadowframe, lara_joint_matrices, lara_matrices, ScaleCurrentMatrix, Matrix, lara, items, MatrixStack
 	
 .firearms_jumptable:
 	dw loc_8469C
@@ -58,9 +58,13 @@ copy_matrix_from_scratch:
 	sw      t7, 0x1C(a1)
 	
 mTranslateAbsXYZ:
-	lw      t0, Matrix+0x20-GP_ADDR(gp)
-	lw      t1, Matrix+0x24-GP_ADDR(gp)
-	lw      t2, Matrix+0x28-GP_ADDR(gp)
+	;lw      t0, MatrixStack+0x14-GP_ADDR(gp)
+	;lw      t1, MatrixStack+0x18-GP_ADDR(gp)
+	;lw      t2, MatrixStack+0x1C-GP_ADDR(gp)
+	la		t2, MatrixStack
+	lw      t0, 0x14(t2)
+	lw      t1, 0x18(t2)
+	lw      t2, 0x1C(t2)
 	ctc2    zero, r5
 	ctc2    zero, r6
 	ctc2    zero, r7
