@@ -1632,7 +1632,7 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 	ideal.z = ideals[farthestnum].z;
 	ideal.room_number = ideals[farthestnum].room_number;
 
-#if 0
+#if !DEBUG_CAM
 	CameraCollisionBounds(&ideal, 384, 1);
 #endif
 
@@ -1640,13 +1640,15 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 	{
 		camera.speed = 1;
 	}
-#if 1//Debug camera
+
+#if DEBUG_CAM
 	ideal.x = camera.pos.x;
 	ideal.y = camera.pos.y;
 	ideal.z = camera.pos.z;
 	ideal.room_number = camera.pos.room_number;
 	ideal.box_number = camera.box;
 #endif
+
 	MoveCamera(&ideal, camera.speed);
 }
 
@@ -2232,7 +2234,7 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 	sw      $v0, 0x80 + var_70($sp)
 	sw      $v1, 0x80 + var_6C($sp)
 	*/
-#if 1//DEBUG_CAM
+#if DEBUG_CAM
 	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.x, camera.pos.y, camera.pos.z, camera.actual_angle);
 #else
 	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
