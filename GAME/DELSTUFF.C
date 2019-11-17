@@ -102,7 +102,7 @@ void CalcLaraMatrices(int flag)//2C1DC, 2C504
 	{
 		int anim = -1;
 
-		switch(lara.hit_direction)
+		switch (lara.hit_direction)
 		{
 		case NORTH:
 			anim = lara.IsDucked ? ANIMATION_LARA_CROUCH_SMASH_BACKWARD : ANIMATION_LARA_AH_FORWARD;
@@ -122,7 +122,7 @@ void CalcLaraMatrices(int flag)//2C1DC, 2C504
 	}
 	else
 	{
-		
+
 		int rate;
 		long frac = GetFrames(lara_item, frm, &rate);
 
@@ -134,7 +134,7 @@ void CalcLaraMatrices(int flag)//2C1DC, 2C504
 			return;
 		}
 	}
-	
+
 	DEL_CalcLaraMatrices_Normal_ASM(frm[0], &bones[objects[lara_item->object_number].bone_index], flag);
 
 #elif PSX_VERSION || PSXPC_TEST
@@ -159,14 +159,15 @@ void CalcLaraMatrices(int flag)//2C1DC, 2C504
 		if (frac != 0)
 		{
 			GLaraShadowframe = GetBoundsAccurate(item);
-			DEL_CalcLaraMatrices_Interpolated_ASM(frmptr[0], frmptr[1], frac, bone, flag);
+			DEL_CalcLaraMatrices_Interpolated_ASM(frmptr[0], frmptr[1], frac, rate, bone, flag);
 			return;
 		}
 	}//loc_2C2A4
-	else
+
+	//loc_2C294
+	//loc_2C2A4
+	if (lara.hit_direction >= 0)
 	{
-		//loc_2C294
-		//loc_2C2A4
 		if (lara.hit_direction == 1)
 		{
 			//loc_2C318

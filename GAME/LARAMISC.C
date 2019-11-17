@@ -9,6 +9,7 @@
 #include "LARASURF.H"
 #include "GETSTUFF.H"
 #include "COLLIDE.H"
+#include "3D_GEN.H"
 #endif
 #include "CONTROL.H"
 #include "DRAW.H"
@@ -467,7 +468,7 @@ void LaraControl(short item_number)//4A838, 4AC9C
 		break;
 	}
 
-#if 1 //CONTROLS_TEST
+#if DEBUG_CAM
 
 	if ((RawPad & 0x10))
 	{
@@ -504,20 +505,9 @@ void LaraControl(short item_number)//4A838, 4AC9C
 		lara_item->pos.y_pos += 0x20;
 	}
 
-	if ((RawPad & IN_R2) && (RawPad & IN_DPAD_UP))
+	if ((RawPad & IN_L2))
 	{
-		camera.pos.room_number++;
-		camera.pos.room_number %= number_rooms;
-		//lara_item->pos.y_rot += 0x40;
-	}
-	if ((RawPad & IN_R2) && (RawPad & IN_DPAD_DOWN))
-	{
-		camera.pos.room_number--;
-		if (camera.pos.room_number < 0)
-		{
-			camera.pos.room_number = 0;
-		}
-		//lara_item->pos.y_rot += 0x40;
+		camera.pos.x += SIN(90) * 32;
 	}
 	/*struct FLOOR_INFO* floor;
 	short rn = camera.pos.room_number;

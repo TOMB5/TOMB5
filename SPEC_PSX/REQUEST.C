@@ -204,7 +204,7 @@ long Requester(struct REQUESTER* r)//63718(<), 63DF4 (F)
 			{
 				//loc_63EB0
 				SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
-				return r->CursorPos | 0x80000000;
+				return r->CursorPos | 0x8000;
 			}
 		}
 		//loc_63ED4

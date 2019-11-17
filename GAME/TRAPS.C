@@ -12,11 +12,18 @@
 #include "SOUND.H"
 #include "SPHERE.H"
 #include "COLLIDE.H"
+#include "GAMEFLOW.H"
+#include "SAVEGAME.H"
 
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 	#include "MISC.H"
 	#include "BUBBLES.H"
 	#include "GETSTUFF.H"
+	#include <STDIO.H>
+#endif
+
+#if PSXPC_TEST
+#include <stdio.h>
 #endif
 
 short SPDETyoffs[8] =
@@ -114,14 +121,95 @@ void OpenTrapDoor(struct ITEM_INFO* item)//58A1C(<), 58EBC (F)
 	return;
 }
 
-void CloseTrapDoor(struct ITEM_INFO* item)//58B68, 59008
+void CloseTrapDoor(struct ITEM_INFO* item)//58B68(<), 59008(<) (F)
 {
-	UNIMPLEMENTED();
+	long x;
+	long z;
+	struct room_info* r;
+	unsigned short pitsky;
+	struct FLOOR_INFO* floor;
+	char buf[80];
+
+	r = &room[item->room_number];
+
+	x = ((item->pos.x_pos - r->x) >> 10) * r->x_size;
+	z = ((item->pos.z_pos - r->z) >> 10);
+
+	floor = &r->floor[x + z];
+
+	if (item->pos.y_pos == r->minfloor)
+	{
+		pitsky = floor->pit_room;
+		floor->pit_room = 0xFF;
+		r = &room[pitsky];
+		floor = &r->floor[((item->pos.z_pos - r->z) >> 10) + (((item->pos.x_pos - r->x) >> 10) * r->x_size)];
+		floor->sky_room = 0xFF;
+		pitsky |= (floor->sky_room << 8);
+	}
+	else if (item->pos.y_pos == r->maxceiling)
+	{
+		//loc_58CDC
+		floor->sky_room = 0xFF;
+		r = &room[floor->sky_room];
+		floor = &r->floor[((item->pos.z_pos - r->z) >> 10) + (((item->pos.x_pos - r->x) >> 10) * r->x_size)];
+		pitsky = floor->sky_room << 8;
+		floor->pit_room = 0xFF;
+		pitsky |= floor->pit_room;
+	}
+	else
+	{
+		sprintf(&buf[0], "Illegal trapdoor room #%d\n", item->room_number);
+		while (1)
+		{
+		}
+	}
+
+	item->item_flags[2] = 1;
+	item->item_flags[3] = pitsky;
 }
 
-void TrapDoorControl(short item_number)//58D08, 59184
+void TrapDoorControl(short item_number)//58D08(<), 59184 (F)
 {
-	UNIMPLEMENTED();
+	struct ITEM_INFO* item = &items[item_number]; // $s0
+
+	if (TriggerActive(item))
+	{
+		if (item->current_anim_state == 0 && item->trigger_flags >= 0)
+		{
+			item->goal_anim_state = 1;
+		}
+		else
+		{
+			//0x58D6C
+			if (item->frame_number == anims[item->anim_number].frame_end && gfCurrentLevel == LVL5_RED_ALERT && item->object_number == TRAPDOOR1)
+			{
+				item->status = 3;
+			}//0x58DFC
+		}
+	}
+	else
+	{
+		//58DD4
+		item->meshswap_meshbits &= -7;
+		item->status = 1;
+
+		if (item->current_anim_state == 1)
+		{
+			item->goal_anim_state = 0;
+		}
+	}
+
+	AnimateItem(item);
+
+	if (item->current_anim_state == 1 && item->item_flags[2] == 0 || JustLoaded)
+	{
+		OpenTrapDoor(item);
+	}
+	else if(item->current_anim_state == 0 && item->item_flags[2] == 0)
+	{
+		CloseTrapDoor(item);
+	}
+
 	return;
 }
 

@@ -1,5 +1,6 @@
 #include "LOT.H"
 
+#include "CAMERA.H"
 #include "SPECIFIC.H"
 #include "MALLOC.H"
 #include "BOX.H"
@@ -215,27 +216,84 @@ void InitialiseSlot(short item_number /*$s0*/, int slot /*$a1*/)//4E13C, 4E5A0 (
 	slots_used++;
 }
 
-int EnableBaddieAI(short item_number, int Always)//4DF0C, 4E370
+int EnableBaddieAI(short item_number, int Always)//4DF0C(<), 4E370 (F)
 {
-	/*struct ITEM_INFO* item = &items[item_number];
+	int x;
+	int y;
+	int z;
+	int worstslot;
+	int slot;
+	int worstdist;
+	int dist;
+	struct ITEM_INFO* item;
+	struct creature_info* creature;
 
-	if (item->data != NULL)
-		return 1;
+	if (items[item_number].data == NULL)
+	{
+		creature = &baddie_slots[0];
 
-	if (slots_used >= 5)
-	{
-		
-	}
-	else
-	{
-		int slot;
-		for(slot = 0; slot < 5; slot++)
+		if (slots_used < 5)
 		{
-			
+			//loc_4DF68
+			for(slot = 0; slot < 5; slot++, creature++)
+			{
+				if (creature->item_num == -1)
+				{
+					//loc_4E0C4
+					InitialiseSlot(item_number, slot);
+					return 1;
+				}
+			}
 		}
-	}*/
+		//loc_4DF88
+		if (!Always)
+		{
+			item = &items[item_number];
 
-	UNIMPLEMENTED();
+			x = (item->pos.x_pos - camera.pos.x) >> 8;
+			y = (item->pos.y_pos - camera.pos.y) >> 8;
+			z = (item->pos.z_pos - camera.pos.z) >> 8;
+
+			worstdist = (x * x) + (y * y) + (z * z);
+		}
+		else
+		{
+			//loc_4E000
+			worstdist = 0;
+		}
+
+		//loc_4E01C
+		worstslot = -1;
+		creature = &baddie_slots[0];
+
+		//loc_4E030
+		for(slot = 0; slot < 5; slot++, creature++)
+		{
+			item = &items[creature->item_num];
+			x = (item->pos.x_pos - camera.pos.x) >> 8;
+			y = (item->pos.y_pos - camera.pos.y) >> 8;
+			z = (item->pos.z_pos - camera.pos.z) >> 8;
+			dist = (x * x) + (y * y) + (z * z);
+
+			if (worstdist < dist)
+			{
+				worstdist = dist;
+				worstslot = slot;
+			}
+			//loc_4E0A4
+		}
+
+		if (worstslot >= 0)
+		{
+			//loc_4E0CC
+			items[baddie_slots[worstslot].item_num].status = 3;
+			DisableBaddieAI(baddie_slots[worstslot].item_num);
+			InitialiseSlot(item_number, worstslot);
+			return 1;
+		}
+
+	}//loc_4E128
+	
 	return 0;
 }
 

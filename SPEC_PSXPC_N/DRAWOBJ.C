@@ -833,10 +833,10 @@ void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2
 				at = MAC0;
 
 				docop2(0x158002D);
-				t6 = ((int*)t6)[1];
 
 				if (at >= 0)
 				{
+					t6 = ((int*)t6)[1];
 					t7 = ((int*)t7)[1];
 					t8 = ((int*)t8)[1];
 					t5 <<= 4;
@@ -1746,7 +1746,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 	int fp;
 	int gp = 0;
 	int t9;
-#if !JULY_VERSION
+#if !JULY_VERSION && !AUG_VERSION
 	S_MemSet((char*)&sp[0], 0, sizeof(sp));
 
 	initialise_light_matrix();
@@ -1936,6 +1936,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 	{
 		//DrawSubDivMesh();
 	///	assert(0);//TODO draw sub div mesh
+		return;
 	}
 
 	//loc_7F0A8
