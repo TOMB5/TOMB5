@@ -685,8 +685,96 @@ iTranslateXYZ:;TODO cannot find ASM*********************************************
 	jr ra
 	nop
 	
-iTranslateXYZ2:;TODO cannot find ASM**********************************************************
-	jr ra
+iTranslateXYZ2:
+	bgez    a3, loc_85318
+	sra     t0, a3, 15
+	negu    a3, a3
+	sra     t0, a3, 15
+	andi    a3, 0x7FFF
+	negu    t0, t0
+	j       loc_8531C
+	negu    a3, a3
+
+	loc_85318:
+	andi    a3, 0x7FFF
+
+	loc_8531C:
+	bgez    a1, loc_8533C
+	sra     t1, a1, 15
+	negu    a1, a1
+	sra     t1, a1, 15
+	andi    a1, 0x7FFF
+	negu    t1, t1
+	j       loc_85340
+	negu    a1, a1
+
+	loc_8533C:
+	andi    a1, 0x7FFF
+
+	loc_85340:
+	bgez    a2, loc_85360
+	sra     t2, a2, 15
+	negu    a2, a2
+	sra     t2, a2, 15
+	andi    a2, 0x7FFF
+	negu    t2, t2
+	j       loc_85364
+	negu    a2, a2
+
+	loc_85360:
+	andi    a2, 0x7FFF
+
+	loc_85364:
+	mtc2    t0, r9
+	mtc2    t1, r10
+	mtc2    t2, r11
+	nop
+	nop
+	cop2    0x43E012
+	mfc2    t6, r25
+	mtc2    a3, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	mfc2    t7, r26
+	mfc2    v0, r27
+	cop2    0x4BE012
+	bgez    t6, loc_853A8
+	sll     t3, t6, 3
+	negu    t6, t6
+	sll     t6, 3
+	negu    t3, t6
+
+	loc_853A8:
+	bgez    t7, loc_853BC
+	sll     t4, t7, 3
+	negu    t7, t7
+	sll     t7, 3
+	negu    t4, t7
+
+	loc_853BC:
+	bgez    v0, loc_853D0
+	sll     t5, v0, 3
+	negu    v0, v0
+	sll     v0, 3
+	negu    t5, v0
+
+	loc_853D0:
+	mfc2    t6, r25
+	mfc2    t7, r26
+	mfc2    v0, r27
+	addu    t3, t6
+	addu    t4, t7
+	addu    t5, v0
+	cfc2    t0, r13
+	cfc2    t1, r14
+	cfc2    t2, r15
+	addu    t0, t3
+	addu    t1, t4
+	addu    t2, t5
+	ctc2    t0, r13
+	ctc2    t1, r14
+	ctc2    t2, r15
+	jr      ra
 	nop
 	
 InterpolateMatrix:
