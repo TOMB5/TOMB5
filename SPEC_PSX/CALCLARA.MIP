@@ -26,9 +26,59 @@ case6 dw loc_84204
 case7 dw loc_83E60
 case8 dw loc_83E60
 
-InterpolateArmMatrix:;TODO*************************************************************
-	jr ra
-	nop
+InterpolateArmMatrix:
+	lw      v1, 0xBC(t8)
+	lw      t7, 0xB8(t8)
+	cfc2    t0, r13
+	cfc2    t2, r14
+	cfc2    t4, r15
+	cfc2    t1, r5
+	cfc2    t3, r6
+	cfc2    t5, r7
+	li      v0, 2
+	beq     v1, v0, loc_857A4
+	addu    at, t0, t1
+	bne     t7, v0, loc_857BC
+	li      v0, 1
+	li      v0, 4
+	bne     v1, v0, loc_857BC
+	li      v0, 1
+
+	loc_857A4:
+	sra     t0, at, 1
+	addu    t2, t3
+	sra     t2, 1
+	addu    t4, t5
+	j       loc_85808
+	sra     t4, 1
+
+	loc_857BC:
+	bne     t7, v0, loc_857E8
+	subu    at, t0, t1
+	sra     t0, at, 2
+	addu    t0, t1, t0
+	subu    t2, t3
+	sra     t2, 2
+	addu    t2, t3, t2
+	subu    t4, t5
+	sra     t4, 2
+	j       loc_85808
+	addu    t4, t5, t4
+
+	loc_857E8:
+	sra     t1, at, 2
+	subu    t0, t1
+	subu    t3, t2, t3
+	sra     t3, 2
+	subu    t2, t3
+	subu    t5, t4, t5
+	sra     t5, 2
+	subu    t4, t5
+
+	loc_85808:
+	ctc2    t0, r5
+	ctc2    t2, r6
+	ctc2    t4, r7
 	
 setup_rotation_matrix:
 	lw      t0, 0(a0)
