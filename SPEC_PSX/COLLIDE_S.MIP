@@ -2,8 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF GetTiltType
-	XREF GetFloor, GetHeight, GetCeiling, rcossin_tbl, lara_item, height_type, trigger_index, zfront, xfront, FindGridShift, room, CheckNoColFloorTriangle, floor_data 
+	XDEF GetCollisionInfo, FindGridShift, GetTiltType
+	XREF GetFloor, GetHeight, GetCeiling, rcossin_tbl, lara_item, height_type, trigger_index, zfront, xfront, room, CheckNoColFloorTriangle, floor_data 
 	
 GetCollisionInfo:
 	addiu   sp, -0x70
@@ -617,6 +617,25 @@ sub_7B948:
 	loc_7BA2C:
 	jr      s0
 	nop
+	
+FindGridShift:
+	sra     v1, a0, 10
+	sra     v0, a1, 10
+	bne     v1, v0, loc_7BA4C
+	slt     v0, v1, v0
+	jr      ra
+	move    v0, zero
+
+	loc_7BA4C:
+	bnez    v0, loc_7BA5C
+	andi    a0, 0x3FF
+	jr      ra
+	nor     v0, zero, a0
+
+	loc_7BA5C:
+	li      v0, 0x401
+	jr      ra
+	subu    v0, a0
 	
 GetTiltType:
 	move    t0, ra
