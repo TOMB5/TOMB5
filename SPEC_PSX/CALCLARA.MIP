@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF GetFrames, S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM, DEL_CalcLaraMatrices_Interpolated_ASM
+	XDEF GetLaraJointPos, GetFrames, S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM, DEL_CalcLaraMatrices_Interpolated_ASM
 	XREF anims, interpolated_bounds, lara_item, rcossin_tbl, GLaraShadowframe, lara_joint_matrices, lara_matrices, ScaleCurrentMatrix, Matrix, lara, items, MatrixStack
 	
 .firearms_jumptable:
@@ -2136,3 +2136,154 @@ GetBoundsAccurate:
 	loc_85964:
 	jr      t7
 	addiu   sp, 0x20
+
+	GetLaraJointPos:
+	addiu   sp, -0x40
+	move    a3, a0
+	sll     a1, 5
+	la      a0, lara_joint_matrices
+	addu    a1, a0
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t3, r3
+	sw      t0, 0x40-0x30(sp)
+	sw      t1, 0x40-0x2C(sp)
+	sw      t2, 0x40-0x28(sp)
+	sw      t3, 0x40-0x24(sp)
+	cfc2    t0, r4
+	cfc2    t1, r5
+	cfc2    t2, r6
+	cfc2    t3, r7
+	sw      t0, 0x40-0x20(sp)
+	sw      t1, 0x40-0x1C(sp)
+	sw      t2, 0x40-0x18(sp)
+	sw      t3, 0x40-0x14(sp)
+	lw      t0, 0(a1)
+	lw      t1, 4(a1)
+	lw      t2, 8(a1)
+	lw      t3, 0xC(a1)
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	lw      t0, 0x10(a1)
+	lw      t1, 0x14(a1)
+	lw      t2, 0x18(a1)
+	lw      t3, 0x1C(a1)
+	ctc2    t0, r4
+	ctc2    t1, r5
+	ctc2    t2, r6
+	ctc2    t3, r7
+	lw      a0, 0(a3)
+	lw      a1, 4(a3)
+	lw      a2, 8(a3)
+	bgez    a1, loc_85B1C
+	sra     t4, a1, 15
+	negu    a1, a1
+	sra     t4, a1, 15
+	andi    a1, 0x7FFF
+	negu    t4, t4
+	j       loc_85B20
+	negu    a1, a1
+
+	loc_85B1C:
+	andi    a1, 0x7FFF
+
+	loc_85B20:
+	bgez    a2, loc_85B40
+	sra     t5, a2, 15
+	negu    a2, a2
+	sra     t5, a2, 15
+	andi    a2, 0x7FFF
+	negu    t5, t5
+	j       loc_85B44
+	negu    a2, a2
+
+	loc_85B40:
+	andi    a2, 0x7FFF
+
+	loc_85B44:
+	bgez    a0, loc_85B64
+	sra     t3, a0, 15
+	negu    a0, a0
+	sra     t3, a0, 15
+	andi    a0, 0x7FFF
+	negu    t3, t3
+	j       loc_85B68
+	negu    a0, a0
+
+	loc_85B64:
+	andi    a0, 0x7FFF
+
+	loc_85B68:
+	mtc2    t3, r9
+	mtc2    t4, r10
+	mtc2    t5, r11
+	nop
+	nop
+	cop2    0x41E012
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mtc2    a0, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	mfc2    t5, r27
+	nop
+	nop
+	cop2    0x498012
+	bgez    t3, loc_85BAC
+	sll     t0, t3, 3
+	negu    t3, t3
+	sll     t3, 3
+	negu    t0, t3
+
+	loc_85BAC:
+	bgez    t4, loc_85BC0
+	sll     t1, t4, 3
+	negu    t4, t4
+	sll     t4, 3
+	negu    t1, t4
+
+	loc_85BC0:
+	bgez    t5, loc_85BD4
+	sll     t2, t5, 3
+	negu    t5, t5
+	sll     t5, 3
+	negu    t2, t5
+
+	loc_85BD4:
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mfc2    t5, r27
+	lw      a0, 0x1A94(gp)
+	addu    t0, t3
+	addu    t1, t4
+	addu    t2, t5
+	lw      v0, 0x40(a0)
+	lw      v1, 0x44(a0)
+	lw      a0, 0x48(a0)
+	addu    t0, v0
+	addu    t1, v1
+	addu    t2, a0
+	sw      t0, 0(a3)
+	sw      t1, 4(a3)
+	sw      t2, 8(a3)
+	lw      t0, 0x40-0x30(sp)
+	lw      t1, 0x40-0x2C(sp)
+	lw      t2, 0x40-0x28(sp)
+	lw      t3, 0x40-0x24(sp)
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	lw      t0, 0x40-0x20(sp)
+	lw      t1, 0x40-0x1C(sp)
+	lw      t2, 0x40-0x18(sp)
+	lw      t3, 0x40-0x14(sp)
+	ctc2    t0, r4
+	ctc2    t1, r5
+	ctc2    t2, r6
+	ctc2    t3, r7
+	jr      ra
+	addiu   sp, 0x40
