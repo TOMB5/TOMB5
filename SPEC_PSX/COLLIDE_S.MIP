@@ -330,7 +330,7 @@ GetCollisionInfo:
 	lw      v1, 0x70+0x14(sp)
 	move    a0, s5
 	sw      v1, 0x70-0x5C(sp)
-	jal     sub_7BA68
+	jal     CollideStaticObjects
 	sw      v0, 0x70-0x60(sp)
 	lw      t0, 0x70+0x4(sp)
 	lw      t1, 0x70+0xC(sp)
@@ -543,3 +543,80 @@ GetCollisionInfo:
 	jr      ra
 	addiu   sp, 0x70
 	
+	
+sub_7B948:
+	move    s0, ra
+	move    a0, s3
+	move    a1, s6
+	jal     GetFloor
+	move    a2, s4
+	move    s2, v0
+	move    a0, s2
+	move    a1, s3
+	move    a2, s6
+	jal     GetHeight
+	move    a3, s4
+	lw      v1, 0x78(sp)
+	li      at, 0xFFFF8100
+	beq     v0, at, loc_7B988
+	move    s1, v0
+	subu    s1, v1
+
+	loc_7B988:
+	lw      a2, 0x44(sp)
+	move    a1, s3
+	move    a3, s4
+	jal     GetCeiling
+	move    a0, s2
+	lw      v1, 0x38(sp)
+	li      at, 0xFFFF8100
+	beq     v0, at, loc_7B9B0
+	move    a2, v0
+	subu    a2, v1
+
+	loc_7B9B0:
+	lw      a0, height_type-GP_ADDR(gp)
+	lw      v1, 0x84(s5)
+	li      at, 1
+	andi    v0, v1, 3
+	bne     v0, at, loc_7B9DC
+	addiu   v0, a0, -2
+	sltiu   v0, v0, 2
+	beqz    v0, loc_7B9DC
+	nop
+	bltz    s1, loc_7BA28
+	li      v0, 0xFFFF8001
+
+	loc_7B9DC:
+	andi    v0, v1, 4
+	beqz    v0, loc_7B9FC
+	addiu   v0, a0, -2
+	sltiu   v0, v0, 2
+	beqz    v0, loc_7B9FC
+	nop
+	bgtz    s1, loc_7BA28
+	li      v0, 0x200
+
+	loc_7B9FC:
+	andi    v0, v1, 8
+	beqz    v0, loc_7BA2C
+	lw      v0, trigger_index-GP_ADDR(gp)
+	blez    s1, loc_7BA2C
+	li      at, 5
+	beqz    v0, loc_7BA2C
+	lhu     v0, 0(v0)
+	nop
+	andi    v0, 0x1F
+	bne     v0, at, loc_7BA2C
+	li      v0, 0x200
+
+	loc_7BA28:
+	move    s1, v0
+
+	loc_7BA2C:
+	jr      s0
+	nop
+	
+CollideStaticObjects:
+	jr	ra
+	nop
