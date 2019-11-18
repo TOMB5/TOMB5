@@ -5579,8 +5579,31 @@ short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h)//11
 	return height;
 }
 
-short LaraFloorFront(struct ITEM_INFO* item, short ang, long dist)//117B0, 11860 (F)
+short LaraFloorFront(struct ITEM_INFO* item/*s3*/, short ang, long dist)//117B0, 11860 (F)
 {
+#if PSX_VERSION
+	short room;
+	long x;
+	long y;
+	long z;
+	long height;
+
+	y = item->pos.y_pos - 762;
+	room = item->room_number;
+	x = item->pos.x_pos + ((SIN(ang) * dist) >> W2V_SHIFT);
+	z = item->pos.z_pos + ((COS(ang) * dist) >> W2V_SHIFT);
+
+	//loc_11848
+	height = GetHeight(GetFloor(x, y, z, &room), x, y, z);
+
+	if (height != -32512)
+	{
+		height -= item->pos.y_pos;
+	}//loc_1187C
+
+	return height;
+
+#elif PC_VERSION
 	short room = item->room_number;
 
 	long x = item->pos.x_pos + ((dist * 4 * SIN(ang)) >> W2V_SHIFT);
@@ -5593,6 +5616,7 @@ short LaraFloorFront(struct ITEM_INFO* item, short ang, long dist)//117B0, 11860
 		height -= item->pos.y_pos;
 
 	return height;
+#endif
 }
 
 void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764(<), 11814(<) (F)
