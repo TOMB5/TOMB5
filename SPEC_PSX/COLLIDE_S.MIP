@@ -2,3 +2,544 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
+	XREF GetFloor, GetHeight, GetCeiling, rcossin_tbl, lara_item, height_type, trigger_index, GetTiltType, zfront, xfront, FindGridShift
+	
+GetCollisionInfo:
+	addiu   sp, -0x70
+	sw      s0, 0x70-0x28(sp)
+	sw      s1, 0x70-0x24(sp)
+	sw      s2, 0x70-0x20(sp)
+	sw      s3, 0x70-0x1C(sp)
+	sw      s4, 0x70-0x18(sp)
+	sw      s5, 0x70-0x14(sp)
+	sw      s6, 0x70-0x10(sp)
+	sw      s7, 0x70-0xC(sp)
+	sw      fp, 0x70-0x8(sp)
+	sw      ra, 0x70-0x4(sp)
+	sw      a1, 0x70+0x4(sp)
+	sw      a2, 0x70+0x8(sp)
+	sw      a3, 0x70+0xC(sp)
+	move    s5, a0
+	lw      v0, 0x70+0x14(sp)
+	move    fp, zero
+	bgez    v0, loc_7B264
+	negu    v0, v0
+	li      fp, 1
+	sw      v0, 0x70+0x14(sp)
+
+	loc_7B264:
+	lh      t3, 0x76(s5)
+	lw      t0, lara_item-GP_ADDR(gp)
+	addiu   v0, t3, 0x2000
+	andi    v0, 0xFFFF
+	srl     v0, 14
+	lh      s0, 0x20(t0)
+	sh      zero, 0x7A(s5)
+	sw      zero, 0x58(s5)
+	sw      zero, 0x5C(s5)
+	sw      zero, 0x60(s5)
+	sh      v0, 0x78(s5)
+	lh      at, 0x70+0x10(sp)
+	lw      a0, 0x70+0x4(sp)
+	lw      v0, 0x70+0x8(sp)
+	lw      v1, 0x70+0x14(sp)
+	lw      a2, 0x70+0xC(sp)
+	subu    v0, v1
+	addiu   s6, v0, -0xA0
+	move    a1, s6
+	sw      at, 0x70-0x54(sp)
+	sh      at, 0x70-0x58(sp)
+	sw      v0, 0x70-0x38(sp)
+	jal     GetFloor
+	addiu   a3, sp, 0x70-0x58
+	move    s2, v0
+	move    a0, s2
+	lw      a1, 0x70+0x4(sp)
+	lw      a3, 0x70+0xC(sp)
+	jal     GetHeight
+	move    a2, s6
+	li      at, 0xFFFF8100
+	beq     v0, at, loc_7B2F4
+	move    s1, v0
+	lw      v1, 0x70+0x8(sp)
+	nop
+	subu    s1, v1
+
+	loc_7B2F4:
+	move    a0, s2
+	subu    s0, s6, s0
+	lw      a1, 0x70+0x4(sp)
+	lw      a3, 0x70+0xC(sp)
+	jal     GetCeiling
+	move    a2, s0
+	li      at, 0xFFFF8100
+	move    a2, v0
+	beq     a2, at, loc_7B328
+	sw      s0, 0x70-0x2C(sp)
+	lw      a0, 0x70-0x38(sp)
+	nop
+	subu    a2, a0
+
+	loc_7B328:
+	lw      v0, height_type-GP_ADDR(gp)
+	lw      v1, trigger_index-GP_ADDR(gp)
+	lw      a3, lara_item-GP_ADDR(gp)
+	lw      a1, 0x70+0x4(sp)
+	sw      s1, 0(s5)
+	sw      a2, 4(s5)
+	sw      v0, 8(s5)
+	sw      v1, 0x7C(s5)
+	lw      a2, 0x44(a3)
+	lw      a3, 0x70+0xC(sp)
+	jal     GetTiltType
+	move    a0, s2
+	sra     v1, v0, 8
+	sb      v0, 0x80(s5)
+	sb      v1, 0x81(s5)
+	lh      at, 0x78(s5)
+	lhu     v0, 0x76(s5)
+	lw      v1, 0x48(s5)
+	la      a0, rcossin_tbl
+	srl     v0, 2
+	andi    v0, 0x3FFC
+	addu    v0, a0
+	beqz    at, loc_7B3BC
+	addiu   at, -1
+	beqz    at, loc_7B3E0
+	addiu   at, -1
+	beqz    at, loc_7B404
+	addiu   at, -1
+	beqz    at, loc_7B434
+	move    s0, zero
+	move    s7, zero
+	sw      zero, 0x70-0x50(sp)
+	sw      zero, 0x70-0x44(sp)
+	sw      zero, zfront-GP_ADDR(gp)
+	j       loc_7B460
+	sw      zero, xfront-GP_ADDR(gp)
+
+	loc_7B3BC:
+	lh      a0, 0(v0)
+	negu    v0, v1
+	mult    a0, v1
+	sw      v0, 0x70-0x50(sp)
+	sw      v1, 0x70-0x44(sp)
+	sw      v1, zfront-GP_ADDR(gp)
+	move    s7, v1
+	j       loc_7B424
+	move    s0, v1
+
+	loc_7B3E0:
+	lh      a0, 2(v0)
+	negu    v0, v1
+	mult    a0, v1
+	sw      v1, 0x70-0x50(sp)
+	sw      v0, 0x70-0x44(sp)
+	sw      v1, xfront-GP_ADDR(gp)
+	move    s0, v1
+	j       loc_7B454
+	move    s7, v1
+
+	loc_7B404:
+	lh      a0, 0(v0)
+	negu    v0, v1
+	mult    a0, v1
+	sw      v1, 0x70-0x50(sp)
+	sw      v0, 0x70-0x44(sp)
+	sw      v0, zfront-GP_ADDR(gp)
+	move    s7, v0
+	move    s0, v0
+
+	loc_7B424:
+	mflo    a0
+	sra     a0, 12
+	j       loc_7B460
+	sw      a0, xfront-GP_ADDR(gp)
+
+	loc_7B434:
+	lh      a0, 2(v0)
+	negu    v0, v1
+	mult    a0, v1
+	sw      v0, 0x70-0x50(sp)
+	sw      v1, 0x70-0x44(sp)
+	sw      v0, xfront-GP_ADDR(gp)
+	move    s0, v0
+	move    s7, v0
+
+	loc_7B454:
+	mflo    a0
+	sra     a0, 12
+	sw      a0, zfront-GP_ADDR(gp)
+
+	loc_7B460:
+	lw      v0, xfront-GP_ADDR(gp)
+	lw      s3, 0x70+0x4(sp)
+	lw      v1, zfront-GP_ADDR(gp)
+	lw      s4, 0x70+0xC(sp)
+	addu    s3, v0
+	beqz    fp, loc_7B488
+	addu    s4, v1
+	lh      at, 0x70+0x10(sp)
+	nop
+	sh      at, 0x70-0x58(sp)
+
+	loc_7B488:
+	move    a0, s3
+	move    a1, s6
+	move    a2, s4
+	jal     GetFloor
+	addiu   a3, sp, 0x70-0x58
+	move    s2, v0
+	move    a0, s2
+	move    a1, s3
+	move    a2, s6
+	jal     GetHeight
+	move    a3, s4
+	li      at, 0xFFFF8100
+	beq     v0, at, loc_7B4CC
+	move    s1, v0
+	lw      v1, 0x70+0x8(sp)
+	nop
+	subu    s1, v1
+
+	loc_7B4CC:
+	move    a0, s2
+	move    a1, s3
+	lw      a2, 0x70-0x2C(sp)
+	jal     GetCeiling
+	move    a3, s4
+	li      at, 0xFFFF8100
+	beq     v0, at, loc_7B4F8
+	move    a2, v0
+	lw      a0, 0x70-0x38(sp)
+	nop
+	subu    a2, a0
+
+	loc_7B4F8:
+	lw      v0, height_type-GP_ADDR(gp)
+	sw      a2, 0x10(s5)
+	sw      s1, 0xC(s5)
+	sw      v0, 0x14(s5)
+	lw      a0, xfront-GP_ADDR(gp)
+	move    a1, s6
+	lw      a2, zfront-GP_ADDR(gp)
+	addu    a0, s3, a0
+	addu    a2, s4, a2
+	jal     GetFloor
+	addiu   a3, sp, 0x70-0x58
+	lw      a1, xfront-GP_ADDR(gp)
+	move    a0, v0
+	lw      a3, zfront-GP_ADDR(gp)
+	move    a2, s6
+	addu    a1, s3, a1
+	jal     GetHeight
+	addu    a3, s4, a3
+	li      at, 0xFFFF8100
+	beq     v0, at, loc_7B558
+	move    s1, v0
+	lw      v0, 0x70+0x8(sp)
+	nop
+	subu    s1, v0
+
+	loc_7B558:
+	lw      a0, 0x84(s5)
+	lw      a1, 0x14(s5)
+	lw      a2, 0xC(s5)
+	lw      a3, 0(s5)
+	andi    at, a0, 3
+	beqz    at, loc_7B598
+	addiu   a1, -2
+	sltiu   v0, a1, 2
+	beqz    v0, loc_7B598
+	slt     v0, a2, a3
+	beqz    v0, loc_7B598
+	slt     v0, s1, a2
+	beqz    v0, loc_7B598
+	nop
+	bltz    a2, loc_7B5E0
+	li      v0, 0xFFFF8001
+
+	loc_7B598:
+	andi    at, a0, 4
+	beqz    at, loc_7B5B4
+	sltiu   v0, a1, 2
+	beqz    v0, loc_7B5B4
+	slt     v0, a3, a2
+	bnez    v0, loc_7B5E0
+	li      v0, 0x200
+
+	loc_7B5B4:
+	andi    v0, a0, 8
+	beqz    v0, loc_7B5E4
+	lw      v0, trigger_index-GP_ADDR(gp)
+	blez    a2, loc_7B5E4
+	li      at, 5
+	beqz    v0, loc_7B5E4
+	lhu     v1, 0(v0)
+	nop
+	andi    v1, 0x1F
+	bne     v1, at, loc_7B5E4
+	li      v0, 0x200
+
+	loc_7B5E0:
+	sw      v0, 0xC(s5)
+
+	loc_7B5E4:
+	lw      v1, 0x70+0x4(sp)
+	lw      a0, 0x70-0x50(sp)
+	lw      v0, 0x70+0xC(sp)
+	lw      at, 0x70-0x54(sp)
+	addu    s3, v1, a0
+	addu    s4, v0, s0
+	sh      at, 0x70-0x56(sp)
+	jal     sub_7B948
+	addiu   a3, sp, 0x70-0x56
+	sw      s1, 0x18(s5)
+	sw      a2, 0x1C(s5)
+	sw      a0, 0x20(s5)
+	jal     sub_7B948
+	addiu   a3, sp, 0x70-0x58
+	sw      s1, 0x30(s5)
+	sw      a2, 0x34(s5)
+	sw      a0, 0x38(s5)
+	sw      s3, 0x70-0x34(sp)
+	sw      s4, 0x70-0x30(sp)
+	lw      v0, 0x70+0x4(sp)
+	lw      v1, 0x70+0xC(sp)
+	lw      a0, 0x70-0x44(sp)
+	lw      at, 0x70-0x54(sp)
+	addu    s3, v0, s7
+	addu    s4, v1, a0
+	sh      at, 0x70-0x56(sp)
+	jal     sub_7B948
+	addiu   a3, sp, 0x70-0x56
+	sw      s1, 0x24(s5)
+	sw      a2, 0x28(s5)
+	sw      a0, 0x2C(s5)
+	jal     sub_7B948
+	addiu   a3, sp, 0x70-0x58
+	sw      s1, 0x3C(s5)
+	sw      a2, 0x40(s5)
+	sw      a0, 0x44(s5)
+	move    s1, s3
+	move    s0, s4
+	lw      a1, 0x70+0x4(sp)
+	lw      a2, 0x70+0x8(sp)
+	lh      v0, 0x70-0x58(sp)
+	lw      a3, 0x70+0xC(sp)
+	lw      v1, 0x70+0x14(sp)
+	move    a0, s5
+	sw      v1, 0x70-0x5C(sp)
+	jal     sub_7BA68
+	sw      v0, 0x70-0x60(sp)
+	lw      t0, 0x70+0x4(sp)
+	lw      t1, 0x70+0xC(sp)
+	lh      t2, 0x78(s5)
+	lw      v0, 0(s5)
+	li      at, 0xFFFF8100
+	bne     v0, at, loc_7B6EC
+	li      at, 1
+
+	loc_7B6BC:
+	lw      v0, 0x64(s5)
+	lw      v1, 0x68(s5)
+	lw      a0, 0x6C(s5)
+	lw      a1, 0x70+0x8(sp)
+	subu    v0, t0
+	subu    v1, a1
+	subu    a0, t1
+	sh      at, 0x7A(s5)
+	sw      v0, 0x58(s5)
+	sw      v1, 0x5C(s5)
+	j       loc_7B918
+	sw      a0, 0x60(s5)
+
+	loc_7B6EC:
+	lw      v1, 4(s5)
+	nop
+	subu    at, v0, v1
+	blez    at, loc_7B6BC
+	li      at, 0x20
+	bltz    v1, loc_7B720
+	nop
+	lw      v0, 0x84(s5)
+	li      at, 8
+	sw      v1, 0x5C(s5)
+	sh      at, 0x7A(s5)
+	ori     v0, 0x40
+	sw      v0, 0x84(s5)
+
+	loc_7B720:
+	lw      v0, 0xC(s5)
+	lw      a2, 0x4C(s5)
+	lw      a1, 0x50(s5)
+	lw      v1, 0x10(s5)
+	lw      a0, 0x54(s5)
+	slt     at, a2, v0
+	bnez    at, loc_7B750
+	slt     at, v0, a1
+	bnez    at, loc_7B750
+	slt     at, a0, v1
+	beqz    at, loc_7B7F8
+	slt     at, v1, a0
+
+	loc_7B750:
+	lw      v0, 0x14(s5)
+	nop
+	addiu   v0, -3
+	sltiu   v0, v0, 2
+	beqz    v0, loc_7B788
+	li      v0, 1
+
+	loc_7B768:
+	lw      a1, 0x64(s5)
+	lw      v1, 0x6C(s5)
+	subu    a1, t0
+	subu    v1, t1
+	sw      a1, 0x58(s5)
+	sw      v1, 0x60(s5)
+	j       loc_7B918
+	sh      v0, 0x7A(s5)
+
+	loc_7B788:
+	beqz    t2, loc_7B7B0
+	addiu   v1, t2, -1
+	beqz    v1, loc_7B7D4
+	addiu   v1, -1
+	beqz    v1, loc_7B7B0
+	addiu   v1, -1
+	beqz    v1, loc_7B7D4
+
+	loc_7B7A4:
+	li      v0, 1
+	j       loc_7B918
+	sh      v0, 0x7A(s5)
+
+	loc_7B7B0:
+	lw      a0, zfront-GP_ADDR(gp)
+	lw      v0, 0x64(s5)
+	move    a1, t1
+	addu    a0, a1, a0
+	subu    v0, t0
+	jal     FindGridShift
+	sw      v0, 0x58(s5)
+	j       loc_7B7A4
+	sw      v0, 0x60(s5)
+
+	loc_7B7D4:
+	lw      a0, xfront-GP_ADDR(gp)
+	move    a1, t0
+	jal     FindGridShift
+	addu    a0, a1, a0
+	lw      v1, 0x6C(s5)
+	sw      v0, 0x58(s5)
+	subu    v1, t1
+	j       loc_7B7A4
+	sw      v1, 0x60(s5)
+
+	loc_7B7F8:
+	beqz    at, loc_7B6BC
+	li      at, 0x10
+	lw      v1, 0x18(s5)
+	lw      v0, 0x1C(s5)
+	slt     at, a2, v1
+	bnez    at, loc_7B824
+	slt     at, v1, a1
+	bnez    at, loc_7B824
+	slt     v0, a0, v0
+	beqz    v0, loc_7B88C
+	nop
+
+	loc_7B824:
+	lw      v1, 0x20(s5)
+	li      v0, 4
+	beq     v1, v0, loc_7B768
+	li      v0, 2
+	beqz    t2, loc_7B85C
+	addiu   v1, t2, -1
+	beqz    v1, loc_7B874
+	addiu   v1, -1
+	beqz    v1, loc_7B85C
+	addiu   v1, -1
+	beqz    v1, loc_7B874
+
+	loc_7B850:
+	li      v0, 2
+	j       loc_7B918
+	sh      v0, 0x7A(s5)
+
+	loc_7B85C:
+	lw      a1, xfront-GP_ADDR(gp)
+	lw      a0, 0x70-0x34(sp)
+	jal     FindGridShift
+	addu    a1, t0, a1
+	j       loc_7B850
+	sw      v0, 0x58(s5)
+
+	loc_7B874:
+	lw      a1, zfront-GP_ADDR(gp)
+	lw      a0, 0x70-0x30(sp)
+	jal     FindGridShift
+	addu    a1, t1, a1
+	j       loc_7B850
+	sw      v0, 0x60(s5)
+
+	loc_7B88C:
+	lw      v1, 0x24(s5)
+	lw      v0, 0x28(s5)
+	slt     at, a2, v1
+	bnez    at, loc_7B8B0
+	slt     at, v1, a1
+	bnez    at, loc_7B8B0
+	slt     at, a0, v0
+	beqz    at, loc_7B918
+	nop
+
+	loc_7B8B0:
+	lw      v1, 0x2C(s5)
+	li      v0, 4
+	beq     v1, v0, loc_7B768
+	li      v0, 4
+	beqz    t2, loc_7B8E8
+	addiu   v1, t2, -1
+	beqz    v1, loc_7B900
+	addiu   v1, -1
+	beqz    v1, loc_7B8E8
+	addiu   v1, -1
+	beqz    v1, loc_7B900
+
+	loc_7B8DC:
+	li      v0, 4
+	j       loc_7B918
+	sh      v0, 0x7A(s5)
+
+	loc_7B8E8:
+	lw      a1, xfront-GP_ADDR(gp)
+	move    a0, s1
+	jal     FindGridShift
+	addu    a1, t0, a1
+	j       loc_7B8DC
+	sw      v0, 0x58(s5)
+
+	loc_7B900:
+	lw      a1, zfront-GP_ADDR(gp)
+	move    a0, s0
+	jal     FindGridShift
+	addu    a1, t1, a1
+	j       loc_7B8DC
+	sw      v0, 0x60(s5)
+
+	loc_7B918:
+	lw      ra, 0x70-0x4(sp)
+	lw      fp, 0x70-0x8(sp)
+	lw      s7, 0x70-0xC(sp)
+	lw      s6, 0x70-0x10(sp)
+	lw      s5, 0x70-0x14(sp)
+	lw      s4, 0x70-0x18(sp)
+	lw      s3, 0x70-0x1C(sp)
+	lw      s2, 0x70-0x20(sp)
+	lw      s1, 0x70-0x24(sp)
+	lw      s0, 0x70-0x28(sp)
+	jr      ra
+	addiu   sp, 0x70
+	

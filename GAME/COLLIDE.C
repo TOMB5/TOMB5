@@ -393,11 +393,13 @@ void ShiftItem(struct ITEM_INFO* item, struct COLL_INFO* coll)//7BEEC(<), 7DF30(
 	coll->shift.x = coll->shift.y = coll->shift.z = 0;
 }
 
+#if PC_VERSION
 int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
+#endif
 
 void UpdateLaraRoom(struct ITEM_INFO* item, int height)//7C58C(<), 7E5D0(<) (F)
 {
