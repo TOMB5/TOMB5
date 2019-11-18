@@ -2,7 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XREF GetFloor, GetHeight, GetCeiling, rcossin_tbl, lara_item, height_type, trigger_index, GetTiltType, zfront, xfront, FindGridShift
+	XDEF GetTiltType
+	XREF GetFloor, GetHeight, GetCeiling, rcossin_tbl, lara_item, height_type, trigger_index, zfront, xfront, FindGridShift, room, CheckNoColFloorTriangle, floor_data 
 	
 GetCollisionInfo:
 	addiu   sp, -0x70
@@ -615,6 +616,133 @@ sub_7B948:
 
 	loc_7BA2C:
 	jr      s0
+	nop
+	
+GetTiltType:
+	move    t0, ra
+	move    t5, a1
+	move    t6, a2
+	move    t7, a3
+	j       loc_7B0D8
+	move    t1, a0
+
+	loc_7B094:
+	lw      a1, room-GP_ADDR(gp)
+	addu    v0, a3
+	sll     v0, 4
+	addu    a1, v0
+	lw      v1, 0x14(a1)
+	lh      a0, 0x28(a1)
+	subu    v1, t5, v1
+	sra     v1, 10
+	mult    v1, a0
+	lw      v0, 0x1C(a1)
+	lw      a0, 8(a1)
+	subu    v0, t7, v0
+	sra     v0, 10
+	mflo    v1
+	addu    v0, v1
+	sll     v0, 3
+	addu    t1, a0, v0
+
+	loc_7B0D8:
+	lbu     a3, 4(t1)
+	li      v0, 0xFF
+	beq     a3, v0, loc_7B100
+	move    a0, t1
+	move    a1, t5
+	jal     CheckNoColFloorTriangle
+	move    a2, t7
+	addiu   v0, -1
+	bnez    v0, loc_7B094
+	sll     v0, a3, 2
+
+	loc_7B100:
+	lhu     v0, 0(t1)
+	lb      at, 5(t1)
+	beqz    v0, loc_7B204
+	addiu   v1, t6, 0x200
+	sll     at, 8
+	slt     v1, v1, at
+	bnez    v1, loc_7B204
+	sll     v0, 1
+	lw      a0, floor_data-GP_ADDR(gp)
+	nop
+	addu    a0, v0
+	lhu     a3, 0(a0)
+	li      v0, 2
+	andi    a3, 0x1F
+	bne     a3, v0, loc_7B14C
+	addiu   at, a3, -7
+	lh      v0, 2(a0)
+	j       loc_7B208
+	nop
+
+	loc_7B14C:
+	sltiu   at, at, 2
+	bnez    at, loc_7B164
+	addiu   at, a3, -0xB
+	sltiu   at, at, 4
+	beqz    at, loc_7B208
+	move    v0, zero
+
+	loc_7B164:
+	lhu     t1, 2(a0)
+	andi    a1, t5, 0x3FF
+	andi    a2, t7, 0x3FF
+	sll     a0, t1, 16
+	andi    t4, t1, 0xF
+	sra     t3, t1, 4
+	andi    t3, 0xF
+	sra     t2, t1, 8
+	andi    t2, 0xF
+	srl     t1, 12
+	andi    t1, 0xF
+	li      v0, 7
+	beq     a3, v0, loc_7B1A8
+	li      v0, 0xB
+	beq     a3, v0, loc_7B1A8
+	li      v0, 0xC
+	bne     a3, v0, loc_7B1D0
+
+	loc_7B1A8:
+	li      v0, 0x400
+	subu    v0, a2
+	slt     v0, v0, a1
+	bnez    v0, loc_7B1C4
+	subu    a0, t2, t3
+	j       loc_7B1EC
+	subu    v1, t4, t3
+
+	loc_7B1C4:
+	subu    a0, t1, t4
+	j       loc_7B1EC
+	subu    v1, t1, t2
+
+	loc_7B1D0:
+	slt     v0, a2, a1
+	bnez    v0, loc_7B1E4
+	subu    a0, t2, t3
+	j       loc_7B1EC
+	subu    v1, t1, t2
+
+	loc_7B1E4:
+	subu    a0, t1, t4
+	subu    v1, t4, t3
+
+	loc_7B1EC:
+	sll     v0, a0, 8
+	andi    v1, 0xFF
+	or      v0, v1
+	sll     v0, 16
+	j       loc_7B208
+	sra     v0, 16
+
+	loc_7B204:
+	move    v0, zero
+
+	loc_7B208:
+	jr      t0
 	nop
 	
 CollideStaticObjects:
