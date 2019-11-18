@@ -4927,7 +4927,7 @@ void LaraAboveWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//14228, 142D
 
 	AnimateLara(item);
 	LaraBaddieCollision(item, coll);
-	lara_control_routines[item->current_anim_state](item, coll);
+	lara_collision_routines[item->current_anim_state](item, coll);
 	UpdateLaraRoom(item, -381);
 
 	if (lara.gun_type == WEAPON_CROSSBOW && !LaserSight && gfLevelFlags & GF_LVOP_TRAIN)
