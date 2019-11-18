@@ -672,6 +672,8 @@ Hardcore_iTranslateXYZ:
 	lw      a0, 0(a2)
 	lw      a1, 4(a2)
 	lw      a2, 8(a2)
+	
+iTranslateXYZ:
 	move    t6, ra
 	move    a3, a0
 	sw      a1, 0x180(t8)
@@ -680,10 +682,6 @@ Hardcore_iTranslateXYZ:
 	move    ra, t6
 	lw      a1, 0x180(t8)
 	lw      a2, 0x184(t8)
-	
-iTranslateXYZ:;TODO cannot find ASM**********************************************************
-	jr ra
-	nop
 	
 iTranslateXYZ2:
 	bgez    a3, loc_85318
