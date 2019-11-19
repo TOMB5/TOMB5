@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF HairControl
-	XREF rcossin_tbl, room, SmokeWindX, SmokeWindZ, hair_wind, hair_dwind_angle, hair_wind_angle, objects, first_hair, hairs, gfLevelFlags, lara_item, lara, GetBestFrame, bones, anims, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, GetRandomControl, GetWaterHeight, GetFloor, GetHeight, SqrtTable, phd_atan_asm
+	XREF rcossin_tbl, room, SmokeWindX, SmokeWindZ, hair_wind, hair_dwind_angle, hair_wind_angle, objects, first_hair, hairs, gfLevelFlags, lara_item, lara, GetBestFrame, bones, anims, GetRandomControl, GetWaterHeight, GetFloor, GetHeight, SqrtTable, phd_atan_asm
 	
 HairControl:
 	lui		at, 0x1F80
