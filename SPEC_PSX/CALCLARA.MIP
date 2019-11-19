@@ -2319,7 +2319,7 @@ GetLaraJointPos:
 	mfc2    t3, r25
 	mfc2    t4, r26
 	mfc2    t5, r27
-	lw      a0, 0x1A94(gp)
+	lw      a0, lara_item-GP_ADDR(gp)
 	addu    t0, t3
 	addu    t1, t4
 	addu    t2, t5
