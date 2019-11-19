@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF HairControl
-	XREF rcossin_tbl, room, SmokeWindX, SmokeWindZ,hair_wind, hair_dwind_angle, hair_wind_angle, objects, first_hair, hairs, gfLevelFlags, lara_item, lara, GetBestFrame, bones, anims, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, GetRandomControl, GetWaterHeight, GetFloor, GetHeight
+	XREF rcossin_tbl, room, SmokeWindX, SmokeWindZ, hair_wind, hair_dwind_angle, hair_wind_angle, objects, first_hair, hairs, gfLevelFlags, lara_item, lara, GetBestFrame, bones, anims, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, GetRandomControl, GetWaterHeight, GetFloor, GetHeight, SqrtTable, phd_atan_asm
 	
 HairControl:
 	lui		at, 0x1F80
@@ -547,7 +547,7 @@ HairControl:
 	slt     at, a0, v0
 	beqz    at, loc_8351C
 	addiu   t3, -1
-	jal     sub_83B30
+	jal     phd_sqrt_asm
 	nop
 	bnez    v0, loc_834C8
 	lw      v1, 0xC(t4)
@@ -598,17 +598,17 @@ HairControl:
 	cop2    0xA00428
 	mfc2    a0, r25
 	mfc2    a1, r26
-	jal     sub_83B30
+	jal     phd_sqrt_asm
 	addu    a0, a1
 	move    t2, v0
 	move    a0, t0
-	jal     sub_77A40
+	jal     phd_atan_asm
 	move    a1, t1
 	sh      v0, -0x12(s7)
 	lw      v1, 4(s7)
 	lw      a1, -0x1C(s7)
 	move    a0, t2
-	jal     sub_77A40
+	jal     phd_atan_asm
 	subu    a1, v1, a1
 	negu    v0, v0
 	sh      v0, -0x14(s7)
@@ -1045,7 +1045,7 @@ phd_sqrt_asm:
 	mtc2    a0, r30
 	beqz    a0, locret_83B8C
 	li      v0, 0x1F
-	mfc2    v1, 31
+	mfc2    v1, r31
 	li      at, 0xFFFFFFFE
 	and     v1, at
 	sub     v0, v1
