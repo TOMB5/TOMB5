@@ -228,7 +228,7 @@ DrawAllFx:
 	cfc2    v0, r1
 	cfc2    v1, r2
 	cfc2    a0, r3
-	sw      at, 0x1F800000
+	sw      at, 0x00(s7)
 	sw      v0, 0x04(at)
 	sw      v1, 0x08(at)
 	sw      a0, 0x0C(at)
@@ -236,7 +236,7 @@ DrawAllFx:
 	cfc2    v0, r5
 	cfc2    v1, r6
 	cfc2    a0, r7
-	sw      at, 0x1F800010
+	sw      at, 0x10(s7)
 	sw      v0, 0x14(s7)
 	sw      v1, 0x18(s7)
 	sw      a0, 0x1C(s7)

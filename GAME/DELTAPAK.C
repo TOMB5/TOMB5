@@ -3351,11 +3351,11 @@ void frigup_lara()//2D000(<), ? (F)
 #endif
 	mPopMatrix();
 
-	//HairControl(0, 0, frame);
+	HairControl(0, 0, frame);
 
 	if ((gfLevelFlags & GF_LVOP_YOUNG_LARA))
 	{
-		//HairControl(0, 1, frame);
+		HairControl(0, 1, frame);
 	}
 
 	//loc_2D0F0

@@ -18,7 +18,7 @@ HairControl:
 	lhu     s0, gfLevelFlags-GP_ADDR(gp)
 	lui     fp, 0x1F80
 	lw      s5, lara_item-GP_ADDR(gp)
-;	lh      v1, lara+0x14-GP_ADDR(gp)
+	lh      v1, lara+0x14-GP_ADDR(gp)
 	andi    s0, 1
 	move    s4, a1
 	sw      a0, 0x2C(fp)
@@ -26,7 +26,7 @@ HairControl:
 	move    s3, a2
 	bltz    v1, loc_82E00
 	nop
-;	lw      v0, lara+0x44-GP_ADDR(gp)
+	lw      v0, lara+0x44-GP_ADDR(gp)
 	lw      a1, anims-GP_ADDR(gp)
 	beqz    v1, loc_82DAC
 	andi    v0, 0x400
@@ -60,7 +60,7 @@ HairControl:
 	loc_82DD8:
 	addu    v1, a1, a0
 	lh      v0, 4(v1)
-;	lh      a0, lara+0x12-GP_ADDR(gp)
+	lh      a0, lara+0x12-GP_ADDR(gp)
 	sra     v0, 8
 	mult    a0, v0
 	lw      s3, 0(v1)
@@ -106,7 +106,7 @@ HairControl:
 	lh      a2, 0x10(s3)
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
-;	lw      s7, lara+0x60-GP_ADDR(gp)
+	lw      s7, lara+0x60-GP_ADDR(gp)
 	jal     save_matrix
 	addiu   at, fp, 0xB4
 	lh      a0, 0(s7)
@@ -121,12 +121,11 @@ HairControl:
 	lw      a2, 0x6C(s6)
 	jal     mRotSuperPackedYXZ
 	li      a1, 6
-;	lh      a0, lara+0xAE-GP_ADDR(gp)
-;	lh      a1, lara+0xB0-GP_ADDR(gp)
+	lh      a0, lara+0xAE-GP_ADDR(gp)
+	lh      a1, lara+0xB0-GP_ADDR(gp)
 	jal     mRotYXZ
-	nop;deleteme
-;	lh      a2, lara+0xB2-GP_ADDR(gp)
-;	lw      s7, lara+0x7C-GP_ADDR(gp)
+	lh      a2, lara+0xB2-GP_ADDR(gp)
+	lw      s7, lara+0x7C-GP_ADDR(gp)
 	jal     save_matrix
 	addiu   at, fp, 0xB4
 	lh      a0, 0(s7)
@@ -148,7 +147,7 @@ HairControl:
 	sw      v0, 0xC(at)
 	jal     load_matrix
 	addiu   at, fp, 0xB4
-;	lw      s7, lara+0x80-GP_ADDR(gp)
+	lw      s7, lara+0x80-GP_ADDR(gp)
 	lw      a0, 0x74(s6)
 	lw      a1, 0x78(s6)
 	jal     mTranslateXYZ
@@ -161,7 +160,7 @@ HairControl:
 	lh      a2, 4(s7)
 	jal     snaff_sphere_special
 	addiu   at, fp, 0x74
-;	lw      s7, lara+0x8C-GP_ADDR(gp)
+	lw      s7, lara+0x8C-GP_ADDR(gp)
 	lw      a0, 0xA4(s6)
 	lw      a1, 0xA8(s6)
 	jal     mTranslateXYZ
@@ -180,12 +179,11 @@ HairControl:
 	lw      a2, 0xDC(s6)
 	jal     mRotSuperPackedYXZ
 	li      a1, 2
-;	lh      a0, lara+0xA8-GP_ADDR(gp)
-;	lh      a1, lara+0xAA-GP_ADDR(gp)
+	lh      a0, lara+0xA8-GP_ADDR(gp)
+	lh      a1, lara+0xAA-GP_ADDR(gp)
 	jal     mRotYXZ
-	nop;deleteme
-;	lh      a2, lara+0xAC-GP_ADDR(gp)
-;	lw      s7, lara+0x98-GP_ADDR(gp)
+	lh      a2, lara+0xAC-GP_ADDR(gp)
+	lw      s7, lara+0x98-GP_ADDR(gp)
 	jal     save_matrix
 	addiu   at, fp, 0xB4
 	lh      a0, 0(s7)
@@ -454,7 +452,7 @@ HairControl:
 	sra     v1, 2
 	addu    v0, v1
 	sw      v0, 8(s7)
-;	lh      a3, lara+0xC-GP_ADDR(gp)
+	lh      a3, lara+0xC-GP_ADDR(gp)
 	lh      v1, 0x3C(fp)
 	bnez    a3, loc_833D4
 	sll     v0, v1, 2
@@ -658,14 +656,14 @@ HairControl:
 	slti    v0, s3, 7
 	bnez    v0, loc_832E4
 	addiu   s7, 0x20
-	lw      ra, 0x1F800024
-	lw      s0, 0x1F800000
-	lw      s3, 0x1F80000C
-	lw      s4, 0x1F800010
-	lw      s5, 0x1F800014
-	lw      s6, 0x1F800018
-	lw      s7, 0x1F80001C
-	lw      fp, 0x1F800020
+	lw      ra, 0x24(fp)
+	lw      s0, 0x00(fp)
+	lw      s3, 0x0C(fp)
+	lw      s4, 0x10(fp)
+	lw      s5, 0x14(fp)
+	lw      s6, 0x18(fp)
+	lw      s7, 0x1C(fp)
+	lw      fp, 0x20(fp)
 	jr      ra
 	nop
 	

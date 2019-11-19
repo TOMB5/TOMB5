@@ -3,7 +3,7 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF GetLaraJointPos, GetFrames, S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM, DEL_CalcLaraMatrices_Interpolated_ASM
-	XREF anims, interpolated_bounds, lara_item, rcossin_tbl, GLaraShadowframe, lara_joint_matrices, lara_matrices, ScaleCurrentMatrix, Matrix, lara, items, MatrixStack
+	XREF GetFloor, room, anims, LaraNodeUnderwater, LaraNodeAmbient, interpolated_bounds, lara_item, rcossin_tbl, GLaraShadowframe, lara_joint_matrices, lara_matrices, ScaleCurrentMatrix, Matrix, lara, items, MatrixStack
 	
 .firearms_jumptable:
 	dw loc_8469C
@@ -2137,7 +2137,70 @@ GetBoundsAccurate:
 	jr      t7
 	addiu   sp, 0x20
 
-	GetLaraJointPos:
+SetLaraUnderwaterNodes:
+	addiu   sp, -0x38
+	sw      s0, 0x38-0x10(sp)
+	sw      s1, 0x38-0xC(sp)
+	sw      ra, 0x38-0x8(sp)
+	move    s1, zero
+	li      s0, 0xE
+	addiu   a0, sp, 0x38-0x28
+
+	loc_85988:
+	move    a1, s0
+	sw      zero, 0x38-0x28(sp)
+	sw      zero, 0x38-0x24(sp)
+	jal     GetLaraJointPos
+	sw      zero, 0x38-0x20(sp)
+	lw      a0, 0x38-0x28(sp)
+	lw      v0, lara_item-GP_ADDR(gp)
+	lw      a1, 0x38-0x24(sp)
+	lw      a2, 0x38-0x20(sp)
+	lhu     v0, 0x18(v0)
+	addiu   a3, sp, 0x38-0x18
+	jal     GetFloor
+	sh      v0, 0x38-0x18(sp)
+	lh      v1, 0x38-0x18(sp)
+	lw      at, room-GP_ADDR(gp)
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 4
+	addu    a1, v0, at
+	lbu     v0, 0x4E(a1)
+	nop
+	andi    v0, 1
+	;sb      v0, LaraNodeUnderwater(s0);**************************TODO
+	beqz    v0, loc_85A1C
+	li      v0, 0xFC
+	sb      v0, lara+0x35-GP_ADDR(gp)
+	andi    at, s1, 1
+	bnez    at, loc_85A38
+	nop
+	lw      v1, 0x2C(a1)
+	ori     s1, 1
+	j       loc_85A38
+	sw      v1, LaraNodeAmbient+0x4-GP_ADDR(gp)
+
+	loc_85A1C:
+	andi    v0, s1, 2
+	bnez    v0, loc_85A38
+	nop
+	lw      v1, 0x2C(a1)
+	ori     s1, 2
+	j       loc_85A38
+	sw      v1, LaraNodeAmbient-GP_ADDR(gp)
+
+	loc_85A38:
+	addiu   s0, -1
+	bgez    s0, loc_85988
+	addiu   a0, sp, 0x38-0x28
+	lw      ra, 0x38-0x8(sp)
+	lw      s1, 0x38-0xC(sp)
+	lw      s0, 0x38-0x10(sp)
+	jr      ra
+	addiu   sp, 0x38
+
+GetLaraJointPos:
 	addiu   sp, -0x40
 	move    a3, a0
 	sll     a1, 5
