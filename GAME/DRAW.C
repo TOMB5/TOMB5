@@ -236,6 +236,7 @@ void DrawGunflashes()//8A924(<) 8C968(<)
 #endif
 }
 
+#if PC_VERSION
 short* GetBestFrame(struct ITEM_INFO* item)// (F)s
 {
 	short* frm[2];
@@ -247,6 +248,7 @@ short* GetBestFrame(struct ITEM_INFO* item)// (F)s
 	else
 		return frm[0];
 }
+#endif
 
 void DrawAnimatingItem(struct ITEM_INFO *item)
 {

@@ -2,7 +2,7 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF GetLaraJointPos, GetFrames, S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM, DEL_CalcLaraMatrices_Interpolated_ASM
+	XDEF GetBestFrame, GetLaraJointPos, GetFrames, S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM, DEL_CalcLaraMatrices_Interpolated_ASM
 	XREF GetFloor, room, anims, LaraNodeUnderwater, LaraNodeAmbient, interpolated_bounds, lara_item, rcossin_tbl, GLaraShadowframe, lara_joint_matrices, lara_matrices, ScaleCurrentMatrix, Matrix, lara, items, MatrixStack
 	
 .firearms_jumptable:
@@ -2350,3 +2350,19 @@ GetLaraJointPos:
 	ctc2    t3, r7
 	jr      ra
 	addiu   sp, 0x40
+
+GetBestFrame:
+	move    t6, ra
+	addiu   sp, -0x20
+	addiu   a1, sp, 0x20-0x10
+	jal     GetFrames
+	addiu   a2, sp, 0x20-0x8
+	sra     v1, a3, 1
+	slt     v1, v0
+	beqz    v1, loc_858F0
+	move    v0, t4
+	move    v0, t5
+
+	loc_858F0:
+	jr      t6
+	addiu   sp, 0x20
