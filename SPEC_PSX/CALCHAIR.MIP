@@ -102,7 +102,7 @@ HairControl:
 	addu    s6, v0
 	lh      a0, 0xC(s3)
 	lh      a1, 0xE(s3)
-	jal     sub_83744
+	jal     mTranslateXYZ
 	lh      a2, 0x10(s3)
 	jal     sub_83A80
 	move    a1, zero
@@ -111,13 +111,13 @@ HairControl:
 	addiu   at, fp, 0xB4
 	lh      a0, 0(s7)
 	lh      a1, 2(s7)
-	jal     sub_83744
+	jal     mTranslateXYZ
 	lh      a2, 4(s7)
 	jal     sub_83670
 	addiu   at, fp, 0x44
 	lw      a0, 0x64(s6)
 	lw      a1, 0x68(s6)
-	jal     sub_83744
+	jal     mTranslateXYZ
 	lw      a2, 0x6C(s6)
 	jal     sub_83A80
 	li      a1, 6
@@ -130,7 +130,7 @@ HairControl:
 	addiu   at, fp, 0xB4
 	lh      a0, 0(s7)
 	lh      a1, 2(s7)
-	jal     sub_83744
+	jal     mTranslateXYZ
 	lh      a2, 4(s7)
 	addiu   at, fp, 0x54
 	lh      v0, 6(s7)
@@ -150,32 +150,32 @@ HairControl:
 	lw      s7, lara+0x80-GP_ADDR(gp)
 	lw      a0, 0x74(s6)
 	lw      a1, 0x78(s6)
-	jal     sub_83744
+	jal     mTranslateXYZ
 	lw      a2, 0x7C(s6)
 	jal     sub_83A80
 	move    a1, zero
 	lh      a0, 0(s7)
 	lh      a1, 2(s7)
-	jal     sub_83744
+	jal     mTranslateXYZ
 	lh      a2, 4(s7)
 	jal     sub_8368C
 	addiu   at, fp, 0x74
 	lw      s7, lara+0x8C-GP_ADDR(gp)
 	lw      a0, 0xA4(s6)
 	lw      a1, 0xA8(s6)
-	jal     sub_83744
+	jal     mTranslateXYZ
 	lw      a2, 0xAC(s6)
 	jal     sub_83A80
 	li      a1, 2
 	lh      a0, 0(s7)
 	lh      a1, 2(s7)
-	jal     sub_83744
+	jal     mTranslateXYZ
 	lh      a2, 4(s7)
 	jal     sub_8368C
 	addiu   at, fp, 0x84
 	lw      a0, 0xD4(s6)
 	lw      a1, 0xD8(s6)
-	jal     sub_83744
+	jal     mTranslateXYZ
 	lw      a2, 0xDC(s6)
 	jal     sub_83A80
 	li      a1, 2
@@ -188,7 +188,7 @@ HairControl:
 	addiu   at, fp, 0xB4
 	lh      a0, 0(s7)
 	lh      a1, 2(s7)
-	jal     sub_83744
+	jal     mTranslateXYZ
 	lh      a2, 4(s7)
 	jal     sub_83670
 	addiu   at, fp, 0x64
@@ -226,13 +226,13 @@ HairControl:
 	li      a2, 0xFFFFFFD0
 
 	loc_8304C:
-	jal     sub_83744
+	jal     mTranslateXYZ
 	addiu   ra, 0x10
 
 	loc_83054:
 	li      a0, 0x2C
 	li      a1, 0xFFFFFFD0
-	jal     sub_83744
+	jal     mTranslateXYZ
 	li      a2, 0xFFFFFFCE
 	sw      t0, 0x30(fp)
 	sw      t1, 0x34(fp)
@@ -282,7 +282,7 @@ HairControl:
 	move    a2, zero
 	lw      a0, 4(s6)
 	lw      a1, 8(s6)
-	jal     sub_83744
+	jal     mTranslateXYZ
 	lw      a2, 0xC(s6)
 	sw      t0, 0x20(s7)
 	sw      t1, 0x24(s7)
@@ -636,7 +636,7 @@ HairControl:
 	lw      a2, 0xC(s6)
 
 	loc_835F4:
-	jal     sub_83744
+	jal     mTranslateXYZ
 	addiu   s6, 0x10
 	sw      t0, 0(s7)
 	sw      t1, 4(s7)
@@ -982,3 +982,61 @@ mTranslateXYZ:
 	ctc2    t2, r7
 	jr      ra
 	nop
+
+mRotSuperPackedYXZ:
+	lw      a2, 0x28(fp)
+	beqz    a1, loc_83AAC
+
+	loc_83A88:
+	lhu     v0, 0(a2)
+	addi    a1, -1
+	andi    at, v0, 0xC000
+	bnez    at, loc_83AA0
+	addi    a2, 2
+	addi    a2, 2
+
+	loc_83AA0:
+	bnez    a1, loc_83A88
+	nop
+	lhu     v0, 0(a2)
+
+	loc_83AAC:
+	addi    a2, 2
+	srl     at, v0, 14
+	beqz    at, loc_83AEC
+	addi    at, -1
+	sw      a2, 0x28(fp)
+	beqz    at, loc_83AE0
+	addi    at, -1
+	beqz    at, loc_83AD8
+	andi    a0, v0, 0xFFF
+	j       mRotZ
+	sll     a0, 4
+
+	loc_83AD8:
+	j       mRotY
+	sll     a0, 4
+
+	loc_83AE0:
+	andi    a0, v0, 0xFFF
+	j       mRotX
+	sll     a0, 4
+
+	loc_83AEC:
+	lhu     at, 0(a2)
+	addi    a2, 2
+	sw      a2, 0x28(fp)
+	sll     a0, v0, 16
+	or      a0, at
+	move    v0, a0
+	move    v1, ra
+	sra     a0, v0, 4
+	jal     mRotY
+	andi    a0, 0xFFC0
+	sra     a0, v0, 14
+	jal     mRotX
+	andi    a0, 0xFFC0
+	andi    a0, v0, 0x3FF
+	sll     a0, 6
+	j       mRotZ
+	move    ra, v1
