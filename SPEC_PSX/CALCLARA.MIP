@@ -2358,7 +2358,7 @@ GetBestFrame:
 	jal     GetFrames
 	addiu   a2, sp, 0x20-0x8
 	sra     v1, a3, 1
-	slt     v1, v0
+	slt     v1, v1, v0
 	beqz    v1, loc_858F0
 	move    v0, t4
 	move    v0, t5
