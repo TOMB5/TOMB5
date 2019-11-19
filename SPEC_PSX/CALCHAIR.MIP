@@ -93,7 +93,7 @@ HairControl:
 	ctc2    a2, r7
 	lh      a0, 0x4E(s5)
 	lh      a1, 0x4C(s5)
-	jal     sub_83994
+	jal     mRotYXZ
 	lh      a2, 0x50(s5)
 	la      at, objects
 	lw      v0, 4(at)
@@ -123,7 +123,7 @@ HairControl:
 	li      a1, 6
 	lh      a0, lara+0xAE-GP_ADDR(gp)
 	lh      a1, lara+0xB0-GP_ADDR(gp)
-	jal     sub_83994
+	jal     mRotYXZ
 	lh      a2, lara+0xB2-GP_ADDR(gp)
 	lw      s7, lara+0x7C-GP_ADDR(gp)
 	jal     save_matrix
@@ -181,7 +181,7 @@ HairControl:
 	li      a1, 2
 	lh      a0, lara+0xA8-GP_ADDR(gp)
 	lh      a1, lara+0xAA-GP_ADDR(gp)
-	jal     sub_83994
+	jal     mRotYXZ
 	lh      a2, lara+0xAC-GP_ADDR(gp)
 	lw      s7, lara+0x98-GP_ADDR(gp)
 	jal     save_matrix
@@ -278,7 +278,7 @@ HairControl:
 	addiu   s5, -1
 	lh      a0, 0xE(s7)
 	lh      a1, 0xC(s7)
-	jal     sub_83994
+	jal     mRotYXZ
 	move    a2, zero
 	lw      a0, 4(s6)
 	lw      a1, 8(s6)
@@ -620,7 +620,7 @@ HairControl:
 	ctc2    a2, r7
 	lh      a0, -0x12(s7)
 	lh      a1, -0x14(s7)
-	jal     sub_83994
+	jal     mRotYXZ
 	move    a2, zero
 	li      v0, 6
 	bne     s3, v0, loc_835E8
@@ -853,32 +853,32 @@ mRotYXZ:
 	srl     t1, t0, 16
 	sll     t2, t0, 16
 	or      t1, t2
-	mtc2    t1, 0
-	mtc2    zero, 1
-	cfc2    t1, 1
-	cfc2    t2, 2
-	cfc2    t4, 4
+	mtc2    t1, r0
+	mtc2    zero, r1
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t4, r4
 	cop2    0x486012
 	and     t3, t0, t7
 	andi    t0, 0xFFFF
 	neg     t0, t0
 	andi    t0, 0xFFFF
 	or      t0, t3
-	mtc2    t0, 2
-	mtc2    zero, 3
+	mtc2    t0, r2
+	mtc2    zero, r3
 	andi    t1, 0xFFFF
-	mfc2    t0, 25
-	mfc2    t5, 26
-	mfc2    t3, 27
+	mfc2    t0, r25
+	mfc2    t5, r26
+	mfc2    t3, r27
 	cop2    0x48E012
 	and     t2, t7
 	andi    t0, 0xFFFF
 	sll     t5, 16
 	or      t1, t5
 	andi    t3, 0xFFFF
-	mfc2    t5, 25
-	mfc2    t6, 26
-	mfc2    a0, 27
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    a0, r27
 	sll     t5, 16
 	or      t0, t5
 	andi    t6, 0xFFFF
@@ -887,10 +887,98 @@ mRotYXZ:
 	or      t3, a0
 
 	loc_83A64:
-	ctc2    t0, 0
-	ctc2    t1, 1
-	ctc2    t2, 2
-	ctc2    t3, 3
-	ctc2    t4, 4
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	ctc2    t4, r4
+	jr      ra
+	nop
+
+mTranslateXYZ:
+	bgez    a1, loc_83764
+	sra     t4, a1, 15
+	negu    a1, a1
+	sra     t4, a1, 15
+	andi    a1, 0x7FFF
+	negu    t4, t4
+	j       loc_83768
+	negu    a1, a1
+
+	loc_83764:
+	andi    a1, 0x7FFF
+
+	loc_83768:
+	bgez    a2, loc_83788
+	sra     t5, a2, 15
+	negu    a2, a2
+	sra     t5, a2, 15
+	andi    a2, 0x7FFF
+	negu    t5, t5
+	j       loc_8378C
+	negu    a2, a2
+
+	loc_83788:
+	andi    a2, 0x7FFF
+
+	loc_8378C:
+	bgez    a0, loc_837AC
+	sra     t3, a0, 15
+	negu    a0, a0
+	sra     t3, a0, 15
+	andi    a0, 0x7FFF
+	negu    t3, t3
+	j       loc_837B0
+	negu    a0, a0
+
+	loc_837AC:
+	andi    a0, 0x7FFF
+
+	loc_837B0:
+	mtc2    t3, r9
+	mtc2    t4, r10
+	mtc2    t5, r11
+	nop
+	nop
+	cop2    0x41E012
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mtc2    a0, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	mfc2    t5, r27
+	nop
+	nop
+	cop2    0x498012
+	bgez    t3, loc_837F4
+	sll     t0, t3, 3
+	negu    t3, t3
+	sll     t3, 3
+	negu    t0, t3
+
+	loc_837F4:
+	bgez    t4, loc_83808
+	sll     t1, t4, 3
+	negu    t4, t4
+	sll     t4, 3
+	negu    t1, t4
+
+	loc_83808:
+	bgez    t5, loc_8381C
+	sll     t2, t5, 3
+	negu    t5, t5
+	sll     t5, 3
+	negu    t2, t5
+
+	loc_8381C:
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mfc2    t5, r27
+	addu    t0, t3
+	addu    t1, t4
+	addu    t2, t5
+	ctc2    t0, r5
+	ctc2    t1, r6
+	ctc2    t2, r7
 	jr      ra
 	nop
