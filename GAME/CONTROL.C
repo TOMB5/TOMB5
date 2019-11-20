@@ -1,8 +1,7 @@
 #include "CONTROL.H"
 
-#include "CALCHAIR.H"
 #if PSX_VERSION || PSXPC_VERSION
-
+#include "CALCHAIR.H"
 #include "COLLIDE_S.H"
 #include "DRAWPHAS.H"
 #include "3D_GEN.H"
@@ -1248,11 +1247,11 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 		{
 			if (LaraDrawType != 5)
 			{
-				//HairControl(0, 0, NULL);
+				HairControl(0, 0, NULL);
 
 				if ((gfLevelFlags & GF_LVOP_YOUNG_LARA))
 				{
-					//HairControl(0, 1, NULL);
+					HairControl(0, 1, NULL);
 				}
 			}//loc_1DFF4
 

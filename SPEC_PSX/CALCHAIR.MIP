@@ -3,12 +3,12 @@
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
 	XDEF HairControl
-	XREF rcossin_tbl, room, SmokeWindX, SmokeWindZ,hair_wind, hair_dwind_angle, hair_wind_angle, objects, first_hair, hairs, gfLevelFlags, lara_item, lara, GetBestFrame, bones, anims, mRotYXZ, mTranslateXYZ, mRotSuperPackedYXZ, GetRandomControl, GetWaterHeight, GetFloor, GetHeight, phd_sqrt_asm, phd_atan_asm
+	XREF rcossin_tbl, room, SmokeWindX, SmokeWindZ, hair_wind, hair_dwind_angle, hair_wind_angle, objects, first_hair, hairs, gfLevelFlags, lara_item, lara, GetBestFrame, bones, anims, GetRandomControl, GetWaterHeight, GetFloor, GetHeight, SqrtTable, phd_atan_asm
 	
 HairControl:
 	lui		at, 0x1F80
-	sw      s0, 0x0(at)
-	sw      s3, 0xC(at)
+	sw      s0, 0x00(at)
+	sw      s3, 0x0C(at)
 	sw      s4, 0x10(at)
 	sw      s5, 0x14(at)
 	sw      s6, 0x18(at)
@@ -18,7 +18,7 @@ HairControl:
 	lhu     s0, gfLevelFlags-GP_ADDR(gp)
 	lui     fp, 0x1F80
 	lw      s5, lara_item-GP_ADDR(gp)
-;	lh      v1, lara+0x14-GP_ADDR(gp)
+	lh      v1, lara+0x14-GP_ADDR(gp)
 	andi    s0, 1
 	move    s4, a1
 	sw      a0, 0x2C(fp)
@@ -26,7 +26,7 @@ HairControl:
 	move    s3, a2
 	bltz    v1, loc_82E00
 	nop
-;	lw      v0, lara+0x44-GP_ADDR(gp)
+	lw      v0, lara+0x44-GP_ADDR(gp)
 	lw      a1, anims-GP_ADDR(gp)
 	beqz    v1, loc_82DAC
 	andi    v0, 0x400
@@ -60,7 +60,7 @@ HairControl:
 	loc_82DD8:
 	addu    v1, a1, a0
 	lh      v0, 4(v1)
-;	lh      a0, lara+0x12-GP_ADDR(gp)
+	lh      a0, lara+0x12-GP_ADDR(gp)
 	sra     v0, 8
 	mult    a0, v0
 	lw      s3, 0(v1)
@@ -106,7 +106,7 @@ HairControl:
 	lh      a2, 0x10(s3)
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
-;	lw      s7, lara+0x60-GP_ADDR(gp)
+	lw      s7, lara+0x60-GP_ADDR(gp)
 	jal     save_matrix
 	addiu   at, fp, 0xB4
 	lh      a0, 0(s7)
@@ -121,12 +121,11 @@ HairControl:
 	lw      a2, 0x6C(s6)
 	jal     mRotSuperPackedYXZ
 	li      a1, 6
-;	lh      a0, lara+0xAE-GP_ADDR(gp)
-;	lh      a1, lara+0xB0-GP_ADDR(gp)
+	lh      a0, lara+0xAE-GP_ADDR(gp)
+	lh      a1, lara+0xB0-GP_ADDR(gp)
 	jal     mRotYXZ
-	nop;deleteme
-;	lh      a2, lara+0xB2-GP_ADDR(gp)
-;	lw      s7, lara+0x7C-GP_ADDR(gp)
+	lh      a2, lara+0xB2-GP_ADDR(gp)
+	lw      s7, lara+0x7C-GP_ADDR(gp)
 	jal     save_matrix
 	addiu   at, fp, 0xB4
 	lh      a0, 0(s7)
@@ -148,7 +147,7 @@ HairControl:
 	sw      v0, 0xC(at)
 	jal     load_matrix
 	addiu   at, fp, 0xB4
-;	lw      s7, lara+0x80-GP_ADDR(gp)
+	lw      s7, lara+0x80-GP_ADDR(gp)
 	lw      a0, 0x74(s6)
 	lw      a1, 0x78(s6)
 	jal     mTranslateXYZ
@@ -161,7 +160,7 @@ HairControl:
 	lh      a2, 4(s7)
 	jal     snaff_sphere_special
 	addiu   at, fp, 0x74
-;	lw      s7, lara+0x8C-GP_ADDR(gp)
+	lw      s7, lara+0x8C-GP_ADDR(gp)
 	lw      a0, 0xA4(s6)
 	lw      a1, 0xA8(s6)
 	jal     mTranslateXYZ
@@ -180,12 +179,11 @@ HairControl:
 	lw      a2, 0xDC(s6)
 	jal     mRotSuperPackedYXZ
 	li      a1, 2
-;	lh      a0, lara+0xA8-GP_ADDR(gp)
-;	lh      a1, lara+0xAA-GP_ADDR(gp)
+	lh      a0, lara+0xA8-GP_ADDR(gp)
+	lh      a1, lara+0xAA-GP_ADDR(gp)
 	jal     mRotYXZ
-	nop;deleteme
-;	lh      a2, lara+0xAC-GP_ADDR(gp)
-;	lw      s7, lara+0x98-GP_ADDR(gp)
+	lh      a2, lara+0xAC-GP_ADDR(gp)
+	lw      s7, lara+0x98-GP_ADDR(gp)
 	jal     save_matrix
 	addiu   at, fp, 0xB4
 	lh      a0, 0(s7)
@@ -454,7 +452,7 @@ HairControl:
 	sra     v1, 2
 	addu    v0, v1
 	sw      v0, 8(s7)
-;	lh      a3, lara+0xC-GP_ADDR(gp)
+	lh      a3, lara+0xC-GP_ADDR(gp)
 	lh      v1, 0x3C(fp)
 	bnez    a3, loc_833D4
 	sll     v0, v1, 2
@@ -658,17 +656,17 @@ HairControl:
 	slti    v0, s3, 7
 	bnez    v0, loc_832E4
 	addiu   s7, 0x20
-	lw      ra, 0x1F800024
-	lw      s0, 0x1F800000
-	lw      s3, 0x1F80000C
-	lw      s4, 0x1F800010
-	lw      s5, 0x1F800014
-	lw      s6, 0x1F800018
-	lw      s7, 0x1F80001C
-	lw      fp, 0x1F800020
+	lw      ra, 0x24(fp)
+	lw      s0, 0x00(fp)
+	lw      s3, 0x0C(fp)
+	lw      s4, 0x10(fp)
+	lw      s5, 0x14(fp)
+	lw      s6, 0x18(fp)
+	lw      s7, 0x1C(fp)
+	lw      fp, 0x20(fp)
 	jr      ra
 	nop
-	
+
 snaff_sphere_normal:
 	lh      v0, 6(s7)
 	sw      t0, 0(at)
@@ -729,3 +727,349 @@ save_matrix:
 	sw      a0, 0x18(at)
 	jr      ra
 	sw      a1, 0x1C(at)
+
+SetRotation:
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	ctc2    t4, r4
+	jr      ra
+	nop
+
+mRotY:
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_83908
+	nop
+	jr      ra
+	nop
+
+	loc_83908:
+	la     t0, rcossin_tbl
+	add     t0, a0
+	lw      t5, 0(t0)
+	lui     t7, 0xFFFF
+	srl     t6, t5, 16
+	andi    t5, 0xFFFF
+	neg     t2, t5
+	mtc2    t6, r0
+	mtc2    t2, r1
+	cfc2    t0, r0
+	cfc2    t2, r2
+	cfc2    t3, r3
+	cop2    0x486012
+	mtc2    t5, r2
+	mtc2    t6, r3
+	and     t0, t7
+	andi    t2, 0xFFFF
+	and     t3, t7
+	mfc2    t4, r25
+	mfc2    t1, r26
+	mfc2    t5, r27
+	cop2    0x48E012
+	andi    t4, 0xFFFF
+	or      t0, t4
+	sll     t1, 16
+	andi    t5, 0xFFFF
+	or      t3, t5
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    t4, r27
+	andi    t5, 0xFFFF
+	or      t1, t5
+	sll     t6, 16
+	j       SetRotation
+	or      t2, t6
+
+mRotX:
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_83860
+	nop
+	jr      ra
+	nop
+
+	loc_83860:
+	la      t0, rcossin_tbl
+	add     t0, a0
+	lw      t5, 0(t0)
+	lui     t7, 0xFFFF
+	and     t6, t7, t5
+	mtc2    t6, r0
+	mtc2    t5, r1
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t3, r3
+	cop2    0x486012
+	srl     t6, t5, 16
+	sll     t5, 16
+	neg     t5, t5
+	mtc2    t5, r2
+	mtc2    t6, r3
+	andi    t0, 0xFFFF
+	and     t1, t7
+	andi    t3, 0xFFFF
+	mfc2    t4, r25
+	mfc2    t2, r26
+	mfc2    t5, r27
+	cop2    0x48E012
+	sll     t4, 16
+	or      t0, t4
+	andi    t2, 0xFFFF
+	sll     t5, 16
+	or      t3, t5
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    t4, r27
+	andi    t5, 0xFFFF
+	or      t1, t5
+	sll     t6, 16
+	j       SetRotation
+	or      t2, t6
+
+mRotYXZ:
+	move    v0, ra
+	jal     mRotY
+	nop
+	jal     mRotX
+	move    a0, a1
+	move    a0, a2
+	move    ra, v0
+
+	mRotZ:
+	srl     a0, 2
+	andi    a0, 0x3FFC
+	bnez    a0, loc_839C8
+	nop
+	jr      ra
+	nop
+
+	loc_839C8:
+	la      t0, rcossin_tbl
+	add     t0, a0
+	lw      t0, 0(t0)
+	lui     t7, 0xFFFF
+	srl     t1, t0, 16
+	sll     t2, t0, 16
+	or      t1, t2
+	mtc2    t1, r0
+	mtc2    zero, r1
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t4, r4
+	cop2    0x486012
+	and     t3, t0, t7
+	andi    t0, 0xFFFF
+	neg     t0, t0
+	andi    t0, 0xFFFF
+	or      t0, t3
+	mtc2    t0, r2
+	mtc2    zero, r3
+	andi    t1, 0xFFFF
+	mfc2    t0, r25
+	mfc2    t5, r26
+	mfc2    t3, r27
+	cop2    0x48E012
+	and     t2, t7
+	andi    t0, 0xFFFF
+	sll     t5, 16
+	or      t1, t5
+	andi    t3, 0xFFFF
+	mfc2    t5, r25
+	mfc2    t6, r26
+	mfc2    a0, r27
+	sll     t5, 16
+	or      t0, t5
+	andi    t6, 0xFFFF
+	or      t2, t6
+	sll     a0, 16
+	or      t3, a0
+
+	loc_83A64:
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	ctc2    t4, r4
+	jr      ra
+	nop
+
+mTranslateXYZ:
+	bgez    a1, loc_83764
+	sra     t4, a1, 15
+	negu    a1, a1
+	sra     t4, a1, 15
+	andi    a1, 0x7FFF
+	negu    t4, t4
+	j       loc_83768
+	negu    a1, a1
+
+	loc_83764:
+	andi    a1, 0x7FFF
+
+	loc_83768:
+	bgez    a2, loc_83788
+	sra     t5, a2, 15
+	negu    a2, a2
+	sra     t5, a2, 15
+	andi    a2, 0x7FFF
+	negu    t5, t5
+	j       loc_8378C
+	negu    a2, a2
+
+	loc_83788:
+	andi    a2, 0x7FFF
+
+	loc_8378C:
+	bgez    a0, loc_837AC
+	sra     t3, a0, 15
+	negu    a0, a0
+	sra     t3, a0, 15
+	andi    a0, 0x7FFF
+	negu    t3, t3
+	j       loc_837B0
+	negu    a0, a0
+
+	loc_837AC:
+	andi    a0, 0x7FFF
+
+	loc_837B0:
+	mtc2    t3, r9
+	mtc2    t4, r10
+	mtc2    t5, r11
+	nop
+	nop
+	cop2    0x41E012
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mtc2    a0, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	mfc2    t5, r27
+	nop
+	nop
+	cop2    0x498012
+	bgez    t3, loc_837F4
+	sll     t0, t3, 3
+	negu    t3, t3
+	sll     t3, 3
+	negu    t0, t3
+
+	loc_837F4:
+	bgez    t4, loc_83808
+	sll     t1, t4, 3
+	negu    t4, t4
+	sll     t4, 3
+	negu    t1, t4
+
+	loc_83808:
+	bgez    t5, loc_8381C
+	sll     t2, t5, 3
+	negu    t5, t5
+	sll     t5, 3
+	negu    t2, t5
+
+	loc_8381C:
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mfc2    t5, r27
+	addu    t0, t3
+	addu    t1, t4
+	addu    t2, t5
+	ctc2    t0, r5
+	ctc2    t1, r6
+	ctc2    t2, r7
+	jr      ra
+	nop
+
+mRotSuperPackedYXZ:
+	lw      a2, 0x28(fp)
+	beqz    a1, loc_83AAC
+
+	loc_83A88:
+	lhu     v0, 0(a2)
+	addi    a1, -1
+	andi    at, v0, 0xC000
+	bnez    at, loc_83AA0
+	addi    a2, 2
+	addi    a2, 2
+
+	loc_83AA0:
+	bnez    a1, loc_83A88
+	nop
+	lhu     v0, 0(a2)
+
+	loc_83AAC:
+	addi    a2, 2
+	srl     at, v0, 14
+	beqz    at, loc_83AEC
+	addi    at, -1
+	sw      a2, 0x28(fp)
+	beqz    at, loc_83AE0
+	addi    at, -1
+	beqz    at, loc_83AD8
+	andi    a0, v0, 0xFFF
+	j       mRotZ
+	sll     a0, 4
+
+	loc_83AD8:
+	j       mRotY
+	sll     a0, 4
+
+	loc_83AE0:
+	andi    a0, v0, 0xFFF
+	j       mRotX
+	sll     a0, 4
+
+	loc_83AEC:
+	lhu     at, 0(a2)
+	addi    a2, 2
+	sw      a2, 0x28(fp)
+	sll     a0, v0, 16
+	or      a0, at
+	move    v0, a0
+	move    v1, ra
+	sra     a0, v0, 4
+	jal     mRotY
+	andi    a0, 0xFFC0
+	sra     a0, v0, 14
+	jal     mRotX
+	andi    a0, 0xFFC0
+	andi    a0, v0, 0x3FF
+	sll     a0, 6
+	j       mRotZ
+	move    ra, v1
+
+phd_sqrt_asm:
+	mtc2    a0, r30
+	beqz    a0, locret_83B8C
+	li      v0, 0x1F
+	mfc2    v1, r31
+	li      at, 0xFFFFFFFE
+	and     v1, at
+	sub     v0, v1
+	sra     v0, 1
+	addi    at, v1, -0x18
+	bltz    at, loc_83B64
+	nop
+	j       loc_83B70
+	sllv    a0, at
+
+	loc_83B64:
+	li      at, 0x18
+	sub     at, v1
+	srav    a0, at
+
+	loc_83B70:
+	la      a1, SqrtTable
+	addi    a0, -0x40
+	sll     a0, 1
+	addu    a0, a1
+	lh      a0, 0(a0)
+	nop
+	sllv    a0, v0
+
+	locret_83B8C:
+	jr      ra
+	srl     v0, a0, 12

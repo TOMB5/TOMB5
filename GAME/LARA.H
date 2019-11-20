@@ -886,7 +886,9 @@ extern int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h);
 extern short LaraFloorFront(struct ITEM_INFO* item, short ang, long dist);
 extern void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll);
+#if PC_VERSION
 extern int GetLaraJointPos(struct PHD_VECTOR* arg1, long arg2);
+#endif
 extern void AnimateLara(struct ITEM_INFO* item);
 extern void SetLaraUnderwaterNodes();
 extern void SetPendulumVelocity(int x, int y, int z);

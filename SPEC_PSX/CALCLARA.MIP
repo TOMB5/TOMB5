@@ -2,8 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF GetFrames, S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM, DEL_CalcLaraMatrices_Interpolated_ASM
-	XREF anims, interpolated_bounds, lara_item, rcossin_tbl, GLaraShadowframe, lara_joint_matrices, lara_matrices, ScaleCurrentMatrix, Matrix, lara, items, MatrixStack
+	XDEF GetBestFrame, GetLaraJointPos, GetFrames, S_SetupClutAdder, GetBoundsAccurate, snaff_current_gte_matrix_V1, DEL_CalcLaraMatrices_Normal_ASM, DEL_CalcLaraMatrices_Interpolated_ASM
+	XREF GetFloor, room, anims, LaraNodeUnderwater, LaraNodeAmbient, interpolated_bounds, lara_item, rcossin_tbl, GLaraShadowframe, lara_joint_matrices, lara_matrices, ScaleCurrentMatrix, Matrix, lara, items, MatrixStack
 	
 .firearms_jumptable:
 	dw loc_8469C
@@ -26,9 +26,59 @@ case6 dw loc_84204
 case7 dw loc_83E60
 case8 dw loc_83E60
 
-InterpolateArmMatrix:;TODO*************************************************************
-	jr ra
-	nop
+InterpolateArmMatrix:
+	lw      v1, 0xBC(t8)
+	lw      t7, 0xB8(t8)
+	cfc2    t0, r13
+	cfc2    t2, r14
+	cfc2    t4, r15
+	cfc2    t1, r5
+	cfc2    t3, r6
+	cfc2    t5, r7
+	li      v0, 2
+	beq     v1, v0, loc_857A4
+	addu    at, t0, t1
+	bne     t7, v0, loc_857BC
+	li      v0, 1
+	li      v0, 4
+	bne     v1, v0, loc_857BC
+	li      v0, 1
+
+	loc_857A4:
+	sra     t0, at, 1
+	addu    t2, t3
+	sra     t2, 1
+	addu    t4, t5
+	j       loc_85808
+	sra     t4, 1
+
+	loc_857BC:
+	bne     t7, v0, loc_857E8
+	subu    at, t0, t1
+	sra     t0, at, 2
+	addu    t0, t1, t0
+	subu    t2, t3
+	sra     t2, 2
+	addu    t2, t3, t2
+	subu    t4, t5
+	sra     t4, 2
+	j       loc_85808
+	addu    t4, t5, t4
+
+	loc_857E8:
+	sra     t1, at, 2
+	subu    t0, t1
+	subu    t3, t2, t3
+	sra     t3, 2
+	subu    t2, t3
+	subu    t5, t4, t5
+	sra     t5, 2
+	subu    t4, t5
+
+	loc_85808:
+	ctc2    t0, r5
+	ctc2    t2, r6
+	ctc2    t4, r7
 	
 setup_rotation_matrix:
 	lw      t0, 0(a0)
@@ -672,6 +722,8 @@ Hardcore_iTranslateXYZ:
 	lw      a0, 0(a2)
 	lw      a1, 4(a2)
 	lw      a2, 8(a2)
+	
+iTranslateXYZ:
 	move    t6, ra
 	move    a3, a0
 	sw      a1, 0x180(t8)
@@ -681,12 +733,96 @@ Hardcore_iTranslateXYZ:
 	lw      a1, 0x180(t8)
 	lw      a2, 0x184(t8)
 	
-iTranslateXYZ:;TODO cannot find ASM**********************************************************
-	jr ra
+iTranslateXYZ2:
+	bgez    a3, loc_85318
+	sra     t0, a3, 15
+	negu    a3, a3
+	sra     t0, a3, 15
+	andi    a3, 0x7FFF
+	negu    t0, t0
+	j       loc_8531C
+	negu    a3, a3
+
+	loc_85318:
+	andi    a3, 0x7FFF
+
+	loc_8531C:
+	bgez    a1, loc_8533C
+	sra     t1, a1, 15
+	negu    a1, a1
+	sra     t1, a1, 15
+	andi    a1, 0x7FFF
+	negu    t1, t1
+	j       loc_85340
+	negu    a1, a1
+
+	loc_8533C:
+	andi    a1, 0x7FFF
+
+	loc_85340:
+	bgez    a2, loc_85360
+	sra     t2, a2, 15
+	negu    a2, a2
+	sra     t2, a2, 15
+	andi    a2, 0x7FFF
+	negu    t2, t2
+	j       loc_85364
+	negu    a2, a2
+
+	loc_85360:
+	andi    a2, 0x7FFF
+
+	loc_85364:
+	mtc2    t0, r9
+	mtc2    t1, r10
+	mtc2    t2, r11
 	nop
-	
-iTranslateXYZ2:;TODO cannot find ASM**********************************************************
-	jr ra
+	nop
+	cop2    0x43E012
+	mfc2    t6, r25
+	mtc2    a3, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	mfc2    t7, r26
+	mfc2    v0, r27
+	cop2    0x4BE012
+	bgez    t6, loc_853A8
+	sll     t3, t6, 3
+	negu    t6, t6
+	sll     t6, 3
+	negu    t3, t6
+
+	loc_853A8:
+	bgez    t7, loc_853BC
+	sll     t4, t7, 3
+	negu    t7, t7
+	sll     t7, 3
+	negu    t4, t7
+
+	loc_853BC:
+	bgez    v0, loc_853D0
+	sll     t5, v0, 3
+	negu    v0, v0
+	sll     v0, 3
+	negu    t5, v0
+
+	loc_853D0:
+	mfc2    t6, r25
+	mfc2    t7, r26
+	mfc2    v0, r27
+	addu    t3, t6
+	addu    t4, t7
+	addu    t5, v0
+	cfc2    t0, r13
+	cfc2    t1, r14
+	cfc2    t2, r15
+	addu    t0, t3
+	addu    t1, t4
+	addu    t2, t5
+	ctc2    t0, r13
+	ctc2    t1, r14
+	ctc2    t2, r15
+	jr      ra
 	nop
 	
 InterpolateMatrix:
@@ -1999,4 +2135,234 @@ GetBoundsAccurate:
 
 	loc_85964:
 	jr      t7
+	addiu   sp, 0x20
+
+SetLaraUnderwaterNodes:
+	addiu   sp, -0x38
+	sw      s0, 0x38-0x10(sp)
+	sw      s1, 0x38-0xC(sp)
+	sw      ra, 0x38-0x8(sp)
+	move    s1, zero
+	li      s0, 0xE
+	addiu   a0, sp, 0x38-0x28
+
+	loc_85988:
+	move    a1, s0
+	sw      zero, 0x38-0x28(sp)
+	sw      zero, 0x38-0x24(sp)
+	jal     GetLaraJointPos
+	sw      zero, 0x38-0x20(sp)
+	lw      a0, 0x38-0x28(sp)
+	lw      v0, lara_item-GP_ADDR(gp)
+	lw      a1, 0x38-0x24(sp)
+	lw      a2, 0x38-0x20(sp)
+	lhu     v0, 0x18(v0)
+	addiu   a3, sp, 0x38-0x18
+	jal     GetFloor
+	sh      v0, 0x38-0x18(sp)
+	lh      v1, 0x38-0x18(sp)
+	lw      at, room-GP_ADDR(gp)
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 4
+	addu    a1, v0, at
+	lbu     v0, 0x4E(a1)
+	nop
+	andi    v0, 1
+	;sb      v0, LaraNodeUnderwater(s0);**************************TODO
+	beqz    v0, loc_85A1C
+	li      v0, 0xFC
+	sb      v0, lara+0x35-GP_ADDR(gp)
+	andi    at, s1, 1
+	bnez    at, loc_85A38
+	nop
+	lw      v1, 0x2C(a1)
+	ori     s1, 1
+	j       loc_85A38
+	sw      v1, LaraNodeAmbient+0x4-GP_ADDR(gp)
+
+	loc_85A1C:
+	andi    v0, s1, 2
+	bnez    v0, loc_85A38
+	nop
+	lw      v1, 0x2C(a1)
+	ori     s1, 2
+	j       loc_85A38
+	sw      v1, LaraNodeAmbient-GP_ADDR(gp)
+
+	loc_85A38:
+	addiu   s0, -1
+	bgez    s0, loc_85988
+	addiu   a0, sp, 0x38-0x28
+	lw      ra, 0x38-0x8(sp)
+	lw      s1, 0x38-0xC(sp)
+	lw      s0, 0x38-0x10(sp)
+	jr      ra
+	addiu   sp, 0x38
+
+GetLaraJointPos:
+	addiu   sp, -0x40
+	move    a3, a0
+	sll     a1, 5
+	la      a0, lara_joint_matrices
+	addu    a1, a0
+	cfc2    t0, r0
+	cfc2    t1, r1
+	cfc2    t2, r2
+	cfc2    t3, r3
+	sw      t0, 0x40-0x30(sp)
+	sw      t1, 0x40-0x2C(sp)
+	sw      t2, 0x40-0x28(sp)
+	sw      t3, 0x40-0x24(sp)
+	cfc2    t0, r4
+	cfc2    t1, r5
+	cfc2    t2, r6
+	cfc2    t3, r7
+	sw      t0, 0x40-0x20(sp)
+	sw      t1, 0x40-0x1C(sp)
+	sw      t2, 0x40-0x18(sp)
+	sw      t3, 0x40-0x14(sp)
+	lw      t0, 0(a1)
+	lw      t1, 4(a1)
+	lw      t2, 8(a1)
+	lw      t3, 0xC(a1)
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	lw      t0, 0x10(a1)
+	lw      t1, 0x14(a1)
+	lw      t2, 0x18(a1)
+	lw      t3, 0x1C(a1)
+	ctc2    t0, r4
+	ctc2    t1, r5
+	ctc2    t2, r6
+	ctc2    t3, r7
+	lw      a0, 0(a3)
+	lw      a1, 4(a3)
+	lw      a2, 8(a3)
+	bgez    a1, loc_85B1C
+	sra     t4, a1, 15
+	negu    a1, a1
+	sra     t4, a1, 15
+	andi    a1, 0x7FFF
+	negu    t4, t4
+	j       loc_85B20
+	negu    a1, a1
+
+	loc_85B1C:
+	andi    a1, 0x7FFF
+
+	loc_85B20:
+	bgez    a2, loc_85B40
+	sra     t5, a2, 15
+	negu    a2, a2
+	sra     t5, a2, 15
+	andi    a2, 0x7FFF
+	negu    t5, t5
+	j       loc_85B44
+	negu    a2, a2
+
+	loc_85B40:
+	andi    a2, 0x7FFF
+
+	loc_85B44:
+	bgez    a0, loc_85B64
+	sra     t3, a0, 15
+	negu    a0, a0
+	sra     t3, a0, 15
+	andi    a0, 0x7FFF
+	negu    t3, t3
+	j       loc_85B68
+	negu    a0, a0
+
+	loc_85B64:
+	andi    a0, 0x7FFF
+
+	loc_85B68:
+	mtc2    t3, r9
+	mtc2    t4, r10
+	mtc2    t5, r11
+	nop
+	nop
+	cop2    0x41E012
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mtc2    a0, r9
+	mtc2    a1, r10
+	mtc2    a2, r11
+	mfc2    t5, r27
+	nop
+	nop
+	cop2    0x498012
+	bgez    t3, loc_85BAC
+	sll     t0, t3, 3
+	negu    t3, t3
+	sll     t3, 3
+	negu    t0, t3
+
+	loc_85BAC:
+	bgez    t4, loc_85BC0
+	sll     t1, t4, 3
+	negu    t4, t4
+	sll     t4, 3
+	negu    t1, t4
+
+	loc_85BC0:
+	bgez    t5, loc_85BD4
+	sll     t2, t5, 3
+	negu    t5, t5
+	sll     t5, 3
+	negu    t2, t5
+
+	loc_85BD4:
+	mfc2    t3, r25
+	mfc2    t4, r26
+	mfc2    t5, r27
+	lw      a0, lara_item-GP_ADDR(gp)
+	addu    t0, t3
+	addu    t1, t4
+	addu    t2, t5
+	lw      v0, 0x40(a0)
+	lw      v1, 0x44(a0)
+	lw      a0, 0x48(a0)
+	addu    t0, v0
+	addu    t1, v1
+	addu    t2, a0
+	sw      t0, 0(a3)
+	sw      t1, 4(a3)
+	sw      t2, 8(a3)
+	lw      t0, 0x40-0x30(sp)
+	lw      t1, 0x40-0x2C(sp)
+	lw      t2, 0x40-0x28(sp)
+	lw      t3, 0x40-0x24(sp)
+	ctc2    t0, r0
+	ctc2    t1, r1
+	ctc2    t2, r2
+	ctc2    t3, r3
+	lw      t0, 0x40-0x20(sp)
+	lw      t1, 0x40-0x1C(sp)
+	lw      t2, 0x40-0x18(sp)
+	lw      t3, 0x40-0x14(sp)
+	ctc2    t0, r4
+	ctc2    t1, r5
+	ctc2    t2, r6
+	ctc2    t3, r7
+	jr      ra
+	addiu   sp, 0x40
+
+GetBestFrame:
+	move    t6, ra
+	addiu   sp, -0x20
+	addiu   a1, sp, 0x20-0x10
+	jal     GetFrames
+	addiu   a2, sp, 0x20-0x8
+	sra     v1, a3, 1
+	slt     v1, v1, v0
+	beqz    v1, loc_858F0
+	move    v0, t4
+	move    v0, t5
+
+	loc_858F0:
+	jr      t6
 	addiu   sp, 0x20

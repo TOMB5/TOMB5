@@ -19,6 +19,7 @@
 #include "GETSTUFF.H"
 #endif
 
+#include <STDIO.H>
 
 long zfront;
 long xfront;
@@ -393,12 +394,15 @@ void ShiftItem(struct ITEM_INFO* item, struct COLL_INFO* coll)//7BEEC(<), 7DF30(
 	coll->shift.x = coll->shift.y = coll->shift.z = 0;
 }
 
+#if PC_VERSION
 int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
+#endif
 
+#if PC_VERSION
 void UpdateLaraRoom(struct ITEM_INFO* item, int height)//7C58C(<), 7E5D0(<) (F)
 {
 	short room_number = item->room_number;
@@ -407,9 +411,11 @@ void UpdateLaraRoom(struct ITEM_INFO* item, int height)//7C58C(<), 7E5D0(<) (F)
 	item->floor = GetHeight(floor, item->pos.x_pos, item->pos.y_pos + height, item->pos.z_pos);
 	if (item->room_number != room_number)
 	{
+		printf("New Room switch! %d to %d\n", item->room_number, room_number);
 		ItemNewRoom(lara.item_number, room_number);
 	}
 }
+#endif
 
 void ObjectCollision(short item_num, struct ITEM_INFO* lara_item, struct COLL_INFO* coll)// (F)
 {

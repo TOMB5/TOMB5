@@ -1,14 +1,17 @@
 #include "DRAW.H"
 
+#include "DELTAPAK.H"
 #include "CONTROL.H"
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "DRAWSPKS.H"
 #include "SETUP.H"
 #include "MATHS.H"
+#include "GETSTUFF.H"
+#include "LIGHT.H"
 #endif
 
 #include "OBJECTS.H"
-
+#include "LARA.H"
 #include "SPECIFIC.H"
 #include "STYPES.H"
 #include "TOMB4FX.H"
@@ -59,10 +62,49 @@ short Sback_gun;
 short* SRhandPtr;
 short* SLhandPtr;
 
-void CalculateObjectLightingLara()
+void CalculateObjectLightingLara()//2BFA0(<)
 {
 	short room_no;
 	struct PHD_VECTOR pos;
+
+	if (GLOBAL_playing_cutseq != 0)
+	{
+		CalculateObjectLightingLaraCutSeq();
+	}
+	else
+	{
+		//0x2BFC4
+		pos.z = 0;
+		pos.y = 0;
+		pos.x = 0;
+
+		if (lara_item->anim_number == 0xDE || lara_item->anim_number == 0x107 || lara_item->anim_number == 0x67)
+		{
+			//0x2BFF8
+			pos.x = lara_item->pos.x_pos;
+
+			if (lara_item->anim_number == 0x67)
+			{
+				pos.y = lara_item->pos.y_pos - 512;
+			}
+			else
+			{
+				pos.y = lara_item->pos.y_pos - 192;
+			}
+
+			pos.z = lara_item->pos.z_pos;
+			room_no = lara_item->room_number;
+			GetFloor(pos.x, pos.y, pos.z, &room_no);
+		}
+		else
+		{
+			GetLaraJointPos(&pos, LJ_TORSO);
+			room_no = lara_item->room_number;
+			GetFloor(pos.x, pos.y, pos.z, &room_no);
+		}
+
+		S_CalculateLight(pos.x, pos.y, pos.z, room_no, &lara_item->il);
+	}
 }
 
 #if PC_VERSION
@@ -194,6 +236,7 @@ void DrawGunflashes()//8A924(<) 8C968(<)
 #endif
 }
 
+#if PC_VERSION
 short* GetBestFrame(struct ITEM_INFO* item)// (F)s
 {
 	short* frm[2];
@@ -205,6 +248,7 @@ short* GetBestFrame(struct ITEM_INFO* item)// (F)s
 	else
 		return frm[0];
 }
+#endif
 
 void DrawAnimatingItem(struct ITEM_INFO *item)
 {
