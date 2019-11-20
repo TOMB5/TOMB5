@@ -2,8 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF GetCollisionInfo, FindGridShift, GetTiltType
-	XREF GetFloor, GetHeight, GetCeiling, rcossin_tbl, lara_item, height_type, trigger_index, zfront, xfront, room, CheckNoColFloorTriangle, floor_data 
+	XDEF GetCollisionInfo, FindGridShift, GetTiltType, UpdateLaraRoom
+	XREF GetFloor, GetHeight, GetCeiling, rcossin_tbl, lara_item, height_type, trigger_index, zfront, xfront, room, CheckNoColFloorTriangle, floor_data, lara, ItemNewRoom
 	
 GetCollisionInfo:
 	addiu   sp, -0x70
@@ -930,3 +930,38 @@ CollideStaticObjects:
 	lw      s0, 0x48-0x18(sp)
 	jr      ra
 	addiu   sp, 0x48
+
+UpdateLaraRoom:
+	addiu   sp, -0x28
+	sw      s0, 0x28-0x10(sp)
+	sw      s1, 0x28-0xC(sp)
+	sw      ra, 0x28-0x8(sp)
+	move    s1, a0
+	lw      a0, 0x40(s1)
+	lw      s0, 0x44(s1)
+	lw      a2, 0x48(s1)
+	addu    s0, a1
+	lh      v0, 0x18(s1)
+	move    a1, s0
+	sh      v0, 0x28-0x18(sp)
+	jal     GetFloor
+	addiu   a3, sp, 0x28-0x18
+	move    a0, v0
+	lw      a1, 0x40(s1)
+	lw      a3, 0x48(s1)
+	jal     GetHeight
+	move    a2, s0
+	lh      v1, 0x18(s1)
+	lh      a1, 0x28-0x18(sp)
+	lh      a0, lara-GP_ADDR(gp)
+	beq     v1, a1, loc_7C5F4
+	sw      v0, 0(s1)
+	jal     ItemNewRoom
+	nop
+
+	loc_7C5F4:
+	lw      ra, 0x28-0x8(sp)
+	lw      s1, 0x28-0xC(sp)
+	lw      s0, 0x28-0x10(sp)
+	jr      ra
+	addiu   sp, 0x28

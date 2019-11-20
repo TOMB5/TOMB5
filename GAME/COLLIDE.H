@@ -48,7 +48,9 @@ extern void CreatureCollision(short item_num, struct ITEM_INFO* laraitem, struct
 extern void LaraBaddieCollision(struct ITEM_INFO* laraitem, struct COLL_INFO* coll);
 extern void ShiftItem(struct ITEM_INFO* item, struct COLL_INFO* coll);
 extern int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight);
+#if PC_VERSION
 extern void UpdateLaraRoom(struct ITEM_INFO* item, int height);
+#endif
 extern void ObjectCollision(short item_num, struct ITEM_INFO* lara_item, struct COLL_INFO* coll);
 extern int TestLaraPosition(short* bounds, struct ITEM_INFO* item, struct ITEM_INFO* lara_item);
 extern int MoveLaraPosition(struct PHD_VECTOR* vector, struct ITEM_INFO* item, struct ITEM_INFO* lara_item);
