@@ -21,6 +21,7 @@
 #include "LARAFIRE.H"
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
 #include "MISC.H"
+#include "CALCLARA.H"
 #endif
 #include "OBJECTS.H"
 #include "ITEMS.H"

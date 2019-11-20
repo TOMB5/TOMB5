@@ -22,6 +22,7 @@
 #include "SETUP.H"
 #include "CD.H"
 #include "GETSTUFF.H"
+#include "COLLIDE_S.H"
 #endif
 
 static short PickUpBounds[12] = // offset 0xA1338
