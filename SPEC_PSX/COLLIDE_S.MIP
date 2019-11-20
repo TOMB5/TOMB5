@@ -2,8 +2,8 @@
 
 	SECTION	ASM
 	INCLUDE	SPEC_PSX/GLOBAL.INC
-	XDEF GetCollisionInfo, FindGridShift, GetTiltType, UpdateLaraRoom
-	XREF GetFloor, GetHeight, GetCeiling, rcossin_tbl, lara_item, height_type, trigger_index, zfront, xfront, room, CheckNoColFloorTriangle, floor_data, lara, ItemNewRoom
+	XDEF GetCollisionInfo, FindGridShift, GetTiltType, UpdateLaraRoom, ItemNewRoom
+	XREF GetFloor, GetHeight, GetCeiling, rcossin_tbl, lara_item, height_type, trigger_index, zfront, xfront, room, CheckNoColFloorTriangle, floor_data, lara, InItemControlLoop, ItemNewRoomNo, ItemNewRooms, items
 	
 GetCollisionInfo:
 	addiu   sp, -0x70
@@ -965,3 +965,68 @@ UpdateLaraRoom:
 	lw      s0, 0x28-0x10(sp)
 	jr      ra
 	addiu   sp, 0x28
+
+ItemNewRoom:
+	sll     a0, 16
+	sra     a3, a0, 16
+	lbu     v0, InItemControlLoop-GP_ADDR(gp)
+	sll     a1, 16
+	beqz    v0, loc_7C648
+	sra     t1, a1, 16
+	lh      a1, ItemNewRoomNo-GP_ADDR(gp)
+	la      a0, ItemNewRooms
+	addiu   v1, a1, 1
+	sll     a1, 2
+	addu    v0, a1, a0
+	sh      a3, 0(v0)
+	sh      t1, 2(v0)
+	jr      ra
+	sh      v1, ItemNewRoomNo-GP_ADDR(gp)
+
+	loc_7C648:
+	lw      t0, items-GP_ADDR(gp)
+	sll     v0, a3, 3
+	addu    v0, a3
+	sll     v0, 4
+	addu    a1, t0, v0
+	lh      v1, 0x18(a1)
+	li      a0, 0xFF
+	beq     v1, a0, loc_7C6C4
+	lw      t3, room-GP_ADDR(gp)
+	sll     v0, v1, 2
+	addu    v0, v1
+	sll     v0, 4
+	addu    a0, t3, v0
+	lh      a2, 0x48(a0)
+	lhu     t2, 0x1A(a1)
+	bne     a2, a3, loc_7C698
+	nop
+	j       loc_7C6C4
+	sh      t2, 0x48(a0)
+
+	loc_7C694:
+	lh      a2, 0x1A(v1)
+
+	loc_7C698:
+	li      v1, 0xFFFFFFFF
+	beq     a2, v1, loc_7C6C4
+	sll     v0, a2, 3
+	addu    v1, v0, a2
+	sll     v1, 4
+	addu    v1, t0
+	lh      a0, 0x1A(v1)
+	nop
+	bne     a0, a3, loc_7C694
+	nop
+	sh      t2, 0x1A(v1)
+
+	loc_7C6C4:
+	sll     a2, t1, 2
+	addu    v0, a2, t1
+	sll     v0, 4
+	addu    a0, t3, v0
+	lhu     v1, 0x48(a0)
+	sh      t1, 0x18(a1)
+	sh      v1, 0x1A(a1)
+	jr      ra
+	sh      a3, 0x48(a0)
