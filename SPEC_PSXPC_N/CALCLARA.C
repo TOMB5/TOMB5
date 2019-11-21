@@ -12,6 +12,13 @@ void S_SetupClutAdder(long underwater)
 	DQB = underwater;
 }
 
+void mRotYXZ(long y, long x, long z)
+{
+	mRotY(y);
+	mRotX(x);
+	mRotZ(z);
+}
+
 void mTranslateAbsXYZ(long x, long y, long z)
 {
 	TRX = 0;
@@ -35,41 +42,32 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	snaff_current_gte_matrix_V1(&t8[38]);
 	struct MATRIX3D* a0 = NULL;
 
-	//a3 = flag & 0x2
 	if ((flag & 0x1))
 	{
-		a0 = lara_joint_matrices;
 		TRX = 0;
 		TRY = 0;
 		TRZ = 0;
-		t8[13] = (int)a0;
+		t8[13] = (int)lara_joint_matrices;
 	}
 	else
 	{
 		//loc_83C40
-		a0 = lara_matrices;
-		t8[13] = (int)a0;
-		mTranslateAbsXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z);
+		t8[13] = (int)lara_matrices;
+		mTranslateAbsXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+		if ((flag & 0x2))
+		{
+			ScaleCurrentMatrix(0, -4096, -4096, -4096);
+		}
 	}
 	//loc_83C74
+	mRotYXZ();
 #if 0
-	lw      a0, 0x40(s0)
-	lw      a1, 0x44(s0)
-	jal     mTranslateAbsXYZ
-	lw      a2, 0x48(s0)
-
-	beqz    a3, loc_83C74
-	li      a0, 0
-	li      a1, 0xFFFFF000
-	li      a2, 0xFFFFF000
-	jal     ScaleCurrentMatrix
-	li      a3, 0xFFFFF000
-
 	loc_83C74:
 	lh      a0, 0x4E(s0)
 	lh      a1, 0x4C(s0)
 	jal     mRotYXZ
 	lh      a2, 0x50(s0)
+
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, t8, 0x38
 	lh      a0, 0xC(t9)
