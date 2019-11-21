@@ -2,14 +2,23 @@
 
 #include "SPECIFIC.H"
 #include "DRAW.H"
-#include "MATHS.H"
 #include "LARA.H"
 #include "GTEREG.H"
 #include "DELSTUFF.H"
+#include "LOAD_LEV.H"
 
 void S_SetupClutAdder(long underwater)
 {
 	DQB = underwater;
+}
+
+void mTranslateAbsXYZ(long x, long y, long z)
+{
+	TRX = 0;
+	TRY = 0;
+	TRZ = 0;
+
+	mTranslateXYZ(x - ((int*)& MatrixStack[0])[5], y - ((int*)& MatrixStack[0])[6], z - ((int*)& MatrixStack[0])[7]);
 }
 
 void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
@@ -24,26 +33,31 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	GLaraShadowframe = t9;
 	t8[9] = (int)frame;
 	snaff_current_gte_matrix_V1(&t8[38]);
-#if 0
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, t8, 0x98
-	andi    a3, a2, 1
-	beqz    a3, loc_83C40
-	andi    a3, a2, 2
-	la      a0, lara_joint_matrices
-	ctc2    zero, r5
-	ctc2    zero, r6
-	ctc2    zero, r7
-	j       loc_83C74
-	sw      a0, 0x34(t8)
+	struct MATRIX3D* a0 = NULL;
 
-	loc_83C40:
-	la      a0, lara_matrices
-	sw      a0, 0x34(t8)
+	//a3 = flag & 0x2
+	if ((flag & 0x1))
+	{
+		a0 = lara_joint_matrices;
+		TRX = 0;
+		TRY = 0;
+		TRZ = 0;
+		t8[13] = (int)a0;
+	}
+	else
+	{
+		//loc_83C40
+		a0 = lara_matrices;
+		t8[13] = (int)a0;
+		mTranslateAbsXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z);
+	}
+	//loc_83C74
+#if 0
 	lw      a0, 0x40(s0)
 	lw      a1, 0x44(s0)
 	jal     mTranslateAbsXYZ
 	lw      a2, 0x48(s0)
+
 	beqz    a3, loc_83C74
 	li      a0, 0
 	li      a1, 0xFFFFF000
@@ -1026,7 +1040,7 @@ short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 {
 	int rate;
 	short* frmptr[2];
-	int frac = GetFrames(item, frmptr, &rate);
+	int frac = GetFrames(item, frmptr, &rate);//TODO local GETFRAMES!
 
 	if (frac == 0)
 		return frmptr[0];
