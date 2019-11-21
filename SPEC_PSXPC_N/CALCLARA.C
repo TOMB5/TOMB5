@@ -13,7 +13,16 @@ void S_SetupClutAdder(long underwater)
 	DQB = underwater;
 }
 
-void Hardcore_mTranslateXYZ(int* a2)
+void mLoadMatrix(int* mat)
+{
+	TRX = mat[5];
+	TRY = mat[6];
+	TRZ = mat[7];
+
+	SetRotation(mat[0], mat[1], mat[2], mat[3], mat[4]);
+}
+
+void Hardcore_mTranslateXYZ(long* a2)
 {
 	mTranslateXYZ(a2[0], a2[1], a2[2]);
 }
@@ -419,19 +428,23 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 
 	//s0 = t8[13];
 	snaff_current_gte_matrix_V1(&t8[22]);
-	//a3 = 6
+	int a3 = 6;
 
 	//loc_83CB4
+	//a2 = s1+4
+	Hardcore_mTranslateXYZ(&bone[1]);
+	mRotSuperPackedYXZ(&t8[22], 0);
+	snaff_current_gte_matrix_V1(&t8[21]);
+	a3--;
+
+	bone += 4;
+	if (a3 == 3)
+	{
+		mLoadMatrix(&t8[22]);
+	}//loc_83CE4
+
 
 #if 0
-	loc_83CB4:
-	jal     Hardcore_mTranslateXYZ
-	addiu   a2, s1, 4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x20
-	addiu   a3, -1
 	li      at, 3
 	bne     a3, at, loc_83CE4
 	addiu   s1, 0x10
