@@ -13,6 +13,19 @@ void S_SetupClutAdder(long underwater)
 	DQB = underwater;
 }
 
+void SetRotation(int t0, int t1, int t2, int t3, int t4)
+{
+	R11 = t0 & 0xFFFF;
+	R12 = (t0 >> 16) & 0xFFFF;
+	R13 = t1 & 0xFFFF;
+	R21 = (t1 >> 16) & 0xFFFF;
+	R22 = t2 & 0xFFFF;
+	R23 = (t2 >> 16) & 0xFFFF;
+	R31 = t3 & 0xFFFF;
+	R32 = (t3 >> 16) & 0xFFFF;
+	R33 = t4 & 0xFFFF;
+}
+
 void mRotY(long y)
 {
 	y >>= 2;
@@ -69,7 +82,7 @@ void mRotY(long y)
 	t6 <<= 16;
 	t2 |= t6;
 
-	SetRotation();
+	SetRotation(t0, t1, t2, t3, t4);
 }
 
 void mRotYXZ(long y, long x, long z)
