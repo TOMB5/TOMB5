@@ -210,6 +210,109 @@ void mRotYXZ(long y, long x, long z)
 	mRotZ(z);
 }
 
+void mTranslateXYZ(long x, long y, long z)
+{
+	int t4 = y >> 15;
+	if (y < 0)
+	{
+		y = -y;
+		t4 = y >> 15;
+		y &= 0x7FFF;
+		t4 = -t4;
+		y = -y;
+	}
+	else
+	{
+		y &= 0x7FFF;
+	}
+
+	//loc_84B5C
+	int t5 = z >> 15;
+	if (z < 0)
+	{
+		z = -z;
+		t5 = z >> 15;
+		z &= 0x7FFF;
+		t5 = -t5;
+		z = -z;
+	}
+	else
+	{
+		//loc_84B80
+		z &= 0x7FFF;
+	}
+
+	int t3 = x >> 15;
+	if (x < 0)
+	{
+		x = -x;
+		t3 = x >> 15;
+		x &= 0x7FFF;
+		t3 = -t3;
+		x = -x;
+	}
+	else
+	{
+		//loc_84BA4
+		x &= 0x7FFF;
+	}
+
+	IR1 = t3;
+	IR2 = t4;
+	IR3 = t5;
+
+	docop2(0x41E012);
+
+	t3 = MAC1;
+	t4 = MAC2;
+	t5 = MAC3;
+
+	IR1 = x;
+	IR2 = y;
+	IR3 = z;
+
+	docop2(0x498012);
+
+	int t0 = t3 << 3;
+	if (t3 < 0)
+	{
+		t3 = -t3;
+		t3 <<= 3;
+		t0 = -t3;
+	}
+
+	//loc_84BEC
+	int t1 = t4 << 3;
+	if (t4 < 0)
+	{
+		t4 = -t4;
+		t4 <<= 3;
+		t1 = -t4;
+	}
+
+	//loc_84C00
+	int t2 = t5 << 3;
+	if (t5 < 0)
+	{
+		t5 = -t5;
+		t5 <<= 3;
+		t2 = -t5;
+	}
+
+	//loc_84C14
+	t3 = MAC1;
+	t4 = MAC2;
+	t5 = MAC3;
+
+	t0 += t3;
+	t1 += t4;
+	t2 += t5;
+
+	TRX = t0;
+	TRY = t1;
+	TRZ = t2;
+}
+
 void mTranslateAbsXYZ(long x, long y, long z)
 {
 	TRX = 0;
