@@ -13,6 +13,59 @@ void S_SetupClutAdder(long underwater)
 	DQB = underwater;
 }
 
+void mRotSuperPackedYXZ(int* t8, int a1)
+{
+	unsigned short* a2 = (unsigned short*)t8[6];
+	unsigned short v0;
+
+	if (a1 != 0)
+	{
+		//loc_84C48
+		do
+		{
+			v0 = a2[0];
+			a1--;
+			a2++;
+			if (!(v0 & 0xC000))
+			{
+				a2++;
+			}
+			//loc_84C60
+		} while (a1 != 0);
+	}
+	//loc_84C6C
+	a2++;
+	int at = v0 >> 14;
+
+	if (at-- != 0)
+	{
+		t8[9] = (int)a2;
+
+		if (at-- != 0)
+		{
+			if (at != 0)
+			{
+				mRotZ((v0 & 0xFFF) << 4);
+			}
+			//loc_84C98
+			mRotY((v0 & 0xFFF) << 4);
+		}
+		//loc_84CA0
+		mRotX((v0 & 0xFFF) << 4);
+
+	}//loc_84CAC
+
+	at = a2[0];
+	a2++;
+	t8[9] = (int)a2;
+	v0 <<= 16;
+	v0 |= at;
+
+	mRotY((v0 >> 4) & 0xFFC0);
+	mRotX((v0 >> 14) & 0xFFC0);
+	mRotZ((v0 & 0x3FF) << 6);
+}
+
 void SetRotation(int t0, int t1, int t2, int t3, int t4)
 {
 	R11 = t0 & 0xFFFF;
@@ -354,20 +407,17 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 		}
 	}
 	//loc_83C74
-	mRotYXZ();
-#if 0
-	loc_83C74:
-	lh      a0, 0x4E(s0)
-	lh      a1, 0x4C(s0)
-	jal     mRotYXZ
-	lh      a2, 0x50(s0)
+	mRotYXZ(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
+	snaff_current_gte_matrix_V1(&t8[14]);
 
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, t8, 0x38
-	lh      a0, 0xC(t9)
-	lh      a1, 0xE(t9)
-	jal     mTranslateXYZ
-	lh      a2, 0x10(t9)
+	int a0 = frame[6];
+	int a1 = frame[7];
+	int a2 = frame[8];
+	mTranslateXYZ(frame[6], frame[7], frame[8]);
+
+	mRotSuperPackedYXZ(t8, 0);
+
+#if 0
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	lw      s0, 0x34(t8)
