@@ -31,58 +31,116 @@ void mRotY(long y)
 	y >>= 2;
 	y &= 0x3FFC;
 	
-	if (y == 0)
+	if (y != 0)
 	{
-		return;
+
+		//loc_84DA4
+		int t5 = ((int*)&rcossin_tbl[y >> 2])[0];
+		int t7 = 0xFFFF0000;
+		int t6 = t5 >> 16;
+		t5 &= 0xFFFF;
+		int t2 = -t5;
+
+		VX0 = t6 & 0xFFFF;
+		VX1 = (t6 >> 16) & 0xFFFF;
+		VZ0 = t2;
+
+		int t0 = R11 | (R12 << 16);
+		int t2 = R22 | (R23 << 16);
+		int t3 = R31 | (R32 << 16);
+
+		docop2(0x486012);
+
+		VX1 = t5 & 0xFFFF;
+		VY1 = (t5 >> 16) & 0xFFFF;
+		VZ1 = t6 & 0xFFFF;
+
+		t0 &= t7;
+		t2 &= 0xFFFF;
+		t3 &= t7;
+
+		int t4 = MAC1;
+		int t1 = MAC2;
+		t5 = MAC3;
+
+		docop2(0x48E012);
+
+		t4 &= 0xFFFF;
+		t0 |= t4;
+		t1 <= 16;
+		t5 &= 0xFFFF;
+		t3 |= t5;
+
+		t5 = MAC1;
+		t6 = MAC2;
+		t4 = MAC3;
+
+		t5 &= 0xFFFF;
+		t1 |= t5;
+		t6 <<= 16;
+		t2 |= t6;
+
+		SetRotation(t0, t1, t2, t3, t4);
 	}
+}
 
-	//loc_84DA4
-	int t5 = ((int*)&rcossin_tbl[y >> 2])[0];
-	int t7 = 0xFFFF0000;
-	int t6 = t5 >> 16;
-	t5 &= 0xFFFF;
-	int t2 = -t5;
+void mRotX(long x)
+{
+	x >>= 2;
+	x &= 0x3FFC;
 
-	VX0 = t6 & 0xFFFF;
-	VX1 = (t6 >> 16) & 0xFFFF;
-	VZ0 = t2;
+	if (x != 0)
+	{
+		//loc_84D04
+		int t5 = ((int*)&rcossin_tbl[x >> 2])[0];
+		int t7 = 0xFFFF0000;
+		int t6 = t7 & t5;
 
-	int t0 = R11 | (R12 << 16);
-	int t2 = R22 | (R23 << 16);
-	int t3 = R31 | (R32 << 16);
+		VX0 = t6 & 0xFFFF;
+		VY0 = (t6 >> 16) & 0xFFFF;
+		VZ0 = (t5 & 0xFFFF);
 
-	docop2(0x486012);
+		int t0 = R11 | (R12 << 16);
+		int t1 = R13 | (R21 << 16);
+		int t3 = R31 | (R32 << 16);
 
-	VX1 = t5 & 0xFFFF;
-	VY1 = (t5 >> 16) & 0xFFFF;
-	VZ1 = t6 & 0xFFFF;
+		docop2(0x486012);
 
-	t0 &= t7;
-	t2 &= 0xFFFF;
-	t3 &= t7;
+		t6 = t5 >> 16;
+		t5 <<= 16;
+		t5 = -t5;
 
-	int t4 = MAC1;
-	int t1 = MAC2;
-	t5 = MAC3;
+		VX1 = (t5 & 0xFFFF);
+		VY1 = (t5 >> 16) & 0xFFFF;
+		VZ1 = (t6 & 0xFFFF);
 
-	docop2(0x48E012);
+		t0 &= 0xFFFF;
+		t1 &= t7;
+		t3 &= 0xFFFF;
 
-	t4 &= 0xFFFF;
-	t0 |= t4;
-	t1 <= 16;
-	t5 &= 0xFFFF;
-	t3 |= t5;
+		int t4 = MAC1;
+		int t2 = MAC2;
+		int t5 = MAC3;
 
-	t5 = MAC1;
-	t6 = MAC2;
-	t4 = MAC3;
+		docop2(0x48E012);
 
-	t5 &= 0xFFFF;
-	t1 |= t5;
-	t6 <<= 16;
-	t2 |= t6;
+		t4 <<= 16;
+		t0 |= t4;
+		t2 &= 0xFFFF;
+		t5 <<= 16;
+		t3 |= t5;
 
-	SetRotation(t0, t1, t2, t3, t4);
+		t5 = MAC1;
+		t6 = MAC2;
+		t4 = MAC3;
+
+		t5 &= 0xFFFF;
+		t1 |= t5;
+		t6 <<= 16;
+		t2 |= t6;
+
+		SetRotation(t0, t1, t2, t3, t4);
+	}
 }
 
 void mRotYXZ(long y, long x, long z)
