@@ -13,74 +13,7 @@ void S_SetupClutAdder(long underwater)
 	DQB = underwater;
 }
 
-void mLoadMatrix(int* mat)
-{
-	TRX = mat[5];
-	TRY = mat[6];
-	TRZ = mat[7];
-
-	SetRotation(mat[0], mat[1], mat[2], mat[3], mat[4]);
-}
-
-void Hardcore_mTranslateXYZ(long* a2)
-{
-	mTranslateXYZ(a2[0], a2[1], a2[2]);
-}
-
-void mRotSuperPackedYXZ(int* t8, int a1)
-{
-	unsigned short* a2 = (unsigned short*)t8[6];
-	unsigned short v0;
-
-	if (a1 != 0)
-	{
-		//loc_84C48
-		do
-		{
-			v0 = a2[0];
-			a1--;
-			a2++;
-			if (!(v0 & 0xC000))
-			{
-				a2++;
-			}
-			//loc_84C60
-		} while (a1 != 0);
-	}
-	//loc_84C6C
-	a2++;
-	int at = v0 >> 14;
-
-	if (at-- != 0)
-	{
-		t8[9] = (int)a2;
-
-		if (at-- != 0)
-		{
-			if (at != 0)
-			{
-				mRotZ((v0 & 0xFFF) << 4);
-			}
-			//loc_84C98
-			mRotY((v0 & 0xFFF) << 4);
-		}
-		//loc_84CA0
-		mRotX((v0 & 0xFFF) << 4);
-
-	}//loc_84CAC
-
-	at = a2[0];
-	a2++;
-	t8[9] = (int)a2;
-	v0 <<= 16;
-	v0 |= at;
-
-	mRotY((v0 >> 4) & 0xFFC0);
-	mRotX((v0 >> 14) & 0xFFC0);
-	mRotZ((v0 & 0x3FF) << 6);
-}
-
-void SetRotation(int t0, int t1, int t2, int t3, int t4)
+void SetRotation_CL(int t0, int t1, int t2, int t3, int t4)
 {
 	R11 = t0 & 0xFFFF;
 	R12 = (t0 >> 16) & 0xFFFF;
@@ -93,7 +26,16 @@ void SetRotation(int t0, int t1, int t2, int t3, int t4)
 	R33 = t4 & 0xFFFF;
 }
 
-void mRotY(long y)
+void mLoadMatrix(int* mat)
+{
+	TRX = mat[5];
+	TRY = mat[6];
+	TRZ = mat[7];
+
+	SetRotation_CL(mat[0], mat[1], mat[2], mat[3], mat[4]);
+}
+
+void mRotY_CL(long y)
 {
 	y >>= 2;
 	y &= 0x3FFC;
@@ -113,7 +55,7 @@ void mRotY(long y)
 		VZ0 = t2;
 
 		int t0 = R11 | (R12 << 16);
-		int t2 = R22 | (R23 << 16);
+		t2 = R22 | (R23 << 16);
 		int t3 = R31 | (R32 << 16);
 
 		docop2(0x486012);
@@ -147,11 +89,11 @@ void mRotY(long y)
 		t6 <<= 16;
 		t2 |= t6;
 
-		SetRotation(t0, t1, t2, t3, t4);
+		SetRotation_CL(t0, t1, t2, t3, t4);
 	}
 }
 
-void mRotX(long x)
+void mRotX_CL(long x)
 {
 	x >>= 2;
 	x &= 0x3FFC;
@@ -187,7 +129,7 @@ void mRotX(long x)
 
 		int t4 = MAC1;
 		int t2 = MAC2;
-		int t5 = MAC3;
+		t5 = MAC3;
 
 		docop2(0x48E012);
 
@@ -206,11 +148,11 @@ void mRotX(long x)
 		t6 <<= 16;
 		t2 |= t6;
 
-		SetRotation(t0, t1, t2, t3, t4);
+		SetRotation_CL(t0, t1, t2, t3, t4);
 	}
 }
 
-void mRotZ(long z)
+void mRotZ_CL(long z)
 {
 	z >>= 2;
 	z &= 0x3FFC;
@@ -266,18 +208,71 @@ void mRotZ(long z)
 		a0 <<= 16;
 		t3 |= a0;
 
-		SetRotation(t0, t1, t2, t3, t4);
+		SetRotation_CL(t0, t1, t2, t3, t4);
 	}//loc_84E5C
 }
 
 void mRotYXZ(long y, long x, long z)
 {
-	mRotY(y);
-	mRotX(x);
-	mRotZ(z);
+	mRotY_CL(y);
+	mRotX_CL(x);
+	mRotZ_CL(z);
 }
 
-void mTranslateXYZ(long x, long y, long z)
+void mRotSuperPackedYXZ(int* t8, int a1)
+{
+	unsigned short* a2 = (unsigned short*)t8[6];
+	unsigned short v0;
+
+	if (a1 != 0)
+	{
+		//loc_84C48
+		do
+		{
+			v0 = a2[0];
+			a1--;
+			a2++;
+			if (!(v0 & 0xC000))
+			{
+				a2++;
+			}
+			//loc_84C60
+		} while (a1 != 0);
+	}
+	//loc_84C6C
+	a2++;
+	int at = v0 >> 14;
+
+	if (at-- != 0)
+	{
+		t8[9] = (int)a2;
+
+		if (at-- != 0)
+		{
+			if (at != 0)
+			{
+				mRotZ_CL((v0 & 0xFFF) << 4);
+			}
+			//loc_84C98
+			mRotY_CL((v0 & 0xFFF) << 4);
+		}
+		//loc_84CA0
+		mRotX_CL((v0 & 0xFFF) << 4);
+
+	}//loc_84CAC
+
+	at = a2[0];
+	a2++;
+	t8[9] = (int)a2;
+	v0 <<= 16;
+	v0 |= at;
+
+	mRotY_CL((v0 >> 4) & 0xFFC0);
+	mRotX_CL((v0 >> 14) & 0xFFC0);
+	mRotZ_CL((v0 & 0x3FF) << 6);
+}
+
+void mTranslateXYZ_CL(long x, long y, long z)
 {
 	int t4 = y >> 15;
 	if (y < 0)
@@ -380,13 +375,18 @@ void mTranslateXYZ(long x, long y, long z)
 	TRZ = t2;
 }
 
-void mTranslateAbsXYZ(long x, long y, long z)
+void mTranslateAbsXYZ_CL(long x, long y, long z)
 {
 	TRX = 0;
 	TRY = 0;
 	TRZ = 0;
 
-	mTranslateXYZ(x - ((int*)& MatrixStack[0])[5], y - ((int*)& MatrixStack[0])[6], z - ((int*)& MatrixStack[0])[7]);
+	mTranslateXYZ_CL(x - ((int*)& MatrixStack[0])[5], y - ((int*)& MatrixStack[0])[6], z - ((int*)& MatrixStack[0])[7]);
+}
+
+void Hardcore_mTranslateXYZ_CL(long* a2)
+{
+	mTranslateXYZ_CL(a2[0], a2[1], a2[2]);
 }
 
 void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
@@ -414,7 +414,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	{
 		//loc_83C40
 		t8[13] = (int)lara_matrices;
-		mTranslateAbsXYZ(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+		mTranslateAbsXYZ_CL(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
 		if ((flag & 0x2))
 		{
 			ScaleCurrentMatrix(0, -4096, -4096, -4096);
@@ -423,44 +423,39 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	//loc_83C74
 	mRotYXZ(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
 	snaff_current_gte_matrix_V1(&t8[14]);
-	mTranslateXYZ(frame[6], frame[7], frame[8]);
+	mTranslateXYZ_CL(frame[6], frame[7], frame[8]);
 	mRotSuperPackedYXZ(t8, 0);
 
-	//s0 = t8[13];
+	int* s0 = &t8[13];
 	snaff_current_gte_matrix_V1(&t8[22]);
 	int a3 = 6;
 
 	//loc_83CB4
-	//a2 = s1+4
-	Hardcore_mTranslateXYZ(&bone[1]);
-	mRotSuperPackedYXZ(&t8[22], 0);
-	snaff_current_gte_matrix_V1(&t8[21]);
-	a3--;
-
-	bone += 4;
-	if (a3 == 3)
+	do
 	{
-		mLoadMatrix(&t8[22]);
-	}//loc_83CE4
+		Hardcore_mTranslateXYZ_CL(&bone[1]);
+		mRotSuperPackedYXZ(&t8[22], 0);
+		snaff_current_gte_matrix_V1(&s0[8]);
+		a3--;
 
+		bone += 4;
+		if (a3 == 3)
+		{
+			mLoadMatrix(&t8[22]);
+		}//loc_83CE4
+		
+		s0 += 8;
 
+	} while (a3 != 0);
+
+	mLoadMatrix(&t8[22]);
+	bone -= 24;
+	s0 -= 48;
+	//struct ANIM_STRUCT* t9 = &anims[0];
 #if 0
-	li      at, 3
-	bne     a3, at, loc_83CE4
-	addiu   s1, 0x10
-	jal     mLoadMatrix
-	addiu   a0, t8, 0x58
-
-	loc_83CE4:
-	bnez    a3, loc_83CB4
-	addiu   s0, 0x20
-	jal     mLoadMatrix
-	addiu   a0, t8, 0x58
-	addiu   s1, -0x60
-	addiu   s0, -0xC0
-	lw      t9, anims-GP_ADDR(gp)
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x64
+
 	lh      a0, lara+0x2A-GP_ADDR(gp)
 	li      at, 0xFFFFFFFF
 	beq     a0, at, loc_83DA8
@@ -513,7 +508,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	lh      a2, lara+0xB2-GP_ADDR(gp)
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xD4
 	lw      a3, 0x24(t8)
 	jal     mRotSuperPackedYXZ
@@ -527,7 +522,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	addiu   a0, s0, 0x100
 	jal     mLoadMatrix
 	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x74
 	lhu     a0, lara+0x2-GP_ADDR(gp)
 	move    v1, zero
@@ -558,13 +553,13 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x84
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x94
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
@@ -572,7 +567,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	addiu   a0, s0, 0x160
 	jal     mLoadMatrix
 	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xA4
 	lw      v0, lara+0x44-GP_ADDR(gp)
 	nop
@@ -608,13 +603,13 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	nop
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x180
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xB4
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x1A0
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xC4
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
@@ -651,13 +646,13 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	sw      v0, 0x24(t8)
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x84
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x94
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
@@ -665,7 +660,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	addiu   a0, s0, 0x160
 	jal     mLoadMatrix
 	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xA4
 	jal     setup_rotation_matrix
 	addiu   a0, t8, 0x38
@@ -695,13 +690,13 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	sw      v0, 0x24(t8)
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x180
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xB4
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x1A0
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xC4
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
@@ -738,13 +733,13 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	sw      v0, 0x24(t8)
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x84
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x94
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
@@ -752,7 +747,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	addiu   a0, s0, 0x160
 	jal     mLoadMatrix
 	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xA4
 	jal     setup_rotation_matrix
 	addiu   a0, t8, 0x38
@@ -782,13 +777,13 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	sw      v0, 0x24(t8)
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x180
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xB4
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x1A0
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xC4
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
@@ -817,13 +812,13 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	sw      v0, 0x24(t8)
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x84
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x94
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
@@ -831,19 +826,19 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	addiu   a0, s0, 0x160
 	jal     mLoadMatrix
 	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xA4
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x180
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xB4
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x1A0
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xC4
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
@@ -905,7 +900,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	sw      a0, 0x34(t8)
 	lw      a0, 0x40(t9)
 	lw      a1, 0x44(t9)
-	jal     mTranslateAbsXYZ
+	jal     mTranslateAbsXYZ_CL
 	lw      a2, 0x48(t9)
 	beqz    a3, loc_843FC
 	li      a0, 0
@@ -931,7 +926,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	ctc2    t7, r15
 	lh      a0, 0xC(s0)
 	lh      a1, 0xE(s0)
-	jal     mTranslateXYZ
+	jal     mTranslateXYZ_CL
 	lh      a2, 0x10(s0)
 	lh      a3, 0xC(s1)
 	lh      a1, 0xE(s1)
@@ -1192,13 +1187,13 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	sw      v0, 0x24(t8)
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x84
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x94
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
@@ -1249,13 +1244,13 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	sw      v0, 0x24(t8)
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x84
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0x94
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
@@ -1297,13 +1292,13 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	sw      v0, 0x24(t8)
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x180
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xB4
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
 	jal     snaff_current_gte_matrix_V1
 	addiu   a0, s0, 0x1A0
-	jal     Hardcore_mTranslateXYZ
+	jal     Hardcore_mTranslateXYZ_CL
 	addiu   a2, s1, 0xC4
 	jal     mRotSuperPackedYXZ
 	move    a1, zero
@@ -1392,6 +1387,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 
 short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 {
+#if 0///@FIXME see getframes comment
 	int rate;
 	short* frmptr[2];
 	int frac = GetFrames(item, frmptr, &rate);//TODO local GETFRAMES!
@@ -1405,7 +1401,7 @@ short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 	{
 		*bptr = *frmptr[0] + (*frmptr[1] - *frmptr[0]) * frac / rate;
 	}
-
+#endif
 	return interpolated_bounds;
 }
 
