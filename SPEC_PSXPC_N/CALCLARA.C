@@ -143,6 +143,66 @@ void mRotX(long x)
 	}
 }
 
+void mRotZ(long z)
+{
+	z >>= 2;
+	z &= 0x3FFC;
+
+	if (z != 0)
+	{
+		int t0 = ((int*)&rcossin_tbl[z >> 2])[0];
+		int t7 = 0xFFFF0000;
+		int t1 = t0 >> 16;
+		int t2 = t0 << 16;
+		t1 |= t2;
+		VX0 = t1 & 0xFFFF;
+		VY0 = (t1 >> 16) & 0xFFFF;
+		VZ0 = 0;
+
+		t1 = R13 | (R21 << 16);
+		t2 = R22 | (R23 << 16);
+		int t4 = R33;
+
+		docop2(0x486012);
+		int t3 = t0 & t7;
+		t0 &= 0xFFFF;
+		t0 = -t0;
+		t0 &= 0xFFFF;
+		t0 |= t3;
+
+		VX1 = t0 & 0xFFFF;
+		VY1 = (t0 >> 16) & 0xFFFF;
+		VZ1 = 0;
+
+		t1 &= 0xFFFF;
+
+		t0 = MAC1;
+		int t5 = MAC2;
+		t3 = MAC3;
+
+		docop2(0x48E012);
+
+		t2 &= t7;
+		t0 &= 0xFFFF;
+		t5 <<= 16;
+		t1 |= t5;
+		t3 &= 0xFFFF;
+
+		t5 = MAC1;
+		int t6 = MAC2;
+		int a0 = MAC3;
+
+		t5 <<= 16;
+		t0 |= t5;
+		t6 &= 0xFFFF;
+		t2 |= t6;
+		a0 <<= 16;
+		t3 |= a0;
+
+		SetRotation(t0, t1, t2, t3, t4);
+	}//loc_84E5C
+}
+
 void mRotYXZ(long y, long x, long z)
 {
 	mRotY(y);
