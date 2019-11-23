@@ -1152,7 +1152,7 @@ u_short LoadTPage(u_long* pix, int tp, int abr, int x, int y, int w, int h)
 	imageArea.w = w;
 	imageArea.h = h;
 	LoadImagePSX(&imageArea, pix);
-	return 0;
+	return getTPage(tp, abr, x, y);
 }
 
 u_short GetTPage(int tp, int abr, int x, int y)
