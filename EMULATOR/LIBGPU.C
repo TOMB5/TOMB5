@@ -135,7 +135,6 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 int MargePrim(void* p0, void* p1)
 {
-	UNIMPLEMENTED();
 	return 0;
 }
 
@@ -1117,7 +1116,7 @@ void SetDumpFnt(int id)
 
 void SetLineF3(LINE_F3* p)
 {
-	UNIMPLEMENTED();
+	setLineF3(p);
 }
 
 void FntLoad(int tx, int ty)
