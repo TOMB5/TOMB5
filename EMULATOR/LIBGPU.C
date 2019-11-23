@@ -133,6 +133,12 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	return 0;
 }
 
+int MargePrim(void* p0, void* p1)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
 int MoveImage(RECT16* rect, int x, int y)
 {
 	//Emulator_CheckTextureIntersection(rect); Not yet need to construct actual rect
@@ -266,6 +272,12 @@ void SetDispMask(int mask)
 	UNIMPLEMENTED();
 }
 
+int FntPrint(char* text, ...)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
 DISPENV* GetDispEnv(DISPENV* env)//(F)
 {
 	memcpy(env, &word_33BC, sizeof(DISPENV));
@@ -293,6 +305,12 @@ DISPENV* SetDefDispEnv(DISPENV* env, int x, int y, int w, int h)//(F)
 	env->pad0 = 0;
 	env->disp.h = h;
 	return 0;
+}
+
+DRAWENV* GetDrawEnv(DRAWENV* env)
+{
+	UNIMPLEMENTED();
+	return NULL;
 }
 
 DRAWENV* PutDrawEnv(DRAWENV* env)//Guessed
@@ -339,6 +357,11 @@ void SetDrawEnv(DR_ENV* dr_env, DRAWENV* env)
 
 }
 
+void SetDrawMode(DR_MODE* p, int dfe, int dtd, int tpage, RECT16* tw)
+{
+	UNIMPLEMENTED();
+}
+
 u_long DrawSyncCallback(void(*func)(void))
 {
 	drawsync_callback = func;
@@ -350,9 +373,9 @@ GLuint vbo;
 GLuint vao;
 #endif
 
-static unsigned short lastTpage = -1;
-static unsigned short lastClut = -1;
-static unsigned short lastBlendMode = -1;
+static unsigned short lastTpage = 0xFFFF;
+static unsigned short lastClut = 0xFFFF;
+static unsigned short lastBlendMode = 0xFFFF;
 static unsigned short numVertices = 0;
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
@@ -468,10 +491,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				Emulator_BindTexture(g_splitIndices[i].textureId);
 			}
 
-			if (g_splitIndices[i].blendMode)
-			{
-				Emulator_SetBlendMode(g_splitIndices[i].blendMode);
-			}
+			Emulator_SetBlendMode(g_splitIndices[i].blendMode);
 			
 			if (g_wireframeMode)
 			{
@@ -538,7 +558,8 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		{
 		case 0x0:
 		{
-			currentAddress += 4;
+			assert(0);
+			currentAddress += 4;///@FIXME should be 1?
 			break;
 		}
 		case 0x20: // POLY_F3
@@ -624,7 +645,7 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			numVertices += 6;
 			break;
 		}
-		case 0x2C: // POLY_FT4
+		case 0x2C: // POLY_FT4 - FIXME TRC PISTOLS
 		{
 
 			POLY_FT4* poly = (POLY_FT4*)pTag;
@@ -725,17 +746,36 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		{
 			POLY_G4* poly = (POLY_G4*)pTag;
 
-			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
-			//char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, &poly->r1, &poly->r3, &poly->r2, true);
-#if defined(OGL)
-			//glEnableClientState(GL_COLOR_ARRAY);
-			//glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
-			//glColorPointer(4, GL_FLOAT, sizeof(Vertex), colourPointer);
-			//glDrawArrays(GL_QUADS, 0, 4);
-			//glDisableClientState(GL_COLOR_ARRAY);
+			if (lastBlendMode == 0xFFFF)
+			{
+				lastBlendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
+				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (blend_mode != lastBlendMode)
+			{
+				lastBlendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
+				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
 
-#endif
+			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, -1, -1);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2, TRUE);
+
+			//Make tri
+			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
+			g_vertexBuffer[g_vertexIndex + 3] = g_vertexBuffer[g_vertexIndex];
+			g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex + 2];
+
 			currentAddress += sizeof(POLY_G4);
+			g_vertexIndex += 6;
+			numVertices += 6;
+
 			break;
 		}
 		case 0x3C: // POLY_GT4
@@ -842,16 +882,18 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		{
 			SPRT* poly = (SPRT*)pTag;
 
-			if (lastClut == 0xFFFF)
+			if (lastClut == 0xFFFF || lastBlendMode == 0xFFFF)
 			{
 				lastClut = poly->clut;
+				lastBlendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
 				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (GlobalTpageTexture != lastTpage || poly->clut != lastClut)
+			else if (GlobalTpageTexture != lastTpage || poly->clut != lastClut || blend_mode != lastBlendMode)
 			{
 				lastClut = poly->clut;
+				lastBlendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
 				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -1019,8 +1061,8 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 			break;
 		}
 		default:
+			//Unhandled poly type
 			eprinterr("Unhandled primitive type: %02X type2:%02X\n", pTag->code, pTag->code & ~3);
-			//Unhandled poly
 			break;
 		}
 
@@ -1031,4 +1073,157 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 	}
 
 	g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+}
+
+void SetSprt16(SPRT_16* p)
+{
+	UNIMPLEMENTED();
+}
+
+void SetSprt8(SPRT_8* p)
+{
+	UNIMPLEMENTED();
+}
+
+void SetTile(TILE* p)
+{
+	UNIMPLEMENTED();
+}
+
+void SetPolyGT4(POLY_GT4* p)
+{
+	UNIMPLEMENTED();
+}
+
+void SetSemiTrans(void* p, int abe)
+{
+	UNIMPLEMENTED();
+}
+
+void SetShadeTex(void* p, int tge)
+{
+	UNIMPLEMENTED();
+}
+
+void SetSprt(SPRT* p)
+{
+	UNIMPLEMENTED();
+}
+
+void SetDumpFnt(int id)
+{
+	UNIMPLEMENTED();
+}
+
+void SetLineF3(LINE_F3* p)
+{
+	UNIMPLEMENTED();
+}
+
+void FntLoad(int tx, int ty)
+{
+	UNIMPLEMENTED();
+}
+
+void AddPrim(void* ot, void* p)
+{
+	UNIMPLEMENTED();
+}
+
+void AddPrims(void* ot, void* p0, void* p1)
+{
+	UNIMPLEMENTED();
+}
+
+void CatPrim(void* p0, void* p1)
+{
+	UNIMPLEMENTED();
+}
+
+void DrawOTag(u_long* p)
+{
+	UNIMPLEMENTED();
+}
+
+u_short LoadTPage(u_long* pix, int tp, int abr, int x, int y, int w, int h)
+{
+	RECT16 imageArea;
+	imageArea.x = x;
+	imageArea.y = y;
+	imageArea.w = w;
+	imageArea.h = h;
+	LoadImagePSX(&imageArea, pix);
+	return 0;
+}
+
+u_short GetTPage(int tp, int abr, int x, int y)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+u_short LoadClut(u_long* clut, int x, int y)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+u_short LoadClut2(u_long* clut, int x, int y)
+{
+	RECT16 drawArea;
+	drawArea.x = x;
+	drawArea.y = y;
+	drawArea.w = 16;
+	drawArea.h = 1;
+	LoadImagePSX(&drawArea, clut);
+	return getClut(x, y);
+}
+
+u_long* KanjiFntFlush(int id)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+u_long* FntFlush(int id)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+int KanjiFntOpen(int x, int y, int w, int h, int dx, int dy, int cx, int cy, int isbg, int n)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+int FntOpen(int x, int y, int w, int h, int isbg, int n)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+void SetPolyF4(POLY_F4* p)
+{
+	UNIMPLEMENTED();
+}
+
+void SetPolyFT4(POLY_FT4* p)
+{
+	UNIMPLEMENTED();
+}
+
+void SetPolyG4(POLY_G4* p)
+{
+	UNIMPLEMENTED();
+}
+
+void DrawPrim(void* p)
+{
+	UNIMPLEMENTED();
+}
+
+void TermPrim(void* p)
+{
+	UNIMPLEMENTED();
 }
