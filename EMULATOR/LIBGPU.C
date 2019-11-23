@@ -1131,7 +1131,7 @@ void AddPrim(void* ot, void* p)
 
 void AddPrims(void* ot, void* p0, void* p1)
 {
-	UNIMPLEMENTED();
+	addPrims(ot, p0, p1);
 }
 
 void CatPrim(void* p0, void* p1)
