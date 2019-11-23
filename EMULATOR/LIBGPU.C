@@ -1136,7 +1136,7 @@ void AddPrims(void* ot, void* p0, void* p1)
 
 void CatPrim(void* p0, void* p1)
 {
-	UNIMPLEMENTED();
+	catPrim(p0, p1);
 }
 
 void DrawOTag(u_long* p)
