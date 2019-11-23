@@ -1087,7 +1087,7 @@ void SetSprt8(SPRT_8* p)
 
 void SetTile(TILE* p)
 {
-	UNIMPLEMENTED();
+	setTile(p);
 }
 
 void SetPolyGT4(POLY_GT4* p)
