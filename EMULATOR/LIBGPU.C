@@ -359,7 +359,7 @@ void SetDrawEnv(DR_ENV* dr_env, DRAWENV* env)
 
 void SetDrawMode(DR_MODE* p, int dfe, int dtd, int tpage, RECT16* tw)
 {
-	UNIMPLEMENTED();
+	setDrawMode(p, dfe, dtd, tpage, tw);
 }
 
 u_long DrawSyncCallback(void(*func)(void))
