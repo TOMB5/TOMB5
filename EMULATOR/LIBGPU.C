@@ -1097,7 +1097,7 @@ void SetPolyGT4(POLY_GT4* p)
 
 void SetSemiTrans(void* p, int abe)
 {
-	UNIMPLEMENTED();
+	setSemiTrans(p, abe);
 }
 
 void SetShadeTex(void* p, int tge)
