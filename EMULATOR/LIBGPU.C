@@ -1157,8 +1157,7 @@ u_short LoadTPage(u_long* pix, int tp, int abr, int x, int y, int w, int h)
 
 u_short GetTPage(int tp, int abr, int x, int y)
 {
-	UNIMPLEMENTED();
-	return 0;
+	return getTPage(tp, abr, x, y);
 }
 
 u_short LoadClut(u_long* clut, int x, int y)
