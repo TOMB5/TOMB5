@@ -1126,7 +1126,7 @@ void FntLoad(int tx, int ty)
 
 void AddPrim(void* ot, void* p)
 {
-	UNIMPLEMENTED();
+	addPrim(ot, p);
 }
 
 void AddPrims(void* ot, void* p0, void* p1)
