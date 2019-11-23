@@ -1081,7 +1081,7 @@ void SetSprt16(SPRT_16* p)
 
 void SetSprt8(SPRT_8* p)
 {
-	UNIMPLEMENTED();
+	setSprt8(p);
 }
 
 void SetTile(TILE* p)
