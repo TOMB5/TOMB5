@@ -1004,25 +1004,38 @@ void ParsePrimitive(unsigned int packetStart, unsigned int packetEnd)
 		case 0x74: // SPRT_8
 		{
 			SPRT_8* poly = (SPRT_8*)pTag;
-#if !defined(OGLES) && 0
-			glBegin(GL_QUADS);
 
-			glColor3ubv(&poly->r0);
+			if (lastClut == 0xFFFF || lastBlendMode == 0xFFFF)
+			{
+				lastClut = poly->clut;
+				lastBlendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
+				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (GlobalTpageTexture != lastTpage || poly->clut != lastClut || blend_mode != lastBlendMode)
+			{
+				lastClut = poly->clut;
+				lastBlendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
+				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
 
-			glTexCoord2f(poly->u0 / 256.0f, poly->v0 / 256.0f);
-			glVertex2f(poly->x0, poly->y0);
+			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 8, 8);
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, NULL, NULL, NULL, 8, 8);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, FALSE);
 
-			glTexCoord2f((poly->u0 + 8) / 256.0f, poly->v0 / 256.0f);
-			glVertex2f(poly->x0 + 8, poly->y0);
+			//Make tri
+			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
+			g_vertexBuffer[g_vertexIndex + 3] = g_vertexBuffer[g_vertexIndex];
+			g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex + 2];
 
-			glTexCoord2f(poly->u0 / 256.0f, (poly->v0 + 8) / 256.0f);
-			glVertex2f(poly->x0 + 8, poly->y0 + 8);
+			g_vertexIndex += 6;
+			numVertices += 6;
 
-			glTexCoord2f((poly->u0 + 8) / 256.0f, (poly->v0 + 8) / 256.0f);
-			glVertex2f(poly->x0, poly->y0 + 8);
-
-			glEnd();
-#endif
 			currentAddress += sizeof(SPRT_8);
 			break;
 		}
