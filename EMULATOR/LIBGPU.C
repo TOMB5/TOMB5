@@ -135,8 +135,20 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 
 int MargePrim(void* p0, void* p1)
 {
-	UNIMPLEMENTED();
-	return 0;
+	int v0 = ((unsigned char*)p0)[3];
+	int v1 = ((unsigned char*)p1)[3];
+
+	v0 += v1;
+	v1 = v0 + 1;
+
+	if (v1 < 0x11)
+	{
+		((char*)p0)[3] = v1;
+		((int*)p1)[0] = 0;
+		return 0;
+	}
+
+	return -1;
 }
 
 int MoveImage(RECT16* rect, int x, int y)
