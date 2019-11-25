@@ -1563,7 +1563,7 @@ void SetPolyF4(POLY_F4* p)
 
 void SetPolyFT4(POLY_FT4* p)
 {
-	UNIMPLEMENTED();
+	setPolyFT4(p);
 }
 
 void SetPolyG4(POLY_G4* p)
