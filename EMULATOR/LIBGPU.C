@@ -1277,7 +1277,7 @@ void SetSemiTrans(void* p, int abe)
 
 void SetShadeTex(void* p, int tge)
 {
-	UNIMPLEMENTED();
+	setShadeTex(p, tge);
 }
 
 void SetSprt(SPRT* p)
