@@ -498,130 +498,155 @@ void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsi
 
 void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour)
 {
-	//Copy over rgb vertex colours
-	if (col0 != NULL)
+	//Flat not Gouraud
+	if (col1 == NULL && col2 == NULL && col3 == NULL)
 	{
-		if (bMultiplyColour)
-		{
-			vertex[0].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[0].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[0].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[0].col[3] = (1.0f / 255) * 255;
-		}
-		else
-		{
-			vertex[0].col[0] = (1.0f / 255) * col0[0];
-			vertex[0].col[1] = (1.0f / 255) * col0[1];
-			vertex[0].col[2] = (1.0f / 255) * col0[2];
-			vertex[0].col[3] = (1.0f / 255) * 255;
-		}
-	}
+		vertex[0].col[0] = (1.0f / 255) * 255;
+		vertex[0].col[1] = (1.0f / 255) * 255;
+		vertex[0].col[2] = (1.0f / 255) * 255;
+		vertex[0].col[3] = (1.0f / 255) * 255;
 
-	if (col1 != NULL)
-	{
-		if (bMultiplyColour)
-		{
-			vertex[1].col[0] = (1.0f / 255) * (col1[0] * VERTEX_COLOUR_MULT);
-			vertex[1].col[1] = (1.0f / 255) * (col1[1] * VERTEX_COLOUR_MULT);
-			vertex[1].col[2] = (1.0f / 255) * (col1[2] * VERTEX_COLOUR_MULT);
-			vertex[1].col[3] = (1.0f / 255) * 255;
-		}
-		else
-		{
-			vertex[1].col[0] = (1.0f / 255) * col1[0];
-			vertex[1].col[1] = (1.0f / 255) * col1[1];
-			vertex[1].col[2] = (1.0f / 255) * col1[2];
-			vertex[1].col[3] = (1.0f / 255) * 255;
-		}
+		vertex[1].col[0] = (1.0f / 255) * 255;
+		vertex[1].col[1] = (1.0f / 255) * 255;
+		vertex[1].col[2] = (1.0f / 255) * 255;
+		vertex[1].col[3] = (1.0f / 255) * 255;
+
+		vertex[2].col[0] = (1.0f / 255) * 255;
+		vertex[2].col[1] = (1.0f / 255) * 255;
+		vertex[2].col[2] = (1.0f / 255) * 255;
+		vertex[2].col[3] = (1.0f / 255) * 255;
+
+		vertex[3].col[0] = (1.0f / 255) * 255;
+		vertex[3].col[1] = (1.0f / 255) * 255;
+		vertex[3].col[2] = (1.0f / 255) * 255;
+		vertex[3].col[3] = (1.0f / 255) * 255;
 	}
 	else
 	{
-		if (bMultiplyColour)
+		//Copy over rgb vertex colours
+		if (col0 != NULL)
 		{
-			vertex[1].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[1].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[1].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[1].col[3] = (1.0f / 255) * 255;
+			if (bMultiplyColour)
+			{
+				vertex[0].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+				vertex[0].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+				vertex[0].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+				vertex[0].col[3] = (1.0f / 255) * 255;
+			}
+			else
+			{
+				vertex[0].col[0] = (1.0f / 255) * col0[0];
+				vertex[0].col[1] = (1.0f / 255) * col0[1];
+				vertex[0].col[2] = (1.0f / 255) * col0[2];
+				vertex[0].col[3] = (1.0f / 255) * 255;
+			}
 		}
-		else
-		{
-			vertex[1].col[0] = (1.0f / 255) * col0[0];
-			vertex[1].col[1] = (1.0f / 255) * col0[1];
-			vertex[1].col[2] = (1.0f / 255) * col0[2];
-			vertex[1].col[3] = (1.0f / 255) * 255;
-		}
-	}
 
-	if (col2 != NULL)
-	{
-		if (bMultiplyColour)
+		if (col1 != NULL)
 		{
-			vertex[2].col[0] = (1.0f / 255) * (col2[0] * VERTEX_COLOUR_MULT);
-			vertex[2].col[1] = (1.0f / 255) * (col2[1] * VERTEX_COLOUR_MULT);
-			vertex[2].col[2] = (1.0f / 255) * (col2[2] * VERTEX_COLOUR_MULT);
-			vertex[2].col[3] = (1.0f / 255) * 255;
+			if (bMultiplyColour)
+			{
+				vertex[1].col[0] = (1.0f / 255) * (col1[0] * VERTEX_COLOUR_MULT);
+				vertex[1].col[1] = (1.0f / 255) * (col1[1] * VERTEX_COLOUR_MULT);
+				vertex[1].col[2] = (1.0f / 255) * (col1[2] * VERTEX_COLOUR_MULT);
+				vertex[1].col[3] = (1.0f / 255) * 255;
+			}
+			else
+			{
+				vertex[1].col[0] = (1.0f / 255) * col1[0];
+				vertex[1].col[1] = (1.0f / 255) * col1[1];
+				vertex[1].col[2] = (1.0f / 255) * col1[2];
+				vertex[1].col[3] = (1.0f / 255) * 255;
+			}
 		}
 		else
 		{
-			vertex[2].col[0] = (1.0f / 255) * col2[0];
-			vertex[2].col[1] = (1.0f / 255) * col2[1];
-			vertex[2].col[2] = (1.0f / 255) * col2[2];
-			vertex[2].col[3] = (1.0f / 255) * 255;
+			if (bMultiplyColour)
+			{
+				vertex[1].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+				vertex[1].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+				vertex[1].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+				vertex[1].col[3] = (1.0f / 255) * 255;
+			}
+			else
+			{
+				vertex[1].col[0] = (1.0f / 255) * col0[0];
+				vertex[1].col[1] = (1.0f / 255) * col0[1];
+				vertex[1].col[2] = (1.0f / 255) * col0[2];
+				vertex[1].col[3] = (1.0f / 255) * 255;
+			}
 		}
-	}
-	else
-	{
-		if (bMultiplyColour)
-		{
-			vertex[2].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[2].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[2].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[2].col[3] = (1.0f / 255) * 255;
-		}
-		else
-		{
-			vertex[2].col[0] = (1.0f / 255) * col0[0];
-			vertex[2].col[1] = (1.0f / 255) * col0[1];
-			vertex[2].col[2] = (1.0f / 255) * col0[2];
-			vertex[2].col[3] = (1.0f / 255) * 255;
-		}
-	}
 
-	if (col3 != NULL)
-	{
-		if (bMultiplyColour)
+		if (col2 != NULL)
 		{
-			vertex[3].col[0] = (1.0f / 255) * (col3[0] * VERTEX_COLOUR_MULT);
-			vertex[3].col[1] = (1.0f / 255) * (col3[1] * VERTEX_COLOUR_MULT);
-			vertex[3].col[2] = (1.0f / 255) * (col3[2] * VERTEX_COLOUR_MULT);
-			vertex[3].col[3] = (1.0f / 255) * 255;
+			if (bMultiplyColour)
+			{
+				vertex[2].col[0] = (1.0f / 255) * (col2[0] * VERTEX_COLOUR_MULT);
+				vertex[2].col[1] = (1.0f / 255) * (col2[1] * VERTEX_COLOUR_MULT);
+				vertex[2].col[2] = (1.0f / 255) * (col2[2] * VERTEX_COLOUR_MULT);
+				vertex[2].col[3] = (1.0f / 255) * 255;
+			}
+			else
+			{
+				vertex[2].col[0] = (1.0f / 255) * col2[0];
+				vertex[2].col[1] = (1.0f / 255) * col2[1];
+				vertex[2].col[2] = (1.0f / 255) * col2[2];
+				vertex[2].col[3] = (1.0f / 255) * 255;
+			}
 		}
 		else
 		{
-			vertex[3].col[0] = (1.0f / 255) * col3[0];
-			vertex[3].col[1] = (1.0f / 255) * col3[1];
-			vertex[3].col[2] = (1.0f / 255) * col3[2];
-			vertex[3].col[3] = (1.0f / 255) * 255;
+			if (bMultiplyColour)
+			{
+				vertex[2].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+				vertex[2].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+				vertex[2].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+				vertex[2].col[3] = (1.0f / 255) * 255;
+			}
+			else
+			{
+				vertex[2].col[0] = (1.0f / 255) * col0[0];
+				vertex[2].col[1] = (1.0f / 255) * col0[1];
+				vertex[2].col[2] = (1.0f / 255) * col0[2];
+				vertex[2].col[3] = (1.0f / 255) * 255;
+			}
 		}
-	}
-	else
-	{
-		if (bMultiplyColour)
-		{
-			vertex[3].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[3].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[3].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[3].col[3] = (1.0f / 255) * 255;
-		}
-		else
-		{
-			vertex[3].col[0] = (1.0f / 255) * col0[0];
-			vertex[3].col[1] = (1.0f / 255) * col0[1];
-			vertex[3].col[2] = (1.0f / 255) * col0[2];
-			vertex[3].col[3] = (1.0f / 255) * 255;
-		}
-	}
 
+		if (col3 != NULL)
+		{
+			if (bMultiplyColour)
+			{
+				vertex[3].col[0] = (1.0f / 255) * (col3[0] * VERTEX_COLOUR_MULT);
+				vertex[3].col[1] = (1.0f / 255) * (col3[1] * VERTEX_COLOUR_MULT);
+				vertex[3].col[2] = (1.0f / 255) * (col3[2] * VERTEX_COLOUR_MULT);
+				vertex[3].col[3] = (1.0f / 255) * 255;
+			}
+			else
+			{
+				vertex[3].col[0] = (1.0f / 255) * col3[0];
+				vertex[3].col[1] = (1.0f / 255) * col3[1];
+				vertex[3].col[2] = (1.0f / 255) * col3[2];
+				vertex[3].col[3] = (1.0f / 255) * 255;
+			}
+		}
+		else
+		{
+			if (bMultiplyColour)
+			{
+				vertex[3].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+				vertex[3].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+				vertex[3].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+				vertex[3].col[3] = (1.0f / 255) * 255;
+			}
+			else
+			{
+				vertex[3].col[0] = (1.0f / 255) * col0[0];
+				vertex[3].col[1] = (1.0f / 255) * col0[1];
+				vertex[3].col[2] = (1.0f / 255) * col0[2];
+				vertex[3].col[3] = (1.0f / 255) * 255;
+			}
+		}
+	}
 	return;
 }
 #if defined(OGLES) || defined(CORE_PROF_3_3)
