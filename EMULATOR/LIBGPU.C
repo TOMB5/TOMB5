@@ -515,6 +515,12 @@ u_long DrawSyncCallback(void(*func)(void))
 	return 0;
 }
 
+u_short GetClut(int x, int y)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
 #if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
 GLuint vbo;
 GLuint vao;
@@ -2058,8 +2064,10 @@ u_short GetTPage(int tp, int abr, int x, int y)
 
 u_short LoadClut(u_long* clut, int x, int y)
 {
-	UNIMPLEMENTED();
-	return 0;
+	RECT16 rect;//&var_18
+	setRECT16(&rect, x, y, 256, 1);
+	LoadImagePSX(&rect, clut);
+	return GetClut(x, y) & 0xFFFF;
 }
 
 u_short LoadClut2(u_long* clut, int x, int y)
