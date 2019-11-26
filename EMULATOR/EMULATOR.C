@@ -683,11 +683,10 @@ void Emulator_InitialiseGL()
 
 	glEnable(GL_SCISSOR_TEST);
 	glGenTextures(1, &vramTexture);
+	Emulator_BindTexture(vramTexture);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-	Emulator_BindTexture(vramTexture);
 
 #if defined(OGLES)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &vram[0]);
