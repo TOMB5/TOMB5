@@ -61,9 +61,6 @@ int g_hasHintedTextureAtlas = 0;
 
 struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
-///@OPTIMISE
-//If tpage matches but the CLUT doesn't use same texture and glTexSubImage it with the new clut should save us some texture gen, binding and texture space
-// Actualy we can't do this cause we'd need to know the coords of the said texture data that is binded to the clut
 static int Emulator_InitialiseGLContext(char* windowName)
 {
 	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
@@ -209,7 +206,6 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 #endif
 
 	return TRUE;
-
 }
 
 static int Emulator_InitialiseGLEW()
@@ -338,9 +334,11 @@ int Emulator_InitialiseGameVariables()
 void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 {
 	Emulator_InitialiseSDL(windowName, screenWidth, screenHeight);
+
 #if defined(GLEW)
 	Emulator_InitialiseGLEW();
 #endif
+
 	Emulator_InitialiseCore();
 
 #if defined(OGL) || defined(OGLES)
@@ -680,19 +678,17 @@ void Emulator_InitialiseGL()
 	/* Initialise VRAM */
 	SDL_memset(vram, 0, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
 
-#if defined(OGL)
-	glEnable(GL_TEXTURE_2D);
-#endif
 	/* Generate NULL white texture */
-	Emulator_GenerateAndBindNullWhite();
+	Emulator_GenerateAndBindNullWhite();///@TODO remove completely, no longer needed
 
 	glEnable(GL_SCISSOR_TEST);
-
 	glGenTextures(1, &vramTexture);
-	Emulator_BindTexture(vramTexture);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	Emulator_BindTexture(vramTexture);
+
 #if defined(OGLES)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &vram[0]);
 #elif defined(OGL)
@@ -1161,6 +1157,19 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 #if defined(OGL)
 		glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
+
+#if _DEBUG && 0
+		char buff[64];
+		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
+		FILE* f = fopen(buff, "wb");
+		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+		unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
+		fwrite(TGAheader, sizeof(unsigned char), 12, f);
+		fwrite(header, sizeof(unsigned char), 6, f);
+		fwrite(&texturePage[0], sizeof(char), 256 * 256 * 2, f);
+		fclose(f);
+#endif
+
 #endif
 		delete[] texturePage;
 		break;
@@ -1240,7 +1249,7 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 #endif
 
 
-#if _DEBUG && 0
+#if _DEBUG && 1
 		char buff[64];
 		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
 		FILE* f = fopen(buff, "wb");
@@ -1274,10 +1283,10 @@ void Emulator_DestroyFrameBuffer(GLuint& fbo)
 
 void Emulator_SetBlendMode(int mode)
 {
-	static int lastBlendMode = -1;
+	static int previousBlendMode = -1;
 
 #if !BLEND_MODE
-	if (lastBlendMode != mode)
+	if (previousBlendMode != mode)
 	{
 		switch (mode)
 		{
@@ -1299,10 +1308,10 @@ void Emulator_SetBlendMode(int mode)
 			break;
 		}
 
-		lastBlendMode = mode;
+		previousBlendMode = mode;
 	}
 #else
-	if (lastBlendMode != mode)
+	if (previousBlendMode != mode)
 	{
 		switch (mode)
 		{
@@ -1324,7 +1333,7 @@ void Emulator_SetBlendMode(int mode)
 			break;
 		}
 
-		lastBlendMode = mode;
+		previousBlendMode = mode;
 	}
 #endif
 }
@@ -1682,7 +1691,7 @@ void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned short 
 
 void Emulator_DestroyAllTextures()
 {
-	//Initial texture value is -1
+	//Initial texture id is -1
 	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
 	{
 		if (cachedTextures[i].textureID != 0xFFFFFFFF)
@@ -1694,7 +1703,7 @@ void Emulator_DestroyAllTextures()
 	//Initialise texture cache
 	SDL_memset(&cachedTextures[0], 0, MAX_NUM_CACHED_TEXTURES * sizeof(CachedTexture));
 	
-	//Initial texture value is -1
+	//Initial texture id is -1
 	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
 	{
 		cachedTextures[i].textureID = -1;
