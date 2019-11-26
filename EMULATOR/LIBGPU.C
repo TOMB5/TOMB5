@@ -1779,7 +1779,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 void SetSprt16(SPRT_16* p)
 {
-	UNIMPLEMENTED();
+	setSprt16(p);
 }
 
 void SetSprt8(SPRT_8* p)
