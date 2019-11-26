@@ -136,108 +136,20 @@ GTERegisters gteRegs;
 
 void InitGeom()
 {
-	/*VX0 = 0;
-	VY0 = 0;
-	VZ0 = 0;
-	VX1 = 0;
-	VY1 = 0;
-	VZ1 = 0;
-	VX2 = 0;
-	VY2 = 0;
-	VZ2 = 0;
-	R = 0;
-	G = 0;
-	B = 0;
-	CODE = 0;
-	OTZ = 0;
-	IR0 = 0;
-	IR1 = 0;
-	IR2 = 0;
-	IR3 = 0;
-	SXY0 = 0;
-	SX0 = 0;
-	SY0 = 0;
-	SXY1 = 0;
-	SX1 = 0;
-	SY1 = 0;
-	SXY2 = 0;
-	SX2 = 0;
-	SY2 = 0;
-	SXYP = 0;
-	SXP = 0;
-	SYP = 0;
-	SZ0 = 0;
-	SZ1 = 0;
-	SZ2 = 0;
-	SZ3 = 0;
-	RGB0 = 0;
-	R0 = 0;
-	G0 = 0;
-	B0 = 0;
-	CD0 = 0;
-	RGB1 = 0;
-	R1 = 0;
-	G1 = 0;
-	B1 = 0;
-	CD1 = 0;
-	RGB2 = 0;
-	R2 = 0;
-	G2 = 0;
-	B2 = 0;
-	CD2 = 0;
-	RES1 = 0;
-	MAC0 = 0;
-	MAC1 = 0;
-	MAC2 = 0;
-	MAC3 = 0;
-	IRGB = 0;
-	ORGB = 0;
-	LZCS = 0;
-	LZCR = 0;
-	R11 = 0;
-	R12 = 0;
-	R13 = 0;
-	R21 = 0;
-	R22 = 0;
-	R23 = 0;
-	R31 = 0;
-	R32 = 0;
-	R33 = 0;
-	TRX = 0;
-	TRY = 0;
-	TRZ = 0;
-	L11 = 0;
-	L12 = 0;
-	L13 = 0;
-	L21 = 0;
-	L22 = 0;
-	L23 = 0;
-	L31 = 0;
-	L32 = 0;
-	L33 = 0;
-	RBK = 0;
-	GBK = 0;
-	BBK = 0;
-	LR1 = 0;
-	LR2 = 0;
-	LR3 = 0;
-	LG1 = 0;
-	LG2 = 0;
-	LG3 = 0;
-	LB1 = 0;
-	LB2 = 0;
-	LB3 = 0;
-	RFC = 0;
-	GFC = 0;
-	BFC = 0;
+	//_patch_gte(); //Extern
+#if 0
+	mfc0    $v0, SR
+	lui     $v1, 0x4000
+	or $v0, $v1
+	mtc0    $v0, SR
+#endif
+	ZSF3 = 341;
+	ZSF4 = 256;
+	H = 1000;
+	DQA = -98;
+	DQB = 340;
 	OFX = 0;
 	OFY = 0;
-	H = 0;
-	DQA = 0;
-	DQB = 0;
-	ZSF3 = 0;
-	ZSF4 = 0;
-	FLAG = 0;*/
 }
 
 void SetGeomOffset(int ofx, int ofy)
