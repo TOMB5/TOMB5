@@ -664,6 +664,10 @@ void Emulator_CreateGlobalShaders()
 	glAttachShader(g_defaultShaderProgram, fragmentShader);
 	glLinkProgram(g_defaultShaderProgram);
 	glUseProgram(g_defaultShaderProgram);
+	GLint idx = glGetUniformLocation(g_defaultShaderProgram, "s_texture");
+	GLint sampler;
+	glUniform1iv(idx, 1, &sampler);
+	glActiveTexture(GL_TEXTURE0 + sampler);
 }
 #endif
 
@@ -928,6 +932,10 @@ unsigned short pixels[VRAM_WIDTH * VRAM_HEIGHT];
 
 void Emulator_EndScene()
 {
+	//Default blend mode
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendEquation(GL_FUNC_ADD);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 
 #if defined(OGLES)
@@ -1329,6 +1337,10 @@ void Emulator_SetBlendMode(int mode)
 		case 3://Addquatersource
 			glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
 			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+			break;
+		default:
+			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
 			break;
 		}
 
