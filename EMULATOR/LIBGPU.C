@@ -517,8 +517,7 @@ u_long DrawSyncCallback(void(*func)(void))
 
 u_short GetClut(int x, int y)
 {
-	UNIMPLEMENTED();
-	return 0;
+	return getClut(x, y);
 }
 
 #if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
