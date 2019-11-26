@@ -2105,7 +2105,7 @@ void SetPolyFT4(POLY_FT4* p)
 
 void SetPolyG4(POLY_G4* p)
 {
-	UNIMPLEMENTED();
+	setPolyG4(p);
 }
 
 void DrawPrim(void* p)
