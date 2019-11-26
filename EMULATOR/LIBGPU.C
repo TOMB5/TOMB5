@@ -258,7 +258,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
 	glBlitFramebuffer(0, 0, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, (rect->x + rect->w) * RESOLUTION_SCALE, (rect->y + rect->h) * RESOLUTION_SCALE, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-#if _DEBUG
+#if _DEBUG && 0
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
 #endif
 
@@ -463,6 +463,10 @@ DRAWENV* GetDrawEnv(DRAWENV* env)
 DRAWENV* PutDrawEnv(DRAWENV* env)//Guessed
 {
 	memcpy((char*)&activeDrawEnv, env, sizeof(DRAWENV));
+	if (activeDrawEnv.isbg)
+	{
+		ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
+	}
 	return 0;
 }
 
@@ -532,23 +536,6 @@ static unsigned short numVertices = 0;
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
-#if 0
-	//if (byte_3352[0] > 1)
-	{
-		GPU_printf("DrawOTagEnv(%08x,&08x)...\n", p, env);
-	}//loc_EF8
-
-	//s0 = &env->dr_env
-
-	//sub_17C0(&env->dr_env, env);
-
-	env->dr_env.tag = env->dr_env.tag & 0xFF000000 | (ptrdiff_t)p & 0xFFFFFF;
-	//a0 = off_3348[6];
-	//v0 = off_3348[2];
-	///jalr off_3348[2](off_3348[6]);
-	memcpy(&byte_9CCA4, &env, sizeof(DRAWENV));
-
-#else
 	PutDrawEnv(env);
 
 	if (env->dtd)
@@ -558,11 +545,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 	else
 	{
 		glDisable(GL_DITHER);
-	}
-
-	if (env->isbg)
-	{
-		ClearImage(&env->clip, env->r0, env->g0, env->b0);
 	}
 
 	if (p != NULL)
@@ -659,7 +641,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		}
 
 		glDeleteBuffers(1, &vbo);
-#endif
 #if defined(OGLES) || defined(CORE_PROF_3_3)
 		glDisableVertexAttribArray(posAttrib);
 		glDisableVertexAttribArray(colAttrib);
@@ -1863,24 +1844,6 @@ void CatPrim(void* p0, void* p1)
 
 void DrawOTag(u_long* p)
 {
-	//Commented out for now, maybe uses activeDrawEnv
-#if 0
-	//if (byte_3352[0] > 1)
-	{
-		GPU_printf("DrawOTagEnv(%08x,&08x)...\n", p, env);
-	}//loc_EF8
-
-	//s0 = &env->dr_env
-
-	//sub_17C0(&env->dr_env, env);
-
-	env->dr_env.tag = env->dr_env.tag & 0xFF000000 | (ptrdiff_t)p & 0xFFFFFF;
-	//a0 = off_3348[6];
-	//v0 = off_3348[2];
-	///jalr off_3348[2](off_3348[6]);
-	memcpy(&byte_9CCA4, &env, sizeof(DRAWENV));
-
-#else
 	if (activeDrawEnv.dtd)
 	{
 		glEnable(GL_DITHER);
@@ -1888,11 +1851,6 @@ void DrawOTag(u_long* p)
 	else
 	{
 		glDisable(GL_DITHER);
-	}
-
-	if (activeDrawEnv.isbg)
-	{
-		ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
 	}
 
 	if (p != NULL)
@@ -1989,7 +1947,6 @@ void DrawOTag(u_long* p)
 		}
 
 	glDeleteBuffers(1, &vbo);
-#endif
 #if defined(OGLES) || defined(CORE_PROF_3_3)
 	glDisableVertexAttribArray(posAttrib);
 	glDisableVertexAttribArray(colAttrib);
@@ -2121,24 +2078,6 @@ void SetPolyG4(POLY_G4* p)
 
 void DrawPrim(void* p)
 {
-	//Commented out for now, maybe uses activeDrawEnv
-#if 0
-	//if (byte_3352[0] > 1)
-	{
-		GPU_printf("DrawOTagEnv(%08x,&08x)...\n", p, env);
-	}//loc_EF8
-
-	//s0 = &env->dr_env
-
-	//sub_17C0(&env->dr_env, env);
-
-	env->dr_env.tag = env->dr_env.tag & 0xFF000000 | (ptrdiff_t)p & 0xFFFFFF;
-	//a0 = off_3348[6];
-	//v0 = off_3348[2];
-	///jalr off_3348[2](off_3348[6]);
-	memcpy(&byte_9CCA4, &env, sizeof(DRAWENV));
-
-#else
 	if (activeDrawEnv.dtd)
 	{
 		glEnable(GL_DITHER);
@@ -2146,11 +2085,6 @@ void DrawPrim(void* p)
 	else
 	{
 		glDisable(GL_DITHER);
-	}
-
-	if (activeDrawEnv.isbg)
-	{
-		ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
 	}
 
 	if (p != NULL)
@@ -2236,7 +2170,7 @@ void DrawPrim(void* p)
 	}
 
 	glDeleteBuffers(1, &vbo);
-#endif
+
 #if defined(OGLES) || defined(CORE_PROF_3_3)
 	glDisableVertexAttribArray(posAttrib);
 	glDisableVertexAttribArray(colAttrib);
