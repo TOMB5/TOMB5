@@ -136,7 +136,7 @@ GTERegisters gteRegs;
 
 void InitGeom()
 {
-	VX0 = 0;
+	/*VX0 = 0;
 	VY0 = 0;
 	VZ0 = 0;
 	VX1 = 0;
@@ -237,7 +237,7 @@ void InitGeom()
 	DQB = 0;
 	ZSF3 = 0;
 	ZSF4 = 0;
-	FLAG = 0;
+	FLAG = 0;*/
 }
 
 void SetGeomOffset(int ofx, int ofy)
@@ -1040,5 +1040,128 @@ int docop2(int op) {
 		return 1;
 	}
 
+	return 0;
+}
+
+void SetRotMatrix(MATRIX* m)
+{
+	UNIMPLEMENTED();
+}
+
+void SetLightMatrix(MATRIX* m)
+{
+	UNIMPLEMENTED();
+}
+
+void SetColorMatrix(MATRIX* m)
+{
+	UNIMPLEMENTED();
+}
+
+void SetTransMatrix(MATRIX* m)
+{
+	UNIMPLEMENTED();
+}
+
+void PushMatrix()
+{
+	UNIMPLEMENTED();
+}
+
+void PopMatrix()
+{
+	UNIMPLEMENTED();
+}
+
+long RotTransPers(SVECTOR* v0, long* sxy, long* p, long* flag)
+{
+	VX0 = v0->vx;
+	VY0 = v0->vy;
+	VZ0 = v0->vz;
+
+	docop2(0x180001);
+
+	sxy[0] = SXY2;
+	p[0] = IR0;
+	flag[0] = FLAG;
+
+	return SZ3 >> 2;
+}
+
+void RotTrans(SVECTOR* v0, VECTOR* v1, long* flag)
+{
+	UNIMPLEMENTED();
+}
+
+void NormalColorDpq(SVECTOR* v0, CVECTOR* v1, long p, CVECTOR* v2)
+{
+	UNIMPLEMENTED();
+}
+
+void NormalColorCol(SVECTOR* v0, CVECTOR* v1, CVECTOR* v2)
+{
+	UNIMPLEMENTED();
+}
+
+long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0, long* sxy1, long* sxy2, long* sxy3, long* p, long* otz, long* flag)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+MATRIX* MulMatrix0(MATRIX* m0, MATRIX* m1, MATRIX* m2)
+{
+	UNIMPLEMENTED();
+	return NULL;
+}
+
+MATRIX* MulMatrix(MATRIX* m0, MATRIX* m1)
+{
+	UNIMPLEMENTED();
+	return NULL;
+}
+
+MATRIX* MulMatrix2(MATRIX* m0, MATRIX* m1)
+{
+	UNIMPLEMENTED();
+	return NULL;
+}
+
+void SetBackColor(long rbk, long gbk, long bbk)
+{
+	UNIMPLEMENTED();
+}
+
+void SetFarColor(long rfc, long gfc, long bfc)
+{
+	UNIMPLEMENTED();
+}
+
+MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
+{
+	UNIMPLEMENTED();
+	return NULL;
+}
+
+MATRIX* TransMatrix(MATRIX* m, VECTOR* v)
+{
+	UNIMPLEMENTED();
+	return NULL;
+}
+
+MATRIX* ScaleMatrix(MATRIX* m, VECTOR* v)
+{
+	UNIMPLEMENTED();
+	return NULL;
+}
+
+void SetFogNear(long a, long h)
+{
+	UNIMPLEMENTED();
+}
+
+int rsin(int a)
+{
+	UNIMPLEMENTED();
 	return 0;
 }
