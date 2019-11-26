@@ -251,7 +251,6 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	{
 		eprinterr("Frame buffer error: %x\n", glCheckFramebufferStatus(GL_FRAMEBUFFER));
 	}
-
 #endif
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
@@ -1215,7 +1214,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 16, 16);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, NULL, NULL, NULL, 16, 16);
-			//Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, FALSE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, FALSE);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1963,8 +1962,8 @@ void DrawOTag(u_long* p)
 			Emulator_BindTexture(g_splitIndices[i].textureId);
 		}
 
-		//Emulator_SetBlendMode(g_splitIndices[i].blendMode);
-
+		Emulator_SetBlendMode(g_splitIndices[i].blendMode);
+		
 		if (g_wireframeMode)
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
