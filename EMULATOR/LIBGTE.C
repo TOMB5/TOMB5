@@ -980,7 +980,9 @@ void SetColorMatrix(MATRIX* m)
 
 void SetTransMatrix(MATRIX* m)
 {
-	UNIMPLEMENTED();
+	TRX = m->t[0];
+	TRY = m->t[1];
+	TRZ = m->t[2];
 }
 
 void PushMatrix()
