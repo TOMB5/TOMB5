@@ -1008,7 +1008,7 @@ void Emulator_EndScene()
 
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 6, indexBuffer, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * 6, indexBuffer, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -1024,7 +1024,7 @@ void Emulator_EndScene()
 	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)20);
 	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)12);
 	Emulator_Ortho2D(0, word_33BC.disp.w * RESOLUTION_SCALE, 0, word_33BC.disp.h * RESOLUTION_SCALE, 0, 1);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 	glDisableVertexAttribArray(posAttrib);
 	glDisableVertexAttribArray(colAttrib);
 	glDisableVertexAttribArray(texAttrib);
