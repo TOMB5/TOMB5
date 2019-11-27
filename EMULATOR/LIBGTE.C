@@ -970,7 +970,15 @@ void SetRotMatrix(MATRIX* m)
 
 void SetLightMatrix(MATRIX* m)
 {
-	UNIMPLEMENTED();
+	L11 = m->m[0][0];
+	L12 = m->m[0][1];
+	L13 = m->m[0][2];
+	L21 = m->m[1][0];
+	L22 = m->m[1][1];
+	L23 = m->m[1][2];
+	L31 = m->m[2][0];
+	L32 = m->m[2][1];
+	L33 = m->m[2][2];
 }
 
 void SetColorMatrix(MATRIX* m)
