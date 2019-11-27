@@ -1083,8 +1083,10 @@ MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
 
 MATRIX* TransMatrix(MATRIX* m, VECTOR* v)
 {
-	UNIMPLEMENTED();
-	return NULL;
+	((int*)m)[5] = v->vx;
+	((int*)m)[6] = v->vy;
+	((int*)m)[7] = v->vz;
+	return m;
 }
 
 MATRIX* ScaleMatrix(MATRIX* m, VECTOR* v)
