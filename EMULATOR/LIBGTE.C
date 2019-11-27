@@ -983,7 +983,15 @@ void SetLightMatrix(MATRIX* m)
 
 void SetColorMatrix(MATRIX* m)
 {
-	UNIMPLEMENTED();
+	LR1 = m->m[0][0];
+	LR2 = m->m[0][1];
+	LR3 = m->m[0][2];
+	LG1 = m->m[1][0];
+	LG2 = m->m[1][1];
+	LG3 = m->m[1][2];
+	LB1 = m->m[2][0];
+	LB2 = m->m[2][1];
+	LB3 = m->m[2][2];
 }
 
 void SetTransMatrix(MATRIX* m)
