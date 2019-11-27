@@ -2222,5 +2222,5 @@ void DrawPrim(void* p)
 
 void TermPrim(void* p)
 {
-	UNIMPLEMENTED();
+	termPrim(p);
 }
