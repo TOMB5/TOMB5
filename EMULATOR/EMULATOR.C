@@ -56,7 +56,6 @@ int windowHeight = 0;
 char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
-unsigned short GlobalTpageTexture = 0;
 int g_hasHintedTextureAtlas = 0;
 
 struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
@@ -498,157 +497,133 @@ void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsi
 
 void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour)
 {
-	//Flat not Gouraud
-	if (col1 == NULL && col2 == NULL && col3 == NULL)
+	//Copy over rgb vertex colours
+	if (col0 != NULL)
 	{
-		vertex[0].col[0] = (1.0f / 255) * 255;
-		vertex[0].col[1] = (1.0f / 255) * 255;
-		vertex[0].col[2] = (1.0f / 255) * 255;
-		vertex[0].col[3] = (1.0f / 255) * 255;
+		if (bMultiplyColour)
+		{
+			vertex[0].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+			vertex[0].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+			vertex[0].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+			vertex[0].col[3] = (1.0f / 255) * 255;
+		}
+		else
+		{
+			vertex[0].col[0] = (1.0f / 255) * col0[0];
+			vertex[0].col[1] = (1.0f / 255) * col0[1];
+			vertex[0].col[2] = (1.0f / 255) * col0[2];
+			vertex[0].col[3] = (1.0f / 255) * 255;
+		}
+	}
 
-		vertex[1].col[0] = (1.0f / 255) * 255;
-		vertex[1].col[1] = (1.0f / 255) * 255;
-		vertex[1].col[2] = (1.0f / 255) * 255;
-		vertex[1].col[3] = (1.0f / 255) * 255;
-
-		vertex[2].col[0] = (1.0f / 255) * 255;
-		vertex[2].col[1] = (1.0f / 255) * 255;
-		vertex[2].col[2] = (1.0f / 255) * 255;
-		vertex[2].col[3] = (1.0f / 255) * 255;
-
-		vertex[3].col[0] = (1.0f / 255) * 255;
-		vertex[3].col[1] = (1.0f / 255) * 255;
-		vertex[3].col[2] = (1.0f / 255) * 255;
-		vertex[3].col[3] = (1.0f / 255) * 255;
+	if (col1 != NULL)
+	{
+		if (bMultiplyColour)
+		{
+			vertex[1].col[0] = (1.0f / 255) * (col1[0] * VERTEX_COLOUR_MULT);
+			vertex[1].col[1] = (1.0f / 255) * (col1[1] * VERTEX_COLOUR_MULT);
+			vertex[1].col[2] = (1.0f / 255) * (col1[2] * VERTEX_COLOUR_MULT);
+			vertex[1].col[3] = (1.0f / 255) * 255;
+		}
+		else
+		{
+			vertex[1].col[0] = (1.0f / 255) * col1[0];
+			vertex[1].col[1] = (1.0f / 255) * col1[1];
+			vertex[1].col[2] = (1.0f / 255) * col1[2];
+			vertex[1].col[3] = (1.0f / 255) * 255;
+		}
 	}
 	else
 	{
-		//Copy over rgb vertex colours
-		if (col0 != NULL)
+		if (bMultiplyColour)
 		{
-			if (bMultiplyColour)
-			{
-				vertex[0].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-				vertex[0].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-				vertex[0].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-				vertex[0].col[3] = (1.0f / 255) * 255;
-			}
-			else
-			{
-				vertex[0].col[0] = (1.0f / 255) * col0[0];
-				vertex[0].col[1] = (1.0f / 255) * col0[1];
-				vertex[0].col[2] = (1.0f / 255) * col0[2];
-				vertex[0].col[3] = (1.0f / 255) * 255;
-			}
-		}
-
-		if (col1 != NULL)
-		{
-			if (bMultiplyColour)
-			{
-				vertex[1].col[0] = (1.0f / 255) * (col1[0] * VERTEX_COLOUR_MULT);
-				vertex[1].col[1] = (1.0f / 255) * (col1[1] * VERTEX_COLOUR_MULT);
-				vertex[1].col[2] = (1.0f / 255) * (col1[2] * VERTEX_COLOUR_MULT);
-				vertex[1].col[3] = (1.0f / 255) * 255;
-			}
-			else
-			{
-				vertex[1].col[0] = (1.0f / 255) * col1[0];
-				vertex[1].col[1] = (1.0f / 255) * col1[1];
-				vertex[1].col[2] = (1.0f / 255) * col1[2];
-				vertex[1].col[3] = (1.0f / 255) * 255;
-			}
+			vertex[1].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+			vertex[1].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+			vertex[1].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+			vertex[1].col[3] = (1.0f / 255) * 255;
 		}
 		else
 		{
-			if (bMultiplyColour)
-			{
-				vertex[1].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-				vertex[1].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-				vertex[1].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-				vertex[1].col[3] = (1.0f / 255) * 255;
-			}
-			else
-			{
-				vertex[1].col[0] = (1.0f / 255) * col0[0];
-				vertex[1].col[1] = (1.0f / 255) * col0[1];
-				vertex[1].col[2] = (1.0f / 255) * col0[2];
-				vertex[1].col[3] = (1.0f / 255) * 255;
-			}
-		}
-
-		if (col2 != NULL)
-		{
-			if (bMultiplyColour)
-			{
-				vertex[2].col[0] = (1.0f / 255) * (col2[0] * VERTEX_COLOUR_MULT);
-				vertex[2].col[1] = (1.0f / 255) * (col2[1] * VERTEX_COLOUR_MULT);
-				vertex[2].col[2] = (1.0f / 255) * (col2[2] * VERTEX_COLOUR_MULT);
-				vertex[2].col[3] = (1.0f / 255) * 255;
-			}
-			else
-			{
-				vertex[2].col[0] = (1.0f / 255) * col2[0];
-				vertex[2].col[1] = (1.0f / 255) * col2[1];
-				vertex[2].col[2] = (1.0f / 255) * col2[2];
-				vertex[2].col[3] = (1.0f / 255) * 255;
-			}
-		}
-		else
-		{
-			if (bMultiplyColour)
-			{
-				vertex[2].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-				vertex[2].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-				vertex[2].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-				vertex[2].col[3] = (1.0f / 255) * 255;
-			}
-			else
-			{
-				vertex[2].col[0] = (1.0f / 255) * col0[0];
-				vertex[2].col[1] = (1.0f / 255) * col0[1];
-				vertex[2].col[2] = (1.0f / 255) * col0[2];
-				vertex[2].col[3] = (1.0f / 255) * 255;
-			}
-		}
-
-		if (col3 != NULL)
-		{
-			if (bMultiplyColour)
-			{
-				vertex[3].col[0] = (1.0f / 255) * (col3[0] * VERTEX_COLOUR_MULT);
-				vertex[3].col[1] = (1.0f / 255) * (col3[1] * VERTEX_COLOUR_MULT);
-				vertex[3].col[2] = (1.0f / 255) * (col3[2] * VERTEX_COLOUR_MULT);
-				vertex[3].col[3] = (1.0f / 255) * 255;
-			}
-			else
-			{
-				vertex[3].col[0] = (1.0f / 255) * col3[0];
-				vertex[3].col[1] = (1.0f / 255) * col3[1];
-				vertex[3].col[2] = (1.0f / 255) * col3[2];
-				vertex[3].col[3] = (1.0f / 255) * 255;
-			}
-		}
-		else
-		{
-			if (bMultiplyColour)
-			{
-				vertex[3].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-				vertex[3].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-				vertex[3].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-				vertex[3].col[3] = (1.0f / 255) * 255;
-			}
-			else
-			{
-				vertex[3].col[0] = (1.0f / 255) * col0[0];
-				vertex[3].col[1] = (1.0f / 255) * col0[1];
-				vertex[3].col[2] = (1.0f / 255) * col0[2];
-				vertex[3].col[3] = (1.0f / 255) * 255;
-			}
+			vertex[1].col[0] = (1.0f / 255) * col0[0];
+			vertex[1].col[1] = (1.0f / 255) * col0[1];
+			vertex[1].col[2] = (1.0f / 255) * col0[2];
+			vertex[1].col[3] = (1.0f / 255) * 255;
 		}
 	}
+
+	if (col2 != NULL)
+	{
+		if (bMultiplyColour)
+		{
+			vertex[2].col[0] = (1.0f / 255) * (col2[0] * VERTEX_COLOUR_MULT);
+			vertex[2].col[1] = (1.0f / 255) * (col2[1] * VERTEX_COLOUR_MULT);
+			vertex[2].col[2] = (1.0f / 255) * (col2[2] * VERTEX_COLOUR_MULT);
+			vertex[2].col[3] = (1.0f / 255) * 255;
+		}
+		else
+		{
+			vertex[2].col[0] = (1.0f / 255) * col2[0];
+			vertex[2].col[1] = (1.0f / 255) * col2[1];
+			vertex[2].col[2] = (1.0f / 255) * col2[2];
+			vertex[2].col[3] = (1.0f / 255) * 255;
+		}
+	}
+	else
+	{
+		if (bMultiplyColour)
+		{
+			vertex[2].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+			vertex[2].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+			vertex[2].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+			vertex[2].col[3] = (1.0f / 255) * 255;
+		}
+		else
+		{
+			vertex[2].col[0] = (1.0f / 255) * col0[0];
+			vertex[2].col[1] = (1.0f / 255) * col0[1];
+			vertex[2].col[2] = (1.0f / 255) * col0[2];
+			vertex[2].col[3] = (1.0f / 255) * 255;
+		}
+	}
+
+	if (col3 != NULL)
+	{
+		if (bMultiplyColour)
+		{
+			vertex[3].col[0] = (1.0f / 255) * (col3[0] * VERTEX_COLOUR_MULT);
+			vertex[3].col[1] = (1.0f / 255) * (col3[1] * VERTEX_COLOUR_MULT);
+			vertex[3].col[2] = (1.0f / 255) * (col3[2] * VERTEX_COLOUR_MULT);
+			vertex[3].col[3] = (1.0f / 255) * 255;
+		}
+		else
+		{
+			vertex[3].col[0] = (1.0f / 255) * col3[0];
+			vertex[3].col[1] = (1.0f / 255) * col3[1];
+			vertex[3].col[2] = (1.0f / 255) * col3[2];
+			vertex[3].col[3] = (1.0f / 255) * 255;
+		}
+	}
+	else
+	{
+		if (bMultiplyColour)
+		{
+			vertex[3].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
+			vertex[3].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
+			vertex[3].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
+			vertex[3].col[3] = (1.0f / 255) * 255;
+		}
+		else
+		{
+			vertex[3].col[0] = (1.0f / 255) * col0[0];
+			vertex[3].col[1] = (1.0f / 255) * col0[1];
+			vertex[3].col[2] = (1.0f / 255) * col0[2];
+			vertex[3].col[3] = (1.0f / 255) * 255;
+		}
+	}
+
 	return;
 }
+
 #if defined(OGLES) || defined(CORE_PROF_3_3)
 GLuint g_defaultShaderProgram;
 
@@ -957,6 +932,9 @@ unsigned short pixels[VRAM_WIDTH * VRAM_HEIGHT];
 
 void Emulator_EndScene()
 {
+	//Default blend mode
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendEquation(GL_FUNC_ADD);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 
 #if defined(OGLES)
@@ -1123,14 +1101,6 @@ CachedTexture* Emulator_GetFreeCachedTexture()
 
 GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 {
-	unsigned int bShouldUseGlobalTpageTexture = (tpage == 0xFFFF) ? 1 : 0;
-
-	if (bShouldUseGlobalTpageTexture)
-	{
-		tpage = GlobalTpageTexture;
-		GlobalTpageTexture = 0xFFFF;
-	}
-
 	unsigned int textureType = (tpage >> 7) & 0x3;
 	unsigned int tpageX = ((tpage << 6) & 0x7C0) % (VRAM_WIDTH / RESOLUTION_SCALE);
 	unsigned int tpageY = ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT / RESOLUTION_SCALE);

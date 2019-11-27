@@ -40,7 +40,6 @@ extern int windowWidth;
 extern int windowHeight;
 extern uint32_t DMAControlRegister;
 extern int assetsLoaded;
-extern unsigned short GlobalTpageTexture;
 #if defined(OGLES) || defined(CORE_PROF_3_3)
 extern GLuint g_defaultShaderProgram;
 #endif
