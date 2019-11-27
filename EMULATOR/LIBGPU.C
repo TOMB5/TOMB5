@@ -1819,7 +1819,7 @@ void SetTile(TILE* p)
 
 void SetPolyGT4(POLY_GT4* p)
 {
-	UNIMPLEMENTED();
+	setPolyGT4(p);
 }
 
 void SetSemiTrans(void* p, int abe)
