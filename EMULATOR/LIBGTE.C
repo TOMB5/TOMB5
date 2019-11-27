@@ -1100,7 +1100,7 @@ void SetDQA(int iDQA)
 
 void SetDQB(int iDQB)
 {
-	UNIMPLEMENTED();
+	DQB = iDQB;
 }
 
 void SetFogNear(long a, long h)
