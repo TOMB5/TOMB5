@@ -1095,7 +1095,7 @@ MATRIX* ScaleMatrix(MATRIX* m, VECTOR* v)
 
 void SetDQA(int iDQA)
 {
-	UNIMPLEMENTED();
+	DQA = iDQA;
 }
 
 void SetDQB(int iDQB)
