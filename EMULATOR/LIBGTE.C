@@ -1,6 +1,6 @@
 #include "LIBGTE.H"
 #include "EMULATOR_GLOBALS.H"
-
+#include <assert.h>
 GTERegisters gteRegs;
 
 #define GTE_SF(op) ((op >> 19) & 1)
@@ -1093,9 +1093,24 @@ MATRIX* ScaleMatrix(MATRIX* m, VECTOR* v)
 	return NULL;
 }
 
-void SetFogNear(long a, long h)
+void SetDQA(int iDQA)
 {
 	UNIMPLEMENTED();
+}
+
+void SetDQB(int iDQB)
+{
+	UNIMPLEMENTED();
+}
+
+void SetFogNear(long a, long h)
+{
+	//Error division by 0
+	assert(h != 0);
+	int depthQ = -(((a << 2) + a) << 6);
+	assert(h != -1 && depthQ != 0x8000);
+	SetDQA(depthQ / h);
+	SetDQB(20971520);
 }
 
 int rsin(int a)
