@@ -957,10 +957,6 @@ unsigned short pixels[VRAM_WIDTH * VRAM_HEIGHT];
 
 void Emulator_EndScene()
 {
-	//Default blend mode
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendEquation(GL_FUNC_ADD);
-
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 
 #if defined(OGLES)
@@ -1006,7 +1002,7 @@ void Emulator_EndScene()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #elif defined(OGLES) || defined (CORE_PROF_3_3)
 	GLuint vbo, ibo, vao;
-	GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
+	GLuint indexBuffer[] = { 0,1,2,0,2,3 };
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
