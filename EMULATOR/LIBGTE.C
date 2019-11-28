@@ -2686,10 +2686,48 @@ void NormalColorCol(SVECTOR* v0, CVECTOR* v1, CVECTOR* v2)
 	UNIMPLEMENTED();
 }
 
-long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0, long* sxy1, long* sxy2, long* sxy3, long* p, long* otz, long* flag)
+long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
 {
-	UNIMPLEMENTED();
-	return 0;
+	VX0 = v0->vx;
+	VY0 = v0->vy;
+	VZ0 = v0->vz;
+	
+	VX1 = v1->vx;
+	VY1 = v1->vy;
+	VZ1 = v1->vz;
+
+	VX2 = v2->vx;
+	VY2 = v2->vy;
+	VZ2 = v2->vz;
+
+	docop2(0x280030);
+
+	flag[0] = FLAG;
+
+	docop2(0x1400006);
+
+	if (MAC0 > 0)
+	{
+		SXY0 = sxy0[0];
+		SXY1 = sxy1[0];
+		SXY2 = sxy2[0];
+
+		VX0 = v3->vx;
+		VY0 = v3->vy;
+		VZ0 = v3->vz;
+
+		docop2(0x180001);
+
+		sxy3[0] = SXY2;
+		p[0] = IR0;
+		flag[0] |= FLAG;
+
+		docop2(0x168002E);
+
+		otz[0] = OTZ;
+	}
+
+	return MAC0;
 }
 
 MATRIX* MulMatrix0(MATRIX* m0, MATRIX* m1, MATRIX* m2)
