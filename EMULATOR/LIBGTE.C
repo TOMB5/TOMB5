@@ -2722,33 +2722,31 @@ void SetFarColor(long rfc, long gfc, long bfc)
 
 MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
 {
-	unsigned int t7 = r->vx;
-	unsigned int t9 = t7 & 0xFFF;
-	unsigned int t8 = 0;
-	unsigned int t3 = 0;
-	unsigned int t0 = 0;
-	unsigned int t6 = 0;
-	unsigned int t1 = 0;
-	unsigned int t4 = 0;
-	unsigned int t5 = 0;
-	unsigned int t2 = 0;
+	int t7 = r->vx;
+	int t9 = t7 & 0xFFF;
+	int t8 = 0;
+	int t3 = 0;
+	int t0 = 0;
+	int t6 = 0;
+	int t1 = 0;
+	int t4 = 0;
+	int t5 = 0;
+	int t2 = 0;
 
 	if (t7 < 0)
 	{
 		t7 = -t7;
 		t7 &= 0xFFF;
-		t8 = t7 << 2;
-		t9 = rcossin_tbl[t8];
-		t8 = t9 & 0xFFFF;
+		t9 = rcossin_tbl[t7];
+		t8 = (t9 << 16) >> 16;
 		t3 = -t8;
 		t0 = t9 >> 16;
 	}
 	else
 	{
 		//loc_244
-		t8 = t9 << 2;
-		t9 = rcossin_tbl[t8];
-		t3 = t9 & 0xFFFF;
+		t9 = rcossin_tbl[t9];
+		t3 = (t9 << 16) >> 16;
 		t0 = t9 >> 16;
 	}
 
@@ -2760,16 +2758,16 @@ MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
 	{
 		t7 = -t7;
 		t7 &= 0xFFF;
-		t9 = rcossin_tbl[t8];
-		t4 = t9 & 0xFFFF;
+		t9 = rcossin_tbl[t7];
+		t4 = (t9 << 16) >> 16;
 		t6 = -t4;
 		t1 = t9 >> 16;
 	}
 	else
 	{
 		//loc_2A8
-		t9 = rcossin_tbl[t8];
-		t6 = t9 & 0xFFFF;
+		t9 = rcossin_tbl[t9];
+		t6 = (t9 << 16) >> 16;
 		t4 = -t6;
 		t1 = t9 >> 16;
 	}
@@ -2790,7 +2788,7 @@ MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
 		m->m[2][2] = t6;
 		t7 = -t7;
 		t7 &= 0xFFF;
-		t9 = rcossin_tbl[t8];
+		t9 = rcossin_tbl[t7];
 		t8 = t9 & 0xFFFF;
 		t5 = -t8;
 		t2 = t9 >> 16;
