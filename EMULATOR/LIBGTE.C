@@ -1,6 +1,8 @@
 #include "LIBGTE.H"
 #include "EMULATOR_GLOBALS.H"
 #include <assert.h>
+#include <stdio.h>
+
 GTERegisters gteRegs;
 
 #define GTE_SF(op) ((op >> 19) & 1)
@@ -2646,9 +2648,35 @@ void SetTransMatrix(MATRIX* m)
 	TRZ = m->t[2];
 }
 
+#define MAX_NUM_MATRICES 20
+int matrixLevel = 0;
+MATRIX stack[MAX_NUM_MATRICES];//unk_410
+MATRIX* currentMatrix = &stack[0];//unk_40C
+
 void PushMatrix()
 {
-	UNIMPLEMENTED();
+	if (matrixLevel < 20)
+	{
+		MATRIX* m = &stack[matrixLevel];//$t7
+		m->m[0][0] = R11;
+		m->m[0][1] = R12;
+		m->m[0][2] = R13;
+		m->m[1][0] = R21;
+		m->m[1][1] = R22;
+		m->m[1][2] = R23;
+		m->m[2][0] = R31;
+		m->m[2][1] = R32;
+		m->m[2][2] = R33;
+		m->t[0] = TRX;
+		m->t[1] = TRY;
+		m->t[2] = TRZ;
+		currentMatrix++;
+		matrixLevel++;
+	}
+	else
+	{
+		printf("Error: Can't push matrix,stack(max 20) is full!\n");
+	}
 }
 
 void PopMatrix()
