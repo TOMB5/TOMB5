@@ -881,14 +881,14 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 			if (lastBlendMode == 0xFFFF)
 			{
 				lastBlendMode = blend_mode;
-				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(activeDrawEnv.tpage, lastClut);
 				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
 			else if (blend_mode != lastBlendMode)
 			{
 				lastBlendMode = blend_mode;
-				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(activeDrawEnv.tpage, lastClut);
 				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -1455,14 +1455,14 @@ void ParsePrimitive(P_TAG* pTag)
 		if (lastBlendMode == 0xFFFF)
 		{
 			lastBlendMode = blend_mode;
-			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
+			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(activeDrawEnv.tpage, lastClut);
 			g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 		}
 		else if (blend_mode != lastBlendMode)
 		{
 			lastBlendMode = blend_mode;
-			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(-1, lastClut);
+			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(activeDrawEnv.tpage, lastClut);
 			g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
 			g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -1961,7 +1961,7 @@ void DrawOTag(u_long* p)
 			Emulator_BindTexture(g_splitIndices[i].textureId);
 		}
 
-		Emulator_SetBlendMode(g_splitIndices[i].blendMode);
+		//Emulator_SetBlendMode(g_splitIndices[i].blendMode);
 		
 		if (g_wireframeMode)
 		{
@@ -2093,7 +2093,7 @@ int FntOpen(int x, int y, int w, int h, int isbg, int n)
 
 void SetPolyF4(POLY_F4* p)
 {
-	UNIMPLEMENTED();
+	setPolyF4(p);
 }
 
 void SetPolyFT4(POLY_FT4* p)
