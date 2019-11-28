@@ -2681,7 +2681,28 @@ void PushMatrix()
 
 void PopMatrix()
 {
-	UNIMPLEMENTED();
+	if (matrixLevel > 0)
+	{
+		currentMatrix--;
+		matrixLevel--;
+		MATRIX* m = &stack[matrixLevel];//$t7
+		R11 = m->m[0][0];
+		R12 = m->m[0][1];
+		R13 = m->m[0][2];
+		R21 = m->m[1][0];
+		R22 = m->m[1][1];
+		R23 = m->m[1][2];
+		R31 = m->m[2][0];
+		R32 = m->m[2][1];
+		R33 = m->m[2][2];
+		TRX = m->t[0];
+		TRY = m->t[1];
+		TRZ = m->t[2];
+	}
+	else
+	{
+		printf("Error: Can't pop matrix,stack is empty!\n");
+	}
 }
 
 long RotTransPers(SVECTOR* v0, long* sxy, long* p, long* flag)
