@@ -8,10 +8,11 @@
 #include "LARAFIRE.H"
 #include "SPECIFIC.H"
 #include INPUT_H
-
-
 #include "LARASWIM.H"
 
+#if PSX_VERSION
+#include "COLLIDE_S.H"
+#endif
 
 void lara_col_surftread(struct ITEM_INFO* item, struct COLL_INFO* coll)//4DDBC(<), 4E220(<) (F)
 {
