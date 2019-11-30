@@ -24,6 +24,7 @@
 #include "MISC.H"
 #include "MATHS.H"
 #include "GETSTUFF.H"
+#include "COLLIDE_S.H"
 #endif
 
 #if PC_VERSION
@@ -4913,7 +4914,7 @@ void LaraAboveWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//14228, 142D
 	coll->old_frame_number = item->frame_number;
 
 	coll->radius = 100;
-	coll->trigger = 0;
+	coll->trigger = NULL;
 
 	if (input & IN_LOOK && lara.look)
 		LookLeftRight();
@@ -5649,9 +5650,9 @@ void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 762);
 }
 
+#if PC_VERSION
 int GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
 {
-#if !PSXPC_TEST///@FIXME excuse me but this doesn't work.
 	phd_mxptr[0] = lara_joint_matrices[mat].m00;
 	phd_mxptr[1] = lara_joint_matrices[mat].m01;
 	phd_mxptr[2] = lara_joint_matrices[mat].m02;
@@ -5676,9 +5677,10 @@ int GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
 	vec->z += lara_item->pos.z_pos;
 
 	mPopMatrix();
-#endif
+
 	return 48;
 }
+#endif
 
 #if PC_VERSION || PSXPC_TEST///@TODO move for PSXPC_N
 void AnimateLara(struct ITEM_INFO* item)
