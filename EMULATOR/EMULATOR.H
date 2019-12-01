@@ -1,17 +1,12 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
-#define GL_GLEXT_PROTOTYPES 1
 /*
  * Platform specific emulator setup
  */
-
 #if (defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__) || defined(__MINGW32__)) && !defined(__ANDROID__)
 #define OGL
 //#define D3D9
-//#define CORE_PROF_3_1
-//#define CORE_PROF_3_2
-#define CORE_PROF_3_3
 #define SDL2
 #if defined(OGL)
 #define GLEW
@@ -24,6 +19,7 @@
 #endif
 
 #if defined(GLEW)
+#define GL_GLEXT_PROTOTYPES 1
 #include <GL/glew.h>
 #endif
 
@@ -36,28 +32,28 @@
 #include <stddef.h>
 #endif
 
+/*
+ * SDL.H inclusion.
+ */
+
 #if defined(__APPLE__)
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #elif defined(__EMSCRIPTEN__)
-#include <SDL.h>
-#if defined (OGLES)
-#include <SDL_syswm.h>
-#include <GLES3/gl3.h>
-#include <EGL/egl.h>
 #include <emscripten.h>
-#endif
+#include <SDL.h>
 #elif (defined(_WINDOWS) || defined(__MINGW32__) || defined(__linux__)) && !defined(__ANDROID__)
 #include <SDL.h>
 #elif defined (__ANDROID__)
 #include <SDL.h>
+#endif
+
 #if defined (OGL)
-#include <SDL_opengl.h>
+#include <SDL_opengl.h>///@FIXME see mac!
 #elif defined (OGLES)
 #include <SDL_syswm.h>
 #include <GLES3/gl3.h>
 #include <EGL/egl.h>
-#endif
 #endif
 
 #include <LIBGPU.H>

@@ -240,9 +240,9 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
 
 	/* Bind src texture to src framebuffer */
-#if defined(CORE_PROF_3_1) || defined(OGLES)
+#if defined(OGLES)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
-#elif defined(CORE_PROF_3_2) || defined(CORE_PROF_3_3)
+#elif defined(OGL)
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
 #endif
 
@@ -318,9 +318,9 @@ int MoveImage(RECT16* rect, int x, int y)
 	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
 
 	/* Bind src texture to src framebuffer */
-#if defined(CORE_PROF_3_1) || defined(OGLES)
+#if defined(OGLES)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
-#elif defined(CORE_PROF_3_2) || defined(CORE_PROF_3_3)
+#elif defined(OGL)
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
 #endif
 
@@ -519,7 +519,7 @@ u_short GetClut(int x, int y)
 	return getClut(x, y);
 }
 
-#if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
+#if defined(OGLES) || defined(OGL)
 GLuint vbo;
 GLuint vao;
 #endif
@@ -558,33 +558,23 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(VertexBufferSplitIndex));
 
-#if defined(OGL) && !defined(CORE_PROF_3_3)
+#if defined(OGL) && !defined(OGL)
 		glLoadIdentity();
 		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
-#elif defined(OGLES) || defined(CORE_PROF_3_3)
+#elif defined(OGLES) || defined(OGL)
 		Emulator_Ortho2D(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
 #endif
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
-		
-#if !defined(OGLES)
-		
-#if RESOLUTION_SCALE > 1 && defined(CORE_PROF_3_1)
-		glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
-#endif
-#if defined(CORE_PROF_3_1)
-		glEnableClientState(GL_VERTEX_ARRAY);
-#endif
-#endif
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 		P_TAG* pTag = (P_TAG*)p;
 
-#if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
+#if defined(OGLES) || defined(OGL)
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 #endif
 
-#if defined(OGLES) || defined(CORE_PROF_3_3)
+#if defined(OGLES) || defined(OGL)
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
@@ -611,7 +601,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		}while ((unsigned long)pTag != (unsigned long)&terminator);
 #endif
 
-#if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
+#if defined(OGLES) || defined(OGL)
 		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
 		for (int i = 0; i < g_numSplitIndices; i++)
@@ -641,15 +631,12 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		}
 
 		glDeleteBuffers(1, &vbo);
-#if defined(OGLES) || defined(CORE_PROF_3_3)
+#if defined(OGLES) || defined(OGL)
 		glDisableVertexAttribArray(posAttrib);
 		glDisableVertexAttribArray(colAttrib);
 		glDisableVertexAttribArray(texAttrib);
 
 		glDeleteVertexArrays(1, &vao);
-#endif
-#if defined(OGL) && defined(CORE_PROF_3_1)
-		glDisableClientState(GL_VERTEX_ARRAY);
 #endif
 #if 1//OLD_RENDERER
 		glViewport(0, 0, windowWidth, windowHeight);
@@ -1241,7 +1228,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 		}
 
 		//Reset for vertex colours
-#if !defined(OGLES) && !defined(CORE_PROF_3_3)
+#if !defined(OGLES) && !defined(OGL)
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #endif
 	}
@@ -1796,7 +1783,7 @@ void ParsePrimitive(P_TAG* pTag)
 	}
 
 	//Reset for vertex colours
-#if !defined(OGLES) && !defined(CORE_PROF_3_3)
+#if !defined(OGLES) && !defined(OGL)
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #endif
 	g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -1891,36 +1878,23 @@ void DrawOTag(u_long* p)
 		numVertices = 0;
 		g_vertexIndex = 0;
 		g_numSplitIndices = 0;
+
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(VertexBufferSplitIndex));
-
-#if defined(OGL) && !defined(CORE_PROF_3_3)
-		glLoadIdentity();
-		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
-#elif defined(OGLES) || defined(CORE_PROF_3_3)
+		
 		Emulator_Ortho2D(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
-#endif
+
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
-
-#if !defined(OGLES)
-
-#if RESOLUTION_SCALE > 1 && defined(CORE_PROF_3_1)
-		glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
-#endif
-#if defined(CORE_PROF_3_1)
-		glEnableClientState(GL_VERTEX_ARRAY);
-#endif
-#endif
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 		P_TAG* pTag = (P_TAG*)p;
 
-#if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
+#if defined(OGLES) || defined(OGL)
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 #endif
 
-#if defined(OGLES) || defined(CORE_PROF_3_3)
+#if defined(OGLES) || defined(OGL)
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
@@ -1947,7 +1921,7 @@ void DrawOTag(u_long* p)
 	}while ((unsigned long)pTag != (unsigned long)& terminator);
 #endif
 
-#if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
+#if defined(OGLES) || defined(OGL)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
 	for (int i = 0; i < g_numSplitIndices; i++)
@@ -1977,16 +1951,14 @@ void DrawOTag(u_long* p)
 	}
 
 	glDeleteBuffers(1, &vbo);
-#if defined(OGLES) || defined(CORE_PROF_3_3)
+#if defined(OGLES) || defined(OGL)
 	glDisableVertexAttribArray(posAttrib);
 	glDisableVertexAttribArray(colAttrib);
 	glDisableVertexAttribArray(texAttrib);
 
 	glDeleteVertexArrays(1, &vao);
 #endif
-#if defined(OGL) && defined(CORE_PROF_3_1)
-	glDisableClientState(GL_VERTEX_ARRAY);
-#endif
+
 #if 1//OLD_RENDERER
 	glViewport(0, 0, windowWidth, windowHeight);
 #endif
@@ -2128,33 +2100,23 @@ void DrawPrim(void* p)
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(VertexBufferSplitIndex));
 
-#if defined(OGL) && !defined(CORE_PROF_3_3)
+#if defined(OGL) && !defined(OGL)
 		glLoadIdentity();
 		glOrtho(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
-#elif defined(OGLES) || defined(CORE_PROF_3_3)
+#elif defined(OGLES) || defined(OGL)
 		Emulator_Ortho2D(0, VRAM_WIDTH, 0, VRAM_HEIGHT, 0, 1);
 #endif
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
-
-#if !defined(OGLES)
-
-#if RESOLUTION_SCALE > 1 && defined(CORE_PROF_3_1)
-		glScaled(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
-#endif
-#if defined(CORE_PROF_3_1)
-		glEnableClientState(GL_VERTEX_ARRAY);
-#endif
-#endif
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 		P_TAG* pTag = (P_TAG*)p;
 
-#if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
+#if defined(OGLES) || defined(OGL)
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 #endif
 
-#if defined(OGLES) || defined(CORE_PROF_3_3)
+#if defined(OGLES) || defined(OGL)
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
@@ -2170,7 +2132,7 @@ void DrawPrim(void* p)
 #endif
 		ParsePrimitive(pTag);
 
-#if defined(OGLES) || defined(CORE_PROF_3_3) || defined(CORE_PROF_3_1)
+#if defined(OGLES) || defined(OGL)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
 	for (int i = 0; i < g_numSplitIndices; i++)
@@ -2201,16 +2163,14 @@ void DrawPrim(void* p)
 
 	glDeleteBuffers(1, &vbo);
 
-#if defined(OGLES) || defined(CORE_PROF_3_3)
+#if defined(OGLES) || defined(OGL)
 	glDisableVertexAttribArray(posAttrib);
 	glDisableVertexAttribArray(colAttrib);
 	glDisableVertexAttribArray(texAttrib);
 
 	glDeleteVertexArrays(1, &vao);
 #endif
-#if defined(OGL) && defined(CORE_PROF_3_1)
-	glDisableClientState(GL_VERTEX_ARRAY);
-#endif
+
 #if 1//OLD_RENDERER
 	glViewport(0, 0, windowWidth, windowHeight);
 #endif
