@@ -1,5 +1,6 @@
 ﻿#include "EMULATOR.H"
 
+#include "EMULATOR_VERSION.H"
 #include "EMULATOR_GLOBALS.H"
 #include "CRASHHANDLER.H"
 
@@ -321,6 +322,10 @@ int Emulator_InitialiseGameVariables()
 
 void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 {
+	eprintf("Initialising Emulator.\n");
+	eprintf("VERSION: %d.%d\n", EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION);
+	eprintf("Compile Date: %s Time: %s\n", EMULATOR_COMPILE_DATE, EMULATOR_COMPILE_TIME);
+
 	Emulator_InitialiseSDL(windowName, screenWidth, screenHeight);
 
 #if defined(GLEW)
