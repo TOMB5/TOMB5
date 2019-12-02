@@ -150,7 +150,7 @@ loc_8F440:
 	}//locret_8F46C
 }
 
-void DrawPsxTile(long a0, long a1, long a2, long a3)//8F770(<), 917B4(<) (F)
+void DrawPsxTile(long a0, long a1, long a2, long a3, long var_10)//8F770(<), 917B4(<) (F)
 {
 	UNIMPLEMENTED();
 }
