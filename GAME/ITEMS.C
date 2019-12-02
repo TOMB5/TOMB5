@@ -308,7 +308,7 @@ void InitialiseItem(short item_num)//41BEC(<), 42040 (F)
 
 	if (objects[item->object_number].initialise != NULL)
 	{
-		objects[item->object_number].initialise(item_num);
+ 		objects[item->object_number].initialise(item_num);
 	}
 
 #if PSXENGINE
@@ -436,6 +436,7 @@ void InitialiseItemArray(int numitems)//418E8(<), 41D3C(<) (F)
 	return;
 }
 
+#if PC_VERSION
 void ItemNewRoom(short item_num, short room_number)//7C608(<), 7E64C(<) (F)
 {
 	if (InItemControlLoop)
@@ -475,3 +476,4 @@ void ItemNewRoom(short item_num, short room_number)//7C608(<), 7E64C(<) (F)
 		room[room_number].item_number = item_num;
 	}
 }
+#endif
