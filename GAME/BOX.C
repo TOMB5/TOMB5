@@ -28,6 +28,7 @@
 #include "MISC.H"
 #include "SPHERES.H"
 #include "GETSTUFF.H"
+#include "COLLIDE_S.H"
 #endif
 
 
@@ -731,10 +732,70 @@ int ValidBox(struct ITEM_INFO* item, short zone_number, short box_number)//222A4
 
 int EscapeBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)//221C4(<), ?
 {
-	struct box_info *box; // $a0
+	struct box_info* box; // $a0
 	long x; // $a3
 	long z; // $a2
-	UNIMPLEMENTED();
+
+	//t1 = item
+	//t0 = enemy
+	box = &boxes[box_number];
+
+	z = ((box->left + box->right) << 9) - enemy->pos.z_pos;
+	x = ((box->top + box->bottom) << 9) - enemy->pos.x_pos;
+
+	//v0 = x + 5119
+	//v0 = x + 5119 < 10239 ? 1 : 0
+	if ((x + 5119) < 10239 && z >= -5119 && z < 5120)
+	{
+		return 0;
+	}
+
+	//loc_22234
+	//a1 = z < 1 ? 1 : 0
+
+	//loc_22238
+	//v1 = item->pos.z_pos
+	//v0 = enemy->pos.z_pos
+
+	//v0 = enemy->pos.z_pos < item->pos.z_pos ? 1 : 0
+	if (enemy->pos.z_pos < item->pos.z_pos && z < 1 ^ 1)
+	{
+
+	}//loc_22260
+#if 0
+xori    $a0, $a1, 1
+bnez    $a1, loc_22268
+slti    $a0, $a3, 1
+jr      $ra
+li      $v0, 1
+
+loc_22260:
+beqz    $a0, loc_22298
+slti    $a0, $a3, 1
+
+loc_22268:
+lw      $v1, 0x40($t1)
+lw      $v0, 0x40($t0)
+nop
+slt     $v0, $v1
+beqz    $v0, loc_22290
+xori    $a2, $a0, 1
+bnez    $a0, locret_2222C
+li      $v0, 1
+j       locret_2229C
+nop
+
+loc_22290:
+bnez    $a2, locret_2222C
+nop
+
+loc_22298:
+li      $v0, 1
+
+locret_2229C:
+jr      $ra
+nop
+#endif
 
 	return 0;
 }
