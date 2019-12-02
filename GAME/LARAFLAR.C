@@ -10,6 +10,7 @@
 #include "SETUP.H"
 #include "MISC.H"
 #include "BUBBLES.H"
+#include "CALCLARA.H"
 #endif
 #include "DRAW.H"
 #include "OBJECTS.H"

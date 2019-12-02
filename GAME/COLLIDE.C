@@ -17,6 +17,7 @@
 #include "MISC.H"
 #include "FXTRIG.H"
 #include "GETSTUFF.H"
+#include "CALCLARA.H"
 #endif
 
 #include <STDIO.H>
@@ -395,7 +396,7 @@ void ShiftItem(struct ITEM_INFO* item, struct COLL_INFO* coll)//7BEEC(<), 7DF30(
 }
 
 #if PC_VERSION
-int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)
+c
 {
 	UNIMPLEMENTED();
 	return 0;

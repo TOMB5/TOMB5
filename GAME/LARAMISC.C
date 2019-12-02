@@ -10,6 +10,7 @@
 #include "GETSTUFF.H"
 #include "COLLIDE.H"
 #include "3D_GEN.H"
+#include "COLLIDE_S.H"
 #endif
 #include "CONTROL.H"
 #include "DRAW.H"

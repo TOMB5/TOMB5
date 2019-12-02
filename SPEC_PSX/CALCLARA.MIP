@@ -487,7 +487,7 @@ mLoadMatrix:
 	ctc2    t6, r6
 	ctc2    t7, r7
 
-	SetRotation:
+SetRotation:
 	ctc2    t0, r0
 	ctc2    t1, r1
 	ctc2    t2, r2

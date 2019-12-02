@@ -2,6 +2,7 @@
 
 #include "DRAW.H"
 #include "GAMEFLOW.H"
+#include "SPECIFIC.H"
 
 void UpdateSky()//7CE88(<), 7EECC(<) (F)
 {
@@ -31,7 +32,6 @@ void UpdateSky()//7CE88(<), 7EECC(<) (F)
 		if (v1 < 0)
 		{
 			v1 += 3280;
-			//j loc_7CEF8
 		}
 		else if (v1 > 3280)
 		{
@@ -41,4 +41,20 @@ void UpdateSky()//7CE88(<), 7EECC(<) (F)
 		SkyPos2 = v1;
 
 	}//locret_7CEFC
+}
+
+void UpdateLaraRoom(struct ITEM_INFO* item, int height)
+{
+	UNIMPLEMENTED();
+}
+
+void ItemNewRoom(short item_num, short room_number)
+{
+	UNIMPLEMENTED();
+}
+
+int GetCollisionInfo(COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)
+{
+	UNIMPLEMENTED();
+	return 0;
 }

@@ -1,5 +1,6 @@
 ﻿#include "EMULATOR.H"
 
+#include "EMULATOR_VERSION.H"
 #include "EMULATOR_GLOBALS.H"
 #include "CRASHHANDLER.H"
 
@@ -56,14 +57,10 @@ int windowHeight = 0;
 char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
-unsigned short GlobalTpageTexture = 0;
 int g_hasHintedTextureAtlas = 0;
 
 struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
-///@OPTIMISE
-//If tpage matches but the CLUT doesn't use same texture and glTexSubImage it with the new clut should save us some texture gen, binding and texture space
-// Actualy we can't do this cause we'd need to know the coords of the said texture data that is binded to the clut
 static int Emulator_InitialiseGLContext(char* windowName)
 {
 	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
@@ -171,21 +168,10 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #elif defined(OGL)
-#if defined(CORE_PROF_3_1)
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-#elif defined(CORE_PROF_3_2)
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-#elif defined(CORE_PROF_3_3)
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 #endif
-#endif
-		
 #if defined(OGL)
 	}
 	else
@@ -209,7 +195,6 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 #endif
 
 	return TRUE;
-
 }
 
 static int Emulator_InitialiseGLEW()
@@ -337,10 +322,16 @@ int Emulator_InitialiseGameVariables()
 
 void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 {
+	eprintf("Initialising Emulator.\n");
+	eprintf("VERSION: %d.%d\n", EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION);
+	eprintf("Compile Date: %s Time: %s\n", EMULATOR_COMPILE_DATE, EMULATOR_COMPILE_TIME);
+
 	Emulator_InitialiseSDL(windowName, screenWidth, screenHeight);
+
 #if defined(GLEW)
 	Emulator_InitialiseGLEW();
 #endif
+
 	Emulator_InitialiseCore();
 
 #if defined(OGL) || defined(OGLES)
@@ -626,7 +617,8 @@ void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsig
 
 	return;
 }
-#if defined(OGLES) || defined(CORE_PROF_3_3)
+
+#if defined(OGLES) || defined(OGL)
 GLuint g_defaultShaderProgram;
 
 void Emulator_CreateGlobalShaders()
@@ -635,7 +627,7 @@ void Emulator_CreateGlobalShaders()
 	const char* vertexShaderSource = "attribute vec4 a_position; attribute vec2 a_texcoord; varying vec2 v_texcoord; attribute vec4 a_colour; varying vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
 #elif defined(ES3_SHADERS)
 	const char* vertexShaderSource = "#version 300 es\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
-#elif defined(CORE_PROF_3_3)
+#elif defined(OGL)
 	const char* vertexShaderSource = "#version 330 core\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
 #endif
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -645,7 +637,7 @@ void Emulator_CreateGlobalShaders()
 	const char* fragmentShaderSource = "precision mediump float; varying vec2 v_texcoord; varying vec4 v_colour; uniform sampler2D s_texture; void main() { gl_FragColor = texture2D(s_texture, v_texcoord) * v_colour; }";
 #elif defined(ES3_SHADERS)
 	const char* fragmentShaderSource = "#version 300 es\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord) * v_colour; }";
-#elif defined(CORE_PROF_3_3)
+#elif defined(OGL)
 	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord) * v_colour; }";
 #endif
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -666,6 +658,10 @@ void Emulator_CreateGlobalShaders()
 	glAttachShader(g_defaultShaderProgram, fragmentShader);
 	glLinkProgram(g_defaultShaderProgram);
 	glUseProgram(g_defaultShaderProgram);
+	GLint idx = glGetUniformLocation(g_defaultShaderProgram, "s_texture");
+	GLint sampler;
+	glUniform1iv(idx, 1, &sampler);
+	glActiveTexture(GL_TEXTURE0 + sampler);
 }
 #endif
 
@@ -680,19 +676,16 @@ void Emulator_InitialiseGL()
 	/* Initialise VRAM */
 	SDL_memset(vram, 0, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
 
-#if defined(OGL)
-	glEnable(GL_TEXTURE_2D);
-#endif
 	/* Generate NULL white texture */
-	Emulator_GenerateAndBindNullWhite();
+	Emulator_GenerateAndBindNullWhite();///@TODO remove completely, no longer needed
 
 	glEnable(GL_SCISSOR_TEST);
-
 	glGenTextures(1, &vramTexture);
 	Emulator_BindTexture(vramTexture);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
 #if defined(OGLES)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &vram[0]);
 #elif defined(OGL)
@@ -702,10 +695,10 @@ void Emulator_InitialiseGL()
 	glGenFramebuffers(1, &vramFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 	/* Bind VRAM texture to vram framebuffer */
-#if defined(CORE_PROF_3_1) || defined (OGLES)
+#if defined (OGLES)
 	Emulator_BindTexture(0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, vramTexture, 0);
-#elif defined(CORE_PROF_3_2) || defined(CORE_PROF_3_3)
+#elif defined(OGL)
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, vramTexture, 0);
 #endif
 
@@ -719,17 +712,14 @@ void Emulator_InitialiseGL()
 	glLineWidth(RESOLUTION_SCALE);
 
 #if BLEND_MODE
-	glBlendColor(0.25, 0.25, 0.25, 0.5);
+	//glBlendColor(0.25, 0.25, 0.25, 0.5);
 #endif
 
 #if defined(OGL)
-#if defined(CORE_PROF_3_1)
-	glShadeModel(GL_SMOOTH);
-#endif
 	glDisable(GL_DEPTH_TEST);
 #endif
 
-#if defined(OGLES) || defined(CORE_PROF_3_3)
+#if defined(OGLES) || defined(OGL)
 	Emulator_CreateGlobalShaders();
 #endif
 
@@ -933,6 +923,9 @@ unsigned short pixels[VRAM_WIDTH * VRAM_HEIGHT];
 
 void Emulator_EndScene()
 {
+	//Default blend mode
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendEquation(GL_FUNC_ADD);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 
 #if defined(OGLES)
@@ -966,7 +959,7 @@ void Emulator_EndScene()
 		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y, 1.0f, 1.0f, 1.0f, 1.0f,
 	};
 
-#if defined(OGL) && !defined(CORE_PROF_3_3)
+#if defined(OGL) && !defined(OGL)
 	glVertexPointer(3, GL_FLOAT, 9 * sizeof(float), vertexBuffer);
 	glTexCoordPointer(2, GL_FLOAT, 9 * sizeof(float), vertexBuffer + 3);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -976,15 +969,15 @@ void Emulator_EndScene()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#elif defined(OGLES) || defined (CORE_PROF_3_3)
+#elif defined(OGLES) || defined (OGL)
 	GLuint vbo, ibo, vao;
-	GLubyte indexBuffer[] = { 0,1,2,0,2,3 };
+	GLuint indexBuffer[] = { 0,1,2,0,2,3 };
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 6, indexBuffer, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * 6, indexBuffer, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -999,8 +992,8 @@ void Emulator_EndScene()
 	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 9, 0);
 	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)20);
 	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)12);
-	Emulator_Ortho2D(0, word_33BC.disp.w * RESOLUTION_SCALE, 0, word_33BC.disp.h * RESOLUTION_SCALE, 0, 1);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+	Emulator_Ortho2D(0.0f, word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, 1.0f);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 	glDisableVertexAttribArray(posAttrib);
 	glDisableVertexAttribArray(colAttrib);
 	glDisableVertexAttribArray(texAttrib);
@@ -1099,14 +1092,6 @@ CachedTexture* Emulator_GetFreeCachedTexture()
 
 GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 {
-	unsigned int bShouldUseGlobalTpageTexture = (tpage == 0xFFFF) ? 1 : 0;
-
-	if (bShouldUseGlobalTpageTexture)
-	{
-		tpage = GlobalTpageTexture;
-		GlobalTpageTexture = 0xFFFF;
-	}
-
 	unsigned int textureType = (tpage >> 7) & 0x3;
 	unsigned int tpageX = ((tpage << 6) & 0x7C0) % (VRAM_WIDTH / RESOLUTION_SCALE);
 	unsigned int tpageY = ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT / RESOLUTION_SCALE);
@@ -1161,6 +1146,19 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 #if defined(OGL)
 		glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
+
+#if _DEBUG && 0
+		char buff[64];
+		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
+		FILE* f = fopen(buff, "wb");
+		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+		unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
+		fwrite(TGAheader, sizeof(unsigned char), 12, f);
+		fwrite(header, sizeof(unsigned char), 6, f);
+		fwrite(&texturePage[0], sizeof(char), 256 * 256 * 2, f);
+		fclose(f);
+#endif
+
 #endif
 		delete[] texturePage;
 		break;
@@ -1240,7 +1238,7 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 #endif
 
 
-#if _DEBUG && 0
+#if _DEBUG && 1
 		char buff[64];
 		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
 		FILE* f = fopen(buff, "wb");
@@ -1274,10 +1272,10 @@ void Emulator_DestroyFrameBuffer(GLuint& fbo)
 
 void Emulator_SetBlendMode(int mode)
 {
-	static int lastBlendMode = -1;
+	static int previousBlendMode = -1;
 
 #if !BLEND_MODE
-	if (lastBlendMode != mode)
+	if (previousBlendMode != mode)
 	{
 		switch (mode)
 		{
@@ -1299,10 +1297,10 @@ void Emulator_SetBlendMode(int mode)
 			break;
 		}
 
-		lastBlendMode = mode;
+		previousBlendMode = mode;
 	}
 #else
-	if (lastBlendMode != mode)
+	if (previousBlendMode != mode)
 	{
 		switch (mode)
 		{
@@ -1322,9 +1320,13 @@ void Emulator_SetBlendMode(int mode)
 			glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
 			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 			break;
+		default:
+			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
+			break;
 		}
 
-		lastBlendMode = mode;
+		previousBlendMode = mode;
 	}
 #endif
 }
@@ -1340,7 +1342,7 @@ void Emulator_NXPOT(int& value)
 	value++;
 }
 
-#if defined(OGLES) || defined(CORE_PROF_3_3)
+#if defined(OGLES) || defined(OGL)
 void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar)
 {
 	float a = 2.0f / (right - left);
@@ -1682,7 +1684,7 @@ void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned short 
 
 void Emulator_DestroyAllTextures()
 {
-	//Initial texture value is -1
+	//Initial texture id is -1
 	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
 	{
 		if (cachedTextures[i].textureID != 0xFFFFFFFF)
@@ -1694,7 +1696,7 @@ void Emulator_DestroyAllTextures()
 	//Initialise texture cache
 	SDL_memset(&cachedTextures[0], 0, MAX_NUM_CACHED_TEXTURES * sizeof(CachedTexture));
 	
-	//Initial texture value is -1
+	//Initial texture id is -1
 	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
 	{
 		cachedTextures[i].textureID = -1;

@@ -69,6 +69,7 @@
 #include "GETSTUFF.H"
 
 #include <LIBSN.H>
+#include "COLLIDE_S.H"
 
 #endif
 
