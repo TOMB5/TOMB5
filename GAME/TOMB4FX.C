@@ -665,74 +665,53 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 
 void Fade()//34B78(<), 35078(<) (F)
 {
-#if 1
-	ScreenFading = 0;//Dirty hack until this function is redone
+#if 1///@FIXME yet again this function is not working.
+	ScreenFading = 0;
+	return;
 #endif
+
 	if (dScreenFade != 0)
 	{
-		if (dScreenFade > ScreenFade)
+		if (dScreenFade >= ScreenFade)
 		{
-			ScreenFade = ScreenFadeSpeed + ScreenFade;
+			//loc_34BFC
+			ScreenFade += ScreenFadeSpeed;
 
-			if (ScreenFade < dScreenFade)
+			if (dScreenFade < ScreenFade)
 			{
 				ScreenFade = dScreenFade;
 
-				if (ScreenFade > dScreenFade)
+				if (ScreenFade >= dScreenFade)
 				{
 					ScreenFadedOut = 1;
 
-					if (ScreenFadeBack == 0)
+					if (ScreenFadeBack)
 					{
-						//loc_34C30
-						ScreenFading = 0;
+						dScreenFade = 0;
+						ScreenFadeBack = 0;
 					}
-
-					dScreenFade = 0;
-					ScreenFadeBack = 0;
-				}//loc_34C34
-			}//loc_34C34
-		}
-		else
-		{
-			//loc_34BFC
-			ScreenFade -= ScreenFadeSpeed;
-			if (ScreenFade < dScreenFade)
-			{
-				//loc_34C30
-				ScreenFade = dScreenFade;
+					//loc_34C30
+					ScreenFading = 0;
+				}
 			}//loc_34C34
 		}
 	}
-	else
+	//loc_34BF0
+	if (dScreenFade < ScreenFade)
 	{
-		//loc_34BF0
+		//loc_34BFC
+		ScreenFade -= ScreenFadeSpeed;
 
-		if (dScreenFade < ScreenFade)
+		if (ScreenFade < ScreenFadeSpeed)
 		{
-			//loc_34BFC
-			ScreenFade -= ScreenFadeSpeed;
-			if (ScreenFade < dScreenFade)
-			{
-				//loc_34C30
-				ScreenFade = dScreenFade;
-			}//loc_34C34
-		}//loc_34C34
+			ScreenFade = dScreenFade;
+		}
 	}
-
 	//loc_34C34
-	if(ScreenFade == 0 && dScreenFade == 0)
+	if (dScreenFade != 0 || ScreenFade != 0)
 	{
-		return;
+		DrawPsxTile(0, 0xF00200, 0x62000000 | (ScreenFade << 16) | (ScreenFade << 8) | ScreenFade, 2, 0);
 	}
-
-	//loc_34C4C
-#if PSX_VERSION
-	 //DrawPsxTile(0, 0xF00200, (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade | 0x62000000, 2);
-#else
-	// todo add DrawPsxTile on spec_psxpc and spec_pc
-	//DrawPsxTile(0, window_width | (window_height << 16), (dScreenFade << 16) | (ScreenFade << 8) | ScreenFade);
-#endif
 }
 
 void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb)
@@ -810,7 +789,7 @@ void trig_actor_gunflash(MatrixThing* matrix, struct PHD_VECTOR* pos)//(F)
 			mCopyMatrix(matrix);
 			mTranslateXYZ(pos->x, pos->y, pos->z);
 			mRotX(-13680);
-			snaff_current_gte_matrix_V1(&fx->matrix);
+			snaff_current_gte_matrix_V1((int*)&fx->matrix);
 			mPopMatrix();
 			break;
 		}
