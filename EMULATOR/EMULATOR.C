@@ -190,7 +190,6 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 #if defined(OGL)
 	SDL_GL_SetSwapInterval(1);
 #elif defined(OGLES)
-	//eglSwapInterval(1);
 	eglSwapInterval(eglDisplay, 1);
 #endif
 
@@ -638,13 +637,16 @@ void Emulator_CreateGlobalShaders()
 #elif defined(ES3_SHADERS)
 	const char* fragmentShaderSource = "#version 300 es\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord) * v_colour; }";
 #elif defined(OGL)
-	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord) * v_colour; }";
+	//const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
+	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { vec4 dither = vec4(texture(s_texture, gl_FragCoord.xy / 8.0).r / 32.0 - (1.0 / 128.0)); fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; fragColour += dither; }";
+	//const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
 #endif
+
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
 
-#if 1
+#if defined(_DEBUG)
 	char buff[1024];
 	int maxLength = 1024;
 	glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &buff[0]);
@@ -653,6 +655,7 @@ void Emulator_CreateGlobalShaders()
 	glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &buff[0]);
 #endif
 
+	/* Default */
 	g_defaultShaderProgram = glCreateProgram();
 	glAttachShader(g_defaultShaderProgram, vertexShader);
 	glAttachShader(g_defaultShaderProgram, fragmentShader);
@@ -678,8 +681,9 @@ void Emulator_InitialiseGL()
 
 	/* Generate NULL white texture */
 	Emulator_GenerateAndBindNullWhite();///@TODO remove completely, no longer needed
-
+	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_SCISSOR_TEST);
+	glShadeModel(GL_SMOOTH);
 	glGenTextures(1, &vramTexture);
 	Emulator_BindTexture(vramTexture);
 
@@ -711,12 +715,8 @@ void Emulator_InitialiseGL()
 
 	glLineWidth(RESOLUTION_SCALE);
 
-#if BLEND_MODE
-	//glBlendColor(0.25, 0.25, 0.25, 0.5);
-#endif
-
 #if defined(OGL)
-	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 #endif
 
 #if defined(OGLES) || defined(OGL)
@@ -771,7 +771,7 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 }
 #define NOFILE 0
 
-#if !__EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__)
 void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
 {
 #if NOFILE
@@ -923,9 +923,7 @@ unsigned short pixels[VRAM_WIDTH * VRAM_HEIGHT];
 
 void Emulator_EndScene()
 {
-	//Default blend mode
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendEquation(GL_FUNC_ADD);
+	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), false);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 
 #if defined(OGLES)
@@ -959,17 +957,7 @@ void Emulator_EndScene()
 		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y, 1.0f, 1.0f, 1.0f, 1.0f,
 	};
 
-#if defined(OGL) && !defined(OGL)
-	glVertexPointer(3, GL_FLOAT, 9 * sizeof(float), vertexBuffer);
-	glTexCoordPointer(2, GL_FLOAT, 9 * sizeof(float), vertexBuffer + 3);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glLoadIdentity();
-	glOrtho(0, word_33BC.disp.w * RESOLUTION_SCALE, 0, word_33BC.disp.h * RESOLUTION_SCALE, 0, 1);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#elif defined(OGLES) || defined (OGL)
+#if defined(OGLES) || defined (OGL)
 	GLuint vbo, ibo, vao;
 	GLuint indexBuffer[] = { 0,1,2,0,2,3 };
 	glGenVertexArrays(1, &vao);
@@ -1003,12 +991,13 @@ void Emulator_EndScene()
 	glDeleteVertexArrays(1, &vao);
 #endif
 
-#if _DEBUG && 1
+#if _DEBUG && 0
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, vramFrameBuffer);
 	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
 #endif
 
 	Emulator_SwapWindow();
+	glUseProgram(g_defaultShaderProgram);
 }
 
 void Emulator_ShutDown()
@@ -1097,7 +1086,6 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	unsigned int tpageY = ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT / RESOLUTION_SCALE);
 	unsigned int clutX = ((clut & 0x3F) << 4);
 	unsigned int clutY = (clut >> 6);
-	unsigned int tpageAbr = (tpage >> 5) & 3;
 
 #if RESOLUTION_SCALE > 1
 	if (tpageX >= 256)
@@ -1270,76 +1258,43 @@ void Emulator_DestroyFrameBuffer(GLuint& fbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
 }
 
-void Emulator_SetBlendMode(int mode)
+void Emulator_SetBlendMode(int mode, int semiTransparent)
 {
 	static int previousBlendMode = -1;
 
-#if !BLEND_MODE
-	if (previousBlendMode != mode)
+	if(semiTransparent)
 	{
-		switch (mode)
+		glEnable(GL_BLEND);
+
+		//if (previousBlendMode != mode)
 		{
-		case 0://Average
-			glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
-			break;
-		case 1://Add
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			break;
-		case 2://Subtract
-			glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-			break;
-		case 3://Addquatersource
-			glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_ONE);
-			break;
-		default:
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			//glDisable(GL_BLEND);
-			break;
+			switch (mode)
+			{
+			case 0://Average
+				glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
+				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				break;
+			case 1://Add
+				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				break;
+			case 2://Subtract
+				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+				glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
+				break;
+			case 3://Addquatersource
+				glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
+				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				break;
+			}
 		}
 
 		previousBlendMode = mode;
 	}
-#else
-	if (previousBlendMode != mode)
+	else
 	{
-		switch (mode)
-		{
-		case 0://Average
-			glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
-			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-			break;
-		case 1://Add
-			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-			break;
-		case 2://Subtract
-			glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
-			glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
-			break;
-		case 3://Addquatersource
-			glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
-			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-			break;
-		default:
-			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-			glBlendEquation(GL_FUNC_ADD);
-			break;
-		}
-
-		previousBlendMode = mode;
+		glDisable(GL_BLEND);
 	}
-#endif
-}
-
-void Emulator_NXPOT(int& value)
-{
-	value--;
-	value |= value >> 1;
-	value |= value >> 2;
-	value |= value >> 4;
-	value |= value >> 8;
-	value |= value >> 16;
-	value++;
 }
 
 #if defined(OGLES) || defined(OGL)
@@ -1421,10 +1376,6 @@ void Emulator_GetTopLeftAndBottomLeftTextureCoordinate(int& x, int& y, int& w, i
 		}
 	}
 
-	//Emulator_NXPOT(topCoordX);
-	//Emulator_NXPOT(topCoordY);
-	//Emulator_NXPOT(bottomCoordX);
-	//Emulator_NXPOT(bottomCoordY);
 	x = topCoordX;
 	y = topCoordY;
 	w = (bottomCoordX - topCoordX) + 1;

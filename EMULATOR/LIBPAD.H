@@ -1,8 +1,7 @@
 #ifndef LIBPAD_H
 #define LIBPAD_H
 
-#include <SDL.h>
-#include <SDL_gamecontroller.h>
+#include "EMULAOR_PLATFORM_SETUP.H"
 
 #ifndef TRUE
 #define TRUE		1
