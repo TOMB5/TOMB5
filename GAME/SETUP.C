@@ -977,16 +977,16 @@ void sub_B3A7C(int a0)
 {
 	struct PSXSPRITESTRUCT* spr = &psxspriteinfo[objects[MISC_SPRITES].mesh_index];
 
-	envmap_data[0] = spr->tpage << 16 | spr->clut;
-	envmap_data[1] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+	envmap_data[0] = (spr->tpage << 16) | spr->clut;
+	envmap_data[1] = ((spr->u1 + 32) & 0xFF) | (((spr->v1 + 32) & 0xFF) << 8);
 	spr++;
 
-	envmap_data[2] = spr->tpage << 16 | spr->clut;
-	envmap_data[3] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+	envmap_data[2] = (spr->tpage << 16) | spr->clut;
+	envmap_data[3] = ((spr->u1 + 32) & 0xFF) | (((spr->v1 + 32) & 0xFF) << 8);
 	spr++;
 
-	envmap_data[4] = spr->tpage << 16 | spr->clut;
-	envmap_data[5] = (spr->u1 + 32) & 0xFF | (spr->v1 + 32) & 0xFF << 8;
+	envmap_data[4] = (spr->tpage << 16) | spr->clut;
+	envmap_data[5] = ((spr->u1 + 32) & 0xFF) | (((spr->v1 + 32) & 0xFF) << 8);
 }
 #endif
 /*
@@ -1764,6 +1764,2807 @@ void TrapObjects()//?, B7E04
 
 void ObjectObjects()//?, B84F0
 {
+	struct object_info* object = &objects[LARA];//$t0
+	//a1 = 0x1F0000
+	//t0 = objects
+	//a0 = 0xFDFFFFFF
+	//v0 = InitialiseLaraLoad
+	//v1 = 0xA0
+	object->shadow_size = 160;
+	//v1 = 0x3E8
+	//t5 = 0x100000
+	//t4 = 0x80000
+	//t3 = 0x200000
+	//t2 = 0x400000
+	object->initialise = &InitialiseLaraLoad;
+	//v0 = object->flags
+	//t1 = 0x10000
+	object->hit_points = 1000;
+	object->draw_routine = NULL;
+	object->bite_offset &= 0xFDFF;
+	object->save_hitpoints = 1;
+	object->save_position = 1;
+	object->save_flags = 1;
+	object->save_anim = 1;
+
+#if 1//LARA temporary hack (this function is incomplete)
+	bones[0] = 10;
+#endif
+	
+	object = &objects[SAS];
+	//v1 = object->flags
+	//v0 = v1 & t1
+	//t6 = 0x1F0000
+	if (object->loaded)
+	{
+		//v0 = 0xF3FFFFFF
+		//a0 = 0x20000
+	}//loc_1BA4
+
+#if 0
+		or $a0, $v1, $a0
+		and $a0, $v0
+		lui     $v1, 0x400
+		or $a0, $v1
+		li      $v0, 0xFFFF8C7C
+		lui     $v1, 0x1F
+		sw      $v0, 0xC($t0)
+		lui     $v0, 3
+		lw      $a1, 0x1EDDD4
+		li      $v0, 0x29E10
+		lw      $a2, 0($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x28  # '('
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v1, 0x2A($t0)
+		li      $v1, 0x66  # 'f'
+		sh      $v1, 0x2C($t0)
+		lui     $v1, 0xA
+		sh      $v0, 0x28($t0)
+		sw      $a0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		or $v0, $t3
+		or $v0, $t2
+		or $v0, $t5
+		or $v0, $t4
+		sll     $a0, 2
+		addu    $a0, $a1
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0xD0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0xD0($v1)
+
+		loc_1BA4:                                # CODE XREF : ROM:00001A94↑j
+		addiu   $t0, 0x180
+		lw      $v0, 0x30($t0)
+		nop
+		and $v0, $t1
+		beqz    $v0, loc_1D50
+		lui     $v0, 0
+		li      $v0, 0xFFFF8C7C
+		lui     $v1, 0x1F
+		sw      $v0, 0xC($t0)
+		lw      $v0, 0x1EDDD4
+		nop
+		lw      $a0, 0($v0)
+		addiu   $a3, $t0, -0x940
+		sw      $a0, 0x10($t0)
+		lw      $v0, 0x870($a3)
+		nop
+		and $v0, $t1
+		beqz    $v0, loc_1BFC
+		lui     $a0, 0xF3FF
+		lhu     $v0, 0x866($a3)
+		nop
+		sh      $v0, 0x26($t0)
+
+		loc_1BFC:                                # CODE XREF : ROM:00001BE8↑j
+		ori     $a0, 0xFFFF
+		li      $v0, 0x29E10
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x18
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v0, 0x2C($t0)
+		lw      $v0, 0x30($t0)
+		li      $v1, 0x80
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v1, 0x2A($t0)
+		li      $v1, 0x4000
+		sw      $v1, 0x38($t0)
+		lui     $v1, 2
+		or $v0, $v1
+		and $v0, $a0
+		lui     $v1, 0x400
+		or $v0, $v1
+		li      $a0, 4
+		li      $v1, 0x50594
+		sw      $v1, 0x34($t0)
+		lui     $v1, 0xA
+		sw      $v0, 0x30($t0)
+		sh      $a0, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		or $v0, $t3
+		or $v0, $t2
+		or $v0, $t5
+		or $v0, $t4
+		sll     $a0, 2
+		addu    $a0, $a1
+		sw      $v0, 0x30($t0)
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0xD0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0xD0($v1)
+		lui     $v1, 0xA
+		lh      $a0, 2($t0)
+		lh      $v0, 0x6542($a3)
+		lw      $a2, 0xA2600
+		sll     $a0, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		lw      $a1, 0x50($v0)
+		addu    $a0, $a2
+		sw      $a1, 0x54($a0)
+		lh      $v1, 2($t0)
+		lh      $v0, 0x6542($a3)
+		sll     $v1, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		addu    $v1, $a2
+		lw      $a0, 0x68($v0)
+		li      $v0, 0x1400
+		sw      $a0, 0x6C($v1)
+		sh      $v0, 0x24($t0)
+
+		loc_1D50:                                # CODE XREF : ROM:00001BB4↑j
+		lui     $v0, 0x1F
+		addiu   $t0, $v0, 0x2CC0
+		lw      $v1, 0x30($t0)
+		lui     $t1, 1
+		and $v0, $v1, $t1
+		beqz    $v0, loc_1EE4
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		lui     $v1, 0x400
+		or $a0, $v1
+		li      $v0, 0xFFFF8C7C
+		lui     $v1, 0x1F
+		sw      $v0, 0xC($t0)
+		lui     $v0, 3
+		lw      $a1, 0x1EDDD4
+		li      $v0, 0x29E10
+		lw      $a2, 0($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x18
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v0, 0x2C($t0)
+		li      $v0, 0x4000
+		sw      $v0, 0x38($t0)
+		li      $v0, 0x50594
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x20  # ' '
+		sw      $a0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		sw      $v0, 0x34($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0xD0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		addiu   $a3, $t0, -0x840
+		ori     $v0, 4
+		sw      $v0, 0xD0($v1)
+		lui     $v1, 0xA
+		lh      $a0, 2($t0)
+		lh      $v0, 0x6542($a3)
+		lw      $a2, 0xA2600
+		sll     $a0, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		lw      $a1, 0x50($v0)
+		addu    $a0, $a2
+		sw      $a1, 0x54($a0)
+		lh      $v1, 2($t0)
+		lh      $v0, 0x6542($a3)
+		sll     $v1, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		addu    $v1, $a2
+		lw      $a0, 0x68($v0)
+		li      $v0, 0x1400
+		sw      $a0, 0x6C($v1)
+		sh      $v0, 0x24($t0)
+
+		loc_1EE4:                                # CODE XREF : ROM:00001D64↑j
+		addiu   $t0, 0x80
+		lw      $v0, 0x30($t0)
+		nop
+		and $v0, $t1
+		beqz    $v0, loc_20A4
+		lui     $v0, 0
+		li      $v0, 0xFFFF8C7C
+		lui     $v1, 0x1F
+		sw      $v0, 0xC($t0)
+		lw      $v0, 0x1EDDD4
+		nop
+		lw      $a0, 0($v0)
+		addiu   $v1, $t0, -0x8C0
+		sw      $a0, 0x10($t0)
+		lw      $v0, 0x870($v1)
+		nop
+		and $v0, $t1
+		beqz    $v0, loc_1F3C
+		nop
+		lhu     $v0, 0x866($v1)
+		j       loc_1F40
+		sh      $v0, 0x26($t0)
+# ---------------------------------------------------------------------------
+
+		loc_1F3C:                                # CODE XREF : ROM:00001F28↑j
+		lhu     $v0, 0x966($v1)
+
+		loc_1F40 : # CODE XREF : ROM:00001F34↑j
+		nop
+		sh      $v0, 0x26($t0)
+		li      $a1, 0xF3FFFFFF
+		li      $v0, 0x29E10
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x18
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		li      $a0, 0x66  # 'f'
+		sh      $v0, 0x28($t0)
+		lui     $v0, 5
+		sh      $v1, 0x2A($t0)
+		lw      $v1, 0x30($t0)
+		li      $v0, 0x50594
+		sw      $v0, 0x34($t0)
+		lui     $v0, 2
+		sh      $a0, 0x2C($t0)
+		lui     $a0, 0x40  # '@'
+		or $v1, $v0
+		and $v1, $a1
+		lui     $v0, 0x400
+		or $v1, $v0
+		sw      $v1, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $v1, 0x20  # ' '
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0xD0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		addiu   $a3, $t6, 0x2480
+		ori     $v0, 4
+		sw      $v0, 0xD0($v1)
+		lui     $v1, 0xA
+		lh      $a0, 2($t0)
+		lh      $v0, 0x6542($a3)
+		lw      $a2, 0xA2600
+		sll     $a0, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		lw      $a1, 0x50($v0)
+		addu    $a0, $a2
+		sw      $a1, 0x54($a0)
+		lh      $v1, 2($t0)
+		lh      $v0, 0x6542($a3)
+		sll     $v1, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		addu    $v1, $a2
+		lw      $a0, 0x68($v0)
+		li      $v0, 0x1400
+		sw      $a0, 0x6C($v1)
+		sh      $v0, 0x24($t0)
+
+		loc_20A4:                                # CODE XREF : ROM:00001EF4↑j
+		lui     $v1, 0x1F
+		addiu   $t0, $v1, 0x30C0
+		lw      $v0, 0x30($t0)
+		lui     $a1, 1
+		and $v0, $a1
+		beqz    $v0, loc_2270
+		lui     $v0, 0
+		li      $v0, 0xFFFF8C7C
+		lui     $v1, 0x1F
+		sw      $v0, 0xC($t0)
+		lw      $v0, 0x1EDDD4
+		nop
+		lw      $a0, 0($v0)
+		addiu   $v1, $t0, -0xC40
+		sw      $a0, 0x10($t0)
+		lw      $v0, 0x870($v1)
+		nop
+		and $v0, $a1
+		beqz    $v0, loc_2100
+		nop
+		lhu     $v0, 0x866($v1)
+		j       loc_2104
+		sh      $v0, 0x26($t0)
+# ---------------------------------------------------------------------------
+
+		loc_2100:                                # CODE XREF : ROM:000020EC↑j
+		lhu     $v0, 0x966($v1)
+
+		loc_2104 : # CODE XREF : ROM:000020F8↑j
+		nop
+		sh      $v0, 0x26($t0)
+		li      $a0, 0xF3FFFFFF
+		li      $v0, 0x29E10
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x18
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v1, 0x2A($t0)
+		li      $v1, 0x4000
+		sh      $v0, 0x2C($t0)
+		lui     $v0, 5
+		sw      $v1, 0x38($t0)
+		lw      $v1, 0x30($t0)
+		li      $v0, 0x50594
+		sw      $v0, 0x34($t0)
+		lui     $v0, 2
+		or $v1, $v0
+		and $v1, $a0
+		lui     $v0, 0x400
+		or $v1, $v0
+		sw      $v1, 0x30($t0)
+		lui     $v1, 0x20  # ' '
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0xD0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		addiu   $a3, $t6, 0x2480
+		ori     $v0, 4
+		sw      $v0, 0xD0($v1)
+		lui     $v1, 0xA
+		lh      $a0, 2($t0)
+		lh      $v0, 0x6542($a3)
+		lw      $a2, 0xA2600
+		sll     $a0, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		lw      $a1, 0x50($v0)
+		addu    $a0, $a2
+		sw      $a1, 0x54($a0)
+		lh      $v1, 2($t0)
+		lh      $v0, 0x6542($a3)
+		sll     $v1, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		addu    $v1, $a2
+		lw      $a0, 0x68($v0)
+		li      $v0, 0x1400
+		sw      $a0, 0x6C($v1)
+		sh      $v0, 0x24($t0)
+
+		loc_2270:                                # CODE XREF : ROM:000020B8↑j
+		lui     $v1, 0x1F
+		addiu   $t0, $v1, 0x35C0
+		lw      $v0, 0x30($t0)
+		lui     $a1, 1
+		and $v0, $a1
+		beqz    $v0, loc_2428
+		lui     $v0, 0
+		li      $v0, 0xFFFF8C7C
+		lui     $v1, 0x1F
+		sw      $v0, 0xC($t0)
+		lw      $v0, 0x1EDDD4
+		nop
+		lw      $a0, 0($v0)
+		addiu   $v1, $t0, -0x1140
+		sw      $a0, 0x10($t0)
+		lw      $v0, 0x870($v1)
+		nop
+		and $v0, $a1
+		beqz    $v0, loc_22CC
+		nop
+		lhu     $v0, 0x866($v1)
+		j       loc_22D0
+		sh      $v0, 0x26($t0)
+# ---------------------------------------------------------------------------
+
+		loc_22CC:                                # CODE XREF : ROM:000022B8↑j
+		lhu     $v0, 0x966($v1)
+
+		loc_22D0 : # CODE XREF : ROM:000022C4↑j
+		nop
+		sh      $v0, 0x26($t0)
+		li      $a1, 0xF3FFFFFF
+		li      $v0, 0x29E10
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x18
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		lw      $v0, 0x30($t0)
+		li      $a0, 0x66  # 'f'
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 2
+		sh      $a0, 0x2C($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		and $v0, $a1
+		lui     $v1, 0x400
+		or $v0, $v1
+		sw      $v0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $v1, 0x20  # ' '
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0xD0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		addiu   $a3, $t6, 0x2480
+		ori     $v0, 4
+		sw      $v0, 0xD0($v1)
+		lui     $v1, 0xA
+		lh      $a0, 2($t0)
+		lh      $v0, 0x6542($a3)
+		lw      $a2, 0xA2600
+		sll     $a0, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		lw      $a1, 0x50($v0)
+		addu    $a0, $a2
+		sw      $a1, 0x54($a0)
+		lh      $v1, 2($t0)
+		lh      $v0, 0x6542($a3)
+		sll     $v1, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		addu    $v1, $a2
+		lw      $a0, 0x68($v0)
+		li      $v0, 0x1400
+		sw      $a0, 0x6C($v1)
+		sh      $v0, 0x24($t0)
+
+		loc_2428:                                # CODE XREF : ROM:00002284↑j
+		lui     $v1, 0x1F
+		addiu   $t0, $v1, 0x3240
+		lw      $v0, 0x30($t0)
+		lui     $a1, 1
+		and $v0, $a1
+		beqz    $v0, loc_25F8
+		lui     $v0, 0
+		li      $v0, 0xFFFF8C7C
+		lui     $v1, 0x1F
+		sw      $v0, 0xC($t0)
+		lw      $v0, 0x1EDDD4
+		nop
+		lw      $a0, 0($v0)
+		addiu   $v1, $t0, -0xDC0
+		sw      $a0, 0x10($t0)
+		lw      $v0, 0x870($v1)
+		nop
+		and $v0, $a1
+		beqz    $v0, loc_2484
+		nop
+		lhu     $v0, 0x866($v1)
+		j       loc_2488
+		sh      $v0, 0x26($t0)
+# ---------------------------------------------------------------------------
+
+		loc_2484:                                # CODE XREF : ROM:00002470↑j
+		lhu     $v0, 0x966($v1)
+
+		loc_2488 : # CODE XREF : ROM:0000247C↑j
+		nop
+		sh      $v0, 0x26($t0)
+		li      $a0, 0xF3FFFFFF
+		li      $v0, 0x29E10
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x18
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v1, 0x2A($t0)
+		li      $v1, 0x4000
+		sh      $v0, 0x2C($t0)
+		lui     $v0, 5
+		sw      $v1, 0x38($t0)
+		lw      $v1, 0x30($t0)
+		li      $v0, 0x50594
+		sw      $v0, 0x34($t0)
+		lui     $v0, 2
+		or $v1, $v0
+		and $v1, $a0
+		lui     $v0, 0x400
+		or $v1, $v0
+		li      $a0, 4
+		sw      $v1, 0x30($t0)
+		lui     $v1, 0x20  # ' '
+		sh      $a0, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0xD0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		addiu   $a3, $t6, 0x2480
+		ori     $v0, 4
+		sw      $v0, 0xD0($v1)
+		lui     $v1, 0xA
+		lh      $a0, 2($t0)
+		lh      $v0, 0x6542($a3)
+		lw      $a2, 0xA2600
+		sll     $a0, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		lw      $a1, 0x50($v0)
+		addu    $a0, $a2
+		sw      $a1, 0x54($a0)
+		lh      $v1, 2($t0)
+		lh      $v0, 0x6542($a3)
+		sll     $v1, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		addu    $v1, $a2
+		lw      $a0, 0x68($v0)
+		li      $v0, 0x1400
+		sw      $a0, 0x6C($v1)
+		sh      $v0, 0x24($t0)
+
+		loc_25F8:                                # CODE XREF : ROM:0000243C↑j
+		lui     $v1, 0x1F
+		addiu   $t0, $v1, 0x3280
+		li      $v0, 0x4F154
+		lui     $a1, 0x20  # ' '
+		lw      $v1, 0x30($t0)
+		addiu   $a2, $t0, -0xE00
+		sw      $v0, 0x10($t0)
+		or $v1, $a1
+		sw      $v1, 0x30($t0)
+		addiu   $t0, -0xC0
+		lw      $v0, 0x830($a2)
+		lw      $v1, 0x8B0($a2)
+		or $v0, $a1
+		sw      $v0, 0x830($a2)
+		lw      $v0, 0x930($a2)
+		or $v1, $a1
+		sw      $v1, 0x8B0($a2)
+		lw      $v1, 0x9B0($a2)
+		or $v0, $a1
+		sw      $v0, 0x930($a2)
+		lw      $v0, 0xA30($a2)
+		or $v1, $a1
+		sw      $v1, 0x9B0($a2)
+		lw      $v1, 0xAB0($a2)
+		or $v0, $a1
+		sw      $v0, 0xA30($a2)
+		lw      $v0, 0xB30($a2)
+		or $v1, $a1
+		sw      $v1, 0xAB0($a2)
+		lw      $v1, 0xBB0($a2)
+		or $v0, $a1
+		sw      $v0, 0xB30($a2)
+		lw      $v0, 0xC30($a2)
+		or $v1, $a1
+		sw      $v1, 0xBB0($a2)
+		lw      $v1, 0xCB0($a2)
+		or $v0, $a1
+		sw      $v0, 0xC30($a2)
+		lw      $v0, 0xD30($a2)
+		or $v1, $a1
+		sw      $v1, 0xCB0($a2)
+		lw      $v1, 0xDB0($a2)
+		or $v0, $a1
+		sw      $v0, 0xD30($a2)
+		lw      $v0, 0xE30($a2)
+		or $v1, $a1
+		sw      $v1, 0xDB0($a2)
+		lw      $v1, 0xEB0($a2)
+		or $v0, $a1
+		sw      $v0, 0xE30($a2)
+		lw      $v0, 0xF30($a2)
+		or $v1, $a1
+		sw      $v1, 0xEB0($a2)
+		lw      $v1, 0xFB0($a2)
+		or $v0, $a1
+		or $v1, $a1
+		sw      $v0, 0xF30($a2)
+		sw      $v1, 0xFB0($a2)
+		lw      $v0, 0x1030($a2)
+		lw      $v1, 0x10B0($a2)
+		lw      $a0, 0x1130($a2)
+		or $v0, $a1
+		sw      $v0, 0x1030($a2)
+		lw      $v0, 0x11B0($a2)
+		or $v1, $a1
+		sw      $v1, 0x10B0($a2)
+		lw      $v1, 0x1230($a2)
+		or $a0, $a1
+		sw      $a0, 0x1130($a2)
+		or $v0, $a1
+		sw      $v0, 0x11B0($a2)
+		lw      $v0, 0x12B0($a2)
+		or $v1, $a1
+		sw      $v1, 0x1230($a2)
+		lw      $v1, 0x1330($a2)
+		or $v0, $a1
+		sw      $v0, 0x12B0($a2)
+		lw      $v0, 0x13B0($a2)
+		or $v1, $a1
+		sw      $v1, 0x1330($a2)
+		lw      $v1, 0x1430($a2)
+		or $v0, $a1
+		sw      $v0, 0x13B0($a2)
+		lw      $v0, 0x14B0($a2)
+		or $v1, $a1
+		sw      $v1, 0x1430($a2)
+		lw      $v1, 0x1530($a2)
+		or $v0, $a1
+		sw      $v0, 0x14B0($a2)
+		lw      $v0, 0x15B0($a2)
+		or $v1, $a1
+		sw      $v1, 0x1530($a2)
+		lw      $v1, 0x1630($a2)
+		or $v0, $a1
+		sw      $v0, 0x15B0($a2)
+		lw      $v0, 0x16B0($a2)
+		or $v1, $a1
+		sw      $v1, 0x1630($a2)
+		lw      $v1, 0x1730($a2)
+		or $v0, $a1
+		or $v1, $a1
+		sw      $v0, 0x16B0($a2)
+		sw      $v1, 0x1730($a2)
+		lw      $v0, 0x30($t0)
+		lui     $a1, 1
+		and $v0, $a1
+		beqz    $v0, loc_28FC
+		lui     $v0, 0
+		li      $v0, 0xFFFF8C7C
+		lui     $v1, 0x1F
+		sw      $v0, 0xC($t0)
+		lw      $v0, 0x1EDDD4
+		nop
+		lw      $a0, 0($v0)
+		nop
+		sw      $a0, 0x10($t0)
+		lw      $v0, 0x870($a2)
+		nop
+		and $v0, $a1
+		beqz    $v0, loc_27EC
+		nop
+		lhu     $v0, 0x866($a2)
+		j       loc_27F0
+		sh      $v0, 0x26($t0)
+# ---------------------------------------------------------------------------
+
+		loc_27EC:                                # CODE XREF : ROM:000027D8↑j
+		lhu     $v0, 0x966($a2)
+
+		loc_27F0 : # CODE XREF : ROM:000027E4↑j
+		nop
+		sh      $v0, 0x26($t0)
+		li      $a1, 0xF3FFFFFF
+		li      $v0, 0x29E10
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x18
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		lw      $v0, 0x30($t0)
+		li      $a0, 0x66  # 'f'
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 2
+		sh      $a0, 0x2C($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		and $v0, $a1
+		lui     $v1, 0x400
+		or $v0, $v1
+		sw      $v0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $v1, 0x20  # ' '
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0xD0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		li      $a0, 0x1400
+		ori     $v0, 4
+		sw      $v0, 0xD0($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_28FC:                                # CODE XREF : ROM:000027A4↑j
+		lui     $v0, 0x1F
+		addiu   $t0, $v0, 0x38C0
+		lw      $a3, 0x30($t0)
+		lui     $t1, 1
+		and $v0, $a3, $t1
+		beqz    $v0, loc_29FC
+		lui     $v1, 0x1F
+		li      $v1, 0x1EDDC0
+		lw      $v0, 0x9C($v1)
+		nop
+		lw      $a0, 0($v0)
+		li      $v0, 0x29E10
+		sw      $a0, 0xC($t0)
+		lw      $a1, 0x9C($v1)
+		li      $v1, 0x80
+		lw      $a2, 4($a1)
+		li      $a0, 0x200
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x64  # 'd'
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0xC8
+		sh      $v0, 0x28($t0)
+		lui     $v0, 2
+		or $v0, $a3, $v0
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x1000
+		or $v0, $v1
+		sh      $a0, 0x2C($t0)
+		lui     $a0, 0xC00
+		or $v0, $a0
+		lui     $v1, 0x100
+		sw      $v0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x20  # ' '
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x40  # '@'
+		or $v0, $v1
+		lui     $a0, 0x10
+		or $v0, $a0
+		lui     $v1, 8
+		or $v0, $v1
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0($a0)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x10($v1)
+		li      $a0, 0x1C00
+		ori     $v0, 4
+		sw      $v0, 0x10($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_29FC:                                # CODE XREF : ROM:00002910↑j
+		addiu   $t0, -0x600
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_2AF0
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x48($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x48($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x28  # '('
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x155
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x20  # ' '
+		sh      $v0, 0x2C($t0)
+		sw      $a0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x130($v1)
+		li      $a0, 0x1400
+		ori     $v0, 8
+		sw      $v0, 0x130($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_2AF0:                                # CODE XREF : ROM:00002A0C↑j
+		addiu   $t0, -0x400
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_2BC4
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x58($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x58($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x12
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x100
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x20  # ' '
+		sh      $v0, 0x2C($t0)
+		sw      $a0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $a0, 0xA
+		lw      $v1, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x130($v1)
+		li      $a0, 0x1400
+		ori     $v0, 8
+		sw      $v0, 0x130($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_2BC4:                                # CODE XREF : ROM:00002B00↑j
+		addiu   $t0, 0xB00
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_2C98
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x5C($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x5C($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x18
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x100
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x20  # ' '
+		sh      $v0, 0x2C($t0)
+		sw      $a0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $a0, 0xA
+		lw      $v1, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x130($v1)
+		li      $a0, 0x1400
+		ori     $v0, 8
+		sw      $v0, 0x130($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_2C98:                                # CODE XREF : ROM:00002BD4↑j
+		addiu   $t0, -0xA80
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_2D6C
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x40($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x40($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0xA
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x20  # ' '
+		sh      $v0, 0x2C($t0)
+		sw      $a0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $a0, 0xA
+		lw      $v1, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x130($v1)
+		li      $a0, 0x1400
+		ori     $v0, 8
+		sw      $v0, 0x130($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_2D6C:                                # CODE XREF : ROM:00002CA8↑j
+		addiu   $t0, 0x800
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_2E28
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x9C($v1)
+		or $a0, $a1
+		lw      $a2, 0x14($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x9C($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 0x18($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0xA
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v0, 0x2C($t0)
+		li      $v0, 0x1400
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x100
+		sw      $a0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		sh      $v0, 0x24($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x20  # ' '
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x40  # '@'
+		or $v0, $v1
+		lui     $a0, 0x10
+		or $v0, $a0
+		lui     $v1, 8
+		or $v0, $v1
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+
+		loc_2E28:                                # CODE XREF : ROM:00002D7C↑j
+		addiu   $t0, -0x600
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_2FE0
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x60($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x60($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x1A
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v0, 0x2C($t0)
+		li      $v0, 0x4000
+		sh      $v1, 0x2A($t0)
+		li      $v1, 7
+		sw      $v0, 0x38($t0)
+		li      $v0, 0x50594
+		sw      $a0, 0x30($t0)
+		sh      $v1, 0x30($t0)
+		lui     $v1, 0x20  # ' '
+		sw      $v0, 0x34($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0xD0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		addiu   $a3, $t0, -0xCC0
+		ori     $v0, 4
+		sw      $v0, 0xD0($v1)
+		lui     $v1, 0xA
+		lh      $a0, 2($t0)
+		lh      $v0, 0x6582($a3)
+		lw      $a2, 0xA2600
+		sll     $a0, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		lw      $a1, 0x38($v0)
+		addu    $a0, $a2
+		sw      $a1, 0x3C($a0)
+		lh      $v1, 2($t0)
+		lh      $v0, 0x6582($a3)
+		sll     $v1, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		lw      $a1, 0x50($v0)
+		addu    $v1, $a2
+		sw      $a1, 0x54($v1)
+		lh      $a0, 2($t0)
+		lh      $v0, 0x6582($a3)
+		sll     $a0, 2
+		sll     $v0, 2
+		addu    $v0, $a2
+		addu    $a0, $a2
+		lw      $v1, 0x68($v0)
+		li      $v0, 0x1400
+		sw      $v1, 0x6C($a0)
+		sh      $v0, 0x24($t0)
+
+		loc_2FE0:                                # CODE XREF : ROM:00002E38↑j
+		addiu   $t0, -0x100
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_3124
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x3C($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x3C($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x3C  # '<'
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v1, 0x2A($t0)
+		li      $v1, 1
+		sh      $v0, 0x2C($t0)
+		li      $v0, 0x50594
+		sw      $a0, 0x30($t0)
+		sh      $v1, 0x30($t0)
+		lui     $v1, 0x20  # ' '
+		sw      $v0, 0x34($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x70($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x70($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x70($v1)
+		li      $a0, 0x1400
+		ori     $v0, 4
+		sw      $v0, 0x70($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_3124:                                # CODE XREF : ROM:00002FF0↑j
+		addiu   $t0, -0x80
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_3268
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x3C($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x3C($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x3C  # '<'
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v1, 0x2A($t0)
+		li      $v1, 3
+		sh      $v0, 0x2C($t0)
+		li      $v0, 0x50594
+		sw      $a0, 0x30($t0)
+		sh      $v1, 0x30($t0)
+		lui     $v1, 0x20  # ' '
+		sw      $v0, 0x34($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x70($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x70($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x70($v1)
+		li      $a0, 0x1400
+		ori     $v0, 4
+		sw      $v0, 0x70($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_3268:                                # CODE XREF : ROM:00003134↑j
+		addiu   $t0, 0x580
+		lui     $t4, 0x1F
+		lui     $t5, 0x1F
+		lw      $a2, 0x30($t0)
+		nop
+		and $v0, $a2, $t1
+		beqz    $v0, loc_33F8
+		lui     $t6, 0x1F
+		li      $v1, 0x1EDDC0
+		lw      $v0, 0x44($v1)
+		nop
+		lw      $a0, 0($v0)
+		lui     $v0, 3
+		sw      $a0, 0xC($t0)
+		lw      $a1, 0x44($v1)
+		li      $v0, 0x29E10
+		lw      $a0, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x32  # '2'
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x66  # 'f'
+		sh      $v0, 0x28($t0)
+		sh      $v0, 0x2A($t0)
+		lui     $v0, 2
+		or $v0, $a2, $v0
+		sh      $v1, 0x2C($t0)
+		lui     $v1, 0xC00
+		or $v0, $v1
+		li      $v1, 5
+		sw      $v0, 0x30($t0)
+		li      $v0, 0x50594
+		sh      $v1, 0x30($t0)
+		sw      $v0, 0x34($t0)
+		lw      $v0, 0x30($t0)
+		lui     $v1, 0x1000
+		or $v0, $v1
+		sw      $a0, 0x10($t0)
+		lui     $a0, 0x20  # ' '
+		or $v0, $a0
+		lui     $v1, 0x40  # '@'
+		or $v0, $v1
+		lui     $a0, 0x10
+		or $v0, $a0
+		lui     $v1, 8
+		or $v0, $v1
+		lui     $a0, 0xA
+		lw      $v1, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $v0, 0x30($t0)
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		move    $a3, $zero
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		addiu   $t3, $t0, -0x10C0
+		ori     $v0, 4
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		lui     $t1, 1
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		lui     $t2, 1
+		ori     $v0, 8
+		sw      $v0, 0xD0($v1)
+		lw      $a0, 4($t0)
+		lui     $v1, 0xA
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		lw      $a2, 0xA2600
+		ori     $v0, 4
+		sw      $v0, 0xD0($a0)
+
+		loc_33B0:                                # CODE XREF : ROM:000033E8↓j
+		move    $v0, $t1
+		addu    $t1, $t2
+		sll     $a1, $a3, 3
+		sra     $a3, $v0, 16
+		lh      $v1, 2($t0)
+		lh      $v0, 0x6542($t3)
+		sll     $v1, 2
+		addu    $v1, $a2
+		sll     $v0, 2
+		addu    $v0, $a2
+		addu    $v0, $a1, $v0
+		addu    $a1, $v1
+		lw      $a0, 0($v0)
+		slti    $v0, $a3, 0x14
+		bnez    $v0, loc_33B0
+		sw      $a0, 4($a1)
+		li      $v0, 0x1400
+		sh      $v0, 0x24($t0)
+
+		loc_33F8:                                # CODE XREF : ROM:00003280↑j
+		addiu   $t0, $t4, 0x3940
+		lw      $v1, 0x30($t0)
+		lui     $v0, 1
+		and $v0, $v1, $v0
+		beqz    $v0, loc_3544
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x64($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x64($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x23  # '#'
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v0, 0x2C($t0)
+		li      $v0, 0x4000
+		sh      $v1, 0x2A($t0)
+		li      $v1, 6
+		sw      $v0, 0x38($t0)
+		li      $v0, 0x50594
+		sw      $a0, 0x30($t0)
+		sh      $v1, 0x30($t0)
+		lui     $v1, 0x20  # ' '
+		sw      $v0, 0x34($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0xD0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		li      $a0, 0x1400
+		ori     $v0, 4
+		sw      $v0, 0xD0($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_3544:                                # CODE XREF : ROM:00003408↑j
+		addiu   $t0, 0x100
+		lw      $v1, 0x30($t0)
+		lui     $v0, 1
+		and $v0, $v1, $v0
+		beqz    $v0, loc_3678
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x90($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x90($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x23  # '#'
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x20  # ' '
+		sh      $v0, 0x2C($t0)
+		sw      $a0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0xD0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		li      $a0, 0x1400
+		ori     $v0, 4
+		sw      $v0, 0xD0($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_3678:                                # CODE XREF : ROM:00003554↑j
+		addiu   $t0, -0xC00
+		lw      $a3, 0x30($t0)
+		lui     $v0, 1
+		and $v0, $a3, $v0
+		beqz    $v0, loc_37DC
+		lui     $v1, 0x1F
+		li      $v1, 0x1EDDC0
+		lw      $v0, 0x1C($v1)
+		nop
+		lw      $a0, 0($v0)
+		li      $v0, 0x29E10
+		sw      $a0, 0xC($t0)
+		lw      $a1, 0x1C($v1)
+		li      $a0, 0x80
+		lw      $a2, 4($a1)
+		li      $v1, 0x32  # '2'
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x18
+		sh      $v0, 0x28($t0)
+		lui     $v0, 2
+		or $v0, $a3, $v0
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0xC00
+		or $v0, $v1
+		sw      $v0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		li      $v1, 4
+		sw      $v1, 0x38($t0)
+		lui     $v1, 0x1000
+		sh      $a0, 0x2E($t0)
+		sh      $a0, 0x2C($t0)
+		lui     $a0, 0x20  # ' '
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x40  # '@'
+		or $v0, $v1
+		lui     $a0, 0x10
+		or $v0, $a0
+		lui     $v1, 8
+		or $v0, $v1
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x10($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x10($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x10($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x10($v1)
+		lui     $v1, 0xA
+		lh      $a0, 2($t0)
+		lh      $v0, 0x5B82($t0)
+		lw      $a1, 0xA2600
+		sll     $a0, 2
+		sll     $v0, 2
+		addu    $v0, $a1
+		addu    $a0, $a1
+		lw      $v1, 0x10($v0)
+		li      $v0, 0x1400
+		sw      $v1, 0x54($a0)
+		sh      $v0, 0x24($t0)
+
+		loc_37DC:                                # CODE XREF : ROM:00003688↑j
+		addiu   $t0, 0x600
+		lw      $a3, 0x30($t0)
+		lui     $t1, 1
+		and $v0, $a3, $t1
+		beqz    $v0, loc_3914
+		lui     $v1, 0x1F
+		li      $v1, 0x1EDDC0
+		lw      $v0, 0x20($v1)
+		nop
+		lw      $a0, 0($v0)
+		li      $v0, 0x29E10
+		sw      $a0, 0xC($t0)
+		lw      $a1, 0x20($v1)
+		li      $v1, 0x80
+		lw      $a2, 4($a1)
+		li      $a0, 0x66  # 'f'
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x1E
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		lui     $v0, 2
+		or $v0, $a3, $v0
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0xC00
+		or $v0, $v1
+		sh      $a0, 0x2C($t0)
+		lui     $a0, 0x1000
+		or $v0, $a0
+		li      $v1, 0x400
+		sw      $v0, 0x30($t0)
+		sh      $v1, 0x30($t0)
+		lui     $v1, 0x20  # ' '
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x80($v1)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x80($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x80($a0)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x80($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x80($v1)
+		li      $a0, 0x1400
+		ori     $v0, 0x10
+		sw      $v0, 0x80($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_3914:                                # CODE XREF : ROM:000037EC↑j
+		addiu   $t0, 0x680
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_3A78
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x4C($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x4C($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0xC
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x14
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v0, 0x2C($t0)
+		li      $v0, 0x100
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x20  # ' '
+		sw      $a0, 0x30($t0)
+		sh      $v0, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x40($a0)
+		nop
+		ori     $v0, 0x10
+		sw      $v0, 0x40($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x40($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x40($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x90($a0)
+		nop
+		ori     $v0, 0x10
+		sw      $v0, 0x90($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x90($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x90($v1)
+		lui     $v1, 0xA
+		lh      $a0, 2($t0)
+		lh      $v0, 0x4F02($t0)
+		lw      $a1, 0xA2600
+		sll     $a0, 2
+		sll     $v0, 2
+		addu    $v0, $a1
+		addu    $a0, $a1
+		lw      $v1, 0x50($v0)
+		li      $v0, 0x1400
+		sw      $v1, 0x54($a0)
+		sh      $v0, 0x24($t0)
+
+		loc_3A78:                                # CODE XREF : ROM:00003924↑j
+		addiu   $t0, -0x480
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_3BB0
+		lui     $a0, 0xFDFF
+		li      $a0, 0xFDFFFFFF
+		li      $a3, 0xF3FFFFFF
+		li      $v0, 0x1EDDC0
+		and $a0, $v1, $a0
+		lui     $v1, 2
+		or $a0, $v1
+		lw      $a1, 0x68($v0)
+		and $a0, $a3
+		lw      $a2, 0($a1)
+		lui     $a1, 0x400
+		or $a0, $a1
+		sw      $a2, 0xC($t0)
+		lw      $v1, 0x68($v0)
+		li      $v0, 0x80
+		lw      $a2, 4($v1)
+		li      $v1, 0x10
+		sh      $v0, 0x2E($t0)
+		li      $v0, 0x14
+		sh      $v1, 0x28($t0)
+		li      $v1, 0x100
+		sh      $v1, 0x2C($t0)
+		sw      $a0, 0x30($t0)
+		sh      $v1, 0x30($t0)
+		lui     $v1, 0x20  # ' '
+		sh      $v0, 0x2A($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $zero, 0x1C($t0)
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x40($a0)
+		nop
+		ori     $v0, 0x10
+		sw      $v0, 0x40($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x40($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x40($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x90($a0)
+		nop
+		ori     $v0, 0x10
+		sw      $v0, 0x90($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x90($v1)
+		li      $a0, 0x1400
+		ori     $v0, 4
+		sw      $v0, 0x90($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_3BB0:                                # CODE XREF : ROM:00003A88↑j
+		addiu   $t0, 0x180
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_3CE8
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x68($v1)
+		or $a0, $a1
+		lw      $a2, 8($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x68($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 0xC($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0xFA0
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x14
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x155
+		sh      $v0, 0x2C($t0)
+		li      $v0, 0x100
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x20  # ' '
+		sw      $a0, 0x30($t0)
+		sh      $v0, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x40($a0)
+		nop
+		ori     $v0, 0x10
+		sw      $v0, 0x40($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x40($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x40($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x90($a0)
+		nop
+		ori     $v0, 0x10
+		sw      $v0, 0x90($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x90($v1)
+		li      $a0, 0x1400
+		ori     $v0, 4
+		sw      $v0, 0x90($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_3CE8:                                # CODE XREF : ROM:00003BC0↑j
+		addiu   $t0, 0x80
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_3E24
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x78($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x78($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x64  # 'd'
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x14
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x100
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x100
+		sh      $v0, 0x2C($t0)
+		sw      $a0, 0x30($t0)
+		sh      $v0, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x20  # ' '
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x40  # '@'
+		or $v0, $v1
+		lui     $a0, 0x10
+		or $v0, $a0
+		lui     $v1, 8
+		or $v0, $v1
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x40($a0)
+		nop
+		ori     $v0, 0x10
+		sw      $v0, 0x40($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x40($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x40($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x90($a0)
+		nop
+		ori     $v0, 0x10
+		sw      $v0, 0x90($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x90($v1)
+		li      $a0, 0x1400
+		ori     $v0, 4
+		sw      $v0, 0x90($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_3E24:                                # CODE XREF : ROM:00003CF8↑j
+		addiu   $t0, -0x180
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_3F58
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x70($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x70($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x64  # 'd'
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x14
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x100
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x20  # ' '
+		sh      $v0, 0x2C($t0)
+		sw      $a0, 0x30($t0)
+		sh      $v0, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $v1, 0xA
+		lw      $a0, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x80($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x80($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x80($v1)
+		li      $a0, 0x1400
+		ori     $v0, 4
+		sw      $v0, 0x80($v1)
+		sh      $a0, 0x24($t0)
+
+		loc_3F58:                                # CODE XREF : ROM:00003E34↑j
+		addiu   $t0, 0x540
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_3FB0
+		lui     $v0, 0xFDFF
+		li      $v0, 0xFDFFFFFF
+		and $v0, $v1, $v0
+		li      $v1, 0x1EDDC0
+		sw      $zero, 0x1C($t0)
+		sw      $v0, 0x30($t0)
+		lw      $v0, 0x24($v1)
+		nop
+		lw      $a0, 0x1C($v0)
+		nop
+		sw      $a0, 0xC($t0)
+		lw      $v0, 0x24($v1)
+		nop
+		lw      $a0, 0xC($v0)
+		nop
+		sw      $a0, 0x10($t0)
+
+		loc_3FB0:                                # CODE XREF : ROM:00003F68↑j
+		addiu   $t0, -0x40
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_4008
+		lui     $v0, 0xFDFF
+		li      $v0, 0xFDFFFFFF
+		and $v0, $v1, $v0
+		li      $v1, 0x1EDDC0
+		sw      $zero, 0x1C($t0)
+		sw      $v0, 0x30($t0)
+		lw      $v0, 0x54($v1)
+		nop
+		lw      $a0, 0xC($v0)
+		nop
+		sw      $a0, 0xC($t0)
+		lw      $v0, 0x54($v1)
+		nop
+		lw      $a0, 0x10($v0)
+		nop
+		sw      $a0, 0x10($t0)
+
+		loc_4008:                                # CODE XREF : ROM:00003FC0↑j
+		addiu   $t0, 0x80
+		lw      $a0, 0x30($t0)
+		nop
+		and $v0, $a0, $t1
+		beqz    $v0, loc_4054
+		lui     $v1, 0xFDFF
+		li      $v1, 0xFDFFFFFF
+		and $v1, $a0, $v1
+		li      $v0, 0xFFFF8AD8
+		sw      $v1, 0x30($t0)
+		lui     $v1, 0x1F
+		sw      $zero, 0x1C($t0)
+		sw      $v0, 0xC($t0)
+		lw      $v0, 0x1EDE40
+		nop
+		lw      $a0, 0xC($v0)
+		nop
+		sw      $a0, 0x10($t0)
+
+		loc_4054:                                # CODE XREF : ROM:00004018↑j
+		addiu   $t0, -0x900
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_41CC
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x400
+		lw      $v0, 0x50($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x50($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x14
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x66  # 'f'
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x20  # ' '
+		sh      $v0, 0x2C($t0)
+		sw      $a0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $a0, 0xA
+		lw      $v1, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		move    $a3, $zero
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		addiu   $t3, $t0, -0xEC0
+		ori     $v0, 4
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		lui     $t1, 1
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		lui     $t2, 1
+		ori     $v0, 8
+		sw      $v0, 0xD0($v1)
+		lw      $a0, 4($t0)
+		lui     $v1, 0xA
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		lw      $a2, 0xA2600
+		ori     $v0, 4
+		sw      $v0, 0xD0($a0)
+
+		loc_4184:                                # CODE XREF : ROM:000041BC↓j
+		move    $v0, $t1
+		addu    $t1, $t2
+		sll     $a1, $a3, 3
+		sra     $a3, $v0, 16
+		lh      $v1, 2($t0)
+		lh      $v0, 0x6542($t3)
+		sll     $v1, 2
+		addu    $v1, $a2
+		sll     $v0, 2
+		addu    $v0, $a2
+		addu    $v0, $a1, $v0
+		addu    $a1, $v1
+		lw      $a0, 0($v0)
+		slti    $v0, $a3, 0x10
+		bnez    $v0, loc_4184
+		sw      $a0, 4($a1)
+		li      $v0, 0x1400
+		sh      $v0, 0x24($t0)
+
+		loc_41CC:                                # CODE XREF : ROM:00004064↑j
+		addiu   $t0, $t5, 0x33C0
+		lw      $v1, 0x30($t0)
+		lui     $v0, 1
+		and $v0, $v1, $v0
+		beqz    $v0, loc_4344
+		lui     $v0, 0xF3FF
+		li      $v0, 0xF3FFFFFF
+		lui     $a0, 2
+		or $a0, $v1, $a0
+		and $a0, $v0
+		li      $v1, 0x1EDDC0
+		lui     $a1, 0x800
+		lw      $v0, 0x74($v1)
+		or $a0, $a1
+		lw      $a2, 0($v0)
+		lui     $v0, 3
+		sw      $a2, 0xC($t0)
+		lw      $a1, 0x74($v1)
+		li      $v0, 0x29E10
+		lw      $a2, 4($a1)
+		li      $v1, 0x80
+		sw      $v0, 0x20($t0)
+		li      $v0, 0x12C
+		sh      $v1, 0x2E($t0)
+		li      $v1, 0x32  # '2'
+		sh      $v0, 0x28($t0)
+		li      $v0, 0x100
+		sh      $v1, 0x2A($t0)
+		lui     $v1, 0x20  # ' '
+		sh      $v0, 0x2C($t0)
+		sw      $a0, 0x30($t0)
+		sh      $zero, 0x30($t0)
+		lw      $v0, 0x30($t0)
+		lui     $a0, 0x40  # '@'
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x10
+		or $v0, $v1
+		lui     $a0, 8
+		or $v0, $a0
+		lui     $a0, 0xA
+		lw      $v1, 4($t0)
+		lw      $a1, 0xA25E4
+		sw      $a2, 0x10($t0)
+		sw      $v0, 0x30($t0)
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		move    $a3, $zero
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		addiu   $t3, $t0, -0xF40
+		ori     $v0, 4
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		lui     $t1, 1
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0xD0($v1)
+		lui     $t2, 1
+		ori     $v0, 8
+		sw      $v0, 0xD0($v1)
+		lw      $a0, 4($t0)
+		lui     $v1, 0xA
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0xD0($a0)
+		lw      $a2, 0xA2600
+		ori     $v0, 4
+		sw      $v0, 0xD0($a0)
+
+		loc_42FC:                                # CODE XREF : ROM:00004334↓j
+		move    $v0, $t1
+		addu    $t1, $t2
+		sll     $a1, $a3, 3
+		sra     $a3, $v0, 16
+		lh      $v1, 2($t0)
+		lh      $v0, 0x6542($t3)
+		sll     $v1, 2
+		addu    $v1, $a2
+		sll     $v0, 2
+		addu    $v0, $a2
+		addu    $v0, $a1, $v0
+		addu    $a1, $v1
+		lw      $a0, 0($v0)
+		slti    $v0, $a3, 0x11
+		bnez    $v0, loc_42FC
+		sw      $a0, 4($a1)
+		li      $v0, 0x1400
+		sh      $v0, 0x24($t0)
+
+		loc_4344:                                # CODE XREF : ROM:000041DC↑j
+		addiu   $t0, $t6, 0x34C0
+		lw      $a3, 0x30($t0)
+		lui     $t1, 1
+		and $v0, $a3, $t1
+		beqz    $v0, loc_43C4
+		lui     $v1, 0x1F
+		li      $v1, 0x1EDDC0
+		lw      $v0, 0x88($v1)
+		nop
+		lw      $a0, 4($v0)
+		li      $v0, 0x29E10
+		sw      $a0, 0xC($t0)
+		lw      $a1, 0x88($v1)
+		li      $v1, 6
+		lw      $a2, 0($a1)
+		lui     $a0, 0x2000
+		sw      $v0, 0x20($t0)
+		lui     $v0, 0xC00
+		or $v0, $a3, $v0
+		sw      $v1, 0x38($t0)
+		lui     $v1, 8
+		or $v0, $v1
+		or $v0, $a0
+		lui     $v1, 0x20  # ' '
+		or $v0, $v1
+		lui     $a0, 0x10
+		or $v0, $a0
+		lui     $v1, 0x40  # '@'
+		or $v0, $v1
+		sw      $v0, 0x30($t0)
+		sw      $a2, 0x10($t0)
+
+		loc_43C4:                                # CODE XREF : ROM:00004354↑j
+		addiu   $t0, 0x800
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, loc_447C
+		lui     $v0, 0
+		li      $v0, 0xFFFF90E8
+		lui     $a1, 0x1F
+		sw      $v0, 0xC($t0)
+		lui     $v0, 0xC00
+		or $v0, $v1, $v0
+		lui     $v1, 0x40  # '@'
+		or $v0, $v1
+		lui     $a0, 0x20  # ' '
+		or $v0, $a0
+		lui     $a0, 0x10
+		or $v0, $a0
+		lw      $v1, 0x1EDE54
+		lw      $a0, 4($t0)
+		lw      $a1, 4($v1)
+		sw      $v0, 0x30($t0)
+		lui     $v0, 0xA
+		sw      $a1, 0x10($t0)
+		lw      $a1, 0xA25E4
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x60($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x60($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x60($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x60($v1)
+		lw      $a0, 4($t0)
+		nop
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0x80($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0x80($a0)
+
+		loc_447C:                                # CODE XREF : ROM:000043D4↑j
+		addiu   $t0, -0x180
+		lw      $v1, 0x30($t0)
+		nop
+		and $v0, $v1, $t1
+		beqz    $v0, nullsub_2
+		lui     $a1, 0x1F
+		lui     $v0, 0x40  # '@'
+		or $v0, $v1, $v0
+		lui     $a0, 0x20  # ' '
+		or $v0, $a0
+		lw      $v1, 0x1EDE60
+		lw      $a0, 4($t0)
+		lw      $a1, 0($v1)
+		sw      $v0, 0x30($t0)
+		lui     $v0, 0xA
+		sw      $a1, 0x10($t0)
+		lw      $a1, 0xA25E4
+		sll     $a0, 2
+		addu    $a0, $a1
+		lw      $v0, 0($a0)
+		nop
+		ori     $v0, 8
+		sw      $v0, 0($a0)
+		lw      $v1, 4($t0)
+		nop
+		sll     $v1, 2
+		addu    $v1, $a1
+		lw      $v0, 0x10($v1)
+		nop
+		ori     $v0, 4
+		sw      $v0, 0x10($v1)
+#endif
 	UNIMPLEMENTED();
 }
 
