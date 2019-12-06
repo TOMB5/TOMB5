@@ -1010,6 +1010,7 @@ void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int
 	at &= 3;
 	at <<= 3;
 	t7 += at;
+	t7 = (int)&envmap_data[0];//Im sure the above is doing some pointer fuckery here to obtain this address
 	t8 = ((int*)t7)[1];
 	t7 = ((int*)t7)[0];
 	RGB1 = t8;
