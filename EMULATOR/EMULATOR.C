@@ -379,6 +379,22 @@ void Emulator_CounterLoop()
 	}
 }
 
+void Emulator_GenerateLineArray(Vertex* vertex, short* p0, short* p1, short* p2, short* p3)
+{
+	//Copy over position
+	if (p0 != NULL)
+	{
+		vertex[0].x = (float)p0[0];
+		vertex[0].y = (float)p0[1];
+	}
+
+	if (p1 != NULL)
+	{
+		vertex[1].x = (float)p1[0];
+		vertex[1].y = (float)p1[1];
+	}
+}
+
 void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h)
 {
 	//Copy over position
@@ -755,8 +771,8 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 			continue;
 
 		unsigned short tpage = cachedTextures[i].tpage;
-		unsigned int tpageX = ((tpage << 6) & 0x7C0) % VRAM_WIDTH;
-		unsigned int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200)) % VRAM_HEIGHT;
+		unsigned int tpageX = ((tpage << 6) & 0x7C0) % VRAM_WIDTH;///@TODO macro
+		unsigned int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200)) % VRAM_HEIGHT;///@TODO macro
 
 		if (rect->x < tpageX + TPAGE_WIDTH && rect->x + rect->w > tpageX &&
 			rect->y > tpageY + TPAGE_WIDTH && rect->y + rect->h < tpageY)
@@ -788,19 +804,11 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 	unsigned short* pixelData = new unsigned short[width * height];
 	if (bReadFromFrameBuffer)
 	{
-#if defined(OGLES)
-		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixelData[0]);
-#elif defined(OGL)
-		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
-#endif
+		glReadPixels(x, y, width, height, GL_RGBA, TEXTURE_FORMAT, &pixelData[0]);
 	}
 	else
 	{
-#if defined(OGLES)
-		//glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, pixelData);
-#elif defined(OGL)
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
-#endif
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, TEXTURE_FORMAT, pixelData);
 	}
 
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
@@ -1081,11 +1089,11 @@ CachedTexture* Emulator_GetFreeCachedTexture()
 
 GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 {
-	unsigned int textureType = (tpage >> 7) & 0x3;
-	unsigned int tpageX = ((tpage << 6) & 0x7C0) % (VRAM_WIDTH / RESOLUTION_SCALE);
-	unsigned int tpageY = ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT / RESOLUTION_SCALE);
-	unsigned int clutX = ((clut & 0x3F) << 4);
-	unsigned int clutY = (clut >> 6);
+	unsigned int textureType = GET_TPAGE_TYPE(tpage);
+	unsigned int tpageX = GET_TPAGE_X(tpage);
+	unsigned int tpageY = GET_TPAGE_Y(tpage)
+	unsigned int clutX = GET_CLUT_X(clut);
+	unsigned int clutY = GET_CLUT_Y(clut);
 
 #if RESOLUTION_SCALE > 1
 	if (tpageX >= 256)
@@ -1125,17 +1133,23 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		return tpageTexture->textureID;
 	}
 
+	enum
+	{
+		TP_4BIT,
+		TP_8BIT,
+		TP_16BIT
+	};
+
 	switch (textureType)
 	{
-	case 2:
+	case TP_16BIT:
 	{
-		//ARGB1555
 		unsigned short* texturePage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
-#if defined(OGL)
-		glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
 
-#if _DEBUG && 0
+		glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &texturePage[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, TEXTURE_FORMAT, &texturePage[0]);
+
+#if defined(_DEBUG) && 0
 		char buff[64];
 		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
 		FILE* f = fopen(buff, "wb");
@@ -1147,37 +1161,27 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		fclose(f);
 #endif
 
-#endif
 		delete[] texturePage;
 		break;
 	}
-	case 1:
+	case TP_8BIT:
 	{
-		//RGBA8888
 		assert(0);
 		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texturePage[0]);
 		break;
 	}
-	case 0:
+	case TP_4BIT:
 	{
-		//RGBA4444
 		unsigned short* texturePage = new unsigned short[TPAGE_WIDTH / 4 * TPAGE_HEIGHT];
 		unsigned short* clut = new unsigned short[16];
 		unsigned short* convertedTpage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
 
-#if defined (OGLES)
 		//Read CLUT
-		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &clut[0]);
+		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &clut[0]);
 
 		//Read texture data
-		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &texturePage[0]);
-#elif defined(OGL)
-		//Read CLUT
-		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &clut[0]);
+		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &texturePage[0]);
 
-		//Read texture data
-		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
-#endif
 		unsigned short* convertPixel = &convertedTpage[0];
 
 		for (int xy = 0; xy < TPAGE_WIDTH / 4 * TPAGE_HEIGHT; xy++)
@@ -1225,7 +1229,6 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 
 #endif
 
-
 #if _DEBUG && 1
 		char buff[64];
 		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
@@ -1237,11 +1240,9 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		fwrite(&convertedTpage[0], sizeof(char), 256 * 256 * 2, f);
 		fclose(f);
 #endif
-#if defined(OGL)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
-#elif defined(OGLES)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &convertedTpage[0]);
-#endif
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
+		
 		delete[] clut;
 		delete[] texturePage;
 		delete[] convertedTpage;
@@ -1395,10 +1396,10 @@ void Emulator_GetTopLeftAndBottomLeftTextureCoordinate(int& x, int& y, int& w, i
 void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, unsigned char u0, unsigned char v0, unsigned char u1, unsigned char v1, unsigned char u2, unsigned char v2, unsigned char u3, unsigned char v3, unsigned short bIsQuad)
 {
 	//Locate the 4-bit texture in vram, convert it and glTexSubImage to the atlas
-	unsigned int tpageX = ((texTpage << 6) & 0x7C0) % (VRAM_WIDTH / RESOLUTION_SCALE);
-	unsigned int tpageY = ((((texTpage << 4) & 0x100) + ((texTpage >> 2) & 0x200))) % (VRAM_HEIGHT / RESOLUTION_SCALE);
-	unsigned int clutX = ((texClut & 0x3F) << 4);
-	unsigned int clutY = (texClut >> 6);
+	unsigned int tpageX = GET_TPAGE_X(texTpage);
+	unsigned int tpageY = GET_TPAGE_Y(texTpage);
+	unsigned int clutX = GET_CLUT_X(texClut);
+	unsigned int clutY = GET_CLUT_Y(texClut);
 
 	//Set this to true so the emulator uses atlas textures
 	g_hasHintedTextureAtlas = 1;
@@ -1424,12 +1425,7 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 		Emulator_BindTexture(tpageTexture->textureID);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-#if defined(OGL)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, NULL);
-#elif defined(OGLES)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, NULL);
-#endif
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, TEXTURE_FORMAT, NULL);
 	}
 	else
 	{
@@ -1441,20 +1437,11 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 	unsigned short* clut = new unsigned short[16];
 	unsigned short* convertedTpage = new unsigned short[w * h * 1024];
 
-#if defined(OGL)
 	//Read CLUT
-	glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &clut[0]);
+	glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &clut[0]);
 
 	//Read texture data
-	glReadPixels(tpageX + (x / 4), tpageY + y, w / 4, h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
-	
-#elif defined(OGLES)
-	//Read CLUT
-	glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &clut[0]);
-
-	//Read texture data
-	glReadPixels(tpageX + (x / 4), tpageY + y, w / 4, h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &texturePage[0]);
-#endif
+	glReadPixels(tpageX + (x / 4), tpageY + y, w / 4, h, GL_RGBA, TEXTURE_FORMAT, &texturePage[0]);
 
 	unsigned short* convertPixel = &convertedTpage[0];
 
@@ -1503,11 +1490,7 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 
 #endif
 
-#if defined(OGL)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
-#elif defined(OGLES)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &convertedTpage[0]);
-#endif
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
 
 #if defined(_DEBUG) && 0
 	char buf[32];
@@ -1612,11 +1595,7 @@ void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned short 
 
 #endif
 
-#if defined(OGL)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
-#elif defined(OGLES)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &convertedTpage[0]);
-#endif
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
 
 #if defined(_DEBUG) && 0
 	char buf[32];

@@ -158,9 +158,9 @@ struct VertexBufferSplitIndex
 	unsigned short splitIndex;
 	unsigned short numVertices;
 	GLuint textureId;
-	GLubyte blendMode;
 	GLubyte semiTrans;
 	GLubyte abr;
+	GLubyte primitiveType;
 };
 
 #define MAX_NUM_POLY_BUFFER_VERTICES (12040)//?FIXME
@@ -528,8 +528,8 @@ GLuint vao;
 
 static unsigned short lastTpage = 0xFFFF;
 static unsigned short lastClut = 0xFFFF;
-static unsigned short lastBlendMode = 0xFFFF;
 static unsigned short lastSemiTrans = 0xFFFF;
+static unsigned short lastPolyType = 0xFFFF;
 static unsigned short numVertices = 0;
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
@@ -557,8 +557,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 	{
 		lastClut = 0xFFFF;
 		lastTpage = 0xFFFF;
-		lastBlendMode = 0xFFFF;
-		lastSemiTrans = 0x0;
+		lastSemiTrans = 0xFFFF;
 		numVertices = 0;
 		g_vertexIndex = 0;
 		g_numSplitIndices = 0;
@@ -626,7 +625,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			}
 #endif
-			glDrawArrays(GL_TRIANGLES, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
+			glDrawArrays(g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
 
 			if (g_wireframeMode)
 			{
@@ -650,7 +649,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 	Emulator_CheckTextureIntersection(&env->clip);
 }
 
-void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
+void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)//@TODO sync with ParsePrimitive
 {
 	unsigned int currentAddress = packetStart;
 
@@ -689,49 +688,48 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 		}
 		case 0x20: // POLY_F3
 		{
-#if !defined(OGLES)
-			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
 			POLY_F3* poly = (POLY_F3*)pTag;
-
-			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
-			//char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
-			//char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, false);
-
-			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			//glEnableClientState(GL_COLOR_ARRAY);
-			//glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
-			//glColorPointer(3, GL_FLOAT, sizeof(Vertex), colourPointer);
-			//glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texCoordPointer);
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
-			//glDisableClientState(GL_COLOR_ARRAY);
-			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#endif
-
+			assert(FALSE);
 			currentAddress += sizeof(POLY_F3);
 			break;
 		}
 		case 0x24: // POLY_FT3
 		{
-
 			POLY_FT3* poly = (POLY_FT3*)pTag;
 
-			Emulator_GenerateTpage(poly->tpage, poly->clut);
+			if (lastTpage == 0xFFFF || lastClut == 0xFFFF || lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
+			{
+				lastPolyType = GL_TRIANGLES;
+				lastTpage = poly->tpage;
+				lastClut = poly->clut;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (poly->tpage != lastTpage || poly->clut != lastClut || semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
+			{
+				lastPolyType = GL_TRIANGLES;
+				lastTpage = poly->tpage;
+				lastClut = poly->clut;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
 
-			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
-			//char* texCoordPointer = Emulator_GenerateTexcoordArrayQuad(NULL, NULL, NULL, NULL, -1, -1);
-			//char* colourPointer = Emulator_GenerateColourArrayQuad(&poly->r0, NULL, NULL, NULL, true);
-#if defined(OGL)
-			//glEnableClientState(GL_VERTEX_ARRAY);
-			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			//glEnableClientState(GL_COLOR_ARRAY);
-			//glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
-			//glColorPointer(3, GL_FLOAT, sizeof(Vertex), colourPointer);
-			//glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texCoordPointer);
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
-			//glDisableClientState(GL_COLOR_ARRAY);
-			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			//glDisableClientState(GL_VERTEX_ARRAY);
-#endif
+			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+
+			g_vertexIndex += 3;
+			numVertices += 3;
 			currentAddress += sizeof(POLY_FT3);
 			break;
 		}
@@ -739,24 +737,24 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 		{
 			POLY_F4* poly = (POLY_F4*)pTag;
 
-			if (lastTpage == 0xFFFF || lastClut == 0xFFFF || lastBlendMode == 0xFFFF || lastSemiTrans == 0xFFFF)
+			if (lastTpage == 0xFFFF || lastPolyType == 0xFFFF || lastSemiTrans == 0xFFFF)
 			{
-				lastBlendMode = blend_mode;
+				lastPolyType = GL_TRIANGLES;
 				lastSemiTrans = semi_transparent;
 				lastTpage = activeDrawEnv.tpage;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (blend_mode != lastBlendMode || semi_transparent != lastSemiTrans)
+			else if (activeDrawEnv.tpage != lastTpage || semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
 			{
-				lastBlendMode = blend_mode;
+				lastPolyType = GL_TRIANGLES;
 				lastSemiTrans = semi_transparent;
 				lastTpage = activeDrawEnv.tpage;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -781,29 +779,28 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 		}
 		case 0x2C: // POLY_FT4 - FIXME TRC PISTOLS
 		{
-
 			POLY_FT4* poly = (POLY_FT4*)pTag;
 
-			if (lastTpage == 0xFFFF || lastClut == 0xFFFF || lastBlendMode == 0xFFFF || lastSemiTrans == 0xFFFF)
+			if (lastTpage == 0xFFFF || lastClut == 0xFFFF || lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastTpage = poly->tpage;
 				lastClut = poly->clut;
-				lastBlendMode = blend_mode;
 				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (poly->tpage != lastTpage || poly->clut != lastClut || blend_mode != lastBlendMode || semi_transparent != lastSemiTrans)
+			else if (poly->tpage != lastTpage || poly->clut != lastClut || semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastClut = poly->clut;
 				lastTpage = poly->tpage;
-				lastBlendMode = blend_mode;
 				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -820,30 +817,16 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 			g_vertexBuffer[g_vertexIndex + 3] = g_vertexBuffer[g_vertexIndex];
 			g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex + 2];
 
-			currentAddress += sizeof(POLY_FT4);
 			g_vertexIndex += 6;
 			numVertices += 6;
+
+			currentAddress += sizeof(POLY_FT4);
 			break;
 		}
 		case 0x30: // POLY_G3
 		{
 			POLY_G3* poly = (POLY_G3*)pTag;
-
-			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-
-			//char* vertexPointer = Emulator_GenerateVertexArrayQuad(&polyGT4Buffer[polyGT4Index], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
-			//char* texcoordPointer = Emulator_GenerateTexcoordArrayQuad(&polyGT4Buffer[polyGT4Index], NULL, NULL, NULL, NULL, -1, -1);
-			//char* colourPointer = Emulator_GenerateColourArrayQuad(&polyGT4Buffer[polyGT4Index], &poly->r0, &poly->r1, &poly->r2, NULL, false);
-#if defined(OGL)
-			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			//glEnableClientState(GL_COLOR_ARRAY);
-			//glVertexPointer(2, GL_FLOAT, sizeof(Vertex), vertexPointer);
-			//glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), texcoordPointer);
-			//glColorPointer(4, GL_FLOAT, sizeof(Vertex), colourPointer);
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
-			//glDisableClientState(GL_COLOR_ARRAY);
-			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#endif
+			assert(FALSE);
 			currentAddress += sizeof(POLY_G3);
 			break;
 		}
@@ -851,24 +834,26 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 		{
 			POLY_GT3* poly = (POLY_GT3*)pTag;
 
-			if (lastTpage == 0xFFFF || lastClut == 0xFFFF || lastBlendMode == 0xFFFF || lastSemiTrans == 0xFFFF)
+			if (lastTpage == 0xFFFF || lastClut == 0xFFFF || lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastTpage = poly->tpage;
 				lastClut = poly->clut;
-				lastBlendMode = blend_mode;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (poly->tpage != lastTpage || poly->clut != lastClut || blend_mode != lastBlendMode || semi_transparent != lastSemiTrans)
+			else if (poly->tpage != lastTpage || poly->clut != lastClut || semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastTpage = poly->tpage;
 				lastClut = poly->clut;
-				lastBlendMode = blend_mode;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -880,32 +865,34 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
 			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL, TRUE);
 
-			
 			g_vertexIndex += 3;
 			numVertices += 3;
 			currentAddress += sizeof(POLY_GT3);
+
 			break;
 		}
 		case 0x38: // POLY_G4
 		{
 			POLY_G4* poly = (POLY_G4*)pTag;
 
-			if (lastBlendMode == 0xFFFF || lastSemiTrans == 0xFFFF)
+			if (lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
 			{
-				lastBlendMode = blend_mode;
+				lastPolyType = GL_TRIANGLES;
 				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (blend_mode != lastBlendMode || semi_transparent != lastSemiTrans)
+			else if (semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
 			{
-				lastBlendMode = blend_mode;
+				lastPolyType = GL_TRIANGLES;
 				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -924,6 +911,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 			
 			g_vertexIndex += 6;
 			numVertices += 6;
+
 			currentAddress += sizeof(POLY_G4);
 
 			break;
@@ -932,24 +920,26 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 		{
 			POLY_GT4* poly = (POLY_GT4*)pTag;
 
-			if (lastTpage == 0xFFFF || lastClut == 0xFFFF || lastBlendMode == 0xFFFF || lastSemiTrans == 0xFFFF)
+			if (lastTpage == 0xFFFF || lastClut == 0xFFFF || lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastTpage = poly->tpage;
 				lastClut = poly->clut;
-				lastBlendMode = blend_mode;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (poly->tpage != lastTpage || poly->clut != lastClut || blend_mode != lastBlendMode || semi_transparent != lastSemiTrans)
+			else if (poly->tpage != lastTpage || poly->clut != lastClut || semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastClut = poly->clut;
 				lastTpage = poly->tpage;
-				lastBlendMode = blend_mode;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -966,50 +956,59 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 			g_vertexBuffer[g_vertexIndex + 3] = g_vertexBuffer[g_vertexIndex];
 			g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex+2];
 
-			
 			g_vertexIndex += 6;
 			numVertices += 6;
+
 			currentAddress += sizeof(POLY_GT4);
 			break;
 		}
 		case 0x40: // LINE_F2
 		{
-			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-
 			LINE_F2* poly = (LINE_F2*)pTag;
-#if !defined(OGLES) && 0
-			glBegin(GL_LINES);
-
-			glColor3ubv(&poly->r0);
-			glVertex2f(poly->x0, poly->y0);
-
-			glVertex2f(poly->x1, poly->y1);
-
-			glEnd();
-#endif
+			assert(FALSE);
 			currentAddress += sizeof(LINE_F2);
 			break;
 		}
 		case 0x48:
 		{
 			LINE_F3* poly = (LINE_F3*)pTag;
-			printf("LineF3 todo!\n");
+			assert(FALSE);
 			currentAddress += sizeof(LINE_F3);
 			break;
 		}
 		case 0x50: // LINE_G2
 		{
-			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-
 			LINE_G2* poly = (LINE_G2*)pTag;
-#if !defined(OGLES) && 0
-			glBegin(GL_LINES);
-			glColor3ubv(&poly->r0);
-			glVertex2f(poly->x0, poly->y0);
-			glColor3ubv(&poly->r1);
-			glVertex2f(poly->x1, poly->y1);
-			glEnd();
-#endif
+
+			if (lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
+			{
+				lastPolyType = GL_LINES;
+				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (semi_transparent != lastSemiTrans || lastPolyType != GL_LINES)
+			{
+				lastPolyType = GL_LINES;
+				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
+
+			Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, NULL, NULL);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, NULL, NULL, FALSE);
+			g_vertexIndex += 2;
+			numVertices += 2;
 			currentAddress += sizeof(LINE_G2);
 			break;
 		}
@@ -1017,22 +1016,24 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 		{
 			TILE* poly = (TILE*)pTag;
 
-			if (lastClut == 0xFFFF || lastBlendMode == 0xFFFF || lastSemiTrans == 0xFFFF)
+			if (lastClut == 0xFFFF || lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
 			{
-				lastBlendMode = blend_mode;
+				lastPolyType = GL_TRIANGLES;
 				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (activeDrawEnv.tpage != lastTpage || blend_mode != lastBlendMode || semi_transparent != lastSemiTrans)
+			else if (activeDrawEnv.tpage != lastTpage || semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
 			{
-				lastBlendMode = blend_mode;
+				lastPolyType = GL_TRIANGLES;
 				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -1059,24 +1060,26 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 		{
 			SPRT* poly = (SPRT*)pTag;
 
-			if (lastClut == 0xFFFF || lastBlendMode == 0xFFFF || lastSemiTrans == 0xFFFF)
+			if (lastClut == 0xFFFF || lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastClut = poly->clut;
-				lastBlendMode = blend_mode;
 				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (activeDrawEnv.tpage != lastTpage || poly->clut != lastClut || blend_mode != lastBlendMode || semi_transparent != lastSemiTrans)
+			else if (activeDrawEnv.tpage != lastTpage || poly->clut != lastClut || semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastClut = poly->clut;
-				lastBlendMode = blend_mode;
 				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -1095,65 +1098,20 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 
 			g_vertexIndex += 6;
 			numVertices += 6;
-
 			currentAddress += sizeof(SPRT);
 			break;
 		}
 		case 0x68: // TILE_1
 		{
-			const int width = 1;
-
-			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-
 			TILE_1* poly = (TILE_1*)pTag;
-#if !defined(OGLES) && 0
-			glBegin(GL_QUADS);
-
-			glColor3ubv(&poly->r0);
-
-			glTexCoord2f(0.0f, 0.0f);
-			glVertex2f(poly->x0, poly->y0);
-
-			glTexCoord2f(1.0f, 0.0f);
-			glVertex2f(poly->x0 + width, poly->y0);
-
-			glTexCoord2f(0.0f, 1.0f);
-			glVertex2f(poly->x0 + width, poly->y0 + width);
-
-			glTexCoord2f(1.0f, 1.0f);
-			glVertex2f(poly->x0, poly->y0 + width);
-
-			glEnd();
-#endif
+			assert(FALSE);
 			currentAddress += sizeof(TILE_1);
 			break;
 		}
 		case 0x70: // TILE_8
 		{
-			const int width = 8;
-
-			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-#if !defined(OGLES) && 0
-			TILE_1* poly = (TILE_1*)pTag;
-
-			glBegin(GL_QUADS);
-
-			glColor3ubv(&poly->r0);
-
-			glTexCoord2f(0.0f, 0.0f);
-			glVertex2f(poly->x0, poly->y0);
-
-			glTexCoord2f(1.0f, 0.0f);
-			glVertex2f(poly->x0 + width, poly->y0);
-
-			glTexCoord2f(0.0f, 1.0f);
-			glVertex2f(poly->x0 + width, poly->y0 + width);
-
-			glTexCoord2f(1.0f, 1.0f);
-			glVertex2f(poly->x0, poly->y0 + width);
-
-			glEnd();
-#endif
+			TILE_8* poly = (TILE_8*)pTag;
+			assert(FALSE);
 			currentAddress += sizeof(TILE_8);
 			break;
 		}
@@ -1161,24 +1119,26 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 		{
 			SPRT_8* poly = (SPRT_8*)pTag;
 
-			if (lastClut == 0xFFFF || lastBlendMode == 0xFFFF || lastSemiTrans == 0xFFFF)
+			if (lastClut == 0xFFFF || lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastClut = poly->clut;
-				lastBlendMode = blend_mode;
 				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (activeDrawEnv.tpage != lastTpage || poly->clut != lastClut || blend_mode != lastBlendMode || semi_transparent != lastSemiTrans)
+			else if (activeDrawEnv.tpage != lastTpage || poly->clut != lastClut || semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastClut = poly->clut;
-				lastBlendMode = blend_mode;
 				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -1197,36 +1157,13 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 
 			g_vertexIndex += 6;
 			numVertices += 6;
-
 			currentAddress += sizeof(SPRT_8);
 			break;
 		}
 		case 0x78: // TILE_16
 		{
-			const int width = 16;
-
-			//glBindTexture(GL_TEXTURE_2D, nullWhiteTexture);
-
-			TILE_1* poly = (TILE_1*)pTag;
-#if !defined(OGLES) && 0
-			glBegin(GL_QUADS);
-
-			glColor3ubv(&poly->r0);
-
-			glTexCoord2f(0.0f, 0.0f);
-			glVertex2f(poly->x0, poly->y0);
-
-			glTexCoord2f(1.0f, 0.0f);
-			glVertex2f(poly->x0 + width, poly->y0);
-
-			glTexCoord2f(0.0f, 1.0f);
-			glVertex2f(poly->x0 + width, poly->y0 + width);
-
-			glTexCoord2f(1.0f, 1.0f);
-			glVertex2f(poly->x0, poly->y0 + width);
-
-			glEnd();
-#endif
+			TILE_16* poly = (TILE_16*)pTag;
+			assert(FALSE);
 			currentAddress += sizeof(TILE_16);
 			break;
 		}
@@ -1234,24 +1171,26 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 		{
 			SPRT_16* poly = (SPRT_16*)pTag;
 
-			if (lastClut == 0xFFFF || lastBlendMode == 0xFFFF || lastSemiTrans == 0xFFFF)
+			if (lastClut == 0xFFFF || lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastClut = poly->clut;
-				lastBlendMode = blend_mode;
 				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			}
-			else if (activeDrawEnv.tpage != lastTpage || poly->clut != lastClut || blend_mode != lastBlendMode || semi_transparent != lastSemiTrans)
+			else if (activeDrawEnv.tpage != lastTpage || poly->clut != lastClut || semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
 			{
+				lastPolyType = GL_TRIANGLES;
 				lastClut = poly->clut;
-				lastBlendMode = blend_mode;
 				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
 				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-				g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -1277,9 +1216,12 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 		case 0xE0: // TPAGE
 		{
 			if (pTag->code != 0xE1)
-				assert(0);//Need to handle other 0xEX primitive types in switch case.
+				assert(FALSE);//Need to handle other 0xEX primitive types in switch case.
 			unsigned short tpage = ((unsigned short*)pTag)[2];
-			activeDrawEnv.tpage = tpage;
+			if (tpage != 0)
+			{
+				activeDrawEnv.tpage = tpage;
+			}
 			currentAddress += 8;
 			break;
 		}
@@ -1296,13 +1238,11 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)
 	}
 
 	g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
-	g_splitIndices[g_numSplitIndices].blendMode = lastBlendMode;
-	g_splitIndices[g_numSplitIndices].semiTrans = lastSemiTrans;
-	g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 }
 
 void ParsePrimitive(P_TAG* pTag)
 {
+#if 0///@TODO no longer working due to semi trans and abr implementation needs to be redone
 	int textured = (pTag->code & 4) != 0;
 	int blend_mode = 0;
 
@@ -1381,14 +1321,12 @@ void ParsePrimitive(P_TAG* pTag)
 		{
 			lastBlendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-			g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 		}
 		else if (blend_mode != lastBlendMode)
 		{
 			lastBlendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-			g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
 			g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			numVertices = 0;
@@ -1412,22 +1350,20 @@ void ParsePrimitive(P_TAG* pTag)
 
 		POLY_FT4* poly = (POLY_FT4*)pTag;
 
-		if (lastTpage == 0xFFFF || lastClut == 0xFFFF || lastBlendMode == 0xFFFF)
+		if (lastTpage == 0xFFFF || lastClut == 0xFFFF)
 		{
 			lastTpage = poly->tpage;
 			lastClut = poly->clut;
 			lastBlendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-			g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 		}
-		else if (poly->tpage != lastTpage || poly->clut != lastClut || blend_mode != lastBlendMode)
+		else if (poly->tpage != lastTpage || poly->clut != lastClut)
 		{
 			lastClut = poly->clut;
 			lastTpage = poly->tpage;
 			lastBlendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-			g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
 			g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			numVertices = 0;
@@ -1471,22 +1407,18 @@ void ParsePrimitive(P_TAG* pTag)
 	{
 		POLY_GT3* poly = (POLY_GT3*)pTag;
 
-		if (lastTpage == 0xFFFF || lastClut == 0xFFFF || lastBlendMode == 0xFFFF)
+		if (lastTpage == 0xFFFF || lastClut == 0xFFFF)
 		{
 			lastTpage = poly->tpage;
 			lastClut = poly->clut;
-			lastBlendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-			g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 		}
-		else if (poly->tpage != lastTpage || poly->clut != lastClut || blend_mode != lastBlendMode)
+		else if (poly->tpage != lastTpage || poly->clut != lastClut)
 		{
 			lastTpage = poly->tpage;
 			lastClut = poly->clut;
-			lastBlendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
-			g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
 			g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			numVertices = 0;
@@ -1615,18 +1547,16 @@ void ParsePrimitive(P_TAG* pTag)
 	{
 		TILE* poly = (TILE*)pTag;
 
-		if (lastClut == 0xFFFF || lastBlendMode == 0xFFFF)
+		if (lastClut == 0xFFFF)
 		{
 			lastBlendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(activeDrawEnv.tpage, lastClut);
-			g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 		}
-		else if (activeDrawEnv.tpage != lastTpage || blend_mode != lastBlendMode)
+		else if (activeDrawEnv.tpage != lastTpage)
 		{
 			lastBlendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(activeDrawEnv.tpage, lastClut);
-			g_splitIndices[g_numSplitIndices].blendMode = blend_mode;
 			g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
 			g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
 			numVertices = 0;
@@ -1853,6 +1783,7 @@ void ParsePrimitive(P_TAG* pTag)
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #endif
 	g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+#endif
 }
 
 void SetSprt16(SPRT_16* p)
@@ -1943,7 +1874,6 @@ void DrawOTag(u_long* p)
 	{
 		lastClut = 0xFFFF;
 		lastTpage = 0xFFFF;
-		lastBlendMode = 0xFFFF;
 		lastSemiTrans = 0xFFFF;
 		numVertices = 0;
 		g_vertexIndex = 0;
@@ -2012,7 +1942,7 @@ void DrawOTag(u_long* p)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 #endif
-		glDrawArrays(GL_TRIANGLES, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
+		glDrawArrays(g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
 
 		if (g_wireframeMode)
 		{
@@ -2166,7 +2096,6 @@ void DrawPrim(void* p)
 	{
 		lastClut = 0xFFFF;
 		lastTpage = 0xFFFF;
-		lastBlendMode = 0xFFFF;
 		numVertices = 0;
 		g_vertexIndex = 0;
 		g_numSplitIndices = 0;
@@ -2223,7 +2152,7 @@ void DrawPrim(void* p)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 #endif
-		glDrawArrays(GL_TRIANGLES, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
+		glDrawArrays(g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
 
 		if (g_wireframeMode)
 		{
