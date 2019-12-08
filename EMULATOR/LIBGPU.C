@@ -558,6 +558,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		lastClut = 0xFFFF;
 		lastTpage = 0xFFFF;
 		lastSemiTrans = 0xFFFF;
+		lastPolyType = 0xFFFF;
 		numVertices = 0;
 		g_vertexIndex = 0;
 		g_numSplitIndices = 0;
@@ -689,7 +690,34 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 		case 0x20: // POLY_F3
 		{
 			POLY_F3* poly = (POLY_F3*)pTag;
-			assert(FALSE);
+			if (lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
+			{
+				lastPolyType = GL_TRIANGLES;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
+			{
+				lastPolyType = GL_TRIANGLES;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
+
+			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+
+			g_vertexIndex += 3;
+			numVertices += 3;
 			currentAddress += sizeof(POLY_F3);
 			break;
 		}
@@ -1089,7 +1117,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, poly->w, poly->h);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, NULL, NULL, NULL, poly->w, poly->h);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, FALSE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1218,7 +1246,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			if (pTag->code != 0xE1)
 				assert(FALSE);//Need to handle other 0xEX primitive types in switch case.
 			unsigned short tpage = ((unsigned short*)pTag)[2];
-			if (tpage != 0)
+			if (tpage != 0)///@FIXME? Looks like tpage is never changed if 0?
 			{
 				activeDrawEnv.tpage = tpage;
 			}
@@ -1875,6 +1903,7 @@ void DrawOTag(u_long* p)
 		lastClut = 0xFFFF;
 		lastTpage = 0xFFFF;
 		lastSemiTrans = 0xFFFF;
+		lastPolyType = 0xFFFF;
 		numVertices = 0;
 		g_vertexIndex = 0;
 		g_numSplitIndices = 0;
