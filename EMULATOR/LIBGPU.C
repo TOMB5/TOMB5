@@ -690,6 +690,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 		case 0x20: // POLY_F3
 		{
 			POLY_F3* poly = (POLY_F3*)pTag;
+
 			if (lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
 			{
 				lastPolyType = GL_TRIANGLES;
@@ -718,6 +719,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 3;
 			numVertices += 3;
+
 			currentAddress += sizeof(POLY_F3);
 			break;
 		}
@@ -895,8 +897,8 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 3;
 			numVertices += 3;
-			currentAddress += sizeof(POLY_GT3);
 
+			currentAddress += sizeof(POLY_GT3);
 			break;
 		}
 		case 0x38: // POLY_G4
@@ -941,7 +943,6 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(POLY_G4);
-
 			break;
 		}
 		case 0x3C: // POLY_GT4
@@ -993,7 +994,38 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 		case 0x40: // LINE_F2
 		{
 			LINE_F2* poly = (LINE_F2*)pTag;
-			assert(FALSE);
+
+			if (lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
+			{
+				lastPolyType = GL_LINES;
+				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (semi_transparent != lastSemiTrans || lastPolyType != GL_LINES)
+			{
+				lastPolyType = GL_LINES;
+				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
+
+			Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, NULL, NULL);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, FALSE);
+
+			g_vertexIndex += 2;
+			numVertices += 2;
+
 			currentAddress += sizeof(LINE_F2);
 			break;
 		}
@@ -1082,8 +1114,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, NULL, NULL);
 			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, NULL, NULL, FALSE);
+			
 			g_vertexIndex += 2;
 			numVertices += 2;
+			
 			currentAddress += sizeof(LINE_G2);
 			break;
 		}
@@ -1173,6 +1207,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 			numVertices += 6;
+
 			currentAddress += sizeof(SPRT);
 			break;
 		}
@@ -1232,6 +1267,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 			numVertices += 6;
+
 			currentAddress += sizeof(SPRT_8);
 			break;
 		}
@@ -1293,7 +1329,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			if (pTag->code != 0xE1)
 				assert(FALSE);//Need to handle other 0xEX primitive types in switch case.
 			unsigned short tpage = ((unsigned short*)pTag)[2];
-			if (tpage != 0)///@FIXME? Looks like tpage is never changed if 0?
+			if (tpage != 0)///@FIXME? Looks like tpage is never changed if 0? OR we're screwed because it takes first (from frame buffer) and it's not updated YET! :(
 			{
 				activeDrawEnv.tpage = tpage;
 			}
