@@ -687,7 +687,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += 4;
 			break;
 		}
-		case 0x20: // POLY_F3
+		case 0x20:
 		{
 			POLY_F3* poly = (POLY_F3*)pTag;
 
@@ -723,7 +723,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(POLY_F3);
 			break;
 		}
-		case 0x24: // POLY_FT3
+		case 0x24:
 		{
 			POLY_FT3* poly = (POLY_FT3*)pTag;
 
@@ -763,7 +763,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(POLY_FT3);
 			break;
 		}
-		case 0x28: // POLY_F4
+		case 0x28:
 		{
 			POLY_F4* poly = (POLY_F4*)pTag;
 
@@ -807,7 +807,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			
 			break;
 		}
-		case 0x2C: // POLY_FT4 - FIXME TRC PISTOLS
+		case 0x2C:
 		{
 			POLY_FT4* poly = (POLY_FT4*)pTag;
 
@@ -853,7 +853,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(POLY_FT4);
 			break;
 		}
-		case 0x30: // POLY_G3
+		case 0x30:
 		{
 			POLY_G3* poly = (POLY_G3*)pTag;
 
@@ -889,7 +889,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(POLY_G3);
 			break;
 		}
-		case 0x34: // POLY_GT3
+		case 0x34:
 		{
 			POLY_GT3* poly = (POLY_GT3*)pTag;
 
@@ -930,7 +930,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(POLY_GT3);
 			break;
 		}
-		case 0x38: // POLY_G4
+		case 0x38:
 		{
 			POLY_G4* poly = (POLY_G4*)pTag;
 
@@ -974,7 +974,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(POLY_G4);
 			break;
 		}
-		case 0x3C: // POLY_GT4
+		case 0x3C:
 		{
 			POLY_GT4* poly = (POLY_GT4*)pTag;
 
@@ -1020,7 +1020,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(POLY_GT4);
 			break;
 		}
-		case 0x40: // LINE_F2
+		case 0x40:
 		{
 			LINE_F2* poly = (LINE_F2*)pTag;
 
@@ -1112,7 +1112,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(LINE_F3);
 			break;
 		}
-		case 0x50: // LINE_G2
+		case 0x50:
 		{
 			LINE_G2* poly = (LINE_G2*)pTag;
 
@@ -1150,7 +1150,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(LINE_G2);
 			break;
 		}
-		case 0x60: // TILE
+		case 0x60:
 		{
 			TILE* poly = (TILE*)pTag;
 
@@ -1194,7 +1194,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			break;
 		}
-		case 0x64: // SPRT
+		case 0x64:
 		{
 			SPRT* poly = (SPRT*)pTag;
 
@@ -1250,7 +1250,44 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 		case 0x70: // TILE_8
 		{
 			TILE_8* poly = (TILE_8*)pTag;
-			assert(FALSE);
+
+			if (lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
+			{
+				lastPolyType = GL_TRIANGLES;
+				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (activeDrawEnv.tpage != lastTpage || semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
+			{
+				lastPolyType = GL_TRIANGLES;
+				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
+
+			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 8, 8);
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, 8, 8);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, FALSE);
+
+			//Make tri
+			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
+			g_vertexBuffer[g_vertexIndex + 3] = g_vertexBuffer[g_vertexIndex];
+			g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex + 2];
+
+			g_vertexIndex += 6;
+			numVertices += 6;
+
 			currentAddress += sizeof(TILE_8);
 			break;
 		}
