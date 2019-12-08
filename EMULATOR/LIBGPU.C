@@ -1240,7 +1240,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(SPRT);
 			break;
 		}
-		case 0x68: // TILE_1
+		case 0x68:
 		{
 			TILE_1* poly = (TILE_1*)pTag;
 
@@ -1284,7 +1284,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(TILE_1);
 			break;
 		}
-		case 0x70: // TILE_8
+		case 0x70:
 		{
 			TILE_8* poly = (TILE_8*)pTag;
 
@@ -1328,7 +1328,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(TILE_8);
 			break;
 		}
-		case 0x74: // SPRT_8
+		case 0x74:
 		{
 			SPRT_8* poly = (SPRT_8*)pTag;
 
@@ -1374,14 +1374,51 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(SPRT_8);
 			break;
 		}
-		case 0x78: // TILE_16
+		case 0x78:
 		{
 			TILE_16* poly = (TILE_16*)pTag;
-			assert(FALSE);
+
+			if (lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
+			{
+				lastPolyType = GL_TRIANGLES;
+				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+			}
+			else if (activeDrawEnv.tpage != lastTpage || semi_transparent != lastSemiTrans || lastPolyType != GL_TRIANGLES)
+			{
+				lastPolyType = GL_TRIANGLES;
+				lastTpage = activeDrawEnv.tpage;
+				lastSemiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
+				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
+				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
+				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
+				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
+				numVertices = 0;
+			}
+
+			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 16, 16);
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, 16, 16);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, FALSE);
+
+			//Make tri
+			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
+			g_vertexBuffer[g_vertexIndex + 3] = g_vertexBuffer[g_vertexIndex];
+			g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex + 2];
+
+			g_vertexIndex += 6;
+			numVertices += 6;
+
 			currentAddress += sizeof(TILE_16);
 			break;
 		}
-		case 0x7C: // SPRT_16
+		case 0x7C:
 		{
 			SPRT_16* poly = (SPRT_16*)pTag;
 
@@ -1427,7 +1464,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			currentAddress += sizeof(SPRT_16);
 			break;
 		}
-		case 0xE0: // TPAGE
+		case 0xE0:
 		{
 			if (pTag->code != 0xE1)
 				assert(FALSE);//Need to handle other 0xEX primitive types in switch case.
