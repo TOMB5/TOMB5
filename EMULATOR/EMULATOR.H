@@ -75,6 +75,16 @@ struct Vertex
 };
 #pragma pack(pop)
 
+
+enum BlendMode
+{
+	BM_AVERAGE, 
+	BM_ADD,
+	BM_SUBTRACT,
+	BM_ADD_QUATER_SOURCE,
+	BM_DEFAULT
+};
+
 #include <LIBGPU.H>
 
 extern GLuint g_lastBoundTexture;

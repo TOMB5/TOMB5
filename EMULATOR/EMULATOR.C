@@ -930,6 +930,8 @@ unsigned char pixels[VRAM_WIDTH * VRAM_HEIGHT * 4];
 
 void Emulator_EndScene()
 {
+	Emulator_SetBlendMode(BM_DEFAULT, 1);
+
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), false);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 
@@ -1263,20 +1265,24 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 		{
 			switch (mode)
 			{
-			case 0://Average
+			case BM_AVERAGE:
 				glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 				break;
-			case 1://Add
+			case BM_ADD:
 				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 				break;
-			case 2://Subtract
+			case BM_SUBTRACT:
 				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
 				break;
-			case 3://Addquatersource
+			case BM_ADD_QUATER_SOURCE:
 				glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
+				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				break;
+			default:
+				glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 				break;
 			}
