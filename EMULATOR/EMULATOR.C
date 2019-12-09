@@ -23,9 +23,7 @@
 #include <ddraw.h>
 #endif
 
-#define BLEND_MODE (1)
 #define VERTEX_COLOUR_MULT (2)
-
 
 #if defined(NTSC_VERSION)
 #define COUNTER_UPDATE_INTERVAL (263)
@@ -511,17 +509,17 @@ void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsig
 	{
 		if (bMultiplyColour)
 		{
-			vertex[0].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[0].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[0].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[0].col[3] = (1.0f / 255) * 255;
+			vertex[0].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
+			vertex[0].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
+			vertex[0].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
+			vertex[0].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[0].col[0] = (1.0f / 255) * col0[0];
-			vertex[0].col[1] = (1.0f / 255) * col0[1];
-			vertex[0].col[2] = (1.0f / 255) * col0[2];
-			vertex[0].col[3] = (1.0f / 255) * 255;
+			vertex[0].col[0] = (1.0f / 255.0f) * col0[0];
+			vertex[0].col[1] = (1.0f / 255.0f) * col0[1];
+			vertex[0].col[2] = (1.0f / 255.0f) * col0[2];
+			vertex[0].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 
@@ -529,34 +527,34 @@ void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsig
 	{
 		if (bMultiplyColour)
 		{
-			vertex[1].col[0] = (1.0f / 255) * (col1[0] * VERTEX_COLOUR_MULT);
-			vertex[1].col[1] = (1.0f / 255) * (col1[1] * VERTEX_COLOUR_MULT);
-			vertex[1].col[2] = (1.0f / 255) * (col1[2] * VERTEX_COLOUR_MULT);
-			vertex[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = ((1.0f / 255.0f) * col1[0]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[1] = ((1.0f / 255.0f) * col1[1]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[2] = ((1.0f / 255.0f) * col1[2]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[1].col[0] = (1.0f / 255) * col1[0];
-			vertex[1].col[1] = (1.0f / 255) * col1[1];
-			vertex[1].col[2] = (1.0f / 255) * col1[2];
-			vertex[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = (1.0f / 255.0f) * col1[0];
+			vertex[1].col[1] = (1.0f / 255.0f) * col1[1];
+			vertex[1].col[2] = (1.0f / 255.0f) * col1[2];
+			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
-			vertex[1].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[1].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[1].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[1].col[0] = (1.0f / 255) * col0[0];
-			vertex[1].col[1] = (1.0f / 255) * col0[1];
-			vertex[1].col[2] = (1.0f / 255) * col0[2];
-			vertex[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = (1.0f / 255.0f) * col0[0];
+			vertex[1].col[1] = (1.0f / 255.0f) * col0[1];
+			vertex[1].col[2] = (1.0f / 255.0f) * col0[2];
+			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 
@@ -564,34 +562,34 @@ void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsig
 	{
 		if (bMultiplyColour)
 		{
-			vertex[2].col[0] = (1.0f / 255) * (col2[0] * VERTEX_COLOUR_MULT);
-			vertex[2].col[1] = (1.0f / 255) * (col2[1] * VERTEX_COLOUR_MULT);
-			vertex[2].col[2] = (1.0f / 255) * (col2[2] * VERTEX_COLOUR_MULT);
-			vertex[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = ((1.0f / 255.0f) * col2[0]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[1] = ((1.0f / 255.0f) * col2[1]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[2] = ((1.0f / 255.0f) * col2[2]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[2].col[0] = (1.0f / 255) * col2[0];
-			vertex[2].col[1] = (1.0f / 255) * col2[1];
-			vertex[2].col[2] = (1.0f / 255) * col2[2];
-			vertex[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = (1.0f / 255.0f) * col2[0];
+			vertex[2].col[1] = (1.0f / 255.0f) * col2[1];
+			vertex[2].col[2] = (1.0f / 255.0f) * col2[2];
+			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
-			vertex[2].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[2].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[2].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[2].col[0] = (1.0f / 255) * col0[0];
-			vertex[2].col[1] = (1.0f / 255) * col0[1];
-			vertex[2].col[2] = (1.0f / 255) * col0[2];
-			vertex[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = (1.0f / 255.0f) * col0[0];
+			vertex[2].col[1] = (1.0f / 255.0f) * col0[1];
+			vertex[2].col[2] = (1.0f / 255.0f) * col0[2];
+			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 
@@ -599,34 +597,34 @@ void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsig
 	{
 		if (bMultiplyColour)
 		{
-			vertex[3].col[0] = (1.0f / 255) * (col3[0] * VERTEX_COLOUR_MULT);
-			vertex[3].col[1] = (1.0f / 255) * (col3[1] * VERTEX_COLOUR_MULT);
-			vertex[3].col[2] = (1.0f / 255) * (col3[2] * VERTEX_COLOUR_MULT);
-			vertex[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = ((1.0f / 255.0f) * col3[0]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[1] = ((1.0f / 255.0f) * col3[1]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[2] = ((1.0f / 255.0f) * col3[2]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[3].col[0] = (1.0f / 255) * col3[0];
-			vertex[3].col[1] = (1.0f / 255) * col3[1];
-			vertex[3].col[2] = (1.0f / 255) * col3[2];
-			vertex[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = (1.0f / 255.0f) * col3[0];
+			vertex[3].col[1] = (1.0f / 255.0f) * col3[1];
+			vertex[3].col[2] = (1.0f / 255.0f) * col3[2];
+			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
-			vertex[3].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[3].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[3].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[3].col[0] = (1.0f / 255) * col0[0];
-			vertex[3].col[1] = (1.0f / 255) * col0[1];
-			vertex[3].col[2] = (1.0f / 255) * col0[2];
-			vertex[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = (1.0f / 255.0f) * col0[0];
+			vertex[3].col[1] = (1.0f / 255.0f) * col0[1];
+			vertex[3].col[2] = (1.0f / 255.0f) * col0[2];
+			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 
@@ -654,8 +652,8 @@ void Emulator_CreateGlobalShaders()
 	const char* fragmentShaderSource = "#version 300 es\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord) * v_colour; }";
 #elif defined(OGL)
 	//const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
-	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { vec4 dither = vec4(texture(s_texture, gl_FragCoord.xy / 8.0).r / 32.0 - (1.0 / 128.0)); fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; fragColour += dither; }";
-	//const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
+	//const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { vec4 dither = vec4(texture(s_texture, gl_FragCoord.xy / 8.0).r / 32.0 - (1.0 / 128.0)); fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; fragColour += dither; }";
+	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
 #endif
 
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -804,11 +802,11 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 	unsigned short* pixelData = new unsigned short[width * height];
 	if (bReadFromFrameBuffer)
 	{
-		glReadPixels(x, y, width, height, GL_RGBA, TEXTURE_FORMAT, &pixelData[0]);
+		glReadPixels(x, y, width, height, GL_BGRA, TEXTURE_FORMAT, &pixelData[0]);
 	}
 	else
 	{
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, TEXTURE_FORMAT, pixelData);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, TEXTURE_FORMAT, pixelData);
 	}
 
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
@@ -927,26 +925,20 @@ void Emulator_SwapWindow()
 	glFinish();
 #endif
 }
-unsigned short pixels[VRAM_WIDTH * VRAM_HEIGHT];
+
+unsigned char pixels[VRAM_WIDTH * VRAM_HEIGHT * 4];
 
 void Emulator_EndScene()
 {
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), false);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 
-#if defined(OGLES)
-	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
-#elif defined(OGL)
-	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
-#endif
+	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
 
 	Emulator_BindTexture(vramTexture);
 
-#if defined(OGLES)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
-#elif defined(OGL)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
-#endif
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+
 	glScissor(0, 0, windowWidth, windowHeight);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
 
