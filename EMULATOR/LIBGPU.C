@@ -567,6 +567,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 #if defined(OGLES) || defined(OGL)
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
+		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
 #endif
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
@@ -1466,14 +1467,24 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 		}
 		case 0xE0:
 		{
-			if (pTag->code != 0xE1)
-				assert(FALSE);//Need to handle other 0xEX primitive types in switch case.
-			unsigned short tpage = ((unsigned short*)pTag)[2];
-			if (tpage != 0)///@FIXME? Looks like tpage is never changed if 0? OR we're screwed because it takes first (from frame buffer) and it's not updated YET! :(
+			switch (pTag->code)
 			{
-				activeDrawEnv.tpage = tpage;
+			case 0xE1:
+			{
+				unsigned short tpage = ((unsigned short*)pTag)[2];
+				if (tpage != 0)
+				{
+					activeDrawEnv.tpage = tpage;
+				}
+				currentAddress += 8;
+				break;
 			}
-			currentAddress += 8;
+			default:
+			{
+				assert(FALSE);
+				break;
+			}
+			}
 			break;
 		}
 		default:
@@ -2265,12 +2276,22 @@ void ParsePrimitive(P_TAG* pTag)
 	}
 	case 0xE0:
 	{
-		if (pTag->code != 0xE1)
-			assert(FALSE);//Need to handle other 0xEX primitive types in switch case.
-		unsigned short tpage = ((unsigned short*)pTag)[2];
-		if (tpage != 0)///@FIXME? Looks like tpage is never changed if 0? OR we're screwed because it takes first (from frame buffer) and it's not updated YET! :(
+		switch (pTag->code)
 		{
-			activeDrawEnv.tpage = tpage;
+		case 0xE1:
+		{
+			unsigned short tpage = ((unsigned short*)pTag)[2];
+			if (tpage != 0)
+			{
+				activeDrawEnv.tpage = tpage;
+			}
+			break;
+		}
+		default:
+		{
+			assert(FALSE);
+			break;
+		}
 		}
 		break;
 	}
@@ -2386,6 +2407,7 @@ void DrawOTag(u_long* p)
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(VertexBufferSplitIndex));
 		
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
+		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
@@ -2607,6 +2629,7 @@ void DrawPrim(void* p)
 
 #if defined(OGLES) || defined(OGL)
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
+		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
 #endif
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);

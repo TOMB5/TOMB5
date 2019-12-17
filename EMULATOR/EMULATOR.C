@@ -641,7 +641,7 @@ void Emulator_CreateGlobalShaders()
 #elif defined(ES3_SHADERS)
 	const char* vertexShaderSource = "#version 300 es\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
 #elif defined(OGL)
-	const char* vertexShaderSource = "#version 330 core\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
+	const char* vertexShaderSource = "#version 330 core\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; uniform mat4 Scale; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*(a_position*Scale); }";
 #endif
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -941,7 +941,7 @@ void Emulator_EndScene()
 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
 
-	glScissor(0, 0, windowWidth, windowHeight);
+	glScissor(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
 
 	float x = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.x * RESOLUTION_SCALE));
@@ -983,6 +983,7 @@ void Emulator_EndScene()
 	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)20);
 	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)12);
 	Emulator_Ortho2D(0.0f, word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, 1.0f);
+	Emulator_Scalef(1.0f, 1.0f, 1.0f);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 	glDisableVertexAttribArray(posAttrib);
 	glDisableVertexAttribArray(colAttrib);
@@ -1318,6 +1319,21 @@ void Emulator_Ortho2D(float left, float right, float bottom, float top, float zn
 	GLint projectionUniform = glGetUniformLocation(g_defaultShaderProgram, "Projection");
 	glUniformMatrix4fv(projectionUniform, 1, GL_FALSE, &ortho[0]);
 }
+
+void Emulator_Scalef(float sx, float sy, float sz)
+{
+	float scale[16] =
+	{
+		sx, 0, 0, 0,
+		0, sy, 0, 0,
+		0, 0, sz, 0,
+		0, 0, 0, 1
+	};
+
+	GLint scaleUniform = glGetUniformLocation(g_defaultShaderProgram, "Scale");
+	glUniformMatrix4fv(scaleUniform, 1, GL_FALSE, &scale[0]);
+}
+
 #endif
 
 void Emulator_GetTopLeftAndBottomLeftTextureCoordinate(int& x, int& y, int& w, int& h, unsigned char* u, unsigned char* v)

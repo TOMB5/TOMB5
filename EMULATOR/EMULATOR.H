@@ -107,6 +107,7 @@ extern void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0
 extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
 extern int Emulator_InitialiseGameVariables();
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
+extern void Emulator_Scalef(float sx, float sy, float sz);
 extern void Emulator_BindTexture(GLuint textureId);
 
 #endif
