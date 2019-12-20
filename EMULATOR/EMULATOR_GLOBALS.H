@@ -1,7 +1,7 @@
 #ifndef EMULATOR_GLOBALS_H
 #define EMULATOR_GLOBALS_H
 
-#include "EMULAOR_PLATFORM_SETUP.H"
+#include "EMULATOR_PLATFORM_SETUP.H"
 
 #ifndef TRUE
 #define TRUE		1
