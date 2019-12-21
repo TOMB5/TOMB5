@@ -1,7 +1,12 @@
 #include "LIBGTE.H"
 #include "EMULATOR_GLOBALS.H"
+#include "EMULATOR_PRIVATE.H"
 #include <assert.h>
 #include <stdio.h>
+
+#define MAX_NUM_POLYGONS 8192
+int pgxp_polgon_table_index = 0;
+struct PGXPPolygon pgxp_polygons[MAX_NUM_POLYGONS];
 
 GTERegisters gteRegs;
 
@@ -1781,6 +1786,13 @@ unsigned char ida_chars[] =
 
 unsigned int* rcossin_tbl = (unsigned int*)&ida_chars[0];///@FIXME convert to uint[];
 
+#ifndef max
+#   define max(a, b) ((a) > (b) ? (a) : (b))
+#endif
+#ifndef min
+#   define min(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
 void InitGeom()
 {
 	//_patch_gte(); //Extern
@@ -2140,6 +2152,13 @@ int docop2(int op) {
 		SY2 = Lm_G2(F((long long)OFY + ((long long)IR2 * h_over_sz3)) >> 16);
 		MAC0 = F((long long)DQB + ((long long)DQA * h_over_sz3));
 		IR0 = Lm_H(m_mac0, 1);
+
+#if defined(PGXP)
+		pgxp_polygons[pgxp_polgon_table_index].originalSXY = SXY2;
+		pgxp_polygons[pgxp_polgon_table_index].x = (Lm_G1_ia((s64)OFX + (s64)(IR1 * h_over_sz3) * (false ? 0.75 : 1))) / (float)(1 << 16);
+		pgxp_polygons[pgxp_polgon_table_index].y = (Lm_G2_ia((s64)OFY + (s64)(IR2 * h_over_sz3))) / (float)(1 << 16);
+		pgxp_polygons[pgxp_polgon_table_index++].z = max(SZ3, H / 2), SXY2;
+#endif
 		return 1;
 
 	case 0x06:
@@ -2521,6 +2540,13 @@ int docop2(int op) {
 			SXY1 = SXY2;
 			SX2 = Lm_G1(F((long long)OFX + ((long long)IR1 * h_over_sz3) * (false ? 0.75 : 1)) >> 16);
 			SY2 = Lm_G2(F((long long)OFY + ((long long)IR2 * h_over_sz3)) >> 16);
+
+#if defined(PGXP)
+			pgxp_polygons[pgxp_polgon_table_index].originalSXY = SXY2;
+			pgxp_polygons[pgxp_polgon_table_index].x = Lm_G1_ia((s64)OFX + (s64)(IR1 * h_over_sz3) * (false ? 0.75 : 1)) / (float)(1 << 16);
+			pgxp_polygons[pgxp_polgon_table_index].y = Lm_G2_ia((s64)OFY + (s64)(IR2 * h_over_sz3)) / (float)(1 << 16);
+			pgxp_polygons[pgxp_polgon_table_index++].z = max(SZ3, H / 2), SXY2;
+#endif
 		}
 
 		MAC0 = F((long long)DQB + ((long long)DQA * h_over_sz3));

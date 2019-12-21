@@ -2,11 +2,12 @@
 
 #include "EMULATOR_VERSION.H"
 #include "EMULATOR_GLOBALS.H"
+#include "EMULATOR_PRIVATE.H"
 #include "CRASHHANDLER.H"
 
-#include <LIBGPU.H>
-#include <LIBETC.H>
-#include <LIBPAD.H>
+#include "LIBGPU.H"
+#include "LIBETC.H"
+#include "LIBPAD.H"
 
 #include <stdio.h>
 #include <string.h>
@@ -56,7 +57,6 @@ char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
 int g_hasHintedTextureAtlas = 0;
-
 struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
 static int Emulator_InitialiseGLContext(char* windowName)
@@ -395,6 +395,170 @@ void Emulator_GenerateLineArray(Vertex* vertex, short* p0, short* p1, short* p2,
 
 void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h)
 {
+
+#if defined(PGXP)
+	/*
+	Locate polygon in ztable
+	*/
+
+	PGXPPolygon* z0 = NULL;
+	PGXPPolygon* z1 = NULL;
+	PGXPPolygon* z2 = NULL;
+	PGXPPolygon* z3 = NULL;
+
+	//Can speed this up by storing last index found and using as start iter
+	for (int i = 0; i < MAX_NUM_POLYGONS; i++)
+	{
+		if (p0 != NULL)
+		{
+			if (((unsigned int*)p0)[0] == pgxp_polygons[i].originalSXY)
+			{
+				z0 = &pgxp_polygons[i];
+			}
+		}
+
+		if (p1 != NULL)
+		{
+			if (((unsigned int*)p1)[0] == pgxp_polygons[i].originalSXY)
+			{
+				z1 = &pgxp_polygons[i];
+			}
+		}
+
+		if (p2 != NULL)
+		{
+			if (((unsigned int*)p2)[0] == pgxp_polygons[i].originalSXY)
+			{
+				z2 = &pgxp_polygons[i];
+			}
+		}
+
+		if (p3 != NULL)
+		{
+			if (((unsigned int*)p3)[0] == pgxp_polygons[i].originalSXY)
+			{
+				z3 = &pgxp_polygons[i];
+			}
+		}
+
+		if (z0 != NULL && z1 != NULL && z2 != NULL && z3 != NULL)
+			break;
+	}
+
+	//Copy over position
+	if (p0 != NULL)
+	{
+		if (z0 != NULL)
+		{
+			vertex[0].x = z0->x;
+			vertex[0].y = z0->y;
+		}
+		else
+		{
+			vertex[0].x = (float)p0[0];
+			vertex[0].y = (float)p0[1];
+		}
+
+		if (z0 != NULL)
+		{
+			//vertex[0].z = z->z0;
+		}
+	}
+
+	if (p1 != NULL)
+	{
+		if (z1 != NULL)
+		{
+			vertex[1].x = z1->x;
+			vertex[1].y = z1->y;
+		}
+		else
+		{
+			vertex[1].x = (float)p1[0];
+			vertex[1].y = (float)p1[1];
+		}
+
+		if (z1 != NULL)
+		{
+			//vertex[1].z = z1->z1;
+		}
+	}
+	else
+	{
+		if (w != -1 && h != -1)
+		{
+			vertex[1].x = (float)p0[0];
+			vertex[1].y = (float)p0[1] + h;
+			if (z1 != NULL)
+			{
+				//vertex[1].z = z->z1;
+			}
+		}
+	}
+
+	if (p2 != NULL)
+	{
+		if (z2 != NULL)
+		{
+			vertex[2].x = z2->x;
+			vertex[2].y = z2->y;
+		}
+		else
+		{
+			vertex[2].x = (float)p2[0];
+			vertex[2].y = (float)p2[1];
+		}
+
+		if (z2 != NULL)
+		{
+			//vertex[2].z = z2->z;
+		}
+	}
+	else
+	{
+		if (w != -1 && h != -1)
+		{
+			vertex[2].x = (float)p0[0] + w;
+			vertex[2].y = (float)p0[1] + h;
+			if (z2 != NULL)
+			{
+				//vertex[2].z = z->z2;
+			}
+		}
+	}
+
+	if (p3 != NULL)
+	{
+		if (z3 != NULL)
+		{
+			vertex[3].x = z3->x;
+			vertex[3].y = z3->y;
+		}
+		else
+		{
+			vertex[3].x = (float)p3[0];
+			vertex[3].y = (float)p3[1];
+		}
+
+		if (z3 != NULL)
+		{
+			//vertex[3].z = z3->z;
+		}
+	}
+	else
+	{
+		if (w != -1 && h != -1)
+		{
+			vertex[3].x = (float)p0[0] + w;
+			vertex[3].y = (float)p0[1];
+			if (z3 != NULL)
+			{
+				//vertex[3].z = z3->z;
+			}
+		}
+	}
+
+#else
 	//Copy over position
 	if (p0 != NULL)
 	{
@@ -443,7 +607,7 @@ void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, shor
 			vertex[3].y = (float)p0[1];
 		}
 	}
-
+#endif
 	return;
 }
 
@@ -641,7 +805,7 @@ void Emulator_CreateGlobalShaders()
 #elif defined(ES3_SHADERS)
 	const char* vertexShaderSource = "#version 300 es\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
 #elif defined(OGL)
-	const char* vertexShaderSource = "#version 330 core\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; uniform mat4 Scale; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*(a_position*Scale); }";
+	const char* vertexShaderSource = "#version 330 core\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; uniform mat4 Scale; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*(a_position*Scale);  }";
 #endif
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -697,7 +861,6 @@ void Emulator_InitialiseGL()
 	Emulator_GenerateAndBindNullWhite();///@TODO remove completely, no longer needed
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_SCISSOR_TEST);
-	glShadeModel(GL_SMOOTH);
 	glGenTextures(1, &vramTexture);
 	Emulator_BindTexture(vramTexture);
 
@@ -1397,8 +1560,8 @@ void Emulator_GetTopLeftAndBottomLeftTextureCoordinate(int& x, int& y, int& w, i
 	h = (bottomCoordY - topCoordY) + 1;
 
 	//Round up next multiple of 2
-	w = (w + 1) & ~0x1;
-	h = (h + 1) & ~0x1;
+	//w = (w + 1) & ~0x1;
+	//h = (h + 1) & ~0x1;
 
 	//Round down next multiple of 2
 	//w -= (w % 2);
@@ -1476,7 +1639,7 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 		unsigned short g : 5;
 		unsigned short b : 5;
 		unsigned short a : 1;
-};
+	};
 
 	struct abgr1555
 	{

@@ -1,9 +1,11 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
-#include "EMULAOR_PLATFORM_SETUP.H"
+#include "EMULATOR_PLATFORM_SETUP.H"
 
-#define RESOLUTION_SCALE (1)
+#include "LIBGPU.H"
+
+#define RESOLUTION_SCALE (2)
 
 #define VRAM_WIDTH (1024 * RESOLUTION_SCALE)
 #define VRAM_HEIGHT (512 * RESOLUTION_SCALE)
@@ -69,7 +71,7 @@ extern SysCounter counters[3];
 #pragma pack(push,1)
 struct Vertex
 {
-	GLfloat x, y;
+	GLfloat x, y, z;
 	GLfloat u0, v0;
 	GLfloat col[4];
 };
@@ -84,8 +86,6 @@ enum BlendMode
 	BM_ADD_QUATER_SOURCE,
 	BM_DEFAULT
 };
-
-#include <LIBGPU.H>
 
 extern GLuint g_lastBoundTexture;
 
