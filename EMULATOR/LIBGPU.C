@@ -297,22 +297,38 @@ int MoveImage(RECT16* rect, int x, int y)
 
 	/* Read in src pixels for rect */
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-#if defined(OGLES)
-	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
-#elif defined(OGL)
-	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
-#endif
+
+	enum PixelBufferType
+	{
+		VRAM,
+		NUM_PIXEL_BUFFER_OBJECTS
+	};
+
+	GLuint pixelBufferObjects[NUM_PIXEL_BUFFER_OBJECTS];
+
+	//Generate PBO for faster transfer
+	glGenBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[VRAM]);
+
+	//Bind the VRAM PBO
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[VRAM]);
+
+	//Allocate PBO size for VRAM
+	glBufferData(GL_PIXEL_PACK_BUFFER, (rect->w * rect->h) * sizeof(GLushort), NULL, GL_DYNAMIC_READ);
+
+	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, NULL);
 
 	glGenTextures(1, &srcTexture);
 	Emulator_BindTexture(srcTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-#if defined(OGL)
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
-#elif defined(OGLES)
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
-#endif
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
+
+	//Unmap VRAM pbo
+	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
+	//Delete buffers
+	glDeleteBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[VRAM]);
 
 	/* Generate src Frame Buffer */
 	glGenFramebuffers(1, &srcFrameBuffer);

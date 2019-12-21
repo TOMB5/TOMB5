@@ -875,6 +875,7 @@ void Emulator_InitialiseGL()
 	/* Generate VRAM Frame Buffer */
 	glGenFramebuffers(1, &vramFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+
 	/* Bind VRAM texture to vram framebuffer */
 #if defined (OGLES)
 	Emulator_BindTexture(0);
@@ -1089,8 +1090,6 @@ void Emulator_SwapWindow()
 #endif
 }
 
-unsigned char pixels[VRAM_WIDTH * VRAM_HEIGHT * 4];
-
 void Emulator_EndScene()
 {
 	Emulator_SetBlendMode(BM_DEFAULT, 1);
@@ -1098,11 +1097,38 @@ void Emulator_EndScene()
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), false);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 
-	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+	enum PixelBufferType
+	{
+		VRAM,
+		NUM_PIXEL_BUFFER_OBJECTS
+	};
+
+	GLuint pixelBufferObjects[NUM_PIXEL_BUFFER_OBJECTS];
+
+	//Generate PBO for faster transfer
+	glGenBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[VRAM]);
+
+	//Bind the VRAM PBO
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[VRAM]);
+
+	//Allocate PBO size for VRAM
+	glBufferData(GL_PIXEL_PACK_BUFFER, (VRAM_WIDTH * VRAM_HEIGHT) * sizeof(GLuint), NULL, GL_DYNAMIC_READ);
+
+	//Read VRAM
+	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+	//Map buffer
+	unsigned short* pixels = (unsigned short*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
 
 	Emulator_BindTexture(vramTexture);
 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+
+	//Unmap VRAM pbo
+	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
+	//Delete buffers
+	glDeleteBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[VRAM]);
 
 	glScissor(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
@@ -1250,7 +1276,7 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	unsigned int textureType = GET_TPAGE_TYPE(tpage);
 	unsigned int tpageX = GET_TPAGE_X(tpage);
 	unsigned int tpageY = GET_TPAGE_Y(tpage)
-	unsigned int clutX = GET_CLUT_X(clut);
+		unsigned int clutX = GET_CLUT_X(clut);
 	unsigned int clutY = GET_CLUT_Y(clut);
 
 #if RESOLUTION_SCALE > 1
@@ -1330,25 +1356,63 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	}
 	case TP_4BIT:
 	{
-		unsigned short* texturePage = new unsigned short[TPAGE_WIDTH / 4 * TPAGE_HEIGHT];
-		unsigned short* clut = new unsigned short[16];
-		unsigned short* convertedTpage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
+		enum PixelBufferType
+		{
+			CLUT,
+			TPAGE,
+			NUM_PIXEL_BUFFER_OBJECTS
+		};
+
+		GLuint pixelBufferObjects[NUM_PIXEL_BUFFER_OBJECTS];
+
+		//Generate PBO for faster transfer
+		glGenBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[CLUT]);
+
+		//Bind the CLUT PBO
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[CLUT]);
+
+		//Allocate PBO size for CLUT
+		glBufferData(GL_PIXEL_PACK_BUFFER, (CLUT_WIDTH * CLUT_HEIGHT) * sizeof(GLushort), NULL, GL_DYNAMIC_READ);
 
 		//Read CLUT
-		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &clut[0]);
+		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, TEXTURE_FORMAT, NULL);
+
+		//Map buffer
+		unsigned short* clut = (unsigned short*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+
+		//Bind the tpage PBO
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[TPAGE]);
+
+		//Allocate PBO size for TPAGE
+		glBufferData(GL_PIXEL_PACK_BUFFER, (TPAGE_WIDTH / 4 * TPAGE_HEIGHT) * sizeof(GLushort), NULL, GL_DYNAMIC_READ);
 
 		//Read texture data
-		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &texturePage[0]);
+		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, NULL);
 
+		//Map buffer
+		unsigned short* tpage = (unsigned short*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_WRITE);
+		unsigned short convertedTpage[TPAGE_WIDTH * TPAGE_HEIGHT];
 		unsigned short* convertPixel = &convertedTpage[0];
 
 		for (int xy = 0; xy < TPAGE_WIDTH / 4 * TPAGE_HEIGHT; xy++)
 		{
-			*convertPixel++ = clut[(texturePage[xy] & (0xF << 0 * 4)) >> (0 * 4)];
-			*convertPixel++ = clut[(texturePage[xy] & (0xF << 1 * 4)) >> (1 * 4)];
-			*convertPixel++ = clut[(texturePage[xy] & (0xF << 2 * 4)) >> (2 * 4)];
-			*convertPixel++ = clut[(texturePage[xy] & (0xF << 3 * 4)) >> (3 * 4)];
+			*convertPixel++ = clut[(tpage[xy] & (0xF << 0 * 4)) >> (0 * 4)];
+			*convertPixel++ = clut[(tpage[xy] & (0xF << 1 * 4)) >> (1 * 4)];
+			*convertPixel++ = clut[(tpage[xy] & (0xF << 2 * 4)) >> (2 * 4)];
+			*convertPixel++ = clut[(tpage[xy] & (0xF << 3 * 4)) >> (3 * 4)];
 		}
+
+		//Unmap TPAGE pbo
+		glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
+		//Bind CLUT pbo
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[CLUT]);
+
+		//Unmap CLUT pbo
+		glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
+		//Delete buffers
+		glDeleteBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[CLUT]);
 
 #if defined(OGLES)
 #define ARGB1555toRGBA1555(x) ((x & 0x8000) >> 15) | ((x & 0x7FFF) << 1)
@@ -1387,7 +1451,7 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 
 #endif
 
-#if _DEBUG && 1
+#if _DEBUG && 0
 		char buff[64];
 		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
 		FILE* f = fopen(buff, "wb");
@@ -1400,10 +1464,6 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 #endif
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
-		
-		delete[] clut;
-		delete[] texturePage;
-		delete[] convertedTpage;
 		break;
 	}
 
