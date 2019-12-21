@@ -612,8 +612,10 @@ void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, shor
 }
 
 
-void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h)
+void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h, bool bAddHalfPixel)
 {
+#define HALF_PIXEL_OFFSET (0.5f / 256.0f)
+
 	//Copy over uvs
 	if (uv0 != NULL)
 	{
@@ -661,6 +663,18 @@ void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsi
 			vertex[3].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
 			vertex[3].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
 		}
+	}
+
+	if (bAddHalfPixel)
+	{
+		vertex[0].u0 += HALF_PIXEL_OFFSET;
+		vertex[0].v0 += HALF_PIXEL_OFFSET;
+		vertex[1].u0 += HALF_PIXEL_OFFSET;
+		vertex[1].v0 += HALF_PIXEL_OFFSET;
+		vertex[2].u0 += HALF_PIXEL_OFFSET;
+		vertex[2].v0 += HALF_PIXEL_OFFSET;
+		vertex[3].u0 += HALF_PIXEL_OFFSET;
+		vertex[3].v0 += HALF_PIXEL_OFFSET;
 	}
 
 	return;
@@ -1092,7 +1106,7 @@ void Emulator_SwapWindow()
 
 void Emulator_EndScene()
 {
-	Emulator_SetBlendMode(BM_DEFAULT, 1);
+	glDisable(GL_BLEND);
 
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), false);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
@@ -1190,6 +1204,8 @@ void Emulator_EndScene()
 
 	Emulator_SwapWindow();
 	glUseProgram(g_defaultShaderProgram);
+
+	glEnable(GL_BLEND);
 }
 
 void Emulator_ShutDown()
