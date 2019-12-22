@@ -854,7 +854,7 @@ void Emulator_CreateGlobalShaders()
 	glLinkProgram(g_defaultShaderProgram);
 	glUseProgram(g_defaultShaderProgram);
 	GLint idx = glGetUniformLocation(g_defaultShaderProgram, "s_texture");
-	GLint sampler;
+	GLint sampler = 0;
 	glUniform1iv(idx, 1, &sampler);
 	glActiveTexture(GL_TEXTURE0 + sampler);
 }
