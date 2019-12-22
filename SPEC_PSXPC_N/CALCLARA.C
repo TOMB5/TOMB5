@@ -299,6 +299,118 @@ void mRotSuperPackedYXZ(int* t8, int a1)
 	mRotZ_CL((v0 & 0x3FF) << 6);
 }
 
+void iTranslateXYZ2_CL(long x /*a3*/, long y /*a1*/, long z /*a2*/)
+{
+	int t0 = x >> 15;
+	if (x < 0)
+	{
+		x = -x;
+		t0 = x >> 15;
+		x &= 0x7FFF;
+		t0 = -t0;
+		x = -x;
+	}
+	else
+	{
+		//loc_85318
+		x &= 0x7FFF;
+	}
+
+	int t1 = y >> 15;
+	if (y < 0)
+	{
+		y = -y;
+		t1 = y >> 15;
+		y & -0x7FFF;
+		t1 = -t1;
+		y = -y;
+	}
+	else
+	{
+		//loc_8533C
+		y &= 0x7FFF;
+	}
+
+	//loc_85340
+	int t2 = z >> 15;
+	if (t2 < 0)
+	{
+		z = -z;
+		t2 = z >> 15;
+		z &= 0x7FFF;
+		t2 = -t2;
+		z = -z;
+	}
+	else
+	{
+		//loc_85360
+		z &= 0x7FFF;
+	}
+
+	IR1 = t0;
+	IR2 = t1;
+	IR3 = t2;
+
+	docop2(0x43E012);
+
+	int t6 = MAC1;
+
+	IR1 = x;
+	IR2 = y;
+	IR3 = z;
+
+	int t7 = MAC2;
+	int v0 = MAC3;
+
+	docop2(0x4BE012);
+
+	int t3 = t6 << 3;
+	if (t3 < 0)
+	{
+		t6 = -t6;
+		t6 <<= 3;
+		t3 = -t6;
+	}
+	//loc_853A8
+	int t4 = t7 << 3;
+	if (t7 < 0)
+	{
+		t7 = -t7;
+		t7 <<= 3;
+		t4 = -t7;
+	}
+
+	//loc_853BC
+	int t5 = v0 << 3;
+	if (v0 < 0)
+	{
+		v0 = -v0;
+		v0 <<= 3;
+		t5 = -v0;
+	}
+
+	//loc_853D0
+	t6 = MAC1;
+	t7 = MAC2;
+	v0 = MAC3;
+
+	t3 += t6;
+	t4 += t7;
+	t5 += v0;
+
+	t0 = RBK;
+	t1 = GBK;
+	t2 = BBK;
+
+	t0 += t3;
+	t1 += t4;
+	t2 += t5;
+
+	RBK = t0;
+	GBK = t1;
+	BBK = t2;
+}
+
 void mTranslateXYZ_CL(long x, long y, long z)
 {
 	int t4 = y >> 15;
@@ -423,7 +535,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	struct ITEM_INFO* item = lara_item;
 	short* t9 = frame;
 	long* s1 = bone;
-	frame += 3;
+	frame += 4;
 	GLaraShadowframe = t9;
 	t8[9] = (int)frame;
 	snaff_current_gte_matrix_V1(&t8[38]);
@@ -449,7 +561,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	//loc_83C74
 	mRotYXZ_CL(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
 	snaff_current_gte_matrix_V1(&t8[14]);
-	mTranslateXYZ_CL(frame[6], frame[7], frame[8]);
+	mTranslateXYZ_CL(t9[6], t9[7], t9[8]);
 	mRotSuperPackedYXZ(t8, 0);
 
 	int* s0 = &t8[13];
@@ -661,523 +773,266 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 
 void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate, long* bone, int flag)
 {
+	int sp[256];
+	int* t8 = &sp[0];
+	struct ITEM_INFO* item = lara_item;//$t9
+	short* s0 = frame1;
+	short* s1 = frame2;
+	long* s1 = bone;
+	frame1 += 4;
+	frame2 += 4;
+	t8[9] = (int)frame1;
+	t8[10] = (int)frame2;
+	snaff_current_gte_matrix_V1(&t8[72]);
+	struct MATRIX3D* a0 = NULL;
+
+	if ((flag & 0x1))
+	{
+		TRX = 0;
+		TRY = 0;
+		TRZ = 0;
+		t8[13] = (int)lara_joint_matrices;
+	}
+	else
+	{
+		//loc_83C40
+		t8[13] = (int)lara_matrices;
+		mTranslateAbsXYZ_CL(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+		if ((flag & 0x2))
+		{
+			ScaleCurrentMatrix(0, -4096, -4096, -4096);
+		}
+	}
+
+	//loc_83C74
+	mRotYXZ_CL(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
+	snaff_current_gte_matrix_V1(&t8[64]);
+	L11 = R11;
+	L12 = R12;
+	L13 = R13;
+	L21 = R21;
+	L22 = R22;
+	L23 = R23;
+	L31 = R31;
+	L32 = R32;
+	L33 = R33;
+	RBK = TRX;
+	GBK = TRY;
+	BBK = TRZ;
+
+	mTranslateXYZ_CL(s0[6], s0[7], s0[8]);
+	iTranslateXYZ2_CL(s1[6], s1[7], s1[8]);
+	mRotSuperPackedYXZ(t8, 0);
+
+
 #if 0
-	lui     t8, 0x1F80
-	sw      s0, 0x00(t8)
-	sw      s1, 0x04(t8)
-	sw      s2, 0x08(t8)
-	sw      ra, 0x20(t8)
-	sw      a2, 0xB8(t8)
-	sw      a3, 0xBC(t8)
-	move    s0, a0
-	move    s1, a1
-	addiu   a0, 0x12
-	addiu   a1, 0x12
-	sw      a0, 0x24(t8)
-	sw      a1, 0x28(t8)
-	lw      t9, lara_item-GP_ADDR(gp)
-	la      s2, rcossin_tbl
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, t8, 0x120
-	lw      a3, 0x14(sp)
-	nop
-	andi    a2, a3, 1
-	beqz    a2, loc_843C8
-	andi    a3, 2
-	la      a0, lara_joint_matrices
-	ctc2    zero, r5
-	ctc2    zero, r6
-	ctc2    zero, r7
-	j       loc_843FC
-	sw      a0, 0x34(t8)
+	
 
-	loc_843C8:
-	la      a0, lara_matrices
-	sw      a0, 0x34(t8)
-	lw      a0, 0x40(t9)
-	lw      a1, 0x44(t9)
-	jal     mTranslateAbsXYZ_CL
-	lw      a2, 0x48(t9)
-	beqz    a3, loc_843FC
-	li      a0, 0
-	li      a1, 0xFFFFF000
-	li      a2, 0xFFFFF000
-	jal     ScaleCurrentMatrix
-	li      a3, 0xFFFFF000
+	int* s0 = &t8[13];
+	snaff_current_gte_matrix_V1(&t8[22]);
+	int a3 = 6;
 
-	loc_843FC:
-	lh      a0, 0x4E(t9)
-	lh      a1, 0x4C(t9)
-	jal     mRotYXZ
-	lh      a2, 0x50(t9)
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, t8, 0x100
-	ctc2    t0, r8
-	ctc2    t1, r9
-	ctc2    t2, r10
-	ctc2    t3, r11
-	ctc2    t4, r12
-	ctc2    t5, r13
-	ctc2    t6, r14
-	ctc2    t7, r15
-	lh      a0, 0xC(s0)
-	lh      a1, 0xE(s0)
-	jal     mTranslateXYZ_CL
-	lh      a2, 0x10(s0)
-	lh      a3, 0xC(s1)
-	lh      a1, 0xE(s1)
-	jal     iTranslateXYZ2
-	lh      a2, 0x10(s1)
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	lw      s0, 0x34(t8)
-	jal     InterpolateMatrix
-	move    a0, s0
-	lw      s1, 0x10(sp)
-	jal     DEL_stash_both_matrices
-	addiu   a0, t8, 0xC0
-	li      t9, 6
+	//loc_83CB4
+	do
+	{
+		Hardcore_mTranslateXYZ_CL(&s1[1]);
+		mRotSuperPackedYXZ(&t8[22], 0);
+		snaff_current_gte_matrix_V1(&s0[8]);
+		a3--;
 
-	loc_84480:
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x20
-	addiu   t9, -1
-	li      at, 3
-	bne     t9, at, loc_844B8
-	addiu   s1, 0x10
-	jal     DEL_restore_both_matrices
-	addiu   a0, t8, 0xC0
+		s1 += 4;
+		if (a3 == 3)
+		{
+			mLoadMatrix(&t8[22]);
+		}//loc_83CE4
 
-	loc_844B8:
-	bnez    t9, loc_84480
-	addiu   s0, 0x20
-	jal     DEL_restore_both_matrices
-	addiu   a0, t8, 0xC0
-	addiu   s0, -0xC0
-	addiu   s1, -0x60
-	lw      t9, anims-GP_ADDR(gp)
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0x64
-	lh      a0, lara+0x2A-GP_ADDR(gp)
-	li      v0, 0xFFFFFFFF
-	beq     a0, v0, loc_84594
-	li      v0, 5
-	lh      v1, lara+0x4-GP_ADDR(gp)
-	nop
-	bne     v1, v0, loc_84594
-	sll     v0, a0, 2
-	addu    v0, a0
-	sll     v0, 2
-	subu    v0, a0
-	lw      v1, items-GP_ADDR(gp)
-	sll     v0, 3
-	addu    v0, v1
-	lh      v1, 0xE(v0)
-	nop
-	beqz    v1, loc_84534
-	li      v0, 2
-	beq     v1, v0, loc_84534
-	li      v0, 4
-	bne     v1, v0, loc_84594
-	nop
+		s0 += 8;
 
-	loc_84534:
-	lh      v1, lara+0xCE-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v0, 4(v0)
-	lh      v1, lara+0xCC-GP_ADDR(gp)
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 7
-	lw      v0, lara+0xC8-GP_ADDR(gp)
-	mflo    t0
-	nop
-	nop
-	sll     v1, t0, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	sw      v0, 0x28(t8)
-	jal     mRotSuperPackedYXZ
-	sw      v0, 0x24(t8)
-	li      a1, 7
-	jal     iRotSuperPackedYXZ
-	addiu   ra, 0x10
+	} while (a3 != 0);
 
-	loc_84594:
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	lh      a0, lara+0xAE-GP_ADDR(gp)
-	lh      a1, lara+0xB0-GP_ADDR(gp)
-	jal     mRotYXZ
-	lh      a2, lara+0xB2-GP_ADDR(gp)
-	lh      a0, lara+0xAE-GP_ADDR(gp)
-	lh      a1, lara+0xB0-GP_ADDR(gp)
-	jal     iRotYXZ
-	lh      a2, lara+0xB2-GP_ADDR(gp)
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0xE0
-	jal     DEL_stash_both_matrices
-	addiu   a0, t8, 0xC0
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0xD4
-	lw      v0, 0x24(t8)
-	lw      v1, 0x28(t8)
-	li      a1, 6
-	sw      v0, 0x2C(t8)
-	jal     mRotSuperPackedYXZ
-	sw      v1, 0x30(t8)
-	jal     iRotSuperPackedYXZ
-	li      a1, 6
-	lw      v0, 0x2C(t8)
-	lw      v1, 0x30(t8)
-	sw      v0, 0x24(t8)
-	sw      v1, 0x28(t8)
-	lh      a0, lara+0xA8-GP_ADDR(gp)
-	lh      a1, lara+0xAA-GP_ADDR(gp)
-	jal     mRotYXZ
-	lh      a2, lara+0xAC-GP_ADDR(gp)
-	lh      a0, lara+0xA8-GP_ADDR(gp)
-	lh      a1, lara+0xAA-GP_ADDR(gp)
-	jal     iRotYXZ
-	lh      a2, lara+0xAC-GP_ADDR(gp)
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x100
-	jal     DEL_restore_both_matrices
-	addiu   a0, t8, 0xC0
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0x74
-	lhu     a0, lara+0x2-GP_ADDR(gp)
-	move    v1, zero
-	li      v0, 2
-	beq     a0, v0, loc_84670
-	li      v0, 3
-	beq     a0, v0, loc_84670
-	li      v0, 4
-	beq     a0, v0, loc_84670
-	li      v0, 5
-	bne     a0, v0, loc_8469C
-	nop
+	mLoadMatrix(&t8[22]);
+	bone -= 24;
+	s0 -= 48;
 
-	loc_84670:
-	lh      v1, lara+0x4-GP_ADDR(gp)
-	la      v0, .firearms_jumptable
-	sltiu   at, v1, 0xA    # switch 9 cases
-	beqz    at, def_84694   # jumptable 00084694 default case
-	sll     v1, 2
-	addu    v1, v0
-	lw      v1, 0(v1)
-	nop
-	jr      v1
-	nop
+	Hardcore_mTranslateXYZ_CL(&s1[25]);
 
-	loc_8469C:
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x120
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0x84
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x140
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0x94
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x160
-	jal     DEL_restore_both_matrices
-	addiu   a0, t8, 0xC0
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0xA4
-	lw      v0, lara+0x44-GP_ADDR(gp)
-	nop
-	andi    v0, 1
-	beqz    v0, loc_84778
-	nop
-	lh      v1, lara+0xBA-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v1, lara+0xB8-GP_ADDR(gp)
-	lh      a0, 0x18(v0)
-	lh      v0, 4(v0)
-	subu    v1, a0
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 0xB
-	lw      v0, lara+0xB4-GP_ADDR(gp)
-	mflo    t0
-	sll     v1, t0, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	sw      v0, 0x28(t8)
-	jal     mRotSuperPackedYXZ
-	sw      v0, 0x24(t8)
-	li      a1, 0xB
-	jal     iRotSuperPackedYXZ
-	addiu   ra, 0x10
+	if (lara.weapon_item != -1 && lara.gun_type == 5 &&
+		(items[lara.weapon_item + 1].frame_number == 0 ||
+			items[lara.weapon_item + 1].frame_number == 2 ||
+			items[lara.weapon_item + 1].frame_number == 4))
+	{
+		t8[9] = (int)& lara.right_arm.frame_base[(lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
+		mRotSuperPackedYXZ(t8, 7);
+	}
+	else
+	{
+		//loc_83DA8
+		mRotSuperPackedYXZ(t8, 0);
+	}
 
-	loc_84778:
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x180
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0xB4
-	move    a1, zero
-	jal     mRotSuperPackedYXZ
-	addiu   ra, 0x314
+	mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+	snaff_current_gte_matrix_V1(&t8[30]);
+	Hardcore_mTranslateXYZ_CL(&s1[53]);
+	mRotSuperPackedYXZ(t8, 6);
+	///@TODO debug this on PSX, mRotSuperPackedYXZ must implicitly change t8[9] and the value is popped back
+	//a3 = t8[9];
+	//?????? sw      a3, 0x24(t8)
+	mRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
+	snaff_current_gte_matrix_V1(&s0[64]);
+	mLoadMatrix(&t8[30]);
+	Hardcore_mTranslateXYZ_CL(&s1[29]);
 
-	loc_847A4:
-	jal     InterpolateArmMatrix
-	addiu   a0, t8, 0x100
-	lh      a0, lara+0xD2-GP_ADDR(gp)
-	lh      a1, lara+0xD4-GP_ADDR(gp)
-	jal     mRotYXZ
-	lh      a2, lara+0xD6-GP_ADDR(gp)
-	lh      v1, lara+0xCE-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v1, lara+0xCC-GP_ADDR(gp)
-	lh      a0, 0x18(v0)
-	lh      v0, 4(v0)
-	subu    v1, a0
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 8
-	lw      v0, lara+0xC8-GP_ADDR(gp)
-	mflo    t0
-	sll     v1, t0, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	jal     mRotSuperPackedYXZ
-	sw      v0, 0x24(t8)
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x84
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x94
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x160
-	jal     DEL_restore_both_matrices
-	addiu   a0, t8, 0xC0
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0xA4
-	jal     InterpolateArmMatrix
-	addiu   a0, t8, 0x100
-	lh      a0, lara+0xBE-GP_ADDR(gp)
-	lh      a1, lara+0xC0-GP_ADDR(gp)
-	lh      a2, lara+0xC2-GP_ADDR(gp)
-	jal     mRotYXZ
-	addiu   ra, 0xE8
+	if (lara.gun_status == 2 || lara.gun_status == 3 ||
+		lara.gun_status == 4 || lara.gun_status == 5)
+	{
+		switch (lara.gun_type)
+		{
+		case 0:
+		case 7:
+		case 8:
+		{
+		loc_83E60:
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[72]);
+			Hardcore_mTranslateXYZ_CL(&s1[33]);
 
-	loc_84870:
-	jal     InterpolateArmMatrix
-	addiu   a0, t8, 0x100
-	lh      a0, lara+0xAE-GP_ADDR(gp)
-	lh      a1, lara+0xB0-GP_ADDR(gp)
-	jal     mRotYXZ
-	lh      a2, lara+0xB2-GP_ADDR(gp)
-	lh      a0, lara+0xAE-GP_ADDR(gp)
-	lh      a1, lara+0xB0-GP_ADDR(gp)
-	jal     iRotYXZ
-	lh      a2, lara+0xB2-GP_ADDR(gp)
-	lh      v1, lara+0xCE-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v1, lara+0xCC-GP_ADDR(gp)
-	lh      a0, 0x18(v0)
-	lh      v0, 4(v0)
-	subu    v1, a0
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 8
-	lw      v0, lara+0xC8-GP_ADDR(gp)
-	mflo    t0
-	sll     v1, t0, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	jal     mRotSuperPackedYXZ
-	sw      v0, 0x24(t8)
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x84
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x94
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x160
-	jal     DEL_restore_both_matrices
-	addiu   a0, t8, 0xC0
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0xA4
-	jal     InterpolateArmMatrix
-	addiu   a0, t8, 0x100
-	lh      a0, lara+0xAE-GP_ADDR(gp)
-	lh      a1, lara+0xB0-GP_ADDR(gp)
-	jal     mRotYXZ
-	lh      a2, lara+0xB2-GP_ADDR(gp)
-	lh      a0, lara+0xAE-GP_ADDR(gp)
-	lh      a1, lara+0xB0-GP_ADDR(gp)
-	jal     iRotYXZ
-	lh      a2, lara+0xB2-GP_ADDR(gp)
-	lh      v1, lara+0xBA-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v1, lara+0xB8-GP_ADDR(gp)
-	lh      a0, 0x18(v0)
-	lh      v0, 4(v0)
-	subu    v1, a0
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 0xB
-	lw      v0, lara+0xB4-GP_ADDR(gp)
-	mflo    t0
-	sll     v1, t0, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	jal     mRotSuperPackedYXZ
-	sw      v0, 0x24(t8)
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x180
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xB4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x1A0
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xC4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	addiu   a0, s0, 0x1C0
-	jal     snaff_current_gte_matrix_V1
-	addiu   ra, 0x104
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[80]);
+			Hardcore_mTranslateXYZ_CL(&s1[37]);
 
-	loc_849E4:
-	lh      v1, lara+0xCE-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v0, 4(v0)
-	lh      v1, lara+0xCC-GP_ADDR(gp)
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 8
-	lw      v0, lara+0xC8-GP_ADDR(gp)
-	mflo    t0
-	sll     v1, t0, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	sw      v0, 0x28(t8)
-	jal     mRotSuperPackedYXZ
-	sw      v0, 0x24(t8)
-	jal     iRotSuperPackedYXZ
-	li      a1, 8
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x120
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0x84
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x140
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0x94
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x160
-	jal     DEL_restore_both_matrices
-	addiu   a0, t8, 0xC0
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0xA4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x180
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0xB4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x1A0
-	jal     Hardcore_iTranslateXYZ
-	addiu   a2, s1, 0xC4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     iRotSuperPackedYXZ
-	move    a1, zero
-	jal     InterpolateMatrix
-	addiu   a0, s0, 0x1C0
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[88]);
 
-	def_84694:
-	jal     mLoadMatrix
-	addiu   a0, t8, 0x120
-	lw      ra, 0x20(t8)
-	lw      s2, 8(t8)
-	lw      s1, 4(t8)
-	lw      s0, 0(t8)
-	jr      ra
-	nop
+			mLoadMatrix(&t8[30]);
+			Hardcore_mTranslateXYZ_CL(&s1[41]);
+
+			if (lara.flare_control_left)
+			{
+				((unsigned int*)t8)[9] = (unsigned int)& lara.left_arm.frame_base[((lara.left_arm.frame_number - anims[lara.left_arm.anim_number].frame_base) * (anims[lara.left_arm.anim_number].interpolation >> 8)) + 9];
+				mRotSuperPackedYXZ(&t8[0], 11);
+			}
+			else
+			{
+				//loc_83F14
+				mRotSuperPackedYXZ(&t8[0], 0);
+			}
+
+			//loc_83F18
+			snaff_current_gte_matrix_V1(&s0[96]);
+			Hardcore_mTranslateXYZ_CL(&s1[45]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[104]);
+			Hardcore_mTranslateXYZ_CL(&s1[49]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[112]);
+			break;
+		}
+		case 1:
+		case 3:
+		{
+			//loc_83F5C
+			setup_rotation_matrix(&t8[14]);
+			mRotYXZ_CL(lara.right_arm.y_rot, lara.right_arm.x_rot, lara.right_arm.z_rot);
+
+			((unsigned int*)t8)[9] = (unsigned int)& lara.right_arm.frame_base[((lara.right_arm.frame_number - anims[lara.right_arm.anim_number].frame_base) * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
+			mRotSuperPackedYXZ(&t8[0], 8);
+			snaff_current_gte_matrix_V1(&s0[72]);
+			Hardcore_mTranslateXYZ_CL(&s1[33]);
+
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[80]);
+			Hardcore_mTranslateXYZ_CL(&s1[37]);
+
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[88]);
+			mLoadMatrix(&t8[30]);
+			Hardcore_mTranslateXYZ_CL(&s1[41]);
+			setup_rotation_matrix(&t8[14]);
+			mRotYXZ_CL(lara.left_arm.y_rot, lara.left_arm.x_rot, lara.left_arm.z_rot);
+
+			((unsigned int*)t8)[9] = (unsigned int)& lara.left_arm.frame_base[((lara.left_arm.frame_number - anims[lara.left_arm.anim_number].frame_base) * (anims[lara.left_arm.anim_number].interpolation >> 8)) + 9];
+			mRotSuperPackedYXZ(&t8[0], 11);
+			snaff_current_gte_matrix_V1(&s0[96]);
+			Hardcore_mTranslateXYZ_CL(&s1[45]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[104]);
+			Hardcore_mTranslateXYZ_CL(&s1[49]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[112]);
+			break;
+		}
+		case 2:
+		{
+			//loc_840B0
+			setup_rotation_matrix(&t8[14]);
+			mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+
+			((unsigned int*)t8)[9] = (unsigned int)& lara.right_arm.frame_base[((lara.right_arm.frame_number - anims[lara.right_arm.anim_number].frame_base) * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
+			mRotSuperPackedYXZ(&t8[0], 8);
+			snaff_current_gte_matrix_V1(&s0[72]);
+			Hardcore_mTranslateXYZ_CL(&s1[33]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[80]);
+			Hardcore_mTranslateXYZ_CL(&s1[37]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[88]);
+			mLoadMatrix(&t8[30]);
+			Hardcore_mTranslateXYZ_CL(&s1[41]);
+
+			setup_rotation_matrix(&t8[14]);
+			mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+
+			((unsigned int*)t8)[9] = (unsigned int)& lara.left_arm.frame_base[((lara.left_arm.frame_number - anims[lara.left_arm.anim_number].frame_base) * (anims[lara.left_arm.anim_number].interpolation >> 8)) + 9];
+			mRotSuperPackedYXZ(&t8[0], 11);
+			snaff_current_gte_matrix_V1(&s0[96]);
+			Hardcore_mTranslateXYZ_CL(&s1[45]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[104]);
+			Hardcore_mTranslateXYZ_CL(&s1[49]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[112]);
+			break;
+		}
+		case 4:
+		case 5:
+		case 6:
+		{
+			//loc_84204
+			((unsigned int*)t8)[9] = (unsigned int)& lara.right_arm.frame_base[(lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
+			mRotSuperPackedYXZ(&t8[0], 8);
+			snaff_current_gte_matrix_V1(&s0[72]);
+			Hardcore_mTranslateXYZ_CL(&s1[33]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[80]);
+			Hardcore_mTranslateXYZ_CL(&s1[37]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[88]);
+			mLoadMatrix(&t8[30]);
+			Hardcore_mTranslateXYZ_CL(&s1[41]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[96]);
+			Hardcore_mTranslateXYZ_CL(&s1[45]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[104]);
+			Hardcore_mTranslateXYZ_CL(&s1[49]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[112]);
+			break;
+		}
+		case 9:///@FIXME Says < 0xA investigate me!
+		{
+			break;
+		}
+		}
+	}
+	else
+	{
+		goto loc_83E60;
+	}
+
+	copy_matrix_from_scratch(&t8[22], s0);
+	copy_matrix_from_scratch(&t8[30], &s0[56]);
+	mLoadMatrix(&t8[38]);
 #endif
 }
 
