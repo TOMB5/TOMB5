@@ -262,7 +262,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
 #endif
 
-	glDeleteTextures(1, &srcTexture);
+	Emulator_DestroyTextures(1, &srcTexture);
 	Emulator_DestroyFrameBuffer(srcFrameBuffer);
 
 	return 0;
@@ -355,7 +355,7 @@ int MoveImage(RECT16* rect, int x, int y)
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
 #endif
 
-	glDeleteTextures(1, &srcTexture);
+	Emulator_DestroyTextures(1, &srcTexture);
 	Emulator_DestroyFrameBuffer(srcFrameBuffer);
 
 	delete[] pixels;
@@ -549,9 +549,6 @@ static unsigned short numVertices = 0;
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
-	/* Reset the ztable index of used */
-	pgxp_polgon_table_index = 0;
-
 	/* Tell the shader to discard black */
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), true);
 
@@ -658,7 +655,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 #if defined(PGXP)
 	/* Reset the ztable */
-	memset(&pgxp_polygons[0], 0, MAX_NUM_POLYGONS * sizeof(PGXPPolygon));
+	memset(&pgxp_polygons[0], 0, pgxp_polgon_table_index * sizeof(PGXPPolygon));
+
+	/* Reset the ztable index of used */
+	pgxp_polgon_table_index = 0;
 #endif
 }
 
@@ -2384,11 +2384,6 @@ void CatPrim(void* p0, void* p1)
 
 void DrawOTag(u_long* p)
 {
-#if defined(PGXP)
-	/* Reset the ztable index of used */
-	pgxp_polgon_table_index = 0;
-#endif
-
 	/* Tell the shader to discard black */
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), true);
 
@@ -2496,7 +2491,10 @@ void DrawOTag(u_long* p)
 
 #if defined(PGXP)
 	/* Reset the ztable */
-	memset(&pgxp_polygons[0], 0, MAX_NUM_POLYGONS * sizeof(PGXPPolygon));
+	memset(&pgxp_polygons[0], 0, pgxp_polgon_table_index * sizeof(PGXPPolygon));
+
+	/* Reset the ztable index of used */
+	pgxp_polgon_table_index = 0;
 #endif
 }
 
@@ -2613,9 +2611,6 @@ void SetPolyG4(POLY_G4* p)
 
 void DrawPrim(void* p)
 {
-	/* Reset the ztable index of used */
-	pgxp_polgon_table_index = 0;
-
 	/* Tell the shader to discard black */
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), true);
 
@@ -2702,7 +2697,10 @@ void DrawPrim(void* p)
 
 #if defined(PGXP)
 	/* Reset the ztable */
-	memset(&pgxp_polygons[0], 0, MAX_NUM_POLYGONS * sizeof(PGXPPolygon));
+	memset(&pgxp_polygons[0], 0, pgxp_polgon_table_index * sizeof(PGXPPolygon));
+
+	/* Reset the ztable index of used */
+	pgxp_polgon_table_index = 0;
 #endif
 }
 

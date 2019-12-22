@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#define MAX_NUM_POLYGONS 8192
+#define MAX_NUM_POLYGONS 32768
 int pgxp_polgon_table_index = 0;
 struct PGXPPolygon pgxp_polygons[MAX_NUM_POLYGONS];
 
@@ -2157,7 +2157,7 @@ int docop2(int op) {
 		pgxp_polygons[pgxp_polgon_table_index].originalSXY = SXY2;
 		pgxp_polygons[pgxp_polgon_table_index].x = (Lm_G1_ia((s64)OFX + (s64)(IR1 * h_over_sz3) * (false ? 0.75 : 1))) / (float)(1 << 16);
 		pgxp_polygons[pgxp_polgon_table_index].y = (Lm_G2_ia((s64)OFY + (s64)(IR2 * h_over_sz3))) / (float)(1 << 16);
-		pgxp_polygons[pgxp_polgon_table_index++].z = max(SZ3, H / 2), SXY2;
+		pgxp_polygons[pgxp_polgon_table_index++].z = max(SZ3, H / 2);
 #endif
 		return 1;
 
@@ -2545,7 +2545,7 @@ int docop2(int op) {
 			pgxp_polygons[pgxp_polgon_table_index].originalSXY = SXY2;
 			pgxp_polygons[pgxp_polgon_table_index].x = Lm_G1_ia((s64)OFX + (s64)(IR1 * h_over_sz3) * (false ? 0.75 : 1)) / (float)(1 << 16);
 			pgxp_polygons[pgxp_polgon_table_index].y = Lm_G2_ia((s64)OFY + (s64)(IR2 * h_over_sz3)) / (float)(1 << 16);
-			pgxp_polygons[pgxp_polgon_table_index++].z = max(SZ3, H / 2), SXY2;
+			pgxp_polygons[pgxp_polgon_table_index++].z = max(SZ3, H / 2);
 #endif
 		}
 

@@ -407,7 +407,7 @@ void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, shor
 	PGXPPolygon* z3 = NULL;
 
 	//Can speed this up by storing last index found and using as start iter
-	for (int i = 0; i < MAX_NUM_POLYGONS; i++)
+	for (int i = pgxp_polgon_table_index; i > -1; i--)
 	{
 		if (p0 != NULL)
 		{
@@ -441,7 +441,7 @@ void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, shor
 			}
 		}
 
-		if (z0 != NULL && z1 != NULL && z2 != NULL && z3 != NULL)
+		if ((z0 != NULL || p0 == NULL) && (z1 != NULL || p1 == NULL) && (z2 != NULL || p2 == NULL) && (z3 != NULL || p3 == NULL))
 			break;
 	}
 
@@ -614,54 +614,54 @@ void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, shor
 
 void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h, bool bAddHalfPixel)
 {
-#define HALF_PIXEL_OFFSET (0.5f / 256.0f)
+#define HALF_PIXEL_OFFSET (0.5f / TPAGE_WIDTH)
 
 	//Copy over uvs
 	if (uv0 != NULL)
 	{
 		vertex[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
-		vertex[0].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
+		vertex[0].v0 = ((float)uv0[1]) / TPAGE_HEIGHT;
 	}
 
 	if (uv1 != NULL)
 	{
 		vertex[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH;
-		vertex[1].v0 = ((float)uv1[1]) / TPAGE_WIDTH;
+		vertex[1].v0 = ((float)uv1[1]) / TPAGE_HEIGHT;
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
 			vertex[1].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
-			vertex[1].v0 = ((float)uv0[1] + h) / TPAGE_WIDTH;
+			vertex[1].v0 = ((float)uv0[1] + h) / TPAGE_HEIGHT;
 		}
 	}
 
 	if (uv2 != NULL)
 	{
 		vertex[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH;
-		vertex[2].v0 = ((float)uv2[1]) / TPAGE_WIDTH;
+		vertex[2].v0 = ((float)uv2[1]) / TPAGE_HEIGHT;
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
 			vertex[2].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
-			vertex[2].v0 = ((float)uv0[1] + h) / TPAGE_WIDTH;
+			vertex[2].v0 = ((float)uv0[1] + h) / TPAGE_HEIGHT;
 		}
 	}
 
 	if (uv3 != NULL)
 	{
 		vertex[3].u0 = ((float)uv3[0]) / TPAGE_WIDTH;
-		vertex[3].v0 = ((float)uv3[1]) / TPAGE_WIDTH;
+		vertex[3].v0 = ((float)uv3[1]) / TPAGE_HEIGHT;
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
 			vertex[3].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
-			vertex[3].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
+			vertex[3].v0 = ((float)uv0[1]) / TPAGE_HEIGHT;
 		}
 	}
 
@@ -915,18 +915,32 @@ void Emulator_InitialiseGL()
 	Emulator_CreateGlobalShaders();
 #endif
 
-	Emulator_BindTexture(0);
+	//Emulator_BindTexture(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
 }
 
+static GLuint g_lastBoundTexture = -1;
+
 void Emulator_BindTexture(GLuint textureId)
 {
-	static GLuint g_lastBoundTexture = -1;
-
 	if (g_lastBoundTexture != textureId)
 	{
 		glBindTexture(GL_TEXTURE_2D, textureId);
+		g_lastBoundTexture = textureId;
 	}
+}
+
+void Emulator_DestroyTextures(int numTextures, GLuint* textures)
+{
+	for (int i = 0; i < numTextures; i++)
+	{
+		if (textures[i] == g_lastBoundTexture)
+		{
+			g_lastBoundTexture = -1;
+		}
+	}
+
+	glDeleteTextures(numTextures, textures);
 }
 
 void Emulator_GenerateAndBindNullWhite()
@@ -956,7 +970,7 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 			cachedTextures[i].lastAccess = 0;
 			cachedTextures[i].tpage = 0;
 			cachedTextures[i].clut = 0;
-			glDeleteTextures(1, &cachedTextures[i].textureID);
+			Emulator_DestroyTextures(1, &cachedTextures[i].textureID);
 			cachedTextures[i].textureID = -1;
 		}
 	}
@@ -1104,9 +1118,14 @@ void Emulator_SwapWindow()
 #endif
 }
 
+void Emulator_PushBlendMode()
+{
+
+}
+
 void Emulator_EndScene()
 {
-	glDisable(GL_BLEND);
+	//glDisable(GL_BLEND);
 
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), false);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
@@ -1130,19 +1149,6 @@ void Emulator_EndScene()
 
 	//Read VRAM
 	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-	//Map buffer
-	unsigned short* pixels = (unsigned short*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-
-	Emulator_BindTexture(vramTexture);
-
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
-
-	//Unmap VRAM pbo
-	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-
-	//Delete buffers
-	glDeleteBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[VRAM]);
 
 	glScissor(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
@@ -1187,6 +1193,19 @@ void Emulator_EndScene()
 	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)12);
 	Emulator_Ortho2D(0.0f, word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, 1.0f);
 	Emulator_Scalef(1.0f, 1.0f, 1.0f);
+
+	//Map buffer
+	unsigned short* pixels = (unsigned short*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+
+	Emulator_BindTexture(vramTexture);
+
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+
+	//Unmap VRAM pbo
+	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
+	//Delete buffers
+	glDeleteBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[VRAM]);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 	glDisableVertexAttribArray(posAttrib);
 	glDisableVertexAttribArray(colAttrib);
@@ -1205,21 +1224,21 @@ void Emulator_EndScene()
 	Emulator_SwapWindow();
 	glUseProgram(g_defaultShaderProgram);
 
-	glEnable(GL_BLEND);
+	//glEnable(GL_BLEND);
 }
 
 void Emulator_ShutDown()
 {
 	Emulator_DestroyFrameBuffer(vramFrameBuffer);
-	glDeleteTextures(1, &vramTexture);
-	glDeleteTextures(1, &nullWhiteTexture);
+	Emulator_DestroyTextures(1, &vramTexture);
+	Emulator_DestroyTextures(1, &nullWhiteTexture);
 	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
 
 	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
 	{
 		if (cachedTextures[i].textureID != 0xFFFFFFFF)
 		{
-			glDeleteTextures(1, &cachedTextures[i].textureID);
+			Emulator_DestroyTextures(1, &cachedTextures[i].textureID);
 		}
 	}
 #ifdef _WINDOWS
@@ -1493,15 +1512,20 @@ void Emulator_DestroyFrameBuffer(GLuint& fbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
 }
 
+static int g_PreviousBlendMode = -1;
+static int g_PreviousSemiTrans = 0;
+
 void Emulator_SetBlendMode(int mode, int semiTransparent)
 {
-	static int previousBlendMode = -1;
-
 	if(semiTransparent)
 	{
-		glEnable(GL_BLEND);
+		//If previous wasn't semi trans, enable blend
+		if (g_PreviousSemiTrans == 0)
+		{
+			glEnable(GL_BLEND);
+		}
 
-		//if (previousBlendMode != mode)
+		if (g_PreviousBlendMode != mode)
 		{
 			switch (mode)
 			{
@@ -1526,14 +1550,20 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 				break;
 			}
-		}
 
-		previousBlendMode = mode;
+			g_PreviousBlendMode = mode;
+		}
 	}
 	else
 	{
-		glDisable(GL_BLEND);
+		//If previous was semi trans disable blend
+		if (g_PreviousSemiTrans)
+		{
+			glDisable(GL_BLEND);
+		}
 	}
+
+	g_PreviousSemiTrans = semiTransparent;
 }
 
 #if defined(OGLES) || defined(OGL)
@@ -1872,7 +1902,7 @@ void Emulator_DestroyAllTextures()
 	{
 		if (cachedTextures[i].textureID != 0xFFFFFFFF)
 		{
-			glDeleteTextures(1, &cachedTextures[i].textureID);
+			Emulator_DestroyTextures(1, &cachedTextures[i].textureID);
 		}
 	}
 

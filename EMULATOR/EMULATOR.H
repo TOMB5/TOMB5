@@ -5,7 +5,7 @@
 
 #include "LIBGPU.H"
 
-#define RESOLUTION_SCALE (1)
+#define RESOLUTION_SCALE (3)
 
 #define VRAM_WIDTH (1024 * RESOLUTION_SCALE)
 #define VRAM_HEIGHT (512 * RESOLUTION_SCALE)
@@ -109,6 +109,7 @@ extern int Emulator_InitialiseGameVariables();
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
 extern void Emulator_Scalef(float sx, float sy, float sz);
 extern void Emulator_BindTexture(GLuint textureId);
+extern void Emulator_DestroyTextures(int numTextures, GLuint* textures);
 
 #endif
 

@@ -150,7 +150,7 @@ extern void SetDQB(int iDQB);
 extern void SetFogNear(long a, long h);
 extern int rsin(int a);
 
-#define MAX_NUM_POLYGONS 8192
+#define MAX_NUM_POLYGONS 32768
 
 struct PGXPPolygon
 {
