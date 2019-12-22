@@ -32,6 +32,26 @@ void setup_rotation_matrix(int* mat)
 	SetRotation_CL(mat[0], mat[1], mat[2], mat[3], mat[4]);
 }
 
+void copy_matrix_from_scratch(int* a0, int* a1)
+{
+	int t0 = a0[0];
+	int t1 = a0[1];
+	int t2 = a0[2];
+	int t3 = a0[3];
+	a1[0] = t0;
+	a1[1] = t1;
+	a1[2] = t2;
+	a1[3] = t3;
+	int t4 = a0[4];
+	int t5 = a0[5];
+	int t6 = a0[6];
+	int t7 = a0[7];
+	a1[4] = t4;
+	a1[5] = t5;
+	a1[6] = t6;
+	a1[7] = t7;
+}
+
 void mLoadMatrix(int* mat)
 {
 	TRX = mat[5];
@@ -218,7 +238,7 @@ void mRotZ_CL(long z)
 	}//loc_84E5C
 }
 
-void mRotYXZ(long y, long x, long z)
+void mRotYXZ_CL(long y, long x, long z)
 {
 	mRotY_CL(y);
 	mRotX_CL(x);
@@ -428,7 +448,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 		}
 	}
 	//loc_83C74
-	mRotYXZ(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
+	mRotYXZ_CL(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
 	snaff_current_gte_matrix_V1(&t8[14]);
 	mTranslateXYZ_CL(frame[6], frame[7], frame[8]);
 	mRotSuperPackedYXZ(t8, 0);
@@ -476,13 +496,13 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 		mRotSuperPackedYXZ(t8, 0);
 	}
 
-	mRotYXZ(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+	mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
 	snaff_current_gte_matrix_V1(&t8[30]);
 	Hardcore_mTranslateXYZ_CL(&s1[53]);
 	mRotSuperPackedYXZ(t8, 6);
 	//a3 = t8[9];
 	//?????? sw      a3, 0x24(t8)
-	mRotYXZ(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
+	mRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
 	snaff_current_gte_matrix_V1(&s0[64]);
 	mLoadMatrix(&t8[30]);
 	Hardcore_mTranslateXYZ_CL(&s1[29]);
@@ -538,100 +558,68 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 		case 3:
 		{
 			//loc_83F5C
-			//setup_rotation_matrix();
-#if 0
-jal     sub_85814
-addiu   $a0, $t8, 0x38
-lh      $a0, 0x52FA($gp)
-lh      $a1, 0x52FC($gp)
-jal     sub_84E28
-lh      $a2, 0x52FE($gp)
+			setup_rotation_matrix(&t8[14]);
+			mRotYXZ_CL(lara.right_arm.y_rot, lara.right_arm.x_rot, lara.right_arm.z_rot);
+			
+			((unsigned int*)t8)[9] = (unsigned int)&lara.right_arm.frame_base[((lara.right_arm.frame_number - anims[lara.right_arm.anim_number].frame_base) * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
+			mRotSuperPackedYXZ(&t8[0], 8);
+			snaff_current_gte_matrix_V1(&s0[72]);
+			Hardcore_mTranslateXYZ_CL(&s1[33]);
 
-lh      $v1, 0x52F6($gp)
-nop
-sll     $v0, $v1, 2
-addu    $v0, $v1
-sll     $v0, 3
-addu    $v0, $t9
-lh      $v1, 0x52F4($gp)
-lh      $a0, 0x18($v0)
-lh      $v0, 4($v0)
-subu    $v1, $a0
-sra     $v0, 8
-mult    $v1, $v0
-li      $a1, 8
-lw      $v0, 0x52F0($gp)
-mflo    $a3
-sll     $v1, $a3, 1
-addu    $v0, $v1
-addiu   $v0, 0x12
-jal     sub_84C40
-sw      $v0, 0x24($t8)
-jal     sub_84F34
-addiu   $a0, $s0, 0x120
-jal     sub_84B30
-addiu   $a2, $s1, 0x84
-jal     sub_84C40
-move    $a1, $zero
-jal     sub_84F34
-addiu   $a0, $s0, 0x140
-jal     sub_84B30
-addiu   $a2, $s1, 0x94
-jal     sub_84C40
-move    $a1, $zero
-jal     sub_84F34
-addiu   $a0, $s0, 0x160
-jal     sub_84FB8
-addiu   $a0, $t8, 0x78
-jal     sub_84B30
-addiu   $a2, $s1, 0xA4
-jal     sub_85814
-addiu   $a0, $t8, 0x38
-lh      $a0, 0x52E6($gp)
-lh      $a1, 0x52E8($gp)
-jal     sub_84E28
-lh      $a2, 0x52EA($gp)
-lh      $v1, 0x52E2($gp)
-nop
-sll     $v0, $v1, 2
-addu    $v0, $v1
-sll     $v0, 3
-addu    $v0, $t9
-lh      $v1, 0x52E0($gp)
-lh      $a0, 0x18($v0)
-lh      $v0, 4($v0)
-subu    $v1, $a0
-sra     $v0, 8
-mult    $v1, $v0
-li      $a1, 0xB
-lw      $v0, 0x52DC($gp)
-mflo    $a3
-sll     $v1, $a3, 1
-addu    $v0, $v1
-addiu   $v0, 0x12
-jal     sub_84C40
-sw      $v0, 0x24($t8)
-jal     sub_84F34
-addiu   $a0, $s0, 0x180
-jal     sub_84B30
-addiu   $a2, $s1, 0xB4
-jal     sub_84C40
-move    $a1, $zero
-jal     sub_84F34
-addiu   $a0, $s0, 0x1A0
-jal     sub_84B30
-addiu   $a2, $s1, 0xC4
-jal     sub_84C40
-move    $a1, $zero
-addiu   $a0, $s0, 0x1C0
-jal     sub_84F34
-addiu   $ra, 0x224
-#endif
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[80]);
+			Hardcore_mTranslateXYZ_CL(&s1[37]);
+
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[88]);
+			mLoadMatrix(&t8[30]);
+			Hardcore_mTranslateXYZ_CL(&s1[41]);
+			setup_rotation_matrix(&t8[14]);
+			mRotYXZ_CL(lara.left_arm.y_rot, lara.left_arm.x_rot, lara.left_arm.z_rot);
+
+			((unsigned int*)t8)[9] = (unsigned int)& lara.left_arm.frame_base[((lara.left_arm.frame_number - anims[lara.left_arm.anim_number].frame_base) * (anims[lara.left_arm.anim_number].interpolation >> 8)) + 9];
+			mRotSuperPackedYXZ(&t8[0], 11);
+			snaff_current_gte_matrix_V1(&s0[96]);
+			Hardcore_mTranslateXYZ_CL(&s1[45]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[104]);
+			Hardcore_mTranslateXYZ_CL(&s1[49]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[112]);
+			//addiu   $ra, 0x224
 			break;
 		}
 		case 2:
 		{
 			//loc_840B0
+			setup_rotation_matrix(&t8[14]);
+			mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+
+			((unsigned int*)t8)[9] = (unsigned int)&lara.right_arm.frame_base[((lara.right_arm.frame_number - anims[lara.right_arm.anim_number].frame_base) * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
+			mRotSuperPackedYXZ(&t8[0], 8);
+			snaff_current_gte_matrix_V1(&s0[72]);
+			Hardcore_mTranslateXYZ_CL(&s1[33]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[80]);
+			Hardcore_mTranslateXYZ_CL(&s1[37]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[88]);
+			mLoadMatrix(&t8[30]);
+			Hardcore_mTranslateXYZ_CL(&s1[41]);
+
+			setup_rotation_matrix(&t8[14]);
+			mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+
+			((unsigned int*)t8)[9] = (unsigned int)&lara.left_arm.frame_base[((lara.left_arm.frame_number - anims[lara.left_arm.anim_number].frame_base) * (anims[lara.left_arm.anim_number].interpolation >> 8)) + 9];
+			mRotSuperPackedYXZ(&t8[0], 11);
+			snaff_current_gte_matrix_V1(&s0[96]);
+			Hardcore_mTranslateXYZ_CL(&s1[45]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[104]);
+			Hardcore_mTranslateXYZ_CL(&s1[49]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[112]);
+			//addiu   ra, 0xD0
 			break;
 		}
 		case 4:
@@ -639,6 +627,25 @@ addiu   $ra, 0x224
 		case 6:
 		{
 			//loc_84204
+			((unsigned int*)t8)[9] = (unsigned int)&lara.right_arm.frame_base[(lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
+			mRotSuperPackedYXZ(&t8[0], 8);
+			snaff_current_gte_matrix_V1(&s0[72]);
+			Hardcore_mTranslateXYZ_CL(&s1[33]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[80]);
+			Hardcore_mTranslateXYZ_CL(&s1[37]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[88]);
+			mLoadMatrix(&t8[30]);
+			Hardcore_mTranslateXYZ_CL(&s1[41]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[96]);
+			Hardcore_mTranslateXYZ_CL(&s1[45]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[104]);
+			Hardcore_mTranslateXYZ_CL(&s1[49]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[112]);
 			break;
 		}
 		case 9:///@FIXME Says < 0xA investigate me!
@@ -646,318 +653,12 @@ addiu   $ra, 0x224
 			break;
 		}
 		}
-	}//loc_83E60
+	}//loc_83E60 ///@FIXME bad jump addr
+
+
+	copy_matrix_from_scratch();
 
 #if 0
-	loc_83E34:
-	lh      v1, lara+0x4-GP_ADDR(gp)
-	la      v0, jpt_83E58
-	sltiu   at, v1, 0xA
-	beqz    at, def_83E58
-	sll     v1, 2
-	addu    v1, v0
-	lw      v1, 0(v1)
-	nop
-	jr      v1
-	nop
-
-	loc_83E60:
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x84
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x94
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x160
-	jal     mLoadMatrix
-	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xA4
-	lw      v0, lara+0x44-GP_ADDR(gp)
-	nop
-	andi    v0, 1
-	beqz    v0, loc_83F14
-	nop
-	lh      v1, lara+0xBA-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v1, lara+0xB8-GP_ADDR(gp)
-	lh      a0, 0x18(v0)
-	lh      v0, 4(v0)
-	subu    v1, a0
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 0xB
-	lw      v0, lara+0xB4-GP_ADDR(gp)
-	mflo    a3
-	sll     v1, a3, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	j       loc_83F18
-	sw      v0, 0x24(t8)
-
-	loc_83F14:
-	move    a1, zero
-
-	loc_83F18:
-	jal     mRotSuperPackedYXZ
-	nop
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x180
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xB4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x1A0
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xC4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	addiu   a0, s0, 0x1C0
-	jal     snaff_current_gte_matrix_V1
-	addiu   ra, 0x378
-
-	loc_83F5C:
-	jal     setup_rotation_matrix
-	addiu   a0, t8, 0x38
-	lh      a0, lara+0xD2-GP_ADDR(gp)
-	lh      a1, lara+0xD4-GP_ADDR(gp)
-	jal     mRotYXZ
-	lh      a2, lara+0xD6-GP_ADDR(gp)
-	lh      v1, lara+0xCE-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v1, lara+0xCC-GP_ADDR(gp)
-	lh      a0, 0x18(v0)
-	lh      v0, 4(v0)
-	subu    v1, a0
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 8
-	lw      v0, lara+0xC8-GP_ADDR(gp)
-	mflo    a3
-	sll     v1, a3, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	jal     mRotSuperPackedYXZ
-	sw      v0, 0x24(t8)
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x84
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x94
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x160
-	jal     mLoadMatrix
-	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xA4
-	jal     setup_rotation_matrix
-	addiu   a0, t8, 0x38
-	lh      a0, lara+0xBE-GP_ADDR(gp)
-	lh      a1, lara+0xC0-GP_ADDR(gp)
-	jal     mRotYXZ
-	lh      a2, lara+0xC2-GP_ADDR(gp)
-	lh      v1, lara+0xBA-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v1, lara+0xB8-GP_ADDR(gp)
-	lh      a0, 0x18(v0)
-	lh      v0, 4(v0)
-	subu    v1, a0
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 0xB
-	lw      v0, lara+0xB4-GP_ADDR(gp)
-	mflo    a3
-	sll     v1, a3, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	jal     mRotSuperPackedYXZ
-	sw      v0, 0x24(t8)
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x180
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xB4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x1A0
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xC4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	addiu   a0, s0, 0x1C0
-	jal     snaff_current_gte_matrix_V1
-	addiu   ra, 0x224
-
-	loc_840B0:
-	jal     setup_rotation_matrix
-	addiu   a0, t8, 0x38
-	lh      a0, lara+0xAE-GP_ADDR(gp)
-	lh      a1, lara+0xB0-GP_ADDR(gp)
-	jal     mRotYXZ
-	lh      a2, lara+0xB2-GP_ADDR(gp)
-	lh      v1, lara+0xCE-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v1, lara+0xCC-GP_ADDR(gp)
-	lh      a0, 0x18(v0)
-	lh      v0, 4(v0)
-	subu    v1, a0
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 8
-	lw      v0, lara+0xC8-GP_ADDR(gp)
-	mflo    a3
-	sll     v1, a3, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	jal     mRotSuperPackedYXZ
-	sw      v0, 0x24(t8)
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x84
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x94
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x160
-	jal     mLoadMatrix
-	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xA4
-	jal     setup_rotation_matrix
-	addiu   a0, t8, 0x38
-	lh      a0, lara+0xAE-GP_ADDR(gp)
-	lh      a1, lara+0xB0-GP_ADDR(gp)
-	jal     mRotYXZ
-	lh      a2, lara+0xB2-GP_ADDR(gp)
-	lh      v1, lara+0xBA-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v1, lara+0xB8-GP_ADDR(gp)
-	lh      a0, 0x18(v0)
-	lh      v0, 4(v0)
-	subu    v1, a0
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 0xB
-	lw      v0, lara+0xB4-GP_ADDR(gp)
-	mflo    a3
-	sll     v1, a3, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	jal     mRotSuperPackedYXZ
-	sw      v0, 0x24(t8)
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x180
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xB4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x1A0
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xC4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	addiu   a0, s0, 0x1C0
-	jal     snaff_current_gte_matrix_V1
-	addiu   ra, 0xD0
-
-	loc_84204:
-	lh      v1, lara+0xCE-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v0, 4(v0)
-	lh      v1, lara+0xCC-GP_ADDR(gp)
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 8
-	lw      v0, lara+0xC8-GP_ADDR(gp)
-	mflo    a3
-	sll     v1, a3, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	jal     mRotSuperPackedYXZ
-	sw      v0, 0x24(t8)
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x120
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x84
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x140
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x94
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x160
-	jal     mLoadMatrix
-	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xA4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x180
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xB4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x1A0
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xC4
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x1C0
-
 	def_83E58:
 	addiu   a0, t8, 0x58
 	jal     copy_matrix_from_scratch
