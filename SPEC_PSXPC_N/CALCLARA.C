@@ -7,6 +7,7 @@
 #include "DELSTUFF.H"
 #include "LOAD_LEV.H"
 #include "CAMERA.H"
+#include "CONTROL.H"
 
 void S_SetupClutAdder(long underwater)
 {
@@ -24,6 +25,11 @@ void SetRotation_CL(int t0, int t1, int t2, int t3, int t4)
 	R31 = t3 & 0xFFFF;
 	R32 = (t3 >> 16) & 0xFFFF;
 	R33 = t4 & 0xFFFF;
+}
+
+void setup_rotation_matrix(int* mat)
+{
+	SetRotation_CL(mat[0], mat[1], mat[2], mat[3], mat[4]);
 }
 
 void mLoadMatrix(int* mat)
@@ -221,6 +227,7 @@ void mRotYXZ(long y, long x, long z)
 
 void mRotSuperPackedYXZ(int* t8, int a1)
 {
+	return;///crashing
 	unsigned short* a2 = (unsigned short*)t8[6];
 	unsigned short v0;
 
@@ -433,12 +440,12 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	//loc_83CB4
 	do
 	{
-		Hardcore_mTranslateXYZ_CL(&bone[1]);
+		Hardcore_mTranslateXYZ_CL(&s1[1]);
 		mRotSuperPackedYXZ(&t8[22], 0);
 		snaff_current_gte_matrix_V1(&s0[8]);
 		a3--;
 
-		bone += 4;
+		s1 += 4;
 		if (a3 == 3)
 		{
 			mLoadMatrix(&t8[22]);
@@ -452,90 +459,196 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	bone -= 24;
 	s0 -= 48;
 	//struct ANIM_STRUCT* t9 = &anims[0];
+	Hardcore_mTranslateXYZ_CL(&s1[25]);
+	//a0 = lara.weapon_item
+
+	if (lara.weapon_item != -1 && lara.gun_type == 5 &&
+		(items[lara.weapon_item + 1].frame_number == 0 ||
+			items[lara.weapon_item + 1].frame_number == 2 ||
+			items[lara.weapon_item + 1].frame_number == 4))
+	{
+		t8[9] = (int)&lara.right_arm.frame_base[(lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
+		mRotSuperPackedYXZ(t8, 7);
+	}
+	else
+	{
+		//loc_83DA8
+		mRotSuperPackedYXZ(t8, 0);
+	}
+
+	mRotYXZ(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+	snaff_current_gte_matrix_V1(&t8[30]);
+	Hardcore_mTranslateXYZ_CL(&s1[53]);
+	mRotSuperPackedYXZ(t8, 6);
+	//a3 = t8[9];
+	//?????? sw      a3, 0x24(t8)
+	mRotYXZ(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
+	snaff_current_gte_matrix_V1(&s0[64]);
+	mLoadMatrix(&t8[30]);
+	Hardcore_mTranslateXYZ_CL(&s1[29]);
+
+	//v1 = 0
+	if (lara.gun_status == 2 || lara.gun_status == 3 ||
+		lara.gun_status == 4 || lara.gun_status == 5)
+	{
+		switch (lara.gun_type)
+		{
+		case 0:
+		case 7:
+		case 8:
+		{
+			//loc_83E60
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[72]);
+			Hardcore_mTranslateXYZ_CL(&s1[33]);
+
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[80]);
+			Hardcore_mTranslateXYZ_CL(&s1[37]);
+
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[88]);
+
+			mLoadMatrix(&t8[30]);
+			Hardcore_mTranslateXYZ_CL(&s1[41]);
+
+			if (lara.flare_control_left)
+			{
+				((unsigned int*)t8)[9] = (unsigned int)&lara.left_arm.frame_base[((lara.left_arm.frame_number - anims[lara.left_arm.anim_number].frame_base) * (anims[lara.left_arm.anim_number].interpolation >> 8)) + 9];
+				mRotSuperPackedYXZ(&t8[0], 11);
+			}
+			else
+			{
+				//loc_83F14
+				mRotSuperPackedYXZ(&t8[0], 0);
+			}
+
+			//loc_83F18
+			snaff_current_gte_matrix_V1(&s0[96]);
+			Hardcore_mTranslateXYZ_CL(&s1[45]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[104]);
+			Hardcore_mTranslateXYZ_CL(&s1[49]);
+			mRotSuperPackedYXZ(&t8[0], 0);
+			snaff_current_gte_matrix_V1(&s0[112]);
+			//addiu   $ra, 0x378
+			break;
+		}
+		case 1:
+		case 3:
+		{
+			//loc_83F5C
+			//setup_rotation_matrix();
 #if 0
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x64
+jal     sub_85814
+addiu   $a0, $t8, 0x38
+lh      $a0, 0x52FA($gp)
+lh      $a1, 0x52FC($gp)
+jal     sub_84E28
+lh      $a2, 0x52FE($gp)
 
-	lh      a0, lara+0x2A-GP_ADDR(gp)
-	li      at, 0xFFFFFFFF
-	beq     a0, at, loc_83DA8
-	li      at, 5
-	lh      v1, lara+0x4-GP_ADDR(gp)
-	sll     v0, a0, 2
-	bne     v1, at, loc_83DA8
-	addu    v0, a0
-	sll     v0, 2
-	subu    v0, a0
-	lw      v1, items-GP_ADDR(gp)
-	sll     v0, 3
-	addu    v0, v1
-	lh      v1, 0xE(v0)
-	nop
-	beqz    v1, loc_83D5C
-	li      v0, 2
-	beq     v1, v0, loc_83D5C
-	li      v0, 4
-	bne     v1, v0, loc_83DA8
-	nop
+lh      $v1, 0x52F6($gp)
+nop
+sll     $v0, $v1, 2
+addu    $v0, $v1
+sll     $v0, 3
+addu    $v0, $t9
+lh      $v1, 0x52F4($gp)
+lh      $a0, 0x18($v0)
+lh      $v0, 4($v0)
+subu    $v1, $a0
+sra     $v0, 8
+mult    $v1, $v0
+li      $a1, 8
+lw      $v0, 0x52F0($gp)
+mflo    $a3
+sll     $v1, $a3, 1
+addu    $v0, $v1
+addiu   $v0, 0x12
+jal     sub_84C40
+sw      $v0, 0x24($t8)
+jal     sub_84F34
+addiu   $a0, $s0, 0x120
+jal     sub_84B30
+addiu   $a2, $s1, 0x84
+jal     sub_84C40
+move    $a1, $zero
+jal     sub_84F34
+addiu   $a0, $s0, 0x140
+jal     sub_84B30
+addiu   $a2, $s1, 0x94
+jal     sub_84C40
+move    $a1, $zero
+jal     sub_84F34
+addiu   $a0, $s0, 0x160
+jal     sub_84FB8
+addiu   $a0, $t8, 0x78
+jal     sub_84B30
+addiu   $a2, $s1, 0xA4
+jal     sub_85814
+addiu   $a0, $t8, 0x38
+lh      $a0, 0x52E6($gp)
+lh      $a1, 0x52E8($gp)
+jal     sub_84E28
+lh      $a2, 0x52EA($gp)
+lh      $v1, 0x52E2($gp)
+nop
+sll     $v0, $v1, 2
+addu    $v0, $v1
+sll     $v0, 3
+addu    $v0, $t9
+lh      $v1, 0x52E0($gp)
+lh      $a0, 0x18($v0)
+lh      $v0, 4($v0)
+subu    $v1, $a0
+sra     $v0, 8
+mult    $v1, $v0
+li      $a1, 0xB
+lw      $v0, 0x52DC($gp)
+mflo    $a3
+sll     $v1, $a3, 1
+addu    $v0, $v1
+addiu   $v0, 0x12
+jal     sub_84C40
+sw      $v0, 0x24($t8)
+jal     sub_84F34
+addiu   $a0, $s0, 0x180
+jal     sub_84B30
+addiu   $a2, $s1, 0xB4
+jal     sub_84C40
+move    $a1, $zero
+jal     sub_84F34
+addiu   $a0, $s0, 0x1A0
+jal     sub_84B30
+addiu   $a2, $s1, 0xC4
+jal     sub_84C40
+move    $a1, $zero
+addiu   $a0, $s0, 0x1C0
+jal     sub_84F34
+addiu   $ra, 0x224
+#endif
+			break;
+		}
+		case 2:
+		{
+			//loc_840B0
+			break;
+		}
+		case 4:
+		case 5:
+		case 6:
+		{
+			//loc_84204
+			break;
+		}
+		case 9:///@FIXME Says < 0xA investigate me!
+		{
+			break;
+		}
+		}
+	}//loc_83E60
 
-	loc_83D5C:
-	lh      v1, lara+0xCE-GP_ADDR(gp)
-	nop
-	sll     v0, v1, 2
-	addu    v0, v1
-	sll     v0, 3
-	addu    v0, t9
-	lh      v0, 4(v0)
-	lh      v1, lara+0xCC-GP_ADDR(gp)
-	sra     v0, 8
-	mult    v1, v0
-	li      a1, 7
-	lw      v0, lara+0xC8-GP_ADDR(gp)
-	mflo    a3
-	sll     v1, a3, 1
-	addu    v0, v1
-	addiu   v0, 0x12
-	sw      v0, 0x24(t8)
-	jal     mRotSuperPackedYXZ
-	addiu   ra, 8
-
-	loc_83DA8:
-	jal     mRotSuperPackedYXZ
-	move    a1, zero
-	lh      a0, lara+0xAE-GP_ADDR(gp)
-	lh      a1, lara+0xB0-GP_ADDR(gp)
-	jal     mRotYXZ
-	lh      a2, lara+0xB2-GP_ADDR(gp)
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0xD4
-	lw      a3, 0x24(t8)
-	jal     mRotSuperPackedYXZ
-	li      a1, 6
-	sw      a3, 0x24(t8)
-	lh      a0, lara+0xA8-GP_ADDR(gp)
-	lh      a1, lara+0xAA-GP_ADDR(gp)
-	jal     mRotYXZ
-	lh      a2, lara+0xAC-GP_ADDR(gp)
-	jal     snaff_current_gte_matrix_V1
-	addiu   a0, s0, 0x100
-	jal     mLoadMatrix
-	addiu   a0, t8, 0x78
-	jal     Hardcore_mTranslateXYZ_CL
-	addiu   a2, s1, 0x74
-	lhu     a0, lara+0x2-GP_ADDR(gp)
-	move    v1, zero
-	li      v0, 2
-	beq     a0, v0, loc_83E34
-	li      v0, 3
-	beq     a0, v0, loc_83E34
-	li      v0, 4
-	beq     a0, v0, loc_83E34
-	li      v0, 5
-	bne     a0, v0, loc_83E60
-	nop
-
+#if 0
 	loc_83E34:
 	lh      v1, lara+0x4-GP_ADDR(gp)
 	la      v0, jpt_83E58
