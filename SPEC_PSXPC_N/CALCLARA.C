@@ -471,25 +471,15 @@ void iRotSuperPackedYXZ_CL(int* t8, int a1)
 		int a0 = v0 & 0xFFF;
 		iRotX_CL(a0 << 4);
 	}//loc_8528C
-#if 0
-loc_8528C:
-lhu     $at, 0($a2)
-addi    $a2, 2
-sw      $a2, 0x28($t8)
-sll     $a2, $v0, 16
-or      $a2, $at
-move    $a1, $ra
-srl     $a0, $a2, 4
-jal     sub_850A0
-andi    $a0, 0xFFC0
-srl     $a0, $a2, 14
-jal     sub_85000
-andi    $a0, 0xFFC0
-sll     $a0, $a2, 6
-andi    $a0, 0xFFC0
-j       loc_85158
-move    $ra, $a1
-#endif
+
+	at = *a2++;
+	t8[10] = (int)a2;
+	int a22 = v0 << 16;
+	a22 |= at;
+
+	iRotY_CL((a22 >> 4) & 0xFFC0);
+	iRotX_CL((a22 >> 14) & 0xFFC0);
+	iRotZ_CL((a22 << 6) & 0xFFC0);
 }
 
 void mRotSuperPackedYXZ_CL(int* t8, int a1)
