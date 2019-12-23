@@ -119,6 +119,19 @@ void mRotY_CL(long y)
 	}
 }
 
+void SetRotation_CL_I(int t0, int t1, int t2, int t3, int t4)
+{
+	L11 = (t0 & 0xFFFF);
+	L12 = (t0 >> 16) & 0xFFFF;
+	L13 = (t1 & 0xFFFF);
+	L21 = (t1 >> 16) & 0xFFFF;
+	L22 = (t2 & 0xFFFF);
+	L23 = (t2 >> 16) & 0xFFFF;
+	L31 = (t3 & 0xFFFF);
+	L32 = (t3 >> 16) & 0xFFFF;
+	L33 = (t4 & 0xFFFF);
+}
+
 void iRotY_CL(long y)
 {
 	y >>= 2;
@@ -169,8 +182,8 @@ void iRotY_CL(long y)
 		t1 |= t5;
 		t6 <<= 16;
 		t2 |= t6;
-
-		//SetRotation_I();
+		
+		SetRotation_CL_I(t0, t1, t2, t3, t4);
 	}
 }
 
@@ -231,15 +244,7 @@ void iRotZ_CL(long z)
 		t3 |= t7;
 
 		//loc_85204
-		L11 = (t0 & 0xFFFF);
-		L12 = (t0 >> 16) & 0xFFFF;
-		L13 = (t1 & 0xFFFF);
-		L21 = (t1 >> 16) & 0xFFFF;
-		L22 = (t2 & 0xFFFF);
-		L23 = (t2 >> 16) & 0xFFFF;
-		L31 = (t3 & 0xFFFF);
-		L32 = (t3 >> 16) & 0xFFFF;
-		L33 = (t4 & 0xFFFF);
+		SetRotation_CL_I(t0, t1, t2, t3, t4);
 	}
 }
 
