@@ -189,7 +189,60 @@ void iRotY_CL(long y)
 
 void iRotX_CL(long x)
 {
+	x >>= 2;
+	x &= 0x3FFC;
 
+	if (x != 0)
+	{
+		int t5 = ((int*)&rcossin_tbl[x >> 2])[0];
+		int t7 = 0xFFFF0000;
+		int t6 = t7 & t5;
+
+		VX0 = (t6 & 0xFFFF);
+		VY0 = ((t6 >> 16) & 0xFFFF);
+		VZ0 = (t5 & 0xFFFF);
+
+		int t0 = L11 | (L12 << 16);
+		int t1 = L13 | (L21 << 16);
+		int t3 = L31 | (L32 << 16);
+
+		docop2(0x4A6012);
+
+		int t6 = t5 >> 16;
+		t5 <<= 16;
+		t5 = -t5;
+
+		VX1 = (t5 & 0xFFFF);
+		VY1 = (t5 >> 16) & 0xFFFF;
+		VZ1 = t6 & 0xFFFF;
+
+		t0 &= 0xFFFF;
+		t1 &= t7;
+		t3 &= 0xFFFF;
+
+		int t4 = MAC1;
+		int t2 = MAC2;
+		int t5 = MAC3;
+
+		docop2(0x4AE012);
+
+		t4 <<= 16;
+		t0 |= t4;
+		t2 &= 0xFFFF;
+		t5 <= 16;
+		t3 |= t5;
+
+		int t5 = MAC1;
+		int t6 = MAC2;
+		int t4 = MAC3;
+
+		t5 &= 0xFFFF;
+		t1 |= t5;
+		t6 <<= 16;
+		t2 |= t6;
+
+		SetRotation_CL_I(t0, t1, t2, t3, t4);
+	}
 }
 
 void iRotZ_CL(long z)
@@ -415,17 +468,10 @@ void iRotSuperPackedYXZ_CL(int* t8, int a1)
 			//loc_85278
 			iRotY_CL(a0 << 4);
 		}//loc_85280
+		int a0 = v0 & 0xFFF;
+		iRotX_CL(a0 << 4);
 	}//loc_8528C
 #if 0
-loc_85278:
-j       sub_850A0
-sll     $a0, 4
-
-loc_85280:
-andi    $a0, $v0, 0xFFF
-j       sub_85000
-sll     $a0, 4
-
 loc_8528C:
 lhu     $at, 0($a2)
 addi    $a2, 2
