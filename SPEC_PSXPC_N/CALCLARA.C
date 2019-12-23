@@ -150,7 +150,7 @@ void iRotY_CL(long y)
 		VZ0 = (t2 & 0xFFFF);
 
 		int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
-		int t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+		t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
 		int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 
 		docop2(0x4A6012);
@@ -208,7 +208,7 @@ void iRotX_CL(long x)
 
 		docop2(0x4A6012);
 
-		int t6 = t5 >> 16;
+		t6 = t5 >> 16;
 		t5 <<= 16;
 		t5 = -t5;
 
@@ -222,7 +222,7 @@ void iRotX_CL(long x)
 
 		int t4 = MAC1;
 		int t2 = MAC2;
-		int t5 = MAC3;
+		t5 = MAC3;
 
 		docop2(0x4AE012);
 
@@ -232,9 +232,9 @@ void iRotX_CL(long x)
 		t5 <= 16;
 		t3 |= t5;
 
-		int t5 = MAC1;
-		int t6 = MAC2;
-		int t4 = MAC3;
+		t5 = MAC1;
+		t6 = MAC2;
+		t4 = MAC3;
 
 		t5 &= 0xFFFF;
 		t1 |= t5;
@@ -278,7 +278,7 @@ void iRotZ_CL(long z)
 		t1 &= 0xFFFF;
 		t0 = MAC1;
 		int t5 = MAC2;
-		int t3 = MAC3;
+		t3 = MAC3;
 
 		docop2(0x4AE012);
 		t2 &= t7;
@@ -1016,7 +1016,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	struct ITEM_INFO* item = lara_item;//$t9
 	short* s0 = frame1;
 	short* s1 = frame2;
-	long* s1 = bone;
+	//long* s1 = bone;
 	frame1 += 4;
 	frame2 += 4;
 	t8[9] = (int)frame1;
