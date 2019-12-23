@@ -119,6 +119,66 @@ void mRotY_CL(long y)
 	}
 }
 
+void iRotY_CL(long y)
+{
+	y >>= 2;
+	y &= 0x3FFC;
+
+	if (y != 0)
+	{
+		int t5 = ((int*)&rcossin_tbl[y >> 2])[0];
+		int t7 = 0xFFFF0000;
+		int t6 = t5 >> 16;
+		t5 &= 0xFFFF;
+		int t2 = -t5;
+
+		VX0 = (t6 & 0xFFFF);
+		VY0 = (t6 >> 16) & 0xFFFF;
+		VZ0 = (t2 & 0xFFFF);
+
+		int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+		int t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+		int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
+
+		docop2(0x4A6012);
+
+		VX1 = (t5 & 0xFFFF);
+		VY1 = ((t5 >> 16) & 0xFFFF);
+		VZ1 = (t6 & 0xFFFF);
+
+		t0 &= t7;
+		t2 &= 0xFFFF;
+		t3 &= t7;
+
+		int t4 = MAC1;
+		int t1 = MAC2;
+		t5 = MAC3;
+
+		docop2(0x4AE012);
+
+		t4 &= 0xFFFF;
+		t0 |= t4;
+		t1 <<= 16;
+		t5 &= 0xFFFF;
+		t3 |= t5;
+
+		t5 = MAC1;
+		t6 = MAC2;
+		t4 = MAC3;
+		t5 &= 0xFFFF;
+		t1 |= t5;
+		t6 <<= 16;
+		t2 |= t6;
+
+		//SetRotation_I();
+	}
+}
+
+void iRotX_CL(long x)
+{
+
+}
+
 void iRotZ_CL(long z)
 {
 	z >>= 2;
@@ -181,11 +241,6 @@ void iRotZ_CL(long z)
 		L32 = (t3 >> 16) & 0xFFFF;
 		L33 = (t4 & 0xFFFF);
 	}
-}
-
-void iRotX_CL(long x)
-{
-
 }
 
 void mRotX_CL(long x)
@@ -350,16 +405,13 @@ void iRotSuperPackedYXZ_CL(int* t8, int a1)
 			int a0 = v0 & 0xFFF;
 			if (at != 0)
 			{
-
-			}//loc_85278
+				iRotZ_CL(a0 << 4);
+			}
+			//loc_85278
+			iRotY_CL(a0 << 4);
 		}//loc_85280
 	}//loc_8528C
 #if 0
-beqz    $at, loc_85278
-andi    $a0, $v0, 0xFFF
-j       loc_85158
-sll     $a0, 4
-
 loc_85278:
 j       sub_850A0
 sll     $a0, 4
