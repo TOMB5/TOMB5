@@ -5,7 +5,9 @@
 #include <assert.h>
 #include "EMULATOR_GLOBALS.H"
 
-uintptr_t fileHandle = 0;
+uintptr_t fileHandle = NULL;
+
+#define INVALID_FILE_HANDLE (-1)
 
 int PCinit()
 {
@@ -34,7 +36,7 @@ uintptr_t PCopen(char* name, int flags, int perms)
 		break;
 	}
 
-	return fileHandle == 0 ? -1 : fileHandle;
+	return fileHandle == NULL ? INVALID_FILE_HANDLE : fileHandle;
 }
 
 int PCcreat(char* name, int perms)
