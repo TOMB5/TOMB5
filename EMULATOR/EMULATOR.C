@@ -946,7 +946,7 @@ void Emulator_DestroyTextures(int numTextures, GLuint* textures)
 void Emulator_GenerateAndBindNullWhite()
 {
 	unsigned char pixelData[4];
-	((int*)&pixelData[0])[0] = -1;
+	((int*)&pixelData[0])[0] = 0x80808080;
 	glGenTextures(1, &nullWhiteTexture);
 	Emulator_BindTexture(nullWhiteTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData[0]);
@@ -1054,6 +1054,18 @@ void Emulator_BeginScene()
 	}
 }
 
+void Emulator_TakeScreenshot()
+{
+	unsigned char* pixels = new unsigned char[512 * RESOLUTION_SCALE * 240 * RESOLUTION_SCALE * 4];
+	glReadPixels(0, 0, 512 * RESOLUTION_SCALE, 240 * RESOLUTION_SCALE, GL_BGRA, GL_UNSIGNED_BYTE, pixels);
+
+	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, 512 * RESOLUTION_SCALE, 240 * RESOLUTION_SCALE, 8 * 4, 512 * RESOLUTION_SCALE * 4, 0, 0, 0, 0);
+	SDL_SaveBMP(surface, "SCREENSHOT.BMP");
+	SDL_FreeSurface(surface);
+
+	delete[] pixels;
+}
+
 ///@FIXME keyboardState only accessible if padInitDirect called! Let the emulator manage input not the sub library!
 void Emulator_DoDebugKeys()
 {
@@ -1072,6 +1084,11 @@ void Emulator_DoDebugKeys()
 		if (keyboardState[SDL_SCANCODE_2])
 		{
 			g_texturelessMode ^= 1;
+		}
+
+		if (keyboardState[SDL_SCANCODE_3])
+		{
+			Emulator_TakeScreenshot();
 		}
 
 		lastTime = currentTime;
@@ -1125,30 +1142,10 @@ void Emulator_PushBlendMode()
 
 void Emulator_EndScene()
 {
-	//glDisable(GL_BLEND);
+	glDisable(GL_BLEND);
 
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), false);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-
-	enum PixelBufferType
-	{
-		VRAM,
-		NUM_PIXEL_BUFFER_OBJECTS
-	};
-
-	GLuint pixelBufferObjects[NUM_PIXEL_BUFFER_OBJECTS];
-
-	//Generate PBO for faster transfer
-	glGenBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[VRAM]);
-
-	//Bind the VRAM PBO
-	glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[VRAM]);
-
-	//Allocate PBO size for VRAM
-	glBufferData(GL_PIXEL_PACK_BUFFER, (VRAM_WIDTH * VRAM_HEIGHT) * sizeof(GLuint), NULL, GL_DYNAMIC_READ);
-
-	//Read VRAM
-	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
 	glScissor(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
@@ -1199,13 +1196,10 @@ void Emulator_EndScene()
 
 	Emulator_BindTexture(vramTexture);
 
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
-
 	//Unmap VRAM pbo
 	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
 
 	//Delete buffers
-	glDeleteBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[VRAM]);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 	glDisableVertexAttribArray(posAttrib);
 	glDisableVertexAttribArray(colAttrib);
