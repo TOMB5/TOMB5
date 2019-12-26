@@ -102,7 +102,7 @@ extern void Emulator_SetBlendMode(int mode, int semiTransparent);
 extern void Emulator_CounterLoop();
 extern void Emulator_GenerateLineArray(Vertex* vertex, short* p0, short* p1, short* p2, short* p3);
 extern void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h);
-extern void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h, bool bAddHalfPixel);
+extern void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
 extern void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour);
 extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
 extern int Emulator_InitialiseGameVariables();

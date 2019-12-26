@@ -612,10 +612,8 @@ void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, shor
 }
 
 
-void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h, bool bAddHalfPixel)
+void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h)
 {
-#define HALF_PIXEL_OFFSET (0.5f / TPAGE_WIDTH)
-
 	//Copy over uvs
 	if (uv0 != NULL)
 	{
@@ -663,18 +661,6 @@ void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsi
 			vertex[3].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
 			vertex[3].v0 = ((float)uv0[1]) / TPAGE_HEIGHT;
 		}
-	}
-
-	if (bAddHalfPixel)
-	{
-		vertex[0].u0 += HALF_PIXEL_OFFSET;
-		vertex[0].v0 += HALF_PIXEL_OFFSET;
-		vertex[1].u0 += HALF_PIXEL_OFFSET;
-		vertex[1].v0 += HALF_PIXEL_OFFSET;
-		vertex[2].u0 += HALF_PIXEL_OFFSET;
-		vertex[2].v0 += HALF_PIXEL_OFFSET;
-		vertex[3].u0 += HALF_PIXEL_OFFSET;
-		vertex[3].v0 += HALF_PIXEL_OFFSET;
 	}
 
 	return;
@@ -1306,7 +1292,7 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	unsigned int textureType = GET_TPAGE_TYPE(tpage);
 	unsigned int tpageX = GET_TPAGE_X(tpage);
 	unsigned int tpageY = GET_TPAGE_Y(tpage)
-		unsigned int clutX = GET_CLUT_X(clut);
+	unsigned int clutX = GET_CLUT_X(clut);
 	unsigned int clutY = GET_CLUT_Y(clut);
 
 #if RESOLUTION_SCALE > 1
@@ -1339,8 +1325,8 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		tpageTexture->clut = clut;
 		glGenTextures(1, &tpageTexture->textureID);
 		Emulator_BindTexture(tpageTexture->textureID);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
 	else
 	{

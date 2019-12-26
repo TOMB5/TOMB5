@@ -3,7 +3,7 @@
 
 /* Emulator version */
 #define EMULATOR_MAJOR_VERSION (1)
-#define EMULATOR_MINOR_VERSION (64)
+#define EMULATOR_MINOR_VERSION (65)
 
 /* Compile date and time */
 #define EMULATOR_COMPILE_DATE (__DATE__)
