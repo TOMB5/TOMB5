@@ -875,6 +875,7 @@ void Emulator_InitialiseGL()
 	Emulator_GenerateAndBindNullWhite();///@TODO remove completely, no longer needed
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_SCISSOR_TEST);
+	glBlendColor(0.25f, 0.25f, 0.25f, 0.5f);
 	glGenTextures(1, &vramTexture);
 	Emulator_BindTexture(vramTexture);
 
