@@ -1,66 +1,11 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
-/*
- * Platform specific emulator setup
- */
-#if (defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__) || defined(__MINGW32__)) && !defined(__ANDROID__)
-#define OGL
-//#define D3D9
-#define SDL2
-#if defined(OGL)
-#define GLEW
-#endif
-//#define OGLES
-//#define ES3_SHADERS
-#elif defined(__EMSCRIPTEN__) || defined(__ANDROID__)
-#define OGLES
-#define ES3_SHADERS
-#endif
+#include "EMULATOR_PLATFORM_SETUP.H"
 
-#if defined(GLEW)
-#define GL_GLEXT_PROTOTYPES 1
-#include <GL/glew.h>
-#endif
-
-/*
- * Emulator render options.
- */
-#define RO_DOUBLE_BUFFERED
-
-#if defined(__APPLE__) || defined(__EMSCRIPTEN__)
-#include <stddef.h>
-#endif
-
-/*
- * SDL.H inclusion.
- */
-
-#if defined(__APPLE__)
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
-#elif defined(__EMSCRIPTEN__)
-#include <emscripten.h>
-#include <SDL.h>
-#elif (defined(_WINDOWS) || defined(__MINGW32__) || defined(__linux__)) && !defined(__ANDROID__)
-#include <SDL.h>
-#elif defined (__ANDROID__)
-#include <SDL.h>
-#endif
-
-#if defined (OGL)
-#include <SDL_opengl.h>///@FIXME see mac!
-#elif defined (OGLES)
-#include <SDL_syswm.h>
-#include <GLES3/gl3.h>
-#include <EGL/egl.h>
-#endif
-
-#include <LIBGPU.H>
+#include "LIBGPU.H"
 
 #define RESOLUTION_SCALE (1)
-
-#define MAX_NUM_CACHED_TEXTURES (512)
 
 #define VRAM_WIDTH (1024 * RESOLUTION_SCALE)
 #define VRAM_HEIGHT (512 * RESOLUTION_SCALE)
@@ -83,6 +28,12 @@
 
 #define CTR_CLOCK_SYS_ONE (0)
 #define CTR_CLOCK_SYS_ONE_EIGHTH (1)
+
+#define GET_TPAGE_X(tpage) ((tpage << 6) & 0x7C0) % (VRAM_WIDTH / RESOLUTION_SCALE);
+#define GET_TPAGE_Y(tpage) ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT / RESOLUTION_SCALE);
+#define GET_TPAGE_TYPE(tpage) (tpage >> 7) & 0x3;
+#define GET_CLUT_X(clut) ((clut & 0x3F) << 4);
+#define GET_CLUT_Y(clut) (clut >> 6);
 
 typedef struct
 {
@@ -120,11 +71,21 @@ extern SysCounter counters[3];
 #pragma pack(push,1)
 struct Vertex
 {
-	GLfloat x, y;
+	GLfloat x, y, z;
 	GLfloat u0, v0;
 	GLfloat col[4];
 };
 #pragma pack(pop)
+
+
+enum BlendMode
+{
+	BM_AVERAGE, 
+	BM_ADD,
+	BM_SUBTRACT,
+	BM_ADD_QUATER_SOURCE,
+	BM_DEFAULT
+};
 
 extern GLuint g_lastBoundTexture;
 
@@ -137,15 +98,18 @@ extern void Emulator_DestroyFrameBuffer(GLuint& fbo);
 extern void Emulator_GenerateFrameBuffer(GLuint& fbo);
 extern void Emulator_GenerateAndBindNullWhite();
 extern void Emulator_CheckTextureIntersection(RECT16* rect);
-extern void Emulator_SetBlendMode(int mode);
+extern void Emulator_SetBlendMode(int mode, int semiTransparent);
 extern void Emulator_CounterLoop();
+extern void Emulator_GenerateLineArray(Vertex* vertex, short* p0, short* p1, short* p2, short* p3);
 extern void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h);
 extern void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
 extern void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, bool bMultiplyColour);
 extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
 extern int Emulator_InitialiseGameVariables();
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
+extern void Emulator_Scalef(float sx, float sy, float sz);
 extern void Emulator_BindTexture(GLuint textureId);
+extern void Emulator_DestroyTextures(int numTextures, GLuint* textures);
 
 #endif
 

@@ -126,4 +126,41 @@ typedef struct
 extern GTERegisters gteRegs;
 extern unsigned int gte_leadingzerocount(unsigned int lzcs);
 
+extern void SetRotMatrix(MATRIX* m);
+extern void SetLightMatrix(MATRIX* m);
+extern void SetColorMatrix(MATRIX* m);
+extern void SetTransMatrix(MATRIX* m);
+extern void PushMatrix();
+extern void PopMatrix();
+extern long RotTransPers(SVECTOR* v0, long* sxy, long* p, long* flag);
+extern void RotTrans(SVECTOR* v0, VECTOR* v1, long* flag);
+extern void NormalColorDpq(SVECTOR* v0, CVECTOR* v1, long p, CVECTOR* v2);
+extern void NormalColorCol(SVECTOR* v0, CVECTOR* v1, CVECTOR* v2);
+extern long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/);
+extern MATRIX* MulMatrix0(MATRIX* m0, MATRIX* m1, MATRIX* m2);
+extern MATRIX* MulMatrix(MATRIX* m0, MATRIX* m1);
+extern MATRIX* MulMatrix2(MATRIX* m0, MATRIX* m1);
+extern void SetBackColor(long rbk, long gbk, long bbk);
+extern void SetFarColor(long rfc, long gfc, long bfc);
+extern MATRIX* RotMatrix(SVECTOR* r, MATRIX* m);
+extern MATRIX* TransMatrix(MATRIX* m, VECTOR* v);
+extern MATRIX* ScaleMatrix(MATRIX* m, VECTOR* v);
+extern void SetDQA(int iDQA);
+extern void SetDQB(int iDQB);
+extern void SetFogNear(long a, long h);
+extern int rsin(int a);
+
+#define MAX_NUM_POLYGONS 32768
+
+struct PGXPPolygon
+{
+	unsigned int originalSXY;
+	float x;
+	float y;
+	float z;
+};
+
+extern struct PGXPPolygon pgxp_polygons[MAX_NUM_POLYGONS];
+extern int pgxp_polgon_table_index;
+
 #endif

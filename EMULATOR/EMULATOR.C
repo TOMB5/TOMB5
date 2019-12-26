@@ -2,11 +2,12 @@
 
 #include "EMULATOR_VERSION.H"
 #include "EMULATOR_GLOBALS.H"
+#include "EMULATOR_PRIVATE.H"
 #include "CRASHHANDLER.H"
 
-#include <LIBGPU.H>
-#include <LIBETC.H>
-#include <LIBPAD.H>
+#include "LIBGPU.H"
+#include "LIBETC.H"
+#include "LIBPAD.H"
 
 #include <stdio.h>
 #include <string.h>
@@ -23,9 +24,7 @@
 #include <ddraw.h>
 #endif
 
-#define BLEND_MODE (1)
 #define VERTEX_COLOUR_MULT (2)
-
 
 #if defined(NTSC_VERSION)
 #define COUNTER_UPDATE_INTERVAL (263)
@@ -58,7 +57,6 @@ char* pVirtualMemory = NULL;
 SysCounter counters[3] = {0};
 std::thread counter_thread;
 int g_hasHintedTextureAtlas = 0;
-
 struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
 static int Emulator_InitialiseGLContext(char* windowName)
@@ -190,7 +188,6 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 #if defined(OGL)
 	SDL_GL_SetSwapInterval(1);
 #elif defined(OGLES)
-	//eglSwapInterval(1);
 	eglSwapInterval(eglDisplay, 1);
 #endif
 
@@ -380,8 +377,188 @@ void Emulator_CounterLoop()
 	}
 }
 
+void Emulator_GenerateLineArray(Vertex* vertex, short* p0, short* p1, short* p2, short* p3)
+{
+	//Copy over position
+	if (p0 != NULL)
+	{
+		vertex[0].x = (float)p0[0];
+		vertex[0].y = (float)p0[1];
+	}
+
+	if (p1 != NULL)
+	{
+		vertex[1].x = (float)p1[0];
+		vertex[1].y = (float)p1[1];
+	}
+}
+
 void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h)
 {
+
+#if defined(PGXP)
+	/*
+	Locate polygon in ztable
+	*/
+
+	PGXPPolygon* z0 = NULL;
+	PGXPPolygon* z1 = NULL;
+	PGXPPolygon* z2 = NULL;
+	PGXPPolygon* z3 = NULL;
+
+	//Can speed this up by storing last index found and using as start iter
+	for (int i = pgxp_polgon_table_index; i > -1; i--)
+	{
+		if (p0 != NULL)
+		{
+			if (((unsigned int*)p0)[0] == pgxp_polygons[i].originalSXY)
+			{
+				z0 = &pgxp_polygons[i];
+			}
+		}
+
+		if (p1 != NULL)
+		{
+			if (((unsigned int*)p1)[0] == pgxp_polygons[i].originalSXY)
+			{
+				z1 = &pgxp_polygons[i];
+			}
+		}
+
+		if (p2 != NULL)
+		{
+			if (((unsigned int*)p2)[0] == pgxp_polygons[i].originalSXY)
+			{
+				z2 = &pgxp_polygons[i];
+			}
+		}
+
+		if (p3 != NULL)
+		{
+			if (((unsigned int*)p3)[0] == pgxp_polygons[i].originalSXY)
+			{
+				z3 = &pgxp_polygons[i];
+			}
+		}
+
+		if ((z0 != NULL || p0 == NULL) && (z1 != NULL || p1 == NULL) && (z2 != NULL || p2 == NULL) && (z3 != NULL || p3 == NULL))
+			break;
+	}
+
+	//Copy over position
+	if (p0 != NULL)
+	{
+		if (z0 != NULL)
+		{
+			vertex[0].x = z0->x;
+			vertex[0].y = z0->y;
+		}
+		else
+		{
+			vertex[0].x = (float)p0[0];
+			vertex[0].y = (float)p0[1];
+		}
+
+		if (z0 != NULL)
+		{
+			//vertex[0].z = z->z0;
+		}
+	}
+
+	if (p1 != NULL)
+	{
+		if (z1 != NULL)
+		{
+			vertex[1].x = z1->x;
+			vertex[1].y = z1->y;
+		}
+		else
+		{
+			vertex[1].x = (float)p1[0];
+			vertex[1].y = (float)p1[1];
+		}
+
+		if (z1 != NULL)
+		{
+			//vertex[1].z = z1->z1;
+		}
+	}
+	else
+	{
+		if (w != -1 && h != -1)
+		{
+			vertex[1].x = (float)p0[0];
+			vertex[1].y = (float)p0[1] + h;
+			if (z1 != NULL)
+			{
+				//vertex[1].z = z->z1;
+			}
+		}
+	}
+
+	if (p2 != NULL)
+	{
+		if (z2 != NULL)
+		{
+			vertex[2].x = z2->x;
+			vertex[2].y = z2->y;
+		}
+		else
+		{
+			vertex[2].x = (float)p2[0];
+			vertex[2].y = (float)p2[1];
+		}
+
+		if (z2 != NULL)
+		{
+			//vertex[2].z = z2->z;
+		}
+	}
+	else
+	{
+		if (w != -1 && h != -1)
+		{
+			vertex[2].x = (float)p0[0] + w;
+			vertex[2].y = (float)p0[1] + h;
+			if (z2 != NULL)
+			{
+				//vertex[2].z = z->z2;
+			}
+		}
+	}
+
+	if (p3 != NULL)
+	{
+		if (z3 != NULL)
+		{
+			vertex[3].x = z3->x;
+			vertex[3].y = z3->y;
+		}
+		else
+		{
+			vertex[3].x = (float)p3[0];
+			vertex[3].y = (float)p3[1];
+		}
+
+		if (z3 != NULL)
+		{
+			//vertex[3].z = z3->z;
+		}
+	}
+	else
+	{
+		if (w != -1 && h != -1)
+		{
+			vertex[3].x = (float)p0[0] + w;
+			vertex[3].y = (float)p0[1];
+			if (z3 != NULL)
+			{
+				//vertex[3].z = z3->z;
+			}
+		}
+	}
+
+#else
 	//Copy over position
 	if (p0 != NULL)
 	{
@@ -430,7 +607,7 @@ void Emulator_GenerateVertexArrayQuad(Vertex* vertex, short* p0, short* p1, shor
 			vertex[3].y = (float)p0[1];
 		}
 	}
-
+#endif
 	return;
 }
 
@@ -441,48 +618,48 @@ void Emulator_GenerateTexcoordArrayQuad(Vertex* vertex, unsigned char* uv0, unsi
 	if (uv0 != NULL)
 	{
 		vertex[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
-		vertex[0].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
+		vertex[0].v0 = ((float)uv0[1]) / TPAGE_HEIGHT;
 	}
 
 	if (uv1 != NULL)
 	{
 		vertex[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH;
-		vertex[1].v0 = ((float)uv1[1]) / TPAGE_WIDTH;
+		vertex[1].v0 = ((float)uv1[1]) / TPAGE_HEIGHT;
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
 			vertex[1].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
-			vertex[1].v0 = ((float)uv0[1] + h) / TPAGE_WIDTH;
+			vertex[1].v0 = ((float)uv0[1] + h) / TPAGE_HEIGHT;
 		}
 	}
 
 	if (uv2 != NULL)
 	{
 		vertex[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH;
-		vertex[2].v0 = ((float)uv2[1]) / TPAGE_WIDTH;
+		vertex[2].v0 = ((float)uv2[1]) / TPAGE_HEIGHT;
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
 			vertex[2].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
-			vertex[2].v0 = ((float)uv0[1] + h) / TPAGE_WIDTH;
+			vertex[2].v0 = ((float)uv0[1] + h) / TPAGE_HEIGHT;
 		}
 	}
 
 	if (uv3 != NULL)
 	{
 		vertex[3].u0 = ((float)uv3[0]) / TPAGE_WIDTH;
-		vertex[3].v0 = ((float)uv3[1]) / TPAGE_WIDTH;
+		vertex[3].v0 = ((float)uv3[1]) / TPAGE_HEIGHT;
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
 			vertex[3].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
-			vertex[3].v0 = ((float)uv0[1]) / TPAGE_WIDTH;
+			vertex[3].v0 = ((float)uv0[1]) / TPAGE_HEIGHT;
 		}
 	}
 
@@ -496,17 +673,17 @@ void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsig
 	{
 		if (bMultiplyColour)
 		{
-			vertex[0].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[0].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[0].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[0].col[3] = (1.0f / 255) * 255;
+			vertex[0].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
+			vertex[0].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
+			vertex[0].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
+			vertex[0].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[0].col[0] = (1.0f / 255) * col0[0];
-			vertex[0].col[1] = (1.0f / 255) * col0[1];
-			vertex[0].col[2] = (1.0f / 255) * col0[2];
-			vertex[0].col[3] = (1.0f / 255) * 255;
+			vertex[0].col[0] = (1.0f / 255.0f) * col0[0];
+			vertex[0].col[1] = (1.0f / 255.0f) * col0[1];
+			vertex[0].col[2] = (1.0f / 255.0f) * col0[2];
+			vertex[0].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 
@@ -514,34 +691,34 @@ void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsig
 	{
 		if (bMultiplyColour)
 		{
-			vertex[1].col[0] = (1.0f / 255) * (col1[0] * VERTEX_COLOUR_MULT);
-			vertex[1].col[1] = (1.0f / 255) * (col1[1] * VERTEX_COLOUR_MULT);
-			vertex[1].col[2] = (1.0f / 255) * (col1[2] * VERTEX_COLOUR_MULT);
-			vertex[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = ((1.0f / 255.0f) * col1[0]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[1] = ((1.0f / 255.0f) * col1[1]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[2] = ((1.0f / 255.0f) * col1[2]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[1].col[0] = (1.0f / 255) * col1[0];
-			vertex[1].col[1] = (1.0f / 255) * col1[1];
-			vertex[1].col[2] = (1.0f / 255) * col1[2];
-			vertex[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = (1.0f / 255.0f) * col1[0];
+			vertex[1].col[1] = (1.0f / 255.0f) * col1[1];
+			vertex[1].col[2] = (1.0f / 255.0f) * col1[2];
+			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
-			vertex[1].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[1].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[1].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
+			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[1].col[0] = (1.0f / 255) * col0[0];
-			vertex[1].col[1] = (1.0f / 255) * col0[1];
-			vertex[1].col[2] = (1.0f / 255) * col0[2];
-			vertex[1].col[3] = (1.0f / 255) * 255;
+			vertex[1].col[0] = (1.0f / 255.0f) * col0[0];
+			vertex[1].col[1] = (1.0f / 255.0f) * col0[1];
+			vertex[1].col[2] = (1.0f / 255.0f) * col0[2];
+			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 
@@ -549,34 +726,34 @@ void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsig
 	{
 		if (bMultiplyColour)
 		{
-			vertex[2].col[0] = (1.0f / 255) * (col2[0] * VERTEX_COLOUR_MULT);
-			vertex[2].col[1] = (1.0f / 255) * (col2[1] * VERTEX_COLOUR_MULT);
-			vertex[2].col[2] = (1.0f / 255) * (col2[2] * VERTEX_COLOUR_MULT);
-			vertex[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = ((1.0f / 255.0f) * col2[0]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[1] = ((1.0f / 255.0f) * col2[1]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[2] = ((1.0f / 255.0f) * col2[2]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[2].col[0] = (1.0f / 255) * col2[0];
-			vertex[2].col[1] = (1.0f / 255) * col2[1];
-			vertex[2].col[2] = (1.0f / 255) * col2[2];
-			vertex[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = (1.0f / 255.0f) * col2[0];
+			vertex[2].col[1] = (1.0f / 255.0f) * col2[1];
+			vertex[2].col[2] = (1.0f / 255.0f) * col2[2];
+			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
-			vertex[2].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[2].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[2].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
+			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[2].col[0] = (1.0f / 255) * col0[0];
-			vertex[2].col[1] = (1.0f / 255) * col0[1];
-			vertex[2].col[2] = (1.0f / 255) * col0[2];
-			vertex[2].col[3] = (1.0f / 255) * 255;
+			vertex[2].col[0] = (1.0f / 255.0f) * col0[0];
+			vertex[2].col[1] = (1.0f / 255.0f) * col0[1];
+			vertex[2].col[2] = (1.0f / 255.0f) * col0[2];
+			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 
@@ -584,34 +761,34 @@ void Emulator_GenerateColourArrayQuad(Vertex* vertex, unsigned char* col0, unsig
 	{
 		if (bMultiplyColour)
 		{
-			vertex[3].col[0] = (1.0f / 255) * (col3[0] * VERTEX_COLOUR_MULT);
-			vertex[3].col[1] = (1.0f / 255) * (col3[1] * VERTEX_COLOUR_MULT);
-			vertex[3].col[2] = (1.0f / 255) * (col3[2] * VERTEX_COLOUR_MULT);
-			vertex[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = ((1.0f / 255.0f) * col3[0]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[1] = ((1.0f / 255.0f) * col3[1]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[2] = ((1.0f / 255.0f) * col3[2]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[3].col[0] = (1.0f / 255) * col3[0];
-			vertex[3].col[1] = (1.0f / 255) * col3[1];
-			vertex[3].col[2] = (1.0f / 255) * col3[2];
-			vertex[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = (1.0f / 255.0f) * col3[0];
+			vertex[3].col[1] = (1.0f / 255.0f) * col3[1];
+			vertex[3].col[2] = (1.0f / 255.0f) * col3[2];
+			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
-			vertex[3].col[0] = (1.0f / 255) * (col0[0] * VERTEX_COLOUR_MULT);
-			vertex[3].col[1] = (1.0f / 255) * (col0[1] * VERTEX_COLOUR_MULT);
-			vertex[3].col[2] = (1.0f / 255) * (col0[2] * VERTEX_COLOUR_MULT);
-			vertex[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
+			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 		}
 		else
 		{
-			vertex[3].col[0] = (1.0f / 255) * col0[0];
-			vertex[3].col[1] = (1.0f / 255) * col0[1];
-			vertex[3].col[2] = (1.0f / 255) * col0[2];
-			vertex[3].col[3] = (1.0f / 255) * 255;
+			vertex[3].col[0] = (1.0f / 255.0f) * col0[0];
+			vertex[3].col[1] = (1.0f / 255.0f) * col0[1];
+			vertex[3].col[2] = (1.0f / 255.0f) * col0[2];
+			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 		}
 	}
 
@@ -628,7 +805,7 @@ void Emulator_CreateGlobalShaders()
 #elif defined(ES3_SHADERS)
 	const char* vertexShaderSource = "#version 300 es\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
 #elif defined(OGL)
-	const char* vertexShaderSource = "#version 330 core\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
+	const char* vertexShaderSource = "#version 330 core\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; uniform mat4 Scale; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*(a_position*Scale);  }";
 #endif
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -638,13 +815,16 @@ void Emulator_CreateGlobalShaders()
 #elif defined(ES3_SHADERS)
 	const char* fragmentShaderSource = "#version 300 es\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord) * v_colour; }";
 #elif defined(OGL)
-	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord) * v_colour; }";
+	//const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
+	//const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { vec4 dither = vec4(texture(s_texture, gl_FragCoord.xy / 8.0).r / 32.0 - (1.0 / 128.0)); fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; fragColour += dither; }";
+	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
 #endif
+
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
 
-#if 1
+#if defined(_DEBUG)
 	char buff[1024];
 	int maxLength = 1024;
 	glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &buff[0]);
@@ -653,13 +833,14 @@ void Emulator_CreateGlobalShaders()
 	glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &buff[0]);
 #endif
 
+	/* Default */
 	g_defaultShaderProgram = glCreateProgram();
 	glAttachShader(g_defaultShaderProgram, vertexShader);
 	glAttachShader(g_defaultShaderProgram, fragmentShader);
 	glLinkProgram(g_defaultShaderProgram);
 	glUseProgram(g_defaultShaderProgram);
 	GLint idx = glGetUniformLocation(g_defaultShaderProgram, "s_texture");
-	GLint sampler;
+	GLint sampler = 0;
 	glUniform1iv(idx, 1, &sampler);
 	glActiveTexture(GL_TEXTURE0 + sampler);
 }
@@ -678,8 +859,9 @@ void Emulator_InitialiseGL()
 
 	/* Generate NULL white texture */
 	Emulator_GenerateAndBindNullWhite();///@TODO remove completely, no longer needed
-
+	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_SCISSOR_TEST);
+	glBlendColor(0.25f, 0.25f, 0.25f, 0.5f);
 	glGenTextures(1, &vramTexture);
 	Emulator_BindTexture(vramTexture);
 
@@ -694,6 +876,7 @@ void Emulator_InitialiseGL()
 	/* Generate VRAM Frame Buffer */
 	glGenFramebuffers(1, &vramFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+
 	/* Bind VRAM texture to vram framebuffer */
 #if defined (OGLES)
 	Emulator_BindTexture(0);
@@ -711,36 +894,46 @@ void Emulator_InitialiseGL()
 
 	glLineWidth(RESOLUTION_SCALE);
 
-#if BLEND_MODE
-	//glBlendColor(0.25, 0.25, 0.25, 0.5);
-#endif
-
 #if defined(OGL)
-	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 #endif
 
 #if defined(OGLES) || defined(OGL)
 	Emulator_CreateGlobalShaders();
 #endif
 
-	Emulator_BindTexture(0);
+	//Emulator_BindTexture(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
 }
 
+static GLuint g_lastBoundTexture = -1;
+
 void Emulator_BindTexture(GLuint textureId)
 {
-	static GLuint g_lastBoundTexture = -1;
-
 	if (g_lastBoundTexture != textureId)
 	{
 		glBindTexture(GL_TEXTURE_2D, textureId);
+		g_lastBoundTexture = textureId;
 	}
+}
+
+void Emulator_DestroyTextures(int numTextures, GLuint* textures)
+{
+	for (int i = 0; i < numTextures; i++)
+	{
+		if (textures[i] == g_lastBoundTexture)
+		{
+			g_lastBoundTexture = -1;
+		}
+	}
+
+	glDeleteTextures(numTextures, textures);
 }
 
 void Emulator_GenerateAndBindNullWhite()
 {
 	unsigned char pixelData[4];
-	((int*)&pixelData[0])[0] = -1;
+	((int*)&pixelData[0])[0] = 0x80808080;
 	glGenTextures(1, &nullWhiteTexture);
 	Emulator_BindTexture(nullWhiteTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData[0]);
@@ -755,8 +948,8 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 			continue;
 
 		unsigned short tpage = cachedTextures[i].tpage;
-		unsigned int tpageX = ((tpage << 6) & 0x7C0) % VRAM_WIDTH;
-		unsigned int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200)) % VRAM_HEIGHT;
+		unsigned int tpageX = ((tpage << 6) & 0x7C0) % VRAM_WIDTH;///@TODO macro
+		unsigned int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200)) % VRAM_HEIGHT;///@TODO macro
 
 		if (rect->x < tpageX + TPAGE_WIDTH && rect->x + rect->w > tpageX &&
 			rect->y > tpageY + TPAGE_WIDTH && rect->y + rect->h < tpageY)
@@ -764,14 +957,14 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 			cachedTextures[i].lastAccess = 0;
 			cachedTextures[i].tpage = 0;
 			cachedTextures[i].clut = 0;
-			glDeleteTextures(1, &cachedTextures[i].textureID);
+			Emulator_DestroyTextures(1, &cachedTextures[i].textureID);
 			cachedTextures[i].textureID = -1;
 		}
 	}
 }
 #define NOFILE 0
 
-#if !__EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__)
 void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
 {
 #if NOFILE
@@ -788,19 +981,11 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 	unsigned short* pixelData = new unsigned short[width * height];
 	if (bReadFromFrameBuffer)
 	{
-#if defined(OGLES)
-		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixelData[0]);
-#elif defined(OGL)
-		glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixelData[0]);
-#endif
+		glReadPixels(x, y, width, height, GL_BGRA, TEXTURE_FORMAT, &pixelData[0]);
 	}
 	else
 	{
-#if defined(OGLES)
-		//glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, pixelData);
-#elif defined(OGL)
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, pixelData);
-#endif
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, TEXTURE_FORMAT, pixelData);
 	}
 
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
@@ -856,6 +1041,18 @@ void Emulator_BeginScene()
 	}
 }
 
+void Emulator_TakeScreenshot()
+{
+	unsigned char* pixels = new unsigned char[512 * RESOLUTION_SCALE * 240 * RESOLUTION_SCALE * 4];
+	glReadPixels(0, 0, 512 * RESOLUTION_SCALE, 240 * RESOLUTION_SCALE, GL_BGRA, GL_UNSIGNED_BYTE, pixels);
+
+	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, 512 * RESOLUTION_SCALE, 240 * RESOLUTION_SCALE, 8 * 4, 512 * RESOLUTION_SCALE * 4, 0, 0, 0, 0);
+	SDL_SaveBMP(surface, "SCREENSHOT.BMP");
+	SDL_FreeSurface(surface);
+
+	delete[] pixels;
+}
+
 ///@FIXME keyboardState only accessible if padInitDirect called! Let the emulator manage input not the sub library!
 void Emulator_DoDebugKeys()
 {
@@ -874,6 +1071,11 @@ void Emulator_DoDebugKeys()
 		if (keyboardState[SDL_SCANCODE_2])
 		{
 			g_texturelessMode ^= 1;
+		}
+
+		if (keyboardState[SDL_SCANCODE_3])
+		{
+			Emulator_TakeScreenshot();
 		}
 
 		lastTime = currentTime;
@@ -919,29 +1121,20 @@ void Emulator_SwapWindow()
 	glFinish();
 #endif
 }
-unsigned short pixels[VRAM_WIDTH * VRAM_HEIGHT];
+
+void Emulator_PushBlendMode()
+{
+
+}
 
 void Emulator_EndScene()
 {
-	//Default blend mode
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendEquation(GL_FUNC_ADD);
+	glDisable(GL_BLEND);
+
+	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), false);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 
-#if defined(OGLES)
-	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
-#elif defined(OGL)
-	glReadPixels(0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
-#endif
-
-	Emulator_BindTexture(vramTexture);
-
-#if defined(OGLES)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &pixels[0]);
-#elif defined(OGL)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &pixels[0]);
-#endif
-	glScissor(0, 0, windowWidth, windowHeight);
+	glScissor(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
 
 	float x = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.x * RESOLUTION_SCALE));
@@ -959,17 +1152,7 @@ void Emulator_EndScene()
 		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y, 1.0f, 1.0f, 1.0f, 1.0f,
 	};
 
-#if defined(OGL) && !defined(OGL)
-	glVertexPointer(3, GL_FLOAT, 9 * sizeof(float), vertexBuffer);
-	glTexCoordPointer(2, GL_FLOAT, 9 * sizeof(float), vertexBuffer + 3);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glLoadIdentity();
-	glOrtho(0, word_33BC.disp.w * RESOLUTION_SCALE, 0, word_33BC.disp.h * RESOLUTION_SCALE, 0, 1);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#elif defined(OGLES) || defined (OGL)
+#if defined(OGLES) || defined (OGL)
 	GLuint vbo, ibo, vao;
 	GLuint indexBuffer[] = { 0,1,2,0,2,3 };
 	glGenVertexArrays(1, &vao);
@@ -993,6 +1176,17 @@ void Emulator_EndScene()
 	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)20);
 	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)12);
 	Emulator_Ortho2D(0.0f, word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, 1.0f);
+	Emulator_Scalef(1.0f, 1.0f, 1.0f);
+
+	//Map buffer
+	unsigned short* pixels = (unsigned short*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+
+	Emulator_BindTexture(vramTexture);
+
+	//Unmap VRAM pbo
+	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
+	//Delete buffers
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 	glDisableVertexAttribArray(posAttrib);
 	glDisableVertexAttribArray(colAttrib);
@@ -1003,26 +1197,29 @@ void Emulator_EndScene()
 	glDeleteVertexArrays(1, &vao);
 #endif
 
-#if _DEBUG && 1
+#if _DEBUG && 0
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, vramFrameBuffer);
 	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
 #endif
 
 	Emulator_SwapWindow();
+	glUseProgram(g_defaultShaderProgram);
+
+	//glEnable(GL_BLEND);
 }
 
 void Emulator_ShutDown()
 {
 	Emulator_DestroyFrameBuffer(vramFrameBuffer);
-	glDeleteTextures(1, &vramTexture);
-	glDeleteTextures(1, &nullWhiteTexture);
+	Emulator_DestroyTextures(1, &vramTexture);
+	Emulator_DestroyTextures(1, &nullWhiteTexture);
 	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
 
 	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
 	{
 		if (cachedTextures[i].textureID != 0xFFFFFFFF)
 		{
-			glDeleteTextures(1, &cachedTextures[i].textureID);
+			Emulator_DestroyTextures(1, &cachedTextures[i].textureID);
 		}
 	}
 #ifdef _WINDOWS
@@ -1092,12 +1289,11 @@ CachedTexture* Emulator_GetFreeCachedTexture()
 
 GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 {
-	unsigned int textureType = (tpage >> 7) & 0x3;
-	unsigned int tpageX = ((tpage << 6) & 0x7C0) % (VRAM_WIDTH / RESOLUTION_SCALE);
-	unsigned int tpageY = ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT / RESOLUTION_SCALE);
-	unsigned int clutX = ((clut & 0x3F) << 4);
-	unsigned int clutY = (clut >> 6);
-	unsigned int tpageAbr = (tpage >> 5) & 3;
+	unsigned int textureType = GET_TPAGE_TYPE(tpage);
+	unsigned int tpageX = GET_TPAGE_X(tpage);
+	unsigned int tpageY = GET_TPAGE_Y(tpage)
+	unsigned int clutX = GET_CLUT_X(clut);
+	unsigned int clutY = GET_CLUT_Y(clut);
 
 #if RESOLUTION_SCALE > 1
 	if (tpageX >= 256)
@@ -1129,25 +1325,31 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		tpageTexture->clut = clut;
 		glGenTextures(1, &tpageTexture->textureID);
 		Emulator_BindTexture(tpageTexture->textureID);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
 	else
 	{
 		return tpageTexture->textureID;
 	}
 
+	enum
+	{
+		TP_4BIT,
+		TP_8BIT,
+		TP_16BIT
+	};
+
 	switch (textureType)
 	{
-	case 2:
+	case TP_16BIT:
 	{
-		//ARGB1555
 		unsigned short* texturePage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
-#if defined(OGL)
-		glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
 
-#if _DEBUG && 0
+		glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &texturePage[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, TEXTURE_FORMAT, &texturePage[0]);
+
+#if defined(_DEBUG) && 0
 		char buff[64];
 		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
 		FILE* f = fopen(buff, "wb");
@@ -1159,46 +1361,74 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		fclose(f);
 #endif
 
-#endif
 		delete[] texturePage;
 		break;
 	}
-	case 1:
+	case TP_8BIT:
 	{
-		//RGBA8888
 		assert(0);
 		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texturePage[0]);
 		break;
 	}
-	case 0:
+	case TP_4BIT:
 	{
-		//RGBA4444
-		unsigned short* texturePage = new unsigned short[TPAGE_WIDTH / 4 * TPAGE_HEIGHT];
-		unsigned short* clut = new unsigned short[16];
-		unsigned short* convertedTpage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
+		enum PixelBufferType
+		{
+			CLUT,
+			TPAGE,
+			NUM_PIXEL_BUFFER_OBJECTS
+		};
 
-#if defined (OGLES)
+		GLuint pixelBufferObjects[NUM_PIXEL_BUFFER_OBJECTS];
+
+		//Generate PBO for faster transfer
+		glGenBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[CLUT]);
+
+		//Bind the CLUT PBO
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[CLUT]);
+
+		//Allocate PBO size for CLUT
+		glBufferData(GL_PIXEL_PACK_BUFFER, (CLUT_WIDTH * CLUT_HEIGHT) * sizeof(GLushort), NULL, GL_DYNAMIC_READ);
+
 		//Read CLUT
-		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &clut[0]);
+		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, TEXTURE_FORMAT, NULL);
+
+		//Map buffer
+		unsigned short* clut = (unsigned short*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+
+		//Bind the tpage PBO
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[TPAGE]);
+
+		//Allocate PBO size for TPAGE
+		glBufferData(GL_PIXEL_PACK_BUFFER, (TPAGE_WIDTH / 4 * TPAGE_HEIGHT) * sizeof(GLushort), NULL, GL_DYNAMIC_READ);
 
 		//Read texture data
-		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &texturePage[0]);
-#elif defined(OGL)
-		//Read CLUT
-		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &clut[0]);
+		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, NULL);
 
-		//Read texture data
-		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
-#endif
+		//Map buffer
+		unsigned short* tpage = (unsigned short*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_WRITE);
+		unsigned short convertedTpage[TPAGE_WIDTH * TPAGE_HEIGHT];
 		unsigned short* convertPixel = &convertedTpage[0];
 
 		for (int xy = 0; xy < TPAGE_WIDTH / 4 * TPAGE_HEIGHT; xy++)
 		{
-			*convertPixel++ = clut[(texturePage[xy] & (0xF << 0 * 4)) >> (0 * 4)];
-			*convertPixel++ = clut[(texturePage[xy] & (0xF << 1 * 4)) >> (1 * 4)];
-			*convertPixel++ = clut[(texturePage[xy] & (0xF << 2 * 4)) >> (2 * 4)];
-			*convertPixel++ = clut[(texturePage[xy] & (0xF << 3 * 4)) >> (3 * 4)];
+			*convertPixel++ = clut[(tpage[xy] & (0xF << 0 * 4)) >> (0 * 4)];
+			*convertPixel++ = clut[(tpage[xy] & (0xF << 1 * 4)) >> (1 * 4)];
+			*convertPixel++ = clut[(tpage[xy] & (0xF << 2 * 4)) >> (2 * 4)];
+			*convertPixel++ = clut[(tpage[xy] & (0xF << 3 * 4)) >> (3 * 4)];
 		}
+
+		//Unmap TPAGE pbo
+		glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
+		//Bind CLUT pbo
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[CLUT]);
+
+		//Unmap CLUT pbo
+		glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
+		//Delete buffers
+		glDeleteBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[CLUT]);
 
 #if defined(OGLES)
 #define ARGB1555toRGBA1555(x) ((x & 0x8000) >> 15) | ((x & 0x7FFF) << 1)
@@ -1237,8 +1467,7 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 
 #endif
 
-
-#if _DEBUG && 1
+#if _DEBUG && 0
 		char buff[64];
 		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
 		FILE* f = fopen(buff, "wb");
@@ -1249,14 +1478,8 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		fwrite(&convertedTpage[0], sizeof(char), 256 * 256 * 2, f);
 		fclose(f);
 #endif
-#if defined(OGL)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
-#elif defined(OGLES)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &convertedTpage[0]);
-#endif
-		delete[] clut;
-		delete[] texturePage;
-		delete[] convertedTpage;
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
 		break;
 	}
 
@@ -1270,76 +1493,58 @@ void Emulator_DestroyFrameBuffer(GLuint& fbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
 }
 
-void Emulator_SetBlendMode(int mode)
-{
-	static int previousBlendMode = -1;
+static int g_PreviousBlendMode = -1;
+static int g_PreviousSemiTrans = 0;
 
-#if !BLEND_MODE
-	if (previousBlendMode != mode)
+void Emulator_SetBlendMode(int mode, int semiTransparent)
+{
+	if(semiTransparent)
 	{
-		switch (mode)
+		//If previous wasn't semi trans, enable blend
+		if (g_PreviousSemiTrans == 0)
 		{
-		case 0://Average
-			glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
-			break;
-		case 1://Add
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			break;
-		case 2://Subtract
-			glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-			break;
-		case 3://Addquatersource
-			glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_ONE);
-			break;
-		default:
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			//glDisable(GL_BLEND);
-			break;
+			glEnable(GL_BLEND);
 		}
 
-		previousBlendMode = mode;
-	}
-#else
-	if (previousBlendMode != mode)
-	{
-		switch (mode)
+		if (g_PreviousBlendMode != mode)
 		{
-		case 0://Average
-			glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
-			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-			break;
-		case 1://Add
-			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-			break;
-		case 2://Subtract
-			glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
-			glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
-			break;
-		case 3://Addquatersource
-			glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
-			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-			break;
-		default:
-			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-			glBlendEquation(GL_FUNC_ADD);
-			break;
+			switch (mode)
+			{
+			case BM_AVERAGE:
+				glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
+				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				break;
+			case BM_ADD:
+				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				break;
+			case BM_SUBTRACT:
+				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+				glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
+				break;
+			case BM_ADD_QUATER_SOURCE:
+				glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
+				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				break;
+			default:
+				glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				break;
+			}
+
+			g_PreviousBlendMode = mode;
 		}
-
-		previousBlendMode = mode;
 	}
-#endif
-}
+	else
+	{
+		//If previous was semi trans disable blend
+		if (g_PreviousSemiTrans)
+		{
+			glDisable(GL_BLEND);
+		}
+	}
 
-void Emulator_NXPOT(int& value)
-{
-	value--;
-	value |= value >> 1;
-	value |= value >> 2;
-	value |= value >> 4;
-	value |= value >> 8;
-	value |= value >> 16;
-	value++;
+	g_PreviousSemiTrans = semiTransparent;
 }
 
 #if defined(OGLES) || defined(OGL)
@@ -1364,6 +1569,21 @@ void Emulator_Ortho2D(float left, float right, float bottom, float top, float zn
 	GLint projectionUniform = glGetUniformLocation(g_defaultShaderProgram, "Projection");
 	glUniformMatrix4fv(projectionUniform, 1, GL_FALSE, &ortho[0]);
 }
+
+void Emulator_Scalef(float sx, float sy, float sz)
+{
+	float scale[16] =
+	{
+		sx, 0, 0, 0,
+		0, sy, 0, 0,
+		0, 0, sz, 0,
+		0, 0, 0, 1
+	};
+
+	GLint scaleUniform = glGetUniformLocation(g_defaultShaderProgram, "Scale");
+	glUniformMatrix4fv(scaleUniform, 1, GL_FALSE, &scale[0]);
+}
+
 #endif
 
 void Emulator_GetTopLeftAndBottomLeftTextureCoordinate(int& x, int& y, int& w, int& h, unsigned char* u, unsigned char* v)
@@ -1421,18 +1641,14 @@ void Emulator_GetTopLeftAndBottomLeftTextureCoordinate(int& x, int& y, int& w, i
 		}
 	}
 
-	//Emulator_NXPOT(topCoordX);
-	//Emulator_NXPOT(topCoordY);
-	//Emulator_NXPOT(bottomCoordX);
-	//Emulator_NXPOT(bottomCoordY);
 	x = topCoordX;
 	y = topCoordY;
 	w = (bottomCoordX - topCoordX) + 1;
 	h = (bottomCoordY - topCoordY) + 1;
 
 	//Round up next multiple of 2
-	w = (w + 1) & ~0x1;
-	h = (h + 1) & ~0x1;
+	//w = (w + 1) & ~0x1;
+	//h = (h + 1) & ~0x1;
 
 	//Round down next multiple of 2
 	//w -= (w % 2);
@@ -1444,10 +1660,10 @@ void Emulator_GetTopLeftAndBottomLeftTextureCoordinate(int& x, int& y, int& w, i
 void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, unsigned char u0, unsigned char v0, unsigned char u1, unsigned char v1, unsigned char u2, unsigned char v2, unsigned char u3, unsigned char v3, unsigned short bIsQuad)
 {
 	//Locate the 4-bit texture in vram, convert it and glTexSubImage to the atlas
-	unsigned int tpageX = ((texTpage << 6) & 0x7C0) % (VRAM_WIDTH / RESOLUTION_SCALE);
-	unsigned int tpageY = ((((texTpage << 4) & 0x100) + ((texTpage >> 2) & 0x200))) % (VRAM_HEIGHT / RESOLUTION_SCALE);
-	unsigned int clutX = ((texClut & 0x3F) << 4);
-	unsigned int clutY = (texClut >> 6);
+	unsigned int tpageX = GET_TPAGE_X(texTpage);
+	unsigned int tpageY = GET_TPAGE_Y(texTpage);
+	unsigned int clutX = GET_CLUT_X(texClut);
+	unsigned int clutY = GET_CLUT_Y(texClut);
 
 	//Set this to true so the emulator uses atlas textures
 	g_hasHintedTextureAtlas = 1;
@@ -1473,12 +1689,7 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 		Emulator_BindTexture(tpageTexture->textureID);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-#if defined(OGL)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, NULL);
-#elif defined(OGLES)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, NULL);
-#endif
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, TEXTURE_FORMAT, NULL);
 	}
 	else
 	{
@@ -1490,20 +1701,11 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 	unsigned short* clut = new unsigned short[16];
 	unsigned short* convertedTpage = new unsigned short[w * h * 1024];
 
-#if defined(OGL)
 	//Read CLUT
-	glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &clut[0]);
+	glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &clut[0]);
 
 	//Read texture data
-	glReadPixels(tpageX + (x / 4), tpageY + y, w / 4, h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &texturePage[0]);
-	
-#elif defined(OGLES)
-	//Read CLUT
-	glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &clut[0]);
-
-	//Read texture data
-	glReadPixels(tpageX + (x / 4), tpageY + y, w / 4, h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &texturePage[0]);
-#endif
+	glReadPixels(tpageX + (x / 4), tpageY + y, w / 4, h, GL_RGBA, TEXTURE_FORMAT, &texturePage[0]);
 
 	unsigned short* convertPixel = &convertedTpage[0];
 
@@ -1524,7 +1726,7 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 		unsigned short g : 5;
 		unsigned short b : 5;
 		unsigned short a : 1;
-};
+	};
 
 	struct abgr1555
 	{
@@ -1552,11 +1754,7 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 
 #endif
 
-#if defined(OGL)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
-#elif defined(OGLES)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &convertedTpage[0]);
-#endif
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
 
 #if defined(_DEBUG) && 0
 	char buf[32];
@@ -1661,11 +1859,7 @@ void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned short 
 
 #endif
 
-#if defined(OGL)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &convertedTpage[0]);
-#elif defined(OGLES)
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &convertedTpage[0]);
-#endif
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
 
 #if defined(_DEBUG) && 0
 	char buf[32];
@@ -1689,7 +1883,7 @@ void Emulator_DestroyAllTextures()
 	{
 		if (cachedTextures[i].textureID != 0xFFFFFFFF)
 		{
-			glDeleteTextures(1, &cachedTextures[i].textureID);
+			Emulator_DestroyTextures(1, &cachedTextures[i].textureID);
 		}
 	}
 

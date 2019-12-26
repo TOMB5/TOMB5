@@ -1,7 +1,7 @@
 #ifndef EMULATOR_GLOBALS_H
 #define EMULATOR_GLOBALS_H
 
-#include "EMULATOR.H"
+#include "EMULATOR_PLATFORM_SETUP.H"
 
 #ifndef TRUE
 #define TRUE		1
@@ -12,8 +12,6 @@
 #ifndef NULL
 #define NULL		0
 #endif
-
-#include <stdint.h>
 
 #ifdef _MSC_VER
 #define FUNCNAME __FUNCTION__
@@ -27,7 +25,7 @@ extern int(*printf_)(const char * format, ...);
 #define eprinterr(fmt, ...) eprintf("[%s] - " fmt, FUNCNAME, ##__VA_ARGS__);
 
 #if defined(__EMSCRIPTEN__)
-#define UNIMPLEMENTED()
+#define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
 #else
 #define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
 #endif
@@ -53,6 +51,8 @@ struct CachedTexture
 	unsigned short clut;
 	unsigned int lastAccess;
 };
+
+#define MAX_NUM_CACHED_TEXTURES (512)
 
 extern struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 
