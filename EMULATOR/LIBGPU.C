@@ -226,47 +226,12 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 {
 	Emulator_CheckTextureIntersection(rect);
 	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
-
-	GLuint srcTexture;
-	GLuint srcFrameBuffer;
-
-	glGenTextures(1, &srcTexture);
-	Emulator_BindTexture(srcTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-#if defined(OGL)
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
-#elif defined(OGLES)
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &p[0]);
-#endif
-
-	/* Generate src Frame Buffer */
-	glGenFramebuffers(1, &srcFrameBuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
-
-	/* Bind src texture to src framebuffer */
-#if defined(OGLES)
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
-#elif defined(OGL)
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
-#endif
-
-	while (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		eprinterr("Frame buffer error: %x\n", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-	}
-
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
-	glBlitFramebuffer(0, 0, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, (rect->x + rect->w) * RESOLUTION_SCALE, (rect->y + rect->h) * RESOLUTION_SCALE, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	Emulator_BindTexture(vramTexture);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x, rect->y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
 
 #if _DEBUG && 0
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
 #endif
-
-	Emulator_DestroyTextures(1, &srcTexture);
-	Emulator_DestroyFrameBuffer(&srcFrameBuffer);
 
 	return 0;
 }
