@@ -1,52 +1,25 @@
 #ifndef EMULATOR_GLOBALS_H
 #define EMULATOR_GLOBALS_H
 
-#include "EMULATOR_PLATFORM_SETUP.H"
 
-#ifndef TRUE
-#define TRUE		1
-#endif
-#ifndef FALSE
-#define FALSE		0
-#endif
-#ifndef NULL
-#define NULL		0
-#endif
+#include <SDL_gamecontroller.h>
 
-#ifdef _MSC_VER
-#define FUNCNAME __FUNCTION__
-#else
-#define FUNCNAME __func__
-#endif
-
-extern int(*printf_)(const char * format, ...);
-
-#define eprintf(fmt, ...) printf_("[EMU] " fmt, ##__VA_ARGS__)
-#define eprinterr(fmt, ...) eprintf("[%s] - " fmt, FUNCNAME, ##__VA_ARGS__);
-
-#if defined(__EMSCRIPTEN__)
-#define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
-#else
-#define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
-#endif
-
-extern GLuint nullWhiteTexture;
-extern GLuint vramFrameBuffer;
+extern unsigned int nullWhiteTexture;
+extern unsigned int vramFrameBuffer;
 extern int screenWidth;
 extern int screenHeight;
 extern int windowWidth;
 extern int windowHeight;
 extern uint32_t DMAControlRegister;
 extern int assetsLoaded;
-#if defined(OGLES) || defined(OGL)
-extern GLuint g_defaultShaderProgram;
-#endif
-extern GLint g_defaultFBO;
+extern unsigned int g_defaultShaderProgram;
+
+extern int g_defaultFBO;
 
 
 struct CachedTexture
 {
-	GLuint textureID;
+	unsigned int textureID;
 	unsigned short tpage;
 	unsigned short clut;
 	unsigned int lastAccess;
@@ -55,5 +28,12 @@ struct CachedTexture
 #define MAX_NUM_CACHED_TEXTURES (512)
 
 extern struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
+
+extern unsigned short UpdateGameControllerInput(SDL_GameController* pad);
+extern unsigned short UpdateKeyboardInput();
+
+extern SDL_GameController* padHandle[];
+extern unsigned char* padData[];
+extern const unsigned char* keyboardState;
 
 #endif

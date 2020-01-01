@@ -1,9 +1,7 @@
-﻿#include "LIBAPI.H"
-
-#include "EMULATOR_GLOBALS.H"
-#include "EMULATOR.H"
+#include "LIBAPI.H"
 
 #include <stdio.h>
+#include "EMULATOR.H"
 
 int sp = 0;
 
@@ -91,7 +89,7 @@ long StopRCnt(long spec)//TODO
 	return 0;
 }
 #undef OpenEvent
-long OpenEvent(unsigned long unk00, long, long, long(*func)())
+long OpenEvent(unsigned long unk00, long unk01, long unk02, long(*func)())
 {
 	UNIMPLEMENTED();
 	return 0;
@@ -127,17 +125,17 @@ long DisableEvent(long unk00)
 	return 0;
 }
 
-void DeliverEvent(unsigned long unk00, unsigned long)
+void DeliverEvent(unsigned long unk00, unsigned long unk01)
 {
 	UNIMPLEMENTED();
 }
 
-void UnDeliverEvent(unsigned long unk00, unsigned long)
+void UnDeliverEvent(unsigned long unk00, unsigned long unk01)
 {
 	UNIMPLEMENTED();
 }
 
-long OpenTh(long(*func)(), unsigned long, unsigned long)
+long OpenTh(long(*func)(), unsigned long unk01, unsigned long unk02)
 {
 	UNIMPLEMENTED();
 	return 0;
@@ -155,7 +153,7 @@ int ChangeTh(long unk00)
 	return 0;
 }
 
-long open(char* unk00, unsigned long)
+long open(char* unk00, unsigned long unk01)
 {
 	UNIMPLEMENTED();
 	return 0;
@@ -167,31 +165,31 @@ long close(long unk00)
 	return 0;
 }
 
-long lseek(long unk00, long, long)
+long lseek(long unk00, long unk01, long unk02)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-long read(long unk00, void *, long)
+long read(long unk00, void* unk01, long unk02)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-long write(long unk00, void *, long)
+long write(long unk00, void* unk01, long unk02)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-long ioctl(long unk00, long, long)
+long ioctl(long unk00, long unk01, long unk02)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-struct DIRENTRY* firstfile(char* unk00, struct DIRENTRY *)
+struct DIRENTRY* firstfile(char* unk00, struct DIRENTRY* unk01)
 {
 	UNIMPLEMENTED();
 	return 0;
@@ -220,7 +218,7 @@ long format(char* unk00)
 	UNIMPLEMENTED();
 	return 0;
 }
-long rename(char* unk00, char *)
+long rename(char* unk00, char* unk01)
 {
 	UNIMPLEMENTED();
 	return 0;
@@ -232,31 +230,31 @@ long cd(char* unk00)
 	return 0;
 }
 
-long LoadTest(char*  unk00, struct EXEC *)
+long LoadTest(char*  unk00, struct EXEC* unk01)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-long Load(char * unk00, struct EXEC *)
+long Load(char * unk00, struct EXEC* unk01)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-long Exec(struct EXEC * unk00, long, char **)
+long Exec(struct EXEC * unk00, long unk01, char** unk02)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-long LoadExec(char * unk00, unsigned long, unsigned long)
+long LoadExec(char * unk00, unsigned long unk01, unsigned long unk02)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-long InitPAD(char * unk00, long, char *, long)
+long InitPAD(char * unk00, long unk01, char* unk02, long unk03)
 {
 	UNIMPLEMENTED();
 	return 0;
@@ -355,13 +353,13 @@ unsigned long GetSysSp()
 	return 0;
 }
 
-long SetConf(unsigned long, unsigned long, unsigned long)
+long SetConf(unsigned long unk00, unsigned long unk01, unsigned long unk02)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-void GetConf(unsigned long *, unsigned long *, unsigned long *)
+void GetConf(unsigned long* unk00, unsigned long* unk01, unsigned long* unk02)
 {
 	UNIMPLEMENTED();
 }
@@ -372,29 +370,29 @@ long _get_errno(void)
 	return 0;
 }
 
-long _get_error(long)
+long _get_error(long unk00)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-void SystemError(char, long)
+void SystemError(char unk00, long unk01)
 {
 	UNIMPLEMENTED();
 }
 
-void SetMem(long)
+void SetMem(long unk00)
 {
 	UNIMPLEMENTED();
 }
 
-long Krom2RawAdd(unsigned long)
+long Krom2RawAdd(unsigned long unk00)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-long Krom2RawAdd2(unsigned short)
+long Krom2RawAdd2(unsigned short unk00)
 {
 	UNIMPLEMENTED();
 	return 0;
@@ -415,7 +413,7 @@ void _boot(void)
 	UNIMPLEMENTED();
 }
 
-void ChangeClearPAD(long)
+void ChangeClearPAD(long unk00)
 {
 	UNIMPLEMENTED();
 }

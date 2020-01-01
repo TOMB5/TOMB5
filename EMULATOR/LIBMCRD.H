@@ -1,7 +1,7 @@
 #ifndef LIBMCRD_H
 #define LIBMCRD_H
 
-#include <KERNEL.H>
+#include "KERNEL.H"
 
 typedef void (*MemCB)( long cmds, long rslt );
 

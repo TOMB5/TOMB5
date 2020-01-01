@@ -1,7 +1,7 @@
 #ifndef LIBAPI_H
 #define LIBAPI_H
 
-#ifndef KERNEL_H
+#ifndef EMU_KERNEL_H
 #include "KERNEL.H"
 #endif
 

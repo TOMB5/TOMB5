@@ -1,6 +1,6 @@
 #ifndef STRINGS_H
 #define STRINGS_H
 
-#include <cstring>//temp
+#include <string.h>//temp
 
 #endif

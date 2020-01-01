@@ -1,11 +1,7 @@
 #include "LIBMCRD.H"
-#include "LIBETC.H"
-#include "EMULATOR_GLOBALS.H"
-
 #include <stdio.h>
-#include <assert.h>
+#include "EMULATOR.H"
 #include <string.h>
-#include "EMULATOR_GLOBALS.H"
 
 #define MC_HEADER_FRAME_INDEX (0)
 
@@ -165,8 +161,8 @@ long MemCardOpen(long chan, char* file, long flag)
 
 	for (int i = 0; i < 16; i++)
 	{
-		MemoryCardFrame frame;
-		fread(&frame, sizeof(MemoryCardFrame), 1, memoryCards[chan]);
+		struct MemoryCardFrame frame;
+		fread(&frame, sizeof(struct MemoryCardFrame), 1, memoryCards[chan]);
 
 		if (i > MC_HEADER_FRAME_INDEX && frame.name[0] != '\0')
 		{
@@ -289,8 +285,8 @@ long MemCardGetDirentry(long chan, char* name, struct DIRENTRY* dir, long* files
 	{
 		for (int i = 0, head = -64; i < 16; i++, head += 128)
 		{
-			MemoryCardFrame frame;
-			fread(&frame, sizeof(MemoryCardFrame), 1, memoryCards[chan]);
+			struct MemoryCardFrame frame;
+			fread(&frame, sizeof(struct MemoryCardFrame), 1, memoryCards[chan]);
 
 			if (i > MC_HEADER_FRAME_INDEX && frame.name[0] != '\0')
 			{

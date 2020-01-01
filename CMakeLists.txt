@@ -2,9 +2,6 @@ cmake_minimum_required (VERSION 3.0)
 
 project (TOMB5)
 
-#
-SET(EMSCRIPTEN FALSE CACHE STRING "Emscripten build enabled.")
-
 macro(OPTIONAL_DEFINE DEFNAME DESCRIPTION VALUE)
 	set(${DEFNAME} ${VALUE})
 	list(APPEND OPT_DEFINITIONS ${DEFNAME})
@@ -56,12 +53,9 @@ endif()
 #We want to be able to group projects in folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-list(APPEND CMAKE_PREFIX_PATH ${EXTERN_LIB_PATH}/glew-2.1.0)
-list(APPEND CMAKE_LIBRARY_PATH ${EXTERN_LIB_PATH}/glew-2.1.0/lib/Release/Win32)
-
 #Treat each platform specific directory as a sub-project.
 #Note: Travis/Appveyor ci only build PSXPC for now.
-if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR} OR UNIX OR ENSCRIPTEN))
+if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR} OR UNIX OR ENSCRIPTEN OR ANDROID))
 	add_subdirectory(SPEC_PSX)
 	add_subdirectory(SPEC_PC_N)
 	add_subdirectory(SPEC_PSXPC)
@@ -71,5 +65,8 @@ if(NOT(DEFINED ENV{TRAVIS} OR DEFINED ENV{APPVEYOR} OR UNIX OR ENSCRIPTEN))
 endif()
 
 #Default
+if(ANDROID)
+add_subdirectory(${ROOT_DIR}/EXTERNAL/SDL/ EXCLUDE_FROM_ALL)
+endif()
 add_subdirectory(EMULATOR)
 add_subdirectory(SPEC_PSXPC_N)

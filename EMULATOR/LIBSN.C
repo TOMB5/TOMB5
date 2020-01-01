@@ -1,17 +1,16 @@
 #include "LIBSN.H"
 
-#include <stdint.h>
-#include <stdio.h>
-#include <assert.h>
-#include "EMULATOR_GLOBALS.H"
+//#include "EMULATOR.H"
 
-uintptr_t fileHandle = NULL;
+#include <stdio.h>
+
+uintptr_t fileHandle = 0;
 
 #define INVALID_FILE_HANDLE (-1)
 
 int PCinit()
 {
-	UNIMPLEMENTED();
+	//UNIMPLEMENTED();
 	return 0;
 }
 
@@ -36,12 +35,12 @@ uintptr_t PCopen(char* name, int flags, int perms)
 		break;
 	}
 
-	return fileHandle == NULL ? INVALID_FILE_HANDLE : fileHandle;
+	return fileHandle == 0 ? INVALID_FILE_HANDLE : fileHandle;
 }
 
 int PCcreat(char* name, int perms)
 {
-	UNIMPLEMENTED();
+	//UNIMPLEMENTED();
 	return 0;
 }
 

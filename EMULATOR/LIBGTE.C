@@ -1,8 +1,10 @@
 #include "LIBGTE.H"
-#include "EMULATOR_GLOBALS.H"
+#include <stdio.h>
+#include "EMULATOR.H"
 #include "EMULATOR_PRIVATE.H"
 #include <assert.h>
-#include <stdio.h>
+
+#define WIDE_SCREEN (0)
 
 #define MAX_NUM_POLYGONS 32768
 int pgxp_polgon_table_index = 0;
@@ -1784,7 +1786,7 @@ unsigned char ida_chars[] =
   0xFA, 0xFF, 0x00, 0x10
 };
 
-unsigned int* rcossin_tbl = (unsigned int*)&ida_chars[0];///@FIXME convert to uint[];
+unsigned int* gte_rcossin_tbl = (unsigned int*)&ida_chars[0];///@FIXME convert to uint[];
 
 #ifndef max
 #   define max(a, b) ((a) > (b) ? (a) : (b))
@@ -1944,13 +1946,11 @@ inline long long gte_shift(long long a, int sf) {
 	return a;
 }
 
-typedef int64_t s64;
-
 int BOUNDS(/*int44*/long long value, int max_flag, int min_flag) {
-	if (value/*.positive_overflow()*/ > s64(0x7ffffffffff))
+	if (value/*.positive_overflow()*/ > (long long)0x7ffffffffff)
 		FLAG |= max_flag;
 
-	if (value/*.negative_overflow()*/ < s64(-0x80000000000))
+	if (value/*.negative_overflow()*/ < (long long)-0x8000000000)
 		FLAG |= min_flag;
 
 	return gte_shift(value/*.value()*/, m_sf);
@@ -2042,10 +2042,10 @@ unsigned int Lm_E(unsigned int result) {
 long long F(long long a) {
 	m_mac0 = a;
 
-	if (a > s64(0x7fffffff))
+	if (a > (long long)0x7fffffff)
 		FLAG |= (1 << 31) | (1 << 16);
 
-	if (a < s64(-0x80000000))
+	if (a < (long long)-0x80000000)
 		FLAG |= (1 << 31) | (1 << 15);
 
 	return a;
@@ -2148,7 +2148,7 @@ int docop2(int op) {
 		h_over_sz3 = Lm_E(gte_divide(H, SZ3));
 		SXY0 = SXY1;
 		SXY1 = SXY2;
-		SX2 = Lm_G1(F((long long)OFX + ((long long)IR1 * h_over_sz3) * (false ? 0.75 : 1)) >> 16);
+		SX2 = Lm_G1(F((long long)OFX + ((long long)IR1 * h_over_sz3) * (WIDE_SCREEN ? 0.75 : 1)) >> 16);
 		SY2 = Lm_G2(F((long long)OFY + ((long long)IR2 * h_over_sz3)) >> 16);
 		MAC0 = F((long long)DQB + ((long long)DQA * h_over_sz3));
 		IR0 = Lm_H(m_mac0, 1);
@@ -2731,7 +2731,7 @@ void PopMatrix()
 	}
 }
 
-long RotTransPers(SVECTOR* v0, long* sxy, long* p, long* flag)
+long RotTransPers(struct SVECTOR* v0, long* sxy, long* p, long* flag)
 {
 	VX0 = v0->vx;
 	VY0 = v0->vy;
@@ -2746,22 +2746,22 @@ long RotTransPers(SVECTOR* v0, long* sxy, long* p, long* flag)
 	return SZ3 >> 2;
 }
 
-void RotTrans(SVECTOR* v0, VECTOR* v1, long* flag)
+void RotTrans(struct SVECTOR* v0, VECTOR* v1, long* flag)
 {
 	UNIMPLEMENTED();
 }
 
-void NormalColorDpq(SVECTOR* v0, CVECTOR* v1, long p, CVECTOR* v2)
+void NormalColorDpq(struct SVECTOR* v0, struct CVECTOR* v1, long p, struct CVECTOR* v2)
 {
 	UNIMPLEMENTED();
 }
 
-void NormalColorCol(SVECTOR* v0, CVECTOR* v1, CVECTOR* v2)
+void NormalColorCol(struct SVECTOR* v0, struct CVECTOR* v1, struct CVECTOR* v2)
 {
 	UNIMPLEMENTED();
 }
 
-long RotAverageNclip4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
+long RotAverageNclip4(struct SVECTOR* v0, struct SVECTOR* v1, struct SVECTOR* v2, struct SVECTOR* v3, long* sxy0/*arg_10*/, long* sxy1/*arg_14*/, long* sxy2/*arg_18*/, long* sxy3/*arg_1C*/, long* p/*arg_20*/, long* otz/*arg_24*/, long* flag/*arg_28*/)
 {
 	VX0 = v0->vx;
 	VY0 = v0->vy;
@@ -2833,7 +2833,7 @@ void SetFarColor(long rfc, long gfc, long bfc)
 	UNIMPLEMENTED();
 }
 
-MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
+MATRIX* RotMatrix(struct SVECTOR* r, MATRIX* m)
 {
 	int t7 = r->vx;
 	int t9 = t7 & 0xFFF;
@@ -2850,7 +2850,7 @@ MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
 	{
 		t7 = -t7;
 		t7 &= 0xFFF;
-		t9 = rcossin_tbl[t7];
+		t9 = gte_rcossin_tbl[t7];
 		t8 = (t9 << 16) >> 16;
 		t3 = -t8;
 		t0 = t9 >> 16;
@@ -2858,7 +2858,7 @@ MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
 	else
 	{
 		//loc_244
-		t9 = rcossin_tbl[t9];
+		t9 = gte_rcossin_tbl[t9];
 		t3 = (t9 << 16) >> 16;
 		t0 = t9 >> 16;
 	}
@@ -2871,7 +2871,7 @@ MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
 	{
 		t7 = -t7;
 		t7 &= 0xFFF;
-		t9 = rcossin_tbl[t7];
+		t9 = gte_rcossin_tbl[t7];
 		t4 = (t9 << 16) >> 16;
 		t6 = -t4;
 		t1 = t9 >> 16;
@@ -2879,7 +2879,7 @@ MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
 	else
 	{
 		//loc_2A8
-		t9 = rcossin_tbl[t9];
+		t9 = gte_rcossin_tbl[t9];
 		t6 = (t9 << 16) >> 16;
 		t4 = -t6;
 		t1 = t9 >> 16;
@@ -2901,7 +2901,7 @@ MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
 		m->m[2][2] = t6;
 		t7 = -t7;
 		t7 &= 0xFFF;
-		t9 = rcossin_tbl[t7];
+		t9 = gte_rcossin_tbl[t7];
 		t8 = t9 & 0xFFFF;
 		t5 = -t8;
 		t2 = t9 >> 16;
@@ -2912,7 +2912,7 @@ MATRIX* RotMatrix(SVECTOR* r, MATRIX* m)
 		t7 = t8;
 		t6 = t7 >> 12;
 		m->m[2][2] = t6;
-		t9 = rcossin_tbl[t9];
+		t9 = gte_rcossin_tbl[t9];
 		t5 = t9 & 0xFFFF;
 		t2 = t9 >> 16;
 	}

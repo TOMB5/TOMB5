@@ -1,8 +1,6 @@
 #ifndef LIBGPU_H
 #define LIBGPU_H
 
-#include "TYPES.H"
-
 #include "LIBGTE.H"
 
 extern	int (*GPU_printf)(const char *fmt, ...);
@@ -295,6 +293,7 @@ extern	int (*GPU_printf)(const char *fmt, ...);
  * RECT16angle:
  */
 #pragma pack(push,1)
+
 typedef struct {
 	short x, y;		/* offset point on VRAM */
 	short w, h;		/* width and height */
