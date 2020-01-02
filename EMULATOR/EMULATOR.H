@@ -2,6 +2,7 @@
 #define EMULATOR_H
 
 #include "EMULATOR_PLATFORM_SETUP.H"
+#include "LIBGPU.H"
 
 #include <stdio.h>
 #include <stddef.h>
@@ -108,14 +109,6 @@ struct Vertex
 	float u0, v0;
 	float col[4];
 };
-
-#ifndef INCLUDED_RECT
-#define INCLUDED_RECT
-typedef struct {
-    short x, y;		/* offset point on VRAM */
-    short w, h;		/* width and height */
-} RECT16;
-#endif
 
 #pragma pack(pop)
 

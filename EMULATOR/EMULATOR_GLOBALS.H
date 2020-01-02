@@ -13,7 +13,7 @@ extern int windowHeight;
 extern uint32_t DMAControlRegister;
 extern int assetsLoaded;
 extern unsigned int g_defaultShaderProgram;
-
+extern unsigned int vramTexture;
 extern int g_defaultFBO;
 
 

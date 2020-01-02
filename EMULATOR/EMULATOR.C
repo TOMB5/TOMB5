@@ -46,7 +46,7 @@ int screenHeight = 0;
 int windowWidth = 0;
 int windowHeight = 0;
 char* pVirtualMemory = NULL;
-SysCounter counters[3] = {0};
+SysCounter counters[3] = { 0 };
 #if !defined(__ANDROID__)
 //std::thread counter_thread;
 #endif
@@ -80,22 +80,23 @@ int numConfigs = 0;
 
 const EGLint config16bpp[] =
 {
-        EGL_SURFACE_TYPE,EGL_WINDOW_BIT,
-        EGL_RENDERABLE_TYPE,EGL_OPENGL_ES3_BIT,
-        EGL_BUFFER_SIZE,24,
-        EGL_RED_SIZE,8,
-        EGL_GREEN_SIZE,8,
-        EGL_BLUE_SIZE,8,
-        EGL_ALPHA_SIZE,0,
-        EGL_DEPTH_SIZE,24,
-        EGL_STENCIL_SIZE,0,
-        EGL_SAMPLE_BUFFERS,1,
-        EGL_SAMPLES,4,
-        EGL_NONE
+#if OGLES_VERSION == 2
+        EGL_RENDERABLE_TYPE,EGL_OPENGL_ES2_BIT,
+#elif OGLES_VERSION == 3
+		EGL_RENDERABLE_TYPE,EGL_OPENGL_ES3_BIT,
+#endif
+		EGL_BUFFER_SIZE,24,
+		EGL_RED_SIZE,8,
+		EGL_GREEN_SIZE,8,
+		EGL_BLUE_SIZE,8,
+		EGL_ALPHA_SIZE,0,
+		EGL_DEPTH_SIZE,24,
+		EGL_STENCIL_SIZE,0,
+		EGL_SAMPLE_BUFFERS,1,
+		EGL_SAMPLES,4,
+		EGL_NONE
 };
 
-#include <string.h>
-#include <unistd.h>
 static int Emulator_InitialiseGLESContext(char* windowName)
 {
 	unsigned int windowFlags = SDL_WINDOW_OPENGL;
@@ -104,11 +105,15 @@ static int Emulator_InitialiseGLESContext(char* windowName)
 	windowFlags |= SDL_WINDOW_FULLSCREEN;
 #endif
 
-	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 2960, 1440, windowFlags);
-	sleep(5);
-	eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, windowFlags);
 
-    if (!eglInitialize(eglDisplay, &majorVersion, &minorVersion))
+	if(g_window == NULL)
+    {
+	    eprinterr("Failed to create SDL window!\n");
+    }
+
+	if (!eglInitialize(eglDisplay, &majorVersion, &minorVersion))
 	{
 		eprinterr("eglInitialize failure! Error: %x\n", eglGetError());
 		return FALSE;
@@ -132,8 +137,8 @@ static int Emulator_InitialiseGLESContext(char* windowName)
 	EGLNativeWindowType dummyWindow;
 	eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (EGLNativeWindowType)dummyWindow, NULL);
 #elif defined(__ANDROID__)
-	//eglSurface = eglGetCurrentSurface(GL)
-    eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (EGLNativeWindowType)systemInfo.info.android.window, NULL);
+	// eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (EGLNativeWindowType)systemInfo.info.android.window, NULL);
+	eglSurface = systemInfo.info.android.surface;
 #else
 	eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (EGLNativeWindowType)systemInfo.info.win.window, NULL);
 #endif
@@ -143,17 +148,16 @@ static int Emulator_InitialiseGLESContext(char* windowName)
 		return FALSE;
 	}
 
-	EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE };
+	EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, OGLES_VERSION, EGL_NONE };
 	eglContext = eglCreateContext(eglDisplay, eglConfig, EGL_NO_CONTEXT, contextAttribs);
 
-	if (eglContext == EGL_NO_CONTEXT)
-	{
-		eprinterr("eglContext failure! Error: %x\n", eglGetError());
-		return FALSE;
-	}
+	if (eglContext == EGL_NO_CONTEXT) {
+        eprinterr("eglContext failure! Error: %x\n", eglGetError());
+        return FALSE;
+    }
 
 	eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
-	
+
 	return TRUE;
 }
 
@@ -165,10 +169,7 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 	screenHeight = screenHeight;
 	windowWidth = screenWidth;
 	windowHeight = screenHeight;
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_EGL, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+
 	//Initialise SDL2
 	if (SDL_Init(SDL_INIT_VIDEO) == 0)
 	{
@@ -177,7 +178,10 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 #endif
 
 #if defined(OGLES)
-
+        //SDL_GL_SetAttribute(SDL_GL_CONTEXT_EGL, 1);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OGLES_VERSION);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 #elif defined(OGL)
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -261,7 +265,7 @@ void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
 		}
 		else
 		{
-			
+
 			pVirtualMemory = (char*)VirtualAlloc((void*)memInfo.BaseAddress, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
 #if _DEBUG
@@ -302,7 +306,7 @@ int Emulator_InitialiseGameVariables()
 #else
 	Emulator_AllocateVirtualMemory(0x400000, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
 #endif
-	
+
 	if (pVirtualMemory == NULL)
 	{
 		return 0;
@@ -329,7 +333,7 @@ void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 	eprintf("VERSION: %d.%d\n", EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION);
 	eprintf("Compile Date: %s Time: %s\n", EMULATOR_COMPILE_DATE, EMULATOR_COMPILE_TIME);
 
-    eprintf("Initialising SDL!");
+	eprintf("Initialising SDL!");
 	Emulator_InitialiseSDL(windowName, screenWidth, screenHeight);
 	eprintf("Initialised SDL!");
 #if defined(GLEW)
@@ -342,7 +346,7 @@ void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 	Emulator_InitialiseGL();
 #endif
 
-#if defined(__linux__) || defined(__APPLE__)
+#if (defined(__linux__) || defined(__APPLE__)) && !defined(__ANDROID__)
 	if (!Emulator_InitialiseGameVariables())
 	{
 		exit(0);
@@ -356,7 +360,7 @@ void Emulator_CounterLoop()
 {
 	static int numUpdates = 0;
 	int last_time = 0;
-	
+
 	while (TRUE)
 	{
 		int now = SDL_GetTicks();
@@ -367,7 +371,7 @@ void Emulator_CounterLoop()
 			last_time = now;
 		}
 
-		if(numUpdates++ <= 60)
+		if (numUpdates++ <= 60)
 		{
 			for (int i = 0; i < 3; i++)
 			{
@@ -962,7 +966,7 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 		unsigned int tpageX = ((tpage << 6) & 0x7C0) % VRAM_WIDTH;///@TODO macro
 		unsigned int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200)) % VRAM_HEIGHT;///@TODO macro
 
-		if (rect->x < tpageX + TPAGE_WIDTH && rect->x + rect->w > tpageX &&
+		if (rect->x < tpageX + TPAGE_WIDTH && rect->x + rect->w > tpageX&&
 			rect->y > tpageY + TPAGE_WIDTH && rect->y + rect->h < tpageY)
 		{
 			Emulator_DestroyTextures(1, &cachedTextures[i].textureID);
@@ -1174,8 +1178,14 @@ void Emulator_EndScene()
 #if defined(OGLES) || defined (OGL)
 	GLuint vbo, ibo, vao;
 	GLuint indexBuffer[] = { 0,1,2,0,2,3 };
+
+#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
+#else
+	glGenVertexArraysOES(1, &vao);
+	glBindVertexArrayOES(vao);
+#endif
 
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -1206,7 +1216,11 @@ void Emulator_EndScene()
 
 	glDeleteBuffers(1, &ibo);
 	glDeleteBuffers(1, &vbo);
-	glDeleteVertexArrays(1, &vao);
+#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
+    glDeleteVertexArrays(1, &vao);
+#else
+    glDeleteVertexArraysOES(1, &vao);
+#endif
 #endif
 
 #if _DEBUG && 0
@@ -1236,10 +1250,6 @@ void Emulator_ShutDown()
 	}
 #ifdef _WINDOWS
 	//VirtualFree(pVirtualMemory, 0, MEM_RELEASE);
-#endif
-
-#if D3D9
-	SDL_DestroyRenderer(g_Renderer);
 #endif
 
 	SDL_DestroyWindow(g_window);
@@ -1385,48 +1395,16 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	}
 	case TP_4BIT:
 	{
-		enum PixelBufferType
-		{
-			CLUT,
-			TPAGE,
-			NUM_PIXEL_BUFFER_OBJECTS
-		};
-
-		GLuint pixelBufferObjects[NUM_PIXEL_BUFFER_OBJECTS];
-
-		//Generate PBO for faster transfer
-		glGenBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[CLUT]);
-
-		//Bind the CLUT PBO
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[CLUT]);
-
-		//Allocate PBO size for CLUT
-		glBufferData(GL_PIXEL_PACK_BUFFER, (CLUT_WIDTH * CLUT_HEIGHT) * sizeof(GLushort), NULL, GL_DYNAMIC_READ);
+		unsigned short clut[CLUT_WIDTH * CLUT_HEIGHT];
 
 		//Read CLUT
-		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, TEXTURE_FORMAT, NULL);
+		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &clut[0]);
 
-		//Map buffer
-#if defined(__ANDROID__)
-		unsigned short* clut = (unsigned short*)glMapBufferRange(GL_ARRAY_BUFFER, 0, (CLUT_WIDTH * CLUT_HEIGHT) * sizeof(GLushort), GL_MAP_READ_BIT);
-#else
-		unsigned short* clut = (unsigned short*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-#endif
-		//Bind the tpage PBO
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[TPAGE]);
-
-		//Allocate PBO size for TPAGE
-		glBufferData(GL_PIXEL_PACK_BUFFER, (TPAGE_WIDTH / 4 * TPAGE_HEIGHT) * sizeof(GLushort), NULL, GL_DYNAMIC_READ);
+		unsigned short* tpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH / 4 * TPAGE_HEIGHT * sizeof(unsigned short));
 
 		//Read texture data
-		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, NULL);
+		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &tpage[0]);
 
-		//Map buffer
-#if defined(__ANDROID__)
-		unsigned short* tpage = (unsigned short*)glMapBufferRange(GL_ARRAY_BUFFER, 0, (TPAGE_WIDTH / 4 * TPAGE_HEIGHT) * sizeof(GLushort), GL_MAP_READ_BIT);
-#else
-		unsigned short* tpage = (unsigned short*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_WRITE);
-#endif
 		unsigned short convertedTpage[TPAGE_WIDTH * TPAGE_HEIGHT];
 		unsigned short* convertPixel = &convertedTpage[0];
 
@@ -1437,18 +1415,6 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 			*convertPixel++ = clut[(tpage[xy] & (0xF << 2 * 4)) >> (2 * 4)];
 			*convertPixel++ = clut[(tpage[xy] & (0xF << 3 * 4)) >> (3 * 4)];
 		}
-
-		//Unmap TPAGE pbo
-		glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-
-		//Bind CLUT pbo
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[CLUT]);
-
-		//Unmap CLUT pbo
-		glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-
-		//Delete buffers
-		glDeleteBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[CLUT]);
 
 #if defined(OGLES)
 #define ARGB1555toRGBA1555(x) ((x & 0x8000) >> 15) | ((x & 0x7FFF) << 1)
@@ -1472,8 +1438,8 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 
 		for (int xy = 0; xy < TPAGE_WIDTH * TPAGE_HEIGHT; xy++)
 		{
-			struct rgba5551* pixel = (struct rgba5551*)& convertedTpage[xy];
-			struct abgr1555* pixel2 = (struct abgr1555*)& convertedTpage[xy];
+			struct rgba5551* pixel = (struct rgba5551*) & convertedTpage[xy];
+			struct abgr1555* pixel2 = (struct abgr1555*) & convertedTpage[xy];
 
 			unsigned short r = pixel->r;
 			unsigned short g = pixel->g;
@@ -1518,7 +1484,7 @@ static int g_PreviousSemiTrans = 0;
 
 void Emulator_SetBlendMode(int mode, int semiTransparent)
 {
-	if(semiTransparent)
+	if (semiTransparent)
 	{
 		//If previous wasn't semi trans, enable blend
 		if (g_PreviousSemiTrans == 0)
@@ -1759,8 +1725,8 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 
 	for (int xy = 0; xy < w * h; xy++)
 	{
-		struct rgba5551* pixel = (struct rgba5551*)& convertedTpage[xy];
-		struct abgr1555* pixel2 = (struct abgr1555*)& convertedTpage[xy];
+		struct rgba5551* pixel = (struct rgba5551*) & convertedTpage[xy];
+		struct abgr1555* pixel2 = (struct abgr1555*) & convertedTpage[xy];
 
 		unsigned short r = pixel->r;
 		unsigned short g = pixel->g;
@@ -1783,8 +1749,8 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 #endif
 
 	SDL_free(clut);
-    SDL_free(texturePage);
-    SDL_free(convertedTpage);
+	SDL_free(texturePage);
+	SDL_free(convertedTpage);
 
 	//Set this to false so the emulator can search up and add textures
 	//That are not atlas hinted
@@ -1825,7 +1791,7 @@ void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned short 
 	fseek(f, 20, SEEK_SET);
 	fread(&clut[0], 16 * sizeof(short), 1, f);
 	fseek(f, 64, SEEK_SET);
-	fread(&texturePage[0], (w*h) / 2, 1, f);
+	fread(&texturePage[0], (w * h) / 2, 1, f);
 	fclose(f);
 
 	//For LOGO only, temporarily set injection x y position on 256x256 tpage
@@ -1864,8 +1830,8 @@ void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned short 
 
 	for (int xy = 0; xy < w * h; xy++)
 	{
-		struct rgba5551* pixel = (struct rgba5551*)& convertedTpage[xy];
-		struct abgr1555* pixel2 = (struct abgr1555*)& convertedTpage[xy];
+		struct rgba5551* pixel = (struct rgba5551*) & convertedTpage[xy];
+		struct abgr1555* pixel2 = (struct abgr1555*) & convertedTpage[xy];
 
 		unsigned short r = pixel->r;
 		unsigned short g = pixel->g;
@@ -1888,8 +1854,8 @@ void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned short 
 #endif
 
 	SDL_free(clut);
-    SDL_free(texturePage);
-    SDL_free(convertedTpage);
+	SDL_free(texturePage);
+	SDL_free(convertedTpage);
 
 	//Set this to false so the emulator can search up and add textures
 	//That are not atlas hinted
@@ -1912,4 +1878,3 @@ void Emulator_DestroyAllTextures()
 
 	return;
 }
-                                                                                                                                                           

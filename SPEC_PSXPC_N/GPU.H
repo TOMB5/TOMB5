@@ -14,7 +14,7 @@ extern int rgbscaleme;
 extern int gfx_debugging_mode;
 extern struct DB_STRUCT db;
 extern struct MMTEXTURE* RoomTextInfo;
-#if __linux__ || __APPLE__
+#if (__linux__ || __APPLE__) && !defined(__ANDROID__)
 extern unsigned long* GadwOrderingTables_V2;
 extern unsigned long* GadwOrderingTables;
 extern unsigned long* GadwPolygonBuffers;

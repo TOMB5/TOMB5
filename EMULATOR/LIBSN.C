@@ -22,6 +22,12 @@ uintptr_t PCopen(char* name, int flags, int perms)
 		++name;
 	}
 
+#if defined(__ANDROID__)
+	char buff[64];
+	sprintf(&buff[0], "/storage/emulated/0/TOMB5/%s", name);
+	name = &buff[0];
+#endif
+
 	switch (flags)
 	{
 	case 0:

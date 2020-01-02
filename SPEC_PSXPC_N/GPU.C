@@ -24,13 +24,13 @@ int rgbscaleme = 256;
 int gfx_debugging_mode;
 struct DB_STRUCT db;
 struct MMTEXTURE* RoomTextInfo;
-#if __linux__ || __APPLE__
+#if (__linux__ || __APPLE__) && !defined(__ANDROID__)
 unsigned long* GadwOrderingTables_V2;
 #else
 unsigned long GadwOrderingTables_V2[512];
 #endif
 static int LnFlipFrame;
-#if __linux__ || __APPLE__
+#if (__linux__ || __APPLE__) && !defined(__ANDROID__)
 unsigned long* GadwOrderingTables;
 unsigned long* GadwPolygonBuffers;
 #else
@@ -128,6 +128,7 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<) (F)
 
 	GnLastFrameCount = 0;
 	PutDispEnv(&db.disp[db.current_buffer]);
+
 	DrawOTagEnv(&db.ot[db.nOTSize-1], &db.draw[db.current_buffer]);
 
 #if DEBUG_VERSION
