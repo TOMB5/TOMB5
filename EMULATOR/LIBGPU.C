@@ -4,11 +4,14 @@
 #include "EMULATOR_GLOBALS.H"
 #include "EMULATOR_PRIVATE.H"
 
-#include <stdio.h>
 #include <stdint.h>
+
+#include <LIBETC.H>
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <LIBETC.H>
 
 DISPENV word_33BC;
 DRAWENV activeDrawEnv;
@@ -16,7 +19,7 @@ DRAWENV byte_9CCA4;
 int dword_3410 = 0;
 char byte_3352 = 0;
 
-
+#if 0
 char fontDebugTexture[] = 
 { 
 0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x10,0x10,0x00,0x00,0x00,0x00,0x00,
@@ -147,9 +150,9 @@ char fontDebugTexture[] =
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x11,0x01,
 0x00,0x00,0x00,0x00,0x00,0x11,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };
-
+#endif
 //unk_E88
-char fontDebugClut[] = { 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+unsigned char fontDebugClut[] = { 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 int g_wireframeMode = 0;
 int g_texturelessMode = 0;
@@ -158,17 +161,17 @@ struct VertexBufferSplitIndex
 {
 	unsigned short splitIndex;
 	unsigned short numVertices;
-	GLuint textureId;
-	GLubyte semiTrans;
-	GLubyte abr;
-	GLubyte primitiveType;
+	unsigned int textureId;
+	unsigned char semiTrans;
+	unsigned char abr;
+	unsigned char primitiveType;
 };
 
 #define MAX_NUM_POLY_BUFFER_VERTICES (12040)//?FIXME
 #define MAX_NUM_INDEX_BUFFERS (4096)
-Vertex g_vertexBuffer[MAX_NUM_POLY_BUFFER_VERTICES];
+struct Vertex g_vertexBuffer[MAX_NUM_POLY_BUFFER_VERTICES];
 unsigned char* g_IndexBuffer[MAX_NUM_INDEX_BUFFERS];
-VertexBufferSplitIndex g_splitIndices[MAX_NUM_INDEX_BUFFERS];
+struct VertexBufferSplitIndex g_splitIndices[MAX_NUM_INDEX_BUFFERS];
 int g_vertexIndex = 0;
 int currentIndexBuffer = 0;
 int g_numSplitIndices = 0;
@@ -223,47 +226,12 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 {
 	Emulator_CheckTextureIntersection(rect);
 	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
-
-	GLuint srcTexture;
-	GLuint srcFrameBuffer;
-
-	glGenTextures(1, &srcTexture);
-	Emulator_BindTexture(srcTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-#if defined(OGL)
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
-#elif defined(OGLES)
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &p[0]);
-#endif
-
-	/* Generate src Frame Buffer */
-	glGenFramebuffers(1, &srcFrameBuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
-
-	/* Bind src texture to src framebuffer */
-#if defined(OGLES)
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
-#elif defined(OGL)
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
-#endif
-
-	while (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		eprinterr("Frame buffer error: %x\n", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-	}
-
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
-	glBlitFramebuffer(0, 0, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, (rect->x + rect->w) * RESOLUTION_SCALE, (rect->y + rect->h) * RESOLUTION_SCALE, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	Emulator_BindTexture(vramTexture);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x, rect->y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
 
 #if _DEBUG && 0
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
 #endif
-
-	Emulator_DestroyTextures(1, &srcTexture);
-	Emulator_DestroyFrameBuffer(srcFrameBuffer);
 
 	return 0;
 }
@@ -288,77 +256,20 @@ int MargePrim(void* p0, void* p1)
 
 int MoveImage(RECT16* rect, int x, int y)
 {
-	//Emulator_CheckTextureIntersection(rect); Not yet need to construct actual rect
+	/*
+	RECT drawRect;
+	drawRect.x = x;
+	drawRect.y = y;
+	drawRect.w = rect->w;
+	drawRect.h = rect->h;
+	Emulator_CheckTextureIntersection(drawRect);
+	*/
 	glScissor(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
-	GLuint srcTexture;
-	GLuint srcFrameBuffer;
+	Emulator_BindTexture(vramTexture);
 
-	unsigned short* pixels = new unsigned short[rect->w * rect->h];///@FIXME res scale
-
-	/* Read in src pixels for rect */
-	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-
-	enum PixelBufferType
-	{
-		VRAM,
-		NUM_PIXEL_BUFFER_OBJECTS
-	};
-
-	GLuint pixelBufferObjects[NUM_PIXEL_BUFFER_OBJECTS];
-
-	//Generate PBO for faster transfer
-	glGenBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[VRAM]);
-
-	//Bind the VRAM PBO
-	glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferObjects[VRAM]);
-
-	//Allocate PBO size for VRAM
-	glBufferData(GL_PIXEL_PACK_BUFFER, (rect->w * rect->h) * sizeof(GLushort), NULL, GL_DYNAMIC_READ);
-
-	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, NULL);
-
-	glGenTextures(1, &srcTexture);
-	Emulator_BindTexture(srcTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect->w, rect->h, 0, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
-
-	//Unmap VRAM pbo
-	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-
-	//Delete buffers
-	glDeleteBuffers(NUM_PIXEL_BUFFER_OBJECTS, &pixelBufferObjects[VRAM]);
-
-	/* Generate src Frame Buffer */
-	glGenFramebuffers(1, &srcFrameBuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, srcFrameBuffer);
-
-	/* Bind src texture to src framebuffer */
-#if defined(OGLES)
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, srcTexture, 0);
-#elif defined(OGL)
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTexture, 0);
-#endif
-
-#if defined(OGL) || defined(OGLES)
-	while (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		eprinterr("Frame buffer error: %x\n", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-	}
-#endif
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFrameBuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, vramFrameBuffer);
-	glBlitFramebuffer(0, 0, rect->w, rect->h, x, y, x+rect->w, y + rect->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-#if _DEBUG
-	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
-#endif
-
-	Emulator_DestroyTextures(1, &srcTexture);
-	Emulator_DestroyFrameBuffer(srcFrameBuffer);
-
-	delete[] pixels;
+	unsigned short* pixels = (unsigned short*)SDL_malloc(rect->w * rect->h * sizeof(unsigned short));
+	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
 
 	return 0;
 }
@@ -402,7 +313,9 @@ u_long* ClearOTag(u_long* ot, int n)
 
 	for (int i = n - 2; i > -1; i--)
 	{
-		ot[i] = (unsigned long)& ot[i + 1];
+		ot[i] = (unsigned long)&ot[i + 1];
+		//Asset - Not 24-bit address, we need to crash now!
+		assert((ot[i] & 0xFF000000) == 0);
 	}
 
 	return NULL;
@@ -425,6 +338,8 @@ u_long* ClearOTagR(u_long* ot, int n)
 	for (int i = 1; i < n; i++)
 	{
 		ot[i] = (unsigned long)& ot[i - 1];
+		//Asset - Not 24-bit address, we need to crash now!
+		assert((ot[i] & 0xFF000000) == 0);
 	}
 
 	return NULL;
@@ -550,7 +465,7 @@ static unsigned short numVertices = 0;
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
 	/* Tell the shader to discard black */
-	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), true);
+	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), TRUE);
 
 	PutDrawEnv(env);
 
@@ -577,8 +492,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		numVertices = 0;
 		g_vertexIndex = 0;
 		g_numSplitIndices = 0;
-		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(Vertex));
-		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(VertexBufferSplitIndex));
+		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
+		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
 		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
@@ -588,18 +503,23 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
-
+#else
+		glGenVertexArraysOES(1, &vao);
+		glBindVertexArrayOES(vao);
+#endif
 		GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
 		GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
 		GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
 		glEnableVertexAttribArray(posAttrib);
 		glEnableVertexAttribArray(colAttrib);
 		glEnableVertexAttribArray(texAttrib);
-		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)12);
-		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)20);
+		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), 0);
+		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)12);
+		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)20);
 
 		do
 		{
@@ -614,7 +534,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		}while ((unsigned long)pTag != (unsigned long)&terminator);
 #endif
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
 		for (int i = 0; i < g_numSplitIndices; i++)
 		{
@@ -624,30 +544,39 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			}
 			else
 			{
+				assert(g_splitIndices[i].textureId < 1000);
 				Emulator_BindTexture(g_splitIndices[i].textureId);
 			}
 
 			Emulator_SetBlendMode(g_splitIndices[i].abr, g_splitIndices[i].semiTrans);
 
+#if !defined(OGLES)
 			if (g_wireframeMode)
 			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			}
+#endif
 
 			glDrawArrays(g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
 
+#if !defined(OGLES)
 			if (g_wireframeMode)
 			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
+#endif
 		}
 
 		glDeleteBuffers(1, &vbo);
 		glDisableVertexAttribArray(posAttrib);
 		glDisableVertexAttribArray(colAttrib);
 		glDisableVertexAttribArray(texAttrib);
-		glDeleteVertexArrays(1, &vao);
 
+#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
+		glDeleteVertexArrays(1, &vao);
+#else
+		glDeleteVertexArraysOES(1, &vao);
+#endif
 		glViewport(0, 0, windowWidth, windowHeight);
 	}
 
@@ -2386,7 +2315,7 @@ void CatPrim(void* p0, void* p1)
 void DrawOTag(u_long* p)
 {
 	/* Tell the shader to discard black */
-	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), true);
+	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), TRUE);
 
 	if (activeDrawEnv.dtd)
 	{
@@ -2412,8 +2341,8 @@ void DrawOTag(u_long* p)
 		g_vertexIndex = 0;
 		g_numSplitIndices = 0;
 
-		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(Vertex));
-		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(VertexBufferSplitIndex));
+		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
+		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
 
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
 		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
@@ -2425,18 +2354,23 @@ void DrawOTag(u_long* p)
 
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
-
+#else
+		glGenVertexArraysOES(1, &vao);
+		glBindVertexArrayOES(vao);
+#endif
 		GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
 		GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
 		GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
 		glEnableVertexAttribArray(posAttrib);
 		glEnableVertexAttribArray(colAttrib);
 		glEnableVertexAttribArray(texAttrib);
-		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)12);
-		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)20);
+		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), 0);
+		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)12);
+		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)20);
 
 		do
 		{
@@ -2451,7 +2385,7 @@ void DrawOTag(u_long* p)
 		} while ((unsigned long)pTag != (unsigned long)& terminator);
 #endif
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
 		for (int i = 0; i < g_numSplitIndices; i++)
 		{
@@ -2466,24 +2400,31 @@ void DrawOTag(u_long* p)
 
 			Emulator_SetBlendMode(g_splitIndices[i].abr, g_splitIndices[i].semiTrans);
 
+#if !defined(OGLES)
 			if (g_wireframeMode)
 			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			}
-
+#endif
 			glDrawArrays(g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
 
+#if !defined(OGLES)
 			if (g_wireframeMode)
 			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
+#endif
 		}
 
 		glDeleteBuffers(1, &vbo);
 		glDisableVertexAttribArray(posAttrib);
 		glDisableVertexAttribArray(colAttrib);
 		glDisableVertexAttribArray(texAttrib);
+#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 		glDeleteVertexArrays(1, &vao);
+#else
+		glDeleteVertexArraysOES(1, &vao);
+#endif
 
 		glViewport(0, 0, windowWidth, windowHeight);
 	}
@@ -2613,7 +2554,7 @@ void SetPolyG4(POLY_G4* p)
 void DrawPrim(void* p)
 {
 	/* Tell the shader to discard black */
-	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), true);
+	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), TRUE);
 
 	if (activeDrawEnv.dtd)
 	{
@@ -2631,8 +2572,8 @@ void DrawPrim(void* p)
 		numVertices = 0;
 		g_vertexIndex = 0;
 		g_numSplitIndices = 0;
-		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(Vertex));
-		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(VertexBufferSplitIndex));
+		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
+		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
 		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
@@ -2642,22 +2583,27 @@ void DrawPrim(void* p)
 
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
-
+#else
+		glGenVertexArraysOES(1, &vao);
+		glBindVertexArrayOES(vao);
+#endif
 		GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
 		GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
 		GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
 		glEnableVertexAttribArray(posAttrib);
 		glEnableVertexAttribArray(colAttrib);
 		glEnableVertexAttribArray(texAttrib);
-		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)12);
-		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)20);
+		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), 0);
+		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)12);
+		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)20);
 
 		ParsePrimitive(pTag);
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
 		for (int i = 0; i < g_numSplitIndices; i++)
 		{
@@ -2672,24 +2618,31 @@ void DrawPrim(void* p)
 
 			Emulator_SetBlendMode(g_splitIndices[i].abr, g_splitIndices[i].semiTrans);
 
+#if !defined(OGLES)
 			if (g_wireframeMode)
 			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			}
-
+#endif
 			glDrawArrays(g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
 
+#if !defined(OGLES)
 			if (g_wireframeMode)
 			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
+#endif
 		}
 
 		glDeleteBuffers(1, &vbo);
 		glDisableVertexAttribArray(posAttrib);
 		glDisableVertexAttribArray(colAttrib);
 		glDisableVertexAttribArray(texAttrib);
+#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 		glDeleteVertexArrays(1, &vao);
+#else
+		glDeleteVertexArraysOES(1, &vao);
+#endif
 
 		glViewport(0, 0, windowWidth, windowHeight);
 	}

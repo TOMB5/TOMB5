@@ -1,22 +1,17 @@
 #include "LIBETC.H"
 
-#include "EMULATOR.H"
-#include "EMULATOR_GLOBALS.H"
 #include "EMULATOR_PRIVATE.H"
+#include "EMULATOR.H"
 
-#include <stdio.h>
 #if defined(_WINDOWS)
 #include <d3d9.h>
 #endif
-
-#include <assert.h>
 
 void(*vsync_callback)(void) = NULL;
 
 int ResetCallback(void)
 {
 	vsync_callback = NULL;
-	UNIMPLEMENTED();
 	return 0;
 }
 

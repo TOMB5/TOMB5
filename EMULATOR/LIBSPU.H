@@ -1,5 +1,5 @@
-#ifndef _LIBSPU_H_
-#define _LIBSPU_H_
+#ifndef LIBSPU_H
+#define LIBSPU_H
 
 /*****************************************************************
  * -*- c -*-

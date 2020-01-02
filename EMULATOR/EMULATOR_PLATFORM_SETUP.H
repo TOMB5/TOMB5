@@ -17,7 +17,12 @@
 
 #elif defined(__EMSCRIPTEN__) || defined(__ANDROID__)
 #define OGLES
+#define OGLES_VERSION (2)
+#if OGLES_VERSION == 2
+#define ES2_SHADERS
+#elif OGLES_VERSION == 3
 #define ES3_SHADERS
+#endif
 #endif
 
 #if defined(GLEW)
@@ -53,7 +58,13 @@
 #include <SDL_opengl.h>///@FIXME see mac!
 #elif defined (OGLES)
 #include <SDL_syswm.h>
+#if OGLES_VERSION == 2
+#define GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#elif OGLES_VERSION == 3
 #include <GLES3/gl3.h>
+#endif
 #include <EGL/egl.h>
 #endif
 

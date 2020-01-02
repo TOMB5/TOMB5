@@ -2,6 +2,10 @@ if(MSVC)
 
 Message("Compiling for Windows!")
 
+#
+list(APPEND CMAKE_PREFIX_PATH ${EXTERN_LIB_PATH}/glew-2.1.0)
+list(APPEND CMAKE_LIBRARY_PATH ${EXTERN_LIB_PATH}/glew-2.1.0/lib/Release/Win32)
+
 #Find libs
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)

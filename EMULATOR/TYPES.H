@@ -1,7 +1,7 @@
 #ifndef	_SYS_TYPES_H
 #define	_SYS_TYPES_H
 
-#ifndef __APPLE__
+#if !defined(__APPLE__)
 /* major part of a device */
 #define	major(x)	((int)(((unsigned)(x)>>8)&0377))
 
@@ -50,12 +50,14 @@ typedef	struct	label_t	{
 	int	val[12];
 } label_t;
 
+#if !defined(__ANDROID__)
 typedef	struct	_quad { long val[2]; } quad;
 typedef	long	daddr_t;
 typedef	char *	caddr_t;
 typedef	long *	qaddr_t;
 //typedef	u_long	ino_t;
 typedef	long	swblk_t;
+#endif
 
 #if !defined(__EMSCRIPTEN__)
 #ifndef _SIZE_T

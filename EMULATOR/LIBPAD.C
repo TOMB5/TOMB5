@@ -1,13 +1,6 @@
 #include "LIBPAD.H"
 
-#if __APPLE__
-#include <SDL2/SDL.h>
-#else
-#include <SDL.h>
-#endif
-#include <stdio.h>
-#include <assert.h>
-#include "EMULATOR_GLOBALS.H"
+#include "EMULATOR.H"
 
 SDL_GameController* padHandle[MAX_CONTROLLERS];
 unsigned char* padData[MAX_CONTROLLERS];
@@ -109,18 +102,18 @@ int PadGetState(int port)
 	return 0;
 }
 
-int PadInfoMode(int unk00, int, int unk01)
+int PadInfoMode(int unk00, int unk01, int unk02)
 {
 	return 7;//?
 }
 
-int PadInfoAct(int unk00, int, int unk01)
+int PadInfoAct(int unk00, int unk01, int unk02)
 {
 	UNIMPLEMENTED();
 	return 0;
 }
 
-int PadInfoComb(int unk00, int, int unk01)
+int PadInfoComb(int unk00, int unk01, int unk02)
 {
 	UNIMPLEMENTED();
 	return 0;

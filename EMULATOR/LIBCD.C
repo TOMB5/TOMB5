@@ -1,12 +1,10 @@
 #include "LIBCD.H"
 
-#include <stdint.h>
+#include "EMULATOR_SETUP.H"
+#include "EMULATOR.H"
+
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
-#include "EMULATOR.H"
-#include "EMULATOR_GLOBALS.H"
-#include "EMULATOR_SETUP.H"
 
 int CD_Debug = 0;
 
@@ -22,7 +20,7 @@ typedef struct commandQueue
 
 #define COMMAND_QUEUE_SIZE 128
 
-commandQueue comQueue[COMMAND_QUEUE_SIZE];
+struct commandQueue comQueue[COMMAND_QUEUE_SIZE];
 int comQueueIndex = 0;
 int comQueueCount = 0;
 int currentSector = 0;
@@ -70,17 +68,17 @@ CdlFILE* CdSearchFile(CdlFILE* fp, char* name)
 		fseek(openFile, 22 * sectorSize, SEEK_SET);
 
 		int tocLocalOffset = 0;
-		Sector sector;
-		fread(&sector, sizeof(Sector), 1, openFile);
-		TOC* toc = (TOC*)&sector.data[0];
+        struct Sector sector;
+		fread(&sector, sizeof(struct Sector), 1, openFile);
+        struct TOC* toc = (struct TOC*)&sector.data[0];
 		while (toc->tocEntryLength != 0)
 		{
-			if (strcmp((char*)&sector.data[tocLocalOffset + sizeof(TOC)], name) == 0)
+			if (strcmp((char*)&sector.data[tocLocalOffset + sizeof(struct TOC)], name) == 0)
 			{
-				memcpy(&fp->name[0], (char*)&sector.data[tocLocalOffset + sizeof(TOC)], strlen(name));
+				memcpy(&fp->name[0], (char*)&sector.data[tocLocalOffset + sizeof(struct TOC)], strlen(name));
 				fp->size = toc->fileSize[0];
 				fseek(openFile, toc->sectorPosition[0] * sectorSize, SEEK_SET);
-				fread(&sector, sizeof(Sector), 1, openFile);
+				fread(&sector, sizeof(struct Sector), 1, openFile);
 				fp->pos.minute = sector.addr[0];
 				fp->pos.second = sector.addr[1];
 				fp->pos.sector = sector.addr[2];
@@ -92,7 +90,7 @@ CdlFILE* CdSearchFile(CdlFILE* fp, char* name)
 				return fp;
 			}
 			tocLocalOffset += toc->tocEntryLength;
-			toc = (TOC*)&sector.data[tocLocalOffset];
+			toc = (struct TOC*)&sector.data[tocLocalOffset];
 		}
 	}
 
@@ -196,8 +194,8 @@ int CdReadSync(int mode, u_char* result)
 	{
 		if (comQueue[i].processed == 0)
 		{
-			Sector sector;
-			fread(&sector, sizeof(Sector), 1, openFile);
+            struct Sector sector;
+			fread(&sector, sizeof(struct Sector), 1, openFile);
 
 			memcpy(comQueue[i].p, &sector.data[0], 2048);
 			comQueue[i].p += 2048;

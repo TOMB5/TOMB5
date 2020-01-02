@@ -1,10 +1,9 @@
 #include "LIBSPU.H"
 #include "LIBETC.H"
 #include <stdio.h>
-#include <stdint.h>
-#include "EMULATOR_GLOBALS.H"
-#include <stdlib.h>
-#include <cstring>
+#include "EMULATOR.H"
+
+#include <string.h>
 
 enum VV_Phase
 {
@@ -38,20 +37,20 @@ union VoiceVolume
 {
 	struct
 	{
-		uint16_t Volume : 14;
-		uint16_t Phase : 1;
+		unsigned short Volume : 14;
+		unsigned short Phase : 1;
 	} VolumeMode;
 
 	struct
 	{
-		uint16_t Volume : 7;
-		uint16_t _pad : 5;
-		uint16_t Phase : 1;
-		uint16_t Mode : 1;
-		uint16_t Slope : 1;
+		unsigned short Volume : 7;
+		unsigned short _pad : 5;
+		unsigned short Phase : 1;
+		unsigned short Mode : 1;
+		unsigned short Slope : 1;
 	} SweepMode;
 
-	uint16_t Raw;
+	unsigned short Raw;
 };
 
 struct VoiceData
@@ -59,33 +58,33 @@ struct VoiceData
 	union VoiceVolume VolumeLeft;
 	union VoiceVolume VolumeRight;
 
-	uint16_t Pitch;
+	unsigned short Pitch;
 
-	uint16_t StartAddress;
+	unsigned short StartAddress;
 
-	uint16_t SustainLevel : 4;
-	uint16_t DecayRate : 4;
-	uint16_t AttackRate : 7;
-	uint16_t AttackMode : 1; // lin or exp
+	unsigned short SustainLevel : 4;
+	unsigned short DecayRate : 4;
+	unsigned short AttackRate : 7;
+	unsigned short AttackMode : 1; // lin or exp
 
-	uint16_t ReleaseRate : 5;
-	uint16_t DecreaseMode : 1; // lin or exp
-	uint16_t SustainRate : 7;
-	uint16_t _pad : 1;
-	uint16_t SustainRateMode : 1; // inc or dec
-	uint16_t SustainRateSlope : 1; // lin or exp
+	unsigned short ReleaseRate : 5;
+	unsigned short DecreaseMode : 1; // lin or exp
+	unsigned short SustainRate : 7;
+	unsigned short _pad : 1;
+	unsigned short SustainRateMode : 1; // inc or dec
+	unsigned short SustainRateSlope : 1; // lin or exp
 
-	uint16_t CurrentADSRVolume;
+	unsigned short CurrentADSRVolume;
 
-	uint16_t RepeatAddress;
+	unsigned short RepeatAddress;
 };
 
 struct VoiceData Voices[24]; // 0x1F801C00
 
 struct ReverbDepthInfo
 {
-	uint16_t Volume : 15;
-	uint16_t Phase : 1;
+	unsigned short Volume : 15;
+	unsigned short Phase : 1;
 };
 
 struct
@@ -98,12 +97,12 @@ struct
 {
 	struct
 	{
-		uint16_t Volume : 15;
-		uint16_t Phase : 1;
+		unsigned short Volume : 15;
+		unsigned short Phase : 1;
 	} Left, Right;
 } ReverbDepth; // 1f801d84 
 
-uint32_t SPU_DELAY = 0x200931E1; // 1F801014h
+unsigned int SPU_DELAY = 0x200931E1; // 1F801014h
 
 int AllocBlockNum = 0;
 int AllocLastNum = 0;
@@ -137,10 +136,10 @@ int startAddr[20] =
 	2, 1240, 984, 2312, 3580, 
 	5564, 7896, 12296, 12296, 1920
 };
-uint32_t DMAControlRegister = 0;
-uint32_t DMA1 = 0;
-uint32_t DMA2 = 0;
-uint32_t DMA3 = 0;
+unsigned int DMAControlRegister = 0;
+unsigned int DMA1 = 0;
+unsigned int DMA2 = 0;
+unsigned int DMA3 = 0;
 void* RXX[6] = 
 {
 	&Voices, &DMA1, &DMA2, &DMA3, &DMAControlRegister, &SPU_DELAY
@@ -161,9 +160,9 @@ long spu_b_size = 0;
 
 unsigned long SpuWrite(unsigned char * addr, unsigned long size)
 {
-	eprintf("SPU WRITE size=%d\n", size);
-	memcpy(spu_buf, addr, size);
-	spu_b_size = size;
+	//eprintf("SPU WRITE size=%d\n", size);
+	//memcpy(spu_buf, addr, size);
+	//spu_b_size = size;
 	UNIMPLEMENTED();
 	return 0;
 }
@@ -195,7 +194,7 @@ void SpuInit(void)
 	eprintf("SpuInit\n");
 	ResetCallback();
 	UNIMPLEMENTED();
-	spu_buf = (char*)malloc(1024 * 1024);
+	spu_buf = NULL;/* (char*)malloc(1024 * 1024)*/;
 }
 
 long SpuSetReverb(long on_off)
@@ -231,7 +230,7 @@ long SpuInitMalloc(long num, char * top)
 
 long SpuMalloc(long size)
 {
-	return (long)(uintptr_t)malloc(size);
+	return 0/*(long)(uintptr_t)malloc(size)*/;
 }
 
 long SpuMallocWithStartAddr(unsigned long addr, long size)
@@ -242,7 +241,7 @@ long SpuMallocWithStartAddr(unsigned long addr, long size)
 
 void SpuFree(unsigned long addr)
 {
-	free((void*)(uintptr_t)addr);
+	/*free((void*)(uintptr_t)addr)*/;
 }
 
 void SpuSetCommonMasterVolume(short mvol_left, short mvol_right)// (F)
