@@ -227,7 +227,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	Emulator_CheckTextureIntersection(rect);
 	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 	Emulator_BindTexture(vramTexture);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x, rect->y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
 
 #if _DEBUG && 0
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
@@ -267,8 +267,8 @@ int MoveImage(RECT16* rect, int x, int y)
 	glScissor(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
 	Emulator_BindTexture(vramTexture);
 
-	unsigned short* pixels = (unsigned short*)SDL_malloc(rect->w * rect->h * sizeof(unsigned short));
-	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
+	unsigned short* pixels = (unsigned short*)SDL_malloc(rect->w * RESOLUTION_SCALE * rect->h * RESOLUTION_SCALE * sizeof(unsigned short));
+	glReadPixels(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
 
 	return 0;
