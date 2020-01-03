@@ -1,1 +1,4 @@
-cmake -B %cd%/EMSCRIPTEN/ -DEMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES=1 -DEMSCRIPTEN:BOOL=TRUE -DCMAKE_TOOLCHAIN_FILE=%cd%\External\emsdk\fastcomp\emscripten\cmake\Modules\Platform\Emscripten.cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" %cd%\
+mkdir EMSCRIPTEN
+cd EMSCRIPTEN
+emconfigure cmake ../ -DEMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES=1 -G "MinGW Makefiles"
+mingw32-make
