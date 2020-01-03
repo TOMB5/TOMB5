@@ -18,11 +18,6 @@
 #endif
 #include <assert.h>
 
-#if (defined(__linux__) || defined(__APPLE__) && !defined(__ANDROID__))
-//#include <sys/mman.h>
-//#include <unistd.h>
-#endif
-
 #define VERTEX_COLOUR_MULT (2)
 
 #if defined(NTSC_VERSION)
@@ -230,103 +225,6 @@ static void Emulator_InitialiseCore()
 	SDL_memset(&cachedTextures[0], -1, MAX_NUM_CACHED_TEXTURES * sizeof(struct CachedTexture));
 }
 
-void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size)
-{
-	do
-	{
-#if (__linux__ || __APPLE__) && !defined(__ANDROID__)
-		pVirtualMemory = (char*)mmap((void*)baseAddress, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_SHARED, 0, 0);
-#endif
-
-#ifdef _WINDOWS
-		size = size + (4096 - 1) & ~(4096 - 1);
-		baseAddress = baseAddress + (4096 - 1) & ~(4096 - 1);
-		MEMORY_BASIC_INFORMATION memInfo;
-		VirtualQuery((void*)baseAddress, &memInfo, size);
-#if _DEBUG
-		printf("VQ: %d\n", GetLastError());
-#endif
-		if (!(memInfo.State & MEM_FREE))
-		{
-			if (memInfo.Type & MEM_MAPPED)
-			{
-#if _DEBUG
-				printf("Mapped\n");
-#endif
-			}
-			else
-			{
-#if _DEBUG
-				printf("Not Mapped\n");
-#endif
-				VirtualUnlock((void*)baseAddress, memInfo.RegionSize);
-				VirtualFree((void*)baseAddress, NULL, MEM_RELEASE);
-			}
-		}
-		else
-		{
-
-			pVirtualMemory = (char*)VirtualAlloc((void*)memInfo.BaseAddress, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-
-#if _DEBUG
-			printf("VA: %d\n", GetLastError());
-#endif
-		}
-#endif
-
-		if (pVirtualMemory)
-		{
-			printf("%x\n", (unsigned int)baseAddress);
-			//VirtualLock((void*)baseAddress, size);
-			break;
-		}
-
-	} while (baseAddress += size);
-
-	if (pVirtualMemory == NULL)
-	{
-		printf("Failed to map virtual memory!\n");
-	}
-
-	return;
-}
-
-int Emulator_InitialiseGameVariables()
-{
-#if defined(__linux__) || defined(__APPLE__)
-	extern unsigned long* GadwOrderingTables;
-	extern unsigned long* GadwPolygonBuffers;
-	extern unsigned long* GadwOrderingTables_V2;
-	extern unsigned long* terminator;
-
-#if defined(_WINDOWS)
-	SYSTEM_INFO info;
-	GetSystemInfo(&info);
-	Emulator_AllocateVirtualMemory((unsigned int)info.lpMinimumApplicationAddress, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
-#else
-	Emulator_AllocateVirtualMemory(0x400000, (5128 * 4) + (52260 * 4) + (512 * 4) + 4);
-#endif
-
-	if (pVirtualMemory == NULL)
-	{
-		return 0;
-	}
-	if ((uintptr_t)pVirtualMemory & 0xFF000000)
-	{
-		printf("*********************************************************************** And an error occured!\n");
-		return 0;
-	}
-
-	GadwOrderingTables = (unsigned long*)&pVirtualMemory[0];
-	GadwPolygonBuffers = (unsigned long*)&pVirtualMemory[(5128 * 4)];
-	GadwOrderingTables_V2 = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4)];
-	terminator = (unsigned long*)&pVirtualMemory[(5128 * 4) + (52260 * 4) + (512 * 4)];
-	*terminator = -1;
-#endif
-	return 1;
-}
-
-
 void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 {
 	eprintf("Initialising Emulator.\n");
@@ -344,13 +242,6 @@ void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 
 #if defined(OGL) || defined(OGLES)
 	Emulator_InitialiseGL();
-#endif
-
-#if (defined(__linux__) || defined(__APPLE__)) && !defined(__ANDROID__)
-	if (!Emulator_InitialiseGameVariables())
-	{
-		exit(0);
-	}
 #endif
 
 	//counter_thread = std::thread(Emulator_CounterLoop);
@@ -924,7 +815,9 @@ GLuint g_lastBoundTexture = -1;
 
 void Emulator_BindTexture(GLuint textureId)
 {
+#if !defined(__EMSCRIPTEN__)
 	assert(textureId < 1000);
+#endif
 	if (g_lastBoundTexture != textureId)
 	{
 		glBindTexture(GL_TEXTURE_2D, textureId);
@@ -1346,7 +1239,9 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		tpageTexture->tpage = tpage;
 		tpageTexture->clut = clut;
 		glGenTextures(1, &tpageTexture->textureID);
+#if !defined(__EMSCRIPTEN__)
 		assert(tpageTexture->textureID < 1000);
+#endif
 		Emulator_BindTexture(tpageTexture->textureID);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

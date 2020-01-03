@@ -12,6 +12,7 @@ struct PGXPPolygon pgxp_polygons[MAX_NUM_POLYGONS];
 
 GTERegisters gteRegs;
 
+
 #define GTE_SF(op) ((op >> 19) & 1)
 #define GTE_MX(op) ((op >> 17) & 3)
 #define GTE_V(op) ((op >> 15) & 3)

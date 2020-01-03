@@ -4,10 +4,6 @@ project (Emulator_${TARGET_ARCH})
 
 set(OPT_DEFINITIONS "")
 
-#Target C98
-set(CMAKE_CXX_STANDARD 98)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
