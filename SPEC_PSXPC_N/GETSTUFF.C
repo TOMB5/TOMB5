@@ -280,11 +280,11 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 		floor = &r->floor[dz + (dx * r->x_size)];
 		door = GetDoor(floor);
 
-		if (door != -1)
+		if (door != 255)
 		{
 			*room_number = door;
 		}
-	} while (door != -1);
+	} while (door != 255);
 
 	//loc_78A50
 	if (y >= floor->floor << 8)
@@ -416,7 +416,7 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 	while (f->sky_room != 0xFF)
 	{
 		//loc_7908C
-		if (CheckNoColCeilingTriangle(floor, x, z) == 1)
+		if (CheckNoColCeilingTriangle(f, x, z) == 1)
 		{
 			break;
 		}
@@ -532,7 +532,7 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 		while (f->pit_room != 0xFF)
 		{
 			//loc_79258
-			if (CheckNoColFloorTriangle(floor, x, z) == 1)
+			if (CheckNoColFloorTriangle(f, x, z) == 1)
 			{
 				break;
 			}
