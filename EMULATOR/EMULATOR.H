@@ -17,6 +17,12 @@
 #define NULL		0
 #endif
 
+#if !((defined OGL) || (defined(OGLES) && OGLES_VERSION == 3))
+    #define glGenVertexArrays       glGenVertexArraysOES
+    #define glBindVertexArray       glBindVertexArrayOES
+    #define glDeleteVertexArrays    glDeleteVertexArraysOES
+#endif
+
 #ifdef _MSC_VER
 #define FUNCNAME __FUNCTION__
 #else
@@ -105,13 +111,19 @@ extern SysCounter counters[3];
 #pragma pack(push,1)
 struct Vertex
 {
-	float x, y, z;
-	float u0, v0;
-	float col[4];
+    short  x, y;
+    short  clut, page;
+    u_char u, v, pad0, pad1;
+    u_char r, g, b, a;
 };
 
 #pragma pack(pop)
 
+enum ShaderAttrib {
+    a_position,
+    a_texcoord,
+    a_color,
+};
 
 enum BlendMode
 {
@@ -139,12 +151,12 @@ extern void Emulator_CounterLoop();
 extern void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3);
 extern void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h);
 extern void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
-extern void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, int bMultiplyColour);
+extern void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3);
 extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
 extern int Emulator_InitialiseGameVariables();
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
-extern void Emulator_Scalef(float sx, float sy, float sz);
 extern void Emulator_BindTexture(unsigned int textureId);
 extern void Emulator_DestroyTextures(int numTextures, unsigned int* textures);
+extern void Emulator_SetVertexDecl(const Vertex *ptr);
 
 #endif

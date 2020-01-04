@@ -465,7 +465,7 @@ static unsigned short numVertices = 0;
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
 	/* Tell the shader to discard black */
-	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), TRUE);
+	glUniform1i(glGetUniformLocation(g_gte_shader, "bDiscardBlack"), TRUE);
 
 	PutDrawEnv(env);
 
@@ -494,8 +494,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		g_numSplitIndices = 0;
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
-		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
-		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
+		Emulator_Ortho2D(0.0f, VRAM_WIDTH / RESOLUTION_SCALE, 0.0f, VRAM_HEIGHT / RESOLUTION_SCALE, 0.0f, 1.0f);
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
@@ -504,22 +503,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
-#else
-		glGenVertexArraysOES(1, &vao);
-		glBindVertexArrayOES(vao);
-#endif
-		GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
-		GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
-		GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
-		glEnableVertexAttribArray(posAttrib);
-		glEnableVertexAttribArray(colAttrib);
-		glEnableVertexAttribArray(texAttrib);
-		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), 0);
-		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)12);
-		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)20);
+
+        Emulator_SetVertexDecl(NULL);
 
 		do
 		{
@@ -568,15 +555,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		}
 
 		glDeleteBuffers(1, &vbo);
-		glDisableVertexAttribArray(posAttrib);
-		glDisableVertexAttribArray(colAttrib);
-		glDisableVertexAttribArray(texAttrib);
-
-#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 		glDeleteVertexArrays(1, &vao);
-#else
-		glDeleteVertexArraysOES(1, &vao);
-#endif
 		glViewport(0, 0, windowWidth, windowHeight);
 	}
 
@@ -656,7 +635,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			}
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 			g_vertexIndex += 3;
 			numVertices += 3;
@@ -697,7 +676,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 			g_vertexIndex += 3;
 			numVertices += 3;
@@ -735,7 +714,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, -1, -1);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0,	NULL, NULL, NULL, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0,	NULL, NULL, NULL);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -781,7 +760,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -824,7 +803,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			}
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL);
 
 			g_vertexIndex += 3;
 			numVertices += 3;
@@ -864,8 +843,8 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			}
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
-			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL, TRUE);
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u1, &poly->u1, &poly->u2, NULL, -1, -1);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL);
 
 			g_vertexIndex += 3;
 			numVertices += 3;
@@ -904,7 +883,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, -1, -1);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -950,7 +929,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -993,7 +972,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			}
 
 			Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, NULL, NULL);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 			g_vertexIndex += 2;
 			numVertices += 2;
@@ -1037,7 +1016,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				{
 					//First line
 					Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, NULL, NULL);
-					Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+					Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 					g_vertexIndex += 2;
 					numVertices += 2;
 					forceNewLine = TRUE;
@@ -1046,7 +1025,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				{
 					//Second line
 					Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x1, &poly->x2, NULL, NULL);
-					Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+					Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 					g_vertexIndex += 2;
 					numVertices += 2;
 				}
@@ -1085,7 +1064,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			}
 
 			Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, NULL, NULL);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, NULL, NULL, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, NULL, NULL);
 
 			g_vertexIndex += 2;
 			numVertices += 2;
@@ -1123,7 +1102,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			}
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, poly->w, poly->h);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1170,7 +1149,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, poly->w, poly->h);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, NULL, NULL, NULL, poly->w, poly->h);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1214,7 +1193,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 1, 1);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, 1, 1);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1258,7 +1237,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 8, 8);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, 8, 8);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1304,7 +1283,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 8, 8);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, NULL, NULL, NULL, 8, 8);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1348,7 +1327,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 16, 16);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, 16, 16);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1394,7 +1373,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 16, 16);
 			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, NULL, NULL, NULL, 16, 16);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 			//Make tri
 			g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1498,7 +1477,7 @@ void ParsePrimitive(P_TAG* pTag)
 		}
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 		g_vertexIndex += 3;
 		numVertices += 3;
@@ -1537,7 +1516,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 		g_vertexIndex += 3;
 		numVertices += 3;
@@ -1574,7 +1553,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, -1, -1);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 		//Make tri
 		g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1618,7 +1597,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 		//Make tri
 		g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1657,7 +1636,7 @@ void ParsePrimitive(P_TAG* pTag)
 		}
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL);
 
 		g_vertexIndex += 3;
 		numVertices += 3;
@@ -1696,7 +1675,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u2, NULL, -1, -1);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL);
 
 		g_vertexIndex += 3;
 		numVertices += 3;
@@ -1733,7 +1712,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, -1, -1);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2);
 
 		//Make tri
 		g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1777,7 +1756,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u3, &poly->u2, -1, -1);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r3, &poly->r2);
 
 		//Make tri
 		g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1818,7 +1797,7 @@ void ParsePrimitive(P_TAG* pTag)
 		}
 
 		Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, NULL, NULL);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 		g_vertexIndex += 2;
 		numVertices += 2;
@@ -1860,7 +1839,7 @@ void ParsePrimitive(P_TAG* pTag)
 			{
 				//First line
 				Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, NULL, NULL);
-				Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+				Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 				g_vertexIndex += 2;
 				numVertices += 2;
 				forceNewLine = TRUE;
@@ -1869,7 +1848,7 @@ void ParsePrimitive(P_TAG* pTag)
 			{
 				//Second line
 				Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x1, &poly->x2, NULL, NULL);
-				Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+				Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 				g_vertexIndex += 2;
 				numVertices += 2;
 			}
@@ -1906,7 +1885,7 @@ void ParsePrimitive(P_TAG* pTag)
 		}
 
 		Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, NULL, NULL);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, NULL, NULL, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, NULL, NULL);
 
 		g_vertexIndex += 2;
 		numVertices += 2;
@@ -1942,7 +1921,7 @@ void ParsePrimitive(P_TAG* pTag)
 		}
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, poly->w, poly->h);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 		//Make tri
 		g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -1987,7 +1966,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, poly->w, poly->h);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, NULL, NULL, NULL, poly->w, poly->h);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 		//Make tri
 		g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -2029,7 +2008,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 1, 1);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, 1, 1);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 		//Make tri
 		g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -2071,7 +2050,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 8, 8);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, 8, 8);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 		//Make tri
 		g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -2115,7 +2094,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 8, 8);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, NULL, NULL, NULL, 8, 8);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 		//Make tri
 		g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -2157,7 +2136,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 16, 16);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], NULL, NULL, NULL, NULL, 16, 16);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
 		//Make tri
 		g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -2201,7 +2180,7 @@ void ParsePrimitive(P_TAG* pTag)
 
 		Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, NULL, NULL, NULL, 16, 16);
 		Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, NULL, NULL, NULL, 16, 16);
-		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL, TRUE);
+		Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 		//Make tri
 		g_vertexBuffer[g_vertexIndex + 5] = g_vertexBuffer[g_vertexIndex + 3];
@@ -2314,8 +2293,10 @@ void CatPrim(void* p0, void* p1)
 
 void DrawOTag(u_long* p)
 {
+    assert(0);
+#if 0
 	/* Tell the shader to discard black */
-	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), TRUE);
+	glUniform1i(glGetUniformLocation(g_gte_shader, "bDiscardBlack"), TRUE);
 
 	if (activeDrawEnv.dtd)
 	{
@@ -2344,8 +2325,7 @@ void DrawOTag(u_long* p)
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
 
-		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
-		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
+		Emulator_Ortho2D(0.0f, VRAM_WIDTH / RESOLUTION_SCALE, 0.0f, VRAM_HEIGHT / RESOLUTION_SCALE, 0.0f, 1.0f);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
@@ -2355,22 +2335,10 @@ void DrawOTag(u_long* p)
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
-#else
-		glGenVertexArraysOES(1, &vao);
-		glBindVertexArrayOES(vao);
-#endif
-		GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
-		GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
-		GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
-		glEnableVertexAttribArray(posAttrib);
-		glEnableVertexAttribArray(colAttrib);
-		glEnableVertexAttribArray(texAttrib);
-		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), 0);
-		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)12);
-		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)20);
+
+        Emulator_SetVertexDecl(NULL);
 
 		do
 		{
@@ -2417,14 +2385,7 @@ void DrawOTag(u_long* p)
 		}
 
 		glDeleteBuffers(1, &vbo);
-		glDisableVertexAttribArray(posAttrib);
-		glDisableVertexAttribArray(colAttrib);
-		glDisableVertexAttribArray(texAttrib);
-#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 		glDeleteVertexArrays(1, &vao);
-#else
-		glDeleteVertexArraysOES(1, &vao);
-#endif
 
 		glViewport(0, 0, windowWidth, windowHeight);
 	}
@@ -2437,6 +2398,7 @@ void DrawOTag(u_long* p)
 
 	/* Reset the ztable index of used */
 	pgxp_polgon_table_index = 0;
+#endif
 #endif
 }
 
@@ -2553,9 +2515,8 @@ void SetPolyG4(POLY_G4* p)
 
 void DrawPrim(void* p)
 {
-	/* Tell the shader to discard black */
-	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), TRUE);
-
+    assert(0);
+#if 0
 	if (activeDrawEnv.dtd)
 	{
 		//glEnable(GL_DITHER);
@@ -2574,8 +2535,8 @@ void DrawPrim(void* p)
 		g_numSplitIndices = 0;
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
-		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
-		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
+		Emulator_Ortho2D(0.0f, VRAM_WIDTH / RESOLUTION_SCALE, 0.0f, VRAM_HEIGHT / RESOLUTION_SCALE, 0.0f, 1.0f);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
@@ -2584,22 +2545,10 @@ void DrawPrim(void* p)
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
-#else
-		glGenVertexArraysOES(1, &vao);
-		glBindVertexArrayOES(vao);
-#endif
-		GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
-		GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
-		GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
-		glEnableVertexAttribArray(posAttrib);
-		glEnableVertexAttribArray(colAttrib);
-		glEnableVertexAttribArray(texAttrib);
-		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), 0);
-		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)12);
-		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)20);
+
+        Emulator_SetVertexDecl(NULL);
 
 		ParsePrimitive(pTag);
 
@@ -2635,14 +2584,7 @@ void DrawPrim(void* p)
 		}
 
 		glDeleteBuffers(1, &vbo);
-		glDisableVertexAttribArray(posAttrib);
-		glDisableVertexAttribArray(colAttrib);
-		glDisableVertexAttribArray(texAttrib);
-#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
 		glDeleteVertexArrays(1, &vao);
-#else
-		glDeleteVertexArraysOES(1, &vao);
-#endif
 
 		glViewport(0, 0, windowWidth, windowHeight);
 	}
@@ -2655,6 +2597,7 @@ void DrawPrim(void* p)
 
 	/* Reset the ztable index of used */
 	pgxp_polgon_table_index = 0;
+#endif
 #endif
 }
 

@@ -393,14 +393,14 @@ void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, sho
 	//Copy over position
 	if (p0 != NULL)
 	{
-		vertex[0].x = (float)p0[0];
-		vertex[0].y = (float)p0[1];
+		vertex[0].x = p0[0];
+		vertex[0].y = p0[1];
 	}
 
 	if (p1 != NULL)
 	{
-		vertex[1].x = (float)p1[0];
-		vertex[1].y = (float)p1[1];
+		vertex[1].x = p1[0];
+		vertex[1].y = p1[1];
 	}
 }
 
@@ -573,288 +573,280 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	//Copy over position
 	if (p0 != NULL)
 	{
-		vertex[0].x = (float)p0[0];
-		vertex[0].y = (float)p0[1];
+		vertex[0].x = p0[0];
+		vertex[0].y = p0[1];
 	}
 
 	if (p1 != NULL)
 	{
-		vertex[1].x = (float)p1[0];
-		vertex[1].y = (float)p1[1];
+		vertex[1].x = p1[0];
+		vertex[1].y = p1[1];
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertex[1].x = (float)p0[0];
-			vertex[1].y = (float)p0[1] + h;
+			vertex[1].x = p0[0];
+			vertex[1].y = p0[1] + h;
 		}
 	}
 
 	if (p2 != NULL)
 	{
-		vertex[2].x = (float)p2[0];
-		vertex[2].y = (float)p2[1];
+		vertex[2].x = p2[0];
+		vertex[2].y = p2[1];
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertex[2].x = (float)p0[0] + w;
-			vertex[2].y = (float)p0[1] + h;
+			vertex[2].x = p0[0] + w;
+			vertex[2].y = p0[1] + h;
 		}
 	}
 
 	if (p3 != NULL)
 	{
-		vertex[3].x = (float)p3[0];
-		vertex[3].y = (float)p3[1];
+		vertex[3].x = p3[0];
+		vertex[3].y = p3[1];
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertex[3].x = (float)p0[0] + w;
-			vertex[3].y = (float)p0[1];
+			vertex[3].x = p0[0] + w;
+			vertex[3].y = p0[1];
 		}
 	}
 #endif
-	return;
 }
 
 
 void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h)
 {
 	//Copy over uvs
+
 	if (uv0 != NULL)
 	{
-		vertex[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
-		vertex[0].v0 = ((float)uv0[1]) / TPAGE_HEIGHT;
+		vertex[0].u = uv0[0];
+		vertex[0].v = uv0[1];
 	}
 
 	if (uv1 != NULL)
 	{
-		vertex[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH;
-		vertex[1].v0 = ((float)uv1[1]) / TPAGE_HEIGHT;
+		vertex[1].u = uv1[0];
+		vertex[1].v = uv1[1];
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertex[1].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
-			vertex[1].v0 = ((float)uv0[1] + h) / TPAGE_HEIGHT;
+			vertex[1].u = uv0[0];
+			vertex[1].v = uv0[1] + h;
 		}
 	}
 
 	if (uv2 != NULL)
 	{
-		vertex[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH;
-		vertex[2].v0 = ((float)uv2[1]) / TPAGE_HEIGHT;
+		vertex[2].u = uv2[0];
+		vertex[2].v = uv2[1];
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertex[2].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
-			vertex[2].v0 = ((float)uv0[1] + h) / TPAGE_HEIGHT;
+			vertex[2].u = uv0[0] + w;
+			vertex[2].v = uv0[1] + h;
 		}
 	}
 
 	if (uv3 != NULL)
 	{
-		vertex[3].u0 = ((float)uv3[0]) / TPAGE_WIDTH;
-		vertex[3].v0 = ((float)uv3[1]) / TPAGE_HEIGHT;
+		vertex[3].u = uv3[0];
+		vertex[3].v = uv3[1];
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertex[3].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
-			vertex[3].v0 = ((float)uv0[1]) / TPAGE_HEIGHT;
+			vertex[3].u = uv0[0] + w;
+			vertex[3].v = uv0[1];
 		}
 	}
-
-	return;
 }
 
-void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, int bMultiplyColour)
+void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3)
 {
-	//Copy over rgb vertex colours
-	if (col0 != NULL)
-	{
-		if (bMultiplyColour)
-		{
-			vertex[0].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
-			vertex[0].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
-			vertex[0].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
-			vertex[0].col[3] = (1.0f / 255.0f) * 255;
-		}
-		else
-		{
-			vertex[0].col[0] = (1.0f / 255.0f) * col0[0];
-			vertex[0].col[1] = (1.0f / 255.0f) * col0[1];
-			vertex[0].col[2] = (1.0f / 255.0f) * col0[2];
-			vertex[0].col[3] = (1.0f / 255.0f) * 255;
-		}
-	}
+    assert(col0);
+    if (!col1) col1 = col0;
+    if (!col2) col2 = col0;
+    if (!col3) col3 = col0;
 
-	if (col1 != NULL)
-	{
-		if (bMultiplyColour)
-		{
-			vertex[1].col[0] = ((1.0f / 255.0f) * col1[0]) * VERTEX_COLOUR_MULT;
-			vertex[1].col[1] = ((1.0f / 255.0f) * col1[1]) * VERTEX_COLOUR_MULT;
-			vertex[1].col[2] = ((1.0f / 255.0f) * col1[2]) * VERTEX_COLOUR_MULT;
-			vertex[1].col[3] = (1.0f / 255.0f) * 255;
-		}
-		else
-		{
-			vertex[1].col[0] = (1.0f / 255.0f) * col1[0];
-			vertex[1].col[1] = (1.0f / 255.0f) * col1[1];
-			vertex[1].col[2] = (1.0f / 255.0f) * col1[2];
-			vertex[1].col[3] = (1.0f / 255.0f) * 255;
-		}
-	}
-	else
-	{
-		if (bMultiplyColour)
-		{
-			vertex[1].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
-			vertex[1].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
-			vertex[1].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
-			vertex[1].col[3] = (1.0f / 255.0f) * 255;
-		}
-		else
-		{
-			vertex[1].col[0] = (1.0f / 255.0f) * col0[0];
-			vertex[1].col[1] = (1.0f / 255.0f) * col0[1];
-			vertex[1].col[2] = (1.0f / 255.0f) * col0[2];
-			vertex[1].col[3] = (1.0f / 255.0f) * 255;
-		}
-	}
+    //Copy over rgb vertex colours
+    vertex[0].r = col0[0];
+    vertex[0].g = col0[1];
+    vertex[0].b = col0[2];
+    vertex[0].a = 255;
 
-	if (col2 != NULL)
-	{
-		if (bMultiplyColour)
-		{
-			vertex[2].col[0] = ((1.0f / 255.0f) * col2[0]) * VERTEX_COLOUR_MULT;
-			vertex[2].col[1] = ((1.0f / 255.0f) * col2[1]) * VERTEX_COLOUR_MULT;
-			vertex[2].col[2] = ((1.0f / 255.0f) * col2[2]) * VERTEX_COLOUR_MULT;
-			vertex[2].col[3] = (1.0f / 255.0f) * 255;
-		}
-		else
-		{
-			vertex[2].col[0] = (1.0f / 255.0f) * col2[0];
-			vertex[2].col[1] = (1.0f / 255.0f) * col2[1];
-			vertex[2].col[2] = (1.0f / 255.0f) * col2[2];
-			vertex[2].col[3] = (1.0f / 255.0f) * 255;
-		}
-	}
-	else
-	{
-		if (bMultiplyColour)
-		{
-			vertex[2].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
-			vertex[2].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
-			vertex[2].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
-			vertex[2].col[3] = (1.0f / 255.0f) * 255;
-		}
-		else
-		{
-			vertex[2].col[0] = (1.0f / 255.0f) * col0[0];
-			vertex[2].col[1] = (1.0f / 255.0f) * col0[1];
-			vertex[2].col[2] = (1.0f / 255.0f) * col0[2];
-			vertex[2].col[3] = (1.0f / 255.0f) * 255;
-		}
-	}
+    vertex[1].r = col1[0];
+    vertex[1].g = col1[1];
+    vertex[1].b = col1[2];
+    vertex[1].a = 255;
 
-	if (col3 != NULL)
-	{
-		if (bMultiplyColour)
-		{
-			vertex[3].col[0] = ((1.0f / 255.0f) * col3[0]) * VERTEX_COLOUR_MULT;
-			vertex[3].col[1] = ((1.0f / 255.0f) * col3[1]) * VERTEX_COLOUR_MULT;
-			vertex[3].col[2] = ((1.0f / 255.0f) * col3[2]) * VERTEX_COLOUR_MULT;
-			vertex[3].col[3] = (1.0f / 255.0f) * 255;
-		}
-		else
-		{
-			vertex[3].col[0] = (1.0f / 255.0f) * col3[0];
-			vertex[3].col[1] = (1.0f / 255.0f) * col3[1];
-			vertex[3].col[2] = (1.0f / 255.0f) * col3[2];
-			vertex[3].col[3] = (1.0f / 255.0f) * 255;
-		}
-	}
-	else
-	{
-		if (bMultiplyColour)
-		{
-			vertex[3].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
-			vertex[3].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
-			vertex[3].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
-			vertex[3].col[3] = (1.0f / 255.0f) * 255;
-		}
-		else
-		{
-			vertex[3].col[0] = (1.0f / 255.0f) * col0[0];
-			vertex[3].col[1] = (1.0f / 255.0f) * col0[1];
-			vertex[3].col[2] = (1.0f / 255.0f) * col0[2];
-			vertex[3].col[3] = (1.0f / 255.0f) * 255;
-		}
-	}
+    vertex[2].r = col2[0];
+    vertex[2].g = col2[1];
+    vertex[2].b = col2[2];
+    vertex[2].a = 255;
 
-	return;
+    vertex[3].r = col3[0];
+    vertex[3].g = col3[1];
+    vertex[3].b = col3[2];
+    vertex[3].a = 255;
 }
 
 #if defined(OGLES) || defined(OGL)
-GLuint g_defaultShaderProgram;
+
+const char* gte_shader =
+    "varying vec2 v_texcoord;\n"
+    "varying vec4 v_color;\n"
+    "#ifdef VERTEX\n"
+    "   attribute vec2 a_position;\n"
+    "   attribute vec2 a_texcoord;\n"
+    "   attribute vec4 a_color;\n"
+    "   uniform mat4 Projection;\n"
+    "   void main() { v_texcoord = a_texcoord / 256.0; v_color = a_color; gl_Position = Projection * vec4(a_position, 0.0, 1.0); }\n"
+    "#else\n"
+    "   uniform sampler2D s_texture;\n"
+    "   void main() { fragColor = texture2D(s_texture, v_texcoord) * v_color * 2.0; if (fragColor.a == 0.0) { discard; } }\n"
+    "#endif\n";
+
+const char* blit_shader =
+    "varying vec2 v_texcoord;\n"
+    "varying vec4 v_color;\n"
+    "#ifdef VERTEX\n"
+    "   attribute vec2 a_position;\n"
+    "   attribute vec2 a_texcoord;\n"
+    "   void main() { v_texcoord = a_texcoord / 128.0; gl_Position = vec4(a_position * 2.0 - 1.0, 0.0, 1.0); }\n"
+    "#else\n"
+    "   uniform sampler2D s_texture;\n"
+    "   void main() { fragColor = texture2D(s_texture, v_texcoord); }\n"
+    "#endif\n";
+
+GLuint g_gte_shader;
+GLuint g_blit_shader;
+
+void Shader_CheckShaderStatus(GLuint shader)
+{
+    char info[1024];
+    glGetShaderInfoLog(shader, sizeof(info), NULL, info);
+    if (info[0] && strlen(info) > 8)
+    {
+        eprinterr("%s\n", info);
+        assert(false);
+    }
+}
+
+void Shader_CheckProgramStatus(GLuint program)
+{
+    char info[1024];
+    glGetProgramInfoLog(program, sizeof(info), NULL, info);
+    if (info[0] && strlen(info) > 8)
+    {
+        eprinterr("%s\n", info);
+        assert(false);
+    }
+}
+
+GLuint Shader_Compile(const char *source)
+{
+#if defined(ES2_SHADERS)
+    const char *GLSL_HEADER_VERT =
+        "#version 100\n"
+        "precision lowp  int;\n"
+        "precision highp float;\n"
+        "#define VERTEX\n";
+
+    const char *GLSL_HEADER_FRAG =
+        "#version 100\n"
+        "precision lowp  int;\n"
+        "precision highp float;\n"
+        "#define fragColor gl_FragColor\n";
+#elif defined(ES3_SHADERS)
+    const char *GLSL_HEADER_VERT =
+        "#version 300 es\n"
+        "precision lowp  int;\n"
+        "precision highp float;\n"
+        "#define VERTEX\n"
+        "#define varying   out\n"
+        "#define attribute in\n"
+        "#define texture2D texture\n";
+
+    const char *GLSL_HEADER_FRAG =
+        "#version 300 es\n"
+        "precision lowp  int;\n"
+        "precision highp float;\n"
+        "#define varying     in\n"
+        "#define texture2D   texture\n"
+        "out vec4 fragColor;\n");
+#else
+    const char *GLSL_HEADER_VERT =
+        "#version 110\n"
+        "#define VERTEX\n";
+
+    const char *GLSL_HEADER_FRAG =
+        "#version 110\n"
+        "#define fragColor gl_FragColor\n";
+#endif
+
+    const char *vs_list[] = { GLSL_HEADER_VERT, source };
+    const char *fs_list[] = { GLSL_HEADER_FRAG, source };
+
+    GLuint program = glCreateProgram();
+
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 2, vs_list, NULL);
+    glCompileShader(vertexShader);
+    Shader_CheckShaderStatus(vertexShader);
+    glAttachShader(program, vertexShader);
+    glDeleteShader(vertexShader);
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 2, fs_list, NULL);
+    glCompileShader(fragmentShader);
+    Shader_CheckShaderStatus(fragmentShader);
+    glAttachShader(program, fragmentShader);
+    glDeleteShader(fragmentShader);
+
+    glLinkProgram(program);
+    Shader_CheckProgramStatus(program);
+
+    glUseProgram(program);
+    GLint sampler = 0;
+    glUniform1iv(glGetUniformLocation(program, "s_texture"), 1, &sampler);
+
+    glBindAttribLocation(program, a_position, "a_position");
+    glBindAttribLocation(program, a_texcoord, "a_texcoord");
+    glBindAttribLocation(program, a_color,    "a_color");
+
+    return program;
+}
 
 void Emulator_CreateGlobalShaders()
 {
-#if defined(ES2_SHADERS)
-	const char* vertexShaderSource = "attribute vec4 a_position; attribute vec2 a_texcoord; varying vec2 v_texcoord; attribute vec4 a_colour; varying vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
-#elif defined(ES3_SHADERS)
-	const char* vertexShaderSource = "#version 300 es\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*a_position; }";
-#elif defined(OGL)
-	const char* vertexShaderSource = "#version 330 core\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; uniform mat4 Scale; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*(a_position*Scale);  }";
-#endif
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-#if defined(ES2_SHADERS)
-	const char* fragmentShaderSource = "precision mediump float; varying vec2 v_texcoord; varying vec4 v_colour; uniform sampler2D s_texture; void main() { gl_FragColor = texture2D(s_texture, v_texcoord) * v_colour; }";
-#elif defined(ES3_SHADERS)
-	const char* fragmentShaderSource = "#version 300 es\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord) * v_colour; }";
-#elif defined(OGL)
-	//const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
-	//const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { vec4 dither = vec4(texture(s_texture, gl_FragCoord.xy / 8.0).r / 32.0 - (1.0 / 128.0)); fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; fragColour += dither; }";
-	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
-#endif
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-#if defined(_DEBUG)
-	char buff[1024];
-	int maxLength = 1024;
-	glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &buff[0]);
-
-	maxLength = 1024;
-	glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &buff[0]);
-#endif
-
-	/* Default */
-	g_defaultShaderProgram = glCreateProgram();
-	glAttachShader(g_defaultShaderProgram, vertexShader);
-	glAttachShader(g_defaultShaderProgram, fragmentShader);
-	glLinkProgram(g_defaultShaderProgram);
-	glUseProgram(g_defaultShaderProgram);
-	GLint idx = glGetUniformLocation(g_defaultShaderProgram, "s_texture");
-	GLint sampler = 0;
-	glUniform1iv(idx, 1, &sampler);
-	glActiveTexture(GL_TEXTURE0 + sampler);
+    g_gte_shader  = Shader_Compile(gte_shader);
+    g_blit_shader = Shader_Compile(blit_shader);
 }
+
+void Emulator_SetVertexDecl(const Vertex *ptr)
+{
+    glEnableVertexAttribArray(a_position);
+    glEnableVertexAttribArray(a_texcoord);
+    glEnableVertexAttribArray(a_color);
+    glVertexAttribPointer(a_position, 2, GL_SHORT,         GL_FALSE, sizeof(*ptr), &ptr->x);
+    glVertexAttribPointer(a_texcoord, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(*ptr), &ptr->u);
+    glVertexAttribPointer(a_color,    4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(*ptr), &ptr->r);
+}
+
 #endif
 
 unsigned short vram[VRAM_WIDTH * VRAM_HEIGHT];
@@ -907,10 +899,6 @@ void Emulator_InitialiseGL()
 #endif
 
 	glLineWidth(RESOLUTION_SCALE);
-
-#if defined(OGL)
-	glEnable(GL_DEPTH_TEST);
-#endif
 
 #if defined(OGLES) || defined(OGL)
 	Emulator_CreateGlobalShaders();
@@ -1154,73 +1142,42 @@ void Emulator_EndScene()
 {
 	glDisable(GL_BLEND);
 
-	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), FALSE);
-	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-
 	glScissor(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
 
-	float x = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.x * RESOLUTION_SCALE));
-	float y = 1.0f / (VRAM_HEIGHT / (float)(word_33BC.disp.y * RESOLUTION_SCALE));
-	float h = 1.0f / (VRAM_HEIGHT / (float)(word_33BC.disp.h * RESOLUTION_SCALE));
-	float w = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.w * RESOLUTION_SCALE));
+    u_char x = 128 * word_33BC.disp.x / (VRAM_WIDTH  / RESOLUTION_SCALE);
+    u_char y = 128 * word_33BC.disp.y / (VRAM_HEIGHT / RESOLUTION_SCALE);
+    u_char w = 128 * word_33BC.disp.w / (VRAM_WIDTH  / RESOLUTION_SCALE);
+    u_char h = 128 * word_33BC.disp.h / (VRAM_HEIGHT / RESOLUTION_SCALE);
 
-	float vertexBuffer[] =
+	Vertex vertexBuffer[] =
 	{
-		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y, 1.0f, 1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 0.0f, x, y + h, 1.0f, 1.0f, 1.0f, 1.0f,
-		(float)word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, 0.0f, x + w, y + h, 1.0f, 1.0f, 1.0f, 1.0f,
-		(float)word_33BC.disp.w * RESOLUTION_SCALE, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x + w, y, 1.0f, 1.0f, 1.0f, 1.0f,
-		(float)word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, 0.0f, x + w, y + h, 1.0f, 1.0f, 1.0f, 1.0f,
-		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y, 1.0f, 1.0f, 1.0f, 1.0f,
+		{ 0, 1,    0, 0,    x, y,            0, 0,    255, 255, 255, 255 },
+		{ 0, 0,    0, 0,    x, y + h,        0, 0,    255, 255, 255, 255 },
+		{ 1, 1,    0, 0,    x + w, y,        0, 0,    255, 255, 255, 255 },
+		{ 1, 0,    0, 0,    x + w, y + h,    0, 0,    255, 255, 255, 255 }
 	};
 
 #if defined(OGLES) || defined (OGL)
-	GLuint vbo, ibo, vao;
-	GLuint indexBuffer[] = { 0,1,2,0,2,3 };
+    glUseProgram(g_blit_shader);
 
-#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
+	GLuint   vbo, vao;
+
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
-#else
-	glGenVertexArraysOES(1, &vao);
-	glBindVertexArrayOES(vao);
-#endif
-
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * 6, indexBuffer, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), &vertexBuffer[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
 
-	GLint posAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_position");
-	GLint colAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_colour");
-	GLint texAttrib = glGetAttribLocation(g_defaultShaderProgram, "a_texcoord");
-	glEnableVertexAttribArray(posAttrib);
-	glEnableVertexAttribArray(colAttrib);
-	glEnableVertexAttribArray(texAttrib);
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 9, 0);
-	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)20);
-	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (GLvoid*)12);
-	Emulator_Ortho2D(0.0f, word_33BC.disp.w * RESOLUTION_SCALE, 0.0f, word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, 1.0f);
-	Emulator_Scalef(1.0f, 1.0f, 1.0f);
+    Emulator_SetVertexDecl(NULL);
 	Emulator_BindTexture(vramTexture);
 
-	//Delete buffers
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
-	glDisableVertexAttribArray(posAttrib);
-	glDisableVertexAttribArray(colAttrib);
-	glDisableVertexAttribArray(texAttrib);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-	glDeleteBuffers(1, &ibo);
 	glDeleteBuffers(1, &vbo);
-#if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
     glDeleteVertexArrays(1, &vao);
-#else
-    glDeleteVertexArraysOES(1, &vao);
-#endif
 #endif
 
 #if _DEBUG && 0
@@ -1229,7 +1186,7 @@ void Emulator_EndScene()
 #endif
 
 	Emulator_SwapWindow();
-	glUseProgram(g_defaultShaderProgram);
+	glUseProgram(g_gte_shader);
 
 	//glEnable(GL_BLEND);
 }
@@ -1552,7 +1509,7 @@ void Emulator_Ortho2D(float left, float right, float bottom, float top, float zn
 		tx, ty, tz, 1
 	};
 
-	GLint projectionUniform = glGetUniformLocation(g_defaultShaderProgram, "Projection");
+	GLint projectionUniform = glGetUniformLocation(g_gte_shader, "Projection");
 	glUniformMatrix4fv(projectionUniform, 1, GL_FALSE, &ortho[0]);
 }
 
@@ -1566,7 +1523,7 @@ void Emulator_Scalef(float sx, float sy, float sz)
 		0, 0, 0, 1
 	};
 
-	GLint scaleUniform = glGetUniformLocation(g_defaultShaderProgram, "Scale");
+	GLint scaleUniform = glGetUniformLocation(g_gte_shader, "Scale");
 	glUniformMatrix4fv(scaleUniform, 1, GL_FALSE, &scale[0]);
 }
 
