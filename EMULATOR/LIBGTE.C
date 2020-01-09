@@ -2156,8 +2156,8 @@ int docop2(int op) {
 
 #if defined(PGXP)
 		pgxp_polygons[pgxp_polgon_table_index].originalSXY = SXY2;
-		pgxp_polygons[pgxp_polgon_table_index].x = (Lm_G1_ia((s64)OFX + (s64)(IR1 * h_over_sz3) * (false ? 0.75 : 1))) / (float)(1 << 16);
-		pgxp_polygons[pgxp_polgon_table_index].y = (Lm_G2_ia((s64)OFY + (s64)(IR2 * h_over_sz3))) / (float)(1 << 16);
+		pgxp_polygons[pgxp_polgon_table_index].x = (Lm_G1_ia((long long)OFX + (long long)(IR1 * h_over_sz3) * (false ? 0.75 : 1))) / (float)(1 << 16);
+		pgxp_polygons[pgxp_polgon_table_index].y = (Lm_G2_ia((long long)OFY + (long long)(IR2 * h_over_sz3))) / (float)(1 << 16);
 		pgxp_polygons[pgxp_polgon_table_index++].z = max(SZ3, H / 2);
 #endif
 		return 1;
@@ -2544,8 +2544,8 @@ int docop2(int op) {
 
 #if defined(PGXP)
 			pgxp_polygons[pgxp_polgon_table_index].originalSXY = SXY2;
-			pgxp_polygons[pgxp_polgon_table_index].x = Lm_G1_ia((s64)OFX + (s64)(IR1 * h_over_sz3) * (false ? 0.75 : 1)) / (float)(1 << 16);
-			pgxp_polygons[pgxp_polgon_table_index].y = Lm_G2_ia((s64)OFY + (s64)(IR2 * h_over_sz3)) / (float)(1 << 16);
+			pgxp_polygons[pgxp_polgon_table_index].x = Lm_G1_ia((long long)OFX + (long long)(IR1 * h_over_sz3) * (false ? 0.75 : 1)) / (float)(1 << 16);
+			pgxp_polygons[pgxp_polgon_table_index].y = Lm_G2_ia((long long)OFY + (long long)(IR2 * h_over_sz3)) / (float)(1 << 16);
 			pgxp_polygons[pgxp_polgon_table_index++].z = max(SZ3, H / 2);
 #endif
 		}
