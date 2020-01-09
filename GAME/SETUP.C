@@ -67,7 +67,7 @@
 #include "TYPEDEFS.H"
 #endif
 
-#if defined(__linux__) || defined(__EMSCRIPTEN__)
+#if defined(__linux__) || defined(__EMSCRIPTEN__) || defined(__ANDROID__)
         #define CODE_WAD "DATA/CODE.WAD"
 #else
         #define CODE_WAD "DATA\\CODE.WAD"

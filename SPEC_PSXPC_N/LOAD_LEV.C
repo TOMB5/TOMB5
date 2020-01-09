@@ -17,7 +17,7 @@
 
 #include <LIBGTE.H>
 
-#if defined(__linux__) || defined(__EMSCRIPTEN__)
+#if defined(__linux__) || defined(__EMSCRIPTEN__) || defined(__ANDROID__)
 #define LOADING_PIC "DATA/LOADPIC.RAW"
 #else
 #define LOADING_PIC "data\\loadpic.raw"

@@ -19,6 +19,7 @@
 #include <LIBETC.H>
 #include <LIBAPI.H>
 #include <EMULATOR_PRIVATE.H>
+#include "EMULATOR_PLATFORM_SETUP.H"
 
 int gp_start_address = 'T' | ('W' << 8) | ('A' << 16) | ('T' << 24);
 
@@ -40,7 +41,7 @@ void VSyncFunc()//10000(<), 10000(<) (F) (*) (D) (ND)
 
 int main(int argc, char* argv[])//10064(<), 10064(<) (F) (*) (D) (ND)
 {
-	Emulator_Initialise("Tomb Raider: Chronicles", 512, 240);
+	Emulator_Initialise("Tomb Raider: Chronicles", SCREEN_WIDTH, SCREEN_HEIGHT);
 	SetSp(0x801FFFE0);
 	ResetCallback();
 
@@ -66,14 +67,12 @@ int main(int argc, char* argv[])//10064(<), 10064(<) (F) (*) (D) (ND)
 
 	SetDispMask(1);
 	VSyncCallback(&VSyncFunc);
-	
+
 	VSync(0);
 	DrawSync(0);
 
 	PutDispEnv(&db.disp[db.current_buffer]);
-
 	MemCardInit(1);
-
 	PadInitDirect((unsigned char*)&GPad1, (unsigned char*)&GPad2);
 	PadSetAct(0, &Motors[0], sizeof(Motors));
 	PadStartCom();
@@ -90,6 +89,7 @@ int main(int argc, char* argv[])//10064(<), 10064(<) (F) (*) (D) (ND)
 
 	GPU_UseOrderingTables(&GadwOrderingTables[0], sizeof(GadwOrderingTables) / 8);
 	GPU_UsePolygonBuffers(&GadwPolygonBuffers[0], sizeof(GadwPolygonBuffers) / 8);
+
 	GPU_GetScreenPosition(&savegame.ScreenX, &savegame.ScreenY);
 
 #if DEBUG_VERSION
