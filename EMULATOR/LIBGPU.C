@@ -19,6 +19,11 @@ DRAWENV byte_9CCA4;
 int dword_3410 = 0;
 char byte_3352 = 0;
 
+#if defined(USE_32_BIT_ADDR)
+unsigned int redirectionTableIndex = 0;
+P_TAG_32 addressTable[2564];//Const is TRC ClearOTagR size
+#endif
+
 #if 0
 char fontDebugTexture[] = 
 { 
@@ -178,13 +183,8 @@ int g_numSplitIndices = 0;
 
 //#define WIREFRAME_MODE
 
-//Nasty hack, win32 is like original but due to memory differences
-//Between Linux and Windows we must do this unfortunately.
-#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
 unsigned long terminator = -1;
-#else
-unsigned long* terminator;
-#endif
+
 void(*drawsync_callback)(void) = NULL;
 
 void* off_3348[]=
@@ -303,19 +303,12 @@ u_long* ClearOTag(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
 	//last is special terminator
-	ot[n-1] = (unsigned long)&terminator;
-#else
-	//last is special terminator
-	ot[n-1] = (unsigned long)terminator;
-#endif
+	ot[n - 1] = (unsigned long)&terminator;
 
 	for (int i = n - 2; i > -1; i--)
 	{
 		ot[i] = (unsigned long)&ot[i + 1];
-		//Asset - Not 24-bit address, we need to crash now!
-		assert((ot[i] & 0xFF000000) == 0);
 	}
 
 	return NULL;
@@ -327,19 +320,28 @@ u_long* ClearOTagR(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
+	//Initialise
+#if defined(USE_32_BIT_ADDR)
+	memset(&addressTable[0], 0, sizeof(P_TAG_32) * 2564);
+	redirectionTableIndex = 0;
+#endif
+
 	//First is special terminator
-	ot[0] = (unsigned long)&terminator;
+#if defined(USE_32_BIT_ADDR)
+	CLEAR_PACK_ADDR(&ot[0], (unsigned long)&terminator);
+	redirectionTableIndex++;
 #else
-	//First is special terminator
-	ot[0] = (unsigned long)terminator;
+	ot[0] = (unsigned long)&terminator;
 #endif
 
 	for (int i = 1; i < n; i++)
 	{
-		ot[i] = (unsigned long)& ot[i - 1];
-		//Asset - Not 24-bit address, we need to crash now!
-		assert((ot[i] & 0xFF000000) == 0);
+#if defined(USE_32_BIT_ADDR)
+		CLEAR_PACK_ADDR(&ot[i], (unsigned long)&ot[i - 1]);
+		redirectionTableIndex++;
+#else
+		ot[i] = (unsigned long)&ot[i - 1];
+#endif
 	}
 
 	return NULL;
@@ -499,6 +501,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
+		
 		P_TAG* pTag = (P_TAG*)p;
 
 		glGenBuffers(1, &vbo);
@@ -521,6 +524,22 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)12);
 		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)20);
 
+		
+#if defined(USE_32_BIT_ADDR)
+		do
+		{
+			if (pTag->addr == 0)
+			{
+				int test = 0;
+				test++;
+			}
+			if (UNPACK_LEN(pTag->addr)> 0)
+			{
+				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
+			}
+			pTag = (P_TAG*)(UNPACK_ADDR(pTag->addr));
+		} while ((uintptr_t)pTag->addr != 0);
+#else
 		do
 		{
 			if (pTag->len > 0)
@@ -528,12 +547,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
 			}
 			pTag = (P_TAG*)pTag->addr;
-#if __linux__ || __APPLE_
-		}while ((unsigned long)pTag != 0xFFFFFF);
-#else
-		}while ((unsigned long)pTag != (unsigned long)&terminator);
+		}while ((uintptr_t)pTag != (uintptr_t)&terminator);
 #endif
-
 		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
 		for (int i = 0; i < g_numSplitIndices; i++)
@@ -1416,11 +1431,14 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			case 0xE1:
 			{
 				unsigned short tpage = ((unsigned short*)pTag)[2];
+
 				//if (tpage != 0)
 				{
 					activeDrawEnv.tpage = tpage;
 				}
-				currentAddress += 8;
+
+				currentAddress += sizeof(DR_TPAGE);
+
 				break;
 			}
 			default:
@@ -2381,11 +2399,7 @@ void DrawOTag(u_long* p)
 				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
 			}
 			pTag = (P_TAG*)pTag->addr;
-#if __linux__ || __APPLE_
-		} while ((unsigned long)pTag != 0xFFFFFF);
-#else
 		} while ((unsigned long)pTag != (unsigned long)& terminator);
-#endif
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 

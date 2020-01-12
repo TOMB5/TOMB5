@@ -195,9 +195,15 @@ loc_7DD84:
 
 					at = 0xC000000;
 					t2 = s6 | at;
+#if defined(USE_32_BIT_ADDR)
+					setlen(s5, at >> 24);
+					addPrim(s6, s5);
+					s5 += sizeof(POLY_GT4);
+#else
 					((int*)s5)[0] = t2;
 					s6 = (int)s5;
 					s5 += 0x34;
+#endif
 				}//loc_7DEB4
 			}//loc_7DEB4
 
@@ -449,11 +455,18 @@ void DrawSubdivChunk(int* a3, int t6, int t7, unsigned long* t4, int* t9)
 				((short*)db.polyptr)[14] = v1;
 				((short*)db.polyptr)[18] = a0;
 
-				*t4 |= 0x9000000;
+#if defined(USE_32_BIT_ADDR)
+				((unsigned int*)db.polyptr)[1] = *t9;
+				setlen(db.polyptr, 9);
+				addPrim(*t4, db.polyptr);
+				db.polyptr += sizeof(POLY_GT3);
+#else
+				* t4 |= 0x9000000;
 				((unsigned int*)db.polyptr)[0] = *t4;
 				((unsigned int*)db.polyptr)[1] = *t9;
 				*t4 = (unsigned int)db.polyptr;
 				db.polyptr += 0x28;
+#endif
 			}
 		}//locret_7E21C
 	}//locret_7E21C

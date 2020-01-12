@@ -3,6 +3,25 @@
 
 #include "LIBGTE.H"
 
+#if defined(USE_32_BIT_ADDR)
+
+typedef struct {
+	unsigned int addr;
+	unsigned int len;
+} P_TAG_32;
+
+extern P_TAG_32 addressTable[];
+extern unsigned int redirectionTableIndex;
+#define CLEAR_PACK_ADDR(p, _addr) addressTable[redirectionTableIndex].addr = (unsigned int)_addr, ((unsigned int*)p)[0] = redirectionTableIndex
+#define PACK_ADDR(p, _addr) addressTable[(unsigned int)_addr].addr = (unsigned int)p, addressTable[(unsigned int)_addr].len = ((unsigned int*)p)[0] >> 24
+#define GET_ADDR(_addr) &addressTable[(unsigned int)_addr]
+//#define PACK_LEN(p, index)
+
+#define UNPACK_ADDR(_addr) addressTable[(unsigned int)_addr].addr
+#define UNPACK_LEN(_addr) addressTable[(unsigned int)_addr].len
+
+#endif
+
 extern	int (*GPU_printf)(const char *fmt, ...);
 
 #define WAIT_TIME	0x800000
@@ -175,11 +194,16 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 #define dumpRGB3(p)							\
 	GPU_printf("(%3d,%3d,%3d)\n", (p)->r3, (p)->g3, (p)->b3) 	
 
-/*
- * Primitive Handling Macros
- */
+ /*
+  * Primitive Handling Macros
+  */
 #define setlen( p, _len) 	(((P_TAG *)(p))->len  = (u_char)(_len))
+#if defined(USE_32_BIT_ADDR)
+#define setaddr(p, _addr)   PACK_ADDR(p, _addr), (((P_TAG *)(p))->addr = (u_long)(_addr))
+#define setaddr2(p, _addr)  ((P_TAG_32*)GET_ADDR(getaddr(p)))->addr = ((u_long)(_addr))
+#else
 #define setaddr(p, _addr)	(((P_TAG *)(p))->addr = (u_long)(_addr))
+#endif
 #define setcode(p, _code)	(((P_TAG *)(p))->code = (u_char)(_code))
 
 #define getlen(p)    		(u_char)(((P_TAG *)(p))->len)
@@ -189,7 +213,11 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 #define nextPrim(p)  		(void *)((((P_TAG *)(p))->addr)|0x80000000)
 #define isendprim(p) 		((((P_TAG *)(p))->addr)==0xffffff)
 
+#if defined(USE_32_BIT_ADDR)
+#define addPrim(ot, p)		setaddr(p, getaddr(ot)), setaddr2(ot, p)
+#else
 #define addPrim(ot, p)		setaddr(p, getaddr(ot)), setaddr(ot, p)
+#endif
 #define addPrims(ot, p0, p1)	setaddr(p1, getaddr(ot)),setaddr(ot, p0)
 
 #define catPrim(p0, p1)		setaddr(p0, p1)
@@ -432,8 +460,8 @@ typedef struct {
 	u_char	r2, g2, b2, p2;
 	short	x2,	y2;
 	u_char	u2, v2;	u_short	pad2;
-	u_char	r3, g3, b3, p3;
-	short	x3,	y3;
+	u_char	r3, g3, b3, p3;//10
+	short	x3,	y3;//11
 	u_char	u3, v3;	u_short	pad3;
 } POLY_GT4;				/* Gouraud Textured Quadrangle */
 
@@ -591,8 +619,8 @@ typedef	struct {
 } DR_TPAGE;				/* Drawing TPage */
 
 typedef struct {
-		u_long  tag;
-		u_long  code[2];
+	u_long	tag;
+	u_long  code[2];
 } DR_STP;                               /* Drawing STP */
 
 /*
