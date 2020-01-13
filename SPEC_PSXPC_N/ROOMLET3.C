@@ -1,4 +1,4 @@
-﻿#include "ROOMLET3.H"
+#include "ROOMLET3.H"
 
 #include "3D_OBJ.H"
 #include "CAMERA.H"

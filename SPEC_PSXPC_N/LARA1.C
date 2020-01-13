@@ -1,4 +1,4 @@
-﻿#include "LARA1.H"
+#include "LARA1.H"
 
 #include "DELSTUFF.H"
 #include "LARA.H"
