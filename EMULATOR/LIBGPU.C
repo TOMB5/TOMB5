@@ -19,11 +19,6 @@ DRAWENV byte_9CCA4;
 int dword_3410 = 0;
 char byte_3352 = 0;
 
-#if defined(USE_32_BIT_ADDR)
-unsigned int redirectionTableIndex = 0;
-P_TAG_32 addressTable[2564];//Const is TRC ClearOTagR size
-#endif
-
 #if 0
 char fontDebugTexture[] = 
 { 
@@ -320,28 +315,22 @@ u_long* ClearOTagR(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-	//Initialise
-#if defined(USE_32_BIT_ADDR)
-	memset(&addressTable[0], 0, sizeof(P_TAG_32) * 2564);
-	redirectionTableIndex = 0;
-#endif
-
 	//First is special terminator
-#if defined(USE_32_BIT_ADDR)
-	CLEAR_PACK_ADDR(&ot[0], (unsigned long)&terminator);
-	redirectionTableIndex++;
-#else
-	ot[0] = (unsigned long)&terminator;
-#endif
+	setaddr(ot, &terminator);
+	setlen(ot, 0);
 
-	for (int i = 1; i < n; i++)
+#if defined(USE_32_BIT_ADDR)
+	for (int i = 2; i < n * 2; i+=2)
+#else
+	for (int i = 1; i < n ; i++)
+#endif
 	{
 #if defined(USE_32_BIT_ADDR)
-		CLEAR_PACK_ADDR(&ot[i], (unsigned long)&ot[i - 1]);
-		redirectionTableIndex++;
+		setaddr(&ot[i], (unsigned long)&ot[i - 2]);
 #else
-		ot[i] = (unsigned long)&ot[i - 1];
+		setaddr(&ot[i], (unsigned long)&ot[i - 1]);
 #endif
+		setlen(&ot[i], 0);
 	}
 
 	return NULL;
@@ -524,31 +513,19 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)12);
 		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, sizeof(struct Vertex), (GLvoid*)20);
 
-		
-#if defined(USE_32_BIT_ADDR)
-		do
-		{
-			if (pTag->addr == 0)
-			{
-				int test = 0;
-				test++;
-			}
-			if (UNPACK_LEN(pTag->addr)> 0)
-			{
-				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
-			}
-			pTag = (P_TAG*)(UNPACK_ADDR(pTag->addr));
-		} while ((uintptr_t)pTag->addr != 0);
-#else
 		do
 		{
 			if (pTag->len > 0)
 			{
+#if defined(USE_32_BIT_ADDR)
+				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 8);
+#else
 				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
+#endif
 			}
 			pTag = (P_TAG*)pTag->addr;
 		}while ((uintptr_t)pTag != (uintptr_t)&terminator);
-#endif
+
 		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
 		for (int i = 0; i < g_numSplitIndices; i++)
@@ -1430,8 +1407,11 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			{
 			case 0xE1:
 			{
+#if defined(USE_32_BIT_ADDR)
+				unsigned short tpage = ((unsigned short*)pTag)[4];
+#else
 				unsigned short tpage = ((unsigned short*)pTag)[2];
-
+#endif
 				//if (tpage != 0)
 				{
 					activeDrawEnv.tpage = tpage;

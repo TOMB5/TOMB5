@@ -15,8 +15,13 @@ extern int gfx_debugging_mode;
 extern struct DB_STRUCT db;
 extern struct MMTEXTURE* RoomTextInfo;
 extern unsigned long GadwOrderingTables_V2[];
+#if defined(USE_32_BIT_ADDR)
+extern unsigned long GadwOrderingTables[5128 * 2];
+extern unsigned long GadwPolygonBuffers[52260 * 2];
+#else
 extern unsigned long GadwOrderingTables[5128];
 extern unsigned long GadwPolygonBuffers[52260];
+#endif
 
 extern void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize);
 extern void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize);

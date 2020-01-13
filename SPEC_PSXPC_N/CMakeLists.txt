@@ -98,7 +98,6 @@ set(TARGET_BINARY_DIR "${PROJECT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
 
 #This will be a console application, alter linker subsystem accordingly or main method won't be found
 if(MSVC)
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /BASE:0x400000 /DYNAMICBASE:NO /FIXED")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	set_target_properties(
 	${PROJECT_NAME}

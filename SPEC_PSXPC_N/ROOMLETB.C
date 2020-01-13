@@ -132,13 +132,15 @@ void MyAddPrim(int t7/*len*/, int* t9, int* s0, int* a3)
 {
 	unsigned int t5;
 
-	*t9 += *s0;
 #if !defined(USE_32_BIT_ADDR)
+	*t9 += *s0;
 	t5 = ((unsigned int*)*t9)[0];
 	((unsigned int*)*t9)[0] = (unsigned int)a3;
 	t5 |= t7;
 	((unsigned int*)a3)[0] = (unsigned int)t5;
 #else
+	*t9 *= 2;
+	*t9 += *s0;
 	setlen(a3, t7 >> 24);
 	addPrim(*t9, a3);
 #endif
@@ -489,7 +491,7 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 						((POLY_GT4*)a3)->v3 = (t8 & 0xFF00) >> 8;
 						((POLY_GT4*)a3)->pad3 = (t8 & 0xFFFF0000) >> 16;
 						MyAddPrim(0xC000000, &t9, &s0, a3);
-						a3 += 13;
+						a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
 					}
 				}
 loc_75B20:
@@ -617,7 +619,7 @@ int* SubPolyGT3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 							t2 = RGB1;
 							SubdivSetup3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
 							MyAddPrim(0x9000000, &t9, &s0, a3);
-							a3 += 13;
+							a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
 						}
 					}
 					//loc_759A8
@@ -770,6 +772,16 @@ int* InitSubdivision(int* s1, int t1, int s4, int* fp, int t5, int t2, int s5, i
 
 void InitPrim(int* a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)//(F)
 {
+#if defined(USE_32_BIT_ADDR)
+	a3[2] = fp;
+	a3[3] = t1;
+	a3[4] = t5;
+	a3[5] = gp;
+	a3[6] = t2;
+	a3[7] = t6;
+	a3[8] = s3;
+	a3[9] = t3;
+#else
 	a3[1] = fp;
 	a3[2] = t1;
 	a3[3] = t5;
@@ -778,6 +790,7 @@ void InitPrim(int* a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, i
 	a3[6] = t6;
 	a3[7] = s3;
 	a3[8] = t3;
+#endif
 }
 
 void UnpackRGB(int* s4, int* t8, int* s5, int* s6, int* fp, int* gp, int* t5, int* t6, int* s3)//(F)
@@ -1140,10 +1153,12 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)//(F)
 		a2 += 2;
 	} while (v0 != 0);
 
+	//a11 is db
 	int* a11 = (int*)(((LG3 & 0xFFFF) << 16) | (LG2 & 0xFFFF));
 	v0 = DQA;
 
 	struct MMTEXTURE* a22 = RoomTextInfo;
+	//a3 = db.polyptr
 	a3 = a11[2];
 	int s00 = a11[1];
 	int* s11 = &sp[0];
@@ -1228,8 +1243,11 @@ loc_76080:
 					t6 = ((int*)t0)[1];
 					t5 -= a1;
 					InitPrim((int*)a3, fpp, t1, t5, gp, t2, t6, s3, t3);
+#if defined(USE_32_BIT_ADDR)
+					((int*)a3)[10] = t7;
+#else
 					((int*)a3)[9] = t7;
-
+#endif
 					if (at != 0)
 					{
 						at = ((int*)t0)[3];
@@ -1238,7 +1256,7 @@ loc_76080:
 
 						LG2 = (a3 & 0xFFFF);
 						LG3 = (a3 >> 16) & 0xFFFF;
-						a3 += 0x28;
+						a3 += sizeof(POLY_GT3);
 						InitSubdivision(s11, t1, s444, &fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
 
 						s3 = 0;
@@ -1261,7 +1279,7 @@ loc_76080:
 					{
 						//loc_761D8
 						MyAddPrim(0x9000000, &t9, &s00, (int*)a3);
-						a3 += 0x28;
+						a3 += sizeof(POLY_GT3);
 					}
 				}
 			}
@@ -1374,10 +1392,17 @@ loc_761EC:
 
 					InitPrim((int*)a3, fpp, t1, t5, gp, t2, t6, s3, t3);
 
+#if defined(USE_32_BIT_ADDR)
+					((int*)a3)[10] = t8;
+					((int*)a3)[11] = t7;
+					((int*)a3)[12] = t4;
+					((int*)a3)[13] = t0;
+#else
 					((int*)a3)[9] = t8;
 					((int*)a3)[10] = t7;
 					((int*)a3)[11] = t4;
 					((int*)a3)[12] = t0;
+#endif
 
 					if (at != 0)
 					{

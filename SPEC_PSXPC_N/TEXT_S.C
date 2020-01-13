@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <LIBGTE.H>
 #include <stdio.h>
+#include <stdio.h>
 
 struct CHARDEF loc_92020[139] =
 {
@@ -585,9 +586,6 @@ void DrawChar(unsigned short x, unsigned short y, unsigned short colourFlag, str
 		setClut(ptr, 592, 65);
 		setTPage(ptr, 0, 1, 576, 0);
 
-	
-		//sizeof(POLY_GT4);
-
 		width = a3->w;
 		y += a3->YOffset;
 
@@ -611,7 +609,28 @@ void _DelDrawSprite(int x, int y, int w, int h)
 {
 	struct PSXSPRITESTRUCT* a2 = &GLOBAL_default_sprites_ptr[w];
 
-	((int*)db.polyptr)[1] = 0xE1000000 | (a2->tpage & 0x9FF) | 0x600;
+	setDrawTPage(db.polyptr, 1, 1, a2->tpage);
+
+#if defined(USE_32_BIT_ADDR)
+	setlen(db.polyptr, 7);
+	((int*)db.polyptr)[3] = 0;
+	((int*)db.polyptr)[4] = 0;
+	((int*)db.polyptr)[5] = 0x64808080;
+	((short*)db.polyptr)[12] = x;
+	((short*)db.polyptr)[13] = y;
+
+	((char*)db.polyptr)[28] = a2->u1;
+	((char*)db.polyptr)[29] = a2->v1;
+
+	((short*)db.polyptr)[15] = a2->clut;
+	((short*)db.polyptr)[16] = (a2->u2 - a2->u1) + 1;
+	((short*)db.polyptr)[17] = (a2->v2 - a2->v1) + 1;
+
+	int v0 = db.ot[h * 2];
+	db.ot[h * 2] = (unsigned long)db.polyptr;
+	((unsigned long*)db.polyptr)[0] = v0;
+#else
+	setlen(db.polyptr, 6);
 	((int*)db.polyptr)[2] = 0;
 	((int*)db.polyptr)[3] = 0x64808080;
 	((short*)db.polyptr)[8] = x;
@@ -622,42 +641,70 @@ void _DelDrawSprite(int x, int y, int w, int h)
 
 	((short*)db.polyptr)[11] = a2->clut;
 	((short*)db.polyptr)[12] = (a2->u2 - a2->u1) + 1;
-
-	int v0 = db.ot[h] | 0x6000000;
-
-	db.ot[h] = (unsigned long)db.polyptr;
-	((unsigned long*)db.polyptr)[0] = v0;
 	((short*)db.polyptr)[13] = (a2->v2 - a2->v1) + 1;
 
-	db.polyptr += 0x1C;
+	int v0 = db.ot[h];
+	setaddr(&db.ot[h], db.polyptr);
+	setaddr(db.polyptr, v0);
+#endif
+	db.polyptr += sizeof(DR_TPAGE) + sizeof(SPRT);
 }
 
-void _draw_gbackground2(int x, int y, int w, int h, int t0, int t1, int t2, int t3)
+void _draw_gbackground2(int x, int y, int w, int h, int rgb1, int rgb2, int rgb3, int rgb4)
 {
-	int v0 = ((int*)db.ot)[2000] | 0xA000000;
-	db.ot[2000] = (unsigned long)db.polyptr;
-	((int*)db.polyptr)[0] = v0;
-	((int*)db.polyptr)[1] = 0xE1000240;
+#if defined(USE_32_BIT_ADDR)
+#define OT_NUM (2000*2)
+#else
+#define OT_NUM 2000
+#endif
+
+	setDrawTPage(db.polyptr, 0, 1, 2 * 32);
+#if defined(USE_32_BIT_ADDR)
+	setlen(db.polyptr, 11);
+#else
+	setlen(db.polyptr, 10);
+#endif
+	addPrim(db.ot[OT_NUM], db.polyptr);
+
+#if defined(USE_32_BIT_ADDR)
+	((int*)db.polyptr)[3] = 0x0;
+	((int*)db.polyptr)[4] = 0x0;
+	((int*)db.polyptr)[5] = rgb1;
+	((short*)db.polyptr)[12] = x;
+	((short*)db.polyptr)[13] = y;
+	((int*)db.polyptr)[7] = rgb2;
+	((short*)db.polyptr)[16] = x + w;
+	((short*)db.polyptr)[17] = y;
+	((int*)db.polyptr)[9] = rgb3;
+	((short*)db.polyptr)[20] = x;
+	((short*)db.polyptr)[21] = h + y;
+	((int*)db.polyptr)[11] = rgb4;
+	((short*)db.polyptr)[24] = x + w;
+	((short*)db.polyptr)[25] = h + y;
+#else
 	((int*)db.polyptr)[2] = 0x0;
-	((int*)db.polyptr)[3] = t0;
+	((int*)db.polyptr)[3] = rgb1;
 	((short*)db.polyptr)[8] = x;
 	((short*)db.polyptr)[9] = y;
-	((int*)db.polyptr)[5] = t1;
+	((int*)db.polyptr)[5] = rgb2;
 	((short*)db.polyptr)[12] = x + w;
 	((short*)db.polyptr)[13] = y;
-	((int*)db.polyptr)[7] = t2;
+	((int*)db.polyptr)[7] = rgb3;
 	((short*)db.polyptr)[16] = x;
 	((short*)db.polyptr)[17] = h + y;
-	((int*)db.polyptr)[9] = t3;
+	((int*)db.polyptr)[9] = rgb4;
 	((short*)db.polyptr)[20] = x + w;
 	((short*)db.polyptr)[21] = h + y;
-	db.polyptr += 0x2C;
+#endif
+	
+	db.polyptr += sizeof(DR_TPAGE) + sizeof(POLY_G4);
 }
 
 void draw_outlines()
 {
 	int i;
 	int j;
+
 
 	_draw_gbackground2(0, 8, 512, 224, 0x3A101010, 0x3A101010, 0x3A404040, 0x3A404040);
 	_draw_gbackground2(12, 220, 488, 4, 0x3A101010, 0x3A101010, 0x3A404040, 0x3A404040);
@@ -675,7 +722,7 @@ void draw_outlines()
 	{
 		_DelDrawSprite((i * 32) + 48, 8, 24, 0);
 	}
-
+#if 1
 	//loc_8E380
 	for(i = 0; i < 13; i++)
 	{
@@ -703,6 +750,7 @@ void draw_outlines()
 			_DelDrawSprite(j << 5, (i << 5) + 8, 19, 2000);
 		}
 	}
+#endif
 }
 
 void UpdatePulseColour()//8E0F8(<), 9013C(<) (F)

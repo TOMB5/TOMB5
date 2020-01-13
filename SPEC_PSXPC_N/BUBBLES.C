@@ -264,7 +264,11 @@ void DrawMonoScreen(int a0)
 	int i = 0;
 	int j = 0;
 	unsigned long* pp = db.ot;//a2
+#if defined(USE_32_BIT_ADDR)
+	unsigned long t5 = db.ot[2000*2];
+#else
 	unsigned long t5 = db.ot[2000];
+#endif
 	char* a00 = db.polyptr;
 
 	//loc_8F17C
@@ -273,6 +277,19 @@ void DrawMonoScreen(int a0)
 		//loc_8F180 
 		for (j = 0; j < 8; j++)
 		{
+#if defined(USE_32_BIT_ADDR)
+			((int*)a00)[3] = 0;
+			((int*)a00)[4] = 0;
+			((int*)a00)[5] = a0 | 0x64000000;
+			((int*)a00)[6] = ((i << 6) << 16) | (j << 6);
+			((int*)a00)[8] = 0x400040;
+
+			((int*)a00)[0] = t5;
+			setlen(a00, 7);
+			((int*)a00)[2] = (((j << 6) >> 8) + 13) | 0xE1000610;
+			((short*)a00)[14] = (((i << 6) & 0xFF) << 8) | ((j << 6) & 0xFF);
+			((short*)a00)[15] = (ClutStartY << 6) | 0x3C;
+#else
 			((int*)a00)[2] = 0;
 			((int*)a00)[3] = a0 | 0x64000000;
 			((int*)a00)[4] = ((i << 6) << 16) | (j << 6);
@@ -282,14 +299,18 @@ void DrawMonoScreen(int a0)
 			((int*)a00)[1] = (((j << 6) >> 8) + 13) | 0xE1000610;
 			((short*)a00)[10] = (((i << 6) & 0xFF) << 8) | ((j << 6) & 0xFF);
 			((short*)a00)[11] = (ClutStartY << 6) | 0x3C;
+#endif
 
 			t5 = (unsigned long)a00;
-			a00 += 0x1C;//TODO actual polytype
+			a00 += sizeof(DR_TPAGE) + sizeof(SPRT);//TODO actual polytype
 		}
 		j = 0;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	db.ot[2000*2] = (unsigned long)t5;
+#else
 	db.ot[2000] = (unsigned long)t5;
+#endif
 	db.polyptr = (char*)a00;
 
 	return;

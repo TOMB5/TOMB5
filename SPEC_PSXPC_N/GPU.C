@@ -24,10 +24,19 @@ int rgbscaleme = 256;
 int gfx_debugging_mode;
 struct DB_STRUCT db;
 struct MMTEXTURE* RoomTextInfo;
+#if defined(USE_32_BIT_ADDR)
+unsigned long GadwOrderingTables_V2[512 * 2];
+#else
 unsigned long GadwOrderingTables_V2[512];
+#endif
 static int LnFlipFrame;
+#if defined(USE_32_BIT_ADDR)
+unsigned long GadwOrderingTables[5128*2];
+unsigned long GadwPolygonBuffers[52260*2];
+#else
 unsigned long GadwOrderingTables[5128];
 unsigned long GadwPolygonBuffers[52260];
+#endif
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<) (D) (ND)
 {
@@ -37,7 +46,11 @@ void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C
 	db.nOTSize = nOTSize;
 
 	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[0]);
+#if defined(USE_32_BIT_ADDR)
+	db.pickup_order_table[1] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256*2]);
+#else
 	db.pickup_order_table[1] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256]);
+#endif
 	return;
 }
 
@@ -126,7 +139,11 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<) (F)
 	GnLastFrameCount = 0;
 	PutDispEnv(&db.disp[db.current_buffer]);
 
+#if defined(USE_32_BIT_ADDR)
+	DrawOTagEnv(&db.ot[db.nOTSize*2-2], &db.draw[db.current_buffer]);
+#else
 	DrawOTagEnv(&db.ot[db.nOTSize-1], &db.draw[db.current_buffer]);
+#endif
 
 #if DEBUG_VERSION
 	ProfileStartCount();
