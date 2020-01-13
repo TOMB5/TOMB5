@@ -141,6 +141,8 @@ void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigne
 		setRGB1(ptr, getR(color2), getG(color2), getB(color2));
 		setXY2(ptr, x, y, x + width / 2, y);
 
+#if defined(USE_32_BIT_ADDR)
+		addPrim(db.ot + otnum * 2, ptr);
 #else
 		addPrim(db.ot + otnum, ptr);
 #endif

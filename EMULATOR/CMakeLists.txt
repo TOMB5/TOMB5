@@ -10,6 +10,9 @@ get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR}
 #Enable NTSC mode
 OPTIONAL_DEFINE(NTSC_VERSION "Enable/Disable NTSC Mode" ON)
 
+#Enable 32-bit address for tag
+OPTIONAL_DEFINE(USE_32_BIT_ADDR "Enable/Disable 32-bit address for tag" ON)
+
 #Setup platform specific / game code include folder
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -19,9 +22,7 @@ file(GLOB_RECURSE EMULATOR_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAK
 #Group solution source files to correct folders.
 source_group(${PLATFORM_SPECIFIC_FOLDER_NAME} FILES ${EMULATOR_SPECIFIC_SRCS})
 
-if(ANDROID)
-
-else()
+if(NOT ANDROID)
 add_library(
 ${PROJECT_NAME}
 STATIC
