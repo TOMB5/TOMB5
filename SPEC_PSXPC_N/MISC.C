@@ -96,8 +96,11 @@ void DrawF4(unsigned short x, unsigned short y, unsigned short w, unsigned short
 
 		setXYWH(ptr, x, y, w, h);
 
+#if defined(USE_32_BIT_ADDR)
+		addPrim(db.ot + otnum * 2, ptr);
+#else
 		addPrim(db.ot + otnum, ptr);
-		
+#endif
 		db.polyptr += sizeof(POLY_F4);
 	}
 	//locret_5EE70
@@ -109,8 +112,11 @@ void DrawTPage(unsigned char otnum, unsigned char tpage) //5EE78(<), 5FB58(<)
 	{
 		setDrawTPage(db.polyptr, FALSE, FALSE, tpage * 32);
 
+#if defined(USE_32_BIT_ADDR)
+		addPrim(db.ot + otnum * 2, db.polyptr);
+#else
 		addPrim(db.ot + otnum, db.polyptr);
-
+#endif
 		db.polyptr += sizeof(DR_TPAGE);
 	}
 }
@@ -123,7 +129,11 @@ void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigne
 
 		setLineG2(ptr);
 		setSemiTrans(ptr, TRUE);
+#if defined(USE_32_BIT_ADDR)
+		setlen(ptr, 10);
+#else
 		setlen(ptr, 9);
+#endif
 
 		ptr->p1 = getcode(ptr);
 
@@ -131,7 +141,11 @@ void DrawLineH(unsigned short x, unsigned short y, unsigned short width, unsigne
 		setRGB1(ptr, getR(color2), getG(color2), getB(color2));
 		setXY2(ptr, x, y, x + width / 2, y);
 
+#if defined(USE_32_BIT_ADDR)
+		addPrim(db.ot + otnum * 2, ptr);
+#else
 		addPrim(db.ot + otnum, ptr);
+#endif
 
 		ptr++;
 
@@ -158,7 +172,11 @@ void DrawLineV(unsigned short x, unsigned short y, unsigned short height, unsign
 
 		setLineG2(ptr);
 		setSemiTrans(ptr, TRUE);
+#if defined(USE_32_BIT_ADDR)
+		setlen(ptr, 10);
+#else
 		setlen(ptr, 9);
+#endif
 
 		ptr->p1 = getcode(ptr);
 

@@ -35,7 +35,11 @@ void DrawSkyMesh(short* mesh)
 	s5 = db.polyptr;
 	t9 = db.ot;
 	v0 = ((int*)mesh)[2];
+#if defined(USE_32_BIT_ADDR)
+	s6 = t9[2563*2];
+#else
 	s6 = t9[2563];
+#endif
 	mesh += 6;
 	a1 = v0 >> 16;
 	v0 &= 0xFF;
@@ -143,10 +147,18 @@ loc_7DD84:
 				if (at == 0)
 				{
 					t5 += (int)a22;
+
+#if defined(USE_32_BIT_ADDR)
+					((int*)s5)[3] = SXY0;
+					((int*)s5)[6] = SXY1;
+					((int*)s5)[9] = SXY2;
+					((int*)s5)[12] = t4;
+#else
 					((int*)s5)[2] = SXY0;
 					((int*)s5)[5] = SXY1;
 					((int*)s5)[8] = SXY2;
 					((int*)s5)[11] = t4;
+#endif
 
 					t4 = ((int*)t5)[2];
 					at = DQB;
@@ -183,7 +195,17 @@ loc_7DD84:
 						}//loc_7DE80
 					}//loc_7DE80
 
+#if defined(USE_32_BIT_ADDR)
+					((int*)s5)[2] = t6;
+					((int*)s5)[5] = t6;
+					((int*)s5)[8] = at;
+					((int*)s5)[11] = at;
+					((int*)s5)[4] = t2;
+					((int*)s5)[7] = t3;
+					((int*)s5)[10] = t4;
+					((int*)s5)[13] = t5;
 
+#else
 					((int*)s5)[1] = t6;
 					((int*)s5)[4] = t6;
 					((int*)s5)[7] = at;
@@ -192,12 +214,19 @@ loc_7DD84:
 					((int*)s5)[6] = t3;
 					((int*)s5)[9] = t4;
 					((int*)s5)[12] = t5;
+#endif
 
 					at = 0xC000000;
 					t2 = s6 | at;
+#if defined(USE_32_BIT_ADDR)
+					setlen(s5, at >> 24);
+					addPrim(s6, s5);
+					s5 += sizeof(POLY_GT4);
+#else
 					((int*)s5)[0] = t2;
 					s6 = (int)s5;
 					s5 += 0x34;
+#endif
 				}//loc_7DEB4
 			}//loc_7DEB4
 
@@ -214,7 +243,11 @@ loc_7DD84:
 	}
 loc_7DECC:
 	db.polyptr = s5;
+#if defined(USE_32_BIT_ADDR)
+	t9[2563*2] = s6;
+#else
 	t9[2563] = s6;
+#endif
 }
 
 int HorClipXY(int t1, int t2, int t3, int t4)//7DF00, ? (F)
@@ -279,7 +312,11 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 	((short*)t0)[37] = flags;
 
 	t9 = ((int*)&layer)[0];
+#if defined(USE_32_BIT_ADDR)
+	t4 = db.ot[2563*2];
+#else
 	t4 = db.ot[2563];
+#endif
 	v0 = objects[SKY_GRAPHICS].mesh_index;//Offset by 2
 	t1 = &psxspriteinfo[objects[SKY_GRAPHICS].mesh_index];
 	t8 = 0;
@@ -402,7 +439,11 @@ void DrawFlatSky_ASM(CVECTOR layer, short pos, int flags)
 		t1++;
 	} while (t8 < 4);
 
+#if defined(USE_32_BIT_ADDR)
+	db.ot[2563*2] = t4;
+#else
 	db.ot[2563] = t4;
+#endif
 }
 
 void DrawSubdivChunk(int* a3, int t6, int t7, unsigned long* t4, int* t9)
@@ -429,14 +470,25 @@ void DrawSubdivChunk(int* a3, int t6, int t7, unsigned long* t4, int* t9)
 			docop2(0x1400006);
 			at = MAC0;
 			a2 = ((unsigned short*)a3)[2];
-			((int*)db.polyptr)[2] = a3[0];
 
+#if defined(USE_32_BIT_ADDR)
+			((int*)db.polyptr)[3] = a3[0];
+
+#else
+			((int*)db.polyptr)[2] = a3[0];
+#endif
 			if (at >= 0)
 			{
+#if defined(USE_32_BIT_ADDR)
+				((int*)db.polyptr)[5] = a3[2];
+				((int*)db.polyptr)[7] = a3[6];
+				((int*)db.polyptr)[9] = a3[8];
+				
+#else
 				((int*)db.polyptr)[4] = a3[2];
 				((int*)db.polyptr)[6] = a3[6];
 				((int*)db.polyptr)[8] = a3[8];
-
+#endif
 				at = a2 + 0x1F;
 				v1 = a2 + 0x1F00;
 				a0 = v1 + 0x1F;
@@ -444,16 +496,29 @@ void DrawSubdivChunk(int* a3, int t6, int t7, unsigned long* t4, int* t9)
 				a2 |= t6;
 				at |= t7;
 
+#if defined(USE_32_BIT_ADDR)
+				((int*)db.polyptr)[4] = a2;
+				((int*)db.polyptr)[6] = at;
+				((short*)db.polyptr)[16] = v1;
+				((short*)db.polyptr)[20] = a0;
+#else
 				((int*)db.polyptr)[3] = a2;
 				((int*)db.polyptr)[5] = at;
 				((short*)db.polyptr)[14] = v1;
 				((short*)db.polyptr)[18] = a0;
-
-				*t4 |= 0x9000000;
+#endif
+#if defined(USE_32_BIT_ADDR)
+				((unsigned int*)db.polyptr)[2] = *t9;
+				setlen(db.polyptr, 9);
+				addPrim(*t4, db.polyptr);
+				db.polyptr += sizeof(POLY_GT3);
+#else
+				* t4 |= 0x9000000;
 				((unsigned int*)db.polyptr)[0] = *t4;
 				((unsigned int*)db.polyptr)[1] = *t9;
 				*t4 = (unsigned int)db.polyptr;
 				db.polyptr += 0x28;
+#endif
 			}
 		}//locret_7E21C
 	}//locret_7E21C

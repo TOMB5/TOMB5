@@ -178,13 +178,8 @@ int g_numSplitIndices = 0;
 
 //#define WIREFRAME_MODE
 
-//Nasty hack, win32 is like original but due to memory differences
-//Between Linux and Windows we must do this unfortunately.
-#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
 unsigned long terminator = -1;
-#else
-unsigned long* terminator;
-#endif
+
 void(*drawsync_callback)(void) = NULL;
 
 void* off_3348[]=
@@ -227,7 +222,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	Emulator_CheckTextureIntersection(rect);
 	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 	Emulator_BindTexture(vramTexture);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x, rect->y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
 
 #if _DEBUG && 0
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
@@ -267,8 +262,8 @@ int MoveImage(RECT16* rect, int x, int y)
 	glScissor(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
 	Emulator_BindTexture(vramTexture);
 
-	unsigned short* pixels = (unsigned short*)SDL_malloc(rect->w * rect->h * sizeof(unsigned short));
-	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
+	unsigned short* pixels = (unsigned short*)SDL_malloc(rect->w * RESOLUTION_SCALE * rect->h * RESOLUTION_SCALE * sizeof(unsigned short));
+	glReadPixels(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
 
 	return 0;
@@ -303,19 +298,12 @@ u_long* ClearOTag(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
 	//last is special terminator
-	ot[n-1] = (unsigned long)&terminator;
-#else
-	//last is special terminator
-	ot[n-1] = (unsigned long)terminator;
-#endif
+	ot[n - 1] = (unsigned long)&terminator;
 
 	for (int i = n - 2; i > -1; i--)
 	{
 		ot[i] = (unsigned long)&ot[i + 1];
-		//Asset - Not 24-bit address, we need to crash now!
-		assert((ot[i] & 0xFF000000) == 0);
 	}
 
 	return NULL;
@@ -327,19 +315,22 @@ u_long* ClearOTagR(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
 	//First is special terminator
-	ot[0] = (unsigned long)&terminator;
-#else
-	//First is special terminator
-	ot[0] = (unsigned long)terminator;
-#endif
+	setaddr(ot, &terminator);
+	setlen(ot, 0);
 
-	for (int i = 1; i < n; i++)
+#if defined(USE_32_BIT_ADDR)
+	for (int i = 2; i < n * 2; i+=2)
+#else
+	for (int i = 1; i < n ; i++)
+#endif
 	{
-		ot[i] = (unsigned long)& ot[i - 1];
-		//Asset - Not 24-bit address, we need to crash now!
-		assert((ot[i] & 0xFF000000) == 0);
+#if defined(USE_32_BIT_ADDR)
+		setaddr(&ot[i], (unsigned long)&ot[i - 2]);
+#else
+		setaddr(&ot[i], (unsigned long)&ot[i - 1]);
+#endif
+		setlen(&ot[i], 0);
 	}
 
 	return NULL;
@@ -499,6 +490,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
+		
 		P_TAG* pTag = (P_TAG*)p;
 
 		glGenBuffers(1, &vbo);
@@ -525,14 +517,14 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		{
 			if (pTag->len > 0)
 			{
+#if defined(USE_32_BIT_ADDR)
+				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 8);
+#else
 				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
+#endif
 			}
 			pTag = (P_TAG*)pTag->addr;
-#if __linux__ || __APPLE_
-		}while ((unsigned long)pTag != 0xFFFFFF);
-#else
-		}while ((unsigned long)pTag != (unsigned long)&terminator);
-#endif
+		}while ((uintptr_t)pTag != (uintptr_t)&terminator);
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
@@ -544,7 +536,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			}
 			else
 			{
+#if !defined(__EMSCRIPTEN__)
 				assert(g_splitIndices[i].textureId < 1000);
+#endif
 				Emulator_BindTexture(g_splitIndices[i].textureId);
 			}
 
@@ -1413,12 +1407,18 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			{
 			case 0xE1:
 			{
+#if defined(USE_32_BIT_ADDR)
+				unsigned short tpage = ((unsigned short*)pTag)[4];
+#else
 				unsigned short tpage = ((unsigned short*)pTag)[2];
+#endif
 				//if (tpage != 0)
 				{
 					activeDrawEnv.tpage = tpage;
 				}
-				currentAddress += 8;
+
+				currentAddress += sizeof(DR_TPAGE);
+
 				break;
 			}
 			default:
@@ -2379,11 +2379,7 @@ void DrawOTag(u_long* p)
 				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
 			}
 			pTag = (P_TAG*)pTag->addr;
-#if __linux__ || __APPLE_
-		} while ((unsigned long)pTag != 0xFFFFFF);
-#else
 		} while ((unsigned long)pTag != (unsigned long)& terminator);
-#endif
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 

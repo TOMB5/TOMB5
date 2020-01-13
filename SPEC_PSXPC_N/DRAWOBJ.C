@@ -12,8 +12,13 @@
 
 void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)//7FF38(<) ? (F)
 {
+#if defined(USE_32_BIT_ADDR)
+	((int*)s0)[3] = *s4;
+	((char*)s0)[11] = 0x36;
+#else
 	((int*)s0)[2] = *s4;
 	((char*)s0)[7] = 0x36;
+#endif
 	*s3 = ((t6 & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -21,7 +26,11 @@ void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s
 	}
 
 	//loc_7FF64
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[8] = *s3;
+#else
 	((char*)s0)[4] = *s3;
+#endif
 	*s3 = (((t6 >> 8) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -29,7 +38,11 @@ void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s
 	}
 
 	//loc_7FF8C
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[9] = *s3;
+#else
 	((char*)s0)[5] = *s3;
+#endif
 	*s3 = (((t6 >> 16) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -37,7 +50,11 @@ void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s
 	}
 
 	//loc_7FFB4
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[10] = *s3;
+#else
 	((char*)s0)[6] = *s3;
+#endif
 	*s3 = ((t7 & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -45,7 +62,11 @@ void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s
 	}
 
 	//loc_7FFD8
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[20] = *s3;
+#else
 	((char*)s0)[16] = *s3;
+#endif
 	*s3 = (((t7 >> 8) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -53,14 +74,21 @@ void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s
 	}
 
 	//loc_80000
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[21] = *s3;
+#else
 	((char*)s0)[17] = *s3;
+#endif
 	*s3 = (((t7 >> 16) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[22] = *s3;
+#else
 	((char*)s0)[18] = *s3;
+#endif
 	*s3 = ((t8 & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -68,7 +96,11 @@ void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s
 	}
 
 	//loc_8004C
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[32] = *s3;
+#else
 	((char*)s0)[28] = *s3;
+#endif
 	*s3 = (((t8 >> 8) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -76,7 +108,11 @@ void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s
 	}
 
 	//loc_80074
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[33] = *s3;
+#else
 	((char*)s0)[29] = *s3;
+#endif
 	*s3 = (((t8 >> 16) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
@@ -84,6 +120,16 @@ void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s
 	}
 
 	//loc_8009C
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[34] = *s3;
+	((int*)s0)[4] = t2;
+	((int*)s0)[6] = s5;
+	((int*)s0)[7] = t3;
+	((int*)s0)[9] = s6;
+	((int*)s0)[10] = t4;
+	((int*)s0)[3] = *s4;
+	*s4 = ((int*)s0)[3];
+#else
 	((char*)s0)[30] = *s3;
 	((int*)s0)[3] = t2;
 	((int*)s0)[5] = s5;
@@ -92,10 +138,25 @@ void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s
 	((int*)s0)[9] = t4;
 	((int*)s0)[2] = *s4;
 	*s4 = ((int*)s0)[2];
+#endif
 }
 
 void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4, int t9, int s7, int t5)//7ED78(<), (F)
 {
+#if defined(USE_32_BIT_ADDR)
+	((int*)polyptr)[2] = t6;
+	((int*)polyptr)[3] = s4;
+	((int*)polyptr)[4] = t2;
+	((int*)polyptr)[5] = t7;
+	((int*)polyptr)[6] = s5;
+	((int*)polyptr)[7] = t3;
+	((int*)polyptr)[8] = t8;
+	((int*)polyptr)[9] = s6;
+	((int*)polyptr)[10] = t4;
+	((int*)polyptr)[11] = t9;
+	((int*)polyptr)[12] = s7;
+	((int*)polyptr)[13] = t5;
+#else
 	((int*)polyptr)[1] = t6;
 	((int*)polyptr)[2] = s4;
 	((int*)polyptr)[3] = t2;
@@ -108,10 +169,22 @@ void InitGT4(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int 
 	((int*)polyptr)[10] = t9;
 	((int*)polyptr)[11] = s7;
 	((int*)polyptr)[12] = t5;
+#endif
 }
 
 void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int t8, int s6, int t4)//7ED50(<), (F)
 {
+#if defined(USE_32_BIT_ADDR)
+	((int*)polyptr)[2] = t6;
+	((int*)polyptr)[3] = s4;
+	((int*)polyptr)[4] = t2;
+	((int*)polyptr)[5] = t7;
+	((int*)polyptr)[6] = s5;
+	((int*)polyptr)[7] = t3;
+	((int*)polyptr)[8] = t8;
+	((int*)polyptr)[9] = s6;
+	((int*)polyptr)[10] = t4;
+#else
 	((int*)polyptr)[1] = t6;
 	((int*)polyptr)[2] = s4;
 	((int*)polyptr)[3] = t2;
@@ -121,6 +194,7 @@ void InitGT3(char* polyptr, int t6, int s4, int t2, int t7, int s5, int t3, int 
 	((int*)polyptr)[7] = t8;
 	((int*)polyptr)[8] = s6;
 	((int*)polyptr)[9] = t4;
+#endif
 }
 
 void UnpackRGB(int* t2, int* t6, int* fp, int* t3, int* at, int* t7, int* t8)
@@ -233,8 +307,13 @@ char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8,
 	t6 >>= 7;
 	t6 += t2;
 
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[72] = t5;
+	((char*)s0)[73] = t6;
+#else
 	((char*)s0)[64] = t5;
 	((char*)s0)[65] = t6;
+#endif
 
 	docop2(0x48E012);
 
@@ -247,8 +326,13 @@ char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8,
 	t6 >>= 7;
 	t6 += t2;
 
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[80] = t5;
+	((char*)s0)[81] = t6;
+#else
 	((char*)s0)[72] = t5;
 	((char*)s0)[73] = t6;
+#endif
 
 	docop2(0x496012);
 	t5 = MAC1;
@@ -262,8 +346,13 @@ char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8,
 	VY0 = ((int*)t9)[0] >> 16;
 	VZ0 = ((int*)t9)[1];
 
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[88] = t5;
+	((char*)s0)[89] = t6;
+#else
 	((char*)s0)[80] = t5;
 	((char*)s0)[81] = t6;
+#endif
 
 	docop2(0x486012);
 
@@ -274,26 +363,49 @@ char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8,
 	t6 >>= 7;
 	t6 += t2;
 
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[96] = t5;
+	((char*)s0)[97] = t6;
+	((short*)s0)[37] = t7;
+#else
 	((char*)s0)[88] = t5;
 	((char*)s0)[89] = t6;
 	((short*)s0)[33] = t7;
+#endif
 	t7 >>= 16;
+#if defined(USE_32_BIT_ADDR)
+	((short*)s0)[41] = t7;
+#else
 	((short*)s0)[37] = t7;
-	s0 += 0x34;
+#endif
+	s0 += sizeof(POLY_GT4);
 
 	t2 = ((int*)t1)[0];
+
+#if defined(USE_32_BIT_ADDR)
+	setlen(s0, 9);
+	addPrim(t1, s0);
+#else
 	((int*)t1)[0] = (int)s0;
 	at = 0x9000000;
 	t2 |= at;
 	((int*)s0)[0] = t2;
-	s0 -= 0x34;
+#endif
+	s0 -= sizeof(POLY_GT4);
 
 	t22 = (s2 * t22) >> 4;
 
+#if defined(USE_32_BIT_ADDR)
+	((int*)s0)[17] = s4;
+	((int*)s0)[19] = s5;
+	((int*)s0)[21] = s6;
+	((int*)s0)[23] = s7;
+#else
 	((int*)s0)[15] = s4;
 	((int*)s0)[17] = s5;
 	((int*)s0)[19] = s6;
 	((int*)s0)[21] = s7;
+#endif
 
 	at = 0x2E000000;
 	if (t22 >= 0x1F)
@@ -308,8 +420,11 @@ char* dirty_envmap_intensity_shit_QUAD(char* s0, int t2, int t6, int t7, int t8,
 	at |= t22;
 	t22 <<= 8;
 	at |= t22;
+#if defined(USE_32_BIT_ADDR)
+	((int*)s0)[16] = at;
+#else
 	((int*)s0)[14] = at;
-
+#endif
 	return s0;
 }
 
@@ -351,17 +466,17 @@ char* dirty_envmap_intensity_shit_TRI(int t2, int t6, int t7, int t8, int s3, ch
 	t6 = (at << 3) & 0x7F8;
 	t6 += s3;
 
-	VX0 = ((int*)t6)[0] & 0xFFFF;
-	VY0 = ((int*)t6)[0] >> 16;
-	VZ0 = ((int*)t6)[1];
+	VX0 = ((unsigned int*)t6)[0] & 0xFFFF;
+	VY0 = (((unsigned int*)t6)[0] >> 16) & 0xFFFF;
+	VZ0 = ((unsigned int*)t6)[1];
 
-	VX1 = ((int*)t7)[0] & 0xFFFF;
-	VY1 = ((int*)t7)[0] >> 16;
-	VZ1 = ((int*)t7)[1];
+	VX1 = ((unsigned int*)t7)[0] & 0xFFFF;
+	VY1 = (((unsigned int*)t7)[0] >> 16) & 0xFFFF;
+	VZ1 = ((unsigned int*)t7)[1];
 
-	VX2 = ((int*)t8)[0] & 0xFFFF;
-	VY2 = ((int*)t8)[0] >> 16;
-	VZ2 = ((int*)t8)[1];
+	VX2 = ((unsigned int*)t8)[0] & 0xFFFF;
+	VY2 = (((unsigned int*)t8)[0] >> 16) & 0xFFFF;
+	VZ2 = ((unsigned int*)t8)[1];
 
 	docop2(0x486012);
 
@@ -374,8 +489,13 @@ char* dirty_envmap_intensity_shit_TRI(int t2, int t6, int t7, int t8, int s3, ch
 	t6 >>= 7;
 	t6 += t2;
 
+#if defined(USE_32_BIT_ADDR)
+	s0[60] = t5;
+	s0[61] = t6;
+#else
 	s0[52] = t5;
 	s0[53] = t6;
+#endif
 
 	docop2(0x48E012);
 	t7 = RGB2;
@@ -386,8 +506,14 @@ char* dirty_envmap_intensity_shit_TRI(int t2, int t6, int t7, int t8, int s3, ch
 	t5 += t8;
 	t6 >>= 7;
 	t6 += t2;
+
+#if defined(USE_32_BIT_ADDR)
+	s0[68] = t5;
+	s0[69] = t6;
+#else
 	s0[60] = t5;
 	s0[61] = t6;
+#endif
 
 	docop2(0x496012);
 	t5 = MAC1;
@@ -397,26 +523,53 @@ char* dirty_envmap_intensity_shit_TRI(int t2, int t6, int t7, int t8, int s3, ch
 	t6 >>= 7;
 	t6 += t2;
 
+#if defined(USE_32_BIT_ADDR)
+	s0[76] = t5;
+	s0[77] = t6;
+#else
 	s0[68] = t5;
 	s0[69] = t6;
+#endif
 
-	((short*)s0)[27] = t7;
-	t7 >>= 16;
+#if defined(USE_32_BIT_ADDR)
 	((short*)s0)[31] = t7;
+#else
+	((short*)s0)[27] = t7;
+#endif
 
-	s0 += 0x28;
+	t7 >>= 16;
+#if defined(USE_32_BIT_ADDR)
+	((short*)s0)[35] = t7;
+#else
+	((short*)s0)[31] = t7;
+#endif
 
+	s0 += sizeof(POLY_GT3);
 	t2 = ((int*)t1)[0];
-	((int*)t1)[0] = (int)s0;
 	at = 0x7000000;
+
+#if defined(USE_32_BIT_ADDR)
+	t2 |= at;
+	setlen(s0, 7);
+	addPrim(t1, s0);
+#else
+	((int*)t1)[0] = (int)s0;
 	t2 |= at;
 	((int*)s0)[0] = t2;
-	s0 -= 0x28;
+#endif
+
+	s0 -= sizeof(POLY_GT3);
 
 	t22 = (s2 * t22) >> 4;
+#if defined(USE_32_BIT_ADDR)
+	((int*)s0)[14] = s4;
+	((int*)s0)[16] = s5;
+	((int*)s0)[18] = s6;
+#else
 	((int*)s0)[12] = s4;
 	((int*)s0)[14] = s5;
 	((int*)s0)[16] = s6;
+#endif
 	at = 0x26000000;
 	if (t22 >= 0x1F)
 	{
@@ -430,8 +583,12 @@ char* dirty_envmap_intensity_shit_TRI(int t2, int t6, int t7, int t8, int s3, ch
 	at |= t22;
 	t22 <<= 8;
 	at |= t22;
-	((int*)s0)[11] = at;
 
+#if defined(USE_32_BIT_ADDR)
+	((int*)s0)[13] = at;
+#else
+	((int*)s0)[11] = at;
+#endif
 	return s0;
 }
 
@@ -854,12 +1011,24 @@ void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2
 						t3 = ((int*)t5)[1];
 						t2 -= at;
 						InitGT3(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4);
+						
+
+#if defined(USE_32_BIT_ADDR)
+						t1 *= 2;
+						t1 += (int)a3;
+						t2 = ((int*)t1)[0];
+						t2 |= gp;
+						setlen(s0, 9);
+						addPrim(t1, s0);
+						s0 += sizeof(POLY_GT3);
+#else
 						t1 += (int)a3;
 						t2 = ((int*)t1)[0];
 						((int*)t1)[0] = (int)s0;
 						t2 |= gp;
 						((int*)s0)[0] = t2;
 						s0 += 0x28;
+#endif
 					}//loc_7EB0C
 				}//loc_7EB0C
 			}
@@ -959,13 +1128,23 @@ void DrawClippedMesh(int v0, int* a1, char* s0, char* s1, int a0, int s7, int a2
 						t5 = ((int*)t5)[3];
 						t2 -= at;
 						InitGT4(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s7, t5);
-						t1 += (int)a3;
 
+#if defined(USE_32_BIT_ADDR)
+						t1 *= 2;
+						t1 += (int)a3;
+						t2 = ((int*)t1)[0];
+						t2 |= gp;
+						setlen(s0, 12);
+						addPrim(t1, s0);
+						s0 += sizeof(POLY_GT4);
+#else
+						t1 += (int)a3;
 						t2 = ((int*)t1)[0];
 						((int*)t1)[0] = (int)s0;
 						t2 |= gp;
 						((int*)s0)[0] = t2;
 						s0 += 0x34;
+#endif
 					}//loc_7EC54
 				}//loc_7EC54
 			}//loc_7EC54
@@ -1090,6 +1269,9 @@ void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int
 						t2 -= at;
 						InitGT3((char*)s0, t6, s4, t2, t7, s5, t3, t8, s6, t4);
 
+#if defined(USE_32_BIT_ADDR)
+						t1 *= 2;
+#endif
 						t1 += a3;
 
 						if (s2 != 0)
@@ -1099,14 +1281,26 @@ void DrawMesh_Env(int gp, int at, int v0, int a1, int* s0, int* s1, int* a0, int
 						}//loc_7F470
 
 						t2 = ((int*)t1)[0];
+
+
+#if defined(USE_32_BIT_ADDR)
+						t2 |= gp;
+						setlen(s0, 9);
+						addPrim(t1, s0);
+						s0 += sizeof(POLY_GT3) / sizeof(unsigned int);
+#else
 						((int*)t1)[0] = (int)s0;
 						t2 |= gp;
 						((int*)s0)[0] = t2;
 						s0 += 0xA;
-
+#endif
 						if (s2 != 0)
 						{
+#if defined(USE_32_BIT_ADDR)
+							s0 += 0x9;
+#else
 							s0 += 0x8;
+#endif
 						}
 					}//loc_7F48C
 				}//loc_7F48C
@@ -1214,7 +1408,9 @@ loc_7F4BC:
 					t5 = ((int*)t5)[3];
 					t2 -= at;
 					InitGT4((char*)s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s7, t5);
-
+#if defined(USE_32_BIT_ADDR)
+					t1 *= 2;
+#endif
 					t1 += a3;
 					if (s2 != 0)
 					{
@@ -1223,15 +1419,25 @@ loc_7F4BC:
 					}
 					//loc_7F5D8
 					t2 = ((int*)t1)[0];
+
+#if defined(USE_32_BIT_ADDR)
+					t2 |= gp;
+					setlen(s0, 12);
+					addPrim(t1, s0);
+					s0 += sizeof(POLY_GT4) / sizeof(unsigned int);
+#else
 					((int*)t1)[0] = (int)s0;
 					t2 |= gp;
 					((int*)s0)[0] = (int)t2;
-
 					s0 += 13;
-
+#endif
 					if (s2 != 0)
 					{
+#if defined(USE_32_BIT_ADDR)
+						s0 += 11;
+#else
 						s0 += 10;
+#endif
 					}
 				}//loc_7F5F4
 			}//loc_7F5F4
@@ -1270,7 +1476,11 @@ char* do_the_flat_colursub_poly_quad(char* s0, int s2, int t6, int t7, int t8, i
 	int at;
 	int s3;
 
+#if defined(USE_32_BIT_ADDR)
+	((int*)s0)[2] = 0xE1000240;
+#else
 	((int*)s0)[1] = 0xE1000240;
+#endif
 
 	at = s2 & 0xFF;
 
@@ -1335,6 +1545,18 @@ char* do_the_flat_colursub_poly_quad(char* s0, int s2, int t6, int t7, int t8, i
 		s3 = 0xFF;
 	}
 
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[20] = s3;
+	((char*)s0)[21] = s3;
+	((char*)s0)[22] = s3;
+	((char*)s0)[23] = 42;
+	((int*)s0)[3] = 0;
+	((int*)s0)[4] = 0;
+	((int*)s0)[6] = s4;
+	((int*)s0)[7] = s5;
+	((int*)s0)[8] = s6;
+	((int*)s0)[9] = s7;
+#else
 	((char*)s0)[12] = s3;
 	((char*)s0)[13] = s3;
 	((char*)s0)[14] = s3;
@@ -1344,19 +1566,36 @@ char* do_the_flat_colursub_poly_quad(char* s0, int s2, int t6, int t7, int t8, i
 	((int*)s0)[5] = s5;
 	((int*)s0)[6] = s6;
 	((int*)s0)[7] = s7;
+#endif
 	at = ((int*)t1)[0];
+
+#if defined(USE_32_BIT_ADDR)
+	s3 = 0x7000000;
+	at |= s3;
+	setlen(s0, 8);
+	addPrim(t1, s0);
+	s0 += sizeof(POLY_F4) + sizeof(DR_TPAGE);
+#else
 	((int*)t1)[0] = (int)s0;
 	s3 = 0x7000000;
 	at |= s3;
 	((int*)s0)[0] = at;
 	s0 += 0x20;
+#endif
+
+	
 	return s0;
 }
 
 void InitGT4_V2(char* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int t9, int t2, int s5, int t3, int s6, int t4, int s7, int t5)
 {
+#if defined(USE_32_BIT_ADDR)
+	((int*)s0)[3] = *s4;
+	((char*)s0)[11] = 0x3E;
+#else
 	((int*)s0)[2] = *s4;
 	((char*)s0)[7] = 0x3E;
+#endif
 
 	*s3 = ((t6 & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
@@ -1365,83 +1604,127 @@ void InitGT4_V2(char* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int 
 	}
 
 	//loc_801EC
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[8] = *s3;
+#else
 	((char*)s0)[4] = *s3;
+#endif
 	*s3 = (((t6 >> 8) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[9] = *s3;
+#else
 	((char*)s0)[5] = *s3;
+#endif
 	*s3 = (((t6 >> 16) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[10] = *s3;
+#else
 	((char*)s0)[6] = *s3;
+#endif
 	*s3 = ((t7 & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[20] = *s3;
+#else
 	((char*)s0)[16] = *s3;
+#endif
 	*s3 = (((t7 >> 8) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[21] = *s3;
+#else
 	((char*)s0)[17] = *s3;
+#endif
 	*s3 = (((t7 >> 16) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[22] = *s3;
+#else
 	((char*)s0)[18] = *s3;
+#endif
 	*s3 = ((t8 & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[32] = *s3;
+#else
 	((char*)s0)[28] = *s3;
+#endif
 	*s3 = (((t8 >> 8) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[33] = *s3;
+#else
 	((char*)s0)[29] = *s3;
+#endif
 	*s3 = (((t8 >> 16) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[34] = *s3;
+#else
 	((char*)s0)[30] = *s3;
+#endif
 	*s3 = ((t9 & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[44] = *s3;
+#else
 	((char*)s0)[40] = *s3;
+#endif
 	*s3 = (((t9 >> 8) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[45] = *s3;
+#else
 	((char*)s0)[41] = *s3;
+#endif
 	*s3 = (((t9 >> 16) & 0xFF) * at) >> 7;
 	if (*s3 >= 0x100)
 	{
 		*s3 = 0xFF;
 	}
-
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[46] = *s3;
+	((int*)s0)[4] = t2;
+	((int*)s0)[6] = s5;
+	((int*)s0)[7] = t3;
+	((int*)s0)[9] = s6;
+	((int*)s0)[10] = t4;
+	((int*)s0)[12] = s7;
+	((int*)s0)[13] = t5;
+	*s4 = ((int*)s0)[3];
+#else
 	((char*)s0)[42] = *s3;
 	((int*)s0)[3] = t2;
 	((int*)s0)[5] = s5;
@@ -1451,6 +1734,7 @@ void InitGT4_V2(char* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int 
 	((int*)s0)[11] = s7;
 	((int*)s0)[12] = t5;
 	*s4 = ((int*)s0)[2];
+#endif
 }
 
 char* do_the_flat_colursub_poly_tri(char* s0, int s2, int t6, int t7, int t8, int s4, int s5, int s6, int t1)
@@ -1458,8 +1742,11 @@ char* do_the_flat_colursub_poly_tri(char* s0, int s2, int t6, int t7, int t8, in
 	int at;
 	int s3;
 
+#if defined(USE_32_BIT_ADDR)
+	((int*)s0)[2] = 0xE1000240;
+#else
 	((int*)s0)[1] = 0xE1000240;
-
+#endif
 	//loc_800CC
 	at = s2 & 0xFF;
 
@@ -1506,6 +1793,17 @@ char* do_the_flat_colursub_poly_tri(char* s0, int s2, int t6, int t7, int t8, in
 		s3 = 0xFF;
 	}
 
+#if defined(USE_32_BIT_ADDR)
+	((char*)s0)[20] = s3;
+	((char*)s0)[21] = s3;
+	((char*)s0)[22] = s3;
+	((char*)s0)[23] = 34;
+	((int*)s0)[3] = 0;
+	((int*)s0)[4] = 0;
+	((int*)s0)[6] = s4;
+	((int*)s0)[7] = s5;
+	((int*)s0)[8] = s6;
+#else
 	((char*)s0)[12] = s3;
 	((char*)s0)[13] = s3;
 	((char*)s0)[14] = s3;
@@ -1514,11 +1812,21 @@ char* do_the_flat_colursub_poly_tri(char* s0, int s2, int t6, int t7, int t8, in
 	((int*)s0)[4] = s4;
 	((int*)s0)[5] = s5;
 	((int*)s0)[6] = s6;
+#endif
+
 	at = ((int*)t1)[0];
+
+#if defined(USE_32_BIT_ADDR)
+	at |= 0x6000000;
+	setlen(s0, 7);
+	addPrim(t1, s0);
+	s0 += sizeof(POLY_F3) + sizeof(DR_TPAGE);
+#else
 	((int*)t1)[0] = (int)s0;
 	at |= 0x6000000;
 	((int*)s0)[0] = (int)at;
 	s0 += 0x1C;
+#endif
 
 	return s0;
 }
@@ -2016,12 +2324,24 @@ loc_7F0C8:
 					t2 -= at;
 
 					InitGT3(s0, t6, s4, t2, t7, s5, t3, t8, s6, s4);
+					
+
+#if defined(USE_32_BIT_ADDR)
+					t1 *= 2;
+					t1 += (int)a3;
+					t2 = ((int*)t1)[0];
+					t2 |= gp;
+					setlen(s0, 9);
+					addPrim(t1, s0);
+					s0 += sizeof(POLY_GT3);
+#else
 					t1 += (int)a3;
 					t2 = ((int*)t1)[0];
 					((int*)t1)[0] = (int)s0;
 					t2 |= gp;
 					((int*)s0)[0] = t2;
 					s0 += 0x28;
+#endif
 				}//loc_7F1AC
 			}//loc_7F1AC
 
@@ -2122,12 +2442,23 @@ loc_7F1DC:
 					t5 = ((int*)t5)[3];
 					t2 -= at;
 					InitGT4(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s77, t5);
+
+#if defined(USE_32_BIT_ADDR)
+					t1 *= 2;
+					t1 += (int)a3;
+					t2 = ((int*)t1)[0];
+					t2 |= gp;
+					setlen(s0, 12);
+					addPrim(t1, s0);
+					s0 += sizeof(POLY_GT4);
+#else
 					t1 += (int)a3;
 					t2 = ((int*)t1)[0];
 					((int*)t1)[0] = (int)s0;
 					t2 |= gp;
 					((int*)s0)[0] = t2;
 					s0 += 0x34;
+#endif
 				}//loc_7F2EC
 			}
 			//loc_7F2EC
@@ -2357,11 +2688,19 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 					t3 = t55->u1v1tpage;
 					InitGT3(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4);
 
+#if defined(USE_32_BIT_ADDR)
+					unsigned long* t11 = &db.pickup_ot[t1 * 2];
+					t2 = t11[0] | s2;
+					setlen(s0, 9);
+					addPrim(t11, s0);
+					s0 += sizeof(POLY_GT3);
+#else
 					unsigned long* t11 = &db.pickup_ot[t1];
 					t2 = t11[0] | s2;
 					t11[0] = (unsigned long)s0;
 					((unsigned long*)s0)[0] = t2;
 					s0 += 0x28;
+#endif
 				}//loc_80724
 			}//loc_80724
 
@@ -2458,11 +2797,19 @@ void phd_PutPolygons_pickup(short* mesh, long shade)
 					t5 = t55->u3v3pad;
 					InitGT4(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4, t9, s77, t5);
 
+#if defined(USE_32_BIT_ADDR)
+					unsigned long* t11 = &db.pickup_ot[t1 * 2];
+					t2 = t11[0] | s2;
+					setlen(s0, 12);
+					addPrim(t11, s0);
+					s0 += sizeof(POLY_GT4);
+#else
 					unsigned long* t11 = &db.pickup_ot[t1];
 					t2 = t11[0] | s2;
 					t11[0] = (unsigned long)s0;
 					((unsigned long*)s0)[0] = t2;
 					s0 += 0x34;
+#endif
 				}//loc_80858
 			}//loc_80858
 
@@ -2742,6 +3089,9 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 					t2 = ((int*)t5)[0];
 					t3 = ((int*)t5)[1];
 					t2 -= at;
+#if defined(USE_32_BIT_ADDR)
+					t1 *= 2;
+#endif
 					t1 += (int)a3;
 					at = 0xFF9FFFFF;
 					t3 &= at;
@@ -2749,13 +3099,19 @@ void phd_PutPolygons_seethrough(short* mesh, unsigned char shade)
 					t3 |= at;
 					at = shade & 0xFF;
 					InitGT3_V2((int*)s0, &s4, &s3, t6, at, t7, t8, s5, t3, t2, s6, t4);
-
 					t2 = ((int*)t1)[0];
+
+#if defined(USE_32_BIT_ADDR)
+					t2 |= gp;
+					setlen(s0, 9);
+					addPrim(t1, s0);
+					s0 += sizeof(POLY_GT3);
+#else
 					((int*)t1)[0] = (int)s0;
 					t2 |= gp;
 					((int*)s0)[0] = (int)t2;
 					s0 += 0x28;
-
+#endif
 					s0 = do_the_flat_colursub_poly_tri(s0, shade & 0xFF, t6, t7, t8, s4, s5, s6, t1);
 
 				}//loc_7FDB8
@@ -2861,6 +3217,9 @@ loc_7FDE8:
 				t3 = ((int*)t5)[1];
 				t5 = ((int*)t5)[3];
 				t2 -= at;
+#if defined(USE_32_BIT_ADDR)
+				t1 *= 2;
+#endif
 				t1 += (int)a3;
 				at = 0x3E000000;
 				t6 |= at;
@@ -2871,10 +3230,18 @@ loc_7FDE8:
 				at = shade & 0xFF;
 				InitGT4_V2(s0, &s4, &s3, t6, at, t7, t8, t9, t2, s5, t3, s6, t4, s77, t5);
 				at = ((int*)t1)[0];
+
+#if defined(USE_32_BIT_ADDR)
+				at |= gp;
+				setlen(s0, 12);
+				addPrim(t1, s0);
+				s0 += sizeof(POLY_GT4);
+#else
 				((int*)t1)[0] = (int)s0;
 				at |= gp;
 				((int*)s0)[0] = (int)at;
 				s0 += 0x34;
+#endif
 				s0 = do_the_flat_colursub_poly_quad(s0, shade & 0xFF, t6, t7, t8, t9, s4, s5, s6, s77, t1);;
 			}
 

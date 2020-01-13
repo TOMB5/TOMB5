@@ -11,8 +11,6 @@
 #define CMATH_H <LIBMATH.H>
 #define INLINE_H <INLINE_C.H>
 
-//#include <SYS/TYPES.H>
-#include <LIBGTE.H>
 #include <LIBGPU.H>
 
 #define getR(rgb) ((rgb) & 0xFF)
