@@ -1009,6 +1009,260 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	mLoadMatrix(&t8[38]);
 }
 
+void InterpolateMatrix(int* t8, int* a0)
+{
+	int t0 = R22 | (R23 << 16);
+	int t1 = R31 | (R32 << 16);
+	int t2 = R33;
+	int t3 = L22 | (L23 << 16);
+	int t4 = L31 | (L32 << 16);
+	int t5 = L33;
+
+	t8[90] = t0;
+	t8[91] = t1;
+	t8[92] = t2;
+
+	t8[82] = t3;
+	t8[83] = t4;
+	t8[84] = t5;
+
+	int v1 = t8[47];
+	int t7 = t8[46];
+
+	int t6 = R11 | (R12 << 16);
+	t3 = R13 | (R21 << 16);
+	int a3 = L11 | (L12 << 16);
+	t2 = L13 | (L21 << 16);
+
+	t1 = t6 >> 16;
+	t6 <<= 16;
+	t6 >>= 16;
+	t5 = t3 >> 16;
+	t3 <<= 16;
+	t3 >>= 16;
+	t0 = a3 >> 16;
+	a3 <<= 16;
+	a3 >>= 16;
+	t4 = t2 >> 16;
+	t2 <<= 16;
+	t2 >>= 16;
+
+	if (v1 == 2 || (t7 == 2 && v1 == 4))
+	{
+		//loc_854A8
+		t0 += t1;
+		t0 >>= 1;
+		a3 += t6;
+		a3 >>= 1;
+		t2 += t3;
+		t2 >>= 1;
+		t4 += t5;
+		t4 >>= 1;
+
+		((short*)a0)[0] = a3;
+		((short*)a0)[1] = t0;
+		((short*)a0)[2] = t2;
+		((short*)a0)[3] = t4;
+
+		a3 = ((short*)t8)[164];
+		t6 = ((short*)t8)[180];
+		t0 = ((short*)t8)[165];
+		t1 = ((short*)t8)[181];
+		a3 += t6;
+		a3 >>= 1;
+		t0 += t1;
+		t0 >>= 1;
+		t2 = ((short*)t8)[166];
+		t3 = ((short*)t8)[182];
+		t4 = ((short*)t8)[167];
+		t5 = ((short*)t8)[183];
+		t2 += t3;
+		t2 >>= 1;
+		t4 += t5;
+		t4 >>= 1;
+
+		((short*)a0)[4] = a3;
+		((short*)a0)[5] = t0;
+		((short*)a0)[6] = t2;
+		((short*)a0)[7] = t4;
+
+		a3 = ((short*)t8)[168];
+		t6 = ((short*)t8)[184];
+
+		t0 = RBK;
+		t1 = TRX;
+
+		a3 += t6;
+		a3 >>= 1;
+		t0 += t1;
+		t0 >>= 1;
+		t2 = GBK;
+		t3 = TRY;
+		t4 = BBK;
+		t5 = TRZ;
+
+		t2 += t3;
+		t2 >>= 1;
+		t4 += t5;
+		t4 >>= 1;
+	}
+	else if(t7 == 1)
+	{
+		//loc_8556C
+		int at = t0 - t1;
+		t0 = at >> 2;
+		t0 = t1 + t0;
+		a3 -= t6;
+		a3 >>= 3;
+		a3 = t6 + a3;
+		t2 -= t3;
+		t2 >>= 2;
+		t2 = t3 + t2;
+		t4 -= t5;
+		t4 >>= 2;
+		t4 = t5 + t4;
+
+		((short*)a0)[0] = a3;
+		((short*)a0)[1] = t0;
+		((short*)a0)[2] = t2;
+		((short*)a0)[3] = t4;
+
+		a3 = ((short*)t8)[164];
+		t6 = ((short*)t8)[180];
+		t0 = ((short*)t8)[165];
+		t1 = ((short*)t8)[181];
+
+		a3 -= t6;
+		a3 >>= 2;
+		a3 = t6 + a3;
+		t0 -= t1;
+		t0 >>= 2;
+		t0 = t1 + t0;
+
+		t2 = ((short*)t8)[166];
+		t3 = ((short*)t8)[182];
+		t4 = ((short*)t8)[167];
+		t5 = ((short*)t8)[183];
+
+		t2 -= t3;
+		t2 >>= 2;
+		t2 = t3 + t2;
+		t4 -= t5;
+		t4 >>= 2;
+		t4 = t5 + t4;
+
+		((short*)a0)[4] = a3;
+		((short*)a0)[5] = t0;
+		((short*)a0)[6] = t2;
+		((short*)a0)[7] = t4;
+
+		a3 = ((short*)t8)[168];
+		t6 = ((short*)t8)[184];
+
+		t0 = RBK;
+		t1 = TRX;
+
+		a3 -= t6;
+		a3 >>= 2;
+		a3 = t6 + a3;
+		t0 -= t1;
+		t0 >>= 2;
+
+		t0 = t1 + t0;
+		t2 = GBK;
+		t3 = TRY;
+		t4 = BBK;
+		t5 = TRZ;
+		t2 -= t3;
+		t2 >>= 2;
+		t2 = t3 + t2;
+		t4 -= t5;
+		t4 >>= 2;
+		t4 = t5 + t4;
+	}
+	else
+	{
+		//loc_85664
+		int at = t0 - t1;
+		t1 = at >> 2;
+		t0 -= t1;
+		t6 = a3 - t6;
+		t6 >>= 2;
+		a3 -= t6;
+		t3 = t2 + t3;
+		t3 >>= 2;
+		t2 -= t3;
+		t5 = t4 + t5;
+		t5 >>= 2;
+		t4 -= t5;
+
+		((short*)a0)[0] = a3;
+		((short*)a0)[2] = t0;
+		((short*)a0)[4] = t2;
+		((short*)a0)[6] = t4;
+
+		a3 = ((short*)t8)[164];
+		t6 = ((short*)t8)[180];
+		t0 = ((short*)t8)[165];
+		t1 = ((short*)t8)[181];
+
+		t6 = a3 - t6;
+		t6 >>= 2;
+		a3 -= t6;
+		t1 = t0 - t1;
+		t1 >>= 2;
+		t0 -= t1;
+
+		t2 = ((short*)t8)[166];
+		t3 = ((short*)t8)[182];
+		t4 = ((short*)t8)[167];
+		t5 = ((short*)t8)[183];
+
+		t3 = t2 - t3;
+		t3 >>= 2;
+		t2 -= t3;
+		t5 = t4 - t5;
+		t5 >>= 2;
+		t4 -= t5;
+
+		((short*)a0)[4] = a3;
+		((short*)a0)[5] = t0;
+		((short*)a0)[6] = t2;
+		((short*)a0)[7] = t4;
+
+		a3 = ((short*)t8)[168];
+		t6 = ((short*)t8)[184];
+
+		t0 = RBK;
+		t1 = TRX;
+
+		t6 = a3 - t6;
+		t6 >>= 2;
+		a3 -= t6;
+		t1 = t0 - t1;
+		t1 >>= 2;
+		t0 -= t1;
+
+		t2 = GBK;
+		t3 = TRY;
+		t4 = BBK;
+		t5 = TRZ;
+
+		t3 = t2 - t3;
+		t3 >>= 2;
+		t2 -= t3;
+		t5 = t4 - t5;
+		t5 >>= 2;
+		t4 -= t5;
+	}
+
+	//loc_85750
+	((short*)a0)[8] = a3;
+	((int*)a0)[5] = t0;
+	((int*)a0)[6] = t2;
+	((int*)a0)[7] = t4;
+}
+
 void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate, long* bone, int flag)
 {
 	int sp[256];
@@ -1063,9 +1317,9 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	mRotSuperPackedYXZ_CL(t8, 0);
 	iRotSuperPackedYXZ_CL(t8, 0);
 
-#if 0
-	
+	InterpolateMatrix(t8, (int*)t8[13]);
 
+#if 0
 	int* s0 = &t8[13];
 	snaff_current_gte_matrix_V1(&t8[22]);
 	int a3 = 6;
