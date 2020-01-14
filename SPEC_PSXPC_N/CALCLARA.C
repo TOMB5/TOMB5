@@ -1009,6 +1009,31 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	mLoadMatrix(&t8[38]);
 }
 
+void DEL_stash_both_matrices(int* t8, int* a0)
+{
+	int t0 = L11 | (L12 << 16);
+	int t1 = L13 | (L21 << 16);
+	int t2 = L22 | (L23 << 16);
+	int t3 = L31 | (L32 << 16);
+
+	t8[56] = t0;
+	t8[57] = t1;
+	t8[58] = t2;
+	t8[59] = t3;
+
+	int t4 = L33;
+	int t5 = RBK;
+	int t6 = GBK;
+	int t7 = BBK;
+
+	t8[60] = t4;
+	t8[61] = t5;
+	t8[62] = t6;
+	t8[63] = t7;
+
+	snaff_current_gte_matrix_V1(a0);
+}
+
 void InterpolateMatrix(int* t8, int* a0)
 {
 	int t0 = R22 | (R23 << 16);
@@ -1318,7 +1343,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	iRotSuperPackedYXZ_CL(t8, 0);
 
 	InterpolateMatrix(t8, (int*)t8[13]);
-
+	DEL_stash_both_matrices(t8, &t8[48]);
 #if 0
 	int* s0 = &t8[13];
 	snaff_current_gte_matrix_V1(&t8[22]);
