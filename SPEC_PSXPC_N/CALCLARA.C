@@ -52,7 +52,7 @@ void copy_matrix_from_scratch(int* a0, int* a1)
 	a1[7] = t7;
 }
 
-void mLoadMatrix(int* mat)
+void mLoadMatrix_CL(int* mat)
 {
 	TRX = mat[5];
 	TRY = mat[6];
@@ -828,21 +828,21 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	do
 	{
 		Hardcore_mTranslateXYZ_CL(&s1[1]);
-		mRotSuperPackedYXZ_CL(&t8[22], 0);
+		mRotSuperPackedYXZ_CL(&t8[22], 0);///@TODO should just be t8 not &t8[22]?
 		snaff_current_gte_matrix_V1(&s0[8]);
 		a3--;
 
 		s1 += 4;
 		if (a3 == 3)
 		{
-			mLoadMatrix(&t8[22]);
+			mLoadMatrix_CL(&t8[22]);
 		}//loc_83CE4
 
 		s0 += 8;
 
 	} while (a3 != 0);
 
-	mLoadMatrix(&t8[22]);
+	mLoadMatrix_CL(&t8[22]);
 	bone -= 24;
 	s0 -= 48;
 
@@ -871,7 +871,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	//?????? sw      a3, 0x24(t8)
 	mRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
 	snaff_current_gte_matrix_V1(&s0[64]);
-	mLoadMatrix(&t8[30]);
+	mLoadMatrix_CL(&t8[30]);
 	Hardcore_mTranslateXYZ_CL(&s1[29]);
 
 	if (lara.gun_status == 2 || lara.gun_status == 3 ||
@@ -895,7 +895,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 			mRotSuperPackedYXZ_CL(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
 
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 
 			if (lara.flare_control_left)
@@ -937,7 +937,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 
 			mRotSuperPackedYXZ_CL(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 			setup_rotation_matrix(&t8[14]);
 			mRotYXZ_CL(lara.left_arm.y_rot, lara.left_arm.x_rot, lara.left_arm.z_rot);
@@ -968,7 +968,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 			Hardcore_mTranslateXYZ_CL(&s1[37]);
 			mRotSuperPackedYXZ_CL(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 
 			setup_rotation_matrix(&t8[14]);
@@ -999,7 +999,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 			Hardcore_mTranslateXYZ_CL(&s1[37]);
 			mRotSuperPackedYXZ_CL(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 			mRotSuperPackedYXZ_CL(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[96]);
@@ -1024,7 +1024,39 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 
 	copy_matrix_from_scratch(&t8[22], s0);
 	copy_matrix_from_scratch(&t8[30], &s0[56]);
-	mLoadMatrix(&t8[38]);
+	mLoadMatrix_CL(&t8[38]);
+}
+
+void DEL_restore_both_matrices(int* t8, int* a0)
+{
+	int t0 = t8[56];
+	int t1 = t8[57];
+	int t2 = t8[58];
+	int t3 = t8[59];
+
+	L11 = t0 & 0xFFFF;
+	L12 = (t0 >> 16) & 0xFFFF;
+
+	L13 = t1 & 0xFFFF;
+	L21 = (t1 >> 16) & 0xFFFF;
+
+	L22 = t2 & 0xFFFF;
+	L23 = (t2 >> 16) & 0xFFFF;
+
+	L31 = t3 & 0xFFFF;
+	L32 = (t3 >> 16) & 0xFFFF;
+
+	int t4 = t8[60];
+	int t5 = t8[61];
+	int t6 = t8[62];
+	int t7 = t8[63];
+
+	L33 = t4;
+	RBK = t5;
+	GBK = t6;
+	BBK = t7;
+
+	mLoadMatrix_CL(a0);
 }
 
 void DEL_stash_both_matrices(int* t8, int* a0)
@@ -1369,25 +1401,34 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	do
 	{
 		Hardcore_iTranslateXYZ_CL(&s11[1], t8);
+		mRotSuperPackedYXZ_CL(t8, 0);
+		iRotSuperPackedYXZ_CL(t8, 0);
+		InterpolateMatrix(t8, (int*)&s0[16]);
+		t9--;
+
+		s1 += 8;
+		if (t9 == 3)
+		{
+			DEL_restore_both_matrices(t8, &t8[48]);
+		}//loc_844B8
 	}
 
 #if 0
-		Hardcore_mTranslateXYZ_CL(&s1[1]);
-		mRotSuperPackedYXZ(&t8[22], 0);
+
 		snaff_current_gte_matrix_V1(&s0[8]);
 		a3--;
 
 		s1 += 4;
 		if (a3 == 3)
 		{
-			mLoadMatrix(&t8[22]);
+			mLoadMatrix_CL(&t8[22]);
 		}//loc_83CE4
 
 		s0 += 8;
 
 	} while (a3 != 0);
 
-	mLoadMatrix(&t8[22]);
+	mLoadMatrix_CL(&t8[22]);
 	bone -= 24;
 	s0 -= 48;
 
@@ -1416,7 +1457,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	//?????? sw      a3, 0x24(t8)
 	mRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
 	snaff_current_gte_matrix_V1(&s0[64]);
-	mLoadMatrix(&t8[30]);
+	mLoadMatrix_CL(&t8[30]);
 	Hardcore_mTranslateXYZ_CL(&s1[29]);
 
 	if (lara.gun_status == 2 || lara.gun_status == 3 ||
@@ -1440,7 +1481,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 			mRotSuperPackedYXZ(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
 
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 
 			if (lara.flare_control_left)
@@ -1482,7 +1523,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 
 			mRotSuperPackedYXZ(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 			setup_rotation_matrix(&t8[14]);
 			mRotYXZ_CL(lara.left_arm.y_rot, lara.left_arm.x_rot, lara.left_arm.z_rot);
@@ -1513,7 +1554,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 			Hardcore_mTranslateXYZ_CL(&s1[37]);
 			mRotSuperPackedYXZ(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 
 			setup_rotation_matrix(&t8[14]);
@@ -1544,7 +1585,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 			Hardcore_mTranslateXYZ_CL(&s1[37]);
 			mRotSuperPackedYXZ(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 			mRotSuperPackedYXZ(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[96]);
@@ -1569,7 +1610,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 
 	copy_matrix_from_scratch(&t8[22], s0);
 	copy_matrix_from_scratch(&t8[30], &s0[56]);
-	mLoadMatrix(&t8[38]);
+	mLoadMatrix_CL(&t8[38]);
 #endif
 }
 
