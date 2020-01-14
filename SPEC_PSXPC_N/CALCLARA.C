@@ -761,6 +761,24 @@ void mTranslateAbsXYZ_CL(long x, long y, long z)
 	mTranslateXYZ_CL(x - ((int*)& MatrixStack[0])[5], y - ((int*)& MatrixStack[0])[6], z - ((int*)& MatrixStack[0])[7]);
 }
 
+void Hardcore_iTranslateXYZ_CL(long* a22, int* t8)
+{
+	int a0 = a22[0];
+	int a1 = a22[1];
+	int a2 = a22[2];
+	int a3 = a0;
+
+	t8[96] = a1;
+	t8[97] = a2;
+
+	mTranslateXYZ_CL(a0, a1, a2);
+
+	///@TODO Not required but....
+	a1 = t8[96];
+	a2 = t8[97];
+	iTranslateXYZ2_CL(a3, a1, a2);
+}
+
 void Hardcore_mTranslateXYZ_CL(long* a2)
 {
 	mTranslateXYZ_CL(a2[0], a2[1], a2[2]);
@@ -1295,7 +1313,6 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	struct ITEM_INFO* item = lara_item;//$t9
 	short* s0 = frame1;
 	short* s1 = frame2;
-	//long* s1 = bone;
 	frame1 += 4;
 	frame2 += 4;
 	t8[9] = (int)frame1;
@@ -1344,14 +1361,17 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 
 	InterpolateMatrix(t8, (int*)t8[13]);
 	DEL_stash_both_matrices(t8, &t8[48]);
-#if 0
-	int* s0 = &t8[13];
-	snaff_current_gte_matrix_V1(&t8[22]);
-	int a3 = 6;
 
-	//loc_83CB4
+	long* s11 = &bone[0];
+	int t9 = 6;
+
+	//loc_84480
 	do
 	{
+		Hardcore_iTranslateXYZ_CL(&s11[1], t8);
+	}
+
+#if 0
 		Hardcore_mTranslateXYZ_CL(&s1[1]);
 		mRotSuperPackedYXZ(&t8[22], 0);
 		snaff_current_gte_matrix_V1(&s0[8]);
