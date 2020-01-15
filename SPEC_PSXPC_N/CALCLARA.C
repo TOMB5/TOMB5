@@ -14,6 +14,13 @@ void S_SetupClutAdder(long underwater)
 	DQB = underwater;
 }
 
+void iRotYXZ_CL(int y, int x, int z)
+{
+	iRotY_CL(y);
+	iRotX_CL(x);
+	iRotZ_CL(z);
+}
+
 void SetRotation_CL(int t0, int t1, int t2, int t3, int t4)
 {
 	R11 = t0 & 0xFFFF;
@@ -1410,23 +1417,48 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 		if (t9 == 3)
 		{
 			DEL_restore_both_matrices(t8, &t8[48]);
-		}//loc_844B8
+		}
+		//loc_844B8
+		s0 += 16;
+	} while (t9 != 0);
+
+	DEL_restore_both_matrices(t8, &t8[48]);
+
+	s0 -= 96;
+	s1 -= 48;
+
+	struct ANIM_STRUCT* t99 = &anims[0];
+	Hardcore_iTranslateXYZ_CL((long*)&s1[50], t8);
+
+	//a0 = lara.weapon_item
+	//v0 = 5
+	if (lara.weapon_item != -1 && lara.gun_type == 5 &&
+		items[lara.weapon_item + 1].frame_number == 0 ||
+		items[lara.weapon_item + 1].frame_number == 2 ||
+		items[lara.weapon_item + 1].frame_number == 4)
+	{
+		//v1 = lara.right_arm.anim_number
+		//v0 = (anims[lara.right_arm.anim_number].interpolation >> 8);
+		//v1 = lara.right_arm.frame_number
+		//t0 = lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8);
+		//a1 = 7
+		t8[10] = (int)lara.right_arm.frame_base[lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8) + 9];
+		t8[9] = (int)lara.right_arm.frame_base[lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8) + 9];
+
+		mRotSuperPackedYXZ_CL(t8, 7);
+		iRotSuperPackedYXZ_CL(t8, 7);
 	}
+	else
+	{
+		mRotSuperPackedYXZ_CL(t8, 0);
+		iRotSuperPackedYXZ_CL(t8, 0);
+	}
+	//loc_84594
+	mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+	iRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+
 
 #if 0
-
-		snaff_current_gte_matrix_V1(&s0[8]);
-		a3--;
-
-		s1 += 4;
-		if (a3 == 3)
-		{
-			mLoadMatrix_CL(&t8[22]);
-		}//loc_83CE4
-
-		s0 += 8;
-
-	} while (a3 != 0);
 
 	mLoadMatrix_CL(&t8[22]);
 	bone -= 24;
