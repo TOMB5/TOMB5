@@ -1,11 +1,26 @@
 #include "CONTROL_S.H"
 
+#include "CAMERA.H"
+#include "COLLIDE_S.H"
 #include "DRAW.H"
 #include "SPECIFIC.H"
 
 void DrawBinoculars()
 {
 	S_Warn("[DrawBinoculars] - Unimplemented!\n");
+}
+
+void TranslateItem(struct ITEM_INFO* item, unsigned short x, unsigned short y, unsigned short z)
+{
+	short sin;//$v1
+	short cos;//$t0
+
+	cos = COS(item->pos.y_rot);
+	sin = SIN(item->pos.y_rot);
+
+	item->pos.x_pos += ((cos * x) + (sin * z)) >> W2V_SHIFT;
+	item->pos.y_pos += y;
+	item->pos.z_pos += ((-sin * x) + (cos * z)) >> W2V_SHIFT;
 }
 
 int GetChange(struct ITEM_INFO* item, struct ANIM_STRUCT* anim)//7D48C
@@ -75,48 +90,62 @@ int GetChange(struct ITEM_INFO* item, struct ANIM_STRUCT* anim)//7D48C
 void AnimateLara(struct ITEM_INFO* item /* s1 */)//7D53C(<)
 {
 	struct ANIM_STRUCT* anim = &anims[item->anim_number];//$s2
+	unsigned short* command;//$s0
+	unsigned short data;//$v0
 
 	item->frame_number += 1;
 	//v0 = anim->number_changes
 
-	if (anim->number_changes > 0 && GetChange())
+	if (anim->number_changes > 0 && GetChange(item, anim))
 	{
+		//v1 = item->anim_number
+		//a0 = &anims[item->anim_number];
+		anim = &anims[item->anim_number];///@TODO Not really required
+		item->current_anim_state = anim->current_anim_state;
+	}
+	//loc_7D5BC
+	//v1 = item->frame_number
+	//v0 = anim->frame_end
 
-	}//loc_7D5BC
+	if (anim->frame_end < item->frame_number)
+	{
+		//s3 = anim->number_commands
+		//v0 = anim->command_index
+		//v1 = commands
+
+		if (anim->number_commands > 0)
+		{
+			command = (unsigned short*)&commands[anim->command_index];
+
+			//loc_7D5EC
+			data = *command++;
+
+			if (data - 1 == 0)
+			{
+				//loc_7D628
+				TranslateItem(item, command[0], command[1], command[2]);
+				command += 3;
+				UpdateLaraRoom(item, -381);
+			}
+			else if (data - 2 == 0)
+			{
+				//loc_7D650
+			}
+			else if (data - 3 == 0)
+			{
+				//loc_7D684
+			}
+			else if (data - 5 == 0 || data - 6 == 0)
+			{
+				//loc_7D620
+			}
+
+			//loc_7D698
+
+		}//loc_7D6A4
+	}//loc_7D6D4
 
 #if 0
-move    $a0, $s1
-jal     sub_7D48C
-move    $a1, $s2
-beqz    $v0, loc_7D5BC
-nop
-lh      $v1, 0x14($s1)
-lw      $a0, 0x202C($gp)
-sll     $v0, $v1, 2
-addu    $v0, $v1
-sll     $v0, 3
-addu    $s2, $a0, $v0
-lh      $v1, 6($s2)
-nop
-sh      $v1, 0xE($s1)
-
-loc_7D5BC:
-lh      $v1, 0x16($s1)
-lh      $v0, 0x1A($s2)
-nop
-slt     $v0, $v1
-beqz    $v0, loc_7D6D4
-nop
-lh      $s3, 0x24($s2)
-lh      $v0, 0x26($s2)
-lw      $v1, 0x2078($gp)
-blez    $s3, loc_7D6A4
-sll     $v0, 1
-addu    $s0, $v1, $v0
-
-loc_7D5EC:
-lhu     $v0, 0($s0)
-addiu   $s0, 2
 addiu   $at, $v0, -1
 beqz    $at, loc_7D628
 addiu   $at, $v0, -2
@@ -132,18 +161,6 @@ nop
 loc_7D620:
 j       loc_7D698
 addiu   $s0, 4
-
-loc_7D628:
-move    $a0, $s1
-lh      $a1, 0($s0)
-lh      $a2, 2($s0)
-lh      $a3, 4($s0)
-jal     sub_7D410
-addiu   $s0, 6
-move    $a0, $s1
-li      $a1, 0xFFFFFE83
-jal     sub_7C58C
-addiu   $ra, 0x48
 
 loc_7D650:
 lw      $v1, 0x84($s1)
