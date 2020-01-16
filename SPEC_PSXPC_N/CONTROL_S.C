@@ -59,7 +59,14 @@ int GetChange(struct ITEM_INFO* item, struct ANIM_STRUCT* anim)//7D48C
 			//loc_7D4E4
 			do
 			{
-				if (item->frame_number < range->start_frame)
+				if (item->frame_number >= range->start_frame && range->end_frame >= item->frame_number)
+				{
+					//loc_7D524
+					item->anim_number = range->link_anim_num;
+					item->frame_number = range->link_frame_num;
+					return 1;
+				}
+				else
 				{
 					//loc_7D4FC
 					j++;
@@ -72,13 +79,6 @@ int GetChange(struct ITEM_INFO* item, struct ANIM_STRUCT* anim)//7D48C
 					{
 						break;
 					}
-				}
-				else if (range->end_frame >= item->frame_number)
-				{
-					//loc_7D524
-					item->anim_number = range->link_anim_num;
-					item->frame_number = range->link_frame_num;
-					return 1;
 				}
 			} while (1);
 		}
