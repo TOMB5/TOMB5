@@ -946,7 +946,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 
 
 #else
-	phd_persp = rcossin_tbl[(((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2) + 1] * 256 / rcossin_tbl[((((fov >> 15) + fov) >> 3) & 0x3FFC) / 2];
+	phd_persp = COS(((fov >> 15) + fov) / 2) * 256 / SIN(((fov >> 15) + fov) / 2);
 #endif
 
 #if PSX_VERSION
@@ -1501,7 +1501,7 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 		camera.target_elevation = -1820;
 	}
 	//loc_263F0
-#if 0
+#if !DEBUG_CAM
 	camera.target_elevation += item->pos.x_rot;
 	UpdateCameraElevation();
 #else
