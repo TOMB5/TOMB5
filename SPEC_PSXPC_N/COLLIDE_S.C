@@ -73,7 +73,7 @@ int FindGridShift(int a0, int a1)
 	a0 &= 0x3FF;
 	if (v1 >= v0)
 	{
-		return a0 ^ -1;
+		return a0 ^ -1;///@TODO check nor
 	}
 	else
 	{
@@ -707,31 +707,34 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 			if (coll->quadrant == 0)
 			{
 				//loc_7B7B0
-				//a0 = zfront
-				//v0 = coll->old.x - xpos
-				//a1 = zpos
-				//a0 = zpos + zfront
 				coll->shift.x = coll->old.x - xpos;
 				FindGridShift(zpos + zfront, zpos);
-#if 0
-jal     sub_7BA34
-sw      $v0, 0x58($s5)
-j       loc_7B7A4
-sw      $v0, 0x60($s5)
-#endif
+				coll->coll_type = 1;
+				return;
 			}
 			else if (coll->quadrant - 1 == 0)
 			{
 				//loc_7B7D4
+				coll->shift.x = FindGridShift(xpos + xfront, xpos);
+				coll->shift.z = coll->old.z + zpos;
+				coll->coll_type = 1;
+				return;
 			}
 			else if (coll->quadrant - 2 == 0)
 			{
 				//loc_7B7B0
+				coll->shift.x = coll->old.x - xpos;
+				FindGridShift(zpos + zfront, zpos);
+				coll->coll_type = 1;
+				return;
 			}
 			else if (coll->quadrant - 3 == 0)
 			{
 				//loc_7B7D4
-
+				coll->shift.x = FindGridShift(xpos + xfront, xpos);
+				coll->shift.z = coll->old.z + zpos;
+				coll->coll_type = 1;
+				return;
 			}
 			else
 			{
@@ -739,114 +742,124 @@ sw      $v0, 0x60($s5)
 				return;
 			}
 		}
+		else if (coll->front_ceiling >= coll->bad_ceiling)
+		{
+			//loc_7B6BC
+			coll->coll_type = 16;
+			coll->shift.x = coll->old.x - xpos;
+			coll->shift.y = coll->old.y - ypos;
+			coll->shift.z = coll->old.z - zpos;
+			return;
+		}
+
 		//loc_7B7F8
+		//v1 = coll->left_floor
+		//v0 = coll->left_ceiling
+		if (coll->bad_pos < coll->left_floor || coll->left_floor < coll->bad_neg ||
+			coll->bad_ceiling < coll->left_ceiling)
+		{
+			//v1 = coll->left_type
+			if (coll->left_type == 4)
+			{
+				//loc_7B768
+				coll->shift.x = coll->old.x - xpos;
+				coll->shift.z = coll->old.z - zpos;
+				coll->coll_type = 2;
+				return;
+			}
+			else if (coll->quadrant == 0)
+			{
+				//loc_7B85C
+				coll->shift.x = FindGridShift(var_34, xpos - xfront);
+				coll->coll_type = 2;
+				return;
+			}
+			else if (coll->quadrant - 1 == 0)
+			{
+				//loc_7B874
+				coll->shift.z = FindGridShift(var_30, zpos - zfront);
+				coll->coll_type = 2;
+				return;
+			}
+			else if (coll->quadrant - 2 == 0)
+			{
+				//loc_7B85C
+				coll->shift.x = FindGridShift(var_34, xpos - xfront);
+				coll->coll_type = 2;
+				return;
+
+			}
+			else if (coll->quadrant - 3 == 0)
+			{
+				//loc_7B874
+				coll->shift.z = FindGridShift(var_30, zpos - zfront);
+				coll->coll_type = 2;
+				return;
+			}
+			else
+			{
+				coll->coll_type = 2;
+				return;
+			}
+		}
+		//loc_7B88C
+		//v1 = coll->right_floor
+		//v0 = coll->right_ceiling
+
+		if (coll->bad_pos < coll->right_floor || coll->right_floor < coll->bad_neg ||
+			coll->bad_ceiling < coll->right_ceiling)
+		{
+			//loc_7B8B0
+			//v1 = coll->right_type
+			//v0 = 4
+			if (coll->right_type == 4)
+			{
+				//loc_7B768
+			}
+			else if (coll->quadrant == 0)
+			{
+				//loc_7B8E8
+				coll->bad_ceiling = FindGridShift(xpos + s7, xpos + xfront);
+				coll->coll_type = 4;
+				return;
+			}
+			else if (coll->quadrant - 1 == 0)
+			{
+				//loc_7B900
+				coll->shift.z = FindGridShift(zpos + var_44, zpos + zfront);
+				coll->coll_type = 4;
+				return;
+			}
+			else if (coll->quadrant - 2 == 0)
+			{
+				//loc_7B8E8
+				coll->bad_ceiling = FindGridShift(xpos + s7, xpos + xfront);
+				coll->coll_type = 4;
+				return;
+			}
+			else if (coll->quadrant - 3 == 0)
+			{
+				//loc_7B900
+				coll->shift.z = FindGridShift(zpos + var_44, zpos + zfront);
+				coll->coll_type = 4;
+				return;
+			}
+			else
+			{
+				coll->coll_type = 4;
+				return;
+			}
+		}
+		//loc_7B918
 	}
 	//loc_7B918
 #if 0
-
-
-loc_7B7D4:
-lw      $a0, 0x1EE4($gp)
-move    $a1, $t0
-jal     sub_7BA34
-addu    $a0, $a1, $a0
-lw      $v1, 0x6C($s5)
-sw      $v0, 0x58($s5)
-subu    $v1, $t1
-j       loc_7B7A4
-sw      $v1, 0x60($s5)
-
-loc_7B7F8:
-beqz    $at, loc_7B6BC
-li      $at, 0x10
-lw      $v1, 0x18($s5)
-lw      $v0, 0x1C($s5)
-slt     $at, $a2, $v1
-bnez    $at, loc_7B824
-slt     $at, $v1, $a1
-bnez    $at, loc_7B824
-slt     $v0, $a0, $v0
-beqz    $v0, loc_7B88C
-nop
-
-loc_7B824:
-lw      $v1, 0x20($s5)
-li      $v0, 4
-beq     $v1, $v0, loc_7B768
-li      $v0, 2
-beqz    $t2, loc_7B85C
-addiu   $v1, $t2, -1
-beqz    $v1, loc_7B874
-addiu   $v1, -1
-beqz    $v1, loc_7B85C
-addiu   $v1, -1
-beqz    $v1, loc_7B874
-
-loc_7B850:
-li      $v0, 2
-j       loc_7B918
-sh      $v0, 0x7A($s5)
-
-loc_7B85C:
-lw      $a1, 0x1EE4($gp)
-lw      $a0, 0x70+var_34($sp)
-jal     sub_7BA34
-addu    $a1, $t0, $a1
-j       loc_7B850
-sw      $v0, 0x58($s5)
-
-loc_7B874:
-lw      $a1, 0x1EE0($gp)
-lw      $a0, 0x70+var_30($sp)
-jal     sub_7BA34
-addu    $a1, $t1, $a1
-j       loc_7B850
-sw      $v0, 0x60($s5)
-
-loc_7B88C:
-lw      $v1, 0x24($s5)
-lw      $v0, 0x28($s5)
-slt     $at, $a2, $v1
-bnez    $at, loc_7B8B0
-slt     $at, $v1, $a1
-bnez    $at, loc_7B8B0
-slt     $at, $a0, $v0
-beqz    $at, loc_7B918
-nop
-
-loc_7B8B0:
-lw      $v1, 0x2C($s5)
-li      $v0, 4
-beq     $v1, $v0, loc_7B768
-li      $v0, 4
-beqz    $t2, loc_7B8E8
-addiu   $v1, $t2, -1
-beqz    $v1, loc_7B900
-addiu   $v1, -1
-beqz    $v1, loc_7B8E8
-addiu   $v1, -1
-beqz    $v1, loc_7B900
-
 loc_7B8DC:
 li      $v0, 4
 j       loc_7B918
 sh      $v0, 0x7A($s5)
 
-loc_7B8E8:
-lw      $a1, 0x1EE4($gp)
-move    $a0, $s1
-jal     sub_7BA34
-addu    $a1, $t0, $a1
-j       loc_7B8DC
-sw      $v0, 0x58($s5)
 
-loc_7B900:
-lw      $a1, 0x1EE0($gp)
-move    $a0, $s0
-jal     sub_7BA34
-addu    $a1, $t1, $a1
-j       loc_7B8DC
-sw      $v0, 0x60($s5)
 
 loc_7B918:
 lw      $ra, 0x70+var_4($sp)
