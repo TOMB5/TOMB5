@@ -1,5 +1,7 @@
 #include "COLLIDE_S.H"
 
+#include "CAMERA.H"
+#include "COLLIDE.H"
 #include "CONTROL.H"
 #include "LARA.H"
 #include "DRAW.H"
@@ -7,6 +9,7 @@
 #include "SPECIFIC.H"
 #include "GETSTUFF.H"
 #include "ROOMLOAD.H"
+#include "SETUP.H"
 
 void UpdateSky()//7CE88(<), 7EECC(<) (F)
 {
@@ -55,6 +58,231 @@ void UpdateLaraRoom(struct ITEM_INFO* item, int height)
 void ItemNewRoom(short item_num, short room_number)
 {
 	UNIMPLEMENTED();
+}
+
+int CollideStaticObjects(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number/*arg_10*/, long objheight /*arg_14*/)
+{
+	short var_48;
+	struct room_info* r;//$v0
+	int s2;
+	int s1;
+	int s0;
+	int a2;
+	short* door;//$a0
+	short t5;//t5
+	short a1;
+	int t4;
+	int t9;
+	int scratchPad[1024];
+	short* t0 = (short*)&scratchPad[0];
+	short* t8;
+	struct room_info* r2;
+	struct MESH_INFO* t1;
+	struct static_info* static_mesh;//$t0
+	int t3;
+	int t2;
+	int a0;
+	int v1;
+	int t6;
+	int t7;
+
+	//v1 = room_number
+	t9 = 1;
+	//s3 = coll
+	//s4 = ypos
+	coll->hit_static = 0;
+	//a0 = room
+	r = &room[room_number];
+	var_48 = room_number;
+	door = r->door;
+	//v0 = coll->radius
+	//v1 = objheight
+	t0[0] = room_number;///@FIXME check if correct room_number is loaded here caller has multiple
+	s2 = xpos - coll->radius;
+	s1 = xpos + coll->radius;
+	s0 = ypos - objheight;
+	a2 = zpos - coll->radius;
+	zpos += coll->radius;
+
+	if (door != NULL)
+	{
+		t5 = *door++;
+		if (t5 > 0)
+		{
+			//loc_7BADC
+			do
+			{
+				t4 = 0;
+				t0 = (short*)&scratchPad[0];
+				a1 = *door;
+
+				//loc_7BAE8
+				do
+				{
+					if (*t0++ == a1)
+					{
+						break;
+					}
+
+					t4++;
+
+				} while (t4 < t9);
+				//loc_7BB08
+				//t0 = $sp
+				t0 = (short*)&scratchPad[0];
+				if (t4 == t9)
+				{
+					t0[t9++] = a1;
+				}//loc_7BB20
+				door += 16;
+			} while (--t5 > 0);
+		}
+		//loc_7BB2C
+	}
+	//loc_7BB2C
+	t5 = 0;
+	t8 = (short*)&scratchPad[0];
+
+	//loc_7BB34
+	do
+	{
+		//v0 = t8[0]
+		r2 = &room[t8[0]];
+
+		//t4 = a0->num_meshes
+		t1 = r2->mesh;
+		//a1 = static_objects
+
+		if (r2->num_meshes > 0)
+		{
+			//loc_7BB60
+			do
+			{
+				//at = t1->Flags & 1
+				//v0 = t1->static_number
+
+				if ((t1->Flags & 0x1))
+				{
+					static_mesh = &static_objects[t1->static_number];
+					//t6 = static_mesh->z_minc
+					//t7 = static_mesh->z_maxc
+					//at = static_mesh->x_maxc
+					//v0 = static_mesh->x_minc
+					//t2 = t1->x
+					//v1 = t1->z
+					//v1 = t1->y_rot
+					//a0 = 16384
+					//a0 = -32768
+					if (t1->y_rot == 16384)
+					{
+						//loc_7BBC8
+						t3 = t1->x + static_mesh->z_minc;
+						t2 = t1->x + static_mesh->z_maxc;
+						a0 = t1->y_rot - static_mesh->x_maxc;
+						v1 = t1->y_rot - static_mesh->x_minc;
+					}
+					else if (t1->y_rot == -32768)
+					{
+						//loc_7BBDC
+						t3 = t1->x - static_mesh->x_maxc;
+						t2 = t1->x - static_mesh->x_minc;
+						a0 = t1->y_rot - static_mesh->z_maxc;
+						v1 = t1->y_rot - static_mesh->z_minc;
+					}
+					else if (t1->y_rot == -16384)
+					{
+						//loc_7BBF0
+						t3 = t1->x - static_mesh->z_maxc;
+						t2 = t1->x - static_mesh->z_minc;
+						a0 = t1->y_rot - static_mesh->x_minc;
+						v1 = t1->z - static_mesh->x_maxc;
+					}
+					else
+					{
+						t3 = t1->x + static_mesh->x_minc;
+						t2 = t1->x + static_mesh->x_maxc;
+						a0 = t1->z + static_mesh->z_minc;
+						v1 = t1->y_rot + static_mesh->z_maxc;
+					}
+
+					//loc_7BC00
+					//t6 = static_mesh->y_minc
+					//v0 = t1->y
+					//t7 = static_mesh->y_maxc
+					t6 = t1->y + static_mesh->y_minc;
+					t7 = t1->y + static_mesh->y_maxc;
+
+					if (t3 < s1 && s2 < t2 && t6 < ypos && s0 < t7 && a0 < zpos && a2 < v1)
+					{
+						coll->hit_static = 1;
+						return 1;
+					}
+				}
+				//loc_7BC50
+
+				t4--;
+				t1++;
+			} while (t4 > 0);
+		}
+		//loc_7BC5C
+		t5--;
+		t8++;
+	} while (t5 < t9);
+
+	return 0;
+}
+
+///@ret $s1
+int sub_7B948(struct COLL_INFO* coll/*s5*/, long x /*s3*/, long y/*s6*/, long z/*s4*/, short* room_number /*a3*/, long ypos/*arg_78*/, int var_44, short* ceiling /*a2*/)
+{
+	struct FLOOR_INFO* floor;//$s2
+	short height;//$s1
+
+	//s0 = ra
+	floor = GetFloor(x, y, z, room_number);
+	height = GetHeight(floor, x, y, z);
+
+	//v1 = ypos
+
+	if (height != -32512)
+	{
+		height -= ypos;
+	}
+	//loc_7B988
+	*ceiling = GetCeiling(floor, x, var_44, z);
+
+	//v1 = ypos
+	if (*ceiling != -32512)
+	{
+		*ceiling -= ypos;
+	}
+
+	//loc_7B9B0
+	//a0 = height_type
+	//v1 = coll->flags
+	//at = 1
+	//v0 = a0 - 2
+	//v0 = -32512
+	if (coll->slopes_are_walls == 1 && (unsigned)height_type - 2 < 2 && height < 0)
+	{
+		//loc_7BA28
+		return -32512;
+	}
+	//loc_7B9DC
+	if (coll->slopes_are_pits && (unsigned)height_type - 2 < 2 && height > 0)
+	{
+		return 512;
+	}//loc_7B9FC
+
+	if (coll->lava_is_pit && height > 0 && trigger_index != NULL)
+	{
+		if ((trigger_index[0] & 0x1F) == 5)
+		{
+			return 512;
+		}
+	}
+	
+	return height;
 }
 
 unsigned short GetTiltType(struct FLOOR_INFO* floor, long x, long y, long z)
@@ -136,12 +364,22 @@ int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, sh
 {
 	int fp;
 	short room_num;//0x70+var_58
+	short var_56;//0x70+var_56
 	int room_num2;//0x70+var_54
 	struct FLOOR_INFO* floor;//$s2
 	int y;//0x70+var_38
 	short height;//$s1
 	short ceiling;//$a2
-	int fallspeed;//0x70+var_2C
+	int var_2C;//0x70+var_2C
+	unsigned short tilt_type;//$v0
+	int s0;//$s0
+	int s7;//$s7
+	int var_50;//0x70+var_50
+	int var_44;//0x70+var_44
+	int var_30;
+	int var_34;
+	int var_5C;
+	short var_60;
 	//s5 = coll
 	//v0 = objheight
 	fp = 0;
@@ -163,14 +401,14 @@ int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, sh
 	coll->quadrant = ((coll->facing + 8192) & 0xFFFF) >> 14;
 	//at = room_number
 	//a0 = xpos
-	//v0 = ypos
+	//v0 = ypos - objheight
 	//v1 = objheight - ypos
 	//a2 = zpos
 	//s6 = ypos - 160
 	//a1 = s6
-	room_num = room_number;
 	room_num2 = room_number;
-	y = ypos;
+	room_num = room_number;
+	y = ypos - objheight;
 	floor = GetFloor(xpos, ypos - 160, zpos, &room_num);
 	height = GetHeight(floor, xpos, ypos - 160, zpos);
 
@@ -180,11 +418,11 @@ int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, sh
 	}
 	//loc_7B2F4
 	ceiling = GetCeiling(floor, xpos, (ypos - 160) - lara_item->fallspeed, zpos);
-	fallspeed = lara_item->fallspeed;
+	var_2C = ((ypos - 160) - objheight) - lara_item->fallspeed;
 
 	if (ceiling != -32512)
 	{
-		ceiling -= ypos;
+		ceiling -= y;
 	}
 	//loc_7B328
 	//v0 = height_type
@@ -194,247 +432,201 @@ int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, sh
 	coll->mid_ceiling = ceiling;
 	coll->mid_type = height_type;
 	coll->trigger = trigger_index;
-	GetTiltType(floor, xpos, lara_item->pos.y_pos, zpos);
+	tilt_type = GetTiltType(floor, xpos, lara_item->pos.y_pos, zpos);
+	//v1 = tile_type >> 8
+	coll->tilt_x = tilt_type;//&0xFF
+	coll->tilt_z = tilt_type >> 8;
+
+	//at = coll->quadrant
+	//v0 = coll->facing
+	//v1 = coll->radius
+	//a0 = rcossin_tbl
+	//v0 = rcossin_tbl[coll->facing]
+
+	if (coll->quadrant == 0)
+	{
+		//loc_7B3BC
+		var_50 = -coll->radius;
+		var_44 = coll->radius;
+		zfront = coll->radius;
+		s7 = coll->radius;
+		s0 = coll->radius;
+		xfront = (SIN(coll->facing) * -coll->radius) >> W2V_SHIFT;
+	}
+	else if (coll->quadrant - 1 == 0)
+	{
+		//loc_7B3E0
+		var_50 = coll->radius;
+		var_44 = -coll->radius;
+		xfront = coll->radius;
+		s0 = coll->radius;
+		s7 = coll->radius;
+		zfront = (COS(coll->facing) * coll->radius) >> W2V_SHIFT;
+	}
+	else if (coll->quadrant - 2 == 0)
+	{
+		//loc_7B404
+		var_50 = coll->radius;
+		var_44 = -coll->radius;
+		zfront = coll->facing;
+		s7 = coll->facing;
+		s0 = coll->facing;
+		xfront = (SIN(coll->facing) * coll->radius) >> W2V_SHIFT;
+	}
+	else if (coll->quadrant - 3 == 0)
+	{
+		//loc_7B434
+		var_50 = -coll->radius;
+		var_44 = coll->radius;
+		xfront = -coll->radius;
+		s0 = -coll->radius;
+		s7 = -coll->radius;
+		zfront = (COS(coll->facing) * coll->radius) >> W2V_SHIFT;
+	}
+	else
+	{
+		s0 = 0;
+		s7 = 0;
+		var_50 = 0;
+		var_44 = 0;
+		zfront = 0;
+		xfront = 0;
+	}
+
+	//v0 = xfront
+	//s3 = xpos + xfront
+	//v1 = zfront
+	//s4 = zpos + zfront
+
+	if (fp)
+	{
+		room_num = room_number;
+ 	}
+	//loc_7B488
+	floor = GetFloor(xpos + xfront, ypos - 160, zpos + zfront, &room_num);
+	height = GetHeight(floor, xpos + xfront, ypos - 160, zpos + zfront);
+
+	if (height != -32512)
+	{
+		height -= ypos;
+	}
+	//loc_7B4CC
+	ceiling = GetCeiling(floor, xpos + xfront, var_2C, zpos + zfront);
+
+	if (ceiling != -32512)
+	{
+		ceiling -= y;
+	}
+	//v0 = height_type
+	coll->front_ceiling = ceiling;
+	coll->front_floor = height;
+	coll->front_type = height_type;
+	//a0 = xfront
+	//a1 = ypos - 160
+	//a2 = zfront
+
+	floor = GetFloor(xpos + xfront + xfront, ypos - 160, zpos + zfront + zfront, &room_num);
+
+	//a1 = xfront
+	//a3 = zfront
+	height = GetHeight(floor, xpos + xfront + xfront, ypos - 160, zpos + zfront + zfront);
+	if (height != -32512)
+	{
+		height -= ypos;
+	}
+	//loc_7B558
+	//a0 = coll->flags
+	//a1 = coll->front_type
+	//a2 = coll->front_floor
+	//a3 = coll->mid_floor
+
+	//v0 = -32767
+	if (!coll->slopes_are_walls || (unsigned)coll->front_type - 2 < 2 ||
+		coll->front_floor < coll->mid_floor || height < coll->front_floor ||
+		coll->front_floor >= 0)
+	{
+		//loc_7B598
+		//v0 = 0x200
+		if (coll->slopes_are_pits || (unsigned)coll->front_type < 2 ||
+			coll->mid_floor >= coll->front_floor)
+		{
+			//loc_7B5B4
+			//v0 = trigger_index
+			//at = 5
+			if (coll->lava_is_pit || coll->front_floor > 0 || trigger_index != NULL)
+			{
+				if ((trigger_index[0] & 0x1F) == 5)
+				{
+					coll->front_floor = 512;
+				}
+			}
+		}
+		else
+		{
+			//loc_7B5E0
+			coll->front_floor = 512;
+		}
+	}
+	else
+	{
+		//loc_7B5E0
+		coll->front_floor = -32767;
+	}
+
+	//loc_7B5E4
+	//v1 = xpos
+	//a0 = var_50
+	//v0 = zpos
+	//at = room_num2
+	//s3 = xpos + var_50
+	//s4 = zpos + s0
+	var_56 = room_num2;
+	height = sub_7B948(coll, xpos + var_50, ypos - 160, zpos + s0, &var_56, ypos, var_44, &ceiling);
+	coll->left_floor = height;
+	coll->left_ceiling = ceiling;
+	coll->left_type = height_type;
+
+	height = sub_7B948(coll, xpos + var_50, ypos - 160, zpos + s0, &room_num, ypos, var_44, &ceiling);
+	coll->left_floor2 = height;
+	coll->left_ceiling2 = ceiling;
+	coll->left_type2 = height_type;
+
+	var_34 = xpos + var_50;
+	var_30 = zpos + s0;
+
+	//v0 = xpos
+	//v1 = zpos
+	//a0 = var_44
+	//at = room_num2
+
+	//s3 = xpos + s7
+	//s4 = zpos + var_44
+	var_56 = room_num2;
+	//a3 = &var_56
+	height = sub_7B948(coll, xpos + s7, ypos - 160, zpos + var_44, &var_56, ypos, var_44, &ceiling);
+	coll->right_floor = height;
+	coll->right_ceiling = ceiling;
+	coll->right_type = height_type;
+
+	height = sub_7B948(coll, xpos + s7, ypos - 160, zpos + var_44, &room_num, ypos, var_44, &ceiling);
+	coll->right_floor2 = height;
+	coll->right_ceiling2 = ceiling;
+	coll->right_type2 = height_type;
+
+	//s1 = xpos + s7
+	//s0 = zpos + var_44
+	//a1 = xpos
+	//a2 = ypos
+	//v0 = room_num
+	//a3 = zpos
+	//v1 = objheight
+	//a0 = coll
+	var_5C = objheight;
+	var_60 = room_num;
+	CollideStaticObjects(coll, xpos, ypos, zpos, room_number, objheight);
 #if 0
-sra     $v1, $v0, 8
-sb      $v0, 0x80($s5)
-sb      $v1, 0x81($s5)
-lh      $at, 0x78($s5)
-lhu     $v0, 0x76($s5)
-lw      $v1, 0x48($s5)
-la      $a0, dword_9A8C8
-srl     $v0, 2
-andi    $v0, 0x3FFC
-addu    $v0, $a0
-beqz    $at, loc_7B3BC
-addiu   $at, -1
-beqz    $at, loc_7B3E0
-addiu   $at, -1
-beqz    $at, loc_7B404
-addiu   $at, -1
-beqz    $at, loc_7B434
-move    $s0, $zero
-move    $s7, $zero
-sw      $zero, 0x70+var_50($sp)
-sw      $zero, 0x70+var_44($sp)
-sw      $zero, 0x1EE0($gp)
-j       loc_7B460
-sw      $zero, 0x1EE4($gp)
-
-loc_7B3BC:
-lh      $a0, 0($v0)
-negu    $v0, $v1
-mult    $a0, $v1
-sw      $v0, 0x70+var_50($sp)
-sw      $v1, 0x70+var_44($sp)
-sw      $v1, 0x1EE0($gp)
-move    $s7, $v1
-j       loc_7B424
-move    $s0, $v1
-
-loc_7B3E0:
-lh      $a0, 2($v0)
-negu    $v0, $v1
-mult    $a0, $v1
-sw      $v1, 0x70+var_50($sp)
-sw      $v0, 0x70+var_44($sp)
-sw      $v1, 0x1EE4($gp)
-move    $s0, $v1
-j       loc_7B454
-move    $s7, $v1
-
-loc_7B404:
-lh      $a0, 0($v0)
-negu    $v0, $v1
-mult    $a0, $v1
-sw      $v1, 0x70+var_50($sp)
-sw      $v0, 0x70+var_44($sp)
-sw      $v0, 0x1EE0($gp)
-move    $s7, $v0
-move    $s0, $v0
-
-loc_7B424:
-mflo    $a0
-sra     $a0, 12
-j       loc_7B460
-sw      $a0, 0x1EE4($gp)
-
-loc_7B434:
-lh      $a0, 2($v0)
-negu    $v0, $v1
-mult    $a0, $v1
-sw      $v0, 0x70+var_50($sp)
-sw      $v1, 0x70+var_44($sp)
-sw      $v0, 0x1EE4($gp)
-move    $s0, $v0
-move    $s7, $v0
-
-loc_7B454:
-mflo    $a0
-sra     $a0, 12
-sw      $a0, 0x1EE0($gp)
-
-loc_7B460:
-lw      $v0, 0x1EE4($gp)
-lw      $s3, 0x70+arg_4($sp)
-lw      $v1, 0x1EE0($gp)
-lw      $s4, 0x70+arg_C($sp)
-addu    $s3, $v0
-beqz    $fp, loc_7B488
-addu    $s4, $v1
-lh      $at, 0x70+arg_10($sp)
-nop
-sh      $at, 0x70+var_58($sp)
-
-loc_7B488:
-move    $a0, $s3
-move    $a1, $s6
-move    $a2, $s4
-jal     sub_78954
-addiu   $a3, $sp, 0x70+var_58
-move    $s2, $v0
-move    $a0, $s2
-move    $a1, $s3
-move    $a2, $s6
-jal     sub_78C74
-move    $a3, $s4
-li      $at, 0xFFFF8100
-beq     $v0, $at, loc_7B4CC
-move    $s1, $v0
-lw      $v1, 0x70+arg_8($sp)
-nop
-subu    $s1, $v1
-
-loc_7B4CC:
-move    $a0, $s2
-move    $a1, $s3
-lw      $a2, 0x70+var_2C($sp)
-jal     sub_79060
-move    $a3, $s4
-li      $at, 0xFFFF8100
-beq     $v0, $at, loc_7B4F8
-move    $a2, $v0
-lw      $a0, 0x70+var_38($sp)
-nop
-subu    $a2, $a0
-
-loc_7B4F8:
-lw      $v0, 0x1C6C($gp)
-sw      $a2, 0x10($s5)
-sw      $s1, 0xC($s5)
-sw      $v0, 0x14($s5)
-lw      $a0, 0x1EE4($gp)
-move    $a1, $s6
-lw      $a2, 0x1EE0($gp)
-addu    $a0, $s3, $a0
-addu    $a2, $s4, $a2
-jal     sub_78954
-addiu   $a3, $sp, 0x70+var_58
-lw      $a1, 0x1EE4($gp)
-move    $a0, $v0
-lw      $a3, 0x1EE0($gp)
-move    $a2, $s6
-addu    $a1, $s3, $a1
-jal     sub_78C74
-addu    $a3, $s4, $a3
-li      $at, 0xFFFF8100
-beq     $v0, $at, loc_7B558
-move    $s1, $v0
-lw      $v0, 0x70+arg_8($sp)
-nop
-subu    $s1, $v0
-
-loc_7B558:
-lw      $a0, 0x84($s5)
-lw      $a1, 0x14($s5)
-lw      $a2, 0xC($s5)
-lw      $a3, 0($s5)
-andi    $at, $a0, 3
-beqz    $at, loc_7B598
-addiu   $a1, -2
-sltiu   $v0, $a1, 2
-beqz    $v0, loc_7B598
-slt     $v0, $a2, $a3
-beqz    $v0, loc_7B598
-slt     $v0, $s1, $a2
-beqz    $v0, loc_7B598
-nop
-bltz    $a2, loc_7B5E0
-li      $v0, 0xFFFF8001
-
-loc_7B598:
-andi    $at, $a0, 4
-beqz    $at, loc_7B5B4
-sltiu   $v0, $a1, 2
-beqz    $v0, loc_7B5B4
-slt     $v0, $a3, $a2
-bnez    $v0, loc_7B5E0
-li      $v0, 0x200
-
-loc_7B5B4:
-andi    $v0, $a0, 8
-beqz    $v0, loc_7B5E4
-lw      $v0, 0x1B3C($gp)
-blez    $a2, loc_7B5E4
-li      $at, 5
-beqz    $v0, loc_7B5E4
-lhu     $v1, 0($v0)
-nop
-andi    $v1, 0x1F
-bne     $v1, $at, loc_7B5E4
-li      $v0, 0x200
-
-loc_7B5E0:
-sw      $v0, 0xC($s5)
-
-loc_7B5E4:
-lw      $v1, 0x70+arg_4($sp)
-lw      $a0, 0x70+var_50($sp)
-lw      $v0, 0x70+arg_C($sp)
-lw      $at, 0x70+var_54($sp)
-addu    $s3, $v1, $a0
-addu    $s4, $v0, $s0
-sh      $at, 0x70+var_56($sp)
-jal     sub_7B948
-addiu   $a3, $sp, 0x70+var_56
-sw      $s1, 0x18($s5)
-sw      $a2, 0x1C($s5)
-sw      $a0, 0x20($s5)
-jal     sub_7B948
-addiu   $a3, $sp, 0x70+var_58
-sw      $s1, 0x30($s5)
-sw      $a2, 0x34($s5)
-sw      $a0, 0x38($s5)
-sw      $s3, 0x70+var_34($sp)
-sw      $s4, 0x70+var_30($sp)
-lw      $v0, 0x70+arg_4($sp)
-lw      $v1, 0x70+arg_C($sp)
-lw      $a0, 0x70+var_44($sp)
-lw      $at, 0x70+var_54($sp)
-addu    $s3, $v0, $s7
-addu    $s4, $v1, $a0
-sh      $at, 0x70+var_56($sp)
-jal     sub_7B948
-addiu   $a3, $sp, 0x70+var_56
-sw      $s1, 0x24($s5)
-sw      $a2, 0x28($s5)
-sw      $a0, 0x2C($s5)
-jal     sub_7B948
-addiu   $a3, $sp, 0x70+var_58
-sw      $s1, 0x3C($s5)
-sw      $a2, 0x40($s5)
-sw      $a0, 0x44($s5)
-move    $s1, $s3
-move    $s0, $s4
-lw      $a1, 0x70+arg_4($sp)
-lw      $a2, 0x70+arg_8($sp)
-lh      $v0, 0x70+var_58($sp)
-lw      $a3, 0x70+arg_C($sp)
-lw      $v1, 0x70+arg_14($sp)
-move    $a0, $s5
-sw      $v1, 0x70+var_5C($sp)
 jal     sub_7BA68
-sw      $v0, 0x70+var_60($sp)
+
 lw      $t0, 0x70+arg_4($sp)
 lw      $t1, 0x70+arg_C($sp)
 lh      $t2, 0x78($s5)
