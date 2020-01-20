@@ -285,12 +285,8 @@ void AnimateLara(struct ITEM_INFO* item /* s1 */)//7D53C(<)
 	//loc_7D89C
 	if (!lara.IsMoving)
 	{
-		sin = SIN(lara.move_angle);
-		cos = COS(lara.move_angle);
-
-		item->pos.x_pos = (item->pos.x_pos + ((sin * item->speed) >> W2V_SHIFT)) + (((sin * item->speed) >> W2V_SHIFT) >> W2V_SHIFT);
-		cos = COS(lara.move_angle + 0x4000);//a0
-		item->pos.z_pos = ((item->pos.z_pos + ((cos * item->speed) >> W2V_SHIFT)) + ((cos * item->speed) >> W2V_SHIFT)) + ((cos * velocity) >> W2V_SHIFT);
+		item->pos.x_pos = (item->pos.x_pos + ((SIN(lara.move_angle) * item->speed) >> W2V_SHIFT)) + (((SIN(lara.move_angle) * item->speed) >> W2V_SHIFT) >> W2V_SHIFT);
+		item->pos.z_pos = (item->pos.z_pos + ((COS(lara.move_angle) * item->speed) >> W2V_SHIFT)) + ((COS(lara.move_angle + 16384) * velocity) >> W2V_SHIFT);
 	}
 	//loc_7D934
 }
