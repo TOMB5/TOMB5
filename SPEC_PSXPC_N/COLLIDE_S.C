@@ -254,7 +254,7 @@ int CollideStaticObjects(struct COLL_INFO* coll, long xpos, long ypos, long zpos
 }
 
 ///@ret $s1
-int sub_7B948(struct COLL_INFO* coll/*s5*/, long x /*s3*/, long y/*s6*/, long z/*s4*/, short* room_number /*a3*/, long ypos/*arg_78*/, int var_44, short* ceiling /*a2*/)
+int sub_7B948(struct COLL_INFO* coll/*s5*/, long x /*s3*/, long y/*s6*/, long z/*s4*/, short* room_number /*a3*/, long ypos/*arg_78*/, int objheight, short* ceiling /*a2*/)
 {
 	struct FLOOR_INFO* floor;//$s2
 	short height;//$s1
@@ -270,12 +270,12 @@ int sub_7B948(struct COLL_INFO* coll/*s5*/, long x /*s3*/, long y/*s6*/, long z/
 		height -= ypos;
 	}
 	//loc_7B988
-	*ceiling = GetCeiling(floor, x, var_44, z);
+	*ceiling = GetCeiling(floor, x, y, z);
 
 	//v1 = ypos
 	if (*ceiling != -32512)
 	{
-		*ceiling -= ypos;
+		*ceiling -= objheight;
 	}
 
 	//loc_7B9B0
@@ -415,7 +415,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//t0 = lara_item
 	//v0 = ((coll->facing + 8192) & 0xFFFF) >> 14;
 	//s0 = lara_item->fallspeed
-	coll->old_anim_state = 0;
+	coll->coll_type = 0;
 	coll->shift.x = 0;
 	coll->shift.y = 0;
 	coll->shift.z = 0;
@@ -425,7 +425,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//v0 = ypos - objheight
 	//v1 = objheight - ypos
 	//a2 = zpos
-	//s6 = ypos - 160
+	//s6 = (ypos - objheight) - 160
 	//a1 = s6
 	room_num2 = room_number;
 	room_num = room_number;
@@ -602,12 +602,12 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//s3 = xpos + var_50
 	//s4 = zpos + s0
 	var_56 = room_num2;
-	height = sub_7B948(coll, xpos + var_50, ypos - 160, zpos + s0, &var_56, ypos, var_44, &ceiling);
+	height = sub_7B948(coll, xpos + var_50, (ypos - objheight) - 160, zpos + s0, &var_56, ypos, y, &ceiling);
 	coll->left_floor = height;
 	coll->left_ceiling = ceiling;
 	coll->left_type = height_type;
 
-	height = sub_7B948(coll, xpos + var_50, ypos - 160, zpos + s0, &room_num, ypos, var_44, &ceiling);
+	height = sub_7B948(coll, xpos + var_50, (ypos - objheight) - 160, zpos + s0, &room_num, ypos, y, &ceiling);
 	coll->left_floor2 = height;
 	coll->left_ceiling2 = ceiling;
 	coll->left_type2 = height_type;
@@ -624,12 +624,12 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//s4 = zpos + var_44
 	var_56 = room_num2;
 	//a3 = &var_56
-	height = sub_7B948(coll, xpos + s7, ypos - 160, zpos + var_44, &var_56, ypos, var_44, &ceiling);
+	height = sub_7B948(coll, xpos + s7, ypos - 160, zpos + var_44, &var_56, ypos, y, &ceiling);
 	coll->right_floor = height;
 	coll->right_ceiling = ceiling;
 	coll->right_type = height_type;
 
-	height = sub_7B948(coll, xpos + s7, ypos - 160, zpos + var_44, &room_num, ypos, var_44, &ceiling);
+	height = sub_7B948(coll, xpos + s7, ypos - 160, zpos + var_44, &room_num, ypos, y, &ceiling);
 	coll->right_floor2 = height;
 	coll->right_ceiling2 = ceiling;
 	coll->right_type2 = height_type;
