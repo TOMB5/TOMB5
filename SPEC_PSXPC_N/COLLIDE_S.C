@@ -553,11 +553,11 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//a1 = ypos - 160
 	//a2 = zfront
 
-	floor = GetFloor(xpos + xfront + xfront, ypos - 160, zpos + zfront + zfront, &room_num);
+	floor = GetFloor(xpos + xfront + xfront, (ypos - objheight) - 160, zpos + zfront + zfront, &room_num);
 
 	//a1 = xfront
 	//a3 = zfront
-	height = GetHeight(floor, xpos + xfront + xfront, ypos - 160, zpos + zfront + zfront);
+	height = GetHeight(floor, xpos + xfront + xfront, (ypos - objheight) - 160, zpos + zfront + zfront);
 	if (height != -32512)
 	{
 		height -= ypos;
