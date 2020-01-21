@@ -437,7 +437,7 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 			//v0 = 2
 			fd = (unsigned short*)&floor_data[f->index];
 			a0 = *fd++;
-			if ((a0 & 0x1F) != 2 || (a0 & 0x1F) - 7 < 2 || (a0 & 0x1F) - 11 < 4)
+			if ((a0 & 0x1F) != 2 && (a0 & 0x1F) - 7 < 2 && (a0 & 0x1F) - 11 < 4)
 			{
 				//loc_79154
 				if ((a0 & 0x8000))
