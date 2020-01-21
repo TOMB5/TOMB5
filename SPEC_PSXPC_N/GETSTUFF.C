@@ -215,7 +215,7 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 	struct FLOOR_INFO* floor = NULL;//$t1
 	int dz;
 	int dx;
-	char door;//$a0
+	unsigned char door;//$a0
 	int v0;
 
 	//loc_78974:
