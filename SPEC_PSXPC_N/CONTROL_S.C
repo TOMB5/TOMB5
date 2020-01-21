@@ -184,7 +184,6 @@ void AnimateLara(struct ITEM_INFO* item /* s1 */)//7D53C(<)
 			{
 				//loc_7D7B8
 				command += 2;
-				continue;
 			}
 			else if (data - 5 == 0)
 			{
@@ -201,7 +200,6 @@ void AnimateLara(struct ITEM_INFO* item /* s1 */)//7D53C(<)
 							{
 								//loc_7D7B8
 								command += 2;
-								continue;
 							}
 						}
 
@@ -211,7 +209,6 @@ void AnimateLara(struct ITEM_INFO* item /* s1 */)//7D53C(<)
 				{
 					//loc_7D7B8
 					command += 2;
-					continue;
 				}
 				//loc_7D76C
 				SoundEffect((command[1] & 0x3FFF), &item->pos, 2);
