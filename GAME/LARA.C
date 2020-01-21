@@ -5682,7 +5682,7 @@ int GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
 }
 #endif
 
-#if PC_VERSION || PSXPC_TEST///@TODO move for PSXPC_N
+#if PC_VERSION
 void AnimateLara(struct ITEM_INFO* item)
 {
 	UNIMPLEMENTED();
