@@ -437,15 +437,15 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	room_num2 = room_number;
 	room_num = room_number;
 	y = ypos - objheight;
-	floor = GetFloor(xpos, ypos - 160, zpos, &room_num);
-	height = GetHeight(floor, xpos, ypos - 160, zpos);
+	floor = GetFloor(xpos, (ypos - objheight) - 160, zpos, &room_num);
+	height = GetHeight(floor, xpos, (ypos - objheight) - 160, zpos);
 
 	if (height != -32512)
 	{
 		height -= ypos;
 	}
 	//loc_7B2F4
-	ceiling = GetCeiling(floor, xpos, (ypos - 160) - lara_item->fallspeed, zpos);
+	ceiling = GetCeiling(floor, xpos, (ypos - objheight) - 160, zpos);
 	var_2C = ((ypos - 160) - objheight) - lara_item->fallspeed;
 
 	if (ceiling != -32512)
