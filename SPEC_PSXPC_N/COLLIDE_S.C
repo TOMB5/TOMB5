@@ -531,8 +531,8 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		room_num = room_number;
  	}
 	//loc_7B488
-	floor = GetFloor(xpos + xfront, ypos - 160, zpos + zfront, &room_num);
-	height = GetHeight(floor, xpos + xfront, ypos - 160, zpos + zfront);
+	floor = GetFloor(xpos + xfront, (ypos - objheight) - 160, zpos + zfront, &room_num);
+	height = GetHeight(floor, xpos + xfront, (ypos - objheight) - 160, zpos + zfront);
 
 	if (height != -32512)
 	{
