@@ -331,7 +331,7 @@ unsigned short GetTiltType(struct FLOOR_INFO* floor, long x, long y, long z)
 	//loc_7B100
 	if (f->index != 0)
 	{
-		if((y - 512) >= (f->floor << 8))
+		if((y + 512) >= (f->floor << 8))
 		{
 			fd = (unsigned short*)&floor_data[f->index];
 
