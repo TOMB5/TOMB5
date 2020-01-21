@@ -729,7 +729,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 			{
 				//loc_7B7D4
 				coll->shift.x = FindGridShift(xpos + xfront, xpos);
-				coll->shift.z = coll->old.z + zpos;
+				coll->shift.z = coll->old.z - zpos;
 				coll->coll_type = 1;
 				return;
 			}
