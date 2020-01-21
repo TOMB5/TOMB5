@@ -246,7 +246,7 @@ int CollideStaticObjects(struct COLL_INFO* coll, long xpos, long ypos, long zpos
 			} while (t4 > 0);
 		}
 		//loc_7BC5C
-		t5--;
+		t5++;
 		t8++;
 	} while (t5 < t9);
 
@@ -853,27 +853,5 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		//loc_7B918
 	}
 	//loc_7B918
-#if 0
-loc_7B8DC:
-li      $v0, 4
-j       loc_7B918
-sh      $v0, 0x7A($s5)
-
-
-
-loc_7B918:
-lw      $ra, 0x70+var_4($sp)
-lw      $fp, 0x70+var_8($sp)
-lw      $s7, 0x70+var_C($sp)
-lw      $s6, 0x70+var_10($sp)
-lw      $s5, 0x70+var_14($sp)
-lw      $s4, 0x70+var_18($sp)
-lw      $s3, 0x70+var_1C($sp)
-lw      $s2, 0x70+var_20($sp)
-lw      $s1, 0x70+var_24($sp)
-lw      $s0, 0x70+var_28($sp)
-jr      $ra
-addiu   $sp, 0x70
-#endif
 	return;
 }
