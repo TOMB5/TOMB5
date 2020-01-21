@@ -14,13 +14,6 @@ void S_SetupClutAdder(long underwater)
 	DQB = underwater;
 }
 
-void iRotYXZ_CL(int y, int x, int z)
-{
-	iRotY_CL(y);
-	iRotX_CL(x);
-	iRotZ_CL(z);
-}
-
 void SetRotation_CL(int t0, int t1, int t2, int t3, int t4)
 {
 	R11 = t0 & 0xFFFF;
@@ -437,7 +430,7 @@ void mRotYXZ_CL(long y, long x, long z)
 void iRotSuperPackedYXZ_CL(int* t8, int a1)
 {
 	unsigned short* a2 = (unsigned short*)t8[10];
-	unsigned short v0;
+	unsigned short v0 = 0;
 
 	if (a1 != 0)
 	{
@@ -487,6 +480,13 @@ void iRotSuperPackedYXZ_CL(int* t8, int a1)
 	iRotY_CL((a22 >> 4) & 0xFFC0);
 	iRotX_CL((a22 >> 14) & 0xFFC0);
 	iRotZ_CL((a22 << 6) & 0xFFC0);
+}
+
+void iRotYXZ_CL(int y, int x, int z)
+{
+	iRotY_CL(y);
+	iRotX_CL(x);
+	iRotZ_CL(z);
 }
 
 void mRotSuperPackedYXZ_CL(int* t8, int a1)
@@ -1453,44 +1453,140 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 		mRotSuperPackedYXZ_CL(t8, 0);
 		iRotSuperPackedYXZ_CL(t8, 0);
 	}
+
 	//loc_84594
 	mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
 	iRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
 
+	InterpolateMatrix(t8, (int*)&s0[112]);
+	DEL_stash_both_matrices(t8, (int*)&t8[48]);
+	Hardcore_iTranslateXYZ_CL((long*)&s1[106], t8);
 
-#if 0
+	t8[11] = t8[9];
+	t8[12] = t8[10];
 
-	mLoadMatrix_CL(&t8[22]);
-	bone -= 24;
-	s0 -= 48;
+	mRotSuperPackedYXZ_CL(t8, 6);
+	iRotSuperPackedYXZ_CL(t8, 6);
 
-	Hardcore_mTranslateXYZ_CL(&s1[25]);
+	t8[9] = t8[11];
+	t8[10] = t8[12];
 
-	if (lara.weapon_item != -1 && lara.gun_type == 5 &&
-		(items[lara.weapon_item + 1].frame_number == 0 ||
-			items[lara.weapon_item + 1].frame_number == 2 ||
-			items[lara.weapon_item + 1].frame_number == 4))
+	mRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
+	iRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
+
+	InterpolateMatrix(t8, (int*)&s0[128]);
+	DEL_restore_both_matrices(t8, &t8[48]);
+	Hardcore_iTranslateXYZ_CL((long*)&s1[58], t8);
+
+	//a0 = lara.gun_status
+	if (lara.gun_status == 2 || lara.gun_status == 3 ||
+		lara.gun_status == 4 || lara.gun_status == 5)
 	{
-		t8[9] = (int)& lara.right_arm.frame_base[(lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
-		mRotSuperPackedYXZ(t8, 7);
+		switch (lara.gun_type)
+		{
+		case 0:
+		case 7:
+		case 8:
+		{
+		loc_8469C:
+			mRotSuperPackedYXZ_CL(t8, 0);
+			iRotSuperPackedYXZ_CL(t8, 0);
+#if 0
+jal     sub_85414
+addiu   $a0, $s0, 0x120
+jal     sub_852CC
+addiu   $a2, $s1, 0x84
+jal     sub_84C40
+move    $a1, $zero
+jal     sub_85220
+move    $a1, $zero
+jal     sub_85414
+addiu   $a0, $s0, 0x140
+jal     sub_852CC
+addiu   $a2, $s1, 0x94
+jal     sub_84C40
+move    $a1, $zero
+jal     sub_85220
+move    $a1, $zero
+jal     sub_85414
+addiu   $a0, $s0, 0x160
+jal     sub_84F78
+addiu   $a0, $t8, 0xC0
+jal     sub_852CC
+addiu   $a2, $s1, 0xA4
+lw      $v0, 0x526C($gp)
+nop
+andi    $v0, 1
+beqz    $v0, loc_84778
+nop
+lh      $v1, 0x52E2($gp)
+nop
+sll     $v0, $v1, 2
+addu    $v0, $v1
+sll     $v0, 3
+addu    $v0, $t9
+lh      $v1, 0x52E0($gp)
+lh      $a0, 0x18($v0)
+lh      $v0, 4($v0)
+subu    $v1, $a0
+sra     $v0, 8
+mult    $v1, $v0
+li      $a1, 0xB
+lw      $v0, 0x52DC($gp)
+mflo    $t0
+sll     $v1, $t0, 1
+addu    $v0, $v1
+addiu   $v0, 0x12
+sw      $v0, 0x28($t8)
+jal     sub_84C40
+
+sw      $v0, 0x24($t8)
+li      $a1, 0xB
+jal     sub_85220
+addiu   $ra, 0x10
+
+loc_84778:
+jal     sub_84C40
+move    $a1, $zero
+jal     sub_85220
+move    $a1, $zero
+jal     sub_85414
+addiu   $a0, $s0, 0x180
+jal     sub_852CC
+addiu   $a2, $s1, 0xB4
+move    $a1, $zero
+jal     sub_84C40
+addiu   $ra, 0x314
+#endif
+
+			break;
+		}
+		case 1:
+		case 3:
+		{
+			//loc_847A4
+			break;
+		}
+		case 2:
+		{
+			//loc_84870
+			break;
+		}
+		case 4:
+		case 5:
+		case 6:
+		{
+			//loc_849E4
+
+			break;
+		}
+		}
 	}
 	else
 	{
-		//loc_83DA8
-		mRotSuperPackedYXZ(t8, 0);
+		goto loc_8469C;
 	}
-
-	mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
-	snaff_current_gte_matrix_V1(&t8[30]);
-	Hardcore_mTranslateXYZ_CL(&s1[53]);
-	mRotSuperPackedYXZ(t8, 6);
-	///@TODO debug this on PSX, mRotSuperPackedYXZ must implicitly change t8[9] and the value is popped back
-	//a3 = t8[9];
-	//?????? sw      a3, 0x24(t8)
-	mRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
-	snaff_current_gte_matrix_V1(&s0[64]);
-	mLoadMatrix_CL(&t8[30]);
-	Hardcore_mTranslateXYZ_CL(&s1[29]);
+#if 0
 
 	if (lara.gun_status == 2 || lara.gun_status == 3 ||
 		lara.gun_status == 4 || lara.gun_status == 5)
