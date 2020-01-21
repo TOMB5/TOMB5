@@ -761,7 +761,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 
 			//loc_78EB4
 			tiltxoff = a1;
-			tiltyoff = a1;
+			tiltyoff = a2;
 
 			if (ABS(a1) < 3)
 			{
