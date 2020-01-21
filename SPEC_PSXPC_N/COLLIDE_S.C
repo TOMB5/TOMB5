@@ -569,7 +569,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//a3 = coll->mid_floor
 
 	//v0 = -32767
-	if (!coll->slopes_are_walls && (unsigned)coll->front_type - 2 < 2 &&
+	if (coll->slopes_are_walls && (unsigned)coll->front_type - 2 < 2 &&
 		coll->front_floor < coll->mid_floor && height < coll->front_floor &&
 		coll->front_floor < 0)
 	{
