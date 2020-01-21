@@ -573,7 +573,8 @@ loc_792E0:
 		case 17:
 		case 18:
 			//loc_79314
-			//j loc_793C8
+			fd++;
+			goto loc_793C8;
 			break;
 		case 4:
 			//loc_79318
@@ -621,7 +622,7 @@ loc_7931C:
 		case 19:
 		case 20:
 		case 21:
-			//loc_793C8
+		loc_793C8:
 			if (!(s2 & 0x8000))
 				goto loc_792E0;
 			break;
