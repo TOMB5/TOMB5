@@ -569,38 +569,28 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//a3 = coll->mid_floor
 
 	//v0 = -32767
-	if (!coll->slopes_are_walls || (unsigned)coll->front_type - 2 < 2 ||
-		coll->front_floor < coll->mid_floor || height < coll->front_floor ||
-		coll->front_floor >= 0)
-	{
-		//loc_7B598
-		//v0 = 0x200
-		if (coll->slopes_are_pits || (unsigned)coll->front_type < 2 ||
-			coll->mid_floor >= coll->front_floor)
-		{
-			//loc_7B5B4
-			//v0 = trigger_index
-			//at = 5
-			if (coll->lava_is_pit || coll->front_floor > 0 || trigger_index != NULL)
-			{
-				if ((trigger_index[0] & 0x1F) == 5)
-				{
-					coll->front_floor = 512;
-				}
-			}
-		}
-		else
-		{
-			//loc_7B5E0
-			coll->front_floor = 512;
-		}
-	}
-	else
+	if (!coll->slopes_are_walls && (unsigned)coll->front_type - 2 < 2 &&
+		coll->front_floor < coll->mid_floor && height < coll->front_floor &&
+		coll->front_floor < 0)
 	{
 		//loc_7B5E0
 		coll->front_floor = -32767;
 	}
-
+	//loc_7B598
+	//v0 = 0x200
+	else if (coll->slopes_are_pits && (unsigned)coll->front_type < 2 &&
+		coll->mid_floor < coll->front_floor)
+	{
+		//loc_7B5E0
+		coll->front_floor = 512;
+	}
+	else if (coll->lava_is_pit && coll->front_floor > 0 && trigger_index != NULL)//loc_7B5B4
+	{
+		if ((trigger_index[0] & 0x1F) == 5)
+		{
+			coll->front_floor = 512;
+		}
+	}
 	//loc_7B5E4
 	//v1 = xpos
 	//a0 = var_50
