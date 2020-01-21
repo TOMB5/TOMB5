@@ -228,7 +228,6 @@ void AnimateLara(struct ITEM_INFO* item /* s1 */)//7D53C(<)
 				{
 					//loc_7D7B8
 					command += 2;
-					continue;
 				}
 			}
 			else if (data - 1 == 0)
