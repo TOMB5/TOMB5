@@ -578,7 +578,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	}
 	//loc_7B598
 	//v0 = 0x200
-	else if (coll->slopes_are_pits && (unsigned)coll->front_type < 2 &&
+	else if (coll->slopes_are_pits && (unsigned)coll->front_type - 2 < 2 &&
 		coll->mid_floor < coll->front_floor)
 	{
 		//loc_7B5E0
