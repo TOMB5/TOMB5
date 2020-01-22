@@ -1743,29 +1743,24 @@ addiu   $ra, 0x314
 #endif
 }
 
-int GetFrames(short* frame, int* a1, int* a2)//8582C
+int GetFrames(struct ITEM_INFO* item, int* a1, int* a2)//8582C
 {
 	struct ANIM_STRUCT* anim;//$t0
-	short v1;
-	short a0;
 	int t1;
 	int t2;
 	int t3;
 
-	v1 = frame[10];
-	a0 = frame[11];
-
-	anim = &anims[a0];
-	a0 -= v1;
-	t1 = a0 / (anim->interpolation & 0xFF);
-	t2 = a0 % (anim->interpolation & 0xFF);
+	anim = &anims[item->anim_number];
+	
+	t1 = (item->frame_number - anim->frame_base) / (anim->interpolation & 0xFF);
+	t2 = (item->frame_number - anim->frame_base) % (anim->interpolation & 0xFF);
 
 	a2[0] = anim->interpolation & 0xFF;
 
 	t3 = t1 * (anim->interpolation >> 8);
 
-	((short**)&frame)[0] = &anim->frame_ptr[t3];
-	((short**)&frame)[1] = &anim->frame_ptr[t3 + (anim->interpolation >> 8)];
+	((short**)&a1)[0] = &anim->frame_ptr[t3];
+	((short**)&a1)[1] = &anim->frame_ptr[t3 + (anim->interpolation >> 8)];
 
 	if (t2 == 0)
 	{
@@ -1785,10 +1780,10 @@ int GetFrames(short* frame, int* a1, int* a2)//8582C
 
 short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 {
-	short var_10;
-	short var_8;
+	int var_10[2];
+	int var_8;
 	//t7 = ra
-	GetFrames()
+	GetFrames(item, &var_10[0], &var_8);
 #if 0
 addiu   $sp, -0x20
 move    $t7, $ra
