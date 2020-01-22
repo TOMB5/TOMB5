@@ -1759,8 +1759,8 @@ int GetFrames(struct ITEM_INFO* item, int* a1, int* a2)//8582C
 
 	t3 = t1 * (anim->interpolation >> 8);
 
-	((short**)&a1)[0] = &anim->frame_ptr[t3];
-	((short**)&a1)[1] = &anim->frame_ptr[t3 + (anim->interpolation >> 8)];
+	((short**)a1)[0] = &anim->frame_ptr[t3];
+	((short**)a1)[1] = &anim->frame_ptr[t3 + (anim->interpolation >> 8)];
 
 	if (t2 == 0)
 	{
@@ -1782,16 +1782,17 @@ short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 {
 	int var_10[2];
 	int var_8;
-	//t7 = ra
-	GetFrames(item, &var_10[0], &var_8);
+	int t0;
+
+	t0 = GetFrames(item, &var_10[0], &var_8);
+
+	if (t0 == 0)
+	{
+		return (short*)var_10[0];
+	}
+
 #if 0
-addiu   $sp, -0x20
-move    $t7, $ra
-addiu   $a1, $sp, 0x20+var_10
-jal     sub_8582C
-addiu   $a2, $sp, 0x20+var_8
 bnez    $v0, loc_8591C
-move    $t0, $v0
 j       loc_85964
 move    $v0, $t4
 
