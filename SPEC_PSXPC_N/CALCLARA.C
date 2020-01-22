@@ -9,6 +9,7 @@
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "MATHS.H"
+#include <assert.h>
 
 void S_SetupClutAdder(long underwater)
 {
@@ -1783,6 +1784,13 @@ short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 	int var_10[2];
 	int var_8;
 	int t0;
+	int i;//$a1
+	short v0;
+	short a0;
+	int v1;
+	short* t4;
+	short* t5;
+	short* a2;
 
 	t0 = GetFrames(item, &var_10[0], &var_8);
 
@@ -1791,36 +1799,33 @@ short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 		return (short*)var_10[0];
 	}
 
-#if 0
-bnez    $v0, loc_8591C
-j       loc_85964
-move    $v0, $t4
+	//loc_8591C
+	a2 = &interpolated_bounds[0];
+	i = 6;
+	
+	//loc_85928
+	t4 = ((short*)var_10[0]);
+	t5 = ((short*)var_10[1]);
+	
+	do
+	{
+		v0 = t5[0];
+		a0 = t4[0];
 
-loc_8591C:
-li      $a2, 0xA24CC
-li      $a1, 6
+		i--;
 
-loc_85928:
-lh      $v0, 0($t5)
-lh      $a0, 0($t4)
-addiu   $a1, -1
-subu    $v0, $a0
-mult    $v0, $t0
-mflo    $v1
-addiu   $t5, 2
-addiu   $t4, 2
-div     $v1, $a3
-addiu   $a2, 2
-mflo    $v0
-addu    $a0, $v0
-bnez    $a1, loc_85928
-sh      $a0, -2($a2)
-addiu   $v0, $a2, -0xC
+		v0 -= a0;
+		v1 = v0 * t0;
 
-loc_85964:
-jr      $t7
-addiu   $sp, 0x20
-#endif
+		t5++;
+		t4++;
+
+		v0 = v1 / var_8;
+		a2++;
+		a0 -= v0;
+		a2[-1] = a0;
+	} while (i != 0);
+
 	return interpolated_bounds;
 }
 
