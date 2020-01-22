@@ -8,6 +8,7 @@
 #include "LOAD_LEV.H"
 #include "CAMERA.H"
 #include "CONTROL.H"
+#include "MATHS.H"
 
 void S_SetupClutAdder(long underwater)
 {
@@ -1742,22 +1743,87 @@ addiu   $ra, 0x314
 #endif
 }
 
+int GetFrames(short* frame, int* a1, int* a2)//8582C
+{
+	struct ANIM_STRUCT* anim;//$t0
+	short v1;
+	short a0;
+	int t1;
+	int t2;
+	int t3;
+
+	v1 = frame[10];
+	a0 = frame[11];
+
+	anim = &anims[a0];
+	a0 -= v1;
+	t1 = a0 / (anim->interpolation & 0xFF);
+	t2 = a0 % (anim->interpolation & 0xFF);
+
+	a2[0] = anim->interpolation & 0xFF;
+
+	t3 = t1 * (anim->interpolation >> 8);
+
+	((short**)&frame)[0] = &anim->frame_ptr[t3];
+	((short**)&frame)[1] = &anim->frame_ptr[t3 + (anim->interpolation >> 8)];
+
+	if (t2 == 0)
+	{
+		return 0;
+	}
+
+	//loc_8589C
+	t3 = t1 * (anim->interpolation & 0xFF);
+
+	if (anim->frame_end < t3 + (anim->interpolation & 0xFF))
+	{
+		a2[0] = anim->frame_end - (t3 + (anim->interpolation & 0xFF)) - (anim->interpolation & 0xFF);
+	}
+
+	return t2;
+}
+
 short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 {
-#if 0///@FIXME see getframes comment
-	int rate;
-	short* frmptr[2];
-	int frac = GetFrames(item, frmptr, &rate);//TODO local GETFRAMES!
+	short var_10;
+	short var_8;
+	//t7 = ra
+	GetFrames()
+#if 0
+addiu   $sp, -0x20
+move    $t7, $ra
+addiu   $a1, $sp, 0x20+var_10
+jal     sub_8582C
+addiu   $a2, $sp, 0x20+var_8
+bnez    $v0, loc_8591C
+move    $t0, $v0
+j       loc_85964
+move    $v0, $t4
 
-	if (frac == 0)
-		return frmptr[0];
+loc_8591C:
+li      $a2, 0xA24CC
+li      $a1, 6
 
-	short* bptr = interpolated_bounds;
+loc_85928:
+lh      $v0, 0($t5)
+lh      $a0, 0($t4)
+addiu   $a1, -1
+subu    $v0, $a0
+mult    $v0, $t0
+mflo    $v1
+addiu   $t5, 2
+addiu   $t4, 2
+div     $v1, $a3
+addiu   $a2, 2
+mflo    $v0
+addu    $a0, $v0
+bnez    $a1, loc_85928
+sh      $a0, -2($a2)
+addiu   $v0, $a2, -0xC
 
-	for (int i = 0; i < 6; i++, bptr++, frmptr[0]++, frmptr[1]++)
-	{
-		*bptr = *frmptr[0] + (*frmptr[1] - *frmptr[0]) * frac / rate;
-	}
+loc_85964:
+jr      $t7
+addiu   $sp, 0x20
 #endif
 	return interpolated_bounds;
 }
