@@ -341,7 +341,7 @@ unsigned short GetTiltType(struct FLOOR_INFO* floor, long x, long y, long z)
 			}
 
 			//loc_7B14C
-			if (((fd[0] & 0x1F) - 7) < 2 || (fd[0] & 0x1F) - 11 < 4)
+			if ((unsigned)((fd[0] & 0x1F) - 7) < 2 && (unsigned)((fd[0] & 0x1F) - 11) < 4)
 			{
 				//loc_7B164
 				if ((fd[0] & 0x1F) == 7 || (fd[0] & 0x1F) == 11 || (fd[0] & 0x1F) == 12)
