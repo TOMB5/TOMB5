@@ -548,6 +548,13 @@ void mRotZ(long rz)//76804 (F)
 	}
 }
 
+int iRotPackedYXZ(long a0, long a2)//76FDC
+{
+	iRotY((a0 >> 4) & 0xFFC0);
+	iRotX((a0 >> 14) & 0xFFC0);
+	iRotZ((a0 << 6) & 0xFFC0);
+}
+
 void iRotSuperPackedYXZ(short** a0, long a1)//7700C
 {
 	unsigned short* a2;
@@ -574,6 +581,32 @@ void iRotSuperPackedYXZ(short** a0, long a1)//7700C
 		v0 = *a2++;
 
 	}//0x77038
+	a2++;
+	at = v0 >> 14;
+
+	if (at-- != 0)
+	{
+		a0[0] = (short*)a2;
+
+		//a0 = v0 & 0xFFF
+		if (at-- != 0)
+		{
+			if (at != 0)
+			{
+				iRotZ((v0 & 0xFFF) << 4);
+			}//0x77064
+			iRotY((v0 & 0xFFF) << 4);
+		}
+		//0x7706C
+		iRotX((v0 & 0xFFF) << 4);
+	}//0x77078
+
+	at = *a2++;
+	a0[0] = (short*)a2;
+
+	a0 = iRotPackedYXZ(v0 << 16 | at);
+
+
 }
 
 void mRotSuperPackedYXZ(short** a0, long a1)//768BC
