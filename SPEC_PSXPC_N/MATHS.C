@@ -548,18 +548,22 @@ void mRotZ(long rz)//76804 (F)
 	}
 }
 
-int iRotPackedYXZ(long a0, long a2)//76FDC
+void iRotPackedYXZ(long a0)//76FDC(<)
 {
 	iRotY((a0 >> 4) & 0xFFC0);
 	iRotX((a0 >> 14) & 0xFFC0);
 	iRotZ((a0 << 6) & 0xFFC0);
+
+	///@TODO ret a0 (from which func?)
+	return 0;
 }
 
-void iRotSuperPackedYXZ(short** a0, long a1)//7700C
+void iRotSuperPackedYXZ(short** a0, long a1)//7700C(<)
 {
 	unsigned short* a2;
 	int v0;
 	int at;
+	int a00;
 
 	a2 = (unsigned short*)a0[0];
 	v0 = *a2;
@@ -588,7 +592,6 @@ void iRotSuperPackedYXZ(short** a0, long a1)//7700C
 	{
 		a0[0] = (short*)a2;
 
-		//a0 = v0 & 0xFFF
 		if (at-- != 0)
 		{
 			if (at != 0)
@@ -604,9 +607,7 @@ void iRotSuperPackedYXZ(short** a0, long a1)//7700C
 	at = *a2++;
 	a0[0] = (short*)a2;
 
-	a0 = iRotPackedYXZ(v0 << 16 | at);
-
-
+	iRotPackedYXZ((v0 << 16) | at);
 }
 
 void mRotSuperPackedYXZ(short** a0, long a1)//768BC
