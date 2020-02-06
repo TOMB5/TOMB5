@@ -548,6 +548,34 @@ void mRotZ(long rz)//76804 (F)
 	}
 }
 
+void iRotSuperPackedYXZ(short** a0, long a1)//7700C
+{
+	unsigned short* a2;
+	int v0;
+	int at;
+
+	a2 = (unsigned short*)a0[0];
+	v0 = *a2;
+
+	if (a1 != 0)
+	{
+		do
+		{
+			v0 = *a2;
+			a1--;
+			a2++;
+
+			if (!(v0 & 0xC000))
+			{
+				a2++;
+			}//0x7702C
+		} while (a1 != 0);
+
+		v0 = *a2++;
+
+	}//0x77038
+}
+
 void mRotSuperPackedYXZ(short** a0, long a1)//768BC
 {
 	unsigned short* a2;
@@ -569,7 +597,10 @@ void mRotSuperPackedYXZ(short** a0, long a1)//768BC
 				a2++;
 			}//loc_768DC
 
-		} while (a1 == 0);
+		} while (a1 != 0);
+
+		v0 = *a2;
+
 	}//loc_768E8
 
 	a2++;
@@ -720,9 +751,9 @@ void InitInterpolation(long frac, long rate, struct MATRIX3D* m)//76CB4(<)
 	iAmbientG = t1;
 	iAmbientB = t2;
 
-	int t0 = R11 | (R12 << 16);
-	int t1 = R13 | (R21 << 16);
-	int t2 = R22 | (R23 << 16);
+	t0 = R11 | (R12 << 16);
+	t1 = R13 | (R21 << 16);
+	t2 = R22 | (R23 << 16);
 	int t3 = R31 | (R32 << 16);
 	int t4 = R33;
 	int t5 = TRX;
@@ -1664,6 +1695,7 @@ void iTranslateXYZ2(short x, short y, short z, short x2, short y2, short z2)//77
 {
 	int t0;
 	int t1;
+	int t2;
 	int t2;
 	int t3;
 	int t4;
