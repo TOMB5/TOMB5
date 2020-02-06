@@ -706,9 +706,51 @@ void mClipBoundingBox(short* bounds)//76B14
 	UNIMPLEMENTED();
 }
 
-void InitInterpolation(long frac, long rate, struct MATRIX3D* m)//76CB4 
+void InitInterpolation(long frac, long rate, struct MATRIX3D* m)//76CB4(<) 
 {
-	UNIMPLEMENTED();
+	int t0 = RBK;
+	int t1 = GBK;
+	int t2 = BBK;
+
+	iFrac = frac;
+	iRate = rate;
+	iMatrix = m;
+
+	iAmbientR = t0;
+	iAmbientG = t1;
+	iAmbientB = t2;
+
+	int t0 = R11 | (R12 << 16);
+	int t1 = R13 | (R21 << 16);
+	int t2 = R22 | (R23 << 16);
+	int t3 = R31 | (R32 << 16);
+	int t4 = R33;
+	int t5 = TRX;
+	int t6 = TRY;
+	int t7 = TRZ;
+
+	L11 = R11;
+	L12 = R12;
+	R13 = L13;
+	R21 = L21;
+	L22 = R22;
+	L23 = R23;
+	L31 = R31;
+	L32 = R32;
+	L33 = R33;
+
+	RBK = TRX;
+	GBK = TRY;
+	BBK = TRZ;
+
+	((int*)m)[0] = t0;
+	((int*)m)[1] = t1;
+	((int*)m)[2] = t2;
+	((int*)m)[3] = t3;
+	((int*)m)[4] = t4;
+	((int*)m)[5] = t5;
+	((int*)m)[6] = t6;
+	((int*)m)[7] = t7;
 }
 
 void iPushMatrix0()//76D3C(<), ?(<) (F)
