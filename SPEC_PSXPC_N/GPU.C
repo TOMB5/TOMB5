@@ -336,6 +336,10 @@ void GPU_FlipStory(unsigned long* gfx)//5E448(<), * (F)
 	r.w = fuckmyanalpassage->w;
 	r.h = fuckmyanalpassage->h;
 	LoadImagePSX(&r, gfx);
+#if defined(USE_32_BIT_ADDR)
+	DrawOTagEnv(&db.ot[db.nOTSize * 2 - 2], &db.draw[db.current_buffer]);
+#else
 	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[db.current_buffer]);
+#endif
 	db.current_buffer ^= 1;
 }
