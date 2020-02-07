@@ -487,6 +487,25 @@ void mRotYXZ(short y, short x, short z)//767E8 (F)
 	mRotZ(z);
 }
 
+void SetRotation_I(int t0, int t1, int t2, int t3, int t4)
+{
+	L11 = t0 & 0xFFFF;
+	L12 = (t0 >> 16) & 0xFFFF;
+	L13 = t1 & 0xFFFF;
+	L21 = (t1 >> 16) & 0xFFFF;
+	L22 = t2 & 0xFFFF;
+	L23 = (t2 >> 16) & 0xFFFF;
+	L31 = t3 & 0xFFFF;
+	L32 = (t3 >> 16) & 0xFFFF;
+	L33 = t4;
+
+	((int*)iMatrix)[0] = t0;
+	((int*)iMatrix)[1] = t1;
+	((int*)iMatrix)[2] = t2;
+	((int*)iMatrix)[3] = t3;
+	((int*)iMatrix)[4] = t4;
+}
+
 void mRotZ(long rz)//76804 (F)
 {
 	int t0;
@@ -600,9 +619,8 @@ void iRotY(int ry)//76E60
 	t1 |= t5;
 	t6 <<= 16;
 	t2 |= t6;
-#if 0
-j       SetRotation_I
-#endif
+
+	SetRotation_I(t0, t1, t2, t3, t4);
 }
 
 void iRotX(int rx)
@@ -657,9 +675,8 @@ void iRotX(int rx)
 	t1 |= t5;
 	t6 <<= 16;
 	t2 |= t6;
-#if 0
-	j       SetRotation_I
-#endif
+
+	SetRotation_I(t0, t1, t2, t3, t4);
 }
 
 void iRotZ(int rz)//76F04
@@ -721,9 +738,8 @@ void iRotZ(int rz)//76F04
 	t2 |= t6;
 	t8 <<= 16;
 	t3 |= t8;
-#if 0
-	j       SetRotation_I
-#endif
+
+	SetRotation_I(t0, t1, t2, t3, t4);
 }
 
 
