@@ -926,7 +926,19 @@ void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) (F)
 
 void iLoadMatrix(struct MATRIX3D* m)//771D8(<) (F)
 {
+	L11 = m->m00;
+	L12 = m->m01;
+	L13 = m->m02;
+	L21 = m->m10;
+	L22 = m->m11;
+	L23 = m->m12;
+	L31 = m->m20;
+	L32 = m->m21;
+	L33 = m->m22;
 
+	RBK = m->tx;
+	GBK = m->ty;
+	BBK = m->tz;
 }
 
 void mCopyMatrix(struct MATRIX3D* m)//769E4(<), 78A28(<) (F)
