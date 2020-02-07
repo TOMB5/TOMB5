@@ -662,11 +662,70 @@ void iRotX(int rx)
 #endif
 }
 
-
 void iRotZ(int rz)//76F04
 {
-	
+	rz = (rz >> 2) & 0x3FFC;
+
+	if (rz == 0)
+	{
+		return;
+	}
+
+	int t0 = (rcossin_tbl[rz >> 1] & 0xFFFF) | ((rcossin_tbl[rz >> 1 | 1] & 0xFFFF) << 16);
+
+	int t1 = t0 >> 16;
+	int t2 = t0 << 16;
+	t1 |= t2;
+
+	VX0 = t1 & 0xFFFF;
+	VY0 = (t1 >> 16) & 0xFFFF;
+	VZ0 = 0;
+
+	t1 = L13 | (L21 << 16);
+	t2 = L22 | (L23 << 16);
+	int t4 = L33;
+
+	docop2(0x4A6012);
+
+	int t3 = t0 & 0xFFFF0000;
+	t0 &= 0xFFFF;
+	t0 = -t0;
+	t0 &= 0xFFFF;
+	t0 |= t3;
+
+	VX1 = t0 & 0xFFFF;
+	VY1 = (t0 >> 16) & 0xFFFF;
+	VZ1 = 0;
+
+	t1 &= 0xFFFF;
+
+	t0 = MAC1;
+	int t5 = MAC2;
+	t3 = MAC3;
+
+	docop2(0x4AE012);
+
+	t2 &= 0xFFFF0000;
+	t0 &= 0xFFFF;
+	t5 <<= 16;
+	t1 |= t5;
+	t3 &= 0xFFFF;
+
+	t5 = MAC1;
+	int t6 = MAC2;
+	int t8 = MAC3;
+
+	t5 <<= 16;
+	t0 |= t5;
+	t6 &= 0xFFFF;
+	t2 |= t6;
+	t8 <<= 16;
+	t3 |= t8;
+#if 0
+	j       SetRotation_I
+#endif
 }
+
 
 void iRotPackedYXZ(long a0)//76FDC(<)
 {
