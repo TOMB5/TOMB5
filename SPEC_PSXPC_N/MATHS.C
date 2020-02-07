@@ -922,7 +922,11 @@ void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) (F)
 	TRX = m->tx;
 	TRY = m->ty;
 	TRZ = m->tz;
-	return;
+}
+
+void iLoadMatrix(struct MATRIX3D* m)//771D8(<) (F)
+{
+
 }
 
 void mCopyMatrix(struct MATRIX3D* m)//769E4(<), 78A28(<) (F)
@@ -1047,7 +1051,10 @@ void iPopMatrix0()
 
 void iPopMatrix()//76D8C(<), ?(<)
 {
-	UNIMPLEMENTED();
+	--Matrix;
+	--iMatrix;
+	mLoadMatrix(Matrix);
+	iLoadMatrix(iMatrix);
 }
 
 void mPushMatrix0()//764D0 (F)
