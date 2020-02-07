@@ -607,8 +607,61 @@ j       SetRotation_I
 
 void iRotX(int rx)
 {
-	
+	rx = (rx >> 2) & 0x3FFC;
+
+	if (rx == 0)
+	{
+		return;
+	}
+
+	int t5 = (rcossin_tbl[rx >> 1] & 0xFFFF) | ((rcossin_tbl[rx >> 1 | 1] & 0xFFFF) << 16);
+	int t6 = 0xFFFF0000 & t5;
+	VX0 = t6 & 0xFFFF;
+	VY0 = (t6 >> 16) & 0xFFFF;
+	VZ0 = t5;
+
+	int t0 = L11 | (L12 << 16);
+	int t1 = L13 | (L21 << 16);
+	int t3 = L31 | (L32 << 16);
+
+	docop2(0x4A6012);
+	t6 = t5 >> 16;
+	t5 <<= 16;
+	t5 = -t5;
+
+	VX1 = t5 & 0xFFFF;
+	VY1 = (t5 >> 16) & 0xFFFF;
+	VZ1 = t6;
+
+	t0 &= 0xFFFF;
+	t1 &= 0xFFFF0000;
+	t3 &= 0xFFFF;
+
+	int t4 = MAC1;
+	int t2 = MAC2;
+	t5 = MAC3;
+
+	docop2(0x4AE012);
+
+	t4 <<= 16;
+	t0 |= t4;
+	t2 &= 0xFFFF;
+	t5 <<= 16;
+	t3 |= t5;
+
+	t5 = MAC1;
+	t6 = MAC2;
+	t4 = MAC3;
+
+	t5 &= 0xFFFF;
+	t1 |= t5;
+	t6 <<= 16;
+	t2 |= t6;
+#if 0
+	j       SetRotation_I
+#endif
 }
+
 
 void iRotZ(int rz)//76F04
 {
