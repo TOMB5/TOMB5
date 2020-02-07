@@ -189,12 +189,14 @@ long SpuIsTransferCompleted(long flag)
 	return 0;
 }
 
+void _SpuInit(int a0)
+{
+
+}
+
 void SpuInit(void)
 {
-	eprintf("SpuInit\n");
-	ResetCallback();
-	UNIMPLEMENTED();
-	spu_buf = NULL;/* (char*)malloc(1024 * 1024)*/;
+	_SpuInit(0);
 }
 
 long SpuSetReverb(long on_off)
