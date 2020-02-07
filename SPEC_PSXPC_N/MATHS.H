@@ -50,5 +50,6 @@ extern void iRotSuperPackedYXZ(short** a0, long a1);
 extern void iRotY(int a0);
 extern void iRotX(int a0);
 extern void iRotZ(int a0);
+extern void InterpolateMatrix();
 
 #endif

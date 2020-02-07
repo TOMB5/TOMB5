@@ -924,6 +924,83 @@ void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) (F)
 	TRZ = m->tz;
 }
 
+void InterpolateMatrix()//77250(<)
+{
+	MATRIX3D m;//$a0
+
+	if (iRate == 2 || iFrac == 2 && iRate == 4)
+	{
+		//loc_772A4
+		m.m00 = (iMatrix->m00 + Matrix->m00) >> 1;
+		m.m01 = (iMatrix->m01 + Matrix->m01) >> 1;
+		m.m02 = (iMatrix->m02 + Matrix->m02) >> 1;
+		m.m10 = (iMatrix->m10 + Matrix->m10) >> 1;
+		m.m11 = (iMatrix->m11 + Matrix->m11) >> 1;
+		m.m12 = (iMatrix->m12 + Matrix->m12) >> 1;
+		m.m20 = (iMatrix->m20 + Matrix->m20) >> 1;
+		m.m21 = (iMatrix->m21 + Matrix->m21) >> 1;
+		m.m22 = (iMatrix->m22 + Matrix->m22) >> 1;
+		m.tx = (iMatrix->tx + Matrix->tx) >> 1;
+		m.ty = (iMatrix->ty + Matrix->ty) >> 1;
+		m.tz = (iMatrix->tz + Matrix->tz) >> 1;
+
+	}
+	else if(iFrac != 2 || iRate != 4)
+	{
+		//loc_77368
+		
+		if (iFrac != 1)
+		{
+			//loc_77460
+			m.m00 = Matrix->m00 - ((iMatrix->m00 - Matrix->m00) >> 2);
+			m.m01 = Matrix->m01 - ((iMatrix->m01 - Matrix->m01) >> 2);
+			m.m02 = Matrix->m02 - ((iMatrix->m02 - Matrix->m02) >> 2);
+			m.m10 = Matrix->m10 - ((iMatrix->m10 - Matrix->m10) >> 2);
+			m.m11 = Matrix->m11 - ((iMatrix->m11 - Matrix->m11) >> 2);
+			m.m12 = Matrix->m12 - ((iMatrix->m12 - Matrix->m12) >> 2);
+			m.m20 = Matrix->m20 - ((iMatrix->m20 - Matrix->m20) >> 2);
+			m.m21 = Matrix->m21 - ((iMatrix->m21 - Matrix->m21) >> 2);
+			m.m22 = Matrix->m22 - ((iMatrix->m22 - Matrix->m22) >> 2);
+			m.tx = Matrix->tx - ((iMatrix->tx - Matrix->tx) >> 2);
+			m.ty = Matrix->ty - ((iMatrix->ty - Matrix->ty) >> 2);
+			m.tz = Matrix->tz - ((iMatrix->tz - Matrix->tz) >> 2);
+		}
+		else
+		{
+			m.m00 = Matrix->m00 + ((iMatrix->m00 - Matrix->m00) >> 2);
+			m.m01 = Matrix->m01 + ((iMatrix->m01 - Matrix->m01) >> 2);
+			m.m02 = Matrix->m02 + ((iMatrix->m02 - Matrix->m02) >> 2);
+			m.m10 = Matrix->m10 + ((iMatrix->m10 - Matrix->m10) >> 2);
+			m.m11 = Matrix->m11 + ((iMatrix->m11 - Matrix->m11) >> 2);
+			m.m12 = Matrix->m12 + ((iMatrix->m12 - Matrix->m12) >> 2);
+			m.m20 = Matrix->m20 + ((iMatrix->m20 - Matrix->m20) >> 2);
+			m.m21 = Matrix->m21 + ((iMatrix->m21 - Matrix->m21) >> 2);
+			m.m22 = Matrix->m22 + ((iMatrix->m22 - Matrix->m22) >> 2);
+			m.tx = Matrix->tx + ((iMatrix->tx - Matrix->tx) >> 2);
+			m.ty = Matrix->ty + ((iMatrix->ty - Matrix->ty) >> 2);
+			m.tz = Matrix->tz + ((iMatrix->tz - Matrix->tz) >> 2);
+		}
+	}
+
+	//loc_7754C
+	R33 = m.m22;
+	TRX = m.tx;
+	TRY = m.ty;
+	TRZ = m.tz;
+	R11 = m.m00;
+	R12 = m.m01;
+	R13 = m.m02;
+	R21 = m.m10;
+	R22 = m.m11;
+	R23 = m.m12;
+	R31 = m.m20;
+	R32 = m.m21;
+
+	RBK = iAmbientR;
+	GBK = iAmbientG;
+	BBK = iAmbientB;
+}
+
 void iLoadMatrix(struct MATRIX3D* m)//771D8(<) (F)
 {
 	L11 = m->m00;
