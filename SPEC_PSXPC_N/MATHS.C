@@ -1015,9 +1015,29 @@ void iPushMatrix0()//76D3C(<), ?(<) (F)
 	UNIMPLEMENTED();
 }
 
-void iPushMatrix(struct MATRIX3D* m)//81E60(<), ?(<) (F)
+void iPushMatrix()//76D3C(<), ?(<) (F)
 {
-	UNIMPLEMENTED();
+	int t0 = L11 | (L12 << 16);
+	int t1 = L13 | (L21 << 16);
+	int t2 = L22 | (L23 << 16);
+	int t3 = L31 | (L32 << 16);
+	int t4 = L33;
+	int t5 = RBK;
+	int t6 = GBK;
+	int t7 = BBK;
+
+	++iMatrix;
+
+	((int*)iMatrix)[0] = t0;
+	((int*)iMatrix)[1] = t1;
+	((int*)iMatrix)[2] = t2;
+	((int*)iMatrix)[3] = t3;
+	((int*)iMatrix)[4] = t4;
+	((int*)iMatrix)[5] = t5;
+	((int*)iMatrix)[6] = t6;
+	((int*)iMatrix)[7] = t7;
+
+	mPushMatrix();
 }
 
 void iPopMatrix0()
@@ -1025,7 +1045,7 @@ void iPopMatrix0()
 	UNIMPLEMENTED();
 }
 
-void iPopMatrix(struct MATRIX3D* m, struct MATRIX3D* m2)//76D8C(<), ?(<) TOCHECK
+void iPopMatrix()//76D8C(<), ?(<)
 {
 	UNIMPLEMENTED();
 }
