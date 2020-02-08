@@ -447,7 +447,7 @@ void mRotY(long ry)//76744 (F)
 		t5 &= 0xFFFF;
 		t2 = -t5;
 		VX0 = t6;
-		VY0 = (t5 >> 16) & 0xFFFF;
+		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = t2;
 
 		t0 = ((R12 << 16) | (R11 & 0xFFFF)) & 0xFFFF0000;
