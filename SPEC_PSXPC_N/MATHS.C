@@ -1081,8 +1081,8 @@ void InitInterpolation(long frac, long rate, struct MATRIX3D* m)//76CB4(<)
 
 	L11 = R11;
 	L12 = R12;
-	R13 = L13;
-	R21 = L21;
+	L13 = R13;
+	L21 = R21;
 	L22 = R22;
 	L23 = R23;
 	L31 = R31;
