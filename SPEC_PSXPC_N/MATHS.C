@@ -2104,9 +2104,9 @@ void iTranslateXYZ2(short x, short y, short z, short x2, short y2, short z2)//77
 
 	//v0 = iMatrix
 	t6 = MAC1;
-	a3 = IR1;
-	a1 = IR2;
-	a2 = IR3;
+	IR1 = a3;
+	IR2 = a1;
+	IR3 = a2;
 	t7 = MAC2;
 	t8 = MAC3;
 
