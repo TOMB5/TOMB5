@@ -1070,11 +1070,11 @@ void InitInterpolation(long frac, long rate, struct MATRIX3D* m)//76CB4(<)
 	iAmbientG = t1;
 	iAmbientB = t2;
 
-	t0 = R11 | (R12 << 16);
-	t1 = R13 | (R21 << 16);
-	t2 = R22 | (R23 << 16);
-	int t3 = R31 | (R32 << 16);
-	int t4 = R33;
+	t0 = (R11 & 0xFFFF) | (R12 << 16);
+	t1 = (R13 & 0xFFFF) | (R21 << 16);
+	t2 = (R22 & 0xFFFF) | (R23 << 16);
+	int t3 = (R31 & 0xFFFF) | (R32 << 16);
+	int t4 = (R33 & 0xFFFF);
 	int t5 = TRX;
 	int t6 = TRY;
 	int t7 = TRZ;
@@ -2180,7 +2180,7 @@ long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*
 	t2 = (item->frame_number - anim->frame_base) % (anim->interpolation & 0xFF);
 
 	frames[0] = &anim->frame_ptr[t1 * (anim->interpolation >> 8)];
-	frames[1] = &anim->frame_ptr[(t1 * (anim->interpolation >> 8)) + (anim->interpolation >> 8)];
+	frames[1] = &anim->frame_ptr[(anim->interpolation >> 8) + (t1 * (anim->interpolation >> 8))];
 
 	if (t2 == 0)
 	{
