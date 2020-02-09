@@ -585,9 +585,9 @@ void iRotY(int ry)//76E60
 	VY0 = (t6 >> 16) & 0xFFFF;
 	VZ0 = t2;
 
-	int t0 = L11 | (L12 << 16);
-	t2 = L22 | (L23 << 16);
-	int t3 = L31 | (L32 << 16);
+	int t0 = (L11 & 0xFFFF) | (L12 << 16);
+	t2 = (L22 & 0xFFFF) | (L23 << 16);
+	int t3 = (L31 & 0xFFFF) | (L32 << 16);
 
 	docop2(0x4A6012);
 
