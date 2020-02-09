@@ -638,9 +638,9 @@ void iRotX(int rx)
 	VY0 = (t6 >> 16) & 0xFFFF;
 	VZ0 = t5;
 
-	int t0 = L11 | (L12 << 16);
-	int t1 = L13 | (L21 << 16);
-	int t3 = L31 | (L32 << 16);
+	int t0 = (L11 & 0xFFFF) | (L12 << 16);
+	int t1 = (L13 & 0xFFFF) | (L21 << 16);
+	int t3 = (L31 & 0xFFFF) | (L32 << 16);
 
 	docop2(0x4A6012);
 	t6 = t5 >> 16;
