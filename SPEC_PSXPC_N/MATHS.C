@@ -1110,10 +1110,10 @@ void iPushMatrix0()//76D3C(<), ?(<) (F)
 
 void iPushMatrix()//76D3C(<), ?(<) (F)
 {
-	int t0 = L11 | (L12 << 16);
-	int t1 = L13 | (L21 << 16);
-	int t2 = L22 | (L23 << 16);
-	int t3 = L31 | (L32 << 16);
+	int t0 = (L11 & 0xFFFF) | (L12 << 16);
+	int t1 = (L13 & 0xFFFF) | (L21 << 16);
+	int t2 = (L22 & 0xFFFF) | (L23 << 16);
+	int t3 = (L31 & 0xFFFF) | (L32 << 16);
 	int t4 = L33;
 	int t5 = RBK;
 	int t6 = GBK;
