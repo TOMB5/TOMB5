@@ -11,7 +11,6 @@
 #include "MISC.H"
 #include "LIGHT.H"
 
-#include <LIBGTE.H>
 #include "GTEREG.H"
 #include <assert.h>
 
@@ -584,7 +583,7 @@ void CalcAllAnimatingItems_ASM()
 		{
 			r = &room[draw_rooms[i]];
 			((short*)fp)[52] = draw_rooms[i];
-			((short*)fp)[25] = (int)r;
+			((int*)fp)[25] = (int)r;
 			mmPushMatrix2(fp);
 
 			if (r->num_meshes > 0)
