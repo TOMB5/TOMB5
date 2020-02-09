@@ -698,8 +698,8 @@ void iRotZ(int rz)//76F04
 	VY0 = (t1 >> 16) & 0xFFFF;
 	VZ0 = 0;
 
-	t1 = L13 | (L21 << 16);
-	t2 = L22 | (L23 << 16);
+	t1 = (L13 & 0xFFFF) | (L21 << 16);
+	t2 = (L22 & 0xFFFF) | (L23 << 16);
 	int t4 = L33;
 
 	docop2(0x4A6012);
