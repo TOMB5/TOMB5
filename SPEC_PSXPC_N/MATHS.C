@@ -789,11 +789,14 @@ void iRotSuperPackedYXZ(short** a0, long a1)//7700C(<)
 			if (at != 0)
 			{
 				iRotZ((v0 & 0xFFF) << 4);
+				return;
 			}//0x77064
 			iRotY((v0 & 0xFFF) << 4);
+			return;
 		}
 		//0x7706C
 		iRotX((v0 & 0xFFF) << 4);
+		return;
 	}//0x77078
 
 	at = *a2++;
@@ -927,7 +930,7 @@ void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) (F)
 void InterpolateMatrix()//77250(<)
 {
 	MATRIX3D m;//$a0
-
+	MATRIX3D* m2 = &m;
 	if (iRate == 2 || iFrac == 2 && iRate == 4)
 	{
 		//loc_772A4
