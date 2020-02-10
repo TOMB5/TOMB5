@@ -948,41 +948,36 @@ void InterpolateMatrix()//77250(<)
 		m.tz = (iMatrix->tz + Matrix->tz) >> 1;
 
 	}
-	else if(iFrac != 2 || iRate != 4)
+	else if (iFrac == 1)
 	{
 		//loc_77368
-		
-		if (iFrac != 1)
-		{
-			//loc_77460
-			m.m00 = Matrix->m00 - ((iMatrix->m00 - Matrix->m00) >> 2);
-			m.m01 = Matrix->m01 - ((iMatrix->m01 - Matrix->m01) >> 2);
-			m.m02 = Matrix->m02 - ((iMatrix->m02 - Matrix->m02) >> 2);
-			m.m10 = Matrix->m10 - ((iMatrix->m10 - Matrix->m10) >> 2);
-			m.m11 = Matrix->m11 - ((iMatrix->m11 - Matrix->m11) >> 2);
-			m.m12 = Matrix->m12 - ((iMatrix->m12 - Matrix->m12) >> 2);
-			m.m20 = Matrix->m20 - ((iMatrix->m20 - Matrix->m20) >> 2);
-			m.m21 = Matrix->m21 - ((iMatrix->m21 - Matrix->m21) >> 2);
-			m.m22 = Matrix->m22 - ((iMatrix->m22 - Matrix->m22) >> 2);
-			m.tx = Matrix->tx - ((iMatrix->tx - Matrix->tx) >> 2);
-			m.ty = Matrix->ty - ((iMatrix->ty - Matrix->ty) >> 2);
-			m.tz = Matrix->tz - ((iMatrix->tz - Matrix->tz) >> 2);
-		}
-		else
-		{
-			m.m00 = Matrix->m00 + ((iMatrix->m00 - Matrix->m00) >> 2);
-			m.m01 = Matrix->m01 + ((iMatrix->m01 - Matrix->m01) >> 2);
-			m.m02 = Matrix->m02 + ((iMatrix->m02 - Matrix->m02) >> 2);
-			m.m10 = Matrix->m10 + ((iMatrix->m10 - Matrix->m10) >> 2);
-			m.m11 = Matrix->m11 + ((iMatrix->m11 - Matrix->m11) >> 2);
-			m.m12 = Matrix->m12 + ((iMatrix->m12 - Matrix->m12) >> 2);
-			m.m20 = Matrix->m20 + ((iMatrix->m20 - Matrix->m20) >> 2);
-			m.m21 = Matrix->m21 + ((iMatrix->m21 - Matrix->m21) >> 2);
-			m.m22 = Matrix->m22 + ((iMatrix->m22 - Matrix->m22) >> 2);
-			m.tx = Matrix->tx + ((iMatrix->tx - Matrix->tx) >> 2);
-			m.ty = Matrix->ty + ((iMatrix->ty - Matrix->ty) >> 2);
-			m.tz = Matrix->tz + ((iMatrix->tz - Matrix->tz) >> 2);
-		}
+		m.m00 = Matrix->m00 + ((iMatrix->m00 - Matrix->m00) >> 2);
+		m.m01 = Matrix->m01 + ((iMatrix->m01 - Matrix->m01) >> 2);
+		m.m02 = Matrix->m02 + ((iMatrix->m02 - Matrix->m02) >> 2);
+		m.m10 = Matrix->m10 + ((iMatrix->m10 - Matrix->m10) >> 2);
+		m.m11 = Matrix->m11 + ((iMatrix->m11 - Matrix->m11) >> 2);
+		m.m12 = Matrix->m12 + ((iMatrix->m12 - Matrix->m12) >> 2);
+		m.m20 = Matrix->m20 + ((iMatrix->m20 - Matrix->m20) >> 2);
+		m.m21 = Matrix->m21 + ((iMatrix->m21 - Matrix->m21) >> 2);
+		m.m22 = Matrix->m22 + ((iMatrix->m22 - Matrix->m22) >> 2);
+		m.tx = Matrix->tx + ((iMatrix->tx - Matrix->tx) >> 2);
+		m.ty = Matrix->ty + ((iMatrix->ty - Matrix->ty) >> 2);
+		m.tz = Matrix->tz + ((iMatrix->tz - Matrix->tz) >> 2);
+	}
+	else
+	{
+		m.m00 = Matrix->m00 - ((iMatrix->m00 - Matrix->m00) >> 2);
+		m.m01 = Matrix->m01 - ((iMatrix->m01 - Matrix->m01) >> 2);
+		m.m02 = Matrix->m02 - ((iMatrix->m02 - Matrix->m02) >> 2);
+		m.m10 = Matrix->m10 - ((iMatrix->m10 - Matrix->m10) >> 2);
+		m.m11 = Matrix->m11 - ((iMatrix->m11 - Matrix->m11) >> 2);
+		m.m12 = Matrix->m12 - ((iMatrix->m12 - Matrix->m12) >> 2);
+		m.m20 = Matrix->m20 - ((iMatrix->m20 - Matrix->m20) >> 2);
+		m.m21 = Matrix->m21 - ((iMatrix->m21 - Matrix->m21) >> 2);
+		m.m22 = Matrix->m22 - ((iMatrix->m22 - Matrix->m22) >> 2);
+		m.tx = Matrix->tx - ((iMatrix->tx - Matrix->tx) >> 2);
+		m.ty = Matrix->ty - ((iMatrix->ty - Matrix->ty) >> 2);
+		m.tz = Matrix->tz - ((iMatrix->tz - Matrix->tz) >> 2);
 	}
 
 	//loc_7754C
