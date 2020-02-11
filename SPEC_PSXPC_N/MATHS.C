@@ -447,7 +447,7 @@ void mRotY(long ry)//76744 (F)
 		t5 &= 0xFFFF;
 		t2 = -t5;
 		VX0 = t6;
-		VY0 = (t5 >> 16) & 0xFFFF;
+		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = t2;
 
 		t0 = ((R12 << 16) | (R11 & 0xFFFF)) & 0xFFFF0000;
@@ -485,6 +485,25 @@ void mRotYXZ(short y, short x, short z)//767E8 (F)
 	mRotY(y);
 	mRotX(x);
 	mRotZ(z);
+}
+
+void SetRotation_I(int t0, int t1, int t2, int t3, int t4)
+{
+	L11 = t0 & 0xFFFF;
+	L12 = (t0 >> 16) & 0xFFFF;
+	L13 = t1 & 0xFFFF;
+	L21 = (t1 >> 16) & 0xFFFF;
+	L22 = t2 & 0xFFFF;
+	L23 = (t2 >> 16) & 0xFFFF;
+	L31 = t3 & 0xFFFF;
+	L32 = (t3 >> 16) & 0xFFFF;
+	L33 = t4;
+
+	((int*)iMatrix)[0] = t0;
+	((int*)iMatrix)[1] = t1;
+	((int*)iMatrix)[2] = t2;
+	((int*)iMatrix)[3] = t3;
+	((int*)iMatrix)[4] = t4;
 }
 
 void mRotZ(long rz)//76804 (F)
@@ -548,6 +567,244 @@ void mRotZ(long rz)//76804 (F)
 	}
 }
 
+void iRotY(int ry)//76E60
+{
+	ry = (ry >> 2) & 0x3FFC;
+
+	if (ry == 0)
+	{
+		return;
+	}
+
+	//loc_76E78
+	int t5 = (rcossin_tbl[ry >> 1] & 0xFFFF) | ((rcossin_tbl[ry >> 1 | 1] & 0xFFFF) << 16);
+	int t6 = t5 >> 16;
+	t5 &= 0xFFFF;
+	int t2 = -t5;
+	VX0 = t6 & 0xFFFF;
+	VY0 = (t6 >> 16) & 0xFFFF;
+	VZ0 = t2;
+
+	int t0 = (L11 & 0xFFFF) | (L12 << 16);
+	t2 = (L22 & 0xFFFF) | (L23 << 16);
+	int t3 = (L31 & 0xFFFF) | (L32 << 16);
+
+	docop2(0x4A6012);
+
+	VX1 = t5 & 0xFFFF;
+	VY1 = (t5 >> 16) & 0xFFFF;
+	VZ1 = t6;
+
+	t0 &= 0xFFFF0000;
+	t2 &= 0xFFFF;
+	t3 &= 0xFFFF0000;
+
+	int t4 = MAC1;
+	int t1 = MAC2;
+	t5 = MAC3;
+
+	docop2(0x4AE012);
+
+	t4 &= 0xFFFF;
+	t0 |= t4;
+	t1 <<= 16;
+	t5 &= 0xFFFF;
+	t3 |= t5;
+
+	t5 = MAC1;
+	t6 = MAC2;
+	t4 = MAC3;
+
+	t5 &= 0xFFFF;
+	t1 |= t5;
+	t6 <<= 16;
+	t2 |= t6;
+
+	SetRotation_I(t0, t1, t2, t3, t4);
+}
+
+void iRotX(int rx)
+{
+	rx = (rx >> 2) & 0x3FFC;
+
+	if (rx == 0)
+	{
+		return;
+	}
+
+	int t5 = (rcossin_tbl[rx >> 1] & 0xFFFF) | ((rcossin_tbl[rx >> 1 | 1] & 0xFFFF) << 16);
+	int t6 = 0xFFFF0000 & t5;
+	VX0 = t6 & 0xFFFF;
+	VY0 = (t6 >> 16) & 0xFFFF;
+	VZ0 = t5;
+
+	int t0 = (L11 & 0xFFFF) | (L12 << 16);
+	int t1 = (L13 & 0xFFFF) | (L21 << 16);
+	int t3 = (L31 & 0xFFFF) | (L32 << 16);
+
+	docop2(0x4A6012);
+	t6 = t5 >> 16;
+	t5 <<= 16;
+	t5 = -t5;
+
+	VX1 = t5 & 0xFFFF;
+	VY1 = (t5 >> 16) & 0xFFFF;
+	VZ1 = t6;
+
+	t0 &= 0xFFFF;
+	t1 &= 0xFFFF0000;
+	t3 &= 0xFFFF;
+
+	int t4 = MAC1;
+	int t2 = MAC2;
+	t5 = MAC3;
+
+	docop2(0x4AE012);
+
+	t4 <<= 16;
+	t0 |= t4;
+	t2 &= 0xFFFF;
+	t5 <<= 16;
+	t3 |= t5;
+
+	t5 = MAC1;
+	t6 = MAC2;
+	t4 = MAC3;
+
+	t5 &= 0xFFFF;
+	t1 |= t5;
+	t6 <<= 16;
+	t2 |= t6;
+
+	SetRotation_I(t0, t1, t2, t3, t4);
+}
+
+void iRotZ(int rz)//76F04
+{
+	rz = (rz >> 2) & 0x3FFC;
+
+	if (rz == 0)
+	{
+		return;
+	}
+
+	int t0 = (rcossin_tbl[rz >> 1] & 0xFFFF) | ((rcossin_tbl[rz >> 1 | 1] & 0xFFFF) << 16);
+
+	int t1 = t0 >> 16;
+	int t2 = t0 << 16;
+	t1 |= t2;
+
+	VX0 = t1 & 0xFFFF;
+	VY0 = (t1 >> 16) & 0xFFFF;
+	VZ0 = 0;
+
+	t1 = (L13 & 0xFFFF) | (L21 << 16);
+	t2 = (L22 & 0xFFFF) | (L23 << 16);
+	int t4 = L33;
+
+	docop2(0x4A6012);
+
+	int t3 = t0 & 0xFFFF0000;
+	t0 &= 0xFFFF;
+	t0 = -t0;
+	t0 &= 0xFFFF;
+	t0 |= t3;
+
+	VX1 = t0 & 0xFFFF;
+	VY1 = (t0 >> 16) & 0xFFFF;
+	VZ1 = 0;
+
+	t1 &= 0xFFFF;
+
+	t0 = MAC1;
+	int t5 = MAC2;
+	t3 = MAC3;
+
+	docop2(0x4AE012);
+
+	t2 &= 0xFFFF0000;
+	t0 &= 0xFFFF;
+	t5 <<= 16;
+	t1 |= t5;
+	t3 &= 0xFFFF;
+
+	t5 = MAC1;
+	int t6 = MAC2;
+	int t8 = MAC3;
+
+	t5 <<= 16;
+	t0 |= t5;
+	t6 &= 0xFFFF;
+	t2 |= t6;
+	t8 <<= 16;
+	t3 |= t8;
+
+	SetRotation_I(t0, t1, t2, t3, t4);
+}
+
+
+void iRotPackedYXZ(long a0)//76FDC(<)
+{
+	iRotY((a0 >> 4) & 0xFFC0);
+	iRotX((a0 >> 14) & 0xFFC0);
+	iRotZ((a0 << 6) & 0xFFC0);
+}
+
+void iRotSuperPackedYXZ(short** a0, long a1)//7700C(<)
+{
+	unsigned short* a2;
+	int v0;
+	int at;
+	int a00;
+
+	a2 = (unsigned short*)a0[0];
+	v0 = *a2;
+
+	if (a1 != 0)
+	{
+		do
+		{
+			v0 = *a2;
+			a1--;
+			a2++;
+
+			if (!(v0 & 0xC000))
+			{
+				a2++;
+			}//0x7702C
+		} while (a1 != 0);
+
+		v0 = *a2++;
+
+	}//0x77038
+	a2++;
+	at = v0 >> 14;
+
+	if (at-- != 0)
+	{
+		a0[0] = (short*)a2;
+
+		if (at-- != 0)
+		{
+			if (at != 0)
+			{
+				iRotZ((v0 & 0xFFF) << 4);
+				return;
+			}//0x77064
+			iRotY((v0 & 0xFFF) << 4);
+			return;
+		}
+		//0x7706C
+		iRotX((v0 & 0xFFF) << 4);
+		return;
+	}//0x77078
+
+	at = *a2++;
+	a0[0] = (short*)a2;
+
+	iRotPackedYXZ((v0 << 16) | at);
+}
+
 void mRotSuperPackedYXZ(short** a0, long a1)//768BC
 {
 	unsigned short* a2;
@@ -569,7 +826,10 @@ void mRotSuperPackedYXZ(short** a0, long a1)//768BC
 				a2++;
 			}//loc_768DC
 
-		} while (a1 == 0);
+		} while (a1 != 0);
+
+		v0 = *a2;
+
 	}//loc_768E8
 
 	a2++;
@@ -665,7 +925,95 @@ void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) (F)
 	TRX = m->tx;
 	TRY = m->ty;
 	TRZ = m->tz;
-	return;
+}
+
+void InterpolateMatrix()//77250(<)
+{
+	MATRIX3D m;//$a0
+	MATRIX3D* m2 = &m;
+	if (iRate == 2 || iFrac == 2 && iRate == 4)
+	{
+		//loc_772A4
+		m.m00 = (iMatrix->m00 + Matrix->m00) >> 1;
+		m.m01 = (iMatrix->m01 + Matrix->m01) >> 1;
+		m.m02 = (iMatrix->m02 + Matrix->m02) >> 1;
+		m.m10 = (iMatrix->m10 + Matrix->m10) >> 1;
+		m.m11 = (iMatrix->m11 + Matrix->m11) >> 1;
+		m.m12 = (iMatrix->m12 + Matrix->m12) >> 1;
+		m.m20 = (iMatrix->m20 + Matrix->m20) >> 1;
+		m.m21 = (iMatrix->m21 + Matrix->m21) >> 1;
+		m.m22 = (iMatrix->m22 + Matrix->m22) >> 1;
+		m.tx = (iMatrix->tx + Matrix->tx) >> 1;
+		m.ty = (iMatrix->ty + Matrix->ty) >> 1;
+		m.tz = (iMatrix->tz + Matrix->tz) >> 1;
+
+	}
+	else if (iFrac == 1)
+	{
+		//loc_77368
+		m.m00 = Matrix->m00 + ((iMatrix->m00 - Matrix->m00) >> 2);
+		m.m01 = Matrix->m01 + ((iMatrix->m01 - Matrix->m01) >> 2);
+		m.m02 = Matrix->m02 + ((iMatrix->m02 - Matrix->m02) >> 2);
+		m.m10 = Matrix->m10 + ((iMatrix->m10 - Matrix->m10) >> 2);
+		m.m11 = Matrix->m11 + ((iMatrix->m11 - Matrix->m11) >> 2);
+		m.m12 = Matrix->m12 + ((iMatrix->m12 - Matrix->m12) >> 2);
+		m.m20 = Matrix->m20 + ((iMatrix->m20 - Matrix->m20) >> 2);
+		m.m21 = Matrix->m21 + ((iMatrix->m21 - Matrix->m21) >> 2);
+		m.m22 = Matrix->m22 + ((iMatrix->m22 - Matrix->m22) >> 2);
+		m.tx = Matrix->tx + ((iMatrix->tx - Matrix->tx) >> 2);
+		m.ty = Matrix->ty + ((iMatrix->ty - Matrix->ty) >> 2);
+		m.tz = Matrix->tz + ((iMatrix->tz - Matrix->tz) >> 2);
+	}
+	else
+	{
+		m.m00 = Matrix->m00 - ((iMatrix->m00 - Matrix->m00) >> 2);
+		m.m01 = Matrix->m01 - ((iMatrix->m01 - Matrix->m01) >> 2);
+		m.m02 = Matrix->m02 - ((iMatrix->m02 - Matrix->m02) >> 2);
+		m.m10 = Matrix->m10 - ((iMatrix->m10 - Matrix->m10) >> 2);
+		m.m11 = Matrix->m11 - ((iMatrix->m11 - Matrix->m11) >> 2);
+		m.m12 = Matrix->m12 - ((iMatrix->m12 - Matrix->m12) >> 2);
+		m.m20 = Matrix->m20 - ((iMatrix->m20 - Matrix->m20) >> 2);
+		m.m21 = Matrix->m21 - ((iMatrix->m21 - Matrix->m21) >> 2);
+		m.m22 = Matrix->m22 - ((iMatrix->m22 - Matrix->m22) >> 2);
+		m.tx = Matrix->tx - ((iMatrix->tx - Matrix->tx) >> 2);
+		m.ty = Matrix->ty - ((iMatrix->ty - Matrix->ty) >> 2);
+		m.tz = Matrix->tz - ((iMatrix->tz - Matrix->tz) >> 2);
+	}
+
+	//loc_7754C
+	R33 = m.m22;
+	TRX = m.tx;
+	TRY = m.ty;
+	TRZ = m.tz;
+	R11 = m.m00;
+	R12 = m.m01;
+	R13 = m.m02;
+	R21 = m.m10;
+	R22 = m.m11;
+	R23 = m.m12;
+	R31 = m.m20;
+	R32 = m.m21;
+
+	RBK = iAmbientR;
+	GBK = iAmbientG;
+	BBK = iAmbientB;
+}
+
+void iLoadMatrix(struct MATRIX3D* m)//771D8(<) (F)
+{
+	L11 = m->m00;
+	L12 = m->m01;
+	L13 = m->m02;
+	L21 = m->m10;
+	L22 = m->m11;
+	L23 = m->m12;
+	L31 = m->m20;
+	L32 = m->m21;
+	L33 = m->m22;
+
+	RBK = m->tx;
+	GBK = m->ty;
+	BBK = m->tz;
 }
 
 void mCopyMatrix(struct MATRIX3D* m)//769E4(<), 78A28(<) (F)
@@ -706,9 +1054,51 @@ void mClipBoundingBox(short* bounds)//76B14
 	UNIMPLEMENTED();
 }
 
-void InitInterpolation(long frac, long rate, struct MATRIX3D* m)//76CB4 
+void InitInterpolation(long frac, long rate, struct MATRIX3D* m)//76CB4(<) 
 {
-	UNIMPLEMENTED();
+	int t0 = RBK;
+	int t1 = GBK;
+	int t2 = BBK;
+
+	iFrac = frac;
+	iRate = rate;
+	iMatrix = m;
+
+	iAmbientR = t0;
+	iAmbientG = t1;
+	iAmbientB = t2;
+
+	t0 = (R11 & 0xFFFF) | (R12 << 16);
+	t1 = (R13 & 0xFFFF) | (R21 << 16);
+	t2 = (R22 & 0xFFFF) | (R23 << 16);
+	int t3 = (R31 & 0xFFFF) | (R32 << 16);
+	int t4 = (R33 & 0xFFFF);
+	int t5 = TRX;
+	int t6 = TRY;
+	int t7 = TRZ;
+
+	L11 = R11;
+	L12 = R12;
+	L13 = R13;
+	L21 = R21;
+	L22 = R22;
+	L23 = R23;
+	L31 = R31;
+	L32 = R32;
+	L33 = R33;
+
+	RBK = TRX;
+	GBK = TRY;
+	BBK = TRZ;
+
+	((int*)m)[0] = t0;
+	((int*)m)[1] = t1;
+	((int*)m)[2] = t2;
+	((int*)m)[3] = t3;
+	((int*)m)[4] = t4;
+	((int*)m)[5] = t5;
+	((int*)m)[6] = t6;
+	((int*)m)[7] = t7;
 }
 
 void iPushMatrix0()//76D3C(<), ?(<) (F)
@@ -716,9 +1106,29 @@ void iPushMatrix0()//76D3C(<), ?(<) (F)
 	UNIMPLEMENTED();
 }
 
-void iPushMatrix(struct MATRIX3D* m)//81E60(<), ?(<) (F)
+void iPushMatrix()//76D3C(<), ?(<) (F)
 {
-	UNIMPLEMENTED();
+	int t0 = (L11 & 0xFFFF) | (L12 << 16);
+	int t1 = (L13 & 0xFFFF) | (L21 << 16);
+	int t2 = (L22 & 0xFFFF) | (L23 << 16);
+	int t3 = (L31 & 0xFFFF) | (L32 << 16);
+	int t4 = L33;
+	int t5 = RBK;
+	int t6 = GBK;
+	int t7 = BBK;
+
+	++iMatrix;
+
+	((int*)iMatrix)[0] = t0;
+	((int*)iMatrix)[1] = t1;
+	((int*)iMatrix)[2] = t2;
+	((int*)iMatrix)[3] = t3;
+	((int*)iMatrix)[4] = t4;
+	((int*)iMatrix)[5] = t5;
+	((int*)iMatrix)[6] = t6;
+	((int*)iMatrix)[7] = t7;
+
+	mPushMatrix();
 }
 
 void iPopMatrix0()
@@ -726,9 +1136,12 @@ void iPopMatrix0()
 	UNIMPLEMENTED();
 }
 
-void iPopMatrix(struct MATRIX3D* m, struct MATRIX3D* m2)//76D8C(<), ?(<) TOCHECK
+void iPopMatrix()//76D8C(<), ?(<)
 {
-	UNIMPLEMENTED();
+	--Matrix;
+	--iMatrix;
+	mLoadMatrix(Matrix);
+	iLoadMatrix(iMatrix);
 }
 
 void mPushMatrix0()//764D0 (F)
@@ -1689,9 +2102,9 @@ void iTranslateXYZ2(short x, short y, short z, short x2, short y2, short z2)//77
 
 	//v0 = iMatrix
 	t6 = MAC1;
-	a3 = IR1;
-	a1 = IR2;
-	a2 = IR3;
+	IR1 = x2;
+	IR2 = y2;
+	IR3 = z2;
 	t7 = MAC2;
 	t8 = MAC3;
 
@@ -1765,7 +2178,7 @@ long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*
 	t2 = (item->frame_number - anim->frame_base) % (anim->interpolation & 0xFF);
 
 	frames[0] = &anim->frame_ptr[t1 * (anim->interpolation >> 8)];
-	frames[1] = &anim->frame_ptr[(t1 * (anim->interpolation >> 8)) + (anim->interpolation >> 8)];
+	frames[1] = &anim->frame_ptr[(anim->interpolation >> 8) + (t1 * (anim->interpolation >> 8))];
 
 	if (t2 == 0)
 	{

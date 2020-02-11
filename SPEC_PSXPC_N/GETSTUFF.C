@@ -215,7 +215,7 @@ struct FLOOR_INFO* GetFloor(long x, long y, long z, short* room_number)//(F)
 	struct FLOOR_INFO* floor = NULL;//$t1
 	int dz;
 	int dx;
-	char door;//$a0
+	unsigned char door;//$a0
 	int v0;
 
 	//loc_78974:
@@ -378,7 +378,7 @@ void GC_adjust_height(unsigned char a0, unsigned char a1, unsigned char a2, int 
 	v0 -= t5;
 	v0 &= 0x3FF;
 	v0 = (v0 * a1) >> 2;
-	t7 -= v0;
+	*t7 -= v0;
 
 	//loc_79424
 	v0 = 0x3FF;
@@ -387,13 +387,13 @@ void GC_adjust_height(unsigned char a0, unsigned char a1, unsigned char a2, int 
 		v0 -= t4;
 		v0 &= 0x3FF;
 		v0 = (v0 * a2) >> 2;
-		t7 += v0;
+		*t7 += v0;
 		return;
 	}
 	//loc_79448
 	v0 = t4 & 0x3FF;
 	v0 = (v0 * a2) >> 2;
-	t7 -= v0;
+	*t7 -= v0;
 	return;
 }
 
@@ -437,10 +437,10 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 			//v0 = 2
 			fd = (unsigned short*)&floor_data[f->index];
 			a0 = *fd++;
-			if ((a0 & 0x1F) != 2 || (a0 & 0x1F) - 7 < 2 || (a0 & 0x1F) - 11 < 4)
+			if ((a0 & 0x1F) == 2 || (a0 & 0x1F) - 7 < 2 || (a0 & 0x1F) - 11 < 4)
 			{
 				//loc_79154
-				if ((a0 & 0x8000))
+				if (((a0 & 0x8000) << 10) != 0)
 				{
 					a0 = fd[1];
 					fd += 2;
@@ -573,7 +573,8 @@ loc_792E0:
 		case 17:
 		case 18:
 			//loc_79314
-			//j loc_793C8
+			fd++;
+			goto loc_793C8;
 			break;
 		case 4:
 			//loc_79318
@@ -621,7 +622,7 @@ loc_7931C:
 		case 19:
 		case 20:
 		case 21:
-			//loc_793C8
+		loc_793C8:
 			if (!(s2 & 0x8000))
 				goto loc_792E0;
 			break;
@@ -760,7 +761,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 
 			//loc_78EB4
 			tiltxoff = a1;
-			tiltyoff = a1;
+			tiltyoff = a2;
 
 			if (ABS(a1) < 3)
 			{

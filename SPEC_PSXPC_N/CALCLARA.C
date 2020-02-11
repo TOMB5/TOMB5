@@ -8,6 +8,8 @@
 #include "LOAD_LEV.H"
 #include "CAMERA.H"
 #include "CONTROL.H"
+#include "MATHS.H"
+#include <assert.h>
 
 void S_SetupClutAdder(long underwater)
 {
@@ -52,7 +54,7 @@ void copy_matrix_from_scratch(int* a0, int* a1)
 	a1[7] = t7;
 }
 
-void mLoadMatrix(int* mat)
+void mLoadMatrix_CL(int* mat)
 {
 	TRX = mat[5];
 	TRY = mat[6];
@@ -430,7 +432,7 @@ void mRotYXZ_CL(long y, long x, long z)
 void iRotSuperPackedYXZ_CL(int* t8, int a1)
 {
 	unsigned short* a2 = (unsigned short*)t8[10];
-	unsigned short v0;
+	unsigned short v0 = 0;
 
 	if (a1 != 0)
 	{
@@ -480,6 +482,13 @@ void iRotSuperPackedYXZ_CL(int* t8, int a1)
 	iRotY_CL((a22 >> 4) & 0xFFC0);
 	iRotX_CL((a22 >> 14) & 0xFFC0);
 	iRotZ_CL((a22 << 6) & 0xFFC0);
+}
+
+void iRotYXZ_CL(int y, int x, int z)
+{
+	iRotY_CL(y);
+	iRotX_CL(x);
+	iRotZ_CL(z);
 }
 
 void mRotSuperPackedYXZ_CL(int* t8, int a1)
@@ -761,6 +770,24 @@ void mTranslateAbsXYZ_CL(long x, long y, long z)
 	mTranslateXYZ_CL(x - ((int*)& MatrixStack[0])[5], y - ((int*)& MatrixStack[0])[6], z - ((int*)& MatrixStack[0])[7]);
 }
 
+void Hardcore_iTranslateXYZ_CL(long* a22, int* t8)
+{
+	int a0 = a22[0];
+	int a1 = a22[1];
+	int a2 = a22[2];
+	int a3 = a0;
+
+	t8[96] = a1;
+	t8[97] = a2;
+
+	mTranslateXYZ_CL(a0, a1, a2);
+
+	///@TODO Not required but....
+	a1 = t8[96];
+	a2 = t8[97];
+	iTranslateXYZ2_CL(a3, a1, a2);
+}
+
 void Hardcore_mTranslateXYZ_CL(long* a2)
 {
 	mTranslateXYZ_CL(a2[0], a2[1], a2[2]);
@@ -810,21 +837,21 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	do
 	{
 		Hardcore_mTranslateXYZ_CL(&s1[1]);
-		mRotSuperPackedYXZ_CL(&t8[22], 0);
+		mRotSuperPackedYXZ_CL(&t8[22], 0);///@TODO should just be t8 not &t8[22]?
 		snaff_current_gte_matrix_V1(&s0[8]);
 		a3--;
 
 		s1 += 4;
 		if (a3 == 3)
 		{
-			mLoadMatrix(&t8[22]);
+			mLoadMatrix_CL(&t8[22]);
 		}//loc_83CE4
 
 		s0 += 8;
 
 	} while (a3 != 0);
 
-	mLoadMatrix(&t8[22]);
+	mLoadMatrix_CL(&t8[22]);
 	bone -= 24;
 	s0 -= 48;
 
@@ -853,7 +880,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	//?????? sw      a3, 0x24(t8)
 	mRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
 	snaff_current_gte_matrix_V1(&s0[64]);
-	mLoadMatrix(&t8[30]);
+	mLoadMatrix_CL(&t8[30]);
 	Hardcore_mTranslateXYZ_CL(&s1[29]);
 
 	if (lara.gun_status == 2 || lara.gun_status == 3 ||
@@ -877,7 +904,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 			mRotSuperPackedYXZ_CL(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
 
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 
 			if (lara.flare_control_left)
@@ -919,7 +946,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 
 			mRotSuperPackedYXZ_CL(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 			setup_rotation_matrix(&t8[14]);
 			mRotYXZ_CL(lara.left_arm.y_rot, lara.left_arm.x_rot, lara.left_arm.z_rot);
@@ -950,7 +977,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 			Hardcore_mTranslateXYZ_CL(&s1[37]);
 			mRotSuperPackedYXZ_CL(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 
 			setup_rotation_matrix(&t8[14]);
@@ -981,7 +1008,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 			Hardcore_mTranslateXYZ_CL(&s1[37]);
 			mRotSuperPackedYXZ_CL(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 			mRotSuperPackedYXZ_CL(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[96]);
@@ -1006,7 +1033,318 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 
 	copy_matrix_from_scratch(&t8[22], s0);
 	copy_matrix_from_scratch(&t8[30], &s0[56]);
-	mLoadMatrix(&t8[38]);
+	mLoadMatrix_CL(&t8[38]);
+}
+
+void DEL_restore_both_matrices(int* t8, int* a0)
+{
+	int t0 = t8[56];
+	int t1 = t8[57];
+	int t2 = t8[58];
+	int t3 = t8[59];
+
+	L11 = t0 & 0xFFFF;
+	L12 = (t0 >> 16) & 0xFFFF;
+
+	L13 = t1 & 0xFFFF;
+	L21 = (t1 >> 16) & 0xFFFF;
+
+	L22 = t2 & 0xFFFF;
+	L23 = (t2 >> 16) & 0xFFFF;
+
+	L31 = t3 & 0xFFFF;
+	L32 = (t3 >> 16) & 0xFFFF;
+
+	int t4 = t8[60];
+	int t5 = t8[61];
+	int t6 = t8[62];
+	int t7 = t8[63];
+
+	L33 = t4;
+	RBK = t5;
+	GBK = t6;
+	BBK = t7;
+
+	mLoadMatrix_CL(a0);
+}
+
+void DEL_stash_both_matrices(int* t8, int* a0)
+{
+	int t0 = L11 | (L12 << 16);
+	int t1 = L13 | (L21 << 16);
+	int t2 = L22 | (L23 << 16);
+	int t3 = L31 | (L32 << 16);
+
+	t8[56] = t0;
+	t8[57] = t1;
+	t8[58] = t2;
+	t8[59] = t3;
+
+	int t4 = L33;
+	int t5 = RBK;
+	int t6 = GBK;
+	int t7 = BBK;
+
+	t8[60] = t4;
+	t8[61] = t5;
+	t8[62] = t6;
+	t8[63] = t7;
+
+	snaff_current_gte_matrix_V1(a0);
+}
+
+void InterpolateMatrix(int* t8, int* a0)//85414
+{
+	int t0 = R22 | (R23 << 16);
+	int t1 = R31 | (R32 << 16);
+	int t2 = R33;
+	int t3 = L22 | (L23 << 16);
+	int t4 = L31 | (L32 << 16);
+	int t5 = L33;
+
+	t8[90] = t0;
+	t8[91] = t1;
+	t8[92] = t2;
+
+	t8[82] = t3;
+	t8[83] = t4;
+	t8[84] = t5;
+
+	int v1 = t8[47];
+	int t7 = t8[46];
+
+	int t6 = R11 | (R12 << 16);
+	t3 = R13 | (R21 << 16);
+	int a3 = L11 | (L12 << 16);
+	t2 = L13 | (L21 << 16);
+
+	t1 = t6 >> 16;
+	t6 <<= 16;
+	t6 >>= 16;
+	t5 = t3 >> 16;
+	t3 <<= 16;
+	t3 >>= 16;
+	t0 = a3 >> 16;
+	a3 <<= 16;
+	a3 >>= 16;
+	t4 = t2 >> 16;
+	t2 <<= 16;
+	t2 >>= 16;
+
+	if (v1 == 2 || (t7 == 2 && v1 == 4))
+	{
+		//loc_854A8
+		t0 += t1;
+		t0 >>= 1;
+		a3 += t6;
+		a3 >>= 1;
+		t2 += t3;
+		t2 >>= 1;
+		t4 += t5;
+		t4 >>= 1;
+
+		((short*)a0)[0] = a3;
+		((short*)a0)[1] = t0;
+		((short*)a0)[2] = t2;
+		((short*)a0)[3] = t4;
+
+		a3 = ((short*)t8)[164];
+		t6 = ((short*)t8)[180];
+		t0 = ((short*)t8)[165];
+		t1 = ((short*)t8)[181];
+		a3 += t6;
+		a3 >>= 1;
+		t0 += t1;
+		t0 >>= 1;
+		t2 = ((short*)t8)[166];
+		t3 = ((short*)t8)[182];
+		t4 = ((short*)t8)[167];
+		t5 = ((short*)t8)[183];
+		t2 += t3;
+		t2 >>= 1;
+		t4 += t5;
+		t4 >>= 1;
+
+		((short*)a0)[4] = a3;
+		((short*)a0)[5] = t0;
+		((short*)a0)[6] = t2;
+		((short*)a0)[7] = t4;
+
+		a3 = ((short*)t8)[168];
+		t6 = ((short*)t8)[184];
+
+		t0 = RBK;
+		t1 = TRX;
+
+		a3 += t6;
+		a3 >>= 1;
+		t0 += t1;
+		t0 >>= 1;
+		t2 = GBK;
+		t3 = TRY;
+		t4 = BBK;
+		t5 = TRZ;
+
+		t2 += t3;
+		t2 >>= 1;
+		t4 += t5;
+		t4 >>= 1;
+	}
+	else if(t7 == 1)
+	{
+		//loc_8556C
+		int at = t0 - t1;
+		t0 = at >> 2;
+		t0 = t1 + t0;
+		a3 -= t6;
+		a3 >>= 3;
+		a3 = t6 + a3;
+		t2 -= t3;
+		t2 >>= 2;
+		t2 = t3 + t2;
+		t4 -= t5;
+		t4 >>= 2;
+		t4 = t5 + t4;
+
+		((short*)a0)[0] = a3;
+		((short*)a0)[1] = t0;
+		((short*)a0)[2] = t2;
+		((short*)a0)[3] = t4;
+
+		a3 = ((short*)t8)[164];
+		t6 = ((short*)t8)[180];
+		t0 = ((short*)t8)[165];
+		t1 = ((short*)t8)[181];
+
+		a3 -= t6;
+		a3 >>= 2;
+		a3 = t6 + a3;
+		t0 -= t1;
+		t0 >>= 2;
+		t0 = t1 + t0;
+
+		t2 = ((short*)t8)[166];
+		t3 = ((short*)t8)[182];
+		t4 = ((short*)t8)[167];
+		t5 = ((short*)t8)[183];
+
+		t2 -= t3;
+		t2 >>= 2;
+		t2 = t3 + t2;
+		t4 -= t5;
+		t4 >>= 2;
+		t4 = t5 + t4;
+
+		((short*)a0)[4] = a3;
+		((short*)a0)[5] = t0;
+		((short*)a0)[6] = t2;
+		((short*)a0)[7] = t4;
+
+		a3 = ((short*)t8)[168];
+		t6 = ((short*)t8)[184];
+
+		t0 = RBK;
+		t1 = TRX;
+
+		a3 -= t6;
+		a3 >>= 2;
+		a3 = t6 + a3;
+		t0 -= t1;
+		t0 >>= 2;
+
+		t0 = t1 + t0;
+		t2 = GBK;
+		t3 = TRY;
+		t4 = BBK;
+		t5 = TRZ;
+		t2 -= t3;
+		t2 >>= 2;
+		t2 = t3 + t2;
+		t4 -= t5;
+		t4 >>= 2;
+		t4 = t5 + t4;
+	}
+	else
+	{
+		//loc_85664
+		int at = t0 - t1;
+		t1 = at >> 2;
+		t0 -= t1;
+		t6 = a3 - t6;
+		t6 >>= 2;
+		a3 -= t6;
+		t3 = t2 + t3;
+		t3 >>= 2;
+		t2 -= t3;
+		t5 = t4 + t5;
+		t5 >>= 2;
+		t4 -= t5;
+
+		((short*)a0)[0] = a3;
+		((short*)a0)[2] = t0;
+		((short*)a0)[4] = t2;
+		((short*)a0)[6] = t4;
+
+		a3 = ((short*)t8)[164];
+		t6 = ((short*)t8)[180];
+		t0 = ((short*)t8)[165];
+		t1 = ((short*)t8)[181];
+
+		t6 = a3 - t6;
+		t6 >>= 2;
+		a3 -= t6;
+		t1 = t0 - t1;
+		t1 >>= 2;
+		t0 -= t1;
+
+		t2 = ((short*)t8)[166];
+		t3 = ((short*)t8)[182];
+		t4 = ((short*)t8)[167];
+		t5 = ((short*)t8)[183];
+
+		t3 = t2 - t3;
+		t3 >>= 2;
+		t2 -= t3;
+		t5 = t4 - t5;
+		t5 >>= 2;
+		t4 -= t5;
+
+		((short*)a0)[4] = a3;
+		((short*)a0)[5] = t0;
+		((short*)a0)[6] = t2;
+		((short*)a0)[7] = t4;
+
+		a3 = ((short*)t8)[168];
+		t6 = ((short*)t8)[184];
+
+		t0 = RBK;
+		t1 = TRX;
+
+		t6 = a3 - t6;
+		t6 >>= 2;
+		a3 -= t6;
+		t1 = t0 - t1;
+		t1 >>= 2;
+		t0 -= t1;
+
+		t2 = GBK;
+		t3 = TRY;
+		t4 = BBK;
+		t5 = TRZ;
+
+		t3 = t2 - t3;
+		t3 >>= 2;
+		t2 -= t3;
+		t5 = t4 - t5;
+		t5 >>= 2;
+		t4 -= t5;
+	}
+
+	//loc_85750
+	((short*)a0)[8] = a3;
+	((int*)a0)[5] = t0;
+	((int*)a0)[6] = t2;
+	((int*)a0)[7] = t4;
 }
 
 void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int frac, int rate, long* bone, int flag)
@@ -1016,7 +1354,6 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	struct ITEM_INFO* item = lara_item;//$t9
 	short* s0 = frame1;
 	short* s1 = frame2;
-	//long* s1 = bone;
 	frame1 += 4;
 	frame2 += 4;
 	t8[9] = (int)frame1;
@@ -1063,62 +1400,197 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	mRotSuperPackedYXZ_CL(t8, 0);
 	iRotSuperPackedYXZ_CL(t8, 0);
 
-#if 0
-	
+	s0 = (short*)t8[13];
 
-	int* s0 = &t8[13];
-	snaff_current_gte_matrix_V1(&t8[22]);
-	int a3 = 6;
+	InterpolateMatrix(t8, (int*)s0);
+	DEL_stash_both_matrices(t8, &t8[48]);
 
-	//loc_83CB4
+	long* s11 = &bone[0];
+	int t9 = 6;
+
+	//loc_84480
 	do
 	{
-		Hardcore_mTranslateXYZ_CL(&s1[1]);
-		mRotSuperPackedYXZ(&t8[22], 0);
-		snaff_current_gte_matrix_V1(&s0[8]);
-		a3--;
+		Hardcore_iTranslateXYZ_CL(&s11[1], t8);
+		mRotSuperPackedYXZ_CL(t8, 0);
+		iRotSuperPackedYXZ_CL(t8, 0);
+		InterpolateMatrix(t8, (int*)&s0[16]);
+		t9--;
 
-		s1 += 4;
-		if (a3 == 3)
+		s1 += 8;
+		if (t9 == 3)
 		{
-			mLoadMatrix(&t8[22]);
-		}//loc_83CE4
+			DEL_restore_both_matrices(t8, &t8[48]);
+		}
+		//loc_844B8
+		s0 += 16;
+	} while (t9 != 0);
 
-		s0 += 8;
+	DEL_restore_both_matrices(t8, &t8[48]);
 
-	} while (a3 != 0);
+	s0 -= 96;
+	s1 -= 48;
 
-	mLoadMatrix(&t8[22]);
-	bone -= 24;
-	s0 -= 48;
+	struct ANIM_STRUCT* t99 = &anims[0];
+	Hardcore_iTranslateXYZ_CL((long*)&s1[50], t8);
 
-	Hardcore_mTranslateXYZ_CL(&s1[25]);
-
+	//a0 = lara.weapon_item
+	//v0 = 5
 	if (lara.weapon_item != -1 && lara.gun_type == 5 &&
-		(items[lara.weapon_item + 1].frame_number == 0 ||
-			items[lara.weapon_item + 1].frame_number == 2 ||
-			items[lara.weapon_item + 1].frame_number == 4))
+		items[lara.weapon_item + 1].frame_number == 0 ||
+		items[lara.weapon_item + 1].frame_number == 2 ||
+		items[lara.weapon_item + 1].frame_number == 4)
 	{
-		t8[9] = (int)& lara.right_arm.frame_base[(lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
-		mRotSuperPackedYXZ(t8, 7);
+		//v1 = lara.right_arm.anim_number
+		//v0 = (anims[lara.right_arm.anim_number].interpolation >> 8);
+		//v1 = lara.right_arm.frame_number
+		//t0 = lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8);
+		//a1 = 7
+		t8[10] = (int)lara.right_arm.frame_base[lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8) + 9];
+		t8[9] = (int)lara.right_arm.frame_base[lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8) + 9];
+
+		mRotSuperPackedYXZ_CL(t8, 7);
+		iRotSuperPackedYXZ_CL(t8, 7);
 	}
 	else
 	{
-		//loc_83DA8
-		mRotSuperPackedYXZ(t8, 0);
+		mRotSuperPackedYXZ_CL(t8, 0);
+		iRotSuperPackedYXZ_CL(t8, 0);
 	}
 
+	//loc_84594
 	mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
-	snaff_current_gte_matrix_V1(&t8[30]);
-	Hardcore_mTranslateXYZ_CL(&s1[53]);
-	mRotSuperPackedYXZ(t8, 6);
-	///@TODO debug this on PSX, mRotSuperPackedYXZ must implicitly change t8[9] and the value is popped back
-	//a3 = t8[9];
-	//?????? sw      a3, 0x24(t8)
+	iRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+
+	InterpolateMatrix(t8, (int*)&s0[112]);
+	DEL_stash_both_matrices(t8, (int*)&t8[48]);
+	Hardcore_iTranslateXYZ_CL((long*)&s1[106], t8);
+
+	t8[11] = t8[9];
+	t8[12] = t8[10];
+
+	mRotSuperPackedYXZ_CL(t8, 6);
+	iRotSuperPackedYXZ_CL(t8, 6);
+
+	t8[9] = t8[11];
+	t8[10] = t8[12];
+
 	mRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
-	snaff_current_gte_matrix_V1(&s0[64]);
-	mLoadMatrix(&t8[30]);
-	Hardcore_mTranslateXYZ_CL(&s1[29]);
+	iRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
+
+	InterpolateMatrix(t8, (int*)&s0[128]);
+	DEL_restore_both_matrices(t8, &t8[48]);
+	Hardcore_iTranslateXYZ_CL((long*)&s1[58], t8);
+
+	//a0 = lara.gun_status
+	if (lara.gun_status == 2 || lara.gun_status == 3 ||
+		lara.gun_status == 4 || lara.gun_status == 5)
+	{
+		switch (lara.gun_type)
+		{
+		case 0:
+		case 7:
+		case 8:
+		{
+		loc_8469C:
+			mRotSuperPackedYXZ_CL(t8, 0);
+			iRotSuperPackedYXZ_CL(t8, 0);
+#if 0
+jal     sub_85414
+addiu   $a0, $s0, 0x120
+jal     sub_852CC
+addiu   $a2, $s1, 0x84
+jal     sub_84C40
+move    $a1, $zero
+jal     sub_85220
+move    $a1, $zero
+jal     sub_85414
+addiu   $a0, $s0, 0x140
+jal     sub_852CC
+addiu   $a2, $s1, 0x94
+jal     sub_84C40
+move    $a1, $zero
+jal     sub_85220
+move    $a1, $zero
+jal     sub_85414
+addiu   $a0, $s0, 0x160
+jal     sub_84F78
+addiu   $a0, $t8, 0xC0
+jal     sub_852CC
+addiu   $a2, $s1, 0xA4
+lw      $v0, 0x526C($gp)
+nop
+andi    $v0, 1
+beqz    $v0, loc_84778
+nop
+lh      $v1, 0x52E2($gp)
+nop
+sll     $v0, $v1, 2
+addu    $v0, $v1
+sll     $v0, 3
+addu    $v0, $t9
+lh      $v1, 0x52E0($gp)
+lh      $a0, 0x18($v0)
+lh      $v0, 4($v0)
+subu    $v1, $a0
+sra     $v0, 8
+mult    $v1, $v0
+li      $a1, 0xB
+lw      $v0, 0x52DC($gp)
+mflo    $t0
+sll     $v1, $t0, 1
+addu    $v0, $v1
+addiu   $v0, 0x12
+sw      $v0, 0x28($t8)
+jal     sub_84C40
+
+sw      $v0, 0x24($t8)
+li      $a1, 0xB
+jal     sub_85220
+addiu   $ra, 0x10
+
+loc_84778:
+jal     sub_84C40
+move    $a1, $zero
+jal     sub_85220
+move    $a1, $zero
+jal     sub_85414
+addiu   $a0, $s0, 0x180
+jal     sub_852CC
+addiu   $a2, $s1, 0xB4
+move    $a1, $zero
+jal     sub_84C40
+addiu   $ra, 0x314
+#endif
+
+			break;
+		}
+		case 1:
+		case 3:
+		{
+			//loc_847A4
+			break;
+		}
+		case 2:
+		{
+			//loc_84870
+			break;
+		}
+		case 4:
+		case 5:
+		case 6:
+		{
+			//loc_849E4
+
+			break;
+		}
+		}
+	}
+	else
+	{
+		goto loc_8469C;
+	}
+#if 0
 
 	if (lara.gun_status == 2 || lara.gun_status == 3 ||
 		lara.gun_status == 4 || lara.gun_status == 5)
@@ -1141,7 +1613,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 			mRotSuperPackedYXZ(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
 
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 
 			if (lara.flare_control_left)
@@ -1183,7 +1655,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 
 			mRotSuperPackedYXZ(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 			setup_rotation_matrix(&t8[14]);
 			mRotYXZ_CL(lara.left_arm.y_rot, lara.left_arm.x_rot, lara.left_arm.z_rot);
@@ -1214,7 +1686,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 			Hardcore_mTranslateXYZ_CL(&s1[37]);
 			mRotSuperPackedYXZ(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 
 			setup_rotation_matrix(&t8[14]);
@@ -1245,7 +1717,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 			Hardcore_mTranslateXYZ_CL(&s1[37]);
 			mRotSuperPackedYXZ(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix(&t8[30]);
+			mLoadMatrix_CL(&t8[30]);
 			Hardcore_mTranslateXYZ_CL(&s1[41]);
 			mRotSuperPackedYXZ(&t8[0], 0);
 			snaff_current_gte_matrix_V1(&s0[96]);
@@ -1270,27 +1742,92 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 
 	copy_matrix_from_scratch(&t8[22], s0);
 	copy_matrix_from_scratch(&t8[30], &s0[56]);
-	mLoadMatrix(&t8[38]);
+	mLoadMatrix_CL(&t8[38]);
 #endif
+}
+
+int GetFrames(struct ITEM_INFO* item, int* a1, int* a2)//8582C
+{
+	struct ANIM_STRUCT* anim;//$t0
+	int t1;
+	int t2;
+	int t3;
+
+	anim = &anims[item->anim_number];
+	
+	t1 = (item->frame_number - anim->frame_base) / (anim->interpolation & 0xFF);
+	t2 = (item->frame_number - anim->frame_base) % (anim->interpolation & 0xFF);
+
+	a2[0] = anim->interpolation & 0xFF;
+
+	t3 = t1 * (anim->interpolation >> 8);
+
+	((short**)a1)[0] = &anim->frame_ptr[t3];
+	((short**)a1)[1] = &anim->frame_ptr[t3 + (anim->interpolation >> 8)];
+
+	if (t2 == 0)
+	{
+		return 0;
+	}
+
+	//loc_8589C
+	t3 = t1 * (anim->interpolation & 0xFF);
+
+	if (anim->frame_end < t3 + (anim->interpolation & 0xFF))
+	{
+		a2[0] = anim->frame_end - (t3 + (anim->interpolation & 0xFF)) - (anim->interpolation & 0xFF);
+	}
+
+	return t2;
 }
 
 short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 {
-#if 0///@FIXME see getframes comment
-	int rate;
-	short* frmptr[2];
-	int frac = GetFrames(item, frmptr, &rate);//TODO local GETFRAMES!
+	int var_10[2];
+	int var_8;
+	int t0;
+	int i;//$a1
+	short v0;
+	short a0;
+	int v1;
+	short* t4;
+	short* t5;
+	short* a2;
 
-	if (frac == 0)
-		return frmptr[0];
+	t0 = GetFrames(item, &var_10[0], &var_8);
 
-	short* bptr = interpolated_bounds;
-
-	for (int i = 0; i < 6; i++, bptr++, frmptr[0]++, frmptr[1]++)
+	if (t0 == 0)
 	{
-		*bptr = *frmptr[0] + (*frmptr[1] - *frmptr[0]) * frac / rate;
+		return (short*)var_10[0];
 	}
-#endif
+
+	//loc_8591C
+	a2 = &interpolated_bounds[0];
+	i = 6;
+	
+	//loc_85928
+	t4 = ((short*)var_10[0]);
+	t5 = ((short*)var_10[1]);
+	
+	do
+	{
+		v0 = t5[0];
+		a0 = t4[0];
+
+		i--;
+
+		v0 -= a0;
+		v1 = v0 * t0;
+
+		t5++;
+		t4++;
+
+		v0 = v1 / var_8;
+		a2++;
+		a0 -= v0;
+		a2[-1] = a0;
+	} while (i != 0);
+
 	return interpolated_bounds;
 }
 

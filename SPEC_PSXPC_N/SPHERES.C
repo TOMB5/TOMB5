@@ -94,9 +94,6 @@ void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joi
 	}
 	else
 	{
-		//Math functions not impl
-		assert(0);
-#if 0
 		//loc_8E9EC
 		//a2 = &iMatrixStack[16];
 		InitInterpolation(frac, rate, &iMatrixStack[16]);
@@ -104,12 +101,13 @@ void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joi
 		//t0 = frames[1]
 
 		//v0 = &frames[0][9]
-		frameptr = &frames[0][9];
+		frameptr = frames[0] + 9;
+		frameptr2 = frames[1] + 9;
 
 		//v0 = &frames[1][9]
 		iTranslateXYZ2(frames[0][6], frames[0][7], frames[0][8], frames[1][6], frames[1][7], frames[1][8]);
 		mRotSuperPackedYXZ(&frameptr, 0);
-		//iRotSuperPackedYXZ(&frameptr + 1, 0);
+		iRotSuperPackedYXZ(&frameptr2, 0);
 
 		//s1 = joint
 		if (joint > 0)
@@ -131,29 +129,32 @@ void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joi
 				mRotSuperPackedYXZ(&frameptr, 0);
 				iRotSuperPackedYXZ(&frameptr2, 0);
 
-				if (item->data != NULL && (*bone & 0x1C) && (*bone & 0x8))
+				if (item->data != NULL && (*bone & 0x1C))
 				{
-					mRotY(*item_data);
-					iRotY(*item_data++);
+					if ((*bone & 0x8))
+					{
+						mRotY(*item_data);
+						iRotY(*item_data++);
+					}
+
+					if ((*bone & 0x4))
+					{
+						mRotX(*item_data);
+						iRotX(*item_data++);
+					}
+
+					if ((*bone & 0x10))
+					{
+						mRotZ(*item_data);
+						iRotZ(*item_data++);
+					}
 				}//loc_8EAE8
 
-				if ((*bone & 0x4))
-				{
-					mRotX(*item_data);
-					iRotX(*item_data++);
-				}
-
-				if ((*bone & 0x10))
-				{
-					mRotZ(*item_data);
-					iRotZ(*item_data++);
-				}
 				bone += 4;
-			} while (joint--);
+			} while (--joint);
 		}//loc_8EB38
 		iTranslateXYZ(pos->x, pos->y, pos->z);
 		InterpolateMatrix();
-#endif
 	}
 
 	pos->x = item->pos.x_pos + TRX;
