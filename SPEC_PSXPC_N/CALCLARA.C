@@ -1093,7 +1093,7 @@ void DEL_stash_both_matrices(int* t8, int* a0)
 	snaff_current_gte_matrix_V1(a0);
 }
 
-void InterpolateMatrix(int* t8, int* a0)
+void InterpolateMatrix(int* t8, int* a0)//85414
 {
 	int t0 = R22 | (R23 << 16);
 	int t1 = R31 | (R32 << 16);
@@ -1400,7 +1400,9 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	mRotSuperPackedYXZ_CL(t8, 0);
 	iRotSuperPackedYXZ_CL(t8, 0);
 
-	InterpolateMatrix(t8, (int*)t8[13]);
+	s0 = (short*)t8[13];
+
+	InterpolateMatrix(t8, (int*)s0);
 	DEL_stash_both_matrices(t8, &t8[48]);
 
 	long* s11 = &bone[0];
