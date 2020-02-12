@@ -3,7 +3,8 @@
 #include "DELSTUFF.H"
 #include "LARA.H"
 #include "MATHS.H"
-
+#include "DRAW.H"
+#include "SETUP.H"
 #include "GTEREG.H"
 
 void sub_2C(struct ITEM_INFO* item);
@@ -11,6 +12,12 @@ void sub_2C(struct ITEM_INFO* item);
 void DrawLara()
 {
 	sub_2C(lara_item);
+}
+
+void sub_1330(struct ITEM_INFO* item)
+{
+	struct object_info* object = &objects[item->object_number];
+	//S_PrintNiceShadow(object->shadow_size, GLaraShadowframe, 0);
 }
 
 void sub_2C(struct ITEM_INFO* item)
@@ -29,11 +36,11 @@ void sub_2C(struct ITEM_INFO* item)
 	//v0 = item->hit_points
 	if (item->hit_points > 0)
 	{
-		//sub_1330();
+		sub_1330();
 	}
 	//loc_6C
-	//mPushMatrix();
-	//CalculateObjectLightingLara();
+	mPushMatrix();
+	CalculateObjectLightingLara();
 	//a0 = LaraNodeUnderwater
 	a1 = 0;
 	//a2 = 14
