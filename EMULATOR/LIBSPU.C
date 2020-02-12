@@ -110,7 +110,6 @@ void _SpuInit(int a0)
 	ResetCallback();
 	_spu_init(a0);
 
-	//s0 = a0
 	if (a0 == 0)
 	{
 		for (int i = 0; i < sizeof(_spu_voice_centerNote) / sizeof(short); i++)
@@ -160,20 +159,21 @@ unsigned long SpuSetReverbVoice(long on_off, unsigned long voice_bit)
 	return 0;
 }
 
-void SpuSetCommonAttr(SpuCommonAttr * attr)
+void SpuSetCommonAttr(SpuCommonAttr* attr)
 {
 	UNIMPLEMENTED();
 }
 
-long SpuInitMalloc(long num, char * top)
+long SpuInitMalloc(long num, char* top)//(F)
 {
 	if (num > 0)
 	{
-		///memList = top;
-		//AllocLastNum = 0;
-		//AllocBlockNum = num;
-		//*((int*)memList) = mem_mode_plus = 0x4000 | 0x1010;
-		//*((int*)memList + 1) = 0x4000;
+		//loc_214
+		((int*)top)[0] = 0x40001010;
+		_spu_memList = (uintptr_t)top;
+		_spu_AllocLastNum = 0;
+		_spu_AllocBlockNum = num;
+		((int*)top)[1] = (0x10000000 << _spu_mem_mode_plus) - 0x1010;
 	}
 
 	return num;
