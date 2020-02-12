@@ -32,7 +32,8 @@ int _spu_keystat = 0;
 int _spu_RQmask = 0;
 int _spu_RQvoice = 0;
 int _spu_env = 0;
-short* _spu_RXX = (short*)0x1F801C00;
+char spu[440];//0x1F801C00 is base address
+short* _spu_RXX = (short*)&spu[0];
 int _spu_mem_mode_plus = 3;
 
 unsigned long SpuWrite(unsigned char * addr, unsigned long size)
