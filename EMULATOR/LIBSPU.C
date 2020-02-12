@@ -15,10 +15,24 @@ short _spu_voice_centerNote[24] =
 	SPU_CENTERNOTE, SPU_CENTERNOTE, SPU_CENTERNOTE, SPU_CENTERNOTE
 };
 
-int dword_424 = 0;
+SpuCommonAttr dword_424;//Might be wrong struct, need to check
 int _spu_isCalled = 0;
 int _spu_FiDMA = 0;///@TODO decl as extern find initial value
 int _spu_EVdma = 0;
+int _spu_rev_flag = 0;
+int _spu_rev_reserve_wa = 0;
+int _spu_rev_offsetaddr = 0;
+int _spu_rev_startaddr = 0;
+int _spu_AllocBlockNum = 0;
+int _spu_AllocLastNum = 0;
+int _spu_memList = 0;
+int _spu_trans_mode = 0;
+int _spu_transMode = 0;
+int _spu_keystat = 0;
+int _spu_RQmask = 0;
+int _spu_RQvoice = 0;
+int _spu_env = 0;
+
 unsigned long SpuWrite(unsigned char * addr, unsigned long size)
 {
 	//eprintf("SPU WRITE size=%d\n", size);
@@ -55,7 +69,7 @@ void _SpuDataCallback(int a0)
 	UNIMPLEMENTED();
 }
 
-void SpuStart()
+void SpuStart()//(F)
 {
 	long event = 0;
 
@@ -72,10 +86,15 @@ void SpuStart()
 	//loc_348
 }
 
+void _spu_init(int a0)
+{
+	UNIMPLEMENTED();
+}
+
 void _SpuInit(int a0)
 {
 	ResetCallback();
-	///_spu_init(a0);
+	_spu_init(a0);
 
 	//s0 = a0
 	if (a0 == 0)
@@ -88,9 +107,26 @@ void _SpuInit(int a0)
 	//loc_240
 	SpuStart();
 
-	//a0 = 209
-	//v0 = &dword_424
-	///@TODO
+	_spu_rev_flag = 0;
+	_spu_rev_reserve_wa = 0;
+	dword_424.mask = 0;
+	dword_424.mvol.left = 0;
+	dword_424.mvol.right = 0;
+	dword_424.mvolmode.left = 0;
+	dword_424.mvolmode.right = 0;
+	dword_424.mvolx.left = 0;
+	dword_424.mvolx.right = 0;
+	_spu_rev_offsetaddr = _spu_rev_startaddr;
+	//_spu_FsetRXX(209, _spu_rev_startaddr, 0);
+	_spu_AllocBlockNum = 0;
+	_spu_AllocLastNum = 0;
+	_spu_memList = 0;
+	_spu_trans_mode = 0;
+	_spu_transMode = 0;
+	_spu_keystat = 0;
+	_spu_RQmask = 0;
+	_spu_RQvoice = 0;
+	_spu_env = 0;
 }
 
 void SpuInit(void)
