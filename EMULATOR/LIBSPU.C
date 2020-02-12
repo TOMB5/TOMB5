@@ -32,6 +32,8 @@ int _spu_keystat = 0;
 int _spu_RQmask = 0;
 int _spu_RQvoice = 0;
 int _spu_env = 0;
+short* _spu_RXX = (short*)0x1F801C00;
+int _spu_mem_mode_plus = 3;
 
 unsigned long SpuWrite(unsigned char * addr, unsigned long size)
 {
@@ -91,6 +93,18 @@ void _spu_init(int a0)
 	UNIMPLEMENTED();
 }
 
+void _spu_FsetRXX(int a0, int a1, int a2)//(F)
+{
+	if (a2 == 0)
+	{
+		_spu_RXX[a0] = a1;
+	}
+	else
+	{
+		_spu_RXX[a0] = a1 >> _spu_mem_mode_plus;
+	}
+}
+
 void _SpuInit(int a0)
 {
 	ResetCallback();
@@ -117,7 +131,7 @@ void _SpuInit(int a0)
 	dword_424.mvolx.left = 0;
 	dword_424.mvolx.right = 0;
 	_spu_rev_offsetaddr = _spu_rev_startaddr;
-	//_spu_FsetRXX(209, _spu_rev_startaddr, 0);
+	_spu_FsetRXX(209, _spu_rev_startaddr, 0);
 	_spu_AllocBlockNum = 0;
 	_spu_AllocLastNum = 0;
 	_spu_memList = 0;
