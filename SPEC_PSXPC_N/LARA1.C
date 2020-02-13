@@ -242,7 +242,7 @@ void sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
             a2 += 2;
 
             t0 = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
-            a2[-1] = t0;
+            ((short*)a2)[-1] = t0;
         } while (v1 != 0);
 
    }
