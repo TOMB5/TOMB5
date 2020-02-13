@@ -250,7 +250,7 @@ void sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
    a0 = &scratchPad[0];
    PSXTEXTSTRUCT* a22 = psxtextinfo;
    v0 = a1[0];
-   int a33 = 0xF8000000;
+   int a33 = 0xF80000;
    at = v0 >> 16;
    DQA = at;
    v0 &= 0xFFFF;
