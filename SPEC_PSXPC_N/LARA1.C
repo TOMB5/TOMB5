@@ -327,7 +327,7 @@ loc_88C:
                                if (t1 < 0xA01)
                                {
                                    t1 <<= 2;
-                                   t4 = ((int*)t5)[3];
+                                   t4 = ((int*)t5)[2];
                                    at = t4 << 8;
                                    sub_BAC(&t2, &t6, &a33, &t3, &at, &t7, &t8);
                                    at = DQB;
@@ -365,7 +365,7 @@ loc_88C:
                                    ((int*)t1)[0] = (int)s5;
                                    s5[0] = t2;
 #endif
-                                   ///s5 += sizeof(POLY_GT3) / sizeof(unsigned long);
+                                   s5 += sizeof(POLY_GT3) / sizeof(unsigned long);
                                }//loc_9D0
                            }//loc_9D0
                        }//loc_9D0
@@ -691,7 +691,6 @@ void sub_2C(struct ITEM_INFO* item)
 		{
 #if defined(USE_32_BIT_ADDR)
             db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[0]], (int*)db.polyptr, db.ot[1 * 2]);
-            
 #else
 			sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[0]], (int*)db.polyptr, db.ot[1]);
 #endif
