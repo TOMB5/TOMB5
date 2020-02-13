@@ -40,7 +40,7 @@ void sub_BAC(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)
     *t8 |= *t2;
 }
 
-void sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
+int* sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
 {
     int t0;
     int t1;
@@ -164,7 +164,7 @@ void sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
         at = v0 << 3;
         v1 = v0;
 
-        a3 = (int*)&meshp[v0 << 2];///@CHECKME result ptr
+        a3 = (int*)&meshp[v0 << 2];
 
         t0 = ((int*)meshp)[0];
         t1 = ((int*)meshp)[1];
@@ -365,7 +365,7 @@ loc_88C:
                                    ((int*)t1)[0] = (int)s5;
                                    s5[0] = t2;
 #endif
-                                   s5 += sizeof(POLY_GT3) / sizeof(unsigned long);
+                                   ///s5 += sizeof(POLY_GT3) / sizeof(unsigned long);
                                }//loc_9D0
                            }//loc_9D0
                        }//loc_9D0
@@ -542,10 +542,12 @@ loc_9FC:
                goto loc_9FC;
            }
 
-           goto loc_9F4;
            t0 = a1[0];
+           goto loc_9F4;
        }
    }//loc_BA4
+
+   return s5;
 }
 
 void sub_1330(struct ITEM_INFO* item)
@@ -688,7 +690,8 @@ void sub_2C(struct ITEM_INFO* item)
 		if ((lara_item->mesh_bits >> 16) & (1 << 0xF))
 		{
 #if defined(USE_32_BIT_ADDR)
-            sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[0]], (int*)db.polyptr, db.ot[1 * 2]);
+            db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[0]], (int*)db.polyptr, db.ot[1 * 2]);
+            
 #else
 			sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[0]], (int*)db.polyptr, db.ot[1]);
 #endif
