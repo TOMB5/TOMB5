@@ -103,7 +103,7 @@ void sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
         VY0 = (t0 >> 16) & 0xFFFF;
         VZ0 = (t1 & 0xFFFF);
         docop2(0x4A6012);
-        t0 = ((int*)&LightPos)[8];
+        t0 = ((int*)&LightPos)[2];
         t1 >>= 16;
         at = t0 << 16;
         t1 |= at;
