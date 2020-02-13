@@ -334,7 +334,21 @@ loc_88C:
                                    t2 = ((int*)t5)[0];
                                    t3 = ((int*)t5)[1];
                                    t2 -= at;
-
+#if defined(USE_32_BIT_ADDR)
+                                   ((int*)s5)[3] = SXY0;
+                                   ((int*)s5)[6] = SXY1;
+                                   ((int*)s5)[9] = SXY2;
+                                   ((int*)s5)[2] = t6;
+                                   ((int*)s5)[4] = t2;
+                                   ((int*)s5)[5] = t7;
+                                   ((int*)s5)[7] = t3;
+                                   ((int*)s5)[8] = t8;
+                                   ((int*)s5)[10] = t4;
+                                   t1 *= 2;
+                                   t1 += s6;
+                                   setlen(s5, 9);
+                                   addPrim(t1, s5);
+#else
                                    ((int*)s5)[2] = SXY0;
                                    ((int*)s5)[5] = SXY1;
                                    ((int*)s5)[8] = SXY2;
@@ -344,12 +358,6 @@ loc_88C:
                                    ((int*)s5)[6] = t3;
                                    ((int*)s5)[7] = t8;
                                    ((int*)s5)[9] = t4;
-#if defined(USE_32_BIT_ADDR)
-                                   t1 *= 2;
-                                   t1 += s6;
-                                   setlen(s5, 9);
-                                   addPrim(t1, s5);
-#else
                                    t1 += s6;
                                    t2 = ((int*)t1)[0];
                                    at = 0x9000000;
@@ -461,10 +469,17 @@ loc_9FC:
                                    if (t1 < 0xA01)
                                    {
                                        t1 <<= 2;
+#if defined(USE_32_BIT_ADDR)
+                                       s5[3] = SXY0;
+                                       s5[6] = SXY1;
+                                       s5[9] = SXY2;
+                                       s5[12] = t4;
+#else
                                        s5[2] = SXY0;
                                        s5[5] = SXY1;
                                        s5[8] = SXY2;
                                        s5[11] = t4;
+#endif
                                        t3 = t9 >> 10;
                                        t3 &= 0xF800;
                                        t9 >>= 13;
@@ -480,6 +495,20 @@ loc_9FC:
                                        t5 = ((int*)t5)[3];
                                        t2 -= at;
 
+#if defined(USE_32_BIT_ADDR)
+                                       s5[2] = t6;
+                                       s5[4] = t2;
+                                       s5[5] = t7;
+                                       s5[7] = t3;
+                                       s5[8] = t8;
+                                       s5[10] = t4;
+                                       s5[11] = t9;
+                                       s5[13] = t5;
+                                       t1 *= 2;
+                                       t1 += s6;
+                                       setlen(s5, 12);
+                                       addPrim(t1, s5);
+#else
                                        s5[1] = t6;
                                        s5[3] = t2;
                                        s5[4] = t7;
@@ -494,6 +523,7 @@ loc_9FC:
                                        t2 |= at;
                                        ((int*)t1)[0] = (int)s5;
                                        ((int*)s5)[0] = t2;
+#endif
                                        s5 += sizeof(POLY_GT4) / sizeof(unsigned long);
                                    }//loc_B8C
                                }
