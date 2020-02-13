@@ -200,12 +200,12 @@ void sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
             t4 = ((int*)meshp)[4];
             t5 = ((int*)meshp)[5];
 
-            SXY0 = a2[0];
-            SZ1 = a2[1];
-            SXY1 = a2[2];
-            SZ2 = a2[3];
-            SXY2 = a2[4];
-            SZ3 = a2[5];
+            a2[0] = SXY0;
+            a2[1] = SZ1;
+            a2[2] = SXY1;
+            a2[3] = SZ2;
+            a2[4] = SXY2;
+            a2[5] = SZ3;
 
             a2 += 6;
         } while (v0 > 0);
