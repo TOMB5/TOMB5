@@ -40,7 +40,7 @@ void sub_BAC(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)
     *t8 |= *t2;
 }
 
-void sub_658(short* meshp)
+void sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
 {
     int t0;
     int t1;
@@ -51,6 +51,7 @@ void sub_658(short* meshp)
     int t6;
     int t7;
     int t8;
+    int t9;
     int at;
     int v1;
     int* a3;
@@ -259,11 +260,11 @@ void sub_658(short* meshp)
    {
        t0 = a1[0];
 
-       //loc_884
+loc_884:
        a1++;
        v1 = 3;
 
-       //loc_88C
+loc_88C:
        t1 = a1[0];
        v0--;
 
@@ -329,7 +330,35 @@ void sub_658(short* meshp)
                                    t4 = ((int*)t5)[3];
                                    at = t4 << 8;
                                    sub_BAC(&t2, &t6, &a33, &t3, &at, &t7, &t8);
+                                   at = DQB;
+                                   t2 = ((int*)t5)[0];
+                                   t3 = ((int*)t5)[1];
+                                   t2 -= at;
 
+                                   ((int*)s5)[2] = SXY0;
+                                   ((int*)s5)[5] = SXY1;
+                                   ((int*)s5)[8] = SXY2;
+                                   ((int*)s5)[1] = t6;
+                                   ((int*)s5)[3] = t2;
+                                   ((int*)s5)[4] = t7;
+                                   ((int*)s5)[6] = t3;
+                                   ((int*)s5)[7] = t8;
+                                   ((int*)s5)[9] = t4;
+#if defined(USE_32_BIT_ADDR)
+                                   t1 *= 2;
+                                   t1 += s6;
+                                   t2 = ((int*)t1)[0];
+                                   setlen(s5, 9);
+                                   addPrim(t1, s5);
+#else
+                                   t1 += s6;
+                                   t2 = ((int*)t1)[0];
+                                   at = 0x9000000;
+                                   t2 |= at;
+                                   ((int*)t1)[0] = (int)s5;
+                                   s5[0] = t2;
+#endif
+                                   s5 += sizeof(POLY_GT3) / sizeof(unsigned long);
                                }//loc_9D0
                            }//loc_9D0
                        }//loc_9D0
@@ -337,40 +366,157 @@ void sub_658(short* meshp)
                }//loc_9D0
            }//loc_9D0
        }//loc_9D0
-   }//loc_9E8
 
+       a1++;
+       if (v0 != 0)
+       {
+           if (v1-- != 0)
+           {
+               goto loc_88C;
+           }
 
-#if 0
-                cfc2    $at, $28
-                lw      $t2, 0($t5)
-                lw      $t3, 4($t5)
-                subu    $t2, $at
-                swc2    $12, 8($s5)
-                swc2    $13, 0x14($s5)
-                swc2    $14, 0x20($s5)
-                sw      $t6, 4($s5)
-                sw      $t2, 0xC($s5)
-                sw      $t7, 0x10($s5)
-                sw      $t3, 0x18($s5)
-                sw      $t8, 0x1C($s5)
-                sw      $t4, 0x24($s5)
-                add     $t1, $s6
-                lw      $t2, 0($t1)
-                lui     $at, 0x900
-                or      $t2, $at
-                sw      $s5, 0($t1)
-                sw      $t2, 0($s5)
-                addi    $s5, 0x28  # '('
+           t0 = a1[0];
+           goto loc_884;
 
-loc_9D0:                                 # CODE XREF: sub_658+2A4↑j
-                                         # sub_658+2D0↑j ...
-                beqz    $v0, loc_9E8
-                addi    $a1, 4
-                bnez    $v1, loc_88C
-                addi    $v1, -1
-                j       loc_884
-                lw      $t0, 0($a1)
-#endif
+       }//loc_9E8
+   }
+   //loc_9E8
+   v0 = DQA;
+
+   t0 = a1[0];
+
+   if (v0 != 0)
+   {
+loc_9F4:
+       a1++;
+       v1 = 1;
+
+loc_9FC:
+       t1 = a1[0];
+       v0--;
+       
+       t9 = t1 >> 21;
+       t8 = t1 >> 13;
+       t8 &= 0x7F8;
+       t8 += (int)a0;
+       t7 = t1 >> 5;
+       t7 &= 0x7F8;
+       t7 += (int)a0;
+       t6 = t1 << 3;
+       t6 &= 0x7F8;
+       t6 += (int)a0;
+       SXY0 = ((int*)t6)[0];
+       SXY1 = ((int*)t7)[0];
+       SXY2 = ((int*)t8)[0];
+       t9 &= 0x7F8;
+       t9 += (int)a0;
+       docop2(0x1400006);
+       t6 = ((int*)t6)[1];
+       t7 = ((int*)t7)[1];
+       t8 = ((int*)t8)[1];
+       t4 = ((int*)t9)[0];
+       t9 = ((int*)t9)[1];
+       SZ0 = t6;
+       SZ1 = t7;
+       SZ2 = t8;
+       SZ3 = t9;
+       at = MAC0;
+       docop2(0x168002E);
+       t5 = t0 & 0xFFF;
+       t0 >>= 16;
+       t5 <<= 4;
+
+       if (at >= 0)
+       {
+           t1 = SXY0;
+           t2 = SXY1;
+           t3 = SXY2;
+
+           if (!(t1 & 0xFE00) || !(t2 & 0xFE00) || !(t3 & 0xFE00) || !(t4 & 0xFE00))
+           {
+               //loc_AAC
+               at = t1 & t2;
+               at &= t3;
+               at &= t4;
+
+               if (at >= 0)
+               {
+                   at = t1 >> 16;
+                   if (at < 0xF0)
+                   {
+                       at = t2 >> 16;
+                       if (at < 0xF0)
+                       {
+                           at = t3 >> 16;
+                           if (at < 0xF0)
+                           {
+                               at = t4 >> 16;
+                               if (at < 0xF0)
+                               {
+                                   //loc_AEC
+                                   t5 += (int)a22;
+                                   t2 = t9 >> 7;
+                                   t1 = OTZ;
+                                   t2 &= a33;
+
+                                   if (t1 < 0xA01)
+                                   {
+                                       t1 <<= 2;
+                                       s5[2] = SXY0;
+                                       s5[5] = SXY1;
+                                       s5[8] = SXY2;
+                                       s5[11] = t4;
+                                       t3 = t9 >> 10;
+                                       t3 &= 0xF800;
+                                       t9 >>= 13;
+                                       t9 &= 0xF8;
+                                       t9 |= t3;
+                                       t9 |= t2;
+                                       t4 = ((int*)t5)[2];
+                                       at = t4;
+                                       sub_BAC(&t2, &t6, &a33, &t3, &at, &t7, &t8);
+                                       at = DQB;
+                                       t2 = ((int*)t5)[0];
+                                       t3 = ((int*)t5)[1];
+                                       t5 = ((int*)t5)[3];
+                                       t2 -= at;
+
+                                       s5[1] = t6;
+                                       s5[3] = t2;
+                                       s5[4] = t7;
+                                       s5[6] = t3;
+                                       s5[7] = t8;
+                                       s5[9] = t4;
+                                       s5[10] = t9;
+                                       s5[12] = t5;
+                                       t1 += s6;
+                                       t2 = ((int*)t1)[0];
+                                       at = 0xC000000;
+                                       t2 |= at;
+                                       ((int*)t1)[0] = (int)s5;
+                                       ((int*)s5)[0] = t2;
+                                       s5 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                                   }//loc_B8C
+                               }
+                           }
+                       }
+                   }
+               }//loc_B8C
+           }//loc_B8C
+       }
+       //loc_B8C
+       a1++;
+       if (v0 != 0)
+       {
+           if (v1-- != 0)
+           {
+               goto loc_9FC;
+           }
+
+           goto loc_9F4;
+           t0 = a1[0];
+       }
+   }//loc_BA4
 }
 
 void sub_1330(struct ITEM_INFO* item)
@@ -512,7 +658,7 @@ void sub_2C(struct ITEM_INFO* item)
 
 		if ((lara_item->mesh_bits >> 16) & (1 << 0xF))
 		{
-			sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[0]]);
+			sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[0]], (int*)db.polyptr, db.ot[1]);
 
 		}//loc_1FC
 
