@@ -59,7 +59,7 @@ void sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
     int scratchPad[256];
     int v0 = ((int*)meshp)[2];
     meshp += 6;
-    int* a1 = (int*)&meshp[v0 >> 16];
+    int* a1 = (int*)&meshp[v0 >> 17];
     v0 &= 0xFF;
     int* a2 = &scratchPad[0];
 
@@ -347,7 +347,6 @@ loc_88C:
 #if defined(USE_32_BIT_ADDR)
                                    t1 *= 2;
                                    t1 += s6;
-                                   t2 = ((int*)t1)[0];
                                    setlen(s5, 9);
                                    addPrim(t1, s5);
 #else
@@ -658,8 +657,11 @@ void sub_2C(struct ITEM_INFO* item)
 
 		if ((lara_item->mesh_bits >> 16) & (1 << 0xF))
 		{
+#if defined(USE_32_BIT_ADDR)
+            sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[0]], (int*)db.polyptr, db.ot[1 * 2]);
+#else
 			sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[0]], (int*)db.polyptr, db.ot[1]);
-
+#endif
 		}//loc_1FC
 
 		//s2--;
