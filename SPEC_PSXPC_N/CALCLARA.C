@@ -494,9 +494,8 @@ void iRotYXZ_CL(int y, int x, int z)
 
 void mRotSuperPackedYXZ_CL(int* t8, int a1)
 {
-	return;///crashing
-	unsigned short* a2 = (unsigned short*)t8[6];
-	unsigned short v0;
+	unsigned short* a2 = (unsigned short*)t8[9];
+	int v0 = a2[0];
 
 	if (a1 != 0)
 	{
@@ -512,6 +511,8 @@ void mRotSuperPackedYXZ_CL(int* t8, int a1)
 			}
 			//loc_84C60
 		} while (a1 != 0);
+
+		v0 = a2[0];
 	}
 	//loc_84C6C
 	a2++;
