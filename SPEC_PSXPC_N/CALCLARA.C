@@ -83,9 +83,9 @@ void mRotY_CL(long y)
 		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = t2;
 
-		int t0 = R11 | (R12 << 16);
-		t2 = R22 | (R23 << 16);
-		int t3 = R31 | (R32 << 16);
+		int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+		t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+		int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 		docop2(0x486012);
 
