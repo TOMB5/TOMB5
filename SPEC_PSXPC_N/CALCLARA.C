@@ -80,7 +80,7 @@ void mRotY_CL(long y)
 		int t2 = -t5;
 
 		VX0 = t6 & 0xFFFF;
-		VX1 = (t6 >> 16) & 0xFFFF;
+		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = t2;
 
 		int t0 = R11 | (R12 << 16);
