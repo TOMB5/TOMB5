@@ -611,58 +611,53 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 	return 1;
 }
 
-void InitSubDiv()//7E6C8(<)
+void InitSubDiv(int* scratchPad, int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6)//7E6C8(<)
 {
-#if 0
-ctc2    $t0, $23
-lui     $at, 0xFFFF
-and     $fp, $t2, $at
-and     $gp, $t3, $at
-move    $s3, $t1
-lui     $t0, 0x1F80
-lui     $at, 0xFF00
-and     $at, $t6
-cfc2    $t1, $22
-cfc2    $s7, $21
-sw      $t6, 0x1F800000
-sh      $t2, 0x1F800012
-sw      $s4, 0x1F800004
-sll     $s4, $t1, 3
-andi    $s4, 0x7F8
-add     $s4, $s7
-lw      $t6, 0($s4)
-lh      $t2, 4($s4)
-sw      $t6, 0x1F80000C
-sh      $t2, 0x1F800010
-or      $t7, $at
-sw      $t7, 0x1F800014
-sh      $t3, 0x26($t0)
-sw      $s5, 0x18($t0)
-srl     $s5, $t1, 5
-andi    $s5, 0x7F8
-add     $s5, $s7
-lw      $t7, 0($s5)
-lh      $t3, 4($s5)
-sw      $t7, 0x20($t0)
-sh      $t3, 0x24($t0)
-or      $t8, $at
-sw      $t8, 0x28($t0)
-sh      $t4, 0x3A($t0)
-sw      $s6, 0x2C($t0)
-srl     $s6, $t1, 13
-andi    $s6, 0x7F8
-add     $s6, $s7
-lw      $t8, 0($s6)
-lh      $t4, 4($s6)
-sw      $t8, 0x34($t0)
-jr      $ra
-sh      $t4, 0x38($t0)
-#endif
+	BFC = t0;
+	int at = 0xFFFF0000;
+	int fp = t2 & at;
+	int gp = t3 & at;
+	int s3 = t1;
+	int* t0 = &scratchPad[256];
+	at = 0xFF000000;
+	at &= t6;
+	t1 = GFC;
+	int s7 = RFC;
+	((int*)t0)[0] = t6;
+	((short*)t0)[9] = t2;
+	((int*)t0)[1] = s4;
+	s4 = (t1 << 3) & 0x7F8;
+	s4 += (int)s7;
+	int t6 = ((int*)s4)[0];
+	int t2 = ((int*)s4)[2];
+	((int*)t0)[3] = t6;
+	((int*)t0)[8] = t2;
+	t7 |= at;
+	((int*)t0)[5] = t7;
+	((short*)t0)[19] = t3;
+	((int*)t0)[6] = s5;
+	s5 = (t1 >> 5) & 0x7F8;
+	s5 += (int)s7;
+	t7 = ((int*)s5)[0];
+	t3 = ((short*)s5)[2];
+	((int*)t0)[8] = t7;
+	((short*)t0)[18] = t3;
+	t8 |= at;
+	((int*)t0)[10] = t8;
+	((short*)t0)[29] = t4;
+	((int*)t0)[11] = s6;
+	s6 = (t1 >> 13) & 0x7F8;
+	s6 += (int)s7;
+	t8 = ((int*)s6)[0];
+	t4 = ((short*)s6)[2];
+	((int*)t0)[13] = t8;
+	((short*)t0)[28] = t4;
 }
 
-void SubDiv3()//7E830(<)
+void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6)//7E830(<)
 {
-	InitSubDiv();
+	int scratchPad[256];
+	InitSubDiv(&scratchPad[0], t0, t1, t2, t3, t6, s4, s7, t7, s5, t8, t4, s6);
 #if 0
 jal     sub_7E6C8
 move    $s3, $gp
@@ -809,7 +804,7 @@ void DrawSubDivMesh(int v0, int* a1, char* s0, char* s1, int* a0, int a2, int t2
 						t2 -= at;
 						t1 += (int)a3;
 
-						//SubDiv3()
+						SubDiv3(t0, t1, t2, t3, t6, s4, (int*)s7, t7, s5, t8, t4, s6);
 
 					}//loc_7E4FC
 				}//loc_7E4FC
@@ -818,10 +813,6 @@ void DrawSubDivMesh(int v0, int* a1, char* s0, char* s1, int* a0, int a2, int t2
 	}//loc_7E514
 
 #if 0
-subu    $t2, $at
-jal     sub_7E830
-add     $t1, $a3
-
 loc_7E4FC:
 beqz    $v0, loc_7E514
 addi    $a1, 4
@@ -2243,8 +2234,7 @@ void phd_PutPolygons_normal(short* mesh, short clip)//(F)
 
 	if (s6 && s4 < 0)
 	{
-		//DrawSubDivMesh();
-	///	assert(0);//TODO draw sub div mesh
+		DrawSubDivMesh(v0, (int*)a1, s0, s1, a0, (int)a2, t2, fp, a3);
 		return;
 	}
 
