@@ -320,9 +320,9 @@ void mRotX_CL(long x)
 		VY0 = (t6 >> 16) & 0xFFFF;
 		VZ0 = (t5 & 0xFFFF);
 
-		int t0 = R11 | (R12 << 16);
-		int t1 = R13 | (R21 << 16);
-		int t3 = R31 | (R32 << 16);
+		int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+		int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+		int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 
 		docop2(0x486012);
 
