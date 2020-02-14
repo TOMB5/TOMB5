@@ -832,7 +832,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	mTranslateXYZ_CL(t9[6], t9[7], t9[8]);
 	mRotSuperPackedYXZ_CL(t8, 0);
 
-	int* s0 = &t8[13];
+	int* s0 = (int*)t8[13];
 	snaff_current_gte_matrix_V1(&t8[22]);
 	int a3 = 6;
 
