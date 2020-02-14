@@ -379,8 +379,8 @@ void mRotZ_CL(long z)
 		VY0 = (t1 >> 16) & 0xFFFF;
 		VZ0 = 0;
 
-		t1 = R13 | (R21 << 16);
-		t2 = R22 | (R23 << 16);
+		t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+		t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
 		int t4 = R33;
 
 		docop2(0x486012);
