@@ -850,7 +850,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 			mLoadMatrix_CL(&t8[22]);
 		}//loc_83CE4
 
-		s0 += 8;
+		s0 += 4;
 
 	} while (a3 != 0);
 
