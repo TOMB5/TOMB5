@@ -9,6 +9,7 @@
 #include "CAMERA.H"
 #include "CONTROL.H"
 #include "MATHS.H"
+#include "MISC.H"
 #include <assert.h>
 
 void S_SetupClutAdder(long underwater)
@@ -800,7 +801,8 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	struct ITEM_INFO* item = lara_item;
 	short* t9 = frame;
 	long* s1 = bone;
-	frame += 4;
+	S_MemSet((char*)&sp[0], 0, 1024);
+	frame += 9;
 	GLaraShadowframe = t9;
 	t8[9] = (int)frame;
 	snaff_current_gte_matrix_V1(&t8[38]);
