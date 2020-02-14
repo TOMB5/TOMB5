@@ -1835,10 +1835,10 @@ short* GetBoundsAccurate(struct ITEM_INFO* item)//858F8, 8793C
 
 void snaff_current_gte_matrix_V1(int* mat)
 {
-	mat[0] = R11 | (R12 << 16);
-	mat[1] = R13 | (R21 << 16);
-	mat[2] = R22 | (R23 << 16);
-	mat[3] = R31 | (R32 << 16);
+	mat[0] = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	mat[1] = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	mat[2] = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	mat[3] = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 	mat[4] = R33;
 	mat[5] = TRX;
 	mat[6] = TRY;
