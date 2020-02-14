@@ -527,12 +527,15 @@ void mRotSuperPackedYXZ_CL(int* t8, int a1)
 			if (at != 0)
 			{
 				mRotZ_CL((v0 & 0xFFF) << 4);
+				return;
 			}
 			//loc_84C98
 			mRotY_CL((v0 & 0xFFF) << 4);
+			return;
 		}
 		//loc_84CA0
 		mRotX_CL((v0 & 0xFFF) << 4);
+		return;
 
 	}//loc_84CAC
 
@@ -842,15 +845,14 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 		Hardcore_mTranslateXYZ_CL(&s1[1]);
 		mRotSuperPackedYXZ_CL(t8, 0);
 		snaff_current_gte_matrix_V1(&s0[8]);
-		a3--;
 
 		s1 += 4;
-		if (a3 == 3)
+		if (--a3 == 3)
 		{
 			mLoadMatrix_CL(&t8[22]);
 		}//loc_83CE4
 
-		s0 += 4;
+		s0 += 8;
 
 	} while (a3 != 0);
 
