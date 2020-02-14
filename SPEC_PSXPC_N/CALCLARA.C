@@ -840,7 +840,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	do
 	{
 		Hardcore_mTranslateXYZ_CL(&s1[1]);
-		mRotSuperPackedYXZ_CL(&t8[22], 0);///@TODO should just be t8 not &t8[22]?
+		mRotSuperPackedYXZ_CL(t8, 0);
 		snaff_current_gte_matrix_V1(&s0[8]);
 		a3--;
 
