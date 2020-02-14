@@ -105,7 +105,7 @@ void mRotY_CL(long y)
 
 		t4 &= 0xFFFF;
 		t0 |= t4;
-		t1 <= 16;
+		t1 <<= 16;
 		t5 &= 0xFFFF;
 		t3 |= t5;
 
