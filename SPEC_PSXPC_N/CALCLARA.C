@@ -370,7 +370,7 @@ void mRotZ_CL(long z)
 
 	if (z != 0)
 	{
-		int t0 = ((int*)&rcossin_tbl[z >> 2])[0];
+		int t0 = ((int*)&rcossin_tbl[z >> 1])[0];
 		int t7 = 0xFFFF0000;
 		int t1 = t0 >> 16;
 		int t2 = t0 << 16;
