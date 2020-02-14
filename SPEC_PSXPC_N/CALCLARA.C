@@ -879,10 +879,9 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
 	snaff_current_gte_matrix_V1(&t8[30]);
 	Hardcore_mTranslateXYZ_CL(&s1[53]);
+	a3 = t8[9];
 	mRotSuperPackedYXZ_CL(t8, 6);
-	///@TODO debug this on PSX, mRotSuperPackedYXZ must implicitly change t8[9] and the value is popped back
-	//a3 = t8[9];
-	//?????? sw      a3, 0x24(t8)
+	t8[9] = a3;
 	mRotYXZ_CL(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
 	snaff_current_gte_matrix_V1(&s0[64]);
 	mLoadMatrix_CL(&t8[30]);
@@ -1033,6 +1032,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	}
 	else
 	{
+		
 		goto loc_83E60;
 	}
 
