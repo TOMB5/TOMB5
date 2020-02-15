@@ -1076,10 +1076,10 @@ void DEL_restore_both_matrices(int* t8, int* a0)
 
 void DEL_stash_both_matrices(int* t8, int* a0)
 {
-	int t0 = L11 | (L12 << 16);
-	int t1 = L13 | (L21 << 16);
-	int t2 = L22 | (L23 << 16);
-	int t3 = L31 | (L32 << 16);
+	int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+	int t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+	int t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+	int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 
 	t8[56] = t0;
 	t8[57] = t1;
