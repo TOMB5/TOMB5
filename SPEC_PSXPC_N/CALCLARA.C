@@ -197,7 +197,7 @@ void iRotX_CL(long x)
 
 	if (x != 0)
 	{
-		int t5 = ((int*)&rcossin_tbl[x >> 2])[0];
+		int t5 = ((int*)&rcossin_tbl[x >> 1])[0];
 		int t7 = 0xFFFF0000;
 		int t6 = t7 & t5;
 
