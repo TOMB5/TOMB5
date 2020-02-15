@@ -433,7 +433,7 @@ void mRotYXZ_CL(long y, long x, long z)
 void iRotSuperPackedYXZ_CL(int* t8, int a1)
 {
 	unsigned short* a2 = (unsigned short*)t8[10];
-	unsigned short v0 = 0;
+	int v0 = a2[0];
 
 	if (a1 != 0)
 	{
@@ -1356,6 +1356,8 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	int sp[256];
 	int* t8 = &sp[0];
 	struct ITEM_INFO* item = lara_item;//$t9
+	t8[46] = frac;
+	t8[47] = rate;
 	short* s0 = frame1;
 	short* s1 = frame2;
 	frame1 += 9;
