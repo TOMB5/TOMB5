@@ -275,12 +275,12 @@ void iRotZ_CL(long z)
 		t0 &= 0xFFFF;
 		t0 |= t3;
 		VX1 = (t0 & 0xFFFF);
-		VY1 = ((t0 >> 16) & 0xFFFF);
+		VY1 = (t0 >> 16) & 0xFFFF;
 		VZ1 = 0;
 		t1 &= 0xFFFF;
 		t0 = MAC1;
 		int t5 = MAC2;
-		t3 = MAC3;
+		t3 = MAC3;///@FIXME bad value?!!??!
 
 		docop2(0x4AE012);
 		t2 &= t7;
@@ -466,12 +466,15 @@ void iRotSuperPackedYXZ_CL(int* t8, int a1)
 			if (at != 0)
 			{
 				iRotZ_CL(a0 << 4);
+				return;
 			}
 			//loc_85278
 			iRotY_CL(a0 << 4);
+			return;
 		}//loc_85280
 		int a0 = v0 & 0xFFF;
 		iRotX_CL(a0 << 4);
+		return;
 	}//loc_8528C
 
 	at = *a2++;
