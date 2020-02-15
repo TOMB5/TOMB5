@@ -1203,7 +1203,7 @@ void InterpolateMatrix(int* t8, int* a0)//85414
 		t0 = at >> 2;
 		t0 = t1 + t0;
 		a3 -= t6;
-		a3 >>= 3;
+		a3 >>= 2;
 		a3 = t6 + a3;
 		t2 -= t3;
 		t2 >>= 2;
@@ -1279,17 +1279,17 @@ void InterpolateMatrix(int* t8, int* a0)//85414
 		t6 = a3 - t6;
 		t6 >>= 2;
 		a3 -= t6;
-		t3 = t2 + t3;
+		t3 = t2 - t3;
 		t3 >>= 2;
 		t2 -= t3;
-		t5 = t4 + t5;
+		t5 = t4 - t5;
 		t5 >>= 2;
 		t4 -= t5;
 
 		((short*)a0)[0] = a3;
-		((short*)a0)[2] = t0;
-		((short*)a0)[4] = t2;
-		((short*)a0)[6] = t4;
+		((short*)a0)[1] = t0;
+		((short*)a0)[2] = t2;
+		((short*)a0)[3] = t4;
 
 		a3 = ((short*)t8)[164];
 		t6 = ((short*)t8)[180];
@@ -1368,6 +1368,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	t8[10] = (int)frame2;
 	snaff_current_gte_matrix_V1(&t8[72]);
 	struct MATRIX3D* a0 = NULL;
+	struct ANIM_STRUCT* anim = NULL;
 
 	if ((flag & 0x1))
 	{
@@ -1501,76 +1502,37 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 		case 8:
 		{
 		loc_8469C:
-			//mRotSuperPackedYXZ_CL(t8, 0);
-			//iRotSuperPackedYXZ_CL(t8, 0);
-#if 0
-jal     sub_85414
-addiu   $a0, $s0, 0x120
-jal     sub_852CC
-addiu   $a2, $s1, 0x84
-jal     sub_84C40
-move    $a1, $zero
-jal     sub_85220
-move    $a1, $zero
-jal     sub_85414
-addiu   $a0, $s0, 0x140
-jal     sub_852CC
-addiu   $a2, $s1, 0x94
-jal     sub_84C40
-move    $a1, $zero
-jal     sub_85220
-move    $a1, $zero
-jal     sub_85414
-addiu   $a0, $s0, 0x160
-jal     sub_84F78
-addiu   $a0, $t8, 0xC0
-jal     sub_852CC
-addiu   $a2, $s1, 0xA4
-lw      $v0, 0x526C($gp)
-nop
-andi    $v0, 1
-beqz    $v0, loc_84778
-nop
-lh      $v1, 0x52E2($gp)
-nop
-sll     $v0, $v1, 2
-addu    $v0, $v1
-sll     $v0, 3
-addu    $v0, $t9
-lh      $v1, 0x52E0($gp)
-lh      $a0, 0x18($v0)
-lh      $v0, 4($v0)
-subu    $v1, $a0
-sra     $v0, 8
-mult    $v1, $v0
-li      $a1, 0xB
-lw      $v0, 0x52DC($gp)
-mflo    $t0
-sll     $v1, $t0, 1
-addu    $v0, $v1
-addiu   $v0, 0x12
-sw      $v0, 0x28($t8)
-jal     sub_84C40
+			mRotSuperPackedYXZ_CL(t8, 0);
+			iRotSuperPackedYXZ_CL(t8, 0);
+			InterpolateMatrix(t8, (int*)&s0[144]);
+			Hardcore_iTranslateXYZ_CL((long*)&s1[66], t8);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			iRotSuperPackedYXZ_CL(t8, 0);
+			InterpolateMatrix(t8, (int*)&s0[160]);
+			Hardcore_iTranslateXYZ_CL((long*)&s1[74], t8);
+			mRotSuperPackedYXZ_CL(t8, 0);
+			iRotSuperPackedYXZ_CL(t8, 0);
+			InterpolateMatrix(t8, (int*)&s0[176]);
+			DEL_restore_both_matrices(t8, &t8[48]);
+			Hardcore_iTranslateXYZ_CL((long*)&s1[82], t8);
 
-sw      $v0, 0x24($t8)
-li      $a1, 0xB
-jal     sub_85220
-addiu   $ra, 0x10
+			if (lara.flare_control_left)
+			{
+				anim = &anims[lara.left_arm.anim_number];
+				t8[10] = (int)&lara.left_arm.frame_base[((lara.left_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8)) + 9];
+				t8[9] = (int)&lara.left_arm.frame_base[((lara.left_arm.frame_number - anim->frame_base) * (anim->interpolation >> 8)) + 9];
+				mRotSuperPackedYXZ_CL(t8, 11);
+				iRotSuperPackedYXZ_CL(t8, 11);
+			}//loc_84778
+			else
+			{
+				mRotSuperPackedYXZ_CL(t8, 0);
+				iRotSuperPackedYXZ_CL(t8, 0);
+			}
 
-loc_84778:
-jal     sub_84C40
-move    $a1, $zero
-jal     sub_85220
-move    $a1, $zero
-jal     sub_85414
-addiu   $a0, $s0, 0x180
-jal     sub_852CC
-addiu   $a2, $s1, 0xB4
-move    $a1, $zero
-jal     sub_84C40
-addiu   $ra, 0x314
-#endif
-
+			InterpolateMatrix(t8, (int*)&s0[192]);
+			Hardcore_iTranslateXYZ_CL((long*)&s1[90], t8);
+			mRotSuperPackedYXZ_CL(t8, 0);
 			break;
 		}
 		case 1:
@@ -1598,160 +1560,17 @@ addiu   $ra, 0x314
 	{
 		goto loc_8469C;
 	}
-#if 0
 
-	if (lara.gun_status == 2 || lara.gun_status == 3 ||
-		lara.gun_status == 4 || lara.gun_status == 5)
-	{
-		switch (lara.gun_type)
-		{
-		case 0:
-		case 7:
-		case 8:
-		{
-		loc_83E60:
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[72]);
-			Hardcore_mTranslateXYZ_CL(&s1[33]);
+	mRotSuperPackedYXZ_CL(t8, 0);
+	iRotSuperPackedYXZ_CL(t8, 0);
+	InterpolateMatrix(t8, (int*)&s0[208]);
+	Hardcore_iTranslateXYZ_CL((long*)&s1[98], t8);
+	mRotSuperPackedYXZ_CL(t8, 0);
+	iRotSuperPackedYXZ_CL(t8, 0);
+	InterpolateMatrix(t8, (int*)&s0[224]);
 
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[80]);
-			Hardcore_mTranslateXYZ_CL(&s1[37]);
-
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[88]);
-
-			mLoadMatrix_CL(&t8[30]);
-			Hardcore_mTranslateXYZ_CL(&s1[41]);
-
-			if (lara.flare_control_left)
-			{
-				((unsigned int*)t8)[9] = (unsigned int)& lara.left_arm.frame_base[((lara.left_arm.frame_number - anims[lara.left_arm.anim_number].frame_base) * (anims[lara.left_arm.anim_number].interpolation >> 8)) + 9];
-				mRotSuperPackedYXZ(&t8[0], 11);
-			}
-			else
-			{
-				//loc_83F14
-				mRotSuperPackedYXZ(&t8[0], 0);
-			}
-
-			//loc_83F18
-			snaff_current_gte_matrix_V1(&s0[96]);
-			Hardcore_mTranslateXYZ_CL(&s1[45]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[104]);
-			Hardcore_mTranslateXYZ_CL(&s1[49]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[112]);
-			break;
-		}
-		case 1:
-		case 3:
-		{
-			//loc_83F5C
-			setup_rotation_matrix(&t8[14]);
-			mRotYXZ_CL(lara.right_arm.y_rot, lara.right_arm.x_rot, lara.right_arm.z_rot);
-
-			((unsigned int*)t8)[9] = (unsigned int)& lara.right_arm.frame_base[((lara.right_arm.frame_number - anims[lara.right_arm.anim_number].frame_base) * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
-			mRotSuperPackedYXZ(&t8[0], 8);
-			snaff_current_gte_matrix_V1(&s0[72]);
-			Hardcore_mTranslateXYZ_CL(&s1[33]);
-
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[80]);
-			Hardcore_mTranslateXYZ_CL(&s1[37]);
-
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix_CL(&t8[30]);
-			Hardcore_mTranslateXYZ_CL(&s1[41]);
-			setup_rotation_matrix(&t8[14]);
-			mRotYXZ_CL(lara.left_arm.y_rot, lara.left_arm.x_rot, lara.left_arm.z_rot);
-
-			((unsigned int*)t8)[9] = (unsigned int)& lara.left_arm.frame_base[((lara.left_arm.frame_number - anims[lara.left_arm.anim_number].frame_base) * (anims[lara.left_arm.anim_number].interpolation >> 8)) + 9];
-			mRotSuperPackedYXZ(&t8[0], 11);
-			snaff_current_gte_matrix_V1(&s0[96]);
-			Hardcore_mTranslateXYZ_CL(&s1[45]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[104]);
-			Hardcore_mTranslateXYZ_CL(&s1[49]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[112]);
-			break;
-		}
-		case 2:
-		{
-			//loc_840B0
-			setup_rotation_matrix(&t8[14]);
-			mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
-
-			((unsigned int*)t8)[9] = (unsigned int)& lara.right_arm.frame_base[((lara.right_arm.frame_number - anims[lara.right_arm.anim_number].frame_base) * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
-			mRotSuperPackedYXZ(&t8[0], 8);
-			snaff_current_gte_matrix_V1(&s0[72]);
-			Hardcore_mTranslateXYZ_CL(&s1[33]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[80]);
-			Hardcore_mTranslateXYZ_CL(&s1[37]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix_CL(&t8[30]);
-			Hardcore_mTranslateXYZ_CL(&s1[41]);
-
-			setup_rotation_matrix(&t8[14]);
-			mRotYXZ_CL(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
-
-			((unsigned int*)t8)[9] = (unsigned int)& lara.left_arm.frame_base[((lara.left_arm.frame_number - anims[lara.left_arm.anim_number].frame_base) * (anims[lara.left_arm.anim_number].interpolation >> 8)) + 9];
-			mRotSuperPackedYXZ(&t8[0], 11);
-			snaff_current_gte_matrix_V1(&s0[96]);
-			Hardcore_mTranslateXYZ_CL(&s1[45]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[104]);
-			Hardcore_mTranslateXYZ_CL(&s1[49]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[112]);
-			break;
-		}
-		case 4:
-		case 5:
-		case 6:
-		{
-			//loc_84204
-			((unsigned int*)t8)[9] = (unsigned int)& lara.right_arm.frame_base[(lara.right_arm.frame_number * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
-			mRotSuperPackedYXZ(&t8[0], 8);
-			snaff_current_gte_matrix_V1(&s0[72]);
-			Hardcore_mTranslateXYZ_CL(&s1[33]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[80]);
-			Hardcore_mTranslateXYZ_CL(&s1[37]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[88]);
-			mLoadMatrix_CL(&t8[30]);
-			Hardcore_mTranslateXYZ_CL(&s1[41]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[96]);
-			Hardcore_mTranslateXYZ_CL(&s1[45]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[104]);
-			Hardcore_mTranslateXYZ_CL(&s1[49]);
-			mRotSuperPackedYXZ(&t8[0], 0);
-			snaff_current_gte_matrix_V1(&s0[112]);
-			break;
-		}
-		case 9:///@FIXME Says < 0xA investigate me!
-		{
-			break;
-		}
-		}
-	}
-	else
-	{
-		goto loc_83E60;
-	}
-
-	copy_matrix_from_scratch(&t8[22], s0);
-	copy_matrix_from_scratch(&t8[30], &s0[56]);
-	mLoadMatrix_CL(&t8[38]);
-#endif
+	//def_84694
+	mLoadMatrix_CL(&t8[72]);
 }
 
 int GetFrames(struct ITEM_INFO* item, int* a1, int* a2)//8582C
