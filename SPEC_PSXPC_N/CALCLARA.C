@@ -1101,11 +1101,11 @@ void DEL_stash_both_matrices(int* t8, int* a0)
 
 void InterpolateMatrix(int* t8, int* a0)//85414
 {
-	int t0 = R22 | (R23 << 16);
-	int t1 = R31 | (R32 << 16);
+	int t0 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	int t1 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 	int t2 = R33;
-	int t3 = L22 | (L23 << 16);
-	int t4 = L31 | (L32 << 16);
+	int t3 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+	int t4 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 	int t5 = L33;
 
 	t8[90] = t0;
@@ -1119,10 +1119,10 @@ void InterpolateMatrix(int* t8, int* a0)//85414
 	int v1 = t8[47];
 	int t7 = t8[46];
 
-	int t6 = R11 | (R12 << 16);
-	t3 = R13 | (R21 << 16);
-	int a3 = L11 | (L12 << 16);
-	t2 = L13 | (L21 << 16);
+	int t6 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	t3 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	int a3 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+	t2 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
 
 	t1 = t6 >> 16;
 	t6 <<= 16;
@@ -1406,7 +1406,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	mTranslateXYZ_CL(s0[6], s0[7], s0[8]);
 	iTranslateXYZ2_CL(s1[6], s1[7], s1[8]);
 	mRotSuperPackedYXZ_CL(t8, 0);
-	iRotSuperPackedYXZ_CL(t8, 0);
+	iRotSuperPackedYXZ_CL(t8, 0);///@FIXME iRotZ MAC3 bad value!!
 
 	s0 = (short*)t8[13];
 
@@ -1501,8 +1501,8 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 		case 8:
 		{
 		loc_8469C:
-			mRotSuperPackedYXZ_CL(t8, 0);
-			iRotSuperPackedYXZ_CL(t8, 0);
+			//mRotSuperPackedYXZ_CL(t8, 0);
+			//iRotSuperPackedYXZ_CL(t8, 0);
 #if 0
 jal     sub_85414
 addiu   $a0, $s0, 0x120
