@@ -205,9 +205,9 @@ void iRotX_CL(long x)
 		VY0 = ((t6 >> 16) & 0xFFFF);
 		VZ0 = (t5 & 0xFFFF);
 
-		int t0 = L11 | (L12 << 16);
-		int t1 = L13 | (L21 << 16);
-		int t3 = L31 | (L32 << 16);
+		int t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+		int t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+		int t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
 
 		docop2(0x4A6012);
 
