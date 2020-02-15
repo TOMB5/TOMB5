@@ -261,10 +261,9 @@ void iRotZ_CL(long z)
 		int t2 = t0 << 16;
 		t1 |= t2;
 
-		R11 = (t1 & 0xFFFF);
-		R12 = (t1 >> 16) & 0xFFFF;
-		R13 = 0;
-		R21 = 0;
+		VX0 = (t1 & 0xFFFF);
+		VY0 = (t1 >> 16) & 0xFFFF;
+		VZ0 = 0;
 
 		t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
 		t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
