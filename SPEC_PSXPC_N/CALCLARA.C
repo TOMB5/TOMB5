@@ -859,7 +859,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	} while (a3 != 0);
 
 	mLoadMatrix_CL(&t8[22]);
-	bone -= 24;
+	s1 -= 24;
 	s0 -= 48;
 
 	Hardcore_mTranslateXYZ_CL(&s1[25]);
