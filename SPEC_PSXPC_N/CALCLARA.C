@@ -939,7 +939,7 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 			setup_rotation_matrix(&t8[14]);
 			mRotYXZ_CL(lara.right_arm.y_rot, lara.right_arm.x_rot, lara.right_arm.z_rot);
 
-			((unsigned int*)t8)[9] = (unsigned int)& lara.right_arm.frame_base[((lara.right_arm.frame_number - anims[lara.right_arm.anim_number].frame_base) * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
+			((unsigned int*)t8)[9] = (unsigned int)&lara.right_arm.frame_base[((lara.right_arm.frame_number - anims[lara.right_arm.anim_number].frame_base) * (anims[lara.right_arm.anim_number].interpolation >> 8)) + 9];
 			mRotSuperPackedYXZ_CL(&t8[0], 8);
 			snaff_current_gte_matrix_V1(&s0[72]);
 			Hardcore_mTranslateXYZ_CL(&s1[33]);
@@ -1029,10 +1029,9 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 			break;
 		}
 		}
-	}
-	else
+	
+	} else
 	{
-		
 		goto loc_83E60;
 	}
 
@@ -1359,8 +1358,8 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	struct ITEM_INFO* item = lara_item;//$t9
 	short* s0 = frame1;
 	short* s1 = frame2;
-	frame1 += 4;
-	frame2 += 4;
+	frame1 += 9;
+	frame2 += 9;
 	t8[9] = (int)frame1;
 	t8[10] = (int)frame2;
 	snaff_current_gte_matrix_V1(&t8[72]);
