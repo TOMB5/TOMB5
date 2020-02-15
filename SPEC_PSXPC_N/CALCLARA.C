@@ -266,8 +266,8 @@ void iRotZ_CL(long z)
 		R13 = 0;
 		R21 = 0;
 
-		t1 = (L13 & 0xFFFF) || ((L21 & 0xFFFF) << 16);
-		t2 = (L22 & 0xFFFF) || ((L23 & 0xFFFF) << 16);
+		t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+		t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
 		int t4 = (L33 & 0xFFFF);
 		docop2(0x4A6012);
 		int t3 = t0 & t7;
