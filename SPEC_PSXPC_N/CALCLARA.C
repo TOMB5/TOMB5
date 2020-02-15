@@ -1357,6 +1357,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 {
 	int sp[256];
 	int* t8 = &sp[0];
+	S_MemSet((char*)&sp[0], 0, 1024);
 	struct ITEM_INFO* item = lara_item;//$t9
 	t8[46] = frac;
 	t8[47] = rate;
@@ -1414,13 +1415,13 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	InterpolateMatrix(t8, (int*)s0);
 	DEL_stash_both_matrices(t8, &t8[48]);
 
-	long* s11 = &bone[0];
+	s1 = (short*)&bone[0];
 	int t9 = 6;
 
 	//loc_84480
 	do
 	{
-		Hardcore_iTranslateXYZ_CL(&s11[1], t8);
+		Hardcore_iTranslateXYZ_CL((long*)&s1[2], t8);
 		mRotSuperPackedYXZ_CL(t8, 0);
 		iRotSuperPackedYXZ_CL(t8, 0);
 		InterpolateMatrix(t8, (int*)&s0[16]);
