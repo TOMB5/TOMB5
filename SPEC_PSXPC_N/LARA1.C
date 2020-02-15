@@ -585,12 +585,14 @@ void sub_2C(struct ITEM_INFO* item)
 	//a2--;
 	for (i = 0; i < 15; i++)
 	{
-		if(LaraNodeUnderwater[i])
-		{
-			underwater_node = LaraNodeUnderwater[i];
-			break;
-		}
-		a1 = 1;
+        if (!LaraNodeUnderwater[i])
+        {
+            break;
+        }
+        else
+        {
+            a1 = 1;
+        }
 	}
 	//loc_A0
 	if (a1 == 0)
@@ -641,10 +643,10 @@ void sub_2C(struct ITEM_INFO* item)
 	//loc_138
 	for(i = 0; i < 15; i++)///@TODO check < 15
 	{
-		int t0 = ((int*)& lara_matrices[i])[0];
-		int t1 = ((int*)& lara_matrices[i])[1];
-		int t2 = ((int*)& lara_matrices[i])[2];
-		int t3 = ((int*)& lara_matrices[i])[3];
+		int t0 = ((int*)&lara_matrices[i])[0];
+		int t1 = ((int*)&lara_matrices[i])[1];
+		int t2 = ((int*)&lara_matrices[i])[2];
+		int t3 = ((int*)&lara_matrices[i])[3];
 
 		R11 = t0 & 0xFFFF;
 		R12 = (t0 >> 16) & 0xFFFF;
@@ -658,10 +660,10 @@ void sub_2C(struct ITEM_INFO* item)
 		R31 = t3 & 0xFFFF;
 		R32 = (t3 >> 16) & 0xFFFF;
 
-		t0 = ((int*)& lara_matrices[0])[4];
-		t1 = ((int*)& lara_matrices[0])[5];
-		t2 = ((int*)& lara_matrices[0])[6];
-		t3 = ((int*)& lara_matrices[0])[7];
+		t0 = ((int*)&lara_matrices[i])[4];
+		t1 = ((int*)&lara_matrices[i])[5];
+		t2 = ((int*)&lara_matrices[i])[6];
+		t3 = ((int*)&lara_matrices[i])[7];
 
 		R33 = t0;
 		TRX = t1;
@@ -669,7 +671,7 @@ void sub_2C(struct ITEM_INFO* item)
 		TRZ = t3;
 		//a0 = &LaraNodeUnderwater[0];
 		//a1 = 0xF - 
-		if (LaraNodeUnderwater[a1 - 15])
+		if (LaraNodeUnderwater[i])
 		{
 			a0 = LaraNodeAmbient[1];
 		}
@@ -687,10 +689,10 @@ void sub_2C(struct ITEM_INFO* item)
 		//a00 = &lara.mesh_ptrs[lara_mesh_sweetness_table[0]]
 		//v0 = (lara_item->mesh_bits >> 16) & (1 << 0xF)
 
-		if ((lara_item->mesh_bits >> 16) & (1 << 0xF))
+		if ((lara_item->mesh_bits >> 16) & (1 << 0xF) /*&& i == 8*/)///@TODO remove i==8
 		{
 #if defined(USE_32_BIT_ADDR)
-            db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[0]], (int*)db.polyptr, db.ot[1 * 2]);
+            db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, db.ot[1 * 2]);
 #else
 			sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[0]], (int*)db.polyptr, db.ot[1]);
 #endif
@@ -717,7 +719,276 @@ void sub_2C(struct ITEM_INFO* item)
 		}
 	}
 	//loc_238
+    //s4 = lara_item
+    //s0 = &SkinUseMatrix[0];
+    //v0 = objects[LARA_SKIN_JOINTS].mesh_index
+    //v1 = meshes
+    short* s1 = meshes[objects[LARA_SKIN_JOINTS].mesh_index];
+    s1 += 4;
+    //s3 = NodesToStashToScratch
+    //s2 = 0xE
+    //s4 = lara_item->mesh_bits
 
+    //loc_278
+    //v0 = 1 << 0xE
+    //v0 = lara_item->mesh_bits & (1 << 0xE)
+
+
+#if 0
+                beqz    $v0, loc_410
+                nop
+                li      $a0, 0xA2640
+                li      $a2, 0xA0984
+                li      $a1, 0xE
+                subu    $a1, $s2
+                addu    $a2, $a1
+                lbu     $v0, 0($a2)
+                nop
+                add     $a0, $v0
+                lbu     $v0, 0($a0)
+                nop
+                beqz    $v0, loc_2C8
+                lw      $a0, 0x2084($gp)
+                lw      $a0, 0x2088($gp)
+
+loc_2C8:                                 # CODE XREF: sub_2C+290↑j
+                nop
+                andi    $v0, $a0, 0xFF
+                sll     $v0, 4
+                ctc2    $v0, $13
+                srl     $v0, $a0, 4
+                andi    $v0, 0xFF0
+                ctc2    $v0, $14
+                srl     $v0, $a0, 12
+                andi    $v0, 0xFF0
+                ctc2    $v0, $15
+                lbu     $t2, 0($s0)
+                li      $t0, 0x1ECDC0
+                li      $t1, 0x1FA108
+                jal     sub_C6C
+                lbu     $a0, 0($s3)
+                jal     sub_C6C
+                lbu     $a0, 1($s3)
+                sltiu   $at, $t2, 0xFF
+                beqz    $at, loc_408
+                sll     $v0, $t2, 5
+                lbu     $v1, 1($s0)
+                li      $t0, 0xA5D3C
+                addu    $v0, $t0, $v0
+                sll     $v1, 5
+                addu    $v1, $t0, $v1
+                lw      $t0, 0($v1)
+                lw      $t1, 4($v1)
+                lw      $t2, 8($v1)
+                lw      $t3, 0xC($v1)
+                lw      $t4, 0x10($v1)
+                lw      $t5, 0x14($v1)
+                lw      $t6, 0x18($v1)
+                lw      $t7, 0x1C($v1)
+                lh      $a0, 8($v0)
+                sll     $a1, $t2, 16
+                sra     $a1, 16
+                mult    $a0, $a1
+                lh      $a1, 2($v0)
+                lh      $a2, 2($v1)
+                mflo    $a0
+                sra     $at, $a0, 1
+                addu    $a0, $at
+                mult    $a1, $a2
+                lh      $a1, 0xE($v0)
+                lh      $a2, 0xE($v1)
+                mflo    $at
+                addu    $a0, $at
+                ctc2    $t0, $0
+                mult    $a1, $a2
+                ctc2    $t1, $1
+                ctc2    $t2, $2
+                ctc2    $t3, $3
+                ctc2    $t4, $4
+                ctc2    $t5, $5
+                ctc2    $t6, $6
+                ctc2    $t7, $7
+                mflo    $a1
+                addu    $a0, $a1
+                sra     $a0, 12
+                mult    $a0, $a0
+                move    $t0, $a0
+                mflo    $a0
+                lui     $a1, 0x100
+                jal     0x779DC
+                subu    $a0, $a1, $a0
+                move    $a0, $t0
+                jal     0x77A40
+                move    $a1, $v0
+                li      $at, 0xD
+                beq     $s2, $at, loc_3F8
+                li      $at, 0xA
+                bne     $s2, $at, loc_3FC
+                nop
+
+loc_3F8:                                 # CODE XREF: sub_2C+3BC↑j
+                negu    $v0, $v0
+
+loc_3FC:                                 # CODE XREF: sub_2C+3C4↑j
+                sra     $a0, $v0, 1
+                jal     sub_CBC
+                negu    $a0, $a0
+
+loc_408:                                 # CODE XREF: sub_2C+2EC↑j
+                jal     sub_658
+                lw      $a0, 0($s1)
+
+loc_410:                                 # CODE XREF: sub_2C+258↑j
+                addiu   $s1, 8
+                addiu   $s2, -1
+                addiu   $s3, 2
+                bnez    $s2, loc_278
+                addiu   $s0, 2
+                addiu   $s4, 1
+                bnez    $s4, loc_538
+                addiu   $s6, -4
+                lbu     $v0, 0x208C($gp)
+                nop
+                beqz    $v0, loc_444
+                lw      $a0, 0x2084($gp)
+                lw      $a0, 0x2088($gp)
+
+loc_444:                                 # CODE XREF: sub_2C+40C↑j
+                nop
+                andi    $v0, $a0, 0xFF
+                sll     $v0, 4
+                ctc2    $v0, $13
+                srl     $v0, $a0, 4
+                andi    $v0, 0xFF0
+                ctc2    $v0, $14
+                srl     $v0, $a0, 12
+                andi    $v0, 0xFF0
+                ctc2    $v0, $15
+                lhu     $v0, 0x5304($gp)
+                li      $v1, 0x1F2480
+                sll     $v0, 6
+                addu    $v0, $v1
+                lh      $v0, 2($v0)
+                lw      $v1, 0x204C($gp)
+                sll     $v0, 2
+                addu    $s0, $v1, $v0
+                addiu   $s0, 0x20  # ' '
+                li      $v1, 0xA5D5C
+                lw      $t0, 0($v1)
+                lw      $t1, 4($v1)
+                lw      $t2, 8($v1)
+                lw      $t3, 0xC($v1)
+                lw      $t4, 0x10($v1)
+                lw      $t5, 0x14($v1)
+                lw      $t6, 0x18($v1)
+                lw      $t7, 0x1C($v1)
+                ctc2    $t0, $0
+                ctc2    $t1, $1
+                ctc2    $t2, $2
+                ctc2    $t3, $3
+                ctc2    $t4, $4
+                ctc2    $t5, $5
+ctc2    $t6, $6
+ctc2    $t7, $7
+jal     sub_658
+lw      $a0, 0($s0)
+addiu   $s0, 0x20  # ' '
+li      $v1, 0xA5DBC
+lw      $t0, 0($v1)
+lw      $t1, 4($v1)
+lw      $t2, 8($v1)
+lw      $t3, 0xC($v1)
+lw      $t4, 0x10($v1)
+lw      $t5, 0x14($v1)
+lw      $t6, 0x18($v1)
+lw      $t7, 0x1C($v1)
+ctc2    $t0, $0
+ctc2    $t1, $1
+ctc2    $t2, $2
+ctc2    $t3, $3
+ctc2    $t4, $4
+ctc2    $t5, $5
+ctc2    $t6, $6
+ctc2    $t7, $7
+jal     sub_658
+lw      $a0, 0($s0)
+
+loc_538:                                 # CODE XREF : sub_2C + 3FC↑j
+lhu     $v0, 0x5254($gp)
+li      $v1, 0x1F2480
+beqz    $v0, loc_5D0
+sll     $v0, 6
+addu    $v0, $v1
+lw      $a2, 4($v0)
+lw      $v1, 0x2030($gp)
+sll     $a2, 2
+addu    $a2, $v1
+lh      $v0, 2($v0)
+lw      $v1, 0x204C($gp)
+sll     $v0, 2
+addu    $s0, $v1, $v0
+li      $v1, 0xA5E1C
+lw      $t0, 0($v1)
+lw      $t1, 4($v1)
+lw      $t2, 8($v1)
+lw      $t3, 0xC($v1)
+lw      $t4, 0x10($v1)
+lw      $t5, 0x14($v1)
+lw      $t6, 0x18($v1)
+lw      $t7, 0x1C($v1)
+ctc2    $t0, $0
+ctc2    $t1, $1
+ctc2    $t2, $2
+ctc2    $t3, $3
+ctc2    $t4, $4
+ctc2    $t5, $5
+ctc2    $t6, $6
+ctc2    $t7, $7
+lw      $a0, 0xD4($a2)
+lw      $a1, 0xD8($a2)
+jal     sub_1358
+lw      $a2, 0xDC($a2)
+jal     sub_658
+lw      $a0, 0x70($s0)
+
+loc_5D0:                                 # CODE XREF : sub_2C + 518↑j
+jal     0x76520
+nop
+lbu     $v0, 0xA2648
+nop
+beqz    $v0, loc_5F0
+lw      $a0, 0x2084($gp)
+lw      $a0, 0x2088($gp)
+
+loc_5F0:                                 # CODE XREF : sub_2C + 5B8↑j
+nop
+andi    $v0, $a0, 0xFF
+sll     $v0, 4
+ctc2    $v0, $13
+srl     $v0, $a0, 4
+andi    $v0, 0xFF0
+ctc2    $v0, $14
+srl     $v0, $a0, 12
+andi    $v0, 0xFF0
+ctc2    $v0, $15
+jal     sub_E38
+nop
+jal     sub_1184
+nop
+sw      $s5, 0x3644($gp)
+lw      $ra, 0x60 + var_50($sp)
+lw      $s0, 0x60 + var_4C($sp)
+lw      $s1, 0x60 + var_48($sp)
+lw      $s2, 0x60 + var_44($sp)
+lw      $s3, 0x60 + var_40($sp)
+lw      $s4, 0x60 + var_3C($sp)
+lw      $s5, 0x60 + var_38($sp)
+lw      $s6, 0x60 + var_34($sp)
+lw      $s7, 0x60 + var_30($sp)
+jr      $ra
+addiu   $sp, 0x60
+#endif
+mPopMatrix();
 }
 
 void DrawLara()
