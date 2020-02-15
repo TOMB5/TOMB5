@@ -142,7 +142,7 @@ void iRotY_CL(long y)
 
 	if (y != 0)
 	{
-		int t5 = ((int*)&rcossin_tbl[y >> 2])[0];
+		int t5 = ((int*)&rcossin_tbl[y >> 1])[0];
 		int t7 = 0xFFFF0000;
 		int t6 = t5 >> 16;
 		t5 &= 0xFFFF;
