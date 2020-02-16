@@ -755,8 +755,8 @@ loc_85FD4:
 		//loc_86204
 		((int*)s5)[2] = RGB2;
 		((int*)s66)[2] = IR1;
-		((int*)s66)[6] = IR2;
-		((int*)s66)[8] = IR3;
+		((int*)s66)[3] = IR2;
+		((int*)s66)[4] = IR3;
 		
 		s11 = MAC1;
 		s22 = MAC2;
