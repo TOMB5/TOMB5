@@ -6,6 +6,7 @@
 #include "LOAD_LEV.H"
 #include "GTEREG.H"
 #include "MISC.H"
+#include "DRAWSPKS.H"
 
 void mNormaliseXYZ_L(int* x, int* y, int* z)//86500 (F)
 {
@@ -290,6 +291,11 @@ void S_CalculateLight(long x, long y, long z, short room_num, struct ITEM_LIGHT*
 {
 	struct room_info* r;//$t0
 	int scratchPad[256];
+	int t3;
+	int t4;
+	int t5;
+	int t6;
+
 	S_MemSet((char*)&scratchPad[0], 0, 1024);
 	int* s1 = &scratchPad[21];
 	//at = 0x1000
@@ -350,9 +356,9 @@ loc_85D34:
 		else
 		{
 			//loc_85D70
-			int t4 = gp->x;
-			int t5 = gp->y;
-			int t6 = gp->z;
+			t4 = gp->x;
+			t5 = gp->y;
+			t6 = gp->z;
 
 			t4 -= t7;
 			t5 -= t8;
@@ -565,9 +571,9 @@ loc_85D34:
 loc_85FD4:
 	if (fp--)
 	{
-		int t4 = gpp->x;
-		int t5 = gpp->y;
-		int t6 = gpp->z;
+		t4 = gpp->x;
+		t5 = gpp->y;
+		t6 = gpp->z;
 
 		t4 -= t7;
 		t5 -= t8;
@@ -670,254 +676,280 @@ loc_85FD4:
 		goto loc_85FD4;
 	}//loc_86110
 
-#if 0
-	loc_86110:
-	addi    at, s4, -0x1000
-	bltz    at, loc_86120
-	lui     t0, 0x1F80
-	move    s4, at
+	at = s4 - 4096;
+	int* t00 = &scratchPad[0];
 
-	loc_86120:
-	sw      s4, 0(t0)
-	sw      s1, 4(t0)
-	sw      s5, 0x1C(t0)
-	sw      s2, 0x20(t0)
-	sw      s6, 0x38(t0)
-	sw      s3, 0x3C(t0)
-	move    s6, t0
-	lw      s5, 0x2C+0x10(sp)
-	mfc2    s1, r12
-	mfc2    s2, r13
-	mfc2    s3, r14
-	li      v0, 3
-	lbu     v1, 0x2F(s5)
+	if (at >= 0)
+	{
+		s4 = at;
+	}
+	//loc_86120
+	t00[0] = s4;
+	t00[1] = (int)s1;
+	t00[7] = s5;
+	t00[8] = (int)s2;
+	t00[14] = s6;
+	t00[15] = (int)s3;
 
-	loc_86154:
-	beqz    v0, loc_8628C
-	lw      s4, 4(s6)
-	lwc2    r8, 0(s6)
-	lw      t0, 0xC(s4)
-	lw      t3, 8(s5)
-	andi    s0, t0, 0xFF
-	srl     t2, t0, 20
-	srl     t1, t0, 12
-	andi    t1, 0xFF0
-	srl     t0, 4
-	andi    t0, 0xFF0
-	mtc2    t0, r9
-	mtc2    t1, r10
-	mtc2    t2, r11
-	srl     t5, t3, 12
-	srl     t4, t3, 4
-	cop2    0x198003D
-	bnez    v1, loc_861BC
-	addi    v0, -1
-	lh      t3, 0x10(s4)
-	lh      t4, 0x12(s4)
-	lh      t5, 0x14(s4)
-	move    t0, t3
-	move    t1, t4
-	j       loc_86204
-	move    t2, t5
+	int* s66 = t00;
+	s5 = (int)light;
 
-	loc_861BC:
-	sll     t3, 4
-	andi    t3, 0xFF0
-	andi    t4, 0xFF0
-	andi    t5, 0xFF0
-	ctc2    t3, r21
-	ctc2    t4, r22
-	ctc2    t5, r23
-	li      at, 0xE00
-	mtc2    at, r8
-	lh      t3, 0x10(s4)
-	nop
-	nop
-	cop2    0x980011
-	lh      t4, 0x12(s4)
-	lh      t5, 0x14(s4)
-	lw      t0, 0(s5)
-	lh      t2, 4(s5)
-	sra     t1, t0, 16
-	sll     t0, 16
-	sra     t0, 16
+	int s11 = SXY0;
+	int s22 = SXY1;
+	int s33 = SXY2;
 
-	loc_86204:
-	swc2    r22, 8(s5)
-	swc2    r9, 8(s6)
-	swc2    r10, 0xC(s6)
-	swc2    r11, 0x10(s6)
-	mtc2    s1, r25
-	mtc2    s2, r26
-	mtc2    s3, r27
-	li      at, 0x800
-	mtc2    at, r8
-	sub     t3, t0
-	sub     t4, t1
-	cop2    0x1A8003E
-	sub     t5, t2
-	sra     t3, 3
-	sra     t4, 3
-	sra     t5, 3
-	add     t0, t3
-	add     t1, t4
-	add     t2, t5
-	sh      t0, 0x14(s6)
-	sh      t1, 0x16(s6)
-	sh      t2, 0x18(s6)
-	andi    t0, 0xFFFF
-	sll     t1, 16
-	or      t0, t1
-	sw      t0, 0(s5)
-	beqz    s0, loc_86280
-	sw      t2, 4(s5)
-	mfc2    s1, r9
-	mfc2    s2, r10
-	mfc2    s3, r11
+	v0 = 3;
+	int v1 = light->Light[3].pad;
 
-	loc_86280:
-	addi    s6, 0x1C
-	j       loc_86154
-	addi    s5, 0xC
+	//loc_86154
+	if (v0 != 0)
+	{
+		s4 = s66[1];
+		IR0 = s66[0];
+		t0 = ((int*)s4)[3];
+		int t3 = ((int*)s5)[2];
+		int s0 = t0 & 0xFF;
+		t2 = t0 >> 20;
+		t1 = (t0 >> 12) & 0xFF0;
+		t0 >>= 4;
+		t0 &= 0xFF0;
 
-	loc_8628C:
-	beqz    v1, loc_862C8
-	lui     at, 0x100
-	lwc2    r9, 0(s5)
-	lwc2    r10, 4(s5)
-	lwc2    r11, 8(s5)
-	ctc2    s1, r21
-	ctc2    s2, r22
-	ctc2    s3, r23
-	li      s1, 0x600
-	mtc2    s1, r8
-	nop
-	nop
-	cop2    0x980011
-	mfc2    s1, r9
-	mfc2    s2, r10
-	mfc2    s3, r11
+		IR1 = t0;
+		IR2 = t1;
+		IR3 = t2;
 
-	loc_862C8:
-	sw      s1, 0(s5)
-	sw      s2, 4(s5)
-	or      at, s3
-	sw      at, 8(s5)
-	sll     s1, 1
-	sll     s2, 1
-	sll     s3, 1
-	ctc2    s1, r13
-	ctc2    s2, r14
-	ctc2    s3, r15
-	cfc2    s0, r0
-	cfc2    s1, r1
-	cfc2    s2, r2
-	cfc2    s3, r3
-	lw      gp, 0x2C-0x8(sp)
-	cfc2    s4, r4
-	li      t0, 0x808080
-	beqz    s7, loc_86330
-	slti    at, s7, 0xFFF
-	beqz    at, loc_86330
-	srl     s7, 5
-	sll     t0, s7, 16
-	sll     t1, s7, 8
-	or      t0, t1
-	or      t0, s7
+		int t5 = t3 >> 12;
+		int t4 = t3 >> 4;
+		docop2(0x198003D);
+		v0--;
+		if (v1 == 0)
+		{
+			t3 = ((short*)s4)[8];
+			t4 = ((short*)s4)[9];
+			t5 = ((short*)s4)[10];
+			t0 = t3;
+			t1 = t4;
+			t2 = t5;
+		}
+		else
+		{
+			//loc_861BC
+			t3 <<= 4;
+			t3 &= 0xFF0;
+			t4 &= 0xFF0;
+			t5 &= 0xFF0;
+			RFC = t3;
+			GFC = t4;
+			BFC = t5;
+			IR0 = 3584;
+			t3 = ((short*)s4)[8];
+			docop2(0x980011);
+			t4 = ((short*)s4)[9];
+			t5 = ((short*)s4)[10];
+			((int*)s5)[0] = t0;
+			((short*)s5)[2] = t2;
+			t1 = t0 >> 16;
+			t0 <<= 16;
+			t0 >>= 16;
+		}
+		//loc_86204
+		((int*)s5)[2] = RGB2;
+		((int*)s66)[2] = IR1;
+		((int*)s66)[6] = IR2;
+		((int*)s66)[8] = IR3;
+		
+		s11 = MAC1;
+		s22 = MAC2;
+		s33 = MAC3;
 
-	loc_86330:
-	mtc2    t0, r6
-	addiu   s5, gp, CamGTE-GP_ADDR
-	addiu   s6, gp, LightPos-GP_ADDR
-	lui     s7, 0x1F80
-	lw      t0, 0(s5)
-	lw      t1, 4(s5)
-	lw      t2, 8(s5)
-	lw      t3, 0xC(s5)
-	lw      t4, 0x10(s5)
-	ctc2    t0, r0
-	ctc2    t1, r1
-	ctc2    t2, r2
-	ctc2    t3, r3
-	ctc2    t4, r4
-	lwc2    r0, 0x14(s7)
-	lwc2    r1, 0x18(s7)
-	lwc2    r2, 0x30(s7)
-	nop
-	nop
-	cop2    0x486012
-	lwc2    r3, 0x34(s7)
-	lwc2    r4, 0x4C(s7)
-	lwc2    r5, 0x50(s7)
-	lhu     t1, 0x24(s7)
-	lhu     t0, 8(s7)
-	sll     t1, 16
-	or      t0, t1
-	lhu     t2, 0xC(s7)
-	mfc2    t5, r9
-	mfc2    t8, r10
-	mfc2    t6, r11
-	cop2    0x48E012
-	lhu     t1, 0x40(s7)
-	sll     t2, 16
-	or      t1, t2
-	lhu     t3, 0x44(s7)
-	lhu     t2, 0x28(s7)
-	sll     t3, 16
-	or      t2, t3
-	lhu     t4, 0x2C(s7)
-	mfc2    t9, r9
-	mfc2    t7, r10
-	mfc2    a0, r11
-	cop2    0x496012
-	lhu     t3, 0x10(s7)
-	sll     t4, 16
-	or      t3, t4
-	lhu     t4, 0x48(s7)
-	andi    t5, 0xFFFF
-	sll     t8, 16
-	or      t5, t8
-	andi    t6, 0xFFFF
-	sll     t9, 16
-	or      t6, t9
-	andi    t7, 0xFFFF
-	sll     a0, 16
-	or      t7, a0
-	mfc2    t8, r9
-	mfc2    a0, r10
-	mfc2    t9, r11
-	andi    t8, 0xFFFF
-	sll     a0, 16
-	or      t8, a0
-	sw      t5, 0(s6)
-	sw      t6, 4(s6)
-	sw      t7, 8(s6)
-	sw      t8, 0xC(s6)
-	sw      t9, 0x10(s6)
-	ctc2    t0, r16
-	ctc2    t1, r17
-	ctc2    t2, r18
-	ctc2    t3, r19
-	ctc2    t4, r20
-	ctc2    s0, r0
-	ctc2    s1, r1
-	ctc2    s2, r2
-	ctc2    s3, r3
-	ctc2    s4, r4
-	ctc2    zero, r21
-	ctc2    zero, r22
-	ctc2    zero, r23
-	lw      ra, 0x2C-0x2C(sp)
-	lw      s0, 0x2C-0x28(sp)
-	lw      s1, 0x2C-0x24(sp)
-	lw      s2, 0x2C-0x20(sp)
-	lw      s3, 0x2C-0x1C(sp)
-	lw      s4, 0x2C-0x18(sp)
-	lw      s5, 0x2C-0x14(sp)
-	lw      s6, 0x2C-0x10(sp)
-	lw      s7, 0x2C-0xC(sp)
-	lw      fp, 0x2C-0x4(sp)
-	jr      ra
-	addi    sp, 0x2C
-#endif
+		IR0 = 2048;
+
+		t3 -= t0;
+		t4 -= t1;
+		t5 -= t2;
+
+		docop2(0x1A8003E);
+
+		t3 >>= 3;
+		t4 >>= 3;
+		t5 >>= 3;
+
+		t0 += t3;
+		t1 += t4;
+		t2 += t5;
+
+		((short*)s66)[10] = t0;
+		((short*)s66)[11] = t1;
+		((short*)s66)[12] = t2;
+		t0 &= 0xFFFF;
+		t1 <<= 16;
+		t0 |= t1;
+		((int*)s5)[0] = t0;
+		((int*)s5)[1] = t2;
+
+		if (s0 != 0)
+		{
+			s11 = IR1;
+			s22 = IR2;
+			s33 = IR3;
+		}
+		//loc_86280
+		s66 += 7;
+		s5 += 0xC;
+	}
+	//loc_8628C
+	at = 0x1000000;
+	if (v1 != 0)
+	{
+		IR1 = ((int*)s5)[0];
+		IR2 = ((int*)s5)[1];
+		IR3 = ((int*)s5)[2];
+
+		RFC = s11;
+		GFC = s22;
+		BFC = s33;
+
+		IR0 = 1536;
+
+		docop2(0x980011);
+
+		s11 = IR1;
+		s22 = IR2;
+		s33 = IR3;
+
+	}//loc_862C8
+
+	((int*)s5)[0] = s11;
+	((int*)s5)[1] = s22;
+	((int*)s5)[2] = s33 | at;
+
+	s11 <<= 1;
+	s22 <<= 1;
+	s33 <<= 1;
+
+	RBK = s11;
+	GBK = s22;
+	BBK = s33;
+
+	int s00 = (R11 & 0xFFFF) | ((R12 << 16) & 0xFFFF);
+	s11 = (R13 & 0xFFFF) | ((R21 << 16) & 0xFFFF);
+	s22 = (R22 & 0xFFFF) | ((R23 << 16) & 0xFFFF);
+	s33 = (R31 & 0xFFFF) | ((R32 << 16) & 0xFFFF);
+	s4 = R33;
+	t0 = 0x808080;
+
+	if (s7 != 0 && s7 < 0xFFF)
+	{
+		s7 >>= 5;
+		t0 = s7 << 16;
+		t1 = s7 << 8;
+		t0 |= t1;
+		t0 |= s7;
+	}
+	//loc_86330
+	R = (t0 & 0xFF);
+	G = (t0 & 0xFF00) >> 8;
+	B = (t0 & 0xFF0000) >> 16;
+	CODE = (t0 & 0xFF000000) >> 24;
+	
+	struct MATRIX3D* s55 = &CamGTE;
+	struct MATRIX3D* s666 = &LightPos;
+	int* s77 = &scratchPad[0];
+
+	t0 = ((int*)s55)[0];
+	t1 = ((int*)s55)[1];
+	t2 = ((int*)s55)[2];
+	t3 = ((int*)s55)[3];
+	t4 = ((int*)s55)[4];
+
+	R11 = t0 & 0xFFFF;
+	R12 = (t0 >> 16) & 0xFFFF;
+	R13 = t1 & 0xFFFF;
+	R21 = (t1 >> 16) & 0xFFFF;
+	R22 = t2 & 0xFFFF;
+	R23 = (t2 >> 16) & 0xFFFF;
+	R31 = t3 & 0xFFFF;
+	R32 = (t3 >> 16) & 0xFFFF;
+	R33 = t4;
+
+	VX0 = s77[5] & 0xFFFF;
+	VY0 = (s77[5] >> 16) & 0xFFFF;
+	VZ0 = s77[6] & 0xFFFF;
+	
+	VX1 = s77[12] & 0xFFFF;
+	VY1 = (s77[12] >> 16) & 0xFFFF;
+
+	docop2(0x486012);
+
+	VZ1 = s77[13];
+	VX2 = s77[19] & 0xFFFF;
+	VY2 = (s77[19] >> 16) & 0xFFFF;
+	VZ2 = s77[20] & 0xFFFF;
+
+	t1 = ((unsigned short*)s77)[18];
+	t0 = ((unsigned short*)s77)[4];
+	t1 <<= 16;
+	t0 |= t1;
+	t2 = ((unsigned short*)s77)[6];
+
+	t5 = IR1;
+	t8 = IR2;
+	t9 = IR3;
+
+	docop2(0x48E012);
+	t1 = ((unsigned short*)s77)[32];
+	t2 <<= 16;
+	t1 |= t2;
+	t3 = ((unsigned short*)s77)[34];
+	t2 = ((unsigned short*)s77)[20];
+	t3 <<= 16;
+	t2 |= t3;
+	t4 = ((unsigned short*)s77)[22];
+	t9 = IR1;
+	t7 = IR2;
+	int a0 = IR3;
+	docop2(0x496012);
+	t3 = ((unsigned short*)s77)[8];
+	t4 <<= 16;
+	t3 |= t4;
+	t4 = ((unsigned short*)s77)[36];
+	t5 &= 0xFFFF;
+	t8 <<= 16;
+	t5 |= t8;
+	t6 &= 0xFFFF;
+	t9 <<= 16;
+	t6 |= t9;
+	t7 &= 0xFFFF;
+	a0 <<= 16;
+	t7 |= a0;
+	t8 = IR1;
+	a0 = IR2;
+	t9 = IR3;
+	t8 &= 0xFFFF;
+	a0 <<= 16;
+	t8 |= a0;
+
+	((int*)s666)[0] = t5;
+	((int*)s666)[1] = t6;
+	((int*)s666)[2] = t7;
+	((int*)s666)[3] = t8;
+	((int*)s666)[4] = t9;
+
+	SZ0 = t0;
+	SZ1 = t1;
+	SZ2 = t2;
+	SZ3 = t3;
+	RGB0 = t4;
+
+	R11 = s00 & 0xFFFF;
+	R12 = (s00 >> 16) & 0xFFFF;
+	R13 = s11 & 0xFFFF;
+	R21 = (s11 >> 16) & 0xFFFF;
+	R22 = s22 & 0xFFFF;
+	R23 = (s22 >> 16) & 0xFFFF;
+	R31 = s33 & 0xFFFF;
+	R32 = (s33 >> 16) & 0xFFFF;
+	RFC = 0;
+	GFC = 0;
+	BFC = 0;
 }
