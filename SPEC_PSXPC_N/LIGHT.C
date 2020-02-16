@@ -81,7 +81,7 @@ int mSqrt_L(int a0)//8649C (F)
 		v0 >>= 1;
 		at = v1 - 24;
 
-		if (a0 >= 0)
+		if (at >= 0)
 		{
 			a0 <<= at;
 		}
@@ -559,110 +559,118 @@ loc_85D34:
 	}
 
 	//loc_85FCC
+	fp = number_dynamics;
+	struct DYNAMIC* gpp = &dynamics[0];
 
+loc_85FD4:
+	if (fp--)
+	{
+		int t4 = gpp->x;
+		int t5 = gpp->y;
+		int t6 = gpp->z;
+
+		t4 -= t7;
+		t5 -= t8;
+		t6 -= t9;
+
+		IR1 = t4;
+		IR2 = t5;
+		IR3 = t6;
+
+		int a0 = t4;
+		if (t4 < 0)
+		{
+			a0 = -t4;
+		}
+
+		//loc_8600C
+		docop2(0xA00428);
+		int a1 = t5;
+		if (t5 < 0)
+		{
+			a1 = -t5;
+		}
+
+		//loc_8601C
+		int a2 = t6;
+		if (t6 < 0)
+		{
+			a2 = -t6;
+		}
+
+		//loc_86028
+		if ((unsigned)a0 < 0x2000 && (unsigned)a1 < 0x2000 && (unsigned)a2 < 0x2000)
+		{
+			t0 = ((int*)&gpp->falloff)[0] >> 1;
+			t1 = gpp->FalloffScale;
+
+			a0 = MAC1;
+			a1 = MAC2;
+			a2 = MAC3;
+
+			a0 += a1;
+			a0 += a2;
+			
+			if (mSqrt_L(a0) < t0)
+			{
+				v0 = (v0 * t1) >> 8;
+				a0 = t4;
+				a1 = t5;
+				a2 = t6;
+				mNormaliseXYZ_L(&a0, &a1, &a2);
+				int a3 = 4096 - v0;
+				//at = s5 - a3
+				if (s4 - a3 < 0)
+				{
+					s6 = s5;
+					s5 = s4;
+					s4 = a3;
+					at = (int)s3;
+					s3 = s2;
+					s2 = s1;
+					s1 = (int*)at;
+					//goto loc_860EC;
+				}//loc_860BC
+				else if (s5 - a3 < 0)
+				{
+					s6 = s5;
+					s5 = a3;
+					at = (int)s3;
+					s3 = s2;
+					s2 = (int*)at;
+					//goto loc_860EC
+				}
+				else if (s6 - a3 < 0)
+				{
+					//loc_860DC
+					s6 = a3;
+					at = (int)s3;
+				}
+				else
+				{
+					goto loc_86108;
+				}
+
+				//loc_860EC
+				t0 = ((int*)&gpp->on)[0];
+				((short*)at)[8] = a0;
+				((short*)at)[9] = a1;
+				((short*)at)[10] = a2;
+				((int*)at)[3] = t0;
+
+				if (s7 != 0)
+				{
+					s7 = a3;
+				}
+
+			}//loc_86108
+		}
+	loc_86108:
+		gpp++;
+		goto loc_85FD4;
+	}//loc_86110
 
 #if 0
-
-	loc_85FCC:
-	lw      fp, number_dynamics-GP_ADDR(s0)
-	;addiu   gp, s0, dynamics-GP_ADDR original
-	la		gp, dynamics
-
-	loc_85FD4:
-	beqz    fp, loc_86110
-	addi    fp, -1
-	lw      t4, 0(gp)
-	lw      t5, 4(gp)
-	lw      t6, 8(gp)
-	sub     t4, t7
-	sub     t5, t8
-	sub     t6, t9
-	mtc2    t4, r9
-	mtc2    t5, r10
-	mtc2    t6, r11
-	bgez    t4, loc_8600C
-	move    a0, t4
-	neg     a0, t4
-
-	loc_8600C:
-	cop2    0xA00428
-	bgez    t5, loc_8601C
-	move    a1, t5
-	neg     a1, t5
-
-	loc_8601C:
-	bgez    t6, loc_86028
-	move    a2, t6
-	neg     a2, t6
-
-	loc_86028:
-	sltiu   at, a0, 0x2000
-	beqz    at, loc_86108
-	sltiu   at, a1, 0x2000
-	beqz    at, loc_86108
-	sltiu   at, a2, 0x2000
-	beqz    at, loc_86108
-	lh      t0, 0x10(gp)
-	lw      t1, 0x14(gp)
-	srl     t0, 1
-	mfc2    a0, r25
-	mfc2    a1, r26
-	mfc2    a2, r27
-	add     a0, a1
-	jal     mSqrt
-	add     a0, a2
-	slt     at, v0, t0
-	beqz    at, loc_86108
-	mult    v0, t1
-	move    a0, t4
-	move    a1, t5
-	jal     mNormaliseXYZ
-	move    a2, t6
-	mflo    v0
-	li      a3, 0x1000
-	srl     v0, 8
-	sub     a3, v0
-	sub     at, s4, a3
-	bgtz    at, loc_860BC
-	sub     at, s5, a3
-	move    s6, s5
-	move    s5, s4
-	move    s4, a3
-	move    at, s3
-	move    s3, s2
-	move    s2, s1
-	j       loc_860EC
-	move    s1, at
-
-	loc_860BC:
-	bgtz    at, loc_860DC
-	sub     at, s6, a3
-	move    s6, s5
-	move    s5, a3
-	move    at, s3
-	move    s3, s2
-	j       loc_860EC
-	move    s2, at
-
-	loc_860DC:
-	bgtz    at, loc_86108
-	nop
-	move    s6, a3
-	move    at, s3
-
-	loc_860EC:
-	lw      t0, 0xC(gp)
-	sh      a0, 0x10(at)
-	sh      a1, 0x12(at)
-	sh      a2, 0x14(at)
-	beqz    s7, loc_86108
-	sw      t0, 0xC(at)
-	add     s7, a3
-
-	loc_86108:
-	j       loc_85FD4
-	addi    gp, 0x18
-
 	loc_86110:
 	addi    at, s4, -0x1000
 	bltz    at, loc_86120
