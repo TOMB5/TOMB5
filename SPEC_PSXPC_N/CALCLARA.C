@@ -1812,9 +1812,7 @@ void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 
 	t3 = MAC1;
 	t4 = MAC2;
-	t4 = MAC3;
-
-	//a0 = lara_item;
+	t5 = MAC3;
 
 	t0 += t3;
 	t1 += t4;
