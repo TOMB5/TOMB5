@@ -232,7 +232,7 @@ void iRotX_CL(long x)
 		t4 <<= 16;
 		t0 |= t4;
 		t2 &= 0xFFFF;
-		t5 <= 16;
+		t5 <<= 16;
 		t3 |= t5;
 
 		t5 = MAC1;
@@ -280,7 +280,7 @@ void iRotZ_CL(long z)
 		t1 &= 0xFFFF;
 		t0 = MAC1;
 		int t5 = MAC2;
-		t3 = MAC3;///@FIXME bad value?!!??!
+		t3 = MAC3;
 
 		docop2(0x4AE012);
 		t2 &= t7;
@@ -1408,7 +1408,7 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 	mTranslateXYZ_CL(s0[6], s0[7], s0[8]);
 	iTranslateXYZ2_CL(s1[6], s1[7], s1[8]);
 	mRotSuperPackedYXZ_CL(t8, 0);
-	iRotSuperPackedYXZ_CL(t8, 0);///@FIXME iRotZ MAC3 bad value!!
+	iRotSuperPackedYXZ_CL(t8, 0);
 
 	s0 = (short*)t8[13];
 
