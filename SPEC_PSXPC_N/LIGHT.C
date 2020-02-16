@@ -5,6 +5,7 @@
 #include "MATHS.H"
 #include "LOAD_LEV.H"
 #include "GTEREG.H"
+#include "MISC.H"
 
 void mNormaliseXYZ_L(int* x, int* y, int* z)//86500 (F)
 {
@@ -34,7 +35,6 @@ void mNormaliseXYZ_L(int* x, int* y, int* z)//86500 (F)
 	a3 >>= 1;
 	at = v1 - 24;
 
-	//a0 = 0xA0000
 	if (at >= 0)
 	{
 		v0 <<= at;
@@ -79,7 +79,7 @@ int mSqrt_L(int a0)//8649C (F)
 		v1 &= at;
 		v0 -= v1;
 		v0 >>= 1;
-		at = v0 - 24;
+		at = v1 - 24;
 
 		if (a0 >= 0)
 		{
@@ -290,6 +290,7 @@ void S_CalculateLight(long x, long y, long z, short room_num, struct ITEM_LIGHT*
 {
 	struct room_info* r;//$t0
 	int scratchPad[256];
+	S_MemSet((char*)&scratchPad[0], 0, 1024);
 	int* s1 = &scratchPad[21];
 	//at = 0x1000
 	s1[3] = 0;
@@ -306,7 +307,7 @@ void S_CalculateLight(long x, long y, long z, short room_num, struct ITEM_LIGHT*
 	int s4 = 0;
 	int s5 = 0;
 	int s6 = 0;
-	//s7 = 0x1000;
+	int s7 = 4096;
 	int t7 = x;
 	int t8 = y;
 	int t9 = z;
@@ -383,159 +384,184 @@ loc_85D34:
 
 				if (a3 != 0)
 				{
+					t4 = v0;
+					mNormaliseXYZ_L(&a0, &a1, &a2);
+					t5 = gp->Intensity;
 
-				}//loc_85E30
-			}//loc_85F40
+					a3 = t5;
+					if (t4 >= t1)
+					{
+						t4 -= t1;
+						t5 = t0 - t1;
+						t5 -= t4;
+						a3 = (t5 * t2) >> 8;
+					}
+					//loc_85E0C
+					int at = 4096;
+					if (t3 - 3 == 0)
+					{
+						a3 = at - a3;
+
+						if (a3 < s7)
+						{
+							gp++;
+							s7 = a3;
+						}
+
+						goto loc_85D34;
+
+					}
+
+					goto loc_85ED0;
+				}
+				else
+				{
+					//loc_85E30
+					t4 = v0;
+					mNormaliseXYZ_L(&a0, &a1, &a2);
+					v0 = (R11 & 0xFFFF) | (R12 << 16) & 0xFFFF;
+					int v1 = (R13 & 0xFFFF) | (R21 << 16) & 0xFFFF;
+
+					VX0 = ((int*)&gp->nx)[0] & 0xFFFF;
+					VY0 = (((int*)&gp->nx)[0] >> 16) & 0xFFFF;
+					VZ0 = ((int*)&gp->nx)[0] & 0xFFFF;
+
+					a1 <<= 16;
+					a0 &= 0xFFFF;
+					a0 |= a1;
+
+					R11 = a0 & 0xFFFF;
+					R12 = (a0 >> 16) & 0xFFFF;
+					R13 = a2 & 0xFFFF;
+					R21 = (a2 >> 16) & 0xFFFF;
+
+					t3 = t4 - t1;
+					docop2(0x486012);
+					t5 = t0 - t1;
+					t5 -= t3;
+					t1 = t5 * t2;
+					t5 = ((int*)&gp->Length)[0];
+					t3 = ((unsigned short*)&gp->Intensity)[0];
+					t6 = t5 >> 16;
+					t0 = IR1;
+					R11 = v0 & 0xFFFF;
+					R12 = (v0 >> 16) & 0xFFFF;
+					R13 = v1 & 0xFFFF;
+					R21 = (v1 >> 16) & 0xFFFF;
+
+					t5 &= 0xFFFF;
+					if (t0 >= t6)
+					{
+						if (t0 >= t5)
+						{
+							t0 = 4096;
+						}
+						//loc_85EA4
+						t1 >>= 8;
+						a0 = (VX0 & 0xFFFF) | ((VY0 & 0xFFFF) << 16);
+						if (t1 >= t3)
+						{
+							t1 = t3;
+						}
+						//loc_85EB8
+						a3 = t0 * t1;
+						a2 = VZ0;
+						a1 = a0 >> 16;
+						a0 &= 0xFFFF;
+						a3 >>= 12;
+
+					loc_85ED0:
+						int at = s5 - a3;
+						if (s4 - a3 < 0)
+						{
+							s6 = s5;
+							s5 = s4;
+							s4 = a3;
+							at = (int)s3;
+							s3 = s2;
+							s2 = s1;
+							s1 = (int*)at;
+							//j loc_85F2C
+						}
+						else if (s5 - a3 < 0)
+						{
+							//loc_85EFC
+							s6 = s5;
+							s5 = a3;
+							at = (int)s3;
+							s3 = s2;
+							s2 = (int*)at;
+							//j loc_85F2C
+						}
+						else if (s6 - a3 < 0)
+						{
+							//loc_85F1C
+							s6 = a3;
+							at = (int)s3;
+						}
+						else
+						{
+							goto loc_85F40;
+						}
+
+					loc_85F2C:///@TODO expand (implant) into ifs then let it all fall through.
+						t0 = ((int*)&gp->Type)[0];
+						((short*)at)[8] = a0;
+						((short*)at)[9] = a1;
+						((short*)at)[10] = a2;
+						((int*)at)[3] = t0;
+					}//loc_85F40
+				}
+			}
+		loc_85F40:
+			gp++;
+			goto loc_85D34;
 		}
-	}//loc_85F48
+	}
+	//loc_85F48
+	int at = 4096;
+	if (s4 != 0 || s7 - 4096 != 0)
+	{
+		IR0 = s7;
+		IR1 = s4;
+		IR2 = s5;
+		IR3 = s6;
+
+		t0 = (at - s7) + 4096;
+		docop2(0x198003D);
+		t1 = SXY0;
+		t2 = SXY1;
+		int t3 = SXY2;
+		at = s4 < 4096 ? 1 : 0;
+		
+		s4 = IR1;
+		s5 = IR2;
+		s6 = IR3;
+		
+		IR1 = t1;
+		IR2 = t2;
+		IR3 = t3;
+
+		docop2(0x198003D);
+
+		t1 = IR1;
+		t2 = IR2;
+		t3 = IR3;
+
+		SXY0 = t1;
+		SXY1 = t2;
+		SXY2 = t3;
+
+		if (at == 0)
+		{
+			s4 = t0;
+		}
+	}
+
+	//loc_85FCC
+
 
 #if 0
-	jal     mNormaliseXYZ
-	move    t4, v0
-	lhu     t5, 0x16(gp)
-	slt     at, t4, t1
-	bnez    at, loc_85E0C
-	move    a3, t5
-	sub     t4, t1
-	sub     t5, t0, t1
-	sub     t5, t4
-	mult    t5, t2
-	mflo    a3
-	srl     a3, 8
-
-	loc_85E0C:
-	addi    at, t3, -3
-	bnez    at, loc_85ED0
-	li      at, 0x1000
-	sub     a3, at, a3
-	slt     at, a3, s7
-	beqz    at, loc_85D34
-	addi    gp, 0x20
-	j       loc_85D34
-	move    s7, a3
-
-	loc_85E30:
-	jal     mNormaliseXYZ
-	move    t4, v0
-	cfc2    v0, r0
-	cfc2    v1, r1
-	lwc2    r0, 0x10(gp)
-	lwc2    r1, 0x14(gp)
-	sll     a1, 16
-	andi    a0, 0xFFFF
-	or      a0, a1
-	ctc2    a0, r0
-	ctc2    a2, r1
-	sub     t3, t4, t1
-	nop
-	nop
-	cop2    0x486012
-	sub     t5, t0, t1
-	sub     t5, t3
-	mult    t5, t2
-	lw      t5, 0x1C(gp)
-	lhu     t3, 0x16(gp)
-	srl     t6, t5, 16
-	mfc2    t0, r9
-	ctc2    v0, r0
-	ctc2    v1, r1
-	slt     at, t0, t6
-	bnez    at, loc_85F40
-	andi    t5, 0xFFFF
-	slt     at, t0, t5
-	bnez    at, loc_85EA4
-	mflo    t1
-	li      t0, 0x1000
-
-	loc_85EA4:
-	srl     t1, 8
-	slt     at, t1, t3
-	bnez    at, loc_85EB8
-	mfc2    a0, r0
-	move    t1, t3
-
-	loc_85EB8:
-	mult    t0, t1
-	mfc2    a2, r1
-	srl     a1, a0, 16
-	andi    a0, 0xFFFF
-	mflo    a3
-	srl     a3, 12
-
-	loc_85ED0:
-	sub     at, s4, a3
-	bgtz    at, loc_85EFC
-	sub     at, s5, a3
-	move    s6, s5
-	move    s5, s4
-	move    s4, a3
-	move    at, s3
-	move    s3, s2
-	move    s2, s1
-	j       loc_85F2C
-	move    s1, at
-
-	loc_85EFC:
-	bgtz    at, loc_85F1C
-	sub     at, s6, a3
-	move    s6, s5
-	move    s5, a3
-	move    at, s3
-	move    s3, s2
-	j       loc_85F2C
-	move    s2, at
-
-	loc_85F1C:
-	bgtz    at, loc_85F40
-	nop
-	move    s6, a3
-	move    at, s3
-
-	loc_85F2C:
-	lw      t0, 0xC(gp)
-	sh      a0, 0x10(at)
-	sh      a1, 0x12(at)
-	sh      a2, 0x14(at)
-	sw      t0, 0xC(at)
-
-	loc_85F40:
-	j       loc_85D34
-	addi    gp, 0x20
-
-	loc_85F48:
-	beqz    s4, loc_85FCC
-	addi    at, s7, -0x1000
-	beqz    at, loc_85FCC
-	li      at, 0x1000
-	mtc2    s7, r8
-	mtc2    s4, r9
-	mtc2    s5, r10
-	mtc2    s6, r11
-	sub     t0, at, s7
-	addi    t0, 0x1000
-	cop2    0x198003D
-	mfc2    t1, r12
-	mfc2    t2, r13
-	mfc2    t3, r14
-	slti    at, s4, 0x1000
-	mfc2    s4, r9
-	mfc2    s5, r10
-	mfc2    s6, r11
-	mtc2    t1, r9
-	mtc2    t2, r10
-	mtc2    t3, r11
-	nop
-	nop
-	cop2    0x198003D
-	mfc2    t1, r9
-	mfc2    t2, r10
-	mfc2    t3, r11
-	mtc2    t1, r12
-	mtc2    t2, r13
-	mtc2    t3, r14
-	bnez    at, loc_85FCC
-	nop
-	move    s4, t0
 
 	loc_85FCC:
 	lw      fp, number_dynamics-GP_ADDR(s0)
