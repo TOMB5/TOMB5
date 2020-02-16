@@ -611,56 +611,56 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 	return 1;
 }
 
-void InitSubDiv(int* scratchPad, int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6)//7E6C8(<)
+void InitSubDiv(int* scratchPad, int t0, int t1, int t2, int t3, int t6, int s4, int t7, int s5, int t8, int t4, int s6)//7E6C8(<)
 {
 	BFC = t0;
 	int at = 0xFFFF0000;
 	int fp = t2 & at;
 	int gp = t3 & at;
 	int s3 = t1;
-	int* t0 = &scratchPad[256];
+	int* t00 = &scratchPad[0];
 	at = 0xFF000000;
 	at &= t6;
 	t1 = GFC;
 	int s7 = RFC;
-	((int*)t0)[0] = t6;
-	((short*)t0)[9] = t2;
-	((int*)t0)[1] = s4;
+	((int*)t00)[0] = t6;
+	((short*)t00)[9] = t2;
+	((int*)t00)[1] = s4;
 	s4 = (t1 << 3) & 0x7F8;
 	s4 += (int)s7;
-	int t6 = ((int*)s4)[0];
-	int t2 = ((int*)s4)[2];
-	((int*)t0)[3] = t6;
-	((int*)t0)[8] = t2;
+	t6 = ((int*)s4)[0];
+	t2 = ((int*)s4)[2];
+	((int*)t00)[3] = t6;
+	((int*)t00)[8] = t2;
 	t7 |= at;
-	((int*)t0)[5] = t7;
-	((short*)t0)[19] = t3;
-	((int*)t0)[6] = s5;
+	((int*)t00)[5] = t7;
+	((short*)t00)[19] = t3;
+	((int*)t00)[6] = s5;
 	s5 = (t1 >> 5) & 0x7F8;
 	s5 += (int)s7;
 	t7 = ((int*)s5)[0];
 	t3 = ((short*)s5)[2];
-	((int*)t0)[8] = t7;
-	((short*)t0)[18] = t3;
+	((int*)t00)[8] = t7;
+	((short*)t00)[18] = t3;
 	t8 |= at;
-	((int*)t0)[10] = t8;
-	((short*)t0)[29] = t4;
-	((int*)t0)[11] = s6;
+	((int*)t00)[10] = t8;
+	((short*)t00)[29] = t4;
+	((int*)t00)[11] = s6;
 	s6 = (t1 >> 13) & 0x7F8;
 	s6 += (int)s7;
 	t8 = ((int*)s6)[0];
 	t4 = ((short*)s6)[2];
-	((int*)t0)[13] = t8;
-	((short*)t0)[28] = t4;
+	((int*)t00)[13] = t8;
+	((short*)t00)[28] = t4;
 }
 
 void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6)//7E830(<)
 {
 	int scratchPad[256];
-	InitSubDiv(&scratchPad[0], t0, t1, t2, t3, t6, s4, s7, t7, s5, t8, t4, s6);
+	InitSubDiv(&scratchPad[0], t0, t1, t2, t3, t6, s4, t7, s5, t8, t4, s6);
 #if 0
 jal     sub_7E6C8
-move    $s3, $gp
+move    $s3, $gp///@fixme where is gp coming from might be the poly len 0x9000000
 swc2    $17, 8($t0)
 swc2    $18, 0x1C($t0)
 swc2    $19, 0x30($t0)
@@ -809,7 +809,11 @@ void DrawSubDivMesh(int v0, int* a1, char* s0, char* s1, int* a0, int a2, int t2
 					}//loc_7E4FC
 				}//loc_7E4FC
 			}//loc_7E4FC
-		}//loc_7E64C
+		}
+		else
+		{
+			//loc_7E64C///@todo goto loc_7E64C;
+		}
 	}//loc_7E514
 
 #if 0
