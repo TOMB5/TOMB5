@@ -430,7 +430,7 @@ loc_85D34:
 
 					VX0 = ((int*)&gp->nx)[0] & 0xFFFF;
 					VY0 = (((int*)&gp->nx)[0] >> 16) & 0xFFFF;
-					VZ0 = ((int*)&gp->nx)[0] & 0xFFFF;
+					VZ0 = ((int*)&gp->nz)[0] & 0xFFFF;
 
 					a1 <<= 16;
 					a0 &= 0xFFFF;
