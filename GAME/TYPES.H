@@ -164,7 +164,8 @@ enum msoff {
 #define CLAMP(x, a, b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
 #endif
 
-#define CLAMPADD(x, a, b) ((x)<(a)?((x)+(a)):((x)>(b)?((x)-(b)):0))
+#define CLAMPADD2(x, a, b) ((unsigned short)((x)+(a))<(b)?0:((x)<(-(a)))?((x)+(a)):((x)+(-(a))))
+#define CLAMPADD(x, a, b) ((x)<(a)?((x)+(a)):((x)>(b)?((x)-(b)):0))///@FIXME this is actually incorrect, update all to use CLAMPADD2.
 
 #define RED(rgb) (((rgb) >> 16) & 0xFF)
 #define GREEN(rgb) (((rgb) >> 8) & 0xFF)

@@ -4923,8 +4923,8 @@ void LaraAboveWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//14228, 142D
 
 	lara_control_routines[item->current_anim_state](item, coll);
 
-	item->pos.z_rot = CLAMPADD(item->pos.z_rot, ANGLE(-1), ANGLE(1));
-	lara.turn_rate = CLAMPADD(lara.turn_rate, ANGLE(-2), ANGLE(2));
+	item->pos.z_rot = CLAMPADD2(item->pos.z_rot, ANGLE(1), ANGLE(2));
+	lara.turn_rate = CLAMPADD2(lara.turn_rate, ANGLE(2), ANGLE(4));
 	item->pos.y_rot += lara.turn_rate;
 
 	AnimateLara(item);
