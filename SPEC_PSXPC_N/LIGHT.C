@@ -937,11 +937,15 @@ loc_86154:
 	((int*)s666)[3] = t8;
 	((int*)s666)[4] = t9;
 
-	SZ0 = t0;
-	SZ1 = t1;
-	SZ2 = t2;
-	SZ3 = t3;
-	RGB0 = t4;
+	LR1 = t0 & 0xFFFF;
+	LR2 = (t0 >> 16) & 0xFFFF;
+	LR3 = t1 & 0xFFFF;
+	LG1 = (t1 >> 16) & 0xFFFF;
+	LG2 = t2 & 0xFFFF;
+	LG3 = (t2 >> 16) & 0xFFFF;
+	LB1 = t3 & 0xFFFF;
+	LB2 = (t3 >> 16) & 0xFFFF;
+	LB3 = t4;
 
 	R11 = s00 & 0xFFFF;
 	R12 = (s00 >> 16) & 0xFFFF;
