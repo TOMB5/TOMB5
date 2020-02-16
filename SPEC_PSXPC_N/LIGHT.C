@@ -955,6 +955,7 @@ loc_86154:
 	R23 = (s22 >> 16) & 0xFFFF;
 	R31 = s33 & 0xFFFF;
 	R32 = (s33 >> 16) & 0xFFFF;
+	R33 = s4;
 	RFC = 0;
 	GFC = 0;
 	BFC = 0;
