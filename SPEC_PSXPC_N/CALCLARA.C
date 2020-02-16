@@ -1562,7 +1562,6 @@ void DEL_CalcLaraMatrices_Interpolated_ASM(short* frame1, short* frame2, int fra
 		goto loc_8469C;
 	}
 
-	mRotSuperPackedYXZ_CL(t8, 0);
 	iRotSuperPackedYXZ_CL(t8, 0);
 	InterpolateMatrix(t8, (int*)&s0[208]);
 	Hardcore_iTranslateXYZ_CL((long*)&s1[98], t8);
