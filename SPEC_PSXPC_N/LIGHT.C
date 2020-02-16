@@ -701,7 +701,7 @@ loc_85FD4:
 	v0 = 3;
 	int v1 = light->Light[3].pad;
 
-	//loc_86154
+loc_86154:
 	if (v0 != 0)
 	{
 		s4 = s66[1];
@@ -796,6 +796,8 @@ loc_85FD4:
 		//loc_86280
 		s66 += 7;
 		s5 += 0xC;
+
+		goto loc_86154;
 	}
 	//loc_8628C
 	at = 0x1000000;
