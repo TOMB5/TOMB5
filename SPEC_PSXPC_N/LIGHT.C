@@ -833,10 +833,10 @@ loc_86154:
 	GBK = s22;
 	BBK = s33;
 
-	int s00 = (R11 & 0xFFFF) | ((R12 << 16) & 0xFFFF);
-	s11 = (R13 & 0xFFFF) | ((R21 << 16) & 0xFFFF);
-	s22 = (R22 & 0xFFFF) | ((R23 << 16) & 0xFFFF);
-	s33 = (R31 & 0xFFFF) | ((R32 << 16) & 0xFFFF);
+	int s00 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	s11 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	s22 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	s33 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 	s4 = R33;
 	t0 = 0x808080;
 
