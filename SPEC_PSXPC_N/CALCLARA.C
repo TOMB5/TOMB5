@@ -1670,9 +1670,191 @@ void snaff_current_gte_matrix_V1(int* mat)
 	mat[7] = TRZ;
 }
 
-void GetLaraJointPos(struct PHD_VECTOR* pos, long joint)
+void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)
 {
-	UNIMPLEMENTED();
+	struct MATRIX3D* joint_matrix = &lara_joint_matrices[joint];//$a1
+	struct MATRIX3D m;//var_30
+
+	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+
+	((int*)&m)[0] = t0;
+	((int*)&m)[1] = t1;
+	((int*)&m)[2] = t2;
+	((int*)&m)[3] = t3;
+
+	t0 = R33;
+	t1 = TRX;
+	t2 = TRY;
+	t3 = TRZ;
+
+	((int*)&m)[4] = t0;
+	((int*)&m)[5] = t1;
+	((int*)&m)[6] = t2;
+	((int*)&m)[7] = t3;
+
+	t0 = ((int*)joint_matrix)[0];
+	t1 = ((int*)joint_matrix)[1];
+	t2 = ((int*)joint_matrix)[2];
+	t3 = ((int*)joint_matrix)[3];
+
+	R11 = t0 & 0xFFFF;
+	R12 = (t0 >> 16) & 0xFFFF;
+	R13 = t1 & 0xFFFF;
+	R21 = (t1 >> 16) & 0xFFFF;
+	R22 = t2 & 0xFFFF;
+	R23 = (t2 >> 16) & 0xFFFF;
+	R31 = t3 & 0xFFFF;
+	R32 = (t3 >> 16) & 0xFFFF;
+
+	t0 = ((int*)joint_matrix)[4];
+	t1 = ((int*)joint_matrix)[5];
+	t2 = ((int*)joint_matrix)[6];
+	t3 = ((int*)joint_matrix)[7];
+
+	R33 = t0;
+	TRX = t1;
+	TRY = t2;
+	TRZ = t3;
+
+	int a0 = pos->x;
+	int a1 = pos->y;
+	int a2 = pos->z;
+
+	int t4 = a1 >> 15;
+	if (a1 < 0)
+	{
+		a1 = -a1;
+		t4 = a1 >> 15;
+		a1 &= 0x7FFF;
+		t4 = -t4;
+		a1 = -a1;
+	}
+	else
+	{
+		//loc_85B1C
+		a1 &= 0x7FFF;
+	}
+
+	int t5 = a2 >> 15;
+	if (a2 < 0)
+	{
+		a2 = -a2;
+		t5 = a2 >> 15;
+		a2 &= 0x7FFF;
+		t5 = -t5;
+		a2 = -a2;
+	}
+	else
+	{
+		//loc_85B40
+		a2 &= 0x7FFF;
+	}
+
+	t3 = a0 >> 15;
+	if (a0 < 0)
+	{
+		a0 = -a0;
+		t3 = a0 >> 15;
+		a0 = 0x7FFF;
+		t3 = -t3;
+		a0 = -a0;
+	}
+	else
+	{
+		//loc_85B64
+		a0 &= 0x7FFF;
+	}
+
+	//loc_85B68
+	IR1 = t3;
+	IR2 = t4;
+	IR3 = t5;
+
+	docop2(0x41E012);
+
+	t3 = MAC1;
+	t4 = MAC2;
+	t5 = MAC3;
+
+	IR1 = a0;
+	IR2 = a1;
+	IR3 = a2;
+
+	docop2(0x498012);
+
+	t0 = t3 << 3;
+	if (t3 < 0)
+	{
+		t3 = -t3;
+		t3 <<= 3;
+		t0 = -t3;
+	}
+
+	//loc_85BAC
+	t1 = t4 << 3;
+	if (t4 < 0)
+	{
+		t4 = -t4;
+		t4 <<= 3;
+		t1 = -t4;
+	}
+	//loc_85BC0
+	t2 = t5 << 3;
+	if (t5 < 0)
+	{
+		t5 = -t5;
+		t5 <<= 3;
+		t2 = -t5;
+	}
+
+	t3 = MAC1;
+	t4 = MAC2;
+	t4 = MAC3;
+
+	//a0 = lara_item;
+
+	t0 += t3;
+	t1 += t4;
+	t2 += t5;
+
+	int v0 = lara_item->pos.x_pos;
+	int v1 = lara_item->pos.y_pos;
+	a0 = lara_item->pos.z_pos;
+
+	t0 += v0;
+	t1 += v1;
+	t2 += a0;
+
+	pos->x = t0;
+	pos->y = t1;
+	pos->z = t2;
+
+	t0 = ((int*)&m)[0];
+	t1 = ((int*)&m)[1];
+	t2 = ((int*)&m)[2];
+	t3 = ((int*)&m)[3];
+
+	R11 = t0 & 0xFFFF;
+	R12 = (t0 >> 16) & 0xFFFF;
+	R13 = t1 & 0xFFFF;
+	R21 = (t1 >> 16) & 0xFFFF;
+	R22 = t2 & 0xFFF;
+	R23 = (t2 >> 16) & 0xFFFF;
+	R31 = t3 & 0xFFFF;
+	R32 = (t3 >> 16) & 0xFFFF;
+
+	t0 = ((int*)&m)[4];
+	t1 = ((int*)&m)[5];
+	t2 = ((int*)&m)[6];
+	t3 = ((int*)&m)[7];
+
+	R33 = t0;
+	TRX = t1;
+	TRY = t2;
+	TRZ = t3;
 }
 
 short* GetBestFrame(struct ITEM_INFO* item)
