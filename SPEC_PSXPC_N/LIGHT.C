@@ -6,7 +6,66 @@
 #include "LOAD_LEV.H"
 #include "GTEREG.H"
 
-int mSqrt_L(int a0)
+void mNormaliseXYZ_L(int* x, int* y, int* z)//86500 (F)
+{
+	IR1 = *x;
+	IR2 = *y;
+	IR3 = *z;
+
+	int a3 = 0x1F;
+	docop2(0xA00428);
+	int v0 = MAC1;
+	int v1 = MAC2;
+	int at = MAC3;
+	v0 += v1;
+	v0 += at;
+
+	LZCR = gte_leadingzerocount(v0);
+	LZCS = v0;
+
+	IR1 = *x;
+	IR2 = *y;
+
+	v1 = LZCR;
+
+	at = -2;
+	v1 &= at;
+	a3 -= v1;
+	a3 >>= 1;
+	at = v1 - 24;
+
+	//a0 = 0xA0000
+	if (at >= 0)
+	{
+		v0 <<= at;
+	}
+	else
+	{
+		//loc_8655C
+		at = 24;
+		at -= v1;
+		v0 >>= at;
+	}
+
+	//loc_86568
+	v0 -= 64;
+	v0 = ScalarTable[v0];
+
+	IR3 = *z;
+	IR0 = v0;
+
+	docop2(0x190003D);
+
+	*x = MAC1;
+	*y = MAC2;
+	*z = MAC3;
+
+	*x >>= a3;
+	*y >>= a3;
+	*z >>= a3;
+}
+
+int mSqrt_L(int a0)//8649C (F)
 {
 	LZCR = gte_leadingzerocount(a0);
 	LZCS = a0;
