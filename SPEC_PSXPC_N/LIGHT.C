@@ -758,9 +758,9 @@ loc_85FD4:
 		((int*)s66)[3] = IR2;
 		((int*)s66)[4] = IR3;
 		
-		s11 = MAC1;
-		s22 = MAC2;
-		s33 = MAC3;
+		MAC1 = s11;
+		MAC2 = s22;
+		MAC3 = s33;
 
 		IR0 = 2048;
 
