@@ -574,7 +574,7 @@ void iTranslateXYZ2_CL(long x /*a3*/, long y /*a1*/, long z /*a2*/)
 	{
 		y = -y;
 		t1 = y >> 15;
-		y & -0x7FFF;
+		y &= 0x7FFF;
 		t1 = -t1;
 		y = -y;
 	}
