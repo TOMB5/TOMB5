@@ -1670,7 +1670,7 @@ void snaff_current_gte_matrix_V1(int* mat)
 	mat[7] = TRZ;
 }
 
-void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)
+void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 {
 	struct MATRIX3D* joint_matrix = &lara_joint_matrices[joint];//$a1
 	struct MATRIX3D m;//var_30
@@ -1758,7 +1758,7 @@ void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)
 	{
 		a0 = -a0;
 		t3 = a0 >> 15;
-		a0 = 0x7FFF;
+		a0 &= 0x7FFF;
 		t3 = -t3;
 		a0 = -a0;
 	}
