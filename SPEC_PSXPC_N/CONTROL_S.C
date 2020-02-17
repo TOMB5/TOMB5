@@ -244,7 +244,7 @@ void AnimateLara(struct ITEM_INFO* item /* s1 */)//7D53C(<)
 	else
 	{
 		//loc_7D828
-		item->speed = item->speed - ((anim->velocity + (anim->acceleration * ((item->frame_number - anim->frame_base) - 1))) >> 16);
+		item->speed = item->speed - ((anim->velocity + (anim->acceleration * (item->frame_number - 1))) >> 16) + ((anim->velocity + (anim->acceleration * (item->frame_number - 1)) + anim->acceleration) >> 16);
 
 		if (item->fallspeed < 128)
 		{
