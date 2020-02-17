@@ -17,13 +17,13 @@ void sub_CBC(int a0)
 
     if (a0 != 0)
     {
-        int t5 = ((int*)&rcossin_tbl)[a0 >> 1];
+        int t5 = ((int*)&rcossin_tbl[a0 >> 1])[0];
         int t7 = 0xFFFF0000;
         int t6 = t7 & t5;
 
         VX0 = t6 & 0xFFFF;
         VY0 = (t6 >> 16) & 0xFFFF;
-        VZ1 = t5;
+        VZ0 = t5;
 
         int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
         int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
@@ -35,8 +35,9 @@ void sub_CBC(int a0)
         t5 <<= 16;
         t5 = -t5;
 
-        t5 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-        t6 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+        VX1 = t5 & 0xFFFF;
+        VY1 = (t5 >> 16) & 0xFFFF;
+        VZ1 = t6 & 0xFFFF;
 
         t0 &= 0xFFFF;
         t1 &= t7;
