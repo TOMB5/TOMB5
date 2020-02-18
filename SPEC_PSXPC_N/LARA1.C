@@ -1,5 +1,7 @@
 #include "LARA1.H"
 
+#include "3D_OBJ.H"
+#include "MISC.H"
 #include "CAMERA.H"
 #include "DRAWSPKS.H"
 #include "DELSTUFF.H"
@@ -9,6 +11,59 @@
 #include "SETUP.H"
 #include "GTEREG.H"
 #include "GPU.H"
+
+int scratchPad[256];
+
+void sub_C1C(int a0)
+{
+    int* a00 = (int*)&((char*)&tsv_buffer)[(((a0 << 1) + a0) << 5)];
+    char* a1 = (char*)&SkinVertNums[(((a0 << 1) + a0) << 2)];
+
+    do
+    {
+        char v0 = *a1++;
+
+        //loc_C38
+        if (v0 >= 0)
+        {
+            int* a2 = &scratchPad[v0 << 1];
+            a00[0] = a2[0];
+            a00[1] = a2[1];
+            a00 += 2;
+        }
+        else
+        {
+            break;
+        }
+    } while (1);
+    //locret_C64
+}
+
+void sub_C6C(int a0)
+{
+    int* a00 = (int*)&((char*)&tsv_buffer)[(((a0 << 1) + a0) << 5)];
+    char* a2 = (char*)&ScratchVertNums[(((a0 << 1) + a0) << 2)];
+
+    //loc_C88
+    do
+    {
+        char v0 = *a2++;
+
+        //
+        if (v0 >= 0)
+        {
+            int* a1 = &scratchPad[v0 << 1];
+            a1[0] = a00[0];
+            a1[1] = a00[1];
+            a00 += 2;
+        }
+        else
+        {
+            break;
+        }
+    } while (1);
+    //locret_CB4
+}   
 
 void sub_CBC(int a0)
 {
@@ -122,10 +177,10 @@ int* sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
     int v1;
     int* a3;
     int* a0;
-    int scratchPad[256];
+
     int v0 = ((int*)meshp)[2];
     meshp += 6;
-    int* a1 = (int*)&meshp[v0 >> 17];
+    unsigned int* a1 = (unsigned int*)&meshp[v0 >> 17];
     v0 &= 0xFF;
     int* a2 = &scratchPad[0];
 
@@ -186,7 +241,7 @@ int* sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
         docop2(0x4AE012);
         VX2 = ((int*)&LightPos)[3] & 0xFFFF;
         VY2 = (((int*)&LightPos)[3] >> 16) & 0xFFFF;
-        VZ2 = ((int*)&LightPos)[4];
+        VZ2 = ((int*)&LightPos)[4] & 0xFFFF;
 
         t0 &= 0xFFFF;
         t2 <<= 16;
@@ -635,6 +690,8 @@ void sub_2C(struct ITEM_INFO* item)
 	int a00;
 	int j;//$t6
 
+    S_MemSet((char*)&scratchPad[0], 0, 1024);
+
 	//v0 = item->hit_points
 	if (item->hit_points > 0)
 	{
@@ -775,7 +832,7 @@ void sub_2C(struct ITEM_INFO* item)
 		{
 			if (NodesToStashFromScratch[i][j] != 255)
 			{
-				//sub_C1C(NodesToStashFromScratch[i][j]);
+				sub_C1C(NodesToStashFromScratch[i][j]);
 			}
 			else
 			{
@@ -827,8 +884,8 @@ void sub_2C(struct ITEM_INFO* item)
             // int t2 = SkinUseMatrix[0][0];//derive from s0
              //t0 = &tsv_buffer[0];
              //t1 = &ScratchVertNums[0];
-             //sub_C6C(NodesToStashToScratch[i][0]);
-             //sub_C6C(NodesToStashToScratch[i][1]);
+             sub_C6C(NodesToStashToScratch[i][0]);
+             sub_C6C(NodesToStashToScratch[i][1]);
 
             if ((unsigned)SkinUseMatrix[i][0] < 0xFF)
             {
@@ -884,7 +941,7 @@ void sub_2C(struct ITEM_INFO* item)
                 v0 = phd_atan_asm(t0, mSqrt(0x1000000 - a0));
                 //at = 0xD
 
-                if (i == 0xE - 0xD || i == 0xA - 0xE)
+                if (i == 0xE - 0xD || i == 0xE - 0xA)//Really || 0xD and 0xA without 0xE - 
                 {
                     v0 = -v0;
                 }
@@ -902,6 +959,7 @@ void sub_2C(struct ITEM_INFO* item)
 #endif
         }
         //loc_410
+        //s1 = &s1[0xD - i * 4];
         s1 += 4;
     }
 #if 0
