@@ -496,9 +496,9 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		//loc_7B404
 		var_50 = coll->radius;
 		var_44 = -coll->radius;
-		zfront = coll->facing;
-		s7 = coll->facing;
-		s0 = coll->facing;
+		zfront = -coll->radius;
+		s7 = -coll->radius;
+		s0 = -coll->radius;
 		xfront = (SIN(coll->facing) * coll->radius) >> W2V_SHIFT;
 	}
 	else if (coll->quadrant - 3 == 0)
@@ -641,7 +641,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//a0 = coll
 	var_5C = objheight;
 	var_60 = room_num;
-	CollideStaticObjects(coll, xpos, ypos, zpos, room_number, objheight);
+	//CollideStaticObjects(coll, xpos, ypos, zpos, room_number, objheight);
 
 	//t0 = xpos
 	//t1 = zpos
@@ -712,7 +712,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 			else if (coll->quadrant - 1 == 0)
 			{
 				//loc_7B7D4
-				coll->shift.x = FindGridShift(xpos + xfront, xpos);
+				coll->shift.x = FindGridShift(xpos + xfront, zpos);
 				coll->shift.z = coll->old.z + zpos;
 				coll->coll_type = 1;
 				return;
@@ -767,21 +767,21 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 			else if (coll->quadrant == 0)
 			{
 				//loc_7B85C
-				coll->shift.x = FindGridShift(var_34, xpos - xfront);
+				coll->shift.x = FindGridShift(var_34, xpos + xfront);
 				coll->coll_type = 2;
 				return;
 			}
 			else if (coll->quadrant - 1 == 0)
 			{
 				//loc_7B874
-				coll->shift.z = FindGridShift(var_30, zpos - zfront);
+				coll->shift.z = FindGridShift(var_30, zpos + zfront);
 				coll->coll_type = 2;
 				return;
 			}
 			else if (coll->quadrant - 2 == 0)
 			{
 				//loc_7B85C
-				coll->shift.x = FindGridShift(var_34, xpos - xfront);
+				coll->shift.x = FindGridShift(var_34, xpos + xfront);
 				coll->coll_type = 2;
 				return;
 
@@ -789,7 +789,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 			else if (coll->quadrant - 3 == 0)
 			{
 				//loc_7B874
-				coll->shift.z = FindGridShift(var_30, zpos - zfront);
+				coll->shift.z = FindGridShift(var_30, zpos + zfront);
 				coll->coll_type = 2;
 				return;
 			}
