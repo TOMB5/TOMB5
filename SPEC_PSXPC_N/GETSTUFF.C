@@ -467,7 +467,7 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 				GC_adjust_height(a0, ((char*)fd)[1], ((char*)fd)[0], x, z, &t7);
 				//j loc_792BC
 			}
-			else if ((a0 & 0x1F) - 9 < 2 || (a0 & 0x1F) - 15 < 4)
+			else if ((unsigned)((a0 & 0x1F) - 9) < 2 || (unsigned)((a0 & 0x1F) - 15) < 4)
 			{
 				//loc_7918C
 				//a2 = x & 0x3FF
