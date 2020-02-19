@@ -653,14 +653,16 @@ void GH_adjust_height(int a1, int s4, short* t7, int a2, int s3)
 		v0 = (v0 * a1) >> 2;
 		*t7 -= v0;
 	}
-
-	//loc_79008
-	v0 = 0x3FF;
-	v0 -= s4;
-	v0 &= 0x3FF;
-	v0 *= a1;
-	v0 >>= 2;
-	*t7 += v0;
+	else
+	{
+		//loc_79008
+		v0 = 0x3FF;
+		v0 -= s4;
+		v0 &= 0x3FF;
+		v0 *= a1;
+		v0 >>= 2;
+		*t7 += v0;
+	}
 
 	//loc_79024
 	v0 = s3 & 0x3FF;
@@ -758,8 +760,8 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 		case TILT_TYPE://COMPLETE
 		{
 			//loc_78EA0
-			unsigned char a1 = ((unsigned char*)fd)[1];
-			unsigned char a2 = ((unsigned char*)fd)[0];
+			char a1 = ((char*)fd)[1];
+			char a2 = ((char*)fd)[0];
 
 			//loc_78EB4
 			tiltxoff = a1;
