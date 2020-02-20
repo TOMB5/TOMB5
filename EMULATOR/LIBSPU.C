@@ -35,14 +35,30 @@ int _spu_env = 0;
 char spu[440];//0x1F801C00 is base address
 short* _spu_RXX = (short*)&spu[0];
 int _spu_mem_mode_plus = 3;
+void* _spu_transferCallback = NULL;///@TODO initial value check
+int _spu_inTransfer = 0;///@TODO initial value check
 
-unsigned long SpuWrite(unsigned char * addr, unsigned long size)
+void _spu_Fw(unsigned char* addr, unsigned long size)
 {
-	//eprintf("SPU WRITE size=%d\n", size);
-	//memcpy(spu_buf, addr, size);
-	//spu_b_size = size;
-	UNIMPLEMENTED();
-	return 0;
+
+}
+
+unsigned long SpuWrite(unsigned char* addr, unsigned long size)
+{
+	if (0x7EFF0 < size)
+	{
+		size = 0x7EFF0;
+	}
+
+	//loc_228
+	_spu_Fw(addr, size);
+
+	if (_spu_transferCallback == NULL)
+	{
+		_spu_inTransfer = 0;
+	}
+
+	return size;
 }
 
 long SpuSetTransferMode(long mode)
