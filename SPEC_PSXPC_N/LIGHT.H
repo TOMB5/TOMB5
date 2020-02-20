@@ -5,6 +5,5 @@
 
 extern void S_CalculateStaticMeshLight(long floor, long touch_bits, long mesh_bits, int anim_state);
 extern void CalculateObjectLighting(struct ITEM_INFO* item, short* frmptr, struct STASHEDOBJ* sobject, short numnodestodraw);
-extern void S_CalculateLight(long x, long y, long z, short room_num, ITEM_LIGHT* light);
-
+extern void S_CalculateLight(long x, long y, long z, short room_num, struct ITEM_LIGHT* light);
 #endif
