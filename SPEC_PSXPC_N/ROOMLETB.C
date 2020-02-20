@@ -224,11 +224,14 @@ int* Add2DPrim(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int* t9, int*
 	return a3;
 }
 
-int* SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)//(F) need to check Add2DPrim values arg_0x10 load is suspicious
+int* SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)//(F)
 {
 	int sp[256];
 
 	S_MemSet((char*)&sp[0], 0, 1024);
+	sp[1] = t3;
+	sp[2] = t4;
+	sp[3] = t5;
 	int* t2 = &sp[0];
 	int t1 = 0xFFF8F8F8;
 
@@ -242,9 +245,9 @@ int* SubdivTri64(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)//(F)
 
 	t1 = RGB2;
 
-	a3 = Add2DPrim((int*)t3, &sp[4], &sp[14], a3, fp, t1, t9, s0);
-	a3 = Add2DPrim(&sp[9], &sp[4], (int*)t4, a3, fp, t1, t9, s0);
-	a3 = Add2DPrim(&sp[9], (int*)t5, &sp[14], a3, fp, t1, t9, s0);
+	a3 = Add2DPrim(&sp[1], &sp[4], &sp[14], a3, fp, t1, t9, s0);
+	a3 = Add2DPrim(&sp[9], &sp[4], &sp[2], a3, fp, t1, t9, s0);
+	a3 = Add2DPrim(&sp[9], &sp[3], &sp[14], a3, fp, t1, t9, s0);
 	a3 = Add2DPrim(&sp[9], &sp[14], &sp[4], a3, fp, t1, t9, s0);
 
 	return a3;
@@ -305,6 +308,7 @@ int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int*& t1)//(F)
 
 		t5 = ((unsigned char*)t3)[14];
 		docop2(0x180001);
+		//Sets UV?
 		t6 = ((unsigned char*)t3)[15];
 		t7 = ((unsigned char*)t4)[14];
 		t8 = ((unsigned char*)t4)[15];
@@ -825,9 +829,6 @@ void UnpackRGB(int* s4, int* t8, int* s5, int* s6, int* fp, int* gp, int* t5, in
 	*s3 &= 0xF8;
 	*s3 |= *t5;
 	*s3 |= *t6;
-	///*fp = ((*s4 >> 13) & 0xF8) | ((*s4 >> 7) & 0xF80000) | ((*s4 >> 10) & 0xF800) | ((*t8 >> 24) << 24);
-	///*gp = ((*s5 >> 13) & 0xF8) | ((*s5 >> 7) & 0xF80000) | ((*s5 >> 10) & 0xF800);
-	///*t5 = ((*s6 >> 7) & 0xF80000) | (*s6 >> 13) & 0xF8 | ((*s6 >> 10) & 0xF800);
 }
 
 long ClipXY(int t1, int t2, int t3, int t4)
@@ -940,7 +941,6 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)//(F)
 
 		if (t9 != 0)
 		{
-			//assert(0);//+=s2 here is suspicious, probably going to have to char cast.
 			t6 = (t0 + s2) >> 6;
 			t7 = (t1 + s3) >> 6;
 			t8 = (t2 + s4) >> 7;
@@ -948,7 +948,7 @@ int DrawMesh(int* a0, struct DB_STRUCT* dbs, int* sp, int* sp2)//(F)
 			t6 += t7;
 			t6 += t8;
 			t7 = LB3;
-			t8 = RGB0;//WaterTable@FIXME bad values!
+			t8 = RGB0;///@FIXME WaterTable bad values!
 			t6 &= 0xFC;
 			t6 += t8;
 			t6 = ((short*)t6)[1];
@@ -1238,6 +1238,7 @@ loc_76080:
 					int fpp;
 					UnpackRGB(&s444, &t8, &s555, &s666, &fpp, &gp, &t5, &t6, &s3);
 
+					//t5 = uv
 					t5 = ((int*)t0)[0];
 					a1 = RFC;
 					t6 = ((int*)t0)[1];
@@ -1260,7 +1261,7 @@ loc_76080:
 						InitSubdivision(s11, t1, s444, &fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
 
 						s3 = 0;
-						a3 = (int)SubPolyGT3((int*)& TriVertTables[4], &s11[201], s11, (int*)a3, s00, s3, fpp);
+						a3 = (int)SubPolyGT3((int*)&TriVertTables[4], &s11[201], s11, (int*)a3, s00, s3, fpp);
 
 						at = BFC;
 						t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
