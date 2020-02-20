@@ -379,7 +379,10 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 #if DEBUG_VERSION
 			ProfileRGB(0, 255, 0);
 #endif
+
+#if !AUG_VERSION && !JULY_VERSION
 			DrawLara();
+#endif
 
 #if DEBUG_VERSION
 			ProfileRGB(255, 255, 0);
