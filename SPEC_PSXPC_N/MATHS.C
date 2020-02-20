@@ -930,7 +930,7 @@ void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) (F)
 void InterpolateMatrix()//77250(<)
 {
 	MATRIX3D m;//$a0
-	MATRIX3D* m2 = &m;
+
 	if (iRate == 2 || iFrac == 2 && iRate == 4)
 	{
 		//loc_772A4
