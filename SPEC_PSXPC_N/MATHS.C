@@ -1993,11 +1993,8 @@ long phd_atan_asm(long x, long y)// (F)
 		x = y;
 		y = v0;
 	}
-	else
-	{
-		//loc_77A90
-		goto loc_77A98;
-	}
+
+	goto loc_77A98;
 
 loc_77A90:
 	y >>= 1;
