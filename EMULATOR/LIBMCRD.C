@@ -278,7 +278,7 @@ long MemCardGetDirentry(long chan, char* name, struct DIRENTRY* dir, long* files
 {
 	char buf[16];
 	sprintf(&buf[0], "%ld.MCD", chan);
-	memoryCards[chan] = fopen(&buf[0], "rb");
+	memoryCards[chan] = fopen(&buf[0], "rb");///@FIXME potential bug, if this is called twice then we can open a card twice. Maybe add a flag for whether memcard is open or not if original SDK did this.
 	fseek(memoryCards[chan], 0, SEEK_SET);
 
 	if (strcmp(name, "*") == 0)

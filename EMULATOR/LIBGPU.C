@@ -167,6 +167,12 @@ struct VertexBufferSplitIndex
 	unsigned char primitiveType;
 };
 
+#define DEBUG_POLY_COUNT
+
+#if defined(DEBUG_POLY_COUNT)
+static int polygon_count = 0;
+#endif
+
 #define MAX_NUM_POLY_BUFFER_VERTICES (12040)//?FIXME
 #define MAX_NUM_INDEX_BUFFERS (4096)
 struct Vertex g_vertexBuffer[MAX_NUM_POLY_BUFFER_VERTICES];
@@ -178,7 +184,7 @@ int g_numSplitIndices = 0;
 
 //#define WIREFRAME_MODE
 
-unsigned long terminator = -1;
+unsigned long terminator[2] = { -1, 0 };
 
 void(*drawsync_callback)(void) = NULL;
 
@@ -455,6 +461,9 @@ static unsigned short numVertices = 0;
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
+#if defined(DEBUG_POLY_COUNT)
+	polygon_count = 0;
+#endif
 	/* Tell the shader to discard black */
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), TRUE);
 
@@ -517,11 +526,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		{
 			if (pTag->len > 0)
 			{
-#if defined(USE_32_BIT_ADDR)
-				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 8);
-#else
-				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
-#endif
+ 				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4 + LEN_OFFSET);
 			}
 			pTag = (P_TAG*)pTag->addr;
 		}while ((uintptr_t)pTag != (uintptr_t)&terminator);
@@ -578,10 +583,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 #if defined(PGXP)
 	/* Reset the ztable */
-	memset(&pgxp_polygons[0], 0, pgxp_polgon_table_index * sizeof(PGXPPolygon));
+	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
 
-	/* Reset the ztable index of used */
-	pgxp_polgon_table_index = 0;
+	/* Reset the ztable index of */
+	pgxp_vertex_index = 0;
 #endif
 }
 
@@ -656,6 +661,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 3;
 
 			currentAddress += sizeof(POLY_F3);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x24:
@@ -696,6 +704,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			g_vertexIndex += 3;
 			numVertices += 3;
 			currentAddress += sizeof(POLY_FT3);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x28:
@@ -739,7 +750,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			g_vertexIndex += 6;
 			numVertices += 6;
 			currentAddress += sizeof(POLY_F4);
-
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x2C:
@@ -786,6 +799,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(POLY_FT4);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x30:
@@ -824,6 +840,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 3;
 
 			currentAddress += sizeof(POLY_G3);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x34:
@@ -865,6 +884,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 3;
 
 			currentAddress += sizeof(POLY_GT3);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x38:
@@ -909,6 +931,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(POLY_G4);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x3C:
@@ -955,6 +980,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(POLY_GT4);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x40:
@@ -993,6 +1021,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 2;
 
 			currentAddress += sizeof(LINE_F2);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x48:
@@ -1044,6 +1075,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 					g_vertexIndex += 2;
 					numVertices += 2;
 				}
+#if defined(DEBUG_POLY_COUNT)
+				polygon_count++;
+#endif
 			}
 
 			currentAddress += sizeof(LINE_F3);
@@ -1085,6 +1119,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 2;
 
 			currentAddress += sizeof(LINE_G2);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x60:
@@ -1128,6 +1165,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(TILE);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 
 			break;
 		}
@@ -1175,6 +1215,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(SPRT);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x68:
@@ -1219,6 +1262,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(TILE_1);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x70:
@@ -1263,6 +1309,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(TILE_8);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x74:
@@ -1309,6 +1358,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(SPRT_8);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x78:
@@ -1353,6 +1405,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(TILE_16);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x7C:
@@ -1399,6 +1454,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(SPRT_16);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0xE0:
@@ -1418,6 +1476,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				}
 
 				currentAddress += sizeof(DR_TPAGE);
+#if defined(DEBUG_POLY_COUNT)
+				polygon_count++;
+#endif
 
 				break;
 			}
@@ -2429,10 +2490,10 @@ void DrawOTag(u_long* p)
 
 #if defined(PGXP)
 	/* Reset the ztable */
-	memset(&pgxp_polygons[0], 0, pgxp_polgon_table_index * sizeof(PGXPPolygon));
+	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
 
-	/* Reset the ztable index of used */
-	pgxp_polgon_table_index = 0;
+	/* Reset the ztable index used */
+	pgxp_vertex_index = 0;
 #endif
 }
 
@@ -2647,10 +2708,10 @@ void DrawPrim(void* p)
 
 #if defined(PGXP)
 	/* Reset the ztable */
-	memset(&pgxp_polygons[0], 0, pgxp_polgon_table_index * sizeof(PGXPPolygon));
+	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
 
-	/* Reset the ztable index of used */
-	pgxp_polgon_table_index = 0;
+	/* Reset the ztable index used */
+	pgxp_vertex_index = 0;
 #endif
 }
 
