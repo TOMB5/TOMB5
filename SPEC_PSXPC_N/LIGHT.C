@@ -295,6 +295,7 @@ void S_CalculateLight(long x, long y, long z, short room_num, struct ITEM_LIGHT*
 	int t4;
 	int t5;
 	int t6;
+	int v1;
 
 	S_MemSet((char*)&scratchPad[0], 0, 1024);
 	int* s1 = &scratchPad[21];
@@ -426,7 +427,7 @@ loc_85D34:
 					t4 = v0;
 					mNormaliseXYZ_L(&a0, &a1, &a2);
 					v0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
-					int v1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+					v1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
 
 					VX0 = ((int*)&gp->nx)[0] & 0xFFFF;
 					VY0 = (((int*)&gp->nx)[0] >> 16) & 0xFFFF;
@@ -699,7 +700,7 @@ loc_85FD4:
 	int s33 = SXY2;
 
 	v0 = 3;
-	int v1 = light->Light[3].pad;
+	v1 = light->Light[3].pad;
 
 loc_86154:
 	if (v0 != 0)
