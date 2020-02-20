@@ -230,7 +230,11 @@ void LOAD_VSyncHandler() //5F074(<), 5FD54(<) (F)
 	draw_rotate_sprite(a0, a1, a2);
 	db.current_buffer ^= 1;
 	GnLastFrameCount = 0;
+#if defined(USE_32_BIT_ADDR)
+	DrawOTagEnv(&db.ot[db.nOTSize * 2 - 2], & db.draw[0]);
+#else
 	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[0]);
+#endif
 	return;
 }
 

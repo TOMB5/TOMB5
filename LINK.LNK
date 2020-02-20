@@ -112,6 +112,7 @@ bss	group	bss
 	include SPEC_PSX/GLOBALS.OBJ
 	include SPEC_PSX/DRAWPHAS.OBJ
 	include GAME/CODEWAD.OBJ
+	include SPEC_PSX/MENUTST.OBJ
 	
 	
 	;Reloc objects (Uncomment when RELOC disabled)
