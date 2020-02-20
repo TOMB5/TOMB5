@@ -425,8 +425,8 @@ loc_85D34:
 					//loc_85E30
 					t4 = v0;
 					mNormaliseXYZ_L(&a0, &a1, &a2);
-					v0 = (R11 & 0xFFFF) | (R12 << 16) & 0xFFFF;
-					int v1 = (R13 & 0xFFFF) | (R21 << 16) & 0xFFFF;
+					v0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+					int v1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
 
 					VX0 = ((int*)&gp->nx)[0] & 0xFFFF;
 					VY0 = (((int*)&gp->nx)[0] >> 16) & 0xFFFF;
