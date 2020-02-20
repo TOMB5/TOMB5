@@ -2567,9 +2567,11 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 				}
 				else
 				{
+					CamSeq = 0;
+
 					if (SpotRemap[value] != 0)
 					{
-						for (lp = 0, CamSeq = 0; lp < SpotRemap[value]; lp++)
+						for (lp = 0; lp < SpotRemap[value]; lp++)
 						{
 							CamSeq += CameraCnt[lp];
 						}
