@@ -810,7 +810,7 @@ void sub_2C(struct ITEM_INFO* item)
         //loc_218
         for (j = 0; j < 4; j++)
         {
-            if (NodesToStashFromScratch[i][j] != 255)
+            if (NodesToStashFromScratch[i][j] != -1)
             {
                 sub_C1C(NodesToStashFromScratch[i][j]);
             }
