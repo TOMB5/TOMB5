@@ -16,7 +16,7 @@ int scratchPad[256];
 
 void sub_C1C(int a0)
 {
-    int* a00 = (int*)&((char*)&tsv_buffer)[(((a0 << 1) + a0) << 5)];
+    int* a00 = (int*)&tsv_buffer[(((a0 << 1) + a0) << 2)];
     char* a1 = (char*)&SkinVertNums[(((a0 << 1) + a0) << 2)];
 
     do
@@ -41,7 +41,7 @@ void sub_C1C(int a0)
 
 void sub_C6C(int a0)
 {
-    int* a00 = (int*)&((char*)&tsv_buffer)[(((a0 << 1) + a0) << 5)];
+    int* a00 = (int*)&tsv_buffer[(((a0 << 1) + a0) << 2)];
     char* a2 = (char*)&ScratchVertNums[(((a0 << 1) + a0) << 2)];
 
     //loc_C88
@@ -363,7 +363,8 @@ int* sub_658(short* meshp, int* s5/*db.polyptr*/, int s6/*ot*/)
             v1--;
             a2 += 2;
 
-            t0 = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
+            ORGB = LIM(IR1 >> 7, 0x1F, 0, 0) | (LIM(IR2 >> 7, 0x1F, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1F, 0, 0) << 10);
+            t0 = ORGB; 
             ((short*)a2)[-1] = t0;
         } while (v1 != 0);
 
