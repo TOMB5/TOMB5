@@ -1015,6 +1015,23 @@ void Emulator_DoDebugKeys()
 
 	if (currentTime > lastTime + 60)
 	{
+		if (keyboardState[SDL_SCANCODE_BACKSPACE])
+		{
+			if (g_swapInterval != 0)
+			{
+				SDL_GL_SetSwapInterval(0);
+			}
+			g_swapInterval = 0;
+		}
+		else
+		{
+			if (g_swapInterval != 1)
+			{
+				SDL_GL_SetSwapInterval(1);
+			}
+			g_swapInterval = 1;
+		}
+
 		if (keyboardState[SDL_SCANCODE_1])
 		{
 			g_wireframeMode ^= 1;

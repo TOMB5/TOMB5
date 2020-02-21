@@ -1074,6 +1074,7 @@ extern DISPENV word_33BC;
 extern DRAWENV activeDrawEnv;
 extern void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd);
 extern void ParsePrimitive(P_TAG* pTag);
+extern int g_swapInterval;
 extern int g_wireframeMode;
 extern int g_texturelessMode;
 
