@@ -64,6 +64,44 @@ void UpdateLaraRoom(struct ITEM_INFO* item, int height)//7C58C, 7E5D0
 
 void ItemNewRoom(short item_num /*a3*/, short room_number /*t1*/)
 {
+#if 1//Actually taken from PC :/
+	if (InItemControlLoop)
+	{
+		ItemNewRooms[ItemNewRoomNo][0] = item_num;
+		ItemNewRooms[ItemNewRoomNo][1] = room_number;
+		ItemNewRoomNo++;
+	}
+	else
+	{
+		struct ITEM_INFO* item = &items[item_num];
+
+		if (item->room_number != 255)
+		{
+			struct room_info* r = &room[item->room_number];
+
+			if (r->item_number == item_num)
+			{
+				r->item_number = item->next_item;
+			}
+			else if (r->item_number != -1)
+			{
+				short linknum;
+				for (linknum = items[r->item_number].next_item; linknum != -1; linknum = items[linknum].next_item)
+				{
+					if (linknum == item_num)
+					{
+						items[r->item_number].next_item = item->next_item;
+						break;
+					}
+				}
+			}
+		}
+
+		item->room_number = room_number;
+		item->next_item = room[room_number].item_number;
+		room[room_number].item_number = item_num;
+	}
+#else
 	struct ITEM_INFO* item = NULL;//$a1
 	struct room_info* r = NULL;//$a0
 	short next_item;//$t2
@@ -110,6 +148,7 @@ void ItemNewRoom(short item_num /*a3*/, short room_number /*t1*/)
 	item->room_number = room_number;
 	item->next_item = r->item_number;
 	r->item_number = item_num;
+#endif
 }
 
 int FindGridShift(int a0, int a1)
