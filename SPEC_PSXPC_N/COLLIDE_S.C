@@ -50,7 +50,7 @@ void UpdateSky()//7CE88(<), 7EECC(<) (F)
 	}//locret_7CEFC
 }
 
-void UpdateLaraRoom(struct ITEM_INFO* item, int height)
+void UpdateLaraRoom(struct ITEM_INFO* item, int height)//7C58C, 7E5D0
 {
 	short room_number;//var_18
 
@@ -62,7 +62,7 @@ void UpdateLaraRoom(struct ITEM_INFO* item, int height)
 	}//loc_7C5F4
 }
 
-void ItemNewRoom(short item_num, short room_number)
+void ItemNewRoom(short item_num /*a3*/, short room_number /*t1*/)
 {
 	UNIMPLEMENTED();
 }
@@ -712,8 +712,8 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 			else if (coll->quadrant - 1 == 0)
 			{
 				//loc_7B7D4
-				coll->shift.x = FindGridShift(xpos + xfront, zpos);
-				coll->shift.z = coll->old.z + zpos;
+				coll->shift.x = FindGridShift(xpos + xfront, xpos);
+				coll->shift.z = coll->old.z - zpos;
 				coll->coll_type = 1;
 				return;
 			}
