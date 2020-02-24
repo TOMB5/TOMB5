@@ -14,6 +14,110 @@
 
 int scratchPad[256];
 
+void sub_1358(int x, int y, int z)
+{
+    int t4 = y >> 15;
+
+    if (y < 0)
+    {
+        y = -y;
+        t4 = y >> 15;
+        y &= 0x7FFF;
+        t4 = -t4;
+        y = -y;
+    }
+    else
+    {
+        //loc_1378
+        y &= 0x7FFF;
+    }
+
+    int t5 = z >> 15;
+    if (z < 0)
+    {
+        z = -z;
+        t5 = z >> 15;
+        z &= 0x7FFF;
+        t5 = -t5;
+        z = -z;
+    }
+    else
+    {
+        z &= 0x7FFF;
+    }
+
+    //loc_13A0
+    int t3 = x >> 15;
+    if (x < 0)
+    {
+        x = -x;
+        t3 = x >> 15;
+        x &= 0x7FFF;
+        t3 = -t3;
+        x = -x;
+    }
+    else
+    {
+        x &= 0x7FFF;
+    }
+
+    //loc_13C4
+    IR1 = t3;
+    IR2 = t4;
+    IR3 = t5;
+
+    docop2(0x41E012);
+
+    t3 = MAC1;
+    t4 = MAC2;
+    t5 = MAC3;
+
+    IR1 = x;
+    IR2 = y;
+    IR3 = z;
+
+    docop2(0x498012);
+
+    int t0 = t3 << 3;
+    if (t3 < 0)
+    {
+        t3 = -t3;
+        t3 <<= 3;
+        t0 = -t3;
+    }
+
+    //loc_1408
+    int t1 = t4 << 3;
+    if (t4 < 0)
+    {
+        t4 = -t4;
+        t4 <<= 3;
+        t1 = -t4;
+    }
+
+    //loc_1430
+    int t2 = t5 << 3;
+    if (t5 < 0)
+    {
+        t5 = -t5;
+        t5 <<= 3;
+        t2 = -t5;
+    }
+
+    //loc_1430
+    t3 = MAC1;
+    t4 = MAC2;
+    t5 = MAC3;
+
+    t0 += t3;
+    t1 += t4;
+    t2 += t5;
+
+    TRX = t0;
+    TRY = t1;
+    TRZ = t2;
+}
+
 void sub_C1C(int a0)
 {
     int* a00 = (int*)&tsv_buffer[(((a0 << 1) + a0) << 2)];
@@ -1046,83 +1150,67 @@ void sub_2C(struct ITEM_INFO* item)
     {
         //a2 = objects[lara.back_gun].bone_index
         //v1 = 
-        long* bone = &bones[objects[lara.back_gun].bone_index];
+        long* bone = &bones[objects[lara.back_gun].bone_index];//a2
         //v0 =  objects[lara.back_gun].mesh_index
+        s0 = (int*)meshes[objects[lara.back_gun].mesh_index];//$s0
 
-#if 0
-        lw      $v1, 0x2030($gp)
-            sll     $a2, 2
-            addu    $a2, $v1
-            lh      $v0, 2($v0)
-            lw      $v1, 0x204C($gp)
-            sll     $v0, 2
-            addu    $s0, $v1, $v0
-            li      $v1, 0xA5E1C
-            lw      $t0, 0($v1)
-            lw      $t1, 4($v1)
-            lw      $t2, 8($v1)
-            lw      $t3, 0xC($v1)
-            lw      $t4, 0x10($v1)
-            lw      $t5, 0x14($v1)
-            lw      $t6, 0x18($v1)
-            lw      $t7, 0x1C($v1)
-            ctc2    $t0, $0
-            ctc2    $t1, $1
-            ctc2    $t2, $2
-            ctc2    $t3, $3
-            ctc2    $t4, $4
-            ctc2    $t5, $5
-            ctc2    $t6, $6
-            ctc2    $t7, $7
-            lw      $a0, 0xD4($a2)
-            lw      $a1, 0xD8($a2)
-            jal     sub_1358
-            lw      $a2, 0xDC($a2)
-            jal     sub_658
-            lw      $a0, 0x70($s0)
+        int* v1 = (int*)&lara_matrices[7];
+
+        int t0 = v1[0];
+        int t1 = v1[1];
+        int t2 = v1[2];
+        int t3 = v1[3];
+        int t4 = v1[4];
+        int t5 = v1[5];
+        int t6 = v1[6];
+        int t7 = v1[7];
+
+        R11 = t0 & 0xFFFF;
+        R12 = (t0 >> 16) & 0xFFFF;
+
+        R13 = t1 & 0xFFFF;
+        R21 = (t1 >> 16) & 0xFFFF;
+
+        R22 = t2 & 0xFFFF;
+        R23 = (t2 >> 16) & 0xFFFF;
+
+        R31 = t3 & 0xFFFF;
+        R32 = (t3 >> 16) & 0xFFFF;
+        R33 = t4;
+
+        TRX = t5;
+        TRY = t6;
+        TRZ = t7;
+
+        sub_1358(bone[53], bone[54], bone[55]);
+        ///@FIXME for some reason at index 0 it wont draw back gun!
+#if defined(USE_32_BIT_ADDR)
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[28], (int*)db.polyptr, db.ot[0 * 2]);
+#else
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[28], (int*)db.polyptr, db.ot[0]);
 #endif
 
     }
     //loc_5D0
-#if 0
-        loc_5D0:                                 # CODE XREF : sub_2C + 518↑j
-        jal     0x76520
-        nop
-        lbu     $v0, 0xA2648
-        nop
-        beqz    $v0, loc_5F0
-        lw      $a0, 0x2084($gp)
-        lw      $a0, 0x2088($gp)
+    mPopMatrix();
 
-        loc_5F0:                                 # CODE XREF : sub_2C + 5B8↑j
-        nop
-        andi    $v0, $a0, 0xFF
-        sll     $v0, 4
-        ctc2    $v0, $13
-        srl     $v0, $a0, 4
-        andi    $v0, 0xFF0
-        ctc2    $v0, $14
-        srl     $v0, $a0, 12
-        andi    $v0, 0xFF0
-        ctc2    $v0, $15
-        jal     sub_E38
-        nop
-        jal     sub_1184
-        nop
-        sw      $s5, 0x3644($gp)
-        lw      $ra, 0x60 + var_50($sp)
-        lw      $s0, 0x60 + var_4C($sp)
-        lw      $s1, 0x60 + var_48($sp)
-        lw      $s2, 0x60 + var_44($sp)
-        lw      $s3, 0x60 + var_40($sp)
-        lw      $s4, 0x60 + var_3C($sp)
-        lw      $s5, 0x60 + var_38($sp)
-        lw      $s6, 0x60 + var_34($sp)
-        lw      $s7, 0x60 + var_30($sp)
-        jr      $ra
-        addiu   $sp, 0x60
-#endif
-        mPopMatrix();
+    if (LaraNodeUnderwater[8] != 0)
+    {
+        a0 = LaraNodeAmbient[1];
+    }
+    else
+    {
+        a0 = LaraNodeAmbient[0];
+    }
+
+    //loc_5F0
+    RBK = (((int*)&a0.r)[0] & 0xFF) << 4;
+    GBK = ((((int*)&a0.r)[0] >> 4) & 0xFF0);
+    BBK = ((((int*)&a0.r)[0] >> 12) & 0xFF0);
+
+    sub_E38();
+
+    sub_1184();
 }
 
 void DrawLara()
