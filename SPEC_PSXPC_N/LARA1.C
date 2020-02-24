@@ -14,6 +14,16 @@
 
 int scratchPad[256];
 
+void sub_1184()
+{
+    UNIMPLEMENTED();
+}
+
+void sub_E38()
+{
+    UNIMPLEMENTED();
+}
+
 void sub_1358(int x, int y, int z)
 {
     int t4 = y >> 15;
