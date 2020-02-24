@@ -1162,7 +1162,7 @@ void sub_2C(struct ITEM_INFO* item)
         //v1 = 
         long* bone = &bones[objects[lara.back_gun].bone_index];//a2
         //v0 =  objects[lara.back_gun].mesh_index
-        s0 = (int*)meshes[objects[lara.back_gun].mesh_index];//$s0
+        s0 = (int*)&meshes[objects[lara.back_gun].mesh_index];//$s0
 
         int* v1 = (int*)&lara_matrices[7];
 
