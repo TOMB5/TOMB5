@@ -870,16 +870,16 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 				if (0x400 - t1 < t2)
 				{
 					//loc_78DF8
-					a1 = a2 - a3;
-					a2 = t0 - a3;
+					v0 = value >> 5;
+					a1 = v1 - t0;
+					a2 = v1 - a2;
 					//j loc_78E2C
 				}
 				else
 				{
 					//loc_78DF8
-					v0 = value >> 5;
-					a1 = v1 - t0;
-					a2 = v1 - a2;
+					a1 = a2 - a3;
+					a2 = t0 - a3;
 					//j loc_78E2C
 				}
 			}
@@ -922,7 +922,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 				//loc_78E90
 				height_type = 3;
 			}
-			else if(!(ABS(2) < 3))
+			else if(!(ABS(a2) < 3))
 			{
 				//loc_78E90
 				height_type = 3;

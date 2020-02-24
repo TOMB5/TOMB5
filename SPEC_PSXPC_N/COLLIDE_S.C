@@ -472,7 +472,7 @@ unsigned short GetTiltType(struct FLOOR_INFO* floor, long x, long y, long z)
 	return 0;
 }
 
-void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)
+void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)//7B210, 7D254
 {
 	int fp;
 	short room_num;//0x70+var_58
