@@ -2707,7 +2707,7 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 	long y_floor;
 	struct room_info* r;
 	struct FLOOR_INFO* floor;
-	short data;
+	/*short*/ unsigned char data;
 
 
 	//loc_1E570
