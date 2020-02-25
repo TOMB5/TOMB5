@@ -154,6 +154,7 @@ void TriggerSuperJetFlame(struct ITEM_INFO* item, long yvel, long deadly)//32EAC
 
 void DetatchSpark(long num, long type)//32D8C, 3328C (F)
 {
+#if 0///@FIXME this is trashing memory!
 	struct FX_INFO* fx = &effects[num];
 	struct ITEM_INFO* item = &items[num];	
 	struct SPARKS* sptr = &spark[0];
@@ -181,6 +182,7 @@ void DetatchSpark(long num, long type)//32D8C, 3328C (F)
 			}
 		}
 	}
+#endif
 }
 
 void TriggerGunSmoke(long x, long y, long z, long xv, long yv, long zv, int a7, int a8, int a9)//8D6D4(<), 8F718(<) (F)

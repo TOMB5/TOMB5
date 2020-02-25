@@ -90,26 +90,20 @@ void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joi
 			} while (--joint);
 		}
 		//loc_8E9D8
-		mTranslateXYZ(pos->x, pos->y, pos->z);///@FIXME reporting bad matrix here.
+		mTranslateXYZ(pos->x, pos->y, pos->z);
 	}
 	else
 	{
 		//loc_8E9EC
-		//a2 = &iMatrixStack[16];
 		InitInterpolation(frac, rate, &iMatrixStack[16]);
-		//v1 = frames[0]
-		//t0 = frames[1]
 
-		//v0 = &frames[0][9]
 		frameptr = frames[0] + 9;
 		frameptr2 = frames[1] + 9;
 
-		//v0 = &frames[1][9]
 		iTranslateXYZ2(frames[0][6], frames[0][7], frames[0][8], frames[1][6], frames[1][7], frames[1][8]);
 		mRotSuperPackedYXZ(&frameptr, 0);
 		iRotSuperPackedYXZ(&frameptr2, 0);
 
-		//s1 = joint
 		if (joint > 0)
 		{
 			//loc_8EA5C

@@ -406,8 +406,9 @@ AnimateLara:
 	lw      v0, lara+0x44-GP_ADDR(gp)
 	lui     t0, 9
 	andi    v0, 0x20
-	bnez    v0, loc_7D934
 	la      t0, rcossin_tbl
+	bnez    v0, loc_7D934
+	nop
 	lhu     a2, lara+0xA6-GP_ADDR(gp)
 	lh      a3, 0x1E(s1)
 	srl     at, a2, 2

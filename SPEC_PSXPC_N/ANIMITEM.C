@@ -616,7 +616,7 @@ void CalcAllAnimatingItems_ASM()
 							a2 = (int*)fp[16];
 							fp[18]++;
 							((short*)a2)[0] = v0;
-							((int*)a2)[1] = (int)& r->mesh[j];
+							((int*)a2)[1] = (int)&r->mesh[j];
 							((short*)a2)[1] = 0;
 							a2 += 3;
 							fp[16] = (int)a2;
@@ -628,40 +628,40 @@ void CalcAllAnimatingItems_ASM()
 						//loc_8274C
 						mmPopMatrix2(fp);
 					}//loc_82750
-				}
-				//loc_8275C
-				//s2 = r->item_number
-
-				//v0 = r->item_number << 7
-				if (r->item_number != -1)
-				{
-					item_number = r->item_number;
-
-					//loc_8276C
-					do
-					{
-						item = &((struct ITEM_INFO*)fp[24])[item_number];//&items[r->item_number]
-						//v1 = r->item_number << 4	
-						//v1 = item->object_number
-						//s6 = objects
-						object = &objects[item->object_number];
-
-						//v0 = object->using_drawanimating_item
-						//a1 = item->status
-
-						if (object->using_drawanimating_item && item->status != 6)
-						{
-							//s2 = item
-							///CalcAnimatingItem_ASM();
-							//item = s2 //Maybe restore backup check if modified in func above
-						}
-						//loc_827BC
-						item_number = item->next_item;
-					} while (item->next_item != -1);
-
-				}//loc_827CC
-				mmPopMatrix2(fp);
+				}//loc_82750
 			}
+			//loc_8275C
+			//s2 = r->item_number
+
+			//v0 = r->item_number << 7
+			if (r->item_number != -1)
+			{
+				item_number = r->item_number;
+
+				//loc_8276C
+				do
+				{
+					item = &((struct ITEM_INFO*)fp[24])[item_number];//&items[r->item_number]
+					//v1 = r->item_number << 4	
+					//v1 = item->object_number
+					//s6 = objects
+					object = &objects[item->object_number];
+
+					//v0 = object->using_drawanimating_item
+					//a1 = item->status
+
+					if (object->using_drawanimating_item && item->status != 6)
+					{
+						//s2 = item
+						///CalcAnimatingItem_ASM();
+						//item = s2 //Maybe restore backup check if modified in func above
+					}
+					//loc_827BC
+					item_number = item->next_item;
+				} while (item->next_item != -1);
+
+			}//loc_827CC
+			mmPopMatrix2(fp);
 		}
 	}//loc_827DC
 #if !JULY_VERSION

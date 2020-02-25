@@ -362,7 +362,7 @@ loc_78A68:
 	return floor;
 }
 
-void GC_adjust_height(unsigned char a0, unsigned char a1, unsigned char a2, int t4, int t5, int* t7/*ret*/)
+void GC_adjust_height(unsigned short a0, char a1, char a2, int t4, int t5, int* t7/*ret*/)
 {
 	int v0;
 
@@ -372,13 +372,15 @@ void GC_adjust_height(unsigned char a0, unsigned char a1, unsigned char a2, int 
 		v0 = (v0 * a1) >> 2;
 		*t7 += v0;
 	}
-
-	//loc_79408
-	v0 = 0x3FF;
-	v0 -= t5;
-	v0 &= 0x3FF;
-	v0 = (v0 * a1) >> 2;
-	*t7 -= v0;
+	else
+	{
+		//loc_79408
+		v0 = 0x3FF;
+		v0 -= t5;
+		v0 &= 0x3FF;
+		v0 = (v0 * a1) >> 2;
+		*t7 -= v0;
+	}
 
 	//loc_79424
 	v0 = 0x3FF;
@@ -437,7 +439,7 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 			//v0 = 2
 			fd = (unsigned short*)&floor_data[f->index];
 			a0 = *fd++;
-			if ((a0 & 0x1F) == 2 || (a0 & 0x1F) - 7 < 2 || (a0 & 0x1F) - 11 < 4)
+			if ((unsigned)(a0 & 0x1F) == 2 || (unsigned)((a0 & 0x1F) - 7) < 2 || (unsigned)((a0 & 0x1F) - 11) < 4)
 			{
 				//loc_79154
 				if (((a0 & 0x8000) << 10) != 0)
@@ -462,10 +464,10 @@ short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z)
 				///lb      $a1, 1($s0)
 				///j       loc_79244
 				///lb      $a2, 0($s0)
-				GC_adjust_height(a0, ((char*)&fd)[1], ((char*)&fd)[0], x, z, &t7);
+				GC_adjust_height(a0, ((char*)fd)[1], ((char*)fd)[0], x, z, &t7);
 				//j loc_792BC
 			}
-			else if ((a0 & 0x1F) - 9 < 2 || (a0 & 0x1F) - 15 < 4)
+			else if ((unsigned)((a0 & 0x1F) - 9) < 2 || (unsigned)((a0 & 0x1F) - 15) < 4)
 			{
 				//loc_7918C
 				//a2 = x & 0x3FF
@@ -651,14 +653,16 @@ void GH_adjust_height(int a1, int s4, short* t7, int a2, int s3)
 		v0 = (v0 * a1) >> 2;
 		*t7 -= v0;
 	}
-
-	//loc_79008
-	v0 = 0x3FF;
-	v0 -= s4;
-	v0 &= 0x3FF;
-	v0 *= a1;
-	v0 >>= 2;
-	*t7 += v0;
+	else
+	{
+		//loc_79008
+		v0 = 0x3FF;
+		v0 -= s4;
+		v0 &= 0x3FF;
+		v0 *= a1;
+		v0 >>= 2;
+		*t7 += v0;
+	}
 
 	//loc_79024
 	v0 = s3 & 0x3FF;
@@ -756,8 +760,8 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 		case TILT_TYPE://COMPLETE
 		{
 			//loc_78EA0
-			unsigned char a1 = ((unsigned char*)fd)[1];
-			unsigned char a2 = ((unsigned char*)fd)[0];
+			char a1 = ((char*)fd)[1];
+			char a2 = ((char*)fd)[0];
 
 			//loc_78EB4
 			tiltxoff = a1;
@@ -859,23 +863,23 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 			int v0;
 
 			v1 >>= 12;
-			if ((value & 0x1F) == 7 || (value & 0x1F) - 11 < 2)
+			if ((value & 0x1F) == 7 || (unsigned)((value & 0x1F) - 11) < 2)
 			{
 				//loc_78DD8
 				v0 = value >> 10;
 				if (0x400 - t1 < t2)
 				{
 					//loc_78DF8
-					a1 = a2 - a3;
-					a2 = t0 - a3;
+					v0 = value >> 5;
+					a1 = v1 - t0;
+					a2 = v1 - a2;
 					//j loc_78E2C
 				}
 				else
 				{
 					//loc_78DF8
-					v0 = value >> 5;
-					a1 = v1 - t0;
-					a2 = v1 - a2;
+					a1 = a2 - a3;
+					a2 = t0 - a3;
 					//j loc_78E2C
 				}
 			}
@@ -885,16 +889,16 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 				v0 = value >> 10;
 				if (t1 < t2)
 				{
-					//loc_78E20
-					a1 = a2 - a3;
-					a2 = v1 - a2;
-					//j       loc_78E2C
-				}
-				else
-				{
 					v0 = value >> 5;
 					a1 = v1 - t0;
 					a2 = t0 - a3;
+				}
+				else
+				{
+					//loc_78E20
+					a1 = a2 - a3;
+					a2 = v1 - a2;
+					//j       loc_78E2C	
 				}
 			}
 
@@ -918,7 +922,7 @@ short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(
 				//loc_78E90
 				height_type = 3;
 			}
-			else if(!(ABS(2) < 3))
+			else if(!(ABS(a2) < 3))
 			{
 				//loc_78E90
 				height_type = 3;

@@ -50,7 +50,7 @@ void UpdateSky()//7CE88(<), 7EECC(<) (F)
 	}//locret_7CEFC
 }
 
-void UpdateLaraRoom(struct ITEM_INFO* item, int height)
+void UpdateLaraRoom(struct ITEM_INFO* item, int height)//7C58C, 7E5D0
 {
 	short room_number;//var_18
 
@@ -62,9 +62,93 @@ void UpdateLaraRoom(struct ITEM_INFO* item, int height)
 	}//loc_7C5F4
 }
 
-void ItemNewRoom(short item_num, short room_number)
+void ItemNewRoom(short item_num /*a3*/, short room_number /*t1*/)
 {
-	UNIMPLEMENTED();
+#if 1//Actually taken from PC :/
+	if (InItemControlLoop)
+	{
+		ItemNewRooms[ItemNewRoomNo][0] = item_num;
+		ItemNewRooms[ItemNewRoomNo][1] = room_number;
+		ItemNewRoomNo++;
+	}
+	else
+	{
+		struct ITEM_INFO* item = &items[item_num];
+
+		if (item->room_number != 255)
+		{
+			struct room_info* r = &room[item->room_number];
+
+			if (r->item_number == item_num)
+			{
+				r->item_number = item->next_item;
+			}
+			else if (r->item_number != -1)
+			{
+				short linknum;
+				for (linknum = items[r->item_number].next_item; linknum != -1; linknum = items[linknum].next_item)
+				{
+					if (linknum == item_num)
+					{
+						items[r->item_number].next_item = item->next_item;
+						break;
+					}
+				}
+			}
+		}
+
+		item->room_number = room_number;
+		item->next_item = room[room_number].item_number;
+		room[room_number].item_number = item_num;
+	}
+#else
+	struct ITEM_INFO* item = NULL;//$a1
+	struct room_info* r = NULL;//$a0
+	short next_item;//$t2
+	short room_item; //$v1
+
+	if (InItemControlLoop != 0)
+	{
+		ItemNewRooms[ItemNewRoomNo][0] = item_num;
+		ItemNewRooms[ItemNewRoomNo++][1] = room_number;
+		return;
+	}
+	//loc_7C648
+	item = &items[item_num];
+
+	if (item->room_number != 255)
+	{
+		r = &room[item->room_number];
+		room_item = r->item_number;
+		next_item = item->next_item;//$t2
+
+		if (r->item_number == item_num)
+		{
+			r->item_number = next_item;
+		}
+		else
+		{
+			//loc_7C698
+			do
+			{
+				if (room_item == -1)
+				{
+					break;
+				}//loc_7C6C4
+
+				item = &items[room_item];//$v1
+				room_item = item->next_item;
+			} while (item->next_item != item_num);
+
+			item->next_item = next_item;
+		}//loc_7C6C4
+	}
+
+	r = &room[room_number];
+	item->room_number = room_number;
+	item->next_item = r->item_number;
+	r->item_number = item_num;
+#endif
 }
 
 int FindGridShift(int a0, int a1)
@@ -388,7 +472,7 @@ unsigned short GetTiltType(struct FLOOR_INFO* floor, long x, long y, long z)
 	return 0;
 }
 
-void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)
+void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)//7B210, 7D254
 {
 	int fp;
 	short room_num;//0x70+var_58
@@ -496,9 +580,9 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 		//loc_7B404
 		var_50 = coll->radius;
 		var_44 = -coll->radius;
-		zfront = coll->facing;
-		s7 = coll->facing;
-		s0 = coll->facing;
+		zfront = -coll->radius;
+		s7 = -coll->radius;
+		s0 = -coll->radius;
 		xfront = (SIN(coll->facing) * coll->radius) >> W2V_SHIFT;
 	}
 	else if (coll->quadrant - 3 == 0)
@@ -641,7 +725,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 	//a0 = coll
 	var_5C = objheight;
 	var_60 = room_num;
-	CollideStaticObjects(coll, xpos, ypos, zpos, room_number, objheight);
+	//CollideStaticObjects(coll, xpos, ypos, zpos, room_number, objheight);
 
 	//t0 = xpos
 	//t1 = zpos
@@ -713,7 +797,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 			{
 				//loc_7B7D4
 				coll->shift.x = FindGridShift(xpos + xfront, xpos);
-				coll->shift.z = coll->old.z + zpos;
+				coll->shift.z = coll->old.z - zpos;
 				coll->coll_type = 1;
 				return;
 			}
@@ -767,21 +851,21 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 			else if (coll->quadrant == 0)
 			{
 				//loc_7B85C
-				coll->shift.x = FindGridShift(var_34, xpos - xfront);
+				coll->shift.x = FindGridShift(var_34, xpos + xfront);
 				coll->coll_type = 2;
 				return;
 			}
 			else if (coll->quadrant - 1 == 0)
 			{
 				//loc_7B874
-				coll->shift.z = FindGridShift(var_30, zpos - zfront);
+				coll->shift.z = FindGridShift(var_30, zpos + zfront);
 				coll->coll_type = 2;
 				return;
 			}
 			else if (coll->quadrant - 2 == 0)
 			{
 				//loc_7B85C
-				coll->shift.x = FindGridShift(var_34, xpos - xfront);
+				coll->shift.x = FindGridShift(var_34, xpos + xfront);
 				coll->coll_type = 2;
 				return;
 
@@ -789,7 +873,7 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 			else if (coll->quadrant - 3 == 0)
 			{
 				//loc_7B874
-				coll->shift.z = FindGridShift(var_30, zpos - zfront);
+				coll->shift.z = FindGridShift(var_30, zpos + zfront);
 				coll->coll_type = 2;
 				return;
 			}

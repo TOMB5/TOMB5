@@ -178,10 +178,15 @@ extern	int (*GPU_printf)(const char *fmt, ...);
  /*
   * Primitive Handling Macros
   */
+
+#define LEN_OFFSET (4)
+
+#if defined(PGXP)
+#define setpgxpindex(p, _pgxp_index) (((P_TAG *)(p))->pgxp_index  = (u_short)(_pgxp_index))
+#endif
 #define setlen( p, _len) 	(((P_TAG *)(p))->len  = (u_char)(_len))
 #define setaddr(p, _addr)	(((P_TAG *)(p))->addr = (u_long)(_addr))
 #define setcode(p, _code)	(((P_TAG *)(p))->code = (u_char)(_code))
-
 #define getlen(p)    		(u_char)(((P_TAG *)(p))->len)
 #define getcode(p)   		(u_char)(((P_TAG *)(p))->code)
 #define getaddr(p)   		(u_long)(((P_TAG *)(p))->addr)
@@ -189,7 +194,11 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 #define nextPrim(p)  		(void *)((((P_TAG *)(p))->addr)|0x80000000)
 #define isendprim(p) 		((((P_TAG *)(p))->addr)==0xffffff)
 
+#if defined(PGXP)
+#define addPrim(ot, p)		setaddr(p, getaddr(ot)), setaddr(ot, p), setpgxpindex(p, pgxp_last_index)
+#else
 #define addPrim(ot, p)		setaddr(p, getaddr(ot)), setaddr(ot, p)
+#endif
 #define addPrims(ot, p0, p1)	setaddr(p1, getaddr(ot)),setaddr(ot, p0)
 
 #define catPrim(p0, p1)		setaddr(p0, p1)
@@ -344,7 +353,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long addr;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	unsigned	addr: 24;
 	unsigned 	len:   8;
@@ -359,7 +373,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -372,7 +391,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -386,7 +410,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -402,7 +431,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -420,7 +454,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -435,7 +474,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -452,7 +496,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -470,7 +519,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -494,7 +548,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -506,7 +565,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -519,7 +583,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -533,7 +602,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -549,7 +623,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -564,7 +643,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -585,7 +669,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -598,7 +687,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -610,7 +704,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -625,7 +724,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -637,7 +741,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -648,7 +757,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -659,7 +773,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -673,7 +792,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -683,7 +807,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -693,7 +822,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -703,7 +837,12 @@ typedef struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -713,7 +852,12 @@ typedef struct {
 typedef struct {			/* MoveImage */
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -723,7 +867,12 @@ typedef struct {			/* MoveImage */
 typedef struct {			/* LoadImage */
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -734,7 +883,12 @@ typedef struct {			/* LoadImage */
 typedef	struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -744,7 +898,12 @@ typedef	struct {
 typedef struct {
 #if defined(USE_32_BIT_ADDR)
 	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
 	unsigned long len;
+#endif
 #else
 	u_long	tag;
 #endif
@@ -915,6 +1074,7 @@ extern DISPENV word_33BC;
 extern DRAWENV activeDrawEnv;
 extern void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd);
 extern void ParsePrimitive(P_TAG* pTag);
+extern int g_swapInterval;
 extern int g_wireframeMode;
 extern int g_texturelessMode;
 

@@ -34,60 +34,46 @@ int GetChange(struct ITEM_INFO* item, struct ANIM_STRUCT* anim)//7D48C
 	int i = 0;//$t2
 	int j = 0;//$t0
 
-	if (item->current_anim_state == item->goal_anim_state)
+	if (item->current_anim_state != item->goal_anim_state)
 	{
-		//locret_7D51C
-		return 0;
-	}
+		change = &changes[anim->change_index];
 
-	change = &changes[anim->change_index];
-	
-	if (anim->number_changes <= 0)
-	{
-		//locret_7D51C
-		return 0;
-	}
-
-	//loc_7D4C4
-	do
-	{
-		j = 0;
-		if (change->goal_anim_state == item->goal_anim_state && change->number_ranges > 0)
+		if (anim->number_changes > 0)
 		{
-			range = &ranges[change->range_index];
-
-			//loc_7D4E4
+			//loc_7D4C4
 			do
 			{
-				if (item->frame_number >= range->start_frame && range->end_frame >= item->frame_number)
+				if (change->goal_anim_state == item->goal_anim_state)
 				{
-					//loc_7D524
-					item->anim_number = range->link_anim_num;
-					item->frame_number = range->link_frame_num;
-					return 1;
-				}
-				else
-				{
-					//loc_7D4FC
-					j++;
-					if (j < change->number_ranges)
+					range = &ranges[change->range_index];
+					if (change->number_ranges > 0)
 					{
-						range++;
-						continue;
-					}
-					else
-					{
-						break;
-					}
-				}
-			} while (1);
-		}
-		//loc_7D50C
-		i++;
-		change++;
-	} while (i < anim->number_changes);
+						//loc_7D4E4
+						do
+						{
+							if (item->frame_number < range->start_frame && range->end_frame >= item->frame_number)
+							{
+								//loc_7D4FC
+								j++;
+								range++;
 
-	//locret_7D51C
+							}
+							else
+							{
+								//loc_7D524
+								item->anim_number = range->link_anim_num;
+								item->frame_number = range->link_frame_num;
+								return 1;
+							}
+						} while (j < change->number_ranges);
+					}
+					//loc_7D50C
+				}//loc_7D50C
+				change++;
+			} while (++i < anim->number_changes);
+		}//locret_7D51C
+	}//locret_7D51C
+
 	return 0;
 }
 
@@ -258,15 +244,15 @@ void AnimateLara(struct ITEM_INFO* item /* s1 */)//7D53C(<)
 	else
 	{
 		//loc_7D828
-		item->speed = item->speed - ((anim->velocity + (anim->acceleration * ((item->frame_number - anim->frame_base) - 1))) >> 16);
+		item->speed = item->speed - ((anim->velocity + (anim->acceleration * (item->frame_number - 1))) >> 16) + ((anim->velocity + (anim->acceleration * (item->frame_number - 1)) + anim->acceleration) >> 16);
 
 		if (item->fallspeed < 128)
 		{
-			item->fallspeed -= 6;
+			item->fallspeed += 6;
 		}
 		else
 		{
-			item->fallspeed -= 1;
+			item->fallspeed += 1;
 		}
 
 		//loc_7D870

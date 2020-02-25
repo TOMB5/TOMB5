@@ -218,8 +218,8 @@ void LaraControl(short item_number)//4A838, 4AC9C
 	wd = GetWaterDepth(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
 	wh = GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
 
-	hfw = -32152;
-	if (wh != -32152)
+	hfw = -32512;
+	if (wh != -32512)
 	{
 		hfw = item->pos.y_pos - wh;
 	}//loc_4A9F0
@@ -465,6 +465,38 @@ void LaraControl(short item_number)//4A838, 4AC9C
 			}
 		}
 		//loc_4B0F0
+		LaraAboveWater(item, coll);
+		break;
+	case 4:
+		if (lara.Busy)
+		{
+			if (item->hit_points >= 0)
+			{
+				lara.air--;
+				if (lara.air < 0)
+				{
+					lara.air = -1;
+					item->hit_points -= 5;
+				}//loc_4B0F0
+			}
+			//loc_4B0F0
+		}
+		else
+		{
+			//loc_4B0B0
+			if (lara.air < 0x708)
+			{
+				if (item->frame_number >= 0)
+				{
+					lara.air += 10;
+					if (lara.air >= 0x709)
+					{
+						lara.air = 0x708;
+					}
+				}
+				//loc_4B0F0
+			}//loc_4B0F0
+		}
 		LaraAboveWater(item, coll);
 		break;
 	}

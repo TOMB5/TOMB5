@@ -731,7 +731,4 @@ void S_Warn(const char* warning_message)
 #endif
 }*/
 
-void S_CalculateLight(long x, long y, long z, short room, struct ITEM_LIGHT* light)
-{
-	UNIMPLEMENTED();
-}
+

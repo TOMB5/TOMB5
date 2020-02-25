@@ -132,7 +132,6 @@ static int Emulator_InitialiseGLESContext(char* windowName)
 	EGLNativeWindowType dummyWindow;
 	eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (EGLNativeWindowType)dummyWindow, NULL);
 #elif defined(__ANDROID__)
-	// eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (EGLNativeWindowType)systemInfo.info.android.window, NULL);
 	eglSurface = systemInfo.info.android.surface;
 #else
 	eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (EGLNativeWindowType)systemInfo.info.win.window, NULL);
@@ -173,6 +172,18 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 #endif
 
 #if defined(OGLES)
+
+#if defined(__ANDROID__)
+        //Override to full screen.
+        SDL_DisplayMode displayMode;
+        if(SDL_GetCurrentDisplayMode(0, &displayMode) == 0)
+        {
+            screenWidth = displayMode.w;
+            windowWidth = displayMode.w;
+            screenHeight = displayMode.h;
+            windowHeight = displayMode.h;
+        }
+#endif
         //SDL_GL_SetAttribute(SDL_GL_CONTEXT_EGL, 1);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OGLES_VERSION);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -231,9 +242,8 @@ void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 	eprintf("VERSION: %d.%d\n", EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION);
 	eprintf("Compile Date: %s Time: %s\n", EMULATOR_COMPILE_DATE, EMULATOR_COMPILE_TIME);
 
-	eprintf("Initialising SDL!");
 	Emulator_InitialiseSDL(windowName, screenWidth, screenHeight);
-	eprintf("Initialised SDL!");
+
 #if defined(GLEW)
 	Emulator_InitialiseGLEW();
 #endif
@@ -297,8 +307,117 @@ void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, sho
 
 void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h)
 {
-
 #if defined(PGXP)
+	PGXPVertex* pgxp_vertex = (p0[-3]-1 <= -1) ? NULL : &pgxp_vertex_buffer[p0[-3]-1];
+#endif
+
+	//Copy over position
+	if (p0 != NULL)
+	{
+#if defined(PGXP)
+		if (pgxp_vertex != NULL)
+		{
+			vertex[0].x = pgxp_vertex[0].x;
+			vertex[0].y = pgxp_vertex[0].y;
+		}
+		else
+		{
+			vertex[0].x = (float)p0[0];
+			vertex[0].y = (float)p0[1];
+		}
+#else
+		vertex[0].x = (float)p0[0];
+		vertex[0].y = (float)p0[1];
+#endif
+	}
+
+	if (p1 != NULL)
+	{
+#if defined(PGXP)
+		if (pgxp_vertex != NULL)
+		{
+			vertex[1].x = pgxp_vertex[1].x;
+			vertex[1].y = pgxp_vertex[1].y;
+		}
+		else
+		{
+			vertex[1].x = (float)p1[0];
+			vertex[1].y = (float)p1[1];
+		}
+#else
+		vertex[1].x = (float)p1[0];
+		vertex[1].y = (float)p1[1];
+#endif
+	}
+	else
+	{
+		if (w != -1 && h != -1)
+		{
+			vertex[1].x = (float)p0[0];
+			vertex[1].y = (float)p0[1] + h;
+		}
+	}
+
+	if (p2 != NULL)
+	{
+#if defined(PGXP)
+		if (pgxp_vertex != NULL)
+		{
+			vertex[2].x = pgxp_vertex[2].x;
+			vertex[2].y = pgxp_vertex[2].y;
+		}
+		else
+		{
+			vertex[2].x = (float)p2[0];
+			vertex[2].y = (float)p2[1];
+		}
+#else
+		vertex[2].x = (float)p2[0];
+		vertex[2].y = (float)p2[1];
+#endif
+	}
+	else
+	{
+		if (w != -1 && h != -1)
+		{
+			vertex[2].x = (float)p0[0] + w;
+			vertex[2].y = (float)p0[1] + h;
+		}
+	}
+
+	if (p3 != NULL)
+	{
+#if defined(PGXP)
+		if (pgxp_vertex != NULL)
+		{
+			vertex[3].x = pgxp_vertex[3].x;
+			vertex[3].y = pgxp_vertex[3].y;
+		}
+		else
+		{
+			vertex[3].x = (float)p3[0];
+			vertex[3].y = (float)p3[1];
+		}
+#else
+		vertex[3].x = (float)p3[0];
+		vertex[3].y = (float)p3[1];
+#endif
+	}
+	else
+	{
+		if (w != -1 && h != -1)
+		{
+			vertex[3].x = (float)p0[0] + w;
+			vertex[3].y = (float)p0[1];
+		}
+	}
+	return;
+}
+
+
+void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h)
+{
+#if defined(PGXP) && 0
 	/*
 	Locate polygon in ztable
 	*/
@@ -311,211 +430,128 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	//Can speed this up by storing last index found and using as start iter
 	for (int i = pgxp_polgon_table_index; i > -1; i--)
 	{
-		if (p0 != NULL)
+		if (uv0 != NULL)
 		{
-			if (((unsigned int*)p0)[0] == pgxp_polygons[i].originalSXY)
+			if (((unsigned int*)uv0)[0] == pgxp_polygons[i].originalSXY)
 			{
 				z0 = &pgxp_polygons[i];
+				//z0->bUsed = TRUE;
 			}
 		}
 
-		if (p1 != NULL)
+		if (uv1 != NULL)
 		{
-			if (((unsigned int*)p1)[0] == pgxp_polygons[i].originalSXY)
+			if (((unsigned int*)uv1)[0] == pgxp_polygons[i].originalSXY)
 			{
 				z1 = &pgxp_polygons[i];
+				//z1->bUsed = TRUE;
 			}
 		}
 
-		if (p2 != NULL)
+		if (uv2 != NULL)
 		{
-			if (((unsigned int*)p2)[0] == pgxp_polygons[i].originalSXY)
+			if (((unsigned int*)uv2)[0] == pgxp_polygons[i].originalSXY)
 			{
 				z2 = &pgxp_polygons[i];
+				//z2->bUsed = TRUE;
 			}
 		}
 
-		if (p3 != NULL)
+		if (uv3 != NULL)
 		{
-			if (((unsigned int*)p3)[0] == pgxp_polygons[i].originalSXY)
+			if (((unsigned int*)uv3)[0] == pgxp_polygons[i].originalSXY)
 			{
 				z3 = &pgxp_polygons[i];
+				//z3->bUsed = TRUE;
 			}
 		}
 
-		if ((z0 != NULL || p0 == NULL) && (z1 != NULL || p1 == NULL) && (z2 != NULL || p2 == NULL) && (z3 != NULL || p3 == NULL))
+		if ((z0 != NULL || uv0 == NULL) && (z1 != NULL || uv1 == NULL) && (z2 != NULL || uv2 == NULL) && (z3 != NULL || uv3 == NULL))
 			break;
 	}
 
-	//Copy over position
-	if (p0 != NULL)
+	//Copy over uvs
+	if (uv0 != NULL)
 	{
 		if (z0 != NULL)
 		{
-			vertex[0].x = z0->x;
-			vertex[0].y = z0->y;
+			vertex[0].u0 = z0->x;
+			vertex[0].v0 = z0->y;
 		}
 		else
 		{
-			vertex[0].x = (float)p0[0];
-			vertex[0].y = (float)p0[1];
-		}
-
-		if (z0 != NULL)
-		{
-			//vertex[0].z = z->z0;
+			vertex[0].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
+			vertex[0].v0 = ((float)uv0[1]) / TPAGE_HEIGHT;
 		}
 	}
 
-	if (p1 != NULL)
+	if (uv1 != NULL)
 	{
 		if (z1 != NULL)
 		{
-			vertex[1].x = z1->x;
-			vertex[1].y = z1->y;
+			vertex[1].u0 = z1->x;
+			vertex[1].v0 = z1->y;
 		}
 		else
 		{
-			vertex[1].x = (float)p1[0];
-			vertex[1].y = (float)p1[1];
-		}
-
-		if (z1 != NULL)
-		{
-			//vertex[1].z = z1->z1;
+			vertex[1].u0 = ((float)uv1[0]) / TPAGE_WIDTH;
+			vertex[1].v0 = ((float)uv1[1]) / TPAGE_HEIGHT;
 		}
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertex[1].x = (float)p0[0];
-			vertex[1].y = (float)p0[1] + h;
-			if (z1 != NULL)
-			{
-				//vertex[1].z = z->z1;
-			}
+			vertex[1].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
+			vertex[1].v0 = ((float)uv0[1] + h) / TPAGE_HEIGHT;
 		}
 	}
 
-	if (p2 != NULL)
+	if (uv2 != NULL)
 	{
 		if (z2 != NULL)
 		{
-			vertex[2].x = z2->x;
-			vertex[2].y = z2->y;
+			vertex[2].u0 = z2->x;
+			vertex[2].v0 = z2->y;
 		}
 		else
 		{
-			vertex[2].x = (float)p2[0];
-			vertex[2].y = (float)p2[1];
-		}
-
-		if (z2 != NULL)
-		{
-			//vertex[2].z = z2->z;
+			vertex[2].u0 = ((float)uv2[0]) / TPAGE_WIDTH;
+			vertex[2].v0 = ((float)uv2[1]) / TPAGE_HEIGHT;
 		}
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertex[2].x = (float)p0[0] + w;
-			vertex[2].y = (float)p0[1] + h;
-			if (z2 != NULL)
-			{
-				//vertex[2].z = z->z2;
-			}
+			vertex[2].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
+			vertex[2].v0 = ((float)uv0[1] + h) / TPAGE_HEIGHT;
 		}
 	}
 
-	if (p3 != NULL)
+	if (uv3 != NULL)
 	{
 		if (z3 != NULL)
 		{
-			vertex[3].x = z3->x;
-			vertex[3].y = z3->y;
+			vertex[3].u0 = z3->x;
+			vertex[3].v0 = z3->y;
 		}
 		else
 		{
-			vertex[3].x = (float)p3[0];
-			vertex[3].y = (float)p3[1];
-		}
-
-		if (z3 != NULL)
-		{
-			//vertex[3].z = z3->z;
+			vertex[3].u0 = ((float)uv3[0]) / TPAGE_WIDTH;
+			vertex[3].v0 = ((float)uv3[1]) / TPAGE_HEIGHT;
 		}
 	}
 	else
 	{
 		if (w != -1 && h != -1)
 		{
-			vertex[3].x = (float)p0[0] + w;
-			vertex[3].y = (float)p0[1];
-			if (z3 != NULL)
-			{
-				//vertex[3].z = z3->z;
-			}
+			vertex[3].u0 = ((float)uv0[0] + w) / TPAGE_WIDTH;
+			vertex[3].v0 = ((float)uv0[1]) / TPAGE_HEIGHT;
 		}
 	}
 
 #else
-	//Copy over position
-	if (p0 != NULL)
-	{
-		vertex[0].x = (float)p0[0];
-		vertex[0].y = (float)p0[1];
-	}
-
-	if (p1 != NULL)
-	{
-		vertex[1].x = (float)p1[0];
-		vertex[1].y = (float)p1[1];
-	}
-	else
-	{
-		if (w != -1 && h != -1)
-		{
-			vertex[1].x = (float)p0[0];
-			vertex[1].y = (float)p0[1] + h;
-		}
-	}
-
-	if (p2 != NULL)
-	{
-		vertex[2].x = (float)p2[0];
-		vertex[2].y = (float)p2[1];
-	}
-	else
-	{
-		if (w != -1 && h != -1)
-		{
-			vertex[2].x = (float)p0[0] + w;
-			vertex[2].y = (float)p0[1] + h;
-		}
-	}
-
-	if (p3 != NULL)
-	{
-		vertex[3].x = (float)p3[0];
-		vertex[3].y = (float)p3[1];
-	}
-	else
-	{
-		if (w != -1 && h != -1)
-		{
-			vertex[3].x = (float)p0[0] + w;
-			vertex[3].y = (float)p0[1];
-		}
-	}
-#endif
-	return;
-}
-
-
-void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h)
-{
 	//Copy over uvs
 	if (uv0 != NULL)
 	{
@@ -564,7 +600,7 @@ void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv
 			vertex[3].v0 = ((float)uv0[1]) / TPAGE_HEIGHT;
 		}
 	}
-
+#endif
 	return;
 }
 
@@ -713,12 +749,10 @@ void Emulator_CreateGlobalShaders()
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
 #if defined(ES2_SHADERS)
-	const char* fragmentShaderSource = "precision mediump float; varying vec2 v_texcoord; varying vec4 v_colour; uniform sampler2D s_texture; void main() { gl_FragColor = texture2D(s_texture, v_texcoord) * v_colour; }";
+	const char* fragmentShaderSource = "precision mediump float; varying vec2 v_texcoord; varying vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; void main() { gl_FragColor = texture2D(s_texture, v_texcoord); if (gl_FragColor.a == 0.0 && bDiscardBlack) { discard; } gl_FragColor *= v_colour; }";
 #elif defined(ES3_SHADERS)
 	const char* fragmentShaderSource = "#version 300 es\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord) * v_colour; }";
 #elif defined(OGL)
-	//const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
-	//const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { vec4 dither = vec4(texture(s_texture, gl_FragCoord.xy / 8.0).r / 32.0 - (1.0 / 128.0)); fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; fragColour += dither; }";
 	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
 #endif
 
@@ -731,8 +765,12 @@ void Emulator_CreateGlobalShaders()
 	int maxLength = 1024;
 	glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &buff[0]);
 
+	printf("%s", &buff[0]);
+
 	maxLength = 1024;
 	glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &buff[0]);
+
+	printf("%s", &buff[0]);
 #endif
 
 	/* Default */
@@ -977,6 +1015,23 @@ void Emulator_DoDebugKeys()
 
 	if (currentTime > lastTime + 60)
 	{
+		if (keyboardState[SDL_SCANCODE_BACKSPACE])
+		{
+			if (g_swapInterval != 0)
+			{
+				SDL_GL_SetSwapInterval(0);
+			}
+			g_swapInterval = 0;
+		}
+		else
+		{
+			if (g_swapInterval != 1)
+			{
+				SDL_GL_SetSwapInterval(1);
+			}
+			g_swapInterval = 1;
+		}
+
 		if (keyboardState[SDL_SCANCODE_1])
 		{
 			g_wireframeMode ^= 1;
@@ -1021,6 +1076,11 @@ void Emulator_UpdateInput()
 			((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
 		}
 	}
+
+#if defined(__ANDROID__)
+    ///@TODO SDL_NumJoysticks always reports > 0 for some reason on Android.
+    ((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
+#endif
 
 	Emulator_DoDebugKeys();
 }
@@ -1284,8 +1344,8 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	}
 	case TP_8BIT:
 	{
-		assert(0);
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texturePage[0]);
+		//unsigned short* tpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH * TPAGE_HEIGHT * sizeof(unsigned short));
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &tpage[0]);
 		break;
 	}
 	case TP_4BIT:

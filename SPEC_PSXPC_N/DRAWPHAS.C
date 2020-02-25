@@ -40,6 +40,7 @@
 #include "DRAWSPKS.H"
 #include "SOUND.H"
 #include "ITEMS.H"
+#include "LARA1.H"
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "TEXT_S.H"
@@ -379,8 +380,9 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 			ProfileRGB(0, 255, 0);
 #endif
 
-			//unsigned long* ptr = (unsigned long*)RelocPtr[1];
-			//jalr ptr[0];
+#if !AUG_VERSION && !JULY_VERSION
+			DrawLara();
+#endif
 
 #if DEBUG_VERSION
 			ProfileRGB(255, 255, 0);
@@ -471,15 +473,11 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (BinocularRange != 0)
 	{
-		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
+		//DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 	}
 	else
 	{
 		//65290 (final game)
-		if (camera.pos.room_number == 71 && camera.pos.x == 27761 && camera.pos.y == -989 && camera.pos.z == 74663)
-		{
-			printf("YES2!\n");
-		}
 		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 		//loc_64BA0
 		//unsigned long* v1 = (unsigned long*)RelocPtr[2];

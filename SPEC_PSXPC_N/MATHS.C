@@ -930,7 +930,7 @@ void mLoadMatrix(struct MATRIX3D* m)//7699C(<), 789E0(<) (F)
 void InterpolateMatrix()//77250(<)
 {
 	MATRIX3D m;//$a0
-	MATRIX3D* m2 = &m;
+
 	if (iRate == 2 || iFrac == 2 && iRate == 4)
 	{
 		//loc_772A4
@@ -1993,11 +1993,8 @@ long phd_atan_asm(long x, long y)// (F)
 		x = y;
 		y = v0;
 	}
-	else
-	{
-		//loc_77A90
-		goto loc_77A98;
-	}
+
+	goto loc_77A98;
 
 loc_77A90:
 	y >>= 1;
