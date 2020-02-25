@@ -787,7 +787,6 @@ char* SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, i
 	int gp;
 
 	S_MemSet((char*)&scratchPad[0], 0, 1024);
-
 	InitSubDiv(&scratchPad[0], &t0, t1, t2, t3, t6, s4, t7, s5, t8, t4, s6, &fp, &gp);
 	((int*)t0)[2] = SZ1;
 	((int*)t0)[7] = SZ2;
@@ -797,7 +796,7 @@ char* SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, i
 	s6 = t0;
 	s77 = 2;
 	t9 = 0xFEFEFEFE;
-	SubDiv(s4, s6, t9, s5, s77);
+	t0 = SubDiv(s4, s6, t9, s5, s77);
 	t5 = 3;
 	
 	//loc_7E86C
@@ -935,7 +934,7 @@ loc_7E420:
 						t1 <<= 2;
 						t4 = ((int*)t5)[2];
 						at = t4 << 8;
-						UnpackRGB(&t2, &t6, &fp, &t4, &at, &t7, &t8);
+						UnpackRGB(&t2, &t6, &fp, &t3, &at, &t7, &t8);
 						IRGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
 						at = IRGB;
 						t2 = ((int*)t5)[0];
