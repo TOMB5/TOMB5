@@ -614,47 +614,47 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 	return 1;
 }
 
-void InitSubDiv(int* scratchPad, int t0, int t1, int t2, int t3, int t6, int s4, int t7, int s5, int t8, int t4, int s6, int* fp, int* gp)//7E6C8(<)
+void InitSubDiv(int* scratchPad, int* t0, int t1, int t2, int t3, int t6, int s4, int t7, int s5, int t8, int t4, int s6, int* fp, int* gp)//7E6C8(<)
 {
-	BFC = t0;
+	BFC = *t0;
 	int at = 0xFFFF0000;
 	*fp = t2 & at;
 	*gp = t3 & at;
 	int s3 = t1;
-	int* t00 = &scratchPad[0];
+	*t0 = (int)&scratchPad[0];
 	at = 0xFF000000;
 	at &= t6;
 	t1 = GFC;
 	int s7 = RFC;
-	((int*)t00)[0] = t6;
-	((short*)t00)[9] = t2;
-	((int*)t00)[1] = s4;
+	((int*)*t0)[0] = t6;
+	((short*)*t0)[9] = t2;
+	((int*)*t0)[1] = s4;
 	s4 = (t1 << 3) & 0x7F8;
 	s4 += (int)s7;
 	t6 = ((int*)s4)[0];
 	t2 = ((int*)s4)[2];
-	((int*)t00)[3] = t6;
-	((int*)t00)[8] = t2;
+	((int*)*t0)[3] = t6;
+	((int*)*t0)[8] = t2;
 	t7 |= at;
-	((int*)t00)[5] = t7;
-	((short*)t00)[19] = t3;
-	((int*)t00)[6] = s5;
+	((int*)*t0)[5] = t7;
+	((short*)*t0)[19] = t3;
+	((int*)*t0)[6] = s5;
 	s5 = (t1 >> 5) & 0x7F8;
 	s5 += (int)s7;
 	t7 = ((int*)s5)[0];
 	t3 = ((short*)s5)[2];
-	((int*)t00)[8] = t7;
-	((short*)t00)[18] = t3;
+	((int*)*t0)[8] = t7;
+	((short*)*t0)[18] = t3;
 	t8 |= at;
-	((int*)t00)[10] = t8;
-	((short*)t00)[29] = t4;
-	((int*)t00)[11] = s6;
+	((int*)*t0)[10] = t8;
+	((short*)*t0)[29] = t4;
+	((int*)*t0)[11] = s6;
 	s6 = (t1 >> 13) & 0x7F8;
 	s6 += (int)s7;
 	t8 = ((int*)s6)[0];
 	t4 = ((short*)s6)[2];
-	((int*)t00)[13] = t8;
-	((short*)t00)[28] = t4;
+	((int*)*t0)[13] = t8;
+	((short*)*t0)[28] = t4;
 }
 
 int SubDiv(int s4, int s6, int t9, int s5, int s7)
@@ -775,7 +775,7 @@ void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, in
 	int fp;
 	int gp;
 
-	InitSubDiv(&scratchPad[0], t0, t1, t2, t3, t6, s4, t7, s5, t8, t4, s6, &fp, &gp);
+	InitSubDiv(&scratchPad[0], &t0, t1, t2, t3, t6, s4, t7, s5, t8, t4, s6, &fp, &gp);
 	((int*)t0)[2] = SZ1;
 	((int*)t0)[7] = SZ2;
 	((int*)t0)[12] = SZ3;
@@ -788,43 +788,44 @@ void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, in
 	t5 = 3;
 	
 	//loc_7E86C
-	if ((unsigned long)s0 < (unsigned long)s1)
+	do
 	{
-		t0 += 4;
-		t9 = ((int*)t0)[-1];
-		at = &scratchPad[0];
-		t6 = t9 & 0xFF;
-		t6 |= (int)at;
-		t7 = t9 >> 8;
-		t7 &= 0xFF;
-		t7 |= (int)at;
-		t8 = t9 >> 16;
-		t8 |= (int)at;
-
-		SZ1 = ((int*)t6)[2];
-		SZ2 = ((int*)t7)[2];
-		SZ3 = ((int*)t8)[2];
-
-		s4 = ((int*)t6)[1];
-		s5 = ((int*)t7)[1];
-		s6 = ((int*)t8)[1];
-
-		docop2(0x158002D);
-
-		s77 = s6;
-
-		if (ultimate_clipper(s4, s5, s6, s77) == 0)
+		if ((unsigned long)s0 < (unsigned long)s1)
 		{
-			IniPrim(0x9000000, t6, t7, t8, fp, gp, s0, s4, a3, s5, s6);
-			s0 += 0x28;///@TODO return from this func
-		}//loc_7E8D4
-	}
-	//loc_7E8D4
+			t0 += 4;
+			t9 = ((int*)t0)[-1];
+			at = &scratchPad[0];
+			t6 = t9 & 0xFF;
+			t6 |= (int)at;
+			t7 = t9 >> 8;
+			t7 &= 0xFF;
+			t7 |= (int)at;
+			t8 = t9 >> 16;
+			t8 |= (int)at;
 
-#if 0
-loc_7E8D4:
-bnez    $t5, loc_7E86C
-addi    $t5, -1
+			SZ1 = ((int*)t6)[2];
+			SZ2 = ((int*)t7)[2];
+			SZ3 = ((int*)t8)[2];
+
+			s4 = ((int*)t6)[1];
+			s5 = ((int*)t7)[1];
+			s6 = ((int*)t8)[1];
+
+			docop2(0x158002D);
+
+			s77 = s6;
+
+			if (ultimate_clipper(s4, s5, s6, s77) == 0)
+			{
+				IniPrim(0x9000000, t6, t7, t8, fp, gp, s0, s4, a3, s5, s6);
+				s0 += 0x28;///@TODO return from this func
+			}//loc_7E8D4
+		}
+		//loc_7E8D4
+	} while (t5-- != 0);
+
+
+#if 0//Not required? restore.
 mfc2    $ra, $20
 cfc2    $t0, $23
 move    $t1, $s3
