@@ -632,9 +632,9 @@ void InitSubDiv(int* scratchPad, int* t0, int t1, int t2, int t3, int t6, int s4
 	s4 = (t1 << 3) & 0x7F8;
 	s4 += (int)s7;
 	t6 = ((int*)s4)[0];
-	t2 = ((int*)s4)[2];
+	t2 = ((short*)s4)[2];
 	((int*)*t0)[3] = t6;
-	((int*)*t0)[8] = t2;
+	((short*)*t0)[8] = t2;
 	t7 |= at;
 	((int*)*t0)[5] = t7;
 	((short*)*t0)[19] = t3;
@@ -836,6 +836,8 @@ char* SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, i
 		}
 		//loc_7E8D4
 	} while (t5-- != 0);
+
+	t0 = BFC;
 
 	return s0;
 #if 0//Not required? restore.
