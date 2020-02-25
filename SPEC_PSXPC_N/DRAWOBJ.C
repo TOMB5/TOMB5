@@ -10,6 +10,9 @@
 #include "ROOMLOAD.H"
 #include <assert.h>
 
+unsigned char div3tab[] = { 0x00,0x14,0x14,0x28,0x28,0x00,0x00,0x00,0x00,0x3C,0x64,0x00,0x3C,0x14,0x50,0x00,0x3C,0x50,0x64,0x00,0x64,0x50,0x28,0x00 };
+unsigned char div4tab[] = { 00,0x14,0x14,0x3C,0x28,0x3C,0x00,0x28,0x00,0x3C,0x00,0x00,0x00,0x50,0x8C,0xA0,0x50,0x14,0xA0,0x64,0x8C,0xA0,0x28,0x78,0xA0,0x64,0x78,0x3C };
+
 void InitGT3_V2(int* s0, int* s4, int* s3, int t6, int at, int t7, int t8, int s5, int t3, int t2, int s6, int t4)//7FF38(<) ? (F)
 {
 #if defined(USE_32_BIT_ADDR)
@@ -654,20 +657,87 @@ void InitSubDiv(int* scratchPad, int t0, int t1, int t2, int t3, int t6, int s4,
 	((short*)t00)[28] = t4;
 }
 
+int SubDiv(int s4, int s6, int t9, int s5, int s7)
+{
+	do
+	{
+		int t1 = ((short*)s4)[0];
+		s4 += 2;
+		int t0 = t1 & 0xFF;
+		t0 |= s6;
+		t1 >>= 8;
+		t1 |= s6;
+		int t2 = ((short*)t0)[6];
+		int t3 = ((short*)t0)[7];
+		int t4 = ((short*)t0)[8];
+		int t5 = ((short*)t1)[6];
+		int t6 = ((short*)t1)[7];
+		int t7 = ((short*)t1)[8];
+		t2 += t5;
+		t2 >>= 1;
+		t3 += t6;
+		t3 >>= 1;
+		t4 += t7;
+		t4 >>= 1;
+		t3 <<= 16;
+		t2 &= 0xFFFF;
+		t2 |= t3;
+
+		VX0 = t2 & 0xFFFF;
+		VY0 = (t2 >> 16) & 0xFFFF;
+		VZ0 = t4;
+
+		t4 = ((unsigned char*)t0)[18];
+
+		docop2(0x180001);
+
+		t5 = ((unsigned char*)t0)[19];
+		t6 = ((unsigned char*)t1)[18];
+		t7 = ((unsigned char*)t1)[19];
+
+		t4 += t6;
+		t4 >>= 1;
+		t5 += t7;
+
+		t6 = ((int*)t0)[0];
+		t7 = ((int*)t1)[0];
+		t5 >>= 1;
+		t6 += t7;
+		t6 >>= 1;
+		t6 += t9;
+
+		((int*)s5)[0] = t6;
+		((char*)s5)[18] = t4;
+		((char*)s5)[19] = t5;
+		((int*)s5)[1] = SXY2;
+		((int*)s5)[2] = SZ3;
+		s5 += 0x14;
+	} while (s7-- != 0);
+
+	return s4 + 2;//Return t0
+}
+
 void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6)//7E830(<)
 {
 	int scratchPad[256];
+	int s3 = 0x9000000;
+	int s5;
+	int s6;
+	int s4;
+	int s77;
+	int t9;
+
 	InitSubDiv(&scratchPad[0], t0, t1, t2, t3, t6, s4, t7, s5, t8, t4, s6);
+	((int*)t0)[2] = SZ1;
+	((int*)t0)[7] = SZ2;
+	((int*)t0)[12] = SZ3;
+	s4 = (int)&div3tab[0];
+	s5 = t0 | 0x3C;
+	s6 = t0;
+	s77 = 2;
+	t9 = 0xFEFEFEFE;
+	SubDiv(s4, s6, t9, s5, s77);
 #if 0
-jal     sub_7E6C8
-move    $s3, $gp///@fixme where is gp coming from might be the poly len 0x9000000
-swc2    $17, 8($t0)
-swc2    $18, 0x1C($t0)
-swc2    $19, 0x30($t0)
-la      $s4, dword_7E3D4
-ori     $s5, $t0, 0x3C
-move    $s6, $t0
-li      $s7, 2
 lui     $t9, 0xFEFE
 jal     sub_7E774
 li      $t9, 0xFEFEFEFE
