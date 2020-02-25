@@ -2764,7 +2764,7 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 		floor = &r->floor[x_floor + (y_floor * r->x_size)];
 		data = GetDoor(floor);
 
-		if (data == -1)
+		if (data == 255)
 			break;
 
 		r = &room[data];
