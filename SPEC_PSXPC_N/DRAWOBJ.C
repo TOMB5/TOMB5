@@ -755,7 +755,7 @@ void IniPrim(int at, int t6, int t7, int t8, int fp, int gp, char* s0, int s4, i
 	if (t1 >= 0x21)
 	{
 		t1 <<= 2;
-		t1 &= a3;
+		t1 += a3;
 		t2 = ((int*)t1)[0];
 		((int*)t1)[0] = (int)s0;
 		t2 |= at;
