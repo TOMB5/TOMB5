@@ -918,11 +918,12 @@ loc_7E420:
 				docop2(0x158002D);
 
 				t6 = ((int*)t6)[1];
-				t7 = ((int*)t7)[1];
-				t8 = ((int*)t8)[1];
 
 				if (at >= 0)
 				{
+					t7 = ((int*)t7)[1];
+					t8 = ((int*)t8)[1];
+
 					t5 <<= 4;
 					t1 = OTZ;
 					t5 += a2;
@@ -933,6 +934,7 @@ loc_7E420:
 						t4 = ((int*)t5)[2];
 						at = t4 << 8;
 						UnpackRGB(&t2, &t6, &fp, &t4, &at, &t7, &t8);
+						IRGB = LIM(IR1 >> 7, 0x1f, 0, 0) | (LIM(IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(IR3 >> 7, 0x1f, 0, 0) << 10);
 						at = IRGB;
 						t2 = ((int*)t5)[0];
 						t3 = ((int*)t5)[1];
