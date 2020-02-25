@@ -14,6 +14,222 @@
 #include "GTEREG.H"
 #include <assert.h>
 
+int GetFrames(struct ITEM_INFO* item /*s3*/, int* fp)//81468
+{
+	struct ANIM_STRUCT* anim;//$t0
+	int t1;
+	int t2;
+	int t3;
+	short* t4;
+	short* t5;
+
+	anim = &((struct ANIM_STRUCT*)fp[39])[item->anim_number];
+
+	fp[23] = anim->interpolation & 0xFF;
+	t1 = (item->frame_number - anim->frame_base) / (anim->interpolation & 0xFF);
+	t2 = (item->frame_number - anim->frame_base) % (anim->interpolation & 0xFF);
+
+	t3 = t1 * (anim->interpolation >> 8);
+	t4 = &anim->frame_ptr[t3];
+	fp[30] = (int)t4;
+	t5 = &t4[(anim->interpolation >> 8)];
+	fp[31] = (int)t5;
+
+	if (t2 == 0)
+	{
+		return 0;
+	}
+
+	//loc_814D8
+	t3 = t1 * (anim->interpolation & 0xFF);
+	if (anim->frame_end < t3 + (anim->interpolation & 0xFF))
+	{
+		fp[23] = anim->frame_end - ((t3 + (anim->interpolation & 0xFF)) - (anim->interpolation & 0xFF));
+	}
+
+	return t2;
+}
+
+void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, int* fp)//81504
+{
+	//v0 = 0x1FF0000
+	//v1 = 0xEF0000
+	fp[36] = 0x1FF0000;
+	fp[37] = 0xEF0000;
+
+	GetFrames(item, fp);
+
+#if 0
+sw      $v0, arg_90($fp)
+jal     sub_81468
+sw      $v1, arg_94($fp)
+jal     sub_81BBC
+move    $s0, $v0
+lw      $a0, 0x40($s3)
+lw      $a1, 0x44($s3)
+jal     sub_81A8C
+lw      $a2, 0x48($s3)
+lh      $a0, 0x4E($s3)
+lh      $a1, 0x4C($s3)
+jal     sub_818FC
+lh      $a2, 0x50($s3)
+lh      $a0, 0x24($s6)
+lhu     $v0, 0x72($s6)
+beqz    $a0, loc_81584
+andi    $v0, 1
+cfc2    $at, $7
+beqz    $v0, loc_81584
+slt     $v0, $a0, $at
+beqz    $v0, loc_81584
+lw      $a0, arg_B8($fp)
+nop
+bnez    $a0, loc_81584
+nop
+addiu   $s6, 0x40
+
+loc_81584:
+jal     sub_80DD8
+lw      $s2, arg_78($fp)
+jal     sub_811FC
+lw      $a0, arg_78($fp)
+beqz    $v0, loc_81738
+li      $at, 0
+sw      $at, arg_4C($fp)
+lw      $a2, arg_40($fp)
+lw      $v1, arg_78($fp)
+sh      $v0, 0($a2)
+sw      $s3, 4($a2)
+sw      $v1, 8($a2)
+lw      $s2, 0x3C($s3)
+li      $s1, 1
+lh      $v0, 2($s6)
+lw      $s7, arg_A0($fp)
+sll     $v0, 2
+addu    $s7, $v0
+lw      $v0, 4($s6)
+lw      $s5, arg_A4($fp)
+sll     $v0, 2
+bnez    $s0, loc_81C60
+addu    $s5, $v0
+lw      $v0, arg_78($fp)
+nop
+lh      $a0, 0xC($v0)
+lh      $a1, 0xE($v0)
+jal     sub_81AB0
+lh      $a2, 0x10($v0)
+lw      $v0, arg_78($fp)
+lw      $gp, 0x88($s3)
+lw      $s3, 8($s3)
+addiu   $v0, 0x12
+jal     sub_819FC
+sw      $v0, arg_80($fp)
+and     $v0, $s3, $s1
+beqz    $v0, loc_81630
+and     $v0, $gp, $s1
+beqz    $v0, loc_81628
+lw      $a0, 0($s7)
+lw      $a0, 4($s7)
+
+loc_81628:
+jal     sub_81750
+nop
+
+loc_81630:
+lh      $s4, 0($s6)
+nop
+addiu   $s4, -1
+blez    $s4, loc_81714
+addiu   $s7, 8
+
+loc_81644:
+lw      $s0, 0($s5)
+nop
+andi    $v0, $s0, 1
+beqz    $v0, loc_81660
+nop
+jal     sub_81C0C
+nop
+
+loc_81660:
+andi    $v0, $s0, 2
+beqz    $v0, loc_81674
+nop
+jal     sub_81BBC
+nop
+
+loc_81674:
+lw      $a0, 4($s5)
+lw      $a1, 8($s5)
+jal     sub_81AB0
+lw      $a2, 0xC($s5)
+jal     sub_819FC
+nop
+beqz    $s2, loc_816E0
+andi    $v0, $s0, 0x1C
+beqz    $v0, loc_816E0
+andi    $v0, $s0, 8
+beqz    $v0, loc_816B4
+andi    $v0, $s0, 4
+lh      $a0, 0($s2)
+jal     sub_81858
+addiu   $s2, 2
+andi    $v0, $s0, 4
+
+loc_816B4:
+beqz    $v0, loc_816CC
+andi    $v0, $s0, 0x10
+lh      $a0, 0($s2)
+jal     sub_817B0
+addiu   $s2, 2
+andi    $v0, $s0, 0x10
+
+loc_816CC:
+beqz    $v0, loc_816E0
+nop
+lh      $a0, 0($s2)
+jal     sub_81918
+addiu   $s2, 2
+
+loc_816E0:
+sll     $s1, 1
+and     $v0, $s1, $s3
+beqz    $v0, loc_81704
+and     $v0, $gp, $s1
+beqz    $v0, loc_816FC
+lw      $a0, 0($s7)
+lw      $a0, 4($s7)
+
+loc_816FC:
+jal     sub_81750
+nop
+
+loc_81704:
+addiu   $s4, -1
+addiu   $s7, 8
+bnez    $s4, loc_81644
+addiu   $s5, 0x10
+
+loc_81714:
+lw      $at, arg_4C($fp)
+lw      $v0, arg_48($fp)
+blez    $at, loc_81738
+addiu   $v0, 1
+lw      $v1, arg_40($fp)
+sw      $v0, arg_48($fp)
+sh      $at, 2($v1)
+addiu   $v1, 0xC
+sw      $v1, arg_40($fp)
+
+loc_81738:
+jal     sub_81C0C
+lw      $s2, arg_B0($fp)
+lw      $ra, arg_B4($fp)
+lw      $s1, arg_AC($fp)
+jr      $ra
+lw      $s0, arg_A8($fp)
+#endif
+}
+
 void SetRotation2(int* fp, int t0, int t1, int t2, int t3, int t4)
 {
 	int a0 = fp[20];
@@ -511,10 +727,10 @@ void init_scratchpad(int* fp)//8281C(<) (F)
 	int* at = &fp[47];
 	fp[20] = (int)at;
 
-	t0 = (R11 & 0xFFFF) | (R12 & 0xFFFF) << 16;
-	t1 = (R13 & 0xFFFF) | (R21 & 0xFFFF) << 16;
-	t2 = (R22 & 0xFFFF) | (R23 & 0xFFFF) << 16;
-	t3 = (R31 & 0xFFFF) | (R32 & 0xFFFF) << 16;
+	t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 	t4 = R33;
 	t5 = TRX;
 	t6 = TRY;
@@ -653,7 +869,7 @@ void CalcAllAnimatingItems_ASM()
 					if (object->using_drawanimating_item && item->status != 6)
 					{
 						//s2 = item
-						///CalcAnimatingItem_ASM();
+						CalcAnimatingItem_ASM(item, fp);
 						//item = s2 //Maybe restore backup check if modified in func above
 					}
 					//loc_827BC
@@ -689,21 +905,23 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 		for(i = 0; i < s4; i++, sobject++)
 		{
 			s6 = 0x80;
+			item = stashed_objects_list[i].item;
 
 			if (sobject->numnodestodraw == 0)
-			{
-				item = stashed_objects_list[i].item;
+			{	
+				j = 1;
 				S_CalculateStaticMeshLight(item->floor, item->touch_bits, item->mesh_bits, item->current_anim_state);
 			}
 			else
 			{
 				//loc_82950
-				s6 -= item->after_death;
+				j = sobject->numnodestodraw;
+				s6 =  0x80 - item->after_death;
 				CalculateObjectLighting(item, sobject->frmptr0, sobject, sobject->numnodestodraw);
 			}
 
 			//loc_82964
-			for (j = 0; j < 1; j++, sdat++)
+			do
 			{
 				R11 = ((int*)&sdat->matrix[0])[0] & 0xFFFF;
 				R12 = (((int*)&sdat->matrix[0])[0] >> 16) & 0xFFFF;
@@ -723,15 +941,16 @@ void DrawAllAnimatingItems_ASM(int s4)//82900(<)
 					//loc_829C4
 					if (s6 >= 5)
 					{
-						//phd_PutPolygons_seethrough(sdat->mesh, s6);
+						phd_PutPolygons_seethrough(sdat->mesh, s6);
 					}
 				}//loc_829C4
 				else
 				{
 					phd_PutPolygons(sdat->mesh, sobject->clip);
 				}
-			}
-		}
+				sdat++;
+			} while (--j > 0);
+		} 
 		//loc_829E8
 		mPopMatrix();
 	}
