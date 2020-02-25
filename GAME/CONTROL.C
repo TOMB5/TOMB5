@@ -1397,23 +1397,27 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 void KillMoveItems()//1D420(<), 1D5B4(<) (F)
 {
-	short nex;
+	short nex; // $v0
+	int i = 0;
 
 	if (ItemNewRoomNo > 0)
 	{
-		for(nex = 0; nex < ItemNewRoomNo; nex++)
+		//loc_1D444
+		do
 		{
-			if (ItemNewRooms[nex][0] & 0x8000)
+			if ((ItemNewRooms[i][0] & 0x8000))
 			{
-				KillItem(ItemNewRooms[nex][0] & 0x7FFF);
+				KillItem((ItemNewRooms[i][0] & 0x7FFF));
+				i++;
 			}
 			else
 			{
-				ItemNewRoom(ItemNewRooms[nex][0], ItemNewRooms[nex][1]);
+				//loc_1D468
+				ItemNewRoom(ItemNewRooms[i][0], ItemNewRooms[i][1]);
+				i++;
 			}
-
-		}
-	}
+		} while (i < ItemNewRoomNo);
+	}//loc_1D494
 
 	ItemNewRoomNo = 0;
 }
@@ -2705,8 +2709,6 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 	struct FLOOR_INFO* floor;
 	short data;
 
-	//Disabled due to infinite looping on PSX
-	return 0;
 
 	//loc_1E570
 	r = &room[room_number];
