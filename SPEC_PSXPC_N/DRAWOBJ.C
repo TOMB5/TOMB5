@@ -614,12 +614,12 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 	return 1;
 }
 
-void InitSubDiv(int* scratchPad, int t0, int t1, int t2, int t3, int t6, int s4, int t7, int s5, int t8, int t4, int s6)//7E6C8(<)
+void InitSubDiv(int* scratchPad, int t0, int t1, int t2, int t3, int t6, int s4, int t7, int s5, int t8, int t4, int s6, int* fp, int* gp)//7E6C8(<)
 {
 	BFC = t0;
 	int at = 0xFFFF0000;
-	int fp = t2 & at;
-	int gp = t3 & at;
+	*fp = t2 & at;
+	*gp = t3 & at;
 	int s3 = t1;
 	int* t00 = &scratchPad[0];
 	at = 0xFF000000;
@@ -720,9 +720,9 @@ int SubDiv(int s4, int s6, int t9, int s5, int s7)
 void IniPrim(int at, int t6, int t7, int t8, int fp, int gp, char* s0, int s4, int a3, int s5, int s6)//7E65C(<)
 {
 	int t1 = ((int*)t6)[0];
-	int t6 = ((unsigned short*)t6)[9];
+	t6 = ((unsigned short*)t6)[9];
 	int t2 = ((int*)t7)[0];
-	int t7 = ((unsigned short*)t7)[9];
+	t7 = ((unsigned short*)t7)[9];
 	int t3 = ((int*)t8)[0];
 	int t88 = ((unsigned short*)t8)[9];
 
@@ -764,19 +764,18 @@ void IniPrim(int at, int t6, int t7, int t8, int fp, int gp, char* s0, int s4, i
 	((int*)s0)[0] = t2;
 }
 
-void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6, char* s0, char* s1)//7E830(<)
+void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6, char* s0, char* s1, int a3)//7E830(<)
 {
 	int scratchPad[256];
 	int s3 = 0x9000000;
-	int s5;
-	int s6;
-	int s4;
 	int s77;
 	int t9;
 	int t5;
 	int* at;
+	int fp;
+	int gp;
 
-	InitSubDiv(&scratchPad[0], t0, t1, t2, t3, t6, s4, t7, s5, t8, t4, s6);
+	InitSubDiv(&scratchPad[0], t0, t1, t2, t3, t6, s4, t7, s5, t8, t4, s6, &fp, &gp);
 	((int*)t0)[2] = SZ1;
 	((int*)t0)[7] = SZ2;
 	((int*)t0)[12] = SZ3;
@@ -816,7 +815,7 @@ void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, in
 
 		if (ultimate_clipper(s4, s5, s6, s77) == 0)
 		{
-			//IniPrim(0x9000000);
+			IniPrim(0x9000000, t6, t7, t8, fp, gp, s0, s4, a3, s5, s6);
 			s0 += 0x28;///@TODO return from this func
 		}//loc_7E8D4
 	}
@@ -926,7 +925,7 @@ void DrawSubDivMesh(int v0, int* a1, char* s0, char* s1, int* a0, int a2, int t2
 						t2 -= at;
 						t1 += (int)a3;
 
-						SubDiv3(t0, t1, t2, t3, t6, s4, (int*)s7, t7, s5, t8, t4, s6, s0, s1);
+						SubDiv3(t0, t1, t2, t3, t6, s4, (int*)s7, t7, s5, t8, t4, s6, s0, s1, (int)a3);
 
 					}//loc_7E4FC
 				}//loc_7E4FC

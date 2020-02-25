@@ -14,7 +14,7 @@
 #include "GTEREG.H"
 #include <assert.h>
 
-int GetFrames(struct ITEM_INFO* item /*s3*/, int* fp)//81468
+int GetFrames_AI(struct ITEM_INFO* item /*s3*/, int* fp)//81468
 {
 	struct ANIM_STRUCT* anim;//$t0
 	int t1;
@@ -50,29 +50,25 @@ int GetFrames(struct ITEM_INFO* item /*s3*/, int* fp)//81468
 	return t2;
 }
 
+void mTranslateAbsXYZ_AI(int x, int, int z)//81A8C
+{
+	//UNIMPLEMENTED();
+}
+
 void CalcAnimatingItem_ASM(struct ITEM_INFO* item /*s3*/, int* fp)//81504
 {
+	int frames;//$s0
+
 	//v0 = 0x1FF0000
 	//v1 = 0xEF0000
 	fp[36] = 0x1FF0000;
 	fp[37] = 0xEF0000;
 
-	GetFrames(item, fp);
-
+	frames = GetFrames_AI(item, fp);
+	mmPushMatrix(fp);
+	mTranslateAbsXYZ_AI(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
+	//mRotYXZ_AI(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
 #if 0
-sw      $v0, arg_90($fp)
-jal     sub_81468
-sw      $v1, arg_94($fp)
-jal     sub_81BBC
-move    $s0, $v0
-lw      $a0, 0x40($s3)
-lw      $a1, 0x44($s3)
-jal     sub_81A8C
-lw      $a2, 0x48($s3)
-lh      $a0, 0x4E($s3)
-lh      $a1, 0x4C($s3)
-jal     sub_818FC
-lh      $a2, 0x50($s3)
 lh      $a0, 0x24($s6)
 lhu     $v0, 0x72($s6)
 beqz    $a0, loc_81584
@@ -869,7 +865,7 @@ void CalcAllAnimatingItems_ASM()
 					if (object->using_drawanimating_item && item->status != 6)
 					{
 						//s2 = item
-						CalcAnimatingItem_ASM(item, fp);
+						///CalcAnimatingItem_ASM(item, fp);
 						//item = s2 //Maybe restore backup check if modified in func above
 					}
 					//loc_827BC
