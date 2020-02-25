@@ -115,7 +115,43 @@ long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
 	return -result_angle & 0xFFFF;
 }
 
-long mSqrt(long value)//83B30(<), 85B74(<) (F)
+long mSqrt(long value)//779DC
+{
+	LZCR = gte_leadingzerocount(value);
+	LZCS = value;
+
+	int v0 = 0x1F;
+
+	if (value != 0)
+	{
+		int v1 = LZCR;
+		int at = -2;
+		v1 &= at;
+		v0 -= v1;
+		v0 >>= 1;
+		at = v1 - 0x18;
+		
+		if (at >= 0)
+		{
+			value <<= at;
+		}
+		else
+		{
+			at = 0x18;
+			at -= v1;
+			value >>= at;
+		}
+
+		value -= 0x40;
+
+		value = SqrtTable[value];
+		value <<= v0;
+	}
+	//locret_77A38
+	return value >> 12;
+}
+
+long mSqrt_2(long value)//83B30(<), 85B74(<) (F)
 {
 	long v0 = 0x1F;
 
@@ -123,7 +159,7 @@ long mSqrt(long value)//83B30(<), 85B74(<) (F)
 
 	if (value != 0)
 	{
-		v1 &= 0xFFFFFFFE;
+		v1 &= -2;
 		v0 = v0 - v1 >> 1;
 		long at = v1 - 0x18;
 
@@ -1153,10 +1189,10 @@ void mmPushMatrix(int* fp)//81BBC(<) (F)
 {
 	int* a0 = &fp[20];
 
-	int t0 = R11 | (R12 << 16);
-	int t1 = R13 | (R21 << 16);
-	int t2 = R22 | (R23 << 16);
-	int t3 = R31 | (R32 << 16);
+	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+	int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+	int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+	int t3 = R31 | ((R32 & 0xFFFF) << 16);
 	int t4 = R33;
 	int t5 = TRX;
 	int t6 = TRY;
@@ -1249,7 +1285,7 @@ loc_77F18:
 	if (s2 != s3)
 	{
 		//t0 = ((char*)&scratchPad)[s2]
-		s6 = ((unsigned char*)& scratchPad)[s2];
+		s6 = ((unsigned char*)&scratchPad)[s2];
 		s2++;
 		s2 &= 0x7F;
 		
@@ -1280,7 +1316,7 @@ loc_77F18:
 		}
 		
 		//loc_77F84
-		if (t6 > t2)
+		if (t6 >= t2)
 		{
 			t2 = t6;
 		}//loc_77F90
@@ -1291,7 +1327,7 @@ loc_77F18:
 		}//loc_77F9C
 
 		t6 = t2 << 16;
-		if (t8 > t4)
+		if (t8 >= t4)
 		{
 			t4 = t8;
 		}//loc_77FA8
@@ -1539,7 +1575,7 @@ loc_77F18:
 									t7 |= t9;
 
 									VX0 = t7 & 0xFFFF;
-									VY0 = t7 >> 16;
+									VY0 = (t7 >> 16) & 0xFFFF;
 									VZ0 = t8;
 									a2 += 3;
 
@@ -1555,7 +1591,7 @@ loc_77F18:
 									t44[2] = t9;
 									t44 += 3;
 
-									if (t9 < 0)
+									if (t9 <= 0)
 									{
 										t5++;
 										goto loc_782C8;
@@ -1565,7 +1601,7 @@ loc_77F18:
 									t7 = SXY2;
 									t8 = t7 >> 16;
 
-									if (t9 > 0x4FFF)
+									if (t9 >= 0x5000)
 									{
 										t6++;
 									}
@@ -1580,7 +1616,7 @@ loc_77F18:
 									}
 
 									//loc_782A4
-									if (t7 > t1)
+									if (t7 >= t1)
 									{
 										t1 = t7;
 									}//loc_782B0
@@ -1590,7 +1626,7 @@ loc_77F18:
 										t2 = t8;
 									}
 									//loc_782BC
-									if (t8 > t3)
+									if (t8 >= t3)
 									{
 										t3 = t8;
 									}
