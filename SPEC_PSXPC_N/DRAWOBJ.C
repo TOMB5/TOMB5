@@ -717,7 +717,54 @@ int SubDiv(int s4, int s6, int t9, int s5, int s7)
 	return s4 + 2;//Return t0
 }
 
-void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6)//7E830(<)
+void IniPrim(int at, int t6, int t7, int t8, int fp, int gp, char* s0, int s4, int a3, int s5, int s6)//7E65C(<)
+{
+	int t1 = ((int*)t6)[0];
+	int t6 = ((unsigned short*)t6)[9];
+	int t2 = ((int*)t7)[0];
+	int t7 = ((unsigned short*)t7)[9];
+	int t3 = ((int*)t8)[0];
+	int t88 = ((unsigned short*)t8)[9];
+
+	t6 |= fp;
+	t7 |= gp;
+
+#if defined(USE_32_BIT_ADDR)
+	((int*)s0)[2] = t1;
+	((int*)s0)[3] = s4;
+	((int*)s0)[4] = t6;
+	((int*)s0)[5] = t2;
+	((int*)s0)[6] = s5;
+	((int*)s0)[7] = t7;
+	((int*)s0)[8] = t3;
+	((int*)s0)[9] = s6;
+	((int*)s0)[10] = t8;
+#else
+	((int*)s0)[1] = t1;
+	((int*)s0)[2] = s4;
+	((int*)s0)[3] = t6;
+	((int*)s0)[4] = t2;
+	((int*)s0)[5] = s5;
+	((int*)s0)[6] = t7;
+	((int*)s0)[7] = t3;
+	((int*)s0)[8] = s6;
+	((int*)s0)[9] = t8;
+#endif
+	t1 = OTZ;
+
+	if (t1 >= 0x21)
+	{
+		t1 <<= 2;
+		t1 &= a3;
+		t2 = ((int*)t1)[0];
+		((int*)t1)[0] = (int)s0;
+		t2 |= at;
+	}
+	//locret_7E6C0
+	((int*)s0)[0] = t2;
+}
+
+void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6, char* s0, char* s1)//7E830(<)
 {
 	int scratchPad[256];
 	int s3 = 0x9000000;
@@ -726,6 +773,8 @@ void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, in
 	int s4;
 	int s77;
 	int t9;
+	int t5;
+	int* at;
 
 	InitSubDiv(&scratchPad[0], t0, t1, t2, t3, t6, s4, t7, s5, t8, t4, s6);
 	((int*)t0)[2] = SZ1;
@@ -737,40 +786,43 @@ void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, in
 	s77 = 2;
 	t9 = 0xFEFEFEFE;
 	SubDiv(s4, s6, t9, s5, s77);
+	t5 = 3;
+	
+	//loc_7E86C
+	if ((unsigned long)s0 < (unsigned long)s1)
+	{
+		t0 += 4;
+		t9 = ((int*)t0)[-1];
+		at = &scratchPad[0];
+		t6 = t9 & 0xFF;
+		t6 |= (int)at;
+		t7 = t9 >> 8;
+		t7 &= 0xFF;
+		t7 |= (int)at;
+		t8 = t9 >> 16;
+		t8 |= (int)at;
+
+		SZ1 = ((int*)t6)[2];
+		SZ2 = ((int*)t7)[2];
+		SZ3 = ((int*)t8)[2];
+
+		s4 = ((int*)t6)[1];
+		s5 = ((int*)t7)[1];
+		s6 = ((int*)t8)[1];
+
+		docop2(0x158002D);
+
+		s77 = s6;
+
+		if (ultimate_clipper(s4, s5, s6, s77) == 0)
+		{
+			//IniPrim(0x9000000);
+			s0 += 0x28;///@TODO return from this func
+		}//loc_7E8D4
+	}
+	//loc_7E8D4
+
 #if 0
-lui     $t9, 0xFEFE
-jal     sub_7E774
-li      $t9, 0xFEFEFEFE
-li      $t5, 3
-
-loc_7E86C:
-slt     $at, $s0, $s1
-beqz    $at, loc_7E8D4
-addi    $t0, 4
-lw      $t9, -4($t0)
-lui     $at, 0x1F80
-andi    $t6, $t9, 0xFF
-or      $t6, $at
-srl     $t7, $t9, 8
-andi    $t7, 0xFF
-or      $t7, $at
-srl     $t8, $t9, 16
-or      $t8, $at
-lwc2    $17, 8($t6)
-lwc2    $18, 8($t7)
-lwc2    $19, 8($t8)
-lw      $s4, 4($t6)
-lw      $s5, 4($t7)
-lw      $s6, 4($t8)
-cop2    0x158002D
-jal     sub_7ECDC
-move    $s7, $s6
-bnez    $at, loc_7E8D4
-nop
-jal     sub_7E65C
-lui     $at, 0x900
-addi    $s0, 0x28
-
 loc_7E8D4:
 bnez    $t5, loc_7E86C
 addi    $t5, -1
@@ -874,7 +926,7 @@ void DrawSubDivMesh(int v0, int* a1, char* s0, char* s1, int* a0, int a2, int t2
 						t2 -= at;
 						t1 += (int)a3;
 
-						SubDiv3(t0, t1, t2, t3, t6, s4, (int*)s7, t7, s5, t8, t4, s6);
+						SubDiv3(t0, t1, t2, t3, t6, s4, (int*)s7, t7, s5, t8, t4, s6, s0, s1);
 
 					}//loc_7E4FC
 				}//loc_7E4FC
