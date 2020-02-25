@@ -218,8 +218,8 @@ void LaraControl(short item_number)//4A838, 4AC9C
 	wd = GetWaterDepth(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
 	wh = GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
 
-	hfw = -32152;
-	if (wh != -32152)
+	hfw = -32512;
+	if (wh != -32512)
 	{
 		hfw = item->pos.y_pos - wh;
 	}//loc_4A9F0
