@@ -755,25 +755,38 @@ void IniPrim(int at, int t6, int t7, int t8, int fp, int gp, char* s0, int s4, i
 	if (t1 >= 0x21)
 	{
 		t1 <<= 2;
+#if defined(USE_32_BIT_ADDR)
+		t1 *= 2;
+#endif
 		t1 += a3;
+
+#if defined(USE_32_BIT_ADDR)
+		setlen(s0, 9);
+		addPrim(t1, s0);
+#else
 		t2 = ((int*)t1)[0];
 		((int*)t1)[0] = (int)s0;
 		t2 |= at;
+#endif
 	}
+#if !defined(USE_32_BIT_ADDR)///@FIXME (paranoid)
 	//locret_7E6C0
 	((int*)s0)[0] = t2;
+#endif
 }
 
-void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6, char* s0, char* s1, int a3)//7E830(<)
+char* SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, int s5, int t8, int t4, int s6, char* s0, char* s1, int a3)//7E830(<)
 {
 	int scratchPad[256];
 	int s3 = 0x9000000;
 	int s77;
-	int t9;
+	unsigned int t9;
 	int t5;
 	int* at;
 	int fp;
 	int gp;
+
+	S_MemSet((char*)&scratchPad[0], 0, 1024);
 
 	InitSubDiv(&scratchPad[0], &t0, t1, t2, t3, t6, s4, t7, s5, t8, t4, s6, &fp, &gp);
 	((int*)t0)[2] = SZ1;
@@ -818,13 +831,13 @@ void SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, in
 			if (ultimate_clipper(s4, s5, s6, s77) == 0)
 			{
 				IniPrim(0x9000000, t6, t7, t8, fp, gp, s0, s4, a3, s5, s6);
-				s0 += 0x28;///@TODO return from this func
+				s0 += sizeof(POLY_GT3);
 			}//loc_7E8D4
 		}
 		//loc_7E8D4
 	} while (t5-- != 0);
 
-
+	return s0;
 #if 0//Not required? restore.
 mfc2    $ra, $20
 cfc2    $t0, $23
@@ -858,11 +871,11 @@ void DrawSubDivMesh(int v0, int* a1, char* s0, char* s1, int* a0, int a2, int t2
 	{
 		t0 = a1[0];
 
-		//loc_7E418
+loc_7E418:
 		a1++;
 		v1 = 3;
 
-		//loc_7E420
+loc_7E420:
 		t1 = a1[0];
 
 		v0--;
@@ -926,7 +939,7 @@ void DrawSubDivMesh(int v0, int* a1, char* s0, char* s1, int* a0, int a2, int t2
 						t2 -= at;
 						t1 += (int)a3;
 
-						SubDiv3(t0, t1, t2, t3, t6, s4, (int*)s7, t7, s5, t8, t4, s6, s0, s1, (int)a3);
+						s0 = SubDiv3(t0, t1, t2, t3, t6, s4, (int*)s7, t7, s5, t8, t4, s6, s0, s1, (int)a3);
 
 					}//loc_7E4FC
 				}//loc_7E4FC
@@ -936,17 +949,23 @@ void DrawSubDivMesh(int v0, int* a1, char* s0, char* s1, int* a0, int a2, int t2
 		{
 			//loc_7E64C///@todo goto loc_7E64C;
 		}
+
+		//loc_7E4FC
+		a1++;
+		if (v0 != 0)
+		{
+			if (v1-- != 0)
+			{
+				goto loc_7E420;
+			}
+
+			t0 = a1[0];
+			goto loc_7E418;
+
+		}//loc_7E514
 	}//loc_7E514
 
 #if 0
-loc_7E4FC:
-beqz    $v0, loc_7E514
-addi    $a1, 4
-bnez    $v1, loc_7E420
-addi    $v1, -1
-j       loc_7E418
-lw      $t0, 0($a1)
-
 loc_7E514:
 cfc2    $v0, $27
 lui     $gp, 0xC00
