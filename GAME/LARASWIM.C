@@ -36,18 +36,13 @@ long GetWaterDepth(long x, long y, long z, short room_number)//4CA38, 4CE9C
 	short data; // $a0
 	int x_floor; // $a1
 	int y_floor; // $a0
-
-	//x = s2
-	//y = s4
-	//z = s3
-	return 0;
-	r = &room[room_number];
+	unsigned char door;//$a0 ///@fixme ?!?!? should be data
 
 	//loc_4CA80
 	do
 	{
-		//v0 = r->z
-		//v1 = r->x
+		r = &room[room_number];
+
 		x_floor = (z - r->z) >> 10;
 		y_floor = (x - r->x) >> 10;
 
@@ -57,192 +52,123 @@ long GetWaterDepth(long x, long y, long z, short room_number)//4CA38, 4CE9C
 
 			if (y_floor <= 0)
 			{
-				//a2 = r->x_size
 				y_floor = 1;
-				//j loc_4CB44
 			}
 			else
 			{
 				//loc_4CAB4
-				//v1 = r->y_size - 2
-				//a2 = r->x_size
 				if (r->y_size - 2 < y_floor)
 				{
-					//v0 = r->x_size
 					y_floor = r->y_size - 2;
-					//j loc_4CB48
-				}//loc_4CB48
+				}
 			}
 		}
 		else
 		{
 			//loc_4CAD4
-			//v1 = r->x_size - 1
-			//a2 = r->x_size
-			//v0 = x_floor < r->x_size - 1 ? 1 : 0
 			if (x_floor < r->x_size - 1)
 			{
 				//loc_4CB1C
-				if (y_floor < 0)
+				if (y_floor >= 0)
 				{
-					y_floor = 0;
-					//j loc_4CB44
-				}
-				else
-				{
-					//v1 = r->y_size
+					//loc_4CB2C
 					if (y_floor >= r->y_size)
 					{
-						//v0 = r->x_size << 16
 						y_floor = r->y_size - 1;
 					}
 				}
-			}
-			else if (y_floor > 0)
-			{
-				//a1 = v1
-				//loc_4CAFC
-				//v0 = r->y_size - 2
-				//v1 = v0 < a0 ? 1 : 0
-				if (r->y_size - 2 < y_floor)
+				else
 				{
-					y_floor = r->y_size - 2;
-				}//loc_4CB44
+					y_floor = 0;
+				}
 			}
 			else
 			{
-				//a1 = v1
-				y_floor = 1;
-				//j loc_4CB44
+				x_floor = r->x_size - 1;
+
+				if (y_floor > 0)
+				{
+					//loc_4CAFC
+					if (r->y_size - 2 < y_floor)
+					{
+						y_floor = r->y_size - 2;
+					}
+				}
+				else
+				{
+					y_floor = 1;
+				}
 			}
 		}
 
 		//loc_4CB48
-		//v0 = x_floor + (r->x_size * y_floor);
-		floor = &r->floor[x_floor + (r->x_size * y_floor)];
-		data = GetDoor(floor);
+		floor = &r->floor[x_floor + (y_floor * r->x_size)];
 
-	} while (data != 0xFF);
+		door = GetDoor(floor);
 
-	if (data != 0xFF)
+		if (door == 255)
+			break;
+
+		room_number = door;
+	} while (TRUE);
+
+	//loc_4CB94
+	if ((r->flags & RF_FILL_WATER))
 	{
-		//v0 = data
-		//v1 = room
-		//var_20 = data
-		//j loc_4CA80
+		if (floor->sky_room != door)
+		{
+loc_4CBC4:
+			r = &room[floor->sky_room];
+
+			if ((r->flags & RF_FILL_WATER))
+			{
+				floor = &r->floor[((z - r->z) >> 10) + r->x_size * ((x - r->x) >> 10)];
+
+				if (floor->sky_room != 255)
+				{
+					goto loc_4CBC4;
+				}
+
+				//loc_4CD14
+				return 32767;
+			}
+			else
+			{
+				//loc_4CC40
+				wh = floor->ceiling << 8;
+				return GetHeight(GetFloor(x, y, z, &room_number), x, y, z) - wh;
+			}
+		}
+		//loc_4CD14
+		return 32767;
 	}
 	else
 	{
-		//loc_4CB94
-		//v0 = r->flags
-		if ((r->flags & 1))
+		//loc_4CC84
+		if (floor->pit_room != door)
 		{
-			//v0 = floor->sky_room
-			//v0 = 0x7FFF
-			if (floor->sky_room != data)
+			//loc_4CCA0
+			do
 			{
-				//a1 = room;
-				//a2 = 0xFF
+				r = &room[floor->pit_room];
 
-loc_4CBC4:
-				//v0 = floor->sky_room
-				r = &room[floor->sky_room];
-
-				//a0 = s2
-				if ((r->flags & 1))
+				if ((r->flags & RF_FILL_WATER))
 				{
-					//v1 = r->x
-					//a0 = r->x_size
-					//v1 = 
-					//v0 = ((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)
-					//a0 = r->floor
-					floor = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
-				
-					//v1 = floor->sky_room
-					//v0 = 0x7FFF
-					if (floor->sky_room != 0xFF)
-						goto loc_4CBC4;
+					floor = &r->floor[((z - r->z) >> 10) + (r->x_size * ((x - r->x) >> 10))];
 				}
 				else
 				{
-					//loc_4CC40
-					//a1 = y
-					//v0 = floor->ceiling
-					//a2 = z
+					//loc_4CC50
+					//loc_4CC5C
+					wh = floor->floor << 8;
+					return GetHeight(GetFloor(x, y, z, &room_number), x, y, z) - wh;
 				}
-			}//loc_4CD14
-		}//loc_4CC84
+
+			} while (floor->pit_room != 255);
+		}
 	}
 
-
-#if 0
-loc_4CC50:
-move    $a1, $s4
-move    $a2, $s3
-lb      $v0, 5($s1)
-
-loc_4CC5C:
-addiu   $a3, $sp, 0x30+var_20
-jal     sub_78954
-sll     $s0, $v0, 8
-move    $a0, $v0
-move    $a1, $s2
-move    $a2, $s4
-jal     sub_78C74
-move    $a3, $s3
-j       loc_4CD14
-subu    $v0, $s0
-
-loc_4CC84:
-lbu     $v0, 4($s1)
-nop
-beq     $v0, $a0, loc_4CD14
-li      $v0, 0xFFFF8100
-lw      $a1, dword_800A24DC
-li      $a2, 0xFF
-
-loc_4CCA0:
-lbu     $v0, 4($s1)
-nop
-sll     $v1, $v0, 2
-addu    $v1, $v0
-sll     $v1, 4
-addu    $s0, $a1, $v1
-lhu     $v0, 0x4E($s0)
-nop
-andi    $v0, 1
-bnez    $v0, loc_4CC50
-move    $a0, $s2
-lw      $v1, 0x14($s0)
-lh      $a0, 0x28($s0)
-subu    $v1, $s2, $v1
-sra     $v1, 10
-mult    $v1, $a0
-lw      $v0, 0x1C($s0)
-nop
-subu    $v0, $s3, $v0
-sra     $v0, 10
-lw      $a0, 8($s0)
-mflo    $v1
-addu    $v0, $v1
-sll     $v0, 3
-addu    $s1, $a0, $v0
-lbu     $v1, 4($s1)
-nop
-bne     $v1, $a2, loc_4CCA0
-li      $v0, 0xFFFF8100
-
-loc_4CD14:
-lw      $ra, 0x30+var_4($sp)
-lw      $s4, 0x30+var_8($sp)
-lw      $s3, 0x30+var_C($sp)
-lw      $s2, 0x30+var_10($sp)
-lw      $s1, 0x30+var_14($sp)
-lw      $s0, 0x30+var_18($sp)
-jr      $ra
-addiu   $sp, 0x30
-#endif
-	return 0;
+	return -32767;
 }
 
 void lara_col_waterroll(struct ITEM_INFO* item, struct COLL_INFO* coll)//4CA18(<), 4CE7C(<) (F)
