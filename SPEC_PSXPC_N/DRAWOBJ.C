@@ -706,7 +706,7 @@ int SubDiv(int s4, int s6, int t9, int s5, int s7)
 		t5 >>= 1;
 		t6 += t7;
 		t6 >>= 1;
-		t6 += t9;
+		t6 &= t9;
 
 		((int*)s5)[0] = t6;
 		((char*)s5)[18] = t4;
@@ -805,7 +805,7 @@ char* SubDiv4(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, i
 	((int*)t0)[18] = t9;
 	((short*)t0)[38] = t5;
 
-	//s4 = Div4Tab
+	s4 = (int)&div4tab[0];
 	s5 = (int)&scratchPad[0] + 0x50;///@INFO original is |= but since we don't actually use scratch base on win32 we have to add
 	s6 = (int)&scratchPad[0];
 	int s77 = 4;
