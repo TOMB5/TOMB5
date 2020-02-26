@@ -5692,8 +5692,6 @@ void AnimateLara(struct ITEM_INFO* item)
 
 void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F) 
 {
-	return;//not used yet
-#if 0
 	struct PHD_VECTOR joint;
 	short room_number;//_18
 	struct room_info* r;//$a1
@@ -5724,7 +5722,7 @@ void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F)
 			if (!(flags & 1))
 			{
 				flags |= 1;
-				((long*) SRhandPtr)[3] = ((long*) &r->ambient)[0];
+				LaraNodeAmbient[1] = r->ambient;
 			}
 		}
 		else
@@ -5733,11 +5731,10 @@ void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F)
 			if (!(flags & 2))
 			{
 				flags |= 2;
-				((long*) SRhandPtr)[2] = ((long*) &r->ambient)[0];
+				LaraNodeAmbient[0] = r->ambient;
 			}
 		}
 	}
-#endif
 }
 
 void SetPendulumVelocity(int x, int y, int z)// (F)
