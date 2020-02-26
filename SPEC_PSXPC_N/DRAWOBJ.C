@@ -614,22 +614,22 @@ int ultimate_clipper(int s4, int s5, int s6, int s7)
 	return 1;
 }
 
-int InitSubDiv(int* scratchPad, int* t0, int t1, int t2, int t3, int t6, int s4, int t7, int s5, int t8, int t4, int s6, int* fp, int* gp)//7E6C8(<)
+int InitSubDiv(int* scratchPad, int* t0, int* t1, int t2, int t3, int t6, int s4, int t7, int s5, int t8, int t4, int s6, int* fp, int* gp)//7E6C8(<)
 {
 	BFC = *t0;
 	int at = 0xFFFF0000;
 	*fp = t2 & at;
 	*gp = t3 & at;
-	int s3 = t1;
+	int s3 = *t1;
 	*t0 = (int)&scratchPad[0];
 	at = 0xFF000000;
 	at &= t6;
-	t1 = GFC;
+	*t1 = GFC;
 	int s7 = RFC;
 	((int*)*t0)[0] = t6;
 	((short*)*t0)[9] = t2;
 	((int*)*t0)[1] = s4;
-	s4 = (t1 << 3) & 0x7F8;
+	s4 = (*t1 << 3) & 0x7F8;
 	s4 += (int)s7;
 	t6 = ((int*)s4)[0];
 	t2 = ((short*)s4)[2];
@@ -639,7 +639,7 @@ int InitSubDiv(int* scratchPad, int* t0, int t1, int t2, int t3, int t6, int s4,
 	((int*)*t0)[5] = t7;
 	((short*)*t0)[19] = t3;
 	((int*)*t0)[6] = s5;
-	s5 = (t1 >> 5) & 0x7F8;
+	s5 = (*t1 >> 5) & 0x7F8;
 	s5 += (int)s7;
 	t7 = ((int*)s5)[0];
 	t3 = ((short*)s5)[2];
@@ -649,7 +649,7 @@ int InitSubDiv(int* scratchPad, int* t0, int t1, int t2, int t3, int t6, int s4,
 	((int*)*t0)[10] = t8;
 	((short*)*t0)[29] = t4;
 	((int*)*t0)[11] = s6;
-	s6 = (t1 >> 13) & 0x7F8;
+	s6 = (*t1 >> 13) & 0x7F8;
 	s6 += (int)s7;
 	t8 = ((int*)s6)[0];
 	t4 = ((short*)s6)[2];
@@ -763,7 +763,7 @@ void IniPrim(int at, int t6, int t7, int t8, int fp, int gp, char* s0, int s4, i
 		t1 += a3;
 
 #if defined(USE_32_BIT_ADDR)
-		setlen(s0, 9);
+		setlen(s0, at >> 24);
 		addPrim(t1, s0);
 #else
 		t2 = ((int*)t1)[0];
@@ -784,7 +784,8 @@ char* SubDiv4(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, i
 	int* s2 = s7;
 	int fp;
 	int gp;
-	int at = InitSubDiv(&scratchPad[0], &t0, t1, t2, t3, t6, s4, t7, s5, t8, t4, s6, &fp, &gp);
+	int s77 = (int)RFC;
+	int at = InitSubDiv(&scratchPad[0], &t0, &t1, t2, t3, t6, s4, t7, s5, t8, t4, s6, &fp, &gp);
 
 	((int*)&scratchPad[0])[2] = SZ0;
 	((int*)&scratchPad[0])[7] = SZ1;
@@ -798,17 +799,16 @@ char* SubDiv4(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, i
 	((int*)&scratchPad[0])[16] = (int)s2;
 	t1 >>= 21;
 	t1 &= 0x7F8;
-	s7 += t1;
-
-	t9 = ((int*)s7)[0];
-	t5 = ((short*)s7)[2];
-	((int*)t0)[18] = t9;
-	((short*)t0)[38] = t5;
+	s77 += t1;
+	t9 = ((int*)s77)[0];
+	t5 = ((short*)s77)[2];
+	((int*)&scratchPad[0])[18] = t9;
+	((short*)&scratchPad[0])[38] = t5;
 
 	s4 = (int)&div4tab[0];
 	s5 = (int)&scratchPad[0] + 0x50;///@INFO original is |= but since we don't actually use scratch base on win32 we have to add
 	s6 = (int)&scratchPad[0];
-	int s77 = 4;
+	s77 = 4;
 	t9 = 0xFEFEFEFE;
 	t0 = SubDiv(s4, s6, t9, s5, s77);
 	t5 = 3;
@@ -819,45 +819,50 @@ char* SubDiv4(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, i
 		t0 += 4;
 		if ((unsigned long)s0 < (unsigned long)s1)
 		{
-			t9 = ((int*)t0)[-1];
+			unsigned int t99 = ((unsigned int*)t0)[-1];
 			at = (int)&scratchPad[0];
 
-			t6 = t9 & 0xFF;
+			t6 = t99 & 0xFF;
 			t6 += at;///@INFO original is |= but since we don't actually use scratch base on win32 we have to add
 
-			t7 = t9 >> 8;
+			t7 = t99 >> 8;
 			t7 &= 0xFF;
 			t7 += at;///@INFO original is |= but since we don't actually use scratch base on win32 we have to add
 
-			t8 = t9 >> 16;
+			t8 = t99 >> 16;
 			t8 &= 0xFF;
 			t8 += at;///@INFO original is |= but since we don't actually use scratch base on win32 we have to add
 
-			t9 >>= 24;
-			t9 += at;///@INFO original is |= but since we don't actually use scratch base on win32 we have to add
+			t99 >>= 24;
+			t99 += at;///@INFO original is |= but since we don't actually use scratch base on win32 we have to add
 
 			SZ0 = ((int*)t6)[2];
 			SZ1 = ((int*)t7)[2];
 			SZ2 = ((int*)t8)[2];
-			SZ3 = ((int*)t9)[2];
+			SZ3 = ((int*)t99)[2];
 
 			s4 = ((int*)t6)[1];
 			s5 = ((int*)t7)[1];
 			s6 = ((int*)t8)[1];
-			s77 = ((int*)t9)[1];
+			s77 = ((int*)t99)[1];
 
 			docop2(0x168002E);
 
-			t4 = ((int*)t9)[0];
+			t4 = ((int*)t99)[0];
 			if (ultimate_clipper(s4, s5, s6, s77) == 0)
 			{
-				at = 0xC000000;
 				IniPrim(0xC000000, t6, t7, t8, fp, gp, s0, s4, a3, s5, s6);
 
-				t9 = ((unsigned short*)t9)[9];
+				t99 = ((unsigned short*)t99)[9];
+#if defined(USE_32_BIT_ADDR)
+				((int*)s0)[11] = t4;
+				((int*)s0)[12] = s77;
+				((int*)s0)[13] = t99;
+#else
 				((int*)s0)[10] = t4;
 				((int*)s0)[11] = s77;
-				((int*)s0)[12] = t9;
+				((int*)s0)[12] = t99;
+#endif
 				s0 += sizeof(POLY_GT4);
 
 			}//loc_7E9E8
@@ -890,7 +895,7 @@ char* SubDiv3(int t0, int t1, int t2, int t3, int t6, int s4, int* s7, int t7, i
 	int gp;
 
 	S_MemSet((char*)&scratchPad[0], 0, 1024);
-	InitSubDiv(&scratchPad[0], &t0, t1, t2, t3, t6, s4, t7, s5, t8, t4, s6, &fp, &gp);
+	InitSubDiv(&scratchPad[0], &t0, &t1, t2, t3, t6, s4, t7, s5, t8, t4, s6, &fp, &gp);
 	((int*)&scratchPad[0])[2] = SZ1;
 	((int*)&scratchPad[0])[7] = SZ2;
 	((int*)&scratchPad[0])[12] = SZ3;
@@ -1072,7 +1077,7 @@ loc_7E420:
 		}//loc_7E514
 	}//loc_7E514
 	
-	v0 = DQB;
+	v0 = DQA;
 	gp = 0xC000000;
 
 	t0 = a1[0];
@@ -1088,9 +1093,9 @@ loc_7E420:
 		v0--;
 		if ((unsigned long)s0 < (unsigned long)s1)
 		{
-			t1 = GFC;
+			GFC = t1;
 
-			t9 = (t1 >> 12) & 0x7F8;
+			t9 = (t1 >> 21) & 0x7F8;
 			t8 = (t1 >> 13) & 0x7F8;
 			t8 += (int)a0;
 			t7 = (t1 >> 5) & 0x7F8;
@@ -1158,7 +1163,7 @@ loc_7E420:
 						t2 -= at;
 						t1 += (int)a3;
 
-						SubDiv4(t0, t1, t2, t3, t6, s4, (int*)s7, t7, s5, t8, t4, s6, s0, s1, (int)a3, t9, t5);
+						s0 = SubDiv4(t0, t1, t2, t3, t6, s4, (int*)s7, t7, s5, t8, t4, s6, s0, s1, (int)a3, t9, t5);
 
 					}
 					//loc_7E634
