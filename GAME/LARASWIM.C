@@ -152,7 +152,7 @@ loc_4CBC4:
 			{
 				r = &room[floor->pit_room];
 
-				if ((r->flags & RF_FILL_WATER))
+				if (!(r->flags & RF_FILL_WATER))
 				{
 					floor = &r->floor[((z - r->z) >> 10) + (r->x_size * ((x - r->x) >> 10))];
 				}
@@ -413,6 +413,7 @@ void lara_as_swimcheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C3A8, 4
 
 void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C418 (F)
 {
+#if PC_VERSION
 	coll->bad_pos = 32512;
 	coll->bad_neg = -400;
 	coll->bad_ceiling = 400;
@@ -484,6 +485,133 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 	LaraGun();
 
 	TestTriggers(coll->trigger, 0, 0);
+#else
+
+	//s2 = coll
+	//v0 = 32512
+	//v1 = -400
+	coll->bad_pos = 32512;
+	//v0 = 400
+	//s0 = item
+	coll->bad_neg = -400;
+	coll->bad_ceiling = 400;
+	//v0 = item->pos.x_pos
+	//s3 = 0xA0000
+	coll->old.x = item->pos.x_pos;
+	coll->old.y = item->pos.y_pos;
+	coll->old.z = item->pos.z_pos;
+
+	//a0 = -5
+	//v0 = 300
+	coll->radius = 300;
+	//v0 = coll->flags
+	//v1 = -4
+	coll->trigger = NULL;
+	
+	coll->slopes_are_walls = 0;
+	coll->slopes_are_pits = 0;
+	coll->lava_is_pit = 0;
+	coll->enable_spaz = 0;
+	coll->enable_baddie_push = 1;
+	//v1 = 0xF7
+	//v1 = input
+	//v1 = lara
+	if ((input & IN_LOOK) && lara.look)
+	{
+		LookLeftRight();
+	}
+	else
+	{
+		//loc_4C078
+		ResetLook();
+	}
+
+	//s1 = lara
+	//a0 = item
+
+	//loc_4C084
+	//v0 = lara->flags
+	lara.look = 1;
+	//v1 = 0x90000
+	//v0 = item->current_anim_state
+	//v1 = lara_control_routines
+	//v0 = &lara_control_routines[item->current_anim_state];
+	//a2 = lara_control_routines[item->current_anim_state];
+
+	lara_control_routines[item->current_anim_state](item, coll);
+
+	//v1 = LaraDrawType
+	//v0 = 5
+
+	if (LaraDrawType != 5)
+	{
+		//v1 = lara.turn_rate
+		lara.turn_rate = CLAMPADD2(lara.turn_rate, ANGLE(2), ANGLE(3));
+	}
+	else
+	{
+		//loc_4C0FC
+		lara.turn_rate = CLAMPADD2(lara.turn_rate, ANGLE(0.5), ANGLE(1));
+	}
+	
+	//loc_4C13C
+	//a0 = lara
+	item->pos.y_rot += lara.turn_rate;
+	//v1 = LaraDrawType
+
+	if (LaraDrawType == 5)
+	{
+		UpdateSubsuitAngles();
+	}
+	//loc_4C170
+	item->pos.z_rot = CLAMPADDSHIFT(item->pos.z_rot, ANGLE(2), ANGLE(4), ANGLE(0));
+	item->pos.x_rot = CLAMPADD3(item->pos.x_rot, ANGLE(0), ANGLE(-85), ANGLE(-85));
+
+	if (LaraDrawType == 5)
+	{
+		item->pos.z_rot = CLAMPADD2(item->pos.z_rot, ANGLE(0), ANGLE(-44));///@TODO check me
+	}
+	else
+	{
+		//loc_4C208
+		item->pos.z_rot = CLAMPADD2(item->pos.z_rot, ANGLE(0), ANGLE(-22));///@TODO check me
+	}
+
+	//v1 = lara
+	//loc_4C234
+	//v0 = lara.current_active
+	//v0 = 3
+	if (lara.current_active != 0)
+	{
+		if (lara.water_status != 3)
+		{
+			LaraWaterCurrent(coll);
+		}//loc_4C25C
+	}//loc_4C25C
+
+	AnimateLara(item);
+
+	//a3 = rcossin_tbl
+	//a1 = item->pos.x_rot
+	//t0 = lara.fallspeed
+	//v1 = ((SIN(item->pos.x_rot) * lara.fallspeed)) >> 14;
+	//a0 = item->pos.y_rot
+	item->pos.y_pos -= ((SIN((unsigned short)item->pos.x_rot) * item->fallspeed)) >> 14;
+	//v1 = (((SIN(item->pos.y_rot) * lara.fallspeed) >> 14) * COS(item->pos.x_rot) >> 12)
+	//a2 = COS(item->pos.x_rot)
+	item->pos.x_pos += (((SIN((unsigned short)item->pos.y_rot) * item->fallspeed) >> 14) * COS((unsigned short)item->pos.x_rot)) >> 12;
+	//v0 = (((COS(item->pos.y_rot) * lara.fallspeed) >> 14) * COS(item->pos.x_rot)) >> 12
+	//v1 = 
+	//a0 = item
+	//a1 = coll
+	item->pos.z_pos += (((COS((unsigned short)item->pos.y_rot) * item->fallspeed) >> 14) * COS((unsigned short)item->pos.x_rot)) >> 12;
+	LaraBaddieCollision(item, coll);
+	//v0 = item->current_anim_state
+	lara_collision_routines[item->current_anim_state](item, coll);
+	UpdateLaraRoom(item, 0);
+	LaraGun();
+	TestTriggers(coll->trigger, 0, 0);
+#endif
 }
 
 void UpdateSubsuitAngles()//4BD20, 4C184 (F)
