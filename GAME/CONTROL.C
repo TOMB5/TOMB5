@@ -2798,6 +2798,10 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 					return r->minfloor;
 				}
 			}
+			else
+			{
+				break;
+			}
 
 		} while (TRUE);
 
