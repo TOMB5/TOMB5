@@ -268,7 +268,7 @@ void LaraControl(short item_number)//4A838, 4AC9C
 				{
 					item->pos.x_rot = -0x1FFE;
 					item->current_anim_state = 0x23;
-					item->anim_number = 0x11;
+					item->anim_number = 0x70;
 					item->goal_anim_state = 0x11;
 					item->fallspeed = (((item->fallspeed << 1) + item->fallspeed) + (((item->fallspeed << 1) + item->fallspeed) >> 31)) >> 1;
 					item->frame_number = anims[112].frame_base;
