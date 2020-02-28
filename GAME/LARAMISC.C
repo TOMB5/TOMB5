@@ -241,7 +241,7 @@ void LaraControl(short item_number)//4A838, 4AC9C
 
 		if (wd >= 475)
 		{
-			if (hfw < 257 && room_water_state != 0)
+			if (hfw >= 257 && room_water_state != 0)
 			{
 				lara.air = 1800;
 				lara.water_status = 1;
@@ -283,13 +283,119 @@ void LaraControl(short item_number)//4A838, 4AC9C
 
 				///Splash();
 				//v0 = -0xFA4
+				//loc_4AB94
+				camera.target_elevation = -0xFA4;
+				//v0 = lara
+				if (hfw < 256)
+				{
+					lara.water_status = 0;
+					//v1 = item->current_anim_state
+					if (item->current_anim_state == 0x41)
+					{
+						item->goal_anim_state = 1;
+					}
 
+					//j loc_4AF90
+				}//loc_4ABC4
+				else if (hfw >= 0x2DB)
+				{
+					//a0 = lara
+					//v1 = 2
+					lara.water_status = 2;
+					item->pos.y_pos = item->pos.y_pos - (hfw - 1);
+					//v1 = 
+					//v1 = item->current_anim_state
+					if (item->current_anim_state == 0x10)
+					{
+						item->anim_number = 0x8C;
+						item->goal_anim_state = 0x2F;
+						item->current_anim_state = 0x2F;
+						item->frame_number = anims[0x8C].frame_base;
+						item->meshswap_meshbits &= -9;
+						item->fallspeed = 0;
+						lara.dive_count = 0;
+						lara_item->pos.z_rot = 0;
+						lara_item->pos.x_rot = 0;
+						lara.torso_y_rot = 0;
+						lara.torso_x_rot = 0;
+						lara.head_y_rot = 0;
+						lara.head_x_rot = 0;
+						UpdateLaraRoom(item, 0);
+					}
+					else
+					{
+						//loc_4AC10
+						if (item->current_anim_state == 0x15)
+						{
+							item->anim_number = 0x90;
+							item->goal_anim_state = 0x31;
+							item->current_anim_state = 0x31;
+							item->frame_number = anims[0x90].frame_base;
+							item->meshswap_meshbits &= -9;
+							item->fallspeed = 0;
+							lara.dive_count = 0;
+							lara_item->pos.z_rot = 0;
+							lara_item->pos.x_rot = 0;
+							lara.torso_y_rot = 0;
+							lara.torso_x_rot = 0;
+							lara.head_y_rot = 0;
+							lara.head_x_rot = 0;
+							UpdateLaraRoom(item, 0);
+						}
+						else
+						{
+							if (item->current_anim_state == 0x16)
+							{
+								item->anim_number = 0x8F;
+								item->goal_anim_state = 0x30;
+								item->current_anim_state = 0x30;
+								item->frame_number = anims[0x8F].frame_base;
+								item->meshswap_meshbits &= -9;
+								item->fallspeed = 0;
+								lara.dive_count = 0;
+								lara_item->pos.z_rot = 0;
+								lara_item->pos.x_rot = 0;
+								lara.torso_y_rot = 0;
+								lara.torso_x_rot = 0;
+								lara.head_y_rot = 0;
+								lara.head_x_rot = 0;
+								UpdateLaraRoom(item, 0);
+							}
+							else
+							{
+								item->anim_number = 0x74;
+								item->goal_anim_state = 0x22;
+								item->current_anim_state = 0x22;
+								item->frame_number = anims[0x74].frame_base;
+								item->meshswap_meshbits &= -9;
+								item->fallspeed = 0;
+								lara.dive_count = 0;
+								lara_item->pos.z_rot = 0;
+								lara_item->pos.x_rot = 0;
+								lara.torso_y_rot = 0;
+								lara.torso_x_rot = 0;
+								lara.head_y_rot = 0;
+								lara.head_x_rot = 0;
+								UpdateLaraRoom(item, 0);
+								
+							}
+						}
+					}
+				}
 			}
 			else
 			{
 				//loc_4AB90
 				//v0 = -0xFA4
-
+				camera.target_elevation = -0xFA4;
+				if (hfw < 256)
+				{
+					lara.water_status = 0;
+					if (item->current_anim_state == 0x41)
+					{
+						item->goal_anim_state = 1;
+					}
+				}
 			}
 		}
 		else
@@ -324,19 +430,18 @@ void LaraControl(short item_number)//4A838, 4AC9C
 		}
 		break;
 	}
-	case 1:///@TODO
+	case 1:///@TODO DEBUG TOMORROW FEB 2020
 	{
 		//loc_4AD88
 		room_number = item->room_number;
-		GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number);
+		GetFloor(item->pos.x_pos, item->pos.y_pos - 256, item->pos.z_pos, &room_number);
 		//v1 = room_number
 		//a0 = room
 		//v1 = room[room_number].flags
 		//v0 = -32512
 
 		//a0 = item
-		if (wd != -32512 && hfw < 0
-			&& ABS(hfw) < 0x100
+		if (wd != -32512 && ABS(hfw) < 0x100
 			&& !(room[room_number].flags & RF_FILL_WATER)
 			&& item->anim_number != 0x72
 			&& item->anim_number != 0x77)
@@ -605,6 +710,59 @@ void LaraControl(short item_number)//4A838, 4AC9C
 		}
 		//loc_4B0F0
 		LaraAboveWater(item, coll);
+		break;
+	case 1:
+		if (item->hit_points >= 0)
+		{
+			//v1 = LaraDrawType
+			//v0 = 5
+			//v1 = lara
+			if (LaraDrawType == 5)
+			{
+				//a0 = lara
+				if (CheckCutPlayed(0x28))
+				{
+					//v1 = (lara.Anxiety + 8)
+					SubsuitAir += (lara.Anxiety + 8);
+
+					if (SubsuitAir >= 0x51)
+					{
+						//loc_4B164
+						//v1 = lara.air
+						//v0 = SubsuitAir
+						do
+						{
+							lara.air--;
+							SubsuitAir -= 0x50;
+						} while (SubsuitAir >= 0x51);
+					}
+				}
+			}
+			else
+			{
+				//loc_4B198
+				lara.air -= 1;
+			}
+
+			//loc_4B1A8
+			//a0 = lara
+			if (lara.air < 0)
+			{
+				if (LaraDrawType == 5)
+				{
+					//v1 = lara.Anxiety
+					if (lara.Anxiety < 0xFB)
+					{
+						lara.Anxiety += 4;
+					}//loc_4B1E8
+				}//loc_4B1E8
+				//a0 = lara
+				//v1 = -1
+				lara.air = -1;
+				item->hit_points -= 5;
+			}
+		}//loc_4B204
+		LaraUnderWater(item, coll);
 		break;
 	case 4:
 		if (lara.Busy)
