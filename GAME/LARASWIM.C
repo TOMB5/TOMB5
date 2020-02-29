@@ -18,6 +18,7 @@
 #include "BUBBLES.H"
 #include "GETSTUFF.H"
 #include "COLLIDE_S.H"
+#include "MISC.H"
 #endif
 
 struct SUBSUIT_INFO subsuit;
@@ -749,9 +750,328 @@ void SwimTurn(struct ITEM_INFO* item)//4BAF4(<), 4BF58(<) (F)
 	}
 }
 
-void LaraSwimCollision(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B608, 4BA6C
+void LaraSwimCollision(struct ITEM_INFO* item/*s3*/, struct COLL_INFO* coll/*s4*/)//4B608, 4BA6C
 {
-	UNIMPLEMENTED();
+	int height; // $s2
+	short oxr; // $s6
+	short oyr; // stack offset -48
+	short hit; // $s5
+	long ox; // $s7
+	long oy; // $fp
+	long oz; // stack offset -44
+	struct COLL_INFO coll2; // stack offset -320
+	struct COLL_INFO coll3; // stack offset -184
+	//{ // line 126, offset 0x4ba48
+	long pitch; // $v0
+	//} // line 129, offset 0x4ba78
+
+	hit = 0;
+	oxr = item->pos.x_rot;
+	ox = item->pos.x_pos;
+	oy = item->pos.y_pos;
+	oz = item->pos.z_pos;
+
+	//s6 = item->pos.x_rot
+	//s7 = item->pos.x_pos
+	//fp = item->pos.y_pos
+	//v1 = item->pos.z_pos
+	//v1 = item->pos.y_rot
+	//a0 = item->pos.y_rot
+	oyr = item->pos.y_rot;
+
+	if (oxr >= -0x4000 && oxr < 0x4001)
+	{
+		//v0 = lara
+		lara.move_angle = item->pos.y_rot;
+		coll->facing = item->pos.y_rot;
+	}
+	else
+	{
+		//loc_4B684
+		//v0 = item->pos.y_rot - 0x8000
+		//v1 = lara
+		//
+		lara.move_angle = item->pos.y_rot - 0x8000;
+		coll->facing = item->pos.y_rot - 0x8000;
+	}
+
+	//loc_4B69C
+	//v0 = item->pos.x_rot
+	//v1 = rcossin_tbl
+	//a0 = SIN(item->pos.x_rot);
+	//v1 = (SIN(item->pos.x_rot) << 1) + SIN(item->pos.x_rot)
+	//v0 = (((((SIN(item->pos.x_rot) << 1) + SIN(item->pos.x_rot)) << 7) - (SIN(item->pos.x_rot) << 1) + SIN(item->pos.x_rot)) >> 11)
+	height = ABS((((((SIN(item->pos.x_rot) << 1) + SIN(item->pos.x_rot)) << 7) - (SIN(item->pos.x_rot) << 1) + SIN(item->pos.x_rot)) >> 11));
+
+	//loc_4B6DC
+	//v0 = LaraDrawType
+	//a0 = LaraDrawType
+	if (LaraDrawType == 5)
+	{
+		//v0 = height < 0x108
+		//v0 = 5
+		if (height < 0x108)
+		{
+			//loc_4B710
+			if (LaraDrawType == 5)
+			{
+				height = 0x108;
+			}
+			else
+			{
+				height = 0xC8;
+			}
+			//loc_4B71C
+		}
+	}
+	else
+	{
+		//loc_4B704
+		//v0 = 5
+		if (height < 0xC8)
+		{
+			//loc_4B710
+			if (LaraDrawType == 5)
+			{
+				height = 0x108;
+			}
+			else
+			{
+				height = 0xC8;
+			}
+			//loc_4B71C
+		}
+		//loc_4B71C
+	}
+	//loc_4B71C
+	//a0 = &coll2
+
+	//loc_4B720
+	//a1 = coll
+	//a2 = 0x88
+	//v0 = -0x40
+	coll->bad_neg = -64;
+	S_MemCpy((char*)&coll2, (char*)coll, sizeof(COLL_INFO));///@FIXME original size is 0x88?
+	S_MemCpy((char*)&coll3, (char*)coll, sizeof(COLL_INFO));///@FIXME original size is 0x88?
+
+	//s1 = &coll3
+	//a0 = &coll3
+	//a1 = coll
+	//a2 = 0x88
+	//a0 = coll
+	//s0 = ((height + (height >> 31)) >> 1)
+
+	//a1 = item->pos.x_pos
+	//a3 = item->pos.z_pos
+	//a2 = item->pos.y_pos + ((height + (height >> 31)) >> 1)
+	//v0 = item->room_number
+
+	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos + ((height + (height >> 31)) >> 1), item->pos.z_pos, item->room_number, height);
+	//a1 = item->pos.x_pos
+	//a3 = item->pos.z_pos
+	//a2 = item->pos.y_pos + ((height + (height >> 31)) >> 1)
+	//v0 = coll2.facing + 0x2000
+	//a0 = &coll2
+	//var_144 = s2
+	//v1 = item->room_number
+	coll2.facing += 0x2000;
+	GetCollisionInfo(&coll2, item->pos.x_pos, item->pos.y_pos + ((height + (height >> 31)) >> 1), item->pos.z_pos, item->room_number, height);
+
+	//a1 = item->pos.x_pos
+	//a3 = item->pos.z_pos
+	//a2 = item->pos.y_pos + ((height + (height >> 31)) >> 1)
+	coll3.facing -= 0x2000;
+	//a0 = &coll3
+	//var_144 = height
+	//v1 = item->room_number
+	//s2 = s0
+	GetCollisionInfo(&coll3, item->pos.x_pos, item->pos.y_pos + ((height + (height >> 31)) >> 1), item->pos.z_pos, item->room_number, height);
+	ShiftItem(item, coll);
+
+	//v1 = coll->old_anim_state
+
+	//v0 = 8
+	if (coll->old_anim_state == 1)
+	{
+		//v1 = item->pos.x_rot
+		//a0 = item->pos.x_rot
+		//v0 = item->pos.x_rot < ANGLE(-21) ? 1 : 0
+		if (item->pos.x_rot < ANGLE(21))
+		{
+			//loc_4B814
+			if (item->pos.x_rot < ANGLE(-21))
+			{
+				item->pos.x_rot -= 0xB6;
+				hit = 1;
+				//j       loc_4B870
+			}
+			else
+			{
+				//loc_4B824
+				//v0 = item->pos.x_rot < ANGLE(-5)
+				if (item->pos.x_rot < ANGLE(5))
+				{
+					//loc_4B83C
+					if (item->pos.x_rot < ANGLE(-5))
+					{
+						item->pos.x_rot -= 0x5B;
+						//j       loc_4B874
+					}
+					else
+					{
+						if (item->pos.x_rot <= 0)
+						{
+							//loc_4B85C
+							if (item->pos.x_rot >= 0)
+							{
+								item->pos.x_rot = 0;
+							}
+							else
+							{
+								item->pos.x_rot -= 0x2D;
+							}
+						}
+						else
+						{
+							item->pos.x_rot += 0x2D;
+							//j       loc_4B874
+						}
+					}
+				}
+				else
+				{
+					item->pos.x_rot += 0x5B;
+					//j       loc_4B874
+				}
+			}
+		}
+		else
+		{
+			item->pos.x_rot += 0xB6;
+			hit = 1;
+			//j       loc_4B870
+		}
+
+		//loc_4B874
+		//v0 = coll2.coll_type
+		//a0 = 2
+		//v1 = 4
+		if (coll2.coll_type == 2)
+		{
+			//v0 = item->pos.y_rot + 0x16C///@0x4E
+			//j loc_4B924
+			item->pos.y_rot += 0x16C;
+		}
+		else if (coll2.coll_type == 4)
+		{
+			//loc_4B890
+			//v0 = item->pos.y_rot - 0x16C///@0x4E
+			//j loc_4B940
+			item->pos.y_rot -= 0x16C;
+		}
+		else if (coll3.coll_type == 2)
+		{
+			//loc_4B8A4
+			//v0 = item->pos.y_rot + 0x16C///@0x4E
+			//j loc_4B924
+			item->pos.y_rot += 0x16C;
+		}//loc_4B8C0
+		else if (coll3.coll_type == 4)
+		{
+			//loc_4B890
+			//v0 = item->pos.y_rot - 0x16C///@0x4E
+			//j loc_4B940
+			item->pos.y_rot -= 0x16C;
+		}
+	}//loc_4B8D4
+	else if (coll->old_anim_state == 8)
+	{
+		//v0 = item->pos.x_rot
+		//v1 = item->pos.x_rot
+		if (item->pos.x_rot >= ANGLE(-45))
+		{
+			item->pos.x_rot -= 0xB6;
+			hit = 1;
+			//j loc_4B978
+		}
+		//loc_4B978
+	}
+	else if (coll->old_anim_state == 0x10)
+	{
+		//loc_4B8FC
+		//v0 = 0x10
+		item->fallspeed = 0;
+		hit = 1;
+		//j       loc_4B978
+	}
+	else if (coll->old_anim_state == 0x2)
+	{
+		//v0 = item->pos.y_rot
+		hit = 1;
+		item->pos.y_rot += 0x16C;
+	}
+	else if (coll->old_anim_state == 0x4)//v0 = 0x4
+	{
+		//loc_4B92C
+		hit = 1;
+		item->pos.y_rot -= 0x16C;
+		//j       loc_4B978
+	}
+	else if (coll->old_anim_state == 0x20)//v0 = 0x4
+	{
+		//v0 = coll->old.x
+		item->pos.x_pos = coll->old.x;
+		item->pos.y_pos = coll->old.y;
+		hit = 2;
+		item->fallspeed = 0;
+		item->pos.z_pos = coll->old.z;
+	}
+	//v0 = 0x20
+	if (coll->mid_floor < 0 && coll->mid_floor != -32512)
+	{
+		hit = 1;
+		item->pos.y_pos += coll->mid_floor;
+		item->pos.x_rot += 0xB6;
+	}//loc_4B9AC
+
+	if (ox != item->pos.x_pos && oy != item->pos.y_pos && oz != item->pos.z_pos &&
+		oxr != item->pos.x_rot && oyr != item->pos.y_rot)
+	{
+		//loc_4BA04
+		if (SubHitCount == 0 && hit == 1 && item->fallspeed >= 0x65)
+		{
+			if (LaraDrawType == 5)
+			{
+				//a0 = 0xF4
+				//a1 = lara_item
+				SoundEffect(SFX_SWIMSUIT_METAL_CLASH, &lara_item->pos, (((GetRandomControl() << 1) + 0x8000) << 8) | 6);
+			}
+			else
+			{
+				//loc_4BA7C
+				//a0 = lara.Anxiety
+				//v0 = 0x1E
+				SubHitCount = 0x1E;
+				if (lara.Anxiety < 0x60)
+				{
+					lara.Anxiety += 16;
+				}
+			}
+		}//loc_4BAA0
+	}
+	//loc_4BAA0
+	//v0 = 2
+	if (hit != 2)
+	{
+		//v0 = lara
+		if (lara.water_status != 3)
+		{
+			LaraTestWaterDepth(item, coll);
+		}
+	}
+	//loc_4BAC4
+
+	return;
 }
 
 void LaraTestWaterDepth(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B4F8(<), 4B95C(<) (F)
