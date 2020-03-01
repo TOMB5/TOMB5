@@ -74,7 +74,7 @@ long mGetAngle(long x, long z, long tx, long tz)//77678(<), 796BC(<) (F)
 	{
 		if (dx < 0)
 		{
-			table_index |= 0x10;//FIXME: += (4);
+			table_index += 0x4;//FIXME: += (4);
 			dx = -dx;
 		}
 
