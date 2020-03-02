@@ -6,6 +6,12 @@
 //#include <sys/types.h>
 #include <LIBGPU.H>
 
+#if defined(USE_32_BIT_ADDR)
+#define POLYGON_BUFFER_MULT (2)
+#else
+#define POLYGON_BUFFER_MULT (1)
+#endif
+
 extern unsigned long GnFrameCounter;
 extern unsigned long GnLastFrameCount;
 extern struct PSXTEXTSTRUCT* psxtextinfo;
@@ -15,13 +21,8 @@ extern int gfx_debugging_mode;
 extern struct DB_STRUCT db;
 extern struct MMTEXTURE* RoomTextInfo;
 extern unsigned long GadwOrderingTables_V2[];
-#if defined(USE_32_BIT_ADDR)
-extern unsigned long GadwOrderingTables[5128 * 2];
-extern unsigned long GadwPolygonBuffers[52260 * 2];
-#else
-extern unsigned long GadwOrderingTables[5128];
-extern unsigned long GadwPolygonBuffers[52260];
-#endif
+extern unsigned long GadwOrderingTables[5128 * POLYGON_BUFFER_MULT];
+extern unsigned long GadwPolygonBuffers[52260 * POLYGON_BUFFER_MULT];
 
 extern void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize);
 extern void GPU_UsePolygonBuffers(unsigned long* pBuffers, int nPBSize);

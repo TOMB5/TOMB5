@@ -24,19 +24,10 @@ int rgbscaleme = 256;
 int gfx_debugging_mode;
 struct DB_STRUCT db;
 struct MMTEXTURE* RoomTextInfo;
-#if defined(USE_32_BIT_ADDR)
-unsigned long GadwOrderingTables_V2[512 * 2];
-#else
-unsigned long GadwOrderingTables_V2[512];
-#endif
+unsigned long GadwOrderingTables_V2[512 * POLYGON_BUFFER_MULT];
 static int LnFlipFrame;
-#if defined(USE_32_BIT_ADDR)
-unsigned long GadwOrderingTables[5128*2];
-unsigned long GadwPolygonBuffers[52260*2];
-#else
-unsigned long GadwOrderingTables[5128];
-unsigned long GadwPolygonBuffers[52260];
-#endif
+unsigned long GadwOrderingTables[5128 * POLYGON_BUFFER_MULT];
+unsigned long GadwPolygonBuffers[52260 * POLYGON_BUFFER_MULT];
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<) (D) (ND)
 {
@@ -46,11 +37,7 @@ void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C
 	db.nOTSize = nOTSize;
 
 	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[0]);
-#if defined(USE_32_BIT_ADDR)
-	db.pickup_order_table[1] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256*2]);
-#else
-	db.pickup_order_table[1] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256]);
-#endif
+	db.pickup_order_table[1] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256 * POLYGON_BUFFER_MULT]);
 	return;
 }
 
