@@ -201,9 +201,17 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 	}
 
 #if defined(OGL)
-	Emulator_InitialiseGLContext(windowName);
+	if (Emulator_InitialiseGLContext(windowName) == FALSE)
+	{
+		eprinterr("Failed to Initialise GL Context!");
+		return FALSE;
+	}
 #elif defined(OGLES)
-	Emulator_InitialiseGLESContext(windowName);
+	if (Emulator_InitialiseGLESContext(windowName) == FALSE)
+	{
+		eprinterr("Failed to Initialise GLES Context!");
+		return FALSE;
+	}
 #endif
 
 #if defined(OGL)
@@ -230,10 +238,12 @@ static int Emulator_InitialiseGLEW()
 	return TRUE;
 }
 
-static void Emulator_InitialiseCore()
+static int Emulator_InitialiseCore()
 {
 	//Initialise texture cache
 	SDL_memset(&cachedTextures[0], -1, MAX_NUM_CACHED_TEXTURES * sizeof(struct CachedTexture));
+
+	return TRUE;
 }
 
 void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
@@ -242,16 +252,32 @@ void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 	eprintf("VERSION: %d.%d\n", EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION);
 	eprintf("Compile Date: %s Time: %s\n", EMULATOR_COMPILE_DATE, EMULATOR_COMPILE_TIME);
 
-	Emulator_InitialiseSDL(windowName, screenWidth, screenHeight);
+	if (Emulator_InitialiseSDL(windowName, screenWidth, screenHeight) == FALSE)
+	{
+		eprinterr("Failed to Intialise SDL");
+		Emulator_ShutDown();
+	}
 
 #if defined(GLEW)
-	Emulator_InitialiseGLEW();
+	if (Emulator_InitialiseGLEW() == FALSE)
+	{
+		eprinterr("Failed to Intialise GLEW");
+		Emulator_ShutDown();
+	}
 #endif
 
-	Emulator_InitialiseCore();
+	if (Emulator_InitialiseCore() == FALSE)
+	{
+		eprinterr("Failed to Intialise Emulator Core.");
+		Emulator_ShutDown();
+	}
 
 #if defined(OGL) || defined(OGLES)
-	Emulator_InitialiseGL();
+	if (Emulator_InitialiseGL() == FALSE)
+	{
+		eprinterr("Failed to Intialise GL.");
+		Emulator_ShutDown();
+	}
 #endif
 
 	//counter_thread = std::thread(Emulator_CounterLoop);
@@ -831,7 +857,7 @@ void Emulator_CreateGlobalShaders()
 
 unsigned short vram[VRAM_WIDTH * VRAM_HEIGHT];
 
-void Emulator_InitialiseGL()
+int Emulator_InitialiseGL()
 {
 	glEnable(GL_BLEND);
 
@@ -890,6 +916,8 @@ void Emulator_InitialiseGL()
 
 	Emulator_BindTexture(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
+
+	return TRUE;
 }
 
 GLuint g_lastBoundTexture = -1;

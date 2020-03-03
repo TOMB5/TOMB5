@@ -125,7 +125,7 @@ enum BlendMode
 
 
 extern unsigned int g_lastBoundTexture;
-extern void Emulator_InitialiseGL();
+extern int Emulator_InitialiseGL();
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
