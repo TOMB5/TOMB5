@@ -267,8 +267,6 @@ int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int*& t1)//(F)
 	t0 = t00[0];
 	t2 = 0xF8F8F8;
 
-	Emulator_SetPGXPVertexCount(nVertices);
-
 	//loc_7576C
 	do
 	{
