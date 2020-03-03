@@ -267,6 +267,8 @@ int* SubPolyGTLoop(int nVertices /*gp*/, int* t00, int s1, int*& t1)//(F)
 	t0 = t00[0];
 	t2 = 0xF8F8F8;
 
+	Emulator_SetPGXPVertexCount(nVertices);
+
 	//loc_7576C
 	do
 	{
@@ -1688,8 +1690,8 @@ loc_74C88:
 		!(t8 < -31744) && t8 < 37144)
 	{
 		t7 = fp->minfloor - s5->y;
-		t6 = (((fp->x_size - 2) << 10) + fp->z) - s5->z;
-		t8 = (((fp->y_size - 2) << 10) + fp->x) - s5->x;
+		t6 = (((fp->x_size - 2) << 10) + fp->z) - s5->z;///@FIXME wrong? see roomlet1
+		t8 = (((fp->y_size - 2) << 10) + fp->x) - s5->x;///@FIXME wrong? see roomlet1
 
 		if (!(t6 < -31744) && t6 < 37144 &&
 			!(t7 < -31744) && t7 < 37144 &&

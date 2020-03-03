@@ -1,6 +1,6 @@
 #ifndef ROOMLETONE_H
 #define ROOMLETONE_H
 
-extern void DrawRoomletListAsm1();
+extern void DrawRoomletListAsmRL1();
 
 #endif

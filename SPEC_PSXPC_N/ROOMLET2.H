@@ -1,6 +1,6 @@
 #ifndef ROOMLETTWO_H
 #define ROOMLETTWO_H
 
-extern void DrawRoomletListAsm2();
+extern void DrawRoomletListAsmRL2();
 
 #endif

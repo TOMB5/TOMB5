@@ -478,7 +478,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 	else
 	{
-		DrawRoomletListAsm1();
+		DrawRoomletListAsmRL1();
 	}
 
 	//loc_64BBC
