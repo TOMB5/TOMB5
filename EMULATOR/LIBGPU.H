@@ -195,7 +195,7 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 #define isendprim(p) 		((((P_TAG *)(p))->addr)==0xffffff)
 
 #if defined(PGXP)
-#define addPrim(ot, p)		setaddr(p, getaddr(ot)), setaddr(ot, p), setpgxpindex(p, pgxp_last_index)
+#define addPrim(ot, p)		setaddr(p, getaddr(ot)), setaddr(ot, p), setpgxpindex(p, pgxp_vertex_index)
 #else
 #define addPrim(ot, p)		setaddr(p, getaddr(ot)), setaddr(ot, p)
 #endif

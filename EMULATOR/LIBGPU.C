@@ -543,7 +543,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			else
 			{
 #if !defined(__EMSCRIPTEN__)
-				assert(g_splitIndices[i].textureId < 1000);
+				//assert(g_splitIndices[i].textureId < 1000);
 #endif
 				Emulator_BindTexture(g_splitIndices[i].textureId);
 			}

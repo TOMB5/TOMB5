@@ -25,4 +25,7 @@ extern void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned
 /* Usually called when loading a game level to specifically delete all emulator textures for optimisation purposes */
 extern void Emulator_DestroyAllTextures();
 
+/* Sets the maximum vertex count value for PGXP vertex caching */
+extern void Emulator_SetPGXPVertexCount(int vertexCount);
+
 #endif
