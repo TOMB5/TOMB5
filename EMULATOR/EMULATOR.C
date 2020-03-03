@@ -420,7 +420,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	}
 	else
 	{
-		if (w != -1 && h != -1)
+		if (p0 != NULL && w != -1 && h != -1)
 		{
 			vertex[1].x = (float)p0[0];
 			vertex[1].y = (float)p0[1] + h;
@@ -447,7 +447,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	}
 	else
 	{
-		if (w != -1 && h != -1)
+		if (p0 != NULL && w != -1 && h != -1)
 		{
 			vertex[2].x = (float)p0[0] + w;
 			vertex[2].y = (float)p0[1] + h;
@@ -474,7 +474,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	}
 	else
 	{
-		if (w != -1 && h != -1)
+		if (p0 != NULL && w != -1 && h != -1)
 		{
 			vertex[3].x = (float)p0[0] + w;
 			vertex[3].y = (float)p0[1];
@@ -635,7 +635,7 @@ void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv
 	}
 	else
 	{
-		if (w != -1 && h != -1)
+		if (uv0 != NULL && w != -1 && h != -1)
 		{
 			vertex[1].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
 			vertex[1].v0 = ((float)uv0[1] + h) / TPAGE_HEIGHT;
@@ -1453,7 +1453,7 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		//Read texture data
 		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &tpage[0]);
 
-		unsigned short convertedTpage[TPAGE_WIDTH * TPAGE_HEIGHT];
+		unsigned short* convertedTpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH * TPAGE_HEIGHT * sizeof(unsigned short));
 		unsigned short* convertPixel = &convertedTpage[0];
 
 		for (int xy = 0; xy < TPAGE_WIDTH / 4 * TPAGE_HEIGHT; xy++)
@@ -1514,6 +1514,9 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 #endif
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
+		SDL_free(tpage);
+		SDL_free(convertedTpage);
+		
 		break;
 	}
 	}
