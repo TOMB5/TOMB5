@@ -28,6 +28,7 @@
 //#include "RAIN.H"
 #include "ROOMLOAD.H"
 #include "ROOMLETB.H"
+#include "ROOMLET1.H"
 #include "ROOMLET3.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
@@ -473,15 +474,11 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (BinocularRange != 0)
 	{
-		//DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
+		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
 	}
 	else
 	{
-		//65290 (final game)
-		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
-		//loc_64BA0
-		//unsigned long* v1 = (unsigned long*)RelocPtr[2];
-		//jalr v1[0];
+		DrawRoomletListAsm1();
 	}
 
 	//loc_64BBC
