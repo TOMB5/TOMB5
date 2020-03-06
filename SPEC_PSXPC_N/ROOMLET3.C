@@ -8,10 +8,319 @@
 #include "ROOMLOAD.H"
 #include "MISC.H"
 #include "GPU.H"
+#include "ROOMLETB.H"
+
+long ClipXYRL3(int t1, int t2, int t3, int t4)
+{
+    int t9 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+    int t5 = t1 << 16;
+
+    if (t1 >= t9 || t2 >= t9 || t3 >= t9 || t4 >= t9)
+    {
+        int t6 = t2 << 16;
+        t9 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
+        int t7 = t3 << 16;
+
+        if (t1 < t9 || t2 < t9 || t3 < t9 || t4 < t9)
+        {
+            int t8 = t4 << 16;
+            int t9 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+            int fp = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+
+            if (t5 >= t9 || t6 >= t9 || t7 >= t9 || t8 >= t9)
+            {
+                if (t5 < fp || t6 < fp || t7 < fp || t8 < fp)
+                {
+                    return 0;
+                }
+            }//locret_B28
+        }//locret_B28
+    }//locret_B28
+    return 1;
+}
 
 char* DrawMeshRL3(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
 {
-    //UNIMPLEMENTED();
+    int* sp = &scratchPad[-14];
+    int* a2 = &scratchPad[0];
+    short* s0 = &LOffset[0];
+    char* s1 = &LTab[0];
+    int* s5 = (int*)&OurSqrt[0];
+    int* fp = (int*)&YOffset[0];
+    int s2 = sp[3];
+    int s3 = sp[2];
+    int s4 = sp[1];
+    int* s7 = &scratchPad[192];
+    int v0 = ((unsigned short*)mesh)[3];
+    int t5;
+    int t6;
+    int t7;
+    int t8;
+    int at;
+    int t4;
+    int* s6;
+    int a3;
+    int v1;
+    int a1;
+    int t0;
+    int s77;
+    int s66;
+    int s55;
+    int s44;
+    int t1;
+    int t2;
+    int t3;
+
+    mesh += 8;
+    LR1 = mesh & 0xFFFF;
+    LR2 = (mesh >> 16) & 0xFFFF;
+    DQA = v0;
+    LG2 = (unsigned int)cdb & 0xFFFF;
+    LG3 = ((unsigned int)cdb >> 16) & 0xFFFF;
+    v0 &= 0xFF;
+
+
+    //loc_1320
+    do
+    {
+    int t0 = ((int*)mesh)[0];
+    mesh += 4;
+    int t3 = t0 >> 15;
+    int t2 = t0 & 0x1F;
+    t2 >>= 10;
+    int t1 = t0 & 0x3E0;
+    t1 <<= 3;
+    int t9 = t0 >> 30;
+    L33 = 0;
+    t0 &= 0x7C00;
+
+    if (t9 != 0)
+    {
+        t6 = (t0 + s2) >> 6;
+        t7 = (t1 + s3) >> 6;
+        t8 = (t2 + s4) >> 7;
+        t6 += t7;
+        t6 += t8;
+        t7 = LB3;
+        t8 = RGB0;
+        t6 &= 0xFC;
+        t6 += t8;
+        t6 = ((short*)t6)[1];
+        t5 = t9 & 1;
+        at = t6 >> 8;
+        t6 += t7;
+        t6 &= 0xFC;
+        t6 += t8;
+        t8 = ((char*)t6)[0];
+        t6 = ((char*)t8)[1];
+        t9 &= 2;
+
+        if (t5 != 0)
+        {
+            if (t9 == 0)
+            {
+                t8 += at;
+            }//loc_13B0
+
+            L33 = t8;
+        }//loc_13B4
+
+        fp[0] = t6;
+        if (t9 != 0)
+        {
+            t1 += t6;
+        }
+    }//loc_13C0
+
+    t6 = RBK;
+    t7 = GBK;
+    t8 = BBK;
+
+    t0 += t6;
+    t1 += t7;
+    t2 += t8;
+    t4 = t1 << 16;
+    at = t0 & 0xFFFF;
+    t4 |= at;
+
+    VX0 = t4 & 0xFFFF;
+    VY0 = (t4 >> 16) & 0xFFFF;
+    VZ0 = t2 & 0xFFFF;
+
+    t5 = t3 >> 10;
+    docop2(0x180001);
+    t4 = t3 >> 5;
+
+    t5 &= 0x1F;
+    t4 &= 0x1F;
+    t3 &= 0x1F;
+
+    t9 = s7[3];
+    s6 = s7;
+    t0 -= t6;
+
+    if (t9 != 0)
+    {
+        t1 -= t7;
+        t2 -= t8;
+        t0 += s2;
+        t1 += s3;
+        t2 += s4;
+        t0 >>= 7;
+        t1 >>= 7;
+        t2 >>= 7;
+
+    loc_1434:
+        t9 = s6[3];
+        s6 += 4;
+        t6 = s6[-4];
+
+        if (t9 != 0)
+        {
+            t7 = s6[-3];
+            t8 = s6[-2];
+
+            t6 -= t0;
+            t7 -= t1;
+            t8 -= t2;
+
+            IR1 = t6;
+            IR2 = t7;
+            IR3 = t8;
+
+            a3 = t9 >> 11;
+
+            docop2(0xA00428);
+            a3 &= 0x1F;
+            v1 = (t9 >> 19) & 0x1F;
+            a1 = (t9 >> 27) & 0x1F;
+            t6 = MAC1;
+            t7 = MAC2;
+            t8 = MAC3;
+
+            t6 += t7;
+            t6 += t8;
+
+            if (t6 < 0x3FF)
+            {
+                t6 += (int)s5;
+                t6 = ((char*)t6)[0];
+                t9 &= 0xFF;
+
+                if (t6 < t9)
+                {
+                    t9 <<= 1;
+                    t9 += (int)s0;
+                    t9 = ((short*)t9)[0];
+                    t6 <<= 5;
+                    t6 += t9;
+                    t6 += (int)s1;
+                    a3 += t6;
+                    v1 += t6;
+                    a1 += t6;
+
+                    a3 = ((char*)a3)[0];
+                    v1 = ((char*)v1)[0];
+                    a1 = ((char*)a1)[0];
+
+                    t4 += v1;
+                    t5 += a1;
+                    t3 += a3;
+
+                }
+            }
+
+            goto loc_1434;
+
+        }//loc_14F0
+    }
+    //loc_14F0
+    t0 = L33;
+    fp++;
+
+    t3 += t0;
+    if (t0 != 0)
+    {
+        t4 += t0;
+        t5 += t0;
+    }
+
+    t0 = SZ3;
+    v1 = 0;
+    t6 = t0 - 0x3000;
+
+    if (t6 < 0 || t6 < 0x1FFF)
+    {
+        t6 >>= 8;
+        t3 -= t6;
+        t4 -= t6;
+        t5 -= t6;
+
+        if (t3 >= 0x20)
+        {
+            t3 >>= 27;
+            t3 ^= 0x1F;
+        }
+
+        if (t4 >= 0x20)
+        {
+            t3 >>= 27;
+            t4 ^= 0x1F;
+        }
+
+        if (t5 >= 0x20)
+        {
+            t4 >>= 27;
+            t4 ^= 0x1F;
+        }
+
+        t5 <<= 10;
+        t3 |= t4;
+        v1 = t3 | t5;
+
+    }//loc_1570
+
+    a2[0] = SXY2;
+    v1 <<= 16;
+    t0 |= v1;
+    a2[1] = t0;
+    a2 += 2;
+    } while (--v0 != 0);
+
+    a1 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
+    v0 = DQA;
+
+    struct MMTEXTURE* a22 = &RoomTextInfo[0];
+    a3 = ((int*)a1)[2];
+    s0 = (short*)((int*)a1)[1];
+    s1 = (char*)&scratchPad[0];
+    v0 >>= 8;
+
+    if (v0-- != 0)
+    {
+        t0 = ((int*)mesh)[0];
+        s77 = 0;
+        DQB = t0;
+
+        s66 = ((t0 >> 11) & 0x3F8) + (int)s1;
+        s55 = ((t0 >> 4) & 0x3F8) + (int)s1;
+        s44 = ((t0 << 3) & 0x3F8) + (int)s1;
+
+        t1 = ((int*)s44)[0];
+        t2 = ((int*)s55)[0];
+        t3 = ((int*)s66)[0];
+
+        SXY0 = t1;
+        SXY1 = t2;
+        SXY2 = t3;
+        t0 >>= 21;
+        t0 &= 0x3FF;
+        t4 = t3;
+        docop2(0x1400006);
+
+        t5 = ClipXYRL3(t1, t2, t3, t4);
+    }
+
     return NULL;
 }
 
@@ -549,7 +858,7 @@ loc_64C:
         GBK = t1;
         BBK = t2;
 
-        //loc_6DC
+loc_6DC:
         a0 = *s2++;
 
         if (a0 == 0)
@@ -807,6 +1116,7 @@ loc_64C:
         //loc_9EC
         ((int*)a1)[3] = 0;
         db.polyptr = DrawMeshRL3(scratchPad, a0, &db);
+        goto loc_6DC;
     }
     //loc_1978 @ flat return
 }
