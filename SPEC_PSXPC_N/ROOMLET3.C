@@ -10,6 +10,39 @@
 #include "GPU.H"
 #include "ROOMLETB.H"
 
+void UnpackRGBRL3(int* t5, int* s4, int* t6, int* fp, int* t8, int* s5, int* gp, int* s6, int* s3)
+{
+    int s2 = 0xF80000;
+    *t5 = *s4 >> 7;
+    *t5 &= s2;
+    *t6 = *s4 >> 10;
+    *t6 &= 0xF800;
+    *fp = *s4 >> 13;
+    *fp &= 0xF8;
+    *fp |= *t5;
+    *fp |= *t6;
+    *t5 = *t8 >> 24;
+    *t5 |= 0x40;///@TODO? remove me? see roomletb
+    *t5 <<= 24;
+    *fp |= *t5;
+    *t5 = *s5 >> 7;
+    *t5 &= s2;
+    *t6 = *s5 >> 10;
+    *t6 &= 0xF800;
+    *gp = *s5 >> 13;
+    *gp &= 0xF8;
+    *gp |= *t5;
+    *gp |= *t6;
+    *t5 = *t6 >> 7;
+    *t5 &= s2;
+    *t6 = *s6 >> 10;
+    *t6 &= 0xF800;
+    *s3 = *s6 >> 13;
+    *s3 &= 0xF8;
+    *s3 |= *t5;
+    *s3 |= *t6;
+}
+
 long ClipXYRL3(int t1, int t2, int t3, int t4)
 {
     int t9 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
@@ -318,7 +351,48 @@ char* DrawMeshRL3(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
         t4 = t3;
         docop2(0x1400006);
 
-        t5 = ClipXYRL3(t1, t2, t3, t4);
+        if (ClipXYRL3(t1, t2, t3, t4) == 0)
+        {
+            s44 = ((int*)s44)[1];
+            s55 = ((int*)s55)[1];
+            s66 = ((int*)s66)[1];
+
+            t5 = s44 & 0xFFFF;
+            t6 = s55 & 0xFFFF;
+            t7 = s66 & 0xFFFF;
+
+            if (t5 < t6)
+            {
+                t5 = t6;
+            }
+
+            t5 >>= 3;
+            if (t5 < t7)
+            {
+
+                t5 = t7 >> 3;
+            }
+
+            if (t5 < 0x9E0)
+            {
+                t9 = t5 << 2;
+                if (t5 >= 0x280)
+                {
+                    if (t7 < 0)
+                    {
+                        goto loc_1724;
+                    }
+
+                    if ((unsigned)t9 >= 0x1000)
+                    {
+                        s77 = 0x10;
+                    }
+                }//loc_1678
+
+
+
+            }//loc_1724
+        }
     }
 
     return NULL;
