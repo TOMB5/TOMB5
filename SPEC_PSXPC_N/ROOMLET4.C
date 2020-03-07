@@ -10,6 +10,18 @@
 #include "GPU.H"
 #include "ROOMLETB.H"
 
+void InitPrimRL4(int a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
+{
+    ((int*)a3)[1] = fp;
+    ((int*)a3)[2] = t1;
+    ((int*)a3)[3] = t5;
+    ((int*)a3)[4] = gp;
+    ((int*)a3)[5] = t2;
+    ((int*)a3)[6] = t6;
+    ((int*)a3)[7] = s3;
+    ((int*)a3)[8] = t3;
+}
+
 void UnpackRGBRL4(int* t5, int* s4, int* t6, int* fp, int* t8, int* s5, int* gp, int* s6, int* s3)
 {
     int s2 = 0xF80000;
@@ -101,6 +113,8 @@ char* DrawMeshRL4(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
     int t1;
     int t2;
     int t3;
+    int t9;
+    int gp;
 
     mesh += 8;
     LR1 = mesh & 0xFFFF;
@@ -384,6 +398,28 @@ char* DrawMeshRL4(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
                         }
                     }
                 }//loc_1678
+
+                t7 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
+                t0 <<= 4;
+                t7 = t0;
+                t0 <<= 1;
+                t0 += t7;
+                t0 += s77;
+                t0 += (int)a22;
+
+                t7 = ((int*)t0)[2];
+                t8 = t7 << 8;
+
+                int fpp;
+                UnpackRGBRL4(&t5, &s44, &t6, &fpp, &t8, &s55, &gp, &s66, &s3);
+
+                t5 = ((int*)t0)[0];
+                a1 = RFC;
+                t6 = ((int*)t0)[1];
+                t5 -= a1;
+
+                InitPrimRL4(a3, fpp, t1, t5, gp, t2, t6, s3, t3);
+
             }//loc_1724
         }
     }
