@@ -10,6 +10,18 @@
 #include "GPU.H"
 #include "ROOMLETB.H"
 
+void InitPrimRL2(int a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
+{
+    ((int*)a3)[1] = fp;
+    ((int*)a3)[2] = t1;
+    ((int*)a3)[3] = t5;
+    ((int*)a3)[4] = gp;
+    ((int*)a3)[5] = t2;
+    ((int*)a3)[6] = t6;
+    ((int*)a3)[7] = s3;
+    ((int*)a3)[8] = t3;
+}
+
 void UnpackRGBRL2(int* t5, int* s4, int* t6, int* fp, int* t8, int* s5, int* gp, int* s6, int* s3)
 {
     int s2 = 0xF80000;
@@ -102,6 +114,8 @@ char* DrawMeshRL2(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
     int t1;
     int t2;
     int t3;
+    int t9;
+    int gp;
 
     mesh += 8;
     LR1 = mesh & 0xFFFF;
@@ -114,158 +128,158 @@ char* DrawMeshRL2(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
     //loc_12E4
     do
     {
-    int t0 = ((int*)mesh)[0];
-    mesh += 4;
-    int t3 = t0 >> 15;
-    int t2 = t0 & 0x1F;
-    t2 <<= 10;
-    int t1 = t0 & 0x3E0;
-    t1 <<= 3;
-    t0 &= 0x7C00;
+        int t0 = ((int*)mesh)[0];
+        mesh += 4;
+        int t3 = t0 >> 15;
+        int t2 = t0 & 0x1F;
+        t2 <<= 10;
+        int t1 = t0 & 0x3E0;
+        t1 <<= 3;
+        t0 &= 0x7C00;
 
-    t6 = RBK;
-    t7 = GBK;
-    t8 = BBK;
+        t6 = RBK;
+        t7 = GBK;
+        t8 = BBK;
 
-    t0 += t6;
-    t1 += t7;
-    t2 += t8;
-    t4 = t1 << 16;
-    at = t0 & 0xFFFF;
-    t4 |= at;
+        t0 += t6;
+        t1 += t7;
+        t2 += t8;
+        t4 = t1 << 16;
+        at = t0 & 0xFFFF;
+        t4 |= at;
 
-    VX0 = t4 & 0xFFFF;
-    VY0 = (t4 >> 16) & 0xFFFF;
-    VZ0 = t2 & 0xFFFF;
+        VX0 = t4 & 0xFFFF;
+        VY0 = (t4 >> 16) & 0xFFFF;
+        VZ0 = t2 & 0xFFFF;
 
-    t5 = t3 >> 10;
-    docop2(0x180001);
-    t4 = t3 >> 5;
+        t5 = t3 >> 10;
+        docop2(0x180001);
+        t4 = t3 >> 5;
 
-    t5 &= 0x1F;
-    t4 &= 0x1F;
-    t3 &= 0x1F;
+        t5 &= 0x1F;
+        t4 &= 0x1F;
+        t3 &= 0x1F;
 
-    int t9 = s7[3];
-    s6 = s7;
-    t0 -= t6;
-
-    if (t9 != 0)
-    {
-        t1 -= t7;
-        t2 -= t8;
-        t0 += s2;
-        t1 += s3;
-        t2 += s4;
-        t0 >>= 7;
-        t1 >>= 7;
-        t2 >>= 7;
-
-    loc_1434:
-        t9 = s6[3];
-        s6 += 4;
-        t6 = s6[-4];
+        int t9 = s7[3];
+        s6 = s7;
+        t0 -= t6;
 
         if (t9 != 0)
         {
-            t7 = s6[-3];
-            t8 = s6[-2];
+            t1 -= t7;
+            t2 -= t8;
+            t0 += s2;
+            t1 += s3;
+            t2 += s4;
+            t0 >>= 7;
+            t1 >>= 7;
+            t2 >>= 7;
 
-            t6 -= t0;
-            t7 -= t1;
-            t8 -= t2;
+        loc_1434:
+            t9 = s6[3];
+            s6 += 4;
+            t6 = s6[-4];
 
-            IR1 = t6;
-            IR2 = t7;
-            IR3 = t8;
-
-            a3 = t9 >> 11;
-
-            docop2(0xA00428);
-            a3 &= 0x1F;
-            v1 = (t9 >> 19) & 0x1F;
-            a1 = (t9 >> 27) & 0x1F;
-            t6 = MAC1;
-            t7 = MAC2;
-            t8 = MAC3;
-
-            t6 += t7;
-            t6 += t8;
-
-            if (t6 < 0x3FF)
+            if (t9 != 0)
             {
-                t6 += (int)s5;
-                t6 = ((char*)t6)[0];
-                t9 &= 0xFF;
+                t7 = s6[-3];
+                t8 = s6[-2];
 
-                if (t6 < t9)
+                t6 -= t0;
+                t7 -= t1;
+                t8 -= t2;
+
+                IR1 = t6;
+                IR2 = t7;
+                IR3 = t8;
+
+                a3 = t9 >> 11;
+
+                docop2(0xA00428);
+                a3 &= 0x1F;
+                v1 = (t9 >> 19) & 0x1F;
+                a1 = (t9 >> 27) & 0x1F;
+                t6 = MAC1;
+                t7 = MAC2;
+                t8 = MAC3;
+
+                t6 += t7;
+                t6 += t8;
+
+                if (t6 < 0x3FF)
                 {
-                    t9 <<= 1;
-                    t9 += (int)s0;
-                    t9 = ((short*)t9)[0];
-                    t6 <<= 5;
-                    t6 += t9;
-                    t6 += (int)s1;
-                    a3 += t6;
-                    v1 += t6;
-                    a1 += t6;
+                    t6 += (int)s5;
+                    t6 = ((char*)t6)[0];
+                    t9 &= 0xFF;
 
-                    a3 = ((char*)a3)[0];
-                    v1 = ((char*)v1)[0];
-                    a1 = ((char*)a1)[0];
+                    if (t6 < t9)
+                    {
+                        t9 <<= 1;
+                        t9 += (int)s0;
+                        t9 = ((short*)t9)[0];
+                        t6 <<= 5;
+                        t6 += t9;
+                        t6 += (int)s1;
+                        a3 += t6;
+                        v1 += t6;
+                        a1 += t6;
 
-                    t4 += v1;
-                    t5 += a1;
-                    t3 += a3;
+                        a3 = ((char*)a3)[0];
+                        v1 = ((char*)v1)[0];
+                        a1 = ((char*)a1)[0];
 
+                        t4 += v1;
+                        t5 += a1;
+                        t3 += a3;
+
+                    }
                 }
+
+                goto loc_1434;
+
+            }//loc_14F0
+        }
+        //loc_14F0
+        t0 = SZ3;
+        v1 = 0;
+        t6 = t0 - 0x3000;
+
+        if (t6 < 0 || t6 < 0x1FFF)
+        {
+            t6 >>= 8;
+            t3 -= t6;
+            t4 -= t6;
+            t5 -= t6;
+
+            if (t3 >= 0x20)
+            {
+                t3 >>= 27;
+                t3 ^= 0x1F;
             }
 
-            goto loc_1434;
+            if (t4 >= 0x20)
+            {
+                t3 >>= 27;
+                t4 ^= 0x1F;
+            }
 
-        }//loc_14F0
-    }
-    //loc_14F0
-    t0 = SZ3;
-    v1 = 0;
-    t6 = t0 - 0x3000;
+            if (t5 >= 0x20)
+            {
+                t4 >>= 27;
+                t4 ^= 0x1F;
+            }
 
-    if (t6 < 0 || t6 < 0x1FFF)
-    {
-        t6 >>= 8;
-        t3 -= t6;
-        t4 -= t6;
-        t5 -= t6;
+            t5 <<= 10;
+            t3 |= t4;
+            v1 = t3 | t5;
 
-        if (t3 >= 0x20)
-        {
-            t3 >>= 27;
-            t3 ^= 0x1F;
-        }
+        }//loc_1570
 
-        if (t4 >= 0x20)
-        {
-            t3 >>= 27;
-            t4 ^= 0x1F;
-        }
-
-        if (t5 >= 0x20)
-        {
-            t4 >>= 27;
-            t4 ^= 0x1F;
-        }
-
-        t5 <<= 10;
-        t3 |= t4;
-        v1 = t3 | t5;
-
-    }//loc_1570
-
-    a2[0] = SXY2;
-    v1 <<= 16;
-    t0 |= v1;
-    a2[1] = t0;
-    a2 += 2;
+        a2[0] = SXY2;
+        v1 <<= 16;
+        t0 |= v1;
+        a2[1] = t0;
+        a2 += 2;
     } while (--v0 != 0);
 
     a1 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
@@ -343,6 +357,28 @@ char* DrawMeshRL2(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
                         }
                     }
                 }//loc_1678
+
+                t7 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
+                t0 <<= 4;
+                t7 = t0;
+                t0 <<= 1;
+                t0 += t7;
+                t0 += s77;
+                t0 += (int)a22;
+
+                t7 = ((int*)t0)[2];
+                t8 = t7 << 8;
+
+                int fpp;
+                UnpackRGBRL2(&t5, &s44, &t6, &fpp, &t8, &s55, &gp, &s66, &s3);
+
+                t5 = ((int*)t0)[0];
+                a1 = RFC;
+                t6 = ((int*)t0)[1];
+                t5 -= a1;
+
+                InitPrimRL2(a3, fpp, t1, t5, gp, t2, t6, s3, t3);
+
             }//loc_1724
         }
     }
