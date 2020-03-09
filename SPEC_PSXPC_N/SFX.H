@@ -19,4 +19,6 @@ extern int S_SoundSetPanAndVolume(int nhandle, int nPan, int nVolume, int distan
 extern void GetPanVolume(struct SoundSlot* slot);
 extern void SPU_FreeChannel(int channel_index);
 extern void SOUND_EndScene();
+extern int S_SoundPlaySampleLooped(int a0, int a1, int a2, int a3, int arg_10);
+
 #endif
