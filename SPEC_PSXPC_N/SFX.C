@@ -37,8 +37,10 @@ void SOUND_Stop()
 	UNIMPLEMENTED();
 }
 
-int PlaySample(int a0, int a1, int a2, int a3, int arg_10, int t1, int t2)
+int PlaySample(int a0, int volume_left, int volume_right, int a3, int arg_10, int t1, int t2)
 {
+	//CalcVolumes_ASM();//prolly modifies t1 and t2
+	SPU_Play(t1, volume_left, volume_right, t2);
 	UNIMPLEMENTED();
 }
 
