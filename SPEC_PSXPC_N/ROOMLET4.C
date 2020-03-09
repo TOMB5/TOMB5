@@ -10,6 +10,83 @@
 #include "GPU.H"
 #include "ROOMLETB.H"
 
+void InitSubdivisionRL4(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, int t7, int s7)
+{
+    s1[186] = t1;
+    ((short*)s1)[374] = s4;
+    t1 = fp << 8;
+    t1 >>= 8;
+    s1[190] = t1;
+    ((short*)s1)[379] = t5;
+    s1[191] = t2;
+    ((short*)s1)[384] = s5;
+    s1[195] = gp;
+    ((short*)s1)[389] = t6;
+    s1[196] = t3;
+    ((short*)s1)[394] = s6;
+    s1[200] = s3;
+    ((short*)s1)[399] = t7;
+    t3 = RBK;
+    t7 = GBK;
+    s7 = BBK;
+
+    fp >>= 24;
+    fp <<= 24;
+    t1 = 0xFFFF0000;
+    t5 &= t1;
+    t6 &= t1;
+
+    RGB2 = t5;
+    RGB1 = t6;
+    int t0 = DQB;
+    t5 = (LR1 & 0xFFFF) | ((LR2 & 0xFFFF) << 16);
+    t2 = t0 >> 12;
+    t2 &= 0x1FC;
+    t2 += t5;
+    t1 = t0 >> 5;
+    t1 &= 0x1FC;
+    t1 += t5;
+    t0 <<= 2;
+    t0 &= 0x1FC;
+    t0 += t5;
+    t0 = ((int*)t0)[0];
+    t1 = ((int*)t1)[0];
+    t2 = ((int*)t2)[0];
+    int t4 = t0 & 0x3E0;
+    t4 <<= 3;
+    t5 = t0 & 0x1F;
+    t5 <<= 10;
+    t0 &= 0x7C00;
+    t0 += t3;
+    t4 += t7;
+    t5 += s7;
+    ((short*)s1)[376] = t0;
+    ((short*)s1)[377] = t4;
+    ((short*)s1)[378] = t5;
+    t4 = t1 & 0x3E0;
+    t4 <<= 3;
+    t5 = t1 & 0x1F;
+    t5 <<= 10;
+    t1 &= 0x7C00;
+    t1 += t3;
+    t4 += t7;
+    t5 += s7;
+    ((short*)s1)[386] = t1;
+    ((short*)s1)[387] = t4;
+    ((short*)s1)[388] = t5;
+    t4 = t2 & 0x3E0;
+    t4 <<= 3;
+    t5 = t2 & 0x1F;
+    t5 <<= 10;
+    t2 &= 0x7C00;
+    t2 += t3;
+    t4 += t7;
+    t5 += s7;
+    ((short*)s1)[396] = t2;
+    ((short*)s1)[397] = t4;
+    ((short*)s1)[398] = t5;
+}
+
 void InitPrimRL4(int a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
 {
     ((int*)a3)[1] = fp;
@@ -90,6 +167,7 @@ char* DrawMeshRL4(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
     int* a2 = &scratchPad[0];
     short* s0 = &LOffset[0];
     char* s1 = &LTab[0];
+    int* s5 = (int*)&OurSqrt[0];
     int s2 = sp[3];
     int s3 = sp[2];
     int s4 = sp[1];
@@ -379,6 +457,7 @@ char* DrawMeshRL4(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
             if (t5 < 0x9E0)
             {
                 t9 = t5 << 2;
+                at = t5 < 0x280 ? 1 : 0;
                 if (t5 >= 0x280)
                 {
                     if (t7 < 0)
@@ -420,7 +499,27 @@ char* DrawMeshRL4(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
 
                 InitPrimRL4(a3, fpp, t1, t5, gp, t2, t6, s3, t3);
 
-            }//loc_1724
+                ((int*)a3)[9] = t7;
+
+                if (at != 0)
+                {
+                    at = ((int*)t0)[3];
+                    DQA = t9;
+                    BFC = at;
+                    LG2 = (a3 & 0xFFFF);
+                    LG3 = (a3 >> 16) & 0xFFFF;
+                    a3 += sizeof(POLY_GT3);
+
+                    InitSubdivisionRL4((int*)s1, t1, s4, fpp, t5, t2, (int)s5, gp, t6, t3, (int)s6, s3, t7, (int)s7);
+
+                }//loc_1718
+                
+
+
+
+            }
+        loc_1724:
+            return db.polyptr;///@todo
         }
     }
 
