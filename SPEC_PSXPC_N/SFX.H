@@ -3,7 +3,8 @@
 
 #include "TYPES.H"
 
-extern long SPU_Play(long sample_index, short volume_left, short volume_right, short pitch);
+extern long SPU_AllocChannel();
+extern long SPU_Play(long sample_index, short volume_left, short volume_right, short pitch, int arg_10);
 extern long SPU_AllocChannel();
 extern int SPU_UpdateStatus();
 extern void SPU_Status(long a0);

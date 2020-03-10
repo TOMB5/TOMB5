@@ -1261,7 +1261,7 @@ void Emulator_EndScene()
 #endif
 #endif
 
-#if _DEBUG && 1
+#if _DEBUG && 0
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, vramFrameBuffer);
 	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
 #endif
