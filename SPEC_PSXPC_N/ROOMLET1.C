@@ -10,6 +10,83 @@
 #include "GPU.H"
 #include "ROOMLETB.H"
 
+unsigned short* QuadVertTableRL1 = &QuadVertTable[0];
+unsigned short* TriVertTableRL1 = &TriVertTable[0];
+
+int* SubPolyGTLoopRL1(int gp, int* t0, int* t1, int s1)
+{
+    int* t00 = (int*)t0[0];
+    int t2 = 0xF8F8F8;
+
+    //loc_C94
+    do
+    {
+        int t3 = t00[0];
+        t00++;
+
+        int t4 = t3 >> 16;
+        t3 &= 0xFFFF;
+        t3 += s1;
+        t4 += s1;
+
+        int t5 = ((short*)t3)[4];
+        int t6 = ((short*)t3)[5];
+        int t7 = ((short*)t4)[4];
+        int t8 = ((short*)t4)[5];
+        t5 += t7;
+        t5 >>= 1;
+        t6 += t8;
+
+        t7 = ((short*)t3)[6];
+        t8 = ((short*)t4)[6];
+        t6 >>= 1;
+        t7 += t8;
+        t7 >>= 1;
+
+        ((short*)t1)[4] = t5;
+        ((short*)t1)[5] = t6;
+        ((short*)t1)[6] = t7;
+
+        t5 &= 0xFFFF;
+        t6 <= 16;
+        t6 |= t5;
+
+        VX0 = t6 & 0xFFFF;
+        VY0 = (t6 >> 16) & 0xFFFF;
+        VZ0 = t7 & 0xFFFF;
+        t5 = ((unsigned char*)t3)[14];
+        docop2(0x180001);
+        t6 = ((unsigned char*)t3)[15];
+        t7 = ((unsigned char*)t4)[14];
+        t8 = ((unsigned char*)t4)[15];
+        t5 += t7;
+        t5 >>= 1;
+        t6 += t8;
+        t7 = ((int*)t3)[4];
+        t8 = ((int*)t4)[4];
+        t6 >>= 1;
+        ((char*)t1)[14] = t5;
+        ((int*)t1)[0] = SXY2;
+        ((int*)t1)[1] = SZ3;
+        t7 += t8;
+        t7 >>= 1;
+        t7 &= t2;
+        ((int*)t1)[4] = t7;
+        ((char*)t1)[15] = t6;
+
+        t1 += 5;
+    } while (--gp);
+
+    return t00;
+}
+
+char* SubPolyGT3RL1(int* t0, int* t1, int s1)
+{
+    t0 = SubPolyGTLoopRL1(3, t0, t1, s1);
+
+    return NULL;
+}
+
 void InitSubdivisionRL1(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, int t7, int s7)
 {
     s1[186] = t1;
@@ -551,6 +628,10 @@ char* DrawMeshRL1(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
                     a3 += sizeof(POLY_GT3);
 
                     InitSubdivisionRL1((int*)s1, t1, s4, fpp, t5, t2, (int)s5, gp, t6, t3, (int)s6, s3, t7, (int)s7);
+
+                    s3 = 0;
+                    a3 = (int)SubPolyGT3((int*)TriVertTableRL1[0], (int*)&s1[201], (int)s1);
+
 
                 }//loc_1718
 
