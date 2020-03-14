@@ -9,5 +9,7 @@ extern void DrawRoomletListAsm(long unk, struct room_info* r);
 extern short LOffset[];
 extern char LTab[];
 extern short YOffset[];
+extern unsigned short QuadVertTable[];
+extern unsigned short TriVertTable[];
 
 #endif
