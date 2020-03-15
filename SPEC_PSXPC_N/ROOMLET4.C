@@ -476,6 +476,16 @@ void InitSubdivisionRL4(int* s1, int t1, int s4, int fp, int t5, int t2, int s5,
 
 void InitPrimRL4(int a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
 {
+#if defined(USE_32_BIT_ADDR)
+    ((int*)a3)[2] = fp;
+    ((int*)a3)[3] = t1;
+    ((int*)a3)[4] = t5;
+    ((int*)a3)[5] = gp;
+    ((int*)a3)[6] = t2;
+    ((int*)a3)[7] = t6;
+    ((int*)a3)[8] = s3;
+    ((int*)a3)[9] = t3;
+#else
     ((int*)a3)[1] = fp;
     ((int*)a3)[2] = t1;
     ((int*)a3)[3] = t5;
@@ -484,6 +494,7 @@ void InitPrimRL4(int a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3,
     ((int*)a3)[6] = t6;
     ((int*)a3)[7] = s3;
     ((int*)a3)[8] = t3;
+#endif
 }
 
 void UnpackRGBRL4(int* t5, int* s4, int* t6, int* fp, int* t8, int* s5, int* gp, int* s6, int* s3)
@@ -797,6 +808,7 @@ char* DrawMeshRL4(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
     s1 = (char*)&scratchPad[0];
     v0 >>= 8;
 
+loc_15A8:
     if (v0-- != 0)
     {
         t0 = ((int*)mesh)[0];
@@ -886,7 +898,11 @@ char* DrawMeshRL4(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
 
                 InitPrimRL4(a3, fpp, t1, t5, gp, t2, t6, s3, t3);
 
+#if defined(USE_32_BIT_ADDR)
+                ((int*)a3)[10] = t7;
+#else
                 ((int*)a3)[9] = t7;
+#endif
 
                 if (at != 0)
                 {
@@ -902,16 +918,33 @@ char* DrawMeshRL4(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
                     s3 = 0;
                     a3 = (int)SubPolyGT3RL4((int*)TriVertTableRL4[0], (int*)&s1[201], (int*)s1, (int*)a3, s3, fpp, (int)s0);
 
+                    at = BFC;
+                    t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
+                    t9 = DQA;
+                    t0 |= at;
 
-                }//loc_1718
-            }
-        loc_1724:
-            return db.polyptr;///@todo
+                    if (t0 >= 0 && t0 >= 0x500)
+                    {
+                        t3 = a3;
+                        a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
+                        MyAddPrimRL4(0x9000000, &t9, (int*)&s0, (int*)a3);
+                        a3 = t3;
+                    }
+                }
+                else
+                {
+                    //loc_1718
+                    MyAddPrimRL4(0x9000000, &t9, (int*)&s0, (int*)a3);
+                    a3 += sizeof(POLY_GT3);
+                }
+            }//loc_1724
         }
+    loc_1724:
+        mesh += 4;
+        goto loc_15A8;
     }
 
-
-    return NULL;
+    return (char*)a3;
 }
 
 void GetBoundsRL4(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* v0, int* s5, int* a0, int* a1, int* a2, int* a3)//sub_50
