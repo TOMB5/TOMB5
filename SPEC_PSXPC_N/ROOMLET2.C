@@ -185,63 +185,6 @@ void CreateNewVertexRL2(int* t2, int* t7, int* t8, int t1)
     ((unsigned int*)t2)[8] = a1;
 }
 
-void CreateNewVertex(int* t2, int* t7, int* t8, int t1)
-{
-    int a1;
-    int at;
-    int s2;
-
-    a1 = ((short*)t7)[4];
-    at = ((short*)t8)[4];
-    s2 = ((short*)t7)[5];
-    a1 += at;
-
-    at = ((short*)t8)[5];
-    a1 >>= 1;
-    at += s2;
-    at >>= 1;
-    at <<= 16;
-    a1 &= 0xFFFF;
-    at |= a1;
-
-    a1 = ((short*)t7)[6];
-    s2 = ((short*)t8)[6];
-
-    VX0 = (at & 0xFFFF);
-    VY0 = (at >> 16) & 0xFFFF;
-
-    a1 += s2;
-    a1 >>= 1;
-
-    VZ0 = a1;
-
-    a1 = ((unsigned char*)t7)[14];
-    at = ((unsigned char*)t8)[14];
-
-    docop2(0x180001);
-
-    s2 = ((unsigned char*)t7)[15];
-    a1 += at;
-    at = ((unsigned char*)t8)[15];
-    a1 >>= 1;
-    at += s2;
-    at >>= 1;
-
-    ((unsigned char*)t2)[30] = a1;
-
-    a1 = ((unsigned int*)t7)[4];
-    s2 = ((unsigned int*)t8)[4];
-
-    ((unsigned char*)t2)[31] = at;
-
-    a1 += s2;
-    a1 >>= 1;
-    a1 &= t1;
-
-    ((unsigned int*)t2)[4] = SXY2;
-    ((unsigned int*)t2)[8] = a1;
-}
-
 int* SubdivTri64RL2(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)//(F)
 {
     int sp[256];

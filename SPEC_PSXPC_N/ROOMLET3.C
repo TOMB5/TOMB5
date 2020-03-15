@@ -246,7 +246,7 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
                 s4 = gp;
                 s6 = (int)t0;
                 //t0 = TriVertTables[gp]
-                a3 = (int*)SubPolyGT3RL3((int*)&TriVertTables[gp], &s1[216], s1, a3, s3, fp);
+                a3 = (int*)SubPolyGT3RL3((int*)&TriVertTables[gp], &s1[216], s1, a3, s3, fp, s0);
 
                 t1 = (int*)RGB2;
                 t2 = RGB1;
