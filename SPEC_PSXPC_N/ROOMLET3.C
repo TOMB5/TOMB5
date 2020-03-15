@@ -13,6 +13,47 @@
 unsigned short* QuadVertTableRL3 = &QuadVertTable[0];
 unsigned short* TriVertTableRL3 = &TriVertTable[0];
 
+void SubdivSetup3RL3(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)//(F)
+{
+    int t7;
+    int t8;
+
+    setXY3((POLY_GT3*)a3, (SXY0 & 0xFFFF), (SXY0 >> 16) & 0xFFFF, (SXY1 & 0xFFFF), (SXY1 >> 16) & 0xFFFF, (SXY2 & 0xFFFF), (SXY2 >> 16) & 0xFFFF);
+
+    t7 = t3[4];
+    t8 = ((unsigned short*)t3)[7];
+    t7 |= fp;
+    t8 |= t1;
+
+    setRGB0((POLY_GT3*)a3, (t7 & 0xFF), (t7 & 0xFF00) >> 8, (t7 & 0xFF0000) >> 16);
+    ((POLY_GT3*)a3)->code = (t7 & 0xFF000000) >> 24;
+    setUV0((POLY_GT3*)a3, (t8 & 0xFF), (t8 & 0xFF00) >> 8);
+    ((POLY_GT3*)a3)->clut = (t8 & 0xFFFF0000) >> 16;
+
+    t7 = t4[4];
+    t8 = ((unsigned short*)t4)[7];
+
+    setRGBP1((POLY_GT3*)a3, (t7 & 0xFF), (t7 & 0xFF00) >> 8, (t7 & 0xFF0000) >> 16, (t7 & 0xFF000000) >> 24);
+
+    t8 |= t2;
+
+    ((POLY_GT3*)a3)->u1 = (t8 & 0xFF);
+    ((POLY_GT3*)a3)->v1 = (t8 & 0xFF00) >> 8;
+    ((POLY_GT3*)a3)->tpage = (t8 & 0xFFFF0000) >> 16;
+
+    t7 = t5[4];
+    t8 = ((unsigned short*)t5)[7];
+
+    ((POLY_GT3*)a3)->r2 = (t7 & 0xFF);
+    ((POLY_GT3*)a3)->g2 = (t7 & 0xFF00) >> 8;
+    ((POLY_GT3*)a3)->b2 = (t7 & 0xFF0000) >> 16;
+    ((POLY_GT3*)a3)->p2 = (t7 & 0xFF000000) >> 24;
+
+    ((POLY_GT3*)a3)->u2 = (t8 & 0xFF);
+    ((POLY_GT3*)a3)->v2 = (t8 & 0xFF00) >> 8;
+    ((POLY_GT3*)a3)->pad2 = (t8 & 0xFFFF0000) >> 16;
+}
+
 int ClipToScreenRL3(int t2)
 {
     int t7;
@@ -210,8 +251,8 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
                     if (at == 0)
                     {
                         t2 = RGB1;
-                        //SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
-                        //MyAddPrimRL3(0x9000000, &t9, &s0, a3);
+                        SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
+                        MyAddPrimRL3(0x9000000, &t9, &s0, a3);
                         a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
                     }
                 }//loc_ED4
