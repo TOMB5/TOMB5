@@ -13,6 +13,24 @@
 unsigned short* QuadVertTableRL4 = &QuadVertTable[0];
 unsigned short* TriVertTableRL4 = &TriVertTable[0];
 
+void MyAddPrimRL4(int t7/*len*/, int* t9, int* s0, int* a3)
+{
+    unsigned int t5;
+
+#if !defined(USE_32_BIT_ADDR)
+    *t9 += *s0;
+    t5 = ((unsigned int*)*t9)[0];
+    ((unsigned int*)*t9)[0] = (unsigned int)a3;
+    t5 |= t7;
+    ((unsigned int*)a3)[0] = (unsigned int)t5;
+#else
+    *t9 *= 2;
+    *t9 += *s0;
+    setlen(a3, t7 >> 24);
+    addPrim(*t9, a3);
+#endif
+}
+
 void SubdivSetup3RL4(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)//(F)
 {
     int t7;
@@ -421,8 +439,8 @@ char* SubPolyGT3RL4(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
                         if (at == 0)
                         {
                             t2 = RGB1;
-                            //SubdivSetup3RL4(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
-                            //MyAddPrimRL4(0x9000000, &t9, &s0, a3);
+                            SubdivSetup3RL4(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
+                            MyAddPrimRL4(0x9000000, &t9, &s0, a3);
                             a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
                         }
                     }
