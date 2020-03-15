@@ -13,6 +13,40 @@
 unsigned short* QuadVertTableRL2 = &QuadVertTable[0];
 unsigned short* TriVertTableRL2 = &TriVertTable[0];
 
+int ClipToScreenRL2(int t2)
+{
+    int t7;
+    int t8;
+    int s2;
+    int at;
+
+    t7 = SXY0;
+    t8 = SXY1;
+    s2 = SXY2;
+
+    if ((t7 & 0xFE00) == 0 || (t8 & 0xFE00) == 0 || (t2 & 0xFE00) == 0 || (s2 & 0xFE00) == 0)
+    {
+        at = t7 & t8;
+        at &= s2;
+        at &= t2;
+
+        if (at >= 0)
+        {
+            t7 >>= 16;
+            t8 >>= 16;
+            s2 >>= 16;
+            t2 >>= 16;
+
+            if (t7 < 0xF0 || t8 < 0xF0 || t2 < 0xF0 || s2 < 0xF0)
+            {
+                return 0;
+            }
+        }//locret_1268
+    }//locret_1268
+
+    return 1;
+}
+
 int* SubPolyGTLoopRL2(int gp, int* t0, int* t1, int s1)
 {
     int* t00 = (int*)t0[0];
@@ -80,11 +114,122 @@ int* SubPolyGTLoopRL2(int gp, int* t0, int* t1, int s1)
     return t00;
 }
 
-char* SubPolyGT3RL2(int* t0, int* t1, int s1)
+char* SubPolyGT3RL2(int* t0, int* t1, int* s1, int* a3, int s3)
 {
-    t0 = SubPolyGTLoopRL2(3, t0, t1, s1);
+    int gp;
+    int* t1;
+    int t2;
+    int t3;
+    int t5;
+    int t4;
+    int t7;
+    int t8;
+    int t9;
+    int at;
+    int s3;
+    int s4;
+    int s6;
 
-    return NULL;
+    t0 = SubPolyGTLoopRL2(3, t0, t1, (int)s1);
+    gp = 3;
+    t1 = (int*)RGB2;
+    t2 = RGB1;
+
+    //loc_DC4
+    do
+    {
+        t3 = t0[0];
+        t5 = ((short*)t0)[2];
+        t0 += 2;
+        t4 = t3 >> 16;
+        t3 &= 0xFFFF;
+
+        t3 += (int)s1;
+        t4 += (int)s1;
+        t5 += (int)s1;
+
+        SXY0 = ((int*)t3)[0];
+        SXY1 = ((int*)t4)[0];
+        SXY2 = ((int*)t5)[0];
+
+        t7 = ((short*)t3)[2];
+        t8 = ((short*)t4)[2];
+
+        docop2(0x1400006);
+        t9 = ((short*)t5)[2];
+
+        at = t7 < t9 ? 1 : 0;
+
+        if (t7 < t8)
+        {
+            t7 = t8;
+        }
+
+        //loc_E10
+        if (at != 0)
+        {
+            t7 = t9 >> 3;
+        }
+        else
+        {
+            t7 >>= 3;
+        }
+
+        //loc_E1C
+        at = DQB >> 31;
+
+        if (t7 != 0)
+        {
+            at = t7 << at;
+            t9 = t7 << 2;
+            if ((unsigned)at < 0x180u && s3 == 0)
+            {
+                s3 = 1;
+                s4 = gp;
+                s6 = (int)t0;
+                //t0 = TriVertTables[gp]
+                a3 = (int*)SubPolyGT3RL2((int*)&TriVertTables[gp], &s1[216], s1, a3, s3);
+
+                t1 = (int*)RGB2;
+                t2 = RGB1;
+                s3 = 0;
+                gp = s4;
+                t0 = (int*)s6;
+
+            }
+            else
+            {
+                //loc_E80
+                s3 = 1;
+                t7 = MAC0;
+
+                if (t7 >= 0)
+                {
+                    if (t9 < 0x80)
+                    {
+                        //a3 = SubdivTri64RL1(t3, t4, t5, a3, fp, &t9, &s0);
+                    }
+                    else
+                    {
+                        //loc_EA8
+                        t2 = ((int*)t5)[0];
+                        at = ClipToScreenRL2(t2);
+
+                        if (at == 0)
+                        {
+                            t2 = RGB1;
+                            //SubdivSetup3RL2(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
+                            //MyAddPrimRL2(0x9000000, &t9, &s0, a3);
+                            a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                        }
+                    }
+                }//loc_ED4
+            }
+        }
+        //loc_ED4
+    } while (gp--);
+
+    return (char*)a3;
 }
 
 void InitSubdivisionRL2(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, int t7, int s7)
@@ -547,7 +692,7 @@ char* DrawMeshRL2(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
 
                     InitSubdivisionRL2((int*)s1, t1, s4, fpp, t5, t2, (int)s5, gp, t6, t3, (int)s6, s3, t7, (int)s7);
                     s3 = 0;
-                    a3 = (int)SubPolyGT3RL2((int*)TriVertTableRL2[0], (int*)&s1[201], (int)s1);
+                    a3 = (int)SubPolyGT3RL2((int*)TriVertTableRL2[0], (int*)&s1[201], (int*)s1, (int*)a3, s3);
 
                 }//loc_1718
 
