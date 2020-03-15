@@ -114,7 +114,7 @@ int* SubPolyGTLoopRL3(int gp, int* t0, int* t1, int s1)
     return t00;
 }
 
-char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3)
+char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
 {
     int gp;
     int t2;
@@ -186,7 +186,7 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3)
                 s4 = gp;
                 s6 = (int)t0;
                 //t0 = TriVertTables[gp]
-                a3 = (int*)SubPolyGT3RL3((int*)&TriVertTables[gp], &s1[216], s1, a3, s3);
+                a3 = (int*)SubPolyGT3RL3((int*)&TriVertTables[gp], &s1[216], s1, a3, s3, fp);
 
                 t1 = (int*)RGB2;
                 t2 = RGB1;
@@ -203,23 +203,16 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3)
 
                 if (t7 >= 0)
                 {
-                    if (t9 < 0x80)
-                    {
-                        //a3 = SubdivTri64RL1(t3, t4, t5, a3, fp, &t9, &s0);
-                    }
-                    else
-                    {
-                        //loc_EA8
-                        t2 = ((int*)t5)[0];
-                        at = ClipToScreenRL3(t2);
+                    //loc_EA8
+                    t2 = ((int*)t5)[0];
+                    at = ClipToScreenRL3(t2);
 
-                        if (at == 0)
-                        {
-                            t2 = RGB1;
-                            //SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
-                            //MyAddPrimRL3(0x9000000, &t9, &s0, a3);
-                            a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
-                        }
+                    if (at == 0)
+                    {
+                        t2 = RGB1;
+                        //SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
+                        //MyAddPrimRL3(0x9000000, &t9, &s0, a3);
+                        a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
                     }
                 }//loc_ED4
             }
@@ -768,7 +761,7 @@ char* DrawMeshRL3(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
                     InitSubdivisionRL3((int*)s1, t1, s4, fpp, t5, t2, (int)s5, gp, t6, t3, (int)s6, s3, t7, (int)s7);
 
                     s3 = 0;
-                    a3 = (int)SubPolyGT3RL3((int*)TriVertTableRL3[0], (int*)&s1[201], (int*)s1, (int*)a3, s3);
+                    a3 = (int)SubPolyGT3RL3((int*)TriVertTableRL3[0], (int*)&s1[201], (int*)s1, (int*)a3, s3, fpp, (int)s0);
 
 
                 }//loc_1718
