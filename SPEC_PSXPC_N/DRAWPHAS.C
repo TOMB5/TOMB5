@@ -29,7 +29,9 @@
 #include "ROOMLOAD.H"
 #include "ROOMLETB.H"
 #include "ROOMLET1.H"
+#include "ROOMLET2.H"
 #include "ROOMLET3.H"
+#include "ROOMLET4.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
@@ -478,7 +480,22 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 	else
 	{
-		DrawRoomletListAsmRL1();
+		///@TODO really test this but it should work.
+		switch (RoomDrawType)
+		{
+		case 0:
+			DrawRoomletListAsmRL1();
+			break;
+		case 1:
+			DrawRoomletListAsmRL2();
+			break;
+		case 2:
+			DrawRoomletListAsmRL3();
+			break;
+		case 3:
+			DrawRoomletListAsmRL4();
+			break;
+		}
 	}
 
 	//loc_64BBC
