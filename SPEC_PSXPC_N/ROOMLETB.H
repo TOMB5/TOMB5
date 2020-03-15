@@ -11,5 +11,7 @@ extern char LTab[];
 extern short YOffset[];
 extern unsigned short QuadVertTable[];
 extern unsigned short TriVertTable[];
+extern unsigned short* TriVertTables[];
+extern unsigned short* QuadVertTables[];
 
 #endif

@@ -117,7 +117,6 @@ int* SubPolyGTLoopRL1(int gp, int* t0, int* t1, int s1)
 char* SubPolyGT3RL1(int* t0, int* t1, int* s1, int* a3, int s3)
 {
     int gp;
-    int* t1;
     int t2;
     int t3;
     int t5;
@@ -126,7 +125,6 @@ char* SubPolyGT3RL1(int* t0, int* t1, int* s1, int* a3, int s3)
     int t8;
     int t9;
     int at;
-    int s3;
     int s4;
     int s6;
 
