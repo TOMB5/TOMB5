@@ -13,6 +13,27 @@
 unsigned short* QuadVertTableRL2 = &QuadVertTable[0];
 unsigned short* TriVertTableRL2 = &TriVertTable[0];
 
+int* Add2DPrimRL2(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int* t9, int* s0)//(F)
+{
+    int t2;
+
+    SXY0 = t3[0];
+    SXY1 = t4[0];
+    SXY2 = t5[0];
+
+    if (ClipToScreenRL2(t5[0]) == 0)
+    {
+        t2 = RGB1;
+        SubdivSetup3RL2(a3, fp, t3, t4, t5, t1, t2);
+        MyAddPrimRL2(0x9000000, t9, s0, a3);
+
+        *t9 -= *s0;
+        a3 += 10;
+    }//loc_75CC0
+
+    return a3;
+}
+
 void CreateNewVertexRL2(int* t2, int* t7, int* t8, int t1)
 {
     int a1;
@@ -148,10 +169,10 @@ int* SubdivTri64RL2(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)//
 
     t1 = RGB2;
 
-    a3 = Add2DPrim(&sp[1], &sp[4], &sp[14], a3, fp, t1, t9, s0);
-    a3 = Add2DPrim(&sp[9], &sp[4], &sp[2], a3, fp, t1, t9, s0);
-    a3 = Add2DPrim(&sp[9], &sp[3], &sp[14], a3, fp, t1, t9, s0);
-    a3 = Add2DPrim(&sp[9], &sp[14], &sp[4], a3, fp, t1, t9, s0);
+    a3 = Add2DPrimRL2(&sp[1], &sp[4], &sp[14], a3, fp, t1, t9, s0);
+    a3 = Add2DPrimRL2(&sp[9], &sp[4], &sp[2], a3, fp, t1, t9, s0);
+    a3 = Add2DPrimRL2(&sp[9], &sp[3], &sp[14], a3, fp, t1, t9, s0);
+    a3 = Add2DPrimRL2(&sp[9], &sp[14], &sp[4], a3, fp, t1, t9, s0);
 
     return a3;
 }
