@@ -13,6 +13,41 @@
 unsigned short* QuadVertTableRL3 = &QuadVertTable[0];
 unsigned short* TriVertTableRL3 = &TriVertTable[0];
 
+int ClipToScreenRL3(int t2)
+{
+    int t7;
+    int t8;
+    int s2;
+    int at;
+
+    t7 = SXY0;
+    t8 = SXY1;
+    s2 = SXY2;
+
+    if ((t7 & 0xFE00) == 0 || (t8 & 0xFE00) == 0 || (t2 & 0xFE00) == 0 || (s2 & 0xFE00) == 0)
+    {
+        at = t7 & t8;
+        at &= s2;
+        at &= t2;
+
+        if (at >= 0)
+        {
+            t7 >>= 16;
+            t8 >>= 16;
+            s2 >>= 16;
+            t2 >>= 16;
+
+            if (t7 < 0xF0 || t8 < 0xF0 || t2 < 0xF0 || s2 < 0xF0)
+            {
+                return 0;
+            }
+        }//locret_1268
+    }//locret_1268
+
+    return 1;
+}
+
+
 void MyAddPrimRL3(int t7/*len*/, int* t9, int* s0, int* a3)
 {
     unsigned int t5;
@@ -70,40 +105,6 @@ void SubdivSetup3RL3(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)
     ((POLY_GT3*)a3)->u2 = (t8 & 0xFF);
     ((POLY_GT3*)a3)->v2 = (t8 & 0xFF00) >> 8;
     ((POLY_GT3*)a3)->pad2 = (t8 & 0xFFFF0000) >> 16;
-}
-
-int ClipToScreenRL3(int t2)
-{
-    int t7;
-    int t8;
-    int s2;
-    int at;
-
-    t7 = SXY0;
-    t8 = SXY1;
-    s2 = SXY2;
-
-    if ((t7 & 0xFE00) == 0 || (t8 & 0xFE00) == 0 || (t2 & 0xFE00) == 0 || (s2 & 0xFE00) == 0)
-    {
-        at = t7 & t8;
-        at &= s2;
-        at &= t2;
-
-        if (at >= 0)
-        {
-            t7 >>= 16;
-            t8 >>= 16;
-            s2 >>= 16;
-            t2 >>= 16;
-
-            if (t7 < 0xF0 || t8 < 0xF0 || t2 < 0xF0 || s2 < 0xF0)
-            {
-                return 0;
-            }
-        }//locret_1268
-    }//locret_1268
-
-    return 1;
 }
 
 int* SubPolyGTLoopRL3(int gp, int* t0, int* t1, int s1)
