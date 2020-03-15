@@ -13,6 +13,35 @@
 unsigned short* QuadVertTableRL4 = &QuadVertTable[0];
 unsigned short* TriVertTableRL4 = &TriVertTable[0];
 
+int* SubdivTri64RL4(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)//(F)
+{
+    int sp[256];
+
+    S_MemSet((char*)&sp[0], 0, 1024);
+    sp[1] = t3;
+    sp[2] = t4;
+    sp[3] = t5;
+    int* t2 = &sp[0];
+    int t1 = 0xFFF8F8F8;
+
+    CreateNewVertex(t2, (int*)t3, (int*)t4, t1);
+    t2 += 5;
+
+    CreateNewVertex(t2, (int*)t5, (int*)t4, t1);
+    t2 += 5;
+
+    CreateNewVertex(t2, (int*)t5, (int*)t3, t1);
+
+    t1 = RGB2;
+
+    a3 = Add2DPrim(&sp[1], &sp[4], &sp[14], a3, fp, t1, t9, s0);
+    a3 = Add2DPrim(&sp[9], &sp[4], &sp[2], a3, fp, t1, t9, s0);
+    a3 = Add2DPrim(&sp[9], &sp[3], &sp[14], a3, fp, t1, t9, s0);
+    a3 = Add2DPrim(&sp[9], &sp[14], &sp[4], a3, fp, t1, t9, s0);
+
+    return a3;
+}
+
 int ClipToScreenRL4(int t2)
 {
     int t7;
@@ -114,7 +143,7 @@ int* SubPolyGTLoopRL4(int gp, int* t0, int* t1, int s1)
     return t00;
 }
 
-char* SubPolyGT3RL4(int* t0, int* t1, int* s1, int* a3, int s3)
+char* SubPolyGT3RL4(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
 {
     int gp;
     int t2;
@@ -186,7 +215,7 @@ char* SubPolyGT3RL4(int* t0, int* t1, int* s1, int* a3, int s3)
                 s4 = gp;
                 s6 = (int)t0;
                 //t0 = TriVertTables[gp]
-                a3 = (int*)SubPolyGT3RL4((int*)&TriVertTables[gp], &s1[216], s1, a3, s3);
+                a3 = (int*)SubPolyGT3RL4((int*)&TriVertTables[gp], &s1[216], s1, a3, s3, fp, s0);
 
                 t1 = (int*)RGB2;
                 t2 = RGB1;
@@ -733,7 +762,7 @@ char* DrawMeshRL4(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
                     InitSubdivisionRL4((int*)s1, t1, s4, fpp, t5, t2, (int)s5, gp, t6, t3, (int)s6, s3, t7, (int)s7);
 
                     s3 = 0;
-                    a3 = (int)SubPolyGT3RL4((int*)TriVertTableRL4[0], (int*)&s1[201], (int*)s1, (int*)a3, s3);
+                    a3 = (int)SubPolyGT3RL4((int*)TriVertTableRL4[0], (int*)&s1[201], (int*)s1, (int*)a3, s3, fpp, (int)s0);
 
 
                 }//loc_1718
