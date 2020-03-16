@@ -2014,7 +2014,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 	{
 		if (!heavy)
 		{
-			if (lara_item->pos.y_pos == lara_item->floor || lara.water_status != 0)
+			if (lara_item->pos.y_pos == lara_item->floor || lara.water_status != LW_ABOVE_WATER)
 			{
 				//loc_1EAC0
 				LavaBurn(lara_item);

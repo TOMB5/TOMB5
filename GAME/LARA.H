@@ -688,7 +688,8 @@ enum lara_water_status
 	LW_ABOVE_WATER = 0,
 	LW_UNDERWATER = 1,
 	LW_SURFACE = 2,
-	LW_FLYCHEAT = 3
+	LW_FLYCHEAT = 3,
+	LW_WADE = 4
 };
 
 enum lara_gun_status
