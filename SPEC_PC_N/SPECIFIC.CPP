@@ -34,7 +34,11 @@
 #include <zlib.h>
 #include "CONTROL.H"
 
+#if DEBUG
+#pragma comment(lib, "zlibstaticd.lib")
+#else
 #pragma comment(lib, "zlibstatic.lib")
+#endif
 
 bool loadBarShown;
 int loadBarMax;
