@@ -812,7 +812,7 @@ char* DrawMeshRL4(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
             t6 &= 0xFC;
             t6 += t8;
             t8 = ((char*)t6)[0];
-            t6 = ((char*)t8)[1];
+            t6 = ((char*)t6)[1];
             t9 &= 2;
 
             if (t5 != 0)
