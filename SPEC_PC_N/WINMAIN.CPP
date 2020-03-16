@@ -60,11 +60,17 @@ void WinClose()// (F)
 	DestroyAcceleratorTable(App.hAccTable);
 	CloseDirectX();
 
-	DX_TRY(App.lpDIKeyboard->Unacquire());
-	DXRelease(App.lpDIKeyboard, "Keyboard");
+	if (App.lpDIKeyboard)
+	{
+		DX_TRY(App.lpDIKeyboard->Unacquire());
+		DXRelease(App.lpDIKeyboard, "Keyboard");
+	}
 
-	DX_TRY(App.lpDIJoystick->Unacquire());
-	DXRelease(App.lpDIJoystick, "Joystick");
+	if (App.lpDIJoystick)
+	{
+		DX_TRY(App.lpDIJoystick->Unacquire());
+		DXRelease(App.lpDIJoystick, "Joystick");
+	}
 
 	DXRelease(App.lpDI, "DirectInput");
 }
@@ -207,7 +213,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	App.isInScene = false;
 	App.PlayingFMV = false;
 
-	App.DXConfig.nD3D = 0; // todo: temporary fix because of lack of software renderer
+	//App.DXConfig.nD3D = 0; // todo: temporary fix because of lack of software renderer
 
 	if (!DXCreate(
 		CUR_DM.w,
