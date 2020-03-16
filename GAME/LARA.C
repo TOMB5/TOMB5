@@ -5561,8 +5561,53 @@ int LaraFallen(struct ITEM_INFO* item, struct COLL_INFO* coll)//11B6C, 11C1C (F)
 
 int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll)//11998, 11A48
 {
-	UNIMPLEMENTED();
-	return 0;
+	if ((ABS(coll->tilt_x)) <= 2 && (ABS(coll->tilt_z)) <= 2)
+		return(0);
+
+	short ang = 0;
+
+	if (coll->tilt_x > 2)
+		ang = ANGLE(-90);
+	else if (coll->tilt_x < -2)
+		ang = ANGLE(-90);
+
+	if (coll->tilt_z > 2 && coll->tilt_z > ABS(coll->tilt_x))
+		ang = ANGLE(-180);
+	else if (coll->tilt_z < -2 && -coll->tilt_z > ABS(coll->tilt_x))
+		ang = 0;
+
+	static short old_ang = 1; // a0634
+	short ang_diff = ang - item->pos.y_rot;
+	ShiftItem(item, coll);
+
+	if (ang_diff >= -16384 && ang_diff <= 16384)
+	{
+		if (item->current_anim_state != STATE_LARA_SLIDE_FORWARD || old_ang != ang)
+		{
+			item->anim_number = ANIMATION_LARA_SLIDE_FORWARD;
+			item->frame_number = anims[ANIMATION_LARA_SLIDE_FORWARD].frame_base;
+			item->goal_anim_state = STATE_LARA_SLIDE_FORWARD;
+			item->current_anim_state = STATE_LARA_SLIDE_FORWARD;
+			item->pos.y_rot = ang;
+			lara.move_angle = ang;
+			old_ang = ang;
+		}
+	}
+	else
+	{
+		if (item->current_anim_state != STATE_LARA_SLIDE_BACK || old_ang != ang)
+		{
+			item->anim_number = ANIMATION_LARA_START_SLIDE_BACKWARD;
+			item->frame_number = anims[ANIMATION_LARA_START_SLIDE_BACKWARD].frame_base;
+			item->goal_anim_state = STATE_LARA_SLIDE_BACK;
+			item->current_anim_state = STATE_LARA_SLIDE_BACK;
+			item->pos.y_rot = ang - 32768;
+			lara.move_angle = ang;
+			old_ang = ang;
+		}
+	}
+
+	return 1;
 }
 
 short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h)//1189C, 1194C (F)
