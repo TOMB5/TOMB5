@@ -747,7 +747,7 @@ char* DrawMeshRL3(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
 
         VX0 = t4 & 0xFFFF;
         VY0 = (t4 >> 16) & 0xFFFF;
-        VZ0 = t2 & 0xFFFF;
+        VZ0 = t2;
 
         t5 = t3 >> 10;
         docop2(0x180001);
@@ -878,6 +878,7 @@ char* DrawMeshRL3(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
             t4 ^= 0x1F;
         }
 
+        t4 <<= 5;
         if (t5 >= 0x20)
         {
             t5 >>= 27;
@@ -944,11 +945,13 @@ loc_15A8:
                 t5 = t6;
             }
 
-            t5 >>= 3;
             if (t5 < t7)
             {
-
                 t5 = t7 >> 3;
+            }
+            else
+            {
+                t5 >>= 3;
             }
 
             if (t5 < 0x9E0)
