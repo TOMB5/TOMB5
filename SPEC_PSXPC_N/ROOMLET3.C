@@ -1036,7 +1036,7 @@ loc_15A8:
         mesh += 4;
         goto loc_15A8;
     }
-    return (char*)a3;
+    
 loc_172C:
     v0 = ((int*)mesh)[0];
     mesh += 4;
@@ -1139,7 +1139,9 @@ loc_172C:
                 //loc_1758
                 LB1 = (t7 & 0xFFFF);
                 LB2 = (t7 >> 16) & 0xFFFF;
+                t0 <<= 4;
                 t7 = t0;
+                t0 <<= 1;
                 t0 += t7;
                 t0 += t6;
                 char* t00 = (char*)&RoomTextInfo[t0];
