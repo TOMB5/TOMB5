@@ -2,13 +2,13 @@
 
 #include "SPECIFIC.H"
 #include "LARA.H"
+#include "COLLIDE.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "CALCLARA.H"
 #include "MATHS.H"
 #include "FXTRIG.H"
 #include "LARASURF.H"
 #include "GETSTUFF.H"
-#include "COLLIDE.H"
 #include "3D_GEN.H"
 #include "COLLIDE_S.H"
 #endif
@@ -35,8 +35,10 @@
 #endif
 #include "EFFECTS.H"
 #include "SOUND.H"
+#if PSXENGINE
 #include "SFX.H"
 #include "CD.H"
+#endif
 
 #if PSX_VERSION && !PSXPC_TEST
 #include <STDIO.H>

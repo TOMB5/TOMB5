@@ -4,7 +4,9 @@
 #include "STYPES.H"
 #include "SPECIFIC.H"
 
+#if PSXENGINE
 #include <LIBGTE.H>
+#endif
 
 extern struct MATRIX3D lara_joint_matrices[15];
 extern struct MATRIX3D lara_matrices[15];

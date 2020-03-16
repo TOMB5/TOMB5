@@ -396,11 +396,7 @@ void ShiftItem(struct ITEM_INFO* item, struct COLL_INFO* coll)//7BEEC(<), 7DF30(
 }
 
 #if PC_VERSION
-c
-{
-	UNIMPLEMENTED();
-	return 0;
-}
+
 #endif
 
 #if PC_VERSION

@@ -2260,13 +2260,17 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 					//loc_3DA9C
 					if (ringnum == RING_INVENTORY)
 					{
+#if PSXENGINE
 						PrintString(SCREEN_WIDTH / 2, 75, 8, &textbufme[0], FF_CENTER);
+#endif
 						//j       loc_3DADC
 					}
 					else
 					{
 						//loc_3DAC4
+#if PSXENGINE
 						PrintString(SCREEN_WIDTH / 2, 165, 8, &textbufme[0], FF_CENTER);
+#endif
 					}
 				}
 				//loc_3DADC
@@ -2855,6 +2859,7 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	mQuickW2VMatrix();
 #endif
 
+#if PSXENGINE
 	if (bright == 0)
 	{
 		SetInventoryLighting(0x505050, 0x202020, 0x404040, 0x808080);
@@ -2868,6 +2873,7 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 		//loc_3C550
 		SetInventoryLighting(0x323232, 0x101010, 0x303030, (bright << 16) | (bright << 8) | bright);
 	}
+#endif
 
 #if PC_VERSION
 	SetD3DViewMatrix();
@@ -2892,7 +2898,9 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.mesh_bits = objme->meshbits;
 	item.anim_number = objects[item.object_number].anim_index;
 
+#if PSXENGINE
 	SetGeomOffset(x, y + objme->yoff);
+#endif
 
 	if (!(objme->flags & 8))
 	{

@@ -1114,6 +1114,11 @@ void PlayFmvNow(int num)
 	}
 }
 
+void WadeSplash(struct ITEM_INFO* item, int water_height, int water_depth)
+{
+	UNIMPLEMENTED();
+}
+
 #ifdef __cplusplus
 //}
 #endif
