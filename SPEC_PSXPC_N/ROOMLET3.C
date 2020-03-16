@@ -968,7 +968,8 @@ loc_15A8:
                     }
                 }//loc_1678
 
-                t7 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
+                LB1 = t7 & 0xFFFF;
+                LB2 = (t7 >> 16) & 0xFFFF;
                 t0 <<= 4;
                 t7 = t0;
                 t0 <<= 1;
