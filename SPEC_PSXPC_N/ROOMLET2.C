@@ -896,36 +896,44 @@ char* DrawMeshRL2(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
         v1 = 0;
         t6 = t0 - 0x3000;
 
-        if (t6 < 0 || t6 < 0x1FFF)
+        if (t6 >= 0)
         {
-            t6 >>= 8;
-            t3 -= t6;
-            t4 -= t6;
-            t5 -= t6;
-
-            if (t3 >= 0x20)
+            if (t6 < 0x1FFF)
             {
-                t3 >>= 27;
-                t3 ^= 0x1F;
+                t6 >>= 8;
+                t3 -= t6;
+                t4 -= t6;
+                t5 -= t6;
             }
-
-            if (t4 >= 0x20)
+            else
             {
-                t3 >>= 27;
-                t4 ^= 0x1F;
+                goto loc_1570;
             }
+        }
 
-            if (t5 >= 0x20)
-            {
-                t4 >>= 27;
-                t4 ^= 0x1F;
-            }
+        if (t3 >= 0x20)
+        {
+            t3 >>= 27;
+            t3 ^= 0x1F;
+        }
 
-            t5 <<= 10;
-            t3 |= t4;
-            v1 = t3 | t5;
+        if (t4 >= 0x20)
+        {
+            t3 >>= 27;
+            t4 ^= 0x1F;
+        }
 
-        }//loc_1570
+        if (t5 >= 0x20)
+        {
+            t4 >>= 27;
+            t4 ^= 0x1F;
+        }
+
+        t5 <<= 10;
+        t3 |= t4;
+        v1 = t3 | t5;
+
+    loc_1570:
 
         a2[0] = SXY2;
         v1 <<= 16;
