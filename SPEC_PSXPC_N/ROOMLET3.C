@@ -588,7 +588,9 @@ void UnpackRGBRL3(int* t5, int* s4, int* t6, int* fp, int* t8, int* s5, int* gp,
     *fp |= *t5;
     *fp |= *t6;
     *t5 = *t8 >> 24;
+#if BETA_VERSION
     *t5 |= 0x40;///@TODO? remove me? see roomletb
+#endif
     *t5 <<= 24;
     *fp |= *t5;
     *t5 = *s5 >> 7;
@@ -1002,7 +1004,7 @@ loc_15A8:
                     LG3 = (a3 >> 16) & 0xFFFF;
                     a3 += sizeof(POLY_GT3);
 
-                    InitSubdivisionRL3((int*)s1, t1, s4, fpp, t5, t2, (int)s5, gp, t6, t3, (int)s6, s3, t7, (int)s7);
+                    InitSubdivisionRL3((int*)s1, t1, s44, fpp, t5, t2, s55, gp, t6, t3, s66, s3, t7, s77);
 
                     s3 = 0;
                     a3 = (int)SubPolyGT3RL3((int*)TriVertTableRL3[0], (int*)&s1[201], (int*)s1, (int*)a3, s3, fpp, (int)s0);
