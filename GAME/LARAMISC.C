@@ -270,7 +270,7 @@ void LaraControl(short item_number)//4A838, 4AC9C
 				{
 					item->pos.x_rot = -0x1FFE;
 					item->current_anim_state = STATE_LARA_UNDERWATER_DIVING;
-					item->anim_number = 0x11;// probably wrong
+					item->anim_number = ANIMATION_LARA_FREE_FALL_TO_UNDERWATER;
 					item->goal_anim_state = STATE_LARA_UNDERWATER_FORWARD;
 					item->fallspeed = (((item->fallspeed << 1) + item->fallspeed) + (((item->fallspeed << 1) + item->fallspeed) >> 31)) >> 1;
 					item->frame_number = anims[ANIMATION_LARA_FREE_FALL_TO_UNDERWATER].frame_base;
