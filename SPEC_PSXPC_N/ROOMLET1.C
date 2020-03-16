@@ -1824,7 +1824,8 @@ void sub_158RL1(long underwater, struct room_info* r)
             t8 = SXY2;
             t9 = SZ3;
 
-            VZ0 = t3;
+            VX0 = t3 & 0xFFFF;
+            VY0 = (t3 >> 16) & 0xFFFF;
             VZ1 = t3;
 
             docop2(0x280030);
