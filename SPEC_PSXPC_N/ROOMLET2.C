@@ -1190,6 +1190,7 @@ loc_172C:
                 t0 <<= 4;
 
                 t7 = t0;
+                t0 <<= 1;
                 t0 += t7;
                 t0 += t6;
                 char* t00 = (char*)&RoomTextInfo[t0];
