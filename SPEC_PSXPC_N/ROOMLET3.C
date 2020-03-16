@@ -1007,7 +1007,7 @@ loc_15A8:
                     InitSubdivisionRL3((int*)s1, t1, s44, fpp, t5, t2, s55, gp, t6, t3, s66, s3, t7, s77);
 
                     s3 = 0;
-                    a3 = (int)SubPolyGT3RL3((int*)TriVertTableRL3[0], (int*)&s1[201], (int*)s1, (int*)a3, s3, fpp, (int)s0);
+                    a3 = (int)SubPolyGT3RL3((int*)&TriVertTableRL3, (int*)&s1[804], (int*)s1, (int*)a3, s3, fpp, (int)s0);
 
                     at = BFC;
                     t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
