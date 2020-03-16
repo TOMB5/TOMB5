@@ -281,6 +281,181 @@ int* SubPolyGTLoopRL4(int gp, int* t0, int* t1, int s1)
     return t00;
 }
 
+int* SubPolyGT4RL4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
+{
+    int s7;
+    int gp;
+    int t2;
+    int t3;
+    int t5;
+    int t4;
+    int t6;
+    int t9;
+    int t7;
+    int t8;
+    int at;
+    int ra = 0;
+    int s4;
+    int s5;
+    int s6;
+    int t00;
+
+    t0 = SubPolyGTLoopRL4(5, t0, t1, (int)s1);
+
+    gp = 3;
+    t1 = (int*)RGB2;
+    t2 = RGB1;
+
+    //loc_759D8
+    do
+    {
+        t3 = t0[0];
+        t5 = t0[1];
+        t0 += 2;
+
+        t4 = t3 >> 16;
+        t3 &= 0xFFFF;
+
+        t3 += (int)s1;
+        t4 += (int)s1;
+        t6 = t5 >> 16;
+        t5 &= 0xFFFF;
+        t5 += (int)s1;
+        t6 += (int)s1;
+
+        SXY0 = ((int*)t4)[0];
+        SXY1 = ((int*)t6)[0];
+        SXY2 = ((int*)t5)[0];
+
+        t7 = ((short*)t3)[2];
+        t8 = ((short*)t4)[2];
+
+        docop2(0x1400006);
+
+        t9 = ((short*)t5)[2];
+
+        at = t7 < t9 ? 1 : 0;
+        if (t7 < t8)
+        {
+            t7 = t8;
+        }
+
+        //loc_75A30
+        t8 = ((short*)t6)[2];
+        int att = t7 < t8 ? 1 : 0;
+        if (at != 0)
+        {
+            t7 = t9;
+        }
+
+        //loc_75A40
+        if (att != 0)
+        {
+            t7 = t8 >> 3;
+        }
+        else
+        {
+            t7 >>= 3;
+        }
+
+        //loc_75A4C
+        at = DQB >> 31;
+
+        if (t7 != 0)
+        {
+            at = t7 << at;
+            t9 = t7 << 2;
+
+            if (at < 0x180u && s3 == 0)
+            {
+                s3 = 1;
+                s4 = gp;
+                s5 = ra;
+                s6 = (int)t0;
+
+                a3 = SubPolyGT4RL4((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
+                t1 = (int*)RGB2;
+                t2 = RGB1;
+                s3 = 0;
+                gp = s4;
+                ra = s5;
+                t0 = (int*)s6;
+            }
+            else
+            {
+                //loc_75AB0
+                s3 = 1;
+                at = MAC0;
+                SXY0 = ((int*)t3)[0];
+                SXY1 = ((int*)t4)[0];
+
+                s7 = ra;
+                if (at <= 0)
+                {
+                    docop2(0x1400006);
+                    at = MAC0;
+
+                    if (at < 0)
+                    {
+                        goto loc_75B24;
+                    }
+                }//loc_75AD4
+
+                if (t9 < 0x80)
+                {
+                    //loc_75B34
+                    at = 0xF7000000;
+                    fp &= at;
+
+                    a3 = SubdivTri64RL4(t3, t4, t5, a3, fp, &t9, &s0);
+
+                    t3 = t6;
+
+                    a3 = SubdivTri64RL4(t3, t4, t5, a3, fp, &t9, &s0);
+
+                    at = 0x8000000;
+                    fp |= at;
+                }
+                else
+                {
+                    t2 = ((int*)t6)[0];
+                    at = ClipToScreenRL4(t2);
+
+                    if (at == 0)
+                    {
+                        t2 = RGB1;
+                        SubdivSetup3RL4(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
+                        t5 = ((int*)t6)[0];
+                        t7 = ((int*)t6)[4];
+                        t8 = ((unsigned short*)t6)[7];
+
+                        ((POLY_GT4*)a3)->x3 = (t5 & 0xFFFF);
+                        ((POLY_GT4*)a3)->y3 = (t5 >> 16) & 0xFFFF;
+                        ((POLY_GT4*)a3)->r3 = (t7 & 0xFF);
+                        ((POLY_GT4*)a3)->g3 = (t7 & 0xFF00) >> 8;
+                        ((POLY_GT4*)a3)->b3 = (t7 & 0xFF0000) >> 16;
+                        ((POLY_GT4*)a3)->p3 = (t7 & 0xFF000000) >> 24;
+                        ((POLY_GT4*)a3)->u3 = (t8 & 0xFF);
+                        ((POLY_GT4*)a3)->v3 = (t8 & 0xFF00) >> 8;
+                        ((POLY_GT4*)a3)->pad3 = (t8 & 0xFFFF0000) >> 16;
+                        MyAddPrimRL4(0xC000000, &t9, &s0, a3);
+                        a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                    }
+                }
+            loc_75B20:
+                ra = s7;
+            }
+
+        }
+    loc_75B24:
+        int test = 0;
+        test++;
+
+    } while (gp-- != 0);
+
+    return a3;
+}
+
 char* SubPolyGT3RL4(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
 {
     int gp;
@@ -372,7 +547,7 @@ char* SubPolyGT3RL4(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
                 {
                     if (t9 < 0x80)
                     {
-                        //a3 = SubdivTri64RL1(t3, t4, t5, a3, fp, &t9, &s0);
+                        a3 = SubdivTri64RL4(t3, t4, t5, a3, fp, &t9, &s0);
                     }
                     else
                     {
@@ -397,7 +572,7 @@ char* SubPolyGT3RL4(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
     return (char*)a3;
 }
 
-void InitSubdivisionRL4(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, int t7, int s7)
+int* InitSubdivisionRL4(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, int t7, int s7)
 {
     s1[186] = t1;
     ((short*)s1)[374] = s4;
@@ -472,6 +647,8 @@ void InitSubdivisionRL4(int* s1, int t1, int s4, int fp, int t5, int t2, int s5,
     ((short*)s1)[396] = t2;
     ((short*)s1)[397] = t4;
     ((short*)s1)[398] = t5;
+
+    return (int*)gp;
 }
 
 void InitPrimRL4(int a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
@@ -604,199 +781,199 @@ char* DrawMeshRL4(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
     //loc_1320
     do
     {
-    int t0 = ((int*)mesh)[0];
-    mesh += 4;
-    int t3 = t0 >> 15;
-    int t2 = t0 & 0x1F;
-    t2 >>= 10;
-    int t1 = t0 & 0x3E0;
-    t1 <<= 3;
-    int t9 = t0 >> 30;
-    L33 = 0;
-    t0 &= 0x7C00;
-
-    if (t9 != 0)
-    {
-        t6 = (t0 + s2) >> 6;
-        t7 = (t1 + s3) >> 6;
-        t8 = (t2 + s4) >> 7;
-        t6 += t7;
-        t6 += t8;
-        t7 = LB3;
-        t8 = RGB0;
-        t6 &= 0xFC;
-        t6 += t8;
-        t6 = ((short*)t6)[1];
-        t5 = t9 & 1;
-        at = t6 >> 8;
-        t6 += t7;
-        t6 &= 0xFC;
-        t6 += t8;
-        t8 = ((char*)t6)[0];
-        t6 = ((char*)t8)[1];
-        t9 &= 2;
-
-        if (t5 != 0)
-        {
-            if (t9 == 0)
-            {
-                t8 += at;
-            }//loc_13B0
-
-            L33 = t8;
-        }//loc_13B4
-    }//loc_13C0
-
-    t6 = RBK;
-    t7 = GBK;
-    t8 = BBK;
-
-    t0 += t6;
-    t1 += t7;
-    t2 += t8;
-    t4 = t1 << 16;
-    at = t0 & 0xFFFF;
-    t4 |= at;
-
-    VX0 = t4 & 0xFFFF;
-    VY0 = (t4 >> 16) & 0xFFFF;
-    VZ0 = t2 & 0xFFFF;
-
-    t5 = t3 >> 10;
-    docop2(0x180001);
-    t4 = t3 >> 5;
-
-    t5 &= 0x1F;
-    t4 &= 0x1F;
-    t3 &= 0x1F;
-
-    t9 = s7[3];
-    s6 = s7;
-    t0 -= t6;
-
-    if (t9 != 0)
-    {
-        t1 -= t7;
-        t2 -= t8;
-        t0 += s2;
-        t1 += s3;
-        t2 += s4;
-        t0 >>= 7;
-        t1 >>= 7;
-        t2 >>= 7;
-
-    loc_1434:
-        t9 = s6[3];
-        s6 += 4;
-        t6 = s6[-4];
+        int t0 = ((int*)mesh)[0];
+        mesh += 4;
+        int t3 = t0 >> 15;
+        int t2 = t0 & 0x1F;
+        t2 >>= 10;
+        int t1 = t0 & 0x3E0;
+        t1 <<= 3;
+        int t9 = t0 >> 30;
+        L33 = 0;
+        t0 &= 0x7C00;
 
         if (t9 != 0)
         {
-            t7 = s6[-3];
-            t8 = s6[-2];
-
-            t6 -= t0;
-            t7 -= t1;
-            t8 -= t2;
-
-            IR1 = t6;
-            IR2 = t7;
-            IR3 = t8;
-
-            a3 = t9 >> 11;
-
-            docop2(0xA00428);
-            a3 &= 0x1F;
-            v1 = (t9 >> 19) & 0x1F;
-            a1 = (t9 >> 27) & 0x1F;
-            t6 = MAC1;
-            t7 = MAC2;
-            t8 = MAC3;
-
+            t6 = (t0 + s2) >> 6;
+            t7 = (t1 + s3) >> 6;
+            t8 = (t2 + s4) >> 7;
             t6 += t7;
             t6 += t8;
+            t7 = LB3;
+            t8 = RGB0;
+            t6 &= 0xFC;
+            t6 += t8;
+            t6 = ((short*)t6)[1];
+            t5 = t9 & 1;
+            at = t6 >> 8;
+            t6 += t7;
+            t6 &= 0xFC;
+            t6 += t8;
+            t8 = ((char*)t6)[0];
+            t6 = ((char*)t8)[1];
+            t9 &= 2;
 
-            if (t6 < 0x3FF)
+            if (t5 != 0)
             {
-                t6 += (int)s5;
-                t6 = ((char*)t6)[0];
-                t9 &= 0xFF;
-
-                if (t6 < t9)
+                if (t9 == 0)
                 {
-                    t9 <<= 1;
-                    t9 += (int)s0;
-                    t9 = ((short*)t9)[0];
-                    t6 <<= 5;
-                    t6 += t9;
-                    t6 += (int)s1;
-                    a3 += t6;
-                    v1 += t6;
-                    a1 += t6;
+                    t8 += at;
+                }//loc_13B0
 
-                    a3 = ((char*)a3)[0];
-                    v1 = ((char*)v1)[0];
-                    a1 = ((char*)a1)[0];
+                L33 = t8;
+            }//loc_13B4
+        }//loc_13C0
 
-                    t4 += v1;
-                    t5 += a1;
-                    t3 += a3;
+        t6 = RBK;
+        t7 = GBK;
+        t8 = BBK;
 
+        t0 += t6;
+        t1 += t7;
+        t2 += t8;
+        t4 = t1 << 16;
+        at = t0 & 0xFFFF;
+        t4 |= at;
+
+        VX0 = t4 & 0xFFFF;
+        VY0 = (t4 >> 16) & 0xFFFF;
+        VZ0 = t2 & 0xFFFF;
+
+        t5 = t3 >> 10;
+        docop2(0x180001);
+        t4 = t3 >> 5;
+
+        t5 &= 0x1F;
+        t4 &= 0x1F;
+        t3 &= 0x1F;
+
+        t9 = s7[3];
+        s6 = s7;
+        t0 -= t6;
+
+        if (t9 != 0)
+        {
+            t1 -= t7;
+            t2 -= t8;
+            t0 += s2;
+            t1 += s3;
+            t2 += s4;
+            t0 >>= 7;
+            t1 >>= 7;
+            t2 >>= 7;
+
+        loc_1434:
+            t9 = s6[3];
+            s6 += 4;
+            t6 = s6[-4];
+
+            if (t9 != 0)
+            {
+                t7 = s6[-3];
+                t8 = s6[-2];
+
+                t6 -= t0;
+                t7 -= t1;
+                t8 -= t2;
+
+                IR1 = t6;
+                IR2 = t7;
+                IR3 = t8;
+
+                a3 = t9 >> 11;
+
+                docop2(0xA00428);
+                a3 &= 0x1F;
+                v1 = (t9 >> 19) & 0x1F;
+                a1 = (t9 >> 27) & 0x1F;
+                t6 = MAC1;
+                t7 = MAC2;
+                t8 = MAC3;
+
+                t6 += t7;
+                t6 += t8;
+
+                if (t6 < 0x3FF)
+                {
+                    t6 += (int)s5;
+                    t6 = ((char*)t6)[0];
+                    t9 &= 0xFF;
+
+                    if (t6 < t9)
+                    {
+                        t9 <<= 1;
+                        t9 += (int)s0;
+                        t9 = ((short*)t9)[0];
+                        t6 <<= 5;
+                        t6 += t9;
+                        t6 += (int)s1;
+                        a3 += t6;
+                        v1 += t6;
+                        a1 += t6;
+
+                        a3 = ((char*)a3)[0];
+                        v1 = ((char*)v1)[0];
+                        a1 = ((char*)a1)[0];
+
+                        t4 += v1;
+                        t5 += a1;
+                        t3 += a3;
+
+                    }
                 }
+
+                goto loc_1434;
+
+            }//loc_14F0
+        }
+        //loc_14F0
+        t0 = L33;
+        t4 += t0;
+
+        if (t0 != 0)
+        {
+        }
+
+        t0 = SZ3;
+        v1 = 0;
+        t6 = t0 - 0x3000;
+
+        if (t6 < 0 || t6 < 0x1FFF)
+        {
+            t6 >>= 8;
+            t3 -= t6;
+            t4 -= t6;
+            t5 -= t6;
+
+            if (t3 >= 0x20)
+            {
+                t3 >>= 27;
+                t3 ^= 0x1F;
             }
 
-            goto loc_1434;
+            if (t4 >= 0x20)
+            {
+                t3 >>= 27;
+                t4 ^= 0x1F;
+            }
 
-        }//loc_14F0
-    }
-    //loc_14F0
-    t0 = L33;
-    t4 += t0;
+            if (t5 >= 0x20)
+            {
+                t4 >>= 27;
+                t4 ^= 0x1F;
+            }
 
-    if (t0 != 0)
-    {
-    }
+            t5 <<= 10;
+            t3 |= t4;
+            v1 = t3 | t5;
 
-    t0 = SZ3;
-    v1 = 0;
-    t6 = t0 - 0x3000;
+        }//loc_1570
 
-    if (t6 < 0 || t6 < 0x1FFF)
-    {
-        t6 >>= 8;
-        t3 -= t6;
-        t4 -= t6;
-        t5 -= t6;
-
-        if (t3 >= 0x20)
-        {
-            t3 >>= 27;
-            t3 ^= 0x1F;
-        }
-
-        if (t4 >= 0x20)
-        {
-            t3 >>= 27;
-            t4 ^= 0x1F;
-        }
-
-        if (t5 >= 0x20)
-        {
-            t4 >>= 27;
-            t4 ^= 0x1F;
-        }
-
-        t5 <<= 10;
-        t3 |= t4;
-        v1 = t3 | t5;
-
-    }//loc_1570
-
-    a2[0] = SXY2;
-    v1 <<= 16;
-    t0 |= v1;
-    a2[1] = t0;
-    a2 += 2;
+        a2[0] = SXY2;
+        v1 <<= 16;
+        t0 |= v1;
+        a2[1] = t0;
+        a2 += 2;
     } while (--v0 != 0);
 
     a1 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
@@ -944,7 +1121,211 @@ loc_15A8:
         goto loc_15A8;
     }
 
-    return (char*)a3;
+loc_172C:
+    v0 = ((int*)mesh)[0];
+    mesh += 4;
+    v1 = 2;
+
+    do
+    {
+        t0 = v0 & 0x3FF;
+        at = t0 ^ 0x3FF;
+        v0 >>= 10;
+
+        if (at == 0)
+        {
+            return (char*)a3;
+        }
+
+        t1 = ((int*)mesh)[0];
+        mesh += 4;
+        DQB = t1;
+        t4 = t1 >> 18;
+        t3 = (t1 >> 11) & 0x3F8;
+
+        s66 = t3 + (int)s1;
+        t2 = (t1 >> 4) & 0x3F8;
+        s55 = t2 + (int)s1;
+        t1 <<= 3;
+        t1 &= 0x3F8;
+        s44 = t1 + (int)s1;
+
+        t1 = ((int*)s44)[0];
+        t2 = ((int*)s55)[0];
+        t3 = ((int*)s66)[0];
+
+        SXY0 = t1;
+        SXY1 = t2;
+        SXY2 = t3;
+
+        t4 &= 0x3F8;
+        s77 = t4 + (int)s1;
+        docop2(0x1400006);
+        t4 = ((unsigned int*)s77)[0];
+
+        t5 = ClipXYRL4(t1, t2, t3, t4);
+
+
+        if (t5 == 0)
+        {
+            int s444 = ((unsigned int*)s44)[1];
+            int s555 = ((unsigned int*)s55)[1];
+            int s666 = ((unsigned int*)s66)[1];
+            int s777 = ((unsigned int*)s77)[1];
+
+            t5 = s444 & 0xFFFF;
+            t6 = s555 & 0xFFFF;
+            t7 = s666 & 0xFFFF;
+
+            if (t5 < t6)
+            {
+                t5 = t6;
+            }
+
+            t8 = s777 & 0xFFFF;
+            if (t5 < t7)
+            {
+                t5 = t7;
+            }
+
+            t6 = 0;
+            if (t5 < t8)
+            {
+                t5 = t8;
+            }
+
+            t7 = MAC0;
+            t5 >>= 3;
+
+            if (t5 < 0x9E0)
+            {
+                t9 = t5 << 2;
+                at = t5 < 0x280 ? 1 : 0;
+                if (t5 >= 0x280)
+                {
+                    if (t7 >= 0)
+                    {
+                        if ((unsigned)t9 >= 0x1000 && (unsigned)t9 < 0x1E00)
+                        {
+                            t6 = 0x10;
+                        }
+                        else
+                        {
+                            t6 = 0x20;
+                        }
+                    }
+                    else
+                    {
+                        goto loc_1884;
+                    }
+
+                }
+                //loc_1758
+                LB1 = (t7 & 0xFFFF);
+                LB2 = (t7 >> 16) & 0xFFFF;
+                t7 = t0;
+                t0 += t7;
+                t0 += t6;
+                char* t00 = (char*)&RoomTextInfo[t0];
+                t8 = ((int*)t00)[2];
+                int fpp;
+                UnpackRGBRL4(&s444, &t8, &s555, &s666, &fpp, &gp, &t5, &t6, &s3);
+                t5 = s777 >> 7;
+                t5 += s2;
+                t6 = s777 >> 10;
+                t6 &= 0xF800;
+                t7 = s777 >> 13;
+                t7 &= 0xF8;
+                t7 |= t5;
+                t6 |= t6;
+                t5 = ((int*)t00)[0];
+                a1 = RFC;
+                t6 = ((int*)t00)[1];
+                t5 -= a1;
+                t0 = ((int*)t00)[3];
+
+                InitPrimRL4(a3, fpp, t1, t5, gp, t2, t6, s3, t3);
+
+#if defined(USE_32_BIT_ADDR)
+                ((int*)a3)[10] = t8;
+                ((int*)a3)[11] = t7;
+                ((int*)a3)[12] = t4;
+                ((int*)a3)[13] = t0;
+#else
+                ((int*)a3)[9] = t8;
+                ((int*)a3)[10] = t7;
+                ((int*)a3)[11] = t4;
+                ((int*)a3)[12] = t0;
+#endif
+                if (at != 0)
+                {
+                    BFC = t0;
+                    DQA = (int)(short)t9;
+                    LG2 = (a3 & 0xFFFF);
+                    LG3 = (a3 >> 16) & 0xFFFF;
+                    a3 += sizeof(POLY_GT4);
+
+                    ((int*)s1)[201] = t4;
+                    ((short*)s1)[404] = s777;
+                    ((int*)s1)[205] = t7;
+                    ((short*)s1)[409] = t0;
+
+                    t7 = t8;
+
+                    gp = (int)InitSubdivisionRL4((int*)s1, t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7, s777);
+
+                    t0 = DQB;
+                    t5 = (LR1 & 0xFFFF) | ((LR2 & 0xFFFF) << 16);
+                    at = (t0 >> 19) & 0x1FC;
+                    s666 = gp + at;
+                    at += t5;
+                    at = ((int*)at)[0];
+                    s3 = 0;
+                    t4 = at & 0x3E0;
+                    t4 <<= 3;
+                    t5 = at & 0x1F;
+                    t5 <<= 10;
+
+                    at &= 0x7C00;
+                    at += t3;
+                    t4 += t7;
+                    t5 += s777;
+
+                    ((short*)s1)[406] = at;
+                    ((short*)s1)[407] = t4;
+                    ((short*)s1)[408] = t5;
+
+                    a3 = (int)SubPolyGT4RL4((int*)QuadVertTable[0], (int*)&s1[824], (int*)s1, (int*)a3, (int)s0, s3, fpp);
+                    t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
+                    at = BFC;
+                    t9 = DQA;
+
+                    t0 |= at;
+
+                    if (t0 >= 0)
+                    {
+                        t3 = a3;
+                        if (t9 >= 0x500)
+                        {
+                            a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
+                            MyAddPrimRL4(0xC000000, &t9, (int*)&s0, (int*)a3);
+                            a3 = t3;
+                        }
+                    }//loc_76410
+                }
+                else
+                {
+                    //loc_76404
+                    MyAddPrimRL4(0xC000000, &t9, (int*)&s0, (int*)a3);
+                    a3 += sizeof(POLY_GT4);
+                }
+            }
+        loc_1884:
+            int test = 0;
+            test++;
+        }
+    } while (v1--);
+    goto loc_172C;
 }
 
 void GetBoundsRL4(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* v0, int* s5, int* a0, int* a1, int* a2, int* a3)//sub_50
