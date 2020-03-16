@@ -1714,8 +1714,10 @@ void sub_158RL1(long underwater, struct room_info* r)
         s6 = *s1++;
         t0 = ((int*)&fp->left)[0];
         t2 = ((int*)&fp->top)[0];
-        t1 = (t0 >> 16) & 0xFFFF;
-        t3 = (t2 >> 16) & 0xFFFF;
+        t1 = (t0 >> 16);
+        t0 &= 0xFFFF;
+        t3 = (t2 >> 16);
+        t2 &= 0xFFFF;
 
         t1++;
         t3++;
