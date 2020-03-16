@@ -1,7 +1,7 @@
 #include "CONTROL.H"
+#include "CALCHAIR.H"
 
 #if PSX_VERSION || PSXPC_VERSION
-#include "CALCHAIR.H"
 #include "COLLIDE_S.H"
 #include "DRAWPHAS.H"
 #include "3D_GEN.H"
