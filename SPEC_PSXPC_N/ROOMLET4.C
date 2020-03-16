@@ -1755,8 +1755,13 @@ loc_4A0:
         t8 = SXY2;
         t9 = SZ3;
 
-        VZ0 = t3;
-        VZ1 = t3;
+        VX0 = t4 & 0xFFFF;
+        VY0 = (t4 >> 16) & 0xFFFF;
+        VX1 = t5 & 0xFFFF;
+        VY1 = (t5 >> 16) & 0xFFFF;
+        VX2 = t0 & 0xFFFF;
+        VY2 = (t0 >> 16) & 0xFFFF;
+        t0 = SXY0;
 
         docop2(0x280030);
 
