@@ -845,7 +845,7 @@ char* DrawMeshRL1(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
             t6 &= 0xFC;
             t6 += t8;
             t8 = ((char*)t6)[0];
-            t6 = ((char*)t8)[1];
+            t6 = ((char*)t6)[1];
             t9 &= 2;
 
             if (t5 != 0)
@@ -1504,7 +1504,7 @@ void sub_158RL1(long underwater, struct room_info* r)
     int at;
     struct room_info* fp;
     struct WATERTAB* t11;
-    unsigned int* s2;
+    int* s2;
     int* s1;
     struct room_info* s5;
     int t5;
@@ -1537,7 +1537,7 @@ void sub_158RL1(long underwater, struct room_info* r)
     int* s3 = (int*)RoomBBoxes;
     short* s4 = &draw_rooms[0];
     //t2 = wibble & 0xFC
-    s2 = (unsigned int*)&tsv_buffer[0];
+    s2 = (int*)&tsv_buffer[0];
     LB3 = wibble & 0xFC;
 
     //loc_1B0
@@ -1877,7 +1877,7 @@ void sub_158RL1(long underwater, struct room_info* r)
     } while (--s0);
 
     s2[0] = 0;
-    s2 = (unsigned int*)&tsv_buffer;
+    s2 = (int*)&tsv_buffer;
 
 loc_64C:
     a1 = s2[0];
