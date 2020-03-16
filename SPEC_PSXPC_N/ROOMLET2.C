@@ -699,7 +699,7 @@ void UnpackRGBRL2(int* t5, int* s4, int* t6, int* fp, int* t8, int* s5, int* gp,
     *gp &= 0xF8;
     *gp |= *t5;
     *gp |= *t6;
-    *t5 = *t6 >> 7;
+    *t5 = *s6 >> 7;
     *t5 &= s2;
     *t6 = *s6 >> 10;
     *t6 &= 0xF800;
