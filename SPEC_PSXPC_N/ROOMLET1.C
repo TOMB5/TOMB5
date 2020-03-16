@@ -818,7 +818,7 @@ char* DrawMeshRL1(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
         mesh += 4;
         t3 = t0 >> 15;
         t2 = t0 & 0x1F;
-        t2 >>= 10;
+        t2 <<= 10;
         t1 = t0 & 0x3E0;
         t1 <<= 3;
         int t9 = t0 >> 30;
@@ -1024,7 +1024,7 @@ char* DrawMeshRL1(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
     struct MMTEXTURE* a22 = &RoomTextInfo[0];
     a3 = ((int*)a1)[2];
     s0 = (short*)((int*)a1)[1];
-    s1 = (char*)&scratchPad[0];
+    s1 = (char*)&sp[0];
     v0 >>= 8;
 
 loc_15A8:
