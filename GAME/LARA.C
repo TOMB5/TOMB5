@@ -2382,8 +2382,6 @@ void lara_as_fastback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1959C(<),
 	}
 }
 
-int unknown_dword = 1; // present both on pc and psx, but missing from the symbol table, also only used in lara_as_run
-
 void lara_as_run(struct ITEM_INFO* item, struct COLL_INFO* coll)//192EC, 19420 (F)
 {
 	if (item->hit_points <= 0)
@@ -2446,22 +2444,24 @@ void lara_as_run(struct ITEM_INFO* item, struct COLL_INFO* coll)//192EC, 19420 (
 			item->pos.z_rot = ANGLE(11);
 	}
 
+	static int jump_ok = 1;
+
 	if (item->anim_number == ANIMATION_LARA_STAY_TO_RUN)
 	{
-		unknown_dword = 0;
+		jump_ok = 0;
 	}
 	else if(item->anim_number != ANIMATION_LARA_RUN || item->frame_number == 4)
 	{
-		unknown_dword = 1;
+		jump_ok = 1;
 	}
 
-	if (input & IN_JUMP && unknown_dword && !item->gravity_status)
+	if (input & IN_JUMP && jump_ok && !item->gravity_status)
 	{
 		item->goal_anim_state = STATE_LARA_JUMP_FORWARD;
 	}
 	else if(input & IN_FORWARD)
 	{
-		if (lara.water_status == 4)
+		if (lara.water_status == LW_WADE)
 		{
 			item->goal_anim_state = STATE_LARA_WADE_FORWARD;
 		}
