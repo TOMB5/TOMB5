@@ -1554,16 +1554,16 @@ void sub_158RL1(long underwater, struct room_info* r)
             t8 >= -31744 && t8 < 31744)
         {
             t7 = (fp->minfloor - s5->y);
-            t6 = (((fp->x_size - 2) << 16) + fp->x) - s5->z;
-            t8 = (((fp->y_size - 2) << 16) + fp->z) - s5->x;
+            t6 = (((fp->x_size - 2) << 10) + fp->z) - s5->z;
+            t8 = (((fp->y_size - 2) << 10) + fp->x) - s5->x;
 
             if (t6 >= -31744 && t6 < 31744 &&
                 t7 >= -31744 && t7 < 31744 &&
                 t8 >= -31744 && t8 < 31744)
             {
                 t7 = (s5->minfloor - fp->y);
-                t6 = (((s5->x_size - 2) << 16) + s5->x) - fp->x;
-                t8 = (((s5->y_size - 2) << 16) + s5->z) - fp->z;
+                t6 = (((s5->x_size - 2) << 10) + s5->x) - fp->x;
+                t8 = (((s5->y_size - 2) << 10) + s5->z) - fp->z;
 
                 if (t6 >= -31744 && t6 < 31744 &&
                     t7 >= -31744 && t7 < 31744 &&
