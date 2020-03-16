@@ -413,7 +413,7 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 	{
 		if (lpHELDesc->dcmColorModel & D3DCOLOR_MONO) return D3DENUMRET_OK;
 	}
-
+	
 #ifdef DISABLESOFTWARE
 	if (lpHWDesc->dwFlags == 0)
 		return D3DENUMRET_OK;
