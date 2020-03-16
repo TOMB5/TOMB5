@@ -1193,7 +1193,7 @@ loc_172C:
                 t0 <<= 1;
                 t0 += t7;
                 t0 += t6;
-                char* t00 = (char*)&RoomTextInfo[t0];
+                char* t00 = &((char*)RoomTextInfo)[t0];
                 t8 = ((int*)t00)[2];
                 int fpp;
                 UnpackRGBRL2(&t5, &s444, &t6, &fpp, &t8, &s555, &gp, &s666, &s3);
