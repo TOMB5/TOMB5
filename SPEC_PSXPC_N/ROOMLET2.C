@@ -1655,9 +1655,10 @@ void sub_158RL2(long underwater, struct room_info* r)
     fpp = t7;
     s7 = t8;
 
+loc_4A0:
+
     a0 = *s1;
 
-loc_4A0:
     if (s6 != 0)
     {
         s1++;
