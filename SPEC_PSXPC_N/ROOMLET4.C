@@ -963,14 +963,14 @@ char* DrawMeshRL4(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
 
         if (t4 >= 0x20)
         {
-            t3 >>= 27;
+            t4 >>= 27;
             t4 ^= 0x1F;
         }
 
         if (t5 >= 0x20)
         {
-            t4 >>= 27;
-            t4 ^= 0x1F;
+            t5 >>= 27;
+            t5 ^= 0x1F;
         }
 
         t5 <<= 10;
