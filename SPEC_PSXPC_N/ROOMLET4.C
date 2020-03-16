@@ -1307,7 +1307,7 @@ loc_172C:
                     ((short*)s1)[407] = t4;
                     ((short*)s1)[408] = t5;
 
-                    a3 = (int)SubPolyGT4RL4((int*)QuadVertTable[0], (int*)&s1[824], (int*)s1, (int*)a3, (int)s0, s3, fpp);
+                    a3 = (int)SubPolyGT4RL4((int*)&QuadVertTable, (int*)&s1[824], (int*)s1, (int*)a3, (int)s0, s3, fpp);
                     t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
                     at = BFC;
                     t9 = DQA;
