@@ -67,6 +67,14 @@ void DebugPrint(const char* message)// (F)
 	fflush(fplog);
 }
 
+
+int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)//7B210, 7D254
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+
 #ifdef __cplusplus
 //extern "C" {
 #endif
@@ -976,7 +984,7 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 						ptr2 += 256 / width;
 					}
 
-					ptr += 512 * 256 / height;
+					ptr += 256 * 256 / height;
 				}
 			}
 			else if (bpp == 1)
@@ -994,7 +1002,7 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 						ptr2 += 256 / width;
 					}
 
-					ptr += 1024 * 256 / height;
+					ptr += 256 * 256 / height;
 				}
 			}
 		}
