@@ -2837,7 +2837,7 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 
 void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay)//3C43C(<), 3C890(<) (F)
 {
-#if !PC_VERSION
+
 	struct ITEM_INFO item;
 	struct INVOBJ* objme;
 
@@ -2849,7 +2849,11 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.object_number = objme->object_number;
 
 	phd_LookAt(0, 1024, 0, 0, 0, 0, 0);
+#if PC_VERSION
+	phd_QuickW2VMatrix(0, 1024, 0, 100, 0, 200, 0);
+#else
 	mQuickW2VMatrix();
+#endif
 
 	if (bright == 0)
 	{
@@ -2865,6 +2869,11 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 		SetInventoryLighting(0x323232, 0x101010, 0x303030, (bright << 16) | (bright << 8) | bright);
 	}
 
+#if PC_VERSION
+	SetD3DViewMatrix();
+	phd_PushUnitMatrix();
+	phd_TranslateRel(0, 0, objme->scale1);
+#else
 	//loc_3C578
 	mPushUnitMatrix();
 	Matrix->m10 -= (Matrix->m10 >> 2);
@@ -2879,6 +2888,7 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.pos.z_pos = 0;
 	item.room_number = 0;
 	item.il.Light[3].pad = 0;
+#endif
 	item.mesh_bits = objme->meshbits;
 	item.anim_number = objects[item.object_number].anim_index;
 
@@ -2895,6 +2905,11 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	}
 
 	mPopMatrix();
+#if PC_VERSION
+	UNIMPLEMENTED();
+	//dword_E598A0 = phd_centerx;
+	//dword_E5990C = phd_centery;
+#else
 	SetGeomOffset(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 #endif
 }

@@ -403,8 +403,6 @@ D3DTLBUMPVERTEX stru_923C88[20];
 
 void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
-	Log(LT_Enter, "AddTriClippedZBuffer %4d;%4d;%4d tex=%d", v1, v2, v3, tex->tile_and_flag);
-
 	WORD vp1 = d9ab34[v1];
 	WORD vp2 = d9ab34[v2];
 	WORD vp3 = d9ab34[v3];
@@ -419,6 +417,8 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 
 	int v27 = 0;
 	int v31 = 1;
+
+	Log(LT_Enter, "AddTriClippedZBuffer %4d[%d];%4d[%d];%4d[%d] tex=%d", v1, vp1, v2, vp2, v3, vp3, tex->tile_and_flag);
 
 	if ((vp1 | vp2 | vp3) & 0x8000)
 	{
@@ -1597,18 +1597,220 @@ int BuildRoomletLights(ROOMLET* r)
 	return nvert;
 }
 
-void RoomletTransformLight(float* vert, int num_vert, int num_lights, int num_vert_2, int a5)
+float flt_511A5C = SECTOR(20);
+float flt_511A64 = SECTOR(12);
+
+void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, int num_vert_2, int a5)
 {
-	int v92 = camera.underwater;
+	int water = camera.underwater;
 	if (!(App.Flags & WA_BACK_BUFFER))
-		v92 = 0;
+		water = 0;
 
-	for(int i = 0; i < num_vert; i++)
+	auto vptr = vert_buf;
+	auto d9ptr = d9ab34;
+
+	for(int i = 0; i < num_vert; i++, vptr++)
 	{
-		
-	}
+		float vx = vert->Vertex.x;
+		float vy = vert->Vertex.y;
+		float vz = vert->Vertex.z;
+		float nx = vert->Normal.x;
+		float ny = vert->Normal.y;
+		float nz = vert->Normal.z;
 
-	Unimpl();
+		if (i < num_vert_2)
+		{
+			vy += WaterTable[0][(inserting_room->MeshEffect << 6)
+				+ ((BYTE)(wibble >> 2)
+					+ WaterTable[0][(inserting_room->MeshEffect << 6)
+						+ ((BYTE)((int)(vx + inserting_room->x) / 64)
+							+ (BYTE)((int)(vy + inserting_room->y) / 64)
+							+ (BYTE)((int)(vz + inserting_room->z) / 128) & 0x3F)].random & 0x3F)].choppy;
+		}
+
+		float ox = App.ViewMatrix._41 + App.ViewMatrix._31 * vz + App.ViewMatrix._21 * vy + App.ViewMatrix._11 * vx;
+		float oy = App.ViewMatrix._42 + App.ViewMatrix._32 * vz + App.ViewMatrix._22 * vy + App.ViewMatrix._12 * vx;
+		float oz = App.ViewMatrix._43 + App.ViewMatrix._33 * vz + App.ViewMatrix._23 * vy + App.ViewMatrix._13 * vx;
+
+		vptr->tu = ox;
+		vptr->tv = oy;
+
+		int v7 = 0;
+
+		if (oz < f_znear)
+		{
+			v7 = 0xFF80;
+		}
+		else
+		{
+			float persp = f_persp / oz;
+
+			ox *= persp;
+			oy *= persp;
+
+			ox += f_centerx;
+			oy += f_centery;
+
+			if (water)
+			{
+				float fix = oz / 512.0;
+
+				ox += flt_878658[((wibble + (long)(fix * oy)) >> 3) & 0x1F];
+				oy += flt_878658[((wibble + (long)(fix * ox)) >> 3) & 0x1F];
+			}
+
+			vptr->rhw = persp * f_oneopersp;
+
+			if (ox >= room_left_flt)
+			{
+				if (ox > room_right_flt)
+					v7 = 2;
+			}
+			else
+			{
+				v7 = 1;
+			}
+
+			if (oy >= room_top_flt)
+			{
+				if (oy > room_bottom_flt)
+					v7 += 8;
+			}
+			else
+			{
+				v7 += 4;
+			}
+		}
+
+		BYTE cr = 0, cg = 0, cb = 0;
+		BYTE sr = 0, sg = 0, sb = 0;
+
+		vptr->sx = ox;
+		vptr->sy = oy;
+		vptr->sz = oz;
+
+		vptr++;
+		*d9ptr++ = v7;
+
+		float r = 0.0, g = 0.0, b = 0.0;
+
+		auto dyn = stru_7ED6B0;
+		for(int i = 0; i < num_lights; i++, dyn++)
+		{
+			float dx = vx - dyn->sx;
+			float dy = vy - dyn->sy;
+			float dz = vz - dyn->sz;
+
+			float sqr = dx * dx + dy * dy + dz * dz;
+
+			if(sqr < dyn->falloff_sqr)
+			{
+				float norm = sqrt(sqr);
+
+				float px = (App.ViewMatrix._31 * nz + App.ViewMatrix._21 * ny + App.ViewMatrix._11 * nx) * (1.0 / norm * dx);
+				float py = (App.ViewMatrix._32 * nz + App.ViewMatrix._22 * ny + App.ViewMatrix._12 * nx) * (1.0 / norm * dy);
+				float pz = (App.ViewMatrix._33 * nz + App.ViewMatrix._23 * ny + App.ViewMatrix._13 * nx) * (1.0 / norm * dz);
+
+				float fix = (1.0 - (px + py + pz)) * ((dyn->falloff - norm) * dyn->falloff_inv);
+
+				r += fix * dyn->r;
+				g += fix * dyn->g;
+				b += fix * dyn->b;
+			}
+		}
+
+		BYTE vr = (vert->Colour >> 16) & 0xFF;
+		BYTE vg = (vert->Colour >>  8) & 0xFF;
+		BYTE vb = (vert->Colour >>  0) & 0xFF;
+
+		int mr = vr + r * 255;
+		int mg = vr + g * 255;
+		int mb = vr + b * 255;
+
+		if (dword_7EE0C8)
+		{
+			int fix = 2 * WaterTable[0][(inserting_room->MeshEffect << 6)
+				+ ((BYTE)(wibble >> 2)
+					+ WaterTable[0][(inserting_room->MeshEffect << 6)
+					+ ((BYTE)(vx / 64)
+						+ (BYTE)(vy / 64)
+						+ (BYTE)(vz / 128) & 0x3F)].random & 0x3F)].choppy;
+
+			mr -= fix;
+			mg -= fix;
+			mb -= fix;
+		}
+		else if (a5 != 0 && i > num_vert_2 && i < a5 + num_vert_2)
+		{
+			int fix = (inserting_room->MeshEffect << 6)
+				+ ((BYTE)(wibble >> 2)
+					+ WaterTable[0][(inserting_room->MeshEffect << 6)
+					+ ((BYTE)(vx / 64)
+						+ (BYTE)(vy / 64)
+						+ (BYTE)(vz / 128) & 0x3F)].random & 0x3F);
+
+			int fix2 = WaterTable[0][fix].shimmer + WaterTable[0][fix].abs;
+
+			mr += fix;
+			mg += fix;
+			mb += fix;
+		}
+
+		if (oz > (double)flt_511A5C)
+		{
+			int fix = (oz - flt_511A5C) * flt_511A64 * 255.0;
+
+			mr -= fix;
+			mg -= fix;
+			mb -= fix;
+		}
+
+		if (mr <= 128)
+		{
+			cr = 2 * mr;
+		}
+		else
+		{
+			sr = (mr - 128) >> 1;
+			cr = 255;
+		}
+
+		if (mg <= 128)
+		{
+			cg = 2 * mg;
+		}
+		else
+		{
+			sg = (mg - 128) >> 1;
+			cg = 255;
+		}
+
+		if (mb <= 128)
+		{
+			cb = 2 * mb;
+		}
+		else
+		{
+			sb = (mb - 128) >> 1;
+			cb = 255;
+		}
+
+		if (dword_7DFFDC)
+		{
+			Unimpl();
+		}
+
+		cr = CLAMP(cr, 0, 255);
+		cg = CLAMP(cg, 0, 255);
+		cb = CLAMP(cb, 0, 255);
+
+		sr = CLAMP(sr, 0, 255);
+		sg = CLAMP(sg, 0, 255);
+		sb = CLAMP(sb, 0, 255);
+
+		vptr->color = ARGB(cr, cg, cb, 255);
+		vptr->specular = ARGB(sr, sg, sb, 255);
+	}
 }
 
 void InsertRoomlet(ROOMLET* r)
@@ -1617,7 +1819,7 @@ void InsertRoomlet(ROOMLET* r)
 		return;
 
 	RoomletTransformLight(
-		(float*)r->VerticesOffset, 
+		(tr5_room_vertex*)r->VerticesOffset, 
 		r->NumLayerVertices, 
 		BuildRoomletLights(r) & 0x7FFFFFFF, 
 		r->NumLayerVertices, 
@@ -1658,6 +1860,8 @@ void InsertRoomlet(ROOMLET* r)
 
 void InsertRoom(room_info* r)
 {
+	Log(LT_Info, "InsertRoom %d", r - room);
+
 	room_top_flt = room_top_flt_2 = r->top;
 	room_left_flt = room_left_flt_2 = r->left;
 	room_bottom_flt = room_bottom_flt_2 = r->bottom;

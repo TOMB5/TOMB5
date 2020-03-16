@@ -208,9 +208,13 @@ void DrawGameInfo(int timed)//3AD68(<), 3B268(<)
 	int seconds;
 
 #if PC_VERSION
+#if DEBUG
+	if (true)
+#else
 	if (GLOBAL_playing_cutseq == 0 &&
 		!bDisableLaraControl &&
 		gfGameMode != 1)
+#endif
 	{
 		int flash_state = FlashIt();
 		DrawHealthBar(flash_state);

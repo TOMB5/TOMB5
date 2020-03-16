@@ -13,7 +13,7 @@
 #include "DS.H"
 #include "GLOBAL.H"
 #include "DIRECTX.H"
-#include "TIME.H"
+#include "PCTIME.H"
 #include "DRAWPRIMITIVE.H"
 #include "DEBUG.H"
 #include "GAME.H"

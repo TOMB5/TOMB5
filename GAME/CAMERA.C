@@ -11,6 +11,8 @@
 #endif
 #if PC_VERSION
 #include "GLOBAL.H"
+#include "DIRECTX.H"
+#include "CALCLARA.H"
 #include "DS.H"
 #endif
 #include "EFFECTS.H"
@@ -1513,7 +1515,7 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 
 	if (camera.actual_elevation < -0x3C6E)
 	{
-		camera.actual_elevation = -0x3C6E;
+		camera.actual_elevation = -15470;
 	}
 
 	//loc_26434
