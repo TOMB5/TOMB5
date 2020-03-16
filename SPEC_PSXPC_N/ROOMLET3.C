@@ -1036,7 +1036,7 @@ loc_15A8:
         mesh += 4;
         goto loc_15A8;
     }
-
+    return (char*)a3;
 loc_172C:
     v0 = ((int*)mesh)[0];
     mesh += 4;
@@ -1612,9 +1612,9 @@ void sub_158RL3(long underwater, struct room_info* r)
     fpp = t7;
     s7 = t8;
 
+loc_4A0:
     a0 = *s1;
 
-loc_4A0:
     if (s6 != 0)
     {
         s1++;
