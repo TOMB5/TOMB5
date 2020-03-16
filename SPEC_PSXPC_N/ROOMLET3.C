@@ -1701,7 +1701,7 @@ loc_4A0:
 
         GetBoundsRL3(&t0, &t1, &t6, &t7, &t8, &t9, &v0, &s55, &a0, &a1, &a2, &a3);
 
-        if ((unsigned)v0 < 9 && (unsigned)s5 < 9)
+        if ((unsigned)v0 < 9 && (unsigned)s55 < 9)
         {
             t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
             t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
