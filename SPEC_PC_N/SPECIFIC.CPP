@@ -41,13 +41,15 @@ int loadBarMax;
 float loadBarPercent;
 float loadBar2;
 
+
 void DebugPrint(const char* message)// (F)
 {
+	static int logCount = 0;
 	char buf[1024];
 	time_t t = time(nullptr);
 	tm tm = *localtime(&t);
 
-	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
+	sprintf(buf, "[%02d:%02d:%02d] [%6d] ", tm.tm_hour, tm.tm_min, tm.tm_sec, logCount++);
 
 	strcat(buf, message);
 
