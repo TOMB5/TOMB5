@@ -142,7 +142,7 @@ int* SubPolyGTLoopRL3(int gp, int* t0, int* t1, int s1)
         ((short*)t1)[6] = t7;
 
         t5 &= 0xFFFF;
-        t6 <= 16;
+        t6 <<= 16;
         t6 |= t5;
 
         VX0 = t6 & 0xFFFF;
