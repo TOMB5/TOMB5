@@ -769,18 +769,18 @@ long ClipXYRL1(int t1, int t2, int t3, int t4)
     return 1;
 }
 
-char* DrawMeshRL1(int* scratchPad, int mesh, struct DB_STRUCT* cdb)
+char* DrawMeshRL1(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
 {
-    int* sp = &scratchPad[-14];
-    int* a2 = &scratchPad[0];
+    sp2 = &sp2[-14];
+    int* a2 = &sp[0];
     short* s0 = &LOffset[0];
     char* s1 = &LTab[0];
     int* s5 = (int*)&OurSqrt[0];
     int* fp = (int*)&YOffset[0];
-    int s2 = sp[3];
-    int s3 = sp[2];
-    int s4 = sp[1];
-    int* s7 = &scratchPad[192];
+    int s2 = sp2[25];
+    int s3 = sp2[26];
+    int s4 = sp2[27];
+    int* s7 = &sp[192];
     int v0 = ((unsigned short*)mesh)[3];
     int t5;
     int t6;
@@ -1513,9 +1513,12 @@ void sub_158RL1(long underwater, struct room_info* r)
     int v1;
     int ra;
     int scratchPad[256];
+    int scratchPad2[512];
     int* sp = &scratchPad[0];
+    int* sp2 = &scratchPad2[0];
 
     S_MemSet((char*)&scratchPad[0], 0, 1024);
+    S_MemSet((char*)&scratchPad2[0], 0, 2048);
 
     RFC = (unsigned int)underwater;
     RGB0 = (unsigned int)r;
@@ -1886,9 +1889,9 @@ loc_64C:
         t1 = ((int*)a1)[6];
         t2 = ((int*)a1)[7];
 
-        sp[11] = t0;
-        sp[12] = t1;
-        sp[13] = t2;
+        sp2[11] = t0;
+        sp2[12] = t1;
+        sp2[13] = t2;
 
         t0 = ((int*)a1)[14];
         t2 = ((int*)a1)[15];
@@ -1942,9 +1945,9 @@ loc_64C:
         t4 = t3 >> 16;
         t3 &= 0xFFFF;
 
-        t7 = sp[11];
-        t8 = sp[12];
-        t9 = sp[13];
+        t7 = sp2[11];
+        t8 = sp2[12];
+        t9 = sp2[13];
 
         t0 += t7;
         t1 += t8;
@@ -2176,7 +2179,7 @@ loc_64C:
 
         //loc_9EC
         ((int*)a1)[3] = 0;
-        db.polyptr = DrawMeshRL1(scratchPad, a0, &db);
+        db.polyptr = DrawMeshRL1(&sp[0], &sp2[0], a0, &db);
         goto loc_6DC;
     }
     //loc_1978 @ flat return
