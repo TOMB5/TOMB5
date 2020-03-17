@@ -714,6 +714,18 @@ void DrawPsxTile(long a1, long a2, long a3)
 	return AddQuad2(v, 0, 1, 2, 3, &tex, 0);
 }
 
+void DoScreenFade()
+{
+	dword_C86BE8 += dword_C713D4;
+	if (dword_C713DC >= 8)
+		dword_C87BF0 = 2;
+
+	d9ab34[0] = 0;
+	d9ab34[1] = 0;
+	d9ab34[2] = 0;
+	d9ab34[3] = 0;
+}
+
 void S_OutputPolyList()
 {
 	Log(LT_Info, "S_OutputPolyList - RENDER START");
@@ -804,6 +816,13 @@ void S_OutputPolyList()
 				FlashFader -= 2;
 		}
 
+		DrawSortList();
+	}
+
+	if (dword_C87BF0 == 1)
+	{
+		InitialiseSortList();
+		DoScreenFade();
 		DrawSortList();
 	}
 

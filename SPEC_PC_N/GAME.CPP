@@ -7,6 +7,7 @@
 #include "DRAWPRIMITIVE.H"
 #include "FILE.H"
 #include "DIRECTX.H"
+#include "TEXT.H"
 
 //object_info objects[NUMBER_OBJECTS];
 //static_info static_objects[NUMBER_STATIC_OBJECTS];
@@ -211,7 +212,7 @@ unsigned __stdcall GameMain(void* data)
 	InitialiseFunctionTable();
 	HWInitialise();
 	InitWindow(0, 0, App.width, App.height, 20, SECTOR(20), 80);
-	//InitFont();
+	InitFont();
 	TIME_Init();
 	App.GameInitialized = true;
 	// todo
@@ -230,7 +231,7 @@ unsigned __stdcall GameMain(void* data)
 
 void do_boot_screen(int language)// (F)
 {
-	Log(2, "do_boot_screen");
+	Log(LT_Enter, "do_boot_screen");
 
 	switch (language)
 	{
