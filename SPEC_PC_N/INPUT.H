@@ -54,6 +54,8 @@ extern "C" {
 
 extern int S_UpdateInput();
 
+extern int Key(int number);
+
 extern int joy_x, joy_y, joy_fire;
 
 extern unsigned char keymap[];

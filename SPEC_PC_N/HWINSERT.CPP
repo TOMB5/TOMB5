@@ -167,7 +167,7 @@ void DrawBuckets()
 		auto buk = Bucket;
 		for(int i = 0; i < MAXBUCKETS; i++, buk++)
 		{
-			if (DXTextureList[buk->tpage].alpha_blend && buk->cnt != 0)
+			if (buk->cnt != 0 && DXTextureList[buk->tpage].alpha_blend)
 			{
 				SaveSpecular(buk);
 				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[DXTextureList[buk->tpage].other_id].tex));
@@ -189,7 +189,7 @@ void DrawBuckets()
 		buk = Bucket;
 		for (int i = 0; i < MAXBUCKETS; i++, buk++)
 		{
-			if (DXTextureList[buk->tpage].alpha_blend && buk->cnt != 0)
+			if (buk->cnt != 0 && DXTextureList[buk->tpage].alpha_blend)
 			{
 				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
 				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
@@ -204,7 +204,7 @@ void DrawBuckets()
 		buk = Bucket;
 		for (int i = 0; i < MAXBUCKETS; i++, buk++)
 		{
-			if (!DXTextureList[buk->tpage].alpha_blend && buk->cnt != 0)
+			if (buk->cnt != 0 && !DXTextureList[buk->tpage].alpha_blend)
 			{
 				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
 				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
