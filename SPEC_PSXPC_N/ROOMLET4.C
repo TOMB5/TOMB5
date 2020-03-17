@@ -783,14 +783,14 @@ char* DrawMeshRL4(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
     //loc_1320
     do
     {
-        int t0 = ((int*)mesh)[0];
+        t0 = ((int*)mesh)[0];
         mesh += 4;
-        int t3 = t0 >> 15;
-        int t2 = t0 & 0x1F;
+        t3 = t0 >> 15;
+        t2 = t0 & 0x1F;
         t2 <<= 10;
-        int t1 = t0 & 0x3E0;
+        t1 = t0 & 0x3E0;
         t1 <<= 3;
-        int t9 = t0 >> 30;
+        t9 = t0 >> 30;
         L33 = 0;
         t0 &= 0x7C00;
 
@@ -955,22 +955,22 @@ char* DrawMeshRL4(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
             }
         }
 
-        if (t3 >= 0x20)
+        if ((unsigned int)t3 >= 0x20)
         {
-            t3 >>= 27;
+            t3 = t3 >> 27;
             t3 ^= 0x1F;
         }
 
-        if (t4 >= 0x20)
+        if ((unsigned int)t4 >= 0x20)
         {
-            t4 >>= 27;
+            t4 = t4 >> 27;
             t4 ^= 0x1F;
         }
 
         t4 <<= 5;
-        if (t5 >= 0x20)
+        if ((unsigned int)t5 >= 0x20)
         {
-            t5 >>= 27;
+            t5 = t5 >> 27;
             t5 ^= 0x1F;
         }
 
