@@ -24,7 +24,7 @@ int ClipToScreenRL1(int t2)
     t8 = SXY1;
     s2 = SXY2;
 
-    if (t7 & 0xFE00 == 0 || t8 & 0xFE00 == 0 || t2 & 0xFE00 == 0 || s2 & 0xFE00 == 0)
+    if ((t7 & 0xFE00) == 0 || (t8 & 0xFE00) == 0 || (t2 & 0xFE00) == 0 || (s2 & 0xFE00) == 0)
     {
         at = t7 & t8;
         at &= s2;
@@ -386,8 +386,6 @@ int* SubPolyGT4RL1(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
                 //loc_75AB0
                 s3 = 1;
                 at = MAC0;
-                SXY0 = ((int*)t3)[0];
-                SXY1 = ((int*)t4)[0];
 
                 s7 = ra;
                 if (at <= 0)
@@ -816,14 +814,14 @@ char* DrawMeshRL1(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
     //loc_1320
     do
     {
-        int t0 = ((int*)mesh)[0];
+        t0 = ((int*)mesh)[0];
         mesh += 4;
         t3 = t0 >> 15;
         t2 = t0 & 0x1F;
         t2 <<= 10;
         t1 = t0 & 0x3E0;
         t1 <<= 3;
-        int t9 = t0 >> 30;
+        t9 = t0 >> 30;
         L33 = 0;
         t0 &= 0x7C00;
 
@@ -996,22 +994,23 @@ char* DrawMeshRL1(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
                 goto loc_1570;
             }
         }
-        if (t3 >= 0x20)
+
+        if ((unsigned int)t3 >= 0x20)
         {
-            t3 = (unsigned int)t3 >> 27;
+            t3 = t3 >> 27;
             t3 ^= 0x1F;
         }
 
-        if (t4 >= 0x20)
+        if ((unsigned int)t4 >= 0x20)
         {
-            t4 = (unsigned int)t4 >> 27;
+            t4 = t4 >> 27;
             t4 ^= 0x1F;
         }
 
         t4 <<= 5;
-        if (t5 >= 0x20)
+        if ((unsigned int)t5 >= 0x20)
         {
-            t5 = (unsigned int)t5 >> 27;
+            t5 = t5 >> 27;
             t5 ^= 0x1F;
         }
 
@@ -1248,11 +1247,11 @@ loc_172C:
                 t5 = t8;
             }
 
-            t7 = MAC0;
             t5 >>= 3;
 
             if (t5 < 0x9E0)
             {
+                t7 = MAC0;
                 t9 = t5 << 2;
                 at = t5 < 0x280 ? 1 : 0;
                 if (t5 >= 0x280)
