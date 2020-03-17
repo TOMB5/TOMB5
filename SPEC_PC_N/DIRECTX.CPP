@@ -899,7 +899,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, int wSrc, int hSrc)// (F)
 {
 	if (!h || !surf)
-		return 0x80004005;
+		return E_FAIL;
 
 	surf->Restore();
 
@@ -1061,7 +1061,7 @@ void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)// (F)
 
 	DX_TRY(surf->Lock(nullptr, &ddsd, DDLOCK_WAIT, nullptr));
 
-	short* p = (short*)ddsd.lpSurface;
+	char* p = (char*)ddsd.lpSurface;
 
 	sprintf(filename, "%s%04d.tga", prefix, nFile++);
 	FILE* handle = fopen(filename, "wb");
@@ -1077,15 +1077,23 @@ void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)// (F)
 
 		short* pd = (short*)malloc_ptr;
 
-		p += ddsd.lPitch / 2 * ddsd.dwHeight;
+		p += ddsd.lPitch * (ddsd.dwHeight - 0);
 
 		for (int i = 0; i < ddsd.dwHeight; i++)
 		{
 			for (int j = 0; j < ddsd.dwWidth; j++)
 			{
-				int k = p[j];
+				long k = ((long*)p)[j];
 
-				if (ddsd.ddpfPixelFormat.dwRBitMask == 0xF800)
+				if (ddsd.ddpfPixelFormat.dwRGBBitCount == 32)
+				{
+					int r = (k >> 19) & 0x1F;
+					int g = (k >> 11) & 0x1F;
+					int b = (k >> 3) & 0x1F;
+
+					*pd++ = (r << 10) + (g << 5) + b;
+				}
+				else if (ddsd.ddpfPixelFormat.dwRBitMask == 0xF800)
 				{
 					int r = (k >> 11) & 0x1F;
 					int g = (k >> 6) & 0x1F;
@@ -1099,7 +1107,7 @@ void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)// (F)
 				}
 			}
 
-			p -= ddsd.lPitch / 2;
+			p -= ddsd.lPitch;
 		}
 
 		fwrite(malloc_ptr, 2 * ddsd.dwWidth * ddsd.dwHeight, 1, handle);
@@ -1119,7 +1127,7 @@ void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)// (F)
 
 void DXShowFrame()// (F)
 {
-	if (keymap[DIK_APOSTROPHE])
+	if (keymap[DIK_APOSTROPHE] || Key(KEY_ACTION))
 		SaveDDBuffer(App.lpBackBuffer, "Tomb");
 
 	if (App.lpFrontBuffer->IsLost())
