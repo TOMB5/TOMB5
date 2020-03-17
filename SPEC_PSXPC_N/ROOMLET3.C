@@ -294,41 +294,39 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
                     }
                 }//loc_75AD4
 
+                t2 = ((int*)t6)[0];
+                at = ClipToScreenRL3(t2);
+
                 if (at == 0)
                 {
-                    t2 = ((int*)t6)[0];
-                    at = ClipToScreenRL3(t2);
+                    t2 = RGB1;
+                    SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
+                    t5 = ((int*)t6)[0];
+                    t7 = ((int*)t6)[4];
+                    t8 = ((unsigned short*)t6)[7];
 
-                    if (at == 0)
-                    {
-                        t2 = RGB1;
-                        SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
-                        t5 = ((int*)t6)[0];
-                        t7 = ((int*)t6)[4];
-                        t8 = ((unsigned short*)t6)[7];
-
-                        ((POLY_GT4*)a3)->x3 = (t5 & 0xFFFF);
-                        ((POLY_GT4*)a3)->y3 = (t5 >> 16) & 0xFFFF;
-                        ((POLY_GT4*)a3)->r3 = (t7 & 0xFF);
-                        ((POLY_GT4*)a3)->g3 = (t7 & 0xFF00) >> 8;
-                        ((POLY_GT4*)a3)->b3 = (t7 & 0xFF0000) >> 16;
-                        ((POLY_GT4*)a3)->p3 = (t7 & 0xFF000000) >> 24;
-                        ((POLY_GT4*)a3)->u3 = (t8 & 0xFF);
-                        ((POLY_GT4*)a3)->v3 = (t8 & 0xFF00) >> 8;
-                        ((POLY_GT4*)a3)->pad3 = (t8 & 0xFFFF0000) >> 16;
-                        MyAddPrimRL3(0xC000000, &t9, &s0, a3);
-                        a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                    ((POLY_GT4*)a3)->x3 = (t5 & 0xFFFF);
+                    ((POLY_GT4*)a3)->y3 = (t5 >> 16) & 0xFFFF;
+                    ((POLY_GT4*)a3)->r3 = (t7 & 0xFF);
+                    ((POLY_GT4*)a3)->g3 = (t7 & 0xFF00) >> 8;
+                    ((POLY_GT4*)a3)->b3 = (t7 & 0xFF0000) >> 16;
+                    ((POLY_GT4*)a3)->p3 = (t7 & 0xFF000000) >> 24;
+                    ((POLY_GT4*)a3)->u3 = (t8 & 0xFF);
+                    ((POLY_GT4*)a3)->v3 = (t8 & 0xFF00) >> 8;
+                    ((POLY_GT4*)a3)->pad3 = (t8 & 0xFFFF0000) >> 16;
+                    MyAddPrimRL3(0xC000000, &t9, &s0, a3);
+                    a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
 
 
-                    loc_75B20:
-                        ra = s7;
-                    }
+                loc_75B20:
+                    ra = s7;
                 }
-            loc_75B24:
-                int test = 0;
-                test++;
             }
+        loc_75B24:
+            int test = 0;
+            test++;
         }
+
     } while (gp-- != 0);
     return a3;
 }
@@ -685,14 +683,14 @@ char* DrawMeshRL3(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
     //loc_1320
     do
     {
-        int t0 = ((int*)mesh)[0];
+        t0 = ((int*)mesh)[0];
         mesh += 4;
-        int t3 = t0 >> 15;
-        int t2 = t0 & 0x1F;
+        t3 = t0 >> 15;
+        t2 = t0 & 0x1F;
         t2 <<= 10;
-        int t1 = t0 & 0x3E0;
+        t1 = t0 & 0x3E0;
         t1 <<= 3;
-        int t9 = t0 >> 30;
+        t9 = t0 >> 30;
         L33 = 0;
         t0 &= 0x7C00;
 
@@ -866,22 +864,22 @@ char* DrawMeshRL3(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
             }
         }
 
-        if (t3 >= 0x20)
+        if ((unsigned int)t3 >= 0x20)
         {
-            t3 >>= 27;
+            t3 = t3 >> 27;
             t3 ^= 0x1F;
         }
 
-        if (t4 >= 0x20)
+        if ((unsigned int)t4 >= 0x20)
         {
-            t4 >>= 27;
+            t4 = t4 >> 27;
             t4 ^= 0x1F;
         }
 
         t4 <<= 5;
-        if (t5 >= 0x20)
+        if ((unsigned int)t5 >= 0x20)
         {
-            t5 >>= 27;
+            t5 = t5 >> 27;
             t5 ^= 0x1F;
         }
 
@@ -1080,17 +1078,16 @@ loc_172C:
         t4 &= 0x3F8;
         s77 = t4 + (int)s1;
         docop2(0x1400006);
-        t4 = ((unsigned int*)s77)[0];
+        t4 = ((int*)s77)[0];
 
         t5 = ClipXYRL3(t1, t2, t3, t4);
 
-
         if (t5 == 0)
         {
-            int s444 = ((unsigned int*)s44)[1];
-            int s555 = ((unsigned int*)s55)[1];
-            int s666 = ((unsigned int*)s66)[1];
-            int s777 = ((unsigned int*)s77)[1];
+            int s444 = ((int*)s44)[1];
+            int s555 = ((int*)s55)[1];
+            int s666 = ((int*)s66)[1];
+            int s777 = ((int*)s77)[1];
 
             t5 = s444 & 0xFFFF;
             t6 = s555 & 0xFFFF;
