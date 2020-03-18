@@ -572,83 +572,138 @@ char* SubPolyGT3RL2(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
     return (char*)a3;
 }
 
-int* InitSubdivisionRL2(int* s1, int t1, int s4, int fp, int t5, int t2, int s5, int gp, int t6, int t3, int s6, int s3, int t7, int s7)
+int* InitSubdivisionRL2(int* s1, int t1, int s4, int* fp, int t5, int t2, int s5, int gp, int t6, int* t3, int s6, int s3, int* t7, int* s7)//(F)
 {
+    int t11;
+    int t77;
+    char* gpp;
+    int t00;
+    int t55;
+    int t22;
+    char* s55;
+    char* s44;
+    char* s33;
+    int t66;
+    int t44;
+
     s1[186] = t1;
     ((short*)s1)[374] = s4;
-    t1 = fp << 8;
-    t1 >>= 8;
-    s1[190] = t1;
+
+    /* Original does this but it is unsafe/doesn't work properly? */
+    //t11 = (*fp << 8) >> 8;
+    t11 = *fp & 0xFFFFFF;
+
+    s1[190] = t11;
     ((short*)s1)[379] = t5;
+
     s1[191] = t2;
     ((short*)s1)[384] = s5;
+
     s1[195] = gp;
     ((short*)s1)[389] = t6;
-    s1[196] = t3;
-    ((short*)s1)[394] = s6;
-    s1[200] = s3;
-    ((short*)s1)[399] = t7;
-    t3 = RBK;
-    t7 = GBK;
-    s7 = BBK;
 
-    fp >>= 24;
-    fp <<= 24;
-    t1 = 0xFFFF0000;
-    t5 &= t1;
-    t6 &= t1;
+    s1[196] = *t3;
+    ((short*)s1)[394] = s6;
+
+    s1[200] = s3;
+    ((short*)s1)[399] = *t7;
+
+    *t3 = RBK;
+    *t7 = GBK;
+    *s7 = BBK;
+
+    gpp = (char*)&YOffset[0];
+
+    *fp >>= 24;
+    *fp <<= 24;
+
+    t5 &= 0xFFFF0000;
+    t6 &= 0xFFFF0000;
 
     RGB2 = t5;
     RGB1 = t6;
-    int t0 = DQB;
-    t5 = (LR1 & 0xFFFF) | ((LR2 & 0xFFFF) << 16);
-    t2 = t0 >> 12;
-    t2 &= 0x1FC;
-    t2 += t5;
-    t1 = t0 >> 5;
-    t1 &= 0x1FC;
-    t1 += t5;
-    t0 <<= 2;
-    t0 &= 0x1FC;
-    t0 += t5;
-    t0 = ((int*)t0)[0];
-    t1 = ((int*)t1)[0];
-    t2 = ((int*)t2)[0];
-    int t4 = t0 & 0x3E0;
-    t4 <<= 3;
-    t5 = t0 & 0x1F;
-    t5 <<= 10;
-    t0 &= 0x7C00;
-    t0 += t3;
-    t4 += t7;
-    t5 += s7;
-    ((short*)s1)[376] = t0;
-    ((short*)s1)[377] = t4;
-    ((short*)s1)[378] = t5;
-    t4 = t1 & 0x3E0;
-    t4 <<= 3;
-    t5 = t1 & 0x1F;
-    t5 <<= 10;
-    t1 &= 0x7C00;
-    t1 += t3;
-    t4 += t7;
-    t5 += s7;
-    ((short*)s1)[386] = t1;
-    ((short*)s1)[387] = t4;
-    ((short*)s1)[388] = t5;
-    t4 = t2 & 0x3E0;
-    t4 <<= 3;
-    t5 = t2 & 0x1F;
-    t5 <<= 10;
-    t2 &= 0x7C00;
-    t2 += t3;
-    t4 += t7;
-    t5 += s7;
-    ((short*)s1)[396] = t2;
-    ((short*)s1)[397] = t4;
-    ((short*)s1)[398] = t5;
 
-    return (int*)gp;
+    t00 = DQB;
+    t55 = (LR1 & 0xFFFF) | ((LR2 & 0xFFFF) << 16);
+
+    t22 = (t00 >> 12) & 0x1FC;
+    s55 = &gpp[t22];
+    t22 += t55;
+
+    t11 = (t00 >> 5) & 0x1FC;
+    s44 = &gpp[t11];
+    t11 += t55;
+
+    t00 = (t00 << 2) & 0x1FC;
+    s33 = &gpp[t00];
+    t00 += t55;
+
+    t00 = ((int*)t00)[0];
+    t11 = ((int*)t11)[0];
+    t22 = ((int*)t22)[0];
+    t66 = ((int*)s33)[0];
+
+    t44 = (t00 & 0x3E0) << 3;
+    t55 = t00 & 0x1F;
+
+    if (t00 <= 0)
+    {
+        t44 += t66;
+    }
+    //loc_756CC
+    t55 <<= 10;
+    t00 &= 0x7C00;
+    t00 += *t3;
+    t44 += *t7;
+    t55 += *s7;
+
+    ((short*)s1)[376] = t00;
+    ((short*)s1)[377] = t44;
+    ((short*)s1)[378] = t55;
+
+    t66 = ((int*)s44)[0];
+    t44 = (t11 & 0x3E0) << 3;
+    t55 = t11 & 0x1F;
+
+    if (t11 <= 0)
+    {
+        t44 += t66;
+    }
+
+    //loc_75704
+    t55 <<= 10;
+    t11 &= 0x7C00;
+    t11 += *t3;
+    t44 += *t7;
+    t55 += *s7;
+
+    ((short*)s1)[386] = t11;
+    ((short*)s1)[387] = t44;
+    ((short*)s1)[388] = t55;
+
+    t66 = ((int*)s55)[0];
+
+    t44 = t22 & 0x3E0;
+    t44 <<= 3;
+    t55 = t22 & 0x1F;
+
+    if (t22 <= 0)
+    {
+        t44 += t66;
+    }
+
+    t55 <<= 10;
+    t22 &= 0x7C00;
+
+    t22 += *t3;
+    t44 += *t7;
+    t55 += *s7;
+
+    ((short*)s1)[396] = t22;
+    ((short*)s1)[397] = t44;
+    ((short*)s1)[398] = t55;
+
+    return (int*)gpp;
 }
 
 void InitPrimRL2(int a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
@@ -1063,7 +1118,7 @@ loc_15A8:
                     LG3 = (a3 >> 16) & 0xFFFF;
                     a3 += sizeof(POLY_GT3);
 
-                    InitSubdivisionRL2((int*)s1, t1, s44, fpp, t5, t2, s55, gp, t6, t3, s66, s3, t7, s77);
+                    InitSubdivisionRL2((int*)s1, t1, s44, &fpp, t5, t2, s55, gp, t6, &t3, s66, s3, &t7, &s77);
                     s3 = 0;
                     a3 = (int)SubPolyGT3RL2((int*)&TriVertTableRL2, (int*)&s1[804], (int*)s1, (int*)a3, s3, fpp, (int)s0);
 
@@ -1243,7 +1298,7 @@ loc_172C:
 
                     t7 = t8;
 
-                    gp = (int)InitSubdivisionRL2((int*)s1, t1, s444, fpp, t5, t2, s555, gp, t6, t3, s666, s3, t7, s777);
+                    gp = (int)InitSubdivisionRL2((int*)s1, t1, s444, &fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
 
                     t0 = DQB;
                     t5 = (LR1 & 0xFFFF) | ((LR2 & 0xFFFF) << 16);
