@@ -155,6 +155,7 @@ extern int rsin(int a);
 
 struct PGXPVertex
 {
+	unsigned int originalSXY2;
 	float x;
 	float y;
 	float z;
@@ -162,7 +163,7 @@ struct PGXPVertex
 
 extern struct PGXPVertex pgxp_vertex_buffer[MAX_NUM_VERTICES];
 extern int pgxp_vertex_index;
-extern short pgxp_last_index;
+extern int pgxp_vertex_count;
 #endif
 
 #endif

@@ -201,9 +201,17 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 	}
 
 #if defined(OGL)
-	Emulator_InitialiseGLContext(windowName);
+	if (Emulator_InitialiseGLContext(windowName) == FALSE)
+	{
+		eprinterr("Failed to Initialise GL Context!");
+		return FALSE;
+	}
 #elif defined(OGLES)
-	Emulator_InitialiseGLESContext(windowName);
+	if (Emulator_InitialiseGLESContext(windowName) == FALSE)
+	{
+		eprinterr("Failed to Initialise GLES Context!");
+		return FALSE;
+	}
 #endif
 
 #if defined(OGL)
@@ -230,10 +238,12 @@ static int Emulator_InitialiseGLEW()
 	return TRUE;
 }
 
-static void Emulator_InitialiseCore()
+static int Emulator_InitialiseCore()
 {
 	//Initialise texture cache
 	SDL_memset(&cachedTextures[0], -1, MAX_NUM_CACHED_TEXTURES * sizeof(struct CachedTexture));
+
+	return TRUE;
 }
 
 void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
@@ -242,16 +252,32 @@ void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 	eprintf("VERSION: %d.%d\n", EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION);
 	eprintf("Compile Date: %s Time: %s\n", EMULATOR_COMPILE_DATE, EMULATOR_COMPILE_TIME);
 
-	Emulator_InitialiseSDL(windowName, screenWidth, screenHeight);
+	if (Emulator_InitialiseSDL(windowName, screenWidth, screenHeight) == FALSE)
+	{
+		eprinterr("Failed to Intialise SDL");
+		Emulator_ShutDown();
+	}
 
 #if defined(GLEW)
-	Emulator_InitialiseGLEW();
+	if (Emulator_InitialiseGLEW() == FALSE)
+	{
+		eprinterr("Failed to Intialise GLEW");
+		Emulator_ShutDown();
+	}
 #endif
 
-	Emulator_InitialiseCore();
+	if (Emulator_InitialiseCore() == FALSE)
+	{
+		eprinterr("Failed to Intialise Emulator Core.");
+		Emulator_ShutDown();
+	}
 
 #if defined(OGL) || defined(OGLES)
-	Emulator_InitialiseGL();
+	if (Emulator_InitialiseGL() == FALSE)
+	{
+		eprinterr("Failed to Intialise GL.");
+		Emulator_ShutDown();
+	}
 #endif
 
 	//counter_thread = std::thread(Emulator_CounterLoop);
@@ -308,17 +334,60 @@ void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, sho
 void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h)
 {
 #if defined(PGXP)
-	PGXPVertex* pgxp_vertex = (p0[-3]-1 <= -1) ? NULL : &pgxp_vertex_buffer[p0[-3]-1];
+	PGXPVertex* pgxp_vertex_0 = NULL;
+	PGXPVertex* pgxp_vertex_1 = NULL;
+	PGXPVertex* pgxp_vertex_2 = NULL;
+	PGXPVertex* pgxp_vertex_3 = NULL;
+
+	//Locate each vertex based on SXY2 (very slow)
+	for (int i = 0; i < pgxp_vertex_index; i++)
+	{
+		if (p0 != NULL)
+		{
+			if (((unsigned int*)p0)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_0 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+
+		if (p1 != NULL)
+		{
+			if (((unsigned int*)p1)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_1 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+
+		if (p2 != NULL)
+		{
+			if (((unsigned int*)p2)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_2 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+
+		if (p3 != NULL)
+		{
+			if (((unsigned int*)p3)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_3 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+	}
 #endif
 
 	//Copy over position
 	if (p0 != NULL)
 	{
 #if defined(PGXP)
-		if (pgxp_vertex != NULL)
+		if (pgxp_vertex_0 != NULL)
 		{
-			vertex[0].x = pgxp_vertex[0].x;
-			vertex[0].y = pgxp_vertex[0].y;
+			vertex[0].x = pgxp_vertex_0->x;
+			vertex[0].y = pgxp_vertex_0->y;
 		}
 		else
 		{
@@ -334,10 +403,10 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	if (p1 != NULL)
 	{
 #if defined(PGXP)
-		if (pgxp_vertex != NULL)
+		if (pgxp_vertex_1 != NULL)
 		{
-			vertex[1].x = pgxp_vertex[1].x;
-			vertex[1].y = pgxp_vertex[1].y;
+			vertex[1].x = pgxp_vertex_1->x;
+			vertex[1].y = pgxp_vertex_1->y;
 		}
 		else
 		{
@@ -351,7 +420,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	}
 	else
 	{
-		if (w != -1 && h != -1)
+		if (p0 != NULL && w != -1 && h != -1)
 		{
 			vertex[1].x = (float)p0[0];
 			vertex[1].y = (float)p0[1] + h;
@@ -361,10 +430,10 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	if (p2 != NULL)
 	{
 #if defined(PGXP)
-		if (pgxp_vertex != NULL)
+		if (pgxp_vertex_2 != NULL)
 		{
-			vertex[2].x = pgxp_vertex[2].x;
-			vertex[2].y = pgxp_vertex[2].y;
+			vertex[2].x = pgxp_vertex_2->x;
+			vertex[2].y = pgxp_vertex_2->y;
 		}
 		else
 		{
@@ -378,7 +447,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	}
 	else
 	{
-		if (w != -1 && h != -1)
+		if (p0 != NULL && w != -1 && h != -1)
 		{
 			vertex[2].x = (float)p0[0] + w;
 			vertex[2].y = (float)p0[1] + h;
@@ -388,10 +457,10 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	if (p3 != NULL)
 	{
 #if defined(PGXP)
-		if (pgxp_vertex != NULL)
+		if (pgxp_vertex_3 != NULL)
 		{
-			vertex[3].x = pgxp_vertex[3].x;
-			vertex[3].y = pgxp_vertex[3].y;
+			vertex[3].x = pgxp_vertex_3->x;
+			vertex[3].y = pgxp_vertex_3->y;
 		}
 		else
 		{
@@ -405,7 +474,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	}
 	else
 	{
-		if (w != -1 && h != -1)
+		if (p0 != NULL && w != -1 && h != -1)
 		{
 			vertex[3].x = (float)p0[0] + w;
 			vertex[3].y = (float)p0[1];
@@ -566,7 +635,7 @@ void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv
 	}
 	else
 	{
-		if (w != -1 && h != -1)
+		if (uv0 != NULL && w != -1 && h != -1)
 		{
 			vertex[1].u0 = ((float)uv0[0]) / TPAGE_WIDTH;
 			vertex[1].v0 = ((float)uv0[1] + h) / TPAGE_HEIGHT;
@@ -788,7 +857,7 @@ void Emulator_CreateGlobalShaders()
 
 unsigned short vram[VRAM_WIDTH * VRAM_HEIGHT];
 
-void Emulator_InitialiseGL()
+int Emulator_InitialiseGL()
 {
 	glEnable(GL_BLEND);
 
@@ -847,6 +916,8 @@ void Emulator_InitialiseGL()
 
 	Emulator_BindTexture(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
+
+	return TRUE;
 }
 
 GLuint g_lastBoundTexture = -1;
@@ -854,7 +925,7 @@ GLuint g_lastBoundTexture = -1;
 void Emulator_BindTexture(GLuint textureId)
 {
 #if !defined(__EMSCRIPTEN__)
-	assert(textureId < 1000);
+	//assert(textureId < 1000);
 #endif
 	if (g_lastBoundTexture != textureId)
 	{
@@ -1085,6 +1156,25 @@ void Emulator_UpdateInput()
 	Emulator_DoDebugKeys();
 }
 
+unsigned int Emulator_GetFPS()
+{
+#define FPS_INTERVAL 1.0
+
+	static unsigned int lastTime = SDL_GetTicks();
+	static unsigned int currentFps = 0;
+	static unsigned int passedFrames = 0;
+
+	passedFrames++;
+	if (lastTime < SDL_GetTicks() - FPS_INTERVAL * 1000)
+	{
+		lastTime = SDL_GetTicks();
+		currentFps = passedFrames;
+		passedFrames = 0;
+	}
+
+	return currentFps;
+}
+
 void Emulator_SwapWindow()
 {
 #if defined(RO_DOUBLE_BUFFERED)
@@ -1096,11 +1186,6 @@ void Emulator_SwapWindow()
 #else
 	glFinish();
 #endif
-}
-
-void Emulator_PushBlendMode()
-{
-
 }
 
 void Emulator_EndScene()
@@ -1201,9 +1286,6 @@ void Emulator_ShutDown()
 			Emulator_DestroyTextures(1, &cachedTextures[i].textureID);
 		}
 	}
-#ifdef _WINDOWS
-	//VirtualFree(pVirtualMemory, 0, MEM_RELEASE);
-#endif
 
 	SDL_DestroyWindow(g_window);
 	SDL_Quit();
@@ -1322,10 +1404,9 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	{
 	case TP_16BIT:
 	{
-		//unsigned short* texturePage = new unsigned short[TPAGE_WIDTH * TPAGE_HEIGHT];
-
-		//glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &texturePage[0]);
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, TEXTURE_FORMAT, &texturePage[0]);
+		unsigned short* tpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH * TPAGE_HEIGHT * sizeof(unsigned short));
+		glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, tpage);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, TEXTURE_FORMAT, tpage);
 
 #if defined(_DEBUG) && 0
 		char buff[64];
@@ -1335,17 +1416,29 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
 		fwrite(TGAheader, sizeof(unsigned char), 12, f);
 		fwrite(header, sizeof(unsigned char), 6, f);
-		fwrite(&texturePage[0], sizeof(char), 256 * 256 * 2, f);
+		fwrite(tpage, sizeof(char), 256 * 256 * 2, f);
 		fclose(f);
 #endif
 
-		//delete[] texturePage;
+		SDL_free(tpage);
 		break;
 	}
 	case TP_8BIT:
 	{
-		//unsigned short* tpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH * TPAGE_HEIGHT * sizeof(unsigned short));
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &tpage[0]);
+		unsigned short* tpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH * TPAGE_HEIGHT * sizeof(unsigned short));
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &tpage[0]);
+		SDL_free(tpage);
+#if defined(_DEBUG) && 0
+		char buff[64];
+		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
+		FILE* f = fopen(buff, "wb");
+		unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
+		unsigned char header[6] = { 256 % 256, 256 / 256, 256 % 256, 256 / 256,16,0 };
+		fwrite(TGAheader, sizeof(unsigned char), 12, f);
+		fwrite(header, sizeof(unsigned char), 6, f);
+		fwrite(&tpage[0], sizeof(char), 256 * 256 * 2, f);
+		fclose(f);
+#endif
 		break;
 	}
 	case TP_4BIT:
@@ -1360,7 +1453,7 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		//Read texture data
 		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &tpage[0]);
 
-		unsigned short convertedTpage[TPAGE_WIDTH * TPAGE_HEIGHT];
+		unsigned short* convertedTpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH * TPAGE_HEIGHT * sizeof(unsigned short));
 		unsigned short* convertPixel = &convertedTpage[0];
 
 		for (int xy = 0; xy < TPAGE_WIDTH / 4 * TPAGE_HEIGHT; xy++)
@@ -1421,9 +1514,14 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 #endif
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
+		SDL_free(tpage);
+		SDL_free(convertedTpage);
+		
 		break;
 	}
 	}
+
+
 
 	return tpageTexture->textureID;
 }
@@ -1832,4 +1930,11 @@ void Emulator_DestroyAllTextures()
 	SDL_memset(&cachedTextures[0], -1, MAX_NUM_CACHED_TEXTURES * sizeof(struct CachedTexture));
 
 	return;
+}
+
+void Emulator_SetPGXPVertexCount(int vertexCount)
+{
+#if defined(PGXP)
+	pgxp_vertex_count = vertexCount;
+#endif
 }

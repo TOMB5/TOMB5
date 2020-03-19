@@ -3,10 +3,16 @@
 #include "SPECIFIC.H"
 #include "SOUND.H"
 #include "SPUSOUND.H"
+#include "..\SPEC_PSXPC_N\SFX.H"
 
 void SPU_Play()//91518
 {
 	S_Warn("[SPU_Play] - Unimplemented!\n");
+}
+
+long SPU_Play(long sample_index, short volume_left, short volume_right, short pitch)
+{
+	return 0;
 }
 
 long SPU_AllocChannel()//915B0, 935F4 (F)
