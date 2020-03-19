@@ -1012,20 +1012,20 @@ char* DrawMeshRL4(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
 
         if ((unsigned int)t3 >= 0x20)
         {
-            t3 = t3 >> 27;
+            t3 = (unsigned int)t3 >> 27;
             t3 ^= 0x1F;
         }
 
         if ((unsigned int)t4 >= 0x20)
         {
-            t4 = t4 >> 27;
+            t4 = (unsigned int)t4 >> 27;
             t4 ^= 0x1F;
         }
 
         t4 <<= 5;
         if ((unsigned int)t5 >= 0x20)
         {
-            t5 = t5 >> 27;
+            t5 = (unsigned int)t5 >> 27;
             t5 ^= 0x1F;
         }
 
