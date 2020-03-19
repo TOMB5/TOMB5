@@ -31,11 +31,19 @@
 #include <SDL_syswm.h>
 
 SDL_Window* g_window = NULL;
+#if defined(OGL) || defined(OGLES)
 GLuint vramTexture;
 GLuint vramFrameBuffer = 0;
 GLuint vramRenderBuffer = 0;
 GLuint nullWhiteTexture;
 GLint g_defaultFBO;
+#else
+unsigned int vramTexture;
+unsigned int vramFrameBuffer = 0;
+unsigned int vramRenderBuffer = 0;
+unsigned int nullWhiteTexture;
+int g_defaultFBO;
+#endif
 int screenWidth = 0;
 int screenHeight = 0;
 int windowWidth = 0;
@@ -859,33 +867,40 @@ unsigned short vram[VRAM_WIDTH * VRAM_HEIGHT];
 
 int Emulator_InitialiseGL()
 {
+#if defined(OGL) || defined(OGLES)
 	glEnable(GL_BLEND);
 
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &g_defaultFBO);
+#endif
 
 	/* Initialise VRAM */
 	SDL_memset(vram, 0, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
 
 	/* Generate NULL white texture */
 	Emulator_GenerateAndBindNullWhite();
+#if defined(OGL) || defined(OGLES)
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_SCISSOR_TEST);
 	glBlendColor(0.25f, 0.25f, 0.25f, 0.5f);
 	glGenTextures(1, &vramTexture);
+#endif
 	Emulator_BindTexture(vramTexture);
 
+#if defined(OGL) || defined(OGLES)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+#endif
 
 #if defined(OGLES)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, &vram[0]);
 #elif defined(OGL)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &vram[0]);
 #endif
+#if defined(OGL) || defined(OGLES)
 	/* Generate VRAM Frame Buffer */
 	glGenFramebuffers(1, &vramFrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-
+#endif
 	eprintf("FrameBufferId: %d\n", vramFrameBuffer);
 
 	/* Bind VRAM texture to vram framebuffer */
@@ -904,7 +919,9 @@ int Emulator_InitialiseGL()
 	}
 #endif
 
+#if defined(OGL) || defined(OGLES)
 	glLineWidth(RESOLUTION_SCALE);
+#endif
 
 #if defined(OGL)
 	glEnable(GL_DEPTH_TEST);
@@ -915,26 +932,29 @@ int Emulator_InitialiseGL()
 #endif
 
 	Emulator_BindTexture(0);
+#if defined(OGL) || defined(OGLES)
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
-
+#endif
 	return TRUE;
 }
 
-GLuint g_lastBoundTexture = -1;
+unsigned int g_lastBoundTexture = -1;
 
-void Emulator_BindTexture(GLuint textureId)
+void Emulator_BindTexture(unsigned int textureId)
 {
 #if !defined(__EMSCRIPTEN__)
 	//assert(textureId < 1000);
 #endif
 	if (g_lastBoundTexture != textureId)
 	{
+#if defined(OGL) || defined(OGLES)
 		glBindTexture(GL_TEXTURE_2D, textureId);
+#endif
 		g_lastBoundTexture = textureId;
 	}
 }
 
-void Emulator_DestroyTextures(int numTextures, GLuint* textures)
+void Emulator_DestroyTextures(int numTextures, unsigned int* textures)
 {
 	for (int i = 0; i < numTextures; i++)
 	{
@@ -944,16 +964,22 @@ void Emulator_DestroyTextures(int numTextures, GLuint* textures)
 		}
 	}
 
+#if defined(OGL) || defined(OGLES)
 	glDeleteTextures(numTextures, textures);
+#endif
 }
 
 void Emulator_GenerateAndBindNullWhite()
 {
 	unsigned char pixelData[4];
 	((int*)&pixelData[0])[0] = 0x80808080;
+#if defined(OGL) || defined(OGLES)
 	glGenTextures(1, &nullWhiteTexture);
+#endif
 	Emulator_BindTexture(nullWhiteTexture);
+#if defined(OGL) || defined(OGLES)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData[0]);
+#endif
 }
 
 void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
@@ -1002,11 +1028,15 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 
 	if (bReadFromFrameBuffer)
 	{
+#if defined(OGL) || defined(OGLES)
 		glReadPixels(x, y, width, height, GL_BGRA, TEXTURE_FORMAT, &pixelData[0]);
+#endif
 	}
 	else
 	{
+#if defined(OGL) || defined(OGLES)
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, TEXTURE_FORMAT, pixelData);
+#endif
 	}
 
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
@@ -1066,8 +1096,9 @@ void Emulator_BeginScene()
 void Emulator_TakeScreenshot()
 {
 	unsigned char* pixels = new unsigned char[512 * RESOLUTION_SCALE * 240 * RESOLUTION_SCALE * 4];
+#if defined(OGL) || defined(OGLES)
 	glReadPixels(0, 0, 512 * RESOLUTION_SCALE, 240 * RESOLUTION_SCALE, GL_BGRA, GL_UNSIGNED_BYTE, pixels);
-
+#endif
 	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, 512 * RESOLUTION_SCALE, 240 * RESOLUTION_SCALE, 8 * 4, 512 * RESOLUTION_SCALE * 4, 0, 0, 0, 0);
 	SDL_SaveBMP(surface, "SCREENSHOT.BMP");
 	SDL_FreeSurface(surface);
@@ -1190,6 +1221,7 @@ void Emulator_SwapWindow()
 
 void Emulator_EndScene()
 {
+#if defined(OGL) || defined(OGLES)
 	glDisable(GL_BLEND);
 
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), FALSE);
@@ -1197,6 +1229,7 @@ void Emulator_EndScene()
 
 	glScissor(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
+#endif
 
 	float x = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.x * RESOLUTION_SCALE));
 	float y = 1.0f / (VRAM_HEIGHT / (float)(word_33BC.disp.y * RESOLUTION_SCALE));
@@ -1267,8 +1300,9 @@ void Emulator_EndScene()
 #endif
 
 	Emulator_SwapWindow();
+#if defined(OGL) || defined(OGLES)
 	glUseProgram(g_defaultShaderProgram);
-
+#endif
 	//glEnable(GL_BLEND);
 }
 
@@ -1292,7 +1326,7 @@ void Emulator_ShutDown()
 	exit(0);
 }
 
-void Emulator_GenerateFrameBuffer(GLuint* fbo)
+void Emulator_GenerateFrameBuffer(unsigned int* fbo)
 {
 #if defined(OGL) || defined(OGLES)
 	glGenFramebuffers(1, fbo);
@@ -1344,7 +1378,7 @@ struct CachedTexture* Emulator_GetFreeCachedTexture()
 	return NULL;
 }
 
-GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
+unsigned int Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 {
 	unsigned int textureType = GET_TPAGE_TYPE(tpage);
 	unsigned int tpageX = GET_TPAGE_X(tpage);
@@ -1380,13 +1414,17 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		tpageTexture = Emulator_GetFreeCachedTexture();
 		tpageTexture->tpage = tpage;
 		tpageTexture->clut = clut;
+#if defined(OGL) || defined(OGLES)
 		glGenTextures(1, &tpageTexture->textureID);
+#endif
 #if !defined(__EMSCRIPTEN__)
 		assert(tpageTexture->textureID < 1000);
 #endif
 		Emulator_BindTexture(tpageTexture->textureID);
+#if defined(OGL) || defined(OGLES)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+#endif
 	}
 	else
 	{
@@ -1405,9 +1443,10 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	case TP_16BIT:
 	{
 		unsigned short* tpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH * TPAGE_HEIGHT * sizeof(unsigned short));
+#if defined(OGL) || defined(OGLES)
 		glReadPixels(tpageX, tpageY, TPAGE_WIDTH, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, tpage);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, TEXTURE_FORMAT, tpage);
-
+#endif
 #if defined(_DEBUG) && 0
 		char buff[64];
 		sprintf(&buff[0], "TPAGE_%d_%d.TGA", tpage, clut);
@@ -1426,7 +1465,9 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	case TP_8BIT:
 	{
 		unsigned short* tpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH * TPAGE_HEIGHT * sizeof(unsigned short));
+#if defined(OGL) || defined(OGLES)
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &tpage[0]);
+#endif
 		SDL_free(tpage);
 #if defined(_DEBUG) && 0
 		char buff[64];
@@ -1446,12 +1487,15 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		unsigned short clut[CLUT_WIDTH * CLUT_HEIGHT];
 
 		//Read CLUT
+#if defined(OGL) || defined(OGLES)
 		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &clut[0]);
-
+#endif
 		unsigned short* tpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH / 4 * TPAGE_HEIGHT * sizeof(unsigned short));
 
+#if defined(OGL) || defined(OGLES)
 		//Read texture data
 		glReadPixels(tpageX, tpageY, TPAGE_WIDTH / 4, TPAGE_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &tpage[0]);
+#endif
 
 		unsigned short* convertedTpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH * TPAGE_HEIGHT * sizeof(unsigned short));
 		unsigned short* convertPixel = &convertedTpage[0];
@@ -1512,8 +1556,9 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 		fwrite(&convertedTpage[0], sizeof(char), 256 * 256 * 2, f);
 		fclose(f);
 #endif
-
+#if defined(OGL) || defined(OGLES)
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
+#endif
 		SDL_free(tpage);
 		SDL_free(convertedTpage);
 		
@@ -1526,10 +1571,12 @@ GLuint Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	return tpageTexture->textureID;
 }
 
-void Emulator_DestroyFrameBuffer(GLuint* fbo)
+void Emulator_DestroyFrameBuffer(unsigned int* fbo)
 {
+#if defined(OGL) || defined(OGLES)
 	glDeleteFramebuffers(1, fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
+#endif
 }
 
 static int g_PreviousBlendMode = -1;
@@ -1542,7 +1589,9 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 		//If previous wasn't semi trans, enable blend
 		if (g_PreviousSemiTrans == 0)
 		{
+#if defined(OGL) || defined(OGLES)
 			glEnable(GL_BLEND);
+#endif
 		}
 
 		if (g_PreviousBlendMode != mode)
@@ -1550,24 +1599,34 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 			switch (mode)
 			{
 			case BM_AVERAGE:
+#if defined(OGL) || defined(OGLES)
 				glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+#endif
 				break;
 			case BM_ADD:
+#if defined(OGL) || defined(OGLES)
 				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+#endif
 				break;
 			case BM_SUBTRACT:
+#if defined(OGL) || defined(OGLES)
 				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
+#endif
 				break;
 			case BM_ADD_QUATER_SOURCE:
+#if defined(OGL) || defined(OGLES)
 				glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+#endif
 				break;
 			default:
+#if defined(OGL) || defined(OGLES)
 				glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+#endif
 				break;
 			}
 
@@ -1579,7 +1638,9 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 		//If previous was semi trans disable blend
 		if (g_PreviousSemiTrans)
 		{
+#if defined(OGL) || defined(OGLES)
 			glDisable(GL_BLEND);
+#endif
 		}
 	}
 
@@ -1724,27 +1785,36 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 		tpageTexture = Emulator_GetFreeCachedTexture();
 		tpageTexture->tpage = texTpage;
 		tpageTexture->clut = texClut;
+#if defined(OGL) || defined(OGLES)
 		glGenTextures(1, &tpageTexture->textureID);
+#endif
 		Emulator_BindTexture(tpageTexture->textureID);
+#if defined(OGL) || defined(OGLES)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TPAGE_WIDTH, TPAGE_HEIGHT, 0, GL_RGBA, TEXTURE_FORMAT, NULL);
+#endif
 	}
 	else
 	{
 		Emulator_BindTexture(tpageTexture->textureID);
 	}
 
+#if defined(OGL) || defined(OGLES)
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+#endif
+
 	unsigned short* texturePage = (unsigned short*)SDL_malloc(sizeof(unsigned short) * w * h * 1024);
 	unsigned short* clut = (unsigned short*)SDL_malloc(sizeof(unsigned short) * 16);
 	unsigned short* convertedTpage = (unsigned short*)SDL_malloc(sizeof(unsigned short) * w * h * 1024);
 
+#if defined(OGL) || defined(OGLES)
 	//Read CLUT
 	glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &clut[0]);
 
 	//Read texture data
 	glReadPixels(tpageX + (x / 4), tpageY + y, w / 4, h, GL_RGBA, TEXTURE_FORMAT, &texturePage[0]);
+#endif
 
 	unsigned short* convertPixel = &convertedTpage[0];
 
@@ -1793,7 +1863,9 @@ void Emulator_HintTextureAtlas(unsigned short texTpage, unsigned short texClut, 
 
 #endif
 
+#if defined(OGL) || defined(OGLES)
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
+#endif
 
 #if defined(_DEBUG) && 0
 	char buf[32];
@@ -1833,9 +1905,10 @@ void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned short 
 	}
 
 	Emulator_BindTexture(tpageTexture->textureID);
+#if defined(OGL) || defined(OGLES)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+#endif
 	unsigned short* texturePage = (unsigned short*)SDL_malloc(sizeof(unsigned short) * ((w * h) / 2));
 	unsigned short* clut = (unsigned short*)SDL_malloc(sizeof(unsigned short) * 16);
 	unsigned short* convertedTpage = (unsigned short*)SDL_malloc(sizeof(unsigned short) * (w * h));
@@ -1898,7 +1971,9 @@ void Emulator_InjectTIM(char* fileName, unsigned short texTpage, unsigned short 
 
 #endif
 
+#if defined(OGL) || defined(OGLES)
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RGBA, TEXTURE_FORMAT, &convertedTpage[0]);
+#endif
 
 #if defined(_DEBUG) && 0
 	char buf[32];
