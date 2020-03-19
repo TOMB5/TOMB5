@@ -1601,7 +1601,7 @@ void sub_158RL4(long underwater, struct room_info* r)
 
                 t0 = s5->x;
                 t1 = s5->y;
-                t2 = fp->z;
+                t2 = s5->z;
             }
             else
             {
@@ -1630,9 +1630,9 @@ void sub_158RL4(long underwater, struct room_info* r)
     s2[6] = t7;
     s2[7] = t8;
 
-    int t3 = ((int*)&MatrixStack[0])[5];
-    int t4 = ((int*)&MatrixStack[0])[6];
-    int t5 = ((int*)&MatrixStack[0])[7];
+    t3 = ((int*)&MatrixStack[0])[5];
+    t4 = ((int*)&MatrixStack[0])[6];
+    t5 = ((int*)&MatrixStack[0])[7];
 
     t0 -= t3;
     t1 -= t4;
