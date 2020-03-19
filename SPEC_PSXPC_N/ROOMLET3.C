@@ -107,7 +107,7 @@ void SubdivSetup3RL3(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)
     ((POLY_GT3*)a3)->pad2 = (t8 & 0xFFFF0000) >> 16;
 }
 
-int* SubPolyGTLoopRL3(int gp, int* t0, int* t1, int s1)
+int* SubPolyGTLoopRL3(int gp, int* t0, int*& t1, int s1)
 {
     int* t00 = (int*)t0[0];
     int t2 = 0xF8F8F8;
@@ -259,7 +259,7 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
             at = t7 << at;
             t9 = t7 << 2;
 
-            if ((unsigned)at < 0x280 && s3 == 0)
+            if (at < 0x280u && s3 == 0)
             {
                 s3 = 1;
                 s4 = gp;
@@ -316,11 +316,9 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
                     ((POLY_GT4*)a3)->pad3 = (t8 & 0xFFFF0000) >> 16;
                     MyAddPrimRL3(0xC000000, &t9, &s0, a3);
                     a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
-
-
-                loc_75B20:
-                    ra = s7;
                 }
+            loc_75B20:
+                ra = s7;
             }
         loc_75B24:
             int test = 0;
@@ -374,7 +372,6 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
         t9 = ((short*)t5)[2];
 
         at = t7 < t9 ? 1 : 0;
-
         if (t7 < t8)
         {
             t7 = t8;
@@ -397,7 +394,7 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
         {
             at = t7 << at;
             t9 = t7 << 2;
-            if ((unsigned)at < 0x180u && s3 == 0)
+            if (at < 0x180u && s3 == 0)
             {
                 s3 = 1;
                 s4 = gp;
@@ -602,7 +599,7 @@ void UnpackRGBRL3(int* t5, int* s4, int* t6, int* fp, int* t8, int* s5, int* gp,
 {
     int s2 = 0xF80000;
     *t5 = *s4 >> 7;
-    *t5 &= s2;
+    *t5 &= 0xF80000;
     *t6 = *s4 >> 10;
     *t6 &= 0xF800;
     *fp = *s4 >> 13;
@@ -668,7 +665,7 @@ char* DrawMeshRL3(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
     int* a2 = &sp[0];
     short* s0 = &LOffset[0];
     char* s1 = &LTab[0];
-    int* s5 = (int*)&OurSqrt[0];
+    unsigned char* s5 = &OurSqrt[0];
     int* fp = (int*)&YOffset[0];
     int s2 = sp2[25];
     int s3 = sp2[26];
@@ -1091,9 +1088,9 @@ loc_172C:
         t1 &= 0x3F8;
         s44 = t1 + (int)s1;
 
-        t1 = ((int*)s44)[0];
-        t2 = ((int*)s55)[0];
-        t3 = ((int*)s66)[0];
+        t1 = ((unsigned int*)s44)[0];
+        t2 = ((unsigned int*)s55)[0];
+        t3 = ((unsigned int*)s66)[0];
 
         SXY0 = t1;
         SXY1 = t2;
@@ -1102,16 +1099,16 @@ loc_172C:
         t4 &= 0x3F8;
         s77 = t4 + (int)s1;
         docop2(0x1400006);
-        t4 = ((int*)s77)[0];
+        t4 = ((unsigned int*)s77)[0];
 
         t5 = ClipXYRL3(t1, t2, t3, t4);
 
         if (t5 == 0)
         {
-            int s444 = ((int*)s44)[1];
-            int s555 = ((int*)s55)[1];
-            int s666 = ((int*)s66)[1];
-            int s777 = ((int*)s77)[1];
+            int s444 = ((unsigned int*)s44)[1];
+            int s555 = ((unsigned int*)s55)[1];
+            int s666 = ((unsigned int*)s66)[1];
+            int s777 = ((unsigned int*)s77)[1];
 
             t5 = s444 & 0xFFFF;
             t6 = s555 & 0xFFFF;
@@ -1474,7 +1471,7 @@ void sub_158RL3(long underwater, struct room_info* r)
 
                 t0 = s5->x;
                 t1 = s5->y;
-                t2 = fp->z;
+                t2 = s5->z;
             }
             else
             {
@@ -1503,9 +1500,9 @@ void sub_158RL3(long underwater, struct room_info* r)
     s2[6] = t7;
     s2[7] = t8;
 
-    int t3 = ((int*)&MatrixStack[0])[5];
-    int t4 = ((int*)&MatrixStack[0])[6];
-    int t5 = ((int*)&MatrixStack[0])[7];
+    t3 = ((int*)&MatrixStack[0])[5];
+    t4 = ((int*)&MatrixStack[0])[6];
+    t5 = ((int*)&MatrixStack[0])[7];
 
     t0 -= t3;
     t1 -= t4;
@@ -1597,9 +1594,9 @@ void sub_158RL3(long underwater, struct room_info* r)
     t4 = MAC2;
     t5 = MAC3;
 
-    t0 += t3;
-    t1 += t4;
-    t2 += t5;
+    t0 = (unsigned int)t0 + (unsigned int)t3;
+    t1 = (unsigned int)t1 + (unsigned int)t4;
+    t2 = (unsigned int)t2 + (unsigned int)t5;
 
     TRX = t0;
     TRY = t1;
@@ -2081,5 +2078,9 @@ loc_6DC:
 
 void DrawRoomletListAsmRL3()
 {
+#if BETA_VERSION
     sub_158RL3(camera_underwater, &room[camera.pos.room_number]);
+#else
+    sub_158RL3(0, &room[camera.pos.room_number]);
+#endif
 }
