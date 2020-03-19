@@ -1077,7 +1077,7 @@ void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)// (F)
 
 		short* pd = (short*)malloc_ptr;
 
-		p += ddsd.lPitch * (ddsd.dwHeight - 0);
+		p += ddsd.lPitch * (ddsd.dwHeight - 1); // this whole function is a mess
 
 		for (int i = 0; i < ddsd.dwHeight; i++)
 		{

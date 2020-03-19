@@ -1,6 +1,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
-
+#define D3D_OVERLOADS
 #define phd_sqrt_asm phd_sqrt
 
 

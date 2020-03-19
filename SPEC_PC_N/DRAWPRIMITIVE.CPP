@@ -2343,7 +2343,7 @@ void DrawSortList()
 
 		if (surfacenumbf <= 0)
 		{
-			
+			// todo: original was invalid
 		}
 		else
 		{

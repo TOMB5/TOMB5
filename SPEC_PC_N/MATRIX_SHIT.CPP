@@ -312,6 +312,8 @@ D3DMATRIX stru_55D168;
 
 	void S_InitD3DMatrix()// (F)
 	{
+		Log(LT_Enter, "S_InitD3DMatrix");
+		
 		D3DIdentityMatrix(&App.WorldMatrix);
 		D3DIdentityMatrix(&transform_projection);
 
