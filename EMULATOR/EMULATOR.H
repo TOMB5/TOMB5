@@ -140,8 +140,6 @@ extern void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* 
 extern void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h);
 extern void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
 extern void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, int bMultiplyColour);
-extern void Emulator_AllocateVirtualMemory(unsigned int baseAddress, unsigned int size);
-extern int Emulator_InitialiseGameVariables();
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
 extern void Emulator_Scalef(float sx, float sy, float sz);
 extern void Emulator_BindTexture(unsigned int textureId);
