@@ -480,8 +480,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 	else
 	{
-		///@TODO really test this but it should work.
-		switch (RoomDrawType)
+		switch (RoomDrawType-1)///@FIXME this is wrong clearly
 		{
 		case 0:
 			DrawRoomletListAsmRL1();
