@@ -427,7 +427,6 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 
 void CalculateSpotCams()//37ED0(<), 383D0(?) 
 {
-#if !PC_VERSION || true
 	long cpx; // stack offset -96
 	long cpy; // stack offset -92
 	long cpz; // stack offset -88
@@ -705,9 +704,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 		}//loc_38650
 	}//loc_38650
 
-#if PSXENGINE
 	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, croll);
-#endif
 
 	///sp = s0
 	if (bCheckTrigger)
@@ -1010,9 +1007,9 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 			camera_speed[3] = camera_speed[1] >> 1;
 
 			S_MemCpy((char*)&camera, (char*)&Backup, sizeof(struct CAMERA_INFO));
-#if PSXENGINE
+
 			phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
-#endif
+
 			spline_to_camera = 1;
 			return;
 		}
@@ -1067,7 +1064,6 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 	SCNoDrawLara = 0;
 	cfov = LastFov;
 	AlterFOV(LastFov);
-#endif
 }
 
 long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)

@@ -84,7 +84,7 @@ extern	sint32		w2v_matrix[];		// World to View Matrix...
 extern	sint32		matrix_stack[];		// matrix stack for animations etc..
 	extern float		matrix_stack_dx[];
 	extern float		sin_flt_table[];
-
+	extern D3DMATRIX w2v_matrix_d3d;
 extern struct SVECTOR CamRot;
 
 extern WORD* d9ab34;

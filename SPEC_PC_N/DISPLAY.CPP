@@ -79,7 +79,7 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 		strcat(b2, "\n");
 	HDC hdc;
 	App.lpBackBuffer->GetDC(&hdc);
-	SetTextColor(hdc, 0x000e0e0e);
+	SetTextColor(hdc, TRANSPARENT);
 	SetBkColor(hdc, 0xffffff);
 	int last = 0;
 	int num = 0;

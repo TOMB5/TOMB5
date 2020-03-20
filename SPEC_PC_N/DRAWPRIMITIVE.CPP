@@ -191,7 +191,13 @@ void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex
 
 void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
 {
-	Log(LT_Enter, "AddQuadClippedZBuffer %4d;%4d;%4d;%4d tex=%d", v1, v2, v3, v4, tex->tile_and_flag);
+	//Log(LT_Enter, "AddQuadClippedZBuffer %4d;%4d;%4d;%4d tex=%d", v1, v2, v3, v4, tex->tile_and_flag);
+	Log(LT_Enter, "AddQuadClippedZBuffer (%3f,%3f,%3f) (%3f,%3f,%3f) (%3f,%3f,%3f) (%3f,%3f,%3f) tex=%d", 
+		v[v1].sx, v[v1].sy, v[v1].sz,
+		v[v2].sx, v[v2].sy, v[v2].sz,
+		v[v3].sx, v[v3].sy, v[v3].sz,
+		v[v4].sx, v[v4].sy, v[v4].sz,
+		tex->tile_and_flag);
 
 	WORD vp1 = d9ab34[v1];
 	WORD vp2 = d9ab34[v2];
@@ -1337,11 +1343,6 @@ void RestoreLaraMeshswaps()
 float lara_left_mat[12];
 float lara_right_mat[12];
 
-void Update()
-{
-	Unimpl();
-}
-
 void InitDynamicLighting()
 {
 	Unimpl();
@@ -1474,6 +1475,24 @@ WORD word_511A68[8][3] =
 	{ 3, 4, 5 }
 };
 tr5_vertex dword_921618[8];
+
+DWORD dword_56ED10;
+DWORD dword_57753C;
+float dword_56ED0C;
+DWORD dword_577540;
+
+void Update()
+{
+	++dword_57753C;
+	dword_56ED0C = f_znear;
+
+	dword_577540 = 0;
+
+	if (cam_dir_flt.y >= 0.0)
+		dword_56ED10 = (95 - (int)((1.0 - cam_dir_flt.y) * -144.0)) << 24;
+	else
+		dword_56ED10 = 0xEF000000;
+}
 
 bool CheckBoundsClip(bounding_box_f* bbox)
 {

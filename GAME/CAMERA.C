@@ -2030,6 +2030,10 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 
 void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 {
+#if PC_VERSION
+	Log(LT_Enter, "MoveCamera");
+#endif
+	
 	struct FLOOR_INFO* floor;
 	struct GAME_VECTOR tcp;
 	long height;

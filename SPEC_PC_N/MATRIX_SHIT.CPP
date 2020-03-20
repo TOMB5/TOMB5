@@ -29,7 +29,7 @@
 	int32_t		phd_scrwidth;       	/* Width of Screen ie. 320 or 640*/
 	int32_t		phd_scrheight;       	/* Height of Screen ie. 200 or 480*/
 	int32_t		phd_persp;				/* perspective thang*/
-	int32_t		*phd_mxptr;				/* matrix pointer....*/
+	int32_t		*phd_mxptr;				/* matrix pointer.... column major*/
 	int32_t		phd_oopersp;
 	float* phd_dxptr;
 
@@ -56,10 +56,10 @@
 	float LfAspectCorrection;
 	float flt_55D1F8;
 	float dword_50A440 = SECTOR(32768);
-	int32_t		w2v_matrix[12];		// World to View Matrix...
-	float		w2v_matrix_f[12];		// World to View Matrix...
-	int32_t		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
-	float		matrix_stack_dx[12 * MAX_MAT];
+	int32_t		w2v_matrix[12]={0};		// World to View Matrix...
+	float		w2v_matrix_f[12]={0};		// World to View Matrix...
+	int32_t		matrix_stack[12 * MAX_MAT]={0};		// matrix stack for animations etc..
+	float		matrix_stack_dx[12 * MAX_MAT]={0};
 	float		sin_flt_table[65536];
 
 	D3DMATRIX transform_projection;
@@ -632,6 +632,8 @@ D3DMATRIX stru_55D168;
 
 	void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll)// (F)
 	{
+		Log(LT_Enter, "phd_LookAt src(%5d, %5d, %5d) tar(%5d, %5d, %5d), roll=%5d", xsrc, ysrc, ysrc, xtar, ytar, ztar, roll);
+		
 		short	angles[2];
 		PHD_3DPOS 	viewer;
 
