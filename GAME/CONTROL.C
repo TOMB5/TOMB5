@@ -2960,7 +2960,7 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 
 	if (y < floor->floor << 8)
 	{
-		if (y < floor->ceiling << 8 && floor->sky_room != -1)
+		if (y < floor->ceiling << 8 && floor->sky_room != 0xFF)
 		{
 			do
 			{
