@@ -192,7 +192,7 @@ void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex
 void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
 {
 	//Log(LT_Enter, "AddQuadClippedZBuffer %4d;%4d;%4d;%4d tex=%d", v1, v2, v3, v4, tex->tile_and_flag);
-	Log(LT_Enter, "AddQuadClippedZBuffer %d=(%3.1f,%3.1f,%3.1f) %d=(%3.1f,%3.1f,%3.1f) %d=(%.1f,%3.1f,%3.1f) %d=(%3.1f,%3.1f,%3.1f) tex=%d", 
+	if(0)Log(LT_Enter, "AddQuadClippedZBuffer %d=(%3.1f,%3.1f,%3.1f) %d=(%3.1f,%3.1f,%3.1f) %d=(%.1f,%3.1f,%3.1f) %d=(%3.1f,%3.1f,%3.1f) tex=%d", 
 		v1, v[v1].sx, v[v1].sy, v[v1].sz,
 		v2, v[v2].sx, v[v2].sy, v[v2].sz,
 		v3, v[v3].sx, v[v3].sy, v[v3].sz,
@@ -2213,7 +2213,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 	switch (type)
 	{
-	case 0:
+	case OT_ALL_OPAQUE:
 		if (App.lpZBuffer)
 		{
 			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
@@ -2232,7 +2232,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
 
 		break;
-	case 1:
+	case OT_ALPHA_TESTING:
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -2243,7 +2243,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		break;
-	case 2:
+	case OT_ALPHA_BLENDING:
 		if (App.lpZBuffer)
 		{
 			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
@@ -2263,7 +2263,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
 		break;
-	case 3:
+	case OT_ALPHA_BLENDING_INV:
 		if (App.lpZBuffer)
 		{
 			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
@@ -2285,7 +2285,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 		App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
 
 		break;
-	case 4:
+	case OT_ALPHA_TESTING_DEPTHLESS:
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[texture].tex));
 
 		if (App.lpZBuffer)
@@ -2303,9 +2303,9 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 		}
 
 		break;
-	case 5:
+	case OT_UNUSED:
 		break;
-	case 6:
+	case OT_WIREFRAME:
 		if (App.lpZBuffer)
 		{
 			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
@@ -2321,7 +2321,7 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 		App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, FVF, info, num_verts, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 		break;
-	case 7:
+	case OT_FORCED_ALPHA:
 		if (App.lpZBuffer)
 		{
 			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
@@ -2339,6 +2339,8 @@ void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// 
 
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
+		break;
+	default:
 		break;
 	}
 
@@ -2373,7 +2375,9 @@ void DrawSortList()
 			{
 				info = (dinfo_head*)(*ptr);
 
-				if (info->texattr == 1 || info->texattr == 4 || info->texattr == 0)
+				if (info->texattr == OT_ALPHA_TESTING || 
+					info->texattr == OT_ALPHA_TESTING_DEPTHLESS || 
+					info->texattr == OT_ALL_OPAQUE)
 					break;
 			}
 		}
@@ -2390,13 +2394,15 @@ void DrawSortList()
 			{
 				info = (dinfo_head*)(*ptr);
 
-				if (info->texattr == 1 || info->texattr == 4 || info->texattr == 0)
+				if (info->texattr == OT_ALPHA_TESTING ||
+					info->texattr == OT_ALPHA_TESTING_DEPTHLESS ||
+					info->texattr == OT_ALL_OPAQUE)
 				{
 					if (info->tile_and_flag != tile_and_flag || info->texattr != type)
 					{
 						switch(type)
 						{
-						case 0:
+						case OT_ALL_OPAQUE:
 							if (App.lpZBuffer)
 								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
 
@@ -2412,7 +2418,7 @@ void DrawSortList()
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
 
 							break;
-						case 1:
+						case OT_ALPHA_TESTING:
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -2423,7 +2429,7 @@ void DrawSortList()
 							App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 							break;
-						case 2:
+						case OT_ALPHA_BLENDING:
 							if (App.lpZBuffer)
 								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 
@@ -2441,7 +2447,7 @@ void DrawSortList()
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
 							break;
-						case 3:
+						case OT_ALPHA_BLENDING_INV:
 							if (App.lpZBuffer)
 								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 
@@ -2459,7 +2465,7 @@ void DrawSortList()
 							App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
 
 							break;
-						case 4:
+						case OT_ALPHA_TESTING_DEPTHLESS:
 							DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[tile_and_flag].tex));
 
 							if (App.lpZBuffer)
@@ -2477,7 +2483,9 @@ void DrawSortList()
 							}
 
 							break;
-						case 6:
+						case OT_UNUSED:
+							break;
+						case OT_WIREFRAME:
 							if (App.lpZBuffer)
 								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 
@@ -2490,7 +2498,7 @@ void DrawSortList()
 							App.lpD3DDevice->DrawPrimitive(D3DPT_LINELIST, FVF, Bucket[0].Vertex, v3, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 
 							break;
-						case 7:
+						case OT_FORCED_ALPHA:
 							if (App.lpZBuffer)
 								App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, TRUE);
 
@@ -2545,7 +2553,10 @@ void DrawSortList()
 			{
 				info = *ptr;
 
-				if (info->texattr == 2 || info->texattr == 3 || info->texattr == 6 || info->texattr == 7)
+				if (info->texattr == OT_ALPHA_BLENDING || 
+					info->texattr == OT_ALPHA_BLENDING_INV || 
+					info->texattr == OT_WIREFRAME || 
+					info->texattr == OT_FORCED_ALPHA)
 					break;
 			}
 		}
@@ -2564,7 +2575,10 @@ void DrawSortList()
 			{
 				info = (dinfo_head*)(*ptr);
 
-				if (info->texattr == 2 || info->texattr == 3 || info->texattr == 6 || info->texattr == 7)
+				if (info->texattr == OT_ALPHA_BLENDING ||
+					info->texattr == OT_ALPHA_BLENDING_INV ||
+					info->texattr == OT_WIREFRAME ||
+					info->texattr == OT_FORCED_ALPHA)
 				{
 					if (info->tile_and_flag != tile_and_flag || info->texattr != type)
 					{

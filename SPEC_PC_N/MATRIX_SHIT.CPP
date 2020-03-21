@@ -336,8 +336,7 @@ D3DMATRIX stru_55D168;
 
 	void phd_QuickW2VMatrix(tr5_vertex src, tr5_vertex tar, int rot)
 	{
-
-		stru_51D0B0[3] = src;
+				stru_51D0B0[3] = src;
 		stru_51D0B0[4] = tar;
 		
 		phd_dxptr = matrix_stack_dx;
