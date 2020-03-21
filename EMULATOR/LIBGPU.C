@@ -256,7 +256,49 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 	Emulator_BindTexture(vramTexture);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
+#elif defined(D3D9)
+	D3DLOCKED_RECT lockedRect;
+	RECT convertedRect;
+	convertedRect.top = rect->y * RESOLUTION_SCALE;
+	convertedRect.bottom = (rect->y * RESOLUTION_SCALE) + (rect->h * RESOLUTION_SCALE);
+	convertedRect.left = rect->x * RESOLUTION_SCALE;
+	convertedRect.right = (rect->x * RESOLUTION_SCALE) + (rect->w * RESOLUTION_SCALE);
+	vramFrameBuffer->LockRect(&lockedRect, &convertedRect, 0);
+	
+	unsigned short* src = (unsigned short*)p;
+	unsigned short* dest = (unsigned short*)lockedRect.pBits;
+
+	for (int y = 0; y < rect->h; y++)
+	{
+		for (int x = 0; x < rect->w; x++)
+		{
+#pragma pack(push,1)
+			struct argb1555
+			{
+				unsigned short r : 5;
+				unsigned short g : 5;
+				unsigned short b : 5;
+				unsigned short a : 1;
+			};
+#pragma pack(pop)
+			struct argb1555* dest_conv = (struct argb1555*)&dest[x];
+			struct argb1555* src_conv = (struct argb1555*)&src[x];
+
+			dest_conv->r = src_conv->r;
+			dest_conv->g = src_conv->g;
+			int b = src_conv->b;
+			dest_conv->b = dest_conv->r;
+			dest_conv->r = b;
+			dest_conv->a |= src_conv->a;
+		}
+
+		src += rect->w;
+		dest += lockedRect.Pitch / 2;
+	}
+
+	vramFrameBuffer->UnlockRect();
 #endif
+
 #if _DEBUG && 0
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
 #endif
