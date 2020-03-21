@@ -133,7 +133,7 @@ void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEX
 	}
 	else
 	{
-		D3DVALUE z = v[v4].sz;
+		const D3DVALUE z = v[v4].sz;
 
 		if (z >= 3500.0)
 		{
@@ -165,7 +165,7 @@ void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex
 	}
 	else
 	{
-		D3DVALUE z = v[v3].sz;
+		const D3DVALUE z = v[v3].sz;
 
 		if (z >= 3500.0)
 		{
@@ -199,10 +199,10 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 		v4, v[v4].sx, v[v4].sy, v[v4].sz,
 		tex->tile_and_flag);
 
-	WORD vp1 = d9ab34[v1];
-	WORD vp2 = d9ab34[v2];
-	WORD vp3 = d9ab34[v3];
-	WORD vp4 = d9ab34[v4];
+	const WORD vp1 = d9ab34[v1];
+	const WORD vp2 = d9ab34[v2];
+	const WORD vp3 = d9ab34[v3];
+	const WORD vp4 = d9ab34[v4];
 
 	OBJECT_TEXTURE newtex;
 	OBJECT_TEXTURE* next;
@@ -277,7 +277,7 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 
 				FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
 
-				auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
+				const auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
 				Log(LT_Info, "QuadZ writing 6 verts to bucket %d", buk - Bucket);
 
 				*cnt_ptr += 6;
@@ -409,9 +409,9 @@ D3DTLBUMPVERTEX stru_923C88[20];
 
 void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
-	WORD vp1 = d9ab34[v1];
-	WORD vp2 = d9ab34[v2];
-	WORD vp3 = d9ab34[v3];
+	const WORD vp1 = d9ab34[v1];
+	const WORD vp2 = d9ab34[v2];
+	const WORD vp3 = d9ab34[v3];
 
 	OBJECT_TEXTURE newtex;
 	OBJECT_TEXTURE* next;
@@ -492,7 +492,7 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 
 			FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
 
-			auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
+			const auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
 			Log(LT_Info, "TriZ writing 3 verts to bucket %d", buk - Bucket);
 
 			v31 = 0;
@@ -566,7 +566,7 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 			}
 		}
 
-		int v26 = XYUVGClipper(v23, stru_BA3FB0);
+		const int v26 = XYUVGClipper(v23, stru_BA3FB0);
 		if (v26)
 		{
 			int* cnt_ptr;
@@ -590,10 +590,10 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 
 void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
 {
-	WORD vp1 = d9ab34[v1];
-	WORD vp2 = d9ab34[v2];
-	WORD vp3 = d9ab34[v3];
-	WORD vp4 = d9ab34[v4];
+	const WORD vp1 = d9ab34[v1];
+	const WORD vp2 = d9ab34[v2];
+	const WORD vp3 = d9ab34[v3];
+	const WORD vp4 = d9ab34[v4];
 
 	OBJECT_TEXTURE newtex;
 	OBJECT_TEXTURE* next;
@@ -808,7 +808,7 @@ void do_quickysorty(int left, int right, float buffer[][10])// (F)
 {
 	int i = left;
 	int j = right;
-	float compare = buffer[(left + right) / 2][0];
+	const float compare = buffer[(left + right) / 2][0];
 
 	do
 	{
@@ -1023,13 +1023,13 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 
 	for (int i = 0; i < 4; i++, dest++)
 	{
-		int xv = vbufdoor[i].xv =
+		const int xv = vbufdoor[i].xv =
 			phd_mxptr[M00] * portal->Vertices[i].x +
 			phd_mxptr[M01] * portal->Vertices[i].y +
 			phd_mxptr[M02] * portal->Vertices[i].z +
 			phd_mxptr[M03];
 
-		int yv = vbufdoor[i].yv =
+		const int yv = vbufdoor[i].yv =
 			phd_mxptr[M10] * portal->Vertices[i].x +
 			phd_mxptr[M11] * portal->Vertices[i].y +
 			phd_mxptr[M12] * portal->Vertices[i].z +
@@ -1172,7 +1172,7 @@ void GetRoomBounds()
 
 	while (bound_start != bound_end)
 	{
-		int current = bound_list[bound_start++ % 128];
+		const int current = bound_list[bound_start++ % 128];
 		room_info* r = &room[current];
 		r->bound_active -= 2;
 
@@ -1500,26 +1500,26 @@ bool CheckBoundsClip(bounding_box_f* bbox)
 	float minY = 10000, maxY = -10000;
 	float minZ = 10000, maxZ = -10000;
 
-	auto ptr = (float*)bbox;
+	const auto ptr = (float*)bbox;
 
 	for (int i = 0; i < 8; i++)
 	{
-		auto idx = word_511A68[i];
+		const auto idx = word_511A68[i];
 
-		float f1 = ptr[idx[0]];
-		float f2 = ptr[idx[1]];
-		float f3 = ptr[idx[2]];
+		const float f1 = ptr[idx[0]];
+		const float f2 = ptr[idx[1]];
+		const float f3 = ptr[idx[2]];
 
-		float ox = App.ViewMatrix._41 + App.ViewMatrix._31 * f3 + App.ViewMatrix._21 * f2 + App.ViewMatrix._11 * f1;
-		float oy = App.ViewMatrix._42 + App.ViewMatrix._32 * f3 + App.ViewMatrix._22 * f2 + App.ViewMatrix._12 * f1;
+		const float ox = App.ViewMatrix._41 + App.ViewMatrix._31 * f3 + App.ViewMatrix._21 * f2 + App.ViewMatrix._11 * f1;
+		const float oy = App.ViewMatrix._42 + App.ViewMatrix._32 * f3 + App.ViewMatrix._22 * f2 + App.ViewMatrix._12 * f1;
 		float oz = App.ViewMatrix._43 + App.ViewMatrix._33 * f3 + App.ViewMatrix._23 * f2 + App.ViewMatrix._13 * f1;
 
 		dword_921618[i] = { ox, oy, oz };
 
-		float z = MAX(f_znear, oz);
-		float persp = f_persp / z;
-		float x = persp * ox + f_centerx;
-		float y = persp * oy + f_centery;
+		const float z = MAX(f_znear, oz);
+		const float persp = f_persp / z;
+		const float x = persp * ox + f_centerx;
+		const float y = persp * oy + f_centery;
 
 		if (x < minX)
 			minX = x;
@@ -1563,23 +1563,23 @@ int BuildRoomletLights(ROOMLET* r)
 	auto vptr = stru_7ED6B0;
 	int nvert = 0;
 
-	float rx = inserting_room->RoomX;
-	float ry = inserting_room->RoomY;
-	float rz = inserting_room->RoomZ;
+	const float rx = inserting_room->RoomX;
+	const float ry = inserting_room->RoomY;
+	const float rz = inserting_room->RoomZ;
 
-	float minX = r->BoundingBox.minX;
-	float minZ = r->BoundingBox.minZ;
-	float maxX = r->BoundingBox.maxX;
-	float maxZ = r->BoundingBox.maxZ;
+	const float minX = r->BoundingBox.minX;
+	const float minZ = r->BoundingBox.minZ;
+	const float maxX = r->BoundingBox.maxX;
+	const float maxZ = r->BoundingBox.maxZ;
 
 	for(int i = 0; i < 32; i++, dyn++)
 	{
 		if (dyn->on)
 		{
-			float dx = dyn->x - rx;
-			float dy = dyn->y - ry;
-			float dz = dyn->z - rz;
-			float falloff = dyn->falloff / 2 + dyn->falloff / 8;
+			const float dx = dyn->x - rx;
+			const float dy = dyn->y - ry;
+			const float dz = dyn->z - rz;
+			const float falloff = dyn->falloff / 2 + dyn->falloff / 8;
 
 			if (dx - falloff <= maxX && 
 				dx + falloff >= minX && 
@@ -1851,7 +1851,7 @@ void InsertRoomlet(ROOMLET* r)
 	for(int i = 0; i < r->NumLayerRectangles; i++, poly += sizeof(tr_face4))
 	{
 		auto face = (tr_face4*)poly;
-		auto tex = &object_textures[face->Texture];
+		const auto tex = &object_textures[face->Texture];
 
 		if (tex->attribute)
 		{
@@ -1866,7 +1866,7 @@ void InsertRoomlet(ROOMLET* r)
 	for (int i = 0; i < r->NumLayerTriangles; i++, poly += sizeof(tr_face3))
 	{
 		auto face = (tr_face3*)poly;
-		auto tex = &object_textures[face->Texture];
+		const auto tex = &object_textures[face->Texture];
 
 		if (tex->attribute)
 		{
@@ -1891,11 +1891,11 @@ void InsertRoom(room_info* r)
 	cam_pos_flt = { (float)camera.pos.x, (float)camera.pos.y, (float)camera.pos.z };
 	cam_tar_flt = { (float)camera.target.x, (float)camera.target.y, (float)camera.target.z };
 
-	float dx = cam_tar_flt.x - cam_pos_flt.x;
-	float dy = cam_tar_flt.y - cam_pos_flt.y;
-	float dz = cam_tar_flt.z - cam_pos_flt.z;
+	const float dx = cam_tar_flt.x - cam_pos_flt.x;
+	const float dy = cam_tar_flt.y - cam_pos_flt.y;
+	const float dz = cam_tar_flt.z - cam_pos_flt.z;
 
-	float norm = sqrt(dx * dx + dy * dy + dz * dz);
+	const float norm = sqrt(dx * dx + dy * dy + dz * dz);
 
 	cam_dir_flt = { dx / norm, dy / norm, dz / norm };
 
@@ -2066,7 +2066,7 @@ void DrawRooms(short current_room)
 	Log(LT_Info, "DrawRooms N=%d", number_draw_rooms);
 	for (int i = 0; i < number_draw_rooms; i++)
 	{
-		auto cr = &room[draw_rooms[i]];
+		const auto cr = &room[draw_rooms[i]];
 
 		phd_PushMatrix();
 		phd_TranslateAbs(cr->x, cr->y, cr->z);
@@ -2097,10 +2097,10 @@ void DrawRooms(short current_room)
 	DrawBats();
 	DrawSpiders();
 
-	long bak_x = lara_item->pos.x_pos;
-	long bak_y = lara_item->pos.y_pos;
-	long bak_z = lara_item->pos.z_pos;
-	short bak_room = lara_item->room_number;
+	const long bak_x = lara_item->pos.x_pos;
+	const long bak_y = lara_item->pos.y_pos;
+	const long bak_z = lara_item->pos.z_pos;
+	const short bak_room = lara_item->room_number;
 
 	lara_item->pos.x_pos = camera.pos.x;
 	lara_item->pos.y_pos = camera.pos.y;
@@ -2622,7 +2622,7 @@ void DrawSortList()
 		auto ptr = (dinfo_head**)sort3d_bufferbf;
 		for(int i = 0; i < surfacenumbf; i++, ptr++)
 		{
-			auto info = *ptr;
+			const auto info = *ptr;
 
 			if (info->e4b100 == 4)
 				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, FALSE);
