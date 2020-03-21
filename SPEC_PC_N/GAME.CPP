@@ -59,6 +59,7 @@ bool GameInitialise()
 	init_game_malloc();
 
 	d9ab34 = (WORD*)malloc(16384 * sizeof(WORD));
+	memset(d9ab34, 0, 16384 * sizeof(WORD));
 
 	App.dword_D9AC38 = 0;
 	App.dword_D9AC34 = CUR_DM.w;
