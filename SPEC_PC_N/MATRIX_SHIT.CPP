@@ -38,7 +38,7 @@
 	float clip_ymin;
 	float clip_ymax;
 
-	float		one;				// in 3dinsert.cpp
+	float		one = 2048.0;				// in 3dinsert.cpp
 	float		f_znear;			// phd_znear
 	float		f_zfar;				// phd_zfar
 	float		f_oneoznear;		// one / phd_znear
@@ -121,158 +121,94 @@
 
 	
 
-	tr5_vertex dword_51D0B0[3];
-	tr5_vertex stru_51D0D4;
-	tr5_vertex stru_51D0E0;
+	tr5_vertex stru_51D0B0[5];
 	float		w2v_matrix_f[12] = { 0 };		// World to View Matrix...
 
-	void __cdecl sub_4910D0(tr5_vertex* a1)
+	void Normalize(tr5_vertex* a)
 	{
-		long double v1; // st4
-
-		v1 = sqrt(a1->z * a1->z + a1->y * a1->y + a1->x * a1->x);
-		a1->x = 1.0 / v1 * a1->x;
-		a1->y = 1.0 / v1 * a1->y;
-		a1->z = 1.0 / v1 * a1->z;
+		double norm = sqrt(a->x * a->x + a->y * a->y + a->z * a->z);
+		a->x /= norm;
+		a->y /= norm;
+		a->z /= norm;
 	}
 
-	void __cdecl sub_491120(tr5_vertex* a1, tr5_vertex* a2, tr5_vertex* a3)
+	void CrossProduct(tr5_vertex* a, tr5_vertex* b, tr5_vertex* res)
 	{
-		a3->x = a2->z * a1->y - a1->z * a2->y;
-		a3->y = a1->z * a2->x - a1->x * a2->z;
-		a3->z = a1->x * a2->y - a2->x * a1->y;
+		res->x = b->z * a->y - a->z * b->y;
+		res->y = a->z * b->x - a->x * b->z;
+		res->z = a->x * b->y - b->x * a->y;
 	}
 
 	void __cdecl sub_491170(tr5_vertex* a1, tr5_vertex* a2, tr5_vertex* a3)
 	{
-		float v3; // ecx
-		float v4; // edx
-		float v5; // eax
-		float v6; // ecx
-		float v7; // eax
-		float v8; // ecx
-		float v9; // ecx
-		float v10; // edx
-		float v11; // eax
-		float v12; // ecx
-		float v13; // edx
-		float v14; // eax
-		float v15; // ecx
-		float v16; // edx
-		tr5_vertex v17; // [esp+Ch] [ebp-24h]
-		tr5_vertex v18; // [esp+18h] [ebp-18h]
-		tr5_vertex v19; // [esp+24h] [ebp-Ch]
-
-		v3 = a1->y;
-		v4 = a1->z;
-		v17.x = a1->x;
-		v5 = a3->x;
-		v17.y = v3;
-		v6 = a3->y;
-		v19.x = v5;
-		v19.y = v6;
-		v17.z = v4;
-		v19.z = a3->z;
-		sub_4910D0(&v17);
-		if (v17.x != 0.0 || v17.y != 0.0)
+		
+		tr5_vertex cross; // [esp+18h] [ebp-18h]
+		
+		Normalize(a1);
+		
+		if (a1->x != 0.0 || a1->y != 0.0)
 		{
-			sub_491120(&v19, &v17, &v18);
+			CrossProduct(a3, a1, &cross);
 		}
 		else
 		{
-			v7 = a2->y;
-			v8 = a2->z;
-			v18.x = a2->x;
-			v18.y = v7;
-			v18.z = v8;
+			cross = *a2;
 		}
-		sub_491120(&v17, &v18, &v19);
-		sub_4910D0(&v18);
-		sub_4910D0(&v19);
-		v9 = v17.y;
-		v10 = v17.z;
-		a1->x = v17.x;
-		v11 = v18.x;
-		a1->y = v9;
-		v12 = v18.y;
-		a1->z = v10;
-		v13 = v18.z;
-		a2->x = v11;
-		v14 = v19.x;
-		a2->y = v12;
-		v15 = v19.y;
-		a2->z = v13;
-		v16 = v19.z;
-		a3->x = v14;
-		a3->y = v15;
-		a3->z = v16;
+		
+		CrossProduct(a1, &cross, a3);
+
+		*a2 = cross;
+		Normalize(a2);
+		Normalize(a3);
+		 
 	}
 
-	void __cdecl sub_4912E0(tr5_vertex* a1)
+	void __cdecl Identity3(MATRIX3* a1)
 	{
-		a1->x = 1.0;
-		a1->y = 0.0;
-		a1->z = 0.0;
-		a1[1].y = 0.0;
-		a1[1].z = 1.0;
-		a1[2].x = 0.0;
-		a1[2].z = 0.0;
-		a1[3].x = 0.0;
-		a1[3].y = 1.0;
-		a1[1].x = 0.0;
-		a1[2].y = 0.0;
-		a1[3].z = 0.0;
+		a1->_11 = 1.0;
+		a1->_12 = 0.0;
+		a1->_13 = 0.0;
+		a1->_21 = 0.0;
+		a1->_22 = 1.0;
+		a1->_23 = 0.0;
+		a1->_31 = 0.0;
+		a1->_32 = 0.0;
+		a1->_33 = 1.0;
+		a1->_14 = 0.0;
+		a1->_24 = 0.0;
+		a1->_34 = 0.0;
 	}
 
 	void __cdecl sub_490FA0(tr5_vertex* a1, tr5_vertex* a2)
 	{
-		tr5_vertex* v2; // eax
-		double v3; // st7
-		float v4; // ST08_4
-		float v5; // ST0C_4
-		double v6; // st6
-		float v7; // ST10_4
-		double v8; // st6
-		float v9; // ST18_4
-		double v10; // st5
-		double v11; // st7
-		float v12; // ST1C_4
-		tr5_vertex v13[4]; // [esp+18h] [ebp-60h]
-		tr5_vertex v14[4]; // [esp+48h] [ebp-30h]
+		MATRIX3 v13; // [esp+18h] [ebp-60h]
+		MATRIX3 v14; // [esp+48h] [ebp-30h]
 
-		sub_4912E0(v13);
-		sub_4912E0(v14);
-		v2 = a1;
-		a1->x = a2[1].x;
-		a1->y = a2[1].y;
-		a1->z = a2[1].z;
+		Identity3(&v13);
+		Identity3(&v14);
+		a1[0].x = a2[1].x;
+		a1[0].y = a2[1].y;
+		a1[0].z = a2[1].z;
+		
+		a1[1].x = -a2[3].z * a1->z + -a2[3].y * a1->y + -a2[3].x * a1->x;
 		a1[1].y = -a2[2].x;
 		a1[1].z = -a2[2].y;
+		
 		a1[2].x = -a2[2].z;
+		a1[2].y = -a2[3].z * a1[2].x + -a2[3].x * a1[1].y + -a2[3].y * a1[1].z;
 		a1[2].z = -a2->x;
+		
 		a1[3].x = -a2->y;
-		v3 = -a2->z;
-		a1[3].y = v3;
-		v4 = -a2[3].x;
-		v5 = -a2[3].y;
-		v6 = -a2[3].z;
-		v7 = v6;
-		v8 = v6 * v2->z + v5 * v2->y + v4 * v2->x;
-		v9 = v7 * v2[2].x + v4 * v2[1].y + v5 * v2[1].z;
-		v10 = v3;
-		v11 = v4 * v2[2].z + v5 * v2[3].x;
-		a1[2].y = v9;
-		v12 = v11 + v10 * v7;
-		a1[1].x = v8;
-		a1[3].z = v12;
+		a1[3].y = -a2->z;
+		a1[3].z = -a2[3].x * a1[2].z + -a2[3].y * a1[3].x + -a2->z * -a2[3].z;
 	}
 
-	void __cdecl sub_490F30(tr5_vertex* a1)
+	void __cdecl sub_490F30()
 	{
 		tr5_vertex* v1; // esi
 		double v2; // st7
 		double v3; // st7
-
+		tr5_vertex* a1 = stru_51D0B0;
 		v1 = a1;
 		v2 = a1[3].x - a1[4].x;
 		a1[2].y = -1.0;
@@ -283,7 +219,7 @@
 		a1->y = v3;
 		v1->z = v1[3].z - v1[4].z;
 		sub_491170(a1, a1 + 1, a1 + 2);
-		sub_490FA0(v1 + 5, v1);
+		sub_490FA0((tr5_vertex*)w2v_matrix_f, v1);
 	}
 
 void RotX(long angle)
@@ -401,12 +337,12 @@ D3DMATRIX stru_55D168;
 	void phd_QuickW2VMatrix(tr5_vertex src, tr5_vertex tar, int rot)
 	{
 
-		stru_51D0D4 = src;
-		stru_51D0E0 = tar;
+		stru_51D0B0[3] = src;
+		stru_51D0B0[4] = tar;
 		
 		phd_dxptr = matrix_stack_dx;
 
-		sub_490F30(dword_51D0B0);
+		sub_490F30();
 		phd_dxptr[M00] = w2v_matrix_f[M00];
 		phd_dxptr[M01] = w2v_matrix_f[M01];
 		phd_dxptr[M02] = w2v_matrix_f[M02];
@@ -423,20 +359,20 @@ D3DMATRIX stru_55D168;
 		if (rot)
 		{
 			RotZ(rot);
-			w2v_matrix_f[0] = *phd_dxptr;
-			w2v_matrix_f[1] = phd_dxptr[1];
-			w2v_matrix_f[2] = phd_dxptr[2];
-			w2v_matrix_f[4] = phd_dxptr[4];
-			w2v_matrix_f[5] = phd_dxptr[5];
-			w2v_matrix_f[6] = phd_dxptr[6];
-			w2v_matrix_f[8] = phd_dxptr[8];
-			w2v_matrix_f[9] = phd_dxptr[9];
-			w2v_matrix_f[10] = phd_dxptr[10];
+			w2v_matrix_f[M00] = phd_dxptr[M00];
+			w2v_matrix_f[M01] = phd_dxptr[M01];
+			w2v_matrix_f[M02] = phd_dxptr[M02];
+			w2v_matrix_f[M10] = phd_dxptr[M10];
+			w2v_matrix_f[M11] = phd_dxptr[M11];
+			w2v_matrix_f[M12] = phd_dxptr[M12];
+			w2v_matrix_f[M20] = phd_dxptr[M20];
+			w2v_matrix_f[M21] = phd_dxptr[M21];
+			w2v_matrix_f[M22] = phd_dxptr[M22];
 		}
 
-		w2v_matrix_f[4] = LfAspectCorrection * w2v_matrix_f[4];
-		w2v_matrix_f[5] = LfAspectCorrection * w2v_matrix_f[5];
-		w2v_matrix_f[6] = LfAspectCorrection * w2v_matrix_f[6];
+		w2v_matrix_f[M10] *= LfAspectCorrection;
+		w2v_matrix_f[M11] *= LfAspectCorrection;
+		w2v_matrix_f[M12] *= LfAspectCorrection;
 		D3DMATRIX v7;
 		SetD3DMatrixF(&v7, (LPD3DMATRIX)w2v_matrix_f);
 		stru_55D168._11 = v7._11;

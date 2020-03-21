@@ -732,6 +732,23 @@ struct D3DTLBUMPVERTEX // size = 40 bytes
 	D3DVALUE    tv2;
 };
 
+struct __declspec(align(4)) MATRIX3
+{
+	D3DVALUE _11;
+	D3DVALUE _12;
+	D3DVALUE _13;
+	D3DVALUE _14;
+	D3DVALUE _21;
+	D3DVALUE _22;
+	D3DVALUE _23;
+	D3DVALUE _24;
+	D3DVALUE _31;
+	D3DVALUE _32;
+	D3DVALUE _33;
+	D3DVALUE _34;
+};
+
+
 #pragma pack(pop)
 
 enum WINAPP_FLAGS
