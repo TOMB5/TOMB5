@@ -5,7 +5,13 @@
 #include <SDL_gamecontroller.h>
 
 extern unsigned int nullWhiteTexture;
+#if defined(D3D9)
+extern IDirect3DTexture9* vramTexture;
+extern IDirect3DSurface9* vramFrameBuffer;
+#else
 extern unsigned int vramFrameBuffer;
+extern unsigned int vramTexture;
+#endif
 extern int screenWidth;
 extern int screenHeight;
 extern int windowWidth;
@@ -13,7 +19,7 @@ extern int windowHeight;
 extern uint32_t DMAControlRegister;
 extern int assetsLoaded;
 extern unsigned int g_defaultShaderProgram;
-extern unsigned int vramTexture;
+
 extern int g_defaultFBO;
 
 

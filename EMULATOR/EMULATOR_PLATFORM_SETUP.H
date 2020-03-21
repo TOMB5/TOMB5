@@ -5,10 +5,12 @@
  * Platform specific emulator setup
  */
 #if (defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__) || defined(__MINGW32__)) && !defined(__ANDROID__)
-#define OGL
-//#define D3D9
-#define SDL2
+//#define OGL//Open Graphics Library
+#define D3D9//Direct3D9
+//#define VK//Vulkan
+
 #if defined(OGL)
+#define SDL2
 #define GLEW
 #endif
 //#define OGLES
@@ -23,6 +25,7 @@
 #elif OGLES_VERSION == 3
 #define ES3_SHADERS
 #endif
+#define SDL2
 #endif
 
 #if defined(GLEW)
@@ -66,6 +69,14 @@
 #include <GLES3/gl3.h>
 #endif
 #include <EGL/egl.h>
+#elif defined(VK)
+#include <SDL_syswm.h>
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan/vulkan.h>
+#elif defined(D3D9)
+#include <Windows.h>
+#include <d3d9.h>
+#include <d3dx9.h>
 #endif
 
 #if !defined (__EMSCRIPTEN__)

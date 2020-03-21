@@ -214,14 +214,27 @@ void* off_3348[]=
 
 int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
+	Emulator_CheckTextureIntersection(rect);
+
 #if defined(OGL) || defined(OGLES)
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-#endif
-	Emulator_CheckTextureIntersection(rect);
-#if defined(OGL) || defined(OGLES)
 	glClearColor(r/255.0f, g/255.0f, b/255.0f, 1.0f);
 	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#elif defined(D3D9)
+	if FAILED(d3ddev->SetRenderTarget(0, vramFrameBuffer))
+	{
+		eprinterr("Failed to set Render Target");
+	}
+	D3DRECT convertedRect;
+	convertedRect.x1 = rect->x;
+	convertedRect.x2 = rect->x + rect->w;
+	convertedRect.y1 = rect->y;
+	convertedRect.y2 = rect->y + rect->h;
+	if FAILED(d3ddev->Clear(1, &convertedRect, D3DCLEAR_TARGET, D3DXCOLOR(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f), 1.0f, 0))
+	{
+		eprinterr("Failed to clear Render Target");
+	}
 #endif
 	return 0;
 }
@@ -241,9 +254,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	Emulator_CheckTextureIntersection(rect);
 #if defined(OGL) || defined(OGLES)
 	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
-#endif
 	Emulator_BindTexture(vramTexture);
-#if defined(OGL) || defined(OGLES)
 	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
 #endif
 #if _DEBUG && 0
@@ -283,9 +294,8 @@ int MoveImage(RECT16* rect, int x, int y)
 	*/
 #if defined(OGL) || defined(OGLES)
 	glScissor(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
-#endif
-
 	Emulator_BindTexture(vramTexture);
+#endif
 
 	unsigned short* pixels = (unsigned short*)SDL_malloc(rect->w * RESOLUTION_SCALE * rect->h * RESOLUTION_SCALE * sizeof(unsigned short));
 #if defined(OGL) || defined(OGLES)

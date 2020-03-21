@@ -31,12 +31,73 @@
 #include <SDL_syswm.h>
 
 SDL_Window* g_window = NULL;
+
 #if defined(OGL) || defined(OGLES)
 GLuint vramTexture;
 GLuint vramFrameBuffer = 0;
 GLuint vramRenderBuffer = 0;
 GLuint nullWhiteTexture;
 GLint g_defaultFBO;
+
+#elif defined(VK)
+VkWin32SurfaceCreateInfoKHR surfaceCreateInfo =
+{
+	VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR
+};
+
+VkSurfaceKHR surface = VK_NULL_HANDLE;
+VkInstance instance = VK_NULL_HANDLE;
+
+const char* enabledExtensionsDeviceCreateInfo[] =
+{
+	 VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
+enum 
+{
+	MAX_DEVICE_COUNT = 8,
+	MAX_QUEUE_COUNT = 4,
+	MAX_PRESENT_MODE_COUNT = 6,
+	MAX_SWAPCHAIN_IMAGES = 3,
+	FRAME_COUNT = 2,
+	PRESENT_MODE_MAILBOX_IMAGE_COUNT = 3,
+	PRESENT_MODE_DEFAULT_IMAGE_COUNT = 2,
+};
+
+VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+uint32_t queueFamilyIndex;
+VkQueue queue;
+VkDevice device = VK_NULL_HANDLE;
+
+unsigned int vramTexture;///@TODO trim me
+unsigned int vramFrameBuffer = 0;
+unsigned int vramRenderBuffer = 0;
+unsigned int nullWhiteTexture;
+int g_defaultFBO;
+
+const char* enabledExtensions[] =
+{
+	VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+};
+
+VkSwapchainKHR swapchain;
+uint32_t swapchainImageCount;
+VkImage swapchainImages[MAX_SWAPCHAIN_IMAGES];
+VkExtent2D swapchainExtent;
+VkSurfaceFormatKHR surfaceFormat;
+
+#elif defined (D3D9)
+SDL_Renderer* g_renderer;
+IDirect3DDevice9* d3ddev;
+LPDIRECT3DVERTEXBUFFER9 v_buffer = NULL;
+
+struct CUSTOMVERTEX { FLOAT X, Y, Z, RHW; DWORD COLOR; };
+#define CUSTOMFVF (D3DFVF_XYZRHW | D3DFVF_DIFFUSE)
+IDirect3DTexture9* vramTexture = NULL;
+IDirect3DSurface9* vramFrameBuffer = NULL;
+unsigned int vramRenderBuffer = 0;///@FIXME delete unused?
+unsigned int nullWhiteTexture;
+int g_defaultFBO;
 #else
 unsigned int vramTexture;
 unsigned int vramFrameBuffer = 0;
@@ -44,6 +105,7 @@ unsigned int vramRenderBuffer = 0;
 unsigned int nullWhiteTexture;
 int g_defaultFBO;
 #endif
+
 int screenWidth = 0;
 int screenHeight = 0;
 int windowWidth = 0;
@@ -55,6 +117,256 @@ SysCounter counters[3] = { 0 };
 #endif
 int g_hasHintedTextureAtlas = 0;
 struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
+
+#if defined(D3D9)
+static int Emulator_InitialiseD3D9Context(char* windowName)
+{
+	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, 0);
+	g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	d3ddev = SDL_RenderGetD3D9Device(g_renderer);
+#if 0
+	/* Init graphics */
+	// create the vertices using the CUSTOMVERTEX struct
+	CUSTOMVERTEX vertices[] =
+	{
+		{ 400.0f, 62.5f, 0.5f, 1.0f, D3DCOLOR_XRGB(0, 0, 255), },
+		{ 650.0f, 500.0f, 0.5f, 1.0f, D3DCOLOR_XRGB(0, 255, 0), },
+		{ 150.0f, 500.0f, 0.5f, 1.0f, D3DCOLOR_XRGB(255, 0, 0), },
+	};
+
+	// create a vertex buffer interface called v_buffer
+	d3ddev->CreateVertexBuffer(3 * sizeof(CUSTOMVERTEX),
+		0,
+		CUSTOMFVF,
+		D3DPOOL_MANAGED,
+		&v_buffer,
+		NULL);
+
+	VOID* pVoid;    // a void pointer
+
+	// lock v_buffer and load the vertices into it
+	v_buffer->Lock(0, 0, (void**)&pVoid, 0);
+	memcpy(pVoid, vertices, sizeof(vertices));
+	v_buffer->Unlock();
+
+
+	SDL_Event event;
+
+	while (TRUE)
+	{
+		SDL_PollEvent(&event);
+		if (event.type == SDL_QUIT)
+		{
+			d3ddev->Release();
+			break;
+		}
+
+		d3ddev->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+
+		d3ddev->BeginScene();
+
+		// select which vertex format we are using
+		d3ddev->SetFVF(CUSTOMFVF);
+
+		// select the vertex buffer to display
+		d3ddev->SetStreamSource(0, v_buffer, 0, sizeof(CUSTOMVERTEX));
+
+		// copy the vertex buffer to the back buffer
+		d3ddev->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
+
+		d3ddev->EndScene();
+
+		d3ddev->Present(NULL, NULL, NULL, NULL);
+	}
+#endif
+
+	return TRUE;
+}
+#endif
+
+#if defined(VK)
+static int Emulator_InitialiseVKContext(char* windowName)
+{
+	VkApplicationInfo appInfo;
+	memset(&appInfo, 0, sizeof(VkApplicationInfo));
+	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	appInfo.pApplicationName = windowName;
+	appInfo.applicationVersion = VK_MAKE_VERSION(EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION, 0);
+	appInfo.pEngineName = EMULATOR_NAME;
+	appInfo.engineVersion = VK_MAKE_VERSION(EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION, 0);
+	appInfo.apiVersion = VK_API_VERSION_1_0;
+
+	VkInstanceCreateInfo createInfo;
+	memset(&createInfo, 0, sizeof(VkInstanceCreateInfo));
+	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	createInfo.pApplicationInfo = &appInfo;
+	createInfo.enabledExtensionCount = 2;
+	createInfo.ppEnabledExtensionNames = enabledExtensions;
+	createInfo.pNext = VK_NULL_HANDLE;
+
+	//Create Vulkan Instance
+	if (vkCreateInstance(&createInfo, NULL, &instance) != VK_SUCCESS)
+	{
+		eprinterr("Failed to create vulkan instance!");
+		return FALSE;
+	}
+
+	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_VULKAN);
+
+#if defined(OGL)
+	SDL_GL_CreateContext(g_window);
+#endif
+
+	if (g_window == NULL)
+	{
+		eprinterr("Failed to initialise VK context!\n");
+		return FALSE;
+	}
+
+	SDL_SysWMinfo sysInfo;
+	SDL_VERSION(&sysInfo.version);
+	SDL_GetWindowWMInfo(g_window, &sysInfo);
+	surfaceCreateInfo.hinstance = GetModuleHandle(0);
+	surfaceCreateInfo.hwnd = sysInfo.info.win.window;
+
+	if (vkCreateWin32SurfaceKHR(instance, &surfaceCreateInfo, NULL, &surface) != VK_SUCCESS)
+	{
+		eprinterr("Failed to initialise VK surface!\n");
+		return FALSE;
+	}
+
+	unsigned int physicalDeviceCount;
+	VkPhysicalDevice deviceHandles[MAX_DEVICE_COUNT];
+	VkQueueFamilyProperties queueFamilyProperties[MAX_QUEUE_COUNT];
+	VkPhysicalDeviceProperties deviceProperties;
+	VkPhysicalDeviceFeatures deviceFeatures;
+	VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
+
+	vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, 0);
+	physicalDeviceCount = physicalDeviceCount > MAX_DEVICE_COUNT ? MAX_DEVICE_COUNT : physicalDeviceCount;
+	vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, deviceHandles);
+
+	for (unsigned int i = 0; i < physicalDeviceCount; ++i)//Maybe 0 needs to be 1
+	{
+		unsigned int queueFamilyCount = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(deviceHandles[i], &queueFamilyCount, NULL);
+		queueFamilyCount = queueFamilyCount > MAX_QUEUE_COUNT ? MAX_QUEUE_COUNT : queueFamilyCount;
+		vkGetPhysicalDeviceQueueFamilyProperties(deviceHandles[i], &queueFamilyCount, queueFamilyProperties);
+
+		vkGetPhysicalDeviceProperties(deviceHandles[i], &deviceProperties);
+		vkGetPhysicalDeviceFeatures(deviceHandles[i], &deviceFeatures);
+		vkGetPhysicalDeviceMemoryProperties(deviceHandles[i], &deviceMemoryProperties);
+		for (unsigned int j = 0; j < queueFamilyCount; ++j) {
+
+			VkBool32 supportsPresent = VK_FALSE;
+			vkGetPhysicalDeviceSurfaceSupportKHR(deviceHandles[i], j, surface, &supportsPresent);
+
+			if (supportsPresent && (queueFamilyProperties[j].queueFlags & VK_QUEUE_GRAPHICS_BIT))
+			{
+				queueFamilyIndex = j;
+				physicalDevice = deviceHandles[i];
+				break;
+			}
+		}
+
+		if (physicalDevice)
+		{
+			break;
+		}
+	}
+
+	VkDeviceCreateInfo deviceCreateInfo;
+	VkDeviceQueueCreateInfo deviceQueueCreateInfo;
+	memset(&deviceCreateInfo, 0, sizeof(VkDeviceCreateInfo));
+	memset(&deviceQueueCreateInfo, 0, sizeof(VkDeviceQueueCreateInfo));
+
+	const float queuePriorities = { 1.0f };
+
+	deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	deviceQueueCreateInfo.queueFamilyIndex = queueFamilyIndex;
+	deviceQueueCreateInfo.queueCount = 1;
+	deviceQueueCreateInfo.pQueuePriorities = &queuePriorities;
+
+	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	deviceCreateInfo.queueCreateInfoCount = 1;
+	deviceCreateInfo.pQueueCreateInfos = 0;
+	deviceCreateInfo.enabledLayerCount = 0;
+	deviceCreateInfo.ppEnabledLayerNames = 0;
+	deviceCreateInfo.enabledExtensionCount = 1;
+	deviceCreateInfo.ppEnabledExtensionNames = enabledExtensionsDeviceCreateInfo;
+	deviceCreateInfo.pEnabledFeatures = 0;
+	deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
+
+	if (vkCreateDevice(physicalDevice, &deviceCreateInfo, NULL, &device) != VK_SUCCESS)
+	{
+		eprinterr("Failed to create VK device!");
+		return FALSE;
+	}
+
+	vkGetDeviceQueue(device, queueFamilyIndex, 0, &queue);
+
+	/* Initialise SwapChain */
+	unsigned int formatCount = 1;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, 0); // suppress validation layer
+	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, &surfaceFormat);
+	surfaceFormat.format = surfaceFormat.format == VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8A8_UNORM : surfaceFormat.format;
+
+	unsigned int presentModeCount = 0;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, NULL);
+	VkPresentModeKHR presentModes[MAX_PRESENT_MODE_COUNT];
+	presentModeCount = presentModeCount > MAX_PRESENT_MODE_COUNT ? MAX_PRESENT_MODE_COUNT : presentModeCount;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes);
+
+	VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;   // always supported.
+	for (unsigned int i = 0; i < presentModeCount; ++i)
+	{
+		if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
+		{
+			presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+			break;
+		}
+	}
+	swapchainImageCount = presentMode == VK_PRESENT_MODE_MAILBOX_KHR ? PRESENT_MODE_MAILBOX_IMAGE_COUNT : PRESENT_MODE_DEFAULT_IMAGE_COUNT;
+
+	VkSurfaceCapabilitiesKHR surfaceCapabilities;
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities);
+
+	swapchainExtent = surfaceCapabilities.currentExtent;
+	//if (swapchainExtent.width == UINT32_MAX)
+	//{
+	//	swapchainExtent.width = clamp_u32(width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
+	//	swapchainExtent.height = clamp_u32(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
+	//}
+
+	VkSwapchainCreateInfoKHR swapChainCreateInfo;
+	memset(&swapChainCreateInfo, 0, sizeof(VkSwapchainCreateInfoKHR));
+	swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	swapChainCreateInfo.surface = surface;
+	swapChainCreateInfo.minImageCount = swapchainImageCount;
+	swapChainCreateInfo.imageFormat = surfaceFormat.format;
+	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
+	swapChainCreateInfo.imageExtent = swapchainExtent;
+	swapChainCreateInfo.imageArrayLayers = 1; // 2 for stereo
+	swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	swapChainCreateInfo.preTransform = surfaceCapabilities.currentTransform;
+	swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	swapChainCreateInfo.presentMode = presentMode;
+	swapChainCreateInfo.clipped = VK_TRUE;
+
+	if (vkCreateSwapchainKHR(device, &swapChainCreateInfo, 0, &swapchain) != VK_SUCCESS)
+	{
+		eprinterr("Failed to create swap chain!");
+		return FALSE;
+	}
+
+	vkGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, NULL);
+	vkGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, swapchainImages);
+
+
+	return TRUE;
+}
+#endif
 
 static int Emulator_InitialiseGLContext(char* windowName)
 {
@@ -220,6 +532,18 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 		eprinterr("Failed to Initialise GLES Context!");
 		return FALSE;
 	}
+#elif defined(VK)
+	if (Emulator_InitialiseVKContext(windowName) == FALSE)
+	{
+		eprinterr("Failed to Initialise VK Context!");
+		return FALSE;
+	}
+#elif defined(D3D9)
+	if (Emulator_InitialiseD3D9Context(windowName) == FALSE)
+	{
+		eprinterr("Failed to Initialise D3D9 Context!");
+		return FALSE;
+	}
 #endif
 
 #if defined(OGL)
@@ -284,6 +608,12 @@ void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 	if (Emulator_InitialiseGL() == FALSE)
 	{
 		eprinterr("Failed to Intialise GL.");
+		Emulator_ShutDown();
+	}
+#elif defined(D3D9)
+	if (Emulator_InitialiseD3D() == FALSE)
+	{
+		eprinterr("Failed to Intialise D3D.");
 		Emulator_ShutDown();
 	}
 #endif
@@ -883,10 +1213,9 @@ int Emulator_InitialiseGL()
 	glEnable(GL_SCISSOR_TEST);
 	glBlendColor(0.25f, 0.25f, 0.25f, 0.5f);
 	glGenTextures(1, &vramTexture);
-#endif
+
 	Emulator_BindTexture(vramTexture);
 
-#if defined(OGL) || defined(OGLES)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 #endif
@@ -937,6 +1266,43 @@ int Emulator_InitialiseGL()
 #endif
 	return TRUE;
 }
+
+int Emulator_InitialiseD3D()
+{
+#if defined(OGL) || defined(OGLES)
+	glEnable(GL_BLEND);
+
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &g_defaultFBO);
+#endif
+
+	/* Initialise VRAM */
+	SDL_memset(vram, 0, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
+
+	/* Generate NULL white texture */
+	//Emulator_GenerateAndBindNullWhite();///@TODO
+
+#if defined(D3D9)
+	if FAILED(d3ddev->CreateTexture(VRAM_WIDTH, VRAM_HEIGHT, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A1R5G5B5, D3DPOOL_DEFAULT, &vramTexture, NULL))
+	{
+		eprinterr("Failed to create render target texture");
+		return FALSE;
+	}
+
+	vramTexture->GetSurfaceLevel(0, &vramFrameBuffer);
+
+	if FAILED(d3ddev->CreateRenderTarget(VRAM_WIDTH, VRAM_HEIGHT, D3DFMT_A1R5G5B5, D3DMULTISAMPLE_NONE, 0, TRUE, &vramFrameBuffer, NULL))
+	{
+		eprinterr("Failed to create render target");
+		return FALSE;
+	}
+
+	d3ddev->SetRenderTarget(0, vramFrameBuffer);
+
+#endif
+
+	return TRUE;
+}
+
 
 unsigned int g_lastBoundTexture = -1;
 
@@ -1011,6 +1377,7 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 	return;
 #endif
 
+#if defined(OGL) || defined(OGLES)
 	FILE* f = fopen(outputFileName, "wb");
 	if (f == NULL)
 	{
@@ -1028,15 +1395,12 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 
 	if (bReadFromFrameBuffer)
 	{
-#if defined(OGL) || defined(OGLES)
 		glReadPixels(x, y, width, height, GL_BGRA, TEXTURE_FORMAT, &pixelData[0]);
-#endif
 	}
 	else
 	{
-#if defined(OGL) || defined(OGLES)
+
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, TEXTURE_FORMAT, pixelData);
-#endif
 	}
 
 	fwrite(TGAheader, sizeof(unsigned char), 12, f);
@@ -1058,11 +1422,19 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 
 	fclose(f);
 	delete[] pixelData;
+
+#elif defined(D3D9)
+	D3DXSaveSurfaceToFile(outputFileName, D3DXIFF_TGA, vramFrameBuffer, NULL, NULL);
+#endif
 }
 #endif
 
 void Emulator_BeginScene()
 {
+#if defined(D3D9)
+	d3ddev->BeginScene();
+#endif
+
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
@@ -1213,6 +1585,8 @@ void Emulator_SwapWindow()
 	SDL_GL_SwapWindow(g_window);
 #elif defined(OGLES)
 	eglSwapBuffers(eglDisplay, eglSurface);
+#elif defined(D3D9)
+	d3ddev->Present(NULL, NULL, NULL, NULL);
 #endif
 #else
 	glFinish();
@@ -1297,6 +1671,12 @@ void Emulator_EndScene()
 #if _DEBUG && 0
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, vramFrameBuffer);
 	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
+#else
+	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
+#endif
+
+#if defined(D3D9)
+	d3ddev->EndScene();
 #endif
 
 	Emulator_SwapWindow();
@@ -1308,9 +1688,12 @@ void Emulator_EndScene()
 
 void Emulator_ShutDown()
 {
+#if defined(OGL) || defined(OGLES)
 	Emulator_DestroyFrameBuffer(&vramFrameBuffer);
 	Emulator_DestroyTextures(1, &vramTexture);
 	Emulator_DestroyTextures(1, &nullWhiteTexture);
+#endif
+
 	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
 
 	for (int i = 0; i < MAX_NUM_CACHED_TEXTURES; i++)
@@ -1320,6 +1703,12 @@ void Emulator_ShutDown()
 			Emulator_DestroyTextures(1, &cachedTextures[i].textureID);
 		}
 	}
+
+#if defined(VK)
+	vkDestroySurfaceKHR(instance, surface, 0);
+#elif defined(D3D9)
+	SDL_DestroyRenderer(g_renderer);
+#endif
 
 	SDL_DestroyWindow(g_window);
 	SDL_Quit();
@@ -1417,7 +1806,7 @@ unsigned int Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 #if defined(OGL) || defined(OGLES)
 		glGenTextures(1, &tpageTexture->textureID);
 #endif
-#if !defined(__EMSCRIPTEN__)
+#if !defined(__EMSCRIPTEN__) && !defined(VK) && !defined(D3D9)
 		assert(tpageTexture->textureID < 1000);
 #endif
 		Emulator_BindTexture(tpageTexture->textureID);

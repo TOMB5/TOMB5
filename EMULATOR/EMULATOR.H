@@ -125,7 +125,11 @@ enum BlendMode
 
 
 extern unsigned int g_lastBoundTexture;
+#if defined(OGL) || defined(OGLES)
 extern int Emulator_InitialiseGL();
+#elif defined(D3D9)
+extern int Emulator_InitialiseD3D();
+#endif
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
@@ -146,5 +150,9 @@ extern void Emulator_Scalef(float sx, float sy, float sz);
 #endif
 extern void Emulator_BindTexture(unsigned int textureId);
 extern void Emulator_DestroyTextures(int numTextures, unsigned int* textures);
+
+#if defined(D3D9)
+extern IDirect3DDevice9* d3ddev;
+#endif
 
 #endif
