@@ -192,11 +192,11 @@ void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex
 void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
 {
 	//Log(LT_Enter, "AddQuadClippedZBuffer %4d;%4d;%4d;%4d tex=%d", v1, v2, v3, v4, tex->tile_and_flag);
-	Log(LT_Enter, "AddQuadClippedZBuffer (%3f,%3f,%3f) (%3f,%3f,%3f) (%3f,%3f,%3f) (%3f,%3f,%3f) tex=%d", 
-		v[v1].sx, v[v1].sy, v[v1].sz,
-		v[v2].sx, v[v2].sy, v[v2].sz,
-		v[v3].sx, v[v3].sy, v[v3].sz,
-		v[v4].sx, v[v4].sy, v[v4].sz,
+	Log(LT_Enter, "AddQuadClippedZBuffer %d=(%3.1f,%3.1f,%3.1f) %d=(%3.1f,%3.1f,%3.1f) %d=(%.1f,%3.1f,%3.1f) %d=(%3.1f,%3.1f,%3.1f) tex=%d", 
+		v1, v[v1].sx, v[v1].sy, v[v1].sz,
+		v2, v[v2].sx, v[v2].sy, v[v2].sz,
+		v3, v[v3].sx, v[v3].sy, v[v3].sz,
+		v4, v[v4].sx, v[v4].sy, v[v4].sz,
 		tex->tile_and_flag);
 
 	WORD vp1 = d9ab34[v1];
