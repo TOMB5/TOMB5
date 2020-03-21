@@ -352,7 +352,7 @@ void ShowDebugInfo()// (F)
 		"Game mode : %d\n"
 		"Malloc : %5dK (%3d%%) used - %5dK free - %5dK total\n"
 		"Current : level #%02d / cutseq #%02d (playing=%5s)\n"
-		"DrawPrimitive calls : %9d\n"
+		"DrawPrimitive calls : %9d / %9d\n"
 		"ViewMatrix\t WorldMatrix\t Projection\t W2V\n"
 		"(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\n"
 		"(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\n"
@@ -363,7 +363,7 @@ void ShowDebugInfo()// (F)
 		"Playing XA : %3d (%s)\n"
 		"Camera : %d (%5d ; %5d ; %5d) room %3d\n"
 		"Input : ", App.fps, GnFrameCounter, mouse_x, mouse_y, gfGameMode, malloc_used / 1024, (int)(malloc_used * 100.0 / malloc_size), malloc_free / 1024, malloc_size / 1024,
-		gfCurrentLevel, cutseq_num, GLOBAL_playing_cutseq ? "TRUE" : "FALSE", App.DrawPrimitiveCnt,
+		gfCurrentLevel, cutseq_num, GLOBAL_playing_cutseq ? "TRUE" : "FALSE", App.DrawPrimitiveCnt, App.DrawPrimitiveCntBuk,
 		App.ViewMatrix._11, App.ViewMatrix._12, App.ViewMatrix._13, App.ViewMatrix._14, App.WorldMatrix._11, App.WorldMatrix._12, App.WorldMatrix._13, App.WorldMatrix._14, transform_projection._11, transform_projection._12, transform_projection._13, transform_projection._14, w2v_matrix_d3d._11, w2v_matrix_d3d._12, w2v_matrix_d3d._13, w2v_matrix_d3d._14,
 		App.ViewMatrix._21, App.ViewMatrix._22, App.ViewMatrix._23, App.ViewMatrix._24, App.WorldMatrix._21, App.WorldMatrix._22, App.WorldMatrix._23, App.WorldMatrix._24, transform_projection._21, transform_projection._22, transform_projection._23, transform_projection._24, w2v_matrix_d3d._21, w2v_matrix_d3d._22, w2v_matrix_d3d._23, w2v_matrix_d3d._24,
 		App.ViewMatrix._31, App.ViewMatrix._32, App.ViewMatrix._33, App.ViewMatrix._34, App.WorldMatrix._31, App.WorldMatrix._32, App.WorldMatrix._33, App.WorldMatrix._34, transform_projection._31, transform_projection._32, transform_projection._33, transform_projection._34, w2v_matrix_d3d._31, w2v_matrix_d3d._32, w2v_matrix_d3d._33, w2v_matrix_d3d._34,

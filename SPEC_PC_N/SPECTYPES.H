@@ -665,7 +665,7 @@ struct WINAPP
 	char pad111[272];
 	D3DMATRIX ViewMatrix;
 	char pad112[4];
-	DWORD unk11200001;
+	DWORD DrawPrimitiveCntBuk;
 	DWORD DrawPrimitiveCnt;
 	int ResChangeTimer;
 	uint16_t* AnimTextureRanges;

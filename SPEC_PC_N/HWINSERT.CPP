@@ -132,7 +132,7 @@ void DrawBucket(TEXTUREBUCKET* buk)
 
 			RestoreSpecular(buk);
 
-			App.unk11200001++;
+			App.DrawPrimitiveCntBuk++;
 		}
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
@@ -144,7 +144,7 @@ void DrawBucket(TEXTUREBUCKET* buk)
 		if (App.tBumpMap)
 			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
 
-		App.unk11200001++;
+		App.DrawPrimitiveCntBuk++;
 	}
 }
 
@@ -173,7 +173,7 @@ void DrawBuckets()
 				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[DXTextureList[buk->tpage].other_id].tex));
 				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt, D3DDP_DONOTCLIP);
 				RestoreSpecular(buk);
-				App.unk11200001++;
+				App.DrawPrimitiveCntBuk++;
 			}
 		}
 
@@ -195,7 +195,7 @@ void DrawBuckets()
 				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 				buk->tpage = -1;
 				buk->cnt = 0;
-				App.unk11200001++;
+				App.DrawPrimitiveCntBuk++;
 			}
 		}
 
@@ -210,7 +210,7 @@ void DrawBuckets()
 				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 				buk->tpage = -1;
 				buk->cnt = 0;
-				App.unk11200001++;
+				App.DrawPrimitiveCntBuk++;
 			}
 		}
 	}

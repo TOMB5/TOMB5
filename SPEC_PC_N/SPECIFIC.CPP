@@ -736,7 +736,7 @@ void S_OutputPolyList()
 	d9ab1c = 0;
 	d9ab10 = 0;
 
-	App.unk11200001 = 0;
+	App.DrawPrimitiveCntBuk = 0;
 	App.DrawPrimitiveCnt = 0;
 
 	// todo (log)
