@@ -22,6 +22,9 @@ char byte_3352 = 0;
 #if defined(OGL) || defined(OGLES)
 #define POLY_TYPE_TRIANGLES POLY_TYPE_TRIANGLES
 #define POLY_TYPE_LINES POLY_TYPE_LINES
+#elif defined(D3D9)
+#define POLY_TYPE_TRIANGLES D3DPT_TRIANGLELIST
+#define POLY_TYPE_LINES D3DPT_LINELIST
 #else
 #define POLY_TYPE_TRIANGLES 0
 #define POLY_TYPE_LINES 1
@@ -525,6 +528,8 @@ u_short GetClut(int x, int y)
 #if defined(OGLES) || defined(OGL)
 GLuint vbo;
 GLuint vao;
+#elif defined(D3D9)s
+LPDIRECT3DVERTEXBUFFER9 g_vertexBufferObject = NULL;
 #endif
 
 static unsigned short lastTpage = 0xFFFF;
@@ -572,12 +577,31 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
 
-#if defined(OGL) || defined(OGLES)
+#if defined(OGL) || defined(OGLES) || defined(D3D9)
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
 		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
+#endif
+
+#if defined(OGL) || defined(OGLES)
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
+#elif defined (D3D9)
+		d3ddev->SetRenderTarget(0, vramFrameBuffer);
+		D3DVIEWPORT9 viewPort;
+		viewPort.X = activeDrawEnv.clip.x * RESOLUTION_SCALE;
+		viewPort.Y = activeDrawEnv.clip.y * RESOLUTION_SCALE;
+		viewPort.Width = VRAM_WIDTH;
+		viewPort.Height = VRAM_HEIGHT;
+		viewPort.MinZ = 0.0f;
+		viewPort.MaxZ = 1.0f;
+		d3ddev->SetViewport(&viewPort);
+		RECT scissorRect;
+		scissorRect.top = activeDrawEnv.clip.y * RESOLUTION_SCALE;
+		scissorRect.bottom = (activeDrawEnv.clip.y * RESOLUTION_SCALE) + (activeDrawEnv.clip.h * RESOLUTION_SCALE);
+		scissorRect.left = activeDrawEnv.clip.x * RESOLUTION_SCALE;
+		scissorRect.right = (activeDrawEnv.clip.x * RESOLUTION_SCALE) + (activeDrawEnv.clip.w * RESOLUTION_SCALE);
+		d3ddev->SetScissorRect(&scissorRect);
 #endif
 
 		P_TAG* pTag = (P_TAG*)p;
@@ -616,6 +640,16 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 #if defined(OGL) || defined(OGLES)
 		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
+#elif defined(D3D9)
+
+
+		d3ddev->CreateVertexBuffer(sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, 0, (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX0), D3DPOOL_MANAGED, &g_vertexBufferObject, NULL);
+		VOID* pVertexData;
+		//Copy vertices to vertex buffer
+		g_vertexBufferObject->Lock(0, 0, (void**)&pVertexData, 0);
+		memcpy(pVertexData, &g_vertexBuffer[0], sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES);
+		g_vertexBufferObject->Unlock();
+		d3ddev->SetStreamSource(0, g_vertexBufferObject, 0, sizeof(struct Vertex));
 #endif
 
 		for (int i = 0; i < g_numSplitIndices; i++)
@@ -643,6 +677,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 #if defined(OGL) || defined(OGLES)
 			glDrawArrays(g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
+#elif defined(D3D9)
+			d3ddev->DrawPrimitive((D3DPRIMITIVETYPE)g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
 #endif
 
 #if defined(OGL)
@@ -667,6 +703,14 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #endif
 #if defined(OGL) || defined(OGLES)
 		glViewport(0, 0, windowWidth, windowHeight);
+#elif defined(D3D9)
+		viewPort.X = 0;
+		viewPort.Y = 0;
+		viewPort.Width = windowWidth;
+		viewPort.Height = windowHeight;
+		viewPort.MinZ = 0.0f;
+		viewPort.MaxZ = 1.0f;
+		d3ddev->SetViewport(&viewPort);
 #endif
 	}
 
@@ -2493,9 +2537,12 @@ void DrawOTag(u_long* p)
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
 
-#if defined(OGL) || defined(OGLES)
+#if defined(OGL) || defined(OGLES) || defined(D3D9)
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
 		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
+#endif
+
+#if defined(OGL) || defined(OGLES)
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
@@ -2737,10 +2784,12 @@ void DrawPrim(void* p)
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
 
-#if defined(OGL) || defined(OGLES)
+#if defined(OGL) || defined(OGLES) || defined(D3D9)
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
 		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
+#endif
 
+#if defined(OGL) || defined(OGLES)
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);

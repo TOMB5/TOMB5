@@ -89,12 +89,9 @@ VkSurfaceFormatKHR surfaceFormat;
 #elif defined (D3D9)
 SDL_Renderer* g_renderer;
 IDirect3DDevice9* d3ddev;
-LPDIRECT3DVERTEXBUFFER9 v_buffer = NULL;
-
-struct CUSTOMVERTEX { FLOAT X, Y, Z, RHW; DWORD COLOR; };
-#define CUSTOMFVF (D3DFVF_XYZRHW | D3DFVF_DIFFUSE)
 IDirect3DTexture9* vramTexture = NULL;
 IDirect3DSurface9* vramFrameBuffer = NULL;
+IDirect3DVertexDeclaration9* g_vertexDecl = NULL;
 unsigned int vramRenderBuffer = 0;///@FIXME delete unused?
 unsigned int nullWhiteTexture;
 int g_defaultFBO;
@@ -122,63 +119,25 @@ struct CachedTexture cachedTextures[MAX_NUM_CACHED_TEXTURES];
 static int Emulator_InitialiseD3D9Context(char* windowName)
 {
 	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, 0);
-	g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	d3ddev = SDL_RenderGetD3D9Device(g_renderer);
-#if 0
-	/* Init graphics */
-	// create the vertices using the CUSTOMVERTEX struct
-	CUSTOMVERTEX vertices[] =
+	if (g_window == NULL)
 	{
-		{ 400.0f, 62.5f, 0.5f, 1.0f, D3DCOLOR_XRGB(0, 0, 255), },
-		{ 650.0f, 500.0f, 0.5f, 1.0f, D3DCOLOR_XRGB(0, 255, 0), },
-		{ 150.0f, 500.0f, 0.5f, 1.0f, D3DCOLOR_XRGB(255, 0, 0), },
-	};
-
-	// create a vertex buffer interface called v_buffer
-	d3ddev->CreateVertexBuffer(3 * sizeof(CUSTOMVERTEX),
-		0,
-		CUSTOMFVF,
-		D3DPOOL_MANAGED,
-		&v_buffer,
-		NULL);
-
-	VOID* pVoid;    // a void pointer
-
-	// lock v_buffer and load the vertices into it
-	v_buffer->Lock(0, 0, (void**)&pVoid, 0);
-	memcpy(pVoid, vertices, sizeof(vertices));
-	v_buffer->Unlock();
-
-
-	SDL_Event event;
-
-	while (TRUE)
-	{
-		SDL_PollEvent(&event);
-		if (event.type == SDL_QUIT)
-		{
-			d3ddev->Release();
-			break;
-		}
-
-		d3ddev->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
-
-		d3ddev->BeginScene();
-
-		// select which vertex format we are using
-		d3ddev->SetFVF(CUSTOMFVF);
-
-		// select the vertex buffer to display
-		d3ddev->SetStreamSource(0, v_buffer, 0, sizeof(CUSTOMVERTEX));
-
-		// copy the vertex buffer to the back buffer
-		d3ddev->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
-
-		d3ddev->EndScene();
-
-		d3ddev->Present(NULL, NULL, NULL, NULL);
+		eprinterr("Failed to initialise SDL window!\n");
+		return FALSE;
 	}
-#endif
+	
+	g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (g_renderer == NULL)
+	{
+		eprinterr("Failed to initialise SDL renderer!\n");
+		return FALSE;
+	}
+	
+	d3ddev = SDL_RenderGetD3D9Device(g_renderer);
+	if (g_renderer == NULL)
+	{
+		eprinterr("Failed to obtain D3D9 devicer!\n");
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -299,7 +258,7 @@ static int Emulator_InitialiseVKContext(char* windowName)
 
 	if (vkCreateDevice(physicalDevice, &deviceCreateInfo, NULL, &device) != VK_SUCCESS)
 	{
-		eprinterr("Failed to create VK device!");
+		eprinterr("Failed to create VK device!\n");
 		return FALSE;
 	}
 
@@ -356,7 +315,7 @@ static int Emulator_InitialiseVKContext(char* windowName)
 
 	if (vkCreateSwapchainKHR(device, &swapChainCreateInfo, 0, &swapchain) != VK_SUCCESS)
 	{
-		eprinterr("Failed to create swap chain!");
+		eprinterr("Failed to create swap chain!\n");
 		return FALSE;
 	}
 
@@ -378,7 +337,7 @@ static int Emulator_InitialiseGLContext(char* windowName)
 
 	if (g_window == NULL)
 	{
-		eprinterr("Failed to initialise GL context!\n");
+		eprinterr("Failed to initialise SDL window or GL context!\n");
 		return FALSE;
 	}
 
@@ -523,25 +482,25 @@ static int Emulator_InitialiseSDL(char* windowName, int screenWidth, int screenH
 #if defined(OGL)
 	if (Emulator_InitialiseGLContext(windowName) == FALSE)
 	{
-		eprinterr("Failed to Initialise GL Context!");
+		eprinterr("Failed to Initialise GL Context!\n");
 		return FALSE;
 	}
 #elif defined(OGLES)
 	if (Emulator_InitialiseGLESContext(windowName) == FALSE)
 	{
-		eprinterr("Failed to Initialise GLES Context!");
+		eprinterr("Failed to Initialise GLES Context!\n");
 		return FALSE;
 	}
 #elif defined(VK)
 	if (Emulator_InitialiseVKContext(windowName) == FALSE)
 	{
-		eprinterr("Failed to Initialise VK Context!");
+		eprinterr("Failed to Initialise VK Context!\n");
 		return FALSE;
 	}
 #elif defined(D3D9)
 	if (Emulator_InitialiseD3D9Context(windowName) == FALSE)
 	{
-		eprinterr("Failed to Initialise D3D9 Context!");
+		eprinterr("Failed to Initialise D3D9 Context!\n");
 		return FALSE;
 	}
 #endif
@@ -586,34 +545,34 @@ void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight)
 
 	if (Emulator_InitialiseSDL(windowName, screenWidth, screenHeight) == FALSE)
 	{
-		eprinterr("Failed to Intialise SDL");
+		eprinterr("Failed to Intialise SDL\n");
 		Emulator_ShutDown();
 	}
 
 #if defined(GLEW)
 	if (Emulator_InitialiseGLEW() == FALSE)
 	{
-		eprinterr("Failed to Intialise GLEW");
+		eprinterr("Failed to Intialise GLEW\n");
 		Emulator_ShutDown();
 	}
 #endif
 
 	if (Emulator_InitialiseCore() == FALSE)
 	{
-		eprinterr("Failed to Intialise Emulator Core.");
+		eprinterr("Failed to Intialise Emulator Core.\n");
 		Emulator_ShutDown();
 	}
 
 #if defined(OGL) || defined(OGLES)
 	if (Emulator_InitialiseGL() == FALSE)
 	{
-		eprinterr("Failed to Intialise GL.");
+		eprinterr("Failed to Intialise GL.\n");
 		Emulator_ShutDown();
 	}
 #elif defined(D3D9)
 	if (Emulator_InitialiseD3D() == FALSE)
 	{
-		eprinterr("Failed to Intialise D3D.");
+		eprinterr("Failed to Intialise D3D.\n");
 		Emulator_ShutDown();
 	}
 #endif
@@ -1018,17 +977,25 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 	{
 		if (bMultiplyColour)
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[0].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
 			vertex[0].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
 			vertex[0].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
 			vertex[0].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[0].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT, (1.0f / 255.0f) * 255);
+#endif
 		}
 		else
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[0].col[0] = (1.0f / 255.0f) * col0[0];
 			vertex[0].col[1] = (1.0f / 255.0f) * col0[1];
 			vertex[0].col[2] = (1.0f / 255.0f) * col0[2];
 			vertex[0].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[0].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col0[0]), ((1.0f / 255.0f) * col0[1]), ((1.0f / 255.0f) * col0[2]), (1.0f / 255.0f) * 255);
+#endif
 		}
 	}
 
@@ -1036,34 +1003,50 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 	{
 		if (bMultiplyColour)
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[1].col[0] = ((1.0f / 255.0f) * col1[0]) * VERTEX_COLOUR_MULT;
 			vertex[1].col[1] = ((1.0f / 255.0f) * col1[1]) * VERTEX_COLOUR_MULT;
 			vertex[1].col[2] = ((1.0f / 255.0f) * col1[2]) * VERTEX_COLOUR_MULT;
 			vertex[1].col[3] = (1.0f / 255.0f) * 255;
-		}
+#elif defined(D3D9)
+			vertex[1].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col1[0]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col1[1]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col1[2]) * VERTEX_COLOUR_MULT, (1.0f / 255.0f) * 255);
+#endif
+	}
 		else
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[1].col[0] = (1.0f / 255.0f) * col1[0];
 			vertex[1].col[1] = (1.0f / 255.0f) * col1[1];
 			vertex[1].col[2] = (1.0f / 255.0f) * col1[2];
 			vertex[1].col[3] = (1.0f / 255.0f) * 255;
-		}
+#elif defined(D3D9)
+			vertex[1].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col1[0]), ((1.0f / 255.0f) * col1[1]), ((1.0f / 255.0f) * col1[2]), (1.0f / 255.0f) * 255);
+#endif
+}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[1].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
 			vertex[1].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
 			vertex[1].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
 			vertex[1].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[1].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT, (1.0f / 255.0f) * 255);
+#endif
 		}
 		else
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[1].col[0] = (1.0f / 255.0f) * col0[0];
 			vertex[1].col[1] = (1.0f / 255.0f) * col0[1];
 			vertex[1].col[2] = (1.0f / 255.0f) * col0[2];
 			vertex[1].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[1].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col0[0]), ((1.0f / 255.0f) * col0[1]), ((1.0f / 255.0f) * col0[2]), (1.0f / 255.0f) * 255);
+#endif
 		}
 	}
 
@@ -1071,34 +1054,50 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 	{
 		if (bMultiplyColour)
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[2].col[0] = ((1.0f / 255.0f) * col2[0]) * VERTEX_COLOUR_MULT;
 			vertex[2].col[1] = ((1.0f / 255.0f) * col2[1]) * VERTEX_COLOUR_MULT;
 			vertex[2].col[2] = ((1.0f / 255.0f) * col2[2]) * VERTEX_COLOUR_MULT;
 			vertex[2].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[2].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col2[0]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col2[1]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col2[2]) * VERTEX_COLOUR_MULT, (1.0f / 255.0f) * 255);
+#endif
 		}
 		else
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[2].col[0] = (1.0f / 255.0f) * col2[0];
 			vertex[2].col[1] = (1.0f / 255.0f) * col2[1];
 			vertex[2].col[2] = (1.0f / 255.0f) * col2[2];
 			vertex[2].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[2].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col2[0]), ((1.0f / 255.0f) * col2[1]), ((1.0f / 255.0f) * col2[2]), (1.0f / 255.0f) * 255);
+#endif
 		}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[2].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
 			vertex[2].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
 			vertex[2].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
 			vertex[2].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[2].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT, (1.0f / 255.0f) * 255);
+#endif
 		}
 		else
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[2].col[0] = (1.0f / 255.0f) * col0[0];
 			vertex[2].col[1] = (1.0f / 255.0f) * col0[1];
 			vertex[2].col[2] = (1.0f / 255.0f) * col0[2];
 			vertex[2].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[2].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col0[0]), ((1.0f / 255.0f) * col0[1]), ((1.0f / 255.0f) * col0[2]), (1.0f / 255.0f) * 255);
+#endif
 		}
 	}
 
@@ -1106,34 +1105,50 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 	{
 		if (bMultiplyColour)
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[3].col[0] = ((1.0f / 255.0f) * col3[0]) * VERTEX_COLOUR_MULT;
 			vertex[3].col[1] = ((1.0f / 255.0f) * col3[1]) * VERTEX_COLOUR_MULT;
 			vertex[3].col[2] = ((1.0f / 255.0f) * col3[2]) * VERTEX_COLOUR_MULT;
 			vertex[3].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[3].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col3[0]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col3[1]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col3[2]) * VERTEX_COLOUR_MULT, (1.0f / 255.0f) * 255);
+#endif
 		}
 		else
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[3].col[0] = (1.0f / 255.0f) * col3[0];
 			vertex[3].col[1] = (1.0f / 255.0f) * col3[1];
 			vertex[3].col[2] = (1.0f / 255.0f) * col3[2];
 			vertex[3].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[3].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col3[0]), ((1.0f / 255.0f) * col3[1]), ((1.0f / 255.0f) * col3[2]), (1.0f / 255.0f) * 255);
+#endif
 		}
 	}
 	else
 	{
 		if (bMultiplyColour)
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[3].col[0] = ((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT;
 			vertex[3].col[1] = ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT;
 			vertex[3].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
 			vertex[3].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[3].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col0[0]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col0[1]) * VERTEX_COLOUR_MULT, ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT, (1.0f / 255.0f) * 255);
+#endif
 		}
 		else
 		{
+#if defined(OGL) || defined(OGLES)
 			vertex[3].col[0] = (1.0f / 255.0f) * col0[0];
 			vertex[3].col[1] = (1.0f / 255.0f) * col0[1];
 			vertex[3].col[2] = (1.0f / 255.0f) * col0[2];
 			vertex[3].col[3] = (1.0f / 255.0f) * 255;
+#elif defined(D3D9)
+			vertex[3].col = D3DCOLOR_COLORVALUE(((1.0f / 255.0f) * col0[0]), ((1.0f / 255.0f) * col0[1]), ((1.0f / 255.0f) * col0[2]), (1.0f / 255.0f) * 255);
+#endif
 		}
 	}
 
@@ -1267,13 +1282,10 @@ int Emulator_InitialiseGL()
 	return TRUE;
 }
 
+#if defined(D3D9)
 int Emulator_InitialiseD3D()
 {
-#if defined(OGL) || defined(OGLES)
-	glEnable(GL_BLEND);
-
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &g_defaultFBO);
-#endif
+	d3ddev->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 
 	/* Initialise VRAM */
 	SDL_memset(vram, 0, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
@@ -1282,9 +1294,26 @@ int Emulator_InitialiseD3D()
 	//Emulator_GenerateAndBindNullWhite();///@TODO
 
 #if defined(D3D9)
+
+	D3DVERTEXELEMENT9 vertexDecl[] =
+	{
+	  {0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+	  {0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
+	  {0, 20, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
+	  D3DDECL_END()
+	};
+
+	if FAILED(d3ddev->CreateVertexDeclaration(vertexDecl, &g_vertexDecl))
+	{
+		eprinterr("Failed to create vertex declaration!\n");
+		return FALSE;
+	}
+
+	d3ddev->SetVertexDeclaration(g_vertexDecl);
+
 	if FAILED(d3ddev->CreateTexture(VRAM_WIDTH, VRAM_HEIGHT, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A1R5G5B5, D3DPOOL_DEFAULT, &vramTexture, NULL))
 	{
-		eprinterr("Failed to create render target texture");
+		eprinterr("Failed to create render target texture!\n");
 		return FALSE;
 	}
 
@@ -1292,7 +1321,7 @@ int Emulator_InitialiseD3D()
 
 	if FAILED(d3ddev->CreateRenderTarget(VRAM_WIDTH, VRAM_HEIGHT, D3DFMT_A1R5G5B5, D3DMULTISAMPLE_NONE, 0, TRUE, &vramFrameBuffer, NULL))
 	{
-		eprinterr("Failed to create render target");
+		eprinterr("Failed to create render target!\n");
 		return FALSE;
 	}
 
@@ -1302,7 +1331,7 @@ int Emulator_InitialiseD3D()
 
 	return TRUE;
 }
-
+#endif
 
 unsigned int g_lastBoundTexture = -1;
 
@@ -1955,8 +1984,6 @@ unsigned int Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 	}
 	}
 
-
-
 	return tpageTexture->textureID;
 }
 
@@ -2036,9 +2063,10 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 	g_PreviousSemiTrans = semiTransparent;
 }
 
-#if defined(OGLES) || defined(OGL)
+#if defined(OGLES) || defined(OGL) || defined(D3D9)
 void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar)
 {
+#if defined(OGL) || defined(OGLES)
 	float a = 2.0f / (right - left);
 	float b = 2.0f / (top - bottom);
 	float c = -2.0f / (zfar - znear);
@@ -2057,10 +2085,16 @@ void Emulator_Ortho2D(float left, float right, float bottom, float top, float zn
 
 	GLint projectionUniform = glGetUniformLocation(g_defaultShaderProgram, "Projection");
 	glUniformMatrix4fv(projectionUniform, 1, GL_FALSE, &ortho[0]);
+#elif defined(D3D9)
+	D3DXMATRIX ortho;
+	D3DXMatrixOrthoOffCenterLH(&ortho, left, right, top, bottom, -1.0f, 1.0f);
+	d3ddev->SetTransform(D3DTS_PROJECTION, &ortho);
+#endif
 }
 
 void Emulator_Scalef(float sx, float sy, float sz)
 {
+#if defined(OGL) || defined(OGLES)
 	float scale[16] =
 	{
 		sx, 0, 0, 0,
@@ -2071,6 +2105,8 @@ void Emulator_Scalef(float sx, float sy, float sz)
 
 	GLint scaleUniform = glGetUniformLocation(g_defaultShaderProgram, "Scale");
 	glUniformMatrix4fv(scaleUniform, 1, GL_FALSE, &scale[0]);
+#endif
+
 }
 
 #endif
