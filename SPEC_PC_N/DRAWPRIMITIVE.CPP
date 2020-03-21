@@ -1621,6 +1621,8 @@ float flt_511A64 = SECTOR(12);
 
 void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, int num_vert_2, int a5)
 {
+	Log(LT_Enter, "RoomletTransformLight vert=%d lights=%d vert_2=%d a5=%5d", num_vert, num_lights, num_vert_2, a5);
+	
 	int water = camera.underwater;
 	if (!(App.Flags & WA_BACK_BUFFER))
 		water = 0;

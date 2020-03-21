@@ -655,8 +655,9 @@ struct WINAPP
 	DWORD orig_flags;
 	BYTE PlayingFMV;
 	DWORD OriginalBPP;
-
+	
 	BYTE					tAutoTarget;
+	BYTE padd[3];
 	DWORD dword_D9AC34;
 	DWORD dword_D9AC38;
 

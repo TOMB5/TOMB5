@@ -287,6 +287,9 @@ void DrawDebugPost()
 	//S_InitD3DMatrix();
 	//SetD3DViewMatrix();
 	//DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &w2v_matrix_d3d));
+	//
+	D3DMATRIX test(0.982, 0.012, 0.189, 0, 0, 0.998, -0.066, 0, -0.189, 0.065, 0.98, 0, 6445.135, 1617.68, 715.305, 1);
+	DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &test));
 
 	{
 		D3DVECTOR p1{ 1900.0f, 000.0f, 0.2f };
@@ -370,7 +373,7 @@ void ShowDebugInfo()// (F)
 		XATrack, XATrack == -1 ? "---" : xa_filenames[XATrack],
 		camera.type, camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number);
 	GetInputStr(buf + strlen(buf));
-	//PrintString(10, 10, 0, buf, 0);
+	PrintString(10, 10, 0, buf, 0);
 	
 	if (keymap[DIK_U])
 	{

@@ -9,6 +9,7 @@
 #include "GETSTUFF.H"
 #elif PC_VERSION
 #include "GLOBAL.H"
+#include "INCLUDE.H"
 #endif
 #include "OBJECTS.H"
 #include INPUT_H
@@ -427,8 +428,11 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 
 void CalculateSpotCams()//37ED0(<), 383D0(?) 
 {
+#if PC_VERSION
+	Log(LT_Enter, "CalculateSpotCams");
+#endif
 	long cpx; // stack offset -96
-	long cpy; // stack offset -92
+	long cpy; // stack offset -9lo2
 	long cpz; // stack offset -88
 	long ctx; // stack offset -84
 	long cty; // stack offset -80
@@ -704,6 +708,19 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 		}//loc_38650
 	}//loc_38650
 
+#if PC_VERSION
+	phd_QuickW2VMatrix({
+			(float)camera.pos.x,
+			(float)camera.pos.y,
+			(float)camera.pos.z
+		},
+		{
+			(float)camera.target.x,
+			(float)camera.target.y,
+			(float)camera.target.z
+		}, 0);
+#endif
+	
 	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, croll);
 
 	///sp = s0

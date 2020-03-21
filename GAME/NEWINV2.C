@@ -2854,7 +2854,7 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 
 	phd_LookAt(0, 1024, 0, 0, 0, 0, 0);
 #if PC_VERSION
-	phd_QuickW2VMatrix(0, 1024, 0, 100, 0, 200, 0);
+	phd_QuickW2VMatrix({ 0, 1024, 0 }, { 100, 0, 200 }, 0);
 #else
 	mQuickW2VMatrix();
 #endif
