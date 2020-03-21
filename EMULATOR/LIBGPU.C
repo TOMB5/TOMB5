@@ -227,10 +227,10 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 		eprinterr("Failed to set Render Target");
 	}
 	D3DRECT convertedRect;
-	convertedRect.x1 = rect->x;
-	convertedRect.x2 = rect->x + rect->w;
-	convertedRect.y1 = rect->y;
-	convertedRect.y2 = rect->y + rect->h;
+	convertedRect.x1 = rect->x * RESOLUTION_SCALE;
+	convertedRect.x2 = (rect->x * RESOLUTION_SCALE) + (rect->w * RESOLUTION_SCALE);
+	convertedRect.y1 = rect->y * RESOLUTION_SCALE;
+	convertedRect.y2 = (rect->y * RESOLUTION_SCALE) + (rect->h * RESOLUTION_SCALE);
 	if FAILED(d3ddev->Clear(1, &convertedRect, D3DCLEAR_TARGET, D3DXCOLOR(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f), 1.0f, 0))
 	{
 		eprinterr("Failed to clear Render Target");
