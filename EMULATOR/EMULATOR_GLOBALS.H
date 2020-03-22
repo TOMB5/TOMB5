@@ -4,11 +4,13 @@
 
 #include <SDL_gamecontroller.h>
 
-extern unsigned int nullWhiteTexture;
+
 #if defined(D3D9)
+extern IDirect3DTexture9* nullWhiteTexture;
 extern IDirect3DTexture9* vramTexture;
 extern IDirect3DSurface9* vramFrameBuffer;
 #else
+extern unsigned int nullWhiteTexture;
 extern unsigned int vramFrameBuffer;
 extern unsigned int vramTexture;
 #endif
@@ -25,7 +27,11 @@ extern int g_defaultFBO;
 
 struct CachedTexture
 {
+#if defined(OGL) || defined(OGLES)
 	unsigned int textureID;
+#elif defined(D3D9)
+	IDirect3DTexture9* texture;
+#endif
 	unsigned short tpage;
 	unsigned short clut;
 	unsigned int lastAccess;

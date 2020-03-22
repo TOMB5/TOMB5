@@ -135,7 +135,11 @@ extern int Emulator_InitialiseD3D();
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
+#if defined(OGL) || defined(OGLES)
 extern unsigned int Emulator_GenerateTpage(unsigned short tpage, unsigned short clut);
+#else
+IDirect3DTexture9* Emulator_GenerateTpage(unsigned short tpage, unsigned short clut);
+#endif
 extern void Emulator_DestroyFrameBuffer(unsigned int* fbo);
 extern void Emulator_GenerateFrameBuffer(unsigned int* fbo);
 extern void Emulator_GenerateAndBindNullWhite();
@@ -150,7 +154,11 @@ extern void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned cha
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
 extern void Emulator_Scalef(float sx, float sy, float sz);
 #endif
+#if defined(OGL) || defined(OGLES)
 extern void Emulator_BindTexture(unsigned int textureId);
+#elif defined(D3D9)
+extern void Emulator_BindTexture(IDirect3DTexture9* texture);
+#endif
 extern void Emulator_DestroyTextures(int numTextures, unsigned int* textures);
 
 #if defined(D3D9)

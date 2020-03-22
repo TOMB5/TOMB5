@@ -20,8 +20,8 @@ int dword_3410 = 0;
 char byte_3352 = 0;
 
 #if defined(OGL) || defined(OGLES)
-#define POLY_TYPE_TRIANGLES POLY_TYPE_TRIANGLES
-#define POLY_TYPE_LINES POLY_TYPE_LINES
+#define POLY_TYPE_TRIANGLES GL_TRIANGLES
+#define POLY_TYPE_LINES GL_LINES
 #elif defined(D3D9)
 #define POLY_TYPE_TRIANGLES D3DPT_TRIANGLELIST
 #define POLY_TYPE_LINES D3DPT_LINELIST
@@ -173,7 +173,11 @@ struct VertexBufferSplitIndex
 {
 	unsigned short splitIndex;
 	unsigned short numVertices;
+#if defined(OGL) || defined(OGLES)
 	unsigned int textureId;
+#elif defined(D3D9)
+	IDirect3DTexture9* textureId;
+#endif
 	unsigned char semiTrans;
 	unsigned char abr;
 	unsigned char primitiveType;
@@ -276,23 +280,34 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 		for (int x = 0; x < rect->w; x++)
 		{
 #pragma pack(push,1)
+			struct argb5551
+			{
+				unsigned short a : 1;//5
+				unsigned short r : 5;//1
+				unsigned short g : 5;//5
+				unsigned short b : 5;//5
+			};
+
 			struct argb1555
 			{
-				unsigned short r : 5;
-				unsigned short g : 5;
-				unsigned short b : 5;
-				unsigned short a : 1;
+				unsigned short r : 5;//1
+				unsigned short g : 5;//5
+				unsigned short b : 5;//5
+				unsigned short a : 1;//5
 			};
 #pragma pack(pop)
 			struct argb1555* dest_conv = (struct argb1555*)&dest[x];
 			struct argb1555* src_conv = (struct argb1555*)&src[x];
 
-			dest_conv->r = src_conv->r;
-			dest_conv->g = src_conv->g;
-			int b = src_conv->b;
-			dest_conv->b = dest_conv->r;
-			dest_conv->r = b;
-			dest_conv->a |= src_conv->a;
+			//int r = src_conv->r;
+			//dest_conv->r = src_conv->b;
+			//dest_conv->g = src_conv->g;
+			//dest_conv->b = r;
+			dest[x] = src[x];
+			//In D3D9 transparent is 0, 1 is not transparent.
+			//0x8000 is transparent
+			//In OpenGL transparent is 1, 0 is not transparent
+			dest[x] |= 0x8000u;
 		}
 
 		src += rect->w;
@@ -528,7 +543,7 @@ u_short GetClut(int x, int y)
 #if defined(OGLES) || defined(OGL)
 GLuint vbo;
 GLuint vao;
-#elif defined(D3D9)s
+#elif defined(D3D9)
 LPDIRECT3DVERTEXBUFFER9 g_vertexBufferObject = NULL;
 #endif
 
@@ -641,8 +656,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #if defined(OGL) || defined(OGLES)
 		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 #elif defined(D3D9)
-
-
 		d3ddev->CreateVertexBuffer(sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, 0, (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX0), D3DPOOL_MANAGED, &g_vertexBufferObject, NULL);
 		VOID* pVertexData;
 		//Copy vertices to vertex buffer
@@ -694,6 +707,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glDisableVertexAttribArray(posAttrib);
 		glDisableVertexAttribArray(colAttrib);
 		glDisableVertexAttribArray(texAttrib);
+#elif defined(D3D9)
+		g_vertexBufferObject->Release();
 #endif
 
 #if (defined OGL) || (defined(OGLES) && OGLES_VERSION == 3)
@@ -2592,7 +2607,11 @@ void DrawOTag(u_long* p)
 		{
 			if (g_texturelessMode)
 			{
+#if defined(OGL) || defined(OGLES)
 				Emulator_BindTexture(nullWhiteTexture);
+#else
+				///@TODO D3D9
+#endif
 			}
 			else
 			{
