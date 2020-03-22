@@ -511,7 +511,7 @@ int numLvlMeshes;
 
 		void* buf = malloc(0x40000);
 
-		if (gfCurrentLevel != LVL5_TITLE)
+		if (gfCurrentLevel == LVL5_TITLE)
 		{
 			texbuf = nullptr;
 			size_t length;
@@ -532,7 +532,7 @@ int numLvlMeshes;
 				break;
 			}
 
-			void* pakbuf = malloc(length);
+			void* pakbuf = malloc(*(DWORD*)texbuf);
 
 			Decompress(pakbuf, (char*)texbuf + 4, length - 4, *(DWORD*)texbuf);
 			free(texbuf);
@@ -541,19 +541,20 @@ int numLvlMeshes;
 
 			for(int i = 0; i < 2; i++)
 			{
-				char* v46 = (char*)buf;
+				DWORD* v46 = (DWORD*)buf;
 				char* ptr2 = ptr1;
 
-				for(int j = 0; j < 256; j++)
+				for(int y = 0; y < 256; y++)
 				{
 					char* ptr3 = ptr2;
 
-					for(int k = 0; k < 256; k++)
+					for(int x = 0; x < 256; x++)
 					{
-						uint8_t red = ptr3[0];
-						uint8_t green = ptr3[1];
+						uint8_t red = *ptr3++;
+						uint8_t green = *ptr3++;
+						uint8_t blue = *ptr3++;
+						
 						uint8_t alpha = 255;
-						uint8_t blue = ptr3[2];
 
 						if (red == 255 && green == 0 && blue == 255) // magenta key
 						{
@@ -563,6 +564,8 @@ int numLvlMeshes;
 						}
 
 						*v46++ = RGBA(red, green, blue, alpha);
+
+						
 					}
 
 					ptr2 += 3 * 512;
