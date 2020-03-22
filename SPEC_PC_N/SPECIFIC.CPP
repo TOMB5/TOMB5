@@ -33,6 +33,7 @@
 #include <ctime>
 #include <zlib.h>
 #include "CONTROL.H"
+#include "EFFECTS.H"
 
 #if DEBUG
 #pragma comment(lib, "zlibstaticd.lib")
@@ -1120,14 +1121,330 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	UNIMPLEMENTED();
 }
 
+enum
+{
+	MENU_MAIN_MENU,
+	MENU_LOAD_MENU,
+	MENU_LEVEL_SELECT_MENU,
+	MENU_SPECIAL_FEATURES_MENU
+};
 
+DWORD qword_5082F0 = 0;
+DWORD qword_5082F4 = 0;
 
 int TitleOptions()
 {
-	// TODO TODO TODO
-	SuperShowLogo();
-	UNIMPLEMENTED();
-	return 0;
+	int result; // eax
+	signed int v1; // ebx
+	char v2; // cl
+	int v3; // ebp
+	int v4; // esi
+	int v5; // ebp
+	int v6; // edi
+	__int64 v7; // rax
+	int v8; // ebx
+	int v9; // ebx
+	signed int v10; // eax
+	int v11; // esi
+	char v12; // al
+	char v13; // al
+	char v14; // al
+	char v15; // al
+	__int64 v16; // rax
+	__int64 v17; // rax
+	bool v18; // zf
+	int v19; // eax
+	char v20; // bl
+	__int64 v21; // rax
+	int v22; // [esp+Ch] [ebp-14h]
+	int i; // [esp+10h] [ebp-10h]
+	char v24; // [esp+10h] [ebp-10h]
+	signed __int64 v25; // [esp+14h] [ebp-Ch]
+	int v26; // [esp+14h] [ebp-Ch]
+
+	result = dword_51CE44;
+	v1 = 0;
+	if (dword_51CE44)
+	{
+		if (dword_C87BF0 == 2)
+		{
+			v2 = dword_51CE0C;
+			dword_51CE0C = 0;
+			dword_51CE44 = 0;
+			unk_51CE3C = 0;
+			dword_51CE40 = 0;
+			gfLevelComplete = v2;
+			qword_5082F0 = 1;
+			return result;
+		}
+		input = 0;
+		dbinput = 0;
+	}
+	if (bDoCredits)
+	{
+		if (DoCredits())
+			return 0;
+		bDoCredits = 0;
+		DestFadeScreenHeight = 0;
+	}
+	if (unk_51CE2A)
+	{
+		dword_51CE40 = 0;
+		qword_5082F0 = 1;
+		return sub_401361();
+	}
+	if (!unk_51CE3C)
+	{
+		switch (dword_51CE40)
+		{
+		case 0:
+			goto LABEL_37;
+		case 1:
+			v3 = font_height + phd_winymin;
+			PrintString(
+				phd_centerx,
+				font_height + phd_winymin,
+				6,
+				&gfStringWad[gfStringOffset[STR_SELECT_LEVEL]],
+				FF_CENTER);
+			v4 = font_height;
+			v5 = font_height + v3;
+			if (Gameflow->nLevels >= 10)
+			{
+				v7 = qword_5082F0;
+				v8 = 0;
+				for (i = 10; v7; ++v8)
+					v7 >>= 1;
+				v6 = v8 - 9;
+				if (v8 - 9 >= 1)
+				{
+					if (v8 - 9 > 1)
+					{
+						PrintString(32, v5 + font_height, 6, "\x18", 0);
+						PrintString(phd_winxmax - 48, v5 + font_height, 6, "\x18", 0);
+						v4 = font_height;
+					}
+				}
+				else
+				{
+					v6 = 1;
+				}
+				if (v8 != Gameflow->nLevels - 1)
+				{
+					PrintString(32, v5 + 10 * v4, 6, "\x1A", 0);
+					PrintString(phd_winxmax - 48, v5 + 10 * font_height, 6, "\x1A", 0);
+					v4 = font_height;
+				}
+			}
+			else
+			{
+				v6 = 1;
+				i = Gameflow->nLevels - 1;
+			}
+			v22 = v6;
+			v26 = i + v6;
+			if (v6 < i + v6)
+			{
+				v9 = v6 - 1;
+				while (1)
+				{
+					v5 += v4;
+					if (qword_5082F0 & (1 << v9))
+						v24 = 1;
+					else
+						v24 = 3 - (*((_BYTE*)&nframes + v22 + 3) != 0);
+					PrintString(
+						phd_centerx,
+						v5,
+						v24,
+						&gfStringWad[gfStringOffset[byte_E5C321[v9]]],
+						0x8000);
+					if (qword_5082F0 & (1 << v9))
+						dword_51CE50 = v9;
+					++v9;
+					if (++v22 >= v26)
+						break;
+					v4 = font_height;
+				}
+			}
+			v1 = 0;
+			v25 = 1i64 << (Gameflow->nLevels - 2);
+			break;
+		case 2:
+			if (Gameflow->LoadSaveEnabled)
+			{
+				v10 = DoLoadSave(0x800000);
+				if (v10 >= 0)
+				{
+					S_LoadGame(v10);
+					v1 = 2;
+				}
+			}
+			else
+			{
+				SoundEffect(SFX_LARA_NO, 0, SFX_ALWAYS);
+				dword_51CE40 = 0;
+			LABEL_37:
+				v11 = phd_winymax - 4 * font_height;
+				SuperShowLogo();
+				Chris_Menu = 0;
+				v12 = 1;
+				if (!(qword_5082F0 & 1))
+					v12 = 2;
+				PrintString(phd_centerx, v11, v12, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], FF_CENTER);
+				v13 = 1;
+				if (!(qword_5082F0 & 2))
+					v13 = 2;
+				PrintString(
+					phd_centerx,
+					v11 + font_height,
+					v13,
+					&gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]],
+					FF_CENTER);
+				v14 = 1;
+				if (!(qword_5082F0 & 4))
+					v14 = 2;
+				PrintString(
+					phd_centerx,
+					v11 + 2 * font_height,
+					v14,
+					&gfStringWad[gfStringOffset[STR_OPTIONS]],
+					FF_CENTER);
+				v15 = 1;
+				if (!(qword_5082F0 & 8))
+					v15 = 2;
+				PrintString(
+					phd_centerx,
+					v11 + 2 * font_height + font_height,
+					v15,
+					&gfStringWad[gfStringOffset[STR_EXIT]],
+					FF_CENTER);
+				v25 = 8i64;
+			}
+			break;
+		case 3:
+			DoOptions();
+			break;
+		default:
+			break;
+		}
+		
+		if (dword_51CE40 < 2)
+		{
+			if (dbinput & IN_FORWARD)
+			{
+				if (qword_5082F0 > 1)
+				{
+					qword_5082F0 >>= 1;
+					qword_5082F4 >>= 1;
+				}
+				
+				SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
+			}
+			
+			if (dbinput & IN_BACK)
+			{
+				if (qword_5082F0 < v25)
+				{
+					qword_5082F0 <<= 1;
+					qword_5082F4 <<= 1;
+				}
+				
+				SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
+			}
+		}
+		
+		if (dbinput & IN_DESELECT)
+		{
+			v18 = dword_51CE40 == 0;
+			if (dword_51CE40 <= 0)
+				goto LABEL_60;
+			dword_51CE40 = 0;
+			qword_5082F0 = qword_51CE18;
+			S_SoundStopAllSamples();
+			SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
+		}
+		v18 = dword_51CE40 == 0;
+	LABEL_60:
+		if (v18)
+		{
+			v19 = GetCampaignCheatValue();
+			if (v19)
+			{
+				gfLevelComplete = v19;
+				v1 = 3;
+			}
+		}
+		if (dbinput & IN_SELECT && !keymap[DIK_LMENU] && dword_51CE40 < 2)
+		{
+			SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
+			if (dword_51CE40)
+			{
+				if (dword_51CE40 == 1 && byte_5082C8[dword_51CE50])
+				{
+					v20 = 0;
+					v21 = qword_5082F0;
+					gfLevelComplete = 0;
+					if (qword_5082F0)
+					{
+						do
+						{
+							v21 >>= 1;
+							++v20;
+						} while (v21);
+						gfLevelComplete = v20;
+					}
+					v1 = 3;
+				}
+			}
+			else if (qword_5082F0 >= 1 && qword_5082F0 <= 8)
+			{
+				switch (qword_5082F0)
+				{
+				case 1u:
+					if (Gameflow->PlayAnyLevel)
+					{
+						qword_51CE18 = qword_5082F0;
+						dword_51CE40 = 1;
+					}
+					else
+					{
+						gfLevelComplete = 1;
+						v1 = 3;
+					}
+					break;
+				case 2u:
+					GetSaveLoadFiles();
+					qword_51CE18 = qword_5082F0;
+					dword_51CE40 = 2;
+					break;
+				case 3u:
+				case 5u:
+				case 6u:
+				case 7u:
+					break;
+				case 4u:
+					qword_51CE18 = qword_5082F0;
+					dword_51CE40 = 3;
+					break;
+				case 8u:
+					v1 = 4;
+					break;
+				}
+			}
+		}
+	}
+	if (thread_started)
+		return 4;
+	if (v1)
+	{
+		dword_51CE44 = v1;
+		dword_51CE0C = gfLevelComplete;
+		gfLevelComplete = 0;
+		v1 = 0;
+		SetFade(0, 255);
+	}
+	return v1;
 }
 
 
