@@ -647,9 +647,62 @@ BYTE IsVolumetric()// (F)
 	return App.tVolumetricShadows;
 }
 
-void S_AnimateTextures(long nFrames)
+WORD AnimComp = 0;
+short AnimatingTexturesVOffset = 0;
+short AnimatingTexturesV[16][8][3];
+
+void S_AnimateTextures(long nFrames)// to test
 {
-	Unimpl();
+	AnimComp += nFrames;
+
+	while (AnimComp > 5)
+	{
+		uint16_t* ptr = AnimTextureRanges;
+
+		for (uint16_t i = *(ptr++); i > 0; i--, ptr++)
+		{
+			OBJECT_TEXTURE tmp = object_textures[*(ptr + 1)];
+
+			for (uint16_t j = *ptr++; j > 0; j--, ptr++)
+			{
+				object_textures[*ptr] = object_textures[*(ptr + 1)];
+			}
+
+			object_textures[*ptr] = tmp;
+		}
+
+		AnimComp -= 5;
+	}
+
+	if (gfUVRotate) // 19d8
+	{
+		uint16_t* t3 = AnimTextureRanges;
+		AnimatingTexturesVOffset = (AnimatingTexturesVOffset - gfUVRotate * (nFrames / 2)) & 0x1f;
+		if (nAnimUVRanges > 0)
+		{
+			short(*t2)[8][3] = AnimatingTexturesV;
+
+			for (int i = 0; i < nAnimUVRanges; i++, t2++)
+			{
+				unsigned short num = *t3++;
+				if (num > 0)
+				{
+					short* t1 = t2[i][num];
+
+					for (int j = 0; j <= num; j++, t1 -= 3, t3++)
+					{
+
+						OBJECT_TEXTURE* v18 = &object_textures[*t3];
+						double v19 = AnimatingTexturesVOffset / 256.0;
+						v18->vertices[0].y = v19 + t1[3];
+						v18->vertices[1].y = v19 + t1[3];
+						v18->vertices[2].y = v19 + t1[3] + 0.125;
+						v18->vertices[3].y = v19 + t1[3] + 0.125;
+					}
+				}
+			}
+		}
+	}
 }
 
 void DrawPsxTile(long a1, long a2, long a3)
