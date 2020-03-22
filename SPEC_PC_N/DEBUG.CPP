@@ -269,7 +269,7 @@ void DrawDebugPost()
 	matProj._34 = 1.0f;
 	matProj._43 = -1.0f;
 	matProj._44 = 0.0f;
-	App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &matProj);
+	//App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &matProj);
 
 	D3DMATRIX matSpin;
 	matSpin._11 = matSpin._22 = matSpin._33 = matSpin._44 = 1.0f;
