@@ -1618,6 +1618,8 @@ int numLvlMeshes;
 
 	void LoadScreen(int frame, int num)// (F)
 	{
+		Log(LT_Enter, "LoadScreen frame=%6d num=%6d", frame, num);
+		
 		DDSURFACEDESC2 desc;
 		DXInit(desc);
 		desc.dwWidth = 640;
@@ -1703,7 +1705,7 @@ int numLvlMeshes;
 			BeginScene();
 			InitBuckets();
 			InitialiseSortList();
-			DrawLoadingScreen();
+			//DrawLoadingScreen(); TODO
 			SortPolyList(surfacenumbf, sort3d_bufferbf);
 			//RestoreFPCW();
 			DrawSortList();
