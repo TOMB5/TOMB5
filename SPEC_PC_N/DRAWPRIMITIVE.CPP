@@ -2196,9 +2196,14 @@ void DrawLoadingScreen()
 	}
 }
 
-void DrawFlash()
+void DrawFlash()// to test
 {
-	Unimpl();
+	BYTE r = FlashFader * FlashFadeR >> 5;
+	BYTE g = FlashFader * FlashFadeG >> 5;
+	BYTE b = FlashFader * FlashFadeB >> 5;
+
+	DrawPsxTile(0, phd_winwidth | (phd_winheight << 16), RGBA(r, g, b, 0x62));
+	DrawPsxTile(0, phd_winwidth | (phd_winheight << 16), RGBA(r, g, b, 0xFF));
 }
 
 void ReleaseScreen()
