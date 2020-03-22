@@ -1853,13 +1853,13 @@ void InsertRoomlet(ROOMLET* r)
 		auto face = (tr_face4*)poly;
 		const auto tex = &object_textures[face->Texture];
 
-		if (tex->attribute)
+		if (tex->attribute == OT_ALL_OPAQUE)
 		{
-			AddQuad2(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex, face->DoubleSided);
+			AddQuad1(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex, face->DoubleSided);
 		}
 		else
 		{
-			AddQuad1(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex, face->DoubleSided);
+			AddQuad2(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], face->Vertices[3], tex, face->DoubleSided);
 		}
 	}
 
@@ -1868,13 +1868,13 @@ void InsertRoomlet(ROOMLET* r)
 		auto face = (tr_face3*)poly;
 		const auto tex = &object_textures[face->Texture];
 
-		if (tex->attribute)
+		if (!tex->attribute == OT_ALL_OPAQUE)
 		{
-			AddTri2(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], tex, face->DoubleSided);
+			AddTri1(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], tex, face->DoubleSided);
 		}
 		else
 		{
-			AddTri1(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], tex, face->DoubleSided);
+			AddTri2(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], tex, face->DoubleSided);
 		}
 	}
 }
