@@ -532,6 +532,8 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		Log(LT_WindowMessage, "WM_CLOSE");
 		// TODO TODO TODO TODO TODO
 		PostQuitMessage(EXIT_SUCCESS);
+
+		game_running = false;
 		break;
 
 	case WM_CREATE:
