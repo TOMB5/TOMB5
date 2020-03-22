@@ -183,7 +183,7 @@ struct VertexBufferSplitIndex
 	unsigned char primitiveType;
 };
 
-#define DEBUG_POLY_COUNT
+//#define DEBUG_POLY_COUNT
 
 #if defined(DEBUG_POLY_COUNT)
 static int polygon_count = 0;
@@ -307,7 +307,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 			//In D3D9 transparent is 0, 1 is not transparent.
 			//0x8000 is transparent
 			//In OpenGL transparent is 1, 0 is not transparent
-			dest[x] |= 0x8000u;
+			//dest[x] |= 0x8000u;
 		}
 
 		src += rect->w;
