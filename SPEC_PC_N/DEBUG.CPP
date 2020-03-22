@@ -217,17 +217,18 @@ void DrawDebugPre()
 
 void DrawDebugPost()
 {
+	return;
 	DDBLTFX fx;
 	DXInit(fx);
 	//fx.dwFillColor = GENRGB(0, 0, (5 * GnFrameCounter) % 256);
 	fx.dwFillColor = (64 + abs((int)((2 * GnFrameCounter) % 192 - 96))) << (8 * (((GnFrameCounter / 6) % 27) / 9));
-	App.lpBackBuffer->Blt(nullptr, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &fx);
+	//App.lpBackBuffer->Blt(nullptr, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &fx);
 
 	RECT dest{ 256, 256, 512, 512 };
 	RECT src{ 0, 0, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height };
 	Log(LT_Info, "Debug draw %08x - %2d (%3d x %3d)", DXTextureList[cur_tpage].surface, cur_tpage, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height);
 	//DX_TRY(App.lpBackBuffer->Blt(&dest, DXTextureList[cur_tpage].surface, &src, DDBLT_WAIT, nullptr));
-	//DX_TRY(App.lpBackBuffer->Blt(nullptr, DXTextureList[cur_tpage].surface, nullptr, DDBLT_WAIT, nullptr));
+	DX_TRY(App.lpBackBuffer->Blt(nullptr, DXTextureList[cur_tpage].surface, nullptr, DDBLT_WAIT, nullptr));
 	//
 
 	D3DMATERIAL7 mtrl;
@@ -255,7 +256,7 @@ void DrawDebugPost()
 	// axis by 10 units.
 	D3DMATRIX matView = mat;
 	matView._43 = 30.0f;
-	App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &matView);
+	//App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &matView);
 
 	// The projection matrix defines how the 3-D scene is "projected" 
 	// onto the 2-D render target surface. For more information,
@@ -282,7 +283,7 @@ void DrawDebugPost()
 	matSpin._13 = -(FLOAT)sin(fTimeKey);
 	matSpin._31 = (FLOAT)sin(fTimeKey);
 
-	App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &matSpin);
+	//App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &matSpin);
 
 	//S_InitD3DMatrix();
 	//SetD3DViewMatrix();
@@ -306,9 +307,9 @@ void DrawDebugPost()
 		g_pvTriangleVertices[3] = D3DVERTEX(p1, -vNormal, 0, 0);
 		g_pvTriangleVertices[4] = D3DVERTEX(p3, -vNormal, 0, 1);
 		g_pvTriangleVertices[5] = D3DVERTEX(p2, -vNormal, 1, 1);
-		App.lpD3DDevice->SetTexture(0, DXTextureList[1].tex);
+		/*App.lpD3DDevice->SetTexture(0, DXTextureList[1].tex);
 		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_VERTEX,
-			g_pvTriangleVertices, 6, NULL);
+			g_pvTriangleVertices, 6, NULL);*/
 	}
 
 	{
@@ -336,9 +337,9 @@ void DrawDebugPost()
 		g_pvTriangleVertices[10] = D3DVERTEX(p3, -vNormal, 1, 1);
 		g_pvTriangleVertices[11] = D3DVERTEX(p4, -vNormal, 0, 1);
 
-		App.lpD3DDevice->SetTexture(0, DXTextureList[1].tex);
+		/*App.lpD3DDevice->SetTexture(0, DXTextureList[1].tex);
 		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, D3DFVF_VERTEX,
-			g_pvTriangleVertices, 12, NULL);
+			g_pvTriangleVertices, 12, NULL);*/
 	}
 
 }
@@ -373,7 +374,7 @@ void ShowDebugInfo()// (F)
 		XATrack, XATrack == -1 ? "---" : xa_filenames[XATrack],
 		camera.type, camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number);
 	GetInputStr(buf + strlen(buf));
-	PrintString(10, 10, 0, buf, 0);
+	//PrintString(10, 10, 0, buf, 0);
 	
 	if (keymap[DIK_U])
 	{

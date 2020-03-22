@@ -851,6 +851,8 @@ void SortPolyList(int number, float buffer[][10])// (F)
 
 HRESULT HWBeginScene()// (F)
 {
+	Log(LT_Enter, "HWBeginScene");
+	
 	if (App.isInScene)
 	{
 		Log(LT_Error, "Already In Scene");
@@ -867,6 +869,8 @@ HRESULT HWBeginScene()// (F)
 
 HRESULT HWEndScene()// (F)
 {
+	Log(LT_Enter, "HWEndScene");
+	
 	App.isInScene = false;
 
 	return App.lpD3DDevice->EndScene();
@@ -2172,6 +2176,8 @@ void DrawBinoculars()
 
 void DrawLoadingScreen()
 {
+	Log(LT_Enter, "DrawLoadingScreen");
+	
 	if (App.Flags & WA_BACK_BUFFER)
 	{
 		App.lpBackBuffer->Blt(nullptr, surf_screen, nullptr, DDBLT_WAIT, nullptr);

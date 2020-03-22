@@ -430,8 +430,6 @@ void SuperShowLogo()// (F)
 
 	e4b100 = 4;
 
-	OBJECT_TEXTURE tex;
-
 	tlvert[0].rhw = f_oneoznear;
 	tlvert[1].rhw = f_oneoznear;
 	tlvert[2].rhw = f_oneoznear;
@@ -483,6 +481,8 @@ void SuperShowLogo()// (F)
 	tlvert[1].color = RGB_MAKE(255, 255, 255);
 	tlvert[2].color = RGB_MAKE(255, 255, 255);
 	tlvert[3].color = RGB_MAKE(255, 255, 255);
+
+	OBJECT_TEXTURE tex;
 
 	tex.attribute = OT_ALPHA_TESTING;
 	tex.new_flags = 0;
@@ -869,8 +869,8 @@ void S_OutputPolyList()
 	if (FadeScreenHeight != 0)
 	{
 		int height = phd_winymax / 256.0 * FadeScreenHeight;
-		DrawPsxTile(0, phd_winwidth | (height << 16), 0x62FFFFFF);
-		DrawPsxTile(phd_winheight - height, phd_winwidth | (height << 16), 0x62FFFFFF);
+		DrawPsxTile(0, phd_winwidth | (height << 16), RGBA(255, 255, 255, 0x62));
+		DrawPsxTile(phd_winheight - height, phd_winwidth | (height << 16), RGBA(255, 255, 255, 0x62));
 	}
 
 	if (gfCurrentLevel != LVL5_TITLE)
@@ -1030,9 +1030,9 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 				{
 					auto ptr = (BYTE*)buf;
 
-					auto r = ptr[0];
+					auto b = ptr[0];// todo inverted r&b in original
 					auto g = ptr[1];
-					auto b = ptr[2];
+					auto r = ptr[2];
 					auto a = ptr[3];
 
 					if (a5)
