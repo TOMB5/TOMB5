@@ -355,12 +355,63 @@ int MoveImage(RECT16* rect, int x, int y)
 #if defined(OGL) || defined(OGLES)
 	glScissor(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
 	Emulator_BindTexture(vramTexture);
+#elif defined(D3D9)
+	RECT scissorRect;
+	scissorRect.top = y * RESOLUTION_SCALE;
+	scissorRect.bottom = (y * RESOLUTION_SCALE) + (rect->h * RESOLUTION_SCALE);
+	scissorRect.left = x * RESOLUTION_SCALE;
+	scissorRect.right = (x * RESOLUTION_SCALE) + (rect->w * RESOLUTION_SCALE);
+	d3ddev->SetScissorRect(&scissorRect);
 #endif
 
 	unsigned short* pixels = (unsigned short*)SDL_malloc(rect->w * RESOLUTION_SCALE * rect->h * RESOLUTION_SCALE * sizeof(unsigned short));
 #if defined(OGL) || defined(OGLES)
 	glReadPixels(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
+#elif defined(D3D9)
+	D3DLOCKED_RECT lockedRect;
+	RECT convertedRect;
+	convertedRect.top = rect->y * RESOLUTION_SCALE;
+	convertedRect.bottom = (rect->y * RESOLUTION_SCALE) + (rect->h * RESOLUTION_SCALE);
+	convertedRect.left = rect->x * RESOLUTION_SCALE;
+	convertedRect.right = (rect->x * RESOLUTION_SCALE) + (rect->w * RESOLUTION_SCALE);
+	vramFrameBuffer->LockRect(&lockedRect, &convertedRect, 0);
+
+	unsigned short* src = (unsigned short*)lockedRect.pBits;
+	unsigned short* dest = pixels;
+
+	for (int y = 0; y < rect->h; y++)
+	{
+		for (int x = 0; x < rect->w; x++)
+		{
+			dest[x] = src[x];
+		}
+
+		src += lockedRect.Pitch / 2;
+		dest += rect->w;
+	}
+	vramFrameBuffer->UnlockRect();
+
+	convertedRect.top = y * RESOLUTION_SCALE;
+	convertedRect.bottom = (y * RESOLUTION_SCALE) + (rect->h * RESOLUTION_SCALE);
+	convertedRect.left = x * RESOLUTION_SCALE;
+	convertedRect.right = (x * RESOLUTION_SCALE) + (rect->w * RESOLUTION_SCALE);
+	vramFrameBuffer->LockRect(&lockedRect, &convertedRect, 0);
+
+	src = pixels;
+	dest = (unsigned short*)lockedRect.pBits;
+
+	for (int y = 0; y < rect->h; y++)
+	{
+		for (int x = 0; x < rect->w; x++)
+		{
+			dest[x] = src[x];
+		}
+
+		src += rect->w;
+		dest += lockedRect.Pitch / 2;
+	}
+	vramFrameBuffer->UnlockRect();
 #endif
 	return 0;
 }
