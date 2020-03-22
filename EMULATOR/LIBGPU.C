@@ -732,12 +732,16 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 			Emulator_SetBlendMode(g_splitIndices[i].abr, g_splitIndices[i].semiTrans);
 
-#if defined(OGL)
+
 			if (g_wireframeMode)
 			{
+#if defined(OGL)
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			}
+#elif defined(D3D9)
+				d3ddev->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 #endif
+			}
+
 
 #if defined(OGL) || defined(OGLES)
 			glDrawArrays(g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
@@ -745,12 +749,16 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			d3ddev->DrawPrimitive((D3DPRIMITIVETYPE)g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
 #endif
 
-#if defined(OGL)
+
 			if (g_wireframeMode)
 			{
+#if defined(OGL)
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
+#elif defined(D3D9)
+				d3ddev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 #endif
+			}
+
 		}
 
 #if defined(OGL) || defined(OGLES)
