@@ -1680,7 +1680,7 @@ void ACMClose()// (F)
 void DXFreeInfo(DEVICEINFO* info)// (F)
 {
 	Log(LT_Enter, "DXFreeInfo");
-
+	return; // todo
 	for(int i = 0; i < info->nDDInfo; i++)
 	{
 		auto dd = info->DDInfo[i];
