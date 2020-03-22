@@ -280,6 +280,9 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 
 	OBJECT_TEXTURE tex;
 
+	tex.attribute = OT_ALL_OPAQUE;
+	tex.tile_and_flag = 0;
+
 	float xfactor = phd_winxmax / 640.0;
 	float yfactor = phd_winymax / 480.0;
 
@@ -560,9 +563,9 @@ bool S_DrawLoadBar()
 	
 	DoBar(170, 480 - font_height, 300, 10, loadBar2, RGB_MAKE(0, 0, 16), RGB_MAKE(0, 0, 240));
 
-	//SortPolyList(...
+	SortPolyList(surfacenumbf, sort3d_bufferbf);
 	//RestoreFPCW();
-	//DrawSortList()
+	DrawSortList();
 	//MungeFPCW(..
 	S_DumpScreenFrame();
 

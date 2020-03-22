@@ -1486,7 +1486,7 @@ int numLvlMeshes;
 		Log(LT_Info, "Begin LoadLevel");
 
 		FreeLevel();
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		
 		num_pages = 1;
 		//
 		fp_level = FileOpen((char*)filename);
@@ -1500,7 +1500,7 @@ int numLvlMeshes;
 
 			S_InitLoadBar(numObjTex + numBumpTex + numRoomTex + 20);
 			S_LoadBar();
-
+			std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 			Log(LT_Status, "Process Level Data");
 			LoadTextures(numRoomTex, numObjTex, numBumpTex);
 
