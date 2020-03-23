@@ -1086,19 +1086,31 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 {
 #if PC_VERSION
-	long c2 = nk - 3;
-	long c1 = x * c2 << 16 >> 16;
-	long span = c1 >> 16;
-	if (c1 >> 16 >= c2) span = nk - 4;
-	int v5 = knots[span];
-	int v6 = knots[span + 2];
-	int nka = knots[span + 3] >> 1;
-	int v7 = knots[span + 1];
-	long a2 = (c1 - (span << 16));
-	long a4 = ((v5 + (((~v5 >> 1) + nka + v7 + (v7 >> 1) - (v6 >> 1) - v6) * (c1 - (span << 16)) >> 16) - (2 * v7) + (2 * v6) - (v7 >> 1) - nka) * (c1 - (span << 16)) >> 16);
-	long a3 = ((~v5 >> 1) + (v6 >> 1) + a4);
-	long a1 = a3 * a2 >> 16;
-	return (int)(v7 + a1);
+	int64_t v3 = x * (int64_t)(nk - 3) << 16 >> 16;
+	int32_t v4 = (int32_t)v3 >> 16;
+	if ((int32_t)v3 >> 16 >= nk - 3)
+		v4 = nk - 4;
+	int32_t v5 = knots[v4];
+	int32_t v6 = knots[v4 + 2];
+	int32_t nka = knots[v4 + 3] >> 1;
+	int32_t v7 = knots[v4 + 1];
+	return (int32_t)(v7
+		+ (int64_t)(uint64_t)((int32_t)((~v5 >> 1)
+			+ (v6 >> 1)
+			+ (int64_t)(uint64_t)((int32_t)(v5
+				+ (int64_t)(uint64_t)(((~v5 >> 1)
+					+ nka
+					+ v7
+					+ (v7 >> 1)
+					- (v6 >> 1)
+					- v6)
+					* (int64_t)((int32_t)v3 - (v4 << 16)) >> 16)
+				- 2 * v7
+				+ 2 * v6
+				- (v7 >> 1)
+				- nka)
+				* (int64_t)((int32_t)v3 - (v4 << 16)) >> 16))
+			* (int64_t)((int32_t)v3 - (v4 << 16)) >> 16));
 #else
 	int span; // $s1
 	long* k; // $s1
