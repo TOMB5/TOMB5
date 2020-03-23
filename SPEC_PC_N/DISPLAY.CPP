@@ -207,7 +207,7 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 			{
 				const char* tab = AccentTable[128 - c];
 				;
-				DrawChar(new_x, y, strwidth, charac = &stru_507AB8[tab[0] - 33]);
+				DrawChar(new_x, y, colourFlag, charac = &stru_507AB8[tab[0] - 33]);
 				
 				if (tab[1] != ' ')
 					DrawChar(charac->a5 / 2 + new_x - 3, y + charac->a7, colourFlag, &stru_507AB8[tab[1] - 33]);
@@ -240,7 +240,7 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 
 	ScaleFlag = false;
 
-	if (false)
+	if (true)
 	{
 		char* b2 = (char*)malloc(strlen(string) + 1);
 		strcpy(b2, string);
@@ -250,6 +250,10 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 		App.lpBackBuffer->GetDC(&hdc);
 		SetTextColor(hdc, TRANSPARENT);
 		SetBkColor(hdc, 0xffffff);
+		UINT align = TA_BASELINE;
+		if (flag & FF_CENTER)
+			align |= TA_CENTER;
+		SetTextAlign(hdc, align);
 		int last = 0;
 		int num = 0;
 		for (int i = 0; i < strlen(b2); i++)
