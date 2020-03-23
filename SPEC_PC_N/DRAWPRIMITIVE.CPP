@@ -672,7 +672,7 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 			info->head.num_verts = 6;
 			info->head.e4b100 = e4b100;
 
-			info3dptrbf += sizeof(*info);
+			info3dptrbf = (short*)(info + 1);
 
 			*sort3dptrbf++ = (int)info;
 
@@ -772,11 +772,7 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 
 void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
-	int v7; // edi
-	int v8; // esi
 	D3DTLBUMPVERTEX* vptr; // ecx
-	__int16* v22; // eax
-	int v23; // ebx
 	signed int v28; // eax
 	float* v29; // ecx
 	signed int v30; // edx
@@ -784,16 +780,6 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 	int v32; // eax
 	__int16* v33; // ecx
 	int v34; // edx
-	int v35; // eax
-	char v36; // [esp+13h] [ebp-31h]
-
-	int v38; // [esp+18h] [ebp-2Ch]
-
-
-	char v1b; // [esp+4Ch] [ebp+8h]
-	float* v2a; // [esp+50h] [ebp+Ch]
-	float v3a; // [esp+54h] [ebp+10h]
-	float* a7a; // [esp+5Ch] [ebp+18h]
 
 	const WORD vp1 = d9ab34[v1];
 	const WORD vp2 = d9ab34[v2];
@@ -807,9 +793,9 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 
 	Log(LT_Enter, "AddTriClippedSorted %4d[%d];%4d[%d];%4d[%d] tex=%d", v1, vp1, v2, vp2, v3, vp3, tex->tile_and_flag);
 
-	v36 = 0;
-	v38 = v1;
-	v1b = true;
+	char v36 = 0;
+	int v38 = v1;
+	char v1b = true;
 	
 	if ((vp1 | vp2 | vp3) & 0x8000u)
 	{
@@ -881,7 +867,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 
 			vptr = &info->v1;
 
-			info3dptrbf += sizeof(*info);
+			info3dptrbf = (short*)(info + 1);
 
 			*sort3dptrbf++ = (int)info;
 
@@ -902,7 +888,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 	vptr[0].tu2 = vt1->tu;
 	vptr[0].tv2 = vt1->tv;
 
-	v3a = 0.0;
+	float v3a = 0.0;
 
 	if (e4b100)
 	{
@@ -1008,7 +994,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 		vptr[2].sz = f_a - f_boo * vptr[2].rhw;
 		
 		if (e4b100)
-			*(float*)&tex->attribute = v3a * 0.33333299;
+			*(float*)&tex->attribute = v3a / 3.0;
 		else
 			*(float*)&tex->attribute = v3a;
 		
