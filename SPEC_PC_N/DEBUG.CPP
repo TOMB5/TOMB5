@@ -135,7 +135,7 @@ void Log_backend(char type, char* fmt, ...)// (F)
 	}
 }
 
-void GetInputStr(char* buf)// (F)
+void GetInputStr(DWORD in, char* buf)// (F)
 {
 	const char* names[] = {
 		"FORWARD",
@@ -174,7 +174,7 @@ void GetInputStr(char* buf)// (F)
 
 	buf[0] = 0;
 
-	if (dbginput == IN_NONE)
+	if (in == IN_NONE)
 	{
 		strcpy(buf, "---");
 	}
@@ -182,7 +182,7 @@ void GetInputStr(char* buf)// (F)
 	{
 		for(int i = 0; i < 32; i++)
 		{
-			if (dbginput & (1 << i))
+			if (in & (1 << i))
 			{
 				strcat(buf, names[i]);
 				strcat(buf, ", ");
@@ -346,6 +346,11 @@ void DrawDebugPost()
 
 void ShowDebugInfo()// (F)
 {
+	if (!info3dptrbf)
+		return;
+
+	PrintString(0, 13, 0, "Unregistered HyperCam 2", 0);
+	
 	char buf[2048];
 	sprintf(buf,
 		"FPS : %3.2f, game frame : %d\n"
@@ -354,27 +359,29 @@ void ShowDebugInfo()// (F)
 		"Malloc : %5dK (%3d%%) used - %5dK free - %5dK total\n"
 		"Current : level #%02d / cutseq #%02d (playing=%5s)\n"
 		"DrawPrimitive calls : %9d / %9d\n"
-		"ViewMatrix\t WorldMatrix\t Projection\t W2V\n"
+	/*	"ViewMatrix\t WorldMatrix\t Projection\t W2V\n"
 		"(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\n"
 		"(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\n"
 		"(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\n"
-		"(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\n"
+		"(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\n"*/
 		"BF list : %6d\n"
 		"Texture page : %2d (%3d x %3d)\n"
 		"Playing XA : %3d (%s)\n"
 		"Camera : %d (%5d ; %5d ; %5d) room %3d\n"
 		"Input : ", App.fps, GnFrameCounter, mouse_x, mouse_y, gfGameMode, malloc_used / 1024, (int)(malloc_used * 100.0 / malloc_size), malloc_free / 1024, malloc_size / 1024,
 		gfCurrentLevel, cutseq_num, GLOBAL_playing_cutseq ? "TRUE" : "FALSE", App.DrawPrimitiveCnt, App.DrawPrimitiveCntBuk,
-		App.ViewMatrix._11, App.ViewMatrix._12, App.ViewMatrix._13, App.ViewMatrix._14, App.WorldMatrix._11, App.WorldMatrix._12, App.WorldMatrix._13, App.WorldMatrix._14, transform_projection._11, transform_projection._12, transform_projection._13, transform_projection._14, w2v_matrix_d3d._11, w2v_matrix_d3d._12, w2v_matrix_d3d._13, w2v_matrix_d3d._14,
+		/*App.ViewMatrix._11, App.ViewMatrix._12, App.ViewMatrix._13, App.ViewMatrix._14, App.WorldMatrix._11, App.WorldMatrix._12, App.WorldMatrix._13, App.WorldMatrix._14, transform_projection._11, transform_projection._12, transform_projection._13, transform_projection._14, w2v_matrix_d3d._11, w2v_matrix_d3d._12, w2v_matrix_d3d._13, w2v_matrix_d3d._14,
 		App.ViewMatrix._21, App.ViewMatrix._22, App.ViewMatrix._23, App.ViewMatrix._24, App.WorldMatrix._21, App.WorldMatrix._22, App.WorldMatrix._23, App.WorldMatrix._24, transform_projection._21, transform_projection._22, transform_projection._23, transform_projection._24, w2v_matrix_d3d._21, w2v_matrix_d3d._22, w2v_matrix_d3d._23, w2v_matrix_d3d._24,
 		App.ViewMatrix._31, App.ViewMatrix._32, App.ViewMatrix._33, App.ViewMatrix._34, App.WorldMatrix._31, App.WorldMatrix._32, App.WorldMatrix._33, App.WorldMatrix._34, transform_projection._31, transform_projection._32, transform_projection._33, transform_projection._34, w2v_matrix_d3d._31, w2v_matrix_d3d._32, w2v_matrix_d3d._33, w2v_matrix_d3d._34,
-		App.ViewMatrix._41, App.ViewMatrix._42, App.ViewMatrix._43, App.ViewMatrix._44, App.WorldMatrix._41, App.WorldMatrix._42, App.WorldMatrix._43, App.WorldMatrix._44, transform_projection._41, transform_projection._42, transform_projection._43, transform_projection._44, w2v_matrix_d3d._41, w2v_matrix_d3d._42, w2v_matrix_d3d._43, w2v_matrix_d3d._44,
+		App.ViewMatrix._41, App.ViewMatrix._42, App.ViewMatrix._43, App.ViewMatrix._44, App.WorldMatrix._41, App.WorldMatrix._42, App.WorldMatrix._43, App.WorldMatrix._44, transform_projection._41, transform_projection._42, transform_projection._43, transform_projection._44, w2v_matrix_d3d._41, w2v_matrix_d3d._42, w2v_matrix_d3d._43, w2v_matrix_d3d._44,*/
 		surfacenumbf, 
 		cur_tpage, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height, 
 		XATrack, XATrack == -1 ? "---" : xa_filenames[XATrack],
 		camera.type, camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number);
-	GetInputStr(buf + strlen(buf));
-	//PrintString(10, 10, 0, buf, 0);
+	GetInputStr(dbginput, buf + strlen(buf));
+	strcat(buf, " / ");
+	GetInputStr(dbinput, buf + strlen(buf));
+	PrintString(10, 10, 0, buf, 0);
 	
 	if (keymap[DIK_U])
 	{
