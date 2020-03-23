@@ -1129,13 +1129,13 @@ enum
 	MENU_SPECIAL_FEATURES_MENU
 };
 
-DWORD qword_51CE18 = 0;
+DWORD selected_menu_prev = 0;
 DWORD dword_51CE44 = 0;
 DWORD dword_51CE0C = 0;
 DWORD unk_51CE3C = 0;
 DWORD dword_51CE40 = 0;
-DWORD qword_5082F0 = 0;
-DWORD qword_5082F4 = 0;
+DWORD selected_menu = 1;
+DWORD qword_5082F4 = 1;
 DWORD dword_51CE50 = 0;
 DWORD unk_51CE2A = 0;
 BYTE byte_5082C8[40] =
@@ -1192,7 +1192,7 @@ int TitleOptions()
 	int v22; // [esp+Ch] [ebp-14h]
 	int i; // [esp+10h] [ebp-10h]
 	char v24; // [esp+10h] [ebp-10h]
-	signed __int64 v25; // [esp+14h] [ebp-Ch]
+	signed __int64 max_menu; // [esp+14h] [ebp-Ch]
 	int v26; // [esp+14h] [ebp-Ch]
 
 	signed int v1 = 0;
@@ -1205,7 +1205,7 @@ int TitleOptions()
 			unk_51CE3C = 0;
 			dword_51CE40 = 0;
 			gfLevelComplete = dword_51CE0C;
-			qword_5082F0 = 1;
+			selected_menu = 1;
 			return dword_51CE44;
 		}
 		input = 0;
@@ -1221,7 +1221,7 @@ int TitleOptions()
 	if (unk_51CE2A)
 	{
 		dword_51CE40 = 0;
-		qword_5082F0 = 1;
+		selected_menu = 1;
 		do_dels_cutseq_selector();
 		return dword_51CE44;
 	}
@@ -1241,7 +1241,7 @@ int TitleOptions()
 			v5 = font_height + font_height + phd_winymin;
 			if (Gameflow->nLevels >= 10)
 			{
-				DWORD v7 = qword_5082F0;
+				DWORD v7 = selected_menu;
 				i = 10;
 				int v8;
 				for (v8 = 0; v7; ++v8)
@@ -1278,7 +1278,7 @@ int TitleOptions()
 				while (1)
 				{
 					v5 += font_height;
-					if (qword_5082F0 & (1 << v9))
+					if (selected_menu & (1 << v9))
 						v24 = 1;
 					else
 						v24 = 3 - (byte_5082C8[v22 - 1] != 0);
@@ -1287,8 +1287,8 @@ int TitleOptions()
 						v5,
 						v24,
 						&gfStringWad[gfStringOffset[gfLevelNames[v9 + 1]]],
-						0x8000);
-					if (qword_5082F0 & (1 << v9))
+						FF_CENTER);
+					if (selected_menu & (1 << v9))
 						dword_51CE50 = v9;
 					++v9;
 					if (++v22 >= v26)
@@ -1296,7 +1296,7 @@ int TitleOptions()
 				}
 			}
 			v1 = 0;
-			v25 = 1i64 << (Gameflow->nLevels - 2);
+			max_menu = 1i64 << (Gameflow->nLevels - 2);
 			break;
 		case 2:
 			if (Gameflow->LoadSaveEnabled)
@@ -1310,44 +1310,42 @@ int TitleOptions()
 			}
 			else
 			{
-				SoundEffect(SFX_LARA_NO, 0, SFX_ALWAYS);
+				SoundEffect(SFX_LARA_NO, nullptr, SFX_ALWAYS);
 				dword_51CE40 = 0;
 			LABEL_37:
 				const int v11 = phd_winymax - 4 * font_height;
 				SuperShowLogo();
 				Chris_Menu = 0;
-				char v12 = 1;
-				if (!(qword_5082F0 & 1))
-					v12 = 2;
-				PrintString(phd_centerx, v11, v12, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], FF_CENTER);
-				char v13 = 1;
-				if (!(qword_5082F0 & 2))
-					v13 = 2;
+
+				PrintString(
+					phd_centerx, 
+					v11,
+					(selected_menu & 1) ? 1 : 2,
+					&gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], 
+					FF_CENTER);
+				
 				PrintString(
 					phd_centerx,
 					v11 + font_height,
-					v13,
+					(selected_menu & 2) ? 1 : 2,
 					&gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]],
 					FF_CENTER);
-				char v14 = 1;
-				if (!(qword_5082F0 & 4))
-					v14 = 2;
+				
 				PrintString(
 					phd_centerx,
 					v11 + 2 * font_height,
-					v14,
+					(selected_menu & 4) ? 1 : 2,
 					&gfStringWad[gfStringOffset[STR_OPTIONS]],
 					FF_CENTER);
-				char v15 = 1;
-				if (!(qword_5082F0 & 8))
-					v15 = 2;
+				
 				PrintString(
 					phd_centerx,
 					v11 + 2 * font_height + font_height,
-					v15,
+					(selected_menu & 8) ? 1 : 2,
 					&gfStringWad[gfStringOffset[STR_EXIT]],
 					FF_CENTER);
-				v25 = 8;
+				
+				max_menu = 8;
 			}
 			break;
 		case 3:
@@ -1361,9 +1359,9 @@ int TitleOptions()
 		{
 			if (dbinput & IN_FORWARD)
 			{
-				if (qword_5082F0 > 1)
+				if (selected_menu > 1)
 				{
-					qword_5082F0 >>= 1;
+					selected_menu >>= 1;
 					qword_5082F4 >>= 1;
 				}
 				
@@ -1372,9 +1370,9 @@ int TitleOptions()
 			
 			if (dbinput & IN_BACK)
 			{
-				if (qword_5082F0 < v25)
+				if (selected_menu < max_menu)
 				{
-					qword_5082F0 <<= 1;
+					selected_menu <<= 1;
 					qword_5082F4 <<= 1;
 				}
 				
@@ -1388,7 +1386,7 @@ int TitleOptions()
 			if (dword_51CE40 <= 0)
 				goto LABEL_60;
 			dword_51CE40 = 0;
-			qword_5082F0 = qword_51CE18;
+			selected_menu = selected_menu_prev;
 			S_SoundStopAllSamples();
 			SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
 		}
@@ -1411,9 +1409,9 @@ int TitleOptions()
 				if (dword_51CE40 == 1 && byte_5082C8[dword_51CE50])
 				{
 					char v20 = 0;
-					DWORD v21 = qword_5082F0;
+					DWORD v21 = selected_menu;
 					gfLevelComplete = 0;
-					if (qword_5082F0)
+					if (selected_menu)
 					{
 						do
 						{
@@ -1425,14 +1423,14 @@ int TitleOptions()
 					v1 = 3;
 				}
 			}
-			else if (qword_5082F0 >= 1 && qword_5082F0 <= 8)
+			else if (selected_menu >= 1 && selected_menu <= 8)
 			{
-				switch (qword_5082F0)
+				switch (selected_menu)
 				{
 				case 1u:
 					if (Gameflow->PlayAnyLevel)
 					{
-						qword_51CE18 = qword_5082F0;
+						selected_menu_prev = selected_menu;
 						dword_51CE40 = 1;
 					}
 					else
@@ -1443,7 +1441,7 @@ int TitleOptions()
 					break;
 				case 2u:
 					GetSaveLoadFiles();
-					qword_51CE18 = qword_5082F0;
+					selected_menu_prev = selected_menu;
 					dword_51CE40 = 2;
 					break;
 				case 3u:
@@ -1452,7 +1450,7 @@ int TitleOptions()
 				case 7u:
 					break;
 				case 4u:
-					qword_51CE18 = qword_5082F0;
+					selected_menu_prev = selected_menu;
 					dword_51CE40 = 3;
 					break;
 				case 8u:
