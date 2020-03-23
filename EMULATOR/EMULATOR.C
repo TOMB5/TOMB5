@@ -95,6 +95,8 @@ IDirect3DVertexDeclaration9* g_vertexDecl = NULL;
 unsigned int vramRenderBuffer = 0;///@FIXME delete unused?
 IDirect3DTexture9* nullWhiteTexture = NULL;
 IDirect3DSurface9* g_defaultRenderTarget = NULL;
+IDirect3DPixelShader9* g_defaultPixelShader = NULL;
+IDirect3DVertexShader9* g_defaultVertexShader = NULL;
 #else
 unsigned int vramTexture;
 unsigned int vramFrameBuffer = 0;
@@ -1171,7 +1173,7 @@ void Emulator_CreateGlobalShaders()
 #elif defined(OGL)
 	const char* vertexShaderSource = "#version 330 core\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; uniform mat4 Scale; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*(a_position*Scale);  }";
 #elif defined(D3D9)
-	const char* vertexShaderSource = "struct VS_IN { float4 pos : POSITION; float2 texcoord : TEXCOORD0; float4 col : COLOR0; }; struct VS_OUT { float4 pos : POSITION; float2 texcoord : TEXCOORD0; float4 col : COLOR0; }; VS_OUT main(VS_IN input) { VS_OUT output; output.pos = input.pos; output.texcoord = input.texcoord; output.col = input.col; return output; }";
+	const char* vertexShaderSource = "struct VS_IN { float3 pos : POSITION; float2 texcoord : TEXCOORD0; float4 col : COLOR0; }; struct VS_OUT { float4 pos : POSITION; float2 texcoord : TEXCOORD0; float4 col : COLOR0; }; VS_OUT main(VS_IN input) { VS_OUT output; output.pos = float4(input.pos.xyz,1); output.texcoord = input.texcoord; output.col = input.col; return output; }";
 #endif
 
 #if defined(OGL) || defined(OGLES)
@@ -1181,14 +1183,13 @@ void Emulator_CreateGlobalShaders()
 #elif defined(D3D9)
 	LPD3DXBUFFER vOutErrors = NULL;
 	LPD3DXBUFFER vertexShaderObject = NULL;
-	IDirect3DVertexShader9* vertexShader = NULL;
 	
 	if FAILED(D3DXCompileShader(vertexShaderSource, strlen(vertexShaderSource), NULL, NULL, "main", "vs_3_0", 0, &vertexShaderObject, &vOutErrors, NULL))
 	{
 		eprinterr("Failed to compile vertex shader!\n")
 	}
 	
-	if FAILED(d3ddev->CreateVertexShader((DWORD*)vertexShaderObject->GetBufferPointer(), &vertexShader))
+	if FAILED(d3ddev->CreateVertexShader((DWORD*)vertexShaderObject->GetBufferPointer(), &g_defaultVertexShader))
 	{
 		eprinterr("Failed to create vertex shader!\n");
 	}
@@ -1201,7 +1202,7 @@ void Emulator_CreateGlobalShaders()
 #elif defined(OGL)
 	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
 #elif defined(D3D9)
-	const char* fragmentShaderSource = "sampler s0; float4 main(in float2 texcoord : TEXCOORD0) : COLOR0 { float4 color = tex2D(s0, texcoord); return color; }";
+	const char* fragmentShaderSource = "sampler tex : register(s0); bool bDiscardBlack = true; float4 main(in float2 texcoord : TEXCOORD0) : COLOR0 { float4 color = tex2D(tex, texcoord); float r = color.r; color.r = color.b; color.b = r; if(color.a == 0.0f && bDiscardBlack) { discard; } return color; }";
 #endif
 
 #if defined(OGL) || defined(OGLES)
@@ -1211,14 +1212,13 @@ void Emulator_CreateGlobalShaders()
 #elif defined(D3D9)
 	LPD3DXBUFFER pOutErrors = NULL;
 	LPD3DXBUFFER pixelShaderObject = NULL;
-	IDirect3DPixelShader9* pixelShader = NULL;
-
+	
 	if FAILED(D3DXCompileShader(fragmentShaderSource, strlen(fragmentShaderSource), NULL, NULL, "main", "ps_3_0", 0, &pixelShaderObject, &pOutErrors, NULL))
 	{
 		eprinterr("Failed to compile pixel shader!\n")
 	}
 
-	if FAILED(d3ddev->CreatePixelShader((DWORD*)pixelShaderObject->GetBufferPointer(), &pixelShader))
+	if FAILED(d3ddev->CreatePixelShader((DWORD*)pixelShaderObject->GetBufferPointer(), &g_defaultPixelShader))
 	{
 		eprinterr("Failed to create pixel shader!\n");
 	}
@@ -1248,9 +1248,6 @@ void Emulator_CreateGlobalShaders()
 	GLint sampler = 0;
 	glUniform1iv(idx, 1, &sampler);
 	glActiveTexture(GL_TEXTURE0 + sampler);
-#elif defined(D3D9)
-	//d3ddev->SetVertexShader(vertexShader);///@TODO release
-	//d3ddev->SetPixelShader(pixelShader);///@TODO release
 #endif
 }
 
@@ -1331,6 +1328,7 @@ int Emulator_InitialiseD3D()
 	d3ddev->GetRenderTarget(0, &g_defaultRenderTarget);
 	d3ddev->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 	d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(64, 64, 64, 128));
+	d3ddev->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
 
 	/* Initialise VRAM */
 	SDL_memset(vram, 0, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
@@ -1355,7 +1353,7 @@ int Emulator_InitialiseD3D()
 
 	d3ddev->SetVertexDeclaration(g_vertexDecl);
 
-	if FAILED(d3ddev->CreateTexture(VRAM_WIDTH, VRAM_HEIGHT, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A1R5G5B5, D3DPOOL_DEFAULT, &vramTexture, NULL))
+	if FAILED(d3ddev->CreateTexture(VRAM_WIDTH, VRAM_HEIGHT, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &vramTexture, NULL))
 	{
 		eprinterr("Failed to create render target texture!\n");
 		return FALSE;
@@ -1704,6 +1702,8 @@ void Emulator_EndScene()
 	scissorRect.right = windowWidth * RESOLUTION_SCALE;
 	d3ddev->SetScissorRect(&scissorRect);
 	d3ddev->SetRenderTarget(0, g_defaultRenderTarget);
+	d3ddev->SetVertexShader(g_defaultVertexShader);
+	d3ddev->SetPixelShader(g_defaultPixelShader);
 #endif
 
 	float x = 1.0f / (VRAM_WIDTH / (float)(word_33BC.disp.x * RESOLUTION_SCALE));
@@ -1722,6 +1722,8 @@ void Emulator_EndScene()
 		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y, 1.0f, 1.0f, 1.0f, 1.0f,
 	};
 #elif defined(D3D9)
+
+#if 0
 	struct Vertex vertexBuffer[] =
 	{
 		0.0f, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x, y + h, D3DCOLOR_RGBA(255, 255, 255, 255),
@@ -1733,6 +1735,25 @@ void Emulator_EndScene()
 		0.0f, 0.0f, 0.0f, x, y, D3DCOLOR_RGBA(255, 255, 255, 255),
 		(float)word_33BC.disp.w * RESOLUTION_SCALE, (float)word_33BC.disp.h * RESOLUTION_SCALE, 0.0f, x + w, y + h, D3DCOLOR_RGBA(255, 255, 255, 255),
 	};
+#else
+	struct Vertex vertexBuffer[] =
+	{
+		//BL
+		-1.0f, -1.0f, 0.0f, x, y + h, D3DCOLOR_RGBA(255, 255, 255, 255),
+		//BR
+		1.0f, -1.0f, 0.0f, x + w, y + h, D3DCOLOR_RGBA(255, 255, 255, 255),
+		//TL
+		-1.0f, 1.0f, 0.0f, x, y, D3DCOLOR_RGBA(255, 255, 255, 255),
+
+		//TR
+		1.0f, 1.0f, 0.0f, x + w, y, D3DCOLOR_RGBA(255, 255, 255, 255),
+		//TL
+		-1.0f, 1.0f, 0.0f, x, y, D3DCOLOR_RGBA(255, 255, 255, 255),
+		//BR
+	    1.0f, -1.0f, 0.0f, x + w, y + h, D3DCOLOR_RGBA(255, 255, 255, 255),
+	};
+#endif
+
 #endif
 
 
@@ -1815,6 +1836,8 @@ void Emulator_EndScene()
 
 #if defined(D3D9)
 	//texture->Release();
+	d3ddev->SetVertexShader(NULL);
+	d3ddev->SetPixelShader(NULL);
 	d3ddev->EndScene();
 #endif
 
@@ -1852,6 +1875,16 @@ void Emulator_ShutDown()
 #if defined(VK)
 	vkDestroySurfaceKHR(instance, surface, 0);
 #elif defined(D3D9)
+	if (g_defaultVertexShader != NULL)
+	{
+		g_defaultVertexShader->Release();
+	}
+	
+	if (g_defaultPixelShader != NULL)
+	{
+		g_defaultPixelShader->Release();
+	}
+
 	SDL_DestroyRenderer(g_renderer);
 #endif
 

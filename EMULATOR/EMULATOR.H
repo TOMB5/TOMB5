@@ -113,7 +113,6 @@ struct Vertex
 	D3DCOLOR col;
 #endif
 };
-
 #pragma pack(pop)
 
 
