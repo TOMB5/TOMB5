@@ -988,7 +988,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[0].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
 			vertex[0].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[0].col = D3DCOLOR_RGBA(col0[0], col0[1], col0[2], 255);
+			vertex[0].col = D3DCOLOR_RGBA(col0[2], col0[1], col0[0], 255);
 #endif
 		}
 		else
@@ -999,7 +999,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[0].col[2] = (1.0f / 255.0f) * col0[2];
 			vertex[0].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[0].col = D3DCOLOR_RGBA(col0[0], col0[1], col0[2], 255);
+			vertex[0].col = D3DCOLOR_RGBA(col0[2], col0[1], col0[0], 255);
 #endif
 		}
 	}
@@ -1014,7 +1014,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[1].col[2] = ((1.0f / 255.0f) * col1[2]) * VERTEX_COLOUR_MULT;
 			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[1].col = D3DCOLOR_RGBA(col1[0], col1[1], col1[2], 255);
+			vertex[1].col = D3DCOLOR_RGBA(col1[2], col1[1], col1[0], 255);
 #endif
 	}
 		else
@@ -1025,7 +1025,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[1].col[2] = (1.0f / 255.0f) * col1[2];
 			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[1].col = D3DCOLOR_RGBA(col1[0], col1[1], col1[2], 255);
+			vertex[1].col = D3DCOLOR_RGBA(col1[2], col1[1], col1[0], 255);
 #endif
 }
 	}
@@ -1039,7 +1039,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[1].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
 			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[1].col = D3DCOLOR_RGBA(col0[0], col0[1], col0[2], 255);
+			vertex[1].col = D3DCOLOR_RGBA(col0[2], col0[1], col0[0], 255);
 #endif
 		}
 		else
@@ -1050,7 +1050,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[1].col[2] = (1.0f / 255.0f) * col0[2];
 			vertex[1].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[1].col = D3DCOLOR_RGBA(col0[0], col0[1], col0[2], 255);
+			vertex[1].col = D3DCOLOR_RGBA(col0[2], col0[1], col0[0], 255);
 #endif
 		}
 	}
@@ -1065,7 +1065,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[2].col[2] = ((1.0f / 255.0f) * col2[2]) * VERTEX_COLOUR_MULT;
 			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[2].col = D3DCOLOR_RGBA(col2[0], col2[1], col2[2], 255);
+			vertex[2].col = D3DCOLOR_RGBA(col2[2], col2[1], col2[0], 255);
 #endif
 		}
 		else
@@ -1076,7 +1076,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[2].col[2] = (1.0f / 255.0f) * col2[2];
 			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[2].col = D3DCOLOR_RGBA(col2[0], col2[1], col2[2], 255);
+			vertex[2].col = D3DCOLOR_RGBA(col2[2], col2[1], col2[0], 255);
 #endif
 		}
 	}
@@ -1090,7 +1090,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[2].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
 			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[2].col = D3DCOLOR_RGBA(col0[0], col0[1], col0[2], 255);
+			vertex[2].col = D3DCOLOR_RGBA(col0[2], col0[1], col0[0], 255);
 #endif
 		}
 		else
@@ -1101,7 +1101,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[2].col[2] = (1.0f / 255.0f) * col0[2];
 			vertex[2].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[2].col = D3DCOLOR_RGBA(col0[0], col0[1], col0[2], 255);
+			vertex[2].col = D3DCOLOR_RGBA(col0[2], col0[1], col0[0], 255);
 #endif
 		}
 	}
@@ -1116,7 +1116,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[3].col[2] = ((1.0f / 255.0f) * col3[2]) * VERTEX_COLOUR_MULT;
 			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[3].col = D3DCOLOR_RGBA(col3[0], col3[1], col3[2], 255);
+			vertex[3].col = D3DCOLOR_RGBA(col3[2], col3[1], col3[0], 255);
 #endif
 		}
 		else
@@ -1127,7 +1127,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[3].col[2] = (1.0f / 255.0f) * col3[2];
 			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[3].col = D3DCOLOR_RGBA(col3[0], col3[1], col3[2], 255);
+			vertex[3].col = D3DCOLOR_RGBA(col3[2], col3[1], col3[0], 255);
 #endif
 		}
 	}
@@ -1141,7 +1141,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[3].col[2] = ((1.0f / 255.0f) * col0[2]) * VERTEX_COLOUR_MULT;
 			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[3].col = D3DCOLOR_RGBA(col0[0], col0[1], col0[2], 255);
+			vertex[3].col = D3DCOLOR_RGBA(col0[2], col0[1], col0[0], 255);
 #endif
 		}
 		else
@@ -1152,7 +1152,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 			vertex[3].col[2] = (1.0f / 255.0f) * col0[2];
 			vertex[3].col[3] = (1.0f / 255.0f) * 255;
 #elif defined(D3D9)
-			vertex[3].col = D3DCOLOR_RGBA(col0[0], col0[1], col0[2], 255);
+			vertex[3].col = D3DCOLOR_RGBA(col0[2], col0[1], col0[0], 255);
 #endif
 		}
 	}
@@ -2260,6 +2260,7 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 				glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 #elif defined(D3D9)
+				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
 				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_BLENDFACTOR);
 				d3ddev->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
@@ -2272,8 +2273,9 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 #elif defined(D3D9)
-				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
-				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_BLENDFACTOR);
+				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 				d3ddev->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
 				d3ddev->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
 				d3ddev->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE);
@@ -2284,8 +2286,9 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
 #elif defined(D3D9)
-				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
-				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_BLENDFACTOR);
+				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_REVSUBTRACT);
+				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 				d3ddev->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
 				d3ddev->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
 				d3ddev->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE);
@@ -2296,8 +2299,9 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 				glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
 				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 #elif defined(D3D9)
+				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
-				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_BLENDFACTOR);
+				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 				d3ddev->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
 				d3ddev->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
 				d3ddev->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE);
