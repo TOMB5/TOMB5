@@ -5,6 +5,7 @@
 #include "DRAWPRIMITIVE.H"
 #include "FILE.H"
 #include "TEXT.H"
+#include "TOMB4FX.H"
 
 #define MINZRANGE 0.005
 #define MAXZRANGE 0.995
@@ -71,10 +72,80 @@ void InitWindow(int x, int y, int width, int height, int nearz, int farz, int vi
 }
 
 
-int GetStringLength(const char* string, int a2, int* a3)
+int __cdecl GetStringLength(const char* string, uint16_t* a2, uint16_t* a3)
 {
-	UNIMPLEMENTED();
-	return 0;
+	font_thing* chardef; // ecx
+
+	int width = 0;
+	
+	bool v11 = false;
+	signed int max_y = -1024;
+	unsigned int min_y = 1024;
+	
+	for (const char* p = string; *p; p++)
+	{
+		unsigned int v3 = *p;
+		
+		if (v3 == '\n')
+			break;
+		
+		if (v3 == ' ')
+		{
+			width += (phd_winxmax + 1) / 640.0 * 8.0;
+		}
+		else if (v3 == 9)
+		{
+			width += 40;
+			if (a2 && min_y > -12)
+				min_y = -12;
+			if (a3 && max_y < 2)
+				max_y = 2;
+		}
+		else if (v3 >= 20)
+		{
+			if (v3 >= 32)
+			{
+				if (v3 >= 83 && v3 <= 128)
+				{
+					v3 = AccentTable[128 - v3][0];
+					v11 = true;
+				}
+				chardef = &stru_507AB8[v3 - 33];
+			}
+			else
+			{
+				chardef = &stru_507AB8[v3 + 74];
+			}
+			
+			if (ScaleFlag)
+				width += chardef->a5 - chardef->a5 / 4;
+			else
+				width += chardef->a5;
+			
+			if (a2 && chardef->a7 < min_y)
+				min_y = chardef->a7;
+			
+			if (a3)
+			{
+				const int v9 = chardef->a6 + chardef->a7;
+				if (v9 > max_y)
+					max_y = v9;
+			}
+		}
+	}
+	
+	if (a2)
+	{
+		if (v11)
+			min_y -= 4;
+		
+		*a2 = min_y;
+	}
+	
+	if (a3)
+		*a3 = max_y;
+	
+	return width;
 }
 
 void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, const char* string, unsigned short flag)
@@ -86,8 +157,88 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 
 	ScaleFlag = (flag >> 12) & 1;
 
-	int v17;
-	int width = GetStringLength(string, 0, &v17);
+	WORD max_y;
+	int strwidth = GetStringLength(string, nullptr, &max_y);
+
+	int new_x = x;
+	
+	if (flag & FF_CENTER)
+	{
+		new_x = x;
+		strwidth = strwidth >> 1;
+		new_x -= strwidth;
+	}
+	else if (flag & FF_R_JUSTIFY)
+	{
+		new_x -= strwidth;
+	}
+
+	for (const char *p = string; *p; p++)
+	{
+		const unsigned char c = *p;
+
+		if (c == '\n')
+		{
+			max_y = 0;
+			y += 16;
+			continue;
+		}
+		
+		if (c == ' ')
+		{
+			if (ScaleFlag)
+			{
+				new_x += 6;
+			}
+			else
+			{
+				new_x += (phd_winxmax + 1) / 640.0 * 8.0;
+			}
+		}
+		else if (c == '\t')
+		{
+			new_x += 40;
+		}
+		else if (c >= 20)
+		{
+			const font_thing* charac;
+			
+			if (c >= 83 && c <= 128)
+			{
+				const char* tab = AccentTable[128 - c];
+				;
+				DrawChar(new_x, y, strwidth, charac = &stru_507AB8[tab[0] - 33]);
+				
+				if (tab[1] != ' ')
+					DrawChar(charac->a5 / 2 + new_x - 3, y + charac->a7, colourFlag, &stru_507AB8[tab[1] - 33]);
+			}
+			else
+			{
+				if (c >= ' ')
+				{
+					DrawChar(new_x, y, colourFlag, charac = &stru_507AB8[c - 33]);
+				}
+				else
+				{
+					DrawChar(new_x, y, colourFlag, charac = &stru_507AB8[c + 74]);
+				}
+			}
+			new_x += charac->a5;
+
+			if (ScaleFlag)
+			{
+				new_x -= charac->a5 / 4;
+			}
+		}
+		else
+		{
+			colourFlag = c - 1; // ?
+		}
+
+		// todo R_JUSTIFY
+	}
+
+	ScaleFlag = false;
 
 	if (false)
 	{
@@ -160,7 +311,7 @@ void setXY4(D3DTLVERTEX p[4], int x0, int y0, int x1, int y1, int x2, int y2, in
 	}
 }
 
-void DrawChar(uint16_t x, uint16_t y, uint16_t a3, font_thing* a4)// (F) probably TODO
+void DrawChar(uint16_t x, uint16_t y, uint16_t a3, const font_thing* a4)// (F) probably TODO
 {
     D3DTLVERTEX tlvert[4];
 

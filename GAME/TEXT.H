@@ -32,6 +32,8 @@ struct font_thing
     char a8;
     char a9;
 };
+
+extern font_thing stru_507AB8[106];
 #else
 extern CVECTOR FontShades[10][16];
 #endif
