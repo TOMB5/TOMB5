@@ -211,7 +211,7 @@ int S_UpdateInput()// (F)
 	if (keymap[DIK_ESCAPE])
 		linput |= IN_OPTION | IN_DESELECT;
 
-	static int look_timeout;
+	static int look_timeout = 0;
 
 	if (lara.gun_status == LG_READY)
 	{
@@ -240,7 +240,7 @@ int S_UpdateInput()// (F)
 		}
 	}
 
-	static int medipack_timeout;
+	static int medipack_timeout = 0;
 
 	if (keymap[DIK_0])
 	{
@@ -381,7 +381,7 @@ int S_UpdateInput()// (F)
 	if (keymap[DIK_F])
 		linput |= IN_FORWARD;
 	else
-		linput = IN_NONE;
+		linput &= ~IN_FORWARD;
 
 	dbginput = input;
 
