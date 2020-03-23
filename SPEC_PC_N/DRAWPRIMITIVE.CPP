@@ -1082,9 +1082,11 @@ void SortPolyList(int number, float buffer[][10])// (F)
 {
 	if (number != 0)
 	{
+		auto ptr = (dinfo_head**)buffer;
+		
 		for (int i = 0; i < number; i++)
 		{
-			buffer[i][0] -= i / 10.0;
+			(*ptr++)->z -= i / 10.0;
 		}
 
 		do_quickysorty(0, number - 1, buffer);
