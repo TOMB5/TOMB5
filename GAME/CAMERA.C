@@ -903,20 +903,24 @@ short rcossin_tbl[8192] =
 
 void InitialiseCamera()//25AAC, 25CB8 (F)
 {
-	last_target.x = lara_item->pos.x_pos;
-	camera.target.x = lara_item->pos.x_pos;
-	camera.shift = lara_item->pos.y_pos - SECTOR(1);
 	last_target.y = lara_item->pos.y_pos - SECTOR(1);
-	camera.target.y = lara_item->pos.y_pos - SECTOR(1);
+	last_target.x = lara_item->pos.x_pos;
 	last_target.z = lara_item->pos.z_pos;
+	
+	camera.target.x = lara_item->pos.x_pos;
+	camera.target.y = lara_item->pos.y_pos - SECTOR(1);
 	camera.target.z = lara_item->pos.z_pos;
+	
+	camera.shift = lara_item->pos.y_pos - SECTOR(1);
+	
+	camera.pos.x = lara_item->pos.x_pos;
 	camera.pos.y = lara_item->pos.y_pos - SECTOR(1);
+	camera.pos.z = lara_item->pos.z_pos - 100;
+	
 	camera.target_distance = 1536;
 	camera.number_frames = 1;
 	camera.speed = 1;
 	camera.flags = CF_FOLLOW_CENTER;
-	camera.pos.x = lara_item->pos.x_pos;
-	camera.pos.z = lara_item->pos.z_pos - 100;
 	camera.item = NULL;
 	camera.type = CHASE_CAMERA;
 	camera.bounce = 0;
