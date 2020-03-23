@@ -601,12 +601,58 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 	int v1b = v1;
 	int v3b = v3;
 
-	if (!(vp1 & vp2 & vp3 & vp4))
+	if (vp1 & vp2 & vp3 & vp4)
+		return;
+
+	
+	if ((vp1 | vp2 | vp3 | vp4) & 0x8000u)
 	{
-		if ((vp1 | vp2 | vp3 | vp4) & 0x8000u)
-		{
-			AddTriClippedSorted(v, v1b, v2, v3, tex, dside);
+		AddTriClippedSorted(v, v1b, v2, v3, tex, dside);
 			
+		newtex.attribute = tex->attribute;
+		newtex.new_flags = tex->new_flags;
+		newtex.tile_and_flag = tex->tile_and_flag;
+
+		newtex.vertices[0] = tex->vertices[0];
+		newtex.vertices[1] = tex->vertices[2];
+		newtex.vertices[2] = tex->vertices[3];
+
+		AddTriClippedSorted(v, v1b, v3, v4, &newtex, dside);
+
+		return;
+	}
+
+	D3DTLVERTEX* vt2 = &v[v2];
+
+	if (PtrVisible(&v[v1], &v[v2], &v[v3]))
+	{
+		if (!dside)
+			return;
+
+		SWAP(v1b, v3b);
+
+		newtex.attribute = tex->attribute;
+		newtex.new_flags = tex->new_flags;
+		newtex.tile_and_flag = tex->tile_and_flag;
+
+		newtex.vertices[0] = tex->vertices[2];
+		newtex.vertices[1] = tex->vertices[1];
+		newtex.vertices[2] = tex->vertices[0];
+		newtex.vertices[3] = tex->vertices[3];
+
+		next = &newtex;
+	}
+	else
+	{
+		next = tex;
+	}
+
+	if (dside || !PtrVisible(&v[v1b], &v[v2], &v[v3b]))
+	{
+		if (d9ab34[v1b] | d9ab34[v2] | d9ab34[v3b] | d9ab34[v4])
+		{
+			AddTriClippedSorted(v, v1b, v2, v3b, next, dside);
+
 			newtex.attribute = tex->attribute;
 			newtex.new_flags = tex->new_flags;
 			newtex.tile_and_flag = tex->tile_and_flag;
@@ -615,164 +661,360 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 			newtex.vertices[1] = tex->vertices[2];
 			newtex.vertices[2] = tex->vertices[3];
 
-			AddTriClippedSorted(v, v1b, v3, v4, &newtex, dside);
-
-			return;
-		}
-
-		D3DTLVERTEX* vt2 = &v[v2];
-
-		if (PtrVisible(&v[v1], &v[v2], &v[v3]))
-		{
-			if (!dside)
-				return;
-
-			SWAP(v1b, v3b);
-
-			newtex.attribute = tex->attribute;
-			newtex.new_flags = tex->new_flags;
-			newtex.tile_and_flag = tex->tile_and_flag;
-
-			newtex.vertices[0] = tex->vertices[2];
-			newtex.vertices[1] = tex->vertices[1];
-			newtex.vertices[2] = tex->vertices[0];
-			newtex.vertices[3] = tex->vertices[3];
-
-			next = &newtex;
+			AddTriClippedSorted(v, v1b, v3b, v4, &newtex, dside);
 		}
 		else
 		{
-			next = tex;
-		}
+			auto info = (dinfo_quad*)info3dptrbf;
 
-		if (dside || !PtrVisible(&v[v1b], &v[v2], &v[v3b]))
-		{
-			if (d9ab34[v1b] | d9ab34[v2] | d9ab34[v3b] | d9ab34[v4])
+			info->head.texattr = next->attribute;
+			info->head.tile_and_flag = next->tile_and_flag;
+			info->head.num_verts = 6;
+			info->head.e4b100 = e4b100;
+
+			info3dptrbf += sizeof(*info);
+
+			*sort3dptrbf++ = (int)info;
+
+			surfacenumbf++;
+
+			D3DTLVERTEX* vp1b = &v[v1b];
+
+			info->v1.sx = vp1b->sx;
+			info->v1.sy = vp1b->sy;
+			info->v1.sz = f_a - f_boo * vp1b->rhw;
+			info->v1.rhw = vp1b->rhw;
+			info->v1.color = vp1b->color;
+			info->v1.specular = vp1b->specular;
+			info->v1.tu = next->vertices[0].x;
+			info->v1.tv = next->vertices[0].y;
+
+			D3DVALUE z = vp1b->sz;
+
+			if (!e4b100)
 			{
-				AddTriClippedSorted(v, v1b, v2, v3b, next, dside);
-
-				newtex.attribute = tex->attribute;
-				newtex.new_flags = tex->new_flags;
-				newtex.tile_and_flag = tex->tile_and_flag;
-
-				newtex.vertices[0] = tex->vertices[0];
-				newtex.vertices[1] = tex->vertices[2];
-				newtex.vertices[2] = tex->vertices[3];
-
-				AddTriClippedSorted(v, v1b, v3b, v4, &newtex, dside);
+				if (z <= 0.0)
+					z = 0.0;
+				else
+					z = vp1b->sz;
 			}
-			else
+
+			info->v1bis = info->v1;
+
+			info->v2.sx = vt2->sx;
+			info->v2.sy = vt2->sy;
+			info->v2.sz = f_a - f_boo * vt2->rhw;
+			info->v2.rhw = vt2->rhw;
+			info->v2.color = vt2->color;
+			info->v2.specular = vt2->specular;
+			info->v2.tu = next->vertices[1].x;
+			info->v2.tv = next->vertices[1].y;
+
+			if (e4b100)
 			{
-				auto info = (dinfo_quad*)info3dptrbf;
-
-				info->head.texattr = next->attribute;
-				info->head.tile_and_flag = next->tile_and_flag;
-				info->head.num_verts = 6;
-				info->head.e4b100 = e4b100;
-
-				info3dptrbf += sizeof(*info);
-
-				*sort3dptrbf++ = (int)info;
-
-				surfacenumbf++;
-
-				D3DTLVERTEX* vp1b = &v[v1b];
-
-				info->v1.sx = vp1b->sx;
-				info->v1.sy = vp1b->sy;
-				info->v1.sz = f_a - f_boo * vp1b->rhw;
-				info->v1.rhw = vp1b->rhw;
-				info->v1.color = vp1b->color;
-				info->v1.specular = vp1b->specular;
-				info->v1.tu = next->vertices[0].x;
-				info->v1.tv = next->vertices[0].y;
-
-				D3DVALUE z = vp1b->sz;
-
-				if (!e4b100)
-				{
-					if (z <= 0.0)
-						z = 0.0;
-					else
-						z = vp1b->sz;
-				}
-
-				info->v1bis = info->v1;
-
-				info->v2.sx = vt2->sx;
-				info->v2.sy = vt2->sy;
-				info->v2.sz = f_a - f_boo * vt2->rhw;
-				info->v2.rhw = vt2->rhw;
-				info->v2.color = vt2->color;
-				info->v2.specular = vt2->specular;
-				info->v2.tu = next->vertices[1].x;
-				info->v2.tv = next->vertices[1].y;
-
-				if (e4b100)
-				{
-					z = z + vt2->sz;
-				}
-				else if (z < vt2->sz)
-				{
-					z = vt2->sz;
-				}
-
-				D3DTLVERTEX* vt3 = &v[v3b];
-
-				info->v3.sx = vt3->sx;
-				info->v3.sy = vt3->sy;
-				info->v3.sz = f_a - f_boo * vt3->rhw;
-				info->v3.rhw = vt3->rhw;
-				info->v3.color = vt3->color;
-				info->v3.specular = vt3->specular;
-				info->v3.tu = next->vertices[2].x;
-				info->v3.tv = next->vertices[2].y;
-
-				if (e4b100)
-				{
-					z = z + vt3->sz;
-				}
-				else if (z < vt3->sz)
-				{
-					z = vt3->sz;
-				}
-
-				info->v3bis = info->v3;
-
-				D3DTLVERTEX* vt4 = &v[v4];
-
-				info->v4.sx = vt4->sx;
-				info->v4.sy = vt4->sy;
-				info->v4.sz = f_a - f_boo * vt4->rhw;
-				info->v4.rhw = vt4->rhw;
-				info->v4.color = vt4->color;
-				info->v4.specular = vt4->specular;
-				info->v4.tu = next->vertices[3].x;
-				info->v4.tv = next->vertices[3].y;
-
-				if (e4b100)
-				{
-					z = z + vt4->sz;
-				}
-				else if (z < vt4->sz)
-				{
-					z = vt4->sz;
-				}
-				if (e4b100)
-					z = z * 0.25;
-
-				info->head.z = z;
-
-				d9ab1c += 2;
+				z = z + vt2->sz;
 			}
+			else if (z < vt2->sz)
+			{
+				z = vt2->sz;
+			}
+
+			D3DTLVERTEX* vt3 = &v[v3b];
+
+			info->v3.sx = vt3->sx;
+			info->v3.sy = vt3->sy;
+			info->v3.sz = f_a - f_boo * vt3->rhw;
+			info->v3.rhw = vt3->rhw;
+			info->v3.color = vt3->color;
+			info->v3.specular = vt3->specular;
+			info->v3.tu = next->vertices[2].x;
+			info->v3.tv = next->vertices[2].y;
+
+			if (e4b100)
+			{
+				z = z + vt3->sz;
+			}
+			else if (z < vt3->sz)
+			{
+				z = vt3->sz;
+			}
+
+			info->v3bis = info->v3;
+
+			D3DTLVERTEX* vt4 = &v[v4];
+
+			info->v4.sx = vt4->sx;
+			info->v4.sy = vt4->sy;
+			info->v4.sz = f_a - f_boo * vt4->rhw;
+			info->v4.rhw = vt4->rhw;
+			info->v4.color = vt4->color;
+			info->v4.specular = vt4->specular;
+			info->v4.tu = next->vertices[3].x;
+			info->v4.tv = next->vertices[3].y;
+
+			if (e4b100)
+			{
+				z = z + vt4->sz;
+			}
+			else if (z < vt4->sz)
+			{
+				z = vt4->sz;
+			}
+			if (e4b100)
+				z = z * 0.25;
+
+			info->head.z = z;
+
+			d9ab1c += 2;
 		}
 	}
 }
 
 void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
-	d9ab34;
-	Unimpl();
+	int v7; // edi
+	int v8; // esi
+	D3DTLBUMPVERTEX* vptr; // ecx
+	__int16* v22; // eax
+	int v23; // ebx
+	signed int v28; // eax
+	float* v29; // ecx
+	signed int v30; // edx
+	double v31; // st7
+	int v32; // eax
+	__int16* v33; // ecx
+	int v34; // edx
+	int v35; // eax
+	char v36; // [esp+13h] [ebp-31h]
+
+	int v38; // [esp+18h] [ebp-2Ch]
+
+
+	char v1b; // [esp+4Ch] [ebp+8h]
+	float* v2a; // [esp+50h] [ebp+Ch]
+	float v3a; // [esp+54h] [ebp+10h]
+	float* a7a; // [esp+5Ch] [ebp+18h]
+
+	const WORD vp1 = d9ab34[v1];
+	const WORD vp2 = d9ab34[v2];
+	const WORD vp3 = d9ab34[v3];
+
+	OBJECT_TEXTURE newtex;
+	OBJECT_TEXTURE* next;
+
+	if (vp1 & vp2 & vp3)
+		return;
+
+	Log(LT_Enter, "AddTriClippedSorted %4d[%d];%4d[%d];%4d[%d] tex=%d", v1, vp1, v2, vp2, v3, vp3, tex->tile_and_flag);
+
+	v36 = 0;
+	v38 = v1;
+	v1b = true;
+	
+	if ((vp1 | vp2 | vp3) & 0x8000u)
+	{
+		if (visible_zclip(&v[v1], &v[v2], &v[v3]))
+		{
+			next = tex;
+			vptr = stru_923C88;
+			
+			v36 = 1;
+		}
+		else
+		{
+			if (!dside)
+				return;
+			
+			SWAP(v2, v3);
+			
+			if (!visible_zclip(&v[v1], &v[v2], &v[v3]))
+				return;
+			
+			v36 = 1;
+
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+			
+			newtex.vertices[0] = tex->vertices[0];
+			newtex.vertices[1] = tex->vertices[2];
+			newtex.vertices[2] = tex->vertices[1];
+			
+			vptr = stru_923C88;
+		}
+	}
+	else
+	{
+		if (PtrVisible(&v[v1], &v[v2], &v[v3]))
+		{
+			if (!dside)
+				return;
+			
+			SWAP(v2, v3);
+			
+			newtex.attribute = tex->attribute;
+			newtex.new_flags = tex->new_flags;
+			newtex.tile_and_flag = tex->tile_and_flag;
+			
+			newtex.vertices[0] = tex->vertices[0];
+			newtex.vertices[1] = tex->vertices[2];
+			newtex.vertices[2] = tex->vertices[1];
+		}
+		else
+		{
+			next = tex;
+		}
+
+		
+		if (d9ab34[v38] | d9ab34[v2] | d9ab34[v3])
+		{
+			vptr = stru_BA3FB0;
+		}
+		else
+		{
+			auto info = (dinfo_tri*)info3dptrbf;
+
+			info->head.texattr = next->attribute;
+			info->head.tile_and_flag = next->tile_and_flag;
+			info->head.num_verts = 3;
+			info->head.e4b100 = e4b100;
+
+			vptr = &info->v1;
+
+			info3dptrbf += sizeof(*info);
+
+			*sort3dptrbf++ = (int)info;
+
+			v1b = false;
+		}
+	}
+
+	D3DTLVERTEX* vt1 = &v[v1];
+
+	vptr[0].sx = vt1->sx;
+	vptr[0].sy = vt1->sy;
+	vptr[0].sz = f_a - f_boo * vt1->rhw;
+	vptr[0].rhw = vt1->rhw;
+	vptr[0].color = vt1->color;
+	vptr[0].specular = vt1->specular;
+	vptr[0].tu = next->vertices[0].x;
+	vptr[0].tv = next->vertices[0].y;
+	vptr[0].tu2 = vt1->tu;
+	vptr[0].tv2 = vt1->tv;
+
+	v3a = 0.0;
+
+	if (e4b100)
+	{
+		v3a = v3a + vt1->sz;
+	}
+	else if (vt1->sz > v3a)
+	{
+		v3a = vt1->sz;
+	}
+
+	D3DTLVERTEX* vt2 = &v[v2];
+
+	vptr[1].sx = vt2->sx;
+	vptr[1].sy = vt2->sy;
+	vptr[1].sz = f_a - f_boo * vt2->rhw;
+	vptr[1].rhw = vt2->rhw;
+	vptr[1].color = vt2->color;
+	vptr[1].specular = vt2->specular;
+	vptr[1].tu = next->vertices[1].x;
+	vptr[1].tv = next->vertices[1].y;
+	vptr[1].tu2 = vt2->tu;
+	vptr[1].tv2 = vt2->tv;
+
+	if (e4b100)
+	{
+		v3a = v3a + vt2->sz;
+	}
+	else if (vt2->sz > v3a)
+	{
+		v3a = vt2->sz;
+	}
+	
+	D3DTLVERTEX* vt3 = &v[v3];
+
+	vptr[2].sx = vt3->sx;
+	vptr[2].sy = vt3->sy;
+	vptr[2].sz = f_a - f_boo * vt3->rhw;
+	vptr[2].rhw = vt3->rhw;
+	vptr[2].color = vt3->color;
+	vptr[2].specular = vt3->specular;
+	vptr[2].tu = next->vertices[2].x;
+	vptr[2].tv = next->vertices[2].y;
+	vptr[2].tu2 = vt3->tu;
+	vptr[2].tv2 = vt3->tv;
+	
+	if (e4b100)
+	{
+		v3a = v3a + vt3->sz;
+	}
+	else if (vt3->sz > v3a)
+	{
+		v3a = vt3->sz;
+	}
+	
+	if (v1b)
+	{
+		UNIMPLEMENTED();
+		return;
+		v28 = 3;
+		if (v36)
+		{
+			v28 = ZClipper(3, stru_923C88, stru_BA3FB0);
+			if (!v28)
+				return;
+		}
+		else
+		{
+			v29 = &stru_BA3FB0[0].rhw;
+			v30 = 3;
+			do
+			{
+				v31 = v29[3] * *v29;
+				v29 += 10;
+				--v30;
+				*(v29 - 7) = v31;
+				*(v29 - 6) = *(v29 - 6) * *(v29 - 10);
+			} while (v30);
+		}
+		v32 = XYUVGClipper(v28, stru_BA3FB0);
+		if (v32)
+		{
+			v33 = info3dptrbf;
+			info3dptrbf[2] = next->attribute;
+			v34 = 3 * v32 - 6;
+			v33[4] = v34;
+			if (e4b100)
+				*(float*)v33 = v3a * 0.33333299;
+			else
+				*(float*)v33 = v3a;
+			v33[3] = next->tile_and_flag;
+			v33[5] = e4b100;
+			info3dptrbf += 20 * v34 + 6;
+			*sort3dptrbf = (int)v33;
+			++sort3dptrbf;
+			surfacenumbf++;
+			AddClippedPoly((D3DTLBUMPVERTEX*)(v33 + 6), v32, stru_BA3FB0);
+		}
+	}
+	else
+	{
+		vptr[0].sz = f_a - f_boo * vptr[0].rhw;
+		vptr[1].sz = f_a - f_boo * vptr[1].rhw;
+		vptr[2].sz = f_a - f_boo * vptr[2].rhw;
+		
+		if (e4b100)
+			*(float*)&tex->attribute = v3a * 0.33333299;
+		else
+			*(float*)&tex->attribute = v3a;
+		
+		surfacenumbf++;
+		++d9ab1c;
+	}
 }
 
 
