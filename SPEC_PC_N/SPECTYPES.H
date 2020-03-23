@@ -45,7 +45,14 @@ struct SVECTOR {		/* short word type 3D vector */
 	short	vz, pad;
 };
 struct CVECTOR {		/* color type vector */
-	unsigned char	r, g, b, cd;
+	union
+	{
+		struct
+		{
+			unsigned char	r, g, b, cd;
+		};
+		uint32_t rgbcd;
+	};
 };
 
 struct object_info {

@@ -1129,53 +1129,84 @@ enum
 	MENU_SPECIAL_FEATURES_MENU
 };
 
+DWORD qword_51CE18 = 0;
+DWORD dword_51CE44 = 0;
+DWORD dword_51CE0C = 0;
+DWORD unk_51CE3C = 0;
+DWORD dword_51CE40 = 0;
 DWORD qword_5082F0 = 0;
 DWORD qword_5082F4 = 0;
+DWORD dword_51CE50 = 0;
+DWORD unk_51CE2A = 0;
+BYTE byte_5082C8[40] =
+{
+	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+	0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+int DoCredits()
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+void do_dels_cutseq_selector()
+{
+	UNIMPLEMENTED();
+}
+
+void GetSaveLoadFiles()
+{
+	UNIMPLEMENTED();
+}
+
+int GetCampaignCheatValue()
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+void DoOptions()
+{
+	UNIMPLEMENTED();
+}
+
+void S_LoadGame(int a1)
+{
+	UNIMPLEMENTED();
+}
+
+int DoLoadSave(int a1)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
 
 int TitleOptions()
 {
-	int result; // eax
-	signed int v1; // ebx
-	char v2; // cl
-	int v3; // ebp
-	int v4; // esi
 	int v5; // ebp
 	int v6; // edi
-	__int64 v7; // rax
-	int v8; // ebx
-	int v9; // ebx
-	signed int v10; // eax
-	int v11; // esi
-	char v12; // al
-	char v13; // al
-	char v14; // al
-	char v15; // al
-	__int64 v16; // rax
-	__int64 v17; // rax
 	bool v18; // zf
-	int v19; // eax
-	char v20; // bl
-	__int64 v21; // rax
 	int v22; // [esp+Ch] [ebp-14h]
 	int i; // [esp+10h] [ebp-10h]
 	char v24; // [esp+10h] [ebp-10h]
 	signed __int64 v25; // [esp+14h] [ebp-Ch]
 	int v26; // [esp+14h] [ebp-Ch]
 
-	result = dword_51CE44;
-	v1 = 0;
+	signed int v1 = 0;
 	if (dword_51CE44)
 	{
 		if (dword_C87BF0 == 2)
 		{
-			v2 = dword_51CE0C;
 			dword_51CE0C = 0;
 			dword_51CE44 = 0;
 			unk_51CE3C = 0;
 			dword_51CE40 = 0;
-			gfLevelComplete = v2;
+			gfLevelComplete = dword_51CE0C;
 			qword_5082F0 = 1;
-			return result;
+			return dword_51CE44;
 		}
 		input = 0;
 		dbinput = 0;
@@ -1191,7 +1222,8 @@ int TitleOptions()
 	{
 		dword_51CE40 = 0;
 		qword_5082F0 = 1;
-		return sub_401361();
+		do_dels_cutseq_selector();
+		return dword_51CE44;
 	}
 	if (!unk_51CE3C)
 	{
@@ -1200,20 +1232,19 @@ int TitleOptions()
 		case 0:
 			goto LABEL_37;
 		case 1:
-			v3 = font_height + phd_winymin;
 			PrintString(
 				phd_centerx,
 				font_height + phd_winymin,
 				6,
 				&gfStringWad[gfStringOffset[STR_SELECT_LEVEL]],
 				FF_CENTER);
-			v4 = font_height;
-			v5 = font_height + v3;
+			v5 = font_height + font_height + phd_winymin;
 			if (Gameflow->nLevels >= 10)
 			{
-				v7 = qword_5082F0;
-				v8 = 0;
-				for (i = 10; v7; ++v8)
+				DWORD v7 = qword_5082F0;
+				i = 10;
+				int v8;
+				for (v8 = 0; v7; ++v8)
 					v7 >>= 1;
 				v6 = v8 - 9;
 				if (v8 - 9 >= 1)
@@ -1222,7 +1253,6 @@ int TitleOptions()
 					{
 						PrintString(32, v5 + font_height, 6, "\x18", 0);
 						PrintString(phd_winxmax - 48, v5 + font_height, 6, "\x18", 0);
-						v4 = font_height;
 					}
 				}
 				else
@@ -1231,9 +1261,8 @@ int TitleOptions()
 				}
 				if (v8 != Gameflow->nLevels - 1)
 				{
-					PrintString(32, v5 + 10 * v4, 6, "\x1A", 0);
+					PrintString(32, v5 + 10 * font_height, 6, "\x1A", 0);
 					PrintString(phd_winxmax - 48, v5 + 10 * font_height, 6, "\x1A", 0);
-					v4 = font_height;
 				}
 			}
 			else
@@ -1245,26 +1274,25 @@ int TitleOptions()
 			v26 = i + v6;
 			if (v6 < i + v6)
 			{
-				v9 = v6 - 1;
+				int v9 = v6 - 1;
 				while (1)
 				{
-					v5 += v4;
+					v5 += font_height;
 					if (qword_5082F0 & (1 << v9))
 						v24 = 1;
 					else
-						v24 = 3 - (*((_BYTE*)&nframes + v22 + 3) != 0);
+						v24 = 3 - (byte_5082C8[v22 - 1] != 0);
 					PrintString(
 						phd_centerx,
 						v5,
 						v24,
-						&gfStringWad[gfStringOffset[byte_E5C321[v9]]],
+						&gfStringWad[gfStringOffset[gfLevelNames[v9 + 1]]],
 						0x8000);
 					if (qword_5082F0 & (1 << v9))
 						dword_51CE50 = v9;
 					++v9;
 					if (++v22 >= v26)
 						break;
-					v4 = font_height;
 				}
 			}
 			v1 = 0;
@@ -1273,7 +1301,7 @@ int TitleOptions()
 		case 2:
 			if (Gameflow->LoadSaveEnabled)
 			{
-				v10 = DoLoadSave(0x800000);
+				signed int v10 = DoLoadSave(0x800000);
 				if (v10 >= 0)
 				{
 					S_LoadGame(v10);
@@ -1285,14 +1313,14 @@ int TitleOptions()
 				SoundEffect(SFX_LARA_NO, 0, SFX_ALWAYS);
 				dword_51CE40 = 0;
 			LABEL_37:
-				v11 = phd_winymax - 4 * font_height;
+				const int v11 = phd_winymax - 4 * font_height;
 				SuperShowLogo();
 				Chris_Menu = 0;
-				v12 = 1;
+				char v12 = 1;
 				if (!(qword_5082F0 & 1))
 					v12 = 2;
 				PrintString(phd_centerx, v11, v12, &gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], FF_CENTER);
-				v13 = 1;
+				char v13 = 1;
 				if (!(qword_5082F0 & 2))
 					v13 = 2;
 				PrintString(
@@ -1301,7 +1329,7 @@ int TitleOptions()
 					v13,
 					&gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]],
 					FF_CENTER);
-				v14 = 1;
+				char v14 = 1;
 				if (!(qword_5082F0 & 4))
 					v14 = 2;
 				PrintString(
@@ -1310,7 +1338,7 @@ int TitleOptions()
 					v14,
 					&gfStringWad[gfStringOffset[STR_OPTIONS]],
 					FF_CENTER);
-				v15 = 1;
+				char v15 = 1;
 				if (!(qword_5082F0 & 8))
 					v15 = 2;
 				PrintString(
@@ -1319,7 +1347,7 @@ int TitleOptions()
 					v15,
 					&gfStringWad[gfStringOffset[STR_EXIT]],
 					FF_CENTER);
-				v25 = 8i64;
+				v25 = 8;
 			}
 			break;
 		case 3:
@@ -1368,7 +1396,7 @@ int TitleOptions()
 	LABEL_60:
 		if (v18)
 		{
-			v19 = GetCampaignCheatValue();
+			const int v19 = GetCampaignCheatValue();
 			if (v19)
 			{
 				gfLevelComplete = v19;
@@ -1382,8 +1410,8 @@ int TitleOptions()
 			{
 				if (dword_51CE40 == 1 && byte_5082C8[dword_51CE50])
 				{
-					v20 = 0;
-					v21 = qword_5082F0;
+					char v20 = 0;
+					DWORD v21 = qword_5082F0;
 					gfLevelComplete = 0;
 					if (qword_5082F0)
 					{
