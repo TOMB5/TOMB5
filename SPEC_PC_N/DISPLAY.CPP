@@ -8,7 +8,7 @@
 #include "TOMB4FX.H"
 
 #define MINZRANGE 0.005
-#define MAXZRANGE 0.995
+#define MAXZRANGE 0.99
 
 bool in_loading_screen;
 
