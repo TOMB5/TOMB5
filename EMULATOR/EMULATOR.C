@@ -168,7 +168,7 @@ static int Emulator_InitialiseVKContext(char* windowName)
 	//Create Vulkan Instance
 	if (vkCreateInstance(&createInfo, NULL, &instance) != VK_SUCCESS)
 	{
-		eprinterr("Failed to create vulkan instance!");
+		eprinterr("Failed to create Vulkan instance!");
 		return FALSE;
 	}
 
@@ -180,7 +180,7 @@ static int Emulator_InitialiseVKContext(char* windowName)
 
 	if (g_window == NULL)
 	{
-		eprinterr("Failed to initialise VK context!\n");
+		eprinterr("Failed to initialise Vulkan context!\n");
 		return FALSE;
 	}
 
@@ -192,7 +192,7 @@ static int Emulator_InitialiseVKContext(char* windowName)
 
 	if (vkCreateWin32SurfaceKHR(instance, &surfaceCreateInfo, NULL, &surface) != VK_SUCCESS)
 	{
-		eprinterr("Failed to initialise VK surface!\n");
+		eprinterr("Failed to initialise Vulkan surface!\n");
 		return FALSE;
 	}
 
@@ -268,7 +268,7 @@ static int Emulator_InitialiseVKContext(char* windowName)
 
 	/* Initialise SwapChain */
 	unsigned int formatCount = 1;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, 0); // suppress validation layer
+	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, 0);
 	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, &surfaceFormat);
 	surfaceFormat.format = surfaceFormat.format == VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8A8_UNORM : surfaceFormat.format;
 
@@ -278,7 +278,7 @@ static int Emulator_InitialiseVKContext(char* windowName)
 	presentModeCount = presentModeCount > MAX_PRESENT_MODE_COUNT ? MAX_PRESENT_MODE_COUNT : presentModeCount;
 	vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes);
 
-	VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;   // always supported.
+	VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
 	for (unsigned int i = 0; i < presentModeCount; ++i)
 	{
 		if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
@@ -1202,7 +1202,7 @@ void Emulator_CreateGlobalShaders()
 #elif defined(OGL)
 	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
 #elif defined(D3D9)
-	const char* fragmentShaderSource = "sampler tex : register(s0); bool bDiscardBlack = true; float4 main(in float2 texcoord : TEXCOORD0) : COLOR0 { float4 color = tex2D(tex, texcoord); float r = color.r; color.r = color.b; color.b = r; if(color.a == 0.0f && bDiscardBlack) { discard; } return color; }";
+	const char* fragmentShaderSource = "sampler tex : register(s0); bool bDiscardBlack = true; float4 main(in float2 texcoord : TEXCOORD0) : COLOR0 { float4 color = tex2D(tex, texcoord); float r = color.r; color.r = color.b; color.b = r; if(color.r == 0.0f && color.g == 0.0f && color.b == 0x0f) { discard; } return color; }";
 #endif
 
 #if defined(OGL) || defined(OGLES)
@@ -1378,7 +1378,7 @@ int Emulator_InitialiseD3D()
 #endif
 
 unsigned int g_lastBoundTexture = -1;
-#if defined(OGL) || defined(OGLES)
+#if defined(OGL) || defined(OGLES) || defined(VK)
 void Emulator_BindTexture(unsigned int textureId)
 #elif defined(D3D9)
 void Emulator_BindTexture(IDirect3DTexture9* texture)
@@ -1399,7 +1399,7 @@ void Emulator_BindTexture(IDirect3DTexture9* texture)
 #endif
 }
 
-#if defined(OGL) || defined(OGLES)
+#if defined(OGL) || defined(OGLES) || defined(VK)
 void Emulator_DestroyTextures(int numTextures, unsigned int* textures)
 #elif defined(D3D9)
 void Emulator_DestroyTextures(IDirect3DTexture9* texture)
@@ -1874,6 +1874,7 @@ void Emulator_ShutDown()
 
 #if defined(VK)
 	vkDestroySurfaceKHR(instance, surface, 0);
+	vkDestroyInstance(instance, NULL);
 #elif defined(D3D9)
 	if (g_defaultVertexShader != NULL)
 	{
@@ -1950,7 +1951,7 @@ struct CachedTexture* Emulator_GetFreeCachedTexture()
 	return NULL;
 }
 
-#if defined(OGL) || defined(OGLES)
+#if defined(OGL) || defined(OGLES) || defined(VK)
 unsigned int Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
 #elif defined(D3D9)
 IDirect3DTexture9* Emulator_GenerateTpage(unsigned short tpage, unsigned short clut)
@@ -2210,7 +2211,7 @@ IDirect3DTexture9* Emulator_GenerateTpage(unsigned short tpage, unsigned short c
 		
 		tpageTexture->texture->UnlockRect(0);
 
-		D3DXSaveTextureToFile("Debug.TGA", D3DXIFF_TGA, tpageTexture->texture, NULL);
+		//D3DXSaveTextureToFile("Debug.TGA", D3DXIFF_TGA, tpageTexture->texture, NULL);
 #endif
 		SDL_free(tpage);
 		SDL_free(convertedTpage);
@@ -2223,6 +2224,8 @@ IDirect3DTexture9* Emulator_GenerateTpage(unsigned short tpage, unsigned short c
 	return tpageTexture->textureID;
 #elif defined(D3D9)
 	return tpageTexture->texture;
+#elif defined(VK)
+	return NULL;
 #endif
 }
 
@@ -2334,7 +2337,7 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 	g_PreviousSemiTrans = semiTransparent;
 }
 
-#if defined(OGLES) || defined(OGL) || defined(D3D9)
+#if defined(OGLES) || defined(OGL) || defined(D3D9) || defined(VK)
 void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar)
 {
 #if defined(OGL) || defined(OGLES)
@@ -2718,4 +2721,31 @@ void Emulator_SetPGXPVertexCount(int vertexCount)
 #if defined(PGXP)
 	pgxp_vertex_count = vertexCount;
 #endif
+}
+
+void Emulator_SetViewPort(int x, int y, int width, int height)
+{
+#if defined(OGL) || defined(OGLES)
+	glViewport(x, y, width, height);
+#elif defined(D3D9)
+	D3DVIEWPORT9 viewPort;
+	viewPort.X = x;
+	viewPort.Y = y;
+	viewPort.Width = width;
+	viewPort.Height = height;
+	viewPort.MinZ = 0.0f;
+	viewPort.MaxZ = 1.0f;
+	d3ddev->SetViewport(&viewPort);
+#elif defined(VK)
+	VkViewport viewPort;
+	viewPort.x = x;
+	viewPort.y = y;
+	viewPort.width = width;
+	viewPort.height = height;
+	viewPort.minDepth = 0.0f;
+	viewPort.maxDepth = 1.0f;
+	assert(FALSE);//Unfinished see below.
+	//vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
+#endif
+
 }

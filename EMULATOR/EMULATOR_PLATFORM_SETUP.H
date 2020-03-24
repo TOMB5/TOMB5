@@ -6,8 +6,8 @@
  */
 #if (defined(_WINDOWS) || defined(__APPLE__) || defined(__linux__) || defined(__MINGW32__)) && !defined(__ANDROID__)
 //#define OGL//Open Graphics Library
-#define D3D9//Direct3D9
-//#define VK//Vulkan
+//#define D3D9//Direct3D9
+#define VK//Vulkan
 
 #if defined(OGL)
 #define SDL2

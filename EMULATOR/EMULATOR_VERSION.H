@@ -6,13 +6,14 @@
 
 /* Emulator version */
 #define EMULATOR_MAJOR_VERSION (1)
-#define EMULATOR_MINOR_VERSION (86)
+#define EMULATOR_MINOR_VERSION (87)
 
 /* Compile date and time */
 #define EMULATOR_COMPILE_DATE (__DATE__)
 #define EMULATOR_COMPILE_TIME (__TIME__)
 
 /* Psy-Q version */
-#define PSYQ_VERSION (4.7)
+#define PSYQ_MAJOR_VERSION (4)
+#define PSYQ_MINOR_VERSION (7)
 
 #endif

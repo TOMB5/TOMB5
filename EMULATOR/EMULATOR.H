@@ -134,9 +134,9 @@ extern int Emulator_InitialiseD3D();
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
-#if defined(OGL) || defined(OGLES)
+#if defined(OGL) || defined(OGLES) || defined(VK)
 extern unsigned int Emulator_GenerateTpage(unsigned short tpage, unsigned short clut);
-#else
+#elif defined(D3D9)
 IDirect3DTexture9* Emulator_GenerateTpage(unsigned short tpage, unsigned short clut);
 #endif
 extern void Emulator_DestroyFrameBuffer(unsigned int* fbo);
@@ -149,17 +149,17 @@ extern void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* 
 extern void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h);
 extern void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
 extern void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3, int bMultiplyColour);
-#if defined(OGL) || defined(OGLES) || defined(D3D9)
+#if defined(OGL) || defined(OGLES) || defined(D3D9) || defined(VK)
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
 extern void Emulator_Scalef(float sx, float sy, float sz);
 #endif
-#if defined(OGL) || defined(OGLES)
+#if defined(OGL) || defined(OGLES) || defined(VK)
 extern void Emulator_BindTexture(unsigned int textureId);
 #elif defined(D3D9)
 extern void Emulator_BindTexture(IDirect3DTexture9* texture);
 #endif
 extern void Emulator_DestroyTextures(int numTextures, unsigned int* textures);
-
+extern void Emulator_SetViewPort(int x, int y, int width, int height);
 #if defined(D3D9)
 extern IDirect3DDevice9* d3ddev;
 extern IDirect3DVertexDeclaration9* g_vertexDecl;
