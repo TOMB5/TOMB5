@@ -160,6 +160,7 @@ extern void Emulator_BindTexture(IDirect3DTexture9* texture);
 #endif
 extern void Emulator_DestroyTextures(int numTextures, unsigned int* textures);
 extern void Emulator_SetViewPort(int x, int y, int width, int height);
+extern void Emulator_SetScissorBox(int x, int y, int width, int height);
 #if defined(D3D9)
 extern IDirect3DDevice9* d3ddev;
 extern IDirect3DVertexDeclaration9* g_vertexDecl;

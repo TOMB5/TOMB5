@@ -1691,8 +1691,11 @@ void Emulator_EndScene()
 
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), FALSE);
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+#endif
 
-	glScissor(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
+	Emulator_SetScissorBox(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
+
+#if defined(OGL) || defined(OGLES)
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
 #elif defined(D3D9)
 	RECT scissorRect;
@@ -2747,5 +2750,26 @@ void Emulator_SetViewPort(int x, int y, int width, int height)
 	assert(FALSE);//Unfinished see below.
 	//vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
 #endif
+}
 
+void Emulator_SetScissorBox(int x, int y, int width, int height)
+{
+#if defined(OGL) || defined(OGLES)
+	glScissor(x, y, width, height);
+#elif defined(D3D9)
+	RECT scissorBox;
+	scissorRect.top = y;
+	scissorRect.bottom = y + height;
+	scissorRect.left = x;
+	scissorRect.right = x + width;
+	d3ddev->SetScissorRect(&scissorRect);
+#elif defined(VK)
+	VkRect2D scissorBox;
+	scissorBox.offset.x = x;
+	scissorBox.offset.y = y;
+	scissorBox.extent.width = width;
+	scissorBox.extent.height = height;
+	assert(FALSE);//Unfinished see below.
+	//vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
+#endif
 }

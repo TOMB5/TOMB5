@@ -173,7 +173,7 @@ struct VertexBufferSplitIndex
 {
 	unsigned short splitIndex;
 	unsigned short numVertices;
-#if defined(OGL) || defined(OGLES)
+#if defined(OGL) || defined(OGLES) || defined(VK)
 	unsigned int textureId;
 #elif defined(D3D9)
 	IDirect3DTexture9* textureId;
@@ -222,11 +222,15 @@ void* off_3348[]=
 int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
 	Emulator_CheckTextureIntersection(rect);
-
+	
 #if defined(OGL) || defined(OGLES)
 	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+#endif
+
+	Emulator_SetScissorBox(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
+
+#if defined(OGL) || defined(OGLES)
 	glClearColor(r/255.0f, g/255.0f, b/255.0f, 1.0f);
-	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #elif defined(D3D9)
 	if FAILED(d3ddev->SetRenderTarget(0, vramFrameBuffer))
@@ -259,8 +263,9 @@ int DrawSync(int mode)
 int LoadImagePSX(RECT16* rect, u_long* p)
 {
 	Emulator_CheckTextureIntersection(rect);
+	Emulator_SetScissorBox(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
+
 #if defined(OGL) || defined(OGLES)
-	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 	Emulator_BindTexture(vramTexture);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
 #elif defined(D3D9)
@@ -279,35 +284,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	{
 		for (int x = 0; x < rect->w; x++)
 		{
-#pragma pack(push,1)
-			struct argb5551
-			{
-				unsigned short a : 1;//5
-				unsigned short r : 5;//1
-				unsigned short g : 5;//5
-				unsigned short b : 5;//5
-			};
-
-			struct argb1555
-			{
-				unsigned short r : 5;//1
-				unsigned short g : 5;//5
-				unsigned short b : 5;//5
-				unsigned short a : 1;//5
-			};
-#pragma pack(pop)
-			struct argb1555* dest_conv = (struct argb1555*)&dest[x];
-			struct argb1555* src_conv = (struct argb1555*)&src[x];
-
-			//int r = src_conv->r;
-			//dest_conv->r = src_conv->b;
-			//dest_conv->g = src_conv->g;
-			//dest_conv->b = r;
 			dest[x] = src[x];
-			//In D3D9 transparent is 0, 1 is not transparent.
-			//0x8000 is transparent
-			//In OpenGL transparent is 1, 0 is not transparent
-			//dest[x] |= 0x8000u;
 		}
 
 		src += rect->w;
@@ -352,16 +329,11 @@ int MoveImage(RECT16* rect, int x, int y)
 	drawRect.h = rect->h;
 	Emulator_CheckTextureIntersection(drawRect);
 	*/
+
+	Emulator_SetScissorBox(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
+
 #if defined(OGL) || defined(OGLES)
-	glScissor(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
 	Emulator_BindTexture(vramTexture);
-#elif defined(D3D9)
-	RECT scissorRect;
-	scissorRect.top = y * RESOLUTION_SCALE;
-	scissorRect.bottom = (y * RESOLUTION_SCALE) + (rect->h * RESOLUTION_SCALE);
-	scissorRect.left = x * RESOLUTION_SCALE;
-	scissorRect.right = (x * RESOLUTION_SCALE) + (rect->w * RESOLUTION_SCALE);
-	d3ddev->SetScissorRect(&scissorRect);
 #endif
 
 	unsigned short* pixels = (unsigned short*)SDL_malloc(rect->w * RESOLUTION_SCALE * rect->h * RESOLUTION_SCALE * sizeof(unsigned short));
@@ -650,25 +622,12 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 #if defined(OGL) || defined(OGLES)
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
-		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 #elif defined (D3D9)
 		d3ddev->SetRenderTarget(0, vramFrameBuffer);
-		D3DVIEWPORT9 viewPort;
-		viewPort.X = activeDrawEnv.clip.x * RESOLUTION_SCALE;
-		viewPort.Y = activeDrawEnv.clip.y * RESOLUTION_SCALE;
-		viewPort.Width = VRAM_WIDTH;
-		viewPort.Height = VRAM_HEIGHT;
-		viewPort.MinZ = 0.0f;
-		viewPort.MaxZ = 1.0f;
-		d3ddev->SetViewport(&viewPort);
-		RECT scissorRect;
-		scissorRect.top = activeDrawEnv.clip.y * RESOLUTION_SCALE;
-		scissorRect.bottom = (activeDrawEnv.clip.y * RESOLUTION_SCALE) + (activeDrawEnv.clip.h * RESOLUTION_SCALE);
-		scissorRect.left = activeDrawEnv.clip.x * RESOLUTION_SCALE;
-		scissorRect.right = (activeDrawEnv.clip.x * RESOLUTION_SCALE) + (activeDrawEnv.clip.w * RESOLUTION_SCALE);
-		d3ddev->SetScissorRect(&scissorRect);
 #endif
+
+		Emulator_SetScissorBox(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
+		Emulator_SetViewPort(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 
 		P_TAG* pTag = (P_TAG*)p;
 
@@ -732,7 +691,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 			Emulator_SetBlendMode(g_splitIndices[i].abr, g_splitIndices[i].semiTrans);
 
-
 			if (g_wireframeMode)
 			{
 #if defined(OGL)
@@ -746,7 +704,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #if defined(OGL) || defined(OGLES)
 			glDrawArrays(g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
 #elif defined(D3D9)
-			d3ddev->DrawPrimitive((D3DPRIMITIVETYPE)g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices);
+			d3ddev->DrawPrimitive((D3DPRIMITIVETYPE)g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices/3);
 #endif
 
 
@@ -775,17 +733,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #elif (defined OGL) || (defined(OGLES) && OGLES_VERSION == 2)
 		glDeleteVertexArraysOES(1, &vao);
 #endif
-#if defined(OGL) || defined(OGLES)
-		glViewport(0, 0, windowWidth, windowHeight);
-#elif defined(D3D9)
-		viewPort.X = 0;
-		viewPort.Y = 0;
-		viewPort.Width = windowWidth;
-		viewPort.Height = windowHeight;
-		viewPort.MinZ = 0.0f;
-		viewPort.MaxZ = 1.0f;
-		d3ddev->SetViewport(&viewPort);
-#endif
+		Emulator_SetViewPort(0, 0, windowWidth, windowHeight);
 	}
 
 	Emulator_CheckTextureIntersection(&env->clip);
@@ -2618,9 +2566,9 @@ void DrawOTag(u_long* p)
 
 #if defined(OGL) || defined(OGLES)
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
-		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 #endif
+		Emulator_SetScissorBox(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
+		Emulator_SetViewPort(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 
 		P_TAG* pTag = (P_TAG*)p;
 
@@ -2709,9 +2657,7 @@ void DrawOTag(u_long* p)
 #elif (defined OGL) || (defined(OGLES) && OGLES_VERSION == 2)
 		glDeleteVertexArraysOES(1, &vao);
 #endif
-#if defined(OGL) || defined(OGLES)
-		glViewport(0, 0, windowWidth, windowHeight);
-#endif
+		Emulator_SetViewPort(0, 0, windowWidth, windowHeight);
 	}
 
 	Emulator_CheckTextureIntersection(&activeDrawEnv.clip);
@@ -2869,9 +2815,10 @@ void DrawPrim(void* p)
 
 #if defined(OGL) || defined(OGLES)
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
-		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 #endif
+		Emulator_SetScissorBox(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
+		Emulator_SetViewPort(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
+
 		P_TAG* pTag = (P_TAG*)p;
 
 #if defined(OGL) || defined(OGLES)
@@ -2943,9 +2890,8 @@ void DrawPrim(void* p)
 #elif (defined OGL) || (defined(OGLES) && OGLES_VERSION == 2)
 		glDeleteVertexArraysOES(1, &vao);
 #endif
-#if defined(OGL) || defined(OGLES)
-		glViewport(0, 0, windowWidth, windowHeight);
-#endif
+
+		Emulator_SetViewPort(0, 0, windowWidth, windowHeight);
 	}
 
 	Emulator_CheckTextureIntersection(&activeDrawEnv.clip);
