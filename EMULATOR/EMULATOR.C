@@ -1690,20 +1690,13 @@ void Emulator_EndScene()
 	glDisable(GL_BLEND);
 
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), FALSE);
-	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
+	//glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);///@TOCHECK is this really required?
 #endif
 
+	Emulator_BindFrameBuffer(g_defaultFBO);
 	Emulator_SetScissorBox(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
 
-#if defined(OGL) || defined(OGLES)
-	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
-#elif defined(D3D9)
-	RECT scissorRect;
-	scissorRect.top = 0;
-	scissorRect.bottom = windowHeight * RESOLUTION_SCALE;
-	scissorRect.left = 0;
-	scissorRect.right = windowWidth * RESOLUTION_SCALE;
-	d3ddev->SetScissorRect(&scissorRect);
+#if defined(D3D9)
 	d3ddev->SetRenderTarget(0, g_defaultRenderTarget);
 	d3ddev->SetVertexShader(g_defaultVertexShader);
 	d3ddev->SetPixelShader(g_defaultPixelShader);
@@ -2771,5 +2764,22 @@ void Emulator_SetScissorBox(int x, int y, int width, int height)
 	scissorBox.extent.height = height;
 	assert(FALSE);//Unfinished see below.
 	//vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
+#endif
+}
+
+#if defined(OGL) || defined(OGLES)
+void Emulator_BindFrameBuffer(GLuint frameBufferObject)
+#elif defined(D3D9)
+void Emulator_BindFrameBuffer(IDirect3DSurface9* frameBufferObject)
+#elif defined(VK)
+void Emulator_BindFrameBuffer(int frameBufferObject)
+#endif
+{
+#if defined(OGL) || defined(OGLES)
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject);
+#elif defined(D3D9)
+	d3ddev->SetRenderTarget(0, frameBufferObject);
+#elif defined(VK)
+	assert(FALSE);//unimplemented
 #endif
 }

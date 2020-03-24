@@ -161,6 +161,13 @@ extern void Emulator_BindTexture(IDirect3DTexture9* texture);
 extern void Emulator_DestroyTextures(int numTextures, unsigned int* textures);
 extern void Emulator_SetViewPort(int x, int y, int width, int height);
 extern void Emulator_SetScissorBox(int x, int y, int width, int height);
+#if defined(OGL) || defined(OGLES)
+extern void Emulator_BindFrameBuffer(GLuint frameBufferObject)
+#elif defined(D3D9)
+extern void Emulator_BindFrameBuffer(IDirect3DSurface9* frameBufferObject)
+#elif defined(VK)
+extern void Emulator_BindFrameBuffer(int frameBufferObject)
+#endif
 #if defined(D3D9)
 extern IDirect3DDevice9* d3ddev;
 extern IDirect3DVertexDeclaration9* g_vertexDecl;

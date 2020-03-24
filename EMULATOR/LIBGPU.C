@@ -226,21 +226,13 @@ void* off_3348[]=
 int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
 	Emulator_CheckTextureIntersection(rect);
-	
-#if defined(OGL) || defined(OGLES)
-	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-#endif
-
+	Emulator_BindFrameBuffer(vramFrameBuffer);
 	Emulator_SetScissorBox(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 
 #if defined(OGL) || defined(OGLES)
 	glClearColor(r/255.0f, g/255.0f, b/255.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #elif defined(D3D9)
-	if FAILED(d3ddev->SetRenderTarget(0, vramFrameBuffer))
-	{
-		eprinterr("Failed to set Render Target");
-	}
 	D3DRECT convertedRect;
 	convertedRect.x1 = rect->x * RESOLUTION_SCALE;
 	convertedRect.x2 = (rect->x * RESOLUTION_SCALE) + (rect->w * RESOLUTION_SCALE);
@@ -406,13 +398,15 @@ int SetGraphDebug(int level)
 
 int StoreImage(RECT16* rect, u_long * p)
 {
-#if defined(OGL) || defined(OGLES)
-	glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-#endif
+	Emulator_BindFrameBuffer(vramFrameBuffer);
 #if defined(OGL)
 	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &p[0]);
 #elif defined(OGLES)
 	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, (unsigned short*)&p[0]);
+#elif defined(D3D9)
+	assert(FALSE);//Unimplemented
+#elif defined(VK)
+	assert(FALSE);//Unimplemented
 #endif
 	return 0;
 }
@@ -619,17 +613,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
 
-#if defined(OGL) || defined(OGLES) || defined(D3D9)
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
 		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
-#endif
-
-#if defined(OGL) || defined(OGLES)
-		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-#elif defined (D3D9)
-		d3ddev->SetRenderTarget(0, vramFrameBuffer);
-#endif
-
+		Emulator_BindFrameBuffer(vramFrameBuffer);
 		Emulator_SetScissorBox(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 		Emulator_SetViewPort(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 
@@ -2563,14 +2549,9 @@ void DrawOTag(u_long* p)
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
 
-#if defined(OGL) || defined(OGLES) || defined(D3D9)
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
 		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
-#endif
-
-#if defined(OGL) || defined(OGLES)
-		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-#endif
+		Emulator_BindFrameBuffer(vramFrameBuffer);
 		Emulator_SetScissorBox(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 		Emulator_SetViewPort(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 
@@ -2812,14 +2793,9 @@ void DrawPrim(void* p)
 		SDL_memset(&g_vertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(struct Vertex));
 		SDL_memset(&g_splitIndices[0], 0, MAX_NUM_INDEX_BUFFERS * sizeof(struct VertexBufferSplitIndex));
 
-#if defined(OGL) || defined(OGLES) || defined(D3D9)
 		Emulator_Ortho2D(0.0f, VRAM_WIDTH, 0.0f, VRAM_HEIGHT, 0.0f, 1.0f);
 		Emulator_Scalef(RESOLUTION_SCALE, RESOLUTION_SCALE, RESOLUTION_SCALE);
-#endif
-
-#if defined(OGL) || defined(OGLES)
-		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
-#endif
+		Emulator_BindFrameBuffer(vramFrameBuffer);
 		Emulator_SetScissorBox(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
 		Emulator_SetViewPort(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 
