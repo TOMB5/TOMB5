@@ -200,7 +200,11 @@ int g_numSplitIndices = 0;
 
 //#define WIREFRAME_MODE
 
+#if defined(USE_32_BIT_ADDR)
 unsigned long terminator[2] = { -1, 0 };
+#else
+unsigned long terminator = -1;
+#endif
 
 void(*drawsync_callback)(void) = NULL;
 
