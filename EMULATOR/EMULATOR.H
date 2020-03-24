@@ -107,7 +107,7 @@ struct Vertex
 {
 	float x, y, z;
 	float u0, v0;
-#if defined(OGL) || defined(OGLES)
+#if defined(OGL) || defined(OGLES) || defined(VK)
 	float col[4];
 #elif defined(D3D9) 
 	D3DCOLOR col;
@@ -162,11 +162,11 @@ extern void Emulator_DestroyTextures(int numTextures, unsigned int* textures);
 extern void Emulator_SetViewPort(int x, int y, int width, int height);
 extern void Emulator_SetScissorBox(int x, int y, int width, int height);
 #if defined(OGL) || defined(OGLES)
-extern void Emulator_BindFrameBuffer(GLuint frameBufferObject)
+extern void Emulator_BindFrameBuffer(GLuint frameBufferObject);
 #elif defined(D3D9)
-extern void Emulator_BindFrameBuffer(IDirect3DSurface9* frameBufferObject)
+extern void Emulator_BindFrameBuffer(IDirect3DSurface9* frameBufferObject);
 #elif defined(VK)
-extern void Emulator_BindFrameBuffer(int frameBufferObject)
+extern void Emulator_BindFrameBuffer(int frameBufferObject);
 #endif
 #if defined(D3D9)
 extern IDirect3DDevice9* d3ddev;
