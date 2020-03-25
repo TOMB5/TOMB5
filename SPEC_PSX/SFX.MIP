@@ -261,7 +261,7 @@ GetPanVolume:
 	move    a0, t5
 	jal     phd_atan_asm
 	move    a1, t6
-	lhu     v1, 0x46A6(gp)
+	lhu     v1, CamRot+0x2-GP_ADDR(gp)
 	lw      a0, 0(t2)
 	sll     v1, 4
 	beqz    t3, loc_91FC0
@@ -528,7 +528,7 @@ SoundEffect:
 	move    a0, t9
 	jal     phd_atan_asm
 	move    a1, t8
-	lhu     v1, 0x46A6(gp)
+	lhu     v1, CamRot+0x2-GP_ADDR(gp)
 	nop
 	sll     v1, 4
 	j       loc_91954

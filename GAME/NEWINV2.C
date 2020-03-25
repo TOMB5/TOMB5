@@ -54,6 +54,8 @@
 typedef unsigned int uintptr_t;
 #endif
 
+#include <assert.h>
+
 struct INVOBJ inventry_objects_list[NUM_INV_OBJECTS] = // offset 0x92BE8
 {
 	{ UZI_ITEM, -4, 1000, ANGLE(90), ANGLE(135), ANGLE(90), 2, STR_UZI, -1 },
@@ -356,8 +358,14 @@ void S_DrawPickup(short object_number)//41608(<), 41A5C(<) (F)
 #elif PSX_VERSION || PSXPC_VERSION
 	ClearOTagR(db.pickup_ot, 256);
 	DrawThreeDeeObject2D(PickupX + 448, 200, convert_obj_to_invobj(object_number), 128, 0, (GnFrameCounter & 0x7F) << 9, 0, 0, 1);
+	
+#if defined(USE_32_BIT_ADDR)
+	db.pickup_ot[0] = db.ot[0];
+	db.ot[0] = (uintptr_t)&db.pickup_ot[255 * 2];
+#else
 	db.pickup_ot[0] = (db.pickup_ot[0] & 0xFF000000) | (db.ot[0] & 0xFFFFFF);
 	db.ot[0] = (db.ot[0] & 0xFF000000) | (uintptr_t)&db.pickup_ot[255] & 0xFFFFFF;
+#endif
 #endif
 }
 

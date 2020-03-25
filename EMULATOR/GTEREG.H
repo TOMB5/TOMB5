@@ -1,7 +1,11 @@
 #ifndef GTEREG_H
 #define GTEREG_H
 
+//Externals
+extern int LIM(int value, int max, int min, unsigned int flag);
+
 extern GTERegisters gteRegs;
+
 extern int docop2(int op);
 
 /* Data Registers mtc2 mfc2 */
@@ -110,8 +114,5 @@ extern int docop2(int op);
 #define ZSF3 (gteRegs.CP2C.p[ 29 ].sw.l)
 #define ZSF4 (gteRegs.CP2C.p[ 30 ].sw.l)
 #define FLAG (gteRegs.CP2C.p[ 31 ].d)
-
-//Externals
-extern int LIM(int value, int max, int min, unsigned int flag);
 
 #endif

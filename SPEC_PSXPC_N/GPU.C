@@ -24,27 +24,20 @@ int rgbscaleme = 256;
 int gfx_debugging_mode;
 struct DB_STRUCT db;
 struct MMTEXTURE* RoomTextInfo;
-#if (__linux__ || __APPLE__) && !defined(__ANDROID__)
-unsigned long* GadwOrderingTables_V2;
-#else
-unsigned long GadwOrderingTables_V2[512];
-#endif
+unsigned long GadwOrderingTables_V2[512 * POLYGON_BUFFER_MULT];
 static int LnFlipFrame;
-#if (__linux__ || __APPLE__) && !defined(__ANDROID__)
-unsigned long* GadwOrderingTables;
-unsigned long* GadwPolygonBuffers;
-#else
-unsigned long GadwOrderingTables[5128];
-unsigned long GadwPolygonBuffers[52260];
-#endif
+unsigned long GadwOrderingTables[5128 * POLYGON_BUFFER_MULT];
+unsigned long GadwPolygonBuffers[52260 * POLYGON_BUFFER_MULT];
 
 void GPU_UseOrderingTables(unsigned long* pBuffers, int nOTSize)//5DF68(<), 5F1C8(<) (D) (ND)
 {
 	db.order_table[0] = (unsigned long*)((unsigned long)&pBuffers[0]);
 	db.order_table[1] = (unsigned long*)((unsigned long)&pBuffers[nOTSize]);
+
 	db.nOTSize = nOTSize;
+
 	db.pickup_order_table[0] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[0]);
-	db.pickup_order_table[1] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256]);
+	db.pickup_order_table[1] = (unsigned long*)((unsigned long)&GadwOrderingTables_V2[256 * POLYGON_BUFFER_MULT]);
 	return;
 }
 
@@ -70,8 +63,12 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 	}
 #endif
 
+	//We use a LUT in this case and can no longer optimise the ordering table at this point in time
+	///@TODO modify to support indexed address table
+#if !defined(USE_32_BIT_ADDR)
 	//loc_5E020
 	OptimiseOTagR(&db.ot[0], db.nOTSize);
+#endif
 
 #if DEBUG_VERSION
 	ProfileRGB(255, 255, 255);
@@ -129,7 +126,11 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<) (F)
 	GnLastFrameCount = 0;
 	PutDispEnv(&db.disp[db.current_buffer]);
 
+#if defined(USE_32_BIT_ADDR)
+	DrawOTagEnv(&db.ot[db.nOTSize*2-2], &db.draw[db.current_buffer]);
+#else
 	DrawOTagEnv(&db.ot[db.nOTSize-1], &db.draw[db.current_buffer]);
+#endif
 
 #if DEBUG_VERSION
 	ProfileStartCount();
@@ -322,6 +323,10 @@ void GPU_FlipStory(unsigned long* gfx)//5E448(<), * (F)
 	r.w = fuckmyanalpassage->w;
 	r.h = fuckmyanalpassage->h;
 	LoadImagePSX(&r, gfx);
+#if defined(USE_32_BIT_ADDR)
+	DrawOTagEnv(&db.ot[db.nOTSize * 2 - 2], &db.draw[db.current_buffer]);
+#else
 	DrawOTagEnv(&db.ot[db.nOTSize - 1], &db.draw[db.current_buffer]);
+#endif
 	db.current_buffer ^= 1;
 }

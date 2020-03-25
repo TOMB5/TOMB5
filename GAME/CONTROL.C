@@ -1397,23 +1397,27 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 
 void KillMoveItems()//1D420(<), 1D5B4(<) (F)
 {
-	short nex;
+	short nex; // $v0
+	int i = 0;
 
 	if (ItemNewRoomNo > 0)
 	{
-		for(nex = 0; nex < ItemNewRoomNo; nex++)
+		//loc_1D444
+		do
 		{
-			if (ItemNewRooms[nex][0] & 0x8000)
+			if ((ItemNewRooms[i][0] & 0x8000))
 			{
-				KillItem(ItemNewRooms[nex][0] & 0x7FFF);
+				KillItem((ItemNewRooms[i][0] & 0x7FFF));
+				i++;
 			}
 			else
 			{
-				ItemNewRoom(ItemNewRooms[nex][0], ItemNewRooms[nex][1]);
+				//loc_1D468
+				ItemNewRoom(ItemNewRooms[i][0], ItemNewRooms[i][1]);
+				i++;
 			}
-
-		}
-	}
+		} while (i < ItemNewRoomNo);
+	}//loc_1D494
 
 	ItemNewRoomNo = 0;
 }
@@ -2567,9 +2571,11 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 				}
 				else
 				{
+					CamSeq = 0;
+
 					if (SpotRemap[value] != 0)
 					{
-						for (lp = 0, CamSeq = 0; lp < SpotRemap[value]; lp++)
+						for (lp = 0; lp < SpotRemap[value]; lp++)
 						{
 							CamSeq += CameraCnt[lp];
 						}
@@ -2701,10 +2707,8 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 	long y_floor;
 	struct room_info* r;
 	struct FLOOR_INFO* floor;
-	short data;
+	/*short*/ unsigned char data;
 
-	//Disabled due to infinite looping on PSX
-	return 0;
 
 	//loc_1E570
 	r = &room[room_number];
@@ -2760,7 +2764,7 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 		floor = &r->floor[x_floor + (y_floor * r->x_size)];
 		data = GetDoor(floor);
 
-		if (data == -1)
+		if (data == 255)
 			break;
 
 		r = &room[data];
@@ -2793,6 +2797,10 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 					//loc_1E734
 					return r->minfloor;
 				}
+			}
+			else
+			{
+				break;
 			}
 
 		} while (TRUE);

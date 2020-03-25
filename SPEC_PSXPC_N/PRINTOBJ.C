@@ -12,6 +12,7 @@
 #include "DELTAPAK.H"
 #include "CONTROL.H"
 #include "ANIMITEM.H"
+#include "LIGHT.H"
 
 #include <GTEREG.H>
 

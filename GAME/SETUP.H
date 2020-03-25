@@ -136,8 +136,7 @@ struct Level
 
 	//0xB0
 	unsigned short numSpotCameras;
-	unsigned short fixedCameraLength;
-	int unk455;
+	int fixedCameraLength;
 	int unk46;
 	unsigned short numAIObjects;
 	unsigned short unk0003;

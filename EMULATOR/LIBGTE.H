@@ -150,17 +150,20 @@ extern void SetDQB(int iDQB);
 extern void SetFogNear(long a, long h);
 extern int rsin(int a);
 
-#define MAX_NUM_POLYGONS 32768
+#if defined(PGXP)
+#define MAX_NUM_VERTICES 32768
 
-struct PGXPPolygon
+struct PGXPVertex
 {
-	unsigned int originalSXY;
+	unsigned int originalSXY2;
 	float x;
 	float y;
 	float z;
 };
 
-extern struct PGXPPolygon pgxp_polygons[MAX_NUM_POLYGONS];
-extern int pgxp_polgon_table_index;
+extern struct PGXPVertex pgxp_vertex_buffer[MAX_NUM_VERTICES];
+extern int pgxp_vertex_index;
+extern int pgxp_vertex_count;
+#endif
 
 #endif

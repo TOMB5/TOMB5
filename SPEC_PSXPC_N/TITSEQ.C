@@ -1,4 +1,4 @@
-﻿#include "TITSEQ.H"
+#include "TITSEQ.H"
 
 #include "CD.H"
 #include "CONTROL.H"
@@ -685,6 +685,7 @@ void TITSEQ_DrawLogo()//2B0(<) 29C(<) (F)
 			255, 124);
 
 		addPrim(db.ot, ptr);
+		
 
 		db.polyptr += sizeof(POLY_FT4);
 	}//locret_3A0

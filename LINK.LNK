@@ -93,7 +93,7 @@ bss	group	bss
 	;include SPEC_PSX/QUICKDRAW.OBJ
 	include SPEC_PSX/ANIMITEM.OBJ
 	include SPEC_PSX/FOOTPRNT_S.OBJ
-	;include SPEC_PSX/CALCHAIR.OBJ
+	include SPEC_PSX/CALCHAIR.OBJ
 	include SPEC_PSX/CALCLARA.OBJ
 	include SPEC_PSX/LIGHT.OBJ
 	include SPEC_PSX/SHADOWS.OBJ
@@ -112,6 +112,7 @@ bss	group	bss
 	include SPEC_PSX/GLOBALS.OBJ
 	include SPEC_PSX/DRAWPHAS.OBJ
 	include GAME/CODEWAD.OBJ
+	include SPEC_PSX/MENUTST.OBJ
 	
 	
 	;Reloc objects (Uncomment when RELOC disabled)

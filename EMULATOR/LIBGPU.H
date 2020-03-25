@@ -175,13 +175,18 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 #define dumpRGB3(p)							\
 	GPU_printf("(%3d,%3d,%3d)\n", (p)->r3, (p)->g3, (p)->b3) 	
 
-/*
- * Primitive Handling Macros
- */
+ /*
+  * Primitive Handling Macros
+  */
+
+#define LEN_OFFSET (4)
+
+#if defined(PGXP)
+#define setpgxpindex(p, _pgxp_index) (((P_TAG *)(p))->pgxp_index  = (u_short)(_pgxp_index))
+#endif
 #define setlen( p, _len) 	(((P_TAG *)(p))->len  = (u_char)(_len))
 #define setaddr(p, _addr)	(((P_TAG *)(p))->addr = (u_long)(_addr))
 #define setcode(p, _code)	(((P_TAG *)(p))->code = (u_char)(_code))
-
 #define getlen(p)    		(u_char)(((P_TAG *)(p))->len)
 #define getcode(p)   		(u_char)(((P_TAG *)(p))->code)
 #define getaddr(p)   		(u_long)(((P_TAG *)(p))->addr)
@@ -189,7 +194,11 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 #define nextPrim(p)  		(void *)((((P_TAG *)(p))->addr)|0x80000000)
 #define isendprim(p) 		((((P_TAG *)(p))->addr)==0xffffff)
 
+#if defined(PGXP)
+#define addPrim(ot, p)		setaddr(p, getaddr(ot)), setaddr(ot, p), setpgxpindex(p, pgxp_vertex_index)
+#else
 #define addPrim(ot, p)		setaddr(p, getaddr(ot)), setaddr(ot, p)
+#endif
 #define addPrims(ot, p0, p1)	setaddr(p1, getaddr(ot)),setaddr(ot, p0)
 
 #define catPrim(p0, p1)		setaddr(p0, p1)
@@ -221,9 +230,15 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 		((0xe1000000)|((dtd)?0x0200:0)| \
 		((dfe)?0x0400:0)|((tpage)&0x9ff))
 
+#if defined(USE_32_BIT_ADDR)
+#define setDrawTPage(p, dfe, dtd, tpage)	\
+	setlen(p, 1),	\
+	((u_long *)(p))[2] = _get_mode(dfe, dtd, tpage)
+#else
 #define setDrawTPage(p, dfe, dtd, tpage)	\
 	setlen(p, 1),	\
 	((u_long *)(p))[1] = _get_mode(dfe, dtd, tpage)
+#endif
 
 #define _get_tw(tw)	\
 		(tw ? ((0xe2000000)|((((tw)->y&0xff)>>3)<<15)| \
@@ -336,8 +351,18 @@ typedef struct {
  * Polygon Primitive Definitions
  */
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long addr;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	unsigned	addr: 24;
 	unsigned 	len:   8;
+#endif
 	u_char		r0, g0, b0, code;
 } P_TAG;
 	
@@ -346,7 +371,17 @@ typedef struct {
 } P_CODE;
 	
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	short	x1,	y1;
@@ -354,7 +389,17 @@ typedef struct {
 } POLY_F3;				/* Flat Triangle */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	short	x1,	y1;
@@ -363,7 +408,17 @@ typedef struct {
 } POLY_F4;				/* Flat Quadrangle */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	u0, v0;	u_short	clut;
@@ -374,7 +429,17 @@ typedef struct {
 } POLY_FT3;				/* Flat Textured Triangle */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	u0, v0;	u_short	clut;
@@ -387,7 +452,17 @@ typedef struct {
 } POLY_FT4;				/* Flat Textured Quadrangle */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	r1, g1, b1, pad1;
@@ -397,7 +472,17 @@ typedef struct {
 } POLY_G3;				/* Gouraud Triangle */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	r1, g1, b1, pad1;
@@ -409,7 +494,17 @@ typedef struct {
 } POLY_G4;				/* Gouraud Quadrangle */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	u0, v0;	u_short	clut;
@@ -422,7 +517,17 @@ typedef struct {
 } POLY_GT3;				/* Gouraud Textured Triangle */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	u0, v0;	u_short	clut;
@@ -432,8 +537,8 @@ typedef struct {
 	u_char	r2, g2, b2, p2;
 	short	x2,	y2;
 	u_char	u2, v2;	u_short	pad2;
-	u_char	r3, g3, b3, p3;
-	short	x3,	y3;
+	u_char	r3, g3, b3, p3;//10
+	short	x3,	y3;//11
 	u_char	u3, v3;	u_short	pad3;
 } POLY_GT4;				/* Gouraud Textured Quadrangle */
 
@@ -441,14 +546,34 @@ typedef struct {
  * Line Primitive Definitions
  */
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	short	x1,	y1;
 } LINE_F2;				/* Unconnected Flat Line */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	r1, g1, b1, p1;
@@ -456,7 +581,17 @@ typedef struct {
 } LINE_G2;				/* Unconnected Gouraud Line */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	short	x1,	y1;
@@ -465,7 +600,17 @@ typedef struct {
 } LINE_F3;				/* 2 connected Flat Line */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	r1, g1, b1, p1;
@@ -476,7 +621,17 @@ typedef struct {
 } LINE_G3;				/* 2 connected Gouraud Line */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	short	x1,	y1;
@@ -486,7 +641,17 @@ typedef struct {
 } LINE_F4;				/* 3 connected Flat Line Quadrangle */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	r1, g1, b1, p1;
@@ -502,7 +667,17 @@ typedef struct {
  * Sprite Primitive Definitions
  */
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	u0, v0;	u_short	clut;
@@ -510,14 +685,34 @@ typedef struct {
 } SPRT;					/* free size Sprite */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	u0, v0;	u_short	clut;
 } SPRT_16;				/* 16x16 Sprite */
 		   
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	u_char	u0, v0;	u_short	clut;
@@ -527,26 +722,66 @@ typedef struct {
  * Tile Primitive Definitions
  */
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 	short	w,	h;
 } TILE;					/* free size Tile */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 } TILE_16;				/* 16x16 Tile */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 } TILE_8;				/* 8x8 Tile */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_char	r0, g0, b0, code;
 	short	x0, 	y0;
 } TILE_1;				/* 1x1 Tile */
@@ -555,44 +790,124 @@ typedef struct {
  *  Special Primitive Definitions
  */
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_long	code[2];
 } DR_MODE;				/* Drawing Mode */
 
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_long	code[2];
 } DR_TWIN;				/* Texture Window */
 		   
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_long	code[2];
 } DR_AREA;				/* Drawing Area */
 		   
 typedef struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_long	code[2];
 } DR_OFFSET;				/* Drawing Offset */
 		   
 typedef struct {			/* MoveImage */
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_long	code[5];
 } DR_MOVE;
 
 typedef struct {			/* LoadImage */
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_long	code[3];
 	u_long	p[13];
 } DR_LOAD;
 
 typedef	struct {
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
 	u_long	tag;
+#endif
 	u_long	code[1];
 } DR_TPAGE;				/* Drawing TPage */
 
 typedef struct {
-		u_long  tag;
-		u_long  code[2];
+#if defined(USE_32_BIT_ADDR)
+	unsigned long tag;
+#if defined(PGXP)
+	unsigned short len;
+	unsigned short pgxp_index;
+#else
+	unsigned long len;
+#endif
+#else
+	u_long	tag;
+#endif
+	u_long  code[2];
 } DR_STP;                               /* Drawing STP */
 
 /*
@@ -759,6 +1074,7 @@ extern DISPENV word_33BC;
 extern DRAWENV activeDrawEnv;
 extern void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd);
 extern void ParsePrimitive(P_TAG* pTag);
+extern int g_swapInterval;
 extern int g_wireframeMode;
 extern int g_texturelessMode;
 

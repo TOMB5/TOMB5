@@ -28,7 +28,10 @@
 //#include "RAIN.H"
 #include "ROOMLOAD.H"
 #include "ROOMLETB.H"
+#include "ROOMLET1.H"
+#include "ROOMLET2.H"
 #include "ROOMLET3.H"
+#include "ROOMLET4.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
 #include "SPOTCAM.H"
@@ -40,6 +43,7 @@
 #include "DRAWSPKS.H"
 #include "SOUND.H"
 #include "ITEMS.H"
+#include "LARA1.H"
 
 #if PSX_VERSION || PSXPC_VERSION
 #include "TEXT_S.H"
@@ -379,8 +383,9 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 			ProfileRGB(0, 255, 0);
 #endif
 
-			//unsigned long* ptr = (unsigned long*)RelocPtr[1];
-			//jalr ptr[0];
+#if !AUG_VERSION && !JULY_VERSION
+			DrawLara();
+#endif
 
 #if DEBUG_VERSION
 			ProfileRGB(255, 255, 0);
@@ -475,15 +480,21 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 	}
 	else
 	{
-		//65290 (final game)
-		if (camera.pos.room_number == 71 && camera.pos.x == 27761 && camera.pos.y == -989 && camera.pos.z == 74663)
+		switch (RoomDrawType-1)///@FIXME this is wrong clearly
 		{
-			printf("YES2!\n");
+		case 0:
+			DrawRoomletListAsmRL1();
+			break;
+		case 1:
+			DrawRoomletListAsmRL2();
+			break;
+		case 2:
+			DrawRoomletListAsmRL3();
+			break;
+		case 3:
+			DrawRoomletListAsmRL4();
+			break;
 		}
-		DrawRoomletListAsmBinocular(camera_underwater, &room[camera.pos.room_number]);
-		//loc_64BA0
-		//unsigned long* v1 = (unsigned long*)RelocPtr[2];
-		//jalr v1[0];
 	}
 
 	//loc_64BBC

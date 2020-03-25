@@ -7,13 +7,6 @@ set(OPT_DEFINITIONS "")
 #Extract current source folder name.
 get_filename_component(PLATFORM_SPECIFIC_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
-#Include all platform specific cmake files.
-include("PLATFORM/Windows.cmake")
-include("PLATFORM/Mingw.cmake")
-include("PLATFORM/Linux.cmake")
-include("PLATFORM/Emscripten.cmake")
-include("PLATFORM/Android.cmake")
-
 #Toggles debug code on/off
 OPTIONAL_DEFINE(DEBUG_VERSION "Enable/Disable Debug Code" OFF)
 
@@ -35,6 +28,9 @@ OPTIONAL_DEFINE(PSXPC_TEST "Enable/Disable PSXPC Test Code" ON)
 #Enable relocatable code
 OPTIONAL_DEFINE(RELOC "Enable/Disable Relocatable code modules" OFF)
 
+#Enable 32-bit address for tag
+OPTIONAL_DEFINE(USE_32_BIT_ADDR "Enable/Disable 32-bit address for tag" ON)
+
 #Setup platform specific / game code include folder
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${GAME_CODE_DIR})
@@ -42,7 +38,11 @@ include_directories(${GAME_CODE_DIR})
 #Additional library include directories
 include_directories(${ROOT_DIR}/EMULATOR)
 link_directories(${ROOT_DIR}/BUILD/EMULATOR/${CMAKE_BUILD_TYPE})
-link_directories(${ROOT_DIR}/BUILD1/EMULATOR/)
+
+if(ANDROID)
+#Recursively locate the source files for EMULATOR.
+file(GLOB_RECURSE EMULATOR_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/../EMULATOR/*.C ${CMAKE_CURRENT_SOURCE_DIR}/../EMULATOR/*.MIP ${CMAKE_CURRENT_SOURCE_DIR}/../EMULATOR/*.H ${CMAKE_CURRENT_SOURCE_DIR}/../EMULATOR/*.CUR ${CMAKE_CURRENT_SOURCE_DIR}/../EMULATOR/*.RC)
+endif()
 
 #Recursively locate the source files for SPEC_PSX.
 file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAKE_CURRENT_SOURCE_DIR}/*.MIP ${CMAKE_CURRENT_SOURCE_DIR}/*.H ${CMAKE_CURRENT_SOURCE_DIR}/*.CUR ${CMAKE_CURRENT_SOURCE_DIR}/*.RC)
@@ -51,11 +51,32 @@ file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.C  ${CMAK
 source_group("GAME" FILES ${GAME_SRCS})
 source_group(${PLATFORM_SPECIFIC_FOLDER_NAME} FILES ${PLATFORM_SPECIFIC_SRCS})
 
+if(ANDROID)
+source_group(EMULATOR FILES ${EMULATOR_SPECIFIC_SRCS})
+endif()
+
+if(ANDROID)
+add_library(
+${PROJECT_NAME}
+SHARED
+${GAME_SRCS}
+${PLATFORM_SPECIFIC_SRCS}
+${EMULATOR_SPECIFIC_SRCS}
+)
+else()
 add_executable(
 ${PROJECT_NAME}
 ${GAME_SRCS}
 ${PLATFORM_SPECIFIC_SRCS}
 )
+endif()
+
+#Include all platform specific cmake files.
+include("PLATFORM/Windows.cmake")
+include("PLATFORM/Mingw.cmake")
+include("PLATFORM/Linux.cmake")
+include("PLATFORM/Emscripten.cmake")
+include("PLATFORM/Android.cmake")
 
 BuildPreProcessorDefinitions()
 
@@ -77,7 +98,6 @@ set(TARGET_BINARY_DIR "${PROJECT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
 
 #This will be a console application, alter linker subsystem accordingly or main method won't be found
 if(MSVC)
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /BASE:0x400000 /DYNAMICBASE:NO /FIXED")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	set_target_properties(
 	${PROJECT_NAME}
@@ -87,4 +107,4 @@ if(MSVC)
 	PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:CONSOLE"
 	PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${TARGET_BINARY_DIR}
 	)
-endif(MSVC)
+endif()

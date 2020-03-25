@@ -67,7 +67,7 @@
 #include "TYPEDEFS.H"
 #endif
 
-#if defined(__linux__) || defined(__EMSCRIPTEN__)
+#if defined(__linux__) || defined(__EMSCRIPTEN__) || defined(__ANDROID__)
         #define CODE_WAD "DATA/CODE.WAD"
 #else
         #define CODE_WAD "DATA\\CODE.WAD"
@@ -419,6 +419,7 @@ void InitialiseLaraCarriedItems(long keep_carried_items)//?, B4EE4
 	long i;
 	long gun_type;
 	struct lara_info lara_backup;
+	short lara_item_number = lara.item_number;
 
 	if (lara.item_number == -1)
 	{
@@ -440,8 +441,7 @@ void InitialiseLaraCarriedItems(long keep_carried_items)//?, B4EE4
 		memset(&lara, 0, sizeof(struct lara_info));
 	}
 
-	lara.item_number = lara.item_number;//?
-
+	lara.item_number = lara_item_number;
 
 	lara.air = 0x708;
 	lara.hit_direction = -1;

@@ -138,7 +138,7 @@ void PadSetAct(int unk00, unsigned char* unk01, int unk02)
 
 unsigned short UpdateGameControllerInput(SDL_GameController* pad)
 {
-	unsigned short ret = -1;
+	unsigned short ret = 0xFFFF;
 
 	if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_X))//Square
 	{
@@ -225,7 +225,7 @@ unsigned short UpdateGameControllerInput(SDL_GameController* pad)
 
 unsigned short UpdateKeyboardInput()
 {
-	unsigned short ret = -1;
+	unsigned short ret = 0xFFFF;
 
 	//Not initialised yet
 	if (keyboardState == NULL)

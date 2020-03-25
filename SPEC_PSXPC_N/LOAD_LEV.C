@@ -17,7 +17,7 @@
 
 #include <LIBGTE.H>
 
-#if defined(__linux__) || defined(__EMSCRIPTEN__)
+#if defined(__linux__) || defined(__EMSCRIPTEN__) || defined(__ANDROID__)
 #define LOADING_PIC "DATA/LOADPIC.RAW"
 #else
 #define LOADING_PIC "data\\loadpic.raw"
@@ -427,7 +427,7 @@ void LOAD_Stop()//60434(<), 60FB4(<) (F) (*) (*) (D) (D)
 	db.draw[1].dtd = 1;
 	db.draw[0].dtd = 1;
 
-	GPU_UseOrderingTables(&GadwOrderingTables[0], 5128 * 4 / 8);
+	GPU_UseOrderingTables(&GadwOrderingTables[0], sizeof(GadwOrderingTables) / 8);
 	db.current_buffer = 0;
 
 	GPU_SyncBothScreens();

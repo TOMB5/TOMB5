@@ -154,6 +154,7 @@ char fontDebugTexture[] =
 //unk_E88
 unsigned char fontDebugClut[] = { 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+int g_swapInterval = 0;
 int g_wireframeMode = 0;
 int g_texturelessMode = 0;
 
@@ -167,6 +168,12 @@ struct VertexBufferSplitIndex
 	unsigned char primitiveType;
 };
 
+#define DEBUG_POLY_COUNT
+
+#if defined(DEBUG_POLY_COUNT)
+static int polygon_count = 0;
+#endif
+
 #define MAX_NUM_POLY_BUFFER_VERTICES (12040)//?FIXME
 #define MAX_NUM_INDEX_BUFFERS (4096)
 struct Vertex g_vertexBuffer[MAX_NUM_POLY_BUFFER_VERTICES];
@@ -178,13 +185,8 @@ int g_numSplitIndices = 0;
 
 //#define WIREFRAME_MODE
 
-//Nasty hack, win32 is like original but due to memory differences
-//Between Linux and Windows we must do this unfortunately.
-#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
-unsigned long terminator = -1;
-#else
-unsigned long* terminator;
-#endif
+unsigned long terminator[2] = { -1, 0 };
+
 void(*drawsync_callback)(void) = NULL;
 
 void* off_3348[]=
@@ -227,7 +229,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	Emulator_CheckTextureIntersection(rect);
 	glScissor(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 	Emulator_BindTexture(vramTexture);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x, rect->y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
 
 #if _DEBUG && 0
 	Emulator_SaveVRAM("VRAM3.TGA", 0, 0, rect->w, rect->h, TRUE);
@@ -267,8 +269,8 @@ int MoveImage(RECT16* rect, int x, int y)
 	glScissor(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
 	Emulator_BindTexture(vramTexture);
 
-	unsigned short* pixels = (unsigned short*)SDL_malloc(rect->w * rect->h * sizeof(unsigned short));
-	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
+	unsigned short* pixels = (unsigned short*)SDL_malloc(rect->w * RESOLUTION_SCALE * rect->h * RESOLUTION_SCALE * sizeof(unsigned short));
+	glReadPixels(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &pixels[0]);
 
 	return 0;
@@ -303,19 +305,12 @@ u_long* ClearOTag(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
 	//last is special terminator
-	ot[n-1] = (unsigned long)&terminator;
-#else
-	//last is special terminator
-	ot[n-1] = (unsigned long)terminator;
-#endif
+	ot[n - 1] = (unsigned long)&terminator;
 
 	for (int i = n - 2; i > -1; i--)
 	{
 		ot[i] = (unsigned long)&ot[i + 1];
-		//Asset - Not 24-bit address, we need to crash now!
-		assert((ot[i] & 0xFF000000) == 0);
 	}
 
 	return NULL;
@@ -327,19 +322,22 @@ u_long* ClearOTagR(u_long* ot, int n)
 	if (n == 0)
 		return NULL;
 
-#if defined(_WINDOWS) || defined(__EMSCRIPTEN__)
 	//First is special terminator
-	ot[0] = (unsigned long)&terminator;
-#else
-	//First is special terminator
-	ot[0] = (unsigned long)terminator;
-#endif
+	setaddr(ot, &terminator);
+	setlen(ot, 0);
 
-	for (int i = 1; i < n; i++)
+#if defined(USE_32_BIT_ADDR)
+	for (int i = 2; i < n * 2; i+=2)
+#else
+	for (int i = 1; i < n ; i++)
+#endif
 	{
-		ot[i] = (unsigned long)& ot[i - 1];
-		//Asset - Not 24-bit address, we need to crash now!
-		assert((ot[i] & 0xFF000000) == 0);
+#if defined(USE_32_BIT_ADDR)
+		setaddr(&ot[i], (unsigned long)&ot[i - 2]);
+#else
+		setaddr(&ot[i], (unsigned long)&ot[i - 1]);
+#endif
+		setlen(&ot[i], 0);
 	}
 
 	return NULL;
@@ -464,6 +462,9 @@ static unsigned short numVertices = 0;
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)//
 {
+#if defined(DEBUG_POLY_COUNT)
+	polygon_count = 0;
+#endif
 	/* Tell the shader to discard black */
 	glUniform1i(glGetUniformLocation(g_gte_shader, "bDiscardBlack"), TRUE);
 
@@ -498,6 +499,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);
 		glViewport(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, VRAM_WIDTH, VRAM_HEIGHT);
 		glScissor(activeDrawEnv.clip.x * RESOLUTION_SCALE, activeDrawEnv.clip.y * RESOLUTION_SCALE, activeDrawEnv.clip.w * RESOLUTION_SCALE, activeDrawEnv.clip.h * RESOLUTION_SCALE);
+		
 		P_TAG* pTag = (P_TAG*)p;
 
 		glGenBuffers(1, &vbo);
@@ -512,14 +514,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		{
 			if (pTag->len > 0)
 			{
-				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
+ 				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4 + LEN_OFFSET);
 			}
 			pTag = (P_TAG*)pTag->addr;
-#if __linux__ || __APPLE_
-		}while ((unsigned long)pTag != 0xFFFFFF);
-#else
-		}while ((unsigned long)pTag != (unsigned long)&terminator);
-#endif
+		}while ((uintptr_t)pTag != (uintptr_t)&terminator);
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
@@ -531,7 +529,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			}
 			else
 			{
-				assert(g_splitIndices[i].textureId < 1000);
+#if !defined(__EMSCRIPTEN__)
+				//assert(g_splitIndices[i].textureId < 1000);
+#endif
 				Emulator_BindTexture(g_splitIndices[i].textureId);
 			}
 
@@ -563,10 +563,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 #if defined(PGXP)
 	/* Reset the ztable */
-	memset(&pgxp_polygons[0], 0, pgxp_polgon_table_index * sizeof(PGXPPolygon));
+	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
 
-	/* Reset the ztable index of used */
-	pgxp_polgon_table_index = 0;
+	/* Reset the ztable index of */
+	pgxp_vertex_index = 0;
 #endif
 }
 
@@ -641,6 +641,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 3;
 
 			currentAddress += sizeof(POLY_F3);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x24:
@@ -681,6 +684,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			g_vertexIndex += 3;
 			numVertices += 3;
 			currentAddress += sizeof(POLY_FT3);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x28:
@@ -724,7 +730,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			g_vertexIndex += 6;
 			numVertices += 6;
 			currentAddress += sizeof(POLY_F4);
-
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x2C:
@@ -771,6 +779,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(POLY_FT4);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x30:
@@ -809,6 +820,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 3;
 
 			currentAddress += sizeof(POLY_G3);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x34:
@@ -850,6 +864,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 3;
 
 			currentAddress += sizeof(POLY_GT3);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x38:
@@ -894,6 +911,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(POLY_G4);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x3C:
@@ -940,6 +960,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(POLY_GT4);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x40:
@@ -978,6 +1001,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 2;
 
 			currentAddress += sizeof(LINE_F2);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x48:
@@ -1029,6 +1055,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 					g_vertexIndex += 2;
 					numVertices += 2;
 				}
+#if defined(DEBUG_POLY_COUNT)
+				polygon_count++;
+#endif
 			}
 
 			currentAddress += sizeof(LINE_F3);
@@ -1070,6 +1099,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 2;
 
 			currentAddress += sizeof(LINE_G2);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x60:
@@ -1113,6 +1145,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(TILE);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 
 			break;
 		}
@@ -1160,6 +1195,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(SPRT);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x68:
@@ -1204,6 +1242,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(TILE_1);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x70:
@@ -1248,6 +1289,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(TILE_8);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x74:
@@ -1294,6 +1338,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(SPRT_8);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x78:
@@ -1338,6 +1385,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(TILE_16);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0x7C:
@@ -1384,6 +1434,9 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			numVertices += 6;
 
 			currentAddress += sizeof(SPRT_16);
+#if defined(DEBUG_POLY_COUNT)
+			polygon_count++;
+#endif
 			break;
 		}
 		case 0xE0:
@@ -1392,12 +1445,21 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			{
 			case 0xE1:
 			{
+#if defined(USE_32_BIT_ADDR)
+				unsigned short tpage = ((unsigned short*)pTag)[4];
+#else
 				unsigned short tpage = ((unsigned short*)pTag)[2];
+#endif
 				//if (tpage != 0)
 				{
 					activeDrawEnv.tpage = tpage;
 				}
-				currentAddress += 8;
+
+				currentAddress += sizeof(DR_TPAGE);
+#if defined(DEBUG_POLY_COUNT)
+				polygon_count++;
+#endif
+
 				break;
 			}
 			default:
@@ -2347,11 +2409,7 @@ void DrawOTag(u_long* p)
 				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4);
 			}
 			pTag = (P_TAG*)pTag->addr;
-#if __linux__ || __APPLE_
-		} while ((unsigned long)pTag != 0xFFFFFF);
-#else
 		} while ((unsigned long)pTag != (unsigned long)& terminator);
-#endif
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
 
@@ -2394,10 +2452,10 @@ void DrawOTag(u_long* p)
 
 #if defined(PGXP)
 	/* Reset the ztable */
-	memset(&pgxp_polygons[0], 0, pgxp_polgon_table_index * sizeof(PGXPPolygon));
+	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
 
-	/* Reset the ztable index of used */
-	pgxp_polgon_table_index = 0;
+	/* Reset the ztable index used */
+	pgxp_vertex_index = 0;
 #endif
 #endif
 }
@@ -2593,10 +2651,10 @@ void DrawPrim(void* p)
 
 #if defined(PGXP)
 	/* Reset the ztable */
-	memset(&pgxp_polygons[0], 0, pgxp_polgon_table_index * sizeof(PGXPPolygon));
+	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
 
-	/* Reset the ztable index of used */
-	pgxp_polgon_table_index = 0;
+	/* Reset the ztable index used */
+	pgxp_vertex_index = 0;
 #endif
 #endif
 }
