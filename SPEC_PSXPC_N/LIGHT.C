@@ -479,7 +479,7 @@ loc_85D34:
 
 					loc_85ED0:
 						int at = s5 - a3;
-						if (s4 - a3 < 0)
+						if (s4 - a3 <= 0)
 						{
 							s6 = s5;
 							s5 = s4;
@@ -490,7 +490,7 @@ loc_85D34:
 							s1 = (int*)at;
 							//j loc_85F2C
 						}
-						else if (s5 - a3 < 0)
+						else if (s5 - a3 <= 0)
 						{
 							//loc_85EFC
 							s6 = s5;
@@ -500,7 +500,7 @@ loc_85D34:
 							s2 = (int*)at;
 							//j loc_85F2C
 						}
-						else if (s6 - a3 < 0)
+						else if (s6 - a3 <= 0)
 						{
 							//loc_85F1C
 							s6 = a3;
@@ -710,8 +710,8 @@ loc_86154:
 		t0 = ((int*)s4)[3];
 		int t3 = ((int*)s5)[2];
 		int s0 = t0 & 0xFF;
-		t2 = t0 >> 20;
-		t1 = (t0 >> 12) & 0xFF0;
+		t2 = (unsigned)t0 >> 20;
+		t1 = ((unsigned)t0 >> 12) & 0xFF0;
 		t0 >>= 4;
 		t0 &= 0xFF0;
 
@@ -747,8 +747,8 @@ loc_86154:
 			docop2(0x980011);
 			t4 = ((short*)s4)[9];
 			t5 = ((short*)s4)[10];
-			((int*)s5)[0] = t0;
-			((short*)s5)[2] = t2;
+			t0 = ((int*)s5)[0];
+			t2 = ((short*)s5)[2];
 			t1 = t0 >> 16;
 			t0 <<= 16;
 			t0 >>= 16;
