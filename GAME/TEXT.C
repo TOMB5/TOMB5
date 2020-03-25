@@ -231,9 +231,9 @@ void InitFont()//115EC(<), 1169C(<) (F) (D) (ND)
 		fg = ShadeFromTo[i][1].g;
 		fb = ShadeFromTo[i][1].b;
 
-		nb = ShadeFromTo[i][0].b;
-		ng = ShadeFromTo[i][0].g;
 		nr = ShadeFromTo[i][0].r;
+		ng = ShadeFromTo[i][0].g;
+		nb = ShadeFromTo[i][0].b;
 
 		//loc_116A0
 		for (j = 0; j < 16; j++)
