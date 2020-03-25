@@ -9,6 +9,7 @@
 #include "PICTURE.H"
 #include "DIRECTX.H"
 #include "CAMERA.H"
+#include "FILE.H"
 
 UINT dbm_logout, dbm_clearlog, dbm_deftype, dbm_command;
 DWORD dbginput;
@@ -365,7 +366,7 @@ void ShowDebugInfo()// (F)
 		"(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\n"
 		"(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\n"*/
 		"BF list : %6d\n"
-		"Texture page : %2d (%3d x %3d)\n"
+		"Texture page : %2d (%3d x %3d) / %2d\n"
 		"Playing XA : %3d (%s)\n"
 		"Camera : %d (%5d ; %5d ; %5d) room %3d\n"
 		"Input : ", App.fps, GnFrameCounter, mouse_x, mouse_y, gfGameMode, malloc_used / 1024, (int)(malloc_used * 100.0 / malloc_size), malloc_free / 1024, malloc_size / 1024,
@@ -375,13 +376,13 @@ void ShowDebugInfo()// (F)
 		App.ViewMatrix._31, App.ViewMatrix._32, App.ViewMatrix._33, App.ViewMatrix._34, App.WorldMatrix._31, App.WorldMatrix._32, App.WorldMatrix._33, App.WorldMatrix._34, transform_projection._31, transform_projection._32, transform_projection._33, transform_projection._34, w2v_matrix_d3d._31, w2v_matrix_d3d._32, w2v_matrix_d3d._33, w2v_matrix_d3d._34,
 		App.ViewMatrix._41, App.ViewMatrix._42, App.ViewMatrix._43, App.ViewMatrix._44, App.WorldMatrix._41, App.WorldMatrix._42, App.WorldMatrix._43, App.WorldMatrix._44, transform_projection._41, transform_projection._42, transform_projection._43, transform_projection._44, w2v_matrix_d3d._41, w2v_matrix_d3d._42, w2v_matrix_d3d._43, w2v_matrix_d3d._44,*/
 		surfacenumbf, 
-		cur_tpage, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height, 
+		cur_tpage, DXTextureList[cur_tpage].width, DXTextureList[cur_tpage].height, num_pages, 
 		XATrack, XATrack == -1 ? "---" : xa_filenames[XATrack],
 		camera.type, camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.room_number);
 	GetInputStr(dbginput, buf + strlen(buf));
 	strcat(buf, " / ");
 	GetInputStr(dbinput, buf + strlen(buf));
-	PrintString(10, 10, 0, buf, 0);
+	PrintString(10, -100, 0, buf, 0);
 	
 	if (keymap[DIK_U])
 	{
