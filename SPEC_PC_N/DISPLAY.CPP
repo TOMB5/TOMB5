@@ -72,7 +72,7 @@ void InitWindow(int x, int y, int width, int height, int nearz, int farz, int vi
 }
 
 
-int __cdecl GetStringLength(const char* string, uint16_t* a2, uint16_t* a3)
+int __cdecl GetStringLength(const char* string, int16_t* a2, int16_t* a3)
 {
 	font_thing* chardef; // ecx
 
@@ -80,7 +80,7 @@ int __cdecl GetStringLength(const char* string, uint16_t* a2, uint16_t* a3)
 	
 	bool v11 = false;
 	signed int max_y = -1024;
-	unsigned int min_y = 1024;
+	signed int min_y = 1024;
 	
 	for (const char* p = string; *p; p++)
 	{
@@ -105,9 +105,9 @@ int __cdecl GetStringLength(const char* string, uint16_t* a2, uint16_t* a3)
 		{
 			if (v3 >= 32)
 			{
-				if (v3 >= 83 && v3 <= 128)
+				if (v3 >= 128 && v3 <= 173)
 				{
-					v3 = AccentTable[128 - v3][0];
+					v3 = AccentTable[v3 - 128][0];
 					v11 = true;
 				}
 				chardef = &stru_507AB8[v3 - 33];
@@ -157,7 +157,7 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 
 	ScaleFlag = (flag >> 12) & 1;
 
-	WORD max_y;
+	short max_y;
 	int strwidth = GetStringLength(string, nullptr, &max_y);
 
 	int new_x = x;
@@ -172,75 +172,106 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 	{
 		new_x -= strwidth;
 	}
-
-	for (const char *p = string; *p; p++)
+	const char* p = string;
+	if (*p)
 	{
-		const unsigned char c = *p;
-
-		if (c == '\n')
+		unsigned char c = *p;
+		p++;
+		while (c != '\n')
 		{
-			max_y = 0;
-			y += 16;
-			continue;
-		}
-		
-		if (c == ' ')
-		{
-			if (ScaleFlag)
+			if (c == ' ')
 			{
-				new_x += 6;
-			}
-			else
-			{
-				new_x += (phd_winxmax + 1) / 640.0 * 8.0;
-			}
-		}
-		else if (c == '\t')
-		{
-			new_x += 40;
-		}
-		else if (c >= 20)
-		{
-			const font_thing* charac;
-			
-			if (c >= 83 && c <= 128)
-			{
-				const char* tab = AccentTable[128 - c];
-				;
-				DrawChar(new_x, y, colourFlag, charac = &stru_507AB8[tab[0] - 33]);
-				
-				if (tab[1] != ' ')
-					DrawChar(charac->a5 / 2 + new_x - 3, y + charac->a7, colourFlag, &stru_507AB8[tab[1] - 33]);
-			}
-			else
-			{
-				if (c >= ' ')
+				if (ScaleFlag)
 				{
-					DrawChar(new_x, y, colourFlag, charac = &stru_507AB8[c - 33]);
+					new_x += 6;
 				}
 				else
 				{
-					DrawChar(new_x, y, colourFlag, charac = &stru_507AB8[c + 74]);
+					new_x += (phd_winxmax + 1) / 640.0 * 8.0;
 				}
 			}
-			new_x += charac->a5;
-
-			if (ScaleFlag)
+			else if (c == '\t')
 			{
-				new_x -= charac->a5 / 4;
+				new_x += 40;
 			}
+			else if (c >= 20)
+			{
+				const font_thing* charac;
+
+				if (c >= 128 && c <= 173)
+				{
+					const char* tab = AccentTable[c - 128];
+
+					charac = &stru_507AB8[tab[0] - 33];
+
+					DrawChar(new_x, y, colourFlag, charac);
+
+					if (tab[1] != ' ')
+						DrawChar(charac->a5 / 2 + new_x - 3, y + charac->a7, colourFlag, &stru_507AB8[tab[1] - 33]);
+				}
+				else
+				{
+					if (c >= 32)
+					{
+						DrawChar(new_x, y, colourFlag, charac = &stru_507AB8[c - 33]);
+					}
+					else
+					{
+						DrawChar(new_x, y, colourFlag, charac = &stru_507AB8[c + 74]);
+					}
+				}
+				new_x += charac->a5;
+
+				if (ScaleFlag)
+				{
+					new_x -= charac->a5 / 4;
+				}
+			}
+			else
+			{
+				colourFlag = c - 1; // ?
+			}
+
+			LBL_37:
+			c = (unsigned char)*p++;
+
+			if (!c)
+				goto END;
+		}
+
+		if (*p == '\n')
+		{
+			max_y = 0;
+			//y += 16;
+			y += font_height;
+			goto LBL_37;
+		}
+
+		short min_y, max_y_2;
+		int len = GetStringLength(p, &min_y, &max_y_2);
+		new_x = x;
+		if (flag & FF_CENTER)
+		{
+			len /= 2;
 		}
 		else
 		{
-			colourFlag = c - 1; // ?
+			if (!(flag & FF_R_JUSTIFY))
+			{
+				LBL_17:
+				y += max_y - min_y + 2;
+				max_y = max_y_2;
+				goto LBL_37;
+			}
 		}
-
-		// todo R_JUSTIFY
+		new_x -= len;
+		goto LBL_17;
 	}
 
+	END:
 	ScaleFlag = false;
 
-	if (true)
+	if (false)
 	{
 		char* b2 = (char*)malloc(strlen(string) + 1);
 		strcpy(b2, string);
