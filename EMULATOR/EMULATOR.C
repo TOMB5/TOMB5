@@ -41,6 +41,8 @@ GLint g_defaultFBO;
 
 #elif defined(VK)
 
+struct FrameBuffer vramFrameBuffer;
+
 #define MAX_NUM_PHYSICAL_DEVICES (4)
 
 VkWin32SurfaceCreateInfoKHR surfaceCreateInfo =
@@ -50,6 +52,7 @@ VkWin32SurfaceCreateInfoKHR surfaceCreateInfo =
 
 VkSurfaceKHR surface = VK_NULL_HANDLE;
 VkInstance instance = VK_NULL_HANDLE;
+VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
 
 const char* enabledExtensionsDeviceCreateInfo[] =
 {
@@ -73,7 +76,6 @@ VkQueue queue;
 VkDevice device = VK_NULL_HANDLE;
 
 unsigned int vramTexture;///@TODO trim me
-unsigned int vramFrameBuffer = 0;
 unsigned int vramRenderBuffer = 0;
 unsigned int nullWhiteTexture;
 int g_defaultFBO;
@@ -102,7 +104,7 @@ IDirect3DSurface9* vramFrameBuffer = NULL;
 IDirect3DVertexDeclaration9* g_vertexDecl = NULL;
 unsigned int vramRenderBuffer = 0;///@FIXME delete unused?
 IDirect3DTexture9* nullWhiteTexture = NULL;
-IDirect3DSurface9* g_defaultRenderTarget = NULL;
+IDirect3DSurface9* g_defaultFBO = NULL;
 IDirect3DPixelShader9* g_defaultPixelShader = NULL;
 IDirect3DVertexShader9* g_defaultVertexShader = NULL;
 #else
@@ -209,7 +211,7 @@ static int Emulator_InitialiseVKContext(char* windowName)
 	VkQueueFamilyProperties queueFamilyProperties[MAX_QUEUE_COUNT];
 	VkPhysicalDeviceProperties deviceProperties;
 	VkPhysicalDeviceFeatures deviceFeatures;
-	VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
+	
 
 	vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, 0);
 	physicalDeviceCount = physicalDeviceCount > MAX_DEVICE_COUNT ? MAX_DEVICE_COUNT : physicalDeviceCount;
@@ -1406,7 +1408,7 @@ int Emulator_InitialiseGL()
 #if defined(D3D9)
 int Emulator_InitialiseD3D()
 {
-	d3ddev->GetRenderTarget(0, &g_defaultRenderTarget);
+	d3ddev->GetRenderTarget(0, &g_defaultFBO);
 	d3ddev->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 	d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(64, 64, 64, 128));
 	d3ddev->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
@@ -1453,6 +1455,280 @@ int Emulator_InitialiseD3D()
 	Emulator_CreateGlobalShaders();
 
 #endif
+
+	return TRUE;
+}
+#elif defined(VK)
+
+unsigned int getMemoryType(unsigned int typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound)
+{
+	memTypeFound = NULL;
+
+	for (unsigned int i = 0; i < deviceMemoryProperties.memoryTypeCount; i++)
+	{
+		if ((typeBits & 1) == 1)
+		{
+			if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+			{
+				if (memTypeFound)
+				{
+					*memTypeFound = true;
+				}
+				return i;
+			}
+		}
+		typeBits >>= 1;
+	}
+
+	if (memTypeFound)
+	{
+		*memTypeFound = false;
+		return 0;
+	}
+	else
+	{
+		eprinterr("Could not find matching memory type!\n");
+		assert(FALSE);
+	}
+}
+
+int Emulator_InitialiseVK()
+{
+	//d3ddev->GetRenderTarget(0, &g_defaultRenderTarget);
+	//d3ddev->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
+	//d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(64, 64, 64, 128));
+	//d3ddev->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
+
+	/* Initialise VRAM */
+	SDL_memset(vram, 0, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
+
+	/* Generate NULL white texture */
+	//Emulator_GenerateAndBindNullWhite();///@TODO
+
+	vramFrameBuffer.width = VRAM_WIDTH;
+	vramFrameBuffer.height = VRAM_HEIGHT;
+
+	// Find a suitable depth format
+	VkFormat fbDepthFormat;
+	//VkBool32 validDepthFormat = vks::tools::getSupportedDepthFormat(physicalDevice, &fbDepthFormat);
+	//assert(validDepthFormat);
+
+	// Color attachment
+	VkImageCreateInfo imageCreateInfo;
+	memset(&imageCreateInfo, 0, sizeof(VkImageCreateInfo));
+
+	imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+	imageCreateInfo.format = VK_FORMAT_R5G5B5A1_UNORM_PACK16;
+	imageCreateInfo.extent.width = vramFrameBuffer.width;
+	imageCreateInfo.extent.height = vramFrameBuffer.height;
+	imageCreateInfo.extent.depth = 1;
+	imageCreateInfo.mipLevels = 1;
+	imageCreateInfo.arrayLayers = 1;
+	imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+
+	// We will sample directly from the color attachment
+	imageCreateInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+
+	VkMemoryAllocateInfo memoryAllocateInfo;
+	memset(&memoryAllocateInfo, 0, sizeof(VkMemoryAllocateInfo));
+	VkMemoryRequirements memReqs;
+	memset(&memReqs, 0, sizeof(VkMemoryRequirements));
+	if (vkCreateImage(device, &imageCreateInfo, nullptr, &vramFrameBuffer.color.image) != VK_SUCCESS)
+	{
+		eprinterr("Failed to create vram image!\n");
+		return FALSE;
+	}
+
+	vkGetImageMemoryRequirements(device, vramFrameBuffer.color.image, &memReqs);
+	memoryAllocateInfo.allocationSize = memReqs.size;
+	memoryAllocateInfo.memoryTypeIndex = getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, NULL);
+	if (vkAllocateMemory(device, &memoryAllocateInfo, nullptr, &vramFrameBuffer.color.mem) != VK_SUCCESS)
+	{
+		eprinterr("Failed to allocate vram image memory!\n");
+		return FALSE;
+	}
+
+	if (vkBindImageMemory(device, vramFrameBuffer.color.image, vramFrameBuffer.color.mem, 0) != VK_SUCCESS)
+	{
+		eprinterr("Failed to bind vram image memory!\n");
+		return FALSE;
+	}
+
+	VkImageViewCreateInfo colorImageView;
+	memset(&colorImageView, 0, sizeof(VkImageViewCreateInfo));
+
+	colorImageView.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	colorImageView.format = VK_FORMAT_R5G5B5A1_UNORM_PACK16;
+	colorImageView.subresourceRange = {};
+	colorImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	colorImageView.subresourceRange.baseMipLevel = 0;
+	colorImageView.subresourceRange.levelCount = 1;
+	colorImageView.subresourceRange.baseArrayLayer = 0;
+	colorImageView.subresourceRange.layerCount = 1;
+	colorImageView.image = vramFrameBuffer.color.image;
+
+	if (vkCreateImageView(device, &colorImageView, nullptr, &vramFrameBuffer.color.view) != VK_SUCCESS)
+	{
+		eprinterr("Failed to create vram view image!\n");
+		return FALSE;
+	}
+
+	// Create sampler to sample from the attachment in the fragment shader
+	VkSamplerCreateInfo samplerInfo;
+	memset(&samplerInfo, 0, sizeof(VkSamplerCreateInfo));
+
+	samplerInfo.magFilter = VK_FILTER_LINEAR;
+	samplerInfo.minFilter = VK_FILTER_LINEAR;
+	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerInfo.addressModeV = samplerInfo.addressModeU;
+	samplerInfo.addressModeW = samplerInfo.addressModeU;
+	samplerInfo.mipLodBias = 0.0f;
+	samplerInfo.maxAnisotropy = 1.0f;
+	samplerInfo.minLod = 0.0f;
+	samplerInfo.maxLod = 1.0f;
+	samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+	if (vkCreateSampler(device, &samplerInfo, nullptr, &vramFrameBuffer.sampler) != VK_SUCCESS)
+	{
+		eprinterr("Failed to create vram sampler!\n");
+		return FALSE;
+	}
+
+	// Depth stencil attachment
+	imageCreateInfo.format = fbDepthFormat;
+	imageCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+	if (vkCreateImage(device, &imageCreateInfo, nullptr, &vramFrameBuffer.depth.image) != VK_SUCCESS)
+	{
+		eprinterr("Failed to create depth image!\n");
+		return FALSE;
+	}
+	vkGetImageMemoryRequirements(device, vramFrameBuffer.depth.image, &memReqs);
+	memoryAllocateInfo.allocationSize = memReqs.size;
+	memoryAllocateInfo.memoryTypeIndex = getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, FALSE);
+	if (vkAllocateMemory(device, &memoryAllocateInfo, nullptr, &vramFrameBuffer.depth.mem) != VK_SUCCESS)
+	{
+		eprinterr("Failed to allocate depth image memory!\n");
+		return FALSE;
+	}
+	if (vkBindImageMemory(device, vramFrameBuffer.depth.image, vramFrameBuffer.depth.mem, 0) != VK_SUCCESS)
+	{
+		eprinterr("Failed to allocate bind depth image memory!\n");
+		return FALSE;
+	}
+
+	VkImageViewCreateInfo depthStencilView;
+	memset(&depthStencilView, 0, sizeof(VkImageViewCreateInfo));
+
+	depthStencilView.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	depthStencilView.format = fbDepthFormat;
+	depthStencilView.flags = 0;
+	depthStencilView.subresourceRange = {};
+	depthStencilView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+	depthStencilView.subresourceRange.baseMipLevel = 0;
+	depthStencilView.subresourceRange.levelCount = 1;
+	depthStencilView.subresourceRange.baseArrayLayer = 0;
+	depthStencilView.subresourceRange.layerCount = 1;
+	depthStencilView.image = vramFrameBuffer.depth.image;
+
+	if (vkCreateImageView(device, &depthStencilView, nullptr, &vramFrameBuffer.depth.view) != VK_SUCCESS)
+	{
+		eprinterr("Failed to create depth image view!\n");
+		return FALSE;
+	}
+	// Create a separate render pass for the offscreen rendering as it may differ from the one used for scene rendering
+	VkAttachmentDescription attchmentDescriptions[2];
+	memset(&attchmentDescriptions[0], 0, sizeof(VkAttachmentDescription) * 2);
+
+	// Color attachment
+	attchmentDescriptions[0].format = VK_FORMAT_R5G5B5A1_UNORM_PACK16;
+	attchmentDescriptions[0].samples = VK_SAMPLE_COUNT_1_BIT;
+	attchmentDescriptions[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attchmentDescriptions[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attchmentDescriptions[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attchmentDescriptions[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attchmentDescriptions[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attchmentDescriptions[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	// Depth attachment
+	attchmentDescriptions[1].format = fbDepthFormat;
+	attchmentDescriptions[1].samples = VK_SAMPLE_COUNT_1_BIT;
+	attchmentDescriptions[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attchmentDescriptions[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attchmentDescriptions[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attchmentDescriptions[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attchmentDescriptions[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attchmentDescriptions[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference colorReference = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+	VkAttachmentReference depthReference = { 1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
+
+	VkSubpassDescription subpassDescription = {};
+	subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpassDescription.colorAttachmentCount = 1;
+	subpassDescription.pColorAttachments = &colorReference;
+	subpassDescription.pDepthStencilAttachment = &depthReference;
+
+	// Use subpass dependencies for layout transitions
+	VkSubpassDependency subPassDependencies[2];
+	memset(&subPassDependencies[0], 0, sizeof(VkSubpassDependency) * 2);
+
+	subPassDependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+	subPassDependencies[0].dstSubpass = 0;
+	subPassDependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	subPassDependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	subPassDependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	subPassDependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	subPassDependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+	subPassDependencies[1].srcSubpass = 0;
+	subPassDependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+	subPassDependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	subPassDependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	subPassDependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	subPassDependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	subPassDependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+	// Create the actual renderpass
+	VkRenderPassCreateInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.attachmentCount = 2;
+	renderPassInfo.pAttachments = &attchmentDescriptions[0];
+	renderPassInfo.subpassCount = 1;
+	renderPassInfo.pSubpasses = &subpassDescription;
+	renderPassInfo.dependencyCount = 2;
+	renderPassInfo.pDependencies = &subPassDependencies[0];
+
+	if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &vramFrameBuffer.renderPass) != VK_SUCCESS)
+	{
+		eprinterr("Failed to create render pass!\n");
+		return FALSE;
+	}
+
+	VkImageView attachments[2];
+	attachments[0] = vramFrameBuffer.color.view;
+	attachments[1] = vramFrameBuffer.depth.view;
+
+	VkFramebufferCreateInfo fbufCreateInfo;
+	memset(&fbufCreateInfo, 0, sizeof(VkFramebufferCreateInfo));
+	fbufCreateInfo.renderPass = vramFrameBuffer.renderPass;
+	fbufCreateInfo.attachmentCount = 2;
+	fbufCreateInfo.pAttachments = attachments;
+	fbufCreateInfo.width = vramFrameBuffer.width;
+	fbufCreateInfo.height = vramFrameBuffer.height;
+	fbufCreateInfo.layers = 1;
+
+	if (vkCreateFramebuffer(device, &fbufCreateInfo, nullptr, &vramFrameBuffer.frameBuffer) != VK_SUCCESS)
+	{
+		eprinterr("Failed to create frame buffer!\n");
+		return FALSE;
+	}
+
+	// Fill a descriptor for later use in a descriptor set 
+	vramFrameBuffer.descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	vramFrameBuffer.descriptor.imageView = vramFrameBuffer.color.view;
+	vramFrameBuffer.descriptor.sampler = vramFrameBuffer.sampler;
+
+	Emulator_CreateGlobalShaders();
 
 	return TRUE;
 }
@@ -1774,11 +2050,16 @@ void Emulator_EndScene()
 	//glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);///@TOCHECK is this really required?
 #endif
 
+#if defined(VK)
+	//Unimplemented
+	//assert(FALSE);
+#else
 	Emulator_BindFrameBuffer(g_defaultFBO);
+#endif
 	Emulator_SetScissorBox(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
 
 #if defined(D3D9)
-	d3ddev->SetRenderTarget(0, g_defaultRenderTarget);
+	d3ddev->SetRenderTarget(0, g_defaultFBO);
 	d3ddev->SetVertexShader(g_defaultVertexShader);
 	d3ddev->SetPixelShader(g_defaultPixelShader);
 #endif
@@ -2832,11 +3113,11 @@ void Emulator_SetScissorBox(int x, int y, int width, int height)
 	glScissor(x, y, width, height);
 #elif defined(D3D9)
 	RECT scissorBox;
-	scissorRect.top = y;
-	scissorRect.bottom = y + height;
-	scissorRect.left = x;
-	scissorRect.right = x + width;
-	d3ddev->SetScissorRect(&scissorRect);
+	scissorBox.top = y;
+	scissorBox.bottom = y + height;
+	scissorBox.left = x;
+	scissorBox.right = x + width;
+	d3ddev->SetScissorRect(&scissorBox);
 #elif defined(VK)
 	VkRect2D scissorBox;
 	scissorBox.offset.x = x;
@@ -2853,7 +3134,7 @@ void Emulator_BindFrameBuffer(GLuint frameBufferObject)
 #elif defined(D3D9)
 void Emulator_BindFrameBuffer(IDirect3DSurface9* frameBufferObject)
 #elif defined(VK)
-void Emulator_BindFrameBuffer(int frameBufferObject)
+void Emulator_BindFrameBuffer(struct FrameBuffer frameBufferObject)
 #endif
 {
 #if defined(OGL) || defined(OGLES)

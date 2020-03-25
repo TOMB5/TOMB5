@@ -166,6 +166,8 @@ extern void Emulator_BindFrameBuffer(GLuint frameBufferObject);
 #elif defined(D3D9)
 extern void Emulator_BindFrameBuffer(IDirect3DSurface9* frameBufferObject);
 #elif defined(VK)
+extern void Emulator_BindFrameBuffer(struct FrameBuffer frameBufferObject);
+#else
 extern void Emulator_BindFrameBuffer(int frameBufferObject);
 #endif
 extern void Emulator_CreateVertexBuffer(int numVertices, int vertexStride, void* pVertices);

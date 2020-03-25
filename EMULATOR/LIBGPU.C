@@ -659,7 +659,12 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		{
 			if (g_texturelessMode)
 			{
+#if defined(VK)
+				//Unimplemented
+				assert(FALSE);
+#else
 				Emulator_BindTexture(nullWhiteTexture);
+#endif
 			}
 			else
 			{
