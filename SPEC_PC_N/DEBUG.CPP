@@ -350,7 +350,7 @@ void ShowDebugInfo()// (F)
 	if (!info3dptrbf)
 		return;
 
-	PrintString(0, 13, 0, "Unregistered HyperCam 2", 0);
+	PrintString(0, 25, 0, "Unregistered HyperCam 2", 0);
 	
 	char buf[2048];
 	sprintf(buf,
@@ -382,7 +382,8 @@ void ShowDebugInfo()// (F)
 	GetInputStr(dbginput, buf + strlen(buf));
 	strcat(buf, " / ");
 	GetInputStr(dbinput, buf + strlen(buf));
-	PrintString(10, -100, 0, buf, 0);
+	PrintString(10, 54, 6, buf, 0);
+
 	
 	if (keymap[DIK_U])
 	{
