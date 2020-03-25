@@ -100,7 +100,9 @@ int S_UpdateInput()// (F)
 	if (opt_ControlMethod == CM_JOYSTICK)
 		joy_fire = DI_ReadJoystick(&joy_x, &joy_y);
 
-	static int linput = 0;
+	static int linput;
+
+	linput = 0;
 
 	if (opt_ControlMethod == CM_JOYSTICK)
 	{
