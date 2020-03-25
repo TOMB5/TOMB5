@@ -352,12 +352,14 @@ void DrawChar(uint16_t x, uint16_t y, uint16_t a3, const font_thing* a4)// (F) p
     tex.new_flags = 0;
 
 	e4b100 = 4;
-	
-    const double fx = a4->a1 + 1 / 512.0;
-    const double fx_right = a4->a1 + 512.0 / (phd_winxmax + 1) * a4->a5 / 256.0 - 1 / 512.0;
 
-    const double fy = a4->a3 + 1 / 512.0;
-    const double fy_bottom = a4->a3 + 240.0 / (phd_winymax + 1) * a4->a6 / 256.0 - 1 / 512.0;
+	const double margin = 1 / 512.0;
+	
+    const double fx = a4->a1 + margin;
+    const double fx_right = a4->a1 + 512.0 / (phd_winxmax + 1) * a4->a5 / 256.0 - margin;
+
+    const double fy = a4->a3 + margin;
+    const double fy_bottom = a4->a3 + 240.0 / (phd_winymax + 1) * a4->a6 / 256.0 - margin;
 
     tex.vertices[0].x = fx;
     tex.vertices[1].x = fx_right;
