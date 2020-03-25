@@ -168,6 +168,7 @@ extern void Emulator_BindFrameBuffer(IDirect3DSurface9* frameBufferObject);
 #elif defined(VK)
 extern void Emulator_BindFrameBuffer(int frameBufferObject);
 #endif
+extern void Emulator_CreateVertexBuffer(int numVertices, int vertexStride, void* pVertices);
 #if defined(D3D9)
 extern IDirect3DDevice9* d3ddev;
 extern IDirect3DVertexDeclaration9* g_vertexDecl;

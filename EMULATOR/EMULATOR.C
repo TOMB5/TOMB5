@@ -40,6 +40,9 @@ GLuint nullWhiteTexture;
 GLint g_defaultFBO;
 
 #elif defined(VK)
+
+#define MAX_NUM_PHYSICAL_DEVICES (4)
+
 VkWin32SurfaceCreateInfoKHR surfaceCreateInfo =
 {
 	VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR
@@ -81,11 +84,16 @@ const char* enabledExtensions[] =
 };
 
 VkSwapchainKHR swapchain;
-uint32_t swapchainImageCount;
+unsigned int swapchainImageCount;
 VkImage swapchainImages[MAX_SWAPCHAIN_IMAGES];
 VkExtent2D swapchainExtent;
 VkSurfaceFormatKHR surfaceFormat;
-
+unsigned int frameIndex = 0;
+VkCommandPool commandPool;
+VkCommandBuffer commandBuffers[FRAME_COUNT];
+VkFence frameFences[FRAME_COUNT]; // Create with VK_FENCE_CREATE_SIGNALED_BIT.
+VkSemaphore imageAvailableSemaphores[FRAME_COUNT];
+VkSemaphore renderFinishedSemaphores[FRAME_COUNT];
 #elif defined (D3D9)
 SDL_Renderer* g_renderer;
 IDirect3DDevice9* d3ddev;
@@ -324,6 +332,79 @@ static int Emulator_InitialiseVKContext(char* windowName)
 	vkGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, NULL);
 	vkGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, swapchainImages);
 
+
+	VkCommandPoolCreateInfo commandPoolCreateInfo;
+	memset(&commandPoolCreateInfo, 0, sizeof(VkCommandPoolCreateInfo));
+	commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndex;
+
+	vkCreateCommandPool(device, &commandPoolCreateInfo, 0, &commandPool);
+
+	VkCommandBufferAllocateInfo commandBufferAllocInfo;
+	memset(&commandBufferAllocInfo, 0, sizeof(VkCommandBufferAllocateInfo));
+	
+	commandBufferAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	commandBufferAllocInfo.commandPool = commandPool;
+	commandBufferAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	commandBufferAllocInfo.commandBufferCount = FRAME_COUNT;
+
+	vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers);
+
+	VkSemaphoreCreateInfo semaphoreCreateInfo = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+
+	vkCreateSemaphore(device, &semaphoreCreateInfo, 0, &imageAvailableSemaphores[0]);
+	vkCreateSemaphore(device, &semaphoreCreateInfo, 0, &imageAvailableSemaphores[1]);
+	vkCreateSemaphore(device, &semaphoreCreateInfo, 0, &renderFinishedSemaphores[0]);
+	vkCreateSemaphore(device, &semaphoreCreateInfo, 0, &renderFinishedSemaphores[1]);
+
+	VkFenceCreateInfo fenceCreateInfo;
+	memset(&fenceCreateInfo, 0, sizeof(VkFenceCreateInfo));
+	fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	vkCreateFence(device, &fenceCreateInfo, 0, &frameFences[0]);
+	vkCreateFence(device, &fenceCreateInfo, 0, &frameFences[1]);
+
+	uint32_t index = (frameIndex++) % FRAME_COUNT;
+	vkWaitForFences(device, 1, &frameFences[index], VK_TRUE, UINT64_MAX);
+	vkResetFences(device, 1, &frameFences[index]);
+
+	uint32_t imageIndex;
+	vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, imageAvailableSemaphores[index], VK_NULL_HANDLE, &imageIndex);
+
+	VkCommandBufferBeginInfo beginInfo;
+	memset(&beginInfo, 0, sizeof(VkCommandBufferBeginInfo));
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	vkBeginCommandBuffer(commandBuffers[index], &beginInfo);
+	
+	vkEndCommandBuffer(commandBuffers[index]);
+
+	VkSubmitInfo submitInfo;
+	memset(&submitInfo, 0, sizeof(VkSubmitInfo));
+	VkPipelineStageFlags writeDestStageMask = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = &imageAvailableSemaphores[index];
+	submitInfo.pWaitDstStageMask = &writeDestStageMask;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffers[index];
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = &renderFinishedSemaphores[index];
+	vkQueueSubmit(queue, 1, &submitInfo, frameFences[index]);
+
+	VkPresentInfoKHR presentInfo;
+	memset(&presentInfo, 0, sizeof(VkPresentInfoKHR));
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = &renderFinishedSemaphores[index];
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = &swapchain;
+	presentInfo.pImageIndices = &imageIndex;
+
+	vkQueuePresentKHR(queue, &presentInfo);
 
 	return TRUE;
 }
@@ -2740,7 +2821,7 @@ void Emulator_SetViewPort(int x, int y, int width, int height)
 	viewPort.height = height;
 	viewPort.minDepth = 0.0f;
 	viewPort.maxDepth = 1.0f;
-	assert(FALSE);//Unfinished see below.
+	//assert(FALSE);//Unfinished see below.
 	//vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
 #endif
 }
@@ -2762,7 +2843,7 @@ void Emulator_SetScissorBox(int x, int y, int width, int height)
 	scissorBox.offset.y = y;
 	scissorBox.extent.width = width;
 	scissorBox.extent.height = height;
-	assert(FALSE);//Unfinished see below.
+	//assert(FALSE);//Unfinished see below.
 	//vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 #endif
 }
@@ -2780,6 +2861,22 @@ void Emulator_BindFrameBuffer(int frameBufferObject)
 #elif defined(D3D9)
 	d3ddev->SetRenderTarget(0, frameBufferObject);
 #elif defined(VK)
-	assert(FALSE);//unimplemented
+	//assert(FALSE);//unimplemented
+#endif
+}
+
+void Emulator_CreateVertexBuffer(int numVertices, int vertexStride, void* pVertices)
+{
+#if defined(OGL) || defined(OGLES)
+	glBufferData(GL_ARRAY_BUFFER, vertexStride * numVertices, pVertices, GL_STATIC_DRAW);
+#elif defined(D3D9)
+	d3ddev->CreateVertexBuffer(vertexStride * numVertices, 0, (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX0), D3DPOOL_MANAGED, &g_vertexBufferObject, NULL);
+	VOID* pVertexData;
+	g_vertexBufferObject->Lock(0, 0, (void**)&pVertexData, 0);
+	memcpy(pVertexData, pVertices, vertexStride * numVertices);
+	g_vertexBufferObject->Unlock();
+	d3ddev->SetStreamSource(0, g_vertexBufferObject, 0, vertexStride);
+#elif defined(VK)
+
 #endif
 }

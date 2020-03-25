@@ -653,17 +653,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			pTag = (P_TAG*)pTag->addr;
 		}while ((uintptr_t)pTag != (uintptr_t)&terminator);
 
-#if defined(OGL) || defined(OGLES)
-		glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, &g_vertexBuffer[0], GL_STATIC_DRAW);
-#elif defined(D3D9)
-		d3ddev->CreateVertexBuffer(sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, 0, (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX0), D3DPOOL_MANAGED, &g_vertexBufferObject, NULL);
-		VOID* pVertexData;
-		//Copy vertices to vertex buffer
-		g_vertexBufferObject->Lock(0, 0, (void**)&pVertexData, 0);
-		memcpy(pVertexData, &g_vertexBuffer[0], sizeof(struct Vertex) * MAX_NUM_POLY_BUFFER_VERTICES);
-		g_vertexBufferObject->Unlock();
-		d3ddev->SetStreamSource(0, g_vertexBufferObject, 0, sizeof(struct Vertex));
-#endif
+		Emulator_CreateVertexBuffer(MAX_NUM_POLY_BUFFER_VERTICES, sizeof(Vertex), (void*)&g_vertexBuffer[0]);
 
 		for (int i = 0; i < g_numSplitIndices; i++)
 		{
