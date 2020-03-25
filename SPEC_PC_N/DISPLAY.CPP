@@ -279,7 +279,7 @@ void setXY4(D3DTLVERTEX p[4], int x0, int y0, int x1, int y1, int x2, int y2, in
 		{x3, y3}
 	};
 
-	for (int i = 0; i < 3; i++, p++, a10++)
+	for (int i = 0; i < 4; i++, p++, a10++)
 	{
 		int x = coords[i][0];
 		int y = coords[i][1];
