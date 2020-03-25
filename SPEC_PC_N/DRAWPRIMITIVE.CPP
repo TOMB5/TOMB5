@@ -2393,6 +2393,7 @@ int32_t DrawPhaseGame()// (F)
 	DrawRooms(camera.pos.room_number);
 	DrawGameInfo(TRUE);
 	DrawDebugPre();
+	ShowDebugInfo();
 	S_OutputPolyList();
 	camera.number_frames = S_DumpScreen();
 	S_AnimateTextures(camera.number_frames);

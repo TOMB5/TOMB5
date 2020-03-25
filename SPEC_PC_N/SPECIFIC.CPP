@@ -196,7 +196,7 @@ long		S_DumpScreen()
 	if (!keymap[DIK_D])
 		DrawDebugPost();
 	
-	ShowDebugInfo();
+	//ShowDebugInfo();
 
 	EndScene();
 	DXShowFrame();
