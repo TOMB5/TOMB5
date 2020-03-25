@@ -207,8 +207,8 @@ long		S_DumpScreen()
 
 void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2)// (F)
 {
-	uint8_t red1, green1, blue1;
-	uint8_t red2 = 0, green2 = 0, blue2 = 0;
+	int32_t red1, green1, blue1;
+	int32_t red2 = 0, green2 = 0, blue2 = 0;
 
 	if (RGBA_GETRED(clr) <= 128)
 	{
