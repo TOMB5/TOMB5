@@ -1,6 +1,8 @@
 #ifndef EMULATOR_PLATFORM_SETUP_H
 #define EMULATOR_PLATFORM_SETUP_H
 
+#define _CRT_SECURE_NO_WARNINGS
+
 /*
  * Platform specific emulator setup
  */

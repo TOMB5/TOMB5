@@ -162,10 +162,10 @@ struct VertexBufferSplitIndex
 {
 	unsigned short splitIndex;
 	unsigned short numVertices;
-	unsigned int textureId;
-	unsigned char semiTrans;
-	unsigned char abr;
-	unsigned char primitiveType;
+	unsigned int   textureId;
+	unsigned short semiTrans;
+	unsigned short abr;
+	unsigned short primitiveType;
 };
 
 #define DEBUG_POLY_COUNT
@@ -611,7 +611,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 		{
 			POLY_F3* poly = (POLY_F3*)pTag;
 
-			if (lastSemiTrans == 0xFFFF || lastPolyType == 0xFFFF)
+			if (lastSemiTrans == 0xFFFF || lastPolyType == GL_NONE)
 			{
 				lastPolyType = GL_TRIANGLES;
 				lastSemiTrans = semi_transparent;

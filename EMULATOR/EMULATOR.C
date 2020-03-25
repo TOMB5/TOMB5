@@ -395,8 +395,8 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			vertex[0].y = (float)p0[1];
 		}
 #else
-		vertex[0].x = (float)p0[0];
-		vertex[0].y = (float)p0[1];
+		vertex[0].x = p0[0];
+		vertex[0].y = p0[1];
 #endif
 	}
 
@@ -414,16 +414,16 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			vertex[1].y = (float)p1[1];
 		}
 #else
-		vertex[1].x = (float)p1[0];
-		vertex[1].y = (float)p1[1];
+		vertex[1].x = p1[0];
+		vertex[1].y = p1[1];
 #endif
 	}
 	else
 	{
 		if (p0 != NULL && w != -1 && h != -1)
 		{
-			vertex[1].x = (float)p0[0];
-			vertex[1].y = (float)p0[1] + h;
+			vertex[1].x = p0[0];
+			vertex[1].y = p0[1] + h;
 		}
 	}
 
@@ -441,16 +441,16 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			vertex[2].y = (float)p2[1];
 		}
 #else
-		vertex[2].x = (float)p2[0];
-		vertex[2].y = (float)p2[1];
+		vertex[2].x = p2[0];
+		vertex[2].y = p2[1];
 #endif
 	}
 	else
 	{
 		if (p0 != NULL && w != -1 && h != -1)
 		{
-			vertex[2].x = (float)p0[0] + w;
-			vertex[2].y = (float)p0[1] + h;
+			vertex[2].x = p0[0] + w;
+			vertex[2].y = p0[1] + h;
 		}
 	}
 
@@ -468,19 +468,18 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			vertex[3].y = (float)p3[1];
 		}
 #else
-		vertex[3].x = (float)p3[0];
-		vertex[3].y = (float)p3[1];
+		vertex[3].x = p3[0];
+		vertex[3].y = p3[1];
 #endif
 	}
 	else
 	{
 		if (p0 != NULL && w != -1 && h != -1)
 		{
-			vertex[3].x = (float)p0[0] + w;
-			vertex[3].y = (float)p0[1];
+			vertex[3].x = p0[0] + w;
+			vertex[3].y = p0[1];
 		}
 	}
-	return;
 }
 
 
@@ -587,8 +586,6 @@ void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv
 			vertex[3].y = p0[1];
 		}
 	}
-#endif}
-
 #else
 	//Copy over uvs
 
@@ -639,7 +636,7 @@ void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv
 			vertex[3].v = uv0[1];
 		}
 	}
-	return;
+#endif
 }
 
 void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3)
@@ -763,7 +760,6 @@ GLuint Shader_Compile(const char *source)
     const char *GLSL_HEADER_FRAG =
         "#version 110\n"
         "#define fragColor gl_FragColor\n";
-#endif
 #endif
 
     const char *vs_list[] = { GLSL_HEADER_VERT, source };
@@ -923,8 +919,8 @@ void Emulator_CheckTextureIntersection(RECT16* rect)///@TODO internal upres
 			continue;
 
 		unsigned short tpage = cachedTextures[i].tpage;
-		unsigned int tpageX = ((tpage << 6) & 0x7C0) % VRAM_WIDTH;///@TODO macro
-		unsigned int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200)) % VRAM_HEIGHT;///@TODO macro
+		int tpageX = ((tpage << 6) & 0x7C0) % VRAM_WIDTH;///@TODO macro
+		int tpageY = (((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200)) % VRAM_HEIGHT;///@TODO macro
 
 		if (rect->x < tpageX + TPAGE_WIDTH && rect->x + rect->w > tpageX&&
 			rect->y > tpageY + TPAGE_WIDTH && rect->y + rect->h < tpageY)
@@ -1154,17 +1150,17 @@ void Emulator_EndScene()
 
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
 
-    u_char x = 128 * word_33BC.disp.x / (VRAM_WIDTH  / RESOLUTION_SCALE);
-    u_char y = 128 * word_33BC.disp.y / (VRAM_HEIGHT / RESOLUTION_SCALE);
-    u_char w = 128 * word_33BC.disp.w / (VRAM_WIDTH  / RESOLUTION_SCALE);
-    u_char h = 128 * word_33BC.disp.h / (VRAM_HEIGHT / RESOLUTION_SCALE);
+    u_char l = 128 * word_33BC.disp.x / (VRAM_WIDTH  / RESOLUTION_SCALE);
+    u_char t = 128 * word_33BC.disp.y / (VRAM_HEIGHT / RESOLUTION_SCALE);
+    u_char r = l + 128 * word_33BC.disp.w / (VRAM_WIDTH  / RESOLUTION_SCALE);
+    u_char b = t + 128 * word_33BC.disp.h / (VRAM_HEIGHT / RESOLUTION_SCALE);
 
 	Vertex vertexBuffer[] =
 	{
-		{ 0, 1,    0, 0,    x, y,            0, 0,    255, 255, 255, 255 },
-		{ 0, 0,    0, 0,    x, y + h,        0, 0,    255, 255, 255, 255 },
-		{ 1, 1,    0, 0,    x + w, y,        0, 0,    255, 255, 255, 255 },
-		{ 1, 0,    0, 0,    x + w, y + h,    0, 0,    255, 255, 255, 255 }
+		{ 0, 1,    0, 0,    l,  t,    0, 0,    255, 255, 255, 255 },
+		{ 0, 0,    0, 0,    l,  b,    0, 0,    255, 255, 255, 255 },
+		{ 1, 1,    0, 0,    r,  t,    0, 0,    255, 255, 255, 255 },
+		{ 1, 0,    0, 0,    r,  b,    0, 0,    255, 255, 255, 255 }
 	};
 
 #if defined(OGLES) || defined (OGL)
