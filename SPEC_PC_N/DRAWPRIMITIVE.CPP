@@ -415,8 +415,8 @@ void AddClippedPoly(D3DTLBUMPVERTEX* vt1, int num, D3DTLBUMPVERTEX* vt2)
 		v1->color = v2->color;
 		v1->specular = v2->specular;
 
-		v1->tu = v2->tv / v2->rhw;
-		v1->tv = v2->sx / v2->rhw;
+		v1->tu = v2->tu / v2->rhw;
+		v1->tv = v2->tv / v2->rhw;
 	}
 
 	d9ab10++;
@@ -437,8 +437,8 @@ void AddClippedPoly(D3DTLBUMPVERTEX* vt1, int num, D3DTLBUMPVERTEX* vt2)
 		v1->color = v2->color;
 		v1->specular = v2->specular;
 
-		v1->tu = v2->tv / v2->rhw;
-		v1->tv = v2->sx / v2->rhw;
+		v1->tu = v2->tu / v2->rhw;
+		v1->tv = v2->tv / v2->rhw;
 	}
 }
 
