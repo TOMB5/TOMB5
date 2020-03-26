@@ -112,16 +112,61 @@ bool visible_zclip(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3)
 		+ (v3->tv * v1->tu - v3->tu * v1->tv) * v2->sz < 0.0;
 }
 
-void SubdivideEdge(D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, short *a4, float u1, float v1, float u2, float v2, float *u, float *v)
+void SubdivideEdge(D3DTLVERTEX *a, D3DTLVERTEX *b, D3DTLVERTEX *c, short *a4, float u1, float v1, float u2, float v2, float *u, float *v)
 {
-	Unimpl();
+	__int16 v10 = 0;
+	
+	*u = AVG(u1, u2);
+	*v = AVG(v1, v2);
+	
+	c->sx = AVG(a->tu, b->tu);
+	c->sy = AVG(a->tv, b->tv);
+	c->tu = c->sx;
+	c->tv = c->sy;
+	c->sz = AVG(a->sz, b->sz);
+	
+	if (c->sz < f_znear)
+	{
+		v10 = -128;
+	}
+	else
+	{
+		c->sx = f_persp / c->sz * c->sx + f_centerx;
+		c->sy = f_persp / c->sz * c->sy + f_centery;
+		c->rhw = f_oneopersp * f_persp / c->sz;
+		if (c->sx >= clip_xmin)
+		{
+			if (c->sx > clip_xmax)
+				v10 = 2;
+		}
+		else
+		{
+			v10 = 1;
+		}
+		if (c->sy >= clip_ymin)
+		{
+			if (c->sy > clip_ymax)
+				v10 += 8;
+		}
+		else
+		{
+			v10 += 4;
+		}
+	}
+	
+	*a4 = v10;
+	
+	c->color = AVG_COL(a->color, b->color);
+	c->specular = AVG_COL(a->specular, b->specular);
 }
 void SubdivideQuad(D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, D3DTLVERTEX *pv4, OBJECT_TEXTURE* tex, int a6, int a7, short *face)
 {
+	// function used if zbuffer disabled
 	Unimpl();
 }
 void SubdivideTri (D3DTLVERTEX *pv1, D3DTLVERTEX *pv2, D3DTLVERTEX *pv3, OBJECT_TEXTURE* tex, int a5, int a6, short *face)
 {
+	// function used if zbuffer disabled
 	Unimpl();
 }
 
