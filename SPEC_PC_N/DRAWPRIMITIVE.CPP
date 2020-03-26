@@ -388,8 +388,99 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 
 int ZClipper(int num_vert, D3DTLBUMPVERTEX* v1, D3DTLBUMPVERTEX* v2)
 {
-	Unimpl();
-	return 0;
+	if (num_vert == 0)
+		return 0;
+	
+	int result = 0;
+	
+	D3DTLBUMPVERTEX* prev = &v1[num_vert - 1];
+	D3DTLBUMPVERTEX* cur = &v1[0];
+	
+	for (int i = 0; i < num_vert; i++)
+	{
+		const float v32 = f_znear - prev->sz;
+		const float v33 = f_znear - cur->sz;
+
+		if (v32 < 0 || v33 < 0)
+		{
+			if ((v32 < 0) ^ (v33 < 0))
+			{
+				float v7 = v33 / (prev->sz - cur->sz);
+				
+				v2->sx = ((prev->tu2 - cur->tu2) * v7 + cur->tu2) * f_perspoznear + f_centerx;
+				v2->sy = ((prev->tv2 - cur->tv2) * v7 + cur->tv2) * f_perspoznear + f_centery;
+				v2->rhw = f_oneoznear;
+				
+				v2->tu = ((prev->tu - cur->tu) * v7 + cur->tu) * v2->rhw;
+				v2->tv = ((prev->tv - cur->tv) * v7 + cur->tv) * v2->rhw;
+
+				
+				/*auto v8 = cur->color;
+				auto v9 = prev->color;
+				auto v10 = RGBA_GETRED(v8);
+				auto v11 = RGBA_GETGREEN(v8);
+				auto v12 = RGBA_GETBLUE(v8);
+				auto v13 = (RGBA_GETALPHA(v9) - RGBA_GETALPHA(v8))* v7 + RGBA_GETALPHA(v8) + 12582912.0;
+				auto v14 = (LODWORD(v13) & 0x3FFFFF) << 8;
+				auto v15 = ((double)((v9 >> 16) & 0xFFi64) - v10)* v7 + v10 + 12582912.0;
+				auto v16 = (LODWORD(v15) & 0x3FFFFF | v14) << 8;
+				auto v17 = ((double)((unsigned __int16)v9 >> 8) - v11)* v7 + v11 + 12582912.0;
+				auto v18 = (LODWORD(v17) & 0x3FFFFF | v16) << 8;
+				auto v19 = ((double)(unsigned __int8)prev->color - v12) * v7 + v12 + 12582912.0;
+				v2->color = LODWORD(v19) & 0x3FFFFF | v18;
+				auto v20 = cur->specular;
+				auto v21 = (double)((v20 >> 16) & 0xFFi64);
+				auto v22 = (double)((unsigned __int16)v20 >> 8);
+				auto v23 = prev->specular;
+				auto v24 = (double)(unsigned __int8)cur[-1].specular;
+				
+				auto v25 = ((double)(v23 >> 24) - (double)(cur[-1].specular >> 24))* v7
+					+ (double)(cur[-1].specular >> 24)
+					+ 12582912.0;
+				v26 = (LODWORD(v25) & 0x3FFFFF) << 8;
+				v27 = ((double)((v23 >> 16) & 0xFFi64) - v21)* v7 + v21 + 12582912.0;
+				v28 = (LODWORD(v27) & 0x3FFFFF | v26) << 8;
+				v29 = ((double)((unsigned __int16)v23 >> 8) - v22)* v7 + v22 + 12582912.0;
+				v30 = (LODWORD(v29) & 0x3FFFFF | v28) << 8;
+				v31 = ((double)(unsigned __int8)v23 - v24) * v7 + v24 + 12582912.0;
+				v2->specular = LODWORD(v31) & 0x3FFFFF | v30;*/
+
+				// TODO FIX THIS CODE
+
+				v2->color = AVG_COL(cur->color, prev->color);
+				v2->specular = AVG_COL(cur->specular, prev->specular);
+				
+				v2++;
+				
+				result++;
+			}
+
+			if (v33 < 0)
+			{
+				v2->sx = cur->sx;
+				v2->sy = cur->sy;
+				v2->rhw = cur->rhw;
+				
+				v2->tu = cur->tu * cur->rhw;
+				v2->tv = cur->tv * cur->rhw;
+				
+				v2->color = cur->color;
+				v2->specular = cur->specular;
+
+				v2++;
+
+				result++;
+			}
+		}
+
+		prev = cur;
+		cur++;
+	}
+	
+	if (result < 3)
+		return 0;
+	
+	return result;
 }
 
 int XYUVGClipper(int num_vert, D3DTLBUMPVERTEX* v)
