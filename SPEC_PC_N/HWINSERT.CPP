@@ -99,7 +99,7 @@ void DrawBucket(TEXTUREBUCKET* buk)
 	if (buk->tpage == 1) // here be dragons
 		buk->tpage = 1;
 
-	Log(LT_Info, "DrawBucket tpage=%d; cnt=%d", buk->tpage, buk->cnt);
+	Log(LT_Info, "DrawBucket id=%2d; tpage=%d; cnt=%d", buk - Bucket, buk->tpage, buk->cnt);
 
 	if (buk->cnt != 0)
 	{
