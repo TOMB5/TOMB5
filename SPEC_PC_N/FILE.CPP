@@ -266,9 +266,9 @@ int numLvlMeshes;
 
 	void InitMatrix()// (F)
 	{
-		for (int i = 0; i < ANGLE(360); i++)
+		for (int i = 0; i < 65536; i++)
 		{
-			sin_flt_table[i] = sinf((i * 2 * M_PI) / ANGLE(360));
+			sin_flt_table[i] = sinf((i * 2 * M_PI) / 65536.0);
 		}
 
 		phd_dxptr = matrix_stack_dx;
