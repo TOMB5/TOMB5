@@ -384,6 +384,18 @@ void ShowDebugInfo()// (F)
 	GetInputStr(dbinput, buf + strlen(buf));
 	PrintString(10, 54, 6, buf, 0);
 
+	float s = 100;
+	float ox = 500;
+	float oy = 300;
+	D3DTLVERTEX v[4] =
+	{
+		{{ox + 0, oy + 0, 0.1}, 0.1, 0xFFFFFFFF, 0xFF000000, 1, 1},
+		{{ox + s, oy + 0, 0.1}, 0.1, 0xFFFFFFFF, 0xFF000000, 1, 1},
+		{{ox + s, oy + s, 0.1}, 0.1, 0xFFFFFFFF, 0xFF000000, 1, 1},
+		{{ox + 0, oy + s, 0.1}, 0.1, 0xFFFFFFFF, 0xFF000000, 1, 1},
+	};
+	AddQuadClippedZBuffer(v, 0, 1, 2, 3, &object_textures[cur_tpage], 0);
+
 	
 	if (keymap[DIK_U])
 	{
