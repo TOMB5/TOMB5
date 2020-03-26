@@ -1149,6 +1149,12 @@ bool Visible(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3)// (F)
 	return (v1->sy - v2->sy) * (v3->sx - v2->sx) - (v3->sy - v2->sy) * (v1->sx - v2->sx) < 0.0;
 }
 
+// used for mirror lara
+bool Visible_2(D3DTLVERTEX* v1, D3DTLVERTEX* v2, D3DTLVERTEX* v3)// (F)
+{
+	return (v1->sy - v2->sy) * (v3->sx - v2->sx) - (v3->sy - v2->sy) * (v1->sx - v2->sx) > 0.0;
+}
+
 void InitialiseFunctionTable()// (F)
 {
 	BeginScene = HWBeginScene;
