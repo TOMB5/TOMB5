@@ -153,7 +153,7 @@ void SpuStart()//(F)
 		_spu_isCalled = 1;
 		EnterCriticalSection();
 		_SpuDataCallback(_spu_FiDMA);
-		event = OpenEvent(HwSPU, EvSpCOMP, EvMdNOINTR, NULL);
+		//event = OpenEvent(HwSPU, EvSpCOMP, EvMdNOINTR, NULL);
 		_spu_EVdma = event;
 		EnableEvent(event);
 		ExitCriticalSection();

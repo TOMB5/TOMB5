@@ -108,7 +108,8 @@ struct EvCB {
 	long system[2];			/* reserved by system */
 };
 
-
+//#if !defined(D3D9)
+#if 0///@FIXME Really not defined D3D9 :/
 struct EXEC {                   
         unsigned long pc0;      
         unsigned long gp0;      
@@ -131,7 +132,7 @@ struct XF_HDR {
 	struct EXEC exec;
 	char title[60];		/* "PlayStation(tm) Executable A1" */
 };
-
+#endif
 
 struct DIRENTRY {
 	char name[20];

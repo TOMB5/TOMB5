@@ -48,7 +48,7 @@ void PrintAllOtherObjects_ASM(short room_num /*s3*/)//(F)
 	short item_num;
 	struct FX_INFO* effect;
 	int mesh_num;
-	short* mesh;
+//	short* mesh;
 	int effect_num;
 
 	r->bound_active = 0;
@@ -105,7 +105,7 @@ void PrintAllOtherObjects_ASM(short room_num /*s3*/)//(F)
 		//loc_8F608
 		do
 		{
-			effect = &effect[effect_num];
+			effect = &effects[effect_num];
 			object = &objects[effect->object_number];
 
 			if (object->draw_routine != NULL && object->loaded)

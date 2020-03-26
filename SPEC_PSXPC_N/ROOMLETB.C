@@ -354,7 +354,7 @@ int* SubPolyGT4(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 	int s4;
 	int s5;
 	int s6;
-	int t00;
+//	int t00;
 
 	t0 = SubPolyGTLoop(5, t0, (int)s1, t1);
 

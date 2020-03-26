@@ -116,7 +116,6 @@ struct Vertex
     u_char u, v, pad0, pad1;
     u_char r, g, b, a;
 };
-
 #pragma pack(pop)
 
 enum ShaderAttrib {
@@ -134,14 +133,30 @@ enum BlendMode
 	BM_DEFAULT
 };
 
+#if defined(OGLES) || defined(OGL)
+    typedef GLuint TextureID;
+    typedef GLuint ShaderID;
+    typedef GLuint RenderTargetID;
+#elif defined(D3D9)
+    typedef IDirect3DTexture9* TextureID;
 
+    struct ShaderID {
+        LPDIRECT3DVERTEXSHADER9 VS;
+        LPDIRECT3DPIXELSHADER9  PS;
+    };
 
-extern unsigned int g_lastBoundTexture;
-extern int Emulator_InitialiseGL();
+    typedef IDirect3DSurface9* RenderTargetID;
+#else
+    #error
+#endif
+
+extern TextureID g_lastBoundTexture;
+
+extern int  Emulator_Initialise();
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
-extern unsigned int Emulator_GenerateTpage(unsigned short tpage, unsigned short clut);
+extern TextureID Emulator_GenerateTpage(unsigned short tpage, unsigned short clut);
 extern void Emulator_DestroyFrameBuffer(unsigned int* fbo);
 extern void Emulator_GenerateFrameBuffer(unsigned int* fbo);
 extern void Emulator_GenerateAndBindNullWhite();
@@ -153,8 +168,18 @@ extern void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, s
 extern void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
 extern void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3);
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
-extern void Emulator_BindTexture(unsigned int textureId);
-extern void Emulator_DestroyTextures(int numTextures, unsigned int* textures);
+extern void Emulator_DestroyTexture(TextureID texture);
+extern void Emulator_SetViewPort(int x, int y, int width, int height);
+extern void Emulator_SetScissorBox(int x, int y, int width, int height);
+extern void Emulator_SetTexture(const TextureID &texture);
+extern void Emulator_SetShader(const ShaderID &shader);
+extern void Emulator_SetRenderTarget(const RenderTargetID &render_target);
+extern void Emulator_CreateVertexBuffer(int numVertices, int vertexStride, void* pVertices);
 extern void Emulator_SetVertexDecl(const Vertex *ptr);
+extern void Emulator_SetWireframe(bool enable);
+
+#if defined(D3D9)
+extern IDirect3DDevice9* d3ddev;
+#endif
 
 #endif

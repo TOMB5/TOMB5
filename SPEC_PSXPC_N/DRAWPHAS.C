@@ -245,7 +245,7 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (r->flags & 1)
 	{
-		camera_underwater = 0xFFFF0000;
+		camera_underwater = -4096;
 	}
 	else
 	{

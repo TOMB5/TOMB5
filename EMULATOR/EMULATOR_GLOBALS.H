@@ -1,26 +1,55 @@
 #ifndef EMULATOR_GLOBALS_H
 #define EMULATOR_GLOBALS_H
 
-
 #include <SDL_gamecontroller.h>
+#include <EMULATOR.H>
 
+#if defined(D3D9)
+extern LPDIRECT3DVERTEXBUFFER9 g_vertexBufferObject;
+#endif
+
+#if defined(VK)
+
+struct FrameBufferAttachment 
+{
+	VkImage image;
+	VkDeviceMemory mem;
+	VkImageView view;
+};
+
+struct FrameBuffer
+{
+	int32_t width, height;
+	VkFramebuffer frameBuffer;
+	FrameBufferAttachment color, depth;
+	VkRenderPass renderPass;
+	VkSampler sampler;
+	VkDescriptorImageInfo descriptor;
+};
+
+extern struct FrameBuffer vramFrameBuffer;
 extern unsigned int nullWhiteTexture;
-extern unsigned int vramFrameBuffer;
+#else
+extern TextureID        nullWhiteTexture;
+extern TextureID        vramTexture;
+extern RenderTargetID   vramFrameBuffer;
+extern RenderTargetID   g_defaultFBO;
+#endif
+
 extern int screenWidth;
 extern int screenHeight;
 extern int windowWidth;
 extern int windowHeight;
 extern uint32_t DMAControlRegister;
 extern int assetsLoaded;
-extern unsigned int g_gte_shader;
-extern unsigned int g_blit_shader;
-extern unsigned int vramTexture;
-extern int g_defaultFBO;
+extern ShaderID g_gte_shader;
+extern ShaderID g_blit_shader;
 
+extern RenderTargetID g_defaultFBO;
 
 struct CachedTexture
 {
-	unsigned int textureID;
+	TextureID texture;
 	unsigned short tpage;
 	unsigned short clut;
 	unsigned int lastAccess;
