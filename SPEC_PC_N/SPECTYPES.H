@@ -39,6 +39,10 @@ typedef unsigned int    uint32;
 #define SLOWORD(l)           ((sint16)(((DWORD_PTR)(l)) & 0xffff))
 #define SHIWORD(l)           ((sint16)((((DWORD_PTR)(l)) >> 16) & 0xffff))
 
+#define AVG(A, B) (((A) + (B)) / 2)
+
+#define AVG_COL(A, B) RGBA_MAKE(AVG(RGBA_GETRED(A), RGBA_GETRED(B)), AVG(RGBA_GETGREEN(A), RGBA_GETGREEN(B)), AVG(RGBA_GETBLUE(A), RGBA_GETBLUE(B)), AVG(RGBA_GETALPHA(A), RGBA_GETALPHA(B)))
+
 #pragma pack(push, 1)
 struct SVECTOR {		/* short word type 3D vector */
 	short	vx, vy;
