@@ -33,7 +33,6 @@ extern unsigned int nullWhiteTexture;
 extern TextureID        nullWhiteTexture;
 extern TextureID        vramTexture;
 extern RenderTargetID   vramFrameBuffer;
-extern RenderTargetID   g_defaultFBO;
 #endif
 
 extern int screenWidth;

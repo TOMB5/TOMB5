@@ -14,10 +14,10 @@
 //#define OGLES_VERSION 2
 
 //Open Graphics Library
-//#define OGL
+#define OGL
 
 //Direct3D9
-#define D3D9
+//#define D3D9
 
 //Vulkan
 //#define VK

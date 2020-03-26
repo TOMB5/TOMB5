@@ -11,7 +11,7 @@ extern void Emulator_Initialise(char* windowName, int screenWidth, int screenHei
 extern void Emulator_BeginScene();
 
 /* Usually called after DrawOTag/DrawOTagEnv */
-extern void Emulator_EndScene();
+extern void Emulator_EndScene(bool present);
 
 /* Explicitly updates emulator input loop */
 extern void Emulator_UpdateInput();

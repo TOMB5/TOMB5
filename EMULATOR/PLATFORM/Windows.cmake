@@ -3,7 +3,7 @@ if(MSVC)
 Message("Compiling for Windows!")
 
 #SET(USE_VULKAN TRUE)
-SET(USE_D3D9 TRUE)
+#SET(USE_D3D9 TRUE)
 
 #
 list(APPEND CMAKE_PREFIX_PATH ${EXTERN_LIB_PATH}/glew-2.1.0)

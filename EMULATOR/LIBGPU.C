@@ -259,7 +259,7 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	Emulator_SetScissorBox(rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w * RESOLUTION_SCALE, rect->h * RESOLUTION_SCALE);
 
 #if defined(OGL) || defined(OGLES)
-	Emulator_BindTexture(vramTexture);
+	Emulator_SetTexture(vramTexture);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
 #elif defined(D3D9)
 	D3DLOCKED_RECT lockedRect;
@@ -326,7 +326,7 @@ int MoveImage(RECT16* rect, int x, int y)
 	Emulator_SetScissorBox(x * RESOLUTION_SCALE, y * RESOLUTION_SCALE, x + rect->w * RESOLUTION_SCALE, y + rect->h * RESOLUTION_SCALE);
 
 #if defined(OGL) || defined(OGLES)
-	Emulator_BindTexture(vramTexture);
+	Emulator_SetTexture(vramTexture);
 #endif
 
 	unsigned short* pixels = (unsigned short*)SDL_malloc(rect->w * RESOLUTION_SCALE * rect->h * RESOLUTION_SCALE * sizeof(unsigned short));
@@ -611,25 +611,28 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 
 		P_TAG* pTag = (P_TAG*)p;
 
-#if defined(OGL) || defined(OGLES)
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-#endif
-
-        Emulator_SetVertexDecl(NULL);
-
 		do
 		{
 			if (pTag->len > 0)
 			{
- 				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4 + LEN_OFFSET);
+				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4 + LEN_OFFSET);
 			}
 			pTag = (P_TAG*)pTag->addr;
 		}while ((uintptr_t)pTag != (uintptr_t)&terminator);
 
+#if defined(OGL) || defined(OGLES)
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		Emulator_CreateVertexBuffer(MAX_NUM_POLY_BUFFER_VERTICES, sizeof(Vertex), (void*)&g_vertexBuffer[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+#endif
+
+		Emulator_SetVertexDecl(NULL);
+
 
 		for (int i = 0; i < g_numSplitIndices; i++)
 		{
@@ -650,7 +653,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 			d3ddev->DrawPrimitive((D3DPRIMITIVETYPE)g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices/3);
 #endif
 
-
 			if (g_wireframeMode)
 			{
 				Emulator_SetWireframe(false);
@@ -659,8 +661,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 		}
 
 #if defined(OGL) || defined(OGLES)
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 		glDeleteBuffers(1, &vbo);
-
 		glDeleteVertexArrays(1, &vao);
 #endif
 
@@ -2672,11 +2675,6 @@ void SetPolyG4(POLY_G4* p)
 
 void DrawPrim(void* p)
 {
-#if defined(OGL) || defined(OGLES)
-	/* Tell the shader to discard black */
-	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), TRUE);
-#endif
-
 	if (activeDrawEnv.dtd)
 	{
 		//glEnable(GL_DITHER);

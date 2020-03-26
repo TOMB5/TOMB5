@@ -1,7 +1,7 @@
 if(MSVC)
 
 #SET(USE_VULKAN TRUE)
-SET(USE_D3D9 TRUE)
+#SET(USE_D3D9 TRUE)
 
 #Find libs
 find_package(SDL2 REQUIRED)

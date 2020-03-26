@@ -134,15 +134,17 @@ enum BlendMode
 };
 
 #if defined(OGLES) || defined(OGL)
+    typedef GLuint BufferID;
     typedef GLuint TextureID;
     typedef GLuint ShaderID;
     typedef GLuint RenderTargetID;
 #elif defined(D3D9)
-    typedef IDirect3DTexture9* TextureID;
+    typedef IDirect3DVertexBuffer9* BufferID;
+    typedef IDirect3DTexture9*      TextureID;
 
     struct ShaderID {
-        LPDIRECT3DVERTEXSHADER9 VS;
-        LPDIRECT3DPIXELSHADER9  PS;
+        IDirect3DVertexShader9 *VS;
+        IDirect3DPixelShader9  *PS;
     };
 
     typedef IDirect3DSurface9* RenderTargetID;
