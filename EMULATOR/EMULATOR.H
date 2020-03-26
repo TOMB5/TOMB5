@@ -174,6 +174,7 @@ extern void Emulator_CreateVertexBuffer(int numVertices, int vertexStride, void*
 #if defined(D3D9)
 extern IDirect3DDevice9* d3ddev;
 extern IDirect3DVertexDeclaration9* g_vertexDecl;
+extern IDirect3DVertexDeclaration9* g_vertexDecl2;
 #endif
 
 #endif

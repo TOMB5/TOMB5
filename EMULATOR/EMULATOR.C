@@ -100,12 +100,16 @@ VkSemaphore renderFinishedSemaphores[FRAME_COUNT];
 SDL_Renderer* g_renderer;
 IDirect3DDevice9* d3ddev;
 IDirect3DTexture9* vramTexture = NULL;
+IDirect3DTexture9* vramTextureFetch = NULL;
 IDirect3DSurface9* vramFrameBuffer = NULL;
+IDirect3DSurface9* vramFrameBufferTextureFetch = NULL;
 IDirect3DVertexDeclaration9* g_vertexDecl = NULL;
+IDirect3DVertexDeclaration9* g_vertexDecl2 = NULL;
 unsigned int vramRenderBuffer = 0;///@FIXME delete unused?
 IDirect3DTexture9* nullWhiteTexture = NULL;
 IDirect3DSurface9* g_defaultFBO = NULL;
 IDirect3DPixelShader9* g_defaultPixelShader = NULL;
+IDirect3DPixelShader9* g_defaultPixelShaderNoRGBSwap = NULL;
 IDirect3DVertexShader9* g_defaultVertexShader = NULL;
 #else
 unsigned int vramTexture;
@@ -1256,7 +1260,7 @@ void Emulator_CreateGlobalShaders()
 #elif defined(OGL)
 	const char* vertexShaderSource = "#version 330 core\n in vec4 a_position; in vec2 a_texcoord; out vec2 v_texcoord; in vec4 a_colour; out vec4 v_colour; uniform mat4 Projection; uniform mat4 Scale; void main() { v_texcoord = a_texcoord; v_colour = a_colour; gl_Position = Projection*(a_position*Scale);  }";
 #elif defined(D3D9)
-	const char* vertexShaderSource = "struct VS_IN { float3 pos : POSITION; float2 texcoord : TEXCOORD0; float4 col : COLOR0; }; struct VS_OUT { float4 pos : POSITION; float2 texcoord : TEXCOORD0; float4 col : COLOR0; }; VS_OUT main(VS_IN input) { VS_OUT output; output.pos = float4(input.pos.xyz,1); output.texcoord = input.texcoord; output.col = input.col; return output; }";
+	const char* vertexShaderSource = "struct VS_IN { float3 pos : POSITION; float2 texcoord : TEXCOORD0; float4 col : COLOR0; }; struct VS_OUT { float4 pos : POSITION; float2 texcoord : TEXCOORD0; float4 col : COLOR0; }; VS_OUT main(VS_IN input) { VS_OUT output; output.pos = float4(input.pos.xyz,1); output.texcoord = input.texcoord; output.col = input.col * 2; return output; }";
 #endif
 
 #if defined(OGL) || defined(OGLES)
@@ -1285,7 +1289,8 @@ void Emulator_CreateGlobalShaders()
 #elif defined(OGL)
 	const char* fragmentShaderSource = "#version 330 core\n precision mediump float; in vec2 v_texcoord; in vec4 v_colour; uniform bool bDiscardBlack; uniform sampler2D s_texture; out vec4 fragColour; void main() { fragColour = texture(s_texture, v_texcoord); if (fragColour.a == 0.0 && bDiscardBlack) { discard; } fragColour *= v_colour; }";
 #elif defined(D3D9)
-	const char* fragmentShaderSource = "sampler tex : register(s0); bool bDiscardBlack = true; float4 main(in float2 texcoord : TEXCOORD0) : COLOR0 { float4 color = tex2D(tex, texcoord); float r = color.r; color.r = color.b; color.b = r; if(color.r == 0.0f && color.g == 0.0f && color.b == 0x0f) { discard; } return color; }";
+	const char* fragmentShaderSource = "sampler tex : register(s0); uniform float4 bDiscardBlack : register(c0); float4 main(in float2 texcoord : TEXCOORD0) : COLOR0 { float4 color = tex2D(tex, texcoord).bgra * 2.0f; if(color.r == 0.0f && color.g == 0.0f && color.b == 0.0f && bDiscardBlack.r == 1.0f) { color = float4(1.0f, 1.0f, 0.0f, 0.0f); } return color; }";
+	const char* fragmentShaderSourceNoRGBSwap = "sampler tex : register(s0); uniform float4 bDiscardBlack : register(c0); float4 main(in float2 texcoord : TEXCOORD0) : COLOR0 { float4 color = tex2D(tex, texcoord); return color; }";
 #endif
 
 #if defined(OGL) || defined(OGLES)
@@ -1302,6 +1307,16 @@ void Emulator_CreateGlobalShaders()
 	}
 
 	if FAILED(d3ddev->CreatePixelShader((DWORD*)pixelShaderObject->GetBufferPointer(), &g_defaultPixelShader))
+	{
+		eprinterr("Failed to create pixel shader!\n");
+	}
+	
+	if FAILED(D3DXCompileShader(fragmentShaderSourceNoRGBSwap, strlen(fragmentShaderSourceNoRGBSwap), NULL, NULL, "main", "ps_3_0", 0, &pixelShaderObject, &pOutErrors, NULL))
+	{
+		eprinterr("Failed to compile pixel shader!\n")
+	}
+
+	if FAILED(d3ddev->CreatePixelShader((DWORD*)pixelShaderObject->GetBufferPointer(), &g_defaultPixelShaderNoRGBSwap))
 	{
 		eprinterr("Failed to create pixel shader!\n");
 	}
@@ -1412,6 +1427,8 @@ int Emulator_InitialiseD3D()
 	d3ddev->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 	d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(64, 64, 64, 128));
 	d3ddev->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
+	d3ddev->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	d3ddev->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 
 	/* Initialise VRAM */
 	SDL_memset(vram, 0, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
@@ -1432,10 +1449,41 @@ int Emulator_InitialiseD3D()
 	{
 		eprinterr("Failed to create vertex declaration!\n");
 		return FALSE;
+	}	
+	
+	D3DVERTEXELEMENT9 vertexDecl2[] =
+	{
+	  {0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITIONT, 0},
+	  {0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
+	  {0, 20, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
+	  D3DDECL_END()
+	};
+
+	if FAILED(d3ddev->CreateVertexDeclaration(vertexDecl2, &g_vertexDecl2))
+	{
+		eprinterr("Failed to create vertex declaration2!\n");
+		return FALSE;
 	}
 
 	d3ddev->SetVertexDeclaration(g_vertexDecl);
 
+	//For texture fetching
+	if FAILED(d3ddev->CreateTexture(VRAM_WIDTH, VRAM_HEIGHT, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A1R5G5B5, D3DPOOL_DEFAULT, &vramTextureFetch, NULL))
+	{
+		eprinterr("Failed to create render target texture!\n");
+		return FALSE;
+	}
+
+	vramTextureFetch->GetSurfaceLevel(0, &vramFrameBufferTextureFetch);
+
+	if FAILED(d3ddev->CreateRenderTarget(VRAM_WIDTH, VRAM_HEIGHT, D3DFMT_A1R5G5B5, D3DMULTISAMPLE_NONE, 0, TRUE, &vramFrameBufferTextureFetch, NULL))
+	{
+		eprinterr("Failed to create render target!\n");
+		return FALSE;
+	}
+
+
+	//For result frame buffer
 	if FAILED(d3ddev->CreateTexture(VRAM_WIDTH, VRAM_HEIGHT, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &vramTexture, NULL))
 	{
 		eprinterr("Failed to create render target texture!\n");
@@ -1444,7 +1492,7 @@ int Emulator_InitialiseD3D()
 
 	vramTexture->GetSurfaceLevel(0, &vramFrameBuffer);
 
-	if FAILED(d3ddev->CreateRenderTarget(VRAM_WIDTH, VRAM_HEIGHT, D3DFMT_A1R5G5B5, D3DMULTISAMPLE_NONE, 0, TRUE, &vramFrameBuffer, NULL))
+	if FAILED(d3ddev->CreateRenderTarget(VRAM_WIDTH, VRAM_HEIGHT, D3DFMT_A8R8G8B8, D3DMULTISAMPLE_NONE, 0, TRUE, &vramFrameBuffer, NULL))
 	{
 		eprinterr("Failed to create render target!\n");
 		return FALSE;
@@ -2047,7 +2095,12 @@ void Emulator_EndScene()
 	glDisable(GL_BLEND);
 
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), FALSE);
-	//glBindFramebuffer(GL_FRAMEBUFFER, vramFrameBuffer);///@TOCHECK is this really required?
+#elif defined(D3D9)
+	//d3ddev->SetVertexDeclaration(g_vertexDecl);
+	//d3ddev->SetVertexShader(g_defaultVertexShader);
+	//d3ddev->SetPixelShader(g_defaultPixelShader);
+	const float bDiscardBlack[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	d3ddev->SetPixelShaderConstantF(0, bDiscardBlack, 1);
 #endif
 
 #if defined(VK)
@@ -2060,6 +2113,7 @@ void Emulator_EndScene()
 
 #if defined(D3D9)
 	d3ddev->SetRenderTarget(0, g_defaultFBO);
+	d3ddev->SetVertexDeclaration(g_vertexDecl);
 	d3ddev->SetVertexShader(g_defaultVertexShader);
 	d3ddev->SetPixelShader(g_defaultPixelShader);
 #endif
@@ -2189,11 +2243,10 @@ void Emulator_EndScene()
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, vramFrameBuffer);
 	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
 #else
-	//Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
+	Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
 #endif
 
 #if defined(D3D9)
-	//texture->Release();
 	d3ddev->SetVertexShader(NULL);
 	d3ddev->SetPixelShader(NULL);
 	d3ddev->EndScene();
@@ -2234,6 +2287,12 @@ void Emulator_ShutDown()
 	vkDestroySurfaceKHR(instance, surface, 0);
 	vkDestroyInstance(instance, NULL);
 #elif defined(D3D9)
+
+	vramTexture->Release();
+	vramTextureFetch->Release();
+	vramFrameBuffer->Release();
+	vramFrameBufferTextureFetch->Release();
+
 	if (g_defaultVertexShader != NULL)
 	{
 		g_defaultVertexShader->Release();
@@ -2242,6 +2301,11 @@ void Emulator_ShutDown()
 	if (g_defaultPixelShader != NULL)
 	{
 		g_defaultPixelShader->Release();
+	}
+	
+	if (g_defaultPixelShaderNoRGBSwap != NULL)
+	{
+		g_defaultPixelShaderNoRGBSwap->Release();
 	}
 
 	SDL_DestroyRenderer(g_renderer);
@@ -2429,13 +2493,14 @@ IDirect3DTexture9* Emulator_GenerateTpage(unsigned short tpage, unsigned short c
 #if defined(OGL) || defined(OGLES)
 		glReadPixels(clutX, clutY, CLUT_WIDTH, CLUT_HEIGHT, GL_RGBA, TEXTURE_FORMAT, &clut[0]);
 #elif defined(D3D9)
+
 		D3DLOCKED_RECT lockedRect;
 		RECT convertedRect;
 		convertedRect.top = clutY;
 		convertedRect.bottom = clutY + CLUT_HEIGHT;
 		convertedRect.left = clutX;
 		convertedRect.right = clutX + CLUT_WIDTH;
-		vramFrameBuffer->LockRect(&lockedRect, &convertedRect, D3DLOCK_READONLY);
+		vramFrameBufferTextureFetch->LockRect(&lockedRect, &convertedRect, D3DLOCK_READONLY);
 
 		unsigned short* src = (unsigned short*)lockedRect.pBits;
 		unsigned short* dest = clut;
@@ -2451,8 +2516,9 @@ IDirect3DTexture9* Emulator_GenerateTpage(unsigned short tpage, unsigned short c
 			dest += CLUT_WIDTH;
 		}
 
-		vramFrameBuffer->UnlockRect();
+		vramFrameBufferTextureFetch->UnlockRect();
 #endif
+
 		unsigned short* tpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH / 4 * TPAGE_HEIGHT * sizeof(unsigned short));
 
 #if defined(OGL) || defined(OGLES)
@@ -2463,7 +2529,7 @@ IDirect3DTexture9* Emulator_GenerateTpage(unsigned short tpage, unsigned short c
 		convertedRect.bottom = tpageY + TPAGE_HEIGHT;
 		convertedRect.left = tpageX;
 		convertedRect.right = tpageX + (TPAGE_WIDTH / 4);
-		vramFrameBuffer->LockRect(&lockedRect, &convertedRect, D3DLOCK_READONLY);
+		vramFrameBufferTextureFetch->LockRect(&lockedRect, &convertedRect, D3DLOCK_READONLY);
 
 		src = (unsigned short*)lockedRect.pBits;
 		dest = tpage;
@@ -2479,7 +2545,7 @@ IDirect3DTexture9* Emulator_GenerateTpage(unsigned short tpage, unsigned short c
 			dest += (TPAGE_WIDTH / 4);
 		}
 
-		vramFrameBuffer->UnlockRect();
+		vramFrameBufferTextureFetch->UnlockRect();
 #endif
 
 		unsigned short* convertedTpage = (unsigned short*)SDL_malloc(TPAGE_WIDTH * TPAGE_HEIGHT * sizeof(unsigned short));

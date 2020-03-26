@@ -8,8 +8,13 @@
 #if defined(D3D9)
 extern IDirect3DTexture9* nullWhiteTexture;
 extern IDirect3DTexture9* vramTexture;
+extern IDirect3DTexture9* vramTextureFetch;
 extern IDirect3DSurface9* vramFrameBuffer;
+extern IDirect3DSurface9* vramFrameBufferTextureFetch;
 extern LPDIRECT3DVERTEXBUFFER9 g_vertexBufferObject;
+extern IDirect3DPixelShader9* g_defaultPixelShader;
+extern IDirect3DPixelShader9* g_defaultPixelShaderNoRGBSwap;
+extern IDirect3DVertexShader9* g_defaultVertexShader;
 #elif defined(VK)
 
 struct FrameBufferAttachment 

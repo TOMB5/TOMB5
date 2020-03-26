@@ -265,13 +265,15 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 	Emulator_BindTexture(vramTexture);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, rect->x * RESOLUTION_SCALE, rect->y * RESOLUTION_SCALE, rect->w, rect->h, GL_RGBA, TEXTURE_FORMAT, &p[0]);
 #elif defined(D3D9)
+
+	//For textures only upload in original format
 	D3DLOCKED_RECT lockedRect;
 	RECT convertedRect;
 	convertedRect.top = rect->y * RESOLUTION_SCALE;
 	convertedRect.bottom = (rect->y * RESOLUTION_SCALE) + (rect->h * RESOLUTION_SCALE);
 	convertedRect.left = rect->x * RESOLUTION_SCALE;
 	convertedRect.right = (rect->x * RESOLUTION_SCALE) + (rect->w * RESOLUTION_SCALE);
-	vramFrameBuffer->LockRect(&lockedRect, &convertedRect, 0);
+	vramFrameBufferTextureFetch->LockRect(&lockedRect, &convertedRect, 0);
 	
 	unsigned short* src = (unsigned short*)p;
 	unsigned short* dest = (unsigned short*)lockedRect.pBits;
@@ -284,10 +286,81 @@ int LoadImagePSX(RECT16* rect, u_long* p)
 		}
 
 		src += rect->w;
-		dest += lockedRect.Pitch / 2;
+		dest += lockedRect.Pitch / sizeof(unsigned short);
 	}
 
-	vramFrameBuffer->UnlockRect();
+	vramFrameBufferTextureFetch->UnlockRect();
+
+	//For result framebuffer
+	IDirect3DTexture9* textureToLoad = NULL;
+
+	d3ddev->BeginScene();
+	if FAILED(d3ddev->CreateTexture(rect->w, rect->h, 0, 0, D3DFMT_A1R5G5B5, D3DPOOL_MANAGED, &textureToLoad, NULL))
+	{
+		eprinterr("Failed to create tpage texture!\n");
+		assert(FALSE);//Should never happen cannot continue anymore.
+	}
+
+	//Lock the texture for writing
+	textureToLoad->LockRect(0, &lockedRect, NULL, 0);
+
+	//Copy over texture data
+	memcpy(lockedRect.pBits, p, rect->w * rect->h * sizeof(unsigned short));
+
+	//Done, unlock texture
+	textureToLoad->UnlockRect(0);
+
+	float x = 1.0f / (rect->w / (float)(rect->x * RESOLUTION_SCALE));
+	float y = 1.0f / (rect->h / (float)(rect->y * RESOLUTION_SCALE));
+	float h = 1.0f / (rect->h / (float)(rect->h * RESOLUTION_SCALE));
+	float w = 1.0f / (rect->w / (float)(rect->w * RESOLUTION_SCALE));
+
+	struct Vertex vertexBuffer[] =
+	{
+		//BL
+		-1.0f, -1.0f, 0.0f, x, y + h, D3DCOLOR_RGBA(255, 255, 255, 255),
+		//BR
+		1.0f, -1.0f, 0.0f, x + w, y + h, D3DCOLOR_RGBA(255, 255, 255, 255),
+		//TL
+		-1.0f, 1.0f, 0.0f, x, y, D3DCOLOR_RGBA(255, 255, 255, 255),
+
+		//TR
+		1.0f, 1.0f, 0.0f, x + w, y, D3DCOLOR_RGBA(255, 255, 255, 255),
+		//TL
+		-1.0f, 1.0f, 0.0f, x, y, D3DCOLOR_RGBA(255, 255, 255, 255),
+		//BR
+		1.0f, -1.0f, 0.0f, x + w, y + h, D3DCOLOR_RGBA(255, 255, 255, 255),
+	};
+
+	//Bind frame buffer
+	Emulator_BindFrameBuffer(vramFrameBuffer);
+
+	//Create and bind vertex buffer
+	LPDIRECT3DVERTEXBUFFER9 vertexBufferObject = NULL;
+	d3ddev->CreateVertexBuffer(sizeof(struct Vertex) * 6, 0, (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX0), D3DPOOL_MANAGED, &vertexBufferObject, NULL);
+	VOID* pVertexData;
+	vertexBufferObject->Lock(0, 0, (void**)&pVertexData, 0);
+	memcpy(pVertexData, &vertexBuffer[0], sizeof(struct Vertex) * 6);
+	vertexBufferObject->Unlock();
+	d3ddev->SetStreamSource(0, vertexBufferObject, 0, sizeof(struct Vertex));
+	d3ddev->SetTexture(0, textureToLoad);
+	d3ddev->SetVertexShader(g_defaultVertexShader);
+	d3ddev->SetPixelShader(g_defaultPixelShaderNoRGBSwap);
+	d3ddev->SetVertexDeclaration(g_vertexDecl);
+
+	//Set View Port
+	Emulator_SetViewPort(rect->x, rect->y, rect->w, rect->h);
+
+	//Draw
+	d3ddev->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 6);
+
+	//Release the texture from memory
+	textureToLoad->Release();
+
+	d3ddev->EndScene();
+
+	Emulator_SaveVRAM("VRAMN.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, FALSE);
+
 #endif
 
 #if _DEBUG && 0
@@ -583,6 +656,9 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #if defined(OGL) || defined(OGLES)
 	/* Tell the shader to discard black */
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), TRUE);
+#elif defined(D3D9)
+	const float bDiscardBlack[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	d3ddev->SetPixelShaderConstantF(0, bDiscardBlack, 1);
 #endif
 
 	PutDrawEnv(env);
@@ -691,7 +767,6 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)//
 #elif defined(D3D9)
 			d3ddev->DrawPrimitive((D3DPRIMITIVETYPE)g_splitIndices[i].primitiveType, g_splitIndices[i].splitIndex, g_splitIndices[i].numVertices/3);
 #endif
-
 
 			if (g_wireframeMode)
 			{
@@ -2515,6 +2590,9 @@ void DrawOTag(u_long* p)
 #if defined(OGL) || defined(OGLES)
 	/* Tell the shader to discard black */
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), TRUE);
+#elif defined(D3D9)
+	const float bDiscardBlack[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	d3ddev->SetPixelShaderConstantF(0, bDiscardBlack, 1);
 #endif
 
 	if (activeDrawEnv.dtd)
@@ -2767,6 +2845,9 @@ void DrawPrim(void* p)
 #if defined(OGL) || defined(OGLES)
 	/* Tell the shader to discard black */
 	glUniform1i(glGetUniformLocation(g_defaultShaderProgram, "bDiscardBlack"), TRUE);
+#elif defined(D3D9)
+	const float bDiscardBlack[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	d3ddev->SetPixelShaderConstantF(0, bDiscardBlack, 1);
 #endif
 
 	if (activeDrawEnv.dtd)
