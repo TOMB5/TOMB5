@@ -335,7 +335,7 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 
 				//Log(LT_Info, "X=%f Y=%f Z=%f", vptr[5].sx, vptr[5].sy, vptr[5].sz);
 
-				d9ab1c += 2;
+				num_tris += 2;
 			}
 		}
 	}
@@ -577,7 +577,7 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 			first->sz = f_a - f_boo * first->rhw;
 		}
 
-		d9ab1c++;
+		num_tris++;
 	}
 }
 
@@ -758,7 +758,7 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 
 			info->head.z = z;
 
-			d9ab1c += 2;
+			num_tris += 2;
 		}
 	}
 }
@@ -992,7 +992,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 			*(float*)&tex->attribute = v3a;
 		
 		surfacenumbf++;
-		++d9ab1c;
+		++num_tris;
 	}
 }
 

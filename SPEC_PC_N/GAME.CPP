@@ -15,7 +15,7 @@ LPDIRECT3DVERTEXBUFFER vertex_buffer;
 bool game_running;
 WORD* d9ab34;
 int e4b100;
-int d9ab1c;
+int num_tris;
 int d9ab10;
 DWORD dword_921684;
 DWORD dword_7EE0D4;

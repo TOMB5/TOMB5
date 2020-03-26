@@ -803,7 +803,7 @@ void S_OutputPolyList()
 	//RestoreFPCW();
 	WinFrameRate();
 
-	d9ab1c = 0;
+	num_tris = 0;
 	d9ab10 = 0;
 
 	App.DrawPrimitiveCntBuk = 0;
