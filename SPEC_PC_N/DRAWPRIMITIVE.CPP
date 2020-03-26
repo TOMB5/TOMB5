@@ -278,69 +278,62 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 				FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
 
 				const auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
-				Log(LT_Info, "QuadZ writing 6 verts to bucket %d", buk - Bucket);
+				//Log(LT_Info, "QuadZ writing 6 verts to bucket %d", buk - Bucket);
 
 				*cnt_ptr += 6;
 
 				D3DTLVERTEX* vp1b = &v[v1b];
 
-				vptr->sx = vp1b->sx;
-				vptr->sy = vp1b->sy;
-				vptr->sz = f_a - f_boo * vp1b->rhw;
-				vptr->rhw = vp1b->rhw;
-				vptr->color = vp1b->color;
-				vptr->specular = vp1b->specular;
-				vptr->tu = next->vertices[0].x;
-				vptr->tv = next->vertices[0].y;
+				vptr[0].sx = vp1b->sx;
+				vptr[0].sy = vp1b->sy;
+				vptr[0].sz = f_a - f_boo * vp1b->rhw;
+				vptr[0].rhw = vp1b->rhw;
+				vptr[0].color = vp1b->color;
+				vptr[0].specular = vp1b->specular;
+				vptr[0].tu = next->vertices[0].x;
+				vptr[0].tv = next->vertices[0].y;
 
-				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+				//Log(LT_Info, "X=%f Y=%f Z=%f", vptr[0].sx, vptr[0].sy, vptr[0].sz);
 
-				vptr[3] = vptr[0];
+				vptr[1].sx = vt2->sx;
+				vptr[1].sy = vt2->sy;
+				vptr[1].sz = f_a - f_boo * vt2->rhw;
+				vptr[1].rhw = vt2->rhw;
+				vptr[1].color = vt2->color;
+				vptr[1].specular = vt2->specular;
+				vptr[1].tu = next->vertices[1].x;
+				vptr[1].tv = next->vertices[1].y;
 
-				vptr++;
-
-				vptr->sx = vt2->sx;
-				vptr->sy = vt2->sy;
-				vptr->sz = f_a - f_boo * vt2->rhw;
-				vptr->rhw = vt2->rhw;
-				vptr->color = vt2->color;
-				vptr->specular = vt2->specular;
-				vptr->tu = next->vertices[1].x;
-				vptr->tv = next->vertices[1].y;
-
-				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
-
-				vptr++;
+				//Log(LT_Info, "X=%f Y=%f Z=%f", vptr[1].sx, vptr[1].sy, vptr[1].sz);
 
 				D3DTLVERTEX* vt3 = &v[v3b];
 
-				vptr->sx = vt3->sx;
-				vptr->sy = vt3->sy;
-				vptr->sz = f_a - f_boo * vt3->rhw;
-				vptr->rhw = vt3->rhw;
-				vptr->color = vt3->color;
-				vptr->specular = vt3->specular;
-				vptr->tu = next->vertices[2].x;
-				vptr->tv = next->vertices[2].y;
+				vptr[2].sx = vt3->sx;
+				vptr[2].sy = vt3->sy;
+				vptr[2].sz = f_a - f_boo * vt3->rhw;
+				vptr[2].rhw = vt3->rhw;
+				vptr[2].color = vt3->color;
+				vptr[2].specular = vt3->specular;
+				vptr[2].tu = next->vertices[2].x;
+				vptr[2].tv = next->vertices[2].y;
 
-				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+				//Log(LT_Info, "X=%f Y=%f Z=%f", vptr[2].sx, vptr[2].sy, vptr[2].sz);
 
-				vptr[2] = vptr[0];
-
-				vptr++;
+				vptr[3] = vptr[0];
+				vptr[4] = vptr[2];
 
 				D3DTLVERTEX* vt4 = &v[v4];
 
-				vptr->sx = vt4->sx;
-				vptr->sy = vt4->sy;
-				vptr->sz = f_a - f_boo * vt4->rhw;
-				vptr->rhw = vt4->rhw;
-				vptr->color = vt4->color;
-				vptr->specular = vt4->specular;
-				vptr->tu = next->vertices[3].x;
-				vptr->tv = next->vertices[3].y;
+				vptr[5].sx = vt4->sx;
+				vptr[5].sy = vt4->sy;
+				vptr[5].sz = f_a - f_boo * vt4->rhw;
+				vptr[5].rhw = vt4->rhw;
+				vptr[5].color = vt4->color;
+				vptr[5].specular = vt4->specular;
+				vptr[5].tu = next->vertices[3].x;
+				vptr[5].tv = next->vertices[3].y;
 
-				Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+				//Log(LT_Info, "X=%f Y=%f Z=%f", vptr[5].sx, vptr[5].sy, vptr[5].sz);
 
 				d9ab1c += 2;
 			}
@@ -424,7 +417,7 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 	int v27 = 0;
 	int v31 = 1;
 
-	Log(LT_Enter, "AddTriClippedZBuffer %4d[%d];%4d[%d];%4d[%d] tex=%d", v1, vp1, v2, vp2, v3, vp3, tex->tile_and_flag);
+	//Log(LT_Enter, "AddTriClippedZBuffer %4d[%d];%4d[%d];%4d[%d] tex=%d", v1, vp1, v2, vp2, v3, vp3, tex->tile_and_flag);
 
 	if ((vp1 | vp2 | vp3) & 0x8000)
 	{
@@ -493,7 +486,7 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 			FindBucket(next->tile_and_flag, &vptr, &cnt_ptr);
 
 			const auto buk = (TEXTUREBUCKET*)(cnt_ptr - 1);
-			Log(LT_Info, "TriZ writing 3 verts to bucket %d", buk - Bucket);
+			//Log(LT_Info, "TriZ writing 3 verts to bucket %d", buk - Bucket);
 
 			v31 = 0;
 
@@ -514,7 +507,7 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 	vptr->tu = next->vertices[0].x;
 	vptr->tv = next->vertices[0].y;
 
-	Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+	//Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
 
 	vptr++;
 
@@ -529,7 +522,7 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 	vptr->tu = next->vertices[1].x;
 	vptr->tv = next->vertices[1].y;
 
-	Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+	//Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
 
 	vptr++;
 
@@ -544,7 +537,7 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 	vptr->tu = next->vertices[2].x;
 	vptr->tv = next->vertices[2].y;
 
-	Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
+	//Log(LT_Info, "X=%f Y=%f Z=%f", vptr->sx, vptr->sy, vptr->sz);
 
 	if (v31)
 	{
