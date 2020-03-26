@@ -1434,7 +1434,7 @@ int Emulator_InitialiseD3D()
 	SDL_memset(vram, 0, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
 
 	/* Generate NULL white texture */
-	//Emulator_GenerateAndBindNullWhite();///@TODO
+	Emulator_GenerateAndBindNullWhite();
 
 #if defined(D3D9)
 	D3DVERTEXELEMENT9 vertexDecl[] =
@@ -1832,6 +1832,17 @@ void Emulator_GenerateAndBindNullWhite()
 	glGenTextures(1, &nullWhiteTexture);
 	Emulator_BindTexture(nullWhiteTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData[0]);
+#elif defined(D3D9)
+	if FAILED(d3ddev->CreateTexture(1, 1, 0, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &nullWhiteTexture, NULL))
+	{
+		eprinterr("Failed to create null white texture!\n");
+		assert(FALSE);//Should never happen cannot continue anymore.
+	}
+
+	D3DLOCKED_RECT lockedRect;
+	nullWhiteTexture->LockRect(0, &lockedRect, NULL, 0);
+	memcpy(lockedRect.pBits, &pixelData[0], 4);
+	nullWhiteTexture->UnlockRect(0);
 #endif
 }
 
