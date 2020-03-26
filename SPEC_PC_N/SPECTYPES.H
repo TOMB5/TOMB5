@@ -346,6 +346,7 @@ struct tr_face3    // 8 bytes
 	uint16_t Texture : 14;
 	uint16_t UnkFlag : 1;
 	uint16_t DoubleSided : 1;
+	uint16_t Padding;
 };
 
 struct tr_face4    // 12 bytes
@@ -354,6 +355,7 @@ struct tr_face4    // 12 bytes
 	uint16_t Texture : 14;
 	uint16_t UnkFlag : 1;
 	uint16_t DoubleSided : 1;
+	uint16_t Padding;
 };
 
 struct tr4_mesh_face3    // 10 bytes
