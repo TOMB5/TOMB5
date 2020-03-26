@@ -99,6 +99,13 @@ RenderTargetID  vramFrameBuffer;
 TextureID       nullWhiteTexture;
 RenderTargetID  g_defaultFBO;
 
+#if defined(OGLES) || defined(OGL)
+    GLuint dynamic_vertex_buffer;
+    GLuint dynamic_vertex_array;
+#elif defined(D3D9)
+    IDirect3DVertexBuffer9* dynamic_vertex_buffer;
+#endif
+
 int screenWidth = 0;
 int screenHeight = 0;
 int windowWidth = 0;
@@ -1232,22 +1239,6 @@ void Emulator_CreateGlobalShaders()
 #endif
 }
 
-void Emulator_SetVertexDecl(const Vertex *ptr)
-{
-#if defined(OGLES) || defined(OGL)
-    glEnableVertexAttribArray(a_position);
-    glEnableVertexAttribArray(a_texcoord);
-    glEnableVertexAttribArray(a_color);
-    glVertexAttribPointer(a_position, 2, GL_SHORT,         GL_FALSE, sizeof(*ptr), &ptr->x);
-    glVertexAttribPointer(a_texcoord, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(*ptr), &ptr->u);
-    glVertexAttribPointer(a_color,    4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(*ptr), &ptr->r);
-#elif defined(D3D9)
-    d3ddev->SetVertexDeclaration(vertexDecl);
-#else
-    #error
-#endif
-}
-
 unsigned short vram[VRAM_WIDTH * VRAM_HEIGHT];
 
 #if defined(OGL) || defined(OGLES)
@@ -1302,6 +1293,19 @@ int Emulator_Initialise()
 	Emulator_CreateGlobalShaders();
 	Emulator_SetTexture(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
+
+	glGenBuffers(1, &dynamic_vertex_buffer);
+	glGenVertexArrays(1, &dynamic_vertex_array);
+	glBindVertexArray(dynamic_vertex_array);
+	glBindBuffer(GL_ARRAY_BUFFER, dynamic_vertex_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(a_position);
+	glEnableVertexAttribArray(a_texcoord);
+	glEnableVertexAttribArray(a_color);
+	glVertexAttribPointer(a_position, 4, GL_SHORT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
+	glVertexAttribPointer(a_texcoord, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->u);
+	glVertexAttribPointer(a_color,    4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(Vertex), &((Vertex*)NULL)->r);
+	glBindVertexArray(0);
 
     return TRUE;
 }
@@ -1783,15 +1787,23 @@ void Emulator_BeginScene()
 		}
 	}
 
-    assert(!begin_scene_flag);
+	assert(!begin_scene_flag);
 
-#if defined(D3D9)
+#if defined(OGL) || defined(OGLES)
+	glBindVertexArray(dynamic_vertex_array);
+#elif defined(D3D9)
 	d3ddev->BeginScene();
+	d3ddev->SetVertexDeclaration(vertexDecl);
 #endif
 
 	Emulator_SetShader(g_gte_shader);
 
-    begin_scene_flag = true;
+	begin_scene_flag = true;
+
+	if (g_wireframeMode)
+	{
+		Emulator_SetWireframe(true);
+	}
 }
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
@@ -1925,6 +1937,15 @@ void Emulator_SwapWindow()
 
 void Emulator_EndScene(bool present)
 {
+	if (!begin_scene_flag) {
+		Emulator_BeginScene();
+	}
+
+	if (g_wireframeMode)
+	{
+		Emulator_SetWireframe(false);
+	}
+
     u_char l = 128 * word_33BC.disp.x / (VRAM_WIDTH  / RESOLUTION_SCALE);
     u_char t = 128 * word_33BC.disp.y / (VRAM_HEIGHT / RESOLUTION_SCALE);
     u_char r = 128 * word_33BC.disp.w / (VRAM_WIDTH  / RESOLUTION_SCALE);
@@ -1937,31 +1958,20 @@ void Emulator_EndScene(bool present)
         { 0, 1,    0, 0,    l,  t,    0, 0,    255, 255, 255, 255 },
         { 0, 0,    0, 0,    l,  b,    0, 0,    255, 255, 255, 255 },
         { 1, 1,    0, 0,    r,  t,    0, 0,    255, 255, 255, 255 },
+        { 1, 1,    0, 0,    r,  t,    0, 0,    255, 255, 255, 255 },
+        { 0, 0,    0, 0,    l,  b,    0, 0,    255, 255, 255, 255 },
         { 1, 0,    0, 0,    r,  b,    0, 0,    255, 255, 255, 255 }
     };
 
     Emulator_SetRenderTarget(g_defaultFBO);
     Emulator_SetScissorBox(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
+    Emulator_SetViewPort(0, 0, windowWidth * RESOLUTION_SCALE, windowHeight * RESOLUTION_SCALE);
 
     Emulator_SetShader(g_blit_shader);
     Emulator_SetTexture(vramTexture);
 
-#if defined(OGLES) || defined (OGL)
-	GLuint   vbo, vao;
-
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
-	Emulator_SetVertexDecl(NULL);
-
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	glDeleteBuffers(1, &vbo);
-    glDeleteVertexArrays(1, &vao);
-#endif
+    Emulator_UpdateVertexBuffer(vertexBuffer, 6);
+    Emulator_DrawTriangles(0, 2);
 
 #if _DEBUG && 0
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, vramFrameBuffer);
@@ -1970,7 +1980,9 @@ void Emulator_EndScene(bool present)
 	//Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
 #endif
 
-#if defined(D3D9)
+#if defined(OGL) || defined(OGLES)
+	glBindVertexArray(0);
+#elif defined(D3D9)
 	if (begin_scene_flag) {
 		d3ddev->EndScene();
 	}
@@ -2843,23 +2855,7 @@ void Emulator_SetRenderTarget(const RenderTargetID &frameBufferObject)
 #elif defined(D3D9)
 	d3ddev->SetRenderTarget(0, frameBufferObject);
 #elif defined(VK)
-	//assert(FALSE);//unimplemented
-#endif
-}
-
-void Emulator_CreateVertexBuffer(int numVertices, int vertexStride, void* pVertices)
-{
-#if defined(OGL) || defined(OGLES)
-	glBufferData(GL_ARRAY_BUFFER, vertexStride * numVertices, pVertices, GL_STATIC_DRAW);
-#elif defined(D3D9)
-	d3ddev->CreateVertexBuffer(vertexStride * numVertices, 0, (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX0), D3DPOOL_MANAGED, &g_vertexBufferObject, NULL);
-	VOID* pVertexData;
-	g_vertexBufferObject->Lock(0, 0, (void**)&pVertexData, 0);
-	memcpy(pVertexData, pVertices, vertexStride * numVertices);
-	g_vertexBufferObject->Unlock();
-	d3ddev->SetStreamSource(0, g_vertexBufferObject, 0, vertexStride);
-#elif defined(VK)
-
+    #error
 #endif
 }
 
@@ -2869,5 +2865,46 @@ void Emulator_SetWireframe(bool enable)
     glPolygonMode(GL_FRONT_AND_BACK, enable ? GL_LINE : GL_FILL);
 #elif defined(D3D9)
     d3ddev->SetRenderState(D3DRS_FILLMODE, enable ? D3DFILL_WIREFRAME : D3DFILL_SOLID);
+#endif
+}
+
+void Emulator_UpdateVertexBuffer(const Vertex *vertices, int num_vertices)
+{
+#if defined(OGL) || defined(OGLES)
+    glBufferSubData(GL_ARRAY_BUFFER, 0, num_vertices * sizeof(Vertex), vertices);
+#elif defined(D3D9)
+    /* AAA
+    	d3ddev->CreateVertexBuffer(vertexStride * numVertices, 0, (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX0), D3DPOOL_MANAGED, &g_vertexBufferObject, NULL);
+	VOID* pVertexData;
+	g_vertexBufferObject->Lock(0, 0, (void**)&pVertexData, 0);
+	memcpy(pVertexData, pVertices, vertexStride * numVertices);
+	g_vertexBufferObject->Unlock();
+	d3ddev->SetStreamSource(0, g_vertexBufferObject, 0, vertexStride);
+    
+    */
+#else
+    #error
+#endif
+}
+
+void Emulator_DrawTriangles(int start_vertex, int triangles)
+{
+#if defined(OGL) || defined(OGLES)
+	glDrawArrays(GL_TRIANGLES, start_vertex, triangles * 3);
+#elif defined(D3D9)
+	d3ddev->DrawPrimitive(D3DPT_TRIANGLELIST, start_vertex, triangles);
+#else
+	#error
+#endif
+}
+
+void Emulator_DrawLines(int start_vertex, int lines)
+{
+#if defined(OGL) || defined(OGLES)
+	glDrawArrays(GL_LINES, start_vertex, lines * 2);
+#elif defined(D3D9)
+	d3ddev->DrawPrimitive(D3DPT_LINELIST, start_vertex, lines);
+#else
+	#error
 #endif
 }

@@ -133,13 +133,14 @@ enum BlendMode
 	BM_DEFAULT
 };
 
+#define MAX_NUM_POLY_BUFFER_VERTICES (12040)
+#define MAX_NUM_INDEX_BUFFERS        (4096)
+
 #if defined(OGLES) || defined(OGL)
-    typedef GLuint BufferID;
     typedef GLuint TextureID;
     typedef GLuint ShaderID;
     typedef GLuint RenderTargetID;
 #elif defined(D3D9)
-    typedef IDirect3DVertexBuffer9* BufferID;
     typedef IDirect3DTexture9*      TextureID;
 
     struct ShaderID {
@@ -151,8 +152,6 @@ enum BlendMode
 #else
     #error
 #endif
-
-extern TextureID g_lastBoundTexture;
 
 extern int  Emulator_Initialise();
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
@@ -176,9 +175,10 @@ extern void Emulator_SetScissorBox(int x, int y, int width, int height);
 extern void Emulator_SetTexture(const TextureID &texture);
 extern void Emulator_SetShader(const ShaderID &shader);
 extern void Emulator_SetRenderTarget(const RenderTargetID &render_target);
-extern void Emulator_CreateVertexBuffer(int numVertices, int vertexStride, void* pVertices);
-extern void Emulator_SetVertexDecl(const Vertex *ptr);
 extern void Emulator_SetWireframe(bool enable);
+extern void Emulator_UpdateVertexBuffer(const Vertex *vertices, int count);
+extern void Emulator_DrawTriangles(int start_vertex, int triangles);
+extern void Emulator_DrawLines(int start_vertex, int lines);
 
 #if defined(D3D9)
 extern IDirect3DDevice9* d3ddev;
