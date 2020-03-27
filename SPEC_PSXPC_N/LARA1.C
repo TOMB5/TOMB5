@@ -124,20 +124,49 @@ void sub_FC0(int x, int y, int z)
 void sub_1184()
 {
     int* s3 = &scratchPad[0];
-    //s4 = ra
-    struct GUNSHELL_STRUCT* s1 = &Gunshells[0];
-    //s2 = 0x18;
+    struct GUNSHELL_STRUCT* s1 = &Gunshells[0];///@FIXME GUNSHELL_STRUCT size not matching PSX!
+    struct object_info* a0 = NULL;
+    int s2 = 0x18;
 
     //loc_1198
-    //v0 = s1->counter
-    //s2--;
-    if (s1->counter != 0)
+    do
     {
-        sub_FC0(s1->pos.x_pos, s1->pos.y_pos, s1->pos.z_pos);
-        sub_1244(s1->pos.y_rot, s1->pos.x_rot, s1->pos.z_rot);
-    }
-    //loc_1234
+        s2--;
+        if (s1->counter != 0)
+        {
+            sub_FC0(s1->pos.x_pos, s1->pos.y_pos, s1->pos.z_pos);
+            sub_1244(s1->pos.y_rot, s1->pos.x_rot, s1->pos.z_rot);
+            a0 = &objects[s1->object_number];
+            sub_658((short*)meshes[a0->mesh_index], (int*)db.polyptr, (int)db.ot);
 
+            int t0 = scratchPad[128];
+            int t1 = scratchPad[129];
+            int t2 = scratchPad[130];
+            int t3 = scratchPad[131];
+
+            R11 = t0 & 0xFFFF;
+            R12 = (t0 >> 16) & 0xFFFF;
+            R13 = t1 & 0xFFFF;
+            R21 = (t1 >> 16) & 0xFFFF;
+            R22 = t2 & 0xFFFF;
+            R23 = (t2 >> 16) & 0xFFFF;
+            R31 = t3 & 0xFFFF;
+            R32 = (t3 >> 16) & 0xFFFF;
+
+            t0 = scratchPad[132];
+            t1 = scratchPad[134];
+            t2 = scratchPad[135];
+            t3 = scratchPad[136];
+
+            R33 = t0;
+            TRX = t1;
+            TRY = t2;
+            TRZ = t3;
+            
+            s1++;
+        }
+    } while (s2 != 0);
+    //loc_1234
 }
 
 void sub_E38()
