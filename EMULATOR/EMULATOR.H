@@ -45,10 +45,8 @@
 #define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
 #endif
 
-#define RESOLUTION_SCALE (1)
-
-#define VRAM_WIDTH (1024 * RESOLUTION_SCALE)
-#define VRAM_HEIGHT (512 * RESOLUTION_SCALE)
+#define VRAM_WIDTH (1024)
+#define VRAM_HEIGHT (512)
 
 #define TPAGE_WIDTH (256)
 #define TPAGE_HEIGHT (256)
@@ -69,8 +67,8 @@
 #define CTR_CLOCK_SYS_ONE (0)
 #define CTR_CLOCK_SYS_ONE_EIGHTH (1)
 
-#define GET_TPAGE_X(tpage) ((tpage << 6) & 0x7C0) % (VRAM_WIDTH / RESOLUTION_SCALE);
-#define GET_TPAGE_Y(tpage) ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT / RESOLUTION_SCALE);
+#define GET_TPAGE_X(tpage) ((tpage << 6) & 0x7C0) % (VRAM_WIDTH);
+#define GET_TPAGE_Y(tpage) ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT);
 #define GET_TPAGE_TYPE(tpage) (tpage >> 7) & 0x3;
 #define GET_CLUT_X(clut) ((clut & 0x3F) << 4);
 #define GET_CLUT_Y(clut) (clut >> 6);
@@ -111,10 +109,11 @@ extern SysCounter counters[3];
 #pragma pack(push,1)
 struct Vertex
 {
-    short  x, y;
-    short  clut, page;
-    u_char u, v, pad0, pad1;
-    u_char r, g, b, a;
+	short  x, y;
+	short  clut, page; // unused
+	u_char u, v;
+	u_char pad0, pad1; // unused
+	u_char r, g, b, a;
 };
 #pragma pack(pop)
 
@@ -168,6 +167,7 @@ extern void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned c
 extern void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3);
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
 extern void Emulator_DestroyTexture(TextureID texture);
+extern void Emulator_Clear(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b);
 extern void Emulator_SetViewPort(int x, int y, int width, int height);
 extern void Emulator_SetScissor(int x, int y, int width, int height);
 extern void Emulator_SetTexture(const TextureID &texture, int page, int clut);

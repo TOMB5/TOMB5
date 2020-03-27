@@ -1264,8 +1264,6 @@ int Emulator_Initialise()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
 
-	glLineWidth(RESOLUTION_SCALE);
-
 	Emulator_CreateGlobalShaders();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_defaultFBO);
@@ -1638,6 +1636,21 @@ void Emulator_DestroyTexture(TextureID texture)
 #endif
 }
 
+extern void Emulator_Clear(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b)
+{
+#if defined(OGL) || defined(OGLES)
+	glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#elif defined(D3D9)
+	D3DRECT rect;
+	rect.x1 = x;
+	rect.x2 = x + w;
+	rect.y1 = y;
+	rect.y2 = y + h;
+	d3ddev->Clear(1, &rect, D3DCLEAR_TARGET, 0xFF000000 | (r << 16) | (g << 8) | (b), 1.0f, 0));
+#endif
+}
+
 void Emulator_SetShader(const ShaderID &shader)
 {
 #if defined(OGL) || defined(OGLES)
@@ -1712,8 +1725,12 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 }
 #endif
 
+bool vram_need_update = true;
+
 void Emulator_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dst_x, int dst_y)
 {
+	vram_need_update = true;
+
     int stride = w;
 
     if (!src) {
@@ -1734,6 +1751,11 @@ void Emulator_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dst_
 
 void Emulator_UpdateVRAM()
 {
+	if (!vram_need_update) {
+		return;
+	}
+	vram_need_update = false;
+
 #if defined(OGL) || defined(OGLES)
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RG, GL_UNSIGNED_BYTE, vram);
@@ -1805,11 +1827,11 @@ void Emulator_BeginScene()
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
 void Emulator_TakeScreenshot()
 {
-	unsigned char* pixels = new unsigned char[512 * RESOLUTION_SCALE * 240 * RESOLUTION_SCALE * 4];
+	unsigned char* pixels = new unsigned char[windowWidth * windowHeight * 4];
 #if defined(OGL) || defined(OGLES)
-	glReadPixels(0, 0, 512 * RESOLUTION_SCALE, 240 * RESOLUTION_SCALE, GL_BGRA, GL_UNSIGNED_BYTE, pixels);
+	glReadPixels(0, 0, windowWidth, windowHeight, GL_BGRA, GL_UNSIGNED_BYTE, pixels);
 #endif
-	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, 512 * RESOLUTION_SCALE, 240 * RESOLUTION_SCALE, 8 * 4, 512 * RESOLUTION_SCALE * 4, 0, 0, 0, 0);
+	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, windowWidth, windowHeight, 8 * 4, windowWidth * 4, 0, 0, 0, 0);
 	SDL_SaveBMP(surface, "SCREENSHOT.BMP");
 	SDL_FreeSurface(surface);
 

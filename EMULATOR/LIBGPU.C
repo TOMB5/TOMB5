@@ -214,22 +214,7 @@ void* off_3348[]=
 
 int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 {
-	// AAA
-#if defined(OGL) || defined(OGLES)
-	glClearColor(r/255.0f, g/255.0f, b/255.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-#elif defined(D3D9)
-	D3DRECT convertedRect;
-	convertedRect.x1 = rect->x * RESOLUTION_SCALE;
-	convertedRect.x2 = (rect->x * RESOLUTION_SCALE) + (rect->w * RESOLUTION_SCALE);
-	convertedRect.y1 = rect->y * RESOLUTION_SCALE;
-	convertedRect.y2 = (rect->y * RESOLUTION_SCALE) + (rect->h * RESOLUTION_SCALE);
-
-	if FAILED(d3ddev->Clear(1, &convertedRect, D3DCLEAR_TARGET, 0xFF000000 | (r << 16) | (g << 8) | (b), 1.0f, 0))
-	{
-		eprinterr("Failed to clear Render Target");
-	}
-#endif
+	Emulator_Clear(rect->x, rect->y, rect->w, rect->h, r, g, b);
 	return 0;
 }
 
