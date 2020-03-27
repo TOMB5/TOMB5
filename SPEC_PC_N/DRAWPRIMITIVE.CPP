@@ -1421,8 +1421,8 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 
 			if (zv)
 			{
-				xs = xv / zv + 256;
-				ys = yv / zv + 120;
+				xs = xv / zv + f_centerx;
+				ys = yv / zv + f_centery;
 			}
 			else
 			{
@@ -1459,7 +1459,7 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 
 		for (int i = 0; i < 4; i++, last = dest, dest++)
 		{
-			if (dest->zv < 0 ^ last->zv < 0)
+			if ((dest->zv < 0) ^ (last->zv < 0))
 			{
 				if (dest->xv < 0 && last->xv < 0)
 				{
@@ -1467,12 +1467,12 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 				}
 				else if (dest->xv > 0 && last->xv > 0)
 				{
-					right = 511;
+					right = phd_winxmax;
 				}
 				else
 				{
 					left = 0;
-					right = 511;
+					right = phd_winxmax;
 				}
 
 				if (dest->yv < 0 && last->yv < 0)
@@ -1481,12 +1481,12 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 				}
 				else if (dest->yv > 0 && last->yv > 0)
 				{
-					bottom = 239;
+					bottom = phd_winymax;
 				}
 				else
 				{
 					top = 0;
-					bottom = 239;
+					bottom = phd_winymax;
 				}
 			}
 		}
