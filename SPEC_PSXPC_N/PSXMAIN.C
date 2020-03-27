@@ -41,7 +41,7 @@ void VSyncFunc()//10000(<), 10000(<) (F) (*) (D) (ND)
 
 int main(int argc, char* argv[])//10064(<), 10064(<) (F) (*) (D) (ND)
 {
-	Emulator_Initialise("Tomb Raider: Chronicles", SCREEN_WIDTH, SCREEN_HEIGHT);
+	Emulator_Initialise("Tomb Raider: Chronicles", 640, 480);
 	SetSp(0x801FFFE0);
 	ResetCallback();
 

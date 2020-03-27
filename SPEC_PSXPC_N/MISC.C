@@ -251,8 +251,6 @@ void GPU_BeginScene() //5F0F0(<), 5FDD0(<)
 	db.polybuf_limit = (char*)(db.poly_buffer[db.current_buffer] + (26000 * POLYGON_BUFFER_MULT));
 	db.pickup_ot = db.pickup_order_table[db.current_buffer];
 	ClearOTagR(db.order_table[db.current_buffer], db.nOTSize);
-
-	Emulator_BeginScene();
 }
 
 void draw_rotate_sprite(long x, long y, long a2) //5F134, 5FE14 (F)

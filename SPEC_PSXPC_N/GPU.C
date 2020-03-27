@@ -76,12 +76,6 @@ void GPU_EndScene()//5DFDC(<), 5F23C(<) (F)
 	ProfileRGB(0, 255, 255);
 #endif
 
-	//specific hack, should be enough to hack the framerate from 90 to 60
-	//todo: emulator, only allow 60 flips per second, in TRC flip is called twice per frame
-	if (LnFlipFrame % 2)
-	{
-		Emulator_EndScene(true);
-	}
 	return;
 }
 
@@ -132,7 +126,7 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<) (F)
 #else
 	DrawOTagEnv(&db.ot[db.nOTSize-1], &db.draw[db.current_buffer]);
 #endif
-    Emulator_EndScene(false);
+    Emulator_EndScene();
 
 #if DEBUG_VERSION
 	ProfileStartCount();

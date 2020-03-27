@@ -155,13 +155,11 @@ enum BlendMode
 
 extern int  Emulator_Initialise();
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
+extern void Emulator_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dst_x, int dst_y);
+extern void Emulator_UpdateVRAM();
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
-extern TextureID Emulator_GenerateTpage(unsigned short tpage, unsigned short clut);
-extern void Emulator_DestroyFrameBuffer(unsigned int* fbo);
-extern void Emulator_GenerateFrameBuffer(unsigned int* fbo);
 extern void Emulator_GenerateAndBindNullWhite();
-extern void Emulator_CheckTextureIntersection(RECT16* rect);
 extern void Emulator_SetBlendMode(int mode, int semiTransparent);
 extern void Emulator_CounterLoop();
 extern void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3);
@@ -171,8 +169,8 @@ extern void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned cha
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
 extern void Emulator_DestroyTexture(TextureID texture);
 extern void Emulator_SetViewPort(int x, int y, int width, int height);
-extern void Emulator_SetScissorBox(int x, int y, int width, int height);
-extern void Emulator_SetTexture(const TextureID &texture);
+extern void Emulator_SetScissor(int x, int y, int width, int height);
+extern void Emulator_SetTexture(const TextureID &texture, int page, int clut);
 extern void Emulator_SetShader(const ShaderID &shader);
 extern void Emulator_SetRenderTarget(const RenderTargetID &render_target);
 extern void Emulator_SetWireframe(bool enable);
