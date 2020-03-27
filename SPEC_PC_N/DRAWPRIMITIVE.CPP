@@ -1089,6 +1089,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 		int v32 = XYUVGClipper(v28, stru_BA3FB0);
 		if (v32)
 		{
+			// remove hacks in setXY4 and RoomletTransformLight when this works
 			//todo check this
 			auto info = (dinfo_tri*)info3dptrbf;
 			int v34 = 3 * v32 - sizeof(dinfo_head) / sizeof(short);
@@ -2229,7 +2230,7 @@ void InsertRoomlet(ROOMLET* r)
 		auto face = (tr_face3*)poly;
 		const auto tex = &object_textures[face->Texture];
 
-		if (!tex->attribute == OT_ALL_OPAQUE)
+		if (tex->attribute == OT_ALL_OPAQUE)
 		{
 			AddTri1(vert_buf, face->Vertices[0], face->Vertices[1], face->Vertices[2], tex, face->DoubleSided);
 		}
