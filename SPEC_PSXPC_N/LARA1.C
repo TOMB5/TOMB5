@@ -548,10 +548,9 @@ loc_88C:
                at = t1 & t2;
                at &= t3;
 
-
                if (at >= 0)
                {
-                   if (t1 >> 16 < 0xF0 || t2 >> 16 < 0xF0 || t3 >> 16 < 0xF0)
+                   if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0)
                    {
                        t1 = OTZ;
                        if (t1 < 0xA01)
@@ -676,7 +675,7 @@ loc_9FC:
 
                if (at >= 0)
                {
-                   if (t1 >> 16 < 0xF0 || t2 >> 16 < 0xF0 || t3 >> 16 < 0xF0 || t4 >> 16 < 0xF0)
+                   if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0 || (t4 >> 16) < 0xF0)
                    {
                        //loc_AEC
                        t5 += (int)a22;
@@ -906,12 +905,12 @@ void sub_2C(struct ITEM_INFO* item)
         //a00 = &lara.mesh_ptrs[lara_mesh_sweetness_table[0]]
         //v0 = (lara_item->mesh_bits >> 16) & (1 << 0xF)
 
-        if ((lara_item->mesh_bits >> 16)& (1 << 0xF) /*&& i == 8*/)///@TODO remove i==8
+        if ((lara_item->mesh_bits >> 16)& (1 << 0xF))
         {
 #if defined(USE_32_BIT_ADDR)
-            db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, db.ot[1 * 2]);
+            db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot+1*2));
 #else
-            db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, db.ot[1]);
+            db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot+1));
 #endif
         }//loc_1FC
 
@@ -1052,9 +1051,9 @@ void sub_2C(struct ITEM_INFO* item)
             }//loc_408
 
 #if defined(USE_32_BIT_ADDR)
-            db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, db.ot[1 * 2]);
+            db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1 * 2));
 #else
-            db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, db.ot[1]);
+            db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1));
 #endif
         }
         //loc_410
@@ -1111,9 +1110,9 @@ void sub_2C(struct ITEM_INFO* item)
 
         ///@FIXME for some reason at index 0 it wont draw left holster!
 #if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, db.ot[0]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #else
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, db.ot[0]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #endif
         s0 += 8;
 
@@ -1147,9 +1146,9 @@ void sub_2C(struct ITEM_INFO* item)
 
         ///@FIXME for some reason at index 0 it wont draw right holster!
 #if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, db.ot[0 * 2]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #else
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, db.ot[0]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #endif
     }
     //loc_538
@@ -1195,9 +1194,9 @@ void sub_2C(struct ITEM_INFO* item)
         sub_1358(bone[53], bone[54], bone[55]);
         ///@FIXME for some reason at index 0 it wont draw back gun!
 #if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[28], (int*)db.polyptr, db.ot[0 * 2]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[28], (int*)db.polyptr, (int)db.ot);
 #else
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[28], (int*)db.polyptr, db.ot[0]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[28], (int*)db.polyptr, (int)db.ot);
 #endif
 
     }
