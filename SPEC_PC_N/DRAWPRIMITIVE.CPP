@@ -902,13 +902,9 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
 	D3DTLBUMPVERTEX* vptr; // ecx
-	signed int v28; // eax
 	float* v29; // ecx
 	signed int v30; // edx
 	double v31; // st7
-	int v32; // eax
-	__int16* v33; // ecx
-	int v34; // edx
 
 	const WORD vp1 = d9ab34[v1];
 	const WORD vp2 = d9ab34[v2];
@@ -1074,9 +1070,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 	
 	if (v1b)
 	{
-		UNIMPLEMENTED();
-		return;
-		v28 = 3;
+		signed int v28 = 3;
 		if (v36)
 		{
 			v28 = ZClipper(3, stru_923C88, stru_BA3FB0);
@@ -1085,35 +1079,35 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 		}
 		else
 		{
-			v29 = &stru_BA3FB0[0].rhw;
-			v30 = 3;
-			do
+			auto first = &stru_BA3FB0[0];
+			for (int i = 0; i < 3; i++, first++)
 			{
-				v31 = v29[3] * *v29;
-				v29 += 10;
-				--v30;
-				*(v29 - 7) = v31;
-				*(v29 - 6) = *(v29 - 6) * *(v29 - 10);
-			} while (v30);
+				first->tu *= first->rhw;
+				first->tv *= first->rhw;
+			}
 		}
-		v32 = XYUVGClipper(v28, stru_BA3FB0);
+		int v32 = XYUVGClipper(v28, stru_BA3FB0);
 		if (v32)
 		{
-			v33 = info3dptrbf;
-			info3dptrbf[2] = next->attribute;
-			v34 = 3 * v32 - 6;
-			v33[4] = v34;
+			//todo check this
+			auto info = (dinfo_tri*)info3dptrbf;
+			int v34 = 3 * v32 - sizeof(dinfo_head) / sizeof(short);
+			info->head.texattr = next->attribute;
+			info->head.tile_and_flag = next->tile_and_flag;
+			info->head.num_verts = v34;
+			info->head.e4b100 = e4b100;
+			info->head.z = v3a;
+			
 			if (e4b100)
-				*(float*)v33 = v3a * 0.33333299;
-			else
-				*(float*)v33 = v3a;
-			v33[3] = next->tile_and_flag;
-			v33[5] = e4b100;
-			info3dptrbf += 20 * v34 + 6;
-			*sort3dptrbf = (int)v33;
-			++sort3dptrbf;
+				info->head.z *= 0.33333299;
+
+			info3dptrbf += sizeof(dinfo_head) / sizeof(short);
+			info3dptrbf += 20 * v34;
+
+			*sort3dptrbf++ = (int)info;
+
 			surfacenumbf++;
-			AddClippedPoly((D3DTLBUMPVERTEX*)(v33 + 6), v32, stru_BA3FB0);
+			AddClippedPoly(&info->v1, v32, stru_BA3FB0);
 		}
 	}
 	else
@@ -2077,7 +2071,8 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 		vptr->sz = oz;
 
 		//vptr++;
-		*d9ptr++ = v7;
+		*d9ptr++ = 0;// v7; TODO
+		
 
 		float r = 0.0, g = 0.0, b = 0.0;
 

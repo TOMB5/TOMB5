@@ -343,6 +343,7 @@ void setXY4(D3DTLVERTEX p[4], int x0, int y0, int x1, int y1, int x2, int y2, in
 		}
 
 		*a10 = v10;
+		*a10 = 0;// TODO??
 	}
 }
 
