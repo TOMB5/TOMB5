@@ -1371,7 +1371,7 @@ void DoMonitorScreen()
 	Unimpl();
 }
 
-void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* parent)
+void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* parent)// (F)
 {
 	struct room_info* r = &room[room_number];
 
@@ -1534,11 +1534,8 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 	}
 }
 
-void GetRoomBounds()
+void GetRoomBounds()// (F)
 {
-	bound_start = 0;
-	bound_end = 1;
-
 	while (bound_start != bound_end)
 	{
 		const int current = bound_list[bound_start++ % 128];
