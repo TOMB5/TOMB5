@@ -428,6 +428,73 @@ void sub_1244(int y_rot, int x_rot, int z_rot)
 {
     sub_D7C(y_rot);
     sub_CBC(x_rot);
+    
+    z_rot >>= 2;
+    z_rot &= 0x3FFC;
+
+    if (z_rot != 0)
+    {
+        int t0 = ((int*)&rcossin_tbl[z_rot >> 1])[0];
+        int t7 = 0xFFFF0000;
+        int t1 = (t0 >> 16) & 0xFFFF;
+        int t2 = t0 << 16;
+        t1 |= t2;
+
+        VX0 = t1 & 0xFFFF;
+        VY0 = (t1 >> 16) & 0xFFFF;
+        VZ0 = 0;
+
+        t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+        t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+        int t4 = R33;
+
+        docop2(0x486012);
+
+        int t3 = t0 & t7;
+        t0 &= 0xFFFF;
+        t0 = -t0;
+        t0 &= 0xFFFF;
+        t0 |= t3;
+
+        VX1 = t0 & 0xFFFF;
+        VY1 = (t0 >> 16) & 0xFFFF;
+        VZ1 = 0;
+
+        t1 &= 0xFFFF;
+
+        int t0 = MAC1;
+        int t5 = MAC2;
+        t3 = MAC3;
+
+        docop2(0x48E012);
+        
+        t2 &= t7;
+        t0 &= 0xFFFF;
+        t5 <<= 16;
+        t1 |= t5;
+        t3 &= 0xFFFF;
+
+        t5 = MAC1;
+        int t6 = MAC2;
+        int a0 = MAC3;
+
+        t5 <<= 16;
+        t0 |= t5;
+        t6 &= 0xFFFF;
+        t2 |= t6;
+        a0 <<= 16;
+        t3 |= a0;
+
+        R11 = t0 & 0xFFFF;
+        R12 = (t0 >> 16) & 0xFFFF;
+        R13 = t1 & 0xFFFF;
+        R21 = (t1 >> 16) & 0xFFFF;
+        R22 = t2 & 0xFFFF;
+        R23 = (t2 >> 16) & 0xFFFF;
+        R31 = t3 & 0xFFFF;
+        R32 = (t3 >> 16) & 0xFFFF;
+        R33 = t4;
+    }
 
 }
 
