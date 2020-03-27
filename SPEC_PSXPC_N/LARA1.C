@@ -11,12 +11,133 @@
 #include "SETUP.H"
 #include "GTEREG.H"
 #include "GPU.H"
+#include "TOMB4FX.H"
 
 int scratchPad[256];
 
+void sub_FC0(int x, int y, int z)
+{
+    int t0 = TRX;
+    int t1 = TRY;
+    int t2 = TRZ;
+
+    x -= t0;
+    y -= t1;
+    z -= t2;
+
+    int t4 = y >> 15;
+    if (y < 0)
+    {
+        y = -y;
+        t4 = y >> 15;
+        t4 = -t4;
+        y &= 0x7FFF;
+        y = -y;
+    }
+    else
+    {
+        y &= 0x7FFF;
+    }
+
+    //loc_FFC
+    int t5 = z >> 15;
+    if (z < 0)
+    {
+        z = -z;
+        t5 = z >> 15;
+        t5 = -t5;
+        z &= 0x7FFF;
+        z = -z;
+    }
+    else
+    {
+        z &= 0x7FFF;
+    }
+
+    int t3 = x >> 15;
+    if (x < 0)
+    {
+        x = -x;
+        t3 = x >> 15;
+        t3 = -t3;
+        x &= 0x7FFF;
+        x = -x;
+    }
+    else
+    {
+        x &= 0x7FFF;
+    }
+
+    IR1 = t3;
+    IR2 = t4;
+    IR3 = t5;
+
+    docop2(0x41E012);
+
+    t3 = MAC1;
+    t4 = MAC2;
+    t5 = MAC3;
+
+    IR1 = x;
+    IR2 = y;
+    IR3 = z;
+
+    docop2(0x49E012);
+
+    int t0 = t3 << 3;
+    if (t3 < 0)
+    {
+        t3 = -t3;
+        t3 <<= 3;
+        t0 = -t3;
+    }
+
+    int t1 = t4 << 3;
+    if (t4 < 0)
+    {
+        t4 = -t4;
+        t4 <<= 3;
+        t1 = -t4;
+    }
+
+    int t2 = t5 << 3;
+    if (t5 < 0)
+    {
+        t5 = -t5;
+        t5 <<= 3;
+        t1 = -t4;
+    }
+
+    t3 = MAC1;
+    t4 = MAC2;
+    t5 = MAC3;
+
+    t0 += t3;
+    t1 += t4;
+    t2 += t5;
+
+    TRX = t0;
+    TRY = t1;
+    TRZ = t2;
+}
+
 void sub_1184()
 {
-    UNIMPLEMENTED();
+    int* s3 = &scratchPad[0];
+    //s4 = ra
+    struct GUNSHELL_STRUCT* s1 = &Gunshells[0];
+    //s2 = 0x18;
+
+    //loc_1198
+    //v0 = s1->counter
+    //s2--;
+    if (s1->counter != 0)
+    {
+        sub_FC0(s1->pos.x_pos, s1->pos.y_pos, s1->pos.z_pos);
+
+    }
+    //loc_1234
+
 }
 
 void sub_E38()
