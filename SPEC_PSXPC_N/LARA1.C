@@ -134,7 +134,7 @@ void sub_1184()
     if (s1->counter != 0)
     {
         sub_FC0(s1->pos.x_pos, s1->pos.y_pos, s1->pos.z_pos);
-
+        sub_1244(s1->pos.y_rot, s1->pos.x_rot, s1->pos.z_rot);
     }
     //loc_1234
 
@@ -363,6 +363,72 @@ void sub_CBC(int a0)
         R32 = (t3 >> 16) & 0xFFFF;
         R33 = t4;
     }
+}
+
+void sub_D7C(int y_rot)
+{
+    y_rot >>= 2;
+    y_rot &= 0x3FFC;
+
+    if (y_rot != 0)
+    {
+        //t0 = rcossin_tbl
+        int t5 = ((int*)&rcossin_tbl[y_rot >> 1])[0];
+        int t7 = 0xFFFF0000;
+        int t6 = t5 >> 16;
+        t5 &= 0xFFFF;
+        int t2 = -t5;
+
+        VX0 = t6 & 0xFFFF;
+        VY0 = (t6 >> 16) & 0xFFFF;
+        VZ0 = t2;
+
+        int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+        int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+        int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+
+        docop2(0x486012);
+        VX1 = t5 & 0xFFFF;
+        VY1 = (t5 >> 16) & 0xFFFF;
+        VZ1 = t6;
+
+        t0 &= t7;
+        t2 &= 0xFFFF;
+        t3 &= t7;
+        int t4 = MAC1;
+        int t1 = MAC2;
+        int t5 = MAC3;
+        docop2(0x48E012);
+        t4 &= 0xFFFF;
+        t0 |= t4;
+        t1 <<= 16;
+        t5 &= 0xFFFF;
+        t3 |= t5;
+        t5 = MAC1;
+        t6 = MAC2;
+        t4 = MAC3;
+        t5 &= 0xFFFF;
+        t1 |= t5;
+        t6 <<= 16;
+        t2 |= t6;
+
+        R11 = t0 & 0xFFFF;
+        R12 = (t0 >> 16) & 0xFFFF;
+        R13 = t1 & 0xFFFF;
+        R21 = (t1 >> 16) & 0xFFFF;
+        R22 = t2 & 0xFFFF;
+        R23 = (t2 >> 16) & 0xFFFF;
+        R31 = t3 & 0xFFFF;
+        R32 = (t3 >> 16) & 0xFFFF;
+        R33 = t4;
+    }
+}
+
+void sub_1244(int y_rot, int x_rot, int z_rot)
+{
+    sub_D7C(y_rot);
+    sub_CBC(x_rot);
+
 }
 
 void sub_BAC(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)
