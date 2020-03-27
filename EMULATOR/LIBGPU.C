@@ -1362,7 +1362,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				lastTpage = activeDrawEnv.tpage;
 				lastSemiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = Emulator_GenerateTpage(lastTpage, lastClut);
+				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
