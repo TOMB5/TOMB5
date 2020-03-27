@@ -12,6 +12,8 @@
 #include "GTEREG.H"
 #include "GPU.H"
 #include "TOMB4FX.H"
+#include "HAIR.H"
+#include "LOAD_LEV.H"
 
 int scratchPad[256];
 
@@ -120,11 +122,6 @@ void sub_FC0(int x, int y, int z)
     TRX = t0;
     TRY = t1;
     TRZ = t2;
-}
-
-void sub_E38()
-{
-    UNIMPLEMENTED();
 }
 
 void sub_1358(int x, int y, int z)
@@ -1016,7 +1013,11 @@ void sub_1184()
             sub_FC0(s1->pos.x_pos, s1->pos.y_pos, s1->pos.z_pos);
             sub_1244(s1->pos.y_rot, s1->pos.x_rot, s1->pos.z_rot);
             a0 = &objects[s1->object_number];
-            sub_658((short*)meshes[a0->mesh_index], (int*)db.polyptr, (int)db.ot);
+#if defined(USE_32_BIT_ADDR)
+            db.polyptr = (char*)sub_658((short*)((int*)meshes[a0->mesh_index])[0], (int*)db.polyptr, (int)db.ot);
+#else
+            db.polyptr = (char*)sub_658((short*)((int*)meshes[a0->mesh_index])[0], (int*)db.polyptr, (int)db.ot);
+#endif
 
             int t0 = scratchPad[128];
             int t1 = scratchPad[129];
@@ -1053,6 +1054,151 @@ void sub_1330(struct ITEM_INFO* item)
 {
 	struct object_info* object = &objects[item->object_number];
 	//S_PrintNiceShadow(object->shadow_size, GLaraShadowframe, 0);
+}
+
+void sub_10DC(int a1, int a2)
+{
+    struct HAIR_STRUCT* hair = &hairs[0][a1];//$a0
+    int at = 0;
+    
+    //v0 = &hairs[0]
+    //v1 = a1 << 5
+
+    if (a1 == 0)
+    {
+        //v0 = (CamRot.vy << 4)
+        at = -32768 - (CamRot.vy << 4);
+    }
+    else
+    {
+        a1 = 0;
+        at = ((unsigned short*)hair)[-9];
+    }
+    //loc_110C
+    //a0 = ((unsigned short*)hair)[23];
+    //v1 = 0xBFFE
+
+loc_1114:
+    at &= 0xFFFF;
+    if (ABS(at - ((unsigned short*)hair)[23]) - 0x2001 >= 0xBFFE)
+    {
+        at = 0x4000;
+        a1++;
+        goto loc_1114;
+    }
+
+    //v1 = &ScratchVertNums[0];
+    int* a22 = (int*)&ScratchVertNums[((a2 << 1) + a2) << 2];
+    int* a00 = (int*)&HairRotScratchVertNums[0][a1];
+    a22[0] = a00[0];
+    ((unsigned char*)a22)[4] = ((unsigned char*)a00)[4];
+
+}
+
+void sub_E38()
+{
+    int* a3 = &scratchPad[0];
+
+    int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+    int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+    int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+    int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+    int t4 = R33;
+    int t5 = TRX;
+    int t6 = TRY;
+    int t7 = TRZ;
+
+    a3[128] = t0;
+    a3[129] = t1;
+    a3[130] = t2;
+    a3[131] = t3;
+    a3[132] = t4;
+    a3[133] = t5;
+    a3[134] = t6;
+    a3[135] = t7;
+
+    struct HAIR_STRUCT* h = &hairs[0][1];//$s0
+    //v0 = objects[HAIR].mesh_index
+    //s4 = meshes
+    short* s4 = (short*)&meshes[objects[HAIR].mesh_index];
+    int s2 = 1;//Really hair index, see h
+    short* s1 = s4 + 4;
+
+    //loc_EA4
+    do
+    {
+        sub_FC0(h->pos.x_pos, h->pos.y_pos, h->pos.z_pos);
+        sub_D7C(h->pos.y_rot);
+        sub_CBC(h->pos.x_rot);
+        h += 2;
+#if defined(USE_32_BIT_ADDR)
+        db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+#else
+        db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+#endif
+
+        //t0 = &tsv_buffer[0]
+        //t1 = &SkinVertNums[0]
+        //at = 5;
+
+        if (s2 != 5)
+        {
+            sub_C1C(s2 + 0x1C);
+            sub_C1C(s2 + 0x1D);
+        }
+        else
+        {
+            //loc_F04
+            sub_C1C(0x21);
+        }
+
+        s2 += 2;
+
+        int t0 = scratchPad[128];
+        int t1 = scratchPad[129];
+        int t2 = scratchPad[130];
+        int t3 = scratchPad[131];
+        int t4 = scratchPad[132];
+        int t5 = scratchPad[134];
+        int t6 = scratchPad[135];
+        int t7 = scratchPad[136];
+
+        R11 = t0 & 0xFFFF;
+        R12 = (t0 >> 16) & 0xFFFF;
+        R13 = t1 & 0xFFFF;
+        R21 = (t1 >> 16) & 0xFFFF;
+        R22 = t2 & 0xFFFF;
+        R23 = (t2 >> 16) & 0xFFFF;
+        R31 = t3 & 0xFFFF;
+        R32 = (t3 >> 16) & 0xFFFF;
+        R33 = t4;
+        TRX = t5;
+        TRY = t6;
+        TRZ = t7;
+        s1 += 8;
+
+    } while (s2 < 6);
+
+    s2 = 0;
+    s1 = s4;
+
+    do
+    {
+        //t0 = &tsv_buffer[0];
+        //t1 = &ScratchVertNums[0];
+        sub_C6C(s2 + 0x1C);
+        sub_10DC(s2, s2 + 0x1D);
+        sub_C6C(s2 + 0x1D);
+#if defined(USE_32_BIT_ADDR)
+        db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+#else
+        db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+#endif
+
+        s2 += 2;
+        s1 += 8;
+    } while (s2 < 6);
+
 }
 
 void sub_2C(struct ITEM_INFO* item)
