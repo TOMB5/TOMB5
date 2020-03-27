@@ -520,9 +520,9 @@ void do_examine_mode()//411C4, 41618 (F)
 	objme->scale1 = 300;
 
 	DrawThreeDeeObject2D(
-#if PC_VERSION && 0
-		(int)((double)middle_width + inventry_xpos),
-		(int)((double)middle_height / 120.0 * 256.0 + inventry_xpos) / 2,
+#if PC_VERSION
+		(phd_centerx + inventry_xpos),
+		(phd_centery / 120.0 * 256.0 + inventry_xpos) / 2,
 #else
 		inventry_xpos + 256,
 		(inventry_ypos + 240) / 2,
