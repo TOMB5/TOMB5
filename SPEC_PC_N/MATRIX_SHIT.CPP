@@ -394,7 +394,7 @@ D3DMATRIX stru_55D168;
 
 	void S_InitD3DMatrix()// (F)
 	{
-		Log(LT_Enter, "S_InitD3DMatrix");
+		//Log(LT_Enter, "S_InitD3DMatrix");
 		
 		D3DIdentityMatrix(&App.WorldMatrix);
 		D3DIdentityMatrix(&transform_projection);
@@ -405,9 +405,9 @@ D3DMATRIX stru_55D168;
 		DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &transform_projection));
 	}
 
-	void SetD3DViewMatrix()
+	void SetD3DViewMatrix()// (F)
 	{
-		Log(LT_Enter, "SetD3DViewMatrix");
+		//Log(LT_Enter, "SetD3DViewMatrix");
 
 		D3DIdentityMatrix(&App.ViewMatrix);
 
@@ -429,7 +429,7 @@ D3DMATRIX stru_55D168;
 
 	void SetViewMatrix()// (F)
 	{
-		Log(LT_Enter, "SetViewMatrix");
+		//Log(LT_Enter, "SetViewMatrix");
 
 		SetD3DMatrixF(&App.ViewMatrix, (LPD3DMATRIX)phd_dxptr);
 		DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &App.ViewMatrix));
@@ -714,7 +714,7 @@ D3DMATRIX stru_55D168;
 
 	void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll)// (F)
 	{
-		Log(LT_Enter, "phd_LookAt src(%5d, %5d, %5d) tar(%5d, %5d, %5d), roll=%5d", xsrc, ysrc, ysrc, xtar, ytar, ztar, roll);
+		//Log(LT_Enter, "phd_LookAt src(%5d, %5d, %5d) tar(%5d, %5d, %5d), roll=%5d", xsrc, ysrc, ysrc, xtar, ytar, ztar, roll);
 		
 		short	angles[2];
 		PHD_3DPOS 	viewer;
