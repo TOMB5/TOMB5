@@ -1397,11 +1397,11 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 {
 	struct room_info* r = &room[room_number];
 
-	if (r->left <= parent->test_left &&
+	/*if (r->left <= parent->test_left &&
 		r->right >= parent->test_right &&
 		r->top <= parent->test_top &&
 		r->bottom >= parent->test_bottom)
-		return;
+		return;*/
 
 	int left = parent->test_right;
 	int right = parent->test_left;
@@ -1470,8 +1470,8 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 		}
 	}
 
-	if (t5 == 4 || t6 == 4)
-		return;
+	/*if (t5 == 4 || t6 == 4)
+		return;*/
 
 	if (t5 > 0)
 	{
@@ -1526,8 +1526,8 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 	if (bottom > parent->test_bottom)
 		bottom = parent->test_bottom;
 
-	if (left >= right || top >= bottom)
-		return;
+	/*if (left >= right || top >= bottom)
+		return;*/
 
 	if (r->bound_active & 2)
 	{
@@ -1575,7 +1575,7 @@ void GetRoomBounds()// (F)
 		if (r->test_bottom > r->bottom)
 			r->bottom = r->test_bottom;
 
-		if (!(r->bound_active & 1))
+		//if (!(r->bound_active & 1))
 		{
 			Log(LT_Enter, "GetRoomBounds - adding room %d", current);
 			draw_rooms[number_draw_rooms++] = current;
