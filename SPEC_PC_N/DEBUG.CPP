@@ -397,13 +397,13 @@ void ShowDebugInfo()// (F)
 	AddQuadClippedZBuffer(v, 0, 1, 2, 3, &object_textures[cur_tpage], 0);
 
 	
-	if (keymap[DIK_U])
+	if (dbinput & IN_LEFT)
 	{
 		cur_tpage--;
 		if (cur_tpage < 0)
 			cur_tpage = 0;
 	}
-	if (keymap[DIK_I])
+	if (dbinput & IN_RIGHT)
 	{
 		cur_tpage++;
 		if (cur_tpage > 63)
