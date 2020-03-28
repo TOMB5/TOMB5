@@ -198,7 +198,7 @@ int cur_tpage = 0;
 
 void DrawDebugPre()
 {
-	D3DTLVERTEX v1, v2;
+	/*D3DTLVERTEX v1, v2;
 	v1.sx = 0;
 	v1.sy = 0;
 	v1.sz = f_znear;
@@ -213,7 +213,7 @@ void DrawDebugPre()
 	v2.specular = RGBA(255, 255, 0, 255);
 	v2.rhw = f_persp / f_znear * f_oneopersp;
 
-	AddLine(&v1, &v2, 6);
+	AddLine(&v1, &v2, 6);*/
 }
 
 void DrawDebugPost()
@@ -394,7 +394,7 @@ void ShowDebugInfo()// (F)
 		{{ox + s, oy + s, 0.1}, 0.1, 0xFFFFFFFF, 0xFF000000, 1, 1},
 		{{ox + 0, oy + s, 0.1}, 0.1, 0xFFFFFFFF, 0xFF000000, 1, 1},
 	};
-	AddQuadClippedZBuffer(v, 0, 1, 2, 3, &object_textures[cur_tpage], 0);
+	//AddQuadClippedZBuffer(v, 0, 1, 2, 3, &object_textures[cur_tpage], 0);
 
 	
 	if (dbinput & IN_LEFT)
