@@ -3025,9 +3025,131 @@ void init_resident_cutseq(int num)//2DB8C(<), 2DE1C(<) (F)
 	init_cutseq_actors(packed, 1);
 }
 
-void init_cutseq_actors(char* data, int resident)
+void init_cutseq_actors(char* data, int resident)//2D944(<), 2DBD4 (F)
 {
-	UNIMPLEMENTED();
+	int pda_nodes; // $v1
+	char* packed; // $s1
+	int offset; // $v1
+	int n; // $s2
+	char* resident_addr; // $s3
+	int a3;
+	int s5;
+
+	//a2 = GLOBAL_cutme
+	n = 0;
+	resident_addr = GLOBAL_resident_depack_buffers;
+	//v0 = -1
+	//v1 = GLOBAL_cutme->numframes
+	//s7 = data
+	lastcamnum = -1;
+	//v0 = GLOBAL_cutme->numactors
+	GLOBAL_playing_cutseq = 0;
+	GLOBAL_numcutseq_frames = GLOBAL_cutme->numframes;
+	//s6 = resident
+
+	if (GLOBAL_cutme->numactors > 0)
+	{
+		s5 = 0;
+		//s4 = actor_pnodes
+		//loc_2D9A4
+		for (n = 0; n < GLOBAL_cutme->numactors; n++)
+		{
+			//v0 = GLOBAL_cutme
+			//a0 = n << 3
+			//v0 += a0//offset of n? into actor_data for next itr?
+			offset = GLOBAL_cutme->actor_data[n].offset;
+			packed = &data[offset];//$s1
+			pda_nodes = GLOBAL_cutme->actor_data[n].nodes;//$v1
+			//s0 = pda_nodes + 1
+
+			if (resident != 0)
+			{
+				actor_pnodes[n] = (PACKNODE*)resident_addr;
+				pda_nodes++;
+				resident_addr = &resident_addr[pda_nodes * 84];
+				//v0 = actor_pnodes
+				a3 = pda_nodes;
+				//j loc_2DA18
+			}
+			else
+			{
+				//loc_2D9F4
+				actor_pnodes[n] = (struct PACKNODE*)cutseq_malloc(pda_nodes + 1 * 84);
+				//v0 = actor_pnodes
+				a3 = pda_nodes + 1;
+			}
+
+			//a0 = packed
+			if (n == 0)
+			{
+				//v0 = GLOBAL_cutme
+				//a0 = GLOBAL_cutme->actor_data[0].objslot
+				//v1 = -1
+				//a0 = packed
+				if (GLOBAL_cutme->actor_data[0].objslot != -1)
+				{
+					//a1 = actor_pnodes
+					//a2 = packed
+					InitPackNodes((struct NODELOADHEADER*)packed, actor_pnodes[0], packed, a3);//maybe use n here
+				}//loc_2DA5C
+				s5 += 1;
+			}
+			else
+			{
+				//loc_2DA4C
+				//a1 = actor_pnodes[s5]
+				InitPackNodes((struct NODELOADHEADER*)packed, actor_pnodes[s5], packed, a3);
+				s5 += 1;
+			}
+
+			//loc_2DA60
+			//v1 = GLOBAL_cutme
+			//v0 = GLOBAL_cutme->numactors
+		}
+	}
+	//loc_2DA7C
+	//v0 = GLOBAL_cutme
+	//v1 = GLOBAL_cutme->camera_offset
+	//s1 = s7 + v1
+	packed = &data[GLOBAL_cutme->camera_offset];
+	if (resident != 0)
+	{
+		camera_pnodes = (struct PACKNODE*)resident_addr;
+		//a0 = packed
+	}
+	else
+	{
+		//loc_2DA9C
+		camera_pnodes = (struct PACKNODE*)cutseq_malloc(168);
+		//a0 = packed
+	}
+
+	//loc_2DAAC
+	InitPackNodes((struct NODELOADHEADER*)packed, camera_pnodes, packed, 2);
+	//v0 = GLOBAL_cutme
+	//a0 = GLOBAL_cutme->orgx
+	//a1 = GLOBAL_cutme->orgy
+	//a2 = GLOBAL_cutme->orgz
+	//v1 = 1
+	GLOBAL_playing_cutseq = 1;
+	GLOBAL_cutseq_frame = 0;
+	DelsHandyTeleportLara(GLOBAL_cutme->orgx, GLOBAL_cutme->orgy, GLOBAL_cutme->orgz, 0);
+	//a0 = lara_item
+	//v0 = lara_item->pos.x_pos
+	camera.pos.x = lara_item->pos.x_pos;
+	camera.pos.y = lara_item->pos.y_pos;
+	camera.pos.z = lara_item->pos.z_pos;
+	camera.pos.room_number = lara_item->room_number;
+
+	duff_item.pos.x_pos = lara_item->pos.x_pos;
+	duff_item.pos.y_pos = lara_item->pos.y_pos;
+	duff_item.pos.z_pos = lara_item->pos.z_pos;
+	duff_item.pos.x_rot = 0;
+	duff_item.pos.y_rot = 0;
+	duff_item.pos.z_rot = 0;
+	duff_item.il.Light[3].pad = 0;
+	duff_item.room_number = lara_item->room_number;
+	InitialiseHair();
 }
 
 int Load_and_Init_Cutseq(int num)
@@ -3365,56 +3487,96 @@ void frigup_lara()//2D000(<), ? (F)
 
 void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* packed, int numnodes)//2CED4(<), ?
 {
-	int offset;
-	int xoff;
-	int yoffset;
-	int yoff;
-	int zoffset;
-	int zoff;
-	int i;
+	int offset; // $t2
+	int xoff; // $a0
+	int yoffset; // $v1
+	int yoff; // $a2
+	int zoffset; // $v1
+	int zoff; // $a1
+	int i; // $a3
 
-	offset = ((numnodes << 3) - numnodes) << 1;
-	if (numnodes <= 0)
-	{
-		return;
-	}
+#if 0
+	sub_2CED4:
+	sll     $v0, $a3, 3
+		subu    $v0, $a3
+		sll     $t2, $v0, 1
+		blez    $a3, locret_2CFF8
+		move    $t3, $a2
+		move    $t1, $a0
+		move    $t0, $a1
 
-	//loc_2CEF0
-	for(i = numnodes; i >= numnodes; i--)
-	{
-		pnode->xkey = lnode->xkey;
-		pnode->ykey = lnode->ykey;
-		pnode->zkey = lnode->zkey;
+		loc_2CEF0 :
+	lhu     $v0, 0($t1)
+		nop
+		sh      $v0, 6($t0)
+		lhu     $v1, 2($t1)
+		nop
+		sh      $v1, 8($t0)
+		lhu     $a0, 4($t1)
+		nop
+		sh      $a0, 0xA($t0)
+		lhu     $v0, 6($t1)
+		nop
+		srl     $v0, 10
+		andi    $v0, 0xF
+		sb      $v0, 0x19($t0)
+		lhu     $v1, 6($t1)
+		nop
+		srl     $v1, 5
+		andi    $v1, 0xF
+		sb      $v1, 0x29($t0)
+		lbu     $v0, 6($t1)
+		nop
+		andi    $v0, 0xF
+		sb      $v0, 0x39($t0)
+		lh      $v1, 8($t1)
+		nop
+		sw      $v1, 0x3C($t0)
+		lh      $v0, 0xA($t1)
+		nop
+		sw      $v0, 0x40($t0)
+		lh      $v1, 0xC($t1)
+		lbu     $v0, 0x19($t0)
+		sw      $v1, 0x44($t0)
+		lh      $a0, 8($t1)
+		nop
+		mult    $a0, $v0
+		lh      $a2, 0xA($t1)
+		mflo    $a0
+		lbu     $v0, 0x29($t0)
+		nop
+		mult    $a2, $v0
+		addiu   $a3, -1
+		lh      $a1, 0xC($t1)
+		addiu   $t1, 0xE
+		sra     $a0, 3
+		addiu   $a0, 4
+		mflo    $a2
+		lbu     $v0, 0x39($t0)
+		addu    $v1, $t2, $a0
+		mult    $a1, $v0
+		addu    $v0, $t3, $t2
+		sra     $a2, 3
+		addiu   $a2, 4
+		addu    $a0, $a2
+		sw      $v0, 0x48($t0)
+		addu    $v0, $t3, $v1
+		addu    $v1, $a2
+		addu    $v1, $t3, $v1
+		sw      $v0, 0x4C($t0)
+		sw      $v1, 0x50($t0)
+		addiu   $t0, 0x54
+		mflo    $a1
+		sra     $a1, 3
+		addiu   $a1, 4
+		addu    $a0, $a1
+		bnez    $a3, loc_2CEF0
+		addu    $t2, $a0
 
-		pnode->decode_x.packmethod = (lnode->packmethod >> 10) & 0xF;
-		pnode->decode_y.packmethod = (lnode->packmethod >> 5) & 0xF;
-		pnode->decode_z.packmethod = (lnode->packmethod) & 0xF;
-
-		pnode->xlength = lnode->xlength;
-		pnode->ylength = lnode->ylength;
-		pnode->zlength = lnode->zlength;
-
-		xoff = ((lnode->xlength * pnode->decode_x.packmethod) >> 3) + 4;
-		yoff = (lnode->ylength * pnode->decode_y.packmethod);
-		zoff = (lnode->zlength * pnode->decode_z.packmethod);
-
-		lnode++;
-
-		yoffset = offset + xoff;
-		yoff >>= 3;
-		yoff += 4;
-		xoff += yoff;
-		pnode->xpacked = packed + offset;
-		pnode->ypacked = packed + yoffset;
-		zoffset += yoff;
-		pnode->zpacked = packed + zoffset;
-		pnode++;
-		zoff >>= 3;
-		zoff += 4;
-		xoff += zoff;
-		offset += xoff;
-
-	}
+		locret_2CFF8 :
+	jr      $ra
+		nop
+#endif
 
 	return;
 }
@@ -3795,11 +3957,7 @@ void handle_cutseq_triggering(int name)//2C3C4(<), 2C6EC(<) (F)
 					//loc_2C9E4
 					finish_cutseq(name);
 
-					//v0 = GLOBAL_oldcamtype
-					//v1 = gfCurrentLevel
-
 					cutseq_num = 0;
-
 #if DEBUG_VERSION
 					ProfileDraw = 1;
 #endif
@@ -3870,6 +4028,7 @@ void handle_cutseq_triggering(int name)//2C3C4(<), 2C6EC(<) (F)
 	//v1 = ScreenFadedOut
 	//a0 = lara_item->current_anim_state
 	goin = 0;
+
 	if (!ScreenFadedOut && !goin)
 	{
 		return;
