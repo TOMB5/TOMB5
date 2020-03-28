@@ -1545,6 +1545,7 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 	}
 	else
 	{
+		Log(LT_Enter, "SetRoomBounds - adding room %d", room_number);
 		bound_list[bound_end++ % 128] = room_number;
 
 		r->bound_active |= 2;
@@ -1561,6 +1562,7 @@ void GetRoomBounds()// (F)
 	while (bound_start != bound_end)
 	{
 		const int current = bound_list[bound_start++ % 128];
+		Log(LT_Enter, "GetRoomBounds - %d", current);
 		room_info* r = &room[current];
 		r->bound_active -= 2;
 
@@ -1575,6 +1577,7 @@ void GetRoomBounds()// (F)
 
 		if (!(r->bound_active & 1))
 		{
+			Log(LT_Enter, "GetRoomBounds - adding room %d", current);
 			draw_rooms[number_draw_rooms++] = current;
 			r->bound_active |= 1;
 
@@ -1610,7 +1613,7 @@ void GetRoomBounds()// (F)
 				{
 					continue;
 				}
-
+				Log(LT_Enter, "GetRoomBounds - entering portal to room %d", portal->AdjoiningRoom);
 				SetRoomBounds(portal, portal->AdjoiningRoom, r);
 			}
 		}
