@@ -50,9 +50,9 @@ int ClipToScreenRL3(int t2)
 
 void MyAddPrimRL3(int t7/*len*/, int* t9, int* s0, int* a3)
 {
+#if !defined(USE_32_BIT_ADDR)
     unsigned int t5;
 
-#if !defined(USE_32_BIT_ADDR)
     *t9 += *s0;
     t5 = ((unsigned int*)*t9)[0];
     ((unsigned int*)*t9)[0] = (unsigned int)a3;
@@ -191,7 +191,7 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
     int s4;
     int s5;
     int s6;
-    int t00;
+//    int t00;
 
     t0 = SubPolyGTLoopRL3(5, t0, t1, (int)s1);
 
@@ -440,7 +440,7 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
 int* InitSubdivisionRL3(int* s1, int t1, int s4, int* fp, int t5, int t2, int s5, int gp, int t6, int* t3, int s6, int s3, int* t7, int* s7)//(F)
 {
     int t11;
-    int t77;
+//    int t77;
     char* gpp;
     int t00;
     int t55;

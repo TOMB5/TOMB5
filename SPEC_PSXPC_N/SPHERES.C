@@ -26,9 +26,9 @@ void GetJointAbsPosition(struct ITEM_INFO* item, struct PHD_VECTOR* pos, int joi
 	short* frameptr;//var_2C
 	short* frameptr2;//var_28
 	short* item_data;
-	int t0;
-	int t1;
-	int t2;
+//	int t0;
+//	int t1;
+//	int t2;
 	struct MATRIX3D* mat;//var_24
 
 	object = &objects[item->object_number];

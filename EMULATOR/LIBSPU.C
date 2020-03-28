@@ -6,7 +6,7 @@
 
 #include <string.h>
 
-#define SPU_CENTERNOTE (49152)
+#define SPU_CENTERNOTE (-32768 / 2)
 
 short _spu_voice_centerNote[24] =
 {

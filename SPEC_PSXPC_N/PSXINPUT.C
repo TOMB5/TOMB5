@@ -100,8 +100,8 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 	static int option_db; // offset 0x10
 	static char LookCnt; // offset 0x14
 						 // line 151, offset 0x5fa3c
-	char pos; // $a0
-	char walking; // $a1
+//	char pos; // $a0
+//	char walking; // $a1
 				  // line 290, offset 0x5fcfc
 				  // line 353, offset 0x5fe70
 	static int send; // offset 0x18
