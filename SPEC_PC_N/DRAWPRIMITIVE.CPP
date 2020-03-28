@@ -24,40 +24,6 @@
 #include "FILE.H"
 #include "TWOGUN.H"
 
-struct dinfo_head
-{
-	float z;
-	short texattr;
-	short tile_and_flag;
-	short num_verts;
-	short e4b100;
-};
-struct dinfo_line // size 92
-{
-	dinfo_head head;
-	D3DTLBUMPVERTEX v1;
-	D3DTLBUMPVERTEX v2;
-};
-
-struct dinfo_tri // size 132
-{
-	dinfo_head head;
-	D3DTLBUMPVERTEX v1;//12
-	D3DTLBUMPVERTEX v2;//52
-	D3DTLBUMPVERTEX v3;//92
-};
-
-struct dinfo_quad // size 252
-{
-	dinfo_head head;
-	D3DTLBUMPVERTEX v1;//12
-	D3DTLBUMPVERTEX v2;//52
-	D3DTLBUMPVERTEX v3;//92
-	D3DTLBUMPVERTEX v1bis;//132
-	D3DTLBUMPVERTEX v3bis;//172
-	D3DTLBUMPVERTEX v4;//212
-};
-
 HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
 HRESULT(*BeginScene)();
@@ -92,10 +58,10 @@ static int bound_end = 0;
 
 #define MAX_POLYGONS 4000
 
-float sort3d_bufferbf[MAX_POLYGONS][10];
+dinfo_head* sort3d_bufferbf[MAX_POLYGONS * 10];
 short info3d_bufferbf[MAX_POLYGONS * 30];
 
-int* sort3dptrbf;
+dinfo_head** sort3dptrbf;
 short* info3dptrbf;
 
 int surfacenumbf;
@@ -803,7 +769,7 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 
 			info3dptrbf = (short*)(info + 1);
 
-			*sort3dptrbf++ = (int)info;
+			*sort3dptrbf++ = &info->head;
 
 			surfacenumbf++;
 
@@ -994,7 +960,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 
 			info3dptrbf = (short*)(info + 1);
 
-			*sort3dptrbf++ = (int)info;
+			*sort3dptrbf++ = &info->head;
 
 			v1b = false;
 		}
@@ -1092,7 +1058,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 			// remove hacks in setXY4 and RoomletTransformLight when this works
 			//todo check this
 			auto info = (dinfo_tri*)info3dptrbf;
-			int v34 = 3 * v32 - sizeof(dinfo_head) / sizeof(short);
+			int v34 = 3 * v32 - sizeof(dinfo_head) / sizeof(short); // weird
 			info->head.texattr = next->attribute;
 			info->head.tile_and_flag = next->tile_and_flag;
 			info->head.num_verts = v34;
@@ -1103,9 +1069,9 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 				info->head.z *= 0.33333299;
 
 			info3dptrbf += sizeof(dinfo_head) / sizeof(short);
-			info3dptrbf += 20 * v34;
+			info3dptrbf += sizeof(D3DTLBUMPVERTEX) * v34;
 
-			*sort3dptrbf++ = (int)info;
+			*sort3dptrbf++ = &info->head;
 
 			surfacenumbf++;
 			AddClippedPoly(&info->v1, v32, stru_BA3FB0);
@@ -1136,7 +1102,7 @@ void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)// (F)
 	ptr->head.num_verts = 2;
 	info3dptrbf = (short*)(ptr + 1);
 
-	*sort3dptrbf++ = (int)ptr;
+	*sort3dptrbf++ = &ptr->head;
 
 	ptr->head.z = v1->sz;
 	surfacenumbf++;
@@ -1156,20 +1122,20 @@ void AddLineClippedSorted(D3DTLVERTEX *v1, D3DTLVERTEX *v2, short color)// (F)
 	ptr->v2.specular = v2->specular;
 }
 
-void do_quickysorty(int left, int right, float buffer[][10])// (F)
+void do_quickysorty(int left, int right, dinfo_head* buffer[])// (F)
 {
 	int i = left;
 	int j = right;
-	const float compare = buffer[(left + right) / 2][0];
+	const float compare = buffer[(left + right) / 2]->z;
 
 	do
 	{
-		if (buffer[i][0] > compare)
-			while (buffer[i][1] > compare && i < right)
+		if (buffer[i]->z > compare)
+			while (buffer[i + 1]->z > compare && i < right)
 				i++;
 
-		if (compare > buffer[j][0])
-			while (compare > buffer[j][1] && j > left)
+		if (compare > buffer[j]->z)
+			while (compare > buffer[j - 1]->z && j > left)
 				j--;
 
 		if (i <= j)
@@ -1188,11 +1154,11 @@ void do_quickysorty(int left, int right, float buffer[][10])// (F)
 		do_quickysorty(i, right, buffer);
 }
 
-void SortPolyList(int number, float buffer[][10])// (F)
+void SortPolyList(int number, dinfo_head* buffer[])// (F)
 {
 	if (number != 0)
 	{
-		auto ptr = (dinfo_head**)buffer;
+		auto ptr = buffer;
 		
 		for (int i = 0; i < number; i++)
 		{
@@ -1269,7 +1235,7 @@ void InitialiseFunctionTable()// (F)
 void InitialiseSortList()// (F)
 {
 	info3dptrbf = info3d_bufferbf;
-	sort3dptrbf = (int*)sort3d_bufferbf;
+	sort3dptrbf = sort3d_bufferbf;
 	surfacenumbf = 0;
 }
 
@@ -2577,7 +2543,7 @@ void ReleaseScreen()
 	DXRelease(surf_screen, "Picture Surface");
 }
 
-void HWR_DrawRoutine(short* info, short num_verts, short texture, short type)// (F)
+void HWR_DrawRoutine(D3DTLBUMPVERTEX* info, short num_verts, short texture, short type)// (F)
 {
 	Log(LT_Info, "HWR_DrawRoutine: num=%4d, tex=%4d, type=%4d", num_verts, texture, type);
 
@@ -2740,10 +2706,10 @@ void DrawSortList()
 		}
 		else
 		{
-			auto ptr = (short**)&sort3d_bufferbf[0][0];
+			auto ptr = &sort3d_bufferbf[0];
 			for (i = 0; i < surfacenumbf; i++, ptr++)
 			{
-				info = (dinfo_head*)(*ptr);
+				info = *ptr;
 
 				if (info->texattr == OT_ALPHA_TESTING || 
 					info->texattr == OT_ALPHA_TESTING_DEPTHLESS || 
@@ -2758,11 +2724,11 @@ void DrawSortList()
 
 		if (i < surfacenumbf)
 		{
-			auto ptr = (dinfo_head**)sort3d_bufferbf + i;
+			auto ptr = &sort3d_bufferbf[i];
 
 			for (; i < surfacenumbf; i++)
 			{
-				info = (dinfo_head*)(*ptr);
+				info = *ptr;
 
 				if (info->texattr == OT_ALPHA_TESTING ||
 					info->texattr == OT_ALPHA_TESTING_DEPTHLESS ||
@@ -2911,14 +2877,14 @@ void DrawSortList()
 			}
 
 			if (v3)
-				HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+				HWR_DrawRoutine(Bucket[0].Vertex, v3, tile_and_flag, type);
 		}
 
 		i = surfacenumbf - 1;
 
 		if (i >= 0)
 		{
-			auto ptr = (dinfo_head**)sort3d_bufferbf + i;
+			auto ptr = &sort3d_bufferbf[i];
 			for (; i >= 0; i--, ptr--)
 			{
 				info = *ptr;
@@ -2939,11 +2905,11 @@ void DrawSortList()
 
 		if (i >= 0)
 		{
-			auto ptr = (dinfo_head**)sort3d_bufferbf + i;
+			auto ptr = &sort3d_bufferbf[i];
 
 			for(; i >= 0; i--, ptr--)
 			{
-				info = (dinfo_head*)(*ptr);
+				info = *ptr;
 
 				if (info->texattr == OT_ALPHA_BLENDING ||
 					info->texattr == OT_ALPHA_BLENDING_INV ||
@@ -2952,7 +2918,7 @@ void DrawSortList()
 				{
 					if (info->tile_and_flag != tile_and_flag || info->texattr != type)
 					{
-						HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+						HWR_DrawRoutine(Bucket[0].Vertex, v3, tile_and_flag, type);
 
 						v3 = 0;
 						tile_and_flag = info->tile_and_flag;
@@ -2967,7 +2933,7 @@ void DrawSortList()
 
 						if (sortptra >= 2076)
 						{
-							HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+							HWR_DrawRoutine(Bucket[0].Vertex, v3, tile_and_flag, type);
 
 							v3 = 0;
 							vert = Bucket[0].Vertex;
@@ -2984,12 +2950,12 @@ void DrawSortList()
 			}
 
 			if (v3)
-				HWR_DrawRoutine((short*)Bucket[0].Vertex, v3, tile_and_flag, type);
+				HWR_DrawRoutine(Bucket[0].Vertex, v3, tile_and_flag, type);
 		}
 	}
 	else // LINE 421
 	{
-		auto ptr = (dinfo_head**)sort3d_bufferbf;
+		auto ptr = &sort3d_bufferbf[0];
 		for(int i = 0; i < surfacenumbf; i++, ptr++)
 		{
 			const auto info = *ptr;
@@ -2997,7 +2963,7 @@ void DrawSortList()
 			if (info->e4b100 == 4)
 				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, FALSE);
 
-			HWR_DrawRoutine((short*)(info + 1), info->num_verts, info->tile_and_flag, info->texattr);
+			HWR_DrawRoutine(VERTICES(info), info->num_verts, info->tile_and_flag, info->texattr);
 
 			if (info->e4b100 == 4)
 				App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, TRUE);
