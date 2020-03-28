@@ -1293,10 +1293,71 @@ void DrawEffect(short fx_num)
 		phd_PopMatrix();
 	}
 }
-
-void PrintObjects(short current_room)
+int dword_506D3C = 0xFF000000;
+short word_E6D730;
+void PrintObjects(short room_number)// (F)
 {
-	Unimpl();
+	CurrentRoom = room_number;
+	e4b100 = 1;
+	
+	auto r = &room[room_number];
+	r->bound_active = 0;
+	
+	DrawStaticObjects(room_number);
+	
+	phd_PushMatrix();
+	phd_TranslateAbs(r->x, r->y, r->z);
+	
+	phd_left = 0;
+	phd_top = 0;
+	phd_right = phd_winxmax + 1;
+	phd_bottom = phd_winymax + 1;
+	
+	e4b100 = 2;
+	
+	for (int i = r->item_number; i != -1; i = items[i].next_item)
+	{
+		word_E6D730 = room_number;
+
+		const auto item = &items[i];
+		
+		if (item->status != ITEM_INVISIBLE)
+		{
+			if (item->after_death)
+				dword_506D3C = 0xFE000000 * item->after_death;
+			
+			if (!(gfCurrentLevel == LVL5_BASE && item->object_number == BRIDGE_FLAT))
+			{
+				const auto draw = objects[item->object_number].draw_routine;
+				if (draw)
+					draw(&items[i]);
+				
+				const auto draw_ex = objects[item->object_number].draw_routine_extra;
+				if (draw_ex)
+					draw_ex(item);
+			}
+			
+			dword_506D3C = 0xFF000000;
+		}
+		
+		if (item->after_death > 0 && item->after_death < 128 && !(wibble & 3))
+			item->after_death++;
+		
+		if (item->after_death == 128)
+			KillItem(i);
+	}
+	
+	e4b100 = 3;
+	
+	for (short j = r->fx_number; j != -1; j = effects[j].next_fx)
+		DrawEffect(j);
+
+	phd_PopMatrix();
+	
+	r->left = phd_winxmax;
+	r->top = phd_winymax;
+	r->right = 0;
+	r->bottom = 0;
 }
 
 void DoRain()
