@@ -1099,7 +1099,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		//Dist
 		shift = mSqrt((camera.item->pos.z_pos - item->pos.z_pos) * (camera.item->pos.z_pos - item->pos.z_pos) + (camera.item->pos.x_pos - item->pos.x_pos) * (camera.item->pos.x_pos - item->pos.x_pos));
 		change = phd_atan_asm((item->pos.z_pos - camera.item->pos.z_pos), (item->pos.x_pos - camera.item->pos.x_pos)) - camera.item->pos.y_rot;
-		change *= 65536;
+		change *= 65536;///@FIXME this is not done in original code?!? check me!
 
 		bounds = GetBoundsAccurate(camera.item);
 		v0 = phd_atan_asm(shift, (camera.item->pos.y_pos + ((((bounds[2] + bounds[3]) + (bounds[2] + bounds[3])) >> 31) >> 1)) - y);
