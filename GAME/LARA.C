@@ -4807,44 +4807,57 @@ void lara_col_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//147C4, 148CC
 
 void lara_as_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//14688, 14738 (F)
 {
-	short room_num;
-
+	//v0 = 
 	coll->enable_spaz = FALSE;
 	coll->enable_baddie_push = TRUE;
 
+	//s0 = lara
 	lara.IsDucked = TRUE;
 
+	//s1 = item
 	if (item->hit_points <= 0)
 	{
-		item->goal_anim_state = STATE_LARA_CRAWL_IDLE;
-
+		item->goal_anim_state = 0x50;
 		return;
 	}
-	
-	room_num = lara_item->room_number;
 
-	if (input & IN_LOOK)
-		LookUpDown();
-
-	GetFloor(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, &room_num);
-
-	if ((input & IN_FORWARD || input & IN_BACK)
-		&& (input & IN_DUCK || lara.keep_ducked)
-		&& lara.gun_status == LG_NO_ARMS
-		&& lara.water_status != LW_WADE
-		&& !(room[room_num].flags & RF_FILL_WATER))
+	if ((input & IN_LOOK))
 	{
-
-		if ((item->anim_number == ANIMATION_LARA_CROUCH_IDLE || item->anim_number == ANIMATION_LARA_CROUCH_PREPARE) 
-			&& !(input & 0x80000 || input & IN_DRAW) 
-			&& (lara.gun_type != WEAPON_FLARE || lara.flare_age < 900 && lara.flare_age != 0))
-		{
-			lara.torso_y_rot = 0;
-			lara.torso_x_rot = 0;
-
-			item->goal_anim_state = STATE_LARA_CRAWL_IDLE;
-		}
+		LookUpDown();
 	}
+	//loc_146F4
+	if ((input & (IN_FORWARD | IN_BACK)))
+	{
+		if ((input & IN_DUCK) || lara.keep_ducked && lara.water_status != 4)
+		{
+			//loc_1472C
+			//v0 = 0xDE
+			if (lara_item->anim_number == 0xDE || lara_item->anim_number == 0xF5)
+			{
+				if (!(input & (IN_B | IN_DRAW)))
+				{
+					if (lara.gun_type == 7)
+					{
+						//v0 = 0x50
+						if (lara.flare_age < 0x384 && lara.flare_age != 0)
+						{
+							lara.torso_y_rot = 0;
+							lara.torso_x_rot = 0;
+							item->goal_anim_state = 0x50;
+						}//loc_147B0
+					}
+					else
+					{
+						//loc_147A4
+						lara.torso_y_rot = 0;
+						lara.torso_x_rot = 0;
+						item->goal_anim_state = 0x50;
+					}
+				}//loc_147B0
+			}//loc_147B0
+		}//loc_147B0
+	}
+	//loc_147B0
 }
 
 void lara_col_ducklr(struct ITEM_INFO* item, struct COLL_INFO* coll)//14534, 145E4 (F)
@@ -5737,8 +5750,6 @@ void AnimateLara(struct ITEM_INFO* item)
 
 void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F) 
 {
-	return;//not used yet
-#if 0
 	struct PHD_VECTOR joint;
 	short room_number;//_18
 	struct room_info* r;//$a1
@@ -5769,7 +5780,7 @@ void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F)
 			if (!(flags & 1))
 			{
 				flags |= 1;
-				((long*) SRhandPtr)[3] = ((long*) &r->ambient)[0];
+				LaraNodeAmbient[1] = r->ambient;
 			}
 		}
 		else
@@ -5778,11 +5789,10 @@ void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F)
 			if (!(flags & 2))
 			{
 				flags |= 2;
-				((long*) SRhandPtr)[2] = ((long*) &r->ambient)[0];
+				LaraNodeAmbient[0] = r->ambient;
 			}
 		}
 	}
-#endif
 }
 
 void SetPendulumVelocity(int x, int y, int z)// (F)

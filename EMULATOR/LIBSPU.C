@@ -6,7 +6,7 @@
 
 #include <string.h>
 
-#define SPU_CENTERNOTE (49152)
+#define SPU_CENTERNOTE (-32768 / 2)
 
 short _spu_voice_centerNote[24] =
 {
@@ -37,10 +37,66 @@ short* _spu_RXX = (short*)&spu[0];
 int _spu_mem_mode_plus = 3;
 void* _spu_transferCallback = NULL;///@TODO initial value check
 int _spu_inTransfer = 0;///@TODO initial value check
+unsigned short _spu_tsa = 0;
+
+void SpuGetAllKeysStatus(char* status)
+{
+	UNIMPLEMENTED();
+}
+
+void SpuSetKeyOnWithAttr(SpuVoiceAttr* attr)
+{
+	UNIMPLEMENTED();
+}
+
+void _spu_t(int mode, int flag)
+{
+	UNIMPLEMENTED();
+}
 
 void _spu_Fw(unsigned char* addr, unsigned long size)
 {
+	//v0 = _spu_transMode
+	//s1 = addr
+	//s0 = size
 
+	if (_spu_trans_mode == 0)
+	{
+		//v0 = _spu_tsa
+		//a1 = _spu_mem_mode_plus
+		//a0 = 2
+		_spu_t(2, _spu_tsa << _spu_mem_mode_plus);
+		///@TODO check if a1 is modified in spu_t
+	}
+	//loc_A84
+#if 0
+jal     _spu_t
+sllv    $a1, $v0, $a1
+
+jal     _spu_t
+li      $a0, 1
+
+li      $a0, 3
+move    $a1, $s1
+jal     _spu_t
+move    $a2, $s0
+j       loc_A94
+move    $v0, $s0
+
+loc_A84:
+move    $a0, $s1
+jal     sub_480
+move    $a1, $s0
+move    $v0, $s0
+
+loc_A94:
+lw      $ra, 0x20+var_8($sp)
+lw      $s1, 0x20+var_C($sp)
+lw      $s0, 0x20+var_10($sp)
+jr      $ra
+addiu   $sp, 0x20
+ # End of function _spu_Fw
+#endif
 }
 
 unsigned long SpuWrite(unsigned char* addr, unsigned long size)
@@ -97,7 +153,7 @@ void SpuStart()//(F)
 		_spu_isCalled = 1;
 		EnterCriticalSection();
 		_SpuDataCallback(_spu_FiDMA);
-		event = OpenEvent(HwSPU, EvSpCOMP, EvMdNOINTR, NULL);
+		//event = OpenEvent(HwSPU, EvSpCOMP, EvMdNOINTR, NULL);
 		_spu_EVdma = event;
 		EnableEvent(event);
 		ExitCriticalSection();

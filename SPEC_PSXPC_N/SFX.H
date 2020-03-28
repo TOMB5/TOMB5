@@ -3,7 +3,8 @@
 
 #include "TYPES.H"
 
-extern long SPU_Play(long sample_index, short volume_left, short volume_right, short pitch);
+extern long SPU_AllocChannel();
+extern long SPU_Play(long sample_index, short volume_left, short volume_right, short pitch, int arg_10);
 extern long SPU_AllocChannel();
 extern int SPU_UpdateStatus();
 extern void SPU_Status(long a0);
@@ -19,4 +20,6 @@ extern int S_SoundSetPanAndVolume(int nhandle, int nPan, int nVolume, int distan
 extern void GetPanVolume(struct SoundSlot* slot);
 extern void SPU_FreeChannel(int channel_index);
 extern void SOUND_EndScene();
+extern int S_SoundPlaySampleLooped(int a0, int a1, int a2, int a3, int arg_10);
+
 #endif

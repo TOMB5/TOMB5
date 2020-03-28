@@ -969,8 +969,8 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 #if PSX_VERSION || PC_VERSION
 	struct ITEM_INFO* item;
 	short* bounds;
-	short tilt;
-	short change;
+	int  tilt;
+	int  change;
 	long shift;
 	long fixed_camera;
 	long y;
@@ -1108,7 +1108,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 	{
 		//Dist
 		shift = mSqrt((camera.item->pos.z_pos - item->pos.z_pos) * (camera.item->pos.z_pos - item->pos.z_pos) + (camera.item->pos.x_pos - item->pos.x_pos) * (camera.item->pos.x_pos - item->pos.x_pos));
-		change = phd_atan_asm((item->pos.z_pos - camera.item->pos.z_pos), (item->pos.x_pos - camera.item->pos.x_pos)) - camera.item->pos.y_rot;
+		change = (short)phd_atan_asm((item->pos.z_pos - camera.item->pos.z_pos), (item->pos.x_pos - camera.item->pos.x_pos)) - camera.item->pos.y_rot;
 		change *= 65536;
 
 		bounds = GetBoundsAccurate(camera.item);

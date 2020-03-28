@@ -462,7 +462,11 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 	long lz; // stack offset -52
 	long ly; // stack offset -48
 	int i; // $v1
+#if PSXPC_TEST
+	int s7 = 0;
+#else
 	int s7;
+#endif
 	int ctype; // $s0
 #if PSXPC_TEST
 	int cn = 0; // $s0
@@ -673,9 +677,10 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 	camera.target.z = ctz;
 
 	IsRoomOutsideNo = -1;
+
 	IsRoomOutside(cpx, cpy, cpz);
-	
-	if (IsRoomOutsideNo != -1)///@FIXME IsRoomOutsideNo bad value
+
+	if (IsRoomOutsideNo != -1)
 	{
 		camera.pos.room_number = IsRoomOutsideNo;
 	}
@@ -892,13 +897,13 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 		camera_xtarget[sp] = SpotCam[cn].tx;
 		camera_ytarget[sp] = SpotCam[cn].ty;
 		camera_ztarget[sp] = SpotCam[cn].tz;
-		sp++;
 		camera_xtarget[sp] = SpotCam[cn].tx;
 		camera_ytarget[sp] = SpotCam[cn].ty;
 		camera_ztarget[sp] = SpotCam[cn].tz;
 		camera_roll[sp] = SpotCam[cn].roll;
 		camera_fov[sp] = SpotCam[cn].fov;
 		camera_speed[sp] = SpotCam[cn].speed;
+		sp++;
 	}
 
 	cn++;
@@ -941,7 +946,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 		}
 	}//loc_38CF4
 
-	if (last_camera > ++current_spline_camera)
+	if (last_camera >= ++current_spline_camera)
 	{
 		return;
 	}
@@ -1123,7 +1128,7 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 	s3 = MULFP(x, c2 << 16);
 	span = s3 >> 16;
 
-	if (span > c2)
+	if (span >= c2)
 	{
 		span = c1 - 4;
 	}
@@ -1132,6 +1137,7 @@ long Spline(long x, long* knots, int nk)//37554(<), 37A54(<) (F)
 
 	//loc_375A0
 	k = &knots[span];
-	return (MULFP(MULFP(MULFP((((k[0] ^ -1) >> 1) + (k[1]) + (k[1] >> 1)) - ((k[2]) + (k[2] >> 1)) + (k[3] >> 1), s3) + ((k[0]) - ((k[1] << 1) + (k[1] >> 1)) + (k[2] << 1) - (k[3] >> 1)), s3) + (((k[0] ^ -1) >> 1) + (k[2] >> 1)), s3)) + k[1];
+
+	return MULFP(MULFP(MULFP(((((k[0] ^ -1) >> 1) + ((k[1]) + (k[1] >> 1))) - ((k[2]) + (k[2] >> 1))) + (k[3] >> 1), s3) + ((k[0] - ((k[1] << 1) + (k[1] >> 1))) + (k[2] << 1)) - (k[3] >> 1), s3) + (((k[0] ^ -1) >> 1) + (k[2] >> 1)), s3) + k[1];
 #endif
 }

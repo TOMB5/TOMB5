@@ -136,9 +136,9 @@ int TitleOptions(int Name)
 	int s3 = 0;
 	int y = 0;//s3 = 0 = runtimecheckfailure
 	int i = 0;//s4
-	unsigned short* s4;
+//	unsigned short* s4;
 	int s5 = 0;
-	int s6;
+//	int s6;
 	int s0 = 0;
 
 	ret = 0;

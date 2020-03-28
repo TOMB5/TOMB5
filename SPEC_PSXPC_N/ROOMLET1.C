@@ -1,4 +1,4 @@
-#include "ROOMLET3.H"
+﻿#include "ROOMLET1.H"
 #include "DRAW.H"
 #include "CAMERA.H"
 #include "EFFECT2.H"
@@ -10,10 +10,10 @@
 #include "GPU.H"
 #include "ROOMLETB.H"
 
-unsigned short* QuadVertTableRL3 = &QuadVertTable[0];
-unsigned short* TriVertTableRL3 = &TriVertTable[0];
+unsigned short* QuadVertTableRL1 = &QuadVertTable[0];
+unsigned short* TriVertTableRL1 = &TriVertTable[0];
 
-int ClipToScreenRL3(int t2)
+int ClipToScreenRL1(int t2)
 {
     int t7;
     int t8;
@@ -48,7 +48,7 @@ int ClipToScreenRL3(int t2)
 }
 
 
-void MyAddPrimRL3(int t7/*len*/, int* t9, int* s0, int* a3)
+void MyAddPrimRL1(int t7/*len*/, int* t9, int* s0, int* a3)
 {
 #if !defined(USE_32_BIT_ADDR)
     unsigned int t5;
@@ -66,7 +66,7 @@ void MyAddPrimRL3(int t7/*len*/, int* t9, int* s0, int* a3)
 #endif
 }
 
-void SubdivSetup3RL3(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)//(F)
+void SubdivSetup3RL1(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)//(F)
 {
     int t7;
     int t8;
@@ -107,7 +107,114 @@ void SubdivSetup3RL3(int* a3, int fp, int* t3, int* t4, int* t5, int t1, int t2)
     ((POLY_GT3*)a3)->pad2 = (t8 & 0xFFFF0000) >> 16;
 }
 
-int* SubPolyGTLoopRL3(int gp, int* t0, int*& t1, int s1)
+int* Add2DPrimRL1(int* t3, int* t4, int* t5, int* a3, int fp, int t1, int* t9, int* s0)//(F)
+{
+    int t2;
+
+    SXY0 = t3[0];
+    SXY1 = t4[0];
+    SXY2 = t5[0];
+
+    if (ClipToScreenRL1(t5[0]) == 0)
+    {
+        t2 = RGB1;
+        SubdivSetup3RL1(a3, fp, t3, t4, t5, t1, t2);
+        MyAddPrimRL1(0x9000000, t9, s0, a3);
+
+        *t9 -= *s0;
+        a3 += 10;
+    }//loc_75CC0
+
+    return a3;
+}
+
+void CreateNewVertexRL1(int* t2, int* t7, int* t8, int t1)
+{
+    int a1;
+    int at;
+    int s2;
+
+    a1 = ((short*)t7)[4];
+    at = ((short*)t8)[4];
+    s2 = ((short*)t7)[5];
+    a1 += at;
+
+    at = ((short*)t8)[5];
+    a1 >>= 1;
+    at += s2;
+    at >>= 1;
+    at <<= 16;
+    a1 &= 0xFFFF;
+    at |= a1;
+
+    a1 = ((short*)t7)[6];
+    s2 = ((short*)t8)[6];
+
+    VX0 = (at & 0xFFFF);
+    VY0 = (at >> 16) & 0xFFFF;
+
+    a1 += s2;
+    a1 >>= 1;
+
+    VZ0 = a1;
+
+    a1 = ((unsigned char*)t7)[14];
+    at = ((unsigned char*)t8)[14];
+
+    docop2(0x180001);
+
+    s2 = ((unsigned char*)t7)[15];
+    a1 += at;
+    at = ((unsigned char*)t8)[15];
+    a1 >>= 1;
+    at += s2;
+    at >>= 1;
+
+    ((unsigned char*)t2)[30] = a1;
+
+    a1 = ((unsigned int*)t7)[4];
+    s2 = ((unsigned int*)t8)[4];
+
+    ((unsigned char*)t2)[31] = at;
+
+    a1 += s2;
+    a1 >>= 1;
+    a1 &= t1;
+
+    ((unsigned int*)t2)[4] = SXY2;
+    ((unsigned int*)t2)[8] = a1;
+}
+
+int* SubdivTri64RL1(int t3, int t4, int t5, int* a3, int fp, int* t9, int* s0)//(F)
+{
+    int sp[256];
+
+    S_MemSet((char*)&sp[0], 0, 1024);
+    sp[1] = t3;
+    sp[2] = t4;
+    sp[3] = t5;
+    int* t2 = &sp[0];
+    int t1 = 0xFFF8F8F8;
+
+    CreateNewVertexRL1(t2, (int*)t3, (int*)t4, t1);
+    t2 += 5;
+
+    CreateNewVertexRL1(t2, (int*)t5, (int*)t4, t1);
+    t2 += 5;
+
+    CreateNewVertexRL1(t2, (int*)t5, (int*)t3, t1);
+
+    t1 = RGB2;
+
+    a3 = Add2DPrimRL1(&sp[1], &sp[4], &sp[14], a3, fp, t1, t9, s0);
+    a3 = Add2DPrimRL1(&sp[9], &sp[4], &sp[2], a3, fp, t1, t9, s0);
+    a3 = Add2DPrimRL1(&sp[9], &sp[3], &sp[14], a3, fp, t1, t9, s0);
+    a3 = Add2DPrimRL1(&sp[9], &sp[14], &sp[4], a3, fp, t1, t9, s0);
+
+    return a3;
+}
+
+int* SubPolyGTLoopRL1(int gp, int* t0, int* t1, int s1)
 {
     int* t00 = (int*)t0[0];
     int t2 = 0xF8F8F8;
@@ -174,7 +281,7 @@ int* SubPolyGTLoopRL3(int gp, int* t0, int*& t1, int s1)
     return t00;
 }
 
-int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
+int* SubPolyGT4RL1(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//(F)
 {
     int s7;
     int gp;
@@ -193,7 +300,7 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
     int s6;
 //    int t00;
 
-    t0 = SubPolyGTLoopRL3(5, t0, t1, (int)s1);
+    t0 = SubPolyGTLoopRL1(5, t0, t1, (int)s1);
 
     gp = 3;
     t1 = (int*)RGB2;
@@ -259,14 +366,14 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
             at = t7 << at;
             t9 = t7 << 2;
 
-            if (at < 0x280u && s3 == 0)
+            if (at < 0x180u && s3 == 0)
             {
                 s3 = 1;
                 s4 = gp;
                 s5 = ra;
                 s6 = (int)t0;
 
-                a3 = SubPolyGT4RL3((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
+                a3 = SubPolyGT4RL1((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
                 t1 = (int*)RGB2;
                 t2 = RGB1;
                 s3 = 0;
@@ -279,6 +386,7 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
                 //loc_75AB0
                 s3 = 1;
                 at = MAC0;
+
                 SXY0 = ((int*)t3)[0];
                 SXY1 = ((int*)t4)[0];
 
@@ -294,42 +402,63 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
                     }
                 }//loc_75AD4
 
-                t2 = ((int*)t6)[0];
-                at = ClipToScreenRL3(t2);
-
-                if (at == 0)
+                if (t9 < 0x80)
                 {
-                    t2 = RGB1;
-                    SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
-                    t5 = ((int*)t6)[0];
-                    t7 = ((int*)t6)[4];
-                    t8 = ((unsigned short*)t6)[7];
+                    //loc_75B34
+                    at = 0xF7000000;
+                    fp &= at;
 
-                    ((POLY_GT4*)a3)->x3 = (t5 & 0xFFFF);
-                    ((POLY_GT4*)a3)->y3 = (t5 >> 16) & 0xFFFF;
-                    ((POLY_GT4*)a3)->r3 = (t7 & 0xFF);
-                    ((POLY_GT4*)a3)->g3 = (t7 & 0xFF00) >> 8;
-                    ((POLY_GT4*)a3)->b3 = (t7 & 0xFF0000) >> 16;
-                    ((POLY_GT4*)a3)->p3 = (t7 & 0xFF000000) >> 24;
-                    ((POLY_GT4*)a3)->u3 = (t8 & 0xFF);
-                    ((POLY_GT4*)a3)->v3 = (t8 & 0xFF00) >> 8;
-                    ((POLY_GT4*)a3)->pad3 = (t8 & 0xFFFF0000) >> 16;
-                    MyAddPrimRL3(0xC000000, &t9, &s0, a3);
-                    a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                    a3 = SubdivTri64RL1(t3, t4, t5, a3, fp, &t9, &s0);
+
+                    t3 = t6;
+
+                    a3 = SubdivTri64RL1(t3, t4, t5, a3, fp, &t9, &s0);
+
+                    at = 0x8000000;
+                    fp |= at;
+                }
+                else
+                {
+                    t2 = ((int*)t6)[0];
+                    at = ClipToScreenRL1(t2);
+
+                    if (at == 0)
+                    {
+                        t2 = RGB1;
+                        SubdivSetup3RL1(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
+                        t5 = ((int*)t6)[0];
+                        t7 = ((int*)t6)[4];
+                        t8 = ((unsigned short*)t6)[7];
+
+                        ((POLY_GT4*)a3)->x3 = (t5 & 0xFFFF);
+                        ((POLY_GT4*)a3)->y3 = (t5 >> 16) & 0xFFFF;
+                        ((POLY_GT4*)a3)->r3 = (t7 & 0xFF);
+                        ((POLY_GT4*)a3)->g3 = (t7 & 0xFF00) >> 8;
+                        ((POLY_GT4*)a3)->b3 = (t7 & 0xFF0000) >> 16;
+                        ((POLY_GT4*)a3)->p3 = (t7 & 0xFF000000) >> 24;
+                        ((POLY_GT4*)a3)->u3 = (t8 & 0xFF);
+                        ((POLY_GT4*)a3)->v3 = (t8 & 0xFF00) >> 8;
+                        ((POLY_GT4*)a3)->pad3 = (t8 & 0xFFFF0000) >> 16;
+                        MyAddPrimRL1(0xC000000, &t9, &s0, a3);
+                        a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                    }
                 }
             loc_75B20:
                 ra = s7;
             }
-        loc_75B24:
-            int test = 0;
-            test++;
+
         }
+    loc_75B24:
+        int test = 0;
+        test++;
 
     } while (gp-- != 0);
+
     return a3;
 }
 
-char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
+
+char* SubPolyGT3RL1(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
 {
     int gp;
     int t2;
@@ -343,7 +472,7 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
     int s4;
     int s6;
 
-    t0 = SubPolyGTLoopRL3(3, t0, t1, (int)s1);
+    t0 = SubPolyGTLoopRL1(3, t0, t1, (int)s1);
     gp = 3;
     t1 = (int*)RGB2;
     t2 = RGB1;
@@ -372,6 +501,7 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
         t9 = ((short*)t5)[2];
 
         at = t7 < t9 ? 1 : 0;
+
         if (t7 < t8)
         {
             t7 = t8;
@@ -399,8 +529,8 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
                 s3 = 1;
                 s4 = gp;
                 s6 = (int)t0;
-                //t0 = TriVertTables[gp]
-                a3 = (int*)SubPolyGT3RL3((int*)&TriVertTables[gp], &s1[216], s1, a3, s3, fp, s0);
+
+                a3 = (int*)SubPolyGT3RL1((int*)&TriVertTables[gp], &s1[216], s1, a3, s3, fp, s0);
 
                 t1 = (int*)RGB2;
                 t2 = RGB1;
@@ -417,16 +547,23 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
 
                 if (t7 >= 0)
                 {
-                    //loc_EA8
-                    t2 = ((int*)t5)[0];
-                    at = ClipToScreenRL3(t2);
-
-                    if (at == 0)
+                    if (t9 < 0x80)
                     {
-                        t2 = RGB1;
-                        SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
-                        MyAddPrimRL3(0x9000000, &t9, &s0, a3);
-                        a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                        a3 = SubdivTri64RL1(t3, t4, t5, a3, fp, &t9, &s0);
+                    }
+                    else
+                    {
+                        //loc_EA8
+                        t2 = ((int*)t5)[0];
+                        at = ClipToScreenRL1(t2);
+
+                        if (at == 0)
+                        {
+                            t2 = RGB1;
+                            SubdivSetup3RL1(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
+                            MyAddPrimRL1(0x9000000, &t9, &s0, a3);
+                            a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                        }
                     }
                 }//loc_ED4
             }
@@ -437,7 +574,7 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
     return (char*)a3;
 }
 
-int* InitSubdivisionRL3(int* s1, int t1, int s4, int* fp, int t5, int t2, int s5, int gp, int t6, int* t3, int s6, int s3, int* t7, int* s7)//(F)
+int* InitSubdivisionRL1(int* s1, int t1, int s4, int* fp, int t5, int t2, int s5, int gp, int t6, int* t3, int s6, int s3, int* t7, int* s7)//(F)
 {
     int t11;
 //    int t77;
@@ -571,8 +708,7 @@ int* InitSubdivisionRL3(int* s1, int t1, int s4, int* fp, int t5, int t2, int s5
     return (int*)gpp;
 }
 
-
-void InitPrimRL3(int a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
+void InitPrimRL1(int a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3, int t3)
 {
 #if defined(USE_32_BIT_ADDR)
     ((int*)a3)[2] = fp;
@@ -595,11 +731,11 @@ void InitPrimRL3(int a3, int fp, int t1, int t5, int gp, int t2, int t6, int s3,
 #endif
 }
 
-void UnpackRGBRL3(int* t5, int* s4, int* t6, int* fp, int* t8, int* s5, int* gp, int* s6, int* s3)
+void UnpackRGBRL1(int* t5, int* s4, int* t6, int* fp, int* t8, int* s5, int* gp, int* s6, int* s3)
 {
     int s2 = 0xF80000;
     *t5 = *s4 >> 7;
-    *t5 &= 0xF80000;
+    *t5 &= s2;
     *t6 = *s4 >> 10;
     *t6 &= 0xF800;
     *fp = *s4 >> 13;
@@ -630,7 +766,7 @@ void UnpackRGBRL3(int* t5, int* s4, int* t6, int* fp, int* t8, int* s5, int* gp,
     *s3 |= *t6;
 }
 
-long ClipXYRL3(int t1, int t2, int t3, int t4)
+long ClipXYRL1(int t1, int t2, int t3, int t4)
 {
     int t9 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
     int t5 = t1 << 16;
@@ -659,13 +795,13 @@ long ClipXYRL3(int t1, int t2, int t3, int t4)
     return 1;
 }
 
-char* DrawMeshRL3(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
+char* DrawMeshRL1(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
 {
     sp2 = &sp2[-14];
     int* a2 = &sp[0];
     short* s0 = &LOffset[0];
     char* s1 = &LTab[0];
-    unsigned char* s5 = &OurSqrt[0];
+    int* s5 = (int*)&OurSqrt[0];
     int* fp = (int*)&YOffset[0];
     int s2 = sp2[25];
     int s3 = sp2[26];
@@ -908,8 +1044,7 @@ char* DrawMeshRL3(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
         t3 |= t4;
         v1 = t3 | t5;
 
-        loc_1570:
-
+    loc_1570:
         a2[0] = SXY2;
         v1 <<= 16;
         t0 |= v1;
@@ -949,7 +1084,7 @@ loc_15A8:
         t4 = t3;
         docop2(0x1400006);
 
-        if (ClipXYRL3(t1, t2, t3, t4) == 0)
+        if (ClipXYRL1(t1, t2, t3, t4) == 0)
         {
             s44 = ((int*)s44)[1];
             s55 = ((int*)s55)[1];
@@ -977,8 +1112,8 @@ loc_15A8:
             {
                 t7 = MAC0;
                 t9 = t5 << 2;
-                at = t5 < 0x200 ? 1 : 0;
-                if (t5 >= 0x200)
+                at = t5 < 0x280 ? 1 : 0;
+                if (t5 >= 0x280)
                 {
                     if (t7 < 0)
                     {
@@ -987,7 +1122,14 @@ loc_15A8:
 
                     if ((unsigned)t9 >= 0x1000)
                     {
-                        s77 = 0x10;
+                        if ((unsigned)t9 < 0x1E00)
+                        {
+                            s77 = 0x10;
+                        }
+                        else
+                        {
+                            s77 = 0x20;
+                        }
                     }
                 }//loc_1678
 
@@ -1004,14 +1146,13 @@ loc_15A8:
                 t8 = t7 << 8;
 
                 int fpp;
-                UnpackRGBRL3(&t5, &s44, &t6, &fpp, &t8, &s55, &gp, &s66, &s3);
-
+                UnpackRGBRL1(&t5, &s44, &t6, &fpp, &t8, &s55, &gp, &s66, &s3);
                 t5 = ((int*)t0)[0];
                 a1 = RFC;
                 t6 = ((int*)t0)[1];
                 t5 -= a1;
 
-                InitPrimRL3(a3, fpp, t1, t5, gp, t2, t6, s3, t3);
+                InitPrimRL1(a3, fpp, t1, t5, gp, t2, t6, s3, t3);
 
 #if defined(USE_32_BIT_ADDR)
                 ((int*)a3)[10] = t7;
@@ -1028,28 +1169,28 @@ loc_15A8:
                     LG3 = (a3 >> 16) & 0xFFFF;
                     a3 += sizeof(POLY_GT3);
 
-                    InitSubdivisionRL3((int*)s1, t1, s44, &fpp, t5, t2, s55, gp, t6, &t3, s66, s3, &t7, &s77);
+                    InitSubdivisionRL1((int*)s1, t1, s44, &fpp, t5, t2, s55, gp, t6, &t3, s66, s3, &t7, &s77);
 
                     s3 = 0;
-                    a3 = (int)SubPolyGT3RL3((int*)&TriVertTableRL3, (int*)&s1[804], (int*)s1, (int*)a3, s3, fpp, (int)s0);
+                    a3 = (int)SubPolyGT3RL1((int*)&TriVertTableRL1, (int*)&s1[804], (int*)s1, (int*)a3, s3, fpp, (int)s0);
 
                     at = BFC;
                     t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
                     t9 = DQA;
                     t0 |= at;
 
-                    if (t0 >= 0 && t9 >= 0x600)
+                    if (t0 >= 0 && t0 >= 0x500)
                     {
                         t3 = a3;
                         a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
-                        MyAddPrimRL3(0x9000000, &t9, (int*)&s0, (int*)a3);
+                        MyAddPrimRL1(0x9000000, &t9, (int*)&s0, (int*)a3);
                         a3 = t3;
                     }
                 }
                 else
                 {
                     //loc_1718
-                    MyAddPrimRL3(0x9000000, &t9, (int*)&s0, (int*)a3);
+                    MyAddPrimRL1(0x9000000, &t9, (int*)&s0, (int*)a3);
                     a3 += sizeof(POLY_GT3);
                 }
             }//loc_1724
@@ -1058,7 +1199,7 @@ loc_15A8:
         mesh += 4;
         goto loc_15A8;
     }
-    
+
 loc_172C:
     v0 = ((int*)mesh)[0];
     mesh += 4;
@@ -1088,9 +1229,9 @@ loc_172C:
         t1 &= 0x3F8;
         s44 = t1 + (int)s1;
 
-        t1 = ((unsigned int*)s44)[0];
-        t2 = ((unsigned int*)s55)[0];
-        t3 = ((unsigned int*)s66)[0];
+        t1 = ((int*)s44)[0];
+        t2 = ((int*)s55)[0];
+        t3 = ((int*)s66)[0];
 
         SXY0 = t1;
         SXY1 = t2;
@@ -1101,7 +1242,8 @@ loc_172C:
         docop2(0x1400006);
         t4 = ((unsigned int*)s77)[0];
 
-        t5 = ClipXYRL3(t1, t2, t3, t4);
+        t5 = ClipXYRL1(t1, t2, t3, t4);
+
 
         if (t5 == 0)
         {
@@ -1131,20 +1273,24 @@ loc_172C:
                 t5 = t8;
             }
 
-            t7 = MAC0;
             t5 >>= 3;
 
             if (t5 < 0x9E0)
             {
+                t7 = MAC0;
                 t9 = t5 << 2;
-                at = t5 < 0x200 ? 1 : 0;
-                if (t5 >= 0x200)
+                at = t5 < 0x280 ? 1 : 0;
+                if (t5 >= 0x280)
                 {
                     if (t7 >= 0)
                     {
-                        if ((unsigned)t9 >= 0x1000)
+                        if ((unsigned)t9 >= 0x1000 && (unsigned)t9 < 0x1E00)
                         {
                             t6 = 0x10;
+                        }
+                        else
+                        {
+                            t6 = 0x20;
                         }
                     }
                     else
@@ -1164,7 +1310,7 @@ loc_172C:
                 char* t00 = &((char*)RoomTextInfo)[t0];
                 t8 = ((int*)t00)[2];
                 int fpp;
-                UnpackRGBRL3(&t5, &s444, &t6, &fpp, &t8, &s555, &gp, &s666, &s3);
+                UnpackRGBRL1(&t5, &s444, &t6, &fpp, &t8, &s555, &gp, &s666, &s3);
                 t5 = s777 >> 7;
                 t5 &= 0xF80000;
                 t6 = s777 >> 10;
@@ -1179,7 +1325,7 @@ loc_172C:
                 t5 -= a1;
                 t0 = ((int*)t00)[3];
 
-                InitPrimRL3(a3, fpp, t1, t5, gp, t2, t6, s3, t3);
+                InitPrimRL1(a3, fpp, t1, t5, gp, t2, t6, s3, t3);
 
 #if defined(USE_32_BIT_ADDR)
                 ((int*)a3)[10] = t8;
@@ -1207,7 +1353,7 @@ loc_172C:
 
                     t7 = t8;
 
-                    gp = (int)InitSubdivisionRL3((int*)s1, t1, s444, &fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
+                    gp = (int)InitSubdivisionRL1((int*)s1, t1, s444, &fpp, t5, t2, s555, gp, t6, &t3, s666, s3, &t7, &s777);
 
                     t0 = DQB;
                     t5 = (LR1 & 0xFFFF) | ((LR2 & 0xFFFF) << 16);
@@ -1224,7 +1370,6 @@ loc_172C:
                     {
                         t4 += t6;
                     }
-
                     t5 <<= 10;
 
                     at &= 0x7C00;
@@ -1236,7 +1381,7 @@ loc_172C:
                     ((short*)s1)[407] = t4;
                     ((short*)s1)[408] = t5;
 
-                    a3 = (int)SubPolyGT4RL3((int*)&QuadVertTableRL3, (int*)&s1[824], (int*)s1, (int*)a3, (int)s0, s3, fpp);
+                    a3 = (int)SubPolyGT4RL1((int*)&QuadVertTableRL1, (int*)&s1[824], (int*)s1, (int*)a3, (int)s0, s3, fpp);
                     t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
                     at = BFC;
                     t9 = DQA;
@@ -1246,10 +1391,10 @@ loc_172C:
                     if (t0 >= 0)
                     {
                         t3 = a3;
-                        if (t9 >= 0x600)
+                        if (t9 >= 0x500)
                         {
                             a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
-                            MyAddPrimRL3(0xC000000, &t9, (int*)&s0, (int*)a3);
+                            MyAddPrimRL1(0xC000000, &t9, (int*)&s0, (int*)a3);
                             a3 = t3;
                         }
                     }//loc_76410
@@ -1257,7 +1402,7 @@ loc_172C:
                 else
                 {
                     //loc_76404
-                    MyAddPrimRL3(0xC000000, &t9, (int*)&s0, (int*)a3);
+                    MyAddPrimRL1(0xC000000, &t9, (int*)&s0, (int*)a3);
                     a3 += sizeof(POLY_GT4);
                 }
             }
@@ -1268,8 +1413,8 @@ loc_172C:
     } while (v1--);
     goto loc_172C;
 }
-
-void GetBoundsRL3(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* v0, int* s5, int* a0, int* a1, int* a2, int* a3)//sub_50
+ 
+void GetBoundsRL1(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* v0, int* s5, int* a0, int* a1, int* a2, int* a3)//sub_50
 {
     int v1 = (*t0 << 16) >> 16;
 
@@ -1329,7 +1474,7 @@ void GetBoundsRL3(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* v0,
     {
         *a0 = v1;
     }
-
+    
     //loc_E0
     *t8 >>= 16;
     if (v1 >= *a1)
@@ -1378,7 +1523,7 @@ void GetBoundsRL3(int* t0, int* t1, int* t6, int* t7, int* t8, int* t9, int* v0,
     }
 }
 
-void sub_158RL3(long underwater, struct room_info* r)
+void sub_158RL1(long underwater, struct room_info* r)
 {
     int t0;
     int t1;
@@ -1413,6 +1558,7 @@ void sub_158RL3(long underwater, struct room_info* r)
 
     S_MemSet((char*)&scratchPad[0], 0, 1024);
     S_MemSet((char*)&scratchPad2[0], 0, 2048);
+
     RFC = (unsigned int)underwater;
     RGB0 = (unsigned int)r;
 
@@ -1426,52 +1572,59 @@ void sub_158RL3(long underwater, struct room_info* r)
     //loc_1B0
     do
     {
-    fp = &room[*s4++];
-    //t0 = fp->mesheffect
-    t11 = &WaterTable[0][fp->MeshEffect];///@FIXME WaterTable bad values...
-    s2[0] = (unsigned int)fp;
-    s2[1] = (unsigned int)t11;
+        fp = &room[*s4++];
+        //t0 = fp->mesheffect
+        t11 = &WaterTable[0][fp->MeshEffect];///@FIXME WaterTable bad values...
+        s2[0] = (unsigned int)fp;
+        s2[1] = (unsigned int)t11;
 
-    s1 = (int*)fp->data;
-    t0 = fp->x;
-    t1 = fp->y;
-    t2 = fp->z;
-    //t3 = s5->x
-    //t4 = s5->y
-    //t5 = s5->z
-    s5 = (struct room_info*)RGB0;
+        s1 = (int*)fp->data;
+        t0 = fp->x;
+        t1 = fp->y;
+        t2 = fp->z;
+        //t3 = s5->x
+        //t4 = s5->y
+        //t5 = s5->z
+        s5 = (struct room_info*)RGB0;
 
-    t6 = s5->x - fp->x;
-    t7 = s5->y - fp->y;
-    t8 = s5->z - fp->z;
-
-    if (t6 >= -31744 && t6 < 31744 &&
-        t7 >= -31744 && t7 < 31744 &&
-        t8 >= -31744 && t8 < 31744)
-    {
-        t7 = (fp->minfloor - s5->y);
-        t6 = (((fp->x_size - 2) << 10) + fp->z) - s5->z;
-        t8 = (((fp->y_size - 2) << 10) + fp->x) - s5->x;
+        t6 = s5->x - fp->x;
+        t7 = s5->y - fp->y;
+        t8 = s5->z - fp->z;
 
         if (t6 >= -31744 && t6 < 31744 &&
             t7 >= -31744 && t7 < 31744 &&
             t8 >= -31744 && t8 < 31744)
         {
-            t7 = (s5->minfloor - fp->y);
-            t6 = (((s5->x_size - 2) << 10) + s5->x) - fp->x;
-            t8 = (((s5->y_size - 2) << 10) + s5->z) - fp->z;
+            t7 = (fp->minfloor - s5->y);
+            t6 = (((fp->x_size - 2) << 10) + fp->z) - s5->z;
+            t8 = (((fp->y_size - 2) << 10) + fp->x) - s5->x;
 
             if (t6 >= -31744 && t6 < 31744 &&
                 t7 >= -31744 && t7 < 31744 &&
                 t8 >= -31744 && t8 < 31744)
             {
-                t6 = fp->x - s5->x;
-                t7 = fp->y - s5->y;
-                t8 = fp->z - s5->z;
+                t7 = (s5->minfloor - fp->y);
+                t6 = (((s5->x_size - 2) << 10) + s5->x) - fp->x;
+                t8 = (((s5->y_size - 2) << 10) + s5->z) - fp->z;
 
-                t0 = s5->x;
-                t1 = s5->y;
-                t2 = s5->z;
+                if (t6 >= -31744 && t6 < 31744 &&
+                    t7 >= -31744 && t7 < 31744 &&
+                    t8 >= -31744 && t8 < 31744)
+                {
+                    t6 = fp->x - s5->x;
+                    t7 = fp->y - s5->y;
+                    t8 = fp->z - s5->z;
+
+                    t0 = s5->x;
+                    t1 = s5->y;
+                    t2 = s5->z;
+                }
+                else
+                {
+                    t6 = 0;
+                    t7 = 0;
+                    t8 = 0;
+                }
             }
             else
             {
@@ -1482,281 +1635,275 @@ void sub_158RL3(long underwater, struct room_info* r)
         }
         else
         {
+            //loc_320
             t6 = 0;
             t7 = 0;
             t8 = 0;
         }
-    }
-    else
-    {
-        //loc_320
-        t6 = 0;
-        t7 = 0;
-        t8 = 0;
-    }
 
-    //loc_32C
-    s2[5] = t6;
-    s2[6] = t7;
-    s2[7] = t8;
+        //loc_32C
+        s2[5] = t6;
+        s2[6] = t7;
+        s2[7] = t8;
 
-    t3 = ((int*)&MatrixStack[0])[5];
-    t4 = ((int*)&MatrixStack[0])[6];
-    t5 = ((int*)&MatrixStack[0])[7];
+        t3 = ((int*)&MatrixStack[0])[5];
+        t4 = ((int*)&MatrixStack[0])[6];
+        t5 = ((int*)&MatrixStack[0])[7];
 
-    t0 -= t3;
-    t1 -= t4;
-    t2 -= t5;
+        t0 -= t3;
+        t1 -= t4;
+        t2 -= t5;
 
-    t3 = t0 >> 15;
-    if (t0 < 0)
-    {
-        t0 = -t0;
         t3 = t0 >> 15;
-        t0 &= 0x7FFF;
-        t3 = -t3;
-        t0 = -t0;
-    }
-    else
-    {
-        t0 &= 0x7FFF;
-    }
-
-    t4 = t1 >> 15;
-    if (t1 < 0)
-    {
-        t1 = -t1;
-        t4 = t1 >> 15;
-        t1 &= 0x7FFF;
-        t4 = -t4;
-        t1 = -t1;
-    }
-    else
-    {
-        t1 &= 0x7FFF;
-    }
-
-    t5 = t2 >> 15;
-    if (t2 < 0)
-    {
-        t2 = -t2;
-        t5 = t2 >> 15;
-        t2 &= 0x7FFF;
-        t5 = -t5;
-        t2 = -t2;
-    }
-    else
-    {
-        t2 &= 0x7FFF;
-    }
-
-    IR1 = t3;
-    IR2 = t4;
-    IR3 = t5;
-
-    docop2(0x41E012);
-
-    t3 = MAC1;
-    t4 = MAC2;
-    t5 = MAC3;
-
-    IR1 = t0;
-    IR2 = t1;
-    IR3 = t2;
-
-    docop2(0x49E012);
-
-    t0 = t3 << 3;
-    if (t3 < 0)
-    {
-        t3 = -t3;
-        t3 <<= 3;
-        t0 = -t3;
-    }
-
-    t1 = t4 << 3;
-    if (t4 < 0)
-    {
-        t4 = -t4;
-        t4 <<= 3;
-        t1 = -t4;
-    }
-
-    t2 = t5 << 3;
-    if (t5 < 0)
-    {
-        t5 = -t5;
-        t5 <<= 3;
-        t2 = -t5;
-    }
-
-    t3 = MAC1;
-    t4 = MAC2;
-    t5 = MAC3;
-
-    t0 = (unsigned int)t0 + (unsigned int)t3;
-    t1 = (unsigned int)t1 + (unsigned int)t4;
-    t2 = (unsigned int)t2 + (unsigned int)t5;
-
-    TRX = t0;
-    TRY = t1;
-    TRZ = t2;
-
-    s2[2] = t0;
-    s2[3] = t1;
-    s2[4] = t2;
-
-    s2 += 8;
-    s6 = *s1++;
-    t0 = ((int*)&fp->left)[0];
-    t2 = ((int*)&fp->top)[0];
-    t1 = (t0 >> 16);
-    t0 &= 0xFFFF;
-    t3 = (t2 >> 16);
-    t2 &= 0xFFFF;
-
-    t1++;
-    t3++;
-
-    L11 = t0 & 0xFFFF;
-    L12 = (t0 >> 16) & 0xFFFF;
-    L13 = t1 & 0xFFFF;
-    L21 = (t1 >> 16) & 0xFFFF;
-    L22 = t2 & 0xFFFF;
-    L23 = (t2 >> 16) & 0xFFFF;
-    L31 = t3 & 0xFFFF;
-    L32 = (t3 >> 16) & 0xFFFF;
-    RBK = t6;
-
-    fpp = t7;
-    s7 = t8;
-
-loc_4A0:
-    a0 = *s1;
-
-    if (s6 != 0)
-    {
-        s1++;
-        t3 = ((int*)a0)[0];
-        s2[0] = a0;
-        t6 = RBK;
-
-        t0 = (t3 << 3) & 0xFFF8;
-        t0 += (int)s3;
-
-        t1 = ((short*)t0)[2];
-        at = ((short*)t0)[0];
-        t0 = ((short*)t0)[1];
-
-        at += t6;
-        at &= 0xFFFF;
-
-        t0 += fpp;
-        t1 += s7;
-        t0 <<= 16;
-        t0 |= at;
-        t3 >>= 13;
-        t3 &= 0xFFF8;
-        t3 += (int)s3;
-
-        at = ((short*)t3)[0];
-        t2 = ((short*)t3)[1];
-        t3 = ((short*)t3)[2];
-
-        at += t6;
-        at &= 0xFFFF;
-        t2 += fpp;
-        t3 += s7;
-        t2 <<= 16;
-        t2 |= at;
-
-        VX0 = t0 & 0xFFFF;
-        VY0 = (t0 >> 16) & 0xFFFF;
-        VZ0 = t1;
-        VX1 = t2 & 0xFFFF;
-        VY1 = (t2 >> 16) & 0xFFFF;
-        VZ1 = t1;
-        VX2 = t2 & 0xFFFF;
-        VY2 = (t2 >> 16) & 0xFFFF;
-        VZ2 = t3;
-
-        t4 = t0 & 0xFFFF;
-        docop2(0x280030);
-        t6 = t2 & 0xFFFF;
-        t7 = 0xFFFF0000;
-        t5 = t0 & t7;
-        t7 &= t2;
-        t4 |= t7;
-        t5 |= t6;
-
-        a0 = 2048;
-        a1 = -2048;
-        a2 = 2048;
-        a3 = -2048;
-
-        int s55 = 0;
-
-        t1 = SZ0;
-        t6 = SXY1;
-        t7 = SZ1;
-        t8 = SXY2;
-        t9 = SZ2;
-
-        VX0 = t4 & 0xFFFF;
-        VY0 = (t4 >> 16) & 0xFFFF;
-        VX1 = t5 & 0xFFFF;
-        VY1 = (t5 >> 16) & 0xFFFF;
-        VX2 = t0 & 0xFFFF;
-        VY2 = (t0 >> 16) & 0xFFFF;
-        t0 = SXY0;
-
-        docop2(0x280030);
-
-        v0 = 0;
-        GetBoundsRL3(&t0, &t1, &t6, &t7, &t8, &t9, &v0, &s55, &a0, &a1, &a2, &a3);
-
-        t0 = SXY0;
-        t1 = SZ0;
-        t6 = SXY1;
-        t7 = SZ1;
-        t8 = SXY2;
-        t9 = SZ2;
-
-        VZ0 = t3;
-        VZ1 = t3;
-
-        docop2(0x280030);
-        GetBoundsRL3(&t0, &t1, &t6, &t7, &t8, &t9, &v0, &s55, &a0, &a1, &a2, &a3);
-
-        t0 = SXY0;
-        t1 = SZ0;
-        t6 = SXY1;
-        t7 = SZ1;
-        t8 = t6;
-        t9 = t7;
-
-        GetBoundsRL3(&t0, &t1, &t6, &t7, &t8, &t9, &v0, &s55, &a0, &a1, &a2, &a3);
-
-        if ((unsigned)v0 < 9 && (unsigned)s55 < 9)
+        if (t0 < 0)
         {
-            t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
-            t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
-            t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
-            t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
-
-            if (a1 >= t0 && a0 < t1 && a3 >= t2 && a2 < t3)
-            {
-                s2++;
-            }
+            t0 = -t0;
+            t3 = t0 >> 15;
+            t0 &= 0x7FFF;
+            t3 = -t3;
+            t0 = -t0;
+        }
+        else
+        {
+            t0 &= 0x7FFF;
         }
 
-        //loc_628
-        s6--;
-        goto loc_4A0;
-    }//loc_630
+        t4 = t1 >> 15;
+        if (t1 < 0)
+        {
+            t1 = -t1;
+            t4 = t1 >> 15;
+            t1 &= 0x7FFF;
+            t4 = -t4;
+            t1 = -t1;
+        }
+        else
+        {
+            t1 &= 0x7FFF;
+        }
 
-    *s2++ = 0;
-    }while (--s0);
+        t5 = t2 >> 15;
+        if (t2 < 0)
+        {
+            t2 = -t2;
+            t5 = t2 >> 15;
+            t2 &= 0x7FFF;
+            t5 = -t5;
+            t2 = -t2;
+        }
+        else
+        {
+            t2 &= 0x7FFF;
+        }
+
+        IR1 = t3;
+        IR2 = t4;
+        IR3 = t5;
+
+        docop2(0x41E012);
+
+        t3 = MAC1;
+        t4 = MAC2;
+        t5 = MAC3;
+
+        IR1 = t0;
+        IR2 = t1;
+        IR3 = t2;
+
+        docop2(0x49E012);
+
+        t0 = t3 << 3;
+        if (t3 < 0)
+        {
+            t3 = -t3;
+            t3 <<= 3;
+            t0 = -t3;
+        }
+
+        t1 = t4 << 3;
+        if (t4 < 0)
+        {
+            t4 = -t4;
+            t4 <<= 3;
+            t1 = -t4;
+        }
+
+        t2 = t5 << 3;
+        if (t5 < 0)
+        {
+            t5 = -t5;
+            t5 <<= 3;
+            t2 = -t5;
+        }
+
+        t3 = MAC1;
+        t4 = MAC2;
+        t5 = MAC3;
+
+        t0 += t3;
+        t1 += t4;
+        t2 += t5;
+
+        TRX = t0;
+        TRY = t1;
+        TRZ = t2;
+
+        s2[2] = t0;
+        s2[3] = t1;
+        s2[4] = t2;
+
+        s2 += 8;
+        s6 = *s1++;
+        t0 = ((int*)&fp->left)[0];
+        t2 = ((int*)&fp->top)[0];
+        t1 = (t0 >> 16);
+        t0 &= 0xFFFF;
+        t3 = (t2 >> 16);
+        t2 &= 0xFFFF;
+
+        t1++;
+        t3++;
+
+        L11 = t0 & 0xFFFF;
+        L12 = (t0 >> 16) & 0xFFFF;
+        L13 = t1 & 0xFFFF;
+        L21 = (t1 >> 16) & 0xFFFF;
+        L22 = t2 & 0xFFFF;
+        L23 = (t2 >> 16) & 0xFFFF;
+        L31 = t3 & 0xFFFF;
+        L32 = (t3 >> 16) & 0xFFFF;
+        RBK = t6;
+
+        fpp = t7;
+        s7 = t8;
+
+    loc_4A0:
+        a0 = *s1;
+        if (s6 != 0)
+        {
+            s1++;
+            t3 = ((int*)a0)[0];
+            s2[0] = a0;
+            t6 = RBK;
+
+            t0 = (t3 << 3) & 0xFFF8;
+            t0 += (int)s3;
+
+            t1 = ((short*)t0)[2];
+            at = ((short*)t0)[0];
+            t0 = ((short*)t0)[1];
+
+            at += t6;
+            at &= 0xFFFF;
+
+            t0 += fpp;
+            t1 += s7;
+            t0 <<= 16;
+            t0 |= at;
+            t3 >>= 13;
+            t3 &= 0xFFF8;
+            t3 += (int)s3;
+
+            at = ((short*)t3)[0];
+            t2 = ((short*)t3)[1];
+            t3 = ((short*)t3)[2];
+
+            at += t6;
+            at &= 0xFFFF;
+            t2 += fpp;
+            t3 += s7;
+            t2 <<= 16;
+            t2 |= at;
+
+            VX0 = t0 & 0xFFFF;
+            VY0 = (t0 >> 16) & 0xFFFF;
+            VZ0 = t1;
+            VX1 = t2 & 0xFFFF;
+            VY1 = (t2 >> 16) & 0xFFFF;
+            VZ1 = t1;
+            VX2 = t2 & 0xFFFF;
+            VY2 = (t2 >> 16) & 0xFFFF;
+            VZ2 = t3;
+
+            t4 = t0 & 0xFFFF;
+            docop2(0x280030);
+            t6 = t2 & 0xFFFF;
+            t7 = 0xFFFF0000;
+            t5 = t0 & t7;
+            t7 &= t2;
+            t4 |= t7;
+            t5 |= t6;
+
+            a0 = 2048;
+            a1 = -2048;
+            a2 = 2048;
+            a3 = -2048;
+
+            int s55 = 0;
+
+            t1 = SZ1;
+            t6 = SXY1;
+            t7 = SZ2;
+            t8 = SXY2;
+            t9 = SZ3;
+
+            VX0 = t4 & 0xFFFF;
+            VY0 = (t4 >> 16) & 0xFFFF;
+            VX1 = t5 & 0xFFFF;
+            VY1 = (t5 >> 16) & 0xFFFF;
+            VX2 = t0 & 0xFFFF;
+            VY2 = (t0 >> 16) & 0xFFFF;
+            t0 = SXY0;
+
+            docop2(0x280030);
+
+            v0 = 0;
+            GetBoundsRL1(&t0, &t1, &t6, &t7, &t8, &t9, &v0, &s55, &a0, &a1, &a2, &a3);
+
+            t0 = SXY0;
+            t1 = SZ1;
+            t6 = SXY1;
+            t7 = SZ2;
+            t8 = SXY2;
+            t9 = SZ3;
+
+            VZ0 = t3;
+            VZ1 = t3;
+
+            docop2(0x280030);
+
+            GetBoundsRL1(&t0, &t1, &t6, &t7, &t8, &t9, &v0, &s55, &a0, &a1, &a2, &a3);
+
+            t0 = SXY0;
+            t1 = SZ1;
+            t6 = SXY1;
+            t7 = SZ2;
+            t8 = t6;
+            t9 = t7;
+
+            GetBoundsRL1(&t0, &t1, &t6, &t7, &t8, &t9, &v0, &s55, &a0, &a1, &a2, &a3);
+
+            if ((unsigned)v0 < 9 && (unsigned)s55 < 9)
+            {
+                t0 = (L11 & 0xFFFF) | ((L12 & 0xFFFF) << 16);
+                t1 = (L13 & 0xFFFF) | ((L21 & 0xFFFF) << 16);
+                t2 = (L22 & 0xFFFF) | ((L23 & 0xFFFF) << 16);
+                t3 = (L31 & 0xFFFF) | ((L32 & 0xFFFF) << 16);
+
+                if (a1 >= t0 && a0 < t1 && a3 >= t2 && a2 < t3)
+                {
+                    s2++;
+                }
+            }
+
+            //loc_628
+            s6--;
+            goto loc_4A0;
+
+        }//loc_630
+
+        *s2++ = 0;
+    } while (--s0);
 
     s2[0] = 0;
     s2 = (int*)&tsv_buffer;
@@ -1813,7 +1960,7 @@ loc_64C:
         GBK = t1;
         BBK = t2;
 
-loc_6DC:
+    loc_6DC:
         a0 = *s2++;
 
         if (a0 == 0)
@@ -2070,17 +2217,13 @@ loc_6DC:
 
         //loc_9EC
         ((int*)a1)[3] = 0;
-        db.polyptr = DrawMeshRL3(&sp[0], &sp2[0], a0, &db);
+        db.polyptr = DrawMeshRL1(&sp[0], &sp2[0], a0, &db);
         goto loc_6DC;
     }
     //loc_1978 @ flat return
 }
 
-void DrawRoomletListAsmRL3()
+void DrawRoomletListAsmRL1()
 {
-#if BETA_VERSION
-    sub_158RL3(camera_underwater, &room[camera.pos.room_number]);
-#else
-    sub_158RL3(0, &room[camera.pos.room_number]);
-#endif
+    sub_158RL1(camera_underwater, &room[camera.pos.room_number]);
 }
