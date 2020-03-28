@@ -3495,80 +3495,39 @@ void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* p
 	int zoff; // $a1
 	int i; // $a3
 
-#if 0
-	sub_2CED4:
-	sll     $v0, $a3, 3
-		subu    $v0, $a3
-		sll     $t2, $v0, 1
-		blez    $a3, locret_2CFF8
-		move    $t3, $a2
-		move    $t1, $a0
-		move    $t0, $a1
+	offset = ((numnodes << 3) - numnodes) << 1;
+	if (numnodes > 0)
+	{
+		//loc_2CEF0
+		for (i = 0; i < numnodes; i++)
+		{
+			pnode->xkey = lnode->xkey;
+			pnode->ykey = lnode->ykey;
+			pnode->zkey = lnode->zkey;
 
-		loc_2CEF0 :
-	lhu     $v0, 0($t1)
-		nop
-		sh      $v0, 6($t0)
-		lhu     $v1, 2($t1)
-		nop
-		sh      $v1, 8($t0)
-		lhu     $a0, 4($t1)
-		nop
-		sh      $a0, 0xA($t0)
-		lhu     $v0, 6($t1)
-		nop
-		srl     $v0, 10
-		andi    $v0, 0xF
-		sb      $v0, 0x19($t0)
-		lhu     $v1, 6($t1)
-		nop
-		srl     $v1, 5
-		andi    $v1, 0xF
-		sb      $v1, 0x29($t0)
-		lbu     $v0, 6($t1)
-		nop
-		andi    $v0, 0xF
-		sb      $v0, 0x39($t0)
-		lh      $v1, 8($t1)
-		nop
-		sw      $v1, 0x3C($t0)
-		lh      $v0, 0xA($t1)
-		nop
-		sw      $v0, 0x40($t0)
-		lh      $v1, 0xC($t1)
-		lbu     $v0, 0x19($t0)
-		sw      $v1, 0x44($t0)
-		lh      $a0, 8($t1)
-		nop
-		mult    $a0, $v0
-		lh      $a2, 0xA($t1)
-		mflo    $a0
-		lbu     $v0, 0x29($t0)
-		nop
-		mult    $a2, $v0
-		addiu   $a3, -1
-		lh      $a1, 0xC($t1)
-		addiu   $t1, 0xE
-		sra     $a0, 3
-		addiu   $a0, 4
-		mflo    $a2
-		lbu     $v0, 0x39($t0)
-		addu    $v1, $t2, $a0
-		mult    $a1, $v0
-		addu    $v0, $t3, $t2
-		sra     $a2, 3
-		addiu   $a2, 4
-		addu    $a0, $a2
-		sw      $v0, 0x48($t0)
-		addu    $v0, $t3, $v1
-		addu    $v1, $a2
-		addu    $v1, $t3, $v1
-		sw      $v0, 0x4C($t0)
-		sw      $v1, 0x50($t0)
-		addiu   $t0, 0x54
-		mflo    $a1
-		sra     $a1, 3
-		addiu   $a1, 4
+			pnode->decode_x.packmethod = (lnode->packmethod >> 10) & 0xF;
+			pnode->decode_y.packmethod = (lnode->packmethod >> 5) & 0xF;
+			pnode->decode_z.packmethod = (lnode->packmethod) & 0xF;
+
+			pnode->xlength = lnode->xlength;
+			pnode->ylength = lnode->ylength;
+			pnode->zlength = lnode->zlength;
+
+			xoff = ((lnode->xlength * pnode->decode_x.packmethod) >> 3) + 4;
+			yoff = ((lnode->ylength * pnode->decode_y.packmethod) >> 3) + 4;
+			zoff = ((lnode->zlength * pnode->decode_z.packmethod) >> 3) + 4;
+			lnode++;
+
+			pnode->xpacked = &packed[offset];
+			pnode->ypacked = &packed[offset + xoff];
+			pnode->zpacked = &packed[offset + xoff + yoff];
+			pnode++;
+
+			offset += xoff + yoff + zoff;
+		}
+	}
+	//locret_2CFF8
+#if 0
 		addu    $a0, $a1
 		bnez    $a3, loc_2CEF0
 		addu    $t2, $a0
