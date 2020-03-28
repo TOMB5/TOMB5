@@ -11,6 +11,11 @@ PSXPC_N:
 <p align="center">
 <a href="https://streamable.com/hfn3t"><img src="https://i.imgur.com/Utuazgml.png"/><a>
  </p>
+ 
+ PC_N:
+ <p align="center">
+ <a href="#"><img src="https://i.imgur.com/sAf5VAi.png"/></a>
+ </p>
 
 | Platform  | Build State |
 | ------------- | ------------- |
