@@ -5710,34 +5710,34 @@ void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764
 }
 
 #if PC_VERSION
-int GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
+void GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
 {
-	phd_mxptr[0] = lara_joint_matrices[mat].m00;
-	phd_mxptr[1] = lara_joint_matrices[mat].m01;
-	phd_mxptr[2] = lara_joint_matrices[mat].m02;
-	phd_mxptr[3] = lara_joint_matrices[mat].m10;
-	phd_mxptr[4] = lara_joint_matrices[mat].m11;
-	phd_mxptr[5] = lara_joint_matrices[mat].m12;
-	phd_mxptr[6] = lara_joint_matrices[mat].m20;
-	phd_mxptr[7] = lara_joint_matrices[mat].m21;
-	phd_mxptr[8] = lara_joint_matrices[mat].m22;
-	phd_mxptr[9] = lara_joint_matrices[mat].tx;
-	phd_mxptr[10] = lara_joint_matrices[mat].ty;
-	phd_mxptr[11] = lara_joint_matrices[mat].tz;
+	phd_PushMatrix();
+	
+	phd_mxptr[M00] = lara_joint_matrices[mat].m00;
+	phd_mxptr[M01] = lara_joint_matrices[mat].m01;
+	phd_mxptr[M02] = lara_joint_matrices[mat].m02;
+	phd_mxptr[M03] = lara_joint_matrices[mat].m10;
+	phd_mxptr[M10] = lara_joint_matrices[mat].m11;
+	phd_mxptr[M11] = lara_joint_matrices[mat].m12;
+	phd_mxptr[M12] = lara_joint_matrices[mat].m20;
+	phd_mxptr[M13] = lara_joint_matrices[mat].m21;
+	phd_mxptr[M20] = lara_joint_matrices[mat].m22;
+	phd_mxptr[M21] = lara_joint_matrices[mat].tx;
+	phd_mxptr[M22] = lara_joint_matrices[mat].ty;
+	phd_mxptr[M23] = lara_joint_matrices[mat].tz;
 
 	mTranslateXYZ(vec->x, vec->y, vec->z);
 
-	vec->x = phd_mxptr[3] >> W2V_SHIFT;
-	vec->y = phd_mxptr[7] >> W2V_SHIFT; // todo this is wrong // todo actually not
-	vec->z = phd_mxptr[11] >> W2V_SHIFT;
+	vec->x = phd_mxptr[M03] >> W2V_SHIFT;
+	vec->y = phd_mxptr[M13] >> W2V_SHIFT; // todo this is wrong // todo actually not
+	vec->z = phd_mxptr[M23] >> W2V_SHIFT;
 
 	vec->x += lara_item->pos.x_pos;
 	vec->y += lara_item->pos.y_pos;
 	vec->z += lara_item->pos.z_pos;
 
 	mPopMatrix();
-
-	return 48;
 }
 #endif
 
@@ -5770,6 +5770,8 @@ void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F)
 		room_number = lara_item->room_number;
 		GetFloor(joint.x, joint.y, joint.z, &room_number);
 
+		// TODO: Missing code here on PC
+		
 		r = &room[room_number];
 		LaraNodeUnderwater[current_joint] = r->flags & RF_FILL_WATER;
 
