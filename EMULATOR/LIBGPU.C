@@ -159,10 +159,6 @@ char fontDebugTexture[] =
 //unk_E88
 unsigned char fontDebugClut[] = { 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-int g_swapInterval = 0;
-int g_wireframeMode = 0;
-int g_texturelessMode = 0;
-
 struct VertexBufferSplitIndex
 {
 	TextureID      textureId;
@@ -272,7 +268,7 @@ int SetGraphDebug(int level)
 
 int StoreImage(RECT16* rect, u_long * p)
 {
-/* AAA
+/* TODO
 #if defined(OGL) || defined(OGLES)
 	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, &p[0]);
 #elif defined(D3D9)
@@ -442,7 +438,7 @@ static unsigned short numVertices = 0;
 
 void DrawSplit(const VertexBufferSplitIndex &split)
 {
-	Emulator_SetTexture(g_texturelessMode ? nullWhiteTexture : vramTexture, split.page, split.clut);
+	Emulator_SetTexture(split.textureId, split.page, split.clut);
 	Emulator_SetBlendMode(split.abr, split.semiTrans);
 
 	if (split.primitiveType == POLY_TYPE_TRIANGLES) {
@@ -551,7 +547,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -563,7 +559,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -642,7 +638,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -655,7 +651,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -745,7 +741,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -758,7 +754,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -838,7 +834,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -851,7 +847,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -942,7 +938,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -955,7 +951,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -990,7 +986,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 					g_splitIndices[g_numSplitIndices].page = 0;
 					g_splitIndices[g_numSplitIndices].clut = 0;
 					g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-					g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+					g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 					g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 					g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 					g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -1003,7 +999,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 					g_splitIndices[g_numSplitIndices].page = 0;
 					g_splitIndices[g_numSplitIndices].clut = 0;
 					g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-					g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+					g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 					g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 					g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 					g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -1048,7 +1044,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -1061,7 +1057,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (lastTpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -1093,7 +1089,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -1197,7 +1193,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -1210,7 +1206,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -1248,7 +1244,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -1261,7 +1257,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;
@@ -1352,7 +1348,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices++].splitIndex = g_vertexIndex;
@@ -1365,7 +1361,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				g_splitIndices[g_numSplitIndices].page = 0;
 				g_splitIndices[g_numSplitIndices].clut = 0;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = nullWhiteTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;

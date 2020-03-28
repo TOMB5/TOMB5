@@ -28,9 +28,9 @@ struct FrameBuffer
 };
 
 extern struct FrameBuffer vramFrameBuffer;
-extern unsigned int nullWhiteTexture;
+extern unsigned int whiteTexture;
 #else
-extern TextureID        nullWhiteTexture;
+extern TextureID        whiteTexture;
 extern TextureID        vramTexture;
 #endif
 
@@ -40,8 +40,6 @@ extern int windowWidth;
 extern int windowHeight;
 extern uint32_t DMAControlRegister;
 extern int assetsLoaded;
-
-extern RenderTargetID g_defaultFBO;
 
 extern unsigned short UpdateGameControllerInput(SDL_GameController* pad);
 extern unsigned short UpdateKeyboardInput();

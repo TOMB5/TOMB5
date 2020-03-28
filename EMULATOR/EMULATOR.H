@@ -158,7 +158,6 @@ extern void Emulator_CopyVRAM(unsigned short *src, int x, int y, int w, int h, i
 extern void Emulator_UpdateVRAM();
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
-extern void Emulator_GenerateAndBindNullWhite();
 extern void Emulator_SetBlendMode(int mode, int semiTransparent);
 extern void Emulator_CounterLoop();
 extern void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3);
@@ -169,8 +168,7 @@ extern void Emulator_Ortho2D(float left, float right, float bottom, float top, f
 extern void Emulator_DestroyTexture(TextureID texture);
 extern void Emulator_Clear(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b);
 extern void Emulator_SetViewPort(int x, int y, int width, int height);
-extern void Emulator_SetScissor(int x, int y, int width, int height);
-extern void Emulator_SetTexture(const TextureID &texture, int page, int clut);
+extern void Emulator_SetTexture(TextureID texture, int page, int clut);
 extern void Emulator_SetShader(const ShaderID &shader);
 extern void Emulator_SetRenderTarget(const RenderTargetID &render_target);
 extern void Emulator_SetWireframe(bool enable);
