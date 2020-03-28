@@ -3501,9 +3501,9 @@ void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* p
 		//loc_2CEF0
 		for (i = 0; i < numnodes; i++)
 		{
-			pnode->xkey = lnode->xkey;
-			pnode->ykey = lnode->ykey;
-			pnode->zkey = lnode->zkey;
+			pnode->xkey = (unsigned short)lnode->xkey;
+			pnode->ykey = (unsigned short)lnode->ykey;
+			pnode->zkey = (unsigned short)lnode->zkey;
 
 			pnode->decode_x.packmethod = (lnode->packmethod >> 10) & 0xF;
 			pnode->decode_y.packmethod = (lnode->packmethod >> 5) & 0xF;
@@ -3527,15 +3527,6 @@ void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* p
 		}
 	}
 	//locret_2CFF8
-#if 0
-		addu    $a0, $a1
-		bnez    $a3, loc_2CEF0
-		addu    $t2, $a0
-
-		locret_2CFF8 :
-	jr      $ra
-		nop
-#endif
 
 	return;
 }

@@ -69,7 +69,7 @@ void PrintAllOtherObjects_ASM(short room_num /*s3*/)//(F)
 			item = &items[item_num];
 			object = &objects[item->object_number];
 
-			if (item->status != 6)
+			if (item->status != 3)
 			{
 				if (!object->using_drawanimating_item && object->draw_routine != NULL)
 				{
