@@ -590,7 +590,7 @@ int CreatureAnimation(short item_number, short angle, short tilt)
 void CreatureDie(short item_number, int explode)// (F)
 {
 	struct ITEM_INFO* item = &items[item_number];
-	item->hit_points = 0xC000;
+	item->hit_points = (short)0xC000;
 	item->collidable = FALSE;
 	if (explode)
 	{
@@ -758,7 +758,7 @@ int EscapeBox(struct ITEM_INFO* item, struct ITEM_INFO* enemy, short box_number)
 	//v0 = enemy->pos.z_pos
 
 	//v0 = enemy->pos.z_pos < item->pos.z_pos ? 1 : 0
-	if (enemy->pos.z_pos < item->pos.z_pos && z < 1 ^ 1)
+	//if (enemy->pos.z_pos < item->pos.z_pos && z < 1 ^ 1)
 	{
 
 	}//loc_22260
@@ -855,14 +855,14 @@ int UpdateLOT(struct lot_info* LOT, int expansion)//22034(<), ? (F)
 //int /*$ra*/ SearchLOT(struct lot_info *LOT /*$t2*/, int expansion /*$s3*/)
 int SearchLOT(struct lot_info* LOT, int expansion)
 {
-	int i; // $a2
-	int index; // $v0
+//	int i; // $a2
+//	int index; // $v0
 	int done; // $t8
 	int change; // $a0
 	int box_number; // $t1
 	int overlap_flags; // $a2
 	struct box_node* node; // $t5
-	struct box_node* expand; // $a3
+//	struct box_node* expand; // $a3
 	struct box_info* box; // $t6
 	short* zone; // $s0
 	short search_zone; // $s2
@@ -1084,7 +1084,7 @@ void InitialiseCreature(short item_number)//21800(<), ? (F)
 	item->data = NULL;
 	item->draw_room = (((item->pos.z_pos - room[item->room_number].z) / 1024) & 0xFF) | (((item->pos.x_pos - room[item->room_number].mesh->x) / 4) & 0xFF00);
 	item->TOSSPAD = item->pos.y_rot & 0xE000;
-	item->item_flags[2] = item->room_number | (item->pos.y_pos - room->minfloor);
+	item->item_flags[2] = item->room_number | (short)(item->pos.y_pos - room->minfloor);
 
 	return;
 }

@@ -37,8 +37,8 @@ void CODEWAD_andy3_Func1(short item_number)
 
 		sptr = &spark[GetFreeSpark()];
 		sptr->On = 1;
-		sptr->sR = GetRandomControl() | 0xE0;
-		sptr->sG = (GetRandomControl() & 0xF) - 0x40;
+		sptr->sR = (unsigned char)(GetRandomControl() | 0xE0);
+		sptr->sG = (unsigned char)((GetRandomControl() & 0xF) - 0x40);
 		sptr->dB = 0;
 		sptr->dG = 0;
 		sptr->dR = 0;
@@ -49,7 +49,7 @@ void CODEWAD_andy3_Func1(short item_number)
 		sptr->TransType = 2;
 		sptr->sR = (sptr->sR * sine) >> 12;
 		sptr->sG = (sptr->sG * sine) >> 12;
-		sptr->sB = (((GetRandomControl() & 0x7F) & 0xFF) * sine) >> 12;
+		sptr->sB = (unsigned char)((((GetRandomControl() & 0x7F) & 0xFF) * sine) >> 12);
 		sptr->x = item->pos.x_pos + (rcossin_tbl[((CamRot.vy + 1256) & 0xFFF) << 1] >> 7);
 		sptr->y = item->pos.y_pos - 8;
 		sptr->Zvel = 0;
