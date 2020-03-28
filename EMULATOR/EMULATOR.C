@@ -1156,15 +1156,20 @@ ShaderID Shader_Compile(const char *source)
         "precision highp float;\n"
         "#define varying     in\n"
         "#define texture2D   texture\n"
-        "out vec4 fragColor;\n");
+        "out vec4 fragColor;\n";
 #else
     const char *GLSL_HEADER_VERT =
-        "#version 110\n"
-        "#define VERTEX\n";
+        "#version 330\n"
+        "#define VERTEX\n"
+        "#define varying   out\n"
+        "#define attribute in\n"
+        "#define texture2D texture\n";
 
     const char *GLSL_HEADER_FRAG =
-        "#version 110\n"
-        "#define fragColor gl_FragColor\n";
+        "#version 330\n"
+        "#define varying     in\n"
+        "#define texture2D   texture\n"
+        "out vec4 fragColor;\n";
 #endif
 
     const char *vs_list[] = { GLSL_HEADER_VERT, source };
@@ -1801,7 +1806,7 @@ void Emulator_BeginScene()
 
 	assert(!begin_scene_flag);
 
-	g_lastBoundTexture = whiteTexture;
+	g_lastBoundTexture = NULL;
 
 #if defined(OGL) || defined(OGLES)
 	glBindVertexArray(dynamic_vertex_array);
