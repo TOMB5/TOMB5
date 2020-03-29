@@ -347,7 +347,7 @@ void setXY4(D3DTLVERTEX p[4], int x0, int y0, int x1, int y1, int x2, int y2, in
 	}
 }
 
-void DrawChar(uint16_t x, uint16_t y, uint16_t a3, const font_thing* a4)// (F) probably TODO
+void DrawChar(uint16_t x, uint16_t y, uint16_t colourFlag, const font_thing* a4)// (F) probably TODO
 {
     D3DTLVERTEX tlvert[4];
 
@@ -367,15 +367,15 @@ void DrawChar(uint16_t x, uint16_t y, uint16_t a3, const font_thing* a4)// (F) p
 		
 		f_znear, d9ab34);
 
-	tlvert[0].color = FontShades[a3][a4->a8].color.rgbcd;
-	tlvert[1].color = FontShades[a3][a4->a8].color.rgbcd;
-    tlvert[2].color = FontShades[a3][a4->a9].color.rgbcd;
-    tlvert[3].color = FontShades[a3][a4->a9].color.rgbcd;
+	tlvert[0].color = FontShades[colourFlag][a4->a8].color.rgbcd;
+	tlvert[1].color = FontShades[colourFlag][a4->a8].color.rgbcd;
+    tlvert[2].color = FontShades[colourFlag][a4->a9].color.rgbcd;
+    tlvert[3].color = FontShades[colourFlag][a4->a9].color.rgbcd;
 
-	tlvert[0].specular = FontShades[a3][a4->a8].specular.rgbcd;
-	tlvert[1].specular = FontShades[a3][a4->a8].specular.rgbcd;
-	tlvert[2].specular = FontShades[a3][a4->a9].specular.rgbcd;
-	tlvert[3].specular = FontShades[a3][a4->a9].specular.rgbcd;
+	tlvert[0].specular = FontShades[colourFlag][a4->a8].specular.rgbcd;
+	tlvert[1].specular = FontShades[colourFlag][a4->a8].specular.rgbcd;
+	tlvert[2].specular = FontShades[colourFlag][a4->a9].specular.rgbcd;
+	tlvert[3].specular = FontShades[colourFlag][a4->a9].specular.rgbcd;
 
 	OBJECT_TEXTURE tex;
 	
