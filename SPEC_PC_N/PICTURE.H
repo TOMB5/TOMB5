@@ -18,6 +18,8 @@
 	void CreateMonoScreen();
 	void DrawMonoScreen();
 	void RemoveMonoScreen(int);
+	void FreeMonoScreen();
+	void DisplayMonoScreen();
 
 	extern DXTEXTURE PicTextureList[];
 
