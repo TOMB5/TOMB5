@@ -219,6 +219,7 @@ void updateAnimFrame(struct PACKNODE* node, int flags, short* frame)//91030(<) (
 			a2++;
 			if (at)
 			{
+				at = 0;
 				v0 += cutrot << 8;
 				v0 &= 0x3FF;
 			}//loc_910E0
