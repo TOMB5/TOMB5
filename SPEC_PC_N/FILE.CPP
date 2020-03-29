@@ -325,7 +325,7 @@ int numLvlMeshes;
 		Log(LT_Enter, "LoadTextures");
 
 		//dword_875144 = level_data;
-		num_pages = 0;
+		num_pages = 0; // TODO: this is 1 in original
 
 		int depth_bis = 0;
 		int depth = 4;
@@ -1490,7 +1490,7 @@ int numLvlMeshes;
 
 		FreeLevel();
 		
-		num_pages = 0;
+		num_pages = 0;// TODO: this is 1 in original
 		//
 		fp_level = FileOpen((char*)filename);
 
