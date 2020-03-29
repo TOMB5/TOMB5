@@ -229,6 +229,7 @@ extern int IsRoomOutside(long x, long y, long z);
 #endif
 extern int LOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 #if PC_VERSION
+extern void UpdatePulseColour();
 extern short GetDoor(struct FLOOR_INFO* floor);
 extern int xLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
 extern int zLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target);
