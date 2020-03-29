@@ -2421,6 +2421,7 @@ void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int noden
 	unsigned short dat;
 	MatrixThing arse;
 	
+#if 0
 	for(i = 0; shootdata[i] != -1; i++)
 	{
 		dat = shootdata[i];
@@ -2436,6 +2437,7 @@ void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int noden
 			               (GetRandomControl() & 0x3F));
 		}
 	}
+#endif
 }
 
 void stealth3_end()//2E99C, 2ECA8 (F)
