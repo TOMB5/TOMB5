@@ -34,6 +34,8 @@
 #include <zlib.h>
 #include "CONTROL.H"
 #include "EFFECTS.H"
+#include "SAVEGAME.H"
+#include "PICTURE.H"
 
 #if DEBUG
 #pragma comment(lib, "zlibstaticd.lib")
@@ -929,16 +931,58 @@ int S_LoadSave(int input, int in_inventory)
 	return 0;
 }
 
-int S_DisplayPauseMenu(int a1)
+DWORD dword_51CF20 = 0;
+DWORD dword_8FBDB8;
+DWORD dword_8FBDBC;
+int S_PauseMenu()
 {
-	Unimpl(); 
-	return 0;
-}
+	int v1; // esi
 
-	int S_PauseMenu()
-{
-	Unimpl();
-	return 0;
+	signed int v0 = 0;
+	CreateMonoScreen();
+	S_DisplayPauseMenu(1);
+	dword_51CF20 = 1;
+	dword_8FBDBC = 1;
+	do
+	{
+		GPU_BeginScene();
+		if (v0)
+			dbinput = 0;
+		else
+			S_UpdateInput();
+		SetDebounce = 1;
+		DisplayMonoScreen();
+		v1 = S_DisplayPauseMenu(0);
+		UpdatePulseColour();
+		S_OutputPolyList();
+		S_DumpScreen();
+		
+		if (v1 == 1)
+			break;
+		if (v1 == 8)
+		{
+			v0 = 8;
+			v1 = 0;
+			SetFade(0, 255);
+		}
+		else if (!v0)
+		{
+			continue;
+		}
+		if (dword_C87BF0 == 2)
+		{
+			v1 = v0;
+			break;
+		}
+	} while (!thread_started);
+	
+	dword_8FBDBC = 0;
+	
+	TIME_Init();
+	FreeMonoScreen();
+
+	dword_51CF20 = 0;
+	return v1;
 }
 
 void S_DrawAirBar(int size)// (F)
@@ -1130,11 +1174,11 @@ enum
 };
 
 DWORD selected_menu_prev = 0;
+DWORD selected_menu = 1;
 DWORD dword_51CE44 = 0;
 DWORD dword_51CE0C = 0;
 DWORD unk_51CE3C = 0;
 DWORD dword_51CE40 = 0;
-DWORD selected_menu = 1;
 DWORD qword_5082F4 = 1;
 DWORD dword_51CE50 = 0;
 DWORD unk_51CE2A = 0;
@@ -1560,6 +1604,178 @@ void PlayFmvNow(int num)
 		break;
 	}
 }
+
+void DoStatScreen()
+{
+	const DWORD y = phd_centery - 4 * font_height;
+	PrintString(
+		phd_centerx,
+		y,
+		6u,
+		&gfStringWad[gfStringOffset[STR_STATISTICS]],
+		FF_CENTER);
+	PrintString(
+		phd_centerx,
+		y + 2 * font_height,
+		2u,
+		&gfStringWad[gfStringOffset[gfLevelNames[gfCurrentLevel]]],
+		FF_CENTER);
+	PrintString(
+		phd_centerx >> 2,
+		y + 2 * font_height + font_height,
+		2u,
+		&gfStringWad[gfStringOffset[STR_TIME_TAKEN]],
+		FF_NONE);
+	PrintString(
+		phd_centerx >> 2,
+		y + 4 * font_height,
+		2u,
+		&gfStringWad[gfStringOffset[STR_DISTANCE_TRAVELLED]],
+		FF_NONE);
+	PrintString(
+		phd_centerx >> 2,
+		y + 5 * font_height,
+		2u,
+		&gfStringWad[gfStringOffset[STR_AMMO_USED]],
+		FF_NONE);
+	PrintString(
+		phd_centerx >> 2,
+		y + 6 * font_height,
+		2u,
+		&gfStringWad[gfStringOffset[STR_HEALTH_PACKS_USED]],
+		FF_NONE);
+	PrintString(
+		phd_centerx >> 2,
+		y + 7 * font_height,
+		2u,
+		&gfStringWad[gfStringOffset[STR_SECRETS_FOUND]],
+		FF_NONE);
+	char string[40]; // [esp+8h] [ebp-28h]
+	const auto total_sec = GameTimer / 30;
+	const auto seconds = total_sec % 60;
+	const auto minutes = (total_sec / 60) % 60;
+	const auto hours = total_sec / 3600;
+	sprintf(
+		string,
+		"%02d:%02d:%02d", hours, minutes, seconds);
+	PrintString(phd_centerx + (phd_centerx >> 2), y + 2 * font_height + font_height, 6u, string, FF_NONE);
+	sprintf(string, "%dm", savegame.Game.Distance / 419);
+	PrintString(phd_centerx + (phd_centerx >> 2), y + 4 * font_height, 6u, string, FF_NONE);
+	sprintf(string, "%d", savegame.Game.AmmoUsed);
+	PrintString(phd_centerx + (phd_centerx >> 2), y + 4 * font_height + font_height, 6u, string, FF_NONE);
+	sprintf(string, "%d", savegame.Game.HealthUsed);
+	PrintString(phd_centerx + (phd_centerx >> 2), y + 6 * font_height, 6u, string, FF_NONE);
+	sprintf(string, "%d / 36", savegame.Game.Secrets);
+	PrintString(phd_centerx + (phd_centerx >> 2), y + 7 * font_height, 6u, string, FF_NONE);
+}
+
+int S_DisplayPauseMenu(int a1)
+{
+	static int selected_menu_pause = 1;
+
+	if (dword_8FBDB8)
+	{
+		if (dword_8FBDB8 == 1)
+		{
+			DoOptions();
+
+			if (!(dbinput & IN_DESELECT))
+				return 0;
+		}
+		else
+		{
+			if (dword_8FBDB8 != 2)
+				return 0;
+
+			DoStatScreen();
+
+			if (!(dbinput & IN_DESELECT))
+				return 0;
+		}
+
+		dword_8FBDB8 = 0;
+		SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
+
+		return 0;
+	}
+
+	if (a1)
+	{
+		selected_menu_pause = a1;
+		dword_8FBDB8 = 0;
+		return 0;
+	}
+
+	unsigned __int16 v2 = phd_centery - font_height;
+	PrintString(
+		phd_centerx,
+		v2 - (3 * font_height >> 1),
+		6u,
+		&gfStringWad[gfStringOffset[STR_PAUSED]],
+		FF_CENTER);
+	PrintString(
+		phd_centerx,
+		v2,
+		2 - ((selected_menu_pause & 1) != 0),
+		&gfStringWad[gfStringOffset[STR_STATISTICS]],
+		FF_CENTER);
+	PrintString(
+		phd_centerx,
+		v2 + font_height,
+		2 - ((selected_menu_pause & 2) != 0),
+		&gfStringWad[gfStringOffset[STR_OPTIONS]],
+		FF_CENTER);
+	PrintString(
+		phd_centerx,
+		v2 + 2 * font_height,
+		2 - ((selected_menu_pause & 4) != 0),
+		&gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]],
+		FF_CENTER);
+
+	if (dbinput & IN_FORWARD)                   // UP
+	{
+		if (selected_menu_pause > 1)
+			selected_menu_pause >>= 1;
+		SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
+	}
+
+	if (dbinput & IN_BACK)                           // DOWN
+	{
+		if (selected_menu_pause < 4)
+			selected_menu_pause <<= 1;
+
+		SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
+	}
+
+	if (dbinput & IN_DESELECT)
+	{
+		SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
+		return 1;
+	}
+
+	if (dbinput & IN_SELECT && !keymap[DIK_LMENU])
+	{
+		SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
+
+		if (selected_menu_pause & 1)
+		{
+			dword_8FBDB8 = 2;
+			return 0;
+		}
+
+		if (selected_menu_pause & 2)
+		{
+			dword_8FBDB8 = 1;
+			return 0;
+		}
+
+		if (selected_menu_pause & 4)
+			return 8;
+	}
+
+	return 0;
+}
+
 
 void WadeSplash(struct ITEM_INFO* item, int water_height, int water_depth)
 {
