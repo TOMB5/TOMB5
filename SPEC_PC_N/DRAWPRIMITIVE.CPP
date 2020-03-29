@@ -1575,7 +1575,7 @@ void GetRoomBounds()// (F)
 		if (r->test_bottom > r->bottom)
 			r->bottom = r->test_bottom;
 
-		//if (!(r->bound_active & 1))
+		if (!(r->bound_active & 1))
 		{
 			Log(LT_Enter, "GetRoomBounds - adding room %d", current);
 			draw_rooms[number_draw_rooms++] = current;
@@ -2132,13 +2132,13 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 			}
 		}
 
-		BYTE vr = (vert->Colour >> 16) & 0xFF;
-		BYTE vg = (vert->Colour >>  8) & 0xFF;
-		BYTE vb = (vert->Colour >>  0) & 0xFF;
+		BYTE vr = RGB_GETRED(vert->Colour);
+		BYTE vg = RGB_GETGREEN(vert->Colour);
+		BYTE vb = RGB_GETBLUE(vert->Colour);
 
 		int mr = vr + r * 255;
-		int mg = vr + g * 255;
-		int mb = vr + b * 255;
+		int mg = vg + g * 255;
+		int mb = vb + b * 255;
 
 		if (dword_7EE0C8)
 		{
@@ -2164,9 +2164,9 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 
 			int fix2 = WaterTable[0][fix].shimmer + WaterTable[0][fix].abs;
 
-			mr += fix;
-			mg += fix;
-			mb += fix;
+			mr += fix2;
+			mg += fix2;
+			mb += fix2;
 		}
 
 		if (oz > (double)flt_511A5C)
