@@ -787,7 +787,7 @@ void DrawPsxTile(long a1, long a2, long a3)
 void DoScreenFade()
 {
 	dword_C86BE8 += dword_C713D4;
-	if (dword_C713DC >= 8)
+	if (++dword_C713DC >= 8)
 		dword_C87BF0 = 2;
 
 	d9ab34[0] = 0;
@@ -1200,13 +1200,14 @@ int TitleOptions()
 	{
 		if (dword_C87BF0 == 2)
 		{
+			gfLevelComplete = dword_51CE0C;
 			dword_51CE0C = 0;
+			int res = dword_51CE44;
 			dword_51CE44 = 0;
 			unk_51CE3C = 0;
-			dword_51CE40 = 0;
-			gfLevelComplete = dword_51CE0C;
+			dword_51CE40 = 0;		
 			selected_menu = 1;
-			return dword_51CE44;
+			return res;
 		}
 		input = 0;
 		dbinput = 0;
