@@ -5,172 +5,164 @@
 #include "MATHS.H"
 #include "SETUP.H"
 #include "SPECIFIC.H"
+#include "DRAWOBJ.H"
 
 void DrawCutSeqActors()//90DCC(<),
 {
-	struct NEW_CUTSCENE* cut;//$s3
+	//s3 = GLOBAL_cutme
+	//s0 = meshes
+	//v0 = GLOBAL_cutme->numactors
+	struct object_info* object = NULL;//$s4
+	int s6 = 1;
+	short** meshp = NULL;//$s1
+	long* bone = NULL;//$s2
+	short* rotation1 = NULL;//0x48+var_38
+	int s4 = 0;
+	int s5 = 0;
 
-	cut = &GLOBAL_cutme[0];
-	//a0 = meshes
-	//v0 = cut->numactors
-	//s6 = 1
-
-	if (1 < cut->numactors)
+	if (s6 < GLOBAL_cutme->numactors)
 	{
 		mPushMatrix();
 
 		//loc_90E1C
-		mPushMatrix();
-
-		//v1 = 1 << 2
-		//s7 = cutseq_meshbits[1];//$v1 shft
-		//fp = cutseq_meshswapbits[1];//$v1 shft
-		//v0 = 0x80000000 & cutseq_meshbits[1];
-
-		if (0x80000000 & cutseq_meshbits[1])
+		do
 		{
-			//v0 = &actor_pnodes[1];//$v1 shft
+			mPushMatrix();
+			//v1 = s6 << 2
+			//s7 = &cutseq_meshbits[s6];
+			//fp = &cutseq_meshswapbits[s6];
+			//s7 = cutseq_meshbits[s6];
+			//fp = cutseq_meshswapbits[s6];
+			//v0 = 0x80000000
 
-			//v1 = 1 << 3
-			//v1 = &cut[2];
-			sizeof(struct NEW_CUTSCENE);
-		}//loc_90FDC
-	}//loc_91000
+			if (0x80000000 & cutseq_meshbits[s6])
+			{
+				//v0 = actor_pnodes[s6]
+				//a1 = GLOBAL_cutme->actor_data[s6].nodes
+				//a0 = actor_pnodes[s6].
+				updateAnimFrame(actor_pnodes[s6], 1, temp_rotation_buffer);
+				//v1 = GLOBAL_cutme->actor_data[s6].objslot
+				//a0 = GLOBAL_cutme->orgx
+				//a1 = GLOBAL_cutme->orgy
+				//a2 = GLOBAL_cutme->orgz
+				//v0 = &objects[0];
+				object = &objects[GLOBAL_cutme->actor_data[s6].objslot];
+				mTranslateAbsXYZ(GLOBAL_cutme->orgx, GLOBAL_cutme->orgy, GLOBAL_cutme->orgz);
+				//CalcActorLighting();
+				//v0 = object->mesh_index
+				//v1 = object->bone_index
+				meshp = &meshes[object->mesh_index];
+				//v0 = bones
+				//a2 = temp_rotation_buffer
+				bone = &bones[object->bone_index];
+				mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
+				rotation1 = &temp_rotation_buffer[9];
+				mRotSuperPackedYXZ(&rotation1, 0);
 
-#if 0
-addu    $v1, $s3, $v1
-lh      $a1, 0x1E($v1)
-lw      $a0, 0($v0)
-li      $a2, 0xA60FC
-jal     sub_91030
-addiu   $a1, 1
-sll     $v1, $s6, 3
-addu    $v1, $s3, $v1
-lh      $v1, 0x1C($v1)
-lw      $a0, 4($s3)
-lw      $a1, 8($s3)
-lw      $a2, 0xC($s3)
-li      $v0, 0x1F2480
-sll     $v1, 6
-jal     sub_76568
-addu    $s4, $v1, $v0
-jal     sub_91110
-nop
-lh      $v0, 2($s4)
-lw      $v1, 4($s4)
-sll     $v0, 2
-addu    $s1, $s0, $v0
-lw      $v0, 0x2030($gp)
-sll     $v1, 2
-li      $a2, 0xA60FC
-lh      $a0, 0xC($a2)
-lh      $a1, 0xE($a2)
-lh      $a2, 0x10($a2)
-jal     sub_7658C
-addu    $s2, $v0, $v1
-addiu   $a0, $sp, 0x48+var_38
-move    $a1, $zero
-li      $v0, 0xA610E
-jal     sub_768BC
-sw      $v0, 0x48+var_38($sp)
-andi    $v0, $s7, 1
-beqz    $v0, loc_90F3C
-andi    $v0, $fp, 1
-beqz    $v0, loc_90F1C
-lw      $a0, 0($s1)
-lw      $a0, 4($s1)
+				if ((cutseq_meshbits[s6] & 1))
+				{
+					if ((cutseq_meshswapbits[s6] & 1))
+					{
+						//a0 = meshp[1];
+						if (s6 - 1 == 0)
+						{
+							phd_PutPolygons_seethrough(meshp[1], cut_seethrough);
+						}
+						else
+						{
+							phd_PutPolygons(meshp[0], -1);
+						}
+					}
+					else
+					{
+						//loc_90F1C
+						//a0 = meshp[0];
+						if (s6 - 1 == 0)
+						{
+							phd_PutPolygons_seethrough(meshp[0], cut_seethrough);
+						}
+						else
+						{
+							phd_PutPolygons(meshp[0], -1);
+						}
+					}
+				}//loc_90F3C
 
-loc_90F1C:
-addiu   $at, $s6, -1
-bnez    $at, loc_90F34
-nop
-lw      $a1, 0x410($gp)
-jal     sub_7FAD4
-addiu   $ra, 8
+				s5 = 1;
+				meshp += 2;
+				s4 = object->nmeshes;
+				s4--;
+				if (s4 <= 0)
+				{
+					//loc_90FDC
+					break;
+				}
 
-loc_90F34:
-jal     sub_7EEC4
-li      $a1, 0xFFFFFFFF
+				//loc_90F50
+				do
+				{
+					//a1 = bone[0];
+					s4--;
 
-loc_90F3C:
-lh      $s4, 0($s4)
-li      $s5, 1
-addiu   $s4, -1
-blez    $s4, loc_90FDC
-addiu   $s1, 8
+					if ((*bone & 1))
+					{
+						mPopMatrix();
+					}
 
-loc_90F50:
-lw      $a1, 0($s2)
-addiu   $s4, -1
-andi    $v0, $a1, 1
-beqz    $v0, loc_90F6C
-andi    $a1, 2
-jal     sub_76520
-nop
+					s5 <<= 1;
+					if ((*bone & 2))
+					{
+						mPushMatrix();
+					}
 
-loc_90F6C:
-beqz    $a1, loc_90F7C
-sll     $s5, 1
-jal     sub_764D0
-nop
+					//loc_90F7C
+					mTranslateXYZ(bone[1], bone[2], bone[3]);
+					mRotSuperPackedYXZ(&rotation1, 0);
 
-loc_90F7C:
-lw      $a0, 4($s2)
-lw      $a1, 8($s2)
-jal     sub_7658C
-lw      $a2, 0xC($s2)
-addiu   $a0, $sp, 0x48+var_38
-jal     sub_768BC
-move    $a1, $zero
-and     $v0, $s5, $s7
-beqz    $v0, loc_90FD0
-and     $v0, $s5, $fp
-beqz    $v0, loc_90FB0
-lw      $a0, 0($s1)
-lw      $a0, 4($s1)
+					if (s5 & cutseq_meshbits[s6])
+					{
+						if (s5 & cutseq_meshswapbits[s6])
+						{
+							//loc_90FB0
+							if (s6 - 1 == 0)
+							{
+								phd_PutPolygons_seethrough(meshp[1], cut_seethrough);
+							}
+							else
+							{
+								//loc_90FC8
+								phd_PutPolygons(meshp[1], -1);
+							}
+						}
+						else
+						{
+							//loc_90FB0
+							if (s6 - 1 == 0)
+							{
+								phd_PutPolygons_seethrough(meshp[0], cut_seethrough);
+							}
+							else
+							{
+								//loc_90FC8
+								phd_PutPolygons(meshp[0], -1);
+							}
+						}
 
-loc_90FB0:
-addiu   $at, $s6, -1
-bnez    $at, loc_90FC8
-nop
-lw      $a1, 0x410($gp)
-jal     sub_7FAD4
-addiu   $ra, 8
+					}
+					//loc_90FD0
+					bone += 4;
+					meshp += 2;
+				} while (s4 != 0);
+			}
+			//loc_90FDC
+			mPopMatrix();
+			//v1 = 
+			s6++;
+		} while (s6 < GLOBAL_cutme->numactors);
 
-loc_90FC8:
-jal     sub_7EEC4
-li      $a1, 0xFFFFFFFF
-
-loc_90FD0:
-addiu   $s2, 0x10
-bnez    $s4, loc_90F50
-addiu   $s1, 8
-
-loc_90FDC:
-jal     sub_76520
-nop
-lh      $v1, 0($s3)
-addiu   $s6, 1
-slt     $v1, $s6, $v1
-bnez    $v1, loc_90E1C
-nop
-jal     sub_76520
-nop
-
-loc_91000:
-lw      $ra, 0x48+var_4($sp)
-lw      $fp, 0x48+var_8($sp)
-lw      $s7, 0x48+var_C($sp)
-lw      $s6, 0x48+var_10($sp)
-lw      $s5, 0x48+var_14($sp)
-lw      $s4, 0x48+var_18($sp)
-lw      $s3, 0x48+var_1C($sp)
-lw      $s2, 0x48+var_20($sp)
-lw      $s1, 0x48+var_24($sp)
-lw      $s0, 0x48+var_28($sp)
-jr      $ra
-addiu   $sp, 0x48
-#endif
+		mPopMatrix();
+	}
+	//loc_91000
 }
 
 void updateAnimFrame(struct PACKNODE* node, int flags, short* frame)//91030(<) (F)
