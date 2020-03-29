@@ -42,6 +42,7 @@
 #elif PSX_VERSION || PSXPC_VERSION
 #include "DELTAPAK_S.H"
 #include "PSXINPUT.H"
+#include "LIGHT.H"
 #endif
 
 #include "CD.H"
@@ -3430,7 +3431,25 @@ void cutseq_givelara_pistols()//2D2A0(<), 2D588(<) (F)
 
 void CalculateObjectLightingLaraCutSeq()
 {
-	UNIMPLEMENTED();
+	short room_no; // $s0
+	struct PHD_VECTOR pos; // stack offset -24
+
+	pos.x = 0;
+	pos.y = 0;
+	pos.z = 0;
+
+	GetLaraJointPos(&pos, LJ_TORSO);
+
+	room_no = lara_item->room_number;
+	IsRoomOutsideNo = -1;
+	IsRoomOutside(pos.x, pos.y, pos.z);
+	if (IsRoomOutsideNo != -1)
+	{
+		room_no = IsRoomOutsideNo;
+	}
+
+	//loc_2D270
+	S_CalculateLight(pos.x, pos.y, pos.z, room_no, &lara_item->il);
 }
 
 void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
