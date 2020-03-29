@@ -1083,7 +1083,7 @@ const char* gte_shader =
 	"   void main() {\n"
 	"		vec2 uv = (v_texcoord * vec2(0.25, 1.0) + PageClut.xy) * vec2(1.0 / 1024.0, 1.0 / 512.0);\n"
 	"		vec2 comp = texture2D(s_texture, uv).rg;\n"
-	"		int index = int(fract(v_texcoord.x / 4.0 + (0.5 / 255.0)) * 4.0);\n"
+	"		int index = int(fract(v_texcoord.x / 4.0 + 0.0001) * 4.0);\n"
 	"\n"
 	"		float v = comp[index / 2] * (255.0 / 16.0);\n"
 	"		float f = floor(v);\n"
@@ -1191,6 +1191,10 @@ ShaderID Shader_Compile(const char *source)
     glAttachShader(program, fragmentShader);
     glDeleteShader(fragmentShader);
 
+    glBindAttribLocation(program, a_position, "a_position");
+    glBindAttribLocation(program, a_texcoord, "a_texcoord");
+    glBindAttribLocation(program, a_color,    "a_color");
+
     glLinkProgram(program);
     Shader_CheckProgramStatus(program);
 
@@ -1198,10 +1202,6 @@ ShaderID Shader_Compile(const char *source)
     glUseProgram(program);
     glUniform1iv(glGetUniformLocation(program, "s_texture"), 1, &sampler);
     glUseProgram(0);
-
-    glBindAttribLocation(program, a_position, "a_position");
-    glBindAttribLocation(program, a_texcoord, "a_texcoord");
-    glBindAttribLocation(program, a_color,    "a_color");
 
     return program;
 }
