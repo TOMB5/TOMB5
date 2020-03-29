@@ -43,6 +43,9 @@
 #include "DELTAPAK_S.H"
 #include "PSXINPUT.H"
 #endif
+#if PSXPC_TEST
+#include "TITSEQ.H"
+#endif
 #include "CD.H"
 #include "BUBBLES.H"
 #include "TYPEDEFS.H"
@@ -2289,11 +2292,18 @@ void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* p
 	TriggerBlood(pos->x, pos->y, pos->z, direction >> 4, speed);
 }
 
-void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR* vec)
+void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR* vec)//2EC80(<)
 {
-	int i;
-	long* bone;
+	int i; // $s3
+	int poppush; // $s0
+	struct object_info* object; // $a3
+	long* bone; // $s2
+	short* rotation1; // stack offset -48
+	short* frame; // $s0
+	struct ITEM_INFO* item; // $s5
+	struct MATRIX3D* old; // $s7
 
+#if 0
 	mPushMatrix();
 	updateAnimFrame(actor_pnodes[actornum], GLOBAL_cutme->actor_data[actornum].nodes + 1, temp_rotation_buffer);
 	mPushUnitMatrix();
@@ -2333,6 +2343,7 @@ void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VE
 	mPopMatrix();
 #else
 	mCopyMatrix(Matrix);
+#endif
 #endif
 }
 
@@ -2679,8 +2690,10 @@ void special2_init()//2E674(<), 2E980(<) (F)
 
 void special1_end()//2E644(<), 2E950(<) (F) (*)
 {
-#if PSX_VERSION && !PSXPC_TEST
-	((VOIDFUNCVOID*)RelocPtr[13][4])();
+#if PSXPC_TEST
+	titseq_special1_end();
+#elif PSX_VERSION
+	((VOIDFUNCVOID*)RelocPtr[MOD_TITSEQ][4])();
 #else
 	UNIMPLEMENTED();
 #endif
@@ -2689,7 +2702,7 @@ void special1_end()//2E644(<), 2E950(<) (F) (*)
 void special1_control()//2E614(<), 2E920(<) (F) (*)
 {
 #if PSX_VERSION && !PSXPC_TEST
-	((VOIDFUNCVOID*)RelocPtr[13][3])();
+	((VOIDFUNCVOID*)RelocPtr[MOD_TITSEQ][3])();
 #else
 	UNIMPLEMENTED();
 #endif
