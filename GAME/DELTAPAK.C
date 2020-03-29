@@ -43,9 +43,7 @@
 #include "DELTAPAK_S.H"
 #include "PSXINPUT.H"
 #endif
-#if PSXPC_TEST
-#include "TITSEQ.H"
-#endif
+
 #include "CD.H"
 #include "BUBBLES.H"
 #include "TYPEDEFS.H"
@@ -74,6 +72,11 @@
 
 #include <LIBSN.H>
 #include "COLLIDE_S.H"
+
+#if PSXPC_TEST
+#include "TITSEQ.H"
+#include "GTEREG.H"
+#endif
 
 #endif
 
@@ -2292,7 +2295,7 @@ void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* p
 	TriggerBlood(pos->x, pos->y, pos->z, direction >> 4, speed);
 }
 
-void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR* vec)//2EC80(<)
+void GetActorJointAbsPosition(int actornum /*s1*/, unsigned long nodenum /*s6*/, struct PHD_VECTOR* vec/*s4*/)//2EC80(<) (F)
 {
 	int i; // $s3
 	int poppush; // $s0
@@ -2301,49 +2304,70 @@ void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VE
 	short* rotation1; // stack offset -48
 	short* frame; // $s0
 	struct ITEM_INFO* item; // $s5
-	struct MATRIX3D* old; // $s7
 
-#if 0
-	mPushMatrix();
+#if PSX_VERSION
+	struct MATRIX3D* old; // $s7
+	old = Matrix;
+#endif
+
 	updateAnimFrame(actor_pnodes[actornum], GLOBAL_cutme->actor_data[actornum].nodes + 1, temp_rotation_buffer);
 	mPushUnitMatrix();
 	mSetTrans(0, 0, 0);
-	mRotYXZ(duff_item.pos.y_rot, duff_item.pos.x_rot, duff_item.pos.z_rot);
-	bone = &bones[objects[GLOBAL_cutme->actor_data[actornum].objslot].bone_index];
-	mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
-	mRotSuperPackedYXZ((short**)&temp_rotation_buffer[9], 0);
 
-	for (i = 0; i < nodenum; i++, bone += 4)
+	item = &duff_item;
+	mRotYXZ(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
+	object = &objects[GLOBAL_cutme->actor_data[actornum].objslot];
+	bone = &bones[object->bone_index];
+	mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
+	rotation1 = &temp_rotation_buffer[9];
+	mRotSuperPackedYXZ(&rotation1, 0);
+
+	for(i = 0; i < nodenum; i++, bone += 4)
 	{
-		if (*bone & 1)
+		//loc_2ED80
+		if ((*bone & 1))
 		{
 			mPopMatrix();
 		}
 
-		if (*bone & 2)
+		if ((*bone & 2))
 		{
 			mPushMatrix();
 		}
 
 		mTranslateXYZ(bone[1], bone[2], bone[3]);
-		mRotSuperPackedYXZ((short**)&temp_rotation_buffer[9], 0);
+		mRotSuperPackedYXZ(&rotation1, 0);
 	}
-
+	//loc_2EDE0
 	mTranslateXYZ(vec->x, vec->y, vec->z);
-#if PSXPC_TEST || PC_VERSION
+#if PSXPC_TEST
+	vec->x = TRX;
+	vec->y = TRY;
+	vec->z = TRZ;
+#elif PSX_VERSION
+	assert(0);//Unimplemented
+	/*
+	cfc2    $t4, $5
+	cfc2    $t5, $6
+	cfc2    $t6, $7
+	sw      $t4, 0($s4)
+	sw      $t5, 4($s4)
+	sw      $t6, 8($s4)
+	*/
+#elif PC_VERSION
 	gte_sttr(vec);
 #endif
 
-	vec->x += duff_item.pos.x_pos;
-	vec->y += duff_item.pos.y_pos;
-	vec->z += duff_item.pos.z_pos;
+	vec->x += item->pos.x_pos;
+	vec->y += item->pos.y_pos;
+	vec->z += item->pos.z_pos;
 
 #if PC_VERSION
 	mPopMatrix();
 	mPopMatrix();
-#else
-	mCopyMatrix(Matrix);
-#endif
+#elif PSX_VERSION
+	Matrix = old;
+	mCopyMatrix(old);
 #endif
 }
 
