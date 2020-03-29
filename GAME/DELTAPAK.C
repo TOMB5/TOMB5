@@ -39,8 +39,9 @@
 #include "DRAWPHAS.H"
 #if SAT_VERSION
 #include "SDELTAPA.H"
-#else
+#elif PSX_VERSION || PSXPC_VERSION
 #include "DELTAPAK_S.H"
+#include "PSXINPUT.H"
 #endif
 #include "CD.H"
 #include "BUBBLES.H"
@@ -2678,7 +2679,7 @@ void special2_init()//2E674(<), 2E980(<) (F)
 
 void special1_end()//2E644(<), 2E950(<) (F) (*)
 {
-#if PSX_VERSION
+#if PSX_VERSION && !PSXPC_TEST
 	((VOIDFUNCVOID*)RelocPtr[13][4])();
 #else
 	UNIMPLEMENTED();
@@ -2687,7 +2688,7 @@ void special1_end()//2E644(<), 2E950(<) (F) (*)
 
 void special1_control()//2E614(<), 2E920(<) (F) (*)
 {
-#if PSX_VERSION
+#if PSX_VERSION && !PSXPC_TEST
 	((VOIDFUNCVOID*)RelocPtr[13][3])();
 #else
 	UNIMPLEMENTED();
@@ -3532,9 +3533,106 @@ void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* p
 }
 
 
-void do_new_cutscene_camera()
+void do_new_cutscene_camera()//2CA68(<), ? (F)
 {
-	UNIMPLEMENTED();
+	struct PACKNODE* nodes; // $a0
+	int n; // $s0
+
+	if (cutseq_control_routines[cutseq_num].control_func != NULL)
+	{
+		cutseq_control_routines[cutseq_num].control_func();
+	}
+
+	//loc_2CAB0
+	DecodeAnim(camera_pnodes, 2, GLOBAL_cutseq_frame, 0xFFFF);
+	nodes = camera_pnodes;
+	camera.target.y = nodes[0].yrot_run << 1;
+	camera.pos.y = nodes[1].yrot_run << 1;
+
+	if (cutrot == 0)
+	{
+		camera.target.x = nodes[0].xrot_run << 1;
+		camera.target.z = nodes[0].zrot_run << 1;
+		camera.pos.x = nodes[1].xrot_run << 1;
+		camera.pos.z = nodes[1].zrot_run << 1;
+	}
+	else if (cutrot == 1)//v0 = 2
+	{
+		//loc_2CB40
+		camera.target.x = nodes[0].zrot_run << 1;
+		camera.target.z = -(nodes[0].xrot_run << 1);
+		camera.pos.x = nodes[1].zrot_run << 1;
+		camera.pos.z = -(nodes[1].xrot_run << 1);
+	}
+	else if (cutrot == 2)//v0 = 3
+	{
+		//loc_2CB9C
+		camera.target.x = -(nodes[0].xrot_run << 1);
+		camera.target.z = -(nodes[0].zrot_run << 1);
+		camera.pos.x = -(nodes[1].xrot_run << 1);
+		camera.pos.z = -(nodes[1].zrot_run << 1);
+	}
+	else if (cutrot == 3)
+	{
+		//loc_2CC00
+		camera.target.x = -(nodes[0].zrot_run << 1);
+		camera.target.z = nodes[0].xrot_run << 1;
+		camera.pos.x = -(nodes[1].zrot_run << 1);
+		camera.pos.z = nodes[1].xrot_run << 1;
+	}
+
+	//loc_2CC60
+	camera.target.x += GLOBAL_cutme->orgx;
+	camera.target.y += GLOBAL_cutme->orgy;
+	camera.target.z += GLOBAL_cutme->orgz;
+	camera.pos.x += GLOBAL_cutme->orgx;
+	camera.pos.y += GLOBAL_cutme->orgy;
+	camera.pos.z += GLOBAL_cutme->orgz;
+	IsRoomOutsideNo = -1;
+	IsRoomOutside(camera.pos.x, camera.pos.y, camera.pos.z);
+
+	if (IsRoomOutsideNo != -1)
+	{
+		camera.pos.room_number = IsRoomOutsideNo;
+	}
+
+	//loc_2CD40
+	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
+	mQuickW2VMatrix();
+
+	if (GLOBAL_cutme->actor_data[0].objslot != -1)
+	{
+		DecodeAnim(actor_pnodes[0], 16, GLOBAL_cutseq_frame, 0x3FF);
+	}
+	//loc_2CDB0
+	for (n = 1; n < GLOBAL_cutme->numactors; n++)
+	{
+		//loc_2CDD0
+		DecodeAnim(actor_pnodes[n], GLOBAL_cutme->actor_data[n].nodes, GLOBAL_cutseq_frame, 0x3FF);
+	}
+	//loc_2CE0C
+	++GLOBAL_cutseq_frame;//$v1
+
+	if (GLOBAL_numcutseq_frames - 8 < GLOBAL_cutseq_frame)
+	{
+		if (cutseq_trig == 2)
+		{
+			cutseq_trig = 3;
+		}
+	}
+	else
+	{
+		//loc_2CE3C
+		if (gfCurrentLevel == LVL5_TITLE && !bDoCredits && (RawEdge & (IN_A | IN_RIGHT | IN_FORWARD)) && cutseq_trig == 2 && ScreenFading == 0)
+		{
+			cutseq_trig = 3;
+		}
+	}
+	//loc_2CEA4
+	if (GLOBAL_numcutseq_frames < GLOBAL_cutseq_frame)
+	{
+		GLOBAL_cutseq_frame = GLOBAL_numcutseq_frames;
+	}
 }
 
 void handle_cutseq_triggering(int name)//2C3C4(<), 2C6EC(<) (F)
