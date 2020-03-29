@@ -248,130 +248,82 @@ int GetTrackWord(unsigned long off, char* packed, unsigned char packmethod)
 	return v0;
 }
 
-void DecodeTrack(char* packed, struct RTDECODE* decode)//90BD8(<), ?
+int DecodeTrack(char* packed, struct RTDECODE* decode)//90BD8(<), ?
 {
-	//v0 = decode->decodetype
-	//a3 = decode
-	//t1 = packed
+	int t0 = 0;
+	int v0 = 0;
 
 	if (decode->decodetype == 0)
 	{
-		//a0 = decode->off
-		//a2 = decode->packmethod
-		//a1 = packed
-		//GetTrackWord(decode->off, packed, decode->packmethod);
+		t0 = GetTrackWord(decode->off, packed, decode->packmethod);
 
-	}//loc_90CD0
+		if (!(t0 & 0x20))
+		{
+			decode->decodetype = 2;
 
-#if 0
-jal     sub_90D58
-move    $a1, $t1
-move    $t0, $v0
-andi    $v0, $t0, 0x20
-bnez    $v0, loc_90CA0
-andi    $v0, $t0, 0xF
-li      $v0, 2
-sb      $v0, 0xC($a3)
-andi    $v0, $t0, 0x10
-beqz    $v0, loc_90C70
-move    $a1, $t1
-lw      $a0, 4($a3)
-lbu     $a2, 0xD($a3)
-jal     sub_90D58
-addiu   $a0, 1
-move    $a1, $t1
-andi    $v1, $t0, 7
-sll     $v1, 5
-andi    $v0, 0x1F
-or      $v1, $v0
-lbu     $a2, 0xD($a3)
-lw      $a0, 4($a3)
-sh      $v1, 8($a3)
-jal     sub_90D58
-addiu   $a0, 2
-sh      $v0, 0xA($a3)
-lw      $v0, 4($a3)
-lw      $v1, 0($a3)
-addiu   $v0, 3
-j       loc_90CC8
-addiu   $v1, -3
+			if ((t0 & 0x10))
+			{
+				GetTrackWord(decode->off + 1, packed, decode->packmethod);
+				decode->counter = ((t0 & 7) << 5) | (GetTrackWord(decode->off + 1, packed, decode->packmethod) & 0x1F);
+				decode->data = GetTrackWord(decode->off + 2, packed, decode->packmethod);
+				decode->off += 3;
+				decode->length -= 3;
+			}
+			else
+			{
+				//loc_90C70
+				decode->data = GetTrackWord(decode->off + 1, packed, decode->packmethod);
+				decode->counter = t0 & 0x7;
+				decode->off += 2;
+				decode->length -= 2;
+			}
+		}
+		else
+		{
+			//loc_90CA0
+			if (!(t0 & 0xF))
+			{
+				decode->counter = 16;
+			}
+			else
+			{
+				decode->counter = (t0 & 0xF);
+			}
 
-loc_90C70:
-lw      $a0, 4($a3)
-lbu     $a2, 0xD($a3)
-jal     sub_90D58
-addiu   $a0, 1
-sh      $v0, 0xA($a3)
-andi    $v0, $t0, 7
-sh      $v0, 8($a3)
-lw      $v0, 4($a3)
-lw      $v1, 0($a3)
-addiu   $v0, 2
-j       loc_90CC8
-addiu   $v1, -2
+			//loc_90CAC
+			decode->decodetype = 1;
+			decode->off += 1;
+			decode->length -= 1;
+		}
+	}
+	//loc_90CD0
+	if (decode->decodetype == 2)
+	{
+		if (--decode->counter == 0)
+		{
+			decode->decodetype = 0;
+		}
 
-loc_90CA0:
-bnez    $v0, loc_90CAC
-nop
-li      $v0, 0x10
+		//loc_90CFC
+		return decode->data;
+	}
 
-loc_90CAC:
-sh      $v0, 8($a3)
-li      $v0, 1
-sb      $v0, 0xC($a3)
-lw      $v0, 4($a3)
-lw      $v1, 0($a3)
-addiu   $v0, 1
-addiu   $v1, -1
+	//loc_90D08
+	v0 = GetTrackWord(decode->off, packed, decode->packmethod);
 
-loc_90CC8:
-sw      $v0, 4($a3)
-sw      $v1, 0($a3)
+	decode->counter -= 1;
+	decode->off += 1;
+	decode->length -= 1;
 
-loc_90CD0:
-lbu     $v1, 0xC($a3)
-li      $v0, 2
-bne     $v1, $v0, loc_90D08
-nop
-lhu     $v0, 8($a3)
-nop
-addiu   $v0, -1
-sh      $v0, 8($a3)
-bnez    $v0, loc_90CFC
-nop
-sb      $zero, 0xC($a3)
+	if (!(decode->counter & 0xFFFF))
+	{
+		decode->decodetype = 0;
+	}
+	//loc_90D48
+	v0 <<= 16;
+	v0 >>= 16;
 
-loc_90CFC:
-lh      $v0, 0xA($a3)
-j       loc_90D50
-nop
-
-loc_90D08:
-lw      $a0, 4($a3)
-lbu     $a2, 0xD($a3)
-jal     sub_90D58
-move    $a1, $t1
-lhu     $v1, 8($a3)
-lw      $a0, 4($a3)
-lw      $a1, 0($a3)
-addiu   $v1, -1
-addiu   $a0, 1
-addiu   $a1, -1
-sh      $v1, 8($a3)
-andi    $v1, 0xFFFF
-sw      $a0, 4($a3)
-bnez    $v1, loc_90D48
-sw      $a1, 0($a3)
-sb      $zero, 0xC($a3)
-
-loc_90D48:
-sll     $v0, 16
-sra     $v0, 16
-
-loc_90D50:
-jr      $t2
-nop
-#endif
+	return v0;
 }
 
 void DecodeAnim(struct PACKNODE* node, int a1, int frame, short a3)//90A88(<), ?
