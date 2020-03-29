@@ -980,10 +980,10 @@ void S_CDFade(int a1)// (F)
 	
 }
 
-int		S_StartSyncedAudio(int num)
+void	S_StartSyncedAudio(int num)// (F)
 {
-		Unimpl();
-		return 0;
+	S_CDStop();
+	S_CDPlay(num, 2);
 }
 
 LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *buf, void(*a5)(uchar *, uchar *, uchar *, uchar *), int bpp)
@@ -1205,7 +1205,8 @@ int TitleOptions()
 			int res = dword_51CE44;
 			dword_51CE44 = 0;
 			unk_51CE3C = 0;
-			dword_51CE40 = 0;		
+			dword_51CE40 = 0;
+		
 			selected_menu = 1;
 			return res;
 		}

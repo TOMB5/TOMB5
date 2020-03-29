@@ -24,7 +24,7 @@ extern "C" {
 	void		S_CDStop(void);
 	void		S_CDPause(void);
 	void		S_CDRestart(void);
-	int		S_StartSyncedAudio(int num);
+	void		S_StartSyncedAudio(int num);
 
 	extern void S_ExitSystem(char *message);
 
