@@ -986,3 +986,12 @@ void titseq_special1_end()
 	Chris_Menu = 0;
 	title_controls_locked_out = 0;
 }
+
+void titseq_special1_control()
+{
+	if (GLOBAL_cutseq_frame == 300)
+	{
+		FlipMap(0);
+		byte_28A = 1;
+	}
+}

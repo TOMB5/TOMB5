@@ -2727,8 +2727,12 @@ void special1_end()//2E644(<), 2E950(<) (F) (*)
 
 void special1_control()//2E614(<), 2E920(<) (F) (*)
 {
-#if PSX_VERSION && !PSXPC_TEST
+#if PSXPC_TEST
+	titseq_special1_control();
+#elif PSX_VERSION
 	((VOIDFUNCVOID*)RelocPtr[MOD_TITSEQ][3])();
+#elif PSXPC_TEST
+
 #else
 	UNIMPLEMENTED();
 #endif
