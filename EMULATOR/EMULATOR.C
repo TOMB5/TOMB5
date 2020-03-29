@@ -1275,8 +1275,6 @@ int Emulator_Initialise()
 	glEnable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 
-	glBlendColor(0.25f, 0.25f, 0.25f, 0.5f);
-
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1299,7 +1297,6 @@ int Emulator_Initialise()
 	glVertexAttribPointer(a_color,    4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(Vertex), &((Vertex*)NULL)->r);
 	glBindVertexArray(0);
 #elif defined(D3D9)
-	d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(64, 64, 64, 128));
 	d3ddev->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
 
 	if (FAILED(d3ddev->CreateTexture(VRAM_WIDTH, VRAM_HEIGHT, 1, 0, D3DFMT_A8L8, D3DPOOL_MANAGED, &vramTexture, NULL)))
@@ -2033,60 +2030,50 @@ void Emulator_SetBlendMode(int mode, int semiTransparent)
 			{
 			case BM_AVERAGE:
 #if defined(OGL) || defined(OGLES)
-				glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
-				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				glBlendColor(0.25f, 0.25f, 0.25f, 0.25f);
+				glBlendFunc(GL_CONSTANT_COLOR, GL_CONSTANT_COLOR);
+				glBlendEquation(GL_FUNC_ADD);
 #elif defined(D3D9)
+				d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(64, 64, 64, 64));
 				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
 				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_BLENDFACTOR);
-				d3ddev->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
-				d3ddev->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
-				d3ddev->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE);
 #endif
 				break;
 			case BM_ADD:
 #if defined(OGL) || defined(OGLES)
-				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
-				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				glBlendColor(0.5f, 0.5f, 0.5f, 0.5f);
+				glBlendFunc(GL_CONSTANT_COLOR, GL_ONE);
+				glBlendEquation(GL_FUNC_ADD);
 #elif defined(D3D9)
+				d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(128, 128, 128, 128));
 				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
-				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
 				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-				d3ddev->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
-				d3ddev->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
-				d3ddev->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE);
 #endif
 				break;
 			case BM_SUBTRACT:
 #if defined(OGL) || defined(OGLES)
-				glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
-				glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
+				glBlendColor(0.5f, 0.5f, 0.5f, 0.5f);
+				glBlendFunc(GL_CONSTANT_COLOR, GL_ONE);
+				glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
 #elif defined(D3D9)
+				d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(128, 128, 128, 128));
 				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_REVSUBTRACT);
-				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
 				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-				d3ddev->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
-				d3ddev->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
-				d3ddev->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE);
 #endif
 				break;
 			case BM_ADD_QUATER_SOURCE:
 #if defined(OGL) || defined(OGLES)
-				glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
-				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				glBlendColor(0.125f, 0.125f, 0.125f, 0.125f);
+				glBlendFunc(GL_CONSTANT_COLOR, GL_ONE);
+				glBlendEquation(GL_FUNC_ADD);
 #elif defined(D3D9)
+				d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(32, 32, 32, 32));
 				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
 				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-				d3ddev->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
-				d3ddev->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
-				d3ddev->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE);
-#endif
-				break;
-			default:
-#if defined(OGL) || defined(OGLES)
-				glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 #endif
 				break;
 			}
