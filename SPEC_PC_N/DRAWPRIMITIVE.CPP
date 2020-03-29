@@ -1131,11 +1131,11 @@ void do_quickysorty(int left, int right, dinfo_head* buffer[])// (F)
 	do
 	{
 		if (buffer[i]->z > compare)
-			while (buffer[i + 1]->z > compare && i < right)
+			while (i < right && buffer[i + 1]->z > compare)
 				i++;
 
 		if (compare > buffer[j]->z)
-			while (compare > buffer[j - 1]->z && j > left)
+			while (j > left && compare > buffer[j - 1]->z)
 				j--;
 
 		if (i <= j)
