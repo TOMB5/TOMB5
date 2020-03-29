@@ -666,7 +666,7 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 void Fade()//34B78(<), 35078(<) (F)
 {
 	int oldfucker; // $a1
-#if 1 && !PC_VERSION///@FIXME yet again this function is not working.
+#if PC_VERSION///@FIXME yet again this function is not working.
 	ScreenFading = 0;
 	return;
 #endif
