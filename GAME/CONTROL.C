@@ -20,6 +20,7 @@
 #include "EFFECTS.H"
 #include "EFFECT2.H"
 #if PC_VERSION
+#include "DISPLAY.H"
 	#include "GAME.H"
 	#include "FILE.H"
 #include "GLOBAL.H"
@@ -354,7 +355,25 @@ void UpdateLightning()
 
 void UpdatePulseColour()
 {
-	Unimpl();
+	unsigned int localPulseCnt = PulseCnt = (++PulseCnt & 0x1F);
+	if (localPulseCnt > 15)
+	{
+		localPulseCnt = -localPulseCnt;
+	}
+
+	for (int i = 0; i < 16; i++)
+	{
+		uint8_t r, g, b;
+		r = g = b = localPulseCnt << 3;
+		uint32_t c1, c2;
+		CalcColorSplit(RGB_MAKE(r, g, b), &c1, &c2);
+
+		c1 |= 0xFF000000;
+		c2 |= 0xFF000000;
+
+		FontShades[1][i].color.rgbcd = c1;
+		FontShades[1][i].specular.rgbcd = c2;
+	}
 }
 
 void KlaxonTremor()
