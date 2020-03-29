@@ -959,8 +959,8 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 #if PSX_VERSION
 	struct ITEM_INFO* item;
 	short* bounds;
-	int  tilt;
-	int  change;
+	short tilt;
+	short change;
 	long shift;
 	long fixed_camera;
 	long y;
