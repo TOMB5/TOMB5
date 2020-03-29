@@ -14,7 +14,7 @@ PSXPC_N:
  
  PC_N:
  <p align="center">
- <a href="#"><img src="https://i.imgur.com/Ic9zNAt.png"/></a>
+ <a href="#"><img src="https://i.imgur.com/g54Twxe.png"/></a>
  </p>
 
 | Platform  | Build State |
