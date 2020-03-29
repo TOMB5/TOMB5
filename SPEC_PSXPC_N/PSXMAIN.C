@@ -19,7 +19,7 @@
 #include <LIBETC.H>
 #include <LIBAPI.H>
 #include <EMULATOR_PRIVATE.H>
-#include "EMULATOR_PLATFORM_SETUP.H"
+#include <EMULATOR_PLATFORM_SETUP.H>
 
 int gp_start_address = 'T' | ('W' << 8) | ('A' << 16) | ('T' << 24);
 
