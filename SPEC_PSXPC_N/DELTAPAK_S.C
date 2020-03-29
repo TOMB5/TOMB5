@@ -173,49 +173,76 @@ addiu   $sp, 0x48
 #endif
 }
 
-void updateAnimFrame(struct PACKNODE* node, int flags, short* frame)// (F)
+void updateAnimFrame(struct PACKNODE* node, int flags, short* frame)//91030(<) (F)
 {
-	frame[7] = 3 * node->yrot_run;
+	int at = 0;
+	int v1 = 0;
+	int v0 = 0;
+	int a0 = 0;
+	int t0 = 0;
+	short* a3 = NULL;
+	struct PACKNODE* a2 = NULL;
 
-	short x = 3 * node->xrot_run;
-	short z = 3 * node->zrot_run;
+	frame[7] = (node->yrot_run << 1) + node->yrot_run;
 
-	switch (cutrot)
+	if (cutrot == 0)
 	{
-	case 0:
-		frame[6] = x;
-		frame[8] = z;
-		break;
-	case 1:
-		frame[6] = z;
-		frame[8] = -x;
-		break;
-	case 2:
-		frame[6] = -x;
-		frame[8] = -z;
-		break;
-	case 3:
-		frame[6] = -z;
-		frame[8] = x;
-		break;
+		//loc_91098
+		frame[6] = (node->xrot_run << 1) + node->xrot_run;
+		frame[8] = (node->zrot_run << 1) + node->zrot_run;
+	}
+	else if (cutrot - 1 == 0)
+	{
+		//loc_91088
+		frame[6] = (node->zrot_run << 1) + node->zrot_run;
+		frame[8] = -((node->xrot_run << 1) + node->xrot_run);
+	}
+	else if (cutrot - 2 == 0)
+	{
+		//loc_91080
+		frame[6] = -((node->xrot_run << 1) + node->xrot_run);
+		frame[8] = -((node->zrot_run << 1) + node->zrot_run);
+	}
+	else
+	{
+		frame[8] = (node->xrot_run << 1) + node->xrot_run;
+		frame[6] = -((node->zrot_run << 1) + node->zrot_run);
 	}
 
-	short* next = frame + 9;
-
-	for (int i = 1; i < flags; i++, next += 2)
+	//loc_910A0
+	if (1 < flags)
 	{
-		short x = node[i].yrot_run;
-		short y = node[i].zrot_run;
-		short z = node[i].xrot_run;
+		a3 = &frames[9];
+		a2 = &node[1];
+		t0 = flags - 1;
+		at = 1;
 
-		if (cutrot && i == 1)
+		//loc_910BC
+		do
 		{
-			x = (x + ((short)cutrot << 8)) & 0x3FF;
-		}
+			v1 = a2->xrot_run;
+			v0 = a2->yrot_run;
+			a0 = a2->zrot_run;
 
-		next[0] = (y | ((x | (z << 10)) << 10)) >> 16;
-		next[1] = y | ((x | (z << 10)) << 10);
+			a2++;
+			if (at)
+			{
+				v0 += cutrot << 8;
+				v0 &= 0x3FF;
+			}//loc_910E0
+
+			t0--;
+			v1 <<= 20;
+			v0 <<= 10;
+			v1 |= v0;
+			v1 |= a0;
+			v0 = v1 >> 16;
+			a3[0] = v0;
+			a3[1] = v1;
+			a3 += 2;
+		} while (t0 != 0);
 	}
+	//locret_91108
 }
 
 int GetTrackWord(unsigned long off, char* packed, unsigned char packmethod)
