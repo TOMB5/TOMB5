@@ -14,7 +14,7 @@ PSXPC_N:
  
  PC_N:
  <p align="center">
- <a href="#"><img src="https://i.imgur.com/sAf5VAi.png"/></a>
+ <a href="#"><img src="https://i.imgur.com/Ic9zNAt.png"/></a>
  </p>
 
 | Platform  | Build State |
@@ -47,7 +47,7 @@ Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) ch
 ## Credits
 
 - Gh0stBlade: Lead Programmer (PSX/PSXPC_N).
-- zdimension: Programmer (PSX/PSXPC_N,PC).
+- zdimension: Programmer (PSX/PSXPC_N,PC_N).
 - Stohrendorf: Symdump tool creator.
 - smf: GTE code for PSXPC_N code path.
 - [You?](CONTRIBUTING.md)
