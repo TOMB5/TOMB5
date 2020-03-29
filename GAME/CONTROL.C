@@ -1,7 +1,7 @@
 #include "CONTROL.H"
+#include "CALCHAIR.H"
 
 #if PSX_VERSION || PSXPC_VERSION
-#include "CALCHAIR.H"
 #include "COLLIDE_S.H"
 #include "DRAWPHAS.H"
 #include "3D_GEN.H"
@@ -2018,7 +2018,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 	{
 		if (!heavy)
 		{
-			if (lara_item->pos.y_pos == lara_item->floor || lara.water_status != 0)
+			if (lara_item->pos.y_pos == lara_item->floor || lara.water_status != LW_ABOVE_WATER)
 			{
 				//loc_1EAC0
 				LavaBurn(lara_item);
@@ -2966,7 +2966,7 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 
 	if (y < floor->floor << 8)
 	{
-		if (y < floor->ceiling << 8 && floor->sky_room != -1)
+		if (y < floor->ceiling << 8 && floor->sky_room != 0xFF)
 		{
 			do
 			{

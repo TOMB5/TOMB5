@@ -11,6 +11,8 @@
 #endif
 #if PC_VERSION
 #include "GLOBAL.H"
+#include "DIRECTX.H"
+#include "CALCLARA.H"
 #include "DS.H"
 #endif
 #include "EFFECTS.H"
@@ -901,20 +903,24 @@ short rcossin_tbl[8192] =
 
 void InitialiseCamera()//25AAC, 25CB8 (F)
 {
-	last_target.x = lara_item->pos.x_pos;
-	camera.target.x = lara_item->pos.x_pos;
-	camera.shift = lara_item->pos.y_pos - SECTOR(1);
 	last_target.y = lara_item->pos.y_pos - SECTOR(1);
-	camera.target.y = lara_item->pos.y_pos - SECTOR(1);
+	last_target.x = lara_item->pos.x_pos;
 	last_target.z = lara_item->pos.z_pos;
+	
+	camera.target.x = lara_item->pos.x_pos;
+	camera.target.y = lara_item->pos.y_pos - SECTOR(1);
 	camera.target.z = lara_item->pos.z_pos;
+	
+	camera.shift = lara_item->pos.y_pos - SECTOR(1);
+	
+	camera.pos.x = lara_item->pos.x_pos;
 	camera.pos.y = lara_item->pos.y_pos - SECTOR(1);
+	camera.pos.z = lara_item->pos.z_pos - 100;
+	
 	camera.target_distance = 1536;
 	camera.number_frames = 1;
 	camera.speed = 1;
 	camera.flags = CF_FOLLOW_CENTER;
-	camera.pos.x = lara_item->pos.x_pos;
-	camera.pos.z = lara_item->pos.z_pos - 100;
 	camera.item = NULL;
 	camera.type = CHASE_CAMERA;
 	camera.bounce = 0;
@@ -956,7 +962,11 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
-#if PSX_VERSION
+#if PC_VERSION
+	Log(LT_Enter, "CalculateCamera");
+#endif
+	
+#if PSX_VERSION || PC_VERSION
 	struct ITEM_INFO* item;
 	short* bounds;
 	int  tilt;
@@ -1513,7 +1523,7 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 
 	if (camera.actual_elevation < -0x3C6E)
 	{
-		camera.actual_elevation = -0x3C6E;
+		camera.actual_elevation = -15470;
 	}
 
 	//loc_26434
@@ -2028,6 +2038,10 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 
 void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 {
+#if PC_VERSION
+	Log(LT_Enter, "MoveCamera");
+#endif
+
 	struct FLOOR_INFO* floor;
 	struct GAME_VECTOR tcp;
 	long height;
@@ -2060,24 +2074,24 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 	//loc_25BC4
 	if (((((((
 		(old_cam.pos.x_rot == lara_item->pos.x_rot) &&
-		(old_cam.pos.y_rot == lara_item->pos.y_rot) && 
-		(old_cam.pos.z_rot == lara_item->pos.z_rot))&& 
-		(old_cam.pos2.x_rot == lara.head_x_rot)) && 
+		(old_cam.pos.y_rot == lara_item->pos.y_rot) &&
+		(old_cam.pos.z_rot == lara_item->pos.z_rot)) &&
+		(old_cam.pos2.x_rot == lara.head_x_rot)) &&
 		((old_cam.pos2.y_rot == lara.head_y_rot &&
 		(old_cam.pos2.x_pos == lara.torso_x_rot)))) &&
-		(old_cam.pos2.y_pos == lara.torso_y_rot)) &&
+			(old_cam.pos2.y_pos == lara.torso_y_rot)) &&
 		(((old_cam.pos.x_pos == (lara_item->pos).x_pos &&
 		(old_cam.pos.y_pos == (lara_item->pos).y_pos)) &&
-		((old_cam.pos.z_pos == (lara_item->pos).z_pos &&
-		(((old_cam.current_anim_state == lara_item->current_anim_state &&
-		(old_cam.goal_anim_state == lara_item->goal_anim_state)) &&
-		(old_cam.target_distance == camera.target_distance)))))))) &&
-		((old_cam.target_elevation == camera.target_elevation &&
+			((old_cam.pos.z_pos == (lara_item->pos).z_pos &&
+			(((old_cam.current_anim_state == lara_item->current_anim_state &&
+				(old_cam.goal_anim_state == lara_item->goal_anim_state)) &&
+				(old_cam.target_distance == camera.target_distance)))))))) &&
+				((old_cam.target_elevation == camera.target_elevation &&
 		(old_cam.actual_elevation == camera.actual_elevation)))) &&
-		((old_cam.target_angle == camera.actual_angle &&
+					((old_cam.target_angle == camera.actual_angle &&
 		(((old_cam.t.x == camera.target.x && (old_cam.t.y == camera.target.y)) &&
-		((old_cam.t.z == camera.target.z &&
-		(((camera.old_type == camera.type && (SniperOverlay == 0)) && (-1 < BinocularOn))))))))))
+						((old_cam.t.z == camera.target.z &&
+			(((camera.old_type == camera.type && (SniperOverlay == 0)) && (-1 < BinocularOn))))))))))
 	{
 		ideal->x = last_ideal.x;
 		ideal->y = last_ideal.y;
@@ -2165,7 +2179,7 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 			temp2.z = ideal->z;
 			temp1.room_number = camera.pos.room_number;
 			temp2.room_number = ideal->room_number;
-			
+
 			//a3 = &room_number
 			if (mgLOS(&temp2, &temp1, 0) == 0)
 			{
@@ -2224,7 +2238,7 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 	}//loc_26390
 
 	GetFloor(camera.pos.x, camera.pos.y, camera.pos.z, &camera.pos.room_number);
-	
+
 	/*
 	??? Unused/Dummy tcp var?
 	lw      $v0, 0x1DFC($gp)
@@ -2237,6 +2251,21 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 #else
 	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
 #endif
+
+#if PC_VERSION
+	phd_QuickW2VMatrix(
+		{
+			(float) camera.pos.x,
+			(float) camera.pos.y,
+			(float) camera.pos.z
+		},
+		{
+			(float) camera.target.x,
+			(float) camera.target.y,
+			(float) camera.target.z
+		}, 0);
+#endif
+
 	camera.mike_pos.y = camera.pos.y;
 	camera.mike_pos.x = (camera.pos.x + (phd_persp * SIN(phd_atan_asm(camera.target.z - camera.pos.z, camera.target.x - camera.pos.x)))) >> W2V_SHIFT;
 	camera.old_type = camera.type;

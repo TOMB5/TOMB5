@@ -13,7 +13,7 @@
 #include "DS.H"
 #include "GLOBAL.H"
 #include "DIRECTX.H"
-#include "TIME.H"
+#include "PCTIME.H"
 #include "DRAWPRIMITIVE.H"
 #include "DEBUG.H"
 #include "GAME.H"
@@ -33,21 +33,28 @@
 #include <ctime>
 #include <zlib.h>
 #include "CONTROL.H"
+#include "EFFECTS.H"
 
+#if DEBUG
+#pragma comment(lib, "zlibstaticd.lib")
+#else
 #pragma comment(lib, "zlibstatic.lib")
+#endif
 
 bool loadBarShown;
 int loadBarMax;
 float loadBarPercent;
 float loadBar2;
 
+
 void DebugPrint(const char* message)// (F)
 {
+	static int logCount = 0;
 	char buf[1024];
 	time_t t = time(nullptr);
 	tm tm = *localtime(&t);
 
-	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
+	sprintf(buf, "[%02d:%02d:%02d] [%6d] ", tm.tm_hour, tm.tm_min, tm.tm_sec, logCount++);
 
 	strcat(buf, message);
 
@@ -64,6 +71,14 @@ void DebugPrint(const char* message)// (F)
 	fprintf(fplog, buf);
 	fflush(fplog);
 }
+
+
+int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)//7B210, 7D254
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
 
 #ifdef __cplusplus
 //extern "C" {
@@ -181,7 +196,7 @@ long		S_DumpScreen()
 	if (!keymap[DIK_D])
 		DrawDebugPost();
 	
-	ShowDebugInfo();
+	//ShowDebugInfo();
 
 	EndScene();
 	DXShowFrame();
@@ -192,8 +207,8 @@ long		S_DumpScreen()
 
 void CalcColorSplit(uint32_t clr, uint32_t* out1, uint32_t* out2)// (F)
 {
-	uint8_t red1, green1, blue1;
-	uint8_t red2 = 0, green2 = 0, blue2 = 0;
+	int32_t red1, green1, blue1;
+	int32_t red2 = 0, green2 = 0, blue2 = 0;
 
 	if (RGBA_GETRED(clr) <= 128)
 	{
@@ -265,6 +280,9 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	e4b100 = 4;
 
 	OBJECT_TEXTURE tex;
+
+	tex.attribute = OT_ALL_OPAQUE;
+	tex.tile_and_flag = 0;
 
 	float xfactor = phd_winxmax / 640.0;
 	float yfactor = phd_winymax / 480.0;
@@ -413,8 +431,6 @@ void SuperShowLogo()// (F)
 
 	e4b100 = 4;
 
-	OBJECT_TEXTURE tex;
-
 	tlvert[0].rhw = f_oneoznear;
 	tlvert[1].rhw = f_oneoznear;
 	tlvert[2].rhw = f_oneoznear;
@@ -467,9 +483,11 @@ void SuperShowLogo()// (F)
 	tlvert[2].color = RGB_MAKE(255, 255, 255);
 	tlvert[3].color = RGB_MAKE(255, 255, 255);
 
+	OBJECT_TEXTURE tex;
+
 	tex.attribute = OT_ALPHA_TESTING;
 	tex.new_flags = 0;
-	tex.tile_and_flag = num_pages - 5;
+	tex.tile_and_flag = false ? cur_tpage : (num_pages - 5);
 
 	tex.vertices[0].x = 1 / 256.0;
 	tex.vertices[0].y = 1 / 256.0;
@@ -517,7 +535,7 @@ void SuperShowLogo()// (F)
 
 	tex.attribute = OT_ALPHA_TESTING;
 	tex.new_flags = 0;
-	tex.tile_and_flag = num_pages - 4;
+	tex.tile_and_flag = false ? (cur_tpage + 1) : (num_pages - 4);
 
 	tex.vertices[0].x = 1 / 256.0;
 	tex.vertices[0].y = 1 / 256.0;
@@ -546,9 +564,9 @@ bool S_DrawLoadBar()
 	
 	DoBar(170, 480 - font_height, 300, 10, loadBar2, RGB_MAKE(0, 0, 16), RGB_MAKE(0, 0, 240));
 
-	//SortPolyList(...
+	SortPolyList(surfacenumbf, sort3d_bufferbf);
 	//RestoreFPCW();
-	//DrawSortList()
+	DrawSortList();
 	//MungeFPCW(..
 	S_DumpScreenFrame();
 
@@ -630,66 +648,132 @@ BYTE IsVolumetric()// (F)
 	return App.tVolumetricShadows;
 }
 
-void S_AnimateTextures(long nFrames)
+WORD AnimComp = 0;
+short AnimatingTexturesVOffset = 0;
+short AnimatingTexturesV[16][8][3];
+
+void S_AnimateTextures(long nFrames)// to test
 {
-	Unimpl();
+	AnimComp += nFrames;
+
+	while (AnimComp > 5)
+	{
+		uint16_t* ptr = AnimTextureRanges;
+
+		for (uint16_t i = *(ptr++); i > 0; i--, ptr++)
+		{
+			OBJECT_TEXTURE tmp = object_textures[*(ptr + 1)];
+
+			for (uint16_t j = *ptr++; j > 0; j--, ptr++)
+			{
+				object_textures[*ptr] = object_textures[*(ptr + 1)];
+			}
+
+			object_textures[*ptr] = tmp;
+		}
+
+		AnimComp -= 5;
+	}
+
+	if (gfUVRotate) // 19d8
+	{
+		uint16_t* t3 = AnimTextureRanges;
+		AnimatingTexturesVOffset = (AnimatingTexturesVOffset - gfUVRotate * (nFrames / 2)) & 0x1f;
+		if (nAnimUVRanges > 0)
+		{
+			short(*t2)[8][3] = AnimatingTexturesV;
+
+			for (int i = 0; i < nAnimUVRanges; i++, t2++)
+			{
+				unsigned short num = *t3++;
+				if (num > 0)
+				{
+					short* t1 = t2[i][num];
+
+					for (int j = 0; j <= num; j++, t1 -= 3, t3++)
+					{
+
+						OBJECT_TEXTURE* v18 = &object_textures[*t3];
+						double v19 = AnimatingTexturesVOffset / 256.0;
+						v18->vertices[0].y = v19 + t1[3];
+						v18->vertices[1].y = v19 + t1[3];
+						v18->vertices[2].y = v19 + t1[3] + 0.125;
+						v18->vertices[3].y = v19 + t1[3] + 0.125;
+					}
+				}
+			}
+		}
+	}
 }
 
 void DrawPsxTile(long a1, long a2, long a3)
 {
-	uint16 v7; // si
-	unsigned int v8; // eax
-	D3DTLVERTEX v[4]; // [esp+1Ch] [ebp-A8h]
-	OBJECT_TEXTURE tex; // [esp+9Ch] [ebp-28h]
-
+	Log(LT_Enter, "DrawPsxTile %6d %6d %6d", a1, a2, a3);
+	
 	e4b100 = 6;
+	
+	uint16 blend; // si
+	unsigned int color; // eax
+	
 	if ((a3 & 0xFF000000) == 0x62000000)
 	{
-		v7 = 3;
-		v8 = a3 << 24;
+		blend = OT_ALPHA_BLENDING_INV;
+		color = a3 << 24;
 	}
 	else
 	{
-		v7 = 2;
-		v8 = a3 | 0xFF000000;
+		blend = OT_ALPHA_BLENDING;
+		color = a3 | 0xFF000000;
 	}
-	float v13 = f_oneoznear;
-	double v9 = f_znear3;
+	float rhw = f_oneoznear;
+	double z = f_znear3;
 
 	if (gfCurrentLevel == LVL5_TITLE)
 	{
-		v9 += 10.0;
-		v13 += 50.0;
+		z += 10.0;
+		rhw += 50.0;
 	}
-
-	v[0].sx = v9;
+	
 	double v10 = a2 + 1.0 + (a1 >> 16);
-	v[0].color = v8;
-	v[0].sx = a1 >> 16;
-	v[0].sy = a1;
-	v[1].sx = v10;
-	v[0].rhw = v13;
-	v[1].sz = v9;
-	v[1].sy = a1;
-	v[2].sx = v10;
 	double v11 = (a2 >> 16) + 1.0 + a1;
-	v[1].rhw = v13;
-	v[2].rhw = v13;
-	v[1].color = v8;
-	v[2].color = v8;
+
+	D3DTLVERTEX v[4]; // [esp+1Ch] [ebp-A8h]
+	
+	v[0].sx = a1 >> 16;
+	v[1].sx = v10;
+	v[2].sx = v10;
 	v[3].sx = a1 >> 16;
+
+	v[0].sy = a1;
+	v[1].sy = a1;
 	v[2].sy = v11;
-	v[3].color = v8;
-	v[0].specular = 0xFF000000;
-	v[1].specular = 0xFF000000;
-	v[2].specular = 0xFF000000;
-	v[2].sz = v9;
-	v[3].rhw = v13;
-	v[3].specular = 0xFF000000;
 	v[3].sy = v11;
-	tex.attribute = v7;
+
+	v[0].sz = z;
+	v[1].sz = z;
+	v[2].sz = z;
+	v[3].sz = z;
+
+	v[0].specular = ARGB(255, 0, 0, 0);;
+	v[1].specular = ARGB(255, 0, 0, 0);
+	v[2].specular = ARGB(255, 0, 0, 0);
+	v[3].specular = ARGB(255, 0, 0, 0);
+	
+	v[0].rhw = rhw;
+	v[1].rhw = rhw;
+	v[2].rhw = rhw;
+	v[3].rhw = rhw;
+	
+	v[0].color = color;
+	v[1].color = color;
+	v[2].color = color;
+	v[3].color = color;
+
+	OBJECT_TEXTURE tex; // [esp+9Ch] [ebp-28h]
+	
+	tex.attribute = blend;
 	tex.new_flags = 0;
-	v[3].sz = v9;
+	
 	tex.tile_and_flag = 0;
 
 	d9ab34[0] = 0;
@@ -697,7 +781,19 @@ void DrawPsxTile(long a1, long a2, long a3)
 	d9ab34[2] = 0;
 	d9ab34[3] = 0;
 
-	return AddQuad2(v, 0, 1, 2, 3, &tex, 0);
+	AddQuad2(v, 0, 1, 2, 3, &tex, 0);
+}
+
+void DoScreenFade()
+{
+	dword_C86BE8 += dword_C713D4;
+	if (dword_C713DC >= 8)
+		dword_C87BF0 = 2;
+
+	d9ab34[0] = 0;
+	d9ab34[1] = 0;
+	d9ab34[2] = 0;
+	d9ab34[3] = 0;
 }
 
 void S_OutputPolyList()
@@ -707,10 +803,10 @@ void S_OutputPolyList()
 	//RestoreFPCW();
 	WinFrameRate();
 
-	d9ab1c = 0;
+	num_tris = 0;
 	d9ab10 = 0;
 
-	App.unk11200001 = 0;
+	App.DrawPrimitiveCntBuk = 0;
 	App.DrawPrimitiveCnt = 0;
 
 	// todo (log)
@@ -774,8 +870,8 @@ void S_OutputPolyList()
 	if (FadeScreenHeight != 0)
 	{
 		int height = phd_winymax / 256.0 * FadeScreenHeight;
-		DrawPsxTile(0, phd_winwidth | (height << 16), 0x62FFFFFF);
-		DrawPsxTile(phd_winheight - height, phd_winwidth | (height << 16), 0x62FFFFFF);
+		DrawPsxTile(0, phd_winwidth | (height << 16), RGBA(255, 255, 255, 0x62));
+		DrawPsxTile(phd_winheight - height, phd_winwidth | (height << 16), RGBA(255, 255, 255, 0x62));
 	}
 
 	if (gfCurrentLevel != LVL5_TITLE)
@@ -790,6 +886,13 @@ void S_OutputPolyList()
 				FlashFader -= 2;
 		}
 
+		DrawSortList();
+	}
+
+	if (dword_C87BF0 == 1)
+	{
+		InitialiseSortList();
+		DoScreenFade();
 		DrawSortList();
 	}
 
@@ -928,9 +1031,9 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 				{
 					auto ptr = (BYTE*)buf;
 
-					auto r = ptr[0];
+					auto b = ptr[0];// todo inverted r&b in original
 					auto g = ptr[1];
-					auto b = ptr[2];
+					auto r = ptr[2];
 					auto a = ptr[3];
 
 					if (a5)
@@ -974,7 +1077,7 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 						ptr2 += 256 / width;
 					}
 
-					ptr += 512 * 256 / height;
+					ptr += 256 * 256 / height;
 				}
 			}
 			else if (bpp == 1)
@@ -992,7 +1095,7 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 						ptr2 += 256 / width;
 					}
 
-					ptr += 1024 * 256 / height;
+					ptr += 256 * 256 / height;
 				}
 			}
 		}
@@ -1018,14 +1121,356 @@ void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag)
 	UNIMPLEMENTED();
 }
 
+enum
+{
+	MENU_MAIN_MENU,
+	MENU_LOAD_MENU,
+	MENU_LEVEL_SELECT_MENU,
+	MENU_SPECIAL_FEATURES_MENU
+};
 
+DWORD selected_menu_prev = 0;
+DWORD dword_51CE44 = 0;
+DWORD dword_51CE0C = 0;
+DWORD unk_51CE3C = 0;
+DWORD dword_51CE40 = 0;
+DWORD selected_menu = 1;
+DWORD qword_5082F4 = 1;
+DWORD dword_51CE50 = 0;
+DWORD unk_51CE2A = 0;
+BYTE byte_5082C8[40] =
+{
+	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+	0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+int DoCredits()
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+void do_dels_cutseq_selector()
+{
+	UNIMPLEMENTED();
+}
+
+void GetSaveLoadFiles()
+{
+	UNIMPLEMENTED();
+}
+
+int GetCampaignCheatValue()
+{
+	UNIMPLEMENTED();
+	return 0;
+}
+
+void DoOptions()
+{
+	UNIMPLEMENTED();
+}
+
+void S_LoadGame(int a1)
+{
+	UNIMPLEMENTED();
+}
+
+int DoLoadSave(int a1)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
 
 int TitleOptions()
 {
-	// TODO TODO TODO
-	SuperShowLogo();
-	UNIMPLEMENTED();
-	return 0;
+	int v5; // ebp
+	int v6; // edi
+	bool v18; // zf
+	int v22; // [esp+Ch] [ebp-14h]
+	int i; // [esp+10h] [ebp-10h]
+	char v24; // [esp+10h] [ebp-10h]
+	signed __int64 max_menu; // [esp+14h] [ebp-Ch]
+	int v26; // [esp+14h] [ebp-Ch]
+
+	signed int v1 = 0;
+	if (dword_51CE44)
+	{
+		if (dword_C87BF0 == 2)
+		{
+			dword_51CE0C = 0;
+			dword_51CE44 = 0;
+			unk_51CE3C = 0;
+			dword_51CE40 = 0;
+			gfLevelComplete = dword_51CE0C;
+			selected_menu = 1;
+			return dword_51CE44;
+		}
+		input = 0;
+		dbinput = 0;
+	}
+	if (bDoCredits)
+	{
+		if (DoCredits())
+			return 0;
+		bDoCredits = 0;
+		DestFadeScreenHeight = 0;
+	}
+	if (unk_51CE2A)
+	{
+		dword_51CE40 = 0;
+		selected_menu = 1;
+		do_dels_cutseq_selector();
+		return dword_51CE44;
+	}
+	if (!unk_51CE3C)
+	{
+		switch (dword_51CE40)
+		{
+		case 0:
+			goto LABEL_37;
+		case 1:
+			PrintString(
+				phd_centerx,
+				font_height + phd_winymin,
+				6,
+				&gfStringWad[gfStringOffset[STR_SELECT_LEVEL]],
+				FF_CENTER);
+			v5 = font_height + font_height + phd_winymin;
+			if (Gameflow->nLevels >= 10)
+			{
+				DWORD v7 = selected_menu;
+				i = 10;
+				int v8;
+				for (v8 = 0; v7; ++v8)
+					v7 >>= 1;
+				v6 = v8 - 9;
+				if (v8 - 9 >= 1)
+				{
+					if (v8 - 9 > 1)
+					{
+						PrintString(32, v5 + font_height, 6, "\x18", 0);
+						PrintString(phd_winxmax - 48, v5 + font_height, 6, "\x18", 0);
+					}
+				}
+				else
+				{
+					v6 = 1;
+				}
+				if (v8 != Gameflow->nLevels - 1)
+				{
+					PrintString(32, v5 + 10 * font_height, 6, "\x1A", 0);
+					PrintString(phd_winxmax - 48, v5 + 10 * font_height, 6, "\x1A", 0);
+				}
+			}
+			else
+			{
+				v6 = 1;
+				i = Gameflow->nLevels - 1;
+			}
+			v22 = v6;
+			v26 = i + v6;
+			if (v6 < i + v6)
+			{
+				int v9 = v6 - 1;
+				while (1)
+				{
+					v5 += font_height;
+					if (selected_menu & (1 << v9))
+						v24 = 1;
+					else
+						v24 = 3 - (byte_5082C8[v22 - 1] != 0);
+					PrintString(
+						phd_centerx,
+						v5,
+						v24,
+						&gfStringWad[gfStringOffset[gfLevelNames[v9 + 1]]],
+						FF_CENTER);
+					if (selected_menu & (1 << v9))
+						dword_51CE50 = v9;
+					++v9;
+					if (++v22 >= v26)
+						break;
+				}
+			}
+			v1 = 0;
+			max_menu = 1i64 << (Gameflow->nLevels - 2);
+			break;
+		case 2:
+			if (Gameflow->LoadSaveEnabled)
+			{
+				signed int v10 = DoLoadSave(0x800000);
+				if (v10 >= 0)
+				{
+					S_LoadGame(v10);
+					v1 = 2;
+				}
+			}
+			else
+			{
+				SoundEffect(SFX_LARA_NO, nullptr, SFX_ALWAYS);
+				dword_51CE40 = 0;
+			LABEL_37:
+				const int v11 = phd_winymax - 4 * font_height;
+				SuperShowLogo();
+				Chris_Menu = 0;
+
+				PrintString(
+					phd_centerx, 
+					v11,
+					(selected_menu & 1) ? 1 : 2,
+					&gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], 
+					FF_CENTER);
+				
+				PrintString(
+					phd_centerx,
+					v11 + font_height,
+					(selected_menu & 2) ? 1 : 2,
+					&gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]],
+					FF_CENTER);
+				
+				PrintString(
+					phd_centerx,
+					v11 + 2 * font_height,
+					(selected_menu & 4) ? 1 : 2,
+					&gfStringWad[gfStringOffset[STR_OPTIONS]],
+					FF_CENTER);
+				
+				PrintString(
+					phd_centerx,
+					v11 + 2 * font_height + font_height,
+					(selected_menu & 8) ? 1 : 2,
+					&gfStringWad[gfStringOffset[STR_EXIT]],
+					FF_CENTER);
+				
+				max_menu = 8;
+			}
+			break;
+		case 3:
+			DoOptions();
+			break;
+		default:
+			break;
+		}
+		
+		if (dword_51CE40 < 2)
+		{
+			if (dbinput & IN_FORWARD)
+			{
+				if (selected_menu > 1)
+				{
+					selected_menu >>= 1;
+					qword_5082F4 >>= 1;
+				}
+				
+				SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
+			}
+			
+			if (dbinput & IN_BACK)
+			{
+				if (selected_menu < max_menu)
+				{
+					selected_menu <<= 1;
+					qword_5082F4 <<= 1;
+				}
+				
+				SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
+			}
+		}
+		
+		if (dbinput & IN_DESELECT)
+		{
+			v18 = dword_51CE40 == 0;
+			if (dword_51CE40 <= 0)
+				goto LABEL_60;
+			dword_51CE40 = 0;
+			selected_menu = selected_menu_prev;
+			S_SoundStopAllSamples();
+			SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
+		}
+		v18 = dword_51CE40 == 0;
+	LABEL_60:
+		if (v18)
+		{
+			const int v19 = GetCampaignCheatValue();
+			if (v19)
+			{
+				gfLevelComplete = v19;
+				v1 = 3;
+			}
+		}
+		if (dbinput & IN_SELECT && !keymap[DIK_LMENU] && dword_51CE40 < 2)
+		{
+			SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
+			if (dword_51CE40)
+			{
+				if (dword_51CE40 == 1 && byte_5082C8[dword_51CE50])
+				{
+					char v20 = 0;
+					DWORD v21 = selected_menu;
+					gfLevelComplete = 0;
+					if (selected_menu)
+					{
+						do
+						{
+							v21 >>= 1;
+							++v20;
+						} while (v21);
+						gfLevelComplete = v20;
+					}
+					v1 = 3;
+				}
+			}
+			else if (selected_menu >= 1 && selected_menu <= 8)
+			{
+				switch (selected_menu)
+				{
+				case 1u:
+					if (Gameflow->PlayAnyLevel)
+					{
+						selected_menu_prev = selected_menu;
+						dword_51CE40 = 1;
+					}
+					else
+					{
+						gfLevelComplete = 1;
+						v1 = 3;
+					}
+					break;
+				case 2u:
+					GetSaveLoadFiles();
+					selected_menu_prev = selected_menu;
+					dword_51CE40 = 2;
+					break;
+				case 3u:
+				case 5u:
+				case 6u:
+				case 7u:
+					break;
+				case 4u:
+					selected_menu_prev = selected_menu;
+					dword_51CE40 = 3;
+					break;
+				case 8u:
+					v1 = 4;
+					break;
+				}
+			}
+		}
+	}
+	if (thread_started)
+		return 4;
+	if (v1)
+	{
+		dword_51CE44 = v1;
+		dword_51CE0C = gfLevelComplete;
+		gfLevelComplete = 0;
+		v1 = 0;
+		SetFade(0, 255);
+	}
+	return v1;
 }
 
 
@@ -1112,6 +1557,11 @@ void PlayFmvNow(int num)
 		PlayFMV(8);
 		break;
 	}
+}
+
+void WadeSplash(struct ITEM_INFO* item, int water_height, int water_depth)
+{
+	UNIMPLEMENTED();
 }
 
 #ifdef __cplusplus

@@ -176,6 +176,7 @@ enum msoff {
 
 #define RGBONLY(r, g, b) ((b & 0xFF) | (((g & 0xFF) | ((r & 0xFF) << 8)) << 8))
 #define RGBA(r, g, b, a) (RGBONLY(r, g, b) | ((a) << 24))
+#define ARGB(r, g, b, a) (RGBA(b, g, r, a))
 
 #define NO_ROOM 0xFF
 
@@ -238,9 +239,11 @@ enum room_flags
 {
 	RF_FILL_WATER = (1 << 0),			    // 0x0001
 	RF_ALWAYS_SFX = (1 << 1),				// 0x0002
+	RF_PITCH_SHIFT = (1 << 2),				// 0x0004
 	RF_SKYBOX_VISIBLE = (1 << 3),		    // 0x0008   speeds up rendering if no rendered room has this
+	RF_DYNAMIC_LIT = (1 << 4),				// 0x0010
 	RF_WIND_BLOWS_PONYTAIL = (1 << 5),	    // 0x0020   also some particles
-	RF_UNKNOWN_6 = (1 << 6),			    // 0x0040   used in official levels, no apparent effects
+	RF_INSIDE = (1 << 6),	    		    // 0x0040   used in official levels, no apparent effects
 	RF_HIDE_GLOBAL_LENS_FLARE = (1 << 7),   // 0x0080   TRLE "NL"
 	RF_CAUSTICS_EFFECT = (1 << 8),		    // 0x0100   TRLE "M"
 	RF_WATER_REFLECTIVITY = (1 << 9),	    // 0x0200   TRLE "R"

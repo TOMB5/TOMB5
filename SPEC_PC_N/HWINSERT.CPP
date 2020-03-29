@@ -99,7 +99,8 @@ void DrawBucket(TEXTUREBUCKET* buk)
 	if (buk->tpage == 1) // here be dragons
 		buk->tpage = 1;
 
-	Log(LT_Info, "DrawBucket tpage=%d; cnt=%d", buk->tpage, buk->cnt);
+	if (buk->cnt != 0)
+		Log(LT_Info, "DrawBucket id=%2d; tpage=%d; cnt=%d", buk - Bucket, buk->tpage, buk->cnt);
 
 	if (buk->cnt != 0)
 	{
@@ -132,7 +133,7 @@ void DrawBucket(TEXTUREBUCKET* buk)
 
 			RestoreSpecular(buk);
 
-			App.unk11200001++;
+			App.DrawPrimitiveCntBuk++;
 		}
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
@@ -144,7 +145,7 @@ void DrawBucket(TEXTUREBUCKET* buk)
 		if (App.tBumpMap)
 			App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
 
-		App.unk11200001++;
+		App.DrawPrimitiveCntBuk++;
 	}
 }
 
@@ -167,13 +168,13 @@ void DrawBuckets()
 		auto buk = Bucket;
 		for(int i = 0; i < MAXBUCKETS; i++, buk++)
 		{
-			if (DXTextureList[buk->tpage].alpha_blend && buk->cnt != 0)
+			if (buk->cnt != 0 && DXTextureList[buk->tpage].alpha_blend)
 			{
 				SaveSpecular(buk);
 				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[DXTextureList[buk->tpage].other_id].tex));
 				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt, D3DDP_DONOTCLIP);
 				RestoreSpecular(buk);
-				App.unk11200001++;
+				App.DrawPrimitiveCntBuk++;
 			}
 		}
 
@@ -189,13 +190,13 @@ void DrawBuckets()
 		buk = Bucket;
 		for (int i = 0; i < MAXBUCKETS; i++, buk++)
 		{
-			if (DXTextureList[buk->tpage].alpha_blend && buk->cnt != 0)
+			if (buk->cnt != 0 && DXTextureList[buk->tpage].alpha_blend)
 			{
 				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
 				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 				buk->tpage = -1;
 				buk->cnt = 0;
-				App.unk11200001++;
+				App.DrawPrimitiveCntBuk++;
 			}
 		}
 
@@ -204,13 +205,13 @@ void DrawBuckets()
 		buk = Bucket;
 		for (int i = 0; i < MAXBUCKETS; i++, buk++)
 		{
-			if (!DXTextureList[buk->tpage].alpha_blend && buk->cnt != 0)
+			if (buk->cnt != 0 && !DXTextureList[buk->tpage].alpha_blend)
 			{
 				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
 				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 				buk->tpage = -1;
 				buk->cnt = 0;
-				App.unk11200001++;
+				App.DrawPrimitiveCntBuk++;
 			}
 		}
 	}
