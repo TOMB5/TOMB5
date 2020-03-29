@@ -150,6 +150,7 @@ int TitleOptions(int Name)
 #endif
 
 #if HACK_SAVE_SECRETS
+	//dels_cutseq_selector_flag = 1;
 	savegame.CampaignSecrets[0] = 9;
 	savegame.CampaignSecrets[1] = 9;
 	savegame.CampaignSecrets[2] = 9;
