@@ -16,6 +16,7 @@
 #include "SPOTCAM.H"
 #include "TEXT_S.H"
 #include "MISC.H"
+#include "LARA.H"
 
 #include <LIBETC.H>
 #include <stdio.h>//deleteme
@@ -58,6 +59,7 @@ unsigned int titseqData2[] __attribute__((section(".data"))) =
 unsigned char byte_46 = 0;
 unsigned char byte_47 = 0;
 unsigned char byte_1A8 = 0;
+unsigned char byte_28A = 0;
 
 #if BETA_VERSON
 unsigned short unk_3C[] = { STR_MOVIE_TRAILER, STR_STORYBOARDS_PART_1, STR_NEXT_GENERATION_CONCEPT_ART, STR_STORYBOARDS_PART_2, STR_NEXT_GENERATION_PREVIEW };
@@ -965,4 +967,22 @@ void TITSEQ_ReadStoryboardImage(char* gfx, unsigned char wadIndex, int imageInde
 	DEL_CDFS_Seek(imageIndex * STORY_BOARD_IMG_SIZE);
 	DEL_CDFS_Read(gfx, STORY_BOARD_IMG_SIZE);
 #endif
+}
+
+void titseq_special1_end()
+{
+	if (byte_28A)
+	{
+		FlipMap(0);
+		byte_28A = 0;
+	}
+
+	if (!bDoCredits)
+	{
+		lara_item->mesh_bits = 0;
+		trigger_title_spotcam(2);
+	}
+
+	Chris_Menu = 0;
+	title_controls_locked_out = 0;
 }
