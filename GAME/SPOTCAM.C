@@ -432,7 +432,7 @@ void CalculateSpotCams()//37ED0(<), 383D0(?)
 	Log(LT_Enter, "CalculateSpotCams");
 #endif
 	long cpx; // stack offset -96
-	long cpy; // stack offset -9lo2
+	long cpy; // stack offset -92
 	long cpz; // stack offset -88
 	long ctx; // stack offset -84
 	long cty; // stack offset -80
