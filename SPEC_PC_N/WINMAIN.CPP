@@ -26,6 +26,7 @@
 #include "INPUT.H"
 #include "DISPLAY.H"
 #include "TEXT.H"
+#include <ctime>
 
 WINAPP	 App;
 bool thread_started;
@@ -59,11 +60,17 @@ void WinClose()// (F)
 	DestroyAcceleratorTable(App.hAccTable);
 	CloseDirectX();
 
-	DX_TRY(App.lpDIKeyboard->Unacquire());
-	DXRelease(App.lpDIKeyboard, "Keyboard");
+	if (App.lpDIKeyboard)
+	{
+		DX_TRY(App.lpDIKeyboard->Unacquire());
+		DXRelease(App.lpDIKeyboard, "Keyboard");
+	}
 
-	DX_TRY(App.lpDIJoystick->Unacquire());
-	DXRelease(App.lpDIJoystick, "Joystick");
+	if (App.lpDIJoystick)
+	{
+		DX_TRY(App.lpDIJoystick->Unacquire());
+		DXRelease(App.lpDIJoystick, "Joystick");
+	}
 
 	DXRelease(App.lpDI, "DirectInput");
 }
@@ -206,7 +213,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	App.isInScene = false;
 	App.PlayingFMV = false;
 
-	App.DXConfig.nD3D = 0; // todo: temporary fix because of lack of software renderer
+	//App.DXConfig.nD3D = 0; // todo: temporary fix because of lack of software renderer
 
 	if (!DXCreate(
 		CUR_DM.w,
@@ -525,6 +532,8 @@ long FAR PASCAL WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		Log(LT_WindowMessage, "WM_CLOSE");
 		// TODO TODO TODO TODO TODO
 		PostQuitMessage(EXIT_SUCCESS);
+
+		game_running = false;
 		break;
 
 	case WM_CREATE:

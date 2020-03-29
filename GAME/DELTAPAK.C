@@ -4162,7 +4162,7 @@ void handle_cutseq_triggering(int name)//2C3C4(<), 2C6EC(<) (F)
 		}
 	}
 
-	lara.water_status = 0;
+	lara.water_status = LW_ABOVE_WATER;
 
 	if (gfCurrentLevel)
 		S_CDStop();

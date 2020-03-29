@@ -39,13 +39,24 @@ typedef unsigned int    uint32;
 #define SLOWORD(l)           ((sint16)(((DWORD_PTR)(l)) & 0xffff))
 #define SHIWORD(l)           ((sint16)((((DWORD_PTR)(l)) >> 16) & 0xffff))
 
+#define AVG(A, B) (((A) + (B)) / 2)
+
+#define AVG_COL(A, B) RGBA_MAKE(AVG(RGBA_GETRED(A), RGBA_GETRED(B)), AVG(RGBA_GETGREEN(A), RGBA_GETGREEN(B)), AVG(RGBA_GETBLUE(A), RGBA_GETBLUE(B)), AVG(RGBA_GETALPHA(A), RGBA_GETALPHA(B)))
+
 #pragma pack(push, 1)
 struct SVECTOR {		/* short word type 3D vector */
 	short	vx, vy;
 	short	vz, pad;
 };
 struct CVECTOR {		/* color type vector */
-	unsigned char	r, g, b, cd;
+	union
+	{
+		struct
+		{
+			unsigned char	r, g, b, cd;
+		};
+		uint32_t rgbcd;
+	};
 };
 
 struct object_info {
@@ -339,6 +350,7 @@ struct tr_face3    // 8 bytes
 	uint16_t Texture : 14;
 	uint16_t UnkFlag : 1;
 	uint16_t DoubleSided : 1;
+	uint16_t Padding;
 };
 
 struct tr_face4    // 12 bytes
@@ -347,6 +359,7 @@ struct tr_face4    // 12 bytes
 	uint16_t Texture : 14;
 	uint16_t UnkFlag : 1;
 	uint16_t DoubleSided : 1;
+	uint16_t Padding;
 };
 
 struct tr4_mesh_face3    // 10 bytes
@@ -655,8 +668,9 @@ struct WINAPP
 	DWORD orig_flags;
 	BYTE PlayingFMV;
 	DWORD OriginalBPP;
-
+	
 	BYTE					tAutoTarget;
+	BYTE padd[3];
 	DWORD dword_D9AC34;
 	DWORD dword_D9AC38;
 
@@ -664,7 +678,7 @@ struct WINAPP
 	char pad111[272];
 	D3DMATRIX ViewMatrix;
 	char pad112[4];
-	DWORD unk11200001;
+	DWORD DrawPrimitiveCntBuk;
 	DWORD DrawPrimitiveCnt;
 	int ResChangeTimer;
 	uint16_t* AnimTextureRanges;
@@ -730,6 +744,23 @@ struct D3DTLBUMPVERTEX // size = 40 bytes
 	D3DVALUE    tu2;
 	D3DVALUE    tv2;
 };
+
+struct __declspec(align(4)) MATRIX3
+{
+	D3DVALUE _11;
+	D3DVALUE _12;
+	D3DVALUE _13;
+	D3DVALUE _14;
+	D3DVALUE _21;
+	D3DVALUE _22;
+	D3DVALUE _23;
+	D3DVALUE _24;
+	D3DVALUE _31;
+	D3DVALUE _32;
+	D3DVALUE _33;
+	D3DVALUE _34;
+};
+
 
 #pragma pack(pop)
 

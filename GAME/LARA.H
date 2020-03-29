@@ -688,7 +688,8 @@ enum lara_water_status
 	LW_ABOVE_WATER = 0,
 	LW_UNDERWATER = 1,
 	LW_SURFACE = 2,
-	LW_FLYCHEAT = 3
+	LW_FLYCHEAT = 3,
+	LW_WADE = 4
 };
 
 enum lara_gun_status
@@ -887,7 +888,7 @@ extern short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long
 extern short LaraFloorFront(struct ITEM_INFO* item, short ang, long dist);
 extern void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll);
 #if PC_VERSION
-extern int GetLaraJointPos(struct PHD_VECTOR* arg1, long arg2);
+extern void GetLaraJointPos(struct PHD_VECTOR* arg1, long arg2);
 #endif
 extern void AnimateLara(struct ITEM_INFO* item);
 extern void SetLaraUnderwaterNodes();

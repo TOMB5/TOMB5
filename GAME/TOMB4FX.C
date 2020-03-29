@@ -665,11 +665,11 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 
 void Fade()//34B78(<), 35078(<) (F)
 {
-	//a0 = ScreenFade
-	//a1 = ScreenFade
-	//v1 = dScreenFade
-	//a2 = dScreenFade
 	int oldfucker; // $a1
+#if 1 && !PC_VERSION///@FIXME yet again this function is not working.
+	ScreenFading = 0;
+	return;
+#endif
 
 	if (dScreenFade != 0)
 	{
@@ -728,8 +728,11 @@ void Fade()//34B78(<), 35078(<) (F)
 
 	if (dScreenFade != 0 || ScreenFade != 0)
 	{
-		//loc_34C4C
-		DrawPsxTile(0, 0xF00200, (ScreenFade << 16) | (ScreenFade << 8) | (ScreenFade) | (0x62000000), 2, 0);
+#if PC_VERSION
+		DrawPsxTile(0, phd_winwidth | (phd_winheight << 16), RGBA(ScreenFade, ScreenFade, ScreenFade, 0x62));
+#else
+		DrawPsxTile(0, 0xF00200, 0x62000000 | (ScreenFade << 16) | (ScreenFade << 8) | ScreenFade, 2, 0);
+#endif
 	}
 	//loc_34C84
 }

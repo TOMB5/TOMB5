@@ -217,7 +217,7 @@ int numLvlMeshes;
 	{
 		if (r1 | r2 | r3 | r4)
 		{
-			auto fp = FileOpen("DATA\\CUTSEQ.BIN");
+			const auto fp = FileOpen("DATA\\CUTSEQ.BIN");
 
 			if (!fp)
 				return;
@@ -228,10 +228,10 @@ int numLvlMeshes;
 			GLOBAL_playing_cutseq = 0;
 			cutseq_trig = 0;
 
-			auto c1 = ReadCutData(r1, fp);
-			auto c2 = ReadCutData(r2, fp);
-			auto c3 = ReadCutData(r3, fp);
-			auto c4 = ReadCutData(r4, fp);
+			const auto c1 = ReadCutData(r1, fp);
+			const auto c2 = ReadCutData(r2, fp);
+			const auto c3 = ReadCutData(r3, fp);
+			const auto c4 = ReadCutData(r4, fp);
 
 			fclose(fp);
 
@@ -266,9 +266,9 @@ int numLvlMeshes;
 
 	void InitMatrix()// (F)
 	{
-		for (int i = 0; i < ANGLE(360); i++)
+		for (int i = 0; i < 65536; i++)
 		{
-			sin_flt_table[i] = sinf((i * 2 * M_PI) / ANGLE(360));
+			sin_flt_table[i] = sinf((i * 2 * M_PI) / 65536.0);
 		}
 
 		phd_dxptr = matrix_stack_dx;
@@ -325,7 +325,7 @@ int numLvlMeshes;
 		Log(LT_Enter, "LoadTextures");
 
 		//dword_875144 = level_data;
-		num_pages = 1;
+		num_pages = 0; // TODO: this is 1 in original
 
 		int depth_bis = 0;
 		int depth = 4;
@@ -333,22 +333,22 @@ int numLvlMeshes;
 		D3DTEXTUREINFO* texf = &CUR_TEX;
 
 		void* texbuf;
-		bool useCompression = true;
+		const bool useCompression = true;
 
 		if (texf->rbpp == 5 && texf->gbpp == 5 && texf->bbpp == 5 && texf->abpp == 1)
 		{
 			depth_bis = 2;
 			depth = 2;
 
-			int uncomp32 = freadDword();
-			int comp32 = freadDword();
+			const int uncomp32 = freadDword();
+			const int comp32 = freadDword();
 			if (useCompression)
 				fseek(fp_level, comp32, SEEK_CUR);
 			else
 				fseek(fp_level, uncomp32, SEEK_CUR);
 
-			int uncomp16 = freadDword();
-			int comp16 = freadDword();
+			const int uncomp16 = freadDword();
+			const int comp16 = freadDword();
 			texbuf = malloc(comp16);
 			level_data = (char*)malloc(uncomp16);
 
@@ -367,8 +367,8 @@ int numLvlMeshes;
 			if (texf->rbpp == 8 && texf->gbpp == 8 && texf->bbpp == 8 && texf->abpp == 8)
 				depth_bis = 1;
 
-			int uncomp32 = freadDword();
-			int comp32 = freadDword();
+			const int uncomp32 = freadDword();
+			const int comp32 = freadDword();
 			texbuf = malloc(comp32);
 			level_data = level_data_orig = (char*)malloc(uncomp32);
 
@@ -378,14 +378,14 @@ int numLvlMeshes;
 				Decompress(level_data, texbuf, comp32, uncomp32);
 
 				int uncomp16 = freadDword();
-				int comp16 = freadDword();
+				const int comp16 = freadDword();
 				fseek(fp_level, comp16, SEEK_CUR);
 			}
 			else
 			{
 				fread(level_data, comp32, 1, fp_level);
 
-				int uncomp16 = freadDword();
+				const int uncomp16 = freadDword();
 				int comp16 = freadDword();
 				fseek(fp_level, uncomp16, SEEK_CUR);
 			}
@@ -393,11 +393,11 @@ int numLvlMeshes;
 
 		free(texbuf);
 
-		int tex_size = depth * TEXTURE_PAGE;
+		const int tex_size = depth * TEXTURE_PAGE;
 
 		Log(LT_Info, "RTPages %d", numRoom);
 
-		auto bufRoom = (char*)malloc(numRoom * tex_size);
+		const auto bufRoom = (char*)malloc(numRoom * tex_size);
 		auto ptrRoom = bufRoom;
 		OnlyReadT(bufRoom, char, numRoom * tex_size);
 		S_LoadBar();
@@ -409,7 +409,7 @@ int numLvlMeshes;
 			LPDIRECT3DTEXTURE2 tex;
 			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
 
-			int page = num_pages++;
+			const int page = num_pages++;
 
 			DXTextureList[page].tex = tex;
 			DXTextureList[page].surface = surf;
@@ -426,7 +426,7 @@ int numLvlMeshes;
 
 		Log(LT_Info, "OTPages %d", numObj);
 
-		auto bufObj = (char*)malloc(numObj * tex_size);
+		const auto bufObj = (char*)malloc(numObj * tex_size);
 		auto ptrObj = bufObj;
 		OnlyReadT(bufObj, char, numObj * tex_size);
 		S_LoadBar();
@@ -438,7 +438,7 @@ int numLvlMeshes;
 			LPDIRECT3DTEXTURE2 tex;
 			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
 
-			int page = num_pages++;
+			const int page = num_pages++;
 
 			DXTextureList[page].tex = tex;
 			DXTextureList[page].surface = surf;
@@ -456,26 +456,26 @@ int numLvlMeshes;
 
 		Log(LT_Info, "BTPages %d", numBump);
 
-		auto bufBump = (char*)malloc(numBump * tex_size);
+		const auto bufBump = (char*)malloc(numBump * tex_size);
 		auto ptrBump = bufBump;
 		OnlyReadT(bufBump, char, numBump * tex_size);
 		S_LoadBar();
 
 		for (int i = 0; i < numBump; i++, ptrBump += tex_size)
 		{
-			bool bump = i >= numBump / 2;
+			const bool bump = i >= numBump / 2;
 
 			if (bump && !App.tBumpMap)
 				break;
 
-			int res = bump ? App.bumpRes : App.textRes;
+			const int res = bump ? App.bumpRes : App.textRes;
 
 			auto surf = CreateTexturePage(App.textRes, App.textRes, 0, (int*)ptrBump, nullptr, depth_bis);
 
 			LPDIRECT3DTEXTURE2 tex;
 			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
 
-			int page = num_pages++;
+			const int page = num_pages++;
 
 			DXTextureList[page].tex = tex;
 			DXTextureList[page].surface = surf;
@@ -492,8 +492,8 @@ int numLvlMeshes;
 
 		free(level_data_orig);
 
-		int uncomp = freadDword();
-		int comp = freadDword();
+		const int uncomp = freadDword();
+		const int comp = freadDword();
 		texbuf = malloc(comp);
 		level_data = level_data_orig = (char*)malloc(uncomp);
 
@@ -511,7 +511,7 @@ int numLvlMeshes;
 
 		void* buf = malloc(0x40000);
 
-		if (gfCurrentLevel != LVL5_TITLE)
+		if (gfCurrentLevel == LVL5_TITLE)
 		{
 			texbuf = nullptr;
 			size_t length;
@@ -532,7 +532,7 @@ int numLvlMeshes;
 				break;
 			}
 
-			void* pakbuf = malloc(length);
+			void* pakbuf = malloc(*(DWORD*)texbuf);
 
 			Decompress(pakbuf, (char*)texbuf + 4, length - 4, *(DWORD*)texbuf);
 			free(texbuf);
@@ -541,19 +541,20 @@ int numLvlMeshes;
 
 			for(int i = 0; i < 2; i++)
 			{
-				char* v46 = (char*)buf;
+				DWORD* v46 = (DWORD*)buf;
 				char* ptr2 = ptr1;
 
-				for(int j = 0; j < 256; j++)
+				for(int y = 0; y < 256; y++)
 				{
 					char* ptr3 = ptr2;
 
-					for(int k = 0; k < 256; k++)
+					for(int x = 0; x < 256; x++)
 					{
-						uint8_t red = ptr3[0];
-						uint8_t green = ptr3[1];
+						uint8_t red = *ptr3++;
+						const uint8_t green = *ptr3++;
+						uint8_t blue = *ptr3++;
+						
 						uint8_t alpha = 255;
-						uint8_t blue = ptr3[2];
 
 						if (red == 255 && green == 0 && blue == 255) // magenta key
 						{
@@ -563,6 +564,8 @@ int numLvlMeshes;
 						}
 
 						*v46++ = RGBA(red, green, blue, alpha);
+
+						
 					}
 
 					ptr2 += 3 * 512;
@@ -573,7 +576,7 @@ int numLvlMeshes;
 				LPDIRECT3DTEXTURE2 tex;
 				DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
 
-				int page = num_pages++;
+				const int page = num_pages++;
 
 				DXTextureList[page].tex = tex;
 				DXTextureList[page].surface = surf;
@@ -597,7 +600,7 @@ int numLvlMeshes;
 			LPDIRECT3DTEXTURE2 tex;
 			DX_TRY(surf->QueryInterface(IID_IDirect3DTexture2, (LPVOID*)&tex));
 
-			int page = num_pages++;
+			const int page = num_pages++;
 
 			DXTextureList[page].tex = tex;
 			DXTextureList[page].surface = surf;
@@ -659,14 +662,14 @@ int numLvlMeshes;
 	{
 		readDword(); // read unused value
 
-		int numRooms = readDword(); // todo maybe it's 16 so it'll explode
+		const int numRooms = readDword(); // todo maybe it's 16 so it'll explode
 		Alloc(room, room_info, numRooms);
 
 		for (int i = 0; i < numRooms; i++)
 		{
 			readDword(); // XELA landmark
 
-			int roomDataSize = readDword();
+			const int roomDataSize = readDword();
 			char* roomData;
 			AllocReadT(roomData, char, roomDataSize);
 
@@ -698,12 +701,12 @@ int numLvlMeshes;
 			{
 				for (int i = 0; i < number_rooms; i++)
 				{
-					auto r = &room[i];
+					const auto r = &room[i];
 
 					if (!flipped[i])
 					{
-						int rx = (r->z >> SECTOR(1)) + 1;
-						int ry = (r->x >> SECTOR(1)) + 1;
+						const int rx = (r->z >> SECTOR(1)) + 1;
+						const int ry = (r->x >> SECTOR(1)) + 1;
 
 						int j = 0;
 
@@ -762,7 +765,7 @@ int numLvlMeshes;
 
 				char* d = &OutsideRoomTable[OUTSIDE_Z * x + OUTSIDE_Z * y * 27];
 
-				int i = 27 * y + x;
+				const int i = 27 * y + x;
 
 				while (d[z] != -1)
 					z++;
@@ -822,7 +825,7 @@ int numLvlMeshes;
 		LoadRoomStream();
 		BuildOutsideTable();
 
-		int numFloorData = readDword();
+		const int numFloorData = readDword();
 		AllocReadT(floor_data, short, numFloorData);
 		Log(LT_Default, "Floor Data Size %d @ %x", numFloorData, floor_data);
 	}
@@ -880,9 +883,9 @@ int numLvlMeshes;
 				{
 					for(int j = 0; j < mesh_info->num_vert; j++)
 					{
-						float vX = mptr[0];
-						float vY = mptr[1];
-						float vZ = mptr[2];
+						const float vX = mptr[0];
+						const float vY = mptr[1];
+						const float vZ = mptr[2];
 
 						mptr += 3;
 
@@ -925,9 +928,9 @@ int numLvlMeshes;
 
 						for (int j = 0; j < mesh_info->num_vert; j++)
 						{
-							short v35 = 255 - (*mptr++ >> 5);
-									
-							int v36 = v35 | ((v35 | (v35 << 8)) << 8);
+							const short v35 = 255 - (*mptr++ >> 5);
+
+							const int v36 = v35 | ((v35 | (v35 << 8)) << 8);
 							mesh_info->lights[j] = mesh_info->vert[j].f6 = v36;
 						}
 
@@ -1014,10 +1017,10 @@ int numLvlMeshes;
 		Zero(objects);
 		Zero(static_objects);
 
-		int numMeshWords = readDword();
+		const int numMeshWords = readDword();
 		AllocReadT(mesh_base, short, numMeshWords);
 
-		int numMeshPtrs = readDword();
+		const int numMeshPtrs = readDword();
 		AllocT(meshes, short*, 2 * numMeshPtrs);
 		OnlyReadT(meshes, short*, numMeshPtrs);
 
@@ -1026,24 +1029,24 @@ int numLvlMeshes;
 			meshes[i] = &mesh_base[(int)meshes[i] / 2];
 		}
 
-		int numMeshes = numMeshPtrs;
+		const int numMeshes = numMeshPtrs;
 
-		int numAnims = readDword();
+		const int numAnims = readDword();
 		AllocRead(anims, ANIM_STRUCT, numAnims);
 
-		int numChanges = readDword();
+		const int numChanges = readDword();
 		AllocRead(changes, CHANGE_STRUCT, numChanges);
 
-		int numDisps = readDword();
+		const int numDisps = readDword();
 		AllocRead(ranges, RANGE_STRUCT, numDisps);
 
-		int numAnimCmds = readDword();
+		const int numAnimCmds = readDword();
 		AllocReadT(commands, short, numAnimCmds);
 
-		int numBones = readDword();
+		const int numBones = readDword();
 		AllocReadT(bones, long, numBones);
 
-		int numFrames = readDword();
+		const int numFrames = readDword();
 		AllocReadT(frames, short, numFrames);
 
 		for (int i = 0; i < numAnims; i++)
@@ -1051,11 +1054,11 @@ int numLvlMeshes;
 			AddPtr(anims[i].frame_ptr, short, frames);
 		}
 
-		int numModels = readDword();
+		const int numModels = readDword();
 
 		for (int i = 0; i < numModels; i++)
 		{
-			int obj = readDword();
+			const int obj = readDword();
 
 			objects[obj].nmeshes = readWord();
 			objects[obj].mesh_index = readWord();
@@ -1092,11 +1095,11 @@ int numLvlMeshes;
 		InitialiseObjects();
 		InitialiseClosedDoors();
 
-		int numStatics = readDword();
+		const int numStatics = readDword();
 
 		for (int i = 0; i < numStatics; i++)
 		{
-			int meshID = readDword();
+			const int meshID = readDword();
 
 			static_objects[meshID].mesh_number = readWord();
 
@@ -1131,7 +1134,7 @@ int numLvlMeshes;
 
 		readDword(); // SPR\0
 
-		int numSpr = readDword();
+		const int numSpr = readDword();
 
 		Alloc(sprites, SPRITE_STRUCT, numSpr);
 
@@ -1148,13 +1151,13 @@ int numLvlMeshes;
 			sprites[i].bottom = (readWord() - 1) / 256.0;
 		}
 
-		int numSprSeqs = readDword();
+		const int numSprSeqs = readDword();
 
 		for (int i = 0; i < numSprSeqs; i++)
 		{
-			int spriteID = readDword();
-			short negLength = readWord();
-			short offset = readWord();
+			const int spriteID = readDword();
+			const short negLength = readWord();
+			const short offset = readWord();
 
 			if (spriteID >= NUMBER_OBJECTS)
 			{
@@ -1208,7 +1211,7 @@ int numLvlMeshes;
 		number_boxes = readDword();
 		AllocRead(boxes, box_info, number_boxes);
 
-		int numOverlaps = readDword();
+		const int numOverlaps = readDword();
 		AllocReadT(overlap, uint16_t, numOverlaps);
 
 #if FALSE
@@ -1272,7 +1275,7 @@ int numLvlMeshes;
 
 	void LoadAnimatedTextures()// (F)
 	{
-		int numAnimTex = readDword();
+		const int numAnimTex = readDword();
 		AllocReadT(AnimTextureRanges, uint16_t, numAnimTex);
 
 		nAnimUVRanges = readByte();
@@ -1296,7 +1299,7 @@ int numLvlMeshes;
 
 		readDword(); // TEX\0
 
-		int numObjTex = readDword();
+		const int numObjTex = readDword();
 		Log(LT_Info, "Texture Infos : %d", numObjTex);
 
 		Alloc(object_textures, OBJECT_TEXTURE, numObjTex);
@@ -1330,7 +1333,7 @@ int numLvlMeshes;
 
 	void LoadAIObjects()// (F)
 	{
-		int num = readDword();
+		const int num = readDword();
 
 		if (num != 0)
 		{
@@ -1343,7 +1346,7 @@ int numLvlMeshes;
 	{
 		Log(LT_Enter, "LoadItems");
 
-		int num_items = readDword();
+		const int num_items = readDword();
 
 		if (num_items == 0) return;
 		Alloc(items, ITEM_INFO, 256);
@@ -1377,13 +1380,13 @@ int numLvlMeshes;
 
 			for (int m = 0; m < room[r].num_meshes; m++)
 			{
-				int sec = ((mesh->z - room[r].z) >> 10) + room[r].x_size * ((mesh->x - room[r].x) >> 10);
+				const int sec = ((mesh->z - room[r].z) >> 10) + room[r].x_size * ((mesh->x - room[r].x) >> 10);
 				struct FLOOR_INFO* floor = &room[r].floor[sec];
 
 				if (!(boxes[floor->box].overlap_index & 0x4000)
 					&& !(gfCurrentLevel == LVL5_BASE && (r == 19 || r == 23 || r == 16)))
 				{
-					int fl = floor->floor << 2;
+					const int fl = floor->floor << 2;
 					struct static_info* st = &static_objects[mesh->static_number];
 					if (fl <= mesh->y - st->y_maxc + 512
 						&& fl < mesh->y - st->y_minc)
@@ -1437,7 +1440,7 @@ int numLvlMeshes;
 
 		AllocReadT(sample_lut, short, 450);
 
-		int numSampleInfos = readDword();
+		const int numSampleInfos = readDword();
 
 		Log(LT_Sound, "Number Of Sample Infos %d", numSampleInfos);
 
@@ -1449,7 +1452,7 @@ int numLvlMeshes;
 
 		AllocRead(sample_infos, SAMPLE_INFO, numSampleInfos);
 
-		int numSampleIndices = readDword();
+		const int numSampleIndices = readDword();
 
 		if (numSampleIndices == 0)
 		{
@@ -1460,7 +1463,7 @@ int numLvlMeshes;
 		Log(LT_Sound, "Number Of Samples %d", numSampleIndices);
 		Log(LT_Info, "pos=%x", ftell(fp_level));
 
-		int numSamples = freadDword();
+		const int numSamples = freadDword();
 
 		if (feof(fp_level))
 			Log(LT_Error, "END OF FILE");
@@ -1469,8 +1472,8 @@ int numLvlMeshes;
 
 		for(int i = 0; i < numSamples; i++)
 		{
-			int uncomp = freadDword();
-			int comp = freadDword();
+			const int uncomp = freadDword();
+			const int comp = freadDword();
 
 			freadBytes(samples_buffer, comp);
 
@@ -1486,21 +1489,21 @@ int numLvlMeshes;
 		Log(LT_Info, "Begin LoadLevel");
 
 		FreeLevel();
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		num_pages = 1;
+		
+		num_pages = 0;// TODO: this is 1 in original
 		//
 		fp_level = FileOpen((char*)filename);
 
 		if (fp_level)
 		{
 			int version = freadDword();
-			int numRoomTex = freadWord();
-			int numObjTex = freadWord();
-			int numBumpTex = freadWord();
+			const int numRoomTex = freadWord();
+			const int numObjTex = freadWord();
+			const int numBumpTex = freadWord();
 
 			S_InitLoadBar(numObjTex + numBumpTex + numRoomTex + 20);
 			S_LoadBar();
-
+			std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 			Log(LT_Status, "Process Level Data");
 			LoadTextures(numRoomTex, numObjTex, numBumpTex);
 
@@ -1509,7 +1512,7 @@ int numLvlMeshes;
 
 			freadBytes(nullptr, 28); // padding
 
-			int uncompSize = freadDword();
+			const int uncompSize = freadDword();
 			int compSize = freadDword();
 
 			level_data = (char*)malloc(uncompSize);
@@ -1544,7 +1547,7 @@ int numLvlMeshes;
 			S_LoadBar();
 
 			char* backup = level_data;
-			int numItems = readDword();
+			const int numItems = readDword();
 			level_data += 24 * numItems;
 
 			LoadAIObjects();
@@ -1615,6 +1618,8 @@ int numLvlMeshes;
 
 	void LoadScreen(int frame, int num)// (F)
 	{
+		Log(LT_Enter, "LoadScreen frame=%6d num=%6d", frame, num);
+		
 		DDSURFACEDESC2 desc;
 		DXInit(desc);
 		desc.dwWidth = 640;
@@ -1700,7 +1705,7 @@ int numLvlMeshes;
 			BeginScene();
 			InitBuckets();
 			InitialiseSortList();
-			DrawLoadingScreen();
+			//DrawLoadingScreen(); TODO
 			SortPolyList(surfacenumbf, sort3d_bufferbf);
 			//RestoreFPCW();
 			DrawSortList();
@@ -1762,7 +1767,7 @@ int numLvlMeshes;
 	unsigned long FileLength(FILE* nHandle)// (F)
 	{
 		fseek(nHandle, 0, SEEK_END);
-		unsigned long ret = ftell(nHandle);
+		const unsigned long ret = ftell(nHandle);
 		fseek(nHandle, 0, SEEK_SET);
 
 		return ret;
@@ -1777,12 +1782,12 @@ int numLvlMeshes;
 		if (!fp)
 			return 0;
 
-		int len = FileLength(fp);
+		const int len = FileLength(fp);
 
 		if (!*pDest)
 			*pDest = malloc(len);
 
-		int read = fread(*pDest, 1, len, fp);
+		const int read = fread(*pDest, 1, len, fp);
 
 		Log(LT_Info, "Read - %d FileSize - %d", read, len);
 
@@ -1815,12 +1820,12 @@ int numLvlMeshes;
 			{
 				root[0] = cd_drive;
 
-				unsigned int type = GetDriveType(root);
+				const unsigned int type = GetDriveType(root);
 				if (type == DRIVE_CDROM)
 				{
 					// NOTE: user may have more than one CD drive, so need to check this has Tomb 2 in it
 					file_check[0] = cd_drive;
-					HANDLE file = CreateFile(file_check, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+					const HANDLE file = CreateFile(file_check, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 					if (file != INVALID_HANDLE_VALUE)
 					{
 						CloseHandle(file);
@@ -1843,7 +1848,7 @@ int numLvlMeshes;
 			return nullptr;
 
 		auto ptr = (Cutseq*)tsv_buffer;
-		int len = ptr->cutscenes[num].size;
+		const int len = ptr->cutscenes[num].size;
 		fseek(fp, ptr->cutscenes[num].offset, SEEK_SET);
 		void* buf = game_malloc(len);
 		fread(buf, len, 1, fp);
@@ -1861,7 +1866,7 @@ int numLvlMeshes;
 			return nullptr;
 
 		fread(tsv_buffer, 1, sizeof(Cutseq), fp);
-		auto res = ReadCutData(num, fp);
+		const auto res = ReadCutData(num, fp);
 		fclose(fp);
 		return res;
 	}

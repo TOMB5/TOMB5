@@ -1357,7 +1357,7 @@ void DoLevel(unsigned char Name, unsigned char Audio)//10ABC(<) 10A84(<) (F)
 
 	gfStatus = ControlPhase(2, 0);
 
-	dbinput = 0;
+	dbinput = IN_NONE;
 	JustLoaded = 0;
 
 	//loc_10D30

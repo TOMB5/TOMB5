@@ -5,12 +5,18 @@
 
 typedef struct
 {
+	int AccelAdapter;
+	int TextureFormat;
+	int SoundCard;
+	int Resolution;
 	int GraphicsAdapter;
 	bool OpenSetup;
 	bool NoFMV;
 	bool LowQualityTextures;
 	bool LowQualityBumpMap;
 	bool VolumetricFog;
+
+	bool BilinearFiltering; // not in struct
 } Settings;
 
 enum ControlMethod
@@ -19,7 +25,7 @@ enum ControlMethod
 	CM_JOYSTICK = 1
 };
 
-extern Settings appsettings;;
+extern Settings appsettings;
 extern int16_t opt_JDck;
 extern int16_t opt_JDsh;
 extern int16_t opt_JWlk;
@@ -36,6 +42,7 @@ extern uint8_t opt_ControlMethod;
 extern uint8_t opt_SoundQuality;
 
 bool InitSetupDialog();
+void SaveSettingsDialog(HWND h_dlg_hwnd);
 void SaveSettings();
 bool LoadSettings();
 

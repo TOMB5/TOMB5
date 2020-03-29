@@ -1,6 +1,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
-
+#define D3D_OVERLOADS
 #define phd_sqrt_asm phd_sqrt
 
 
@@ -55,7 +55,7 @@ extern sint32		phd_persp;				/* perspective thang*/
 extern sint32		*phd_mxptr;				/* matrix pointer....*/
 extern sint32		phd_oopersp;
 extern float* phd_dxptr;
-
+extern float flt_878658[32];
 extern float clip_xmin;
 extern float clip_xmax;
 extern float clip_ymin;
@@ -84,12 +84,12 @@ extern	sint32		w2v_matrix[];		// World to View Matrix...
 extern	sint32		matrix_stack[];		// matrix stack for animations etc..
 	extern float		matrix_stack_dx[];
 	extern float		sin_flt_table[];
-
+	extern D3DMATRIX w2v_matrix_d3d;
 extern struct SVECTOR CamRot;
 
 extern WORD* d9ab34;
 extern int e4b100;
-extern int d9ab1c;
+extern int num_tris;
 extern int d9ab10;
 extern DWORD dword_921684;
 extern DWORD dword_7EE0D4;
@@ -104,8 +104,9 @@ extern DWORD dword_C713E0;
 extern DWORD dword_51CE58;
 
 extern D3DMATRIX transform_projection;
-
+extern PHD_VECTOR lookatpos;
 #define EndOfArray(a) ((a)+ArraySize(a))
+extern void phd_QuickW2VMatrix(tr5_vertex src, tr5_vertex tar, int rot);
 extern void D3DNormalise(LPD3DMATRIX m);
 extern void HandleApp(LPARAM lParam, WPARAM wParam);
 extern void D3DIdentityMatrix(LPD3DMATRIX mat);
