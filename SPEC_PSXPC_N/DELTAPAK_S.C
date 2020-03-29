@@ -328,114 +328,67 @@ int DecodeTrack(char* packed, struct RTDECODE* decode)//90BD8(<), ?
 
 void DecodeAnim(struct PACKNODE* node, int a1, int frame, short a3)//90A88(<), ?
 {
-	int t4;
-	//t7 = a3
-	//t3 = node
-	//t5 = a1
-	struct PACKNODE* pn = NULL;//$t0
+	int t4 = 0;
 
 	if (frame == 0)
 	{
 		t4 = 0;
 		if (a1 > 0)
 		{
-			pn = node;
 			//loc_90AA8
 			do
 			{
 				t4++;
 
-				pn->decode_x.off = 0;
-				pn->decode_x.counter = 0;
-				pn->decode_x.data = 0;
-				pn->decode_x.decodetype = 0;
+				node->decode_x.off = 0;
+				node->decode_x.counter = 0;
+				node->decode_x.data = 0;
+				node->decode_x.decodetype = 0;
 
-				pn->decode_y.off = 0;
-				pn->decode_y.counter = 0;
-				pn->decode_y.data = 0;
-				pn->decode_y.decodetype = 0;
+				node->decode_y.off = 0;
+				node->decode_y.counter = 0;
+				node->decode_y.data = 0;
+				node->decode_y.decodetype = 0;
 
-				pn->decode_z.off = 0;
-				pn->decode_z.counter = 0;
-				pn->decode_z.data = 0;
-				pn->decode_z.decodetype = 0;
+				node->decode_z.off = 0;
+				node->decode_z.counter = 0;
+				node->decode_z.data = 0;
+				node->decode_z.decodetype = 0;
 
-				pn->xrot_run = (unsigned short)pn->xkey;
-				pn->yrot_run = (unsigned short)pn->ykey;
-				pn->zrot_run = (unsigned short)pn->zkey;
+				node->xrot_run = (unsigned short)node->xkey;
+				node->yrot_run = (unsigned short)node->ykey;
+				node->zrot_run = (unsigned short)node->zkey;
 
-				pn->decode_x.length = pn->xlength;
-				pn->decode_y.length = pn->ylength;
-				pn->decode_z.length = pn->zlength;
-				pn++;
+				node->decode_x.length = node->xlength;
+				node->decode_y.length = node->ylength;
+				node->decode_z.length = node->zlength;
+				node++;
 			} while (t4 < a1);
-		}//loc_90BD0
+		}
+		//loc_90BD0
+		return;
 	}
 	else
 	{
 		//loc_90B14
-		DecodeTrack(node->xpacked, &node->decode_x);
+		node->xrot_run += DecodeTrack(node->xpacked, &node->decode_x);
+		node->yrot_run += DecodeTrack(node->ypacked, &node->decode_y);
+		node->zrot_run += DecodeTrack(node->zpacked, &node->decode_z);
+		t4 = 1;
+		node++;
+		if (t4 >= a1)
+		{
+			return;
+		}
 	}
-#if 0
-loc_90B14:
-lw      $a0, 0x48($t3)
-jal     sub_90BD8
-addiu   $a1, $t3, 0xC
 
-addiu   $a1, $t3, 0x1C
-lhu     $v1, 0($t3)
-lw      $a0, 0x4C($t3)
-addu    $v1, $v0
-jal     sub_90BD8
-sh      $v1, 0($t3)
-
-addiu   $a1, $t3, 0x2C
-lhu     $v1, 2($t3)
-lw      $a0, 0x50($t3)
-addu    $v1, $v0
-jal     sub_90BD8
-sh      $v1, 2($t3)
-
-lhu     $v1, 4($t3)
-li      $t4, 1
-addu    $v1, $v0
-slt     $v0, $t4, $t5
-beqz    $v0, loc_90BD0
-sh      $v1, 4($t3)
-addiu   $t3, 0x54
-
-loc_90B6C:
-lw      $a0, 0x48($t3)
-jal     sub_90BD8
-addiu   $a1, $t3, 0xC
-
-addiu   $a1, $t3, 0x1C
-lhu     $v1, 0($t3)
-lw      $a0, 0x4C($t3)
-addu    $v1, $v0
-and     $v1, $t7
-jal     sub_90BD8
-sh      $v1, 0($t3)
-
-addiu   $a1, $t3, 0x2C
-lhu     $v1, 2($t3)
-lw      $a0, 0x50($t3)
-addu    $v1, $v0
-and     $v1, $t7
-jal     sub_90BD8
-sh      $v1, 2($t3)
-
-lhu     $v1, 4($t3)
-addiu   $t4, 1
-addu    $v1, $v0
-and     $v1, $t7
-sh      $v1, 4($t3)
-slt     $v0, $t4, $t5
-bnez    $v0, loc_90B6C
-addiu   $t3, 0x54
-
-loc_90BD0:
-jr      $t6
-nop
-#endif
+	//loc_90B6C
+	do
+	{
+		node->xrot_run += DecodeTrack(node->xpacked, &node->decode_x) & a3;
+		node->yrot_run += DecodeTrack(node->ypacked, &node->decode_y) & a3;
+		node->zrot_run += DecodeTrack(node->zpacked, &node->decode_z) & a3;
+		t4++;
+		node++;
+	} while (t4 < a1);
 }
