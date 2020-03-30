@@ -6,6 +6,46 @@
 #include "SETUP.H"
 #include "SPECIFIC.H"
 #include "DRAWOBJ.H"
+#include "MISC.H"
+#include "GTEREG.H"
+#include "SPHERES.H"
+#include "CONTROL.H"
+#include "LIGHT.H"
+
+void CalcActorLighting()
+{
+	int scratchPad[256];
+	int* s1 = &scratchPad[0];
+	short room_no;
+
+	S_MemSet((char*)&scratchPad, 0, 1024);
+
+	mPushUnitMatrix();
+	mSetTrans(0, 0, 0);
+	mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
+	s1[3] = (int)&temp_rotation_buffer[9];
+	mRotSuperPackedYXZ((short**)&s1[3], 0);
+
+	s1[0] = TRX + duff_item.pos.x_pos;
+	s1[1] = TRY + duff_item.pos.y_pos;
+	s1[2] = TRZ + duff_item.pos.z_pos;
+
+	mPopMatrix();
+	IsRoomOutside(s1[0], s1[1], s1[2]);
+
+	if (IsRoomOutsideNo != -1)
+	{
+		room_no = IsRoomOutsideNo;
+	}
+	else
+	{
+		room_no = duff_item.room_number;
+	}
+
+	//loc_911C8
+	duff_item.il.Light[3].pad = 0;
+	S_CalculateLight(s1[0], s1[2], s1[3], room_no, &duff_item.il);
+}
 
 void DrawCutSeqActors()//90DCC(<), 92E10
 {
@@ -48,7 +88,7 @@ void DrawCutSeqActors()//90DCC(<), 92E10
 				//v0 = &objects[0];
 				object = &objects[GLOBAL_cutme->actor_data[s6].objslot];
 				mTranslateAbsXYZ(GLOBAL_cutme->orgx, GLOBAL_cutme->orgy, GLOBAL_cutme->orgz);
-				//CalcActorLighting();
+				CalcActorLighting();
 				//v0 = object->mesh_index
 				//v1 = object->bone_index
 				meshp = &meshes[object->mesh_index];
