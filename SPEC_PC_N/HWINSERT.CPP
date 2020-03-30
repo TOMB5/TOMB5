@@ -47,7 +47,7 @@ void FindBucket(uint16_t tile, D3DTLBUMPVERTEX** vptr, int** cntptr)
 	auto ptr = Bucket;
 	for(int i = 0; i < MAXBUCKETS; i++, ptr++)
 	{
-		if (ptr->tpage == tile && ptr->cnt > 2048)
+		if (ptr->tpage == tile && ptr->cnt < 2048)
 		{
 			*vptr = &ptr->Vertex[ptr->cnt];
 			*cntptr = &ptr->cnt;

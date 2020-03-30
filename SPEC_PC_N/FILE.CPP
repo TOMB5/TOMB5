@@ -325,7 +325,7 @@ int numLvlMeshes;
 		Log(LT_Enter, "LoadTextures");
 
 		//dword_875144 = level_data;
-		num_pages = 0; // TODO: this is 1 in original
+		num_pages = 1;
 
 		int depth_bis = 0;
 		int depth = 4;
@@ -1287,10 +1287,114 @@ int numLvlMeshes;
 
 		for(int i = 0; i < numTex; i++)
 		{
-			
+			DXTextureList[object_textures[i].tile_and_flag].a8++;
+			object_textures[i].tile_and_flag++;
+			const auto v4 = object_textures[i].tile_and_flag;
+			const auto ox = 1.0 / (2 * DXTextureList[v4].width);
+			const auto oy = 1.0 / (2 * DXTextureList[v4].height);
+			if (object_textures[i].is_room_geom)
+			{
+				switch (object_textures[i].mapping_corr)
+				{
+				case OTM_UNK0:
+					object_textures[i].vertices[0].x += ox;
+					object_textures[i].vertices[0].y += oy;
+					object_textures[i].vertices[1].x -= ox;
+					object_textures[i].vertices[1].y += oy;
+					object_textures[i].vertices[2].x += ox;
+					object_textures[i].vertices[2].y -= oy;
+					break;
+				case OTM_UNK1:
+					object_textures[i].vertices[0].x -= ox;
+					object_textures[i].vertices[0].y += oy;
+					object_textures[i].vertices[1].x -= ox;
+					object_textures[i].vertices[1].y -= oy;
+					object_textures[i].vertices[2].x += ox;
+					object_textures[i].vertices[2].y += oy;
+					break;
+				case OTM_UNK2:
+					object_textures[i].vertices[0].x -= ox;
+					object_textures[i].vertices[0].y -= oy;
+					object_textures[i].vertices[1].x += ox;
+					object_textures[i].vertices[1].y -= oy;
+					object_textures[i].vertices[2].x -= ox;
+					object_textures[i].vertices[2].y += oy;
+					break;
+				case OTM_UNK3:
+					object_textures[i].vertices[0].x += ox;
+					object_textures[i].vertices[0].y -= oy;
+					object_textures[i].vertices[1].x += ox;
+					object_textures[i].vertices[1].y += oy;
+					object_textures[i].vertices[2].x -= ox;
+					object_textures[i].vertices[2].y -= oy;
+					break;
+				case OTM_UNK4:
+					object_textures[i].vertices[0].x -= ox;
+					object_textures[i].vertices[0].y += oy;
+					object_textures[i].vertices[1].x += ox;
+					object_textures[i].vertices[1].y += oy;
+					object_textures[i].vertices[2].x -= ox;
+					object_textures[i].vertices[2].y -= oy;
+					break;
+				case OTM_UNK5:
+					object_textures[i].vertices[0].x += ox;
+					object_textures[i].vertices[0].y += oy;
+					object_textures[i].vertices[1].x += ox;
+					object_textures[i].vertices[1].y -= oy;
+					object_textures[i].vertices[2].x -= ox;
+					object_textures[i].vertices[2].y += oy;
+					break;
+				case OTM_UNK6:
+					object_textures[i].vertices[0].x += ox;
+					object_textures[i].vertices[0].y -= oy;
+					object_textures[i].vertices[1].x -= ox;
+					object_textures[i].vertices[1].y -= oy;
+					object_textures[i].vertices[2].x += ox;
+					object_textures[i].vertices[2].y += oy;
+					break;
+				case OTM_UNK7:
+					object_textures[i].vertices[0].x -= ox;
+					object_textures[i].vertices[0].y -= oy;
+					object_textures[i].vertices[1].x -= ox;
+					object_textures[i].vertices[1].y += oy;
+					object_textures[i].vertices[2].x += ox;
+					object_textures[i].vertices[2].y -= oy;
+					break;
+				default:
+					Log(LT_Error, "TextureInfo Type %d Not Found", object_textures[i].mapping_corr);
+					break;
+				}
+			}
+			else
+			{
+				switch(object_textures[i].mapping_corr)
+				{
+				case OTM_UNK0:
+					object_textures[i].vertices[0].x += ox;
+					object_textures[i].vertices[0].y += oy;
+					object_textures[i].vertices[1].x -= ox;
+					object_textures[i].vertices[1].y += oy;
+					object_textures[i].vertices[2].x -= ox;
+					object_textures[i].vertices[2].y -= oy;
+					object_textures[i].vertices[3].x += ox;
+					object_textures[i].vertices[3].y -= oy;
+					break;
+				case OTM_UNK1:
+					object_textures[i].vertices[0].x -= ox;
+					object_textures[i].vertices[0].y += oy;
+					object_textures[i].vertices[1].x += ox;
+					object_textures[i].vertices[1].y += oy;
+					object_textures[i].vertices[2].x += ox;
+					object_textures[i].vertices[2].y -= oy;
+					object_textures[i].vertices[3].x -= ox;
+					object_textures[i].vertices[3].y -= oy;
+					break;
+				default:
+					Log(LT_Error, "TextureInfo Type %d Not Found", object_textures[i].mapping_corr);
+					break;
+				}
+			}
 		}
-
-		Unimpl();
 	}
 
 	void LoadTextureInfos()// (F)
@@ -1490,7 +1594,7 @@ int numLvlMeshes;
 
 		FreeLevel();
 		
-		num_pages = 0;// TODO: this is 1 in original
+		num_pages = 1;
 		//
 		fp_level = FileOpen((char*)filename);
 

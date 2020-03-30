@@ -475,7 +475,18 @@ struct OBJECT_TEXTURE
 {
 	uint16_t attribute;
 	uint16_t tile_and_flag;
-	uint16_t new_flags;
+	union
+	{
+		uint16_t new_flags;
+		struct
+		{
+			uint16_t mapping_corr : 3; // 0..2
+			uint16_t : 8;
+			uint16_t bump_level : 2; // 11..12
+			uint16_t : 2;
+			uint16_t is_room_geom : 1; // 15
+		};
+	};
 	struct OBJECT_TEXTURE_VERT vertices[4];
 };
 
@@ -773,6 +784,18 @@ enum WINAPP_FLAGS
 	WA_FPUSETUP = (1 << 5),
 	WA_SOFTWARE = (1 << 6),
 	WA_BACK_BUFFER = (1 << 7),
+};
+
+enum OT_MAPPING
+{
+	OTM_UNK0,
+	OTM_UNK1,
+	OTM_UNK2,
+	OTM_UNK3,
+	OTM_UNK4,
+	OTM_UNK5,
+	OTM_UNK6,
+	OTM_UNK7,
 };
 
 #endif
