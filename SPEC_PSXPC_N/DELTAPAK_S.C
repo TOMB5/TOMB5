@@ -92,67 +92,64 @@ void DrawCutSeqActors()//90DCC(<), 92E10
 				meshp += 2;
 				s4 = object->nmeshes;
 				s4--;
-				if (s4 <= 0)
+				if (s4 > 0)
 				{
-					//loc_90FDC
-					break;
+					//loc_90F50
+					do
+					{
+						//a1 = bone[0];
+						s4--;
+
+						if ((*bone & 1))
+						{
+							mPopMatrix();
+						}
+
+						s5 <<= 1;
+						if ((*bone & 2))
+						{
+							mPushMatrix();
+						}
+
+						//loc_90F7C
+						mTranslateXYZ(bone[1], bone[2], bone[3]);
+						mRotSuperPackedYXZ(&rotation1, 0);
+
+						if (s5 & cutseq_meshbits[s6])
+						{
+							if (s5 & cutseq_meshswapbits[s6])
+							{
+								//loc_90FB0
+								if (s6 - 1 == 0)
+								{
+									phd_PutPolygons_seethrough(meshp[1], cut_seethrough);
+								}
+								else
+								{
+									//loc_90FC8
+									phd_PutPolygons(meshp[1], -1);
+								}
+							}
+							else
+							{
+								//loc_90FB0
+								if (s6 - 1 == 0)
+								{
+									phd_PutPolygons_seethrough(meshp[0], cut_seethrough);
+								}
+								else
+								{
+									//loc_90FC8
+									phd_PutPolygons(meshp[0], -1);
+								}
+							}
+
+						}
+						//loc_90FD0
+						bone += 4;
+						meshp += 2;
+					} while (s4 != 0);
 				}
-
-				//loc_90F50
-				do
-				{
-					//a1 = bone[0];
-					s4--;
-
-					if ((*bone & 1))
-					{
-						mPopMatrix();
-					}
-
-					s5 <<= 1;
-					if ((*bone & 2))
-					{
-						mPushMatrix();
-					}
-
-					//loc_90F7C
-					mTranslateXYZ(bone[1], bone[2], bone[3]);
-					mRotSuperPackedYXZ(&rotation1, 0);
-
-					if (s5 & cutseq_meshbits[s6])
-					{
-						if (s5 & cutseq_meshswapbits[s6])
-						{
-							//loc_90FB0
-							if (s6 - 1 == 0)
-							{
-								phd_PutPolygons_seethrough(meshp[1], cut_seethrough);
-							}
-							else
-							{
-								//loc_90FC8
-								phd_PutPolygons(meshp[1], -1);
-							}
-						}
-						else
-						{
-							//loc_90FB0
-							if (s6 - 1 == 0)
-							{
-								phd_PutPolygons_seethrough(meshp[0], cut_seethrough);
-							}
-							else
-							{
-								//loc_90FC8
-								phd_PutPolygons(meshp[0], -1);
-							}
-						}
-
-					}
-					//loc_90FD0
-					bone += 4;
-					meshp += 2;
-				} while (s4 != 0);
 			}
 			//loc_90FDC
 			mPopMatrix();
