@@ -3508,7 +3508,7 @@ void init_cutseq_malloc()//2D110(<), 2D430(<) (F)
 	return;
 }
 
-void frigup_lara()//2D000(<), ? (F)
+void frigup_lara()//2D000(<), 2D320 (F)
 {
 	struct object_info* object;
 	long* bone;
@@ -3595,7 +3595,7 @@ void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* p
 }
 
 
-void do_new_cutscene_camera()//2CA68(<), ? (F)
+void do_new_cutscene_camera()//2CA68(<), 2CD88 (F)
 {
 	struct PACKNODE* nodes; // $a0
 	int n; // $s0
@@ -3670,7 +3670,7 @@ void do_new_cutscene_camera()//2CA68(<), ? (F)
 	for (n = 1; n < GLOBAL_cutme->numactors; n++)
 	{
 		//loc_2CDD0
-		DecodeAnim(actor_pnodes[n], GLOBAL_cutme->actor_data[n].nodes, GLOBAL_cutseq_frame, 0x3FF);
+		DecodeAnim(actor_pnodes[n], GLOBAL_cutme->actor_data[n].nodes + 1, GLOBAL_cutseq_frame, 0x3FF);
 	}
 	//loc_2CE0C
 	++GLOBAL_cutseq_frame;//$v1
