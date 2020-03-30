@@ -35,7 +35,7 @@ void DrawCutSeqActors()//90DCC(<), 92E10
 			//fp = cutseq_meshswapbits[s6];
 			//v0 = 0x80000000
 
-			if (0x80000000 & cutseq_meshbits[s6])
+			if ((0x80000000 & cutseq_meshbits[s6]))
 			{
 				//v0 = actor_pnodes[s6]
 				//a1 = GLOBAL_cutme->actor_data[s6].nodes
@@ -97,7 +97,6 @@ void DrawCutSeqActors()//90DCC(<), 92E10
 					//loc_90F50
 					do
 					{
-						//a1 = bone[0];
 						s4--;
 
 						if ((*bone & 1))
@@ -165,8 +164,8 @@ void DrawCutSeqActors()//90DCC(<), 92E10
 void updateAnimFrame(struct PACKNODE* node, int flags, short* frame)//91030(<), 93074 (F)
 {
 	int at = 0;
-	int v1 = 0;
-	int v0 = 0;
+	unsigned int v1 = 0;
+	unsigned int v0 = 0;
 	int a0 = 0;
 	int t0 = 0;
 	short* a3 = NULL;
@@ -343,7 +342,7 @@ int DecodeTrack(char* packed, struct RTDECODE* decode)//90BD8(<), ?
 	return v0;
 }
 
-void DecodeAnim(struct PACKNODE* node, int a1, int frame, short a3)//90A88(<), ?
+void DecodeAnim(struct PACKNODE* node, int a1, int frame, unsigned short a3)//90A88(<), ?
 {
 	int t4 = 0;
 
@@ -402,9 +401,13 @@ void DecodeAnim(struct PACKNODE* node, int a1, int frame, short a3)//90A88(<), ?
 	//loc_90B6C
 	do
 	{
-		node->xrot_run += DecodeTrack(node->xpacked, &node->decode_x) & a3;
-		node->yrot_run += DecodeTrack(node->ypacked, &node->decode_y) & a3;
-		node->zrot_run += DecodeTrack(node->zpacked, &node->decode_z) & a3;
+		int xrot_run = ((unsigned short)node->xrot_run + DecodeTrack(node->xpacked, &node->decode_x)) & a3;
+		int yrot_run = ((unsigned short)node->yrot_run + DecodeTrack(node->ypacked, &node->decode_y)) & a3;
+		int zrot_run = ((unsigned short)node->zrot_run + DecodeTrack(node->zpacked, &node->decode_z)) & a3;
+		
+		node->xrot_run = xrot_run;
+		node->yrot_run = yrot_run;
+		node->zrot_run = zrot_run;
 		t4++;
 		node++;
 	} while (t4 < a1);

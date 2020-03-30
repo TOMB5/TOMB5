@@ -2741,9 +2741,17 @@ void special1_control()//2E614(<), 2E920(<) (F) (*)
 
 void special1_init()//2E5E4(<), 2E8F0(<) (F)
 {
+#if PSXPC_TEST
+	//@FIXME cutrot is not set to 0 in this, not check retail yet..
+	lara_item->mesh_bits = 0xFFFFFFFF;
+	Chris_Menu = 0;
+#elif PSX_VERSION
+	((VOIDFUNCVOID*)RelocPtr[MOD_TITSEQ][2])();
+#else
 	cutrot = 0;
 	lara_item->mesh_bits = 0xFFFFFFFF;
 	Chris_Menu = 0;
+#endif
 }
 
 void richcut3_control()//2E594(<), 2E8A0(<) (F)
@@ -3109,9 +3117,9 @@ void init_cutseq_actors(char* data, int resident)//2D944(<), 2DBD4 (F)
 
 			if (resident != 0)
 			{
-				actor_pnodes[n] = (PACKNODE*)resident_addr;
+				actor_pnodes[n] = (struct PACKNODE*)resident_addr;
 				pda_nodes++;
-				resident_addr = &resident_addr[pda_nodes * 84];
+				resident_addr = &resident_addr[pda_nodes * sizeof(struct PACKNODE)];
 				//v0 = actor_pnodes
 				a3 = pda_nodes;
 				//j loc_2DA18
