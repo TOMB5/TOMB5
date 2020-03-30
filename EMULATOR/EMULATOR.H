@@ -67,11 +67,15 @@
 #define CTR_CLOCK_SYS_ONE (0)
 #define CTR_CLOCK_SYS_ONE_EIGHTH (1)
 
-#define GET_TPAGE_X(tpage) ((tpage << 6) & 0x7C0) % (VRAM_WIDTH);
-#define GET_TPAGE_Y(tpage) ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT);
-#define GET_TPAGE_TYPE(tpage) (tpage >> 7) & 0x3;
-#define GET_CLUT_X(clut) ((clut & 0x3F) << 4);
-#define GET_CLUT_Y(clut) (clut >> 6);
+#define GET_TPAGE_X(tpage)      (((tpage << 6) & 0x7C0) % (VRAM_WIDTH))
+#define GET_TPAGE_Y(tpage)      (((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT))
+#define GET_TPAGE_TYPE(tpage)   ((tpage >> 7) & 0x3)
+// TODO
+#define GET_TPAGE_DITHER(tpage) 1
+//#define GET_TPAGE_DITHER(tpage) 1((tpage >> 9) & 0x1)
+
+#define GET_CLUT_X(clut)        ((clut & 0x3F) << 4)
+#define GET_CLUT_Y(clut)        (clut >> 6)
 
 typedef struct
 {
@@ -109,18 +113,17 @@ extern SysCounter counters[3];
 #pragma pack(push,1)
 struct Vertex
 {
-	short  x, y;
-	short  clut, page; // unused
-	u_char u, v;
-	u_char pad0, pad1; // unused
+	short  x, y, page, clut;
+	u_char u, v, bright, dither;
 	u_char r, g, b, a;
 };
 #pragma pack(pop)
 
-enum ShaderAttrib {
-    a_position,
-    a_texcoord,
-    a_color,
+enum ShaderAttrib
+{
+	a_position,
+	a_texcoord,
+	a_color,
 };
 
 enum BlendMode
@@ -161,13 +164,15 @@ extern void Emulator_SetBlendMode(int mode, int semiTransparent);
 extern void Emulator_CounterLoop();
 extern void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3);
 extern void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h);
-extern void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
+extern void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short page, short clut, unsigned char dither);
+extern void Emulator_GenerateTexcoordArrayRect(struct Vertex* vertex, unsigned char* uv, short page, short clut, short w, short h);
+extern void Emulator_GenerateTexcoordArrayZero(struct Vertex* vertex, unsigned char dither);
 extern void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3);
 extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
 extern void Emulator_DestroyTexture(TextureID texture);
 extern void Emulator_Clear(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b);
 extern void Emulator_SetViewPort(int x, int y, int width, int height);
-extern void Emulator_SetTexture(TextureID texture, int page, int clut);
+extern void Emulator_SetTexture(TextureID texture);
 extern void Emulator_SetShader(const ShaderID &shader);
 extern void Emulator_SetRenderTarget(const RenderTargetID &render_target);
 extern void Emulator_SetWireframe(bool enable);
