@@ -204,7 +204,7 @@ void updateAnimFrame(struct PACKNODE* node, int flags, short* frame)//91030(<) (
 	//loc_910A0
 	if (1 < flags)
 	{
-		a3 = &frames[9];
+		a3 = &frame[9];
 		a2 = &node[1];
 		t0 = flags - 1;
 		at = 1;
