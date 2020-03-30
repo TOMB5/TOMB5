@@ -3173,7 +3173,7 @@ void init_cutseq_actors(char* data, int resident)//2D944(<), 2DBD4 (F)
 	else
 	{
 		//loc_2DA9C
-		camera_pnodes = (struct PACKNODE*)cutseq_malloc(168);
+		camera_pnodes = (struct PACKNODE*)cutseq_malloc(sizeof(struct PACKNODE) * 2);
 		//a0 = packed
 	}
 
