@@ -7,7 +7,7 @@
 #include "SPECIFIC.H"
 #include "DRAWOBJ.H"
 
-void DrawCutSeqActors()//90DCC(<),
+void DrawCutSeqActors()//90DCC(<), 92E10
 {
 	//s3 = GLOBAL_cutme
 	//s0 = meshes
@@ -40,7 +40,7 @@ void DrawCutSeqActors()//90DCC(<),
 				//v0 = actor_pnodes[s6]
 				//a1 = GLOBAL_cutme->actor_data[s6].nodes
 				//a0 = actor_pnodes[s6].
-				updateAnimFrame(actor_pnodes[s6], 1, temp_rotation_buffer);
+				updateAnimFrame(actor_pnodes[s6], GLOBAL_cutme->actor_data[s6].nodes + 1, temp_rotation_buffer);
 				//v1 = GLOBAL_cutme->actor_data[s6].objslot
 				//a0 = GLOBAL_cutme->orgx
 				//a1 = GLOBAL_cutme->orgy
@@ -165,7 +165,7 @@ void DrawCutSeqActors()//90DCC(<),
 	//loc_91000
 }
 
-void updateAnimFrame(struct PACKNODE* node, int flags, short* frame)//91030(<) (F)
+void updateAnimFrame(struct PACKNODE* node, int flags, short* frame)//91030(<), 93074 (F)
 {
 	int at = 0;
 	int v1 = 0;
