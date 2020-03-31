@@ -8,6 +8,8 @@
 #include "DRAWSPKS.H"
 #include "LARA.H"
 
+#include <LIBGPU.H>
+
 void DrawFlash()
 {
 	UNIMPLEMENTED();
@@ -152,7 +154,31 @@ loc_8F440:
 
 void DrawPsxTile(long a0, long a1, long a2, long a3, long var_10)//8F770(<), 917B4(<) (F)
 {
-	UNIMPLEMENTED();
+	if ((unsigned long)db.polyptr < (unsigned long)db.polybuf_limit)
+	{
+		char* ptr = db.polyptr;
+		setDrawTPage(ptr, 0, 1, (a3 & 3) << 5);
+
+#if defined(USE_32_BIT_ADDR)
+		setlen(ptr, 6);
+#else
+		setlen(ptr, 5);
+#endif
+		ptr += sizeof(DR_TPAGE);
+		setTile(ptr);
+		setSemiTrans(ptr, 1);
+		setRGB0((TILE*)ptr, getR(a2), getG(a2), getB(a2));
+		setXY0((TILE*)ptr, a0 & 0xFFFF, (a0 >> 16) & 0xFFFF);
+		setWH((TILE*)ptr, a1 & 0xFFFF, (a1 >> 16) & 0xFFFF);
+		ptr += sizeof(TILE);
+#if defined(USE_32_BIT_ADDR)
+		addPrim(db.ot + (var_10 * 2), db.polyptr);
+#else
+		addPrim(db.ot + var_10);
+#endif
+		db.polyptr = ptr;
+	}
+	//locret_8F7D0
 }
 
 void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)

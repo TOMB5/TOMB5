@@ -1,7 +1,7 @@
 #include "CONTROL.H"
+#include "CALCHAIR.H"
 
 #if PSX_VERSION || PSXPC_VERSION
-#include "CALCHAIR.H"
 #include "COLLIDE_S.H"
 #include "DRAWPHAS.H"
 #include "3D_GEN.H"
@@ -1277,6 +1277,7 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 		{
 			//loc_1E044
 			camera.type = CINEMATIC_CAMERA;
+			CalculateCamera();
 		}
 
 		//loc_1E054
@@ -1549,8 +1550,445 @@ int is_object_in_room(int roomnumber, int objnumber)// (F)
 	return FALSE;
 }
 
-void NeatAndTidyTriggerCutscene(int value, int timer)
+void NeatAndTidyTriggerCutscene(int value/*s0*/, int timer/*s1*/)
 {
+	//v0 = 0x41
+
+	if (value == 0x41)
+	{
+		//v1 = lara_item
+		if (lara_item->pos.y_pos < 0x3601)
+		{
+			if (have_i_got_object(0xDC))
+			{
+				gfLevelComplete = gfCurrentLevel + 1;
+			}
+		}//loc_215B8
+	}
+	else if((unsigned)(value - 0x1C) < 4)
+	{
+		//loc_20EE0
+		//v1 = lara
+		if (cutseq_trig == 0)
+		{
+			//v1 = Chris_Menu
+			cutrot = timer & 3;
+
+			//v0 = 0x1C
+			if (Chris_Menu == 0)
+			{
+				//v0 = 0x1C
+				if (dels_cutseq_selector_flag == 0)
+				{
+					cutseq_num = value;
+					return;
+				}
+			}
+			//loc_20F34
+			//v0 = 0x1D
+			if (value == 0x1C)
+			{
+				trigger_title_spotcam(2);
+			}
+			else if (value == 0x1D)
+			{
+				//loc_20F4C
+				trigger_title_spotcam(3);
+			}
+			else if (value == 0x1E)
+			{
+				trigger_title_spotcam(4);
+			}
+			else if (value == 0x1F)
+			{
+				trigger_title_spotcam(1);
+			}
+
+			//loc_20F8C
+			title_controls_locked_out = 0;
+			return;
+		}//loc_20FA0
+	}
+	//loc_20FA0
+	//v1 = lara
+	//s2 = a0
+	if (!(lara.look))
+	{
+		if (value == 0x17)
+		{
+			if (cutseq_trig != 0)
+			{
+				return;
+			}
+
+			if (CheckCutPlayed(0x17))
+			{
+				richcutfrigflag = 1;
+			}//loc_20FE8
+		}
+		//loc_20FE8
+
+		if (cutseq_trig != 0)
+		{
+			return;
+		}
+
+		if (CheckCutPlayed(value))
+		{
+			return;
+		}
+
+		cutrot = timer & 3;
+
+		//v0 = 0x2B
+		if ((unsigned)(value - 5) < 0x3B)
+		{
+			//v0 = 0x27
+			if (value == 0x2B)
+			{
+				if (cutrot != 1)
+				{
+					cutseq_num = value;
+					return;
+				}
+
+				//v0 = lara_item
+				if(!is_object_in_room(lara_item->room_number, 0x4F) || have_i_got_object(0xAD))
+				{
+					return;
+				}
+
+				cutseq_num = value;
+				return;
+			}
+			else if (value == 0x27)
+			{
+				//loc_21070
+				//v0 = input
+				//v0 = lara
+				//v0 = 0xD
+				if ((input & IN_ACTION) && BinocularRange == 0 && lara.gun_status == 0 && lara_item->current_anim_state == 0xD && lara_item->anim_number == 0x6C && GLOBAL_inventoryitemchosen == -1 && have_i_got_object(0xAD) != 0)
+				{
+					//a0 = lara_item
+					//v0 = 0x6C
+					//v0 = -1
+					GLOBAL_enterinventory = 0xAD;
+					return;
+				}
+				//loc_21104
+
+				//v0 = 0xAD
+				//v1 = GLOBAL_inventoryitemchosen
+				if (GLOBAL_inventoryitemchosen != 0xAD)
+				{
+					return;
+				}
+				else
+				{
+					GLOBAL_inventoryitemchosen = -1;
+					return;
+				}
+
+			}//loc_21120
+			else if (value == 0x26)
+			{
+				//v0 = 2
+				//a0 = lara_item
+				if ((input & IN_ACTION) && BinocularRange == 0 && lara.gun_status == 0 && lara_item->current_anim_state == 2 && lara_item->anim_number == 0x67)
+				{
+					//v0 = 0xAC
+					if (GLOBAL_inventoryitemchosen == -1)
+					{
+						if (have_i_got_object(0xAC))
+						{
+							GLOBAL_enterinventory = 0xAC;
+							return;
+						}
+					}//loc_211D0
+				}
+				else
+				{
+					//loc_211C4
+					//v1 = GLOBAL_inventoryitemchosen
+					if (GLOBAL_inventoryitemchosen == 0xAC)
+					{
+						GLOBAL_inventoryitemchosen = -1;
+						cutseq_num = value;
+						return;
+					}
+				}
+			}
+			//loc_211E0
+			//v0 = 0xA
+		}//loc_214B0
+
+	}
+	//loc_215B8
+
+#if 0
+loc_211E0:
+bne     $s0, $v0, loc_21208
+li      $v0, 0x18
+jal     sub_4086C
+li      $a0, 0xAE
+beqz    $v0, loc_21208
+li      $v0, 0x18
+jal     sub_20DA0
+li      $a0, 0xA
+li      $s0, 9
+li      $v0, 0x18
+
+loc_21208:
+bne     $s0, $v0, loc_212D8
+li      $v0, 0x14
+lw      $v1, dword_800A2048
+nop
+lh      $a0, 0x18($v1)
+lw      $v1, dword_800A24DC
+sll     $v0, $a0, 2
+addu    $v0, $a0
+sll     $v0, 4
+addu    $v0, $v1
+lh      $a0, 0x48($v0)
+li      $v1, 0xFFFFFFFF
+beq     $a0, $v1, loc_215B8
+li      $t2, 0x45
+lui     $v0, 0x1F
+addiu   $t1, $v0, 0x2480
+li      $t0, 0xFFFFFFFF
+lw      $a3, 0x1B38($gp)
+lw      $a2, dword_800A25E0
+sll     $v0, $a0, 3
+
+loc_21264:
+addu    $v0, $a0
+sll     $v0, 4
+addu    $a0, $a3, $v0
+lh      $v1, 0xC($a0)
+lh      $a1, 0x1A($a0)
+bne     $v1, $t2, loc_212C4
+nop
+lh      $v0, 0x22($a0)
+nop
+blez    $v0, loc_212C4
+nop
+lh      $v0, 0x966($t1)
+lh      $v1, 0x14($a0)
+addiu   $v0, 0x3E
+bne     $v1, $v0, loc_212C4
+sll     $v0, $v1, 2
+addu    $v0, $v1
+sll     $v0, 3
+addu    $v0, $a2
+lh      $a0, 0x16($a0)
+lh      $v1, 0x1A($v0)
+nop
+beq     $a0, $v1, loc_215B0
+nop
+
+loc_212C4:
+move    $a0, $a1
+bne     $a0, $t0, loc_21264
+sll     $v0, $a0, 3
+j       loc_215B8
+nop
+
+loc_212D8:
+bne     $s0, $v0, loc_21398
+li      $v0, 0xE
+lw      $v0, dword_800A457C
+nop
+andi    $v0, 0x40
+beqz    $v0, loc_2137C
+nop
+lw      $v0, dword_A0758
+nop
+bnez    $v0, loc_2137C
+addiu   $v0, $s2, 0x57DC
+lh      $v1, 2($v0)
+nop
+bnez    $v1, loc_2137C
+li      $v0, 2
+lw      $a0, dword_800A2048
+nop
+lh      $v1, 0xE($a0)
+nop
+bne     $v1, $v0, loc_2137C
+li      $v0, 0x67
+lh      $v1, 0x14($a0)
+nop
+bne     $v1, $v0, loc_2137C
+li      $v0, 0xFFFFFFFF
+lw      $v1, dword_A0B34
+nop
+bne     $v1, $v0, loc_21388
+li      $v0, 0xCA
+jal     sub_4086C
+li      $a0, 0xCA
+beqz    $v0, loc_2137C
+li      $v0, 0xCA
+sw      $v0, dword_A0B30
+j       loc_215B8
+nop
+
+loc_2137C:
+lw      $v1, dword_A0B34
+li      $v0, 0xCA
+
+loc_21388:
+bne     $v1, $v0, loc_215B8
+li      $v0, 0xFFFFFFFF
+j       loc_215A8
+nop
+
+loc_21398:
+bne     $s0, $v0, loc_21470
+li      $v0, 0x17
+lw      $v0, dword_800A457C
+nop
+andi    $v0, 0x40
+beqz    $v0, loc_2143C
+nop
+lw      $v0, dword_A0758
+nop
+bnez    $v0, loc_2143C
+addiu   $v0, $s2, 0x57DC
+lh      $v1, 2($v0)
+nop
+bnez    $v1, loc_2143C
+li      $v0, 2
+lw      $a0, dword_800A2048
+nop
+lh      $v1, 0xE($a0)
+nop
+bne     $v1, $v0, loc_2143C
+li      $v0, 0x67
+lh      $v1, 0x14($a0)
+nop
+bne     $v1, $v0, loc_2143C
+li      $v0, 0xFFFFFFFF
+lw      $v1, dword_A0B34
+nop
+bne     $v1, $v0, loc_21448
+li      $v0, 0xAD
+jal     sub_4086C
+li      $a0, 0xAD
+beqz    $v0, loc_2143C
+li      $v0, 0xAD
+
+loc_2142C:
+sw      $v0, dword_A0B30
+j       loc_215B8
+nop
+
+loc_2143C:
+lw      $v1, dword_A0B34
+li      $v0, 0xAD
+
+loc_21448:
+bne     $v1, $v0, loc_215B8
+li      $v0, 0xFFFFFFFF
+sw      $v0, dword_A0B34
+sw      $s0, dword_A09A8
+jal     sub_4097C
+li      $a0, 0xAD
+j       loc_215B8
+nop
+
+loc_21470:
+bne     $s0, $v0, loc_215B0
+addiu   $v0, $s2, 0x57DC
+lbu     $v1, 0x121($v0)
+nop
+beqz    $v1, loc_215B8
+nop
+jal     sub_21634
+nop
+bnez    $v0, loc_215B8
+nop
+lbu     $v0, 0xB0($gp)
+nop
+bnez    $v0, loc_215B8
+nop
+j       loc_215B0
+nop
+
+loc_214B0:
+li      $a0, 2
+bne     $s0, $a0, loc_214C0
+li      $s1, 0xED
+li      $s1, 0xF0
+
+loc_214C0:
+lw      $v0, dword_800A457C
+nop
+andi    $v0, 0x40
+beqz    $v0, loc_2156C
+nop
+lw      $v0, dword_A0758
+nop
+bnez    $v0, loc_2156C
+addiu   $v0, $s2, 0x57DC
+lh      $v1, 2($v0)
+nop
+bnez    $v1, loc_2156C
+nop
+lw      $v1, dword_800A2048
+nop
+lh      $v0, 0xE($v1)
+nop
+bne     $v0, $a0, loc_2156C
+li      $v0, 0x67
+lh      $v1, 0x14($v1)
+nop
+bne     $v1, $v0, loc_2156C
+li      $v0, 0xFFFFFFFF
+lw      $v1, dword_A0B34
+nop
+bne     $v1, $v0, loc_2156C
+nop
+jal     sub_4086C
+move    $a0, $s1
+beqz    $v0, loc_2156C
+nop
+jal     sub_209AC
+nop
+beqz    $v0, loc_215B8
+nop
+sw      $s1, dword_A0B30
+j       loc_215B8
+nop
+
+loc_2156C:
+lw      $v0, dword_A0B34
+nop
+bne     $v0, $s1, loc_215B8
+nop
+jal     sub_209AC
+nop
+beqz    $v0, loc_215B8
+li      $v0, 0xED
+bne     $s1, $v0, loc_215A8
+li      $v0, 0xFFFFFFFF
+addiu   $v1, $s2, 0x57DC
+li      $v0, 1
+sb      $v0, 0x12A($v1)
+li      $v0, 0xFFFFFFFF
+
+loc_215A8:
+sw      $v0, dword_A0B34
+
+loc_215B0:
+sw      $s0, dword_A09A8
+
+loc_215B8:
+lw      $ra, 0x20+var_4($sp)
+lw      $s2, 0x20+var_8($sp)
+lw      $s1, 0x20+var_C($sp)
+lw      $s0, 0x20+var_10($sp)
+jr      $ra
+addiu   $sp, 0x20
+#endif
 	UNIMPLEMENTED();
 }
 
@@ -2018,7 +2456,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 	{
 		if (!heavy)
 		{
-			if (lara_item->pos.y_pos == lara_item->floor || lara.water_status != 0)
+			if (lara_item->pos.y_pos == lara_item->floor || lara.water_status != LW_ABOVE_WATER)
 			{
 				//loc_1EAC0
 				LavaBurn(lara_item);
@@ -2966,7 +3404,7 @@ struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 
 
 	if (y < floor->floor << 8)
 	{
-		if (y < floor->ceiling << 8 && floor->sky_room != -1)
+		if (y < floor->ceiling << 8 && floor->sky_room != 0xFF)
 		{
 			do
 			{

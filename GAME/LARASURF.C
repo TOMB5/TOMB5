@@ -371,7 +371,7 @@ int LaraTestWaterStepOut(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D100,
 	item->speed = 0;
 	item->fallspeed = 0;
 
-	lara.water_status = 4;
+	lara.water_status = LW_WADE;
 
 	return 1;
 }

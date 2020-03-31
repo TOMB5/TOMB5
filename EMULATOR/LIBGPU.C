@@ -1022,7 +1022,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 				lastPolyType = POLY_TYPE_TRIANGLES;
 				lastSemiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].primitiveType = lastPolyType;
-				g_splitIndices[g_numSplitIndices].textureId = vramTexture;
+				g_splitIndices[g_numSplitIndices].textureId = whiteTexture;
 				g_splitIndices[g_numSplitIndices].semiTrans = semi_transparent;
 				g_splitIndices[g_numSplitIndices].abr = (activeDrawEnv.tpage >> 5) & 3;
 				g_splitIndices[g_numSplitIndices - 1].numVertices = numVertices;

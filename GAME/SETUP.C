@@ -307,6 +307,10 @@ void init_water_table()//(<), B4A40(<)
 			}
 		}
 	}
+
+#if PC_VERSION
+	UNIMPLEMENTED();
+#endif
 }
 
 #if !PC_VERSION

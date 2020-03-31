@@ -1103,7 +1103,7 @@ void LaraTestWaterDepth(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B4F8(<
 		item->fallspeed = 0;
 		item->gravity_status = 0;
 		item->frame_number = anims[192].frame_base;
-		lara.water_status = 4;
+		lara.water_status = LW_WADE;
 		item->pos.y_pos = GetHeight(floor, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos);
 	}//loc_4B5F0
 }

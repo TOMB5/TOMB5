@@ -7,6 +7,7 @@
 #include "DRAWPRIMITIVE.H"
 #include "FILE.H"
 #include "DIRECTX.H"
+#include "TEXT.H"
 
 //object_info objects[NUMBER_OBJECTS];
 //static_info static_objects[NUMBER_STATIC_OBJECTS];
@@ -14,13 +15,15 @@ LPDIRECT3DVERTEXBUFFER vertex_buffer;
 bool game_running;
 WORD* d9ab34;
 int e4b100;
-int d9ab1c;
+int num_tris;
 int d9ab10;
 DWORD dword_921684;
 DWORD dword_7EE0D4;
 BYTE tsv_buffer[8192];
 DWORD dword_57A018;
 DWORD dword_51CE58 = 0;
+float flt_878658[32];
+PHD_VECTOR lookatpos;
 void InitFX()// (F)
 {
 	if (App.Flags & WA_BACK_BUFFER)  
@@ -56,6 +59,7 @@ bool GameInitialise()
 	init_game_malloc();
 
 	d9ab34 = (WORD*)malloc(16384 * sizeof(WORD));
+	memset(d9ab34, 0, 16384 * sizeof(WORD));
 
 	App.dword_D9AC38 = 0;
 	App.dword_D9AC34 = CUR_DM.w;
@@ -209,7 +213,7 @@ unsigned __stdcall GameMain(void* data)
 	InitialiseFunctionTable();
 	HWInitialise();
 	InitWindow(0, 0, App.width, App.height, 20, SECTOR(20), 80);
-	//InitFont();
+	InitFont();
 	TIME_Init();
 	App.GameInitialized = true;
 	// todo
@@ -228,7 +232,7 @@ unsigned __stdcall GameMain(void* data)
 
 void do_boot_screen(int language)// (F)
 {
-	Log(2, "do_boot_screen");
+	Log(LT_Enter, "do_boot_screen");
 
 	switch (language)
 	{

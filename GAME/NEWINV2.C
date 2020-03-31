@@ -520,9 +520,9 @@ void do_examine_mode()//411C4, 41618 (F)
 	objme->scale1 = 300;
 
 	DrawThreeDeeObject2D(
-#if PC_VERSION && 0
-		(int)((double)middle_width + inventry_xpos),
-		(int)((double)middle_height / 120.0 * 256.0 + inventry_xpos) / 2,
+#if PC_VERSION
+		(phd_centerx + inventry_xpos),
+		(phd_centery / 120.0 * 256.0 + inventry_xpos) / 2,
 #else
 		inventry_xpos + 256,
 		(inventry_ypos + 240) / 2,
@@ -2260,13 +2260,17 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 					//loc_3DA9C
 					if (ringnum == RING_INVENTORY)
 					{
+#if PSXENGINE
 						PrintString(SCREEN_WIDTH / 2, 75, 8, &textbufme[0], FF_CENTER);
+#endif
 						//j       loc_3DADC
 					}
 					else
 					{
 						//loc_3DAC4
+#if PSXENGINE
 						PrintString(SCREEN_WIDTH / 2, 165, 8, &textbufme[0], FF_CENTER);
+#endif
 					}
 				}
 				//loc_3DADC
@@ -2837,7 +2841,7 @@ void DrawInventoryItemMe(struct ITEM_INFO* item, long shade, int overlay, int sh
 
 void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, int zrot, int bright, int overlay)//3C43C(<), 3C890(<) (F)
 {
-#if !PC_VERSION
+
 	struct ITEM_INFO item;
 	struct INVOBJ* objme;
 
@@ -2849,8 +2853,13 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.object_number = objme->object_number;
 
 	phd_LookAt(0, 1024, 0, 0, 0, 0, 0);
+#if PC_VERSION
+	phd_QuickW2VMatrix({ 0, 1024, 0 }, { 100, 0, 200 }, 0);
+#else
 	mQuickW2VMatrix();
+#endif
 
+#if PSXENGINE
 	if (bright == 0)
 	{
 		SetInventoryLighting(0x505050, 0x202020, 0x404040, 0x808080);
@@ -2864,7 +2873,13 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 		//loc_3C550
 		SetInventoryLighting(0x323232, 0x101010, 0x303030, (bright << 16) | (bright << 8) | bright);
 	}
+#endif
 
+#if PC_VERSION
+	SetD3DViewMatrix();
+	phd_PushUnitMatrix();
+	phd_TranslateRel(0, 0, objme->scale1);
+#else
 	//loc_3C578
 	mPushUnitMatrix();
 	Matrix->m10 -= (Matrix->m10 >> 2);
@@ -2879,10 +2894,13 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	item.pos.z_pos = 0;
 	item.room_number = 0;
 	item.il.Light[3].pad = 0;
+#endif
 	item.mesh_bits = objme->meshbits;
 	item.anim_number = objects[item.object_number].anim_index;
 
+#if PSXENGINE
 	SetGeomOffset(x, y + objme->yoff);
+#endif
 
 	if (!(objme->flags & 8))
 	{
@@ -2895,6 +2913,11 @@ void DrawThreeDeeObject2D(int x, int y, int num, int shade, int xrot, int yrot, 
 	}
 
 	mPopMatrix();
+#if PC_VERSION
+	UNIMPLEMENTED();
+	//dword_E598A0 = phd_centerx;
+	//dword_E5990C = phd_centery;
+#else
 	SetGeomOffset(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 #endif
 }

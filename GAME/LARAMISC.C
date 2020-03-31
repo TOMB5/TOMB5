@@ -2,13 +2,13 @@
 
 #include "SPECIFIC.H"
 #include "LARA.H"
+#include "COLLIDE.H"
 #if PSX_VERSION || PSXPC_VERSION
 #include "CALCLARA.H"
 #include "MATHS.H"
 #include "FXTRIG.H"
 #include "LARASURF.H"
 #include "GETSTUFF.H"
-#include "COLLIDE.H"
 #include "3D_GEN.H"
 #include "COLLIDE_S.H"
 #endif
@@ -35,8 +35,10 @@
 #endif
 #include "EFFECTS.H"
 #include "SOUND.H"
+#if PSXENGINE
 #include "SFX.H"
 #include "CD.H"
+#endif
 
 #if PSX_VERSION && !PSXPC_TEST
 #include <STDIO.H>
@@ -244,22 +246,22 @@ void LaraControl(short item_number)//4A838, 4AC9C
 			if (hfw >= 257 && room_water_state != 0)
 			{
 				lara.air = 1800;
-				lara.water_status = 1;
+				lara.water_status = LW_UNDERWATER;
 				item->status = 0;
 
 				UpdateLaraRoom(lara_item, 0);
 				StopSoundEffect(SFX_LARA_FALL);
 
-				if (item->current_anim_state == 0x34)
+				if (item->current_anim_state == STATE_LARA_SWANDIVE_BEGIN)
 				{
-					item->goal_anim_state = 0x23;
+					item->goal_anim_state = STATE_LARA_UNDERWATER_DIVING;
 					item->pos.x_rot = -0x1FFE;
 					AnimateLara(item);
 					item->fallspeed <<= 1;
 				}//loc_4AABC
-				else if (item->current_anim_state == 0x35)
+				else if (item->current_anim_state == STATE_LARA_SWANDIVE_END)
 				{
-					item->goal_anim_state = 0x23;
+					item->goal_anim_state = STATE_LARA_UNDERWATER_DIVING;
 					item->pos.x_rot = -0x36CE;
 					AnimateLara(item);
 					item->fallspeed <<= 1;
@@ -267,11 +269,11 @@ void LaraControl(short item_number)//4A838, 4AC9C
 				else
 				{
 					item->pos.x_rot = -0x1FFE;
-					item->current_anim_state = 0x23;
-					item->anim_number = 0x70;
-					item->goal_anim_state = 0x11;
+					item->current_anim_state = STATE_LARA_UNDERWATER_DIVING;
+					item->anim_number = ANIMATION_LARA_FREE_FALL_TO_UNDERWATER;
+					item->goal_anim_state = STATE_LARA_UNDERWATER_FORWARD;
 					item->fallspeed = (((item->fallspeed << 1) + item->fallspeed) + (((item->fallspeed << 1) + item->fallspeed) >> 31)) >> 1;
-					item->frame_number = anims[112].frame_base;
+					item->frame_number = anims[ANIMATION_LARA_FREE_FALL_TO_UNDERWATER].frame_base;
 				}
 				//loc_4AB38
 				//a0 = lara_item
@@ -405,12 +407,12 @@ void LaraControl(short item_number)//4A838, 4AC9C
 			{
 				//v0 = -0xFA4
 				//v1 = 4
-				lara.water_status = 4;
+				lara.water_status = LW_WADE;
 
 				//v0 = -0xFA4
 				if (!item->gravity_status)
 				{
-					item->goal_anim_state = 2;
+					item->goal_anim_state = STATE_LARA_STOP;
 				}//loc_4AB94
 			}//loc_4AB94
 
@@ -446,19 +448,19 @@ void LaraControl(short item_number)//4A838, 4AC9C
 			&& item->anim_number != 0x72
 			&& item->anim_number != 0x77)
 		{
-			lara.water_status = 2;
+			lara.water_status = LW_SURFACE;
 			//v0 = s3 + 1
 			//v1 = anims
 			//a1 = 0;
 			item->pos.y_pos = wh + 1;
 			//a2 = anims[114].frame_base;
 			//v1 = lara_item
-			item->goal_anim_state = 0x21;
-			item->current_anim_state = 0x21;
+			item->goal_anim_state = STATE_LARA_ONWATER_STOP;
+			item->current_anim_state = STATE_LARA_ONWATER_STOP;
 			//v0 = 0xB
-			item->anim_number = 0x72;
+			item->anim_number = ANIMATION_LARA_UNDERWATER_TO_ONWATER;
 			item->fallspeed = 0;
-			item->frame_number = anims[114].frame_base;
+			item->frame_number = anims[ANIMATION_LARA_UNDERWATER_TO_ONWATER].frame_base;
 			lara.dive_count = 0xB;
 			lara_item->pos.z_rot = 0;
 			item->pos.x_rot = 0;
@@ -486,18 +488,18 @@ void LaraControl(short item_number)//4A838, 4AC9C
 							//a2 = &lara
 							//v1 = anims
 							//v0 = 2
-							lara.water_status = 2;
+							lara.water_status = LW_SURFACE;
 							item->pos.y_pos = wh;
 							//a3 = anims[114].frame_base
 							//v1 = 0x21
-							item->goal_anim_state = 0x21;
-							item->current_anim_state = 0x21;
+							item->goal_anim_state = STATE_LARA_ONWATER_STOP;
+							item->current_anim_state = STATE_LARA_ONWATER_STOP;
 							//v1 = lara_item
 							//v0 = 0x72
-							item->anim_number = 0x72;
+							item->anim_number = ANIMATION_LARA_UNDERWATER_TO_ONWATER;
 							//v0 = 0xb
 							item->fallspeed = 0;
-							item->frame_number = anims[114].frame_base;
+							item->frame_number = anims[ANIMATION_LARA_UNDERWATER_TO_ONWATER].frame_base;
 							lara.dive_count = 0xB;
 							lara_item->pos.z_rot = 0;
 							item->pos.x_rot = 0;
@@ -679,7 +681,7 @@ void LaraControl(short item_number)//4A838, 4AC9C
 	//loc_4B020
 	switch (lara.water_status)
 	{
-	case 0:
+	case LW_ABOVE_WATER:
 		//a0 = lara
 		//v0 = lara
 		if (lara.Gassed)

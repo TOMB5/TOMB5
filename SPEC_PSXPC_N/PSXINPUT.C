@@ -10,12 +10,12 @@
 #include "SPECIFIC.H"
 #include <LIBPAD.H>
 #if PSXPC_TEST
-#include <stdio.h>
 #include "EMULATOR_PRIVATE.H"
+#include <STDIO.H>
 #elif PSX_VERSION
 #include <STDIO.H>
 #endif
-#include <assert.h>
+//#include <assert.h>
 #include "FXTRIG.H"
 
 static struct pad_configs pad_cons[5] =
@@ -165,7 +165,7 @@ void S_UpdateInput()//5F628(<), 6038C(<)
 		if ((RawPad & 0x800))
 		{
 			if (lara_item->current_anim_state - 0x50 < 2 || lara_item->current_anim_state == 0x54 ||
-				lara_item->current_anim_state == 0x55 || lara_item->current_anim_state || 0x56 ||
+				lara_item->current_anim_state == 0x55 || lara_item->current_anim_state == 0x56 ||
 				lara_item->current_anim_state == 0x58)
 			{
 				//loc_5F780

@@ -11,17 +11,117 @@
 #include "SETUP.H"
 #include "GTEREG.H"
 #include "GPU.H"
+#include "TOMB4FX.H"
+#include "HAIR.H"
+#include "LOAD_LEV.H"
 
 int scratchPad[256];
 
-void sub_1184()
-{
-    UNIMPLEMENTED();
-}
 
-void sub_E38()
+void sub_FC0(int x, int y, int z)
 {
-    UNIMPLEMENTED();
+    int t0 = TRX;
+    int t1 = TRY;
+    int t2 = TRZ;
+
+    x -= t0;
+    y -= t1;
+    z -= t2;
+
+    int t4 = y >> 15;
+    if (y < 0)
+    {
+        y = -y;
+        t4 = y >> 15;
+        t4 = -t4;
+        y &= 0x7FFF;
+        y = -y;
+    }
+    else
+    {
+        y &= 0x7FFF;
+    }
+
+    //loc_FFC
+    int t5 = z >> 15;
+    if (z < 0)
+    {
+        z = -z;
+        t5 = z >> 15;
+        t5 = -t5;
+        z &= 0x7FFF;
+        z = -z;
+    }
+    else
+    {
+        z &= 0x7FFF;
+    }
+
+    int t3 = x >> 15;
+    if (x < 0)
+    {
+        x = -x;
+        t3 = x >> 15;
+        t3 = -t3;
+        x &= 0x7FFF;
+        x = -x;
+    }
+    else
+    {
+        x &= 0x7FFF;
+    }
+
+    IR1 = t3;
+    IR2 = t4;
+    IR3 = t5;
+
+    docop2(0x41E012);
+
+    t3 = MAC1;
+    t4 = MAC2;
+    t5 = MAC3;
+
+    IR1 = x;
+    IR2 = y;
+    IR3 = z;
+
+    docop2(0x49E012);
+
+    t0 = t3 << 3;
+    if (t3 < 0)
+    {
+        t3 = -t3;
+        t3 <<= 3;
+        t0 = -t3;
+    }
+
+    t1 = t4 << 3;
+    if (t4 < 0)
+    {
+        t4 = -t4;
+        t4 <<= 3;
+        t1 = -t4;
+    }
+
+    t2 = t5 << 3;
+    if (t5 < 0)
+    {
+        t5 = -t5;
+        t5 <<= 3;
+        t1 = -t4;
+    }
+
+    t3 = MAC1;
+    t4 = MAC2;
+    t5 = MAC3;
+
+    t0 += t3;
+    t1 += t4;
+    t2 += t5;
+
+    TRX = t0;
+    TRY = t1;
+    TRZ = t2;
 }
 
 void sub_1358(int x, int y, int z)
@@ -242,6 +342,139 @@ void sub_CBC(int a0)
         R32 = (t3 >> 16) & 0xFFFF;
         R33 = t4;
     }
+}
+
+void sub_D7C(int y_rot)
+{
+    y_rot >>= 2;
+    y_rot &= 0x3FFC;
+
+    if (y_rot != 0)
+    {
+        //t0 = rcossin_tbl
+        int t5 = ((int*)&rcossin_tbl[y_rot >> 1])[0];
+        int t7 = 0xFFFF0000;
+        int t6 = t5 >> 16;
+        t5 &= 0xFFFF;
+        int t2 = -t5;
+
+        VX0 = t6 & 0xFFFF;
+        VY0 = (t6 >> 16) & 0xFFFF;
+        VZ0 = t2;
+
+        int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+        t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+        int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+
+        docop2(0x486012);
+        VX1 = t5 & 0xFFFF;
+        VY1 = (t5 >> 16) & 0xFFFF;
+        VZ1 = t6;
+
+        t0 &= t7;
+        t2 &= 0xFFFF;
+        t3 &= t7;
+        int t4 = MAC1;
+        int t1 = MAC2;
+        t5 = MAC3;
+        docop2(0x48E012);
+        t4 &= 0xFFFF;
+        t0 |= t4;
+        t1 <<= 16;
+        t5 &= 0xFFFF;
+        t3 |= t5;
+        t5 = MAC1;
+        t6 = MAC2;
+        t4 = MAC3;
+        t5 &= 0xFFFF;
+        t1 |= t5;
+        t6 <<= 16;
+        t2 |= t6;
+
+        R11 = t0 & 0xFFFF;
+        R12 = (t0 >> 16) & 0xFFFF;
+        R13 = t1 & 0xFFFF;
+        R21 = (t1 >> 16) & 0xFFFF;
+        R22 = t2 & 0xFFFF;
+        R23 = (t2 >> 16) & 0xFFFF;
+        R31 = t3 & 0xFFFF;
+        R32 = (t3 >> 16) & 0xFFFF;
+        R33 = t4;
+    }
+}
+
+void sub_1244(int y_rot, int x_rot, int z_rot)
+{
+    sub_D7C(y_rot);
+    sub_CBC(x_rot);
+    
+    z_rot >>= 2;
+    z_rot &= 0x3FFC;
+
+    if (z_rot != 0)
+    {
+        int t0 = ((int*)&rcossin_tbl[z_rot >> 1])[0];
+        int t7 = 0xFFFF0000;
+        int t1 = (t0 >> 16) & 0xFFFF;
+        int t2 = t0 << 16;
+        t1 |= t2;
+
+        VX0 = t1 & 0xFFFF;
+        VY0 = (t1 >> 16) & 0xFFFF;
+        VZ0 = 0;
+
+        t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+        t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+        int t4 = R33;
+
+        docop2(0x486012);
+
+        int t3 = t0 & t7;
+        t0 &= 0xFFFF;
+        t0 = -t0;
+        t0 &= 0xFFFF;
+        t0 |= t3;
+
+        VX1 = t0 & 0xFFFF;
+        VY1 = (t0 >> 16) & 0xFFFF;
+        VZ1 = 0;
+
+        t1 &= 0xFFFF;
+
+        t0 = MAC1;
+        int t5 = MAC2;
+        t3 = MAC3;
+
+        docop2(0x48E012);
+        
+        t2 &= t7;
+        t0 &= 0xFFFF;
+        t5 <<= 16;
+        t1 |= t5;
+        t3 &= 0xFFFF;
+
+        t5 = MAC1;
+        int t6 = MAC2;
+        int a0 = MAC3;
+
+        t5 <<= 16;
+        t0 |= t5;
+        t6 &= 0xFFFF;
+        t2 |= t6;
+        a0 <<= 16;
+        t3 |= a0;
+
+        R11 = t0 & 0xFFFF;
+        R12 = (t0 >> 16) & 0xFFFF;
+        R13 = t1 & 0xFFFF;
+        R21 = (t1 >> 16) & 0xFFFF;
+        R22 = t2 & 0xFFFF;
+        R23 = (t2 >> 16) & 0xFFFF;
+        R31 = t3 & 0xFFFF;
+        R32 = (t3 >> 16) & 0xFFFF;
+        R33 = t4;
+    }
+
 }
 
 void sub_BAC(int* t2, int* t6, int* a3, int* t3, int* at, int* t7, int* t8)
@@ -548,10 +781,9 @@ loc_88C:
                at = t1 & t2;
                at &= t3;
 
-
                if (at >= 0)
                {
-                   if (t1 >> 16 < 0xF0 || t2 >> 16 < 0xF0 || t3 >> 16 < 0xF0)
+                   if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0)
                    {
                        t1 = OTZ;
                        if (t1 < 0xA01)
@@ -676,7 +908,7 @@ loc_9FC:
 
                if (at >= 0)
                {
-                   if (t1 >> 16 < 0xF0 || t2 >> 16 < 0xF0 || t3 >> 16 < 0xF0 || t4 >> 16 < 0xF0)
+                   if ((t1 >> 16) < 0xF0 || (t2 >> 16) < 0xF0 || (t3 >> 16) < 0xF0 || (t4 >> 16) < 0xF0)
                    {
                        //loc_AEC
                        t5 += (int)a22;
@@ -765,10 +997,208 @@ loc_9FC:
    return s5;
 }
 
+void sub_1184()
+{
+    int* s3 = &scratchPad[0];
+    struct GUNSHELL_STRUCT* s1 = &Gunshells[0];///@FIXME GUNSHELL_STRUCT size not matching PSX!
+    struct object_info* a0 = NULL;
+    int s2 = 0x18;
+
+    //loc_1198
+    do
+    {
+        s2--;
+        if (s1->counter != 0)
+        {
+            sub_FC0(s1->pos.x_pos, s1->pos.y_pos, s1->pos.z_pos);
+            sub_1244(s1->pos.y_rot, s1->pos.x_rot, s1->pos.z_rot);
+            a0 = &objects[s1->object_number];
+#if defined(USE_32_BIT_ADDR)
+            db.polyptr = (char*)sub_658((short*)((int*)meshes[a0->mesh_index])[0], (int*)db.polyptr, (int)db.ot);
+#else
+            db.polyptr = (char*)sub_658((short*)((int*)meshes[a0->mesh_index])[0], (int*)db.polyptr, (int)db.ot);
+#endif
+
+            int t0 = scratchPad[128];
+            int t1 = scratchPad[129];
+            int t2 = scratchPad[130];
+            int t3 = scratchPad[131];
+
+            R11 = t0 & 0xFFFF;
+            R12 = (t0 >> 16) & 0xFFFF;
+            R13 = t1 & 0xFFFF;
+            R21 = (t1 >> 16) & 0xFFFF;
+            R22 = t2 & 0xFFFF;
+            R23 = (t2 >> 16) & 0xFFFF;
+            R31 = t3 & 0xFFFF;
+            R32 = (t3 >> 16) & 0xFFFF;
+
+            t0 = scratchPad[132];
+            t1 = scratchPad[134];
+            t2 = scratchPad[135];
+            t3 = scratchPad[136];
+
+            R33 = t0;
+            TRX = t1;
+            TRY = t2;
+            TRZ = t3;
+
+            s1++;
+        }
+    } while (s2 != 0);
+    //loc_1234
+}
+
+
 void sub_1330(struct ITEM_INFO* item)
 {
 	struct object_info* object = &objects[item->object_number];
 	//S_PrintNiceShadow(object->shadow_size, GLaraShadowframe, 0);
+}
+
+void sub_10DC(int a1, int a2)
+{
+    struct HAIR_STRUCT* hair = &hairs[0][a1];//$a0
+    int at = 0;
+    
+    //v0 = &hairs[0]
+    //v1 = a1 << 5
+
+    if (a1 == 0)
+    {
+        //v0 = (CamRot.vy << 4)
+        at = -32768 - (CamRot.vy << 4);
+    }
+    else
+    {
+        a1 = 0;
+        at = ((unsigned short*)hair)[-9];
+    }
+    //loc_110C
+    //a0 = ((unsigned short*)hair)[23];
+    //v1 = 0xBFFE
+
+loc_1114:
+    at &= 0xFFFF;
+    if (ABS(at - ((unsigned short*)hair)[23]) - 0x2001 >= 0xBFFE)
+    {
+        at = 0x4000;
+        a1++;
+        goto loc_1114;
+    }
+
+    //v1 = &ScratchVertNums[0];
+    int* a22 = (int*)&ScratchVertNums[((a2 << 1) + a2) << 2];
+    int* a00 = (int*)&HairRotScratchVertNums[0][a1];
+    a22[0] = a00[0];
+    ((unsigned char*)a22)[4] = ((unsigned char*)a00)[4];
+
+}
+
+void sub_E38()
+{
+    int* a3 = &scratchPad[0];
+
+    int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+    int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+    int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+    int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+    int t4 = R33;
+    int t5 = TRX;
+    int t6 = TRY;
+    int t7 = TRZ;
+
+    a3[128] = t0;
+    a3[129] = t1;
+    a3[130] = t2;
+    a3[131] = t3;
+    a3[132] = t4;
+    a3[133] = t5;
+    a3[134] = t6;
+    a3[135] = t7;
+
+    struct HAIR_STRUCT* h = &hairs[0][1];//$s0
+    //v0 = objects[HAIR].mesh_index
+    //s4 = meshes
+    short* s4 = (short*)&meshes[objects[HAIR].mesh_index];
+    int s2 = 1;//Really hair index, see h
+    short* s1 = s4 + 4;
+
+    //loc_EA4
+    do
+    {
+        sub_FC0(h->pos.x_pos, h->pos.y_pos, h->pos.z_pos);
+        sub_D7C(h->pos.y_rot);
+        sub_CBC(h->pos.x_rot);
+        h += 2;
+#if defined(USE_32_BIT_ADDR)
+        db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+#else
+        db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+#endif
+
+        //t0 = &tsv_buffer[0]
+        //t1 = &SkinVertNums[0]
+        //at = 5;
+
+        if (s2 != 5)
+        {
+            sub_C1C(s2 + 0x1C);
+            sub_C1C(s2 + 0x1D);
+        }
+        else
+        {
+            //loc_F04
+            sub_C1C(0x21);
+        }
+
+        s2 += 2;
+
+        int t0 = scratchPad[128];
+        int t1 = scratchPad[129];
+        int t2 = scratchPad[130];
+        int t3 = scratchPad[131];
+        int t4 = scratchPad[132];
+        int t5 = scratchPad[134];
+        int t6 = scratchPad[135];
+        int t7 = scratchPad[136];
+
+        R11 = t0 & 0xFFFF;
+        R12 = (t0 >> 16) & 0xFFFF;
+        R13 = t1 & 0xFFFF;
+        R21 = (t1 >> 16) & 0xFFFF;
+        R22 = t2 & 0xFFFF;
+        R23 = (t2 >> 16) & 0xFFFF;
+        R31 = t3 & 0xFFFF;
+        R32 = (t3 >> 16) & 0xFFFF;
+        R33 = t4;
+        TRX = t5;
+        TRY = t6;
+        TRZ = t7;
+        s1 += 8;
+
+    } while (s2 < 6);
+
+    s2 = 0;
+    s1 = s4;
+
+    do
+    {
+        //t0 = &tsv_buffer[0];
+        //t1 = &ScratchVertNums[0];
+        sub_C6C(s2 + 0x1C);
+        sub_10DC(s2, s2 + 0x1D);
+        sub_C6C(s2 + 0x1D);
+#if defined(USE_32_BIT_ADDR)
+        db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+#else
+        db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)db.ot);
+#endif
+
+        s2 += 2;
+        s1 += 8;
+    } while (s2 < 6);
+
 }
 
 void sub_2C(struct ITEM_INFO* item)
@@ -906,12 +1336,12 @@ void sub_2C(struct ITEM_INFO* item)
         //a00 = &lara.mesh_ptrs[lara_mesh_sweetness_table[0]]
         //v0 = (lara_item->mesh_bits >> 16) & (1 << 0xF)
 
-        if ((lara_item->mesh_bits >> 16)& (1 << 0xF) /*&& i == 8*/)///@TODO remove i==8
+        if ((lara_item->mesh_bits >> 16)& (1 << 0xF))
         {
 #if defined(USE_32_BIT_ADDR)
-            db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, db.ot[1 * 2]);
+            db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot+1*2));
 #else
-            db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, db.ot[1]);
+            db.polyptr = (char*)sub_658(lara.mesh_ptrs[lara_mesh_sweetness_table[i]], (int*)db.polyptr, (int)(db.ot+1));
 #endif
         }//loc_1FC
 
@@ -1052,9 +1482,9 @@ void sub_2C(struct ITEM_INFO* item)
             }//loc_408
 
 #if defined(USE_32_BIT_ADDR)
-            db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, db.ot[1 * 2]);
+            db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1 * 2));
 #else
-            db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, db.ot[1]);
+            db.polyptr = (char*)sub_658((short*)((int*)s1)[0], (int*)db.polyptr, (int)(db.ot + 1));
 #endif
         }
         //loc_410
@@ -1111,9 +1541,9 @@ void sub_2C(struct ITEM_INFO* item)
 
         ///@FIXME for some reason at index 0 it wont draw left holster!
 #if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, db.ot[0]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #else
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, db.ot[0]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #endif
         s0 += 8;
 
@@ -1147,9 +1577,9 @@ void sub_2C(struct ITEM_INFO* item)
 
         ///@FIXME for some reason at index 0 it wont draw right holster!
 #if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, db.ot[0 * 2]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #else
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, db.ot[0]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[0], (int*)db.polyptr, (int)db.ot);
 #endif
     }
     //loc_538
@@ -1195,9 +1625,9 @@ void sub_2C(struct ITEM_INFO* item)
         sub_1358(bone[53], bone[54], bone[55]);
         ///@FIXME for some reason at index 0 it wont draw back gun!
 #if defined(USE_32_BIT_ADDR)
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[28], (int*)db.polyptr, db.ot[0 * 2]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[28], (int*)db.polyptr, (int)db.ot);
 #else
-        db.polyptr = (char*)sub_658((short*)((int*)s0)[28], (int*)db.polyptr, db.ot[0]);
+        db.polyptr = (char*)sub_658((short*)((int*)s0)[28], (int*)db.polyptr, (int)db.ot);
 #endif
 
     }

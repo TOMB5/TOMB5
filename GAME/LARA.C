@@ -923,7 +923,7 @@ void lara_col_stepright(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BFB0, 
 	item->gravity_status = FALSE;
 	item->fallspeed = 0;
 
-	if (lara.water_status == 4)
+	if (lara.water_status == LW_WADE)
 		coll->bad_pos = 32512;
 	else
 		coll->bad_pos = 128;
@@ -953,7 +953,7 @@ void lara_col_back(struct ITEM_INFO* item, struct COLL_INFO* coll)//1BE38, 1BF6C
 
 	lara.move_angle = item->pos.y_rot - ANGLE(180);
 
-	if (lara.water_status == 4)
+	if (lara.water_status == LW_WADE)
 		coll->bad_pos = 32512;
 	else
 		coll->bad_pos = 384;
@@ -1858,7 +1858,7 @@ void lara_as_back(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A4F0(<), 1A6
 
 	if (!lara.IsMoving)
 	{
-		if ((input & IN_BACK) && ((input & IN_WALK) || lara.water_status == 4))
+		if ((input & IN_BACK) && ((input & IN_WALK) || lara.water_status == LW_WADE))
 			item->goal_anim_state = STATE_LARA_WALK_BACK;
 		else
 			item->goal_anim_state = STATE_LARA_STOP;
@@ -1880,7 +1880,7 @@ void lara_as_back(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A4F0(<), 1A6
 
 void lara_as_compress(struct ITEM_INFO* item, struct COLL_INFO* coll)//1A35C, 1A490 (F)
 {
-	if (lara.water_status != 4)
+	if (lara.water_status != LW_WADE)
 	{
 		if (input & IN_FORWARD && LaraFloorFront(item, item->pos.y_rot, CLICK) >= -384)
 		{
@@ -2280,7 +2280,7 @@ void lara_as_turn_l(struct ITEM_INFO* item, struct COLL_INFO* coll)//1972C(<), 1
 
 	lara.turn_rate -= 409;
 
-	if (lara.gun_status != LG_READY || lara.water_status == 4)
+	if (lara.gun_status != LG_READY || lara.water_status == LW_WADE)
 	{
 		if (lara.turn_rate < ANGLE(-4))
 		{
@@ -2303,7 +2303,7 @@ void lara_as_turn_l(struct ITEM_INFO* item, struct COLL_INFO* coll)//1972C(<), 1
 		return;
 	}
 
-	if (lara.water_status == 4)
+	if (lara.water_status == LW_WADE)
 	{
 		item->goal_anim_state = STATE_LARA_WADE_FORWARD;
 	}
@@ -2328,7 +2328,7 @@ void lara_as_turn_r(struct ITEM_INFO* item, struct COLL_INFO* coll)//19628(<), 1
 
 	lara.turn_rate += 409;
 
-	if (lara.gun_status != LG_READY || lara.water_status == 4)
+	if (lara.gun_status != LG_READY || lara.water_status == LW_WADE)
 	{
 		if (lara.turn_rate > ANGLE(4))
 		{
@@ -2351,7 +2351,7 @@ void lara_as_turn_r(struct ITEM_INFO* item, struct COLL_INFO* coll)//19628(<), 1
 		return;
 	}
 
-	if (lara.water_status == 4)
+	if (lara.water_status == LW_WADE)
 	{
 		item->goal_anim_state = STATE_LARA_WADE_FORWARD;
 	}
@@ -2381,8 +2381,6 @@ void lara_as_fastback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1959C(<),
 			lara.turn_rate = ANGLE(6);
 	}
 }
-
-int unknown_dword = 1; // present both on pc and psx, but missing from the symbol table, also only used in lara_as_run
 
 void lara_as_run(struct ITEM_INFO* item, struct COLL_INFO* coll)//192EC, 19420 (F)
 {
@@ -2446,22 +2444,24 @@ void lara_as_run(struct ITEM_INFO* item, struct COLL_INFO* coll)//192EC, 19420 (
 			item->pos.z_rot = ANGLE(11);
 	}
 
+	static int jump_ok = 1;
+
 	if (item->anim_number == ANIMATION_LARA_STAY_TO_RUN)
 	{
-		unknown_dword = 0;
+		jump_ok = 0;
 	}
 	else if(item->anim_number != ANIMATION_LARA_RUN || item->frame_number == 4)
 	{
-		unknown_dword = 1;
+		jump_ok = 1;
 	}
 
-	if (input & IN_JUMP && unknown_dword && !item->gravity_status)
+	if (input & IN_JUMP && jump_ok && !item->gravity_status)
 	{
 		item->goal_anim_state = STATE_LARA_JUMP_FORWARD;
 	}
 	else if(input & IN_FORWARD)
 	{
-		if (lara.water_status == 4)
+		if (lara.water_status == LW_WADE)
 		{
 			item->goal_anim_state = STATE_LARA_WADE_FORWARD;
 		}
@@ -2701,7 +2701,7 @@ void lara_col_forwardjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//18B88
 		{
 			item->goal_anim_state = STATE_LARA_DEATH;
 		}
-		else if (lara.water_status == 4 || !(input & IN_FORWARD) || input & IN_WALK)
+		else if (lara.water_status == LW_WADE || !(input & IN_FORWARD) || input & IN_WALK)
 		{
 			item->goal_anim_state = STATE_LARA_STOP;
 		}
@@ -2976,7 +2976,7 @@ void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 
 		item->anim_number != ANIMATION_LARA_SPRINT_SLIDE_STAND_LEFT)
 		StopSoundEffect(SFX_LARA_SLIPPING);
 
-	if (input & IN_ROLL && lara.water_status != 4)
+	if (input & IN_ROLL && lara.water_status != LW_WADE)
 	{
 		item->anim_number = ANIMATION_LARA_ROLL_BEGIN;
 		item->frame_number = anims[ANIMATION_LARA_ROLL_BEGIN].frame_base + 2;
@@ -2988,7 +2988,7 @@ void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 
 	}
 
 	if (input & IN_DUCK &&
-		lara.water_status != 4 &&
+		lara.water_status != LW_WADE &&
 		item->current_anim_state == STATE_LARA_STOP &&
 		(lara.gun_status == LG_NO_ARMS ||
 			lara.gun_type == WEAPON_NONE ||
@@ -3045,7 +3045,7 @@ void lara_as_stop(struct ITEM_INFO* item, struct COLL_INFO* coll)//17E94, 17FC8 
 		item->goal_anim_state = STATE_LARA_TURN_RIGHT_SLOW;
 	}
 
-	if (lara.water_status == 4)
+	if (lara.water_status == LW_WADE)
 	{
 		if (input & IN_JUMP)
 		{
@@ -4058,7 +4058,7 @@ void lara_col_dashdive(struct ITEM_INFO* item, struct COLL_INFO* coll)//15E5C, 1
 			{
 				item->goal_anim_state = STATE_LARA_DEATH;
 			}
-			else if (lara.water_status == 4 || !(input & IN_FORWARD) || input & IN_WALK)
+			else if (lara.water_status == LW_WADE || !(input & IN_FORWARD) || input & IN_WALK)
 			{
 				item->goal_anim_state = STATE_LARA_STOP;
 			}
@@ -4156,7 +4156,7 @@ void lara_col_dash(struct ITEM_INFO* item, struct COLL_INFO* coll)//15C50, 15D84
 
 void lara_as_dash(struct ITEM_INFO* item, struct COLL_INFO* coll)//15A28, 15B5C (F)
 {
-	if (item->hit_points <= 0 || !DashTimer || !(input & IN_SPRINT) || lara.water_status == 4)
+	if (item->hit_points <= 0 || !DashTimer || !(input & IN_SPRINT) || lara.water_status == LW_WADE)
 	{
 		item->goal_anim_state = STATE_LARA_RUN_FORWARD;
 		return;
@@ -4372,7 +4372,7 @@ void lara_col_crawlb(struct ITEM_INFO* item, struct COLL_INFO* coll)//15614, 157
 
 void lara_as_crawlb(struct ITEM_INFO* item, struct COLL_INFO* coll)//154F0, 15624 (F)
 {
-	if (item->hit_points <= 0 || lara.water_status == 4)
+	if (item->hit_points <= 0 || lara.water_status == LW_WADE)
 	{
 		item->goal_anim_state = STATE_LARA_CRAWL_IDLE;
 
@@ -4577,7 +4577,7 @@ void lara_col_all4s(struct ITEM_INFO* item, struct COLL_INFO* coll)//14B40, 14C7
 
 			if (input & IN_DUCK || lara.keep_ducked &&
 				(!(input & IN_FLARE) && !(input & IN_DRAW) || input & IN_FORWARD) &&
-				lara.water_status != 4)
+				lara.water_status != LW_WADE)
 			{
 				if (item->anim_number == ANIMATION_LARA_CRAWL_IDLE ||
 					item->anim_number == ANIMATION_LARA_CROUCH_TO_CRAWL_END)
@@ -4787,7 +4787,7 @@ void lara_col_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//147C4, 148CC
 		if (coll->mid_floor != -32512)
 			item->pos.y_pos += coll->mid_floor;
 
-		if (input & IN_DUCK && lara.water_status != 4 || lara.keep_ducked || item->anim_number != ANIMATION_LARA_CROUCH_IDLE)
+		if (input & IN_DUCK && lara.water_status != LW_WADE || lara.keep_ducked || item->anim_number != ANIMATION_LARA_CROUCH_IDLE)
 		{
 			if (input & IN_LEFT)
 			{
@@ -5556,7 +5556,7 @@ int LaraLandedBad(struct ITEM_INFO* item, struct COLL_INFO* coll)//11BD8(<), 11C
 
 int LaraFallen(struct ITEM_INFO* item, struct COLL_INFO* coll)//11B6C, 11C1C (F)
 {
-	if (lara.water_status == 4 || coll->mid_floor <= 384)
+	if (lara.water_status == LW_WADE || coll->mid_floor <= 384)
 	{
 		return FALSE;
 	}
@@ -5574,8 +5574,53 @@ int LaraFallen(struct ITEM_INFO* item, struct COLL_INFO* coll)//11B6C, 11C1C (F)
 
 int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll)//11998, 11A48
 {
-	UNIMPLEMENTED();
-	return 0;
+	if ((ABS(coll->tilt_x)) <= 2 && (ABS(coll->tilt_z)) <= 2)
+		return(0);
+
+	short ang = 0;
+
+	if (coll->tilt_x > 2)
+		ang = ANGLE(-90);
+	else if (coll->tilt_x < -2)
+		ang = ANGLE(-90);
+
+	if (coll->tilt_z > 2 && coll->tilt_z > ABS(coll->tilt_x))
+		ang = ANGLE(-180);
+	else if (coll->tilt_z < -2 && -coll->tilt_z > ABS(coll->tilt_x))
+		ang = 0;
+
+	static short old_ang = 1; // a0634
+	short ang_diff = ang - item->pos.y_rot;
+	ShiftItem(item, coll);
+
+	if (ang_diff >= -16384 && ang_diff <= 16384)
+	{
+		if (item->current_anim_state != STATE_LARA_SLIDE_FORWARD || old_ang != ang)
+		{
+			item->anim_number = ANIMATION_LARA_SLIDE_FORWARD;
+			item->frame_number = anims[ANIMATION_LARA_SLIDE_FORWARD].frame_base;
+			item->goal_anim_state = STATE_LARA_SLIDE_FORWARD;
+			item->current_anim_state = STATE_LARA_SLIDE_FORWARD;
+			item->pos.y_rot = ang;
+			lara.move_angle = ang;
+			old_ang = ang;
+		}
+	}
+	else
+	{
+		if (item->current_anim_state != STATE_LARA_SLIDE_BACK || old_ang != ang)
+		{
+			item->anim_number = ANIMATION_LARA_START_SLIDE_BACKWARD;
+			item->frame_number = anims[ANIMATION_LARA_START_SLIDE_BACKWARD].frame_base;
+			item->goal_anim_state = STATE_LARA_SLIDE_BACK;
+			item->current_anim_state = STATE_LARA_SLIDE_BACK;
+			item->pos.y_rot = ang - 32768;
+			lara.move_angle = ang;
+			old_ang = ang;
+		}
+	}
+
+	return 1;
 }
 
 short LaraCeilingFront(struct ITEM_INFO* item, short ang, long dist, long h)//1189C, 1194C (F)
@@ -5665,34 +5710,34 @@ void GetLaraCollisionInfo(struct ITEM_INFO* item, struct COLL_INFO* coll)//11764
 }
 
 #if PC_VERSION
-int GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
+void GetLaraJointPos(struct PHD_VECTOR* vec, long mat)
 {
-	phd_mxptr[0] = lara_joint_matrices[mat].m00;
-	phd_mxptr[1] = lara_joint_matrices[mat].m01;
-	phd_mxptr[2] = lara_joint_matrices[mat].m02;
-	phd_mxptr[3] = lara_joint_matrices[mat].m10;
-	phd_mxptr[4] = lara_joint_matrices[mat].m11;
-	phd_mxptr[5] = lara_joint_matrices[mat].m12;
-	phd_mxptr[6] = lara_joint_matrices[mat].m20;
-	phd_mxptr[7] = lara_joint_matrices[mat].m21;
-	phd_mxptr[8] = lara_joint_matrices[mat].m22;
-	phd_mxptr[9] = lara_joint_matrices[mat].tx;
-	phd_mxptr[10] = lara_joint_matrices[mat].ty;
-	phd_mxptr[11] = lara_joint_matrices[mat].tz;
+	phd_PushMatrix();
+	
+	phd_mxptr[M00] = lara_joint_matrices[mat].m00;
+	phd_mxptr[M01] = lara_joint_matrices[mat].m01;
+	phd_mxptr[M02] = lara_joint_matrices[mat].m02;
+	phd_mxptr[M03] = lara_joint_matrices[mat].m10;
+	phd_mxptr[M10] = lara_joint_matrices[mat].m11;
+	phd_mxptr[M11] = lara_joint_matrices[mat].m12;
+	phd_mxptr[M12] = lara_joint_matrices[mat].m20;
+	phd_mxptr[M13] = lara_joint_matrices[mat].m21;
+	phd_mxptr[M20] = lara_joint_matrices[mat].m22;
+	phd_mxptr[M21] = lara_joint_matrices[mat].tx;
+	phd_mxptr[M22] = lara_joint_matrices[mat].ty;
+	phd_mxptr[M23] = lara_joint_matrices[mat].tz;
 
 	mTranslateXYZ(vec->x, vec->y, vec->z);
 
-	vec->x = phd_mxptr[3] >> W2V_SHIFT;
-	vec->y = phd_mxptr[7] >> W2V_SHIFT; // todo this is wrong // todo actually not
-	vec->z = phd_mxptr[11] >> W2V_SHIFT;
+	vec->x = phd_mxptr[M03] >> W2V_SHIFT;
+	vec->y = phd_mxptr[M13] >> W2V_SHIFT; // todo this is wrong // todo actually not
+	vec->z = phd_mxptr[M23] >> W2V_SHIFT;
 
 	vec->x += lara_item->pos.x_pos;
 	vec->y += lara_item->pos.y_pos;
 	vec->z += lara_item->pos.z_pos;
 
 	mPopMatrix();
-
-	return 48;
 }
 #endif
 
@@ -5725,6 +5770,8 @@ void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F)
 		room_number = lara_item->room_number;
 		GetFloor(joint.x, joint.y, joint.z, &room_number);
 
+		// TODO: Missing code here on PC
+		
 		r = &room[room_number];
 		LaraNodeUnderwater[current_joint] = r->flags & RF_FILL_WATER;
 

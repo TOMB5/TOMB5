@@ -1192,7 +1192,7 @@ void mmPushMatrix(int* fp)//81BBC(<) (F)
 	int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
 	int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
 	int t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
-	int t3 = R31 | ((R32 & 0xFFFF) << 16);
+	int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
 	int t4 = R33;
 	int t5 = TRX;
 	int t6 = TRY;

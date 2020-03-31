@@ -5,6 +5,46 @@
 
 
 
+struct dinfo_head
+{
+	float z;
+	short texattr;
+	short tile_and_flag;
+	short num_verts;
+	short e4b100;
+};
+
+inline __forceinline D3DTLBUMPVERTEX* VERTICES(dinfo_head* h)
+{
+	return (D3DTLBUMPVERTEX*)(h + 1);
+}
+
+struct dinfo_line // size 92
+{
+	dinfo_head head;
+	D3DTLBUMPVERTEX v1;
+	D3DTLBUMPVERTEX v2;
+};
+
+struct dinfo_tri // size 132
+{
+	dinfo_head head;
+	D3DTLBUMPVERTEX v1;//12
+	D3DTLBUMPVERTEX v2;//52
+	D3DTLBUMPVERTEX v3;//92
+};
+
+struct dinfo_quad // size 252
+{
+	dinfo_head head;
+	D3DTLBUMPVERTEX v1;//12
+	D3DTLBUMPVERTEX v2;//52
+	D3DTLBUMPVERTEX v3;//92
+	D3DTLBUMPVERTEX v1bis;//132
+	D3DTLBUMPVERTEX v3bis;//172
+	D3DTLBUMPVERTEX v4;//212
+};
+
 extern HRESULT(*DrawPrimitive)(D3DPRIMITIVETYPE dptPrimitiveType, D3DVERTEXTYPE dvtVertexType,
 	LPVOID lpvVertices, DWORD dwVertexCount, DWORD dwFlags);
 extern HRESULT(*BeginScene)();
@@ -48,7 +88,7 @@ void SetGlobalAmbient(uint32_t color);
 void PrintObjects(short current_room);
 void DoRain();
 void DoSnow();
-void SortPolyList(int number, float buffer[][10]);
+void SortPolyList(int number, dinfo_head* buffer[]);
 void DrawBinoculars();
 void DrawLoadingScreen();
 void ReleaseScreen();
@@ -60,9 +100,10 @@ extern SNOWFLAKE raindrops[];
 extern SNOWFLAKE snowflakes[];
 extern D3DTLVERTEX vert_buf[1024];
 
-extern float sort3d_bufferbf[][10];
+//extern float sort3d_bufferbf[][10];
+extern dinfo_head* sort3d_bufferbf[];
 extern short info3d_bufferbf[];
-extern int* sort3dptrbf;
+extern dinfo_head** sort3dptrbf;
 extern short* info3dptrbf;
 extern int surfacenumbf;
 

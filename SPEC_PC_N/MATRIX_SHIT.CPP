@@ -29,7 +29,7 @@
 	int32_t		phd_scrwidth;       	/* Width of Screen ie. 320 or 640*/
 	int32_t		phd_scrheight;       	/* Height of Screen ie. 200 or 480*/
 	int32_t		phd_persp;				/* perspective thang*/
-	int32_t		*phd_mxptr;				/* matrix pointer....*/
+	int32_t		*phd_mxptr;				/* matrix pointer.... column major*/
 	int32_t		phd_oopersp;
 	float* phd_dxptr;
 
@@ -38,7 +38,7 @@
 	float clip_ymin;
 	float clip_ymax;
 
-	float		one;				// in 3dinsert.cpp
+	float		one = 2048.0;				// in 3dinsert.cpp
 	float		f_znear;			// phd_znear
 	float		f_zfar;				// phd_zfar
 	float		f_oneoznear;		// one / phd_znear
@@ -56,10 +56,10 @@
 	float LfAspectCorrection;
 	float flt_55D1F8;
 	float dword_50A440 = SECTOR(32768);
-	int32_t		w2v_matrix[12];		// World to View Matrix...
-	float		w2v_matrix_f[12];		// World to View Matrix...
-	int32_t		matrix_stack[12 * MAX_MAT];		// matrix stack for animations etc..
-	float		matrix_stack_dx[12 * MAX_MAT];
+	int32_t		w2v_matrix[12]={0};		// World to View Matrix...
+	
+	int32_t		matrix_stack[12 * MAX_MAT]={0};		// matrix stack for animations etc..
+	float		matrix_stack_dx[12 * MAX_MAT]={0};
 	float		sin_flt_table[65536];
 
 	D3DMATRIX transform_projection;
@@ -119,8 +119,283 @@
 		dst->_43 = src->_34;
 	}
 
+	
+
+	tr5_vertex stru_51D0B0[5];
+	float		w2v_matrix_f[12] = { 0 };		// World to View Matrix...
+
+	void Normalize(tr5_vertex* a)
+	{
+		double norm = sqrt(a->x * a->x + a->y * a->y + a->z * a->z);
+		a->x /= norm;
+		a->y /= norm;
+		a->z /= norm;
+	}
+
+	void CrossProduct(tr5_vertex* a, tr5_vertex* b, tr5_vertex* res)
+	{
+		res->x = b->z * a->y - a->z * b->y;
+		res->y = a->z * b->x - a->x * b->z;
+		res->z = a->x * b->y - b->x * a->y;
+	}
+
+	void __cdecl sub_491170(tr5_vertex* a1, tr5_vertex* a2, tr5_vertex* a3)
+	{
+		
+		tr5_vertex cross; // [esp+18h] [ebp-18h]
+		
+		Normalize(a1);
+		
+		if (a1->x != 0.0 || a1->y != 0.0)
+		{
+			CrossProduct(a3, a1, &cross);
+		}
+		else
+		{
+			cross = *a2;
+		}
+		
+		CrossProduct(a1, &cross, a3);
+
+		*a2 = cross;
+		Normalize(a2);
+		Normalize(a3);
+		 
+	}
+
+	void __cdecl Identity3(MATRIX3* a1)
+	{
+		a1->_11 = 1.0;
+		a1->_12 = 0.0;
+		a1->_13 = 0.0;
+		a1->_21 = 0.0;
+		a1->_22 = 1.0;
+		a1->_23 = 0.0;
+		a1->_31 = 0.0;
+		a1->_32 = 0.0;
+		a1->_33 = 1.0;
+		a1->_14 = 0.0;
+		a1->_24 = 0.0;
+		a1->_34 = 0.0;
+	}
+
+	void __cdecl sub_490FA0(tr5_vertex* a1, tr5_vertex* a2)
+	{
+		MATRIX3 v13; // [esp+18h] [ebp-60h]
+		MATRIX3 v14; // [esp+48h] [ebp-30h]
+
+		Identity3(&v13);
+		Identity3(&v14);
+		a1[0].x = a2[1].x;
+		a1[0].y = a2[1].y;
+		a1[0].z = a2[1].z;
+		
+		a1[1].x = -a2[3].z * a1->z + -a2[3].y * a1->y + -a2[3].x * a1->x;
+		a1[1].y = -a2[2].x;
+		a1[1].z = -a2[2].y;
+		
+		a1[2].x = -a2[2].z;
+		a1[2].y = -a2[3].z * a1[2].x + -a2[3].x * a1[1].y + -a2[3].y * a1[1].z;
+		a1[2].z = -a2->x;
+		
+		a1[3].x = -a2->y;
+		a1[3].y = -a2->z;
+		a1[3].z = -a2[3].x * a1[2].z + -a2[3].y * a1[3].x + -a2->z * -a2[3].z;
+	}
+
+	void __cdecl sub_490F30()
+	{
+		tr5_vertex* v1; // esi
+		double v2; // st7
+		double v3; // st7
+		tr5_vertex* a1 = stru_51D0B0;
+		v1 = a1;
+		v2 = a1[3].x - a1[4].x;
+		a1[2].y = -1.0;
+		a1[2].z = 0.0;
+		a1->x = v2;
+		v3 = v1[3].y - v1[4].y;
+		a1[2].x = 0.0;
+		a1->y = v3;
+		v1->z = v1[3].z - v1[4].z;
+		sub_491170(a1, a1 + 1, a1 + 2);
+		sub_490FA0((tr5_vertex*)w2v_matrix_f, v1);
+	}
+
+void RotX(long angle)
+{
+	if (angle == 0)
+		return;
+
+	int sin = sin_flt_table[angle];
+	int cos = sin_flt_table[angle + ANGLE(90)];
+
+	float* m = phd_dxptr;
+
+	m[M01] = cos * m[M01] + sin * m[M02];
+	m[M02] = cos * m[M02] - sin * m[M01];
+	m[M11] = cos * m[M11] + sin * m[M12];
+	m[M12] = cos * m[M12] - sin * m[M11];
+	m[M21] = cos * m[M21] + sin * m[M22];
+	m[M22] = cos * m[M22] - sin * m[M21];
+}
+void RotY(long angle)
+{
+	if (angle == 0)
+		return;
+
+	int sin = sin_flt_table[angle];
+	int cos = sin_flt_table[angle + ANGLE(90)];
+
+	float* m = phd_dxptr;
+
+	m[M00] = cos * m[M00] + sin * m[M02];
+	m[M02] = cos * m[M02] - sin * m[M00];
+	m[M10] = cos * m[M10] + sin * m[M12];
+	m[M12] = cos * m[M12] - sin * m[M10];
+	m[M20] = cos * m[M20] + sin * m[M22];
+	m[M22] = cos * m[M22] - sin * m[M20];
+}
+void RotZ(long angle)
+{
+	if (angle == 0)
+		return;
+
+	int sin = sin_flt_table[angle];
+	int cos = sin_flt_table[angle + ANGLE(90)];
+
+	float* m = phd_dxptr;
+
+	m[M00] = cos * m[M00] + sin * m[M01];
+	m[M01] = cos * m[M01] - sin * m[M00];
+	m[M10] = cos * m[M10] + sin * m[M11];
+	m[M11] = cos * m[M11] - sin * m[M10];
+	m[M20] = cos * m[M20] + sin * m[M21];
+	m[M21] = cos * m[M21] - sin * m[M20];
+}
+
+void phd_RotX(long angle)
+{
+	if (angle == 0)
+		return;
+
+	int sin = 4 * SIN(angle);
+	int cos = 4 * COS(angle);
+
+	int* m = phd_mxptr;
+
+	m[M01] = cos * m[M01] + sin * m[M02] >> W2V_SHIFT;
+	m[M02] = cos * m[M02] - sin * m[M01] >> W2V_SHIFT;
+	m[M11] = cos * m[M11] + sin * m[M12] >> W2V_SHIFT;
+	m[M12] = cos * m[M12] - sin * m[M11] >> W2V_SHIFT;
+	m[M21] = cos * m[M21] + sin * m[M22] >> W2V_SHIFT;
+	m[M22] = cos * m[M22] - sin * m[M21] >> W2V_SHIFT;
+
+	RotX(angle);
+}
+void phd_RotY(long angle)
+{
+	if (angle == 0)
+		return;
+
+	int sin = 4 * SIN(angle);
+	int cos = 4 * COS(angle);
+
+	int* m = phd_mxptr;
+
+	m[M00] = cos * m[M00] + sin * m[M02] >> W2V_SHIFT;
+	m[M02] = cos * m[M02] - sin * m[M00] >> W2V_SHIFT;
+	m[M10] = cos * m[M10] + sin * m[M12] >> W2V_SHIFT;
+	m[M12] = cos * m[M12] - sin * m[M10] >> W2V_SHIFT;
+	m[M20] = cos * m[M20] + sin * m[M22] >> W2V_SHIFT;
+	m[M22] = cos * m[M22] - sin * m[M20] >> W2V_SHIFT;
+
+	RotY(angle);
+}
+void phd_RotZ(long angle)
+{
+	if (angle == 0)
+		return;
+
+	int sin = 4 * SIN(angle);
+	int cos = 4 * COS(angle);
+
+	int* m = phd_mxptr;
+
+	m[M00] = cos * m[M00] + sin * m[M01] >> W2V_SHIFT;
+	m[M01] = cos * m[M01] - sin * m[M00] >> W2V_SHIFT;
+	m[M10] = cos * m[M10] + sin * m[M11] >> W2V_SHIFT;
+	m[M11] = cos * m[M11] - sin * m[M10] >> W2V_SHIFT;
+	m[M20] = cos * m[M20] + sin * m[M21] >> W2V_SHIFT;
+	m[M21] = cos * m[M21] - sin * m[M20] >> W2V_SHIFT;
+
+	RotZ(angle);
+}
+
+D3DMATRIX stru_55D168;
+
+	void phd_QuickW2VMatrix(tr5_vertex src, tr5_vertex tar, int rot)
+	{
+				stru_51D0B0[3] = src;
+		stru_51D0B0[4] = tar;
+		
+		phd_dxptr = matrix_stack_dx;
+
+		sub_490F30();
+		phd_dxptr[M00] = w2v_matrix_f[M00];
+		phd_dxptr[M01] = w2v_matrix_f[M01];
+		phd_dxptr[M02] = w2v_matrix_f[M02];
+		phd_dxptr[M03] = w2v_matrix_f[M03] = src.x;
+		phd_dxptr[M10] = w2v_matrix_f[M10];
+		phd_dxptr[M11] = w2v_matrix_f[M11];
+		phd_dxptr[M12] = w2v_matrix_f[M12];
+		phd_dxptr[M13] = w2v_matrix_f[M13] = src.y;
+		phd_dxptr[M20] = w2v_matrix_f[M20];
+		phd_dxptr[M21] = w2v_matrix_f[M21];
+		phd_dxptr[M22] = w2v_matrix_f[M22];
+		phd_dxptr[M23] = w2v_matrix_f[M23] = src.z;
+
+		if (rot)
+		{
+			RotZ(rot);
+			w2v_matrix_f[M00] = phd_dxptr[M00];
+			w2v_matrix_f[M01] = phd_dxptr[M01];
+			w2v_matrix_f[M02] = phd_dxptr[M02];
+			w2v_matrix_f[M10] = phd_dxptr[M10];
+			w2v_matrix_f[M11] = phd_dxptr[M11];
+			w2v_matrix_f[M12] = phd_dxptr[M12];
+			w2v_matrix_f[M20] = phd_dxptr[M20];
+			w2v_matrix_f[M21] = phd_dxptr[M21];
+			w2v_matrix_f[M22] = phd_dxptr[M22];
+		}
+
+		w2v_matrix_f[M10] *= LfAspectCorrection;
+		w2v_matrix_f[M11] *= LfAspectCorrection;
+		w2v_matrix_f[M12] *= LfAspectCorrection;
+		D3DMATRIX v7;
+		SetD3DMatrixF(&v7, (LPD3DMATRIX)w2v_matrix_f);
+		stru_55D168._11 = v7._11;
+		stru_55D168._12 = v7._21;
+		stru_55D168._13 = v7._31;
+		stru_55D168._14 = v7._41;
+		stru_55D168._21 = v7._12;
+		stru_55D168._22 = v7._22;
+		stru_55D168._23 = v7._32;
+		stru_55D168._24 = v7._42;
+		stru_55D168._31 = v7._13;
+		stru_55D168._32 = v7._23;
+		stru_55D168._33 = v7._33;
+		stru_55D168._34 = v7._43;
+		stru_55D168._41 = v7._14;
+		stru_55D168._42 = v7._24;
+		stru_55D168._43 = v7._34;
+		stru_55D168._44 = v7._44;
+	}
+
 	void S_InitD3DMatrix()// (F)
 	{
+		//Log(LT_Enter, "S_InitD3DMatrix");
+		
 		D3DIdentityMatrix(&App.WorldMatrix);
 		D3DIdentityMatrix(&transform_projection);
 
@@ -130,44 +405,39 @@
 		DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &transform_projection));
 	}
 
-	void SetD3DViewMatrix()
+	void SetD3DViewMatrix()// (F)
 	{
+		//Log(LT_Enter, "SetD3DViewMatrix");
+
 		D3DIdentityMatrix(&App.ViewMatrix);
 
-		App.ViewMatrix._11 = phd_mxptr[M00] >> 14;
-		App.ViewMatrix._12 = phd_mxptr[M10] >> 14;
-		App.ViewMatrix._13 = phd_mxptr[M20] >> 14;
-		App.ViewMatrix._21 = phd_mxptr[M01] >> 14;
-		App.ViewMatrix._22 = phd_mxptr[M11] >> 14;
-		App.ViewMatrix._23 = phd_mxptr[M21] >> 14;
-		App.ViewMatrix._31 = phd_mxptr[M02] >> 14;
-		App.ViewMatrix._32 = phd_mxptr[M12] >> 14;
-		App.ViewMatrix._33 = phd_mxptr[M22] >> 14;
-		App.ViewMatrix._41 = phd_mxptr[M03] >> 14;
-		App.ViewMatrix._42 = phd_mxptr[M13] >> 14;
-		App.ViewMatrix._43 = phd_mxptr[M23] >> 14;
+		App.ViewMatrix._11 = phd_mxptr[M00] >> W2V_SHIFT;
+		App.ViewMatrix._12 = phd_mxptr[M10] >> W2V_SHIFT;
+		App.ViewMatrix._13 = phd_mxptr[M20] >> W2V_SHIFT;
+		App.ViewMatrix._21 = phd_mxptr[M01] >> W2V_SHIFT;
+		App.ViewMatrix._22 = phd_mxptr[M11] >> W2V_SHIFT;
+		App.ViewMatrix._23 = phd_mxptr[M21] >> W2V_SHIFT;
+		App.ViewMatrix._31 = phd_mxptr[M02] >> W2V_SHIFT;
+		App.ViewMatrix._32 = phd_mxptr[M12] >> W2V_SHIFT;
+		App.ViewMatrix._33 = phd_mxptr[M22] >> W2V_SHIFT;
+		App.ViewMatrix._41 = phd_mxptr[M03] >> W2V_SHIFT;
+		App.ViewMatrix._42 = phd_mxptr[M13] >> W2V_SHIFT;
+		App.ViewMatrix._43 = phd_mxptr[M23] >> W2V_SHIFT;
 
 		DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &App.ViewMatrix));
 	}
 
 	void SetViewMatrix()// (F)
 	{
+		//Log(LT_Enter, "SetViewMatrix");
+
 		SetD3DMatrixF(&App.ViewMatrix, (LPD3DMATRIX)phd_dxptr);
 		DX_TRY(App.lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &App.ViewMatrix));
 	}
 
-	void phd_RotX(long angle)
-	{
-		Unimpl();
-	}
-	void phd_RotY(long angle)
-	{
-		Unimpl();
-	}
-	void phd_RotZ(long angle)
-	{
-		Unimpl();
-	}
+
+
+
 
 	void	phd_PushMatrix(void)// (F)
 	{
@@ -374,7 +644,7 @@
 		*(nptr + M21) = *(mptr + M21) = -(sx);
 		*(nptr + M22) = *(mptr + M22) = (TRIGMULT2(cx, cy));
 
-		short poison;
+		short poison = lara.poisoned;
 		if (lara.dpoisoned != lara.poisoned)
 		{
 			poison = ((lara.dpoisoned - lara.poisoned) >> 4) + lara.poisoned;
@@ -444,6 +714,8 @@
 
 	void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll)// (F)
 	{
+		//Log(LT_Enter, "phd_LookAt src(%5d, %5d, %5d) tar(%5d, %5d, %5d), roll=%5d", xsrc, ysrc, ysrc, xtar, ytar, ztar, roll);
+		
 		short	angles[2];
 		PHD_3DPOS 	viewer;
 
@@ -455,7 +727,6 @@
 		viewer.y_rot = angles[0];
 		viewer.z_rot = roll;
 
-
 		int dx, dy, dz;
 		dx = xsrc - xtar;
 		dy = ysrc - ytar;
@@ -466,6 +737,10 @@
 		CamRot.vx = mGetAngle(0, 0, len, dy) >> 4;
 		CamRot.vy = mGetAngle(zsrc, xsrc, ztar, xtar) >> 4;
 		CamRot.vz = 0;
+
+		lookatpos.x = xsrc;
+		lookatpos.y = ysrc;
+		lookatpos.z = zsrc;
 
 		phd_GenerateW2V(&viewer);
 		S_InitD3DMatrix();

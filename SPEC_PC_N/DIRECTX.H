@@ -1,6 +1,6 @@
 #ifndef _DIRECTX_H
 #define _DIRECTX_H
-#define DISABLESOFTWARE
+//#define DISABLESOFTWARE
 #include "INCLUDE.H"
 #include "SPECTYPES.H"
 

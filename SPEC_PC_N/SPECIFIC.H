@@ -83,6 +83,10 @@ extern void DEL_CalcLaraMatrices_Normal_ASM(short* frame, long* bone, int flag);
 
 extern int TitleOptions();
 
+extern void WadeSplash(struct ITEM_INFO* item, int water_height, int water_depth);
+
+extern void DrawPsxTile(long a1, long a2, long a3);
+
 #ifdef __cplusplus
 }
 #endif
