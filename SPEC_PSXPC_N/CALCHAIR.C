@@ -23,8 +23,8 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 {
 	struct ANIM_STRUCT* anim = NULL;//$v1
 	int scratchPad[256];
-	short* frame = NULL;//$s3
-
+	short* hit_frame = NULL;//$s3
+	return;//Disabled for now
 	S_MemSet((char*)&scratchPad, 0, 1024);
 
 	//s0 = gfLevelFlags & 1
@@ -95,37 +95,42 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 			//a0 = lara.hit_frame
 			//t1 = (lara.hit_frame * (anim->interpolation >> 8))
 			//s3 = anim->frame_ptr
-			frame = &anim->frame_ptr[(lara.hit_frame * (anim->interpolation >> 8))];
+			hit_frame = &anim->frame_ptr[(lara.hit_frame * (anim->interpolation >> 8))];
 
 		}
 		else
 		{
 			//loc_82E00
-			frame = GetBestFrame(lara_item);
+			hit_frame = GetBestFrame(lara_item);
 		}
 	}//loc_82E0C
 
 	save_matrix(&fp[37]);
 
+	R11 = 0x1000;
+	R12 = 0;
+	R13 = 0;
+	R21 = 0;
+	R22 = 0x1000;
+	R23 = 0;
+	R31 = 0;
+	R32 = 0;
+	R33 = 0x1000;
+
+	fp[10] = (int)&frame[9];
+
+	TRX = lara_item->pos.x_pos;
+	TRY = lara_item->pos.y_pos;
+	TRZ = lara_item->pos.z_pos;
+	
+	//mRotYXZ_CH(lara_item->pos.y_rot, lara_item->pos.x_rot, lara_item->pos.z_rot);
+
 #if 0
-		li      $at, 0x1000
-		ctc2    $at, $0
-		ctc2    $zero, $1
-		ctc2    $at, $2
-		ctc2    $zero, $3
-		ctc2    $at, $4
-		addiu   $v0, $s3, 0x12
-		sw      $v0, 0x28($fp)
-		lw      $a0, 0x40($s5)
-		lw      $a1, 0x44($s5)
-		lw      $a2, 0x48($s5)
-		ctc2    $a0, $5
-		ctc2    $a1, $6
-		ctc2    $a2, $7
 		lh      $a0, 0x4E($s5)
 		lh      $a1, 0x4C($s5)
 		jal     sub_83994
 		lh      $a2, 0x50($s5)
+
 		li      $at, 0x1F2480
 		lw      $v0, 4($at)
 		lw      $s6, 0x2030($gp)
