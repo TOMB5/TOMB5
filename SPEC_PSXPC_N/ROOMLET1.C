@@ -1189,9 +1189,9 @@ loc_15A8:
                 }
                 else
                 {
-                    //loc_1718
-                    MyAddPrimRL1(0x9000000, &t9, (int*)&s0, (int*)a3);
-                    a3 += sizeof(POLY_GT3);
+                //loc_1718
+                MyAddPrimRL1(0x9000000, &t9, (int*)&s0, (int*)a3);
+                a3 += sizeof(POLY_GT3);
                 }
             }//loc_1724
         }
@@ -1284,13 +1284,16 @@ loc_172C:
                 {
                     if (t7 >= 0)
                     {
-                        if ((unsigned)t9 >= 0x1000 && (unsigned)t9 < 0x1E00)
+                        if ((unsigned)t9 >= 0x1000)
                         {
-                            t6 = 0x10;
-                        }
-                        else
-                        {
-                            t6 = 0x20;
+                            if ((unsigned)t9 < 0x1E00)
+                            {
+                                t6 = 0x10;
+                            }
+                            else
+                            {
+                                t6 = 0x20;
+                            }
                         }
                     }
                     else
