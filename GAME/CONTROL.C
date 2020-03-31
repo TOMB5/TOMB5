@@ -395,7 +395,7 @@ void UpdateSky()
 
 #endif
 
-long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUCH (PSX/PSXPC)
+long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(!) //DO NOT TOUCH (PSX/PSXPC)
 {
 #if PC_VERSION
 	S_Warn("PC CONTROLPHASE %d %d", nframes, demo_mode);
@@ -955,6 +955,24 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 				Motors[0] = 0;
 			}
 		}
+
+#if !BETA_VERSION
+		//loc_1D9DC
+
+		if (!(input & IN_PAUSE))
+		{
+			//v0 = PadConnected
+			//a0 = InGameCnt
+			
+		}
+		else
+		{
+			//loc_1DA3C
+			Motors[0] = 0;
+			Motors[1] = 0;
+			return sub_62190();
+		}
+#endif
 
 		//loc_1D848
 		if (InGameCnt < 4)
