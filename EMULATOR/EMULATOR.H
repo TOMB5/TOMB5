@@ -158,6 +158,7 @@ extern int  Emulator_Initialise();
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dst_x, int dst_y);
 extern void Emulator_UpdateVRAM();
+extern void Emulator_BlitVRAM();
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
 extern void Emulator_SetBlendMode(int mode, int semiTransparent);

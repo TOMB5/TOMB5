@@ -1115,6 +1115,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 }
 
 ShaderID g_gte_shader;
+ShaderID g_blit_shader;
 
 #if defined(OGLES) || defined(OGL)
 GLint u_Projection;
@@ -1166,6 +1167,25 @@ const char* gte_shader =
 	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
 	"\n"
 	"		if (fragColor.a == 0.0) { discard; }\n"
+	"	}\n"
+	"#endif\n";
+
+const char* blit_shader =
+	"varying vec4 v_texcoord;\n"
+	"#ifdef VERTEX\n"
+	"	attribute vec4 a_position;\n"
+	"	attribute vec4 a_texcoord;\n"
+	"	void main() {\n"
+	"		v_texcoord = a_texcoord * vec4(8.0 / 1024.0, 8.0 / 512.0, 0.0, 0.0);\n"
+	"		gl_Position = vec4(a_position.xy, 0.0, 1.0);\n"
+	"	}\n"
+	"#else\n"
+	"	uniform sampler2D s_texture;\n"
+	"	void main() {\n"
+	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg * 255.0;\n"
+	"		float color_16 = color_rg.y * 256.0 + color_rg.x;\n"
+	"		fragColor = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
+	"		fragColor.a = 1.0;\n"
 	"	}\n"
 	"#endif\n";
 
@@ -1299,7 +1319,8 @@ ShaderID Shader_Compile_Internal(const DWORD *vs_data, const DWORD *ps_data)
 
 void Emulator_CreateGlobalShaders()
 {
-    g_gte_shader = Shader_Compile(gte_shader);
+	g_gte_shader  = Shader_Compile(gte_shader);
+	g_blit_shader = Shader_Compile(blit_shader);
 
 #if defined(OGL) || defined(OGLES)
 	u_Projection = glGetUniformLocation(g_gte_shader, "Projection");
@@ -1810,6 +1831,33 @@ void Emulator_UpdateVRAM()
 #endif
 }
 
+void Emulator_BlitVRAM()
+{
+	Emulator_SetShader(g_blit_shader);
+
+	u_char l = word_33BC.disp.x / 8;
+	u_char t = word_33BC.disp.y / 8;
+	u_char r = word_33BC.disp.w / 8 + l;
+	u_char b = word_33BC.disp.h / 8 + t;
+
+	Vertex blit_vertices[] =
+	{
+		{ -1, +1,    0, 0,    l, t,    0, 0,    0, 0, 0, 0 },
+		{ -1, -1,    0, 0,    l, b,    0, 0,    0, 0, 0, 0 },
+		{ +1, +1,    0, 0,    r, t,    0, 0,    0, 0, 0, 0 },
+
+		{ +1, +1,    0, 0,    r, t,    0, 0,    0, 0, 0, 0 },
+		{ -1, -1,    0, 0,    l, b,    0, 0,    0, 0, 0, 0 },
+		{ +1, -1,    0, 0,    r, b,    0, 0,    0, 0, 0, 0 },
+	};
+
+	Emulator_UpdateVertexBuffer(blit_vertices, 6);
+	Emulator_SetBlendMode(0, 0);
+	Emulator_DrawTriangles(0, 2);
+
+	Emulator_SetShader(g_gte_shader);
+}
+
 bool begin_scene_flag = false;
 
 void Emulator_BeginScene()
@@ -1859,12 +1907,12 @@ void Emulator_BeginScene()
 	d3ddev->SetStreamSource(0, dynamic_vertex_buffer, 0, sizeof(Vertex));
 #endif
 
-	Emulator_SetShader(g_gte_shader);
 	Emulator_UpdateVRAM();
 	Emulator_SetTexture(vramTexture);
-
-	Emulator_Ortho2D(0.0f, word_33BC.disp.w, word_33BC.disp.h, 0.0f, 0.0f, 1.0f);
 	Emulator_SetViewPort(0, 0, windowWidth, windowHeight);
+
+	Emulator_SetShader(g_gte_shader);
+	Emulator_Ortho2D(0.0f, word_33BC.disp.w, word_33BC.disp.h, 0.0f, 0.0f, 1.0f);
 
 	begin_scene_flag = true;
 

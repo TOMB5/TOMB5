@@ -446,6 +446,7 @@ void DrawSplit(const VertexBufferSplitIndex &split)
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
+	Emulator_BeginScene();
 #if defined(DEBUG_POLY_COUNT)
 	polygon_count = 0;
 #endif
@@ -455,6 +456,8 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 	if (activeDrawEnv.isbg)
 	{
 		ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
+	} else {
+		Emulator_BlitVRAM();
 	}
 
 	if (p != NULL)
@@ -491,6 +494,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 	/* Reset the ztable index of */
 	pgxp_vertex_index = 0;
 #endif
+	Emulator_EndScene();
 }
 
 void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)//@TODO sync with ParsePrimitive

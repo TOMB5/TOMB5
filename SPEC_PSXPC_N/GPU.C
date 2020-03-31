@@ -120,13 +120,11 @@ int GPU_FlipNoIdle()//5E078(<), 5F264(<) (F)
 	GnLastFrameCount = 0;
 	PutDispEnv(&db.disp[db.current_buffer]);
 
-    Emulator_BeginScene();
 #if defined(USE_32_BIT_ADDR)
 	DrawOTagEnv(&db.ot[db.nOTSize*2-2], &db.draw[db.current_buffer]);
 #else
 	DrawOTagEnv(&db.ot[db.nOTSize-1], &db.draw[db.current_buffer]);
 #endif
-    Emulator_EndScene();
 
 #if DEBUG_VERSION
 	ProfileStartCount();
