@@ -1294,6 +1294,8 @@ ShaderID Shader_Compile(const char *source)
 
 #include "shaders/gte_shader_vs.h"
 #include "shaders/gte_shader_ps.h"
+#include "shaders/blit_shader_vs.h"
+#include "shaders/blit_shader_ps.h"
 
 // shader registers
 const int u_Projection = 0;
@@ -1842,13 +1844,13 @@ void Emulator_BlitVRAM()
 
 	Vertex blit_vertices[] =
 	{
+		{ +1, +1,    0, 0,    r, t,    0, 0,    0, 0, 0, 0 },
+		{ -1, -1,    0, 0,    l, b,    0, 0,    0, 0, 0, 0 },
 		{ -1, +1,    0, 0,    l, t,    0, 0,    0, 0, 0, 0 },
-		{ -1, -1,    0, 0,    l, b,    0, 0,    0, 0, 0, 0 },
-		{ +1, +1,    0, 0,    r, t,    0, 0,    0, 0, 0, 0 },
 
-		{ +1, +1,    0, 0,    r, t,    0, 0,    0, 0, 0, 0 },
-		{ -1, -1,    0, 0,    l, b,    0, 0,    0, 0, 0, 0 },
 		{ +1, -1,    0, 0,    r, b,    0, 0,    0, 0, 0, 0 },
+		{ -1, -1,    0, 0,    l, b,    0, 0,    0, 0, 0, 0 },
+		{ +1, +1,    0, 0,    r, t,    0, 0,    0, 0, 0, 0 },
 	};
 
 	Emulator_UpdateVertexBuffer(blit_vertices, 6);
