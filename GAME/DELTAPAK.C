@@ -2416,29 +2416,33 @@ void GrabActorMatrix(int actornum, int nodenum, MatrixThing* matrix)
 #endif
 }
 
-void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, struct PHD_VECTOR* pos)// (F)
+void deal_with_actor_shooting(unsigned short* shootdata, int actornum/*s0*/, int nodenum/*s1*/, struct PHD_VECTOR* pos/*s2*/)// (F)
 {
-	int i;
-	unsigned short dat;
-	MatrixThing arse;
+	int f; // $a1
+	unsigned short dat; // $v1
+	struct MATRIX3D arse; // stack offset -48
 	
-#if 0
-	for(i = 0; shootdata[i] != -1; i++)
-	{
-		dat = shootdata[i];
+	dat = *shootdata++;
+	f = GLOBAL_cutseq_frame;
 
-		if (GLOBAL_cutseq_frame == dat || GLOBAL_cutseq_frame == dat + 1)
+	if (dat != 0xFFFF)
+	{
+		//loc_2EBD0
+		do
 		{
-			GrabActorMatrix(actornum, nodenum, &arse);
-			trig_actor_gunflash(&arse, pos);
-			GetActorJointAbsPosition(actornum, nodenum, pos);
-			TriggerDynamic(pos->x, pos->y, pos->z, 10,
-			               (GetRandomControl() & 0x3F) + 192,
-			               (GetRandomControl() & 0x1F) + 128,
-			               (GetRandomControl() & 0x3F));
-		}
+			if (f == dat || f == dat + 1)
+			{
+				GrabActorMatrix(actornum, nodenum, &arse);
+				trig_actor_gunflash(&arse, pos);
+				GetActorJointAbsPosition(actornum, nodenum, pos);
+				TriggerDynamic(pos->x, pos->y, pos->z, 16, (GetRandomControl() & 0x3F) + 0xC0, (GetRandomControl() & 0x1F) + 0x80, (GetRandomControl() & 0x3F));
+				break;
+			}//loc_2EC58
+
+			dat = *shootdata++;
+		} while (dat != 0xFFFF);
 	}
-#endif
+	//loc_2EC68
 }
 
 void stealth3_end()//2E99C, 2ECA8 (F)
