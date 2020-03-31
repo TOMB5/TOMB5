@@ -768,7 +768,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			}
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x2, NULL, -1, -1);
-			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u1, &poly->u1, &poly->u2, NULL, poly->tpage, poly->clut, GET_TPAGE_DITHER(lastTpage));
+			Emulator_GenerateTexcoordArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->u0, &poly->u1, &poly->u2, NULL, poly->tpage, poly->clut, GET_TPAGE_DITHER(lastTpage));
 			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r1, &poly->r2, NULL);
 
 			g_vertexIndex += 3;
