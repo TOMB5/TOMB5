@@ -3,6 +3,7 @@
 #include "EMULATOR_SETUP.H"
 #include "EMULATOR.H"
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -221,7 +222,17 @@ int CdSetDebug(int level)
 
 int CdSync(int mode, u_char * result)
 {
-	UNIMPLEMENTED();
+	switch (mode)
+	{
+	case 0:
+		UNIMPLEMENTED();
+		assert(FALSE);
+		break;
+	case 1:
+		return CdlComplete;
+		break;
+	}
+
 	return 0;
 }
 
