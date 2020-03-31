@@ -2221,8 +2221,8 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 		sg = CLAMP(sg, 0, 255);
 		sb = CLAMP(sb, 0, 255);
 
-		vptr->color = ARGB(cr, cg, cb, 255);
-		vptr->specular = ARGB(sr, sg, sb, 255);
+		vptr->color = RGBA(cr, cg, cb, 255);
+		vptr->specular = RGBA(sr, sg, sb, 255);
 	}
 }
 
