@@ -902,9 +902,9 @@ void lara_col_backjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C130(<)
 	lara_col_jumper(item, coll);
 }
 
-void lara_col_slide(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C108(<), 1C23C(<) (F)
+void lara_col_slide(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C108(<), 1C3B8(<) (F)
 {
-	lara.move_angle = item->pos.y_rot;
+	lara.move_angle = item->pos.y_rot - ANGLE(180);
 	lara_slide_slope(item, coll);
 }
 
