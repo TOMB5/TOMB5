@@ -5,7 +5,7 @@
 extern void Emulator_Initialise(char* windowName, int screenWidth, int screenHeight);
 
 /* Usually called after ClearOTag/ClearOTagR */
-extern void Emulator_BeginScene();
+extern bool Emulator_BeginScene();
 
 /* Usually called after DrawOTag/DrawOTagEnv */
 extern void Emulator_EndScene();

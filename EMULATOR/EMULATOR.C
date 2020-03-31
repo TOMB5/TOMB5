@@ -27,8 +27,8 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <SDL_syswm.h>
+#include <string.h>
+#include <SDL.h>
 
 SDL_Window* g_window = NULL;
 
@@ -1120,6 +1120,7 @@ ShaderID g_blit_shader;
 #if defined(OGLES) || defined(OGL)
 GLint u_Projection;
 
+// TODO: 8 bit palettized images and full mode textures
 const char* gte_shader =
 	"varying vec4 v_texcoord;\n"
 	"varying vec4 v_color;\n"
@@ -1159,6 +1160,8 @@ const char* gte_shader =
 	"		vec4 color = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
 	"\n"
 	"		fragColor = color * v_color;\n"
+	"		if (fragColor.r == 0.0 && fragColor.b == 0.0 && fragColor.b == 0.0 && fragColor.a == 0.0) { discard; }\n"
+	"\n"
 	"		mat4 dither = mat4(\n"
 	"			-4.0,  +0.0,  -3.0,  +1.0,\n"
 	"			+2.0,  -2.0,  +3.0,  -1.0,\n"
@@ -1167,7 +1170,6 @@ const char* gte_shader =
 	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"
 	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
 	"\n"
-	"		if (fragColor.a == 0.0) { discard; }\n"
 	"	}\n"
 	"#endif\n";
 
@@ -1836,12 +1838,18 @@ void Emulator_UpdateVRAM()
 
 void Emulator_BlitVRAM()
 {
+	if (activeDispEnv.isinter)
+	{
+		//Emulator_Clear(0, 0, activeDispEnv.disp.w, activeDispEnv.disp.h, 128, 128, 128);
+		return;
+	}
+
 	Emulator_SetShader(g_blit_shader);
 
-	u_char l = word_33BC.disp.x / 8;
-	u_char t = word_33BC.disp.y / 8;
-	u_char r = word_33BC.disp.w / 8 + l;
-	u_char b = word_33BC.disp.h / 8 + t;
+	u_char l = activeDispEnv.disp.x / 8;
+	u_char t = activeDispEnv.disp.y / 8;
+	u_char r = activeDispEnv.disp.w / 8 + l;
+	u_char b = activeDispEnv.disp.h / 8 + t;
 
 	Vertex blit_vertices[] =
 	{
@@ -1861,9 +1869,7 @@ void Emulator_BlitVRAM()
 	Emulator_SetShader(g_gte_shader);
 }
 
-bool begin_scene_flag = false;
-
-void Emulator_BeginScene()
+void Emulator_DoPollEvent()
 {
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -1886,7 +1892,7 @@ void Emulator_BeginScene()
 			switch (event.window.event)
 			{
 			case SDL_WINDOWEVENT_RESIZED:
-				windowWidth  = event.window.data1;
+				windowWidth = event.window.data1;
 				windowHeight = event.window.data2;
 				Emulator_ResetDevice();
 				break;
@@ -1897,6 +1903,17 @@ void Emulator_BeginScene()
 			break;
 		}
 	}
+}
+
+bool begin_scene_flag = false;
+bool vbo_was_dirty_flag = false;
+
+bool Emulator_BeginScene()
+{
+	Emulator_DoPollEvent();
+
+	if (begin_scene_flag)
+		return false;
 
 	assert(!begin_scene_flag);
 
@@ -1915,7 +1932,7 @@ void Emulator_BeginScene()
 	Emulator_SetViewPort(0, 0, windowWidth, windowHeight);
 
 	Emulator_SetShader(g_gte_shader);
-	Emulator_Ortho2D(0.0f, word_33BC.disp.w, word_33BC.disp.h, 0.0f, 0.0f, 1.0f);
+	Emulator_Ortho2D(0.0f, activeDispEnv.disp.w, activeDispEnv.disp.h, 0.0f, 0.0f, 1.0f);
 
 	begin_scene_flag = true;
 
@@ -1923,6 +1940,8 @@ void Emulator_BeginScene()
 	{
 		Emulator_SetWireframe(true);
 	}
+
+	return true;
 }
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
@@ -1970,19 +1989,28 @@ void Emulator_DoDebugKeys()
 		if (keyboardState[SDL_SCANCODE_1])
 		{
 			g_wireframeMode ^= 1;
+			eprintf("wireframe mode: %d\n", g_wireframeMode);
 		}
 
 		if (keyboardState[SDL_SCANCODE_2])
 		{
 			g_texturelessMode ^= 1;
+			eprintf("textureless mode: %d\n", g_texturelessMode);
 		}
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
 		if (keyboardState[SDL_SCANCODE_3])
 		{
+			eprintf("saving screenshot\n");
 			Emulator_TakeScreenshot();
 		}
 #endif
+
+		if (keyboardState[SDL_SCANCODE_4])
+		{
+			eprintf("saving VRAM.TGA\n");
+			Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
+		}
 
 		lastTime = currentTime;
 	}
@@ -1990,6 +2018,9 @@ void Emulator_DoDebugKeys()
 
 void Emulator_UpdateInput()
 {
+	// also poll events here
+	Emulator_DoPollEvent();
+
 	//Update pad
 	if (SDL_NumJoysticks() > 0)
 	{
@@ -2064,6 +2095,12 @@ void Emulator_SwapWindow()
 
 void Emulator_EndScene()
 {
+	if (!begin_scene_flag)
+		return;
+
+	if (!vbo_was_dirty_flag)
+		return;
+
 	assert(begin_scene_flag);
 
 	if (g_wireframeMode)
@@ -2078,6 +2115,7 @@ void Emulator_EndScene()
 #endif
 
 	begin_scene_flag = false;
+	vbo_was_dirty_flag = false;
 
 	Emulator_SwapWindow();
 }
@@ -2285,6 +2323,8 @@ void Emulator_UpdateVertexBuffer(const Vertex *vertices, int num_vertices)
 #else
 	#error
 #endif
+
+	vbo_was_dirty_flag = true;
 }
 
 void Emulator_DrawTriangles(int start_vertex, int triangles)
