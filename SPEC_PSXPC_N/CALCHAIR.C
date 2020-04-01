@@ -11,6 +11,15 @@
 #include "LARA.H"
 #include "GAMEFLOW.H"
 
+int* snaff_sphere_special(int* at, short* s7)
+{
+	at[0] = TRX;
+	at[1] = TRY;
+	at[2] = TRZ;
+	at[3] = (((s7[3] << 1) + s7[3]) + (((s7[3] << 1) + s7[3]) >> 31)) >> 1;
+	return at + 45;
+}
+
 void load_matrix(int* at)
 {
 	R11 = at[0] & 0xFFFF;
@@ -419,6 +428,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	short* hit_frame = NULL;//$s3
 	struct object_info* object = NULL;//$at
 	long* bone = NULL;//$s6
+	int* at = NULL;
 
 	S_MemSet((char*)&scratchPad, 0, 1024);
 
@@ -552,22 +562,14 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 
 	//loc_82F1C
 	load_matrix(&fp[45]);
+	//s7 = lara.mesh_ptrs[8];
+	mTranslateXYZ_CH(bone[29], bone[30], bone[31]);
+	mRotSuperPackedYXZ_CH(fp, 0);
+	mTranslateXYZ_CH(lara.mesh_ptrs[8][0], lara.mesh_ptrs[8][1], lara.mesh_ptrs[8][2]);
+
+	at = snaff_sphere_special(&fp[29], lara.mesh_ptrs[8]);
+
 #if 0
-		jal     sub_836B8
-		addiu   $at, $fp, 0xB4
-		lw      $s7, 0x52A8($gp)
-		lw      $a0, 0x74($s6)
-		lw      $a1, 0x78($s6)
-		jal     sub_83744
-		lw      $a2, 0x7C($s6)
-		jal     sub_83A80
-		move    $a1, $zero
-		lh      $a0, 0($s7)
-		lh      $a1, 2($s7)
-		jal     sub_83744
-		lh      $a2, 4($s7)
-		jal     sub_8368C
-		addiu   $at, $fp, 0x74
 		lw      $s7, 0x52B4($gp)
 		lw      $a0, 0xA4($s6)
 		lw      $a1, 0xA8($s6)
