@@ -8,6 +8,15 @@
 #include "MISC.H"
 #include "GTEREG.H"
 #include "SETUP.H"
+#include "LARA.H"
+
+void snaff_sphere_normal(short* s7, int* at)
+{
+	at[0] = TRX;
+	at[1] = TRY;
+	at[2] = TRZ;
+	at[3] = s7[3];
+}
 
 void mTranslateXYZ_CH(int x, int y, int z)
 {
@@ -493,18 +502,15 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	bone = &bones[object->bone_index];
 	mTranslateXYZ_CH(hit_frame[6], hit_frame[7], hit_frame[8]);
 	mRotSuperPackedYXZ_CH(fp, 0);
+
+	//s7 = lara.mesh_ptrs[0];
+	save_matrix(&fp[45]);
+	mTranslateXYZ_CH(lara.mesh_ptrs[0][0], lara.mesh_ptrs[0][1], lara.mesh_ptrs[0][2]);
+	snaff_sphere_normal(lara.mesh_ptrs[0], &fp[17]);
 #if 0
-		jal     sub_83A80
-		move    $a1, $zero
-		lw      $s7, 0x5288($gp)
-		jal     sub_83700
-		addiu   $at, $fp, 0xB4
-		lh      $a0, 0($s7)
-		lh      $a1, 2($s7)
-		jal     sub_83744
-		lh      $a2, 4($s7)
 		jal     sub_83670
 		addiu   $at, $fp, 0x44
+
 		lw      $a0, 0x64($s6)
 		lw      $a1, 0x68($s6)
 		jal     sub_83744
