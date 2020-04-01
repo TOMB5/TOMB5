@@ -69,12 +69,9 @@ struct Sector
 struct AudioSector
 {
 	unsigned char	sync[12];	/// Sync pattern (usually 00 FF FF FF FF FF FF FF FF FF FF 00)
-	unsigned char	addr[3];	/// Sector address (see below for encoding details)
+	unsigned char	addr[3];	/// Sector address (a 24-bit big-endian integer. starts at 200, 201 an onwards)
 	unsigned char	mode;		/// Mode (usually 2 for Mode 2 Form 1/2 sectors)
-	unsigned char	subHead[8];	/// Sub-header (00 00 08 00 00 00 08 00 for Form 1 data sectors)
-	unsigned char	data[2304];	/// Data (form 1)
-	unsigned char	edc[4];		/// Error-detection code (CRC32 of data area)
-	unsigned char	ecc[276];	/// Error-correction code (uses Reed-Solomon ECC algorithm)
+	unsigned char	data[2336];	/// 8 bytes Subheader, 2324 bytes Data (form 2), and 4 bytes ECC
 };
 #pragma pack(pop)
 
@@ -314,7 +311,7 @@ int CdSync(int mode, u_char * result)
 			//Dirty, for now read the audio data
 			if (readMode == RM_XA_AUDIO)
 			{
-				char xaAudioData[2304];
+				char xaAudioData[2336];
 				CdRead(1, (unsigned long*)&xaAudioData[0], CdlReadS);
 				CdReadSync(CdlReadS, NULL);
 
