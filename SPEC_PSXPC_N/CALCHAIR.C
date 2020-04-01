@@ -9,6 +9,27 @@
 #include "GTEREG.H"
 #include "SETUP.H"
 #include "LARA.H"
+#include "GAMEFLOW.H"
+
+void load_matrix(int* at)
+{
+	R11 = at[0] & 0xFFFF;
+	R12 = (at[0] >> 16) & 0xFFFF;
+	R13 = at[1] & 0xFFFF;
+	R21 = (at[1] >> 16) & 0xFFFF;
+	R22 = at[2] & 0xFFFF;
+	R23 = (at[2] >> 16) & 0xFFFF;
+	R31 = at[3] & 0xFFFF;
+	R32 = (at[3] >> 16) & 0xFFFF;
+	R33 = at[4] & 0xFFFF;
+	TRX = at[5];
+	TRY = at[6];
+	TRZ = at[7];
+
+	at[5] = TRX;
+	at[6] = TRY;
+	at[7] = TRZ;
+}
 
 void snaff_sphere_normal(short* s7, int* at)
 {
@@ -507,40 +528,31 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	save_matrix(&fp[45]);
 	mTranslateXYZ_CH(lara.mesh_ptrs[0][0], lara.mesh_ptrs[0][1], lara.mesh_ptrs[0][2]);
 	snaff_sphere_normal(lara.mesh_ptrs[0], &fp[17]);
+	mTranslateXYZ_CH(bone[25], bone[26], bone[27]);
+	mRotSuperPackedYXZ_CH(fp, 6);
+	mRotYXZ_CH(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
+	save_matrix(&fp[45]);
+	mTranslateXYZ_CH(lara.mesh_ptrs[0][0], lara.mesh_ptrs[0][1], lara.mesh_ptrs[0][2]);
+
+	//at = &fp[21];
+	//v0 = lara.mesh_ptrs[0][3];
+	fp[21] = TRX;
+	fp[22] = TRY;
+	fp[23] = TRZ;
+
+	//a0 = v0 >> 2
+	if ((gfLevelFlags & 1))
+	{
+		fp[24] = lara.mesh_ptrs[0][3] - ((lara.mesh_ptrs[0][3] >> 2) + lara.mesh_ptrs[0][3] >> 3);
+	}
+	else
+	{
+		fp[24] = lara.mesh_ptrs[0][3];
+	}
+
+	//loc_82F1C
+	load_matrix(&fp[45]);
 #if 0
-		jal     sub_83670
-		addiu   $at, $fp, 0x44
-
-		lw      $a0, 0x64($s6)
-		lw      $a1, 0x68($s6)
-		jal     sub_83744
-		lw      $a2, 0x6C($s6)
-		jal     sub_83A80
-		li      $a1, 6
-		lh      $a0, 0x52D6($gp)
-		lh      $a1, 0x52D8($gp)
-		jal     sub_83994
-		lh      $a2, 0x52DA($gp)
-		lw      $s7, 0x52A4($gp)
-		jal     sub_83700
-		addiu   $at, $fp, 0xB4
-		lh      $a0, 0($s7)
-		lh      $a1, 2($s7)
-		jal     sub_83744
-		lh      $a2, 4($s7)
-		addiu   $at, $fp, 0x54
-		lh      $v0, 6($s7)
-		sw      $t0, 0($at)
-		sw      $t1, 4($at)
-		sw      $t2, 8($at)
-		beqz    $s0, loc_82F1C
-		sra     $a0, $v0, 2
-		sra     $a1, $v0, 3
-		addu    $a0, $a1
-		subu    $v0, $a0
-
-		loc_82F1C :
-	sw      $v0, 0xC($at)
 		jal     sub_836B8
 		addiu   $at, $fp, 0xB4
 		lw      $s7, 0x52A8($gp)
