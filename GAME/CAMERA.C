@@ -963,7 +963,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 void CalculateCamera()//27DA0(<), 27FAC(!)
 {
 #if PC_VERSION
-	Log(LT_Enter, "CalculateCamera");
+	//Log(LT_Enter, "CalculateCamera");
 #endif
 	
 #if PSX_VERSION || PC_VERSION
@@ -2039,7 +2039,7 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 {
 #if PC_VERSION
-	Log(LT_Enter, "MoveCamera");
+	//Log(LT_Enter, "MoveCamera");
 #endif
 
 	struct FLOOR_INFO* floor;
