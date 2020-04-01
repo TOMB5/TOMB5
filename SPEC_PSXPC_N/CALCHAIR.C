@@ -113,7 +113,7 @@ void mTranslateXYZ_CH(int x, int y, int z)
 	TRZ = t2;
 }
 
-void mRotY_CH (int y_rot)
+void mRotY_CH(int y_rot)
 {
 	y_rot >>= 2;
 	y_rot &= 0x3FFC;
@@ -236,17 +236,14 @@ void mRotX_CH(int a0)
 	}
 }
 
-void mRotYXZ_CH(int y_rot, int x_rot, int z_rot)
+void mRotZ_CH(int a0)
 {
-	mRotY_CH(y_rot);
-	mRotX_CH(x_rot);
+	a0 >>= 2;
+	a0 &= 0x3FFC;
 
-	z_rot >>= 2;
-	z_rot &= 0x3FFC;
-
-	if (z_rot != 0)
+	if (a0 != 0)
 	{
-		int t0 = ((int*)&rcossin_tbl[z_rot >> 1])[0];
+		int t0 = ((int*)&rcossin_tbl[a0 >> 1])[0];
 		int t7 = 0xFFFF0000;
 		int t1 = (t0 >> 16) & 0xFFFF;
 		int t2 = t0 << 16;
@@ -309,6 +306,70 @@ void mRotYXZ_CH(int y_rot, int x_rot, int z_rot)
 	}
 }
 
+void mRotSuperPackedYXZ_CH(int* fp, int a1)
+{
+	unsigned short* a2 = (unsigned short*)fp[10];
+	int v0 = *a2;
+
+	if (a1 != 0)
+	{
+		//loc_83A88
+		do
+		{
+			v0 = *a2;
+			a1--;
+			if (!(v0 & 0xC000))
+			{
+				a2++;
+			}
+			a2++;
+
+			//loc_83AA0
+		} while (a1 != 0);
+
+		v0 = *a2;
+	}
+	//loc_83AAC
+	a2++;
+
+	int at = v0 >> 14;
+	if (at-- != 0)
+	{
+		fp[10] = (int)a2;
+
+		if (at-- != 0)
+		{
+			if (at != 0)
+			{
+				mRotZ_CH((v0 & 0xFFF) << 4);
+				return;
+			}
+			//loc_83AD8
+			mRotY_CH((v0 & 0xFFF) << 4);
+			return;
+		}
+		//loc_83AE0
+		mRotX_CH((v0 & 0xFFF) << 4);
+		return;
+	}
+	//loc_83AEC
+	at = *a2++;
+	fp[10] = (int)a2;
+	v0 <<= 16;
+	v0 |= at;
+
+	mRotY_CH((v0 >> 4) & 0xFFC0);
+	mRotX_CH((v0 >> 14) & 0xFFC0);
+	mRotZ_CH((v0 & 0x3FF) << 6);
+}
+
+void mRotYXZ_CH(int y_rot, int x_rot, int z_rot)
+{
+	mRotY_CH(y_rot);
+	mRotX_CH(x_rot);
+	mRotZ_CH(z_rot);
+}
+
 void save_matrix(int* at)
 {
 	at[0] = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
@@ -337,7 +398,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	//v1 = lara.hit_direction
 	//s4 = bIsYoungLara
 	fp[11] = unk01;
-	//s3 = frame
+	hit_frame = frame;
 	int a0 = 0;
 
 	if (frame == NULL)
@@ -400,7 +461,6 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 			//t1 = (lara.hit_frame * (anim->interpolation >> 8))
 			//s3 = anim->frame_ptr
 			hit_frame = &anim->frame_ptr[(lara.hit_frame * (anim->interpolation >> 8))];
-
 		}
 		else
 		{
@@ -432,6 +492,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	//v0 = objects.bone_index
 	bone = &bones[object->bone_index];
 	mTranslateXYZ_CH(hit_frame[6], hit_frame[7], hit_frame[8]);
+	mRotSuperPackedYXZ_CH(fp, 0);
 #if 0
 		jal     sub_83A80
 		move    $a1, $zero
