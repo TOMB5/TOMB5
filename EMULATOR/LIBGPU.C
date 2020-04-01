@@ -485,9 +485,17 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			{
 				for (int i = 0; i < 3; i++)
 				{
-					g_vertexBuffer[g_polygonSelected + i].r = 255;
-					g_vertexBuffer[g_polygonSelected + i].g = 0;
-					g_vertexBuffer[g_polygonSelected + i].b = 0;
+					struct Vertex* vert = &g_vertexBuffer[g_polygonSelected + i];
+					vert->r = 255;
+					vert->g = 0;
+					vert->b = 0;
+
+					eprintf("==========================================\n");
+					eprintf("POLYGON: %d\n", i);
+					eprintf("X: %d Y: %d\n", vert->x, vert->y);
+					eprintf("U: %d V: %d\n", vert->u, vert->v);
+					eprintf("TP: %d CLT: %d\n", vert->page, vert->clut);
+					eprintf("==========================================\n");
 				}
 				Emulator_UpdateInput();
 			}
