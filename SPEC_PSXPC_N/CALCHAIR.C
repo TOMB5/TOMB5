@@ -10,6 +10,8 @@
 #include "SETUP.H"
 #include "LARA.H"
 #include "GAMEFLOW.H"
+#include "HAIR.H"
+#include "EFFECT2.H"
 
 int* snaff_sphere_special(int* at, short* s7)
 {
@@ -429,6 +431,9 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	struct object_info* object = NULL;//$at
 	long* bone = NULL;//$s6
 	int* at = NULL;
+	struct HAIR_STRUCT* s7 = NULL;
+	int* a1 = NULL;
+	int s5 = 0;
 
 	S_MemSet((char*)&scratchPad, 0, 1024);
 
@@ -511,17 +516,17 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 
 	save_matrix(&fp[37]);
 
-	R11 = 0x1000;
+	R11 = 4096;
 	R12 = 0;
 	R13 = 0;
 	R21 = 0;
-	R22 = 0x1000;
+	R22 = 4096;
 	R23 = 0;
 	R31 = 0;
 	R32 = 0;
-	R33 = 0x1000;
+	R33 = 4096;
 
-	fp[10] = (int)&frame[9];
+	fp[10] = (int)&hit_frame[9];
 
 	TRX = lara_item->pos.x_pos;
 	TRY = lara_item->pos.y_pos;
@@ -568,150 +573,105 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	mTranslateXYZ_CH(lara.mesh_ptrs[8][0], lara.mesh_ptrs[8][1], lara.mesh_ptrs[8][2]);
 
 	at = snaff_sphere_special(&fp[29], lara.mesh_ptrs[8]);
+	//s7 = lara.mesh_ptrs[11];
+	mTranslateXYZ_CH(bone[41], bone[42], bone[43]);
+	mRotSuperPackedYXZ_CH(fp, 2);
+	mTranslateXYZ_CH(lara.mesh_ptrs[11][0], lara.mesh_ptrs[11][1], lara.mesh_ptrs[11][2]);
+	at = snaff_sphere_special(&fp[33], lara.mesh_ptrs[11]);
+	mTranslateXYZ_CH(bone[53], bone[54], bone[55]);
+	mRotSuperPackedYXZ_CH(fp, 2);
+	mRotYXZ_CH(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
+	//s7 = lara.mesh_ptrs[14]
+	save_matrix(&fp[45]);
+	mTranslateXYZ_CH(lara.mesh_ptrs[14][0], lara.mesh_ptrs[14][1], lara.mesh_ptrs[14][2]);
+	snaff_sphere_normal(lara.mesh_ptrs[14], &fp[25]);
 
+	fp[21] = (fp[21] + fp[25]) >> 1;
+	fp[22] = (fp[22] + fp[26]) >> 1;
+	fp[23] = (fp[23] + fp[27]) >> 1;
+
+	//loc_83020
+	if (bIsYoungLara == 0)
+	{
+		if ((gfLevelFlags & 1))
+		{
+			mTranslateXYZ_CH(-52, -48, -50);
+		}
+		else
+		{
+			//loc_83040
+			mTranslateXYZ_CH(-4, -4, -48);
+		}
+	}
+	else
+	{
+		//loc_83054
+		mTranslateXYZ_CH(44, -48, -50);
+	}
+
+	fp[12] = TRX;
+	fp[13] = TRY;
+	fp[14] = TRZ;
+
+	load_matrix(&fp[37]);
+	s7 = &hairs[bIsYoungLara][0];
+	a1 = &first_hair[bIsYoungLara];
+	//a0 = objects[HAIR].bone_index
+	bone = &bones[objects[HAIR].bone_index];
+
+	if (lara.hit_direction != 0)
+	{
+		a1[0] = 0;
+		s7->pos.x_pos = fp[12];
+		s7->pos.y_pos = fp[13];
+		s7->pos.z_pos = fp[14];
+
+		s5 = 6;
+		//loc_830DC
+		do
+		{
+			R11 = 4096;
+			R12 = 0;
+			R13 = 0;
+			R21 = 0;
+			R22 = 4096;
+			R23 = 0;
+			R31 = 0;
+			R32 = 0;
+			R33 = 4096;
+
+			TRX = s7->pos.x_pos;
+			TRY = s7->pos.y_pos;
+			TRZ = s7->pos.z_pos;
+			s5--;
+			mRotYXZ_CH(s7->pos.y_rot, s7->pos.x_rot, 0);
+			mTranslateXYZ_CH(bone[1], bone[2], bone[3]);
+
+			s7[1].pos.x_pos = TRX;
+			s7[1].pos.y_pos = TRY;
+			s7[1].pos.z_pos = TRZ;
+			bone += 4;
+			s7++;
+
+		} while (s5 != 0);
+
+		SmokeWindZ = 0;
+		SmokeWindX = 0;
+		hair_wind = 0;
+		hair_dwind_angle = 2048;
+		hair_wind_angle = 2048;
+		load_matrix(&fp[37]);
+		return;
+	}
+	else
+	{
+		//loc_8316C
+
+	}
 #if 0
-		lw      $s7, 0x52B4($gp)
-		lw      $a0, 0xA4($s6)
-		lw      $a1, 0xA8($s6)
-		jal     sub_83744
-		lw      $a2, 0xAC($s6)
-		jal     sub_83A80
-		li      $a1, 2
-		lh      $a0, 0($s7)
-		lh      $a1, 2($s7)
-		jal     sub_83744
-		lh      $a2, 4($s7)
-		jal     sub_8368C
-		addiu   $at, $fp, arg_84
-		lw      $a0, 0xD4($s6)
-		lw      $a1, 0xD8($s6)
-		jal     sub_83744
-		lw      $a2, 0xDC($s6)
-		jal     sub_83A80
-		li      $a1, 2
-		lh      $a0, 0x52D0($gp)
-		lh      $a1, 0x52D2($gp)
-		jal     sub_83994
-		lh      $a2, 0x52D4($gp)
-		lw      $s7, 0x52C0($gp)
-		jal     sub_83700
-		addiu   $at, $fp, arg_B4
-		lh      $a0, 0($s7)
-		lh      $a1, 2($s7)
-		jal     sub_83744
-		lh      $a2, 4($s7)
-		jal     sub_83670
-		addiu   $at, $fp, arg_64
-		beqz    $s0, loc_83020
-		nop
-		lw      $at, arg_54($fp)
-		lw      $v0, arg_58($fp)
-		lw      $v1, arg_5C($fp)
-		lw      $a0, arg_64($fp)
-		lw      $a1, arg_68($fp)
-		lw      $a2, arg_6C($fp)
-		addu    $at, $a0
-		addu    $v0, $a1
-		addu    $v1, $a2
-		sra     $at, 1
-		sra     $v0, 1
-		sra     $v1, 1
-		sw      $at, arg_54($fp)
-		sw      $v0, arg_58($fp)
-		sw      $v1, arg_5C($fp)
-
-		loc_83020:
-	bnez    $s4, loc_83054
-		nop
-		beqz    $s0, loc_83040
-		nop
-		li      $a0, 0xFFFFFFCC
-		li      $a1, 0xFFFFFFD0
-		j       loc_8304C
-		li      $a2, 0xFFFFFFCE
-
-		loc_83040:
-	li      $a0, 0xFFFFFFFC
-		li      $a1, 0xFFFFFFFC
-		li      $a2, 0xFFFFFFD0
-
-		loc_8304C :
-		jal     sub_83744
-		addiu   $ra, 0x10
-
-		loc_83054 :
-		li      $a0, 0x2C
-		li      $a1, 0xFFFFFFD0
-		jal     sub_83744
-		li      $a2, 0xFFFFFFCE
-		sw      $t0, arg_30($fp)
-		sw      $t1, arg_34($fp)
-		sw      $t2, arg_38($fp)
-		jal     sub_836B8
-		addiu   $at, $fp, arg_94
-		sll     $v0, $s4, 3
-		subu    $v0, $s4
-		sll     $v0, 5
-		li      $v1, 0xAB21C
-		addu    $s7, $v0, $v1
-		li      $a1, 0xA367C
-		sll     $v0, $s4, 2
-		addu    $a1, $v0, $a1
-		lw      $a0, dword_801F2C04
-		lw      $v0, 0x2030($gp)
-		lw      $v1, 0($a1)
-		sll     $a0, 2
-		beqz    $v1, loc_8316C
-		addu    $s6, $v0, $a0
-		sw      $zero, 0($a1)
-		lw      $a0, arg_30($fp)
-		lw      $a1, arg_34($fp)
-		lw      $a2, arg_38($fp)
-		sw      $a0, 0($s7)
-		sw      $a1, 4($s7)
-		sw      $a2, 8($s7)
-		li      $s5, 6
-
-		loc_830DC:
-	li      $at, 0x1000
-		ctc2    $at, $0
-		ctc2    $zero, $1
-		ctc2    $at, $2
-		ctc2    $zero, $3
-		ctc2    $at, $4
-		lw      $a0, 0($s7)
-		lw      $a1, 4($s7)
-		lw      $a2, 8($s7)
-		ctc2    $a0, $5
-		ctc2    $a1, $6
-		ctc2    $a2, $7
-		addiu   $s5, -1
-		lh      $a0, 0xE($s7)
-		lh      $a1, 0xC($s7)
-		jal     sub_83994
-		move    $a2, $zero
-		lw      $a0, 4($s6)
-		lw      $a1, 8($s6)
-		jal     sub_83744
-		lw      $a2, 0xC($s6)
-		sw      $t0, 0x20($s7)
-		sw      $t1, 0x24($s7)
-		sw      $t2, 0x28($s7)
-		addiu   $s6, 0x10
-		bnez    $s5, loc_830DC
-		addiu   $s7, 0x20
-		li      $v0, 0x800
-		sw      $zero, 0x2BFC($gp)
-		sw      $zero, 0x2BF8($gp)
-		sw      $zero, 0x534($gp)
-		sw      $v0, 0x53C($gp)
-		sw      $v0, 0x538($gp)
-		addiu   $at, $fp, arg_94
-		jal     sub_836B8
-		addiu   $ra, 0x4D8
 
 		loc_8316C:
-	lw      $v0, arg_30($fp)
+		lw      $v0, arg_30($fp)
 		lw      $v1, arg_34($fp)
 		lw      $a0, arg_38($fp)
 		sw      $v0, 0($s7)
