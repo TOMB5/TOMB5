@@ -1545,7 +1545,7 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 	}
 	else
 	{
-		Log(LT_Enter, "SetRoomBounds - adding room %d", room_number);
+		//Log(LT_Enter, "SetRoomBounds - adding room %d", room_number);
 		bound_list[bound_end++ % 128] = room_number;
 
 		r->bound_active |= 2;
@@ -1562,7 +1562,7 @@ void GetRoomBounds()// (F)
 	while (bound_start != bound_end)
 	{
 		const int current = bound_list[bound_start++ % 128];
-		Log(LT_Enter, "GetRoomBounds - %d", current);
+		//Log(LT_Enter, "GetRoomBounds - %d", current);
 		room_info* r = &room[current];
 		r->bound_active -= 2;
 
@@ -1577,7 +1577,7 @@ void GetRoomBounds()// (F)
 
 		if (!(r->bound_active & 1))
 		{
-			Log(LT_Enter, "GetRoomBounds - adding room %d", current);
+			//Log(LT_Enter, "GetRoomBounds - adding room %d", current);
 			draw_rooms[number_draw_rooms++] = current;
 			r->bound_active |= 1;
 
@@ -1613,7 +1613,7 @@ void GetRoomBounds()// (F)
 				{
 					continue;
 				}
-				Log(LT_Enter, "GetRoomBounds - entering portal to room %d", portal->AdjoiningRoom);
+				//Log(LT_Enter, "GetRoomBounds - entering portal to room %d", portal->AdjoiningRoom);
 				SetRoomBounds(portal, portal->AdjoiningRoom, r);
 			}
 		}
@@ -2051,7 +2051,7 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 
 		if (oz < f_znear)
 		{
-			v7 = 0xFF80;
+			v7 = -128;
 		}
 		else
 		{
@@ -2169,7 +2169,7 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 			mb += fix2;
 		}
 
-		if (oz > (double)flt_511A5C)
+		if (oz > flt_511A5C)
 		{
 			int fix = (oz - flt_511A5C) * flt_511A64 * 255.0;
 
