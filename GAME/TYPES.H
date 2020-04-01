@@ -479,22 +479,22 @@ struct lara_info {
 	short dpoisoned; // size=0, offset=50
 	unsigned char Anxiety; // size=0, offset=52
 	unsigned char wet[15]; // size=15, offset=53
-	unsigned short flare_control_left : 1; // offset=68.0
-	unsigned short Unused1 : 1; // offset=68.1
-	unsigned short look : 1; // offset=68.2
-	unsigned short burn : 1; // offset=68.3
-	unsigned short keep_ducked : 1; // offset=68.4
-	unsigned short IsMoving : 1; // offset=68.5
-	unsigned short CanMonkeySwing : 1; // offset=68.6
-	unsigned short BurnBlue : 2; // offset=68.7
-	unsigned short Gassed : 1; // offset=69.1
-	unsigned short BurnSmoke : 1; // offset=69.2
-	unsigned short IsDucked : 1; // offset=69.3
-	unsigned short has_fired : 1; // offset=69.4
-	unsigned short Busy : 1; // offset=69.5
-	unsigned short LitTorch : 1; // offset=69.6
-	unsigned short IsClimbing : 1; // offset=69.7
-	unsigned short Fired : 1; // offset=70.0
+	unsigned short flare_control_left : 1; // offset=68.0 - 0x0001
+	unsigned short Unused1 : 1; // offset=68.1 - 0x0002
+	unsigned short look : 1; // offset=68.2 - 0x0004
+	unsigned short burn : 1; // offset=68.3 - 0x0008
+	unsigned short keep_ducked : 1; // offset=68.4 - 0x0010
+	unsigned short IsMoving : 1; // offset=68.5 - 0x0020
+	unsigned short CanMonkeySwing : 1; // offset=68.6 - 0x0040
+	unsigned short BurnBlue : 2; // offset=68.7 - 0x0080 | 0x0100
+	unsigned short Gassed : 1; // offset=69.1 - 0x0200
+	unsigned short BurnSmoke : 1; // offset=69.2 - 0x0400
+	unsigned short IsDucked : 1; // offset=69.3 - 0x0800
+	unsigned short has_fired : 1; // offset=69.4 - 0x1000
+	unsigned short Busy : 1; // offset=69.5 - 0x2000
+	unsigned short LitTorch : 1; // offset=69.6 - 0x4000
+	unsigned short IsClimbing : 1; // offset=69.7 - 0x8000
+	unsigned short Fired : 1; // offset=70.0 - 0x0001
 	long water_surface_dist; // size=0, offset=72
 	struct PHD_VECTOR last_pos; // size=12, offset=76
 	struct FX_INFO* spaz_effect; // size=44, offset=88
