@@ -181,8 +181,6 @@ int g_vertexIndex = 0;
 int currentIndexBuffer = 0;
 int g_numSplitIndices = 0;
 
-//#define WIREFRAME_MODE
-
 #if defined(USE_32_BIT_ADDR)
 unsigned long terminator[2] = { -1, 0 };
 #else
@@ -446,55 +444,72 @@ void DrawSplit(const VertexBufferSplitIndex &split)
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
-	Emulator_BeginScene();
+	do
+	{
+		Emulator_BeginScene();
+
 #if defined(DEBUG_POLY_COUNT)
-	polygon_count = 0;
+		polygon_count = 0;
 #endif
 
-	PutDrawEnv(env);
+		PutDrawEnv(env);
 
-	if (activeDrawEnv.isbg)
-	{
-		ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
-	} else {
-		Emulator_BlitVRAM();
-	}
-
-	if (p != NULL)
-	{
-		lastSemiTrans = 0xFFFF;
-		lastPolyType = 0xFFFF;
-		numVertices = 0;
-		g_vertexIndex = 0;
-		g_numSplitIndices = 0;
-
-		P_TAG* pTag = (P_TAG*)p;
-
-		do
+		if (activeDrawEnv.isbg)
 		{
-			if (pTag->len > 0)
-			{
-				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4 + LEN_OFFSET);
-			}
-			pTag = (P_TAG*)pTag->addr;
-		}while ((uintptr_t)pTag != (uintptr_t)&terminator);
-
-		Emulator_UpdateVertexBuffer(g_vertexBuffer, g_vertexIndex);
-
-		for (int i = 0; i < g_numSplitIndices; i++)
-		{
-			DrawSplit(g_splitIndices[i]);
+			ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
 		}
-	}
+		else {
+			Emulator_BlitVRAM();
+		}
+
+		if (p != NULL)
+		{
+			lastSemiTrans = 0xFFFF;
+			lastPolyType = 0xFFFF;
+			numVertices = 0;
+			g_vertexIndex = 0;
+			g_numSplitIndices = 0;
+
+			P_TAG* pTag = (P_TAG*)p;
+
+			do
+			{
+				if (pTag->len > 0)
+				{
+					ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4 + LEN_OFFSET);
+				}
+				pTag = (P_TAG*)pTag->addr;
+			} while ((uintptr_t)pTag != (uintptr_t)&terminator);
+
+			if (g_emulatorPaused)
+			{
+				for (int i = 0; i < 3; i++)
+				{
+					g_vertexBuffer[g_polygonSelected + i].r = 255;
+					g_vertexBuffer[g_polygonSelected + i].g = 0;
+					g_vertexBuffer[g_polygonSelected + i].b = 0;
+				}
+				Emulator_UpdateInput();
+			}
+
+			Emulator_UpdateVertexBuffer(g_vertexBuffer, g_vertexIndex);
+
+			for (int i = 0; i < g_numSplitIndices; i++)
+			{
+				DrawSplit(g_splitIndices[i]);
+			}
+		}
 
 #if defined(PGXP)
-	/* Reset the ztable */
-	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
+		/* Reset the ztable */
+		memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
 
-	/* Reset the ztable index of */
-	pgxp_vertex_index = 0;
+		/* Reset the ztable index of */
+		pgxp_vertex_index = 0;
 #endif
-	Emulator_EndScene();
+		Emulator_EndScene();
+
+	} while (g_emulatorPaused);
 }
 
 void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)//@TODO sync with ParsePrimitive
