@@ -1360,7 +1360,6 @@ int Emulator_Initialise()
 	Emulator_CreateGlobalShaders();
 
 #if defined(OGL) || defined(OGLES)
-	glEnable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 
 	glGenTextures(1, &vramTexture);
@@ -1855,7 +1854,7 @@ void Emulator_BlitVRAM()
 	};
 
 	Emulator_UpdateVertexBuffer(blit_vertices, 6);
-	Emulator_SetBlendMode(0, 0);
+	Emulator_SetBlendMode(BM_NONE);
 	Emulator_DrawTriangles(0, 2);
 
 	Emulator_SetShader(g_gte_shader);
@@ -2104,90 +2103,82 @@ void Emulator_ShutDown()
 	exit(0);
 }
 
-static int g_PreviousBlendMode = -1;
-static int g_PreviousSemiTrans = 0;
+int g_PreviousBlendMode = BM_NONE;
 
-void Emulator_SetBlendMode(int mode, int semiTransparent)
+void Emulator_SetBlendMode(BlendMode blendMode)
 {
-	if (semiTransparent)
+	if (g_PreviousBlendMode == blendMode)
 	{
-		//If previous wasn't semi trans, enable blend
-		if (g_PreviousSemiTrans == 0)
-		{
-#if defined(OGL) || defined(OGLES)
-			glEnable(GL_BLEND);
-#elif defined(D3D9)
-			d3ddev->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-#endif
-		}
-
-		if (g_PreviousBlendMode != mode)
-		{
-			switch (mode)
-			{
-			case BM_AVERAGE:
-#if defined(OGL) || defined(OGLES)
-				glBlendColor(0.5f, 0.5f, 0.5f, 0.5f);
-				glBlendFunc(GL_CONSTANT_COLOR, GL_CONSTANT_COLOR);
-				glBlendEquation(GL_FUNC_ADD);
-#elif defined(D3D9)
-				d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(128, 128, 128, 128));
-				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
-				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
-				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_BLENDFACTOR);
-#endif
-				break;
-			case BM_ADD:
-#if defined(OGL) || defined(OGLES)
-				glBlendFunc(GL_ONE, GL_ONE);
-				glBlendEquation(GL_FUNC_ADD);
-#elif defined(D3D9)
-				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
-				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
-				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-#endif
-				break;
-			case BM_SUBTRACT:
-#if defined(OGL) || defined(OGLES)
-				glBlendFunc(GL_ONE, GL_ONE);
-				glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
-#elif defined(D3D9)
-				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_REVSUBTRACT);
-				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
-				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-#endif
-				break;
-			case BM_ADD_QUATER_SOURCE:
-#if defined(OGL) || defined(OGLES)
-				glBlendColor(0.25f, 0.25f, 0.25f, 0.25f);
-				glBlendFunc(GL_CONSTANT_COLOR, GL_ONE);
-				glBlendEquation(GL_FUNC_ADD);
-#elif defined(D3D9)
-				d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(64, 64, 64, 64));
-				d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
-				d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
-				d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-#endif
-				break;
-			}
-
-			g_PreviousBlendMode = mode;
-		}
+		return;
 	}
-	else
-	{
-		//If previous was semi trans disable blend
-		if (g_PreviousSemiTrans)
-		{
+
 #if defined(OGL) || defined(OGLES)
+	if (g_PreviousBlendMode == BM_NONE)
+	{
+		glEnable(GL_BLEND);
+	}
+
+	switch (blendMode)
+	{
+		case BM_NONE:
 			glDisable(GL_BLEND);
+			break;
+		case BM_AVERAGE:
+			glBlendColor(0.5f, 0.5f, 0.5f, 0.5f);
+			glBlendFunc(GL_CONSTANT_COLOR, GL_CONSTANT_COLOR);
+			glBlendEquation(GL_FUNC_ADD);
+			break;
+		case BM_ADD:
+			glBlendFunc(GL_ONE, GL_ONE);
+			glBlendEquation(GL_FUNC_ADD);
+			break;
+		case BM_SUBTRACT:
+			glBlendFunc(GL_ONE, GL_ONE);
+			glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+			break;
+		case BM_ADD_QUATER_SOURCE:
+			glBlendColor(0.25f, 0.25f, 0.25f, 0.25f);
+			glBlendFunc(GL_CONSTANT_COLOR, GL_ONE);
+			glBlendEquation(GL_FUNC_ADD);
+			break;
+	}
 #elif defined(D3D9)
-			d3ddev->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-#endif
-		}
+	if (g_PreviousBlendMode == BM_NONE)
+	{
+		d3ddev->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	}
 
-	g_PreviousSemiTrans = semiTransparent;
+	switch (blendMode)
+	{
+		case BM_NONE:
+			d3ddev->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+			break;
+		case BM_AVERAGE:
+			d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(128, 128, 128, 128));
+			d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+			d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
+			d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_BLENDFACTOR);
+			break;
+		case BM_ADD:
+			d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+			d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+			d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+			break;
+		case BM_SUBTRACT:
+			d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_REVSUBTRACT);
+			d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+			d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+			break;
+		case BM_ADD_QUATER_SOURCE:
+			d3ddev->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(64, 64, 64, 64));
+			d3ddev->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+			d3ddev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
+			d3ddev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+			break;
+	}
+#endif
+
+	g_PreviousBlendMode = blendMode;
 }
 
 void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar)

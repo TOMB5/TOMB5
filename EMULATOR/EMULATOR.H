@@ -128,7 +128,8 @@ enum ShaderAttrib
 
 enum BlendMode
 {
-	BM_AVERAGE, 
+	BM_NONE,
+	BM_AVERAGE,
 	BM_ADD,
 	BM_SUBTRACT,
 	BM_ADD_QUATER_SOURCE
@@ -161,7 +162,7 @@ extern void Emulator_UpdateVRAM();
 extern void Emulator_BlitVRAM();
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
-extern void Emulator_SetBlendMode(int mode, int semiTransparent);
+extern void Emulator_SetBlendMode(BlendMode blendMode);
 extern void Emulator_CounterLoop();
 extern void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3);
 extern void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h);
