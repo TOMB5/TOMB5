@@ -1,11 +1,208 @@
 #include "CALCHAIR.H"
 
 #include "CALCLARA.H"
+#include "CAMERA.H"
 #include "DRAW.H"
 #include "LARA.H"
 #include "TYPES.H"
 #include "MISC.H"
 #include "GTEREG.H"
+
+void mRotY_CH(int y_rot)
+{
+	y_rot >>= 2;
+	y_rot &= 0x3FFC;
+
+	if (y_rot != 0)
+	{
+		int t5 = ((int*)&rcossin_tbl[y_rot >> 1])[0];
+		int t7 = 0xFFFF0000;
+		int t6 = t5 >> 16;
+		t5 &= 0xFFFF;
+		int t2 = -t5;
+
+		VX0 = t6 & 0xFFFF;
+		VY0 = (t6 >> 16) & 0xFFFF;
+		VZ0 = t2;
+
+		int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+		t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+		int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+
+		docop2(0x486012);
+		VX1 = t5 & 0xFFFF;
+		VY1 = (t5 >> 16) & 0xFFFF;
+		VZ1 = t6;
+
+		t0 &= t7;
+		t2 &= 0xFFFF;
+		t3 &= t7;
+		int t4 = MAC1;
+		int t1 = MAC2;
+		t5 = MAC3;
+		docop2(0x48E012);
+		t4 &= 0xFFFF;
+		t0 |= t4;
+		t1 <<= 16;
+		t5 &= 0xFFFF;
+		t3 |= t5;
+		t5 = MAC1;
+		t6 = MAC2;
+		t4 = MAC3;
+		t5 &= 0xFFFF;
+		t1 |= t5;
+		t6 <<= 16;
+		t2 |= t6;
+
+		R11 = t0 & 0xFFFF;
+		R12 = (t0 >> 16) & 0xFFFF;
+		R13 = t1 & 0xFFFF;
+		R21 = (t1 >> 16) & 0xFFFF;
+		R22 = t2 & 0xFFFF;
+		R23 = (t2 >> 16) & 0xFFFF;
+		R31 = t3 & 0xFFFF;
+		R32 = (t3 >> 16) & 0xFFFF;
+		R33 = t4;
+	}
+}
+
+void mRotX_CH(int a0)
+{
+	a0 >>= 2;
+	a0 &= 0x3FFC;
+
+	if (a0 != 0)
+	{
+		int t5 = ((int*)&rcossin_tbl[a0 >> 1])[0];
+		int t7 = 0xFFFF0000;
+		int t6 = t7 & t5;
+
+		VX0 = t6 & 0xFFFF;
+		VY0 = (t6 >> 16) & 0xFFFF;
+		VZ0 = t5;
+
+		int t0 = (R11 & 0xFFFF) | ((R12 & 0xFFFF) << 16);
+		int t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+		int t3 = (R31 & 0xFFFF) | ((R32 & 0xFFFF) << 16);
+
+		docop2(0x486012);
+
+		t6 = t5 >> 16;
+		t5 <<= 16;
+		t5 = -t5;
+
+		VX1 = t5 & 0xFFFF;
+		VY1 = (t5 >> 16) & 0xFFFF;
+		VZ1 = t6 & 0xFFFF;
+
+		t0 &= 0xFFFF;
+		t1 &= t7;
+		t3 &= 0xFFFF;
+
+		int t4 = MAC1;
+		int t2 = MAC2;
+		t5 = MAC3;
+
+		docop2(0x48E012);
+		t4 <<= 16;
+		t0 |= t4;
+		t2 &= 0xFFFF;
+		t5 <<= 16;
+		t3 |= t5;
+
+		t5 = MAC1;
+		t6 = MAC2;
+		t4 = MAC3;
+
+		t5 &= 0xFFFF;
+		t1 |= t5;
+		t6 <<= 16;
+		t2 |= t6;
+
+		R11 = t0 & 0xFFFF;
+		R12 = (t0 >> 16) & 0xFFFF;
+		R13 = t1 & 0xFFFF;
+		R21 = (t1 >> 16) & 0xFFFF;
+		R22 = t2 & 0xFFFF;
+		R23 = (t2 >> 16) & 0xFFFF;
+		R31 = t3 & 0xFFFF;
+		R32 = (t3 >> 16) & 0xFFFF;
+		R33 = t4;
+	}
+}
+
+void mRotYXZ_CH(int y_rot, int x_rot, int z_rot)
+{
+	mRotY_CH(y_rot);
+	mRotX_CH(x_rot);
+
+	z_rot >>= 2;
+	z_rot &= 0x3FFC;
+
+	if (z_rot != 0)
+	{
+		int t0 = ((int*)&rcossin_tbl[z_rot >> 1])[0];
+		int t7 = 0xFFFF0000;
+		int t1 = (t0 >> 16) & 0xFFFF;
+		int t2 = t0 << 16;
+		t1 |= t2;
+
+		VX0 = t1 & 0xFFFF;
+		VY0 = (t1 >> 16) & 0xFFFF;
+		VZ0 = 0;
+
+		t1 = (R13 & 0xFFFF) | ((R21 & 0xFFFF) << 16);
+		t2 = (R22 & 0xFFFF) | ((R23 & 0xFFFF) << 16);
+		int t4 = R33;
+
+		docop2(0x486012);
+
+		int t3 = t0 & t7;
+		t0 &= 0xFFFF;
+		t0 = -t0;
+		t0 &= 0xFFFF;
+		t0 |= t3;
+
+		VX1 = t0 & 0xFFFF;
+		VY1 = (t0 >> 16) & 0xFFFF;
+		VZ1 = 0;
+
+		t1 &= 0xFFFF;
+
+		t0 = MAC1;
+		int t5 = MAC2;
+		t3 = MAC3;
+
+		docop2(0x48E012);
+
+		t2 &= t7;
+		t0 &= 0xFFFF;
+		t5 <<= 16;
+		t1 |= t5;
+		t3 &= 0xFFFF;
+
+		t5 = MAC1;
+		int t6 = MAC2;
+		int a0 = MAC3;
+
+		t5 <<= 16;
+		t0 |= t5;
+		t6 &= 0xFFFF;
+		t2 |= t6;
+		a0 <<= 16;
+		t3 |= a0;
+
+		R11 = t0 & 0xFFFF;
+		R12 = (t0 >> 16) & 0xFFFF;
+		R13 = t1 & 0xFFFF;
+		R21 = (t1 >> 16) & 0xFFFF;
+		R22 = t2 & 0xFFFF;
+		R23 = (t2 >> 16) & 0xFFFF;
+		R31 = t3 & 0xFFFF;
+		R32 = (t3 >> 16) & 0xFFFF;
+		R33 = t4;
+	}
+}
 
 void save_matrix(int* at)
 {
@@ -123,14 +320,9 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	TRY = lara_item->pos.y_pos;
 	TRZ = lara_item->pos.z_pos;
 	
-	//mRotYXZ_CH(lara_item->pos.y_rot, lara_item->pos.x_rot, lara_item->pos.z_rot);
+	mRotYXZ_CH(lara_item->pos.y_rot, lara_item->pos.x_rot, lara_item->pos.z_rot);
 
 #if 0
-		lh      $a0, 0x4E($s5)
-		lh      $a1, 0x4C($s5)
-		jal     sub_83994
-		lh      $a2, 0x50($s5)
-
 		li      $at, 0x1F2480
 		lw      $v0, 4($at)
 		lw      $s6, 0x2030($gp)
