@@ -7,8 +7,113 @@
 #include "TYPES.H"
 #include "MISC.H"
 #include "GTEREG.H"
+#include "SETUP.H"
 
-void mRotY_CH(int y_rot)
+void mTranslateXYZ_CH(int x, int y, int z)
+{
+	int t4 = y >> 15;
+
+	if (y < 0)
+	{
+		y = -y;
+		t4 = y >> 15;
+		y &= 0x7FFF;
+		t4 = -t4;
+		y = -y;
+	}
+	else
+	{
+		//loc_1378
+		y &= 0x7FFF;
+	}
+
+	int t5 = z >> 15;
+	if (z < 0)
+	{
+		z = -z;
+		t5 = z >> 15;
+		z &= 0x7FFF;
+		t5 = -t5;
+		z = -z;
+	}
+	else
+	{
+		z &= 0x7FFF;
+	}
+
+	//loc_13A0
+	int t3 = x >> 15;
+	if (x < 0)
+	{
+		x = -x;
+		t3 = x >> 15;
+		x &= 0x7FFF;
+		t3 = -t3;
+		x = -x;
+	}
+	else
+	{
+		x &= 0x7FFF;
+	}
+
+	//loc_13C4
+	IR1 = t3;
+	IR2 = t4;
+	IR3 = t5;
+
+	docop2(0x41E012);
+
+	t3 = MAC1;
+	t4 = MAC2;
+	t5 = MAC3;
+
+	IR1 = x;
+	IR2 = y;
+	IR3 = z;
+
+	docop2(0x498012);
+
+	int t0 = t3 << 3;
+	if (t3 < 0)
+	{
+		t3 = -t3;
+		t3 <<= 3;
+		t0 = -t3;
+	}
+
+	//loc_1408
+	int t1 = t4 << 3;
+	if (t4 < 0)
+	{
+		t4 = -t4;
+		t4 <<= 3;
+		t1 = -t4;
+	}
+
+	//loc_1430
+	int t2 = t5 << 3;
+	if (t5 < 0)
+	{
+		t5 = -t5;
+		t5 <<= 3;
+		t2 = -t5;
+	}
+
+	//loc_1430
+	t3 = MAC1;
+	t4 = MAC2;
+	t5 = MAC3;
+
+	t0 += t3;
+	t1 += t4;
+	t2 += t5;
+
+	TRX = t0;
+	TRY = t1;
+	TRZ = t2;
+}
+
+void mRotY_CH (int y_rot)
 {
 	y_rot >>= 2;
 	y_rot &= 0x3FFC;
@@ -221,7 +326,9 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	struct ANIM_STRUCT* anim = NULL;//$v1
 	int scratchPad[256];
 	short* hit_frame = NULL;//$s3
-	return;//Disabled for now
+	struct object_info* object = NULL;//$at
+	long* bone = NULL;//$s6
+
 	S_MemSet((char*)&scratchPad, 0, 1024);
 
 	//s0 = gfLevelFlags & 1
@@ -321,17 +428,11 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	TRZ = lara_item->pos.z_pos;
 	
 	mRotYXZ_CH(lara_item->pos.y_rot, lara_item->pos.x_rot, lara_item->pos.z_rot);
-
+	object = &objects[LARA];
+	//v0 = objects.bone_index
+	bone = &bones[object->bone_index];
+	mTranslateXYZ_CH(hit_frame[6], hit_frame[7], hit_frame[8]);
 #if 0
-		li      $at, 0x1F2480
-		lw      $v0, 4($at)
-		lw      $s6, 0x2030($gp)
-		sll     $v0, 2
-		addu    $s6, $v0
-		lh      $a0, 0xC($s3)
-		lh      $a1, 0xE($s3)
-		jal     sub_83744
-		lh      $a2, 0x10($s3)
 		jal     sub_83A80
 		move    $a1, $zero
 		lw      $s7, 0x5288($gp)
