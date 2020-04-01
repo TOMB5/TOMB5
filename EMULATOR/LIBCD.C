@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
 
 int CD_Debug = 0;
 
@@ -25,7 +27,8 @@ struct commandQueue comQueue[COMMAND_QUEUE_SIZE];
 int comQueueIndex = 0;
 int comQueueCount = 0;
 int currentSector = 0;
-int sectorSize = 2352;//TODO obtain properly from cue sheet
+int sectorSize = 0;
+int currentTrack = 0;
 int CD_com = 0;
 
 #pragma pack(push, 1)
@@ -110,15 +113,27 @@ CdlLOC* CdIntToPos(int i, CdlLOC* p)
 
 int CdControl(u_char com, u_char * param, u_char * result)
 {
-	CdlFILE* cd = (CdlFILE*)param;
+	CdlLOC* cd = (CdlLOC*)param;
 
 	CD_com = com;
 
 	switch (com)
 	{
 	case CdlSetloc:
-		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
+		fseek(openFile, CdPosToInt(cd)*sectorSize, SEEK_SET);
 		break;
+	case CdlReadS:
+	{
+		unsigned int filePos = ftell(openFile);
+		CdlLOC currentLoc;
+		CdIntToPos(filePos, &currentLoc);
+		fseek(openFile, CdPosToInt(cd) * sectorSize, SEEK_SET);
+		if (cd->sector != currentLoc.sector)
+		{
+			return 1;
+		}
+		break;
+	}
 	default:
 		eprinterr("Unhandled command 0x%02X!\n", com);
 		break;
@@ -129,15 +144,22 @@ int CdControl(u_char com, u_char * param, u_char * result)
 
 int CdControlB(u_char com, u_char* param, u_char* result)
 {
-	CdlFILE* cd = (CdlFILE*)param;
-
 	CD_com = com;
 
 	switch (com)
 	{
 	case CdlSetloc:
-		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
+	{
+		CdlLOC* cd = (CdlLOC*)param;
+		fseek(openFile, CdPosToInt(cd) * sectorSize, SEEK_SET);
 		break;
+	}
+	case CdlSetfilter:
+	{
+		CdlFILTER* cdf = (CdlFILTER*)param;
+		//TODO Set channel
+		break;
+	}
 	default:
 		eprinterr("Unhandled command 0x%02X!\n", com);
 		break;
@@ -148,18 +170,22 @@ int CdControlB(u_char com, u_char* param, u_char* result)
 
 int CdControlF(u_char com, u_char * param)
 {
-	CdlFILE* cd = (CdlFILE*)param;
-
 	CD_com = com;
 
 	switch (com)
 	{
 	case CdlSetloc:
-		fseek(openFile, CdPosToInt(&cd->pos)*sectorSize, SEEK_SET);
+	{
+		CdlLOC* cd = (CdlLOC*)param;
+		fseek(openFile, CdPosToInt(cd) * sectorSize, SEEK_SET);
 		break;
+	}
 	case CdlSetfilter:
-		//fseek(openFile, CdPosToInt(&cd->pos) * sectorSize, SEEK_SET);
+	{
+		CdlFILTER* cdf = (CdlFILTER*)param;
+		//TODO Set channel
 		break;
+	}
 	default:
 		eprinterr("Unhandled command 0x%02X!\n", com);
 		break;
@@ -222,6 +248,7 @@ int CdSetDebug(int level)
 
 int CdSync(int mode, u_char * result)
 {
+	CdlLOC* loc = (CdlLOC*)result;
 	switch (mode)
 	{
 	case 0:
@@ -229,6 +256,19 @@ int CdSync(int mode, u_char * result)
 		assert(FALSE);
 		break;
 	case 1:
+
+		switch (CdLastCom())
+		{
+		case CdlGetlocP:
+			CdlLOC locP;
+			unsigned int filePos = ftell(openFile) / sectorSize;
+			CdIntToPos(filePos, &locP);
+			result[2] = locP.minute;
+			result[3] = locP.second;
+			result[4] = locP.sector;
+
+			break;
+		}
 		return CdlComplete;
 		break;
 	}
@@ -236,10 +276,9 @@ int CdSync(int mode, u_char * result)
 	return 0;
 }
 
-int CdInit(void)
+int ParseCueSheet()
 {
-	SDL_memset(&comQueue, 0, sizeof(comQueue));
-	currentSector = 0;
+	char* binFileName = NULL;
 	openFile = fopen(DISC_IMAGE_FILENAME, "rb");
 
 	if (openFile == NULL)
@@ -248,6 +287,96 @@ int CdInit(void)
 		return 0;
 	}
 
+	fseek(openFile, 0, SEEK_END);
+	unsigned int cueSheetFileLength = ftell(openFile);
+	char* cueSheet = (char*)malloc(cueSheetFileLength);
+	fseek(openFile, 0, SEEK_SET);
+	fread(cueSheet, cueSheetFileLength, 1, openFile);
+
+	//Null terminated
+	char* string = &cueSheet[0];
+	if (!strncmp(string, "FILE", 4))
+	{
+		//Read the binary name since it's a file
+		string += 5;
+		if (isspace(string[0]))
+		{
+			string++;
+		}
+
+		//Get file name length
+		char* afterFileName = string;
+		char fileNameLength = 0;
+		//While
+		while (!isspace(afterFileName[0]))
+		{
+			afterFileName++;
+			fileNameLength++;
+		}
+
+		if (string[0] == '"')
+		{
+			string[fileNameLength - 1] = 0;
+			string++;
+		}
+
+		binFileName = string;
+		string = afterFileName;
+
+		if (isspace(string[0]))
+			string++;
+
+		/* Get Type of BIN file */
+		assert(!strncmp(string, "BINARY", 6));
+		string += 6;
+
+		while (isspace(string[0]))
+			string++;
+
+		/* Get Track of BIN file */
+		assert(!strncmp(string, "TRACK", 5));
+		string += 5;
+
+		while (isspace(string[0]))
+			string++;
+
+		currentTrack = atoi(string);
+
+		string += 2;
+
+		while (isspace(string[0]))
+			string++;
+
+		assert(!strncmp(string, "MODE1", 5));
+		string += 5;
+
+		assert(string[0] == '/');
+		string++;
+
+		sectorSize = atoi(string);
+
+		assert(sectorSize == 2352);
+	}
+
+	fclose(openFile);
+	openFile = fopen(binFileName, "rb");
+	free(cueSheet);
+
+	return 1;
+}
+
+int CdInit(void)
+{
+	currentSector = 0;
+
+	//Read the cue sheet and obtain properties from it.
+	if (!ParseCueSheet())
+	{
+		eprinterr("Failed to read cue sheet!");
+		return 0;
+	}
+
+	SDL_memset(&comQueue, 0, sizeof(comQueue));
 	for (int i = 0; i < COMMAND_QUEUE_SIZE; i++)
 	{
 		comQueue[i].processed = 1;
