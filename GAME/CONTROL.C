@@ -747,10 +747,10 @@ long ControlPhase(long nframes, int demo_mode)//1D538(<), 1D6CC(<) //DO NOT TOUC
 		{
 			if (LaraDrawType != LARA_DIVESUIT)
 			{
-				HairControl(0, 0, 0);
+				HairControl(0, false, nullptr);
 
 				if (gfLevelFlags & GF_LVOP_YOUNG_LARA)
-					HairControl(0, 1, 0);
+					HairControl(0, true, nullptr);
 			}
 
 			if (!bUseSpotCam)
