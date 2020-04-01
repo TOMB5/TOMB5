@@ -96,6 +96,7 @@ char HairRotScratchVertNums[5][12] =
 void CalcLaraMatrices(int flag)//2C1DC, 2C504
 {
 #if PC_VERSION
+	auto bone = &bones[objects[lara_item->object_number].bone_index];
 	short* frm[2];
 
 	if (lara.hit_direction >= 0)
@@ -129,13 +130,12 @@ void CalcLaraMatrices(int flag)//2C1DC, 2C504
 		if (frac != 0)
 		{
 			GLaraShadowframe = GetBoundsAccurate(lara_item);
-			S_Warn("[CalcLaraMatrices] - Unimplemented if body\n");
-			DEL_CalcLaraMatrices_Interpolated_ASM(frm[0], frm[1], frac, rate);// todo, check params
+			DEL_CalcLaraMatrices_Interpolated_ASM(frm[0], frm[1], frac, rate, bone, flag);
 			return;
 		}
 	}
 
-	DEL_CalcLaraMatrices_Normal_ASM(frm[0], &bones[objects[lara_item->object_number].bone_index], flag);
+	DEL_CalcLaraMatrices_Normal_ASM(frm[0], bone, flag);
 
 #elif PSX_VERSION || PSXPC_TEST
 	struct object_info* object;
