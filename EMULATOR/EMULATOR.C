@@ -18,7 +18,8 @@
 #endif
 #include <assert.h>
 
-#define SWAP_INTERVAL      (2)
+#define FIXED_TIME_STEP    33
+#define SWAP_INTERVAL      1
 
 #if defined(NTSC_VERSION)
 #define COUNTER_UPDATE_INTERVAL (263)
@@ -112,6 +113,7 @@ SysCounter counters[3] = { 0 };
 //std::thread counter_thread;
 #endif
 
+unsigned int g_swapTime;
 int g_swapInterval = SWAP_INTERVAL;
 int g_wireframeMode = 0;
 int g_texturelessMode = 0;
@@ -670,6 +672,8 @@ void Emulator_Initialise(char* windowName, int width, int height)
 		Emulator_ShutDown();
 	}
 
+	g_swapTime = SDL_GetTicks() - FIXED_TIME_STEP;
+
 	//counter_thread = std::thread(Emulator_CounterLoop);
 }
 
@@ -1124,6 +1128,26 @@ ShaderID g_blit_shader;
 #if defined(OGLES) || defined(OGL)
 GLint u_Projection;
 
+
+#define GTE_PACK_RG\
+	"		float color_16 = (color_rg.y * 256.0 + color_rg.x) * 255.0;\n"
+
+#define GTE_DISCARD\
+	"		if (color_16 == 0.0) { discard; }\n"
+
+#define GTE_DECODE_RG\
+	"		fragColor = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
+
+#define GTE_DITHERING\
+	"		fragColor *= v_color;\n"\
+	"		mat4 dither = mat4(\n"\
+	"			-4.0,  +0.0,  -3.0,  +1.0,\n"\
+	"			+2.0,  -2.0,  +3.0,  -1.0,\n"\
+	"			-3.0,  +1.0,  -4.0,  +0.0,\n"\
+	"			+3.0,  -1.0,  +2.0,  -2.0) / 255.0;\n"\
+	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"\
+	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
+
 const char* gte_shader_4 =
 	"varying vec4 v_texcoord;\n"
 	"varying vec4 v_color;\n"
@@ -1157,21 +1181,11 @@ const char* gte_shader_4 =
 	"\n"
 	"		vec2 clut_pos = v_page_clut.zw;\n"
 	"		clut_pos.x += mix(c[0], c[1], fract(float(index) / 2.0) * 2.0) / 1024.0;\n"
-	"		vec2 clut_color = texture2D(s_texture, clut_pos).rg * 255.0;\n"
-	"\n"
-	"		float color_16 = clut_color.y * 256.0 + clut_color.x;\n"
-	"		if (color_16 == 0.0) { discard; }\n"
-	"\n"
-	"		vec4 color = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
-	"\n"
-	"		fragColor = color * v_color;\n"
-	"		mat4 dither = mat4(\n"
-	"			-4.0,  +0.0,  -3.0,  +1.0,\n"
-	"			+2.0,  -2.0,  +3.0,  -1.0,\n"
-	"			-3.0,  +1.0,  -4.0,  +0.0,\n"
-	"			+3.0,  -1.0,  +2.0,  -2.0) / 255.0;\n"
-	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"
-	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
+	"		vec2 color_rg = texture2D(s_texture, clut_pos).rg;\n"
+	GTE_PACK_RG
+	GTE_DISCARD
+	GTE_DECODE_RG
+	GTE_DITHERING
 	"	}\n"
 	"#endif\n";
 
@@ -1202,21 +1216,11 @@ const char* gte_shader_8 =
 	"\n"
 	"		vec2 clut_pos = v_page_clut.zw;\n"
 	"		clut_pos.x += comp[int(mod(v_texcoord.x, 2.0))] * 255.0 / 1024.0;\n"
-	"		vec2 clut_color = texture2D(s_texture, clut_pos).rg * 255.0;\n"
-	"\n"
-	"		float color_16 = clut_color.y * 256.0 + clut_color.x;\n"
-	"		if (color_16 == 0.0) { discard; }\n"
-	"\n"
-	"		vec4 color = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
-	"\n"
-	"		fragColor = color * v_color;\n"
-	"		mat4 dither = mat4(\n"
-	"			-4.0,  +0.0,  -3.0,  +1.0,\n"
-	"			+2.0,  -2.0,  +3.0,  -1.0,\n"
-	"			-3.0,  +1.0,  -4.0,  +0.0,\n"
-	"			+3.0,  -1.0,  +2.0,  -2.0) / 255.0;\n"
-	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"
-	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
+	"		vec2 color_rg = texture2D(s_texture, clut_pos).rg;\n"
+	GTE_PACK_RG
+	GTE_DISCARD
+	GTE_DECODE_RG
+	GTE_DITHERING
 	"	}\n"
 	"#endif\n";
 
@@ -1242,20 +1246,11 @@ const char* gte_shader_16 =
 	"#else\n"
 	"	uniform sampler2D s_texture;\n"
 	"	void main() {\n"
-	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg * 255.0;\n"
-	"		float color_16 = color_rg.y * 256.0 + color_rg.x;\n"
-	"		if (color_16 == 0.0) { discard; }\n"
-	"\n"
-	"		fragColor = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
-	"\n"
-	"		fragColor *= v_color;\n"
-	"		mat4 dither = mat4(\n"
-	"			-4.0,  +0.0,  -3.0,  +1.0,\n"
-	"			+2.0,  -2.0,  +3.0,  -1.0,\n"
-	"			-3.0,  +1.0,  -4.0,  +0.0,\n"
-	"			+3.0,  -1.0,  +2.0,  -2.0) / 255.0;\n"
-	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"
-	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
+	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg;\n"
+	GTE_PACK_RG
+	GTE_DISCARD
+	GTE_DECODE_RG
+	GTE_DITHERING
 	"	}\n"
 	"#endif\n";
 
@@ -1271,10 +1266,9 @@ const char* blit_shader =
 	"#else\n"
 	"	uniform sampler2D s_texture;\n"
 	"	void main() {\n"
-	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg * 255.0;\n"
-	"		float color_16 = color_rg.y * 256.0 + color_rg.x;\n"
-	"		fragColor = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
-	"		fragColor.a = 1.0;\n"
+	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg;\n"
+	GTE_PACK_RG
+	GTE_DECODE_RG
 	"	}\n"
 	"#endif\n";
 
@@ -2220,18 +2214,22 @@ unsigned int Emulator_GetFPS()
 
 void Emulator_SwapWindow()
 {
+	if (g_swapInterval > 0) {
+		int delta = g_swapTime + FIXED_TIME_STEP - SDL_GetTicks();
+
+		if (delta > 0) {
+			SDL_Delay(delta);
+		}
+	}
+
+	g_swapTime = SDL_GetTicks();
+
 #if defined(RO_DOUBLE_BUFFERED)
 #if defined(OGL)
 	SDL_GL_SwapWindow(g_window);
 #elif defined(OGLES)
 	eglSwapBuffers(eglDisplay, eglSurface);
 #elif defined(D3D9)
-	if (g_swapInterval == 2) {
-		// D3D9 support D3DPRESENT_INTERVAL_TWO only in fullscreen mode
-		// so we add additional one frame wait here, bad hack
-		Sleep(16 + 4); // 16 ms - 60 Hz
-	}
-
 	if (d3ddev->Present(NULL, NULL, NULL, NULL) == D3DERR_DEVICELOST) {
 		Emulator_ResetDevice();
 	}
