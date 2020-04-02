@@ -1881,6 +1881,48 @@ void GetJointAbsPositionCutSeq(ITEM_INFO* a1, object_info* a2, __int16* a3, PHD_
 	phd_PopMatrix();
 }
 
+void CalcAmbientLight(ITEM_INFO* item)// (F)
+{
+	short r = item->room_number;
+	GetFloor(item->ambient_light_pos.x, item->ambient_light_pos.y, item->ambient_light_pos.z, &r);
+	
+	const BGRCOL icol = item->il.room_ambient;
+	const BGRCOL rcol = room[r].ambient;
+	
+	if (icol.rgbcd != rcol.rgbcd)
+	{
+		if (item->il.room_num == -1)
+		{
+			item->il.room_ambient = rcol;
+			item->il.room_num = 0;
+		}
+		else
+		{
+			if (item->il.room_num == 0)
+			{
+				item->il.d_green = rcol.g - icol.g;
+				item->il.d_blue = rcol.b - icol.b;
+				item->il.d_red = rcol.r - icol.r;
+				
+				item->il.red = 8 * icol.r;
+				item->il.green = 8 * icol.g;
+				item->il.blue = 8 * icol.b;
+				
+				item->il.room_num = 8;
+			}
+			else
+			{
+				item->il.red = item->il.red + item->il.d_red;
+				item->il.green = item->il.green + item->il.d_green;
+				item->il.blue = item->il.blue + item->il.d_blue;
+				
+				item->il.room_ambient = { item->il.blue >> 3, item->il.green >> 3, item->il.red >> 3, 0 };
+				item->il.room_num = item->il.room_num - 1;
+			}
+		}
+	}
+}
+
 void DrawCutSeqActors()
 {
 	Unimpl();
