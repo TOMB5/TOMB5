@@ -549,9 +549,58 @@ D3DMATRIX stru_55D168;
 		TranslateRel(x, y, z);
 	}
 
-	void phd_RotYXZ(long y, long x, long z)
+	void RotYXZ(long y, long x, long z)
 	{
-		Unimpl();
+		if (y)
+			RotY(y);
+		
+		if (x)
+			RotX(x);
+		
+		if (z)
+			RotZ(z);
+	}
+
+	void phd_RotYXZ(long y, long x, long z)// (F)
+	{
+		RotYXZ(y, x, z);
+		
+		sint32 sina, cosa;
+		sint32* mptr = phd_mxptr;
+		
+		if (y)
+		{
+			sina = 4 * SIN(y);
+			cosa = 4 * COS(y);
+			mptr[M00] = (mptr[M00] * cosa - mptr[M02] * sina) >> W2V_SHIFT;
+			mptr[M02] = (mptr[M02] * cosa + mptr[M00] * sina) >> W2V_SHIFT;
+			mptr[M10] = (mptr[M10] * cosa - mptr[M12] * sina) >> W2V_SHIFT;
+			mptr[M12] = (mptr[M12] * cosa + mptr[M10] * sina) >> W2V_SHIFT;
+			mptr[M20] = (mptr[M20] * cosa - mptr[M22] * sina) >> W2V_SHIFT;
+			mptr[M22] = (mptr[M22] * cosa + mptr[M20] * sina) >> W2V_SHIFT;
+		}
+		if (x)
+		{
+			sina = 4 * SIN(x);
+			cosa = 4 * COS(x);
+			mptr[M01] = (mptr[M01] * cosa + mptr[M02] * sina) >> W2V_SHIFT;
+			mptr[M02] = (mptr[M02] * cosa - mptr[M01] * sina) >> W2V_SHIFT;
+			mptr[M11] = (mptr[M11] * cosa + mptr[M12] * sina) >> W2V_SHIFT;
+			mptr[M12] = (mptr[M12] * cosa - mptr[M11] * sina) >> W2V_SHIFT;
+			mptr[M21] = (mptr[M21] * cosa + mptr[M22] * sina) >> W2V_SHIFT;
+			mptr[M22] = (mptr[M22] * cosa - mptr[M21] * sina) >> W2V_SHIFT;
+		}
+		if (z)
+		{
+			sina = 4 * SIN(z);
+			cosa = 4 * COS(z);
+			mptr[M00] = (mptr[M00] * cosa + mptr[M01] * sina) >> W2V_SHIFT;
+			mptr[M01] = (mptr[M01] * cosa - mptr[M00] * sina) >> W2V_SHIFT;
+			mptr[M10] = (mptr[M10] * cosa + mptr[M11] * sina) >> W2V_SHIFT;
+			mptr[M11] = (mptr[M11] * cosa - mptr[M10] * sina) >> W2V_SHIFT;
+			mptr[M20] = (mptr[M20] * cosa + mptr[M21] * sina) >> W2V_SHIFT;
+			mptr[M21] = (mptr[M21] * cosa - mptr[M20] * sina) >> W2V_SHIFT;
+		}
 	}
 
 	void mRotSuperPackedYXZ(short** a0, long a1)
