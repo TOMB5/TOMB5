@@ -36,6 +36,7 @@
 #include "EFFECTS.H"
 #include "SAVEGAME.H"
 #include "PICTURE.H"
+#include "DRAW.H"
 
 #if DEBUG
 #pragma comment(lib, "zlibstaticd.lib")
@@ -1780,6 +1781,88 @@ int S_DisplayPauseMenu(int a1)
 void WadeSplash(struct ITEM_INFO* item, int water_height, int water_depth)
 {
 	UNIMPLEMENTED();
+}
+
+int S_GetObjectBounds(bounding_box_s* bbox)// (F)
+{
+	if (phd_mxptr[M23] >= phd_zfar && !outside)
+		return 0;
+
+	tr5_vertex verts[8] =
+	{
+		{ bbox->x_minp,bbox->y_minp,bbox->z_minp },
+		{ bbox->x_maxp,bbox->y_minp,bbox->z_minp },
+		{ bbox->x_maxp,bbox->y_maxp,bbox->z_minp },
+		{ bbox->x_minp,bbox->y_maxp,bbox->z_minp },
+		{ bbox->x_minp,bbox->y_minp,bbox->z_maxp },
+		{ bbox->x_maxp,bbox->y_minp,bbox->z_maxp },
+		{ bbox->x_maxp,bbox->y_maxp,bbox->z_maxp },
+		{ bbox->x_minp,bbox->y_maxp,bbox->z_maxp }
+	};
+
+	int num = 0;
+	
+	float minY = 1073741800.0; // ~= 2^30
+	float minX = 1073741800.0;
+
+	float maxX = -1073741800.0;
+	double maxY = -1073741800.0;
+	
+	for(int i = 0; i < 8; i++)
+	{
+		const double normsq =
+			phd_mxptr[M20] * verts[i].x +
+			phd_mxptr[M21] * verts[i].y +
+			phd_mxptr[M22] * verts[i].z +
+			phd_mxptr[M23];
+		
+		if (normsq > phd_znear&& normsq < phd_zfar)
+		{
+			num++;
+
+			double normalized = normsq / phd_persp;
+
+			if (normalized == 0.0)
+				normalized = 1.0;
+
+			const double x = (
+				phd_mxptr[M00] * verts[i].x +
+				phd_mxptr[M01] * verts[i].y +
+				phd_mxptr[M02] * verts[i].z +
+				phd_mxptr[M03])
+				/ normalized;
+
+			if (x < minX)
+				minX = x;
+			if (x > maxX)
+				maxX = x;
+
+			const double y = (
+				phd_mxptr[M10] * verts[i].x +
+				phd_mxptr[M11] * verts[i].y +
+				phd_mxptr[M12] * verts[i].z +
+				phd_mxptr[M13])
+				/ normalized;
+
+			if (y < minY)
+				minY = y;
+			if (y > maxY)
+				maxY = y;
+		}
+	}
+
+	const float left = phd_centerx + minX;
+	const float right = phd_centerx + maxX;
+	const float top = phd_centery + minY;
+	const float bottom = phd_centery + maxY;
+	
+	if (num < 8 || left < 0.0 || top < 0.0 || phd_winxmax < right || phd_winymax < bottom)
+		return -1;
+	
+	if (num == 0 || phd_right < left || phd_bottom < top || phd_left > right || phd_top > bottom)
+		return 0;
+	
+	return 1;
 }
 
 #ifdef __cplusplus

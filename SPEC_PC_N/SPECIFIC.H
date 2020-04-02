@@ -87,6 +87,8 @@ extern void WadeSplash(struct ITEM_INFO* item, int water_height, int water_depth
 
 extern void DrawPsxTile(long a1, long a2, long a3);
 
+extern int S_GetObjectBounds(bounding_box_s* bbox);
+
 #ifdef __cplusplus
 }
 #endif
