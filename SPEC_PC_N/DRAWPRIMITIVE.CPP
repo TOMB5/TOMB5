@@ -2279,7 +2279,7 @@ void InsertRoomlet(ROOMLET* r)
 		(tr5_room_vertex*)r->VerticesOffset, 
 		r->NumLayerVertices, 
 		BuildRoomletLights(r) & 0x7FFFFFFF, 
-		r->NumLayerVertices, 
+		r->NumLayerVerticesWater, 
 		r->UnknownL1);
 
 	char* poly = (char*)r->PolyOffset;

@@ -387,7 +387,8 @@ struct tr4_mesh_face4    // 12 bytes
 
 struct ROOMLET   // 56 bytes
 {
-	uint32_t NumLayerVertices;   // Number of vertices in this layer (4 bytes)
+	uint16_t NumLayerVertices;   // Number of vertices in this layer (2 bytes)
+	uint16_t NumLayerVerticesWater; // Number of underwater vertices in this layer (2 bytes)
 	uint16_t UnknownL1;
 	uint16_t NumLayerRectangles; // Number of rectangles in this layer (2 bytes)
 	uint16_t NumLayerTriangles;  // Number of triangles in this layer (2 bytes)
