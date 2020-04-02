@@ -1396,7 +1396,7 @@ void LookCamera(struct ITEM_INFO* item)
 
 void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 {
-#if 0
+#if 0 || PC_VERSION
 	struct FLOOR_INFO *floor; // $s3
 	struct GAME_VECTOR ideal; // stack offset -248
 	struct GAME_VECTOR ideals[9]; // stack offset -232
@@ -1475,8 +1475,9 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 	camera.target_elevation = 0;
 
 	//loc_269A0 (TODO)
-#endif
+#else
 	UNIMPLEMENTED();
+#endif
 }
 
 void FixedCamera()
