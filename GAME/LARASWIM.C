@@ -184,7 +184,7 @@ void lara_col_uwdeath(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C980(<),
 	lara.air = -1;
 	lara.gun_status = LG_HANDS_BUSY;
 	wh = GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
-	if (wh != -32512)
+	if (wh != BAD_HEIGHT)
 	{
 		if (wh < item->pos.y_pos - 100)
 			item->pos.y_pos -= 5;
@@ -1027,7 +1027,7 @@ void LaraSwimCollision(struct ITEM_INFO* item/*s3*/, struct COLL_INFO* coll/*s4*
 		item->pos.z_pos = coll->old.z;
 	}
 	//v0 = 0x20
-	if (coll->mid_floor < 0 && coll->mid_floor != -32512)
+	if (coll->mid_floor < 0 && coll->mid_floor != BAD_HEIGHT)
 	{
 		hit = 1;
 		item->pos.y_pos += coll->mid_floor;
@@ -1084,7 +1084,7 @@ void LaraTestWaterDepth(struct ITEM_INFO* item, struct COLL_INFO* coll)//4B4F8(<
 	floor = GetFloor(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, &room_number);
 	wd = GetWaterDepth(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, room_number);
 
-	if (wd == -32512)
+	if (wd == BAD_HEIGHT)
 	{
 		item->pos.x_pos = coll->old.x;
 		item->pos.y_pos = coll->old.y;

@@ -1439,15 +1439,15 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 	h = GetHeight(floor, camera.target.x, camera.target.y, camera.target.z);
 	c = GetCeiling(floor, camera.target.x, camera.target.y, camera.target.z);
 
-	if (h - 64 > c + 64 && h == -32512 && c == -32512)
+	if (h - 64 > c + 64 && h == BAD_HEIGHT && c == BAD_HEIGHT)
 	{
 		//loc_26960
 		//v0 = camera.target.y
 		//v1 = h - 64
-		//v0 = -32512
+		//v0 = BAD_HEIGHT
 		if (h - 64 < camera.target.y)
 		{
-			if (h != -32512)
+			if (h != BAD_HEIGHT)
 			{
 				//loc_26998
 				h = h - 64;
@@ -1459,8 +1459,8 @@ void CombatCamera(struct ITEM_INFO* item)//26838(<), 26A48(<)
 			//v0 = camera.target.y
 			//v1 = c - 64
 
-			//v0 = -32512
-			if (camera.target.y < c - 64 && c != -32512)
+			//v0 = BAD_HEIGHT
+			if (camera.target.y < c - 64 && c != BAD_HEIGHT)
 			{
 				h = c - 64;
 			}//loc_269A0
@@ -1522,7 +1522,7 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 		camera.actual_elevation = 15470;
 	}//loc_26428
 
-	if (camera.actual_elevation < -0x3C6E)
+	if (camera.actual_elevation < -15470)
 	{
 		camera.actual_elevation = -15470;
 	}
@@ -1540,7 +1540,7 @@ void ChaseCamera(struct ITEM_INFO* item)//263B4(<) 265C4(<) (F)
 	h = GetHeight(floor, wx, wy, wz);
 	c = GetCeiling(floor, wx, wy, wz);
 
-	if ((((wy < c) || (h < wy)) || (h <= c)) || ((h == -32512 || (c == -32512))))
+	if ((((wy < c) || (h < wy)) || (h <= c)) || ((h == BAD_HEIGHT || (c == BAD_HEIGHT))))
 	{
 			//loc_26504
 			++TargetSnaps;
@@ -1705,7 +1705,7 @@ void ConfirmCameraTargetPos()//2973C(<), 29950(<) (F)
 	h = GetHeight(floor, wx, wy, wz);
 	c = GetCeiling(floor, wx, wy, wz);
 
-	if (wy < c || h < wy || h <= c || h == -32512 || c == -32512)
+	if (wy < c || h < wy || h <= c || h == BAD_HEIGHT || c == BAD_HEIGHT)
 	{
 		camera.target.x = pos.x;
 		camera.target.y = pos.y;
@@ -1848,7 +1848,7 @@ long mgLOS(struct GAME_VECTOR* start, struct GAME_VECTOR* target, long push)//28
 		h = GetHeight(floor, x, y, z);
 		c = GetCeiling(floor, x, y, z);
 
-		if (h != -32512 && c != -32512)
+		if (h != BAD_HEIGHT && c != BAD_HEIGHT)
 		{
 			if (c < h)
 			{
@@ -1933,16 +1933,16 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 		h = GetHeight(floor, wx, wy, wz);
 		c = GetCeiling(floor, wx, wy, wz);
 
-		if ((wy - 255) < c && h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		if ((wy - 255) < c && h < (wy + 255) && c < h && c != BAD_HEIGHT && h != BAD_HEIGHT)
 		{
 			wy = (h + c) >> 1;
 		}
-		else if (h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		else if (h < (wy + 255) && c < h && c != BAD_HEIGHT && h != BAD_HEIGHT)
 		{
 			//loc_2870C
 			wy = h - 255;
 		}//loc_28738
-		else if ((wy - 255) < c && c < h && c != -32512 && h != -32512)
+		else if ((wy - 255) < c && c < h && c != BAD_HEIGHT && h != BAD_HEIGHT)
 		{
 			wy = c + 255;
 		}//loc_28760
@@ -1954,7 +1954,7 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 	h = GetHeight(floor, wx - push, wy, wz);
 	c = GetCeiling(floor, wx - push, wy, wz);
 
-	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
+	if (h < wy || h == BAD_HEIGHT || c == BAD_HEIGHT || h <= c || wy < c)
 	{
 		//loc_287E4
 		wx = (wx & -1024) + push;
@@ -1965,7 +1965,7 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 	h = GetHeight(floor, wx, wy, wz - push);
 	c = GetCeiling(floor, wx, wy, wz - push);
 
-	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
+	if (h < wy || h == BAD_HEIGHT || c == BAD_HEIGHT || h <= c || wy < c)
 	{
 		//loc_28878
 		wz = (wz & -1024) + push;
@@ -1979,7 +1979,7 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 
 	//v0 = wx | 0x3FF
 	//a0 = wx
-	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
+	if (h < wy || h == BAD_HEIGHT || c == BAD_HEIGHT || h <= c || wy < c)
 	{
 		//loc_28904
 		wx = (wx | 0x3FF) - push;
@@ -1991,7 +1991,7 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 	h = GetHeight(floor, wx, wy, wz + push);
 	c = GetCeiling(floor, wx, wy, wz + push);
 
-	if (h < wy || h == -32512 || c == -32512 || h <= c || wy < c)
+	if (h < wy || h == BAD_HEIGHT || c == BAD_HEIGHT || h <= c || wy < c)
 	{
 		//loc_28994
 
@@ -2005,15 +2005,15 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 		h = GetHeight(floor, wx, wy, wz);
 		c = GetCeiling(floor, wx, wy, wz);
 
-		if ((wy - 255) < c && h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		if ((wy - 255) < c && h < (wy + 255) && c < h && c != BAD_HEIGHT && h != BAD_HEIGHT)
 		{
 			wy = (h + c) >> 1;
 		}//loc_28A2C
-		else if (h < (wy + 255) && c < h && c != -32512 && h != -32512)
+		else if (h < (wy + 255) && c < h && c != BAD_HEIGHT && h != BAD_HEIGHT)
 		{
 			wy = h - 255;
 		}//loc_28A58
-		else if ((wy - 255) < c && c < h && c != -32512 && h != -32512)
+		else if ((wy - 255) < c && c < h && c != BAD_HEIGHT && h != BAD_HEIGHT)
 		{
 			wy = c + 255;
 		}
@@ -2024,7 +2024,7 @@ long CameraCollisionBounds(struct GAME_VECTOR* ideal, long push, long yfirst)//2
 	h = GetHeight(floor, wx, wy, wz);
 	c = GetCeiling(floor, wx, wy, wz);
 
-	if (h < wy || wy < c || h == -32512 || c == -32512 || h <= c)
+	if (h < wy || wy < c || h == BAD_HEIGHT || c == BAD_HEIGHT || h <= c)
 	{
 		return 1;
 	}
@@ -2210,19 +2210,19 @@ void MoveCamera(struct GAME_VECTOR* ideal, int speed)//25B68(<) 25D74(<) (F)
 	height = GetHeight(floor, wx, wy, wz);
 	ceiling = GetCeiling(floor, wx, wy, wz);
 
-	if ((wy - 255) < ceiling && height < (wy + 255) && ceiling < height && ceiling != -32512 && height != -32512)
+	if ((wy - 255) < ceiling && height < (wy + 255) && ceiling < height && ceiling != BAD_HEIGHT && height != BAD_HEIGHT)
 	{
 		camera.pos.y = (height + ceiling) >> 1;
 	}//loc_261DC
-	else if (height < (wy + 255) && ceiling < height && ceiling != -32512 && height != -32512)
+	else if (height < (wy + 255) && ceiling < height && ceiling != BAD_HEIGHT && height != BAD_HEIGHT)
 	{
 		camera.pos.y = height - 255;
 	}//loc_26210
-	else if ((wy - 255) < ceiling && ceiling < height && ceiling != -32512 && height != -32512)
+	else if ((wy - 255) < ceiling && ceiling < height && ceiling != BAD_HEIGHT && height != BAD_HEIGHT)
 	{
 		camera.pos.y = ceiling + 255;
 	}
-	else if (ceiling >= height || height == -32512 || ceiling == -32512)
+	else if (ceiling >= height || height == BAD_HEIGHT || ceiling == BAD_HEIGHT)
 	{
 		//loc_26244
 		camera.pos.x = ideal->x;

@@ -131,7 +131,7 @@ inline int phd_atan(long x, long y)
 #define UNIT_SHADOW 256
 #define UNIT_SHADOW_SHIFT 8
 
-
+#define BAD_HEIGHT (-32512)
 
 #define LARA_HITPOINTS 1000
 

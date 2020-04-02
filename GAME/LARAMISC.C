@@ -220,8 +220,8 @@ void LaraControl(short item_number)//4A838, 4AC9C
 	wd = GetWaterDepth(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
 	wh = GetWaterHeight(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number);
 
-	hfw = -32512;
-	if (wh != -32512)
+	hfw = BAD_HEIGHT;
+	if (wh != BAD_HEIGHT)
 	{
 		hfw = item->pos.y_pos - wh;
 	}//loc_4A9F0
@@ -440,10 +440,10 @@ void LaraControl(short item_number)//4A838, 4AC9C
 		//v1 = room_number
 		//a0 = room
 		//v1 = room[room_number].flags
-		//v0 = -32512
+		//v0 = BAD_HEIGHT
 
 		//a0 = item
-		if (wd != -32512 && ABS(hfw) < 0x100
+		if (wd != BAD_HEIGHT && ABS(hfw) < 0x100
 			&& !(room[room_number].flags & RF_FILL_WATER)
 			&& item->anim_number != 0x72
 			&& item->anim_number != 0x77)
@@ -473,11 +473,11 @@ void LaraControl(short item_number)//4A838, 4AC9C
 		else
 		{
 			//loc_4AE70
-			//v0 = -32512
+			//v0 = BAD_HEIGHT
 			if (room_water_state == 0)
 			{
 				//a2 = &lara
-				if (wd != -32512)
+				if (wd != BAD_HEIGHT)
 				{
 					if (hfw < 0)
 					{

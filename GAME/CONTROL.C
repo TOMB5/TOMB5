@@ -2847,7 +2847,7 @@ long GetWaterHeight(long x, long y, long z, short room_number)
 		}
 	}
 
-	return -32512;
+	return BAD_HEIGHT;
 }
 
 void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F)
@@ -3152,7 +3152,7 @@ int IsRoomOutside(long x, long y, long z)//8EF00(<), 90F44(<) (F)
 	floor = GetFloor(x, y, z, &room_num);
 
 	height = GetHeight(floor, x, y, z);
-	if (height == -32512 || y > height)
+	if (height == BAD_HEIGHT || y > height)
 		return -2;
 
 	ceiling = GetCeiling(floor, x, y, z);

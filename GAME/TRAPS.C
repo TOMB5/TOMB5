@@ -432,7 +432,7 @@ void FlameControl(short fx_number)//5AA6C, 5AEE8 (F)
 
 	y = GetWaterHeight(fx->pos.x_pos, fx->pos.y_pos, fx->pos.z_pos, fx->room_number);
 
-	if (y == -32512 || fx->pos.y_pos <= y || lara.BurnBlue != 0)
+	if (y == BAD_HEIGHT || fx->pos.y_pos <= y || lara.BurnBlue != 0)
 	{
 		SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &fx->pos, 0);
 

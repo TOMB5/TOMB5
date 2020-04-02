@@ -268,7 +268,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
             {
             case LW_ABOVE_WATER:
                 hair[k].pos.y_pos += 10;
-                if (v94 == -32512 || hair[k].pos.y_pos <= v94)
+                if (v94 == BAD_HEIGHT || hair[k].pos.y_pos <= v94)
                 {
                     if (hair[k].pos.y_pos > v60)
                     {
