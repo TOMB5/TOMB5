@@ -31,66 +31,6 @@
 #include <SDL_syswm.h>
 
 SDL_Window* g_window = NULL;
-
-#if defined(VK)
-
-struct FrameBuffer vramFrameBuffer;
-
-#define MAX_NUM_PHYSICAL_DEVICES (4)
-
-VkWin32SurfaceCreateInfoKHR surfaceCreateInfo =
-{
-	VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR
-};
-
-VkSurfaceKHR surface = VK_NULL_HANDLE;
-VkInstance instance = VK_NULL_HANDLE;
-VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
-
-const char* enabledExtensionsDeviceCreateInfo[] =
-{
-	 VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
-
-enum 
-{
-	MAX_DEVICE_COUNT = 8,
-	MAX_QUEUE_COUNT = 4,
-	MAX_PRESENT_MODE_COUNT = 6,
-	MAX_SWAPCHAIN_IMAGES = 3,
-	FRAME_COUNT = 2,
-	PRESENT_MODE_MAILBOX_IMAGE_COUNT = 3,
-	PRESENT_MODE_DEFAULT_IMAGE_COUNT = 2,
-};
-
-VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-uint32_t queueFamilyIndex;
-VkQueue queue;
-VkDevice device = VK_NULL_HANDLE;
-
-unsigned int vramTexture;///@TODO trim me
-unsigned int vramRenderBuffer = 0;
-unsigned int whiteTexture;
-int g_defaultFBO;
-
-const char* enabledExtensions[] =
-{
-	VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-};
-
-VkSwapchainKHR swapchain;
-unsigned int swapchainImageCount;
-VkImage swapchainImages[MAX_SWAPCHAIN_IMAGES];
-VkExtent2D swapchainExtent;
-VkSurfaceFormatKHR surfaceFormat;
-unsigned int frameIndex = 0;
-VkCommandPool commandPool;
-VkCommandBuffer commandBuffers[FRAME_COUNT];
-VkFence frameFences[FRAME_COUNT]; // Create with VK_FENCE_CREATE_SIGNALED_BIT.
-VkSemaphore imageAvailableSemaphores[FRAME_COUNT];
-VkSemaphore renderFinishedSemaphores[FRAME_COUNT];
-#endif
-
 TextureID vramTexture;
 TextureID whiteTexture;
 
@@ -177,263 +117,6 @@ static int Emulator_InitialiseD3D9Context(char* windowName)
 		eprinterr("Failed to obtain D3D9 device!\n");
 		return FALSE;
 	}
-
-	return TRUE;
-}
-#endif
-
-#if defined(VK)
-static int Emulator_InitialiseVKContext(char* windowName)
-{
-	VkApplicationInfo appInfo;
-	memset(&appInfo, 0, sizeof(VkApplicationInfo));
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = windowName;
-	appInfo.applicationVersion = VK_MAKE_VERSION(EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION, 0);
-	appInfo.pEngineName = EMULATOR_NAME;
-	appInfo.engineVersion = VK_MAKE_VERSION(EMULATOR_MAJOR_VERSION, EMULATOR_MINOR_VERSION, 0);
-	appInfo.apiVersion = VK_API_VERSION_1_0;
-
-	VkInstanceCreateInfo createInfo;
-	memset(&createInfo, 0, sizeof(VkInstanceCreateInfo));
-	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	createInfo.pApplicationInfo = &appInfo;
-	createInfo.enabledExtensionCount = 2;
-	createInfo.ppEnabledExtensionNames = enabledExtensions;
-	createInfo.pNext = VK_NULL_HANDLE;
-
-	//Create Vulkan Instance
-	if (vkCreateInstance(&createInfo, NULL, &instance) != VK_SUCCESS)
-	{
-		eprinterr("Failed to create Vulkan instance!");
-		return FALSE;
-	}
-
-	g_window = SDL_CreateWindow(windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_VULKAN);
-
-#if defined(OGL)
-	SDL_GL_CreateContext(g_window);
-#endif
-
-	if (g_window == NULL)
-	{
-		eprinterr("Failed to initialise Vulkan context!\n");
-		return FALSE;
-	}
-
-	SDL_SysWMinfo sysInfo;
-	SDL_VERSION(&sysInfo.version);
-	SDL_GetWindowWMInfo(g_window, &sysInfo);
-	surfaceCreateInfo.hinstance = GetModuleHandle(0);
-	surfaceCreateInfo.hwnd = sysInfo.info.win.window;
-
-	if (vkCreateWin32SurfaceKHR(instance, &surfaceCreateInfo, NULL, &surface) != VK_SUCCESS)
-	{
-		eprinterr("Failed to initialise Vulkan surface!\n");
-		return FALSE;
-	}
-
-	unsigned int physicalDeviceCount;
-	VkPhysicalDevice deviceHandles[MAX_DEVICE_COUNT];
-	VkQueueFamilyProperties queueFamilyProperties[MAX_QUEUE_COUNT];
-	VkPhysicalDeviceProperties deviceProperties;
-	VkPhysicalDeviceFeatures deviceFeatures;
-	
-
-	vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, 0);
-	physicalDeviceCount = physicalDeviceCount > MAX_DEVICE_COUNT ? MAX_DEVICE_COUNT : physicalDeviceCount;
-	vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, deviceHandles);
-
-	for (unsigned int i = 0; i < physicalDeviceCount; ++i)//Maybe 0 needs to be 1
-	{
-		unsigned int queueFamilyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(deviceHandles[i], &queueFamilyCount, NULL);
-		queueFamilyCount = queueFamilyCount > MAX_QUEUE_COUNT ? MAX_QUEUE_COUNT : queueFamilyCount;
-		vkGetPhysicalDeviceQueueFamilyProperties(deviceHandles[i], &queueFamilyCount, queueFamilyProperties);
-
-		vkGetPhysicalDeviceProperties(deviceHandles[i], &deviceProperties);
-		vkGetPhysicalDeviceFeatures(deviceHandles[i], &deviceFeatures);
-		vkGetPhysicalDeviceMemoryProperties(deviceHandles[i], &deviceMemoryProperties);
-		for (unsigned int j = 0; j < queueFamilyCount; ++j) {
-
-			VkBool32 supportsPresent = VK_FALSE;
-			vkGetPhysicalDeviceSurfaceSupportKHR(deviceHandles[i], j, surface, &supportsPresent);
-
-			if (supportsPresent && (queueFamilyProperties[j].queueFlags & VK_QUEUE_GRAPHICS_BIT))
-			{
-				queueFamilyIndex = j;
-				physicalDevice = deviceHandles[i];
-				break;
-			}
-		}
-
-		if (physicalDevice)
-		{
-			break;
-		}
-	}
-
-	VkDeviceCreateInfo deviceCreateInfo;
-	VkDeviceQueueCreateInfo deviceQueueCreateInfo;
-	memset(&deviceCreateInfo, 0, sizeof(VkDeviceCreateInfo));
-	memset(&deviceQueueCreateInfo, 0, sizeof(VkDeviceQueueCreateInfo));
-
-	const float queuePriorities = { 1.0f };
-
-	deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	deviceQueueCreateInfo.queueFamilyIndex = queueFamilyIndex;
-	deviceQueueCreateInfo.queueCount = 1;
-	deviceQueueCreateInfo.pQueuePriorities = &queuePriorities;
-
-	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	deviceCreateInfo.queueCreateInfoCount = 1;
-	deviceCreateInfo.pQueueCreateInfos = 0;
-	deviceCreateInfo.enabledLayerCount = 0;
-	deviceCreateInfo.ppEnabledLayerNames = 0;
-	deviceCreateInfo.enabledExtensionCount = 1;
-	deviceCreateInfo.ppEnabledExtensionNames = enabledExtensionsDeviceCreateInfo;
-	deviceCreateInfo.pEnabledFeatures = 0;
-	deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
-
-	if (vkCreateDevice(physicalDevice, &deviceCreateInfo, NULL, &device) != VK_SUCCESS)
-	{
-		eprinterr("Failed to create VK device!\n");
-		return FALSE;
-	}
-
-	vkGetDeviceQueue(device, queueFamilyIndex, 0, &queue);
-
-	/* Initialise SwapChain */
-	unsigned int formatCount = 1;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, 0);
-	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, &surfaceFormat);
-	surfaceFormat.format = surfaceFormat.format == VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8A8_UNORM : surfaceFormat.format;
-
-	unsigned int presentModeCount = 0;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, NULL);
-	VkPresentModeKHR presentModes[MAX_PRESENT_MODE_COUNT];
-	presentModeCount = presentModeCount > MAX_PRESENT_MODE_COUNT ? MAX_PRESENT_MODE_COUNT : presentModeCount;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes);
-
-	VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-	for (unsigned int i = 0; i < presentModeCount; ++i)
-	{
-		if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
-		{
-			presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-			break;
-		}
-	}
-	swapchainImageCount = presentMode == VK_PRESENT_MODE_MAILBOX_KHR ? PRESENT_MODE_MAILBOX_IMAGE_COUNT : PRESENT_MODE_DEFAULT_IMAGE_COUNT;
-
-	VkSurfaceCapabilitiesKHR surfaceCapabilities;
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities);
-
-	swapchainExtent = surfaceCapabilities.currentExtent;
-	//if (swapchainExtent.width == UINT32_MAX)
-	//{
-	//	swapchainExtent.width = clamp_u32(width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
-	//	swapchainExtent.height = clamp_u32(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
-	//}
-
-	VkSwapchainCreateInfoKHR swapChainCreateInfo;
-	memset(&swapChainCreateInfo, 0, sizeof(VkSwapchainCreateInfoKHR));
-	swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	swapChainCreateInfo.surface = surface;
-	swapChainCreateInfo.minImageCount = swapchainImageCount;
-	swapChainCreateInfo.imageFormat = surfaceFormat.format;
-	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
-	swapChainCreateInfo.imageExtent = swapchainExtent;
-	swapChainCreateInfo.imageArrayLayers = 1; // 2 for stereo
-	swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-	swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	swapChainCreateInfo.preTransform = surfaceCapabilities.currentTransform;
-	swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	swapChainCreateInfo.presentMode = presentMode;
-	swapChainCreateInfo.clipped = VK_TRUE;
-
-	if (vkCreateSwapchainKHR(device, &swapChainCreateInfo, 0, &swapchain) != VK_SUCCESS)
-	{
-		eprinterr("Failed to create swap chain!\n");
-		return FALSE;
-	}
-
-	vkGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, NULL);
-	vkGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, swapchainImages);
-
-
-	VkCommandPoolCreateInfo commandPoolCreateInfo;
-	memset(&commandPoolCreateInfo, 0, sizeof(VkCommandPoolCreateInfo));
-	commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-	commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndex;
-
-	vkCreateCommandPool(device, &commandPoolCreateInfo, 0, &commandPool);
-
-	VkCommandBufferAllocateInfo commandBufferAllocInfo;
-	memset(&commandBufferAllocInfo, 0, sizeof(VkCommandBufferAllocateInfo));
-	
-	commandBufferAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	commandBufferAllocInfo.commandPool = commandPool;
-	commandBufferAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	commandBufferAllocInfo.commandBufferCount = FRAME_COUNT;
-
-	vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers);
-
-	VkSemaphoreCreateInfo semaphoreCreateInfo = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-
-	vkCreateSemaphore(device, &semaphoreCreateInfo, 0, &imageAvailableSemaphores[0]);
-	vkCreateSemaphore(device, &semaphoreCreateInfo, 0, &imageAvailableSemaphores[1]);
-	vkCreateSemaphore(device, &semaphoreCreateInfo, 0, &renderFinishedSemaphores[0]);
-	vkCreateSemaphore(device, &semaphoreCreateInfo, 0, &renderFinishedSemaphores[1]);
-
-	VkFenceCreateInfo fenceCreateInfo;
-	memset(&fenceCreateInfo, 0, sizeof(VkFenceCreateInfo));
-	fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-	vkCreateFence(device, &fenceCreateInfo, 0, &frameFences[0]);
-	vkCreateFence(device, &fenceCreateInfo, 0, &frameFences[1]);
-
-	uint32_t index = (frameIndex++) % FRAME_COUNT;
-	vkWaitForFences(device, 1, &frameFences[index], VK_TRUE, UINT64_MAX);
-	vkResetFences(device, 1, &frameFences[index]);
-
-	uint32_t imageIndex;
-	vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, imageAvailableSemaphores[index], VK_NULL_HANDLE, &imageIndex);
-
-	VkCommandBufferBeginInfo beginInfo;
-	memset(&beginInfo, 0, sizeof(VkCommandBufferBeginInfo));
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-	vkBeginCommandBuffer(commandBuffers[index], &beginInfo);
-	
-	vkEndCommandBuffer(commandBuffers[index]);
-
-	VkSubmitInfo submitInfo;
-	memset(&submitInfo, 0, sizeof(VkSubmitInfo));
-	VkPipelineStageFlags writeDestStageMask = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.waitSemaphoreCount = 1;
-	submitInfo.pWaitSemaphores = &imageAvailableSemaphores[index];
-	submitInfo.pWaitDstStageMask = &writeDestStageMask;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffers[index];
-	submitInfo.signalSemaphoreCount = 1;
-	submitInfo.pSignalSemaphores = &renderFinishedSemaphores[index];
-	vkQueueSubmit(queue, 1, &submitInfo, frameFences[index]);
-
-	VkPresentInfoKHR presentInfo;
-	memset(&presentInfo, 0, sizeof(VkPresentInfoKHR));
-	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	presentInfo.waitSemaphoreCount = 1;
-	presentInfo.pWaitSemaphores = &renderFinishedSemaphores[index];
-	presentInfo.swapchainCount = 1;
-	presentInfo.pSwapchains = &swapchain;
-	presentInfo.pImageIndices = &imageIndex;
-
-	vkQueuePresentKHR(queue, &presentInfo);
 
 	return TRUE;
 }
@@ -599,12 +282,6 @@ static int Emulator_InitialiseSDL(char* windowName, int width, int height)
 	if (Emulator_InitialiseGLESContext(windowName) == FALSE)
 	{
 		eprinterr("Failed to Initialise GLES Context!\n");
-		return FALSE;
-	}
-#elif defined(VK)
-	if (Emulator_InitialiseVKContext(windowName) == FALSE)
-	{
-		eprinterr("Failed to Initialise VK Context!\n");
 		return FALSE;
 	}
 #elif defined(D3D9)
@@ -2239,10 +1916,7 @@ void Emulator_ShutDown()
 
 	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
 
-#if defined(VK)
-	vkDestroySurfaceKHR(instance, surface, 0);
-	vkDestroyInstance(instance, NULL);
-#elif defined(D3D9)
+#if defined(D3D9)
 	d3ddev->Release();
 	d3d->Release();
 #endif
@@ -2348,16 +2022,6 @@ void Emulator_SetViewPort(int x, int y, int width, int height)
 	viewport.MinZ   = 0.0f;
 	viewport.MaxZ   = 1.0f;
 	d3ddev->SetViewport(&viewport);
-#elif defined(VK)
-	VkViewport viewPort;
-	viewPort.x = x;
-	viewPort.y = y;
-	viewPort.width = width;
-	viewPort.height = height;
-	viewPort.minDepth = 0.0f;
-	viewPort.maxDepth = 1.0f;
-	//assert(FALSE);//Unfinished see below.
-	//vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
 #endif
 }
 
@@ -2367,8 +2031,6 @@ void Emulator_SetRenderTarget(const RenderTargetID &frameBufferObject)
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject);
 #elif defined(D3D9)
 	d3ddev->SetRenderTarget(0, frameBufferObject);
-#elif defined(VK)
-    #error
 #endif
 }
 

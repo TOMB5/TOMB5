@@ -19,9 +19,6 @@
 //Direct3D9
 //#define D3D9
 
-//Vulkan
-//#define VK
-
 #if defined(OGL)
 #define SDL2
 #define GLEW
