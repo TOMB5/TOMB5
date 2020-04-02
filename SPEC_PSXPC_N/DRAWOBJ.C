@@ -2590,7 +2590,7 @@ loc_7F0C8:
 					t3 = ((int*)t5)[1];
 					t2 -= at;
 
-					InitGT3(s0, t6, s4, t2, t7, s5, t3, t8, s6, s4);
+					InitGT3(s0, t6, s4, t2, t7, s5, t3, t8, s6, t4);
 					
 
 #if defined(USE_32_BIT_ADDR)
