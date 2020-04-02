@@ -660,7 +660,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	//a0 = objects[HAIR].bone_index
 	bone = &bones[objects[HAIR].bone_index];
 
-	if (lara.hit_direction != 0)
+	if (a1[0] != 0)
 	{
 		a1[0] = 0;
 		s7->pos.x_pos = fp[12];
