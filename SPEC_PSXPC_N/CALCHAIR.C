@@ -12,6 +12,40 @@
 #include "GAMEFLOW.H"
 #include "HAIR.H"
 #include "EFFECT2.H"
+#include "CONTROL.H"
+#include "GETSTUFF.H"
+#include "LOAD_LEV.H"
+
+long phd_sqrt_asm_CH(long value)//83B30(<), 85B74(<) (F)
+{
+	LZCR = gte_leadingzerocount(value);
+
+	long v0 = 0x1F;
+
+	if (value != 0)
+	{
+		long v1 = LZCR;
+		v1 &= 0xFFFFFFFE;
+		v0 = v0 - v1 >> 1;
+		long at = v1 - 0x18;
+
+		if (v1 - 0x18 < 0)
+		{
+			//loc_85BA8
+			value >>= 0x18 - v1;
+		}
+		else
+		{
+			value <<= v1 - 0x18;
+		}
+
+		//loc_85BB4
+		value = SqrtTable[value - 0x40] << v0;
+
+	}//locret_85BD0
+
+	return (value >> 12);
+}
 
 int* snaff_sphere_special(int* at, short* s7)
 {
@@ -434,7 +468,10 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	struct HAIR_STRUCT* s7 = NULL;
 	int* a1 = NULL;
 	int s5 = 0;
-
+	int s3 = 1;
+	int height;//$a2
+	int t3;
+	struct room_info* r = NULL;
 	S_MemSet((char*)&scratchPad, 0, 1024);
 
 	//s0 = gfLevelFlags & 1
@@ -531,7 +568,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	TRX = lara_item->pos.x_pos;
 	TRY = lara_item->pos.y_pos;
 	TRZ = lara_item->pos.z_pos;
-	
+
 	mRotYXZ_CH(lara_item->pos.y_rot, lara_item->pos.x_rot, lara_item->pos.z_rot);
 	object = &objects[LARA];
 	//v0 = objects.bone_index
@@ -663,256 +700,183 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 		load_matrix(&fp[37]);
 		return;
 	}
+
+	//loc_8316C
+	//v0 = fp[12]
+	//v1 = fp[13]
+	//a0 = fp[14]
+
+	s7->pos.x_pos = fp[12];
+	s7->pos.y_pos = fp[13];
+	s7->pos.z_pos = fp[14];
+	//t1 = fp[11];
+	//a3 = lara_item->room_number
+	((short*)fp)[30] = lara_item->room_number;
+
+	if (fp[11] != 0)
+	{
+		fp[16] = -32512;
+	}
 	else
 	{
-		//loc_8316C
-
+		//loc_831A0
+		fp[16] = GetWaterHeight(lara_item->pos.x_pos + ((hit_frame[0] + hit_frame[1]) >> 1), lara_item->pos.y_pos + ((hit_frame[2] + hit_frame[3]) >> 1), lara_item->pos.z_pos + ((hit_frame[4] + hit_frame[5]) >> 1), lara_item->room_number);
 	}
+
+	//loc_831F0
+	int v1 = (hair_wind - 3) + (GetRandomControl() & 7);
+	int v0 = 1;
+
+	if (v1 >= -1)
+	{
+		v0 = -1;
+		if (v1 >= 9)
+		{
+			v1 += v0;
+		}
+		//loc_83224
+	}
+	else
+	{
+		//loc_83220
+		v1 += v0;
+	}
+
+	//loc_83224
+	hair_wind = v1;
+	
+	v1 = (hair_dwind_angle + (((GetRandomControl() & 0x3F) - 0x20) << 1)) & 0x1FFE;
+
+	if (v1 < 0x400)
+	{
+		v1 += ((0x400 - v1) << 1);
+	}
+	else if (v1 >= 0xC01)
+	{
+		v1 -= ((v1 - 0xC00) << 1);
+	}
+
+	//loc_8327C
+	hair_dwind_angle = v1;
+
+	//v0 = ((hair_dwind_angle - hair_wind_angle) >> 3)
+	//v1 = hair_wind_angle + ((hair_dwind_angle - hair_wind_angle) >> 3)
+	//a0 = hair_wind
+	hair_wind_angle = hair_wind_angle + ((hair_dwind_angle - hair_wind_angle) >> 3);
+
+	v0 = ((int*)&rcossin_tbl)[hair_wind_angle >> 2];
+	s7++;
+	
+	SmokeWindZ = ((v0 >> 16) * hair_wind) >> 12;//a1
+	SmokeWindX = (((v0 << 16) >> 16) * hair_wind) >> 12;//a2
+	s3 = 1;
+
+	//loc_832E4
+	//a0 = s7->pos.x_pos
+	//a1 = s7->pos.y_pos
+	//a2 = s7->pos.z_pos
+	//t1 = fp[11]
+
+	fp[12] = s7->pos.x_pos;
+	fp[13] = s7->pos.y_pos;
+	fp[14] = s7->pos.z_pos;
+
+	if (!fp[11])
+	{
+		//a3 = &fp[15];
+		height = GetHeight(GetFloor(fp[12], fp[13], fp[14], (short*)&fp[15]), fp[12], fp[13], fp[14]);
+	}
+	else
+	{
+		//loc_83328
+		height = 32767;
+	}
+
+	//loc_8332C
+	//v1 = (((s7->vel.x << 1) + s7->vel.x) >> 2)
+	s7->pos.x_pos = s7->pos.x_pos + (((s7->vel.x << 1) + s7->vel.x) >> 2);
+	//v1 = s7->vel.y
+	s7->pos.y_pos = s7->pos.y_pos + (((s7->vel.y << 1) + s7->vel.y) >> 2);
+	//at = (((s7->vel.y << 1) + s7->vel.y) >> 2)
+	//v1 = (((s7->vel.z << 1) + s7->vel.z) >> 2)
+	s7->pos.z_pos = s7->pos.z_pos + (((s7->vel.z << 1) + s7->vel.z) >> 2);
+
+	//a3 = lara.water_status
+	//v1 = ((short*)fp)[30]
+	if (lara.water_status == 0)
+	{
+		r = &room[((short*)fp)[30]];
+		if ((r->flags & 0x20))
+		{
+			s7->pos.x_pos += SmokeWindX;
+			s7->pos.z_pos += SmokeWindZ;
+		}//loc_833D4
+	}
+	//loc_833D4
+	//v1 = s7->pos.y_pos
+	//t1 = fp[16];
+	//at = 1
+
+	if (lara.water_status != 0)
+	{
+		if (lara.water_status == 1 || lara.water_status == 2 || lara.water_status == 3)
+		{
+			//loc_833F8
+			if (s7->pos.y_pos < fp[16])
+			{
+				s7->pos.y_pos = fp[16];
+			}
+			else if (height < s7->pos.y_pos)
+			{
+				s7->pos.y_pos = height;
+			}
+		}
+	}
+	else
+	{
+		//loc_8341C
+		//v0 = -32512
+		s7->pos.y_pos += 10;
+		if (fp[16] != -32512 && fp[16] < s7->pos.y_pos)
+		{
+			s7->pos.y_pos = fp[16];
+		}
+		else if (height < s7->pos.y_pos)//loc_83434
+		{
+			s7->pos.x_pos = fp[12];
+			s7->pos.z_pos = fp[14];
+		}
+	}
+
+	//loc_8344C
+	t3 = 5;
+	//t4 = &fp[17]
+
+	//loc_83454
+	//a0 = s7->pos.x_pos
+	//a1 = s7->pos.y_pos
+	//a2 = s7->pos.z_pos
+
+	//at = fp[17];
+	//v0 = fp[18];
+	//v1 = fp[19];
+
+	IR1 = s7->pos.x_pos - fp[17];
+	IR2 = s7->pos.y_pos - fp[18];
+	IR3 = s7->pos.z_pos - fp[19];
+
+	//v0 = fp[20] * fp[20]
+	docop2(0xA00428);
+
+	//a0 = MAC1 + MAC2 + MAC3
+
+	t3--;
+	if (MAC1 + MAC2 + MAC3 < fp[20] * fp[20])
+	{
+		//phd_sqrt_asm_CH()
+	}
+	//loc_8351C
 #if 0
-
-		loc_8316C:
-		lw      $v0, arg_30($fp)
-		lw      $v1, arg_34($fp)
-		lw      $a0, arg_38($fp)
-		sw      $v0, 0($s7)
-		sw      $v1, 4($s7)
-		sw      $a0, 8($s7)
-		lw      $t1, arg_2C($fp)
-		lh      $a3, 0x18($s5)
-		beqz    $t1, loc_831A0
-		sh      $a3, arg_3C($fp)
-		li      $t1, 0xFFFF8100
-		j       loc_831F0
-		sw      $t1, arg_40($fp)
-
-		loc_831A0:
-	lh      $a0, 0($s3)
-		lh      $v0, 2($s3)
-		lw      $v1, 0x40($s5)
-		lh      $a1, 4($s3)
-		lh      $a2, 8($s3)
-		addu    $a0, $v0
-		sra     $a0, 1
-		addu    $a0, $v1, $a0
-		lh      $v0, 6($s3)
-		lw      $v1, 0x44($s5)
-		addu    $a1, $v0
-		sra     $a1, 1
-		lh      $v0, 0xA($s3)
-		addu    $a1, $v1, $a1
-		addu    $a2, $v0
-		lw      $v0, 0x48($s5)
-		sra     $a2, 1
-		jal     sub_1E534
-		addu    $a2, $v0, $a2
-		sw      $v0, arg_40($fp)
-
-		loc_831F0:
-	jal     sub_5E9F0
-		nop
-		lw      $v1, 0x534($gp)
-		andi    $v0, 7
-		addiu   $v1, -3
-		addu    $v1, $v0
-		slti    $v0, $v1, -1
-		bnez    $v0, loc_83220
-		li      $v0, 1
-		slti    $v0, $v1, 9
-		bnez    $v0, loc_83224
-		li      $v0, 0xFFFFFFFF
-
-		loc_83220:
-	addu    $v1, $v0
-
-		loc_83224 :
-	sw      $v1, 0x534($gp)
-		jal     sub_5E9F0
-		nop
-		andi    $v0, 0x3F
-		addiu   $v0, -0x20
-		lw      $v1, 0x53C($gp)
-		sll     $v0, 1
-		addu    $v1, $v0
-		andi    $v1, 0x1FFE
-		slti    $v0, $v1, 0x400
-		beqz    $v0, loc_83264
-		li      $v0, 0x400
-		subu    $v0, $v1
-		sll     $v0, 1
-		j       loc_8327C
-		addu    $v1, $v0
-
-		loc_83264 :
-	slti    $v0, $v1, 0xC01
-		bnez    $v0, loc_8327C
-		li      $v0, 0xC00
-		subu    $v0, $v1, $v0
-		sll     $v0, 1
-		subu    $v1, $v0
-
-		loc_8327C :
-	sw      $v1, 0x53C($gp)
-		lw      $v0, 0x53C($gp)
-		lw      $v1, 0x538($gp)
-		lw      $a0, 0x534($gp)
-		subu    $v0, $v1
-		sra     $v0, 3
-		addu    $v1, $v0
-		andi    $v1, 0x1FFE
-		sw      $v1, 0x538($gp)
-		sll     $v1, 1
-		lw      $v0, dword_9A8C8($v1)
-		addiu   $s7, 0x20
-		sra     $at, $v0, 16
-		mult    $at, $a0
-		mflo    $a1
-		sll     $at, $v0, 16
-		sra     $at, 16
-		mult    $at, $a0
-		sra     $a1, 12
-		sw      $a1, 0x2BFC($gp)
-		mflo    $a2
-		sra     $a2, 12
-		sw      $a1, 0x2BF8($gp)
-		li      $s3, 1
-
-		loc_832E4:
-	lw      $a0, 0($s7)
-		lw      $a1, 4($s7)
-		lw      $a2, 8($s7)
-		lw      $t1, arg_2C($fp)
-		sw      $a0, arg_30($fp)
-		sw      $a1, arg_34($fp)
-		bnez    $t1, loc_83328
-		sw      $a2, arg_38($fp)
-		jal     sub_78954
-		addiu   $a3, $fp, arg_3C
-		lw      $a1, arg_30($fp)
-		lw      $a2, arg_34($fp)
-		lw      $a3, arg_38($fp)
-		jal     sub_78C74
-		move    $a0, $v0
-		j       loc_8332C
-		move    $a2, $v0
-
-		loc_83328 :
-	li      $a2, 0x7FFF
-
-		loc_8332C :
-		lw      $v1, 0x14($s7)
-		lw      $v0, 0($s7)
-		sll     $at, $v1, 1
-		addu    $v1, $at, $v1
-		sra     $v1, 2
-		addu    $v0, $v1
-		sw      $v0, 0($s7)
-		lw      $v1, 0x18($s7)
-		lw      $v0, 4($s7)
-		sll     $at, $v1, 1
-		addu    $v1, $at, $v1
-		sra     $v1, 2
-		addu    $v0, $v1
-		sw      $v0, 4($s7)
-		lw      $v1, 0x1C($s7)
-		lw      $v0, 8($s7)
-		sll     $at, $v1, 1
-		addu    $v1, $at, $v1
-		sra     $v1, 2
-		addu    $v0, $v1
-		sw      $v0, 8($s7)
-		lh      $a3, 0x5234($gp)
-		lh      $v1, arg_3C($fp)
-		bnez    $a3, loc_833D4
-		sll     $v0, $v1, 2
-		addu    $v0, $v1
-		lw      $v1, 0x1F28($gp)
-		sll     $v0, 4
-		addu    $v0, $v1
-		lhu     $v0, 0x4E($v0)
-		nop
-		andi    $v0, 0x20
-		beqz    $v0, loc_833D4
-		nop
-		lw      $v0, 0($s7)
-		lw      $a0, 8($s7)
-		lw      $v1, 0x2BF8($gp)
-		lw      $a1, 0x2BFC($gp)
-		addu    $v0, $v1
-		addu    $a0, $a1
-		sw      $v0, 0($s7)
-		sw      $a0, 8($s7)
-
-		loc_833D4:
-	lw      $v1, 4($s7)
-		lw      $t1, arg_40($fp)
-		beqz    $a3, loc_8341C
-		li      $at, 1
-		beq     $a3, $at, loc_833F8
-		li      $at, 2
-		beq     $a3, $at, loc_833F8
-		li      $at, 4
-		bne     $a3, $at, loc_8344C
-
-		loc_833F8 :
-	slt     $v0, $v1, $t1
-		beqz    $v0, loc_8340C
-		slt     $v0, $a2, $v1
-
-		loc_83404 :
-	j       loc_8344C
-		sw      $t1, 4($s7)
-
-		loc_8340C :
-		beqz    $v0, loc_8344C
-		nop
-		j       loc_8344C
-		sw      $a2, 4($s7)
-
-		loc_8341C :
-		li      $v0, 0xFFFF8100
-		addiu   $v1, 0xA
-		sw      $v1, 4($s7)
-		beq     $t1, $v0, loc_83434
-		slt     $v0, $t1, $v1
-		bnez    $v0, loc_83404
-
-		loc_83434 :
-	slt     $v0, $a2, $v1
-		beqz    $v0, loc_8344C
-		lw      $v0, arg_30($fp)
-		lw      $v1, arg_38($fp)
-		sw      $v0, 0($s7)
-		sw      $v1, 8($s7)
-
-		loc_8344C:
-	li      $t3, 5
-		addiu   $t4, $fp, arg_44
-
-		loc_83454 :
-	lw      $a0, 0($s7)
-		lw      $a1, 4($s7)
-		lw      $a2, 8($s7)
-		lw      $at, 0($t4)
-		lw      $v0, 4($t4)
-		lw      $v1, 8($t4)
-		subu    $t0, $a0, $at
-		subu    $t1, $a1, $v0
-		subu    $t2, $a2, $v1
-		lw      $v0, 0xC($t4)
-		mtc2    $t0, $9
-		mtc2    $t1, $10
-		mtc2    $t2, $11
-		mult    $v0, $v0
-		cop2    0xA00428
-		mflo    $v0
-		mfc2    $a0, $25
-		mfc2    $v1, $26
-		mfc2    $at, $27
-		addu    $a0, $v1
-		addu    $a0, $at
-		slt     $at, $a0, $v0
-		beqz    $at, loc_8351C
-		addiu   $t3, -1
 		jal     sub_83B30
 		nop
 		bnez    $v0, loc_834C8
