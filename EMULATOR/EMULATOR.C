@@ -1115,6 +1115,7 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 }
 
 ShaderID g_gte_shader_4;
+ShaderID g_gte_shader_8;
 ShaderID g_gte_shader_16;
 ShaderID g_blit_shader;
 
@@ -1154,6 +1155,51 @@ const char* gte_shader_4 =
 	"\n"
 	"		vec2 clut_pos = v_page_clut.zw;\n"
 	"		clut_pos.x += mix(c[0], c[1], fract(float(index) / 2.0) * 2.0) / 1024.0;\n"
+	"		vec2 clut_color = texture2D(s_texture, clut_pos).rg * 255.0;\n"
+	"\n"
+	"		float color_16 = clut_color.y * 256.0 + clut_color.x;\n"
+	"		vec4 color = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
+	"\n"
+	"		fragColor = color * v_color;\n"
+	"		mat4 dither = mat4(\n"
+	"			-4.0,  +0.0,  -3.0,  +1.0,\n"
+	"			+2.0,  -2.0,  +3.0,  -1.0,\n"
+	"			-3.0,  +1.0,  -4.0,  +0.0,\n"
+	"			+3.0,  -1.0,  +2.0,  -2.0) / 255.0;\n"
+	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"
+	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
+	"\n"
+	"		if (fragColor.a == 0.0) { discard; }\n"
+	"	}\n"
+	"#endif\n";
+
+const char* gte_shader_8 =
+	"varying vec4 v_texcoord;\n"
+	"varying vec4 v_color;\n"
+	"varying vec4 v_page_clut;\n"
+	"#ifdef VERTEX\n"
+	"	attribute vec4 a_position;\n"
+	"	attribute vec4 a_texcoord; // uv, color multiplier, dither\n"
+	"	attribute vec4 a_color;\n"
+	"	uniform mat4 Projection;\n"
+	"	void main() {\n"
+	"		v_texcoord = a_texcoord;\n"
+	"		v_color = a_color;\n"
+	"		v_color.xyz *= a_texcoord.z;\n"
+	"		v_page_clut.x = fract(a_position.z / 16.0) * 1024.0;\n"
+	"		v_page_clut.y = floor(a_position.z / 16.0) * 256.0;\n"
+	"		v_page_clut.z = fract(a_position.w / 64.0);\n"
+	"		v_page_clut.w = floor(a_position.w / 64.0) / 512.0;\n"
+	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
+	"	}\n"
+	"#else\n"
+	"	uniform sampler2D s_texture;\n"
+	"	void main() {\n"
+	"		vec2 uv = (v_texcoord.xy * vec2(0.5, 1.0) + v_page_clut.xy) * vec2(1.0 / 1024.0, 1.0 / 512.0);\n"
+	"		vec2 comp = texture2D(s_texture, uv).rg;\n"
+	"\n"
+	"		vec2 clut_pos = v_page_clut.zw;\n"
+	"		clut_pos.x += comp[int(mod(v_texcoord.x, 2.0))] * 255.0 / 1024.0;\n"
 	"		vec2 clut_color = texture2D(s_texture, clut_pos).rg * 255.0;\n"
 	"\n"
 	"		float color_16 = clut_color.y * 256.0 + clut_color.x;\n"
@@ -1335,6 +1381,8 @@ ShaderID Shader_Compile(const char *source)
 
 #include "shaders/gte_shader_4_vs.h"
 #include "shaders/gte_shader_4_ps.h"
+#include "shaders/gte_shader_8_vs.h"
+#include "shaders/gte_shader_8_ps.h"
 #include "shaders/gte_shader_16_vs.h"
 #include "shaders/gte_shader_16_ps.h"
 #include "shaders/blit_shader_vs.h"
@@ -1365,6 +1413,7 @@ ShaderID Shader_Compile_Internal(const DWORD *vs_data, const DWORD *ps_data)
 void Emulator_CreateGlobalShaders()
 {
 	g_gte_shader_4  = Shader_Compile(gte_shader_4);
+	g_gte_shader_8  = Shader_Compile(gte_shader_8);
 	g_gte_shader_16 = Shader_Compile(gte_shader_16);
 	g_blit_shader   = Shader_Compile(blit_shader);
 
@@ -1783,7 +1832,7 @@ void Emulator_SetTexture(TextureID texture, TexFormat texFormat)
 			Emulator_SetShader(g_gte_shader_4);
 			break;
 		case TF_8_BIT :
-			assert(false); // TODO
+			Emulator_SetShader(g_gte_shader_8);
 			break;
 		case TF_16_BIT :
 			Emulator_SetShader(g_gte_shader_16);
