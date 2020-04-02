@@ -1114,13 +1114,14 @@ void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0
 	vertex[3].a = 255;
 }
 
-ShaderID g_gte_shader;
+ShaderID g_gte_shader_4;
+ShaderID g_gte_shader_16;
 ShaderID g_blit_shader;
 
 #if defined(OGLES) || defined(OGL)
 GLint u_Projection;
 
-const char* gte_shader =
+const char* gte_shader_4 =
 	"varying vec4 v_texcoord;\n"
 	"varying vec4 v_color;\n"
 	"varying vec4 v_page_clut;\n"
@@ -1159,6 +1160,45 @@ const char* gte_shader =
 	"		vec4 color = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
 	"\n"
 	"		fragColor = color * v_color;\n"
+	"		mat4 dither = mat4(\n"
+	"			-4.0,  +0.0,  -3.0,  +1.0,\n"
+	"			+2.0,  -2.0,  +3.0,  -1.0,\n"
+	"			-3.0,  +1.0,  -4.0,  +0.0,\n"
+	"			+3.0,  -1.0,  +2.0,  -2.0) / 255.0;\n"
+	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"
+	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
+	"\n"
+	"		if (fragColor.a == 0.0) { discard; }\n"
+	"	}\n"
+	"#endif\n";
+
+const char* gte_shader_16 =
+	"varying vec4 v_texcoord;\n"
+	"varying vec4 v_color;\n"
+	"#ifdef VERTEX\n"
+	"	attribute vec4 a_position;\n"
+	"	attribute vec4 a_texcoord; // uv, color multiplier, dither\n"
+	"	attribute vec4 a_color;\n"
+	"	uniform mat4 Projection;\n"
+	"	void main() {\n"
+	"		vec2 page\n;"
+	"		page.x = fract(a_position.z / 16.0) * 1024.0\n;"
+	"		page.y = floor(a_position.z / 16.0) * 256.0;\n;"
+	"		v_texcoord = a_texcoord;\n"
+	"		v_texcoord.xy += page;\n"
+	"		v_texcoord.xy *= vec2(1.0 / 1024.0, 1.0 / 512.0);\n"
+	"		v_color = a_color;\n"
+	"		v_color.xyz *= a_texcoord.z;\n"
+	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
+	"	}\n"
+	"#else\n"
+	"	uniform sampler2D s_texture;\n"
+	"	void main() {\n"
+	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg * 255.0;\n"
+	"		float color_16 = color_rg.y * 256.0 + color_rg.x;\n"
+	"		fragColor = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
+	"\n"
+	"		fragColor *= v_color;\n"
 	"		mat4 dither = mat4(\n"
 	"			-4.0,  +0.0,  -3.0,  +1.0,\n"
 	"			+2.0,  -2.0,  +3.0,  -1.0,\n"
@@ -1322,11 +1362,12 @@ ShaderID Shader_Compile_Internal(const DWORD *vs_data, const DWORD *ps_data)
 
 void Emulator_CreateGlobalShaders()
 {
-	g_gte_shader  = Shader_Compile(gte_shader);
-	g_blit_shader = Shader_Compile(blit_shader);
+	g_gte_shader_4  = Shader_Compile(gte_shader_4);
+	g_gte_shader_16 = Shader_Compile(gte_shader_16);
+	g_blit_shader   = Shader_Compile(blit_shader);
 
 #if defined(OGL) || defined(OGLES)
-	u_Projection = glGetUniformLocation(g_gte_shader, "Projection");
+	u_Projection = glGetUniformLocation(g_gte_shader_4, "Projection");
 #endif
 }
 
@@ -1361,6 +1402,7 @@ int Emulator_Initialise()
 
 #if defined(OGL) || defined(OGLES)
 	glDisable(GL_DEPTH_TEST);
+	glBlendColor(0.5f, 0.5f, 0.5f, 0.25f);
 
 	glGenTextures(1, &vramTexture);
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
@@ -1688,8 +1730,64 @@ int Emulator_Initialise()
 }
 #endif
 
-void Emulator_SetTexture(TextureID texture)
+void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar)
 {
+	float a = 2.0f / (right - left);
+	float b = 2.0f / (top - bottom);
+	float c = 2.0f / (znear - zfar);
+
+	float x = (left + right) / (left - right);
+	float y = (bottom + top) / (bottom - top);
+
+#if defined(OGL) || defined(OGLES) // -1..1
+	float z = (znear + zfar) / (znear - zfar);
+#elif defined(D3D9) // 0..1
+	float z = znear / (znear - zfar);
+#endif
+
+	float ortho[16] = {
+		a, 0, 0, 0,
+		0, b, 0, 0,
+		0, 0, c, 0,
+		x, y, z, 1
+	};
+
+#if defined(OGL) || defined(OGLES)
+	glUniformMatrix4fv(u_Projection, 1, GL_FALSE, ortho);
+#elif defined(D3D9)
+	d3ddev->SetVertexShaderConstantF(u_Projection, ortho, 4);
+#endif
+}
+
+void Emulator_SetShader(const ShaderID &shader)
+{
+#if defined(OGL) || defined(OGLES)
+	glUseProgram(shader);
+#elif defined(D3D9)
+	d3ddev->SetVertexShader(shader.VS);
+	d3ddev->SetPixelShader(shader.PS);
+#elif
+	#error
+#endif
+
+	Emulator_Ortho2D(0.0f, word_33BC.disp.w, word_33BC.disp.h, 0.0f, 0.0f, 1.0f);
+}
+
+void Emulator_SetTexture(TextureID texture, TexFormat texFormat)
+{
+	switch (texFormat)
+	{
+		case TF_4_BIT :
+			Emulator_SetShader(g_gte_shader_4);
+			break;
+		case TF_8_BIT :
+			assert(false); // TODO
+			break;
+		case TF_16_BIT :
+			Emulator_SetShader(g_gte_shader_16);
+			break;
+	}
+
 	if (g_texturelessMode) {
 		texture = whiteTexture;
 	}
@@ -1726,18 +1824,6 @@ extern void Emulator_Clear(int x, int y, int w, int h, unsigned char r, unsigned
 	glClear(GL_COLOR_BUFFER_BIT);
 #elif defined(D3D9)
 	d3ddev->Clear(0, NULL, D3DCLEAR_TARGET, 0xFF000000 | (r << 16) | (g << 8) | (b), 1.0f, 0);
-#endif
-}
-
-void Emulator_SetShader(const ShaderID &shader)
-{
-#if defined(OGL) || defined(OGLES)
-    glUseProgram(shader);
-#elif defined(D3D9)
-    d3ddev->SetVertexShader(shader.VS);
-    d3ddev->SetPixelShader(shader.PS);
-#elif
-    #error
 #endif
 }
 
@@ -1835,6 +1921,7 @@ void Emulator_UpdateVRAM()
 
 void Emulator_BlitVRAM()
 {
+	Emulator_SetTexture(vramTexture, TF_16_BIT);
 	Emulator_SetShader(g_blit_shader);
 
 	u_char l = word_33BC.disp.x / 8;
@@ -1856,8 +1943,6 @@ void Emulator_BlitVRAM()
 	Emulator_UpdateVertexBuffer(blit_vertices, 6);
 	Emulator_SetBlendMode(BM_NONE);
 	Emulator_DrawTriangles(0, 2);
-
-	Emulator_SetShader(g_gte_shader);
 }
 
 bool begin_scene_flag = false;
@@ -1910,11 +1995,7 @@ void Emulator_BeginScene()
 #endif
 
 	Emulator_UpdateVRAM();
-	Emulator_SetTexture(vramTexture);
 	Emulator_SetViewPort(0, 0, windowWidth, windowHeight);
-
-	Emulator_SetShader(g_gte_shader);
-	Emulator_Ortho2D(0.0f, word_33BC.disp.w, word_33BC.disp.h, 0.0f, 0.0f, 1.0f);
 
 	begin_scene_flag = true;
 
@@ -2124,7 +2205,6 @@ void Emulator_SetBlendMode(BlendMode blendMode)
 			glDisable(GL_BLEND);
 			break;
 		case BM_AVERAGE:
-			glBlendColor(0.5f, 0.5f, 0.5f, 0.5f);
 			glBlendFunc(GL_CONSTANT_COLOR, GL_CONSTANT_COLOR);
 			glBlendEquation(GL_FUNC_ADD);
 			break;
@@ -2137,8 +2217,7 @@ void Emulator_SetBlendMode(BlendMode blendMode)
 			glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
 			break;
 		case BM_ADD_QUATER_SOURCE:
-			glBlendColor(0.25f, 0.25f, 0.25f, 0.25f);
-			glBlendFunc(GL_CONSTANT_COLOR, GL_ONE);
+			glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE);
 			glBlendEquation(GL_FUNC_ADD);
 			break;
 	}
@@ -2179,35 +2258,6 @@ void Emulator_SetBlendMode(BlendMode blendMode)
 #endif
 
 	g_PreviousBlendMode = blendMode;
-}
-
-void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar)
-{
-	float a = 2.0f / (right - left);
-	float b = 2.0f / (top - bottom);
-	float c = 2.0f / (znear - zfar);
-
-	float x = (left + right) / (left - right);
-	float y = (bottom + top) / (bottom - top);
-
-#if defined(OGL) || defined(OGLES) // -1..1
-	float z = (znear + zfar) / (znear - zfar);
-#elif defined(D3D9) // 0..1
-	float z = znear / (znear - zfar);
-#endif
-
-	float ortho[16] = {
-		a, 0, 0, 0,
-		0, b, 0, 0,
-		0, 0, c, 0,
-		x, y, z, 1
-	};
-
-#if defined(OGL) || defined(OGLES)
-	glUniformMatrix4fv(u_Projection, 1, GL_FALSE, &ortho[0]);
-#elif defined(D3D9)
-	d3ddev->SetVertexShaderConstantF(u_Projection, ortho, 4);
-#endif
 }
 
 void Emulator_SetPGXPVertexCount(int vertexCount)

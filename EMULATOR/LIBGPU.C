@@ -167,6 +167,7 @@ struct VertexBufferSplit
 	unsigned short vCount;
 	PrimType       primType;
 	BlendMode      blendMode;
+	TexFormat      texFormat;
 };
 
 //#define DEBUG_POLY_COUNT
@@ -430,9 +431,10 @@ u_short GetClut(int x, int y)
 void AddSplit(PrimType primType, bool semiTrans, int page, TextureID textureId)
 {
 	VertexBufferSplit &curSplit = g_splits[g_splitIndex];
-	BlendMode blendMode = semiTrans ? (BlendMode)(((page >> 5) & 3) + 1) : BM_NONE;
+	BlendMode blendMode = semiTrans ? GET_TPAGE_BLEND(page) : BM_NONE;
+	TexFormat texFormat = GET_TPAGE_FORMAT(page);
 
-	if (curSplit.primType == primType && curSplit.blendMode == blendMode && curSplit.textureId == textureId)
+	if (curSplit.primType == primType && curSplit.blendMode == blendMode && curSplit.texFormat == texFormat && curSplit.textureId == textureId)
 	{
 		return;
 	}
@@ -446,6 +448,7 @@ void AddSplit(PrimType primType, bool semiTrans, int page, TextureID textureId)
 	split.vCount    = 0;
 	split.primType  = primType;
 	split.blendMode = blendMode;
+	split.texFormat = texFormat;
 }
 
 void MakeTriangle()
@@ -457,7 +460,7 @@ void MakeTriangle()
 
 void DrawSplit(const VertexBufferSplit &split)
 {
-	Emulator_SetTexture(split.textureId);
+	Emulator_SetTexture(split.textureId, split.texFormat);
 	Emulator_SetBlendMode(split.blendMode);
 
 	if (split.primType == PT_TRIANGLES) {
