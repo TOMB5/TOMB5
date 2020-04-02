@@ -44,7 +44,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
             frame_ = &anims[anim].frame_ptr[lara.hit_frame * (anims[anim].interpolation >> 8)];
         }
 
-        short* a0 = &frame[9];
+        short* a0 = &frame_[9];
     	struct
     	{
             PHD_VECTOR pos;
@@ -83,7 +83,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
             },
             lara.mesh_ptrs[LM_TORSO][3]
         };
-        auto v20 = things[1].thing;
+        const auto v20 = things[1].thing;
         if (gfLevelFlags & GF_LVOP_YOUNG_LARA)
             things[1].thing = v20 - ((v20 >> 2) + (v20 >> 3)); // v20 * 5 / 8
         phd_PopMatrix();
@@ -233,16 +233,14 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
             hair_dwind_angle = 2048 - hair_dwind_angle;
         }
 
-        auto hair2 = hair + 1;
-        auto v97 = 1;
         hair_wind_angle = ((WORD)hair_wind_angle + (WORD)((hair_dwind_angle - hair_wind_angle) >> 3)) & 0x1FFE;
-        SmokeWindX = hair_wind * rcossin_tbl[hair_wind_angle] >> 12;
-        SmokeWindZ = hair_wind * rcossin_tbl[hair_wind_angle + 1] >> 12;
+        SmokeWindX = hair_wind * rcossin_tbl[hair_wind_angle] * 4 >> W2V_SHIFT;
+        SmokeWindZ = hair_wind * rcossin_tbl[hair_wind_angle + 1] * 4 >> W2V_SHIFT;
         auto v92 = bone2 - 2;
 
-        do
+        for (int k = 1; k <= 6; k++)
         {
-            PHD_VECTOR old_pos{ hair2->pos.x_pos, hair2->pos.y_pos, hair2->pos.z_pos };
+            PHD_VECTOR old_pos{ hair[k].pos.x_pos, hair[k].pos.y_pos, hair[k].pos.z_pos };
         	
             short v60;
         	
@@ -253,91 +251,90 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
             else
             {
                 v60 = GetHeight(GetFloor(old_pos.x, old_pos.y, old_pos.z, a4), 
-                    hair2->pos.x_pos, hair2->pos.y_pos, hair2->pos.z_pos);
+                    old_pos.x, old_pos.y, old_pos.z);
             }
         	
-            hair2->pos.x_pos += 3 * hair2->vel.x / 4;
-            hair2->pos.y_pos += 3 * hair2->vel.y / 4;
-            hair2->pos.z_pos += 3 * hair2->vel.z / 4;
+            hair[k].pos.x_pos += hair[k].vel.x * 3 / 4;
+            hair[k].pos.y_pos += hair[k].vel.y * 3 / 4;
+            hair[k].pos.z_pos += hair[k].vel.z * 3 / 4;
         	
             if (lara.water_status == LW_ABOVE_WATER && room[a4[0]].flags & RF_WIND_BLOWS_PONYTAIL)
             {
-                hair2->pos.x_pos += SmokeWindX;
-                hair2->pos.z_pos += SmokeWindZ;
+                hair[k].pos.x_pos += SmokeWindX;
+                hair[k].pos.z_pos += SmokeWindZ;
             }
         	
             switch (lara.water_status)
             {
             case LW_ABOVE_WATER:
-                hair2->pos.y_pos += 10;
-                if (v94 == -32512 || hair2->pos.y_pos <= v94)
+                hair[k].pos.y_pos += 10;
+                if (v94 == -32512 || hair[k].pos.y_pos <= v94)
                 {
-                    if (hair2->pos.y_pos > v60)
+                    if (hair[k].pos.y_pos > v60)
                     {
-                        hair2->pos.x_pos = old_pos.x;
-                        hair2->pos.z_pos = old_pos.z;
+                        hair[k].pos.x_pos = old_pos.x;
+                        hair[k].pos.z_pos = old_pos.z;
                     }
                 }
                 else
                 {
-                    hair2->pos.y_pos = v94;
+                    hair[k].pos.y_pos = v94;
                 }
                 break;
+            	
             case LW_UNDERWATER:
             case LW_SURFACE:
             case LW_WADE:
-                if (hair2->pos.y_pos >= v94)
+                if (hair[k].pos.y_pos >= v94)
                 {
-                    if (hair2->pos.y_pos > v60)
-                        hair2->pos.y_pos = v60;
+                    if (hair[k].pos.y_pos > v60)
+                        hair[k].pos.y_pos = v60;
                 }
                 else
                 {
-                    hair2->pos.y_pos = v94;
+                    hair[k].pos.y_pos = v94;
                 }
                 break;
+            	
             default:
                 break;
             }
         	
-            v68 = &v102;
-            i = &v102;
-            for (int j = 0; j < 5; j++)
+            auto thing = &things[0];
+        	
+            for (int j = 0; j < 5; j++, thing++)
             {
-                v69 = *(v68 - 1);
-                v70 = hair2->pos.x_pos - *(v68 - 3);
-                v71 = hair2->pos.y_pos - *(v68 - 2);
-                v72 = *v68;
-                v73 = hair2->pos.z_pos - v69;
-                v100 = v73;
-                v74 = v70 * v70 + v71 * v71 + v73 * v73;
-                if (v74 < v72 * v72)
+                const auto dx = hair[k].pos.x_pos - thing->pos.x;
+                const auto dy = hair[k].pos.y_pos - thing->pos.y;
+                const auto dz = hair[k].pos.z_pos - thing->pos.z;
+            	
+                const auto normsq = dx * dx + dy * dy + dz * dz;
+                const auto th = thing->thing;
+            	
+                if (normsq < th * th)
                 {
-                    auto bone2a = phd_sqrt_asm(v74);
-                    if (!bone2a)
-                        bone2a = 1;
-                    v75 = (int)i;
-                    v76 = *(i - 3) + v70 * *i / bone2a;
-                    v77 = *i;
-                    hair2->pos.x_pos = v76;
-                    hair2->pos.y_pos = *(_DWORD*)(v75 - 8) + v71 * v77 / bone2a;
-                    hair2->pos.z_pos = *(_DWORD*)(v75 - 4) + v100 * v77 / bone2a;
+                    auto norm = phd_sqrt_asm(normsq);
+                	
+                    if (norm == 0)
+                        norm = 1;
+                	
+                    hair[k].pos.x_pos = thing->pos.x + dx * th / norm;
+                    hair[k].pos.y_pos = thing->pos.y + dy * th / norm;
+                    hair[k].pos.z_pos = thing->pos.z + dz * th / norm;
                 }
-                i += 4;
-                v68 = i;
             }
 
-            auto dx = hair2->pos.x_pos - hair2[-1].pos.x_pos;
-            auto dy = hair2->pos.y_pos - hair2[-1].pos.y_pos;
-            auto dz = hair2->pos.z_pos - hair2[-1].pos.z_pos;
+            const auto dx = hair[k].pos.x_pos - hair[k-1].pos.x_pos;
+            const auto dy = hair[k].pos.y_pos - hair[k-1].pos.y_pos;
+            const auto dz = hair[k].pos.z_pos - hair[k-1].pos.z_pos;
         	
-            hair2[-1].pos.x_rot = -phd_atan_asm(phd_hypot(dz, dx), dy);
-            hair2[-1].pos.y_rot = phd_atan_asm(dz, dx);
+            hair[k-1].pos.x_rot = -phd_atan_asm(phd_hypot(dz, dx), dy);
+            hair[k-1].pos.y_rot = phd_atan_asm(dz, dx);
         	
             phd_PushUnitMatrix();
-            phd_SetTrans(hair2[-1].pos.x_pos, hair2[-1].pos.y_pos, hair2[-1].pos.z_pos);
-            phd_RotYXZ(hair2[-1].pos.y_rot, hair2[-1].pos.x_rot, 0);
-            if (v97 == 6)
+            phd_SetTrans(hair[k-1].pos.x_pos, hair[k-1].pos.y_pos, hair[k-1].pos.z_pos);
+            phd_RotYXZ(hair[k-1].pos.y_rot, hair[k-1].pos.x_rot, 0);
+            if (k == 5)
             {
                 phd_TranslateRel(*(v92 - 1), *v92, v92[1]);
             }
@@ -345,16 +342,16 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
             {
                 phd_TranslateRel(v92[3], v92[4], v92[5]);
             }
-            ++hair2;
+           
             v92 += 4;
-            hair2[-1].pos.x_pos = phd_mxptr[M03] >> W2V_SHIFT;
-            hair2[-1].pos.y_pos = phd_mxptr[M13] >> W2V_SHIFT;
-            hair2[-1].pos.z_pos = phd_mxptr[M23] >> W2V_SHIFT;
-            hair2[-1].vel.x = hair2[-1].pos.x_pos - old_pos.x;
-            hair2[-1].vel.y = hair2[-1].pos.y_pos - old_pos.y;
-            hair2[-1].vel.z = hair2[-1].pos.z_pos - old_pos.z;
+            hair[k].pos.x_pos = phd_mxptr[M03] >> W2V_SHIFT;
+            hair[k].pos.y_pos = phd_mxptr[M13] >> W2V_SHIFT;
+            hair[k].pos.z_pos = phd_mxptr[M23] >> W2V_SHIFT;
+            hair[k].vel.x = hair[k].pos.x_pos - old_pos.x;
+            hair[k].vel.y = hair[k].pos.y_pos - old_pos.y;
+            hair[k].vel.z = hair[k].pos.z_pos - old_pos.z;
+
             phd_PopMatrix();
-            v97 = v82 + 1;
-        } while (v82 + 1 < 7);
+        }
     }
 }
