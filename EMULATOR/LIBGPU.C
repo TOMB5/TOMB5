@@ -254,11 +254,11 @@ int DrawSync(int mode)
 		drawsync_callback();
 	}
 
-	DrawAggregatedSplits();
-	Emulator_EndScene();
-
-	if (Emulator_BeginScene())
-		ResetPolyState();
+	if (g_splitIndex > 0) // don't do flips if nothing to draw.
+	{
+		DrawAggregatedSplits();
+		Emulator_EndScene();
+	}
 
 	return 0;
 }
