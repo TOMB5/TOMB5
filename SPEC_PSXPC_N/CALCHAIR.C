@@ -597,11 +597,11 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	//a0 = v0 >> 2
 	if ((gfLevelFlags & 1))
 	{
-		fp[24] = lara.mesh_ptrs[0][3] - ((lara.mesh_ptrs[0][3] >> 2) + lara.mesh_ptrs[0][3] >> 3);
+		fp[24] = lara.mesh_ptrs[7][3] - ((lara.mesh_ptrs[7][3] >> 2) + lara.mesh_ptrs[7][3] >> 3);
 	}
 	else
 	{
-		fp[24] = lara.mesh_ptrs[0][3];
+		fp[24] = lara.mesh_ptrs[7][3];
 	}
 
 	//loc_82F1C
