@@ -134,6 +134,11 @@ int CdControl(u_char com, u_char * param, u_char * result)
 
 	CD_com = com;
 
+	if (openFile == NULL)
+	{
+		return 0;
+	}
+
 	switch (com)
 	{
 	case CdlSetloc:
