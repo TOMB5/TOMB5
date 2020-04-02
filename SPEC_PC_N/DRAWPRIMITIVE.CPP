@@ -1862,6 +1862,25 @@ void DrawGunshells()
 	Unimpl();
 }
 
+void GetJointAbsPositionCutSeq(ITEM_INFO* a1, object_info* a2, __int16* a3, PHD_VECTOR* pos)// (F)
+{
+	phd_PushUnitMatrix();
+	phd_TranslateRel(a3[6], a3[7], a3[8]);
+	
+	short* a2a = a3 + 9;
+	mRotSuperPackedYXZ(&a2a, 0);
+	
+	pos->x = phd_mxptr[M03] >> W2V_SHIFT;
+	pos->y = phd_mxptr[M13] >> W2V_SHIFT;
+	pos->z = phd_mxptr[M23] >> W2V_SHIFT;
+	
+	pos->x += a1->pos.x_pos;
+	pos->y += a1->pos.y_pos;
+	pos->z += a1->pos.z_pos;
+	
+	phd_PopMatrix();
+}
+
 void DrawCutSeqActors()
 {
 	Unimpl();
