@@ -1862,6 +1862,8 @@ void DrawGunshells()
 	Unimpl();
 }
 
+ITEM_INFO* dword_9158A8;
+
 void GetJointAbsPositionCutSeq(ITEM_INFO* a1, object_info* a2, __int16* a3, PHD_VECTOR* pos)// (F)
 {
 	phd_PushUnitMatrix();
@@ -1921,6 +1923,25 @@ void CalcAmbientLight(ITEM_INFO* item)// (F)
 			}
 		}
 	}
+}
+
+void CalcActorLighting(ITEM_INFO* item, object_info* a2, short* a3)// (F)
+{
+	PHD_VECTOR x;
+	GetJointAbsPositionCutSeq(item, a2, a3, &x);
+	
+	IsRoomOutsideNo = -1;
+	IsRoomOutside(x.x, x.y, x.z);
+
+	if (IsRoomOutsideNo != -1)
+		item->room_number = IsRoomOutsideNo;
+	
+	dword_9158A8 = item;
+	item->il.room_num = -1;
+	item->ambient_light_pos = x;
+	
+	CalcAmbientLight(item);
+	CreateLightList(item);
 }
 
 void DrawCutSeqActors()

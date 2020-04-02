@@ -118,5 +118,6 @@ extern float fog_start;
 extern float fog_end;
 
 extern uint32_t GnFrameCounter;
+extern ITEM_INFO* dword_9158A8;
 
 #endif
