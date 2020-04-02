@@ -1,5 +1,6 @@
 #include "CALCHAIR.H"
 
+#include "GETSTUFF.H"
 #include "CALCLARA.H"
 #include "CAMERA.H"
 #include "DRAW.H"
@@ -13,8 +14,8 @@
 #include "HAIR.H"
 #include "EFFECT2.H"
 #include "CONTROL.H"
-#include "GETSTUFF.H"
 #include "LOAD_LEV.H"
+#include "MATHS.H"
 
 long phd_sqrt_asm_CH(long value)//83B30(<), 85B74(<) (F)
 {
@@ -772,228 +773,186 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	s3 = 1;
 
 	//loc_832E4
-	//a0 = s7->pos.x_pos
-	//a1 = s7->pos.y_pos
-	//a2 = s7->pos.z_pos
-	//t1 = fp[11]
-
-	fp[12] = s7->pos.x_pos;
-	fp[13] = s7->pos.y_pos;
-	fp[14] = s7->pos.z_pos;
-
-	if (!fp[11])
+	do
 	{
-		//a3 = &fp[15];
-		height = GetHeight(GetFloor(fp[12], fp[13], fp[14], (short*)&fp[15]), fp[12], fp[13], fp[14]);
-	}
-	else
-	{
-		//loc_83328
-		height = 32767;
-	}
+		//a0 = s7->pos.x_pos
+		//a1 = s7->pos.y_pos
+		//a2 = s7->pos.z_pos
+		//t1 = fp[11]
 
-	//loc_8332C
-	//v1 = (((s7->vel.x << 1) + s7->vel.x) >> 2)
-	s7->pos.x_pos = s7->pos.x_pos + (((s7->vel.x << 1) + s7->vel.x) >> 2);
-	//v1 = s7->vel.y
-	s7->pos.y_pos = s7->pos.y_pos + (((s7->vel.y << 1) + s7->vel.y) >> 2);
-	//at = (((s7->vel.y << 1) + s7->vel.y) >> 2)
-	//v1 = (((s7->vel.z << 1) + s7->vel.z) >> 2)
-	s7->pos.z_pos = s7->pos.z_pos + (((s7->vel.z << 1) + s7->vel.z) >> 2);
+		fp[12] = s7->pos.x_pos;
+		fp[13] = s7->pos.y_pos;
+		fp[14] = s7->pos.z_pos;
 
-	//a3 = lara.water_status
-	//v1 = ((short*)fp)[30]
-	if (lara.water_status == 0)
-	{
-		r = &room[((short*)fp)[30]];
-		if ((r->flags & 0x20))
+		if (!fp[11])
 		{
-			s7->pos.x_pos += SmokeWindX;
-			s7->pos.z_pos += SmokeWindZ;
-		}//loc_833D4
-	}
-	//loc_833D4
-	//v1 = s7->pos.y_pos
-	//t1 = fp[16];
-	//at = 1
-
-	if (lara.water_status != 0)
-	{
-		if (lara.water_status == 1 || lara.water_status == 2 || lara.water_status == 3)
+			//a3 = &fp[15];
+			height = GetHeight(GetFloor(fp[12], fp[13], fp[14], (short*)&fp[15]), fp[12], fp[13], fp[14]);
+		}
+		else
 		{
-			//loc_833F8
-			if (s7->pos.y_pos < fp[16])
+			//loc_83328
+			height = 32767;
+		}
+
+		//loc_8332C
+		//v1 = (((s7->vel.x << 1) + s7->vel.x) >> 2)
+		s7->pos.x_pos = s7->pos.x_pos + (((s7->vel.x << 1) + s7->vel.x) >> 2);
+		//v1 = s7->vel.y
+		s7->pos.y_pos = s7->pos.y_pos + (((s7->vel.y << 1) + s7->vel.y) >> 2);
+		//at = (((s7->vel.y << 1) + s7->vel.y) >> 2)
+		//v1 = (((s7->vel.z << 1) + s7->vel.z) >> 2)
+		s7->pos.z_pos = s7->pos.z_pos + (((s7->vel.z << 1) + s7->vel.z) >> 2);
+
+		//a3 = lara.water_status
+		//v1 = ((short*)fp)[30]
+		if (lara.water_status == 0)
+		{
+			r = &room[((short*)fp)[30]];
+			if ((r->flags & 0x20))
+			{
+				s7->pos.x_pos += SmokeWindX;
+				s7->pos.z_pos += SmokeWindZ;
+			}//loc_833D4
+		}
+		//loc_833D4
+		//v1 = s7->pos.y_pos
+		//t1 = fp[16];
+		//at = 1
+
+		if (lara.water_status != 0)
+		{
+			if (lara.water_status == 1 || lara.water_status == 2 || lara.water_status == 3)
+			{
+				//loc_833F8
+				if (s7->pos.y_pos < fp[16])
+				{
+					s7->pos.y_pos = fp[16];
+				}
+				else if (height < s7->pos.y_pos)
+				{
+					s7->pos.y_pos = height;
+				}
+			}
+		}
+		else
+		{
+			//loc_8341C
+			//v0 = -32512
+			s7->pos.y_pos += 10;
+			if (fp[16] != -32512 && fp[16] < s7->pos.y_pos)
 			{
 				s7->pos.y_pos = fp[16];
 			}
-			else if (height < s7->pos.y_pos)
+			else if (height < s7->pos.y_pos)//loc_83434
 			{
-				s7->pos.y_pos = height;
+				s7->pos.x_pos = fp[12];
+				s7->pos.z_pos = fp[14];
 			}
 		}
-	}
-	else
-	{
-		//loc_8341C
-		//v0 = -32512
-		s7->pos.y_pos += 10;
-		if (fp[16] != -32512 && fp[16] < s7->pos.y_pos)
+
+		//loc_8344C
+		t3 = 5;
+		int* t4 = &fp[17];
+
+		//loc_83454
+		do
 		{
-			s7->pos.y_pos = fp[16];
-		}
-		else if (height < s7->pos.y_pos)//loc_83434
+			//a0 = s7->pos.x_pos
+			//a1 = s7->pos.y_pos
+			//a2 = s7->pos.z_pos
+
+			//at = fp[17];
+			//v0 = fp[18];
+			//v1 = fp[19];
+
+			IR1 = s7->pos.x_pos - fp[0];
+			IR2 = s7->pos.y_pos - fp[1];
+			IR3 = s7->pos.z_pos - fp[2];
+
+			//v0 = fp[20] * fp[20]
+			docop2(0xA00428);
+
+			//a0 = MAC1 + MAC2 + MAC3
+
+			t3--;
+			if (MAC1 + MAC2 + MAC3 < fp[3] * fp[3])
+			{
+				v0 = phd_sqrt_asm_CH(MAC1 + MAC2 + MAC3);
+
+				if (v0 == 0)
+				{
+					v0 = 1;
+				}
+				//loc_834C8
+				//v1 = (fp[20] << 16)
+				//at = fp[17]
+				//a0 = (fp[20] << 16) / v0;
+				//v0 = fp[18];
+				//v1 = fp[19];
+				s7->pos.x_pos = ((((fp[3] << 16) / v0) * (s7->pos.x_pos - fp[0])) >> 16) + fp[0];
+				s7->pos.y_pos = ((((fp[3] << 16) / v0) * (s7->pos.y_pos - fp[1])) >> 16) + fp[1];
+				s7->pos.z_pos = ((((fp[3] << 16) / v0) * (s7->pos.z_pos - fp[2])) >> 16) + fp[2];
+			}
+			//loc_8351C
+			t4 += 4;
+		} while (t3 != 0);
+
+		R11 = 4096;
+		R12 = 0;
+		R13 = 0;
+		R21 = 0;
+		R22 = 4096;
+		R23 = 0;
+		R31 = 0;
+		R32 = 0;
+		R33 = 4096;
+
+		//v0 = s7->pos.z_pos;
+		//v1 = s7[-1].z_pos;
+		//a0 = s7->pos.x_pos;
+		//a1 = s7[-1].x_pos;
+
+		IR1 = s7->pos.z_pos - s7[-1].pos.z_pos;
+		IR2 = s7->pos.x_pos - s7[-1].pos.x_pos;
+
+		docop2(0xA00428);
+
+		int t2 = phd_sqrt_asm_CH(MAC1 + MAC2);
+		s7[-1].pos.y_rot = phd_atan_asm(s7->pos.z_pos - s7[-1].pos.z_pos, s7->pos.x_pos - s7[-1].pos.x_pos);
+
+		//v1 = s7->pos.y_pos;
+		//a1 = s7[-1].y_pos;
+		s7[-1].pos.x_rot = -phd_atan_asm(t2, s7->pos.y_pos - s7[-1].pos.y_pos);
+
+		TRX = s7[-1].pos.x_pos;
+		TRY = s7[-1].pos.y_pos;
+		TRZ = s7[-1].pos.z_pos;
+
+		mRotYXZ_CH(s7[-1].pos.y_rot, s7[-1].pos.x_rot, 0);
+
+		if (s3 == 6)
 		{
-			s7->pos.x_pos = fp[12];
-			s7->pos.z_pos = fp[14];
+			mTranslateXYZ_CH(bone[-3], bone[-2], bone[-1]);
 		}
-	}
+		else
+		{
+			//loc_835E8
+			mTranslateXYZ_CH(bone[1], bone[2], bone[3]);
+		}
 
-	//loc_8344C
-	t3 = 5;
-	//t4 = &fp[17]
+		bone += 4;
 
-	//loc_83454
-	//a0 = s7->pos.x_pos
-	//a1 = s7->pos.y_pos
-	//a2 = s7->pos.z_pos
+		s7->pos.x_pos = TRX;
+		s7->pos.y_pos = TRY;
+		s7->pos.z_pos = TRZ;
 
-	//at = fp[17];
-	//v0 = fp[18];
-	//v1 = fp[19];
+		s7->vel.x = TRX - fp[12];
+		s7->vel.y = TRY - fp[13];
+		s7->vel.z = TRZ - fp[14];
 
-	IR1 = s7->pos.x_pos - fp[17];
-	IR2 = s7->pos.y_pos - fp[18];
-	IR3 = s7->pos.z_pos - fp[19];
-
-	//v0 = fp[20] * fp[20]
-	docop2(0xA00428);
-
-	//a0 = MAC1 + MAC2 + MAC3
-
-	t3--;
-	if (MAC1 + MAC2 + MAC3 < fp[20] * fp[20])
-	{
-		//phd_sqrt_asm_CH()
-	}
-	//loc_8351C
-#if 0
-		jal     sub_83B30
-		nop
-		bnez    $v0, loc_834C8
-		lw      $v1, 0xC($t4)
-		li      $v0, 1
-
-		loc_834C8:
-	lw      $at, 0($t4)
-		sll     $v1, 16
-		div     $v1, $v0
-		mflo    $a0
-		lw      $v0, 4($t4)
-		lw      $v1, 8($t4)
-		mult    $a0, $t0
-		mflo    $t0
-		sra     $t0, 16
-		addu    $t0, $at
-		mult    $a0, $t1
-		sw      $t0, 0($s7)
-		mflo    $t1
-		sra     $t1, 16
-		addu    $t1, $v0
-		mult    $a0, $t2
-		sw      $t1, 4($s7)
-		mflo    $t2
-		sra     $t2, 16
-		addu    $t2, $v1
-		sw      $t2, 8($s7)
-
-		loc_8351C:
-	bnez    $t3, loc_83454
-		addiu   $t4, 0x10
-		li      $at, 0x1000
-		ctc2    $at, $0
-		ctc2    $zero, $1
-		ctc2    $at, $2
-		ctc2    $zero, $3
-		ctc2    $at, $4
-		lw      $v0, 8($s7)
-		lw      $v1, -0x18($s7)
-		lw      $a0, 0($s7)
-		lw      $a1, -0x20($s7)
-		subu    $t0, $v0, $v1
-		subu    $t1, $a0, $a1
-		mtc2    $t0, $9
-		mtc2    $t1, $10
-		nop
-		cop2    0xA00428
-		mfc2    $a0, $25
-		mfc2    $a1, $26
-		jal     sub_83B30
-		addu    $a0, $a1
-		move    $t2, $v0
-		move    $a0, $t0
-		jal     sub_77A40
-		move    $a1, $t1
-		sh      $v0, -0x12($s7)
-		lw      $v1, 4($s7)
-		lw      $a1, -0x1C($s7)
-		move    $a0, $t2
-		jal     sub_77A40
-		subu    $a1, $v1, $a1
-		negu    $v0, $v0
-		sh      $v0, -0x14($s7)
-		lw      $a0, -0x20($s7)
-		lw      $a1, -0x1C($s7)
-		lw      $a2, -0x18($s7)
-		ctc2    $a0, $5
-		ctc2    $a1, $6
-		ctc2    $a2, $7
-		lh      $a0, -0x12($s7)
-		lh      $a1, -0x14($s7)
-		jal     sub_83994
-		move    $a2, $zero
-		li      $v0, 6
-		bne     $s3, $v0, loc_835E8
-		nop
-		lw      $a0, -0xC($s6)
-		lw      $a1, -8($s6)
-		j       loc_835F4
-		lw      $a2, -4($s6)
-
-		loc_835E8:
-	lw      $a0, 4($s6)
-		lw      $a1, 8($s6)
-		lw      $a2, 0xC($s6)
-
-		loc_835F4 :
-		jal     sub_83744
-		addiu   $s6, 0x10
-		sw      $t0, 0($s7)
-		sw      $t1, 4($s7)
-		sw      $t2, 8($s7)
-		lw      $v0, arg_30($fp)
-		lw      $v1, arg_34($fp)
-		lw      $a0, arg_38($fp)
-		subu    $t0, $v0
-		subu    $t1, $v1
-		subu    $t2, $a0
-		sw      $t0, 0x14($s7)
-		sw      $t1, 0x18($s7)
-		sw      $t2, 0x1C($s7)
-		jal     sub_836B8
-		addiu   $at, $fp, arg_94
-		addiu   $s3, 1
-		slti    $v0, $s3, 7
-		bnez    $v0, loc_832E4
-		addiu   $s7, 0x20
-		lw      $ra, 0x1F800024
-		lw      $s0, 0x1F800000
-		lw      $s3, 0x1F80000C
-		lw      $s4, 0x1F800010
-		lw      $s5, 0x1F800014
-		lw      $s6, 0x1F800018
-		lw      $s7, 0x1F80001C
-		lw      $fp, 0x1F800020
-		jr      $ra
-		nop
-#endif
+		load_matrix(&fp[37]);
+		s3++;
+		s7++;
+	}while (s3 < 7);
 }
