@@ -1333,8 +1333,10 @@ ShaderID Shader_Compile(const char *source)
 }
 #elif defined(D3D9)
 
-#include "shaders/gte_shader_vs.h"
-#include "shaders/gte_shader_ps.h"
+#include "shaders/gte_shader_4_vs.h"
+#include "shaders/gte_shader_4_ps.h"
+#include "shaders/gte_shader_16_vs.h"
+#include "shaders/gte_shader_16_ps.h"
 #include "shaders/blit_shader_vs.h"
 #include "shaders/blit_shader_ps.h"
 
