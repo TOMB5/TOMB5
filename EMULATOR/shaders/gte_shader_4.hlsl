@@ -16,14 +16,14 @@ struct VS_OUTPUT {
 
 	VS_OUTPUT main(VS_INPUT In) {
 		VS_OUTPUT Out;
-		Out.v_texcoord = In.a_texcoord;
-		Out.v_color    = In.a_color;
-		Out.v_color    *= In.a_texcoord.z;
-		Out.v_page_clut.x = frac (In.a_position.z / 16.0) * 1024.0;
-		Out.v_page_clut.y = floor(In.a_position.z / 16.0) * 256.0;
-		Out.v_page_clut.z = frac (In.a_position.w / 64.0);
-		Out.v_page_clut.w = floor(In.a_position.w / 64.0) / 512.0;
-		Out.v_position = mul(Projection, float4(In.a_position.xy, 0.0, 1.0));
+		Out.v_texcoord     = In.a_texcoord;
+		Out.v_color        = In.a_color;
+		Out.v_color.xyz   *= In.a_texcoord.z;
+		Out.v_page_clut.x  = frac (In.a_position.z / 16.0) * 1024.0;
+		Out.v_page_clut.y  = floor(In.a_position.z / 16.0) * 256.0;
+		Out.v_page_clut.z  = frac (In.a_position.w / 64.0);
+		Out.v_page_clut.w  = floor(In.a_position.w / 64.0) / 512.0;
+		Out.v_position     = mul(Projection, float4(In.a_position.xy, 0.0, 1.0));
 		return Out;
 	}
 #else
