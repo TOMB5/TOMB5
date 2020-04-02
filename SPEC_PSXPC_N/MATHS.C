@@ -854,6 +854,7 @@ void mRotSuperPackedYXZ(short** a0, long a1)//768BC
 		//loc_768C4
 		do
 		{
+			v0 = *a2;
 			a2++;
 			a1--;
 

@@ -1274,13 +1274,16 @@ loc_172C:
                 {
                     if (t7 >= 0)
                     {
-                        if ((unsigned)t9 >= 0x1000 && (unsigned)t9 < 0x1E00)
+                        if ((unsigned)t9 >= 0x1000)
                         {
-                            t6 = 0x10;
-                        }
-                        else
-                        {
-                            t6 = 0x20;
+                            if ((unsigned)t9 < 0x1E00)
+                            {
+                                t6 = 0x10;
+                            }
+                            else
+                            {
+                                t6 = 0x20;
+                            }
                         }
                     }
                     else

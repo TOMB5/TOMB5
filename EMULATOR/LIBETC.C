@@ -17,15 +17,12 @@ int ResetCallback(void)
 
 int VSync(int mode)
 {
-	///static int startTime = SDL_GetTicks();
-
 	if (mode == 0)
 	{
 		if (vsync_callback != NULL)
 		{
 			vsync_callback();
 		}
-		///return (SDL_GetTicks() - startTime / 1000);
 	}
 	else if (mode > 0)
 	{
@@ -37,10 +34,9 @@ int VSync(int mode)
 	else if (mode < 0)
 	{
 		//Unimplemented
-		///return (SDL_GetTicks() / 1000);
 	}
 
-	return 0;//Assert?
+	return SDL_GetTicks();
 }
 
 int VSyncCallback(void(*f)(void))

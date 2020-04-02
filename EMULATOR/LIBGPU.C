@@ -26,8 +26,8 @@ enum PrimType {
 };
 
 #if 0
-char fontDebugTexture[] = 
-{ 
+char fontDebugTexture[] =
+{
 0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x10,0x10,0x00,0x00,0x00,0x00,0x00,
 0x00,0x10,0x11,0x00,0x00,0x11,0x11,0x01,0x00,0x10,0x00,0x00,0x00,0x10,0x01,0x00,
 0x00,0x00,0x00,0x01,0x00,0x01,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,
@@ -191,7 +191,7 @@ unsigned long terminator = -1;
 
 void(*drawsync_callback)(void) = NULL;
 
-void* off_3348[]=
+void* off_3348[] =
 {
 	NULL,
 	NULL,
@@ -264,17 +264,17 @@ int SetGraphDebug(int level)
 	return 0;
 }
 
-int StoreImage(RECT16* rect, u_long * p)
+int StoreImage(RECT16* rect, u_long* p)
 {
-/* TODO
-#if defined(OGL) || defined(OGLES)
-	glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, &p[0]);
-#elif defined(D3D9)
-	assert(FALSE);//Unimplemented
-#elif defined(VK)
-	assert(FALSE);//Unimplemented
-#endif
-*/
+	/* TODO
+	#if defined(OGL) || defined(OGLES)
+		glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, &p[0]);
+	#elif defined(D3D9)
+		assert(FALSE);//Unimplemented
+	#elif defined(VK)
+		assert(FALSE);//Unimplemented
+	#endif
+	*/
 	return 0;
 }
 
@@ -306,9 +306,9 @@ u_long* ClearOTagR(u_long* ot, int n)
 	setlen(ot, 0);
 
 #if defined(USE_32_BIT_ADDR)
-	for (int i = 2; i < n * 2; i+=2)
+	for (int i = 2; i < n * 2; i += 2)
 #else
-	for (int i = 1; i < n ; i++)
+	for (int i = 1; i < n; i++)
 #endif
 	{
 #if defined(USE_32_BIT_ADDR)
@@ -430,7 +430,7 @@ u_short GetClut(int x, int y)
 
 void AddSplit(PrimType primType, bool semiTrans, int page, TextureID textureId)
 {
-	VertexBufferSplit &curSplit = g_splits[g_splitIndex];
+	VertexBufferSplit& curSplit = g_splits[g_splitIndex];
 	BlendMode blendMode = semiTrans ? GET_TPAGE_BLEND(page) : BM_NONE;
 	TexFormat texFormat = GET_TPAGE_FORMAT(page);
 
@@ -441,12 +441,12 @@ void AddSplit(PrimType primType, bool semiTrans, int page, TextureID textureId)
 
 	curSplit.vCount = g_vertexIndex - curSplit.vIndex;
 
-	VertexBufferSplit &split = g_splits[++g_splitIndex];
+	VertexBufferSplit& split = g_splits[++g_splitIndex];
 
 	split.textureId = textureId;
-	split.vIndex    = g_vertexIndex;
-	split.vCount    = 0;
-	split.primType  = primType;
+	split.vIndex = g_vertexIndex;
+	split.vCount = 0;
+	split.primType = primType;
 	split.blendMode = blendMode;
 	split.texFormat = texFormat;
 }
@@ -458,67 +458,92 @@ void MakeTriangle()
 	g_vertexBuffer[g_vertexIndex + 4] = g_vertexBuffer[g_vertexIndex + 2];
 }
 
-void DrawSplit(const VertexBufferSplit &split)
+void DrawSplit(const VertexBufferSplit& split)
 {
 	Emulator_SetTexture(split.textureId, split.texFormat);
 	Emulator_SetBlendMode(split.blendMode);
 
 	if (split.primType == PT_TRIANGLES) {
 		Emulator_DrawTriangles(split.vIndex, split.vCount / 3);
-	} else {
+	}
+	else {
 		Emulator_DrawLines(split.vIndex, split.vCount / 2);
 	}
 }
 
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
-	Emulator_BeginScene();
+	do
+	{
+		Emulator_BeginScene();
 #if defined(DEBUG_POLY_COUNT)
-	polygon_count = 0;
+		polygon_count = 0;
 #endif
 
-	PutDrawEnv(env);
+		PutDrawEnv(env);
 
-	if (activeDrawEnv.isbg)
-	{
-		ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
-	} else {
-		Emulator_BlitVRAM();
-	}
-
-	if (p != NULL)
-	{
-		g_vertexIndex = 0;
-		g_splitIndex = 0;
-		g_splits[g_splitIndex].primType = PT_NONE; // first split is dummy
-
-		P_TAG* pTag = (P_TAG*)p;
-
-		do
+		if (activeDrawEnv.isbg)
 		{
-			if (pTag->len > 0)
-			{
-				ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4 + LEN_OFFSET);
-			}
-			pTag = (P_TAG*)pTag->addr;
-		}while ((uintptr_t)pTag != (uintptr_t)&terminator);
-
-		Emulator_UpdateVertexBuffer(g_vertexBuffer, g_vertexIndex);
-
-		for (int i = 1; i <= g_splitIndex; i++)
-		{
-			DrawSplit(g_splits[i]);
+			ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
 		}
-	}
+		else {
+			Emulator_BlitVRAM();
+		}
+
+		if (p != NULL)
+		{
+			g_vertexIndex = 0;
+			g_splitIndex = 0;
+			g_splits[g_splitIndex].primType = PT_NONE; // first split is dummy
+
+			P_TAG* pTag = (P_TAG*)p;
+
+			do
+			{
+				if (pTag->len > 0)
+				{
+					ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4 + LEN_OFFSET);
+				}
+				pTag = (P_TAG*)pTag->addr;
+			} while ((uintptr_t)pTag != (uintptr_t)&terminator);
+
+			if (g_emulatorPaused)
+			{
+				for (int i = 0; i < 3; i++)
+				{
+					struct Vertex* vert = &g_vertexBuffer[g_polygonSelected + i];
+					vert->r = 255;
+					vert->g = 0;
+					vert->b = 0;
+
+					eprintf("==========================================\n");
+					eprintf("POLYGON: %d\n", i);
+					eprintf("X: %d Y: %d\n", vert->x, vert->y);
+					eprintf("U: %d V: %d\n", vert->u, vert->v);
+					eprintf("TP: %d CLT: %d\n", vert->page, vert->clut);
+					eprintf("==========================================\n");
+				}
+				Emulator_UpdateInput();
+			}
+
+			Emulator_UpdateVertexBuffer(g_vertexBuffer, g_vertexIndex);
+
+			for (int i = 1; i <= g_splitIndex; i++)
+			{
+				DrawSplit(g_splits[i]);
+			}
+		}
 
 #if defined(PGXP)
-	/* Reset the ztable */
-	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
+		/* Reset the ztable */
+		memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
 
-	/* Reset the ztable index of */
-	pgxp_vertex_index = 0;
+		/* Reset the ztable index of */
+		pgxp_vertex_index = 0;
 #endif
-	Emulator_EndScene();
+		Emulator_EndScene();
+
+	} while (g_emulatorPaused);
 }
 
 void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)//@TODO sync with ParsePrimitive
@@ -600,7 +625,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			Emulator_GenerateVertexArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, &poly->x3, &poly->x2, -1, -1);
 			Emulator_GenerateTexcoordArrayZero(&g_vertexBuffer[g_vertexIndex], 0);
-			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0,	NULL, NULL, NULL);
+			Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
 
 			MakeTriangle();
 
@@ -726,30 +751,30 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 		case 0x48: // TODO (unused)
 		{
 			LINE_F3* poly = (LINE_F3*)pTag;
-/*
-			for (int i = 0; i < 2; i++)
-			{
-				AddSplit(POLY_TYPE_LINES, semi_transparent, activeDrawEnv.tpage, whiteTexture);
+			/*
+						for (int i = 0; i < 2; i++)
+						{
+							AddSplit(POLY_TYPE_LINES, semi_transparent, activeDrawEnv.tpage, whiteTexture);
 
-				if (i == 0)
-				{
-					//First line
-					Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, NULL, NULL);
-					Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
-					g_vertexIndex += 2;
-				}
-				else
-				{
-					//Second line
-					Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x1, &poly->x2, NULL, NULL);
-					Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
-					g_vertexIndex += 2;
-				}
-#if defined(DEBUG_POLY_COUNT)
-				polygon_count++;
-#endif
-			}
-*/
+							if (i == 0)
+							{
+								//First line
+								Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x0, &poly->x1, NULL, NULL);
+								Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
+								g_vertexIndex += 2;
+							}
+							else
+							{
+								//Second line
+								Emulator_GenerateLineArray(&g_vertexBuffer[g_vertexIndex], &poly->x1, &poly->x2, NULL, NULL);
+								Emulator_GenerateColourArrayQuad(&g_vertexBuffer[g_vertexIndex], &poly->r0, NULL, NULL, NULL);
+								g_vertexIndex += 2;
+							}
+			#if defined(DEBUG_POLY_COUNT)
+							polygon_count++;
+			#endif
+						}
+			*/
 
 			currentAddress += sizeof(LINE_F3);
 			break;

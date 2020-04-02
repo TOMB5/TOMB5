@@ -115,6 +115,8 @@ SysCounter counters[3] = { 0 };
 int g_swapInterval = SWAP_INTERVAL;
 int g_wireframeMode = 0;
 int g_texturelessMode = 0;
+int g_emulatorPaused = 0;
+int g_polygonSelected = 0;
 TextureID g_lastBoundTexture;
 
 void Emulator_ResetDevice()
@@ -2106,6 +2108,21 @@ void Emulator_DoDebugKeys()
 		if (keyboardState[SDL_SCANCODE_2])
 		{
 			g_texturelessMode ^= 1;
+		}
+
+		if (keyboardState[SDL_SCANCODE_3])
+		{
+			g_emulatorPaused ^= 1;
+		}
+
+		if (keyboardState[SDL_SCANCODE_UP] && g_emulatorPaused)
+		{
+			g_polygonSelected += 3;
+		}
+
+		if (keyboardState[SDL_SCANCODE_DOWN] && g_emulatorPaused)
+		{
+			g_polygonSelected -= 3;
 		}
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
