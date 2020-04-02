@@ -2234,7 +2234,7 @@ void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, 
 		float r = 0.0, g = 0.0, b = 0.0;
 
 		auto dyn = stru_7ED6B0;
-		for(int i = 0; i < num_lights; i++, dyn++)
+		for(int j = 0; j < num_lights; j++, dyn++)
 		{
 			float dx = vx - dyn->sx;
 			float dy = vy - dyn->sy;
