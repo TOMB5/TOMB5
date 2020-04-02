@@ -584,7 +584,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	mTranslateXYZ_CH(bone[25], bone[26], bone[27]);
 	mRotSuperPackedYXZ_CH(fp, 6);
 	mRotYXZ_CH(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
-	save_matrix(&fp[45]);
+	save_matrix(&fp[45]);///@FIXME save matrix reporting bad matrix
 	mTranslateXYZ_CH(lara.mesh_ptrs[0][0], lara.mesh_ptrs[0][1], lara.mesh_ptrs[0][2]);
 
 	//at = &fp[21];
@@ -624,26 +624,28 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	mTranslateXYZ_CH(lara.mesh_ptrs[14][0], lara.mesh_ptrs[14][1], lara.mesh_ptrs[14][2]);
 	snaff_sphere_normal(lara.mesh_ptrs[14], &fp[25]);
 
-	fp[21] = (fp[21] + fp[25]) >> 1;
-	fp[22] = (fp[22] + fp[26]) >> 1;
-	fp[23] = (fp[23] + fp[27]) >> 1;
-
 	//loc_83020
-	if (bIsYoungLara == 0)
+	if (bIsYoungLara != 0)
 	{
-		if ((gfLevelFlags & 1))
+		fp[21] = (fp[21] + fp[25]) >> 1;
+		fp[22] = (fp[22] + fp[26]) >> 1;
+		fp[23] = (fp[23] + fp[27]) >> 1;
+	}
+
+	if (!(gfLevelFlags & 1))
+	{
+		if (bIsYoungLara)
 		{
 			mTranslateXYZ_CH(-52, -48, -50);
 		}
 		else
 		{
-			//loc_83040
 			mTranslateXYZ_CH(-4, -4, -48);
 		}
 	}
 	else
 	{
-		//loc_83054
+		//loc_83040
 		mTranslateXYZ_CH(44, -48, -50);
 	}
 
