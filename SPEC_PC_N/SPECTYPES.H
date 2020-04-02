@@ -17,6 +17,9 @@
 #define SWAP(a, b) {auto _ = a; a = b; b = _;}
 #define SWAPARR(arr, i, j) {auto _ = arr[i]; arr[i] = arr[j]; arr[j] = _;}
 
+#define phd_hypot(a, b) (phd_sqrt_asm((a) * (a) + (b) * (b)))
+#define phd_hypot3(a, b, c) (phd_sqrt_asm((a) * (a) + (b) * (b) + (c) * (c)))
+
 //#define SWAPARR(arr, i, j, len) {void* tmp = malloc(sizeof(arr[i]));memcpy(tmp, arr[i], sizeof(arr[i]));memcpy(arr[j], arr[i], sizeof(arr[i]));memcpy(arr[i], tmp, sizeof(tmp));}
 
 typedef unsigned int uint;
