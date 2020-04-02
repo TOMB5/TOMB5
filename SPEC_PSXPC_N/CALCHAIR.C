@@ -585,8 +585,8 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	mTranslateXYZ_CH(bone[25], bone[26], bone[27]);
 	mRotSuperPackedYXZ_CH(fp, 6);
 	mRotYXZ_CH(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
-	save_matrix(&fp[45]);///@FIXME save matrix reporting bad matrix
-	mTranslateXYZ_CH(lara.mesh_ptrs[0][0], lara.mesh_ptrs[0][1], lara.mesh_ptrs[0][2]);
+	save_matrix(&fp[45]);
+	mTranslateXYZ_CH(lara.mesh_ptrs[7][0], lara.mesh_ptrs[7][1], lara.mesh_ptrs[7][2]);
 
 	//at = &fp[21];
 	//v0 = lara.mesh_ptrs[0][3];
