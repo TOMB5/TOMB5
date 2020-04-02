@@ -48,15 +48,6 @@ long phd_sqrt_asm_CH(long value)//83B30(<), 85B74(<) (F)
 	return (value >> 12);
 }
 
-int* snaff_sphere_special(int* at, short* s7)
-{
-	at[0] = TRX;
-	at[1] = TRY;
-	at[2] = TRZ;
-	at[3] = (((s7[3] << 1) + s7[3]) + (((s7[3] << 1) + s7[3]) >> 31)) >> 1;
-	return at + 45;
-}
-
 void load_matrix(int* at)
 {
 	R11 = at[0] & 0xFFFF;
@@ -77,12 +68,22 @@ void load_matrix(int* at)
 	at[7] = TRZ;
 }
 
-void snaff_sphere_normal(short* s7, int* at)
+void snaff_sphere_special(int* at, short* s7, int* fp)
+{
+	at[0] = TRX;
+	at[1] = TRY;
+	at[2] = TRZ;
+	at[3] = (((s7[3] << 1) + s7[3]) + (((s7[3] << 1) + s7[3]) >> 31)) >> 1;
+	load_matrix(&fp[45]);
+}
+
+void snaff_sphere_normal(short* s7, int* at, int* fp)
 {
 	at[0] = TRX;
 	at[1] = TRY;
 	at[2] = TRZ;
 	at[3] = s7[3];
+	load_matrix(&fp[45]);
 }
 
 void mTranslateXYZ_CH(int x, int y, int z)
@@ -580,7 +581,7 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	//s7 = lara.mesh_ptrs[0];
 	save_matrix(&fp[45]);
 	mTranslateXYZ_CH(lara.mesh_ptrs[0][0], lara.mesh_ptrs[0][1], lara.mesh_ptrs[0][2]);
-	snaff_sphere_normal(lara.mesh_ptrs[0], &fp[17]);
+	snaff_sphere_normal(lara.mesh_ptrs[0], &fp[17], fp);
 	mTranslateXYZ_CH(bone[25], bone[26], bone[27]);
 	mRotSuperPackedYXZ_CH(fp, 6);
 	mRotYXZ_CH(lara.torso_y_rot, lara.torso_x_rot, lara.torso_z_rot);
@@ -610,19 +611,19 @@ void HairControl(int unk01, int bIsYoungLara, short* frame)
 	mRotSuperPackedYXZ_CH(fp, 0);
 	mTranslateXYZ_CH(lara.mesh_ptrs[8][0], lara.mesh_ptrs[8][1], lara.mesh_ptrs[8][2]);
 
-	at = snaff_sphere_special(&fp[29], lara.mesh_ptrs[8]);
+	snaff_sphere_special(&fp[29], lara.mesh_ptrs[8], fp);
 	//s7 = lara.mesh_ptrs[11];
 	mTranslateXYZ_CH(bone[41], bone[42], bone[43]);
 	mRotSuperPackedYXZ_CH(fp, 2);
 	mTranslateXYZ_CH(lara.mesh_ptrs[11][0], lara.mesh_ptrs[11][1], lara.mesh_ptrs[11][2]);
-	at = snaff_sphere_special(&fp[33], lara.mesh_ptrs[11]);
+	snaff_sphere_special(&fp[33], lara.mesh_ptrs[11], fp);
 	mTranslateXYZ_CH(bone[53], bone[54], bone[55]);
 	mRotSuperPackedYXZ_CH(fp, 2);
 	mRotYXZ_CH(lara.head_y_rot, lara.head_x_rot, lara.head_z_rot);
 	//s7 = lara.mesh_ptrs[14]
 	save_matrix(&fp[45]);
 	mTranslateXYZ_CH(lara.mesh_ptrs[14][0], lara.mesh_ptrs[14][1], lara.mesh_ptrs[14][2]);
-	snaff_sphere_normal(lara.mesh_ptrs[14], &fp[25]);
+	snaff_sphere_normal(lara.mesh_ptrs[14], &fp[25], fp);
 
 	//loc_83020
 	if (bIsYoungLara != 0)
