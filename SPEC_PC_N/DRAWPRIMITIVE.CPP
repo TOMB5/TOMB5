@@ -1925,6 +1925,152 @@ void CalcAmbientLight(ITEM_INFO* item)// (F)
 	}
 }
 
+void CreateLightList(ITEM_INFO* item)
+{
+	room_info* itemroom = &room[item->room_number];
+	
+	if (item->light_room_num == item->room_number)
+		return;
+
+	item->light_room_num = item->room_number;
+
+	SWAP(item->num_lights_1, item->num_lights_2);
+	SWAP(item->ptr_lights_1, item->ptr_lights_2);
+
+	for (auto v8 = item->ptr_lights_2; v8 < &item->ptr_lights_2[item->num_lights_2]; v8++)
+	{
+		if (v8->UnknownByte)
+		{
+			if (v8->LightType == LT_SHADOW)
+			{
+				v8->dy2 = v8->ShadowIntensity / -8.0;
+			}
+			else
+			{
+				v8->r3 = v8->r / -8.0;
+				v8->g3 = v8->g / -8.0;
+				v8->b3 = v8->b / -8.0;
+				v8->r2 = 0.0;
+				v8->g2 = 0.0;
+				v8->b2 = 0.0;
+			}
+			v8->UnknownInt = 8;
+		}
+	}
+		
+	item->num_lights_1 = itemroom->num_lights;
+	PCLIGHT* v9 = item->ptr_lights_1;
+	ROOM_LIGHT* v10 = itemroom->RoomLights;
+	for(int i = 0; i < itemroom->num_lights; i++, v9++, v10++)
+	{
+		v9->r = v10->r;
+		v9->g = v10->g;
+		v9->b = v10->b;
+		v9->r2 = v10->r;
+		v9->g2 = v10->g;
+		v9->b2 = v10->b;
+		v9->x = v10->x;
+		v9->y = v10->y;
+		v9->z = v10->z;
+		v9->ShadowIntensity = 8 * v10->ShadowIntensity;
+		v9->In = v10->In;
+		v9->Out = v10->Out;
+		v9->RadIn = v10->RadIn;
+		v9->RadOut = v10->RadOut;
+		v9->Range = v10->Range;
+		v9->dx2 = v10->dx2;
+		v9->dy2 = v10->dy2;
+		v9->dz2 = v10->dz2;
+		v9->x2 = v10->x2;
+		v9->y2 = v10->y2;
+		v9->z2 = v10->z2;
+		v9->dx = v10->dx;
+		v9->dy = v10->dy;
+		v9->dz = v10->dz;
+		v9->LightType = v10->LightType;
+		v9->UnknownByte = 0;
+		if (v9->LightType == LT_SHADOW)
+			v9->dx2 = v10->ShadowIntensity;// ?
+	}
+
+	for (auto l1 = item->ptr_lights_1; l1 < &item->ptr_lights_1[item->num_lights_1]; l1++)
+	{
+		PHD_VECTOR d = {
+			l1->x2 - item->ambient_light_pos.x,
+			l1->y2 - item->ambient_light_pos.y,
+			l1->z2 - item->ambient_light_pos.z
+		};
+		bool v20 = true;
+		const auto normsq = d.x * d.x + d.y * d.y + d.z * d.z;
+		if (l1->LightType == LT_LIGHT || l1->LightType == LT_SHADOW)
+		{
+			if (l1->Out * l1->Out < normsq)
+				v20 = false;
+		}
+		else if (l1->LightType == LT_SPOT)
+		{	
+			if (l1->Range * l1->Range < normsq)
+			{
+				v20 = false;
+			}
+			else
+			{
+				tr5_vertex m{ -d.x, -d.y, -d.z };
+				D3DNormalise(&m);
+				if (m.z * l1->dz + m.y * l1->dy + m.x * l1->dx <= l1->Out)
+					v20 = false;
+			}
+		}
+
+		l1->dx3 = d.x;
+		l1->dy3 = d.y;
+		l1->dz3 = d.z;
+		l1->magnsq = normsq;
+			
+		if (v20)
+		{
+			if (!l1->UnknownByte)
+			{
+				if (l1->LightType != LT_SHADOW)
+				{
+					l1->r = 0.0;
+					l1->g = 0.0;
+					l1->b = 0.0;
+					l1->r3 = l1->r2 / 8.0;
+					l1->g3 = l1->g2 / 8.0;
+					l1->b3 = l1->b2 / 8.0;
+					l1->UnknownInt = 8;
+					l1->UnknownByte = 1;
+				}
+				else
+				{
+					l1->UnknownByte = 1;
+					l1->dy2 = l1->dx2;
+					l1->ShadowIntensity = 0;
+					l1->UnknownInt = 8;
+				}
+			}
+		}
+		else if (l1->UnknownByte && !l1->UnknownInt)
+		{
+			if (l1->LightType == LT_SHADOW)
+			{
+				l1->dy2 = l1->ShadowIntensity / -8.0;
+			}
+			else
+			{
+				l1->r3 = l1->r / -8.0;
+				l1->g3 = l1->g / -8.0;
+				l1->b3 = l1->b / -8.0;
+			}
+
+			l1->UnknownInt = 8;
+		}
+	}
+
+	FadeLightList(item->ptr_lights_1, item->num_lights_1);
+	FadeLightList(item->ptr_lights_2, item->num_lights_2);
+}
 void CalcActorLighting(ITEM_INFO* item, object_info* a2, short* a3)// (F)
 {
 	PHD_VECTOR x;
