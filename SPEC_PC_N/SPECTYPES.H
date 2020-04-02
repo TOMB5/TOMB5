@@ -63,6 +63,17 @@ struct CVECTOR {		/* color type vector */
 	};
 };
 
+struct BGRCOL {		/* color type vector */
+	union
+	{
+		struct
+		{
+			unsigned char	b, g, r, cd;
+		};
+		uint32_t rgbcd;
+	};
+};
+
 struct object_info {
 	short nmeshes; // size=0, offset=0
 	short mesh_index; // size=0, offset=2
@@ -179,7 +190,7 @@ struct room_info {
 	long maxceiling; // size=0, offset=36
 	short x_size; // size=0, offset=40
 	short y_size; // size=0, offset=42
-	struct CVECTOR ambient; // size=4, offset=44
+	BGRCOL ambient; // size=4, offset=44
 	short num_lights; // size=0, offset=48
 	short num_meshes; // size=0, offset=50
 	unsigned char ReverbType; // size=0, offset=52
@@ -274,7 +285,7 @@ struct ITEM_LIGHT
 	int red;
 	int green;
 	int blue;
-	struct CVECTOR room_ambient;
+	BGRCOL room_ambient;
 	int d_red;
 	int d_green;
 	int d_blue;
