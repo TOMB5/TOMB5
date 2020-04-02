@@ -415,7 +415,7 @@ void lara_as_swimcheat(struct ITEM_INFO* item, struct COLL_INFO* coll)//4C3A8, 4
 void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C418 (F)
 {
 #if PC_VERSION
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -400;
 	coll->bad_ceiling = 400;
 
@@ -489,9 +489,9 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 #else
 
 	//s2 = coll
-	//v0 = 32512
+	//v0 = -BAD_HEIGHT
 	//v1 = -400
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	//v0 = 400
 	//s0 = item
 	coll->bad_neg = -400;

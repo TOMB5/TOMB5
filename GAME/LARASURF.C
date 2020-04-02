@@ -236,7 +236,7 @@ void LaraSurface(struct ITEM_INFO* item, struct COLL_INFO* coll)//4D684, 4DAE8 (
 {
 	camera.target_elevation = ANGLE(-22);
 
-	coll->bad_pos = 32512;
+	coll->bad_pos = -BAD_HEIGHT;
 	coll->bad_neg = -128;
 	coll->bad_ceiling = 100;
 
