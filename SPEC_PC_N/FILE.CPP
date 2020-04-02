@@ -1103,19 +1103,19 @@ int numLvlMeshes;
 
 			static_objects[meshID].mesh_number = readWord();
 
-			static_objects[meshID].x_minp = readWord();
-			static_objects[meshID].x_maxp = readWord();
-			static_objects[meshID].y_minp = readWord();
-			static_objects[meshID].y_maxp = readWord();
-			static_objects[meshID].z_minp = readWord();
-			static_objects[meshID].z_maxp = readWord();
+			static_objects[meshID].bbox.x_minp = readWord();
+			static_objects[meshID].bbox.x_maxp = readWord();
+			static_objects[meshID].bbox.y_minp = readWord();
+			static_objects[meshID].bbox.y_maxp = readWord();
+			static_objects[meshID].bbox.z_minp = readWord();
+			static_objects[meshID].bbox.z_maxp = readWord();
 
-			static_objects[meshID].x_minc = readWord();
-			static_objects[meshID].x_maxc = readWord();
-			static_objects[meshID].y_minc = readWord();
-			static_objects[meshID].y_maxc = readWord();
-			static_objects[meshID].z_minc = readWord();
-			static_objects[meshID].z_maxc = readWord();
+			static_objects[meshID].bbox.x_minc = readWord();
+			static_objects[meshID].bbox.x_maxc = readWord();
+			static_objects[meshID].bbox.y_minc = readWord();
+			static_objects[meshID].bbox.y_maxc = readWord();
+			static_objects[meshID].bbox.z_minc = readWord();
+			static_objects[meshID].bbox.z_maxc = readWord();
 
 			static_objects[meshID].flags = readWord();
 		}
