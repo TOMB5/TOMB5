@@ -732,16 +732,14 @@ D3DMATRIX stru_55D168;
 		SetD3DMatrix(&w2v_matrix_d3d, w2v_matrix);
 	}
 
-	void D3DNormalise(LPD3DMATRIX m)
+	void D3DNormalise(tr5_vertex* m)
 	{
-		long double v1;
-
-		if (m->_11 == 0.0 && m->_12 == 0.0 && m->_13 == 0.0)
+		if (m->x == 0.0 && m->y == 0.0)
 			return;
-		v1 = 1.0 / sqrt(m->_13 * m->_13 + m->_12 * m->_12 + m->_11 * m->_11);
-		m->_11 = v1 * m->_11;
-		m->_12 = v1 * m->_12;
-		m->_13 = v1 * m->_13;
+		long double v1 = 1.0 / sqrt(m->z * m->z + m->y * m->y + m->x * m->x);;
+		m->x = v1 * m->x;
+		m->y = v1 * m->y;
+		m->z = v1 * m->z;
 	}
 
 	void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest)// (F)

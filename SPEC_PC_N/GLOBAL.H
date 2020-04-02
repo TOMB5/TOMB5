@@ -107,7 +107,7 @@ extern D3DMATRIX transform_projection;
 extern PHD_VECTOR lookatpos;
 #define EndOfArray(a) ((a)+ArraySize(a))
 extern void phd_QuickW2VMatrix(tr5_vertex src, tr5_vertex tar, int rot);
-extern void D3DNormalise(LPD3DMATRIX m);
+extern void D3DNormalise(tr5_vertex* m);
 extern void HandleApp(LPARAM lParam, WPARAM wParam);
 extern void D3DIdentityMatrix(LPD3DMATRIX mat);
 extern void SetD3DMatrixF(LPD3DMATRIX dst, LPD3DMATRIX src);

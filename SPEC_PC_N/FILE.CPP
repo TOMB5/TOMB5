@@ -945,7 +945,7 @@ int numLvlMeshes;
 							const auto ver16 = *(tr_vertex*)mptr;
 							tr5_vertex ver{ ver16.x, ver16.y, ver16.z };
 
-							D3DNormalise((LPD3DMATRIX)&ver);
+							D3DNormalise(&ver);
 
 							mesh_info->vert[j].norm.x = ver.x;
 							mesh_info->vert[j].norm.y = ver.y;
