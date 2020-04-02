@@ -1492,13 +1492,13 @@ int numLvlMeshes;
 				{
 					const int fl = floor->floor << 2;
 					struct static_info* st = &static_objects[mesh->static_number];
-					if (fl <= mesh->y - st->y_maxc + 512
-						&& fl < mesh->y - st->y_minc)
+					if (fl <= mesh->y - st->bbox.y_maxc + 512
+						&& fl < mesh->y - st->bbox.y_minc)
 					{
-						if (st->x_maxc == 0 || st->x_minc == 0 ||
-							st->z_maxc == 0 || st->z_minc == 0 ||
-							(HIBYTE(st->x_maxc) ^ HIBYTE(st->x_minc) & 0x80 &&
-								HIBYTE(st->z_maxc) ^ HIBYTE(st->z_minc) & 0x80))
+						if (st->bbox.x_maxc == 0 || st->bbox.x_minc == 0 ||
+							st->bbox.z_maxc == 0 || st->bbox.z_minc == 0 ||
+							((st->bbox.x_maxc < 0) ^ (st->bbox.x_minc < 0)) &&
+							((st->bbox.z_maxc < 0) ^ (st->bbox.z_minc < 0)))
 						{
 							floor->box |= 8;
 						}
