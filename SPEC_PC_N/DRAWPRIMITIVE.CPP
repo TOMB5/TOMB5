@@ -1918,7 +1918,7 @@ void CalcAmbientLight(ITEM_INFO* item)// (F)
 				item->il.green = item->il.green + item->il.d_green;
 				item->il.blue = item->il.blue + item->il.d_blue;
 				
-				item->il.room_ambient = { item->il.blue >> 3, item->il.green >> 3, item->il.red >> 3, 0 };
+				item->il.room_ambient = { (byte)(item->il.red >> 3), (byte)(item->il.green >> 3), (byte)(item->il.blue >> 3), 0 };
 				item->il.room_num = item->il.room_num - 1;
 			}
 		}

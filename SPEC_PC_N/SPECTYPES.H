@@ -62,8 +62,8 @@ struct CVECTOR {		/* color type vector */
 		uint32_t rgbcd;
 	};
 };
-
-struct BGRCOL {		/* color type vector */
+typedef CVECTOR BGRCOL;
+/*struct BGRCOL {		
 	union
 	{
 		struct
@@ -72,7 +72,7 @@ struct BGRCOL {		/* color type vector */
 		};
 		uint32_t rgbcd;
 	};
-};
+};*/
 
 struct object_info {
 	short nmeshes; // size=0, offset=0
