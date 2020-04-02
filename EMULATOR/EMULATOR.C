@@ -115,6 +115,8 @@ SysCounter counters[3] = { 0 };
 int g_swapInterval = SWAP_INTERVAL;
 int g_wireframeMode = 0;
 int g_texturelessMode = 0;
+int g_emulatorPaused = 0;
+int g_polygonSelected = 0;
 TextureID g_lastBoundTexture;
 
 void Emulator_ResetDevice()
@@ -1158,6 +1160,8 @@ const char* gte_shader_4 =
 	"		vec2 clut_color = texture2D(s_texture, clut_pos).rg * 255.0;\n"
 	"\n"
 	"		float color_16 = clut_color.y * 256.0 + clut_color.x;\n"
+	"		if (color_16 == 0.0) { discard; }\n"
+	"\n"
 	"		vec4 color = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
 	"\n"
 	"		fragColor = color * v_color;\n"
@@ -1168,8 +1172,6 @@ const char* gte_shader_4 =
 	"			+3.0,  -1.0,  +2.0,  -2.0) / 255.0;\n"
 	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"
 	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
-	"\n"
-	"		if (fragColor.a == 0.0) { discard; }\n"
 	"	}\n"
 	"#endif\n";
 
@@ -1203,6 +1205,8 @@ const char* gte_shader_8 =
 	"		vec2 clut_color = texture2D(s_texture, clut_pos).rg * 255.0;\n"
 	"\n"
 	"		float color_16 = clut_color.y * 256.0 + clut_color.x;\n"
+	"		if (color_16 == 0.0) { discard; }\n"
+	"\n"
 	"		vec4 color = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
 	"\n"
 	"		fragColor = color * v_color;\n"
@@ -1213,8 +1217,6 @@ const char* gte_shader_8 =
 	"			+3.0,  -1.0,  +2.0,  -2.0) / 255.0;\n"
 	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"
 	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
-	"\n"
-	"		if (fragColor.a == 0.0) { discard; }\n"
 	"	}\n"
 	"#endif\n";
 
@@ -1242,6 +1244,8 @@ const char* gte_shader_16 =
 	"	void main() {\n"
 	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg * 255.0;\n"
 	"		float color_16 = color_rg.y * 256.0 + color_rg.x;\n"
+	"		if (color_16 == 0.0) { discard; }\n"
+	"\n"
 	"		fragColor = fract(floor(color_16 / vec4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);\n"
 	"\n"
 	"		fragColor *= v_color;\n"
@@ -1252,8 +1256,6 @@ const char* gte_shader_16 =
 	"			+3.0,  -1.0,  +2.0,  -2.0) / 255.0;\n"
 	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"
 	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
-	"\n"
-	"		if (fragColor.a == 0.0) { discard; }\n"
 	"	}\n"
 	"#endif\n";
 
@@ -1390,7 +1392,6 @@ ShaderID Shader_Compile(const char *source)
 
 // shader registers
 const int u_Projection = 0;
-const int u_PageClut   = 4;
 
 LPDIRECT3DVERTEXDECLARATION9 vertexDecl;
 
@@ -2130,15 +2131,30 @@ void Emulator_DoDebugKeys()
 			eprintf("textureless mode: %d\n", g_texturelessMode);
 		}
 
-#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
 		if (keyboardState[SDL_SCANCODE_3])
+		{
+			g_emulatorPaused ^= 1;
+		}
+
+		if (keyboardState[SDL_SCANCODE_UP] && g_emulatorPaused)
+		{
+			g_polygonSelected += 3;
+		}
+
+		if (keyboardState[SDL_SCANCODE_DOWN] && g_emulatorPaused)
+		{
+			g_polygonSelected -= 3;
+		}
+
+#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+		if (keyboardState[SDL_SCANCODE_4])
 		{
 			eprintf("saving screenshot\n");
 			Emulator_TakeScreenshot();
 		}
 #endif
 
-		if (keyboardState[SDL_SCANCODE_4])
+		if (keyboardState[SDL_SCANCODE_5])
 		{
 			eprintf("saving VRAM.TGA\n");
 			Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);

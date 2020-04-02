@@ -238,6 +238,7 @@ void sub_C1C(int a0)
         char v0 = *a1++;
 
         //loc_C38
+
         if (v0 >= 0)
         {
             int* a2 = &scratchPad[v0 << 1];
@@ -1159,9 +1160,9 @@ void sub_E38()
         int t2 = scratchPad[130];
         int t3 = scratchPad[131];
         int t4 = scratchPad[132];
-        int t5 = scratchPad[134];
-        int t6 = scratchPad[135];
-        int t7 = scratchPad[136];
+        int t5 = scratchPad[133];
+        int t6 = scratchPad[134];
+        int t7 = scratchPad[135];
 
         R11 = t0 & 0xFFFF;
         R12 = (t0 >> 16) & 0xFFFF;
@@ -1198,7 +1199,6 @@ void sub_E38()
         s2 += 2;
         s1 += 8;
     } while (s2 < 6);
-
 }
 
 void sub_2C(struct ITEM_INFO* item)

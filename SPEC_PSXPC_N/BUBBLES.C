@@ -1,5 +1,6 @@
 #include "BUBBLES.H"
 
+#include "CAMERA.H"
 #include "DRAW.H"
 #include "GPU.H"
 #include "ROOMLOAD.H"
@@ -7,6 +8,7 @@
 #include "GTEREG.H"
 #include "DRAWSPKS.H"
 #include "LARA.H"
+#include "EFFECT2.H"
 
 #include <LIBGPU.H>
 
@@ -183,7 +185,73 @@ void DrawPsxTile(long a0, long a1, long a2, long a3, long var_10)//8F770(<), 917
 
 void TriggerDynamic(long x, long y, long z, int falloff, int r, int g, int b)
 {
-	UNIMPLEMENTED();
+	struct DYNAMIC* t3 = NULL;
+	struct DYNAMIC* t0 = NULL;
+	int t1 = 0;
+	int t2 = 0;
+	int v1 = 0;
+
+	if (x >= 0 && falloff >= 0 && falloff != 0)
+	{
+		t3 = &dynamics[0];
+		v1 = number_dynamics;
+		t0 = t3;
+		if (number_dynamics == 32)
+		{
+			t1 = 0;
+			t2 = 0;
+
+			//loc_8FE50
+			do
+			{
+				IR1 = camera.pos.x - t3->x;
+				IR2 = camera.pos.y - t3->y;
+				IR3 = camera.pos.z - t3->z;
+
+				docop2(0xA00428);
+
+				t2++;
+				if (t1 < MAC3 + MAC1 + MAC2)
+				{
+					t1 = MAC3 + MAC1 + MAC2;
+					t0 = t3;
+				}
+				t3++;
+				//loc_8FEB0
+			} while (t2 < 32);
+
+			t3 = t0;
+			v1 = number_dynamics - 1;
+
+		}
+		else
+		{
+			//loc_8FECC
+			t3 = &dynamics[v1];
+		}
+
+		//loc_8FEDC
+		t3->falloff = falloff << 8;
+		t3->on = 1;
+		t3->x = x;
+		t3->y = y;
+		t3->z = z;
+
+		number_dynamics = v1 + 1;
+
+		t3->r = r;
+		t3->g = g;
+		t3->b = b;
+
+		if (falloff >= 8)
+		{
+			t3->FalloffScale = 0x200000 / (falloff << 8);
+			t3->r = (r * falloff) >> 3;
+			t3->g = (g * falloff) >> 3;
+			t3->b = (b * falloff) >> 3;
+		}//locret_8FF68
+	}
+	//locret_8FF68
 }
 
 void DEL_ApplyMatrixSV(int v0, int v1, short* m)//(F)

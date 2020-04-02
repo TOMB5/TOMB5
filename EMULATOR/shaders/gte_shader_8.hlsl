@@ -38,6 +38,8 @@ struct VS_OUTPUT {
 		float2 clut_color = tex2D(s_texture, clut_pos).ra * 255.0;
 
 		float color_16 = clut_color.y * 256.0 + clut_color.x;
+		clip(color_16 - 0.001);
+
 		float4 color = frac(floor(color_16 / float4(1.0, 32.0, 1024.0, 32768.0)) / 32.0);
 
 		color = color * In.v_color;
@@ -49,8 +51,6 @@ struct VS_OUTPUT {
 		int2 dc = int2(frac(coord.xy / 4.0) * 4.0);
 		color.xyz += dither[dc.x][dc.y] * In.v_texcoord.w;
 
-		clip(color.a - 0.001);
-		
 		return color;
 	}
 #endif

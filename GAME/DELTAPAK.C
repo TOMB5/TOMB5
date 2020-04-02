@@ -42,7 +42,9 @@
 #elif PSX_VERSION || PSXPC_VERSION
 #include "DELTAPAK_S.H"
 #include "PSXINPUT.H"
+#include "LIGHT.H"
 #endif
+
 #include "CD.H"
 #include "BUBBLES.H"
 #include "TYPEDEFS.H"
@@ -71,6 +73,11 @@
 
 #include <LIBSN.H>
 #include "COLLIDE_S.H"
+
+#if PSXPC_TEST
+#include "TITSEQ.H"
+#include "GTEREG.H"
+#endif
 
 #endif
 
@@ -2289,50 +2296,79 @@ void TriggerActorBlood(int actornum, unsigned long nodenum, struct PHD_VECTOR* p
 	TriggerBlood(pos->x, pos->y, pos->z, direction >> 4, speed);
 }
 
-void GetActorJointAbsPosition(int actornum, unsigned long nodenum, struct PHD_VECTOR* vec)
+void GetActorJointAbsPosition(int actornum /*s1*/, unsigned long nodenum /*s6*/, struct PHD_VECTOR* vec/*s4*/)//2EC80(<) (F)
 {
-	int i;
-	long* bone;
+	int i; // $s3
+	int poppush; // $s0
+	struct object_info* object; // $a3
+	long* bone; // $s2
+	short* rotation1; // stack offset -48
+	short* frame; // $s0
+	struct ITEM_INFO* item; // $s5
 
-	mPushMatrix();
+#if PSX_VERSION
+	struct MATRIX3D* old; // $s7
+	old = Matrix;
+#endif
+
 	updateAnimFrame(actor_pnodes[actornum], GLOBAL_cutme->actor_data[actornum].nodes + 1, temp_rotation_buffer);
 	mPushUnitMatrix();
 	mSetTrans(0, 0, 0);
-	mRotYXZ(duff_item.pos.y_rot, duff_item.pos.x_rot, duff_item.pos.z_rot);
-	bone = &bones[objects[GLOBAL_cutme->actor_data[actornum].objslot].bone_index];
-	mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
-	mRotSuperPackedYXZ((short**)&temp_rotation_buffer[9], 0);
 
-	for (i = 0; i < nodenum; i++, bone += 4)
+	item = &duff_item;
+	mRotYXZ(item->pos.y_rot, item->pos.x_rot, item->pos.z_rot);
+	object = &objects[GLOBAL_cutme->actor_data[actornum].objslot];
+	bone = &bones[object->bone_index];
+	mTranslateXYZ(temp_rotation_buffer[6], temp_rotation_buffer[7], temp_rotation_buffer[8]);
+	rotation1 = &temp_rotation_buffer[9];
+	mRotSuperPackedYXZ(&rotation1, 0);
+
+	for(i = 0; i < nodenum; i++, bone += 4)
 	{
-		if (*bone & 1)
+		//loc_2ED80
+		if ((*bone & 1))
 		{
 			mPopMatrix();
 		}
 
-		if (*bone & 2)
+		if ((*bone & 2))
 		{
 			mPushMatrix();
 		}
 
 		mTranslateXYZ(bone[1], bone[2], bone[3]);
-		mRotSuperPackedYXZ((short**)&temp_rotation_buffer[9], 0);
+		mRotSuperPackedYXZ(&rotation1, 0);
 	}
-
+	//loc_2EDE0
 	mTranslateXYZ(vec->x, vec->y, vec->z);
-#if PSXPC_TEST || PC_VERSION
+#if PSXPC_TEST
+	vec->x = TRX;
+	vec->y = TRY;
+	vec->z = TRZ;
+#elif PSX_VERSION
+	assert(0);//Unimplemented
+	/*
+	cfc2    $t4, $5
+	cfc2    $t5, $6
+	cfc2    $t6, $7
+	sw      $t4, 0($s4)
+	sw      $t5, 4($s4)
+	sw      $t6, 8($s4)
+	*/
+#elif PC_VERSION
 	gte_sttr(vec);
 #endif
 
-	vec->x += duff_item.pos.x_pos;
-	vec->y += duff_item.pos.y_pos;
-	vec->z += duff_item.pos.z_pos;
+	vec->x += item->pos.x_pos;
+	vec->y += item->pos.y_pos;
+	vec->z += item->pos.z_pos;
 
 #if PC_VERSION
 	mPopMatrix();
 	mPopMatrix();
-#else
-	mCopyMatrix(Matrix);
+#elif PSX_VERSION
+	Matrix = old;
+	mCopyMatrix(old);
 #endif
 }
 
@@ -2380,27 +2416,33 @@ void GrabActorMatrix(int actornum, int nodenum, MatrixThing* matrix)
 #endif
 }
 
-void deal_with_actor_shooting(unsigned short* shootdata, int actornum, int nodenum, struct PHD_VECTOR* pos)// (F)
+void deal_with_actor_shooting(unsigned short* shootdata, int actornum/*s0*/, int nodenum/*s1*/, struct PHD_VECTOR* pos/*s2*/)// (F)
 {
-	int i;
-	unsigned short dat;
-	MatrixThing arse;
+	int f; // $a1
+	unsigned short dat; // $v1
+	struct MATRIX3D arse; // stack offset -48
 	
-	for(i = 0; shootdata[i] != -1; i++)
-	{
-		dat = shootdata[i];
+	dat = *shootdata++;
+	f = GLOBAL_cutseq_frame;
 
-		if (GLOBAL_cutseq_frame == dat || GLOBAL_cutseq_frame == dat + 1)
+	if (dat != 0xFFFF)
+	{
+		//loc_2EBD0
+		do
 		{
-			GrabActorMatrix(actornum, nodenum, &arse);
-			trig_actor_gunflash(&arse, pos);
-			GetActorJointAbsPosition(actornum, nodenum, pos);
-			TriggerDynamic(pos->x, pos->y, pos->z, 10,
-			               (GetRandomControl() & 0x3F) + 192,
-			               (GetRandomControl() & 0x1F) + 128,
-			               (GetRandomControl() & 0x3F));
-		}
+			if (f == dat || f == dat + 1)
+			{
+				GrabActorMatrix(actornum, nodenum, &arse);
+				trig_actor_gunflash(&arse, pos);
+				GetActorJointAbsPosition(actornum, nodenum, pos);
+				TriggerDynamic(pos->x, pos->y, pos->z, 16, (GetRandomControl() & 0x3F) + 0xC0, (GetRandomControl() & 0x1F) + 0x80, (GetRandomControl() & 0x3F));
+				break;
+			}//loc_2EC58
+
+			dat = *shootdata++;
+		} while (dat != 0xFFFF);
 	}
+	//loc_2EC68
 }
 
 void stealth3_end()//2E99C, 2ECA8 (F)
@@ -2679,8 +2721,10 @@ void special2_init()//2E674(<), 2E980(<) (F)
 
 void special1_end()//2E644(<), 2E950(<) (F) (*)
 {
-#if PSX_VERSION && !PSXPC_TEST
-	((VOIDFUNCVOID*)RelocPtr[13][4])();
+#if PSXPC_TEST
+	titseq_special1_end();
+#elif PSX_VERSION
+	((VOIDFUNCVOID*)RelocPtr[MOD_TITSEQ][4])();
 #else
 	UNIMPLEMENTED();
 #endif
@@ -2688,8 +2732,12 @@ void special1_end()//2E644(<), 2E950(<) (F) (*)
 
 void special1_control()//2E614(<), 2E920(<) (F) (*)
 {
-#if PSX_VERSION && !PSXPC_TEST
-	((VOIDFUNCVOID*)RelocPtr[13][3])();
+#if PSXPC_TEST
+	titseq_special1_control();
+#elif PSX_VERSION
+	((VOIDFUNCVOID*)RelocPtr[MOD_TITSEQ][3])();
+#elif PSXPC_TEST
+
 #else
 	UNIMPLEMENTED();
 #endif
@@ -2697,9 +2745,17 @@ void special1_control()//2E614(<), 2E920(<) (F) (*)
 
 void special1_init()//2E5E4(<), 2E8F0(<) (F)
 {
+#if PSXPC_TEST
+	//@FIXME cutrot is not set to 0 in this, not check retail yet..
+	lara_item->mesh_bits = 0xFFFFFFFF;
+	Chris_Menu = 0;
+#elif PSX_VERSION
+	((VOIDFUNCVOID*)RelocPtr[MOD_TITSEQ][2])();
+#else
 	cutrot = 0;
 	lara_item->mesh_bits = 0xFFFFFFFF;
 	Chris_Menu = 0;
+#endif
 }
 
 void richcut3_control()//2E594(<), 2E8A0(<) (F)
@@ -3065,9 +3121,9 @@ void init_cutseq_actors(char* data, int resident)//2D944(<), 2DBD4 (F)
 
 			if (resident != 0)
 			{
-				actor_pnodes[n] = (PACKNODE*)resident_addr;
+				actor_pnodes[n] = (struct PACKNODE*)resident_addr;
 				pda_nodes++;
-				resident_addr = &resident_addr[pda_nodes * 84];
+				resident_addr = &resident_addr[pda_nodes * sizeof(struct PACKNODE)];
 				//v0 = actor_pnodes
 				a3 = pda_nodes;
 				//j loc_2DA18
@@ -3121,7 +3177,7 @@ void init_cutseq_actors(char* data, int resident)//2D944(<), 2DBD4 (F)
 	else
 	{
 		//loc_2DA9C
-		camera_pnodes = (struct PACKNODE*)cutseq_malloc(168);
+		camera_pnodes = (struct PACKNODE*)cutseq_malloc(sizeof(struct PACKNODE) * 2);
 		//a0 = packed
 	}
 
@@ -3387,7 +3443,25 @@ void cutseq_givelara_pistols()//2D2A0(<), 2D588(<) (F)
 
 void CalculateObjectLightingLaraCutSeq()
 {
-	UNIMPLEMENTED();
+	short room_no; // $s0
+	struct PHD_VECTOR pos; // stack offset -24
+
+	pos.x = 0;
+	pos.y = 0;
+	pos.z = 0;
+
+	GetLaraJointPos(&pos, LJ_TORSO);
+
+	room_no = lara_item->room_number;
+	IsRoomOutsideNo = -1;
+	IsRoomOutside(pos.x, pos.y, pos.z);
+	if (IsRoomOutsideNo != -1)
+	{
+		room_no = IsRoomOutsideNo;
+	}
+
+	//loc_2D270
+	S_CalculateLight(pos.x, pos.y, pos.z, room_no, &lara_item->il);
 }
 
 void finish_cutseq(int name)//2D180(<), 2D4A0(<) (F)
@@ -3446,7 +3520,7 @@ void init_cutseq_malloc()//2D110(<), 2D430(<) (F)
 	return;
 }
 
-void frigup_lara()//2D000(<), ? (F)
+void frigup_lara()//2D000(<), 2D320 (F)
 {
 	struct object_info* object;
 	long* bone;
@@ -3465,7 +3539,7 @@ void frigup_lara()//2D000(<), ? (F)
 	object = &objects[lara_item->object_number];
 	bone = &bones[object->bone_index];
 
-	//updateAnimFrame(actor_pnodes[0], 0x10, frame);
+	updateAnimFrame(actor_pnodes[0], 0x10, frame);
 #if PSX_VERSION
 	DEL_CalcLaraMatrices_Normal_ASM(frame, bone, 0);
 #endif
@@ -3533,7 +3607,7 @@ void InitPackNodes(struct NODELOADHEADER* lnode, struct PACKNODE* pnode, char* p
 }
 
 
-void do_new_cutscene_camera()//2CA68(<), ? (F)
+void do_new_cutscene_camera()//2CA68(<), 2CD88 (F)
 {
 	struct PACKNODE* nodes; // $a0
 	int n; // $s0
@@ -3608,7 +3682,7 @@ void do_new_cutscene_camera()//2CA68(<), ? (F)
 	for (n = 1; n < GLOBAL_cutme->numactors; n++)
 	{
 		//loc_2CDD0
-		DecodeAnim(actor_pnodes[n], GLOBAL_cutme->actor_data[n].nodes, GLOBAL_cutseq_frame, 0x3FF);
+		DecodeAnim(actor_pnodes[n], GLOBAL_cutme->actor_data[n].nodes + 1, GLOBAL_cutseq_frame, 0x3FF);
 	}
 	//loc_2CE0C
 	++GLOBAL_cutseq_frame;//$v1

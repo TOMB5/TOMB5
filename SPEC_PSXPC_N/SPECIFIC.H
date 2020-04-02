@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "STYPES.H"
 
+#define WARN_HACK(x) printf("%s\n", x);
 
 
 #if PSXPC_VERSION
@@ -43,6 +44,7 @@ extern void gInit();
 extern short S_Death();
 extern void DisplayStatsUCunt();
 //extern void S_Warn(const char* warning_message);
+extern int sub_62190();
 
 #define S_Warn printf
 
