@@ -1383,9 +1383,53 @@ void DrawLaserSightSprite()
 	Unimpl();
 }
 
-void DrawStaticObjects(short current_room)
+void DrawStaticObjects(short current_room)// (F)
 {
-	Unimpl();
+	CurrentRoom = current_room;
+	e4b100 = 1;
+	
+	room_info* r = &room[current_room];
+	
+	phd_PushMatrix();
+	phd_TranslateAbs(r->x, r->y, r->z);
+	
+	phd_left = r->left;
+	phd_right = r->right;
+	phd_top = r->top;
+	phd_bottom = r->bottom;
+	
+	struct MESH_INFO* v2 = r->mesh;
+
+	for (int i = 0; i < r->num_meshes; i++, v2++)
+	{
+		if (v2->Flags & 1)
+		{
+			phd_PushMatrix();
+			phd_TranslateAbs(v2->x, v2->y, v2->z);
+			phd_RotY(v2->y_rot);
+			
+			int v4 = v2->static_number;
+			
+			if (S_GetObjectBounds(&static_objects[v4].bbox))
+			{
+				int v5 = static_objects[v4].flags & 0x3C;
+				
+				S_CalculateStaticMeshLight(v2->x, v2->y, v2->z, v2->shade, r);
+				
+				if (v5)
+				{
+					if (((phd_mxptr[M23] / 2) >> W2V_SHIFT) > (v5 << 8))
+						++v4;
+				}
+				
+				phd_PutPolygons(meshes[static_objects[v4].mesh_number]);
+			}
+			
+			phd_PopMatrix();
+		}
+	}
+	
+	phd_PopMatrix();
 }
 
 void DoMonitorScreen()

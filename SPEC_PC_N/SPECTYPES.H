@@ -99,10 +99,8 @@ struct object_info {
 	unsigned long padfuck; // size=0, offset=60
 };
 
-struct static_info
+struct bounding_box_s
 {
-	short mesh_number;
-	short flags;
 	short x_minp;
 	short x_maxp;
 	short y_minp;
@@ -115,6 +113,13 @@ struct static_info
 	short y_maxc;
 	short z_minc;
 	short z_maxc;
+};
+
+struct static_info
+{
+	short mesh_number;
+	short flags;
+	bounding_box_s bbox;
 };
 
 struct bounding_box_f
