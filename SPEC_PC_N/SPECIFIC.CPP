@@ -55,13 +55,13 @@ void DebugPrint(const char* message)// (F)
 	static int logCount = 0;
 	char buf[1024];
 	time_t t = time(nullptr);
-	tm tm = *localtime(&t);
+	const tm tm = *localtime(&t);
 
 	sprintf(buf, "[%02d:%02d:%02d] [%6d] ", tm.tm_hour, tm.tm_min, tm.tm_sec, logCount++);
 
 	strcat(buf, message);
 
-	int len = strlen(buf);
+	const int len = strlen(buf);
 
 	if (buf[len - 1] != '\n')
 	{
@@ -93,7 +93,7 @@ void S_Warn(const char* warning_message, ...)// (F)
 {
 	char buf[1024];
 	time_t t = time(nullptr);
-	tm tm = *localtime(&t);
+	const tm tm = *localtime(&t);
 
 	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
 
@@ -161,7 +161,7 @@ int WeirdWaitThingy()// (F)
 
 void		S_DumpScreenFrame()// (F)
 {
-	int last = Sync();
+	const int last = Sync();
 	if (last < 1)
 	{
 		int rev = 1 - last;
@@ -182,7 +182,7 @@ void		S_DumpScreenFrame()// (F)
 long		S_DumpScreen()
 {
 	// todo
-	int last = Sync();
+	const int last = Sync();
 	int off = last;
 	if (last < 2)
 	{
@@ -287,42 +287,42 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	tex.attribute = OT_ALL_OPAQUE;
 	tex.tile_and_flag = 0;
 
-	float xfactor = phd_winxmax / 640.0;
-	float yfactor = phd_winymax / 480.0;
+	const float xfactor = phd_winxmax / 640.0;
+	const float yfactor = phd_winymax / 480.0;
 
-	float real_x = x * xfactor;
-	float real_y = y * yfactor;
-	float real_w = w * xfactor;
-	float real_h = h * yfactor;
+	const float real_x = x * xfactor;
+	const float real_y = y * yfactor;
+	const float real_w = w * xfactor;
+	const float real_h = h * yfactor;
 
-	float real_y_middle = real_y + real_h / 2.0;
-	float real_y_bottom = real_y + real_h;
-	float real_x_right = real_x + real_w;
+	const float real_y_middle = real_y + real_h / 2.0;
+	const float real_y_bottom = real_y + real_h;
+	const float real_x_right = real_x + real_w;
 
-	float sznorm = pc / 100.0;
-	float w_filled = real_w * sznorm;
-	float real_x_right_fill = w_filled + real_x;
+	const float sznorm = pc / 100.0;
+	const float w_filled = real_w * sznorm;
+	const float real_x_right_fill = w_filled + real_x;
 
-	float rhw = f_persp / f_znear * f_oneopersp;
-	float rhw_2 = f_persp / (f_znear + 1.0) * f_oneopersp;
+	const float rhw = f_persp / f_znear * f_oneopersp;
+	const float rhw_2 = f_persp / (f_znear + 1.0) * f_oneopersp;
 
-	BYTE red1 = RGBA_GETRED(color1);
-	BYTE green1 = RGBA_GETGREEN(color1);
-	BYTE blue1 = RGBA_GETBLUE(color1);
+	const BYTE red1 = RGBA_GETRED(color1);
+	const BYTE green1 = RGBA_GETGREEN(color1);
+	const BYTE blue1 = RGBA_GETBLUE(color1);
 
-	int real_red1 = red1, real_green1 = green1, real_blue1 = blue1;
-	D3DCOLOR real_color1 = RGBONLY(real_red1, real_green1, real_blue1);
-	D3DCOLOR real_color1d = RGBONLY(real_red1 & ~1, real_green1 & ~1, real_blue1 & ~1);
+	const int real_red1 = red1, real_green1 = green1, real_blue1 = blue1;
+	const D3DCOLOR real_color1 = RGBONLY(real_red1, real_green1, real_blue1);
+	const D3DCOLOR real_color1d = RGBONLY(real_red1 & ~1, real_green1 & ~1, real_blue1 & ~1);
 
-	BYTE red2 = RGBA_GETRED(color2);
-	BYTE green2 = RGBA_GETGREEN(color2);
-	BYTE blue2 = RGBA_GETBLUE(color2);
+	const BYTE red2 = RGBA_GETRED(color2);
+	const BYTE green2 = RGBA_GETGREEN(color2);
+	const BYTE blue2 = RGBA_GETBLUE(color2);
 
-	int real_red2 = SCALE_CLR(red1, red2, sznorm);
-	int real_green2 = SCALE_CLR(green1, green2, sznorm);
-	int real_blue2 = SCALE_CLR(blue1, blue2, sznorm);
-	D3DCOLOR real_color2 = RGBONLY(real_red2, real_green2, real_blue2);
-	D3DCOLOR real_color2d = RGBONLY(real_red2 & ~1, real_green2 & ~1, real_blue2 & ~1);
+	const int real_red2 = SCALE_CLR(red1, red2, sznorm);
+	const int real_green2 = SCALE_CLR(green1, green2, sznorm);
+	const int real_blue2 = SCALE_CLR(blue1, blue2, sznorm);
+	const D3DCOLOR real_color2 = RGBONLY(real_red2, real_green2, real_blue2);
+	const D3DCOLOR real_color2d = RGBONLY(real_red2 & ~1, real_green2 & ~1, real_blue2 & ~1);
 
 	tlvert[0].sx = real_x;
 	tlvert[1].sx = real_x_right_fill;
@@ -439,22 +439,22 @@ void SuperShowLogo()// (F)
 	tlvert[2].rhw = f_oneoznear;
 	tlvert[3].rhw = f_oneoznear;
 
-	float x = 64.0;
-	float y = 0.0;
-	float width = 256.0;
-	float height = 256.0;
+	const float x = 64.0;
+	const float y = 0.0;
+	const float width = 256.0;
+	const float height = 256.0;
 
-	float xfactor = phd_winxmax / 640.0;
-	float yfactor = phd_winymax / 480.0;
+	const float xfactor = phd_winxmax / 640.0;
+	const float yfactor = phd_winymax / 480.0;
 
-	float real_width = width * xfactor;
-	float real_height = height * yfactor;
+	const float real_width = width * xfactor;
+	const float real_height = height * yfactor;
 
-	float real_x = phd_winxmin + x * xfactor;
-	float real_x_right = real_x + real_width;
+	const float real_x = phd_winxmin + x * xfactor;
+	const float real_x_right = real_x + real_width;
 
-	float real_y = phd_winymin + y * yfactor;
-	float real_y_bottom = real_y + real_height;
+	const float real_y = phd_winymin + y * yfactor;
+	const float real_y_bottom = real_y + real_height;
 
 	tlvert[0].sx = real_x;
 	tlvert[1].sx = real_x_right;
@@ -665,7 +665,7 @@ void S_AnimateTextures(long nFrames)// to test
 
 		for (uint16_t i = *(ptr++); i > 0; i--, ptr++)
 		{
-			OBJECT_TEXTURE tmp = object_textures[*(ptr + 1)];
+			const OBJECT_TEXTURE tmp = object_textures[*(ptr + 1)];
 
 			for (uint16_t j = *ptr++; j > 0; j--, ptr++)
 			{
@@ -688,7 +688,7 @@ void S_AnimateTextures(long nFrames)// to test
 
 			for (int i = 0; i < nAnimUVRanges; i++, t2++)
 			{
-				unsigned short num = *t3++;
+				const unsigned short num = *t3++;
 				if (num > 0)
 				{
 					short* t1 = t2[i][num];
@@ -697,7 +697,7 @@ void S_AnimateTextures(long nFrames)// to test
 					{
 
 						OBJECT_TEXTURE* v18 = &object_textures[*t3];
-						double v19 = AnimatingTexturesVOffset / 256.0;
+						const double v19 = AnimatingTexturesVOffset / 256.0;
 						v18->vertices[0].y = v19 + t1[3];
 						v18->vertices[1].y = v19 + t1[3];
 						v18->vertices[2].y = v19 + t1[3] + 0.125;
@@ -736,9 +736,9 @@ void DrawPsxTile(long a1, long a2, long a3)
 		z += 10.0;
 		rhw += 50.0;
 	}
-	
-	double v10 = a2 + 1.0 + (a1 >> 16);
-	double v11 = (a2 >> 16) + 1.0 + a1;
+
+	const double v10 = a2 + 1.0 + (a1 >> 16);
+	const double v11 = (a2 >> 16) + 1.0 + a1;
 
 	D3DTLVERTEX v[4]; // [esp+1Ch] [ebp-A8h]
 	
@@ -872,7 +872,7 @@ void S_OutputPolyList()
 
 	if (FadeScreenHeight != 0)
 	{
-		int height = phd_winymax / 256.0 * FadeScreenHeight;
+		const int height = phd_winymax / 256.0 * FadeScreenHeight;
 		DrawPsxTile(0, phd_winwidth | (height << 16), RGBA(255, 255, 255, 0x62));
 		DrawPsxTile(phd_winheight - height, phd_winwidth | (height << 16), RGBA(255, 255, 255, 0x62));
 	}
@@ -1247,7 +1247,7 @@ int TitleOptions()
 		{
 			gfLevelComplete = dword_51CE0C;
 			dword_51CE0C = 0;
-			int res = dword_51CE44;
+			const int res = dword_51CE44;
 			dword_51CE44 = 0;
 			unk_51CE3C = 0;
 			dword_51CE40 = 0;
@@ -1348,7 +1348,7 @@ int TitleOptions()
 		case 2:
 			if (Gameflow->LoadSaveEnabled)
 			{
-				signed int v10 = DoLoadSave(0x800000);
+				const signed int v10 = DoLoadSave(0x800000);
 				if (v10 >= 0)
 				{
 					S_LoadGame(v10);
@@ -1525,8 +1525,8 @@ void updateAnimFrame(PACKNODE* node, int flags, short* frame)// (F)
 {
 	frame[7] = 3 * node->yrot_run;
 
-	short x = 3 * node->xrot_run;
-	short z = 3 * node->zrot_run;
+	const short x = 3 * node->xrot_run;
+	const short z = 3 * node->zrot_run;
 
 	switch (cutrot)
 	{
@@ -1553,8 +1553,8 @@ void updateAnimFrame(PACKNODE* node, int flags, short* frame)// (F)
 	for (int i = 1; i < flags; i++, next += 2)
 	{
 		short x = node[i].yrot_run;
-		short y = node[i].zrot_run;
-		short z = node[i].xrot_run;
+		const short y = node[i].zrot_run;
+		const short z = node[i].xrot_run;
 
 		if (cutrot && i == 1)
 		{
@@ -1707,7 +1707,7 @@ int S_DisplayPauseMenu(int a1)
 		return 0;
 	}
 
-	unsigned __int16 v2 = phd_centery - font_height;
+	const unsigned __int16 v2 = phd_centery - font_height;
 	PrintString(
 		phd_centerx,
 		v2 - (3 * font_height >> 1),
