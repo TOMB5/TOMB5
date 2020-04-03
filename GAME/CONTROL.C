@@ -2446,11 +2446,10 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 	
 #if PSXPC_TEST
 	int flip_available = 0;
-	int neweffect = 0;
 #else
 	int flip_available;
-	int neweffect;
 #endif
+	int neweffect = -1;
 	int quad;
 	short CamSeq;
 	short lp;

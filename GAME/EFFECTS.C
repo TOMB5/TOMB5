@@ -545,9 +545,6 @@ void floor_shake_effect(struct ITEM_INFO* item)//39410, 39910 (F)
 
 void turn180_effect(struct ITEM_INFO* item)//393F4(<), 398F4(<) (F)
 {
-#if PSXPC_TEST
-	return;///@FIXME temporary hack
-#endif
 	item->pos.y_rot -= ANGLE(180);
 	item->pos.x_rot = -item->pos.x_rot;
 }
