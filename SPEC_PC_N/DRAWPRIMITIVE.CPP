@@ -2607,9 +2607,11 @@ void SaveD3DCameraMatrix()// (F)
 	d3d_camera._43 = phd_dxptr[M23];
 }
 
+int num_fog_bulb_list;
+
 void ResetFogBulbList()
 {
-	Unimpl();
+	num_fog_bulb_list = 0;
 }
 
 void RoomTestThing()// (F)
@@ -2829,9 +2831,9 @@ void TransformLightClipMesh(tr4_mesh* mesh)
 	Unimpl();
 }
 
-void ClearObjectLighting()
+void ClearObjectLighting()// (F)
 {
-	Unimpl();
+	
 }
 
 light_thing stru_878E28[64];
