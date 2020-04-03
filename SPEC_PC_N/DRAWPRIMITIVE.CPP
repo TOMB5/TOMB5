@@ -1900,8 +1900,8 @@ void CalcAmbientLight(ITEM_INFO* item)// (F)
 	short r = item->room_number;
 	GetFloor(item->ambient_light_pos.x, item->ambient_light_pos.y, item->ambient_light_pos.z, &r);
 	
-	const BGRCOL icol = item->il.room_ambient;
-	const BGRCOL rcol = room[r].ambient;
+	const CVECTOR icol = item->il.room_ambient;
+	const CVECTOR rcol = room[r].ambient;
 	
 	if (icol.rgbcd != rcol.rgbcd)
 	{
@@ -1930,8 +1930,7 @@ void CalcAmbientLight(ITEM_INFO* item)// (F)
 				item->il.green = item->il.green + item->il.d_green;
 				item->il.blue = item->il.blue + item->il.d_blue;
 
-				// @TODO: BAD!
-				item->il.room_ambient = { (byte)(item->il.red >> 3), (byte)(item->il.green >> 3), (byte)(item->il.blue >> 3), 0 };
+				item->il.room_ambient = CVECTOR( item->il.red >> 3, item->il.green >> 3, item->il.blue >> 3);
 				item->il.room_num = item->il.room_num - 1;
 			}
 		}
