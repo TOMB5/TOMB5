@@ -2840,6 +2840,8 @@ void InitObjectLighting(ITEM_INFO* item)
 	Unimpl();
 }
 
+BYTE byte_57A468;
+
 void InitObjectFogBulbs()
 {
 	Unimpl();

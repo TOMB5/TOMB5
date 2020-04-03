@@ -29,6 +29,7 @@
 
 #if PC_VERSION
 #include "GLOBAL.H"
+#include "DRAWPRIMITIVE.H"
 #endif
 
 
@@ -5762,15 +5763,25 @@ void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F)
 
 	flags = 0;
 
+#if PC_VERSION
+	GetFloor(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, &room_number);
+	byte_57A468 = room[room_number].flags & RF_FILL_WATER;
+#endif
+
 	//loc_85988
 	for (current_joint = 14; current_joint >= 0; current_joint--)
 	{
 		GetLaraJointPos(&joint, current_joint);
 
+#if PC_VERSION
+		if (lara_mesh_sweetness_table[current_joint] == 7)
+			joint.y -= 120;
+		else if (lara_mesh_sweetness_table[current_joint] == 14)
+			joint.y -= 60;
+#endif
+
 		room_number = lara_item->room_number;
 		GetFloor(joint.x, joint.y, joint.z, &room_number);
-
-		// TODO: Missing code here on PC
 		
 		r = &room[room_number];
 		LaraNodeUnderwater[current_joint] = r->flags & RF_FILL_WATER;

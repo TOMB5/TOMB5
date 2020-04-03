@@ -127,4 +127,6 @@ extern DWORD dword_87B10C;
 extern DWORD dword_87B110;
 extern DWORD dword_87B114;
 
+extern BYTE byte_57A468;
+
 #endif
