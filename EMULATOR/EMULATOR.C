@@ -819,8 +819,8 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	{
 		if (p0 != NULL && w != -1 && h != -1)
 		{
-			vertex[1].x = p0[0];
-			vertex[1].y = p0[1] + h;
+			vertex[1].x = (float)(p0[0]);
+			vertex[1].y = (float)(p0[1] + h);
 		}
 	}
 
@@ -846,8 +846,8 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	{
 		if (p0 != NULL && w != -1 && h != -1)
 		{
-			vertex[2].x = p0[0] + w;
-			vertex[2].y = p0[1] + h;
+			vertex[2].x = (float)(p0[0] + w);
+			vertex[2].y = (float)(p0[1] + h);
 		}
 	}
 
@@ -873,8 +873,8 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	{
 		if (p0 != NULL && w != -1 && h != -1)
 		{
-			vertex[3].x = p0[0] + w;
-			vertex[3].y = p0[1];
+			vertex[3].x = (float)(p0[0] + w);
+			vertex[3].y = (float)(p0[1]);
 		}
 	}
 }
@@ -1470,7 +1470,11 @@ int Emulator_Initialise()
 	glEnableVertexAttribArray(a_texcoord);
 	
     glEnableVertexAttribArray(a_color);
+#if defined(PGXP)
+	glVertexAttribPointer(a_position, 4, GL_FLOAT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
+#else
 	glVertexAttribPointer(a_position, 4, GL_SHORT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
+#endif
 	glVertexAttribPointer(a_texcoord, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->u);
 	glVertexAttribPointer(a_color,    4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(Vertex), &((Vertex*)NULL)->r);
 	glBindVertexArray(0);
@@ -1484,7 +1488,11 @@ int Emulator_Initialise()
 	#define OFFSETOF(T, E)     ((size_t)&(((T*)0)->E))
 
 	const D3DVERTEXELEMENT9 VERTEX_DECL[] = {
+#if defined(PGXP)
+		{0, OFFSETOF(Vertex, x), D3DDECLTYPE_FLOAT4,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0}, // a_position
+#else
 		{0, OFFSETOF(Vertex, x), D3DDECLTYPE_SHORT4,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0}, // a_position
+#endif
 		{0, OFFSETOF(Vertex, u), D3DDECLTYPE_UBYTE4,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0}, // a_texcoord
 		{0, OFFSETOF(Vertex, r), D3DDECLTYPE_UBYTE4N,  D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR,    0}, // a_color
 		D3DDECL_END()
