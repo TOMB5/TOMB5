@@ -131,6 +131,7 @@ extern void SetViewMatrix();
 extern void ScaleCurrentMatrix(VECTOR vec);
 extern void mRotSuperPackedYXZ(short** a0, long a1);
 extern void gte_sttr(PHD_VECTOR *v);
+extern void D3DMultMatrix(LPD3DMATRIX res, LPD3DMATRIX a, LPD3DMATRIX b);
 #define phd_PopMatrix()		{ phd_mxptr -= 12; phd_dxptr -= 12; }
 
 #define mPushMatrix phd_PushMatrix

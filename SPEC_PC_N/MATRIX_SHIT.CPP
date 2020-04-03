@@ -793,6 +793,84 @@ D3DMATRIX stru_55D168;
 		S_InitD3DMatrix();
 	}
 
+	void D3DMultMatrix(LPD3DMATRIX res, LPD3DMATRIX a, LPD3DMATRIX b)// (F)
+	{
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				double num = 0;
+				for (int k = 0; k < 4; k++) {
+					num += a->m[i][k] * b->m[k][j];
+				}
+				res->m[i][j] = num;
+			}
+		}
+		/*
+		double v3 = a->_11 * b->_11;
+		double v4 = a->_11 * b->_11 + b->_21 * a->_12;
+		double v5 = a->_11 * b->_11 + b->_21 * a->_12 + b->_31 * a->_13;
+		res->_11 = b->_41 * a->_14 + v5;
+		double v6 = b->_12 * a->_11;
+		double v7 = v6 + a->_12 * b->_22;
+		double v8 = v7 + b->_32 * a->_13;
+		res->_12 = b->_42 * a->_14 + v8;
+		double v9 = b->_13 * a->_11;
+		double v10 = v9 + b->_23 * a->_12;
+		double v11 = v10 + b->_33 * a->_13;
+		res->_13 = b->_43 * a->_14 + v11;
+		double v12 = b->_14 * a->_11;
+		double v13 = v12 + a->_12 * b->_24;
+		double v14 = v13 + b->_34 * a->_13;
+		res->_14 = b->_44 * a->_14 + v14;
+		double v15 = a->_21 * b->_11;
+		double v16 = v15 + a->_22 * b->_21;
+		double v17 = v16 + b->_31 * a->_23;
+		res->_21 = b->_41 * a->_24 + v17;
+		double v18 = b->_12 * a->_21;
+		double v19 = v18 + a->_22 * b->_22;
+		double v20 = v19 + b->_32 * a->_23;
+		res->_22 = a->_24 * b->_42 + v20;
+		double v21 = a->_21 * b->_13;
+		double v22 = v21 + a->_22 * b->_23;
+		double v23 = v22 + a->_23 * b->_33;
+		res->_23 = b->_43 * a->_24 + v23;
+		double v24 = b->_14 * a->_21;
+		double v25 = v24 + a->_22 * b->_24;
+		double v26 = v25 + b->_34 * a->_23;
+		res->_24 = a->_24 * b->_44 + v26;
+		double v27 = a->_31 * b->_11;
+		double v28 = v27 + a->_32 * b->_21;
+		double v29 = v28 + b->_31 * a->_33;
+		res->_31 = b->_41 * a->_34 + v29;
+		double v30 = b->_12 * a->_31;
+		double v31 = v30 + a->_32 * b->_22;
+		double v32 = v31 + b->_32 * a->_33;
+		res->_32 = a->_34 * b->_42 + v32;
+		double v33 = a->_31 * b->_13;
+		double v34 = v33 + a->_32 * b->_23;
+		double v35 = v34 + a->_33 * b->_33;
+		res->_33 = a->_34 * b->_43 + v35;
+		double v36 = b->_14 * a->_31;
+		double v37 = v36 + a->_32 * b->_24;
+		double v38 = v37 + b->_34 * a->_33;
+		res->_34 = a->_34 * b->_44 + v38;
+		double v39 = a->_41 * b->_11;
+		double v40 = v39 + a->_42 * b->_21;
+		double v41 = v40 + b->_31 * a->_43;
+		res->_41 = b->_41 * a->_44 + v41;
+		double v42 = b->_12 * a->_41;
+		double v43 = v42 + a->_42 * b->_22;
+		double v44 = v43 + b->_32 * a->_43;
+		res->_42 = a->_44 * b->_42 + v44;
+		double v45 = a->_41 * b->_13;
+		double v46 = v45 + a->_42 * b->_23;
+		double v47 = v46 + a->_43 * b->_33;
+		res->_43 = a->_44 * b->_43 + v47;
+		double v48 = b->_14 * a->_41;
+		double v49 = v48 + a->_42 * b->_24;
+		double v50 = v49 + b->_34 * a->_43;
+		res->_44 = a->_44 * b->_44 + v50;*/
+	}
+
 	
 
 #ifdef __cplusplus
