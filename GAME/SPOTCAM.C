@@ -429,7 +429,7 @@ void InitialiseSpotCam(short Sequence)//37648, 37B48 (F)
 void CalculateSpotCams()//37ED0(<), 383D0(?) 
 {
 #if PC_VERSION
-	Log(LT_Enter, "CalculateSpotCams");
+	//Log(LT_Enter, "CalculateSpotCams");
 #endif
 	long cpx; // stack offset -96
 	long cpy; // stack offset -92

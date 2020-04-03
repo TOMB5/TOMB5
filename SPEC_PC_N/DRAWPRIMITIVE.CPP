@@ -1183,7 +1183,7 @@ void SortPolyList(int number, dinfo_head* buffer[])// (F)
 
 HRESULT HWBeginScene()// (F)
 {
-	Log(LT_Enter, "HWBeginScene");
+	//Log(LT_Enter, "HWBeginScene");
 	
 	if (App.isInScene)
 	{
@@ -1201,7 +1201,7 @@ HRESULT HWBeginScene()// (F)
 
 HRESULT HWEndScene()// (F)
 {
-	Log(LT_Enter, "HWEndScene");
+	//Log(LT_Enter, "HWEndScene");
 	
 	App.isInScene = false;
 
@@ -2296,7 +2296,7 @@ float flt_511A64 = SECTOR(12);
 
 void RoomletTransformLight(tr5_room_vertex* vert, int num_vert, int num_lights, int num_vert_2, int a5)
 {
-	Log(LT_Enter, "RoomletTransformLight vert=%d lights=%d vert_2=%d a5=%5d", num_vert, num_lights, num_vert_2, a5);
+	//Log(LT_Enter, "RoomletTransformLight vert=%d lights=%d vert_2=%d a5=%5d", num_vert, num_lights, num_vert_2, a5);
 	
 	int water = camera.underwater;
 	if (!(App.Flags & WA_BACK_BUFFER))
@@ -2557,7 +2557,7 @@ void InsertRoomlet(ROOMLET* r)
 
 void InsertRoom(room_info* r)
 {
-	Log(LT_Info, "InsertRoom %d", r - room);
+	//Log(LT_Info, "InsertRoom %d", r - room);
 
 	room_top_flt = room_top_flt_2 = r->top;
 	room_left_flt = room_left_flt_2 = r->left;
@@ -2571,7 +2571,7 @@ void InsertRoom(room_info* r)
 	const float dy = cam_tar_flt.y - cam_pos_flt.y;
 	const float dz = cam_tar_flt.z - cam_pos_flt.z;
 
-	const float norm = sqrt(dx * dx + dy * dy + dz * dz);
+	const float norm = hypot3(dx, dy, dz);
 
 	cam_dir_flt = { dx / norm, dy / norm, dz / norm };
 
@@ -2586,7 +2586,7 @@ void InsertRoom(room_info* r)
 				InsertRoomlet(&r->LayerOffset[i]);
 		}
 
-		dword_57A508 = 0xFFFFFF;
+		dword_57A508 = RGBA_MAKE(255, 255, 255, 0);
 	}
 }
 

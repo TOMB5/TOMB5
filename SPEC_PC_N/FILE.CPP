@@ -1335,7 +1335,7 @@ int numLvlMeshes;
 					object_textures[i].vertices[2].y -= oy;
 					break;
 				default:
-					Log(LT_Error, "TextureInfo Type %d Not Found", object_textures[i].mapping_corr);
+					Log(LT_Error, "[1] TextureInfo Type %d Not Found", object_textures[i].mapping_corr);
 					break;
 				}
 			}
@@ -1364,7 +1364,7 @@ int numLvlMeshes;
 					object_textures[i].vertices[3].y -= oy;
 					break;
 				default:
-					Log(LT_Error, "TextureInfo Type %d Not Found", object_textures[i].mapping_corr);
+					Log(LT_Error, "[2] TextureInfo Type %d Not Found", object_textures[i].mapping_corr);
 					break;
 				}
 			}
