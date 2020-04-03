@@ -21,6 +21,7 @@
 
 #define phd_hypot(a, b) (phd_sqrt_asm((a) * (a) + (b) * (b)))
 #define phd_hypot3(a, b, c) (phd_sqrt_asm((a) * (a) + (b) * (b) + (c) * (c)))
+#define hypot3(a, b, c) (sqrt((a) * (a) + (b) * (b) + (c) * (c)))
 
 //#define SWAPARR(arr, i, j, len) {void* tmp = malloc(sizeof(arr[i]));memcpy(tmp, arr[i], sizeof(arr[i]));memcpy(arr[j], arr[i], sizeof(arr[i]));memcpy(arr[i], tmp, sizeof(tmp));}
 
@@ -77,6 +78,26 @@ struct CVECTOR {		/* color type vector */
 	}
 };
 typedef CVECTOR BGRCOL;
+struct light_thing_2
+{
+	float f1;
+	float f2;
+	float f3;
+	float r;
+	float g;
+	float b;
+};
+struct light_thing
+{
+	float f1;
+	float f2;
+	float f3;
+	float r;
+	float g;
+	float b;
+	float f7;
+};
+
 /*struct BGRCOL {		
 	union
 	{

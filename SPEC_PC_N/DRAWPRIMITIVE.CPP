@@ -375,7 +375,7 @@ int ZClipper(int num_vert, D3DTLBUMPVERTEX* v1, D3DTLBUMPVERTEX* v2)
 		{
 			if ((v32 < 0) ^ (v33 < 0))
 			{
-				float v7 = v33 / (prev->sz - cur->sz);
+				const float v7 = v33 / (prev->sz - cur->sz);
 				
 				v2->sx = ((prev->tu2 - cur->tu2) * v7 + cur->tu2) * f_perspoznear + f_centerx;
 				v2->sy = ((prev->tv2 - cur->tv2) * v7 + cur->tv2) * f_perspoznear + f_centery;
@@ -895,7 +895,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 	//Log(LT_Enter, "AddTriClippedSorted %4d[%d];%4d[%d];%4d[%d] tex=%d", v1, vp1, v2, vp2, v3, vp3, tex->tile_and_flag);
 
 	char v36 = 0;
-	int v38 = v1;
+	const int v38 = v1;
 	char v1b = true;
 	
 	if ((vp1 | vp2 | vp3) & 0x8000u)
@@ -1062,13 +1062,13 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 				first->tv *= first->rhw;
 			}
 		}
-		int v32 = XYUVGClipper(v28, stru_BA3FB0);
+		const int v32 = XYUVGClipper(v28, stru_BA3FB0);
 		if (v32)
 		{
 			// remove hacks in setXY4 and RoomletTransformLight when this works
 			//todo check this
 			auto info = (dinfo_tri*)info3dptrbf;
-			int v34 = 3 * v32 - sizeof(dinfo_head) / sizeof(short); // weird
+			const int v34 = 3 * v32 - sizeof(dinfo_head) / sizeof(short); // weird
 			info->head.texattr = next->attribute;
 			info->head.tile_and_flag = next->tile_and_flag;
 			info->head.num_verts = v34;
@@ -1093,7 +1093,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 		vptr[1].sz = f_a - f_boo * vptr[1].rhw;
 		vptr[2].sz = f_a - f_boo * vptr[2].rhw;
 
-		auto info = (dinfo_tri*)info3dptrbf;
+		const auto info = (dinfo_tri*)info3dptrbf;
 		
 		info[-1].head.z = v3a;
 
@@ -1311,8 +1311,8 @@ void PrintObjects(short room_number)// (F)
 {
 	CurrentRoom = room_number;
 	e4b100 = 1;
-	
-	auto r = &room[room_number];
+
+	const auto r = &room[room_number];
 	r->bound_active = 0;
 	
 	DrawStaticObjects(room_number);
@@ -1424,7 +1424,7 @@ void DrawStaticObjects(short current_room)// (F)
 			
 			if (S_GetObjectBounds(&static_objects[v4].bbox))
 			{
-				int v5 = static_objects[v4].flags & 0x3C;
+				const int v5 = static_objects[v4].flags & 0x3C;
 				
 				S_CalculateStaticMeshLight(v2->x, v2->y, v2->z, v2->shade, r);
 				
@@ -2007,7 +2007,7 @@ void CreateLightList(ITEM_INFO* item)
 
 	for (auto l1 = item->ptr_lights_1; l1 < &item->ptr_lights_1[item->num_lights_1]; l1++)
 	{
-		PHD_VECTOR d = {
+		const PHD_VECTOR d = {
 			l1->x2 - item->ambient_light_pos.x,
 			l1->y2 - item->ambient_light_pos.y,
 			l1->z2 - item->ambient_light_pos.z
@@ -2834,11 +2834,59 @@ void ClearObjectLighting()
 	Unimpl();
 }
 
+light_thing stru_878E28[64];
+light_thing_2 stru_879538[16];
 DWORD dword_87B0D8;
+D3DMATRIX res;
 
-void SuperSetupLight(PCLIGHT* light, ITEM_INFO* item, CVECTOR* col)
+void SuperSetupLight(PCLIGHT* light, ITEM_INFO* item, CVECTOR* col)// (F)
 {
-	Unimpl();
+	if (light->LightType == LT_LIGHT)
+	{
+		const double dx = light->x - stru_91F3B8.x;
+		const double dy = light->y - stru_91F3B8.y;
+		const double dz = light->z - stru_91F3B8.z;
+		light_thing* v16 = &stru_878E28[dword_87B104];
+		const float dist = hypot3(dx, dy, dz);
+		v16->f1 = (res._11 * dx + res._12 * dy + res._13 * dz) / dist;
+		v16->f2 = (res._21 * dx + res._22 * dy + res._23 * dz) / dist;
+		v16->f3 = (res._31 * dx + res._32 * dy + res._33 * dz) / dist;
+		v16->r = light->r * 255.0;
+		v16->g = light->g * 255.0;
+		v16->b = light->b * 255.0;
+		v16->f7 = (light->Out - dist) / light->Out;
+		++dword_87B104;
+		++dword_87B110;
+	}
+	else if (light->LightType == LT_SHADOW)
+	{
+		const double dist = phd_sqrt_asm(light->magnsq);
+		int v8 = light->ShadowIntensity >> 3;
+		if (dist >= light->In)
+			v8 = (dist - light->Out) / ((light->Out - light->In) / -v8);
+		const int v9 = v8 >> 1;
+		const int r = MAX(0, col->r - v9);
+		const int g = MAX(0, col->g - v9);
+		const int b = MAX(0, col->b - v9);
+		*col = CVECTOR(r, g, b);
+		++dword_87B10C;
+	}
+	else if (light->LightType == LT_SUN)
+	{
+		const double dx = light->dx2;
+		const double dy = light->dy2;
+		const double dz = light->dz2;
+		light_thing_2* v22 = &stru_879538[dword_87B100];
+		const double normsq = dx * dx + dy * dy + dz * dz;
+		v22->f1 = (res._11 * dx + res._12 * dy + res._13 * dz) / normsq;
+		v22->f2 = (res._21 * dx + res._22 * dy + res._23 * dz) / normsq;
+		v22->f3 = (res._31 * dx + res._32 * dy + res._33 * dz) / normsq;
+		v22->r = light->r * 255.0;
+		v22->g = light->g * 255.0;
+		v22->b = light->b * 255.0;
+		++dword_87B100;
+		++dword_87B110;
+	}
 }
 
 BYTE byte_57A468;
@@ -2904,7 +2952,7 @@ int CheckMeshClip(tr4_mesh* mesh)
 	return 1;
 }
 
-D3DMATRIX res;
+
 
 DWORD dword_87B100;
 DWORD dword_87B104;
@@ -2943,7 +2991,7 @@ void ClearDynamicLighting()// (F)
 
 void phd_PutPolygons(short* mptr)
 {
-	auto mesh = (tr4_mesh*)mptr;
+	const auto mesh = (tr4_mesh*)mptr;
 
 	int v8; // esi
 	int v10; // edx
@@ -3016,9 +3064,9 @@ void phd_PutPolygons(short* mptr)
 				for(int v81 = 0; v81 < mesh->num_rectangles; v81++, rect++)
 				{
 					char v80 = 0;
-					int v11 = rect->Texture & 0x7FFF;
+					const int v11 = rect->Texture & 0x7FFF;
 					OBJECT_TEXTURE* v12 = v86 = &object_textures[v11];
-					uint16 v83 = object_textures[v11].attribute;
+					const uint16 v83 = object_textures[v11].attribute;
 					if (rect->Effects & 1)
 						v12->attribute = 2;
 					if (rect->Effects & 2)
@@ -3086,13 +3134,13 @@ void phd_PutPolygons(short* mptr)
 				auto tri = mesh->triangles;
 				for(int v82 = 0; v82 < mesh->num_triangles; v82++, tri++)
 				{
-					int v52 = tri->Texture & 0x7FFF;
+					const int v52 = tri->Texture & 0x7FFF;
 					char v53 = 0;
-					uint16 v84 = object_textures[v52].attribute;
+					const uint16 v84 = object_textures[v52].attribute;
 					OBJECT_TEXTURE* v56 = &object_textures[v52];
 					if (tri->Effects & 1)
 						v56->attribute = 2;
-					signed __int16 v57 = tri->Effects;
+					const signed __int16 v57 = tri->Effects;
 					if (v57 & 2)
 					{
 						v8 = 2 * (v57 & 0x7C);
@@ -3107,7 +3155,7 @@ void phd_PutPolygons(short* mptr)
 					}
 					if (dword_506D3C == RGB_MAKE(0, 0, 0))
 					{
-						int v58 = v56->attribute;
+						const int v58 = v56->attribute;
 						if (v56->attribute)
 						{
 							if (v58 > 0 && v58 <= 2)
@@ -3211,9 +3259,9 @@ void DrawLoadingScreen()
 
 void DrawFlash()// to test
 {
-	BYTE r = FlashFader * FlashFadeR >> 5;
-	BYTE g = FlashFader * FlashFadeG >> 5;
-	BYTE b = FlashFader * FlashFadeB >> 5;
+	const BYTE r = FlashFader * FlashFadeR >> 5;
+	const BYTE g = FlashFader * FlashFadeG >> 5;
+	const BYTE b = FlashFader * FlashFadeB >> 5;
 
 	DrawPsxTile(0, phd_winwidth | (phd_winheight << 16), RGBA(r, g, b, 0x62));
 	DrawPsxTile(0, phd_winwidth | (phd_winheight << 16), RGBA(r, g, b, 0xFF));
