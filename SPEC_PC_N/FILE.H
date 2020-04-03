@@ -29,7 +29,7 @@ extern short* mesh_base;
 
 extern int num_pages;
 extern bool levelLoading;
-
+extern SPRITE_STRUCT* sprites;
 extern int AnimFileLen;
 extern LPDIRECTDRAWSURFACE4 surf_screen;
 
