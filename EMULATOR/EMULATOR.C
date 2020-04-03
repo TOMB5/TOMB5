@@ -588,108 +588,6 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 
 void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short page, short clut, unsigned char dither)
 {
-#if defined(PGXP) && 0
-	/*
-	Locate polygon in ztable
-	*/
-
-	PGXPPolygon* z0 = NULL;
-	PGXPPolygon* z1 = NULL;
-	PGXPPolygon* z2 = NULL;
-	PGXPPolygon* z3 = NULL;
-
-	//Can speed this up by storing last index found and using as start iter
-	for (int i = pgxp_polgon_table_index; i > -1; i--)
-	{
-		if (uv0 != NULL)
-		{
-			if (((unsigned int*)uv0)[0] == pgxp_polygons[i].originalSXY)
-			{
-				z0 = &pgxp_polygons[i];
-				//z0->bUsed = TRUE;
-			}
-		}
-
-		if (uv1 != NULL)
-		{
-			if (((unsigned int*)uv1)[0] == pgxp_polygons[i].originalSXY)
-			{
-				z1 = &pgxp_polygons[i];
-				//z1->bUsed = TRUE;
-			}
-		}
-
-		if (uv2 != NULL)
-		{
-			if (((unsigned int*)uv2)[0] == pgxp_polygons[i].originalSXY)
-			{
-				z2 = &pgxp_polygons[i];
-				//z2->bUsed = TRUE;
-			}
-		}
-
-		if (uv3 != NULL)
-		{
-			if (((unsigned int*)uv3)[0] == pgxp_polygons[i].originalSXY)
-			{
-				z3 = &pgxp_polygons[i];
-				//z3->bUsed = TRUE;
-			}
-		}
-
-		if ((z0 != NULL || uv0 == NULL) && (z1 != NULL || uv1 == NULL) && (z2 != NULL || uv2 == NULL) && (z3 != NULL || uv3 == NULL))
-			break;
-	}
-
-	//Copy over uvs
-	if (uv0 != NULL)
-	{
-		vertex[0].x = p0[0];
-		vertex[0].y = p0[1];
-	}
-
-	if (uv1 != NULL)
-	{
-		vertex[1].x = p1[0];
-		vertex[1].y = p1[1];
-	}
-	else
-	{
-		if (w != -1 && h != -1)
-		{
-			vertex[1].x = p0[0];
-			vertex[1].y = p0[1] + h;
-		}
-	}
-
-	if (uv2 != NULL)
-	{
-		vertex[2].x = p2[0];
-		vertex[2].y = p2[1];
-	}
-	else
-	{
-		if (w != -1 && h != -1)
-		{
-			vertex[2].x = p0[0] + w;
-			vertex[2].y = p0[1] + h;
-		}
-	}
-
-	if (uv3 != NULL)
-	{
-		vertex[3].x = p3[0];
-		vertex[3].y = p3[1];
-	}
-	else
-	{
-		if (w != -1 && h != -1)
-		{
-			vertex[3].x = p0[0] + w;
-			vertex[3].y = p0[1];
-		}
-	}
-#else
 	assert(uv0);
 	if (!uv1) uv1 = uv0;
 	if (!uv2) uv2 = uv0;
@@ -724,7 +622,6 @@ void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv
 	vertex[3].dither = dither;
 	vertex[3].page   = page;
 	vertex[3].clut   = clut;
-#endif
 }
 
 void Emulator_GenerateTexcoordArrayRect(struct Vertex* vertex, unsigned char* uv, short page, short clut, short w, short h)
