@@ -2537,11 +2537,11 @@ int docop2(int op) {
 			SXY1 = SXY2;
 			SX2 = Lm_G1(F((long long)OFX + ((long long)IR1 * h_over_sz3)) >> 16);
 			SY2 = Lm_G2(F((long long)OFY + ((long long)IR2 * h_over_sz3)) >> 16);
-
-            pgxp_x = (Lm_G1_ia((long long)OFX + (long long)(IR1 * h_over_sz3))) / (float)(1 << 16);
-            pgxp_y = (Lm_G2_ia((long long)OFY + (long long)(IR2 * h_over_sz3))) / (float)(1 << 16);
-            pgxp_sxy2 = SXY2;
         }
+
+        pgxp_x = (Lm_G1_ia((long long)OFX + (long long)(IR1 * h_over_sz3))) / (float)(1 << 16);
+        pgxp_y = (Lm_G2_ia((long long)OFY + (long long)(IR2 * h_over_sz3))) / (float)(1 << 16);
+        pgxp_sxy2 = SXY2;
 
 		MAC0 = int(F((long long)DQB + ((long long)DQA * h_over_sz3)));
 		IR0 = Lm_H(m_mac0, 1);
