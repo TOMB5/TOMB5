@@ -266,15 +266,7 @@ int SetGraphDebug(int level)
 
 int StoreImage(RECT16* rect, u_long* p)
 {
-	/* TODO
-	#if defined(OGL) || defined(OGLES)
-		glReadPixels(rect->x, rect->y, rect->w, rect->h, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, &p[0]);
-	#elif defined(D3D9)
-		assert(FALSE);//Unimplemented
-	#elif defined(VK)
-		assert(FALSE);//Unimplemented
-	#endif
-	*/
+	Emulator_ReadVRAM((unsigned short*)p, rect->x, rect->y, rect->w, rect->h);
 	return 0;
 }
 

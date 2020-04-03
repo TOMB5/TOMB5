@@ -165,8 +165,10 @@ enum TexFormat
 #endif
 
 extern int  Emulator_Initialise();
+extern void Emulator_StoreFrameBuffer(int x, int y, int w, int h);
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
 extern void Emulator_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dst_x, int dst_y);
+extern void Emulator_ReadVRAM(unsigned short *dst, int x, int y, int dst_w, int dst_h);
 extern void Emulator_UpdateVRAM();
 extern void Emulator_BlitVRAM();
 extern void Emulator_ShutDown();

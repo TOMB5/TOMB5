@@ -139,6 +139,9 @@ void Emulator_ResetDevice()
 
 	hr = d3ddev->CreateVertexBuffer(sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, D3DUSAGE_WRITEONLY | D3DUSAGE_DYNAMIC, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, &dynamic_vertex_buffer, NULL);
 	assert(!FAILED(hr));
+
+	d3ddev->SetRenderState(D3DRS_ZENABLE,  D3DZB_FALSE);
+	d3ddev->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 #endif
 }
 
@@ -1472,8 +1475,6 @@ int Emulator_Initialise()
 	glVertexAttribPointer(a_color,    4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(Vertex), &((Vertex*)NULL)->r);
 	glBindVertexArray(0);
 #elif defined(D3D9)
-	d3ddev->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-
 	if (FAILED(d3ddev->CreateTexture(VRAM_WIDTH, VRAM_HEIGHT, 1, 0, D3DFMT_A8L8, D3DPOOL_MANAGED, &vramTexture, NULL)))
 	{
 		eprinterr("Failed to create render target texture!\n");
@@ -1924,6 +1925,67 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 
 bool vram_need_update = true;
 
+void Emulator_StoreFrameBuffer(int x, int y, int w, int h)
+{
+	short *fb = (short*)SDL_malloc(windowWidth * windowHeight * sizeof(short));
+
+#if defined(OGL) || defined(OGLES)
+	glReadPixels(0, 0, windowWidth, windowHeight, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, fb);
+
+	#define FLIP_Y (h - fy - 1)
+#elif defined(D3D9)
+	IDirect3DSurface9 *srcSurface, *dstSurface;
+	HRESULT hr;
+	D3DLOCKED_RECT rect;
+	hr = d3ddev->GetRenderTarget(0, &srcSurface);
+	assert(!FAILED(hr));
+	hr = d3ddev->CreateOffscreenPlainSurface(windowWidth, windowHeight, D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &dstSurface, NULL);
+	assert(!FAILED(hr));
+	hr = d3ddev->GetRenderTargetData(srcSurface, dstSurface);
+	assert(!FAILED(hr));
+	hr = dstSurface->LockRect(&rect, NULL, D3DLOCK_READONLY);
+	assert(!FAILED(hr));
+	assert(windowWidth * 4 == rect.Pitch);
+
+	unsigned int   *data_src = (unsigned int*)rect.pBits;
+	unsigned short *data_dst = (unsigned short*)fb;
+
+	for (int i = 0; i < windowHeight; i++) {
+		for (int j = 0; j < windowWidth; j++) {
+			unsigned int  c = *data_src++;
+			unsigned char b = ((c >>  3) & 0x1F);
+			unsigned char g = ((c >> 11) & 0x1F);
+			unsigned char r = ((c >> 19) & 0x1F);
+			*data_dst++ = r | (g << 5) | (b << 10) | 0x8000;
+		}
+	}
+	dstSurface->UnlockRect();
+
+	dstSurface->Release();
+	srcSurface->Release();
+
+	#define FLIP_Y (fy)
+#endif
+
+	short *ptr = (short*)vram + VRAM_WIDTH * y + x;
+
+	for (int fy = 0; fy < h; fy++) {
+		short *fb_ptr = fb + (windowHeight * FLIP_Y / h) * windowWidth;
+
+		for (int fx = 0; fx < w; fx++) {
+			ptr[fx] = fb_ptr[windowWidth * fx / w];
+		}
+
+		ptr += VRAM_WIDTH;
+	}
+
+	#undef FLIP_Y
+
+	SDL_free(fb);
+
+	vram_need_update = true;
+}
+
 void Emulator_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dst_x, int dst_y)
 {
 	vram_need_update = true;
@@ -1939,11 +2001,22 @@ void Emulator_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dst_
 
     unsigned short *dst = vram + dst_x + dst_y * VRAM_WIDTH;
 
-    for (int y = 0; y < h; y++) {
-        SDL_memcpy(dst, src, w * 2);
+    for (int i = 0; i < h; i++) {
+        SDL_memcpy(dst, src, w * sizeof(short));
         dst += VRAM_WIDTH;
         src += stride;
     }
+}
+
+void Emulator_ReadVRAM(unsigned short *dst, int x, int y, int dst_w, int dst_h)
+{
+	unsigned short *src = vram + x + VRAM_WIDTH * y;
+
+	for (int i = 0; i < dst_h; i++) {
+		SDL_memcpy(dst, src, dst_w * sizeof(short));
+		dst += dst_w;
+		src += VRAM_WIDTH;
+	}
 }
 
 void Emulator_UpdateVRAM()
@@ -1960,7 +2033,7 @@ void Emulator_UpdateVRAM()
 	D3DLOCKED_RECT rect;
 	HRESULT hr = vramTexture->LockRect(0, &rect, NULL, 0);
 	assert(!FAILED(hr));
-	memcpy(rect.pBits, vram, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
+	memcpy(rect.pBits, vram, VRAM_WIDTH * VRAM_HEIGHT * sizeof(short));
 	vramTexture->UnlockRect(0);
 #endif
 }
