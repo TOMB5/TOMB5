@@ -59,7 +59,7 @@ struct CVECTOR {		/* color type vector */
 	{
 		struct
 		{
-			unsigned char	r, g, b, cd;
+			unsigned char	b, g, r, cd;
 		};
 		uint32_t rgbcd;
 	};
