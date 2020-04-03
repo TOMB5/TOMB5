@@ -48,33 +48,6 @@ FILE* fp_level;
 char* level_data;
 char* level_data_orig;
 
-#pragma pack(push, 1)
-struct mesh_thing
-{
-	tr5_vertex pos;
-	tr5_vertex norm;
-	int f6, f7;
-};
-
-struct tr4_mesh
-{
-	tr_vertex center;
-	int coll_radius;
-	short num_vert;
-	short num_normals;
-	short num_rectangles;
-	tr4_mesh_face4 *rectangles;
-	short num_triangles;
-	tr4_mesh_face3 *triangles;
-	int *lights;
-	LPDIRECT3DVERTEXBUFFER vbuf;
-	void* normals;
-	int attributes;
-	mesh_thing* vert;
-	bounding_box_f bbox;
-};
-#pragma pack(pop)
-
 tr4_mesh** mesh_infos;
 OBJECT_TEXTURE* object_textures;
 SPRITE_STRUCT* sprites;
@@ -869,7 +842,7 @@ int numLvlMeshes;
 				mesh_info->center = *(tr_vertex*)mptr;
 				mesh_info->coll_radius = *(int*)&mptr[3];
 				mesh_info->num_vert = v62 = mptr[5] & 0xFF;
-				if ((mptr[5] & 0xFF) == 0)
+				if (mesh_info->num_vert == 0)
 				{
 					v9 = v62 = mptr[5] >> 8;
 				}
@@ -930,7 +903,7 @@ int numLvlMeshes;
 						{
 							const short v35 = 255 - (*mptr++ >> 5);
 
-							const int v36 = v35 | ((v35 | (v35 << 8)) << 8);
+							const int v36 = RGBA_MAKE(v35, v35, v35, 0);
 							mesh_info->lights[j] = mesh_info->vert[j].f6 = v36;
 						}
 

@@ -33,4 +33,31 @@ extern bool levelLoading;
 extern int AnimFileLen;
 extern LPDIRECTDRAWSURFACE4 surf_screen;
 
+#pragma pack(push, 1)
+struct mesh_thing
+{
+	tr5_vertex pos;
+	tr5_vertex norm;
+	int f6, f7;
+};
+
+struct tr4_mesh
+{
+	tr_vertex center;
+	int coll_radius;
+	short num_vert;
+	short num_normals;
+	short num_rectangles;
+	tr4_mesh_face4* rectangles;
+	short num_triangles;
+	tr4_mesh_face3* triangles;
+	int* lights;
+	LPDIRECT3DVERTEXBUFFER vbuf;
+	void* normals;
+	int attributes;
+	mesh_thing* vert;
+	bounding_box_f bbox;
+};
+#pragma pack(pop)
+
 #endif
