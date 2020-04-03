@@ -73,6 +73,18 @@ typedef CVECTOR BGRCOL;
 		uint32_t rgbcd;
 	};
 };*/
+struct CVECTOR3
+{
+	DWORD b;
+	DWORD g;
+	DWORD r;
+};
+
+struct FVERTEX
+{
+	float x;
+	float y;
+};
 
 struct object_info {
 	short nmeshes; // size=0, offset=0

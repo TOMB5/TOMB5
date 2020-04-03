@@ -37,6 +37,8 @@
 
 #define RGB_MAKE(r, g, b) RGBA_MAKE(r, g, b, 255)
 
+#define RGB_MULT(col, k) RGB_MAKE((k) * RGB_GETRED(col), (k) * RGB_GETGREEN(col), (k) * RGB_GETBLUE(col))
+
 #define SCALE_CLR(begin, end, perc) ((begin) + ((end) - (begin)) * (perc))
 
 #ifdef __cplusplus

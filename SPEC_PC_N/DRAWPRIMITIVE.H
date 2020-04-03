@@ -63,7 +63,7 @@ void InitialiseFunctionTable();
 void GPU_BeginScene();
 
 int32_t DrawPhaseGame();
-void phd_PutPolygons(short* mesh);
+void phd_PutPolygons(short* mptr);
 void DrawStaticObjects(short current_room);
 void DrawEffect(short fx);
 

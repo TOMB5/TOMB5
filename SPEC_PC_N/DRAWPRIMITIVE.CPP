@@ -170,6 +170,8 @@ void AddQuadSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEX
 }
 void AddTriSubdivide(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
+	assert(tex->tile_and_flag < MAX_D3D_TEXTURES);
+	
 	if (e4b100)
 	{
 		AddTriClippedSorted(v, v1, v2, v3, tex, dside);
@@ -209,6 +211,8 @@ void AddQuadClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJEC
 		v3, v[v3].sx, v[v3].sy, v[v3].sz,
 		v4, v[v4].sx, v[v4].sy, v[v4].sz,
 		tex->tile_and_flag);
+
+	assert(tex->tile_and_flag < MAX_D3D_TEXTURES);
 
 	const WORD vp1 = d9ab34[v1];
 	const WORD vp2 = d9ab34[v2];
@@ -504,6 +508,8 @@ D3DTLBUMPVERTEX stru_923C88[20];
 
 void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
+	assert(tex->tile_and_flag < MAX_D3D_TEXTURES);
+	
 	const WORD vp1 = d9ab34[v1];
 	const WORD vp2 = d9ab34[v2];
 	const WORD vp3 = d9ab34[v3];
@@ -685,6 +691,8 @@ void AddTriClippedZBuffer(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE
 
 void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT_TEXTURE* tex, int dside)
 {
+	assert(tex->tile_and_flag < MAX_D3D_TEXTURES);
+	
 	const WORD vp1 = d9ab34[v1];
 	const WORD vp2 = d9ab34[v2];
 	const WORD vp3 = d9ab34[v3];
@@ -867,6 +875,8 @@ void AddQuadClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, int v4, OBJECT
 
 void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE* tex, int dside)
 {
+	assert(tex->tile_and_flag < MAX_D3D_TEXTURES);
+	
 	D3DTLBUMPVERTEX* vptr; // ecx
 	float* v29; // ecx
 	signed int v30; // edx
@@ -1293,7 +1303,7 @@ void DrawEffect(short fx_num)
 		phd_PopMatrix();
 	}
 }
-int dword_506D3C = 0xFF000000;
+DWORD dword_506D3C = 0xFF000000;
 short word_E6D730;
 void PrintObjects(short room_number)// (F)
 {
@@ -1778,7 +1788,7 @@ void RestoreLaraMeshswaps()
 float lara_left_mat[12];
 float lara_right_mat[12];
 
-void InitDynamicLighting()
+void InitDynamicLighting(ITEM_INFO* item)
 {
 	Unimpl();
 }
@@ -1917,7 +1927,8 @@ void CalcAmbientLight(ITEM_INFO* item)// (F)
 				item->il.red = item->il.red + item->il.d_red;
 				item->il.green = item->il.green + item->il.d_green;
 				item->il.blue = item->il.blue + item->il.d_blue;
-				
+
+				// @TODO: BAD!
 				item->il.room_ambient = { (byte)(item->il.red >> 3), (byte)(item->il.green >> 3), (byte)(item->il.blue >> 3), 0 };
 				item->il.room_num = item->il.room_num - 1;
 			}
@@ -2703,7 +2714,7 @@ void DrawRooms(short current_room)
 		}
 	}
 
-	InitDynamicLighting();
+	//InitDynamicLighting(); nullsub
 
 	e4b100 = 0;
 
@@ -2803,9 +2814,262 @@ void DrawRooms(short current_room)
 	Update();
 }
 
-void phd_PutPolygons(short* mesh)
+OBJECT_TEXTURE_VERT stru_920E18[256];
+tr5_vertex stru_91F3B8;
+CVECTOR3 stru_87AD04;
+
+void TransformLightPrelightClipMesh(tr4_mesh* mesh)
 {
 	Unimpl();
+}
+
+void TransformLightClipMesh(tr4_mesh* mesh)
+{
+	Unimpl();
+}
+
+void ClearObjectLighting()
+{
+	Unimpl();
+}
+
+void InitObjectLighting(ITEM_INFO* item)
+{
+	Unimpl();
+}
+
+void InitObjectFogBulbs()
+{
+	Unimpl();
+}
+
+int CheckMeshClip(tr4_mesh* mesh)
+{
+	Unimpl();
+	return 1;
+}
+
+void SuperResetLights()
+{
+	Unimpl();
+}
+
+void ClearDynamicLighting()
+{
+	Unimpl();
+}
+
+void phd_PutPolygons(short* mptr)
+{
+	auto mesh = (tr4_mesh*)mptr;
+
+	int v8; // esi
+	int v10; // edx
+	OBJECT_TEXTURE* v86; // [esp+3Ch] [ebp-2Ch]
+	OBJECT_TEXTURE tex; // [esp+40h] [ebp-28h]
+
+	SetViewMatrix();
+	if (mesh)
+	{
+		room_left_flt = clip_xmin;
+		room_top_flt = clip_ymin;
+		room_right_flt = clip_xmax;
+		room_bottom_flt = clip_ymax;
+		if (CheckMeshClip(mesh))
+		{
+			stru_91F3B8.x = mesh->bbox.maxX - mesh->bbox.minX;
+			stru_91F3B8.y = mesh->bbox.maxY - mesh->bbox.minY;
+			stru_91F3B8.z = mesh->bbox.maxZ - mesh->bbox.minZ;
+			SuperResetLights();
+			if (global_ambient)
+			{
+				ClearObjectLighting();
+				ClearDynamicLighting();
+				App.lpD3DDevice->SetLightState(D3DLIGHTSTATE_AMBIENT, global_ambient);
+				stru_87AD04.r = RGB_GETRED(global_ambient);
+				stru_87AD04.g = RGB_GETGREEN(global_ambient);
+				stru_87AD04.b = RGB_GETBLUE(global_ambient);
+				global_ambient = 0;
+			}
+			else
+			{
+				if (mesh->lights)
+				{
+					ClearObjectLighting();
+					InitDynamicLighting(dword_9158A8);
+				}
+				else
+				{
+					InitObjectLighting(dword_9158A8);
+				}
+				InitObjectFogBulbs();
+			}
+			if (mesh->attributes & 2)
+				TransformLightPrelightClipMesh(mesh);
+			else
+				TransformLightClipMesh(mesh);
+			if (mesh->attributes & 1)
+			{
+				for(int i = 0; i < mesh->num_vert; i++)
+				{
+					const auto norm = mesh->vert[i].norm;
+
+					stru_920E18[i].x = (
+						App.ViewMatrix._11 * norm.x + 
+						App.ViewMatrix._21 * norm.y + 
+						App.ViewMatrix._31 * norm.z +
+						1) * 0.25;
+						
+					stru_920E18[i].y = (
+						App.ViewMatrix._12 * norm.x + 
+						App.ViewMatrix._22 * norm.y + 
+						App.ViewMatrix._32 * norm.z +
+						1) * 0.25;
+				};
+			}
+			
+			if (mesh->num_rectangles > 0)
+			{
+				auto rect = mesh->rectangles;
+				for(int v81 = 0; v81 < mesh->num_rectangles; v81++, rect++)
+				{
+					char v80 = 0;
+					int v11 = rect->Texture & 0x7FFF;
+					OBJECT_TEXTURE* v12 = v86 = &object_textures[v11];
+					uint16 v83 = object_textures[v11].attribute;
+					if (rect->Effects & 1)
+						v12->attribute = 2;
+					if (rect->Effects & 2)
+					{
+						tex.attribute = 2;
+						tex.new_flags = v12->new_flags;
+						tex.tile_and_flag = num_pages - 3;
+						v80 = 1;
+
+						for (int j = 0; j < 4; j++)
+						{
+							tex.vertices[j] = stru_920E18[rect->Vertices[j]];
+						}
+						
+						v8 = 2 * (rect->Effects & 0x7C);
+					}
+					if (dword_506D3C == RGB_MAKE(0, 0, 0))
+					{
+						if (v12->attribute)
+						{
+							if (v12->attribute > 0 && v12->attribute <= 2)
+							{
+								AddQuad2(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2], rect->Vertices[3], v12, 0);
+							}
+						}
+						else
+						{
+							AddQuad1(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2], rect->Vertices[3], v12, 0);
+						}
+						if (v80)
+						{
+							D3DCOLOR old_color[4];
+							D3DCOLOR old_specular[4];
+							
+							for (int k = 0; k < 4; k++)
+							{
+								old_color[k] = vert_buf[rect->Vertices[k]].color;
+								old_specular[k] = vert_buf[rect->Vertices[k]].specular;
+								
+								vert_buf[rect->Vertices[k]].color = RGB_MULT(vert_buf[rect->Vertices[k]].color, v8);
+								vert_buf[rect->Vertices[k]].specular = RGB_MULT(vert_buf[rect->Vertices[k]].specular, v8);
+							}
+							
+							AddQuad2(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2], rect->Vertices[3], &tex, 0);
+
+							for (int k = 0; k < 4; k++)
+							{
+								vert_buf[rect->Vertices[k]].color = old_color[k];
+								vert_buf[rect->Vertices[k]].specular = old_specular[k];
+							}
+						}
+					}
+					else
+					{
+						v12->attribute = 7;
+						AddQuad2(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2], rect->Vertices[3], v12, 0);
+					}
+					v12->attribute = v83;
+				}
+			}
+			
+
+			if (mesh->num_triangles > 0)
+			{
+				auto tri = mesh->triangles;
+				for(int v82 = 0; v82 < mesh->num_triangles; v82++, tri++)
+				{
+					int v52 = tri->Texture & 0x7FFF;
+					char v53 = 0;
+					uint16 v84 = object_textures[v52].attribute;
+					OBJECT_TEXTURE* v56 = &object_textures[v52];
+					if (tri->Effects & 1)
+						v56->attribute = 2;
+					signed __int16 v57 = tri->Effects;
+					if (v57 & 2)
+					{
+						v8 = 2 * (v57 & 0x7C);
+						tex.attribute = 2;
+						tex.new_flags = v56->new_flags;
+						tex.tile_and_flag = num_pages - 3;
+						v53 = 1;
+						for (int j = 0; j < 3; j++)
+						{
+							tex.vertices[j] = stru_920E18[tri->Vertices[j]];
+						}
+					}
+					if (dword_506D3C == RGB_MAKE(0, 0, 0))
+					{
+						int v58 = v56->attribute;
+						if (v56->attribute)
+						{
+							if (v58 > 0 && v58 <= 2)
+							{
+								AddTri2(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], v56, 0);
+							}
+						}
+						else
+						{
+							AddTri1(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], v56, 0);
+						}
+						if (v53)
+						{
+							D3DCOLOR old_color[3];
+							D3DCOLOR old_specular[3];
+
+							for (int k = 0; k < 3; k++)
+							{
+								old_color[k] = vert_buf[tri->Vertices[k]].color;
+								old_specular[k] = vert_buf[tri->Vertices[k]].specular;
+
+								vert_buf[tri->Vertices[k]].color = RGB_MULT(vert_buf[tri->Vertices[k]].color, v8);
+								vert_buf[tri->Vertices[k]].specular = RGB_MULT(vert_buf[tri->Vertices[k]].specular, v8);
+							}
+
+							AddTri2(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], &tex, 0);
+
+							for (int k = 0; k < 3; k++)
+							{
+								vert_buf[tri->Vertices[k]].color = old_color[k];
+								vert_buf[tri->Vertices[k]].specular = old_specular[k];
+							}
+						}
+					}
+					else
+					{
+						v56->attribute = 7;
+						AddTri2(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], v56, 0);
+					}
+					v56->attribute = v84;
+				}
+			}
+		}
+	}
 }
 
 int32_t DrawPhaseGame()// (F)
