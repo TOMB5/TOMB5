@@ -911,9 +911,18 @@ void S_OutputPolyList()
 	Log(LT_Info, "S_OutputPolyList - RENDER END");
 }
 
+ITEM_INFO stru_8796C8;
+int dword_87B0DC;
+
 void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
 {
-	Unimpl();
+	stru_8796C8.il.room_ambient.rgbcd = room->ambient.rgbcd;
+	stru_8796C8.ambient_light_pos.x = x;
+	stru_8796C8.ambient_light_pos.y = y;
+	stru_8796C8.ambient_light_pos.z = z;
+	stru_8796C8.room_number = CurrentRoom;
+	dword_87B0DC = shade;
+	dword_9158A8 = &stru_8796C8;
 }
 
 void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light)// (F)
