@@ -1263,6 +1263,7 @@ int numLvlMeshes;
 			DXTextureList[object_textures[i].tile_and_flag].a8++;
 			object_textures[i].tile_and_flag++;
 			const auto v4 = object_textures[i].tile_and_flag;
+			assert(v4 < MAX_D3D_TEXTURES);
 			const auto ox = 1.0 / (2 * DXTextureList[v4].width);
 			const auto oy = 1.0 / (2 * DXTextureList[v4].height);
 			if (object_textures[i].is_room_geom)
