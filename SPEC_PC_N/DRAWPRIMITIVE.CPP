@@ -892,7 +892,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 	if (vp1 & vp2 & vp3)
 		return;
 
-	Log(LT_Enter, "AddTriClippedSorted %4d[%d];%4d[%d];%4d[%d] tex=%d", v1, vp1, v2, vp2, v3, vp3, tex->tile_and_flag);
+	//Log(LT_Enter, "AddTriClippedSorted %4d[%d];%4d[%d];%4d[%d] tex=%d", v1, vp1, v2, vp2, v3, vp3, tex->tile_and_flag);
 
 	char v36 = 0;
 	int v38 = v1;
@@ -1076,7 +1076,7 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 			info->head.z = v3a;
 			
 			if (e4b100)
-				info->head.z *= 0.33333299;
+				info->head.z /= 3.0;
 
 			info3dptrbf += sizeof(dinfo_head) / sizeof(short);
 			info3dptrbf += sizeof(D3DTLBUMPVERTEX) * v34;
@@ -1092,11 +1092,13 @@ void AddTriClippedSorted(D3DTLVERTEX *v, int v1, int v2, int v3, OBJECT_TEXTURE*
 		vptr[0].sz = f_a - f_boo * vptr[0].rhw;
 		vptr[1].sz = f_a - f_boo * vptr[1].rhw;
 		vptr[2].sz = f_a - f_boo * vptr[2].rhw;
+
+		auto info = (dinfo_tri*)info3dptrbf;
 		
+		info[-1].head.z = v3a;
+
 		if (e4b100)
-			*(float*)&tex->attribute = v3a / 3.0;
-		else
-			*(float*)&tex->attribute = v3a;
+			info[-1].head.z /= 3.0;
 		
 		surfacenumbf++;
 		++num_tris;
