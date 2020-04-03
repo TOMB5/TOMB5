@@ -7,18 +7,11 @@
 
 #define WIDE_SCREEN (0)
 
-#if defined(PGXP)
-#define MAX_NUM_VERTICES 32768
-//Index of last vertex added to vertex buffer
-int pgxp_vertex_index = 0;
-
-int pgxp_vertex_count = 0;
-
-struct PGXPVertex pgxp_vertex_buffer[MAX_NUM_VERTICES];
-#endif
-
 GTERegisters gteRegs;
 
+float pgxp_x = 0;
+float pgxp_y = 0;
+unsigned int pgxp_sxy2 = 0;
 
 #define GTE_SF(op) ((op >> 19) & 1)
 #define GTE_MX(op) ((op >> 17) & 3)
@@ -2158,18 +2151,9 @@ int docop2(int op) {
 		SXY1 = SXY2;
 		SX2 = int(Lm_G1(F((long long)OFX + ((long long)IR1 * h_over_sz3)) >> 16));
 		SY2 = int(Lm_G2(F((long long)OFY + ((long long)IR2 * h_over_sz3)) >> 16));
-
-#if defined(PGXP)
-        if (pgxp_vertex_index == 871)
-        {
-            int test = 0;
-            test++;
-        }
-        pgxp_vertex_buffer[pgxp_vertex_index].originalSXY2 = SXY2;
-        pgxp_vertex_buffer[pgxp_vertex_index].x = (Lm_G1_ia((long long)OFX + (long long)(IR1 * h_over_sz3) * (false ? 0.75 : 1))) / (float)(1 << 16);
-        pgxp_vertex_buffer[pgxp_vertex_index].y = (Lm_G2_ia((long long)OFY + (long long)(IR2 * h_over_sz3))) / (float)(1 << 16);
-        pgxp_vertex_buffer[pgxp_vertex_index++].z = max(SZ3, H / 2) / (float)(1 << 16);
-#endif
+        pgxp_x = (Lm_G1_ia((long long)OFX + (long long)(IR1 * h_over_sz3))) / (float)(1 << 16);
+        pgxp_y = (Lm_G2_ia((long long)OFY + (long long)(IR2 * h_over_sz3))) / (float)(1 << 16);
+        pgxp_sxy2 = SXY2;
         MAC0 = int(F((long long)DQB + ((long long)DQA * h_over_sz3)));
         IR0 = Lm_H(m_mac0, 1);
 		return 1;
@@ -2554,13 +2538,10 @@ int docop2(int op) {
 			SX2 = Lm_G1(F((long long)OFX + ((long long)IR1 * h_over_sz3)) >> 16);
 			SY2 = Lm_G2(F((long long)OFY + ((long long)IR2 * h_over_sz3)) >> 16);
 
-#if defined(PGXP)
-            pgxp_vertex_buffer[pgxp_vertex_index].originalSXY2 = SXY2;
-            pgxp_vertex_buffer[pgxp_vertex_index].x = Lm_G1_ia((long long)OFX + (long long)(IR1 * h_over_sz3) * (false ? 0.75 : 1)) / (float)(1 << 16);
-            pgxp_vertex_buffer[pgxp_vertex_index].y = Lm_G2_ia((long long)OFY + (long long)(IR2 * h_over_sz3)) / (float)(1 << 16);
-            pgxp_vertex_buffer[pgxp_vertex_index++].z = max(SZ3, H / 2) / (float)(1 << 16);
-#endif
-		}
+            pgxp_x = (Lm_G1_ia((long long)OFX + (long long)(IR1 * h_over_sz3))) / (float)(1 << 16);
+            pgxp_y = (Lm_G2_ia((long long)OFY + (long long)(IR2 * h_over_sz3))) / (float)(1 << 16);
+            pgxp_sxy2 = SXY2;
+        }
 
 		MAC0 = int(F((long long)DQB + ((long long)DQA * h_over_sz3)));
 		IR0 = Lm_H(m_mac0, 1);
@@ -3013,4 +2994,11 @@ int rsin(int a)
 {
 	UNIMPLEMENTED();
 	return 0;
+}
+
+void CachePGXPVertex(PGXPVertex* vertex)
+{
+    vertex->x = pgxp_x;
+    vertex->y = pgxp_y;
+    vertex->originalSXY2 = pgxp_sxy2;
 }

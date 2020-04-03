@@ -119,6 +119,13 @@ struct Vertex
 	u_char u, v, bright, dither;
 	u_char r, g, b, a;
 };
+
+struct PGXPVertex
+{
+	float  x, y;
+	unsigned int originalSXY2;
+	bool bUsed;
+};
 #pragma pack(pop)
 
 enum ShaderAttrib

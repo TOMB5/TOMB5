@@ -61,6 +61,102 @@ int g_emulatorPaused = 0;
 int g_polygonSelected = 0;
 TextureID g_lastBoundTexture;
 
+//The actual result buffer mirrors g_vertexBuffer but with PGXP values
+int g_lastPGXPIndex = 0;
+
+//The cache
+#define MAX_NUM_PGXP_CACHE_VERTICES 4096
+PGXPVertex g_cachedPGXPVertices[MAX_NUM_PGXP_CACHE_VERTICES];
+PGXPVertex* g_currentPGXPVertex = &g_cachedPGXPVertices[0];
+#if defined(_DEBUG)
+int g_currentPGXPIndex = 0;
+#endif
+
+void Emulator_CachePGXPVertex()
+{
+	//Out of space, should never happen if properly used.
+	assert(g_currentPGXPIndex < MAX_NUM_PGXP_CACHE_VERTICES);
+	CachePGXPVertex(g_currentPGXPVertex++);
+}
+
+void Emulator_ResetPGXPCache()
+{
+	g_currentPGXPIndex = 0;
+	g_currentPGXPVertex = &g_cachedPGXPVertices[0];
+	memset(&g_cachedPGXPVertices[0], 0, MAX_NUM_PGXP_CACHE_VERTICES * sizeof(PGXPVertex));
+}
+
+void Emulator_PushPGXPVertex()
+{
+#if defined(_DEBUG)
+	g_currentPGXPIndex += 6;
+#endif
+	g_currentPGXPVertex += 6;
+}
+
+void Emulator_PopPGXPVertex()
+{
+#if defined(_DEBUG)
+	g_currentPGXPIndex -= 6;
+#endif
+	g_currentPGXPVertex -= 6;
+}
+
+void Emulator_CacheFinalPGXPVertex(unsigned int* poly, int sizeInInts)
+{
+	//Should never happen, fault in caching system otherwise.
+	assert(sizeInInts > 0);
+
+	//Skip address and len and type rgb
+#if defined(USE_32_BIT_ADDR)
+	sizeInInts -= 3;
+	poly += 3;
+#else
+	sizeInInts -= 2;
+	poly += 2;
+#endif
+
+	//If the last vertex was found in the cache then this is true else false
+	//Used for ensuring vertices not found are still added to the cache to prevent vertex buffer mis-alignments
+	bool bFoundLastVertex = false;
+
+	for (int i = g_currentPGXPIndex; i < 6; i++)
+	{
+		bFoundLastVertex = false;
+
+		if (g_cachedPGXPVertices[i].originalSXY2 == 0)
+			continue;
+
+		for (int j = 0; j < sizeInInts; j++)
+		{
+			//Found, cache now!
+			if (*poly == g_cachedPGXPVertices[i].originalSXY2)
+			{
+				g_pgxpVertexBuffer[g_lastPGXPIndex] = g_cachedPGXPVertices[j];
+				g_pgxpVertexBuffer[g_lastPGXPIndex++].bUsed = TRUE;
+				sizeInInts -= 3;
+				poly += 3;
+				bFoundLastVertex = true;
+				break;
+			}
+		}
+
+		//We still need to add it as nothing
+		if (!bFoundLastVertex)
+		{
+			g_lastPGXPIndex++;
+			sizeInInts -= 3;
+			poly += 3;
+		}
+		i = 0;
+
+		if (sizeInInts <= 0)
+		{
+			break;
+		}
+	}
+}
+
 void Emulator_ResetDevice()
 {
 #if defined(OGLES) || defined(OGL)
@@ -404,90 +500,33 @@ void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, sho
 
 void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h)
 {
-#if defined(PGXP)
-	PGXPVertex* pgxp_vertex_0 = NULL;
-	PGXPVertex* pgxp_vertex_1 = NULL;
-	PGXPVertex* pgxp_vertex_2 = NULL;
-	PGXPVertex* pgxp_vertex_3 = NULL;
-
-	//Locate each vertex based on SXY2 (very slow)
-	for (int i = 0; i < pgxp_vertex_index; i++)
-	{
-		if (p0 != NULL)
-		{
-			if (((unsigned int*)p0)[0] == pgxp_vertex_buffer[i].originalSXY2)
-			{
-				pgxp_vertex_0 = &pgxp_vertex_buffer[i];
-				continue;
-			}
-		}
-
-		if (p1 != NULL)
-		{
-			if (((unsigned int*)p1)[0] == pgxp_vertex_buffer[i].originalSXY2)
-			{
-				pgxp_vertex_1 = &pgxp_vertex_buffer[i];
-				continue;
-			}
-		}
-
-		if (p2 != NULL)
-		{
-			if (((unsigned int*)p2)[0] == pgxp_vertex_buffer[i].originalSXY2)
-			{
-				pgxp_vertex_2 = &pgxp_vertex_buffer[i];
-				continue;
-			}
-		}
-
-		if (p3 != NULL)
-		{
-			if (((unsigned int*)p3)[0] == pgxp_vertex_buffer[i].originalSXY2)
-			{
-				pgxp_vertex_3 = &pgxp_vertex_buffer[i];
-				continue;
-			}
-		}
-	}
-#endif
-
 	//Copy over position
 	if (p0 != NULL)
 	{
-#if defined(PGXP)
-		if (pgxp_vertex_0 != NULL)
+		if (g_pgxpVertexBuffer[g_vertexIndex].bUsed)
 		{
-			vertex[0].x = pgxp_vertex_0->x;
-			vertex[0].y = pgxp_vertex_0->y;
+			vertex[0].x = g_pgxpVertexBuffer[g_vertexIndex].x;
+			vertex[0].y = g_pgxpVertexBuffer[g_vertexIndex].y;
 		}
 		else
 		{
-			vertex[0].x = (float)p0[0];
-			vertex[0].y = (float)p0[1];
+			vertex[0].x = p0[0];
+			vertex[0].y = p0[1];
 		}
-#else
-		vertex[0].x = p0[0];
-		vertex[0].y = p0[1];
-#endif
 	}
 
 	if (p1 != NULL)
 	{
-#if defined(PGXP)
-		if (pgxp_vertex_1 != NULL)
+		if (g_pgxpVertexBuffer[g_vertexIndex + 1].bUsed)
 		{
-			vertex[1].x = pgxp_vertex_1->x;
-			vertex[1].y = pgxp_vertex_1->y;
+			vertex[1].x = g_pgxpVertexBuffer[g_vertexIndex + 1].x;
+			vertex[1].y = g_pgxpVertexBuffer[g_vertexIndex + 1].y;
 		}
 		else
 		{
-			vertex[1].x = (float)p1[0];
-			vertex[1].y = (float)p1[1];
+			vertex[1].x = p1[0];
+			vertex[1].y = p1[1];
 		}
-#else
-		vertex[1].x = p1[0];
-		vertex[1].y = p1[1];
-#endif
 	}
 	else
 	{
@@ -500,21 +539,16 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 
 	if (p2 != NULL)
 	{
-#if defined(PGXP)
-		if (pgxp_vertex_2 != NULL)
+		if (g_pgxpVertexBuffer[g_vertexIndex + 2].bUsed)
 		{
-			vertex[2].x = pgxp_vertex_2->x;
-			vertex[2].y = pgxp_vertex_2->y;
+			vertex[2].x = g_pgxpVertexBuffer[g_vertexIndex + 2].x;
+			vertex[2].y = g_pgxpVertexBuffer[g_vertexIndex + 2].y;
 		}
 		else
 		{
-			vertex[2].x = (float)p2[0];
-			vertex[2].y = (float)p2[1];
+			vertex[2].x = p2[0];
+			vertex[2].y = p2[1];
 		}
-#else
-		vertex[2].x = p2[0];
-		vertex[2].y = p2[1];
-#endif
 	}
 	else
 	{
@@ -527,21 +561,16 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 
 	if (p3 != NULL)
 	{
-#if defined(PGXP)
-		if (pgxp_vertex_3 != NULL)
+		if (g_pgxpVertexBuffer[g_vertexIndex + 3].bUsed)
 		{
-			vertex[3].x = pgxp_vertex_3->x;
-			vertex[3].y = pgxp_vertex_3->y;
+			vertex[3].x = g_pgxpVertexBuffer[g_vertexIndex + 3].x;
+			vertex[3].y = g_pgxpVertexBuffer[g_vertexIndex + 3].y;
 		}
 		else
 		{
-			vertex[3].x = (float)p3[0];
-			vertex[3].y = (float)p3[1];
+			vertex[3].x = p3[0];
+			vertex[3].y = p3[1];
 		}
-#else
-		vertex[3].x = p3[0];
-		vertex[3].y = p3[1];
-#endif
 	}
 	else
 	{
@@ -1997,13 +2026,6 @@ void Emulator_SetBlendMode(BlendMode blendMode)
 #endif
 
 	g_PreviousBlendMode = blendMode;
-}
-
-void Emulator_SetPGXPVertexCount(int vertexCount)
-{
-#if defined(PGXP)
-	pgxp_vertex_count = vertexCount;
-#endif
 }
 
 void Emulator_SetViewPort(int x, int y, int width, int height)

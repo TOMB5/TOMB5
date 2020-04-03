@@ -9,6 +9,7 @@
 #include "MISC.H"
 #include "GPU.H"
 #include "ROOMLETB.H"
+#include "EMULATOR_PRIVATE.H"
 
 unsigned short* QuadVertTableRL3 = &QuadVertTable[0];
 unsigned short* TriVertTableRL3 = &TriVertTable[0];
@@ -150,6 +151,7 @@ int* SubPolyGTLoopRL3(int gp, int* t0, int*& t1, int s1)
         VZ0 = t7 & 0xFFFF;
         t5 = ((unsigned char*)t3)[14];
         docop2(0x180001);
+        Emulator_CachePGXPVertex();
         t6 = ((unsigned char*)t3)[15];
         t7 = ((unsigned char*)t4)[14];
         t8 = ((unsigned char*)t4)[15];
@@ -169,6 +171,9 @@ int* SubPolyGTLoopRL3(int gp, int* t0, int*& t1, int s1)
         ((char*)t1)[15] = t6;
 
         t1 += 5;
+
+        ///@TODO change to MAX_NUM in PGXP_VERTEX cache all at once
+        ///@TODO scan? or use push/pop
     } while (--gp);
 
     return t00;
@@ -265,8 +270,9 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
                 s4 = gp;
                 s5 = ra;
                 s6 = (int)t0;
-
+                Emulator_PushPGXPVertex();
                 a3 = SubPolyGT4RL3((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
+                Emulator_PopPGXPVertex();
                 t1 = (int*)RGB2;
                 t2 = RGB1;
                 s3 = 0;
@@ -304,7 +310,6 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
                     t5 = ((int*)t6)[0];
                     t7 = ((int*)t6)[4];
                     t8 = ((unsigned short*)t6)[7];
-
                     ((POLY_GT4*)a3)->x3 = (t5 & 0xFFFF);
                     ((POLY_GT4*)a3)->y3 = (t5 >> 16) & 0xFFFF;
                     ((POLY_GT4*)a3)->r3 = (t7 & 0xFF);
@@ -315,6 +320,7 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
                     ((POLY_GT4*)a3)->v3 = (t8 & 0xFF00) >> 8;
                     ((POLY_GT4*)a3)->pad3 = (t8 & 0xFFFF0000) >> 16;
                     MyAddPrimRL3(0xC000000, &t9, &s0, a3);
+                    Emulator_CacheFinalPGXPVertex((unsigned int*)a3, sizeof(POLY_GT4) / sizeof(unsigned int));
                     a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
                 }
             loc_75B20:
@@ -399,9 +405,9 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
                 s3 = 1;
                 s4 = gp;
                 s6 = (int)t0;
-                //t0 = TriVertTables[gp]
+                Emulator_PushPGXPVertex();
                 a3 = (int*)SubPolyGT3RL3((int*)&TriVertTables[gp], &s1[216], s1, a3, s3, fp, s0);
-
+                Emulator_PopPGXPVertex();
                 t1 = (int*)RGB2;
                 t2 = RGB1;
                 s3 = 0;
@@ -426,7 +432,8 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
                         t2 = RGB1;
                         SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
                         MyAddPrimRL3(0x9000000, &t9, &s0, a3);
-                        a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                        Emulator_CacheFinalPGXPVertex((unsigned int*)a3, sizeof(POLY_GT3) / sizeof(unsigned int));
+                        a3 += sizeof(POLY_GT3) / sizeof(unsigned long);
                     }
                 }//loc_ED4
             }
@@ -692,6 +699,8 @@ char* DrawMeshRL3(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
     int t3;
     int t9;
     int gp;
+
+    Emulator_ResetPGXPCache();
 
     mesh += 8;
     LR1 = mesh & 0xFFFF;
@@ -1031,8 +1040,9 @@ loc_15A8:
                     InitSubdivisionRL3((int*)s1, t1, s44, &fpp, t5, t2, s55, gp, t6, &t3, s66, s3, &t7, &s77);
 
                     s3 = 0;
+                    Emulator_PushPGXPVertex();
                     a3 = (int)SubPolyGT3RL3((int*)&TriVertTableRL3, (int*)&s1[804], (int*)s1, (int*)a3, s3, fpp, (int)s0);
-
+                    Emulator_PopPGXPVertex();
                     at = BFC;
                     t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
                     t9 = DQA;
@@ -1043,6 +1053,7 @@ loc_15A8:
                         t3 = a3;
                         a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
                         MyAddPrimRL3(0x9000000, &t9, (int*)&s0, (int*)a3);
+                        Emulator_CacheFinalPGXPVertex((unsigned int*)a3, sizeof(POLY_GT3) / sizeof(unsigned int));
                         a3 = t3;
                     }
                 }
@@ -1050,6 +1061,7 @@ loc_15A8:
                 {
                     //loc_1718
                     MyAddPrimRL3(0x9000000, &t9, (int*)&s0, (int*)a3);
+                    Emulator_CacheFinalPGXPVertex((unsigned int*)a3, sizeof(POLY_GT3) / sizeof(unsigned int));
                     a3 += sizeof(POLY_GT3);
                 }
             }//loc_1724
@@ -1236,7 +1248,9 @@ loc_172C:
                     ((short*)s1)[407] = t4;
                     ((short*)s1)[408] = t5;
 
+                    Emulator_PushPGXPVertex();
                     a3 = (int)SubPolyGT4RL3((int*)&QuadVertTableRL3, (int*)&s1[824], (int*)s1, (int*)a3, (int)s0, s3, fpp);
+                    Emulator_PopPGXPVertex();
                     t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
                     at = BFC;
                     t9 = DQA;
@@ -1250,6 +1264,7 @@ loc_172C:
                         {
                             a3 = (LG2 & 0xFFFF) | ((LG3 & 0xFFFF) << 16);
                             MyAddPrimRL3(0xC000000, &t9, (int*)&s0, (int*)a3);
+                            Emulator_CacheFinalPGXPVertex((unsigned int*)a3, sizeof(POLY_GT4) / sizeof(unsigned int));
                             a3 = t3;
                         }
                     }//loc_76410
@@ -1258,6 +1273,7 @@ loc_172C:
                 {
                     //loc_76404
                     MyAddPrimRL3(0xC000000, &t9, (int*)&s0, (int*)a3);
+                    Emulator_CacheFinalPGXPVertex((unsigned int*)a3, sizeof(POLY_GT4) / sizeof(unsigned int));
                     a3 += sizeof(POLY_GT4);
                 }
             }

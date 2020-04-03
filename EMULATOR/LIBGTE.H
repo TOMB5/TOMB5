@@ -3,6 +3,8 @@
 
 #include "TYPES.H"
 
+extern struct Vertex;
+
 typedef struct {
 	short	m[3][3];	/* 3x3 rotation matrix */
 	long    t[3];		/* transfer vector */
@@ -149,21 +151,6 @@ extern void SetDQA(int iDQA);
 extern void SetDQB(int iDQB);
 extern void SetFogNear(long a, long h);
 extern int rsin(int a);
-
-#if defined(PGXP)
-#define MAX_NUM_VERTICES 32768
-
-struct PGXPVertex
-{
-	unsigned int originalSXY2;
-	float x;
-	float y;
-	float z;
-};
-
-extern struct PGXPVertex pgxp_vertex_buffer[MAX_NUM_VERTICES];
-extern int pgxp_vertex_index;
-extern int pgxp_vertex_count;
-#endif
+extern void CachePGXPVertex(struct PGXPVertex* vertex);
 
 #endif

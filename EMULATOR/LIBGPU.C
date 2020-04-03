@@ -177,6 +177,7 @@ static int polygon_count = 0;
 #endif
 
 struct Vertex g_vertexBuffer[MAX_NUM_POLY_BUFFER_VERTICES];
+struct PGXPVertex g_pgxpVertexBuffer[MAX_NUM_POLY_BUFFER_VERTICES];
 struct VertexBufferSplit g_splits[MAX_NUM_INDEX_BUFFERS];
 int g_vertexIndex;
 int g_splitIndex;
@@ -509,6 +510,7 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 
 			if (g_emulatorPaused)
 			{
+				eprintf("=================POLYGON: %d===================\n", g_polygonSelected == 0 ? 0 : g_polygonSelected / 3);
 				for (int i = 0; i < 3; i++)
 				{
 					struct Vertex* vert = &g_vertexBuffer[g_polygonSelected + i];
@@ -516,12 +518,10 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 					vert->g = 0;
 					vert->b = 0;
 
-					eprintf("==========================================\n");
-					eprintf("POLYGON: %d\n", i);
+					eprintf("Vertex: %d\n", i);
 					eprintf("X: %d Y: %d\n", vert->x, vert->y);
 					eprintf("U: %d V: %d\n", vert->u, vert->v);
 					eprintf("TP: %d CLT: %d\n", vert->page, vert->clut);
-					eprintf("==========================================\n");
 				}
 				Emulator_UpdateInput();
 			}
@@ -534,13 +534,12 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 			}
 		}
 
-#if defined(PGXP)
-		/* Reset the ztable */
-		memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
+		/* Reset the pgxp vertex buffer */
+		memset(&g_pgxpVertexBuffer[0], 0, MAX_NUM_POLY_BUFFER_VERTICES * sizeof(PGXPVertex));
 
-		/* Reset the ztable index of */
-		pgxp_vertex_index = 0;
-#endif
+		/* Reset the index */
+		g_lastPGXPIndex = 0;
+
 		Emulator_EndScene();
 
 	} while (g_emulatorPaused);
