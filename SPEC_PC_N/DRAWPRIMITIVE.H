@@ -120,4 +120,11 @@ extern float fog_end;
 extern uint32_t GnFrameCounter;
 extern ITEM_INFO* dword_9158A8;
 
+extern DWORD dword_87B100;
+extern DWORD dword_87B104;
+extern DWORD dword_87B108;
+extern DWORD dword_87B10C;
+extern DWORD dword_87B110;
+extern DWORD dword_87B114;
+
 #endif

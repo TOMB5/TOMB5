@@ -1,6 +1,8 @@
 #ifndef SPECTYPES_H
 #define SPECTYPES_H
 
+#define D3D_OVERLOADS
+
 #define INPUT_H "INPUT.H"
 #define CMATH_H "math.h"
 

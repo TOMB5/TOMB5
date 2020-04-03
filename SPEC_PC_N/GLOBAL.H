@@ -146,7 +146,9 @@ void updateAnimFrame(PACKNODE* node, int flags, short* frame);
 #endif
 
 extern WATERTAB	WaterTable[22][64];
-extern bool thread_started;;
+extern bool thread_started;
+extern tr5_vertex stru_51D0B0[5];
+extern D3DMATRIX stru_55D168;
 
 void WaitUntilFalse(DWORD* ptr);
 void WaitUntilTrue(DWORD* ptr);

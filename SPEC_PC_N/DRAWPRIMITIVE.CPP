@@ -2849,14 +2849,41 @@ int CheckMeshClip(tr4_mesh* mesh)
 	return 1;
 }
 
-void SuperResetLights()
+D3DMATRIX res;
+
+DWORD dword_87B100;
+DWORD dword_87B104;
+DWORD dword_87B108;
+DWORD dword_87B10C;
+DWORD dword_87B110;
+DWORD dword_87B114;
+
+void SuperResetLights()// (F)
 {
-	Unimpl();
+	D3DMATRIX a = App.ViewMatrix;
+	D3DMATRIX b = stru_55D168;
+
+	dword_87B100 = 0;
+	dword_87B104 = 0;
+	dword_87B108 = 0;
+	dword_87B10C = 0;
+	dword_87B110 = 0;
+	dword_87B114 = 0;
+	
+	stru_87AD04.b = 0;
+	stru_87AD04.g = 0;
+	stru_87AD04.r = 0;
+	
+	D3DMultMatrix(&res, &a, &b);
+	
+	stru_91F3B8.x = stru_51D0B0[3].x + res._41;
+	stru_91F3B8.y = stru_51D0B0[3].y + res._42;
+	stru_91F3B8.z = stru_51D0B0[3].z + res._43;
 }
 
-void ClearDynamicLighting()
+void ClearDynamicLighting()// (F)
 {
-	Unimpl();
+	
 }
 
 void phd_PutPolygons(short* mptr)
