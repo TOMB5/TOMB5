@@ -5764,6 +5764,7 @@ void SetLaraUnderwaterNodes()//8596C(<), 879B0(<) (F)
 	flags = 0;
 
 #if PC_VERSION
+	room_number = lara_item->room_number;
 	GetFloor(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos, &room_number);
 	byte_57A468 = room[room_number].flags & RF_FILL_WATER;
 #endif
