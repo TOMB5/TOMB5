@@ -1825,9 +1825,121 @@ void S_DrawSplashes()
 	Unimpl();
 }
 
-void DrawBubbles()
+tr_vertex stru_E914E0;
+SVECTOR stru_E912E0;
+
+int dword_E913E0[1]; // TODO???
+
+void DrawBubbles()// (F)
 {
-	Unimpl();
+	phd_PushMatrix();
+	phd_TranslateAbs(lara_item->pos.x_pos, lara_item->pos.y_pos, lara_item->pos.z_pos);
+	
+	struct BUBBLE_STRUCT* bub = Bubbles;
+
+	for(int i = 0; i < 40; i++, bub++)
+	{
+		if (bub->size == 0)
+			continue;
+		
+		const int dx = bub->pos.x - lara_item->pos.x_pos;
+		const int dy = bub->pos.y - lara_item->pos.y_pos;
+		const int dz = bub->pos.z - lara_item->pos.z_pos;
+			
+		if (dx < -20480 || dx > 20480 || dy < -20480 || dy > 20480 || dz < -20480 || dz > 20480)
+		{
+			bub->size = 0;
+			continue;
+		}
+			
+		stru_E914E0 = { dx, dy, dz };
+			
+		const int v6 = 
+			phd_mxptr[M20] * dx + 
+			phd_mxptr[M21] * dy + 
+			phd_mxptr[M22] * dz + 
+			phd_mxptr[M23];
+		
+		const double v7 = f_persp_bis / v6;
+		const int v9 = v6 >> W2V_SHIFT;
+			
+		stru_E912E0.vx = (
+			phd_mxptr[M00] * dx +
+			phd_mxptr[M01] * dy +
+			phd_mxptr[M02] * dz +
+			phd_mxptr[M03]
+		) * v7 + f_centerx;
+			
+		stru_E912E0.vy = (
+			phd_mxptr[M10] * dx +
+			phd_mxptr[M11] * dy +
+			phd_mxptr[M12] * dz +
+			phd_mxptr[M13]
+		) * v7 + f_centery;
+			
+		dword_E913E0[0] = v9;
+
+		if (v9 >= 32)
+		{
+			if (v9 >= 20480)
+			{
+				bub->size = 0;
+				continue;
+			}
+				
+			int diameter = phd_persp * (bub->size / 2) / v9;
+				
+			if (diameter > 128)
+			{
+				bub->size = 0;
+				continue;
+			}
+				
+			if (diameter < 4)
+				diameter = 4;
+				
+			const int radius = diameter / 2;
+				
+			const int left = stru_E912E0.vx - radius;
+			const int right = stru_E912E0.vx + radius;
+			const int top = stru_E912E0.vy - radius;
+			const int bottom = stru_E912E0.vy + radius;
+				
+			if (right >= phd_winxmin && left < phd_winxmax && bottom >= phd_winymin && top < phd_winymax)
+			{
+				SPRITE_STRUCT* v16 = &sprites[objects[DEFAULT_SPRITES].mesh_index + 13];
+				const int v17 = bub->shade;
+
+				D3DTLVERTEX v[4];
+				setXY4(v, left, top, right, top, right, bottom, left, bottom, dword_E913E0[0], d9ab34);
+
+				for(int j = 0; j < 4; j++)
+				{
+					v[j].color = RGB_MAKE(v17, v17, v17);
+					v[j].specular = RGB_MAKE(0, 0, 0);
+				}
+
+				OBJECT_TEXTURE tex;
+					
+				tex.attribute = OT_ALPHA_BLENDING;
+				tex.new_flags = 0;
+				tex.tile_and_flag = v16->tile;
+					
+				tex.vertices[0].x = v16->left;
+				tex.vertices[0].y = v16->top;
+				tex.vertices[1].x = v16->right;
+				tex.vertices[1].y = v16->top;
+				tex.vertices[2].x = v16->right;
+				tex.vertices[2].y = v16->bottom;
+				tex.vertices[3].x = v16->left;
+				tex.vertices[3].y = v16->bottom;
+					
+				AddQuad2(v, 0, 1, 2, 3, &tex, 0);
+			}
+		}
+	}
+	
+	phd_PopMatrix();
 }
 
 void DrawDebris()
@@ -3070,10 +3182,10 @@ void phd_PutPolygons(short* mptr)
 					OBJECT_TEXTURE* v12 = v86 = &object_textures[v11];
 					const uint16 v83 = object_textures[v11].attribute;
 					if (rect->Effects & 1)
-						v12->attribute = 2;
+						v12->attribute = OT_ALPHA_BLENDING;
 					if (rect->Effects & 2)
 					{
-						tex.attribute = 2;
+						tex.attribute = OT_ALPHA_BLENDING;
 						tex.new_flags = v12->new_flags;
 						tex.tile_and_flag = num_pages - 3;
 						v80 = 1;
@@ -3087,16 +3199,13 @@ void phd_PutPolygons(short* mptr)
 					}
 					if (dword_506D3C == RGB_MAKE(0, 0, 0))
 					{
-						if (v12->attribute)
-						{
-							if (v12->attribute > 0 && v12->attribute <= 2)
-							{
-								AddQuad2(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2], rect->Vertices[3], v12, 0);
-							}
-						}
-						else
+						if (v12->attribute == OT_ALL_OPAQUE)
 						{
 							AddQuad1(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2], rect->Vertices[3], v12, 0);
+						}
+						else if(v12->attribute == OT_ALPHA_TESTING || v12->attribute == OT_ALPHA_BLENDING)
+						{
+							AddQuad2(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2], rect->Vertices[3], v12, 0);
 						}
 						if (v80)
 						{
@@ -3123,7 +3232,7 @@ void phd_PutPolygons(short* mptr)
 					}
 					else
 					{
-						v12->attribute = 7;
+						v12->attribute = OT_FORCED_ALPHA;
 						AddQuad2(vert_buf, rect->Vertices[0], rect->Vertices[1], rect->Vertices[2], rect->Vertices[3], v12, 0);
 					}
 					v12->attribute = v83;
@@ -3141,12 +3250,12 @@ void phd_PutPolygons(short* mptr)
 					const uint16 v84 = object_textures[v52].attribute;
 					OBJECT_TEXTURE* v56 = &object_textures[v52];
 					if (tri->Effects & 1)
-						v56->attribute = 2;
+						v56->attribute = OT_ALPHA_BLENDING;
 					const signed __int16 v57 = tri->Effects;
 					if (v57 & 2)
 					{
 						v8 = 2 * (v57 & 0x7C);
-						tex.attribute = 2;
+						tex.attribute = OT_ALPHA_BLENDING;
 						tex.new_flags = v56->new_flags;
 						tex.tile_and_flag = num_pages - 3;
 						v53 = 1;
@@ -3157,17 +3266,13 @@ void phd_PutPolygons(short* mptr)
 					}
 					if (dword_506D3C == RGB_MAKE(0, 0, 0))
 					{
-						const int v58 = v56->attribute;
-						if (v56->attribute)
-						{
-							if (v58 > 0 && v58 <= 2)
-							{
-								AddTri2(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], v56, 0);
-							}
-						}
-						else
+						if (v56->attribute == OT_ALL_OPAQUE)
 						{
 							AddTri1(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], v56, 0);
+						}
+						else if (v56->attribute == OT_ALPHA_TESTING || v56->attribute == OT_ALPHA_BLENDING)
+						{
+							AddTri2(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], v56, 0);
 						}
 						if (v53)
 						{
@@ -3194,7 +3299,7 @@ void phd_PutPolygons(short* mptr)
 					}
 					else
 					{
-						v56->attribute = 7;
+						v56->attribute = OT_FORCED_ALPHA;
 						AddTri2(vert_buf, tri->Vertices[0], tri->Vertices[1], tri->Vertices[2], v56, 0);
 					}
 					v56->attribute = v84;
