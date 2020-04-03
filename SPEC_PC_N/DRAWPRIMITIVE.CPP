@@ -2834,12 +2834,64 @@ void ClearObjectLighting()
 	Unimpl();
 }
 
-void InitObjectLighting(ITEM_INFO* item)
+DWORD dword_87B0D8;
+
+void SuperSetupLight(PCLIGHT* light, ITEM_INFO* item, CVECTOR* col)
 {
 	Unimpl();
 }
 
 BYTE byte_57A468;
+int dword_87B0FC;
+
+void InitObjectLighting(ITEM_INFO* item)// (F)
+{
+	CVECTOR ambient = item->il.room_ambient;
+	dword_87B0D8 = 0;
+
+	int v3 = 0;
+	
+	PCLIGHT* l1 = item->ptr_lights_1;
+	for (int v2 = 0; v2 < item->num_lights_1; l1++, v2++)
+	{
+		if (l1->UnknownByte)
+		{
+			SuperSetupLight(l1, item, &ambient);
+			++v3;
+		}
+	}
+	
+	PCLIGHT* l2 = item->ptr_lights_2;
+	for (int j = 0; j < item->num_lights_2; j++, l2++)
+	{
+		if (l2->UnknownByte)
+			SuperSetupLight(l2, item, &ambient);
+	}
+	
+	InitDynamicLighting(item);
+	
+	if (item == lara_item && byte_57A468)
+	{
+		if (dword_87B0FC < 0)
+		{
+			item->il.room_num = 0;
+			ambient = LaraNodeAmbient[0];
+			item->il.room_ambient = LaraNodeAmbient[0];
+		}
+		else
+		{
+			ambient = LaraNodeAmbient[1];
+		}
+	}
+	else
+	{
+		ambient = item->il.room_ambient;
+	}
+
+	stru_87AD04.r = MAX(16, ambient.r);
+	stru_87AD04.g = MAX(16, ambient.g);
+	stru_87AD04.b = MAX(16, ambient.b);
+}
 
 void InitObjectFogBulbs()
 {
