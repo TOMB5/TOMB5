@@ -1368,6 +1368,17 @@ GLint u_Projection;
 	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"\
 	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
 
+
+#if (VRAM_FORMAT == GL_LUMINANCE_ALPHA)
+	#define GTE_FETCH_VRAM_FUNC\
+		"	uniform sampler2D s_texture;\n"\
+		"	vec2 VRAM(vec2 uv) { return texture2D(s_texture, uv).ra; }\n"
+#else
+	#define GTE_FETCH_VRAM_FUNC\
+		"	uniform sampler2D s_texture;\n"\
+		"	vec2 VRAM(vec2 uv) { return texture2D(s_texture, uv).rg; }\n"
+#endif
+
 const char* gte_shader_4 =
 	"varying vec4 v_texcoord;\n"
 	"varying vec4 v_color;\n"
@@ -1388,10 +1399,10 @@ const char* gte_shader_4 =
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
 	"		vec2 uv = (v_texcoord.xy * vec2(0.25, 1.0) + v_page_clut.xy) * vec2(1.0 / 1024.0, 1.0 / 512.0);\n"
-	"		vec2 comp = texture2D(s_texture, uv).rg;\n"
+	"		vec2 comp = VRAM(uv);\n"
 	"		int index = int(fract(v_texcoord.x / 4.0 + 0.0001) * 4.0);\n"
 	"\n"
 	"		float v = comp[index / 2] * (255.0 / 16.0);\n"
@@ -1401,7 +1412,7 @@ const char* gte_shader_4 =
 	"\n"
 	"		vec2 clut_pos = v_page_clut.zw;\n"
 	"		clut_pos.x += mix(c[0], c[1], fract(float(index) / 2.0) * 2.0) / 1024.0;\n"
-	"		vec2 color_rg = texture2D(s_texture, clut_pos).rg;\n"
+	"		vec2 color_rg = VRAM(clut_pos);\n"
 	GTE_PACK_RG
 	GTE_DISCARD
 	GTE_DECODE_RG
@@ -1429,14 +1440,14 @@ const char* gte_shader_8 =
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
 	"		vec2 uv = (v_texcoord.xy * vec2(0.5, 1.0) + v_page_clut.xy) * vec2(1.0 / 1024.0, 1.0 / 512.0);\n"
-	"		vec2 comp = texture2D(s_texture, uv).rg;\n"
+	"		vec2 comp = VRAM(uv);\n"
 	"\n"
 	"		vec2 clut_pos = v_page_clut.zw;\n"
 	"		clut_pos.x += comp[int(mod(v_texcoord.x, 2.0))] * 255.0 / 1024.0;\n"
-	"		vec2 color_rg = texture2D(s_texture, clut_pos).rg;\n"
+	"		vec2 color_rg = VRAM(clut_pos);\n"
 	GTE_PACK_RG
 	GTE_DISCARD
 	GTE_DECODE_RG
@@ -1464,9 +1475,9 @@ const char* gte_shader_16 =
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
-	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg;\n"
+	"		vec2 color_rg = VRAM(v_texcoord.xy);\n"
 	GTE_PACK_RG
 	GTE_DISCARD
 	GTE_DECODE_RG
@@ -1484,9 +1495,9 @@ const char* blit_shader =
 	"		gl_Position = vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
-	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg;\n"
+	"		vec2 color_rg = VRAM(v_texcoord.xy);\n"
 	GTE_PACK_RG
 	GTE_DECODE_RG
 	"	}\n"
@@ -1674,7 +1685,7 @@ int Emulator_Initialise()
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, VRAM_INTERNAL_FORMAT, VRAM_WIDTH, VRAM_HEIGHT, 0, VRAM_FORMAT, GL_UNSIGNED_BYTE, NULL);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -2155,7 +2166,8 @@ void Emulator_StoreFrameBuffer(int x, int y, int w, int h)
 	short *fb = (short*)SDL_malloc(windowWidth * windowHeight * sizeof(short));
 
 #if defined(OGL) || defined(OGLES)
-	glReadPixels(0, 0, windowWidth, windowHeight, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, fb);
+	int *data = (int*)SDL_malloc(windowWidth * windowHeight * sizeof(int));
+	glReadPixels(0, 0, windowWidth, windowHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 	#define FLIP_Y (h - fy - 1)
 #elif defined(D3D9)
@@ -2172,7 +2184,12 @@ void Emulator_StoreFrameBuffer(int x, int y, int w, int h)
 	assert(!FAILED(hr));
 	assert(windowWidth * 4 == rect.Pitch);
 
-	unsigned int   *data_src = (unsigned int*)rect.pBits;
+	int *data = (int*)rect.pBits;
+
+	#define FLIP_Y (fy)
+#endif
+
+	unsigned int   *data_src = (unsigned int*)data;
 	unsigned short *data_dst = (unsigned short*)fb;
 
 	for (int i = 0; i < windowHeight; i++) {
@@ -2184,12 +2201,14 @@ void Emulator_StoreFrameBuffer(int x, int y, int w, int h)
 			*data_dst++ = r | (g << 5) | (b << 10) | 0x8000;
 		}
 	}
+
+#if defined(OGL) || defined(OGLES)
+	SDL_free(data);
+#elif defined(D3D9)
 	dstSurface->UnlockRect();
 
 	dstSurface->Release();
 	srcSurface->Release();
-
-	#define FLIP_Y (fy)
 #endif
 
 	short *ptr = (short*)vram + VRAM_WIDTH * y + x;
@@ -2253,7 +2272,7 @@ void Emulator_UpdateVRAM()
 
 #if defined(OGL) || defined(OGLES)
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RG, GL_UNSIGNED_BYTE, vram);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, VRAM_FORMAT, GL_UNSIGNED_BYTE, vram);
 #elif defined(D3D9)
 	D3DLOCKED_RECT rect;
 	HRESULT hr = vramTexture->LockRect(0, &rect, NULL, 0);

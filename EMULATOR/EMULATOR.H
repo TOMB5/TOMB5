@@ -45,6 +45,14 @@
 #define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
 #endif
 
+#if defined(OGL)
+	#define VRAM_FORMAT            GL_RG
+	#define VRAM_INTERNAL_FORMAT   GL_RG8
+#elif defined(OGLES)
+	#define VRAM_FORMAT            GL_LUMINANCE_ALPHA
+	#define VRAM_INTERNAL_FORMAT   GL_LUMINANCE_ALPHA
+#endif
+
 #define VRAM_WIDTH (1024)
 #define VRAM_HEIGHT (512)
 
