@@ -712,24 +712,113 @@ void Emulator_CounterLoop()
 	}
 }
 
-void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3)
+void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1)
 {
-	//Copy over position
-	if (p0 != NULL)
-	{
-		vertex[0].x = p0[0];
-		vertex[0].y = p0[1];
-	}
+	vertex[0].x = p0[0];
+	vertex[0].y = p0[1];
 
-	if (p1 != NULL)
-	{
-		vertex[1].x = p1[0];
-		vertex[1].y = p1[1];
-	}
+	vertex[1].x = p1[0];
+	vertex[1].y = p1[1];
 }
 
-void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h)
+void Emulator_GenerateVertexArrayTriangle(struct Vertex* vertex, short* p0, short* p1, short* p2)
 {
+	assert(p0);
+	assert(p1);
+	assert(p2);
+
+#if defined(PGXP)
+	PGXPVertex* pgxp_vertex_0 = NULL;
+	PGXPVertex* pgxp_vertex_1 = NULL;
+	PGXPVertex* pgxp_vertex_2 = NULL;
+
+	//Locate each vertex based on SXY2 (very slow)
+	for (int i = 0; i < pgxp_vertex_index; i++)
+	{
+		if (pgxp_vertex_0 && pgxp_vertex_1 && pgxp_vertex_2) {
+			break;
+		}
+
+		if (pgxp_vertex_0 == NULL)
+		{
+			if (((unsigned int*)p0)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_0 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+
+		if (pgxp_vertex_1 == NULL)
+		{
+			if (((unsigned int*)p1)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_1 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+
+		if (pgxp_vertex_2 == NULL)
+		{
+			if (((unsigned int*)p2)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_2 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+	}
+
+	//Copy over position
+	if (pgxp_vertex_0 != NULL)
+	{
+		vertex[0].x = pgxp_vertex_0->x;
+		vertex[0].y = pgxp_vertex_0->y;
+	}
+	else
+	{
+		vertex[0].x = (float)p0[0];
+		vertex[0].y = (float)p0[1];
+	}
+
+	if (pgxp_vertex_1 != NULL)
+	{
+		vertex[1].x = pgxp_vertex_1->x;
+		vertex[1].y = pgxp_vertex_1->y;
+	}
+	else
+	{
+		vertex[1].x = (float)p1[0];
+		vertex[1].y = (float)p1[1];
+	}
+
+	if (pgxp_vertex_2 != NULL)
+	{
+		vertex[2].x = pgxp_vertex_2->x;
+		vertex[2].y = pgxp_vertex_2->y;
+	}
+	else
+	{
+		vertex[2].x = (float)p2[0];
+		vertex[2].y = (float)p2[1];
+	}
+#else
+	vertex[0].x = p0[0];
+	vertex[0].y = p0[1];
+
+	vertex[1].x = p1[0];
+	vertex[1].y = p1[1];
+
+	vertex[2].x = p2[0];
+	vertex[2].y = p2[1];
+#endif
+}
+
+void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3)
+{
+	assert(p0);
+	assert(p1);
+	assert(p2);
+	assert(p3);
+
 #if defined(PGXP)
 	PGXPVertex* pgxp_vertex_0 = NULL;
 	PGXPVertex* pgxp_vertex_1 = NULL;
@@ -739,7 +828,11 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	//Locate each vertex based on SXY2 (very slow)
 	for (int i = 0; i < pgxp_vertex_index; i++)
 	{
-		if (p0 != NULL)
+		if (pgxp_vertex_0 && pgxp_vertex_1 && pgxp_vertex_2 && pgxp_vertex_3) {
+			break;
+		}
+
+		if (pgxp_vertex_0 == NULL)
 		{
 			if (((unsigned int*)p0)[0] == pgxp_vertex_buffer[i].originalSXY2)
 			{
@@ -748,7 +841,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			}
 		}
 
-		if (p1 != NULL)
+		if (pgxp_vertex_1 == NULL)
 		{
 			if (((unsigned int*)p1)[0] == pgxp_vertex_buffer[i].originalSXY2)
 			{
@@ -757,7 +850,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			}
 		}
 
-		if (p2 != NULL)
+		if (pgxp_vertex_2 == NULL)
 		{
 			if (((unsigned int*)p2)[0] == pgxp_vertex_buffer[i].originalSXY2)
 			{
@@ -766,7 +859,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			}
 		}
 
-		if (p3 != NULL)
+		if (pgxp_vertex_3 == NULL)
 		{
 			if (((unsigned int*)p3)[0] == pgxp_vertex_buffer[i].originalSXY2)
 			{
@@ -775,113 +868,125 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			}
 		}
 	}
-#endif
 
 	//Copy over position
-	if (p0 != NULL)
+	if (pgxp_vertex_0 != NULL)
 	{
-#if defined(PGXP)
-		if (pgxp_vertex_0 != NULL)
-		{
-			vertex[0].x = pgxp_vertex_0->x;
-			vertex[0].y = pgxp_vertex_0->y;
-		}
-		else
-		{
-			vertex[0].x = (float)p0[0];
-			vertex[0].y = (float)p0[1];
-		}
-#else
-		vertex[0].x = p0[0];
-		vertex[0].y = p0[1];
-#endif
-	}
-
-	if (p1 != NULL)
-	{
-#if defined(PGXP)
-		if (pgxp_vertex_1 != NULL)
-		{
-			vertex[1].x = pgxp_vertex_1->x;
-			vertex[1].y = pgxp_vertex_1->y;
-		}
-		else
-		{
-			vertex[1].x = (float)p1[0];
-			vertex[1].y = (float)p1[1];
-		}
-#else
-		vertex[1].x = p1[0];
-		vertex[1].y = p1[1];
-#endif
+		vertex[0].x = pgxp_vertex_0->x;
+		vertex[0].y = pgxp_vertex_0->y;
 	}
 	else
 	{
-		if (p0 != NULL && w != -1 && h != -1)
-		{
-			vertex[1].x = (float)(p0[0]);
-			vertex[1].y = (float)(p0[1] + h);
-		}
+		vertex[0].x = (float)p0[0];
+		vertex[0].y = (float)p0[1];
 	}
 
-	if (p2 != NULL)
+	if (pgxp_vertex_1 != NULL)
 	{
-#if defined(PGXP)
-		if (pgxp_vertex_2 != NULL)
-		{
-			vertex[2].x = pgxp_vertex_2->x;
-			vertex[2].y = pgxp_vertex_2->y;
-		}
-		else
-		{
-			vertex[2].x = (float)p2[0];
-			vertex[2].y = (float)p2[1];
-		}
-#else
-		vertex[2].x = p2[0];
-		vertex[2].y = p2[1];
-#endif
+		vertex[1].x = pgxp_vertex_1->x;
+		vertex[1].y = pgxp_vertex_1->y;
 	}
 	else
 	{
-		if (p0 != NULL && w != -1 && h != -1)
-		{
-			vertex[2].x = (float)(p0[0] + w);
-			vertex[2].y = (float)(p0[1] + h);
-		}
+		vertex[1].x = (float)p1[0];
+		vertex[1].y = (float)p1[1];
 	}
 
-	if (p3 != NULL)
+	if (pgxp_vertex_2 != NULL)
 	{
-#if defined(PGXP)
-		if (pgxp_vertex_3 != NULL)
-		{
-			vertex[3].x = pgxp_vertex_3->x;
-			vertex[3].y = pgxp_vertex_3->y;
-		}
-		else
-		{
-			vertex[3].x = (float)p3[0];
-			vertex[3].y = (float)p3[1];
-		}
-#else
-		vertex[3].x = p3[0];
-		vertex[3].y = p3[1];
-#endif
+		vertex[2].x = pgxp_vertex_2->x;
+		vertex[2].y = pgxp_vertex_2->y;
 	}
 	else
 	{
-		if (p0 != NULL && w != -1 && h != -1)
-		{
-			vertex[3].x = (float)(p0[0] + w);
-			vertex[3].y = (float)(p0[1]);
-		}
+		vertex[2].x = (float)p2[0];
+		vertex[2].y = (float)p2[1];
 	}
+
+	if (pgxp_vertex_3 != NULL)
+	{
+		vertex[3].x = pgxp_vertex_3->x;
+		vertex[3].y = pgxp_vertex_3->y;
+	}
+	else
+	{
+		vertex[3].x = (float)p3[0];
+		vertex[3].y = (float)p3[1];
+	}
+#else
+	vertex[0].x = p0[0];
+	vertex[0].y = p0[1];
+
+	vertex[1].x = p1[0];
+	vertex[1].y = p1[1];
+
+	vertex[2].x = p2[0];
+	vertex[2].y = p2[1];
+
+	vertex[3].x = p3[0];
+	vertex[3].y = p3[1];
+#endif
 }
 
+void Emulator_GenerateVertexArrayRect(struct Vertex* vertex, short* p0, short w, short h)
+{
+	assert(p0);
+
+#if defined(PGXP)
+	PGXPVertex* pgxp_vertex_0 = NULL;
+
+	//Locate each vertex based on SXY2 (very slow)
+	for (int i = 0; i < pgxp_vertex_index; i++)
+	{
+		if (((unsigned int*)p0)[0] == pgxp_vertex_buffer[i].originalSXY2)
+		{
+			pgxp_vertex_0 = &pgxp_vertex_buffer[i];
+			break;
+		}
+	}
+
+	if (pgxp_vertex_0 != NULL)
+	{
+		vertex[0].x = pgxp_vertex_0->x;
+		vertex[0].y = pgxp_vertex_0->y;
+	}
+	else
+	{
+		vertex[0].x = (float)p0[0];
+		vertex[0].y = (float)p0[1];
+	}
+
+	vertex[1].x = vertex[0].x;
+	vertex[1].y = vertex[0].y + h;
+
+	vertex[2].x = vertex[0].x + w;
+	vertex[2].y = vertex[0].y + h;
+
+	vertex[3].x = vertex[0].x + w;
+	vertex[3].y = vertex[0].y;
+
+#else
+	vertex[0].x = p0[0];
+	vertex[0].y = p0[1];
+
+	vertex[1].x = vertex[0].x;
+	vertex[1].y = vertex[0].y + h;
+
+	vertex[2].x = vertex[0].x + w;
+	vertex[2].y = vertex[0].y + h;
+
+	vertex[3].x = vertex[0].x + w;
+	vertex[3].y = vertex[0].y;
+#endif
+}
 
 void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short page, short clut, unsigned char dither)
 {
+	assert(uv0);
+	assert(uv1);
+	assert(uv2);
+	assert(uv3);
+
 #if defined(PGXP) && 0
 	/*
 	Locate polygon in ztable
@@ -984,11 +1089,6 @@ void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv
 		}
 	}
 #else
-	assert(uv0);
-	if (!uv1) uv1 = uv0;
-	if (!uv2) uv2 = uv0;
-	if (!uv3) uv3 = uv0;
-
 	const unsigned char bright = 2;
 
 	vertex[0].u      = uv0[0];
@@ -1018,6 +1118,40 @@ void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv
 	vertex[3].dither = dither;
 	vertex[3].page   = page;
 	vertex[3].clut   = clut;
+#endif
+}
+
+void Emulator_GenerateTexcoordArrayTriangle(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, short page, short clut, unsigned char dither)
+{
+	assert(uv0);
+	assert(uv1);
+	assert(uv2);
+
+#if defined(PGXP) && 0
+	#error COPY IMPLEMENTATION FROM Emulator_GenerateTexcoordArrayQuad
+#else
+	const unsigned char bright = 2;
+
+	vertex[0].u      = uv0[0];
+	vertex[0].v      = uv0[1];
+	vertex[0].bright = bright;
+	vertex[0].dither = dither;
+	vertex[0].page   = page;
+	vertex[0].clut   = clut;
+
+	vertex[1].u      = uv1[0];
+	vertex[1].v      = uv1[1];
+	vertex[1].bright = bright;
+	vertex[1].dither = dither;
+	vertex[1].page   = page;
+	vertex[1].clut   = clut;
+
+	vertex[2].u      = uv2[0];
+	vertex[2].v      = uv2[1];
+	vertex[2].bright = bright;
+	vertex[2].dither = dither;
+	vertex[2].page   = page;
+	vertex[2].clut   = clut;
 #endif
 }
 
@@ -1062,7 +1196,52 @@ void Emulator_GenerateTexcoordArrayRect(struct Vertex* vertex, unsigned char* uv
 	vertex[3].clut   = clut;
 }
 
-void Emulator_GenerateTexcoordArrayZero(struct Vertex* vertex, unsigned char dither)
+void Emulator_GenerateTexcoordArrayLineZero(struct Vertex* vertex, unsigned char dither)
+{
+	const unsigned char bright = 1;
+
+	vertex[0].u      = 0;
+	vertex[0].v      = 0;
+	vertex[0].bright = bright;
+	vertex[0].dither = dither;
+	vertex[0].page   = 0;
+	vertex[0].clut   = 0;
+
+	vertex[1].u      = 0;
+	vertex[1].v      = 0;
+	vertex[1].bright = bright;
+	vertex[1].dither = dither;
+	vertex[1].page   = 0;
+	vertex[1].clut   = 0;
+}
+
+void Emulator_GenerateTexcoordArrayTriangleZero(struct Vertex* vertex, unsigned char dither)
+{
+	const unsigned char bright = 1;
+
+	vertex[0].u      = 0;
+	vertex[0].v      = 0;
+	vertex[0].bright = bright;
+	vertex[0].dither = dither;
+	vertex[0].page   = 0;
+	vertex[0].clut   = 0;
+
+	vertex[1].u      = 0;
+	vertex[1].v      = 0;
+	vertex[1].bright = bright;
+	vertex[1].dither = dither;
+	vertex[1].page   = 0;
+	vertex[1].clut   = 0;
+
+	vertex[2].u      = 0;
+	vertex[2].v      = 0;
+	vertex[2].bright = bright;
+	vertex[2].dither = dither;
+	vertex[2].page   = 0;
+	vertex[2].clut   = 0;
+}
+
+void Emulator_GenerateTexcoordArrayQuadZero(struct Vertex* vertex, unsigned char dither)
 {
 	const unsigned char bright = 1;
 
@@ -1095,12 +1274,50 @@ void Emulator_GenerateTexcoordArrayZero(struct Vertex* vertex, unsigned char dit
 	vertex[3].clut   = 0;
 }
 
+void Emulator_GenerateColourArrayLine(struct Vertex* vertex, unsigned char* col0, unsigned char* col1)
+{
+	assert(col0);
+	assert(col1);
+
+	vertex[0].r = col0[0];
+	vertex[0].g = col0[1];
+	vertex[0].b = col0[2];
+	vertex[0].a = 255;
+
+	vertex[1].r = col1[0];
+	vertex[1].g = col1[1];
+	vertex[1].b = col1[2];
+	vertex[1].a = 255;
+}
+
+void Emulator_GenerateColourArrayTriangle(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2)
+{
+	assert(col0);
+	assert(col1);
+	assert(col2);
+
+	vertex[0].r = col0[0];
+	vertex[0].g = col0[1];
+	vertex[0].b = col0[2];
+	vertex[0].a = 255;
+
+	vertex[1].r = col1[0];
+	vertex[1].g = col1[1];
+	vertex[1].b = col1[2];
+	vertex[1].a = 255;
+
+	vertex[2].r = col2[0];
+	vertex[2].g = col2[1];
+	vertex[2].b = col2[2];
+	vertex[2].a = 255;
+}
+
 void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3)
 {
 	assert(col0);
-	if (!col1) col1 = col0;
-	if (!col2) col2 = col0;
-	if (!col3) col3 = col0;
+	assert(col1);
+	assert(col2);
+	assert(col3);
 
 	vertex[0].r = col0[0];
 	vertex[0].g = col0[1];
