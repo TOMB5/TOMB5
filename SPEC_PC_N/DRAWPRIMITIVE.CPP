@@ -1852,7 +1852,7 @@ void DrawBubbles()// (F)
 			continue;
 		}
 			
-		stru_E914E0 = { dx, dy, dz };
+		stru_E914E0 = { (short)dx, (short)dy, (short)dz };
 			
 		const int v6 = 
 			phd_mxptr[M20] * dx + 
