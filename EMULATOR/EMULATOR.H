@@ -45,6 +45,14 @@
 #define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
 #endif
 
+#if defined(OGL)
+	#define VRAM_FORMAT            GL_RG
+	#define VRAM_INTERNAL_FORMAT   GL_RG8
+#elif defined(OGLES)
+	#define VRAM_FORMAT            GL_LUMINANCE_ALPHA
+	#define VRAM_INTERNAL_FORMAT   GL_LUMINANCE_ALPHA
+#endif
+
 #define VRAM_WIDTH (1024)
 #define VRAM_HEIGHT (512)
 
@@ -179,12 +187,23 @@ extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
 extern void Emulator_SetBlendMode(BlendMode blendMode);
 extern void Emulator_CounterLoop();
-extern void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3);
-extern void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h);
+
+extern void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1);
+extern void Emulator_GenerateVertexArrayTriangle(struct Vertex* vertex, short* p0, short* p1, short* p2);
+extern void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3);
+extern void Emulator_GenerateVertexArrayRect(struct Vertex* vertex, short* p0, short w, short h);
+
+extern void Emulator_GenerateTexcoordArrayTriangle(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, short page, short clut, unsigned char dither);
 extern void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short page, short clut, unsigned char dither);
 extern void Emulator_GenerateTexcoordArrayRect(struct Vertex* vertex, unsigned char* uv, short page, short clut, short w, short h);
-extern void Emulator_GenerateTexcoordArrayZero(struct Vertex* vertex, unsigned char dither);
+extern void Emulator_GenerateTexcoordArrayLineZero(struct Vertex* vertex, unsigned char dither);
+extern void Emulator_GenerateTexcoordArrayTriangleZero(struct Vertex* vertex, unsigned char dither);
+extern void Emulator_GenerateTexcoordArrayQuadZero(struct Vertex* vertex, unsigned char dither);
+
+extern void Emulator_GenerateColourArrayLine(struct Vertex* vertex, unsigned char* col0, unsigned char* col1);
+extern void Emulator_GenerateColourArrayTriangle(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2);
 extern void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3);
+
 extern void Emulator_DestroyTexture(TextureID texture);
 extern void Emulator_Clear(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b);
 extern void Emulator_SetViewPort(int x, int y, int width, int height);
