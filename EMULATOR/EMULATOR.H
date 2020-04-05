@@ -212,7 +212,6 @@ extern void Emulator_SetRenderTarget(const RenderTargetID &render_target);
 extern void Emulator_SetWireframe(bool enable);
 extern void Emulator_UpdateVertexBuffer(const Vertex *vertices, int count);
 extern void Emulator_DrawTriangles(int start_vertex, int triangles);
-extern void Emulator_DrawLines(int start_vertex, int lines);
 
 #if defined(D3D9)
 extern IDirect3DDevice9* d3ddev;
