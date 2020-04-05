@@ -279,8 +279,8 @@ void phd_RotX(long angle)
 	if (angle == 0)
 		return;
 
-	int sin = 4 * SIN(angle);
-	int cos = 4 * COS(angle);
+	int sin = SIN(angle);
+	int cos = COS(angle);
 
 	int* m = phd_mxptr;
 
@@ -298,8 +298,8 @@ void phd_RotY(long angle)
 	if (angle == 0)
 		return;
 
-	int sin = 4 * SIN(angle);
-	int cos = 4 * COS(angle);
+	int sin = SIN(angle);
+	int cos = COS(angle);
 
 	int* m = phd_mxptr;
 
@@ -317,8 +317,8 @@ void phd_RotZ(long angle)
 	if (angle == 0)
 		return;
 
-	int sin = 4 * SIN(angle);
-	int cos = 4 * COS(angle);
+	int sin = SIN(angle);
+	int cos = COS(angle);
 
 	int* m = phd_mxptr;
 
@@ -570,8 +570,8 @@ D3DMATRIX stru_55D168;
 		
 		if (y)
 		{
-			sina = 4 * SIN(y);
-			cosa = 4 * COS(y);
+			sina = SIN(y);
+			cosa = COS(y);
 			mptr[M00] = (mptr[M00] * cosa - mptr[M02] * sina) >> W2V_SHIFT;
 			mptr[M02] = (mptr[M02] * cosa + mptr[M00] * sina) >> W2V_SHIFT;
 			mptr[M10] = (mptr[M10] * cosa - mptr[M12] * sina) >> W2V_SHIFT;
@@ -581,8 +581,8 @@ D3DMATRIX stru_55D168;
 		}
 		if (x)
 		{
-			sina = 4 * SIN(x);
-			cosa = 4 * COS(x);
+			sina = SIN(x);
+			cosa = COS(x);
 			mptr[M01] = (mptr[M01] * cosa + mptr[M02] * sina) >> W2V_SHIFT;
 			mptr[M02] = (mptr[M02] * cosa - mptr[M01] * sina) >> W2V_SHIFT;
 			mptr[M11] = (mptr[M11] * cosa + mptr[M12] * sina) >> W2V_SHIFT;
@@ -592,8 +592,8 @@ D3DMATRIX stru_55D168;
 		}
 		if (z)
 		{
-			sina = 4 * SIN(z);
-			cosa = 4 * COS(z);
+			sina = SIN(z);
+			cosa = COS(z);
 			mptr[M00] = (mptr[M00] * cosa + mptr[M01] * sina) >> W2V_SHIFT;
 			mptr[M01] = (mptr[M01] * cosa - mptr[M00] * sina) >> W2V_SHIFT;
 			mptr[M10] = (mptr[M10] * cosa + mptr[M11] * sina) >> W2V_SHIFT;
@@ -676,12 +676,12 @@ D3DMATRIX stru_55D168;
 		mptr = phd_mxptr = matrix_stack;    /* Put W2V at Top Of matrix Stack */
 		nptr = w2v_matrix;
 
-		sx = 4 * SIN(viewpos->x_rot);		/* get sin and cos values*/
-		cx = 4 * COS(viewpos->x_rot);
-		sy = 4 * SIN(viewpos->y_rot);
-		cy = 4 * COS(viewpos->y_rot);
-		sz = 4 * SIN(viewpos->z_rot);
-		cz = 4 * COS(viewpos->z_rot);
+		sx = SIN(viewpos->x_rot);		/* get sin and cos values*/
+		cx = COS(viewpos->x_rot);
+		sy = SIN(viewpos->y_rot);
+		cy = COS(viewpos->y_rot);
+		sz = SIN(viewpos->z_rot);
+		cz = COS(viewpos->z_rot);
 
 		*(nptr + M00) = *(mptr + M00) = (TRIGMULT3(sx, sy, sz) + TRIGMULT2(cy, cz));
 		*(nptr + M01) = *(mptr + M01) = (TRIGMULT2(cx, sz));
@@ -708,9 +708,9 @@ D3DMATRIX stru_55D168;
 		if (poison >= 256)
 		{
 			short p = poison - 256;
-			long x = p * (SIN(XSoff1) + SIN(XSoff2));
-			long y = p * (SIN(XSoff1) + SIN(XSoff2));
-			long z = p * (SIN(XSoff1) + SIN(XSoff2));
+			long x = p * (SIN(XSoff1) + SIN(XSoff2)) / 4;
+			long y = p * (SIN(YSoff1) + SIN(YSoff2)) / 4;
+			long z = p * (SIN(ZSoff1) + SIN(ZSoff2)) / 4;
 			if (x != 0 || y != 0 || z != 0)
 			{
 				VECTOR vec;

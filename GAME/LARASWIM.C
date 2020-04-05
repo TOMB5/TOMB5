@@ -473,9 +473,9 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 
 	AnimateLara(item);
 	
-	item->pos.x_pos += 4 * COS(item->pos.x_rot) * (item->fallspeed * SIN(item->pos.y_rot) >> W2V_SHIFT) >> W2V_SHIFT;
-	item->pos.y_pos -= item->fallspeed * 4 * SIN(item->pos.x_rot) >> W2V_SHIFT >> 2;
-	item->pos.z_pos += 4 * COS(item->pos.x_rot) * (item->fallspeed * COS(item->pos.y_rot) >> W2V_SHIFT) >> W2V_SHIFT;
+	item->pos.x_pos += COS(item->pos.x_rot) * (item->fallspeed * SIN(item->pos.y_rot) >> W2V_SHIFT >> 2) >> W2V_SHIFT;
+	item->pos.y_pos -= item->fallspeed * SIN(item->pos.x_rot) >> W2V_SHIFT >> 2;
+	item->pos.z_pos += COS(item->pos.x_rot) * (item->fallspeed * COS(item->pos.y_rot) >> W2V_SHIFT >> 2) >> W2V_SHIFT;
 
 	LaraBaddieCollision(item, coll);
 

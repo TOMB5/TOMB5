@@ -975,9 +975,9 @@ void TriggerSmallSplash(int x, int y, int z, int num)// (F)
 
 		angle = GetRandomControl() << 3;
 
-		sptr->Xvel = -SIN(angle) >> 5;		
+		sptr->Xvel = -SIN(angle) >> 3;		
 		sptr->Yvel = -640 - (GetRandomControl() & 0xFF);
-		sptr->Zvel = COS(angle) >> 5;
+		sptr->Zvel = COS(angle) >> 3;
 
 		sptr->Friction = 5;	
 		sptr->Flags = 0;

@@ -941,7 +941,7 @@ void AlterFOV(short fov)//77BD8(<), 79C1C(<) (F)
 	CurrentFov = fov;
 
 #if PC_VERSION
-	phd_persp = phd_winwidth / 2 * 4 * COS(fov / 2) / (4 * SIN(fov / 2));
+	phd_persp = phd_winwidth / 2 * COS(fov / 2) / (SIN(fov / 2));
 	f_persp_bis = phd_persp;
 	flt_55D1F8 = dword_50A440 / f_persp_bis;
 	f_persp_bis_over_znear3 = f_persp_bis / f_znear3;

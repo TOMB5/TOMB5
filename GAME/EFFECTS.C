@@ -571,7 +571,7 @@ void WaterFall(short item_number)//39294(<), 39794(<) (F)
 
 	if (item->pos.y_rot + 0x8000 == 0)
 	{
-		x = item->pos.x_pos - (SIN(item->pos.y_rot + 0x8000) >> 3) + ((rcossin_tbl[2048] * wf) >> 12);
+		x = item->pos.x_pos - (SIN(item->pos.y_rot + 0x8000) >> 3) + ((rcossin_tbl[2048] * wf) >> 12); // @TODO: ANGLE(11.25)
 		z = item->pos.z_pos - (COS(item->pos.y_rot + 0x8000) >> 3) + ((rcossin_tbl[2049] * wf) >> 12);
 	}
 	else
