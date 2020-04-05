@@ -481,113 +481,218 @@ void Emulator_CounterLoop()
 	}
 }
 
-void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3)
+void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1)
 {
+	// swap line coordinates for left-to-right and up-to-bottom direction
+	if (p0[0] > p1[0]) {
+		short *tmp = p0;
+		p0 = p1;
+		p1 = tmp;
+	} else if (p0[0] == p1[0]) {
+		 if (p0[1] > p1[1]) {
+			short *tmp = p0;
+			p0 = p1;
+			p1 = tmp;
+		 }
+	}
+
+	int dx = p1[0] - p0[0];
+	int dy = p1[1] - p0[1];
+
+	if (dx > abs(dy)) { // horizontal
+		vertex[0].x = p0[0];
+		vertex[0].y = p0[1];
+
+		vertex[1].x = p1[0] + 1;
+		vertex[1].y = p1[1];
+
+		vertex[2].x = vertex[1].x;
+		vertex[2].y = vertex[1].y + 1;
+
+		vertex[3].x = vertex[0].x;
+		vertex[3].y = vertex[0].y + 1;
+	} else { // vertical
+		vertex[0].x = p0[0];
+		vertex[0].y = p0[1];
+
+		vertex[1].x = p1[0];
+		vertex[1].y = p1[1] + 1;
+
+		vertex[2].x = vertex[1].x + 1;
+		vertex[2].y = vertex[1].y;
+
+		vertex[3].x = vertex[0].x + 1;
+		vertex[3].y = vertex[0].y;
+	} // TODO diagonal line alignment
+}
+
+void Emulator_GenerateVertexArrayTriangle(struct Vertex* vertex, short* p0, short* p1, short* p2)
+{
+	assert(p0);
+	assert(p1);
+	assert(p2);
+
+#if defined(PGXP)
+	PGXPVertex* pgxp_vertex_0 = NULL;
+	PGXPVertex* pgxp_vertex_1 = NULL;
+	PGXPVertex* pgxp_vertex_2 = NULL;
+
+	//Locate each vertex based on SXY2 (very slow)
+	for (int i = 0; i < pgxp_vertex_index; i++)
+	{
+		if (pgxp_vertex_0 && pgxp_vertex_1 && pgxp_vertex_2) {
+			break;
+		}
+
+		if (pgxp_vertex_0 == NULL)
+		{
+			if (((unsigned int*)p0)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_0 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+
+		if (pgxp_vertex_1 == NULL)
+		{
+			if (((unsigned int*)p1)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_1 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+
+		if (pgxp_vertex_2 == NULL)
+		{
+			if (((unsigned int*)p2)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_2 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+	}
+
 	//Copy over position
-	if (p0 != NULL)
+	if (pgxp_vertex_0 != NULL)
+	{
+		vertex[0].x = pgxp_vertex_0->x;
+		vertex[0].y = pgxp_vertex_0->y;
+	}
+	else
+	{
+		vertex[0].x = (float)p0[0];
+		vertex[0].y = (float)p0[1];
+	}
+
+	if (pgxp_vertex_1 != NULL)
+	{
+		vertex[1].x = pgxp_vertex_1->x;
+		vertex[1].y = pgxp_vertex_1->y;
+	}
+	else
+	{
+		vertex[1].x = (float)p1[0];
+		vertex[1].y = (float)p1[1];
+	}
+
+	if (pgxp_vertex_2 != NULL)
+	{
+		vertex[2].x = pgxp_vertex_2->x;
+		vertex[2].y = pgxp_vertex_2->y;
+	}
+	else
+	{
+		vertex[2].x = (float)p2[0];
+		vertex[2].y = (float)p2[1];
+	}
+#else
+	vertex[0].x = p0[0];
+	vertex[0].y = p0[1];
+
+	vertex[1].x = p1[0];
+	vertex[1].y = p1[1];
+
+	vertex[2].x = p2[0];
+	vertex[2].y = p2[1];
+#endif
+}
+
+void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3)
+{
+	assert(p0);
+	assert(p1);
+	assert(p2);
+	assert(p3);
+
+	//Copy over position
+	if (g_pgxpVertexBuffer[g_vertexIndex].bUsed)
+	{
+		vertex[0].x = g_pgxpVertexBuffer[g_vertexIndex].x;
+		vertex[0].y = g_pgxpVertexBuffer[g_vertexIndex].y;
+	}
+	else
 	{
 		vertex[0].x = p0[0];
 		vertex[0].y = p0[1];
 	}
 
-	if (p1 != NULL)
+	if (g_pgxpVertexBuffer[g_vertexIndex + 1].bUsed)
+	{
+		vertex[1].x = g_pgxpVertexBuffer[g_vertexIndex + 1].x;
+		vertex[1].y = g_pgxpVertexBuffer[g_vertexIndex + 1].y;
+	}
+	else
 	{
 		vertex[1].x = p1[0];
 		vertex[1].y = p1[1];
 	}
+
+	if (g_pgxpVertexBuffer[g_vertexIndex + 2].bUsed)
+	{
+		vertex[2].x = g_pgxpVertexBuffer[g_vertexIndex + 2].x;
+		vertex[2].y = g_pgxpVertexBuffer[g_vertexIndex + 2].y;
+	}
+	else
+	{
+		vertex[2].x = p2[0];
+		vertex[2].y = p2[1];
+	}
+
+	if (g_pgxpVertexBuffer[g_vertexIndex + 3].bUsed)
+	{
+		vertex[3].x = g_pgxpVertexBuffer[g_vertexIndex + 3].x;
+		vertex[3].y = g_pgxpVertexBuffer[g_vertexIndex + 3].y;
+	}
+	else
+	{
+		vertex[3].x = p3[0];
+		vertex[3].y = p3[1];
+	}
 }
 
-void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h)
+void Emulator_GenerateVertexArrayRect(struct Vertex* vertex, short* p0, short w, short h)
 {
-	//Copy over position
-	if (p0 != NULL)
-	{
-		if (g_pgxpVertexBuffer[g_vertexIndex].bUsed)
-		{
-			vertex[0].x = g_pgxpVertexBuffer[g_vertexIndex].x;
-			vertex[0].y = g_pgxpVertexBuffer[g_vertexIndex].y;
-		}
-		else
-		{
-			vertex[0].x = p0[0];
-			vertex[0].y = p0[1];
-		}
-	}
+	assert(p0);
 
-	if (p1 != NULL)
-	{
-		if (g_pgxpVertexBuffer[g_vertexIndex + 1].bUsed)
-		{
-			vertex[1].x = g_pgxpVertexBuffer[g_vertexIndex + 1].x;
-			vertex[1].y = g_pgxpVertexBuffer[g_vertexIndex + 1].y;
-		}
-		else
-		{
-			vertex[1].x = p1[0];
-			vertex[1].y = p1[1];
-		}
-	}
-	else
-	{
-		if (p0 != NULL && w != -1 && h != -1)
-		{
-			vertex[1].x = (float)(p0[0]);
-			vertex[1].y = (float)(p0[1] + h);
-		}
-	}
+	vertex[0].x = p0[0];
+	vertex[0].y = p0[1];
 
-	if (p2 != NULL)
-	{
-		if (g_pgxpVertexBuffer[g_vertexIndex + 2].bUsed)
-		{
-			vertex[2].x = g_pgxpVertexBuffer[g_vertexIndex + 2].x;
-			vertex[2].y = g_pgxpVertexBuffer[g_vertexIndex + 2].y;
-		}
-		else
-		{
-			vertex[2].x = p2[0];
-			vertex[2].y = p2[1];
-		}
-	}
-	else
-	{
-		if (p0 != NULL && w != -1 && h != -1)
-		{
-			vertex[2].x = (float)(p0[0] + w);
-			vertex[2].y = (float)(p0[1] + h);
-		}
-	}
+	vertex[1].x = vertex[0].x;
+	vertex[1].y = vertex[0].y + h;
 
-	if (p3 != NULL)
-	{
-		if (g_pgxpVertexBuffer[g_vertexIndex + 3].bUsed)
-		{
-			vertex[3].x = g_pgxpVertexBuffer[g_vertexIndex + 3].x;
-			vertex[3].y = g_pgxpVertexBuffer[g_vertexIndex + 3].y;
-		}
-		else
-		{
-			vertex[3].x = p3[0];
-			vertex[3].y = p3[1];
-		}
-	}
-	else
-	{
-		if (p0 != NULL && w != -1 && h != -1)
-		{
-			vertex[3].x = (float)(p0[0] + w);
-			vertex[3].y = (float)(p0[1]);
-		}
-	}
+	vertex[2].x = vertex[0].x + w;
+	vertex[2].y = vertex[0].y + h;
+
+	vertex[3].x = vertex[0].x + w;
+	vertex[3].y = vertex[0].y;
 }
-
 
 void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short page, short clut, unsigned char dither)
 {
 	assert(uv0);
-	if (!uv1) uv1 = uv0;
-	if (!uv2) uv2 = uv0;
-	if (!uv3) uv3 = uv0;
+	assert(uv1);
+	assert(uv2);
+	assert(uv3);
 
 	const unsigned char bright = 2;
 
@@ -618,6 +723,40 @@ void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv
 	vertex[3].dither = dither;
 	vertex[3].page   = page;
 	vertex[3].clut   = clut;
+}
+
+void Emulator_GenerateTexcoordArrayTriangle(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, short page, short clut, unsigned char dither)
+{
+	assert(uv0);
+	assert(uv1);
+	assert(uv2);
+
+#if defined(PGXP) && 0
+	#error COPY IMPLEMENTATION FROM Emulator_GenerateTexcoordArrayQuad
+#else
+	const unsigned char bright = 2;
+
+	vertex[0].u      = uv0[0];
+	vertex[0].v      = uv0[1];
+	vertex[0].bright = bright;
+	vertex[0].dither = dither;
+	vertex[0].page   = page;
+	vertex[0].clut   = clut;
+
+	vertex[1].u      = uv1[0];
+	vertex[1].v      = uv1[1];
+	vertex[1].bright = bright;
+	vertex[1].dither = dither;
+	vertex[1].page   = page;
+	vertex[1].clut   = clut;
+
+	vertex[2].u      = uv2[0];
+	vertex[2].v      = uv2[1];
+	vertex[2].bright = bright;
+	vertex[2].dither = dither;
+	vertex[2].page   = page;
+	vertex[2].clut   = clut;
+#endif
 }
 
 void Emulator_GenerateTexcoordArrayRect(struct Vertex* vertex, unsigned char* uv, short page, short clut, short w, short h)
@@ -661,7 +800,7 @@ void Emulator_GenerateTexcoordArrayRect(struct Vertex* vertex, unsigned char* uv
 	vertex[3].clut   = clut;
 }
 
-void Emulator_GenerateTexcoordArrayZero(struct Vertex* vertex, unsigned char dither)
+void Emulator_GenerateTexcoordArrayLineZero(struct Vertex* vertex, unsigned char dither)
 {
 	const unsigned char bright = 1;
 
@@ -694,12 +833,119 @@ void Emulator_GenerateTexcoordArrayZero(struct Vertex* vertex, unsigned char dit
 	vertex[3].clut   = 0;
 }
 
+void Emulator_GenerateTexcoordArrayTriangleZero(struct Vertex* vertex, unsigned char dither)
+{
+	const unsigned char bright = 1;
+
+	vertex[0].u      = 0;
+	vertex[0].v      = 0;
+	vertex[0].bright = bright;
+	vertex[0].dither = dither;
+	vertex[0].page   = 0;
+	vertex[0].clut   = 0;
+
+	vertex[1].u      = 0;
+	vertex[1].v      = 0;
+	vertex[1].bright = bright;
+	vertex[1].dither = dither;
+	vertex[1].page   = 0;
+	vertex[1].clut   = 0;
+
+	vertex[2].u      = 0;
+	vertex[2].v      = 0;
+	vertex[2].bright = bright;
+	vertex[2].dither = dither;
+	vertex[2].page   = 0;
+	vertex[2].clut   = 0;
+}
+
+void Emulator_GenerateTexcoordArrayQuadZero(struct Vertex* vertex, unsigned char dither)
+{
+	const unsigned char bright = 1;
+
+	vertex[0].u      = 0;
+	vertex[0].v      = 0;
+	vertex[0].bright = bright;
+	vertex[0].dither = dither;
+	vertex[0].page   = 0;
+	vertex[0].clut   = 0;
+
+	vertex[1].u      = 0;
+	vertex[1].v      = 0;
+	vertex[1].bright = bright;
+	vertex[1].dither = dither;
+	vertex[1].page   = 0;
+	vertex[1].clut   = 0;
+
+	vertex[2].u      = 0;
+	vertex[2].v      = 0;
+	vertex[2].bright = bright;
+	vertex[2].dither = dither;
+	vertex[2].page   = 0;
+	vertex[2].clut   = 0;
+
+	vertex[3].u      = 0;
+	vertex[3].v      = 0;
+	vertex[3].bright = bright;
+	vertex[3].dither = dither;
+	vertex[3].page   = 0;
+	vertex[3].clut   = 0;
+}
+
+void Emulator_GenerateColourArrayLine(struct Vertex* vertex, unsigned char* col0, unsigned char* col1)
+{
+	assert(col0);
+	assert(col1);
+
+	vertex[0].r = col0[0];
+	vertex[0].g = col0[1];
+	vertex[0].b = col0[2];
+	vertex[0].a = 255;
+
+	vertex[1].r = col1[0];
+	vertex[1].g = col1[1];
+	vertex[1].b = col1[2];
+	vertex[1].a = 255;
+
+	vertex[2].r = col1[0];
+	vertex[2].g = col1[1];
+	vertex[2].b = col1[2];
+	vertex[2].a = 255;
+
+	vertex[3].r = col0[0];
+	vertex[3].g = col0[1];
+	vertex[3].b = col0[2];
+	vertex[3].a = 255;
+}
+
+void Emulator_GenerateColourArrayTriangle(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2)
+{
+	assert(col0);
+	assert(col1);
+	assert(col2);
+
+	vertex[0].r = col0[0];
+	vertex[0].g = col0[1];
+	vertex[0].b = col0[2];
+	vertex[0].a = 255;
+
+	vertex[1].r = col1[0];
+	vertex[1].g = col1[1];
+	vertex[1].b = col1[2];
+	vertex[1].a = 255;
+
+	vertex[2].r = col2[0];
+	vertex[2].g = col2[1];
+	vertex[2].b = col2[2];
+	vertex[2].a = 255;
+}
+
 void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3)
 {
 	assert(col0);
-	if (!col1) col1 = col0;
-	if (!col2) col2 = col0;
-	if (!col3) col3 = col0;
+	assert(col1);
+	assert(col2);
+	assert(col3);
 
 	vertex[0].r = col0[0];
 	vertex[0].g = col0[1];
@@ -750,6 +996,17 @@ GLint u_Projection;
 	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"\
 	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
 
+
+#if (VRAM_FORMAT == GL_LUMINANCE_ALPHA)
+	#define GTE_FETCH_VRAM_FUNC\
+		"	uniform sampler2D s_texture;\n"\
+		"	vec2 VRAM(vec2 uv) { return texture2D(s_texture, uv).ra; }\n"
+#else
+	#define GTE_FETCH_VRAM_FUNC\
+		"	uniform sampler2D s_texture;\n"\
+		"	vec2 VRAM(vec2 uv) { return texture2D(s_texture, uv).rg; }\n"
+#endif
+
 const char* gte_shader_4 =
 	"varying vec4 v_texcoord;\n"
 	"varying vec4 v_color;\n"
@@ -770,10 +1027,10 @@ const char* gte_shader_4 =
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
 	"		vec2 uv = (v_texcoord.xy * vec2(0.25, 1.0) + v_page_clut.xy) * vec2(1.0 / 1024.0, 1.0 / 512.0);\n"
-	"		vec2 comp = texture2D(s_texture, uv).rg;\n"
+	"		vec2 comp = VRAM(uv);\n"
 	"		int index = int(fract(v_texcoord.x / 4.0 + 0.0001) * 4.0);\n"
 	"\n"
 	"		float v = comp[index / 2] * (255.0 / 16.0);\n"
@@ -783,7 +1040,7 @@ const char* gte_shader_4 =
 	"\n"
 	"		vec2 clut_pos = v_page_clut.zw;\n"
 	"		clut_pos.x += mix(c[0], c[1], fract(float(index) / 2.0) * 2.0) / 1024.0;\n"
-	"		vec2 color_rg = texture2D(s_texture, clut_pos).rg;\n"
+	"		vec2 color_rg = VRAM(clut_pos);\n"
 	GTE_PACK_RG
 	GTE_DISCARD
 	GTE_DECODE_RG
@@ -811,14 +1068,14 @@ const char* gte_shader_8 =
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
 	"		vec2 uv = (v_texcoord.xy * vec2(0.5, 1.0) + v_page_clut.xy) * vec2(1.0 / 1024.0, 1.0 / 512.0);\n"
-	"		vec2 comp = texture2D(s_texture, uv).rg;\n"
+	"		vec2 comp = VRAM(uv);\n"
 	"\n"
 	"		vec2 clut_pos = v_page_clut.zw;\n"
 	"		clut_pos.x += comp[int(mod(v_texcoord.x, 2.0))] * 255.0 / 1024.0;\n"
-	"		vec2 color_rg = texture2D(s_texture, clut_pos).rg;\n"
+	"		vec2 color_rg = VRAM(clut_pos);\n"
 	GTE_PACK_RG
 	GTE_DISCARD
 	GTE_DECODE_RG
@@ -846,9 +1103,9 @@ const char* gte_shader_16 =
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
-	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg;\n"
+	"		vec2 color_rg = VRAM(v_texcoord.xy);\n"
 	GTE_PACK_RG
 	GTE_DISCARD
 	GTE_DECODE_RG
@@ -866,9 +1123,9 @@ const char* blit_shader =
 	"		gl_Position = vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
-	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg;\n"
+	"		vec2 color_rg = VRAM(v_texcoord.xy);\n"
 	GTE_PACK_RG
 	GTE_DECODE_RG
 	"	}\n"
@@ -1056,7 +1313,7 @@ int Emulator_Initialise()
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, VRAM_INTERNAL_FORMAT, VRAM_WIDTH, VRAM_HEIGHT, 0, VRAM_FORMAT, GL_UNSIGNED_BYTE, NULL);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -1530,7 +1787,9 @@ void Emulator_StoreFrameBuffer(int x, int y, int w, int h)
 	short *fb = (short*)SDL_malloc(windowWidth * windowHeight * sizeof(short));
 
 #if defined(OGL) || defined(OGLES)
-	glReadPixels(0, 0, windowWidth, windowHeight, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, fb);
+
+	int *data = (int*)SDL_malloc(windowWidth * windowHeight * sizeof(int));
+	glReadPixels(0, 0, windowWidth, windowHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 	#define FLIP_Y (h - fy - 1)
 #elif defined(D3D9)
@@ -1547,7 +1806,12 @@ void Emulator_StoreFrameBuffer(int x, int y, int w, int h)
 	assert(!FAILED(hr));
 	assert(windowWidth * 4 == rect.Pitch);
 
-	unsigned int   *data_src = (unsigned int*)rect.pBits;
+	int *data = (int*)rect.pBits;
+
+	#define FLIP_Y (fy)
+#endif
+
+	unsigned int   *data_src = (unsigned int*)data;
 	unsigned short *data_dst = (unsigned short*)fb;
 
 	for (int i = 0; i < windowHeight; i++) {
@@ -1559,12 +1823,14 @@ void Emulator_StoreFrameBuffer(int x, int y, int w, int h)
 			*data_dst++ = r | (g << 5) | (b << 10) | 0x8000;
 		}
 	}
+
+#if defined(OGL) || defined(OGLES)
+	SDL_free(data);
+#elif defined(D3D9)
 	dstSurface->UnlockRect();
 
 	dstSurface->Release();
 	srcSurface->Release();
-
-	#define FLIP_Y (fy)
 #endif
 
 	short *ptr = (short*)vram + VRAM_WIDTH * y + x;
@@ -1628,7 +1894,7 @@ void Emulator_UpdateVRAM()
 
 #if defined(OGL) || defined(OGLES)
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RG, GL_UNSIGNED_BYTE, vram);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, VRAM_FORMAT, GL_UNSIGNED_BYTE, vram);
 #elif defined(D3D9)
 	D3DLOCKED_RECT rect;
 	HRESULT hr = vramTexture->LockRect(0, &rect, NULL, 0);
@@ -2050,17 +2316,6 @@ void Emulator_DrawTriangles(int start_vertex, int triangles)
 	glDrawArrays(GL_TRIANGLES, start_vertex, triangles * 3);
 #elif defined(D3D9)
 	d3ddev->DrawPrimitive(D3DPT_TRIANGLELIST, start_vertex, triangles);
-#else
-	#error
-#endif
-}
-
-void Emulator_DrawLines(int start_vertex, int lines)
-{
-#if defined(OGL) || defined(OGLES)
-	glDrawArrays(GL_LINES, start_vertex, lines * 2);
-#elif defined(D3D9)
-	d3ddev->DrawPrimitive(D3DPT_LINELIST, start_vertex, lines);
 #else
 	#error
 #endif
