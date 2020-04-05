@@ -287,7 +287,7 @@ int GetFreeSpark()//8B2F8(<), 8D33C(<) (F)
 		{
 
 			next_spark = (free + 1) & 0x7F;
-			sptr->Def = objects[DEFAULT_SPRITES].mesh_index;
+			sptr->Def = objects[DEFAULT_SPRITES].mesh_index + SPRITE_UNK0;
 			sptr->extras = 0;
 			sptr->Dynamic = -1;
 			return free;
@@ -315,7 +315,7 @@ int GetFreeSpark()//8B2F8(<), 8D33C(<) (F)
 	}
 
 	next_spark = (free + 1) & 0x7F;
-	fsptr->Def = objects[DEFAULT_SPRITES].mesh_index;
+	fsptr->Def = objects[DEFAULT_SPRITES].mesh_index + SPRITE_UNK0;
 	fsptr->extras = 0;
 	fsptr->Dynamic = -1;
 
@@ -532,7 +532,7 @@ void TriggerExplosionBubble(int x, int y, int z, short room_num)// (F)
 		sptr->Flags = 2058;
 		sptr->Scalar = 3;
 		sptr->Gravity = 0;
-		sptr->Def = objects[DEFAULT_SPRITES].mesh_index + 13;
+		sptr->Def = objects[DEFAULT_SPRITES].mesh_index + SPRITE_BUBBLE;
 		sptr->MaxYvel = 0;
 		size = (GetRandomControl() & 7) + 63;
 		sptr->sSize = size >> 1;

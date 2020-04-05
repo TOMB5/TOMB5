@@ -1907,7 +1907,7 @@ void DrawBubbles()// (F)
 				
 			if (right >= phd_winxmin && left < phd_winxmax && bottom >= phd_winymin && top < phd_winymax)
 			{
-				SPRITE_STRUCT* v16 = &sprites[objects[DEFAULT_SPRITES].mesh_index + 13];
+				SPRITE_STRUCT* v16 = &sprites[objects[DEFAULT_SPRITES].mesh_index + SPRITE_BUBBLE];
 				const int v17 = bub->shade;
 
 				D3DTLVERTEX v[4];

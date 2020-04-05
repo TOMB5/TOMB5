@@ -368,7 +368,7 @@ void TriggerSubMist(struct PHD_VECTOR *pos, struct PHD_VECTOR *a4, int a5)// (F)
 	sptr->Zvel = a4->z + (GetRandomControl() & 0x7F) - pos->z - 64;
 
 	sptr->Friction = 0;
-	sptr->Def = (objects[DEFAULT_SPRITES].mesh_index & 0xFF) + (v3 != 0 ? 17 : 13);
+	sptr->Def = (objects[DEFAULT_SPRITES].mesh_index & 0xFF) + (v3 != 0 ? SPRITE_UNK17 : SPRITE_BUBBLE);
 	sptr->MaxYvel = 0;
 	sptr->Gravity = -4 - (GetRandomControl() & 3);
 	sptr->Scalar = 1;
