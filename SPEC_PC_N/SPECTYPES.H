@@ -433,14 +433,30 @@ struct tr4_mesh_face3    // 10 bytes
 {
 	uint16_t Vertices[3];
 	uint16_t Texture;
-	uint16_t Effects;    // TR4-5 ONLY: alpha blending and environment mapping strength
+	union
+	{
+		uint16_t Effects;
+		struct
+		{
+			uint16_t AlphaBlending : 1;
+			uint16_t EnvMappingStrength : 7;
+		};
+	};
 };
 
 struct tr4_mesh_face4    // 12 bytes
 {
 	uint16_t Vertices[4];
 	uint16_t Texture;
-	uint16_t Effects;
+	union
+	{
+		uint16_t Effects;
+		struct
+		{
+			uint16_t AlphaBlending : 1;
+			uint16_t EnvMappingStrength : 7;
+		};
+	};
 };
 
 struct ROOMLET   // 56 bytes

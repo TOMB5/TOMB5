@@ -3181,9 +3181,9 @@ void phd_PutPolygons(short* mptr)
 					const int v11 = rect->Texture & 0x7FFF;
 					OBJECT_TEXTURE* v12 = v86 = &object_textures[v11];
 					const uint16 v83 = object_textures[v11].attribute;
-					if (rect->Effects & 1)
+					if (rect->AlphaBlending)
 						v12->attribute = OT_ALPHA_BLENDING;
-					if (rect->Effects & 2)
+					if (rect->EnvMappingStrength & 1)
 					{
 						tex.attribute = OT_ALPHA_BLENDING;
 						tex.new_flags = v12->new_flags;
@@ -3195,7 +3195,7 @@ void phd_PutPolygons(short* mptr)
 							tex.vertices[j] = stru_920E18[rect->Vertices[j]];
 						}
 						
-						v8 = 2 * (rect->Effects & 0x7C);
+						v8 = 2 * (rect->EnvMappingStrength & 0x3E);
 					}
 					if (dword_506D3C == RGB_MAKE(0, 0, 0))
 					{
@@ -3249,12 +3249,11 @@ void phd_PutPolygons(short* mptr)
 					char v53 = 0;
 					const uint16 v84 = object_textures[v52].attribute;
 					OBJECT_TEXTURE* v56 = &object_textures[v52];
-					if (tri->Effects & 1)
+					if (tri->AlphaBlending)
 						v56->attribute = OT_ALPHA_BLENDING;
-					const signed __int16 v57 = tri->Effects;
-					if (v57 & 2)
+					if (tri->EnvMappingStrength & 1)
 					{
-						v8 = 2 * (v57 & 0x7C);
+						v8 = 2 * (tri->EnvMappingStrength & 0x3E);
 						tex.attribute = OT_ALPHA_BLENDING;
 						tex.new_flags = v56->new_flags;
 						tex.tile_and_flag = num_pages - 3;
