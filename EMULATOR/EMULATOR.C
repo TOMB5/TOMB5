@@ -714,11 +714,47 @@ void Emulator_CounterLoop()
 
 void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1)
 {
-	vertex[0].x = p0[0];
-	vertex[0].y = p0[1];
+	// swap line coordinates for left-to-right and up-to-bottom direction
+	if (p0[0] > p1[0]) {
+		short *tmp = p0;
+		p0 = p1;
+		p1 = tmp;
+	} else if (p0[0] == p1[0]) {
+		 if (p0[1] > p1[1]) {
+			short *tmp = p0;
+			p0 = p1;
+			p1 = tmp;
+		 }
+	}
 
-	vertex[1].x = p1[0];
-	vertex[1].y = p1[1];
+	int dx = p1[0] - p0[0];
+	int dy = p1[1] - p0[1];
+
+	if (dx > abs(dy)) { // horizontal
+		vertex[0].x = p0[0];
+		vertex[0].y = p0[1];
+
+		vertex[1].x = p1[0] + 1;
+		vertex[1].y = p1[1];
+
+		vertex[2].x = vertex[1].x;
+		vertex[2].y = vertex[1].y + 1;
+
+		vertex[3].x = vertex[0].x;
+		vertex[3].y = vertex[0].y + 1;
+	} else { // vertical
+		vertex[0].x = p0[0];
+		vertex[0].y = p0[1];
+
+		vertex[1].x = p1[0];
+		vertex[1].y = p1[1] + 1;
+
+		vertex[2].x = vertex[1].x + 1;
+		vertex[2].y = vertex[1].y;
+
+		vertex[3].x = vertex[0].x + 1;
+		vertex[3].y = vertex[0].y;
+	} // TODO diagonal line alignment
 }
 
 void Emulator_GenerateVertexArrayTriangle(struct Vertex* vertex, short* p0, short* p1, short* p2)
@@ -1213,6 +1249,20 @@ void Emulator_GenerateTexcoordArrayLineZero(struct Vertex* vertex, unsigned char
 	vertex[1].dither = dither;
 	vertex[1].page   = 0;
 	vertex[1].clut   = 0;
+
+	vertex[2].u      = 0;
+	vertex[2].v      = 0;
+	vertex[2].bright = bright;
+	vertex[2].dither = dither;
+	vertex[2].page   = 0;
+	vertex[2].clut   = 0;
+
+	vertex[3].u      = 0;
+	vertex[3].v      = 0;
+	vertex[3].bright = bright;
+	vertex[3].dither = dither;
+	vertex[3].page   = 0;
+	vertex[3].clut   = 0;
 }
 
 void Emulator_GenerateTexcoordArrayTriangleZero(struct Vertex* vertex, unsigned char dither)
@@ -1288,6 +1338,16 @@ void Emulator_GenerateColourArrayLine(struct Vertex* vertex, unsigned char* col0
 	vertex[1].g = col1[1];
 	vertex[1].b = col1[2];
 	vertex[1].a = 255;
+
+	vertex[2].r = col1[0];
+	vertex[2].g = col1[1];
+	vertex[2].b = col1[2];
+	vertex[2].a = 255;
+
+	vertex[3].r = col0[0];
+	vertex[3].g = col0[1];
+	vertex[3].b = col0[2];
+	vertex[3].a = 255;
 }
 
 void Emulator_GenerateColourArrayTriangle(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2)
@@ -2716,17 +2776,6 @@ void Emulator_DrawTriangles(int start_vertex, int triangles)
 	glDrawArrays(GL_TRIANGLES, start_vertex, triangles * 3);
 #elif defined(D3D9)
 	d3ddev->DrawPrimitive(D3DPT_TRIANGLELIST, start_vertex, triangles);
-#else
-	#error
-#endif
-}
-
-void Emulator_DrawLines(int start_vertex, int lines)
-{
-#if defined(OGL) || defined(OGLES)
-	glDrawArrays(GL_LINES, start_vertex, lines * 2);
-#elif defined(D3D9)
-	d3ddev->DrawPrimitive(D3DPT_LINELIST, start_vertex, lines);
 #else
 	#error
 #endif
