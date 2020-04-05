@@ -115,11 +115,7 @@ extern SysCounter counters[3];
 #pragma pack(push,1)
 struct Vertex
 {
-#if defined(PGXP)
 	float  x, y, page, clut;
-#else
-	short  x, y, page, clut;
-#endif
 	u_char u, v, bright, dither;
 	u_char r, g, b, a;
 };

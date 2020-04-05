@@ -65,12 +65,11 @@ TextureID g_lastBoundTexture;
 int g_lastPGXPIndex = 0;
 
 //The cache
+#define PGXP_PUSH_RANGE 6
 #define MAX_NUM_PGXP_CACHE_VERTICES 4096
 PGXPVertex g_cachedPGXPVertices[MAX_NUM_PGXP_CACHE_VERTICES];
 PGXPVertex* g_currentPGXPVertex = &g_cachedPGXPVertices[0];
-#if defined(_DEBUG)
 int g_currentPGXPIndex = 0;
-#endif
 
 void Emulator_CachePGXPVertex()
 {
@@ -89,17 +88,17 @@ void Emulator_ResetPGXPCache()
 void Emulator_PushPGXPVertex()
 {
 #if defined(_DEBUG)
-	g_currentPGXPIndex += 6;
+	g_currentPGXPIndex += PGXP_PUSH_RANGE;
 #endif
-	g_currentPGXPVertex += 6;
+	g_currentPGXPVertex += PGXP_PUSH_RANGE;
 }
 
 void Emulator_PopPGXPVertex()
 {
 #if defined(_DEBUG)
-	g_currentPGXPIndex -= 6;
+	g_currentPGXPIndex -= PGXP_PUSH_RANGE;
 #endif
-	g_currentPGXPVertex -= 6;
+	g_currentPGXPVertex -= PGXP_PUSH_RANGE;
 }
 
 void Emulator_CacheFinalPGXPVertex(unsigned int* poly, int sizeInInts)
@@ -118,22 +117,25 @@ void Emulator_CacheFinalPGXPVertex(unsigned int* poly, int sizeInInts)
 
 	//If the last vertex was found in the cache then this is true else false
 	//Used for ensuring vertices not found are still added to the cache to prevent vertex buffer mis-alignments
-	bool bFoundLastVertex = false;
+	bool bFoundLastVertex = FALSE;
+	int startIndex = g_currentPGXPIndex;
 
-	for (int i = g_currentPGXPIndex; i < 6; i++)
+	while(sizeInInts > 0)
 	{
-		bFoundLastVertex = false;
+		bFoundLastVertex = FALSE;
 
-		if (g_cachedPGXPVertices[i].originalSXY2 == 0)
-			continue;
-
-		for (int j = 0; j < sizeInInts; j++)
+		//Search in small cache for the PGXP vertex.
+		for (int i = startIndex; i < startIndex + 3; i++)
 		{
+			//Nothing here
+			if (g_cachedPGXPVertices[i].originalSXY2 == 0)
+				continue;
+
 			//Found, cache now!
 			if (*poly == g_cachedPGXPVertices[i].originalSXY2)
 			{
-				g_pgxpVertexBuffer[g_lastPGXPIndex] = g_cachedPGXPVertices[j];
-				g_pgxpVertexBuffer[g_lastPGXPIndex++].bUsed = TRUE;
+				g_pgxpVertexBuffer[g_lastPGXPIndex] = g_cachedPGXPVertices[i];
+				g_pgxpVertexBuffer[g_lastPGXPIndex++].bUsed = FALSE;//disabled TRUE;
 				sizeInInts -= 3;
 				poly += 3;
 				bFoundLastVertex = true;
@@ -141,18 +143,12 @@ void Emulator_CacheFinalPGXPVertex(unsigned int* poly, int sizeInInts)
 			}
 		}
 
-		//We still need to add it as nothing
+		//We still need to add it as nothing since it wasn't found.	
 		if (!bFoundLastVertex)
 		{
 			g_lastPGXPIndex++;
 			sizeInInts -= 3;
 			poly += 3;
-		}
-		i = 0;
-
-		if (sizeInInts <= 0)
-		{
-			break;
 		}
 	}
 }
@@ -1073,11 +1069,8 @@ int Emulator_Initialise()
 	glEnableVertexAttribArray(a_texcoord);
 	
     glEnableVertexAttribArray(a_color);
-#if defined(PGXP)
-	glVertexAttribPointer(a_position, 4, GL_FLOAT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
-#else
-	glVertexAttribPointer(a_position, 4, GL_SHORT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
-#endif
+
+	glVertexAttribPointer(a_position, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
 	glVertexAttribPointer(a_texcoord, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->u);
 	glVertexAttribPointer(a_color,    4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(Vertex), &((Vertex*)NULL)->r);
 	glBindVertexArray(0);
@@ -1091,11 +1084,7 @@ int Emulator_Initialise()
 	#define OFFSETOF(T, E)     ((size_t)&(((T*)0)->E))
 
 	const D3DVERTEXELEMENT9 VERTEX_DECL[] = {
-#if defined(PGXP)
 		{0, OFFSETOF(Vertex, x), D3DDECLTYPE_FLOAT4,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0}, // a_position
-#else
-		{0, OFFSETOF(Vertex, x), D3DDECLTYPE_SHORT4,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0}, // a_position
-#endif
 		{0, OFFSETOF(Vertex, u), D3DDECLTYPE_UBYTE4,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0}, // a_texcoord
 		{0, OFFSETOF(Vertex, r), D3DDECLTYPE_UBYTE4N,  D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR,    0}, // a_color
 		D3DDECL_END()
@@ -1541,7 +1530,7 @@ void Emulator_StoreFrameBuffer(int x, int y, int w, int h)
 	short *fb = (short*)SDL_malloc(windowWidth * windowHeight * sizeof(short));
 
 #if defined(OGL) || defined(OGLES)
-	glReadPixels(0, 0, windowWidth, windowHeight, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, fb);
+	glReadPixels(0, 0, windowWidth, windowHeight, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, fb);
 
 	#define FLIP_Y (h - fy - 1)
 #elif defined(D3D9)
