@@ -58,7 +58,7 @@ void CODEWAD_andy3_Func1(short item_number)
 		sptr->Flags = 42;
 		sptr->MaxYvel = 0;
 		sptr->Gravity = 0;
-		sptr->Def = objects[DEFAULT_SPRITES].mesh_index + 11;
+		sptr->Def = objects[DEFAULT_SPRITES].mesh_index + SPRITE_WRECKING_BALL;
 		sptr->dSize = 24;
 		sptr->z = item->pos.z_pos + (rcossin_tbl[(((CamRot.vy + 1256) & 0xFFF) << 1) + 1] >> 7);
 		sptr->sSize = 24;
