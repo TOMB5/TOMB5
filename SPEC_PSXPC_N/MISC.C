@@ -8,6 +8,8 @@
 #include "TEXT_S.H"
 
 #include <EMULATOR_PRIVATE.H>
+#include <EMULATOR.H>
+
 #include <LIBETC.H>
 #include "GAMEFLOW.H"
 #include "SHADOWS.H"
@@ -370,6 +372,9 @@ void GPU_SetScreenPosition(short x, short y) //5F360(<), 60040(<)
 
 void GPU_SyncBothScreens() //5F374(<), 60054(<)
 {
+	RECT16 *rect = &db.disp[db.current_buffer].disp;
+	Emulator_StoreFrameBuffer(rect->x, rect->y, rect->w, rect->h);
+
 	DrawSync(0);
 	db.current_buffer ^= 1;
 	if (db.current_buffer != 0)

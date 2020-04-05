@@ -139,6 +139,9 @@ void Emulator_ResetDevice()
 
 	hr = d3ddev->CreateVertexBuffer(sizeof(Vertex) * MAX_NUM_POLY_BUFFER_VERTICES, D3DUSAGE_WRITEONLY | D3DUSAGE_DYNAMIC, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, &dynamic_vertex_buffer, NULL);
 	assert(!FAILED(hr));
+
+	d3ddev->SetRenderState(D3DRS_ZENABLE,  D3DZB_FALSE);
+	d3ddev->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 #endif
 }
 
@@ -709,24 +712,113 @@ void Emulator_CounterLoop()
 	}
 }
 
-void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3)
+void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1)
 {
-	//Copy over position
-	if (p0 != NULL)
-	{
-		vertex[0].x = p0[0];
-		vertex[0].y = p0[1];
-	}
+	vertex[0].x = p0[0];
+	vertex[0].y = p0[1];
 
-	if (p1 != NULL)
-	{
-		vertex[1].x = p1[0];
-		vertex[1].y = p1[1];
-	}
+	vertex[1].x = p1[0];
+	vertex[1].y = p1[1];
 }
 
-void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h)
+void Emulator_GenerateVertexArrayTriangle(struct Vertex* vertex, short* p0, short* p1, short* p2)
 {
+	assert(p0);
+	assert(p1);
+	assert(p2);
+
+#if defined(PGXP)
+	PGXPVertex* pgxp_vertex_0 = NULL;
+	PGXPVertex* pgxp_vertex_1 = NULL;
+	PGXPVertex* pgxp_vertex_2 = NULL;
+
+	//Locate each vertex based on SXY2 (very slow)
+	for (int i = 0; i < pgxp_vertex_index; i++)
+	{
+		if (pgxp_vertex_0 && pgxp_vertex_1 && pgxp_vertex_2) {
+			break;
+		}
+
+		if (pgxp_vertex_0 == NULL)
+		{
+			if (((unsigned int*)p0)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_0 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+
+		if (pgxp_vertex_1 == NULL)
+		{
+			if (((unsigned int*)p1)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_1 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+
+		if (pgxp_vertex_2 == NULL)
+		{
+			if (((unsigned int*)p2)[0] == pgxp_vertex_buffer[i].originalSXY2)
+			{
+				pgxp_vertex_2 = &pgxp_vertex_buffer[i];
+				continue;
+			}
+		}
+	}
+
+	//Copy over position
+	if (pgxp_vertex_0 != NULL)
+	{
+		vertex[0].x = pgxp_vertex_0->x;
+		vertex[0].y = pgxp_vertex_0->y;
+	}
+	else
+	{
+		vertex[0].x = (float)p0[0];
+		vertex[0].y = (float)p0[1];
+	}
+
+	if (pgxp_vertex_1 != NULL)
+	{
+		vertex[1].x = pgxp_vertex_1->x;
+		vertex[1].y = pgxp_vertex_1->y;
+	}
+	else
+	{
+		vertex[1].x = (float)p1[0];
+		vertex[1].y = (float)p1[1];
+	}
+
+	if (pgxp_vertex_2 != NULL)
+	{
+		vertex[2].x = pgxp_vertex_2->x;
+		vertex[2].y = pgxp_vertex_2->y;
+	}
+	else
+	{
+		vertex[2].x = (float)p2[0];
+		vertex[2].y = (float)p2[1];
+	}
+#else
+	vertex[0].x = p0[0];
+	vertex[0].y = p0[1];
+
+	vertex[1].x = p1[0];
+	vertex[1].y = p1[1];
+
+	vertex[2].x = p2[0];
+	vertex[2].y = p2[1];
+#endif
+}
+
+void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3)
+{
+	assert(p0);
+	assert(p1);
+	assert(p2);
+	assert(p3);
+
 #if defined(PGXP)
 	PGXPVertex* pgxp_vertex_0 = NULL;
 	PGXPVertex* pgxp_vertex_1 = NULL;
@@ -736,7 +828,11 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 	//Locate each vertex based on SXY2 (very slow)
 	for (int i = 0; i < pgxp_vertex_index; i++)
 	{
-		if (p0 != NULL)
+		if (pgxp_vertex_0 && pgxp_vertex_1 && pgxp_vertex_2 && pgxp_vertex_3) {
+			break;
+		}
+
+		if (pgxp_vertex_0 == NULL)
 		{
 			if (((unsigned int*)p0)[0] == pgxp_vertex_buffer[i].originalSXY2)
 			{
@@ -745,7 +841,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			}
 		}
 
-		if (p1 != NULL)
+		if (pgxp_vertex_1 == NULL)
 		{
 			if (((unsigned int*)p1)[0] == pgxp_vertex_buffer[i].originalSXY2)
 			{
@@ -754,7 +850,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			}
 		}
 
-		if (p2 != NULL)
+		if (pgxp_vertex_2 == NULL)
 		{
 			if (((unsigned int*)p2)[0] == pgxp_vertex_buffer[i].originalSXY2)
 			{
@@ -763,7 +859,7 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			}
 		}
 
-		if (p3 != NULL)
+		if (pgxp_vertex_3 == NULL)
 		{
 			if (((unsigned int*)p3)[0] == pgxp_vertex_buffer[i].originalSXY2)
 			{
@@ -772,113 +868,125 @@ void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p
 			}
 		}
 	}
-#endif
 
 	//Copy over position
-	if (p0 != NULL)
+	if (pgxp_vertex_0 != NULL)
 	{
-#if defined(PGXP)
-		if (pgxp_vertex_0 != NULL)
-		{
-			vertex[0].x = pgxp_vertex_0->x;
-			vertex[0].y = pgxp_vertex_0->y;
-		}
-		else
-		{
-			vertex[0].x = (float)p0[0];
-			vertex[0].y = (float)p0[1];
-		}
-#else
-		vertex[0].x = p0[0];
-		vertex[0].y = p0[1];
-#endif
-	}
-
-	if (p1 != NULL)
-	{
-#if defined(PGXP)
-		if (pgxp_vertex_1 != NULL)
-		{
-			vertex[1].x = pgxp_vertex_1->x;
-			vertex[1].y = pgxp_vertex_1->y;
-		}
-		else
-		{
-			vertex[1].x = (float)p1[0];
-			vertex[1].y = (float)p1[1];
-		}
-#else
-		vertex[1].x = p1[0];
-		vertex[1].y = p1[1];
-#endif
+		vertex[0].x = pgxp_vertex_0->x;
+		vertex[0].y = pgxp_vertex_0->y;
 	}
 	else
 	{
-		if (p0 != NULL && w != -1 && h != -1)
-		{
-			vertex[1].x = p0[0];
-			vertex[1].y = p0[1] + h;
-		}
+		vertex[0].x = (float)p0[0];
+		vertex[0].y = (float)p0[1];
 	}
 
-	if (p2 != NULL)
+	if (pgxp_vertex_1 != NULL)
 	{
-#if defined(PGXP)
-		if (pgxp_vertex_2 != NULL)
-		{
-			vertex[2].x = pgxp_vertex_2->x;
-			vertex[2].y = pgxp_vertex_2->y;
-		}
-		else
-		{
-			vertex[2].x = (float)p2[0];
-			vertex[2].y = (float)p2[1];
-		}
-#else
-		vertex[2].x = p2[0];
-		vertex[2].y = p2[1];
-#endif
+		vertex[1].x = pgxp_vertex_1->x;
+		vertex[1].y = pgxp_vertex_1->y;
 	}
 	else
 	{
-		if (p0 != NULL && w != -1 && h != -1)
-		{
-			vertex[2].x = p0[0] + w;
-			vertex[2].y = p0[1] + h;
-		}
+		vertex[1].x = (float)p1[0];
+		vertex[1].y = (float)p1[1];
 	}
 
-	if (p3 != NULL)
+	if (pgxp_vertex_2 != NULL)
 	{
-#if defined(PGXP)
-		if (pgxp_vertex_3 != NULL)
-		{
-			vertex[3].x = pgxp_vertex_3->x;
-			vertex[3].y = pgxp_vertex_3->y;
-		}
-		else
-		{
-			vertex[3].x = (float)p3[0];
-			vertex[3].y = (float)p3[1];
-		}
-#else
-		vertex[3].x = p3[0];
-		vertex[3].y = p3[1];
-#endif
+		vertex[2].x = pgxp_vertex_2->x;
+		vertex[2].y = pgxp_vertex_2->y;
 	}
 	else
 	{
-		if (p0 != NULL && w != -1 && h != -1)
-		{
-			vertex[3].x = p0[0] + w;
-			vertex[3].y = p0[1];
-		}
+		vertex[2].x = (float)p2[0];
+		vertex[2].y = (float)p2[1];
 	}
+
+	if (pgxp_vertex_3 != NULL)
+	{
+		vertex[3].x = pgxp_vertex_3->x;
+		vertex[3].y = pgxp_vertex_3->y;
+	}
+	else
+	{
+		vertex[3].x = (float)p3[0];
+		vertex[3].y = (float)p3[1];
+	}
+#else
+	vertex[0].x = p0[0];
+	vertex[0].y = p0[1];
+
+	vertex[1].x = p1[0];
+	vertex[1].y = p1[1];
+
+	vertex[2].x = p2[0];
+	vertex[2].y = p2[1];
+
+	vertex[3].x = p3[0];
+	vertex[3].y = p3[1];
+#endif
 }
 
+void Emulator_GenerateVertexArrayRect(struct Vertex* vertex, short* p0, short w, short h)
+{
+	assert(p0);
+
+#if defined(PGXP)
+	PGXPVertex* pgxp_vertex_0 = NULL;
+
+	//Locate each vertex based on SXY2 (very slow)
+	for (int i = 0; i < pgxp_vertex_index; i++)
+	{
+		if (((unsigned int*)p0)[0] == pgxp_vertex_buffer[i].originalSXY2)
+		{
+			pgxp_vertex_0 = &pgxp_vertex_buffer[i];
+			break;
+		}
+	}
+
+	if (pgxp_vertex_0 != NULL)
+	{
+		vertex[0].x = pgxp_vertex_0->x;
+		vertex[0].y = pgxp_vertex_0->y;
+	}
+	else
+	{
+		vertex[0].x = (float)p0[0];
+		vertex[0].y = (float)p0[1];
+	}
+
+	vertex[1].x = vertex[0].x;
+	vertex[1].y = vertex[0].y + h;
+
+	vertex[2].x = vertex[0].x + w;
+	vertex[2].y = vertex[0].y + h;
+
+	vertex[3].x = vertex[0].x + w;
+	vertex[3].y = vertex[0].y;
+
+#else
+	vertex[0].x = p0[0];
+	vertex[0].y = p0[1];
+
+	vertex[1].x = vertex[0].x;
+	vertex[1].y = vertex[0].y + h;
+
+	vertex[2].x = vertex[0].x + w;
+	vertex[2].y = vertex[0].y + h;
+
+	vertex[3].x = vertex[0].x + w;
+	vertex[3].y = vertex[0].y;
+#endif
+}
 
 void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short page, short clut, unsigned char dither)
 {
+	assert(uv0);
+	assert(uv1);
+	assert(uv2);
+	assert(uv3);
+
 #if defined(PGXP) && 0
 	/*
 	Locate polygon in ztable
@@ -981,11 +1089,6 @@ void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv
 		}
 	}
 #else
-	assert(uv0);
-	if (!uv1) uv1 = uv0;
-	if (!uv2) uv2 = uv0;
-	if (!uv3) uv3 = uv0;
-
 	const unsigned char bright = 2;
 
 	vertex[0].u      = uv0[0];
@@ -1015,6 +1118,40 @@ void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv
 	vertex[3].dither = dither;
 	vertex[3].page   = page;
 	vertex[3].clut   = clut;
+#endif
+}
+
+void Emulator_GenerateTexcoordArrayTriangle(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, short page, short clut, unsigned char dither)
+{
+	assert(uv0);
+	assert(uv1);
+	assert(uv2);
+
+#if defined(PGXP) && 0
+	#error COPY IMPLEMENTATION FROM Emulator_GenerateTexcoordArrayQuad
+#else
+	const unsigned char bright = 2;
+
+	vertex[0].u      = uv0[0];
+	vertex[0].v      = uv0[1];
+	vertex[0].bright = bright;
+	vertex[0].dither = dither;
+	vertex[0].page   = page;
+	vertex[0].clut   = clut;
+
+	vertex[1].u      = uv1[0];
+	vertex[1].v      = uv1[1];
+	vertex[1].bright = bright;
+	vertex[1].dither = dither;
+	vertex[1].page   = page;
+	vertex[1].clut   = clut;
+
+	vertex[2].u      = uv2[0];
+	vertex[2].v      = uv2[1];
+	vertex[2].bright = bright;
+	vertex[2].dither = dither;
+	vertex[2].page   = page;
+	vertex[2].clut   = clut;
 #endif
 }
 
@@ -1059,7 +1196,52 @@ void Emulator_GenerateTexcoordArrayRect(struct Vertex* vertex, unsigned char* uv
 	vertex[3].clut   = clut;
 }
 
-void Emulator_GenerateTexcoordArrayZero(struct Vertex* vertex, unsigned char dither)
+void Emulator_GenerateTexcoordArrayLineZero(struct Vertex* vertex, unsigned char dither)
+{
+	const unsigned char bright = 1;
+
+	vertex[0].u      = 0;
+	vertex[0].v      = 0;
+	vertex[0].bright = bright;
+	vertex[0].dither = dither;
+	vertex[0].page   = 0;
+	vertex[0].clut   = 0;
+
+	vertex[1].u      = 0;
+	vertex[1].v      = 0;
+	vertex[1].bright = bright;
+	vertex[1].dither = dither;
+	vertex[1].page   = 0;
+	vertex[1].clut   = 0;
+}
+
+void Emulator_GenerateTexcoordArrayTriangleZero(struct Vertex* vertex, unsigned char dither)
+{
+	const unsigned char bright = 1;
+
+	vertex[0].u      = 0;
+	vertex[0].v      = 0;
+	vertex[0].bright = bright;
+	vertex[0].dither = dither;
+	vertex[0].page   = 0;
+	vertex[0].clut   = 0;
+
+	vertex[1].u      = 0;
+	vertex[1].v      = 0;
+	vertex[1].bright = bright;
+	vertex[1].dither = dither;
+	vertex[1].page   = 0;
+	vertex[1].clut   = 0;
+
+	vertex[2].u      = 0;
+	vertex[2].v      = 0;
+	vertex[2].bright = bright;
+	vertex[2].dither = dither;
+	vertex[2].page   = 0;
+	vertex[2].clut   = 0;
+}
+
+void Emulator_GenerateTexcoordArrayQuadZero(struct Vertex* vertex, unsigned char dither)
 {
 	const unsigned char bright = 1;
 
@@ -1092,12 +1274,50 @@ void Emulator_GenerateTexcoordArrayZero(struct Vertex* vertex, unsigned char dit
 	vertex[3].clut   = 0;
 }
 
+void Emulator_GenerateColourArrayLine(struct Vertex* vertex, unsigned char* col0, unsigned char* col1)
+{
+	assert(col0);
+	assert(col1);
+
+	vertex[0].r = col0[0];
+	vertex[0].g = col0[1];
+	vertex[0].b = col0[2];
+	vertex[0].a = 255;
+
+	vertex[1].r = col1[0];
+	vertex[1].g = col1[1];
+	vertex[1].b = col1[2];
+	vertex[1].a = 255;
+}
+
+void Emulator_GenerateColourArrayTriangle(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2)
+{
+	assert(col0);
+	assert(col1);
+	assert(col2);
+
+	vertex[0].r = col0[0];
+	vertex[0].g = col0[1];
+	vertex[0].b = col0[2];
+	vertex[0].a = 255;
+
+	vertex[1].r = col1[0];
+	vertex[1].g = col1[1];
+	vertex[1].b = col1[2];
+	vertex[1].a = 255;
+
+	vertex[2].r = col2[0];
+	vertex[2].g = col2[1];
+	vertex[2].b = col2[2];
+	vertex[2].a = 255;
+}
+
 void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3)
 {
 	assert(col0);
-	if (!col1) col1 = col0;
-	if (!col2) col2 = col0;
-	if (!col3) col3 = col0;
+	assert(col1);
+	assert(col2);
+	assert(col3);
 
 	vertex[0].r = col0[0];
 	vertex[0].g = col0[1];
@@ -1148,6 +1368,17 @@ GLint u_Projection;
 	"		ivec2 dc = ivec2(fract(gl_FragCoord.xy / 4.0) * 4.0);\n"\
 	"		fragColor.xyz += vec3(dither[dc.x][dc.y] * v_texcoord.w);\n"
 
+
+#if (VRAM_FORMAT == GL_LUMINANCE_ALPHA)
+	#define GTE_FETCH_VRAM_FUNC\
+		"	uniform sampler2D s_texture;\n"\
+		"	vec2 VRAM(vec2 uv) { return texture2D(s_texture, uv).ra; }\n"
+#else
+	#define GTE_FETCH_VRAM_FUNC\
+		"	uniform sampler2D s_texture;\n"\
+		"	vec2 VRAM(vec2 uv) { return texture2D(s_texture, uv).rg; }\n"
+#endif
+
 const char* gte_shader_4 =
 	"varying vec4 v_texcoord;\n"
 	"varying vec4 v_color;\n"
@@ -1168,10 +1399,10 @@ const char* gte_shader_4 =
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
 	"		vec2 uv = (v_texcoord.xy * vec2(0.25, 1.0) + v_page_clut.xy) * vec2(1.0 / 1024.0, 1.0 / 512.0);\n"
-	"		vec2 comp = texture2D(s_texture, uv).rg;\n"
+	"		vec2 comp = VRAM(uv);\n"
 	"		int index = int(fract(v_texcoord.x / 4.0 + 0.0001) * 4.0);\n"
 	"\n"
 	"		float v = comp[index / 2] * (255.0 / 16.0);\n"
@@ -1181,7 +1412,7 @@ const char* gte_shader_4 =
 	"\n"
 	"		vec2 clut_pos = v_page_clut.zw;\n"
 	"		clut_pos.x += mix(c[0], c[1], fract(float(index) / 2.0) * 2.0) / 1024.0;\n"
-	"		vec2 color_rg = texture2D(s_texture, clut_pos).rg;\n"
+	"		vec2 color_rg = VRAM(clut_pos);\n"
 	GTE_PACK_RG
 	GTE_DISCARD
 	GTE_DECODE_RG
@@ -1209,14 +1440,14 @@ const char* gte_shader_8 =
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
 	"		vec2 uv = (v_texcoord.xy * vec2(0.5, 1.0) + v_page_clut.xy) * vec2(1.0 / 1024.0, 1.0 / 512.0);\n"
-	"		vec2 comp = texture2D(s_texture, uv).rg;\n"
+	"		vec2 comp = VRAM(uv);\n"
 	"\n"
 	"		vec2 clut_pos = v_page_clut.zw;\n"
 	"		clut_pos.x += comp[int(mod(v_texcoord.x, 2.0))] * 255.0 / 1024.0;\n"
-	"		vec2 color_rg = texture2D(s_texture, clut_pos).rg;\n"
+	"		vec2 color_rg = VRAM(clut_pos);\n"
 	GTE_PACK_RG
 	GTE_DISCARD
 	GTE_DECODE_RG
@@ -1244,9 +1475,9 @@ const char* gte_shader_16 =
 	"		gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
-	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg;\n"
+	"		vec2 color_rg = VRAM(v_texcoord.xy);\n"
 	GTE_PACK_RG
 	GTE_DISCARD
 	GTE_DECODE_RG
@@ -1264,9 +1495,9 @@ const char* blit_shader =
 	"		gl_Position = vec4(a_position.xy, 0.0, 1.0);\n"
 	"	}\n"
 	"#else\n"
-	"	uniform sampler2D s_texture;\n"
+	GTE_FETCH_VRAM_FUNC
 	"	void main() {\n"
-	"		vec2 color_rg = texture2D(s_texture, v_texcoord.xy).rg;\n"
+	"		vec2 color_rg = VRAM(v_texcoord.xy);\n"
 	GTE_PACK_RG
 	GTE_DECODE_RG
 	"	}\n"
@@ -1454,7 +1685,7 @@ int Emulator_Initialise()
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, VRAM_WIDTH, VRAM_HEIGHT, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, VRAM_INTERNAL_FORMAT, VRAM_WIDTH, VRAM_HEIGHT, 0, VRAM_FORMAT, GL_UNSIGNED_BYTE, NULL);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -1467,13 +1698,15 @@ int Emulator_Initialise()
 	glEnableVertexAttribArray(a_texcoord);
 	
     glEnableVertexAttribArray(a_color);
+#if defined(PGXP)
+	glVertexAttribPointer(a_position, 4, GL_FLOAT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
+#else
 	glVertexAttribPointer(a_position, 4, GL_SHORT,         GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->x);
+#endif
 	glVertexAttribPointer(a_texcoord, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), &((Vertex*)NULL)->u);
 	glVertexAttribPointer(a_color,    4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(Vertex), &((Vertex*)NULL)->r);
 	glBindVertexArray(0);
 #elif defined(D3D9)
-	d3ddev->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-
 	if (FAILED(d3ddev->CreateTexture(VRAM_WIDTH, VRAM_HEIGHT, 1, 0, D3DFMT_A8L8, D3DPOOL_MANAGED, &vramTexture, NULL)))
 	{
 		eprinterr("Failed to create render target texture!\n");
@@ -1483,7 +1716,11 @@ int Emulator_Initialise()
 	#define OFFSETOF(T, E)     ((size_t)&(((T*)0)->E))
 
 	const D3DVERTEXELEMENT9 VERTEX_DECL[] = {
+#if defined(PGXP)
+		{0, OFFSETOF(Vertex, x), D3DDECLTYPE_FLOAT4,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0}, // a_position
+#else
 		{0, OFFSETOF(Vertex, x), D3DDECLTYPE_SHORT4,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0}, // a_position
+#endif
 		{0, OFFSETOF(Vertex, u), D3DDECLTYPE_UBYTE4,   D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0}, // a_texcoord
 		{0, OFFSETOF(Vertex, r), D3DDECLTYPE_UBYTE4N,  D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR,    0}, // a_color
 		D3DDECL_END()
@@ -1924,6 +2161,75 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 
 bool vram_need_update = true;
 
+void Emulator_StoreFrameBuffer(int x, int y, int w, int h)
+{
+	short *fb = (short*)SDL_malloc(windowWidth * windowHeight * sizeof(short));
+
+#if defined(OGL) || defined(OGLES)
+	int *data = (int*)SDL_malloc(windowWidth * windowHeight * sizeof(int));
+	glReadPixels(0, 0, windowWidth, windowHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+	#define FLIP_Y (h - fy - 1)
+#elif defined(D3D9)
+	IDirect3DSurface9 *srcSurface, *dstSurface;
+	HRESULT hr;
+	D3DLOCKED_RECT rect;
+	hr = d3ddev->GetRenderTarget(0, &srcSurface);
+	assert(!FAILED(hr));
+	hr = d3ddev->CreateOffscreenPlainSurface(windowWidth, windowHeight, D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &dstSurface, NULL);
+	assert(!FAILED(hr));
+	hr = d3ddev->GetRenderTargetData(srcSurface, dstSurface);
+	assert(!FAILED(hr));
+	hr = dstSurface->LockRect(&rect, NULL, D3DLOCK_READONLY);
+	assert(!FAILED(hr));
+	assert(windowWidth * 4 == rect.Pitch);
+
+	int *data = (int*)rect.pBits;
+
+	#define FLIP_Y (fy)
+#endif
+
+	unsigned int   *data_src = (unsigned int*)data;
+	unsigned short *data_dst = (unsigned short*)fb;
+
+	for (int i = 0; i < windowHeight; i++) {
+		for (int j = 0; j < windowWidth; j++) {
+			unsigned int  c = *data_src++;
+			unsigned char b = ((c >>  3) & 0x1F);
+			unsigned char g = ((c >> 11) & 0x1F);
+			unsigned char r = ((c >> 19) & 0x1F);
+			*data_dst++ = r | (g << 5) | (b << 10) | 0x8000;
+		}
+	}
+
+#if defined(OGL) || defined(OGLES)
+	SDL_free(data);
+#elif defined(D3D9)
+	dstSurface->UnlockRect();
+
+	dstSurface->Release();
+	srcSurface->Release();
+#endif
+
+	short *ptr = (short*)vram + VRAM_WIDTH * y + x;
+
+	for (int fy = 0; fy < h; fy++) {
+		short *fb_ptr = fb + (windowHeight * FLIP_Y / h) * windowWidth;
+
+		for (int fx = 0; fx < w; fx++) {
+			ptr[fx] = fb_ptr[windowWidth * fx / w];
+		}
+
+		ptr += VRAM_WIDTH;
+	}
+
+	#undef FLIP_Y
+
+	SDL_free(fb);
+
+	vram_need_update = true;
+}
+
 void Emulator_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dst_x, int dst_y)
 {
 	vram_need_update = true;
@@ -1939,11 +2245,22 @@ void Emulator_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dst_
 
     unsigned short *dst = vram + dst_x + dst_y * VRAM_WIDTH;
 
-    for (int y = 0; y < h; y++) {
-        SDL_memcpy(dst, src, w * 2);
+    for (int i = 0; i < h; i++) {
+        SDL_memcpy(dst, src, w * sizeof(short));
         dst += VRAM_WIDTH;
         src += stride;
     }
+}
+
+void Emulator_ReadVRAM(unsigned short *dst, int x, int y, int dst_w, int dst_h)
+{
+	unsigned short *src = vram + x + VRAM_WIDTH * y;
+
+	for (int i = 0; i < dst_h; i++) {
+		SDL_memcpy(dst, src, dst_w * sizeof(short));
+		dst += dst_w;
+		src += VRAM_WIDTH;
+	}
 }
 
 void Emulator_UpdateVRAM()
@@ -1955,12 +2272,12 @@ void Emulator_UpdateVRAM()
 
 #if defined(OGL) || defined(OGLES)
 	glBindTexture(GL_TEXTURE_2D, vramTexture);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, GL_RG, GL_UNSIGNED_BYTE, vram);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, VRAM_FORMAT, GL_UNSIGNED_BYTE, vram);
 #elif defined(D3D9)
 	D3DLOCKED_RECT rect;
 	HRESULT hr = vramTexture->LockRect(0, &rect, NULL, 0);
 	assert(!FAILED(hr));
-	memcpy(rect.pBits, vram, VRAM_WIDTH * VRAM_HEIGHT * sizeof(unsigned short));
+	memcpy(rect.pBits, vram, VRAM_WIDTH * VRAM_HEIGHT * sizeof(short));
 	vramTexture->UnlockRect(0);
 #endif
 }
