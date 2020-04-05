@@ -389,7 +389,7 @@ void SaveLaraData()//53738(<), 53B9C(<) (F)
 
 int CheckSumValid(char* buffer)//53720(<), 53B84(<) (F)
 {
-	return *(short*)buffer ^ *(short*)(buffer + 0x1DFE) < 1;
+	return (*(short*)buffer ^ *(short*)(buffer + 0x1DFE)) < 1;
 }
 
 void ReadSG(char* pointer, int size)//536E0, 53B44 (F)
