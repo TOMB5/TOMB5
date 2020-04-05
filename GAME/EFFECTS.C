@@ -475,7 +475,7 @@ void LaraLocation(struct ITEM_INFO* item)//396D0(<), 39BD0(<) (F)
 
 void ExplosionFX(struct ITEM_INFO* item)//39694(<), 39B94(<) (F)
 {
-	SoundEffect(SFX_EXPLOSION1, NULL, 0);
+	SoundEffect(SFX_EXPLOSION1, NULL, SFX_DEFAULT);
 	camera.bounce = -75;
 	flipeffect = -1;
 }
@@ -503,7 +503,7 @@ void ActivateCamera(struct ITEM_INFO* item)//39610(<), 39B10(<) (F)
 
 void PoseidonSFX(struct ITEM_INFO* item)//395E0(<), 39AE0(<) (F)
 {
-	SoundEffect(SFX_J_GRAB_OPEN, NULL, 0);
+	SoundEffect(SFX_J_GRAB_OPEN, NULL, SFX_DEFAULT);
 	flipeffect = -1;
 }
 
@@ -527,7 +527,7 @@ void RubbleFX(struct ITEM_INFO* item)//39534(<), 39A34(<) (F)
 
 void SoundFlipEffect(struct ITEM_INFO* item)//39500(<), 39A00(<) (F)
 {
-	SoundEffect(TriggerTimer, NULL, 0);
+	SoundEffect(TriggerTimer, NULL, SFX_DEFAULT);
 	flipeffect = -1;
 }
 
@@ -583,7 +583,7 @@ void WaterFall(short item_number)//39294(<), 39794(<) (F)
 
 	//393A0
 	TriggerWaterfallMist(x, item->pos.y_pos, z, item->pos.y_rot + 0x8000);
-	SoundEffect(SFX_WATERFALL_LOOP, &item->pos, 0);
+	SoundEffect(SFX_WATERFALL_LOOP, &item->pos, SFX_DEFAULT);
 }
 
 void SoundEffects()//39190(<), 39690 (F)
@@ -601,7 +601,7 @@ void SoundEffects()//39190(<), 39690 (F)
 			//loc_39224
 			if ((flip_stats[((sound_effects[i].flags & 0x1F) & 1) | ((sound_effects[i].flags & 0x1F) & 2) + ((((sound_effects[i].flags & 0x1F) >> 2) & 1) << 1) + (((sound_effects[i].flags & 0x1F) >> 2) & 1) + (((sound_effects[i].flags & 0x1F) >> 1) & 4) + (((sound_effects[i].flags & 0x1F) >> 4) << 2) + ((sound_effects[i].flags & 0x1F) >> 4)] & 0x40) || (flip_stats[((sound_effects[i].flags & 0x1F) & 1) | ((sound_effects[i].flags & 0x1F) & 2) + ((((sound_effects[i].flags & 0x1F) >> 2) & 1) << 1) + (((sound_effects[i].flags & 0x1F) >> 2) & 1) + (((sound_effects[i].flags & 0x1F) >> 1) & 4) + (((sound_effects[i].flags & 0x1F) >> 4) << 2) + ((sound_effects[i].flags & 0x1F) >> 4)] & 0x80))///@FIXME Macro
 			{
-				SoundEffect(sound->data, (struct PHD_3DPOS*)&sound, 0);
+				SoundEffect(sound->data, (struct PHD_3DPOS*)&sound, SFX_DEFAULT);
 			}
 			//loc_39238
 		}
@@ -777,7 +777,7 @@ void LaraBubbles(struct ITEM_INFO* item)// (F)
 	struct PHD_VECTOR pos;
 	int num, i;
 
-	SoundEffect(SFX_LARA_BUBBLES, &item->pos, 1);
+	SoundEffect(SFX_LARA_BUBBLES, &item->pos, SFX_WATER);
 
 	pos.x = 0;
 

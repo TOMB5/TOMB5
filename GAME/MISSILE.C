@@ -86,7 +86,7 @@ void ControlBodyPart(short fx_number)//4E600, 4EA64 (F)
 				KillEffect(fx_number);
 
 				if (fx->flag2 & 0x800)
-					SoundEffect(SFX_ROCK_FALL_LAND, &fx->pos, 0);
+					SoundEffect(SFX_ROCK_FALL_LAND, &fx->pos, SFX_DEFAULT);
 				return;
 			}
 

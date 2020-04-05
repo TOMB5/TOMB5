@@ -268,7 +268,7 @@ void FireCrossbow(struct PHD_3DPOS* Start)//42E18(<), 4326C(<) (F)
 #if PSX_VERSION || PSXPC_VERSION
 			SetupPadVibration(0, 4096, 4096, 2, 1536, 5);
 #endif
-			SoundEffect(SFX_LARA_CROSSBOW, NULL, 0);
+			SoundEffect(SFX_LARA_CROSSBOW, NULL, SFX_DEFAULT);
 			savegame.Game.AmmoUsed++;
 		}//loc_42F60
 	}//loc_42F60
@@ -423,8 +423,8 @@ void FireShotgun()//429F0(<), 42E44(<) (F)
 		}//loc_42BFC
 
 		lara.right_arm.flash_gun = weapons[WEAPON_SHOTGUN].flash_time;
-		SoundEffect(SFX_EXPLOSION1, &lara_item->pos, 0x1400004);
-		SoundEffect(weapons[WEAPON_SHOTGUN].sample_num, &lara_item->pos, 0);
+		SoundEffect(SFX_EXPLOSION1, &lara_item->pos, (0x14000 << 8) | SFX_SETPITCH);
+		SoundEffect(weapons[WEAPON_SHOTGUN].sample_num, &lara_item->pos, SFX_DEFAULT);
 #if PSX_VERSION
 		SetupPadVibration(0, 4096, 4096, 2, 1536, 5);
 #endif

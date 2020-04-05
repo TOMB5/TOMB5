@@ -2252,7 +2252,7 @@ void lara_as_fastfall(struct ITEM_INFO* item, struct COLL_INFO* coll)//198BC(<),
 {
 	item->speed = (item->speed * 95) / 100;
 	if (item->fallspeed == 154)
-		SoundEffect(SFX_LARA_FALL, &item->pos, 0);
+		SoundEffect(SFX_LARA_FALL, &item->pos, SFX_DEFAULT);
 }
 
 void lara_as_death(struct ITEM_INFO* item, struct COLL_INFO* coll)//19830(<), 19964(<) (F)
@@ -3436,7 +3436,7 @@ void lara_col_poledown(struct ITEM_INFO* item, struct COLL_INFO* coll)//171A0, 1
 		item->item_flags[2] += 256;
 	}
 
-	SoundEffect(SFX_LARA_ROPEDOWN_LOOP, &item->pos, 0);
+	SoundEffect(SFX_LARA_ROPEDOWN_LOOP, &item->pos, SFX_DEFAULT);
 
 	item->item_flags[2] = CLAMP(item->item_flags[2], 0, ANGLE(90));
 

@@ -502,7 +502,7 @@ void do_stats_mode()//412BC, 41710 (F)
 
 	if (go_deselect)
 	{
-		SoundEffect(SFX_MENU_SELECT, 0, SFX_ALWAYS);
+		SoundEffect(SFX_MENU_SELECT, NULL, SFX_ALWAYS);
 		go_deselect = 0;
 		stats_mode = 0;
 	}
@@ -1608,7 +1608,7 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 				combine_type_flag = 1;
 				combine_obj1 = rings[RING_INVENTORY]->current_object_list[rings[RING_INVENTORY]->curobjinlist].invitem;
 				combine_obj2 = rings[RING_AMMO]->current_object_list[rings[RING_AMMO]->curobjinlist].invitem;
-				SoundEffect(SFX_MENU_COMBINE, 0, 2);
+				SoundEffect(SFX_MENU_COMBINE, NULL, SFX_ALWAYS);
 			}
 			else
 			{
@@ -1620,7 +1620,7 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 		//loc_3E078
 		if (go_deselect)
 		{
-			SoundEffect(SFX_MENU_SELECT, 0, 2);
+			SoundEffect(SFX_MENU_SELECT, NULL, SFX_ALWAYS);
 			go_deselect = 0;
 			combine_ring_fade_dir = 2;
 		}
@@ -1762,13 +1762,13 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 			if (go_up && current_selected_option)
 			{
 				current_selected_option--;
-				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				SoundEffect(SFX_MENU_SELECT, NULL, SFX_ALWAYS);
 			}
 			else if (go_down && current_selected_option < n - 1)
 			{
 				//loc_3E64C
 				current_selected_option++;
-				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				SoundEffect(SFX_MENU_SELECT, NULL, SFX_ALWAYS);
 			}//loc_3E684
 
 			if (ammo_active)
@@ -1776,14 +1776,14 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 				if (go_left && current_selected_option)
 				{
 					current_selected_option--;
-					SoundEffect(SFX_MENU_SELECT, NULL, 2);
+					SoundEffect(SFX_MENU_SELECT, NULL, SFX_ALWAYS);
 				}//loc_3E6C8
 
 				 //v0 = n - 1
 				if (go_right && current_selected_option < n - 1)
 				{
 					current_selected_option++;
-					SoundEffect(SFX_MENU_SELECT, NULL, 2);
+					SoundEffect(SFX_MENU_SELECT, NULL, SFX_ALWAYS);
 				}//loc_3E700
 
 				current_ammo_type[0] = current_selected_option;
@@ -1793,7 +1793,7 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 			{
 				if (current_options[current_selected_option].type != 5 && current_options[current_selected_option].type != 1)
 				{
-					SoundEffect(SFX_MENU_CHOOSE, NULL, 2);
+					SoundEffect(SFX_MENU_CHOOSE, NULL, SFX_ALWAYS);
 				}//loc_3E754
 				if (current_options[current_selected_option].type == 2)
 				{
@@ -1863,7 +1863,7 @@ void handle_inventry_menu()//3DF44(<), 3E398 (F)
 
 			if (go_deselect && ammo_active)
 			{
-				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				SoundEffect(SFX_MENU_SELECT, NULL, SFX_ALWAYS);
 				go_deselect = 0;
 				ammo_active = 0;
 				rings[RING_INVENTORY]->ringactive = 1;
@@ -2369,7 +2369,7 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 
 				if (go_left && rings[ringnum]->objlistmovement == 0)
 				{
-					SoundEffect(SFX_MENU_ROTATE, NULL, 2);
+					SoundEffect(SFX_MENU_ROTATE, NULL, SFX_ALWAYS);
 					rings[ringnum]->objlistmovement += 0x2000;
 
 					if (ammo_selector_flag)
@@ -2382,7 +2382,7 @@ void draw_current_object_list(int ringnum)//3D350, 3D7A4
 				{
 					if (rings[ringnum]->objlistmovement == 0)
 					{
-						SoundEffect(SFX_MENU_ROTATE, NULL, 0);
+						SoundEffect(SFX_MENU_ROTATE, NULL, SFX_DEFAULT);
 
 						rings[ringnum]->objlistmovement -= 0x2000;
 
@@ -3198,7 +3198,7 @@ int S_CallInventory2()//3B7A8, 3BC04
 	bullshitbollox = 1;
 
 	SOUND_Stop();
-	SoundEffect(SFX_MENU_SELECT, NULL, 2);
+	SoundEffect(SFX_MENU_SELECT, NULL, SFX_ALWAYS);
 	S_SetReverbType(1);
 	friggrimmer = 0;
 	oldLaraBusy = lara.Busy;
@@ -3265,12 +3265,12 @@ int S_CallInventory2()//3B7A8, 3BC04
 
 			if (!ammo_active && !rings[1]->ringactive && go_deselect)
 			{
-				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				SoundEffect(SFX_MENU_SELECT, NULL, SFX_ALWAYS);
 			}//loc_3BA54
 
 			if ((dbinput & IN_OPTION))
 			{
-				SoundEffect(SFX_MENU_SELECT, NULL, 2);
+				SoundEffect(SFX_MENU_SELECT, NULL, SFX_ALWAYS);
 				flag = 1;
 			}//loc_3BA7C
 

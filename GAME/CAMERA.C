@@ -917,7 +917,7 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 	camera.pos.y = lara_item->pos.y_pos - SECTOR(1);
 	camera.pos.z = lara_item->pos.z_pos - 100;
 	
-	camera.target_distance = 1536;
+	camera.target_distance = 1536; // @TODO: SECTOR(1.5)
 	camera.number_frames = 1;
 	camera.speed = 1;
 	camera.flags = CF_FOLLOW_CENTER;
@@ -929,7 +929,7 @@ void InitialiseCamera()//25AAC, 25CB8 (F)
 	last_target.room_number = lara_item->room_number;
 	camera.target.room_number = lara_item->room_number;
 	camera.pos.room_number = lara_item->room_number;
-	AlterFOV(16380);
+	AlterFOV(16380); // @TODO: ANGLE(90)
 	UseForcedFixedCamera = 0;
 	CalculateCamera();
 	return;
@@ -1041,7 +1041,7 @@ void CalculateCamera()//27DA0(<), 27FAC(!)
 		//Camera is in a water room, play water sound effect.
 		if ((room[camera.pos.room_number].flags & RF_FILL_WATER))
 		{
-			SoundEffect(SFX_UNDERWATER, NULL, 2);
+			SoundEffect(SFX_UNDERWATER, NULL, SFX_ALWAYS);
 			if (camera.underwater == 0)
 			{
 				if (GLOBAL_playing_cutseq == 0 && TLFlag == 0)

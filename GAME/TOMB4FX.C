@@ -659,7 +659,7 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 		sptr->b = b;
 		sptr->life = life;
 
-		SoundEffect(SFX_IMP_STONE_HIT, pos, 0);
+		SoundEffect(SFX_IMP_STONE_HIT, pos, SFX_DEFAULT);
 	}
 }
 
@@ -906,7 +906,7 @@ void TriggerRicochetSpark(struct GAME_VECTOR* pos, int angle, int num, int a4)
 void Richochet(struct GAME_VECTOR* pos)// (F)
 {
 	TriggerRicochetSpark(pos, mGetAngle(pos->z, pos->x, lara_item->pos.z_pos, lara_item->pos.x_pos) >> 4, 3, 0);
-	SoundEffect(SFX_LARA_RICOCHET, (struct PHD_3DPOS*)pos, 0);
+	SoundEffect(SFX_LARA_RICOCHET, (struct PHD_3DPOS*)pos, SFX_DEFAULT);
 }
 
 void TriggerLightning(struct PHD_VECTOR* a1, struct PHD_VECTOR* a2, char a3, int a4, char a5, char a6, char a7)

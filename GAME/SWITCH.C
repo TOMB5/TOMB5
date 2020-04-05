@@ -136,7 +136,7 @@ void CrowDoveSwitchControl(short item_number)//58674(<), 58B14 (F)
 	if ((item->mesh_bits & 2))
 	{
 		ExplodeItemNode(item, 1, 0, 0x100);
-		SoundEffect(SFX_RAVENSWITCH_EXP, &item->pos, 0);
+		SoundEffect(SFX_RAVENSWITCH_EXP, &item->pos, SFX_DEFAULT);
 		item->mesh_bits = 5;
 		RemoveActiveItem(item_number);
 	}

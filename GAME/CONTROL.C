@@ -1852,7 +1852,7 @@ int ExplodeItemNode(struct ITEM_INFO* item, int Node, int NoXZVel, long bits)//2
 		}
 		else
 		{
-			SoundEffect(SFX_SMASH_METAL, &item->pos, 0);
+			SoundEffect(SFX_SMASH_METAL, &item->pos, SFX_DEFAULT);
 			num = bits;
 		}
 		GetSpheres(item, Slist, 3);

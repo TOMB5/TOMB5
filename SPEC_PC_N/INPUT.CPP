@@ -170,7 +170,7 @@ int S_UpdateInput()// (F)
 				lara_item->current_anim_state == STATE_LARA_CRAWL_BACK ||
 				lara_item->current_anim_state == STATE_LARA_CRAWL_TO_CLIMB)
 			{
-				SoundEffect(SFX_LARA_NO, nullptr, 2);
+				SoundEffect(SFX_LARA_NO, nullptr, SFX_ALWAYS);
 				flare_no = true;
 			}
 			else
@@ -261,7 +261,7 @@ int S_UpdateInput()// (F)
 					if (lara_item->hit_points > 1000)
 					{
 						lara_item->hit_points = 1000;
-						SoundEffect(SFX_MENU_MEDI, nullptr, 2);
+						SoundEffect(SFX_MENU_MEDI, nullptr, SFX_ALWAYS);
 						savegame.Game.HealthUsed++;
 					}
 				}
@@ -287,7 +287,7 @@ int S_UpdateInput()// (F)
 					if (lara_item->hit_points > 1000)
 					{
 						lara_item->hit_points = 1000;
-						SoundEffect(SFX_MENU_MEDI, nullptr, 2);
+						SoundEffect(SFX_MENU_MEDI, nullptr, SFX_ALWAYS);
 						savegame.Game.HealthUsed++;
 					}
 				}

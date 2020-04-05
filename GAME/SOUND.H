@@ -436,7 +436,16 @@ enum reverb_type
 
 enum sfx_options
 {
-	SFX_ALWAYS = 2,
+	SFX_DEFAULT = 0, // no special options
+	SFX_WATER = 1, // only if room underwater and not SFX_ALWAYS
+	SFX_ALWAYS = 2, // force sound to always play even if SFX_WATER is set and room is not underwater
+	SFX_SETPITCH = 4, // pitch (?) is stored in bits 16..31 = (flag >> 8) && 0xFFFF00, default is 0x10000
+	SFX_SETVOL = 8, // volume factor is stored in bits 8..12 = (flag >> 8) & 0x1F
+
+	// compatibility
+	SFX_UNK0 = SFX_DEFAULT,
+	SFX_UNK4 = SFX_SETPITCH,
+	SFX_UNK8 = SFX_SETVOL
 };
 
 void SayNo();

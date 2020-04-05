@@ -162,7 +162,7 @@ void HitTarget(struct ITEM_INFO* item, struct GAME_VECTOR* hitpos, int damage, i
 		else if (obj->HitEffect == 1)//*(int*)obj->bite_offset & 0x8000000
 		{
 			TriggerRicochetSpark(hitpos, lara_item->pos.y_rot, 3, -5);
-			SoundEffect(SFX_SWORD_GOD_HITMET, &item->pos, 0);
+			SoundEffect(SFX_SWORD_GOD_HITMET, &item->pos, SFX_DEFAULT);
 		}
 	}//loc_48810
 

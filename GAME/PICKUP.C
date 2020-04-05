@@ -338,7 +338,7 @@ void PuzzleDone(struct ITEM_INFO* item, short item_num)//51004, 51468 (F)
 	{
 		IsAtmospherePlaying = 0;
 		S_CDPlay(CDA_XA6_SPOOKY03, 0);
-		SoundEffect(SFX_HANGMAN_LAUGH_OFFCAM, &item->pos, 0);
+		SoundEffect(SFX_HANGMAN_LAUGH_OFFCAM, &item->pos, SFX_DEFAULT);
 	}
 
 	item->object_number += 8; // PUZZLE_HOLEx -> PUZZLE_DONEx

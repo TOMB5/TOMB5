@@ -372,7 +372,7 @@ void FlameEmitter2Control(short item_number)//5A1BC, 5A638 (F)
 				TriggerDynamic(item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, 10, r, g, 0);
 			}
 
-			SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &item->pos, 0);
+			SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &item->pos, SFX_DEFAULT);
 		}
 	}
 }
@@ -434,7 +434,7 @@ void FlameControl(short fx_number)//5AA6C, 5AEE8 (F)
 
 	if (y == BAD_HEIGHT || fx->pos.y_pos <= y || lara.BurnBlue != 0)
 	{
-		SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &fx->pos, 0);
+		SoundEffect(SFX_LOOP_FOR_SMALL_FIRES, &fx->pos, SFX_DEFAULT);
 
 		lara_item->hit_points -= 7;
 		lara_item->hit_status = TRUE;

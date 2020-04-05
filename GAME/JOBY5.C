@@ -30,7 +30,7 @@ void CODEWAD_Joby5_Func1()
 
 	if (!(GlobalCounter & 0x1FF))
 	{
-		SoundEffect(0xEA, 0, 0x1008);
+		SoundEffect(0xEA, 0, (16 << 8) | SFX_SETVOL);
 	}
 	
 	//loc_38

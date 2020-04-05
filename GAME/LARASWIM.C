@@ -680,7 +680,7 @@ void UpdateSubsuitAngles()//4BD20, 4C184 (F)
 	if (subsuit.Vel[0] != 0 || subsuit.Vel[1] != 0)
 	{
 		// todo make the formula clearer
-		SoundEffect(SFX_LARA_UNDERWATER_ENGINE, &lara_item->pos, (((subsuit.Vel[0] + subsuit.Vel[1]) * 4) & 0x1F00) + 10);
+		SoundEffect(SFX_LARA_UNDERWATER_ENGINE, &lara_item->pos, (((subsuit.Vel[0] + subsuit.Vel[1]) * 4) & 0x1F00) | SFX_SETVOL | SFX_ALWAYS);
 	}
 #endif
 }
@@ -1044,7 +1044,7 @@ void LaraSwimCollision(struct ITEM_INFO* item/*s3*/, struct COLL_INFO* coll/*s4*
 			{
 				//a0 = 0xF4
 				//a1 = lara_item
-				SoundEffect(SFX_SWIMSUIT_METAL_CLASH, &lara_item->pos, (((GetRandomControl() << 1) + 0x8000) << 8) | 6);
+				SoundEffect(SFX_SWIMSUIT_METAL_CLASH, &lara_item->pos, (((GetRandomControl() << 1) + 0x8000) << 8) | SFX_SETPITCH | SFX_ALWAYS);
 			}
 			else
 			{
