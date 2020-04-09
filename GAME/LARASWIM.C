@@ -565,7 +565,7 @@ void LaraUnderWater(struct ITEM_INFO* item, struct COLL_INFO* coll)//4BFB4, 4C41
 		UpdateSubsuitAngles();
 	}
 	//loc_4C170
-	item->pos.z_rot = CLAMPADDSHIFT(item->pos.z_rot, ANGLE(2), ANGLE(4), ANGLE(0));
+	item->pos.z_rot = CLAMPADDSHIFT(item->pos.z_rot, ANGLE(2), ANGLE(4));
 	item->pos.x_rot = CLAMPADD3(item->pos.x_rot, ANGLE(0), ANGLE(-85), ANGLE(-85));
 
 	if (LaraDrawType == 5)
