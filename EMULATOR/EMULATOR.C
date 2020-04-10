@@ -1692,7 +1692,7 @@ ShaderID Shader_Compile_Internal(const DWORD *vs_data, const DWORD *ps_data)
 	assert(!FAILED(hr));
 	return shader;
 }
-#elif
+#else
     #error
 #endif
 
@@ -2109,7 +2109,7 @@ void Emulator_SetShader(const ShaderID &shader)
 #elif defined(D3D9)
 	d3ddev->SetVertexShader(shader.VS);
 	d3ddev->SetPixelShader(shader.PS);
-#elif
+#else
 	#error
 #endif
 
@@ -2154,7 +2154,7 @@ void Emulator_DestroyTexture(TextureID texture)
     glDeleteTextures(1, &texture);
 #elif defined(D3D9)
     texture->Release();
-#elif
+#else
     #error
 #endif
 }
@@ -2741,7 +2741,7 @@ void Emulator_SetRenderTarget(const RenderTargetID &frameBufferObject)
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject);
 #elif defined(D3D9)
 	d3ddev->SetRenderTarget(0, frameBufferObject);
-#elif defined(VK)
+#else
     #error
 #endif
 }
