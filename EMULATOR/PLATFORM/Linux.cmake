@@ -1,4 +1,4 @@
-if(LINUX)
+if(UNIX)
 
 #Find libs
 find_package(SDL2 REQUIRED)

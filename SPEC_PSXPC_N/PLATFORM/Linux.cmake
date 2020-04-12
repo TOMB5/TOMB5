@@ -1,4 +1,4 @@
-if(LINUX)
+if(UNIX)
 
 #Find libs
 find_package(SDL2 REQUIRED)
@@ -13,6 +13,8 @@ set(GLEW_USE_STATIC_LIBS ON)
 #Setup project include directories
 include_directories(${GLEW_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIR})
+
+set(PSX_LIB Emulator_${TARGET_ARCH})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-narrowing -std=c++11")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wno-narrowing -std=c++11")

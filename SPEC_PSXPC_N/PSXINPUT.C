@@ -11,10 +11,8 @@
 #include <LIBPAD.H>
 #if PSXPC_TEST
 #include "EMULATOR_PRIVATE.H"
-#include <STDIO.H>
-#elif PSX_VERSION
-#include <STDIO.H>
 #endif
+#include <stdio.h>
 //#include <assert.h>
 #include "FXTRIG.H"
 
