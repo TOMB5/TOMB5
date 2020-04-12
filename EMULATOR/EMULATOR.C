@@ -2173,6 +2173,7 @@ extern void Emulator_Clear(int x, int y, int w, int h, unsigned char r, unsigned
 #define NOFILE 0
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+
 void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
 {
 #if NOFILE
@@ -2185,6 +2186,7 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 	{
 		return;
 	}
+
 	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 	unsigned char header[6];
 	header[0] = (width % 256);
@@ -2599,15 +2601,7 @@ unsigned int Emulator_GetFPS()
 
 void Emulator_SwapWindow()
 {
-	if (g_swapInterval > 0) {
-		int delta = g_swapTime + FIXED_TIME_STEP - SDL_GetTicks();
-
-		if (delta > 0) {
-			SDL_Delay(delta);
-		}
-	}
-
-	g_swapTime = SDL_GetTicks();
+	Emulator_WaitForTimestep(1);
 
 #if defined(RO_DOUBLE_BUFFERED)
 #if defined(OGL)
@@ -2622,6 +2616,20 @@ void Emulator_SwapWindow()
 #else
 	glFinish();
 #endif
+}
+
+void Emulator_WaitForTimestep(int count)
+{
+	if (g_swapInterval > 0) 
+	{
+		int delta = g_swapTime + FIXED_TIME_STEP*count - SDL_GetTicks();
+
+		if (delta > 0) {
+			SDL_Delay(delta);
+		}
+	}
+
+	g_swapTime = SDL_GetTicks();
 }
 
 void Emulator_EndScene()
