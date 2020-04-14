@@ -28,13 +28,13 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <SDL_syswm.h>
+#include <string.h>
+#include <SDL.h>
 
 SDL_Window* g_window = NULL;
 
 #if defined(VK)
-
+ 
 struct FrameBuffer vramFrameBuffer;
 
 #define MAX_NUM_PHYSICAL_DEVICES (4)
@@ -2113,7 +2113,7 @@ void Emulator_SetShader(const ShaderID &shader)
 	#error
 #endif
 
-	Emulator_Ortho2D(0.0f, word_33BC.disp.w, word_33BC.disp.h, 0.0f, 0.0f, 1.0f);
+	Emulator_Ortho2D(0.0f, activeDispEnv.disp.w, activeDispEnv.disp.h, 0.0f, 0.0f, 1.0f);
 }
 
 void Emulator_SetTexture(TextureID texture, TexFormat texFormat)
@@ -2173,6 +2173,7 @@ extern void Emulator_Clear(int x, int y, int w, int h, unsigned char r, unsigned
 #define NOFILE 0
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+
 void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer)
 {
 #if NOFILE
@@ -2185,6 +2186,7 @@ void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int 
 	{
 		return;
 	}
+
 	unsigned char TGAheader[12] = { 0,0,2,0,0,0,0,0,0,0,0,0 };
 	unsigned char header[6];
 	header[0] = (width % 256);
@@ -2344,13 +2346,19 @@ void Emulator_UpdateVRAM()
 
 void Emulator_BlitVRAM()
 {
+	if (activeDispEnv.isinter)
+	{
+		//Emulator_StoreFrameBuffer(activeDispEnv.disp.x, activeDispEnv.disp.y, activeDispEnv.disp.w, activeDispEnv.disp.h);
+		return;
+	}
+
 	Emulator_SetTexture(vramTexture, TF_16_BIT);
 	Emulator_SetShader(g_blit_shader);
 
-	u_char l = word_33BC.disp.x / 8;
-	u_char t = word_33BC.disp.y / 8;
-	u_char r = word_33BC.disp.w / 8 + l;
-	u_char b = word_33BC.disp.h / 8 + t;
+	u_char l = activeDispEnv.disp.x / 8;
+	u_char t = activeDispEnv.disp.y / 8;
+	u_char r = activeDispEnv.disp.w / 8 + l;
+	u_char b = activeDispEnv.disp.h / 8 + t;
 
 	Vertex blit_vertices[] =
 	{
@@ -2368,42 +2376,66 @@ void Emulator_BlitVRAM()
 	Emulator_DrawTriangles(0, 2);
 }
 
-bool begin_scene_flag = false;
+void Emulator_DoDebugKeys(int nKey, bool down); // forward decl
 
-void Emulator_BeginScene()
+void Emulator_DoPollEvent()
 {
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type)
 		{
-		case SDL_JOYDEVICEADDED:
-			if (SDL_IsGameController(event.jbutton.which))
-			{
-				padHandle[event.jbutton.which] = SDL_GameControllerOpen(event.jbutton.which);
-			}
-			break;
-		case SDL_JOYDEVICEREMOVED:
-			SDL_GameControllerClose(padHandle[event.jbutton.which]);
-			break;
-		case SDL_QUIT:
-			Emulator_ShutDown();
-			break;
-		case SDL_WINDOWEVENT:
-			switch (event.window.event)
-			{
-			case SDL_WINDOWEVENT_RESIZED:
-				windowWidth  = event.window.data1;
-				windowHeight = event.window.data2;
-				Emulator_ResetDevice();
+			case SDL_CONTROLLERDEVICEADDED:
+				padHandle[event.jbutton.which] = SDL_GameControllerOpen(event.cdevice.which);
 				break;
-			case SDL_WINDOWEVENT_CLOSE:
+			case SDL_CONTROLLERDEVICEREMOVED:
+				SDL_GameControllerClose(padHandle[event.cdevice.which]);
+				break;
+			case SDL_QUIT:
 				Emulator_ShutDown();
 				break;
+			case SDL_WINDOWEVENT:
+				switch (event.window.event)
+				{
+				case SDL_WINDOWEVENT_RESIZED:
+					windowWidth = event.window.data1;
+					windowHeight = event.window.data2;
+					Emulator_ResetDevice();
+					break;
+				case SDL_WINDOWEVENT_CLOSE:
+					Emulator_ShutDown();
+					break;
+				}
+				break;
+			case SDL_KEYDOWN:
+			case SDL_KEYUP:
+			{
+				int nKey = event.key.keysym.scancode;
+
+				// lshift/right shift
+				if (nKey == SDL_SCANCODE_RSHIFT)
+					nKey = SDL_SCANCODE_LSHIFT;
+				else if (nKey == SDL_SCANCODE_RCTRL)
+					nKey = SDL_SCANCODE_LCTRL;
+				else if (nKey == SDL_SCANCODE_RALT)
+					nKey = SDL_SCANCODE_LALT;
+
+				Emulator_DoDebugKeys(nKey, (event.type == SDL_KEYUP) ? false : true);
+				break;
 			}
-			break;
 		}
 	}
+}
+
+bool begin_scene_flag = false;
+bool vbo_was_dirty_flag = false;
+
+bool Emulator_BeginScene()
+{
+	Emulator_DoPollEvent();
+
+	if (begin_scene_flag)
+		return false;
 
 	assert(!begin_scene_flag);
 
@@ -2420,12 +2452,17 @@ void Emulator_BeginScene()
 	Emulator_UpdateVRAM();
 	Emulator_SetViewPort(0, 0, windowWidth, windowHeight);
 
+	Emulator_SetShader(g_gte_shader_4);
+	Emulator_Ortho2D(0.0f, activeDispEnv.disp.w, activeDispEnv.disp.h, 0.0f, 0.0f, 1.0f);
+
 	begin_scene_flag = true;
 
 	if (g_wireframeMode)
 	{
 		Emulator_SetWireframe(true);
 	}
+
+	return true;
 }
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
@@ -2443,17 +2480,11 @@ void Emulator_TakeScreenshot()
 }
 #endif
 
-///@FIXME keyboardState only accessible if padInitDirect called! Let the emulator manage input not the sub library!
-void Emulator_DoDebugKeys()
+void Emulator_DoDebugKeys(int nKey, bool down)
 {
-	static unsigned int currentTime;
-	static unsigned int lastTime;
-
-	currentTime = SDL_GetTicks();
-
-	if (currentTime > lastTime + 60)
+	if (nKey == SDL_SCANCODE_BACKSPACE)
 	{
-		if (keyboardState[SDL_SCANCODE_BACKSPACE])
+		if(down)
 		{
 			if (g_swapInterval != 0)
 			{
@@ -2469,45 +2500,54 @@ void Emulator_DoDebugKeys()
 				Emulator_ResetDevice();
 			}
 		}
+	}
 
-		if (keyboardState[SDL_SCANCODE_1])
+	if (!down)
+	{
+		switch (nKey)
 		{
-			g_wireframeMode ^= 1;
-		}
+			case SDL_SCANCODE_1:
+				g_wireframeMode ^= 1;
+				eprintf("wireframe mode: %d\n", g_wireframeMode);
+				break;
 
-		if (keyboardState[SDL_SCANCODE_2])
-		{
-			g_texturelessMode ^= 1;
-		}
+			case SDL_SCANCODE_2:
+				g_texturelessMode ^= 1;
+				eprintf("textureless mode: %d\n", g_texturelessMode);
+				break;
 
-		if (keyboardState[SDL_SCANCODE_3])
-		{
-			g_emulatorPaused ^= 1;
-		}
+			case SDL_SCANCODE_3:
+				g_emulatorPaused ^= 1;
+				break;
 
-		if (keyboardState[SDL_SCANCODE_UP] && g_emulatorPaused)
-		{
-			g_polygonSelected += 3;
-		}
-
-		if (keyboardState[SDL_SCANCODE_DOWN] && g_emulatorPaused)
-		{
-			g_polygonSelected -= 3;
-		}
+			case SDL_SCANCODE_UP:
+			case SDL_SCANCODE_DOWN:
+				if (g_emulatorPaused)
+					g_polygonSelected += (nKey == SDL_SCANCODE_UP) ? 3 : -3;
+				break;
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
-		if (keyboardState[SDL_SCANCODE_3])
-		{
-			Emulator_TakeScreenshot();
-		}
+			case SDL_SCANCODE_4:
+				eprintf("saving screenshot\n");
+				Emulator_TakeScreenshot();
+				break;
 #endif
-
-		lastTime = currentTime;
+			case SDL_SCANCODE_5:
+				eprintf("saving VRAM.TGA\n");
+				Emulator_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, TRUE);
+		}
 	}
+
+
 }
 
 void Emulator_UpdateInput()
 {
+	// also poll events here
+	Emulator_DoPollEvent();
+
+	unsigned short kbInputs = UpdateKeyboardInput();
+
 	//Update pad
 	if (SDL_NumJoysticks() > 0)
 	{
@@ -2515,9 +2555,11 @@ void Emulator_UpdateInput()
 		{
 			if (padHandle[i] != NULL)
 			{
+				unsigned short controllerInputs = UpdateGameControllerInput(padHandle[i]);
+
 				padData[i][0] = 0;
 				padData[i][1] = 0x41;//?
-				((unsigned short*)padData[i])[1] = UpdateGameControllerInput(padHandle[i]);
+				((unsigned short*)padData[i])[1] = kbInputs & controllerInputs;
 			}
 		}
 	}
@@ -2526,7 +2568,9 @@ void Emulator_UpdateInput()
 		//Update keyboard
 		if (padData[0] != NULL)
 		{
-			((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
+			padData[0][0] = 0;
+			padData[0][1] = 0x41;//?
+			((unsigned short*)padData[0])[1] = kbInputs;
 		}
 	}
 
@@ -2534,8 +2578,6 @@ void Emulator_UpdateInput()
     ///@TODO SDL_NumJoysticks always reports > 0 for some reason on Android.
     ((unsigned short*)padData[0])[1] = UpdateKeyboardInput();
 #endif
-
-	Emulator_DoDebugKeys();
 }
 
 unsigned int Emulator_GetFPS()
@@ -2559,15 +2601,7 @@ unsigned int Emulator_GetFPS()
 
 void Emulator_SwapWindow()
 {
-	if (g_swapInterval > 0) {
-		int delta = g_swapTime + FIXED_TIME_STEP - SDL_GetTicks();
-
-		if (delta > 0) {
-			SDL_Delay(delta);
-		}
-	}
-
-	g_swapTime = SDL_GetTicks();
+	Emulator_WaitForTimestep(1);
 
 #if defined(RO_DOUBLE_BUFFERED)
 #if defined(OGL)
@@ -2584,8 +2618,28 @@ void Emulator_SwapWindow()
 #endif
 }
 
+void Emulator_WaitForTimestep(int count)
+{
+	if (g_swapInterval > 0) 
+	{
+		int delta = g_swapTime + FIXED_TIME_STEP*count - SDL_GetTicks();
+
+		if (delta > 0) {
+			SDL_Delay(delta);
+		}
+	}
+
+	g_swapTime = SDL_GetTicks();
+}
+
 void Emulator_EndScene()
 {
+	if (!begin_scene_flag)
+		return;
+
+	if (!vbo_was_dirty_flag)
+		return;
+
 	assert(begin_scene_flag);
 
 	if (g_wireframeMode)
@@ -2600,6 +2654,7 @@ void Emulator_EndScene()
 #endif
 
 	begin_scene_flag = false;
+	vbo_was_dirty_flag = false;
 
 	Emulator_SwapWindow();
 }
@@ -2768,6 +2823,8 @@ void Emulator_UpdateVertexBuffer(const Vertex *vertices, int num_vertices)
 #else
 	#error
 #endif
+
+	vbo_was_dirty_flag = true;
 }
 
 void Emulator_DrawTriangles(int start_vertex, int triangles)

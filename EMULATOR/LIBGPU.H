@@ -1011,8 +1011,10 @@ extern void *NextPrim(void *p);
 extern void AddPrim(void *ot, void *p);
 extern void AddPrims(void *ot, void *p0, void *p1);
 extern void CatPrim(void *p0, void *p1);
+extern void DrawOTag(u_long *p);
 extern void DrawOTagIO(u_long *p);
 extern void DrawOTagEnv(u_long *p, DRAWENV *env);
+extern void DrawPrim(void *p);
 extern void DumpClut(u_short clut);
 extern void DumpDispEnv(DISPENV *env);
 extern void DumpDrawEnv(DRAWENV *env);
@@ -1068,8 +1070,7 @@ extern void GetDrawArea(DR_AREA *p);
 extern void GetDrawOffset(DR_OFFSET *p);
 extern void GetDrawEnv2(DR_ENV *p);
 
-extern DISPENV word_33BC;
+extern DISPENV activeDispEnv;
 extern DRAWENV activeDrawEnv;
-extern void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd);
 
 #endif
