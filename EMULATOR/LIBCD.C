@@ -83,7 +83,7 @@ struct AudioSector
 
 CdlFILE* CdSearchFile(CdlFILE* fp, char* name)
 {
-	SDL_memset(fp, 0, sizeof(CdlFILE));
+	memset(fp, 0, sizeof(CdlFILE));
 
 	if (name[0] == '\\')
 	{
@@ -444,7 +444,7 @@ int CdInit(void)
 		return 0;
 	}
 
-	SDL_memset(&comQueue, 0, sizeof(comQueue));
+	memset(&comQueue, 0, sizeof(comQueue));
 	for (int i = 0; i < COMMAND_QUEUE_SIZE; i++)
 	{
 		comQueue[i].processed = 1;

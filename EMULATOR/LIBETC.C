@@ -7,7 +7,15 @@
 #include <d3d9.h>
 #endif
 
+#include <SDL_timer.h>
+
 void(*vsync_callback)(void) = NULL;
+
+int StopCallback(void)
+{
+	UNIMPLEMENTED();
+	return 0;
+}
 
 int ResetCallback(void)
 {
@@ -15,25 +23,20 @@ int ResetCallback(void)
 	return 0;
 }
 
+extern unsigned int g_swapTime;
+
 int VSync(int mode)
 {
+	if (mode < 0)
+		return SDL_GetTicks() - g_swapTime;
+
 	if (mode == 0)
 	{
 		if (vsync_callback != NULL)
-		{
 			vsync_callback();
-		}
 	}
 	else if (mode > 0)
 	{
-		while (mode--)
-		{
-			//vblank
-		}
-	}
-	else if (mode < 0)
-	{
-		//Unimplemented
 	}
 
 	return SDL_GetTicks();
@@ -47,5 +50,11 @@ int VSyncCallback(void(*f)(void))
 
 long GetVideoMode(void)
 {
+	return MODE_NTSC;
+}
+
+long SetVideoMode(long mode)
+{
+	UNIMPLEMENTED();
 	return MODE_NTSC;
 }

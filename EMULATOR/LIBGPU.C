@@ -13,8 +13,8 @@
 #include <string.h>
 #include <assert.h>
 
-DISPENV word_33BC;
-DRAWENV activeDrawEnv;
+DISPENV activeDispEnv;
+DRAWENV activeDrawEnv;	// word_33BC
 DRAWENV byte_9CCA4;
 int dword_3410 = 0;
 char byte_3352 = 0;
@@ -174,6 +174,30 @@ struct VertexBufferSplit g_splits[MAX_NUM_INDEX_BUFFERS];
 int g_vertexIndex;
 int g_splitIndex;
 
+void ClearVBO()
+{
+#if defined(PGXP)
+	/* Reset the ztable */
+	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
+
+	/* Reset the ztable index of */
+	pgxp_vertex_index = 0;
+#endif
+
+	g_vertexIndex = 0;
+	g_splitIndex = 0;
+	g_splits[g_splitIndex].texFormat = (TexFormat)0xFFFF;
+}
+
+u_short s_lastSemiTrans = 0xFFFF;
+u_short s_lastPolyType = 0xFFFF;
+
+void ResetPolyState()
+{
+	s_lastSemiTrans = 0xFFFF;
+	s_lastPolyType = 0xFFFF;
+}
+
 //#define WIREFRAME_MODE
 
 #if defined(USE_32_BIT_ADDR)
@@ -205,11 +229,28 @@ int ClearImage(RECT16* rect, u_char r, u_char g, u_char b)
 	return 0;
 }
 
+int ClearImage2(RECT16* rect, u_char r, u_char g, u_char b)
+{
+	Emulator_Clear(rect->x, rect->y, rect->w, rect->h, r, g, b);
+	return 0;
+}
+
+void DrawAggregatedSplits();
+
 int DrawSync(int mode)
 {
+	// Update VRAM seems needed to be here
+	//Emulator_UpdateVRAM();
+
 	if (drawsync_callback != NULL)
 	{
 		drawsync_callback();
+	}
+
+	if (g_splitIndex > 0) // don't do flips if nothing to draw.
+	{
+		DrawAggregatedSplits();
+		Emulator_EndScene();
 	}
 
 	return 0;
@@ -320,13 +361,13 @@ int FntPrint(char* text, ...)
 
 DISPENV* GetDispEnv(DISPENV* env)//(F)
 {
-	memcpy(env, &word_33BC, sizeof(DISPENV));
+	memcpy(env, &activeDispEnv, sizeof(DISPENV));
 	return env;
 }
 
 DISPENV* PutDispEnv(DISPENV* env)//To Finish
 {
-	memcpy((char*)&word_33BC, env, sizeof(DISPENV));
+	memcpy((char*)&activeDispEnv, env, sizeof(DISPENV));
 	return 0;
 }
 
@@ -402,6 +443,24 @@ void SetDrawMode(DR_MODE* p, int dfe, int dtd, int tpage, RECT16* tw)
 	setDrawMode(p, dfe, dtd, tpage, tw);
 }
 
+void SetDrawMove(DR_MOVE* p, RECT16* rect, int x, int y)
+{
+	char uVar1;
+	ulong uVar2;
+	
+	uVar1 = 5;
+	if ((rect->w == 0) || (rect->h == 0)) {
+		uVar1 = 0;
+	}
+	p->code[0] = 0x1000000;
+	p->code[1] = 0x80000000;
+	*(char *)((int)&p->tag + 3) = uVar1;
+	uVar2 = *(ulong *)rect;
+	p->code[3] = y << 0x10 | x & 0xffffU;
+	p->code[2] = uVar2;
+	p->code[4] = *(ulong *)&rect->w;
+}
+
 u_long DrawSyncCallback(void(*func)(void))
 {
 	drawsync_callback = func;
@@ -429,8 +488,8 @@ void AddSplit(bool semiTrans, int page, TextureID textureId)
 	VertexBufferSplit& split = g_splits[++g_splitIndex];
 
 	split.textureId = textureId;
-	split.vIndex = g_vertexIndex;
-	split.vCount = 0;
+	split.vIndex    = g_vertexIndex;
+	split.vCount    = 0;
 	split.blendMode = blendMode;
 	split.texFormat = texFormat;
 }
@@ -449,117 +508,171 @@ void DrawSplit(const VertexBufferSplit& split)
 	Emulator_DrawTriangles(split.vIndex, split.vCount / 3);
 }
 
+//
+// Draws all polygons after AggregatePTAG
+//
+void DrawAggregatedSplits()
+{
+	if (g_emulatorPaused)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			struct Vertex* vert = &g_vertexBuffer[g_polygonSelected + i];
+			vert->r = 255;
+			vert->g = 0;
+			vert->b = 0;
+
+			eprintf("==========================================\n");
+			eprintf("POLYGON: %d\n", i);
+			eprintf("X: %d Y: %d\n", vert->x, vert->y);
+			eprintf("U: %d V: %d\n", vert->u, vert->v);
+			eprintf("TP: %d CLT: %d\n", vert->page, vert->clut);
+			eprintf("==========================================\n");
+		}
+		
+		Emulator_UpdateInput();
+	}
+
+	// next code ideally should be called before EndScene
+	Emulator_UpdateVertexBuffer(g_vertexBuffer, g_vertexIndex);
+
+	for (int i = 1; i <= g_splitIndex; i++)
+		DrawSplit(g_splits[i]);
+
+	ClearVBO();
+}
+
+// forward declarations
+int ParsePrimitive(uintptr_t primPtr);
+int ParseLinkedPrimitiveList(uintptr_t packetStart, uintptr_t packetEnd);
+
+void AggregatePTAGsToSplits(u_long* p, bool singlePrimitive)
+{
+	if (!p)
+		return;
+
+	if (singlePrimitive)
+	{
+		// single primitive
+		ParsePrimitive((uintptr_t)p);
+		g_splits[g_splitIndex].vCount = g_vertexIndex - g_splits[g_splitIndex].vIndex;
+	}
+	else
+	{
+		P_TAG* pTag = (P_TAG*)p;
+
+		// P_TAG as primitive list
+		//do
+		while ((uintptr_t)pTag != (uintptr_t)&terminator)
+		{
+			if (pTag->len > 0)
+			{
+				int lastSize = ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4 + LEN_OFFSET);
+				if (lastSize == -1)
+					break; // safe bailout
+			}
+			pTag = (P_TAG*)pTag->addr;
+		}
+	}
+}
+
+//------------------------------------------------------------------
+
 void DrawOTagEnv(u_long* p, DRAWENV* env)
 {
 	do
 	{
-		Emulator_BeginScene();
-#if defined(DEBUG_POLY_COUNT)
-		polygon_count = 0;
-#endif
-
 		PutDrawEnv(env);
-
-		if (activeDrawEnv.isbg)
-		{
-			ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
-		}
-		else {
-			Emulator_BlitVRAM();
-		}
-
-		if (p != NULL)
-		{
-			g_vertexIndex = 0;
-			g_splitIndex = 0;
-			g_splits[g_splitIndex].texFormat = (TexFormat)0xFFFF; // first split is dummy
-
-			P_TAG* pTag = (P_TAG*)p;
-
-			do
-			{
-				if (pTag->len > 0)
-				{
-					ParseLinkedPrimitiveList((uintptr_t)pTag, (uintptr_t)pTag + (uintptr_t)(pTag->len * 4) + 4 + LEN_OFFSET);
-				}
-				pTag = (P_TAG*)pTag->addr;
-			} while ((uintptr_t)pTag != (uintptr_t)&terminator);
-
-			if (g_emulatorPaused)
-			{
-				for (int i = 0; i < 3; i++)
-				{
-					struct Vertex* vert = &g_vertexBuffer[g_polygonSelected + i];
-					vert->r = 255;
-					vert->g = 0;
-					vert->b = 0;
-
-					eprintf("==========================================\n");
-					eprintf("POLYGON: %d\n", i);
-					eprintf("X: %d Y: %d\n", vert->x, vert->y);
-					eprintf("U: %d V: %d\n", vert->u, vert->v);
-					eprintf("TP: %d CLT: %d\n", vert->page, vert->clut);
-					eprintf("==========================================\n");
-				}
-
-				Emulator_UpdateInput();
-			}
-
-			Emulator_UpdateVertexBuffer(g_vertexBuffer, g_vertexIndex);
-
-			for (int i = 1; i <= g_splitIndex; i++)
-			{
-				DrawSplit(g_splits[i]);
-			}
-		}
-
-#if defined(PGXP)
-		/* Reset the ztable */
-		memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
-
-		/* Reset the ztable index of */
-		pgxp_vertex_index = 0;
-#endif
-		Emulator_EndScene();
-
+		DrawOTag(p);
 	} while (g_emulatorPaused);
 }
 
-void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)//@TODO sync with ParsePrimitive
+void DrawOTag(u_long* p)
 {
-	unsigned int currentAddress = packetStart;
-
-	while (currentAddress != packetEnd)
+	if (Emulator_BeginScene())
 	{
-		P_TAG* pTag = (P_TAG*)currentAddress;
+		ClearVBO();
+		ResetPolyState();
+	}
 
-		int textured = (pTag->code & 0x4) != 0;
+#if defined(DEBUG_POLY_COUNT)
+	polygon_count = 0;
+#endif
 
-		int blend_mode = 0;
+	if (activeDrawEnv.isbg)
+	{
+		ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
+	}
+	else
+	{
+		Emulator_BlitVRAM();
+	}
 
-		if (textured)
+	AggregatePTAGsToSplits(p, false);
+
+	DrawAggregatedSplits();
+	Emulator_EndScene();
+}
+
+void DrawPrim(void* p)
+{
+	if (Emulator_BeginScene())
+	{
+		ClearVBO();
+		ResetPolyState();
+	}
+
+#if defined(DEBUG_POLY_COUNT)
+	polygon_count = 0;
+#endif
+
+	if (activeDrawEnv.isbg)
+	{
+		ClearImage(&activeDrawEnv.clip, activeDrawEnv.r0, activeDrawEnv.g0, activeDrawEnv.b0);
+	}
+	else {
+		Emulator_BlitVRAM();
+	}
+
+	AggregatePTAGsToSplits((u_long*)p, true);
+}
+
+// parses primitive and pushes it to VBO
+// returns primitive size
+// -1 means invalid primitive
+int ParsePrimitive(uintptr_t primPtr)
+{
+	P_TAG* pTag = (P_TAG*)primPtr;
+
+	int textured = (pTag->code & 0x4) != 0;
+
+	int blend_mode = 0;
+
+	if (textured)
+	{
+		if ((pTag->code & 0x1) != 0)
 		{
-			if ((pTag->code & 0x1) != 0)
-			{
-				blend_mode = 2;
-			}
-			else
-			{
-				blend_mode = 1;
-			}
+			blend_mode = 2;
 		}
 		else
 		{
-			blend_mode = 0;
+			blend_mode = 1;
 		}
+	}
+	else
+	{
+		blend_mode = 0;
+	}
 
-		bool semi_transparent = (pTag->code & 2) != 0;
+	bool semi_transparent = (pTag->code & 2) != 0;
 
-		switch (pTag->code & ~3)
-		{
+	int primitive_size = -1;	// -1
+
+	switch (pTag->code & ~3)
+	{
 		case 0x0:
 		{
-			currentAddress += 4;
+			primitive_size = 4;
 			break;
 		}
 		case 0x20:
@@ -574,15 +687,16 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 3;
 
-			currentAddress += sizeof(POLY_F3);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(POLY_F3);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x24:
 		{
 			POLY_FT3* poly = (POLY_FT3*)pTag;
+			activeDrawEnv.tpage = poly->tpage;
 
 			AddSplit(semi_transparent, poly->tpage, vramTexture);
 
@@ -591,10 +705,11 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			Emulator_GenerateColourArrayTriangle(&g_vertexBuffer[g_vertexIndex], &poly->r0, &poly->r0, &poly->r0);
 
 			g_vertexIndex += 3;
-			currentAddress += sizeof(POLY_FT3);
-#if defined(DEBUG_POLY_COUNT)
+
+			primitive_size = sizeof(POLY_FT3);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x28:
@@ -610,15 +725,16 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			MakeTriangle();
 
 			g_vertexIndex += 6;
-			currentAddress += sizeof(POLY_F4);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(POLY_F4);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x2C:
 		{
 			POLY_FT4* poly = (POLY_FT4*)pTag;
+			activeDrawEnv.tpage = poly->tpage;
 
 			AddSplit(semi_transparent, poly->tpage, vramTexture);
 
@@ -630,10 +746,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(POLY_FT4);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(POLY_FT4);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x30:
@@ -648,15 +764,16 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 3;
 
-			currentAddress += sizeof(POLY_G3);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(POLY_G3);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x34:
 		{
 			POLY_GT3* poly = (POLY_GT3*)pTag;
+			activeDrawEnv.tpage = poly->tpage;
 
 			AddSplit(semi_transparent, poly->tpage, vramTexture);
 
@@ -666,10 +783,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 3;
 
-			currentAddress += sizeof(POLY_GT3);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(POLY_GT3);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x38:
@@ -686,15 +803,16 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(POLY_G4);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(POLY_G4);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x3C:
 		{
 			POLY_GT4* poly = (POLY_GT4*)pTag;
+			activeDrawEnv.tpage = poly->tpage;
 
 			AddSplit(semi_transparent, poly->tpage, vramTexture);
 
@@ -706,10 +824,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(POLY_GT4);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(POLY_GT4);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x40:
@@ -726,10 +844,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(LINE_F2);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(LINE_F2);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x48: // TODO (unused)
@@ -760,7 +878,7 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 						}
 			*/
 
-			currentAddress += sizeof(LINE_F3);
+			primitive_size = sizeof(LINE_F3);
 			break;
 		}
 		case 0x50:
@@ -777,10 +895,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(LINE_G2);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(LINE_G2);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x60:
@@ -797,10 +915,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(TILE);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(TILE);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 
 			break;
 		}
@@ -818,10 +936,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(SPRT);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(SPRT);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x68:
@@ -838,10 +956,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(TILE_1);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(TILE_1);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x70:
@@ -858,10 +976,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(TILE_8);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(TILE_8);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x74:
@@ -878,10 +996,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(SPRT_8);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(SPRT_8);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x78:
@@ -898,10 +1016,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(TILE_16);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(TILE_16);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0x7C:
@@ -918,10 +1036,10 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 
 			g_vertexIndex += 6;
 
-			currentAddress += sizeof(SPRT_16);
-#if defined(DEBUG_POLY_COUNT)
+			primitive_size = sizeof(SPRT_16);
+	#if defined(DEBUG_POLY_COUNT)
 			polygon_count++;
-#endif
+	#endif
 			break;
 		}
 		case 0xE0:
@@ -929,41 +1047,68 @@ void ParseLinkedPrimitiveList(unsigned int packetStart, unsigned int packetEnd)/
 			switch (pTag->code)
 			{
 			case 0xE1:
-			{
-#if defined(USE_32_BIT_ADDR)
-				unsigned short tpage = ((unsigned short*)pTag)[4];
-#else
-				unsigned short tpage = ((unsigned short*)pTag)[2];
-#endif
-				//if (tpage != 0)
 				{
-					activeDrawEnv.tpage = tpage;
+		#if defined(USE_32_BIT_ADDR)
+					unsigned short tpage = ((unsigned short*)pTag)[4];
+		#else
+					unsigned short tpage = ((unsigned short*)pTag)[2];
+		#endif
+					//if (tpage != 0)
+					{
+						activeDrawEnv.tpage = tpage;
+					}
+
+					primitive_size = sizeof(DR_TPAGE);
+		#if defined(DEBUG_POLY_COUNT)
+					polygon_count++;
+		#endif
+
+					break;
 				}
-
-				currentAddress += sizeof(DR_TPAGE);
-#if defined(DEBUG_POLY_COUNT)
-				polygon_count++;
-#endif
-
-				break;
-			}
-			default:
-			{
-				eprinterr("Primitive type error");
-				assert(FALSE);
-				break;
-			}
+				default:
+				{
+					eprinterr("Primitive type error");
+					assert(FALSE);
+					break;
+				}
 			}
 			break;
 		}
+		case 0x80: {
+			eprinterr("DR_MOVE unimplemented\n");
+			primitive_size = sizeof(DR_MOVE);
+			break;
+		}
 		default:
+		{
 			//Unhandled poly type
 			eprinterr("Unhandled primitive type: %02X type2:%02X\n", pTag->code, pTag->code & ~3);
 			break;
 		}
 	}
 
+	return primitive_size;
+}
+
+int ParseLinkedPrimitiveList(uintptr_t packetStart, uintptr_t packetEnd)
+{
+	uintptr_t currentAddress = packetStart;
+
+	int lastSize = -1;
+
+	while (currentAddress != packetEnd)
+	{
+		lastSize = ParsePrimitive(currentAddress);
+
+		if (lastSize == -1)	// not valid packets submitted
+			break;
+
+		currentAddress += lastSize;
+	}
+
 	g_splits[g_splitIndex].vCount = g_vertexIndex - g_splits[g_splitIndex].vIndex;
+
+	return lastSize;
 }
 
 void SetSprt16(SPRT_16* p)
@@ -998,7 +1143,7 @@ void SetShadeTex(void* p, int tge)
 
 void SetSprt(SPRT* p)
 {
-	UNIMPLEMENTED();
+	setSprt(p);
 }
 
 void SetDumpFnt(int id)

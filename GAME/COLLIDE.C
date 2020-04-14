@@ -20,7 +20,7 @@
 #include "CALCLARA.H"
 #endif
 
-#include <STDIO.H>
+#include <stdio.h>
 
 long zfront;
 long xfront;
