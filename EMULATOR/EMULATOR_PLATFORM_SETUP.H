@@ -24,9 +24,12 @@
 #define GLEW
 #endif
 
-#elif defined(__EMSCRIPTEN__) || defined(__ANDROID__)
+#elif defined(__EMSCRIPTEN__)
 #define OGLES
 #define OGLES_VERSION (2)
+#elif defined(__ANDROID__)
+#define OGLES
+#define OGLES_VERSION (3)
 #if OGLES_VERSION == 2
 #define ES2_SHADERS
 #elif OGLES_VERSION == 3
