@@ -71,6 +71,8 @@ D3DMATRIX d3d_camera;
 SNOWFLAKE raindrops[2048];
 SNOWFLAKE snowflakes[2048];
 
+ENERGY_ARC EnergyArcs[16];
+
 bool visible_zclip(D3DTLVERTEX *v1, D3DTLVERTEX *v2, D3DTLVERTEX *v3)
 {
 	return (v3->tu * v1->sz - v3->sz * v1->tu) * v2->tv

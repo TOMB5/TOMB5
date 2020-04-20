@@ -881,4 +881,22 @@ enum OT_MAPPING
 	OTM_UNK7,
 };
 
+struct ENERGY_ARC
+{
+	PHD_VECTOR pos1;
+	PHD_VECTOR pos2;
+	PHD_VECTOR pos3;
+	PHD_VECTOR pos4;
+	byte r;
+	byte g;
+	byte b;
+	byte life;
+	byte randomizingArray[9];
+	byte flags;
+	byte unk2;
+	byte unk1;
+	byte unk_3_o_5;
+	byte filler[3];
+};
+
 #endif
