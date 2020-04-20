@@ -37,13 +37,13 @@
 #include "SAVEGAME.H"
 #include "PICTURE.H"
 #include "DRAW.H"
-
+/*
 #if DEBUG
 #pragma comment(lib, "zlibstaticd.lib")
 #else
 #pragma comment(lib, "zlibstatic.lib")
 #endif
-
+ */
 bool loadBarShown;
 int loadBarMax;
 float loadBarPercent;

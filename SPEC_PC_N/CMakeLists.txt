@@ -22,18 +22,30 @@ file(GLOB_RECURSE PLATFORM_SPECIFIC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.C ${CMAKE
 source_group("GAME" FILES ${GAME_SRCS})
 source_group(${PLATFORM_SPECIFIC_FOLDER_NAME} FILES ${PLATFORM_SPECIFIC_SRCS})
 
+
+
+
+
+find_package(ZLIB)
+include_directories(${ZLIB_INCLUDE_DIR})
+
+link_directories( $ENV{DXSDK_DIR}/lib/x86 )
+
 add_executable(
-${PROJECT_NAME}
-${GAME_SRCS}
-${PLATFORM_SPECIFIC_SRCS}
+		${PROJECT_NAME}
+		${GAME_SRCS}
+		${PLATFORM_SPECIFIC_SRCS}
 )
 
 BuildPreProcessorDefinitions()
 
 #Link against required libraries
-#target_link_libraries(
-#${PROJECT_NAME}
-#)
+target_link_libraries(
+		${PROJECT_NAME}
+		ZLIB::ZLIB
+)
+
+
 
 set_target_properties(
 ${PROJECT_NAME} PROPERTIES OUTPUT_NAME "PCTOMB5"
