@@ -123,7 +123,7 @@ extern void phd_TranslateRel(long x, long y, long z);
 extern void phd_RotYXZ(long y, long x, long z);
 extern void phd_SetTrans(long x, long y, long z);
 extern void SetD3DViewMatrix();
-extern unsigned long mGetAngle(long x1, long y1, long x2, long y2);
+extern long mGetAngle(long x1, long y1, long x2, long y2);
 extern void S_InitD3DMatrix();
 extern void phd_LookAt(int32_t xsrc, int32_t ysrc, int32_t zsrc, int32_t xtar, int32_t ytar, int32_t ztar, short roll);
 extern void phd_GetVectorAngles(int32_t x, int32_t y, int32_t z, short* dest);
