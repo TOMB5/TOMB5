@@ -111,7 +111,7 @@ inline int phd_atan(long x, long y)
 
 inline int phd_atan(long x, long y)
 {
-	return (int)(atan2(x, y) * 32768.0 / 3.14159265359);
+	return (int)(atan2(y, x) * 32768.0 / 3.14159265359);
 }
 #endif
 #endif
