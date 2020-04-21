@@ -76,10 +76,9 @@ void DebugPrint(const char* message)// (F)
 }
 
 
-int GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)//7B210, 7D254
+void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)//7B210, 7D254
 {
 	UNIMPLEMENTED();
-	return 0;
 }
 
 
