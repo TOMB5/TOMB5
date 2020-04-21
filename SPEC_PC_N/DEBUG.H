@@ -8,7 +8,7 @@ extern DWORD dbginput;
 extern int cur_tpage;
 
 void DB_InitLog(char opt);
-void DB_DefType(char* name, LPARAM lParam, WPARAM wParam);
+void DB_DefType(const char* name, LPARAM lParam, WPARAM wParam);
 void GetInputStr(char* buf);
 void ShowDebugInfo();
 void DrawDebugPre();

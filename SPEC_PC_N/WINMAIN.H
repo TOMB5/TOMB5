@@ -35,7 +35,7 @@ extern struct HWCONFIG HWConfig;
 
 void ShowBumpInfo();
 float WinFrameRate();
-void WinDisplayString(int x, int y, char *String, ...);
+void WinDisplayString(int x, int y, const char *String, ...);
 
 
 #endif

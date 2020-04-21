@@ -270,34 +270,6 @@ void PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, c
 
 	END:
 	ScaleFlag = false;
-
-	if (false)
-	{
-		char* b2 = (char*)malloc(strlen(string) + 1);
-		strcpy(b2, string);
-		if (b2[strlen(b2) - 1] != '\n')
-			strcat(b2, "\n");
-		HDC hdc;
-		App.lpBackBuffer->GetDC(&hdc);
-		SetTextColor(hdc, TRANSPARENT);
-		SetBkColor(hdc, 0xffffff);
-		UINT align = TA_BASELINE;
-		if (flag & FF_CENTER)
-			align |= TA_CENTER;
-		SetTextAlign(hdc, align);
-		int last = 0;
-		int num = 0;
-		for (int i = 0; i < strlen(b2); i++)
-		{
-			if (b2[i] == '\n')
-			{
-				TextOut(hdc, x, y + num * 16, b2 + last, i - last);
-				last = i;
-				num++;
-			}
-		}
-		App.lpBackBuffer->ReleaseDC(hdc);
-	}
 }
 
 void setXY4(D3DTLVERTEX p[4], int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3, int z, WORD* a10)// (F) probably, TODO

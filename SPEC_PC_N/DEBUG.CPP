@@ -63,7 +63,7 @@ void SendMsg(HWND hWnd, LPARAM lParam)// (F)
 	} while (FindWindowA("DBLogWindowClass", "DBLog Server"));
 }
 
-void DB_DefType(char* name, LPARAM lParam, WPARAM wParam)// (F)
+void DB_DefType(const char* name, LPARAM lParam, WPARAM wParam)// (F)
 {
 	HWND dblog = FindWindowA("DBLogWindowClass", "DBLog Server");
 
@@ -359,7 +359,7 @@ void ShowDebugInfo()// (F)
 		"Game mode : %d\n"
 		"Malloc : %5dK (%3d%%) used - %5dK free - %5dK total\n"
 		"Current : level #%02d / cutseq #%02d (playing=%5s)\n"
-		"DrawPrimitive calls : %4d / %4d\n"
+		"DrawPrimitive calls : %4du / %4d\n"
 	/*	"ViewMatrix\t WorldMatrix\t Projection\t W2V\n"
 		"(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\n"
 		"(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\t(%.3f,%.3f,%.3f,%.3f)\n"

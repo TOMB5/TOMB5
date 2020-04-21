@@ -489,7 +489,7 @@ void SuperShowLogo()// (F)
 
 	tex.attribute = OT_ALPHA_TESTING;
 	tex.new_flags = 0;
-	tex.tile_and_flag = false ? cur_tpage : (num_pages - 5);
+	tex.tile_and_flag = num_pages - 5;
 
 	tex.vertices[0].x = 1 / 256.0;
 	tex.vertices[0].y = 1 / 256.0;
@@ -537,7 +537,7 @@ void SuperShowLogo()// (F)
 
 	tex.attribute = OT_ALPHA_TESTING;
 	tex.new_flags = 0;
-	tex.tile_and_flag = false ? (cur_tpage + 1) : (num_pages - 4);
+	tex.tile_and_flag = num_pages - 4;
 
 	tex.vertices[0].x = 1 / 256.0;
 	tex.vertices[0].y = 1 / 256.0;
@@ -574,11 +574,8 @@ bool S_DrawLoadBar()
 
 	if (loadBar2 >= loadBarPercent)
 	{
-		if (loadBarMax > loadBarPercent)
-			return false;
-
-		return true;
-	}
+        return loadBarMax <= loadBarPercent;
+    }
 
 	loadBar2 += 2.0;
 

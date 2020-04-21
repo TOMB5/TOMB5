@@ -3,7 +3,7 @@
 
 #include "SPECTYPES.H"
 
-#define UNIMPLEMENTED() printf("[%s] - Unimplemented!\n", __func__);
+#define UNIMPLEMENTED() printf("[%s] - Unimplemented!\n", __func__)
 
 extern char			cd_drive;
 extern bool loadBarShown;

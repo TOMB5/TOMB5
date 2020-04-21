@@ -4,13 +4,13 @@
 #include "STYPES.H"
 
 #if DEBUG_VERSION
-extern char* states[131];
-extern char* quadrant_names[4];
-extern char* gunstates[6];
-extern char* waterstates[5];
-extern char* guntypes[9];
-extern char* coll_typess[8];
-extern char* htypes[4];
+extern const char* states[131];
+extern const char* quadrant_names[4];
+extern const char* gunstates[6];
+extern const char* waterstates[5];
+extern const char* guntypes[9];
+extern const char* coll_typess[8];
+extern const char* htypes[4];
 #endif
 
 extern short SubsuitAir;

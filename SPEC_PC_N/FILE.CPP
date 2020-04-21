@@ -51,8 +51,8 @@ char* level_data_orig;
 tr4_mesh** mesh_infos;
 OBJECT_TEXTURE* object_textures;
 SPRITE_STRUCT* sprites;
-OBJECT_TEXTURE* waterfall_textures[6];
-float waterfall_y[6];
+OBJECT_TEXTURE* AnimatingWaterfalls[6];
+float AnimatingWaterfallsV[6];
 int num_room_lights;
 int numLvlMeshes;
 
@@ -1648,14 +1648,14 @@ int numLvlMeshes;
 
 			S_LoadBar();
 
-			for (int i = WATERFALL1; i <= WATERFALLSS2 && false; i++)
+			for (int i = WATERFALL1; i <= WATERFALLSS2; i++)
 			{
-				/*if (objects[i].loaded)
+				if (objects[i].loaded)
 				{
-					struct OBJECT_TEXTURE* tex = &object_textures[mesh_infos[objects[i].mesh_index]->field1[4]];
-					waterfall_textures[i] = tex;
-					waterfall_y[i] = tex->vertices[0].y;
-				}*/
+					struct OBJECT_TEXTURE* tex = &object_textures[mesh_infos[objects[i].mesh_index]->rectangles[0].Texture];
+                    AnimatingWaterfalls[i] = tex;
+                    AnimatingWaterfallsV[i] = tex->vertices[0].y;
+				}
 			}
 
 			S_LoadBar();
@@ -1851,7 +1851,7 @@ int numLvlMeshes;
 		return ret;
 	}
 
-	int LoadFile(char* szFileName, void** pDest)// (F)
+	int LoadFile(const char* szFileName, void** pDest)// (F)
 	{
 		Log(LT_Enter, "LoadFile");
 		Log(LT_Info, "File - %s", szFileName);

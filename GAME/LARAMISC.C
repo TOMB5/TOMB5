@@ -45,7 +45,7 @@
 #endif
 
 #if DEBUG_VERSION
-char* states[131] =
+const char* states[131] =
 {
 	"WALK", "RUN", "STOP", "F JUMP", "POSE", "FASTBACK", "TURN R", "TURN L", "DEATH", 
 	"FASTFALL", "HANG", "REACH", "SPLAT", "TREAD", "LAND", "COMPRESS", "BACK", "SWIM", 
@@ -68,32 +68,32 @@ char* states[131] =
 	"CROWDOVE", "TROPEUNDOFALL", "PBARS_SPIN", "PBARS_LEAPOFF", "LAST"
 };
 
-char* quadrant_names[4] =
+const char* quadrant_names[4] =
 {
 	"NORTH", "EAST", "SOUTH", "WEST"
 };
 
-char* gunstates[6] =
+const char* gunstates[6] =
 {
 	"ARMLESS", "HANDSBUSY", "DRAW", "UNDRAW", "READY", "SPECIAL"
 };
 
-char* waterstates[5] =
+const char* waterstates[5] =
 {
 	"ABOVEWATER", "UNDERWATER", "SURFACE", "CHEAT", "WADE"
 };
 
-char* guntypes[9] =
+const char* guntypes[9] =
 {
 	"UNARMED", "PISTOLS", "MAGNUMS", "UZIS", "SHOTGUN", "M16", "ROCKET", "HARPOON", "FLARE"
 };
 
-char* coll_typess[8] =
+const char* coll_typess[8] =
 {
 	"NONE", "FRONT", "LEFT", "RIGHT", "TOP", "TOPBOTTOM", "TOPFRONT", "CLAMP"
 };
 
-char* htypes[4] =
+const char* htypes[4] =
 {
 	"WALL", "SMALL_SLOPE", "BIG_SLOPE", "DIAGONAL"
 };

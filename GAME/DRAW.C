@@ -129,7 +129,7 @@ long GetFrames(struct ITEM_INFO* item/*$a0*/, short* frames[]/*a1*/, int* rate/*
 
 	t3 = ((item->frame_number - anim->frame_base) / anim->interpolation) * anim->interpolation;
 
-	if (!(anim->frame_end < (t3 + anim->interpolation)))
+	if (anim->frame_end >= t3 + anim->interpolation)
 	{
 		return (t3 + anim->interpolation) - anim->interpolation;
 	}

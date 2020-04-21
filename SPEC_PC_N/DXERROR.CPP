@@ -2,7 +2,7 @@
 #include "GLOBAL.H"
 #include "INCLUDE.H"
 
-char* ERR_Describe_DX(HRESULT error)// (F)
+const char* ERR_Describe_DX(HRESULT error)// (F)
 {
 	switch (error)
 	{
@@ -298,7 +298,7 @@ char* ERR_Describe_DX(HRESULT error)// (F)
 }
 
 /*** WELL temporary error shit ***/
-local char* LaszInitErrs[] =
+local const char* LaszInitErrs[] =
 {
 	"OK",
 
@@ -348,7 +348,7 @@ local char* LaszInitErrs[] =
 	"GetDisplayMode"
 };
 
-char* ERR_Describe_Init(int nError)// (F)
+const char* ERR_Describe_Init(int nError)// (F)
 {
 	return LaszInitErrs[nError];
 }

@@ -7,7 +7,7 @@
 #endif
 
 	int 		S_LoadLevelFile(int Name);
-	int LoadFile(char* szFileName, void** pDest);
+	int LoadFile(const char* szFileName, void** pDest);
 	int FindCdDrive(void);
 	FILE* FileOpen(const char *filename);
 	int FileClose(FILE* fp);

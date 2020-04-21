@@ -469,7 +469,7 @@ BOOL CreateRegKeyRW(LPCSTR lpSubKey)// (F)
 	return RegCreateKeyExA(HKEY_CURRENT_USER, lpSubKey, 0, reg_class, 0, KEY_ALL_ACCESS, nullptr, &reg_key, &reg_disp) == ERROR_SUCCESS;
 }
 
-BOOL CreateKey(char* sub)// (F)
+BOOL CreateKey(const char* sub)// (F)
 {
 	if (sub == nullptr)
 		return CreateRegKeyRW(reg_path);

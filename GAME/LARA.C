@@ -1622,7 +1622,7 @@ void lara_as_pickupflare(struct ITEM_INFO* item, struct COLL_INFO* coll)//1AB5C(
 	camera.target_angle = ANGLE(130);
 	camera.target_elevation = ANGLE(-15);
 	camera.target_distance = SECTOR(1);
-	if (item->frame_number = anims[item->anim_number].frame_end - 1)
+	if (item->frame_number == anims[item->anim_number].frame_end - 1)
 		lara.gun_status = LG_NO_ARMS;
 }
 
@@ -5587,7 +5587,7 @@ int TestLaraSlide(struct ITEM_INFO* item, struct COLL_INFO* coll)//11998, 11A48
 
 	if (coll->tilt_z > 2 && coll->tilt_z > ABS(coll->tilt_x))
 		ang = ANGLE(-180);
-	else if (coll->tilt_z < -2 && -coll->tilt_z > ABS(coll->tilt_x))
+	else if ((coll->tilt_z < -2) && (-coll->tilt_z > ABS(coll->tilt_x)))
 		ang = 0;
 
 	static short old_ang = 1; // a0634

@@ -168,7 +168,7 @@ HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)//
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].w = lpddsd->dwWidth;
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].h = lpddsd->dwHeight;
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].bpp = lpddsd->ddpfPixelFormat.dwRGBBitCount;
-	DDInfo->DisplayMode[DDInfo->nDisplayMode].bPalette = lpddsd->ddpfPixelFormat.dwFlags&DDPF_PALETTEINDEXED8 ? true : false;
+	DDInfo->DisplayMode[DDInfo->nDisplayMode].bPalette = (lpddsd->ddpfPixelFormat.dwFlags & DDPF_PALETTEINDEXED8) != 0;
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].mipMapCount = lpddsd->dwMipMapCount;
 	DDInfo->DisplayMode[DDInfo->nDisplayMode].ddsd = *lpddsd;
 
@@ -946,7 +946,7 @@ HRESULT LoadPicture(LPDIRECTDRAWSURFACE4 surf, HGDIOBJ h, int xSrc, int ySrc, in
 	return res;
 }
 
-HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename)// todo embed in executable
+HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, const char* filename)// todo embed in executable
 {
 	//HMODULE mod = GetModuleHandleA(nullptr); todo
 	HMODULE mod = nullptr;
@@ -1327,7 +1327,7 @@ void ACMEmulateCDPlay(short track, int mode)
 {
 	char path[256];
 	wsprintf(path, "audio\\%s", xa_filenames[track]);
-	char* abc = "Looped";
+	const char* abc = "Looped";
 	if (mode == 0)
 		abc = reg_class;
 	Log(LT_Sound, "Playing %s %s %d", path, abc, track);

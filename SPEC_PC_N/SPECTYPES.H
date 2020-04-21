@@ -432,7 +432,8 @@ struct tr_face4    // 12 bytes
 struct tr4_mesh_face3    // 10 bytes
 {
 	uint16_t Vertices[3];
-	uint16_t Texture;
+    uint16_t Texture : 15;
+    uint16_t DoubleSided : 1;
 	union
 	{
 		uint16_t Effects;
@@ -447,7 +448,8 @@ struct tr4_mesh_face3    // 10 bytes
 struct tr4_mesh_face4    // 12 bytes
 {
 	uint16_t Vertices[4];
-	uint16_t Texture;
+	uint16_t Texture : 15;
+	uint16_t DoubleSided : 1;
 	union
 	{
 		uint16_t Effects;

@@ -1331,7 +1331,7 @@ signed int __cdecl LoadBitmapEx(struct IDirectDrawSurface4 *surface, const CHAR 
 	return result;
 }
 
-int __cdecl DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char *filename)
+int __cdecl DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, const char *filename)
 {
 	HMODULE v2; // eax@1
 	HANDLE handle; // esi@1

@@ -87,8 +87,8 @@ inline void Log_real(char ctype, const char* type, const char* fmt, ...)
 
 
 /*** dxerror.cpp ***/
-char* ERR_Describe_DX(HRESULT hr);
-char* ERR_Describe_Init(int nError);
+const char* ERR_Describe_DX(HRESULT hr);
+const char* ERR_Describe_Init(int nError);
 
 enum InitResult	// possible initialisation results
 {

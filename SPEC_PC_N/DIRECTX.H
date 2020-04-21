@@ -98,7 +98,7 @@ bool DXCreateDirect3DDevice(LPDIRECT3D3 lpD3D2, GUID Guid, LPDIRECTDRAWSURFACE4 
 bool DXCreateViewport(LPDIRECT3D3 lpD3D, LPDIRECT3DDEVICE3 lpD3DDevice, int w, int h, LPDIRECT3DVIEWPORT3* lpViewport);
 bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND window, DWORD dwStyle);
 void CloseDirectX();
-HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, char* filename);
+HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, const char* filename);
 void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance);
 void DXMove(int x, int y);
 void AcquireInput(bool acquire);
