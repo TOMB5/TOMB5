@@ -279,7 +279,7 @@ enum lara_anim
 	ANIMATION_LARA_STOP_OBJECT_MOVING = 121,                    // Ready to push/pull pushable > stand 
 	ANIMATION_LARA_OBJECT_PULL = 122,                           // Pull pushable 
 	ANIMATION_LARA_OBJECT_PUSH = 123,                           // Push pushable 
-	ANIMATION_LARA_UNDERWATER_DEATH = 124,                      // Drown/die underwater – with convulsions (Deepsea Dive) 
+	ANIMATION_LARA_UNDERWATER_DEATH = 124,                      // Drown/die underwater â€“ with convulsions (Deepsea Dive) 
 	ANIMATION_LARA_AH_FORWARD = 125,                            // Jerk backwards hurt (standing) 
 	ANIMATION_LARA_AH_BACKWARD = 126,                           // Jerk forwards hurt (standing) 
 	ANIMATION_LARA_AH_LEFT = 127,                               // Jerk right hurt (standing) 
