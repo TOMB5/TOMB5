@@ -277,7 +277,7 @@ unsigned short atanTab[] = {
 //extern "C" {
 #endif
 
-	unsigned long mGetAngle(long x1, long y1, long x2, long y2)
+	long mGetAngle(long x1, long y1, long x2, long y2)
 	{
 		long x, y;
 		long	octant, n, angle;
