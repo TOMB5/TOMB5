@@ -37,6 +37,7 @@
 #include "SAVEGAME.H"
 #include "PICTURE.H"
 #include "DRAW.H"
+
 /*
 #if DEBUG
 #pragma comment(lib, "zlibstaticd.lib")
@@ -76,7 +77,8 @@ void DebugPrint(const char* message)// (F)
 }
 
 
-void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number, long objheight)//7B210, 7D254
+void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, short room_number,
+                      long objheight)//7B210, 7D254
 {
 	UNIMPLEMENTED();
 }
@@ -86,7 +88,6 @@ void GetCollisionInfo(struct COLL_INFO* coll, long xpos, long ypos, long zpos, s
 //extern "C" {
 #endif
 
-	
 
 void S_Warn(const char* warning_message, ...)// (F)
 {
@@ -97,9 +98,9 @@ void S_Warn(const char* warning_message, ...)// (F)
 	sprintf(buf, "[%02d:%02d:%02d] ", tm.tm_hour, tm.tm_min, tm.tm_sec);
 
 	va_list argptr;
-	va_start(argptr, warning_message);
+			va_start(argptr, warning_message);
 	vsprintf(buf, warning_message, argptr);
-	va_end(argptr);
+			va_end(argptr);
 
 	Log_backend(LT_Info, buf);
 
@@ -126,8 +127,7 @@ void S_CDStop(void)
 		memset(wave_file_buf, 0, 225280);
 		ACMSoundBuffer->Stop();
 		ACMSoundBuffer->SetCurrentPosition(0);
-		while (byte_57A01C)
-			;
+		while (byte_57A01C);
 		fclose(acm_file_stream);
 		acm_file_stream = 0;
 		dword_57A018 = 0;
@@ -158,7 +158,7 @@ int WeirdWaitThingy()// (F)
 	return Sync();
 }
 
-void		S_DumpScreenFrame()// (F)
+void S_DumpScreenFrame()// (F)
 {
 	const int last = Sync();
 	if (last < 1)
@@ -178,7 +178,7 @@ void		S_DumpScreenFrame()// (F)
 	App.sceneDone = true;
 }
 
-long		S_DumpScreen()
+long S_DumpScreen()
 {
 	// todo
 	const int last = Sync();
@@ -197,7 +197,7 @@ long		S_DumpScreen()
 
 	if (!keymap[DIK_D])
 		DrawDebugPost();
-	
+
 	//ShowDebugInfo();
 
 	EndScene();
@@ -258,10 +258,12 @@ void UpdateLoadBar()// (F)
 {
 	loadBarPercent += 100.0 / loadBarMax;
 }
+
 void S_LoadBar()// (F)
 {
 	UpdateLoadBar();
 }
+
 void S_InitLoadBar(int size)// (F)
 {
 	loadBarPercent = 0.0;
@@ -332,7 +334,7 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	tlvert[1].sy = real_y;
 	tlvert[2].sy = real_y_middle;
 	tlvert[3].sy = real_y_middle;
-	
+
 	tlvert[0].sz = f_znear; // todo, in the original they wrote that to sx which is wrong i guess
 	tlvert[1].sz = f_znear;
 	tlvert[2].sz = f_znear;
@@ -343,15 +345,15 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	tlvert[2].specular = RGB_MAKE(0, 0, 0);
 	tlvert[3].specular = RGB_MAKE(0, 0, 0);
 
-	tlvert[0].rhw = rhw;	
+	tlvert[0].rhw = rhw;
 	tlvert[1].rhw = rhw;
-	tlvert[2].rhw = rhw;	
+	tlvert[2].rhw = rhw;
 	tlvert[3].rhw = rhw;
 
 	tlvert[0].color = real_color1d;
 	tlvert[1].color = real_color2d;
 	tlvert[2].color = real_color1;
-	tlvert[3].color = real_color2;	
+	tlvert[3].color = real_color2;
 
 	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
 
@@ -360,14 +362,14 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 	tlvert[2].sy = real_y_bottom;
 	tlvert[3].sy = real_y_bottom;
 
-	tlvert[0].color = real_color1;	
+	tlvert[0].color = real_color1;
 	tlvert[1].color = real_color2;
 	tlvert[2].color = real_color1d;
 	tlvert[3].color = real_color2d;
 
 	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
 
-	tlvert[0].sx = real_x; 
+	tlvert[0].sx = real_x;
 	tlvert[1].sx = real_x_right;
 	tlvert[2].sx = real_x;
 	tlvert[3].sx = real_x_right;
@@ -394,16 +396,16 @@ void DoBar(int x, int y, int w, int h, float pc, D3DCOLOR color1, D3DCOLOR color
 
 	AddQuad2(tlvert, 0, 1, 3, 2, &tex, 1);
 
-	tlvert[0].sx = real_x - 1.0;	
+	tlvert[0].sx = real_x - 1.0;
 	tlvert[1].sx = real_x_right + 1.0;
 	tlvert[2].sx = real_x - 1.0;
 	tlvert[3].sx = real_x_right + 1.0;
-	
+
 	tlvert[0].sy = real_y - 1.0;
 	tlvert[1].sy = real_y - 1.0;
 	tlvert[2].sy = real_y_bottom + 1.0;
 	tlvert[3].sy = real_y_bottom + 1.0;
-	
+
 	tlvert[0].sz = f_znear + 2.0;
 	tlvert[1].sz = f_znear + 2.0;
 	tlvert[2].sz = f_znear + 2.0;
@@ -563,7 +565,7 @@ bool S_DrawLoadBar()
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	App.lpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
-	
+
 	DoBar(170, 480 - font_height, 300, 10, loadBar2, RGB_MAKE(0, 0, 16), RGB_MAKE(0, 0, 240));
 
 	SortPolyList(surfacenumbf, sort3d_bufferbf);
@@ -574,8 +576,8 @@ bool S_DrawLoadBar()
 
 	if (loadBar2 >= loadBarPercent)
 	{
-        return loadBarMax <= loadBarPercent;
-    }
+		return loadBarMax <= loadBarPercent;
+	}
 
 	loadBar2 += 2.0;
 
@@ -590,8 +592,8 @@ bool Decompress(void* buf, void* compressed, int compSize, int uncompSize)// (F)
 	Zero(strm);
 	strm.avail_in = compSize;
 	strm.avail_out = uncompSize;
-	strm.next_out = (BYTE *)buf;
-	strm.next_in = (BYTE *)compressed;
+	strm.next_out = (BYTE*) buf;
+	strm.next_in = (BYTE*) compressed;
 
 	inflateInit(&strm);
 	inflate(&strm, Z_FINISH);
@@ -619,7 +621,7 @@ void SetFogColor(uint8_t r, uint8_t g, uint8_t b)// (F)
 
 void ClearFXFogBulbs()// (F)
 {
-	
+
 }
 
 DWORD dword_C87BF0;
@@ -657,7 +659,7 @@ void S_AnimateTextures(long nFrames)// to test
 
 	while (AnimComp > 5)
 	{
-		uint16_t* ptr = AnimTextureRanges;
+		uint16_t* ptr = App.AnimTextureRanges;
 
 		for (uint16_t i = *(ptr++); i > 0; i--, ptr++)
 		{
@@ -676,11 +678,11 @@ void S_AnimateTextures(long nFrames)// to test
 
 	if (gfUVRotate) // 19d8
 	{
-		uint16_t* t3 = AnimTextureRanges;
+		uint16_t* t3 = App.AnimTextureRanges;
 		AnimatingTexturesVOffset = (AnimatingTexturesVOffset - gfUVRotate * (nFrames / 2)) & 0x1f;
 		if (nAnimUVRanges > 0)
 		{
-			short(*t2)[8][3] = AnimatingTexturesV;
+			short(* t2)[8][3] = AnimatingTexturesV;
 
 			for (int i = 0; i < nAnimUVRanges; i++, t2++)
 			{
@@ -708,12 +710,12 @@ void S_AnimateTextures(long nFrames)// to test
 void DrawPsxTile(long a1, long a2, long a3)
 {
 	Log(LT_Enter, "DrawPsxTile %6d %6d %6d", a1, a2, a3);
-	
+
 	e4b100 = 6;
-	
+
 	uint16 blend; // si
 	unsigned int color; // eax
-	
+
 	if ((a3 & 0xFF000000) == 0x62000000)
 	{
 		blend = OT_ALPHA_BLENDING_INV;
@@ -737,7 +739,7 @@ void DrawPsxTile(long a1, long a2, long a3)
 	const double v11 = (a2 >> 16) + 1.0 + a1;
 
 	D3DTLVERTEX v[4]; // [esp+1Ch] [ebp-A8h]
-	
+
 	v[0].sx = a1 >> 16;
 	v[1].sx = v10;
 	v[2].sx = v10;
@@ -757,22 +759,22 @@ void DrawPsxTile(long a1, long a2, long a3)
 	v[1].specular = ARGB(255, 0, 0, 0);
 	v[2].specular = ARGB(255, 0, 0, 0);
 	v[3].specular = ARGB(255, 0, 0, 0);
-	
+
 	v[0].rhw = rhw;
 	v[1].rhw = rhw;
 	v[2].rhw = rhw;
 	v[3].rhw = rhw;
-	
+
 	v[0].color = color;
 	v[1].color = color;
 	v[2].color = color;
 	v[3].color = color;
 
 	OBJECT_TEXTURE tex; // [esp+9Ch] [ebp-28h]
-	
+
 	tex.attribute = blend;
 	tex.new_flags = 0;
-	
+
 	tex.tile_and_flag = 0;
 
 	d9ab34[0] = 0;
@@ -897,7 +899,7 @@ void S_OutputPolyList()
 
 	if (++dword_921684 == 2)
 	{
-		if (keymap[DIK_B])                         
+		if (keymap[DIK_B])
 			App.tBumpMap = App.tBumpMap != 1;
 		dword_921684 = 0;
 	}
@@ -923,12 +925,12 @@ void S_CalculateStaticMeshLight(int x, int y, int z, int shade, room_info* room)
 
 void S_CalculateLight(long x, long y, long z, short room, ITEM_LIGHT* light)// (F)
 {
-	
+
 }
 
 void S_CDLoop()// (F)
 {
-	
+
 }
 
 int S_LoadSave(int input, int in_inventory)
@@ -940,6 +942,7 @@ int S_LoadSave(int input, int in_inventory)
 DWORD dword_51CF20 = 0;
 DWORD dword_8FBDB8;
 DWORD dword_8FBDBC;
+
 int S_PauseMenu()
 {
 	int v1; // esi
@@ -962,7 +965,7 @@ int S_PauseMenu()
 		UpdatePulseColour();
 		S_OutputPolyList();
 		S_DumpScreen();
-		
+
 		if (v1 == 1)
 			break;
 		if (v1 == 8)
@@ -981,9 +984,9 @@ int S_PauseMenu()
 			break;
 		}
 	} while (!thread_started);
-	
+
 	dword_8FBDBC = 0;
-	
+
 	TIME_Init();
 	FreeMonoScreen();
 
@@ -995,7 +998,8 @@ void S_DrawAirBar(int size)// (F)
 {
 	if (gfCurrentLevel != LVL5_TITLE)
 	{
-		DoBar(490 - font_height / 4, font_height / 2 + font_height / 4 + 32, 150, 12, size, RGBONLY(0, 0, 160), RGBONLY(0, 80, 160));
+		DoBar(490 - font_height / 4, font_height / 2 + font_height / 4 + 32, 150, 12, size, RGBONLY(0, 0, 160),
+		      RGBONLY(0, 80, 160));
 	}
 }
 
@@ -1027,16 +1031,18 @@ void S_DrawHealthBar2(int size)// (F)
 
 void S_CDFade(int a1)// (F)
 {
-	
+
 }
 
-void	S_StartSyncedAudio(int num)// (F)
+void S_StartSyncedAudio(int num)// (F)
 {
 	S_CDStop();
 	S_CDPlay(num, 2);
 }
 
-LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *buf, void(*a5)(uchar *, uchar *, uchar *, uchar *), int bpp)
+LPDIRECTDRAWSURFACE4
+CreateTexturePage(int width, int height, int mipmaps, int* buf, void(* a5)(uchar*, uchar*, uchar*, uchar*),
+                  int bpp)
 {
 	DDSURFACEDESC2 desc;
 	DXInit(desc);
@@ -1073,13 +1079,13 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 	{
 		if (bpp == 0)
 		{
-			auto sptr = (BYTE*)desc.lpSurface;
+			auto sptr = (BYTE*) desc.lpSurface;
 
 			for (int y = 0; y < desc.dwHeight; y++)
 			{
 				for (int x = 0; x < desc.dwWidth; x++)
 				{
-					auto ptr = (BYTE*)buf;
+					auto ptr = (BYTE*) buf;
 
 					auto b = ptr[0];// todo inverted r&b in original
 					auto g = ptr[1];
@@ -1092,14 +1098,14 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 					}
 
 					DWORD color =
-						r >> (8 - CUR_TEX.rbpp) << CUR_TEX.rshift |
-						g >> (8 - CUR_TEX.gbpp) << CUR_TEX.gshift |
-						b >> (8 - CUR_TEX.bbpp) << CUR_TEX.bshift |
-						a >> (8 - CUR_TEX.abpp) << CUR_TEX.ashift;
+							r >> (8 - CUR_TEX.rbpp) << CUR_TEX.rshift |
+							g >> (8 - CUR_TEX.gbpp) << CUR_TEX.gshift |
+							b >> (8 - CUR_TEX.bbpp) << CUR_TEX.bshift |
+							a >> (8 - CUR_TEX.abpp) << CUR_TEX.ashift;
 
 					if (CUR_TEX.bpp > 0)
 					{
-						for(int i = 0; i < (CUR_TEX.bpp + 7) / 8; i++)
+						for (int i = 0; i < (CUR_TEX.bpp + 7) / 8; i++)
 						{
 							*sptr++ = color;
 							color >>= 8;
@@ -1114,8 +1120,8 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 		{
 			if (bpp == 2)
 			{
-				auto ptr = (WORD*)buf;
-				auto sptr = (WORD*)desc.lpSurface;
+				auto ptr = (WORD*) buf;
+				auto sptr = (WORD*) desc.lpSurface;
 
 				for (int y = 0; y < desc.dwHeight; y++)
 				{
@@ -1132,8 +1138,8 @@ LPDIRECTDRAWSURFACE4 CreateTexturePage(int width, int height, int mipmaps, int *
 			}
 			else if (bpp == 1)
 			{
-				auto ptr = (DWORD*)buf;
-				auto sptr = (DWORD*)desc.lpSurface;
+				auto ptr = (DWORD*) buf;
+				auto sptr = (DWORD*) desc.lpSurface;
 
 				for (int y = 0; y < desc.dwHeight; y++)
 				{
@@ -1189,12 +1195,12 @@ DWORD qword_5082F4 = 1;
 DWORD dword_51CE50 = 0;
 DWORD unk_51CE2A = 0;
 BYTE byte_5082C8[40] =
-{
-	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
-	0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
+		{
+				0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+				0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+				0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+		};
 
 int DoCredits()
 {
@@ -1256,7 +1262,7 @@ int TitleOptions()
 			dword_51CE44 = 0;
 			unk_51CE3C = 0;
 			dword_51CE40 = 0;
-		
+
 			selected_menu = 1;
 			return res;
 		}
@@ -1281,132 +1287,132 @@ int TitleOptions()
 	{
 		switch (dword_51CE40)
 		{
-		case 0:
-			goto LABEL_37;
-		case 1:
-			PrintString(
-				phd_centerx,
-				font_height + phd_winymin,
-				6,
-				&gfStringWad[gfStringOffset[STR_SELECT_LEVEL]],
-				FF_CENTER);
-			v5 = font_height + font_height + phd_winymin;
-			if (Gameflow->nLevels >= 10)
-			{
-				DWORD v7 = selected_menu;
-				i = 10;
-				int v8;
-				for (v8 = 0; v7; ++v8)
-					v7 >>= 1;
-				v6 = v8 - 9;
-				if (v8 - 9 >= 1)
+			case 0:
+				goto LABEL_37;
+			case 1:
+				PrintString(
+						phd_centerx,
+						font_height + phd_winymin,
+						6,
+						&gfStringWad[gfStringOffset[STR_SELECT_LEVEL]],
+						FF_CENTER);
+				v5 = font_height + font_height + phd_winymin;
+				if (Gameflow->nLevels >= 10)
 				{
-					if (v8 - 9 > 1)
+					DWORD v7 = selected_menu;
+					i = 10;
+					int v8;
+					for (v8 = 0; v7; ++v8)
+						v7 >>= 1;
+					v6 = v8 - 9;
+					if (v8 - 9 >= 1)
 					{
-						PrintString(32, v5 + font_height, 6, "\x18", 0);
-						PrintString(phd_winxmax - 48, v5 + font_height, 6, "\x18", 0);
+						if (v8 - 9 > 1)
+						{
+							PrintString(32, v5 + font_height, 6, "\x18", 0);
+							PrintString(phd_winxmax - 48, v5 + font_height, 6, "\x18", 0);
+						}
+					}
+					else
+					{
+						v6 = 1;
+					}
+					if (v8 != Gameflow->nLevels - 1)
+					{
+						PrintString(32, v5 + 10 * font_height, 6, "\x1A", 0);
+						PrintString(phd_winxmax - 48, v5 + 10 * font_height, 6, "\x1A", 0);
 					}
 				}
 				else
 				{
 					v6 = 1;
+					i = Gameflow->nLevels - 1;
 				}
-				if (v8 != Gameflow->nLevels - 1)
+				v22 = v6;
+				v26 = i + v6;
+				if (v6 < i + v6)
 				{
-					PrintString(32, v5 + 10 * font_height, 6, "\x1A", 0);
-					PrintString(phd_winxmax - 48, v5 + 10 * font_height, 6, "\x1A", 0);
+					int v9 = v6 - 1;
+					while (1)
+					{
+						v5 += font_height;
+						if (selected_menu & (1 << v9))
+							v24 = 1;
+						else
+							v24 = 3 - (byte_5082C8[v22 - 1] != 0);
+						PrintString(
+								phd_centerx,
+								v5,
+								v24,
+								&gfStringWad[gfStringOffset[gfLevelNames[v9 + 1]]],
+								FF_CENTER);
+						if (selected_menu & (1 << v9))
+							dword_51CE50 = v9;
+						++v9;
+						if (++v22 >= v26)
+							break;
+					}
 				}
-			}
-			else
-			{
-				v6 = 1;
-				i = Gameflow->nLevels - 1;
-			}
-			v22 = v6;
-			v26 = i + v6;
-			if (v6 < i + v6)
-			{
-				int v9 = v6 - 1;
-				while (1)
+				v1 = 0;
+				max_menu = 1i64 << (Gameflow->nLevels - 2);
+				break;
+			case 2:
+				if (Gameflow->LoadSaveEnabled)
 				{
-					v5 += font_height;
-					if (selected_menu & (1 << v9))
-						v24 = 1;
-					else
-						v24 = 3 - (byte_5082C8[v22 - 1] != 0);
-					PrintString(
-						phd_centerx,
-						v5,
-						v24,
-						&gfStringWad[gfStringOffset[gfLevelNames[v9 + 1]]],
-						FF_CENTER);
-					if (selected_menu & (1 << v9))
-						dword_51CE50 = v9;
-					++v9;
-					if (++v22 >= v26)
-						break;
+					const signed int v10 = DoLoadSave(0x800000);
+					if (v10 >= 0)
+					{
+						S_LoadGame(v10);
+						v1 = 2;
+					}
 				}
-			}
-			v1 = 0;
-			max_menu = 1i64 << (Gameflow->nLevels - 2);
-			break;
-		case 2:
-			if (Gameflow->LoadSaveEnabled)
-			{
-				const signed int v10 = DoLoadSave(0x800000);
-				if (v10 >= 0)
+				else
 				{
-					S_LoadGame(v10);
-					v1 = 2;
-				}
-			}
-			else
-			{
-				SoundEffect(SFX_LARA_NO, nullptr, SFX_ALWAYS);
-				dword_51CE40 = 0;
-			LABEL_37:
-				const int v11 = phd_winymax - 4 * font_height;
-				SuperShowLogo();
-				Chris_Menu = 0;
+					SoundEffect(SFX_LARA_NO, nullptr, SFX_ALWAYS);
+					dword_51CE40 = 0;
+					LABEL_37:
+					const int v11 = phd_winymax - 4 * font_height;
+					SuperShowLogo();
+					Chris_Menu = 0;
 
-				PrintString(
-					phd_centerx, 
-					v11,
-					(selected_menu & 1) ? 1 : 2,
-					&gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]], 
-					FF_CENTER);
-				
-				PrintString(
-					phd_centerx,
-					v11 + font_height,
-					(selected_menu & 2) ? 1 : 2,
-					&gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]],
-					FF_CENTER);
-				
-				PrintString(
-					phd_centerx,
-					v11 + 2 * font_height,
-					(selected_menu & 4) ? 1 : 2,
-					&gfStringWad[gfStringOffset[STR_OPTIONS]],
-					FF_CENTER);
-				
-				PrintString(
-					phd_centerx,
-					v11 + 2 * font_height + font_height,
-					(selected_menu & 8) ? 1 : 2,
-					&gfStringWad[gfStringOffset[STR_EXIT]],
-					FF_CENTER);
-				
-				max_menu = 8;
-			}
-			break;
-		case 3:
-			DoOptions();
-			break;
-		default:
-			break;
+					PrintString(
+							phd_centerx,
+							v11,
+							(selected_menu & 1) ? 1 : 2,
+							&gfStringWad[gfStringOffset[STR_SAVE_GAME_BIS]],
+							FF_CENTER);
+
+					PrintString(
+							phd_centerx,
+							v11 + font_height,
+							(selected_menu & 2) ? 1 : 2,
+							&gfStringWad[gfStringOffset[STR_LOAD_GAME_BIS]],
+							FF_CENTER);
+
+					PrintString(
+							phd_centerx,
+							v11 + 2 * font_height,
+							(selected_menu & 4) ? 1 : 2,
+							&gfStringWad[gfStringOffset[STR_OPTIONS]],
+							FF_CENTER);
+
+					PrintString(
+							phd_centerx,
+							v11 + 2 * font_height + font_height,
+							(selected_menu & 8) ? 1 : 2,
+							&gfStringWad[gfStringOffset[STR_EXIT]],
+							FF_CENTER);
+
+					max_menu = 8;
+				}
+				break;
+			case 3:
+				DoOptions();
+				break;
+			default:
+				break;
 		}
-		
+
 		if (dword_51CE40 < 2)
 		{
 			if (dbinput & IN_FORWARD)
@@ -1416,10 +1422,10 @@ int TitleOptions()
 					selected_menu >>= 1;
 					qword_5082F4 >>= 1;
 				}
-				
+
 				SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
 			}
-			
+
 			if (dbinput & IN_BACK)
 			{
 				if (selected_menu < max_menu)
@@ -1427,11 +1433,11 @@ int TitleOptions()
 					selected_menu <<= 1;
 					qword_5082F4 <<= 1;
 				}
-				
+
 				SoundEffect(SFX_MENU_CHOOSE, nullptr, SFX_ALWAYS);
 			}
 		}
-		
+
 		if (dbinput & IN_DESELECT)
 		{
 			v18 = dword_51CE40 == 0;
@@ -1443,7 +1449,7 @@ int TitleOptions()
 			SoundEffect(SFX_MENU_SELECT, nullptr, SFX_ALWAYS);
 		}
 		v18 = dword_51CE40 == 0;
-	LABEL_60:
+		LABEL_60:
 		if (v18)
 		{
 			const int v19 = GetCampaignCheatValue();
@@ -1479,35 +1485,35 @@ int TitleOptions()
 			{
 				switch (selected_menu)
 				{
-				case 1u:
-					if (Gameflow->PlayAnyLevel)
-					{
+					case 1u:
+						if (Gameflow->PlayAnyLevel)
+						{
+							selected_menu_prev = selected_menu;
+							dword_51CE40 = 1;
+						}
+						else
+						{
+							gfLevelComplete = 1;
+							v1 = 3;
+						}
+						break;
+					case 2u:
+						GetSaveLoadFiles();
 						selected_menu_prev = selected_menu;
-						dword_51CE40 = 1;
-					}
-					else
-					{
-						gfLevelComplete = 1;
-						v1 = 3;
-					}
-					break;
-				case 2u:
-					GetSaveLoadFiles();
-					selected_menu_prev = selected_menu;
-					dword_51CE40 = 2;
-					break;
-				case 3u:
-				case 5u:
-				case 6u:
-				case 7u:
-					break;
-				case 4u:
-					selected_menu_prev = selected_menu;
-					dword_51CE40 = 3;
-					break;
-				case 8u:
-					v1 = 4;
-					break;
+						dword_51CE40 = 2;
+						break;
+					case 3u:
+					case 5u:
+					case 6u:
+					case 7u:
+						break;
+					case 4u:
+						selected_menu_prev = selected_menu;
+						dword_51CE40 = 3;
+						break;
+					case 8u:
+						v1 = 4;
+						break;
 				}
 			}
 		}
@@ -1535,22 +1541,22 @@ void updateAnimFrame(PACKNODE* node, int flags, short* frame)// (F)
 
 	switch (cutrot)
 	{
-	case 0:
-		frame[6] = x;
-		frame[8] = z;
-		break;
-	case 1:
-		frame[6] = z;
-		frame[8] = -x;
-		break;
-	case 2:
-		frame[6] = -x;
-		frame[8] = -z;
-		break;
-	case 3:
-		frame[6] = -z;
-		frame[8] = x;
-		break;
+		case 0:
+			frame[6] = x;
+			frame[8] = z;
+			break;
+		case 1:
+			frame[6] = z;
+			frame[8] = -x;
+			break;
+		case 2:
+			frame[6] = -x;
+			frame[8] = -z;
+			break;
+		case 3:
+			frame[6] = -z;
+			frame[8] = x;
+			break;
 	}
 
 	short* next = frame + 9;
@@ -1563,7 +1569,7 @@ void updateAnimFrame(PACKNODE* node, int flags, short* frame)// (F)
 
 		if (cutrot && i == 1)
 		{
-			x = (x + ((short)cutrot << 8)) & 0x3FF;
+			x = (x + ((short) cutrot << 8)) & 0x3FF;
 		}
 
 		next[0] = (y | ((x | (z << 10)) << 10)) >> 16;
@@ -1585,29 +1591,29 @@ void PlayFmvNow(int num)
 {
 	switch (num)
 	{
-	case 0:
-		PlayFMV(0);
-		break;
-	case 1:
-		PlayFMV(1);
-		break;
-	case 2:
-		PlayFMV(2);
-		break;
-	case 3:
-		PlayFMV(3);
-		PlayFMV(4);
-		break;
-	case 4:
-		PlayFMV(5);
-		PlayFMV(6);
-		break;
-	case 5:
-		PlayFMV(7);
-		break;
-	case 6:
-		PlayFMV(8);
-		break;
+		case 0:
+			PlayFMV(0);
+			break;
+		case 1:
+			PlayFMV(1);
+			break;
+		case 2:
+			PlayFMV(2);
+			break;
+		case 3:
+			PlayFMV(3);
+			PlayFMV(4);
+			break;
+		case 4:
+			PlayFMV(5);
+			PlayFMV(6);
+			break;
+		case 5:
+			PlayFMV(7);
+			break;
+		case 6:
+			PlayFMV(8);
+			break;
 	}
 }
 
@@ -1615,55 +1621,55 @@ void DoStatScreen()
 {
 	const DWORD y = phd_centery - 4 * font_height;
 	PrintString(
-		phd_centerx,
-		y,
-		6u,
-		&gfStringWad[gfStringOffset[STR_STATISTICS]],
-		FF_CENTER);
+			phd_centerx,
+			y,
+			6u,
+			&gfStringWad[gfStringOffset[STR_STATISTICS]],
+			FF_CENTER);
 	PrintString(
-		phd_centerx,
-		y + 2 * font_height,
-		2u,
-		&gfStringWad[gfStringOffset[gfLevelNames[gfCurrentLevel]]],
-		FF_CENTER);
+			phd_centerx,
+			y + 2 * font_height,
+			2u,
+			&gfStringWad[gfStringOffset[gfLevelNames[gfCurrentLevel]]],
+			FF_CENTER);
 	PrintString(
-		phd_centerx >> 2,
-		y + 2 * font_height + font_height,
-		2u,
-		&gfStringWad[gfStringOffset[STR_TIME_TAKEN]],
-		FF_NONE);
+			phd_centerx >> 2,
+			y + 2 * font_height + font_height,
+			2u,
+			&gfStringWad[gfStringOffset[STR_TIME_TAKEN]],
+			FF_NONE);
 	PrintString(
-		phd_centerx >> 2,
-		y + 4 * font_height,
-		2u,
-		&gfStringWad[gfStringOffset[STR_DISTANCE_TRAVELLED]],
-		FF_NONE);
+			phd_centerx >> 2,
+			y + 4 * font_height,
+			2u,
+			&gfStringWad[gfStringOffset[STR_DISTANCE_TRAVELLED]],
+			FF_NONE);
 	PrintString(
-		phd_centerx >> 2,
-		y + 5 * font_height,
-		2u,
-		&gfStringWad[gfStringOffset[STR_AMMO_USED]],
-		FF_NONE);
+			phd_centerx >> 2,
+			y + 5 * font_height,
+			2u,
+			&gfStringWad[gfStringOffset[STR_AMMO_USED]],
+			FF_NONE);
 	PrintString(
-		phd_centerx >> 2,
-		y + 6 * font_height,
-		2u,
-		&gfStringWad[gfStringOffset[STR_HEALTH_PACKS_USED]],
-		FF_NONE);
+			phd_centerx >> 2,
+			y + 6 * font_height,
+			2u,
+			&gfStringWad[gfStringOffset[STR_HEALTH_PACKS_USED]],
+			FF_NONE);
 	PrintString(
-		phd_centerx >> 2,
-		y + 7 * font_height,
-		2u,
-		&gfStringWad[gfStringOffset[STR_SECRETS_FOUND]],
-		FF_NONE);
+			phd_centerx >> 2,
+			y + 7 * font_height,
+			2u,
+			&gfStringWad[gfStringOffset[STR_SECRETS_FOUND]],
+			FF_NONE);
 	char string[40]; // [esp+8h] [ebp-28h]
 	const auto total_sec = GameTimer / 30;
 	const auto seconds = total_sec % 60;
 	const auto minutes = (total_sec / 60) % 60;
 	const auto hours = total_sec / 3600;
 	sprintf(
-		string,
-		"%02d:%02d:%02d", hours, minutes, seconds);
+			string,
+			"%02d:%02d:%02d", hours, minutes, seconds);
 	PrintString(phd_centerx + (phd_centerx >> 2), y + 2 * font_height + font_height, 6u, string, FF_NONE);
 	sprintf(string, "%dm", savegame.Game.Distance / 419);
 	PrintString(phd_centerx + (phd_centerx >> 2), y + 4 * font_height, 6u, string, FF_NONE);
@@ -1714,29 +1720,29 @@ int S_DisplayPauseMenu(int a1)
 
 	const unsigned __int16 v2 = phd_centery - font_height;
 	PrintString(
-		phd_centerx,
-		v2 - (3 * font_height >> 1),
-		6u,
-		&gfStringWad[gfStringOffset[STR_PAUSED]],
-		FF_CENTER);
+			phd_centerx,
+			v2 - (3 * font_height >> 1),
+			6u,
+			&gfStringWad[gfStringOffset[STR_PAUSED]],
+			FF_CENTER);
 	PrintString(
-		phd_centerx,
-		v2,
-		2 - ((selected_menu_pause & 1) != 0),
-		&gfStringWad[gfStringOffset[STR_STATISTICS]],
-		FF_CENTER);
+			phd_centerx,
+			v2,
+			2 - ((selected_menu_pause & 1) != 0),
+			&gfStringWad[gfStringOffset[STR_STATISTICS]],
+			FF_CENTER);
 	PrintString(
-		phd_centerx,
-		v2 + font_height,
-		2 - ((selected_menu_pause & 2) != 0),
-		&gfStringWad[gfStringOffset[STR_OPTIONS]],
-		FF_CENTER);
+			phd_centerx,
+			v2 + font_height,
+			2 - ((selected_menu_pause & 2) != 0),
+			&gfStringWad[gfStringOffset[STR_OPTIONS]],
+			FF_CENTER);
 	PrintString(
-		phd_centerx,
-		v2 + 2 * font_height,
-		2 - ((selected_menu_pause & 4) != 0),
-		&gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]],
-		FF_CENTER);
+			phd_centerx,
+			v2 + 2 * font_height,
+			2 - ((selected_menu_pause & 4) != 0),
+			&gfStringWad[gfStringOffset[STR_EXIT_TO_TITLE]],
+			FF_CENTER);
 
 	if (dbinput & IN_FORWARD)                   // UP
 	{
@@ -1794,34 +1800,34 @@ int S_GetObjectBounds(bounding_box_s* bbox)// (F)
 		return 0;
 
 	tr5_vertex verts[8] =
-	{
-		{ bbox->x_minp,bbox->y_minp,bbox->z_minp },
-		{ bbox->x_maxp,bbox->y_minp,bbox->z_minp },
-		{ bbox->x_maxp,bbox->y_maxp,bbox->z_minp },
-		{ bbox->x_minp,bbox->y_maxp,bbox->z_minp },
-		{ bbox->x_minp,bbox->y_minp,bbox->z_maxp },
-		{ bbox->x_maxp,bbox->y_minp,bbox->z_maxp },
-		{ bbox->x_maxp,bbox->y_maxp,bbox->z_maxp },
-		{ bbox->x_minp,bbox->y_maxp,bbox->z_maxp }
-	};
+			{
+					{bbox->x_minp, bbox->y_minp, bbox->z_minp},
+					{bbox->x_maxp, bbox->y_minp, bbox->z_minp},
+					{bbox->x_maxp, bbox->y_maxp, bbox->z_minp},
+					{bbox->x_minp, bbox->y_maxp, bbox->z_minp},
+					{bbox->x_minp, bbox->y_minp, bbox->z_maxp},
+					{bbox->x_maxp, bbox->y_minp, bbox->z_maxp},
+					{bbox->x_maxp, bbox->y_maxp, bbox->z_maxp},
+					{bbox->x_minp, bbox->y_maxp, bbox->z_maxp}
+			};
 
 	int num = 0;
-	
+
 	float minY = 1073741800.0; // ~= 2^30
 	float minX = 1073741800.0;
 
 	float maxX = -1073741800.0;
 	double maxY = -1073741800.0;
-	
-	for(int i = 0; i < 8; i++)
+
+	for (int i = 0; i < 8; i++)
 	{
 		const double normsq =
-			phd_mxptr[M20] * verts[i].x +
-			phd_mxptr[M21] * verts[i].y +
-			phd_mxptr[M22] * verts[i].z +
-			phd_mxptr[M23];
-		
-		if (normsq > phd_znear&& normsq < phd_zfar)
+				phd_mxptr[M20] * verts[i].x +
+				phd_mxptr[M21] * verts[i].y +
+				phd_mxptr[M22] * verts[i].z +
+				phd_mxptr[M23];
+
+		if (normsq > phd_znear && normsq < phd_zfar)
 		{
 			num++;
 
@@ -1831,11 +1837,11 @@ int S_GetObjectBounds(bounding_box_s* bbox)// (F)
 				normalized = 1.0;
 
 			const double x = (
-				phd_mxptr[M00] * verts[i].x +
-				phd_mxptr[M01] * verts[i].y +
-				phd_mxptr[M02] * verts[i].z +
-				phd_mxptr[M03])
-				/ normalized;
+					                 phd_mxptr[M00] * verts[i].x +
+					                 phd_mxptr[M01] * verts[i].y +
+					                 phd_mxptr[M02] * verts[i].z +
+					                 phd_mxptr[M03])
+			                 / normalized;
 
 			if (x < minX)
 				minX = x;
@@ -1843,11 +1849,11 @@ int S_GetObjectBounds(bounding_box_s* bbox)// (F)
 				maxX = x;
 
 			const double y = (
-				phd_mxptr[M10] * verts[i].x +
-				phd_mxptr[M11] * verts[i].y +
-				phd_mxptr[M12] * verts[i].z +
-				phd_mxptr[M13])
-				/ normalized;
+					                 phd_mxptr[M10] * verts[i].x +
+					                 phd_mxptr[M11] * verts[i].y +
+					                 phd_mxptr[M12] * verts[i].z +
+					                 phd_mxptr[M13])
+			                 / normalized;
 
 			if (y < minY)
 				minY = y;
@@ -1860,13 +1866,13 @@ int S_GetObjectBounds(bounding_box_s* bbox)// (F)
 	const float right = phd_centerx + maxX;
 	const float top = phd_centery + minY;
 	const float bottom = phd_centery + maxY;
-	
+
 	if (num < 8 || left < 0.0 || top < 0.0 || phd_winxmax < right || phd_winymax < bottom)
 		return -1;
-	
+
 	if (num == 0 || phd_right < left || phd_bottom < top || phd_left > right || phd_top > bottom)
 		return 0;
-	
+
 	return 1;
 }
 

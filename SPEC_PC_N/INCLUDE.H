@@ -45,14 +45,16 @@ enum
 #define ZeroArray(a) memset((a),0,sizeof(a))
 #define EndOfArray(a) ((a)+ArraySize(a))
 #define InitDXStruct(s) memset(&(s),0,sizeof(s)),(s).dwSize=sizeof(s)
-#define DefLocalString(x,y) local char Lsz##x[]=y
+#define DefLocalString(x, y) local char Lsz##x[]=y
 #define LocalString(x) Lsz##x
 #define DefValueName(x) local char Lsz##x[]=#x
 #define ValueName(x) Lsz##x
-#define Align(x,b) ((x)=(x)&~((b)-1))
+#define Align(x, b) ((x)=(x)&~((b)-1))
 
 void DebugPrint(const char* message);
+
 void Log_backend(char type, char* fmt, ...);
+
 inline void Log_real(char ctype, const char* type, const char* fmt, ...)
 {
 	char buf[128], pbuf[1024];
@@ -67,9 +69,9 @@ inline void Log_real(char ctype, const char* type, const char* fmt, ...)
 	strcat(buf, "] ");
 
 	va_list args;
-	va_start(args, fmt);
+			va_start(args, fmt);
 	vsprintf(pbuf, fmt, args);
-	va_end(args);
+			va_end(args);
 
 	char res[1152];
 	ZeroArray(res);
@@ -81,16 +83,12 @@ inline void Log_real(char ctype, const char* type, const char* fmt, ...)
 }
 
 
-
-
-
-
-
 /*** dxerror.cpp ***/
 const char* ERR_Describe_DX(HRESULT hr);
+
 const char* ERR_Describe_Init(int nError);
 
-enum InitResult	// possible initialisation results
+enum InitResult    // possible initialisation results
 {
 	INIT_OK,
 
@@ -139,35 +137,35 @@ enum InitResult	// possible initialisation results
 	INIT_ERR_GetPixelFormat,
 	INIT_ERR_GetDisplayMode
 };
-typedef void* Position;	// iterator for linked lists etc
+typedef void* Position;    // iterator for linked lists etc
 /*** settings.cpp ***/
 struct AppSettings
 {
-	Position DisplayAdapter;			// G_DisplayAdapterList[DisplayAdapter] is the one we're using...
-	Position SoundAdapter;				// same for sound card
-	Position Joystick;					// and joystick
-	Position FullScreenMode;			// hardware fullscreen mode x/y/bpp
-	int nRenderMode;					// none/internal/HAL/RGB
-	int nWindowWidth, nWindowHeight;		// size of desktop window
-	int nAspectMode;					// 4:3 / 16:9 / any
-	bool tPerspectiveCorrect;			// perspective correct textures
-	bool tDither;						// dithering on/off
-	bool tZBuffer;						// render using z buffer
-	bool tBilinearFiltering;			// use bilinear filtering when texture mapping
-	bool tTripleBuffering;				// use three buffers instead of two, for better performance but more memory usage
-										//	bool tMipMap;						// use mipmapped textures
-										//	bool tAntialias;					// antialias edges
-	bool tFullScreen;					// switch to full screen or run in window
-	bool tSoundEnabled;					// false = disable sound
-	bool tLaraMic;						// position mic at lara instead of camera (for paul & toby)
-	bool tJoystickEnabled;				// false = disable joystick
-	bool tDisable16BitTextures;			// true = disable 16 bit textures (for 2MB Mystique etc)
-	bool tDontSortPrimitives;			// true = no need to sort primitives (for PowerVR)
-	bool tFlipBroken;					// true = driver doesn't wait for flip to finish before rendering.  must do it myself...
-	bool tDisableFMV;					// true = don't play any FMVs
-	int nTexelAdjustMode;				// never / when filtering / always
-	int nNearestAdjustment;				// non-filtered texel adjustment
-	int nLinearAdjustment;				// bilinear filtered texel adjustment
+	Position DisplayAdapter;            // G_DisplayAdapterList[DisplayAdapter] is the one we're using...
+	Position SoundAdapter;                // same for sound card
+	Position Joystick;                    // and joystick
+	Position FullScreenMode;            // hardware fullscreen mode x/y/bpp
+	int nRenderMode;                    // none/internal/HAL/RGB
+	int nWindowWidth, nWindowHeight;        // size of desktop window
+	int nAspectMode;                    // 4:3 / 16:9 / any
+	bool tPerspectiveCorrect;            // perspective correct textures
+	bool tDither;                        // dithering on/off
+	bool tZBuffer;                        // render using z buffer
+	bool tBilinearFiltering;            // use bilinear filtering when texture mapping
+	bool tTripleBuffering;                // use three buffers instead of two, for better performance but more memory usage
+	//	bool tMipMap;						// use mipmapped textures
+	//	bool tAntialias;					// antialias edges
+	bool tFullScreen;                    // switch to full screen or run in window
+	bool tSoundEnabled;                    // false = disable sound
+	bool tLaraMic;                        // position mic at lara instead of camera (for paul & toby)
+	bool tJoystickEnabled;                // false = disable joystick
+	bool tDisable16BitTextures;            // true = disable 16 bit textures (for 2MB Mystique etc)
+	bool tDontSortPrimitives;            // true = no need to sort primitives (for PowerVR)
+	bool tFlipBroken;                    // true = driver doesn't wait for flip to finish before rendering.  must do it myself...
+	bool tDisableFMV;                    // true = don't play any FMVs
+	int nTexelAdjustMode;                // never / when filtering / always
+	int nNearestAdjustment;                // non-filtered texel adjustment
+	int nLinearAdjustment;                // bilinear filtered texel adjustment
 };
 enum
 {
@@ -196,22 +194,39 @@ global struct AppSettings G_AppSettings;
 #define DXCB_CLRWINDOW 256
 
 bool HWR_Init();
+
 void HWR_InitVertexList();
+
 bool HWR_IsVertexBufferFull();
+
 void HWR_InitState();
+
 void HWR_BeginScene();
+
 void HWR_EndScene();
+
 void HWR_DrawPolyList();
+
 void HWR_LoadTexturePages(int nPages, char* pImage, uint8* pPalette);
+
 void HWR_FreeTexturePages();
+
 void HWR_RestoreTexturePages();
+
 void HWR_ResetCurrentTexture();
+
 void HWR_ResetColorKey();
+
 void HWR_ResetZBuffer();
+
 void HWR_SetCurrentTexture(DWORD dwHandle);
+
 void HWR_EnableColorKey(bool tEnable);
+
 void HWR_EnableZBuffer(bool tWrite, bool tCompare);
+
 void HWR_GetAllTextureHandles();
+
 extern "C" void __cdecl HWR_DrawRoomBucket(void*);
 
 bool TIME_Init();

@@ -8,26 +8,27 @@
 #include <msacm.h>
 #include "INPUT.H"
 #include "FILE.H"
+
 #pragma comment (lib, "ddraw.lib")
 #pragma comment (lib, "dxguid.lib")
 #pragma comment (lib, "dinput.lib")
 #pragma comment (lib, "d3dx9.lib")
 #pragma comment (lib, "Msacm32.lib")
 
-static LPDIRECTDRAW4		enum_lpDD;
-static LPDIRECT3D3			enum_lpD3D;
+static LPDIRECTDRAW4 enum_lpDD;
+static LPDIRECT3D3 enum_lpD3D;
 static LPDIRECTDRAWSURFACE4 enum_lpDDSurface;
-static LPDIRECT3DDEVICE3	enum_lpD3DDevice;
-static HWND					WindowHandle;
+static LPDIRECT3DDEVICE3 enum_lpD3DDevice;
+static HWND WindowHandle;
 static bool bSoftRend = false;
 static LPDIRECTSOUNDBUFFER DSSoundBuffer;
 LPDIRECTSOUNDBUFFER ACMSoundBuffer;
 static LPDIRECTSOUNDNOTIFY DSNotify;
 
 int NumSamplesTable[3] =
-{
-	11025, 22050, 44100
-};
+		{
+				11025, 22050, 44100
+		};
 int NumSamples;
 bool ACMInited;
 HACMDRIVERID acm_driver_id;
@@ -50,37 +51,37 @@ int joystick_read_fire;
 bool joystick_read;
 
 const char* xa_filenames[] =
-{
-	"xa1_TL_10B.wav", "xa1_Z10.wav", "xa1_TL_05.wav", "xa1_TL_08.wav", "xa1_TL_11.wav", 
-	"xa1_ANDYPEW.wav", "xa1_SECRET.wav", "xa1_TL_02.wav", "xa2_HMMM05.wav", "xa2_TL_01.wav", 
-	"xa2_ATTACK04.wav", "xa2_UWATER2B.wav", "xa2_SPOOKY2A.wav", "xa2_TL_10A.wav", "xa2_HMMM02.wav", 
-	"xa2_TOMS01.wav", "xa3_Attack03.wav", "xa3_Attack02.wav", "xa3_Hmmm01.wav", "xa3_Stealth1.wav", 
-	"xa3_Stealth2.wav", "xa3_Attack01.wav", "xa3_TL_06.wav", "xa3_TL_03.wav", "xa4_hmmm06.wav", 
-	"xa4_mil01.wav", "xa4_Z_03.wav", "xa4_hit01.wav", "xa4_spooky05.wav", "xa4_drama01.wav", 
-	"xa4_stealth4.wav", "xa4_mil05.wav", "xa5_HMMM04.wav", "xa5_MIL06.wav", "xa5_SPOOKY02.wav", 
-	"xa5_TL_12.wav", "xa5_MIL02A.wav", "xa5_HMMM03.wav", "xa5_MIL02.wav", "xa5_TL_04.wav", 
-	"xa6_Mil04.wav", "xa6_Solo01.wav", "xa6_Z12.wav", "xa6_Stealth3.wav", "xa6_AuthSolo.wav", 
-	"xa6_Spooky03.wav", "xa6_Z13.wav", "xa6_Z_04anim.wav", "xa7_z_06a.wav", "xa7_andyoooh.wav", 
-	"xa7_andyooer.wav", "xa7_tl_07.wav", "xa7_z_02.wav", "xa7_evibes01.wav", "xa7_z_06.wav", 
-	"xa7_authtr.wav", "xa8_mil03.wav", "xa8_fightsc.wav", "xa8_richcut3.wav", "xa8_z_13.wav", 
-	"xa8_z_08.wav", "xa8_uwater2a.wav", "xa8_jobyalrm.wav", "xa8_mil02b.wav", "xa9_swampy.wav", 
-	"xa9_evibes02.wav", "xa9_gods01.wav", "xa9_z_03.wav", "xa9_richcut4.wav", "xa9_title4.wav", 
-	"xa9_spooky01.wav", "xa9_chopin01.wav", "xa10_echoir01.wav", "xa10_title3.wav",
-	"xa10_perc01.wav", "xa10_vc01.wav", "xa10_title2.wav", "xa10_z_09.wav", "xa10_spooky04.wav", 
-	"xa10_z_10.wav", "xa11_vc01atv.wav", "xa11_andy3.wav", "xa11_title1.wav", "xa11_flyby1.wav", 
-	"xa11_monk_2.wav", "xa11_andy4.wav", "xa11_flyby3.wav", "xa11_flyby2.wav", "xa12_moses01.wav", 
-	"xa12_andy4b.wav", "xa12_z_10.wav", "xa12_flyby4.wav", "xa12_richcut1.wav", "xa12_andy5.wav",
-	"xa12_z_05.wav", "xa12_z_01.wav", "xa13_Joby3.wav", "xa13_Andy7.wav", "xa13_Andrea3B.wav", 
-	"xa13_cossack.wav", "xa13_Z_07.wav", "xa13_Andy6.wav", "xa13_Andrea3.wav", "xa13_Joby7.wav", 
-	"xa14_uwater1.wav", "xa14_joby1.wav", "xa14_andy10.wav", "xa14_richcut2.wav", 
-	"xa14_andrea1.wav", "xa14_andy8.wav", "xa14_joby6.wav", "xa14_ecredits.wav", 
-	"xa15_boss_01.wav", "xa15_joby2.wav", "xa15_joby4.wav", "xa15_joby5.wav", "xa15_joby9.wav", 
-	"xa15_a_andy.wav", "xa15_a_rome.wav", "xa15_andy2.wav", "xa16_Joby8.wav", "xa16_A_Sub_Amb.wav", 
-	"xa16_Joby10.wav", "xa16_A_Harbour_out.wav", "xa16_A_Andy_Out_Norm.wav", 
-	"xa16_A_Andy_Out_Spooky.wav", "xa16_A_Rome_Day.wav", "xa16_A_Underwater.wav",
-	"xa17_A_Rome_Night.wav", "xa17_A_VC_Saga.wav", "xa17_A_Industry.wav", "xa17_Andrea2.wav", 
-	"xa17_Andy1.wav", "xa17_Andrea4.wav", "xa17_Andy9.wav", "xa17_Andy11.wav"
-};
+		{
+				"xa1_TL_10B.wav", "xa1_Z10.wav", "xa1_TL_05.wav", "xa1_TL_08.wav", "xa1_TL_11.wav",
+				"xa1_ANDYPEW.wav", "xa1_SECRET.wav", "xa1_TL_02.wav", "xa2_HMMM05.wav", "xa2_TL_01.wav",
+				"xa2_ATTACK04.wav", "xa2_UWATER2B.wav", "xa2_SPOOKY2A.wav", "xa2_TL_10A.wav", "xa2_HMMM02.wav",
+				"xa2_TOMS01.wav", "xa3_Attack03.wav", "xa3_Attack02.wav", "xa3_Hmmm01.wav", "xa3_Stealth1.wav",
+				"xa3_Stealth2.wav", "xa3_Attack01.wav", "xa3_TL_06.wav", "xa3_TL_03.wav", "xa4_hmmm06.wav",
+				"xa4_mil01.wav", "xa4_Z_03.wav", "xa4_hit01.wav", "xa4_spooky05.wav", "xa4_drama01.wav",
+				"xa4_stealth4.wav", "xa4_mil05.wav", "xa5_HMMM04.wav", "xa5_MIL06.wav", "xa5_SPOOKY02.wav",
+				"xa5_TL_12.wav", "xa5_MIL02A.wav", "xa5_HMMM03.wav", "xa5_MIL02.wav", "xa5_TL_04.wav",
+				"xa6_Mil04.wav", "xa6_Solo01.wav", "xa6_Z12.wav", "xa6_Stealth3.wav", "xa6_AuthSolo.wav",
+				"xa6_Spooky03.wav", "xa6_Z13.wav", "xa6_Z_04anim.wav", "xa7_z_06a.wav", "xa7_andyoooh.wav",
+				"xa7_andyooer.wav", "xa7_tl_07.wav", "xa7_z_02.wav", "xa7_evibes01.wav", "xa7_z_06.wav",
+				"xa7_authtr.wav", "xa8_mil03.wav", "xa8_fightsc.wav", "xa8_richcut3.wav", "xa8_z_13.wav",
+				"xa8_z_08.wav", "xa8_uwater2a.wav", "xa8_jobyalrm.wav", "xa8_mil02b.wav", "xa9_swampy.wav",
+				"xa9_evibes02.wav", "xa9_gods01.wav", "xa9_z_03.wav", "xa9_richcut4.wav", "xa9_title4.wav",
+				"xa9_spooky01.wav", "xa9_chopin01.wav", "xa10_echoir01.wav", "xa10_title3.wav",
+				"xa10_perc01.wav", "xa10_vc01.wav", "xa10_title2.wav", "xa10_z_09.wav", "xa10_spooky04.wav",
+				"xa10_z_10.wav", "xa11_vc01atv.wav", "xa11_andy3.wav", "xa11_title1.wav", "xa11_flyby1.wav",
+				"xa11_monk_2.wav", "xa11_andy4.wav", "xa11_flyby3.wav", "xa11_flyby2.wav", "xa12_moses01.wav",
+				"xa12_andy4b.wav", "xa12_z_10.wav", "xa12_flyby4.wav", "xa12_richcut1.wav", "xa12_andy5.wav",
+				"xa12_z_05.wav", "xa12_z_01.wav", "xa13_Joby3.wav", "xa13_Andy7.wav", "xa13_Andrea3B.wav",
+				"xa13_cossack.wav", "xa13_Z_07.wav", "xa13_Andy6.wav", "xa13_Andrea3.wav", "xa13_Joby7.wav",
+				"xa14_uwater1.wav", "xa14_joby1.wav", "xa14_andy10.wav", "xa14_richcut2.wav",
+				"xa14_andrea1.wav", "xa14_andy8.wav", "xa14_joby6.wav", "xa14_ecredits.wav",
+				"xa15_boss_01.wav", "xa15_joby2.wav", "xa15_joby4.wav", "xa15_joby5.wav", "xa15_joby9.wav",
+				"xa15_a_andy.wav", "xa15_a_rome.wav", "xa15_andy2.wav", "xa16_Joby8.wav", "xa16_A_Sub_Amb.wav",
+				"xa16_Joby10.wav", "xa16_A_Harbour_out.wav", "xa16_A_Andy_Out_Norm.wav",
+				"xa16_A_Andy_Out_Spooky.wav", "xa16_A_Rome_Day.wav", "xa16_A_Underwater.wav",
+				"xa17_A_Rome_Night.wav", "xa17_A_VC_Saga.wav", "xa17_A_Industry.wav", "xa17_Andrea2.wav",
+				"xa17_Andy1.wav", "xa17_Andrea4.wav", "xa17_Andy9.wav", "xa17_Andy11.wav"
+		};
 
 void DXBitMask2ShiftCnt(unsigned long mask, unsigned char* shift, unsigned char* cnt)// (F)
 {
@@ -95,43 +96,44 @@ void DXBitMask2ShiftCnt(unsigned long mask, unsigned char* shift, unsigned char*
 #ifdef __cplusplus
 extern "C" {
 #endif
-	bool DXSetCooperativeLevel(LPDIRECTDRAW4 lpDD, HWND WindowHandle, int Flags)// (F)
-	{
-		static const char* flags[] =
-		{
-			"fullscreen",		  //    1
-			"allowreboot",		  //    2
-			"nowindowchanges",	  //    4
-			"normal",			  //    8
-			"exclusive",		  //   16
-			"",					  //   32
-			"allowmodex",		  //   64
-			"setfocuswindow",	  //  128
-			"setdevicewindow",	  //  256
-			"createdevicewindow", //  512
-			"multithreaded",	  // 1024
-			"fpusetup",			  // 2048
-		};
-
-		char v120[1024];
-		strcpy(v120, "DXSetCooperativeLevel - ");
-
-		for (int i = 0; i < 12; i++)
-		{
-			if (Flags & (1 << i))
+bool DXSetCooperativeLevel(LPDIRECTDRAW4 lpDD, HWND WindowHandle, int Flags)// (F)
+{
+	static const char* flags[] =
 			{
-				strcat(v120, flags[i]);
-				strcat(v120, " ");
-			}
-		}
-		
-		Log(LT_Info, v120);
+					"fullscreen",          //    1
+					"allowreboot",          //    2
+					"nowindowchanges",      //    4
+					"normal",              //    8
+					"exclusive",          //   16
+					"",                      //   32
+					"allowmodex",          //   64
+					"setfocuswindow",      //  128
+					"setdevicewindow",      //  256
+					"createdevicewindow", //  512
+					"multithreaded",      // 1024
+					"fpusetup",              // 2048
+			};
 
-		return lpDD->SetCooperativeLevel(WindowHandle, Flags) == DD_OK;
+	char v120[1024];
+	strcpy(v120, "DXSetCooperativeLevel - ");
+
+	for (int i = 0; i < 12; i++)
+	{
+		if (Flags & (1 << i))
+		{
+			strcat(v120, flags[i]);
+			strcat(v120, " ");
+		}
 	}
+
+	Log(LT_Info, v120);
+
+	return lpDD->SetCooperativeLevel(WindowHandle, Flags) == DD_OK;
+}
 #ifdef __cplusplus
 }
 #endif
+
 BOOL DXDDCreate(GUID FAR* lpGuid, LPDIRECTDRAW* lpDD)// (F)
 {
 	LPDIRECTDRAW lpDDTemp;
@@ -144,7 +146,7 @@ BOOL DXDDCreate(GUID FAR* lpGuid, LPDIRECTDRAW* lpDD)// (F)
 		return FALSE;
 	}
 
-	DX_TRY(lpDDTemp->QueryInterface(IID_IDirectDraw4, (LPVOID*)lpDD));
+	DX_TRY(lpDDTemp->QueryInterface(IID_IDirectDraw4, (LPVOID*) lpDD));
 
 	DXRelease(lpDDTemp, "DirectDraw");
 
@@ -156,12 +158,13 @@ BOOL DXDDCreate(GUID FAR* lpGuid, LPDIRECTDRAW* lpDD)// (F)
 HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)// (F)
 {
 	DIRECTDRAWINFO* DDInfo;
-	DDInfo = (DIRECTDRAWINFO*)lpContext;
+	DDInfo = (DIRECTDRAWINFO*) lpContext;
 
 	if (DDInfo->nDisplayMode == 0)
-		DDInfo->DisplayMode = (DISPLAYMODE*)malloc(sizeof(DISPLAYMODE));
+		DDInfo->DisplayMode = (DISPLAYMODE*) malloc(sizeof(DISPLAYMODE));
 	else
-		DDInfo->DisplayMode = (DISPLAYMODE*)realloc(DDInfo->DisplayMode, sizeof(DISPLAYMODE)*(DDInfo->nDisplayMode + 1));
+		DDInfo->DisplayMode = (DISPLAYMODE*) realloc(DDInfo->DisplayMode,
+		                                             sizeof(DISPLAYMODE) * (DDInfo->nDisplayMode + 1));
 
 	Zero(DDInfo->DisplayMode[DDInfo->nDisplayMode]);
 
@@ -175,11 +178,11 @@ HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)//
 	if (DDInfo->DisplayMode[DDInfo->nDisplayMode].bPalette)
 	{
 		Log(
-			LT_Info,
-			"%d x %d - %d Bit - Palette",
-			DDInfo->DisplayMode[DDInfo->nDisplayMode].w,
-			DDInfo->DisplayMode[DDInfo->nDisplayMode].h,
-			DDInfo->DisplayMode[DDInfo->nDisplayMode].bpp);
+				LT_Info,
+				"%d x %d - %d Bit - Palette",
+				DDInfo->DisplayMode[DDInfo->nDisplayMode].w,
+				DDInfo->DisplayMode[DDInfo->nDisplayMode].h,
+				DDInfo->DisplayMode[DDInfo->nDisplayMode].bpp);
 	}
 	else
 	{
@@ -196,14 +199,14 @@ HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)//
 		                   &DDInfo->DisplayMode[DDInfo->nDisplayMode].bbpp);
 
 		Log(
-			LT_Info,
-			"%d x %d - %d Bit - %d%d%d",
-			DDInfo->DisplayMode[DDInfo->nDisplayMode].w,
-			DDInfo->DisplayMode[DDInfo->nDisplayMode].h,
-			DDInfo->DisplayMode[DDInfo->nDisplayMode].bpp,
-			DDInfo->DisplayMode[DDInfo->nDisplayMode].rbpp,
-			DDInfo->DisplayMode[DDInfo->nDisplayMode].gbpp,
-			DDInfo->DisplayMode[DDInfo->nDisplayMode].bbpp);
+				LT_Info,
+				"%d x %d - %d Bit - %d%d%d",
+				DDInfo->DisplayMode[DDInfo->nDisplayMode].w,
+				DDInfo->DisplayMode[DDInfo->nDisplayMode].h,
+				DDInfo->DisplayMode[DDInfo->nDisplayMode].bpp,
+				DDInfo->DisplayMode[DDInfo->nDisplayMode].rbpp,
+				DDInfo->DisplayMode[DDInfo->nDisplayMode].gbpp,
+				DDInfo->DisplayMode[DDInfo->nDisplayMode].bbpp);
 	}
 
 	DDInfo->nDisplayMode++;
@@ -213,7 +216,7 @@ HRESULT CALLBACK DXEnumDisplayModes(LPDDSURFACEDESC2 lpddsd, LPVOID lpContext)//
 
 bool DXCreateDirect3D(LPDIRECTDRAW4 lpDD2, LPDIRECT3D3* lpD3D2)// (F)
 {
-	if (DX_TRY(lpDD2->QueryInterface(IID_IDirect3D3, (LPVOID*)lpD3D2)))
+	if (DX_TRY(lpDD2->QueryInterface(IID_IDirect3D3, (LPVOID*) lpD3D2)))
 	{
 		Log(LT_Error, "DXD3DCreate Failed");
 		return false;
@@ -229,22 +232,22 @@ DWORD BPPToDDBD(int bpp)// (F)
 {
 	switch (bpp)
 	{
-	case 1:
-		return DDBD_1;
-	case 2:
-		return DDBD_2;
-	case 4:
-		return DDBD_4;
-	case 8:
-		return DDBD_8;
-	case 16:
-		return DDBD_16;
-	case 24:
-		return DDBD_24;
-	case 32:
-		return DDBD_32;
-	default:
-		return 0;
+		case 1:
+			return DDBD_1;
+		case 2:
+			return DDBD_2;
+		case 4:
+			return DDBD_4;
+		case 8:
+			return DDBD_8;
+		case 16:
+			return DDBD_16;
+		case 24:
+			return DDBD_24;
+		case 32:
+			return DDBD_32;
+		default:
+			return 0;
 	}
 }
 
@@ -259,7 +262,8 @@ bool DXCreateSurface(LPDIRECTDRAW4 lpDD2, DDSURFACEDESC2* ddsd, LPDIRECTDRAWSURF
 	return true;
 }
 
-bool DXCreateDirect3DDevice(LPDIRECT3D3 lpD3D2, GUID Guid, LPDIRECTDRAWSURFACE4 lpSurface, LPDIRECT3DDEVICE3* lpD3DDevice2)// (F)
+bool DXCreateDirect3DDevice(LPDIRECT3D3 lpD3D2, GUID Guid, LPDIRECTDRAWSURFACE4 lpSurface,
+                            LPDIRECT3DDEVICE3* lpD3DDevice2)// (F)
 {
 	if (DX_TRY(lpD3D2->CreateDevice(Guid, lpSurface, lpD3DDevice2, nullptr)))
 	{
@@ -273,15 +277,18 @@ bool DXCreateDirect3DDevice(LPDIRECT3D3 lpD3D2, GUID Guid, LPDIRECTDRAWSURFACE4 
 	}
 }
 
-bool DXCreateViewport(LPDIRECT3D3 lpD3D, LPDIRECT3DDEVICE3 lpD3DDevice, int w, int h, LPDIRECT3DVIEWPORT3* lpViewport)// (F)
+bool
+DXCreateViewport(LPDIRECT3D3 lpD3D, LPDIRECT3DDEVICE3 lpD3DDevice, int w, int h, LPDIRECT3DVIEWPORT3* lpViewport)// (F)
 {
 	D3DVIEWPORT2 viewdata;
 
 	Log(LT_Enter, "DXCreateViewport");
 
-	if (DX_TRY(lpD3D->CreateViewport(lpViewport, nullptr))) return false;
+	if (DX_TRY(lpD3D->CreateViewport(lpViewport, nullptr)))
+		return false;
 
-	if (DX_TRY(lpD3DDevice->AddViewport(*lpViewport))) return false;
+	if (DX_TRY(lpD3DDevice->AddViewport(*lpViewport)))
+		return false;
 
 	DXInit(viewdata);
 	viewdata.dvClipWidth = w;
@@ -295,7 +302,8 @@ bool DXCreateViewport(LPDIRECT3D3 lpD3D, LPDIRECT3DDEVICE3 lpD3DDevice, int w, i
 	viewdata.dwWidth = w;
 	viewdata.dvMaxZ = 1.0;
 
-	if (DX_TRY((*lpViewport)->SetViewport2(&viewdata))) return false;
+	if (DX_TRY((*lpViewport)->SetViewport2(&viewdata)))
+		return false;
 
 	DX_TRY(lpD3DDevice->SetCurrentViewport(*lpViewport));
 
@@ -312,12 +320,13 @@ bool DXSetVideoMode(LPDIRECTDRAW4 lpDD2, int w, int h, int bpp)// (F)
 
 HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)// (F)
 {
-	DIRECT3DINFO* D3DInfo = (DIRECT3DINFO*)lpContext;
+	DIRECT3DINFO* D3DInfo = (DIRECT3DINFO*) lpContext;
 
 	if (D3DInfo->nTexture == 0)
-		D3DInfo->Texture = (D3DTEXTUREINFO*)malloc(sizeof(D3DTEXTUREINFO));
+		D3DInfo->Texture = (D3DTEXTUREINFO*) malloc(sizeof(D3DTEXTUREINFO));
 	else
-		D3DInfo->Texture = (D3DTEXTUREINFO*)realloc(D3DInfo->Texture, sizeof(D3DTEXTUREINFO)*(D3DInfo->nTexture + 1));
+		D3DInfo->Texture = (D3DTEXTUREINFO*) realloc(D3DInfo->Texture,
+		                                             sizeof(D3DTEXTUREINFO) * (D3DInfo->nTexture + 1));
 
 	Zero(D3DInfo->Texture[D3DInfo->nTexture]);
 	D3DInfo->Texture[D3DInfo->nTexture].ddpf = *lpddpf;
@@ -342,38 +351,38 @@ HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)/
 		if (lpddpf->dwFlags & DDPF_RGB)
 		{
 			DXBitMask2ShiftCnt(lpddpf->dwRBitMask,
-				&D3DInfo->Texture[D3DInfo->nTexture].rshift,
-				&D3DInfo->Texture[D3DInfo->nTexture].rbpp);
+			                   &D3DInfo->Texture[D3DInfo->nTexture].rshift,
+			                   &D3DInfo->Texture[D3DInfo->nTexture].rbpp);
 
 			DXBitMask2ShiftCnt(lpddpf->dwGBitMask,
-				&D3DInfo->Texture[D3DInfo->nTexture].gshift,
-				&D3DInfo->Texture[D3DInfo->nTexture].gbpp);
+			                   &D3DInfo->Texture[D3DInfo->nTexture].gshift,
+			                   &D3DInfo->Texture[D3DInfo->nTexture].gbpp);
 
 			DXBitMask2ShiftCnt(lpddpf->dwBBitMask,
-				&D3DInfo->Texture[D3DInfo->nTexture].bshift,
-				&D3DInfo->Texture[D3DInfo->nTexture].bbpp);
+			                   &D3DInfo->Texture[D3DInfo->nTexture].bshift,
+			                   &D3DInfo->Texture[D3DInfo->nTexture].bbpp);
 
 			if (lpddpf->dwFlags & DDPF_ALPHAPIXELS)
 			{
 				DXBitMask2ShiftCnt(lpddpf->dwRGBAlphaBitMask,
-					&D3DInfo->Texture[D3DInfo->nTexture].ashift,
-					&D3DInfo->Texture[D3DInfo->nTexture].abpp);
+				                   &D3DInfo->Texture[D3DInfo->nTexture].ashift,
+				                   &D3DInfo->Texture[D3DInfo->nTexture].abpp);
 				D3DInfo->Texture[D3DInfo->nTexture].bAlpha = true;
 
-				Log(LT_Info, "%d Bit %d%d%d%d RGBA", 
-					D3DInfo->Texture[D3DInfo->nTexture].bpp,
-					D3DInfo->Texture[D3DInfo->nTexture].rbpp,
-					D3DInfo->Texture[D3DInfo->nTexture].gbpp,
-					D3DInfo->Texture[D3DInfo->nTexture].bbpp,
-					D3DInfo->Texture[D3DInfo->nTexture].abpp);
+				Log(LT_Info, "%d Bit %d%d%d%d RGBA",
+				    D3DInfo->Texture[D3DInfo->nTexture].bpp,
+				    D3DInfo->Texture[D3DInfo->nTexture].rbpp,
+				    D3DInfo->Texture[D3DInfo->nTexture].gbpp,
+				    D3DInfo->Texture[D3DInfo->nTexture].bbpp,
+				    D3DInfo->Texture[D3DInfo->nTexture].abpp);
 			}
 			else
 			{
-				Log(LT_Info, "%d Bit %d%d%d RGB", 
-					D3DInfo->Texture[D3DInfo->nTexture].bpp,
-					D3DInfo->Texture[D3DInfo->nTexture].rbpp,
-					D3DInfo->Texture[D3DInfo->nTexture].gbpp, 
-					D3DInfo->Texture[D3DInfo->nTexture].bbpp);
+				Log(LT_Info, "%d Bit %d%d%d RGB",
+				    D3DInfo->Texture[D3DInfo->nTexture].bpp,
+				    D3DInfo->Texture[D3DInfo->nTexture].rbpp,
+				    D3DInfo->Texture[D3DInfo->nTexture].gbpp,
+				    D3DInfo->Texture[D3DInfo->nTexture].bbpp);
 			}
 		}
 
@@ -386,12 +395,12 @@ HRESULT CALLBACK DXEnumTextureFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)/
 
 HRESULT CALLBACK DXEnumZBufferFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)// (F)
 {
-	DIRECT3DINFO* D3DInfo = (DIRECT3DINFO*)lpContext;
+	DIRECT3DINFO* D3DInfo = (DIRECT3DINFO*) lpContext;
 
-	if (D3DInfo->nZbuffer== 0)
-		D3DInfo->Zbuffer = (zBufFormat*)malloc(sizeof(zBufFormat));
+	if (D3DInfo->nZbuffer == 0)
+		D3DInfo->Zbuffer = (zBufFormat*) malloc(sizeof(zBufFormat));
 	else
-		D3DInfo->Zbuffer = (zBufFormat*)realloc(D3DInfo->Zbuffer, sizeof(zBufFormat)*(D3DInfo->nZbuffer + 1));
+		D3DInfo->Zbuffer = (zBufFormat*) realloc(D3DInfo->Zbuffer, sizeof(zBufFormat) * (D3DInfo->nZbuffer + 1));
 
 	Zero(D3DInfo->Zbuffer[D3DInfo->nZbuffer]);
 	D3DInfo->Zbuffer[D3DInfo->nZbuffer].ddpf = *lpddpf;
@@ -405,15 +414,17 @@ HRESULT CALLBACK DXEnumZBufferFormats(LPDDPIXELFORMAT lpddpf, LPVOID lpContext)/
 	return D3DENUMRET_OK;
 }
 
-HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDeviceName, LPD3DDEVICEDESC lpHWDesc, LPD3DDEVICEDESC lpHELDesc, LPVOID lpContext)// (F)
+HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDeviceName, LPD3DDEVICEDESC lpHWDesc,
+                                LPD3DDEVICEDESC lpHELDesc, LPVOID lpContext)// (F)
 {
-	DIRECTDRAWINFO* DDInfo = (DIRECTDRAWINFO*)lpContext;
+	DIRECTDRAWINFO* DDInfo = (DIRECTDRAWINFO*) lpContext;
 
 	if (lpHWDesc->dwFlags == 0)
 	{
-		if (lpHELDesc->dcmColorModel & D3DCOLOR_MONO) return D3DENUMRET_OK;
+		if (lpHELDesc->dcmColorModel & D3DCOLOR_MONO)
+			return D3DENUMRET_OK;
 	}
-	
+
 #ifdef DISABLESOFTWARE
 	if (lpHWDesc->dwFlags == 0)
 		return D3DENUMRET_OK;
@@ -430,9 +441,9 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 	}
 
 	if (DDInfo->nD3DInfo == 0)
-		DDInfo->D3DInfo = (DIRECT3DINFO*)malloc(sizeof(DIRECT3DINFO));
+		DDInfo->D3DInfo = (DIRECT3DINFO*) malloc(sizeof(DIRECT3DINFO));
 	else
-		DDInfo->D3DInfo = (DIRECT3DINFO*)realloc(DDInfo->D3DInfo, sizeof(DIRECT3DINFO)*(DDInfo->nD3DInfo + 1));
+		DDInfo->D3DInfo = (DIRECT3DINFO*) realloc(DDInfo->D3DInfo, sizeof(DIRECT3DINFO) * (DDInfo->nD3DInfo + 1));
 
 	Zero(DDInfo->D3DInfo[DDInfo->nD3DInfo]);
 
@@ -462,34 +473,37 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 
 	Log(LT_Info, "Finding Compatible Display Modes");
 
-	for (int n = 0; n<DDInfo->nDisplayMode; n++)
+	for (int n = 0; n < DDInfo->nDisplayMode; n++)
 	{
-		if (BPPToDDBD(DDInfo->DisplayMode[n].bpp)&DDInfo->D3DInfo[DDInfo->nD3DInfo].DeviceDesc.dwDeviceRenderBitDepth)
+		if (BPPToDDBD(DDInfo->DisplayMode[n].bpp) &
+		    DDInfo->D3DInfo[DDInfo->nD3DInfo].DeviceDesc.dwDeviceRenderBitDepth)
 		{
 			if (DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode == 0)
-				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode = (DISPLAYMODE*)malloc(sizeof(DISPLAYMODE));
+				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode = (DISPLAYMODE*) malloc(sizeof(DISPLAYMODE));
 			else
-				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode = (DISPLAYMODE*)realloc(DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode, sizeof(DISPLAYMODE)*(DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode + 1));
+				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode = (DISPLAYMODE*) realloc(
+						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode,
+						sizeof(DISPLAYMODE) * (DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode + 1));
 
 			DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode] = DDInfo->DisplayMode[n];
 
 			if (DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bPalette)
 			{
-				Log(LT_Info, "%d x %d - %d Bit - Palette", 
-					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].w, 
-					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].h, 
-					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bpp);
+				Log(LT_Info, "%d x %d - %d Bit - Palette",
+				    DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].w,
+				    DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].h,
+				    DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bpp);
 			}
 			else
 			{
 				Log(
-					LT_Info, "%d x %d - %d Bit - %d%d%d",
-					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].w,
-					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].h,
-					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bpp,
-					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].rbpp,
-					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].gbpp,
-					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bbpp);
+						LT_Info, "%d x %d - %d Bit - %d%d%d",
+						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].w,
+						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].h,
+						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bpp,
+						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].rbpp,
+						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].gbpp,
+						DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode[DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode].bbpp);
 			}
 
 			DDInfo->D3DInfo[DDInfo->nD3DInfo].nDisplayMode++;
@@ -505,7 +519,7 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 
 	DXSetCooperativeLevel(enum_lpDD, WindowHandle, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_NOWINDOWCHANGES);
 	DXCreateSurface(enum_lpDD, &ddsd, &enum_lpDDSurface);
-	
+
 	if (enum_lpDDSurface)
 	{
 		DXCreateDirect3DDevice(enum_lpD3D, DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid, enum_lpDDSurface, &enum_lpD3DDevice);
@@ -517,16 +531,17 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 			DXRelease(enum_lpDDSurface, "DirectDrawSurface");
 
 			DXSetVideoMode(
-				enum_lpDD,
-				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode->w,
-				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode->h,
-				DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode->bpp);
+					enum_lpDD,
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode->w,
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode->h,
+					DDInfo->D3DInfo[DDInfo->nD3DInfo].DisplayMode->bpp);
 
 			DXCreateSurface(enum_lpDD, &ddsd, &enum_lpDDSurface);
 
 			if (enum_lpDDSurface)
 			{
-				DXCreateDirect3DDevice(enum_lpD3D, DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid, enum_lpDDSurface, &enum_lpD3DDevice);
+				DXCreateDirect3DDevice(enum_lpD3D, DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid, enum_lpDDSurface,
+				                       &enum_lpD3DDevice);
 			}
 		}
 
@@ -535,7 +550,7 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 			DDInfo->D3DInfo[DDInfo->nD3DInfo].nTexture = 0;
 			Log(LT_Enter, "DXEnumTextureFormats");
 
-			enum_lpD3DDevice->EnumTextureFormats(DXEnumTextureFormats, (LPVOID)&DDInfo->D3DInfo[DDInfo->nD3DInfo]);
+			enum_lpD3DDevice->EnumTextureFormats(DXEnumTextureFormats, (LPVOID) &DDInfo->D3DInfo[DDInfo->nD3DInfo]);
 
 			DXRelease(enum_lpD3DDevice, "D3DDevice");
 			DXRelease(enum_lpDDSurface, "DirectDrawSurface");
@@ -548,9 +563,9 @@ HRESULT CALLBACK DXEnumDirect3D(LPGUID lpGuid, LPSTR lpDeviceDesc, LPSTR lpDevic
 	Log(LT_Enter, "DXEnumZBufferFormats");
 
 	DX_TRY(enum_lpD3D->EnumZBufferFormats(
-		DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid,
-		DXEnumZBufferFormats,
-		&DDInfo->D3DInfo[DDInfo->nD3DInfo]));
+			DDInfo->D3DInfo[DDInfo->nD3DInfo].Guid,
+			DXEnumZBufferFormats,
+			&DDInfo->D3DInfo[DDInfo->nD3DInfo]));
 
 	DDInfo->nD3DInfo++;
 
@@ -561,15 +576,15 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 {
 	Log(LT_Enter, "DXEnumDirectDraw");
 
-	DEVICEINFO*		 dd = (DEVICEINFO*)lpContext;
+	DEVICEINFO* dd = (DEVICEINFO*) lpContext;
 
 	if (dd->nDDInfo == 0)
-		dd->DDInfo = (DIRECTDRAWINFO*)malloc(sizeof(DIRECTDRAWINFO));
+		dd->DDInfo = (DIRECTDRAWINFO*) malloc(sizeof(DIRECTDRAWINFO));
 	else
-		dd->DDInfo = (DIRECTDRAWINFO*)realloc(dd->DDInfo, sizeof(DIRECTDRAWINFO)*(dd->nDDInfo + 1));
+		dd->DDInfo = (DIRECTDRAWINFO*) realloc(dd->DDInfo, sizeof(DIRECTDRAWINFO) * (dd->nDDInfo + 1));
 
 	Zero(dd->DDInfo[dd->nDDInfo]);
-	
+
 	if (lpGuid == nullptr)
 	{
 		dd->DDInfo[dd->nDDInfo].lpGuid = nullptr;
@@ -585,16 +600,16 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 
 	Log(LT_Info, "Obtaining Information For %s", lpDeviceDesc);
 
-	if (DXDDCreate(lpGuid, (LPDIRECTDRAW*)&enum_lpDD))
+	if (DXDDCreate(lpGuid, (LPDIRECTDRAW*) &enum_lpDD))
 	{
 		DX_TRY(enum_lpDD->GetDeviceIdentifier(&dd->DDInfo[dd->nDDInfo].DDDevIdent, NULL));
 		Log(LT_Info, "Found - %s\nDriver %s Version %d.%d.%d.%d",
-			dd->DDInfo[dd->nDDInfo].DDDevIdent.szDescription,
-			dd->DDInfo[dd->nDDInfo].DDDevIdent.szDriver,
-			HIWORD(dd->DDInfo[dd->nDDInfo].DDDevIdent.liDriverVersion.HighPart),
-			LOWORD(dd->DDInfo[dd->nDDInfo].DDDevIdent.liDriverVersion.HighPart),
-			HIWORD(dd->DDInfo[dd->nDDInfo].DDDevIdent.liDriverVersion.LowPart),
-			LOWORD(dd->DDInfo[dd->nDDInfo].DDDevIdent.liDriverVersion.LowPart));
+		    dd->DDInfo[dd->nDDInfo].DDDevIdent.szDescription,
+		    dd->DDInfo[dd->nDDInfo].DDDevIdent.szDriver,
+		    HIWORD(dd->DDInfo[dd->nDDInfo].DDDevIdent.liDriverVersion.HighPart),
+		    LOWORD(dd->DDInfo[dd->nDDInfo].DDDevIdent.liDriverVersion.HighPart),
+		    HIWORD(dd->DDInfo[dd->nDDInfo].DDDevIdent.liDriverVersion.LowPart),
+		    LOWORD(dd->DDInfo[dd->nDDInfo].DDDevIdent.liDriverVersion.LowPart));
 
 		DXInit(dd->DDInfo[dd->nDDInfo].DDCaps);
 
@@ -604,16 +619,17 @@ BOOL CALLBACK DXEnumDirectDraw(GUID FAR* lpGuid, LPSTR lpDeviceDesc, LPSTR lpDev
 
 		Log(LT_Info, "Enumerating Display Modes");
 
-		DXSetCooperativeLevel(enum_lpDD, nullptr, DDSCL_NOWINDOWCHANGES | DDSCL_ALLOWMODEX | DDSCL_FULLSCREEN | DDSCL_NORMAL);
+		DXSetCooperativeLevel(enum_lpDD, nullptr,
+		                      DDSCL_NOWINDOWCHANGES | DDSCL_ALLOWMODEX | DDSCL_FULLSCREEN | DDSCL_NORMAL);
 
 		Log(LT_Enter, "DXEnumDisplayModes");
 
-		DX_TRY(enum_lpDD->EnumDisplayModes(0, nullptr, (LPVOID)&dd->DDInfo[dd->nDDInfo], DXEnumDisplayModes));
+		DX_TRY(enum_lpDD->EnumDisplayModes(0, nullptr, (LPVOID) &dd->DDInfo[dd->nDDInfo], DXEnumDisplayModes));
 
 		if (DXCreateDirect3D(enum_lpDD, &enum_lpD3D))
 		{
 			Log(LT_Enter, "DXEnumDirect3D");
-			DX_TRY(enum_lpD3D->EnumDevices(DXEnumDirect3D, (LPVOID)&dd->DDInfo[dd->nDDInfo]));
+			DX_TRY(enum_lpD3D->EnumDevices(DXEnumDirect3D, (LPVOID) &dd->DDInfo[dd->nDDInfo]));
 			DXRelease(enum_lpD3D, "Direct3D");
 		}
 
@@ -631,12 +647,12 @@ BOOL CALLBACK DXEnumDirectSound(GUID FAR* lpGuid, LPCSTR lpDeviceDesc, LPCSTR lp
 {
 	Log(LT_Enter, "DXEnumDirectSound");
 
-	DEVICEINFO*		 dd = (DEVICEINFO*)lpContext;
+	DEVICEINFO* dd = (DEVICEINFO*) lpContext;
 
 	if (dd->nDSInfo == 0)
-		dd->DSInfo = (DIRECTSOUNDINFO*)malloc(sizeof(DIRECTSOUNDINFO));
+		dd->DSInfo = (DIRECTSOUNDINFO*) malloc(sizeof(DIRECTSOUNDINFO));
 	else
-		dd->DSInfo = (DIRECTSOUNDINFO*)realloc(dd->DSInfo, sizeof(DIRECTSOUNDINFO)*(dd->nDSInfo + 1));
+		dd->DSInfo = (DIRECTSOUNDINFO*) realloc(dd->DSInfo, sizeof(DIRECTSOUNDINFO) * (dd->nDSInfo + 1));
 
 	Zero(dd->DSInfo[dd->nDSInfo]);
 
@@ -698,7 +714,7 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 
 	if (!(flags & WA_SOFTWARE))
 	{
-		if (!DXDDCreate(CUR_DD.lpGuid, (LPDIRECTDRAW*)&App.lpDD))
+		if (!DXDDCreate(CUR_DD.lpGuid, (LPDIRECTDRAW*) &App.lpDD))
 		{
 			CloseDirectX();
 			return false;
@@ -731,10 +747,10 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 	if (flags & WA_FULLSCREEN)
 	{
 		DXSetVideoMode(
-			App.lpDD,
-			CUR_DM.w,
-			CUR_DM.h,
-			CUR_DM.bpp);
+				App.lpDD,
+				CUR_DM.w,
+				CUR_DM.h,
+				CUR_DM.bpp);
 	}
 	else
 	{
@@ -809,8 +825,8 @@ bool DXCreate(int width, int height, int depth, int flags, WINAPP* app, HWND win
 		GetClientRect(window, &App.GnClientRect);
 		GetClientRect(window, &App.GnWindowRect);
 
-		ClientToScreen(window, (LPPOINT)&App.GnWindowRect.left);
-		ClientToScreen(window, (LPPOINT)&App.GnWindowRect.right);
+		ClientToScreen(window, (LPPOINT) &App.GnWindowRect.left);
+		ClientToScreen(window, (LPPOINT) &App.GnWindowRect.right);
 
 		App.width = App.GnClientRect.right;
 		App.height = App.GnClientRect.bottom;
@@ -974,7 +990,8 @@ HRESULT DDCopyBitmap(LPDIRECTDRAWSURFACE4 surface, const char* filename)// todo 
 
 BOOL PASCAL DXEnumDirectInput(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)// (F)
 {
-	return FAILED(App.lpDI->CreateDeviceEx(lpddi->guidInstance, IID_IDirectInputDevice2A, (LPVOID*)&App.lpDIJoystick, nullptr));
+	return FAILED(App.lpDI->CreateDeviceEx(lpddi->guidInstance, IID_IDirectInputDevice2A, (LPVOID*) &App.lpDIJoystick,
+	                                       nullptr));
 }
 
 BOOL PASCAL DXEnumDirectInputObjects(LPCDIDEVICEOBJECTINSTANCEA lpddoi, LPVOID pvRef)// (F)
@@ -996,12 +1013,12 @@ void DXCreateDirectInput(HWND hWnd, HINSTANCE hInstance)// (F)
 {
 	LPDIRECTINPUTA di;
 	DX_TRY(DirectInputCreateA(hInstance, 0x700, &di, nullptr));
-	di->QueryInterface(IID_IDirectInput2A, (LPVOID*)&App.lpDI);
+	di->QueryInterface(IID_IDirectInput2A, (LPVOID*) &App.lpDI);
 	DXRelease(di, "DirectInput");
 
 	LPDIRECTINPUTDEVICEA keyb;
 	DX_TRY(App.lpDI->CreateDevice(GUID_SysKeyboard, &keyb, nullptr));
-	keyb->QueryInterface(IID_IDirectInputDevice2A, (LPVOID*)&App.lpDIKeyboard);
+	keyb->QueryInterface(IID_IDirectInputDevice2A, (LPVOID*) &App.lpDIKeyboard);
 	DXRelease(keyb, "Keyboard");
 
 	DX_TRY(App.lpDIKeyboard->SetCooperativeLevel(hWnd, DDSCL_ALLOWREBOOT | DDSCL_NORMAL));
@@ -1050,7 +1067,7 @@ void AcquireInput(bool acquire)// (F)
 void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)// (F)
 {
 	static int nFile = 0;
-	static char header[18] = { 0,0,2,0,0,0,0,0,0,0,0,0,0x40,0x01,0x00,0x01,16,0 };
+	static char header[18] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x40, 0x01, 0x00, 0x01, 16, 0};
 	char filename[16];
 
 	DDSURFACEDESC2 ddsd;
@@ -1061,21 +1078,21 @@ void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)// (F)
 
 	DX_TRY(surf->Lock(nullptr, &ddsd, DDLOCK_WAIT, nullptr));
 
-	char* p = (char*)ddsd.lpSurface;
+	char* p = (char*) ddsd.lpSurface;
 
 	sprintf(filename, "%s%04d.tga", prefix, nFile++);
 	FILE* handle = fopen(filename, "wb");
 
 	if (handle)
 	{
-		short* p1 = (short*)&header[12];
+		short* p1 = (short*) &header[12];
 
 		*p1++ = short(ddsd.dwWidth);
 		*p1 = short(ddsd.dwHeight);
 
 		fwrite(header, 18, 1, handle);
 
-		short* pd = (short*)malloc_ptr;
+		short* pd = (short*) malloc_ptr;
 
 		p += ddsd.lPitch * (ddsd.dwHeight - 1); // this whole function is a mess
 
@@ -1083,7 +1100,7 @@ void SaveDDBuffer(LPDIRECTDRAWSURFACE4 surf, const char* prefix)// (F)
 		{
 			for (int j = 0; j < ddsd.dwWidth; j++)
 			{
-				long k = ((long*)p)[j];
+				long k = ((long*) p)[j];
 
 				if (ddsd.ddpfPixelFormat.dwRGBBitCount == 32)
 				{
@@ -1341,7 +1358,7 @@ void ACMEmulateCDPlay(short track, int mode)
 	if (acm_file_stream)
 	{
 		memcpy(source_buffer, wave_file_buf_bis, 22528);
-		DX_TRY(ACMSoundBuffer->Lock(0, acm_lock_length, (void**)&acm_audio_ptr, &acm_audio_bytes, nullptr, 0, 0));
+		DX_TRY(ACMSoundBuffer->Lock(0, acm_lock_length, (void**) &acm_audio_ptr, &acm_audio_bytes, nullptr, 0, 0));
 		acmStreamConvert(acm_stream, &acm_headers[0], ACM_STREAMCONVERTF_START | ACM_STREAMCONVERTF_BLOCKALIGN);
 		GetADPCMData();
 		acmStreamConvert(acm_stream, &acm_headers[1], ACM_STREAMCONVERTF_BLOCKALIGN);
@@ -1363,11 +1380,11 @@ DWORD WINAPI NotifyThread(void*)
 	DWORD audio_size;
 
 	for (DWORD i = WaitForMultipleObjects(2, events, false, INFINITE);
-		i != WAIT_FAILED && ACMSoundBuffer;
-		i = WaitForMultipleObjects(2, events, false, INFINITE))
+	     i != WAIT_FAILED && ACMSoundBuffer;
+	     i = WaitForMultipleObjects(2, events, false, INFINITE))
 	{
 		Log(LT_Info, "NotifyThread is still doing its job, event=%d", i);
-		
+
 		if (i == WAIT_OBJECT_0)
 		{
 			memcpy(source_buffer, wave_file_buf_bis, 22528);
@@ -1375,7 +1392,7 @@ DWORD WINAPI NotifyThread(void*)
 			if (XATrack == -1)
 				memset(source_buffer, 0, 22528);
 			else
-				HandleApp((LPARAM)wave_file_buf_bis, XATrack);
+				HandleApp((LPARAM) wave_file_buf_bis, XATrack);
 
 			if (byte_579FE4)
 			{
@@ -1412,7 +1429,7 @@ void SetupNotifications()
 
 	int offset = acm_max_length;
 
-	for(int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		notify[i].dwOffset = offset;
 		offset += acm_max_length;
@@ -1451,7 +1468,7 @@ void InitACM()// (F)
 	DWORD ver = acmGetVersion();
 
 	ACMInited = false;
-	Log(LT_Sound, "ACM Version %u.%.02u", ver >> 24, (BYTE)(ver >> 16));
+	Log(LT_Sound, "ACM Version %u.%.02u", ver >> 24, (BYTE) (ver >> 16));
 	acmDriverEnum(ACMEnumCallback, 0, 0);
 
 	if (!acm_driver_id)
@@ -1466,10 +1483,10 @@ void InitACM()// (F)
 		return;
 	}
 
-	source_buffer = (BYTE*)malloc(22528);
-	wave_file_buf = (BYTE*)malloc(22528 * 10);
+	source_buffer = (BYTE*) malloc(22528);
+	wave_file_buf = (BYTE*) malloc(22528 * 10);
 
-	auto wfSrc = (ADPCMWAVEFORMAT*)malloc(sizeof(WAVEFORMATEX) + 32);	
+	auto wfSrc = (ADPCMWAVEFORMAT*) malloc(sizeof(WAVEFORMATEX) + 32);
 	wfSrc->wfx.wFormatTag = WAVE_FORMAT_ADPCM;
 	wfSrc->wfx.nChannels = 2;
 	wfSrc->wfx.nSamplesPerSec = 44100;
@@ -1479,13 +1496,13 @@ void InitACM()// (F)
 	wfSrc->wfx.cbSize = 32;
 	wfSrc->wSamplesPerBlock = 2036;
 	wfSrc->wNumCoef = 7;
-	wfSrc->aCoef[0] = { 256, 0 };
-	wfSrc->aCoef[1] = { 512, -256 };
-	wfSrc->aCoef[2] = { 0, 0 };
-	wfSrc->aCoef[3] = { 192, 64 };
-	wfSrc->aCoef[4] = { 240, 0 };
-	wfSrc->aCoef[5] = { 460, -208 };
-	wfSrc->aCoef[6] = { 392, -232 };
+	wfSrc->aCoef[0] = {256, 0};
+	wfSrc->aCoef[1] = {512, -256};
+	wfSrc->aCoef[2] = {0, 0};
+	wfSrc->aCoef[3] = {192, 64};
+	wfSrc->aCoef[4] = {240, 0};
+	wfSrc->aCoef[5] = {460, -208};
+	wfSrc->aCoef[6] = {392, -232};
 
 	pwfxDst.wFormatTag = WAVE_FORMAT_PCM;
 
@@ -1499,16 +1516,17 @@ void InitACM()// (F)
 
 	DSBUFFERDESC desc;
 	DXInit(desc);
-	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
+	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN |
+	               DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
 	desc.dwBufferBytes = 358336;
 	desc.lpwfxFormat = &pwfxDst;
 	App.lpDS->CreateSoundBuffer(&desc, &ACMSoundBuffer, nullptr);
-	ACMSoundBuffer->QueryInterface(IID_IDirectSoundNotify, (LPVOID*)&DSNotify);
+	ACMSoundBuffer->QueryInterface(IID_IDirectSoundNotify, (LPVOID*) &DSNotify);
 	SetupNotifications();
 	acmStreamOpen(&acm_stream, acm_driver, &wfSrc->wfx, &pwfxDst, nullptr, 0, 0, 0);
 	DWORD stream_size;
 	acmStreamSize(acm_stream, 22528, &stream_size, 0);
-	DX_TRY(ACMSoundBuffer->Lock(0, acm_lock_length, (LPVOID*)&acm_audio_ptr, &acm_audio_bytes, nullptr, nullptr, 0));
+	DX_TRY(ACMSoundBuffer->Lock(0, acm_lock_length, (LPVOID*) &acm_audio_ptr, &acm_audio_bytes, nullptr, nullptr, 0));
 
 	memset(acm_audio_ptr, 0, acm_lock_length);
 
@@ -1530,7 +1548,7 @@ void InitACM()// (F)
 	acmStreamPrepareHeader(acm_stream, &acm_headers[1], 0);
 	acmStreamPrepareHeader(acm_stream, &acm_headers[2], 0);
 	acmStreamPrepareHeader(acm_stream, &acm_headers[3], 0);
-					
+
 	DX_TRY(ACMSoundBuffer->Unlock(acm_audio_ptr, acm_lock_length, nullptr, 0));
 
 	ACMInited = true;
@@ -1543,20 +1561,20 @@ DWORD dword_86BEC4;
 BYTE* dword_86CC78;
 BYTE* samples_buffer;
 ADPCMWAVEFORMAT stream_src
-{
-	{ WAVE_FORMAT_ADPCM, 1, 22050, 11155, 512, sizeof(DWORD), 32 },
-	1012,
-	7,
-	{
-		{ 256, 0 },
-		{ 512, -256 },
-		{ 0, 0 },
-		{ 192, 64 },
-		{ 240, 0 },
-		{ 460, -208 },
-		{ 392, -232 }
-	}
-};
+		{
+				{WAVE_FORMAT_ADPCM, 1, 22050, 11155, 512, sizeof(DWORD), 32},
+				1012,
+				7,
+				{
+						{256, 0},
+						{512, -256},
+						{0, 0},
+						{192, 64},
+						{240, 0},
+						{460, -208},
+						{392, -232}
+				}
+		};
 
 void StreamOpen()// (F)
 {
@@ -1568,12 +1586,12 @@ void StreamOpen()// (F)
 	stream_fmt.nBlockAlign = 2;
 	stream_fmt.wBitsPerSample = 16;
 
-	dword_86BEC4 = acmStreamOpen(&stream_acm, acm_driver, (WAVEFORMATEX*)&stream_src, &stream_fmt, nullptr, 0, 0, 0);
+	dword_86BEC4 = acmStreamOpen(&stream_acm, acm_driver, (WAVEFORMATEX*) &stream_src, &stream_fmt, nullptr, 0, 0, 0);
 	if (dword_86BEC4)
 		Log(LT_Error, "Stream Open %d", dword_86BEC4);
 
-	dword_86CC78 = (BYTE*)malloc(262144);
-	samples_buffer = (BYTE*)malloc(262234);
+	dword_86CC78 = (BYTE*) malloc(262144);
+	samples_buffer = (BYTE*) malloc(262234);
 
 	DSInit(stream_hdr);
 
@@ -1596,7 +1614,7 @@ bool DXCreateSampleADPCM(BYTE* buf, int comp, int uncomp, int id)
 	if (!App.lpDS)
 		return false;
 
-	auto fmt = (WAVEFORMATEX*)&buf[20];
+	auto fmt = (WAVEFORMATEX*) &buf[20];
 
 	if (fmt->nSamplesPerSec != 22050)
 		Log(LT_Error, "Incorrect SamplesPerSec");
@@ -1608,7 +1626,7 @@ bool DXCreateSampleADPCM(BYTE* buf, int comp, int uncomp, int id)
 
 	DSBUFFERDESC desc;
 	DXInit(desc);
-	
+
 	desc.dwReserved = 0;
 	desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | DSBCAPS_CTRLFREQUENCY | DSBCAPS_STATIC;
 	desc.dwBufferBytes = uncomp - 32;
@@ -1681,11 +1699,11 @@ void DXFreeInfo(DEVICEINFO* info)// (F)
 {
 	Log(LT_Enter, "DXFreeInfo");
 	return; // todo
-	for(int i = 0; i < info->nDDInfo; i++)
+	for (int i = 0; i < info->nDDInfo; i++)
 	{
 		auto dd = info->DDInfo[i];
 
-		for(int j = 0; j < dd.nD3DInfo; j++)
+		for (int j = 0; j < dd.nD3DInfo; j++)
 		{
 			free(dd.D3DInfo[i].DisplayMode);
 			free(dd.D3DInfo[i].Texture);
@@ -1757,7 +1775,7 @@ bool DI_UpdateJoystick()// (F)
 	if (FAILED(err))
 		return false;
 
-	
+
 	joystick_read_x = stat.lX;
 	joystick_read_y = stat.lY;
 
@@ -1765,7 +1783,7 @@ bool DI_UpdateJoystick()// (F)
 
 	joystick_read_fire = 0;
 
-	for(int i = 0; i < 32; i++)
+	for (int i = 0; i < 32; i++)
 	{
 		if (KEYDOWN(stat.rgbButtons[i]))
 			joystick_read_fire |= 1 << i;

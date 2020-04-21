@@ -17,7 +17,7 @@ D3DVALUE specular_thing[VERTSPERBUCKET];
 
 void SaveSpecular(TEXTUREBUCKET* buk)
 {
-	for(int i = 0; i < buk->cnt; i++)
+	for (int i = 0; i < buk->cnt; i++)
 	{
 		if (buk->Vertex[i].specular & 0xFFFFFF)
 		{
@@ -45,7 +45,7 @@ void RestoreSpecular(TEXTUREBUCKET* buk)
 void FindBucket(uint16_t tile, D3DTLBUMPVERTEX** vptr, int** cntptr)
 {
 	auto ptr = Bucket;
-	for(int i = 0; i < MAXBUCKETS; i++, ptr++)
+	for (int i = 0; i < MAXBUCKETS; i++, ptr++)
 	{
 		if (ptr->tpage == tile && ptr->cnt < 2048)
 		{
@@ -138,7 +138,8 @@ void DrawBucket(TEXTUREBUCKET* buk)
 
 		DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
 
-		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+		App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt,
+		                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 		buk->tpage = -1;
 		buk->cnt = 0;
 
@@ -166,7 +167,7 @@ void DrawBuckets()
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
 
 		auto buk = Bucket;
-		for(int i = 0; i < MAXBUCKETS; i++, buk++)
+		for (int i = 0; i < MAXBUCKETS; i++, buk++)
 		{
 			if (buk->cnt != 0 && DXTextureList[buk->tpage].alpha_blend)
 			{
@@ -193,7 +194,8 @@ void DrawBuckets()
 			if (buk->cnt != 0 && DXTextureList[buk->tpage].alpha_blend)
 			{
 				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
-				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt,
+				                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 				buk->tpage = -1;
 				buk->cnt = 0;
 				App.DrawPrimitiveCntBuk++;
@@ -208,7 +210,8 @@ void DrawBuckets()
 			if (buk->cnt != 0 && !DXTextureList[buk->tpage].alpha_blend)
 			{
 				DX_TRY(App.lpD3DDevice->SetTexture(0, DXTextureList[buk->tpage].tex));
-				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt, D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
+				App.lpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, FVF, buk->Vertex, buk->cnt,
+				                               D3DDP_DONOTUPDATEEXTENTS | D3DDP_DONOTCLIP);
 				buk->tpage = -1;
 				buk->cnt = 0;
 				App.DrawPrimitiveCntBuk++;

@@ -5,7 +5,7 @@
 #define SUBLANG_ENGLISH_US              0x01
 #define LANG_ENGLISH                    0x09
 #define IDC_GFXADAPTER                  1000
-#define IDC_GFXADAPTERTXT				1001
+#define IDC_GFXADAPTERTXT                1001
 #define IDC_OUTSETTINGS                 1003
 #define IDC_OUTSETTINGSTXT              1002
 #define IDC_RESOLUTION                  1004
@@ -24,9 +24,9 @@
 #define IDC_WINDOWED                    1025
 #define IDC_VOLUMEFOG                   1029
 #define IDC_NOFMV                       1030
-#define IDC_RENDEROPTIONS				1023
+#define IDC_RENDEROPTIONS                1023
 
-#define IDD_SETUP						109
+#define IDD_SETUP                        109
 
 // Next default values for new objects
 // 

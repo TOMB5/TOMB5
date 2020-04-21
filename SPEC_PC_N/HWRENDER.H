@@ -5,6 +5,4 @@
 #include "SPECTYPES.H"
 
 
-
-
 #endif

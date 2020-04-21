@@ -3182,8 +3182,8 @@ void lara_col_ropefwd(struct ITEM_INFO* item, struct COLL_INFO* coll)//17B74, 17
 			else
 				Vel = 0;
 
-			ApplyVelocityToRope(lara.RopeSegment - 2, 
-				item->pos.y_rot + (lara.RopeDirection != 0 ? 0 : ANGLE(180)), 
+			ApplyVelocityToRope(lara.RopeSegment - 2,
+				item->pos.y_rot + (lara.RopeDirection != 0 ? 0 : ANGLE(180)),
 				Vel >> 5);
 		}
 

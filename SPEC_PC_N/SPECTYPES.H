@@ -30,15 +30,15 @@ typedef unsigned char uchar;
 typedef unsigned short ushort;
 typedef unsigned long ulong;
 
-typedef          char   int8;
-typedef   signed char   sint8;
-typedef unsigned char   uint8;
-typedef          short  int16;
-typedef   signed short  sint16;
-typedef unsigned short  uint16;
-typedef          int    int32;
-typedef   signed int    sint32;
-typedef unsigned int    uint32;
+typedef char int8;
+typedef signed char sint8;
+typedef unsigned char uint8;
+typedef short int16;
+typedef signed short sint16;
+typedef unsigned short uint16;
+typedef int int32;
+typedef signed int sint32;
+typedef unsigned int uint32;
 
 #define DIVFP(A, B) (((A) / ((B) >> 8)) << 8)
 #define MULFP(A, B) ((((A) % (B)) << 16) | (((A) * (B)) >> 6))
@@ -51,32 +51,36 @@ typedef unsigned int    uint32;
 #define AVG_COL(A, B) RGBA_MAKE(AVG(RGBA_GETRED(A), RGBA_GETRED(B)), AVG(RGBA_GETGREEN(A), RGBA_GETGREEN(B)), AVG(RGBA_GETBLUE(A), RGBA_GETBLUE(B)), AVG(RGBA_GETALPHA(A), RGBA_GETALPHA(B)))
 
 #pragma pack(push, 1)
-struct SVECTOR {		/* short word type 3D vector */
-	short	vx, vy;
-	short	vz, pad;
+struct SVECTOR
+{        /* short word type 3D vector */
+	short vx, vy;
+	short vz, pad;
 };
-struct CVECTOR {		/* color type vector */
+
+struct CVECTOR
+{        /* color type vector */
 	union
 	{
 		struct
 		{
-			unsigned char	b, g, r, cd;
+			unsigned char b, g, r, cd;
 		};
 		uint32_t rgbcd{};
 	};
 
 	CVECTOR() = default;
-	
+
 	CVECTOR(BYTE r, BYTE g, BYTE b)
-		: b(b), g(g), r(r), cd(0)
+			: b(b), g(g), r(r), cd(0)
 	{
 	}
 
 	CVECTOR(BYTE r, BYTE g, BYTE b, BYTE cd)
-		: b(b), g(g), r(r), cd(cd)
+			: b(b), g(g), r(r), cd(cd)
 	{
 	}
 };
+
 typedef CVECTOR BGRCOL;
 struct light_thing_2
 {
@@ -121,17 +125,18 @@ struct FVERTEX
 	float y;
 };
 
-struct object_info {
+struct object_info
+{
 	short nmeshes; // size=0, offset=0
 	short mesh_index; // size=0, offset=2
 	long bone_index; // size=0, offset=4
 	short* frame_base; // size=0, offset=8
-	void(*initialise)(short item_number); // size=0, offset=12
-	void(*control)(short item_number); // size=0, offset=16
-	void(*floor)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=20
-	void(*ceiling)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=24
-	void(*draw_routine)(struct ITEM_INFO* item); // size=0, offset=28
-	void(*collision)(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll); // size=0, offset=32
+	void (* initialise)(short item_number); // size=0, offset=12
+	void (* control)(short item_number); // size=0, offset=16
+	void (* floor)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=20
+	void (* ceiling)(struct ITEM_INFO* item, int x, int y, int z, int* height); // size=0, offset=24
+	void (* draw_routine)(struct ITEM_INFO* item); // size=0, offset=28
+	void (* collision)(short item_num, struct ITEM_INFO* laraitem, struct COLL_INFO* coll); // size=0, offset=32
 	short object_mip; // size=0, offset=36
 	short anim_index; // size=0, offset=38
 	short hit_points; // size=0, offset=40
@@ -152,7 +157,7 @@ struct object_info {
 	unsigned short HitEffect : 2; // offset=51.2
 	unsigned short undead : 1; // offset=51.4
 	unsigned short save_mesh : 1; // offset=51.5
-	void(*draw_routine_extra)(struct ITEM_INFO* item); // size=0, offset=52
+	void (* draw_routine_extra)(struct ITEM_INFO* item); // size=0, offset=52
 	unsigned long explodable_meshbits; // size=0, offset=56
 	unsigned long padfuck; // size=0, offset=60
 };
@@ -224,7 +229,8 @@ struct room_light_thing
 	char pad[168];
 };
 
-struct room_info {
+struct room_info
+{
 	short* data; // size=0, offset=0
 	short* door; // size=0, offset=4
 	struct FLOOR_INFO* floor; // size=8, offset=8
@@ -277,7 +283,7 @@ struct room_info {
 	uint32_t NumRoomTriangles;
 	uint32_t NumRoomRectangles;
 
-	struct ROOM_LIGHT* RoomLights; 
+	struct ROOM_LIGHT* RoomLights;
 
 	uint32_t LightDataSize;
 	uint32_t NumLights2;    // Always same as NumLights
@@ -322,7 +328,7 @@ struct PCLIGHT
 	int32_t UnknownInt;
 	uint8_t LightType;
 	uint8_t UnknownByte;
-	
+
 	int32_t dx3, dy3, dz3;
 	int32_t magnsq;
 };
@@ -339,7 +345,8 @@ struct ITEM_LIGHT
 	int room_num;
 };
 
-struct ITEM_INFO {
+struct ITEM_INFO
+{
 	long floor; // size=0, offset=0
 	unsigned long touch_bits; // size=0, offset=4
 	unsigned long mesh_bits; // size=0, offset=8
@@ -391,7 +398,8 @@ struct ITEM_INFO {
 	short draw_room; // size=0, offset=140 OFF=136
 	short TOSSPAD; // size=0, offset=142 OFF=138
 };
-struct creature_info {
+struct creature_info
+{
 	short joint_rotation[4]; // size=8, offset=0
 	short maximum_turn; // size=0, offset=8
 	short flags; // size=0, offset=10
@@ -432,8 +440,8 @@ struct tr_face4    // 12 bytes
 struct tr4_mesh_face3    // 10 bytes
 {
 	uint16_t Vertices[3];
-    uint16_t Texture : 15;
-    uint16_t DoubleSided : 1;
+	uint16_t Texture : 15;
+	uint16_t DoubleSided : 1;
 	union
 	{
 		uint16_t Effects;
@@ -473,7 +481,7 @@ struct ROOMLET   // 56 bytes
 	uint16_t Filler;             // Always 0
 	uint16_t Filler2;            // Always 0
 
-								 // The following 6 floats define the bounding box for the layer
+	// The following 6 floats define the bounding box for the layer
 
 
 
@@ -536,16 +544,16 @@ struct tr_object_texture_vert // 4 bytes
 
 struct tr4_object_texture // 38 bytes
 {
-	uint16_t               Attribute;
-	uint16_t               TileAndFlag;
-	uint16_t               NewFlags;
+	uint16_t Attribute;
+	uint16_t TileAndFlag;
+	uint16_t NewFlags;
 
 	struct tr_object_texture_vert Vertices[4]; // The four corners of the texture
 
-	uint32_t               OriginalU;
-	uint32_t               OriginalV;
-	uint32_t               Width;     // Actually width-1
-	uint32_t               Height;    // Actually height-1
+	uint32_t OriginalU;
+	uint32_t OriginalV;
+	uint32_t Width;     // Actually width-1
+	uint32_t Height;    // Actually height-1
 
 	uint16_t Padding;
 };
@@ -619,36 +627,36 @@ struct DXCONFIG
 	int nSoundCard;
 };
 
-struct DISPLAYMODE					// Display Mode Info
+struct DISPLAYMODE                    // Display Mode Info
 {
-	int				w;				// Width
-	int				h;				// Height
-	unsigned long	bpp;			// Bits Per Pixel
-	unsigned int	mipMapCount;
-	bool			bPalette;		// Is It Palettised
-	DDSURFACEDESC2	ddsd;			// Surface Description
-	unsigned char	rbpp;			// Red Bits Per Pixel
-	unsigned char	gbpp;			// Green Bits Per Pixel
-	unsigned char	bbpp;			// Blue Bits Per Pixel
-	unsigned char	rshift;			// Shifts For Red 
-	unsigned char	gshift;			// Shifts For Green
-	unsigned char	bshift;			// Shifts For Blue
+	int w;                // Width
+	int h;                // Height
+	unsigned long bpp;            // Bits Per Pixel
+	unsigned int mipMapCount;
+	bool bPalette;        // Is It Palettised
+	DDSURFACEDESC2 ddsd;            // Surface Description
+	unsigned char rbpp;            // Red Bits Per Pixel
+	unsigned char gbpp;            // Green Bits Per Pixel
+	unsigned char bbpp;            // Blue Bits Per Pixel
+	unsigned char rshift;            // Shifts For Red
+	unsigned char gshift;            // Shifts For Green
+	unsigned char bshift;            // Shifts For Blue
 };
 
 struct D3DTEXTUREINFO
 {
-	DDPIXELFORMAT	ddpf;			// Texture Pixel Format
-	unsigned long	bpp;			// Bits Per Pixel (if Palettised)
-	bool			bPalette;		// Is it Palettised
-	bool			bAlpha;			// Does It Support Alpha
-	unsigned char	rbpp;			// Red Bits Per Pixel 
-	unsigned char	gbpp;			// Green Bits Per Pixel
-	unsigned char	bbpp;			// Blue Bits Per Pixel
-	unsigned char	abpp;			// Alpha Bits Per Pixel
-	unsigned char	rshift;			// Shifts For Red
-	unsigned char	gshift;			// Shifts For Green
-	unsigned char	bshift;			// Shifts For Blue
-	unsigned char	ashift;			// Shifts For Alpha
+	DDPIXELFORMAT ddpf;            // Texture Pixel Format
+	unsigned long bpp;            // Bits Per Pixel (if Palettised)
+	bool bPalette;        // Is it Palettised
+	bool bAlpha;            // Does It Support Alpha
+	unsigned char rbpp;            // Red Bits Per Pixel
+	unsigned char gbpp;            // Green Bits Per Pixel
+	unsigned char bbpp;            // Blue Bits Per Pixel
+	unsigned char abpp;            // Alpha Bits Per Pixel
+	unsigned char rshift;            // Shifts For Red
+	unsigned char gshift;            // Shifts For Green
+	unsigned char bshift;            // Shifts For Blue
+	unsigned char ashift;            // Shifts For Alpha
 };
 
 struct zBufFormat
@@ -659,92 +667,92 @@ struct zBufFormat
 
 struct DIRECT3DINFO
 {
-	char			Name[30];		// Name String
-	char			About[80];		// Description String
-	LPGUID			lpGuid;			// GUID
-	GUID			Guid;
-	D3DDEVICEDESC	DeviceDesc;		// Device Description
-	bool			bHardware;		// Is It Hardware
-	int				nDisplayMode;	// Number Of Display Modes
-	struct DISPLAYMODE*	DisplayMode;	// Ptr To Compatible Display Modes
-	int				nTexture;		// Number Of Texture Formats
-	struct D3DTEXTUREINFO*	Texture;		// Texture Info
+	char Name[30];        // Name String
+	char About[80];        // Description String
+	LPGUID lpGuid;            // GUID
+	GUID Guid;
+	D3DDEVICEDESC DeviceDesc;        // Device Description
+	bool bHardware;        // Is It Hardware
+	int nDisplayMode;    // Number Of Display Modes
+	struct DISPLAYMODE* DisplayMode;    // Ptr To Compatible Display Modes
+	int nTexture;        // Number Of Texture Formats
+	struct D3DTEXTUREINFO* Texture;        // Texture Info
 	int nZbuffer; // pos 402 s 4
 	struct zBufFormat* Zbuffer; // pos 406 s 4
 };
 
 struct DIRECTDRAWINFO
 {
-	char			Name[30];		// Name String   
-	char			About[80];		// Description String
-	LPGUID			lpGuid;			// GUID
-	GUID			Guid;
-	DDCAPS			DDCaps;			// Device Capabilites
+	char Name[30];        // Name String
+	char About[80];        // Description String
+	LPGUID lpGuid;            // GUID
+	GUID Guid;
+	DDCAPS DDCaps;            // Device Capabilites
 	DDDEVICEIDENTIFIER DDDevIdent;
-	int				nDisplayMode;	// Number Of Display Modes	
-	struct DISPLAYMODE*	DisplayMode;	// Ptr To Display Mode Structure
-	int				nD3DInfo;		// Number Of D3D Drivers
-	struct DIRECT3DINFO*	D3DInfo;		// Ptr To D3D Info Structure
+	int nDisplayMode;    // Number Of Display Modes
+	struct DISPLAYMODE* DisplayMode;    // Ptr To Display Mode Structure
+	int nD3DInfo;        // Number Of D3D Drivers
+	struct DIRECT3DINFO* D3DInfo;        // Ptr To D3D Info Structure
 };
 
 struct DIRECTSOUNDINFO
 {
-	char			Name[30];		// Name String   
-	char			About[80];		// Description String
-	LPGUID			lpGuid;			// GUID
-	GUID			Guid;
+	char Name[30];        // Name String
+	char About[80];        // Description String
+	LPGUID lpGuid;            // GUID
+	GUID Guid;
 };
 
-struct DEVICEINFO					// DirectX Device Information
+struct DEVICEINFO                    // DirectX Device Information
 {
-	int				nDDInfo;		// Entries
-	int				nDSInfo;
-	struct DIRECTDRAWINFO*	DDInfo;			// Ptr To Info Structure
+	int nDDInfo;        // Entries
+	int nDSInfo;
+	struct DIRECTDRAWINFO* DDInfo;            // Ptr To Info Structure
 	struct DIRECTSOUNDINFO* DSInfo;
 };
 
 
 struct WINAPP
 {
-	HINSTANCE				hInstance;
-	HWND					WindowHandle;
-	WNDCLASS				WindowClass;
+	HINSTANCE hInstance;
+	HWND WindowHandle;
+	WNDCLASS WindowClass;
 
-	struct DEVICEINFO				DeviceInfo;			// Device Information
-	struct DXCONFIG				DXConfig;
+	struct DEVICEINFO DeviceInfo;            // Device Information
+	struct DXCONFIG DXConfig;
 
 	BYTE pad;
 
-	LPDIRECTDRAW4			lpDD;				// DirectDraw2 Interface
-	LPDIRECT3D3				lpD3D;				// Direct3D2 Interface
-	LPDIRECT3DDEVICE3		lpD3DDevice;		// Direct 3D2 Device
-	LPDIRECT3DDEVICE3		lpD3DDevice_BIS;	// Direct 3D2 Device
+	LPDIRECTDRAW4 lpDD;                // DirectDraw2 Interface
+	LPDIRECT3D3 lpD3D;                // Direct3D2 Interface
+	LPDIRECT3DDEVICE3 lpD3DDevice;        // Direct 3D2 Device
+	LPDIRECT3DDEVICE3 lpD3DDevice_BIS;    // Direct 3D2 Device
 
-	LPDIRECTDRAWSURFACE4	lpFrontBuffer;		// Primary Surface
-	LPDIRECTDRAWSURFACE4	lpBackBuffer;		// Back Buffer
-	LPDIRECTDRAWSURFACE4	lpZBuffer;			// Z Buffer
+	LPDIRECTDRAWSURFACE4 lpFrontBuffer;        // Primary Surface
+	LPDIRECTDRAWSURFACE4 lpBackBuffer;        // Back Buffer
+	LPDIRECTDRAWSURFACE4 lpZBuffer;            // Z Buffer
 
-	LPDIRECT3DVIEWPORT3		lpViewPort;
+	LPDIRECT3DVIEWPORT3 lpViewPort;
 
-	LPDIRECTSOUND			lpDS;
+	LPDIRECTSOUND lpDS;
 
 	unsigned int width;
 	unsigned int height;
 
-	RECT					GnClientRect;
-	RECT					GnWindowRect;
+	RECT GnClientRect;
+	RECT GnWindowRect;
 
-	unsigned int			Flags;
-	unsigned int			DXWndStyle;
-	unsigned int			DXCoopLevel;
+	unsigned int Flags;
+	unsigned int DXWndStyle;
+	unsigned int DXCoopLevel;
 
-	LPDIRECTINPUT7A			lpDI;
-	LPDIRECTINPUTDEVICE2A	lpDIKeyboard;
-	LPDIRECTINPUTDEVICE2A	lpDIJoystick;
+	LPDIRECTINPUT7A lpDI;
+	LPDIRECTINPUTDEVICE2A lpDIKeyboard;
+	LPDIRECTINPUTDEVICE2A lpDIJoystick;
 
-	HWND					GhWnd; // pos 100 s 4
+	HWND GhWnd; // pos 100 s 4
 	DWORD isInScene; // pos 104 s 4
-	DWORD					bNoFocus;				// Application Window Has Fous
+	DWORD bNoFocus;                // Application Window Has Fous
 
 	DWORD sceneDone;
 	HANDLE hObject; // D9AC05
@@ -755,23 +763,23 @@ struct WINAPP
 
 	HACCEL hAccTable;
 	uint8 GameInitialized;
-	BYTE					tBumpMap;
+	BYTE tBumpMap;
 	DWORD textRes;
 	DWORD bumpRes;
 	uint8 MMXSupport;
-	BYTE					tBilinearFilter;
-	BYTE					tVolumetricShadows;
-	BYTE					tDisableSound;
+	BYTE tBilinearFilter;
+	BYTE tVolumetricShadows;
+	BYTE tDisableSound;
 	DWORD orig_flags;
 	BYTE PlayingFMV;
 	DWORD OriginalBPP;
-	
-	BYTE					tAutoTarget;
+
+	BYTE tAutoTarget;
 	BYTE padd[3];
 	DWORD dword_D9AC34;
 	DWORD dword_D9AC38;
 
-	LPDIRECTDRAWPALETTE		Palette;				// Palette For SW Renderer
+	LPDIRECTDRAWPALETTE Palette;                // Palette For SW Renderer
 	char pad111[272];
 	D3DMATRIX ViewMatrix;
 	char pad112[4];
@@ -787,18 +795,16 @@ struct WINAPP
 	char pad114[584];
 
 
-	bool					bRender;			// Ok To Render
+	bool bRender;            // Ok To Render
 
-	int						nRenderMode;		// Hardware/Internal Renderer
-	int						nUVAdd;
+	int nRenderMode;        // Hardware/Internal Renderer
+	int nUVAdd;
 
-	bool					tJoystickEnabled;
-	int						Joystick;
+	bool tJoystickEnabled;
+	int Joystick;
 
-	float					fps_weird;
+	float fps_weird;
 };
-
-
 
 
 struct CutsceneHeader
@@ -830,16 +836,16 @@ struct SNOWFLAKE
 
 struct D3DTLBUMPVERTEX // size = 40 bytes
 {
-	D3DVALUE    sx;
-	D3DVALUE    sy;
-	D3DVALUE    sz;
-	D3DVALUE    rhw;
-	D3DCOLOR    color;
-	D3DCOLOR    specular;
-	D3DVALUE    tu;	
-	D3DVALUE    tv;
-	D3DVALUE    tu2;
-	D3DVALUE    tv2;
+	D3DVALUE sx;
+	D3DVALUE sy;
+	D3DVALUE sz;
+	D3DVALUE rhw;
+	D3DCOLOR color;
+	D3DCOLOR specular;
+	D3DVALUE tu;
+	D3DVALUE tv;
+	D3DVALUE tu2;
+	D3DVALUE tv2;
 };
 
 struct __declspec(align(4)) MATRIX3
