@@ -1317,7 +1317,7 @@ void PrintObjects(short room_number)// (F)
 	const auto r = &room[room_number];
 	r->bound_active = 0;
 	
-	DrawStaticObjects(room_number);
+	//DrawStaticObjects(room_number);
 	
 	phd_PushMatrix();
 	phd_TranslateAbs(r->x, r->y, r->z);
@@ -1455,11 +1455,11 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 {
 	struct room_info* r = &room[room_number];
 
-	/*if (r->left <= parent->test_left &&
+	if (r->left <= parent->test_left &&
 		r->right >= parent->test_right &&
 		r->top <= parent->test_top &&
 		r->bottom >= parent->test_bottom)
-		return;*/
+		return;
 
 	int left = parent->test_right;
 	int right = parent->test_left;
@@ -1528,6 +1528,7 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 		}
 	}
 
+	// @TODO: HACK
 	/*if (t5 == 4 || t6 == 4)
 		return;*/
 
@@ -1584,8 +1585,8 @@ void SetRoomBounds(tr_room_portal* portal, int room_number, struct room_info* pa
 	if (bottom > parent->test_bottom)
 		bottom = parent->test_bottom;
 
-	/*if (left >= right || top >= bottom)
-		return;*/
+	if (left >= right || top >= bottom)
+		return;
 
 	if (r->bound_active & 2)
 	{
