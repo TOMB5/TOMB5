@@ -24,17 +24,17 @@ static struct PHD_VECTOR CrowbarDoorPos = { -412, 0, 256 };
 
 static short PushPullKickDoorBounds[12] =
 {
-	0xFE80, 0x0180, 0x0000, 0x0000, 0xFC00, 0x0200, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 0xF8E4, 0x071C
+	-384, 384, 0, 0, -1024, 512, -1820, 1820, -5460, 5460, -1820, 1820
 };
 
 static short UnderwaterDoorBounds[12] =
 {
-	0xFF00, 0x0100, 0xFC00, 0x0000, 0xFC00, 0x0000, 0xC720, 0x38E0, 0xC720, 0x38E0, 0xC720, 0x38E0
+	-256, 256, -1024, 0, -1024, 0, -14560, 14560, -14560, 14560, -14560, 14560
 };
 
 static short CrowbarDoorBounds[12] =
 {
-	0xFE00, 0x0200, 0xFC00, 0x0000, 0x0000, 0x0200, 0xC720, 0x38E0, 0xC720, 0x38E0, 0xC720, 0x38E0
+	-512, 512, -1024, 0, 0, 512, -14560, 14560, -14560, 14560, -14560, 14560
 };
 
 long ClosedDoors[32];

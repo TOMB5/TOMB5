@@ -427,7 +427,7 @@ char cutseq_busy_timeout;
 
 short frig_shadow_bbox[6] =
 {
-	0xFF5B, 0x0096, 0xFCF7, 0x0001, 0xFFA9, 0x004E
+	-165, 150, -777, 1, -87, 78
 };
 
 int cut_seethrough;
