@@ -26,6 +26,7 @@
 #include "GLOBAL.H"
 #include "SPECIFIC.H"
 #include "INPUT.H"
+#include "INCLUDE.H"
 #endif
 #include "GAMEFLOW.H"
 #if PSX_VERSION || PSXPC_VERSION || SAT_VERSION
@@ -1997,7 +1998,7 @@ void FlipMap(int FlipNumber)// (F)
 
 void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (F)
 {
-#if PSXPC_TEST
+#if PSXPC_TEST || PC_VERSION
 	int key = 0;
 #else
 	int key;
@@ -2017,6 +2018,9 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 #if PSXPC_TEST
 	int flip_available = 0;
 	int neweffect = 0;
+#elif PC_VERSION
+	int flip_available;
+	int neweffect = -1;
 #else
 	int flip_available;
 	int neweffect;
@@ -2137,7 +2141,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 				{
 					//loc_1EC64
 					//v1 = HeavyFlags
-					if (flags & 0x3E00 != HeavyFlags)
+					if ((flags & 0x3E00) != HeavyFlags)
 					{
 						return;
 					}
@@ -2207,7 +2211,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 		case COMBAT:
 		{
 			//loc_1EF08
-			if (lara.gun_status != 4)
+			if (lara.gun_status != LG_READY)
 			{
 				return;
 			}
@@ -2227,7 +2231,11 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 		case MONKEY:
 		{
 			//loc_1ED50
-			if (lara_item->current_anim_state >= ANIMATION_LARA_JUMP_BACK && (lara_item->current_anim_state <= ANIMATION_LARA_JUMP_LEFT || lara_item->current_anim_state == ANIMATION_LARA_LANDING_MIDDLE || lara_item->current_anim_state == ANIMATION_LARA_FORWARD_TO_FREE_FALL))
+			if ((lara_item->current_anim_state >= ANIMATION_LARA_JUMP_BACK &&
+			     lara_item->current_anim_state <= ANIMATION_LARA_JUMP_LEFT) ||
+			    lara_item->current_anim_state == ANIMATION_LARA_LANDING_MIDDLE ||
+			    lara_item->current_anim_state == ANIMATION_LARA_FORWARD_TO_FREE_FALL
+				)
 				break;
 			return;
 		}
@@ -2240,40 +2248,42 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 		case TIGHTROPE_T:
 		{
 			//loc_1ED90
-			if (lara_item->current_anim_state < ANIMATION_LARA_FREE_FALL_TO_UNDERWATER_ALTERNATE || lara_item->current_anim_state > ANIMATION_LARA_AH_LEFT || lara_item->current_anim_state == ANIMATION_LARA_AH_BACKWARD)
-			{
-				return;
-			}
-			break;
+			if (lara_item->current_anim_state >= ANIMATION_LARA_FREE_FALL_TO_UNDERWATER_ALTERNATE &&
+			    lara_item->current_anim_state <= ANIMATION_LARA_AH_LEFT &&
+			    lara_item->current_anim_state != ANIMATION_LARA_AH_BACKWARD)
+				break;
+			return;
 		}
 		case CRAWLDUCK_T:
 		{
 			//loc_1EDCC
-			if (lara_item->current_anim_state != ANIMATION_LARA_JUMP_RIGHT_BEGIN
-				|| lara_item->current_anim_state != ANIMATION_LARA_JUMP_RIGHT
-				|| lara_item->current_anim_state != ANIMATION_LARA_LEFT_TO_FREE_FALL
-				|| lara_item->current_anim_state != ANIMATION_LARA_RIGHT_TO_FREE_FALL
-				|| lara_item->current_anim_state != ANIMATION_LARA_UNDERWATER_SWIM_FORWARD
-				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_FORWARD_END
-				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_FORWARD_STOP
-				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_BACKWARD
-				|| lara_item->current_anim_state != ANIMATION_LARA_SLIDE_BACKWARD_END)
-			{
-				return;
-			}
+			if (lara_item->current_anim_state == ANIMATION_LARA_JUMP_RIGHT_BEGIN ||
+			    lara_item->current_anim_state == ANIMATION_LARA_JUMP_RIGHT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_LEFT_TO_FREE_FALL ||
+			    lara_item->current_anim_state == ANIMATION_LARA_RIGHT_TO_FREE_FALL ||
+			    lara_item->current_anim_state == ANIMATION_LARA_UNDERWATER_SWIM_FORWARD ||
+			    lara_item->current_anim_state == ANIMATION_LARA_SLIDE_FORWARD_END ||
+			    lara_item->current_anim_state == ANIMATION_LARA_SLIDE_FORWARD_STOP ||
+			    lara_item->current_anim_state == ANIMATION_LARA_SLIDE_BACKWARD ||
+			    lara_item->current_anim_state == ANIMATION_LARA_SLIDE_BACKWARD_END)
+				break;
 
-			break;
-			//def_1ECA0
+			return;
 		}
 		case CLIMB_T:
 			//loc_1EE38
 
-			if (lara_item->current_anim_state != ANIMATION_LARA_RUN_TO_STAY_RIGHT || lara_item->current_anim_state != ANIMATION_LARA_RUN_UP_STEP_LEFT || lara_item->current_anim_state != ANIMATION_LARA_WALK_UP_STEP_RIGHT || lara_item->current_anim_state != ANIMATION_LARA_WALK_UP_STEP_LEFT || lara_item->current_anim_state != ANIMATION_LARA_WALK_DOWN_LEFT || lara_item->current_anim_state != ANIMATION_LARA_WALK_DOWN_RIGHT || lara_item->current_anim_state != ANIMATION_LARA_WALK_DOWN_BACK_LEFT || lara_item->current_anim_state != ANIMATION_LARA_JUMP_BACK)
-			{
-				return;
-			}
+			if (lara_item->current_anim_state == ANIMATION_LARA_RUN_TO_STAY_RIGHT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_RUN_UP_STEP_LEFT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_WALK_UP_STEP_RIGHT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_WALK_UP_STEP_LEFT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_WALK_DOWN_LEFT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_WALK_DOWN_RIGHT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_WALK_DOWN_BACK_LEFT ||
+			    lara_item->current_anim_state == ANIMATION_LARA_JUMP_BACK)
+				break;
+			return;
 
-			break;
 		}
 	}
 	//def_1ECA0
@@ -2540,7 +2550,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 			flip_available = 1;
 			if (flip_stats[value] != 0)
 			{
-				flipmap[value] &= -15873;
+				flipmap[value] &= 0xC1FF;
 				flip = value;
 			}
 			break;
@@ -2590,7 +2600,7 @@ void _TestTriggers(short* data, int heavy, int HeavyFlags)//1E9FC(<), 1EC10(<) (
 			if (trigger != key)
 			{
 				lp = 0;
-				if (type == 6 || type == 9 || type == 11)
+				if (type == ANTIPAD || type == ANTITRIGGER || type == HEAVYANTITRIGGER)
 				{
 					//loc_1F460
 					bUseSpotCam = 0;
