@@ -171,7 +171,7 @@ char globoncuttrig;
 short ItemNewRooms[256][2];
 
 #if PC_VERSION
-#define CDEF(u, v, w, h, yo, ts, bs) { (u) / 255.0, (v) / 255.0, w, h, yo, ts, bs }
+#define CDEF(u, v, w, h, yo, ts, bs) { (u) / 255.0f, (v) / 255.0f, w, h, yo, ts, bs }
 #else
 #define CDEF(u, v, w, h, yo, ts, bs) { u, v, w, h, yo, ts, bs }
 #endif
