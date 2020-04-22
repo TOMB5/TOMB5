@@ -39,6 +39,7 @@ enum
 
 //#define Log(type, fmt, ...) S_Warn("[DBLOG] [" STRINGIFY(type) "] " fmt, __VA_ARGS__)
 #define Log(type, fmt, ...) Log_real(type, #type, fmt, __VA_ARGS__)
+#define Error(str) Log(0, "%s", (str))
 
 #define ArraySize(a) (sizeof(a)/sizeof((a)[0]))
 #define Zero(thing) memset(&(thing),0,sizeof(thing))

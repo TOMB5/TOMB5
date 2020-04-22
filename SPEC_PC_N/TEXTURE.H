@@ -14,7 +14,7 @@ struct DXTEXTURE
 	DWORD a3;
 	DWORD a4;
 	DWORD a5;
-	const int width;
+	DWORD width;
 	DWORD height;
 	DWORD a8;
 	BYTE alpha_blend;
