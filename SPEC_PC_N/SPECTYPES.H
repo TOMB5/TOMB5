@@ -14,7 +14,7 @@
 
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x)
-#define Unimpl() S_Warn("[" __FUNCTION__ "] - Unimplemented!\n")
+#define Unimpl() printf("[%s] - Unimplemented!\n", __func__)
 
 #define SWAP(a, b) {auto _ = a; a = b; b = _;}
 #define SWAPARR(arr, i, j) {auto _ = arr[i]; arr[i] = arr[j]; arr[j] = _;}
