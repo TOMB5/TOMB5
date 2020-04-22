@@ -44,7 +44,7 @@ void RestoreSpecular(TEXTUREBUCKET* buk)
 
 void FindBucket(uint16_t tile, D3DTLBUMPVERTEX** vptr, int** cntptr)
 {
-	auto ptr = Bucket;
+	TEXTUREBUCKET* ptr = Bucket;
 	for (int i = 0; i < MAXBUCKETS; i++, ptr++)
 	{
 		if (ptr->tpage == tile && ptr->cnt < 2048)
@@ -166,7 +166,7 @@ void DrawBuckets()
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 		App.lpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
 
-		auto buk = Bucket;
+		TEXTUREBUCKET* buk = Bucket;
 		for (int i = 0; i < MAXBUCKETS; i++, buk++)
 		{
 			if (buk->cnt != 0 && DXTextureList[buk->tpage].alpha_blend)

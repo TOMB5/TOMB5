@@ -4,6 +4,9 @@
   <component name="CidrRootsConfiguration">
     <excludeRoots>
       <file path="$PROJECT_DIR$/SPEC_PC" />
+      <file path="$PROJECT_DIR$/SPEC_PSX" />
+      <file path="$PROJECT_DIR$/SPEC_PSXPC" />
+      <file path="$PROJECT_DIR$/SPEC_PSXPC_N" />
     </excludeRoots>
   </component>
   <component name="JavaScriptSettings">

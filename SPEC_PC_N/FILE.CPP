@@ -313,15 +313,15 @@ void LoadTextures(int numRoom, int numObj, int numBump)// (F)
 		depth_bis = 2;
 		depth = 2;
 
-		const int uncomp32 = freadDword();
-		const int comp32 = freadDword();
+		const uint32_t uncomp32 = freadDword();
+		const uint32_t comp32 = freadDword();
 		if (useCompression)
 			fseek(fp_level, comp32, SEEK_CUR);
 		else
 			fseek(fp_level, uncomp32, SEEK_CUR);
 
-		const int uncomp16 = freadDword();
-		const int comp16 = freadDword();
+		const uint32_t uncomp16 = freadDword();
+		const uint32_t comp16 = freadDword();
 		texbuf = malloc(comp16);
 		level_data = (char*) malloc(uncomp16);
 

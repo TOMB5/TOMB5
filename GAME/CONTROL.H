@@ -223,7 +223,6 @@ extern struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number);
 extern short GetCeiling(struct FLOOR_INFO* floor, int x, int y, int z);
 #endif
 extern int TriggerActive(struct ITEM_INFO* item);
-extern void AddRoomFlipItems(struct room_info* r);
 #if PC_VERSION || PSXPC_VERSION
 extern int IsRoomOutside(long x, long y, long z);
 #endif
