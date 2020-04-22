@@ -2,6 +2,7 @@
 #define NEWINV2_H
 
 #include "STYPES.H"
+#include "GAMEFLOW.H"
 
 enum rings
 {
@@ -127,8 +128,8 @@ enum invobj_types // update this whenever inventry_objects_list is modified
 };
 
 
-extern struct INVOBJ inventry_objects_list[100]; // offset 0x92BE8
-extern unsigned char wanky_secrets_table[18]; // offset 0x92BD4
+extern struct INVOBJ inventry_objects_list[NUM_INV_OBJECTS]; // offset 0x92BE8
+extern unsigned char wanky_secrets_table[NUM_TR5_LEVELS]; // offset 0x92BD4
 extern unsigned short options_table[99]; // offset 0x933B8
 extern short optmessages[11]; // offset 0x93480
 extern struct COMBINELIST dels_handy_combine_table[24]; // offset 0x93498

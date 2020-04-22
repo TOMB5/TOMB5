@@ -159,7 +159,7 @@ struct INVOBJ inventry_objects_list[NUM_INV_OBJECTS] = // offset 0x92BE8
 	{ BOTTLE, 18, 800, ANGLE(-90), ANGLE(0), ANGLE(0), 2, STR_BOTTLE_OF_CHLOROFORM, ~0u },
 	{ PUZZLE_HOLE8, -10, 384, ANGLE(-90), 26624, ANGLE(-90), 10, STR_BOTTLE_OF_CHLOROFORM, ~0u },
 };
-unsigned char wanky_secrets_table[18] = // offset 0x92BD4
+unsigned char wanky_secrets_table[NUM_TR5_LEVELS] = // offset 0x92BD4
 {
 	0, 3, 3, 3, 3, 3, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
 };

@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnusedGlobalDeclarationInspection"
 #ifndef GTYPES_H
 #define GTYPES_H
 
@@ -1542,3 +1544,5 @@ struct tr_room_portal  // 32 bytes
 #pragma pack(pop)
 #endif
 #endif
+
+#pragma clang diagnostic pop
