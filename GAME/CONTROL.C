@@ -2941,10 +2941,309 @@ void AlterFloorHeight(struct ITEM_INFO* item, int height)//1E3E4(<), 1E5F8(<) (F
 }
 
 #if PC_VERSION
+void GH_adjust_height(int a1, int s4, short* t7, int a2, int s3)
+{
+	int v0;
+
+	v0 = s4 & 0x3FF;
+	if (a1 < 0)
+	{
+		v0 = (v0 * a1) >> 2;
+		*t7 -= v0;
+	}
+	else
+	{
+		//loc_79008
+		v0 = 0x3FF;
+		v0 -= s4;
+		v0 &= 0x3FF;
+		v0 *= a1;
+		v0 >>= 2;
+		*t7 += v0;
+	}
+
+	//loc_79024
+	v0 = s3 & 0x3FF;
+	if (a2 < 0)
+	{
+		v0 = (v0 * a2) >> 2;
+		*t7 -= v0;
+		return;
+	}//loc_79040
+
+	v0 = 0x3FF;
+	v0 -= s3;
+	v0 &= 0x3FF;
+	v0 = (v0 * a2) >> 2;
+	*t7 += v0;
+}
+
 short GetHeight(struct FLOOR_INFO* floor, int x, int y, int z)//78C74(<), 7ACB8(<) (F)
 {
-	UNIMPLEMENTED();
-	return 0;
+	struct room_info* r;//$a0
+	struct FLOOR_INFO* f;//$s0
+	unsigned short* fd;//$s1
+	unsigned short value;//$s2
+	short ret;//$t7 @ret
+	unsigned short trigger_value;//$s0
+	struct ITEM_INFO* item;//$a0
+	struct object_info* object;//$v0
+	int height;
+	unsigned short v1;//$v1
+
+	//s0 = floor
+	//s3 = x
+	OnObject = 0;
+	height_type = 0;
+	tiltyoff = 0;
+	tiltxoff = 0;
+	//s4 = z
+	f = floor;
+
+	//loc_78CB4
+	while (f->pit_room != 0xFF)
+	{
+		if (CheckNoColFloorTriangle(f, x, z) == 1)
+			break;//loc_78D28
+
+		r = &room[f->pit_room];
+		f = &r->floor[((z - r->z) >> 10) + (((x - r->x) >> 10) * r->x_size)];
+	}
+
+	//loc_78D28
+	ret = f->floor << 8;
+	//v0 = -32512
+
+	if ((f->floor << 8) == -32512)
+	{
+		return ret;
+	}
+
+	//v1 = f->index
+	//v1 <<= 1;
+	trigger_index = NULL;
+
+	if (f->index == 0)
+	{
+		return ret;
+	}
+
+	fd = (unsigned short*)&floor_data[f->index];
+
+	//loc_78D60
+	do
+	{
+		value = *fd++;
+
+		//v0 = value & 0x1F
+		//v1 = v0 - 1
+		//v0 = v1 < 0x15 ? 1 : 0
+		//v0 = v1 << 2
+
+		switch ((value & 0x1F))
+		{
+		case DOOR_TYPE:
+		case ROOF_TYPE:
+		case SPLIT3:
+		case SPLIT4:
+		case NOCOLC1T:
+		case NOCOLC1B:
+		case NOCOLC2T:
+		case NOCOLC2B://COMPLETE
+		{
+			//loc_78EEC
+			fd++;
+			break;
+		}
+		case TILT_TYPE://COMPLETE
+		{
+			//loc_78EA0
+			char a1 = ((char*)fd)[1];
+			char a2 = ((char*)fd)[0];
+
+			//loc_78EB4
+			tiltxoff = a1;
+			tiltyoff = a2;
+
+			if (ABS(a1) < 3)
+			{
+				if (ABS(a2) < 3)
+				{
+					height_type = 1;
+					GH_adjust_height(a1, z, &ret, a2, x);
+				}
+				else
+				{
+					height_type = 2;
+					GH_adjust_height(a1, z, &ret, a2, x);
+				}
+			}
+			else
+			{
+				//loc_78EE4
+				height_type = 2;
+				GH_adjust_height(a1, z, &ret, a2, x);
+			}
+			fd++;
+			break;
+		}
+		case TRIGGER_TYPE://COMPLETE
+		{
+			//loc_78F0C
+			fd++;
+
+			if (trigger_index == 0)
+			{
+				trigger_index = (short*)&fd[-2];
+			}
+			//loc_78F20
+			do
+			{
+				trigger_value = *fd++;
+
+				if (((trigger_value & 0x3FFF) >> 10) == 0xC || ((trigger_value & 0x3FFF) >> 10) == 0x1)
+				{
+					trigger_value = *fd++;
+					continue;
+				}
+				//loc_78F54
+				item = &items[trigger_value & 0x3FF];
+
+				if (!(item->flags & 0x8000))
+				{
+					object = &objects[item->object_number];
+
+					if (object->floor != NULL)
+					{
+						object->floor(item, x, y, z, &height);
+					}//loc_78FB8
+				}//loc_78FB8
+			} while (!(trigger_value & 0x8000));
+			break;
+		}
+		case LAVA_TYPE://COMPLETE
+		{
+			//loc_78F00
+			trigger_index = (short*)--fd;
+			break;
+		}
+		case CLIMB_TYPE:
+		case MONKEY_TYPE:
+		case TRIGTRIGGER_TYPE:
+		case MINER_TYPE://COMPLETE
+		{
+			//loc_78EF4
+			if (trigger_index == NULL)
+			{
+				trigger_index = (short*)&fd[-1];
+			}
+			break;
+		}
+		case SPLIT1:
+		case SPLIT2:
+		case NOCOLF1T:
+		case NOCOLF1B:
+		case NOCOLF2T:
+		case NOCOLF2B:
+		{
+			//loc_78D94
+			//v0 = 4
+			v1 = *fd;
+			//a0 = value & 0x1F;
+			height_type = 4;
+			int t0 = v1 & 0xF;
+			int a3 = (v1 >> 4) & 0xF;
+			int a2 = (v1 >> 8) & 0xF;
+			int t1 = z & 0x3FF;
+			int t2 = x & 0x3FF;
+			//v0 = 7
+			int a1;
+			int v0;
+
+			v1 >>= 12;
+			if ((value & 0x1F) == 7 || (unsigned)((value & 0x1F) - 11) < 2)
+			{
+				//loc_78DD8
+				v0 = value >> 10;
+				if (0x400 - t1 < t2)
+				{
+					//loc_78DF8
+					v0 = value >> 5;
+					a1 = v1 - t0;
+					a2 = v1 - a2;
+					//j loc_78E2C
+				}
+				else
+				{
+					//loc_78DF8
+					a1 = a2 - a3;
+					a2 = t0 - a3;
+					//j loc_78E2C
+				}
+			}
+			else
+			{
+				//loc_78E08
+				v0 = value >> 10;
+				if (t1 < t2)
+				{
+					v0 = value >> 5;
+					a1 = v1 - t0;
+					a2 = t0 - a3;
+				}
+				else
+				{
+					//loc_78E20
+					a1 = a2 - a3;
+					a2 = v1 - a2;
+					//j       loc_78E2C
+				}
+			}
+
+			//loc_78E2C
+			tiltxoff = a1;
+			tiltyoff = a2;
+
+			v0 &= 0x1F;
+
+			int at = -16;
+			if ((v0 & 0x10))
+			{
+				v0 |= at;
+			}
+			//loc_78E48
+			v0 <<= 8;
+			ret += v0;
+
+			if (ABS(a1) >= 3)
+			{
+				//loc_78E90
+				height_type = 3;
+			}
+			else if(ABS(a2) >= 3)
+			{
+				//loc_78E90
+				height_type = 3;
+			}
+			else if (height_type != 4)
+			{
+				height_type = 1;
+			}
+
+			//loc_78E94
+			fd++;
+			GH_adjust_height(a1, z, &ret, a2, x);
+			break;
+		}
+		default:
+			Error("GetHeight(): Unknown type");
+			break;
+		}
+
+		//loc_78FC0
+	} while (!(value & 0x8000));
+
+	return ret;
 }
 
 struct FLOOR_INFO* GetFloor(int x, int y, int z, short* room_number)//78954(<), 7A998(<) (F)
