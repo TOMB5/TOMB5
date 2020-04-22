@@ -603,9 +603,63 @@ void phd_RotYXZ(long y, long x, long z)// (F)
 	}
 }
 
-void mRotSuperPackedYXZ(short** a0, long a1)
+void mRotSuperPackedYXZ(short** a0, long a1)//Mac: gar_RotYXZsuperpack @TODO: needs to be tested
 {
-	UNIMPLEMENTED();
+	unsigned short* a2;
+	int v0;
+	int at;
+	a2 = (unsigned short*)a0[0];
+	v0 = *a2;
+
+	if (a1 != 0)
+	{
+		//loc_768C4
+		do
+		{
+			a2++;
+			a1--;
+
+			if (!(v0 & 0xC000))
+			{
+				a2++;
+			}//loc_768DC
+
+		} while (a1 != 0);
+
+		v0 = *a2;
+
+	}//loc_768E8
+
+	a2++;
+	at = (v0 >> 14);
+	if (at-- != 0)
+	{
+		a0[0] = (short*)a2;
+
+		if (at-- != 0)
+		{
+			if (at == 0)
+			{
+				phd_RotY((v0 & 0xFFF) << 4);
+				return;
+			}
+			else
+			{
+				phd_RotZ((v0 & 0xFFF) << 4);
+				return;
+			}
+		}//loc_76914
+
+		phd_RotX((v0 & 0xFFF) << 4);
+		return;
+	}//loc_76928
+
+	at = *a2++;
+	a0[0] = (short*)a2;
+
+	phd_RotY((((v0 << 16) | at) >> 4) & 0xFFC0);
+	phd_RotX((((v0 << 16) | at) >> 14) & 0xFFC0);
+	phd_RotZ((((v0 << 16) | at) & 0x3FF) << 6);
 }
 
 void SetTransl(long x, long y, long z)// (F)
