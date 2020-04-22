@@ -45,19 +45,17 @@ static struct PHD_VECTOR PolePos = {0, 0, -208}; // offset 0xA1238
 static struct PHD_VECTOR PolePosR = {0, 0, 0}; // offset 0xA1244
 static short PoleBounds[12] = // offset 0xA1250
 {
-	0xFF00, 0x0100, 0x0000, 0x0000, 0xFE00, 0x0200, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 
-	0xF8E4, 0x071C
+	-256, 256, 0, 0, -512, 512, -1820, 1820, -5460, 5460, -1820, 1820
 };
 int AnimatingWaterfallsVOffset = 0; // offset 0xA1268
 static short TightRopeBounds[12] = // offset 0xA126C
 {
-	0xFF00, 0x0100, 0x0000, 0x0000, 0xFF00, 0x0100, 0xF8E4, 0x071C, 0xEAAC, 0x1554,
-	0xF8E4, 0x071C
+	-256, 256, 0, 0, -256, 256, -1820, 1820, -5460, 5460, -1820, 1820
 };
 static struct PHD_VECTOR TightRopePos = {0, 0, 0}; // offset 0xA1284
 static short ParallelBarsBounds[12] = // offset 0xA1290
 {
-	0xFD80, 0x0280, 0x02C0, 0x0340, 0xFFA0, 0x0060, 0xF8E4, 0x071C, 0xEAAC, 0x1554, 0xF8E4, 0x071C
+	-640, 640, 704, 832, -96, 96, -1820, 1820, -5460, 5460, -1820, 1820
 };
 
 void EarthQuake(short item_number)
