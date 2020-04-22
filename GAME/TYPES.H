@@ -750,11 +750,19 @@ struct TWOGUN_INFO
 
 struct CHARDEF
 {
+#if PC_VERSION
+	float u;
+	float v;
+	short w;
+	short h;
+	short YOffset;
+#else
 	unsigned char u; // size=0, offset=0
 	unsigned char v; // size=0, offset=1
 	unsigned char w; // size=0, offset=2
 	unsigned char h; // size=0, offset=3
 	char YOffset; // size=0, offset=4
+#endif
 	unsigned char TopShade; // size=0, offset=5
 	unsigned char BottomShade; // size=0, offset=6
 };

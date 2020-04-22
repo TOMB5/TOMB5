@@ -74,7 +74,7 @@ void InitWindow(int x, int y, int width, int height, int nearz, int farz, int vi
 
 int __cdecl GetStringLength(const char* string, int16_t* a2, int16_t* a3)
 {
-	font_thing* chardef; // ecx
+	CHARDEF* chardef; // ecx
 
 	int width = 0;
 
@@ -110,24 +110,24 @@ int __cdecl GetStringLength(const char* string, int16_t* a2, int16_t* a3)
 					v3 = AccentTable[v3 - 128][0];
 					v11 = true;
 				}
-				chardef = &stru_507AB8[v3 - 33];
+				chardef = &CharDef[v3 - 33];
 			}
 			else
 			{
-				chardef = &stru_507AB8[v3 + 74];
+				chardef = &CharDef[v3 + 74];
 			}
 
 			if (ScaleFlag)
-				width += chardef->a5 - chardef->a5 / 4;
+				width += chardef->w - chardef->w / 4;
 			else
-				width += chardef->a5;
+				width += chardef->w;
 
-			if (a2 && chardef->a7 < min_y)
-				min_y = chardef->a7;
+			if (a2 && chardef->YOffset < min_y)
+				min_y = chardef->YOffset;
 
 			if (a3)
 			{
-				const int v9 = chardef->a6 + chardef->a7;
+				const int v9 = chardef->h + chardef->YOffset;
 				if (v9 > max_y)
 					max_y = v9;
 			}
@@ -197,35 +197,35 @@ PrintString(unsigned short x, unsigned short y, unsigned char colourFlag, const 
 			}
 			else if (c >= 20)
 			{
-				const font_thing* charac;
+				const CHARDEF* charac;
 
 				if (c >= 128 && c <= 173)
 				{
 					const char* tab = AccentTable[c - 128];
 
-					charac = &stru_507AB8[tab[0] - 33];
+					charac = &CharDef[tab[0] - 33];
 
 					DrawChar(new_x, y, colourFlag, charac);
 
 					if (tab[1] != ' ')
-						DrawChar(charac->a5 / 2 + new_x - 3, y + charac->a7, colourFlag, &stru_507AB8[tab[1] - 33]);
+						DrawChar(charac->w / 2 + new_x - 3, y + charac->YOffset, colourFlag, &CharDef[tab[1] - 33]);
 				}
 				else
 				{
 					if (c >= 32)
 					{
-						DrawChar(new_x, y, colourFlag, charac = &stru_507AB8[c - 33]);
+						DrawChar(new_x, y, colourFlag, charac = &CharDef[c - 33]);
 					}
 					else
 					{
-						DrawChar(new_x, y, colourFlag, charac = &stru_507AB8[c + 74]);
+						DrawChar(new_x, y, colourFlag, charac = &CharDef[c + 74]);
 					}
 				}
-				new_x += charac->a5;
+				new_x += charac->w;
 
 				if (ScaleFlag)
 				{
-					new_x -= charac->a5 / 4;
+					new_x -= charac->w / 4;
 				}
 			}
 			else
@@ -321,35 +321,35 @@ void setXY4(D3DTLVERTEX p[4], int x0, int y0, int x1, int y1, int x2, int y2, in
 	}
 }
 
-void DrawChar(uint16_t x, uint16_t y, uint16_t colourFlag, const font_thing* a4)// (F) probably TODO
+void DrawChar(uint16_t x, uint16_t y, uint16_t colourFlag, const CHARDEF* a4)// (F) probably TODO
 {
 	D3DTLVERTEX tlvert[4];
 
 	setXY4(
 			tlvert,
 			phd_winxmin + x,
-			phd_winymin + y + a4->a7,
+			phd_winymin + y + a4->YOffset,
 
-			phd_winxmin + x + a4->a5,
-			phd_winymin + y + a4->a7,
+			phd_winxmin + x + a4->w,
+			phd_winymin + y + a4->YOffset,
 
-			phd_winxmin + x + a4->a5,
-			phd_winymin + y + a4->a7 + a4->a6,
+			phd_winxmin + x + a4->w,
+		phd_winymin + y + a4->YOffset + a4->h,
 
 			phd_winxmin + x,
-			phd_winymin + y + a4->a7 + a4->a6,
+		phd_winymin + y + a4->YOffset + a4->h,
 
 			f_znear, d9ab34);
 
-	tlvert[0].color = FontShades[colourFlag][a4->a8].color.rgbcd;
-	tlvert[1].color = FontShades[colourFlag][a4->a8].color.rgbcd;
-	tlvert[2].color = FontShades[colourFlag][a4->a9].color.rgbcd;
-	tlvert[3].color = FontShades[colourFlag][a4->a9].color.rgbcd;
+	tlvert[0].color = FontShades[colourFlag][a4->TopShade].color.rgbcd;
+	tlvert[1].color = FontShades[colourFlag][a4->TopShade].color.rgbcd;
+	tlvert[2].color = FontShades[colourFlag][a4->BottomShade].color.rgbcd;
+	tlvert[3].color = FontShades[colourFlag][a4->BottomShade].color.rgbcd;
 
-	tlvert[0].specular = FontShades[colourFlag][a4->a8].specular.rgbcd;
-	tlvert[1].specular = FontShades[colourFlag][a4->a8].specular.rgbcd;
-	tlvert[2].specular = FontShades[colourFlag][a4->a9].specular.rgbcd;
-	tlvert[3].specular = FontShades[colourFlag][a4->a9].specular.rgbcd;
+	tlvert[0].specular = FontShades[colourFlag][a4->TopShade].specular.rgbcd;
+	tlvert[1].specular = FontShades[colourFlag][a4->TopShade].specular.rgbcd;
+	tlvert[2].specular = FontShades[colourFlag][a4->BottomShade].specular.rgbcd;
+	tlvert[3].specular = FontShades[colourFlag][a4->BottomShade].specular.rgbcd;
 
 	OBJECT_TEXTURE tex;
 
@@ -361,11 +361,11 @@ void DrawChar(uint16_t x, uint16_t y, uint16_t colourFlag, const font_thing* a4)
 
 	const double margin = 1 / 512.0;
 
-	const double fx = a4->a1 + margin;
-	const double fx_right = a4->a1 + 512.0 / (phd_winxmax + 1) * a4->a5 / 256.0 - margin;
+	const double fx = a4->u + margin;
+	const double fx_right = a4->u + 512.0 / (phd_winxmax + 1) * a4->w / 256.0 - margin;
 
-	const double fy = a4->a3 + margin;
-	const double fy_bottom = a4->a3 + 240.0 / (phd_winymax + 1) * a4->a6 / 256.0 - margin;
+	const double fy = a4->v + margin;
+	const double fy_bottom = a4->v + 240.0 / (phd_winymax + 1) * a4->h / 256.0 - margin;
 
 	tex.vertices[0].x = fx;
 	tex.vertices[1].x = fx_right;
