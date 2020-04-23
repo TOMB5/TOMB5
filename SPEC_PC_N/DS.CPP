@@ -62,17 +62,17 @@ void DS_AdjustPitch(int nHandle,int nPitch)// (F)
 	}
 }
 
-void DS_StopAllSamples()
+void DS_AdjustPan(int nHandle,int nPan)// (F)
 {
-	for (int nChannel = 0; nChannel < ArraySize(LaPlayBuffer); ++nChannel)
+	IDirectSoundBuffer* pBuffer=LaPlayBuffer[nHandle].buf;
+	if (pBuffer)
 	{
-		IDirectSoundBuffer* pBuffer = LaPlayBuffer[nChannel];
-		if (pBuffer)
-		{
-			DX_TRY(pBuffer->Stop());
-			pBuffer->Release();
-			LaPlayBuffer[nChannel] = nullptr;
-		}
+		if (nPan > 16384)
+			nPan = 32768 - nPan;
+		else if (nPan < -16384)
+			nPan = -32768 - nPan;
+
+		DX_TRY(pBuffer->SetPan(nPan / 16));
 	}
 }
 
