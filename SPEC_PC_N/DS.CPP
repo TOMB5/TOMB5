@@ -23,11 +23,26 @@ void DS_StopSample(int nHandle)// (F)
 	}
 }
 
-void DS_StopSample(int nHandle)
+bool DS_IsChannelPlaying(int nChannel)// (F)
 {
-	if (nHandle < 0)
-		return;
-	IDirectSoundBuffer* pBuffer = LaPlayBuffer[nHandle];
+	IDirectSoundBuffer* pBuffer = LaPlayBuffer[nChannel].buf;
+
+	if (!pBuffer)
+		return false;
+
+	DWORD dwStatus;
+
+	if (!DX_TRY(pBuffer->GetStatus(&dwStatus)))
+	{
+		if (dwStatus & DSBSTATUS_PLAYING)
+			return true;
+
+		DS_StopSample(nChannel);
+	}
+
+	return false;
+}
+
 	if (pBuffer)
 	{
 		DX_TRY(pBuffer->Stop());
