@@ -9,6 +9,7 @@
 #include "MISC.H"
 #include "GPU.H"
 #include "ROOMLETB.H"
+#include "EMULATOR_PRIVATE.H"
 
 unsigned short* QuadVertTableRL3 = &QuadVertTable[0];
 unsigned short* TriVertTableRL3 = &TriVertTable[0];
@@ -150,6 +151,7 @@ int* SubPolyGTLoopRL3(int gp, int* t0, int*& t1, int s1)
         VZ0 = t7 & 0xFFFF;
         t5 = ((unsigned char*)t3)[14];
         docop2(0x180001);
+
         t6 = ((unsigned char*)t3)[15];
         t7 = ((unsigned char*)t4)[14];
         t8 = ((unsigned char*)t4)[15];
@@ -224,7 +226,6 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
         t8 = ((short*)t4)[2];
 
         docop2(0x1400006);
-
         t9 = ((short*)t5)[2];
 
         at = t7 < t9 ? 1 : 0;
@@ -265,7 +266,6 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
                 s4 = gp;
                 s5 = ra;
                 s6 = (int)t0;
-
                 a3 = SubPolyGT4RL3((int*)&QuadVertTables[gp], &s1[231], s1, a3, s0, s3, fp);
                 t1 = (int*)RGB2;
                 t2 = RGB1;
@@ -304,7 +304,6 @@ int* SubPolyGT4RL3(int* t0, int* t1, int* s1, int* a3, int s0, int s3, int fp)//
                     t5 = ((int*)t6)[0];
                     t7 = ((int*)t6)[4];
                     t8 = ((unsigned short*)t6)[7];
-
                     ((POLY_GT4*)a3)->x3 = (t5 & 0xFFFF);
                     ((POLY_GT4*)a3)->y3 = (t5 >> 16) & 0xFFFF;
                     ((POLY_GT4*)a3)->r3 = (t7 & 0xFF);
@@ -399,9 +398,7 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
                 s3 = 1;
                 s4 = gp;
                 s6 = (int)t0;
-                //t0 = TriVertTables[gp]
                 a3 = (int*)SubPolyGT3RL3((int*)&TriVertTables[gp], &s1[216], s1, a3, s3, fp, s0);
-
                 t1 = (int*)RGB2;
                 t2 = RGB1;
                 s3 = 0;
@@ -426,7 +423,7 @@ char* SubPolyGT3RL3(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
                         t2 = RGB1;
                         SubdivSetup3RL3(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
                         MyAddPrimRL3(0x9000000, &t9, &s0, a3);
-                        a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                        a3 += sizeof(POLY_GT3) / sizeof(unsigned long);
                     }
                 }//loc_ED4
             }
@@ -909,7 +906,6 @@ char* DrawMeshRL3(int* sp, int* sp2, int mesh, struct DB_STRUCT* cdb)
         v1 = t3 | t5;
 
         loc_1570:
-
         a2[0] = SXY2;
         v1 <<= 16;
         t0 |= v1;
@@ -944,6 +940,7 @@ loc_15A8:
         SXY0 = t1;
         SXY1 = t2;
         SXY2 = t3;
+        ///@TODO cache me?
         t0 >>= 21;
         t0 &= 0x3FF;
         t4 = t3;
@@ -1032,7 +1029,6 @@ loc_15A8:
 
                     s3 = 0;
                     a3 = (int)SubPolyGT3RL3((int*)&TriVertTableRL3, (int*)&s1[804], (int*)s1, (int*)a3, s3, fpp, (int)s0);
-
                     at = BFC;
                     t0 = (LB1 & 0xFFFF) | ((LB2 & 0xFFFF) << 16);
                     t9 = DQA;

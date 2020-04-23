@@ -560,7 +560,7 @@ char* SubPolyGT3RL2(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
                             t2 = RGB1;
                             SubdivSetup3RL2(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
                             MyAddPrimRL2(0x9000000, &t9, &s0, a3);
-                            a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                            a3 += sizeof(POLY_GT3) / sizeof(unsigned long);
                         }
                     }
                 }//loc_ED4

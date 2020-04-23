@@ -176,14 +176,6 @@ int g_splitIndex;
 
 void ClearVBO()
 {
-#if defined(PGXP)
-	/* Reset the ztable */
-	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
-
-	/* Reset the ztable index of */
-	pgxp_vertex_index = 0;
-#endif
-
 	g_vertexIndex = 0;
 	g_splitIndex = 0;
 	g_splits[g_splitIndex].texFormat = (TexFormat)0xFFFF;
@@ -515,7 +507,6 @@ void DrawAggregatedSplits()
 {
 	if (g_emulatorPaused)
 	{
-		/* SoapyMan: Debug code was commented not by me!
 		for (int i = 0; i < 3; i++)
 		{
 			struct Vertex* vert = &g_vertexBuffer[g_polygonSelected + i];
@@ -530,7 +521,7 @@ void DrawAggregatedSplits()
 			eprintf("TP: %d CLT: %d\n", vert->page, vert->clut);
 			eprintf("==========================================\n");
 		}
-		*/
+		
 		Emulator_UpdateInput();
 	}
 
@@ -586,6 +577,14 @@ void DrawOTagEnv(u_long* p, DRAWENV* env)
 		PutDrawEnv(env);
 		DrawOTag(p);
 	} while (g_emulatorPaused);
+
+#if defined(PGXP)
+	/* Reset the ztable */
+	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
+
+	/* Reset the ztable index of */
+	pgxp_vertex_index = 0;
+#endif
 }
 
 void DrawOTag(u_long* p)
@@ -613,6 +612,14 @@ void DrawOTag(u_long* p)
 
 	DrawAggregatedSplits();
 	Emulator_EndScene();
+
+#if defined(PGXP)
+	/* Reset the ztable */
+	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
+
+	/* Reset the ztable index of */
+	pgxp_vertex_index = 0;
+#endif
 }
 
 void DrawPrim(void* p)
@@ -636,6 +643,14 @@ void DrawPrim(void* p)
 	}
 
 	AggregatePTAGsToSplits((u_long*)p, true);
+
+#if defined(PGXP)
+	/* Reset the ztable */
+	memset(&pgxp_vertex_buffer[0], 0, pgxp_vertex_index * sizeof(PGXPVertex));
+
+	/* Reset the ztable index of */
+	pgxp_vertex_index = 0;
+#endif
 }
 
 // parses primitive and pushes it to VBO
