@@ -43,6 +43,15 @@ bool DS_IsChannelPlaying(int nChannel)// (F)
 	return false;
 }
 
+int DS_GetFreeChannel()// (f)
+{
+	for (int i = 0; i < ArraySize(LaPlayBuffer); i++)
+		if (!DS_IsChannelPlaying(i))
+			return i;
+
+	return -1;
+}
+
 	if (pBuffer)
 	{
 		DX_TRY(pBuffer->Stop());
