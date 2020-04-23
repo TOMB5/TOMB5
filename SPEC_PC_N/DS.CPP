@@ -8,6 +8,20 @@
 local IDirectSoundBuffer* LaPlayBuffer[NUMBER_SOUND_PLAY_BUFFERS];
 local int LnSamplePlaying[NUMBER_SOUND_PLAY_BUFFERS];
 local int LanSampleFrequency[NUMBER_SOUND_BUFFERS];
+void DS_StopSample(int nHandle)// (F)
+{
+	if (nHandle >= 0)
+	{
+		auto buf = LaPlayBuffer[nHandle].buf;
+		if (buf)
+		{
+			DX_TRY(buf->Stop());
+			DX_TRY(buf->Release());
+			LaPlayBuffer[nHandle].samplePlaying = 0;
+			LaPlayBuffer[nHandle].buf = nullptr;
+		}
+	}
+}
 
 void DS_StopSample(int nHandle)
 {
