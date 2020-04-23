@@ -1901,6 +1901,185 @@ sint32 S_SoundPlaySampleLooped(int nSample, uint16 wVol, int nPitch, sint16 wPan
 	return DS_StartSample(nSample, CalcVolume(wVol), nPitch, wPan, DSBPLAY_LOOPING);
 }
 
+int GetTrackWord(unsigned long off, char* packed, unsigned char packmethod)
+{
+	int a0 = off * packmethod;
+	int v0 = a0 >> 3;
+	packed = &packed[v0];
+	a0 &= 7;
+	unsigned int at = ((unsigned char*)packed)[0] | (((unsigned char*)packed)[1] << 8) | (((unsigned char*)packed)[2] << 16) | (((unsigned char*)packed)[3] << 24);
+	at = at >> a0;
+	unsigned int v1 = (1 << packmethod) - 1;
+	at &= v1;
+	packmethod -= 1;
+	v0 = (1 << packmethod);
+	v0 = at & v0;
+
+	if (v0 != 0)
+	{
+		v0 = v1 ^ -1;///@CHECKME nor     $v0, $zero, $v1
+		at |= v0;
+	}
+	else
+	{
+		v0 = v1 ^ -1;///@CHECKME nor     $v0, $zero, $v1
+	}
+	//loc_90DC0
+	v0 = at << 16;
+	v0 >>= 16;
+
+	return v0;
+}
+
+int DecodeTrack(char* packed, struct RTDECODE* decode)//90BD8(<), ?
+{
+	int t0 = 0;
+	int v0 = 0;
+
+	if (decode->decodetype == 0)
+	{
+		t0 = GetTrackWord(decode->off, packed, decode->packmethod);
+
+		if (!(t0 & 0x20))
+		{
+			decode->decodetype = 2;
+
+			if ((t0 & 0x10))
+			{
+				GetTrackWord(decode->off + 1, packed, decode->packmethod);
+				decode->counter = ((t0 & 7) << 5) | (GetTrackWord(decode->off + 1, packed, decode->packmethod) & 0x1F);
+				decode->data = GetTrackWord(decode->off + 2, packed, decode->packmethod);
+				decode->off += 3;
+				decode->length -= 3;
+			}
+			else
+			{
+				//loc_90C70
+				decode->data = GetTrackWord(decode->off + 1, packed, decode->packmethod);
+				decode->counter = t0 & 0x7;
+				decode->off += 2;
+				decode->length -= 2;
+			}
+		}
+		else
+		{
+			//loc_90CA0
+			if (!(t0 & 0xF))
+			{
+				decode->counter = 16;
+			}
+			else
+			{
+				decode->counter = (t0 & 0xF);
+			}
+
+			//loc_90CAC
+			decode->decodetype = 1;
+			decode->off += 1;
+			decode->length -= 1;
+		}
+	}
+	//loc_90CD0
+	if (decode->decodetype == 2)
+	{
+		if (--decode->counter == 0)
+		{
+			decode->decodetype = 0;
+		}
+
+		//loc_90CFC
+		return decode->data;
+	}
+
+	//loc_90D08
+	v0 = GetTrackWord(decode->off, packed, decode->packmethod);
+
+	decode->counter -= 1;
+	decode->off += 1;
+	decode->length -= 1;
+
+	if (!(decode->counter & 0xFFFF))
+	{
+		decode->decodetype = 0;
+	}
+	//loc_90D48
+	v0 <<= 16;
+	v0 >>= 16;
+
+	return v0;
+}
+
+void DecodeAnim(struct PACKNODE* node, int a1, int frame, unsigned short a3)//90A88(<), ?
+{
+	int t4 = 0;
+
+	if (frame == 0)
+	{
+		t4 = 0;
+		if (a1 > 0)
+		{
+			//loc_90AA8
+			do
+			{
+				t4++;
+
+				node->decode_x.off = 0;
+				node->decode_x.counter = 0;
+				node->decode_x.data = 0;
+				node->decode_x.decodetype = 0;
+
+				node->decode_y.off = 0;
+				node->decode_y.counter = 0;
+				node->decode_y.data = 0;
+				node->decode_y.decodetype = 0;
+
+				node->decode_z.off = 0;
+				node->decode_z.counter = 0;
+				node->decode_z.data = 0;
+				node->decode_z.decodetype = 0;
+
+				node->xrot_run = (unsigned short)node->xkey;
+				node->yrot_run = (unsigned short)node->ykey;
+				node->zrot_run = (unsigned short)node->zkey;
+
+				node->decode_x.length = node->xlength;
+				node->decode_y.length = node->ylength;
+				node->decode_z.length = node->zlength;
+				node++;
+			} while (t4 < a1);
+		}
+		//loc_90BD0
+		return;
+	}
+	else
+	{
+		//loc_90B14
+		node->xrot_run += DecodeTrack(node->xpacked, &node->decode_x);
+		node->yrot_run += DecodeTrack(node->ypacked, &node->decode_y);
+		node->zrot_run += DecodeTrack(node->zpacked, &node->decode_z);
+		t4 = 1;
+		node++;
+		if (t4 >= a1)
+		{
+			return;
+		}
+	}
+
+	//loc_90B6C
+	do
+	{
+		int xrot_run = ((unsigned short)node->xrot_run + DecodeTrack(node->xpacked, &node->decode_x)) & a3;
+		int yrot_run = ((unsigned short)node->yrot_run + DecodeTrack(node->ypacked, &node->decode_y)) & a3;
+		int zrot_run = ((unsigned short)node->zrot_run + DecodeTrack(node->zpacked, &node->decode_z)) & a3;
+
+		node->xrot_run = xrot_run;
+		node->yrot_run = yrot_run;
+		node->zrot_run = zrot_run;
+		t4++;
+		node++;
+	} while (t4 < a1);
+}
+
 #ifdef __cplusplus
 //}
 #endif

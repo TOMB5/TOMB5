@@ -2420,7 +2420,7 @@ void deal_with_actor_shooting(unsigned short* shootdata, int actornum/*s0*/, int
 {
 	int f; // $a1
 	unsigned short dat; // $v1
-	struct MATRIX3D arse; // stack offset -48
+	MatrixThing arse; // stack offset -48
 	
 	dat = *shootdata++;
 	f = GLOBAL_cutseq_frame;
@@ -3204,8 +3204,12 @@ void init_cutseq_actors(char* data, int resident)//2D944(<), 2DBD4 (F)
 	duff_item.pos.x_rot = 0;
 	duff_item.pos.y_rot = 0;
 	duff_item.pos.z_rot = 0;
+	// @TODO: ?
+#if !PC_VERSION
+	duff_item.il.
 	duff_item.il.Light[3].pad = 0;
 	duff_item.room_number = lara_item->room_number;
+#endif
 	InitialiseHair();
 }
 
@@ -3672,7 +3676,20 @@ void do_new_cutscene_camera()//2CA68(<), 2CD88 (F)
 
 	//loc_2CD40
 	phd_LookAt(camera.pos.x, camera.pos.y, camera.pos.z, camera.target.x, camera.target.y, camera.target.z, 0);
+#if PC_VERSION
+	phd_QuickW2VMatrix({
+			(float)camera.pos.x,
+			(float)camera.pos.y,
+			(float)camera.pos.z
+		},
+		{
+			(float)camera.target.x,
+			(float)camera.target.y,
+			(float)camera.target.z
+		}, 0);
+#else
 	mQuickW2VMatrix();
+#endif
 
 	if (GLOBAL_cutme->actor_data[0].objslot != -1)
 	{
@@ -3697,10 +3714,12 @@ void do_new_cutscene_camera()//2CA68(<), 2CD88 (F)
 	else
 	{
 		//loc_2CE3C
+#if !PC_VERSION
 		if (gfCurrentLevel == LVL5_TITLE && !bDoCredits && (RawEdge & (IN_A | IN_RIGHT | IN_FORWARD)) && cutseq_trig == 2 && ScreenFading == 0)
 		{
 			cutseq_trig = 3;
 		}
+#endif
 	}
 	//loc_2CEA4
 	if (GLOBAL_numcutseq_frames < GLOBAL_cutseq_frame)

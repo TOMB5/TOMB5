@@ -91,6 +91,8 @@ extern void DrawPsxTile(long a1, long a2, long a3);
 
 extern int S_GetObjectBounds(bounding_box_s* bbox);
 
+extern void DecodeAnim(struct PACKNODE* node, int a1, int frame, unsigned short a3);
+
 #ifdef __cplusplus
 }
 #endif

@@ -166,6 +166,8 @@ extern void D3DMultMatrix(LPD3DMATRIX res, LPD3DMATRIX a, LPD3DMATRIX b);
 #define mTranslateAbsXYZ phd_TranslateAbs
 #define mSetTrans phd_SetTrans
 
+#define mQuickW2VMatrix phd_QuickW2VMatrix
+
 void updateAnimFrame(PACKNODE* node, int flags, short* frame);
 
 #ifdef __cplusplus
