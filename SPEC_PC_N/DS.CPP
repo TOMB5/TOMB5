@@ -52,11 +52,13 @@ int DS_GetFreeChannel()// (f)
 	return -1;
 }
 
+void DS_AdjustPitch(int nHandle,int nPitch)// (F)
+{
+	IDirectSoundBuffer* pBuffer=LaPlayBuffer[nHandle].buf;
 	if (pBuffer)
 	{
-		DX_TRY(pBuffer->Stop());
-		pBuffer->Release();
-		LaPlayBuffer[nHandle] = nullptr;
+		int nFrequency = CLAMP(nPitch * 22050.0 / 65536.0, 100, 100000);
+		DX_TRY(pBuffer->SetFrequency(nFrequency));
 	}
 }
 
