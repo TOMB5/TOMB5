@@ -665,7 +665,8 @@ void TriggerShockwave(struct PHD_3DPOS* pos, short inner_rad, short outer_rad, i
 
 void Fade()//34B78(<), 35078(<) (F)
 {
-#if 1 && !PC_VERSION///@FIXME yet again this function is not working.
+	int oldfucker; // $a1
+#if PC_VERSION///@FIXME yet again this function is not working.
 	ScreenFading = 0;
 	return;
 #endif
@@ -674,40 +675,57 @@ void Fade()//34B78(<), 35078(<) (F)
 	{
 		if (dScreenFade >= ScreenFade)
 		{
-			//loc_34BFC
 			ScreenFade += ScreenFadeSpeed;
 
+			oldfucker = ScreenFade < dScreenFade ? 1 : 0;
 			if (dScreenFade < ScreenFade)
 			{
 				ScreenFade = dScreenFade;
 
-				if (ScreenFade >= dScreenFade)
+				if (oldfucker == 0)
 				{
 					ScreenFadedOut = 1;
 
-					if (ScreenFadeBack)
+					if (dScreenFade == 0)
+					{
+						ScreenFading = 0;
+					}
+					else
 					{
 						dScreenFade = 0;
 						ScreenFadeBack = 0;
 					}
-					//loc_34C30
-					ScreenFading = 0;
-				}
+				}//loc_34C34
+			}//loc_34C34
+		}
+		else
+		{
+			//loc_34BFC
+			ScreenFade -= ScreenFadeSpeed;
+
+			if (ScreenFade < dScreenFade)
+			{
+				ScreenFade = dScreenFade;
+				ScreenFading = 0;
 			}//loc_34C34
 		}
 	}
-	//loc_34BF0
-	if (dScreenFade < ScreenFade)
+	else if(dScreenFade < ScreenFade)//loc_34BF0
 	{
 		//loc_34BFC
 		ScreenFade -= ScreenFadeSpeed;
 
-		if (ScreenFade < ScreenFadeSpeed)
+		if (ScreenFade < dScreenFade)
 		{
 			ScreenFade = dScreenFade;
-		}
+			ScreenFading = 0;
+		}//loc_34C34
 	}
 	//loc_34C34
+
+	//v0 = dScreenFade
+	//a0 = ScreenFade
+
 	if (dScreenFade != 0 || ScreenFade != 0)
 	{
 #if PC_VERSION
@@ -716,6 +734,7 @@ void Fade()//34B78(<), 35078(<) (F)
 		DrawPsxTile(0, 0xF00200, 0x62000000 | (ScreenFade << 16) | (ScreenFade << 8) | ScreenFade, 2, 0);
 #endif
 	}
+	//loc_34C84
 }
 
 void SetUpLensFlare(long x, long y, long z, struct GAME_VECTOR* bulb)

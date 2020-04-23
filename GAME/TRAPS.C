@@ -20,12 +20,9 @@
 	#include "BUBBLES.H"
 	#include "GETSTUFF.H"
 	#include "CALCLARA.H"
-	#include <STDIO.H>
 #endif
 
-#if PSXPC_TEST
 #include <stdio.h>
-#endif
 
 short SPDETyoffs[8] =
 {

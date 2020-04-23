@@ -509,7 +509,6 @@ void DrawRooms(short current_room)//643FC(<), 64B1C(<) (F)
 
 	if (GLOBAL_playing_cutseq != 0)
 	{
-		printf("DRWCUTSEQACTORS!\n");
 		DrawCutSeqActors();
 	}//loc_64C04
 

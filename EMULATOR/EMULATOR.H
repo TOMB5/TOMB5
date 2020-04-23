@@ -18,9 +18,9 @@
 #endif
 
 #if !((defined OGL) || (defined(OGLES) && OGLES_VERSION == 3))
-    #define glGenVertexArrays       glGenVertexArraysOES
-    #define glBindVertexArray       glBindVertexArrayOES
-    #define glDeleteVertexArrays    glDeleteVertexArraysOES
+#define glGenVertexArrays       glGenVertexArraysOES
+#define glBindVertexArray       glBindVertexArrayOES
+#define glDeleteVertexArrays    glDeleteVertexArraysOES
 #endif
 
 #ifdef _MSC_VER
@@ -45,6 +45,14 @@
 #define UNIMPLEMENTED() eprinterr("Unimplemented!\n");
 #endif
 
+#if defined(OGL)
+#define VRAM_FORMAT            GL_RG
+#define VRAM_INTERNAL_FORMAT   GL_RG8
+#elif defined(OGLES)
+#define VRAM_FORMAT            GL_LUMINANCE_ALPHA
+#define VRAM_INTERNAL_FORMAT   GL_LUMINANCE_ALPHA
+#endif
+
 #define VRAM_WIDTH (1024)
 #define VRAM_HEIGHT (512)
 
@@ -67,11 +75,17 @@
 #define CTR_CLOCK_SYS_ONE (0)
 #define CTR_CLOCK_SYS_ONE_EIGHTH (1)
 
-#define GET_TPAGE_X(tpage) ((tpage << 6) & 0x7C0) % (VRAM_WIDTH);
-#define GET_TPAGE_Y(tpage) ((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT);
-#define GET_TPAGE_TYPE(tpage) (tpage >> 7) & 0x3;
-#define GET_CLUT_X(clut) ((clut & 0x3F) << 4);
-#define GET_CLUT_Y(clut) (clut >> 6);
+#define GET_TPAGE_X(tpage)      (((tpage << 6) & 0x7C0) % (VRAM_WIDTH))
+#define GET_TPAGE_Y(tpage)      (((((tpage << 4) & 0x100) + ((tpage >> 2) & 0x200))) % (VRAM_HEIGHT))
+#define GET_TPAGE_FORMAT(tpage) ((TexFormat)((tpage >> 7) & 0x3))
+#define GET_TPAGE_BLEND(tpage)  ((BlendMode)(((page >> 5) & 3) + 1))
+
+// TODO
+#define GET_TPAGE_DITHER(tpage) 1
+//#define GET_TPAGE_DITHER(tpage) 1((tpage >> 9) & 0x1)
+
+#define GET_CLUT_X(clut)        ((clut & 0x3F) << 4)
+#define GET_CLUT_Y(clut)        (clut >> 6)
 
 typedef struct
 {
@@ -109,72 +123,95 @@ extern SysCounter counters[3];
 #pragma pack(push,1)
 struct Vertex
 {
-	short  x, y;
-	short  clut, page; // unused
-	u_char u, v;
-	u_char pad0, pad1; // unused
+#if defined(PGXP)
+	float  x, y, page, clut;
+#else
+	short  x, y, page, clut;
+#endif
+	u_char u, v, bright, dither;
 	u_char r, g, b, a;
 };
 #pragma pack(pop)
 
-enum ShaderAttrib {
-    a_position,
-    a_texcoord,
-    a_color,
+enum ShaderAttrib
+{
+	a_position,
+	a_texcoord,
+	a_color
 };
 
 enum BlendMode
 {
-	BM_AVERAGE, 
+	BM_NONE,
+	BM_AVERAGE,
 	BM_ADD,
 	BM_SUBTRACT,
-	BM_ADD_QUATER_SOURCE,
-	BM_DEFAULT
+	BM_ADD_QUATER_SOURCE
+};
+
+enum TexFormat
+{
+	TF_4_BIT,
+	TF_8_BIT,
+	TF_16_BIT
 };
 
 #define MAX_NUM_POLY_BUFFER_VERTICES (12040)
 #define MAX_NUM_INDEX_BUFFERS        (4096)
 
 #if defined(OGLES) || defined(OGL)
-    typedef GLuint TextureID;
-    typedef GLuint ShaderID;
-    typedef GLuint RenderTargetID;
+typedef GLuint TextureID;
+typedef GLuint ShaderID;
+typedef GLuint RenderTargetID;
 #elif defined(D3D9)
-    typedef IDirect3DTexture9*      TextureID;
+typedef IDirect3DTexture9* TextureID;
 
-    struct ShaderID {
-        IDirect3DVertexShader9 *VS;
-        IDirect3DPixelShader9  *PS;
-    };
+struct ShaderID {
+	IDirect3DVertexShader9* VS;
+	IDirect3DPixelShader9* PS;
+};
 
-    typedef IDirect3DSurface9* RenderTargetID;
+typedef IDirect3DSurface9* RenderTargetID;
 #else
-    #error
+#error
 #endif
 
 extern int  Emulator_Initialise();
+extern void Emulator_StoreFrameBuffer(int x, int y, int w, int h);
 extern void Emulator_SaveVRAM(const char* outputFileName, int x, int y, int width, int height, int bReadFromFrameBuffer);
-extern void Emulator_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dst_x, int dst_y);
+extern void Emulator_CopyVRAM(unsigned short* src, int x, int y, int w, int h, int dst_x, int dst_y);
+extern void Emulator_ReadVRAM(unsigned short* dst, int x, int y, int dst_w, int dst_h);
 extern void Emulator_UpdateVRAM();
+extern void Emulator_BlitVRAM();
 extern void Emulator_ShutDown();
 extern void Emulator_SwapWindow();
-extern void Emulator_SetBlendMode(int mode, int semiTransparent);
+extern void Emulator_SetBlendMode(BlendMode blendMode);
 extern void Emulator_CounterLoop();
-extern void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3);
-extern void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3, short w, short h);
-extern void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short w, short h);
+
+extern void Emulator_GenerateLineArray(struct Vertex* vertex, short* p0, short* p1);
+extern void Emulator_GenerateVertexArrayTriangle(struct Vertex* vertex, short* p0, short* p1, short* p2);
+extern void Emulator_GenerateVertexArrayQuad(struct Vertex* vertex, short* p0, short* p1, short* p2, short* p3);
+extern void Emulator_GenerateVertexArrayRect(struct Vertex* vertex, short* p0, short w, short h);
+
+extern void Emulator_GenerateTexcoordArrayTriangle(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, short page, short clut, unsigned char dither);
+extern void Emulator_GenerateTexcoordArrayQuad(struct Vertex* vertex, unsigned char* uv0, unsigned char* uv1, unsigned char* uv2, unsigned char* uv3, short page, short clut, unsigned char dither);
+extern void Emulator_GenerateTexcoordArrayRect(struct Vertex* vertex, unsigned char* uv, short page, short clut, short w, short h);
+extern void Emulator_GenerateTexcoordArrayLineZero(struct Vertex* vertex, unsigned char dither);
+extern void Emulator_GenerateTexcoordArrayTriangleZero(struct Vertex* vertex, unsigned char dither);
+extern void Emulator_GenerateTexcoordArrayQuadZero(struct Vertex* vertex, unsigned char dither);
+
+extern void Emulator_GenerateColourArrayLine(struct Vertex* vertex, unsigned char* col0, unsigned char* col1);
+extern void Emulator_GenerateColourArrayTriangle(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2);
 extern void Emulator_GenerateColourArrayQuad(struct Vertex* vertex, unsigned char* col0, unsigned char* col1, unsigned char* col2, unsigned char* col3);
-extern void Emulator_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
+
 extern void Emulator_DestroyTexture(TextureID texture);
 extern void Emulator_Clear(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b);
 extern void Emulator_SetViewPort(int x, int y, int width, int height);
-extern void Emulator_SetTexture(TextureID texture, int page, int clut);
-extern void Emulator_SetShader(const ShaderID &shader);
-extern void Emulator_SetRenderTarget(const RenderTargetID &render_target);
+extern void Emulator_SetTexture(TextureID texture, TexFormat texFormat);
+extern void Emulator_SetRenderTarget(const RenderTargetID& render_target);
 extern void Emulator_SetWireframe(bool enable);
-extern void Emulator_UpdateVertexBuffer(const Vertex *vertices, int count);
+extern void Emulator_UpdateVertexBuffer(const Vertex* vertices, int count);
 extern void Emulator_DrawTriangles(int start_vertex, int triangles);
-extern void Emulator_DrawLines(int start_vertex, int lines);
 
 #if defined(D3D9)
 extern IDirect3DDevice9* d3ddev;

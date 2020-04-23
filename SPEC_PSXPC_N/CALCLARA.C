@@ -1855,8 +1855,21 @@ void GetLaraJointPos(struct PHD_VECTOR* pos /*a3*/, long joint)//85A58 (F)
 	TRZ = t3;
 }
 
-short* GetBestFrame(struct ITEM_INFO* item)
+short* GetBestFrame(struct ITEM_INFO* item)//858C8(<)
 {
-	UNIMPLEMENTED();
-	return NULL;
+	int var_10[2];
+	int var_8;
+	int v0;
+
+	v0 = GetFrames(item, &var_10[0], &var_8);
+	int v1 = var_8 >> 1;
+
+	if ((var_8 >> 1) < v0)
+	{
+		return (short*)var_10[0];
+	}
+	else
+	{
+		return (short*)var_10[1];
+	}
 }

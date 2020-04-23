@@ -855,7 +855,7 @@ void lara_col_roll(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C2B0, 1C3E4
 
 void lara_col_slideback(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C284(<), 1C3B8(<) (F)
 {
-	lara.move_angle = item->pos.y_rot - ANGLE(180);
+	lara.move_angle = item->pos.y_rot;
 	lara_slide_slope(item, coll);
 }
 
@@ -903,7 +903,7 @@ void lara_col_backjump(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C130(<)
 	lara_col_jumper(item, coll);
 }
 
-void lara_col_slide(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C108(<), 1C23C(<) (F)
+void lara_col_slide(struct ITEM_INFO* item, struct COLL_INFO* coll)//1C108(<), 1C3B8(<) (F)
 {
 	lara.move_angle = item->pos.y_rot;
 	lara_slide_slope(item, coll);
@@ -4762,60 +4762,99 @@ void lara_col_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//147C4, 148CC
 {
 	item->gravity_status = FALSE;
 	item->fallspeed = 0;
-
 	lara.move_angle = item->pos.y_rot;
-
-	coll->facing = item->pos.y_rot;
-
 	coll->bad_pos = 384;
+	coll->facing = item->pos.y_rot;
 	coll->bad_neg = -384;
 	coll->bad_ceiling = 0;
-
 	coll->slopes_are_walls = 1;
 
 	GetCollisionInfo(coll, item->pos.x_pos, item->pos.y_pos, item->pos.z_pos, item->room_number, 400);
 
 	if (LaraFallen(item, coll))
 	{
-		lara.gun_status = LG_NO_ARMS;
+		lara.gun_status = 0;
 	}
-	else if (!TestLaraSlide(item, coll))
+	else
 	{
-		lara.keep_ducked = coll->mid_ceiling < -362;
-
-		ShiftItem(item, coll);
-
-		if (coll->mid_floor != BAD_HEIGHT)
-			item->pos.y_pos += coll->mid_floor;
-
-		if (input & IN_DUCK && lara.water_status != LW_WADE || lara.keep_ducked || item->anim_number != ANIMATION_LARA_CROUCH_IDLE)
+		//loc_14874
+		if (!TestLaraSlide(item, coll))
 		{
-			if (input & IN_LEFT)
+			if (coll->mid_ceiling >= -0x16A)
 			{
-				item->goal_anim_state = STATE_LARA_CROUCH_TURN_LEFT;
+				lara.keep_ducked = 1;
 			}
-			else if (input & IN_RIGHT)
+			else
 			{
-				item->goal_anim_state = STATE_LARA_CROUCH_TURN_RIGHT;
+				//loc_148A4
+				lara.keep_ducked = 0;
 			}
-		}
-		else
-		{
-			item->goal_anim_state = STATE_LARA_STOP;
-		}
-	}
+
+			ShiftItem(item, coll);
+
+			if (coll->mid_floor != BAD_HEIGHT)
+			{
+				item->pos.y_pos += coll->mid_floor;
+			}
+
+			//loc_148E0
+			if ((input & IN_DUCK) && lara.water_status != 4)
+			{
+				//loc_1493C
+				if ((input & IN_LEFT))
+				{
+					item->goal_anim_state = 0x69;
+				}
+				else if ((input & IN_RIGHT))
+				{
+					item->goal_anim_state = 0x6A;
+				}
+			}
+			else
+			{
+				//loc_1490C
+				if (!lara.keep_ducked)
+				{
+					if (item->anim_number != 0xDE)
+					{
+						//loc_1493C
+						if ((input & IN_LEFT))
+						{
+							item->goal_anim_state = 0x69;
+						}
+						else if ((input & IN_RIGHT))
+						{
+							item->goal_anim_state = 0x6A;
+						}
+					}
+					else
+					{
+						item->goal_anim_state = 0x2;
+					}
+				}
+				else
+				{
+					//loc_1493C
+					if ((input & IN_LEFT))
+					{
+						item->goal_anim_state = 0x69;
+					}
+					else if ((input & IN_RIGHT))
+					{
+						item->goal_anim_state = 0x6A;
+					}
+				}
+			}
+		}//loc_14954
+	}//loc_14954
 }
 
 void lara_as_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//14688, 14738 (F)
 {
-	//v0 = 
 	coll->enable_spaz = FALSE;
 	coll->enable_baddie_push = TRUE;
-
-	//s0 = lara
 	lara.IsDucked = TRUE;
 
-	//s1 = item
 	if (item->hit_points <= 0)
 	{
 		item->goal_anim_state = 0x50;
@@ -4826,20 +4865,19 @@ void lara_as_duck(struct ITEM_INFO* item, struct COLL_INFO* coll)//14688, 14738 
 	{
 		LookUpDown();
 	}
+
 	//loc_146F4
 	if ((input & (IN_FORWARD | IN_BACK)))
 	{
 		if ((input & IN_DUCK) || lara.keep_ducked && lara.water_status != 4)
 		{
 			//loc_1472C
-			//v0 = 0xDE
 			if (lara_item->anim_number == 0xDE || lara_item->anim_number == 0xF5)
 			{
 				if (!(input & (IN_B | IN_DRAW)))
 				{
 					if (lara.gun_type == 7)
 					{
-						//v0 = 0x50
 						if (lara.flare_age < 0x384 && lara.flare_age != 0)
 						{
 							lara.torso_y_rot = 0;

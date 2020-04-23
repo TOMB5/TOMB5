@@ -50,4 +50,5 @@ Feel free to contact me on this: [Discord server](https://discord.gg/KYSx8Q7) ch
 - zdimension: Programmer (PSX/PSXPC_N,PC_N).
 - Stohrendorf: Symdump tool creator.
 - smf: GTE code for PSXPC_N code path.
+- XProger: HLE render optimisations.
 - [You?](CONTRIBUTING.md)

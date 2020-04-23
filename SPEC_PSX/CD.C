@@ -210,7 +210,7 @@ void cbvsync()//5D884(<), 5DD00(<) (F)
 				else
 				{
 					//5DAEC
-					if (CdLastCom() == 0x11)
+					if (CdLastCom() == CdlGetlocP)
 					{
 						cnt = CdPosToInt((CdlLOC*)&io[5]);
 						if (cnt > 0)

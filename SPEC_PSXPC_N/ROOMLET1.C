@@ -562,7 +562,7 @@ char* SubPolyGT3RL1(int* t0, int* t1, int* s1, int* a3, int s3, int fp, int s0)
                             t2 = RGB1;
                             SubdivSetup3RL1(a3, fp, (int*)t3, (int*)t4, (int*)t5, (int)t1, t2);
                             MyAddPrimRL1(0x9000000, &t9, &s0, a3);
-                            a3 += sizeof(POLY_GT4) / sizeof(unsigned long);
+                            a3 += sizeof(POLY_GT3) / sizeof(unsigned long);
                         }
                     }
                 }//loc_ED4
@@ -1189,9 +1189,9 @@ loc_15A8:
                 }
                 else
                 {
-                    //loc_1718
-                    MyAddPrimRL1(0x9000000, &t9, (int*)&s0, (int*)a3);
-                    a3 += sizeof(POLY_GT3);
+                //loc_1718
+                MyAddPrimRL1(0x9000000, &t9, (int*)&s0, (int*)a3);
+                a3 += sizeof(POLY_GT3);
                 }
             }//loc_1724
         }
@@ -1284,13 +1284,16 @@ loc_172C:
                 {
                     if (t7 >= 0)
                     {
-                        if ((unsigned)t9 >= 0x1000 && (unsigned)t9 < 0x1E00)
+                        if ((unsigned)t9 >= 0x1000)
                         {
-                            t6 = 0x10;
-                        }
-                        else
-                        {
-                            t6 = 0x20;
+                            if ((unsigned)t9 < 0x1E00)
+                            {
+                                t6 = 0x10;
+                            }
+                            else
+                            {
+                                t6 = 0x20;
+                            }
                         }
                     }
                     else
